@@ -14,8 +14,8 @@ read_vhdl ../src/hdl/panda_spbram.vhd
 read_vhdl ../src/hdl/panda_top.vhd
 
 # Read constraint files
-read_xdc  ../const/panda_top.xdc
-read_xdc  ../const/panda_user.xdc
+read_xdc  ../src/const/panda_top.xdc
+read_xdc  ../src/const/panda_user.xdc
 
 synth_design -top panda_top
 
