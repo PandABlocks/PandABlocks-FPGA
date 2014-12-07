@@ -23,7 +23,7 @@ entity panda_mem_if is
 generic (
     C_S_AXI_DATA_WIDTH  : integer := 32;    -- Data Bus Width
     C_S_AXI_ADDR_WIDTH  : integer := 32;    -- 2^ADDR Bytes Address Space
-    C_S_IP_ADDR_WIDTH   : integer := 16     -- User IP Address Width
+    C_S_IP_ADDR_WIDTH   : integer := 11     -- Local address / CS
 );
 port (
     -- System Signals
@@ -90,12 +90,12 @@ signal axi_awready      : std_logic;
 signal axi_wready       : std_logic;
 signal axi_bvalid       : std_logic;
 signal axi_rvalid       : std_logic;
-signal axi_awaddr       : std_logic_vector(ADDR_MSB-1 downto 0);
-signal axi_araddr       : std_logic_vector(ADDR_MSB-1 downto 0);
+signal write_address       : std_logic_vector(ADDR_MSB-1 downto 0);
+signal read_address       : std_logic_vector(ADDR_MSB-1 downto 0);
 signal axi_rdata        : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 signal axi_arready_s1   : std_logic;
 signal axi_arready_s2   : std_logic;
-signal axi_wdata        : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+signal write_data        : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 
 begin
 
@@ -109,43 +109,22 @@ S_AXI_RVALID  <= axi_rvalid;
 S_AXI_RRESP   <= axi_rresp;
 
 ----------------------------------------------------------------------------
--- axi_awready is asserted for one ACLK clock cycle when both
--- S_AXI_AWVALID and S_AXI_WVALID are asserted. axi_awready is
--- de-asserted when reset is low.
+-- WRITE Address and Data come together
+-- Accept write address and data by asserting *wready lines for one ACLK
 process(ACLK)
 begin
     if rising_edge(ACLK) then
         if (ARESETN='0') then
             axi_awready <= '0';
+            axi_wready <= '0';
         else
-            -- slave is ready to accept write address when
-            -- there is a valid write address and write data
-            -- on the write address and data bus. This design
-            -- expects no outstanding transactions.
             if (axi_awready='0' and S_AXI_AWVALID='1' and S_AXI_WVALID='1') then
                 axi_awready <= '1';
             else
                 axi_awready <= '0';
             end if;
-        end if;
-    end if;
-end process;
 
-----------------------------------------------------------------------------
---  axi_wready is asserted for one ACLK clock cycle when both
---  S_AXI_AWVALID and S_AXI_WVALID are asserted. axi_wready is
---  de-asserted when reset is low.
-process(ACLK)
-begin
-    if rising_edge(ACLK) then
-        if (ARESETN='0') then
-            axi_wready <= '0';
-        else
-            if (axi_wready='0' and S_AXI_WVALID='1' and S_AXI_AWVALID='1') then
-                -- slave is ready to accept write data when
-                -- there is a valid write address and write data
-                -- on the write address and data bus. This design
-                -- expects no outstanding transactions.
+            if (axi_wready='0' and S_AXI_AWVALID='1' and S_AXI_WVALID='1') then
                 axi_wready <= '1';
             else
                 axi_wready <= '0';
@@ -154,8 +133,8 @@ begin
     end if;
 end process;
 
-axi_awaddr <= S_AXI_AWADDR;
-axi_wdata <= S_AXI_WDATA;
+write_address <= S_AXI_AWADDR;
+write_data <= S_AXI_WDATA;
 
 ----------------------------------------------------------------------------
 -- Implement memory mapped register select and write logic generation
@@ -164,7 +143,7 @@ axi_wdata <= S_AXI_WDATA;
 -- S_AXI_WVALID, axi_wready and S_AXI_WVALID are asserted.
 mem_wstb_o <= '1' when (axi_wready='1' and S_AXI_WVALID='1' and axi_awready='1' and S_AXI_AWVALID = '1') else '0';
 
-mem_dat_o <= axi_wdata;
+mem_dat_o <= write_data;
 
 ----------------------------------------------------------------------------
 --  The write response and response valid signals are asserted by the slave
@@ -198,7 +177,7 @@ end process;
 --  S_AXI_ARVALID is asserted. axi_awready is
 --  de-asserted when reset (active low) is asserted.
 --  The read address is also latched when S_AXI_ARVALID is
---  asserted. axi_araddr is reset to zero on reset assertion.
+--  asserted. read_address is reset to zero on reset assertion.
 process(ACLK)
 begin
     if rising_edge(ACLK) then
@@ -222,7 +201,7 @@ begin
     end if;
 end process;
 
-axi_araddr  <= S_AXI_ARADDR;
+read_address  <= S_AXI_ARADDR;
 
 
 ----------------------------------------------------------------------------
@@ -262,9 +241,9 @@ axi_rdata <= mem_dat_i;
 -- For AXI Lite interface, interconnect will duplicate the addresses on both
 -- the read and write channel. so onlyone address is used for decoding as well
 -- as passing it to IP.
-mem_addr_o <= axi_araddr(C_S_IP_ADDR_WIDTH+ADDR_LSB-1 downto ADDR_LSB) 
+mem_addr_o <= read_address(C_S_IP_ADDR_WIDTH+ADDR_LSB-1 downto ADDR_LSB) 
               when (S_AXI_ARVALID='1')
-              else axi_awaddr(C_S_IP_ADDR_WIDTH+ADDR_LSB-1 downto ADDR_LSB);
+              else write_address(C_S_IP_ADDR_WIDTH+ADDR_LSB-1 downto ADDR_LSB);
 
 
 end rtl;

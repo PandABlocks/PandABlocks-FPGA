@@ -9,7 +9,7 @@ set_property "target_language" "VHDL" [current_project]
 
 # Read design files
 read_bd   panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
-read_vhdl ../src/hdl/panda_mem_if.vhd
+read_vhdl ../src/hdl/axi4_lite_memif.vhd
 read_vhdl ../src/hdl/panda_spbram.vhd
 read_vhdl ../src/hdl/panda_top.vhd
 

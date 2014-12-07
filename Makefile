@@ -135,5 +135,5 @@ $(DTS_TOP_FILE): $(DEVTREE_DTS)
 	cp $(DTS_CONFIG_FILE) $@
 
 $(DEVTREE_DTB) : $(DTS_TOP_FILE)
-	$(PWD)/configs/linux-xlnx/scripts/dtc -f -I dts -O dtb -o $(DEVTREE_DTB) $(DTS_BUILD_DIR)/system-top.dts
+	$(PWD)/configs/linux-xlnx/scripts/dtc -f -I dts -O dtb -o $(DEVTREE_DTB) $(DTS_TOP_FILE)
 	scp $(DEVTREE_DTB) iu42@serv2:/tftpboot

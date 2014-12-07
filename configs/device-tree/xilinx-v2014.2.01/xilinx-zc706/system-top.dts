@@ -1,5 +1,6 @@
 /dts-v1/;
 /include/ "ps.dtsi"
+/include/ "pl.dtsi"
 
 / {
 	model = "Xilinx-ZC706-2014.2";

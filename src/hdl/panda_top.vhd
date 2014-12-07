@@ -6,10 +6,6 @@ library unisim;
 use unisim.vcomponents.all;
 
 entity panda_top is
-generic (
-    -- System Configuration Space Address Width
-    SYSCFG_AW      : integer := 10
-);
 port (
     DDR_addr            : inout std_logic_vector ( 14 downto 0 );
     DDR_ba              : inout std_logic_vector ( 2 downto 0 );
@@ -109,22 +105,21 @@ signal M00_AXI_rresp    : std_logic_vector ( 1 downto 0 );
 signal M00_AXI_rvalid   : std_logic;
 signal M00_AXI_rready   : std_logic;
 
-signal mem_addr         : std_logic_vector(15 downto 0);
+signal mem_cs           : std_logic_vector(15 downto 0);
+signal mem_addr         : std_logic_vector(9 downto 0);
 signal mem_idat         : std_logic_vector(31 downto 0);
 signal mem_odat         : std_logic_vector(31 downto 0);
-signal mem_rstb         : std_logic;
 signal mem_wstb         : std_logic;
+signal mem_rstb         : std_logic;
 
+signal cs0_mem_wr       : std_logic;
 signal mem_read_dat_0   : std_logic_vector(31 downto 0);
-signal mem_read_dat_1   : std_logic_vector(31 downto 0);
-signal syscfg_mem_wr    : std_logic;
-
 
 begin
 panda_ps_i: component panda_ps
 port map (
-    FCLK_CLK0                          => FCLK_CLK0,
-    FCLK_RESET0_N                       => FCLK_RESET0_N,
+    FCLK_CLK0                     => FCLK_CLK0,
+    FCLK_RESET0_N                 => FCLK_RESET0_N,
 
     DDR_addr(14 downto 0)         => DDR_addr(14 downto 0),
     DDR_ba(2 downto 0)            => DDR_ba(2 downto 0),
@@ -170,14 +165,14 @@ port map (
     M00_AXI_wvalid                => M00_AXI_wvalid
 );
 
-panda_mem_if_inst : entity work.panda_mem_if
+axi4_lite_memif_inst : entity work.axi4_lite_memif
 port map (
-    aclk                          => FCLK_CLK0,
-    aresetn                       => FCLK_RESET0_N,
+    S_AXI_CLK                     => FCLK_CLK0,
+    S_AXI_RST                     => '0',
 
     -- Slave Interface Write Address channel Ports
     S_AXI_AWADDR                  => M00_AXI_awaddr,
-    S_AXI_AWPROT                  => M00_AXI_awprot,
+--    S_AXI_AWPROT                  => M00_AXI_awprot,
     S_AXI_AWVALID                 => M00_AXI_awvalid,
     S_AXI_AWREADY                 => M00_AXI_awready,
 
@@ -194,7 +189,7 @@ port map (
 
     -- Slave Interface Read Address channel Ports
     S_AXI_ARADDR                  => M00_AXI_araddr,
-    S_AXI_ARPROT                  => M00_AXI_arprot,
+--    S_AXI_ARPROT                  => M00_AXI_arprot,
     S_AXI_ARVALID                 => M00_AXI_arvalid,
     S_AXI_ARREADY                 => M00_AXI_arready,
 
@@ -208,6 +203,7 @@ port map (
     mem_addr_o                    => mem_addr,
     mem_dat_i                     => mem_idat,
     mem_dat_o                     => mem_odat,
+    mem_cs_o                      => mem_cs,
     mem_rstb_o                    => mem_rstb,
     mem_wstb_o                    => mem_wstb
 );
@@ -233,51 +229,24 @@ end process;
 -- configuration data is written onto flash.
 --
 
--- Lower 1K space is allocated as R/W Register Space
-syscfg_mem_wr <= mem_wstb and not mem_addr(SYSCFG_AW);
+-- cs #0 is allocated to BRAM
+cs0_mem_wr <= mem_wstb and mem_cs(0);
 
-syscfg_mem_inst : entity work.panda_spbram
+cs0_mem_inst : entity work.panda_spbram
 generic map (
-    AW          => SYSCFG_AW,
+    AW          => 10,
     DW          => 32
 )
 port map (
-    addra       => mem_addr(SYSCFG_AW-1 downto 0),
-    addrb       => mem_addr(SYSCFG_AW-1 downto 0),
+    addra       => mem_addr(9 downto 0),
+    addrb       => mem_addr(9 downto 0),
     clka        => FCLK_CLK0,
     clkb        => FCLK_CLK0,
     dina        => mem_odat,
     doutb       => mem_read_dat_0,
-    wea         => syscfg_mem_wr
+    wea         => cs0_mem_wr
 );
 
---
--- This is a Test Readback
--- 1 clock delay from address to data
-process(FCLK_CLK0)
-begin
-    if rising_edge(FCLK_CLK0) then
-
-        -- Status register readback
-        case mem_addr(SYSCFG_AW-1 downto 0) is
-            when "0000000000" => mem_read_dat_1 <= X"12345678";
-            when "0000000001" => mem_read_dat_1 <= X"87654321";
-            when "0000000010" => mem_read_dat_1 <= X"11112222";
-            when others       => mem_read_dat_1 <= X"AA00AA00";
-        end case;
-
-        -- Mux between Config and Status readbacks
-        if (mem_rstb = '1') then
-            if (mem_addr(SYSCFG_AW) = '0') then
-                mem_idat <= mem_read_dat_0;
-            elsif (mem_addr(SYSCFG_AW) = '1') then
-                mem_idat <= mem_read_dat_1;
-            else
-                mem_idat <= X"FFFF_FFFF";
-            end if;
-        end if;
-
-    end if;
-end process;
+mem_idat <= mem_read_dat_0;
 
 end rtl;

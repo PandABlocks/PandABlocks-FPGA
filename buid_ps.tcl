@@ -20,6 +20,9 @@ set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj
 
+set_property ip_repo_paths ../src/ip_repo [current_fileset]
+update_ip_catalog
+
 # Create block design
 source ../src/bd/panda_ps.tcl
 
