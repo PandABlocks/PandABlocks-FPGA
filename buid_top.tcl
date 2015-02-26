@@ -1,5 +1,5 @@
 # Create an in-memory project
-create_project -in_memory -part xc7z045ffg900-2
+create_project -in_memory -part xc7z030sbg485-1
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]

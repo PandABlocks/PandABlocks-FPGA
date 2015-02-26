@@ -1,21 +1,24 @@
 #
-#
-#
+# This script generates PS part of the firmware based on Zynq 
+# Block design
 #
 
 # Set the reference directory to where the script is
 #set origin_dir [file dirname [info script]]
 set origin_dir .
 
+# Set User Repository for PicoZed Board Definition File
+set_param project.boardPartRepoPaths ../configs
+
 # Create project
-create_project panda_ps $origin_dir/panda_ps -part xc7z020clg484-1
+create_project panda_ps $origin_dir/panda_ps -part xc7z030sbg485-1
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
 
 # Set project properties
 set obj [get_projects panda_ps]
-set_property "board_part" "xilinx.com:zc706:part0:1.0" $obj
+set_property "board_part" "em.avnet.com:picozed_7030:part0:1.0" $obj
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj

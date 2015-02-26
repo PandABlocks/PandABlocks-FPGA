@@ -29,7 +29,7 @@ port (
     FIXED_IO_ps_porb    : inout std_logic;
     FIXED_IO_ps_srstb   : inout std_logic;
 
-    leds                : out   std_logic_vector(3 downto 0)
+    leds                : out   std_logic_vector(1 downto 0)
 );
 end panda_top;
 
@@ -213,12 +213,12 @@ process(FCLK_CLK0, FCLK_RESET0_N)
     variable counter    : unsigned(31 downto 0);
 begin
     if (FCLK_RESET0_N = '0') then
-        leds <= "0101";
+        leds <= "01";
         counter := (others => '0');
     else
         if rising_edge(FCLK_CLK0) then
             counter := counter + 1;
-            leds(3 downto 0) <= std_logic_vector(counter(27 downto 24));
+            leds(1 downto 0) <= std_logic_vector(counter(26 downto 25));
         end if;
     end if;
 end process;
