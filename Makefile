@@ -30,6 +30,7 @@ DEVTREE_DTB = $(SDK_EXPORT)/device_tree_bsp_0/devicetree.dtb
 #####################################################################
 # BUILD TARGETS includes HW and SW
 
+devicetree: $(DEVTREE_DTB)
 all: $(OUT_DIR) $(PS_CORE) $(FPGA_BIT) $(FSBL_ELF) $(DEVTREE_DTB)
 
 #####################################################################
