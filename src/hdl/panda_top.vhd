@@ -37,54 +37,56 @@ architecture rtl of panda_top is
 
 component panda_ps is
 port (
-  DDR_cas_n : inout std_logic;
-  DDR_cke : inout std_logic;
-  DDR_ck_n : inout std_logic;
-  DDR_ck_p : inout std_logic;
-  DDR_cs_n : inout std_logic;
-  DDR_reset_n : inout std_logic;
-  DDR_odt : inout std_logic;
-  DDR_ras_n : inout std_logic;
-  DDR_we_n : inout std_logic;
-  DDR_ba : inout std_logic_vector ( 2 downto 0 );
-  DDR_addr : inout std_logic_vector ( 14 downto 0 );
-  DDR_dm : inout std_logic_vector ( 3 downto 0 );
-  DDR_dq : inout std_logic_vector ( 31 downto 0 );
-  DDR_dqs_n : inout std_logic_vector ( 3 downto 0 );
-  DDR_dqs_p : inout std_logic_vector ( 3 downto 0 );
-  FIXED_IO_mio : inout std_logic_vector ( 53 downto 0 );
-  FIXED_IO_ddr_vrn : inout std_logic;
-  FIXED_IO_ddr_vrp : inout std_logic;
+  DDR_cas_n         : inout std_logic;
+  DDR_cke           : inout std_logic;
+  DDR_ck_n          : inout std_logic;
+  DDR_ck_p          : inout std_logic;
+  DDR_cs_n          : inout std_logic;
+  DDR_reset_n       : inout std_logic;
+  DDR_odt           : inout std_logic;
+  DDR_ras_n         : inout std_logic;
+  DDR_we_n          : inout std_logic;
+  DDR_ba            : inout std_logic_vector ( 2 downto 0 );
+  DDR_addr          : inout std_logic_vector ( 14 downto 0 );
+  DDR_dm            : inout std_logic_vector ( 3 downto 0 );
+  DDR_dq            : inout std_logic_vector ( 31 downto 0 );
+  DDR_dqs_n         : inout std_logic_vector ( 3 downto 0 );
+  DDR_dqs_p         : inout std_logic_vector ( 3 downto 0 );
+  FIXED_IO_mio      : inout std_logic_vector ( 53 downto 0 );
+  FIXED_IO_ddr_vrn  : inout std_logic;
+  FIXED_IO_ddr_vrp  : inout std_logic;
   FIXED_IO_ps_srstb : inout std_logic;
-  FIXED_IO_ps_clk : inout std_logic;
-  FIXED_IO_ps_porb : inout std_logic;
-  M00_AXI_awaddr : out std_logic_vector ( 31 downto 0 );
-  M00_AXI_awprot : out std_logic_vector ( 2 downto 0 );
-  M00_AXI_awvalid : out std_logic;
-  M00_AXI_awready : in std_logic;
-  M00_AXI_wdata : out std_logic_vector ( 31 downto 0 );
-  M00_AXI_wstrb : out std_logic_vector ( 3 downto 0 );
-  M00_AXI_wvalid : out std_logic;
-  M00_AXI_wready : in std_logic;
-  M00_AXI_bresp : in std_logic_vector ( 1 downto 0 );
-  M00_AXI_bvalid : in std_logic;
-  M00_AXI_bready : out std_logic;
-  M00_AXI_araddr : out std_logic_vector ( 31 downto 0 );
-  M00_AXI_arprot : out std_logic_vector ( 2 downto 0 );
-  M00_AXI_arvalid : out std_logic;
-  M00_AXI_arready : in std_logic;
-  M00_AXI_rdata : in std_logic_vector ( 31 downto 0 );
-  M00_AXI_rresp : in std_logic_vector ( 1 downto 0 );
-  M00_AXI_rvalid : in std_logic;
-  M00_AXI_rready : out std_logic;
-  FCLK_RESET0_N : out std_logic;
-  FCLK_CLK0 : out std_logic
+  FIXED_IO_ps_clk   : inout std_logic;
+  FIXED_IO_ps_porb  : inout std_logic;
+  M00_AXI_awaddr    : out std_logic_vector ( 31 downto 0 );
+  M00_AXI_awprot    : out std_logic_vector ( 2 downto 0 );
+  M00_AXI_awvalid   : out std_logic;
+  M00_AXI_awready   : in std_logic;
+  M00_AXI_wdata     : out std_logic_vector ( 31 downto 0 );
+  M00_AXI_wstrb     : out std_logic_vector ( 3 downto 0 );
+  M00_AXI_wvalid    : out std_logic;
+  M00_AXI_wready    : in std_logic;
+  M00_AXI_bresp     : in std_logic_vector ( 1 downto 0 );
+  M00_AXI_bvalid    : in std_logic;
+  M00_AXI_bready    : out std_logic;
+  M00_AXI_araddr    : out std_logic_vector ( 31 downto 0 );
+  M00_AXI_arprot    : out std_logic_vector ( 2 downto 0 );
+  M00_AXI_arvalid   : out std_logic;
+  M00_AXI_arready   : in std_logic;
+  M00_AXI_rdata     : in std_logic_vector ( 31 downto 0 );
+  M00_AXI_rresp     : in std_logic_vector ( 1 downto 0 );
+  M00_AXI_rvalid    : in std_logic;
+  M00_AXI_rready    : out std_logic;
+  FCLK_RESET0_N     : out std_logic;
+  FCLK_CLK0         : out std_logic;
+  FCLK_LEDS         : out std_logic_vector(31 downto 0)
 );
 end component panda_ps;
 
 -- Signal declarations
-signal FCLK_CLK0             : std_logic;
-signal FCLK_RESET0_N          : std_logic;
+signal FCLK_CLK0        : std_logic;
+signal FCLK_RESET0_N    : std_logic;
+signal FCLK_LEDS        : std_logic_vector(31 downto 0);
 signal M00_AXI_awaddr   : std_logic_vector ( 31 downto 0 );
 signal M00_AXI_awprot   : std_logic_vector ( 2 downto 0 );
 signal M00_AXI_awvalid  : std_logic;
@@ -116,53 +118,57 @@ signal cs0_mem_wr       : std_logic;
 signal mem_read_dat_0   : std_logic_vector(31 downto 0);
 
 begin
+
+leds <= FCLK_LEDS(26 downto 25);
+
 panda_ps_i: component panda_ps
 port map (
-    FCLK_CLK0                     => FCLK_CLK0,
-    FCLK_RESET0_N                 => FCLK_RESET0_N,
+    FCLK_CLK0                   => FCLK_CLK0,
+    FCLK_RESET0_N               => FCLK_RESET0_N,
+    FCLK_LEDS                   => FCLK_LEDS,
 
-    DDR_addr(14 downto 0)         => DDR_addr(14 downto 0),
-    DDR_ba(2 downto 0)            => DDR_ba(2 downto 0),
-    DDR_cas_n                     => DDR_cas_n,
-    DDR_ck_n                      => DDR_ck_n,
-    DDR_ck_p                      => DDR_ck_p,
-    DDR_cke                       => DDR_cke,
-    DDR_cs_n                      => DDR_cs_n,
-    DDR_dm(3 downto 0)            => DDR_dm(3 downto 0),
-    DDR_dq(31 downto 0)           => DDR_dq(31 downto 0),
-    DDR_dqs_n(3 downto 0)         => DDR_dqs_n(3 downto 0),
-    DDR_dqs_p(3 downto 0)         => DDR_dqs_p(3 downto 0),
-    DDR_odt                       => DDR_odt,
-    DDR_ras_n                     => DDR_ras_n,
-    DDR_reset_n                   => DDR_reset_n,
-    DDR_we_n                      => DDR_we_n,
+    DDR_addr(14 downto 0)       => DDR_addr(14 downto 0),
+    DDR_ba(2 downto 0)          => DDR_ba(2 downto 0),
+    DDR_cas_n                   => DDR_cas_n,
+    DDR_ck_n                    => DDR_ck_n,
+    DDR_ck_p                    => DDR_ck_p,
+    DDR_cke                     => DDR_cke,
+    DDR_cs_n                    => DDR_cs_n,
+    DDR_dm(3 downto 0)          => DDR_dm(3 downto 0),
+    DDR_dq(31 downto 0)         => DDR_dq(31 downto 0),
+    DDR_dqs_n(3 downto 0)       => DDR_dqs_n(3 downto 0),
+    DDR_dqs_p(3 downto 0)       => DDR_dqs_p(3 downto 0),
+    DDR_odt                     => DDR_odt,
+    DDR_ras_n                   => DDR_ras_n,
+    DDR_reset_n                 => DDR_reset_n,
+    DDR_we_n                    => DDR_we_n,
 
-    FIXED_IO_ddr_vrn              => FIXED_IO_ddr_vrn,
-    FIXED_IO_ddr_vrp              => FIXED_IO_ddr_vrp,
-    FIXED_IO_mio(53 downto 0)     => FIXED_IO_mio(53 downto 0),
-    FIXED_IO_ps_clk               => FIXED_IO_ps_clk,
-    FIXED_IO_ps_porb              => FIXED_IO_ps_porb,
-    FIXED_IO_ps_srstb             => FIXED_IO_ps_srstb,
+    FIXED_IO_ddr_vrn            => FIXED_IO_ddr_vrn,
+    FIXED_IO_ddr_vrp            => FIXED_IO_ddr_vrp,
+    FIXED_IO_mio(53 downto 0)   => FIXED_IO_mio(53 downto 0),
+    FIXED_IO_ps_clk             => FIXED_IO_ps_clk,
+    FIXED_IO_ps_porb            => FIXED_IO_ps_porb,
+    FIXED_IO_ps_srstb           => FIXED_IO_ps_srstb,
 
-    M00_AXI_araddr(31 downto 0)   => M00_AXI_araddr(31 downto 0),
-    M00_AXI_arprot(2 downto 0)    => M00_AXI_arprot(2 downto 0),
-    M00_AXI_arready               => M00_AXI_arready,
-    M00_AXI_arvalid               => M00_AXI_arvalid,
-    M00_AXI_awaddr(31 downto 0)   => M00_AXI_awaddr(31 downto 0),
-    M00_AXI_awprot(2 downto 0)    => M00_AXI_awprot(2 downto 0),
-    M00_AXI_awready               => M00_AXI_awready,
-    M00_AXI_awvalid               => M00_AXI_awvalid,
-    M00_AXI_bready                => M00_AXI_bready,
-    M00_AXI_bresp(1 downto 0)     => M00_AXI_bresp(1 downto 0),
-    M00_AXI_bvalid                => M00_AXI_bvalid,
-    M00_AXI_rdata(31 downto 0)    => M00_AXI_rdata(31 downto 0),
-    M00_AXI_rready                => M00_AXI_rready,
-    M00_AXI_rresp(1 downto 0)     => M00_AXI_rresp(1 downto 0),
-    M00_AXI_rvalid                => M00_AXI_rvalid,
-    M00_AXI_wdata(31 downto 0)    => M00_AXI_wdata(31 downto 0),
-    M00_AXI_wready                => M00_AXI_wready,
-    M00_AXI_wstrb(3 downto 0)     => M00_AXI_wstrb(3 downto 0),
-    M00_AXI_wvalid                => M00_AXI_wvalid
+    M00_AXI_araddr(31 downto 0) => M00_AXI_araddr(31 downto 0),
+    M00_AXI_arprot(2 downto 0)  => M00_AXI_arprot(2 downto 0),
+    M00_AXI_arready             => M00_AXI_arready,
+    M00_AXI_arvalid             => M00_AXI_arvalid,
+    M00_AXI_awaddr(31 downto 0) => M00_AXI_awaddr(31 downto 0),
+    M00_AXI_awprot(2 downto 0)  => M00_AXI_awprot(2 downto 0),
+    M00_AXI_awready             => M00_AXI_awready,
+    M00_AXI_awvalid             => M00_AXI_awvalid,
+    M00_AXI_bready              => M00_AXI_bready,
+    M00_AXI_bresp(1 downto 0)   => M00_AXI_bresp(1 downto 0),
+    M00_AXI_bvalid              => M00_AXI_bvalid,
+    M00_AXI_rdata(31 downto 0)  => M00_AXI_rdata(31 downto 0),
+    M00_AXI_rready              => M00_AXI_rready,
+    M00_AXI_rresp(1 downto 0)   => M00_AXI_rresp(1 downto 0),
+    M00_AXI_rvalid              => M00_AXI_rvalid,
+    M00_AXI_wdata(31 downto 0)  => M00_AXI_wdata(31 downto 0),
+    M00_AXI_wready              => M00_AXI_wready,
+    M00_AXI_wstrb(3 downto 0)   => M00_AXI_wstrb(3 downto 0),
+    M00_AXI_wvalid              => M00_AXI_wvalid
 );
 
 axi4_lite_memif_inst : entity work.axi4_lite_memif
@@ -207,21 +213,6 @@ port map (
     mem_rstb_o                    => mem_rstb,
     mem_wstb_o                    => mem_wstb
 );
-
-
-process(FCLK_CLK0, FCLK_RESET0_N)
-    variable counter    : unsigned(31 downto 0);
-begin
-    if (FCLK_RESET0_N = '0') then
-        leds <= "01";
-        counter := (others => '0');
-    else
-        if rising_edge(FCLK_CLK0) then
-            counter := counter + 1;
-            leds(1 downto 0) <= std_logic_vector(counter(26 downto 25));
-        end if;
-    end if;
-end process;
 
 --
 -- A copy of user configuration data is always

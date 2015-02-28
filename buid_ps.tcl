@@ -1,5 +1,5 @@
 #
-# This script generates PS part of the firmware based on Zynq 
+# This script generates PS part of the firmware based as Zynq
 # Block design
 #
 
@@ -27,6 +27,7 @@ set_property ip_repo_paths ../src/ip_repo [current_fileset]
 update_ip_catalog
 
 # Create block design
+# (THIS is exported from Vivado design tool)
 source ../src/bd/panda_ps.tcl
 
 # Generate the wrapper

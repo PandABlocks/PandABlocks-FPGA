@@ -13,7 +13,7 @@
 # Everything is build under $(PWD)/$(OUT_DIR)
 
 VIVADO = source /dls_sw/FPGA/Xilinx/Vivado/2014.2/settings64.sh > /dev/null
-BOARD = xilinx-zc706
+BOARD = pzed-z7030
 OUT_DIR = output
 
 #####################################################################

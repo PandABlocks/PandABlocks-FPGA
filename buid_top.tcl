@@ -28,4 +28,5 @@ route_design
 write_checkpoint -force panda_top_routed.dcp
 report_utilization -file panda_top_routed.rpt
 
-write_bitstream -force panda_top
+write_debug_probes panda_top.ltx
+write_bitstream -force panda_top.bit
