@@ -12,7 +12,10 @@
 # Modify accordingly following 3 lines
 # Everything is build under $(PWD)/$(OUT_DIR)
 
-VIVADO = source /dls_sw/FPGA/Xilinx/Vivado/2014.2/settings64.sh > /dev/null
+# Patches for Xilinx tools (Version dependant)
+export MYVIVADO = /dls_sw/FPGA/Xilinx/patches/vivado2014.4
+
+VIVADO = source /dls_sw/FPGA/Xilinx/Vivado/2014.4/settings64.sh > /dev/null
 BOARD = pzed-z7030
 OUT_DIR = output
 
@@ -69,7 +72,7 @@ $(FPGA_BIT):
 SOURCES = tarball
 #SOURCES = git
 
-DEVTREE_TAG = xilinx-v2014.2.01
+DEVTREE_TAG = xilinx-v2014.4
 DEVTREE_NAME = device-tree-xlnx-$(DEVTREE_TAG)
 TAR_REPO = /dls_sw/FPGA/Xilinx/OSLinux/tar-balls
 
@@ -133,7 +136,10 @@ DTS_BUILD_DIR = $(SDK_EXPORT)/device_tree_bsp_0
 DTS_TOP_FILE = $(DTS_BUILD_DIR)/system-top.dts
 
 $(DTS_TOP_FILE): $(DEVTREE_DTS)
+	sed -i '/dts-v1/d' $(DEVTREE_DTS)
 	cp $(DTS_CONFIG_FILE) $@
+#	cd $(OUT_DIR) && \
+#	    $(VIVADO) && hsi -mode batch -source ../build_devtree.tcl
 
 $(DEVTREE_DTB) : $(DTS_TOP_FILE)
 	$(PWD)/configs/linux-xlnx/scripts/dtc -f -I dts -O dtb -o $(DEVTREE_DTB) $(DTS_TOP_FILE)

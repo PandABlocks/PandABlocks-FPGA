@@ -1,12 +1,11 @@
 /dts-v1/;
-/include/ "ps.dtsi"
-/include/ "pl.dtsi"
+/include/ "system.dts"
 
 / {
 	model = "PZ_7z030_FMC_Carrier";
 	aliases {
-		serial0 = &ps7_uart_1;
-		ethernet0 = &ps7_ethernet_0;
+		ethernet0 = &gem0;
+		serial0 = &uart1;
 	};
 	chosen {
 		bootargs = "console=ttyPS0,115200 root=/dev/nfs rw nfsroot=172.23.244.35:/scratch/rootfs/xlnx-zynq ip=172.23.252.100::172.23.240.254:255.255.240.0:zynq-iu42::none";
@@ -17,11 +16,11 @@
 	};
 };
 
-&ps7_ethernet_0 {
+&gem0 {
 	local-mac-address = [00 0a 35 00 22 5c];
 };
 
-&ps7_qspi_0 {
+&qspi {
 	#address-cells = <1>;
 	#size-cells = <0>;
 	flash0: flash@0 {
@@ -52,7 +51,7 @@
 / {
 };
 
-&ps7_ethernet_0 {
+&gem0 {
 	phy-handle = <&phy0>;
 	phy-mode = "rgmii-id";
 	
