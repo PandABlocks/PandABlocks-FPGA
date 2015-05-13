@@ -1,0 +1,5 @@
+image: {
+    [bootloader]./output/panda_ps/panda_ps.sdk/fsbl/Release/fsbl.elf
+    ./output/panda_top.bit
+    ../PandaLinux/images/u-boot.elf
+}

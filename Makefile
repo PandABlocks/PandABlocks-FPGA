@@ -18,6 +18,7 @@ export MYVIVADO = /dls_sw/FPGA/Xilinx/patches/vivado2014.4
 VIVADO = source /dls_sw/FPGA/Xilinx/Vivado/2014.4/settings64.sh > /dev/null
 BOARD = pzed-z7030
 OUT_DIR = output
+IMAGE_DIR = images
 
 #####################################################################
 # Project related files (DON'T TOUCH)
@@ -29,12 +30,14 @@ SDK_EXPORT = $(OUT_DIR)/panda_ps/panda_ps.sdk
 FSBL_ELF   = $(SDK_EXPORT)/fsbl/Debug/fsbl.elf
 DEVTREE_DTS = $(SDK_EXPORT)/device_tree_bsp_0/system.dts
 DEVTREE_DTB = $(SDK_EXPORT)/device_tree_bsp_0/devicetree.dtb
+BOOT_FILE = $(IMAGE_DIR)/boot.bin
 
 #####################################################################
 # BUILD TARGETS includes HW and SW
 
+all: $(OUT_DIR) $(PS_CORE) $(FPGA_BIT) $(FSBL_ELF) $(DEVTREE_DTB) $(BOOT_FILE)
 devicetree: $(DEVTREE_DTB)
-all: $(OUT_DIR) $(PS_CORE) $(FPGA_BIT) $(FSBL_ELF) $(DEVTREE_DTB)
+boot: $(BOOT_FILE)
 
 #####################################################################
 # HW Projects Build
@@ -46,16 +49,18 @@ $(OUT_DIR) :
 	mkdir $(OUT_DIR)
 
 # STEP-1 ##########################################################
-#
+# Build PS Core Block Design
+
 $(PS_CORE) :
 	cd $(OUT_DIR) && \
-	    $(VIVADO) && vivado -mode batch -source ../buid_ps.tcl
+	    $(VIVADO) && vivado -mode batch -source ../build_ps.tcl
 
 # STEP-2 ##########################################################
-#
+# Build top-level design
+
 $(FPGA_BIT):
 	cd $(OUT_DIR) && \
-	    $(VIVADO) && vivado -mode batch -source ../buid_top.tcl
+	    $(VIVADO) && vivado -mode batch -source ../build_top.tcl
 
 
 #####################################################################
@@ -91,12 +96,8 @@ endif
 #########################################################################
 # Delete everything but the HDF file
 
-xsdk_clean:
-	rm -rf $(SDK_EXPORT)/.metadata
-	rm -rf $(SDK_EXPORT)/hw_platform_0
-	rm -rf $(SDK_EXPORT)/fsbl*
-	rm -rf $(SDK_EXPORT)/device*
-	rm -rf $(DEVTREE_BSP)/$(DEVTREE_NAME)
+sw_clean:
+	rm -rf $(SDK_EXPORT)
 
 # Step-3 ###############################################################
 #
@@ -112,7 +113,7 @@ xsdk_clean:
 
 XSDK_CONFIG_FILE = configs/sdkproj.xml
 
-xsdk_wspace: xsdk_clean $(DEVTREE_BSP)/$(DEVTREE_NAME)
+$(SDK_EXPORT): $(DEVTREE_BSP)/$(DEVTREE_NAME)
 	$(VIVADO) && \
 	    xsdk -wait -eclipseargs -nosplash -application com.xilinx.sdk.sw.AddSwRepositoryApp "$(DEVTREE_BSP)" -data $(SDK_EXPORT) && \
 	    xsdk -wait -script $(XSDK_CONFIG_FILE) -workspace $(SDK_EXPORT)
@@ -120,7 +121,8 @@ xsdk_wspace: xsdk_clean $(DEVTREE_BSP)/$(DEVTREE_NAME)
 # Step-5 ###############################################################
 # Build all XSDK projects to generate fsbl.elf and system.dts
 
-$(FSBL_ELF): xsdk_wspace
+$(FSBL_ELF): $(SDK_EXPORT)
+	echo "Building FSBL..."
 	$(VIVADO) && \
 	    xsdk -wait -eclipseargs -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -build all -data output/panda_ps/panda_ps.sdk/ -vmargs -Dorg.eclipse.cdt.core.console=org.eclipse.cdt.core.systemConsole
 
@@ -142,5 +144,18 @@ $(DTS_TOP_FILE): $(DEVTREE_DTS)
 #	    $(VIVADO) && hsi -mode batch -source ../build_devtree.tcl
 
 $(DEVTREE_DTB) : $(DTS_TOP_FILE)
+	echo "Building DEVICE TREE..."
 	$(PWD)/configs/linux-xlnx/scripts/dtc -f -I dts -O dtb -o $(DEVTREE_DTB) $(DTS_TOP_FILE)
 	scp $(DEVTREE_DTB) iu42@serv2:/tftpboot
+
+# Step-6 ###############################################################
+# Save all image files
+$(IMAGE_DIR):
+	mkdir $(IMAGE_DIR)
+
+$(BOOT_FILE) : $(IMAGE_DIR)
+	$(VIVADO) && \
+	    bootgen -w -image configs/boot.bif -o i $(IMAGE_DIR)/boot.bin
+	cp ./output/panda_ps/panda_ps.sdk/fsbl/Release/fsbl.elf $(IMAGE_DIR)
+	cp ./output/panda_top.bit $(IMAGE_DIR)
+
