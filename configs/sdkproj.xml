@@ -1,9 +1,0 @@
-<project name="SDK Script" default="main">
-  <target name="main">
-      <createHwProject projname="hw_platform_0" hwspecpath="output/panda_ps_wrapper.hdf" />
-
-      <createBspProject projname="device_tree_bsp_0" hwprojname="hw_platform_0" processor="ps7_cortexa9_0" os="device_tree"/>
-
-      <createAppProject projname="fsbl" hwprojname="hw_platform_0" processor="ps7_cortexa9_0" bspprojname="fsbl_bsp" os="standalone" template="Zynq FSBL" language="C" />
-  </target>
-</project>
