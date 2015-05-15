@@ -9,16 +9,15 @@
 #  Step 6. Generates devicetree.dtb file and copies to TFTP server
 
 #####################################################################
-# Modify accordingly following 3 lines
+# Modify accordingly following lines
 # Everything is build under $(PWD)/$(OUT_DIR)
-
-# Patches for Xilinx tools (Version dependant)
-export MYVIVADO = /dls_sw/FPGA/Xilinx/patches/vivado2014.4
-
-VIVADO = source /dls_sw/FPGA/Xilinx/Vivado/2014.4/settings64.sh > /dev/null
+TAR_REPO = /dls_sw/FPGA/Xilinx/OSLinux/tar-balls
+VIVADO_VER = 2015.1
 BOARD = pzed-z7030
 OUT_DIR = output
 IMAGE_DIR = images
+
+VIVADO = source /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh > /dev/null
 
 #####################################################################
 # Project related files (DON'T TOUCH)
@@ -35,7 +34,7 @@ BOOT_FILE = $(IMAGE_DIR)/boot.bin
 #####################################################################
 # BUILD TARGETS includes HW and SW
 
-all: $(OUT_DIR) $(PS_CORE) $(FPGA_BIT) $(FSBL_ELF) $(DEVTREE_DTB) $(BOOT_FILE)
+all: $(OUT_DIR) $(PS_CORE) $(FPGA_BIT) $(SDK_EXPORT) $(DEVTREE_DTB) $(BOOT_FILE)
 devicetree: $(DEVTREE_DTB)
 boot: $(BOOT_FILE)
 
@@ -77,9 +76,8 @@ $(FPGA_BIT):
 SOURCES = tarball
 #SOURCES = git
 
-DEVTREE_TAG = xilinx-v2014.4
+DEVTREE_TAG = xilinx-v$(VIVADO_VER)
 DEVTREE_NAME = device-tree-xlnx-$(DEVTREE_TAG)
-TAR_REPO = /dls_sw/FPGA/Xilinx/OSLinux/tar-balls
 
 # Device-tree BSP will be extracted in $(DEVTREE_BSP) as below
 DEVTREE_BSP = $(PWD)/output/bsp/
@@ -99,37 +97,21 @@ endif
 sw_clean:
 	rm -rf $(SDK_EXPORT)
 
-# Step-3 ###############################################################
-#
-# Get Device-Tree BSP
-# 1./ device-tree repository to local xsdk workspace,
-# 2./ Create xsdk project based on sdkproj.xml file
-#
-# sdkproj.xml sets-up
-#  - hardware, device-tree bsp and fsbl projects
 
 # Step-4 ###############################################################
-# Generate XSDK projects in panda.sdk workspace
-
-XSDK_CONFIG_FILE = configs/sdkproj.xml
+# Get device-tree repository into project
+# Generate XSDK projects in panda.sdk workspace,
+# Build all XSDK projects for FSBL and Device Tree
 
 $(SDK_EXPORT): $(DEVTREE_BSP)/$(DEVTREE_NAME)
 	$(VIVADO) && \
-	    xsdk -wait -eclipseargs -nosplash -application com.xilinx.sdk.sw.AddSwRepositoryApp "$(DEVTREE_BSP)" -data $(SDK_EXPORT) && \
-	    xsdk -wait -script $(XSDK_CONFIG_FILE) -workspace $(SDK_EXPORT)
+	    xsdk -batch build_xsdk.tcl
 
-# Step-5 ###############################################################
-# Build all XSDK projects to generate fsbl.elf and system.dts
-
-$(FSBL_ELF): $(SDK_EXPORT)
-	echo "Building FSBL..."
-	$(VIVADO) && \
-	    xsdk -wait -eclipseargs -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -build all -data output/panda_ps/panda_ps.sdk/ -vmargs -Dorg.eclipse.cdt.core.console=org.eclipse.cdt.core.systemConsole
 
 # Step-6 ###############################################################
 # Generate the DTB file after device-tree bsp generated
 #
-# A top-level board-specific dts file is stored (stolen from petalinux)
+# A top-level board-specific dts file is stored
 # in configs directory which includes Xsdk generated *.dtsi files.
 #
 
@@ -140,8 +122,6 @@ DTS_TOP_FILE = $(DTS_BUILD_DIR)/system-top.dts
 $(DTS_TOP_FILE): $(DEVTREE_DTS)
 	sed -i '/dts-v1/d' $(DEVTREE_DTS)
 	cp $(DTS_CONFIG_FILE) $@
-#	cd $(OUT_DIR) && \
-#	    $(VIVADO) && hsi -mode batch -source ../build_devtree.tcl
 
 $(DEVTREE_DTB) : $(DTS_TOP_FILE)
 	echo "Building DEVICE TREE..."

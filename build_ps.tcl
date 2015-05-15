@@ -8,7 +8,7 @@
 set origin_dir .
 
 # Set User Repository for PicoZed Board Definition File
-set_param project.boardPartRepoPaths ../configs
+set_param board.repoPaths ../configs
 
 # Create project
 create_project panda_ps $origin_dir/panda_ps -part xc7z030sbg485-1

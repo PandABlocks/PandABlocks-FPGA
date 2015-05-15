@@ -10,7 +10,7 @@
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2014.4
+set scripts_vivado_version 2015.1
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -32,6 +32,13 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 #    create_project project_1 myproj -part xc7z030sbg485-1
 #    set_property BOARD_PART em.avnet.com:picozed_7030:part0:1.0 [current_project]
 
+# CHECKING IF PROJECT EXISTS
+if { [get_projects -quiet] eq "" } {
+   puts "ERROR: Please open or create a project!"
+   return 1
+}
+
+
 
 # CHANGE DESIGN NAME HERE
 set design_name panda_ps
@@ -39,13 +46,6 @@ set design_name panda_ps
 # If you do not already have an existing IP Integrator design open,
 # you can create a design using the following command:
 #    create_bd_design $design_name
-
-# CHECKING IF PROJECT EXISTS
-if { [get_projects -quiet] eq "" } {
-   puts "ERROR: Please open or create a project!"
-   return 1
-}
-
 
 # Creating design if needed
 set errMsg ""
@@ -164,7 +164,7 @@ proc create_root_design { parentCell } {
   set_property -dict [ list CONFIG.Output_Width {32}  ] $c_counter_binary_0
 
   # Create instance: ila_0, and set properties
-  set ila_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:ila:5.0 ila_0 ]
+  set ila_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:ila:5.1 ila_0 ]
   set_property -dict [ list CONFIG.C_MONITOR_TYPE {Native} CONFIG.C_PROBE0_WIDTH {32}  ] $ila_0
 
   # Create instance: panda_pcap_0, and set properties
@@ -272,7 +272,7 @@ CONFIG.PCW_UIPARAM_DDR_TRAIN_DATA_EYE {1} CONFIG.PCW_UIPARAM_DDR_TRAIN_READ_GATE
 CONFIG.PCW_UIPARAM_DDR_TRAIN_WRITE_LEVEL {1} CONFIG.PCW_UIPARAM_DDR_USE_INTERNAL_VREF {1} \
 CONFIG.PCW_USB0_PERIPHERAL_ENABLE {0} CONFIG.PCW_USE_FABRIC_INTERRUPT {1} \
 CONFIG.PCW_USE_M_AXI_GP0 {1} CONFIG.PCW_USE_M_AXI_GP1 {0} \
-CONFIG.PCW_USE_S_AXI_GP0 {0} CONFIG.preset {Default*} \
+CONFIG.PCW_USE_S_AXI_GP0 {0} CONFIG.preset {Default} \
  ] $processing_system7_0
 
   # Create interface connections
