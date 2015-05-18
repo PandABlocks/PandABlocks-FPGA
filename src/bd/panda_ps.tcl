@@ -165,7 +165,7 @@ proc create_root_design { parentCell } {
 
   # Create instance: ila_0, and set properties
   set ila_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:ila:5.1 ila_0 ]
-  set_property -dict [ list CONFIG.C_MONITOR_TYPE {Native} CONFIG.C_PROBE0_WIDTH {32}  ] $ila_0
+  set_property -dict [ list CONFIG.C_ENABLE_ILA_AXI_MON {false} CONFIG.C_MONITOR_TYPE {Native} CONFIG.C_NUM_OF_PROBES {1} CONFIG.C_PROBE0_WIDTH {32}  ] $ila_0
 
   # Create instance: panda_pcap_0, and set properties
   set panda_pcap_0 [ create_bd_cell -type ip -vlnv dls_cs1:user:panda_pcap:1.0 panda_pcap_0 ]
@@ -189,7 +189,7 @@ CONFIG.PCW_EN_RST1_PORT {0} CONFIG.PCW_EN_RST2_PORT {0} \
 CONFIG.PCW_EN_RST3_PORT {0} CONFIG.PCW_FCLK0_PERIPHERAL_CLKSRC {IO PLL} \
 CONFIG.PCW_FCLK1_PERIPHERAL_CLKSRC {IO PLL} CONFIG.PCW_FCLK2_PERIPHERAL_CLKSRC {IO PLL} \
 CONFIG.PCW_FCLK3_PERIPHERAL_CLKSRC {IO PLL} CONFIG.PCW_FCLK_CLK0_BUF {true} \
-CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {100} CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {100} \
+CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {50} CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {100} \
 CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {33.333333} CONFIG.PCW_FPGA3_PERIPHERAL_FREQMHZ {50} \
 CONFIG.PCW_GPIO_EMIO_GPIO_ENABLE {0} CONFIG.PCW_GPIO_MIO_GPIO_ENABLE {1} \
 CONFIG.PCW_GPIO_PERIPHERAL_ENABLE {1} CONFIG.PCW_IRQ_F2P_INTR {1} \
@@ -270,10 +270,10 @@ CONFIG.PCW_UIPARAM_DDR_DQ_1_LENGTH_MM {38.635} CONFIG.PCW_UIPARAM_DDR_DQ_2_LENGT
 CONFIG.PCW_UIPARAM_DDR_DQ_3_LENGTH_MM {38.679} CONFIG.PCW_UIPARAM_DDR_PARTNO {MT41K256M16 RE-125} \
 CONFIG.PCW_UIPARAM_DDR_TRAIN_DATA_EYE {1} CONFIG.PCW_UIPARAM_DDR_TRAIN_READ_GATE {1} \
 CONFIG.PCW_UIPARAM_DDR_TRAIN_WRITE_LEVEL {1} CONFIG.PCW_UIPARAM_DDR_USE_INTERNAL_VREF {1} \
-CONFIG.PCW_USB0_PERIPHERAL_ENABLE {0} CONFIG.PCW_USE_FABRIC_INTERRUPT {1} \
-CONFIG.PCW_USE_M_AXI_GP0 {1} CONFIG.PCW_USE_M_AXI_GP1 {0} \
-CONFIG.PCW_USE_S_AXI_GP0 {0} CONFIG.preset {Default} \
- ] $processing_system7_0
+CONFIG.PCW_USB0_PERIPHERAL_ENABLE {0} CONFIG.PCW_USE_AXI_NONSECURE {0} \
+CONFIG.PCW_USE_FABRIC_INTERRUPT {1} CONFIG.PCW_USE_M_AXI_GP0 {1} \
+CONFIG.PCW_USE_M_AXI_GP1 {0} CONFIG.PCW_USE_S_AXI_GP0 {0} \
+CONFIG.preset {Default}  ] $processing_system7_0
 
   # Create interface connections
   connect_bd_intf_net -intf_net S00_AXI_1 [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins processing_system7_0/M_AXI_GP0]
@@ -309,4 +309,6 @@ CONFIG.PCW_USE_S_AXI_GP0 {0} CONFIG.preset {Default} \
 
 create_root_design ""
 
+
+puts "\n\nWARNING: This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 

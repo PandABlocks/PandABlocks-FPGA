@@ -115,13 +115,15 @@ $(SDK_EXPORT): $(DEVTREE_BSP)/$(DEVTREE_NAME)
 # in configs directory which includes Xsdk generated *.dtsi files.
 #
 
-DTS_CONFIG_FILE = $(PWD)/configs/device-tree/$(DEVTREE_TAG)/$(BOARD)/system-top.dts
+DTS_CONFIG_DIR = $(PWD)/configs/device-tree/$(DEVTREE_TAG)/$(BOARD)
+DTS_CONFIG_FILE = $(DTS_CONFIG_DIR)/system-top.dts
 DTS_BUILD_DIR = $(SDK_EXPORT)/device_tree_bsp_0
 DTS_TOP_FILE = $(DTS_BUILD_DIR)/system-top.dts
 
 $(DTS_TOP_FILE): $(DEVTREE_DTS)
 	sed -i '/dts-v1/d' $(DEVTREE_DTS)
 	cp $(DTS_CONFIG_FILE) $@
+	cp $(DTS_CONFIG_DIR)/pl.dtsi $(DTS_BUILD_DIR)
 
 $(DEVTREE_DTB) : $(DTS_TOP_FILE)
 	echo "Building DEVICE TREE..."
