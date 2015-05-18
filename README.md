@@ -34,7 +34,17 @@ i. Mounting work directory
     $ mount 172.23.100.32:/exports/dls_sw/work /mnt/work
 
 
-B. IRQ SETTING for DEVICETREE
+B. DEVICETREE
+--------------------
+i. system.mss
+    A manual .mss file is used to configure devicetree bsp version (2015.1) in xsdk.
+
+ii. panda_pcap IP
+    Position capture IP is taken out of the Block Design, so its configuration
+is manually added in the system-top.dts file.
+    IMPORTANT :Baseaddress, address range and IRQ number may need to be modified accordingy.
+
+C. IRQ SETTING for DEVICETREE
 ------------------------------
 
 The device tree declaration goes something like (copied from above):
@@ -57,7 +67,7 @@ short, click the “GIC” box in XPS’ main window’s “Zynq” tab, look up
 assigned to the interrupt (91 for xillybus in Xillinux) and subtract it by 32
 (91 - 32 = 59).
 
-The third number is the type of interrupt. Three values are possible:
+IMPORTANT : The third number is the type of interrupt. Three values are possible:
 
     0 — Leave it as it was (power-up default or what the bootloader set it to,
 if it did)

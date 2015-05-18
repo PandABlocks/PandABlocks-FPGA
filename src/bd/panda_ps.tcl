@@ -148,12 +148,16 @@ proc create_root_design { parentCell } {
   set FIXED_IO [ create_bd_intf_port -mode Master -vlnv xilinx.com:display_processing_system7:fixedio_rtl:1.0 FIXED_IO ]
   set M00_AXI [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M00_AXI ]
   set_property -dict [ list CONFIG.ADDR_WIDTH {32} CONFIG.DATA_WIDTH {32} CONFIG.PROTOCOL {AXI4LITE}  ] $M00_AXI
+  set M01_AXI [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M01_AXI ]
+  set_property -dict [ list CONFIG.ADDR_WIDTH {32} CONFIG.CLK_DOMAIN {panda_ps_processing_system7_0_0_FCLK_CLK0} CONFIG.DATA_WIDTH {32} CONFIG.NUM_READ_OUTSTANDING {2} CONFIG.NUM_WRITE_OUTSTANDING {2} CONFIG.PROTOCOL {AXI4LITE}  ] $M01_AXI
 
   # Create ports
   set FCLK_CLK0 [ create_bd_port -dir O -type clk FCLK_CLK0 ]
-  set_property -dict [ list CONFIG.ASSOCIATED_BUSIF {M00_AXI}  ] $FCLK_CLK0
+  set_property -dict [ list CONFIG.ASSOCIATED_BUSIF {M00_AXI:M01_AXI}  ] $FCLK_CLK0
   set FCLK_LEDS [ create_bd_port -dir O -from 31 -to 0 FCLK_LEDS ]
   set FCLK_RESET0_N [ create_bd_port -dir O -from 0 -to 0 -type rst FCLK_RESET0_N ]
+  set IRQ_F2P [ create_bd_port -dir I -from 0 -to 0 -type intr IRQ_F2P ]
+  set_property -dict [ list CONFIG.PortWidth {1}  ] $IRQ_F2P
 
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
@@ -162,13 +166,6 @@ proc create_root_design { parentCell } {
   # Create instance: c_counter_binary_0, and set properties
   set c_counter_binary_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:c_counter_binary:12.0 c_counter_binary_0 ]
   set_property -dict [ list CONFIG.Output_Width {32}  ] $c_counter_binary_0
-
-  # Create instance: ila_0, and set properties
-  set ila_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:ila:5.1 ila_0 ]
-  set_property -dict [ list CONFIG.C_ENABLE_ILA_AXI_MON {false} CONFIG.C_MONITOR_TYPE {Native} CONFIG.C_NUM_OF_PROBES {1} CONFIG.C_PROBE0_WIDTH {32}  ] $ila_0
-
-  # Create instance: panda_pcap_0, and set properties
-  set panda_pcap_0 [ create_bd_cell -type ip -vlnv dls_cs1:user:panda_pcap:1.0 panda_pcap_0 ]
 
   # Create instance: proc_sys_reset_0, and set properties
   set proc_sys_reset_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0 ]
@@ -278,20 +275,20 @@ CONFIG.preset {Default}  ] $processing_system7_0
   # Create interface connections
   connect_bd_intf_net -intf_net S00_AXI_1 [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins processing_system7_0/M_AXI_GP0]
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_ports M00_AXI] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_interconnect_0/M01_AXI] [get_bd_intf_pins panda_pcap_0/S00_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_ports M01_AXI] [get_bd_intf_pins axi_interconnect_0/M01_AXI]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
 
   # Create port connections
-  connect_bd_net -net c_counter_binary_0_Q [get_bd_ports FCLK_LEDS] [get_bd_pins c_counter_binary_0/Q] [get_bd_pins ila_0/probe0]
-  connect_bd_net -net panda_pcap_0_irq [get_bd_pins panda_pcap_0/irq] [get_bd_pins processing_system7_0/IRQ_F2P]
+  connect_bd_net -net IRQ_F2P_1 [get_bd_ports IRQ_F2P] [get_bd_pins processing_system7_0/IRQ_F2P]
+  connect_bd_net -net c_counter_binary_0_Q [get_bd_ports FCLK_LEDS] [get_bd_pins c_counter_binary_0/Q]
   connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins proc_sys_reset_0/interconnect_aresetn]
-  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_ports FCLK_RESET0_N] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins panda_pcap_0/s00_axi_aresetn] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_ports FCLK_CLK0] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins c_counter_binary_0/CLK] [get_bd_pins ila_0/clk] [get_bd_pins panda_pcap_0/s00_axi_aclk] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK]
+  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_ports FCLK_RESET0_N] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_ports FCLK_CLK0] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins c_counter_binary_0/CLK] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins proc_sys_reset_0/ext_reset_in] [get_bd_pins processing_system7_0/FCLK_RESET0_N]
 
   # Create address segments
-  create_bd_addr_seg -range 0x10000 -offset 0x43C10000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs panda_pcap_0/S00_AXI/S00_AXI_reg] SEG_panda_pcap_0_S00_AXI_reg
+  create_bd_addr_seg -range 0x10000 -offset 0x43C10000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs M01_AXI/Reg] SEG_M01_AXI_Reg
   create_bd_addr_seg -range 0x10000 -offset 0x43C00000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs M00_AXI/Reg] SEG_panda_ps_Reg
   
 
@@ -309,6 +306,4 @@ CONFIG.preset {Default}  ] $processing_system7_0
 
 create_root_design ""
 
-
-puts "\n\nWARNING: This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 

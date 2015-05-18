@@ -58,6 +58,7 @@ port (
   FIXED_IO_ps_srstb : inout std_logic;
   FIXED_IO_ps_clk   : inout std_logic;
   FIXED_IO_ps_porb  : inout std_logic;
+  IRQ_F2P           : in std_logic;
   M00_AXI_awaddr    : out std_logic_vector ( 31 downto 0 );
   M00_AXI_awprot    : out std_logic_vector ( 2 downto 0 );
   M00_AXI_awvalid   : out std_logic;
@@ -77,6 +78,25 @@ port (
   M00_AXI_rresp     : in std_logic_vector ( 1 downto 0 );
   M00_AXI_rvalid    : in std_logic;
   M00_AXI_rready    : out std_logic;
+  M01_AXI_awaddr    : out std_logic_vector ( 31 downto 0 );
+  M01_AXI_awprot    : out std_logic_vector ( 2 downto 0 );
+  M01_AXI_awvalid   : out std_logic;
+  M01_AXI_awready   : in std_logic;
+  M01_AXI_wdata     : out std_logic_vector ( 31 downto 0 );
+  M01_AXI_wstrb     : out std_logic_vector ( 3 downto 0 );
+  M01_AXI_wvalid    : out std_logic;
+  M01_AXI_wready    : in std_logic;
+  M01_AXI_bresp     : in std_logic_vector ( 1 downto 0 );
+  M01_AXI_bvalid    : in std_logic;
+  M01_AXI_bready    : out std_logic;
+  M01_AXI_araddr    : out std_logic_vector ( 31 downto 0 );
+  M01_AXI_arprot    : out std_logic_vector ( 2 downto 0 );
+  M01_AXI_arvalid   : out std_logic;
+  M01_AXI_arready   : in std_logic;
+  M01_AXI_rdata     : in std_logic_vector ( 31 downto 0 );
+  M01_AXI_rresp     : in std_logic_vector ( 1 downto 0 );
+  M01_AXI_rvalid    : in std_logic;
+  M01_AXI_rready    : out std_logic;
   FCLK_RESET0_N     : out std_logic;
   FCLK_CLK0         : out std_logic;
   FCLK_LEDS         : out std_logic_vector(31 downto 0)
@@ -87,6 +107,7 @@ end component panda_ps;
 signal FCLK_CLK0        : std_logic;
 signal FCLK_RESET0_N    : std_logic;
 signal FCLK_LEDS        : std_logic_vector(31 downto 0);
+
 signal M00_AXI_awaddr   : std_logic_vector ( 31 downto 0 );
 signal M00_AXI_awprot   : std_logic_vector ( 2 downto 0 );
 signal M00_AXI_awvalid  : std_logic;
@@ -107,6 +128,26 @@ signal M00_AXI_rresp    : std_logic_vector ( 1 downto 0 );
 signal M00_AXI_rvalid   : std_logic;
 signal M00_AXI_rready   : std_logic;
 
+signal M01_AXI_awaddr   : std_logic_vector ( 31 downto 0 );
+signal M01_AXI_awprot   : std_logic_vector ( 2 downto 0 );
+signal M01_AXI_awvalid  : std_logic;
+signal M01_AXI_awready  : std_logic;
+signal M01_AXI_wdata    : std_logic_vector ( 31 downto 0 );
+signal M01_AXI_wstrb    : std_logic_vector ( 3 downto 0 );
+signal M01_AXI_wvalid   : std_logic;
+signal M01_AXI_wready   : std_logic;
+signal M01_AXI_bresp    : std_logic_vector ( 1 downto 0 );
+signal M01_AXI_bvalid   : std_logic;
+signal M01_AXI_bready   : std_logic;
+signal M01_AXI_araddr   : std_logic_vector ( 31 downto 0 );
+signal M01_AXI_arprot   : std_logic_vector ( 2 downto 0 );
+signal M01_AXI_arvalid  : std_logic;
+signal M01_AXI_arready  : std_logic;
+signal M01_AXI_rdata    : std_logic_vector ( 31 downto 0 );
+signal M01_AXI_rresp    : std_logic_vector ( 1 downto 0 );
+signal M01_AXI_rvalid   : std_logic;
+signal M01_AXI_rready   : std_logic;
+
 signal mem_cs           : std_logic_vector(15 downto 0);
 signal mem_addr         : std_logic_vector(9 downto 0);
 signal mem_idat         : std_logic_vector(31 downto 0);
@@ -116,6 +157,8 @@ signal mem_rstb         : std_logic;
 
 signal cs0_mem_wr       : std_logic;
 signal mem_read_dat_0   : std_logic_vector(31 downto 0);
+
+signal IRQ_F2P          : std_logic;
 
 begin
 
@@ -149,6 +192,7 @@ port map (
     FIXED_IO_ps_clk             => FIXED_IO_ps_clk,
     FIXED_IO_ps_porb            => FIXED_IO_ps_porb,
     FIXED_IO_ps_srstb           => FIXED_IO_ps_srstb,
+    IRQ_F2P                     => IRQ_F2P,
 
     M00_AXI_araddr(31 downto 0) => M00_AXI_araddr(31 downto 0),
     M00_AXI_arprot(2 downto 0)  => M00_AXI_arprot(2 downto 0),
@@ -168,38 +212,81 @@ port map (
     M00_AXI_wdata(31 downto 0)  => M00_AXI_wdata(31 downto 0),
     M00_AXI_wready              => M00_AXI_wready,
     M00_AXI_wstrb(3 downto 0)   => M00_AXI_wstrb(3 downto 0),
-    M00_AXI_wvalid              => M00_AXI_wvalid
+    M00_AXI_wvalid              => M00_AXI_wvalid,
+
+    M01_AXI_araddr(31 downto 0) => M01_AXI_araddr(31 downto 0),
+    M01_AXI_arprot(2 downto 0)  => M01_AXI_arprot(2 downto 0),
+    M01_AXI_arready             => M01_AXI_arready,
+    M01_AXI_arvalid             => M01_AXI_arvalid,
+    M01_AXI_awaddr(31 downto 0) => M01_AXI_awaddr(31 downto 0),
+    M01_AXI_awprot(2 downto 0)  => M01_AXI_awprot(2 downto 0),
+    M01_AXI_awready             => M01_AXI_awready,
+    M01_AXI_awvalid             => M01_AXI_awvalid,
+    M01_AXI_bready              => M01_AXI_bready,
+    M01_AXI_bresp(1 downto 0)   => M01_AXI_bresp(1 downto 0),
+    M01_AXI_bvalid              => M01_AXI_bvalid,
+    M01_AXI_rdata(31 downto 0)  => M01_AXI_rdata(31 downto 0),
+    M01_AXI_rready              => M01_AXI_rready,
+    M01_AXI_rresp(1 downto 0)   => M01_AXI_rresp(1 downto 0),
+    M01_AXI_rvalid              => M01_AXI_rvalid,
+    M01_AXI_wdata(31 downto 0)  => M01_AXI_wdata(31 downto 0),
+    M01_AXI_wready              => M01_AXI_wready,
+    M01_AXI_wstrb(3 downto 0)   => M01_AXI_wstrb(3 downto 0),
+    M01_AXI_wvalid              => M01_AXI_wvalid
+
 );
 
-axi4_lite_memif_inst : entity work.axi4_lite_memif
+panda_pcap_inst : entity work.panda_pcap_v1_0
+generic map (
+    -- Parameters of Axi Slave Bus Interface S00_AXI
+    C_S00_AXI_DATA_WIDTH        => 32,
+    C_S00_AXI_ADDR_WIDTH        => 7
+)
+port map (
+    irq                         => IRQ_F2P,
+
+    s00_axi_aclk                => FCLK_CLK0,
+    s00_axi_aresetn             => FCLK_RESET0_N,
+    s00_axi_awaddr              => M01_AXI_awaddr(6 downto 0),
+    s00_axi_awprot              => M01_AXI_awprot,
+    s00_axi_awvalid             => M01_AXI_awvalid,
+    s00_axi_awready             => M01_AXI_awready,
+    s00_axi_wdata               => M01_AXI_wdata,
+    s00_axi_wstrb               => M01_AXI_wstrb,
+    s00_axi_wvalid              => M01_AXI_wvalid,
+    s00_axi_wready              => M01_AXI_wready,
+    s00_axi_bresp               => M01_AXI_bresp,
+    s00_axi_bvalid              => M01_AXI_bvalid,
+    s00_axi_bready              => M01_AXI_bready,
+    s00_axi_araddr              => M01_AXI_araddr(6 downto 0),
+    s00_axi_arprot              => M01_AXI_arprot,
+    s00_axi_arvalid             => M01_AXI_arvalid,
+    s00_axi_arready             => M01_AXI_arready,
+    s00_axi_rdata               => M01_AXI_rdata,
+    s00_axi_rresp               => M01_AXI_rresp,
+    s00_axi_rvalid              => M01_AXI_rvalid,
+    s00_axi_rready              => M01_AXI_rready
+);
+
+panda_axi4lite_if_inst : entity work.panda_axi4lite_if
 port map (
     S_AXI_CLK                     => FCLK_CLK0,
     S_AXI_RST                     => '0',
-
-    -- Slave Interface Write Address channel Ports
     S_AXI_AWADDR                  => M00_AXI_awaddr,
 --    S_AXI_AWPROT                  => M00_AXI_awprot,
     S_AXI_AWVALID                 => M00_AXI_awvalid,
     S_AXI_AWREADY                 => M00_AXI_awready,
-
-    -- Slave Interface Write Data channel Ports
     S_AXI_WDATA                   => M00_AXI_wdata,
     S_AXI_WSTRB                   => M00_AXI_wstrb,
     S_AXI_WVALID                  => M00_AXI_wvalid,
     S_AXI_WREADY                  => M00_AXI_wready,
-
-    -- Slave Interface Write Response channel Ports
     S_AXI_BRESP                   => M00_AXI_bresp,
     S_AXI_BVALID                  => M00_AXI_bvalid,
     S_AXI_BREADY                  => M00_AXI_bready,
-
-    -- Slave Interface Read Address channel Ports
     S_AXI_ARADDR                  => M00_AXI_araddr,
 --    S_AXI_ARPROT                  => M00_AXI_arprot,
     S_AXI_ARVALID                 => M00_AXI_arvalid,
     S_AXI_ARREADY                 => M00_AXI_arready,
-
-    -- Slave Interface Read Data channel Ports
     S_AXI_RDATA                   => M00_AXI_rdata,
     S_AXI_RRESP                   => M00_AXI_rresp,
     S_AXI_RVALID                  => M00_AXI_rvalid,

@@ -9,8 +9,12 @@ set_property "target_language" "VHDL" [current_project]
 
 # Read design files
 read_bd   panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
-read_vhdl ../src/hdl/axi4_lite_memif.vhd
+read_vhdl ../src/hdl/panda_axi4lite_if.vhd
 read_vhdl ../src/hdl/panda_spbram.vhd
+read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0_S00_AXI.vhd
+read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0.vhd
+
+
 read_vhdl ../src/hdl/panda_top.vhd
 
 # Read constraint files

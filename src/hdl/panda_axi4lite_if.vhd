@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity axi4_lite_memif is
+entity panda_axi4lite_if is
 generic (
     AXI_AWIDTH          : integer := 32;
     AXI_DWIDTH          : integer := 32;
@@ -44,9 +44,9 @@ port (
     mem_addr_o          : out std_logic_vector(MEM_AWIDTH-1 downto 0);
     mem_dat_i           : in  std_logic_vector(MEM_DWIDTH-1 downto 0)
 );
-end entity axi4_lite_memif;
+end entity panda_axi4lite_if;
 
-architecture rtl of axi4_lite_memif is
+architecture rtl of panda_axi4lite_if is
 
 -- Get ChipSelect vector
 function csel(
