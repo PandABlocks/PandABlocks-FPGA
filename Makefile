@@ -123,8 +123,8 @@ DTS_TOP_FILE = $(DTS_BUILD_DIR)/system-top.dts
 
 $(DTS_TOP_FILE): $(DEVTREE_DTS)
 	sed -i '/dts-v1/d' $(DEVTREE_DTS)
+	sed -i "/fclk-enable/c\fclk-enable = <0xf>;" $(DEVTREE_DTS)
 	cp $(DTS_CONFIG_FILE) $@
-#	cp $(DTS_CONFIG_DIR)/pl.dtsi $(DTS_BUILD_DIR)
 
 $(DEVTREE_DTB) : $(DTS_TOP_FILE)
 	echo "Building DEVICE TREE..."

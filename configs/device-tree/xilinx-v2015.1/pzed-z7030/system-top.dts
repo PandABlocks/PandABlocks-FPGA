@@ -8,7 +8,7 @@
 		serial0 = &uart1;
 	};
 	chosen {
-		bootargs = "console=ttyPS0,115200 root=/dev/nfs rw nfsroot=172.23.244.35:/scratch/rootfs/xlnx-zynq ip=172.23.252.100::172.23.240.254:255.255.240.0:zynq-iu42::none";
+		bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk";
 	};
 	memory {
 		device_type = "memory";
