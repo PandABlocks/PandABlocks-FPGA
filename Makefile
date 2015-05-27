@@ -112,8 +112,8 @@ $(SDK_EXPORT): $(DEVTREE_BSP)/$(DEVTREE_NAME)
 # Step-6 ###############################################################
 # Generate the DTB file after device-tree bsp generated
 #
-# A top-level board-specific dts file is stored
-# in configs directory which includes Xsdk generated *.dtsi files.
+# system-top.dts : Copied from local /configs, board specific
+# system.dts     : XSDK generated, and included in system-top.dts
 #
 
 DTS_CONFIG_DIR = $(PWD)/configs/device-tree/$(DEVTREE_TAG)/$(BOARD)
