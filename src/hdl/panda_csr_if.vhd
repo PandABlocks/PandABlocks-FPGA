@@ -5,12 +5,12 @@ use ieee.numeric_std.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity panda_axi4lite_if is
+entity panda_csr_if is
 generic (
     AXI_AWIDTH          : integer := 32;
     AXI_DWIDTH          : integer := 32;
     MEM_CSWIDTH         : integer := 4 ;  -- Memory pages = 2**CSW
-    MEM_AWIDTH          : integer := 10;  -- 2**AW Words per page
+    MEM_AWIDTH          : integer := 8;   -- 2**AW Words per page
     MEM_DWIDTH          : integer := 32   -- Width of data bus
 );
 port (
@@ -44,12 +44,12 @@ port (
     mem_addr_o          : out std_logic_vector(MEM_AWIDTH-1 downto 0);
     mem_dat_i           : in  std_logic_vector(MEM_DWIDTH-1 downto 0)
 );
-end entity panda_axi4lite_if;
+end entity panda_csr_if;
 
-architecture rtl of panda_axi4lite_if is
+architecture rtl of panda_csr_if is
 
 -- Get ChipSelect vector
-function csel(
+function CSGEN(
     data        : std_logic_vector;
     CSW         : integer;
     AW          : integer
@@ -93,10 +93,10 @@ begin
             if (new_write_access = '1') then
                 mem_addr_o <= S_AXI_AWADDR(MEM_AWIDTH-1+2 downto 2);
                 mem_dat_o <= S_AXI_WDATA(MEM_DWIDTH-1 downto 0);
-                mem_cs_o <= csel(S_AXI_AWADDR, MEM_CSWIDTH, MEM_AWIDTH);
+                mem_cs_o <= CSGEN(S_AXI_AWADDR, MEM_CSWIDTH, MEM_AWIDTH);
             elsif (new_read_access = '1') then
                 mem_addr_o <= S_AXI_ARADDR(MEM_AWIDTH-1+2 downto 2);
-                mem_cs_o <= csel(S_AXI_ARADDR, MEM_CSWIDTH, MEM_AWIDTH);
+                mem_cs_o <= CSGEN(S_AXI_ARADDR, MEM_CSWIDTH, MEM_AWIDTH);
             end if;
         end if;
     end if;

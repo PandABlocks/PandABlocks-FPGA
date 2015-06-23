@@ -24,7 +24,7 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 	flash0: flash@0 {
-		compatible = "micron,n25q128";
+		compatible = "micron,n25q128a13";
 		reg = <0x0>;
 		#address-cells = <1>;
 		#size-cells = <1>;

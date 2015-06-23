@@ -5,6 +5,9 @@ use ieee.numeric_std.all;
 library unisim;
 use unisim.vcomponents.all;
 
+library work;
+use work.top_defines.all;
+
 entity panda_top is
 port (
     DDR_addr            : inout std_logic_vector ( 14 downto 0 );
@@ -29,6 +32,15 @@ port (
     FIXED_IO_ps_porb    : inout std_logic;
     FIXED_IO_ps_srstb   : inout std_logic;
 
+    -- RS485 Encoder I/O
+    A0_pad_i            : in    std_logic;
+    B0_pad_i            : in    std_logic;
+    Z0_pad_i            : in    std_logic;
+    A0_pad_o            : out   std_logic;
+    B0_pad_o            : out   std_logic;
+    Z0_pad_o            : out   std_logic;
+
+    -- Status I/O
     leds                : out   std_logic_vector(1 downto 0)
 );
 end panda_top;
@@ -101,7 +113,14 @@ port (
   FCLK_CLK0         : out std_logic;
   FCLK_LEDS         : out std_logic_vector(31 downto 0)
 );
-end component panda_ps;
+end component;
+
+component ila_0
+port (
+    clk             : in  std_logic;
+    probe0          : in  std_logic_vector(63 downto 0)
+);
+end component;
 
 -- Signal declarations
 signal FCLK_CLK0        : std_logic;
@@ -148,8 +167,8 @@ signal M01_AXI_rresp    : std_logic_vector ( 1 downto 0 );
 signal M01_AXI_rvalid   : std_logic;
 signal M01_AXI_rready   : std_logic;
 
-signal mem_cs           : std_logic_vector(15 downto 0);
-signal mem_addr         : std_logic_vector(9 downto 0);
+signal mem_cs           : std_logic_vector(2**MEM_CS_NUM-1 downto 0);
+signal mem_addr         : std_logic_vector(MEM_AW-1 downto 0);
 signal mem_idat         : std_logic_vector(31 downto 0);
 signal mem_odat         : std_logic_vector(31 downto 0);
 signal mem_wstb         : std_logic;
@@ -159,6 +178,8 @@ signal cs0_mem_wr       : std_logic;
 signal mem_read_dat_0   : std_logic_vector(31 downto 0);
 
 signal IRQ_F2P          : std_logic;
+
+signal probe0           : std_logic_vector(63 downto 0);
 
 begin
 
@@ -268,37 +289,41 @@ port map (
     s00_axi_rready              => M01_AXI_rready
 );
 
-panda_axi4lite_if_inst : entity work.panda_axi4lite_if
+panda_csr_if_inst : entity work.panda_csr_if
+generic map (
+    MEM_CSWIDTH                 => MEM_CS_NUM,
+    MEM_AWIDTH                  => MEM_AW
+)
 port map (
-    S_AXI_CLK                     => FCLK_CLK0,
-    S_AXI_RST                     => '0',
-    S_AXI_AWADDR                  => M00_AXI_awaddr,
---    S_AXI_AWPROT                  => M00_AXI_awprot,
-    S_AXI_AWVALID                 => M00_AXI_awvalid,
-    S_AXI_AWREADY                 => M00_AXI_awready,
-    S_AXI_WDATA                   => M00_AXI_wdata,
-    S_AXI_WSTRB                   => M00_AXI_wstrb,
-    S_AXI_WVALID                  => M00_AXI_wvalid,
-    S_AXI_WREADY                  => M00_AXI_wready,
-    S_AXI_BRESP                   => M00_AXI_bresp,
-    S_AXI_BVALID                  => M00_AXI_bvalid,
-    S_AXI_BREADY                  => M00_AXI_bready,
-    S_AXI_ARADDR                  => M00_AXI_araddr,
---    S_AXI_ARPROT                  => M00_AXI_arprot,
-    S_AXI_ARVALID                 => M00_AXI_arvalid,
-    S_AXI_ARREADY                 => M00_AXI_arready,
-    S_AXI_RDATA                   => M00_AXI_rdata,
-    S_AXI_RRESP                   => M00_AXI_rresp,
-    S_AXI_RVALID                  => M00_AXI_rvalid,
-    S_AXI_RREADY                  => M00_AXI_rready,
+    S_AXI_CLK                   => FCLK_CLK0,
+    S_AXI_RST                   => '0',
+    S_AXI_AWADDR                => M00_AXI_awaddr,
+--    S_AXI_AWPROT                => M00_AXI_awprot,
+    S_AXI_AWVALID               => M00_AXI_awvalid,
+    S_AXI_AWREADY               => M00_AXI_awready,
+    S_AXI_WDATA                 => M00_AXI_wdata,
+    S_AXI_WSTRB                 => M00_AXI_wstrb,
+    S_AXI_WVALID                => M00_AXI_wvalid,
+    S_AXI_WREADY                => M00_AXI_wready,
+    S_AXI_BRESP                 => M00_AXI_bresp,
+    S_AXI_BVALID                => M00_AXI_bvalid,
+    S_AXI_BREADY                => M00_AXI_bready,
+    S_AXI_ARADDR                => M00_AXI_araddr,
+--    S_AXI_ARPROT                => M00_AXI_arprot,
+    S_AXI_ARVALID               => M00_AXI_arvalid,
+    S_AXI_ARREADY               => M00_AXI_arready,
+    S_AXI_RDATA                 => M00_AXI_rdata,
+    S_AXI_RRESP                 => M00_AXI_rresp,
+    S_AXI_RVALID                => M00_AXI_rvalid,
+    S_AXI_RREADY                => M00_AXI_rready,
 
     -- Bus Memory Interface
-    mem_addr_o                    => mem_addr,
-    mem_dat_i                     => mem_idat,
-    mem_dat_o                     => mem_odat,
-    mem_cs_o                      => mem_cs,
-    mem_rstb_o                    => mem_rstb,
-    mem_wstb_o                    => mem_wstb
+    mem_addr_o                  => mem_addr,
+    mem_dat_i                   => mem_idat,
+    mem_dat_o                   => mem_odat,
+    mem_cs_o                    => mem_cs,
+    mem_rstb_o                  => mem_rstb,
+    mem_wstb_o                  => mem_wstb
 );
 
 --
@@ -312,12 +337,12 @@ cs0_mem_wr <= mem_wstb and mem_cs(0);
 
 cs0_mem_inst : entity work.panda_spbram
 generic map (
-    AW          => 10,
+    AW          => MEM_AW,
     DW          => 32
 )
 port map (
-    addra       => mem_addr(9 downto 0),
-    addrb       => mem_addr(9 downto 0),
+    addra       => mem_addr(MEM_AW-1 downto 0),
+    addrb       => mem_addr(MEM_AW-1 downto 0),
     clka        => FCLK_CLK0,
     clkb        => FCLK_CLK0,
     dina        => mem_odat,
@@ -326,5 +351,31 @@ port map (
 );
 
 mem_idat <= mem_read_dat_0;
+
+-- Encoder Test Interface
+process(FCLK_CLK0)
+    variable counter    : unsigned(31 downto 0);
+begin
+    if rising_edge(FCLK_CLK0) then
+        counter := counter + 1;
+        A0_pad_o <= counter(4);
+        B0_pad_o <= counter(5);
+        Z0_pad_o <= counter(6);
+    end if;
+end process;
+
+--
+-- Chipscope
+--
+ila_0_inst : component ila_0
+port map (
+    clk         => FCLK_CLK0,
+    probe0      => probe0
+);
+
+probe0(0) <= A0_pad_i;
+probe0(1) <= B0_pad_i;
+probe0(2) <= Z0_pad_i;
+probe0(63 downto 3) <= (others => '0');
 
 end rtl;

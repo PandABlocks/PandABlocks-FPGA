@@ -58,9 +58,10 @@ $(PS_CORE) :
 # Build top-level design
 
 $(FPGA_BIT):
+	rm -rf $(OUT_DIR)/panda_top
 	cd $(OUT_DIR) && \
 	    $(VIVADO) && vivado -mode batch -source ../build_top.tcl
-
+	scp $(FPGA_BIT) root@172.23.252.101:/mnt
 
 #####################################################################
 # SW Projects Build
@@ -129,7 +130,7 @@ $(DTS_TOP_FILE): $(DEVTREE_DTS)
 $(DEVTREE_DTB) : $(DTS_TOP_FILE)
 	echo "Building DEVICE TREE..."
 	$(PWD)/configs/linux-xlnx/scripts/dtc -f -I dts -O dtb -o $(DEVTREE_DTB) $(DTS_TOP_FILE)
-	scp $(DEVTREE_DTB) iu42@serv2:/tftpboot
+# 	scp $(DEVTREE_DTB) iu42@serv2:/tftpboot
 
 # Step-6 ###############################################################
 # Save all image files
@@ -141,4 +142,7 @@ $(BOOT_FILE) : $(IMAGE_DIR)
 	    bootgen -w -image configs/boot.bif -o i $(IMAGE_DIR)/boot.bin
 	cp ./output/panda_ps/panda_ps.sdk/fsbl/Release/fsbl.elf $(IMAGE_DIR)
 	cp ./output/panda_top.bit $(IMAGE_DIR)
+
+dts:
+	$(PWD)/configs/linux-xlnx/scripts/dtc -f -I dtb -O dts -o devicetree.dts $(DEVTREE_DTB)
 

@@ -4,7 +4,8 @@ use ieee.numeric_std.all;
 
 package top_defines is
 
-constant MEM_AW     : natural := 10;
+constant MEM_CS_NUM : natural := 5;     -- Memory pages = 2**CSW
+constant MEM_AW     : natural := 8;     -- 2**AW Words per page
 
 -- System Bus Width, Multiplexer Select Width
 constant SBUSW      : natural := 128;
