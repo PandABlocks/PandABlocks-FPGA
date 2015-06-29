@@ -35,12 +35,11 @@ set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj
 
-# Generate External IP into the project dir
-create_ip -name ila -vendor xilinx.com -library ip -version 5.1 -module_name ila_0
-set_property -dict [list CONFIG.C_PROBE0_WIDTH {64}] [get_ips ila_0]
-generate_target all [get_ips ila_0]
-synth_ip [get_ips ila_0]
-
+## Generate External IP into the project dir
+#create_ip -name ila -vendor xilinx.com -library ip -version 5.1 -module_name ila_0
+#set_property -dict [list CONFIG.C_PROBE0_WIDTH {64}] [get_ips ila_0]
+#generate_target all [get_ips ila_0]
+#synth_ip [get_ips ila_0]
 
 # Read design files
 read_bd   panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
@@ -49,10 +48,14 @@ read_vhdl ../src/hdl/panda_csr_if.vhd
 read_vhdl ../src/hdl/panda_spbram.vhd
 read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0_S00_AXI.vhd
 read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0.vhd
+read_vhdl ../src/hdl/zebra_ssimstr.vhd
+read_vhdl ../src/hdl/zebra_ssislv.vhd
 read_vhdl ../src/hdl/panda_top.vhd
 
+# Import IPs
+import_ip ../src/ip_repo/ila_0/ila_0.xci
+
 # Read constraint files
-#read_xdc  ../src/const/panda_top.xdc
 read_xdc  ../src/const/panda_user.xdc
 
 #launch_runs synth_1
@@ -68,7 +71,7 @@ report_ip_status
 synth_design -top panda_top
 
 opt_design
-write_debug_probes panda_top.ltx
+write_debug_probes -force panda_top.ltx
 
 place_design
 

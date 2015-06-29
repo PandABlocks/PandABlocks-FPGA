@@ -32,13 +32,15 @@ port (
     FIXED_IO_ps_porb    : inout std_logic;
     FIXED_IO_ps_srstb   : inout std_logic;
 
-    -- RS485 Encoder I/O
-    A0_pad_i            : in    std_logic;
-    B0_pad_i            : in    std_logic;
-    Z0_pad_i            : in    std_logic;
-    A0_pad_o            : out   std_logic;
-    B0_pad_o            : out   std_logic;
-    Z0_pad_o            : out   std_logic;
+    -- RS485 Channel 0 Encoder I/O
+    Am0_pad_io          : inout std_logic;
+    Bm0_pad_io          : inout std_logic;
+    Zm0_pad_io          : inout std_logic;
+    As0_pad_io          : inout std_logic;
+    Bs0_pad_io          : inout std_logic;
+    Zs0_pad_io          : inout std_logic;
+    enc0_ctrl_pad_i     : in    std_logic_vector(3  downto 0);
+    enc0_ctrl_pad_o     : out   std_logic_vector(11 downto 0);
 
     -- Status I/O
     leds                : out   std_logic_vector(1 downto 0)
@@ -181,8 +183,47 @@ signal IRQ_F2P          : std_logic;
 
 signal probe0           : std_logic_vector(63 downto 0);
 
+signal enc0_ctrl_opad       : std_logic_vector(11 downto 0) := X"02F";
+signal inenc_iobuf_ctrl     : std_logic_vector(2 downto 0);
+signal outenc_iobuf_ctrl    : std_logic_vector(2 downto 0);
+
+signal Am0_ipad, Am0_opad   : std_logic;
+signal Bm0_ipad, Bm0_opad   : std_logic;
+signal Zm0_ipad, Zm0_opad   : std_logic;
+
+signal As0_ipad, As0_opad   : std_logic;
+signal Bs0_ipad, Bs0_opad   : std_logic;
+signal Zs0_ipad, Zs0_opad   : std_logic;
+
+signal A_i, B_i, Z_i        : std_logic;
+signal A_o, B_o, Z_o        : std_logic;
+signal mclk_o               : std_logic;
+signal mdat_i               : std_logic;
+signal sclk_i               : std_logic;
+signal sdat_o               : std_logic;
+signal inenc_buf_ctrl       : std_logic_vector(5 downto 0);
+signal outenc_buf_ctrl      : std_logic_vector(5 downto 0);
+signal inenc_mode           : std_logic_vector(2 downto 0);
+signal outenc_mode          : std_logic_vector(2 downto 0);
+
+signal endat_mdir           : std_logic;
+signal endat_sdir           : std_logic;
+signal enc_dat              : std_logic_vector(23 downto 0);
+signal enc_val              : std_logic;
+
+signal ssimstr_reset        : std_logic;
+
+constant ssi_clk_div        : std_logic_vector(15 downto 0) := X"0064";
+constant smpl_shift         : std_logic_vector(3 downto 0)  := X"A";
+
+attribute keep : string;
+attribute keep of enc0_ctrl_opad        : signal is "true";
+attribute keep of inenc_iobuf_ctrl      : signal is "true";
+attribute keep of outenc_iobuf_ctrl     : signal is "true";
+
 begin
 
+--
 leds <= FCLK_LEDS(26 downto 25);
 
 panda_ps_i: component panda_ps
@@ -257,6 +298,7 @@ port map (
 
 );
 
+--0x43c10000
 panda_pcap_inst : entity work.panda_pcap_v1_0
 generic map (
     -- Parameters of Axi Slave Bus Interface S00_AXI
@@ -289,6 +331,7 @@ port map (
     s00_axi_rready              => M01_AXI_rready
 );
 
+-- 0x43c00000
 panda_csr_if_inst : entity work.panda_csr_if
 generic map (
     MEM_CSWIDTH                 => MEM_CS_NUM,
@@ -341,8 +384,8 @@ generic map (
     DW          => 32
 )
 port map (
-    addra       => mem_addr(MEM_AW-1 downto 0),
-    addrb       => mem_addr(MEM_AW-1 downto 0),
+    addra       => mem_addr,
+    addrb       => mem_addr,
     clka        => FCLK_CLK0,
     clkb        => FCLK_CLK0,
     dina        => mem_odat,
@@ -352,17 +395,142 @@ port map (
 
 mem_idat <= mem_read_dat_0;
 
+--
 -- Encoder Test Interface
+--
+register_read : process(FCLK_CLK0)
+begin
+    if rising_edge(FCLK_CLK0) then
+        if (cs0_mem_wr = '1' and mem_addr = X"00") then
+            inenc_mode <= mem_odat(2 downto 0);
+            outenc_mode <= mem_odat(6 downto 4);
+        end if;
+
+        case (inenc_mode) is
+            when "000"  =>
+                inenc_iobuf_ctrl <= "111";
+                inenc_buf_ctrl <= "000011";
+            when "001"  =>
+                inenc_iobuf_ctrl <= "101";
+                inenc_buf_ctrl <= "001100";
+            when "010"  =>
+                inenc_iobuf_ctrl <= endat_mdir & "00";
+                inenc_buf_ctrl <= "010100";
+            when "011"  =>
+                inenc_iobuf_ctrl <= endat_mdir & "00";
+                inenc_buf_ctrl <= "011100";
+            when others =>
+        end case;
+
+        case (outenc_mode) is
+            when "000"  =>
+                outenc_iobuf_ctrl <= "000";
+                outenc_buf_ctrl <= "000111";
+            when "001"  =>
+                outenc_iobuf_ctrl <= "011";
+                outenc_buf_ctrl <= "101000";
+            when "010"  =>
+                outenc_iobuf_ctrl <= endat_sdir & "10";
+                outenc_buf_ctrl <= "010000";
+            when "011"  =>
+                outenc_iobuf_ctrl <= endat_sdir & "10";
+                outenc_buf_ctrl <= "011000";
+            when others =>
+        end case;
+    end if;
+end process;
+
+-- Master IOBUF instantiations
+IOBUF_Am0 : IOBUF port map (
+I=>Am0_opad, O=>Am0_ipad, T=>inenc_iobuf_ctrl(2), IO=>Am0_pad_io);
+
+IOBUF_Bm0 : IOBUF port map (
+I=>Bm0_opad, O=>Bm0_ipad, T=>inenc_iobuf_ctrl(1), IO=>Bm0_pad_io);
+
+IOBUF_Zm0 : IOBUF port map (
+I=>Zm0_opad, O=>Zm0_ipad, T=>inenc_iobuf_ctrl(0), IO=>Zm0_pad_io);
+
+A_i <= Am0_ipad;
+B_i <= Bm0_ipad;
+Z_i <= Zm0_ipad;
+Bm0_opad <= mclk_o;
+mdat_i <= Am0_ipad;
+Zm0_opad <= endat_mdir;
+
+-- MASTER continuously reads from Absolute Encoder
+-- at 1MHz (50MHz/SSI_CLK_DIV).
+ssimstr_reset <= not outenc_mode(0);
+
+zebra_ssimstr_inst : entity work.zebra_ssimstr
+generic map (
+    CHNUM           => 0,
+    N               => 24,
+    SSI_DEAD_PRD    => 25
+)
+port map (
+    clk_i           => FCLK_CLK0,
+    reset_i         => ssimstr_reset,
+    ssi_clk_div     => ssi_clk_div,
+    smpl_shift      => smpl_shift,
+    ssi_sck_o       => mclk_o,
+    ssi_dat_i       => mdat_i,
+    enc_dat_o       => enc_dat,
+    enc_val_o       => enc_val,
+    enc_dbg_o       => open
+);
+
+zebra_ssislv_inst : entity work.zebra_ssislv
+generic map (
+    N               => 24
+)
+port map (
+    clk_i           => FCLK_CLK0,
+    reset_i         => ssimstr_reset,
+    ssi_sck_i       => sclk_i,
+    ssi_dat_o       => sdat_o,
+    enc_dat_i       => enc_dat,
+    enc_val_i       => enc_val,
+    ssi_rd_sof      => open
+);
+
+-- Slave IOBUF instantiations
+IOBUF_As0 : IOBUF port map (
+I=>As0_opad, O=>As0_ipad, T=>outenc_iobuf_ctrl(2), IO=>As0_pad_io);
+
+IOBUF_Bs0 : IOBUF port map (
+I=>Bs0_opad, O=>Bs0_ipad, T=>outenc_iobuf_ctrl(1), IO=>Bs0_pad_io);
+
+IOBUF_Zs0 : IOBUF port map (
+I=>Zs0_opad, O=>Zs0_ipad, T=>outenc_iobuf_ctrl(0), IO=>Zs0_pad_io);
+
+As0_opad <= A_o when (outenc_mode = "000") else sdat_o;
+Bs0_opad <= B_o;
+Zs0_opad <= Z_o when (outenc_mode = "000") else endat_sdir;
+sclk_i <= Bs0_ipad;
+
 process(FCLK_CLK0)
     variable counter    : unsigned(31 downto 0);
 begin
     if rising_edge(FCLK_CLK0) then
         counter := counter + 1;
-        A0_pad_o <= counter(4);
-        B0_pad_o <= counter(5);
-        Z0_pad_o <= counter(6);
+        A_o <= counter(4);
+        B_o <= counter(5);
+        Z_o <= counter(6);
+--        mclk_o <= counter(7);
+--        sdat_o <= counter(8);
     end if;
 end process;
+
+enc0_ctrl_opad(1 downto 0) <= inenc_buf_ctrl(1 downto 0);
+enc0_ctrl_opad(3 downto 2) <= outenc_buf_ctrl(1 downto 0);
+enc0_ctrl_opad(4) <= inenc_buf_ctrl(2);
+enc0_ctrl_opad(5) <= outenc_buf_ctrl(2);
+enc0_ctrl_opad(7 downto 6) <= inenc_buf_ctrl(4 downto 3);
+enc0_ctrl_opad(9 downto 8) <= outenc_buf_ctrl(4 downto 3);
+enc0_ctrl_opad(10) <= inenc_buf_ctrl(5);
+enc0_ctrl_opad(11) <= outenc_buf_ctrl(5);
+
+enc0_ctrl_pad_o <= enc0_ctrl_opad;
 
 --
 -- Chipscope
@@ -373,9 +541,46 @@ port map (
     probe0      => probe0
 );
 
-probe0(0) <= A0_pad_i;
-probe0(1) <= B0_pad_i;
-probe0(2) <= Z0_pad_i;
-probe0(63 downto 3) <= (others => '0');
+probe0(0) <= A_i;
+probe0(1) <= B_i;
+probe0(2) <= Z_i;
+probe0(14 downto 3) <= enc0_ctrl_opad;
+probe0(18 downto 15)<= enc0_ctrl_pad_i;
+probe0(19) <= sclk_i;
+probe0(20) <= mdat_i;
+probe0(23 downto 21) <= inenc_iobuf_ctrl;
+probe0(26 downto 24) <= outenc_iobuf_ctrl;
+probe0(27) <= enc_val;
+probe0(51 downto 28) <= enc_dat;
+probe0(63 downto 52) <= (others => '0');
 
 end rtl;
+
+
+--InEnc_inst : entity work.inenc
+--port map (
+--    clk_i       => FCLK_CLK0,
+--
+--    a_i         => Am0_ipad,
+--    b_i         => Bm0_ipad,
+--    z_i         => Zm0_ipad,
+--    sclk_o      => Bm0_opad,
+--    sdat_i      => Am0_ipad,
+--    sdat_o      => Am0_opad
+--    buf_ctrl_o  => inenc0_ctrl
+--);
+--
+--OutEnc_inst : entity work.outenc
+--port map (
+--    clk_i       => FCLK_CLK0,
+--
+--    a_o         => As0_opad,
+--    b_o         => Bs0_opad,
+--    z_o         => Zs0_opad,
+--    sclk_i      => Bs0_ipad,
+--    sdat_i      => As0_ipad,
+--    sdat_o      => As0_opad
+--    sdat_en_i   => As0_enpad
+--);
+
+
