@@ -4,12 +4,13 @@ use ieee.numeric_std.all;
 
 package top_defines is
 
-constant MEM_CS_NUM : natural := 5;     -- Memory pages = 2**CSW
-constant MEM_AW     : natural := 8;     -- 2**AW Words per page
-
 -- System Bus Width, Multiplexer Select Width
-constant SBUSW      : natural := 128;
-constant SBUSBW     : natural := 7;
+constant SBUSW      : positive := 128;
+constant SBUSBW     : positive := 7;
+
+-- Block Instantiation
+constant INENC_NUM  : positive := 1;
+
 
 -- System Bus Multiplexer Select array type
 subtype sbus_muxsel_t is std_logic_vector(SBUSBW-1 downto 0);

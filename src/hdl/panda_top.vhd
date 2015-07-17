@@ -7,6 +7,8 @@ use unisim.vcomponents.all;
 
 library work;
 use work.top_defines.all;
+use work.type_defines.all;
+use work.addr_defines.all;
 
 entity panda_top is
 port (
@@ -33,12 +35,12 @@ port (
     FIXED_IO_ps_srstb   : inout std_logic;
 
     -- RS485 Channel 0 Encoder I/O
-    Am0_pad_io          : inout std_logic;
-    Bm0_pad_io          : inout std_logic;
-    Zm0_pad_io          : inout std_logic;
-    As0_pad_io          : inout std_logic;
-    Bs0_pad_io          : inout std_logic;
-    Zs0_pad_io          : inout std_logic;
+    Am0_pad_io          : inout std_logic_vector(INENC_NUM-1 downto 0);
+    Bm0_pad_io          : inout std_logic_vector(INENC_NUM-1 downto 0);
+    Zm0_pad_io          : inout std_logic_vector(INENC_NUM-1 downto 0);
+    As0_pad_io          : inout std_logic_vector(INENC_NUM-1 downto 0);
+    Bs0_pad_io          : inout std_logic_vector(INENC_NUM-1 downto 0);
+    Zs0_pad_io          : inout std_logic_vector(INENC_NUM-1 downto 0);
     enc0_ctrl_pad_i     : in    std_logic_vector(3  downto 0);
     enc0_ctrl_pad_o     : out   std_logic_vector(11 downto 0);
 
@@ -127,6 +129,7 @@ end component;
 -- Signal declarations
 signal FCLK_CLK0        : std_logic;
 signal FCLK_RESET0_N    : std_logic;
+signal FCLK_RESET0      : std_logic;
 signal FCLK_LEDS        : std_logic_vector(31 downto 0);
 
 signal M00_AXI_awaddr   : std_logic_vector ( 31 downto 0 );
@@ -169,62 +172,48 @@ signal M01_AXI_rresp    : std_logic_vector ( 1 downto 0 );
 signal M01_AXI_rvalid   : std_logic;
 signal M01_AXI_rready   : std_logic;
 
-signal mem_cs           : std_logic_vector(2**MEM_CS_NUM-1 downto 0);
-signal mem_addr         : std_logic_vector(MEM_AW-1 downto 0);
-signal mem_idat         : std_logic_vector(31 downto 0);
-signal mem_odat         : std_logic_vector(31 downto 0);
-signal mem_wstb         : std_logic;
-signal mem_rstb         : std_logic;
+signal mem_cs               : std_logic_vector(2**MEM_CS_NUM-1 downto 0);
+signal mem_addr             : std_logic_vector(MEM_AW-1 downto 0);
+signal mem_idat             : std_logic_vector(31 downto 0);
+signal mem_odat             : std_logic_vector(31 downto 0);
+signal mem_wstb             : std_logic;
+signal mem_rstb             : std_logic;
+signal mem_read_data        : std32_array(2**MEM_CS_NUM-1 downto 0);
 
-signal cs0_mem_wr       : std_logic;
-signal mem_read_dat_0   : std_logic_vector(31 downto 0);
+signal IRQ_F2P              : std_logic;
 
-signal IRQ_F2P          : std_logic;
+signal probe0               : std_logic_vector(63 downto 0);
 
-signal probe0           : std_logic_vector(63 downto 0);
-
-signal enc0_ctrl_opad       : std_logic_vector(11 downto 0) := X"02F";
-signal inenc_iobuf_ctrl     : std_logic_vector(2 downto 0);
-signal outenc_iobuf_ctrl    : std_logic_vector(2 downto 0);
-
-signal Am0_ipad, Am0_opad   : std_logic;
-signal Bm0_ipad, Bm0_opad   : std_logic;
-signal Zm0_ipad, Zm0_opad   : std_logic;
+signal encin_buf_ctrl       : std_logic_vector(5 downto 0);
+signal outenc_buf_ctrl      : std_logic_vector(5 downto 0);
+signal enc0_ctrl_opad       : std_logic_vector(11 downto 0);
 
 signal As0_ipad, As0_opad   : std_logic;
 signal Bs0_ipad, Bs0_opad   : std_logic;
 signal Zs0_ipad, Zs0_opad   : std_logic;
 
-signal A_i, B_i, Z_i        : std_logic;
 signal A_o, B_o, Z_o        : std_logic;
 signal mclk_o               : std_logic;
 signal mdat_i               : std_logic;
 signal sclk_i               : std_logic;
 signal sdat_o               : std_logic;
-signal inenc_buf_ctrl       : std_logic_vector(5 downto 0);
-signal outenc_buf_ctrl      : std_logic_vector(5 downto 0);
-signal inenc_mode           : std_logic_vector(2 downto 0);
+signal encin_mode           : std_logic_vector(2 downto 0);
 signal outenc_mode          : std_logic_vector(2 downto 0);
-
 signal endat_mdir           : std_logic;
 signal endat_sdir           : std_logic;
-signal enc_dat              : std_logic_vector(23 downto 0);
-signal enc_val              : std_logic;
 
-signal ssimstr_reset        : std_logic;
+signal encin_posn           : std32_array(INENC_NUM-1 downto 0);
+signal encin_posn_valid     : std_logic_vector(INENC_NUM-1 downto 0);
 
-constant ssi_clk_div        : std_logic_vector(15 downto 0) := X"0064";
-constant smpl_shift         : std_logic_vector(3 downto 0)  := X"A";
-
-attribute keep : string;
-attribute keep of enc0_ctrl_opad        : signal is "true";
-attribute keep of inenc_iobuf_ctrl      : signal is "true";
-attribute keep of outenc_iobuf_ctrl     : signal is "true";
+signal encout_posn          : std32_array(INENC_NUM-1 downto 0);
+signal connected            : std_logic_vector(INENC_NUM-1 downto 0);
 
 begin
 
 --
 leds <= FCLK_LEDS(26 downto 25);
+
+FCLK_RESET0 <= not FCLK_RESET0_N;
 
 panda_ps_i: component panda_ps
 port map (
@@ -339,7 +328,7 @@ generic map (
 )
 port map (
     S_AXI_CLK                   => FCLK_CLK0,
-    S_AXI_RST                   => '0',
+    S_AXI_RST                   => FCLK_RESET0,
     S_AXI_AWADDR                => M00_AXI_awaddr,
 --    S_AXI_AWPROT                => M00_AXI_awprot,
     S_AXI_AWVALID               => M00_AXI_awvalid,
@@ -362,172 +351,96 @@ port map (
 
     -- Bus Memory Interface
     mem_addr_o                  => mem_addr,
-    mem_dat_i                   => mem_idat,
+    mem_dat_i                   => mem_read_data,
     mem_dat_o                   => mem_odat,
     mem_cs_o                    => mem_cs,
     mem_rstb_o                  => mem_rstb,
     mem_wstb_o                  => mem_wstb
 );
 
---
--- A copy of user configuration data is always
--- mirrored in this buffer. On STORE command,
--- configuration data is written onto flash.
---
-
--- cs #0 is allocated to BRAM
-cs0_mem_wr <= mem_wstb and mem_cs(0);
-
-cs0_mem_inst : entity work.panda_spbram
-generic map (
-    AW          => MEM_AW,
-    DW          => 32
-)
-port map (
-    addra       => mem_addr,
-    addrb       => mem_addr,
-    clka        => FCLK_CLK0,
-    clkb        => FCLK_CLK0,
-    dina        => mem_odat,
-    doutb       => mem_read_dat_0,
-    wea         => cs0_mem_wr
-);
-
-mem_idat <= mem_read_dat_0;
+mem_read_data(0) <= X"12345678";
+mem_read_data(1) <= X"11111111";
+mem_read_data(2) <= X"22222222";
 
 --
 -- Encoder Test Interface
 --
-register_read : process(FCLK_CLK0)
+REGISTER_READ : process(FCLK_CLK0)
 begin
     if rising_edge(FCLK_CLK0) then
-        if (cs0_mem_wr = '1' and mem_addr = X"00") then
-            inenc_mode <= mem_odat(2 downto 0);
-            outenc_mode <= mem_odat(6 downto 4);
+        -- DCard Input Channel Buffer Ctrl
+        -- Inc   : 0x03
+        -- SSI   : 0x0C
+        -- Endat : 0x14
+        -- BiSS  : 0x1C
+        if (mem_cs(0) = '1' and mem_wstb = '1' and mem_addr = X"00") then
+            encin_buf_ctrl <= mem_odat(5 downto 0);
         end if;
 
-        case (inenc_mode) is
-            when "000"  =>
-                inenc_iobuf_ctrl <= "111";
-                inenc_buf_ctrl <= "000011";
-            when "001"  =>
-                inenc_iobuf_ctrl <= "101";
-                inenc_buf_ctrl <= "001100";
-            when "010"  =>
-                inenc_iobuf_ctrl <= endat_mdir & "00";
-                inenc_buf_ctrl <= "010100";
-            when "011"  =>
-                inenc_iobuf_ctrl <= endat_mdir & "00";
-                inenc_buf_ctrl <= "011100";
-            when others =>
-        end case;
-
-        case (outenc_mode) is
-            when "000"  =>
-                outenc_iobuf_ctrl <= "000";
-                outenc_buf_ctrl <= "000111";
-            when "001"  =>
-                outenc_iobuf_ctrl <= "011";
-                outenc_buf_ctrl <= "101000";
-            when "010"  =>
-                outenc_iobuf_ctrl <= endat_sdir & "10";
-                outenc_buf_ctrl <= "010000";
-            when "011"  =>
-                outenc_iobuf_ctrl <= endat_sdir & "10";
-                outenc_buf_ctrl <= "011000";
-            when others =>
-        end case;
+        -- DCard Output Channel Buffer Ctrl
+        -- Inc   : 0x07
+        -- SSI   : 0x28
+        -- Endat : 0x10
+        -- BiSS  : 0x18
+        -- DCard Output Channel Buffer Ctrl
+        if (mem_cs(0) = '1' and mem_wstb = '1' and mem_addr = X"01") then
+            outenc_buf_ctrl <= mem_odat(5 downto 0);
+        end if;
     end if;
 end process;
 
--- Master IOBUF instantiations
-IOBUF_Am0 : IOBUF port map (
-I=>Am0_opad, O=>Am0_ipad, T=>inenc_iobuf_ctrl(2), IO=>Am0_pad_io);
-
-IOBUF_Bm0 : IOBUF port map (
-I=>Bm0_opad, O=>Bm0_ipad, T=>inenc_iobuf_ctrl(1), IO=>Bm0_pad_io);
-
-IOBUF_Zm0 : IOBUF port map (
-I=>Zm0_opad, O=>Zm0_ipad, T=>inenc_iobuf_ctrl(0), IO=>Zm0_pad_io);
-
-A_i <= Am0_ipad;
-B_i <= Bm0_ipad;
-Z_i <= Zm0_ipad;
-Bm0_opad <= mclk_o;
-mdat_i <= Am0_ipad;
-Zm0_opad <= endat_mdir;
-
--- MASTER continuously reads from Absolute Encoder
--- at 1MHz (50MHz/SSI_CLK_DIV).
-ssimstr_reset <= not outenc_mode(0);
-
-zebra_ssimstr_inst : entity work.zebra_ssimstr
-generic map (
-    CHNUM           => 0,
-    N               => 24,
-    SSI_DEAD_PRD    => 25
-)
+ENCIN_INST : entity work.panda_encin_top
 port map (
-    clk_i           => FCLK_CLK0,
-    reset_i         => ssimstr_reset,
-    ssi_clk_div     => ssi_clk_div,
-    smpl_shift      => smpl_shift,
-    ssi_sck_o       => mclk_o,
-    ssi_dat_i       => mdat_i,
-    enc_dat_o       => enc_dat,
-    enc_val_o       => enc_val,
-    enc_dbg_o       => open
+    -- Clock and Reset
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+    -- Memory Bus Interface
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(ENCIN_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => open,
+    -- Encoder I/O Pads
+    Am0_pad_io          => Am0_pad_io,
+    Bm0_pad_io          => Bm0_pad_io,
+    Zm0_pad_io          => Zm0_pad_io,
+    --
+    posn_o              => encin_posn,
+    posn_valid_o        => encin_posn_valid
 );
 
-zebra_ssislv_inst : entity work.zebra_ssislv
-generic map (
-    N               => 24
-)
+ENCOUT_INST : entity work.panda_encout_top
 port map (
-    clk_i           => FCLK_CLK0,
-    reset_i         => ssimstr_reset,
-    ssi_sck_i       => sclk_i,
-    ssi_dat_o       => sdat_o,
-    enc_dat_i       => enc_dat,
-    enc_val_i       => enc_val,
-    ssi_rd_sof      => open
+    -- Clock and Reset
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+    -- Memory Bus Interface
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(ENCOUT_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => mem_read_data(ENCOUT_CS),
+    -- Encoder I/O Pads
+    As0_pad_io          => As0_pad_io,
+    Bs0_pad_io          => Bs0_pad_io,
+    Zs0_pad_io          => Zs0_pad_io,
+    --
+    posn_i              => encout_posn,
+    conn_i              => connected
 );
 
--- Slave IOBUF instantiations
-IOBUF_As0 : IOBUF port map (
-I=>As0_opad, O=>As0_ipad, T=>outenc_iobuf_ctrl(2), IO=>As0_pad_io);
+encout_posn(0) <= X"12345678";
 
-IOBUF_Bs0 : IOBUF port map (
-I=>Bs0_opad, O=>Bs0_ipad, T=>outenc_iobuf_ctrl(1), IO=>Bs0_pad_io);
-
-IOBUF_Zs0 : IOBUF port map (
-I=>Zs0_opad, O=>Zs0_ipad, T=>outenc_iobuf_ctrl(0), IO=>Zs0_pad_io);
-
-As0_opad <= A_o when (outenc_mode = "000") else sdat_o;
-Bs0_opad <= B_o;
-Zs0_opad <= Z_o when (outenc_mode = "000") else endat_sdir;
-sclk_i <= Bs0_ipad;
-
-process(FCLK_CLK0)
-    variable counter    : unsigned(31 downto 0);
-begin
-    if rising_edge(FCLK_CLK0) then
-        counter := counter + 1;
-        A_o <= counter(4);
-        B_o <= counter(5);
-        Z_o <= counter(6);
---        mclk_o <= counter(7);
---        sdat_o <= counter(8);
-    end if;
-end process;
-
-enc0_ctrl_opad(1 downto 0) <= inenc_buf_ctrl(1 downto 0);
+-- Daughter Card Buffer Control Signals
+enc0_ctrl_opad(1 downto 0) <= encin_buf_ctrl(1 downto 0);
 enc0_ctrl_opad(3 downto 2) <= outenc_buf_ctrl(1 downto 0);
-enc0_ctrl_opad(4) <= inenc_buf_ctrl(2);
+enc0_ctrl_opad(4) <= encin_buf_ctrl(2);
 enc0_ctrl_opad(5) <= outenc_buf_ctrl(2);
-enc0_ctrl_opad(7 downto 6) <= inenc_buf_ctrl(4 downto 3);
+enc0_ctrl_opad(7 downto 6) <= encin_buf_ctrl(4 downto 3);
 enc0_ctrl_opad(9 downto 8) <= outenc_buf_ctrl(4 downto 3);
-enc0_ctrl_opad(10) <= inenc_buf_ctrl(5);
+enc0_ctrl_opad(10) <= encin_buf_ctrl(5);
 enc0_ctrl_opad(11) <= outenc_buf_ctrl(5);
 
 enc0_ctrl_pad_o <= enc0_ctrl_opad;
@@ -541,46 +454,10 @@ port map (
     probe0      => probe0
 );
 
-probe0(0) <= A_i;
-probe0(1) <= B_i;
-probe0(2) <= Z_i;
-probe0(14 downto 3) <= enc0_ctrl_opad;
-probe0(18 downto 15)<= enc0_ctrl_pad_i;
-probe0(19) <= sclk_i;
-probe0(20) <= mdat_i;
-probe0(23 downto 21) <= inenc_iobuf_ctrl;
-probe0(26 downto 24) <= outenc_iobuf_ctrl;
-probe0(27) <= enc_val;
-probe0(51 downto 28) <= enc_dat;
-probe0(63 downto 52) <= (others => '0');
-
+probe0(0) <= '0';
+probe0(1) <= '0';
+probe0(2) <= '0';
+probe0(3) <= encin_posn_valid(0);
+probe0(35 downto 4) <= encin_posn(0);
+probe0(63 downto 36) <= (others => '0');
 end rtl;
-
-
---InEnc_inst : entity work.inenc
---port map (
---    clk_i       => FCLK_CLK0,
---
---    a_i         => Am0_ipad,
---    b_i         => Bm0_ipad,
---    z_i         => Zm0_ipad,
---    sclk_o      => Bm0_opad,
---    sdat_i      => Am0_ipad,
---    sdat_o      => Am0_opad
---    buf_ctrl_o  => inenc0_ctrl
---);
---
---OutEnc_inst : entity work.outenc
---port map (
---    clk_i       => FCLK_CLK0,
---
---    a_o         => As0_opad,
---    b_o         => Bs0_opad,
---    z_o         => Zs0_opad,
---    sclk_i      => Bs0_ipad,
---    sdat_i      => As0_ipad,
---    sdat_o      => As0_opad
---    sdat_en_i   => As0_enpad
---);
-
-

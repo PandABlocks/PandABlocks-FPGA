@@ -43,13 +43,19 @@ set_property "target_language" "VHDL" $obj
 
 # Read design files
 read_bd   panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
-read_vhdl ../src/hdl/packages/top_defines.vhd
+read_vhdl ../src/hdl/defines/type_defines.vhd
+read_vhdl ../src/hdl/defines/addr_defines.vhd
+read_vhdl ../src/hdl/defines/top_defines.vhd
 read_vhdl ../src/hdl/panda_csr_if.vhd
 read_vhdl ../src/hdl/panda_spbram.vhd
 read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0_S00_AXI.vhd
 read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0.vhd
-read_vhdl ../src/hdl/zebra_ssimstr.vhd
-read_vhdl ../src/hdl/zebra_ssislv.vhd
+read_vhdl ../src/hdl/panda_ssislv.vhd
+read_vhdl ../src/hdl/panda_ssimstr.vhd
+read_vhdl ../src/hdl/panda_encin.vhd
+read_vhdl ../src/hdl/panda_encin_top.vhd
+read_vhdl ../src/hdl/panda_encout.vhd
+read_vhdl ../src/hdl/panda_encout_top.vhd
 read_vhdl ../src/hdl/panda_top.vhd
 
 # Import IPs

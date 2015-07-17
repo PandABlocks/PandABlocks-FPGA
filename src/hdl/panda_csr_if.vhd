@@ -5,6 +5,9 @@ use ieee.numeric_std.all;
 library unisim;
 use unisim.vcomponents.all;
 
+library work;
+use work.type_defines.all;
+
 entity panda_csr_if is
 generic (
     AXI_AWIDTH          : integer := 32;
@@ -14,8 +17,8 @@ generic (
     MEM_DWIDTH          : integer := 32   -- Width of data bus
 );
 port (
-    S_AXI_CLK : in std_logic;
-    S_AXI_RST : in std_logic;
+    S_AXI_CLK           : in std_logic;
+    S_AXI_RST           : in std_logic;
 
     -- AXI4-Lite SLAVE SINGLE INTERFACE
     S_AXI_AWADDR        : in  std_logic_vector(AXI_AWIDTH-1 downto 0);
@@ -42,7 +45,7 @@ port (
     mem_wstb_o          : out std_logic;
     mem_dat_o           : out std_logic_vector(MEM_DWIDTH-1 downto 0);
     mem_addr_o          : out std_logic_vector(MEM_AWIDTH-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(MEM_DWIDTH-1 downto 0)
+    mem_dat_i           : in  std32_array(2**MEM_CSWIDTH-1 downto 0)
 );
 end entity panda_csr_if;
 
@@ -56,15 +59,28 @@ function CSGEN(
 ) return std_logic_vector is
     variable result : std_logic_vector(2**CSW-1 downto 0) := (others => '0');
 begin
-    result(to_integer(unsigned(data(AW+CSW-1 downto AW+2)))) := '1';
+    result(to_integer(unsigned(data(AW+CSW+1 downto AW+2)))) := '1';
     return result;
 end;
+
+-- Read Data multiplexer
+function RD_DATA_MUX(
+    data        : std32_array;
+    addr        : std_logic_vector;
+    CSW         : integer;
+    AW          : integer
+) return std_logic_vector is
+begin
+    return data(to_integer(unsigned(addr(AW+CSW+1 downto AW+2))));
+end;
+
 
 signal new_write_access     : std_logic;
 signal new_read_access      : std_logic;
 signal ongoing_write        : std_logic;
 signal ongoing_read         : std_logic;
 signal S_AXI_RVALID_i       : std_logic;
+signal mem_read_data        : std_logic_vector(31 downto 0);
 
 begin
 
@@ -135,7 +151,8 @@ begin
                 ongoing_read   <= '0';
                 S_AXI_RVALID_i <= '0';
             else
-                S_AXI_RVALID_i <= '1'; -- 1 clk after ongoing_read to match S_AXI_RDDATA
+                 -- 1 clk after ongoing_read to match S_AXI_RDDATA
+                S_AXI_RVALID_i <= '1';
             end if;
         end if;
         mem_rstb_o <= new_read_access;
@@ -157,9 +174,17 @@ S_AXI_RDATA_DFF : for I in MEM_DWIDTH - 1 downto 0 generate
           Q     => S_AXI_RDATA(I),
           C     => S_AXI_CLK,
           CE    => ongoing_read,
-          D     => mem_dat_i(I),
+          D     => mem_read_data(I),
+--          D     => mem_dat_i(I),
           R     => S_AXI_RST
       );
 end generate S_AXI_RDATA_DFF;
+
+-- Memory read data multiplexer
+-- There are 2**CS pages
+READ_DATA_MUX : process(mem_dat_i)
+begin
+    mem_read_data <= RD_DATA_MUX(mem_dat_i, S_AXI_ARADDR, MEM_CSWIDTH, MEM_AWIDTH);
+end process;
 
 end architecture rtl;

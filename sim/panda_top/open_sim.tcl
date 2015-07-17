@@ -1,0 +1,4 @@
+close_sim -quiet
+current_fileset
+open_wave_database simulation/panda_encin_tb.wdb
+open_wave_config simulation/panda_encin_tb.wcfg

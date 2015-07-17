@@ -61,7 +61,7 @@ $(FPGA_BIT):
 	rm -rf $(OUT_DIR)/panda_top
 	cd $(OUT_DIR) && \
 	    $(VIVADO) && vivado -mode batch -source ../build_top.tcl
-	scp $(FPGA_BIT) root@172.23.252.101:/mnt
+	scp $(FPGA_BIT) root@172.23.252.102:/mnt
 
 #####################################################################
 # SW Projects Build
