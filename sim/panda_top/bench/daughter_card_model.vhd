@@ -80,26 +80,26 @@ I=>B_IN_P, O=>open, T=>CTRL_IN_N(0), IO=>B_IN);
 ZIN: IOBUF port map (
 I=>Z_IN_P, O=>open, T=>CTRL_IN_N(1), IO=>Z_IN);
 
-CLK_OUT: IOBUF port map (
-I=>'0', O=>CLK_OUT_P, T=>CTRL_IN(4), IO=>B_IN);
-
-DATA_IN: IOBUF port map (
-I=>DATA_IN_P, O=>open, T=>mux1(1), IO=>A_IN);
+--CLK_OUT: IOBUF port map (
+--I=>'0', O=>CLK_OUT_P, T=>'1', IO=>B_IN);
+--
+--DATA_IN: IOBUF port map (
+--I=>DATA_IN_P, O=>open, T=>mux1(1), IO=>A_IN);
 
 -- Output/Slave Buffers
 AOUT: IOBUF port map (
-I=>'0', O=>A_OUT_P, T=>CTRL_IN_N(2), IO=>A_OUT);
+I=>'0', O=>A_OUT_P, T=>CTRL_IN(2), IO=>A_OUT);
 
 BOUT: IOBUF port map (
-I=>'0', O=>B_OUT_P, T=>CTRL_IN_N(2), IO=>B_OUT);
+I=>'0', O=>B_OUT_P, T=>CTRL_IN(2), IO=>B_OUT);
 
 ZOUT: IOBUF port map (
-I=>'0', O=>Z_OUT_P, T=>CTRL_IN_N(3), IO=>Z_OUT);
+I=>'0', O=>Z_OUT_P, T=>CTRL_IN(3), IO=>Z_OUT);
 
-CLK_IN: IOBUF port map (
-I=>CLK_IN_P, O=>open, T=>CTRL_IN(5), IO=>B_OUT);
-
-DATA_OUT: IOBUF port map (
-I=>'0', O=>DATA_OUT_P, T=>mux2(0), IO=>A_OUT);
+--CLK_IN: IOBUF port map (
+--I=>CLK_IN_P, O=>open, T=>CTRL_IN(5), IO=>B_OUT);
+--
+--DATA_OUT: IOBUF port map (
+--I=>'0', O=>DATA_OUT_P, T=>mux2(0), IO=>A_OUT);
 
 end;

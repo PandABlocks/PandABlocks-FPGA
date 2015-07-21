@@ -47,8 +47,8 @@ signal leds             : std_logic_vector(1 downto 0);
 signal clk              : std_logic := '0';
 signal reset            : std_logic := '1';
 
-signal A_IN_P           : std_logic := '0';
-signal B_IN_P           : std_logic := '0';
+signal A_IN_P           : std_logic;
+signal B_IN_P           : std_logic;
 signal Z_IN_P           : std_logic := '0';
 signal CLK_OUT_P        : std_logic;
 signal DATA_IN_P        : std_logic := '0';
@@ -61,7 +61,7 @@ signal DATA_OUT_P       : std_logic;
 
 begin
 
-clk <= not clk after 5 ns;
+clk <= not clk after 4 ns;
 reset <= '0' after 1 us;
 
 -- Instantiate the Unit Under Test (UUT)
@@ -125,18 +125,17 @@ port map (
     CTRL_OUT    => enc0_ctrl_pad_i
 );
 
--- Stimulus process
-test_proc: process
-begin
-    wait;
-end process;
-
--- Loopback
+incr_encoder_model_inst : entity work.incr_encoder_model
+port map (
+    CLK         => clk,
+    A_OUT       => open, --A_IN_P,
+    B_OUT       => open  --B_IN_P
+);
 
 A_IN_P <= A_OUT_P;
 B_IN_P <= B_OUT_P;
-Z_IN_P <= Z_OUT_P;
 
+-- Loopback on SSI
 CLK_IN_P <= CLK_OUT_P;
 DATA_IN_P <= DATA_OUT_P;
 

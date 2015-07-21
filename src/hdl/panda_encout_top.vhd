@@ -29,8 +29,7 @@ port (
     Bs0_pad_io          : inout std_logic_vector(CHANNELS-1 downto 0);
     Zs0_pad_io          : inout std_logic_vector(CHANNELS-1 downto 0);
     -- Position data value
-    posn_i              : in  std32_array(CHANNELS-1 downto 0);
-    conn_i              : in  std_logic_vector(CHANNELS-1 downto 0)
+    posn_i              : in  std32_array(CHANNELS-1 downto 0)
 );
 end panda_encout_top;
 
@@ -50,13 +49,17 @@ signal sclk, sdato          : std_logic_vector(CHANNELS-1 downto 0);
 
 signal sdat_dir_channels    : std_logic_vector(CHANNELS-1 downto 0);
 
+signal mem_read_data        : std32_array(CHANNELS-1 downto 0);
+
 begin
 
+mem_dat_o <= mem_read_data(to_integer(unsigned(mem_addr_i(MEM_AW-1 downto BLK_AW))));
+
 --
--- Instantiate INENC Blocks :
+-- Instantiate ENCOUT Blocks :
 --  There are CHANNELS amount of encoders on the board
 --
-INENC_GEN : FOR I IN 0 TO CHANNELS-1 GENERATE
+ENCOUT_GEN : FOR I IN 0 TO CHANNELS-1 GENERATE
 
 --
 -- Encoder I/O Control :
@@ -88,11 +91,12 @@ port map (
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
-
+    -- Memory Interface
     mem_cs_i            => mem_blk_cs(I),
     mem_wstb_i          => mem_wstb_i,
     mem_addr_i          => mem_addr_i(BLK_AW-1 downto 0),
     mem_dat_i           => mem_dat_i,
+    mem_dat_o           => mem_read_data(I),
     -- Encoder I/O Pads
     a_o                 => ao(I),
     b_o                 => bo(I),
@@ -105,7 +109,6 @@ port map (
     posn_i              => posn_i(I),
     --
     enc_mode_o          => enc_mode_channels(I),
-    conn_i              => conn_i(I),
     iobuf_ctrl_o        => iobuf_ctrl_channels(I)
 );
 

@@ -29,8 +29,7 @@ port (
     Bm0_pad_io          : inout std_logic_vector(CHANNELS-1 downto 0);
     Zm0_pad_io          : inout std_logic_vector(CHANNELS-1 downto 0);
     --
-    posn_o              : out std32_array(CHANNELS-1 downto 0);
-    posn_valid_o        : out std_logic_vector(CHANNELS-1 downto 0)
+    posn_o              : out std32_array(CHANNELS-1 downto 0)
 );
 end panda_encin_top;
 
@@ -46,6 +45,8 @@ signal Zm0_ipad, Zm0_opad   : std_logic_vector(CHANNELS-1 downto 0);
 
 
 begin
+
+mem_dat_o <= (others => '0');
 
 --
 -- Instantiate INENC Blocks :
@@ -90,7 +91,6 @@ port map (
     mdat_o              => open,
     -- Status
     posn_o              => posn_o(I),
-    posn_valid_o        => posn_valid_o(I),
     iobuf_ctrl_o        => iobuf_ctrl_channels(I)
 );
 

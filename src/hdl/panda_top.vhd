@@ -127,54 +127,53 @@ port (
 end component;
 
 -- Signal declarations
-signal FCLK_CLK0        : std_logic;
-signal FCLK_RESET0_N    : std_logic;
-signal FCLK_RESET0      : std_logic;
-signal FCLK_LEDS        : std_logic_vector(31 downto 0);
+signal FCLK_CLK0            : std_logic;
+signal FCLK_RESET0_N        : std_logic;
+signal FCLK_RESET0          : std_logic;
+signal FCLK_LEDS            : std_logic_vector(31 downto 0);
 
-signal M00_AXI_awaddr   : std_logic_vector ( 31 downto 0 );
-signal M00_AXI_awprot   : std_logic_vector ( 2 downto 0 );
-signal M00_AXI_awvalid  : std_logic;
-signal M00_AXI_awready  : std_logic;
-signal M00_AXI_wdata    : std_logic_vector ( 31 downto 0 );
-signal M00_AXI_wstrb    : std_logic_vector ( 3 downto 0 );
-signal M00_AXI_wvalid   : std_logic;
-signal M00_AXI_wready   : std_logic;
-signal M00_AXI_bresp    : std_logic_vector ( 1 downto 0 );
-signal M00_AXI_bvalid   : std_logic;
-signal M00_AXI_bready   : std_logic;
-signal M00_AXI_araddr   : std_logic_vector ( 31 downto 0 );
-signal M00_AXI_arprot   : std_logic_vector ( 2 downto 0 );
-signal M00_AXI_arvalid  : std_logic;
-signal M00_AXI_arready  : std_logic;
-signal M00_AXI_rdata    : std_logic_vector ( 31 downto 0 );
-signal M00_AXI_rresp    : std_logic_vector ( 1 downto 0 );
-signal M00_AXI_rvalid   : std_logic;
-signal M00_AXI_rready   : std_logic;
+signal M00_AXI_awaddr       : std_logic_vector ( 31 downto 0 );
+signal M00_AXI_awprot       : std_logic_vector ( 2 downto 0 );
+signal M00_AXI_awvalid      : std_logic;
+signal M00_AXI_awready      : std_logic;
+signal M00_AXI_wdata        : std_logic_vector ( 31 downto 0 );
+signal M00_AXI_wstrb        : std_logic_vector ( 3 downto 0 );
+signal M00_AXI_wvalid       : std_logic;
+signal M00_AXI_wready       : std_logic;
+signal M00_AXI_bresp        : std_logic_vector ( 1 downto 0 );
+signal M00_AXI_bvalid       : std_logic;
+signal M00_AXI_bready       : std_logic;
+signal M00_AXI_araddr       : std_logic_vector ( 31 downto 0 );
+signal M00_AXI_arprot       : std_logic_vector ( 2 downto 0 );
+signal M00_AXI_arvalid      : std_logic;
+signal M00_AXI_arready      : std_logic;
+signal M00_AXI_rdata        : std_logic_vector ( 31 downto 0 );
+signal M00_AXI_rresp        : std_logic_vector ( 1 downto 0 );
+signal M00_AXI_rvalid       : std_logic;
+signal M00_AXI_rready       : std_logic;
 
-signal M01_AXI_awaddr   : std_logic_vector ( 31 downto 0 );
-signal M01_AXI_awprot   : std_logic_vector ( 2 downto 0 );
-signal M01_AXI_awvalid  : std_logic;
-signal M01_AXI_awready  : std_logic;
-signal M01_AXI_wdata    : std_logic_vector ( 31 downto 0 );
-signal M01_AXI_wstrb    : std_logic_vector ( 3 downto 0 );
-signal M01_AXI_wvalid   : std_logic;
-signal M01_AXI_wready   : std_logic;
-signal M01_AXI_bresp    : std_logic_vector ( 1 downto 0 );
-signal M01_AXI_bvalid   : std_logic;
-signal M01_AXI_bready   : std_logic;
-signal M01_AXI_araddr   : std_logic_vector ( 31 downto 0 );
-signal M01_AXI_arprot   : std_logic_vector ( 2 downto 0 );
-signal M01_AXI_arvalid  : std_logic;
-signal M01_AXI_arready  : std_logic;
-signal M01_AXI_rdata    : std_logic_vector ( 31 downto 0 );
-signal M01_AXI_rresp    : std_logic_vector ( 1 downto 0 );
-signal M01_AXI_rvalid   : std_logic;
-signal M01_AXI_rready   : std_logic;
+signal M01_AXI_awaddr       : std_logic_vector ( 31 downto 0 );
+signal M01_AXI_awprot       : std_logic_vector ( 2 downto 0 );
+signal M01_AXI_awvalid      : std_logic;
+signal M01_AXI_awready      : std_logic;
+signal M01_AXI_wdata        : std_logic_vector ( 31 downto 0 );
+signal M01_AXI_wstrb        : std_logic_vector ( 3 downto 0 );
+signal M01_AXI_wvalid       : std_logic;
+signal M01_AXI_wready       : std_logic;
+signal M01_AXI_bresp        : std_logic_vector ( 1 downto 0 );
+signal M01_AXI_bvalid       : std_logic;
+signal M01_AXI_bready       : std_logic;
+signal M01_AXI_araddr       : std_logic_vector ( 31 downto 0 );
+signal M01_AXI_arprot       : std_logic_vector ( 2 downto 0 );
+signal M01_AXI_arvalid      : std_logic;
+signal M01_AXI_arready      : std_logic;
+signal M01_AXI_rdata        : std_logic_vector ( 31 downto 0 );
+signal M01_AXI_rresp        : std_logic_vector ( 1 downto 0 );
+signal M01_AXI_rvalid       : std_logic;
+signal M01_AXI_rready       : std_logic;
 
 signal mem_cs               : std_logic_vector(2**MEM_CS_NUM-1 downto 0);
 signal mem_addr             : std_logic_vector(MEM_AW-1 downto 0);
-signal mem_idat             : std_logic_vector(31 downto 0);
 signal mem_odat             : std_logic_vector(31 downto 0);
 signal mem_wstb             : std_logic;
 signal mem_rstb             : std_logic;
@@ -203,10 +202,9 @@ signal endat_mdir           : std_logic;
 signal endat_sdir           : std_logic;
 
 signal encin_posn           : std32_array(INENC_NUM-1 downto 0);
-signal encin_posn_valid     : std_logic_vector(INENC_NUM-1 downto 0);
 
 signal encout_posn          : std32_array(INENC_NUM-1 downto 0);
-signal connected            : std_logic_vector(INENC_NUM-1 downto 0);
+signal soft_posn            : std_logic_vector(31 downto 0) := (others =>'0');
 
 begin
 
@@ -386,52 +384,54 @@ begin
         if (mem_cs(0) = '1' and mem_wstb = '1' and mem_addr = X"01") then
             outenc_buf_ctrl <= mem_odat(5 downto 0);
         end if;
+
+        -- Soft Posn
+        if (mem_cs(0) = '1' and mem_wstb = '1' and mem_addr = X"02") then
+            soft_posn <= mem_odat;
+        end if;
+
     end if;
 end process;
 
 ENCIN_INST : entity work.panda_encin_top
 port map (
-    -- Clock and Reset
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    -- Memory Bus Interface
+
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(ENCIN_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => open,
-    -- Encoder I/O Pads
+
     Am0_pad_io          => Am0_pad_io,
     Bm0_pad_io          => Bm0_pad_io,
     Zm0_pad_io          => Zm0_pad_io,
-    --
-    posn_o              => encin_posn,
-    posn_valid_o        => encin_posn_valid
+
+    posn_o              => encin_posn
 );
 
 ENCOUT_INST : entity work.panda_encout_top
 port map (
-    -- Clock and Reset
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    -- Memory Bus Interface
+
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(ENCOUT_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(ENCOUT_CS),
-    -- Encoder I/O Pads
+
     As0_pad_io          => As0_pad_io,
     Bs0_pad_io          => Bs0_pad_io,
     Zs0_pad_io          => Zs0_pad_io,
-    --
-    posn_i              => encout_posn,
-    conn_i              => connected
+
+    posn_i              => encout_posn
 );
 
-encout_posn(0) <= X"12345678";
+encout_posn(0) <= soft_posn;
 
 -- Daughter Card Buffer Control Signals
 enc0_ctrl_opad(1 downto 0) <= encin_buf_ctrl(1 downto 0);
@@ -457,7 +457,8 @@ port map (
 probe0(0) <= '0';
 probe0(1) <= '0';
 probe0(2) <= '0';
-probe0(3) <= encin_posn_valid(0);
+probe0(3) <= '0';
 probe0(35 downto 4) <= encin_posn(0);
 probe0(63 downto 36) <= (others => '0');
+
 end rtl;

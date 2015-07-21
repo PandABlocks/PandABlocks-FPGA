@@ -31,9 +31,7 @@ port (
     -- Position Field interface
     posn_i              : in  posn_t;
     -- Status interface
-    conn_i              : in  std_logic;
     enc_mode_o          : out encmode_t;
-
     iobuf_ctrl_o        : out std_logic_vector(2 downto 0)
 );
 end entity;
@@ -41,15 +39,16 @@ end entity;
 architecture rtl of panda_encout is
 
 -- Block Configuration Registers
-signal ENCOUT_PROT          : std_logic_vector(2 downto 0);
-signal ENCOUT_BITS          : std_logic_vector(7 downto 0);
-signal ENCOUT_FRC_QSTATE    : std_logic;
-signal ENCOUT_QSTATE        : std_logic;
-signal ENCOUT_QPRESCALAR    : std_logic_vector(15 downto 0);
+signal ENCOUT_PROT              : std_logic_vector(2 downto 0);
+signal ENCOUT_BITS              : std_logic_vector(7 downto 0);
+signal ENCOUT_FRC_QSTATE        : std_logic;
+signal ENCOUT_FRC_QSTATE_WSTB   : std_logic;
+signal ENCOUT_QSTATE            : std_logic;
+signal ENCOUT_QPRESCALAR        : std_logic_vector(15 downto 0);
 
 -- Signals
-signal reset                : std_logic;
-signal sdat_dir             : std_logic := '0';
+signal sdat_dir                 : std_logic := '0';
+signal qstate                   : std_logic;
 
 begin
 
@@ -68,23 +67,29 @@ begin
             ENCOUT_FRC_QSTATE <= '0';
             ENCOUT_QPRESCALAR <= TO_STD_VECTOR(100,16);
         else
+            ENCOUT_FRC_QSTATE_WSTB <= '0';
+
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
+                -- Encoder Protocol
                 if (mem_addr_i = ENCOUT_PROT_ADDR) then
                     ENCOUT_PROT <= mem_dat_i(2 downto 0);
                 end if;
 
+                -- SSI Number of Bits
                 if (mem_addr_i = ENCOUT_BITS_ADDR) then
                     ENCOUT_BITS <= mem_dat_i(7 downto 0);
                 end if;
 
+                -- Force Quadrature Encoder State
                 if (mem_addr_i = ENCOUT_FRC_QSTATE_ADDR) then
                     ENCOUT_FRC_QSTATE <= mem_dat_i(0);
+                    ENCOUT_FRC_QSTATE_WSTB <= '1';
                 end if;
 
+                -- Quadrature Encoder Transition Period
                 if (mem_addr_i = ENCOUT_QPRESCALAR_ADDR) then
                     ENCOUT_QPRESCALAR <= mem_dat_i(15 downto 0);
                 end if;
-
             end if;
         end if;
     end if;
@@ -98,7 +103,7 @@ begin
         else
             case (mem_addr_i) is
                 when ENCOUT_QSTATE_ADDR =>
-                    mem_dat_o <= (0 => '1', others => '0');
+                    mem_dat_o <= (0 => qstate, others => '0');
                 when others =>
             end case;
         end if;
@@ -131,31 +136,38 @@ begin
     end if;
 end process;
 
-
 --
 -- INCREMENTAL OUT
 --
-a_o <= '0';
-b_o <= '0';
+panda_quadout_inst : entity work.panda_quadout
+port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    qenc_presc_i    => ENCOUT_QPRESCALAR,
+    force_val_i     => ENCOUT_FRC_QSTATE,
+    force_wstb_i    => ENCOUT_FRC_QSTATE_WSTB,
+    posn_i          => posn_i,
+    qstate_o        => qstate,
+    a_o             => a_o,
+    b_o             => b_o
+);
+
 z_o <= '0';
 
 --
 -- SSI SLAVE
 --
-reset <= not ENCOUT_PROT(0);
 
 panda_ssislv_inst : entity work.panda_ssislv
 port map (
     clk_i           => clk_i,
-    reset_i         => reset,
+    reset_i         => reset_i,
     enc_bits_i      => ENCOUT_BITS,
     ssi_sck_i       => sclk_i,
     ssi_dat_o       => sdat_o,
     posn_i          => posn_i,
     ssi_rd_sof      => open
 );
-
-
 
 end rtl;
 
