@@ -8,11 +8,9 @@ use unisim.vcomponents.all;
 library work;
 use work.type_defines.all;
 use work.addr_defines.all;
+use work.top_defines.all;
 
 entity panda_encout_top is
-generic (
-    CHANNELS       : natural := 1
-);
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -25,31 +23,31 @@ port (
     mem_dat_i           : in  std_logic_vector(31 downto 0);
     mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Encoder I/O Pads
-    As0_pad_io          : inout std_logic_vector(CHANNELS-1 downto 0);
-    Bs0_pad_io          : inout std_logic_vector(CHANNELS-1 downto 0);
-    Zs0_pad_io          : inout std_logic_vector(CHANNELS-1 downto 0);
+    As0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
+    Bs0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
+    Zs0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
     -- Position data value
-    posn_i              : in  std32_array(CHANNELS-1 downto 0)
+    posbus_i            : in  posbus_t
 );
 end panda_encout_top;
 
 architecture rtl of panda_encout_top is
 
-signal mem_blk_cs           : std_logic_vector(CHANNELS-1 downto 0);
+signal mem_blk_cs           : std_logic_vector(ENC_NUM-1 downto 0);
 
-signal iobuf_ctrl_channels  : iobuf_ctrl_array(CHANNELS-1 downto 0);
-signal enc_mode_channels    : encmode_array(CHANNELS-1 downto 0);
+signal iobuf_ctrl_channels  : iobuf_ctrl_array(ENC_NUM-1 downto 0);
+signal enc_mode_channels    : encmode_array(ENC_NUM-1 downto 0);
 
-signal As0_ipad, As0_opad   : std_logic_vector(CHANNELS-1 downto 0);
-signal Bs0_ipad, Bs0_opad   : std_logic_vector(CHANNELS-1 downto 0);
-signal Zs0_ipad, Zs0_opad   : std_logic_vector(CHANNELS-1 downto 0);
+signal As0_ipad, As0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
+signal Bs0_ipad, Bs0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
+signal Zs0_ipad, Zs0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
 
-signal ao,bo, zo            : std_logic_vector(CHANNELS-1 downto 0);
-signal sclk, sdato          : std_logic_vector(CHANNELS-1 downto 0);
+signal ao,bo, zo            : std_logic_vector(ENC_NUM-1 downto 0);
+signal sclk, sdato          : std_logic_vector(ENC_NUM-1 downto 0);
 
-signal sdat_dir_channels    : std_logic_vector(CHANNELS-1 downto 0);
+signal sdat_dir_channels    : std_logic_vector(ENC_NUM-1 downto 0);
 
-signal mem_read_data        : std32_array(CHANNELS-1 downto 0);
+signal mem_read_data        : std32_array(ENC_NUM-1 downto 0);
 
 begin
 
@@ -57,9 +55,9 @@ mem_dat_o <= mem_read_data(to_integer(unsigned(mem_addr_i(MEM_AW-1 downto BLK_AW
 
 --
 -- Instantiate ENCOUT Blocks :
---  There are CHANNELS amount of encoders on the board
+--  There are ENC_NUM amount of encoders on the board
 --
-ENCOUT_GEN : FOR I IN 0 TO CHANNELS-1 GENERATE
+ENCOUT_GEN : FOR I IN 0 TO ENC_NUM-1 GENERATE
 
 --
 -- Encoder I/O Control :
@@ -105,9 +103,9 @@ port map (
     sdat_i              => '0',
     sdat_o              => sdato(I),
     sdat_dir_o          => sdat_dir_channels(I),
-    -- Status
-    posn_i              => posn_i(I),
-    --
+    -- Position Bus Input
+    posbus_i            => posbus_i,
+    -- CS Interface
     enc_mode_o          => enc_mode_channels(I),
     iobuf_ctrl_o        => iobuf_ctrl_channels(I)
 );

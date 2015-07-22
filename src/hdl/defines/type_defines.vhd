@@ -31,7 +31,7 @@ end TO_INTEGER;
 
 function TO_STD_VECTOR(arg : integer; size: natural) return std_logic_vector is
 begin
-    return std_logic_vector(TO_UNSIGNED(arg, size));
+    return std_logic_vector(to_signed(arg, size));
 end TO_STD_VECTOR;
 
 end type_defines;

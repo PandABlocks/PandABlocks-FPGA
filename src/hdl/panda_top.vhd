@@ -1,3 +1,9 @@
+--------------------------------------------------------------------------------
+--  File:       panda_top.vhd
+--  Desc:       PandA top-level design
+--
+--------------------------------------------------------------------------------
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -35,14 +41,20 @@ port (
     FIXED_IO_ps_srstb   : inout std_logic;
 
     -- RS485 Channel 0 Encoder I/O
-    Am0_pad_io          : inout std_logic_vector(INENC_NUM-1 downto 0);
-    Bm0_pad_io          : inout std_logic_vector(INENC_NUM-1 downto 0);
-    Zm0_pad_io          : inout std_logic_vector(INENC_NUM-1 downto 0);
-    As0_pad_io          : inout std_logic_vector(INENC_NUM-1 downto 0);
-    Bs0_pad_io          : inout std_logic_vector(INENC_NUM-1 downto 0);
-    Zs0_pad_io          : inout std_logic_vector(INENC_NUM-1 downto 0);
+    Am0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
+    Bm0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
+    Zm0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
+    As0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
+    Bs0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
+    Zs0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
     enc0_ctrl_pad_i     : in    std_logic_vector(3  downto 0);
     enc0_ctrl_pad_o     : out   std_logic_vector(11 downto 0);
+
+    -- Discrete I/O
+    ttlin_pad_i         : in    std_logic_vector(TTLIN_NUM-1 downto 0);
+    ttlout_pad_o        : out   std_logic_vector(TTLOUT_NUM-1 downto 0);
+    lvdsin_pad_i        : in    std_logic_vector(LVDSIN_NUM-1 downto 0);
+    lvdsout_pad_o       : out   std_logic_vector(LVDSOUT_NUM-1 downto 0);
 
     -- Status I/O
     leds                : out   std_logic_vector(1 downto 0)
@@ -201,10 +213,19 @@ signal outenc_mode          : std_logic_vector(2 downto 0);
 signal endat_mdir           : std_logic;
 signal endat_sdir           : std_logic;
 
-signal encin_posn           : std32_array(INENC_NUM-1 downto 0);
-
-signal encout_posn          : std32_array(INENC_NUM-1 downto 0);
 signal soft_posn            : std_logic_vector(31 downto 0) := (others =>'0');
+
+-- Design Level Busses :
+signal sysbus               : sysbus_t := (others => '0');
+signal posbus               : posbus_t := (others => (others => '0'));
+-- Position Block Outputs :
+signal encin_posn           : std32_array(ENC_NUM-1 downto 0);
+
+-- Discrete Block Outputs :
+signal ttlin                : std_logic_vector(TTLIN_NUM-1 downto 0);
+signal lvdsin               : std_logic_vector(LVDSIN_NUM-1 downto 0);
+signal pcomp_act            : std_logic_vector(PCOMP_NUM-1 downto 0);
+signal pcomp_pulse          : std_logic_vector(PCOMP_NUM-1 downto 0);
 
 begin
 
@@ -428,10 +449,8 @@ port map (
     Bs0_pad_io          => Bs0_pad_io,
     Zs0_pad_io          => Zs0_pad_io,
 
-    posn_i              => encout_posn
+    posbus_i            => posbus
 );
-
-encout_posn(0) <= soft_posn;
 
 -- Daughter Card Buffer Control Signals
 enc0_ctrl_opad(1 downto 0) <= encin_buf_ctrl(1 downto 0);
@@ -444,6 +463,67 @@ enc0_ctrl_opad(10) <= encin_buf_ctrl(5);
 enc0_ctrl_opad(11) <= outenc_buf_ctrl(5);
 
 enc0_ctrl_pad_o <= enc0_ctrl_opad;
+
+--
+-- Position Compare block instantiation
+--
+panda_pcomp_top_inst : entity work.panda_pcomp_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(PCOMP_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => open,
+
+    sysbus_i            => sysbus,
+    posbus_i            => posbus,
+
+    act_o               => pcomp_act,
+    pulse_o             => pcomp_pulse
+);
+
+--
+-- Position Compare block instantiation
+--
+panda_digitalio_inst : entity work.panda_digio
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(DIGIO_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => open,
+
+    sysbus_i            => sysbus,
+
+    ttlin_pad_i         => ttlin_pad_i,
+    ttlin_o             => ttlin,
+    ttlout_pad_o        => ttlout_pad_o,
+
+    lvdsin_pad_i        => lvdsin_pad_i,
+    lvdsin_o            => lvdsin,
+    lvdsout_pad_o       => lvdsout_pad_o
+);
+
+--
+-- System Bus   : Assignments
+--
+sysbus <= ZEROS(SBUS_AVAIL)        &
+          pcomp_act & pcomp_pulse &
+          lvdsin    & ttlin;
+
+--
+-- Position Bus : Assignments
+--
+posbus(0) <= soft_posn;
+posbus(1) <= encin_posn(0);
 
 --
 -- Chipscope

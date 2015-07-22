@@ -152,7 +152,7 @@ procedure BLK_WRITE (
 ) is
 begin
     mem_addr <= addr;
-    mem_dat <= std_logic_vector(to_unsigned(val, 32));
+    mem_dat <= std_logic_vector(to_signed(val, 32));
     mem_wstb <= '1';
     mem_cs <= '1';
     PROC_CLK_EAT (1, mem_clk);

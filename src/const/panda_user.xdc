@@ -29,6 +29,32 @@ set_property PACKAGE_PIN D7  [get_ports {enc0_ctrl_pad_o[9] }];   #
 set_property PACKAGE_PIN D2  [get_ports {enc0_ctrl_pad_o[10]}];   #
 set_property PACKAGE_PIN D6  [get_ports {enc0_ctrl_pad_o[11]}];   #
 
+# DUMMY PINS ON FMC - START
+set_property PACKAGE_PIN F5  [get_ports {ttlin_pad_i[0]}];        #
+set_property PACKAGE_PIN E5  [get_ports {ttlin_pad_i[1]}];        #
+set_property PACKAGE_PIN E4  [get_ports {ttlin_pad_i[2]}];        #
+set_property PACKAGE_PIN E3  [get_ports {ttlin_pad_i[3]}];        #
+set_property PACKAGE_PIN B2  [get_ports {ttlin_pad_i[4]}];        #
+set_property PACKAGE_PIN B1  [get_ports {ttlin_pad_i[5]}];        #
+
+set_property PACKAGE_PIN H1  [get_ports {ttlout_pad_o[0]}];       #
+set_property PACKAGE_PIN G1  [get_ports {ttlout_pad_o[1]}];       #
+set_property PACKAGE_PIN A7  [get_ports {ttlout_pad_o[2]}];       #
+set_property PACKAGE_PIN A6  [get_ports {ttlout_pad_o[3]}];       #
+set_property PACKAGE_PIN C8  [get_ports {ttlout_pad_o[4]}];       #
+set_property PACKAGE_PIN B8  [get_ports {ttlout_pad_o[5]}];       #
+set_property PACKAGE_PIN B7  [get_ports {ttlout_pad_o[6]}];       #
+set_property PACKAGE_PIN B6  [get_ports {ttlout_pad_o[7]}];       #
+set_property PACKAGE_PIN G8  [get_ports {ttlout_pad_o[8]}];       #
+set_property PACKAGE_PIN G7  [get_ports {ttlout_pad_o[9]}];       #
+
+set_property PACKAGE_PIN G6  [get_ports {lvdsin_pad_i[0]}];       #
+set_property PACKAGE_PIN F6  [get_ports {lvdsin_pad_i[1]}];       #
+
+set_property PACKAGE_PIN G4  [get_ports {lvdsout_pad_o[0]}];      #
+set_property PACKAGE_PIN F4  [get_ports {lvdsout_pad_o[1]}];      #
+# DUMMY PINS ON FMC - END
+
 # Set the bank voltage for IO Bank 34 to 1.8V by default.
 set_property IOSTANDARD LVCMOS18 [get_ports -of_objects [get_iobanks 34]];
 # Set the bank voltage for IO Bank 35 to 1.8V by default.

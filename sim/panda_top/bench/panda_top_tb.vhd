@@ -96,6 +96,10 @@ PORT MAP (
     Zs0_pad_io          => Zs0_pad_io,
     enc0_ctrl_pad_i     => enc0_ctrl_pad_i,
     enc0_ctrl_pad_o     => enc0_ctrl_pad_o,
+    ttlin_pad_i         => (others => '0'),
+    lvdsin_pad_i        => (others => '0'),
+    ttlout_pad_o        => open,
+    lvdsout_pad_o       => open,
     leds                => leds
 );
 

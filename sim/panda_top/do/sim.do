@@ -11,5 +11,5 @@ vsim -t ps +notimingchecks -novopt -L unisims_ver work.panda_top_tb
 
 do wave.do
 
-run 1000 us
+run 2 ms
 

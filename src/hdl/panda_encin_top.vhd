@@ -8,41 +8,38 @@ use unisim.vcomponents.all;
 library work;
 use work.type_defines.all;
 use work.addr_defines.all;
+use work.top_defines.all;
 
 entity panda_encin_top is
-generic (
-    CHANNELS       : natural := 1
-);
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Memory Bus Interface
-    mem_addr_i          : in   std_logic_vector(MEM_AW-1 downto 0);
+    mem_addr_i          : in  std_logic_vector(MEM_AW-1 downto 0);
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
     mem_rstb_i          : in  std_logic;
     mem_dat_i           : in  std_logic_vector(31 downto 0);
     mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Encoder I/O Pads
-    Am0_pad_io          : inout std_logic_vector(CHANNELS-1 downto 0);
-    Bm0_pad_io          : inout std_logic_vector(CHANNELS-1 downto 0);
-    Zm0_pad_io          : inout std_logic_vector(CHANNELS-1 downto 0);
+    Am0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
+    Bm0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
+    Zm0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
     --
-    posn_o              : out std32_array(CHANNELS-1 downto 0)
+    posn_o              : out std32_array(ENC_NUM-1 downto 0)
 );
 end panda_encin_top;
 
 architecture rtl of panda_encin_top is
 
-signal mem_blk_cs           : std_logic_vector(CHANNELS-1 downto 0);
+signal mem_blk_cs           : std_logic_vector(ENC_NUM-1 downto 0);
 
-signal iobuf_ctrl_channels : iobuf_ctrl_array(CHANNELS-1 downto 0);
+signal iobuf_ctrl_channels : iobuf_ctrl_array(ENC_NUM-1 downto 0);
 
-signal Am0_ipad, Am0_opad   : std_logic_vector(CHANNELS-1 downto 0);
-signal Bm0_ipad, Bm0_opad   : std_logic_vector(CHANNELS-1 downto 0);
-signal Zm0_ipad, Zm0_opad   : std_logic_vector(CHANNELS-1 downto 0);
-
+signal Am0_ipad, Am0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
+signal Bm0_ipad, Bm0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
+signal Zm0_ipad, Zm0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
 
 begin
 
@@ -50,9 +47,9 @@ mem_dat_o <= (others => '0');
 
 --
 -- Instantiate INENC Blocks :
---  There are CHANNELS amount of encoders on the board
+--  There are ENC_NUM amount of encoders on the board
 --
-INENC_GEN : FOR I IN 0 TO CHANNELS-1 GENERATE
+INENC_GEN : FOR I IN 0 TO ENC_NUM-1 GENERATE
 
 --
 -- Encoder I/O Control :
