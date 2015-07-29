@@ -213,6 +213,7 @@ signal outenc_mode          : std_logic_vector(2 downto 0);
 signal endat_mdir           : std_logic;
 signal endat_sdir           : std_logic;
 
+signal soft_input           : std_logic_vector(3 downto 0)  := "0000";
 signal soft_posn            : std_logic_vector(31 downto 0) := (others =>'0');
 
 -- Design Level Busses :
@@ -224,9 +225,14 @@ signal encin_posn           : std32_array(ENC_NUM-1 downto 0);
 -- Discrete Block Outputs :
 signal ttlin                : std_logic_vector(TTLIN_NUM-1 downto 0);
 signal lvdsin               : std_logic_vector(LVDSIN_NUM-1 downto 0);
+
 signal pcomp_act            : std_logic_vector(PCOMP_NUM-1 downto 0);
 signal pcomp_pulse          : std_logic_vector(PCOMP_NUM-1 downto 0);
 
+signal seq_act              : std_logic_vector(SEQ_NUM-1 downto 0);
+signal seq_pulse            : seq_puls_array(SEQ_NUM-1 downto 0);
+
+signal counter              : unsigned(7 downto 0) := X"00";
 begin
 
 --
@@ -377,10 +383,6 @@ port map (
     mem_wstb_o                  => mem_wstb
 );
 
-mem_read_data(0) <= X"12345678";
-mem_read_data(1) <= X"11111111";
-mem_read_data(2) <= X"22222222";
-
 --
 -- Encoder Test Interface
 --
@@ -406,8 +408,13 @@ begin
             outenc_buf_ctrl <= mem_odat(5 downto 0);
         end if;
 
-        -- Soft Posn
+        -- Soft Input
         if (mem_cs(0) = '1' and mem_wstb = '1' and mem_addr = X"02") then
+            soft_input <= mem_odat(3 downto 0);
+        end if;
+
+        -- Soft Posn
+        if (mem_cs(0) = '1' and mem_wstb = '1' and mem_addr = X"03") then
             soft_posn <= mem_odat;
         end if;
 
@@ -465,6 +472,27 @@ enc0_ctrl_opad(11) <= outenc_buf_ctrl(5);
 enc0_ctrl_pad_o <= enc0_ctrl_opad;
 
 --
+-- Sequencer block instantiation
+--
+SEQ_INST : entity work.panda_sequencer_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(SEQ_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => mem_read_data(SEQ_CS),
+
+    sysbus_i            => sysbus,
+
+    act_o               => seq_act,
+    pulse_o             => seq_pulse
+);
+
+--
 -- Position Compare block instantiation
 --
 panda_pcomp_top_inst : entity work.panda_pcomp_top
@@ -515,9 +543,28 @@ port map (
 --
 -- System Bus   : Assignments
 --
-sysbus <= ZEROS(SBUS_AVAIL)        &
-          pcomp_act & pcomp_pulse &
-          lvdsin    & ttlin;
+process(FCLK_CLK0)
+begin
+    if rising_edge(FCLK_CLK0) then
+        counter <= counter + 1;
+    end if;
+end process;
+
+--
+-- System Bus   : Assignments
+--
+sysbus <= ZEROS(SBUS_AVAIL-8)   &
+          std_logic_vector(counter(7 downto 4))   &   -- 51:48
+          soft_input            &   -- 47:44
+          seq_act               &   -- 43:40
+          seq_pulse(3)          &   -- 39:34
+          seq_pulse(2)          &   -- 33:28
+          seq_pulse(1)          &   -- 27:22
+          seq_pulse(0)          &   -- 21:16
+          pcomp_act             &   -- 15:12
+          pcomp_pulse           &   -- 11: 8
+          lvdsin                &   --  7: 6
+          ttlin;                    --  5: 0
 
 --
 -- Position Bus : Assignments
@@ -528,17 +575,17 @@ posbus(1) <= encin_posn(0);
 --
 -- Chipscope
 --
-ila_0_inst : component ila_0
-port map (
-    clk         => FCLK_CLK0,
-    probe0      => probe0
-);
-
-probe0(0) <= '0';
-probe0(1) <= '0';
-probe0(2) <= '0';
-probe0(3) <= '0';
-probe0(35 downto 4) <= encin_posn(0);
-probe0(63 downto 36) <= (others => '0');
+--ila_0_inst : component ila_0
+--port map (
+--    clk         => FCLK_CLK0,
+--    probe0      => probe0
+--);
+--
+--probe0(0) <= '0';
+--probe0(1) <= '0';
+--probe0(2) <= '0';
+--probe0(3) <= '0';
+--probe0(35 downto 4) <= encin_posn(0);
+--probe0(63 downto 36) <= (others => '0');
 
 end rtl;

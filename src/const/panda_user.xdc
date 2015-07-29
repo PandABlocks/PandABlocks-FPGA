@@ -48,11 +48,11 @@ set_property PACKAGE_PIN B6  [get_ports {ttlout_pad_o[7]}];       #
 set_property PACKAGE_PIN G8  [get_ports {ttlout_pad_o[8]}];       #
 set_property PACKAGE_PIN G7  [get_ports {ttlout_pad_o[9]}];       #
 
-set_property PACKAGE_PIN G6  [get_ports {lvdsin_pad_i[0]}];       #
-set_property PACKAGE_PIN F6  [get_ports {lvdsin_pad_i[1]}];       #
+set_property PACKAGE_PIN F1  [get_ports {lvdsin_pad_i[0]}];       #
+set_property PACKAGE_PIN F2  [get_ports {lvdsin_pad_i[1]}];       #
 
-set_property PACKAGE_PIN G4  [get_ports {lvdsout_pad_o[0]}];      #
-set_property PACKAGE_PIN F4  [get_ports {lvdsout_pad_o[1]}];      #
+set_property PACKAGE_PIN H3  [get_ports {lvdsout_pad_o[0]}];      #
+set_property PACKAGE_PIN H4  [get_ports {lvdsout_pad_o[1]}];      #
 # DUMMY PINS ON FMC - END
 
 # Set the bank voltage for IO Bank 34 to 1.8V by default.

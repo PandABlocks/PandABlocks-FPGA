@@ -75,7 +75,7 @@ begin
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Pulse start position
-                if (mem_addr_i = PCOMP_POSN_VAL_ADDR) then
+                if (mem_addr_i = ENCOUT_POSN_VAL_ADDR) then
                     ENCOUT_POSN_VAL <= mem_dat_i(PBUSBW-1 downto 0);
                 end if;
 

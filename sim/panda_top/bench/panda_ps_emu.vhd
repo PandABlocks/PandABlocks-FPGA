@@ -11,7 +11,10 @@ use work.std_logic_textio.all;
 use work.test_interface.all;
 
 entity panda_ps is
-  port (
+generic (
+    test_selector       : in string  := String'("sequencer_test")
+);
+port (
     DDR_addr            : inout STD_LOGIC_VECTOR(14 downto 0):=(others => '0');
     DDR_ba              : inout STD_LOGIC_VECTOR(2  downto 0):=(others => '0');
     DDR_cas_n           : inout STD_LOGIC := '0';
@@ -157,68 +160,72 @@ begin
     M01_AXI_wvalid      <= '0';
 
 
-    file_open(CMD_SCRIPT, "command.dat", read_mode);
+    if (test_selector = String'("sequencer_test")) then
 
-    while not endfile(CMD_SCRIPT) loop
+        file_open(CMD_SCRIPT, "sequencer_test.cmd", read_mode);
 
-        -- Skip empty lines
-        readline(CMD_SCRIPT, textline);
-            next when textline'length = 0;
+        while not endfile(CMD_SCRIPT) loop
 
-        -- Reset command string
-        for I in 1 to command'length loop
-            command(I to I) := " ";
+            -- Skip empty lines
+            readline(CMD_SCRIPT, textline);
+                next when textline'length = 0;
+
+            -- Reset command string
+            for I in 1 to command'length loop
+                command(I to I) := " ";
+            end loop;
+
+            -- Read command
+            for I in 1 to command'length loop
+                exit when I > textline'length;
+                read(textline, command(I to I));
+
+                -- Comment
+                if (command(1 to 1) = ";") then
+                    read(textline, command(1 to textline'length));
+                    REPORT(command) SEVERITY warning;
+                    exit;
+                end if;
+
+                -- WAIT Command
+                if (command(1 to 4) = "WAIT") then
+                    char1 := " ";
+                    while (char1 /= "=") loop
+                        read(textline, char1);
+                    end loop;
+                    read(textline, WaitDelay);
+                    REPORT("Wait for " & str(WaitDelay) & " us");
+                    for i in 1 to WaitDelay loop
+                        wait for 1 us;
+                    end loop;
+                    exit;
+                end if;
+
+                -- Register Write Command
+                if (command(1 to 7) = "REG_SET") then
+                    -- Collect address
+                    char1 := " ";
+                    while (char1 /= "x") loop
+                        read(textline, char1);
+                    end loop;
+                    hread(textline, axi_addr);
+                    -- Collect data
+                    char1 := " ";
+                    while (char1 /= "x") loop
+                        read(textline, char1);
+                    end loop;
+                    hread(textline, axi_data);
+                    -- Write
+                    axi_write(axi_addr, axi_data);
+                    exit;
+                end if;
+            end loop;
+
         end loop;
 
-        -- Read command
-        for I in 1 to command'length loop
-            exit when I > textline'length;
-            read(textline, command(I to I));
+        file_close(CMD_SCRIPT);
 
-            -- Comment
-            if (command(1 to 1) = ";") then
-                read(textline, command(1 to textline'length));
-                REPORT(command) SEVERITY warning;
-                exit;
-            end if;
-
-            -- WAIT Command
-            if (command(1 to 4) = "WAIT") then
-                char1 := " ";
-                while (char1 /= "=") loop
-                    read(textline, char1);
-                end loop;
-                read(textline, WaitDelay);
-                REPORT("Wait for " & str(WaitDelay) & " us");
-                for i in 1 to WaitDelay loop
-                    wait for 1 us;
-                end loop;
-                exit;
-            end if;
-
-            -- Register Write Command
-            if (command(1 to 7) = "REG_SET") then
-                -- Collect address
-                char1 := " ";
-                while (char1 /= "x") loop
-                    read(textline, char1);
-                end loop;
-                hread(textline, axi_addr);
-                -- Collect data
-                char1 := " ";
-                while (char1 /= "x") loop
-                    read(textline, char1);
-                end loop;
-                hread(textline, axi_data);
-                -- Write
-                axi_write(axi_addr, axi_data);
-                exit;
-            end if;
-        end loop;
-
-    end loop;
-
-    file_close(CMD_SCRIPT);
+    end if;
 
     REPORT "Test ended." severity warning;
     wait;

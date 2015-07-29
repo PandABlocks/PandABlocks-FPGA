@@ -31,19 +31,15 @@
 		spi-max-frequency = <50000000>;
 		partition@0x00000000 {
 			label = "boot";
-			reg = <0x00000000 0x00500000>;
+			reg = <0x0 0x500000>;
 		};
 		partition@0x00500000 {
 			label = "bootenv";
-			reg = <0x00500000 0x00020000>;
+			reg = <0x500000 0x20000>;
 		};
 		partition@0x00520000 {
-			label = "kernel";
-			reg = <0x00520000 0x00a80000>;
-		};
-		partition@0x00fa0000 {
-			label = "spare";
-			reg = <0x00fa0000 0x00000000>;
+			label = "data";
+			reg = <0x520000 0xae0000>;
 		};
 	};
 };

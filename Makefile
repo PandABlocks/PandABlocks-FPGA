@@ -97,7 +97,7 @@ endif
 
 sw_clean:
 	rm -rf $(SDK_EXPORT)
-	rm $(IMAGE_DIR)/*
+	rm -rf $(IMAGE_DIR)/*
 
 
 # Step-4 ###############################################################

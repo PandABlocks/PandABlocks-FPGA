@@ -62,6 +62,8 @@ read_vhdl ../src/hdl/panda_encin.vhd
 read_vhdl ../src/hdl/panda_encin_top.vhd
 read_vhdl ../src/hdl/panda_encout.vhd
 read_vhdl ../src/hdl/panda_encout_top.vhd
+read_vhdl ../src/hdl/panda_sequencer.vhd
+read_vhdl ../src/hdl/panda_sequencer_top.vhd
 read_vhdl ../src/hdl/panda_pcomp.vhd
 read_vhdl ../src/hdl/panda_pcomp_top.vhd
 read_vhdl ../src/hdl/panda_top.vhd

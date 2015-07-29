@@ -70,6 +70,7 @@ panda_digout_inst : entity work.panda_digout
 port map (
     -- Clock and Reset
     clk_i               => clk_i,
+    reset_i             => reset_i,
     -- Memory Bus Interface
     mem_cs_i            => mem_blk_cs(I),
     mem_wstb_i          => mem_wstb_i,

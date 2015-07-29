@@ -33,3 +33,6 @@ add wave -group "DAUGTHER HW MODEL" \
 add wave -group "INCR ENC MODEL" \
     "sim:/panda_top_tb/incr_encoder_model_inst/*"
 
+add wave -Radix Unsigned -group "SEQ(0)" \
+sim:/panda_top_tb/uut/SEQ_INST/SEQUENCER_GEN(0)/panda_sequencer_inst/*
+

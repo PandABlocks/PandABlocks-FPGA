@@ -19,6 +19,8 @@ vcom -work work "${PATH}/hdl/panda_encin_top.vhd"
 vcom -work work "${PATH}/hdl/panda_encout.vhd"
 vcom -work work "${PATH}/hdl/panda_encout_top.vhd"
 vcom -work work "${PATH}/hdl/panda_csr_if.vhd"
+vcom -work work "${PATH}/hdl/panda_sequencer.vhd"
+vcom -work work "${PATH}/hdl/panda_sequencer_top.vhd"
 vcom -work work "${PATH}/hdl/panda_pcomp.vhd"
 vcom -work work "${PATH}/hdl/panda_pcomp_top.vhd"
 

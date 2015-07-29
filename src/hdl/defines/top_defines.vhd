@@ -18,8 +18,9 @@ constant LVDSIN_NUM         : positive := 2;
 constant LVDSOUT_NUM        : positive := 2;
 constant ENC_NUM            : positive := 1;
 constant PCOMP_NUM          : positive := 4;
+constant SEQ_NUM            : positive := 4;
 
-constant SBUS_AVAIL         : positive := (128 - TTLIN_NUM - LVDSIN_NUM - 2*PCOMP_NUM);
+constant SBUS_AVAIL         : positive := (128 - TTLIN_NUM - LVDSIN_NUM - 2*PCOMP_NUM - 7*SEQ_NUM);
 
 -- System Bus Width, Multiplexer Select Width
 constant SBUSW              : positive := 128;

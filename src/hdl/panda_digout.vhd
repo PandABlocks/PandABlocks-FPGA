@@ -17,6 +17,7 @@ entity panda_digout is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
+    reset_i             : in  std_logic;
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
@@ -40,10 +41,14 @@ begin
 REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (mem_cs_i = '1' and mem_wstb_i = '1') then
-            -- Pulse start position
-            if (mem_addr_i = DIGOUT_VAL_ADDR) then
-                DIGOUT_VAL <= mem_dat_i(SBUSBW-1 downto 0);
+        if (reset_i = '1') then
+            DIGOUT_VAL <= TO_STD_VECTOR(127, SBUSBW);
+        else
+            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+                -- Pulse start position
+                if (mem_addr_i = DIGOUT_VAL_ADDR) then
+                    DIGOUT_VAL <= mem_dat_i(SBUSBW-1 downto 0);
+                end if;
             end if;
         end if;
     end if;

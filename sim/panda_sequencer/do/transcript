@@ -1,0 +1,1259 @@
+# //  Questa Sim
+# //  Version 10.2c linux Jul 18 2013
+# //
+# //  Copyright 1991-2013 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  THIS WORK CONTAINS TRADE SECRET AND PROPRIETARY INFORMATION
+# //  WHICH IS THE PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS
+# //  LICENSORS AND IS SUBJECT TO LICENSE TERMS.
+# //
+do sim.do
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(147): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(149): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(151): Choice in CASE statement alternative must be locally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(209): (vcom-1141) Identifier "BRAM_SDP_MACRO" does not identify a component declaration.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(147): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(149): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(151): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(368): VHDL Compiler exiting
+# ** Error: /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+# Error in macro ./sim.do line 6
+# /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+#     while executing
+# "vcom -explicit  -93 "../../../src/hdl/panda_sequencer.vhd""
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(150): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(152): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(154): Choice in CASE statement alternative must be locally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(212): (vcom-1141) Identifier "BRAM_SDP_MACRO" does not identify a component declaration.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(150): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(152): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(154): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(371): VHDL Compiler exiting
+# ** Error: /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+# Error in macro ./sim.do line 6
+# /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+#     while executing
+# "vcom -explicit  -93 "../../../src/hdl/panda_sequencer.vhd""
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(150): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(152): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(154): Choice in CASE statement alternative must be locally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(212): (vcom-1141) Identifier "BRAM_SDP_MACRO" does not identify a component declaration.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(150): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(152): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(154): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(371): VHDL Compiler exiting
+# ** Error: /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+# Error in macro ./sim.do line 6
+# /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+#     while executing
+# "vcom -explicit  -93 "../../../src/hdl/panda_sequencer.vhd""
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(150): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(152): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(154): Choice in CASE statement alternative must be locally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(212): (vcom-1141) Identifier "BRAM_SDP_MACRO" does not identify a component declaration.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(150): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(152): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(154): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(371): VHDL Compiler exiting
+# ** Error: /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+# Error in macro ./sim.do line 6
+# /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+#     while executing
+# "vcom -explicit  -93 "../../../src/hdl/panda_sequencer.vhd""
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(22): near "entity": expecting '[' or '(' or '.' or '\''
+# ** Error: /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+# Error in macro ./sim.do line 6
+# /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+#     while executing
+# "vcom -explicit  -93 "../../../src/hdl/panda_sequencer.vhd""
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(158): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(160): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(162): Choice in CASE statement alternative must be locally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(230): (vcom-1436) Actual expression (function call "TO_STD_VECTOR") of formal "RDADDR" is not globally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(236): (vcom-1436) Actual expression (function call "TO_STD_VECTOR") of formal "WRADDR" is not globally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(158): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(160): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(162): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(379): VHDL Compiler exiting
+# ** Error: /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+# Error in macro ./sim.do line 6
+# /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+#     while executing
+# "vcom -explicit  -93 "../../../src/hdl/panda_sequencer.vhd""
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(151): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(153): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(155): Choice in CASE statement alternative must be locally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(188): Integer literal 0 is not of type ieee.NUMERIC_STD.UNSIGNED.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(223): (vcom-1436) Actual expression (indexed name) of formal "RDADDR" is not globally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(223): (vcom-1390) Too many indices (2) for array type ieee.std_logic_1164.STD_LOGIC_VECTOR (dimensionality 1).
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(229): (vcom-1436) Actual expression (indexed name) of formal "WRADDR" is not globally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(229): (vcom-1390) Too many indices (2) for array type ieee.std_logic_1164.STD_LOGIC_VECTOR (dimensionality 1).
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(246): Integer literal 0 is not of type ieee.NUMERIC_STD.UNSIGNED.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(258): Integer literal 0 is not of type ieee.NUMERIC_STD.UNSIGNED.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(306): Integer literal 0 is not of type ieee.NUMERIC_STD.UNSIGNED.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(151): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(153): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(155): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(372): VHDL Compiler exiting
+# ** Error: /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+# Error in macro ./sim.do line 6
+# /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+#     while executing
+# "vcom -explicit  -93 "../../../src/hdl/panda_sequencer.vhd""
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(151): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(153): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(155): Choice in CASE statement alternative must be locally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(223): (vcom-1436) Actual expression (indexed name) of formal "RDADDR" is not globally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(223): (vcom-1390) Too many indices (2) for array type ieee.std_logic_1164.STD_LOGIC_VECTOR (dimensionality 1).
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(229): (vcom-1436) Actual expression (indexed name) of formal "WRADDR" is not globally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(229): (vcom-1390) Too many indices (2) for array type ieee.std_logic_1164.STD_LOGIC_VECTOR (dimensionality 1).
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(151): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(153): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(155): (vcom-1322) Case statement choice cannot be checked for array length.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(372): VHDL Compiler exiting
+# ** Error: /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+# Error in macro ./sim.do line 6
+# /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+#     while executing
+# "vcom -explicit  -93 "../../../src/hdl/panda_sequencer.vhd""
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(155): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(157): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(159): Choice in CASE statement alternative must be locally static.
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package std_logic_textio
+# -- Loading package NUMERIC_STD
+# -- Loading package MATH_REAL
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Compiling package test_interface
+# -- Compiling package body test_interface
+# -- Loading package test_interface
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package top_defines
+# -- Loading package addr_defines
+# -- Loading package std_logic_textio
+# -- Loading package MATH_REAL
+# -- Loading package test_interface
+# -- Compiling entity panda_sequencer_tb
+# -- Compiling architecture behavior of panda_sequencer_tb
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Loading entity panda_sequencer
+# vsim -lib work -t 1ns -novopt work.panda_sequencer_tb 
+# Loading std.standard
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.panda_sequencer_tb(behavior)
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.top_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.type_defines(body)
+# Loading work.type_defines(body)
+# Loading work.top_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.addr_defines(body)
+# Loading work.addr_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.test_interface(body)
+# Loading ieee.std_logic_textio(body)
+# Loading ieee.math_real(body)
+# Loading work.test_interface(body)
+# Loading unisim.vcomponents
+# Refreshing /dls_sw/FPGA/Xilinx/14.7/ISE_DS/ISE/vhdl/questasim/10.2c/lin64/unimacro.vcomponents
+# Loading unimacro.vcomponents
+# Loading work.panda_sequencer_tb(behavior)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.panda_sequencer(rtl)
+# Loading work.panda_sequencer(rtl)
+# Refreshing /dls_sw/FPGA/Xilinx/14.7/ISE_DS/ISE/vhdl/questasim/10.2c/lin64/unimacro.bram_sdp_macro(bram_v)
+# Loading unimacro.bram_sdp_macro(bram_v)
+# ** Warning: (vsim-3479) Time unit 'ps' is less than the simulator resolution (1ns).
+#    Time: 0 ns  Iteration: 0  Instance: /panda_sequencer_tb/uut/SEQ_TABLE_INST
+# Loading unisim.ramb36e1(ramb36e1_v)
+# Loading ieee.std_logic_arith(body)
+# Loading ieee.std_logic_signed(body)
+# Loading ieee.vital_timing(body)
+# Loading ieee.vital_primitives(body)
+# Loading unisim.vpkg(body)
+# Loading unisim.rb36_internal_vhdl(rb36_internal_vhdl_v)
+# .main_pane.wave.interior.cs.body.pw.wf
+# ** Error:  Memory Collision Error on RAMB36E1 ::panda_sequencer_tb:uut:SEQ_TABLE_INST:sdp_bl:ramb36_sdp_bl_1:ram36sd_bl_1:SDP:WWBlt36:RAMB36E1_SDP_inst: at simulation time 10020 ns.
+#  A read was performed on address 803f (hex) of port A while a write was requested to the same address on port B.  The write will be successful however the read value on port A is unknown until the next CLKA cycle. 
+#    Time: 10020 ns  Iteration: 1  Instance: /panda_sequencer_tb/uut/SEQ_TABLE_INST/sdp_bl/ramb36_sdp_bl_1/ram36sd_bl_1/SDP/WWBlt36/RAMB36E1_SDP_inst
+# ** Error:  Memory Collision Error on RAMB36E1 ::panda_sequencer_tb:uut:SEQ_TABLE_INST:sdp_bl:ramb36_sdp_bl_1:ram36sd_bl_1:SDP:WWBlt36:RAMB36E1_SDP_inst: at simulation time 10036 ns.
+#  A read was performed on address 803f (hex) of port A while a write was requested to the same address on port B.  The write will be successful however the read value on port A is unknown until the next CLKA cycle. 
+#    Time: 10036 ns  Iteration: 1  Instance: /panda_sequencer_tb/uut/SEQ_TABLE_INST/sdp_bl/ramb36_sdp_bl_1/ram36sd_bl_1/SDP/WWBlt36/RAMB36E1_SDP_inst
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(156): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(158): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(160): Choice in CASE statement alternative must be locally static.
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package std_logic_textio
+# -- Loading package NUMERIC_STD
+# -- Loading package MATH_REAL
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Compiling package test_interface
+# -- Compiling package body test_interface
+# -- Loading package test_interface
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package top_defines
+# -- Loading package addr_defines
+# -- Loading package std_logic_textio
+# -- Loading package MATH_REAL
+# -- Loading package test_interface
+# -- Compiling entity panda_sequencer_tb
+# -- Compiling architecture behavior of panda_sequencer_tb
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Loading entity panda_sequencer
+# vsim -lib work -t 1ns -novopt work.panda_sequencer_tb 
+# Loading std.standard
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.panda_sequencer_tb(behavior)
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.top_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.type_defines(body)
+# Loading work.type_defines(body)
+# Loading work.top_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.addr_defines(body)
+# Loading work.addr_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.test_interface(body)
+# Loading ieee.std_logic_textio(body)
+# Loading ieee.math_real(body)
+# Loading work.test_interface(body)
+# Loading unisim.vcomponents
+# Loading unimacro.vcomponents
+# Loading work.panda_sequencer_tb(behavior)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.panda_sequencer(rtl)
+# Loading work.panda_sequencer(rtl)
+# Loading unimacro.bram_sdp_macro(bram_v)
+# ** Warning: (vsim-3479) Time unit 'ps' is less than the simulator resolution (1ns).
+#    Time: 0 ns  Iteration: 0  Instance: /panda_sequencer_tb/uut/SEQ_TABLE_INST
+# Loading unisim.ramb36e1(ramb36e1_v)
+# Loading ieee.std_logic_arith(body)
+# Loading ieee.std_logic_signed(body)
+# Loading ieee.vital_timing(body)
+# Loading ieee.vital_primitives(body)
+# Loading unisim.vpkg(body)
+# Loading unisim.rb36_internal_vhdl(rb36_internal_vhdl_v)
+# .main_pane.wave.interior.cs.body.pw.wf
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(156): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(158): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(160): Choice in CASE statement alternative must be locally static.
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package std_logic_textio
+# -- Loading package NUMERIC_STD
+# -- Loading package MATH_REAL
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Compiling package test_interface
+# -- Compiling package body test_interface
+# -- Loading package test_interface
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package top_defines
+# -- Loading package addr_defines
+# -- Loading package std_logic_textio
+# -- Loading package MATH_REAL
+# -- Loading package test_interface
+# -- Compiling entity panda_sequencer_tb
+# -- Compiling architecture behavior of panda_sequencer_tb
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Loading entity panda_sequencer
+# vsim -lib work -t 1ps -novopt work.panda_sequencer_tb 
+# Loading std.standard
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.panda_sequencer_tb(behavior)
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.top_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.type_defines(body)
+# Loading work.type_defines(body)
+# Loading work.top_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.addr_defines(body)
+# Loading work.addr_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.test_interface(body)
+# Loading ieee.std_logic_textio(body)
+# Loading ieee.math_real(body)
+# Loading work.test_interface(body)
+# Loading unisim.vcomponents
+# Loading unimacro.vcomponents
+# Loading work.panda_sequencer_tb(behavior)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.panda_sequencer(rtl)
+# Loading work.panda_sequencer(rtl)
+# Loading unimacro.bram_sdp_macro(bram_v)
+# Loading unisim.ramb36e1(ramb36e1_v)
+# Loading ieee.std_logic_arith(body)
+# Loading ieee.std_logic_signed(body)
+# Loading ieee.vital_timing(body)
+# Loading ieee.vital_primitives(body)
+# Loading unisim.vpkg(body)
+# Loading unisim.rb36_internal_vhdl(rb36_internal_vhdl_v)
+# .main_pane.wave.interior.cs.body.pw.wf
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(156): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(158): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(160): Choice in CASE statement alternative must be locally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(282): No feasible entries for infix operator "/=".
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(283): near "if": expecting ')'
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(288): near "end": expecting ';'
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(294): near "when": expecting END
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(298): near "if": expecting PROCESS
+# ** Error: /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+# Error in macro ./sim.do line 6
+# /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+#     while executing
+# "vcom -explicit  -93 "../../../src/hdl/panda_sequencer.vhd""
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(156): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(158): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(160): Choice in CASE statement alternative must be locally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(283): near "if": expecting GENERATE or THEN
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(288): near "end": expecting ';'
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(294): near "when": expecting END
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(298): near "if": expecting PROCESS
+# ** Error: /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+# Error in macro ./sim.do line 6
+# /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+#     while executing
+# "vcom -explicit  -93 "../../../src/hdl/panda_sequencer.vhd""
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(156): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(158): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(160): Choice in CASE statement alternative must be locally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(283): near "if": expecting GENERATE or THEN
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(288): near "end": expecting ';'
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(294): near "when": expecting END
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(298): near "if": expecting PROCESS
+# ** Error: /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+# Error in macro ./sim.do line 6
+# /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+#     while executing
+# "vcom -explicit  -93 "../../../src/hdl/panda_sequencer.vhd""
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(156): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(158): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(160): Choice in CASE statement alternative must be locally static.
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(288): near "end": expecting ';'
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(294): near "when": expecting END
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(298): near "if": expecting CASE
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(309): near "when": expecting END
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(317): near "when": expecting END
+# ** Error: ../../../src/hdl/panda_sequencer.vhd(345): near "when": expecting END
+# ** Error: /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+# Error in macro ./sim.do line 6
+# /dls_sw/FPGA/Questa/10.2/questasim/linux/vcom failed.
+#     while executing
+# "vcom -explicit  -93 "../../../src/hdl/panda_sequencer.vhd""
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(156): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(158): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(160): Choice in CASE statement alternative must be locally static.
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package std_logic_textio
+# -- Loading package NUMERIC_STD
+# -- Loading package MATH_REAL
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Compiling package test_interface
+# -- Compiling package body test_interface
+# -- Loading package test_interface
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package top_defines
+# -- Loading package addr_defines
+# -- Loading package std_logic_textio
+# -- Loading package MATH_REAL
+# -- Loading package test_interface
+# -- Compiling entity panda_sequencer_tb
+# -- Compiling architecture behavior of panda_sequencer_tb
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Loading entity panda_sequencer
+# vsim -lib work -t 1ps -novopt work.panda_sequencer_tb 
+# Loading std.standard
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.panda_sequencer_tb(behavior)
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.top_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.type_defines(body)
+# Loading work.type_defines(body)
+# Loading work.top_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.addr_defines(body)
+# Loading work.addr_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.test_interface(body)
+# Loading ieee.std_logic_textio(body)
+# Loading ieee.math_real(body)
+# Loading work.test_interface(body)
+# Loading unisim.vcomponents
+# Loading unimacro.vcomponents
+# Loading work.panda_sequencer_tb(behavior)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.panda_sequencer(rtl)
+# Loading work.panda_sequencer(rtl)
+# Loading unimacro.bram_sdp_macro(bram_v)
+# Loading unisim.ramb36e1(ramb36e1_v)
+# Loading ieee.std_logic_arith(body)
+# Loading ieee.std_logic_signed(body)
+# Loading ieee.vital_timing(body)
+# Loading ieee.vital_primitives(body)
+# Loading unisim.vpkg(body)
+# Loading unisim.rb36_internal_vhdl(rb36_internal_vhdl_v)
+# .main_pane.wave.interior.cs.body.pw.wf
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(156): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(158): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(160): Choice in CASE statement alternative must be locally static.
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package std_logic_textio
+# -- Loading package NUMERIC_STD
+# -- Loading package MATH_REAL
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Compiling package test_interface
+# -- Compiling package body test_interface
+# -- Loading package test_interface
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package top_defines
+# -- Loading package addr_defines
+# -- Loading package std_logic_textio
+# -- Loading package MATH_REAL
+# -- Loading package test_interface
+# -- Compiling entity panda_sequencer_tb
+# -- Compiling architecture behavior of panda_sequencer_tb
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Loading entity panda_sequencer
+# vsim -lib work -t 1ps -novopt work.panda_sequencer_tb 
+# Loading std.standard
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.panda_sequencer_tb(behavior)
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.top_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.type_defines(body)
+# Loading work.type_defines(body)
+# Loading work.top_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.addr_defines(body)
+# Loading work.addr_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.test_interface(body)
+# Loading ieee.std_logic_textio(body)
+# Loading ieee.math_real(body)
+# Loading work.test_interface(body)
+# Loading unisim.vcomponents
+# Loading unimacro.vcomponents
+# Loading work.panda_sequencer_tb(behavior)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.panda_sequencer(rtl)
+# Loading work.panda_sequencer(rtl)
+# Loading unimacro.bram_sdp_macro(bram_v)
+# Loading unisim.ramb36e1(ramb36e1_v)
+# Loading ieee.std_logic_arith(body)
+# Loading ieee.std_logic_signed(body)
+# Loading ieee.vital_timing(body)
+# Loading ieee.vital_primitives(body)
+# Loading unisim.vpkg(body)
+# Loading unisim.rb36_internal_vhdl(rb36_internal_vhdl_v)
+# .main_pane.wave.interior.cs.body.pw.wf
+do sim.do
+# ** Warning: (vlib-34) Library already exists at "work".
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package type_defines
+# -- Compiling package body type_defines
+# -- Loading package type_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package top_defines
+# -- Compiling package body top_defines
+# -- Loading package top_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Compiling package addr_defines
+# -- Compiling package body addr_defines
+# -- Loading package addr_defines
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Loading package top_defines
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Compiling entity panda_sequencer
+# -- Compiling architecture rtl of panda_sequencer
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(156): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(158): Choice in CASE statement alternative must be locally static.
+# ** Warning: ../../../src/hdl/panda_sequencer.vhd(160): Choice in CASE statement alternative must be locally static.
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package std_logic_textio
+# -- Loading package NUMERIC_STD
+# -- Loading package MATH_REAL
+# -- Loading package type_defines
+# -- Loading package addr_defines
+# -- Compiling package test_interface
+# -- Compiling package body test_interface
+# -- Loading package test_interface
+# QuestaSim vcom 10.2c Compiler 2013.07 Jul 18 2013
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package type_defines
+# -- Loading package top_defines
+# -- Loading package addr_defines
+# -- Loading package std_logic_textio
+# -- Loading package MATH_REAL
+# -- Loading package test_interface
+# -- Compiling entity panda_sequencer_tb
+# -- Compiling architecture behavior of panda_sequencer_tb
+# -- Loading package VCOMPONENTS
+# -- Loading package VCOMPONENTS
+# -- Loading entity panda_sequencer
+# vsim -lib work -t 1ps -novopt work.panda_sequencer_tb 
+# Loading std.standard
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.panda_sequencer_tb(behavior)
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.top_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.type_defines(body)
+# Loading work.type_defines(body)
+# Loading work.top_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.addr_defines(body)
+# Loading work.addr_defines(body)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.test_interface(body)
+# Loading ieee.std_logic_textio(body)
+# Loading ieee.math_real(body)
+# Loading work.test_interface(body)
+# Loading unisim.vcomponents
+# Loading unimacro.vcomponents
+# Loading work.panda_sequencer_tb(behavior)
+# Refreshing /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/sim/panda_sequencer/do/work.panda_sequencer(rtl)
+# Loading work.panda_sequencer(rtl)
+# Loading unimacro.bram_sdp_macro(bram_v)
+# Loading unisim.ramb36e1(ramb36e1_v)
+# Loading ieee.std_logic_arith(body)
+# Loading ieee.std_logic_signed(body)
+# Loading ieee.vital_timing(body)
+# Loading ieee.vital_primitives(body)
+# Loading unisim.vpkg(body)
+# Loading unisim.rb36_internal_vhdl(rb36_internal_vhdl_v)
+# .main_pane.wave.interior.cs.body.pw.wf

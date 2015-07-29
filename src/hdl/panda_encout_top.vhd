@@ -47,7 +47,7 @@ signal sclk, sdato          : std_logic_vector(ENC_NUM-1 downto 0);
 
 signal sdat_dir_channels    : std_logic_vector(ENC_NUM-1 downto 0);
 
-signal mem_read_data        : std32_array(ENC_NUM-1 downto 0);
+signal mem_read_data        : std32_array(2**(MEM_AW-BLK_AW)-1 downto 0);
 
 begin
 
