@@ -25,7 +25,7 @@ VIVADO = source /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh > /dev/nu
 PS_DIR   = $(OUT_DIR)/panda_ps/panda_ps.srcs
 PS_CORE  = $(PS_DIR)/sources_1/bd/panda_ps/hdl/panda_ps.vhd
 FPGA_BIT = $(OUT_DIR)/panda_top.bit
-SDK_EXPORT = $(OUT_DIR)/panda_ps/panda_ps.sdk
+SDK_EXPORT = $(OUT_DIR)/panda_top/panda_top.sdk
 FSBL_ELF   = $(SDK_EXPORT)/fsbl/Debug/fsbl.elf
 DEVTREE_DTS = $(SDK_EXPORT)/device_tree_bsp_0/system.dts
 DEVTREE_DTB = $(SDK_EXPORT)/device_tree_bsp_0/devicetree.dtb
@@ -140,7 +140,7 @@ $(IMAGE_DIR):
 $(BOOT_FILE) : $(IMAGE_DIR)
 	$(VIVADO) && \
 	    bootgen -w -image configs/boot.bif -o i $(IMAGE_DIR)/boot.bin
-	cp ./output/panda_ps/panda_ps.sdk/fsbl/Release/fsbl.elf $(IMAGE_DIR)
+	cp ./output/panda_top/panda_top.sdk/fsbl/Release/fsbl.elf $(IMAGE_DIR)
 	cp ./output/panda_top.bit $(IMAGE_DIR)
 
 dts:

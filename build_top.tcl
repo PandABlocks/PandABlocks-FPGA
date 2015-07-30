@@ -74,13 +74,6 @@ import_ip ../src/ip_repo/ila_0/ila_0.xci
 # Read constraint files
 read_xdc  ../src/const/panda_user.xdc
 
-#launch_runs synth_1
-#wait_on_run synth_1
-#launch_runs impl_1
-#wait_on_run impl_1
-#launch_runs impl_1 -to_step bitgen
-#wait_on_run impl_1
-
 # Report IP Status before starting P&R
 report_ip_status
 
@@ -104,3 +97,7 @@ if {! [string match -nocase {*timing constraints are met*} $timingreport]} {
 }
 
 write_bitstream -force panda_top.bit
+
+# Export HW for SDK
+file mkdir $origin_dir/panda_top/panda_top.sdk
+write_hwdef -file $origin_dir/panda_top_wrapper.hdf
