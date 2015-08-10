@@ -175,7 +175,6 @@ S_AXI_RDATA_DFF : for I in MEM_DWIDTH - 1 downto 0 generate
           C     => S_AXI_CLK,
           CE    => ongoing_read,
           D     => mem_read_data(I),
---          D     => mem_dat_i(I),
           R     => S_AXI_RST
       );
 end generate S_AXI_RDATA_DFF;

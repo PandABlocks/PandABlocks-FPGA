@@ -61,6 +61,18 @@ constant SEQ_CUR_FRAME_ADDR     : std_logic_vector := TO_STD_VECTOR(10, BLK_AW);
 constant SEQ_CUR_FCYCLE_ADDR    : std_logic_vector := TO_STD_VECTOR(11, BLK_AW);
 constant SEQ_CUR_TCYCLE_ADDR    : std_logic_vector := TO_STD_VECTOR(12, BLK_AW);
 
+constant PCAP_ENABLE_VAL_ADDR   : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
+constant PCAP_TRIGGER_VAL_ADDR  : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
+constant PCAP_TLP_COUNT_ADDR    : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);
+constant PCAP_DMAADDR_ADDR      : std_logic_vector := TO_STD_VECTOR(3, BLK_AW);
+constant PCAP_ARM_ADDR          : std_logic_vector := TO_STD_VECTOR(4, BLK_AW);
+constant PCAP_ABORT_ADDR        : std_logic_vector := TO_STD_VECTOR(5, BLK_AW);
+
+constant PCAP_DBG_MODE_ADDR     : std_logic_vector := TO_STD_VECTOR(10, BLK_AW);
+constant PCAP_DBG_ENA_ADDR      : std_logic_vector := TO_STD_VECTOR(11, BLK_AW);
+constant PCAP_DBG_PRESC_ADDR    : std_logic_vector := TO_STD_VECTOR(12, BLK_AW);
+constant PCAP_DBG_DWORDS_ADDR   : std_logic_vector := TO_STD_VECTOR(13, BLK_AW);
+
 end addr_defines;
 
 package body addr_defines is

@@ -91,7 +91,7 @@ begin
             PCOMP_RELATIVE <= '0';
             PCOMP_FLTR_DELTAT <= (others => '0');
             PCOMP_FLTR_THOLD <= (others => '0');
-            PCOMP_ENABLE_VAL <= (others => '0');
+            PCOMP_ENABLE_VAL <= TO_STD_VECTOR(127, SBUSBW);
             PCOMP_POSN_VAL <= (others => '0');
         else
             if (mem_cs_i = '1' and mem_wstb_i = '1') then

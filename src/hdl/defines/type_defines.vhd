@@ -24,7 +24,6 @@ function TO_STD_VECTOR(arg : integer; size: natural) return std_logic_vector;
 
 end type_defines;
 
-
 package body type_defines is
 
 -- Converts integer to std_logic_vector
