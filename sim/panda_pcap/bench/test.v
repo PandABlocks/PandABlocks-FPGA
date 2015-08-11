@@ -2,30 +2,78 @@ module test;
 
 panda_pcap_tb tb();
 
+reg [1:0]   wrs, rsp;
+reg [3:0]   irq_status;
+reg [31:0]  addr;
+reg         active;
+
+integer i;
+
+`include "./apis_tb.v"
+
 initial begin
     repeat(2) @(posedge tb.tb_ACLK);
+
     /* Disable the function and channel level infos from BFM */
-    tb.zynq_ps.inst.set_function_level_info("ALL",0);
-    tb.zynq_ps.inst.set_channel_level_info("ALL",1);
+    tb.zynq.hp1.cdn_axi3_master_bfm_inst.RESPONSE_TIMEOUT = 0;
+    tb.zynq.hp1.cdn_axi3_master_bfm_inst.set_channel_level_info(0);
+    tb.zynq.hp1.cdn_axi3_master_bfm_inst.set_function_level_info(0);
+
+    tb.zynq.ps.inst.set_function_level_info("ALL",0);
+    tb.zynq.ps.inst.set_channel_level_info("ALL",0);
 end
 
-
 initial begin
-    wait(tb.tb_ARESETn === 0) @(posedge tb.tb_ACLK);
-    wait(tb.tb_ARESETn === 1) @(posedge tb.tb_ACLK);
+    addr = 32'h0;
+    active = 1;
+    wait(tb.tb_ARESETn === 0) @(posedge tb.FCLK_CLK0);
+    wait(tb.tb_ARESETn === 1) @(posedge tb.FCLK_CLK0);
 
     $display("Reset Done. Setting the Slave profiles \n");
 
-    tb.zynq_ps.inst.set_slave_profile("S_AXI_HP0",2'b11);
+    tb.zynq.ps.inst.set_slave_profile("S_AXI_HP0",2'b11);
+    tb.zynq.ps.inst.set_slave_profile("S_AXI_HP1",2'b11);
     $display("Profile Done\n");
 
-    repeat(5) @(posedge tb.tb_ACLK);
+    repeat(1250) @(posedge tb.FCLK_CLK0);
 
-    $display("Start Preload \n");
-    tb.zynq_ps.inst.pre_load_mem_from_file("preload_ddr.txt",32'h0010_0000,1024);
-    tb.zynq_ps.inst.pre_load_mem(2,32'h0000_0000,1024);
-    $display("Done Preload \n");
-    force tb.zynq_ps.inst.IRQ_F2P = 4'b0000;
+    // Setup Position Capture
+    tb.zynq.ps.inst.write_data(32'h43C0_0000 + 4*3,  4, addr, wrs); //addr
+    tb.zynq.ps.inst.write_data(32'h43C0_0000 + 4*10, 4, 32'h1, wrs); //dbg
+    tb.zynq.ps.inst.write_data(32'h43C0_0000 + 4*4,  4, 32'h1, wrs); //arm
+
+    addr = addr + 512;
+    tb.zynq.ps.inst.write_data(32'h43C0_0000 + 4*3,  4, addr, wrs); //addr
+    tb.zynq.ps.inst.write_data(32'h43C0_0000 + 4*11, 4, 32'h1, wrs); //ena
+
+    while (active) begin
+        // Wait for DMA irq
+        tb.zynq.ps.inst.wait_interrupt(0,irq_status);
+        if (tb.uut.irq_status == 4'b0010) begin
+            $display("IRQ on BLOCK_FINISHED...");
+            addr = addr + 512;
+            tb.zynq.ps.inst.write_data(32'h43C0_0000 + 4*3, 4, addr, wrs); //addr
+        end
+        else if (tb.uut.irq_status == 4'b0001) begin
+            $display("IRQ on LAST_TLP...");
+            active = 0;
+        end
+        else if (tb.uut.irq_status == 4'b0100) begin
+            $display("IRQ on ADDR_ERROR...");
+            $finish;
+        end
+        else if (tb.uut.irq_status == 4'b1000) begin
+            $display("IRQ on USER_ABORT...");
+            $finish;
+        end
+        repeat(125) @(posedge tb.FCLK_CLK0);
+    end
+
+    repeat(125) @(posedge tb.FCLK_CLK0);
+
+    //Read DMA data into file for verification
+    tb_read_to_file("master_hp1","read_from_hp1.txt",32'h0000_0000,1024*4,rsp);
+
     $finish;
 end
 
