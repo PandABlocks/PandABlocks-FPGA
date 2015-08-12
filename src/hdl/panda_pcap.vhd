@@ -166,9 +166,9 @@ begin
                     PCAP_TRIGGER_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                -- TLP count per DMA block
-                if (mem_addr_i = PCAP_TLP_COUNT_ADDR) then
-                    PCAP_TLP_COUNT <= mem_dat_i(SBUSBW-1 downto 0);
+                -- DMA Block size in TLPs (each TLP is 128 Bytes)
+                if (mem_addr_i = PCAP_DMA_BUFSIZE_ADDR) then
+                    PCAP_TLP_COUNT <= mem_dat_i;
                 end if;
 
                 -- DMA block Soft ARM

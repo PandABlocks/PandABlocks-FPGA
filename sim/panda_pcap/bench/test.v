@@ -23,8 +23,11 @@ initial begin
     tb.zynq.ps.inst.set_channel_level_info("ALL",0);
 end
 
+parameter integer DMA_SIZE   = 1024*1024;     // 1MB
+parameter integer BLOCK_SIZE = 4*1024;        // 4KB
+
 initial begin
-    addr = 32'h0;
+    addr = 32'h1000_0000;
     active = 1;
     wait(tb.tb_ARESETn === 0) @(posedge tb.FCLK_CLK0);
     wait(tb.tb_ARESETn === 1) @(posedge tb.FCLK_CLK0);
@@ -38,11 +41,16 @@ initial begin
     repeat(1250) @(posedge tb.FCLK_CLK0);
 
     // Setup Position Capture
+    // BLOCK_SIZE in TLPs
+    tb.zynq.ps.inst.write_data(32'h43C0_0000 + 4*2,  4, BLOCK_SIZE/128, wrs);
+    // DBG: DMA size in DWORDs
+    tb.zynq.ps.inst.write_data(32'h43C0_0000 + 4*13, 4, DMA_SIZE/4, wrs);
+
     tb.zynq.ps.inst.write_data(32'h43C0_0000 + 4*3,  4, addr, wrs); //addr
     tb.zynq.ps.inst.write_data(32'h43C0_0000 + 4*10, 4, 32'h1, wrs); //dbg
     tb.zynq.ps.inst.write_data(32'h43C0_0000 + 4*4,  4, 32'h1, wrs); //arm
 
-    addr = addr + 512;
+    addr = addr + BLOCK_SIZE;
     tb.zynq.ps.inst.write_data(32'h43C0_0000 + 4*3,  4, addr, wrs); //addr
     tb.zynq.ps.inst.write_data(32'h43C0_0000 + 4*11, 4, 32'h1, wrs); //ena
 
@@ -51,7 +59,7 @@ initial begin
         tb.zynq.ps.inst.wait_interrupt(0,irq_status);
         if (tb.uut.irq_status == 4'b0010) begin
             $display("IRQ on BLOCK_FINISHED...");
-            addr = addr + 512;
+            addr = addr + BLOCK_SIZE;
             tb.zynq.ps.inst.write_data(32'h43C0_0000 + 4*3, 4, addr, wrs); //addr
         end
         else if (tb.uut.irq_status == 4'b0001) begin
@@ -72,7 +80,7 @@ initial begin
     repeat(125) @(posedge tb.FCLK_CLK0);
 
     //Read DMA data into file for verification
-    tb_read_to_file("master_hp1","read_from_hp1.txt",32'h0000_0000,1024*4,rsp);
+    tb_read_to_file("master_hp1","read_from_hp1.txt",32'h1000_0000,DMA_SIZE,rsp);
 
     $finish;
 end

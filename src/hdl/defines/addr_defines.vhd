@@ -63,7 +63,7 @@ constant SEQ_CUR_TCYCLE_ADDR    : std_logic_vector := TO_STD_VECTOR(12, BLK_AW);
 
 constant PCAP_ENABLE_VAL_ADDR   : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
 constant PCAP_TRIGGER_VAL_ADDR  : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
-constant PCAP_TLP_COUNT_ADDR    : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);
+constant PCAP_DMA_BUFSIZE_ADDR  : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);
 constant PCAP_DMAADDR_ADDR      : std_logic_vector := TO_STD_VECTOR(3, BLK_AW);
 constant PCAP_ARM_ADDR          : std_logic_vector := TO_STD_VECTOR(4, BLK_AW);
 constant PCAP_ABORT_ADDR        : std_logic_vector := TO_STD_VECTOR(5, BLK_AW);

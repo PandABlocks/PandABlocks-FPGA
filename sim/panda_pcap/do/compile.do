@@ -136,13 +136,13 @@ vopt -64 +acc -L unisims_ver -L unimacro_ver -L secureip -L xil_defaultlib -L ge
 
 vsim -t 1ps -pli "/dls_sw/FPGA/Xilinx/Vivado/2015.1/lib/lnx64.o/libxil_vsim.so" -lib xil_defaultlib test_opt
 
-add wave -group "PCAP" \
-    "sim:/test/tb/uut/*"
-add wave -group "CSR"  \
-    "sim:/test/tb/panda_csr_if_inst/*"
-add wave -group "DMA" \
-    "sim:/test/tb/uut/dma_write_master/*"
-add wave -group "PS" \
-    "sim:/test/tb/zynq/*"
+#add wave -group "PCAP" \
+#    "sim:/test/tb/uut/*"
+#add wave -group "CSR"  \
+#    "sim:/test/tb/panda_csr_if_inst/*"
+#add wave -group "DMA" \
+#    "sim:/test/tb/uut/dma_write_master/*"
+#add wave -group "PS" \
+#    "sim:/test/tb/zynq/*"
 
 run -all
