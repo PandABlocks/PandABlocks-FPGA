@@ -1,0 +1,14 @@
+# Configuration file for building PandA server and driver.
+
+# Default build location
+# BUILD_DIR = $(TOP)/build
+
+# Compiler settings
+ARCH = arm
+CROSS_COMPILE = arm-xilinx-linux-gnueabi-
+BINUTILS_DIR = /dls_sw/FPGA/Xilinx/SDK/2015.1/gnu/arm/lin/bin
+
+# Where the kernel was compiled
+KERNEL_DIR = /scratch/tmp/zebra2-rootfs/build/linux
+
+# vim: set filetype=make:
