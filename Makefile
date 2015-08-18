@@ -22,7 +22,7 @@ $(DRIVER_BUILD_DIR) $(SERVER_BUILD_DIR):
 	mkdir -p $@
 
 
-PANDA_MAP_KO = $(DRIVER_BUILD_DIR)/panda_map.ko
+PANDA_KO = $(DRIVER_BUILD_DIR)/panda.ko
 
 # Building kernel modules out of tree is a headache.  The best workaround is to
 # link all the source files into the build directory.
@@ -31,13 +31,13 @@ $(DRIVER_BUILD_FILES): $(DRIVER_BUILD_DIR)/%: driver/%
 	ln -s $$(readlink -e $<) $@
 
 
-$(PANDA_MAP_KO): $(DRIVER_BUILD_DIR) $(DRIVER_BUILD_FILES)
+$(PANDA_KO): $(DRIVER_BUILD_DIR) $(DRIVER_BUILD_FILES)
 	make -C $(KERNEL_DIR) M=$< modules \
             ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE)
 	touch $@
 
 
-driver: $(PANDA_MAP_KO)
+driver: $(PANDA_KO)
 
 server: $(SERVER_BUILD_DIR) $(SERVER_FILES)
 
@@ -47,7 +47,7 @@ clean:
 .PHONY: default server driver clean
 
 
-deploy: $(PANDA_MAP_KO)
+deploy: $(PANDA_KO)
 	scp $^ root@172.23.252.202:/opt
 
 .PHONY: deploy
