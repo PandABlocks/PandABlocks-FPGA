@@ -1,11 +1,13 @@
 # Top level make file for building PandA socket server and associated device
 # drivers for interfacing to the FPGA resources.
 
-TOP = $(CURDIR)
+TOP := $(CURDIR)
 
-BUILD_DIR = $(CURDIR)/build
+BUILD_DIR = $(TOP)/build
 
 include CONFIG
+
+CC = $(CROSS_COMPILE)gcc
 
 DRIVER_BUILD_DIR = $(BUILD_DIR)/driver
 SERVER_BUILD_DIR = $(BUILD_DIR)/server
@@ -16,11 +18,15 @@ SERVER_FILES := $(wildcard server/*)
 PATH := $(BINUTILS_DIR):$(PATH)
 
 default: driver server
+.PHONY: default
 
 
 $(DRIVER_BUILD_DIR) $(SERVER_BUILD_DIR):
 	mkdir -p $@
 
+
+# ------------------------------------------------------------------------------
+# Kernel driver building
 
 PANDA_KO = $(DRIVER_BUILD_DIR)/panda.ko
 
@@ -32,22 +38,38 @@ $(DRIVER_BUILD_FILES): $(DRIVER_BUILD_DIR)/%: driver/%
 
 
 $(PANDA_KO): $(DRIVER_BUILD_DIR) $(DRIVER_BUILD_FILES)
-	make -C $(KERNEL_DIR) M=$< modules \
+	$(MAKE) -C $(KERNEL_DIR) M=$< modules \
             ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE)
 	touch $@
 
 
 driver: $(PANDA_KO)
+.PHONY: driver
 
-server: $(SERVER_BUILD_DIR) $(SERVER_FILES)
+
+# ------------------------------------------------------------------------------
+# Socket server
+
+SERVER = $(SERVER_BUILD_DIR)/server
+SERVER_FILES := $(wildcard server/*)
+
+$(SERVER): $(SERVER_BUILD_DIR) $(SERVER_FILES)
+	$(MAKE) -C $< -f $(TOP)/server/Makefile \
+            VPATH=$(TOP)/server TOP=$(TOP) CC=$(CC)
+
+server: $(SERVER)
+
+.PHONY: server
+
+
+# ------------------------------------------------------------------------------
 
 clean:
 	rm -rf $(BUILD_DIR)
+.PHONY: clean
 
-.PHONY: default server driver clean
 
-
-deploy: $(PANDA_KO)
+deploy: $(PANDA_KO) $(SERVER)
 	scp $^ root@172.23.252.202:/opt
 
 .PHONY: deploy
