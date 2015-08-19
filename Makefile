@@ -69,7 +69,10 @@ clean:
 .PHONY: clean
 
 
-deploy: $(PANDA_KO) $(SERVER)
+DEPLOY += $(PANDA_KO)
+DEPLOY += $(SERVER)
+
+deploy: $(DEPLOY)
 	scp $^ root@172.23.252.202:/opt
 
 .PHONY: deploy
