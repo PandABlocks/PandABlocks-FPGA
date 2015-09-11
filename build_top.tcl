@@ -48,8 +48,8 @@ read_vhdl ../src/hdl/defines/addr_defines.vhd
 read_vhdl ../src/hdl/defines/top_defines.vhd
 read_vhdl ../src/hdl/panda_csr_if.vhd
 read_vhdl ../src/hdl/panda_spbram.vhd
-read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0_S00_AXI.vhd
-read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0.vhd
+#read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0_S00_AXI.vhd
+#read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0.vhd
 read_vhdl ../src/hdl/panda_digout.vhd
 read_vhdl ../src/hdl/panda_digio.vhd
 read_vhdl ../src/hdl/panda_ssislv.vhd

@@ -50,7 +50,8 @@ while (bytes > 0) begin
   endcase
 
   repeat(trnsfr_lngth+1) begin
-   $fdisplayh(rd_fd,rd_data[31:0]);
+//   $fdisplayh(rd_fd,rd_data[31:0]);
+   $fdisplay(rd_fd,rd_data[31:0]);
    rd_data = rd_data >> 32;
   end
   

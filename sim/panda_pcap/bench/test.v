@@ -23,8 +23,8 @@ initial begin
     tb.zynq.ps.inst.set_channel_level_info("ALL",0);
 end
 
-parameter integer DMA_SIZE   = 1024*1024;     // 1MB
-parameter integer BLOCK_SIZE = 4*1024;        // 4KB
+parameter integer DMA_SIZE   = 4*7;          // 1MB
+parameter integer BLOCK_SIZE = 1024;         // 4KB
 
 initial begin
     addr = 32'h1000_0000;

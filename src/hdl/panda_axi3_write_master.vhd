@@ -17,7 +17,7 @@ entity panda_axi3_write_master is
 generic (
     AXI_BURST_LEN       : integer := 16;
     AXI_ADDR_WIDTH      : integer := 32;
-    AXI_DATA_WIDTH      : integer := 64
+    AXI_DATA_WIDTH      : integer := 32
 );
 port (
     -- Clock and Reset
@@ -43,7 +43,7 @@ port (
     m_axi_wdata         : out std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
     m_axi_wvalid        : out std_logic;
     m_axi_wlast         : out std_logic;
-    m_axi_wstrb         : out std_logic_vector(7 downto 0);
+    m_axi_wstrb         : out std_logic_vector(AXI_DATA_WIDTH/8-1 downto 0);
     m_axi_wid           : out std_logic_vector(5 downto 0);
     --
     dma_addr            : in  std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
