@@ -1,0 +1,178 @@
+# Interface definition
+#
+# Notes:
+#   bit_out definitions correspond to a bit on the system bus
+
+TTLIN[6]
+    bit_out VAL
+    param   TERM            enum(high-Z,50-Ohm)
+
+TTLOUT[10]
+    bit_in  VAL
+
+LVDSIN[2]
+    bit_out VAL
+
+LVDSOUT[2]
+    bit_in  VAL
+
+LUT[8]
+    bit_in  INPA
+    bit_in  INPB
+    bit_in  INPC
+    bit_in  INPD
+    bit_in  INPE
+    bit_out VAL
+    param   FUNC            lut_function
+
+SRGATE[4]
+    bit_in  SET
+    bit_in  RESET
+    bit_out VAL
+    param   SET_EDGE        enum(falling,rising)
+    param   RESET_EDGE      enum(falling,rising)
+    write   FORCE_STATE     bit
+
+DIV[4]
+    bit_in  INP
+    bit_in  RESET
+    bit_out OUTD
+    bit_out OUTN
+    param   FIRST_PULSE     enum(outN,outD)
+    param   DIVISOR         32-bit
+    read    COUNT           32-bit
+    action  FORCE_RESET
+
+PULSE[4]
+    bit_in  INP
+    bit_in  RESET
+    bit_out OUT
+    bit_out PERR
+    param   DELAY           scaled_time
+    param   WIDTH           scaled_time
+    param   PRESCALE        prescale
+    action  FORCE_RESET
+    read    STATE           bit
+    read    MISSED_CNT      32-bit
+
+SEQ[4]
+    bit_in  ARM
+    bit_in  INPA
+    bit_in  INPB
+    bit_in  INPC
+    bit_in  INPD
+    bit_out OUTA
+    bit_out OUTB
+    bit_out OUTC
+    bit_out OUTD
+    bit_out OUTE
+    bit_out OUTF
+    bit_out ACTIVE
+    param   PRESCALE        prescale
+    write   FORCE_STATE     bit
+    read    CUR_FRAME       32-bit
+    read    CUR_FCYCLE      32-bit
+    read    CUR_TCYCLE      32-bit
+    read    TABLE_CYCLE     32-bit
+    table   TABLE           seq_table
+
+INENC[4]
+    bit_out A
+    bit_out B
+    bit_out Z
+    bit_out CONN
+    pos_out ENC_POSN
+    param   PROTOCOL        enum(Quadrature,SSI,BISS,enDat,enDat/BISS)
+    param   RATE            16-bit
+    param   BITS            8-bit
+    param   SETP            32-bit
+    param   RST_ON_Z        bit
+
+QDEC[4]
+    bit_in  A
+    bit_in  B
+    bit_in  Z
+    pos_out ENC_POSN
+    param   SETP            position
+    param   RST_ON_Z        bit
+
+OUTENC[4]
+    bit_in  A
+    bit_in  B
+    bit_in  Z
+    pos_in  ENC_POSN
+    bit_in  CONN
+    param   PROTOCOL        enum(pos-quad,abz-quad,ssi,biss,enDat,abz-abz)
+    param   BITS            5-bit
+    param   QPRESCALAR      enum(?)
+    action  FORCE_QSTATE
+    read    QSTATE          bit
+
+QENC[4]
+    pos_in  ENC_POSN
+    bit_out A
+    bit_out B
+    param   QPRESCALAR      bit
+    action  FORCE_QSTATE
+    read    QSTATE          bit
+
+CALC[2]
+    pos_in  A
+    pos_in  B
+    pos_out RESULT
+    param   KA              32-bit
+    param   KB              32-bit
+    param   SCALE           4-bit
+
+# ??? Hard wired inputs instead of A/B/C/D ???
+ADDER
+    pos_in  A
+    pos_in  B
+    pos_in  C
+    pos_in  D
+    pos_out RESULT
+    param   MASK            4-bits
+    param   OUTSCALE        2-bits
+
+TIMER[8]
+    bit_in  ENABLE
+    bit_in  TRIGGER
+    bit_in  DIR
+    pos_out COUNTN
+    bit_out OVERFLOW
+    param   START           32-bit
+    param   STEP            32-bit
+    param   TRIGMODE        enum(external,clocked)
+
+PGEN[2]
+    bit_in  ENABLE
+    bit_in  TRIGGER
+    param   SAMPLES
+    param   CYCLES
+    table   TABLE           pgen_table
+
+PCOMP[4]
+    bit_in  ENABLE
+    pos_in  POSN
+    bit_out ACT
+    bit_out PULSE
+    param   START
+    param   STEP
+    param   WIDTH
+    param   NUM
+    param   RELATIVE
+    param   LUT_ENABLE
+    table   TABLE           pcomp_table
+
+ADC[8]
+    bit_in  TRIGGER
+    bit_in  RESET
+    bit_out TRIGGERD
+    pos_out NUMSAMPLES
+    adc_out DATA
+
+PCAP
+    bit_in  ENABLE
+    bit_in  TRIG_POS
+    bit_in  TRIG_ADC
+    param   MASK
