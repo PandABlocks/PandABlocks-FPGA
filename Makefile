@@ -11,17 +11,18 @@ CC = $(CROSS_COMPILE)gcc
 
 DRIVER_BUILD_DIR = $(BUILD_DIR)/driver
 SERVER_BUILD_DIR = $(BUILD_DIR)/server
+SIM_SERVER_BUILD_DIR = $(BUILD_DIR)/sim_server
 
 DRIVER_FILES := $(wildcard driver/*)
 SERVER_FILES := $(wildcard server/*)
 
 PATH := $(BINUTILS_DIR):$(PATH)
 
-default: driver server
+default: driver server sim_server
 .PHONY: default
 
 
-$(DRIVER_BUILD_DIR) $(SERVER_BUILD_DIR):
+$(BUILD_DIR)/%:
 	mkdir -p $@
 
 
@@ -51,15 +52,21 @@ driver: $(PANDA_KO)
 # Socket server
 
 SERVER = $(SERVER_BUILD_DIR)/server
+SIM_SERVER = $(SIM_SERVER_BUILD_DIR)/server
 SERVER_FILES := $(wildcard server/*)
 
 $(SERVER): $(SERVER_BUILD_DIR) $(SERVER_FILES)
 	$(MAKE) -C $< -f $(TOP)/server/Makefile \
             VPATH=$(TOP)/server TOP=$(TOP) CC=$(CC)
 
-server: $(SERVER)
+$(SIM_SERVER): $(SIM_SERVER_BUILD_DIR) $(SERVER_FILES)
+	$(MAKE) -C $< -f $(TOP)/server/Makefile \
+            VPATH=$(TOP)/server TOP=$(TOP)
 
-.PHONY: server
+server: $(SERVER)
+sim_server: $(SIM_SERVER)
+
+.PHONY: server sim_server
 
 
 # ------------------------------------------------------------------------------
