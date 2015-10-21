@@ -41,7 +41,7 @@ DIV[4]
     param   FIRST_PULSE     enum(outN,outD)
     param   DIVISOR         32-bit
     read    COUNT           32-bit
-    action  FORCE_RESET
+    write   FORCE_RESET     action
 
 PULSE[4]
     bit_in  INP
@@ -51,12 +51,12 @@ PULSE[4]
     param   DELAY           scaled_time
     param   WIDTH           scaled_time
     param   PRESCALE        prescale
-    action  FORCE_RESET
-    read    STATE           bit
+    write   FORCE_RESET     action
+    read    STATE           enum(?)
     read    MISSED_CNT      32-bit
 
 SEQ[4]
-    bit_in  ARM
+    bit_in  GATE
     bit_in  INPA
     bit_in  INPB
     bit_in  INPC
@@ -69,12 +69,13 @@ SEQ[4]
     bit_out OUTF
     bit_out ACTIVE
     param   PRESCALE        prescale
-    write   FORCE_STATE     bit
+    param   TABLE_LENGTH    int
+    write   SOFT_GATE       bit
     read    CUR_FRAME       32-bit
     read    CUR_FCYCLE      32-bit
     read    CUR_TCYCLE      32-bit
     read    TABLE_CYCLE     32-bit
-    table   TABLE           seq_table
+    table   TABLE           seq_frame[512]
 
 INENC[4]
     bit_out A
@@ -85,16 +86,16 @@ INENC[4]
     param   PROTOCOL        enum(Quadrature,SSI,BISS,enDat,enDat/BISS)
     param   RATE            16-bit
     param   BITS            8-bit
-    param   SETP            32-bit
     param   RST_ON_Z        bit
+    write   SETP            32-bit
 
 QDEC[4]
     bit_in  A
     bit_in  B
     bit_in  Z
     pos_out ENC_POSN
-    param   SETP            position
     param   RST_ON_Z        bit
+    write   SETP            position
 
 OUTENC[4]
     bit_in  A
@@ -102,18 +103,19 @@ OUTENC[4]
     bit_in  Z
     pos_in  ENC_POSN
     bit_in  CONN
-    param   PROTOCOL        enum(pos-quad,abz-quad,ssi,biss,enDat,abz-abz)
+    param   PROTOCOL        enum(pos-quad,ssi,biss,enDat,abz)
     param   BITS            5-bit
     param   QPRESCALAR      enum(?)
-    action  FORCE_QSTATE
+    write   FORCE_QSTATE    action
     read    QSTATE          bit
 
-QENC[4]
+POSENC[4]
     pos_in  ENC_POSN
     bit_out A
     bit_out B
     param   QPRESCALAR      bit
-    action  FORCE_QSTATE
+    param   MODE            enum(quadrature,step+direction)
+    write   FORCE_QSTATE    action
     read    QSTATE          bit
 
 CALC[2]
@@ -124,32 +126,29 @@ CALC[2]
     param   KB              32-bit
     param   SCALE           4-bit
 
-# ??? Hard wired inputs instead of A/B/C/D ???
+# Hard wired inputs!
 ADDER
-    pos_in  A
-    pos_in  B
-    pos_in  C
-    pos_in  D
     pos_out RESULT
     param   MASK            4-bits
     param   OUTSCALE        2-bits
 
-TIMER[8]
+COUNTER[8]
     bit_in  ENABLE
     bit_in  TRIGGER
     bit_in  DIR
     pos_out COUNTN
-    bit_out OVERFLOW
+    bit_out CARRY
     param   START           32-bit
     param   STEP            32-bit
-    param   TRIGMODE        enum(external,clocked)
+    write   SOFT_ENABLE
 
 PGEN[2]
     bit_in  ENABLE
     bit_in  TRIGGER
+    pos_out POSN
     param   SAMPLES
     param   CYCLES
-    table   TABLE           pgen_table
+    table   TABLE           position[*]
 
 PCOMP[4]
     bit_in  ENABLE
@@ -162,7 +161,7 @@ PCOMP[4]
     param   NUM
     param   RELATIVE
     param   LUT_ENABLE
-    table   TABLE           pcomp_table
+    table   TABLE           position[*]
 
 ADC[8]
     bit_in  TRIGGER
