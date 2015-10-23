@@ -168,7 +168,7 @@ ADC[8]
     bit_in  RESET
     bit_out TRIGGERD
     pos_out NUMSAMPLES
-    adc_out DATA
+#     adc_out DATA
 
 PCAP
     bit_in  ENABLE

@@ -1,0 +1,169 @@
+# Very simple rule about response.  There are three possible responses to a
+# command:
+#
+# 1.    OK <response-data>
+# 2.    ERR <error-message>
+# 3.    !<first-line>
+#       !<second-line>
+#       !<last-line>
+#       .
+
+# Interrogation of a simple  bit value
+< TTLIN0.VAL?
+> OK =0
+
+# Interrogation of an enumeration: returns string.
+# Is this really sensible?  Where do we do the conversions?
+< TTLIN0.TERM?
+> OK =high-Z
+
+< TTLIN0.TERM.RAW?
+> OK =0
+
+# Return the list of enumerations as a multi-line response.  Reserve a different
+# symbol for the end of the response.
+< TTLIN0.TERM.ENUMS?
+> !high-Z
+> !50-Ohm
+> .
+# I don't particularly like the fact that this looks like an ordinary field
+# (except that it's a three part name) but is returning metadata.
+
+
+# Interrogating configuration changes returns a multi-line response.
+< *CHANGES.CONFIG?
+> !TTLIN0.TERM=50-Ohm
+> .
+# Do we report changes that the caller themselves have pushed?  Tom to decide.
+# Answer is yes!
+
+# Similarly value changes can be interrogated.
+< *CHANGES.DATA?
+> !TTLIN0.VAL=1
+> .
+
+# Values can be set
+< TTLIN0.TERM=50-Ohm
+> OK
+
+< TTLIN0.TERM.RAW=0
+> OK
+
+# All error returns are the same general format.
+
+< TTLIN0.TERM=1
+> ERR Invalid value
+
+# We need some form of meta-data interrogation mechanism.  First of all a list
+# of top level entities:
+< *BLOCKS?
+> !TTLIN 6
+> !OUTENC 4
+> !CALC 2
+> !SRGATE 4
+> !PCOMP 4
+> !LUT 8
+> !TTLOUT 10
+> !LVDSOUT 2
+> !ADC 8
+> !DIV 4
+> !INENC 4
+> !COUNTER 8
+> !ADDER 1
+> !PCAP 1
+> !POSENC 4
+> !LVDSIN 2
+> !PGEN 2
+> !QDEC 4
+> !SEQ 4
+> !PULSE 4
+> .
+
+# Need some way to interrogate the fields of an entity.
+< TTLIN.*?
+> !VAL bit_out
+> !TERM param enum
+> .
+
+# An echo exchange
+< *ECHO this is an arbitrary string
+> OK ECHO this is an arbitrary string
+
+# All pos_out fields have scaling support, so presumably we have something like
+# this:
+
+# (Really not sure about this request syntax)
+< INENC.*?
+> !A bit_out
+> !B bit_out
+> !C bit_out
+> !D bit_out
+> !ENC_POSN pos_out
+> !PROTOCOL param enum
+> !RATE param ?
+> !BITS param ?
+> !SETP param pos
+> !RST_ON_Z param enum
+> .
+
+< INENC.ENC_POSN?
+> OK =1.4795
+
+< INENC.ENC_POSN.RAW?
+> OK =122345
+
+< INENC.ENC_POSN.ZERO?
+> OK =121000
+
+< INENC.ENC_POSN.SCALE?
+> OK =1.1E3
+
+
+# General syntax of entity control.  We implement quite a rigid syntax.
+
+# First, there must be at least two fields, and the number must normally be
+# present.
+
+< TTLIN?
+> ERR Missing field name
+
+< TTLIN.VAL?
+> ERR Missing block number
+
+< TTLIN6.VAL?
+> ERR Block number too large
+
+< TTLIN0.VAL?
+> OK =0
+
+# The second field is either * for a meta-data inquiry, or else must be a valid
+# field name.  If * is used then no number can be specified and the field cannot
+# be written.
+
+< TTLIN.*=
+> ERR Read only field
+
+< TTLIN0.*?
+> ERR Number not expected
+
+< TTLIN.*?
+> !VAL bit_out
+> !TERM param enum
+> .
+
+# Similarly the third field can be * for meta-data, in which case the same rules
+# about the number apply.
+
+< TTLIN.TERM.*=
+> ERR Read only field
+
+< TTLIN0.TERM.*?
+> ERR Number not expected
+
+< TTLIN.TERM.*?
+> !VAL
+> !RAW
+> !ENUMS
+> .
+
+# I guess we can interrogate all these fields.
