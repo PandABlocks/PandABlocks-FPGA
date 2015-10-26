@@ -64,6 +64,7 @@ def transcript_readlines():
     return (to_send, to_receive)
 
 
+failed = 0
 while True:
     (tx, rx) = transcript_readlines()
     if not tx:
@@ -77,3 +78,8 @@ while True:
         print tx[0], 'OK'
     else:
         print tx[0], 'response error', response
+        failed += 1
+
+if failed:
+    print failed, 'tests failed'
+    sys.exit(1)
