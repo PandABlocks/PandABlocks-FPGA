@@ -105,7 +105,7 @@
 > ERR block.field.*? not implemented yet
 
 < TTLIN2.TERM.ENUMS?
-> ERR No such subfield
+> ERR No such attribute
 
 < TTLIN2.TERM.ENUMS=x
-> ERR No such subfield
+> ERR No such attribute
