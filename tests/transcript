@@ -93,7 +93,9 @@
 
 # Unimplemented functionality
 < TTLIN.*?
-> ERR block.*? not implemented yet
+> !VAL
+> !TERM
+> .
 
 < TTLIN2.VAL?
 > ERR block.field? not implemented yet
