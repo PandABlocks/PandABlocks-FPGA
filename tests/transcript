@@ -1,0 +1,105 @@
+# Simple server test script.  Consists of commands to send and the expected
+# response, the test_exchange script validates this.
+
+# Start with the identification exchange
+< *IDN?
+> OK =PandA
+
+# The simplest meta-data inquiry.
+# Note that the order of the returned values depends on both the internal
+# hashtable implementation and the ordering in the config file.
+< *BLOCKS?
+> !TTLIN 6
+> !OUTENC 4
+> !CALC 2
+> !SRGATE 4
+> !PCOMP 4
+> !LUT 8
+> !TTLOUT 10
+> !LVDSOUT 2
+> !ADC 8
+> !DIV 4
+> !INENC 4
+> !COUNTER 8
+> !ADDER 1
+> !PCAP 1
+> !POSENC 4
+> !LVDSIN 2
+> !PGEN 2
+> !QDEC 4
+> !SEQ 4
+> !PULSE 4
+> .
+
+# Now a few top level error responses
+< x
+> ERR Unknown command
+
+< *IDN?x
+> ERR Unexpected text after command
+
+< *x?
+> ERR Unknown value
+
+< *x=
+> ERR Unknown target
+
+< TTLIN.*=
+> ERR Field not writeable
+
+
+# Testing the parsing of entity names.  As these are quite complex there are a
+# lot of error possibilities to work through.
+
+< ?
+> ERR No name found
+
+< xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx?
+> ERR Name too long
+
+< x?
+> ERR No such block
+
+< TTLIN?
+> ERR Character '.' expected
+
+< TTLIN23?
+> ERR Block number too large
+
+< TTLIN2?
+> ERR Character '.' expected
+
+< TTLIN2.*?
+> ERR Block number not allowed
+
+< TTLIN2.x?
+> ERR No such field
+
+< TTLIN.VAL?
+> ERR Missing block number
+
+< TTLIN.VAL.?
+> ERR No name found
+
+< TTLIN2.VAL.*?
+> ERR Block number not allowed
+
+
+# Unimplemented functionality
+< TTLIN.*?
+> ERR block.*? not implemented yet
+
+< TTLIN2.VAL?
+> ERR block.field? not implemented yet
+
+< TTLIN2.VAL=x
+> ERR block.field= not implemented yet
+
+< TTLIN.VAL.*?
+> ERR block.field.*? not implemented yet
+
+< TTLIN2.TERM.ENUMS?
+> ERR No such subfield
+
+< TTLIN2.TERM.ENUMS=x
+> ERR No such subfield

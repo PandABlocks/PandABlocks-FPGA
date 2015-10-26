@@ -106,16 +106,16 @@
 > !RST_ON_Z param enum
 > .
 
-< INENC.ENC_POSN?
+< INENC2.ENC_POSN?
 > OK =1.4795
 
-< INENC.ENC_POSN.RAW?
+< INENC2.ENC_POSN.RAW?
 > OK =122345
 
-< INENC.ENC_POSN.ZERO?
+< INENC2.ENC_POSN.ZERO?
 > OK =121000
 
-< INENC.ENC_POSN.SCALE?
+< INENC2.ENC_POSN.SCALE?
 > OK =1.1E3
 
 
@@ -141,10 +141,10 @@
 # be written.
 
 < TTLIN.*=
-> ERR Read only field
+> ERR Field not writeable
 
 < TTLIN0.*?
-> ERR Number not expected
+> ERR Block number not allowed
 
 < TTLIN.*?
 > !VAL bit_out
@@ -155,10 +155,10 @@
 # about the number apply.
 
 < TTLIN.TERM.*=
-> ERR Read only field
+> ERR Field not writeable
 
 < TTLIN0.TERM.*?
-> ERR Number not expected
+> ERR Block number not allowed
 
 < TTLIN.TERM.*?
 > !VAL
