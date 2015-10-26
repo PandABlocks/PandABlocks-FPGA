@@ -61,13 +61,13 @@
 > ERR No such block
 
 < TTLIN?
-> ERR Character '.' expected
+> ERR Missing field name
 
 < TTLIN23?
 > ERR Block number too large
 
 < TTLIN2?
-> ERR Character '.' expected
+> ERR Missing field name
 
 < TTLIN2.*?
 > ERR Block number not allowed
@@ -83,6 +83,12 @@
 
 < TTLIN2.VAL.*?
 > ERR Block number not allowed
+
+< *IDN<
+> ERR Not a table
+
+< TTLIN2.VAL<
+> ERR Field not a table
 
 
 # Unimplemented functionality
