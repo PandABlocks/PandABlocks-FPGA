@@ -85,10 +85,15 @@
 > ERR Block number not allowed
 
 < *IDN<
+< 123
+< 
 > ERR Not a table
 
 < TTLIN2.VAL<
-> ERR Field not a table
+< 
+> ERR block.field< not implemented yet
+# Probably ought to be:
+# > ERR Field not a table
 
 
 # Unimplemented functionality
@@ -102,6 +107,22 @@
 
 < TTLIN2.VAL=x
 > ERR block.field= not implemented yet
+
+< PCOMP2.TABLE<
+< 1 2 3 4 5 6 7 8
+< 9
+<
+> ERR block.field< not implemented yet
+
+< PCOMP2.TABLE<B2
+< 1234567
+> ERR block.field< not implemented yet
+
+< PCOMP2.TABLE<<
+< 1 2 3 4 5 6 7 8
+< 9
+<
+> ERR block.field< not implemented yet
 
 < TTLIN.VAL.*?
 > ERR block.field.*? not implemented yet
