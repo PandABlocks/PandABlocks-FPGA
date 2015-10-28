@@ -94,12 +94,9 @@
 > ERR Block number not allowed
 
 < *IDN<
-< 123
-<
 > ERR Not a table
 
 < TTLIN2.VAL<
-<
 > ERR block.field< not implemented yet
 # Probably ought to be:
 # > ERR Field not a table
@@ -118,19 +115,19 @@
 > ERR block.field= not implemented yet
 
 < PCOMP2.TABLE<
-< 1 2 3 4 5 6 7 8
-< 9
-<
+# < 1 2 3 4 5 6 7 8
+# < 9
+# <
 > ERR block.field< not implemented yet
 
 < PCOMP2.TABLE<B2
-< 1234567
+# < 1234567
 > ERR block.field< not implemented yet
 
 < PCOMP2.TABLE<<
-< 1 2 3 4 5 6 7 8
-< 9
-<
+# < 1 2 3 4 5 6 7 8
+# < 9
+# <
 > ERR block.field< not implemented yet
 
 < TTLIN.VAL.*?
@@ -146,15 +143,15 @@
 # There's a surprising delay on the block operations.  Try doing them all in one
 # go instead.
 < PCOMP2.TABLE<
-< 1 2 3 4 5 6 7 8
-< 9
-<
+# < 1 2 3 4 5 6 7 8
+# < 9
+# <
 < PCOMP2.TABLE<B2
-< 1234567
+# < 1234567
 < PCOMP2.TABLE<<
-< 1 2 3 4 5 6 7 8
-< 9
-<
+# < 1 2 3 4 5 6 7 8
+# < 9
+# <
 > ERR block.field< not implemented yet
 > ERR block.field< not implemented yet
 > ERR block.field< not implemented yet

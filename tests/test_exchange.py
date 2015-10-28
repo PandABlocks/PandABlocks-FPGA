@@ -51,6 +51,9 @@ def transcript_readlines():
     for line in transcript:
         if line[0] == '>':
             to_receive.append(line[2:-1])
+        elif line[0] == '#':
+            # Allow inline comments in respone
+            pass
         else:
             break
 
