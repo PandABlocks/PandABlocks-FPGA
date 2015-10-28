@@ -14,6 +14,13 @@
 < *IDN?
 > OK =PandA
 
+# Simple echo command
+< *ECHO this is an echo?
+> OK =this is an echo
+
+< *ECHO?
+> ERR Character ' ' expected
+
 # The simplest meta-data inquiry.
 # Note that the order of the returned values depends on both the internal
 # hashtable implementation and the ordering in the config file.
@@ -48,10 +55,10 @@
 > ERR Unexpected text after command
 
 < *x?
-> ERR Unknown value
+> ERR Unknown command
 
 < *x=
-> ERR Unknown target
+> ERR Unknown command
 
 < TTLIN.*=
 > ERR Field not writeable
