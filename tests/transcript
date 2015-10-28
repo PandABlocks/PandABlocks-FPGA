@@ -1,7 +1,16 @@
 # Simple server test script.  Consists of commands to send and the expected
 # response, the test_exchange script validates this.
 
+# First check for out of order return
+< *IDN?
+< *IDN?
+> OK =PandA
+> OK =PandA
+
 # Start with the identification exchange
+< *IDN?
+> OK =PandA
+
 < *IDN?
 > OK =PandA
 
@@ -86,11 +95,11 @@
 
 < *IDN<
 < 123
-< 
+<
 > ERR Not a table
 
 < TTLIN2.VAL<
-< 
+<
 > ERR block.field< not implemented yet
 # Probably ought to be:
 # > ERR Field not a table
@@ -132,3 +141,21 @@
 
 < TTLIN2.TERM.ENUMS=x
 > ERR No such attribute
+
+
+# There's a surprising delay on the block operations.  Try doing them all in one
+# go instead.
+< PCOMP2.TABLE<
+< 1 2 3 4 5 6 7 8
+< 9
+<
+< PCOMP2.TABLE<B2
+< 1234567
+< PCOMP2.TABLE<<
+< 1 2 3 4 5 6 7 8
+< 9
+<
+> ERR block.field< not implemented yet
+> ERR block.field< not implemented yet
+> ERR block.field< not implemented yet
+

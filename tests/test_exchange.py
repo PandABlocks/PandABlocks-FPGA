@@ -2,10 +2,12 @@
 
 import sys
 import socket
+import time
 
 
 server = socket.socket()
 server.connect(('localhost', 8888))
+server.settimeout(0.1)
 
 transcript = open(sys.argv[1], 'r')
 
@@ -28,17 +30,8 @@ def socket_readlines():
 
 lines = socket_readlines()
 
-def read_response():
-    line = lines.next()
-    if line[0] != '!':
-        return [line]
-    else:
-        response = [line]
-        for line in lines:
-            response.append(line)
-            if line[0] == '.':
-                break
-        return response
+def read_response(count):
+    return [lines.next() for n in range(count)]
 
 
 # Returns next command response set read from transcript file
@@ -70,12 +63,14 @@ while True:
     if not tx:
         break
 
+    start = time.time()
     for line in tx:
         server.send(line + '\n')
+    response = read_response(len(rx))
+    end = time.time()
 
-    response = read_response()
     if response == rx:
-        print tx[0], 'OK'
+        print tx[0], 'OK %.2f ms' % (1e3 * (end - start))
     else:
         print tx[0], 'response error', response
         failed += 1
