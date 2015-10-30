@@ -104,22 +104,22 @@
 > ERR Not a table
 
 < TTLIN2.VAL<
-> ERR block.field< not implemented yet
+> ERR No such method
 # Probably ought to be:
 # > ERR Field not a table
 
 
 # Unimplemented functionality
 < TTLIN.*?
-> !VAL
-> !TERM
+> !VAL bit_out
+> !TERM param
 > .
 
 < TTLIN2.VAL?
-> ERR block.field? not implemented yet
+> ERR No type registered for field
 
 < TTLIN2.VAL=x
-> ERR block.field= not implemented yet
+> ERR No such method
 
 < PCOMP2.TABLE<
 # < 1 2 3 4 5 6 7 8
@@ -141,10 +141,10 @@
 > ERR block.field.*? not implemented yet
 
 < TTLIN2.TERM.ENUMS?
-> ERR No such attribute
+> ERR attr not implemented
 
 < TTLIN2.TERM.ENUMS=x
-> ERR No such attribute
+> ERR attr not implemented
 
 
 # There's a surprising delay on the block operations.  Try doing them all in one
