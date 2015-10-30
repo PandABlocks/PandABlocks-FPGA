@@ -3,20 +3,30 @@
 # Notes:
 #   bit_out definitions correspond to a bit on the system bus
 
-TTLIN[6]
+TTLIN[6]        0
     bit_out VAL
-    param   TERM            enum(high-Z,50-Ohm)
+        reg     0
+        index   0 1 2 3 4 5
+    param   TERM            enum
+        reg     1
+        enums
+            0   High-Z
+            1   50-Ohm
 
-TTLOUT[10]
+TTLOUT[10]      0
     bit_in  VAL
+        reg     0
 
-LVDSIN[2]
+LVDSIN[2]       0
     bit_out VAL
+        reg     0
+        index   0 1
 
-LVDSOUT[2]
+LVDSOUT[2]      0
     bit_in  VAL
+        reg     0
 
-LUT[8]
+LUT[8]          1
     bit_in  INPA
     bit_in  INPB
     bit_in  INPC
@@ -25,7 +35,7 @@ LUT[8]
     bit_out VAL
     param   FUNC            lut_function
 
-SRGATE[4]
+SRGATE[4]       2
     bit_in  SET
     bit_in  RESET
     bit_out VAL
@@ -33,7 +43,7 @@ SRGATE[4]
     param   RESET_EDGE      enum(falling,rising)
     write   FORCE_STATE     bit
 
-DIV[4]
+DIV[4]          3
     bit_in  INP
     bit_in  RESET
     bit_out OUTD
@@ -43,7 +53,7 @@ DIV[4]
     read    COUNT           32-bit
     write   FORCE_RESET     action
 
-PULSE[4]
+PULSE[4]        4
     bit_in  INP
     bit_in  RESET
     bit_out OUT
@@ -55,7 +65,7 @@ PULSE[4]
     read    STATE           enum(?)
     read    MISSED_CNT      32-bit
 
-SEQ[4]
+SEQ[4]          5
     bit_in  GATE
     bit_in  INPA
     bit_in  INPB
@@ -77,7 +87,7 @@ SEQ[4]
     read    TABLE_CYCLE     32-bit
     table   TABLE           seq_frame[512]
 
-INENC[4]
+INENC[4]        6
     bit_out A
     bit_out B
     bit_out Z
@@ -89,7 +99,7 @@ INENC[4]
     param   RST_ON_Z        bit
     write   SETP            32-bit
 
-QDEC[4]
+QDEC[4]         7
     bit_in  A
     bit_in  B
     bit_in  Z
@@ -97,7 +107,7 @@ QDEC[4]
     param   RST_ON_Z        bit
     write   SETP            position
 
-OUTENC[4]
+OUTENC[4]       8
     bit_in  A
     bit_in  B
     bit_in  Z
@@ -109,7 +119,7 @@ OUTENC[4]
     write   FORCE_QSTATE    action
     read    QSTATE          bit
 
-POSENC[4]
+POSENC[4]       9
     pos_in  ENC_POSN
     bit_out A
     bit_out B
@@ -118,7 +128,7 @@ POSENC[4]
     write   FORCE_QSTATE    action
     read    QSTATE          bit
 
-CALC[2]
+CALC[2]         10
     pos_in  A
     pos_in  B
     pos_out RESULT
@@ -127,12 +137,12 @@ CALC[2]
     param   SCALE           4-bit
 
 # Hard wired inputs!
-ADDER
+ADDER           11
     pos_out RESULT
     param   MASK            4-bits
     param   OUTSCALE        2-bits
 
-COUNTER[8]
+COUNTER[8]      12
     bit_in  ENABLE
     bit_in  TRIGGER
     bit_in  DIR
@@ -142,7 +152,7 @@ COUNTER[8]
     param   STEP            32-bit
     write   SOFT_ENABLE
 
-PGEN[2]
+PGEN[2]         16
     bit_in  ENABLE
     bit_in  TRIGGER
     pos_out POSN
@@ -150,7 +160,7 @@ PGEN[2]
     param   CYCLES
     table   TABLE           position[*]
 
-PCOMP[4]
+PCOMP[4]        13
     bit_in  ENABLE
     pos_in  POSN
     bit_out ACT
@@ -163,14 +173,14 @@ PCOMP[4]
     param   LUT_ENABLE
     table   TABLE           position[*]
 
-ADC[8]
+ADC[8]          0
     bit_in  TRIGGER
     bit_in  RESET
     bit_out TRIGGERD
     pos_out NUMSAMPLES
 #     adc_out DATA
 
-PCAP
+PCAP            0
     bit_in  ENABLE
     bit_in  TRIG_POS
     bit_in  TRIG_ADC
