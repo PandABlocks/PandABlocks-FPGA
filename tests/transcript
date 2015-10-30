@@ -104,7 +104,7 @@
 > ERR Not a table
 
 < TTLIN2.VAL<
-> ERR No such method
+> ERR Cannot write table to field
 # Probably ought to be:
 # > ERR Field not a table
 
@@ -116,10 +116,10 @@
 > .
 
 < TTLIN2.VAL?
-> ERR No type registered for field
+> ERR No register assigned
 
 < TTLIN2.VAL=x
-> ERR No such method
+> ERR Cannot write field
 
 < PCOMP2.TABLE<
 # < 1 2 3 4 5 6 7 8
