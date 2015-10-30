@@ -1,0 +1,178 @@
+# Interface definition
+#
+# Notes:
+#   bit_out definitions correspond to a bit on the system bus
+
+TTLIN       0
+    VAL         0
+        index   0 1 2 3 4 5
+    TERM        1
+
+TTLOUT      0
+    VAL         0
+
+LVDSIN      0
+    VAL         0
+        index   0 1
+
+LVDSOUT     0
+    VAL         0
+
+LUT         1
+    INPA        0
+    INPB        1
+    INPC        2
+    INPD        3
+    INPE        4
+    VAL         5
+    FUNC        6
+
+SRGATE       2
+    SET         0
+    RESET       1
+    VAL         2
+    SET_EDGE    3
+    RESET_EDGE  4
+    FORCE_STATE 5
+
+DIV          3
+    INP         0
+    RESET       1
+    OUTD        2
+    OUTN        3
+    FIRST_PULSE 4
+    DIVISOR     5
+    COUNT       6
+    FORCE_RESET 7
+
+PULSE        4
+    INP         0
+    RESET       1
+    OUT         2
+    PERR        3
+    DELAY       4
+    WIDTH       5
+    PRESCALE    6
+    FORCE_RESET 7
+    STATE       8
+    MISSED_CNT  9
+
+SEQ          5
+    GATE        0
+    INPA        1
+    INPB        2
+    INPC        3
+    INPD        4
+    OUTA        5
+    OUTB        6
+    OUTC        7
+    OUTD        8
+    OUTE        9
+    OUTF        10
+    ACTIVE      11
+    PRESCALE    12
+    TABLE_LENGTH    13
+    SOFT_GATE   14
+    CUR_FRAME   15
+    CUR_FCYCLE  16
+    CUR_TCYCLE  17
+    TABLE_CYCLE 18
+    TABLE       19
+
+INENC        6
+    A           0
+    B           1
+    Z           2
+    CONN        3
+    ENC_POSN    4
+    PROTOCOL    5
+    RATE        6
+    BITS        7
+    RST_ON_Z    8
+    SETP        9
+
+QDEC         7
+    A           0
+    B           1
+    Z           2
+    ENC_POSN    3
+    RST_ON_Z    4
+    SETP        5
+
+OUTENC       8
+    A           0
+    B           1
+    Z           2
+    ENC_POSN    3
+    CONN        4
+    PROTOCOL    5
+    BITS        6
+    QPRESCALAR  7
+    FORCE_QSTATE    8
+    QSTATE      9
+
+POSENC       9
+    ENC_POSN    0
+    A           1
+    B           2
+    QPRESCALAR  3
+    MODE        4
+    FORCE_QSTATE    5
+    QSTATE      6
+
+CALC         10
+    A           0
+    B           1
+    RESULT      2
+    KA          3
+    KB          4
+    SCALE       5
+
+# Hard wired inputs!
+ADDER           11
+    RESULT      0
+    MASK        1
+    OUTSCALE    2
+
+COUNTER      12
+    ENABLE      0
+    TRIGGER     1
+    DIR         2
+    COUNTN      3
+    CARRY       4
+    START       5
+    STEP        6
+    SOFT_ENABLE 7
+
+PGEN         16
+    ENABLE      0
+    TRIGGER     1
+    POSN        2
+    SAMPLES     3
+    CYCLES      4
+    TABLE       5
+
+PCOMP        13
+    ENABLE      0
+    POSN        1
+    ACT         2
+    PULSE       3
+    START       4
+    STEP        5
+    WIDTH       6
+    NUM         7
+    RELATIVE    8
+    LUT_ENABLE  9
+    TABLE       10
+
+ADC          0
+    TRIGGER     0
+    RESET       1
+    TRIGGERD    2
+    NUMSAMPLES  3
+
+PCAP            0
+    ENABLE      0
+    TRIG_POS    1
+    TRIG_ADC    2
+    MASK        3
