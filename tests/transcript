@@ -105,15 +105,13 @@
 
 < TTLIN2.VAL<
 > ERR Field is not a table
-# Probably ought to be:
-# > ERR Field not a table
 
-
-# Unimplemented functionality
 < TTLIN.*?
 > !VAL bit_out
 > !TERM param
 > .
+
+# Unimplemented functionality
 
 < TTLIN2.VAL?
 > ERR No type registered for field

@@ -13,7 +13,7 @@ TTLOUT      0
 
 LVDSIN      0
     VAL         0
-        index   0 1
+        index   6 7
 
 LVDSOUT     0
     VAL         0
