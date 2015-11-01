@@ -9,7 +9,7 @@ REGISTER_DB="$HERE"/config/registers
 CONFIG_PORT=8888
 DATA_PORT=8889
 
-valgrind --leak-check=full --show-leak-kinds=all \
+valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes \
     "$HERE"/build/sim_server/server \
     -p$CONFIG_PORT -d$DATA_PORT \
     -c"$CONFIG_DB" -t"$TYPES_DB" -r"$REGISTER_DB"
