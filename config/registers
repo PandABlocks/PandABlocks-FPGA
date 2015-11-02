@@ -8,14 +8,14 @@ TTLIN       0
         index   0 1 2 3 4 5
     TERM        1
 
-TTLOUT      0
+TTLOUT      16
     VAL         0
 
-LVDSIN      0
+LVDSIN      17
     VAL         0
         index   6 7
 
-LVDSOUT     0
+LVDSOUT     18
     VAL         0
 
 LUT         1
@@ -165,13 +165,13 @@ PCOMP       13
     LUT_ENABLE  9
     TABLE       10
 
-ADC         0
+ADC         14
     TRIGGER     0
     RESET       1
     TRIGGERD    2
     NUMSAMPLES  3
 
-PCAP        0
+PCAP        15
     ENABLE      0
     TRIG_POS    1
     TRIG_ADC    2
