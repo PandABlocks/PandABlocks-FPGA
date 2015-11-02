@@ -27,7 +27,7 @@ LUT         1
     VAL         5
     FUNC        6
 
-SRGATE       2
+SRGATE      2
     SET         0
     RESET       1
     VAL         2
@@ -35,7 +35,7 @@ SRGATE       2
     RESET_EDGE  4
     FORCE_STATE 5
 
-DIV          3
+DIV         3
     INP         0
     RESET       1
     OUTD        2
@@ -45,7 +45,7 @@ DIV          3
     COUNT       6
     FORCE_RESET 7
 
-PULSE        4
+PULSE       4
     INP         0
     RESET       1
     OUT         2
@@ -57,7 +57,7 @@ PULSE        4
     STATE       8
     MISSED_CNT  9
 
-SEQ          5
+SEQ         5
     GATE        0
     INPA        1
     INPB        2
@@ -79,7 +79,7 @@ SEQ          5
     TABLE_CYCLE 18
     TABLE       19
 
-INENC        6
+INENC       6
     A           0
     B           1
     Z           2
@@ -91,7 +91,7 @@ INENC        6
     RST_ON_Z    8
     SETP        9
 
-QDEC         7
+QDEC        7
     A           0
     B           1
     Z           2
@@ -99,7 +99,7 @@ QDEC         7
     RST_ON_Z    4
     SETP        5
 
-OUTENC       8
+OUTENC      8
     A           0
     B           1
     Z           2
@@ -111,7 +111,7 @@ OUTENC       8
     FORCE_QSTATE    8
     QSTATE      9
 
-POSENC       9
+POSENC      9
     ENC_POSN    0
     A           1
     B           2
@@ -120,7 +120,7 @@ POSENC       9
     FORCE_QSTATE    5
     QSTATE      6
 
-CALC         10
+CALC        10
     A           0
     B           1
     RESULT      2
@@ -129,12 +129,12 @@ CALC         10
     SCALE       5
 
 # Hard wired inputs!
-ADDER           11
+ADDER       11
     RESULT      0
     MASK        1
     OUTSCALE    2
 
-COUNTER      12
+COUNTER     12
     ENABLE      0
     TRIGGER     1
     DIR         2
@@ -144,7 +144,7 @@ COUNTER      12
     STEP        6
     SOFT_ENABLE 7
 
-PGEN         16
+PGEN        16
     ENABLE      0
     TRIGGER     1
     POSN        2
@@ -152,7 +152,7 @@ PGEN         16
     CYCLES      4
     TABLE       5
 
-PCOMP        13
+PCOMP       13
     ENABLE      0
     POSN        1
     ACT         2
@@ -165,13 +165,13 @@ PCOMP        13
     LUT_ENABLE  9
     TABLE       10
 
-ADC          0
+ADC         0
     TRIGGER     0
     RESET       1
     TRIGGERD    2
     NUMSAMPLES  3
 
-PCAP            0
+PCAP        0
     ENABLE      0
     TRIG_POS    1
     TRIG_ADC    2

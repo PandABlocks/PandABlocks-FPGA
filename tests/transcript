@@ -47,6 +47,55 @@
 > !PULSE 4
 > .
 
+# Now we can read and write some I/O fields
+< TTLOUT1.VAL=TTLIN3.VAL
+> OK
+
+< TTLOUT1.VAL?
+> OK =TTLIN3.VAL
+
+< TTLOUT0.VAL=TTLIN0.VAL
+< TTLOUT1.VAL=TTLIN1.VAL
+< TTLOUT2.VAL=TTLIN2.VAL
+< TTLOUT3.VAL=TTLIN3.VAL
+< TTLOUT4.VAL=TTLIN4.VAL
+< TTLOUT5.VAL=TTLIN5.VAL
+< TTLOUT6.VAL=TTLIN0.VAL
+< TTLOUT7.VAL=TTLIN1.VAL
+< TTLOUT8.VAL=TTLIN2.VAL
+< TTLOUT9.VAL=TTLIN3.VAL
+> OK
+> OK
+> OK
+> OK
+> OK
+> OK
+> OK
+> OK
+> OK
+> OK
+
+< TTLOUT0.VAL?
+< TTLOUT1.VAL?
+< TTLOUT2.VAL?
+< TTLOUT3.VAL?
+< TTLOUT4.VAL?
+< TTLOUT5.VAL?
+< TTLOUT6.VAL?
+< TTLOUT7.VAL?
+< TTLOUT8.VAL?
+< TTLOUT9.VAL?
+> OK =TTLIN0.VAL
+> OK =TTLIN1.VAL
+> OK =TTLIN2.VAL
+> OK =TTLIN3.VAL
+> OK =TTLIN4.VAL
+> OK =TTLIN5.VAL
+> OK =TTLIN0.VAL
+> OK =TTLIN1.VAL
+> OK =TTLIN2.VAL
+> OK =TTLIN3.VAL
+
 # Now a few top level error responses
 < x
 > ERR Unknown command
@@ -139,10 +188,10 @@
 > ERR block.field.*? not implemented yet
 
 < TTLIN2.TERM.ENUMS?
-> ERR attr not implemented
+> ERR No such attribute
 
 < TTLIN2.TERM.ENUMS=x
-> ERR attr not implemented
+> ERR No such attribute
 
 
 # There's a surprising delay on the block operations.  Try doing them all in one
