@@ -81,7 +81,7 @@ SEQ[4]
     bit_out OUTF
     bit_out ACTIVE
     param   PRESCALE
-    param   TABLE_LENGTH    int
+    param   TABLE_LENGTH
     write   SOFT_GATE       bit
     read    CUR_FRAME
     read    CUR_FCYCLE
@@ -113,7 +113,7 @@ QDEC[4]
     bit_in  Z
     pos_out ENC_POSN
     param   RST_ON_Z        bit
-    write   SETP            position
+    param   SETP            position
 
 OUTENC[4]
     bit_in  A

@@ -235,3 +235,38 @@
 > ERR block.field< not implemented yet
 > ERR block.field< not implemented yet
 
+# Testing position fields
+< QDEC.SETP.*?
+> !RAW
+> !SCALE
+> !OFFSET
+> !UNITS
+> .
+
+
+< QDEC1.SETP.SCALE=0.1
+> OK
+
+< QDEC1.SETP.OFFSET=100.3
+> OK
+
+< QDEC1.SETP=123.45
+> OK
+
+< QDEC1.SETP?
+> OK =123.5
+
+< QDEC1.SETP.RAW?
+> OK =232
+
+< QDEC1.SETP.SCALE?
+> OK =0.1
+
+< QDEC1.SETP.OFFSET?
+> OK =100.3
+
+< QDEC1.SETP.UNITS=mm
+> OK
+
+< QDEC1.SETP.UNITS?
+> OK =mm
