@@ -144,6 +144,9 @@
 > ERR Missing block number
 
 < TTLIN.VAL.?
+> ERR Missing block number
+
+< TTLIN0.VAL.?
 > ERR No name found
 
 < TTLIN2.VAL.*?
@@ -156,8 +159,8 @@
 > ERR Field is not a table
 
 < TTLIN.*?
-> !VAL bit_out
-> !TERM param
+> !VAL bit_out bit
+> !TERM param enum
 > .
 
 < TTLIN2.VAL=x
@@ -167,7 +170,16 @@
 > OK
 
 < TTLIN2.TERM?
-> OK =0
+> OK =dummy
+
+< INENC3.BITS=33
+> OK
+
+< INENC3.BITS?
+> OK =33
+
+< INENC3.BITS=64
+> ERR Number out of range
 
 # Unimplemented functionality
 
@@ -188,7 +200,17 @@
 > ERR block.field< not implemented yet
 
 < TTLIN.VAL.*?
-> ERR block.field.*? not implemented yet
+> .
+
+< DIV.DIVISOR.*?
+> !MAX
+> .
+
+< DIV0.DIVISOR.MAX?
+> OK =4294967295
+
+< INENC0.BITS.MAX?
+> OK =63
 
 < TTLIN2.TERM.ENUMS?
 > ERR No such attribute

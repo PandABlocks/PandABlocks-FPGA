@@ -103,7 +103,7 @@ INENC[4]
             3   enDat
             4   enDat/BISS
     param   RATE
-    param   BITS
+    param   BITS            uint 63
     param   RST_ON_Z        bit
     write   SETP
 
