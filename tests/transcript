@@ -270,3 +270,36 @@
 
 < QDEC1.SETP.UNITS?
 > OK =mm
+
+# LUT
+< LUT.*?
+> !FUNC param lut
+> !INPB bit_in 
+> !INPC bit_in 
+> !INPA bit_in 
+> !VAL bit_out bit
+> !INPD bit_in 
+> !INPE bit_in 
+> .
+
+< LUT.FUNC.*?
+> !RAW
+> .
+
+< LUT0.FUNC=0x123
+> OK
+
+< LUT0.FUNC?
+> OK =0x123
+
+< LUT0.FUNC.RAW?
+> OK =291
+
+< LUT0.FUNC=A&B|C=>D^E
+> OK
+
+< LUT0.FUNC=A&F
+> ERR Invalid token
+
+< LUT0.FUNC?
+> OK =A&B|C=>D^E
