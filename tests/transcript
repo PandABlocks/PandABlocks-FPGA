@@ -166,11 +166,27 @@
 < TTLIN2.VAL=x
 > ERR Field not writeable
 
-< TTLIN2.TERM=0
+< TTLIN2.TERM.RAW=0
 > OK
 
 < TTLIN2.TERM?
-> OK =dummy
+> OK =High-Z
+
+< TTLIN2.TERM.LABELS?
+> !0 High-Z
+> !1 50-Ohm
+> .
+
+< TTLIN2.TERM=50-Ohm
+> OK
+
+< TTLIN2.TERM.RAW?
+< TTLIN2.TERM?
+> OK =1
+> OK =50-Ohm
+
+< TTLIN2.TERM=blah
+> ERR Label not found
 
 < INENC3.BITS=33
 > OK

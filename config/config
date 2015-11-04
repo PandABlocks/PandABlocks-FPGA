@@ -5,10 +5,9 @@
 
 TTLIN[6]
     bit_out VAL
-    param   TERM            enum
-        enums
-            0   High-Z
-            1   50-Ohm
+    param   TERM            enum 2
+        0   High-Z
+        1   50-Ohm
 
 TTLOUT[10]
     bit_in  VAL
@@ -32,14 +31,12 @@ SRGATE[4]
     bit_in  SET
     bit_in  RESET
     bit_out VAL
-    param   SET_EDGE        enum
-        enums
-            0   Falling
-            1   Rising
-    param   RESET_EDGE      enum
-        enums
-            0   Falling
-            1   Rising
+    param   SET_EDGE        enum 2
+        0   Falling
+        1   Rising
+    param   RESET_EDGE      enum 2
+        0   Falling
+        1   Rising
     write   FORCE_STATE     bit
 
 DIV[4]
@@ -47,10 +44,9 @@ DIV[4]
     bit_in  RESET
     bit_out OUTD
     bit_out OUTN
-    param   FIRST_PULSE     enum
-        enums
-            0   OutN
-            1   OutD
+    param   FIRST_PULSE     enum 2
+        0   OutN
+        1   OutD
     param   DIVISOR
     read    COUNT
     write   FORCE_RESET     action
@@ -64,7 +60,7 @@ PULSE[4]
     param   WIDTH           scaled_time
     param   PRESCALE
     write   FORCE_RESET     action
-    read    STATE           enum
+    read    STATE           enum 1
     read    MISSED_CNT
 
 SEQ[4]
@@ -95,13 +91,12 @@ INENC[4]
     bit_out Z
     bit_out CONN
     pos_out ENC_POSN
-    param   PROTOCOL        enum
-        enum
-            0   Quadrature
-            1   SSI
-            2   BISS
-            3   enDat
-            4   enDat/BISS
+    param   PROTOCOL        enum 5
+        0   Quadrature
+        1   SSI
+        2   BISS
+        3   enDat
+        4   enDat/BISS
     param   RATE
     param   BITS            uint 63
     param   RST_ON_Z        bit
@@ -121,15 +116,14 @@ OUTENC[4]
     bit_in  Z
     pos_in  ENC_POSN
     bit_in  CONN
-    param   PROTOCOL        enum
-        enum
-            0   Pos-Quad
-            1   SSI
-            2   BISS
-            3   enDat
-            4   ABZ
+    param   PROTOCOL        enum 5
+        0   Pos-Quad
+        1   SSI
+        2   BISS
+        3   enDat
+        4   ABZ
     param   BITS
-    param   QPRESCALAR      enum
+    param   QPRESCALAR      enum 1
     write   FORCE_QSTATE    action
     read    QSTATE          bit
 
@@ -138,10 +132,9 @@ POSENC[4]
     bit_out A
     bit_out B
     param   QPRESCALAR      bit
-    param   MODE            enum
-        enums
-            0   quadrature
-            1   step+direction
+    param   MODE            enum 2
+        0   quadrature
+        1   step+direction
     write   FORCE_QSTATE    action
     read    QSTATE          bit
 
