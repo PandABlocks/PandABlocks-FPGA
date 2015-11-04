@@ -61,7 +61,7 @@ $(SERVER): $(SERVER_BUILD_DIR) $(SERVER_FILES)
 
 $(SIM_SERVER): $(SIM_SERVER_BUILD_DIR) $(SERVER_FILES)
 	$(MAKE) -C $< -f $(TOP)/server/Makefile \
-            VPATH=$(TOP)/server TOP=$(TOP)
+            VPATH=$(TOP)/server TOP=$(TOP) SIMSERVER=T
 
 server: $(SERVER)
 sim_server: $(SIM_SERVER)
