@@ -30,24 +30,24 @@ sock.listen(0)
 
 state = {}
 
-def do_read(fn, blk, reg):
-    print 'do_read', fn, blk, reg
-    return state.setdefault((fn, blk, reg), 0x55555555)
+def do_read(block, num, reg):
+    print 'do_read', block, num, reg
+    return state.setdefault((block, num, reg), 0x55555555)
 
-def do_write(fn, blk, reg, value):
-    print 'do_write', fn, blk, reg, repr(value)
-    state[(fn, blk, reg)] = value
+def do_write(block, num, reg, value):
+    print 'do_write', block, num, reg, repr(value)
+    state[(block, num, reg)] = value
 
 
 def run_simulation(conn):
     while True:
-        command, fn, blk, reg = struct.unpack('cBBB', read(conn, 4))
+        command, block, num, reg = struct.unpack('cBBB', read(conn, 4))
         if command == 'R':
-            tx = do_read(fn, blk, reg)
+            tx = do_read(block, num, reg)
             conn.sendall(struct.pack('I', tx))
         elif command == 'W':
             value, = struct.unpack('I', read(conn, 4))
-            do_write(fn, blk, reg, value)
+            do_write(block, num, reg, value)
         else:
             print 'Unexpected command', repr(command)
             raise SocketFail('Unexpected command')
