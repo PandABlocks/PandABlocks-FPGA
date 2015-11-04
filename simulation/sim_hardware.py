@@ -54,6 +54,7 @@ def run_simulation(conn):
 
 
 (conn, addr) = sock.accept()
+conn.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
 try:
     run_simulation(conn)
 except SocketFail:
