@@ -1,61 +1,29 @@
-#!/usr/bin/env python
-
-# Simple hardware simulation server.
-#
-# Lists on a socket port and performs the appropriate exchange to implement
-# hardware reading and writing.
-
-import socket
-import struct
+# Implementation of hardware simulation
 
 
-class SocketFail(Exception):
-    pass
-
-# Ensures exactly n bytes are read from sock
-def read(sock, n):
-    result = ''
-    while len(result) < n:
-        rx = sock.recv(n - len(result))
-        if not rx:
-            raise SocketFail('End of input')
-        result = result + rx
-    return result
+# Must return an integer
+def do_read_data(block, num, reg):
+    print 'do_read_data', block, num, reg
+    return 0x55555555
 
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.bind(('localhost', 9999))
-sock.listen(0)
+def do_write_config(block, num, reg, value):
+    print 'do_write_config', block, num, reg, repr(value)
 
 
-state = {}
-
-def do_read(block, num, reg):
-    print 'do_read', block, num, reg
-    return state.setdefault((block, num, reg), 0x55555555)
-
-def do_write(block, num, reg, value):
-    print 'do_write', block, num, reg, repr(value)
-    state[(block, num, reg)] = value
+def do_write_table(block, number, reg, start, data):
+    print 'do_write_table', block, number, reg, start, len(data)
 
 
-def run_simulation(conn):
-    while True:
-        command, block, num, reg = struct.unpack('cBBB', read(conn, 4))
-        if command == 'R':
-            tx = do_read(block, num, reg)
-            conn.sendall(struct.pack('I', tx))
-        elif command == 'W':
-            value, = struct.unpack('I', read(conn, 4))
-            do_write(block, num, reg, value)
-        else:
-            print 'Unexpected command', repr(command)
-            raise SocketFail('Unexpected command')
+# Must return two boolean arrays, each 128 entries long.  The first array is the
+# current bit readback, the second is set if the bit value has changed since the
+# last reading.
+def do_read_bits():
+    print 'do_read_bits'
+    return 128*[1], 128*[1]
 
 
-(conn, addr) = sock.accept()
-conn.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
-try:
-    run_simulation(conn)
-except SocketFail:
-    print 'Simulation closed'
+# Must return a 32-entry array of ints and a 32-bit boolean array.
+def do_read_positions():
+    print 'do_read_positions'
+    return 32*[0], 32*[1]
