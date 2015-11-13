@@ -4,175 +4,173 @@
 #   bit_out definitions correspond to a bit on the system bus
 
 TTLIN       0
-    VAL         0
-        index   0 1 2 3 4 5
-    TERM        1
+    TERM            1
+    VAL             0 1 2 3 4 5
 
 TTLOUT      16
-    VAL         0
+    VAL             0
 
 LVDSIN      17
-    VAL         0
-        index   6 7
+    VAL             6 7
 
 LVDSOUT     18
-    VAL         0
+    VAL             0
 
 LUT         1
-    INPA        0
-    INPB        1
-    INPC        2
-    INPD        3
-    INPE        4
-    VAL         5
-    FUNC        6
+    INPA            0
+    INPB            1
+    INPC            2
+    INPD            3
+    INPE            4
+    FUNC            5
+    VAL             8 9 10 11 12 13 14 15
 
 SRGATE      2
-    SET         0
-    RESET       1
-    VAL         2
-    SET_EDGE    3
-    RESET_EDGE  4
-    FORCE_STATE 5
+    SET             0
+    RESET           1
+    SET_EDGE        2
+    RESET_EDGE      3
+    FORCE_STATE     4
+    VAL             16 17 18 19
 
 DIV         3
-    INP         0
-    RESET       1
-    OUTD        2
-    OUTN        3
-    FIRST_PULSE 4
-    DIVISOR     5
-    COUNT       6
-    FORCE_RESET 7
+    INP             0
+    RESET           1
+    FIRST_PULSE     2
+    DIVISOR         3
+    COUNT           4
+    FORCE_RESET     5
+    OUTD            20 21 22 23
+    OUTN            24 25 26 27
 
 PULSE       4
-    INP         0
-    RESET       1
-    OUT         2
-    PERR        3
-    DELAY       4
-    WIDTH       5
-    PRESCALE    6
-    FORCE_RESET 7
-    STATE       8
-    MISSED_CNT  9
+    INP             0
+    RESET           1
+    DELAY           2
+    WIDTH           3
+    PRESCALE        4
+    FORCE_RESET     5
+    STATE           6
+    MISSED_CNT      7
+    OUT             28 29 30 31
+    PERR            32 33 34 35
 
 SEQ         5
-    GATE        0
-    INPA        1
-    INPB        2
-    INPC        3
-    INPD        4
-    OUTA        5
-    OUTB        6
-    OUTC        7
-    OUTD        8
-    OUTE        9
-    OUTF        10
-    ACTIVE      11
-    PRESCALE    12
-    TABLE_LENGTH    13
-    SOFT_GATE   14
-    CUR_FRAME   15
-    CUR_FCYCLE  16
-    CUR_TCYCLE  17
-    TABLE_CYCLE 18
-    TABLE       19
+    GATE            0
+    INPA            1
+    INPB            2
+    INPC            3
+    INPD            4
+    ACTIVE          5
+    PRESCALE        6
+    TABLE_LENGTH    7
+    SOFT_GATE       8
+    CUR_FRAME       9
+    CUR_FCYCLE      10
+    CUR_TCYCLE      11
+    TABLE_CYCLE     12
+    OUTA            36 37 38 39
+    OUTB            40 41 42 43
+    OUTC            44 45 46 47
+    OUTD            48 49 50 51
+    OUTE            52 53 54 55
+    OUTF            56 57 58 59
+    TABLE
 
 INENC       6
-    A           0
-    B           1
-    Z           2
-    CONN        3
-    ENC_POSN    4
-    PROTOCOL    5
-    RATE        6
-    BITS        7
-    RST_ON_Z    8
-    SETP        9
+    PROTOCOL        0
+    RATE            1
+    BITS            2
+    RST_ON_Z        3
+    SETP            4
+    A               60 61 62 63
+    B               64 65 66 67
+    Z               68 69 70 71
+    CONN            72 73 74 75
+    ENC_POSN        0 1 2 3
 
 QDEC        7
-    A           0
-    B           1
-    Z           2
-    ENC_POSN    3
-    RST_ON_Z    4
-    SETP        5
+    A               0
+    B               1
+    Z               2
+    RST_ON_Z        3
+    SETP            4
+    ENC_POSN        4 5 6 7
 
 OUTENC      8
-    A           0
-    B           1
-    Z           2
-    ENC_POSN    3
-    CONN        4
-    PROTOCOL    5
-    BITS        6
-    QPRESCALAR  7
+    A               0
+    B               1
+    Z               2
+    ENC_POSN        3
+    CONN            4
+    PROTOCOL        5
+    BITS            6
+    QPRESCALAR      7
     FORCE_QSTATE    8
-    QSTATE      9
+    QSTATE          9
 
 POSENC      9
-    ENC_POSN    0
-    A           1
-    B           2
-    QPRESCALAR  3
-    MODE        4
-    FORCE_QSTATE    5
-    QSTATE      6
+    ENC_POSN        0
+    QPRESCALAR      1
+    MODE            2
+    FORCE_QSTATE    3
+    QSTATE          4
+    A               76 77 78 79
+    B               80 81 82 83
 
 CALC        10
-    A           0
-    B           1
-    RESULT      2
-    KA          3
-    KB          4
-    SCALE       5
+    A               0
+    B               1
+    KA              2
+    KB              3
+    SCALE           4
+    RESULT          8 9
 
 # Hard wired inputs!
 ADDER       11
-    RESULT      0
-    MASK        1
-    OUTSCALE    2
+    MASK            1
+    OUTSCALE        2
+    RESULT          10
 
 COUNTER     12
-    ENABLE      0
-    TRIGGER     1
-    DIR         2
-    COUNTN      3
-    CARRY       4
-    START       5
-    STEP        6
-    SOFT_ENABLE 7
+    ENABLE          0
+    TRIGGER         1
+    DIR             2
+    START           3
+    STEP            4
+    SOFT_ENABLE     5
+    COUNTN          11 12 13 14 15 16 17 18
+    CARRY           84 85 86 87 88 89 90 91
 
 PGEN        16
-    ENABLE      0
-    TRIGGER     1
-    POSN        2
-    SAMPLES     3
-    CYCLES      4
-    TABLE       5
+    ENABLE          0
+    TRIGGER         1
+    SAMPLES         2
+    CYCLES          3
+    POSN            19 20
+    TABLE
 
 PCOMP       13
-    ENABLE      0
-    POSN        1
-    ACT         2
-    PULSE       3
-    START       4
-    STEP        5
-    WIDTH       6
-    NUM         7
-    RELATIVE    8
-    LUT_ENABLE  9
-    TABLE       10
+    ENABLE          0
+    POSN            1
+    START           2
+    STEP            3
+    WIDTH           4
+    NUM             5
+    RELATIVE        6
+    LUT_ENABLE      7
+    ACT             92 93 94 95
+    PULSE           96 97 98 99
+    TABLE
 
 ADC         14
-    TRIGGER     0
-    RESET       1
-    TRIGGERD    2
-    NUMSAMPLES  3
+    TRIGGER         0
+    RESET           1
+    TRIGGERD        100 101 102 103 104 105 106 107
+    DATA            21 22 23 24 25 26 27 28
 
 PCAP        15
-    ENABLE      0
-    TRIG_POS    1
-    TRIG_ADC    2
-    MASK        3
+    ENABLE          0
+    TRIG_POS        1
+    TRIG_ADC        2
+    MASK            3
