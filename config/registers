@@ -61,7 +61,6 @@ SEQ         5
     INPB            2
     INPC            3
     INPD            4
-    ACTIVE          5
     PRESCALE        6
     TABLE_LENGTH    7
     SOFT_GATE       8
@@ -75,6 +74,7 @@ SEQ         5
     OUTD            48 49 50 51
     OUTE            52 53 54 55
     OUTF            56 57 58 59
+    ACTIVE          108 109 110 111
     TABLE
 
 INENC       6
