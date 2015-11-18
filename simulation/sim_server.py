@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env dls-python
 
 # Simple hardware simulation server.
 #
@@ -51,6 +51,7 @@ def run_simulation(conn):
 
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(('localhost', 9999))
 sock.listen(0)
 

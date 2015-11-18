@@ -8,8 +8,8 @@ REGISTER_DB="$HERE"/config/registers
 CONFIG_PORT=8888
 DATA_PORT=8889
 
-simulation/sim_server.py &
+"$HERE"/simulation/sim_server.py &
 
 valgrind --leak-check=full --track-origins=yes --track-fds=yes \
     "$HERE"/build/sim_server/server \
-    -p$CONFIG_PORT -d$DATA_PORT -c"$CONFIG_DB" -r"$REGISTER_DB"
+    -p$CONFIG_PORT -d$DATA_PORT -c"$CONFIG_DB" -r"$REGISTER_DB" -R
