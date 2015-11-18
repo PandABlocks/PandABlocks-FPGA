@@ -1,7 +1,7 @@
 # Descriptions of blocks and fields.
 
 TTLIN       TTL input
-    TERM            Select TTL termination
+    TERM            Select TTL input termination
     VAL             TTL input value
 
 TTLOUT      TTL output

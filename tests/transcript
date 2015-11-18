@@ -163,11 +163,14 @@
 > ERR Field is not a table
 
 < TTLIN.*?
-> !VAL bit_out bit
-> !TERM param enum
+> !VAL 0 bit_out bit
+> !TERM 1 param enum
 > .
 
 < TTLIN2.VAL=x
+> ERR Invalid bit value
+
+< TTLIN2.VAL=0
 > ERR Field not writeable
 
 < TTLIN2.TERM.RAW=0
@@ -293,13 +296,13 @@
 
 # LUT
 < LUT.*?
-> !FUNC param lut
-> !INPB bit_in 
-> !INPC bit_in 
-> !INPA bit_in 
-> !VAL bit_out bit
-> !INPD bit_in 
-> !INPE bit_in 
+> !FUNC 6 param lut
+> !INPB 1 bit_in bit_mux
+> !INPC 2 bit_in bit_mux
+> !INPA 0 bit_in bit_mux
+> !VAL 5 bit_out bit
+> !INPD 3 bit_in bit_mux
+> !INPE 4 bit_in bit_mux
 > .
 
 < LUT.FUNC.*?
@@ -323,3 +326,10 @@
 
 < LUT0.FUNC?
 > OK =A&B|C=>D^E
+
+# Description fields
+< TTLIN.DESC?
+> OK =TTL input
+
+< TTLIN1.TERM.DESC?
+> OK =Select TTL input termination

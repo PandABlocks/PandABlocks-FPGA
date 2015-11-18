@@ -19,19 +19,30 @@ def socket_readlines():
     while True:
         lines = buffer.split('\n')
         for line in lines[:-1]:
-            yield line
+            yield (True, line)
         buffer = lines[-1]
-        rx = server.recv(4096)
-        if rx:
-            buffer = buffer + rx
+        try:
+            rx = server.recv(4096)
+        except socket.timeout:
+            yield (False, '')
         else:
-            yield buffer
-            break
+            if rx:
+                buffer = buffer + rx
+            else:
+                yield buffer
+                break
 
 lines = socket_readlines()
 
 def read_response(count):
-    return [lines.next() for n in range(count)]
+    result = []
+    for n in range(count):
+        ok, line = lines.next()
+        if ok:
+            result.append(line)
+        else:
+            break
+    return result
 
 
 # Returns next command response set read from transcript file
@@ -81,3 +92,5 @@ while True:
 if failed:
     print failed, 'tests failed'
     sys.exit(1)
+else:
+    print 'all ok'
