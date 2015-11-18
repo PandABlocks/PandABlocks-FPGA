@@ -1,0 +1,172 @@
+# Descriptions of blocks and fields.
+
+TTLIN       TTL input
+    TERM            Select TTL termination
+    VAL             TTL input value
+
+TTLOUT      TTL output
+    VAL             TTL output value
+
+LVDSIN      LVDS input
+    VAL             LVDS input value
+
+LVDSOUT     LVDS output
+    VAL             LVDS output value
+
+LUT         Logic lookup table
+    INPA            Input A
+    INPB            Input B
+    INPC            Input C
+    INPD            Input D
+    INPE            Input E
+    FUNC            Logic function for table computation
+    VAL             Lookup table output
+
+SRGATE      
+    SET             
+    RESET           
+    SET_EDGE        
+    RESET_EDGE      
+    FORCE_STATE     
+    VAL             
+
+DIV         
+    INP             
+    RESET           
+    FIRST_PULSE     
+    DIVISOR         
+    COUNT           
+    FORCE_RESET     
+    OUTD            
+    OUTN            
+
+PULSE       
+    INP             
+    RESET           
+    DELAY           
+    WIDTH           
+    PRESCALE        
+    FORCE_RESET     
+    STATE           
+    MISSED_CNT      
+    OUT             
+    PERR            
+
+SEQ         
+    GATE            
+    INPA            
+    INPB            
+    INPC            
+    INPD            
+    ACTIVE          
+    PRESCALE        
+    TABLE_LENGTH    
+    SOFT_GATE       
+    CUR_FRAME       
+    CUR_FCYCLE      
+    CUR_TCYCLE      
+    TABLE_CYCLE     
+    OUTA            
+    OUTB            
+    OUTC            
+    OUTD            
+    OUTE            
+    OUTF            
+    TABLE           
+
+INENC       
+    PROTOCOL        
+    RATE            
+    BITS            
+    RST_ON_Z        
+    SETP            
+    A               
+    B               
+    Z               
+    CONN            
+    ENC_POSN        
+
+QDEC        
+    A               
+    B               
+    Z               
+    RST_ON_Z        
+    SETP            
+    ENC_POSN        
+
+OUTENC      
+    A               
+    B               
+    Z               
+    ENC_POSN        
+    CONN            
+    PROTOCOL        
+    BITS            
+    QPRESCALAR      
+    FORCE_QSTATE    
+    QSTATE          
+
+POSENC      
+    ENC_POSN        
+    QPRESCALAR      
+    MODE            
+    FORCE_QSTATE    
+    QSTATE          
+    A               
+    B               
+
+CALC        
+    A               
+    B               
+    KA              
+    KB              
+    SCALE           
+    RESULT          
+
+ADDER       
+    MASK            
+    OUTSCALE        
+    RESULT          
+
+COUNTER     
+    ENABLE          
+    TRIGGER         
+    DIR             
+    START           
+    STEP            
+    SOFT_ENABLE     
+    COUNTN          
+    CARRY           
+
+PGEN        
+    ENABLE          
+    TRIGGER         
+    SAMPLES         
+    CYCLES          
+    POSN            
+    TABLE           
+
+PCOMP       
+    ENABLE          
+    POSN            
+    START           
+    STEP            
+    WIDTH           
+    NUM             
+    RELATIVE        
+    LUT_ENABLE      
+    ACT             
+    PULSE           
+    TABLE           
+
+ADC         
+    TRIGGER         
+    RESET           
+    TRIGGERD        
+    DATA            
+
+PCAP        
+    ENABLE          
+    TRIG_POS        
+    TRIG_ADC        
+    MASK            
