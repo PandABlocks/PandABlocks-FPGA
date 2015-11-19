@@ -223,7 +223,7 @@
 > ERR block.field< not implemented yet
 
 < TTLIN.VAL.*?
-> !INDEX
+> !CAPTURE_INDEX
 > !CAPTURE
 > .
 
