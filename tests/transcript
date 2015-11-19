@@ -223,6 +223,8 @@
 > ERR block.field< not implemented yet
 
 < TTLIN.VAL.*?
+> !INDEX
+> !CAPTURE
 > .
 
 < DIV.DIVISOR.*?

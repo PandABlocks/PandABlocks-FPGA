@@ -46,12 +46,13 @@ def read_response(count):
 
 
 # Returns next command response set read from transcript file
-def transcript_readlines():
+def transcript_readlines(line_no):
     to_send = []
     to_receive = []
 
     # First scan for lines starting with <.
     for line in transcript:
+        line_no += 1
         if line[0] == '<':
             to_send.append(line[2:-1])
         elif line[0] == '>':
@@ -60,6 +61,7 @@ def transcript_readlines():
 
     # Now read the remainder of the response
     for line in transcript:
+        line_no += 1
         if line[0] == '>':
             to_receive.append(line[2:-1])
         elif line[0] == '#':
@@ -68,12 +70,13 @@ def transcript_readlines():
         else:
             break
 
-    return (to_send, to_receive)
+    return (to_send, to_receive, line_no)
 
 
 failed = 0
+line_no = 0
 while True:
-    (tx, rx) = transcript_readlines()
+    (tx, rx, line_no) = transcript_readlines(line_no)
     if not tx:
         break
 
@@ -86,7 +89,7 @@ while True:
     if response == rx:
         print tx[0], 'OK %.2f ms' % (1e3 * (end - start))
     else:
-        print tx[0], 'response error', response
+        print tx[0], 'response error', response, 'on line', line_no
         failed += 1
 
 if failed:
