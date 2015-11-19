@@ -27,3 +27,13 @@ def do_read_bits():
 def do_read_positions():
     print 'do_read_positions'
     return 32*[0], 32*[1]
+
+
+# Sets bit capture mask
+def set_bit_capture(mask):
+    print 'set_bit_capture %x' % mask
+
+
+# Sets position capture mask
+def set_pos_capture(mask):
+    print 'set_pos_capture %08x' % mask

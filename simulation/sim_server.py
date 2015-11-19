@@ -45,6 +45,12 @@ def run_simulation(conn):
         elif command == 'P':
             positions, changes = sim_hardware.do_read_positions()
             conn.sendall(struct.pack('32I32?', *positions + changes))
+        elif command == 'K':
+            mask, = struct.unpack('I', read(conn, 4))
+            sim_hardware.set_bit_capture(mask)
+        elif command == 'M':
+            mask, = struct.unpack('I', read(conn, 4))
+            sim_hardware.set_pos_capture(mask)
         else:
             print 'Unexpected command', repr(command)
             raise SocketFail('Unexpected command')
