@@ -328,8 +328,8 @@
 > OK =A&B|C=>D^E
 
 # Description fields
-< TTLIN.DESC?
+< *DESC.TTLIN?
 > OK =TTL input
 
-< TTLIN1.TERM.DESC?
+< *DESC.TTLIN.TERM?
 > OK =Select TTL input termination
