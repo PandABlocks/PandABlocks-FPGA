@@ -260,10 +260,10 @@
 
 # Testing position fields
 < QDEC.SETP.*?
-> !RAW
-> !SCALE
-> !OFFSET
 > !UNITS
+> !OFFSET
+> !SCALE
+> !RAW
 > .
 
 
