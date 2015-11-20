@@ -56,9 +56,8 @@ PULSE[4]
     bit_in  RESET
     bit_out OUT
     bit_out PERR
-    param   DELAY           scaled_time
-    param   WIDTH           scaled_time
-    param   PRESCALE
+    time    DELAY
+    time    WIDTH
     write   FORCE_RESET     action
     read    STATE           enum 1
     read    MISSED_CNT

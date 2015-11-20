@@ -45,7 +45,6 @@ PULSE
     RESET           
     DELAY           
     WIDTH           
-    PRESCALE        
     FORCE_RESET     
     STATE           
     MISSED_CNT      

@@ -48,7 +48,6 @@ PULSE       4
     RESET           1
     DELAY           2
     WIDTH           3
-    PRESCALE        4
     FORCE_RESET     5
     STATE           6
     MISSED_CNT      7
