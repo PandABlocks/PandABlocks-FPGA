@@ -335,3 +335,61 @@
 
 < *DESC.TTLIN.TERM?
 > OK =Select TTL input termination
+
+# Capture and capture index
+< *CAPTURE=
+> OK
+
+< *CAPTURE?
+> .
+
+< TTLIN0.VAL.CAPTURE?
+> OK =0
+
+< TTLIN0.VAL.CAPTURE=1
+> OK
+
+< *CAPTURE?
+> !*BITS0
+> .
+
+< TTLIN0.VAL.CAPTURE_INDEX?
+> OK =0:0
+
+< INENC2.ENC_POSN.CAPTURE=1
+> OK
+
+< *CAPTURE?
+> !INENC2.ENC_POSN
+> !*BITS0
+> .
+
+< TTLIN0.VAL.CAPTURE_INDEX?
+> OK =1:0
+
+< TTLIN1.VAL.CAPTURE_INDEX?
+> OK =1:1
+
+< INENC3.ENC_POSN.CAPTURE_INDEX?
+> OK =
+
+# Change reporting
+< *CHANGES.CONFIG=
+> OK
+
+< *CHANGES.CONFIG?
+> .
+
+< *CHANGES.ATTR=
+> OK
+
+< *CHANGES.ATTR?
+> .
+
+< INENC2.ENC_POSN.CAPTURE=1
+> OK
+
+< *CHANGES.ATTR?
+> !INENC2.ENC_POSN.CAPTURE=1
+> .
+
