@@ -126,7 +126,8 @@ static int panda_pcap_remove(struct platform_device *pdev)
 }
 
 static struct of_device_id panda_pcap_of_match[] = {
-    { .compatible = "dls-cs1,panda-pcap-1.0", },
+//    { .compatible = "dls-cs1,panda-pcap-1.0", },
+    { .compatible = "xlnx,panda-pcap-1.0", },
     { /* end of table */ }
 };
 MODULE_DEVICE_TABLE(of, panda_pcap_of_match);

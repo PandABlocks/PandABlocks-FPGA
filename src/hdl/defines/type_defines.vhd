@@ -20,7 +20,7 @@ type std32_array is array(natural range <>) of posn_t;
 -- Functions
 --
 function TO_INTEGER(arg : std_logic_vector) return integer;
-function TO_STD_VECTOR(arg : integer; size: natural) return std_logic_vector;
+function TO_STD_VECTOR(arg : natural; size: natural) return std_logic_vector;
 function LOG2(arg : integer) return integer;
 
 end type_defines;
@@ -34,9 +34,9 @@ begin
 end TO_INTEGER;
 
 -- Converts integer to std_logic_vector
-function TO_STD_VECTOR(arg : integer; size: natural) return std_logic_vector is
+function TO_STD_VECTOR(arg : natural; size: natural) return std_logic_vector is
 begin
-    return std_logic_vector(to_signed(arg, size));
+    return std_logic_vector(to_unsigned(arg, size));
 end TO_STD_VECTOR;
 
 function LOG2(arg: integer) return integer is

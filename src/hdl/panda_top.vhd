@@ -18,24 +18,24 @@ use work.addr_defines.all;
 
 entity panda_top is
 port (
-    DDR_addr            : inout std_logic_vector ( 14 downto 0 );
-    DDR_ba              : inout std_logic_vector ( 2 downto 0 );
+    DDR_addr            : inout std_logic_vector (14 downto 0);
+    DDR_ba              : inout std_logic_vector (2 downto 0);
     DDR_cas_n           : inout std_logic;
     DDR_ck_n            : inout std_logic;
     DDR_ck_p            : inout std_logic;
     DDR_cke             : inout std_logic;
     DDR_cs_n            : inout std_logic;
-    DDR_dm              : inout std_logic_vector ( 3 downto 0 );
-    DDR_dq              : inout std_logic_vector ( 31 downto 0 );
-    DDR_dqs_n           : inout std_logic_vector ( 3 downto 0 );
-    DDR_dqs_p           : inout std_logic_vector ( 3 downto 0 );
+    DDR_dm              : inout std_logic_vector (3 downto 0);
+    DDR_dq              : inout std_logic_vector (31 downto 0);
+    DDR_dqs_n           : inout std_logic_vector (3 downto 0);
+    DDR_dqs_p           : inout std_logic_vector (3 downto 0);
     DDR_odt             : inout std_logic;
     DDR_ras_n           : inout std_logic;
     DDR_reset_n         : inout std_logic;
     DDR_we_n            : inout std_logic;
     FIXED_IO_ddr_vrn    : inout std_logic;
     FIXED_IO_ddr_vrp    : inout std_logic;
-    FIXED_IO_mio        : inout std_logic_vector ( 53 downto 0 );
+    FIXED_IO_mio        : inout std_logic_vector (53 downto 0);
     FIXED_IO_ps_clk     : inout std_logic;
     FIXED_IO_ps_porb    : inout std_logic;
     FIXED_IO_ps_srstb   : inout std_logic;
@@ -63,74 +63,6 @@ end panda_top;
 
 architecture rtl of panda_top is
 
-component panda_ps is
-port (
-  DDR_cas_n         : inout std_logic;
-  DDR_cke           : inout std_logic;
-  DDR_ck_n          : inout std_logic;
-  DDR_ck_p          : inout std_logic;
-  DDR_cs_n          : inout std_logic;
-  DDR_reset_n       : inout std_logic;
-  DDR_odt           : inout std_logic;
-  DDR_ras_n         : inout std_logic;
-  DDR_we_n          : inout std_logic;
-  DDR_ba            : inout std_logic_vector ( 2 downto 0 );
-  DDR_addr          : inout std_logic_vector ( 14 downto 0 );
-  DDR_dm            : inout std_logic_vector ( 3 downto 0 );
-  DDR_dq            : inout std_logic_vector ( 31 downto 0 );
-  DDR_dqs_n         : inout std_logic_vector ( 3 downto 0 );
-  DDR_dqs_p         : inout std_logic_vector ( 3 downto 0 );
-  FIXED_IO_mio      : inout std_logic_vector ( 53 downto 0 );
-  FIXED_IO_ddr_vrn  : inout std_logic;
-  FIXED_IO_ddr_vrp  : inout std_logic;
-  FIXED_IO_ps_srstb : inout std_logic;
-  FIXED_IO_ps_clk   : inout std_logic;
-  FIXED_IO_ps_porb  : inout std_logic;
-  IRQ_F2P           : in std_logic;
-  M00_AXI_awaddr    : out std_logic_vector ( 31 downto 0 );
-  M00_AXI_awprot    : out std_logic_vector ( 2 downto 0 );
-  M00_AXI_awvalid   : out std_logic;
-  M00_AXI_awready   : in std_logic;
-  M00_AXI_wdata     : out std_logic_vector ( 31 downto 0 );
-  M00_AXI_wstrb     : out std_logic_vector ( 3 downto 0 );
-  M00_AXI_wvalid    : out std_logic;
-  M00_AXI_wready    : in std_logic;
-  M00_AXI_bresp     : in std_logic_vector ( 1 downto 0 );
-  M00_AXI_bvalid    : in std_logic;
-  M00_AXI_bready    : out std_logic;
-  M00_AXI_araddr    : out std_logic_vector ( 31 downto 0 );
-  M00_AXI_arprot    : out std_logic_vector ( 2 downto 0 );
-  M00_AXI_arvalid   : out std_logic;
-  M00_AXI_arready   : in std_logic;
-  M00_AXI_rdata     : in std_logic_vector ( 31 downto 0 );
-  M00_AXI_rresp     : in std_logic_vector ( 1 downto 0 );
-  M00_AXI_rvalid    : in std_logic;
-  M00_AXI_rready    : out std_logic;
-  M01_AXI_awaddr    : out std_logic_vector ( 31 downto 0 );
-  M01_AXI_awprot    : out std_logic_vector ( 2 downto 0 );
-  M01_AXI_awvalid   : out std_logic;
-  M01_AXI_awready   : in std_logic;
-  M01_AXI_wdata     : out std_logic_vector ( 31 downto 0 );
-  M01_AXI_wstrb     : out std_logic_vector ( 3 downto 0 );
-  M01_AXI_wvalid    : out std_logic;
-  M01_AXI_wready    : in std_logic;
-  M01_AXI_bresp     : in std_logic_vector ( 1 downto 0 );
-  M01_AXI_bvalid    : in std_logic;
-  M01_AXI_bready    : out std_logic;
-  M01_AXI_araddr    : out std_logic_vector ( 31 downto 0 );
-  M01_AXI_arprot    : out std_logic_vector ( 2 downto 0 );
-  M01_AXI_arvalid   : out std_logic;
-  M01_AXI_arready   : in std_logic;
-  M01_AXI_rdata     : in std_logic_vector ( 31 downto 0 );
-  M01_AXI_rresp     : in std_logic_vector ( 1 downto 0 );
-  M01_AXI_rvalid    : in std_logic;
-  M01_AXI_rready    : out std_logic;
-  FCLK_RESET0_N     : out std_logic;
-  FCLK_CLK0         : out std_logic;
-  FCLK_LEDS         : out std_logic_vector(31 downto 0)
-);
-end component;
-
 component ila_0
 port (
     clk             : in  std_logic;
@@ -140,7 +72,7 @@ end component;
 
 -- Signal declarations
 signal FCLK_CLK0            : std_logic;
-signal FCLK_RESET0_N        : std_logic;
+signal FCLK_RESET0_N        : std_logic_vector(0 downto 0);
 signal FCLK_RESET0          : std_logic;
 signal FCLK_LEDS            : std_logic_vector(31 downto 0);
 
@@ -164,34 +96,14 @@ signal M00_AXI_rresp        : std_logic_vector ( 1 downto 0 );
 signal M00_AXI_rvalid       : std_logic;
 signal M00_AXI_rready       : std_logic;
 
-signal M01_AXI_awaddr       : std_logic_vector ( 31 downto 0 );
-signal M01_AXI_awprot       : std_logic_vector ( 2 downto 0 );
-signal M01_AXI_awvalid      : std_logic;
-signal M01_AXI_awready      : std_logic;
-signal M01_AXI_wdata        : std_logic_vector ( 31 downto 0 );
-signal M01_AXI_wstrb        : std_logic_vector ( 3 downto 0 );
-signal M01_AXI_wvalid       : std_logic;
-signal M01_AXI_wready       : std_logic;
-signal M01_AXI_bresp        : std_logic_vector ( 1 downto 0 );
-signal M01_AXI_bvalid       : std_logic;
-signal M01_AXI_bready       : std_logic;
-signal M01_AXI_araddr       : std_logic_vector ( 31 downto 0 );
-signal M01_AXI_arprot       : std_logic_vector ( 2 downto 0 );
-signal M01_AXI_arvalid      : std_logic;
-signal M01_AXI_arready      : std_logic;
-signal M01_AXI_rdata        : std_logic_vector ( 31 downto 0 );
-signal M01_AXI_rresp        : std_logic_vector ( 1 downto 0 );
-signal M01_AXI_rvalid       : std_logic;
-signal M01_AXI_rready       : std_logic;
-
-signal mem_cs               : std_logic_vector(2**MEM_CS_NUM-1 downto 0);
-signal mem_addr             : std_logic_vector(MEM_AW-1 downto 0);
+signal mem_cs               : std_logic_vector(2**PAGE_NUM-1 downto 0);
+signal mem_addr             : std_logic_vector(PAGE_AW-1 downto 0);
 signal mem_odat             : std_logic_vector(31 downto 0);
 signal mem_wstb             : std_logic;
 signal mem_rstb             : std_logic;
-signal mem_read_data        : std32_array(2**MEM_CS_NUM-1 downto 0);
+signal mem_read_data        : std32_array(2**PAGE_NUM-1 downto 0);
 
-signal IRQ_F2P              : std_logic;
+signal IRQ_F2P              : std_logic_vector(0 downto 0);
 
 signal probe0               : std_logic_vector(63 downto 0);
 
@@ -223,8 +135,11 @@ signal posbus               : posbus_t := (others => (others => '0'));
 signal encin_posn           : std32_array(ENC_NUM-1 downto 0);
 
 -- Discrete Block Outputs :
-signal ttlin                : std_logic_vector(TTLIN_NUM-1 downto 0);
-signal lvdsin               : std_logic_vector(LVDSIN_NUM-1 downto 0);
+signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
+signal lvdsin_val           : std_logic_vector(LVDSIN_NUM-1 downto 0);
+signal lut_val              : std_logic_vector(LUT_NUM-1 downto 0);
+signal srgate_val           : std_logic_vector(SRGATE_NUM-1 downto 0);
+signal div_val              : std_logic_vector(2*DIV_NUM-1 downto 0);
 
 signal pcomp_act            : std_logic_vector(PCOMP_NUM-1 downto 0);
 signal pcomp_pulse          : std_logic_vector(PCOMP_NUM-1 downto 0);
@@ -232,15 +147,21 @@ signal pcomp_pulse          : std_logic_vector(PCOMP_NUM-1 downto 0);
 signal seq_act              : std_logic_vector(SEQ_NUM-1 downto 0);
 signal seq_pulse            : seq_puls_array(SEQ_NUM-1 downto 0);
 
-signal counter              : unsigned(7 downto 0) := X"00";
+signal panda_spbram_wea     : std_logic := '0';
+signal irq_enable           : std_logic := '0';
+
 begin
 
---
+-- Physical diagnostics outputs
 leds <= FCLK_LEDS(26 downto 25);
 
-FCLK_RESET0 <= not FCLK_RESET0_N;
+-- Internal clocks and resets
+FCLK_RESET0 <= not FCLK_RESET0_N(0);
 
-panda_ps_i: component panda_ps
+--
+-- Panda Processor System Block design instantiation
+--
+ps : entity work.panda_ps
 port map (
     FCLK_CLK0                   => FCLK_CLK0,
     FCLK_RESET0_N               => FCLK_RESET0_N,
@@ -289,67 +210,54 @@ port map (
     M00_AXI_wready              => M00_AXI_wready,
     M00_AXI_wstrb(3 downto 0)   => M00_AXI_wstrb(3 downto 0),
     M00_AXI_wvalid              => M00_AXI_wvalid,
-
-    M01_AXI_araddr(31 downto 0) => M01_AXI_araddr(31 downto 0),
-    M01_AXI_arprot(2 downto 0)  => M01_AXI_arprot(2 downto 0),
-    M01_AXI_arready             => M01_AXI_arready,
-    M01_AXI_arvalid             => M01_AXI_arvalid,
-    M01_AXI_awaddr(31 downto 0) => M01_AXI_awaddr(31 downto 0),
-    M01_AXI_awprot(2 downto 0)  => M01_AXI_awprot(2 downto 0),
-    M01_AXI_awready             => M01_AXI_awready,
-    M01_AXI_awvalid             => M01_AXI_awvalid,
-    M01_AXI_bready              => M01_AXI_bready,
-    M01_AXI_bresp(1 downto 0)   => M01_AXI_bresp(1 downto 0),
-    M01_AXI_bvalid              => M01_AXI_bvalid,
-    M01_AXI_rdata(31 downto 0)  => M01_AXI_rdata(31 downto 0),
-    M01_AXI_rready              => M01_AXI_rready,
-    M01_AXI_rresp(1 downto 0)   => M01_AXI_rresp(1 downto 0),
-    M01_AXI_rvalid              => M01_AXI_rvalid,
-    M01_AXI_wdata(31 downto 0)  => M01_AXI_wdata(31 downto 0),
-    M01_AXI_wready              => M01_AXI_wready,
-    M01_AXI_wstrb(3 downto 0)   => M01_AXI_wstrb(3 downto 0),
-    M01_AXI_wvalid              => M01_AXI_wvalid
-
+    S_AXI_HP0_araddr            => (others => '0'),
+    S_AXI_HP0_arburst           => (others => '0'),
+    S_AXI_HP0_arcache           => (others => '0'),
+    S_AXI_HP0_arid              => (others => '0'),
+    S_AXI_HP0_arlen             => (others => '0'),
+    S_AXI_HP0_arlock            => (others => '0'),
+    S_AXI_HP0_arprot            => (others => '0'),
+    S_AXI_HP0_arqos             => (others => '0'),
+    S_AXI_HP0_arready           => open,
+    S_AXI_HP0_arsize            => (others => '0'),
+    S_AXI_HP0_arvalid           => '0',
+    S_AXI_HP0_awaddr            => (others => '0'),
+    S_AXI_HP0_awburst           => (others => '0'),
+    S_AXI_HP0_awcache           => (others => '0'),
+    S_AXI_HP0_awid              => (others => '0'),
+    S_AXI_HP0_awlen             => (others => '0'),
+    S_AXI_HP0_awlock            => (others => '0'),
+    S_AXI_HP0_awprot            => (others => '0'),
+    S_AXI_HP0_awqos             => (others => '0'),
+    S_AXI_HP0_awready           => open,
+    S_AXI_HP0_awsize            => (others => '0'), 
+    S_AXI_HP0_awvalid           => '0',
+    S_AXI_HP0_bid               => open,
+    S_AXI_HP0_bready            => '0',
+    S_AXI_HP0_bresp             => open,
+    S_AXI_HP0_bvalid            => open,
+    S_AXI_HP0_rdata             => open,
+    S_AXI_HP0_rid               => open,
+    S_AXI_HP0_rlast             => open,
+    S_AXI_HP0_rready            => '0', 
+    S_AXI_HP0_rresp             => open,
+    S_AXI_HP0_rvalid            => open,
+    S_AXI_HP0_wdata             => (others => '0'),
+    S_AXI_HP0_wid               => (others => '0'),
+    S_AXI_HP0_wlast             => '0',
+    S_AXI_HP0_wready            => open,
+    S_AXI_HP0_wstrb             => (others => '0'),
+    S_AXI_HP0_wvalid            => '0'
 );
 
---0x43c10000
-panda_pcap_inst : entity work.panda_pcap_v1_0
-generic map (
-    -- Parameters of Axi Slave Bus Interface S00_AXI
-    C_S00_AXI_DATA_WIDTH        => 32,
-    C_S00_AXI_ADDR_WIDTH        => 7
-)
-port map (
-    irq                         => IRQ_F2P,
-
-    s00_axi_aclk                => FCLK_CLK0,
-    s00_axi_aresetn             => FCLK_RESET0_N,
-    s00_axi_awaddr              => M01_AXI_awaddr(6 downto 0),
-    s00_axi_awprot              => M01_AXI_awprot,
-    s00_axi_awvalid             => M01_AXI_awvalid,
-    s00_axi_awready             => M01_AXI_awready,
-    s00_axi_wdata               => M01_AXI_wdata,
-    s00_axi_wstrb               => M01_AXI_wstrb,
-    s00_axi_wvalid              => M01_AXI_wvalid,
-    s00_axi_wready              => M01_AXI_wready,
-    s00_axi_bresp               => M01_AXI_bresp,
-    s00_axi_bvalid              => M01_AXI_bvalid,
-    s00_axi_bready              => M01_AXI_bready,
-    s00_axi_araddr              => M01_AXI_araddr(6 downto 0),
-    s00_axi_arprot              => M01_AXI_arprot,
-    s00_axi_arvalid             => M01_AXI_arvalid,
-    s00_axi_arready             => M01_AXI_arready,
-    s00_axi_rdata               => M01_AXI_rdata,
-    s00_axi_rresp               => M01_AXI_rresp,
-    s00_axi_rvalid              => M01_AXI_rvalid,
-    s00_axi_rready              => M01_AXI_rready
-);
-
+--
+-- Control and Status Memory Interface
+--
 -- 0x43c00000
 panda_csr_if_inst : entity work.panda_csr_if
 generic map (
-    MEM_CSWIDTH                 => MEM_CS_NUM,
-    MEM_AWIDTH                  => MEM_AW
+    MEM_CSWIDTH                 => PAGE_NUM,
+    MEM_AWIDTH                  => PAGE_AW
 )
 port map (
     S_AXI_CLK                   => FCLK_CLK0,
@@ -373,7 +281,6 @@ port map (
     S_AXI_RRESP                 => M00_AXI_rresp,
     S_AXI_RVALID                => M00_AXI_rvalid,
     S_AXI_RREADY                => M00_AXI_rready,
-
     -- Bus Memory Interface
     mem_addr_o                  => mem_addr,
     mem_dat_i                   => mem_read_data,
@@ -384,208 +291,114 @@ port map (
 );
 
 --
--- Encoder Test Interface
+-- TTL
 --
-REGISTER_READ : process(FCLK_CLK0)
-begin
-    if rising_edge(FCLK_CLK0) then
-        -- DCard Input Channel Buffer Ctrl
-        -- Inc   : 0x03
-        -- SSI   : 0x0C
-        -- Endat : 0x14
-        -- BiSS  : 0x1C
-        if (mem_cs(0) = '1' and mem_wstb = '1' and mem_addr = X"00") then
-            encin_buf_ctrl <= mem_odat(5 downto 0);
-        end if;
-
-        -- DCard Output Channel Buffer Ctrl
-        -- Inc   : 0x07
-        -- SSI   : 0x28
-        -- Endat : 0x10
-        -- BiSS  : 0x18
-        -- DCard Output Channel Buffer Ctrl
-        if (mem_cs(0) = '1' and mem_wstb = '1' and mem_addr = X"01") then
-            outenc_buf_ctrl <= mem_odat(5 downto 0);
-        end if;
-
-        -- Soft Input
-        if (mem_cs(0) = '1' and mem_wstb = '1' and mem_addr = X"02") then
-            soft_input <= mem_odat(3 downto 0);
-        end if;
-
-        -- Soft Posn
-        if (mem_cs(0) = '1' and mem_wstb = '1' and mem_addr = X"03") then
-            soft_posn <= mem_odat;
-        end if;
-
-    end if;
-end process;
-
-ENCIN_INST : entity work.panda_encin_top
+panda_ttl_inst : entity work.panda_ttl_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
 
     mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(ENCIN_CS),
+    mem_cs_i            => mem_cs(TTL_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
-    mem_dat_o           => open,
-
-    Am0_pad_io          => Am0_pad_io,
-    Bm0_pad_io          => Bm0_pad_io,
-    Zm0_pad_io          => Zm0_pad_io,
-
-    posn_o              => encin_posn
-);
-
-ENCOUT_INST : entity work.panda_encout_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(ENCOUT_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(ENCOUT_CS),
-
-    As0_pad_io          => As0_pad_io,
-    Bs0_pad_io          => Bs0_pad_io,
-    Zs0_pad_io          => Zs0_pad_io,
-
-    posbus_i            => posbus
-);
-
--- Daughter Card Buffer Control Signals
-enc0_ctrl_opad(1 downto 0) <= encin_buf_ctrl(1 downto 0);
-enc0_ctrl_opad(3 downto 2) <= outenc_buf_ctrl(1 downto 0);
-enc0_ctrl_opad(4) <= encin_buf_ctrl(2);
-enc0_ctrl_opad(5) <= outenc_buf_ctrl(2);
-enc0_ctrl_opad(7 downto 6) <= encin_buf_ctrl(4 downto 3);
-enc0_ctrl_opad(9 downto 8) <= outenc_buf_ctrl(4 downto 3);
-enc0_ctrl_opad(10) <= encin_buf_ctrl(5);
-enc0_ctrl_opad(11) <= outenc_buf_ctrl(5);
-
-enc0_ctrl_pad_o <= enc0_ctrl_opad;
-
---
--- Sequencer block instantiation
---
-SEQ_INST : entity work.panda_sequencer_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(SEQ_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(SEQ_CS),
 
     sysbus_i            => sysbus,
 
-    act_o               => seq_act,
-    pulse_o             => seq_pulse
+    pad_i               => ttlin_pad_i,
+    val_o               => ttlin_val,
+    pad_o               => ttlout_pad_o
 );
 
 --
--- Position Compare block instantiation
+-- LVDS
 --
-panda_pcomp_top_inst : entity work.panda_pcomp_top
+panda_lvds_inst : entity work.panda_lvds_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
 
     mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(PCOMP_CS),
+    mem_cs_i            => mem_cs(LVDS_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
-    mem_dat_o           => open,
 
     sysbus_i            => sysbus,
-    posbus_i            => posbus,
 
-    act_o               => pcomp_act,
-    pulse_o             => pcomp_pulse
+    pad_i               => lvdsin_pad_i,
+    val_o               => lvdsin_val,
+    pad_o               => lvdsout_pad_o
 );
 
 --
--- Position Compare block instantiation
+-- 5-Input LUT
 --
-panda_digitalio_inst : entity work.panda_digio
+panda_lut_inst : entity work.panda_lut_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
 
     mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(DIGIO_CS),
+    mem_cs_i            => mem_cs(LUT_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
-    mem_dat_o           => open,
 
     sysbus_i            => sysbus,
 
-    ttlin_pad_i         => ttlin_pad_i,
-    ttlin_o             => ttlin,
-    ttlout_pad_o        => ttlout_pad_o,
+    out_o               => lut_val
+);
 
-    lvdsin_pad_i        => lvdsin_pad_i,
-    lvdsin_o            => lvdsin,
-    lvdsout_pad_o       => lvdsout_pad_o
+--
+-- 5-Input LUT
+--
+panda_srgate_inst : entity work.panda_srgate_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(SRGATE_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+
+    sysbus_i            => sysbus,
+
+    out_o               => srgate_val
+);
+
+--
+-- 5-Input LUT
+--
+panda_div_inst : entity work.panda_div_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(DIV_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => mem_read_data(DIV_CS),
+
+    sysbus_i            => sysbus,
+
+    outd_o              => div_val(3 downto 0),
+    outn_o              => div_val(7 downto 4)
 );
 
 --
 -- System Bus   : Assignments
 --
-process(FCLK_CLK0)
-begin
-    if rising_edge(FCLK_CLK0) then
-        counter <= counter + 1;
-    end if;
-end process;
-
---
--- System Bus   : Assignments
---
-sysbus <= ZEROS(SBUS_AVAIL-8)   &
-          std_logic_vector(counter(7 downto 4))   &   -- 51:48
-          soft_input            &   -- 47:44
-          seq_act               &   -- 43:40
-          seq_pulse(3)          &   -- 39:34
-          seq_pulse(2)          &   -- 33:28
-          seq_pulse(1)          &   -- 27:22
-          seq_pulse(0)          &   -- 21:16
-          pcomp_act             &   -- 15:12
-          pcomp_pulse           &   -- 11: 8
-          lvdsin                &   --  7: 6
-          ttlin;                    --  5: 0
-
---
--- Position Bus : Assignments
---
-posbus(0) <= soft_posn;
-posbus(1) <= encin_posn(0);
-
---
--- Chipscope
---
---ila_0_inst : component ila_0
---port map (
---    clk         => FCLK_CLK0,
---    probe0      => probe0
---);
---
---probe0(0) <= '0';
---probe0(1) <= '0';
---probe0(2) <= '0';
---probe0(3) <= '0';
---probe0(35 downto 4) <= encin_posn(0);
---probe0(63 downto 36) <= (others => '0');
+sysbus <= '0' & ZEROS(SBUS_AVAIL-1) &
+          div_val               &
+          srgate_val            &   --  15: 8
+          lut_val               &   --  15: 8
+          lvdsin_val            &   --   7: 6
+          ttlin_val;                --   5: 0
 
 end rtl;

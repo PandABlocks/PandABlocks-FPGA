@@ -8,19 +8,54 @@ use work.type_defines.all;
 package addr_defines is
 
 -- Memory Setup Parameters
-constant MEM_CS_NUM             : natural := 5;     -- Memory pages = 2**CSW
-constant MEM_AW                 : natural := 8;     -- 2**AW Words per page
-constant BLK_AW                 : natural := 4;     -- 2**AW Words per block
+-- Total of 128KByte memory is divided into 32 pages of 4K each.
+-- Each page can address 16 design blocks
+-- Each block can hold 64 DWORD registers
+
+-- Number of total pages = 2**CSW
+constant PAGE_NUM               : natural := 5;
+-- Number of DWORDs per page = 2**PAGE_AW
+constant PAGE_AW                : natural := 10;
+-- Number of DWORS per block = 2**BLK_AW
+constant BLK_AW                 : natural := 6;
 
 -- Functional Address Space Chip Selects
-constant DIGIO_CS               : natural := 0;
+constant TTL_CS                 : natural := 0;
+constant LVDS_CS                : natural := 1;
+constant LUT_CS                 : natural := 2;
+constant SRGATE_CS              : natural := 3;
+constant DIV_CS                 : natural := 4;
+
 constant SEQ_CS                 : natural := 5;
 constant ENCIN_CS               : natural := 6;
 constant ENCOUT_CS              : natural := 8;
 constant PCOMP_CS               : natural := 13;
+constant CTRL_CS                : natural := 31;
 
 -- Block Register Space
-constant DIGOUT_VAL_ADDR        : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
+constant TTLOUT_VAL_ADDR        : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
+
+constant LVDSOUT_VAL_ADDR       : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
+
+constant LUT_INPA_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
+constant LUT_INPB_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
+constant LUT_INPC_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);
+constant LUT_INPD_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(3, BLK_AW);
+constant LUT_INPE_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(4, BLK_AW);
+constant LUT_FUNC_ADDR          : std_logic_vector := TO_STD_VECTOR(5, BLK_AW);
+
+constant SRGATE_SET_VAL_ADDR    : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
+constant SRGATE_RST_VAL_ADDR    : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
+constant SRGATE_SET_EDGE_ADDR   : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);
+constant SRGATE_RST_EDGE_ADDR   : std_logic_vector := TO_STD_VECTOR(3, BLK_AW);
+constant SRGATE_FORCE_STATE_ADDR: std_logic_vector := TO_STD_VECTOR(4, BLK_AW);
+
+constant DIV_INP_VAL_ADDR       : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
+constant DIV_RST_VAL_ADDR       : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
+constant DIV_FIRST_PULSE_ADDR   : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);
+constant DIV_DIVISOR_ADDR       : std_logic_vector := TO_STD_VECTOR(3, BLK_AW);
+constant DIV_COUNT_ADDR         : std_logic_vector := TO_STD_VECTOR(4, BLK_AW);
+constant DIV_FORCE_RST_ADDR     : std_logic_vector := TO_STD_VECTOR(5, BLK_AW);
 
 constant ENCIN_PROT_ADDR        : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
 constant ENCIN_RATE_ADDR        : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
@@ -61,18 +96,18 @@ constant SEQ_CUR_FRAME_ADDR     : std_logic_vector := TO_STD_VECTOR(10, BLK_AW);
 constant SEQ_CUR_FCYCLE_ADDR    : std_logic_vector := TO_STD_VECTOR(11, BLK_AW);
 constant SEQ_CUR_TCYCLE_ADDR    : std_logic_vector := TO_STD_VECTOR(12, BLK_AW);
 
-constant PCAP_ENABLE_VAL_ADDR   : std_logic_vector := TO_STD_VECTOR(0, MEM_AW);
-constant PCAP_TRIGGER_VAL_ADDR  : std_logic_vector := TO_STD_VECTOR(1, MEM_AW);
-constant PCAP_DMA_BUFSIZE_ADDR  : std_logic_vector := TO_STD_VECTOR(2, MEM_AW);
-constant PCAP_DMAADDR_ADDR      : std_logic_vector := TO_STD_VECTOR(3, MEM_AW);
-constant PCAP_ARM_ADDR          : std_logic_vector := TO_STD_VECTOR(4, MEM_AW);
-constant PCAP_ABORT_ADDR        : std_logic_vector := TO_STD_VECTOR(5, MEM_AW);
-constant PCAP_PMASK_ADDR        : std_logic_vector := TO_STD_VECTOR(6, MEM_AW);
-constant PCAP_TIMEOUT_ADDR      : std_logic_vector := TO_STD_VECTOR(7, MEM_AW);
-constant PCAP_DBG_MODE_ADDR     : std_logic_vector := TO_STD_VECTOR(10, MEM_AW);
-constant PCAP_DBG_ENA_ADDR      : std_logic_vector := TO_STD_VECTOR(11, MEM_AW);
-constant PCAP_DBG_PRESC_ADDR    : std_logic_vector := TO_STD_VECTOR(12, MEM_AW);
-constant PCAP_DBG_DWORDS_ADDR   : std_logic_vector := TO_STD_VECTOR(13, MEM_AW);
+constant PCAP_ENABLE_VAL_ADDR   : std_logic_vector := TO_STD_VECTOR(0, PAGE_AW);
+constant PCAP_TRIGGER_VAL_ADDR  : std_logic_vector := TO_STD_VECTOR(1, PAGE_AW);
+constant PCAP_DMA_BUFSIZE_ADDR  : std_logic_vector := TO_STD_VECTOR(2, PAGE_AW);
+constant PCAP_DMAADDR_ADDR      : std_logic_vector := TO_STD_VECTOR(3, PAGE_AW);
+constant PCAP_ARM_ADDR          : std_logic_vector := TO_STD_VECTOR(4, PAGE_AW);
+constant PCAP_ABORT_ADDR        : std_logic_vector := TO_STD_VECTOR(5, PAGE_AW);
+constant PCAP_PMASK_ADDR        : std_logic_vector := TO_STD_VECTOR(6, PAGE_AW);
+constant PCAP_TIMEOUT_ADDR      : std_logic_vector := TO_STD_VECTOR(7, PAGE_AW);
+constant PCAP_DBG_MODE_ADDR     : std_logic_vector := TO_STD_VECTOR(10, PAGE_AW);
+constant PCAP_DBG_ENA_ADDR      : std_logic_vector := TO_STD_VECTOR(11, PAGE_AW);
+constant PCAP_DBG_PRESC_ADDR    : std_logic_vector := TO_STD_VECTOR(12, PAGE_AW);
+constant PCAP_DBG_DWORDS_ADDR   : std_logic_vector := TO_STD_VECTOR(13, PAGE_AW);
 
 end addr_defines;
 

@@ -1,5 +1,6 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
+use ieee.numeric_std.all;
 
 library work;
 use work.test_interface.all;
@@ -45,7 +46,6 @@ signal Zs0_pad_io       : std_logic_vector(0 downto 0);
 signal enc0_ctrl_pad_o  : std_logic_vector(11 downto 0);
 signal leds             : std_logic_vector(1 downto 0);
 signal clk              : std_logic := '0';
-signal reset            : std_logic := '1';
 
 signal A_IN_P           : std_logic;
 signal B_IN_P           : std_logic;
@@ -59,10 +59,13 @@ signal Z_OUT_P          : std_logic;
 signal CLK_IN_P         : std_logic := '0';
 signal DATA_OUT_P       : std_logic;
 
+signal inputs           : unsigned(7 downto 0) := X"00";
+
+signal lut_test         : std_logic;
+
 begin
 
 clk <= not clk after 4 ns;
-reset <= '0' after 1 us;
 
 -- Instantiate the Unit Under Test (UUT)
 uut: entity work.panda_top
@@ -96,8 +99,8 @@ PORT MAP (
     Zs0_pad_io          => Zs0_pad_io,
     enc0_ctrl_pad_i     => enc0_ctrl_pad_i,
     enc0_ctrl_pad_o     => enc0_ctrl_pad_o,
-    ttlin_pad_i         => (others => '0'),
-    lvdsin_pad_i        => (others => '0'),
+    ttlin_pad_i         => std_logic_vector(inputs(5 downto 0)),
+    lvdsin_pad_i        => std_logic_vector(inputs(7 downto 6)),
     ttlout_pad_o        => open,
     lvdsout_pad_o       => open,
     leds                => leds
@@ -142,5 +145,17 @@ B_IN_P <= B_OUT_P;
 -- Loopback on SSI
 CLK_IN_P <= CLK_OUT_P;
 DATA_IN_P <= DATA_OUT_P;
+
+
+-- Simple counter to emulate TTL inputs
+process(clk)
+begin
+    if rising_edge(clk) then
+        inputs <= inputs + 1;
+    end if;
+end process;
+
+
+lut_test <= (inputs(0) and inputs(1)) or (inputs(2) and not inputs(3));
 
 end;

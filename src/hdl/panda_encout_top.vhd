@@ -16,7 +16,7 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Memory Bus Interface
-    mem_addr_i          : in  std_logic_vector(MEM_AW-1 downto 0);
+    mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
     mem_rstb_i          : in  std_logic;
@@ -47,11 +47,11 @@ signal sclk, sdato          : std_logic_vector(ENC_NUM-1 downto 0);
 
 signal sdat_dir_channels    : std_logic_vector(ENC_NUM-1 downto 0);
 
-signal mem_read_data        : std32_array(2**(MEM_AW-BLK_AW)-1 downto 0);
+signal mem_read_data        : std32_array(2**(PAGE_AW-BLK_AW)-1 downto 0);
 
 begin
 
-mem_dat_o <= mem_read_data(to_integer(unsigned(mem_addr_i(MEM_AW-1 downto BLK_AW))));
+mem_dat_o <= mem_read_data(to_integer(unsigned(mem_addr_i(PAGE_AW-1 downto BLK_AW))));
 
 --
 -- Instantiate ENCOUT Blocks :
@@ -74,7 +74,7 @@ I=>Zs0_opad(I), O=>Zs0_ipad(I), T=>iobuf_ctrl_channels(I)(0), IO=>Zs0_pad_io(I))
 
 -- Generate Block chip select signal
 mem_blk_cs(I) <= '1'
-    when (mem_addr_i(MEM_AW-1 downto BLK_AW) = TO_STD_VECTOR(I, MEM_AW-BLK_AW)
+    when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_STD_VECTOR(I, PAGE_AW-BLK_AW)
             and mem_cs_i = '1') else '0';
 
 -- Output data has to be multiplexed based on protocol.

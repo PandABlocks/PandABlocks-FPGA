@@ -48,7 +48,7 @@ port (
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(MEM_AW-1 downto 0);
+    mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
     mem_dat_i           : in  std_logic_vector(31 downto 0);
     mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Block inputs
@@ -60,6 +60,9 @@ port (
 end panda_pcap;
 
 architecture rtl of panda_pcap is
+
+-- Number of byte per AXI3 burst
+constant BURST_LEN          : integer := AXI_BURST_LEN * AXI_ADDR_WIDTH/8;
 
 -- IRQ Status encoding
 constant IRQ_IDLE           : std_logic_vector(3 downto 0) := "0000";
@@ -157,7 +160,7 @@ begin
                     PCAP_TRIGGER_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                -- DMA Block size in TLPs (each TLP is 128 Bytes)
+                -- DMA Block size in TLPs (each TLP is BURST_LEN Bytes)
                 if (mem_addr_i = PCAP_DMA_BUFSIZE_ADDR) then
                     PCAP_TLP_COUNT <= mem_dat_i;
                 end if;
@@ -381,7 +384,7 @@ begin
                         pcap_fsm <= DO_DMA;
                     -- If enable flag is de-asserted while DMAing the last
                     -- TLP, no need to do a 0 byte DMA
-                    elsif (enable_val = '0' and fifo_count = 16) then
+                    elsif (enable_val = '0' and fifo_count = 0) then
                         pcap_timeout_flag <= '0';
                         last_tlp_flag <= '1';
                         pcap_fsm <= IS_FINISHED;
@@ -429,7 +432,7 @@ begin
                     -- monitor and continue DMAing.
                     else
                         pcap_fsm <= ACTV;
-                        axi_awaddr_val <= axi_awaddr_val + 128;
+                        axi_awaddr_val <= axi_awaddr_val + BURST_LEN;
                     end if;
 
                 -- Set IRQ flag, and either continue or stop operation

@@ -48,10 +48,21 @@ read_vhdl ../src/hdl/defines/addr_defines.vhd
 read_vhdl ../src/hdl/defines/top_defines.vhd
 read_vhdl ../src/hdl/panda_csr_if.vhd
 read_vhdl ../src/hdl/panda_spbram.vhd
-#read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0_S00_AXI.vhd
-#read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0.vhd
-read_vhdl ../src/hdl/panda_digout.vhd
-read_vhdl ../src/hdl/panda_digio.vhd
+read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0_S00_AXI.vhd
+read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0.vhd
+read_vhdl ../src/hdl/panda_ttl_block.vhd
+read_vhdl ../src/hdl/panda_ttl_top.vhd
+read_vhdl ../src/hdl/panda_lvds_block.vhd
+read_vhdl ../src/hdl/panda_lvds_top.vhd
+read_vhdl ../src/hdl/panda_lut.vhd
+read_vhdl ../src/hdl/panda_lut_block.vhd
+read_vhdl ../src/hdl/panda_lut_top.vhd
+read_vhdl ../src/hdl/panda_srgate.vhd
+read_vhdl ../src/hdl/panda_srgate_block.vhd
+read_vhdl ../src/hdl/panda_srgate_top.vhd
+read_vhdl ../src/hdl/panda_div.vhd
+read_vhdl ../src/hdl/panda_div_block.vhd
+read_vhdl ../src/hdl/panda_div_top.vhd
 read_vhdl ../src/hdl/panda_ssislv.vhd
 read_vhdl ../src/hdl/panda_ssimstr.vhd
 read_vhdl ../src/hdl/panda_qenc.vhd
@@ -69,7 +80,7 @@ read_vhdl ../src/hdl/panda_pcomp_top.vhd
 read_vhdl ../src/hdl/panda_top.vhd
 
 # Import IPs
-import_ip ../src/ip_repo/ila_0/ila_0.xci
+# import_ip ../src/ip_repo/ila_0/ila_0.xci
 
 # Read constraint files
 read_xdc  ../src/const/panda_user.xdc
