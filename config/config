@@ -60,6 +60,7 @@ PULSE[4]
     time    WIDTH
     write   FORCE_RESET     action
     read    STATE           enum 1
+        0   State
     read    MISSED_CNT
 
 SEQ[4]
@@ -123,6 +124,7 @@ OUTENC[4]
         4   ABZ
     param   BITS
     param   QPRESCALAR      enum 1
+        0   Something
     write   FORCE_QSTATE    action
     read    QSTATE          bit
 
