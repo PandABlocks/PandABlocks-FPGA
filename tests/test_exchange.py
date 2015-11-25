@@ -80,17 +80,21 @@ while True:
     if not tx:
         break
 
-    start = time.time()
-    for line in tx:
-        server.send(line + '\n')
-    response = read_response(len(rx))
-    end = time.time()
-
-    if response == rx:
-        print tx[0], 'OK %.2f ms' % (1e3 * (end - start))
+    try:
+        start = time.time()
+        for line in tx:
+            server.send(line + '\n')
+        response = read_response(len(rx))
+        end = time.time()
+    except Exception, e:
+        print tx[0], e, 'on line', line_no
+        break
     else:
-        print tx[0], 'response error', response, 'on line', line_no
-        failed += 1
+        if response == rx:
+            print tx[0], 'OK %.2f ms' % (1e3 * (end - start))
+        else:
+            print tx[0], 'response error', response, 'on line', line_no
+            failed += 1
 
 if failed:
     print failed, 'tests failed'

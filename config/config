@@ -10,26 +10,26 @@ TTLIN[6]
         1   50-Ohm
 
 TTLOUT[10]
-    bit_in  VAL
+    param   VAL             bit_mux
 
 LVDSIN[2]
     bit_out VAL
 
 LVDSOUT[2]
-    bit_in  VAL
+    param   VAL             bit_mux
 
 LUT[8]
-    bit_in  INPA
-    bit_in  INPB
-    bit_in  INPC
-    bit_in  INPD
-    bit_in  INPE
+    param   INPA            bit_mux
+    param   INPB            bit_mux
+    param   INPC            bit_mux
+    param   INPD            bit_mux
+    param   INPE            bit_mux
     bit_out VAL
     param   FUNC            lut
 
 SRGATE[4]
-    bit_in  SET
-    bit_in  RESET
+    param   SET             bit_mux
+    param   RESET           bit_mux
     bit_out VAL
     param   SET_EDGE        enum 2
         0   Falling
@@ -40,8 +40,8 @@ SRGATE[4]
     write   FORCE_STATE     bit
 
 DIV[4]
-    bit_in  INP
-    bit_in  RESET
+    param   INP             bit_mux
+    param   RESET           bit_mux
     bit_out OUTD
     bit_out OUTN
     param   FIRST_PULSE     enum 2
@@ -52,8 +52,8 @@ DIV[4]
     write   FORCE_RESET     action
 
 PULSE[4]
-    bit_in  INP
-    bit_in  RESET
+    param   INP             bit_mux
+    param   RESET           bit_mux
     bit_out OUT
     bit_out PERR
     time    DELAY
@@ -64,11 +64,11 @@ PULSE[4]
     read    MISSED_CNT
 
 SEQ[4]
-    bit_in  GATE
-    bit_in  INPA
-    bit_in  INPB
-    bit_in  INPC
-    bit_in  INPD
+    param   GATE            bit_mux
+    param   INPA            bit_mux
+    param   INPB            bit_mux
+    param   INPC            bit_mux
+    param   INPD            bit_mux
     bit_out OUTA
     bit_out OUTB
     bit_out OUTC
@@ -103,19 +103,19 @@ INENC[4]
     write   SETP
 
 QDEC[4]
-    bit_in  A
-    bit_in  B
-    bit_in  Z
+    param   A               bit_mux
+    param   B               bit_mux
+    param   Z               bit_mux
     pos_out ENC_POSN
     param   RST_ON_Z        bit
     param   SETP            position
 
 OUTENC[4]
-    bit_in  A
-    bit_in  B
-    bit_in  Z
-    pos_in  ENC_POSN
-    bit_in  CONN
+    param   A               bit_mux
+    param   B               bit_mux
+    param   Z               bit_mux
+    param   ENC_POSN        pos_mux
+    param   CONN            bit_mux
     param   PROTOCOL        enum 5
         0   Pos-Quad
         1   SSI
@@ -129,7 +129,7 @@ OUTENC[4]
     read    QSTATE          bit
 
 POSENC[4]
-    pos_in  ENC_POSN
+    param   ENC_POSN        pos_mux
     bit_out A
     bit_out B
     param   QPRESCALAR      bit
@@ -140,8 +140,8 @@ POSENC[4]
     read    QSTATE          bit
 
 CALC[2]
-    pos_in  A
-    pos_in  B
+    param   A               pos_mux
+    param   B               pos_mux
     pos_out RESULT
     param   KA
     param   KB
@@ -154,9 +154,9 @@ ADDER
     param   OUTSCALE
 
 COUNTER[8]
-    bit_in  ENABLE
-    bit_in  TRIGGER
-    bit_in  DIR
+    param   ENABLE          bit_mux
+    param   TRIGGER         bit_mux
+    param   DIR             bit_mux
     pos_out COUNTN
     bit_out CARRY
     param   START
@@ -164,16 +164,16 @@ COUNTER[8]
     write   SOFT_ENABLE
 
 PGEN[2]
-    bit_in  ENABLE
-    bit_in  TRIGGER
+    param   ENABLE          bit_mux
+    param   TRIGGER         bit_mux
     pos_out POSN
     param   SAMPLES
     param   CYCLES
     table   TABLE
 
 PCOMP[4]
-    bit_in  ENABLE
-    pos_in  POSN
+    param   ENABLE          bit_mux
+    param   POSN            pos_mux
     bit_out ACT
     bit_out PULSE
     param   START
@@ -185,13 +185,13 @@ PCOMP[4]
     table   TABLE
 
 ADC[8]
-    bit_in  TRIGGER
-    bit_in  RESET
+    param   TRIGGER         bit_mux
+    param   RESET           bit_mux
     bit_out TRIGGERD
     pos_out DATA
 
 PCAP
-    bit_in  ENABLE
-    bit_in  TRIG_POS
-    bit_in  TRIG_ADC
+    param   ENABLE          bit_mux
+    param   TRIG_POS        bit_mux
+    param   TRIG_ADC        bit_mux
     param   MASK
