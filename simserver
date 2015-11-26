@@ -11,6 +11,9 @@ DATA_PORT=8889
 
 "$HERE"/simulation/sim_server.py &
 
+# Pause a moment to give the server enough time to start
+sleep 0.5
+
 valgrind --leak-check=full --track-origins=yes \
     "$HERE"/build/sim_server/server \
     -p$CONFIG_PORT -d$DATA_PORT -R \

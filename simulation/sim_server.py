@@ -5,8 +5,12 @@
 # Lists on a socket port and performs the appropriate exchange to implement
 # hardware reading and writing.
 
+from pkg_resources import require
+require('numpy')
+
 import socket
 import struct
+import numpy
 
 import sim_hardware
 
@@ -37,7 +41,8 @@ def run_simulation(conn):
             sim_hardware.do_write_config(block, num, reg, value)
         elif command == 'S':
             length, = struct.unpack('I', read(conn, 4))
-            data = read(conn, length)
+            data = read(conn, length * 4)
+            data = numpy.fromstring(data, dtype = numpy.int32)
             sim_hardware.do_write_short_table(block, num, reg, data)
         elif command == 'C':
             bits, changes = sim_hardware.do_read_bits()
