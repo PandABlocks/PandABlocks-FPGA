@@ -9,10 +9,9 @@ DESCRIPTION_DB="$HERE"/config/description
 CONFIG_PORT=8888
 DATA_PORT=8889
 
-"$HERE"/simulation/sim_server.py &
-
-# Pause a moment to give the server enough time to start
-sleep 0.5
+# Run the simulation server as a daemon.  It will ensure its socket is up and
+# running before taking itself into the background.
+"$HERE"/simulation/sim_server.py -d
 
 valgrind --leak-check=full --track-origins=yes \
     "$HERE"/build/sim_server/server \

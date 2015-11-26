@@ -8,11 +8,37 @@
 from pkg_resources import require
 require('numpy')
 
+import argparse
+import os
+import sys
+import importlib
 import socket
 import struct
 import numpy
 
-import sim_hardware
+# import sim_hardware
+
+
+parser = argparse.ArgumentParser(description = 'PandA Hardware simulation')
+parser.add_argument(
+    '-d', '--daemon', action = 'store_true', help = 'Run as daemon process')
+parser.add_argument(
+    '--hardware', default = 'sim_hardware', help = 'Simulation module to load')
+args = parser.parse_args()
+
+sim_hardware = importlib.import_module(args.hardware)
+
+
+
+# We daemonise the server by double forking, but we leave the controlling
+# terminal and other file connections alone.
+def daemonise():
+    if os.fork():
+        # Exit first parent
+        sys.exit(0)
+    # Do second fork to avoid generating zombies
+    if os.fork():
+        sys.exit(0)
 
 
 class SocketFail(Exception):
@@ -65,6 +91,10 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(('localhost', 9999))
 sock.listen(0)
+
+print 'Simulating server ready'
+if args.daemon:
+    daemonise()
 
 (conn, addr) = sock.accept()
 conn.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
