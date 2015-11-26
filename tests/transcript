@@ -163,12 +163,12 @@
 > ERR Field is not a table
 
 < TTLIN.*?
-> !VAL 0 bit_out bit
+> !VAL 0 bit_out
 > !TERM 1 param enum
 > .
 
 < TTLIN2.VAL=x
-> ERR Invalid bit value
+> ERR Field not writeable
 
 < TTLIN2.VAL=0
 > ERR Field not writeable
@@ -299,12 +299,12 @@
 # LUT
 < LUT.*?
 > !FUNC 6 param lut
-> !INPB 1 bit_in bit_mux
-> !INPC 2 bit_in bit_mux
-> !INPA 0 bit_in bit_mux
-> !VAL 5 bit_out bit
-> !INPD 3 bit_in bit_mux
-> !INPE 4 bit_in bit_mux
+> !INPB 1 param bit_mux
+> !INPC 2 param bit_mux
+> !INPA 0 param bit_mux
+> !VAL 5 bit_out
+> !INPD 3 param bit_mux
+> !INPE 4 param bit_mux
 > .
 
 < LUT.FUNC.*?
