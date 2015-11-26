@@ -32,18 +32,18 @@ end panda_lut_block;
 
 architecture rtl of panda_lut_block is
 
-signal INPA_VAL         : std_logic_vector(SBUSBW-1 downto 0);
-signal INPB_VAL         : std_logic_vector(SBUSBW-1 downto 0);
-signal INPC_VAL         : std_logic_vector(SBUSBW-1 downto 0);
-signal INPD_VAL         : std_logic_vector(SBUSBW-1 downto 0);
-signal INPE_VAL         : std_logic_vector(SBUSBW-1 downto 0);
-signal FUNC             : std_logic_vector(31 downto 0);
+signal INPA_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
+signal INPB_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
+signal INPC_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
+signal INPD_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
+signal INPE_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
+signal FUNC             : std_logic_vector(31 downto 0) := (others => '0');
 
-signal inpa             : std_logic;
-signal inpb             : std_logic;
-signal inpc             : std_logic;
-signal inpd             : std_logic;
-signal inpe             : std_logic;
+signal inpa             : std_logic := '0';
+signal inpb             : std_logic := '0';
+signal inpc             : std_logic := '0';
+signal inpd             : std_logic := '0';
+signal inpe             : std_logic := '0';
 
 begin
 

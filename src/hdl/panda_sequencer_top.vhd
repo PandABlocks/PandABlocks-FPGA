@@ -21,9 +21,9 @@ port (
     mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Encoder I/O Pads
     sysbus_i            : in  sysbus_t;
-    -- Output pulse
-    act_o               : out std_logic_vector(SEQ_NUM-1 downto 0);
-    pulse_o             : out seq_puls_array(SEQ_NUM-1 downto 0)
+    -- Output sequencer
+    out_o               : out seq_out_array(SEQ_NUM-1 downto 0);
+    active_o            : out std_logic_vector(SEQ_NUM-1 downto 0)
 );
 end panda_sequencer_top;
 
@@ -37,32 +37,31 @@ begin
 mem_dat_o <= mem_read_data(to_integer(unsigned(mem_addr_i(PAGE_AW-1 downto BLK_AW))));
 
 --
--- Instantiate SEQUENCER Blocks :
+-- Instantiate SEQ Blocks :
 --  There are SEQ_NUM amount of encoders on the board
 --
-SEQUENCER_GEN : FOR I IN 0 TO SEQ_NUM-1 GENERATE
+SEQ_GEN : FOR I IN 0 TO SEQ_NUM-1 GENERATE
 
 -- Generate Block chip select signal
 mem_blk_cs(I) <= '1'
     when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_STD_VECTOR(I, PAGE_AW-BLK_AW)
             and mem_cs_i = '1') else '0';
 
-panda_sequencer_inst : entity work.panda_sequencer
+panda_sequencer_block : entity work.panda_sequencer_block
 port map (
-    -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
-    -- Memory Interface
+
     mem_cs_i            => mem_blk_cs(I),
     mem_wstb_i          => mem_wstb_i,
     mem_addr_i          => mem_addr_i(BLK_AW-1 downto 0),
     mem_dat_i           => mem_dat_i,
     mem_dat_o           => mem_read_data(I),
-    -- Block inputs
+
     sysbus_i            => sysbus_i,
-    -- Output pulse
-    act_o               => act_o(I),
-    pulse_o             => pulse_o(I)
+
+    out_o               => out_o(I),
+    active_o            => active_o(I)
 );
 
 END GENERATE;

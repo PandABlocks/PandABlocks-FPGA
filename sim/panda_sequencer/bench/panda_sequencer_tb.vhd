@@ -16,87 +16,148 @@ END panda_sequencer_tb;
 ARCHITECTURE behavior OF panda_sequencer_tb IS
 
 --Inputs
-signal clk          : std_logic := '0';
-signal reset        : std_logic := '1';
-signal mem_cs       : std_logic := '0';
-signal mem_wstb     : std_logic := '0';
-signal mem_addr     : std_logic_vector(3 downto 0) := (others => '0');
-signal mem_dat      : std_logic_vector(31 downto 0) := (others => '0');
-signal position     : integer;
-signal sysbus       : sysbus_t := (others => '0');
-signal enable       : std_logic := '0';
+signal clk                  : std_logic := '0';
+signal reset                : std_logic := '1';
 
 --Outputs
-signal pulse        : std_logic_vector(5 downto 0);
-signal act          : std_logic;
-signal length       : integer;
+signal pulse                : std_logic_vector(5 downto 0);
+signal act                  : std_logic;
+signal length               : integer;
 
-file table          : text open read_mode is "table.dat";
+file table                  : text open read_mode is "table.dat";
+
+signal gate                 : std_logic := '0';
+signal inpa                 : std_logic := '0';
+signal inpb                 : std_logic := '0';
+signal inpc                 : std_logic := '0';
+signal inpd                 : std_logic := '0';
+signal outa                 : std_logic;
+signal outb                 : std_logic;
+signal outc                 : std_logic;
+signal outd                 : std_logic;
+signal oute                 : std_logic;
+signal outf                 : std_logic;
+signal active               : std_logic;
+
+signal FORCE_GATE           : std_logic := '0';
+signal PRESCALE             : std_logic_vector(31 downto 0);
+signal SOFT_GATE            : std_logic := '0';
+signal TABLE_PUSH_START     : std_logic := '0';
+signal TABLE_PUSH_DATA      : std_logic_vector(31 downto 0);
+signal TABLE_PUSH_WSTB      : std_logic := '0';
+signal TABLE_REPEAT         : std_logic_vector(31 downto 0);
+signal TABLE_LENGTH         : std_logic_vector(15 downto 0);
+signal CUR_FRAME            : std_logic_vector(31 downto 0);
+signal CUR_FCYCLES          : std_logic_vector(31 downto 0);
+signal CUR_TCYCLE           : std_logic_vector(31 downto 0);
+signal CUR_STATE            : std_logic_vector(31 downto 0);
+
+signal start                : std_logic;
 
 BEGIN
 
 clk <= not clk after 4 ns;
 reset <= '0' after 1 us;
+inpa <= not inpa after 1 us;
 
 uut: entity work.panda_sequencer
-PORT MAP (
-    clk_i           => clk,
-    reset_i         => reset,
-    sysbus_i        => sysbus,
-    mem_cs_i        => mem_cs,
-    mem_wstb_i      => mem_wstb,
-    mem_addr_i      => mem_addr,
-    mem_dat_i       => mem_dat,
-    mem_dat_o       => open,
-    pulse_o         => pulse,
-    act_o           => act
+port map (
+    -- Clock and Reset
+    clk_i               => clk,
+    -- Block Input and Outputs
+    gate_i              => gate,
+    inpa_i              => inpa,
+    inpb_i              => inpb,
+    inpc_i              => inpc,
+    inpd_i              => inpd,
+    outa_o              => outa,
+    outb_o              => outb,
+    outc_o              => outc,
+    outd_o              => outd,
+    oute_o              => oute,
+    outf_o              => outf,
+    active_o            => active,
+    -- Block Parameters
+    FORCE_GATE          => FORCE_GATE,
+    PRESCALE            => PRESCALE,
+    SOFT_GATE           => SOFT_GATE,
+    TABLE_PUSH_START    => TABLE_PUSH_START,
+    TABLE_PUSH_DATA     => TABLE_PUSH_DATA,
+    TABLE_PUSH_WSTB     => TABLE_PUSH_WSTB,
+    TABLE_REPEAT        => TABLE_REPEAT,
+    TABLE_LENGTH        => TABLE_LENGTH,
+    CUR_FRAME           => CUR_FRAME,
+    CUR_FCYCLES         => CUR_FCYCLES,
+    CUR_TCYCLE          => CUR_TCYCLE,
+    CUR_STATE           => CUR_STATE
 );
-
--- Assign to first field of Position Bus
-sysbus(0) <= not sysbus(0) after 1 us;
-sysbus(1) <= not sysbus(1) after 2 us;
-sysbus(2) <= not sysbus(2) after 4 us;
-sysbus(3) <= not sysbus(2) after 8 us;
-sysbus(5) <= enable;
 
 -- Stimulus process
 stim_proc: process
     variable inputline  : line;
     variable data       : integer;
 begin
-    length <= 0;
-    PROC_CLK_EAT(1250, clk);
+    start <= '0';
+    PRESCALE <= X"0000_0002";
+    TABLE_PUSH_START <= '0';
+    TABLE_PUSH_DATA <= (others => '0');
+    TABLE_PUSH_WSTB <= '0';
+    TABLE_REPEAT <= X"0000_0005";
+    TABLE_LENGTH <= (others => '0');
 
-    -- Fill in Sequencer Table
-    BLK_WRITE(clk, mem_addr, mem_dat, mem_cs, mem_wstb, SEQ_MEM_START_ADDR, 1);
+    length <= 0;
+    PROC_CLK_EAT(125, clk);
+
+    TABLE_PUSH_START <= '1';
+    PROC_CLK_EAT(1, clk);
+    TABLE_PUSH_START <= '0';
+    PROC_CLK_EAT(125, clk);
 
     while (not(endfile(table))) loop
         readline(table, inputline);
         read(inputline, data);
-        BLK_WRITE(clk, mem_addr, mem_dat, mem_cs, mem_wstb, SEQ_MEM_WSTB_ADDR, data);
+        TABLE_PUSH_DATA <= std_logic_vector(to_unsigned(data, 32));
+        TABLE_PUSH_WSTB <= '1';
+        PROC_CLK_EAT(1, clk);
+        TABLE_PUSH_DATA <= (others => '0');
+        TABLE_PUSH_WSTB <= '0';
+        PROC_CLK_EAT(1, clk);
         length <= length + 1;
     end loop;
 
-    -- Write Configutation Registers
-    BLK_WRITE(clk, mem_addr, mem_dat, mem_cs, mem_wstb, SEQ_ENABLE_VAL_ADDR, 5);
-    BLK_WRITE(clk, mem_addr, mem_dat, mem_cs, mem_wstb, SEQ_INP0_VAL_ADDR, 0);
-    BLK_WRITE(clk, mem_addr, mem_dat, mem_cs, mem_wstb, SEQ_INP1_VAL_ADDR, 1);
-    BLK_WRITE(clk, mem_addr, mem_dat, mem_cs, mem_wstb, SEQ_INP2_VAL_ADDR, 2);
-    BLK_WRITE(clk, mem_addr, mem_dat, mem_cs, mem_wstb, SEQ_INP3_VAL_ADDR, 3);
-    BLK_WRITE(clk, mem_addr, mem_dat, mem_cs, mem_wstb, SEQ_CLK_PRESC_ADDR, 10);
-    BLK_WRITE(clk, mem_addr, mem_dat, mem_cs, mem_wstb, SEQ_TABLE_WORDS_ADDR, length/2);
-    BLK_WRITE(clk, mem_addr, mem_dat, mem_cs, mem_wstb, SEQ_TABLE_REPEAT_ADDR, 2);
+    PROC_CLK_EAT(125, clk);
+    TABLE_LENGTH <= std_logic_vector(to_unsigned(length, 16));
+    PROC_CLK_EAT(125, clk);
+    start <= '1';
+    PROC_CLK_EAT(1, clk);
+    start <= '0';
     wait;
 end process;
 
--- Stimulus process
+-- Generate Gate
+--
 process
 begin
-    enable <= '0';
-    wait for 100 us;
-    enable <= '1';
+    gate <= '0';
+    PROC_CLK_EAT(50*125, clk);
+    gate <= '1';
+    PROC_CLK_EAT(25*125, clk);
+    gate <= '0';
+    PROC_CLK_EAT(100*125, clk);
+    gate <= '1';
     wait;
 end process;
+
+--process(clk)
+--begin
+--    if rising_edge(clk) then
+--        if (start = '1') then
+--            gate <= '1';
+--        elsif (active = '0') then
+--            gate <= '0';
+--        end if;
+--    end if;
+--end process;
 
 
 end;

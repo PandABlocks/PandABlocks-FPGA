@@ -32,10 +32,10 @@ end panda_ttl_block;
 
 architecture rtl of panda_ttl_block is
 
-signal TTLOUT_VAL       : std_logic_vector(SBUSBW-1 downto 0);
+signal TTLOUT_VAL       : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
 
 -- Block Core IO
-signal val_i            : std_logic;
+signal val_i            : std_logic := '0';
 
 begin
 

@@ -23,306 +23,296 @@ entity panda_sequencer is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
-    -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
-    -- Block inputs
-    sysbus_i            : in  sysbus_t;
-    -- Output pulse
-    act_o               : out std_logic;
-    pulse_o             : out std_logic_vector(5 downto 0)
+    -- Block Input and Outputs
+    gate_i              : in  std_logic;
+    inpa_i              : in  std_logic;
+    inpb_i              : in  std_logic;
+    inpc_i              : in  std_logic;
+    inpd_i              : in  std_logic;
+    outa_o              : out std_logic;
+    outb_o              : out std_logic;
+    outc_o              : out std_logic;
+    outd_o              : out std_logic;
+    oute_o              : out std_logic;
+    outf_o              : out std_logic;
+    active_o            : out std_logic;
+    -- Block Parameters
+    PRESCALE            : in  std_logic_vector(31 downto 0);
+    SOFT_GATE           : in  std_logic;
+    TABLE_RST           : in  std_logic;
+    TABLE_DATA          : in  std_logic_vector(31 downto 0);
+    TABLE_WSTB          : in  std_logic;
+    TABLE_REPEAT        : in  std_logic_vector(31 downto 0);
+    TABLE_LENGTH        : in  std_logic_vector(15 downto 0);
+    -- Block Status
+    CUR_FRAME           : out std_logic_vector(31 downto 0);
+    CUR_FCYCLES         : out std_logic_vector(31 downto 0);
+    CUR_TCYCLE          : out std_logic_vector(31 downto 0);
+    CUR_STATE           : out std_logic_vector(31 downto 0)
 );
 end panda_sequencer;
 
 architecture rtl of panda_sequencer is
 
-constant SEQ_LEN    : positive := 512;
+constant SEQ_LEN    : positive := 4 * 512;
+constant SEQ_AW     : positive := 11;           -- log2(SEQ_LEN)
 
 type seq_t is
 record
-    repeats     : unsigned(11 downto 0);
+    repeats     : unsigned(31 downto 0);
     trig_mask   : std_logic_vector(3 downto 0);
     trig_cond   : std_logic_vector(3 downto 0);
     outp_ph1    : std_logic_vector(5 downto 0);
     outp_ph2    : std_logic_vector(5 downto 0);
-    ph1_time    : std_logic_vector(15 downto 0);
-    ph2_time    : std_logic_vector(15 downto 0);
+    ph1_time    : unsigned(31 downto 0);
+    ph2_time    : unsigned(31 downto 0);
 end record;
 
-signal SEQ_ENABLE_VAL    : std_logic_vector(SBUSBW-1 downto 0);
-signal SEQ_INP0_VAL      : std_logic_vector(SBUSBW-1 downto 0);
-signal SEQ_INP1_VAL      : std_logic_vector(SBUSBW-1 downto 0);
-signal SEQ_INP2_VAL      : std_logic_vector(SBUSBW-1 downto 0);
-signal SEQ_INP3_VAL      : std_logic_vector(SBUSBW-1 downto 0);
-signal SEQ_CLK_PRESC     : std_logic_vector(31 downto 0);
-signal SEQ_TABLE_WORDS   : unsigned(15 downto 0);
-signal SEQ_TABLE_REPEAT  : unsigned(15 downto 0);
+signal TABLE_LENGTH_DWORD       : std_logic_vector(15 downto 0);
 
-signal seq_cur_frame    : seq_t := (repeats => (others => '0'), others => (others => '0'));
-signal seq_dout         : std_logic_vector(63 downto 0);
+signal seq_cur_frame    : seq_t := (repeats => (others => '0'), ph1_time => (others => '0'), ph2_time => (others => '0'), others => (others => '0'));
+signal seq_next_frame   : seq_t := (repeats => (others => '0'), ph1_time => (others => '0'), ph2_time => (others => '0'), others => (others => '0'));
+signal seq_dout                 : std_logic_vector(31 downto 0);
+signal seq_load_enable          : std_logic;
+signal seq_load_enable_prev     : std_logic;
+signal seq_load_init            : std_logic;
+signal seq_load_done            : std_logic;
 
-signal seq_waddr        : integer range 0 to 2*SEQ_LEN-1 := 0;
-signal seq_raddr        : integer range 0 to SEQ_LEN-1 := 0;
-signal seq_wraddr       : std_logic_vector(9 downto 0);
-signal seq_rdaddr       : std_logic_vector(8 downto 0);
+signal seq_waddr                : integer range 0 to SEQ_LEN-1 := 0;
+signal seq_raddr                : integer range 0 to SEQ_LEN-1 := 0;
+signal seq_wraddr               : std_logic_vector(SEQ_AW-1 downto 0);
+signal seq_rdaddr               : std_logic_vector(SEQ_AW-1 downto 0);
 
-signal tframe_counter   : unsigned(31 downto 0) := (others => '0');
-signal repeat_count     : unsigned(11 downto 0);
-signal frame_count      : unsigned(15 downto 0);
-signal table_count      : unsigned(15 downto 0);
+signal tframe_counter           : unsigned(31 downto 0) := (others => '0');
+signal repeat_count             : unsigned(31 downto 0) := (others => '0');
+signal frame_count              : unsigned(15 downto 0) := (others => '0');
+signal table_count              : unsigned(31 downto 0) := (others => '0');
 
-type state_t is (IDLE, LOAD_FRAME, WAIT_TRIG, PHASE_1, PHASE_2, IS_FINISHED, NEXT_FRAME);
-signal seq_sm           : state_t;
+type state_t is (INIT, ARMED, PHASE_1, PHASE_2, IS_FINISHED, FINISHED);
+signal seq_sm                   : state_t;
 
-signal seq_trig         : std_logic_vector(3 downto 0);
-signal trig_val         : std_logic_vector(3 downto 0);
-signal enable_val       : std_logic;
-signal enable_prev      : std_logic;
-signal enable_rise      : std_logic;
+signal seq_trig                 : std_logic_vector(3 downto 0);
+signal seq_trig_prev            : std_logic_vector(3 downto 0);
+signal seq_trig_pulse           : std_logic := '0';
+signal inp_val                  : std_logic_vector(3 downto 0);
+signal out_val                  : std_logic_vector(5 downto 0) := "000000";
+signal active                   : std_logic := '0';
 
-signal presc_reset      : std_logic := '0';
-signal presc_ce         : std_logic := '0';
-signal seq_wren         : std_logic := '0';
-signal seq_rden         : std_logic;
+signal presc_reset              : std_logic := '0';
+signal presc_ce                 : std_logic := '0';
+signal seq_wren                 : std_logic := '0';
+signal seq_di                   : std_logic_vector(31 downto 0);
+signal gate_val                 : std_logic := '0';
+signal gate_prev                : std_logic := '0';
+signal gate_fall                : std_logic := '0';
+signal gate_rise                : std_logic := '0';
+
+signal last_frame_repeat        : std_logic := '0';
+signal last_table_repeat        : std_logic := '0';
 
 begin
 
---
--- Control System Interface
---
-REG_WRITE : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            -- Disconnect trigger and inputs
-            SEQ_ENABLE_VAL  <= TO_STD_VECTOR(127, SBUSBW);
-            SEQ_INP0_VAL    <= TO_STD_VECTOR(127, SBUSBW);
-            SEQ_INP1_VAL    <= TO_STD_VECTOR(127, SBUSBW);
-            SEQ_INP2_VAL    <= TO_STD_VECTOR(127, SBUSBW);
-            SEQ_INP3_VAL    <= TO_STD_VECTOR(127, SBUSBW);
-            SEQ_CLK_PRESC   <= (others => '0');
-            SEQ_TABLE_WORDS <= (others => '0');
-            SEQ_TABLE_REPEAT <= (others => '0');
-        else
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
-                -- Pulse start position
-                if (mem_addr_i = SEQ_ENABLE_VAL_ADDR) then
-                    SEQ_ENABLE_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
+-- Block inputs and outputs
+inp_val <= inpd_i & inpc_i & inpb_i & inpa_i;
+gate_val <= gate_i or SOFT_GATE;
 
-                if (mem_addr_i = SEQ_INP0_VAL_ADDR) then
-                    SEQ_INP0_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
+outa_o <= out_val(0);
+outb_o <= out_val(1);
+outc_o <= out_val(2);
+outd_o <= out_val(3);
+oute_o <= out_val(4);
+outf_o <= out_val(5);
+active_o <= active;
 
-                if (mem_addr_i = SEQ_INP1_VAL_ADDR) then
-                    SEQ_INP1_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                if (mem_addr_i = SEQ_INP2_VAL_ADDR) then
-                    SEQ_INP2_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                if (mem_addr_i = SEQ_INP3_VAL_ADDR) then
-                    SEQ_INP3_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                if (mem_addr_i = SEQ_CLK_PRESC_ADDR) then
-                    SEQ_CLK_PRESC <= mem_dat_i;
-                end if;
-
-                if (mem_addr_i = SEQ_TABLE_WORDS_ADDR) then
-                    SEQ_TABLE_WORDS <= unsigned(mem_dat_i(15 downto 0));
-                end if;
-
-                if (mem_addr_i = SEQ_TABLE_REPEAT_ADDR) then
-                    SEQ_TABLE_REPEAT <= unsigned(mem_dat_i(15 downto 0));
-                end if;
-            end if;
-        end if;
-    end if;
-end process;
-
-REG_READ : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
-        else
-            case (mem_addr_i) is
-                when SEQ_CUR_FRAME_ADDR =>
-                    mem_dat_o <= ZEROS(16) & std_logic_vector(frame_count);
-                when SEQ_CUR_FCYCLE_ADDR =>
-                    mem_dat_o <= ZEROS(20) & std_logic_vector(repeat_count);
-                when SEQ_CUR_TCYCLE_ADDR =>
-                    mem_dat_o <= ZEROS(16) & std_logic_vector(table_count);
-                when others =>
-                    mem_dat_o <= (others => '0');
-            end case;
-        end if;
-    end if;
-end process;
+-- Table length in terms of 128-bit Frames
+TABLE_LENGTH_DWORD <= "00" & TABLE_LENGTH(15 downto 2);
 
 --
--- Design Bus Assignments
---
-process(clk_i)
-    variable t_counter  : unsigned(31 downto 0);
-begin
-    if rising_edge(clk_i) then
-        enable_val <= SBIT(sysbus_i, SEQ_ENABLE_VAL);
-        trig_val(0) <= SBIT(sysbus_i, SEQ_INP0_VAL);
-        trig_val(1) <= SBIT(sysbus_i, SEQ_INP1_VAL);
-        trig_val(2) <= SBIT(sysbus_i, SEQ_INP2_VAL);
-        trig_val(3) <= SBIT(sysbus_i, SEQ_INP3_VAL);
-    end if;
-end process;
-
---
--- Control System Interface
+-- Sequencer table interface
 --
 FILL_SEQ_TABLE : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (mem_cs_i = '1' and mem_wstb_i = '1') then
-            -- Reset Sequencer Table Write Pointer
-            if (mem_addr_i = SEQ_MEM_START_ADDR) then
-                seq_waddr <= 0;
-            -- Increment Sequencer Table Write Pointer
-            elsif (mem_addr_i = SEQ_MEM_WSTB_ADDR) then
-                seq_waddr <= seq_waddr + 1;
-            end if;
+        if (TABLE_RST = '1') then
+            seq_waddr <= 0;
+        -- Increment Sequencer Table Write Pointer
+        elsif (TABLE_WSTB = '1') then
+            seq_waddr <= seq_waddr + 1;
         end if;
     end if;
 end process;
 
-seq_wren <= '1' when (mem_cs_i = '1' and mem_wstb_i = '1' and
-                                mem_addr_i = SEQ_MEM_WSTB_ADDR) else '0';
-seq_rdaddr <= TO_STD_VECTOR(seq_raddr, 9);
-seq_wraddr <= TO_STD_VECTOR(seq_waddr, 10);
-seq_rden <= not seq_wren;
+seq_wren <= TABLE_WSTB;
+seq_rdaddr <= TO_STD_VECTOR(seq_raddr, SEQ_AW);
+seq_wraddr <= TO_STD_VECTOR(seq_waddr, SEQ_AW);
+seq_di <= TABLE_DATA;
 
-SEQ_TABLE_INST : BRAM_SDP_MACRO
+panda_spbram : entity work.panda_spbram
 generic map (
-    BRAM_SIZE   => "36Kb",
-    DEVICE      => "7SERIES",
-    WRITE_WIDTH => 32,
-    READ_WIDTH  => 64
+    AW          => SEQ_AW,
+    DW          => 32
 )
 port map (
-    DO          => seq_dout,
-    DI          => mem_dat_i,
-    RDADDR      => seq_rdaddr,
-    RDCLK       => clk_i,
-    RDEN        => seq_rden,
-    REGCE       => '1',
-    RST         => reset_i,
-    WE          => "1111",
-    WRADDR      => seq_wraddr,
-    WRCLK       => clk_i,
-    WREN        => seq_wren
+    addra       => seq_wraddr,
+    addrb       => seq_rdaddr,
+    clka        => clk_i,
+    clkb        => clk_i,
+    dina        => seq_di,
+    doutb       => seq_dout,
+    wea         => seq_wren
 );
 
 -- Trigger match condition based on frame configuration
-seq_trig <= not (seq_cur_frame.trig_cond xor trig_val) and
+seq_trig <= not (seq_cur_frame.trig_cond xor inp_val) and
                                         not seq_cur_frame.trig_mask;
+
+seq_trig_pulse <= '1' when (seq_trig_prev = "0000" and seq_trig /= "0000")
+                        else '0';
+
+--
+--
+--
+gate_rise <= gate_val and not gate_prev;
+gate_fall <= not gate_val and gate_prev;
 
 SEQ_FSM : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        enable_prev <= enable_val;
-        enable_rise <= enable_val and not enable_prev;
-
-        -- Sequencer State Machine
-        if (enable_val = '0') then
+        seq_trig_prev <= seq_trig;
+        gate_prev <= gate_val;
+        --
+        -- Sequencer frame load state machine
+        --
+        if (gate_val = '0') then
+            seq_load_enable <= '0';
+            seq_load_enable_prev <= '0';
+            seq_load_done <= '0';
             seq_raddr <= 0;
-            pulse_o <= (others => '0');
-            act_o <= '0';
+        else
+            -- *_init signal initialises loading next frame settings from the
+            -- BRAM which takes 4 clock cycles.
+            -- *_done flags end of loading to the state machine.
+            if (seq_load_init = '1') then
+                seq_load_enable <= '1';
+            elsif (seq_rdaddr(1 downto 0) = "11") then
+                seq_load_enable <= '0';
+            end if;
+
+            seq_load_done <= '0';
+
+            if (seq_load_enable = '1') then
+                if (seq_raddr = unsigned(TABLE_LENGTH)-1) then
+                    seq_raddr <= 0;
+                else
+                    seq_raddr <= seq_raddr + 1;
+                end if;
+            end if;
+
+            -- Next frame values are loaded by taking into account 1 clock cycle
+            -- output latency of BRAM
+            seq_load_enable_prev <= seq_load_enable;
+
+            if (seq_load_enable_prev = '1') then
+                case (seq_rdaddr(1 downto 0)) is
+                    when "01" =>
+                        seq_next_frame.repeats <= unsigned(seq_dout);
+                    when "10" =>
+                        seq_next_frame.trig_mask <= seq_dout(3 downto 0);
+                        seq_next_frame.trig_cond <= seq_dout(7 downto 4);
+                        seq_next_frame.outp_ph1  <= seq_dout(13 downto 8);
+                        seq_next_frame.outp_ph2  <= seq_dout(19 downto 14);
+                    when "11" =>
+                        seq_next_frame.ph1_time <= unsigned(seq_dout);
+                    when "00" =>
+                        seq_next_frame.ph2_time <= unsigned(seq_dout);
+                        seq_load_done <= '1';
+                    when others =>
+                end case;
+            end if;
+        end if;
+
+        --
+        -- Sequencer State Machine
+        --
+        if (gate_rise = '1') then
+            seq_sm <= INIT;
+            out_val <= (others => '0');
+            active <= '0';
             repeat_count <= (others => '0');
             frame_count <= (others => '0');
             table_count <= (others => '0');
-            act_o <= '0';
-            seq_sm <= IDLE;
+            active <= '1';
+            seq_load_init <= '1';
+        elsif (gate_fall = '1') then
+            seq_sm <= FINISHED;
         else
+            seq_load_init <= '0';
+
             case seq_sm is
-                -- Wait for rising edge of enable
-                when IDLE =>
-                    seq_raddr <= 0;
-                    if (enable_rise = '1') then
-                        seq_sm <= LOAD_FRAME;
+                -- Initialise first frame setting
+                when INIT =>
+                    seq_load_init <= '0';
+                    if (seq_load_done = '1') then
+                        seq_cur_frame <= seq_next_frame;
+                        seq_sm <= ARMED;
                     end if;
 
-                -- Load next frate
-                when LOAD_FRAME =>
-                    seq_cur_frame.repeats <= unsigned(seq_dout(11 downto 0));
-                    seq_cur_frame.trig_mask <= seq_dout(15 downto 12);
-                    seq_cur_frame.trig_cond <= seq_dout(19 downto 16);
-                    seq_cur_frame.outp_ph1  <= seq_dout(25 downto 20);
-                    seq_cur_frame.outp_ph2  <= seq_dout(31 downto 26);
-                    seq_cur_frame.ph1_time  <= seq_dout(47 downto 32);
-                    seq_cur_frame.ph2_time  <= seq_dout(63 downto 48);
-                    seq_sm <= WAIT_TRIG;
-
                 -- Wait for trigger match
-                when WAIT_TRIG =>
-                    if (seq_trig /= "0000") then
+                when ARMED =>
+                    if (seq_trig_pulse = '1') then
                         seq_sm <= PHASE_1;
-                        act_o <= '1';
+                        if (last_frame_repeat = '1') then
+                            seq_load_init <= '1';
+                        end if;
                     end if;
 
                 -- Phase 1 period
                 when PHASE_1 =>
-                    pulse_o <= seq_cur_frame.outp_ph1;
-                    if (presc_ce = '1' and tframe_counter =
-                    unsigned(seq_cur_frame.ph1_time)-1) then
+                    out_val <= seq_cur_frame.outp_ph1;
+                    if (presc_ce = '1' and tframe_counter = seq_cur_frame.ph1_time-1) then
                         seq_sm <= PHASE_2;
                     end if;
 
                 -- Phase 2 period
                 when PHASE_2 =>
-                    pulse_o <= seq_cur_frame.outp_ph2;
-                    if (presc_ce = '1' and tframe_counter =
-                    unsigned(seq_cur_frame.ph1_time) +
-                    unsigned(seq_cur_frame.ph2_time) -1) then
+                    out_val <= seq_cur_frame.outp_ph2;
+                    if (presc_ce = '1' and tframe_counter = seq_cur_frame.ph1_time + seq_cur_frame.ph2_time -1) then
                         seq_sm <= IS_FINISHED;
                     end if;
 
                 when IS_FINISHED =>
-                    act_o <= '0';
-                    -- Frame Repeats either set to 0 or finished
-                    if (seq_cur_frame.repeats /= 0 and repeat_count = seq_cur_frame.repeats-1) then
+                    -- Current Frame Repeat finished, so make a decision
+                    if (last_frame_repeat = '1') then
                         repeat_count <= (others => '0');
-                        -- All Frames finished
-                        if (frame_count = SEQ_TABLE_WORDS-1) then
+                        -- All Frames finished in the table
+                        if (frame_count = unsigned(TABLE_LENGTH_DWORD)-1) then
                             frame_count <= (others => '0');
-                            seq_raddr <= 0;
-                            -- Table Repeats either set to 0 or finished
-                            if (SEQ_TABLE_REPEAT /= 0 and table_count = SEQ_TABLE_REPEAT-1) then
+                            -- Table Repeat is finished, so de-assert active
+                            if (last_table_repeat = '1') then
                                 table_count <= (others => '0');
-                                seq_sm <= IDLE;
+                                seq_sm <= FINISHED;
+                            -- Table Repeat not finished, so start over
                             else
-                                -- repeat table
-                                seq_sm <= NEXT_FRAME;
+                                seq_cur_frame <= seq_next_frame;
+                                seq_sm <= ARMED;
                                 table_count <= table_count + 1;
                             end if;
+                        -- Frame Repeat not finished, so move to next frame
                         else
-                            -- move to next frame
                             frame_count <= frame_count + 1;
-                            seq_raddr <= seq_raddr + 1;
-                            seq_sm <= NEXT_FRAME;
+                            seq_cur_frame <= seq_next_frame;
+                            seq_sm <= ARMED;
                         end if;
+                    -- Frame Repeat is not finished, so repeat the same frame
                     else
-                        -- repeat frame
-                        seq_sm <= WAIT_TRIG;
+                        seq_sm <= ARMED;
                         repeat_count <= repeat_count + 1;
                     end if;
 
-                -- Consume one clock for next address to settle
-                when NEXT_FRAME =>
-                    seq_sm <= LOAD_FRAME;
+                when FINISHED =>
+                    active <= '0';
+                    seq_load_init <= '0';
+                    out_val <= (others => '0');
 
                 when others =>
             end case;
@@ -330,11 +320,17 @@ begin
     end if;
 end process;
 
+last_frame_repeat <= '1' when (seq_cur_frame.repeats /= 0 and repeat_count = seq_cur_frame.repeats-1)
+                    else '0';
+
+last_table_repeat <= '1' when (TABLE_REPEAT /= X"0000_0000" and table_count = unsigned(TABLE_REPEAT)-1)
+                    else '0';
+
 --
 -- Prescalar CE counter :
 --  On a trigger event, a reset is applied to synchronise CE pulses with the
 --  trigger input.
-presc_reset <= '1' when (seq_sm = WAIT_TRIG and seq_trig /= "0000") else '0';
+presc_reset <= '1' when (seq_sm = ARMED and seq_trig_pulse = '1') else '0';
 
 presc_counter : process(clk_i)
     variable clk_cnt    : unsigned(31 downto 0) := (others => '0');
@@ -343,7 +339,7 @@ begin
         if (presc_reset = '1') then
             presc_ce <= '0';
             clk_cnt := (0=>'1', others => '0');
-        elsif (clk_cnt =  unsigned(SEQ_CLK_PRESC)-1) then
+        elsif (clk_cnt =  unsigned(PRESCALE)-1) then
             presc_ce <= '1';
             clk_cnt := (others => '0');
         else
@@ -367,6 +363,12 @@ begin
         end if;
     end if;
 end process;
+
+-- Block Status
+CUR_FRAME   <= X"0000" & std_logic_vector(frame_count);
+CUR_FCYCLES <= std_logic_vector(repeat_count);
+CUR_TCYCLE  <= std_logic_vector(table_count);
+CUR_STATE <= std_logic_vector(to_unsigned(state_t'pos(seq_sm), 32));
 
 end rtl;
 

@@ -34,15 +34,15 @@ end panda_div_block;
 
 architecture rtl of panda_div_block is
 
-signal INP_VAL      : std_logic_vector(SBUSBW-1 downto 0);
-signal RST_VAL      : std_logic_vector(SBUSBW-1 downto 0);
-signal FIRST_PULSE  : std_logic;
-signal DIVISOR      : std_logic_vector(31 downto 0);
-signal COUNT        : std_logic_vector(31 downto 0);
-signal FORCE_RST    : std_logic;
+signal INP_VAL      : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
+signal RST_VAL      : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
+signal FIRST_PULSE  : std_logic := '0';
+signal DIVISOR      : std_logic_vector(31 downto 0) := (others => '0');
+signal COUNT        : std_logic_vector(31 downto 0) := (others => '0');
+signal FORCE_RST    : std_logic := '0';
 
-signal inp          : std_logic;
-signal rst          : std_logic;
+signal inp          : std_logic := '0';
+signal rst          : std_logic := '0';
 
 begin
 
@@ -54,7 +54,7 @@ begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             INP_VAL <= TO_STD_VECTOR(127, SBUSBW);
-            RST_VAL <= TO_STD_VECTOR(127, SBUSBW);
+            RST_VAL <= TO_STD_VECTOR(126, SBUSBW);
             FIRST_PULSE <= '0';
             DIVISOR <= X"0000_0001";
             FORCE_RST <= '0';

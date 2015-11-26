@@ -32,10 +32,10 @@ end panda_lvds_block;
 
 architecture rtl of panda_lvds_block is
 
-signal LVDSOUT_VAL       : std_logic_vector(SBUSBW-1 downto 0);
+signal LVDSOUT_VAL       : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
 
 -- Block Core IO
-signal val_i            : std_logic;
+signal val_i            : std_logic := '0';
 
 begin
 

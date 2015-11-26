@@ -12,8 +12,8 @@ signal rst_i        : std_logic := '1';
 signal out_o        : std_logic;
 signal perr_o       : std_logic;
 
-signal DELAY        : std_logic_vector(47 downto 0):= X"0000_0000_0000";
-signal WIDTH        : std_logic_vector(47 downto 0):= X"0000_0000_00FF";
+signal DELAY        : std_logic_vector(47 downto 0):= X"0000_0000_0004";
+signal WIDTH        : std_logic_vector(47 downto 0):= X"0000_0000_000A";
 signal STATE        : std_logic_vector(31 downto 0);
 signal MISSED_CNT   : std_logic_vector(31 downto 0);
 signal FORCE_RST    : std_logic := '0';
@@ -45,7 +45,7 @@ begin
     -- hold reset state
     wait for 40 ns;
     rst_i <= '0';
-    wait for 400 ns;
+    wait for 4000 ns;
 
     L1: loop
         inp_i <= '1';

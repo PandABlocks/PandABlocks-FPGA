@@ -32,14 +32,14 @@ end panda_srgate_block;
 
 architecture rtl of panda_srgate_block is
 
-signal SET_VAL          : std_logic_vector(SBUSBW-1 downto 0);
-signal RST_VAL          : std_logic_vector(SBUSBW-1 downto 0);
-signal SET_EDGE         : std_logic;
-signal RST_EDGE         : std_logic;
-signal FORCE_STATE      : std_logic_vector(1 downto 0);
+signal SET_VAL          : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
+signal RST_VAL          : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
+signal SET_EDGE         : std_logic := '0';
+signal RST_EDGE         : std_logic := '0';
+signal FORCE_STATE      : std_logic_vector(1 downto 0) := "00";
 
-signal set              : std_logic;
-signal rst              : std_logic;
+signal set              : std_logic := '0';
+signal rst              : std_logic := '0';
 
 begin
 
@@ -51,7 +51,7 @@ begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             SET_VAL <= TO_STD_VECTOR(127, SBUSBW);
-            RST_VAL <= TO_STD_VECTOR(127, SBUSBW);
+            RST_VAL <= TO_STD_VECTOR(126, SBUSBW);
             SET_EDGE <= '1';
             RST_EDGE <= '1';
             FORCE_STATE <= "00";

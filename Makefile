@@ -23,6 +23,7 @@ VIVADO = source /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh > /dev/nu
 # Project related files (DON'T TOUCH)
 
 PS_DIR   = $(OUT_DIR)/panda_ps/panda_ps.srcs
+IP_CORES = $(OUT_DIR)/ip_repo
 PS_CORE  = $(PS_DIR)/sources_1/bd/panda_ps/hdl/panda_ps.vhd
 FPGA_BIT = $(OUT_DIR)/panda_top.bit
 SDK_EXPORT = $(OUT_DIR)/panda_top/panda_top.sdk
@@ -34,7 +35,7 @@ BOOT_FILE = $(IMAGE_DIR)/boot.bin
 #####################################################################
 # BUILD TARGETS includes HW and SW
 
-all: $(OUT_DIR) $(PS_CORE) $(FPGA_BIT) $(SDK_EXPORT) $(DEVTREE_DTB) $(BOOT_FILE)
+all: $(OUT_DIR) $(IP_CORES) $(PS_CORE) $(FPGA_BIT) $(SDK_EXPORT) $(DEVTREE_DTB) $(BOOT_FILE)
 devicetree: $(DEVTREE_DTB)
 boot: $(BOOT_FILE)
 
@@ -46,6 +47,13 @@ clean :
 
 $(OUT_DIR) :
 	mkdir $(OUT_DIR)
+
+# STEP-0 ##########################################################
+# Build IP CORES
+
+$(IP_CORES) :
+	cd $(OUT_DIR) && \
+	    $(VIVADO) && vivado -mode batch -source ../build_ips.tcl
 
 # STEP-1 ##########################################################
 # Build PS Core Block Design

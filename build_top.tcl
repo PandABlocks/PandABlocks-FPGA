@@ -63,6 +63,12 @@ read_vhdl ../src/hdl/panda_srgate_top.vhd
 read_vhdl ../src/hdl/panda_div.vhd
 read_vhdl ../src/hdl/panda_div_block.vhd
 read_vhdl ../src/hdl/panda_div_top.vhd
+read_vhdl ../src/hdl/panda_pulse.vhd
+read_vhdl ../src/hdl/panda_pulse_block.vhd
+read_vhdl ../src/hdl/panda_pulse_top.vhd
+read_vhdl ../src/hdl/panda_sequencer.vhd
+read_vhdl ../src/hdl/panda_sequencer_block.vhd
+read_vhdl ../src/hdl/panda_sequencer_top.vhd
 read_vhdl ../src/hdl/panda_ssislv.vhd
 read_vhdl ../src/hdl/panda_ssimstr.vhd
 read_vhdl ../src/hdl/panda_qenc.vhd
@@ -80,7 +86,7 @@ read_vhdl ../src/hdl/panda_pcomp_top.vhd
 read_vhdl ../src/hdl/panda_top.vhd
 
 # Import IPs
-# import_ip ../src/ip_repo/ila_0/ila_0.xci
+import_ip ./ip_repo/pulse_queue/pulse_queue.xci
 
 # Read constraint files
 read_xdc  ../src/const/panda_user.xdc

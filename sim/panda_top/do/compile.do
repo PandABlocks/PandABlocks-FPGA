@@ -1,11 +1,12 @@
 set SRC {../../../src/hdl}
 set FIFO {../../../src/ip_repo/fifo_generator_0}
+set PULSE {../../../output/ip_repo/pulse_queue}
 set MODEL {../../panda_top/bench/zynq_model}
 
 vlib work
 vlib msim
 
-#do bfm.do
+do bfm.do
 
 # Compile Sources
 #
@@ -29,6 +30,14 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_div.vhd" \
 "${SRC}/panda_div_block.vhd" \
 "${SRC}/panda_div_top.vhd" \
+"${PULSE}/sim/pulse_queue.vhd"\
+"${SRC}/panda_pulse.vhd" \
+"${SRC}/panda_pulse_block.vhd" \
+"${SRC}/panda_pulse_top.vhd" \
+"${SRC}/panda_spbram.vhd" \
+"${SRC}/panda_sequencer.vhd" \
+"${SRC}/panda_sequencer_block.vhd" \
+"${SRC}/panda_sequencer_top.vhd" \
 "${SRC}/panda_ssislv.vhd" \
 "${SRC}/panda_ssimstr.vhd" \
 "${SRC}/panda_qenc.vhd" \

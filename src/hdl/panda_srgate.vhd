@@ -39,6 +39,7 @@ signal rst_fall         : std_logic;
 
 signal set              : std_logic;
 signal rst              : std_logic;
+signal pulse            : std_logic := '0';
 
 begin
 
@@ -67,16 +68,18 @@ process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (FORCE_STATE(0) = '1') then
-            out_o <= FORCE_STATE(1);
+            pulse <= FORCE_STATE(1);
         else
             -- Simple SRGate logic
             if (rst = '1') then
-                out_o <= '0';
+                pulse <= '0';
             elsif (set = '1') then
-                out_o <= '1';
+                pulse <= '1';
             end if;
         end if;
     end if;
 end process;
+
+out_o <= pulse;
 
 end rtl;

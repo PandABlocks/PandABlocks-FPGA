@@ -45,7 +45,7 @@ signal Zs0_pad_io       : std_logic_vector(0 downto 0);
 --Outputs
 signal enc0_ctrl_pad_o  : std_logic_vector(11 downto 0);
 signal leds             : std_logic_vector(1 downto 0);
-signal clk              : std_logic := '0';
+signal clk              : std_logic := '1';
 
 signal A_IN_P           : std_logic;
 signal B_IN_P           : std_logic;
@@ -59,13 +59,17 @@ signal Z_OUT_P          : std_logic;
 signal CLK_IN_P         : std_logic := '0';
 signal DATA_OUT_P       : std_logic;
 
-signal inputs           : unsigned(7 downto 0) := X"00";
+signal inputs           : unsigned(15 downto 0) := X"0000";
 
-signal lut_test         : std_logic;
+signal ttlin_pad        : std_logic_vector(5 downto 0);
+signal lvdsin_pad       : std_logic_vector(1 downto 0);
 
 begin
 
 clk <= not clk after 4 ns;
+
+ttlin_pad <= std_logic_vector(inputs(13 downto 8));
+lvdsin_pad <= std_logic_vector(inputs(15 downto 14));
 
 -- Instantiate the Unit Under Test (UUT)
 uut: entity work.panda_top
@@ -99,8 +103,8 @@ PORT MAP (
     Zs0_pad_io          => Zs0_pad_io,
     enc0_ctrl_pad_i     => enc0_ctrl_pad_i,
     enc0_ctrl_pad_o     => enc0_ctrl_pad_o,
-    ttlin_pad_i         => std_logic_vector(inputs(5 downto 0)),
-    lvdsin_pad_i        => std_logic_vector(inputs(7 downto 6)),
+    ttlin_pad_i         => ttlin_pad,
+    lvdsin_pad_i        => lvdsin_pad,
     ttlout_pad_o        => open,
     lvdsout_pad_o       => open,
     leds                => leds
@@ -155,7 +159,5 @@ begin
     end if;
 end process;
 
-
-lut_test <= (inputs(0) and inputs(1)) or (inputs(2) and not inputs(3));
 
 end;

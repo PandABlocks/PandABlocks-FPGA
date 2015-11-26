@@ -101,7 +101,8 @@ signal mem_addr             : std_logic_vector(PAGE_AW-1 downto 0);
 signal mem_odat             : std_logic_vector(31 downto 0);
 signal mem_wstb             : std_logic;
 signal mem_rstb             : std_logic;
-signal mem_read_data        : std32_array(2**PAGE_NUM-1 downto 0);
+signal mem_read_data        : std32_array(2**PAGE_NUM-1 downto 0) :=
+                                (others => (others => '0'));
 
 signal IRQ_F2P              : std_logic_vector(0 downto 0);
 
@@ -140,12 +141,12 @@ signal lvdsin_val           : std_logic_vector(LVDSIN_NUM-1 downto 0);
 signal lut_val              : std_logic_vector(LUT_NUM-1 downto 0);
 signal srgate_val           : std_logic_vector(SRGATE_NUM-1 downto 0);
 signal div_val              : std_logic_vector(2*DIV_NUM-1 downto 0);
+signal pulse_val            : std_logic_vector(2*PULSE_NUM-1 downto 0);
+signal seq_val              : seq_out_array(SEQ_NUM-1 downto 0);
+signal seq_active           : std_logic_vector(SEQ_NUM-1 downto 0);
 
 signal pcomp_act            : std_logic_vector(PCOMP_NUM-1 downto 0);
 signal pcomp_pulse          : std_logic_vector(PCOMP_NUM-1 downto 0);
-
-signal seq_act              : std_logic_vector(SEQ_NUM-1 downto 0);
-signal seq_pulse            : seq_puls_array(SEQ_NUM-1 downto 0);
 
 signal panda_spbram_wea     : std_logic := '0';
 signal irq_enable           : std_logic := '0';
@@ -371,7 +372,7 @@ port map (
 );
 
 --
--- 5-Input LUT
+-- DIVIDER
 --
 panda_div_inst : entity work.panda_div_top
 port map (
@@ -392,9 +393,60 @@ port map (
 );
 
 --
+-- PULSE GENERATOR
+--
+panda_pulse_inst : entity work.panda_pulse_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(PULSE_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => mem_read_data(PULSE_CS),
+
+    sysbus_i            => sysbus,
+
+    out_o               => pulse_val(3 downto 0),
+    perr_o              => pulse_val(7 downto 4)
+);
+
+--
+-- SEQEUENCER
+--
+panda_seq_inst : entity work.panda_sequencer_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(SEQ_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => mem_read_data(SEQ_CS),
+
+    sysbus_i            => sysbus,
+
+    out_o               => seq_val,
+    active_o            => seq_active
+);
+
+
+--
 -- System Bus   : Assignments
 --
-sysbus <= '0' & ZEROS(SBUS_AVAIL-1) &
+sysbus <= '0'                   &
+          FCLK_RESET0           &
+          ZEROS(SBUS_AVAIL-2)   &
+          seq_active            &
+          seq_val(3)            &
+          seq_val(2)            &
+          seq_val(1)            &
+          seq_val(0)            &
+          pulse_val             &
           div_val               &
           srgate_val            &   --  15: 8
           lut_val               &   --  15: 8

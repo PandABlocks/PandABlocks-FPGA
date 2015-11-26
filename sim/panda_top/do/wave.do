@@ -5,9 +5,12 @@ add wave    sim:/test/tb/uut/lvdsin_pad_i  \
             sim:/test/tb/uut/ttlout_pad_o
 
 add wave -divider {System Bus}
-add wave    sim:/test/tb/uut/lut_val \
+add wave    sim:/test/tb/uut/lut_val    \
             sim:/test/tb/uut/srgate_val \
-            sim:/test/tb/uut/div_val \
+            sim:/test/tb/uut/div_val    \
+            sim:/test/tb/uut/pulse_val  \
+            sim:/test/tb/uut/seq_val    \
+            sim:/test/tb/uut/seq_active
 
 
 add wave -divider {Blocks}
@@ -19,5 +22,14 @@ add wave -group "TTL"   sim:/test/tb/uut/panda_ttl_inst/*
 add wave -group "LUT0"  sim:/test/tb/uut/panda_lut_inst/LUT_GEN(0)/panda_lut_block/*
 add wave -group "SR0"   sim:/test/tb/uut/panda_srgate_inst/SRGATE_GEN(0)/panda_srgate_block/*
 add wave -group "DIV0"  sim:/test/tb/uut/panda_div_inst/DIV_GEN(0)/panda_div_block/*
-add wave -group "DIV1"  sim:/test/tb/uut/panda_div_inst/DIV_GEN(1)/panda_div_block/*
+add wave -group "PULSE BLOCK" \
+sim:/test/tb/uut/panda_pulse_inst/PULSE_GEN(0)/panda_pulse_block/*
+add wave -group "PULS0" \
+sim:/test/tb/uut/panda_pulse_inst/PULSE_GEN(0)/panda_pulse_block/panda_pulse/*
+
+add wave -group "SEQ_BLOCK-0"  \
+sim:/test/tb/uut/panda_seq_inst/SEQ_GEN(0)/panda_sequencer_block/*
+add wave -group "SEQ-0"        \
+sim:/test/tb/uut/panda_seq_inst/SEQ_GEN(0)/panda_sequencer_block/panda_sequencer/*
+
 

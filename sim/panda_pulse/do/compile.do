@@ -28,4 +28,4 @@ view wave
 
 add wave -position insertpoint sim:/panda_pulse_tb/uut/*
 
-run 6us
+run 25us

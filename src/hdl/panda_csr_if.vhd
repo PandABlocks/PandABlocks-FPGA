@@ -17,9 +17,9 @@ generic (
     MEM_DWIDTH          : integer := 32   -- Width of data bus
 );
 port (
+    -- AXI4-Lite Clock and Reset
     S_AXI_CLK           : in std_logic;
     S_AXI_RST           : in std_logic;
-
     -- AXI4-Lite SLAVE SINGLE INTERFACE
     S_AXI_AWADDR        : in  std_logic_vector(AXI_AWIDTH-1 downto 0);
     S_AXI_AWVALID       : in  std_logic;
@@ -38,7 +38,6 @@ port (
     S_AXI_RRESP         : out std_logic_vector(1 downto 0);
     S_AXI_RVALID        : out std_logic;
     S_AXI_RREADY        : in  std_logic;
-
     -- Memory Bus Interface Signals
     mem_cs_o            : out std_logic_vector(2**MEM_CSWIDTH-1 downto 0);
     mem_rstb_o          : out std_logic;
@@ -75,12 +74,12 @@ begin
 end;
 
 
-signal new_write_access     : std_logic;
-signal new_read_access      : std_logic;
-signal ongoing_write        : std_logic;
-signal ongoing_read         : std_logic;
-signal S_AXI_RVALID_i       : std_logic;
+signal new_write_access     : std_logic := '0';
+signal new_read_access      : std_logic := '0';
+signal ongoing_write        : std_logic := '0';
+signal ongoing_read         : std_logic := '0';
 signal mem_read_data        : std_logic_vector(31 downto 0);
+signal read_valid           : std_logic_vector(1 downto 0);
 
 begin
 
@@ -101,7 +100,7 @@ Reg: process (S_AXI_CLK) is
 begin
     if rising_edge(S_AXI_CLK) then
         if (S_AXI_RST = '1') then
-            mem_addr_o   <= (others => '0');
+            mem_addr_o <= (others => '0');
             mem_dat_o <= (others => '0');
             mem_cs_o <= (others => '0');
         else
@@ -140,26 +139,30 @@ S_AXI_BRESP  <= (others => '0');
 ReadAccess: process (S_AXI_CLK) is
 begin
     if rising_edge(S_AXI_CLK) then
+
         if (S_AXI_RST = '1') then
             ongoing_read   <= '0';
-            S_AXI_RVALID_i <= '0';
+            read_valid <= "00";
         elsif (new_read_access = '1') then
             ongoing_read   <= '1';
-            S_AXI_RVALID_i <= '0';
+            read_valid <= "00";
         elsif (ongoing_read = '1') then
-            if (S_AXI_RREADY = '1' and S_AXI_RVALID_i = '1') then
-                ongoing_read   <= '0';
-                S_AXI_RVALID_i <= '0';
-            else
-                 -- 1 clk after ongoing_read to match S_AXI_RDDATA
-                S_AXI_RVALID_i <= '1';
+            if (S_AXI_RREADY = '1' and read_valid = "00") then
+                read_valid <= "01";
+            elsif (S_AXI_RREADY = '1' and read_valid = "01") then
+                read_valid <= "10";
+            elsif (S_AXI_RREADY = '1' and read_valid = "10") then
+                read_valid <= "00";
+                ongoing_read <= '0';
             end if;
         end if;
+
         mem_rstb_o <= new_read_access;
+
     end if;
 end process ReadAccess;
 
-S_AXI_RVALID <= S_AXI_RVALID_i;
+S_AXI_RVALID <= read_valid(1);
 S_AXI_RRESP  <= (others => '0');
 
 Not_All_Bits_Are_Used: if (MEM_DWIDTH < AXI_DWIDTH) generate

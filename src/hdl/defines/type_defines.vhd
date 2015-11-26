@@ -10,8 +10,8 @@ type iobuf_ctrl_array is array(natural range <>) of iobuf_ctrl_t;
 subtype encmode_t is std_logic_vector(2 downto 0);
 type encmode_array is array(natural range <>) of encmode_t;
 
-subtype seq_puls_t is std_logic_vector(5 downto 0);
-type seq_puls_array is array(natural range <>) of seq_puls_t;
+subtype seq_out_t is std_logic_vector(5 downto 0);
+type seq_out_array is array(natural range <>) of seq_out_t;
 
 subtype posn_t is std_logic_vector(31 downto 0);
 type std32_array is array(natural range <>) of posn_t;
