@@ -11,8 +11,8 @@ def do_write_config(block, num, reg, value):
     print 'do_write_config', block, num, reg, repr(value)
 
 
-def do_write_table(block, number, reg, start, data):
-    print 'do_write_table', block, number, reg, start, len(data)
+def do_write_short_table(block, number, reg, data):
+    print 'do_write_short_table', block, number, reg, len(data)
 
 
 # Must return two boolean arrays, each 128 entries long.  The first array is the

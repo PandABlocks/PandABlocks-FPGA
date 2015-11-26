@@ -77,13 +77,20 @@ SEQ[4]
     bit_out OUTF
     bit_out ACTIVE
     param   PRESCALE
-    param   TABLE_LENGTH
+    param   TABLE_LENGTH    uint 511
     write   SOFT_GATE       bit
     read    CUR_FRAME
     read    CUR_FCYCLE
     read    CUR_TCYCLE
     read    TABLE_CYCLE
-    table   TABLE
+    short_table   TABLE
+        11:0    NREPEATS
+        15:12   INPUT_MASK
+        19:16   TRIGGER_MASK
+        25:20   OUT_PH_A
+        31:26   OUT_PH_B
+        47:32   TIME_PH_A
+        63:48   TIME_PH_B
 
 INENC[4]
     bit_out A

@@ -222,6 +222,37 @@
 <
 > ERR block.field< not implemented yet
 
+< SEQ2.TABLE<
+< 1 2 3 4 5 6 7 8
+< 9
+<
+> OK
+
+< SEQ2.TABLE<B2
+< 1234567
+> OK
+
+< SEQ2.TABLE<<
+< 1 2 3 4 5 6 7 8
+< 9
+<
+> OK
+
+< SEQ2.TABLE?
+> !875770417
+> !171390517
+> !1
+> !2
+> !3
+> !4
+> !5
+> !6
+> !7
+> !8
+> !9
+> .
+
+
 < TTLIN.VAL.*?
 > !CAPTURE_INDEX
 > !CAPTURE
@@ -415,3 +446,22 @@
 
 < PULSE1.DELAY=2251800
 > ERR Time setting out of range
+
+# Table support
+< SEQ.TABLE.*?
+> !LENGTH
+> !FIELDS
+> .
+
+< SEQ1.TABLE.FIELDS?
+> !11:0    NREPEATS
+> !15:12   INPUT_MASK
+> !19:16   TRIGGER_MASK
+> !25:20   OUT_PH_A
+> !31:26   OUT_PH_B
+> !47:32   TIME_PH_A
+> !63:48   TIME_PH_B
+> .
+
+< SEQ1.TABLE.LENGTH?
+> OK =0

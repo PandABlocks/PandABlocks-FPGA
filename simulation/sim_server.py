@@ -35,10 +35,10 @@ def run_simulation(conn):
         elif command == 'W':
             value, = struct.unpack('I', read(conn, 4))
             sim_hardware.do_write_config(block, num, reg, value)
-        elif command == 'A' or command == 'B':
+        elif command == 'S':
             length, = struct.unpack('I', read(conn, 4))
             data = read(conn, length)
-            sim_hardware.do_write_table(block, num, reg, command == 'B', data)
+            sim_hardware.do_write_short_table(block, num, reg, data)
         elif command == 'C':
             bits, changes = sim_hardware.do_read_bits()
             conn.sendall(struct.pack('256?', *bits + changes))

@@ -74,7 +74,7 @@ SEQ         5
     OUTE            52 53 54 55
     OUTF            56 57 58 59
     ACTIVE          108 109 110 111
-    TABLE
+    TABLE           2048    13 14
 
 INENC       6
     PROTOCOL        0
