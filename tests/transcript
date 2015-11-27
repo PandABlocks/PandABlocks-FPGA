@@ -204,6 +204,11 @@
 < INENC3.BITS=64
 > ERR Number out of range
 
+# Writing a value
+
+< INENC1.SETP=23
+> OK
+
 # Unimplemented functionality
 
 < PCOMP2.TABLE<
