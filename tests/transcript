@@ -332,6 +332,34 @@
 < QDEC1.SETP.UNITS?
 > OK =mm
 
+# Check change detection on offset and scale change
+< *CHANGES.CONFIG=
+> OK
+
+< *CHANGES.CONFIG?
+> .
+
+< QDEC1.SETP?
+> OK =123.5
+
+< QDEC1.SETP.OFFSET?
+< QDEC1.SETP.SCALE?
+> OK =100.3
+> OK =0.1
+
+< QDEC1.SETP.OFFSET=0
+< *CHANGES.CONFIG?
+> OK
+> !QDEC1.SETP=23.2
+> .
+
+< QDEC1.SETP.SCALE=1
+< *CHANGES.CONFIG?
+> OK
+> !QDEC1.SETP=232
+> .
+
+
 # LUT
 < LUT.*?
 > !FUNC 6 param lut
