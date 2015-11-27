@@ -453,6 +453,7 @@
 # Table support
 < SEQ.TABLE.*?
 > !MAX_LENGTH
+> !B
 > !LENGTH
 > !FIELDS
 > .
@@ -484,3 +485,20 @@
 
 < SEQ1.TABLE.LENGTH?
 > OK =4
+
+< SEQ1.TABLE.B?
+> !AQAAAAIAAAADAAAABAAAAA==
+> .
+
+# Somewhat more challenging test taken from wikipedia.
+< SEQ1.TABLE<B20
+< Man is distinguished, not only by his reason, but by this singular passion from
+> OK
+
+< SEQ1.TABLE.LENGTH?
+> OK =20
+
+< SEQ1.TABLE.B?
+> !TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz
+> !IHNpbmd1bGFyIHBhc3Npb24gZnJvbQo=
+> .
