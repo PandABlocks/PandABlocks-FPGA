@@ -452,6 +452,7 @@
 
 # Table support
 < SEQ.TABLE.*?
+> !MAX_LENGTH
 > !LENGTH
 > !FIELDS
 > .
@@ -466,5 +467,20 @@
 > !63:48   TIME_PH_B
 > .
 
+< SEQ1.TABLE.MAX_LENGTH?
+> OK =2048
+
+< SEQ1.TABLE<
+<
+> OK
+
 < SEQ1.TABLE.LENGTH?
 > OK =0
+
+< SEQ1.TABLE<
+< 1 2 3 4
+<
+> OK
+
+< SEQ1.TABLE.LENGTH?
+> OK =4
