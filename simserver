@@ -13,7 +13,7 @@ DATA_PORT=8889
 # running before taking itself into the background.
 "$HERE"/simulation/sim_server.py -d
 
-valgrind --leak-check=full --track-origins=yes \
+exec valgrind --leak-check=full --track-origins=yes \
     "$HERE"/build/sim_server/server \
     -p$CONFIG_PORT -d$DATA_PORT -R \
     -c"$CONFIG_DB" -r"$REGISTER_DB" -D"$DESCRIPTION_DB"
