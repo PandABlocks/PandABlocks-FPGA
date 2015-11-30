@@ -220,8 +220,10 @@
 < PCOMP2.TABLE.LENGTH?
 > OK =9
 
-< PCOMP2.TABLE<B2
-< 1234567
+< PCOMP2.TABLE<B
+< 1234567=
+< ABCd
+<
 > OK
 
 < PCOMP2.TABLE.LENGTH?
@@ -242,8 +244,14 @@
 <
 > OK
 
-< SEQ2.TABLE<B2
+< SEQ2.TABLE<B
 < 1234567
+<
+> ERR Invalid data length
+
+< SEQ2.TABLE<B
+< 123456789AB=
+<
 > OK
 
 < SEQ2.TABLE<<
@@ -253,8 +261,8 @@
 > OK
 
 < SEQ2.TABLE?
-> !875770417
-> !171390517
+> !3891817943
+> !16055470
 > !1
 > !2
 > !3
@@ -295,8 +303,9 @@
 < 1 2 3 4 5 6 7 8
 < 9
 <
-< PCOMP2.TABLE<B2
-< 1234567
+< PCOMP2.TABLE<B
+< 123456789AB=
+<
 < PCOMP2.TABLE<<
 < 1 2 3 4 5 6 7 8
 < 9
@@ -533,8 +542,10 @@
 > .
 
 # Somewhat more challenging test taken from wikipedia.
-< SEQ1.TABLE<B20
-< Man is distinguished, not only by his reason, but by this singular passion from
+< SEQ1.TABLE<B
+< TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz
+< IHNpbmd1bGFyIHBhc3Npb24gZnJvbQo=
+<
 > OK
 
 < SEQ1.TABLE.LENGTH?
