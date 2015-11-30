@@ -15,6 +15,10 @@ def do_write_short_table(block, number, reg, data):
     print 'do_write_short_table', block, number, reg, len(data)
 
 
+def do_write_long_table(block, number, data):
+    print 'do_write_long_table', block, number, len(data)
+
+
 # Must return two boolean arrays, each 128 entries long.  The first array is the
 # current bit readback, the second is set if the bit value has changed since the
 # last reading.

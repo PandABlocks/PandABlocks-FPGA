@@ -215,17 +215,26 @@
 < 1 2 3 4 5 6 7 8
 < 9
 <
-> ERR block.field< not implemented yet
+> OK
+
+< PCOMP2.TABLE.LENGTH?
+> OK =9
 
 < PCOMP2.TABLE<B2
 < 1234567
-> ERR block.field< not implemented yet
+> OK
+
+< PCOMP2.TABLE.LENGTH?
+> OK =2
 
 < PCOMP2.TABLE<<
 < 1 2 3 4 5 6 7 8
 < 9
 <
-> ERR block.field< not implemented yet
+> OK
+
+< PCOMP2.TABLE.LENGTH?
+> OK =11
 
 < SEQ2.TABLE<
 < 1 2 3 4 5 6 7 8
@@ -292,9 +301,9 @@
 < 1 2 3 4 5 6 7 8
 < 9
 <
-> ERR block.field< not implemented yet
-> ERR block.field< not implemented yet
-> ERR block.field< not implemented yet
+> OK
+> OK
+> OK
 
 # Testing position fields
 < QDEC.SETP.*?

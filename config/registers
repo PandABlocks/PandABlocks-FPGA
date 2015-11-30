@@ -147,7 +147,7 @@ PGEN        16
     SAMPLES         2
     CYCLES          3
     POSN            19 20
-    TABLE
+    TABLE           20
 
 PCOMP       13
     ENABLE          0
@@ -160,7 +160,7 @@ PCOMP       13
     LUT_ENABLE      7
     ACT             92 93 94 95
     PULSE           96 97 98 99
-    TABLE
+    TABLE           10
 
 ADC         14
     TRIGGER         0
