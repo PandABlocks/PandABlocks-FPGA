@@ -49,8 +49,10 @@ PULSE       4
     DELAY           2 3
     WIDTH           4 5
     FORCE_RESET     6
-    STATE           7
-    MISSED_CNT      8
+    ERR_OVERFLOW    7
+    ERR_PERIOD      8
+    QUEUE           9
+    MISSED_CNT      10
     OUT             28 29 30 31
     PERR            32 33 34 35
 
