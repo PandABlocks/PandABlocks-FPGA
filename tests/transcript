@@ -552,6 +552,6 @@
 > OK =20
 
 < SEQ1.TABLE.B?
-> !TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz
-> !IHNpbmd1bGFyIHBhc3Npb24gZnJvbQo=
+> !TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1
+> !dCBieSB0aGlzIHNpbmd1bGFyIHBhc3Npb24gZnJvbQo=
 > .
