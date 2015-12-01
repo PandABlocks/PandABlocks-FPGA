@@ -434,6 +434,24 @@ port map (
     active_o            => seq_active
 );
 
+--
+-- STATUS
+--
+panda_status_inst : entity work.panda_status
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(STA_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => mem_read_data(STA_CS),
+
+    sysbus_i            => sysbus
+);
+
 
 --
 -- System Bus   : Assignments

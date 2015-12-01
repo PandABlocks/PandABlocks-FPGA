@@ -2,7 +2,7 @@ module test;
 
 panda_top_tb tb();
 
-reg [511:0]     test_name = "SEQ_TEST";
+reg [511:0]     test_name = "PULSE_TEST";
 
 reg [1:0]       wrs, rsp;
 reg [3:0]       irq_status;

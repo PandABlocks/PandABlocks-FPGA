@@ -96,8 +96,9 @@ begin
     end if;
 end process;
 
--- There is only 1 status register to read so no need to waste
--- a case statement.
+--
+-- Status Register Read
+--
 REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -105,8 +106,12 @@ begin
             mem_dat_o <= (others => '0');
         else
             case (mem_addr_i) is
-                when PULSE_STATE_ADDR =>
-                    mem_dat_o <= STATE;
+                when PULSE_ERR_OVERFLOW_ADDR =>
+                    mem_dat_o <= ZEROS(31) & STATE(0);
+                when PULSE_ERR_PERIOD_ADDR =>
+                    mem_dat_o <= ZEROS(31) & STATE(1);
+                when PULSE_QUEUE_ADDR =>
+                    mem_dat_o <= ZEROS(22) & STATE(25 downto 16);
                 when PULSE_MISSED_CNT_ADDR =>
                     mem_dat_o <= MISSED_CNT;
                 when others =>

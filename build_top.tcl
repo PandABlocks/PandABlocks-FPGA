@@ -83,6 +83,7 @@ read_vhdl ../src/hdl/panda_sequencer.vhd
 read_vhdl ../src/hdl/panda_sequencer_top.vhd
 read_vhdl ../src/hdl/panda_pcomp.vhd
 read_vhdl ../src/hdl/panda_pcomp_top.vhd
+read_vhdl ../src/hdl/panda_status.vhd
 read_vhdl ../src/hdl/panda_top.vhd
 
 # Import IPs
@@ -117,4 +118,4 @@ write_bitstream -force panda_top.bit
 
 # Export HW for SDK
 file mkdir $origin_dir/panda_top/panda_top.sdk
-write_hwdef -file $origin_dir/panda_top_wrapper.hdf
+write_hwdef -file $origin_dir/panda_top_wrapper.hdf -force

@@ -31,9 +31,12 @@ constant SEQ_CS                 : natural := 6;
 constant ENCIN_CS               : natural := 7;
 constant ENCOUT_CS              : natural := 8;
 constant PCOMP_CS               : natural := 13;
-constant CTRL_CS                : natural := 31;
+--constant CTRL_CS                : natural := 31;
+constant STA_CS                 : natural := 31;
 
--- Block Register Space
+--
+-- LOGIC Block Register Address Space
+--
 constant TTLOUT_VAL_ADDR        : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
 
 constant LVDSOUT_VAL_ADDR       : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
@@ -65,8 +68,10 @@ constant PULSE_DELAY_H_ADDR     : std_logic_vector := TO_STD_VECTOR(3, BLK_AW);
 constant PULSE_WIDTH_L_ADDR     : std_logic_vector := TO_STD_VECTOR(4, BLK_AW);
 constant PULSE_WIDTH_H_ADDR     : std_logic_vector := TO_STD_VECTOR(5, BLK_AW);
 constant PULSE_FORCE_RST_ADDR   : std_logic_vector := TO_STD_VECTOR(6, BLK_AW);
-constant PULSE_STATE_ADDR       : std_logic_vector := TO_STD_VECTOR(7, BLK_AW);
-constant PULSE_MISSED_CNT_ADDR  : std_logic_vector := TO_STD_VECTOR(8, BLK_AW);
+constant PULSE_ERR_OVERFLOW_ADDR: std_logic_vector := TO_STD_VECTOR(7, BLK_AW);
+constant PULSE_ERR_PERIOD_ADDR  : std_logic_vector := TO_STD_VECTOR(8, BLK_AW);
+constant PULSE_QUEUE_ADDR       : std_logic_vector := TO_STD_VECTOR(9, BLK_AW);
+constant PULSE_MISSED_CNT_ADDR  : std_logic_vector := TO_STD_VECTOR(10, BLK_AW);
 
 constant SEQ_GATE_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
 constant SEQ_INPA_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
@@ -84,6 +89,15 @@ constant SEQ_CUR_FCYCLE_ADDR    : std_logic_vector := TO_STD_VECTOR(12, BLK_AW);
 constant SEQ_CUR_TCYCLE_ADDR    : std_logic_vector := TO_STD_VECTOR(13, BLK_AW);
 constant SEQ_CUR_STATE_ADDR     : std_logic_vector := TO_STD_VECTOR(14, BLK_AW);
 
+--
+-- TOP Block Register Address Space
+--
+constant STA_BIT_READ_RST_ADDR  : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
+constant STA_BIT_READ_VAL_ADDR  : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
+
+--
+-- ENCODER Block Register Address Space
+--
 constant ENCIN_PROT_ADDR        : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
 constant ENCIN_RATE_ADDR        : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
 constant ENCIN_BITS_ADDR        : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);

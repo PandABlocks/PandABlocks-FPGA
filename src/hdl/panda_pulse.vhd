@@ -46,6 +46,10 @@ end component;
 type pulse_fsm_t is (FSM_IDLE, FSM_LATCH_TS, FSM_DELAY, FSM_WIDTH);
 signal pulse_fsm                : pulse_fsm_t;
 
+signal DELAY_prev               : std_logic_vector(47 downto 0);
+signal WIDTH_prev               : std_logic_vector(47 downto 0);
+
+signal config_reset             : std_logic;
 signal reset                    : std_logic;
 signal inp_prev                 : std_logic;
 signal inp_rise                 : std_logic;
@@ -67,19 +71,22 @@ signal missed_pulses            : unsigned(15 downto 0);
 
 begin
 
--- Hard or Soft Reset combined
-reset <= rst_i or FORCE_RST;
-
-MISSED_CNT <= X"0000" & std_logic_vector(missed_pulses);
-
--- Detect rising edge input pulse for time stamp registering.
+-- Input registering
 process(clk_i)
 begin
     if rising_edge(clk_i) then
         inp_prev <= inp_i;
+        DELAY_prev <= DELAY;
+        WIDTH_prev <= WIDTH;
     end if;
 end process;
 
+-- Hard/Soft/Config Reset combined
+config_reset <= '1' when (DELAY /= DELAY_prev or WIDTH /= WIDTH_prev)
+                    else '0';
+reset <= rst_i or FORCE_RST or config_reset;
+
+-- Detect rising edge input pulse for time stamp registering.
 inp_rise  <= inp_i and not inp_prev;
 
 -- Free running global timestamp counter, it will be the time resolution
@@ -170,6 +177,8 @@ begin
     if rising_edge(clk_i) then
         if (reset = '1') then
             pulse_fsm <= FSM_IDLE;
+            out_o <= '0';
+            pulse_ts <= (others => '0');
         else
             case pulse_fsm is
                 -- Wait for pulse to be available in the queue.
@@ -212,5 +221,8 @@ begin
         end if;
     end if;
 end process;
+
+-- Output assignments.
+MISSED_CNT <= X"0000" & std_logic_vector(missed_pulses);
 
 end rtl;
