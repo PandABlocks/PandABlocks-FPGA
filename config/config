@@ -59,8 +59,9 @@ PULSE[4]
     time    DELAY
     time    WIDTH
     write   FORCE_RESET     action
-    read    STATE           enum 1
-        0   State
+    read    ERR_OVERFLOW    bit
+    read    ERR_PERIOD      bit
+    read    QUEUE           uint 1023
     read    MISSED_CNT
 
 SEQ[4]
