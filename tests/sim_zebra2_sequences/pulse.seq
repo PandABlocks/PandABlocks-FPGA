@@ -1,0 +1,9 @@
+$ Pulse stretching with no delay
+################################
+1       : WIDTH=5
+2       : DELAY=0
+# Pulse comes in, check it registers on queue
+5       : INP=1     : QUEUE=1, OUT=1
+7       : INP=0     :
+# Now we should see it drop back to zero
+10      :           : QUEUE=0, OUT=0
