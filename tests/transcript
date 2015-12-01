@@ -498,6 +498,9 @@
 < PULSE1.DELAY=2251799
 > OK
 
+< PULSE1.DELAY?
+> OK =2251799
+
 < PULSE1.DELAY=2251800
 > ERR Time setting out of range
 

@@ -5,6 +5,7 @@ HERE="$(dirname "$0")"
 CONFIG_DB="$HERE"/config/config
 REGISTER_DB="$HERE"/config/registers
 DESCRIPTION_DB="$HERE"/config/description
+PERSISTENCE="$HERE"/build/persistence.state
 
 CONFIG_PORT=8888
 DATA_PORT=8889
@@ -15,5 +16,6 @@ DATA_PORT=8889
 
 exec valgrind --leak-check=full --track-origins=yes \
     "$HERE"/build/sim_server/server \
+    -f"$PERSISTENCE" \
     -p$CONFIG_PORT -d$DATA_PORT -R \
-    -c"$CONFIG_DB" -r"$REGISTER_DB" -D"$DESCRIPTION_DB"
+    -c"$CONFIG_DB" -r"$REGISTER_DB" -D"$DESCRIPTION_DB" "$@"
