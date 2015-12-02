@@ -523,7 +523,7 @@
 > .
 
 < SEQ1.TABLE.MAX_LENGTH?
-> OK =2048
+> OK =512
 
 < SEQ1.TABLE<
 <
