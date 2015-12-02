@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import socket
 import readline
 
@@ -10,6 +12,8 @@ class Client(object):
         self.line_iter = self.get_lines()
         try:
             self.run()
+        except (EOFError, KeyboardInterrupt) as blah:
+            pass
         finally:
             self.s.shutdown(socket.SHUT_WR)
             self.s.close()
