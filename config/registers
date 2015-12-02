@@ -1,7 +1,16 @@
-# Interface definition
-#
-# Notes:
-#   bit_out definitions correspond to a bit on the system bus
+# Register interface definition
+
+# This special register block is not present in the config file and contains
+# fixed register definitions used in the hardware interface
+*REG        19
+    BIT_READ_RESET      0
+    BIT_READ_VALUE      1
+    POS_READ_RESET      2
+    POS_READ_VALUE      3
+    POS_READ_CHANGES    4
+    BIT_CAPTURE_MASK    5
+    POS_CAPTURE_MASK    6
+
 
 TTLIN       0
     TERM            1
