@@ -1,7 +1,16 @@
-# Interface definition
-#
-# Notes:
-#   bit_out definitions correspond to a bit on the system bus
+# Register interface definition
+
+# This special register block is not present in the config file and contains
+# fixed register definitions used in the hardware interface
+*REG        19
+    BIT_READ_RESET      0
+    BIT_READ_VALUE      1
+    POS_READ_RESET      2
+    POS_READ_VALUE      3
+    POS_READ_CHANGES    4
+    BIT_CAPTURE_MASK    5
+    POS_CAPTURE_MASK    6
+
 
 TTLIN       0
     TERM            1
@@ -76,7 +85,7 @@ SEQ         5
     OUTE            52 53 54 55
     OUTF            56 57 58 59
     ACTIVE          108 109 110 111
-    TABLE           2048    13 14
+    TABLE           512    13 14
 
 INENC       6
     PROTOCOL        0
@@ -149,7 +158,7 @@ PGEN        16
     SAMPLES         2
     CYCLES          3
     POSN            19 20
-    TABLE           20
+    TABLE           2^20
 
 PCOMP       13
     ENABLE          0
@@ -162,7 +171,7 @@ PCOMP       13
     LUT_ENABLE      7
     ACT             92 93 94 95
     PULSE           96 97 98 99
-    TABLE           10
+    TABLE           2^10
 
 ADC         14
     TRIGGER         0
@@ -175,3 +184,26 @@ PCAP        15
     TRIG_POS        1
     TRIG_ADC        2
     MASK            3
+
+BITS        22
+    ZERO            112
+    ONE             113
+    CLOCKA          114
+    CLOCKA_DIV      3
+    CLOCKB          115
+    CLOCKB_DIV      5
+    CLOCKC          116
+    CLOCKC_DIV      7
+    CLOCKD          117
+    CLOCKD_DIV      9
+    SOFTA           118
+    SOFTA_SET       11
+    SOFTB           119
+    SOFTB_SET       13
+    SOFTC           120
+    SOFTC_SET       15
+    SOFTD           121
+    SOFTD_SET       17
+
+POSITIONS   23
+    ZERO            29

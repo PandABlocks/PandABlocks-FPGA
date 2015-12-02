@@ -46,7 +46,6 @@ PULSE
     DELAY           
     WIDTH           
     FORCE_RESET     
-    STATE           
     MISSED_CNT      
     OUT             
     PERR            
