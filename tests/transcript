@@ -27,24 +27,26 @@
 < *BLOCKS?
 > !TTLIN 6
 > !OUTENC 4
-> !CALC 2
-> !SRGATE 4
+> !PCAP 1
 > !PCOMP 4
-> !LUT 8
 > !TTLOUT 10
-> !LVDSOUT 2
 > !ADC 8
 > !DIV 4
 > !INENC 4
-> !COUNTER 8
-> !ADDER 1
-> !PCAP 1
-> !POSENC 4
-> !LVDSIN 2
 > !PGEN 2
-> !QDEC 4
+> !LVDSIN 2
+> !POSITIONS 1
+> !POSENC 4
 > !SEQ 4
 > !PULSE 4
+> !SRGATE 4
+> !LUT 8
+> !CALC 2
+> !LVDSOUT 2
+> !COUNTER 8
+> !ADDER 1
+> !BITS 1
+> !QDEC 4
 > .
 
 # Now we can read and write some I/O fields

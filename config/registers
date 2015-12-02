@@ -184,3 +184,26 @@ PCAP        15
     TRIG_POS        1
     TRIG_ADC        2
     MASK            3
+
+BITS        22
+    ZERO            112
+    ONE             113
+    CLOCKA          114
+    CLOCKA_DIV      3
+    CLOCKB          115
+    CLOCKB_DIV      5
+    CLOCKC          116
+    CLOCKC_DIV      7
+    CLOCKD          117
+    CLOCKD_DIV      9
+    SOFTA           118
+    SOFTA_SET       11
+    SOFTB           119
+    SOFTB_SET       13
+    SOFTC           120
+    SOFTC_SET       15
+    SOFTD           121
+    SOFTD_SET       17
+
+POSITIONS   23
+    ZERO            29
