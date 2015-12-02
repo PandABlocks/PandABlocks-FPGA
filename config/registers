@@ -2,7 +2,7 @@
 
 # This special register block is not present in the config file and contains
 # fixed register definitions used in the hardware interface
-*REG        19
+*REG        31
     BIT_READ_RESET      0
     BIT_READ_VALUE      1
     POS_READ_RESET      2
@@ -11,21 +11,13 @@
     BIT_CAPTURE_MASK    5
     POS_CAPTURE_MASK    6
 
-
-TTLIN       0
-    TERM            1
-    VAL             0 1 2 3 4 5
-
-TTLOUT      16
+TTLOUT      0
     VAL             0
 
-LVDSIN      17
-    VAL             6 7
-
-LVDSOUT     18
+LVDSOUT     1
     VAL             0
 
-LUT         1
+LUT         2
     INPA            0
     INPB            1
     INPC            2
@@ -34,7 +26,7 @@ LUT         1
     FUNC            5
     VAL             8 9 10 11 12 13 14 15
 
-SRGATE      2
+SRGATE      3
     SET             0
     RESET           1
     SET_EDGE        2
@@ -42,7 +34,7 @@ SRGATE      2
     FORCE_STATE     4
     VAL             16 17 18 19
 
-DIV         3
+DIV         4
     INP             0
     RESET           1
     FIRST_PULSE     2
@@ -52,7 +44,7 @@ DIV         3
     OUTD            20 21 22 23
     OUTN            24 25 26 27
 
-PULSE       4
+PULSE       5
     INP             0
     RESET           1
     DELAY           2 3
@@ -65,7 +57,7 @@ PULSE       4
     OUT             28 29 30 31
     PERR            32 33 34 35
 
-SEQ         5
+SEQ         6
     GATE            0
     INPA            1
     INPB            2
@@ -87,7 +79,7 @@ SEQ         5
     ACTIVE          108 109 110 111
     TABLE           512    13 14
 
-INENC       6
+INENC       7
     PROTOCOL        0
     RATE            1
     BITS            2
@@ -99,7 +91,7 @@ INENC       6
     CONN            72 73 74 75
     ENC_POSN        0 1 2 3
 
-QDEC        7
+QDEC        8
     A               0
     B               1
     Z               2
@@ -107,7 +99,7 @@ QDEC        7
     SETP            4
     ENC_POSN        4 5 6 7
 
-OUTENC      8
+OUTENC      9
     A               0
     B               1
     Z               2
@@ -119,7 +111,7 @@ OUTENC      8
     FORCE_QSTATE    8
     QSTATE          9
 
-POSENC      9
+POSENC      10
     ENC_POSN        0
     QPRESCALAR      1
     MODE            2
@@ -128,7 +120,7 @@ POSENC      9
     A               76 77 78 79
     B               80 81 82 83
 
-CALC        10
+CALC        11
     A               0
     B               1
     KA              2
@@ -137,12 +129,12 @@ CALC        10
     RESULT          8 9
 
 # Hard wired inputs!
-ADDER       11
+ADDER       12
     MASK            1
     OUTSCALE        2
     RESULT          10
 
-COUNTER     12
+COUNTER     13
     ENABLE          0
     TRIGGER         1
     DIR             2
@@ -152,7 +144,7 @@ COUNTER     12
     COUNTN          11 12 13 14 15 16 17 18
     CARRY           84 85 86 87 88 89 90 91
 
-PGEN        16
+PGEN        14
     ENABLE          0
     TRIGGER         1
     SAMPLES         2
@@ -160,7 +152,7 @@ PGEN        16
     POSN            19 20
     TABLE           2^20
 
-PCOMP       13
+PCOMP       15
     ENABLE          0
     POSN            1
     START           2
@@ -173,37 +165,44 @@ PCOMP       13
     PULSE           96 97 98 99
     TABLE           2^10
 
-ADC         14
+ADC         16
     TRIGGER         0
     RESET           1
     TRIGGERD        100 101 102 103 104 105 106 107
     DATA            21 22 23 24 25 26 27 28
 
-PCAP        15
+PCAP        17
     ENABLE          0
     TRIG_POS        1
     TRIG_ADC        2
     MASK            3
 
-BITS        22
-    ZERO            112
-    ONE             113
-    CLOCKA          114
-    CLOCKA_DIV      3
-    CLOCKB          115
-    CLOCKB_DIV      5
-    CLOCKC          116
-    CLOCKC_DIV      7
-    CLOCKD          117
-    CLOCKD_DIV      9
-    SOFTA           118
-    SOFTA_SET       11
-    SOFTB           119
-    SOFTB_SET       13
-    SOFTC           120
-    SOFTC_SET       15
-    SOFTD           121
-    SOFTD_SET       17
+LVDSIN      18
+    VAL             6 7
 
-POSITIONS   23
+TTLIN       19
+    TERM            1
+    VAL             0 1 2 3 4 5
+
+POSITIONS   29
     ZERO            29
+
+BITS        30
+    ZERO            127
+    ONE             126
+    CLOCKA          122
+    CLOCKA_DIV      0
+    CLOCKB          123
+    CLOCKB_DIV      1
+    CLOCKC          124
+    CLOCKC_DIV      2
+    CLOCKD          125
+    CLOCKD_DIV      3
+    SOFTA           118
+    SOFTA_SET       4
+    SOFTB           119
+    SOFTB_SET       5
+    SOFTC           120
+    SOFTC_SET       6
+    SOFTD           121
+    SOFTD_SET       7
