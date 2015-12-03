@@ -25,7 +25,48 @@ CROSS_PIXELS = 8
 def legend_label(text, x, y, off):
     plt.annotate(text, xy=(x, y), xytext=(x-off, y), 
                  horizontalalignment="right", verticalalignment="center")
-    
+
+def plot_bit(trace_items, offset, crossdist):
+    for name, (tracex, tracey) in trace_items:
+        tracey = np.array(tracey)
+        offset -= PULSE_HEIGHT + PLOT_OFFSET
+        lines = plt.plot(tracex, tracey + offset, linewidth=2)
+        # add label
+        legend_label(name, 0, tracey[0] + offset + PULSE_HEIGHT / 2., crossdist)
+    return offset
+
+def plot_pos(trace_items, offset, crossdist, ts):
+    for name, (tracex, tracey) in trace_items:
+        offset -= TRANSITION_HEIGHT + PLOT_OFFSET
+        crossx = [0]
+        top = [offset + TRANSITION_HEIGHT]
+        bottom = [offset]
+        for i, x in enumerate(tracex):
+            # crossover start
+            crossx.append(x - crossdist)
+            top.append(top[-1])
+            bottom.append(bottom[-1])
+            # crossover end
+            crossx.append(x + crossdist)
+            top.append(bottom[-1])
+            bottom.append(top[-2])
+        # add end point
+        crossx.append(ts)
+        top.append(top[-1])
+        bottom.append(bottom[-1])
+
+        lines = plt.plot(crossx, top)
+        plt.plot(crossx, bottom, color=lines[0].get_color())
+        plt.fill_between(crossx, top, bottom, color=lines[0].get_color())
+        for x, y in zip(tracex, tracey):
+            xy = xy=(crossdist + x, TRANSITION_HEIGHT / 2. + offset)
+            plt.annotate(str(y), xy, color="white", horizontalalignment="left",
+                         verticalalignment="center")
+
+        # add label
+        legend_label(name, 0, TRANSITION_HEIGHT / 2. + offset, crossdist)
+    return offset
+            
 def make_block_plot(block, title):
     # Load the correct sequence file
     fname = block + ".seq"
@@ -35,7 +76,6 @@ def make_block_plot(block, title):
     # make instance of block
     block = getattr(imp, block.title())(1)
     # do a plot
-    xs = []
     in_bits_names = []
     out_bits_names = []
     in_positions_names = []
@@ -79,9 +119,9 @@ def make_block_plot(block, title):
     out_regs = OrderedDict()
     for name in block.fields:
         if name in in_bits_names:
-            in_bits[name] = []
+            in_bits[name] = ([], [])
         elif name in out_bits_names:
-            out_bits[name] = []
+            out_bits[name] = ([], [])
         elif name in in_positions_names:
             in_positions[name] = ([], [])
         elif name in out_positions_names:
@@ -92,32 +132,33 @@ def make_block_plot(block, title):
             out_regs[name] = ([], [])
 
     # fill in first point
-    xs.append(0)
-    for name, trace in bit_traces():
-        trace.append(0)
+    for name, (tracex, tracey) in bit_traces():
+        tracex.append(0)
+        tracey.append(0)
 
     # now populate traces
     for ts in sequence.inputs:
-        xs.append(ts)
-        xs.append(ts)
-        for name, trace in bit_traces():
-            trace.append(trace[-1])
+        for name, (tracex, tracey) in bit_traces():
             if name in sequence.inputs[ts]:
-                trace.append(sequence.inputs[ts][name])
+                tracex.append(ts)
+                tracex.append(ts)
+                tracey.append(tracey[-1])
+                tracey.append(sequence.inputs[ts][name])
             elif name in sequence.outputs[ts]:
-                trace.append(sequence.outputs[ts][name])
-            else:
-                trace.append(trace[-1])
+                tracex.append(ts+1)
+                tracex.append(ts+1)
+                tracey.append(tracey[-1])                             
+                tracey.append(sequence.outputs[ts][name])
         for name, (tracex, tracey) in pos_traces():
             if name in sequence.inputs[ts]:
                 tracex.append(ts)
                 tracey.append(sequence.inputs[ts][name])
             elif name in sequence.outputs[ts]:
-                tracex.append(ts)
+                tracex.append(ts+1)
                 tracey.append(sequence.outputs[ts][name])
 
     # add in an extra point at a major tick interval
-    ts += 1
+    ts += 2
     if ts < 15:
         div = 2
     elif ts < 100:
@@ -130,53 +171,25 @@ def make_block_plot(block, title):
         ts += div - off
     plt.xlim(0, ts)
     
-    xs.append(ts)
-    for name, trace in bit_traces():
-        trace.append(trace[-1])
+    for name, (tracex, tracey) in bit_traces():
+        tracex.append(ts)
+        tracey.append(tracey[-1])
 
-    # array of xs
-    xs = np.array(xs)
+    # half the width of the crossover in timestamp ticks
     crossdist = CROSS_PIXELS * ts / 1000.
 
-    # now plot
+    # now plot inputs
     offset = 0
-    for name, trace in bit_traces():
-        trace = np.array(trace)
-        offset -= PULSE_HEIGHT + PLOT_OFFSET
-        lines = plt.plot(xs, trace + offset, linewidth=2)
-        # add label
-        legend_label(name, 0, trace[0] + offset, crossdist)
+    offset = plot_pos(in_regs.items() + in_positions.items(), offset, crossdist, ts)
+    offset = plot_bit(in_bits.items(), offset, crossdist)
 
-    # and now do regs
-    for name, (tracex, tracey) in pos_traces():
-        offset -= TRANSITION_HEIGHT + PLOT_OFFSET
-        crossx = [0]
-        top = [offset + TRANSITION_HEIGHT]
-        bottom = [offset]
-        for i, x in enumerate(tracex):
-            # crossover start
-            crossx.append(x - crossdist)
-            top.append(top[-1])
-            bottom.append(bottom[-1])
-            # crossover end
-            crossx.append(x + crossdist)
-            top.append(bottom[-1])
-            bottom.append(top[-2])
-        # add end point
-        crossx.append(ts)
-        top.append(top[-1])
-        bottom.append(bottom[-1])
-
-        lines = plt.plot(crossx, top)
-        plt.plot(crossx, bottom, color=lines[0].get_color())
-        plt.fill_between(crossx, top, bottom, color=lines[0].get_color())
-        for x, y in zip(tracex, tracey):
-            xy = xy=(crossdist + x, TRANSITION_HEIGHT / 2. + offset)
-            plt.annotate(str(y), xy, color="white", horizontalalignment="left",
-                         verticalalignment="center")
-
-        # add label
-        legend_label(name, 0, TRANSITION_HEIGHT / 2. + offset, crossdist)
+    # draw a line
+    offset -= PLOT_OFFSET
+    plt.plot([0, ts], [offset, offset], 'k--')
+    
+    # and now do outputs
+    offset = plot_bit(out_bits.items(), offset, crossdist)
+    offset = plot_pos(out_positions.items() + out_regs.items(), offset, crossdist, ts)
 
     plt.ylim(offset - PLOT_OFFSET, 0)
     # add a grid, title, legend, and axis label
