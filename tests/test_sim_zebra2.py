@@ -43,10 +43,17 @@ class SequenceTest(unittest.TestCase):
             event = Event(ts)
             for name, val in changes.items():
                 field = block.fields[name]
-                if field.cls == "param" and field.typ == "bit_mux":
-                    event.bit[getattr(block, name)] = val
-                elif field.cls == "param" and field.typ == "pos_mux":
-                    event.pos[getattr(block, name)] = val
+                if field.cls == "param" and field.typ.endswith("_mux"):
+                    current = bus.get(name, 0)
+                    self.assertNotEqual(
+                        val, current,
+                        "%d: %s already set to %d" % (ts, name, val))
+                    if field.typ == "bit_mux":
+                        event_dict = event.bit
+                    else:
+                        event_dict = event.pos
+                    event_dict[getattr(block, name)] = val
+                    bus[name] = val
                 else:
                     event.reg[name] = val
             next_event = block.on_event(event)
@@ -67,7 +74,7 @@ class SequenceTest(unittest.TestCase):
                     val, expected,
                     "%d: Out %s = %d != %d" % (ts, name, val, expected))
             bus.update(changes)
-                    
+
             # now check that any not mentioned are the right value
             for name, val in self.sequence.outputs[ts].items():
                 if name not in changes:
@@ -75,7 +82,7 @@ class SequenceTest(unittest.TestCase):
                     self.assertEqual(
                         val, actual,
                         "%d: Reg %s = %d != %d" % (ts, name, actual, val))
-        
+
         # if we were successful, then write the "All" test to FPGA
         if self.sequence.name == "All":
             # Get the column headings
@@ -83,7 +90,7 @@ class SequenceTest(unittest.TestCase):
             bus_out = []
             reg_in = []
             reg_out = []
-            
+
             current = {}
             for name, field in block.fields.items():
                 if field.cls == "param" and field.typ.endswith("_mux"):
@@ -95,10 +102,14 @@ class SequenceTest(unittest.TestCase):
                 else:
                     reg_in.append(name)
             # Write the lines
-            fbus_in = open(os.path.join(fpga_dir, self.block + "_bus_in.txt"), "w")
-            fbus_out = open(os.path.join(fpga_dir, self.block + "_bus_out.txt"), "w")
-            freg_in = open(os.path.join(fpga_dir, self.block + "_reg_in.txt"), "w")
-            freg_out = open(os.path.join(fpga_dir, self.block + "_reg_out.txt"), "w")
+            fbus_in = open(
+                os.path.join(fpga_dir, self.block + "_bus_in.txt"), "w")
+            fbus_out = open(
+                os.path.join(fpga_dir, self.block + "_bus_out.txt"), "w")
+            freg_in = open(
+                os.path.join(fpga_dir, self.block + "_reg_in.txt"), "w")
+            freg_out = open(
+                os.path.join(fpga_dir, self.block + "_reg_out.txt"), "w")
             fbus_in.write("\t".join(["TS"] + bus_in) + "\n")
             fbus_out.write("\t".join(["TS"] + bus_out) + "\n")
             freg_in.write("\t".join(["TS"] + reg_in) + "\n")
@@ -106,22 +117,22 @@ class SequenceTest(unittest.TestCase):
             for ts in self.sequence.inputs:
                 current.update(self.sequence.inputs[ts])
                 current.update(self.sequence.outputs[ts])
-                
+
                 lbus_in = [str(current.get(name, 0)) for name in bus_in]
                 lbus_out = [str(current.get(name, 0)) for name in bus_out]
                 lreg_in = [str(current.get(name, 0)) for name in reg_in]
                 lreg_out = [str(current.get(name, 0)) for name in reg_out]
-                
+
                 fbus_in.write("\t".join([str(ts)] + lbus_in) + "\n")
                 fbus_out.write("\t".join([str(ts)] + lbus_out) + "\n")
                 freg_in.write("\t".join([str(ts)] + lreg_in) + "\n")
                 freg_out.write("\t".join([str(ts)] + lreg_out) + "\n")
-                
+
             fbus_in.close()
             fbus_out.close()
             freg_in.close()
             freg_out.close()
-            
+
 
 def make_suite():
     suite = unittest.TestSuite()
