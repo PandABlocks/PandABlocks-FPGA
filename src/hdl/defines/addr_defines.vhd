@@ -27,12 +27,16 @@ constant SRGATE_CS              : natural := 3;
 constant DIV_CS                 : natural := 4;
 constant PULSE_CS               : natural := 5;
 constant SEQ_CS                 : natural := 6;
+constant CLOCKS_CS              : natural := 28;
+constant BITS_CS                : natural := 29;
+constant POSITIONS_CS           : natural := 30;
+constant REG_CS                 : natural := 31;
 
+--????
 constant ENCIN_CS               : natural := 7;
 constant ENCOUT_CS              : natural := 8;
 constant PCOMP_CS               : natural := 13;
---constant CTRL_CS                : natural := 31;
-constant STA_CS                 : natural := 31;
+--????
 
 --
 -- LOGIC Block Register Address Space
@@ -92,8 +96,29 @@ constant SEQ_CUR_STATE_ADDR     : std_logic_vector := TO_STD_VECTOR(14, BLK_AW);
 --
 -- TOP Block Register Address Space
 --
-constant STA_BIT_READ_RST_ADDR  : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
-constant STA_BIT_READ_VAL_ADDR  : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
+type tCLOCKS is
+record
+    CLOCKA_DIV      : natural;
+    CLOCKB_DIV      : natural;
+    CLOCKC_DIV      : natural;
+    CLOCKD_DIV      : natural;
+end record;
+
+constant CLOCKS     : tCLOCKS := (0,1,2,3);
+
+type tBITS is
+record
+    SOFTA_SET       : natural;
+    SOFTB_SET       : natural;
+    SOFTC_SET       : natural;
+    SOFTD_SET       : natural;
+end record;
+
+constant BITS     : tBITS := (0,1,2,3);
+
+
+constant REG_BIT_READ_RESET_ADDR: std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
+constant REG_BIT_READ_VALUE_ADDR: std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
 
 --
 -- ENCODER Block Register Address Space

@@ -151,6 +151,13 @@ signal pcomp_pulse          : std_logic_vector(PCOMP_NUM-1 downto 0);
 signal panda_spbram_wea     : std_logic := '0';
 signal irq_enable           : std_logic := '0';
 
+signal counter32            : unsigned(31 downto 0) := (others => '0');
+
+signal zero                 : std_logic;
+signal one                  : std_logic;
+signal clocks               : std_logic_vector(3 downto 0);
+signal soft                 : std_logic_vector(3 downto 0);
+
 begin
 
 -- Physical diagnostics outputs
@@ -435,40 +442,88 @@ port map (
 );
 
 --
--- STATUS
+-- REG
 --
-panda_status_inst : entity work.panda_status
+panda_reg_inst : entity work.panda_reg
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
 
     mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(STA_CS),
+    mem_cs_i            => mem_cs(REG_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(STA_CS),
+    mem_dat_o           => mem_read_data(REG_CS),
 
     sysbus_i            => sysbus
 );
 
+--
+-- CLOCKS
+--
+panda_clocks_inst : entity work.panda_clocks_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(CLOCKS_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => open,
+
+    clocks_o            => clocks
+);
+
+
+--
+-- BITS
+--
+panda_bits_inst : entity work.panda_bits_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(BITS_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => open,
+
+    zero_o              => zero,
+    one_o               => one,
+    soft_o              => soft
+);
 
 --
 -- System Bus   : Assignments
 --
-sysbus <= '0'                   &
-          FCLK_RESET0           &
-          ZEROS(SBUS_AVAIL-2)   &
+sysbus <= zero                  &   -- 127
+          one                   &   -- 126
+          clocks                &   -- 125:122
+          soft                  &   -- 121:118
+          ZEROS(SBUS_AVAIL)     &
           seq_active            &
           seq_val(3)            &
           seq_val(2)            &
           seq_val(1)            &
           seq_val(0)            &
-          pulse_val             &
-          div_val               &
-          srgate_val            &   --  15: 8
+          pulse_val             &   --  35:28
+          div_val               &   --  27:20
+          srgate_val            &   --  19:16
           lut_val               &   --  15: 8
           lvdsin_val            &   --   7: 6
           ttlin_val;                --   5: 0
+
+
+process(FCLK_CLK0)
+begin
+    if rising_edge(FCLK_CLK0) then
+        counter32 <= counter32 + 1;
+    end if;
+end process;
 
 end rtl;

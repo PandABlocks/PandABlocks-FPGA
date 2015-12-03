@@ -6,7 +6,7 @@ set MODEL {../../panda_top/bench/zynq_model}
 vlib work
 vlib msim
 
-do bfm.do
+#do bfm.do
 
 # Compile Sources
 #
@@ -52,7 +52,13 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_sequencer_top.vhd" \
 "${SRC}/panda_pcomp.vhd" \
 "${SRC}/panda_pcomp_top.vhd" \
-"${SRC}/panda_status.vhd" \
+"${SRC}/panda_clocks.vhd" \
+"${SRC}/panda_clocks_block.vhd" \
+"${SRC}/panda_clocks_top.vhd" \
+"${SRC}/panda_bits.vhd" \
+"${SRC}/panda_bits_block.vhd" \
+"${SRC}/panda_bits_top.vhd" \
+"${SRC}/panda_reg.vhd" \
 "${SRC}/panda_top.vhd"
 
 # Compile Testbench

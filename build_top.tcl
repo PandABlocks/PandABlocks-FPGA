@@ -83,7 +83,13 @@ read_vhdl ../src/hdl/panda_sequencer.vhd
 read_vhdl ../src/hdl/panda_sequencer_top.vhd
 read_vhdl ../src/hdl/panda_pcomp.vhd
 read_vhdl ../src/hdl/panda_pcomp_top.vhd
-read_vhdl ../src/hdl/panda_status.vhd
+read_vhdl ../src/hdl/panda_clocks.vhd
+read_vhdl ../src/hdl/panda_clocks_block.vhd
+read_vhdl ../src/hdl/panda_clocks_top.vhd
+read_vhdl ../src/hdl/panda_bits.vhd
+read_vhdl ../src/hdl/panda_bits_block.vhd
+read_vhdl ../src/hdl/panda_bits_top.vhd
+read_vhdl ../src/hdl/panda_reg.vhd
 read_vhdl ../src/hdl/panda_top.vhd
 
 # Import IPs

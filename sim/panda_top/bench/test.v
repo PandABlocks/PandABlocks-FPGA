@@ -97,13 +97,20 @@ else if (test_name == "DIV_TEST") begin
 end
 else if (test_name == "PULSE_TEST") begin
     $display("RUNNING PULSE TEST...");
+        // CLOCKS-CLKA/B/C/D
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C000,  4,125, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C004,  4,250, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C008,  4,500, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C00C,  4,1000, wrs);
+
         // PULSE-1
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_5000,  4, 0, wrs); //INP
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_5008,  4, 5, wrs); //D-L
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_500C,  4, 0, wrs); //D-H
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_5010,  4,10, wrs); //W-L
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_5014,  4, 0, wrs); //W-H
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_5018,  4, 0, wrs); //FORCE
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_5000,  4,122, wrs); //INP
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_5004,  4,127, wrs); //RST
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_5008,  4,  5, wrs); //D-L
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_500C,  4,  0, wrs); //D-H
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_5010,  4, 25, wrs); //W-L
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_5014,  4,  0, wrs); //W-H
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_5018,  4,  0, wrs); //FORCE
         // PULSE-2
     tb.uut.ps.ps.ps.inst.write_data(32'h43C0_5100,  4, 0, wrs); //INP
     tb.uut.ps.ps.ps.inst.write_data(32'h43C0_5108,  4, 5, wrs); //D-L
