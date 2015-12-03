@@ -1,9 +1,71 @@
-$ Pulse stretching with no delay
 ################################
+$ Pulse stretching with no delay
 1       : WIDTH=5
 2       : DELAY=0
-# Pulse comes in, check it registers on queue
-5       : INP=1     : QUEUE=1, OUT=1
-7       : INP=0     :
-# Now we should see it drop back to zero
-10      :           : QUEUE=0, OUT=0
+# Rising edge, immediately set output high and queue low event
+5       : INP=1         : QUEUE=1, OUT=1
+6       : INP=0         :
+# Produce low event
+10      :               : QUEUE=0, OUT=0
+
+#############################
+$ Pulse delay with no stretch
+1       : WIDTH=0
+2       : DELAY=10
+# Rising edge, queue high event
+5       : INP=1         : QUEUE=1
+# Falling edge, queue low event
+8       : INP=0         : QUEUE=2
+# Produce high event
+15      :               : QUEUE=1, OUT=1
+# Produce low event
+18      :               : QUEUE=0, OUT=0
+
+#########################
+$ Pulse delay and stretch
+1       : WIDTH=10
+2       : DELAY=10
+# Rising edge, queue high event and low event
+5       : INP=1         : QUEUE=2
+# Falling edge, do nothing
+8       : INP=0
+# Produce high event
+15      :               : QUEUE=1, OUT=1
+# Produce low event
+25      :               : QUEUE=0, OUT=0
+
+#####################
+$ No delay or stretch
+1       : WIDTH=0
+2       : DELAY=0
+5       : INP=1         : OUT=1
+6       : INP=0         : OUT=0
+
+###################################
+$ Pulse train stretched and delayed
+1       : WIDTH=5
+2       : DELAY=10
+4       : INP=1         : QUEUE=2
+6       : INP=0
+11      : INP=1         : QUEUE=4
+14      :               : QUEUE=3, OUT=1
+18      : INP=0
+19      :               : QUEUE=2, OUT=0
+21      :               : QUEUE=1, OUT=1
+26      :               : QUEUE=0, OUT=0
+
+#################################################
+$ Stretched and delayed pulses too close together
+1       : WIDTH=5
+2       : DELAY=10
+4       : INP=1         : QUEUE=2
+6       : INP=0
+10      : INP=1         : PERR=1, MISSED_CNT=1, ERR_PERIOD=1
+13      : INP=0
+14      :               : QUEUE=1, OUT=1
+17      : INP=1         : QUEUE=3
+19      :               : QUEUE=2, OUT=0
+23      : INP=0
+27      :               : QUEUE=1, OUT=1
+32      :               : QUEUE=0, OUT=0
+36      : FORCE_RESET=0 : PERR=0, MISSED_CNT=0, ERR_PERIOD=0

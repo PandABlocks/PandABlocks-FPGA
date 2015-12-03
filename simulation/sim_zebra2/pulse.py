@@ -19,6 +19,8 @@ class Pulse(Block):
         self.valid_ts = 0
 
     def do_pulse(self, next_event, event):
+        """We've received a bit event on INP, so queue some output values
+        based on DELAY and WIDTH""" 
         inp = event.bit[self.INP]
         # If the queue isn't valid at the moment then error
         # If there isn't room for 2 on the queue then error
@@ -41,7 +43,9 @@ class Pulse(Block):
                 self.queue.append((start, 1))
                 self.queue.append((start + self.WIDTH, 0))
 
-    def do_reset(self, next_event):
+    def do_reset(self, next_event, event):
+        """Reset the block, either called on rising edge of RESET input or
+        when FORCE_RESET reg is written to"""
         self.MISSED_CNT = 0
         self.ERR_OVERFLOW = 0
         self.ERR_PERIOD = 0
@@ -50,18 +54,20 @@ class Pulse(Block):
         self.valid_ts = event.ts + 4        
 
     def on_event(self, event):
+        """Handle register, bit and pos changes at a particular timestamps,
+        then generate output events and return when we next need to be called"""
         next_event = Event()
         # if we got register changes, handle those
         if event.reg:
             for name, value in event.reg.items():
                 setattr(self, name, value)
                 if name == "FORCE_RESET":
-                    self.do_reset(next_event)
+                    self.do_reset(next_event, event)
             self.queue.clear()
             self.QUEUE = 0
         # if we got a reset, and it was high, do a reset
         if event.bit.get(self.RESET, None):
-            self.do_reset(next_event)
+            self.do_reset(next_event, event)
         # if we got an input, then process it
         elif self.INP in event.bit:
             self.do_pulse(next_event, event)

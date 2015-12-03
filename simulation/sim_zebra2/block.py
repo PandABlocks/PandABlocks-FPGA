@@ -31,7 +31,11 @@ def populate_registers():
             name, val = line.strip().split(" ", 1)
             val = val.strip().split()
             if len(val) == 1:
-                val = int(val[0])
+                val = val[0]
+                if "^" in val:
+                    val = pow(*map(int, val.split("^")))
+                else:
+                    val = int(val)
             else:
                 val = [int(v) for v in val]
             instance.add_field(name.strip(), val)
@@ -96,10 +100,19 @@ class Block(object):
         self.num = num
         diff = set(self.regs) ^ set(self.fields)
         assert len(diff) == 0, "Mismatch %s" % diff
-        for name, value in self.regs.items():
-            if isinstance(value, list):
-                value = value[self.num]
-            setattr(self, name, value)
+            
+        self.bit_outs, self.pos_outs = {}, {}
+        for name, field in self.fields.items():
+            if field.cls == "bit_out":
+                bus_index = self.regs[name][self.num]
+                self.bit_outs[bus_index] = name
+                setattr(self, name, bus_index)
+            elif field.cls == "pos_out":
+                bus_index = self.regs[name][self.num]
+                self.pos_outs[bus_index] = name
+                setattr(self, name, bus_index)
+            else:
+                setattr(self, name, 0)
 
     def on_event(self, event):
         # will give us an event object with a timeStamp object and the
