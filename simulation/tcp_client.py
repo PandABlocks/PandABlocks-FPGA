@@ -31,8 +31,7 @@ class Client(object):
             assert rx, "Didn't get response in time"
             buf += rx
 
-    def send_recv(self, msg):
-        self.s.sendall(msg + "\n")
+    def recv_all(self):
         ret = [self.line_iter.next()]
         assert ret[0], "Connection closed"
         if ret[0].startswith("!"):
@@ -40,17 +39,26 @@ class Client(object):
                 ret.append(self.line_iter.next())
         return ret
 
+    def prompt_and_send(self):
+        msg = raw_input("> ")
+        self.s.sendall(msg + "\n")
+        return msg
+
     def run(self):
         while True:
-            msg = raw_input("> ")
-            for resp in self.send_recv(msg):
+            msg = self.prompt_and_send()
+            if "<" in msg:
+                while msg:
+                    msg = self.prompt_and_send()
+            for resp in self.recv_all():
                 print "< %s" % resp
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
     parser = ArgumentParser(
         description="Commandline client to Zebra2 TCP server")
-    parser.add_argument("hostname", help="Hostname of Zebra2 box")
+    parser.add_argument("hostname", default="localhost", nargs="?",
+                        help="Hostname of Zebra2 box (default localhost)")
     parser.add_argument("port", type=int, default=8888, nargs="?",
                         help="Port number of TCP server (default 8888)")
     args = parser.parse_args()
