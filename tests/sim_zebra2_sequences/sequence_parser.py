@@ -9,12 +9,34 @@ class SequenceParser(object):
         for line in lines:
             if line.startswith("$"):
                 name = line[1:].strip()
-                self.sequences.append(Sequence(name))
+                if name.startswith("!"):
+                    mark = True
+                    name = name[1:].strip()
+                else:
+                    mark = False
+                self.sequences.append(Sequence(name, mark))
             elif not line.startswith("#"):
                 try:
                     self.parse_line(line)
                 except Exception, e:
                     raise ValueError(e.message + "\nLine: %s" % line)
+        # make a sequence for all
+        all = Sequence("All")
+        ts_off = 0
+        for seq in self.sequences:
+            inputs = {}
+            outputs = {}
+            for ts in seq.inputs:
+                all.add_line(ts_off+ts, seq.inputs[ts], seq.outputs[ts])
+                inputs.update(seq.inputs[ts])
+                outputs.update(seq.outputs[ts])
+            # now set them all back
+            inputs = {k:v for k,v in inputs.items() if v != 0}
+            outputs = {k:v for k,v in outputs.items() if v != 0}
+            all.add_line(ts_off + ts + 1, inputs, outputs)
+            # now wait for a bit
+            ts_off += ts + 10
+        self.sequences.append(all)
 
     def parse_line(self, line):
         line = line.strip()
@@ -41,9 +63,10 @@ class SequenceParser(object):
 
 class Sequence(object):
 
-    def __init__(self, name):
+    def __init__(self, name, mark=False):
         # These are {ts: {name: new_val}}
         self.name = name
+        self.mark = mark
         self.inputs = OrderedDict()
         self.outputs = OrderedDict()
 
