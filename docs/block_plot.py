@@ -16,6 +16,12 @@ from sequence_parser import SequenceParser
 import matplotlib.pyplot as plt
 import numpy as np
 
+TRANSITION_HEIGHT = 0.6
+PULSE_HEIGHT = 1.0
+PLOT_OFFSET = 0.25
+CROSS_PIXELS = 8
+
+
 def legend_label(text, x, y, off):
     plt.annotate(text, xy=(x, y), xytext=(x-off, y), 
                  horizontalalignment="right", verticalalignment="center")
@@ -110,7 +116,7 @@ def make_block_plot(block, title):
                 tracex.append(ts)
                 tracey.append(sequence.outputs[ts][name])
 
-    # add in an extra point for good measure
+    # add in an extra point at a major tick interval
     ts += 1
     if ts < 15:
         div = 2
@@ -130,22 +136,22 @@ def make_block_plot(block, title):
 
     # array of xs
     xs = np.array(xs)
-    crossdist = ts / 100.
+    crossdist = CROSS_PIXELS * ts / 1000.
 
     # now plot
     offset = 0
     for name, trace in bit_traces():
         trace = np.array(trace)
-        offset -= 1.2
+        offset -= PULSE_HEIGHT + PLOT_OFFSET
         lines = plt.plot(xs, trace + offset, linewidth=2)
         # add label
         legend_label(name, 0, trace[0] + offset, crossdist)
 
     # and now do regs
     for name, (tracex, tracey) in pos_traces():
-        offset -= 0.6
+        offset -= TRANSITION_HEIGHT + PLOT_OFFSET
         crossx = [0]
-        top = [offset + 0.4]
+        top = [offset + TRANSITION_HEIGHT]
         bottom = [offset]
         for i, x in enumerate(tracex):
             # crossover start
@@ -165,13 +171,14 @@ def make_block_plot(block, title):
         plt.plot(crossx, bottom, color=lines[0].get_color())
         plt.fill_between(crossx, top, bottom, color=lines[0].get_color())
         for x, y in zip(tracex, tracey):
-            plt.annotate(str(y), xy=(crossdist + x, 0.2 + offset), color="white", 
-                         horizontalalignment="left", verticalalignment="center")
+            xy = xy=(crossdist + x, TRANSITION_HEIGHT / 2. + offset)
+            plt.annotate(str(y), xy, color="white", horizontalalignment="left",
+                         verticalalignment="center")
 
         # add label
-        legend_label(name, 0, 0.2 + offset, crossdist)
+        legend_label(name, 0, TRANSITION_HEIGHT / 2. + offset, crossdist)
 
-    plt.ylim(offset - 0.2, 0)
+    plt.ylim(offset - PLOT_OFFSET, 0)
     # add a grid, title, legend, and axis label
     plt.title(title)
     plt.grid(axis="x")
@@ -181,8 +188,8 @@ def make_block_plot(block, title):
     
     # make it the right size
     fig = plt.gcf()
-    fig.set_size_inches(7.5, abs(offset) * 1.2, forward=True)    
-    plt.subplots_adjust(left=0.18, right=0.98, bottom=0.15)
+    fig.set_size_inches(7.5, abs(offset) * 0.6, forward=True)    
+    plt.subplots_adjust(left=0.18, right=0.98, bottom=0.18)
     
     plt.show()
 
