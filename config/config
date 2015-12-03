@@ -84,7 +84,7 @@ SEQ[4]
     CUR_FCYCLE      read
     CUR_TCYCLE      read
     TABLE_CYCLE     read
-    TABLE           short_table
+    TABLE           table       short
         11:0    NREPEATS
         15:12   INPUT_MASK
         19:16   TRIGGER_MASK
@@ -177,7 +177,7 @@ PGEN[2]
     POSN            pos_out
     SAMPLES         param
     CYCLES          param
-    TABLE           table
+    TABLE           table       long
 
 PCOMP[4]
     ENABLE          param      bit_mux
@@ -190,7 +190,7 @@ PCOMP[4]
     NUM             param
     RELATIVE        param
     LUT_ENABLE      param
-    TABLE           table
+    TABLE           table       long
 
 ADC[8]
     TRIGGER         param      bit_mux
