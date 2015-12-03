@@ -1,16 +1,5 @@
 # Register interface definition
 
-# This special register block is not present in the config file and contains
-# fixed register definitions used in the hardware interface
-*REG        31
-    BIT_READ_RESET      0
-    BIT_READ_VALUE      1
-    POS_READ_RESET      2
-    POS_READ_VALUE      3
-    POS_READ_CHANGES    4
-    BIT_CAPTURE_MASK    5
-    POS_CAPTURE_MASK    6
-
 TTLOUT      0
     VAL             0
 
@@ -206,3 +195,14 @@ BITS        30
     SOFTC_SET       6
     SOFTD           121
     SOFTD_SET       7
+
+# This special register block is not present in the config file and contains
+# fixed register definitions used in the hardware interface
+*REG        31
+    BIT_READ_RESET      0
+    BIT_READ_VALUE      1
+    POS_READ_RESET      2
+    POS_READ_VALUE      3
+    POS_READ_CHANGES    4
+    BIT_CAPTURE_MASK    5
+    POS_CAPTURE_MASK    6
