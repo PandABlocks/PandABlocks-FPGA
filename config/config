@@ -207,14 +207,6 @@ PCAP
 BITS
     ZERO            bit_out
     ONE             bit_out
-    CLOCKA          bit_out
-    CLOCKA_DIV      param
-    CLOCKB          bit_out
-    CLOCKB_DIV      param
-    CLOCKC          bit_out
-    CLOCKC_DIV      param
-    CLOCKD          bit_out
-    CLOCKD_DIV      param
     SOFTA           bit_out
     SOFTA_SET       param       bit
     SOFTB           bit_out
@@ -223,6 +215,16 @@ BITS
     SOFTC_SET       param       bit
     SOFTD           bit_out
     SOFTD_SET       param       bit
+
+CLOCKS
+    CLOCKA          bit_out
+    CLOCKA_DIV      param
+    CLOCKB          bit_out
+    CLOCKB_DIV      param
+    CLOCKC          bit_out
+    CLOCKC_DIV      param
+    CLOCKD          bit_out
+    CLOCKD_DIV      param
 
 POSITIONS
     ZERO            pos_out
