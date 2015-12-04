@@ -9,4 +9,4 @@ Each block is documented with examples
    :maxdepth: 1
    
    pulse
-
+   div

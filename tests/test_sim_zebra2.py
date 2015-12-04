@@ -30,7 +30,8 @@ class SequenceTest(unittest.TestCase):
         # set muxes to increasing unique indexes
         i = 0
         for name, field in block.fields.items():
-            if field.cls == "param" and field.typ.endswith("_mux"):
+            if field.cls == "param" and field.typ \
+                    and field.typ.endswith("_mux"):
                 setattr(block, name, i)
                 i += 1
         # {num: name}
@@ -43,7 +44,8 @@ class SequenceTest(unittest.TestCase):
             event = Event(ts)
             for name, val in changes.items():
                 field = block.fields[name]
-                if field.cls == "param" and field.typ.endswith("_mux"):
+                if field.cls == "param" and field.typ \
+                        and field.typ.endswith("_mux"):
                     current = bus.get(name, 0)
                     self.assertNotEqual(
                         val, current,
@@ -69,7 +71,7 @@ class SequenceTest(unittest.TestCase):
                 if name in self.sequence.outputs[ts]:
                     expected = self.sequence.outputs[ts][name]
                 else:
-                    expected = bus[name]
+                    expected = bus.get(name, 0)
                 self.assertEquals(
                     val, expected,
                     "%d: Out %s = %d != %d" % (ts, name, val, expected))
@@ -93,7 +95,7 @@ class SequenceTest(unittest.TestCase):
 
             current = {}
             for name, field in block.fields.items():
-                if field.cls == "param" and field.typ.endswith("_mux"):
+                if field.cls == "param" and field.typ and field.typ.endswith("_mux"):
                     bus_in.append(name)
                 elif field.cls.endswith("_out"):
                     bus_out.append(name)
@@ -124,9 +126,9 @@ class SequenceTest(unittest.TestCase):
                 lreg_out = [str(current.get(name, 0)) for name in reg_out]
 
                 fbus_in.write("\t".join([str(ts)] + lbus_in) + "\n")
-                fbus_out.write("\t".join([str(ts)] + lbus_out) + "\n")
+                fbus_out.write("\t".join([str(ts+1)] + lbus_out) + "\n")
                 freg_in.write("\t".join([str(ts)] + lreg_in) + "\n")
-                freg_out.write("\t".join([str(ts)] + lreg_out) + "\n")
+                freg_out.write("\t".join([str(ts+1)] + lreg_out) + "\n")
 
             fbus_in.close()
             fbus_out.close()
