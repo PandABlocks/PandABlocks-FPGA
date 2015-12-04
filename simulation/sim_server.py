@@ -16,8 +16,6 @@ import socket
 import struct
 import numpy
 
-# import sim_hardware
-
 
 parser = argparse.ArgumentParser(description = 'PandA Hardware simulation')
 parser.add_argument(
@@ -58,23 +56,19 @@ def read(sock, n):
 
 def run_simulation(conn):
     while True:
-        command, block, num, reg = struct.unpack('cBBB', read(conn, 4))
+        command_word = read(conn, 4)
+        command, block, num, reg = struct.unpack('cBBB', command_word)
         if command == 'R':
             tx = sim_hardware.do_read_data(block, num, reg)
             conn.sendall(struct.pack('I', tx))
         elif command == 'W':
             value, = struct.unpack('I', read(conn, 4))
             sim_hardware.do_write_config(block, num, reg, value)
-        elif command == 'S':
+        elif command == 'T':
             length, = struct.unpack('I', read(conn, 4))
             data = read(conn, length * 4)
             data = numpy.fromstring(data, dtype = numpy.int32)
-            sim_hardware.do_write_short_table(block, num, reg, data)
-        elif command == 'L':
-            length, = struct.unpack('I', read(conn, 4))
-            data = read(conn, length * 4)
-            data = numpy.fromstring(data, dtype = numpy.int32)
-            sim_hardware.do_write_long_table(block, num, data)
+            sim_hardware.do_write_table(block, num, reg, data)
         elif command == 'C':
             bits, changes = sim_hardware.do_read_bits()
             conn.sendall(struct.pack('256?', *bits + changes))
@@ -88,7 +82,7 @@ def run_simulation(conn):
             mask, = struct.unpack('I', read(conn, 4))
             sim_hardware.set_pos_capture(mask)
         else:
-            print 'Unexpected command', repr(command)
+            print 'Unexpected command', repr(command_word)
             raise SocketFail('Unexpected command')
 
 
