@@ -20,7 +20,7 @@ Configuration Interface
 -----------------------
 
 Configuration commands are sent as newline (ASCII character 0xA0) terminated
-strings and all responses are also newline terminate.  Three basic forms of
+strings and all responses are also newline terminated.  Three basic forms of
 command are accepted:
 
 Query commands.
@@ -53,8 +53,8 @@ The four possible responses are:
 
 Multi-line response
     Successful completion of a query command returning multiple values returns
-    each value on a line by itself starting with `!` and ends the sequence with
-    a line containing only `.`.
+    each value on a line by itself starting with ``!`` and ends the sequence
+    with a line containing only ``.``.
 
 
 Example Commands
