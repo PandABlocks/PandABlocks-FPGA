@@ -1,4 +1,4 @@
-set FIFO {../../../src/ip_repo/pulse_queue}
+set FIFO {../../../output/ip_repo/pulse_queue}
 
 vlib work
 vlib msim
@@ -17,15 +17,24 @@ vcom -64 -93 -work fifo_generator_v12_0 \
 
 vcom -64 -93 -work xil_defaultlib   \
 "${FIFO}/sim/pulse_queue.vhd"       \
-"../../../src/hdl/panda_pulse.vhd"  \
-"../bench/panda_pulse_tb.vhd"
+"../../../src/hdl/panda_pulse.vhd"
 
-vopt -64 +acc -L secureip -L fifo_generator_v12_0 -L xil_defaultlib -work xil_defaultlib xil_defaultlib.panda_pulse_tb -o panda_pulse_opt
+vlog -work xil_defaultlib \
+"../bench/panda_pulse_tb.v" \
+"/dls_sw/FPGA/Xilinx/14.7/ISE_DS/ISE//verilog/src/glbl.v"
+
+vopt -64 +acc -L secureip -L fifo_generator_v12_0 -L xil_defaultlib -work xil_defaultlib xil_defaultlib.panda_pulse_tb -o panda_pulse_opt glbl
 
 vsim -t 1ps -novopt -lib xil_defaultlib panda_pulse_tb
 
 view wave
 
-add wave -position insertpoint sim:/panda_pulse_tb/uut/*
+add wave -radix decimal -group "Testbench" \
+        sim:/panda_pulse_tb/*
 
-run 25us
+add wave -radix decimal -group "Pulse" \
+        sim:/panda_pulse_tb/uut/*
+
+#do wave.do
+
+run 5us

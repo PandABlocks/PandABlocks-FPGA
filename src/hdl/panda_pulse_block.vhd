@@ -39,8 +39,10 @@ signal RST_VAL      : std_logic_vector(SBUSBW-1 downto 0) := (others => '0');
 signal DELAY        : std_logic_vector(47 downto 0) := (others => '0');
 signal WIDTH        : std_logic_vector(47 downto 0) := (others => '0');
 signal FORCE_RST    : std_logic := '0';
-signal STATE        : std_logic_vector(31 downto 0) := (others => '0');
 signal MISSED_CNT   : std_logic_vector(31 downto 0) := (others => '0');
+signal ERR_OVERFLOW : std_logic := '0';
+signal ERR_PERIOD   : std_logic := '0';
+signal QUEUE        : std_logic_vector(10 downto 0);
 
 signal inp          : std_logic := '0';
 signal rst          : std_logic := '0';
@@ -107,11 +109,11 @@ begin
         else
             case (mem_addr_i) is
                 when PULSE_ERR_OVERFLOW_ADDR =>
-                    mem_dat_o <= ZEROS(31) & STATE(0);
+                    mem_dat_o <= ZEROS(31) & ERR_OVERFLOW;
                 when PULSE_ERR_PERIOD_ADDR =>
-                    mem_dat_o <= ZEROS(31) & STATE(1);
+                    mem_dat_o <= ZEROS(31) & ERR_PERIOD;
                 when PULSE_QUEUE_ADDR =>
-                    mem_dat_o <= ZEROS(22) & STATE(25 downto 16);
+                    mem_dat_o <= ZEROS(21) & QUEUE;
                 when PULSE_MISSED_CNT_ADDR =>
                     mem_dat_o <= MISSED_CNT;
                 when others =>
@@ -146,7 +148,9 @@ port map (
     DELAY               => DELAY,
     WIDTH               => WIDTH,
     FORCE_RST           => FORCE_RST,
-    STATE               => STATE,
+    ERR_OVERFLOW        => ERR_OVERFLOW,
+    ERR_PERIOD          => ERR_PERIOD,
+    QUEUE               => QUEUE,
     MISSED_CNT          => MISSED_CNT
 );
 

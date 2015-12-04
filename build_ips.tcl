@@ -15,9 +15,10 @@ create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
 -module_name pulse_queue -dir $origin_dir/
 
 set_property -dict [list \
-    CONFIG.Input_Data_Width {48}    \
+    CONFIG.Performance_Options {First_Word_Fall_Through} \
+    CONFIG.Input_Data_Width {49}    \
     CONFIG.Data_Count {true}        \
-    CONFIG.Output_Data_Width {48}   \
+    CONFIG.Output_Data_Width {49}   \
 ] [get_ips pulse_queue]
 
 generate_target all [get_files $origin_dir/pulse_queue/pulse_queue.xci]
