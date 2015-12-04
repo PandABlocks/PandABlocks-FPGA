@@ -104,6 +104,10 @@ class SequenceTest(unittest.TestCase):
                 else:
                     reg_in.append(name)
             # Write the lines
+            try:
+                os.makedirs(fpga_dir)
+            except OSError:
+                pass
             fbus_in = open(
                 os.path.join(fpga_dir, self.block + "_bus_in.txt"), "w")
             fbus_out = open(
