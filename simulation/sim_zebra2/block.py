@@ -1,7 +1,7 @@
 from collections import OrderedDict, namedtuple
 import os
 
-config_dir = os.path.join(os.path.dirname(__file__), "..", "..", "config")
+config_dir = os.path.join(os.path.dirname(__file__), "..", "..", "config_d")
 
 
 class BlockRegisters(object):
