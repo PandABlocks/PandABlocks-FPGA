@@ -8,6 +8,16 @@ except ImportError:
     pass
 
 
+# Checks whether the server will interpret cmd as a table command: search for
+# first of '?', '=', '<', if '<' found first then it's a table command.
+def is_table_command(cmd):
+    for ch in cmd:
+        if ch in '?=':
+            return false
+        if ch == '<':
+            return true
+    return false
+
 class Client(object):
 
     def __init__(self, hostname, port):
@@ -44,18 +54,18 @@ class Client(object):
         return ret
 
     def prompt_and_send(self):
-        msg = raw_input("> ")
+        msg = raw_input("< ")
         self.s.sendall(msg + "\n")
         return msg
 
     def run(self):
         while True:
             msg = self.prompt_and_send()
-            if "<" in msg:
+            if is_table_command(msg):
                 while msg:
                     msg = self.prompt_and_send()
             for resp in self.recv_all():
-                print "< %s" % resp
+                print "> %s" % resp
 
 if __name__ == "__main__":
     from argparse import ArgumentParser

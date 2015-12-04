@@ -3,10 +3,9 @@ Table of Contents
 
 Contents:
 
-.. toctree::
-   :maxdepth: 2
-   
-   index   
-   blocks/index.rst
+..  toctree::
+    :maxdepth: 2
 
-
+    index
+    README.rst
+    blocks/index.rst
