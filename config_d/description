@@ -30,7 +30,7 @@ SRGATE
     FORCE_STATE     
     VAL             
 
-DIV         
+DIV         Pulse divider
     INP             
     RESET           
     FIRST_PULSE     

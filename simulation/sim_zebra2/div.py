@@ -1,5 +1,3 @@
-from collections import deque
-
 from .block import Block
 from .event import Event
 
