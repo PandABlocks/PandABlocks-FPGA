@@ -580,3 +580,14 @@
 < SEQ1.TABLE.LENGTH?
 > ERR Number missing
 > OK =20
+
+# Now check some malformed base 64 writes
+< SEQ1.TABLE<B
+< abcdefgh
+<
+> ERR Invalid data length
+
+< SEQ1.TABLE<B
+< abcd*xyz
+<
+> ERR Malformed base64 string
