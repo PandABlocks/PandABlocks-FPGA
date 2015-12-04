@@ -45,6 +45,7 @@
 > !LVDSOUT 2
 > !COUNTER 8
 > !ADDER 1
+> !CLOCKS 1
 > !BITS 1
 > !QDEC 4
 > .
