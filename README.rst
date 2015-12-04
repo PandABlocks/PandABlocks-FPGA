@@ -19,7 +19,7 @@ lightly structured binary format.
 Configuration Interface
 -----------------------
 
-Configuration commands are sent as newline (ASCII character 0xA0) terminated
+Configuration commands are sent as newline (ASCII character 0x0A) terminated
 strings and all responses are also newline terminated.  Three basic forms of
 command are accepted:
 
