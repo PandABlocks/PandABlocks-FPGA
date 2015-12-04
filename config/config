@@ -5,71 +5,71 @@
 
 TTLIN[6]
     VAL             bit_out
-    TERM            param      enum 2
+    TERM            param       enum 2
         0   High-Z
         1   50-Ohm
 
 TTLOUT[10]
-    VAL             param      bit_mux
+    VAL             param       bit_mux
 
 LVDSIN[2]
     VAL             bit_out
 
 LVDSOUT[2]
-    VAL             param      bit_mux
+    VAL             param       bit_mux
 
 LUT[8]
-    INPA            param      bit_mux
-    INPB            param      bit_mux
-    INPC            param      bit_mux
-    INPD            param      bit_mux
-    INPE            param      bit_mux
+    INPA            param       bit_mux
+    INPB            param       bit_mux
+    INPC            param       bit_mux
+    INPD            param       bit_mux
+    INPE            param       bit_mux
     VAL             bit_out
-    FUNC            param      lut
+    FUNC            param       lut
 
 SRGATE[4]
-    SET             param      bit_mux
-    RESET           param      bit_mux
+    SET             param       bit_mux
+    RESET           param       bit_mux
     VAL             bit_out
-    SET_EDGE        param      enum 2
+    SET_EDGE        param       enum 2
         0   Falling
         1   Rising
-    RESET_EDGE      param      enum 2
+    RESET_EDGE      param       enum 2
         0   Falling
         1   Rising
-    FORCE_STATE     write      bit
+    FORCE_STATE     write       bit
 
 DIV[4]
-    INP             param      bit_mux
-    RESET           param      bit_mux
+    INP             param       bit_mux
+    RESET           param       bit_mux
     OUTD            bit_out
     OUTN            bit_out
-    FIRST_PULSE     param      enum 2
+    FIRST_PULSE     param       enum 2
         0   OutN
         1   OutD
     DIVISOR         param
     COUNT           read
-    FORCE_RESET     write      action
+    FORCE_RESET     write       action
 
 PULSE[4]
-    INP             param      bit_mux
-    RESET           param      bit_mux
+    INP             param       bit_mux
+    RESET           param       bit_mux
     OUT             bit_out
     PERR            bit_out
     DELAY           time
     WIDTH           time
-    FORCE_RESET     write      action
-    ERR_OVERFLOW    read       bit
-    ERR_PERIOD      read       bit
-    QUEUE           read       uint 1023
+    FORCE_RESET     write       action
+    ERR_OVERFLOW    read        bit
+    ERR_PERIOD      read        bit
+    QUEUE           read        uint 1023
     MISSED_CNT      read
 
 SEQ[4]
-    GATE            param      bit_mux
-    INPA            param      bit_mux
-    INPB            param      bit_mux
-    INPC            param      bit_mux
-    INPD            param      bit_mux
+    GATE            param       bit_mux
+    INPA            param       bit_mux
+    INPB            param       bit_mux
+    INPC            param       bit_mux
+    INPD            param       bit_mux
     OUTA            bit_out
     OUTB            bit_out
     OUTC            bit_out
@@ -78,13 +78,13 @@ SEQ[4]
     OUTF            bit_out
     ACTIVE          bit_out
     PRESCALE        param
-    TABLE_LENGTH    param      uint 511
-    SOFT_GATE       write      bit
+    TABLE_LENGTH    param       uint 511
+    SOFT_GATE       write       bit
     CUR_FRAME       read
     CUR_FCYCLE      read
     CUR_TCYCLE      read
     TABLE_CYCLE     read
-    TABLE           short_table
+    TABLE           table       short
         11:0    NREPEATS
         15:12   INPUT_MASK
         19:16   TRIGGER_MASK
@@ -99,57 +99,57 @@ INENC[4]
     Z               bit_out
     CONN            bit_out
     ENC_POSN        pos_out
-    PROTOCOL        param      enum 5
+    PROTOCOL        param       enum 5
         0   Quadrature
         1   SSI
         2   BISS
         3   enDat
         4   enDat/BISS
     RATE            param
-    BITS            param      uint 63
-    RST_ON_Z        param      bit
+    BITS            param       uint 63
+    RST_ON_Z        param       bit
     SETP            write
 
 QDEC[4]
-    A               param      bit_mux
-    B               param      bit_mux
-    Z               param      bit_mux
+    A               param       bit_mux
+    B               param       bit_mux
+    Z               param       bit_mux
     ENC_POSN        pos_out
-    RST_ON_Z        param      bit
-    SETP            param      position
+    RST_ON_Z        param       bit
+    SETP            param       position
 
 OUTENC[4]
-    A               param      bit_mux
-    B               param      bit_mux
-    Z               param      bit_mux
-    ENC_POSN        param      pos_mux
-    CONN            param      bit_mux
-    PROTOCOL        param      enum 5
+    A               param       bit_mux
+    B               param       bit_mux
+    Z               param       bit_mux
+    ENC_POSN        param       pos_mux
+    CONN            param       bit_mux
+    PROTOCOL        param       enum 5
         0   Pos-Quad
         1   SSI
         2   BISS
         3   enDat
         4   ABZ
     BITS            param
-    QPRESCALAR      param      enum 1
+    QPRESCALAR      param       enum 1
         0   Something
-    FORCE_QSTATE    write      action
-    QSTATE          read       bit
+    FORCE_QSTATE    write       action
+    QSTATE          read        bit
 
 POSENC[4]
-    ENC_POSN        param      pos_mux
+    ENC_POSN        param       pos_mux
     A               bit_out
     B               bit_out
-    QPRESCALAR      param      bit
-    MODE            param      enum 2
+    QPRESCALAR      param       bit
+    MODE            param       enum 2
         0   quadrature
         1   step+direction
-    FORCE_QSTATE    write      action
-    QSTATE          read       bit
+    FORCE_QSTATE    write       action
+    QSTATE          read        bit
 
 CALC[2]
-    A               param      pos_mux
-    B               param      pos_mux
+    A               param       pos_mux
+    B               param       pos_mux
     RESULT          pos_out
     KA              param
     KB              param
@@ -162,9 +162,9 @@ ADDER
     OUTSCALE        param
 
 COUNTER[8]
-    ENABLE          param      bit_mux
-    TRIGGER         param      bit_mux
-    DIR             param      bit_mux
+    ENABLE          param       bit_mux
+    TRIGGER         param       bit_mux
+    DIR             param       bit_mux
     COUNTN          pos_out
     CARRY           bit_out
     START           param
@@ -172,16 +172,16 @@ COUNTER[8]
     SOFT_ENABLE     write
 
 PGEN[2]
-    ENABLE          param      bit_mux
-    TRIGGER         param      bit_mux
+    ENABLE          param       bit_mux
+    TRIGGER         param       bit_mux
     POSN            pos_out
     SAMPLES         param
     CYCLES          param
-    TABLE           table
+    TABLE           table       long
 
 PCOMP[4]
-    ENABLE          param      bit_mux
-    POSN            param      pos_mux
+    ENABLE          param       bit_mux
+    POSN            param       pos_mux
     ACT             bit_out
     PULSE           bit_out
     START           param
@@ -190,31 +190,23 @@ PCOMP[4]
     NUM             param
     RELATIVE        param
     LUT_ENABLE      param
-    TABLE           table
+    TABLE           table       long
 
 ADC[8]
-    TRIGGER         param      bit_mux
-    RESET           param      bit_mux
+    TRIGGER         param       bit_mux
+    RESET           param       bit_mux
     TRIGGERD        bit_out
     DATA            pos_out
 
 PCAP
-    ENABLE          param      bit_mux
-    TRIG_POS        param      bit_mux
-    TRIG_ADC        param      bit_mux
+    ENABLE          param       bit_mux
+    TRIG_POS        param       bit_mux
+    TRIG_ADC        param       bit_mux
     MASK            param
 
 BITS
     ZERO            bit_out
     ONE             bit_out
-    CLOCKA          bit_out
-    CLOCKA_DIV      param
-    CLOCKB          bit_out
-    CLOCKB_DIV      param
-    CLOCKC          bit_out
-    CLOCKC_DIV      param
-    CLOCKD          bit_out
-    CLOCKD_DIV      param
     SOFTA           bit_out
     SOFTA_SET       param       bit
     SOFTB           bit_out
@@ -223,6 +215,16 @@ BITS
     SOFTC_SET       param       bit
     SOFTD           bit_out
     SOFTD_SET       param       bit
+
+CLOCKS
+    CLOCKA          bit_out
+    CLOCKA_DIV      param
+    CLOCKB          bit_out
+    CLOCKB_DIV      param
+    CLOCKC          bit_out
+    CLOCKC_DIV      param
+    CLOCKD          bit_out
+    CLOCKD_DIV      param
 
 POSITIONS
     ZERO            pos_out

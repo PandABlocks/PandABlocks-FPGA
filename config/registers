@@ -36,8 +36,8 @@ DIV         4
 PULSE       5
     INP             0
     RESET           1
-    DELAY           2 3
-    WIDTH           4 5
+    DELAY           3 2
+    WIDTH           3 2
     FORCE_RESET     6
     ERR_OVERFLOW    7
     ERR_PERIOD      8
@@ -169,16 +169,11 @@ PCAP        17
 LVDSIN      18
     VAL             6 7
 
-TTLIN       19
+TTLIN       27
     TERM            1
     VAL             0 1 2 3 4 5
 
-POSITIONS   29
-    ZERO            29
-
-BITS        30
-    ZERO            127
-    ONE             126
+CLOCKS      28
     CLOCKA          122
     CLOCKA_DIV      0
     CLOCKB          123
@@ -187,14 +182,21 @@ BITS        30
     CLOCKC_DIV      2
     CLOCKD          125
     CLOCKD_DIV      3
+
+BITS        29
     SOFTA           118
-    SOFTA_SET       4
+    SOFTA_SET       0
     SOFTB           119
-    SOFTB_SET       5
+    SOFTB_SET       1
     SOFTC           120
-    SOFTC_SET       6
+    SOFTC_SET       2
     SOFTD           121
-    SOFTD_SET       7
+    SOFTD_SET       3
+    ONE             126
+    ZERO            127
+
+POSITIONS   30
+    ZERO            29
 
 # This special register block is not present in the config file and contains
 # fixed register definitions used in the hardware interface
