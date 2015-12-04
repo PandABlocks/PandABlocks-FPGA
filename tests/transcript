@@ -561,3 +561,22 @@
 > !TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1
 > !dCBieSB0aGlzIHNpbmd1bGFyIHBhc3Npb24gZnJvbQo=
 > .
+
+# Test some malformed table writes
+
+# First, writes are taken until blank line, even if malformed
+< X<blalba
+< dfdex
+< xxx
+<
+> ERR Unexpected character at end
+
+# Next check that a broken write does nothing
+< SEQ1.TABLE<
+< 1234
+< 999
+< broken
+<
+< SEQ1.TABLE.LENGTH?
+> ERR Number missing
+> OK =20
