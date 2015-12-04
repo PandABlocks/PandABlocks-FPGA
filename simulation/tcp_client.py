@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
 import socket
-import readline
+try:
+    import readline
+except ImportError:
+    # don't need readline on windows
+    pass
 
 
 class Client(object):
