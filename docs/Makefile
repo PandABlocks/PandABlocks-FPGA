@@ -1,4 +1,4 @@
-html/index.html: $(wildcard *.rst */*.rst docs/conf.py)          
+html/index.html: $(wildcard *.rst */*.rst conf.py)          
 	sphinx-build -b html . ./html
 
 clean:
