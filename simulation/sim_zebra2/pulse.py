@@ -1,4 +1,3 @@
-from enum import Enum
 from collections import deque
 
 from .block import Block
