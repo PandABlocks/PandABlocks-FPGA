@@ -2,9 +2,9 @@
 
 HERE="$(dirname "$0")"
 
-CONFIG_DB="$HERE"/config/config
-REGISTER_DB="$HERE"/config/registers
-DESCRIPTION_DB="$HERE"/config/description
+CONFIG_DB="$HERE"/config_d/config
+REGISTER_DB="$HERE"/config_d/registers
+DESCRIPTION_DB="$HERE"/config_d/description
 PERSISTENCE="$HERE"/build/persistence.state
 
 CONFIG_PORT=8888

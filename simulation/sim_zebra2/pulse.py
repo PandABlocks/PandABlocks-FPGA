@@ -1,4 +1,3 @@
-from enum import Enum
 from collections import deque
 
 from .block import Block
@@ -7,9 +6,11 @@ from .event import Event
 # max queue size
 MAX_QUEUE = 1023
 
-# min FPGA deadtime between queue
-DEADTIME = 2
+# min FPGA deadtime between queued pulses
+MIN_QUEUE_DELTA = 2
 
+# time taken to clear queue
+QUEUE_CLEAR_TIME = 4
 
 class Pulse(Block):
 
@@ -34,8 +35,8 @@ class Pulse(Block):
         elif inp:
             # generate both high and low queue from inp
             start = event.ts + self.DELAY
-            # make sure that start is after any queue on queue
-            if self.queue and start < self.queue[-1][0] + DEADTIME:
+            # make sure that start is after any pulse on queue
+            if self.queue and start < self.queue[-1][0] + MIN_QUEUE_DELTA:
                 next_event.bit[self.PERR] = 1
                 self.MISSED_CNT += 1
                 self.ERR_PERIOD = 1
@@ -51,7 +52,11 @@ class Pulse(Block):
         self.ERR_PERIOD = 0
         next_event.bit[self.PERR] = 0
         next_event.bit[self.OUT] = 0
-        self.valid_ts = event.ts + 4        
+        self.reset_queue(event)
+        
+    def reset_queue(self, event):
+        self.valid_ts = event.ts + QUEUE_CLEAR_TIME        
+        self.queue.clear()
 
     def on_event(self, event):
         """Handle register, bit and pos changes at a particular timestamps,
@@ -63,8 +68,7 @@ class Pulse(Block):
                 setattr(self, name, value)
                 if name == "FORCE_RESET":
                     self.do_reset(next_event, event)
-            self.queue.clear()
-            self.QUEUE = 0
+            self.reset_queue(event)
         # if we got a reset, and it was high, do a reset
         if event.bit.get(self.RESET, None):
             self.do_reset(next_event, event)

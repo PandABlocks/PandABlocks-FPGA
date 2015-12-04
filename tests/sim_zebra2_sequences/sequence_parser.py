@@ -31,8 +31,8 @@ class SequenceParser(object):
                 inputs.update(seq.inputs[ts])
                 outputs.update(seq.outputs[ts])
             # now set them all back
-            inputs = {k:0 for k,v in inputs.items() if v != 0}
-            outputs = {k:0 for k,v in outputs.items() if v != 0}
+            inputs = dict((k, 0) for k,v in inputs.items() if v != 0)
+            outputs = dict((k, 0) for k,v in outputs.items() if v != 0)
             all.add_line(ts_off + ts + 1, inputs, outputs)
             # now wait for a bit
             ts_off += ts + 10
