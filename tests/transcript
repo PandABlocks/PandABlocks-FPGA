@@ -275,10 +275,12 @@
 < TTLIN.VAL.*?
 > !CAPTURE_INDEX
 > !CAPTURE
+> !INFO
 > .
 
 < DIV.DIVISOR.*?
 > !MAX
+> !INFO
 > .
 
 < DIV1.DIVISOR.MAX?
@@ -314,9 +316,10 @@
 # Testing position fields
 < QDEC.SETP.*?
 > !UNITS
+> !RAW
 > !OFFSET
 > !SCALE
-> !RAW
+> !INFO
 > .
 
 
@@ -386,7 +389,11 @@
 > !INPE 4 param bit_mux
 > .
 
+< LUT1.INPC.INFO?
+> OK =param bit_mux
+
 < LUT.FUNC.*?
+> !INFO
 > !RAW
 > .
 
@@ -507,6 +514,7 @@
 > !B
 > !LENGTH
 > !FIELDS
+> !INFO
 > .
 
 < SEQ1.TABLE.FIELDS?
