@@ -137,9 +137,6 @@
 < TTLIN2?
 > ERR Missing field name
 
-< TTLIN2.*?
-> ERR Block number not allowed
-
 < TTLIN2.x?
 > ERR No such field
 
@@ -151,9 +148,6 @@
 
 < TTLIN1.VAL.?
 > ERR No name found
-
-< TTLIN2.VAL.*?
-> ERR Block number not allowed
 
 < *IDN<
 < 123
