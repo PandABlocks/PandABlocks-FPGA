@@ -12,6 +12,7 @@ CC = $(CROSS_COMPILE)gcc
 DRIVER_BUILD_DIR = $(BUILD_DIR)/driver
 SERVER_BUILD_DIR = $(BUILD_DIR)/server
 SIM_SERVER_BUILD_DIR = $(BUILD_DIR)/sim_server
+DOCS_BUILD_DIR = $(BUILD_DIR)/html
 
 DRIVER_FILES := $(wildcard driver/*)
 SERVER_FILES := $(wildcard server/*)
@@ -67,6 +68,17 @@ server: $(SERVER)
 sim_server: $(SIM_SERVER)
 
 .PHONY: server sim_server
+
+
+# ------------------------------------------------------------------------------
+# Documentation
+
+$(DOCS_BUILD_DIR)/index.html: $(wildcard docs/*.rst docs/*/*.rst docs/conf.py)
+	sphinx-build -b html docs $(DOCS_BUILD_DIR)
+
+docs: $(DOCS_BUILD_DIR)/index.html
+
+.PHONY: docs
 
 
 # ------------------------------------------------------------------------------
