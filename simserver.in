@@ -2,6 +2,9 @@
 
 HERE="$(dirname "$0")"
 
+# This is filled in from the setting in CONFIG
+PYTHON='@@PYTHON@@'
+
 CONFIG_DB="$HERE"/config_d/config
 REGISTER_DB="$HERE"/config_d/registers
 DESCRIPTION_DB="$HERE"/config_d/description
@@ -12,7 +15,7 @@ DATA_PORT=8889
 
 # Run the simulation server as a daemon.  It will ensure its socket is up and
 # running before taking itself into the background.
-"$HERE"/simulation/sim_server.py -d
+$PYTHON "$HERE"/simulation/sim_server.py -d
 
 exec valgrind --leak-check=full --track-origins=yes \
     "$HERE"/build/sim_server/server \

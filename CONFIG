@@ -1,7 +1,14 @@
 # Configuration file for building PandA server and driver.
+#
+# Rather than editing this file and creating a fork, edit a file CONFIG.local
+# with overrides: CONFIG.local is read after CONFIG if present.
+
 
 # Default build location
 # BUILD_DIR = $(TOP)/build
+
+# Python interpreter
+PYTHON = dls-python
 
 # Compiler settings
 ARCH = arm

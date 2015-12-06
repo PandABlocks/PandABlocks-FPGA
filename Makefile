@@ -6,6 +6,8 @@ TOP := $(CURDIR)
 BUILD_DIR = $(TOP)/build
 
 include CONFIG
+-include CONFIG.local
+
 
 CC = $(CROSS_COMPILE)gcc
 
@@ -64,8 +66,12 @@ $(SIM_SERVER): $(SIM_SERVER_BUILD_DIR) $(SERVER_FILES)
 	$(MAKE) -C $< -f $(TOP)/server/Makefile \
             VPATH=$(TOP)/server TOP=$(TOP) SIMSERVER=T
 
+simserver: simserver.in
+	sed 's/@@PYTHON@@/$(PYTHON)/' $< >$@
+	chmod +x $@
+
 server: $(SERVER)
-sim_server: $(SIM_SERVER)
+sim_server: $(SIM_SERVER) simserver
 
 .PHONY: server sim_server
 
@@ -85,6 +91,8 @@ docs: $(DOCS_BUILD_DIR)/index.html
 
 clean:
 	rm -rf $(BUILD_DIR)
+	rm -f simserver
+
 .PHONY: clean
 
 

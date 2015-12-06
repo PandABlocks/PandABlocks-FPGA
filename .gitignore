@@ -1,3 +1,4 @@
+/CONFIG.local
 /build
 *.pyc
 tests/fpga_sequences
