@@ -7,7 +7,7 @@ from .event import Event
 MAX_QUEUE = 1023
 
 # min FPGA deadtime between queued pulses
-MIN_QUEUE_DELTA = 2
+MIN_QUEUE_DELTA = 4
 
 # time taken to clear queue
 QUEUE_CLEAR_TIME = 4
