@@ -21,9 +21,19 @@ $ Start on OUTD
 21      : INP=1         : OUTD=1, COUNT=0
 26      : INP=0         : OUTD=0
 
-########################################
-$ Reset called at the same time as pulse
+##################
+$ Reset conditions
 1       : DIVISOR=3
 5       : INP=1             : OUTN=1, COUNT=1
 6       : INP=0             : OUTN=0
 8       : INP=1, RESET=1    : COUNT=0
+10      : INP=0
+15      : INP=1             : OUTN=1, COUNT=1
+17      : RESET=0
+18      : INP=0             : OUTN=0
+20      : INP=1             : OUTN=1, COUNT=2
+23      : FORCE_RESET=1     : OUTN=0, COUNT=0
+25      : INP=0
+
+
+

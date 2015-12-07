@@ -30,15 +30,15 @@ SRGATE
     FORCE_STATE     
     VAL             
 
-DIV         Pulse divider
-    INP             
-    RESET           
-    FIRST_PULSE     
-    DIVISOR         
-    COUNT           
-    FORCE_RESET     
-    OUTD            
-    OUTN            
+DIV             Pulse divider
+    DIVISOR         Divisor value  
+    FIRST_PULSE     Where to send first pulse
+    FORCE_RESET     Reset internal counter state machine
+    INP             Input pulse train
+    RESET           On rising edge, reset counter state machine
+    OUTD            Divided pulse output
+    OUTN            Non-divided pulse output
+    COUNT           Internal counter value
 
 PULSE       
     INP             

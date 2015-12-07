@@ -40,16 +40,16 @@ SRGATE[4]
     FORCE_STATE     write       bit
 
 DIV[4]
+    DIVISOR         param
+    FIRST_PULSE     param       enum 2
+        0   OutN
+        1   OutD
+    FORCE_RESET     write       action
     INP             param       bit_mux
     RESET           param       bit_mux
     OUTD            bit_out
     OUTN            bit_out
-    FIRST_PULSE     param       enum 2
-        0   OutN
-        1   OutD
-    DIVISOR         param
     COUNT           read
-    FORCE_RESET     write       action
 
 PULSE[4]
     INP             param       bit_mux

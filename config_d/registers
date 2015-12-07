@@ -24,14 +24,14 @@ SRGATE      3
     VAL             16 17 18 19
 
 DIV         4
+    DIVISOR         3
+    FIRST_PULSE     2
+    FORCE_RESET     5
     INP             0
     RESET           1
-    FIRST_PULSE     2
-    DIVISOR         3
-    COUNT           4
-    FORCE_RESET     5
     OUTD            20 21 22 23
     OUTN            24 25 26 27
+    COUNT           4
 
 PULSE       5
     INP             0
