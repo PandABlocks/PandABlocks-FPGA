@@ -97,7 +97,7 @@ This interface will stream data configured for capture.
 
 
 Building
-========
+--------
 
 Before running ``make`` first copy the file ``CONFIG.example`` to ``CONFIG`` and
 edit according to your needs.  If you wish to build the server or the driver
