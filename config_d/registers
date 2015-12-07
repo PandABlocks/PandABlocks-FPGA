@@ -34,17 +34,17 @@ DIV         4
     COUNT           4
 
 PULSE       5
-    INP             0
-    RESET           1
     DELAY           3 2
     WIDTH           3 2
     FORCE_RESET     6
+    INP             0
+    RESET           1
+    OUT             28 29 30 31
+    PERR            32 33 34 35
     ERR_OVERFLOW    7
     ERR_PERIOD      8
     QUEUE           9
     MISSED_CNT      10
-    OUT             28 29 30 31
-    PERR            32 33 34 35
 
 SEQ         6
     GATE            0
