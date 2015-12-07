@@ -52,11 +52,51 @@ Table       Error, Success
 Each individual query target will either return a single value or multi-value,
 as documented below.
 
-Finally, there are two basic types of target: system commands and configuration
+Finally, there are two basic types of target: configuration commands and system
 commands.
 
-System Command Targets
+
+Configuration Commands
 ----------------------
+
+The entire hardware interface to PandA is structured into "blocks" and "fields",
+and each field may have a number of "attributes" depending on the field type.
+This structure is reflected in the form of configuration commands which are
+tabulated below:
+
+
++-------------------------------+----------------------------------------------+
+| Command Syntax                | Description                                  |
++-------------------------------+----------------------------------------------+
+| block[number]\ ``.``\ field\  | Return current value of field.               |
+| ``?``                         |                                              |
++-------------------------------+----------------------------------------------+
+| block[number]\ ``.``\ field\  | Assign value to field.                       |
+| ``=``\ value                  |                                              |
++-------------------------------+----------------------------------------------+
+| block[number]\ ``.``\ field\  | Write table data to field.                   |
+| ``<``\ [``<``][``B``]         |                                              |
++-------------------------------+----------------------------------------------+
+| block[number]\ ``.``\ field\  | Return current value of field attribute.     |
+| ``.``\ attr\ ``?``            |                                              |
++-------------------------------+----------------------------------------------+
+| block[number]\ ``.``\ field\  | Assign value to field attribute.             |
+| ``.``\ attr\ ``=``\ value     |                                              |
++-------------------------------+----------------------------------------------+
+| block[number]\ ``.*?``        | Returns list of fields.                      |
++-------------------------------+----------------------------------------------+
+| block[number]\ ``.``\ field\  | Returns list of field attributes.            |
+| ``.*?``                       |                                              |
++-------------------------------+----------------------------------------------+
+
+In all of these commands the number after the block is optional if there is only
+one instance of that block, and is ignored for the two ``.*?`` commands.  See
+the description of the ``.TABLE`` fields for an explanation of the optional
+format characters in the table write command.
+
+
+System Commands
+---------------
 
 All system commands are prefixed with a leading ``*`` character.  The simplest
 command is ``*IDN?`` which returns a system identification string::
@@ -64,25 +104,55 @@ command is ``*IDN?`` which returns a system identification string::
     < *IDN?
     > OK =PandA
 
-The available system commands are listed below.
+The available system commands are tabulated here and listed in more detail
+below:
+
++-------------------------------+----------------------------------------------+
+| Command                       | Description                                  |
++-------------------------------+----------------------------------------------+
+| ``*IDN?``                     | Device identification.                       |
++-------------------------------+----------------------------------------------+
+| ``*ECHO string?``             | Echo.                                        |
++-------------------------------+----------------------------------------------+
+| ``*WHO?``                     | List connected clients.                      |
++-------------------------------+----------------------------------------------+
+| ``*BLOCKS?``                  | List device blocks.                          |
++-------------------------------+----------------------------------------------+
+| ``*DESC.``\ block[\ ``.``\    | Block and field description.                 |
+| field]\ ``?``                 |                                              |
++-------------------------------+----------------------------------------------+
+| ``*CHANGES``\ [\ ``.``\       | Report changes to values.  `group` can be    |
+| group]\ ``?``                 | any of ``CONFIG``, ``BITS``, ``POSN``,       |
+|                               | ``READ``, ``ATTR``, or ``TABLE``.            |
++-------------------------------+----------------------------------------------+
+| ``*CHANGES``\ [\ ``.``\       | Reset reported changes, `group` as above.    |
+| group]\ ``=``                 |                                              |
++-------------------------------+----------------------------------------------+
+| ``*CAPTURE?``                 | Report data capture words.                   |
++-------------------------------+----------------------------------------------+
+| ``*CAPTURE=``                 | Reset data capture.                          |
++-------------------------------+----------------------------------------------+
+| ``*BITS``\ n\ ``?``           | List bits in bit group, `n` is 0 to 3.       |
++-------------------------------+----------------------------------------------+
+| ``*POSITIONS?``               | Enumerate possible capture positions.        |
++-------------------------------+----------------------------------------------+
+| ``*VERBOSE=``\ value          | Control command logging.                     |
++-------------------------------+----------------------------------------------+
 
 ``*IDN?``
-
     Returns system identification string.  Will probably have system version
     information in the future.
 
 ``*ECHO string?``
-
     Returns string back to caller.  Not terribly useful.  Note that the echoed
-    string cannot contain either ``=`` or ``<`` characters, as this would cause
-    the command to be mistaken for an assignment or table command!  Example
+    string cannot contain any of ``?``, ``=`` or ``<`` characters, as this would
+    cause the command to be mistaken for another command format!  Example
     usage::
 
         < *ECHO This is a test?
         > OK =This is a test
 
 ``*WHO?``
-
     Returns list of client connections, for example::
 
         < *WHO?
@@ -94,7 +164,6 @@ The available system commands are listed below.
     port is connected, and the third field is the remote IP address and socket.
 
 ``*BLOCKS?``
-
     Returns a list of all the top level blocks in the system.  The order in
     which the blocks is returned is somewhat arbitrary.  For example (here the
     list has been shortened in the middle)::
@@ -204,11 +273,21 @@ The available system commands are listed below.
         > .
 
 ``*CAPTURE?``
+    This returns a list of all positions and bit masks that will be written to
+    the data capture port.  This list is controlled by setting the ``.CAPTURE``
+    attribute on the corresponding bit and position fields.
+
 ``*CAPTURE=``
+    This resets all ``.CAPTURE`` flags to zero so that no data will be captured.
+
 ``*BITS``\ n\ ``?``
+    Bits are captured in four groups of 32 bits each, the capture groups are
+    named ``*BITS0`` to ``*BITS4``.  This command lists the bits, in order,
+    associated with the corresponding bit capture group.
+
 ``*POSITIONS?``
+    This command lists all 32 position capture fields in order.
 
 ``*VERBOSE=``\ value
-
     If ``*VERBOSE=1`` is set then every command will be echoed to the server's
     log.  Set ``*VERBOSE=0`` to restore normal quiet behaviour.

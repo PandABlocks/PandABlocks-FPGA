@@ -9,4 +9,5 @@ Contents:
     index
     README.rst
     commands.rst
+    fields.rst
     blocks/index.rst
