@@ -52,13 +52,13 @@ DIV[4]
     COUNT           read
 
 PULSE[4]
+    DELAY           time
+    WIDTH           time
+    FORCE_RESET     write       action
     INP             param       bit_mux
     RESET           param       bit_mux
     OUT             bit_out
     PERR            bit_out
-    DELAY           time
-    WIDTH           time
-    FORCE_RESET     write       action
     ERR_OVERFLOW    read        bit
     ERR_PERIOD      read        bit
     QUEUE           read        uint 1023

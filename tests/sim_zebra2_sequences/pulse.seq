@@ -2,36 +2,26 @@
 $ Pulse stretching with no delay
 1       : WIDTH=5
 2       : DELAY=0
-# Rising edge, immediately set output high and queue low event
 7       : INP=1         : QUEUE=1, OUT=1
 8       : INP=0         :
-# Produce low event
 12      :               : QUEUE=0, OUT=0
 
 #############################
 $ Pulse delay with no stretch
 1       : WIDTH=0
 2       : DELAY=10
-# Rising edge, queue high event
 7       : INP=1         : QUEUE=1
-# Falling edge, queue low event
 10      : INP=0         : QUEUE=2
-# Produce high event
 17      :               : QUEUE=1, OUT=1
-# Produce low event
 20      :               : QUEUE=0, OUT=0
 
 #########################
 $ Pulse delay and stretch
 1       : WIDTH=10
 2       : DELAY=10
-# Rising edge, queue high event and low event
 7       : INP=1         : QUEUE=2
-# Falling edge, do nothing
 8       : INP=0
-# Produce high event
 17      :               : QUEUE=1, OUT=1
-# Produce low event
 27      :               : QUEUE=0, OUT=0
 
 #####################

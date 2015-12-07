@@ -40,15 +40,18 @@ DIV             Pulse divider
     OUTN            Non-divided pulse output
     COUNT           Internal counter value
 
-PULSE       
-    INP             
-    RESET           
-    DELAY           
-    WIDTH           
-    FORCE_RESET     
-    MISSED_CNT      
-    OUT             
-    PERR            
+PULSE           One-shot pulse delay and stretch
+    DELAY           Output pulse delay (0 for no delay)
+    WIDTH           Output pulse width (0 for input pulse width)
+    FORCE_RESET     Reset QUEUE and ERR outputs
+    INP             Input pulse train
+    RESET           On rising edge, reset QUEUE and ERR outputs
+    OUT             Output pulse train
+    PERR            Error output if a pulse could not be generated
+    ERR_OVERFLOW    Missed pulse was due to overflow of internal queue
+    ERR_PERIOD      Producing a pulse would cause it to overlap with previous
+    QUEUE           Length of the delay queue
+    MISSED_CNT      Number of pulses not produced because of an ERR condition
 
 SEQ         
     GATE            

@@ -1,10 +1,11 @@
-DIV - Pulse divider
-===================
+DIV - Pulse divider [x4]
+========================
 
-There are 4x fully configurable divider blocks. Each block is a 32-bit pulse
-divider. It has an internal counter that counts from 0 to DIVISOR-1. On each
-user-defined edge, if counter = DIVISOR-1, then it is set to 0 and the pulse is
-sent to OUTD, otherwise it is sent to OUTN.
+A DIV block is a 32-bit pulse divider that can divide a pulse train between two
+outputs. It has an internal counter that counts from 0 to DIVISOR-1. On each
+rising edge of INP, if counter = DIVISOR-1, then it is set to 0 and the pulse is
+sent to OUTD, otherwise it is sent to OUTN. Change in any parameter causes the
+block to be reset.
 
 Parameters
 ----------
@@ -12,8 +13,8 @@ Parameters
 =============== === ======= ===================================================
 Name            Dir Type    Description
 =============== === ======= ===================================================
-DIVISOR         RW  UInt32  Divisor value   
-FIRST_PULSE     RW  Enum    | 0 - OutN: Send first pulse to OUTN
+DIVISOR         R/W UInt32  Divisor value   
+FIRST_PULSE     R/W Enum    | 0 - OutN: Send first pulse to OUTN
                             | 1 - OutD: Send first pulse to OUTD   
 FORCE_RESET     W   Action  Reset internal counter state machine
 INP             In  Bit     Input pulse train
