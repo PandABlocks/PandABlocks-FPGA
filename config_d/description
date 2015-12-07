@@ -30,8 +30,8 @@ SRGATE
     FORCE_STATE     
     VAL             
 
-DIV             Pulse divider
-    DIVISOR         Divisor value  
+DIV         Pulse divider
+    DIVISOR         Divisor value
     FIRST_PULSE     Where to send first pulse
     FORCE_RESET     Reset internal counter state machine
     INP             Input pulse train
@@ -40,7 +40,7 @@ DIV             Pulse divider
     OUTN            Non-divided pulse output
     COUNT           Internal counter value
 
-PULSE           One-shot pulse delay and stretch
+PULSE       One-shot pulse delay and stretch
     DELAY           Output pulse delay (0 for no delay)
     WIDTH           Output pulse width (0 for input pulse width)
     FORCE_RESET     Reset QUEUE and ERR outputs
