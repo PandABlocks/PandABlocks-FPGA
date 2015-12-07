@@ -313,6 +313,22 @@ fields.
             > .
 
 
+Summary of Sub-Types
+--------------------
+
+=========== =========== ========================================================
+Sub-type    Attributes  Description
+=========== =========== ========================================================
+uint        MAX         Possibly bounded 32-bit unsigned integer value
+bit                     Bit: 0 or 1
+action                  Write only, no value
+bit_mux                 Bit input multiplexer selection
+pos_mux                 Position input mutiplexer selection
+lut         RAW         5 input lookup table logical formula
+enum        LABELS      Enumeration selection
+=========== =========== ========================================================
+
+
 Summary of Attributes
 ---------------------
 
@@ -321,7 +337,7 @@ Field (sub)type Attribute       Description                             R W C M
 =============== =============== ======================================= = = = =
 (all)           INFO            Returns type of field                   R
 uint            MAX             Maximum allowed integer value           R
-lut             RAW             Look up table logical formula           R
+lut             RAW             Computed Lookup Table 32-bit value      R
 enum            LABELS          List of enumeration labels              R     M
 time            UNITS           Units and scaling selection for time    R W C
 \               RAW             Raw time in FPGA clock cycles           R W

@@ -131,8 +131,7 @@ OUTENC[4]
         3   enDat
         4   ABZ
     BITS            param
-    QPRESCALAR      param       enum 1
-        0   Something
+    QPRESCALAR      param
     FORCE_QSTATE    write       action
     QSTATE          read        bit
 
