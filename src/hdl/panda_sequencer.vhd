@@ -1,7 +1,8 @@
 --------------------------------------------------------------------------------
 --  File:       panda_sequencer.vhd
---  Desc:       Position compare output pulse generator
+--  Desc:       Programmable Sequencer.
 --
+--  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 
 library ieee;

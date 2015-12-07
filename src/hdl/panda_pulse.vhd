@@ -1,7 +1,8 @@
 --------------------------------------------------------------------------------
 --  File:       panda_pulse.vhd
---  Desc:       Position compare output pulse generator
+--  Desc:       Programmable Pulse Generator.
 --
+--  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -208,7 +209,7 @@ begin
                 queue_din <= timestamp + unsigned(DELAY) + 1;
                 value <= '1';
             -- Capturing falling edge is split into two conditions.
-            -- 1./ When WIDTH is not 0, capture timestamp, and add WIDTH before 
+            -- 1./ When WIDTH is not 0, capture timestamp, and add WIDTH before
             -- writing immediately into the queue.
             elsif (inp_rise_prev = '1' and ongoing_pulse = '1' and unsigned(WIDTH) /= 0) then
                 pulse_queue_wstb <= not is_DELAY_zero;

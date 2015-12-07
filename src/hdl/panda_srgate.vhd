@@ -1,7 +1,8 @@
 --------------------------------------------------------------------------------
 --  File:       panda_srgate.vhd
---  Desc:       Position compare output pulse generator
+--  Desc:       SR Gate Generator.
 --
+--  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 
 library ieee;

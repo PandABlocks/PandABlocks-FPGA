@@ -1,7 +1,8 @@
 --------------------------------------------------------------------------------
 --  File:       panda_lut.vhd
---  Desc:       Position compare output pulse generator
+--  Desc:       5-Input LUT.
 --
+--  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 
 library ieee;
