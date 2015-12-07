@@ -280,7 +280,9 @@ fields.
     calculation field.  This field can be set to any valid logical expression
     generated from inputs ``A`` to ``E`` using the standard operators ``&``,
     ``|``, ``^``, ``~``, ``?:`` from C together with ``=`` for equality and
-    ``=>`` for implication (``A=>B`` abbreviates ``~A|B``).
+    ``=>`` for implication (``A=>B`` abbreviates ``~A|B``).  All operations have
+    C precedence, ``=`` has the same precedence as ``==`` in C, and ``=>`` has
+    precedence between ``|`` and ``?:``.
 
     The following attribute is supported:
 
@@ -327,3 +329,36 @@ fields.
             > ERR Index out of range
 
         This behaviour is probably a bug.
+
+
+Summary of Attributes
+---------------------
+
+=============== =============== ======================================= = = = =
+Field (sub)type Attribute       Description                             R W C M
+=============== =============== ======================================= = = = =
+(all)           INFO            Returns type of field                   R
+uint            MAX             Maximum allowed integer value           R
+lut             RAW             Look up table logical formula           R W
+enum            LABELS          List of enumeration labels              R     M
+time            UNITS           Units and scaling selection for time    R W C
+\               RAW             Raw time in FPGA clock cycles           R W
+bit_out         CAPTURE         Bit capture control                     R W C
+\               CAPTURE_INDEX   Bit capture word and bit index          R
+pos_out         CAPTURE         Position capture control                R W C
+\               CAPTURE_INDEX   Position capture word index             R
+\               OFFSET          Position offset                         R W C
+\               SCALE           Position scaling                        R W C
+\               UNITS           Position units                          R W C
+\               RAW             Underlying raw position value           R
+table           MAX_LENGTH      Maximum table row count                 R
+\               LENGTH          Current table row count                 R
+\               B               Table data in base-64                   R     M
+\               FIELDS          Table field descriptions                R     M
+=============== =============== ======================================= = = = =
+
+Key:
+    :R:     Attribute can be read
+    :W:     Attribute can be written
+    :C:     Attribute contributes to ``*CHANGES.ATTR`` change set
+    :M:     Attribute returns multiple value result.
