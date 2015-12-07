@@ -11,3 +11,4 @@ Contents:
     commands.rst
     fields.rst
     blocks/index.rst
+    fpga_testing.rst
