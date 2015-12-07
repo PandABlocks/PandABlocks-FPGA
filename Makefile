@@ -76,7 +76,7 @@ $(SIM_SERVER): $(SIM_SERVER_BUILD_DIR) $(SERVER_FILES)
             VPATH=$(TOP)/server TOP=$(TOP) SIMSERVER=T
 
 simserver: simserver.in
-	sed 's/@@PYTHON@@/$(PYTHON)/' $< >$@
+	sed 's:@@PYTHON@@:$(PYTHON):; s:@@BUILD_DIR@@:$(BUILD_DIR):' $< >$@
 	chmod +x $@
 
 server: $(SERVER)

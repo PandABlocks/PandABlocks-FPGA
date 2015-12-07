@@ -7,7 +7,7 @@
 #
 # BUILD_DIR = $(TOP)/build
 
-# Python interpreter.  Default interpreter is python2
+# Python interpreter.  Default interpreter is python2, needs to be 2.7
 #
 # PYTHON = python2
 
