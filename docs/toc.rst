@@ -8,4 +8,5 @@ Contents:
 
     index
     README.rst
+    commands.rst
     blocks/index.rst

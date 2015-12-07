@@ -13,16 +13,17 @@ except ImportError:
 def is_table_command(cmd):
     for ch in cmd:
         if ch in '?=':
-            return false
+            return False
         if ch == '<':
-            return true
-    return false
+            return True
+    return False
 
 class Client(object):
 
     def __init__(self, hostname, port):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((hostname, port))
+        self.s.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
         self.line_iter = self.get_lines()
         try:
             self.run()
@@ -37,7 +38,6 @@ class Client(object):
         while True:
             lines = buf.split("\n")
             for line in lines[:-1]:
-                #print "Yield", repr(line)
                 yield line
             buf = lines[-1]
             # Get something new from the socket

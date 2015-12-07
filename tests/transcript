@@ -137,9 +137,6 @@
 < TTLIN2?
 > ERR Missing field name
 
-< TTLIN2.*?
-> ERR Block number not allowed
-
 < TTLIN2.x?
 > ERR No such field
 
@@ -151,9 +148,6 @@
 
 < TTLIN1.VAL.?
 > ERR No name found
-
-< TTLIN2.VAL.*?
-> ERR Block number not allowed
 
 < *IDN<
 < 123
@@ -281,10 +275,12 @@
 < TTLIN.VAL.*?
 > !CAPTURE_INDEX
 > !CAPTURE
+> !INFO
 > .
 
 < DIV.DIVISOR.*?
 > !MAX
+> !INFO
 > .
 
 < DIV1.DIVISOR.MAX?
@@ -320,9 +316,10 @@
 # Testing position fields
 < QDEC.SETP.*?
 > !UNITS
+> !RAW
 > !OFFSET
 > !SCALE
-> !RAW
+> !INFO
 > .
 
 
@@ -392,7 +389,11 @@
 > !INPE 4 param bit_mux
 > .
 
+< LUT1.INPC.INFO?
+> OK =param bit_mux
+
 < LUT.FUNC.*?
+> !INFO
 > !RAW
 > .
 
@@ -513,6 +514,7 @@
 > !B
 > !LENGTH
 > !FIELDS
+> !INFO
 > .
 
 < SEQ1.TABLE.FIELDS?
@@ -580,3 +582,14 @@
 < SEQ1.TABLE.LENGTH?
 > ERR Number missing
 > OK =20
+
+# Now check some malformed base 64 writes
+< SEQ1.TABLE<B
+< abcdefgh
+<
+> ERR Invalid data length
+
+< SEQ1.TABLE<B
+< abcd*xyz
+<
+> ERR Malformed base64 string

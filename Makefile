@@ -3,22 +3,34 @@
 
 TOP := $(CURDIR)
 
-BUILD_DIR = $(TOP)/build
+# Build defaults that can be overwritten by the CONFIG file if present
 
-include CONFIG
+BUILD_DIR = $(TOP)/build
+PYTHON = python2
+ARCH = arm
+CROSS_COMPILE = arm-xilinx-linux-gnueabi-
+BINUTILS_DIR = /dls_sw/FPGA/Xilinx/SDK/2015.1/gnu/arm/lin/bin
+KERNEL_DIR = $(error Define KERNEL_DIR before building driver)
+DEFAULT_TARGETS = driver server sim_server docs
+
+-include CONFIG
+
 
 CC = $(CROSS_COMPILE)gcc
 
 DRIVER_BUILD_DIR = $(BUILD_DIR)/driver
 SERVER_BUILD_DIR = $(BUILD_DIR)/server
 SIM_SERVER_BUILD_DIR = $(BUILD_DIR)/sim_server
+DOCS_BUILD_DIR = $(BUILD_DIR)/html
 
 DRIVER_FILES := $(wildcard driver/*)
 SERVER_FILES := $(wildcard server/*)
 
+ifdef BINUTILS_DIR
 PATH := $(BINUTILS_DIR):$(PATH)
+endif
 
-default: driver server sim_server
+default: $(DEFAULT_TARGETS)
 .PHONY: default
 
 
@@ -63,16 +75,33 @@ $(SIM_SERVER): $(SIM_SERVER_BUILD_DIR) $(SERVER_FILES)
 	$(MAKE) -C $< -f $(TOP)/server/Makefile \
             VPATH=$(TOP)/server TOP=$(TOP) SIMSERVER=T
 
+simserver: simserver.in
+	sed 's:@@PYTHON@@:$(PYTHON):; s:@@BUILD_DIR@@:$(BUILD_DIR):' $< >$@
+	chmod +x $@
+
 server: $(SERVER)
-sim_server: $(SIM_SERVER)
+sim_server: $(SIM_SERVER) simserver
 
 .PHONY: server sim_server
+
+
+# ------------------------------------------------------------------------------
+# Documentation
+
+$(DOCS_BUILD_DIR)/index.html: $(wildcard docs/*.rst docs/*/*.rst docs/conf.py)
+	sphinx-build -b html docs $(DOCS_BUILD_DIR)
+
+docs: $(DOCS_BUILD_DIR)/index.html
+
+.PHONY: docs
 
 
 # ------------------------------------------------------------------------------
 
 clean:
 	rm -rf $(BUILD_DIR)
+	rm -f simserver
+
 .PHONY: clean
 
 

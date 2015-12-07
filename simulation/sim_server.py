@@ -1,5 +1,3 @@
-#!/usr/bin/env dls-python
-
 # Simple hardware simulation server.
 #
 # Lists on a socket port and performs the appropriate exchange to implement
