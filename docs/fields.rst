@@ -287,8 +287,8 @@ fields.
     The following attribute is supported:
 
     ``RAW``
-        This returns the corresponding lookup table assignment, or can be used
-        to write the raw value.
+        This returns the corresponding lookup table assignment as a 32-bit
+        number.
 
     For example::
 
@@ -298,37 +298,19 @@ fields.
         > OK =A=>B?C:D
         < LUT2.FUNC.RAW?
         > OK =4039962864
-        < LUT2.FUNC.RAW=33
-        > OK
-        < LUT2.FUNC?
-        > OK =0x00000021
 
 
 ``enum``
     Enumeration fields define a list of valid strings which can be written to
-    the field.  Two attributes are supported:
+    the field.  One attributes is supported:
 
     ``LABELS``
-        This returns the list of valid strings preceded by the corresponding
-        numerical value, for example::
+        This returns the list of valid enumeration values, for example::
 
             < TTLIN1.TERM.LABELS?
-            > !0 High-Z
-            > !1 50-Ohm
+            > !High-Z
+            > !50-Ohm
             > .
-
-    ``RAW``
-        This returns the current underlying numerical value of the field.
-
-        Note that this field can be written, and can presently be used to write
-        an invalid value.  For example::
-
-            < TTLIN1.TERM.RAW=33
-            > OK
-            < TTLIN1.TERM?
-            > ERR Index out of range
-
-        This behaviour is probably a bug.
 
 
 Summary of Attributes
@@ -339,7 +321,7 @@ Field (sub)type Attribute       Description                             R W C M
 =============== =============== ======================================= = = = =
 (all)           INFO            Returns type of field                   R
 uint            MAX             Maximum allowed integer value           R
-lut             RAW             Look up table logical formula           R W
+lut             RAW             Look up table logical formula           R
 enum            LABELS          List of enumeration labels              R     M
 time            UNITS           Units and scaling selection for time    R W C
 \               RAW             Raw time in FPGA clock cycles           R W
