@@ -1,0 +1,7 @@
+#######################
+$ Outputs follow inputs
+3       : A_SET=1           : A=1
+5       : A_SET=0, B_SET=1  : A=0, B=1
+8       : A_SET=1           : A=1
+9       : B_SET=0           : B=0
+13      : A_SET=0           : A=0

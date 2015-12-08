@@ -204,16 +204,16 @@ PCAP
     MASK            param
 
 BITS
+    A_SET           param       bit
+    B_SET           param       bit
+    C_SET           param       bit
+    D_SET           param       bit
+    A               bit_out
+    B               bit_out
+    C               bit_out
+    D               bit_out
     ZERO            bit_out
     ONE             bit_out
-    SOFTA           bit_out
-    SOFTA_SET       param       bit
-    SOFTB           bit_out
-    SOFTB_SET       param       bit
-    SOFTC           bit_out
-    SOFTC_SET       param       bit
-    SOFTD           bit_out
-    SOFTD_SET       param       bit
 
 CLOCKS
     CLOCKA          bit_out

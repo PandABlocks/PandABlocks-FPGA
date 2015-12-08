@@ -171,3 +171,16 @@ PCAP
     TRIG_POS        
     TRIG_ADC        
     MASK            
+
+BITS        Soft inputs and constant bits
+    A_SET           The value that output A should take
+    B_SET           The value that output B should take
+    C_SET           The value that output C should take
+    D_SET           The value that output D should take
+    A               The value of A_SET on the bit bus
+    B               The value of B_SET on the bit bus
+    C               The value of C_SET on the bit bus
+    D               The value of D_SET on the bit bus
+    ZERO            The constant value 0 on the bit bus
+    ONE             The constant value 1 on the bit bus   
+    

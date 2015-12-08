@@ -103,14 +103,16 @@ class Block(object):
             
         self.bit_outs, self.pos_outs = {}, {}
         for name, field in self.fields.items():
-            if field.cls == "bit_out":
-                bus_index = self.regs[name][self.num]
-                self.bit_outs[bus_index] = name
+            if field.cls.endswith("_out"):
+                if self.maxnum == 1:
+                    bus_index = self.regs[name]
+                else:
+                    bus_index = self.regs[name][self.num]
                 setattr(self, name, bus_index)
-            elif field.cls == "pos_out":
-                bus_index = self.regs[name][self.num]
-                self.pos_outs[bus_index] = name
-                setattr(self, name, bus_index)
+                if field.cls == "pos_out":
+                    self.pos_outs[bus_index] = name
+                else:
+                    self.bit_outs[bus_index] = name    
             else:
                 setattr(self, name, 0)
 

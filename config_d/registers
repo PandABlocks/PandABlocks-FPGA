@@ -184,16 +184,16 @@ CLOCKS      28
     CLOCKD_DIV      3
 
 BITS        29
-    SOFTA           118
-    SOFTA_SET       0
-    SOFTB           119
-    SOFTB_SET       1
-    SOFTC           120
-    SOFTC_SET       2
-    SOFTD           121
-    SOFTD_SET       3
-    ONE             126
+    A_SET           0
+    B_SET           1
+    C_SET           2
+    D_SET           3
+    A               118
+    B               119
+    C               120
+    D               121
     ZERO            127
+    ONE             126
 
 POSITIONS   30
     ZERO            29

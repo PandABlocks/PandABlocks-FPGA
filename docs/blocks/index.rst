@@ -8,5 +8,6 @@ Each block is documented with examples
 .. toctree::
    :maxdepth: 1
    
+   bits
    pulse
    div

@@ -8,9 +8,6 @@ OUTD = 1
 
 class Div(Block):
 
-    def __init__(self, num):
-        super(Div, self).__init__(num)
-
     def do_pulse(self, next_event, event):
         """We've received a bit event on INP, on a rising edge send it out of
         OUTN or OUTD, on a falling edge set them both low"""
