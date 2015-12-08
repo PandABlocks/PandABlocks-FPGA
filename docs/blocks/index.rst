@@ -9,5 +9,6 @@ Each block is documented with examples
    :maxdepth: 1
    
    bits
+   clocks
    pulse
    div

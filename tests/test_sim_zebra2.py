@@ -80,6 +80,9 @@ class SequenceTest(unittest.TestCase):
             # now check that any not mentioned are the right value
             for name, val in self.sequence.outputs[ts].items():
                 if name not in changes:
+                    field = block.fields[name]
+                    if field.cls.endswith("_out"):
+                        self.fail("%d: Didn't produce output %s = %d" % (ts, name, val))                    
                     actual = getattr(block, name)
                     self.assertEqual(
                         val, actual,

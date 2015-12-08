@@ -174,14 +174,14 @@ TTLIN       27
     VAL             0 1 2 3 4 5
 
 CLOCKS      28
-    CLOCKA          122
-    CLOCKA_DIV      0
-    CLOCKB          123
-    CLOCKB_DIV      1
-    CLOCKC          124
-    CLOCKC_DIV      2
-    CLOCKD          125
-    CLOCKD_DIV      3
+    A               122
+    B               123
+    C               124
+    D               125
+    A_PERIOD        0 1
+    B_PERIOD        2 3
+    C_PERIOD        4 5
+    D_PERIOD        6 7
 
 BITS        29
     A_SET           0

@@ -216,14 +216,14 @@ BITS
     ONE             bit_out
 
 CLOCKS
-    CLOCKA          bit_out
-    CLOCKA_DIV      param
-    CLOCKB          bit_out
-    CLOCKB_DIV      param
-    CLOCKC          bit_out
-    CLOCKC_DIV      param
-    CLOCKD          bit_out
-    CLOCKD_DIV      param
+    A_PERIOD        time
+    B_PERIOD        time
+    C_PERIOD        time
+    D_PERIOD        time
+    A               bit_out
+    B               bit_out
+    C               bit_out
+    D               bit_out
 
 POSITIONS
     ZERO            pos_out

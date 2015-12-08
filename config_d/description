@@ -184,3 +184,12 @@ BITS        Soft inputs and constant bits
     ZERO            The constant value 0 on the bit bus
     ONE             The constant value 1 on the bit bus   
     
+CLOCKS      Configurable clocks 
+    A_PERIOD        Period of clock A output
+    B_PERIOD        Period of clock B output
+    C_PERIOD        Period of clock C output
+    D_PERIOD        Period of clock D output
+    A               Clock A output
+    B               Clock B output
+    C               Clock C output
+    D               Clock D output    
