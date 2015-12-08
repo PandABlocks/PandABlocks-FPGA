@@ -37,12 +37,12 @@ $ Pulse train stretched and delayed
 2       : DELAY=10
 14      : INP=1         : QUEUE=2
 16      : INP=0
-21      : INP=1         : QUEUE=4
+23      : INP=1         : QUEUE=4
 24      :               : QUEUE=3, OUT=1
 28      : INP=0
 29      :               : QUEUE=2, OUT=0
-31      :               : QUEUE=1, OUT=1
-36      :               : QUEUE=0, OUT=0
+33      :               : QUEUE=1, OUT=1
+38      :               : QUEUE=0, OUT=0
 
 #################################################
 $ Stretched and delayed pulses too close together
