@@ -20,6 +20,9 @@ TRANSITION_HEIGHT = 0.6
 PULSE_HEIGHT = 1.0
 PLOT_OFFSET = 0.25
 CROSS_PIXELS = 8
+TOP_HEIGHT = 0.6
+BOTTOM_HEIGHT = 1.0
+VERTICAL_STRETCH = 0.5
 
 
 def legend_label(text, x, y, off):
@@ -201,8 +204,13 @@ def make_block_plot(block, title):
     
     # make it the right size
     fig = plt.gcf()
-    fig.set_size_inches(7.5, abs(offset) * 0.6, forward=True)    
-    plt.subplots_adjust(left=0.18, right=0.98, bottom=0.18)
+    total_height = TOP_HEIGHT + BOTTOM_HEIGHT + abs(offset)
+    fig.set_size_inches(7.5, total_height * VERTICAL_STRETCH, forward=True)    
+    
+    # set the margins
+    top_frac = 1.0 - TOP_HEIGHT / total_height
+    bottom_frac = BOTTOM_HEIGHT / total_height
+    plt.subplots_adjust(left=0.18, right=0.98, top=top_frac, bottom=bottom_frac)
     
     plt.show()
 
