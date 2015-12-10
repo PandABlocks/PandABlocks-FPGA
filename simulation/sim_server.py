@@ -9,7 +9,6 @@ require('numpy')
 import argparse
 import os
 import sys
-import importlib
 import socket
 import struct
 import numpy
@@ -22,8 +21,7 @@ parser.add_argument(
     '--hardware', default = 'sim_hardware', help = 'Simulation module to load')
 args = parser.parse_args()
 
-sim_hardware = importlib.import_module(args.hardware)
-
+sim_hardware = __import__(args.hardware)
 
 
 # We daemonise the server by double forking, but we leave the controlling
@@ -53,32 +51,33 @@ def read(sock, n):
 
 
 def run_simulation(conn):
+    controller = sim_hardware.Controller()
     while True:
         command_word = read(conn, 4)
         command, block, num, reg = struct.unpack('cBBB', command_word)
         if command == 'R':
-            tx = sim_hardware.do_read_data(block, num, reg)
+            tx = controller.do_read_data(block, num, reg)
             conn.sendall(struct.pack('I', tx))
         elif command == 'W':
             value, = struct.unpack('I', read(conn, 4))
-            sim_hardware.do_write_config(block, num, reg, value)
+            controller.do_write_config(block, num, reg, value)
         elif command == 'T':
             length, = struct.unpack('I', read(conn, 4))
             data = read(conn, length * 4)
             data = numpy.fromstring(data, dtype = numpy.int32)
-            sim_hardware.do_write_table(block, num, reg, data)
+            controller.do_write_table(block, num, reg, data)
         elif command == 'C':
-            bits, changes = sim_hardware.do_read_bits()
+            bits, changes = controller.do_read_bits()
             conn.sendall(struct.pack('256?', *bits + changes))
         elif command == 'P':
-            positions, changes = sim_hardware.do_read_positions()
+            positions, changes = controller.do_read_positions()
             conn.sendall(struct.pack('32I32?', *positions + changes))
         elif command == 'K':
             mask, = struct.unpack('I', read(conn, 4))
-            sim_hardware.set_bit_capture(mask)
+            controller.set_bit_capture(mask)
         elif command == 'M':
             mask, = struct.unpack('I', read(conn, 4))
-            sim_hardware.set_pos_capture(mask)
+            controller.set_pos_capture(mask)
         else:
             print 'Unexpected command', repr(command_word)
             raise SocketFail('Unexpected command')
