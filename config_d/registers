@@ -78,7 +78,7 @@ INENC       7
     B               64 65 66 67
     Z               68 69 70 71
     CONN            72 73 74 75
-    ENC_POSN        0 1 2 3
+    ENC_POSN        29 1 2 3
 
 QDEC        8
     A               0
@@ -171,7 +171,7 @@ LVDSIN      18
 
 TTLIN       27
     TERM            1
-    VAL             0 1 2 3 4 5
+    VAL             126 127 2 3 4 5
 
 CLOCKS      28
     A               122
@@ -192,11 +192,11 @@ BITS        29
     B               119
     C               120
     D               121
-    ZERO            127
-    ONE             126
+    ZERO            0
+    ONE             1
 
 POSITIONS   30
-    ZERO            29
+    ZERO            0
 
 # This special register block is not present in the config file and contains
 # fixed register definitions used in the hardware interface
