@@ -30,8 +30,7 @@ class SequenceTest(unittest.TestCase):
         # set muxes to increasing unique indexes
         i = 0
         for name, field in block.fields.items():
-            if field.cls == "param" and field.typ \
-                    and field.typ.endswith("_mux"):
+            if field.typ.endswith("_mux"):
                 setattr(block, name, i)
                 i += 1
         # {num: name}
@@ -44,8 +43,7 @@ class SequenceTest(unittest.TestCase):
             event = Event(ts)
             for name, val in changes.items():
                 field = block.fields[name]
-                if field.cls == "param" and field.typ \
-                        and field.typ.endswith("_mux"):
+                if field.typ.endswith("_mux"):
                     current = bus.get(name, 0)
                     self.assertNotEqual(
                         val, current,
@@ -98,7 +96,7 @@ class SequenceTest(unittest.TestCase):
 
             current = {}
             for name, field in block.fields.items():
-                if field.cls == "param" and field.typ and field.typ.endswith("_mux"):
+                if field.typ.endswith("_mux"):
                     bus_in.append(name)
                 elif field.cls.endswith("_out"):
                     bus_out.append(name)
