@@ -46,10 +46,10 @@ $! Set-reset conditions
 6       : SET=0
 7       : RESET=0
 
-10      : FORCE_RESET=0, SET=1    : VAL=1
+10      : FORCE_RESET=0, SET=1
 11      : SET=0
-12      : FORCE_RESET=0           : VAL=0
+12      : FORCE_RESET=0
 
-15      : RESET=1, FORCE_SET=0
+15      : RESET=1, FORCE_SET=0  : VAL=1
 16      : RESET=0
-18      : FORCE_RESET=0
+18      : FORCE_RESET=0         : VAL=0

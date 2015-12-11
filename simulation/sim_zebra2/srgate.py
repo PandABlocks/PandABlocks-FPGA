@@ -24,7 +24,7 @@ class Srgate(Block):
                 elif name == "FORCE_SET":
                     self.do_set(next_event, event)
         # if we got a reset, and it was high, do a reset
-        if event.bit.get(self.RESET, None) == self.RESET_EDGE:
+        elif event.bit.get(self.RESET, None) == self.RESET_EDGE:
             self.do_reset(next_event, event)
         # if we got a set, then process it
         elif event.bit.get(self.SET, None) == self.SET_EDGE:
