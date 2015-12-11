@@ -37,7 +37,8 @@ SRGATE[4]
     RESET_EDGE      param       enum 2
         0   Falling
         1   Rising
-    FORCE_STATE     write       bit
+    FORCE_SET       action
+    FORCE_RESET     action
 
 DIV[4]
     DIVISOR         param

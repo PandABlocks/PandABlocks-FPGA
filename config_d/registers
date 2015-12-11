@@ -20,7 +20,8 @@ SRGATE      3
     RESET           1
     SET_EDGE        2
     RESET_EDGE      3
-    FORCE_STATE     4
+    FORCE_SET       4
+    FORCE_RESET     5
     VAL             16 17 18 19
 
 DIV         4

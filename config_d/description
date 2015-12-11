@@ -27,7 +27,8 @@ SRGATE
     RESET           
     SET_EDGE        
     RESET_EDGE      
-    FORCE_STATE     
+    FORCE_SET
+    FORCE_RESET     
     VAL             
 
 DIV         Pulse divider
