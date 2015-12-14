@@ -103,7 +103,7 @@ class Block(object):
         self.num = num
         diff = set(regs) ^ set(self.fields)
         assert len(diff) == 0, "Mismatch %s" % diff
-            
+
         # dict bus index -> name
         self.bit_outs, self.pos_outs = {}, {}
         # dict reg num -> name

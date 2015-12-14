@@ -1,14 +1,14 @@
-.. _blocks:
+..  _blocks:
 
 Block functional documentation
 ==============================
 
 Each block is documented with examples
 
-.. toctree::
-   :maxdepth: 1
-   
-   bits
-   clocks
-   pulse
-   div
+..  toctree::
+    :maxdepth: 1
+
+    bits
+    clocks
+    pulse
+    div

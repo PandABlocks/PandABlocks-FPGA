@@ -21,7 +21,7 @@ class Pulse(Block):
 
     def do_pulse(self, next_event, event):
         """We've received a bit event on INP, so queue some output values
-        based on DELAY and WIDTH""" 
+        based on DELAY and WIDTH"""
         inp = event.bit[self.INP]
         # If the queue isn't valid at the moment then error
         # If there isn't room for 2 on the queue then error
@@ -53,9 +53,9 @@ class Pulse(Block):
         next_event.bit[self.PERR] = 0
         next_event.bit[self.OUT] = 0
         self.reset_queue(event)
-        
+
     def reset_queue(self, event):
-        self.valid_ts = event.ts + QUEUE_CLEAR_TIME        
+        self.valid_ts = event.ts + QUEUE_CLEAR_TIME
         self.queue.clear()
 
     def on_event(self, event):
@@ -83,7 +83,7 @@ class Pulse(Block):
         if self.queue:
             next_event.ts = self.queue[0][0]
             assert next_event.ts >= event.ts, \
-                "Going back in time %s >= %s" % (next_event.ts, event.ts)                
+                "Going back in time %s >= %s" % (next_event.ts, event.ts)
         # Event list changed, update status word
         self.QUEUE = len(self.queue)
         # return any changes and next ts

@@ -48,7 +48,7 @@ class Zebra2(Task):
             # Make an instance of it
             for i in range(config.num):
                 inst = cls(i+1)
-                self.blocks[(inst.reg_base, i)] = inst 
+                self.blocks[(inst.reg_base, i)] = inst
         # update specials
         #bit_zero = self.blocks[("BITS", 0)].ZERO
         bits_base = BlockRegisters.instances["BITS"].base
@@ -73,7 +73,7 @@ class Zebra2(Task):
         if reg_data:
             block, num, reg, value = reg_data
             # calculate FPGA timestamp from current time
-            diff = time.time() - self.start_time 
+            diff = time.time() - self.start_time
             ts = int(diff / CLOCK_TICK)
             # lookup block object and reg name
             block = self.blocks[(block, num)]
@@ -82,7 +82,7 @@ class Zebra2(Task):
             event = Event(ts, reg={name: value})
             # if the event changes a mux then update listeners
             field = block.fields[name]
-            if field.typ.endswith("_mux"):                
+            if field.typ.endswith("_mux"):
                 self.update_mux(block, event)
             elif field.cls == "time":
                 # update value by masking bits
@@ -144,7 +144,7 @@ class Zebra2(Task):
                     self.bit_bus[i] = val
                     self.bit_changed[i] = 1
             for i, val in pos_updates.items():
-                if self.pos_bus[i] != val:                
+                if self.pos_bus[i] != val:
                     self.pos_bus[i] = val
                     self.pos_changed[i] = 1
             # dict block->event
@@ -160,7 +160,7 @@ class Zebra2(Task):
                 for block in listeners:
                     event = events.setdefault(block, Event(ts+1))
                     event.pos[index] = value
-            # now delete wakeups for these things            
+            # now delete wakeups for these things
             for block in events:
                 block_wakeups.pop(block, None)
             # insert all other wakeups into the table
@@ -171,4 +171,4 @@ class Zebra2(Task):
             if events:
                 blocks_events = events.items()
             else:
-                return       
+                return

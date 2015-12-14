@@ -2,7 +2,7 @@ CLOCKS - Configurable clocks
 ============================
 
 The CLOCKS block contains 4 user-settable 50% duty cycle clocks. The period can
-be set for each clock separately. When any clock period is set, all clocks 
+be set for each clock separately. When any clock period is set, all clocks
 restart from a common synchronous point.
 
 Parameters
@@ -29,9 +29,9 @@ the new period value.
 
 .. plot::
 
-    from block_plot import make_block_plot    
+    from block_plot import make_block_plot
     make_block_plot("clocks", "Setting a parameter starts clock")
-    
+
 All clocks have the same starting point
 ---------------------------------------
 
@@ -39,6 +39,6 @@ When any period parameter is set, all clocks restart from that point.
 
 .. plot::
 
-    from block_plot import make_block_plot    
+    from block_plot import make_block_plot
     make_block_plot("clocks", "Clocks restart whenever parameter set")
 

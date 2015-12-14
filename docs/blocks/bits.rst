@@ -31,5 +31,5 @@ after a 1 clock tick propogation delay
 
 .. plot::
 
-    from block_plot import make_block_plot    
+    from block_plot import make_block_plot
     make_block_plot("bits", "Outputs follow inputs")

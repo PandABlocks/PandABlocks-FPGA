@@ -28,7 +28,7 @@ class Zebra2ControllerTest(unittest.TestCase):
             self.assertEqual(val, 0)
             self.assertEqual(self.z.pos_changed[i], 0)
             self.assertEqual(self.z.pos_listeners[i], [])
-    
+
     def test_clocks_set(self):
         clocks_reg = BlockRegisters.instances["CLOCKS"]
         clocks = self.z.blocks[(clocks_reg.base, 0)]
@@ -37,7 +37,8 @@ class Zebra2ControllerTest(unittest.TestCase):
         self.assertEqual(self.z.bit_bus[clocks.A], 0)
         # set 1s period
         one_second = 1.0 / CLOCK_TICK
-        data = (clocks_reg.base, 0, clocks_reg.fields["A_PERIOD"][0], one_second)
+        data = (clocks_reg.base, 0,
+            clocks_reg.fields["A_PERIOD"][0], one_second)
         self.z.post(data)
         # number of clockticks to reg set
         reg_ticks = (time.time() - self.z.start_time) / CLOCK_TICK
@@ -45,7 +46,8 @@ class Zebra2ControllerTest(unittest.TestCase):
         self.assertEqual(clocks.A_PERIOD, one_second)
         self.assertEqual(len(self.z.wakeups), 1)
         # check wakeup scheduled for 0.5s from now
-        self.assertAlmostEqual(self.z.wakeups[0][0], reg_ticks + one_second / 2, delta=10000)        
+        self.assertAlmostEqual(
+            self.z.wakeups[0][0], reg_ticks + one_second / 2, delta=10000)
         self.assertEqual(self.z.wakeups[0][1], clocks)
         self.assertEqual(self.z.bit_bus[clocks.A], 1)
         # handle another event
@@ -55,10 +57,11 @@ class Zebra2ControllerTest(unittest.TestCase):
         self.assertAlmostEqual(end-start, 0.5, delta=0.001)
         self.assertEqual(clocks.A_PERIOD, one_second)
         self.assertEqual(len(self.z.wakeups), 1)
-        self.assertAlmostEqual(self.z.wakeups[0][0], reg_ticks + one_second, delta=10000)        
+        self.assertAlmostEqual(
+            self.z.wakeups[0][0], reg_ticks + one_second, delta=10000)
         self.assertEqual(self.z.wakeups[0][1], clocks)
         self.assertEqual(self.z.bit_bus[clocks.A], 0)
-    
+
     def test_changing_inp(self):
         div_reg = BlockRegisters.instances["DIV"]
         div = self.z.blocks[(div_reg.base, 0)]
@@ -80,8 +83,8 @@ class Zebra2ControllerTest(unittest.TestCase):
         self.z.handle_events()
         self.assertEqual(self.z.bit_bus[bits.A], 1)
         self.assertEqual(self.z.bit_bus[div.OUTD], 1)
-        
-        
+
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

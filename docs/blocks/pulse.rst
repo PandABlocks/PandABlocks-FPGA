@@ -16,7 +16,7 @@ Parameters
 =============== === ======= ===================================================
 Name            Dir Type    Description
 =============== === ======= ===================================================
-DELAY           R/W Time    Output pulse delay. Must be either 0 (no delay) or 
+DELAY           R/W Time    Output pulse delay. Must be either 0 (no delay) or
                             >4 clock ticks
 WIDTH           R/W Time    Output pulse width. If 0, the width of the input
                             pulse is used
@@ -30,10 +30,10 @@ ERR_OVERFLOW    R   Bit     Indicates a missed pulse was due to overflow of the
                             internal queue. If DELAY is non-zero then up to 1023
                             pulse edges can be queued waiting for output.
 ERR_PERIOD      R   Bit     If producing a pulse would cause it to overlap with
-                            the previous pulse (WIDTH > time between pulses), 
+                            the previous pulse (WIDTH > time between pulses),
                             then this flag is set.
 QUEUE           R   UInt32  Length of the delay queue in range [0..1023]
-MISSED_CNT      R   UInt32  Number of pulses that have not been produced because 
+MISSED_CNT      R   UInt32  Number of pulses that have not been produced because
                             of an ERR condition. Will only be non-zero when PERR
                             is 1
 =============== === ======= ===================================================
@@ -47,7 +47,7 @@ are spaced enough to allow stretched pulses to be produced.
 
 .. plot::
 
-    from block_plot import make_block_plot    
+    from block_plot import make_block_plot
     make_block_plot("pulse", "Pulse stretching with no delay")
 
 Zero Width
@@ -57,14 +57,14 @@ If WIDTH=0, then the INP pulse width will be used. DELAY must be >4 clock ticks.
 
 .. plot::
 
-    from block_plot import make_block_plot        
+    from block_plot import make_block_plot
     make_block_plot("pulse", "Pulse delay with no stretch")
 
 Width and Delay
 ---------------
 
-In this mode, pulses are placed onto an output queue, so a number of restrictions
-apply:
+In this mode, pulses are placed onto an output queue, so a number of
+restrictions apply:
 
 * There must not be more than 1023 pulses on the output queue
 * WIDTH must be >3 clock ticks
@@ -73,12 +73,12 @@ apply:
 
 .. plot::
 
-    from block_plot import make_block_plot        
+    from block_plot import make_block_plot
     make_block_plot("pulse", "Pulse delay and stretch")
 
 .. plot::
 
-    from block_plot import make_block_plot        
+    from block_plot import make_block_plot
     make_block_plot("pulse", "Pulse train stretched and delayed")
 
 Pulse period error
@@ -89,6 +89,6 @@ short.
 
 .. plot::
 
-    from block_plot import make_block_plot        
+    from block_plot import make_block_plot
     make_block_plot("pulse", "Stretched and delayed pulses too close together")
 

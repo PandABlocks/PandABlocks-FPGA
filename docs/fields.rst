@@ -222,7 +222,7 @@ Field type          Description
 
         < SEQ3.TABLE<B
         < TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1
-        < 
+        <
         > OK
         < SEQ3.TABLE.LENGTH?
         > OK =12

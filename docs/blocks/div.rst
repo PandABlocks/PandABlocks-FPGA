@@ -13,9 +13,9 @@ Parameters
 =============== === ======= ===================================================
 Name            Dir Type    Description
 =============== === ======= ===================================================
-DIVISOR         R/W UInt32  Divisor value   
+DIVISOR         R/W UInt32  Divisor value
 FIRST_PULSE     R/W Enum    | 0 - OutN: Send first pulse to OUTN
-                            | 1 - OutD: Send first pulse to OUTD   
+                            | 1 - OutD: Send first pulse to OUTD
 FORCE_RESET     W   Action  Reset internal counter state machine
 INP             In  Bit     Input pulse train
 RESET           In  Bit     On rising edge, reset counter state machine
@@ -34,12 +34,12 @@ OUTN gets the next pulse.
 
 .. plot::
 
-    from block_plot import make_block_plot    
+    from block_plot import make_block_plot
     make_block_plot("div", "Start on OUTN")
 
 .. plot::
 
-    from block_plot import make_block_plot    
+    from block_plot import make_block_plot
     make_block_plot("div", "Start on OUTD")
 
 Reset conditions
@@ -51,6 +51,6 @@ makes no difference where the falling edge of the RESET comes.
 
 .. plot::
 
-    from block_plot import make_block_plot    
+    from block_plot import make_block_plot
     make_block_plot("div", "Reset conditions")
 

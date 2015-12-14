@@ -156,7 +156,7 @@ below:
     Returns list of client connections, for example::
 
         < *WHO?
-        > !2015-12-04T14:30:40.403Z config 127.0.0.1:34185 
+        > !2015-12-04T14:30:40.403Z config 127.0.0.1:34185
         > .
 
     The first field is the time the connection was made, the second field is

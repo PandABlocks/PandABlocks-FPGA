@@ -10,7 +10,7 @@ class Controller(object):
 
     # Must return an integer
     def do_read_data(self, block, num, reg):
-        block = self.z.blocks[(block, num)] 
+        block = self.z.blocks[(block, num)]
         name = block.regs[reg]
         value = getattr(block, name)
         return value
@@ -21,9 +21,9 @@ class Controller(object):
     def do_write_table(self, block, num, reg, data):
         self.z.post((block, num, "TABLE", data))
 
-    # Must return two boolean arrays, each 128 entries long.  The first array is the
-    # current bit readback, the second is set if the bit value has changed since the
-    # last reading.
+    # Must return two boolean arrays, each 128 entries long.  The first array is
+    # the current bit readback, the second is set if the bit value has changed
+    # since the last reading.
     def do_read_bits(self):
         bus, changed_d = self.z.bit_bus[:], self.z.bit_changed
         self.z.bit_changed = {}
@@ -39,7 +39,7 @@ class Controller(object):
         self.z.pos_changed = {}
         changed = [0] * 32
         for i in changed_d:
-            changed[i] = 1     
+            changed[i] = 1
         return bus, changed
 
     # Sets bit capture mask

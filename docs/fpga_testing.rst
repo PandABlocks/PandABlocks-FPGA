@@ -67,7 +67,7 @@ For example::
     7       : INP=1         : QUEUE=2
     8       : INP=0
     17      :               : QUEUE=1, OUT=1
-    27      :               : QUEUE=0, OUT=0             
+    27      :               : QUEUE=0, OUT=0
 
 This says:
 
@@ -87,7 +87,7 @@ Running the test
 You can invoke the test runner by doing::
 
     python tests/test_sim_zebra2.py
-    
+
 This will then search for all ``<block>.seq`` files, and scan them. It will
 build a sequence for each one found in the file, adding one called "All" that
 contains all of them one after another, and will be used to generate the FPGA
@@ -142,12 +142,12 @@ the block level documentation by writing the following directive::
 
     .. plot::
 
-        from block_plot import make_block_plot    
+        from block_plot import make_block_plot
         make_block_plot("<block>", "<title>")
 
 For instance::
 
     .. plot::
 
-        from block_plot import make_block_plot    
+        from block_plot import make_block_plot
         make_block_plot("pulse", "Pulse stretching with no delay")

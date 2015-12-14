@@ -26,7 +26,7 @@ VERTICAL_STRETCH = 0.5
 
 
 def legend_label(text, x, y, off):
-    plt.annotate(text, xy=(x, y), xytext=(x-off, y), 
+    plt.annotate(text, xy=(x, y), xytext=(x-off, y),
                  horizontalalignment="right", verticalalignment="center")
 
 def plot_bit(trace_items, offset, crossdist):
@@ -69,7 +69,7 @@ def plot_pos(trace_items, offset, crossdist, ts):
         # add label
         legend_label(name, 0, TRANSITION_HEIGHT / 2. + offset, crossdist)
     return offset
-            
+
 def make_block_plot(block, title):
     # Load the correct sequence file
     fname = block + ".seq"
@@ -103,7 +103,7 @@ def make_block_plot(block, title):
                 out_positions_names.append(name)
             else:
                 out_regs_names.append(name)
-                
+
     def bit_traces():
         trace_items = in_bits.items() + out_bits.items()
         return trace_items
@@ -150,7 +150,7 @@ def make_block_plot(block, title):
             elif name in sequence.outputs[ts]:
                 tracex.append(ts+1)
                 tracex.append(ts+1)
-                tracey.append(tracey[-1])                             
+                tracey.append(tracey[-1])
                 tracey.append(sequence.outputs[ts][name])
         for name, (tracex, tracey) in pos_traces():
             if name in sequence.inputs[ts]:
@@ -173,7 +173,7 @@ def make_block_plot(block, title):
     if off:
         ts += div - off
     plt.xlim(0, ts)
-    
+
     for name, (tracex, tracey) in bit_traces():
         tracex.append(ts)
         tracey.append(tracey[-1])
@@ -183,16 +183,18 @@ def make_block_plot(block, title):
 
     # now plot inputs
     offset = 0
-    offset = plot_pos(in_regs.items() + in_positions.items(), offset, crossdist, ts)
+    offset = plot_pos(
+        in_regs.items() + in_positions.items(), offset, crossdist, ts)
     offset = plot_bit(in_bits.items(), offset, crossdist)
 
     # draw a line
     offset -= PLOT_OFFSET
     plt.plot([0, ts], [offset, offset], 'k--')
-    
+
     # and now do outputs
     offset = plot_bit(out_bits.items(), offset, crossdist)
-    offset = plot_pos(out_positions.items() + out_regs.items(), offset, crossdist, ts)
+    offset = plot_pos(
+        out_positions.items() + out_regs.items(), offset, crossdist, ts)
 
     plt.ylim(offset - PLOT_OFFSET, 0)
     # add a grid, title, legend, and axis label
@@ -201,17 +203,17 @@ def make_block_plot(block, title):
     plt.xlabel("Timestamp (125MHz FPGA clock ticks)")
     # turn off ticks and labels for y
     plt.tick_params(left='off', right='off', labelleft='off')
-    
+
     # make it the right size
     fig = plt.gcf()
     total_height = TOP_HEIGHT + BOTTOM_HEIGHT + abs(offset)
-    fig.set_size_inches(7.5, total_height * VERTICAL_STRETCH, forward=True)    
-    
+    fig.set_size_inches(7.5, total_height * VERTICAL_STRETCH, forward=True)
+
     # set the margins
     top_frac = 1.0 - TOP_HEIGHT / total_height
     bottom_frac = BOTTOM_HEIGHT / total_height
     plt.subplots_adjust(left=0.18, right=0.98, top=top_frac, bottom=bottom_frac)
-    
+
     plt.show()
 
 if __name__ == "__main__":

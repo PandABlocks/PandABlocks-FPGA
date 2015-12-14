@@ -28,7 +28,7 @@ class Clocks(Block):
             bus_index = getattr(self, out)
             if period > 1:
                 off = (event.ts - self.start_ts) % period
-                half = period / 2 
+                half = period / 2
                 # produce clock high level
                 if off == 0:
                     next_event.bit[bus_index] = 1
