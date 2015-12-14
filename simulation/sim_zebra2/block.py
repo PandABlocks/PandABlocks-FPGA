@@ -31,15 +31,7 @@ def populate_registers():
             pass
         elif line.startswith(" "):
             name, val = line.strip().split(" ", 1)
-            val = val.strip().split()
-            if len(val) == 1:
-                val = val[0]
-                if "^" in val:
-                    val = pow(*map(int, val.split("^")))
-                else:
-                    val = int(val)
-            else:
-                val = [int(v) for v in val]
+            val = val.strip()
             instance.add_field(name.strip(), val)
         else:
             name, base = line.strip().split()
@@ -93,11 +85,11 @@ def populate_config():
 class Block(object):
 
     def __init__(self, num):
-        name = type(self).__name__.upper()
-        regs = BlockRegisters.instances[name].fields
-        self.reg_base = BlockRegisters.instances[name].base
-        self.maxnum = BlockConfig.instances[name].num
-        self.fields = BlockConfig.instances[name].fields
+        block_name = type(self).__name__.upper()
+        regs = BlockRegisters.instances[block_name].fields
+        self.reg_base = BlockRegisters.instances[block_name].base
+        self.maxnum = BlockConfig.instances[block_name].num
+        self.fields = BlockConfig.instances[block_name].fields
         assert num > 0 and num <= self.maxnum, \
             "Num %d out of range" % num
         self.num = num
@@ -111,32 +103,38 @@ class Block(object):
         # dict reg num -> lo/hi
         self.time_lohi = {}
         for name, field in self.fields.items():
+            # Initialise the attribute value to 0
+            setattr(self, name, 0)
             if field.cls.endswith("_out"):
-                if self.maxnum == 1:
-                    bus_index = regs[name]
-                else:
-                    bus_index = regs[name][self.num - 1]
+                # outs are an array of bus indexes
+                bus_index = int(regs[name].split()[self.num - 1])
                 setattr(self, name, bus_index)
                 if field.cls == "pos_out":
                     self.pos_outs[bus_index] = name
                 else:
                     self.bit_outs[bus_index] = name
+            elif field.cls == "table":
+                # Tables are special...
+                # TODO: handle tables
+                # if "^" in val:
+                #    val = pow(*map(int, val.split("^")))
+                # else:
+                #    val = int(val)
+                self.regs["TABLE"] = name
+            elif field.cls == "time":
+                # Time values are "lo hi [>offset]"
+                split = regs[name].split()
+                reg_offset = [int(x) for x in split[:2]]
+                self.regs[reg_offset[0]] = name
+                self.time_lohi[reg_offset[0]] = "lo"
+                self.regs[reg_offset[1]] = name
+                self.time_lohi[reg_offset[1]] = "hi"
+                # ignore offset as our blocks know about it
             else:
-                setattr(self, name, 0)
-                reg_offset = regs[name]
-                if field.cls == "time":
-                    assert len(reg_offset) == 2, \
-                        "Expected list len 2 for time, got %s" % reg_offset
-                    self.regs[reg_offset[0]] = name
-                    self.time_lohi[reg_offset[0]] = "lo"
-                    self.regs[reg_offset[1]] = name
-                    self.time_lohi[reg_offset[1]] = "hi"
-                elif field.cls == "table":
-                    self.regs["TABLE"] = name
-                else:
-                    assert isinstance(reg_offset, int), \
-                        "%s: Expected int, got %r" % (name, reg_offset)
-                    self.regs[reg_offset] = name
+                # everything else is "reg_offset [filter]"
+                split = regs[name].split(" ", 1)
+                reg_offset = int(split[0])
+                self.regs[reg_offset] = name
 
     def on_event(self, event):
         for name, value in event.reg.items():

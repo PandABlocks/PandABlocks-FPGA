@@ -22,23 +22,20 @@ class Zebra2ControllerTest(unittest.TestCase):
                 self.assertEqual(val, 1)
             else:
                 self.assertEqual(val, 0)
-            self.assertEqual(self.z.bit_changed[i], 0)
-            self.assertEqual(self.z.bit_listeners[i], [])
         for i, val in enumerate(self.z.pos_bus):
             self.assertEqual(val, 0)
-            self.assertEqual(self.z.pos_changed[i], 0)
-            self.assertEqual(self.z.pos_listeners[i], [])
 
     def test_clocks_set(self):
         clocks_reg = BlockRegisters.instances["CLOCKS"]
         clocks = self.z.blocks[(clocks_reg.base, 0)]
+        clocks_period_reg_lo = int(clocks_reg.fields["A_PERIOD"].split()[0])
         self.assertEqual(clocks.A_PERIOD, 0)
         self.assertEqual(self.z.wakeups, [])
         self.assertEqual(self.z.bit_bus[clocks.A], 0)
         # set 1s period
         one_second = 1.0 / CLOCK_TICK
         data = (clocks_reg.base, 0,
-            clocks_reg.fields["A_PERIOD"][0], one_second)
+            clocks_period_reg_lo, one_second)
         self.z.post(data)
         # number of clockticks to reg set
         reg_ticks = (time.time() - self.z.start_time) / CLOCK_TICK
@@ -70,7 +67,7 @@ class Zebra2ControllerTest(unittest.TestCase):
         # check disconnected
         self.assertEqual(div.INP, bits.ZERO)
         # connect to BITS.A
-        data = (div_reg.base, 0, div_reg.fields["INP"], bits.A)
+        data = (div_reg.base, 0, int(div_reg.fields["INP"]), bits.A)
         self.z.post(data)
         self.z.handle_events()
         self.assertEqual(div.INP, bits.A)
@@ -78,7 +75,7 @@ class Zebra2ControllerTest(unittest.TestCase):
         self.assertEqual(self.z.bit_bus[bits.A], 0)
         self.assertEqual(self.z.bit_bus[div.OUTD], 0)
         # toggle
-        data = (bits_reg.base, 0, bits_reg.fields["A_SET"], 1)
+        data = (bits_reg.base, 0, int(bits_reg.fields["A_SET"]), 1)
         self.z.post(data)
         self.z.handle_events()
         self.assertEqual(self.z.bit_bus[bits.A], 1)
