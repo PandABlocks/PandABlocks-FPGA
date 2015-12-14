@@ -27,7 +27,7 @@ SRGATE
     RESET           
     SET_EDGE        
     RESET_EDGE      
-    FORCE_SET
+    FORCE_SET       
     FORCE_RESET     
     VAL             
 
