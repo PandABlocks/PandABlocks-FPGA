@@ -123,6 +123,10 @@ Field type          Description
         This attribute can be read or written to report or set the delay in FPGA
         ticks.
 
+    ``MIN``
+        This reports the minimum valid value for this field in the currently
+        selected units.
+
     The ``UNITS`` attribute determines how numbers read or written to the field
     are interpreted.  For example::
 
