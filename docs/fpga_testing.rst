@@ -41,13 +41,13 @@ Unit test sequences
 
 A test sequence consists of the following grammar::
 
-  <sequence-list> ::= <sequence>*
-       <sequence> ::= <header> <event>*
-         <header> ::= "$" [<mark>] <title>
-           <mark> ::= "!"
-          <event> ::= <ts> ":" <changes> [":" <changes>]
-        <changes> ::= "" | <assignment> ["," <assignment>*]
-     <assignment> ::= <name> "=" <value>
+  sequence-list = sequence*
+       sequence = header event*
+         header = "$" [mark] title
+           mark = "!"
+          event = ts ":" changes [":" changes]
+        changes = "" | assignment ["," assignment]*
+     assignment = name "=" value
 
 Where:
 
