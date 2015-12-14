@@ -35,8 +35,8 @@ DIV         4
     COUNT           4
 
 PULSE       5
-    DELAY           3 2
-    WIDTH           3 2
+    DELAY           3 2     >5
+    WIDTH           3 2     >5
     FORCE_RESET     6
     INP             0
     RESET           1
