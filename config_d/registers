@@ -179,10 +179,10 @@ CLOCKS      28
     B               123
     C               124
     D               125
-    A_PERIOD        0 1
-    B_PERIOD        2 3
-    C_PERIOD        4 5
-    D_PERIOD        6 7
+    A_PERIOD        0
+    B_PERIOD        1
+    C_PERIOD        2
+    D_PERIOD        3
 
 BITS        29
     A_SET           0

@@ -217,10 +217,10 @@ BITS
     ONE             bit_out
 
 CLOCKS
-    A_PERIOD        time
-    B_PERIOD        time
-    C_PERIOD        time
-    D_PERIOD        time
+    A_PERIOD        param       time
+    B_PERIOD        param       time
+    C_PERIOD        param       time
+    D_PERIOD        param       time
     A               bit_out
     B               bit_out
     C               bit_out
