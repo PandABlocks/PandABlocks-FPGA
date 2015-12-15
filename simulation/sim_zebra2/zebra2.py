@@ -71,7 +71,7 @@ class Zebra2(Task):
             reg_data = self.get_next_event(timeout)
         # If we got a register set, process that
         if reg_data:
-            block, num, reg, value = reg_data
+            (block, num, reg, value), done = reg_data
             # calculate FPGA timestamp from current time
             diff = time.time() - self.start_time
             ts = int(diff / CLOCK_TICK)
@@ -94,6 +94,7 @@ class Zebra2(Task):
                     value = (value << 32) + lo
                 event.reg[name] = value
             self.process_blocks(ts, [(block, event)])
+            done.set()
         elif self.wakeups:
             # just process the block that needs it
             ts, block = self.wakeups.pop(0)

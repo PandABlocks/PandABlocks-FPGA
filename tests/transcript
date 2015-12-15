@@ -620,3 +620,20 @@
 > OK
 > OK
 > OK =1
+
+< *CHANGES.BITS=
+< *CHANGES.BITS?
+> OK
+> .
+
+# Ok, this is what we expect
+< BITS.A?
+< BITS.A_SET=0
+< BITS.A?
+< BITS.A_SET=1
+< BITS.A?
+> OK =1
+> OK
+> OK =0
+> OK
+> OK =1

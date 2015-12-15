@@ -16,10 +16,10 @@ class Controller(object):
         return value
 
     def do_write_config(self, block, num, reg, value):
-        self.z.post((block, num, reg, value))
+        self.z.post_wait((block, num, reg, value))
 
     def do_write_table(self, block, num, reg, data):
-        self.z.post((block, num, "TABLE", data))
+        self.z.post_wait((block, num, "TABLE", data))
 
     # Must return two boolean arrays, each 128 entries long.  The first array is
     # the current bit readback, the second is set if the bit value has changed
