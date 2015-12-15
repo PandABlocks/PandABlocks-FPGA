@@ -9,7 +9,7 @@ SIM_HARDWARE='@@SIM_HARDWARE@@'
 CONFIG_DB="$HERE"/config_d/config
 REGISTER_DB="$HERE"/config_d/registers
 DESCRIPTION_DB="$HERE"/config_d/description
-PERSISTENCE="$HERE"/build/persistence.state
+PERSISTENCE='@@BUILD_DIR@@'/persistence.state
 
 CONFIG_PORT=8888
 DATA_PORT=8889
