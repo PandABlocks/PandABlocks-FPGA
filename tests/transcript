@@ -602,3 +602,21 @@
 < abcd*xyz
 <
 > ERR Malformed base64 string
+
+
+# Check for change readbacks
+
+# In the test below we need to make another action before looking for the
+# response to the first action: this is a small timing bug in the simulation.
+< BITS.A_SET=0
+< BITS.B_SET=0
+< BITS.A?
+< BITS.A_SET=1
+< BITS.B_SET=1
+< BITS.A?
+> OK
+> OK
+> OK =0
+> OK
+> OK
+> OK =1
