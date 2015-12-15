@@ -621,6 +621,16 @@
 > OK
 > OK =1
 
+# Turn the clocks off!
+< CLOCKS.A_PERIOD=0
+< CLOCKS.B_PERIOD=0
+< CLOCKS.C_PERIOD=0
+< CLOCKS.D_PERIOD=0
+> OK
+> OK
+> OK
+> OK
+
 < *CHANGES.BITS=
 < *CHANGES.BITS?
 > OK
@@ -637,3 +647,11 @@
 > OK =0
 > OK
 > OK =1
+
+< BITS.A_SET=0
+< *CHANGES.BITS?
+< *CHANGES.BITS?
+> OK
+> !BITS.A=0
+> .
+> .
