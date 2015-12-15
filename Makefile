@@ -12,7 +12,7 @@ CROSS_COMPILE = arm-xilinx-linux-gnueabi-
 BINUTILS_DIR = /dls_sw/FPGA/Xilinx/SDK/2015.1/gnu/arm/lin/bin
 KERNEL_DIR = $(error Define KERNEL_DIR before building driver)
 DEFAULT_TARGETS = driver server sim_server docs
-SIM_HARDWARE = sim_hardware
+SIM_HARDWARE = sim_zebra2
 
 -include CONFIG
 

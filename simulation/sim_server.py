@@ -96,5 +96,5 @@ if args.daemon:
 conn.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
 try:
     run_simulation(conn)
-except SocketFail, e:
-    print 'Simulation closed:', e
+except (SocketFail, KeyboardInterrupt) as e:
+    print 'Simulation closed:', repr(e)

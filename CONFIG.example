@@ -31,6 +31,6 @@
 # - sim_hardware: dumb register set interface with no logic
 # - sim_zebra2: python simulation of FPGA logic functions, CPU intensive
 #
-# SIM_HARDWARE = sim_hardware
+# SIM_HARDWARE = sim_zebra2
 
 # vim: set filetype=make:
