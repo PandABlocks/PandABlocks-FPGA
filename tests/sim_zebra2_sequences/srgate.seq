@@ -39,7 +39,7 @@ $ Reset on falling Edge
 6       : RESET=0           : VAL=0
 
 ###############
-$! Set-reset conditions
+$ Set-reset conditions
 1       : RESET_EDGE=1
 2       : SET_EDGE=1
 5       : RESET=1, SET=1    : VAL=0
