@@ -236,12 +236,10 @@ begin
         // If not equal, display an error.
         if (out_o != out_expected) begin
             $display("OUT error detected at timestamp %d\n", timestamp);
-            $finish(2);
         end
 
         if (perr_o != perr_expected) begin
             $display("PERR error detected at timestamp %d\n", timestamp);
-            $finish(2);
         end
     end
 end

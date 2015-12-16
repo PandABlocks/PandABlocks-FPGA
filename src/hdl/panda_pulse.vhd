@@ -80,6 +80,7 @@ signal missed_pulses            : unsigned(15 downto 0);
 
 signal is_first_pulse           : std_logic := '1';
 signal period_error             : std_logic := '0';
+signal period_error_prev        : std_logic := '0';
 signal value                    : std_logic := '0';
 
 signal is_DELAY_zero            : std_logic := '0';
@@ -116,9 +117,9 @@ begin
     end if;
 end process;
 
--- Timestamps for rising and falling edges of the incloming pulses are detected, and
--- DELAY offset (for asserting outp), and WIDTH (for de-asserting outp) added to 
--- the timestamps and written into the Pulse Queue.
+-- Timestamps for rising and falling edges of the incloming pulses are
+-- detected and DELAY offset (for asserting outp), and WIDTH (for de-asserting
+-- outp) added to the timestamps and written into the Pulse Queue.
 --
 -- DELAY=0 is special case, only timestamp for falling edge of outp is written
 -- into the queue.
@@ -151,12 +152,12 @@ pulse_ts <= unsigned(pulse_queue_dout(47 downto 0));
 --
 
 -- Keep track of current period of incoming pulse train
--- In pulse train mode, it must be " T > WIDTH + 3", otherwise
+-- In pulse train mode, it must be " T > WIDTH + 4", otherwise
 -- incoming pulse is ignored.
 delta_T <= timestamp - timestamp_prev;
 
-period_error <= '1' when (delta_T < (unsigned(WIDTH) + 4))
-                    else '0';
+-- Ignore period error for the first pulse in the train.
+period_error <= not is_first_pulse when (delta_T < unsigned(WIDTH)+4) else '0';
 
 -- DELAY=0 is a special case where outp is immediately asserted while
 -- falling edge timestamp is written into the queue.
@@ -181,7 +182,9 @@ begin
             queue_din <= (others => '0');
             is_first_pulse <= '1';
             perr_o <= '0';
+            period_error_prev <= '0';
         else
+            period_error_prev <= period_error;
             pulse_queue_wstb <= '0';
             inp_rise_prev <= inp_rise;
             value <= '0';
@@ -198,22 +201,26 @@ begin
             -- incoming pulse is stored in the queue along with pulse value.
             -- (DELAY=0 is special again).
 
-            -- Queue full confition flags an error, and ticks missing pulse counter.
+            -- Queue full confition flags an error, and ticks missing pulse 
+            -- counter.
             if (inp_rise = '1' and pulse_queue_full = '1') then
                 ERR_OVERFLOW <= '1';
                 missed_pulses <= missed_pulses + 1;
                 perr_o <= '1';
-            -- Pulse period must obey Xilinx FIFO IP latency following first the
+            end if;
+            -- Pulse period must obey Xilinx FIFO IP latency following the first
             -- pulse.
-            elsif (inp_rise = '1' and period_error = '1' and is_first_pulse = '0') then
+            if (inp_rise = '1' and period_error = '1') then
                 ERR_PERIOD <= '1';
                 missed_pulses <= missed_pulses + 1;
                 perr_o <= '1';
+            end if;
+
             -- Capture timestamp for rising edge of the ongoing pulse, and add
             -- DELAY before writing into the queue.
             -- Ignore if DELAY is set to 0, timestamp for falling edge is
             -- inserted since outp start can not afford queue latency.
-            elsif (inp_rise = '1' and ongoing_pulse = '0') then
+            if (inp_rise = '1' and period_error = '0') then
                 timestamp_prev <= timestamp;
                 is_first_pulse <= '0';
                 pulse_queue_wstb <= '1';
@@ -226,11 +233,13 @@ begin
             -- Capturing falling edge is split into two conditions.
             -- 1./ When WIDTH is not 0, capture timestamp, add WIDTH and
             -- write immediately into the queue.
-            elsif (inp_rise_prev = '1' and ongoing_pulse = '1' and unsigned(WIDTH) /= 0) then
+            elsif (inp_rise_prev = '1' and period_error_prev = '0' and unsigned(WIDTH) /= 0) then
                 pulse_queue_wstb <= not is_DELAY_zero;
                 queue_din <= queue_din + unsigned(WIDTH);
-            -- 2./ When WIDTH=0, we need maintain incoming pulse witdth and apply DELAY.
-            -- So, wait until actual falling edge of the pulse for capturing the timestamp.
+            -- 2./ When WIDTH=0, we need maintain incoming pulse witdth and
+            -- apply DELAY.
+            -- So, wait until actual falling edge of the pulse for capturing
+            -- the timestamp.
             elsif (inp_fall = '1' and ongoing_pulse = '1' and unsigned(WIDTH) = 0) then
                 pulse_queue_wstb <= not is_DELAY_zero;
                 queue_din <= timestamp + unsigned(DELAY) + 1;
@@ -242,24 +251,26 @@ end process;
 --
 -- Process pulse output.
 --
+pulse_queue_rstb <= '1' when (pulse_queue_empty = '0' and timestamp = unsigned(pulse_ts) - 1)                     else '0';
+
 process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset = '1') then
             pulse <= '0';
         else
-            pulse_queue_rstb <= '0';
             -- Both Delay and Width are set to 0, pass-through input pulse.
             if (unsigned(DELAY) = 0 and unsigned(WIDTH) = 0) then
                 pulse <= inp_i;
             -- Delay set to 0: assert pulse immediately
-            elsif (unsigned(DELAY) = 0 and unsigned(WIDTH) /= 0 and inp_rise = '1') then
+            elsif (unsigned(DELAY) = 0 and unsigned(WIDTH) /= 0 
+                and inp_rise = '1' and period_error = '0') then
                 pulse <= '1';
             -- Consume pulse queue to assert and de-assert outp pulse.
             else
-                if (pulse_queue_empty = '0' and timestamp = unsigned(pulse_ts) - 1) then
+                if (pulse_queue_empty = '0' and 
+                        timestamp = unsigned(pulse_ts) - 1) then
                     pulse <= pulse_value;
-                    pulse_queue_rstb <= '1';
                 end if;
             end if;
         end if;
