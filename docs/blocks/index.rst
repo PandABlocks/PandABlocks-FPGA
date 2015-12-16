@@ -13,3 +13,4 @@ Each block is documented with examples
    pulse
    div
    srgate
+   lut
