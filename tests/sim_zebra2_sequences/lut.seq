@@ -1,0 +1,4 @@
+###############
+$! Change inputA
+1       : FUNC=1
+5       : INPA=1, INPB=1, INPC=1, INPD=1, INPE=1   : VAL=1
