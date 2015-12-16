@@ -17,12 +17,12 @@ constant AXI_BURST_LEN      : integer := 16;
 constant AXI_ADDR_WIDTH     : integer := 32;
 constant AXI_DATA_WIDTH     : integer := 32;
 
-signal mem_cs               : std_logic_vector(2**MEM_CS_NUM-1 downto 0);
-signal mem_addr             : std_logic_vector(MEM_AW-1 downto 0);
+signal mem_cs               : std_logic_vector(2**PAGE_NUM-1 downto 0);
+signal mem_addr             : std_logic_vector(PAGE_AW-1 downto 0);
 signal mem_odat             : std_logic_vector(31 downto 0);
 signal mem_wstb             : std_logic;
 signal mem_rstb             : std_logic;
-signal mem_read_data        : std32_array(2**MEM_CS_NUM-1 downto 0);
+signal mem_read_data        : std32_array(2**PAGE_NUM-1 downto 0);
 
 signal sysbus_i             : sysbus_t := (others => '0');
 signal posbus_i             : posbus_t := (others => (others => '0'));
@@ -179,8 +179,8 @@ port map (
 
 panda_csr_if_inst : entity work.panda_csr_if
 generic map (
-    MEM_CSWIDTH                 => MEM_CS_NUM,
-    MEM_AWIDTH                  => MEM_AW
+    MEM_CSWIDTH                 => PAGE_NUM,
+    MEM_AWIDTH                  => PAGE_AW
 )
 port map (
     S_AXI_CLK                   => FCLK_CLK0,
@@ -220,7 +220,7 @@ PORT MAP (
 
     mem_cs_i                    => mem_cs(0),
     mem_wstb_i                  => mem_wstb,
-    mem_addr_i                  => mem_addr(7 downto 0),
+    mem_addr_i                  => mem_addr(9 downto 0),
     mem_dat_i                   => mem_odat,
     mem_dat_o                   => open,
 

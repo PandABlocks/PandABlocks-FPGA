@@ -116,11 +116,13 @@ begin
     end if;
 end process;
 
--- Capture timestamp of incoming pulse, and add DELAY offset before
--- storing in the queue.
+-- Timestamps for rising and falling edges of the incloming pulses are detected, and
+-- DELAY offset (for asserting outp), and WIDTH (for de-asserting outp) added to 
+-- the timestamps and written into the Pulse Queue.
 --
--- DELAY=0 is special case, doesn't go through queue since
--- pulse train can not be supported in this mode.
+-- DELAY=0 is special case, only timestamp for falling edge of outp is written
+-- into the queue.
+--
 
 -- Pulse Queue keeps track of timestamps of incoming pulses.
 pulse_queue_inst : pulse_queue
@@ -136,7 +138,11 @@ port map (
     data_count  => pulse_queue_data_count
 );
 
+-- Queue data is composed of:
+-- timestamp & outp_value @ the timestamp
 pulse_queue_din <= value & std_logic_vector(queue_din);
+
+-- Queue output is decomposed into timestamp & outp_value @ the timestamp
 pulse_value <= pulse_queue_dout(48);
 pulse_ts <= unsigned(pulse_queue_dout(47 downto 0));
 
@@ -149,10 +155,13 @@ pulse_ts <= unsigned(pulse_queue_dout(47 downto 0));
 -- incoming pulse is ignored.
 delta_T <= timestamp - timestamp_prev;
 
-is_DELAY_zero <= '1' when (unsigned(DELAY) = 0) else '0';
-
 period_error <= '1' when (delta_T < (unsigned(WIDTH) + 4))
                     else '0';
+
+-- DELAY=0 is a special case where outp is immediately asserted while
+-- falling edge timestamp is written into the queue.
+is_DELAY_zero <= '1' when (unsigned(DELAY) = 0) else '0';
+
 
 -- Detect rising edge input pulse for time stamp registering.
 inp_rise  <= inp_i and not inp_prev;
@@ -177,7 +186,7 @@ begin
             inp_rise_prev <= inp_rise;
             value <= '0';
 
-            -- Flag ongoing pulse capture to be used for timestamp capturing
+            -- Ongoing pulse flag is used for timestamp capturing.
             if (inp_rise = '1' and pulse_queue_full = '0') then
                 ongoing_pulse <= '1';
             elsif (inp_fall = '1') then
@@ -187,7 +196,7 @@ begin
             --
             -- Timestamp information for both rising and falling-edge of the
             -- incoming pulse is stored in the queue along with pulse value.
-            --
+            -- (DELAY=0 is special again).
 
             -- Queue full confition flags an error, and ticks missing pulse counter.
             if (inp_rise = '1' and pulse_queue_full = '1') then
@@ -202,21 +211,26 @@ begin
                 perr_o <= '1';
             -- Capture timestamp for rising edge of the ongoing pulse, and add
             -- DELAY before writing into the queue.
+            -- Ignore if DELAY is set to 0, timestamp for falling edge is
+            -- inserted since outp start can not afford queue latency.
             elsif (inp_rise = '1' and ongoing_pulse = '0') then
                 timestamp_prev <= timestamp;
                 is_first_pulse <= '0';
-                pulse_queue_wstb <= not is_DELAY_zero;
-                queue_din <= timestamp + unsigned(DELAY) + 1;
-                value <= '1';
+                pulse_queue_wstb <= '1';
+                if (is_DELAY_zero = '1') then
+                    queue_din <= timestamp + unsigned(WIDTH) + 1;
+                else
+                    queue_din <= timestamp + unsigned(DELAY) + 1;
+                end if;
+                value <= not is_DELAY_zero;
             -- Capturing falling edge is split into two conditions.
-            -- 1./ When WIDTH is not 0, capture timestamp, and add WIDTH before
-            -- writing immediately into the queue.
+            -- 1./ When WIDTH is not 0, capture timestamp, add WIDTH and
+            -- write immediately into the queue.
             elsif (inp_rise_prev = '1' and ongoing_pulse = '1' and unsigned(WIDTH) /= 0) then
                 pulse_queue_wstb <= not is_DELAY_zero;
                 queue_din <= queue_din + unsigned(WIDTH);
-            -- 2./ When WIDTH=0, we need pass incoming pulse with DELAY. So, we
-            -- need to wait until actual falling edge of the pulse for capturing
-            -- timestamp.
+            -- 2./ When WIDTH=0, we need maintain incoming pulse witdth and apply DELAY.
+            -- So, wait until actual falling edge of the pulse for capturing the timestamp.
             elsif (inp_fall = '1' and ongoing_pulse = '1' and unsigned(WIDTH) = 0) then
                 pulse_queue_wstb <= not is_DELAY_zero;
                 queue_din <= timestamp + unsigned(DELAY) + 1;
@@ -238,14 +252,10 @@ begin
             -- Both Delay and Width are set to 0, pass-through input pulse.
             if (unsigned(DELAY) = 0 and unsigned(WIDTH) = 0) then
                 pulse <= inp_i;
-            -- Delay set to 0 case bypasses the pulse queue.
-            elsif (unsigned(DELAY) = 0 and unsigned(WIDTH) /= 0) then
-                if (inp_rise = '1') then
-                    pulse <= '1';
-                elsif (pulse = '1' and timestamp = timestamp_prev + unsigned(WIDTH)) then
-                    pulse <= '0';
-                end if;
-            -- Delay /= 0, pulses go through pulse queue.
+            -- Delay set to 0: assert pulse immediately
+            elsif (unsigned(DELAY) = 0 and unsigned(WIDTH) /= 0 and inp_rise = '1') then
+                pulse <= '1';
+            -- Consume pulse queue to assert and de-assert outp pulse.
             else
                 if (pulse_queue_empty = '0' and timestamp = unsigned(pulse_ts) - 1) then
                     pulse <= pulse_value;

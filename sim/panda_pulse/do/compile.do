@@ -29,12 +29,12 @@ vsim -t 1ps -novopt -lib xil_defaultlib panda_pulse_tb
 
 view wave
 
-add wave -radix decimal -group "Testbench" \
-        sim:/panda_pulse_tb/*
+#add wave -radix decimal -group "Testbench" \
+#        sim:/panda_pulse_tb/*
+#
+#add wave -radix decimal -group "Pulse" \
+#        sim:/panda_pulse_tb/uut/*
 
-add wave -radix decimal -group "Pulse" \
-        sim:/panda_pulse_tb/uut/*
-
-#do wave.do
+do wave.do
 
 run 5us
