@@ -15,7 +15,8 @@ class Lut(Block):
         for name, val in event.bit.items():
             self.inputs[input_map[name]] = val
         x = self.get_address(self.inputs)
-        next_event.bit[self.VAL] = int('{0:032b}'.format(self.FUNC)[x])
+
+        next_event.bit[self.VAL] = int('{0:032b}'.format(self.FUNC)[::-1][x])
 
     def get_address(self, input):
         return (input['A'] << 4) + (input['B'] << 3) + (input['C'] << 2) + (input['D'] << 1) + input['E']
