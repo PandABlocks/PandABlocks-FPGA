@@ -64,11 +64,15 @@ class Pulse(Block):
         next_event = Event()
         # if we got register changes, handle those
         if event.reg:
+            changes = False
             for name, value in event.reg.items():
-                setattr(self, name, value)
-                if name == "FORCE_RESET":
+                if getattr(self, name) != value:
+                    setattr(self, name, value)
+                    changes = True
+                if name == "FORCE_RESET" and value:
                     self.do_reset(next_event, event)
-            self.reset_queue(event)
+            if changes:
+                self.reset_queue(event)
         # if we got a reset, and it was high, do a reset
         if event.bit.get(self.RESET, None):
             self.do_reset(next_event, event)

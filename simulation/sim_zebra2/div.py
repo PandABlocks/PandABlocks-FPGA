@@ -39,9 +39,13 @@ class Div(Block):
         next_event = Event()
         # if we got register changes, handle those
         if event.reg:
+            changes = False
             for name, value in event.reg.items():
-                setattr(self, name, value)
-            self.do_reset(next_event, event)
+                if getattr(self, name) != value:
+                    setattr(self, name, value)
+                    changes = True
+            if changes:
+                self.do_reset(next_event, event)
         # if we got a reset, and it was high, do a reset
         if event.bit.get(self.RESET, None):
             self.do_reset(next_event, event)

@@ -19,9 +19,9 @@ class Srgate(Block):
         if event.reg:
             for name, value in event.reg.items():
                 setattr(self, name, value)
-                if name == "FORCE_RESET":
+                if name == "FORCE_RESET" and value:
                     self.do_reset(next_event, event)
-                elif name == "FORCE_SET":
+                elif name == "FORCE_SET" and value:
                     self.do_set(next_event, event)
         # if we got a reset, and it was high, do a reset
         elif event.bit.get(self.RESET, None) == self.RESET_EDGE:

@@ -24,16 +24,16 @@ class SequenceParser(object):
         all = Sequence("All")
         ts_off = 0
         for seq in self.sequences:
-            inputs = {}
-            outputs = {}
+            changes = {}
             for ts in seq.inputs:
                 all.add_line(ts_off+ts, seq.inputs[ts], seq.outputs[ts])
-                inputs.update(seq.inputs[ts])
-                outputs.update(seq.outputs[ts])
+                changes.update(seq.inputs[ts])
+                for k, v in seq.outputs[ts].items():
+                    if k in changes:
+                        changes[k] = v
             # now set them all back
-            inputs = dict((k, 0) for k,v in inputs.items() if v != 0)
-            outputs = dict((k, 0) for k,v in outputs.items() if v != 0)
-            all.add_line(ts_off + ts + 1, inputs, outputs)
+            changes = dict((k, 0) for k,v in changes.items() if v != 0)
+            all.add_line(ts_off + ts + 1, changes, {})
             # now wait for a bit
             ts_off += ts + 10
         self.sequences.append(all)
