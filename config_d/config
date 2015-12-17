@@ -165,7 +165,7 @@ COUNTER[8]
     ENABLE          param       bit_mux
     TRIGGER         param       bit_mux
     DIR             param       bit_mux
-    COUNTN          pos_out
+    COUNT           pos_out
     CARRY           bit_out
     START           param
     STEP            param

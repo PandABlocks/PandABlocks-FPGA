@@ -131,7 +131,7 @@ COUNTER     13
     START           3
     STEP            4
     SOFT_ENABLE     5
-    COUNTN          11 12 13 14 15 16 17 18
+    COUNT           11 12 13 14 15 16 17 18
     CARRY           84 85 86 87 88 89 90 91
 
 PGEN        14
