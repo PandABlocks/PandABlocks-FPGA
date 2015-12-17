@@ -7,4 +7,4 @@ grep --exclude-dir=build --exclude-dir=.git --exclude=description -rIl \
     ' $\|.\{81\}' .
 
 # Search for files missing the newline at end of file
-pcregrep --exclude_dir='build|.git' --exclude=.*.pyc -rl -LM '\n$' .
+pcregrep --exclude_dir='build|\.git' --exclude=.*\.pyc -rl -LM '\n$' .

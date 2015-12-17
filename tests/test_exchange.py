@@ -1,15 +1,30 @@
 #!/usr/bin/env python
 
+import argparse
 import sys
 import socket
 import time
 
+parser = argparse.ArgumentParser(description = 'Run Conversation Test Script')
+parser.add_argument(
+    '-s', '--server', default = 'localhost',
+    help = 'PandA server name, default %(default)s')
+parser.add_argument(
+    '-p', '--port', default = 8888, type = int,
+    help = 'PandA server port, default %(default)d')
+parser.add_argument(
+    '-q', '--quiet', default = False, action = 'store_true',
+    help = 'Only show failed tests')
+parser.add_argument(
+    'script', help = 'Test script to run')
+args = parser.parse_args()
+
 
 server = socket.socket()
-server.connect(('localhost', 8888))
+server.connect((args.server, args.port))
 server.settimeout(0.1)
 
-transcript = open(sys.argv[1], 'r')
+transcript = open(args.script, 'r')
 
 
 
@@ -91,7 +106,8 @@ while True:
         break
     else:
         if response == rx:
-            print tx[0], 'OK %.2f ms' % (1e3 * (end - start))
+            if not args.quiet:
+                print tx[0], 'OK %.2f ms' % (1e3 * (end - start))
         else:
             print tx[0], 'response error', response, 'on line', line_no
             failed += 1
