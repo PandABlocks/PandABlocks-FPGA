@@ -109,7 +109,8 @@ INENC[4]
     RATE            param
     BITS            param       uint 63
     RST_ON_Z        param       bit
-    SETP            write
+    EXTENSION       read
+    SETP            write       position
 
 QDEC[4]
     A               param       bit_mux
@@ -184,9 +185,9 @@ PCOMP[4]
     POSN            param       pos_mux
     ACT             bit_out
     PULSE           bit_out
-    START           param
-    STEP            param
-    WIDTH           param
+    START           param       position
+    STEP            param       position
+    WIDTH           param       position
     NUM             param
     RELATIVE        param
     LUT_ENABLE      param
@@ -200,9 +201,9 @@ ADC[8]
 
 PCAP
     ENABLE          param       bit_mux
-    TRIG_POS        param       bit_mux
-    TRIG_ADC        param       bit_mux
-    MASK            param
+    FRAME           param       bit_mux
+    CAPTURE         param       bit_mux
+    ACTIVE          bit_out
 
 BITS
     A_SET           param       bit

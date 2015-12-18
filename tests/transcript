@@ -511,7 +511,7 @@
 < PULSE1.DELAY=1e99
 > ERR Time setting out of range
 
-< PULSE1.DELAY.RAW=5
+< PULSE1.DELAY.RAW=3
 > ERR Value too small
 
 < PULSE1.DELAY=2e-8

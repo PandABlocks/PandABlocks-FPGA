@@ -167,11 +167,11 @@ ADC
     TRIGGERD        
     DATA            
 
-PCAP        
-    ENABLE          
-    TRIG_POS        
-    TRIG_ADC        
-    MASK            
+PCAP        Position capture control
+    ENABLE          Data capture enable
+    FRAME           Data capture frame
+    CAPTURE         Data capture event
+    ACTIVE          Data capture in progress
 
 BITS        Soft inputs and constant bits
     A_SET           The value that output A should take
@@ -183,9 +183,9 @@ BITS        Soft inputs and constant bits
     C               The value of C_SET on the bit bus
     D               The value of D_SET on the bit bus
     ZERO            The constant value 0 on the bit bus
-    ONE             The constant value 1 on the bit bus   
-    
-CLOCKS      Configurable clocks 
+    ONE             The constant value 1 on the bit bus
+
+CLOCKS      Configurable clocks
     A_PERIOD        Period of clock A output
     B_PERIOD        Period of clock B output
     C_PERIOD        Period of clock C output
@@ -193,4 +193,4 @@ CLOCKS      Configurable clocks
     A               Clock A output
     B               Clock B output
     C               Clock C output
-    D               Clock D output    
+    D               Clock D output

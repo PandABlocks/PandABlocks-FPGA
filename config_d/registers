@@ -35,8 +35,8 @@ DIV         4
     COUNT           4
 
 PULSE       5
-    DELAY           3 2     >5
-    WIDTH           5 4     >5
+    DELAY           3 2     >3
+    WIDTH           5 4     >3
     FORCE_RESET     6
     INP             0
     RESET           1
@@ -75,6 +75,7 @@ INENC       7
     BITS            2
     RST_ON_Z        3
     SETP            4
+    EXTENSION       5
     A               60 61 62 63
     B               64 65 66 67
     Z               68 69 70 71
@@ -163,9 +164,9 @@ ADC         16
 
 PCAP        17
     ENABLE          0
-    TRIG_POS        1
-    TRIG_ADC        2
-    MASK            3
+    FRAME           1
+    CAPTURE         2
+    ACTIVE          112
 
 LVDSIN      18
     VAL             6 7
