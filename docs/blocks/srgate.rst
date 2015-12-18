@@ -40,6 +40,11 @@ some description here
     from block_plot import make_block_plot
     make_block_plot("srgate", "Set on falling Edge with Set")
 
+.. plot::
+
+    from block_plot import make_block_plot
+    make_block_plot("srgate", "Set and SetEdge 0")
+
 
 
 Reset conditions
@@ -56,6 +61,11 @@ some description here
 
     from block_plot import make_block_plot
     make_block_plot("srgate", "Reset on falling Edge")
+
+.. plot::
+
+    from block_plot import make_block_plot
+    make_block_plot("srgate", "Reset and ResetEdge 0")
 
 Set-reset conditions
 --------------------
