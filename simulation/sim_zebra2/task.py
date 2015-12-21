@@ -9,6 +9,11 @@ class Task(object):
     def make_queue(self):
         self.q = Queue.Queue()
 
+    def post(self, event):
+        done = threading.Event()
+        self.q.put((event, done))
+        return done
+
     def post_wait(self, event):
         done = threading.Event()
         self.q.put((event, done))
