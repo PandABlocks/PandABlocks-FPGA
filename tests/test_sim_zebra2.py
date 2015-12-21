@@ -8,9 +8,8 @@ import sim_zebra2
 from sim_zebra2.event import Event
 # and our sequence parser dir
 parser_dir = os.path.join(os.path.dirname(__file__), "sim_zebra2_sequences")
-fpga_dir = os.path.join(os.path.dirname(__file__), "fpga_sequences")
 sys.path.append(parser_dir)
-from sequence_parser import SequenceParser
+from sequence_parser import SequenceParser, FpgaSequence
 
 
 class SequenceTest(unittest.TestCase):
@@ -98,6 +97,8 @@ def make_suite():
             parser = SequenceParser(os.path.join(parser_dir, fname))
             for seq in parser.sequences:
                 sequences.append((fname.split(".")[0], seq))
+            # Write the FPGA sequences
+            FpgaSequence(parser, fname.split(".")[0]).write()
     # These are the tests that start with !
     marks = [s for s in sequences if s[1].mark]
     if marks:
