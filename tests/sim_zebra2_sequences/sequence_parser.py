@@ -20,23 +20,6 @@ class SequenceParser(object):
                     self.parse_line(line)
                 except Exception, e:
                     raise ValueError(e.message + "\nLine: %s" % line)
-        # make a sequence for all
-        all = Sequence("All")
-        ts_off = 0
-        for seq in self.sequences:
-            changes = {}
-            for ts in seq.inputs:
-                all.add_line(ts_off+ts, seq.inputs[ts], seq.outputs[ts])
-                changes.update(seq.inputs[ts])
-                for k, v in seq.outputs[ts].items():
-                    if k in changes:
-                        changes[k] = v
-            # now set them all back
-            changes = dict((k, 0) for k,v in changes.items() if v != 0)
-            all.add_line(ts_off + ts + 1, changes, {})
-            # now wait for a bit
-            ts_off += ts + 10
-        self.sequences.append(all)
 
     def parse_line(self, line):
         line = line.strip()
@@ -79,15 +62,67 @@ class Sequence(object):
         self.inputs[ts] = inputs
         self.outputs[ts] = outputs
 
+def generate_fpga_sequences(fname):
+    parser = SequenceParser(fname)
+    ts_off = 0
+    for sequence in parser.sequences:
+        # if we were successful, then write the "All" test to FPGA
+        if self.sequence.name == "All":
+            # Get the column headings
+            bus_in = []
+            bus_out = []
+            reg_in = []
+            reg_out = []
+
+            current = {}
+            for name, field in block.fields.items():
+                if field.typ.endswith("_mux"):
+                    bus_in.append(name)
+                elif field.cls.endswith("_out"):
+                    bus_out.append(name)
+                elif field.cls == "read":
+                    reg_out.append(name)
+                else:
+                    reg_in.append(name)
+            # Write the lines
+            try:
+                os.makedirs(fpga_dir)
+            except OSError:
+                pass
+            fbus_in = open(
+                os.path.join(fpga_dir, self.block + "_bus_in.txt"), "w")
+            fbus_out = open(
+                os.path.join(fpga_dir, self.block + "_bus_out.txt"), "w")
+            freg_in = open(
+                os.path.join(fpga_dir, self.block + "_reg_in.txt"), "w")
+            freg_out = open(
+                os.path.join(fpga_dir, self.block + "_reg_out.txt"), "w")
+            fbus_in.write("\t".join(["TS"] + bus_in) + "\n")
+            fbus_out.write("\t".join(["TS"] + bus_out) + "\n")
+            freg_in.write("\t".join(["TS"] + reg_in) + "\n")
+            freg_out.write("\t".join(["TS"] + reg_out) + "\n")
+            for ts in self.sequence.inputs:
+                current.update(self.sequence.inputs[ts])
+                current.update(self.sequence.outputs[ts])
+
+                lbus_in = [str(current.get(name, 0)) for name in bus_in]
+                lbus_out = [str(current.get(name, 0)) for name in bus_out]
+                lreg_in = [str(current.get(name, 0)) for name in reg_in]
+                lreg_out = [str(current.get(name, 0)) for name in reg_out]
+
+                fbus_in.write("\t".join([str(ts)] + lbus_in) + "\n")
+                fbus_out.write("\t".join([str(ts+1)] + lbus_out) + "\n")
+                freg_in.write("\t".join([str(ts)] + lreg_in) + "\n")
+                freg_out.write("\t".join([str(ts+1)] + lreg_out) + "\n")
+
+            fbus_in.close()
+            fbus_out.close()
+            freg_in.close()
+            freg_out.close()
+
 # test
 if __name__ == "__main__":
     import os
-    pulse = os.path.join(os.path.dirname(__file__), "pulse.seq")
-    parser = SequenceParser(pulse)
-    assert len(parser.sequences) == 2
-    s = parser.sequences[0]
-    assert len(s.inputs) == 5
-    assert len(s.outputs) == 5
-    print s.inputs.keys()
-    print s.inputs.values()
-    print s.outputs.values()
+    import sys
+    fname = os.path.join(os.path.dirname(__file__), sys.argv[1] + ".seq")
+    generate_fpga_sequences(fname)
