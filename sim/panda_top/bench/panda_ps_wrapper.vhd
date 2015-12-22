@@ -5,24 +5,24 @@ use UNISIM.VCOMPONENTS.ALL;
 
 entity panda_ps is
   port (
-    DDR_addr : inout STD_LOGIC_VECTOR ( 14 downto 0 );
-    DDR_ba : inout STD_LOGIC_VECTOR ( 2 downto 0 );
-    DDR_cas_n : inout STD_LOGIC;
-    DDR_ck_n : inout STD_LOGIC;
-    DDR_ck_p : inout STD_LOGIC;
-    DDR_cke : inout STD_LOGIC;
-    DDR_cs_n : inout STD_LOGIC;
-    DDR_dm : inout STD_LOGIC_VECTOR ( 3 downto 0 );
-    DDR_dq : inout STD_LOGIC_VECTOR ( 31 downto 0 );
-    DDR_dqs_n : inout STD_LOGIC_VECTOR ( 3 downto 0 );
-    DDR_dqs_p : inout STD_LOGIC_VECTOR ( 3 downto 0 );
-    DDR_odt : inout STD_LOGIC;
-    DDR_ras_n : inout STD_LOGIC;
-    DDR_reset_n : inout STD_LOGIC;
-    DDR_we_n : inout STD_LOGIC;
-    FCLK_CLK0 : out STD_LOGIC;
-    FCLK_LEDS : out STD_LOGIC_VECTOR ( 31 downto 0 );
-    FCLK_RESET0_N : out STD_LOGIC_VECTOR ( 0 to 0 );
+    DDR_addr            : inout STD_LOGIC_VECTOR ( 14 downto 0 );
+    DDR_ba              : inout STD_LOGIC_VECTOR ( 2 downto 0 );
+    DDR_cas_n           : inout STD_LOGIC;
+    DDR_ck_n            : inout STD_LOGIC;
+    DDR_ck_p            : inout STD_LOGIC;
+    DDR_cke             : inout STD_LOGIC;
+    DDR_cs_n            : inout STD_LOGIC;
+    DDR_dm              : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+    DDR_dq              : inout STD_LOGIC_VECTOR ( 31 downto 0 );
+    DDR_dqs_n           : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+    DDR_dqs_p           : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+    DDR_odt             : inout STD_LOGIC;
+    DDR_ras_n           : inout STD_LOGIC;
+    DDR_reset_n         : inout STD_LOGIC;
+    DDR_we_n            : inout STD_LOGIC;
+    FCLK_CLK0           : out STD_LOGIC;
+    FCLK_LEDS           : out STD_LOGIC_VECTOR ( 31 downto 0 );
+    FCLK_RESET0_N       : out STD_LOGIC_VECTOR ( 0 to 0 );
     FIXED_IO_ddr_vrn : inout STD_LOGIC;
     FIXED_IO_ddr_vrp : inout STD_LOGIC;
     FIXED_IO_mio : inout STD_LOGIC_VECTOR ( 53 downto 0 );
@@ -96,7 +96,6 @@ signal irq_f2p_signal   : std_logic_vector(3 downto 0);
 signal FCLK             : std_logic;
 signal tb_ARESETn       : std_logic := '0';
 
-
 begin
 
 irq_f2p_signal(0) <= IRQ_F2P(0);
@@ -107,28 +106,28 @@ FCLK_RESET0_N(0) <= tb_ARESETn;
 
 ps : entity work.zynq_ps
 port map (
-    FCLK_CLK0       => FCLK,
-    FCLK_RESET0_N   => open,
-    IRQ_F2P         => irq_f2p_signal,
-    M00_AXI_araddr  => M00_AXI_araddr,
-    M00_AXI_arprot  => M00_AXI_arprot,
-    M00_AXI_arready => M00_AXI_arready,
-    M00_AXI_arvalid => M00_AXI_arvalid,
-    M00_AXI_awaddr  => M00_AXI_awaddr,
-    M00_AXI_awprot  => M00_AXI_awprot,
-    M00_AXI_awready => M00_AXI_awready,
-    M00_AXI_awvalid => M00_AXI_awvalid,
-    M00_AXI_bready  => M00_AXI_bready,
-    M00_AXI_bresp   => M00_AXI_bresp,
-    M00_AXI_bvalid  => M00_AXI_bvalid,
-    M00_AXI_rdata   => M00_AXI_rdata,
-    M00_AXI_rready  => M00_AXI_rready,
-    M00_AXI_rresp   => M00_AXI_rresp,
-    M00_AXI_rvalid  => M00_AXI_rvalid,
-    M00_AXI_wdata   => M00_AXI_wdata,
-    M00_AXI_wready  => M00_AXI_wready,
-    M00_AXI_wstrb   => M00_AXI_wstrb,
-    M00_AXI_wvalid  => M00_AXI_wvalid,
+    FCLK_CLK0           => FCLK,
+    FCLK_RESET0_N       => open,
+    IRQ_F2P             => irq_f2p_signal,
+    M00_AXI_araddr      => M00_AXI_araddr,
+    M00_AXI_arprot      => M00_AXI_arprot,
+    M00_AXI_arready     => M00_AXI_arready,
+    M00_AXI_arvalid     => M00_AXI_arvalid,
+    M00_AXI_awaddr      => M00_AXI_awaddr,
+    M00_AXI_awprot      => M00_AXI_awprot,
+    M00_AXI_awready     => M00_AXI_awready,
+    M00_AXI_awvalid     => M00_AXI_awvalid,
+    M00_AXI_bready      => M00_AXI_bready,
+    M00_AXI_bresp       => M00_AXI_bresp,
+    M00_AXI_bvalid      => M00_AXI_bvalid,
+    M00_AXI_rdata       => M00_AXI_rdata,
+    M00_AXI_rready      => M00_AXI_rready,
+    M00_AXI_rresp       => M00_AXI_rresp,
+    M00_AXI_rvalid      => M00_AXI_rvalid,
+    M00_AXI_wdata       => M00_AXI_wdata,
+    M00_AXI_wready      => M00_AXI_wready,
+    M00_AXI_wstrb       => M00_AXI_wstrb,
+    M00_AXI_wvalid      => M00_AXI_wvalid,
 
     S_AXI_HP0_araddr    => S_AXI_HP0_araddr , 
     S_AXI_HP0_arburst   => S_AXI_HP0_arburst, 
@@ -175,6 +174,5 @@ port map (
 );
 
 tb_ARESETn <= '1' after 1 us;
-
 
 end rtl;

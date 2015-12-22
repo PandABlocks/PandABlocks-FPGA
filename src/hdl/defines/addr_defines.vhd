@@ -41,57 +41,67 @@ constant PCOMP_CS               : natural := 13;
 --
 -- LOGIC Block Register Address Space
 --
-constant TTLOUT_VAL_ADDR        : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
+constant TTLOUT_VAL_ADDR        : std_logic_vector := TO_SVECTOR(0, BLK_AW);
 
-constant LVDSOUT_VAL_ADDR       : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
+constant LVDSOUT_VAL_ADDR       : std_logic_vector := TO_SVECTOR(0, BLK_AW);
 
-constant LUT_INPA_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
-constant LUT_INPB_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
-constant LUT_INPC_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);
-constant LUT_INPD_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(3, BLK_AW);
-constant LUT_INPE_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(4, BLK_AW);
-constant LUT_FUNC_ADDR          : std_logic_vector := TO_STD_VECTOR(5, BLK_AW);
+constant LUT_INPA_VAL_ADDR      : std_logic_vector := TO_SVECTOR(0, BLK_AW);
+constant LUT_INPB_VAL_ADDR      : std_logic_vector := TO_SVECTOR(1, BLK_AW);
+constant LUT_INPC_VAL_ADDR      : std_logic_vector := TO_SVECTOR(2, BLK_AW);
+constant LUT_INPD_VAL_ADDR      : std_logic_vector := TO_SVECTOR(3, BLK_AW);
+constant LUT_INPE_VAL_ADDR      : std_logic_vector := TO_SVECTOR(4, BLK_AW);
+constant LUT_FUNC_ADDR          : std_logic_vector := TO_SVECTOR(5, BLK_AW);
 
-constant SRGATE_SET_VAL_ADDR    : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
-constant SRGATE_RST_VAL_ADDR    : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
-constant SRGATE_SET_EDGE_ADDR   : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);
-constant SRGATE_RST_EDGE_ADDR   : std_logic_vector := TO_STD_VECTOR(3, BLK_AW);
-constant SRGATE_FORCE_STATE_ADDR: std_logic_vector := TO_STD_VECTOR(4, BLK_AW);
+constant SRGATE_SET_VAL_ADDR    : std_logic_vector := TO_SVECTOR(0, BLK_AW);
+constant SRGATE_RST_VAL_ADDR    : std_logic_vector := TO_SVECTOR(1, BLK_AW);
+constant SRGATE_SET_EDGE_ADDR   : std_logic_vector := TO_SVECTOR(2, BLK_AW);
+constant SRGATE_RST_EDGE_ADDR   : std_logic_vector := TO_SVECTOR(3, BLK_AW);
+constant SRGATE_FORCE_STATE_ADDR: std_logic_vector := TO_SVECTOR(4, BLK_AW);
 
-constant DIV_INP_VAL_ADDR       : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
-constant DIV_RST_VAL_ADDR       : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
-constant DIV_FIRST_PULSE_ADDR   : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);
-constant DIV_DIVISOR_ADDR       : std_logic_vector := TO_STD_VECTOR(3, BLK_AW);
-constant DIV_COUNT_ADDR         : std_logic_vector := TO_STD_VECTOR(4, BLK_AW);
-constant DIV_FORCE_RST_ADDR     : std_logic_vector := TO_STD_VECTOR(5, BLK_AW);
+constant DIV_INP_VAL_ADDR       : std_logic_vector := TO_SVECTOR(0, BLK_AW);
+constant DIV_RST_VAL_ADDR       : std_logic_vector := TO_SVECTOR(1, BLK_AW);
+constant DIV_FIRST_PULSE_ADDR   : std_logic_vector := TO_SVECTOR(2, BLK_AW);
+constant DIV_DIVISOR_ADDR       : std_logic_vector := TO_SVECTOR(3, BLK_AW);
+constant DIV_COUNT_ADDR         : std_logic_vector := TO_SVECTOR(4, BLK_AW);
+constant DIV_FORCE_RST_ADDR     : std_logic_vector := TO_SVECTOR(5, BLK_AW);
 
-constant PULSE_INP_VAL_ADDR     : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
-constant PULSE_RST_VAL_ADDR     : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
-constant PULSE_DELAY_L_ADDR     : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);
-constant PULSE_DELAY_H_ADDR     : std_logic_vector := TO_STD_VECTOR(3, BLK_AW);
-constant PULSE_WIDTH_L_ADDR     : std_logic_vector := TO_STD_VECTOR(4, BLK_AW);
-constant PULSE_WIDTH_H_ADDR     : std_logic_vector := TO_STD_VECTOR(5, BLK_AW);
-constant PULSE_FORCE_RST_ADDR   : std_logic_vector := TO_STD_VECTOR(6, BLK_AW);
-constant PULSE_ERR_OVERFLOW_ADDR: std_logic_vector := TO_STD_VECTOR(7, BLK_AW);
-constant PULSE_ERR_PERIOD_ADDR  : std_logic_vector := TO_STD_VECTOR(8, BLK_AW);
-constant PULSE_QUEUE_ADDR       : std_logic_vector := TO_STD_VECTOR(9, BLK_AW);
-constant PULSE_MISSED_CNT_ADDR  : std_logic_vector := TO_STD_VECTOR(10, BLK_AW);
+constant PULSE_INP_VAL_ADDR     : std_logic_vector := TO_SVECTOR(0, BLK_AW);
+constant PULSE_RST_VAL_ADDR     : std_logic_vector := TO_SVECTOR(1, BLK_AW);
+constant PULSE_DELAY_L_ADDR     : std_logic_vector := TO_SVECTOR(2, BLK_AW);
+constant PULSE_DELAY_H_ADDR     : std_logic_vector := TO_SVECTOR(3, BLK_AW);
+constant PULSE_WIDTH_L_ADDR     : std_logic_vector := TO_SVECTOR(4, BLK_AW);
+constant PULSE_WIDTH_H_ADDR     : std_logic_vector := TO_SVECTOR(5, BLK_AW);
+constant PULSE_FORCE_RST_ADDR   : std_logic_vector := TO_SVECTOR(6, BLK_AW);
+constant PULSE_ERR_OVERFLOW_ADDR: std_logic_vector := TO_SVECTOR(7, BLK_AW);
+constant PULSE_ERR_PERIOD_ADDR  : std_logic_vector := TO_SVECTOR(8, BLK_AW);
+constant PULSE_QUEUE_ADDR       : std_logic_vector := TO_SVECTOR(9, BLK_AW);
+constant PULSE_MISSED_CNT_ADDR  : std_logic_vector := TO_SVECTOR(10, BLK_AW);
 
-constant SEQ_GATE_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
-constant SEQ_INPA_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
-constant SEQ_INPB_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);
-constant SEQ_INPC_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(3, BLK_AW);
-constant SEQ_INPD_VAL_ADDR      : std_logic_vector := TO_STD_VECTOR(4, BLK_AW);
-constant SEQ_PRESCALE_ADDR      : std_logic_vector := TO_STD_VECTOR(5, BLK_AW);
-constant SEQ_SOFT_GATE_ADDR     : std_logic_vector := TO_STD_VECTOR(6, BLK_AW);
-constant SEQ_TABLE_REPEAT_ADDR  : std_logic_vector := TO_STD_VECTOR(7, BLK_AW);
-constant SEQ_TABLE_LENGTH_ADDR  : std_logic_vector := TO_STD_VECTOR(8, BLK_AW);
-constant SEQ_TABLE_RST_ADDR     : std_logic_vector := TO_STD_VECTOR(9, BLK_AW);
-constant SEQ_TABLE_DATA_ADDR    : std_logic_vector := TO_STD_VECTOR(10, BLK_AW);
-constant SEQ_CUR_FRAME_ADDR     : std_logic_vector := TO_STD_VECTOR(11, BLK_AW);
-constant SEQ_CUR_FCYCLE_ADDR    : std_logic_vector := TO_STD_VECTOR(12, BLK_AW);
-constant SEQ_CUR_TCYCLE_ADDR    : std_logic_vector := TO_STD_VECTOR(13, BLK_AW);
-constant SEQ_CUR_STATE_ADDR     : std_logic_vector := TO_STD_VECTOR(14, BLK_AW);
+constant SEQ_GATE_VAL_ADDR      : std_logic_vector := TO_SVECTOR(0, BLK_AW);
+constant SEQ_INPA_VAL_ADDR      : std_logic_vector := TO_SVECTOR(1, BLK_AW);
+constant SEQ_INPB_VAL_ADDR      : std_logic_vector := TO_SVECTOR(2, BLK_AW);
+constant SEQ_INPC_VAL_ADDR      : std_logic_vector := TO_SVECTOR(3, BLK_AW);
+constant SEQ_INPD_VAL_ADDR      : std_logic_vector := TO_SVECTOR(4, BLK_AW);
+constant SEQ_PRESCALE_ADDR      : std_logic_vector := TO_SVECTOR(5, BLK_AW);
+constant SEQ_SOFT_GATE_ADDR     : std_logic_vector := TO_SVECTOR(6, BLK_AW);
+constant SEQ_TABLE_REPEAT_ADDR  : std_logic_vector := TO_SVECTOR(7, BLK_AW);
+constant SEQ_TABLE_LENGTH_ADDR  : std_logic_vector := TO_SVECTOR(8, BLK_AW);
+constant SEQ_TABLE_RST_ADDR     : std_logic_vector := TO_SVECTOR(9, BLK_AW);
+constant SEQ_TABLE_DATA_ADDR    : std_logic_vector := TO_SVECTOR(10, BLK_AW);
+constant SEQ_CUR_FRAME_ADDR     : std_logic_vector := TO_SVECTOR(11, BLK_AW);
+constant SEQ_CUR_FCYCLE_ADDR    : std_logic_vector := TO_SVECTOR(12, BLK_AW);
+constant SEQ_CUR_TCYCLE_ADDR    : std_logic_vector := TO_SVECTOR(13, BLK_AW);
+constant SEQ_CUR_STATE_ADDR     : std_logic_vector := TO_SVECTOR(14, BLK_AW);
+
+constant PCAP_ENABLE_VAL_ADDR   : std_logic_vector := TO_SVECTOR(0, PAGE_AW);
+constant PCAP_TRIGGER_VAL_ADDR  : std_logic_vector := TO_SVECTOR(1, PAGE_AW);
+constant PCAP_DMAADDR_ADDR      : std_logic_vector := TO_SVECTOR(2, PAGE_AW);
+constant PCAP_SOFT_ENABLE_ADDR  : std_logic_vector := TO_SVECTOR(3, PAGE_AW);
+constant PCAP_SOFT_ARM_ADDR     : std_logic_vector := TO_SVECTOR(4, PAGE_AW);
+constant PCAP_SOFT_DISARM_ADDR  : std_logic_vector := TO_SVECTOR(5, PAGE_AW);
+constant PCAP_PMASK_ADDR        : std_logic_vector := TO_SVECTOR(6, PAGE_AW);
+constant PCAP_TIMEOUT_ADDR      : std_logic_vector := TO_SVECTOR(7, PAGE_AW);
+constant PCAP_DBG_MODE_ADDR     : std_logic_vector := TO_SVECTOR(8, PAGE_AW);
 
 --
 -- TOP Block Register Address Space
@@ -117,49 +127,36 @@ end record;
 constant BITS     : tBITS := (0,1,2,3);
 
 
-constant REG_BIT_READ_RESET_ADDR: std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
-constant REG_BIT_READ_VALUE_ADDR: std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
+constant REG_BIT_READ_RESET_ADDR: std_logic_vector := TO_SVECTOR(0, BLK_AW);
+constant REG_BIT_READ_VALUE_ADDR: std_logic_vector := TO_SVECTOR(1, BLK_AW);
 
 --
 -- ENCODER Block Register Address Space
 --
-constant ENCIN_PROT_ADDR        : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
-constant ENCIN_RATE_ADDR        : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
-constant ENCIN_BITS_ADDR        : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);
-constant ENCIN_FRM_SRC_ADDR     : std_logic_vector := TO_STD_VECTOR(3, BLK_AW);
-constant ENCIN_FRM_VAL_ADDR     : std_logic_vector := TO_STD_VECTOR(4, BLK_AW);
-constant ENCIN_SETP_ADDR        : std_logic_vector := TO_STD_VECTOR(5, BLK_AW);
+constant ENCIN_PROT_ADDR        : std_logic_vector := TO_SVECTOR(0, BLK_AW);
+constant ENCIN_RATE_ADDR        : std_logic_vector := TO_SVECTOR(1, BLK_AW);
+constant ENCIN_BITS_ADDR        : std_logic_vector := TO_SVECTOR(2, BLK_AW);
+constant ENCIN_FRM_SRC_ADDR     : std_logic_vector := TO_SVECTOR(3, BLK_AW);
+constant ENCIN_FRM_VAL_ADDR     : std_logic_vector := TO_SVECTOR(4, BLK_AW);
+constant ENCIN_SETP_ADDR        : std_logic_vector := TO_SVECTOR(5, BLK_AW);
 
-constant ENCOUT_POSN_VAL_ADDR   : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
-constant ENCOUT_PROT_ADDR       : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
-constant ENCOUT_BITS_ADDR       : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);
-constant ENCOUT_FRC_QSTATE_ADDR : std_logic_vector := TO_STD_VECTOR(3, BLK_AW);
-constant ENCOUT_QSTATE_ADDR     : std_logic_vector := TO_STD_VECTOR(4, BLK_AW);
-constant ENCOUT_QPRESCALAR_ADDR : std_logic_vector := TO_STD_VECTOR(5, BLK_AW);
+constant ENCOUT_POSN_VAL_ADDR   : std_logic_vector := TO_SVECTOR(0, BLK_AW);
+constant ENCOUT_PROT_ADDR       : std_logic_vector := TO_SVECTOR(1, BLK_AW);
+constant ENCOUT_BITS_ADDR       : std_logic_vector := TO_SVECTOR(2, BLK_AW);
+constant ENCOUT_FRC_QSTATE_ADDR : std_logic_vector := TO_SVECTOR(3, BLK_AW);
+constant ENCOUT_QSTATE_ADDR     : std_logic_vector := TO_SVECTOR(4, BLK_AW);
+constant ENCOUT_QPRESCALAR_ADDR : std_logic_vector := TO_SVECTOR(5, BLK_AW);
 
-constant PCOMP_ENABLE_VAL_ADDR  : std_logic_vector := TO_STD_VECTOR(0, BLK_AW);
-constant PCOMP_POSN_VAL_ADDR    : std_logic_vector := TO_STD_VECTOR(1, BLK_AW);
-constant PCOMP_START_ADDR       : std_logic_vector := TO_STD_VECTOR(2, BLK_AW);
-constant PCOMP_STEP_ADDR        : std_logic_vector := TO_STD_VECTOR(3, BLK_AW);
-constant PCOMP_WIDTH_ADDR       : std_logic_vector := TO_STD_VECTOR(4, BLK_AW);
-constant PCOMP_COUNT_ADDR       : std_logic_vector := TO_STD_VECTOR(5, BLK_AW);
-constant PCOMP_RELATIVE_ADDR    : std_logic_vector := TO_STD_VECTOR(6, BLK_AW);
-constant PCOMP_DIR_ADDR         : std_logic_vector := TO_STD_VECTOR(7, BLK_AW);
-constant PCOMP_FLTR_DELTAT_ADDR : std_logic_vector := TO_STD_VECTOR(8, BLK_AW);
-constant PCOMP_FLTR_THOLD_ADDR  : std_logic_vector := TO_STD_VECTOR(9, BLK_AW);
-
-constant PCAP_ENABLE_VAL_ADDR   : std_logic_vector := TO_STD_VECTOR(0, PAGE_AW);
-constant PCAP_TRIGGER_VAL_ADDR  : std_logic_vector := TO_STD_VECTOR(1, PAGE_AW);
-constant PCAP_DMA_BUFSIZE_ADDR  : std_logic_vector := TO_STD_VECTOR(2, PAGE_AW);
-constant PCAP_DMAADDR_ADDR      : std_logic_vector := TO_STD_VECTOR(3, PAGE_AW);
-constant PCAP_ARM_ADDR          : std_logic_vector := TO_STD_VECTOR(4, PAGE_AW);
-constant PCAP_ABORT_ADDR        : std_logic_vector := TO_STD_VECTOR(5, PAGE_AW);
-constant PCAP_PMASK_ADDR        : std_logic_vector := TO_STD_VECTOR(6, PAGE_AW);
-constant PCAP_TIMEOUT_ADDR      : std_logic_vector := TO_STD_VECTOR(7, PAGE_AW);
-constant PCAP_DBG_MODE_ADDR     : std_logic_vector := TO_STD_VECTOR(10, PAGE_AW);
-constant PCAP_DBG_ENA_ADDR      : std_logic_vector := TO_STD_VECTOR(11, PAGE_AW);
-constant PCAP_DBG_PRESC_ADDR    : std_logic_vector := TO_STD_VECTOR(12, PAGE_AW);
-constant PCAP_DBG_DWORDS_ADDR   : std_logic_vector := TO_STD_VECTOR(13, PAGE_AW);
+constant PCOMP_ENABLE_VAL_ADDR  : std_logic_vector := TO_SVECTOR(0, BLK_AW);
+constant PCOMP_POSN_VAL_ADDR    : std_logic_vector := TO_SVECTOR(1, BLK_AW);
+constant PCOMP_START_ADDR       : std_logic_vector := TO_SVECTOR(2, BLK_AW);
+constant PCOMP_STEP_ADDR        : std_logic_vector := TO_SVECTOR(3, BLK_AW);
+constant PCOMP_WIDTH_ADDR       : std_logic_vector := TO_SVECTOR(4, BLK_AW);
+constant PCOMP_COUNT_ADDR       : std_logic_vector := TO_SVECTOR(5, BLK_AW);
+constant PCOMP_RELATIVE_ADDR    : std_logic_vector := TO_SVECTOR(6, BLK_AW);
+constant PCOMP_DIR_ADDR         : std_logic_vector := TO_SVECTOR(7, BLK_AW);
+constant PCOMP_FLTR_DELTAT_ADDR : std_logic_vector := TO_SVECTOR(8, BLK_AW);
+constant PCOMP_FLTR_THOLD_ADDR  : std_logic_vector := TO_SVECTOR(9, BLK_AW);
 
 end addr_defines;
 

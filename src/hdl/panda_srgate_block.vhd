@@ -36,7 +36,8 @@ signal SET_VAL          : std_logic_vector(SBUSBW-1 downto 0) := (others => '1')
 signal RST_VAL          : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
 signal SET_EDGE         : std_logic := '0';
 signal RST_EDGE         : std_logic := '0';
-signal FORCE_STATE      : std_logic_vector(1 downto 0) := "00";
+signal FORCE_SET        : std_logic := '0';
+signal FORCE_RESET      : std_logic := '0';
 
 signal set              : std_logic := '0';
 signal rst              : std_logic := '0';
@@ -54,10 +55,12 @@ begin
             RST_VAL <= TO_STD_VECTOR(126, SBUSBW);
             SET_EDGE <= '1';
             RST_EDGE <= '1';
-            FORCE_STATE <= "00";
+            FORCE_SET <= '0';
+            FORCE_RESET <= '0';
         else
             -- Force strobe is single clock pulse
-            FORCE_STATE(0) <= '0';
+            FORCE_SET <= '0';
+            FORCE_RESET <= '0';
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
@@ -78,11 +81,14 @@ begin
                     RST_EDGE <= mem_dat_i(0);
                 end if;
 
-                -- FORCE_STATE register holds strobe and data.
-                if (mem_addr_i = SRGATE_FORCE_STATE_ADDR) then
-                    FORCE_STATE(1) <= mem_dat_i(0);
-                    FORCE_STATE(0) <= '1';
+                if (mem_addr_i = SRGATE_FORCE_SET_ADDR) then
+                    FORCE_SET <= mem_dat_i(0);
                 end if;
+
+                if (mem_addr_i = SRGATE_FORCE_RESET_ADDR) then
+                    FORCE_RESET <= mem_dat_i(0);
+                end if;
+
             end if;
         end if;
     end if;
@@ -103,15 +109,16 @@ end process;
 -- LUT Block Core Instantiation
 panda_srgate : entity work.panda_srgate
 port map (
-    clk_i       => clk_i,
+    clk_i           => clk_i,
 
-    set_i       => set,
-    rst_i       => rst,
-    out_o       => out_o,
+    set_i           => set,
+    rst_i           => rst,
+    out_o           => out_o,
 
-    SET_EDGE    => SET_EDGE,
-    RESET_EDGE  => RST_EDGE,
-    FORCE_STATE => FORCE_STATE
+    SET_EDGE        => SET_EDGE,
+    RESET_EDGE      => RST_EDGE,
+    FORCE_SET       => FORCE_SET,
+    FORCE_RESET     => FORCE_RESET,
 );
 
 end rtl;

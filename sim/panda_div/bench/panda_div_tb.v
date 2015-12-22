@@ -180,17 +180,14 @@ begin
         // If not equal, display an error.
         if (outn_o != outn_expected) begin
             $display("OUTN error detected at timestamp %d\n", timestamp);
-            $finish(2);
         end
 
         if (outd_o != outd_expected) begin
             $display("OUTN error detected at timestamp %d\n", timestamp);
-            $finish(2);
         end
 
         if (COUNT != COUNT_EXPECTED) begin
             $display("COUNT error detected at timestamp %d\n", timestamp);
-            $finish(2);
         end
     end
 end

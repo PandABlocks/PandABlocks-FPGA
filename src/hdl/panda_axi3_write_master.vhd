@@ -15,7 +15,7 @@ use work.top_defines.all;
 
 entity panda_axi3_write_master is
 generic (
-    AXI_BURST_LEN       : integer := 16;
+--    AXI_BURST_LEN       : integer := 16;
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32
 );
@@ -23,6 +23,8 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
+    -- AXI3 Transaction Parameters
+    m_axi_burst_len     : in  std_logic_vector(4 downto 0);
     -- AXI3 HP Bus Write Only Interface
     m_axi_awready       : in  std_logic;
     m_axi_awaddr        : out std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
@@ -45,7 +47,7 @@ port (
     m_axi_wlast         : out std_logic;
     m_axi_wstrb         : out std_logic_vector(AXI_DATA_WIDTH/8-1 downto 0);
     m_axi_wid           : out std_logic_vector(5 downto 0);
-    --
+    -- Interface to data FIFO
     dma_addr            : in  std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
     dma_read            : out std_logic;
     dma_data            : in  std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
@@ -57,8 +59,10 @@ end panda_axi3_write_master;
 
 architecture rtl of panda_axi3_write_master is
 
-constant WLEN_COUNT_WIDTH   : integer := LOG2(AXI_BURST_LEN-2) + 2;
+--constant WLEN_COUNT_WIDTH   : integer := LOG2(AXI_BURST_LEN-2) + 2;
+constant WLEN_COUNT_WIDTH   : integer := 5;
 
+signal AXI_BURST_LEN        : integer;
 signal awvalid              : std_logic;
 signal wvalid               : std_logic;
 signal wlast                : std_logic;
@@ -70,16 +74,19 @@ signal wlen_count           : unsigned(WLEN_COUNT_WIDTH-1 downto 0);
 
 begin
 
+AXI_BURST_LEN <= to_integer(unsigned(m_axi_burst_len));
+
 --
 -- Write Address
 --
 
 -- Single threaded
 M_AXI_AWID <= "000000";
+M_AXI_WID <= "000000";
 -- Burst LENgth is number of transaction beats, minus 1
-M_AXI_AWLEN <= TO_STD_VECTOR(AXI_BURST_LEN-1, 4);
+M_AXI_AWLEN <= TO_SVECTOR(AXI_BURST_LEN-1, 4);
 -- Size should be AXI_DATA_WIDTH, in 2^SIZE bytes
-M_AXI_AWSIZE <= TO_STD_VECTOR(LOG2(AXI_DATA_WIDTH/8), 3);
+M_AXI_AWSIZE <= TO_SVECTOR(LOG2(AXI_DATA_WIDTH/8), 3);
 -- INCR burst type is usually used, except for keyhole bursts
 M_AXI_AWBURST <= "01";
 -- AXI3 atomic access encoding for Normal acces
@@ -192,18 +199,17 @@ begin
 end process;
 
 -- WLAST generation on the MSB of a counter underflow
-wlast <= wlen_count(WLEN_COUNT_WIDTH-1);
+wlast <= '1' when (wlen_count = unsigned(m_axi_burst_len)-1 and wnext = '1') else '0';
 
 -- Burst length counter. Uses extra counter register bit to indicate terminal
 -- count to reduce decode logic
 BURST_LENGTH_COUNT: process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1' or
-            (wnext = '1' and wlen_count(WLEN_COUNT_WIDTH-1) ='1')) then
-            wlen_count <= to_unsigned((AXI_BURST_LEN - 2), wlen_count'length);
+        if (reset_i = '1' or wlast = '1') then
+            wlen_count <= (others => '0');
         elsif (wnext = '1') then
-            wlen_count <= wlen_count - 1;
+            wlen_count <= wlen_count + 1;
         else
             wlen_count <= wlen_count;
         end if;

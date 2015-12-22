@@ -24,8 +24,8 @@ signal mem_wstb             : std_logic;
 signal mem_rstb             : std_logic;
 signal mem_read_data        : std32_array(2**PAGE_NUM-1 downto 0);
 
-signal sysbus_i             : sysbus_t := (others => '0');
-signal posbus_i             : posbus_t := (others => (others => '0'));
+signal sysbus               : sysbus_t := (others => '0');
+signal posbus               : posbus_t := (others => (others => '0'));
 signal act_i                : std_logic := '0';
 signal pulse_i              : std_logic := '0';
 
@@ -89,92 +89,96 @@ signal M00_AXI_rvalid       : std_logic;
 signal M00_AXI_rready       : std_logic;
 
 signal tb_ARESETn           : std_logic := '0';
-signal tb_ACLK              : std_logic := '0';
-signal FCLK_RESET0_N        : std_logic := '0';
+signal tb_RESETn            : std_logic := '0';
 signal FCLK_CLK0            : std_logic;
 signal IRQ_F2P              : std_logic_vector(3 downto 0) := "0000";
 signal FCLK_RESET0          : std_logic;
 
+signal data                 : unsigned(31 downto 0);
+
+constant TLP_SIZE           : integer := 128;           -- #of Burst Of 16 DWORDs
+constant BLOCK_SIZE         : integer := TLP_SIZE * 64; -- 8KByte
+constant DMA_SIZE           : integer := 10*BLOCK_SIZE;
+
 begin
 
 tb_ARESETn <= '1' after 10 us;
-tb_ACLK <= not tb_ACLK after 10 ns;
 
 process(FCLK_CLK0)
 begin
     if rising_edge(FCLK_CLK0) then
-        FCLK_RESET0_N <= tb_ARESETn;
-        FCLK_RESET0 <= not FCLK_RESET0_N;
+        FCLK_RESET0 <= not tb_ARESETn;
+        tb_RESETn <= tb_ARESETn;
     end if;
 end process;
 
 zynq : entity work.zynq_ps
 port map (
-    S_AXI_HP0_ARREADY           => S_AXI_HP0_ARREADY,
-    S_AXI_HP0_AWREADY           => S_AXI_HP0_AWREADY,
-    S_AXI_HP0_BVALID            => S_AXI_HP0_BVALID,
-    S_AXI_HP0_RLAST             => S_AXI_HP0_RLAST,
-    S_AXI_HP0_RVALID            => S_AXI_HP0_RVALID,
-    S_AXI_HP0_WREADY            => S_AXI_HP0_WREADY,
-    S_AXI_HP0_BRESP             => S_AXI_HP0_BRESP,
-    S_AXI_HP0_RRESP             => S_AXI_HP0_RRESP,
-    S_AXI_HP0_BID               => S_AXI_HP0_BID,
-    S_AXI_HP0_RID               => S_AXI_HP0_RID,
-    S_AXI_HP0_RDATA             => S_AXI_HP0_RDATA,
-    S_AXI_HP0_ARVALID           => S_AXI_HP0_ARVALID,
-    S_AXI_HP0_AWVALID           => S_AXI_HP0_AWVALID,
-    S_AXI_HP0_BREADY            => S_AXI_HP0_BREADY,
-    S_AXI_HP0_RREADY            => S_AXI_HP0_RREADY,
-    S_AXI_HP0_WLAST             => S_AXI_HP0_WLAST,
-    S_AXI_HP0_WVALID            => S_AXI_HP0_WVALID,
-    S_AXI_HP0_ARBURST           => S_AXI_HP0_ARBURST,
-    S_AXI_HP0_ARLOCK            => S_AXI_HP0_ARLOCK,
-    S_AXI_HP0_ARSIZE            => S_AXI_HP0_ARSIZE,
-    S_AXI_HP0_AWBURST           => S_AXI_HP0_AWBURST,
-    S_AXI_HP0_AWLOCK            => S_AXI_HP0_AWLOCK,
-    S_AXI_HP0_AWSIZE            => S_AXI_HP0_AWSIZE,
-    S_AXI_HP0_ARPROT            => S_AXI_HP0_ARPROT,
-    S_AXI_HP0_AWPROT            => S_AXI_HP0_AWPROT,
-    S_AXI_HP0_ARADDR            => S_AXI_HP0_ARADDR,
-    S_AXI_HP0_AWADDR            => S_AXI_HP0_AWADDR,
-    S_AXI_HP0_ARCACHE           => S_AXI_HP0_ARCACHE, 
-    S_AXI_HP0_ARLEN             => S_AXI_HP0_ARLEN, 
-    S_AXI_HP0_ARQOS             => S_AXI_HP0_ARQOS, 
-    S_AXI_HP0_AWCACHE           => S_AXI_HP0_AWCACHE, 
-    S_AXI_HP0_AWLEN             => S_AXI_HP0_AWLEN, 
-    S_AXI_HP0_AWQOS             => S_AXI_HP0_AWQOS, 
-    S_AXI_HP0_ARID              => S_AXI_HP0_ARID, 
-    S_AXI_HP0_AWID              => S_AXI_HP0_AWID, 
-    S_AXI_HP0_WID               => S_AXI_HP0_WID, 
-    S_AXI_HP0_WDATA             => S_AXI_HP0_WDATA, 
-    S_AXI_HP0_WSTRB             => S_AXI_HP0_WSTRB, 
+    FCLK_CLK0               => FCLK_CLK0,
+    FCLK_RESET0_N           => open,
+    IRQ_F2P                 => IRQ_F2P,
+    M00_AXI_araddr          => M00_AXI_araddr,
+    M00_AXI_arprot          => M00_AXI_arprot,
+    M00_AXI_arready         => M00_AXI_arready,
+    M00_AXI_arvalid         => M00_AXI_arvalid,
+    M00_AXI_awaddr          => M00_AXI_awaddr,
+    M00_AXI_awprot          => M00_AXI_awprot,
+    M00_AXI_awready         => M00_AXI_awready,
+    M00_AXI_awvalid         => M00_AXI_awvalid,
+    M00_AXI_bready          => M00_AXI_bready,
+    M00_AXI_bresp           => M00_AXI_bresp,
+    M00_AXI_bvalid          => M00_AXI_bvalid,
+    M00_AXI_rdata           => M00_AXI_rdata,
+    M00_AXI_rready          => M00_AXI_rready,
+    M00_AXI_rresp           => M00_AXI_rresp,
+    M00_AXI_rvalid          => M00_AXI_rvalid,
+    M00_AXI_wdata           => M00_AXI_wdata,
+    M00_AXI_wready          => M00_AXI_wready,
+    M00_AXI_wstrb           => M00_AXI_wstrb,
+    M00_AXI_wvalid          => M00_AXI_wvalid,
 
-    FCLK_CLK0                   => FCLK_CLK0,
-    FCLK_RESET0_N               => FCLK_RESET0_N,
-    PS_SRSTB                    => tb_ARESETn,
-    PS_CLK                      => tb_ACLK   ,
-    PS_PORB                     => tb_ARESETn,
-    IRQ_F2P                     => IRQ_F2P,
+    S_AXI_HP0_araddr        => S_AXI_HP0_araddr ,
+    S_AXI_HP0_arburst       => S_AXI_HP0_arburst,
+    S_AXI_HP0_arcache       => S_AXI_HP0_arcache,
+    S_AXI_HP0_arid          => S_AXI_HP0_arid   ,
+    S_AXI_HP0_arlen         => S_AXI_HP0_arlen  ,
+    S_AXI_HP0_arlock        => S_AXI_HP0_arlock ,
+    S_AXI_HP0_arprot        => S_AXI_HP0_arprot ,
+    S_AXI_HP0_arqos         => S_AXI_HP0_arqos  ,
+    S_AXI_HP0_arready       => S_AXI_HP0_arready,
+    S_AXI_HP0_arsize        => S_AXI_HP0_arsize ,
+    S_AXI_HP0_arvalid       => S_AXI_HP0_arvalid,
+    S_AXI_HP0_awaddr        => S_AXI_HP0_awaddr ,
+    S_AXI_HP0_awburst       => S_AXI_HP0_awburst,
+    S_AXI_HP0_awcache       => S_AXI_HP0_awcache,
+    S_AXI_HP0_awid          => S_AXI_HP0_awid   ,
+    S_AXI_HP0_awlen         => S_AXI_HP0_awlen  ,
+    S_AXI_HP0_awlock        => S_AXI_HP0_awlock ,
+    S_AXI_HP0_awprot        => S_AXI_HP0_awprot ,
+    S_AXI_HP0_awqos         => S_AXI_HP0_awqos  ,
+    S_AXI_HP0_awready       => S_AXI_HP0_awready,
+    S_AXI_HP0_awsize        => S_AXI_HP0_awsize ,
+    S_AXI_HP0_awvalid       => S_AXI_HP0_awvalid,
+    S_AXI_HP0_bid           => S_AXI_HP0_bid    ,
+    S_AXI_HP0_bready        => S_AXI_HP0_bready ,
+    S_AXI_HP0_bresp         => S_AXI_HP0_bresp  ,
+    S_AXI_HP0_bvalid        => S_AXI_HP0_bvalid ,
+    S_AXI_HP0_rdata         => S_AXI_HP0_rdata  ,
+    S_AXI_HP0_rid           => S_AXI_HP0_rid    ,
+    S_AXI_HP0_rlast         => S_AXI_HP0_rlast  ,
+    S_AXI_HP0_rready        => S_AXI_HP0_rready ,
+    S_AXI_HP0_rresp         => S_AXI_HP0_rresp  ,
+    S_AXI_HP0_rvalid        => S_AXI_HP0_rvalid ,
+    S_AXI_HP0_wdata         => S_AXI_HP0_wdata  ,
+    S_AXI_HP0_wid           => S_AXI_HP0_wid    ,
+    S_AXI_HP0_wlast         => S_AXI_HP0_wlast  ,
+    S_AXI_HP0_wready        => S_AXI_HP0_wready ,
+    S_AXI_HP0_wstrb         => S_AXI_HP0_wstrb  ,
+    S_AXI_HP0_wvalid        => S_AXI_HP0_wvalid ,
 
-    M00_AXI_AWADDR              => M00_AXI_awaddr,
-    M00_AXI_AWPROT              => M00_AXI_awprot,
-    M00_AXI_AWVALID             => M00_AXI_awvalid,
-    M00_AXI_AWREADY             => M00_AXI_awready,
-    M00_AXI_WDATA               => M00_AXI_wdata,
-    M00_AXI_WSTRB               => M00_AXI_wstrb,
-    M00_AXI_WVALID              => M00_AXI_wvalid,
-    M00_AXI_WREADY              => M00_AXI_wready,
-    M00_AXI_BRESP               => M00_AXI_bresp,
-    M00_AXI_BVALID              => M00_AXI_bvalid,
-    M00_AXI_BREADY              => M00_AXI_bready,
-    M00_AXI_ARADDR              => M00_AXI_araddr,
-    M00_AXI_ARPROT              => M00_AXI_arprot,
-    M00_AXI_ARVALID             => M00_AXI_arvalid,
-    M00_AXI_ARREADY             => M00_AXI_arready,
-    M00_AXI_RDATA               => M00_AXI_rdata,
-    M00_AXI_RRESP               => M00_AXI_rresp,
-    M00_AXI_RVALID              => M00_AXI_rvalid,
-    M00_AXI_RREADY              => M00_AXI_rready
+    PS_CLK                  => FCLK_CLK0,
+    PS_PORB                 => tb_RESETn,
+    PS_SRSTB                => tb_RESETn
 );
 
 panda_csr_if_inst : entity work.panda_csr_if
@@ -213,7 +217,7 @@ port map (
     mem_wstb_o                  => mem_wstb
 );
 
-uut: entity work.panda_pcap
+uut: entity work.panda_pcap_block
 PORT MAP (
     clk_i                       => FCLK_CLK0,
     reset_i                     => FCLK_RESET0,
@@ -224,8 +228,8 @@ PORT MAP (
     mem_dat_i                   => mem_odat,
     mem_dat_o                   => open,
 
-    sysbus_i                    => sysbus_i,
-    posbus_i                    => posbus_i,
+    sysbus_i                    => sysbus,
+    posbus_i                    => posbus,
     pcap_irq_o                  => IRQ_F2P(0),
 
     m_axi_awaddr                => S_AXI_HP0_awaddr,
@@ -250,5 +254,27 @@ PORT MAP (
     m_axi_wstrb                 => S_AXI_HP0_wstrb,
     m_axi_wvalid                => S_AXI_HP0_wvalid
 );
+
+--
+--
+--
+process
+begin
+    data <= (others => '0');
+    PROC_CLK_EAT(3000, FCLK_CLK0);
+    sysbus(0) <= '1';
+    PROC_CLK_EAT(100, FCLK_CLK0);
+    L1 : FOR I IN 0 TO (DMA_SIZE/4)-1 LOOP
+        sysbus(1) <= '1';
+        PROC_CLK_EAT(1, FCLK_CLK0);
+        sysbus(1) <= '0';
+        PROC_CLK_EAT(2000, FCLK_CLK0);
+        data <= data + 1;
+    end loop;
+    PROC_CLK_EAT(100, FCLK_CLK0);
+    sysbus(0) <= '0';
+end process;
+
+posbus(0) <= std_logic_vector(data);
 
 end;
