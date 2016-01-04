@@ -47,5 +47,5 @@ class Controller(object):
         pass
 
     # Sets position capture mask
-    def set_pos_capture(self, mask):
+    def set_pos_capture(self, capture_mask, framed_mask, extended_mask):
         pass
