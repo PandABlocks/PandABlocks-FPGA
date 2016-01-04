@@ -99,7 +99,7 @@ INENC[4]
     B               bit_out
     Z               bit_out
     CONN            bit_out
-    ENC_POSN        pos_out
+    ENC_POSN        pos_out     encoder
     PROTOCOL        param       enum 5
         0   Quadrature
         1   SSI
@@ -197,7 +197,7 @@ ADC[8]
     TRIGGER         param       bit_mux
     RESET           param       bit_mux
     TRIGGERD        bit_out
-    DATA            pos_out
+    DATA            pos_out     adc
 
 PCAP
     ENABLE          param       bit_mux
@@ -228,4 +228,4 @@ CLOCKS
     D               bit_out
 
 POSITIONS
-    ZERO            pos_out
+    ZERO            pos_out     const
