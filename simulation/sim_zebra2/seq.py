@@ -1,7 +1,15 @@
 from .block import Block
 from .event import Event
 
+
 class Seq(Block):
+    def __init__(self, num):
+        super(Seq, self).__init__(num)
+        self.active = 0
+        self.frame = []
+        self.table = []
+        self.table_len = 0
+        self.curr_frame = 0
 
     def do_start(self, next_event, event):
         pass
@@ -10,13 +18,14 @@ class Seq(Block):
         pass
 
     def process_inputs(self, next_event, event):
-        pass
-
-    def do_table_reset(self, next_event, event):
-        pass
+        if self.active:
+            # only process the inputs when the state is active
+            pass
 
     def do_table_write(self, next_event, event):
-        pass
+        self.table.append(self.TABLE_DATA)
+        self.table_len = divmod(len(self.table),4)[0]
+        print "TABLE_LENGTH = " + str(self.table_len)
 
 
     def on_event(self, event):
@@ -27,19 +36,24 @@ class Seq(Block):
         if event.reg:
             for name, value in event.reg.items():
                 setattr(self, name, value)
-                if name == "TABLE_CYCLE" and value:
-                    self.do_table_reset(next_event, event)
-                elif name == "TABLE" and value:
+                if name == "SOFT_GATE" and value:
+                    self.do_start(next_event, event)
+                if name == "SOFT_GATE" and not value:
+                    self.do_stop(next_event, event)
+                elif name == "TABLE_DATA":
                     self.do_table_write(next_event, event)
+                elif name == "TABLE_RST":
+                    self.table = []
+                    self.table_len = 0
         # if we got an input on a rising edge, then process it
         elif event.bit:
             for name, value in event.bit.items():
                 if name in [self.INPA, self.INPB, self.INPC, self.INPD] and value:
                     self.process_inputs(next_event, event)
-                if name == "GATE" and value:
-                    self.do_start(next_event,event)
-                elif name =="GATE" and not value:
-                    self.do_stop(next_event,event)
+                if name == self.GATE and value:
+                    self.do_start(next_event, event)
+                elif name == self.GATE and not value:
+                    self.do_stop(next_event, event)
 
         # return any changes and next ts
         return next_event
