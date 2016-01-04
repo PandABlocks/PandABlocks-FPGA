@@ -58,4 +58,5 @@ $ Stretched and delayed pulses too close together
 33      : INP=0
 37      :               : QUEUE=1, OUT=1
 42      :               : QUEUE=0, OUT=0
-46      : FORCE_RESET=0 : PERR=0, MISSED_CNT=0, ERR_PERIOD=0
+46      : FORCE_RESET=1 : PERR=0, MISSED_CNT=0, ERR_PERIOD=0
+47      : FORCE_RESET=0

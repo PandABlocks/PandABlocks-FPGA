@@ -1,0 +1,53 @@
+###############
+$ A&B&C&D&E Output
+1       : FUNC=2147483648
+5       : INPA=1, INPB=1, INPC=1, INPD=1, INPE=1    : VAL=1
+8       : INPA=0                                    : VAL=0
+10      : INPB=0, INPC=0, INPD=0, INPE=0
+
+###############
+$ ~A&~B&~C&~D&~E Output
+1       : FUNC=1
+5       : INPA=1, INPB=1, INPC=1, INPD=1, INPE=1    : VAL=0
+8       : INPA=0                                    : VAL=0
+10      : INPB=0, INPC=0, INPD=0, INPE=0            : VAL=1
+11      : INPA=1                                    : VAL=0
+
+###############
+$ A output
+1       : FUNC=4294901760
+3       : INPE=1
+5       : INPA=1                                    : VAL=1
+6       : INPA=0,  INPB=1, INPC=1, INPD=1           : VAL=0
+7       : INPA=1, INPB=0                            : VAL=1
+8       : INPA=0, INPC=0                            : VAL=0
+9       : INPA=1                                    : VAL=1
+11      : INPD=0
+13      : INPE=0, INPB=1
+15      : INPB=0, INPD=1
+17      : INPD=0
+20      : INPA=0                                    : VAL=0
+
+###############
+$ A&B|C&~D output
+1       : FUNC=4281348144
+5       : INPA=1, INPB=1                    : VAL=1
+6       : INPA=0, INPB=0                    : VAL=0
+8       : INPC=1                            : VAL=1
+9       : INPC=0                            : VAL=0
+11      : INPD=1                            : VAL=0
+12      : INPD=0                            : VAL=0
+15      : INPA=1, INPB=1, INPC=1, INPD=1    : VAL=1
+18      : INPD=0                            : VAL=1
+20      : INPA=0, INPB=0, INPC=0            : VAL=0
+
+###############
+$ A?(B):D&E output
+1       : FUNC=4278225032
+5       : INPD=1, INPE=1            : VAL=1
+6       : INPC=1                    : VAL=1
+10      : INPA=1                    : VAL=0
+11      : INPB=1                    : VAL=1
+12      : INPA=0, INPB=0, INPC=0, INPD=0, INPE=0    : VAL=0
+
+

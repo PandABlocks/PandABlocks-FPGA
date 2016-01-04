@@ -1,0 +1,83 @@
+###############
+$ Set on rising Edge
+1       : SET_EDGE=1
+5       : SET=1         : VAL=1
+7       : SET=0
+8       : FORCE_RESET=1   : VAL=0
+9       : FORCE_RESET=0
+
+###############
+$ Set on falling Edge
+1       : SET_EDGE=0
+5       : SET=1
+6       : SET=0         : VAL=1
+8       : FORCE_RESET=1   : VAL=0
+9       : FORCE_RESET=0
+
+###############
+$ Set on falling Edge with Set
+1       : SET_EDGE=1
+3       : SET_EDGE=0, SET=1
+4       : SET=0             : VAL=1
+6       : FORCE_RESET=1     : VAL=0
+7       : FORCE_RESET=0
+8       : SET=1
+10      : SET=0             : VAL=1
+13      : FORCE_RESET=1     : VAL=0
+14      : FORCE_RESET=0
+
+###############
+$ Reset on rising Edge
+1       : RESET_EDGE=1
+2       : SET_EDGE=1
+3       : SET=1             : VAL=1
+5       : RESET=1           : VAL=0
+6       : RESET=0
+7       : RESET_EDGE=0
+8       : SET_EDGE=0
+
+###############
+$ Reset on falling Edge
+1       : RESET_EDGE=0
+2       : SET_EDGE=1
+3       : SET=1             : VAL=1
+5       : RESET=1
+6       : RESET=0           : VAL=0
+
+###############
+$ Set-reset conditions
+1       : RESET_EDGE=1
+2       : SET_EDGE=1
+5       : RESET=1, SET=1
+6       : SET=0
+7       : RESET=0
+
+10      : FORCE_RESET=1, SET=1 : VAL=1
+11      : SET=0, FORCE_RESET=0
+12      : FORCE_RESET=1     : VAL=0
+13      : FORCE_RESET=0
+
+15      : RESET=1, FORCE_SET=1
+16      : RESET=0, FORCE_SET=0
+18      : FORCE_RESET=1         : VAL=0
+19      : FORCE_RESET=0
+
+
+###############
+$ Set and SetEdge 0
+1       : SET_EDGE=1
+3       : SET=1             : VAL=1
+5       : FORCE_RESET=1     : VAL=0
+6       : FORCE_RESET=0
+8       : SET_EDGE=0, SET=0 : VAL=1
+9       : FORCE_RESET=1     : VAL=0
+10      : FORCE_RESET=0
+
+
+###############
+$ Reset and ResetEdge 0
+1       : SET_EDGE=1
+2       : RESET_EDGE=1, SET=1   : VAL=1
+4       : RESET=1, SET_EDGE=0     : VAL=0
+5       : SET=0                 : VAL=1
+8       : RESET_EDGE=0, RESET=0 : VAL=0

@@ -12,3 +12,5 @@ Each block is documented with examples
     clocks
     pulse
     div
+    srgate
+    lut

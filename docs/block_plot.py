@@ -154,11 +154,13 @@ def make_block_plot(block, title):
                 tracey.append(sequence.outputs[ts][name])
         for name, (tracex, tracey) in pos_traces():
             if name in sequence.inputs[ts]:
-                tracex.append(ts)
-                tracey.append(sequence.inputs[ts][name])
+                if not tracey or tracey[-1] != sequence.inputs[ts][name]:
+                    tracex.append(ts)
+                    tracey.append(sequence.inputs[ts][name])
             elif name in sequence.outputs[ts]:
-                tracex.append(ts+1)
-                tracey.append(sequence.outputs[ts][name])
+                if not tracey or tracey[-1] != sequence.outputs[ts][name]:
+                    tracex.append(ts+1)
+                    tracey.append(sequence.outputs[ts][name])
 
     # add in an extra point at a major tick interval
     ts += 2
@@ -218,4 +220,4 @@ def make_block_plot(block, title):
 
 if __name__ == "__main__":
     # test
-    make_block_plot("pulse", "Pulse stretching with no delay")
+    make_block_plot(sys.argv[1], sys.argv[2])
