@@ -87,6 +87,7 @@ INENC
     Z               
     CONN            
     ENC_POSN        
+    EXTENSION       
 
 QDEC        
     A               
@@ -194,3 +195,6 @@ CLOCKS      Configurable clocks
     B               Clock B output
     C               Clock C output
     D               Clock D output
+
+POSITIONS   Constants
+    ZERO            Constant zero position
