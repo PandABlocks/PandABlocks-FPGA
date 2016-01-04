@@ -19,7 +19,7 @@ class Seq(Block):
         pass
 
 
-    def on_event(self, event):
+    def on_event_hidden(self, event):
         """Handle register, bit and pos changes at a particular timestamps,
         then generate output events and return when we next need to be called"""
         next_event = Event()
