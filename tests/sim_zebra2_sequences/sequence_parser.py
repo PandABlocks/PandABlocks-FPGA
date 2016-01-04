@@ -90,16 +90,18 @@ class FpgaSequence(object):
             else:
                 self.reg_in.append(name)
         self.make_lines()
-                
+
     def write(self):
         # Write the lines
-        fpga_dir = os.path.join(os.path.dirname(__file__), "..", "fpga_sequences")
+        fpga_dir = os.path.join(
+            os.path.dirname(__file__), "..", "fpga_sequences")
         try:
             os.makedirs(fpga_dir)
         except OSError:
             pass
         for name in ["bus_in", "bus_out", "reg_in", "reg_out"]:
-            f = open(os.path.join(fpga_dir, "%s_%s.txt" %(self.block, name)), "w")
+            f = open(os.path.join(
+                fpga_dir, "%s_%s.txt" %(self.block, name)), "w")
             headings = getattr(self, name)
             f.write("\t".join(headings) + "\n")
             lines = getattr(self, name + "_lines")
@@ -120,7 +122,7 @@ class FpgaSequence(object):
         self.bus_out_lines.append(lbus_out)
         self.reg_in_lines.append(lreg_in)
         self.reg_out_lines.append(lreg_out)
-            
+
     def make_lines(self):
         # make lines list
         self.bus_in_lines = []
@@ -140,7 +142,7 @@ class FpgaSequence(object):
                 current.update(sequence.outputs[ts])
                 self.add_line(ts + ts_off, current)
             ts_off += ts
-    
+
 # test
 if __name__ == "__main__":
     # sequence file for block

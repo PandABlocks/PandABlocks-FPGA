@@ -34,7 +34,8 @@ class Seq(Block):
         # if we got an input on a rising edge, then process it
         elif event.bit:
             for name, value in event.bit.items():
-                if name in [self.INPA, self.INPB, self.INPC, self.INPD] and value:
+                if name in [self.INPA, self.INPB, self.INPC, self.INPD] \
+                        and value:
                     self.process_inputs(next_event, event)
                 if name == "GATE" and value:
                     self.do_start(next_event,event)

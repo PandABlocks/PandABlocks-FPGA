@@ -4,11 +4,13 @@ from .event import Event
 class Srgate(Block):
 
     def do_set(self, next_event, event):
-        """Set the output value high on the acting edge of a SET input or on a FORCE SET action"""
+        """Set the output value high on the acting edge of a SET input or on a
+        FORCE SET action"""
         next_event.bit[self.VAL] = 1
 
     def do_reset(self, next_event, event):
-        """Reset the block, either called on the acting edge of RESET input or on a FORCE RESET action"""
+        """Reset the block, either called on the acting edge of RESET input or
+        on a FORCE RESET action"""
         next_event.bit[self.VAL] = 0
 
     def on_event(self, event):

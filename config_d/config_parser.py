@@ -78,5 +78,5 @@ def populate_config():
                 name = line
                 num = 1
             instance = BlockConfig(name.strip(), int(num))
-            
-populate_config()            
+
+populate_config()

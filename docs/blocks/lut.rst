@@ -22,7 +22,8 @@ Testing Function Output
 ----------------------------
 This set of tests sets the function value and sees if the output is as expected
 
-A&B&C&D&E (FUNC= 0x80000000 = 2147483648(decimal)). Setting all inputs to 1 results in an output of 1, and changing any results in an output of 0
+A&B&C&D&E (FUNC= 0x80000000 = 2147483648(decimal)). Setting all inputs to 1
+results in an output of 1, and changing any results in an output of 0
 
 .. plot::
 
@@ -30,7 +31,8 @@ A&B&C&D&E (FUNC= 0x80000000 = 2147483648(decimal)). Setting all inputs to 1 resu
     make_block_plot("lut", "A&B&C&D&E Output")
 
 
-~A&~B&~C&~D&~E (FUNC= 0x00000001 = 1(decimal)). Setting all inputs to 0 results in an output of 1, and changing any results in an output of 0
+~A&~B&~C&~D&~E (FUNC= 0x00000001 = 1(decimal)). Setting all inputs to 0 results
+in an output of 1, and changing any results in an output of 0
 
 .. plot::
 
@@ -38,7 +40,8 @@ A&B&C&D&E (FUNC= 0x80000000 = 2147483648(decimal)). Setting all inputs to 1 resu
     make_block_plot("lut", "~A&~B&~C&~D&~E Output")
 
 
-A (FUNC= 0xffff0000 = 4294901760(decimal)). The output should only be 1 if A is 1 irrespective of any other input.
+A (FUNC= 0xffff0000 = 4294901760(decimal)). The output should only be 1 if A is
+1 irrespective of any other input.
 
 .. plot::
 
