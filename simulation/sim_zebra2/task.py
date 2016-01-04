@@ -1,5 +1,7 @@
 import Queue
 import threading
+import traceback
+import os
 
 class Task(object):
     def __init__(self):
@@ -36,6 +38,10 @@ class Task(object):
         pass
 
     def event_loop(self):
-        while True:
-            self.handle_events()
-
+        try:
+            while True:
+                self.handle_events()
+        except Exception as e:
+            print 'Caught exception in worker thread'
+            traceback.print_exc()
+            os._exit(1)

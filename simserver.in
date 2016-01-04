@@ -18,7 +18,7 @@ cd "$HERE"
 
 # Run the simulation server as a daemon.  It will ensure its socket is up and
 # running before taking itself into the background.
-$PYTHON simulation/sim_server.py -d --hardware=$SIM_HARDWARE
+$PYTHON simulation/sim_server.py -d --hardware=$SIM_HARDWARE  &&
 
 exec valgrind --leak-check=full --track-origins=yes \
     '@@BUILD_DIR@@'/sim_server/server \
