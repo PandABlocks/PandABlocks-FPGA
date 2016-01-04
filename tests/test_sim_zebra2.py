@@ -41,8 +41,8 @@ class SequenceTest(unittest.TestCase):
             changes = self.sequence.inputs[ts]
             event = Event(ts)
             for name, val in changes.items():
-                field = block.fields[name]
-                if field.typ.endswith("_mux"):
+                field = block.fields.get(name, None)
+                if field and field.typ.endswith("_mux"):
                     current = bus.get(name, 0)
                     self.assertNotEqual(
                         val, current,
