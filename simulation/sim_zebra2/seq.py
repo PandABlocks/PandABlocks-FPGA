@@ -9,32 +9,30 @@ class Seq(Block):
         self.table_data = {'repeats':0, 'inputBitMask': 0, 'inputConditions':0, 'phase1Outputs':0, 'phase2Outputs':0, 'phase1Len':0, 'phase2Len':0}
         self.active = 0
         self.table = []
-        self.start_ts = 0
-        self.frame_start = 0
         self.table_len = 0
         self.cur_frame = 0
+        self.num_frames = 0
         self.table_repeats = 0
         self.prescale = 1
-        self.total_length_ts = 0
         self.frame_word_count = 0
+        self.frame_cycle = 0
+        self.table_cycle = 0
         self.frame_ok = False
-        self.phase1_times = []
-        self.phase2_times = []
-        self.queue = deque()
+        self.phase2_queue = deque()
+        self.repeat_queue = deque()
 
     def do_start(self, next_event, event):
         next_event.bit[self.ACTIVE] = self.active = 1
         self.cur_frame = 1
-        self.start_ts = event.ts
-        self.frame_start = event.ts
         self.CUR_FRAME = self.cur_frame
 
     def do_stop(self, next_event, event):
         next_event.bit[self.ACTIVE] = self.active = 0
         self.cur_frame = 0
         self.CUR_FRAME = self.cur_frame
+        self.do_table_reset()
 
-    def process_inputs_phase1(self, next_event, event):
+    def process_inputs(self, next_event, event):
         #process inputs only if in active state and a whole frame has been written to the table
         if self.active and self.frame_ok:
             #record inputs
@@ -45,17 +43,19 @@ class Seq(Block):
             self.get_table_data()
             # if inputs & input bitmask == input conditions, outputs = phase outputs
             if inputint & self.table_data['inputBitMask'] == self.table_data['inputConditions']:
-                if any((event.ts - self.start_ts) in i for i in self.phase1_times):
-                    #TODO: make sure order is correct here
-                    next_event.bit[self.OUTA] = int(self.table_data['phase1outputs'][5])
-                    next_event.bit[self.OUTB] = int(self.table_data['phase1outputs'][4])
-                    next_event.bit[self.OUTC] = int(self.table_data['phase1outputs'][3])
-                    next_event.bit[self.OUTD] = int(self.table_data['phase1outputs'][2])
-                    next_event.bit[self.OUTE] = int(self.table_data['phase1outputs'][1])
-                    next_event.bit[self.OUTF] = int(self.table_data['phase1outputs'][0])
-                    self.queue.append((self.start_ts + self.table_data['phase1Len'], inputint))
+                self.set_outputs_phase1(next_event, event)
 
-    def process_inputs_phase2(self, next_event, event):
+    def set_outputs_phase1(self, next_event, event):
+        #TODO: make sure order is correct here
+        next_event.bit[self.OUTA] = int(self.table_data['phase1outputs'][5])
+        next_event.bit[self.OUTB] = int(self.table_data['phase1outputs'][4])
+        next_event.bit[self.OUTC] = int(self.table_data['phase1outputs'][3])
+        next_event.bit[self.OUTD] = int(self.table_data['phase1outputs'][2])
+        next_event.bit[self.OUTE] = int(self.table_data['phase1outputs'][1])
+        next_event.bit[self.OUTF] = int(self.table_data['phase1outputs'][0])
+        self.phase2_queue.append((event.ts + self.table_data['phase1Len']))
+
+    def set_outputs_phase2(self, next_event, event):
         self.get_table_data()
         #TODO: make sure order is correct here
         next_event.bit[self.OUTA] = int(self.table_data['phase2Outputs'][5])
@@ -64,6 +64,23 @@ class Seq(Block):
         next_event.bit[self.OUTD] = int(self.table_data['phase2Outputs'][2])
         next_event.bit[self.OUTE] = int(self.table_data['phase2Outputs'][1])
         next_event.bit[self.OUTF] = int(self.table_data['phase2Outputs'][0])
+        #if we have no more repeats, and there are more frames, the current frame should increase
+        if self.cur_frame < self.num_frames and self.frame_cycle == self.table_data['repeats']:
+            self.cur_frame += 1
+            self.frame_cycle = 0
+        elif self.frame_cycle < self.table_data['repeats']:
+            self.frame_cycle += 1
+            print "frameend: " + str(event.ts + self.table_data['phase2Len'])
+            self.repeat_queue.append((event.ts + self.table_data['phase2Len']))
+        #if we are at the end of the table determine if we need to repeat it or not
+        elif self.cur_frame == self.num_frames:
+            if self.table_cycle < self.table_repeats:
+                self.table_cycle += 1
+                self.cur_frame = 1
+                self.frame_cycle = 0
+                self.repeat_queue.append((event.ts + self.table_data['phase2Len']))
+            elif self.table_cycle == self.table_repeats:
+                next_event.bit[self.ACTIVE] = self.active = 0
 
     def input_interger(self):
         #get inputs as a single integer
@@ -73,20 +90,7 @@ class Seq(Block):
         return int(''.join(map(str,inputarray)),2)
 
     def get_cur_frame(self, next_event, event):
-        table_addr_offset = 4*(self.cur_frame - 1)
-        #if in active state, the current frame depends on the length of the frame (phase1 + phase2) and the number of repeats of that frame
-        if self.active and (event.ts - self.frame_start) > ((self.table[2+table_addr_offset] + self.table[3+table_addr_offset]) * self.prescale) * (self.table[0+table_addr_offset] + 1):
-            self.cur_frame+=1
-            self.frame_start = event.ts
-            self.CUR_FRAME = self.cur_frame
-        elif self.active and (event.ts - self.frame_start) > self.total_length_ts:
-            if self.table_repeats == 0:
-                next_event.bit[self.ACTIVE] = self.active = 0
-            else:
-                self.start_ts = event.ts
-                self.table_repeats -=1
-
-            #TODO: make sure to handle properly what happens when all the frames are finished
+        self.CUR_FRAME = self.cur_frame
 
     def do_table_write(self, next_event, event):
         self.frame_ok = False
@@ -96,9 +100,17 @@ class Seq(Block):
         #get the phase time indexes so we can check which phase we are in later and indicate that the whole frame is written
         self.frame_word_count += 1
         if self.frame_word_count == 4:
-            self.get_phase_time_indexes()
+            # self.get_phase_time_indexes()
             self.frame_word_count = 0
             self.frame_ok = True
+            self.num_frames += 1
+            #the current frame count starts only when we have a full frame written
+            if self.cur_frame == 0: self.cur_frame = 1
+
+    def do_table_reset(self):
+        self.table = []
+        self.table_len = 0
+        self.num_frames = 0
 
     def get_table_data(self):
         table_addr_offset = 4*(self.cur_frame - 1)
@@ -109,16 +121,6 @@ class Seq(Block):
         self.table_data['inputConditions'] = int('{0:X}'.format(self.table[1+table_addr_offset])[1], 16)
         self.table_data['phase1outputs'] = format(int('{0:X}'.format(self.table[1+table_addr_offset])[2:4],16),'06b') #convert table value back to hex, get output bits (6 bits), convert back to integer and then format to a binary string
         self.table_data['phase2Outputs'] = format(int('{0:X}'.format(self.table[1+table_addr_offset])[4:6],16),'06b')
-
-    def get_phase_time_indexes(self):
-        self.get_table_data()
-        framelength = (self.table_data['phase1Len'] + self.table_data['phase2Len'])
-        for y in range(self.table_data['repeats']+1):
-            phase1times = [x + self.total_length_ts for x in range(y*framelength, self.table_data['phase1Len']+framelength*y)]
-            phase2times = [x + self.total_length_ts for x in range(y*framelength + self.table_data['phase1Len'], framelength*(y+1))]
-            self.phase1_times.append(phase1times)
-            self.phase2_times.append(phase2times)
-        self.total_length_ts += (self.table_data['phase1Len'] + self.table_data['phase2Len']) * self.table_data['repeats']
 
     def on_event(self, event):
         """Handle register, bit and pos changes at a particular timestamps,
@@ -136,8 +138,7 @@ class Seq(Block):
                 elif name == "TABLE_DATA":
                     self.do_table_write(next_event, event)
                 elif name == "TABLE_RST":
-                    self.table = []
-                    self.table_len = 0
+                    self.do_table_reset()
                 elif name == "TABLE_CYCLE":
                     self.table_repeats = self.TABLE_CYCLE
                 elif name == "PRESCALE":
@@ -145,15 +146,22 @@ class Seq(Block):
         # if we got an input on a rising edge, then process it
         elif event.bit:
             if any(x in event.bit for x in [self.INPA, self.INPB, self.INPC, self.INPD]):
-                    self.process_inputs_phase1(next_event, event)
+                #if we are due to repeat, pop off the queue so we wait until the inputs are correct again
+                if self.repeat_queue:
+                    self.repeat_queue.popleft()
+                self.process_inputs(next_event, event)
             for name, value in event.bit.items():
                 if name == self.GATE and value:
                     self.do_start(next_event, event)
                 elif name == self.GATE and not value:
                     self.do_stop(next_event, event)
         # if we have an pulse on our queue that is due, produce it
-        if self.queue and self.queue[0][0] == event.ts:
+        if self.phase2_queue and self.phase2_queue[0] == event.ts:
             # generate output value
-            self.process_inputs_phase2(next_event, event)
+            self.phase2_queue.popleft()
+            self.set_outputs_phase2(next_event, event)
+        if self.repeat_queue and self.repeat_queue[0] == event.ts:
+                self.repeat_queue.popleft()
+                self.set_outputs_phase1(next_event, event)
         # return any changes and next ts
         return next_event
