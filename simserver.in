@@ -16,6 +16,10 @@ DATA_PORT=8889
 
 cd "$HERE"
 
+# Force any previously running instance of the simulation server to go away --
+# this can happen if sim_server failed on startup for any reason.
+nc localhost 9999 </dev/null
+
 # Run the simulation server as a daemon.  It will ensure its socket is up and
 # running before taking itself into the background.
 $PYTHON simulation/sim_server.py -d --hardware=$SIM_HARDWARE  &&

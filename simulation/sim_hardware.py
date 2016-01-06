@@ -2,6 +2,9 @@
 
 
 class Controller(object):
+    def start(self):
+        pass
+
     # Must return an integer
     def do_read_data(self, block, num, reg):
         return 0

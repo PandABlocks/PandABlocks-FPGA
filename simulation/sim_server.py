@@ -51,7 +51,6 @@ def read(sock, n):
 
 
 def run_simulation(conn):
-    controller = sim_hardware.Controller()
     while True:
         command_word = read(conn, 4)
         command, block, num, reg = struct.unpack('cBBB', command_word)
@@ -87,9 +86,17 @@ sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(('localhost', 9999))
 sock.listen(0)
 
+# Create as much of the controller before we daemonise so that errors can be
+# caught if possible at this stage.
+controller = sim_hardware.Controller()
+
 print 'Simulating server ready'
 if args.daemon:
     daemonise()
+
+# If any threads need to be started this must happen after daemonising, as
+# threads won't survive.
+controller.start()
 
 (conn, addr) = sock.accept()
 conn.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)

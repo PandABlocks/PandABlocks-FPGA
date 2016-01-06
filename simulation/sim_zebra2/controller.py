@@ -6,6 +6,8 @@ class Controller(object):
     def __init__(self):
         # start the controller task
         self.z = Zebra2()
+
+    def start(self):
         self.z.start_event_loop()
 
     # Must return an integer
