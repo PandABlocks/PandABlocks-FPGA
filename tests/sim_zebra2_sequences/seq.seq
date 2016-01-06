@@ -1,0 +1,98 @@
+###############
+$! Test
+
+2       : PRESCALE=2
+3       : TABLE_CYCLE=1
+
+4       : TABLE_DATA=0x00000001
+5       : TABLE_DATA=0xFF013F00
+6       : TABLE_DATA=0x00000002
+7       : TABLE_DATA=0x00000001
+
+8       : TABLE_DATA=0x00000002
+9       : TABLE_DATA=0xFE3F0200
+10      : TABLE_DATA=0x00000003
+11      : TABLE_DATA=0x00000002
+
+12      : GATE=1                            : ACTIVE=1, CUR_FRAME=1
+15      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1, CUR_FCYCLE=0, CUR_TCYCLE=0
+19      :                                   : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+
+21      :                                   : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0, OUTF=0, CUR_FCYCLE=1
+25      :                                   : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+
+30      : INPD=0                            : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1, CUR_FRAME=2, CUR_FCYCLE=0
+36      :                                   : OUTA=0, OUTB=1, OUTC=0, OUTD=0, OUTE=0, OUTF=0
+
+40      :                                   : OUTA=1, OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1, CUR_FCYCLE=1
+46      :                                   : OUTA=0, OUTB=1, OUTC=0, OUTD=0, OUTE=0, OUTF=0
+
+50      :                                   : OUTA=1, OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1, CUR_FCYCLE=2
+56      :                                   : OUTA=0, OUTB=1, OUTC=0, OUTD=0, OUTE=0, OUTF=0
+
+65      : INPD=1                            : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0, OUTF=0, CUR_FCYCLE=0, CUR_TCYCLE=1
+69      :                                   : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+
+71      :                                   : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0, OUTF=0, CUR_FCYCLE=1
+75      :                                   : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+
+80      : INPD=0                            : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1, CUR_FRAME=2, CUR_FCYCLE=0
+86      :                                   : OUTA=0, OUTB=1, OUTC=0, OUTD=0, OUTE=0, OUTF=0
+
+90      :                                   : OUTA=1, OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1, CUR_FCYCLE=1
+96      :                                   : OUTA=0, OUTB=1, OUTC=0, OUTD=0, OUTE=0, OUTF=0
+
+100     :                                   : OUTA=1, OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1, CUR_FCYCLE=2
+106     :                                   : OUTA=0, OUTB=1, OUTC=0, OUTD=0, OUTE=0, OUTF=0, ACTIVE=0
+
+
+
+###############
+$! Test0
+
+2       : PRESCALE=2
+
+3       : TABLE_DATA=0x00000001
+4       : TABLE_DATA=0xFF013F00
+5       : TABLE_DATA=0x00000002
+6       : TABLE_DATA=0x00000001
+
+8       : TABLE_DATA=0x00000002
+9       : TABLE_DATA=0xFE3F3F00
+10      : TABLE_DATA=0x00000003
+11      : TABLE_DATA=0x00000002
+
+12      : GATE=1                            : ACTIVE=1, CUR_FRAME=1
+15      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
+19      :                                   : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+20      : INPA=0, INPB=0, INPC=0, INPD=0
+25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0, OUTF=0
+29      :                                   : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+
+
+
+###############
+$ Test1
+2       : PRESCALE=2
+3       : TABLE_DATA=0x00000001
+4       : TABLE_DATA=0xFF013F00
+5       : TABLE_DATA=0x00000002
+6       : TABLE_DATA=0x00000001
+10      : GATE=1                            : ACTIVE=1, CUR_FRAME=1
+11      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
+
+15      :                                   : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+
+
+###############
+$ Test2
+8       : TABLE_DATA=0x00000002
+9       : TABLE_DATA=0xFE3F3F00
+10      : TABLE_DATA=0x00000003
+11      : TABLE_DATA=0x00000002
+
+12      : GATE=1                            : ACTIVE=1, CUR_FRAME=1
+15      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
+30      : INPA=0                            :
+31      : INPA=1, INPD=0                    : CUR_FRAME=2, OUTA=1, OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+55      : SOFT_GATE=0                       : ACTIVE=0
