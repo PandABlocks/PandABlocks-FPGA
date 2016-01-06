@@ -70,7 +70,6 @@ class Seq(Block):
             self.frame_cycle = 0
         elif self.frame_cycle < self.table_data['repeats']:
             self.frame_cycle += 1
-            print "frameend: " + str(event.ts + self.table_data['phase2Len'])
             self.repeat_queue.append((event.ts + self.table_data['phase2Len']))
         #if we are at the end of the table determine if we need to repeat it or not
         elif self.cur_frame == self.num_frames:
@@ -89,8 +88,10 @@ class Seq(Block):
             inputarray.append(value)
         return int(''.join(map(str,inputarray)),2)
 
-    def get_cur_frame(self, next_event, event):
+    def get_cur_frame_cycle(self, next_event, event):
         self.CUR_FRAME = self.cur_frame
+        self.CUR_FCYCLE = self.frame_cycle
+        self.CUR_TCYCLE = self.table_cycle
 
     def do_table_write(self, next_event, event):
         self.frame_ok = False
@@ -126,7 +127,7 @@ class Seq(Block):
         """Handle register, bit and pos changes at a particular timestamps,
         then generate output events and return when we next need to be called"""
         next_event = Event()
-        self.get_cur_frame(next_event, event)
+        self.get_cur_frame_cycle(next_event, event)
         # if we got register changes, handle those
         if event.reg:
             for name, value in event.reg.items():
