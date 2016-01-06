@@ -21,7 +21,7 @@ cd "$HERE"
 $PYTHON simulation/sim_server.py -d --hardware=$SIM_HARDWARE  &&
 
 exec valgrind --leak-check=full --track-origins=yes \
-    '@@BUILD_DIR@@'/sim_server/server \
+    '@@BUILD_DIR@@'/sim_server/sim_server \
     -f"$PERSISTENCE" \
     -p$CONFIG_PORT -d$DATA_PORT -R \
     -c"$CONFIG_DB" -r"$REGISTER_DB" -D"$DESCRIPTION_DB" "$@"

@@ -65,7 +65,7 @@ driver: $(PANDA_KO)
 # Socket server
 
 SERVER = $(SERVER_BUILD_DIR)/server
-SIM_SERVER = $(SIM_SERVER_BUILD_DIR)/server
+SIM_SERVER = $(SIM_SERVER_BUILD_DIR)/sim_server
 SERVER_FILES := $(wildcard server/*)
 
 $(SERVER): $(SERVER_BUILD_DIR) $(SERVER_FILES)
@@ -74,7 +74,7 @@ $(SERVER): $(SERVER_BUILD_DIR) $(SERVER_FILES)
 
 $(SIM_SERVER): $(SIM_SERVER_BUILD_DIR) $(SERVER_FILES)
 	$(MAKE) -C $< -f $(TOP)/server/Makefile \
-            VPATH=$(TOP)/server TOP=$(TOP) SIMSERVER=T
+            VPATH=$(TOP)/server TOP=$(TOP)
 
 SIMSERVER_SUBSTS = s:@@PYTHON@@:$(PYTHON):;
 SIMSERVER_SUBSTS += s:@@BUILD_DIR@@:$(BUILD_DIR):;
