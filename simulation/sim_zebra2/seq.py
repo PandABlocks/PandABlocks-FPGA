@@ -1,6 +1,6 @@
 from .block import Block
 from .event import Event
-
+from collections import deque
 
 class Seq(Block):
     def __init__(self, num):
@@ -20,6 +20,7 @@ class Seq(Block):
         self.frame_ok = False
         self.phase1_times = []
         self.phase2_times = []
+        self.queue = deque()
 
     def do_start(self, next_event, event):
         next_event.bit[self.ACTIVE] = self.active = 1
@@ -33,7 +34,7 @@ class Seq(Block):
         self.cur_frame = 0
         self.CUR_FRAME = self.cur_frame
 
-    def process_inputs(self, next_event, event):
+    def process_inputs_phase1(self, next_event, event):
         #process inputs only if in active state and a whole frame has been written to the table
         if self.active and self.frame_ok:
             #record inputs
@@ -52,14 +53,17 @@ class Seq(Block):
                     next_event.bit[self.OUTD] = int(self.table_data['phase1outputs'][2])
                     next_event.bit[self.OUTE] = int(self.table_data['phase1outputs'][1])
                     next_event.bit[self.OUTF] = int(self.table_data['phase1outputs'][0])
-                elif any((event.ts - self.start_ts) in i for i in self.phase2_times):
-                    #TODO: make sure order is correct here
-                    next_event.bit[self.OUTA] = int(self.table_data['phase2Outputs'][5])
-                    next_event.bit[self.OUTB] = int(self.table_data['phase2Outputs'][4])
-                    next_event.bit[self.OUTC] = int(self.table_data['phase2Outputs'][3])
-                    next_event.bit[self.OUTD] = int(self.table_data['phase2Outputs'][2])
-                    next_event.bit[self.OUTE] = int(self.table_data['phase2Outputs'][1])
-                    next_event.bit[self.OUTF] = int(self.table_data['phase2Outputs'][0])
+                    self.queue.append((self.start_ts + self.table_data['phase1Len'], inputint))
+
+    def process_inputs_phase2(self, next_event, event):
+        self.get_table_data()
+        #TODO: make sure order is correct here
+        next_event.bit[self.OUTA] = int(self.table_data['phase2Outputs'][5])
+        next_event.bit[self.OUTB] = int(self.table_data['phase2Outputs'][4])
+        next_event.bit[self.OUTC] = int(self.table_data['phase2Outputs'][3])
+        next_event.bit[self.OUTD] = int(self.table_data['phase2Outputs'][2])
+        next_event.bit[self.OUTE] = int(self.table_data['phase2Outputs'][1])
+        next_event.bit[self.OUTF] = int(self.table_data['phase2Outputs'][0])
 
     def input_interger(self):
         #get inputs as a single integer
@@ -141,12 +145,15 @@ class Seq(Block):
         # if we got an input on a rising edge, then process it
         elif event.bit:
             if any(x in event.bit for x in [self.INPA, self.INPB, self.INPC, self.INPD]):
-                    self.process_inputs(next_event, event)
+                    self.process_inputs_phase1(next_event, event)
             for name, value in event.bit.items():
                 if name == self.GATE and value:
                     self.do_start(next_event, event)
                 elif name == self.GATE and not value:
                     self.do_stop(next_event, event)
-
+        # if we have an pulse on our queue that is due, produce it
+        if self.queue and self.queue[0][0] == event.ts:
+            # generate output value
+            self.process_inputs_phase2(next_event, event)
         # return any changes and next ts
         return next_event
