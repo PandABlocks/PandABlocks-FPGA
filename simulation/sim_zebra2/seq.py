@@ -11,7 +11,6 @@ class Seq(Block):
         self.table = []
         self.table_len = 0
         self.cur_frame = 0
-        self.num_frames = 0
         self.table_repeats = 0
         self.prescale = 1
         self.frame_word_count = 0
@@ -72,14 +71,14 @@ class Seq(Block):
         next_event.bit[self.OUTE] = int(self.table_data['phase2Outputs'][1])
         next_event.bit[self.OUTF] = int(self.table_data['phase2Outputs'][0])
         #if we have no more repeats, and there are more frames, the current frame should increase
-        if self.cur_frame < self.num_frames and self.frame_cycle == self.table_data['repeats']:
+        if self.cur_frame < self.table_len and self.frame_cycle == self.table_data['repeats']:
             self.cur_frame += 1
             self.frame_cycle = 0
         elif self.frame_cycle < self.table_data['repeats']:
             self.frame_cycle += 1
             self.repeat_queue.append((event.ts + self.table_data['phase2Len']))
         #if we are at the end of the table determine if we need to repeat it or not
-        elif self.cur_frame == self.num_frames:
+        elif self.cur_frame == self.table_len:
             if self.table_cycle < self.table_repeats:
                 self.table_cycle += 1
                 self.cur_frame = 1
@@ -103,15 +102,12 @@ class Seq(Block):
     def do_table_write(self, next_event, event):
         self.frame_ok = False
         self.table.append(self.TABLE_DATA)
-        #get length of table in frames
-        self.table_len = divmod(len(self.table),4)[0]
         #get the phase time indexes so we can check which phase we are in later and indicate that the whole frame is written
         self.frame_word_count += 1
         if self.frame_word_count == 4:
             # self.get_phase_time_indexes()
             self.frame_word_count = 0
             self.frame_ok = True #not sure if this should be if self.cur_frame ==0: self.frame_ok = True in order to only block on the first frame.
-            self.num_frames += 1
             #the current frame count starts only when we have a full frame written
             if self.cur_frame == 0: self.cur_frame = 1
 
@@ -147,9 +143,12 @@ class Seq(Block):
                 elif name == "TABLE_RST":
                     self.do_table_reset()
                 elif name == "TABLE_CYCLE":
-                    self.table_repeats = self.TABLE_CYCLE
+                    self.table_repeats = value
                 elif name == "PRESCALE":
-                    self.prescale = self.PRESCALE
+                    self.prescale = value
+                elif name == "TABLE_LENGTH":
+                    self.table_len = value
+
         # if we got an input on a rising edge, then process it
         elif event.bit:
             if any(x in event.bit for x in [self.INPA, self.INPB, self.INPC, self.INPD]):
