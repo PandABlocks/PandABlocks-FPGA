@@ -14,3 +14,4 @@ Each block is documented with examples
     div
     srgate
     lut
+    seq
