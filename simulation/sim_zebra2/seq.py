@@ -1,6 +1,6 @@
 from .block import Block
 from .event import Event
-from collections import deque
+from collections import deque, OrderedDict
 
 class Seq(Block):
     def __init__(self, num):
@@ -10,6 +10,7 @@ class Seq(Block):
         self.active = 0
         self.table = []
         self.table_len = 0
+        self.table_write_addr = 0
         self.cur_frame = 0
         self.table_repeats = 0
         self.prescale = 1
@@ -37,11 +38,11 @@ class Seq(Block):
 
     def process_inputs(self, next_event, event):
         #process inputs only if in active state and a whole frame has been written to the table
+        #record inputs
+        input_map = {self.INPA:'A', self.INPB:'B', self.INPC:'C', self.INPD:'D'}
+        for name, val in event.bit.items():
+            self.inputs[input_map[name]] = val
         if self.active and self.frame_ok:
-            #record inputs
-            input_map = {self.INPA:'A', self.INPB:'B', self.INPC:'C', self.INPD:'D'}
-            for name, val in event.bit.items():
-                self.inputs[input_map[name]] = val
             self.check_inputs(next_event, event)
 
     def check_inputs(self, next_event, event):
@@ -90,7 +91,8 @@ class Seq(Block):
     def get_input_interger(self):
         #get inputs as a single integer
         inputarray = []
-        for name, value in self.inputs.iteritems():
+        ordered_inputs = OrderedDict(reversed(sorted(self.inputs.items(), key=lambda t: t[0])))
+        for name, value in ordered_inputs.iteritems():
             inputarray.append(value)
         return int(''.join(map(str,inputarray)),2)
 
@@ -101,18 +103,23 @@ class Seq(Block):
 
     def do_table_write(self, next_event, event):
         self.frame_ok = False
-        self.table.append(self.TABLE_DATA)
+        if self.table_write_addr == (self.table_len*4 + self.frame_word_count):
+            self.table.append(self.TABLE_DATA)
+        #else, if we have reset the table, overwrite
+        else:
+            self.table[self.table_write_addr] = self.TABLE_DATA
+        self.table_write_addr += 1
         #get the phase time indexes so we can check which phase we are in later and indicate that the whole frame is written
         self.frame_word_count += 1
         if self.frame_word_count == 4:
             # self.get_phase_time_indexes()
             self.frame_word_count = 0
             self.frame_ok = True #not sure if this should be if self.cur_frame ==0: self.frame_ok = True in order to only block on the first frame.
-            #the current frame count starts only when we have a full frame written
+            #the current frame count starts only when we have the first full frame written
             if self.cur_frame == 0: self.cur_frame = 1
 
     def do_table_reset(self):
-        #this should make the table overwrite from the top
+        self.table_write_addr = 0
         pass
 
     def get_table_data(self):
