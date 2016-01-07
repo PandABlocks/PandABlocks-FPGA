@@ -1,5 +1,5 @@
 from .task import Task
-from .block import BlockConfig, BlockRegisters, Block
+from .block import Block
 from .event import Event
 
 import time
@@ -9,6 +9,9 @@ CLOCK_TICK = 1.0 / 125e6
 
 
 class Zebra2(Task):
+    def __init__(self, config_dir):
+        Block.load_config(config_dir)
+        super(Zebra2, self).__init__()
 
     def setup_event_loop(self):
         # When did we start
@@ -31,7 +34,7 @@ class Zebra2(Task):
             self.pos_listeners.append([])
         # Dict (name, i) -> Block()
         self.blocks = {}
-        for name, config in BlockConfig.instances.items():
+        for name, config in Block.config.items():
             # check if we have a block of the right type
             try:
                 imp = __import__("sim_zebra2." + name.lower())
@@ -51,7 +54,7 @@ class Zebra2(Task):
                 self.blocks[(inst.reg_base, i)] = inst
         # update specials
         #bit_zero = self.blocks[("BITS", 0)].ZERO
-        bits_base = BlockRegisters.instances["BITS"].base
+        bits_base = Block.registers["BITS"].base
         bit_one = self.blocks[(bits_base, 0)].ONE
         #pos_zero = self.blocks[("POSITIONS", 0).ZERO]
         self.bit_bus[bit_one] = 1

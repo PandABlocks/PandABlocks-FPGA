@@ -1,8 +1,6 @@
 import os
 from collections import OrderedDict, namedtuple
 
-config_dir = os.path.dirname(__file__)
-
 
 class BlockRegisters(object):
     instances = OrderedDict()
@@ -19,7 +17,7 @@ class BlockRegisters(object):
         self.fields[name] = val
 
 
-def populate_registers():
+def populate_registers(config_dir):
     fname = os.path.join(config_dir, "registers")
     instance = None
     for line in open(fname).readlines():
@@ -33,8 +31,8 @@ def populate_registers():
         else:
             name, base = line.strip().split()
             instance = BlockRegisters(name, int(base))
+    return BlockRegisters.instances
 
-populate_registers()
 
 Field = namedtuple("Field", "cls typ")
 
@@ -54,7 +52,7 @@ class BlockConfig(object):
         self.fields[name] = Field(cls, typ)
 
 
-def populate_config():
+def populate_config(config_dir):
     fname = os.path.join(config_dir, "config")
     instance = None
     for line in open(fname).readlines():
@@ -78,5 +76,10 @@ def populate_config():
                 name = line
                 num = 1
             instance = BlockConfig(name.strip(), int(num))
+    return BlockConfig.instances
 
-populate_config()
+
+def load_config(config_dir):
+    registers = populate_registers(config_dir)
+    config = populate_config(config_dir)
+    return (registers, config)

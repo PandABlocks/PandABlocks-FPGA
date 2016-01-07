@@ -3,18 +3,21 @@ import sys
 
 from .event import Event
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "config_d"))
-from config_parser import BlockRegisters, BlockConfig
+from . import config_parser
 
 
 class Block(object):
 
+    @classmethod
+    def load_config(cls, config_dir):
+        cls.registers, cls.config = config_parser.load_config(config_dir)
+
     def __init__(self, num):
         block_name = type(self).__name__.upper()
-        regs = BlockRegisters.instances[block_name].fields
-        self.reg_base = BlockRegisters.instances[block_name].base
-        self.maxnum = BlockConfig.instances[block_name].num
-        self.fields = BlockConfig.instances[block_name].fields
+        regs = self.registers[block_name].fields
+        self.reg_base = self.registers[block_name].base
+        self.maxnum = self.config[block_name].num
+        self.fields = self.config[block_name].fields
         assert num > 0 and num <= self.maxnum, \
             "Num %d out of range" % num
         self.num = num

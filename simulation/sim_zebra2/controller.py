@@ -3,9 +3,9 @@ from .zebra2 import Zebra2
 
 class Controller(object):
 
-    def __init__(self):
+    def __init__(self, config_dir):
         # start the controller task
-        self.z = Zebra2()
+        self.z = Zebra2(config_dir)
 
     def start(self):
         self.z.start_event_loop()

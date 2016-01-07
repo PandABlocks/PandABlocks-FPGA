@@ -6,9 +6,11 @@ HERE="$(dirname "$0")"
 PYTHON='@@PYTHON@@'
 SIM_HARDWARE='@@SIM_HARDWARE@@'
 
-CONFIG_DB="$HERE"/config_d/config
-REGISTER_DB="$HERE"/config_d/registers
-DESCRIPTION_DB="$HERE"/config_d/description
+CONFIG_DIR="$HERE"/config_d
+
+CONFIG_DB="$CONFIG_DIR"/config
+REGISTER_DB="$CONFIG_DIR"/registers
+DESCRIPTION_DB="$CONFIG_DIR"/description
 PERSISTENCE='@@BUILD_DIR@@'/persistence.state
 
 CONFIG_PORT=8888
@@ -22,7 +24,7 @@ nc localhost 9999 </dev/null
 
 # Run the simulation server as a daemon.  It will ensure its socket is up and
 # running before taking itself into the background.
-$PYTHON simulation/sim_server.py -d --hardware=$SIM_HARDWARE  &&
+$PYTHON simulation/sim_server.py -d --hardware=$SIM_HARDWARE "$CONFIG_DIR"  &&
 
 exec valgrind --leak-check=full --track-origins=yes \
     '@@BUILD_DIR@@'/sim_server/sim_server \
