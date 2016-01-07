@@ -67,7 +67,7 @@ SEQ         6
     OUTE            52 53 54 55
     OUTF            56 57 58 59
     ACTIVE          108 109 110 111
-    TABLE           512    13 14
+    TABLE           short   512    13 14
 
 INENC       7
     PROTOCOL        0
@@ -141,7 +141,7 @@ PGEN        14
     SAMPLES         2
     CYCLES          3
     POSN            19 20
-    TABLE           2^20
+    TABLE           long    2^20
 
 PCOMP       15
     ENABLE          0
@@ -154,7 +154,7 @@ PCOMP       15
     LUT_ENABLE      7
     ACT             92 93 94 95
     PULSE           96 97 98 99
-    TABLE           2^10
+    TABLE           long    2^10
 
 ADC         16
     TRIGGER         0
