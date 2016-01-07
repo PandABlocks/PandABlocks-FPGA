@@ -25,12 +25,16 @@ class Seq(Block):
         next_event.bit[self.ACTIVE] = self.active = 1
         self.cur_frame = 1
         self.CUR_FRAME = self.cur_frame
+        self.check_inputs(next_event, event)
 
     def do_stop(self, next_event, event):
         next_event.bit[self.ACTIVE] = self.active = 0
         self.cur_frame = 0
         self.CUR_FRAME = self.cur_frame
-        self.do_table_reset()
+        self.phase2_queue.clear()
+        self.repeat_queue.clear()
+        self.frame_cycle = 0
+        self.table_cycle = 0
 
     def process_inputs(self, next_event, event):
         #process inputs only if in active state and a whole frame has been written to the table
@@ -39,11 +43,14 @@ class Seq(Block):
             input_map = {self.INPA:'A', self.INPB:'B', self.INPC:'C', self.INPD:'D'}
             for name, val in event.bit.items():
                 self.inputs[input_map[name]] = val
-            inputint = self.input_interger()
-            self.get_table_data()
-            # if inputs & input bitmask == input conditions, outputs = phase outputs
-            if inputint & self.table_data['inputBitMask'] == self.table_data['inputConditions']:
-                self.set_outputs_phase1(next_event, event)
+            self.check_inputs(next_event, event)
+
+    def check_inputs(self, next_event, event):
+        inputint = self.get_input_interger()
+        self.get_table_data()
+        # if inputs & input bitmask == input conditions, outputs = phase outputs
+        if inputint & self.table_data['inputBitMask'] == self.table_data['inputConditions']:
+            self.set_outputs_phase1(next_event, event)
 
     def set_outputs_phase1(self, next_event, event):
         #TODO: make sure order is correct here
@@ -81,7 +88,7 @@ class Seq(Block):
             elif self.table_cycle == self.table_repeats:
                 next_event.bit[self.ACTIVE] = self.active = 0
 
-    def input_interger(self):
+    def get_input_interger(self):
         #get inputs as a single integer
         inputarray = []
         for name, value in self.inputs.iteritems():
@@ -103,15 +110,14 @@ class Seq(Block):
         if self.frame_word_count == 4:
             # self.get_phase_time_indexes()
             self.frame_word_count = 0
-            self.frame_ok = True
+            self.frame_ok = True #not sure if this should be if self.cur_frame ==0: self.frame_ok = True in order to only block on the first frame.
             self.num_frames += 1
             #the current frame count starts only when we have a full frame written
             if self.cur_frame == 0: self.cur_frame = 1
 
     def do_table_reset(self):
-        self.table = []
-        self.table_len = 0
-        self.num_frames = 0
+        #this should make the table overwrite from the top
+        pass
 
     def get_table_data(self):
         table_addr_offset = 4*(self.cur_frame - 1)
