@@ -125,7 +125,7 @@ class Zebra2(Task):
             if fname == name:
                 fvalue = value
             else:
-                fvalue = getattr(block, fname)
+                fvalue = getattr(block, fname, None)
             if field.typ == "bit_mux":
                 self.bit_listeners[fvalue].append(block)
             if field.typ == "pos_mux":
