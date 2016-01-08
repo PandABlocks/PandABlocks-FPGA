@@ -109,6 +109,9 @@ constant PCAP_EXT_MASK_ADDR     : std_logic_vector := TO_SVECTOR(10, PAGE_AW);
 constant PCAP_FRAME_ENA_ADDR    : std_logic_vector := TO_SVECTOR(11, PAGE_AW);
 constant PCAP_IRQ_STATUS_ADDR   : std_logic_vector := TO_SVECTOR(12, PAGE_AW);
 constant PCAP_SMPL_COUNT_ADDR   : std_logic_vector := TO_SVECTOR(13, PAGE_AW);
+constant PCAP_BLOCK_SIZE_ADDR   : std_logic_vector := TO_SVECTOR(14, PAGE_AW);
+constant PCAP_TRIG_MISSES_ADDR  : std_logic_vector := TO_SVECTOR(15, PAGE_AW);
+constant PCAP_ERR_STATUS_ADDR   : std_logic_vector := TO_SVECTOR(16, PAGE_AW);
 
 --
 -- TOP Block Register Address Space

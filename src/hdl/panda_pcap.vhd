@@ -25,11 +25,10 @@ port (
     reset_i             : in  std_logic;
 
     enabled_i           : in  std_logic;
-    disarmed_i          : in  std_logic;
+    disarmed_i          : in  std_logic_vector(1 downto 0);
     pcap_frst_i         : in  std_logic;
     pcap_dat_i          : in  std_logic_vector(31 downto 0);
     pcap_wstb_i         : in  std_logic;
-
 
     irq_o               : out std_logic;
 
@@ -38,6 +37,7 @@ port (
     DMAADDR             : in  std_logic_vector(31 downto 0);
     IRQ_STATUS          : out std_logic_vector(3 downto 0);
     SMPL_COUNT          : out std_logic_vector(31 downto 0);
+    BLOCK_SIZE          : in  std_logic_vector(31 downto 0);
 
     -- AXI3 HP Bus Write Only Interface
     m_axi_awready       : in  std_logic;
@@ -69,10 +69,6 @@ architecture rtl of panda_pcap is
 -- Number of byte per AXI3 burst
 constant BURST_LEN          : integer := AXI_BURST_LEN * AXI_ADDR_WIDTH/8;
 
--- A single TLP consists of '16 beats of DWORDs' = 64 Bytes.
--- BUFFER_SIZE on host memory is defined in terms of TLP_COUNTs.
-constant PCAP_TLP_COUNT     : std_logic_vector(31 downto 0) := TO_SVECTOR(128, 32);
-
 -- IRQ Status encoding
 constant IRQ_IDLE           : std_logic_vector(3 downto 0) := "0000";
 constant IRQ_BUFFER_FINISHED: std_logic_vector(3 downto 0) := "0001";
@@ -80,9 +76,12 @@ constant IRQ_CAPT_FINISHED  : std_logic_vector(3 downto 0) := "0010";
 constant IRQ_TIMEOUT        : std_logic_vector(3 downto 0) := "0011";
 constant IRQ_DISARMED       : std_logic_vector(3 downto 0) := "0100";
 constant IRQ_ADDR_ERROR     : std_logic_vector(3 downto 0) := "0101";
+constant IRQ_INT_DISARMED   : std_logic_vector(3 downto 0) := "0110";
 
 type pcap_fsm_t is (IDLE, ACTV, DO_DMA, IS_FINISHED, IRQ, ABORTED);
 signal pcap_fsm             : pcap_fsm_t;
+
+signal BLOCK_TLP_SIZE       : std_logic_vector(31 downto 0);
 
 signal m_axi_burst_len      : std_logic_vector(4 downto 0) := TO_SVECTOR(16, 5);
 
@@ -107,7 +106,14 @@ signal sample_count         : unsigned(31 downto 0);
 
 begin
 
+-- Assign outputs.
 irq_o <= dma_irq;
+
+--
+-- Convert BLOCK_SIZE [in Bytes] to TLP_Count. Each TLP has 16 beats of DWORDS.
+-- TLP_COUNT = BLOCK_SIZE/64
+--
+BLOCK_TLP_SIZE <= "000000" & BLOCK_SIZE(31 downto 6);
 
 --
 -- 32bit-to-64-bit FIFO with 1K sample depth
@@ -248,8 +254,10 @@ begin
                     -- Last TLP happens on either scan capture finish, or
                     -- graceful finish on DISARM.
                     if (last_tlp_flag = '1') then
-                        if (disarmed_i = '1') then
+                        if (disarmed_i(0) = '1') then
                             IRQ_STATUS <= IRQ_DISARMED;
+                        elsif (disarmed_i(1) = '1') then
+                            IRQ_STATUS <= IRQ_INT_DISARMED;
                         else
                             IRQ_STATUS <= IRQ_CAPT_FINISHED;
                         end if;
@@ -260,7 +268,7 @@ begin
                     -- buffer is finished.
                     -- Make sure that next dma address is valid.
                     elsif (pcap_timeout_flag = '1' or
-                                tlp_count = unsigned(PCAP_TLP_COUNT)) then
+                                tlp_count = unsigned(BLOCK_TLP_SIZE)) then
                         tlp_count <= (others => '0');
                         dma_irq <= '1';
                         SMPL_COUNT <= std_logic_vector(sample_count);

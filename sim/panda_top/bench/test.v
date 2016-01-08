@@ -22,11 +22,16 @@ reg [511:0]     test_name = "PCAP_TEST";
 reg [1:0]       wrs, rsp;
 reg [3:0]       IRQ_STATUS;
 reg [31:0]      SMPL_COUNT;
-reg [31:0]      TOTAL_COUNT;
 reg [31:0]      addr;
 reg [31:0]      base;
+reg [31:0]      total_samples;
+
+reg [31:0]      addr_table[31: 0];
+reg [31:0]      smpl_table[31: 0];
+integer         irq_count;
 
 reg [31:0]      read_data;
+
 
 integer         fid;
 integer         r;
@@ -57,6 +62,9 @@ initial begin
     $display("Reset Done. Setting the Slave profiles \n");
     tb.uut.ps.ps.ps.inst.set_slave_profile("S_AXI_HP0",2'b11);
     $display("Profile Done\n");
+
+    tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h1);
+    tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h0);
 
 if (test_name == "TTL_TEST") begin
     // TTL Loopback for TTLOUT[5:0]
@@ -194,7 +202,8 @@ else if (test_name == "PCAP_TEST") begin
     base = 32'h43C1_1000;
     addr = 32'h1000_0000;
     read_addr = 32'h1000_0000;
-    TOTAL_COUNT = 0;
+    irq_count = 0;
+    total_samples = 0;
 
     repeat(1250) @(posedge tb.uut.ps.FCLK);
 
@@ -214,10 +223,10 @@ begin
     tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_BITBUS_MASK_ADDR, 4, 0, wrs);
 
     // PCAP_CAPTURE_MASK_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_CAPTURE_MASK_ADDR, 4, 26, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_CAPTURE_MASK_ADDR, 4, 2, wrs);
 
     // PCAP_EXT_MASK_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_EXT_MASK_ADDR, 4, 6, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_EXT_MASK_ADDR, 4, 2, wrs);
 
     // PCAP_TIMEOUT_ADDR
     tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_TIMEOUT_ADDR, 4, 0, wrs);
@@ -233,65 +242,85 @@ begin
     tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_DMAADDR_ADDR, 4, addr, wrs);
 
     // SOFTA/
-    repeat(125) @(posedge tb.uut.ps.FCLK);
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
     tb.uut.ps.ps.ps.inst.write_data(32'h43C1_D000,  4, 1, wrs);
-    repeat(125 * 1250) @(posedge tb.uut.ps.FCLK);
+    repeat(125 * 10000) @(posedge tb.uut.ps.FCLK);
     tb.uut.ps.ps.ps.inst.write_data(32'h43C1_D000,  4, 0, wrs);
 end
 
 begin
-//    @(posedge tb.uut.pcap_active);
-//    while (tb.uut.pcap_active) begin
     while (1) begin
         // Wait for DMA irq
         tb.uut.ps.ps.ps.inst.wait_interrupt(0,IRQ_STATUS);
         // Read IRQ Status and Sample Count Registers
         tb.uut.ps.ps.ps.inst.read_data(base+4*PCAP_IRQ_STATUS_ADDR,  4, IRQ_STATUS, wrs);
         tb.uut.ps.ps.ps.inst.read_data(base+4*PCAP_SMPL_COUNT_ADDR,  4, SMPL_COUNT, wrs);
-        // Calculate total count
-        TOTAL_COUNT = TOTAL_COUNT + SMPL_COUNT;
+
+        // Keep track of address and sample count.
+        smpl_table[irq_count] = SMPL_COUNT;
+        addr_table[irq_count] = read_addr;
+        irq_count = irq_count + 1;
+
+        // Set next DMA address
+        read_addr = addr;
+        addr = addr + tb.BLOCK_SIZE;
 
         if (IRQ_STATUS == 4'b0001) begin
             $display("IRQ on BLOCK_FINISHED with %d samples.", SMPL_COUNT);
-            tb_read_to_file("master_hp1","read_from_hp1.txt",read_addr,4*SMPL_COUNT,rsp);
-            read_addr = addr;
-            addr = addr + tb.BLOCK_SIZE;
             // PCAP_DMAADDR_ADDR
             tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_DMAADDR_ADDR, 4, addr, wrs);
         end
         else if (IRQ_STATUS == 4'b0010) begin
             $display("IRQ on CAPT_FINISHED with %d samples.", SMPL_COUNT);
-            tb_read_to_file("master_hp1","read_from_hp1.txt",read_addr,4*SMPL_COUNT,rsp);
-            $display("TOTAL_COUNT = %d", TOTAL_COUNT);
+
+            // Read scattered data from host memory into a file.
+            for (i=0; i<irq_count; i=i+1) begin
+                $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
+                tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
+                total_samples <= total_samples + smpl_table[i];
+            end
+
+            $display("Total Samples = %d", total_samples);
             $finish;
         end
         else if (IRQ_STATUS == 4'b0011) begin
             $display("IRQ on TIMEOUT with %d samples.", SMPL_COUNT);
-            tb_read_to_file("master_hp1","read_from_hp1.txt",read_addr,4*SMPL_COUNT,rsp);
-            read_addr = addr;
-            addr = addr + tb.BLOCK_SIZE;
             // PCAP_DMAADDR_ADDR
             tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_DMAADDR_ADDR, 4, addr, wrs);
         end
         else if (IRQ_STATUS == 4'b0100) begin
             $display("IRQ on DISARM with %d samples.", SMPL_COUNT);
-            tb_read_to_file("master_hp1","read_from_hp1.txt",read_addr,4*SMPL_COUNT,rsp);
-            $display("TOTAL_COUNT = %d", TOTAL_COUNT);
+            // Read scattered data from host memory into a file.
+            for (i=0; i<irq_count; i=i+1) begin
+                $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
+                tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
+                total_samples <= total_samples + smpl_table[i];
+            end
+            $display("Total Samples = %d", total_samples);
+            $finish;
+        end
+        else if (IRQ_STATUS == 4'b0110) begin
+            $display("IRQ on INT_DISARM with %d samples.", SMPL_COUNT);
+            // Read scattered data from host memory into a file.
+            for (i=0; i<irq_count; i=i+1) begin
+                $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
+                tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
+                total_samples <= total_samples + smpl_table[i];
+            end
+            $display("Total Samples = %d", total_samples);
             $finish;
         end
         else if (IRQ_STATUS == 4'b0101) begin
             $display("IRQ on ADDR_ERROR...");
-            $display("TOTAL_COUNT = %d", TOTAL_COUNT);
             $finish;
         end
-        repeat(125) @(posedge tb.uut.ps.FCLK);
     end
 end
 
 begin
-    // repeat(20000) @(posedge tb.uut.ps.FCLK);
+    repeat(125 * 1000) @(posedge tb.uut.ps.FCLK);
     // PCAP_SOFT_DISARM_ADDR
-    // tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_SOFT_DISARM_ADDR, 4, 1, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_SOFT_DISARM_ADDR, 4, 1, wrs);
 end
 
 join

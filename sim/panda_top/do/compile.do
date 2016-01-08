@@ -8,7 +8,7 @@ set MODEL {../../panda_top/bench/zynq_model}
 vlib work
 vlib msim
 
-do bfm.do
+#do bfm.do
 
 # Compile Sources
 #

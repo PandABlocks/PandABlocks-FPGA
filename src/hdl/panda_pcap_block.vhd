@@ -73,6 +73,9 @@ signal IRQ_STATUS       : std_logic_vector(3 downto 0);
 signal SMPL_COUNT       : std_logic_vector(31 downto 0);
 signal CAPTURE_MASK     : std_logic_vector(46 downto 0);
 signal FRAME_ENA        : std_logic_vector(31 downto 0);
+signal BLOCK_SIZE       : std_logic_vector(31 downto 0);
+signal ERR_STATUS       : std_logic_vector(31 downto 0) := (others => '0');
+signal TRIG_MISSES      : unsigned(31 downto 0);
 
 signal pcap_data_lt     : std32_array(46 downto 0);
 
@@ -89,13 +92,15 @@ signal soft_trigger     : std_logic := '0';
 signal pcap_dat         : std_logic_vector(31 downto 0) := (others => '0');
 signal pcap_wstb        : std_logic := '0';
 
+signal INT_DISARM       : std_logic;
+
 signal pcap_armed       : std_logic;
 signal pcap_enabled     : std_logic;
-signal pcap_disarmed    : std_logic;
+signal pcap_disarmed    : std_logic_vector(1 downto 0);
 signal ongoing_trigger  : std_logic;
 signal pcap_fifo_rst    : std_logic := '0';
 
-signal trigger_count    : integer range 0 to 47;
+signal field_count      : integer range 0 to 47;
 
 type pcap_fsm_t is (IDLE, ARMED, ENABLED, FINISH_TRIG);
 signal pcap_fsm         : pcap_fsm_t;
@@ -121,6 +126,7 @@ begin
             TIMEOUT_VAL <= TO_SVECTOR(0, 32);
             CAPTURE_MASK <= (others => '0');
             FRAME_ENA <= (others => '0');
+            BLOCK_SIZE <= TO_SVECTOR(8192, 32);
         else
             -- Single clock pulse
             SOFT_ARM <= '0';
@@ -188,6 +194,11 @@ begin
                     FRAME_ENA <= mem_dat_i;
                 end if;
 
+                -- Host DMA Block memory size [in Bytes].
+                if (mem_addr_i = PCAP_BLOCK_SIZE_ADDR) then
+                    BLOCK_SIZE <= mem_dat_i;
+                end if;
+
             end if;
         end if;
     end if;
@@ -204,6 +215,10 @@ begin
                     mem_dat_o <= X"0000000" & IRQ_STATUS;
                 when PCAP_SMPL_COUNT_ADDR =>
                     mem_dat_o <= SMPL_COUNT;
+                when PCAP_TRIG_MISSES_ADDR =>
+                    mem_dat_o <= std_logic_vector(TRIG_MISSES);
+                when PCAP_ERR_STATUS_ADDR =>
+                    mem_dat_o <= ERR_STATUS;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;
@@ -220,7 +235,7 @@ process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             pcap_armed <= '0';
-            pcap_disarmed <= '0';
+            pcap_disarmed <= "00";
             pcap_enabled <= '0';
             pcap_fsm <= IDLE;
             enable_prev <= '0';
@@ -234,7 +249,7 @@ process(clk_i) begin
                     if (SOFT_ARM = '1') then
                         pcap_fsm <= ARMED;
                         pcap_armed <= '1';
-                        pcap_disarmed <= '0';
+                        pcap_disarmed(0) <= '0';
                         pcap_enabled <= '0';
                         pcap_fifo_rst <= '1';
                     end if;
@@ -246,16 +261,18 @@ process(clk_i) begin
                     if (SOFT_DISARM = '1') then
                         pcap_fsm <= IDLE;
                         pcap_armed <= '0';
-                        pcap_disarmed <= '1';
+                        pcap_disarmed(0) <= '1';
                         pcap_enabled <= '0';
                     elsif (enable = '1') then
                         pcap_fsm <= ENABLED;
                         pcap_enabled <= '1';
                     end if;
 
-                -- Enabled until capture is finished or user disarm.
+                -- Enabled until capture is finished or user disarm or
+                -- missed trigger.
                 when ENABLED =>
-                    if (SOFT_DISARM = '1' or enable_fall = '1') then
+                    if (SOFT_DISARM = '1' or INT_DISARM = '1'
+                            or enable_fall = '1') then
                         -- Position bus is written sequentially into the
                         -- buffer and this takes 36 clock cycles for each
                         -- capture trigger.
@@ -271,7 +288,11 @@ process(clk_i) begin
                     end if;
 
                     if (SOFT_DISARM = '1') then
-                        pcap_disarmed <= '1';
+                        pcap_disarmed(0) <= '1';
+                    end if;
+
+                    if (INT_DISARM = '1') then
+                        pcap_disarmed(1) <= '1';
                     end if;
 
                 -- Wait for ongoing trigger capture finish.
@@ -313,7 +334,8 @@ process(clk_i) begin
         if (reset_i = '1') then
             trigger_prev <= '0';
             ongoing_trigger <= '0';
-            trigger_count <= 0;
+            field_count <= 0;
+            TRIG_MISSES <= (others => '0');
         else
             trigger_prev <= trigger;
 
@@ -331,30 +353,41 @@ process(clk_i) begin
             -- Walk CAPTURE_MASK register bit-by-bit on every trigger.
             if (trigger_rise = '1' and pcap_enabled = '1') then
                 ongoing_trigger <= '1';
-            elsif (trigger_count = 46) then
+            elsif (field_count = 46) then
                 ongoing_trigger <= '0';
             end if;
 
             -- Counter is active follwing trigger until all CAPTURE_MASK
             -- register is consumed.
             if (ongoing_trigger = '1') then
-                trigger_count <= trigger_count + 1;
+                field_count <= field_count + 1;
             else
-                trigger_count <= 0;
+                field_count <= 0;
             end if;
 
             -- Finally, generate pcap data and write strobe.
             if (ongoing_trigger = '1') then
-                if (CAPTURE_MASK(trigger_count) = '1') then
-                    pcap_dat <= pcap_data_lt(trigger_count);
+                if (CAPTURE_MASK(field_count) = '1') then
+                    pcap_dat <= pcap_data_lt(field_count);
                     pcap_wstb <= '1';
                 else
                     pcap_wstb <= '0';
                 end if;
             end if;
+
+            -- Keep track of missed triggers.
+            if (pcap_fsm = IDLE and SOFT_ARM = '1') then
+                TRIG_MISSES <= (others => '0');
+                INT_DISARM <= '0';
+            elsif (ongoing_trigger = '1' and trigger_rise = '1') then
+                TRIG_MISSES <= TRIG_MISSES + 1;
+                INT_DISARM <= '1';
+            end if;
         end if;
     end if;
 end process;
+
+ERR_STATUS(0) <= INT_DISARM;
 
 --
 -- Position Capture Core IP instantiation
@@ -377,6 +410,7 @@ port map (
     DMAADDR_WSTB        => DMAADDR_WSTB,
     IRQ_STATUS          => IRQ_STATUS,
     SMPL_COUNT          => SMPL_COUNT,
+    BLOCK_SIZE          => BLOCK_SIZE,
 
     m_axi_awready       => m_axi_awready,
     m_axi_awaddr        => m_axi_awaddr,
