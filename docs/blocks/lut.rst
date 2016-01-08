@@ -1,4 +1,4 @@
-LUT - 5 Input lookup table [x4]
+LUT - 5 Input lookup table [x8]
 ===============================
 some description here
 

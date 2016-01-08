@@ -46,7 +46,8 @@ class SequenceParser(object):
             for t in s.split(","):
                 t = t.strip()
                 k, v = t.split("=")
-                d[k.strip()] = int(v.strip())
+                # detect 0x prefix automatically
+                d[k.strip()] = int(v.strip(), 0)
         return d
 
 
