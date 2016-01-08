@@ -27,6 +27,7 @@ constant SRGATE_CS              : natural := 3;
 constant DIV_CS                 : natural := 4;
 constant PULSE_CS               : natural := 5;
 constant SEQ_CS                 : natural := 6;
+constant PCAP_CS                : natural := 17;
 constant CLOCKS_CS              : natural := 28;
 constant BITS_CS                : natural := 29;
 constant POSITIONS_CS           : natural := 30;
@@ -56,7 +57,8 @@ constant SRGATE_SET_VAL_ADDR    : std_logic_vector := TO_SVECTOR(0, BLK_AW);
 constant SRGATE_RST_VAL_ADDR    : std_logic_vector := TO_SVECTOR(1, BLK_AW);
 constant SRGATE_SET_EDGE_ADDR   : std_logic_vector := TO_SVECTOR(2, BLK_AW);
 constant SRGATE_RST_EDGE_ADDR   : std_logic_vector := TO_SVECTOR(3, BLK_AW);
-constant SRGATE_FORCE_STATE_ADDR: std_logic_vector := TO_SVECTOR(4, BLK_AW);
+constant SRGATE_FORCE_SET_ADDR  : std_logic_vector := TO_SVECTOR(4, BLK_AW);
+constant SRGATE_FORCE_RESET_ADDR: std_logic_vector := TO_SVECTOR(5, BLK_AW);
 
 constant DIV_INP_VAL_ADDR       : std_logic_vector := TO_SVECTOR(0, BLK_AW);
 constant DIV_RST_VAL_ADDR       : std_logic_vector := TO_SVECTOR(1, BLK_AW);
@@ -101,7 +103,12 @@ constant PCAP_SOFT_ARM_ADDR     : std_logic_vector := TO_SVECTOR(4, PAGE_AW);
 constant PCAP_SOFT_DISARM_ADDR  : std_logic_vector := TO_SVECTOR(5, PAGE_AW);
 constant PCAP_PMASK_ADDR        : std_logic_vector := TO_SVECTOR(6, PAGE_AW);
 constant PCAP_TIMEOUT_ADDR      : std_logic_vector := TO_SVECTOR(7, PAGE_AW);
-constant PCAP_DBG_MODE_ADDR     : std_logic_vector := TO_SVECTOR(8, PAGE_AW);
+constant PCAP_BITBUS_MASK_ADDR  : std_logic_vector := TO_SVECTOR(8, PAGE_AW);
+constant PCAP_CAPTURE_MASK_ADDR : std_logic_vector := TO_SVECTOR(9, PAGE_AW);
+constant PCAP_EXT_MASK_ADDR     : std_logic_vector := TO_SVECTOR(10, PAGE_AW);
+constant PCAP_FRAME_ENA_ADDR    : std_logic_vector := TO_SVECTOR(11, PAGE_AW);
+constant PCAP_IRQ_STATUS_ADDR   : std_logic_vector := TO_SVECTOR(12, PAGE_AW);
+constant PCAP_SMPL_COUNT_ADDR   : std_logic_vector := TO_SVECTOR(13, PAGE_AW);
 
 --
 -- TOP Block Register Address Space

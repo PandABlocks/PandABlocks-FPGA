@@ -1,3 +1,5 @@
+file delete -force read_from_hp1.txt
+
 set SRC {../../../src/hdl}
 set FIFO {../../../src/ip_repo/fifo_generator_0}
 set PULSE {../../../output/ip_repo/pulse_queue}
@@ -6,7 +8,7 @@ set MODEL {../../panda_top/bench/zynq_model}
 vlib work
 vlib msim
 
-#do bfm.do
+do bfm.do
 
 # Compile Sources
 #
@@ -59,6 +61,9 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_bits_block.vhd" \
 "${SRC}/panda_bits_top.vhd" \
 "${SRC}/panda_reg.vhd" \
+"${SRC}/panda_axi3_write_master.vhd" \
+"${SRC}/panda_pcap.vhd" \
+"${SRC}/panda_pcap_block.vhd" \
 "${SRC}/panda_top.vhd"
 
 # Compile Testbench

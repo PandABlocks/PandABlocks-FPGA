@@ -29,18 +29,23 @@ constant BITS_NUM           : positive := 1;
 constant SBUS_AVAIL         : positive := (128 - TTLIN_NUM - LVDSIN_NUM - LUT_NUM - SRGATE_NUM - 2*DIV_NUM- 2*PULSE_NUM - 7*SEQ_NUM - 10*BITS_NUM);
 --)- 2*PCOMP_NUM - 7*SEQ_NUM);
 
--- System Bus Width, Multiplexer Select Width
+-- Bit Bus Width, Multiplexer Select Width.
 constant SBUSW              : positive := 128;
 constant SBUSBW             : positive := 7;
 
+-- Position Bus Width, Multiplexer Select Width.
 constant PBUSW              : positive := 32;
 constant PBUSBW             : positive := 5;
+
+-- Extended Position Bus Width.
+constant EBUSW              : positive := 12;
 
 --
 -- TYPEs :
 --
 subtype sysbus_t is std_logic_vector(SBUSW-1 downto 0);
 subtype posbus_t is std32_array(PBUSW-1 downto 0);
+subtype extbus_t is std32_array(EBUSW-1 downto 0);
 
 -- System Bus Multiplexer Select array type
 subtype sbus_muxsel_t is std_logic_vector(SBUSBW-1 downto 0);

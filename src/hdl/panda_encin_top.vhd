@@ -66,7 +66,7 @@ I=>Zm0_opad(I), O=>Zm0_ipad(I), T=>iobuf_ctrl_channels(I)(0), IO=>Zm0_pad_io(I))
 
 -- Generate Block chip select signal
 mem_blk_cs(I) <= '1'
-    when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_STD_VECTOR(I, PAGE_AW-BLK_AW)
+    when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_SVECTOR(I, PAGE_AW-BLK_AW)
             and mem_cs_i = '1') else '0';
 
 panda_encin_inst : entity work.panda_encin

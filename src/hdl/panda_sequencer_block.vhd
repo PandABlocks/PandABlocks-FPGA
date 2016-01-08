@@ -68,11 +68,11 @@ REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            GATE_VAL <= TO_STD_VECTOR(127, SBUSBW);
-            INPA_VAL <= TO_STD_VECTOR(127, SBUSBW);
-            INPB_VAL <= TO_STD_VECTOR(127, SBUSBW);
-            INPC_VAL <= TO_STD_VECTOR(127, SBUSBW);
-            INPD_VAL <= TO_STD_VECTOR(127, SBUSBW);
+            GATE_VAL <= TO_SVECTOR(127, SBUSBW);
+            INPA_VAL <= TO_SVECTOR(127, SBUSBW);
+            INPB_VAL <= TO_SVECTOR(127, SBUSBW);
+            INPC_VAL <= TO_SVECTOR(127, SBUSBW);
+            INPD_VAL <= TO_SVECTOR(127, SBUSBW);
             PRESCALE <= X"0000_0002";
             SOFT_GATE <= '0';
             TABLE_RST <= '0';

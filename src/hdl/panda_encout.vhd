@@ -67,9 +67,9 @@ begin
         if (reset_i = '1') then
             ENCOUT_POSN_VAL <= (others => '0');
             ENCOUT_PROT <= "000";
-            ENCOUT_BITS <= TO_STD_VECTOR(24, 8);
+            ENCOUT_BITS <= TO_SVECTOR(24, 8);
             ENCOUT_FRC_QSTATE <= '0';
-            ENCOUT_QPRESCALAR <= TO_STD_VECTOR(100,16);
+            ENCOUT_QPRESCALAR <= TO_SVECTOR(100,16);
         else
             ENCOUT_FRC_QSTATE_WSTB <= '0';
 

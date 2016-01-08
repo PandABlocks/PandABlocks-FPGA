@@ -1,22 +1,43 @@
 module test;
 
+localparam PCAP_ENABLE_VAL_ADDR   = 0;
+localparam PCAP_TRIGGER_VAL_ADDR  = 1;
+localparam PCAP_DMAADDR_ADDR      = 2;
+localparam PCAP_SOFT_ENABLE_ADDR  = 3;
+localparam PCAP_SOFT_ARM_ADDR     = 4;
+localparam PCAP_SOFT_DISARM_ADDR  = 5;
+localparam PCAP_PMASK_ADDR        = 6;
+localparam PCAP_TIMEOUT_ADDR      = 7;
+localparam PCAP_BITBUS_MASK_ADDR  = 8;
+localparam PCAP_CAPTURE_MASK_ADDR = 9;
+localparam PCAP_EXT_MASK_ADDR     = 10;
+localparam PCAP_FRAME_ENA_ADDR    = 11;
+localparam PCAP_IRQ_STATUS_ADDR   = 12;
+localparam PCAP_SMPL_COUNT_ADDR   = 13;
+
 panda_top_tb tb();
 
-reg [511:0]     test_name = "PULSE_TEST";
+reg [511:0]     test_name = "PCAP_TEST";
 
 reg [1:0]       wrs, rsp;
-reg [3:0]       irq_status;
+reg [3:0]       IRQ_STATUS;
+reg [31:0]      SMPL_COUNT;
+reg [31:0]      TOTAL_COUNT;
 reg [31:0]      addr;
-reg             active;
+reg [31:0]      base;
 
 reg [31:0]      read_data;
 
-integer         i;
 integer         fid;
 integer         r;
 integer         len;
 
 integer         data;
+
+reg [31:0]      read_addr;
+reg             active;
+
+integer i;
 
 `include "./apis_tb.v"
 
@@ -167,12 +188,120 @@ else if (test_name == "SEQ_TEST") begin
     tb.uut.ps.ps.ps.inst.read_data(32'h43C0_6038,  4, read_data, wrs);
     $display("STATE = (%0d)\n",read_data);
 end
+else if (test_name == "PCAP_TEST") begin
+    $display("RUNNING PCAP TEST...");
+
+    base = 32'h43C1_1000;
+    addr = 32'h1000_0000;
+    read_addr = 32'h1000_0000;
+    TOTAL_COUNT = 0;
+
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+
+fork
+begin
+    // CLOCKS-CLKA/B/C/D
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C000,  4, 1250, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C004,  4, 125, wrs);
+
+    // PCAP_ENABLE_VAL_ADDR
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_ENABLE_VAL_ADDR, 4, 118, wrs);
+
+    // PCAP_TRIGGER_VAL_ADDR
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_TRIGGER_VAL_ADDR, 4, 123, wrs);
+
+    // PCAP_BITBUS_MASK_ADDR
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_BITBUS_MASK_ADDR, 4, 0, wrs);
+
+    // PCAP_CAPTURE_MASK_ADDR
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_CAPTURE_MASK_ADDR, 4, 26, wrs);
+
+    // PCAP_EXT_MASK_ADDR
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_EXT_MASK_ADDR, 4, 6, wrs);
+
+    // PCAP_TIMEOUT_ADDR
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_TIMEOUT_ADDR, 4, 0, wrs);
+
+    // PCAP_DMAADDR_ADDR
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_DMAADDR_ADDR, 4, addr, wrs);
+
+    // PCAP_SOFT_ARM_ADDR
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_SOFT_ARM_ADDR, 4, 1, wrs);
+
+    // PCAP_DMAADDR_ADDR
+    addr = addr + tb.BLOCK_SIZE;
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_DMAADDR_ADDR, 4, addr, wrs);
+
+    // SOFTA/
+    repeat(125) @(posedge tb.uut.ps.FCLK);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_D000,  4, 1, wrs);
+    repeat(125 * 1250) @(posedge tb.uut.ps.FCLK);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_D000,  4, 0, wrs);
+end
+
+begin
+//    @(posedge tb.uut.pcap_active);
+//    while (tb.uut.pcap_active) begin
+    while (1) begin
+        // Wait for DMA irq
+        tb.uut.ps.ps.ps.inst.wait_interrupt(0,IRQ_STATUS);
+        // Read IRQ Status and Sample Count Registers
+        tb.uut.ps.ps.ps.inst.read_data(base+4*PCAP_IRQ_STATUS_ADDR,  4, IRQ_STATUS, wrs);
+        tb.uut.ps.ps.ps.inst.read_data(base+4*PCAP_SMPL_COUNT_ADDR,  4, SMPL_COUNT, wrs);
+        // Calculate total count
+        TOTAL_COUNT = TOTAL_COUNT + SMPL_COUNT;
+
+        if (IRQ_STATUS == 4'b0001) begin
+            $display("IRQ on BLOCK_FINISHED with %d samples.", SMPL_COUNT);
+            tb_read_to_file("master_hp1","read_from_hp1.txt",read_addr,4*SMPL_COUNT,rsp);
+            read_addr = addr;
+            addr = addr + tb.BLOCK_SIZE;
+            // PCAP_DMAADDR_ADDR
+            tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_DMAADDR_ADDR, 4, addr, wrs);
+        end
+        else if (IRQ_STATUS == 4'b0010) begin
+            $display("IRQ on CAPT_FINISHED with %d samples.", SMPL_COUNT);
+            tb_read_to_file("master_hp1","read_from_hp1.txt",read_addr,4*SMPL_COUNT,rsp);
+            $display("TOTAL_COUNT = %d", TOTAL_COUNT);
+            $finish;
+        end
+        else if (IRQ_STATUS == 4'b0011) begin
+            $display("IRQ on TIMEOUT with %d samples.", SMPL_COUNT);
+            tb_read_to_file("master_hp1","read_from_hp1.txt",read_addr,4*SMPL_COUNT,rsp);
+            read_addr = addr;
+            addr = addr + tb.BLOCK_SIZE;
+            // PCAP_DMAADDR_ADDR
+            tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_DMAADDR_ADDR, 4, addr, wrs);
+        end
+        else if (IRQ_STATUS == 4'b0100) begin
+            $display("IRQ on DISARM with %d samples.", SMPL_COUNT);
+            tb_read_to_file("master_hp1","read_from_hp1.txt",read_addr,4*SMPL_COUNT,rsp);
+            $display("TOTAL_COUNT = %d", TOTAL_COUNT);
+            $finish;
+        end
+        else if (IRQ_STATUS == 4'b0101) begin
+            $display("IRQ on ADDR_ERROR...");
+            $display("TOTAL_COUNT = %d", TOTAL_COUNT);
+            $finish;
+        end
+        repeat(125) @(posedge tb.uut.ps.FCLK);
+    end
+end
+
+begin
+    // repeat(20000) @(posedge tb.uut.ps.FCLK);
+    // PCAP_SOFT_DISARM_ADDR
+    // tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_SOFT_DISARM_ADDR, 4, 1, wrs);
+end
+
+join
+
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+
+    $finish;
+end
 else
     $display("NO TEST SELECTED...");
-
-// Setup Position Capture
-    // BLOCK_SIZE in TLPs
-    //tb.uut.ps.ps.ps.inst.write_data(32'h43C1_F000,  4, 1, wrs);
     repeat(100000) @(posedge tb.uut.ps.FCLK);
 
     $finish;

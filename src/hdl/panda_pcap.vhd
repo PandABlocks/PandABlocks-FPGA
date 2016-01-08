@@ -149,6 +149,7 @@ begin
             m_axi_burst_len <= TO_SVECTOR(16, 5);
             tlp_count <= (others => '0');
             sample_count <= (others => '0');
+            SMPL_COUNT <= (others => '0');
         else
             -- DMAADDR_WSTB strobe is used as a handshake between PS and
             -- PL logic. If PS can not keep up with the DMA rate by setting

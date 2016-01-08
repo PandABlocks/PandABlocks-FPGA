@@ -51,8 +51,8 @@ REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            SET_VAL <= TO_STD_VECTOR(127, SBUSBW);
-            RST_VAL <= TO_STD_VECTOR(126, SBUSBW);
+            SET_VAL <= TO_SVECTOR(127, SBUSBW);
+            RST_VAL <= TO_SVECTOR(126, SBUSBW);
             SET_EDGE <= '1';
             RST_EDGE <= '1';
             FORCE_SET <= '0';
@@ -118,7 +118,7 @@ port map (
     SET_EDGE        => SET_EDGE,
     RESET_EDGE      => RST_EDGE,
     FORCE_SET       => FORCE_SET,
-    FORCE_RESET     => FORCE_RESET,
+    FORCE_RESET     => FORCE_RESET
 );
 
 end rtl;

@@ -95,14 +95,22 @@ architecture rtl of panda_ps is
 signal irq_f2p_signal   : std_logic_vector(3 downto 0);
 signal FCLK             : std_logic;
 signal tb_ARESETn       : std_logic := '0';
+signal tb_RESETn        : std_logic := '0';
 
 begin
-
-irq_f2p_signal(0) <= IRQ_F2P(0);
+FCLK_CLK0 <= FCLK;
 FCLK_LEDS <= (others => '0');
 
-FCLK_CLK0 <= FCLK;
+irq_f2p_signal(0) <= IRQ_F2P(0);
+
 FCLK_RESET0_N(0) <= tb_ARESETn;
+
+process(FCLK)
+begin
+    if rising_edge(FCLK) then
+        tb_RESETn <= tb_ARESETn;
+    end if;
+end process;
 
 ps : entity work.zynq_ps
 port map (
@@ -169,8 +177,8 @@ port map (
     S_AXI_HP0_wvalid    => S_AXI_HP0_wvalid , 
 
     PS_CLK              => FCLK,
-    PS_PORB             => tb_ARESETn,
-    PS_SRSTB            => tb_ARESETn
+    PS_PORB             => tb_RESETn,
+    PS_SRSTB            => tb_RESETn
 );
 
 tb_ARESETn <= '1' after 1 us;

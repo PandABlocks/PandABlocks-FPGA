@@ -58,10 +58,10 @@ begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             ENCIN_PROT     <= "000";
-            ENCIN_PRESC    <= TO_STD_VECTOR(100,16);
-            ENCIN_RATE     <= TO_STD_VECTOR(100,16);
-            ENCIN_BITS     <= TO_STD_VECTOR(24, 8);
-            ENCIN_SETP     <= TO_STD_VECTOR(0, 32);
+            ENCIN_PRESC    <= TO_SVECTOR(100,16);
+            ENCIN_RATE     <= TO_SVECTOR(100,16);
+            ENCIN_BITS     <= TO_SVECTOR(24, 8);
+            ENCIN_SETP     <= TO_SVECTOR(0, 32);
         else
             -- Setpoint write strobe
             ENCIN_SETP_WSTB <= '0';

@@ -12,7 +12,7 @@ entity panda_csr_if is
 generic (
     AXI_AWIDTH          : integer := 32;
     AXI_DWIDTH          : integer := 32;
-    MEM_CSWIDTH         : integer := 4 ;  -- Memory pages = 2**CSW
+    MEM_CSWIDTH         : integer := 5 ;  -- Memory pages = 2**CSW
     MEM_AWIDTH          : integer := 8;   -- 2**AW Words per page
     MEM_DWIDTH          : integer := 32   -- Width of data bus
 );

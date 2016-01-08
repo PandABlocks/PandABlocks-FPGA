@@ -17,6 +17,11 @@ use work.type_defines.all;
 use work.addr_defines.all;
 
 entity panda_top is
+generic (
+    AXI_BURST_LEN       : integer := 16;
+    AXI_ADDR_WIDTH      : integer := 32;
+    AXI_DATA_WIDTH      : integer := 32
+);
 port (
     DDR_addr            : inout std_logic_vector (14 downto 0);
     DDR_ba              : inout std_logic_vector (2 downto 0);
@@ -96,6 +101,45 @@ signal M00_AXI_rresp        : std_logic_vector ( 1 downto 0 );
 signal M00_AXI_rvalid       : std_logic;
 signal M00_AXI_rready       : std_logic;
 
+signal S_AXI_HP0_arready    : std_logic := '0';
+signal S_AXI_HP0_awready    : std_logic := '1';
+signal S_AXI_HP0_bid        : std_logic_vector(5 downto 0) := (others => '0');
+signal S_AXI_HP0_bresp      : std_logic_vector(1 downto 0) := (others => '0');
+signal S_AXI_HP0_bvalid     : std_logic := '1';
+signal S_AXI_HP0_rdata      : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
+signal S_AXI_HP0_rid        : std_logic_vector(5 downto 0) := (others => '0');
+signal S_AXI_HP0_rlast      : std_logic := '0';
+signal S_AXI_HP0_rresp      : std_logic_vector(1 downto 0) := (others => '0');
+signal S_AXI_HP0_rvalid     : std_logic := '0';
+signal S_AXI_HP0_wready     : std_logic := '1';
+signal S_AXI_HP0_araddr     : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
+signal S_AXI_HP0_arburst    : std_logic_vector(1 downto 0);
+signal S_AXI_HP0_arcache    : std_logic_vector(3 downto 0);
+signal S_AXI_HP0_arid       : std_logic_vector(5 downto 0);
+signal S_AXI_HP0_arlen      : std_logic_vector(3 downto 0);
+signal S_AXI_HP0_arlock     : std_logic_vector(1 downto 0);
+signal S_AXI_HP0_arprot     : std_logic_vector(2 downto 0);
+signal S_AXI_HP0_arqos      : std_logic_vector(3 downto 0);
+signal S_AXI_HP0_arsize     : std_logic_vector(2 downto 0);
+signal S_AXI_HP0_arvalid    : std_logic;
+signal S_AXI_HP0_awaddr     : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
+signal S_AXI_HP0_awburst    : std_logic_vector(1 downto 0);
+signal S_AXI_HP0_awcache    : std_logic_vector(3 downto 0);
+signal S_AXI_HP0_awid       : std_logic_vector(5 downto 0);
+signal S_AXI_HP0_awlen      : std_logic_vector(3 downto 0);
+signal S_AXI_HP0_awlock     : std_logic_vector(1 downto 0);
+signal S_AXI_HP0_awprot     : std_logic_vector(2 downto 0);
+signal S_AXI_HP0_awqos      : std_logic_vector(3 downto 0);
+signal S_AXI_HP0_awsize     : std_logic_vector(2 downto 0);
+signal S_AXI_HP0_awvalid    : std_logic;
+signal S_AXI_HP0_bready     : std_logic;
+signal S_AXI_HP0_rready     : std_logic;
+signal S_AXI_HP0_wdata      : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
+signal S_AXI_HP0_wid        : std_logic_vector(5 downto 0);
+signal S_AXI_HP0_wlast      : std_logic;
+signal S_AXI_HP0_wstrb      : std_logic_vector(AXI_DATA_WIDTH/8-1 downto 0);
+signal S_AXI_HP0_wvalid     : std_logic;
+
 signal mem_cs               : std_logic_vector(2**PAGE_NUM-1 downto 0);
 signal mem_addr             : std_logic_vector(PAGE_AW-1 downto 0);
 signal mem_odat             : std_logic_vector(31 downto 0);
@@ -132,6 +176,7 @@ signal soft_posn            : std_logic_vector(31 downto 0) := (others =>'0');
 -- Design Level Busses :
 signal sysbus               : sysbus_t := (others => '0');
 signal posbus               : posbus_t := (others => (others => '0'));
+signal extbus               : extbus_t := (others => (others => '0'));
 -- Position Block Outputs :
 signal encin_posn           : std32_array(ENC_NUM-1 downto 0);
 
@@ -153,9 +198,13 @@ signal irq_enable           : std_logic := '0';
 
 signal counter32            : unsigned(31 downto 0) := (others => '0');
 
+signal pcap_active          : std_logic;
+
 signal zero                 : std_logic;
 signal one                  : std_logic;
 signal clocks               : std_logic_vector(3 downto 0);
+signal clocks_prev          : std_logic_vector(3 downto 0);
+signal clocks_rise          : std_logic_vector(3 downto 0);
 signal soft                 : std_logic_vector(3 downto 0);
 
 begin
@@ -218,44 +267,45 @@ port map (
     M00_AXI_wready              => M00_AXI_wready,
     M00_AXI_wstrb(3 downto 0)   => M00_AXI_wstrb(3 downto 0),
     M00_AXI_wvalid              => M00_AXI_wvalid,
-    S_AXI_HP0_araddr            => (others => '0'),
-    S_AXI_HP0_arburst           => (others => '0'),
-    S_AXI_HP0_arcache           => (others => '0'),
-    S_AXI_HP0_arid              => (others => '0'),
-    S_AXI_HP0_arlen             => (others => '0'),
-    S_AXI_HP0_arlock            => (others => '0'),
-    S_AXI_HP0_arprot            => (others => '0'),
-    S_AXI_HP0_arqos             => (others => '0'),
-    S_AXI_HP0_arready           => open,
-    S_AXI_HP0_arsize            => (others => '0'),
-    S_AXI_HP0_arvalid           => '0',
-    S_AXI_HP0_awaddr            => (others => '0'),
-    S_AXI_HP0_awburst           => (others => '0'),
-    S_AXI_HP0_awcache           => (others => '0'),
-    S_AXI_HP0_awid              => (others => '0'),
-    S_AXI_HP0_awlen             => (others => '0'),
-    S_AXI_HP0_awlock            => (others => '0'),
-    S_AXI_HP0_awprot            => (others => '0'),
-    S_AXI_HP0_awqos             => (others => '0'),
-    S_AXI_HP0_awready           => open,
-    S_AXI_HP0_awsize            => (others => '0'), 
-    S_AXI_HP0_awvalid           => '0',
-    S_AXI_HP0_bid               => open,
-    S_AXI_HP0_bready            => '0',
-    S_AXI_HP0_bresp             => open,
-    S_AXI_HP0_bvalid            => open,
-    S_AXI_HP0_rdata             => open,
-    S_AXI_HP0_rid               => open,
-    S_AXI_HP0_rlast             => open,
-    S_AXI_HP0_rready            => '0', 
-    S_AXI_HP0_rresp             => open,
-    S_AXI_HP0_rvalid            => open,
-    S_AXI_HP0_wdata             => (others => '0'),
-    S_AXI_HP0_wid               => (others => '0'),
-    S_AXI_HP0_wlast             => '0',
-    S_AXI_HP0_wready            => open,
-    S_AXI_HP0_wstrb             => (others => '0'),
-    S_AXI_HP0_wvalid            => '0'
+
+    S_AXI_HP0_araddr            => S_AXI_HP0_araddr ,
+    S_AXI_HP0_arburst           => S_AXI_HP0_arburst,
+    S_AXI_HP0_arcache           => S_AXI_HP0_arcache,
+    S_AXI_HP0_arid              => S_AXI_HP0_arid   ,
+    S_AXI_HP0_arlen             => S_AXI_HP0_arlen  ,
+    S_AXI_HP0_arlock            => S_AXI_HP0_arlock ,
+    S_AXI_HP0_arprot            => S_AXI_HP0_arprot ,
+    S_AXI_HP0_arqos             => S_AXI_HP0_arqos  ,
+    S_AXI_HP0_arready           => S_AXI_HP0_arready,
+    S_AXI_HP0_arsize            => S_AXI_HP0_arsize ,
+    S_AXI_HP0_arvalid           => S_AXI_HP0_arvalid,
+    S_AXI_HP0_awaddr            => S_AXI_HP0_awaddr ,
+    S_AXI_HP0_awburst           => S_AXI_HP0_awburst,
+    S_AXI_HP0_awcache           => S_AXI_HP0_awcache,
+    S_AXI_HP0_awid              => S_AXI_HP0_awid   ,
+    S_AXI_HP0_awlen             => S_AXI_HP0_awlen  ,
+    S_AXI_HP0_awlock            => S_AXI_HP0_awlock ,
+    S_AXI_HP0_awprot            => S_AXI_HP0_awprot ,
+    S_AXI_HP0_awqos             => S_AXI_HP0_awqos  ,
+    S_AXI_HP0_awready           => S_AXI_HP0_awready,
+    S_AXI_HP0_awsize            => S_AXI_HP0_awsize ,
+    S_AXI_HP0_awvalid           => S_AXI_HP0_awvalid,
+    S_AXI_HP0_bid               => S_AXI_HP0_bid    ,
+    S_AXI_HP0_bready            => S_AXI_HP0_bready ,
+    S_AXI_HP0_bresp             => S_AXI_HP0_bresp  ,
+    S_AXI_HP0_bvalid            => S_AXI_HP0_bvalid ,
+    S_AXI_HP0_rdata             => S_AXI_HP0_rdata  ,
+    S_AXI_HP0_rid               => S_AXI_HP0_rid    ,
+    S_AXI_HP0_rlast             => S_AXI_HP0_rlast  ,
+    S_AXI_HP0_rready            => S_AXI_HP0_rready ,
+    S_AXI_HP0_rresp             => S_AXI_HP0_rresp  ,
+    S_AXI_HP0_rvalid            => S_AXI_HP0_rvalid ,
+    S_AXI_HP0_wdata             => S_AXI_HP0_wdata  ,
+    S_AXI_HP0_wid               => S_AXI_HP0_wid    ,
+    S_AXI_HP0_wlast             => S_AXI_HP0_wlast  ,
+    S_AXI_HP0_wready            => S_AXI_HP0_wready ,
+    S_AXI_HP0_wstrb             => S_AXI_HP0_wstrb  ,
+    S_AXI_HP0_wvalid            => S_AXI_HP0_wvalid
 );
 
 --
@@ -442,7 +492,51 @@ port map (
 );
 
 --
--- REG
+-- POSITION CAPTURE
+--
+panda_pcap_inst : entity work.panda_pcap_block
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    m_axi_awaddr        => S_AXI_HP0_awaddr,
+    m_axi_awburst       => S_AXI_HP0_awburst,
+    m_axi_awcache       => S_AXI_HP0_awcache,
+    m_axi_awid          => S_AXI_HP0_awid,
+    m_axi_awlen         => S_AXI_HP0_awlen,
+    m_axi_awlock        => S_AXI_HP0_awlock,
+    m_axi_awprot        => S_AXI_HP0_awprot,
+    m_axi_awqos         => S_AXI_HP0_awqos,
+    m_axi_awready       => S_AXI_HP0_awready,
+    m_axi_awsize        => S_AXI_HP0_awsize,
+    m_axi_awvalid       => S_AXI_HP0_awvalid,
+    m_axi_bid           => S_AXI_HP0_bid,
+    m_axi_bready        => S_AXI_HP0_bready,
+    m_axi_bresp         => S_AXI_HP0_bresp,
+    m_axi_bvalid        => S_AXI_HP0_bvalid,
+    m_axi_wdata         => S_AXI_HP0_wdata,
+    m_axi_wid           => S_AXI_HP0_wid,
+    m_axi_wlast         => S_AXI_HP0_wlast,
+    m_axi_wready        => S_AXI_HP0_wready,
+    m_axi_wstrb         => S_AXI_HP0_wstrb,
+    m_axi_wvalid        => S_AXI_HP0_wvalid,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(PCAP_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => mem_read_data(PCAP_CS),
+
+    sysbus_i            => sysbus,
+    posbus_i            => posbus,
+    extbus_i            => extbus,
+
+    pcap_actv_o         => pcap_active,
+    pcap_irq_o          => IRQ_F2P(0)
+);
+
+--
+-- REG (System Bus Readback)
 --
 panda_reg_inst : entity work.panda_reg
 port map (
@@ -501,29 +595,50 @@ port map (
 --
 -- System Bus   : Assignments
 --
-sysbus <= zero                  &   -- 127
-          one                   &   -- 126
-          clocks                &   -- 125:122
-          soft                  &   -- 121:118
-          ZEROS(SBUS_AVAIL)     &
-          seq_active            &
-          seq_val(3)            &
-          seq_val(2)            &
-          seq_val(1)            &
-          seq_val(0)            &
-          pulse_val             &   --  35:28
-          div_val               &   --  27:20
-          srgate_val            &   --  19:16
-          lut_val               &   --  15: 8
-          lvdsin_val            &   --   7: 6
-          ttlin_val;                --   5: 0
+
+
+sysbus(0)               <= zero;
+sysbus(1)               <= one;
+sysbus(7 downto 2)      <= ttlin_val;
+sysbus(9 downto 8)      <= lvdsin_val;
+sysbus(17 downto 10)    <= lut_val;
+sysbus(21 downto 18)    <= srgate_val;
+sysbus(29 downto 22)    <= div_val;
+sysbus(37 downto 30)    <= pulse_val;
+sysbus(43 downto 38)    <= seq_val(0);
+sysbus(49 downto 44)    <= seq_val(1);
+sysbus(55 downto 50)    <= seq_val(2);
+sysbus(61 downto 56)    <= seq_val(3);
+
+sysbus(111 downto 108)  <= seq_active;
+sysbus(112)             <= pcap_active;
+
+sysbus(121 downto 118)  <= soft;
+sysbus(125 downto 122)  <= clocks;
 
 
 process(FCLK_CLK0)
 begin
     if rising_edge(FCLK_CLK0) then
-        counter32 <= counter32 + 1;
+        clocks_prev <= clocks;
+
+        if (sysbus(112) = '0') then
+            counter32 <= (others => '0');
+        elsif (soft(0) = '1' and clocks(1) = '1' and clocks_prev(1) = '0') then
+            counter32 <= counter32 + 1;
+        end if;
     end if;
 end process;
+
+posbus(0) <= (others => '0');
+
+posbus(1) <= std_logic_vector(counter32);
+posbus(2) <= std_logic_vector(counter32);
+posbus(3) <= std_logic_vector(counter32);
+posbus(4) <= std_logic_vector(counter32);
+
+extbus(0) <= std_logic_vector(counter32);
+extbus(1) <= std_logic_vector(counter32);
+extbus(2) <= std_logic_vector(counter32);
 
 end rtl;

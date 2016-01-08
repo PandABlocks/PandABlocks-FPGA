@@ -48,7 +48,7 @@ initial begin
     // PCAP_TRIGGER_VAL_ADDR
     tb.zynq.ps.inst.write_data(32'h43C0_0004, 4, 1, wrs);
     // PCAP_TIMEOUT_ADDR
-    tb.zynq.ps.inst.write_data(32'h43C0_001C, 4, 1000, wrs);
+    tb.zynq.ps.inst.write_data(32'h43C0_001C, 4, 100000, wrs);
 
     // PCAP_DMAADDR_ADDR
     tb.zynq.ps.inst.write_data(32'h43C0_0008, 4, addr, wrs);

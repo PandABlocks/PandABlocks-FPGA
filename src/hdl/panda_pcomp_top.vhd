@@ -50,7 +50,7 @@ PCOMP_GEN : FOR I IN 0 TO PCOMP_NUM-1 GENERATE
 
 -- Generate Block chip select signal
 mem_blk_cs(I) <= '1'
-    when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_STD_VECTOR(I, PAGE_AW-BLK_AW)
+    when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_SVECTOR(I, PAGE_AW-BLK_AW)
             and mem_cs_i = '1') else '0';
 
 panda_pcomp_inst : entity work.panda_pcomp

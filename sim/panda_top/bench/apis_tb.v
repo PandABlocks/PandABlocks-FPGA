@@ -35,7 +35,7 @@ else if(bytes%4 == 0)
  trnsfr_lngth = bytes/4 - 1;
 else 
  trnsfr_lngth = bytes/4;
-rd_fd = $fopen(file_name,"w");
+rd_fd = $fopen(file_name,"a+");
 
 $display("From TB_TEST : %0s : Starting Read burst at address %h",port_name,addr);
 while (bytes > 0) begin

@@ -26,6 +26,7 @@ signal mem_read_data        : std32_array(2**PAGE_NUM-1 downto 0);
 
 signal sysbus               : sysbus_t := (others => '0');
 signal posbus               : posbus_t := (others => (others => '0'));
+signal extbus               : extbus_t := (others => (others => '0'));
 signal act_i                : std_logic := '0';
 signal pulse_i              : std_logic := '0';
 
@@ -230,6 +231,7 @@ PORT MAP (
 
     sysbus_i                    => sysbus,
     posbus_i                    => posbus,
+    extbus_i                    => extbus,
     pcap_irq_o                  => IRQ_F2P(0),
 
     m_axi_awaddr                => S_AXI_HP0_awaddr,
@@ -256,16 +258,16 @@ PORT MAP (
 );
 
 --
---
+-- Sample data
 --
 process
 begin
     data <= (others => '0');
     PROC_CLK_EAT(3000, FCLK_CLK0);
-    sysbus(0) <= '1';
+    sysbus(0) <= '1';                       -- enable.
     PROC_CLK_EAT(100, FCLK_CLK0);
     L1 : FOR I IN 0 TO (DMA_SIZE/4)-1 LOOP
-        sysbus(1) <= '1';
+        sysbus(1) <= '1';                   -- trigger.
         PROC_CLK_EAT(1, FCLK_CLK0);
         sysbus(1) <= '0';
         PROC_CLK_EAT(2000, FCLK_CLK0);
@@ -275,6 +277,9 @@ begin
     sysbus(0) <= '0';
 end process;
 
-posbus(0) <= std_logic_vector(data);
+sysbus(127 downto 96) <= std_logic_vector(data);
+
+posbus(1) <= std_logic_vector(data);
+extbus(1) <= std_logic_vector(data);
 
 end;

@@ -144,8 +144,8 @@ begin
 end process;
 
 seq_wren <= TABLE_WSTB;
-seq_rdaddr <= TO_STD_VECTOR(seq_raddr, SEQ_AW);
-seq_wraddr <= TO_STD_VECTOR(seq_waddr, SEQ_AW);
+seq_rdaddr <= TO_SVECTOR(seq_raddr, SEQ_AW);
+seq_wraddr <= TO_SVECTOR(seq_waddr, SEQ_AW);
 seq_di <= TABLE_DATA;
 
 panda_spbram : entity work.panda_spbram

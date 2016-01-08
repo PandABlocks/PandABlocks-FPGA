@@ -64,6 +64,13 @@ signal inputs           : unsigned(15 downto 0) := X"0000";
 signal ttlin_pad        : std_logic_vector(5 downto 0);
 signal lvdsin_pad       : std_logic_vector(1 downto 0);
 
+
+-- #of Burst per Host Block. Each AXI3 burst has 16 strobes.
+constant TLP_SIZE       : integer := 128;
+
+-- Host Block Size. Each TLP has 16 x 4 bytes.
+constant BLOCK_SIZE     : integer := TLP_SIZE * 64; -- 8KByte
+
 begin
 
 clk <= not clk after 4 ns;

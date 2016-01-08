@@ -44,4 +44,10 @@ sim:/test/tb/uut/panda_bits_inst/panda_bits_block/*
 add wave -group "BITS" \
 sim:/test/tb/uut/panda_bits_inst/panda_bits_block/panda_bits_inst/*
 
+add wave -group "PCAP_BLOCK" \
+sim:/test/tb/uut/panda_pcap_inst/*
+
+add wave -group "PCAP" \
+sim:/test/tb/uut/panda_pcap_inst/panda_pcap_inst/*
+
 add wave sim:/test/tb/uut/sysbus

@@ -45,7 +45,7 @@ REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            LVDSOUT_VAL <= TO_STD_VECTOR(127, SBUSBW);
+            LVDSOUT_VAL <= TO_SVECTOR(127, SBUSBW);
         else
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Pulse start position

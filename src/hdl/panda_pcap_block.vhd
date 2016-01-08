@@ -54,8 +54,10 @@ port (
     -- Block inputs
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
+    extbus_i            : in  extbus_t;
+    -- Output pulses
+    pcap_actv_o         : out std_logic;
     pcap_irq_o          : out std_logic
-    -- Output pulse
 );
 end panda_pcap_block;
 
@@ -69,6 +71,10 @@ signal DMAADDR          : std_logic_vector(31 downto 0);
 signal SOFT_ENABLE      : std_logic;
 signal IRQ_STATUS       : std_logic_vector(3 downto 0);
 signal SMPL_COUNT       : std_logic_vector(31 downto 0);
+signal CAPTURE_MASK     : std_logic_vector(46 downto 0);
+signal FRAME_ENA        : std_logic_vector(31 downto 0);
+
+signal pcap_data_lt     : std32_array(46 downto 0);
 
 signal soft_arm         : std_logic;
 signal soft_disarm      : std_logic;
@@ -76,27 +82,30 @@ signal enable           : std_logic;
 signal enable_prev      : std_logic;
 signal enable_fall      : std_logic;
 signal trigger          : std_logic;
+signal trigger_prev     : std_logic;
+signal trigger_rise     : std_logic;
 signal soft_trigger     : std_logic := '0';
 
 signal pcap_dat         : std_logic_vector(31 downto 0) := (others => '0');
 signal pcap_wstb        : std_logic := '0';
 
-
 signal pcap_armed       : std_logic;
 signal pcap_enabled     : std_logic;
 signal pcap_disarmed    : std_logic;
-signal ongoing_trigger  : std_logic := '0';
+signal ongoing_trigger  : std_logic;
 signal pcap_fifo_rst    : std_logic := '0';
+
+signal trigger_count    : integer range 0 to 47;
 
 type pcap_fsm_t is (IDLE, ARMED, ENABLED, FINISH_TRIG);
 signal pcap_fsm         : pcap_fsm_t;
 
 begin
 
-mem_dat_o <= (others => '0');
+pcap_actv_o <= pcap_armed;
 
 --
--- Control System Interface
+-- Control System Register Interface
 --
 REG_WRITE : process(clk_i)
 begin
@@ -110,6 +119,8 @@ begin
             SOFT_ARM <= '0';
             SOFT_DISARM <= '0';
             TIMEOUT_VAL <= TO_SVECTOR(0, 32);
+            CAPTURE_MASK <= (others => '0');
+            FRAME_ENA <= (others => '0');
         else
             -- Single clock pulse
             SOFT_ARM <= '0';
@@ -138,13 +149,12 @@ begin
                     DMAADDR_WSTB <= '1';
                 end if;
 
-                -- Position Field Mask
+                -- IRQ Timeout value
                 if (mem_addr_i = PCAP_TIMEOUT_ADDR) then
                     TIMEOUT_VAL <= mem_dat_i;
                 end if;
 
-
-                -- DMA block Soft ARM
+                -- DMA Soft Disarm
                 if (mem_addr_i = PCAP_SOFT_DISARM_ADDR) then
                     SOFT_DISARM <= '1';
                 end if;
@@ -153,7 +163,50 @@ begin
                 if (mem_addr_i = PCAP_SOFT_ENABLE_ADDR) then
                     SOFT_ENABLE <= mem_dat_i(0);
                 end if;
+
+                -- BitBus Capture Enable Mask
+                if (mem_addr_i = PCAP_BITBUS_MASK_ADDR) then
+                    CAPTURE_MASK(3 downto 0) <= mem_dat_i(3 downto 0);
+                end if;
+
+                -- Main PosBus Capture Enable Mask
+                -- [0] is never captures.
+                if (mem_addr_i = PCAP_CAPTURE_MASK_ADDR) then
+                    CAPTURE_MASK(34 downto 4) <= mem_dat_i(31 downto 1);
+                end if;
+
+                -- Extended Values Capture Enable Mask
+                if (mem_addr_i = PCAP_EXT_MASK_ADDR) then
+                    -- Encoder extension
+                    CAPTURE_MASK(38 downto 35) <= mem_dat_i(4 downto 1);
+                    -- ADC extension
+                    CAPTURE_MASK(46 downto 39) <= mem_dat_i(29 downto 22);
+                end if;
+
+                -- Framing Enable
+                if (mem_addr_i = PCAP_FRAME_ENA_ADDR) then
+                    FRAME_ENA <= mem_dat_i;
+                end if;
+
             end if;
+        end if;
+    end if;
+end process;
+
+REG_READ : process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if (reset_i = '1') then
+            mem_dat_o <= (others => '0');
+        else
+            case (mem_addr_i) is
+                when PCAP_IRQ_STATUS_ADDR =>
+                    mem_dat_o <= X"0000000" & IRQ_STATUS;
+                when PCAP_SMPL_COUNT_ADDR =>
+                    mem_dat_o <= SMPL_COUNT;
+                when others =>
+                    mem_dat_o <= (others => '0');
+            end case;
         end if;
     end if;
 end process;
@@ -182,9 +235,10 @@ process(clk_i) begin
                         pcap_fsm <= ARMED;
                         pcap_armed <= '1';
                         pcap_disarmed <= '0';
-                        pcap_enabled <= '1';
+                        pcap_enabled <= '0';
                         pcap_fifo_rst <= '1';
                     end if;
+
                 -- Wait for enable flag.
                 when ARMED =>
                     pcap_fifo_rst <= '0';
@@ -196,7 +250,9 @@ process(clk_i) begin
                         pcap_enabled <= '0';
                     elsif (enable = '1') then
                         pcap_fsm <= ENABLED;
+                        pcap_enabled <= '1';
                     end if;
+
                 -- Enabled until capture is finished or user disarm.
                 when ENABLED =>
                     if (SOFT_DISARM = '1' or enable_fall = '1') then
@@ -217,6 +273,7 @@ process(clk_i) begin
                     if (SOFT_DISARM = '1') then
                         pcap_disarmed <= '1';
                     end if;
+
                 -- Wait for ongoing trigger capture finish.
                 when FINISH_TRIG =>
                     if (ongoing_trigger = '0') then
@@ -241,15 +298,74 @@ enable <= SOFT_ENABLE when (SOFT_ENABLE = '1')
 trigger <= soft_trigger when (SOFT_ENABLE = '1')
                 else SBIT(sysbus_i, TRIGGER_VAL);
 
-pcap_wstb <= trigger and pcap_enabled;
-pcap_dat <= posbus_i(0);
+--
+-- Total number of fields that can be captured include Bit Bus, Position Bus
+-- and Extended Bus.
+--
+-- CAPTURE_MASK register controls which fields are captured. So, on every
+-- capture trigger, it takes 47 clock cycles to walk through the CAPTURE_MASK
+-- register bit-by-bit to check whether the associated field is captured.
+--
+trigger_rise <= trigger and not trigger_prev;
+
+process(clk_i) begin
+    if rising_edge(clk_i) then
+        if (reset_i = '1') then
+            trigger_prev <= '0';
+            ongoing_trigger <= '0';
+            trigger_count <= 0;
+        else
+            trigger_prev <= trigger;
+
+            -- Latch all capture fields on rising edge of trigger only when
+            -- position capture is enabled.
+            if (trigger_rise = '1' and pcap_enabled = '1') then
+                pcap_data_lt(0) <= sysbus_i(31 downto 0);
+                pcap_data_lt(1) <= sysbus_i(63 downto 32);
+                pcap_data_lt(2) <= sysbus_i(95 downto 64);
+                pcap_data_lt(3) <= sysbus_i(127 downto 96);
+                pcap_data_lt(34 downto 4) <= posbus_i(31 downto 1);
+                pcap_data_lt(46 downto 35) <= extbus_i;
+            end if;
+
+            -- Walk CAPTURE_MASK register bit-by-bit on every trigger.
+            if (trigger_rise = '1' and pcap_enabled = '1') then
+                ongoing_trigger <= '1';
+            elsif (trigger_count = 46) then
+                ongoing_trigger <= '0';
+            end if;
+
+            -- Counter is active follwing trigger until all CAPTURE_MASK
+            -- register is consumed.
+            if (ongoing_trigger = '1') then
+                trigger_count <= trigger_count + 1;
+            else
+                trigger_count <= 0;
+            end if;
+
+            -- Finally, generate pcap data and write strobe.
+            if (ongoing_trigger = '1') then
+                if (CAPTURE_MASK(trigger_count) = '1') then
+                    pcap_dat <= pcap_data_lt(trigger_count);
+                    pcap_wstb <= '1';
+                else
+                    pcap_wstb <= '0';
+                end if;
+            end if;
+        end if;
+    end if;
+end process;
+
+--
+-- Position Capture Core IP instantiation
+--
 
 panda_pcap_inst : entity work.panda_pcap
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
 
-    enabled_i           => pcap_enabled,
+    enabled_i           => pcap_armed,
     disarmed_i          => pcap_disarmed,
     pcap_frst_i         => pcap_fifo_rst,
     pcap_dat_i          => pcap_dat,
