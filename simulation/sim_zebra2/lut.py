@@ -7,8 +7,6 @@ class Lut(Block):
     def __init__(self, num):
         super(Lut, self).__init__(num)
         self.inputs = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0 }
-        self.input_bits = set([
-            self.INPA, self.INPB, self.INPC, self.INPD, self.INPE])
 
     def do_lookup(self, next_event, event):
         """We've received a bit event on an INPUT channel, set the local,
@@ -39,7 +37,10 @@ class Lut(Block):
             for name, value in event.reg.items():
                 setattr(self, name, value)
         # if we got an input, then process it
-        if set(event.bit) & self.input_bits:
+        changes = [
+            x in event.bit
+            for x in [self.INPA, self.INPB, self.INPC, self.INPD, self.INPE]]
+        if any(changes):
             self.do_lookup(next_event, event)
         # return any changes and next ts
         return next_event
