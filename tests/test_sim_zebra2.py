@@ -126,4 +126,5 @@ def make_suite():
     return suite
 
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(make_suite())
+    result = unittest.TextTestRunner(verbosity=2).run(make_suite())
+    sys.exit(not result.wasSuccessful())
