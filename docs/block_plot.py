@@ -1,20 +1,30 @@
 #!/bin/env dls-python
-from pkg_resources import require
-require("matplotlib")
+
 import sys
 import os
-from collections import OrderedDict
-import itertools
+
+from pkg_resources import require
+require("matplotlib")
+
 # add our simulations dir
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "simulation"))
-import sim_zebra2
-# and our sequence parser dir
 parser_dir = os.path.join(
     os.path.dirname(__file__), "..", "tests", "sim_zebra2_sequences")
 sys.path.append(parser_dir)
+
+
+from collections import OrderedDict
+import itertools
+import sim_zebra2
 from sequence_parser import SequenceParser
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+# Load configuration
+from sim_zebra2.block import Block
+Block.load_config(os.path.join(os.path.dirname(__file__), '..', 'config_d'))
+
 
 TRANSITION_HEIGHT = 0.6
 PULSE_HEIGHT = 1.0
@@ -74,7 +84,9 @@ def make_block_plot(block, title):
     # Load the correct sequence file
     fname = block + ".seq"
     parser = SequenceParser(os.path.join(parser_dir, fname))
-    sequence = [s for s in parser.sequences if s.name == title][0]
+    matches = [s for s in parser.sequences if s.name == title]
+    assert len(matches) == 1, 'Unknown title "%s" or multiple matches' % title
+    sequence = matches[0]
     imp = __import__("sim_zebra2." + block, fromlist=[block.title()])
     # make instance of block
     block = getattr(imp, block.title())(1)

@@ -4,8 +4,8 @@ from collections import OrderedDict
 import sys
 import os
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "config_d"))
-from config_parser import BlockConfig
+from sim_zebra2.block import Block
+
 
 class SequenceParser(object):
 
@@ -74,7 +74,7 @@ class FpgaSequence(object):
         self.parser = parser
         self.block = block
         # field types
-        fields = BlockConfig.instances[block.upper()].fields
+        fields = Block.config[block.upper()].fields
         # Get the column headings
         self.bus_in = ["TS", "SIM_RESET"]
         self.bus_out = ["TS"]

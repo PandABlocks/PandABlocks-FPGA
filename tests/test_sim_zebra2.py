@@ -1,15 +1,21 @@
 #!/bin/env python
-import unittest
+
 import sys
 import os
+
 # add our simulations dir
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "simulation"))
-import sim_zebra2
-from sim_zebra2.event import Event
 # and our sequence parser dir
 parser_dir = os.path.join(os.path.dirname(__file__), "sim_zebra2_sequences")
 sys.path.append(parser_dir)
+
+import unittest
+import sim_zebra2
+from sim_zebra2.event import Event
+from sim_zebra2.block import Block
 from sequence_parser import SequenceParser, FpgaSequence
+
+Block.load_config(os.path.join(os.path.dirname(__file__), '..', 'config_d'))
 
 
 class SequenceTest(unittest.TestCase):
