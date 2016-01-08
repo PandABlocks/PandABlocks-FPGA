@@ -38,6 +38,13 @@ class SequenceTest(unittest.TestCase):
             if field.typ.endswith("_mux"):
                 setattr(block, name, i)
                 i += 1
+        # make default regs dict
+        regs = {}
+        for ts in self.sequence.outputs:
+            for name in self.sequence.outputs[ts]:
+                field = block.fields[name]
+                if not field.cls.endswith("_out"):
+                    regs[name] = 0
         # {num: name}
         next_ts = None
         bus = {}
@@ -73,26 +80,29 @@ class SequenceTest(unittest.TestCase):
             for name, val in changes.items():
                 if name in self.sequence.outputs[ts]:
                     expected = self.sequence.outputs[ts][name]
+                    bus[name] = val
                 else:
                     expected = bus.get(name, 0)
                 self.assertEquals(
                     val, expected,
                     "%d: Out %s = %d != %d" % (ts, name, val, expected))
-            bus.update(changes)
 
-            # now check that any not mentioned are the right value
+            # update regs with any values not in changes
             for name, val in self.sequence.outputs[ts].items():
                 if name not in changes:
-                    field = block.fields[name]
-                    if field.cls.endswith("_out"):
-                        self.fail("%d: Didn't produce output %s = %d" %
-                            (ts, name, val))
-                    actual = getattr(block, name)
-                    self.assertEqual(
-                        val, actual,
-                        "%d: Reg %s = %d != %d" % (ts, name, actual, val))
+                    regs[name] = val
 
-
+            # now check that any not mentioned are the right value
+            for name, val in regs.items():
+                field = block.fields[name]
+                if field.cls.endswith("_out"):
+                    self.fail("%d: Didn't produce output %s = %d" %
+                              (ts, name, val))
+                actual = getattr(block, name)
+                self.assertEqual(
+                    val, actual,
+                    "%d: Reg %s = %d != %d" % (ts, name, actual, val))
+                regs[name] = val
 
 
 def make_suite():
