@@ -86,13 +86,13 @@ SEQ[4]
     CUR_TCYCLE      read
     TABLE_CYCLE     param
     TABLE           table
-        31:0      NREPEATS
-        35:32     INPUT_MASK
-        39:36     TRIGGER_MASK
-        45:40     OUT_PH_A
-        51:46     OUT_PH_B
-        95:64     TIME_PH_A
-        127:96    TIME_PH_B
+        31:0    NREPEATS
+        35:32   INPUT_MASK
+        39:36   TRIGGER_MASK
+        45:40   OUT_PH_A
+        51:46   OUT_PH_B
+        95:64   TIME_PH_A
+        127:96  TIME_PH_B
 
 INENC[4]
     A               bit_out
