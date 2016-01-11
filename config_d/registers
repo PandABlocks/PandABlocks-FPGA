@@ -67,7 +67,7 @@ SEQ         6
     OUTE            52 53 54 55
     OUTF            56 57 58 59
     ACTIVE          108 109 110 111
-    TABLE           short   512    13 14
+    TABLE           short   512    13 14 15
 
 INENC       7
     PROTOCOL        0
