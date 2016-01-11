@@ -27,6 +27,7 @@ constant SRGATE_CS              : natural := 3;
 constant DIV_CS                 : natural := 4;
 constant PULSE_CS               : natural := 5;
 constant SEQ_CS                 : natural := 6;
+constant COUNTER_CS             : natural := 13;
 constant PCAP_CS                : natural := 17;
 constant CLOCKS_CS              : natural := 28;
 constant BITS_CS                : natural := 29;
@@ -95,6 +96,12 @@ constant SEQ_CUR_FCYCLE_ADDR    : std_logic_vector := TO_SVECTOR(12, BLK_AW);
 constant SEQ_CUR_TCYCLE_ADDR    : std_logic_vector := TO_SVECTOR(13, BLK_AW);
 constant SEQ_CUR_STATE_ADDR     : std_logic_vector := TO_SVECTOR(14, BLK_AW);
 
+constant COUNTER_ENABLE_VAL_ADDR: std_logic_vector  := TO_SVECTOR(0, BLK_AW);
+constant COUNTER_TRIGGER_VAL_ADDR: std_logic_vector := TO_SVECTOR(1, BLK_AW);
+constant COUNTER_DIR_ADDR       : std_logic_vector  := TO_SVECTOR(2, BLK_AW);
+constant COUNTER_START_ADDR     : std_logic_vector  := TO_SVECTOR(3, BLK_AW);
+constant COUNTER_STEP_ADDR      : std_logic_vector  := TO_SVECTOR(4, BLK_AW);
+
 constant PCAP_ENABLE_VAL_ADDR   : std_logic_vector := TO_SVECTOR(0, PAGE_AW);
 constant PCAP_TRIGGER_VAL_ADDR  : std_logic_vector := TO_SVECTOR(1, PAGE_AW);
 constant PCAP_DMAADDR_ADDR      : std_logic_vector := TO_SVECTOR(2, PAGE_AW);
@@ -110,6 +117,8 @@ constant PCAP_SMPL_COUNT_ADDR   : std_logic_vector := TO_SVECTOR(12, PAGE_AW);
 constant PCAP_BLOCK_SIZE_ADDR   : std_logic_vector := TO_SVECTOR(13, PAGE_AW);
 constant PCAP_TRIG_MISSES_ADDR  : std_logic_vector := TO_SVECTOR(14, PAGE_AW);
 constant PCAP_ERR_STATUS_ADDR   : std_logic_vector := TO_SVECTOR(15, PAGE_AW);
+
+
 
 --
 -- TOP Block Register Address Space

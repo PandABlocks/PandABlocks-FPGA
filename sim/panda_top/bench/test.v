@@ -3,17 +3,24 @@ module test;
 localparam PCAP_ENABLE_VAL_ADDR   = 0;
 localparam PCAP_TRIGGER_VAL_ADDR  = 1;
 localparam PCAP_DMAADDR_ADDR      = 2;
-localparam PCAP_SOFT_ENABLE_ADDR  = 3;
-localparam PCAP_SOFT_ARM_ADDR     = 4;
-localparam PCAP_SOFT_DISARM_ADDR  = 5;
-localparam PCAP_PMASK_ADDR        = 6;
-localparam PCAP_TIMEOUT_ADDR      = 7;
-localparam PCAP_BITBUS_MASK_ADDR  = 8;
-localparam PCAP_CAPTURE_MASK_ADDR = 9;
-localparam PCAP_EXT_MASK_ADDR     = 10;
-localparam PCAP_FRAME_ENA_ADDR    = 11;
-localparam PCAP_IRQ_STATUS_ADDR   = 12;
-localparam PCAP_SMPL_COUNT_ADDR   = 13;
+localparam PCAP_SOFT_ARM_ADDR     = 3;
+localparam PCAP_SOFT_DISARM_ADDR  = 4;
+localparam PCAP_TIMEOUT_ADDR      = 6;
+localparam PCAP_BITBUS_MASK_ADDR  = 7;
+localparam PCAP_CAPTURE_MASK_ADDR = 8;
+localparam PCAP_EXT_MASK_ADDR     = 9;
+localparam PCAP_FRAME_ENA_ADDR    = 10;
+localparam PCAP_IRQ_STATUS_ADDR   = 11;
+localparam PCAP_SMPL_COUNT_ADDR   = 12;
+localparam PCAP_BLOCK_SIZE_ADDR   = 13;
+localparam PCAP_TRIG_MISSES_ADDR  = 14;
+localparam PCAP_ERR_STATUS_ADDR   = 15;
+
+localparam COUNTER_ENABLE_VAL_ADDR  = 0;
+localparam COUNTER_TRIGGER_VAL_ADDR = 1;
+localparam COUNTER_DIR_ADDR         = 2;
+localparam COUNTER_START_ADDR       = 3;
+localparam COUNTER_STEP_ADDR        = 4;
 
 panda_top_tb tb();
 
@@ -210,23 +217,39 @@ else if (test_name == "PCAP_TEST") begin
 fork
 begin
     // CLOCKS-CLKA/B/C/D
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C000,  4, 1250, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C004,  4, 125, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C000,  4, 125, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C004,  4, 250, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C008,  4, 500, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C00C,  4, 1000, wrs);
+
+    // Set-up Counters 0/1
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D000 + 4*COUNTER_ENABLE_VAL_ADDR,  4, 118, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D000 + 4*COUNTER_TRIGGER_VAL_ADDR, 4, 122, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D000 + 4*COUNTER_STEP_ADDR, 4, 1, wrs);
+
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D100 + 4*COUNTER_ENABLE_VAL_ADDR,  4, 118, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D100 + 4*COUNTER_TRIGGER_VAL_ADDR, 4, 122, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D100 + 4*COUNTER_STEP_ADDR, 4, 1, wrs);
+
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D300 + 4*COUNTER_ENABLE_VAL_ADDR,  4, 118, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D300 + 4*COUNTER_TRIGGER_VAL_ADDR, 4, 122, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D300 + 4*COUNTER_STEP_ADDR, 4, 1, wrs);
 
     // PCAP_ENABLE_VAL_ADDR
     tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_ENABLE_VAL_ADDR, 4, 118, wrs);
 
     // PCAP_TRIGGER_VAL_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_TRIGGER_VAL_ADDR, 4, 123, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_TRIGGER_VAL_ADDR, 4, 122, wrs);
 
     // PCAP_BITBUS_MASK_ADDR
     tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_BITBUS_MASK_ADDR, 4, 0, wrs);
 
     // PCAP_CAPTURE_MASK_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_CAPTURE_MASK_ADDR, 4, 6, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_CAPTURE_MASK_ADDR, 4,
+    32'h0000_B000, wrs);
 
     // PCAP_EXT_MASK_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_EXT_MASK_ADDR, 4, 6, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_EXT_MASK_ADDR, 4, 0, wrs);
 
     // PCAP_TIMEOUT_ADDR
     tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_TIMEOUT_ADDR, 4, 0, wrs);
@@ -277,7 +300,7 @@ begin
             for (i=0; i<irq_count; i=i+1) begin
                 $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
                 tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
-                total_samples <= total_samples + smpl_table[i];
+                total_samples = total_samples + smpl_table[i];
             end
 
             $display("Total Samples = %d", total_samples);
@@ -294,7 +317,7 @@ begin
             for (i=0; i<irq_count; i=i+1) begin
                 $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
                 tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
-                total_samples <= total_samples + smpl_table[i];
+                total_samples = total_samples + smpl_table[i];
             end
             $display("Total Samples = %d", total_samples);
             $finish;
@@ -305,7 +328,7 @@ begin
             for (i=0; i<irq_count; i=i+1) begin
                 $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
                 tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
-                total_samples <= total_samples + smpl_table[i];
+                total_samples = total_samples + smpl_table[i];
             end
             $display("Total Samples = %d", total_samples);
             $finish;
@@ -320,7 +343,7 @@ end
 begin
     repeat(125 * 1000) @(posedge tb.uut.ps.FCLK);
     // PCAP_SOFT_DISARM_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_SOFT_DISARM_ADDR, 4, 1, wrs);
+    //tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_SOFT_DISARM_ADDR, 4, 1, wrs);
 end
 
 join

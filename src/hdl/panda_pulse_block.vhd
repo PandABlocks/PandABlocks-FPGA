@@ -56,10 +56,10 @@ REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            INP_VAL <= TO_SVECTOR(127, SBUSBW);
-            RST_VAL <= TO_SVECTOR(126, SBUSBW);
-            DELAY <= X"0000_0000_0000";
-            WIDTH <= X"0000_0000_0001";
+            INP_VAL <= TO_SVECTOR(0, SBUSBW);
+            RST_VAL <= TO_SVECTOR(0, SBUSBW);
+            DELAY <= (others => '0');
+            WIDTH <= (others => '0');
             FORCE_RST <= '0';
         else
             FORCE_RST <= '0';

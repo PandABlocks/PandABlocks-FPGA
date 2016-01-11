@@ -50,4 +50,8 @@ sim:/test/tb/uut/panda_pcap_inst/*
 add wave -group "PCAP" \
 sim:/test/tb/uut/panda_pcap_inst/panda_pcap_inst/*
 
-add wave sim:/test/tb/uut/sysbus
+add wave -group "COUNTER_0" \
+sim:/test/tb/uut/panda_counter_inst/COUNTER_GEN(0)/panda_counter_block/*
+
+add wave -group "COUNTER_1" \
+sim:/test/tb/uut/panda_counter_inst/COUNTER_GEN(1)/panda_counter_block/*

@@ -306,9 +306,12 @@ end process;
 --
 -- Design Bus Assignments
 --
-enable <= SBIT(sysbus_i, ENABLE_VAL);
-
-trigger <= SBIT(sysbus_i, TRIGGER_VAL);
+process(clk_i) begin
+    if rising_edge(clk_i) then
+        enable <= SBIT(sysbus_i, ENABLE_VAL);
+        trigger <= SBIT(sysbus_i, TRIGGER_VAL);
+    end if;
+end process;
 
 --
 -- Total number of fields that can be captured include Bit Bus, Position Bus
@@ -327,6 +330,7 @@ process(clk_i) begin
             ongoing_trigger <= '0';
             field_count <= 0;
             TRIG_MISSES <= (others => '0');
+            INT_DISARM <= '0';
         else
             trigger_prev <= trigger;
 

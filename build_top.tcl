@@ -66,6 +66,9 @@ read_vhdl ../src/hdl/panda_div_top.vhd
 read_vhdl ../src/hdl/panda_pulse.vhd
 read_vhdl ../src/hdl/panda_pulse_block.vhd
 read_vhdl ../src/hdl/panda_pulse_top.vhd
+read_vhdl ../src/hdl/panda_counter.vhd
+read_vhdl ../src/hdl/panda_counter_block.vhd
+read_vhdl ../src/hdl/panda_counter_top.vhd
 read_vhdl ../src/hdl/panda_sequencer.vhd
 read_vhdl ../src/hdl/panda_sequencer_block.vhd
 read_vhdl ../src/hdl/panda_sequencer_top.vhd
@@ -79,8 +82,6 @@ read_vhdl ../src/hdl/panda_encin.vhd
 read_vhdl ../src/hdl/panda_encin_top.vhd
 read_vhdl ../src/hdl/panda_encout.vhd
 read_vhdl ../src/hdl/panda_encout_top.vhd
-read_vhdl ../src/hdl/panda_sequencer.vhd
-read_vhdl ../src/hdl/panda_sequencer_top.vhd
 read_vhdl ../src/hdl/panda_pcomp.vhd
 read_vhdl ../src/hdl/panda_pcomp_top.vhd
 read_vhdl ../src/hdl/panda_clocks.vhd

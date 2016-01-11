@@ -51,6 +51,9 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_encout_top.vhd" \
 "${SRC}/panda_sequencer.vhd" \
 "${SRC}/panda_sequencer_top.vhd" \
+"${SRC}/panda_counter.vhd" \
+"${SRC}/panda_counter_block.vhd" \
+"${SRC}/panda_counter_top.vhd" \
 "${SRC}/panda_pcomp.vhd" \
 "${SRC}/panda_pcomp_top.vhd" \
 "${SRC}/panda_clocks.vhd" \

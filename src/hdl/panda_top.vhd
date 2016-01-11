@@ -190,6 +190,9 @@ signal pulse_val            : std_logic_vector(2*PULSE_NUM-1 downto 0);
 signal seq_val              : seq_out_array(SEQ_NUM-1 downto 0);
 signal seq_active           : std_logic_vector(SEQ_NUM-1 downto 0);
 
+signal counter_carry        : std_logic_vector(COUNTER_NUM-1 downto 0);
+signal counter_val          : std32_array(COUNTER_NUM-1 downto 0);
+
 signal pcomp_act            : std_logic_vector(PCOMP_NUM-1 downto 0);
 signal pcomp_pulse          : std_logic_vector(PCOMP_NUM-1 downto 0);
 
@@ -206,6 +209,10 @@ signal clocks               : std_logic_vector(3 downto 0);
 signal clocks_prev          : std_logic_vector(3 downto 0);
 signal clocks_rise          : std_logic_vector(3 downto 0);
 signal soft                 : std_logic_vector(3 downto 0);
+
+signal adc_low              : std32_array(7 downto 0) := (others => (others => '0'));
+
+signal adc_high             : std32_array(7 downto 0) := (others => (others => '0'));
 
 begin
 
@@ -492,6 +499,27 @@ port map (
 );
 
 --
+-- COUNTER/TIMER
+--
+panda_counter_inst : entity work.panda_counter_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(COUNTER_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => mem_read_data(COUNTER_CS),
+
+    sysbus_i            => sysbus,
+    -- Output pulse
+    carry_o             => counter_carry,
+    count_o             => counter_val
+);
+
+--
 -- POSITION CAPTURE
 --
 panda_pcap_inst : entity work.panda_pcap_block
@@ -595,8 +623,6 @@ port map (
 --
 -- System Bus   : Assignments
 --
-
-
 sysbus(0)               <= zero;
 sysbus(1)               <= one;
 sysbus(7 downto 2)      <= ttlin_val;
@@ -609,13 +635,12 @@ sysbus(43 downto 38)    <= seq_val(0);
 sysbus(49 downto 44)    <= seq_val(1);
 sysbus(55 downto 50)    <= seq_val(2);
 sysbus(61 downto 56)    <= seq_val(3);
-
+sysbus(91 downto 84)    <= counter_carry;
 sysbus(111 downto 108)  <= seq_active;
 sysbus(112)             <= pcap_active;
 
 sysbus(121 downto 118)  <= soft;
 sysbus(125 downto 122)  <= clocks;
-
 
 process(FCLK_CLK0)
 begin
@@ -631,14 +656,9 @@ begin
 end process;
 
 posbus(0) <= (others => '0');
+posbus(19 downto 12) <= counter_val;
+posbus(29 downto 22) <= adc_low;
 
-posbus(1) <= std_logic_vector(counter32);
-posbus(2) <= std_logic_vector(counter32);
-posbus(3) <= std_logic_vector(counter32);
-posbus(4) <= std_logic_vector(counter32);
-
-extbus(0) <= std_logic_vector(counter32);
-extbus(1) <= std_logic_vector(counter32);
-extbus(2) <= std_logic_vector(counter32);
+extbus(11 downto 4) <= adc_high;
 
 end rtl;
