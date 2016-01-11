@@ -28,10 +28,6 @@ class Controller(object):
     def do_read_positions(self):
         return 32*[0], 32*[False]
 
-    # Sets bit capture mask
-    def set_bit_capture(self, mask):
-        pass
-
-    # Sets position capture mask
-    def set_pos_capture(self, capture_mask, framed_mask, extended_mask):
+    def set_capture_masks(self,
+            bit_capture, pos_capture, framed_mask, extended_mask):
         pass

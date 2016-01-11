@@ -44,10 +44,7 @@ class Controller(object):
             changed[i] = 1
         return bus, changed
 
-    # Sets bit capture mask
-    def set_bit_capture(self, mask):
-        pass
-
-    # Sets position capture mask
-    def set_pos_capture(self, capture_mask, framed_mask, extended_mask):
+    # Sets capture configuration
+    def set_capture_masks(self,
+            bit_capture, pos_capture, framed_mask, extended_mask):
         pass

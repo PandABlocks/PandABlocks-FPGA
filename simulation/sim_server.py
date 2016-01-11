@@ -73,11 +73,8 @@ def run_simulation(conn):
         elif command == 'P':
             positions, changes = controller.do_read_positions()
             conn.sendall(struct.pack('32I32?', *positions + changes))
-        elif command == 'K':
-            mask, = struct.unpack('I', read(conn, 4))
-            controller.set_bit_capture(mask)
         elif command == 'M':
-            controller.set_pos_capture(*struct.unpack('3I', read(conn, 12)))
+            controller.set_capture_masks(*struct.unpack('4I', read(conn, 16)))
         else:
             print 'Unexpected command', repr(command_word)
             raise SocketFail('Unexpected command')
