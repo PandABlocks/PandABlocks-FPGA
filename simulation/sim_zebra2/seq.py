@@ -17,12 +17,14 @@ class Seq(Block):
                         'p2Len':0
                        }
         self.active = 0
+        self.gate = 0
         self.tlength = 0
         self.twrite_addr = 0
         self.cur_frame = 0
         self.table_repeats = 0
         self.prescale = 1
         self.fword_count = 0
+        self.table_strobes = 0
         self.fcycle = 0
         self.tcycle = 0
         self.frame_ok = False
@@ -33,12 +35,16 @@ class Seq(Block):
 
     def do_start(self, next_event, event):
         next_event.bit[self.ACTIVE] = self.active = 1
+        self.gate = 1
         self.cur_frame = 1
+        self.fcycle = 1
+        self.tcycle = 1
         self.CUR_FRAME = self.cur_frame
         self.check_inputs(next_event, event)
 
     def do_stop(self, next_event, event):
         next_event.bit[self.ACTIVE] = self.active = 0
+        self.gate = 0
         self.cur_frame = 0
         self.fcycle = 0
         self.tcycle = 0
@@ -92,16 +98,16 @@ class Seq(Block):
         #handle repeating frames
         if self.cur_frame < self.tlength and self.fcycle == self.params['rpt']:
             self.cur_frame += 1
-            self.fcycle = 0
-        elif self.fcycle < self.params['rpt']:
+            self.fcycle = 1
+        elif self.fcycle < self.params['rpt'] or self.fcycle == 0:
             self.fcycle += 1
             self.frpt_queue.append((event.ts + self.params['p2Len']))
         #handle repeating tables
         elif self.cur_frame == self.tlength:
-            if self.tcycle < self.table_repeats:
+            if self.tcycle < self.table_repeats or self.tcycle == 0:
                 self.tcycle += 1
                 self.cur_frame = 1
-                self.fcycle = 0
+                self.fcycle = 1
                 self.trpt_queue.append((event.ts + self.params['p2Len']))
             elif self.tcycle == self.table_repeats:
                 next_event.bit[self.ACTIVE] = self.active = 0
@@ -122,13 +128,23 @@ class Seq(Block):
         self.twrite_addr += 1
         #check that the whole frame is written
         self.fword_count += 1
+        self.table_strobes += 1
         if self.fword_count == 4:
             self.fword_count = 0
             self.frame_ok = True
+        self.TABLE_STROBES = self.table_strobes
 
-    def do_table_reset(self):
+    def do_table_reset(self, next_event, event):
         self.twrite_addr = 0
+        next_event.bit[self.ACTIVE] = self.active = 0
         pass
+
+    def do_table_write_finished(self):
+        if self.table_strobes != 0:
+            self.tlength = self.TABLE_LENGTH
+        if self.gate:
+            self.active = 1
+        self.table_strobes = 0
 
     def get_table_data(self):
         table_offset = 4*(self.cur_frame - 1)
@@ -156,13 +172,13 @@ class Seq(Block):
                 elif name == "TABLE_DATA":
                     self.do_table_write(next_event, event)
                 elif name == "TABLE_RST":
-                    self.do_table_reset()
+                    self.do_table_reset(next_event, event)
                 elif name == "TABLE_CYCLE":
                     self.table_repeats = value
                 elif name == "PRESCALE":
                     self.prescale = value
                 elif name == "TABLE_LENGTH":
-                    self.tlength = value
+                    self.do_table_write_finished()
                 elif name == "TABLE":
                     self.table[:len(value)] = value
                     # write each value in value array to table
