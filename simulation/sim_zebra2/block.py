@@ -56,6 +56,7 @@ class Block(object):
                     # "table_len rst_reg data_reg"
                     setattr(self, name + "_RST", 0)
                     setattr(self, name + "_DATA", 0)
+                    setattr(self, name + "_WSTB", 0)
                 self.regs["TABLE"] = name
             elif field.cls == "time":
                 # Initialise the attribute value to 0
