@@ -72,11 +72,14 @@ $(SERVER): $(SERVER_BUILD_DIR) $(SERVER_FILES)
 	$(MAKE) -C $< -f $(TOP)/server/Makefile \
             VPATH=$(TOP)/server TOP=$(TOP) CC=$(CC)
 
+# Two differences with building sim_server: we use the native compiler, not the
+# cross-compiler, and we only build the sim_server target.
 $(SIM_SERVER): $(SIM_SERVER_BUILD_DIR) $(SERVER_FILES)
 	$(MAKE) -C $< -f $(TOP)/server/Makefile \
-            VPATH=$(TOP)/server TOP=$(TOP)
+            VPATH=$(TOP)/server TOP=$(TOP) sim_server
 
-SIMSERVER_SUBSTS = s:@@PYTHON@@:$(PYTHON):;
+# Construction of simserver launch script.
+SIMSERVER_SUBSTS += s:@@PYTHON@@:$(PYTHON):;
 SIMSERVER_SUBSTS += s:@@BUILD_DIR@@:$(BUILD_DIR):;
 SIMSERVER_SUBSTS += s:@@SIM_HARDWARE@@:$(SIM_HARDWARE):
 
