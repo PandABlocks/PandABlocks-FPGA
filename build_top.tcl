@@ -90,10 +90,14 @@ read_vhdl ../src/hdl/panda_bits.vhd
 read_vhdl ../src/hdl/panda_bits_block.vhd
 read_vhdl ../src/hdl/panda_bits_top.vhd
 read_vhdl ../src/hdl/panda_reg.vhd
+read_vhdl ../src/hdl//panda_axi3_write_master.vhd
+read_vhdl ../src/hdl/panda_pcap.vhd
+read_vhdl ../src/hdl/panda_pcap_block.vhd
 read_vhdl ../src/hdl/panda_top.vhd
 
 # Import IPs
 import_ip ./ip_repo/pulse_queue/pulse_queue.xci
+import_ip ./ip_repo/pcap_fifo/pcap_fifo.xci
 
 # Read constraint files
 read_xdc  ../src/const/panda_user.xdc

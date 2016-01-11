@@ -98,20 +98,18 @@ constant SEQ_CUR_STATE_ADDR     : std_logic_vector := TO_SVECTOR(14, BLK_AW);
 constant PCAP_ENABLE_VAL_ADDR   : std_logic_vector := TO_SVECTOR(0, PAGE_AW);
 constant PCAP_TRIGGER_VAL_ADDR  : std_logic_vector := TO_SVECTOR(1, PAGE_AW);
 constant PCAP_DMAADDR_ADDR      : std_logic_vector := TO_SVECTOR(2, PAGE_AW);
-constant PCAP_SOFT_ENABLE_ADDR  : std_logic_vector := TO_SVECTOR(3, PAGE_AW);
-constant PCAP_SOFT_ARM_ADDR     : std_logic_vector := TO_SVECTOR(4, PAGE_AW);
-constant PCAP_SOFT_DISARM_ADDR  : std_logic_vector := TO_SVECTOR(5, PAGE_AW);
-constant PCAP_PMASK_ADDR        : std_logic_vector := TO_SVECTOR(6, PAGE_AW);
-constant PCAP_TIMEOUT_ADDR      : std_logic_vector := TO_SVECTOR(7, PAGE_AW);
-constant PCAP_BITBUS_MASK_ADDR  : std_logic_vector := TO_SVECTOR(8, PAGE_AW);
-constant PCAP_CAPTURE_MASK_ADDR : std_logic_vector := TO_SVECTOR(9, PAGE_AW);
-constant PCAP_EXT_MASK_ADDR     : std_logic_vector := TO_SVECTOR(10, PAGE_AW);
-constant PCAP_FRAME_ENA_ADDR    : std_logic_vector := TO_SVECTOR(11, PAGE_AW);
-constant PCAP_IRQ_STATUS_ADDR   : std_logic_vector := TO_SVECTOR(12, PAGE_AW);
-constant PCAP_SMPL_COUNT_ADDR   : std_logic_vector := TO_SVECTOR(13, PAGE_AW);
-constant PCAP_BLOCK_SIZE_ADDR   : std_logic_vector := TO_SVECTOR(14, PAGE_AW);
-constant PCAP_TRIG_MISSES_ADDR  : std_logic_vector := TO_SVECTOR(15, PAGE_AW);
-constant PCAP_ERR_STATUS_ADDR   : std_logic_vector := TO_SVECTOR(16, PAGE_AW);
+constant PCAP_SOFT_ARM_ADDR     : std_logic_vector := TO_SVECTOR(3, PAGE_AW);
+constant PCAP_SOFT_DISARM_ADDR  : std_logic_vector := TO_SVECTOR(4, PAGE_AW);
+constant PCAP_TIMEOUT_ADDR      : std_logic_vector := TO_SVECTOR(6, PAGE_AW);
+constant PCAP_BITBUS_MASK_ADDR  : std_logic_vector := TO_SVECTOR(7, PAGE_AW);
+constant PCAP_CAPTURE_MASK_ADDR : std_logic_vector := TO_SVECTOR(8, PAGE_AW);
+constant PCAP_EXT_MASK_ADDR     : std_logic_vector := TO_SVECTOR(9,  PAGE_AW);
+constant PCAP_FRAME_ENA_ADDR    : std_logic_vector := TO_SVECTOR(10, PAGE_AW);
+constant PCAP_IRQ_STATUS_ADDR   : std_logic_vector := TO_SVECTOR(11, PAGE_AW);
+constant PCAP_SMPL_COUNT_ADDR   : std_logic_vector := TO_SVECTOR(12, PAGE_AW);
+constant PCAP_BLOCK_SIZE_ADDR   : std_logic_vector := TO_SVECTOR(13, PAGE_AW);
+constant PCAP_TRIG_MISSES_ADDR  : std_logic_vector := TO_SVECTOR(14, PAGE_AW);
+constant PCAP_ERR_STATUS_ADDR   : std_logic_vector := TO_SVECTOR(15, PAGE_AW);
 
 --
 -- TOP Block Register Address Space

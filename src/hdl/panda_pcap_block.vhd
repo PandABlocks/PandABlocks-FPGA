@@ -68,7 +68,6 @@ signal TRIGGER_VAL      : std_logic_vector(SBUSBW-1 downto 0);
 signal TIMEOUT_VAL      : std_logic_vector(31 downto 0);
 signal DMAADDR_WSTB     : std_logic;
 signal DMAADDR          : std_logic_vector(31 downto 0);
-signal SOFT_ENABLE      : std_logic;
 signal IRQ_STATUS       : std_logic_vector(3 downto 0);
 signal SMPL_COUNT       : std_logic_vector(31 downto 0);
 signal CAPTURE_MASK     : std_logic_vector(46 downto 0);
@@ -120,7 +119,6 @@ begin
             TRIGGER_VAL <= TO_SVECTOR(0, SBUSBW);
             DMAADDR_WSTB <= '0';
             DMAADDR <= (others => '0');
-            SOFT_ENABLE <= '0';
             SOFT_ARM <= '0';
             SOFT_DISARM <= '0';
             TIMEOUT_VAL <= TO_SVECTOR(0, 32);
@@ -163,11 +161,6 @@ begin
                 -- DMA Soft Disarm
                 if (mem_addr_i = PCAP_SOFT_DISARM_ADDR) then
                     SOFT_DISARM <= '1';
-                end if;
-
-                -- Software User Flags
-                if (mem_addr_i = PCAP_SOFT_ENABLE_ADDR) then
-                    SOFT_ENABLE <= mem_dat_i(0);
                 end if;
 
                 -- BitBus Capture Enable Mask
@@ -313,11 +306,9 @@ end process;
 --
 -- Design Bus Assignments
 --
-enable <= SOFT_ENABLE when (SOFT_ENABLE = '1')
-                else SBIT(sysbus_i, ENABLE_VAL);
+enable <= SBIT(sysbus_i, ENABLE_VAL);
 
-trigger <= soft_trigger when (SOFT_ENABLE = '1')
-                else SBIT(sysbus_i, TRIGGER_VAL);
+trigger <= SBIT(sysbus_i, TRIGGER_VAL);
 
 --
 -- Total number of fields that can be captured include Bit Bus, Position Bus

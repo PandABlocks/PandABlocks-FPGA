@@ -118,7 +118,7 @@ BLOCK_TLP_SIZE <= "000000" & BLOCK_SIZE(31 downto 6);
 --
 -- 32bit-to-64-bit FIFO with 1K sample depth
 --
-PCAP_FIFO_INST : entity work.fifo_generator_0
+PCAP_FIFO_INST : entity work.pcap_fifo
 port map (
     rst             => pcap_frst_i,
     clk             => clk_i,

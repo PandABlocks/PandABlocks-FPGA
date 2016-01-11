@@ -223,10 +223,10 @@ begin
     tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_BITBUS_MASK_ADDR, 4, 0, wrs);
 
     // PCAP_CAPTURE_MASK_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_CAPTURE_MASK_ADDR, 4, 2, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_CAPTURE_MASK_ADDR, 4, 6, wrs);
 
     // PCAP_EXT_MASK_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_EXT_MASK_ADDR, 4, 2, wrs);
+    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_EXT_MASK_ADDR, 4, 6, wrs);
 
     // PCAP_TIMEOUT_ADDR
     tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_TIMEOUT_ADDR, 4, 0, wrs);
@@ -244,7 +244,7 @@ begin
     // SOFTA/
     repeat(1250) @(posedge tb.uut.ps.FCLK);
     tb.uut.ps.ps.ps.inst.write_data(32'h43C1_D000,  4, 1, wrs);
-    repeat(125 * 10000) @(posedge tb.uut.ps.FCLK);
+    repeat(125 * 1000) @(posedge tb.uut.ps.FCLK);
     tb.uut.ps.ps.ps.inst.write_data(32'h43C1_D000,  4, 0, wrs);
 end
 

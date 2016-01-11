@@ -1,8 +1,7 @@
 file delete -force read_from_hp1.txt
 
 set SRC {../../../src/hdl}
-set FIFO {../../../src/ip_repo/fifo_generator_0}
-set PULSE {../../../output/ip_repo/pulse_queue}
+set IP {../../../output/ip_repo}
 set MODEL {../../panda_top/bench/zynq_model}
 
 vlib work
@@ -13,7 +12,8 @@ vlib msim
 # Compile Sources
 #
 vcom -64 -93 -work xil_defaultlib  \
-"${FIFO}/sim/fifo_generator_0.vhd"\
+"${IP}/pcap_fifo/sim/pcap_fifo.vhd"\
+"${IP}/pulse_queue/sim/pulse_queue.vhd"\
 "${SRC}/defines/type_defines.vhd" \
 "${SRC}/defines/addr_defines.vhd" \
 "${SRC}/defines/top_defines.vhd" \
@@ -32,7 +32,6 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_div.vhd" \
 "${SRC}/panda_div_block.vhd" \
 "${SRC}/panda_div_top.vhd" \
-"${PULSE}/sim/pulse_queue.vhd"\
 "${SRC}/panda_pulse.vhd" \
 "${SRC}/panda_pulse_block.vhd" \
 "${SRC}/panda_pulse_top.vhd" \
