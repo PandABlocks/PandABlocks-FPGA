@@ -21,8 +21,6 @@ class Block(object):
         assert num > 0 and num <= self.maxnum, \
             "Num %d out of range" % num
         self.num = num
-        diff = set(regs) ^ set(self.fields)
-        assert len(diff) == 0, "Mismatch %s" % diff
 
         # dict bus index -> name
         self.bit_outs, self.pos_outs = {}, {}
@@ -55,6 +53,8 @@ class Block(object):
                 self.regs[reg_offset[1]] = name
                 self.time_lohi[reg_offset[1]] = "hi"
                 # ignore offset as our blocks know about it
+            elif field.cls == "software":
+                pass
             else:
                 # Initialise the attribute value to 0
                 setattr(self, name, 0)
