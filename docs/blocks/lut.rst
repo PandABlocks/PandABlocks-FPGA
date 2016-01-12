@@ -1,6 +1,7 @@
 LUT - 5 Input lookup table [x8]
 ===============================
-some description here
+An LUT block produces an output that is determined by a user-programmable
+5-input logic function, set with the FUNC register.
 
 
 Parameters
@@ -20,10 +21,11 @@ FUNC            W   UInt32  LUT logic function
 
 Testing Function Output
 ----------------------------
-This set of tests sets the function value and sees if the output is as expected
+This set of tests sets the function value and checks whether the output is as
+expected
 
 A&B&C&D&E (FUNC= 0x80000000 = 2147483648(decimal)). Setting all inputs to 1
-results in an output of 1, and changing any results in an output of 0
+results in an output of 1, and changing any inputs produces an output of 0
 
 .. plot::
 
@@ -32,7 +34,7 @@ results in an output of 1, and changing any results in an output of 0
 
 
 ~A&~B&~C&~D&~E (FUNC= 0x00000001 = 1(decimal)). Setting all inputs to 0 results
-in an output of 1, and changing any results in an output of 0
+in an output of 1, and changing any inputs produces an output of 0
 
 .. plot::
 

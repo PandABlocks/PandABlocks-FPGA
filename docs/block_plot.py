@@ -100,21 +100,27 @@ def make_block_plot(block, title):
     # walk the inputs and outputs and add traces
     for ts in sequence.inputs:
         for name in sequence.inputs[ts].keys():
-            field = block.fields[name]
-            if field.cls == "param" and field.typ == "bit_mux":
-                in_bits_names.append(name)
-            elif field.cls == "param" and field.typ == "pos_mux":
-                in_positions_names.append(name)
-            else:
+            if name not in block.fields:
                 in_regs_names.append(name)
-        for name in sequence.outputs[ts].keys():
-            field = block.fields[name]
-            if field.cls == "bit_out":
-                out_bits_names.append(name)
-            elif field.cls == "pos_out":
-                out_positions_names.append(name)
             else:
+                field = block.fields[name]
+                if field.cls == "param" and field.typ == "bit_mux":
+                    in_bits_names.append(name)
+                elif field.cls == "param" and field.typ == "pos_mux":
+                    in_positions_names.append(name)
+                else:
+                    in_regs_names.append(name)
+        for name in sequence.outputs[ts].keys():
+            if name not in block.fields:
                 out_regs_names.append(name)
+            else:
+                field = block.fields[name]
+                if field.cls == "bit_out":
+                    out_bits_names.append(name)
+                elif field.cls == "pos_out":
+                    out_positions_names.append(name)
+                else:
+                    out_regs_names.append(name)
 
     def bit_traces():
         trace_items = in_bits.items() + out_bits.items()

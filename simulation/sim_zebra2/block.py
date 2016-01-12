@@ -38,9 +38,23 @@ class Block(object):
                 else:
                     self.bit_outs[bus_index] = name
             elif field.cls == "table":
-                # Create reset and data registers for table
-                setattr(self, name + "_RST", 0)
-                setattr(self, name + "_DATA", 0)
+                # Work out if table is short or long
+                split = regs[name].split(" ")
+                if len(split) == 1:
+                    # This is a long table
+                    # "table_len"
+                    setattr(self, name, 0)
+                    # TODO: handle tables
+                    # if "^" in val:
+                    #    val = pow(*map(int, val.split("^")))
+                    # else:
+                    #    val = int(val)
+                elif len(split) == 3:
+                    # This is a short table
+                    # "table_len rst_reg data_reg"
+                    setattr(self, name + "_RST", 0)
+                    setattr(self, name + "_DATA", 0)
+                    setattr(self, name + "_WSTB", 0)
                 self.regs["TABLE"] = name
             elif field.cls == "time":
                 # Initialise the attribute value to 0

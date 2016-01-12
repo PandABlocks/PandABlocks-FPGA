@@ -60,6 +60,7 @@ SEQ         6
     CUR_FCYCLE      10
     CUR_TCYCLE      11
     TABLE_CYCLE     12
+    TABLE_STROBES   13
     OUTA            36 37 38 39
     OUTB            40 41 42 43
     OUTC            44 45 46 47
