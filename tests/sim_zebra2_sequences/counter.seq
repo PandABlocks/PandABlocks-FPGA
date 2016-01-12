@@ -1,0 +1,107 @@
+###############
+$ Count Up
+3       : START=2
+4       : STEP=2
+6       : ENABLE=1
+10      : TRIGGER=1     : COUNT=4
+21      : TRIGGER=0
+22      : TRIGGER=1     : COUNT=6
+23      : TRIGGER=0
+24      : TRIGGER=1     : COUNT=8
+25      : TRIGGER=0
+26      : TRIGGER=1     : COUNT=10
+27      : TRIGGER=0
+28      : ENABLE=0
+29      : TRIGGER=1
+30      : TRIGGER=0
+
+###############
+$ Count Down
+3       : START=20
+4       : STEP=2
+5       : DIR=1
+6       : ENABLE=1
+10      : TRIGGER=1     : COUNT=18
+21      : TRIGGER=0
+22      : TRIGGER=1     : COUNT=16
+23      : TRIGGER=0
+24      : TRIGGER=1     : COUNT=14
+25      : TRIGGER=0
+26      : TRIGGER=1     : COUNT=12
+27      : TRIGGER=0
+28      : ENABLE=0
+29      : TRIGGER=1
+30      : TRIGGER=0
+
+###############
+$ Reverse Count
+3       : START=20
+4       : STEP=2
+5       : DIR=1
+6       : ENABLE=1
+10      : TRIGGER=1         : COUNT=18
+21      : TRIGGER=0
+22      : TRIGGER=1         : COUNT=16
+23      : TRIGGER=0
+24      : TRIGGER=1         : COUNT=14
+25      : TRIGGER=0
+26      : TRIGGER=1         : COUNT=12
+27      : TRIGGER=0,DIR=0
+28      : TRIGGER=1         : COUNT=14
+29      : TRIGGER=0
+30      : TRIGGER=1         : COUNT=16
+31      : TRIGGER=0
+33      : ENABLE=0
+34      : TRIGGER=1
+35      : TRIGGER=0
+
+###############
+$ Reverse at trigger
+3       : START=20
+4       : STEP=2
+5       : DIR=1
+6       : ENABLE=1
+10      : TRIGGER=1         : COUNT=18
+21      : TRIGGER=0
+22      : TRIGGER=1         : COUNT=16
+23      : TRIGGER=0
+24      : TRIGGER=1         : COUNT=14
+25      : TRIGGER=0
+26      : TRIGGER=1,DIR=0   : COUNT=16
+27      : TRIGGER=0
+28      : TRIGGER=1         : COUNT=18
+29      : TRIGGER=0
+30      : TRIGGER=1         : COUNT=20
+31      : TRIGGER=0
+33      : ENABLE=0
+34      : TRIGGER=1
+35      : TRIGGER=0
+
+###############
+$ Disable and trigger
+3       : START=20
+4       : STEP=2
+5       : DIR=1
+6       : ENABLE=1
+10      : TRIGGER=1             : COUNT=18
+21      : TRIGGER=0
+22      : TRIGGER=1             : COUNT=16
+23      : TRIGGER=0
+24      : TRIGGER=1             : COUNT=14
+25      : TRIGGER=0
+26      : TRIGGER=1,ENABLE=0
+
+
+###############
+$ Change step and trigger
+3       : START=20
+4       : STEP=2
+5       : DIR=1
+6       : ENABLE=1
+10      : TRIGGER=1             : COUNT=18
+21      : TRIGGER=0
+22      : TRIGGER=1,STEP=4      : COUNT=14
+23      : TRIGGER=0
+24      : TRIGGER=1             : COUNT=10
+25      : TRIGGER=0
+26      : TRIGGER=1,ENABLE=0

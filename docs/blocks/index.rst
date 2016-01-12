@@ -15,3 +15,4 @@ Each block is documented with examples
     srgate
     lut
     seq
+    counter
