@@ -40,6 +40,8 @@ class Seq(Block):
         self.fcycle = 1
         self.tcycle = 1
         self.CUR_FRAME = self.cur_frame
+        self.CUR_FCYCLE = self.fcycle
+        self.CUR_TCYCLE = self.tcycle
         self.check_inputs(next_event, event)
 
     def do_stop(self, next_event, event):
@@ -137,13 +139,27 @@ class Seq(Block):
     def do_table_reset(self, next_event, event):
         self.twrite_addr = 0
         next_event.bit[self.ACTIVE] = self.active = 0
-        pass
+        self.cur_frame = 0
+        self.fcycle = 0
+        self.tcycle = 0
+        self.p2_queue.clear()
+        self.frpt_queue.clear()
+        self.trpt_queue.clear()
+        self.CUR_FRAME = self.cur_frame
+        self.CUR_TCYCLE = self.tcycle
+        self.CUR_FCYCLE = self.fcycle
 
-    def do_table_write_finished(self):
+    def do_table_write_finished(self, next_event, event):
         if self.table_strobes != 0:
             self.tlength = self.TABLE_LENGTH
         if self.gate:
-            self.active = 1
+            next_event.bit[self.ACTIVE] = self.active = 1
+            self.cur_frame = 1
+            self.fcycle = 1
+            self.tcycle = 1
+            self.CUR_FRAME = self.cur_frame
+            self.CUR_FCYCLE = self.fcycle
+            self.CUR_TCYCLE = self.tcycle
         self.table_strobes = 0
 
     def get_table_data(self):
@@ -178,7 +194,7 @@ class Seq(Block):
                 elif name == "PRESCALE":
                     self.prescale = value
                 elif name == "TABLE_LENGTH":
-                    self.do_table_write_finished()
+                    self.do_table_write_finished(next_event, event)
                 elif name == "TABLE":
                     self.table[:len(value)] = value
                     # write each value in value array to table
