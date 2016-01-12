@@ -39,23 +39,22 @@ class Seq(Block):
         self.cur_frame = 1
         self.fcycle = 1
         self.tcycle = 1
-        self.CUR_FRAME = self.cur_frame
-        self.CUR_FCYCLE = self.fcycle
-        self.CUR_TCYCLE = self.tcycle
+        self.set_read_registers()
         self.check_inputs(next_event, event)
 
     def do_stop(self, next_event, event):
         next_event.bit[self.ACTIVE] = self.active = 0
         self.gate = 0
+        self.reset_state()
+
+    def reset_state(self):
         self.cur_frame = 0
         self.fcycle = 0
         self.tcycle = 0
         self.p2_queue.clear()
         self.frpt_queue.clear()
         self.trpt_queue.clear()
-        self.CUR_FRAME = self.cur_frame
-        self.CUR_TCYCLE = self.tcycle
-        self.CUR_FCYCLE = self.fcycle
+        self.set_read_registers()
 
     def process_inputs(self, next_event, event):
         #record inputs
@@ -139,12 +138,9 @@ class Seq(Block):
     def do_table_reset(self, next_event, event):
         self.twrite_addr = 0
         next_event.bit[self.ACTIVE] = self.active = 0
-        self.cur_frame = 0
-        self.fcycle = 0
-        self.tcycle = 0
-        self.p2_queue.clear()
-        self.frpt_queue.clear()
-        self.trpt_queue.clear()
+        self.reset_state()
+
+    def set_read_registers(self):
         self.CUR_FRAME = self.cur_frame
         self.CUR_TCYCLE = self.tcycle
         self.CUR_FCYCLE = self.fcycle
@@ -157,9 +153,7 @@ class Seq(Block):
             self.cur_frame = 1
             self.fcycle = 1
             self.tcycle = 1
-            self.CUR_FRAME = self.cur_frame
-            self.CUR_FCYCLE = self.fcycle
-            self.CUR_TCYCLE = self.tcycle
+            self.set_read_registers()
         self.table_strobes = 0
 
     def get_table_data(self):
