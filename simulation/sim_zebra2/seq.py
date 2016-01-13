@@ -74,7 +74,7 @@ class Seq(Block):
         inputint = self.get_input_interger()
         self.get_table_data()
         # if inputs & input bitmask == input conditions: outputs = phase outputs
-        if inputint & self.params['inMask'] == self.params['inCond']:
+        if inputint & self.params['inMask'] == self.params['inCond'] & self.params['inMask']:
             self.set_outputs_phase1(next_event, event)
 
     def set_outputs_phase1(self, next_event, event):
