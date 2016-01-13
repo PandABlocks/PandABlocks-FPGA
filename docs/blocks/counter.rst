@@ -48,9 +48,17 @@ output value on the next clock tick.
 
 
 If the step size is changed at the same time as a trigger input rising edge,
-the output value for that trigger will be the new step size
+the output value for that trigger will be the new step size.
 
 .. plot::
 
     from block_plot import make_block_plot
     make_block_plot("counter", "Change step and trigger")
+
+If the count goes higher than the max value for a uint32 (4294967295) the CARRY
+output gets set high.
+
+.. plot::
+
+    from block_plot import make_block_plot
+    make_block_plot("counter", "Overflow")

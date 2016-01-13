@@ -1,5 +1,6 @@
 from .block import Block
 from .event import Event
+import numpy as np
 
 
 class Counter(Block):
@@ -16,6 +17,8 @@ class Counter(Block):
             self.count += self.step
         elif self.dir == 1:
             self.count -= self.step
+        if self.count > np.uint32(-1):
+            next_event.bit[self.CARRY] = 1
         next_event.pos[self.COUNT] = self.count
 
     def on_event(self, event):
