@@ -206,6 +206,13 @@ PCAP
     CAPTURE         param       bit_mux
     ACTIVE          bit_out
 
+    ARM             software    arm
+    DISARM          software    disarm
+    RESET           software    reset
+    STATUS          software    status
+    WAITING         software    waiting
+    DOWNLOADING     software    downloading
+
 BITS
     A_SET           param       bit
     B_SET           param       bit

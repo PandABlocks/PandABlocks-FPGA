@@ -654,3 +654,17 @@
 > !BITS.A=0
 > .
 > .
+
+# Add some position capture tests
+< PCAP.*?
+> !DISARM 5 software
+> !STATUS 7 software
+> !RESET 6 software
+> !ACTIVE 3 bit_out
+> !FRAME 1 param bit_mux
+> !ENABLE 0 param bit_mux
+> !WAITING 8 software
+> !CAPTURE 2 param bit_mux
+> !DOWNLOADING 9 software
+> !ARM 4 software
+> .
