@@ -72,7 +72,8 @@ on the SET input, the output VAL will be set following this.
 .. plot::
 
     from block_plot import make_block_plot
-    make_block_plot("srgate", "Falling RESET input with with reset edge reconfigure")
+    make_block_plot("srgate",
+        "Falling RESET input with with reset edge reconfigure")
 
 
 

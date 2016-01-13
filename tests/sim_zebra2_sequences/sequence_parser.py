@@ -31,13 +31,18 @@ class SequenceParser(object):
         line = line.strip()
         if line:
             split = line.split(":")
-            ts = int(split[0].strip())
             inputs = self.parse_dict(split[1])
             if len(split) > 2:
                 outputs = self.parse_dict(split[2])
             else:
                 outputs = {}
-            self.sequences[-1].add_line(ts, inputs, outputs)
+
+            ts = split[0].strip()
+            seq = self.sequences[-1]
+            if ts:
+                seq.add_line(int(ts), inputs, outputs)
+            else:
+                seq.extend_line(inputs, outputs)
 
     def parse_dict(self, s):
         d = {}
@@ -68,6 +73,11 @@ class Sequence(object):
                 "ts %s goes backwards" % ts
         self.inputs[ts] = inputs
         self.outputs[ts] = outputs
+
+    def extend_line(self, inputs, outputs):
+        ts = self.inputs.keys()[-1]
+        self.inputs[ts].update(inputs)
+        self.outputs[ts].update(outputs)
 
 
 class FpgaSequence(object):
