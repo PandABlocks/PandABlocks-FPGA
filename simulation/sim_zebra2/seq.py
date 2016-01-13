@@ -31,6 +31,7 @@ class Seq(Block):
         self.p2_queue = deque()
         self.frpt_queue = deque()
         self.trpt_queue = deque()
+        self.end_queue = deque()
         self.table = numpy.zeros(512*4, dtype=numpy.uint32)
 
     def do_start(self, next_event, event):
@@ -45,6 +46,7 @@ class Seq(Block):
     def do_stop(self, next_event, event):
         next_event.bit[self.ACTIVE] = self.active = 0
         self.gate = 0
+        self.set_outputs_zero( next_event, event)
         self.reset_state()
 
     def reset_state(self):
@@ -111,7 +113,15 @@ class Seq(Block):
                 self.fcycle = 1
                 self.trpt_queue.append((event.ts + self.params['p2Len']))
             elif self.tcycle == self.table_repeats:
-                next_event.bit[self.ACTIVE] = self.active = 0
+                self.end_queue.append(event.ts + self.params['p2Len'])
+
+    def set_outputs_zero(self, next_event, event):
+        next_event.bit[self.OUTA] = 0
+        next_event.bit[self.OUTB] = 0
+        next_event.bit[self.OUTC] = 0
+        next_event.bit[self.OUTD] = 0
+        next_event.bit[self.OUTE] = 0
+        next_event.bit[self.OUTF] = 0
 
     def get_input_interger(self):
         #get inputs as a single integer
@@ -138,6 +148,7 @@ class Seq(Block):
     def do_table_reset(self, next_event, event):
         self.twrite_addr = 0
         next_event.bit[self.ACTIVE] = self.active = 0
+        self.set_outputs_zero( next_event, event)
         self.reset_state()
 
     def set_read_registers(self):
@@ -211,12 +222,15 @@ class Seq(Block):
             self.p2_queue.popleft()
             self.set_outputs_phase2(next_event, event)
         if self.frpt_queue and self.frpt_queue[0] == event.ts:
-                self.frpt_queue.popleft()
-                self.set_outputs_phase1(next_event, event)
-                self.CUR_FCYCLE = self.fcycle
+            self.frpt_queue.popleft()
+            self.set_outputs_phase1(next_event, event)
+            self.CUR_FCYCLE = self.fcycle
         if self.trpt_queue and self.trpt_queue[0] == event.ts:
-                self.trpt_queue.popleft()
-                self.CUR_TCYCLE = self.tcycle
-                self.set_outputs_phase1(next_event, event)
+            self.trpt_queue.popleft()
+            self.CUR_TCYCLE = self.tcycle
+            self.set_outputs_phase1(next_event, event)
+        if self.end_queue and self.end_queue[0] == event.ts:
+            self.set_outputs_zero(next_event,event)
+            next_event.bit[self.ACTIVE] = self.active = 0
         # return any changes and next ts
         return next_event

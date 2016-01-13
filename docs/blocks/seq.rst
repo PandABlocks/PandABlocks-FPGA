@@ -8,10 +8,10 @@ phase-1 and phase-2 as defined by user-configured mask.
 
 The frame starts in a wait phase, where it waits until the configured inputs
 meet the configured input conditions. Once these input conditions are met,
-phase-1 begins and runs for its configured duration, after this, phase22 begins
+phase-1 begins and runs for its configured duration, after this, phase2 begins
 and runs for its configured duration. If a frame is set to repeat, the repeat
 cycle will set outputs immediately, provided the inputs meet the input
-conditions.
+conditions. A value of 0 for frame or table repeat means repeat indefinitely.
 
 The procedure for writing table data is to first write to TABLE_RESET, then
 sequentially write four 32 bit values to TABLE_DATA. TABLE_STROBES can be read

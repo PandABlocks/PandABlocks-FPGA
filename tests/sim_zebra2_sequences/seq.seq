@@ -89,6 +89,8 @@ $ Multiple frames, multiple frame and table cycles
 120     :                           : OUTA=1, OUTB=1, OUTC=1, OUTD=1, OUTE=1
         :                           : OUTF=1, CUR_FCYCLE=3
 126     :                           : OUTA=0, OUTB=1, OUTC=0, OUTD=0, OUTE=0
+        :                           : OUTF=0
+130     : INPB=0, INPC=0, INPD=0    : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0
         :                           : OUTF=0, ACTIVE=0
 
 
@@ -136,8 +138,8 @@ $ Single frame, multiple frame and table cycles
 43      :                           : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0
         :                           : OUTF=0, CUR_FCYCLE=2
 47      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
-        :                           : ACTIVE=0
-
+49      : INPA=0, INPB=0, INPC=0    : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0
+        : INPD=0                    : OUTF=0, ACTIVE=0
 
 ###############
 $ Writing inputs before a whole frame is written
@@ -168,10 +170,10 @@ $ Writing inputs before a whole frame is written
 16      : TABLE_LENGTH=0
 17      : GATE=1                    : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1
-24      : INPA=1, INPB=1, INPC=1, INPD=1
-        :                           : OUTA=1
+24      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
 28      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
-        :                           : ACTIVE=0
+30      : INPA=0, INPB=0, INPC=0, INPD=0    : OUTA=0, OUTB=0, OUTC=0, OUTD=0
+        :                           : OUTE=0, OUTF=0, ACTIVE=0
 
 ###############
 $ Writing inputs after sequencer has finished
@@ -200,12 +202,13 @@ $ Writing inputs after sequencer has finished
 14      : TABLE_LENGTH=0
 15      : GATE=1                    : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1
-25      : INPA=1, INPB=1, INPC=1, INPD=1
-        :                           : OUTA=1
+25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
 29      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
-        :                           : ACTIVE=0
+31      :                           : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0
+        :                           : OUTF=0, ACTIVE=0
 37      : INPA=0
 38      : INPA=1
+40      : INPA=0, INPB=0, INPC=0, INPD=0
 
 
 ###############
@@ -239,8 +242,9 @@ $ Setting inactive before finished and restarting
 25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
 29      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
 
-36      : GATE=0                    : ACTIVE=0, CUR_FCYCLE=0, CUR_FRAME=0
-        :                           : CUR_TCYCLE=0
+36      : GATE=0                    : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0
+        :                           : OUTF=0, ACTIVE=0, CUR_FCYCLE=0
+        :                           : CUR_FRAME=0, CUR_TCYCLE=0
 38      : GATE=1                    : ACTIVE=1, OUTA=1, OUTB=0, OUTC=0, OUTD=0
         :                           : OUTE=0, OUTF=0, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1, CUR_FRAME=1
@@ -249,7 +253,8 @@ $ Setting inactive before finished and restarting
 44      :                           : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0
         :                           : OUTF=0, CUR_FCYCLE=1, CUR_TCYCLE=2
 48      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
-        :                           : ACTIVE=0
+50      : INPA=0, INPB=0, INPC=0, INPD=0    : OUTA=0, OUTB=0, OUTC=0, OUTD=0
+        :                           : OUTE=0, OUTF=0, ACTIVE=0
 
 ###############
 $ Reset table and write more data
@@ -302,10 +307,12 @@ $ Reset table and write more data
         :                           : OUTF=0, CUR_FCYCLE=2
 36      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
 
-38      : TABLE_RST=1               : ACTIVE=0, CUR_FCYCLE=0, CUR_FRAME=0
-        :                           : CUR_TCYCLE=0
+38      : TABLE_RST=1               : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0
+        :                           : OUTF=0, ACTIVE=0, CUR_FCYCLE=0
+        :                           : CUR_FRAME=0, CUR_TCYCLE=0
 39      : TABLE_RST=0
 40      : INPA=0, INPB=0, INPC=0, INPD=0
+
 #--FRAME 1 -----------------------
 # REPEATS           = 1
 # INPUT MASK        = 1
@@ -329,4 +336,6 @@ $ Reset table and write more data
 
 56      : INPA=1                    : OUTA=0, OUTB=0, OUTC=1, OUTD=0, OUTE=0
         :                           : OUTF=0
-58      :                           : OUTD=1, OUTC=0, ACTIVE=0
+58      :                           : OUTD=1, OUTC=0
+62      : INPA=0                    : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0
+        :                           : OUTF=0, ACTIVE=0
