@@ -84,33 +84,15 @@ outputs in phase-1 and phase2
 TABLE_DATA
 ~~~~~~~~~~~
 
-FRAME 1
+======= = = = = = = = = ==== = = = = ==== = = = =
+#       Use Inp Inp Val Ph1  Ph1 Out Ph2  Ph2 Out
+------- ------- ------- ---- ------- ---- -------
+Repeats A B C D A B C D Time A B C D Time A B C D
+======= = = = = = = = = ==== = = = = ==== = = = =
+1       1 1 1 1 1 1 1 1 2    1 0 0 0 1    1 1 1 1
+2       1 1 1 1 0 1 1 1 3    1 1 1 1 2    0 1 0 0
+======= = = = = = = = = ==== = = = = ==== = = = =
 
-================ ======================
-Field            Value
-================ ======================
-REPEATS           1
-INPUT MASK        F
-INPUT CONDITIONS  F
-PHASE 1 OUTPUTS   01 (OUTA)
-PHASE 2 OUTPUTS   3F
-PHASE 1 LENGTH    2*PRESCALE
-PHASE 2 LENGTH    1*PRESCALE
-================ ======================
-
-FRAME 2
-
-================ ======================
-Field            Value
-================ ======================
-REPEATS           2
-INPUT MASK        F
-INPUT CONDITIONS  E (INPB, INPC, INPD)
-PHASE 1 OUTPUTS   3F
-PHASE 2 OUTPUTS   02 (OUTB)
-PHASE 1 LENGTH    3*PRESCALE
-PHASE 2 LENGTH    2*PRESCALE
-================ ======================
 
 .. plot::
 

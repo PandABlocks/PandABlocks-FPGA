@@ -17,3 +17,8 @@
   }
 
 }
+
+/* override table padding */
+.rst-content table.docutils th, .rst-content table.docutils td {
+  padding: 4px 6px;
+}
