@@ -29,6 +29,7 @@ class Seq(Block):
         self.tcycle = 0
         self.frame_ok = False
         self.p2_queue = deque()
+        self.next_frame_queue = deque()
         self.frpt_queue = deque()
         self.trpt_queue = deque()
         self.end_queue = deque()
@@ -74,7 +75,8 @@ class Seq(Block):
         inputint = self.get_input_interger()
         self.get_table_data()
         # if inputs & input bitmask == input conditions: outputs = phase outputs
-        if inputint & self.params['inMask'] == self.params['inCond'] & self.params['inMask']:
+        if (inputint & self.params['inMask'] ==
+                self.params['inCond'] & self.params['inMask']):
             self.set_outputs_phase1(next_event, event)
 
     def set_outputs_phase1(self, next_event, event):
@@ -88,6 +90,12 @@ class Seq(Block):
         self.p2_queue.append((event.ts + self.params['p1Len']))
         self.CUR_FCYCLE = self.fcycle
         self.CUR_TCYCLE = self.tcycle
+        #if we receive an input that matches criteria, and we are due to process
+        #a repeat queue, clear the queue to prevent the outputs being set twice
+        if self.frpt_queue and self.frpt_queue[0] == event.ts:
+            self.frpt_queue.popleft()
+        if self.trpt_queue and self.trpt_queue[0] == event.ts:
+            self.trpt_queue.popleft()
 
     def set_outputs_phase2(self, next_event, event):
         self.get_table_data()
@@ -102,6 +110,7 @@ class Seq(Block):
         if self.cur_frame < self.tlength and self.fcycle == self.params['rpt']:
             self.cur_frame += 1
             self.fcycle = 1
+            self.next_frame_queue.append((event.ts + self.params['p2Len']))
         elif self.fcycle < self.params['rpt'] or self.fcycle == 0:
             self.fcycle += 1
             self.frpt_queue.append((event.ts + self.params['p2Len']))
@@ -223,12 +232,17 @@ class Seq(Block):
             self.set_outputs_phase2(next_event, event)
         if self.frpt_queue and self.frpt_queue[0] == event.ts:
             self.frpt_queue.popleft()
-            self.set_outputs_phase1(next_event, event)
+            self.check_inputs(next_event, event)
             self.CUR_FCYCLE = self.fcycle
         if self.trpt_queue and self.trpt_queue[0] == event.ts:
             self.trpt_queue.popleft()
             self.CUR_TCYCLE = self.tcycle
-            self.set_outputs_phase1(next_event, event)
+            self.check_inputs(next_event, event)
+        if self.next_frame_queue and self.next_frame_queue[0] == event.ts:
+            self.next_frame_queue.popleft()
+            self.check_inputs(next_event, event)
+        if self.next_frame_queue and self.next_frame_queue[0] < event.ts:
+            self.next_frame_queue.popleft()
         if self.end_queue and self.end_queue[0] == event.ts:
             self.set_outputs_zero(next_event,event)
             next_event.bit[self.ACTIVE] = self.active = 0
