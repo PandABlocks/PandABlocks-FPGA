@@ -10,16 +10,10 @@ class Pcomp(Block):
         self.queue = deque()
         self.pulse_count = 0
 
-    def do_pos_compare_start(self,next_event, event):
-        next_event.bit[self.ACT] = 1
-        self.queue.append((event.ts + self.START,self.START))
-
     def do_generate_pulse(self, next_event, event):
+        next_event.bit[self.PULSE] = 1
         self.queue.append((event.ts + self.WIDTH, self.WIDTH))
         self.queue.append((event.ts + self.STEP, self.STEP))
-
-    def do_pos_compare_stop(self,next_event, event):
-        next_event.bit[self.ACT] = 0
 
     def on_event(self, event):
         """Handle register, bit and pos changes at a particular timestamps,
@@ -34,9 +28,6 @@ class Pcomp(Block):
                 elif name == "RELATIVE" and value:
                     #set relative
                     pass
-                elif name == "DIR" and value:
-                    #set dir
-                    pass
                 elif name == "LUT_ENABLE" and value:
                     #start lut enable mode
                     pass
@@ -47,12 +38,16 @@ class Pcomp(Block):
                     #set LUT address
                     pass
         if event.bit.get(self.ENABLE, None) == 1:
-            self.do_pos_compare_start(next_event, event)
+            # self.do_pos_compare_start(next_event, event)
+            self.enable = 1
+            next_event.bit[self.ACT] = 1
         elif event.bit.get(self.ENABLE, None) == 0:
-            self.do_pos_compare_stop(next_event, event)
-        if event.bit.get(self.POSN, None) == 1:
-            #set posn data to compare
-            pass
+            self.enable = 0
+            next_event.bit[self.ACT] = 0
+            next_event.bit[self.PULSE] = 0
+            self.queue.clear()
+        if event.pos.get(self.POSN, None) == self.START and self.enable:
+            self.do_generate_pulse(next_event, event)
         # if we have a pulse on our queue that is due, produce it
         if self.queue and self.queue[0][0] == event.ts:
             # generate output value

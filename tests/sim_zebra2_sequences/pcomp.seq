@@ -1,15 +1,79 @@
 ###############
-$ !Test
+$ !Increasing position
 
 3       : START=5
 4       : STEP=10
 5       : WIDTH=7
 6       : NUM=3
 10      : ENABLE=1      : ACT=1
-15      :               : PULSE=1
-22      :               : PULSE=0
-25      :               : PULSE=1
-32      :               : PULSE=0
-35      :               : PULSE=1
-42      :               : PULSE=0
-45      :               : ACT=0
+11      :
+12      : POSN=1
+13      : POSN=2
+14      : POSN=3
+15      : POSN=4
+16      : POSN=5        : PULSE=1
+17      : POSN=6
+18      : POSN=9
+23      :               : PULSE=0
+26      :               : PULSE=1
+33      :               : PULSE=0
+36      :               : PULSE=1
+43      :               : PULSE=0
+46      :               : ACT=0
+
+###############
+$ !Decreasing position
+
+3       : START=5
+4       : STEP=10
+5       : WIDTH=7
+6       : NUM=3
+10      : ENABLE=1      : ACT=1
+11      :
+12      : POSN=9
+13      : POSN=8
+14      : POSN=7
+15      : POSN=6
+16      : POSN=5        : PULSE=1
+17      : POSN=4
+18      : POSN=3
+23      :               : PULSE=0
+26      :               : PULSE=1
+33      :               : PULSE=0
+36      :               : PULSE=1
+43      :               : PULSE=0
+46      :               : ACT=0
+
+###############
+$ !Disable after start
+
+3       : START=5
+4       : STEP=10
+5       : WIDTH=7
+6       : NUM=3
+10      : ENABLE=1          : ACT=1
+11      :
+12      : POSN=9
+13      : POSN=8
+14      : POSN=7
+15      : POSN=6
+16      : POSN=5            : PULSE=1
+17      : POSN=4
+18      : POSN=3, ENABLE=0  : ACT=0, PULSE=0
+
+###############
+$ !Disable with start
+
+3       : START=5
+4       : STEP=10
+5       : WIDTH=7
+6       : NUM=3
+10      : ENABLE=1              : ACT=1
+11      :
+12      : POSN=9
+13      : POSN=8
+14      : POSN=7
+15      : POSN=6
+16      : POSN=5, ENABLE=0       : ACT=0
+17      : POSN=4
+18      : POSN=3
