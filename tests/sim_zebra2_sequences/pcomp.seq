@@ -1,0 +1,15 @@
+###############
+$ !Test
+
+3       : START=5
+4       : STEP=10
+5       : WIDTH=7
+6       : NUM=3
+10      : ENABLE=1      : ACT=1
+15      :               : PULSE=1
+22      :               : PULSE=0
+25      :               : PULSE=1
+32      :               : PULSE=0
+35      :               : PULSE=1
+42      :               : PULSE=0
+45      :               : ACT=0

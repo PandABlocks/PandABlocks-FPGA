@@ -16,3 +16,4 @@ Each block is documented with examples
     lut
     seq
     counter
+    pcomp
