@@ -35,14 +35,10 @@ class Counter(Block):
                     self.step = value
                 elif name == "SOFT_ENABLE" and value:
                     self.enable = 1
-        # if we got a reset, and it was high, do a reset
         if event.bit.get(self.ENABLE, None) == 1:
             self.enable = 1
         elif event.bit.get(self.ENABLE, None) == 0:
             self.enable = 0
-        # if we got a set, then process it
-        # print "--TS--", event.ts
-        # print "EE", event.bit.get(self.DIR, None)
         if event.bit.get(self.DIR, None) == 1:
             self.dir = 1
         elif event.bit.get(self.DIR, None) == 0:
