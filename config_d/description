@@ -67,6 +67,7 @@ SEQ
     CUR_FRAME       
     CUR_FCYCLE      
     CUR_TCYCLE      
+    TABLE_STROBES   
     TABLE_CYCLE     
     OUTA            
     OUTB            
