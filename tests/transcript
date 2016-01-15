@@ -2,17 +2,17 @@
 # response, the test_exchange script validates this.
 
 # First check for out of order return
-< *IDN?
-< *IDN?
-> OK =PandA
-> OK =PandA
+< *ECHO One response?
+< *ECHO Second?
+> OK =One response
+> OK =Second
 
 # Start with the identification exchange
-< *IDN?
-> OK =PandA
-
-< *IDN?
-> OK =PandA
+# < *IDN?
+# > OK =PandA
+#
+# < *IDN?
+# > OK =PandA
 
 # Simple echo command
 < *ECHO this is an echo?
