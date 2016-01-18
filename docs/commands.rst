@@ -121,6 +121,9 @@ below:
 | ``*DESC.``\ block[\ ``.``\    | Block, field, attribute description.         |
 | field[\ ``.``\ attr]]\ ``?``  |                                              |
 +-------------------------------+----------------------------------------------+
+| ``*ENUMS.`` block\ ``.``\     | List enumerations for field and attribute.   |
+| field[\ ``.``\ attr]\ ``?``   |                                              |
++-------------------------------+----------------------------------------------+
 | ``*CHANGES``\ [\ ``.``\       | Report changes to values.  `group` can be    |
 | group]\ ``?``                 | any of ``CONFIG``, ``BITS``, ``POSN``,       |
 |                               | ``READ``, ``ATTR``, or ``TABLE``.            |
@@ -192,6 +195,13 @@ below:
         > OK =Select TTL input termination
         < *DESC.TTLIN.TERM.LABELS?
         > OK =List of possible enumeration values
+
+| ``*ENUMS.``\ block\ ``.``\ field\ ``?``
+| ``*ENUMS.``\ block\ ``.``\ field\ ``.``\ attr\ ``?``
+
+    Returns list of enumerations for given field or attribute, if appropriate.
+    For fields returns the same as interrogating the ``.LABELS`` attribute of
+    the field.
 
 | ``*CHANGES?``
 | ``*CHANGES.CONFIG?``
