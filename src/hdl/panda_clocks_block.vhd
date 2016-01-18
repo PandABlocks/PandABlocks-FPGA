@@ -49,6 +49,10 @@ REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
+            CLOCKA_DIV <= (others => '0');
+            CLOCKB_DIV <= (others => '0');
+            CLOCKC_DIV <= (others => '0');
+            CLOCKD_DIV <= (others => '0');
         else
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
@@ -78,10 +82,13 @@ end process;
 panda_clocks_inst  : entity work.panda_clocks
 port map (
     clk_i               => clk_i,
+    reset_i             => reset_i,
+
     clocka_o            => clocks_o(0),
     clockb_o            => clocks_o(1),
     clockc_o            => clocks_o(2),
     clockd_o            => clocks_o(3),
+
     CLOCKA_DIV          => CLOCKA_DIV,
     CLOCKB_DIV          => CLOCKB_DIV,
     CLOCKC_DIV          => CLOCKC_DIV,

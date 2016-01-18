@@ -112,6 +112,7 @@ end process;
 panda_div : entity work.panda_div
 port map (
     clk_i               => clk_i,
+    reset_i             => reset_i,
 
     inp_i               => inp,
     rst_i               => rst,

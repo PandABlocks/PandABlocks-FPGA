@@ -13,6 +13,7 @@ entity panda_div is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
+    reset_i             : in  std_logic;
     -- Block Input and Outputs
     inp_i               : in  std_logic;
     rst_i               : in  std_logic;
@@ -57,7 +58,7 @@ end process;
 -- Reset on configuration change.
 rst_rise <= rst_i and not rst_prev;
 config_reset <= '1' when (DIVISOR /= DIVISOR_prev or FIRST_PULSE /= FIRST_PULSE_prev) else '0';
-reset <= rst_rise or FORCE_RST or config_reset;
+reset <= rst_rise or FORCE_RST or config_reset or reset_i;
 
 -- Detect input pulse rising edege.
 input_rise <= inp_i and not input_prev;

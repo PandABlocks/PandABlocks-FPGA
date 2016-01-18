@@ -56,6 +56,7 @@ wire          err_overflow_o;
 // Instantiate Unit Under Test
 panda_pulse uut (
     .clk_i          ( clk_i         ),
+    .reset_i        ( SIM_RESET     ),
     .inp_i          ( INP           ),
     .rst_i          ( RESET         ),
     .out_o          ( out_o         ),

@@ -191,6 +191,7 @@ end
 // Instantiate the Unit Under Test (UUT)
 panda_div uut (
         .clk_i          ( clk_i             ),
+        .reset_i        ( reset_i           ),
         .inp_i          ( INP               ),
         .rst_i          ( RESET             ),
         .outd_o         ( outd_o            ),

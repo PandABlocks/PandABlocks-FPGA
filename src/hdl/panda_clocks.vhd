@@ -8,15 +8,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library work;
-use work.type_defines.all;
-use work.addr_defines.all;
-use work.top_defines.all;
-
 entity panda_clocks is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
+    reset_i             : in  std_logic;
     -- Block Input and Outputs
     clocka_o            : out std_logic;
     clockb_o            : out std_logic;
@@ -35,17 +31,46 @@ architecture rtl of panda_clocks is
 component panda_clockgen is
 port (
     clk_i               : in  std_logic;
+    reset_i             : in  std_logic;
     clock_o             : out std_logic;
     DIV                 : in  std_logic_vector(31 downto 0)
 );
 end component;
 
+signal DIVA_PREV        : std_logic_vector(31 downto 0);
+signal DIVB_PREV        : std_logic_vector(31 downto 0);
+signal DIVC_PREV        : std_logic_vector(31 downto 0);
+signal DIVD_PREV        : std_logic_vector(31 downto 0);
+signal config_reset     : std_logic;
+signal reset            : std_logic;
+
 begin
+
+-- Register inputs
+process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        DIVA_PREV <= CLOCKA_DIV;
+        DIVB_PREV <= CLOCKB_DIV;
+        DIVC_PREV <= CLOCKC_DIV;
+        DIVD_PREV <= CLOCKD_DIV;
+    end if;
+end process;
+
+config_reset <= '1' when (CLOCKA_DIV /= DIVA_PREV) or
+                         (CLOCKB_DIV /= DIVB_PREV) or
+                         (CLOCKC_DIV /= DIVC_PREV) or
+                         (CLOCKD_DIV /= DIVD_PREV)
+                else '0';
+
+reset <= config_reset or reset_i;
+
 
 -- Clock generator instantiations
 panda_clockgen_A : panda_clockgen
 port map (
     clk_i           => clk_i,
+    reset_i         => reset,
     clock_o         => clocka_o,
     DIV             => CLOCKA_DIV
 );
@@ -53,6 +78,7 @@ port map (
 panda_clockgen_B : panda_clockgen
 port map (
     clk_i           => clk_i,
+    reset_i         => reset,
     clock_o         => clockb_o,
     DIV             => CLOCKB_DIV
 );
@@ -60,6 +86,7 @@ port map (
 panda_clockgen_C : panda_clockgen
 port map (
     clk_i           => clk_i,
+    reset_i         => reset,
     clock_o         => clockc_o,
     DIV             => CLOCKC_DIV
 );
@@ -67,6 +94,7 @@ port map (
 panda_clockgen_D : panda_clockgen
 port map (
     clk_i           => clk_i,
+    reset_i         => reset,
     clock_o         => clockd_o,
     DIV             => CLOCKD_DIV
 );
@@ -85,52 +113,50 @@ use ieee.numeric_std.all;
 
 entity panda_clockgen is
 port (
-    -- Clock and Reset
     clk_i               : in  std_logic;
-    -- Block Input and Outputs
+    reset_i             : in  std_logic;
     clock_o             : out std_logic;
-    -- Block Parameters
     DIV                 : in  std_logic_vector(31 downto 0)
 );
 end panda_clockgen;
 
 architecture rtl of panda_clockgen is
 
+signal counter32        : unsigned(31 downto 0);
 signal DIV_PREV         : std_logic_vector(31 downto 0);
+signal PERIOD           : unsigned(31 downto 0);
 
 begin
-
--- Register inputs
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        DIV_PREV <= DIV;
-    end if;
-end process;
 
 --
 -- CLOCKA = F_AXI / (CLOCKA_DIV+1)
 -- With ~50% duty cycle.
 --
+
+PERIOD <= unsigned(DIV) + 1;
+
 process(clk_i)
-    variable counter32       : unsigned(31 downto 0);
 begin
     if rising_edge(clk_i) then
         -- Reset counter on parameter change.
-        if (DIV /= DIV_PREV) then
-            counter32 := unsigned(DIV) - 1;
+        if (reset_i = '1') then
+            counter32 <= unsigned(DIV) - 1;
             clock_o <= '0';
-        -- Half period reached
-        elsif (counter32 = unsigned('0' & DIV(31 downto 1))) then
-            counter32 := counter32 - 1;
-            clock_o <= '1';
-        -- Reload when reach Zero and assert clock output.
-        elsif (counter32 = 0) then
-            counter32 := unsigned(DIV) - 1;
-            clock_o <= '0';
-        -- Continue counting.
         else
-            counter32 := counter32 - 1;
+            -- Free running down counter.
+            if (counter32 = 0) then
+                counter32 <= unsigned(DIV) - 1;
+            else
+                counter32 <= counter32 - 1;
+            end if;
+
+            -- Half period reached
+            if (counter32 = unsigned('0' & PERIOD(31 downto 1))) then
+                clock_o <= '1';
+            -- Reload when reach Zero and assert clock output.
+            elsif (counter32 = 0) then
+                clock_o <= '0';
+            end if;
         end if;
     end if;
 end process;

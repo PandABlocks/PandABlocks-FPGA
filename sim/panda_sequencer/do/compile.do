@@ -19,7 +19,6 @@ vopt -64 +acc -L unisims_ver -L unimacro_ver -L secureip -L xil_defaultlib -work
 vsim -t 1ps -pli "/dls_sw/FPGA/Xilinx/Vivado/2015.1/lib/lnx64.o/libxil_vsim.so" -lib xil_defaultlib panda_sequencer_tb_opt
 
 view wave
-do wave.do
-#add wave /panda_sequencer_tb/uut/*
+add wave /panda_sequencer_tb/uut/*
 
 run 500us

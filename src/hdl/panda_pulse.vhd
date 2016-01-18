@@ -13,6 +13,7 @@ entity panda_pulse is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
+    reset_i             : in  std_logic;
     -- Block Input and Outputs
     inp_i               : in  std_logic;
     rst_i               : in  std_logic;
@@ -61,6 +62,8 @@ signal inp_rise                 : std_logic;
 signal inp_fall                 : std_logic;
 signal ongoing_pulse            : std_logic := '0';
 
+signal rst_prev                 : std_logic;
+signal rst_rise                 : std_logic;
 signal reset                    : std_logic;
 signal pulse                    : std_logic := '0';
 
@@ -94,15 +97,18 @@ process(clk_i)
 begin
     if rising_edge(clk_i) then
         inp_prev <= inp_i;
+        rst_prev <= rst_i;
         DELAY_prev <= DELAY;
         WIDTH_prev <= WIDTH;
     end if;
 end process;
 
--- Hard/Soft/Config Reset combined
+-- Initial/Bitbus/Config Reset combined
+rst_rise <= rst_i and not rst_prev;
+
 config_reset <= '1' when (DELAY /= DELAY_prev or WIDTH /= WIDTH_prev)
                     else '0';
-reset <= rst_i or FORCE_RST or config_reset;
+reset <= rst_rise or FORCE_RST or config_reset or reset_i;
 
 -- Free running global timestamp counter, it will be the time resolution
 -- for pulse generation.

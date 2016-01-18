@@ -139,6 +139,7 @@ end process;
 panda_pulse : entity work.panda_pulse
 port map (
     clk_i               => clk_i,
+    reset_i             => reset_i,
 
     inp_i               => inp,
     rst_i               => rst,

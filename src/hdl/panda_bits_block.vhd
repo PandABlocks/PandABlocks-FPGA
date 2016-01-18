@@ -80,12 +80,15 @@ end process;
 panda_bits_inst  : entity work.panda_bits
 port map (
     clk_i               => clk_i,
+    reset_i             => reset_i,
+
     zero_o              => zero_o,
     one_o               => one_o,
     softa_o             => soft_o(0),
     softb_o             => soft_o(1),
     softc_o             => soft_o(2),
     softd_o             => soft_o(3),
+
     SOFTA_SET           => SOFTA_SET,
     SOFTB_SET           => SOFTB_SET,
     SOFTC_SET           => SOFTC_SET,
