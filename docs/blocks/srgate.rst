@@ -59,7 +59,7 @@ the output VAL on the falling edge of the SET input.
 .. plot::
 
     from block_plot import make_block_plot
-    make_block_plot("srgate", "Rising SET input with SET_EDGE reconfigure")
+    make_block_plot("srgate", "Rising SET with SET_EDGE reconfigure")
 
 If the active edge changes to 'falling'  at the same time as a falling edge
 on the SET input, the output VAL will be set following this.
@@ -67,20 +67,21 @@ on the SET input, the output VAL will be set following this.
 .. plot::
 
     from block_plot import make_block_plot
-    make_block_plot("srgate", "Falling SET input wtih SET_EDGE reconfigure")
+    make_block_plot("srgate", "Falling SET wtih SET_EDGE reconfigure")
 
 .. plot::
 
     from block_plot import make_block_plot
-    make_block_plot("srgate", "Falling RESET input with with reset edge reconfigure")
+    make_block_plot("srgate", "Falling RESET with with reset edge reconfigure")
 
 
 
 Set-reset conditions
 --------------------
 
-When determining the output if two values are set simultaneously, the input bus
-takes priority over registers, and reset takes priority over set.
+When determining the output if two values are set simultaneously, FORCE_SET and
+FORCE_RESET registers take priority over the input bus, and reset takes priority
+over set.
 
 .. plot::
 
