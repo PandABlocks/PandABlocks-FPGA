@@ -1,5 +1,5 @@
 ###############
-$ !Increasing position
+$ Increasing position
 
 3       : START=5
 4       : STEP=10
@@ -22,7 +22,7 @@ $ !Increasing position
 46      :               : ACT=0
 
 ###############
-$ !Decreasing position
+$ Decreasing position
 
 3       : START=5
 4       : STEP=10
@@ -45,7 +45,7 @@ $ !Decreasing position
 46      :               : ACT=0
 
 ###############
-$ !Disable after start
+$ Disable after start
 
 3       : START=5
 4       : STEP=10
@@ -62,7 +62,7 @@ $ !Disable after start
 18      : POSN=3, ENABLE=0  : ACT=0, PULSE=0
 
 ###############
-$ !Disable with start
+$ Disable with start
 
 3       : START=5
 4       : STEP=10

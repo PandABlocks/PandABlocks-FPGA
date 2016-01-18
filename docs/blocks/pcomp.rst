@@ -27,7 +27,7 @@ TABLE
 
 
 Position matching
-----------------
+-----------------
 The output pulse will be generated regardless of the direction of the POSN data
 
 .. plot::

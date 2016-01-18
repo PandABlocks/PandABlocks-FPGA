@@ -36,6 +36,8 @@ class Lut(Block):
         if event.reg:
             for name, value in event.reg.items():
                 setattr(self, name, value)
+                #check to see if our current inputs match the new function
+                self.do_lookup(next_event,event)
         # if we got an input, then process it
         changes = [
             x in event.bit
