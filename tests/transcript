@@ -422,6 +422,9 @@
 < *DESC.TTLIN.TERM?
 > OK =Select TTL input termination
 
+< *DESC.TTLIN.TERM.LABELS?
+> OK =List of possible enumeration values
+
 # Capture and capture index
 < *CAPTURE=
 > OK

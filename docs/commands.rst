@@ -118,8 +118,8 @@ below:
 +-------------------------------+----------------------------------------------+
 | ``*BLOCKS?``                  | List device blocks.                          |
 +-------------------------------+----------------------------------------------+
-| ``*DESC.``\ block[\ ``.``\    | Block and field description.                 |
-| field]\ ``?``                 |                                              |
+| ``*DESC.``\ block[\ ``.``\    | Block, field, attribute description.         |
+| field[\ ``.``\ attr]]\ ``?``  |                                              |
 +-------------------------------+----------------------------------------------+
 | ``*CHANGES``\ [\ ``.``\       | Report changes to values.  `group` can be    |
 | group]\ ``?``                 | any of ``CONFIG``, ``BITS``, ``POSN``,       |
@@ -182,13 +182,16 @@ below:
 
 | ``*DESC.``\ block\ ``?``
 | ``*DESC.``\ block\ ``.``\ field\ ``?``
+| ``*DESC.``\ block\ ``.``\ field\ ``.``\ attr\ ``?``
 
-    Returns description string for specified block or field, eg::
+    Returns description string for specified block, field, or attribute eg::
 
         < *DESC.TTLIN?
         > OK =TTL input
         < *DESC.TTLIN.TERM?
         > OK =Select TTL input termination
+        < *DESC.TTLIN.TERM.LABELS?
+        > OK =List of possible enumeration values
 
 | ``*CHANGES?``
 | ``*CHANGES.CONFIG?``
