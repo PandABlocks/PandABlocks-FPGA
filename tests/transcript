@@ -2,17 +2,17 @@
 # response, the test_exchange script validates this.
 
 # First check for out of order return
-< *IDN?
-< *IDN?
-> OK =PandA
-> OK =PandA
+< *ECHO One response?
+< *ECHO Second?
+> OK =One response
+> OK =Second
 
 # Start with the identification exchange
-< *IDN?
-> OK =PandA
-
-< *IDN?
-> OK =PandA
+# < *IDN?
+# > OK =PandA
+#
+# < *IDN?
+# > OK =PandA
 
 # Simple echo command
 < *ECHO this is an echo?
@@ -350,6 +350,13 @@
 < QDEC1.SETP.UNITS?
 > OK =mm
 
+< *ENUMS.QDEC1.SETP.UNITS?
+> !min
+> !s
+> !ms
+> !us
+> .
+
 # Check change detection on offset and scale change
 < *CHANGES.CONFIG=
 > OK
@@ -421,6 +428,9 @@
 
 < *DESC.TTLIN.TERM?
 > OK =Select TTL input termination
+
+< *DESC.TTLIN.TERM.LABELS?
+> OK =List of possible enumeration values
 
 # Capture and capture index
 < *CAPTURE=

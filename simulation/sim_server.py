@@ -101,6 +101,8 @@ if args.daemon:
 controller.start()
 
 (conn, addr) = sock.accept()
+sock.close()
+
 conn.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
 try:
     run_simulation(conn)
