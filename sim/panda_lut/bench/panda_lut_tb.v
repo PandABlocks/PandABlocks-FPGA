@@ -133,57 +133,21 @@ initial begin
 
     is_file_end = 1;
 end
+
 //
-////
-//// READ BLOCK EXPECTED REGISTER OUTPUTS FILE TO COMPARE AGAINTS BLOCK
-//// OUTPUTS
-////
-//integer reg_out[4:0];
-//initial begin
-//    FORCE_RST_EXPECTED = 0;
+// ERROR DETECTION:
+// Compare Block Outputs and Expected Outputs.
 //
-//    @(posedge clk_i);
-//
-//    // Open "reg_out" file
-//    fid[3] = $fopen("lut_reg_out.txt", "r");
-//
-//    // Read and ignore description field
-//    r[3] = $fscanf(fid[3], "%s %s\n", reg_out[1], reg_out[0]);
-//
-//
-//    while (!$feof(fid[3])) begin
-//        r[3] = $fscanf(fid[3], "%d %d\n", reg_out[1], reg_out[0]);
-//        wait (timestamp == reg_out[1]) begin
-//            FORCE_RST_EXPECTED <= reg_out[0];
-//        end
-//        @(posedge clk_i);
-//    end
-//end
-//
-////
-//// ERROR DETECTION:
-//// Compare Block Outputs and Expected Outputs.
-////
-//always @(posedge clk_i)
-//begin
-//    if (~is_file_end) begin
-//        // If not equal, display an error.
-//        if (outn_o != outn_expected) begin
-//            $display("OUTN error detected at timestamp %d\n", timestamp);
-//            $finish(2);
-//        end
-//
-//        if (out_o != outd_expected) begin
-//            $display("OUTN error detected at timestamp %d\n", timestamp);
-//            $finish(2);
-//        end
-//
-//        if (FORCE_RST != FORCE_RST_EXPECTED) begin
-//            $display("FORCE_RST error detected at timestamp %d\n", timestamp);
-//            $finish(2);
-//        end
-//    end
-//end
+always @(posedge clk_i)
+begin
+    if (~is_file_end) begin
+        // If not equal, display an error.
+        if (out_o != VAL) begin
+            $display("OUT error detected at timestamp %d\n", timestamp);
+            $finish(2);
+        end
+    end
+end
 
 // Instantiate the Unit Under Test (UUT)
 panda_lut uut (
