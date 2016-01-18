@@ -52,15 +52,14 @@ $ Set-reset conditions
 6       : SET=0
 7       : RESET=0
 
-10      : FORCE_RESET=1, SET=1 : VAL=1
+10      : FORCE_RESET=1, SET=1
 11      : SET=0, FORCE_RESET=0
-12      : FORCE_RESET=1     : VAL=0
-13      : FORCE_RESET=0
+15      : SET=1                 : VAL=1
 
-15      : RESET=1, FORCE_SET=1
-16      : RESET=0, FORCE_SET=0
-18      : FORCE_RESET=1         : VAL=0
-19      : FORCE_RESET=0
+18      : RESET=1, FORCE_SET=1  : VAL=1
+19      : RESET=0, FORCE_SET=0
+20      : FORCE_RESET=1         : VAL=0
+21      : FORCE_RESET=0
 
 
 ###############
