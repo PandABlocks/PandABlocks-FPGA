@@ -25,16 +25,12 @@ vlog -work xil_defaultlib \
 
 vopt -64 +acc -L secureip -L fifo_generator_v12_0 -L xil_defaultlib -work xil_defaultlib xil_defaultlib.panda_pulse_tb -o panda_pulse_opt glbl
 
-vsim -t 1ps -novopt -lib xil_defaultlib panda_pulse_tb
+vsim -t 1ps -voptargs=+acc -lib xil_defaultlib panda_pulse_tb
 
 view wave
 
-#add wave -radix decimal -group "Testbench" \
-#        sim:/panda_pulse_tb/*
-#
-#add wave -radix decimal -group "Pulse" \
-#        sim:/panda_pulse_tb/uut/*
+add wave -radix decimal -group "Phyton" \
+sim:/panda_pulse_tb/*
 
-do wave.do
 
 run 5us

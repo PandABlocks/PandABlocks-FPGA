@@ -15,7 +15,7 @@ vlog -work xil_defaultlib \
 
 vopt -64 +acc -L secureip -L xil_defaultlib -work xil_defaultlib xil_defaultlib.panda_lut_tb -o panda_lut_opt glbl
 
-vsim -t 1ps -novopt -lib xil_defaultlib panda_lut_tb
+vsim -t 1ps -voptargs=+acc -lib xil_defaultlib panda_lut_tb
 
 view wave
 
