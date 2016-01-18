@@ -350,6 +350,13 @@
 < QDEC1.SETP.UNITS?
 > OK =mm
 
+< *ENUMS.QDEC1.SETP.UNITS?
+> !min
+> !s
+> !ms
+> !us
+> .
+
 # Check change detection on offset and scale change
 < *CHANGES.CONFIG=
 > OK
