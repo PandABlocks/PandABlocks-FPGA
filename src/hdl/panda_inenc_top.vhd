@@ -10,7 +10,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_encin_top is
+entity panda_inenc_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -26,12 +26,18 @@ port (
     Am0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
     Bm0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
     Zm0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
-    --
+    -- Block Inputs
+    ctrl_pad_i          : in  std4_array(ENC_NUM-1 downto 0);
+    -- Block Outputs
+    a_o                 : out std_logic_vector(ENC_NUM-1 downto 0);
+    b_o                 : out std_logic_vector(ENC_NUM-1 downto 0);
+    z_o                 : out std_logic_vector(ENC_NUM-1 downto 0);
+    conn_o              : out std_logic_vector(ENC_NUM-1 downto 0);
     posn_o              : out std32_array(ENC_NUM-1 downto 0)
 );
-end panda_encin_top;
+end panda_inenc_top;
 
-architecture rtl of panda_encin_top is
+architecture rtl of panda_inenc_top is
 
 signal mem_blk_cs           : std_logic_vector(ENC_NUM-1 downto 0);
 
@@ -42,6 +48,8 @@ signal Bm0_ipad, Bm0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
 signal Zm0_ipad, Zm0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
 
 begin
+
+-- Unused outputs.
 
 mem_dat_o <= (others => '0');
 
@@ -69,7 +77,7 @@ mem_blk_cs(I) <= '1'
     when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_SVECTOR(I, PAGE_AW-BLK_AW)
             and mem_cs_i = '1') else '0';
 
-panda_encin_inst : entity work.panda_encin
+panda_inenc_block_inst : entity work.panda_inenc_block
 port map (
     -- Clock and Reset
     clk_i               => clk_i,
@@ -90,6 +98,12 @@ port map (
     posn_o              => posn_o(I),
     iobuf_ctrl_o        => iobuf_ctrl_channels(I)
 );
+
+-- Assign output to system bus.
+a_o(I) <= '0'; --Am0_pad_io(I);
+b_o(I) <= '0'; --Bm0_pad_io(I);
+z_o(I) <= '0'; --Zm0_pad_io(I);
+conn_o(I) <= ctrl_pad_i(I)(0);
 
 END GENERATE;
 

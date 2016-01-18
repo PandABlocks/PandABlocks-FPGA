@@ -9,15 +9,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library work;
-use work.type_defines.all;
-use work.addr_defines.all;
-use work.top_defines.all;
-
 entity panda_lut is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
+    reset_i             : in  std_logic;
     -- Block Input and Outputs
     inpa_i              : in  std_logic;
     inpb_i              : in  std_logic;
@@ -43,7 +39,11 @@ index <= inpa_i & inpb_i & inpc_i & inpd_i & inpe_i;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        out_o <= FUNC(to_integer(index));
+        if (reset_i = '1') then
+            out_o <= '0';
+        else
+            out_o <= FUNC(to_integer(index));
+        end if;
     end if;
 end process;
 

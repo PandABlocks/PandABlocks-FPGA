@@ -35,12 +35,12 @@ signal FIXED_IO_mio     : std_logic_vector(53 downto 0);
 signal FIXED_IO_ps_clk  : std_logic;
 signal FIXED_IO_ps_porb : std_logic;
 signal FIXED_IO_ps_srstb: std_logic;
-signal Am0_pad_io       : std_logic_vector(0 downto 0);
-signal Bm0_pad_io       : std_logic_vector(0 downto 0);
-signal Zm0_pad_io       : std_logic_vector(0 downto 0);
-signal As0_pad_io       : std_logic_vector(0 downto 0);
-signal Bs0_pad_io       : std_logic_vector(0 downto 0);
-signal Zs0_pad_io       : std_logic_vector(0 downto 0);
+signal Am0_pad_io       : std_logic_vector(3 downto 0);
+signal Bm0_pad_io       : std_logic_vector(3 downto 0);
+signal Zm0_pad_io       : std_logic_vector(3 downto 0);
+signal As0_pad_io       : std_logic_vector(3 downto 0);
+signal Bs0_pad_io       : std_logic_vector(3 downto 0);
+signal Zs0_pad_io       : std_logic_vector(3 downto 0);
 
 --Outputs
 signal enc0_ctrl_pad_o  : std_logic_vector(11 downto 0);
@@ -119,6 +119,14 @@ PORT MAP (
 
 daughter_card_model_inst : entity work.daughter_card_model
 port map (
+    -- panda_top interface.
+    A_IN        => Am0_pad_io(0),
+    B_IN        => Bm0_pad_io(0),
+    Z_IN        => Zm0_pad_io(0),
+    A_OUT       => As0_pad_io(0),
+    B_OUT       => Bs0_pad_io(0),
+    Z_OUT       => Zs0_pad_io(0),
+
     -- Front Panel via DB15
     A_IN_P      => A_IN_P,
     B_IN_P      => B_IN_P,
@@ -132,26 +140,19 @@ port map (
     CLK_IN_P    => CLK_IN_P,
     DATA_OUT_P  => DATA_OUT_P,
 
-    A_IN        => Am0_pad_io(0),
-    B_IN        => Bm0_pad_io(0),
-    Z_IN        => Zm0_pad_io(0),
-    A_OUT       => As0_pad_io(0),
-    B_OUT       => Bs0_pad_io(0),
-    Z_OUT       => Zs0_pad_io(0),
-
     CTRL_IN     => enc0_ctrl_pad_o,
     CTRL_OUT    => enc0_ctrl_pad_i
 );
 
-incr_encoder_model_inst : entity work.incr_encoder_model
+encoder : entity work.incr_encoder_model
 port map (
     CLK         => clk,
-    A_OUT       => open, --A_IN_P,
-    B_OUT       => open  --B_IN_P
+    A           => A_IN_P,
+    B           => B_IN_P
 );
 
-A_IN_P <= A_OUT_P;
-B_IN_P <= B_OUT_P;
+--A_IN_P <= A_OUT_P;
+--B_IN_P <= B_OUT_P;
 
 -- Loopback on SSI
 CLK_IN_P <= CLK_OUT_P;

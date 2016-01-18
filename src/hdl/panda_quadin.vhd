@@ -17,6 +17,7 @@ port (
     b_i                 : in  std_logic;
     z_i                 : in  std_logic;
     --Position data
+    rst_z_i             : in  std_logic;
     setp_val_i          : in  std_logic_vector(31 downto 0);
     setp_wstb_i         : in  std_logic;
     posn_o              : out std_logic_vector(31 downto 0)
@@ -49,24 +50,30 @@ port map (
 -- Position counter
 -- User can initialise the counter
 -- Index can be used to reset the counter
-POSN_COUNTER : process(clk_i) begin
+process(clk_i) begin
     if rising_edge(clk_i) then
-        if (setp_wstb_i = '1') then
-            quad_count <= setp_val_i;
-        elsif (quad_trans = '1') then
-            if (quad_reset = '1') then
-                -- Reset is aligned to quad_trans, and reset value
-                -- depends on the wheel direction
-                if (quad_dir = '0') then
-                    quad_count <= (others => '0');
+        if (reset_i = '1') then
+            quad_count <= (others => '0');
+        else
+            if (rst_z_i = '1' and z_i = '1') then
+                quad_count <= (others => '0');
+            elsif (setp_wstb_i = '1') then
+                quad_count <= setp_val_i;
+            elsif (quad_trans = '1') then
+                if (quad_reset = '1') then
+                    -- Reset is aligned to quad_trans, and reset value
+                    -- depends on the wheel direction
+                    if (quad_dir = '0') then
+                        quad_count <= (others => '0');
+                    else
+                        quad_count <= (31=>'0', others => '0');
+                    end if;
                 else
-                    quad_count <= (31=>'0', others => '0');
-                end if;
-            else
-                if (quad_dir = '0') then
-                    quad_count <= quad_count + 1;
-                else
-                    quad_count <= quad_count - 1;
+                    if (quad_dir = '0') then
+                        quad_count <= quad_count + 1;
+                    else
+                        quad_count <= quad_count - 1;
+                    end if;
                 end if;
             end if;
         end if;

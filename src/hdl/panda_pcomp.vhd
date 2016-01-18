@@ -18,15 +18,18 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
-    -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Block inputs
-    sysbus_i            : in  sysbus_t;
-    posbus_i            : in  posbus_t;
+    enable_i            : in  std_logic;
+    posn_i              : in  std_logic_vector(31 downto 0);
+    -- Block inputs
+    PCOMP_START         : in  std_logic_vector(31 downto 0);
+    PCOMP_STEP          : in  std_logic_vector(31 downto 0);
+    PCOMP_WIDTH         : in  std_logic_vector(31 downto 0);
+    PCOMP_NUM           : in  std_logic_vector(31 downto 0);
+    PCOMP_RELATIVE      : in  std_logic;
+    PCOMP_DIR           : in  std_logic;
+    PCOMP_FLTR_DELTAT   : in  std_logic_vector(31 downto 0);
+    PCOMP_FLTR_THOLD    : in  std_logic_vector(15 downto 0);
     -- Output pulse
     act_o               : out std_logic;
     pulse_o             : out std_logic
@@ -37,7 +40,6 @@ architecture rtl of panda_pcomp is
 
 type state_t is (IDLE, POS, NEG);
 
-signal enable_val       : std_logic;
 signal enabled          : std_logic;
 signal enable_prev      : std_logic;
 signal enable_rise      : std_logic;
@@ -46,7 +48,6 @@ signal state            : state_t;
 signal start            : signed(31 downto 0);
 signal width            : signed(31 downto 0);
 
-signal posn_val         : std_logic_vector(31 downto 0);
 signal posn             : signed(31 downto 0);
 signal posn_prev        : signed(31 downto 0);
 signal posn_latched     : signed(31 downto 0);
@@ -57,110 +58,12 @@ signal puls_step        : signed(31 downto 0);
 
 signal puls_dir         : std_logic := '1';
 
-signal PCOMP_ENABLE_VAL : std_logic_vector(SBUSBW-1 downto 0);
-signal PCOMP_POSN_VAL   : std_logic_vector(PBUSBW-1 downto 0);
-signal PCOMP_START      : std_logic_vector(31 downto 0);
-signal PCOMP_STEP       : std_logic_vector(31 downto 0);
-signal PCOMP_WIDTH      : std_logic_vector(31 downto 0);
-signal PCOMP_COUNT      : std_logic_vector(31 downto 0);
-signal PCOMP_RELATIVE   : std_logic;
-signal PCOMP_DIR        : std_logic;
-signal PCOMP_FLTR_DELTAT: std_logic_vector(31 downto 0);
-signal PCOMP_FLTR_THOLD : std_logic_vector(15 downto 0);
-
 signal puls_counter     : unsigned(31 downto 0);
 signal posn_dir         : std_logic;
 signal posn_trans       : std_logic;
 signal fltr_counter     : signed(15 downto 0);
 
 begin
-
-mem_dat_o <= (others => '0');
-
---
--- Control System Interface
---
-REG_WRITE : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            PCOMP_START <= (others => '0');
-            PCOMP_STEP <= (others => '0');
-            PCOMP_WIDTH <= (others => '0');
-            PCOMP_COUNT <= (others => '0');
-            PCOMP_RELATIVE <= '0';
-            PCOMP_FLTR_DELTAT <= (others => '0');
-            PCOMP_FLTR_THOLD <= (others => '0');
-            PCOMP_ENABLE_VAL <= TO_SVECTOR(127, SBUSBW);
-            PCOMP_POSN_VAL <= (others => '0');
-        else
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
-                -- Pulse start position
-                if (mem_addr_i = PCOMP_ENABLE_VAL_ADDR) then
-                    PCOMP_ENABLE_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                -- Pulse start position
-                if (mem_addr_i = PCOMP_POSN_VAL_ADDR) then
-                    PCOMP_POSN_VAL <= mem_dat_i(PBUSBW-1 downto 0);
-                end if;
-
-                -- Pulse start position
-                if (mem_addr_i = PCOMP_START_ADDR) then
-                    PCOMP_START <= mem_dat_i;
-                end if;
-
-                -- Pulse step value
-                if (mem_addr_i = PCOMP_STEP_ADDR) then
-                    PCOMP_STEP <= mem_dat_i;
-                end if;
-
-                -- Pulse width value
-                if (mem_addr_i = PCOMP_WIDTH_ADDR) then
-                    PCOMP_WIDTH <= mem_dat_i;
-                end if;
-
-                -- Pulse width value
-                if (mem_addr_i = PCOMP_COUNT_ADDR) then
-                    PCOMP_COUNT <= mem_dat_i;
-                end if;
-
-                -- PComp relative flag
-                if (mem_addr_i = PCOMP_RELATIVE_ADDR) then
-                    PCOMP_RELATIVE <= mem_dat_i(0);
-                end if;
-
-                -- PComp direction flag
-                if (mem_addr_i = PCOMP_DIR_ADDR) then
-                    PCOMP_DIR <= mem_dat_i(0);
-                end if;
-
-                -- PComp direction filter DeltaT flag
-                if (mem_addr_i = PCOMP_FLTR_DELTAT_ADDR) then
-                    PCOMP_FLTR_DELTAT <= mem_dat_i;
-                end if;
-
-                -- PComp direction filter threshold flag
-                if (mem_addr_i = PCOMP_FLTR_THOLD_ADDR) then
-                    PCOMP_FLTR_THOLD <= mem_dat_i(15 downto 0);
-                end if;
-
-            end if;
-        end if;
-    end if;
-end process;
-
---
--- Design Bus Assignments
---
-process(clk_i)
-    variable t_counter  : unsigned(31 downto 0);
-begin
-    if rising_edge(clk_i) then
-        enable_val <= SBIT(sysbus_i, PCOMP_ENABLE_VAL);
-        posn_val <= PFIELD(posbus_i, PCOMP_POSN_VAL);
-    end if;
-end process;
 
 --
 -- Direction flag detection
@@ -222,19 +125,20 @@ puls_start <= signed(PCOMP_START);
 --
 -- Enable input Start/Stop module's operation
 --
+enable_rise <= enable_i and not enable_prev;
+
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        enable_prev <= enable_val;
-        enable_rise <= enable_val and not enable_prev;
+        enable_prev <= enable_i;
     end if;
 end process;
 
 -- Module is enabled when user enables and encoder auto-direction matches.
-enabled <= '1' when (enable_val = '1' and PCOMP_DIR = puls_dir) else '0';
+enabled <= '1' when (enable_i = '1' and PCOMP_DIR = puls_dir) else '0';
 
 --
--- Latch position on the rising edge of enable_val input, and calculate live
+-- Latch position on the rising edge of enable_i input, and calculate live
 -- Pulse Start position based on RELATIVE flag and encoder direction signal.
 --
 detect_pos : process(clk_i)
@@ -242,14 +146,14 @@ begin
     if rising_edge(clk_i) then
         -- Keep latched value for RELATIVE mode
         if (enable_rise = '1') then
-            posn_latched <= signed(posn_val);
+            posn_latched <= signed(posn_i);
         end if;
 
-        -- RELATIVE mode runs relative to rising edge of enable_val input
+        -- RELATIVE mode runs relative to rising edge of enable_i input
         if (PCOMP_RELATIVE = '1') then
-            posn <= signed(posn_val) - posn_latched;
+            posn <= signed(posn_i) - posn_latched;
         else
-            posn <= signed(posn_val);
+            posn <= signed(posn_i);
         end if;
     end if;
 end process;
@@ -263,7 +167,6 @@ begin
             start <= (others => '0');
             width <= (others => '0');
             puls_counter <= (others => '0');
-            act_o <= '0';
         else
             case (state) is
                 -- Wait for START at the gate beginning
@@ -271,13 +174,11 @@ begin
                     start <= (others => '0');
                     width <= (others => '0');
                     puls_counter <= (others => '0');
-                    act_o <= '0';
 
                     if (posn = puls_start) then
                         start <= puls_start;
                         width <= puls_start + puls_width;
                         state <= POS;
-                        act_o <= '1';
                     end if;
 
                 -- Assert output pulse for WIDTH
@@ -291,9 +192,8 @@ begin
 
                 -- De-assert output pulse and wait until next start
                 when NEG =>
-                    if (puls_counter = unsigned(PCOMP_COUNT)) then
+                    if (puls_counter = unsigned(PCOMP_NUM)) then
                         state <= IDLE;
-                        act_o <= '0';
                     elsif (posn = start) then
                         state <= POS;
                     end if;
@@ -301,6 +201,19 @@ begin
                 when others =>
             end case;
         end if;
+
+        -- Block becomes active with enable_rise until either disabled
+        -- or all pulses are generated.
+        if (enable_i = '0') then
+            act_o <= '0';
+        else
+            if (enable_rise = '1') then
+                act_o <= '1';
+            elsif (state = NEG and puls_counter = unsigned(PCOMP_NUM)) then
+                act_o <= '0';
+            end if;
+        end if;
+
     end if;
 end process;
 

@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module panda_srgate_tb;
+module panda_lut_tb;
 
 reg clk_i = 0;
 always #4 clk_i = ~clk_i;
@@ -8,17 +8,17 @@ always #4 clk_i = ~clk_i;
 integer timestamp = 0;
 
 // Inputs
-reg     SIM_RESET;
-reg     SET;
-reg     RESET;
-reg     SET_EDGE;
-reg     RST_EDGE;
-reg     FORCE_SET;
-reg     FORCE_RST;
-reg     VAL;
+reg         SIM_RESET;
+reg         INPA;
+reg         INPB;
+reg         INPC;
+reg         INPD;
+reg         INPE;
+reg [31:0]  FUNC;
+reg         VAL;
 
 // Outputs
-wire out_o;
+wire        out_o;
 
 integer fid[3:0];
 integer r[3:0];
@@ -42,26 +42,34 @@ end
 //
 // READ BLOCK INPUTS VECTOR FILE
 //
-integer bus_in[3:0];     // TS SET RST
+// TS»¯¯¯¯¯SIM_RESET»¯¯¯¯¯¯INPA»¯¯¯INPB»¯¯¯INPC»¯¯¯INPD»¯¯¯INPE
+integer bus_in[6:0];
+
 initial begin
     SIM_RESET = 0;
-    SET = 0;
-    RESET = 0;
+    INPA = 0;
+    INPB = 0;
+    INPC = 0;
+    INPD = 0;
+    INPE = 0;
 
     @(posedge clk_i);
-    fid[0] = $fopen("srgate_bus_in.txt", "r");
+    fid[0] = $fopen("lut_bus_in.txt", "r");
 
     // Read and ignore description field
-    r[0] = $fscanf(fid[0], "%s %s %s %s\n", bus_in[3], bus_in[2], bus_in[1], bus_in[0]);
+    r[0] = $fscanf(fid[0], "%s %s %s %s %s %s %s\n", bus_in[6], bus_in[5], bus_in[4], bus_in[3], bus_in[2], bus_in[1], bus_in[0]);
 
     while (!$feof(fid[0])) begin
 
-        r[0] = $fscanf(fid[0], "%d %d %d %d\n", bus_in[3],  bus_in[2], bus_in[1], bus_in[0]);
+    r[0] = $fscanf(fid[0], "%d %d %d %d %d %d %d\n", bus_in[6], bus_in[5], bus_in[4], bus_in[3], bus_in[2], bus_in[1], bus_in[0]);
 
-        wait (timestamp == bus_in[3]) begin
-            SIM_RESET <= bus_in[2];
-            SET <= bus_in[1];
-            RESET <= bus_in[0];
+        wait (timestamp == bus_in[6]) begin
+            SIM_RESET <= bus_in[5];
+            INPA <= bus_in[4];
+            INPB <= bus_in[3];
+            INPC <= bus_in[2];
+            INPD <= bus_in[1];
+            INPE <= bus_in[0];
         end
         @(posedge clk_i);
     end
@@ -70,29 +78,25 @@ end
 //
 // READ BLOCK REGISTERS VECTOR FILE
 //
-integer reg_in[4:0];     // TS, SET_EDGE, RST_EDGE, FORCE_SET, FORCE_RST
+
+// TS»¯¯¯¯¯FUNC
+integer reg_in[1:0];
 
 initial begin
-    SET_EDGE = 0;
-    RST_EDGE = 0;
-    FORCE_SET = 0;
-    FORCE_RST = 0;
+    FUNC = 0;
 
     @(posedge clk_i);
 
     // Open "reg_in" file
-    fid[1] = $fopen("srgate_reg_in.txt", "r");
+    fid[1] = $fopen("lut_reg_in.txt", "r");
 
     // Read and ignore description field
-    r[1] = $fscanf(fid[1], "%s %s %s %s %s\n", reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
+    r[1] = $fscanf(fid[1], "%s %s\n", reg_in[1], reg_in[0]);
 
     while (!$feof(fid[1])) begin
-        r[1] = $fscanf(fid[1], "%d %d %d %d %d\n", reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
-        wait (timestamp == reg_in[4]) begin
-            SET_EDGE = reg_in[3];
-            RST_EDGE = reg_in[2];
-            FORCE_SET = reg_in[1];
-            FORCE_RST = reg_in[0];
+        r[1] = $fscanf(fid[1], "%d %d\n", reg_in[1], reg_in[0]);
+        wait (timestamp == reg_in[1]) begin
+            FUNC = reg_in[0];
         end
         @(posedge clk_i);
     end
@@ -112,7 +116,7 @@ initial begin
     @(posedge clk_i);
 
     // Open "bus_out" file
-    fid[2] = $fopen("srgate_bus_out.txt", "r"); // TS, VAL
+    fid[2] = $fopen("lut_bus_out.txt", "r"); // TS, VAL
 
     // Read and ignore description field
     r[2] = $fscanf(fid[2], "%s %s\n", bus_out[1], bus_out[0]);
@@ -141,7 +145,7 @@ end
 //    @(posedge clk_i);
 //
 //    // Open "reg_out" file
-//    fid[3] = $fopen("srgate_reg_out.txt", "r");
+//    fid[3] = $fopen("lut_reg_out.txt", "r");
 //
 //    // Read and ignore description field
 //    r[3] = $fscanf(fid[3], "%s %s\n", reg_out[1], reg_out[0]);
@@ -182,16 +186,16 @@ end
 //end
 
 // Instantiate the Unit Under Test (UUT)
-panda_srgate uut (
+panda_lut uut (
         .clk_i          ( clk_i             ),
         .reset_i        ( SIM_RESET         ),
-        .set_i          ( SET               ),
-        .rst_i          ( RESET             ),
-        .out_o          ( out_o             ),
-        .SET_EDGE       ( SET_EDGE          ),
-        .RST_EDGE       ( RST_EDGE          ),
-        .FORCE_SET      ( FORCE_SET         ),
-        .FORCE_RST      ( FORCE_RST         )
+        .FUNC           ( FUNC              ),
+        .inpa_i         ( INPA              ),
+        .inpb_i         ( INPB              ),
+        .inpc_i         ( INPC              ),
+        .inpd_i         ( INPD              ),
+        .inpe_i         ( INPE              ),
+        .out_o          ( out_o             )
 );
 
 

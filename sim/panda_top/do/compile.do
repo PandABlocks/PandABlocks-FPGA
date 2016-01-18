@@ -45,16 +45,17 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_qdec.vhd" \
 "${SRC}/panda_quadin.vhd" \
 "${SRC}/panda_quadout.vhd" \
-"${SRC}/panda_encin.vhd" \
-"${SRC}/panda_encin_top.vhd" \
-"${SRC}/panda_encout.vhd" \
-"${SRC}/panda_encout_top.vhd" \
+"${SRC}/panda_inenc_block.vhd" \
+"${SRC}/panda_inenc_top.vhd" \
+"${SRC}/panda_outenc_block.vhd" \
+"${SRC}/panda_outenc_top.vhd" \
 "${SRC}/panda_sequencer.vhd" \
 "${SRC}/panda_sequencer_top.vhd" \
 "${SRC}/panda_counter.vhd" \
 "${SRC}/panda_counter_block.vhd" \
 "${SRC}/panda_counter_top.vhd" \
 "${SRC}/panda_pcomp.vhd" \
+"${SRC}/panda_pcomp_block.vhd" \
 "${SRC}/panda_pcomp_top.vhd" \
 "${SRC}/panda_clocks.vhd" \
 "${SRC}/panda_clocks_block.vhd" \
@@ -66,6 +67,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_axi3_write_master.vhd" \
 "${SRC}/panda_pcap.vhd" \
 "${SRC}/panda_pcap_block.vhd" \
+"${SRC}/panda_slowctrl_top.vhd" \
 "${SRC}/panda_top.vhd"
 
 # Compile Testbench
@@ -73,10 +75,10 @@ vcom -64 -93 -work xil_defaultlib  \
 vcom -64 -93 -work xil_defaultlib  \
 "../bench/test_interface.vhd" \
 "../bench/daughter_card_model.vhd" \
-"../bench/incr_encoder_model.vhd" \
 "../bench/panda_top_tb.vhd"
 
-vlog -work xil_defaultlib "../bench/test.v"
+vlog -work xil_defaultlib "../bench/test.v" \
+"../bench/incr_encoder_model.v"
 
 vopt -64 +acc -L unisims_ver -L unimacro_ver -L secureip -L xil_defaultlib -L generic_baseblocks_v2_1 -L fifo_generator_v12_0 -L axi_data_fifo_v2_1 -L axi_infrastructure_v1_1 -L axi_register_slice_v2_1 -L axi_protocol_converter_v2_1 -work xil_defaultlib xil_defaultlib.test xil_defaultlib.glbl -o test_opt
 

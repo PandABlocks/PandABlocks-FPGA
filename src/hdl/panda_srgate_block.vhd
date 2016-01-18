@@ -37,7 +37,7 @@ signal RST_VAL          : std_logic_vector(SBUSBW-1 downto 0) := (others => '1')
 signal SET_EDGE         : std_logic := '0';
 signal RST_EDGE         : std_logic := '0';
 signal FORCE_SET        : std_logic := '0';
-signal FORCE_RESET      : std_logic := '0';
+signal FORCE_RST      : std_logic := '0';
 
 signal set              : std_logic := '0';
 signal rst              : std_logic := '0';
@@ -56,11 +56,11 @@ begin
             SET_EDGE <= '1';
             RST_EDGE <= '1';
             FORCE_SET <= '0';
-            FORCE_RESET <= '0';
+            FORCE_RST <= '0';
         else
             -- Force strobe is single clock pulse
             FORCE_SET <= '0';
-            FORCE_RESET <= '0';
+            FORCE_RST <= '0';
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
@@ -85,8 +85,8 @@ begin
                     FORCE_SET <= mem_dat_i(0);
                 end if;
 
-                if (mem_addr_i = SRGATE_FORCE_RESET_ADDR) then
-                    FORCE_RESET <= mem_dat_i(0);
+                if (mem_addr_i = SRGATE_FORCE_RST_ADDR) then
+                    FORCE_RST <= mem_dat_i(0);
                 end if;
 
             end if;
@@ -110,15 +110,16 @@ end process;
 panda_srgate : entity work.panda_srgate
 port map (
     clk_i           => clk_i,
+    reset_i         => reset_i,
 
     set_i           => set,
     rst_i           => rst,
     out_o           => out_o,
 
     SET_EDGE        => SET_EDGE,
-    RESET_EDGE      => RST_EDGE,
+    RST_EDGE        => RST_EDGE,
     FORCE_SET       => FORCE_SET,
-    FORCE_RESET     => FORCE_RESET
+    FORCE_RST       => FORCE_RST
 );
 
 end rtl;

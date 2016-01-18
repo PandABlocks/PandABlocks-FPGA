@@ -38,6 +38,9 @@ signal DIVISOR_prev     : std_logic_vector(31 downto 0);
 signal FIRST_PULSE_prev : std_logic;
 signal config_reset     : std_logic;
 signal reset            : std_logic;
+signal rst_prev         : std_logic;
+signal rst_rise         : std_logic;
+signal is_first_pulse   : std_logic;
 
 begin
 
@@ -47,12 +50,14 @@ begin
     if rising_edge(clk_i) then
         DIVISOR_prev <= DIVISOR;
         FIRST_PULSE_prev <= FIRST_PULSE;
+        rst_prev <= rst_i;
     end if;
 end process;
 
 -- Reset on configuration change.
+rst_rise <= rst_i and not rst_prev;
 config_reset <= '1' when (DIVISOR /= DIVISOR_prev or FIRST_PULSE /= FIRST_PULSE_prev) else '0';
-reset <= rst_i or FORCE_RST or config_reset;
+reset <= rst_rise or FORCE_RST or config_reset;
 
 -- Detect input pulse rising edege.
 input_rise <= inp_i and not input_prev;
@@ -61,11 +66,11 @@ input_rise <= inp_i and not input_prev;
 clock_divider : process(clk_i)
 begin
     if rising_edge(clk_i) then
+        input_prev <= inp_i;
         if (reset = '1') then
-            pulsmask <= '0';
-            -- Required to reset outn and outp
-            input_prev <= '0';
-
+            -- Detect that first pulse is received following a reset.
+            -- This is used to ignore an incoming pulse during a reset input.
+            is_first_pulse <= '0';
             -- First pulse is generated on outn_o when '0',
             -- else on outd_o
             if (FIRST_PULSE = '0') then
@@ -74,10 +79,10 @@ begin
                 counter <= unsigned(DIVISOR) - 1;
             end if;
         else
-            input_prev <= inp_i;
             -- Raw divider generates 1 input period long
             -- pulse which is used to mask divided pulse
             if (input_rise = '1') then
+                is_first_pulse <= '1';
                 if (counter = unsigned(DIVISOR) - 1) then
                     counter <= (others => '0');
                     pulsmask <= '1';
@@ -91,8 +96,8 @@ begin
 end process;
 
 -- Mask incoming pulse train onto D and N outputs
-outd_o <= input_prev and pulsmask;
-outn_o <= input_prev and not pulsmask;
+outd_o <= input_prev and pulsmask and is_first_pulse;
+outn_o <= input_prev and not pulsmask and is_first_pulse;
 
 -- Current divider value
 COUNT <= std_logic_vector(counter);

@@ -62,6 +62,8 @@ signal ssi_clk_p        : std_logic := '1';
 signal smpl_hold        : std_logic_vector(31 downto 0);
 signal smpl_sdi         : std_logic;
 signal mclk_cnt         : unsigned(7 downto 0) := X"00";
+signal clk_cnt          : unsigned(15 downto 0) := X"0000";
+signal frame_cnt        : unsigned(15 downto 0) := X"0000";
 
 begin
 
@@ -70,31 +72,39 @@ ssi_sck_o <= ssi_clk_p;
 
 -- Generate SSI core clock enable from system clock
 ssi_clk_gen : process(clk_i)
-    variable clk_cnt    : unsigned(15 downto 0) := X"0000";
 begin
     if rising_edge(clk_i) then
-        if (clk_cnt =  unsigned('0' & enc_presc_i(15 downto 1))-1) then
-            ssi_clk_ce <= '1';
-            clk_cnt := X"0000";
-        else
+        if (reset_i = '1') then
             ssi_clk_ce <= '0';
-            clk_cnt := clk_cnt + 1;
+            clk_cnt <= X"0000";
+        else
+            if (clk_cnt =  unsigned('0' & enc_presc_i(15 downto 1))-1) then
+                ssi_clk_ce <= '1';
+                clk_cnt <= X"0000";
+            else
+                ssi_clk_ce <= '0';
+                clk_cnt <= clk_cnt + 1;
+            end if;
         end if;
     end if;
 end process;
 
--- Generate Internal Frame Pulse
+-- Generate Internal Frame Pulse in units of [enc_presc]
 ssi_frame_gen : process(clk_i)
-    variable clk_cnt    : unsigned(15 downto 0) := X"0000";
 begin
     if rising_edge(clk_i) then
-        if (ssi_clk_ce = '1') then
-            if (clk_cnt =  unsigned(enc_rate_i(14 downto 0) & '0')) then
-                ssi_frame_ce <= '1';
-                clk_cnt := X"0000";
-            else
-                ssi_frame_ce <= '0';
-                clk_cnt := clk_cnt + 1;
+        if (reset_i = '1') then
+            ssi_frame_ce <= '0';
+            frame_cnt <= X"0000";
+        else
+            if (ssi_clk_ce = '1') then
+                if (frame_cnt =  unsigned(enc_rate_i(14 downto 0) & '0')) then
+                    ssi_frame_ce <= '1';
+                    frame_cnt <= X"0000";
+                else
+                    ssi_frame_ce <= '0';
+                    frame_cnt <= frame_cnt + 1;
+                end if;
             end if;
         end if;
     end if;

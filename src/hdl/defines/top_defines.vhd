@@ -23,13 +23,10 @@ constant PULSE_NUM          : positive := 4;
 
 constant COUNTER_NUM        : positive := 8;
 
-constant ENC_NUM            : positive := 1;
+constant ENC_NUM            : positive := 4;
 constant PCOMP_NUM          : positive := 4;
 constant SEQ_NUM            : positive := 4;
 constant BITS_NUM           : positive := 1;
-
-constant SBUS_AVAIL         : positive := (128 - TTLIN_NUM - LVDSIN_NUM - LUT_NUM - SRGATE_NUM - 2*DIV_NUM- 2*PULSE_NUM - 7*SEQ_NUM - 10*BITS_NUM);
---)- 2*PCOMP_NUM - 7*SEQ_NUM);
 
 -- Bit Bus Width, Multiplexer Select Width.
 constant SBUSW              : positive := 128;

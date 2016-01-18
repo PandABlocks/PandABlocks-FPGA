@@ -22,7 +22,12 @@ port (
     -- Encoder I/O Pads
     sysbus_i            : in  sysbus_t;
     -- Output sequencer
-    out_o               : out seq_out_array(SEQ_NUM-1 downto 0);
+    outa_o              : out std_logic_vector(SEQ_NUM-1 downto 0);
+    outb_o              : out std_logic_vector(SEQ_NUM-1 downto 0);
+    outc_o              : out std_logic_vector(SEQ_NUM-1 downto 0);
+    outd_o              : out std_logic_vector(SEQ_NUM-1 downto 0);
+    oute_o              : out std_logic_vector(SEQ_NUM-1 downto 0);
+    outf_o              : out std_logic_vector(SEQ_NUM-1 downto 0);
     active_o            : out std_logic_vector(SEQ_NUM-1 downto 0)
 );
 end panda_sequencer_top;
@@ -60,7 +65,12 @@ port map (
 
     sysbus_i            => sysbus_i,
 
-    out_o               => out_o(I),
+    outa_o              => outa_o(I),
+    outb_o              => outb_o(I),
+    outc_o              => outc_o(I),
+    outd_o              => outd_o(I),
+    oute_o              => oute_o(I),
+    outf_o              => outf_o(I),
     active_o            => active_o(I)
 );
 

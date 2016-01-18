@@ -4,34 +4,25 @@ module panda_div_tb;
 
 // Inputs
 reg clk_i = 0;
-reg inp_i;
-reg rst_i;
+
+
+reg SIM_RESET;
+reg INP;
+reg RESET;
+
 reg FIRST_PULSE;
 reg [31:0] DIVISOR;
 reg FORCE_RST;
 
 // Outputs
 wire outd_o;
-reg  outd_expected;
+reg  OUTD;
 wire outn_o;
-reg  outn_expected;
+reg  OUTN;
 wire [31:0] COUNT;
 reg  [31:0] COUNT_EXPECTED;
 
 always #4 clk_i = ~clk_i;
-
-// Instantiate the Unit Under Test (UUT)
-panda_div uut (
-        .clk_i          ( clk_i             ),
-        .inp_i          ( inp_i             ),
-        .rst_i          ( rst_i             ),
-        .outd_o         ( outd_o            ),
-        .outn_o         ( outn_o            ),
-        .FIRST_PULSE    ( FIRST_PULSE       ),
-        .DIVISOR        ( DIVISOR           ),
-        .FORCE_RST      ( FORCE_RST         ),
-        .COUNT          ( COUNT             )
-);
 
 integer fid[3:0];
 integer r[3:0];
@@ -56,25 +47,29 @@ end
 //
 // READ BLOCK INPUTS VECTOR FILE
 //
-integer bus_in[2:0];     // TS, INP, RESET;
+
+// TS»¯¯¯¯¯SIM_RESET»¯¯¯¯¯¯INP»¯¯¯¯RESET
+integer bus_in[3:0];
 
 initial begin
-    inp_i = 0;
-    rst_i = 0;
+    SIM_RESET = 0;
+    INP = 0;
+    RESET = 0;
 
     @(posedge clk_i);
     fid[0] = $fopen("div_bus_in.txt", "r");
 
     // Read and ignore description field
-    r[0] = $fscanf(fid[0], "%s %s %s\n", bus_in[2], bus_in[1], bus_in[0]);
+    r[0] = $fscanf(fid[0], "%s %s %s %s\n", bus_in[3], bus_in[2], bus_in[1], bus_in[0]);
 
     while (!$feof(fid[0])) begin
 
-        r[0] = $fscanf(fid[0], "%d %d %d\n", bus_in[2], bus_in[1], bus_in[0]);
+        r[0] = $fscanf(fid[0], "%d %d %d %d\n", bus_in[3], bus_in[2], bus_in[1], bus_in[0]);
 
-        wait (timestamp == bus_in[2]) begin
-            inp_i <= bus_in[1];
-            rst_i <= bus_in[0];
+        wait (timestamp == bus_in[3]) begin
+            SIM_RESET <= bus_in[2];
+            INP <= bus_in[1];
+            RESET <= bus_in[0];
         end
         @(posedge clk_i);
     end
@@ -83,11 +78,12 @@ end
 //
 // READ BLOCK REGISTERS VECTOR FILE
 //
-integer reg_in[3:0];     // TS, FIRST_PULSE, DIVISOR, FORCE_RESET
+// TS»¯¯¯¯¯DIVISOR»FIRST_PULSE»¯¯¯¯FORCE_RESET
+integer reg_in[3:0];
 
 initial begin
-    FIRST_PULSE = 0;
     DIVISOR     = 0;
+    FIRST_PULSE = 0;
     FORCE_RST   = 0;
 
     @(posedge clk_i);
@@ -101,8 +97,8 @@ initial begin
     while (!$feof(fid[1])) begin
         r[1] = $fscanf(fid[1], "%d %d %d %d\n", reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
         wait (timestamp == reg_in[3]) begin
-            FIRST_PULSE = reg_in[2];
-            DIVISOR = reg_in[1];
+            DIVISOR = reg_in[2];
+            FIRST_PULSE = reg_in[1];
             FORCE_RST = reg_in[0];
 
         end
@@ -118,8 +114,8 @@ integer bus_out[2:0];
 reg     is_file_end;
 
 initial begin
-    outn_expected = 0;
-    outd_expected = 0;
+    OUTN = 0;
+    OUTD = 0;
     is_file_end = 0;
 
     @(posedge clk_i);
@@ -133,8 +129,8 @@ initial begin
     while (!$feof(fid[2])) begin
         r[2] = $fscanf(fid[2], "%d %d %d\n", bus_out[2], bus_out[1], bus_out[0]);
         wait (timestamp == bus_out[2]) begin
-            outd_expected = bus_out[1];
-            outn_expected = bus_out[0];
+            OUTD = bus_out[1];
+            OUTN = bus_out[0];
         end
         @(posedge clk_i);
     end
@@ -178,11 +174,11 @@ always @(posedge clk_i)
 begin
     if (~is_file_end) begin
         // If not equal, display an error.
-        if (outn_o != outn_expected) begin
+        if (outn_o != OUTN) begin
             $display("OUTN error detected at timestamp %d\n", timestamp);
         end
 
-        if (outd_o != outd_expected) begin
+        if (outd_o != OUTD) begin
             $display("OUTN error detected at timestamp %d\n", timestamp);
         end
 
@@ -191,6 +187,19 @@ begin
         end
     end
 end
+
+// Instantiate the Unit Under Test (UUT)
+panda_div uut (
+        .clk_i          ( clk_i             ),
+        .inp_i          ( INP               ),
+        .rst_i          ( RESET             ),
+        .outd_o         ( outd_o            ),
+        .outn_o         ( outn_o            ),
+        .FIRST_PULSE    ( FIRST_PULSE       ),
+        .DIVISOR        ( DIVISOR           ),
+        .FORCE_RST      ( FORCE_RST         ),
+        .COUNT          ( COUNT             )
+);
 
 
 endmodule

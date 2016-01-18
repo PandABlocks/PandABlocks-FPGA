@@ -19,10 +19,10 @@ vsim -t 1ps -novopt -lib xil_defaultlib panda_srgate_tb
 
 view wave
 
-add wave -radix decimal -group "Phyton" \
+add wave -radix decimal -group "Testbench" \
         sim:/panda_srgate_tb/*
 
-add wave -radix decimal -group "SRGATE" \
+add wave -radix decimal -group "DIV" \
         sim:/panda_srgate_tb/uut/*
 
 run 5us

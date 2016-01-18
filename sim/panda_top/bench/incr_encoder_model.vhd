@@ -36,11 +36,9 @@ begin
             Phase := Phase + 1;
         end if;
         (A,B) <= Phase_Table(Phase mod 4);
-        PROC_CLK_EAT(125, clk);
+        PROC_CLK_EAT(25, clk);
     end loop;
 end procedure Turn;
-
-signal posn         : integer;
 
 file sine           : text open read_mode is "sine.dat";
 
@@ -49,17 +47,20 @@ begin
 process
     variable inputline  : line;
     variable data       : integer;
-
+    variable posn       : integer;
 begin
-    posn <= 0;
-    -- Wait for 10us for things to settle
-    PROC_CLK_EAT(1250, CLK);
+    A_OUT <= '0';
+    B_OUT <= '0';
+    posn := 0;
+    -- Wait for 20us for things to settle
+    PROC_CLK_EAT(2500, CLK);
 
     while (not(endfile(sine))) loop
         readline(sine, inputline);
         read(inputline, data);
+        writeDecToScreen("Turning ", data-posn);
         Turn(data-posn, CLK, A_OUT, B_OUT);
-        posn <= data;
+        posn := data;
     end loop;
 
     wait;

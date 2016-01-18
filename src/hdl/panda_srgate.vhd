@@ -13,15 +13,16 @@ entity panda_srgate is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
+    reset_i             : in  std_logic;
     -- Block Input and Outputs
     set_i               : in  std_logic;
     rst_i               : in  std_logic;
     out_o               : out std_logic;
     -- Block Parameters
     SET_EDGE            : in  std_logic;
-    RESET_EDGE          : in  std_logic;
+    RST_EDGE            : in  std_logic;
     FORCE_SET           : in  std_logic;
-    FORCE_RESET         : in  std_logic
+    FORCE_RST           : in  std_logic
 );
 end panda_srgate;
 
@@ -52,25 +53,26 @@ end process;
 -- Detect rising and falling edge of set and reset inputs
 set_rise  <= set_i and not set_prev;
 rst_rise  <= rst_i and not rst_prev;
-set_fall <= not set_i and set_prev;
-rst_fall <= not rst_i and rst_prev;
 
-set <= set_rise when (SET_EDGE = '1') else set_fall;
-rst <= rst_rise when (RESET_EDGE = '1') else rst_fall;
-
--- Special SRGate
 --
--- FORCE_STATE input carries:
---  bit0 : Force state strobe
---  bit1 : Force state value
+-- Special SRGate with support for forcing the output.
+--
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        -- Simple SRGate logic
-        if (rst = '1' or FORCE_RESET = '1') then
+        if (reset_i = '1') then
             pulse <= '0';
-        elsif (set = '1' or FORCE_SET = '1') then
-            pulse <= '1';
+        else
+            -- Simple SRGate logic
+            if (FORCE_RST = '1') then
+                pulse <= '0';
+            elsif (FORCE_SET = '1') then
+                pulse <= '1';
+            elsif (rst_rise = '1') then
+                pulse <= '0';
+            elsif (set_rise = '1') then
+                pulse <= '1';
+            end if;
         end if;
     end if;
 end process;

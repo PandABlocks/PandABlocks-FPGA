@@ -147,48 +147,42 @@ signal mem_wstb             : std_logic;
 signal mem_rstb             : std_logic;
 signal mem_read_data        : std32_array(2**PAGE_NUM-1 downto 0) :=
                                 (others => (others => '0'));
-
 signal IRQ_F2P              : std_logic_vector(0 downto 0);
 
 signal probe0               : std_logic_vector(63 downto 0);
-
-signal encin_buf_ctrl       : std_logic_vector(5 downto 0);
-signal outenc_buf_ctrl      : std_logic_vector(5 downto 0);
-signal enc0_ctrl_opad       : std_logic_vector(11 downto 0);
-
-signal As0_ipad, As0_opad   : std_logic;
-signal Bs0_ipad, Bs0_opad   : std_logic;
-signal Zs0_ipad, Zs0_opad   : std_logic;
-
-signal A_o, B_o, Z_o        : std_logic;
-signal mclk_o               : std_logic;
-signal mdat_i               : std_logic;
-signal sclk_i               : std_logic;
-signal sdat_o               : std_logic;
-signal encin_mode           : std_logic_vector(2 downto 0);
-signal outenc_mode          : std_logic_vector(2 downto 0);
-signal endat_mdir           : std_logic;
-signal endat_sdir           : std_logic;
-
-signal soft_input           : std_logic_vector(3 downto 0)  := "0000";
-signal soft_posn            : std_logic_vector(31 downto 0) := (others =>'0');
 
 -- Design Level Busses :
 signal sysbus               : sysbus_t := (others => '0');
 signal posbus               : posbus_t := (others => (others => '0'));
 signal extbus               : extbus_t := (others => (others => '0'));
--- Position Block Outputs :
-signal encin_posn           : std32_array(ENC_NUM-1 downto 0);
+
+-- Input Encoder
+signal inenc_posn           : std32_array(ENC_NUM-1 downto 0);
+signal inenc_a              : std_logic_vector(ENC_NUM-1 downto 0);
+signal inenc_b              : std_logic_vector(ENC_NUM-1 downto 0);
+signal inenc_z              : std_logic_vector(ENC_NUM-1 downto 0);
+signal inenc_conn           : std_logic_vector(ENC_NUM-1 downto 0);
+signal inenc_ctrl           : std4_array(ENC_NUM-1 downto 0);
+
+-- Output Encoder
+signal outenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
 
 -- Discrete Block Outputs :
 signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
 signal lvdsin_val           : std_logic_vector(LVDSIN_NUM-1 downto 0);
 signal lut_val              : std_logic_vector(LUT_NUM-1 downto 0);
 signal srgate_val           : std_logic_vector(SRGATE_NUM-1 downto 0);
-signal div_val              : std_logic_vector(2*DIV_NUM-1 downto 0);
-signal pulse_val            : std_logic_vector(2*PULSE_NUM-1 downto 0);
-signal seq_val              : seq_out_array(SEQ_NUM-1 downto 0);
-signal seq_active           : std_logic_vector(SEQ_NUM-1 downto 0);
+signal div_outd             : std_logic_vector(DIV_NUM-1 downto 0);
+signal div_outn             : std_logic_vector(DIV_NUM-1 downto 0);
+signal pulse_out            : std_logic_vector(PULSE_NUM-1 downto 0);
+signal pulse_perr           : std_logic_vector(PULSE_NUM-1 downto 0);
+signal seq_outa             : std_logic_vector(SEQ_NUM-1 downto 0);
+signal seq_outb             : std_logic_vector(SEQ_NUM-1 downto 0);
+signal seq_outc             : std_logic_vector(SEQ_NUM-1 downto 0);
+signal seq_outd             : std_logic_vector(SEQ_NUM-1 downto 0);
+signal seq_oute             : std_logic_vector(SEQ_NUM-1 downto 0);
+signal seq_outf             : std_logic_vector(SEQ_NUM-1 downto 0);
+signal seq_act              : std_logic_vector(SEQ_NUM-1 downto 0);
 
 signal counter_carry        : std_logic_vector(COUNTER_NUM-1 downto 0);
 signal counter_val          : std32_array(COUNTER_NUM-1 downto 0);
@@ -199,15 +193,11 @@ signal pcomp_pulse          : std_logic_vector(PCOMP_NUM-1 downto 0);
 signal panda_spbram_wea     : std_logic := '0';
 signal irq_enable           : std_logic := '0';
 
-signal counter32            : unsigned(31 downto 0) := (others => '0');
-
-signal pcap_active          : std_logic;
+signal pcap_act             : std_logic;
 
 signal zero                 : std_logic;
 signal one                  : std_logic;
 signal clocks               : std_logic_vector(3 downto 0);
-signal clocks_prev          : std_logic_vector(3 downto 0);
-signal clocks_rise          : std_logic_vector(3 downto 0);
 signal soft                 : std_logic_vector(3 downto 0);
 
 signal adc_low              : std32_array(7 downto 0) := (others => (others => '0'));
@@ -452,8 +442,8 @@ port map (
 
     sysbus_i            => sysbus,
 
-    outd_o              => div_val(3 downto 0),
-    outn_o              => div_val(7 downto 4)
+    outd_o              => div_outd,
+    outn_o              => div_outn
 );
 
 --
@@ -473,8 +463,8 @@ port map (
 
     sysbus_i            => sysbus,
 
-    out_o               => pulse_val(3 downto 0),
-    perr_o              => pulse_val(7 downto 4)
+    out_o               => pulse_out,
+    perr_o              => pulse_perr
 );
 
 --
@@ -494,8 +484,70 @@ port map (
 
     sysbus_i            => sysbus,
 
-    out_o               => seq_val,
-    active_o            => seq_active
+    outa_o              => seq_outa,
+    outb_o              => seq_outb,
+    outc_o              => seq_outc,
+    outd_o              => seq_outd,
+    oute_o              => seq_oute,
+    outf_o              => seq_outf,
+    active_o            => seq_act
+);
+
+--
+-- INENC (Encoder Inputs)
+--
+inenc_ctrl(0) <= enc0_ctrl_pad_i;
+inenc_ctrl(1) <= enc0_ctrl_pad_i;
+inenc_ctrl(2) <= enc0_ctrl_pad_i;
+inenc_ctrl(3) <= enc0_ctrl_pad_i;
+
+panda_inenc_inst : entity work.panda_inenc_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(INENC_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => open,
+
+    Am0_pad_io          => Am0_pad_io,
+    Bm0_pad_io          => Bm0_pad_io,
+    Zm0_pad_io          => Zm0_pad_io,
+
+    ctrl_pad_i          => inenc_ctrl,
+
+    a_o                 => inenc_a,
+    b_o                 => inenc_b,
+    z_o                 => inenc_z,
+    conn_o              => inenc_conn,
+    posn_o              => inenc_posn
+);
+
+--
+-- OUTENC (Encoder Inputs)
+--
+panda_outenc_inst : entity work.panda_outenc_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(OUTENC_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => mem_read_data(OUTENC_CS),
+
+    As0_pad_io          => As0_pad_io,
+    Bs0_pad_io          => Bs0_pad_io,
+    Zs0_pad_io          => Zs0_pad_io,
+    conn_o              => outenc_conn,
+
+    sysbus_i            => sysbus,
+    posbus_i            => posbus
 );
 
 --
@@ -517,6 +569,28 @@ port map (
     -- Output pulse
     carry_o             => counter_carry,
     count_o             => counter_val
+);
+
+--
+-- POSITION COMPARE
+--
+panda_pcomp_inst : entity work.panda_pcomp_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(PCOMP_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => open,
+
+    sysbus_i            => sysbus,
+    posbus_i            => posbus,
+
+    act_o               => pcomp_act,
+    pulse_o             => pcomp_pulse
 );
 
 --
@@ -559,7 +633,7 @@ port map (
     posbus_i            => posbus,
     extbus_i            => extbus,
 
-    pcap_actv_o         => pcap_active,
+    pcap_actv_o         => pcap_act,
     pcap_irq_o          => IRQ_F2P(0)
 );
 
@@ -599,7 +673,6 @@ port map (
     clocks_o            => clocks
 );
 
-
 --
 -- BITS
 --
@@ -621,6 +694,23 @@ port map (
 );
 
 --
+-- SLOW CONTROLLER FPGA
+--
+panda_slowctrl_inst : entity work.panda_slowctrl_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(SLOW_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => mem_read_data(SLOW_CS),
+
+    enc0_ctrl_o         => enc0_ctrl_pad_o
+);
+
+--
 -- System Bus   : Assignments
 --
 sysbus(0)               <= zero;
@@ -629,36 +719,41 @@ sysbus(7 downto 2)      <= ttlin_val;
 sysbus(9 downto 8)      <= lvdsin_val;
 sysbus(17 downto 10)    <= lut_val;
 sysbus(21 downto 18)    <= srgate_val;
-sysbus(29 downto 22)    <= div_val;
-sysbus(37 downto 30)    <= pulse_val;
-sysbus(43 downto 38)    <= seq_val(0);
-sysbus(49 downto 44)    <= seq_val(1);
-sysbus(55 downto 50)    <= seq_val(2);
-sysbus(61 downto 56)    <= seq_val(3);
-sysbus(91 downto 84)    <= counter_carry;
-sysbus(111 downto 108)  <= seq_active;
-sysbus(112)             <= pcap_active;
-
+sysbus(25 downto 22)    <= div_outd;
+sysbus(29 downto 26)    <= div_outn;
+sysbus(33 downto 30)    <= pulse_out;
+sysbus(37 downto 34)    <= pulse_perr;
+sysbus(41 downto 38)    <= seq_outa;
+sysbus(45 downto 42)    <= seq_outb;
+sysbus(49 downto 46)    <= seq_outc;
+sysbus(53 downto 50)    <= seq_outd;
+sysbus(57 downto 54)    <= seq_oute;
+sysbus(61 downto 58)    <= seq_outf;
+sysbus(65 downto 62)    <= seq_act;
+sysbus(69 downto 66)    <= inenc_a;
+sysbus(73 downto 70)    <= inenc_b;
+sysbus(77 downto 74)    <= inenc_z;
+sysbus(81 downto 78)    <= inenc_conn;
+sysbus(85 downto 82)    <= (others => '0'); --POSENC_A
+sysbus(89 downto 86)    <= (others => '0'); --POSENC_B
+sysbus(97 downto 90)    <= counter_carry;
+sysbus(101 downto 98)   <= pcomp_act;
+sysbus(105 downto 102)  <= pcomp_pulse;
+sysbus(106)             <= pcap_act;
 sysbus(121 downto 118)  <= soft;
 sysbus(125 downto 122)  <= clocks;
 
-process(FCLK_CLK0)
-begin
-    if rising_edge(FCLK_CLK0) then
-        clocks_prev <= clocks;
-
-        if (sysbus(112) = '0') then
-            counter32 <= (others => '0');
-        elsif (soft(0) = '1' and clocks(1) = '1' and clocks_prev(1) = '0') then
-            counter32 <= counter32 + 1;
-        end if;
-    end if;
-end process;
-
+--
+-- Position Bus   : Assignments
+--
 posbus(0) <= (others => '0');
+posbus(4 downto 1)   <= inenc_posn;
 posbus(19 downto 12) <= counter_val;
 posbus(29 downto 22) <= adc_low;
 
+--
+-- Extended Bus   : Assignments
+--
 extbus(11 downto 4) <= adc_high;
 
 end rtl;

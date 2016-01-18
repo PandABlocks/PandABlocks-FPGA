@@ -1,18 +1,3 @@
-add wave -divider {Discrete IO}
-add wave    sim:/test/tb/uut/lvdsin_pad_i  \
-            sim:/test/tb/uut/lvdsout_pad_o \
-            sim:/test/tb/uut/ttlin_pad_i   \
-            sim:/test/tb/uut/ttlout_pad_o
-
-add wave -divider {System Bus}
-add wave    sim:/test/tb/uut/lut_val    \
-            sim:/test/tb/uut/srgate_val \
-            sim:/test/tb/uut/div_val    \
-            sim:/test/tb/uut/pulse_val  \
-            sim:/test/tb/uut/seq_val    \
-            sim:/test/tb/uut/seq_active
-
-
 add wave -divider {Blocks}
 add wave -group "TB"    sim:/test/tb/*
 add wave -group "TOP"   sim:/test/tb/uut/*
@@ -44,14 +29,41 @@ sim:/test/tb/uut/panda_bits_inst/panda_bits_block/*
 add wave -group "BITS" \
 sim:/test/tb/uut/panda_bits_inst/panda_bits_block/panda_bits_inst/*
 
+add wave -group "COUNTER_0" \
+sim:/test/tb/uut/panda_counter_inst/COUNTER_GEN(0)/panda_counter_block/*
+
+add wave -group "COUNTER_1" \
+sim:/test/tb/uut/panda_counter_inst/COUNTER_GEN(1)/panda_counter_block/*
+
+add wave -group "INENC_BLOCK" \
+sim:/test/tb/uut/panda_inenc_inst/INENC_GEN(0)/panda_inenc_block_inst/*
+
+add wave -group "OUTENC_BLOCK" \
+sim:/test/tb/uut/panda_outenc_inst/ENCOUT_GEN(0)/panda_outenc_block_inst/*
+
+add wave -group "SSI_MASTER" \
+sim:/test/tb/uut/panda_inenc_inst/INENC_GEN(0)/panda_inenc_block_inst/panda_ssimstr_inst/*
+
+add wave -group "SSI_SLAVE" \
+sim:/test/tb/uut/panda_outenc_inst/ENCOUT_GEN(0)/panda_outenc_block_inst/panda_ssislv_inst/*
+
+add wave -group "ENC_MODEL" \
+sim:/test/tb/encoder/*
+
+add wave -group "DAUGHTER_MODEL" \
+sim:/test/tb/daughter_card_model_inst/*
+
+add wave -group "SLOW" \
+sim:/test/tb/uut/panda_slowctrl_inst/*
+
 add wave -group "PCAP_BLOCK" \
 sim:/test/tb/uut/panda_pcap_inst/*
 
 add wave -group "PCAP" \
 sim:/test/tb/uut/panda_pcap_inst/panda_pcap_inst/*
 
-add wave -group "COUNTER_0" \
-sim:/test/tb/uut/panda_counter_inst/COUNTER_GEN(0)/panda_counter_block/*
+add wave -group "pcomp_block" \
+sim:/test/tb/uut/panda_pcomp_inst/PCOMP_GEN(0)/panda_pcomp_block_inst/*
 
-add wave -group "COUNTER_1" \
-sim:/test/tb/uut/panda_counter_inst/COUNTER_GEN(1)/panda_counter_block/*
+add wave -group "pcomp" \
+sim:/test/tb/uut/panda_pcomp_inst/PCOMP_GEN(0)/panda_pcomp_block_inst/panda_pcomp_inst/*

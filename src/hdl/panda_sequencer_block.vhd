@@ -27,7 +27,12 @@ port (
     -- Block inputs
     sysbus_i            : in  sysbus_t;
     -- Output sequencer
-    out_o               : out std_logic_vector(5 downto 0);
+    outa_o              : out std_logic;
+    outb_o              : out std_logic;
+    outc_o              : out std_logic;
+    outd_o              : out std_logic;
+    oute_o              : out std_logic;
+    outf_o              : out std_logic;
     active_o            : out std_logic
 );
 end panda_sequencer_block;
@@ -45,13 +50,11 @@ signal SOFT_GATE        : std_logic := '0';
 signal TABLE_RST        : std_logic := '0';
 signal TABLE_DATA       : std_logic_vector(31 downto 0) := (others => '0');
 signal TABLE_WSTB       : std_logic := '0';
-signal TABLE_REPEAT     : std_logic_vector(31 downto 0) := (others => '0');
+signal TABLE_CYCLE      : std_logic_vector(31 downto 0) := (others => '0');
 signal TABLE_LENGTH     : std_logic_vector(15 downto 0) := (others => '0');
-
 signal CUR_FRAME        : std_logic_vector(31 downto 0) := (others => '0');
 signal CUR_FCYCLES      : std_logic_vector(31 downto 0) := (others => '0');
 signal CUR_TCYCLE       : std_logic_vector(31 downto 0) := (others => '0');
-signal CUR_STATE        : std_logic_vector(31 downto 0) := (others => '0');
 
 signal gate             : std_logic := '0';
 signal inpa             : std_logic := '0';
@@ -68,18 +71,18 @@ REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            GATE_VAL <= TO_SVECTOR(127, SBUSBW);
-            INPA_VAL <= TO_SVECTOR(127, SBUSBW);
-            INPB_VAL <= TO_SVECTOR(127, SBUSBW);
-            INPC_VAL <= TO_SVECTOR(127, SBUSBW);
-            INPD_VAL <= TO_SVECTOR(127, SBUSBW);
-            PRESCALE <= X"0000_0002";
+            GATE_VAL <= TO_SVECTOR(0, SBUSBW);
+            INPA_VAL <= TO_SVECTOR(0, SBUSBW);
+            INPB_VAL <= TO_SVECTOR(0, SBUSBW);
+            INPC_VAL <= TO_SVECTOR(0, SBUSBW);
+            INPD_VAL <= TO_SVECTOR(0, SBUSBW);
+            PRESCALE <= (others => '0');
             SOFT_GATE <= '0';
             TABLE_RST <= '0';
             TABLE_DATA <= (others => '0');
             TABLE_WSTB <= '0';
-            TABLE_REPEAT <= X"0000_0001";
-            TABLE_LENGTH <= X"0000";
+            TABLE_CYCLE <= (others => '0');
+            TABLE_LENGTH <= (others => '0');
         else
             TABLE_RST <= '0';
             TABLE_WSTB <= '0';
@@ -123,8 +126,8 @@ begin
                     TABLE_WSTB <= '1';
                 end if;
 
-                if (mem_addr_i = SEQ_TABLE_REPEAT_ADDR) then
-                    TABLE_REPEAT <= mem_dat_i;
+                if (mem_addr_i = SEQ_TABLE_CYCLE_ADDR) then
+                    TABLE_CYCLE <= mem_dat_i;
                 end if;
 
                 if (mem_addr_i = SEQ_TABLE_LENGTH_ADDR) then
@@ -150,8 +153,8 @@ begin
                     mem_dat_o <= CUR_FCYCLES;
                 when SEQ_CUR_TCYCLE_ADDR =>
                     mem_dat_o <= CUR_TCYCLE;
-                when SEQ_CUR_STATE_ADDR =>
-                    mem_dat_o <= CUR_STATE;
+--                when SEQ_CUR_STATE_ADDR =>
+--                    mem_dat_o <= CUR_STATE;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;
@@ -183,12 +186,12 @@ port map (
     inpb_i              => inpb,
     inpc_i              => inpc,
     inpd_i              => inpd,
-    outa_o              => out_o(0),
-    outb_o              => out_o(1),
-    outc_o              => out_o(2),
-    outd_o              => out_o(3),
-    oute_o              => out_o(4),
-    outf_o              => out_o(5),
+    outa_o              => outa_o,
+    outb_o              => outb_o,
+    outc_o              => outc_o,
+    outd_o              => outd_o,
+    oute_o              => oute_o,
+    outf_o              => outf_o,
     active_o            => active_o,
 
     PRESCALE            => PRESCALE,
@@ -196,13 +199,13 @@ port map (
     TABLE_RST           => TABLE_RST,
     TABLE_DATA          => TABLE_DATA,
     TABLE_WSTB          => TABLE_WSTB,
-    TABLE_REPEAT        => TABLE_REPEAT,
+    TABLE_CYCLE         => TABLE_CYCLE,
     TABLE_LENGTH        => TABLE_LENGTH,
 
     CUR_FRAME           => CUR_FRAME,
     CUR_FCYCLES         => CUR_FCYCLES,
     CUR_TCYCLE          => CUR_TCYCLE,
-    CUR_STATE           => CUR_STATE
+    CUR_STATE           => open
 );
 
 end rtl;

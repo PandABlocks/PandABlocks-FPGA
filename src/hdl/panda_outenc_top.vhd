@@ -10,7 +10,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_encout_top is
+entity panda_outenc_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -26,12 +26,14 @@ port (
     As0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
     Bs0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
     Zs0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
+    conn_o              : out   std_logic_vector(ENC_NUM-1 downto 0);
     -- Position data value
+    sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t
 );
-end panda_encout_top;
+end panda_outenc_top;
 
-architecture rtl of panda_encout_top is
+architecture rtl of panda_outenc_top is
 
 signal mem_blk_cs           : std_logic_vector(ENC_NUM-1 downto 0);
 
@@ -84,7 +86,7 @@ Zs0_opad(I) <= zo(I) when (enc_mode_channels(I) = "000") else sdat_dir_channels(
 
 sclk(I) <= Bs0_ipad(I);
 
-panda_encout_inst : entity work.panda_encout
+panda_outenc_block_inst : entity work.panda_outenc_block
 port map (
     -- Clock and Reset
     clk_i               => clk_i,
@@ -99,11 +101,13 @@ port map (
     a_o                 => ao(I),
     b_o                 => bo(I),
     z_o                 => zo(I),
+    conn_o              => conn_o(I),
     sclk_i              => sclk(I),
     sdat_i              => '0',
     sdat_o              => sdato(I),
     sdat_dir_o          => sdat_dir_channels(I),
     -- Position Bus Input
+    sysbus_i            => sysbus_i,
     posbus_i            => posbus_i,
     -- CS Interface
     enc_mode_o          => enc_mode_channels(I),

@@ -43,7 +43,7 @@ port (
     TABLE_RST           : in  std_logic;
     TABLE_DATA          : in  std_logic_vector(31 downto 0);
     TABLE_WSTB          : in  std_logic;
-    TABLE_REPEAT        : in  std_logic_vector(31 downto 0);
+    TABLE_CYCLE         : in  std_logic_vector(31 downto 0);
     TABLE_LENGTH        : in  std_logic_vector(15 downto 0);
     -- Block Status
     CUR_FRAME           : out std_logic_vector(31 downto 0);
@@ -321,10 +321,11 @@ begin
     end if;
 end process;
 
+-- Detect whether we are processing the last frame and table repeats.
 last_frame_repeat <= '1' when (seq_cur_frame.repeats /= 0 and repeat_count = seq_cur_frame.repeats-1)
                     else '0';
 
-last_table_repeat <= '1' when (TABLE_REPEAT /= X"0000_0000" and table_count = unsigned(TABLE_REPEAT)-1)
+last_table_repeat <= '1' when (TABLE_CYCLE /= X"0000_0000" and table_count = unsigned(TABLE_CYCLE)-1)
                     else '0';
 
 --

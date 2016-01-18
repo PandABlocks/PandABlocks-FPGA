@@ -67,7 +67,7 @@ begin
         sysbus_rstb <= '0';
 
         if (mem_cs_i = '1' and mem_wstb_i = '1' and
-              mem_addr_i(BLK_AW-1 downto 0) = REG_BIT_READ_RESET_ADDR) then
+              mem_addr_i(BLK_AW-1 downto 0) = REG_BIT_READ_RST_ADDR) then
             index <= (others => '0');
         elsif (mem_cs_i = '1' and mem_rstb_i = '1' and
               mem_addr_i(BLK_AW-1 downto 0) = REG_BIT_READ_VALUE_ADDR) then

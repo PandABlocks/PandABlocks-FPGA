@@ -35,12 +35,6 @@ set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj
 
-## Generate External IP into the project dir
-#create_ip -name ila -vendor xilinx.com -library ip -version 5.1 -module_name ila_0
-#set_property -dict [list CONFIG.C_PROBE0_WIDTH {64}] [get_ips ila_0]
-#generate_target all [get_ips ila_0]
-#synth_ip [get_ips ila_0]
-
 # Read design files
 read_bd   panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 read_vhdl ../src/hdl/defines/type_defines.vhd
@@ -78,11 +72,12 @@ read_vhdl ../src/hdl/panda_qenc.vhd
 read_vhdl ../src/hdl/panda_qdec.vhd
 read_vhdl ../src/hdl/panda_quadin.vhd
 read_vhdl ../src/hdl/panda_quadout.vhd
-read_vhdl ../src/hdl/panda_encin.vhd
-read_vhdl ../src/hdl/panda_encin_top.vhd
-read_vhdl ../src/hdl/panda_encout.vhd
-read_vhdl ../src/hdl/panda_encout_top.vhd
+read_vhdl ../src/hdl/panda_inenc_block.vhd
+read_vhdl ../src/hdl/panda_inenc_top.vhd
+read_vhdl ../src/hdl/panda_outenc_block.vhd
+read_vhdl ../src/hdl/panda_outenc_top.vhd
 read_vhdl ../src/hdl/panda_pcomp.vhd
+read_vhdl ../src/hdl/panda_pcomp_block.vhd
 read_vhdl ../src/hdl/panda_pcomp_top.vhd
 read_vhdl ../src/hdl/panda_clocks.vhd
 read_vhdl ../src/hdl/panda_clocks_block.vhd
@@ -94,6 +89,7 @@ read_vhdl ../src/hdl/panda_reg.vhd
 read_vhdl ../src/hdl//panda_axi3_write_master.vhd
 read_vhdl ../src/hdl/panda_pcap.vhd
 read_vhdl ../src/hdl/panda_pcap_block.vhd
+read_vhdl ../src/hdl/panda_slowctrl_top.vhd
 read_vhdl ../src/hdl/panda_top.vhd
 
 # Import IPs

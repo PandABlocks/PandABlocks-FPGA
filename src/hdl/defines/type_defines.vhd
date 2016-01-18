@@ -16,6 +16,9 @@ type seq_out_array is array(natural range <>) of seq_out_t;
 subtype posn_t is std_logic_vector(31 downto 0);
 type std32_array is array(natural range <>) of posn_t;
 
+subtype std4_t is std_logic_vector(3 downto 0);
+type std4_array is array(natural range <>) of std4_t;
+
 --
 -- Functions
 --

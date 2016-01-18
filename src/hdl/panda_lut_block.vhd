@@ -111,6 +111,7 @@ end process;
 panda_lut : entity work.panda_lut
 port map (
     clk_i       => clk_i,
+    reset_i     => reset_i,
 
     inpa_i      => inpa,
     inpb_i      => inpb,
