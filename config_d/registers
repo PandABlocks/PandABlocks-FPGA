@@ -13,39 +13,39 @@ LUT         2
     INPD            3
     INPE            4
     FUNC            5
-    VAL             8 9 10 11 12 13 14 15
+    VAL             10 11 12 13 14 15 16 17
 
 SRGATE      3
     SET             0
-    RESET           1
+    RST             1
     SET_EDGE        2
-    RESET_EDGE      3
+    RST_EDGE        3
     FORCE_SET       4
-    FORCE_RESET     5
-    VAL             16 17 18 19
+    FORCE_RST       5
+    VAL             18 19 20 21
 
 DIV         4
-    DIVISOR         3
-    FIRST_PULSE     2
-    FORCE_RESET     5
     INP             0
-    RESET           1
-    OUTD            20 21 22 23
-    OUTN            24 25 26 27
+    RST             1
+    DIVISOR         2
+    FIRST_PULSE     3
     COUNT           4
+    FORCE_RST       5
+    OUTD            22 23 24 25
+    OUTN            26 27 28 29
 
 PULSE       5
+    INP             0
+    RST             1
     DELAY           3 2     >3
     WIDTH           5 4     >3
-    FORCE_RESET     6
-    INP             0
-    RESET           1
-    OUT             28 29 30 31
-    PERR            32 33 34 35
+    FORCE_RST       6
     ERR_OVERFLOW    7
     ERR_PERIOD      8
     QUEUE           9
     MISSED_CNT      10
+    OUT             30 31 32 33
+    PERR            34 35 36 37
 
 SEQ         6
     GATE            0
@@ -53,35 +53,35 @@ SEQ         6
     INPB            2
     INPC            3
     INPD            4
-    PRESCALE        6
+    PRESCALE        5
+    SOFT_GATE       6
     TABLE_LENGTH    7
-    SOFT_GATE       8
+    TABLE_CYCLE     8
     CUR_FRAME       9
     CUR_FCYCLE      10
     CUR_TCYCLE      11
-    TABLE_CYCLE     12
-    TABLE_STROBES   13
-    OUTA            36 37 38 39
-    OUTB            40 41 42 43
-    OUTC            44 45 46 47
-    OUTD            48 49 50 51
-    OUTE            52 53 54 55
-    OUTF            56 57 58 59
-    ACTIVE          108 109 110 111
+    TABLE_STROBES   12
+    OUTA            38 39 40 41
+    OUTB            42 43 44 45
+    OUTC            46 47 48 49
+    OUTD            50 51 52 53
+    OUTE            54 55 56 57
+    OUTF            58 59 60 61
+    ACTIVE          62 63 64 65
     TABLE           short   512    13 14 15
 
 INENC       7
     PROTOCOL        0
-    RATE            1
-    BITS            2
-    RST_ON_Z        3
+    CLKRATE         1
+    FRAMERATE       2
+    BITS            3
     SETP            4
-    EXTENSION       5
-    A               60 61 62 63
-    B               64 65 66 67
-    Z               68 69 70 71
-    CONN            72 73 74 75
-    ENC_POSN        29 1 2 3
+    RST_ON_Z        5
+    A               66 67 68 69
+    B               70 71 72 73
+    Z               74 75 76 77
+    CONN            78 79 80 81
+    ENC_POSN        1 2 3 4
 
 QDEC        8
     A               0
@@ -89,14 +89,14 @@ QDEC        8
     Z               2
     RST_ON_Z        3
     SETP            4
-    ENC_POSN        4 5 6 7
+    ENC_POSN        5 6 7 8
 
 OUTENC      9
     A               0
     B               1
     Z               2
-    ENC_POSN        3
-    CONN            4
+    CONN            3
+    POSN            4
     PROTOCOL        5
     BITS            6
     QPRESCALAR      7
@@ -109,8 +109,8 @@ POSENC      10
     MODE            2
     FORCE_QSTATE    3
     QSTATE          4
-    A               76 77 78 79
-    B               80 81 82 83
+    A               82 83 84 85
+    B               86 87 88 89
 
 CALC        11
     A               0
@@ -118,13 +118,13 @@ CALC        11
     KA              2
     KB              3
     SCALE           4
-    RESULT          8 9
+    RESULT          9 10
 
 # Hard wired inputs!
 ADDER       12
     MASK            1
     OUTSCALE        2
-    RESULT          10
+    RESULT          11
 
 COUNTER     13
     ENABLE          0
@@ -132,16 +132,15 @@ COUNTER     13
     DIR             2
     START           3
     STEP            4
-    SOFT_ENABLE     5
-    COUNT           11 12 13 14 15 16 17 18
-    CARRY           84 85 86 87 88 89 90 91
+    COUNT           12 13 14 15 16 17 18 19
+    CARRY           90 91 92 93 94 95 96 97
 
 PGEN        14
     ENABLE          0
     TRIGGER         1
     SAMPLES         2
     CYCLES          3
-    POSN            19 20
+    POSN            20 21
     TABLE           long    2^20
 
 PCOMP       15
@@ -152,29 +151,31 @@ PCOMP       15
     WIDTH           4
     NUM             5
     RELATIVE        6
-    LUT_ENABLE      7
-    ACT             92 93 94 95
-    PULSE           96 97 98 99
+    DIR             7
+    FLTR_DELTAT     8
+    FLTR_THOLD      9
+    LUT_ENABLE      10
+    ACT             98 99 100 101
+    PULSE           102 103 104 105
     TABLE           long    2^10
 
-ADC         16
-    TRIGGER         0
-    RESET           1
-    TRIGGERD        100 101 102 103 104 105 106 107
-    DATA            21 22 23 24 25 26 27 28
-
-PCAP        17
+PCAP        16
     ENABLE          0
     FRAME           1
     CAPTURE         2
-    ACTIVE          112
+    ACTIVE          106
 
-LVDSIN      18
-    VAL             6 7
+LVDSIN      17
+    VAL             8 9
 
-TTLIN       27
-    TERM            1
-    VAL             126 127 2 3 4 5
+TTLIN       18
+    VAL             2 3 4 5 6 7
+    TERM            0
+
+ADC         26
+    TRIGGER         0
+    RST             1
+    DATA            22 23 24 25 26 27 28 29
 
 CLOCKS      28
     A               122
@@ -204,9 +205,9 @@ POSITIONS   30
 # This special register block is not present in the config file and contains
 # fixed register definitions used in the hardware interface
 *REG        31
-    BIT_READ_RESET      0
+    BIT_READ_RST        0
     BIT_READ_VALUE      1
-    POS_READ_RESET      2
+    POS_READ_RST        2
     POS_READ_VALUE      3
     POS_READ_CHANGES    4
     BIT_CAPTURE_MASK    5

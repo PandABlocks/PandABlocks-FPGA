@@ -29,25 +29,25 @@ LUT[8]
 
 SRGATE[4]
     SET             param       bit_mux
-    RESET           param       bit_mux
+    RST             param       bit_mux
     VAL             bit_out
     SET_EDGE        param       enum 2
         0   Falling
         1   Rising
-    RESET_EDGE      param       enum 2
+    RST_EDGE        param       enum 2
         0   Falling
         1   Rising
     FORCE_SET       write       action
-    FORCE_RESET     write       action
+    FORCE_RST       write       action
 
 DIV[4]
     DIVISOR         param
     FIRST_PULSE     param       enum 2
         0   OutN
         1   OutD
-    FORCE_RESET     write       action
+    FORCE_RST       write       action
     INP             param       bit_mux
-    RESET           param       bit_mux
+    RST             param       bit_mux
     OUTD            bit_out
     OUTN            bit_out
     COUNT           read
@@ -55,9 +55,9 @@ DIV[4]
 PULSE[4]
     DELAY           time
     WIDTH           time
-    FORCE_RESET     write       action
+    FORCE_RST       write       action
     INP             param       bit_mux
-    RESET           param       bit_mux
+    RST             param       bit_mux
     OUT             bit_out
     PERR            bit_out
     ERR_OVERFLOW    read        bit
@@ -107,10 +107,10 @@ INENC[4]
         2   BISS
         3   enDat
         4   enDat/BISS
-    RATE            param
+    CLKRATE         param
+    FRAMERATE       param
     BITS            param       uint 63
     RST_ON_Z        param       bit
-    EXTENSION       read
     SETP            write       position
 
 QDEC[4]
@@ -125,7 +125,7 @@ OUTENC[4]
     A               param       bit_mux
     B               param       bit_mux
     Z               param       bit_mux
-    ENC_POSN        param       pos_mux
+    POSN            param       pos_mux
     CONN            param       bit_mux
     PROTOCOL        param       enum 5
         0   Pos-Quad
@@ -171,7 +171,6 @@ COUNTER[8]
     CARRY           bit_out
     START           param
     STEP            param
-    SOFT_ENABLE     write
 
 PGEN[2]
     ENABLE          param       bit_mux
@@ -191,13 +190,15 @@ PCOMP[4]
     WIDTH           param       position
     NUM             param
     RELATIVE        param
+    DIR             param
+    FLTR_DELTAT     param
+    FLTR_THOLD      param
     LUT_ENABLE      param
     TABLE           table
 
 ADC[8]
     TRIGGER         param       bit_mux
-    RESET           param       bit_mux
-    TRIGGERD        bit_out
+    RST             param       bit_mux
     DATA            pos_out     adc
 
 PCAP

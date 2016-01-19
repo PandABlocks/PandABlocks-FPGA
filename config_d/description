@@ -24,19 +24,19 @@ LUT         Logic lookup table
 
 SRGATE      
     SET             
-    RESET           
+    RST             
     SET_EDGE        
-    RESET_EDGE      
+    RST_EDGE        
     FORCE_SET       
-    FORCE_RESET     
+    FORCE_RST       
     VAL             
 
 DIV         Pulse divider
     DIVISOR         Divisor value
     FIRST_PULSE     Where to send first pulse
-    FORCE_RESET     Reset internal counter state machine
+    FORCE_RST       Reset internal counter state machine
     INP             Input pulse train
-    RESET           On rising edge, reset counter state machine
+    RST             On rising edge, reset counter state machine
     OUTD            Divided pulse output
     OUTN            Non-divided pulse output
     COUNT           Internal counter value
@@ -44,9 +44,9 @@ DIV         Pulse divider
 PULSE       One-shot pulse delay and stretch
     DELAY           Output pulse delay (0 for no delay)
     WIDTH           Output pulse width (0 for input pulse width)
-    FORCE_RESET     Reset QUEUE and ERR outputs
+    FORCE_RST       Reset QUEUE and ERR outputs
     INP             Input pulse train
-    RESET           On rising edge, reset QUEUE and ERR outputs
+    RST             On rising edge, reset QUEUE and ERR outputs
     OUT             Output pulse train
     PERR            Error output if a pulse could not be generated
     ERR_OVERFLOW    Missed pulse was due to overflow of internal queue
@@ -68,6 +68,7 @@ SEQ
     CUR_FCYCLE      
     CUR_TCYCLE      
     TABLE_CYCLE     
+    TABLE_STROBES   
     OUTA            
     OUTB            
     OUTC            
@@ -78,7 +79,8 @@ SEQ
 
 INENC       
     PROTOCOL        
-    RATE            
+    CLKRATE         
+    FRAMERATE       
     BITS            
     RST_ON_Z        
     SETP            
@@ -87,7 +89,6 @@ INENC
     Z               
     CONN            
     ENC_POSN        
-    EXTENSION       
 
 QDEC        
     A               
@@ -101,7 +102,7 @@ OUTENC
     A               
     B               
     Z               
-    ENC_POSN        
+    POSN            
     CONN            
     PROTOCOL        
     BITS            
@@ -137,7 +138,6 @@ COUNTER
     DIR             
     START           
     STEP            
-    SOFT_ENABLE     
     COUNT           
     CARRY           
 
@@ -157,6 +157,9 @@ PCOMP
     WIDTH           
     NUM             
     RELATIVE        
+    DIR             
+    FLTR_DELTAT     
+    FLTR_THOLD      
     LUT_ENABLE      
     ACT             
     PULSE           
@@ -164,8 +167,7 @@ PCOMP
 
 ADC         
     TRIGGER         
-    RESET           
-    TRIGGERD        
+    RST             
     DATA            
 
 PCAP        Position capture control
