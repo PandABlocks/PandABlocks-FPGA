@@ -15,13 +15,9 @@ $ Multiple frames, multiple frame and table cycles
 # PHASE 2 LENGTH    = 1
 #---------------------------------
 8       : TABLE_DATA=0x00000002     : TABLE_STROBES=1
-9       : TABLE_WSTB=1
-10      : TABLE_DATA=0x1F073800             : TABLE_STROBES=2
-11      : TABLE_WSTB=2
-12      : TABLE_DATA=0x00000002     : TABLE_STROBES=3
-13      : TABLE_WSTB=3
-14      : TABLE_DATA=0x00000001     : TABLE_STROBES=4
-15      : TABLE_WSTB=4
+9       : TABLE_DATA=0x1F073800     : TABLE_STROBES=2
+10      : TABLE_DATA=0x00000002     : TABLE_STROBES=3
+11      : TABLE_DATA=0x00000001     : TABLE_STROBES=4
 #--FRAME 2 -----------------------
 # REPEATS           = 2
 # INPUT MASK        = 0x2
@@ -32,13 +28,9 @@ $ Multiple frames, multiple frame and table cycles
 # PHASE 2 LENGTH    = 4
 #---------------------------------
 16      : TABLE_DATA=0x00000002             : TABLE_STROBES=5
-17      : TABLE_WSTB=5
-18      : TABLE_DATA=0x220C3300             : TABLE_STROBES=6
-19      : TABLE_WSTB=6
-20      : TABLE_DATA=0x00000004             : TABLE_STROBES=7
-21      : TABLE_WSTB=7
-22      : TABLE_DATA=0x00000004             : TABLE_STROBES=8
-23      : TABLE_WSTB=8
+17      : TABLE_DATA=0x220C3300             : TABLE_STROBES=6
+18      : TABLE_DATA=0x00000004             : TABLE_STROBES=7
+19      : TABLE_DATA=0x00000004             : TABLE_STROBES=8
 
 26      : TABLE_LENGTH=2
 27      : TABLE_LENGTH=0
@@ -86,17 +78,13 @@ $ Writing inputs before a whole frame is written
 # PHASE 2 LENGTH    = 1
 #---------------------------------
 5       : TABLE_DATA=0x00000001     : TABLE_STROBES=1
-6       : TABLE_WSTB=1
-7       : INPA=1, INPB=1, INPC=1, INPD=1
-8       : TABLE_DATA=0xFF013F00     : TABLE_STROBES=2
-9       : TABLE_WSTB=2
-10      : TABLE_DATA=0x00000002     : TABLE_STROBES=3
-11      : TABLE_WSTB=3
-12      : TABLE_DATA=0x00000001     : TABLE_STROBES=4
-13      : TABLE_WSTB=4
-14      : INPA=0, INPB=0, INPC=0, INPD=0
-15      : TABLE_LENGTH=1
-16      : TABLE_LENGTH=0
+6       : INPA=1, INPB=1, INPC=1, INPD=1
+7       : TABLE_DATA=0xFF013F00     : TABLE_STROBES=2
+8       : TABLE_DATA=0x00000002     : TABLE_STROBES=3
+9       : TABLE_DATA=0x00000001     : TABLE_STROBES=4
+10      : INPA=0, INPB=0, INPC=0, INPD=0
+11      : TABLE_LENGTH=1
+12      : TABLE_LENGTH=0
 17      : GATE=1                    : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1
 24      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
@@ -120,15 +108,11 @@ $ Writing inputs after sequencer has finished
 # PHASE 2 LENGTH    = 1
 #---------------------------------
 5       : TABLE_DATA=0x00000001     : TABLE_STROBES=1
-6       : TABLE_WSTB=1
-7       : TABLE_DATA=0xFF013F00     : TABLE_STROBES=2
-8       : TABLE_WSTB=2
-9       : TABLE_DATA=0x00000002     : TABLE_STROBES=3
-10      : TABLE_WSTB=3
-11      : TABLE_DATA=0x00000001     : TABLE_STROBES=4
-12      : TABLE_WSTB=4
-13      : TABLE_LENGTH=1
-14      : TABLE_LENGTH=0
+6       : TABLE_DATA=0xFF013F00     : TABLE_STROBES=2
+7       : TABLE_DATA=0x00000002     : TABLE_STROBES=3
+8       : TABLE_DATA=0x00000001     : TABLE_STROBES=4
+9       : TABLE_LENGTH=1
+10      : TABLE_LENGTH=0
 15      : GATE=1                    : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1
 25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
@@ -156,15 +140,11 @@ $ Single frame, multiple frame and table cycles
 # PHASE 2 LENGTH    = 1*PRESCALE
 #---------------------------------
 6       : TABLE_DATA=0x00000002             : TABLE_STROBES=1
-7       : TABLE_WSTB=1
-8       : TABLE_DATA=0xFF013F00     : TABLE_STROBES=2
-9       : TABLE_WSTB=2
-10      : TABLE_DATA=0x00000002     : TABLE_STROBES=3
-11      : TABLE_WSTB=3
-12      : TABLE_DATA=0x00000001     : TABLE_STROBES=4
-13      : TABLE_WSTB=4
-14      : TABLE_LENGTH=1
-15      : TABLE_LENGTH=0
+7       : TABLE_DATA=0xFF013F00     : TABLE_STROBES=2
+8       : TABLE_DATA=0x00000002     : TABLE_STROBES=3
+9       : TABLE_DATA=0x00000001     : TABLE_STROBES=4
+10      : TABLE_LENGTH=1
+11      : TABLE_LENGTH=0
 16      : GATE=1                            : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1, CUR_TCYCLE=1
 25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
 29      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
@@ -196,15 +176,11 @@ $ Setting inactive before finished and restarting
 # PHASE 2 LENGTH    = 1
 #---------------------------------
 6       : TABLE_DATA=0x00000001             : TABLE_STROBES=1
-7       : TABLE_WSTB=1
-8       : TABLE_DATA=0x1F073800             : TABLE_STROBES=2
-9       : TABLE_WSTB=2
-10      : TABLE_DATA=0x00000002             : TABLE_STROBES=3
-11      : TABLE_WSTB=3
-12      : TABLE_DATA=0x00000001             : TABLE_STROBES=4
-13      : TABLE_WSTB=4
-14      : TABLE_LENGTH=1
-15      : TABLE_LENGTH=0
+7       : TABLE_DATA=0x1F073800             : TABLE_STROBES=2
+8       : TABLE_DATA=0x00000002             : TABLE_STROBES=3
+9       : TABLE_DATA=0x00000001             : TABLE_STROBES=4
+10      : TABLE_LENGTH=1
+11      : TABLE_LENGTH=0
 16      : GATE=1                            : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1, CUR_TCYCLE=1
 25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1, OUTB=1, OUTC=1
 29      :                                   : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1, OUTF=1
@@ -233,13 +209,9 @@ $ Reset table and write more data
 # PHASE 2 LENGTH    = 1
 #---------------------------------
 5       : TABLE_DATA=0x00000002     : TABLE_STROBES=1
-6       : TABLE_WSTB=1
-7       : TABLE_DATA=0x1F073800             : TABLE_STROBES=2
-8       : TABLE_WSTB=2
-9       : TABLE_DATA=0x00000002     : TABLE_STROBES=3
-10      : TABLE_WSTB=3
-11      : TABLE_DATA=0x00000001     : TABLE_STROBES=4
-12      : TABLE_WSTB=4
+6       : TABLE_DATA=0x1F073800     : TABLE_STROBES=2
+7       : TABLE_DATA=0x00000002     : TABLE_STROBES=3
+8       : TABLE_DATA=0x00000001     : TABLE_STROBES=4
 #--FRAME 2 -----------------------
 # REPEATS           = 2
 # INPUT MASK        = 0xF
@@ -250,15 +222,11 @@ $ Reset table and write more data
 # PHASE 2 LENGTH    = 2
 #---------------------------------
 13      : TABLE_DATA=0x00000002     : TABLE_STROBES=5
-14      : TABLE_WSTB=5
-15      : TABLE_DATA=0xFE3F0200     : TABLE_STROBES=6
-16      : TABLE_WSTB=6
-17      : TABLE_DATA=0x00000003     : TABLE_STROBES=7
-18      : TABLE_WSTB=7
-19      : TABLE_DATA=0x00000002     : TABLE_STROBES=8
-20      : TABLE_WSTB=8
-21      : TABLE_LENGTH=2
-22      : TABLE_LENGTH=0
+14      : TABLE_DATA=0xFE3F0200     : TABLE_STROBES=6
+15      : TABLE_DATA=0x00000003     : TABLE_STROBES=7
+16      : TABLE_DATA=0x00000002     : TABLE_STROBES=8
+17      : TABLE_LENGTH=2
+18      : TABLE_LENGTH=0
 23      : GATE=1                            : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1, CUR_TCYCLE=1
 26      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1, OUTB=1, OUTC=1
 30      :                                   : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1, OUTF=1
@@ -282,14 +250,10 @@ $ Reset table and write more data
 # PHASE 2 LENGTH    = 2
 #---------------------------------
 41      : TABLE_DATA=0x00000001     : TABLE_STROBES=1
-42      : TABLE_WSTB=1
-43      : TABLE_DATA=0x11040800     : TABLE_STROBES=2
-44      : TABLE_WSTB=2
-45      : TABLE_DATA=0x00000001     : TABLE_STROBES=3
-46      : TABLE_WSTB=3
-47      : TABLE_DATA=0x00000002     : TABLE_STROBES=4
-48      : TABLE_WSTB=4
-49      : TABLE_LENGTH=1            : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
+42      : TABLE_DATA=0x11040800     : TABLE_STROBES=2
+43      : TABLE_DATA=0x00000001     : TABLE_STROBES=3
+44      : TABLE_DATA=0x00000002     : TABLE_STROBES=4
+45      : TABLE_LENGTH=1            : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1
 50      : TABLE_LENGTH=0
 
