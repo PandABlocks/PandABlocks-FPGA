@@ -13,6 +13,14 @@ class Srgate(Block):
         on a FORCE RST action"""
         next_event.bit[self.VAL] = 0
 
+    def do_process_inputs(self, next_event, event):
+        # if we got a reset, and it was high, do a reset
+        if event.bit.get(self.RST, None) == self.RST_EDGE:
+            self.do_reset(next_event, event)
+        # if we got a set, then process it
+        elif event.bit.get(self.SET, None) == self.SET_EDGE:
+            self.do_set(next_event, event)
+
     def on_event(self, event):
         """Handle register, bit and pos changes at a particular timestamps,
         then generate output events and return when we next need to be called"""
@@ -25,11 +33,9 @@ class Srgate(Block):
                     self.do_reset(next_event, event)
                 elif name == "FORCE_SET" and value:
                     self.do_set(next_event, event)
-        # if we got a reset, and it was high, do a reset
-        if event.bit.get(self.RST, None) == self.RST_EDGE:
-            self.do_reset(next_event, event)
-        # if we got a set, then process it
-        elif event.bit.get(self.SET, None) == self.SET_EDGE:
-            self.do_set(next_event, event)
+                else:
+                    self.do_process_inputs(next_event, event)
+        else:
+            self.do_process_inputs(next_event, event)
         # return any changes and next ts
         return next_event

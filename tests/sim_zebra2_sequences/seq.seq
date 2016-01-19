@@ -1,22 +1,22 @@
 ###############
 $ Multiple frames, multiple frame and table cycles
+
 3       : TABLE_CYCLE=2
 4       : PRESCALE=2
 5       : TABLE_RST=1
 6       : TABLE_RST=0
-
 #--FRAME 1 -----------------------
-# REPEATS           = 1
-# INPUT MASK        = F
-# INPUT CONDITIONS  = F
-# PHASE 1 OUTPUTS   = 01    = OUTA
-# PHASE 2 OUTPUTS   = 3F
-# PHASE 1 LENGTH    = 2*PRESCALE
-# PHASE 2 LENGTH    = 1*PRESCALE
+# REPEATS           = 2
+# INPUT MASK        = 0x1
+# INPUT CONDITIONS  = 0xF
+# PHASE 1 OUTPUTS   = 0x07
+# PHASE 2 OUTPUTS   = 0x38
+# PHASE 1 LENGTH    = 2
+# PHASE 2 LENGTH    = 1
 #---------------------------------
 8       : TABLE_DATA=0x00000002     : TABLE_STROBES=1
 9       : TABLE_WSTB=1
-10      : TABLE_DATA=0xFF013F00     : TABLE_STROBES=2
+10      : TABLE_DATA=0x1F073800             : TABLE_STROBES=2
 11      : TABLE_WSTB=2
 12      : TABLE_DATA=0x00000002     : TABLE_STROBES=3
 13      : TABLE_WSTB=3
@@ -24,122 +24,51 @@ $ Multiple frames, multiple frame and table cycles
 15      : TABLE_WSTB=4
 #--FRAME 2 -----------------------
 # REPEATS           = 2
-# INPUT MASK        = F
-# INPUT CONDITIONS  = E     = INPB, INPC, INPD
-# PHASE 1 OUTPUTS   = 3F
-# PHASE 2 OUTPUTS   = 02    = OUTB
-# PHASE 1 LENGTH    = 3*PRESCALE
-# PHASE 2 LENGTH    = 2*PRESCALE
+# INPUT MASK        = 0x2
+# INPUT CONDITIONS  = 0x2
+# PHASE 1 OUTPUTS   = 0x0x0C
+# PHASE 2 OUTPUTS   = 0x0x33
+# PHASE 1 LENGTH    = 4
+# PHASE 2 LENGTH    = 4
 #---------------------------------
-16      : TABLE_DATA=0x00000003     : TABLE_STROBES=5
-17      : TABLE_WSTB=1
-18      : TABLE_DATA=0xFE3F0200     : TABLE_STROBES=6
-19      : TABLE_WSTB=2
-20      : TABLE_DATA=0x00000003     : TABLE_STROBES=7
-21      : TABLE_WSTB=3
-22      : TABLE_DATA=0x00000002     : TABLE_STROBES=8
-23      : TABLE_WSTB=4
-24      : TABLE_LENGTH=2
-25      : TABLE_LENGTH=0
+16      : TABLE_DATA=0x00000002             : TABLE_STROBES=5
+17      : TABLE_WSTB=5
+18      : TABLE_DATA=0x220C3300             : TABLE_STROBES=6
+19      : TABLE_WSTB=6
+20      : TABLE_DATA=0x00000004             : TABLE_STROBES=7
+21      : TABLE_WSTB=7
+22      : TABLE_DATA=0x00000004             : TABLE_STROBES=8
+23      : TABLE_WSTB=8
 
-33      : GATE=1                    : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
-        :                           : CUR_TCYCLE=1
-35      : INPA=1, INPB=1, INPC=1, INPD=1
-        :                           : OUTA=1
-39      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+26      : TABLE_LENGTH=2
+27      : TABLE_LENGTH=0
+30      : GATE=1                            : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1, CUR_TCYCLE=1
+35      : INPA=1                            : OUTA=1, OUTB=1, OUTC=1
+39      :                                   : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1, OUTF=1
 
-41      :                           : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0, CUR_FCYCLE=2
-45      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+41      :                                   : OUTA=1, OUTB=1, OUTC=1, OUTD=0, OUTE=0, OUTF=0, CUR_FCYCLE=2
+45      :                                   : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1, OUTF=1
 
-50      : INPA=0                    : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
-        :                           : CUR_FRAME=2, CUR_FCYCLE=1
-56      :                           : OUTA=0, OUTB=1, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0
+55      : INPB=1,INPA=0                     : OUTA=0, OUTB=0, OUTC=1, OUTD=1, OUTE=0, OUTF=0, CUR_FRAME=2, CUR_FCYCLE=1
+63      :                                   : OUTA=1, OUTB=1, OUTC=0, OUTD=0, OUTE=1, OUTF=1
 
-60      :                           : OUTA=1, OUTB=1, OUTC=1, OUTD=1, OUTE=1
-        :                           : OUTF=1, CUR_FCYCLE=2
-66      :                           : OUTA=0, OUTB=1, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0
+71      :                                   : OUTA=0, OUTB=0, OUTC=1, OUTD=1, OUTE=0, OUTF=0, CUR_FCYCLE=2
+79      :                                   : OUTA=1, OUTB=1, OUTC=0, OUTD=0, OUTE=1, OUTF=1
 
-70      :                           : OUTA=1, OUTB=1, OUTC=1, OUTD=1, OUTE=1
-        :                           : OUTF=1, CUR_FCYCLE=3
-76      :                           : OUTA=0, OUTB=1, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0
+87      : INPA=1,INPB=0                     : OUTA=1, OUTB=1, OUTC=1, OUTE=0, OUTF=0, CUR_FRAME=1, CUR_FCYCLE=1, CUR_TCYCLE=2
+91      :                                   : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1, OUTF=1
 
-85      : INPA=1                    : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0, CUR_FRAME=1, CUR_FCYCLE=1
-        :                           : CUR_TCYCLE=2
-89      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+93      :                                   : OUTA=1, OUTB=1, OUTC=1, OUTD=0, OUTE=0, OUTF=0, CUR_FCYCLE=2
+97      :                                   : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1, OUTF=1
 
-91      :                           : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0, CUR_FCYCLE=2
-95      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+100      : INPB=1                            : OUTA=0, OUTB=0, OUTC=1, OUTD=1, OUTE=0, OUTF=0, CUR_FRAME=2, CUR_FCYCLE=1
+108      :                                   : OUTA=1, OUTB=1, OUTC=0, OUTD=0, OUTE=1, OUTF=1
 
-100     : INPA=0                    : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
-        :                           : CUR_FRAME=2, CUR_FCYCLE=1
-106     :                           : OUTA=0, OUTB=1, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0
+116      :                                   : OUTA=0, OUTB=0, OUTC=1, OUTD=1, OUTE=0, OUTF=0, CUR_FCYCLE=2
+124      :                                   : OUTA=1, OUTB=1, OUTC=0, OUTD=0, OUTE=1, OUTF=1
 
-110     :                           : OUTA=1, OUTB=1, OUTC=1, OUTD=1, OUTE=1
-        :                           : OUTF=1, CUR_FCYCLE=2
-116     :                           : OUTA=0, OUTB=1, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0
+132      : INPA=0                            : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0, OUTF=0, ACTIVE=0
 
-120     :                           : OUTA=1, OUTB=1, OUTC=1, OUTD=1, OUTE=1
-        :                           : OUTF=1, CUR_FCYCLE=3
-126     :                           : OUTA=0, OUTB=1, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0
-130     : INPB=0, INPC=0, INPD=0    : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0, ACTIVE=0
-
-
-###############
-$ Single frame, multiple frame and table cycles
-
-2       : PRESCALE=2
-3       : TABLE_CYCLE=2
-4       : TABLE_RST=1
-5       : TABLE_RST=0
-#--FRAME 1 -----------------------
-# REPEATS           = 1
-# INPUT MASK        = F
-# INPUT CONDITIONS  = F
-# PHASE 1 OUTPUTS   = 01    = OUTA
-# PHASE 2 OUTPUTS   = 3F
-# PHASE 1 LENGTH    = 2*PRESCALE
-# PHASE 2 LENGTH    = 1*PRESCALE
-#---------------------------------
-6       : TABLE_DATA=0x00000002     : TABLE_STROBES=1
-7       : TABLE_WSTB=1
-8       : TABLE_DATA=0xFF013F00     : TABLE_STROBES=2
-9       : TABLE_WSTB=2
-10      : TABLE_DATA=0x00000002     : TABLE_STROBES=3
-11      : TABLE_WSTB=3
-12      : TABLE_DATA=0x00000001     : TABLE_STROBES=4
-13      : TABLE_WSTB=4
-14      : TABLE_LENGTH=1
-15      : TABLE_LENGTH=0
-
-16      : GATE=1                    : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
-        :                           : CUR_TCYCLE=1
-25      : INPA=1, INPB=1, INPC=1, INPD=1
-        :                           : OUTA=1
-29      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
-
-31      :                           : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0, CUR_FCYCLE=2
-35      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
-
-37      :                           : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0, CUR_FCYCLE=1, CUR_TCYCLE=2
-41      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
-
-43      :                           : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0, CUR_FCYCLE=2
-47      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
-49      : INPA=0, INPB=0, INPC=0    : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0
-        : INPD=0                    : OUTF=0, ACTIVE=0
 
 ###############
 $ Writing inputs before a whole frame is written
@@ -149,12 +78,12 @@ $ Writing inputs before a whole frame is written
 4       : TABLE_RST=0
 #--FRAME 1 -----------------------
 # REPEATS           = 1
-# INPUT MASK        = F
-# INPUT CONDITIONS  = F
-# PHASE 1 OUTPUTS   = 01    =OUTA
-# PHASE 2 OUTPUTS   = 3F
-# PHASE 1 LENGTH    = 2*PRESCALE
-# PHASE 2 LENGTH    = 1*PRESCALE
+# INPUT MASK        = 0xF
+# INPUT CONDITIONS  = 0xF
+# PHASE 1 OUTPUTS   = 0x01
+# PHASE 2 OUTPUTS   = 0x3F
+# PHASE 1 LENGTH    = 2
+# PHASE 2 LENGTH    = 1
 #---------------------------------
 5       : TABLE_DATA=0x00000001     : TABLE_STROBES=1
 6       : TABLE_WSTB=1
@@ -183,12 +112,12 @@ $ Writing inputs after sequencer has finished
 4       : TABLE_RST=0
 #--FRAME 1 -----------------------
 # REPEATS           = 1
-# INPUT MASK        = F
-# INPUT CONDITIONS  = F
-# PHASE 1 OUTPUTS   = 01    =OUTA
-# PHASE 2 OUTPUTS   = 3F
-# PHASE 1 LENGTH    = 2*PRESCALE
-# PHASE 2 LENGTH    = 1*PRESCALE
+# INPUT MASK        = 0xF
+# INPUT CONDITIONS  = 0xF
+# PHASE 1 OUTPUTS   = 0x01
+# PHASE 2 OUTPUTS   = 0x3F
+# PHASE 1 LENGTH    = 2
+# PHASE 2 LENGTH    = 1
 #---------------------------------
 5       : TABLE_DATA=0x00000001     : TABLE_STROBES=1
 6       : TABLE_WSTB=1
@@ -210,6 +139,45 @@ $ Writing inputs after sequencer has finished
 38      : INPA=1
 40      : INPA=0, INPB=0, INPC=0, INPD=0
 
+###############
+$ Single frame, multiple frame and table cycles
+
+2       : PRESCALE=2
+3       : TABLE_CYCLE=2
+4       : TABLE_RST=1
+5       : TABLE_RST=0
+#--FRAME 1 -----------------------
+# REPEATS           = 1
+# INPUT MASK        = F
+# INPUT CONDITIONS  = F
+# PHASE 1 OUTPUTS   = 01    = OUTA
+# PHASE 2 OUTPUTS   = 3F
+# PHASE 1 LENGTH    = 2*PRESCALE
+# PHASE 2 LENGTH    = 1*PRESCALE
+#---------------------------------
+6       : TABLE_DATA=0x00000002             : TABLE_STROBES=1
+7       : TABLE_WSTB=1
+8       : TABLE_DATA=0xFF013F00     : TABLE_STROBES=2
+9       : TABLE_WSTB=2
+10      : TABLE_DATA=0x00000002     : TABLE_STROBES=3
+11      : TABLE_WSTB=3
+12      : TABLE_DATA=0x00000001     : TABLE_STROBES=4
+13      : TABLE_WSTB=4
+14      : TABLE_LENGTH=1
+15      : TABLE_LENGTH=0
+16      : GATE=1                            : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1, CUR_TCYCLE=1
+25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
+29      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+
+31      :                                   : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0, OUTF=0, CUR_FCYCLE=2
+35      :                                   : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+
+37      :                                   : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0, OUTF=0, CUR_FCYCLE=1, CUR_TCYCLE=2
+41      :                                   : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+
+43      :                                   : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0, OUTF=0, CUR_FCYCLE=2
+47      :                                   : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+49      : INPA=0, INPB=0, INPC=0, INPD=0    : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0, OUTF=0, ACTIVE=0
 
 ###############
 $ Setting inactive before finished and restarting
@@ -220,41 +188,34 @@ $ Setting inactive before finished and restarting
 5       : TABLE_RST=0
 #--FRAME 1 -----------------------
 # REPEATS           = 1
-# INPUT MASK        = F
-# INPUT CONDITIONS  = F
-# PHASE 1 OUTPUTS   = 01    =OUTA
-# PHASE 2 OUTPUTS   = 3F
-# PHASE 1 LENGTH    = 2*PRESCALE
-# PHASE 2 LENGTH    = 1*PRESCALE
+# INPUT MASK        = 0x1
+# INPUT CONDITIONS  = 0xF
+# PHASE 1 OUTPUTS   = 0x07
+# PHASE 2 OUTPUTS   = 0x38
+# PHASE 1 LENGTH    = 2
+# PHASE 2 LENGTH    = 1
 #---------------------------------
-6       : TABLE_DATA=0x00000001     : TABLE_STROBES=1
+6       : TABLE_DATA=0x00000001             : TABLE_STROBES=1
 7       : TABLE_WSTB=1
-8       : TABLE_DATA=0xFF013F00     : TABLE_STROBES=2
+8       : TABLE_DATA=0x1F073800             : TABLE_STROBES=2
 9       : TABLE_WSTB=2
-10      : TABLE_DATA=0x00000002     : TABLE_STROBES=3
+10      : TABLE_DATA=0x00000002             : TABLE_STROBES=3
 11      : TABLE_WSTB=3
-12      : TABLE_DATA=0x00000001     : TABLE_STROBES=4
+12      : TABLE_DATA=0x00000001             : TABLE_STROBES=4
 13      : TABLE_WSTB=4
 14      : TABLE_LENGTH=1
 15      : TABLE_LENGTH=0
-16      : GATE=1                    : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
-        :                           : CUR_TCYCLE=1
-25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
-29      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+16      : GATE=1                            : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1, CUR_TCYCLE=1
+25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1, OUTB=1, OUTC=1
+29      :                                   : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1, OUTF=1
 
-36      : GATE=0                    : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0, ACTIVE=0, CUR_FCYCLE=0
-        :                           : CUR_FRAME=0, CUR_TCYCLE=0
-38      : GATE=1                    : ACTIVE=1, OUTA=1, OUTB=0, OUTC=0, OUTD=0
-        :                           : OUTE=0, OUTF=0, CUR_FCYCLE=1
-        :                           : CUR_TCYCLE=1, CUR_FRAME=1
-42      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+36      : GATE=0                            : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0, OUTF=0, ACTIVE=0, CUR_FCYCLE=0, CUR_FRAME=0, CUR_TCYCLE=0
+38      : GATE=1                            : ACTIVE=1, OUTA=1, OUTB=1, OUTC=1, OUTD=0, OUTE=0, OUTF=0, CUR_FCYCLE=1, CUR_TCYCLE=1, CUR_FRAME=1
+42      :                                   : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1, OUTF=1
 
-44      :                           : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0, CUR_FCYCLE=1, CUR_TCYCLE=2
-48      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
-50      : INPA=0, INPB=0, INPC=0, INPD=0    : OUTA=0, OUTB=0, OUTC=0, OUTD=0
-        :                           : OUTE=0, OUTF=0, ACTIVE=0
+44      :                                   : OUTA=1, OUTB=1, OUTC=1, OUTD=0, OUTE=0, OUTF=0, CUR_FCYCLE=1, CUR_TCYCLE=2
+48      :                                   : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1, OUTF=1
+50      : INPA=0, INPB=0, INPC=0, INPD=0    : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0, OUTF=0, ACTIVE=0
 
 ###############
 $ Reset table and write more data
@@ -263,17 +224,17 @@ $ Reset table and write more data
 3       : TABLE_RST=1
 4       : TABLE_RST=0
 #--FRAME 1 -----------------------
-# REPEATS           = 1
-# INPUT MASK        = F
-# INPUT CONDITIONS  = F
-# PHASE 1 OUTPUTS   = 01    =OUTA
-# PHASE 2 OUTPUTS   = 3F
-# PHASE 1 LENGTH    = 2*PRESCALE
-# PHASE 2 LENGTH    = 1*PRESCALE
+# REPEATS           = 2
+# INPUT MASK        = 0x1
+# INPUT CONDITIONS  = 0xF
+# PHASE 1 OUTPUTS   = 0x07
+# PHASE 2 OUTPUTS   = 0x38
+# PHASE 1 LENGTH    = 2
+# PHASE 2 LENGTH    = 1
 #---------------------------------
 5       : TABLE_DATA=0x00000002     : TABLE_STROBES=1
 6       : TABLE_WSTB=1
-7       : TABLE_DATA=0xFF013F00     : TABLE_STROBES=2
+7       : TABLE_DATA=0x1F073800             : TABLE_STROBES=2
 8       : TABLE_WSTB=2
 9       : TABLE_DATA=0x00000002     : TABLE_STROBES=3
 10      : TABLE_WSTB=3
@@ -281,12 +242,12 @@ $ Reset table and write more data
 12      : TABLE_WSTB=4
 #--FRAME 2 -----------------------
 # REPEATS           = 2
-# INPUT MASK        = F
-# INPUT CONDITIONS  = E     = INPB, INPC, INPD
-# PHASE 1 OUTPUTS   = 3F
-# PHASE 2 OUTPUTS   = 02    = OUTB
-# PHASE 1 LENGTH    = 3*PRESCALE
-# PHASE 2 LENGTH    = 2*PRESCALE
+# INPUT MASK        = 0xF
+# INPUT CONDITIONS  = 0xE
+# PHASE 1 OUTPUTS   = 0x3F
+# PHASE 2 OUTPUTS   = 0x02
+# PHASE 1 LENGTH    = 3
+# PHASE 2 LENGTH    = 2
 #---------------------------------
 13      : TABLE_DATA=0x00000002     : TABLE_STROBES=5
 14      : TABLE_WSTB=5
@@ -298,14 +259,12 @@ $ Reset table and write more data
 20      : TABLE_WSTB=8
 21      : TABLE_LENGTH=2
 22      : TABLE_LENGTH=0
-23      : GATE=1                    : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
-        :                           : CUR_TCYCLE=1
-26      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
-30      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+23      : GATE=1                            : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1, CUR_TCYCLE=1
+26      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1, OUTB=1, OUTC=1
+30      :                                   : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1, OUTF=1
 
-32      :                           : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0
-        :                           : OUTF=0, CUR_FCYCLE=2
-36      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+32      :                                   : OUTA=1, OUTB=1, OUTC=1, OUTD=0, OUTE=0, OUTF=0, CUR_FCYCLE=2
+36      :                                   : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1, OUTF=1
 
 38      : TABLE_RST=1               : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0
         :                           : OUTF=0, ACTIVE=0, CUR_FCYCLE=0
@@ -315,12 +274,12 @@ $ Reset table and write more data
 
 #--FRAME 1 -----------------------
 # REPEATS           = 1
-# INPUT MASK        = 1
-# INPUT CONDITIONS  = 1     = INPA
-# PHASE 1 OUTPUTS   = 04    = OUTC
-# PHASE 2 OUTPUTS   = 08    = OUTD
-# PHASE 1 LENGTH    = 1*PRESCALE
-# PHASE 2 LENGTH    = 2*PRESCALE
+# INPUT MASK        = 0x1
+# INPUT CONDITIONS  = 0x1
+# PHASE 1 OUTPUTS   = 0x04
+# PHASE 2 OUTPUTS   = 0x08
+# PHASE 1 LENGTH    = 1
+# PHASE 2 LENGTH    = 2
 #---------------------------------
 41      : TABLE_DATA=0x00000001     : TABLE_STROBES=1
 42      : TABLE_WSTB=1

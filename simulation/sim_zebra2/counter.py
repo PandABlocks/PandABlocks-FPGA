@@ -1,5 +1,6 @@
 from .block import Block
 from .event import Event
+import numpy as np
 
 
 class Counter(Block):
@@ -16,6 +17,8 @@ class Counter(Block):
             self.count += self.step
         elif self.dir == 1:
             self.count -= self.step
+        if self.count > np.uint32(-1):
+            next_event.bit[self.CARRY] = 1
         next_event.pos[self.COUNT] = self.count
 
     def on_event(self, event):
@@ -32,14 +35,10 @@ class Counter(Block):
                     self.step = value
                 elif name == "SOFT_ENABLE" and value:
                     self.enable = 1
-        # if we got a reset, and it was high, do a reset
         if event.bit.get(self.ENABLE, None) == 1:
             self.enable = 1
         elif event.bit.get(self.ENABLE, None) == 0:
             self.enable = 0
-        # if we got a set, then process it
-        # print "--TS--", event.ts
-        # print "EE", event.bit.get(self.DIR, None)
         if event.bit.get(self.DIR, None) == 1:
             self.dir = 1
         elif event.bit.get(self.DIR, None) == 0:

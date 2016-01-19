@@ -3,8 +3,11 @@
 # Lists on a socket port and performs the appropriate exchange to implement
 # hardware reading and writing.
 
-from pkg_resources import require
-require('numpy')
+try:
+    from pkg_resources import require
+    require('numpy')
+except ImportError:
+    pass
 
 import argparse
 import os

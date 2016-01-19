@@ -1,13 +1,13 @@
 ###############
 $ A&B&C&D&E Output
-1       : FUNC=2147483648
+1       : FUNC=0x80000000
 5       : INPA=1, INPB=1, INPC=1, INPD=1, INPE=1    : VAL=1
 8       : INPA=0                                    : VAL=0
 10      : INPB=0, INPC=0, INPD=0, INPE=0
 
 ###############
 $ ~A&~B&~C&~D&~E Output
-1       : FUNC=1
+1       : FUNC=0x00000001                           : VAL=1
 5       : INPA=1, INPB=1, INPC=1, INPD=1, INPE=1    : VAL=0
 8       : INPA=0                                    : VAL=0
 10      : INPB=0, INPC=0, INPD=0, INPE=0            : VAL=1
@@ -15,7 +15,7 @@ $ ~A&~B&~C&~D&~E Output
 
 ###############
 $ A output
-1       : FUNC=4294901760
+1       : FUNC=0xffff0000
 3       : INPE=1
 5       : INPA=1                                    : VAL=1
 6       : INPA=0,  INPB=1, INPC=1, INPD=1           : VAL=0
@@ -30,7 +30,7 @@ $ A output
 
 ###############
 $ A&B|C&~D output
-1       : FUNC=4281348144
+1       : FUNC=0xff303030
 5       : INPA=1, INPB=1                    : VAL=1
 6       : INPA=0, INPB=0                    : VAL=0
 8       : INPC=1                            : VAL=1
@@ -43,11 +43,20 @@ $ A&B|C&~D output
 
 ###############
 $ A?(B):D&E output
-1       : FUNC=4278225032
+1       : FUNC=0xff008888
 5       : INPD=1, INPE=1            : VAL=1
 6       : INPC=1                    : VAL=1
 10      : INPA=1                    : VAL=0
 11      : INPB=1                    : VAL=1
 12      : INPA=0, INPB=0, INPC=0, INPD=0, INPE=0    : VAL=0
 
+###############
+$ Changing function
+#Start function: A&B&C&D&E
+1       : FUNC=0x80000000
+5       : INPA=1, INPB=1, INPC=1, INPD=1, INPE=1    : VAL=1
+# Chage the function to: ~A&~B&~C&~D&~E
+10      : FUNC=0x00000001                           : VAL=0
+14      : INPA=0,INPB=0, INPC=0, INPD=0, INPE=0     : VAL=1
+16      : INPA=1                                    : VAL=0
 

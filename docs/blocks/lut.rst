@@ -64,3 +64,13 @@ A?(B):D&E (FUNC= 0xff008888 = 4278225032(decimal))
 
     from block_plot import make_block_plot
     make_block_plot("lut", "A?(B):D&E output")
+
+
+Changing the function in a test
+-------------------------------
+If a function is changed, the output will take effect on the next clock tick
+
+.. plot::
+
+    from block_plot import make_block_plot
+    make_block_plot("lut", "Changing function")

@@ -90,6 +90,7 @@ $ Disable and trigger
 24      : TRIGGER=1             : COUNT=14
 25      : TRIGGER=0
 26      : TRIGGER=1,ENABLE=0
+27      : TRIGGER=0
 
 
 ###############
@@ -105,3 +106,17 @@ $ Change step and trigger
 24      : TRIGGER=1             : COUNT=10
 25      : TRIGGER=0
 26      : TRIGGER=1,ENABLE=0
+27      : TRIGGER=0
+
+###############
+$ Overflow
+3       : START=4294967290
+4       : STEP=2
+6       : ENABLE=1
+10      : TRIGGER=1             : COUNT=4294967292
+21      : TRIGGER=0
+22      : TRIGGER=1             : COUNT=4294967294
+23      : TRIGGER=0
+24      : TRIGGER=1             : COUNT=4294967296, CARRY=1
+25      : TRIGGER=0
+26      : ENABLE=0
