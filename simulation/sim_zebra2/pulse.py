@@ -45,8 +45,8 @@ class Pulse(Block):
                 self.queue.append((start + self.WIDTH, 0))
 
     def do_reset(self, next_event, event):
-        """Reset the block, either called on rising edge of RESET input or
-        when FORCE_RESET reg is written to"""
+        """Reset the block, either called on rising edge of RST input or
+        when FORCE_RST reg is written to"""
         self.MISSED_CNT = 0
         self.ERR_OVERFLOW = 0
         self.ERR_PERIOD = 0
@@ -69,12 +69,12 @@ class Pulse(Block):
                 if getattr(self, name) != value:
                     setattr(self, name, value)
                     changes = True
-                if name == "FORCE_RESET" and value:
+                if name == "FORCE_RST" and value:
                     self.do_reset(next_event, event)
             if changes:
                 self.reset_queue(event)
         # if we got a reset, and it was high, do a reset
-        if event.bit.get(self.RESET, None):
+        if event.bit.get(self.RST, None):
             self.do_reset(next_event, event)
         # if we got an input, then process it
         elif self.INP in event.bit:

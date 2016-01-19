@@ -24,8 +24,8 @@ class Div(Block):
             next_event.bit[self.OUTN] = 0
 
     def do_reset(self, next_event, event):
-        """Reset the block, either called on rising edge of RESET input or
-        when FORCE_RESET reg is written to"""
+        """Reset the block, either called on rising edge of RST input or
+        when FORCE_RST reg is written to"""
         next_event.bit[self.OUTD] = 0
         next_event.bit[self.OUTN] = 0
         if self.FIRST_PULSE == OUTN:
@@ -47,7 +47,7 @@ class Div(Block):
             if changes:
                 self.do_reset(next_event, event)
         # if we got a reset, and it was high, do a reset
-        if event.bit.get(self.RESET, None):
+        if event.bit.get(self.RST, None):
             self.do_reset(next_event, event)
         # if we got an input, then process it
         elif self.INP in event.bit:
