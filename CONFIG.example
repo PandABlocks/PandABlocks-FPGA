@@ -27,10 +27,4 @@
 #
 # DEFAULT_TARGETS = driver server sim_server docs
 
-# Zebra2 simulation module
-# - sim_hardware: dumb register set interface with no logic
-# - sim_zebra2: python simulation of FPGA logic functions, CPU intensive
-#
-# SIM_HARDWARE = sim_zebra2
-
 # vim: set filetype=make:

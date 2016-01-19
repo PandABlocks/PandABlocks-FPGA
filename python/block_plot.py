@@ -7,22 +7,17 @@ from pkg_resources import require
 require("matplotlib")
 
 # add our simulations dir
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "simulation"))
 parser_dir = os.path.join(
     os.path.dirname(__file__), "..", "tests", "sim_zebra2_sequences")
-sys.path.append(parser_dir)
-
 
 from collections import OrderedDict
 import itertools
-import sim_zebra2
-from sequence_parser import SequenceParser
+
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-# Load configuration
-from sim_zebra2.block import Block
+from zebra2.sequenceparser import SequenceParser
+from zebra2.simulation.block import Block
 Block.load_config(os.path.join(os.path.dirname(__file__), '..', 'config_d'))
 
 
@@ -72,7 +67,7 @@ def plot_pos(trace_items, offset, crossdist, ts):
         plt.plot(crossx, bottom, color=lines[0].get_color())
         plt.fill_between(crossx, top, bottom, color=lines[0].get_color())
         for x, y in zip(tracex, tracey):
-            xy = xy=(crossdist + x, TRANSITION_HEIGHT / 2. + offset)
+            xy = (crossdist + x, TRANSITION_HEIGHT / 2. + offset)
             plt.annotate(str(y), xy, color="white", horizontalalignment="left",
                          verticalalignment="center")
 
@@ -87,7 +82,7 @@ def make_block_plot(block, title):
     matches = [s for s in parser.sequences if s.name == title]
     assert len(matches) == 1, 'Unknown title "%s" or multiple matches' % title
     sequence = matches[0]
-    imp = __import__("sim_zebra2." + block, fromlist=[block.title()])
+    imp = __import__("zebra2.simulation." + block, fromlist=[block.title()])
     # make instance of block
     block = getattr(imp, block.title())(1)
     # do a plot

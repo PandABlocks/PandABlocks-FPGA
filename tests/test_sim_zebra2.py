@@ -3,17 +3,19 @@
 import sys
 import os
 
-# add our simulations dir
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "simulation"))
-# and our sequence parser dir
+# add our python dir
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
+
+# and our parser dir is
 parser_dir = os.path.join(os.path.dirname(__file__), "sim_zebra2_sequences")
-sys.path.append(parser_dir)
+fpga_dir = os.path.join(os.path.dirname(__file__), "fpga_sequences")
+
 
 import unittest
-import sim_zebra2
-from sim_zebra2.event import Event
-from sim_zebra2.block import Block
-from sequence_parser import SequenceParser, FpgaSequence
+
+from zebra2.simulation.event import Event
+from zebra2.simulation.block import Block
+from zebra2.sequenceparser import SequenceParser, FpgaSequence
 
 Block.load_config(os.path.join(os.path.dirname(__file__), '..', 'config_d'))
 
@@ -29,7 +31,7 @@ class SequenceTest(unittest.TestCase):
 
     def runTest(self):
         imp = __import__(
-            "sim_zebra2." + self.block, fromlist=[self.block.title()])
+            "zebra2.simulation." + self.block, fromlist=[self.block.title()])
         # make instance of block
         block = getattr(imp, self.block.title())(1)
         # set muxes to increasing unique indexes
@@ -114,7 +116,7 @@ def make_suite():
             for seq in parser.sequences:
                 sequences.append((fname.split(".")[0], seq))
             # Write the FPGA sequences
-            FpgaSequence(parser, fname.split(".")[0]).write()
+            FpgaSequence(parser, fname.split(".")[0], fpga_dir).write()
     # These are the tests that start with !
     marks = [s for s in sequences if s[1].mark]
     if marks:

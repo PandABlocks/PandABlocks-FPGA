@@ -37,8 +37,8 @@ class Zebra2(Task):
         for name, config in Block.config.items():
             # check if we have a block of the right type
             try:
-                imp = __import__("sim_zebra2." + name.lower())
-                package = getattr(imp, name.lower())
+                imp = __import__("zebra2.simulation." + name.lower())
+                package = getattr(imp.simulation, name.lower())
                 clsnames = [n for n in dir(package) if n.upper() == name]
                 cls = getattr(package, clsnames[0])
                 print "Got %s sim" % cls.__name__

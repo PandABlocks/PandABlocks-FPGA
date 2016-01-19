@@ -4,7 +4,7 @@ from collections import OrderedDict
 import sys
 import os
 
-from sim_zebra2.block import Block
+from zebra2.simulation.block import Block
 
 
 class SequenceParser(object):
@@ -81,9 +81,10 @@ class Sequence(object):
 
 
 class FpgaSequence(object):
-    def __init__(self, parser, block):
+    def __init__(self, parser, block, fpga_dir):
         self.parser = parser
         self.block = block
+        self.fpga_dir = fpga_dir
         # field types
         fields = Block.config[block.upper()].fields
         # Get the column headings
@@ -104,15 +105,13 @@ class FpgaSequence(object):
 
     def write(self):
         # Write the lines
-        fpga_dir = os.path.join(
-            os.path.dirname(__file__), "..", "fpga_sequences")
         try:
-            os.makedirs(fpga_dir)
+            os.makedirs(self.fpga_dir)
         except OSError:
             pass
         for name in ["bus_in", "bus_out", "reg_in", "reg_out"]:
             f = open(os.path.join(
-                fpga_dir, "%s_%s.txt" %(self.block, name)), "w")
+                self.fpga_dir, "%s_%s.txt" % (self.block, name)), "w")
             headings = getattr(self, name)
             f.write("\t".join(headings) + "\n")
             lines = getattr(self, name + "_lines")

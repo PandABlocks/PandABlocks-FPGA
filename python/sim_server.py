@@ -21,12 +21,11 @@ parser = argparse.ArgumentParser(description = 'PandA Hardware simulation')
 parser.add_argument(
     '-d', '--daemon', action = 'store_true', help = 'Run as daemon process')
 parser.add_argument(
-    '--hardware', default = 'sim_hardware', help = 'Simulation module to load')
-parser.add_argument(
     'config_dir', help = 'Path to configuration directory')
 args = parser.parse_args()
 
-sim_hardware = __import__(args.hardware)
+sys.path.append(os.path.dirname(__file__))
+from zebra2.simulation.controller import Controller
 
 
 # We daemonise the server by double forking, but we leave the controlling
@@ -90,7 +89,7 @@ sock.listen(0)
 
 # Create as much of the controller before we daemonise so that errors can be
 # caught if possible at this stage.
-controller = sim_hardware.Controller(args.config_dir)
+controller = Controller(args.config_dir)
 
 print 'Simulating server ready'
 if args.daemon:

@@ -4,7 +4,6 @@ HERE="$(dirname "$0")"
 
 # This is filled in from the setting in CONFIG
 PYTHON='@@PYTHON@@'
-SIM_HARDWARE='@@SIM_HARDWARE@@'
 
 CONFIG_DIR="$HERE"/config_d
 
@@ -24,7 +23,7 @@ nc localhost 9999 </dev/null
 
 # Run the simulation server as a daemon.  It will ensure its socket is up and
 # running before taking itself into the background.
-$PYTHON simulation/sim_server.py -d --hardware=$SIM_HARDWARE "$CONFIG_DIR"  &&
+$PYTHON python/sim_server.py -d "$CONFIG_DIR"  &&
 
 exec valgrind --leak-check=full --track-origins=yes \
     '@@BUILD_DIR@@'/sim_server/sim_server \

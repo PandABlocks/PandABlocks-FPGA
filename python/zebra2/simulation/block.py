@@ -3,7 +3,7 @@ import sys
 
 from .event import Event
 
-from . import config_parser
+from ..configparser import config_parser
 
 
 class Block(object):

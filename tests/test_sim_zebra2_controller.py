@@ -1,22 +1,22 @@
 #!/bin/env dls-python
-from pkg_resources import require
 import unittest
 import sys
 import os
 import time
 
 # Module import
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "simulation"))
-from sim_zebra2.zebra2 import Zebra2, BlockRegisters, CLOCK_TICK
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
+from zebra2.simulation.zebra2 import Zebra2, Block, CLOCK_TICK
 
 
 class Zebra2ControllerTest(unittest.TestCase):
 
     def setUp(self):
-        self.z = Zebra2()
+        config_dir = os.path.join(os.path.dirname(__file__), "..", "config_d")
+        self.z = Zebra2(config_dir)
 
     def test_init(self):
-        bits_base = BlockRegisters.instances["BITS"].base
+        bits_base = Block.registers["BITS"].base
         for i, val in enumerate(self.z.bit_bus):
             if i == self.z.blocks[(bits_base, 0)].ONE:
                 self.assertEqual(val, 1)
@@ -26,7 +26,7 @@ class Zebra2ControllerTest(unittest.TestCase):
             self.assertEqual(val, 0)
 
     def test_clocks_set(self):
-        clocks_reg = BlockRegisters.instances["CLOCKS"]
+        clocks_reg = Block.registers["CLOCKS"]
         clocks = self.z.blocks[(clocks_reg.base, 0)]
         clocks_period_reg_lo = int(clocks_reg.fields["A_PERIOD"].split()[0])
         self.assertEqual(clocks.A_PERIOD, 0)
@@ -60,9 +60,9 @@ class Zebra2ControllerTest(unittest.TestCase):
         self.assertEqual(self.z.bit_bus[clocks.A], 0)
 
     def test_changing_inp(self):
-        div_reg = BlockRegisters.instances["DIV"]
+        div_reg = Block.registers["DIV"]
         div = self.z.blocks[(div_reg.base, 0)]
-        bits_reg = BlockRegisters.instances["BITS"]
+        bits_reg = Block.registers["BITS"]
         bits = self.z.blocks[(bits_reg.base, 0)]
         # check disconnected
         self.assertEqual(div.INP, bits.ZERO)
