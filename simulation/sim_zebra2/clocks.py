@@ -31,11 +31,11 @@ class Clocks(Block):
                 half = period / 2
                 # produce clock high level
                 if off == 0:
-                    next_event.bit[bus_index] = 1
+                    next_event.bit[bus_index] = 0
                     next_ts.append(event.ts + half)
                 # produce clock low level
                 elif off == half:
-                    next_event.bit[bus_index] = 0
+                    next_event.bit[bus_index] = 1
                     next_ts.append(event.ts - half + period)
         # now work out when next to make a pulse
         if next_ts:
