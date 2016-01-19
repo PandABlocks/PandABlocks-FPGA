@@ -164,6 +164,9 @@ PCAP        16
     FRAME           1
     CAPTURE         2
     ACTIVE          106
+    CAPTURE_TS      33 34
+    FRAME_LENGTH    35
+    CAPTURE_OFFSET  36
 
 LVDSIN      17
     VAL             8 9

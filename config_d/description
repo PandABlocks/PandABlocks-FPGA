@@ -175,6 +175,9 @@ PCAP        Position capture control
     FRAME           Data capture frame
     CAPTURE         Data capture event
     ACTIVE          Data capture in progress
+    CAPTURE_TS      Timestamp of captured data
+    FRAME_LENGTH    Length of captured frame
+    CAPTURE_OFFSET  Offset of capture into capture frame
     ARM             Enables data capture experiment
     DISARM          Abort data capture in progress
     RESET           Abort and disconnect

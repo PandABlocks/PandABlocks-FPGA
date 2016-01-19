@@ -207,6 +207,10 @@ PCAP
     CAPTURE         param       bit_mux
     ACTIVE          bit_out
 
+    CAPTURE_TS      ext_out     timestamp
+    FRAME_LENGTH    ext_out
+    CAPTURE_OFFSET  ext_out
+
     ARM             software    arm
     DISARM          software    disarm
     RESET           software    reset

@@ -669,16 +669,19 @@
 
 # Add some position capture tests
 < PCAP.*?
-> !DISARM 5 software
-> !STATUS 7 software
-> !RESET 6 software
+> !FRAME_LENGTH 5 ext_out
+> !DISARM 8 software
+> !RESET 9 software
+> !CAPTURE_OFFSET 6 ext_out
 > !ACTIVE 3 bit_out
 > !FRAME 1 param bit_mux
 > !ENABLE 0 param bit_mux
-> !WAITING 8 software
+> !WAITING 11 software
 > !CAPTURE 2 param bit_mux
-> !DOWNLOADING 9 software
-> !ARM 4 software
+> !DOWNLOADING 12 software
+> !CAPTURE_TS 4 ext_out timestamp
+> !ARM 7 software
+> !STATUS 10 software
 > .
 
 # Encoder enums
@@ -705,3 +708,18 @@
 > OK =Difference
 > OK
 > OK =Extended
+
+< *ENUMS.PCAP.CAPTURE_TS.CAPTURE?
+< PCAP.CAPTURE_TS?
+> !No
+> !Short
+> !Long
+> .
+> ERR Field not readable
+
+# At the moment the capture state for this field is stuck at No
+< PCAP.CAPTURE_TS.CAPTURE=Long
+< PCAP.CAPTURE_TS.CAPTURE?
+> OK
+> OK =No
+
