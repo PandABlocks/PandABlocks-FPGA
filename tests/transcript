@@ -440,34 +440,36 @@
 > .
 
 < TTLIN1.VAL.CAPTURE?
-> OK =0
+> OK =No
 
 < TTLIN1.VAL.CAPTURE=1
+< TTLIN1.VAL.CAPTURE=Triggered
+> ERR Not a valid capture option
 > OK
 
 < *CAPTURE?
-> !*BITS3
+> !*BITS0
 > .
 
 < TTLIN1.VAL.CAPTURE_INDEX?
-> OK =0:30
+> OK =0:2
 
-< INENC2.ENC_POSN.CAPTURE=1
+< INENC2.ENC_POSN.CAPTURE=Triggered
 > OK
 
 < *CAPTURE?
 > !INENC2.ENC_POSN
-> !*BITS3
+> !*BITS0
 > .
 
 < TTLIN1.VAL.CAPTURE_INDEX?
-> OK =1:30
+> OK =1:2
 
-< TTLIN2.VAL.CAPTURE=1
+< TTLIN2.VAL.CAPTURE=Triggered
 > OK
 
 < TTLIN2.VAL.CAPTURE_INDEX?
-> OK =1:31
+> OK =1:3
 
 < INENC3.ENC_POSN.CAPTURE_INDEX?
 > OK =
@@ -485,11 +487,11 @@
 < *CHANGES.ATTR?
 > .
 
-< INENC2.ENC_POSN.CAPTURE=1
+< INENC2.ENC_POSN.CAPTURE=Triggered
 > OK
 
 < *CHANGES.ATTR?
-> !INENC2.ENC_POSN.CAPTURE=1
+> !INENC2.ENC_POSN.CAPTURE=Triggered
 > .
 
 # Pulse time
@@ -678,3 +680,28 @@
 > !DOWNLOADING 9 software
 > !ARM 4 software
 > .
+
+# Encoder enums
+< *ENUMS.INENC.ENC_POSN.CAPTURE?
+> !No
+> !Triggered
+> !Difference
+> !Extended
+> .
+
+< INENC1.ENC_POSN.CAPTURE=No
+< INENC1.ENC_POSN.CAPTURE?
+< INENC1.ENC_POSN.CAPTURE=Triggered
+< INENC1.ENC_POSN.CAPTURE?
+< INENC1.ENC_POSN.CAPTURE=Difference
+< INENC1.ENC_POSN.CAPTURE?
+< INENC1.ENC_POSN.CAPTURE=Extended
+< INENC1.ENC_POSN.CAPTURE?
+> OK
+> OK =No
+> OK
+> OK =Triggered
+> OK
+> OK =Difference
+> OK
+> OK =Extended

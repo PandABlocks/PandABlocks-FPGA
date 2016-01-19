@@ -9,13 +9,13 @@ class Srgate(Block):
         next_event.bit[self.VAL] = 1
 
     def do_reset(self, next_event, event):
-        """Reset the block, either called on the acting edge of RESET input or
-        on a FORCE RESET action"""
+        """Reset the block, either called on the acting edge of RST input or
+        on a FORCE RST action"""
         next_event.bit[self.VAL] = 0
 
     def do_process_inputs(self, next_event, event):
         # if we got a reset, and it was high, do a reset
-        if event.bit.get(self.RESET, None) == self.RESET_EDGE:
+        if event.bit.get(self.RST, None) == self.RST_EDGE:
             self.do_reset(next_event, event)
         # if we got a set, then process it
         elif event.bit.get(self.SET, None) == self.SET_EDGE:
@@ -29,7 +29,7 @@ class Srgate(Block):
         if event.reg:
             for name, value in event.reg.items():
                 setattr(self, name, value)
-                if name == "FORCE_RESET" and value:
+                if name == "FORCE_RST" and value:
                     self.do_reset(next_event, event)
                 elif name == "FORCE_SET" and value:
                     self.do_set(next_event, event)
