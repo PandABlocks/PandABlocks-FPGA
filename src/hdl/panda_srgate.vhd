@@ -53,6 +53,11 @@ end process;
 -- Detect rising and falling edge of set and reset inputs
 set_rise  <= set_i and not set_prev;
 rst_rise  <= rst_i and not rst_prev;
+set_fall  <= not set_i and set_prev;
+rst_fall  <= not rst_i and rst_prev;
+
+set <= set_fall when (SET_EDGE = '0') else set_rise;
+rst <= rst_fall when (RST_EDGE = '0') else rst_rise;
 
 --
 -- Special SRGate with support for forcing the output.
@@ -68,9 +73,9 @@ begin
                 pulse <= '0';
             elsif (FORCE_SET = '1') then
                 pulse <= '1';
-            elsif (rst_rise = '1') then
+            elsif (rst = '1') then
                 pulse <= '0';
-            elsif (set_rise = '1') then
+            elsif (set = '1') then
                 pulse <= '1';
             end if;
         end if;
