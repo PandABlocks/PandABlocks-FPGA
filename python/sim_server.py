@@ -59,11 +59,11 @@ def run_simulation(conn):
         command_word = read(conn, 4)
         command, block, num, reg = struct.unpack('cBBB', command_word)
         if command == 'R':
-            tx = controller.do_read_data(block, num, reg)
+            tx = controller.do_read_register(block, num, reg)
             conn.sendall(struct.pack('I', tx))
         elif command == 'W':
             value, = struct.unpack('I', read(conn, 4))
-            controller.do_write_config(block, num, reg, value)
+            controller.do_write_register(block, num, reg, value)
         elif command == 'T':
             length, = struct.unpack('I', read(conn, 4))
             data = read(conn, length * 4)

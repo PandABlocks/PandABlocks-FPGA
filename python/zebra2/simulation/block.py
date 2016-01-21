@@ -29,9 +29,15 @@ class Block(object):
         # dict reg num -> lo/hi
         self.time_lohi = {}
         for name, field in self.fields.items():
+            try:
+                reg_name = regs[name]
+            except KeyError:
+                print 'Unknown register %s.%s' % (block_name, name)
+                continue
+
             if field.cls.endswith("_out"):
                 # outs are an array of bus indexes
-                bus_index = int(regs[name].split()[self.num - 1])
+                bus_index = int(reg_name.split()[self.num - 1])
                 setattr(self, name, bus_index)
                 if field.cls == "pos_out":
                     self.pos_outs[bus_index] = name
@@ -39,7 +45,7 @@ class Block(object):
                     self.bit_outs[bus_index] = name
             elif field.cls == "table":
                 # Work out if table is short or long
-                split = regs[name].split(" ")
+                split = reg_name.split(" ")
                 if len(split) == 1:
                     # This is a long table
                     # "table_len"
@@ -60,7 +66,7 @@ class Block(object):
                 # Initialise the attribute value to 0
                 setattr(self, name, 0)
                 # Time values are "lo hi [>offset]"
-                split = regs[name].split()
+                split = reg_name.split()
                 reg_offset = [int(x) for x in split[:2]]
                 self.regs[reg_offset[0]] = name
                 self.time_lohi[reg_offset[0]] = "lo"
@@ -73,7 +79,7 @@ class Block(object):
                 # Initialise the attribute value to 0
                 setattr(self, name, 0)
                 # everything else is "reg_offset [filter]"
-                split = regs[name].split(" ", 1)
+                split = reg_name.split(" ", 1)
                 reg_offset = int(split[0])
                 self.regs[reg_offset] = name
 
