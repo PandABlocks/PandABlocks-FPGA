@@ -413,9 +413,9 @@ else if (test_name == "POSITION_TEST") begin
     REG_WRITE(PCOMP_BASE, PCOMP_ENABLE_VAL_ADDR, 106);  // pcap_act
     REG_WRITE(PCOMP_BASE, PCOMP_POSN_VAL_ADDR, 1);      // inenc_posn(0)
     REG_WRITE(PCOMP_BASE, PCOMP_START_ADDR, 100);
-    REG_WRITE(PCOMP_BASE, PCOMP_STEP_ADDR, 100);
-    REG_WRITE(PCOMP_BASE, PCOMP_WIDTH_ADDR, 10);
-    REG_WRITE(PCOMP_BASE, PCOMP_NUM_ADDR, 10);
+    REG_WRITE(PCOMP_BASE, PCOMP_STEP_ADDR, 0);
+    REG_WRITE(PCOMP_BASE, PCOMP_WIDTH_ADDR, 1400);
+    REG_WRITE(PCOMP_BASE, PCOMP_NUM_ADDR, 3);
 
     // Setup Position Capture
     REG_WRITE(PCAP_BASE, PCAP_ENABLE_VAL_ADDR, 98);     // pcomp_act(0)
@@ -433,6 +433,11 @@ else if (test_name == "POSITION_TEST") begin
 fork
 begin
     tb.encoder.Turn(1500);
+    tb.encoder.Turn(-1500);
+    tb.encoder.Turn(1500);
+    tb.encoder.Turn(-1500);
+    tb.encoder.Turn(1500);
+    tb.encoder.Turn(-1500);
 end
 
 begin

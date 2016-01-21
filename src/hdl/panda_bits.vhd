@@ -41,7 +41,7 @@ begin
 zero_o <= '0';
 one_o <= '1';
 
-process(clkk_i)
+process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then

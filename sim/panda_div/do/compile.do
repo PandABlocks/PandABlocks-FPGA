@@ -11,7 +11,7 @@ vcom -64 -93 -work xil_defaultlib   \
 
 vlog -work xil_defaultlib \
 "../bench/panda_div_tb.v" \
-"/dls_sw/FPGA/Xilinx/14.7/ISE_DS/ISE//verilog/src/glbl.v"
+"../bench/glbl.v"
 
 vopt -64 +acc -L secureip -L xil_defaultlib -work xil_defaultlib xil_defaultlib.panda_div_tb -o panda_div_opt glbl
 

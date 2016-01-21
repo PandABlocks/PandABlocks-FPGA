@@ -24,6 +24,11 @@ begin
             J = J-1;
             Phase = Phase + 1;
         end
+
+        if (Phase < 0) begin
+            Phase = Phase + 4;
+        end
+
         {A,B} = Phase_Table[Phase % 4];
         repeat(25) @(posedge CLK);
     end

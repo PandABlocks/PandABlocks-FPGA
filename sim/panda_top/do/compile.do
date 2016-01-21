@@ -45,6 +45,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_qdec.vhd" \
 "${SRC}/panda_quadin.vhd" \
 "${SRC}/panda_quadout.vhd" \
+"${SRC}/panda_inenc.vhd" \
 "${SRC}/panda_inenc_block.vhd" \
 "${SRC}/panda_inenc_top.vhd" \
 "${SRC}/panda_outenc_block.vhd" \
@@ -72,13 +73,14 @@ vcom -64 -93 -work xil_defaultlib  \
 
 # Compile Testbench
 #
+vlog -work xil_defaultlib "../bench/incr_encoder_model.v" \
+
 vcom -64 -93 -work xil_defaultlib  \
 "../bench/test_interface.vhd" \
 "../bench/daughter_card_model.vhd" \
 "../bench/panda_top_tb.vhd"
 
-vlog -work xil_defaultlib "../bench/test.v" \
-"../bench/incr_encoder_model.v"
+vlog -work xil_defaultlib "../bench/test.v"
 
 vopt -64 +acc -L unisims_ver -L unimacro_ver -L secureip -L xil_defaultlib -L generic_baseblocks_v2_1 -L fifo_generator_v12_0 -L axi_data_fifo_v2_1 -L axi_infrastructure_v1_1 -L axi_register_slice_v2_1 -L axi_protocol_converter_v2_1 -work xil_defaultlib xil_defaultlib.test xil_defaultlib.glbl -o test_opt
 

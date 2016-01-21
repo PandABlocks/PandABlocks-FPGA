@@ -99,10 +99,10 @@ port map (
     iobuf_ctrl_o        => iobuf_ctrl_channels(I)
 );
 
--- Assign output to system bus.
-a_o(I) <= '0'; --Am0_pad_io(I);
-b_o(I) <= '0'; --Bm0_pad_io(I);
-z_o(I) <= '0'; --Zm0_pad_io(I);
+-- Assign raw encoder inputs to system bus.
+a_o(I) <= Am0_ipad(I);
+b_o(I) <= Bm0_ipad(I);
+z_o(I) <= Zm0_ipad(I);
 conn_o(I) <= ctrl_pad_i(I)(0);
 
 END GENERATE;
