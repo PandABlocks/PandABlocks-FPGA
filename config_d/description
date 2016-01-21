@@ -89,6 +89,7 @@ INENC
     Z               
     CONN            
     ENC_POSN        
+    EXTENSION       
 
 QDEC        
     A               
@@ -178,6 +179,7 @@ PCAP        Position capture control
     CAPTURE_TS      Timestamp of captured data
     FRAME_LENGTH    Length of captured frame
     CAPTURE_OFFSET  Offset of capture into capture frame
+    ADC_COUNT       Number of ADC samples in captured frame
     ARM             Enables data capture experiment
     DISARM          Abort data capture in progress
     RESET           Abort and disconnect

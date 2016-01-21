@@ -323,34 +323,34 @@
 > .
 
 
-< QDEC1.SETP.SCALE=0.1
+< PCOMP1.START.SCALE=0.1
 > OK
 
-< QDEC1.SETP.OFFSET=100.3
+< PCOMP1.START.OFFSET=100.3
 > OK
 
-< QDEC1.SETP=123.45
+< PCOMP1.START=123.45
 > OK
 
-< QDEC1.SETP?
+< PCOMP1.START?
 > OK =123.5
 
-< QDEC1.SETP.RAW?
+< PCOMP1.START.RAW?
 > OK =232
 
-< QDEC1.SETP.SCALE?
+< PCOMP1.START.SCALE?
 > OK =0.1
 
-< QDEC1.SETP.OFFSET?
+< PCOMP1.START.OFFSET?
 > OK =100.3
 
-< QDEC1.SETP.UNITS=mm
+< PCOMP1.START.UNITS=mm
 > OK
 
-< QDEC1.SETP.UNITS?
+< PCOMP1.START.UNITS?
 > OK =mm
 
-< *ENUMS.QDEC1.SETP.UNITS?
+< *ENUMS.PCOMP1.START.UNITS?
 > !min
 > !s
 > !ms
@@ -364,24 +364,24 @@
 < *CHANGES.CONFIG?
 > .
 
-< QDEC1.SETP?
+< PCOMP1.START?
 > OK =123.5
 
-< QDEC1.SETP.OFFSET?
-< QDEC1.SETP.SCALE?
+< PCOMP1.START.OFFSET?
+< PCOMP1.START.SCALE?
 > OK =100.3
 > OK =0.1
 
-< QDEC1.SETP.OFFSET=0
+< PCOMP1.START.OFFSET=0
 < *CHANGES.CONFIG?
 > OK
-> !QDEC1.SETP=23.2
+> !PCOMP1.START=23.2
 > .
 
-< QDEC1.SETP.SCALE=1
+< PCOMP1.START.SCALE=1
 < *CHANGES.CONFIG?
 > OK
-> !QDEC1.SETP=232
+> !PCOMP1.START=232
 > .
 
 
@@ -592,7 +592,7 @@
 < dfdex
 < xxx
 <
-> ERR Unexpected character at end
+> ERR Unexpected character after input
 
 # Next check that a broken write does nothing
 < SEQ1.TABLE<
@@ -670,18 +670,19 @@
 # Add some position capture tests
 < PCAP.*?
 > !FRAME_LENGTH 5 ext_out
-> !DISARM 8 software
-> !RESET 9 software
+> !DISARM 9 software
+> !RESET 10 software
 > !CAPTURE_OFFSET 6 ext_out
 > !ACTIVE 3 bit_out
+> !STATUS 11 software
 > !FRAME 1 param bit_mux
 > !ENABLE 0 param bit_mux
-> !WAITING 11 software
+> !WAITING 12 software
 > !CAPTURE 2 param bit_mux
-> !DOWNLOADING 12 software
+> !DOWNLOADING 13 software
 > !CAPTURE_TS 4 ext_out timestamp
-> !ARM 7 software
-> !STATUS 10 software
+> !ARM 8 software
+> !ADC_COUNT 7 ext_out
 > .
 
 # Encoder enums

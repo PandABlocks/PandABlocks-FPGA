@@ -91,6 +91,7 @@ INENC       7
     BITS            3
     SETP            4
     RST_ON_Z        5
+    EXTENSION       6
     A               66 67 68 69
     B               70 71 72 73
     Z               74 75 76 77
@@ -181,6 +182,7 @@ PCAP        16
     CAPTURE_TS      33 34
     FRAME_LENGTH    35
     CAPTURE_OFFSET  36
+    ADC_COUNT       37
 
 LVDSIN      17
     VAL             8 9
