@@ -45,8 +45,8 @@ REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            inenc_buf_ctrl <= (others => '0');
-            outenc_buf_ctrl <= (others => '0');
+            inenc_buf_ctrl  <= "000011";
+            outenc_buf_ctrl <= "000111";
         else
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
@@ -64,6 +64,7 @@ begin
                 -- SSI   : 0x28
                 -- Endat : 0x10
                 -- BiSS  : 0x18
+                -- Pass  : 0x07
                 -- DCard Output Channel Buffer Ctrl
                 if (mem_addr_i = SLOW_OUTENC_CTRL_ADDR) then
                     outenc_buf_ctrl <= mem_dat_i(5 downto 0);

@@ -54,22 +54,14 @@ signal FORCE_QSTATE     : std_logic;
 signal FORCE_QSTATE_WSTB: std_logic;
 signal QSTATE           : std_logic;
 
-signal quad_a           : std_logic;
-signal quad_b           : std_logic;
-
-signal a_pass           : std_logic;
-signal b_pass           : std_logic;
-signal z_pass           : std_logic;
-signal conn_pass        : std_logic;
-
-signal sdat_dir         : std_logic := '0';
+signal a, b, z          : std_logic;
+signal conn             : std_logic;
 signal posn             : std_logic_vector(31 downto 0);
 
 begin
 
 -- Status information to upper-level
 enc_mode_o <= PROTOCOL;
-sdat_dir_o <= sdat_dir;
 
 --
 -- Configuration Register Write/Read
@@ -151,36 +143,8 @@ begin
         else
             case (mem_addr_i) is
                 when OUTENC_QSTATE_ADDR =>
-                    mem_dat_o <= (0 => qstate, others => '0');
+                    mem_dat_o <= (0 => QSTATE, others => '0');
                 when others =>
-            end case;
-        end if;
-    end if;
-end process;
-
---
--- Setup IOBUF Control Values :
---  Due to Encoder I/O multiplexing on device pins, on-chip
---  IOBUFs have to be configured according to protocol selected.
-IOBUF_CTRL : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            iobuf_ctrl_o <= "000";
-        else
-            case (PROTOCOL) is
-                when "000"  =>                        -- INC
-                    iobuf_ctrl_o <= "000";
-                when "001"  =>                        -- SSI
-                    iobuf_ctrl_o <= "011";
-                when "010"  =>                        -- EnDat
-                    iobuf_ctrl_o <= sdat_dir & "10";
-                when "011"  =>                        -- BiSS
-                    iobuf_ctrl_o <= sdat_dir & "10";
-                when "100"  =>                        -- Pass-Through
-                    iobuf_ctrl_o <= "000";
-                when others =>
-                    iobuf_ctrl_o <= "000";
             end case;
         end if;
     end if;
@@ -197,19 +161,38 @@ begin
 end process;
 
 --
--- INCREMENTAL OUT
+-- Core instantiation
 --
-panda_quadout_inst : entity work.panda_quadout
+panda_outenc_inst : entity work.panda_outenc
 port map (
-    clk_i           => clk_i,
-    reset_i         => reset_i,
-    qenc_presc_i    => QPRESCALAR,
-    force_val_i     => FORCE_QSTATE,
-    force_wstb_i    => FORCE_QSTATE_WSTB,
-    posn_i          => posn,
-    qstate_o        => qstate,
-    a_o             => quad_a,
-    b_o             => quad_b
+    -- Clock and Reset
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+    --
+    a_i                 => a,
+    b_i                 => b,
+    z_i                 => z,
+    conn_i              => conn,
+    posn_i              => posn,
+    -- Encoder I/O Pads
+    a_o                 => a_o,
+    b_o                 => b_o,
+    z_o                 => z_o,
+    conn_o              => conn_o,
+    sclk_i              => sclk_i,
+    sdat_i              => '0',
+    sdat_o              => sdat_o,
+    sdat_dir_o          => sdat_dir_o,
+    -- Block Parameters
+    PROTOCOL            => PROTOCOL,
+    BITS                => BITS,
+    QPRESCALAR          => QPRESCALAR,
+    FORCE_QSTATE        => FORCE_QSTATE,
+    FORCE_QSTATE_WSTB   => FORCE_QSTATE_WSTB,
+    QSTATE              => QSTATE,
+    -- CS Interface
+    enc_mode_o          => enc_mode_o,
+    iobuf_ctrl_o        => iobuf_ctrl_o
 );
 
 --
@@ -218,32 +201,12 @@ port map (
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        a_pass <= SBIT(sysbus_i, A_VAL);
-        b_pass <= SBIT(sysbus_i, B_VAL);
-        z_pass <= SBIT(sysbus_i, Z_VAL);
-        conn_pass <= SBIT(sysbus_i, CONN_VAL);
+        a <= SBIT(sysbus_i, A_VAL);
+        b <= SBIT(sysbus_i, B_VAL);
+        z <= SBIT(sysbus_i, Z_VAL);
+        conn <= SBIT(sysbus_i, CONN_VAL);
     end if;
 end process;
-
-a_o <= a_pass when (PROTOCOL = "100") else quad_a;
-b_o <= b_pass when (PROTOCOL = "100") else quad_b;
-z_o <= z_pass when (PROTOCOL = "100") else '0';
-
-conn_o <= conn_pass;
-
---
--- SSI SLAVE
---
-panda_ssislv_inst : entity work.panda_ssislv
-port map (
-    clk_i           => clk_i,
-    reset_i         => reset_i,
-    enc_bits_i      => BITS,
-    ssi_sck_i       => sclk_i,
-    ssi_dat_o       => sdat_o,
-    posn_i          => posn,
-    ssi_rd_sof      => open
-);
 
 end rtl;
 

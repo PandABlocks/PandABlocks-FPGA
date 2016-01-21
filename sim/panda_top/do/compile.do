@@ -48,6 +48,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_inenc.vhd" \
 "${SRC}/panda_inenc_block.vhd" \
 "${SRC}/panda_inenc_top.vhd" \
+"${SRC}/panda_outenc.vhd" \
 "${SRC}/panda_outenc_block.vhd" \
 "${SRC}/panda_outenc_top.vhd" \
 "${SRC}/panda_sequencer.vhd" \

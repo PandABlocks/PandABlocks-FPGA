@@ -41,7 +41,7 @@ architecture rtl of panda_inenc_top is
 
 signal mem_blk_cs           : std_logic_vector(ENC_NUM-1 downto 0);
 
-signal iobuf_ctrl_channels : iobuf_ctrl_array(ENC_NUM-1 downto 0);
+signal iobuf_ctrl           : iobuf_ctrl_array(ENC_NUM-1 downto 0);
 
 signal Am0_ipad, Am0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
 signal Bm0_ipad, Bm0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
@@ -64,13 +64,13 @@ INENC_GEN : FOR I IN 0 TO ENC_NUM-1 GENERATE
 --  On-chip IOBUF primitives needs dynamic control based on protocol
 --
 IOBUF_Am0 : IOBUF port map (
-I=>Am0_opad(I), O=>Am0_ipad(I), T=>iobuf_ctrl_channels(I)(2), IO=>Am0_pad_io(I));
+I=>Am0_opad(I), O=>Am0_ipad(I), T=>iobuf_ctrl(I)(2), IO=>Am0_pad_io(I));
 
 IOBUF_Bm0 : IOBUF port map (
-I=>Bm0_opad(I), O=>Bm0_ipad(I), T=>iobuf_ctrl_channels(I)(1), IO=>Bm0_pad_io(I));
+I=>Bm0_opad(I), O=>Bm0_ipad(I), T=>iobuf_ctrl(I)(1), IO=>Bm0_pad_io(I));
 
 IOBUF_Zm0 : IOBUF port map (
-I=>Zm0_opad(I), O=>Zm0_ipad(I), T=>iobuf_ctrl_channels(I)(0), IO=>Zm0_pad_io(I));
+I=>Zm0_opad(I), O=>Zm0_ipad(I), T=>iobuf_ctrl(I)(0), IO=>Zm0_pad_io(I));
 
 -- Generate Block chip select signal
 mem_blk_cs(I) <= '1'
@@ -96,7 +96,7 @@ port map (
     mdat_o              => open,
     -- Status
     posn_o              => posn_o(I),
-    iobuf_ctrl_o        => iobuf_ctrl_channels(I)
+    iobuf_ctrl_o        => iobuf_ctrl(I)
 );
 
 -- Assign raw encoder inputs to system bus.

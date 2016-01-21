@@ -47,17 +47,17 @@ signal enc0_ctrl_pad_o  : std_logic_vector(11 downto 0);
 signal leds             : std_logic_vector(1 downto 0);
 signal clk              : std_logic := '1';
 
-signal A_IN_P           : std_logic;
-signal B_IN_P           : std_logic;
-signal Z_IN_P           : std_logic := '0';
-signal CLK_OUT_P        : std_logic;
-signal DATA_IN_P        : std_logic := '0';
+signal A_IN_P           : std_logic_vector(3 downto 0) := "0000";
+signal B_IN_P           : std_logic_vector(3 downto 0) := "0000";
+signal Z_IN_P           : std_logic_vector(3 downto 0) := "0000";
+signal CLK_OUT_P        : std_logic_vector(3 downto 0);
+signal DATA_IN_P        : std_logic_vector(3 downto 0) := "0000";
 
-signal A_OUT_P          : std_logic;
-signal B_OUT_P          : std_logic;
-signal Z_OUT_P          : std_logic;
-signal CLK_IN_P         : std_logic := '0';
-signal DATA_OUT_P       : std_logic;
+signal A_OUT_P          : std_logic_vector(3 downto 0);
+signal B_OUT_P          : std_logic_vector(3 downto 0);
+signal Z_OUT_P          : std_logic_vector(3 downto 0);
+signal CLK_IN_P         : std_logic_vector(3 downto 0) := "0000";
+signal DATA_OUT_P       : std_logic_vector(3 downto 0);
 
 signal inputs           : unsigned(15 downto 0) := X"0000";
 
@@ -73,7 +73,18 @@ constant BLOCK_SIZE     : integer := TLP_SIZE * 64; -- 8KByte
 
 begin
 
+-- System Clock
 clk <= not clk after 4 ns;
+
+--
+-- TTL/LVDS IO
+--
+process(clk)
+begin
+    if rising_edge(clk) then
+        inputs <= inputs + 1;
+    end if;
+end process;
 
 ttlin_pad <= std_logic_vector(inputs(13 downto 8));
 lvdsin_pad <= std_logic_vector(inputs(15 downto 14));
@@ -117,55 +128,50 @@ PORT MAP (
     leds                => leds
 );
 
-daughter_card_model_inst : entity work.daughter_card_model
-port map (
-    -- panda_top interface.
-    A_IN        => Am0_pad_io(0),
-    B_IN        => Bm0_pad_io(0),
-    Z_IN        => Zm0_pad_io(0),
-    A_OUT       => As0_pad_io(0),
-    B_OUT       => Bs0_pad_io(0),
-    Z_OUT       => Zs0_pad_io(0),
 
-    -- Front Panel via DB15
-    A_IN_P      => A_IN_P,
-    B_IN_P      => B_IN_P,
-    Z_IN_P      => Z_IN_P,
-    CLK_OUT_P   => CLK_OUT_P,
-    DATA_IN_P   => DATA_IN_P,
+--
+-- There are 4x Daughter Cards on the system
+--
+DCARD : FOR I IN 0 TO 3 GENERATE
 
-    A_OUT_P     => A_OUT_P,
-    B_OUT_P     => B_OUT_P,
-    Z_OUT_P     => Z_OUT_P,
-    CLK_IN_P    => CLK_IN_P,
-    DATA_OUT_P  => DATA_OUT_P,
+    daughter_card : entity work.daughter_card_model
+    port map (
+        -- panda_top interface.
+        A_IN        => Am0_pad_io(I),
+        B_IN        => Bm0_pad_io(I),
+        Z_IN        => Zm0_pad_io(I),
+        A_OUT       => As0_pad_io(I),
+        B_OUT       => Bs0_pad_io(I),
+        Z_OUT       => Zs0_pad_io(I),
 
-    CTRL_IN     => enc0_ctrl_pad_o,
-    CTRL_OUT    => enc0_ctrl_pad_i
-);
+        -- Front Panel via DB15
+        A_IN_P      => A_IN_P(I),
+        B_IN_P      => B_IN_P(I),
+        Z_IN_P      => Z_IN_P(I),
+        CLK_OUT_P   => CLK_OUT_P(I),
+        DATA_IN_P   => DATA_IN_P(I),
+
+        A_OUT_P     => A_OUT_P(I),
+        B_OUT_P     => B_OUT_P(I),
+        Z_OUT_P     => Z_OUT_P(I),
+        CLK_IN_P    => CLK_IN_P(I),
+        DATA_OUT_P  => DATA_OUT_P(I),
+
+        CTRL_IN     => enc0_ctrl_pad_o,
+        CTRL_OUT    => open --enc0_ctrl_pad_i
+    );
+
+END GENERATE;
 
 encoder : entity work.incr_encoder_model
 port map (
     CLK         => clk,
-    A           => A_IN_P,
-    B           => B_IN_P
+    A           => A_IN_P(0),
+    B           => B_IN_P(0)
 );
 
---A_IN_P <= A_OUT_P;
---B_IN_P <= B_OUT_P;
-
 -- Loopback on SSI
-CLK_IN_P <= CLK_OUT_P;
-DATA_IN_P <= DATA_OUT_P;
-
-
--- Simple counter to emulate TTL inputs
-process(clk)
-begin
-    if rising_edge(clk) then
-        inputs <= inputs + 1;
-    end if;
-end process;
-
+--CLK_IN_P <= CLK_OUT_P;
+--DATA_IN_P <= DATA_OUT_P;
 
 end;

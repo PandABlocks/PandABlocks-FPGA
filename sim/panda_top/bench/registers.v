@@ -28,6 +28,7 @@ localparam BASE                     = 32'h43C0_0000;
 localparam INENC_BASE               = BASE + 4096 * INENC_CS;
 localparam PCOMP_BASE               = BASE + 4096 * PCOMP_CS;
 localparam PCAP_BASE                = BASE + 4096 * PCAP_CS;
+localparam OUTENC_BASE              = BASE + 4096 * OUTENC_CS;
 localparam SLOW_BASE                = BASE + 4096 * SLOW_CS;
 localparam CLOCKS_BASE              = BASE + 4096 * CLOCKS_CS;
 

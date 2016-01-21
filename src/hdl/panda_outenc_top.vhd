@@ -37,8 +37,8 @@ architecture rtl of panda_outenc_top is
 
 signal mem_blk_cs           : std_logic_vector(ENC_NUM-1 downto 0);
 
-signal iobuf_ctrl_channels  : iobuf_ctrl_array(ENC_NUM-1 downto 0);
-signal enc_mode_channels    : encmode_array(ENC_NUM-1 downto 0);
+signal iobuf_ctrl           : iobuf_ctrl_array(ENC_NUM-1 downto 0);
+signal enc_mode             : encmode_array(ENC_NUM-1 downto 0);
 
 signal As0_ipad, As0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
 signal Bs0_ipad, Bs0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
@@ -47,7 +47,7 @@ signal Zs0_ipad, Zs0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
 signal ao,bo, zo            : std_logic_vector(ENC_NUM-1 downto 0);
 signal sclk, sdato          : std_logic_vector(ENC_NUM-1 downto 0);
 
-signal sdat_dir_channels    : std_logic_vector(ENC_NUM-1 downto 0);
+signal sdat_dir             : std_logic_vector(ENC_NUM-1 downto 0);
 
 signal mem_read_data        : std32_array(2**(PAGE_AW-BLK_AW)-1 downto 0);
 
@@ -66,23 +66,28 @@ ENCOUT_GEN : FOR I IN 0 TO ENC_NUM-1 GENERATE
 --  On-chip IOBUF primitives needs dynamic control based on protocol
 --
 IOBUF_As0 : IOBUF port map (
-I=>As0_opad(I), O=>As0_ipad(I), T=>iobuf_ctrl_channels(I)(2), IO=>As0_pad_io(I));
+I=>As0_opad(I), O=>As0_ipad(I), T=>iobuf_ctrl(I)(2), IO=>As0_pad_io(I));
 
 IOBUF_Bs0 : IOBUF port map (
-I=>Bs0_opad(I), O=>Bs0_ipad(I), T=>iobuf_ctrl_channels(I)(1), IO=>Bs0_pad_io(I));
+I=>Bs0_opad(I), O=>Bs0_ipad(I), T=>iobuf_ctrl(I)(1), IO=>Bs0_pad_io(I));
 
 IOBUF_Zs0 : IOBUF port map (
-I=>Zs0_opad(I), O=>Zs0_ipad(I), T=>iobuf_ctrl_channels(I)(0), IO=>Zs0_pad_io(I));
+I=>Zs0_opad(I), O=>Zs0_ipad(I), T=>iobuf_ctrl(I)(0), IO=>Zs0_pad_io(I));
 
 -- Generate Block chip select signal
 mem_blk_cs(I) <= '1'
     when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_SVECTOR(I, PAGE_AW-BLK_AW)
             and mem_cs_i = '1') else '0';
 
--- Output data has to be multiplexed based on protocol.
-As0_opad(I) <= ao(I) when (enc_mode_channels(I) = "000") else sdato(I);
+-- Encoder output multiplexing should monitor selected protocol
+-- "000" : Incremental
+-- "001" : SSI
+-- "010" : Endat
+-- "011" : BiSS
+-- "100" : Pass Through
+As0_opad(I) <= ao(I) when (enc_mode(I)(1 downto 0) = "00") else sdato(I);
 Bs0_opad(I) <= bo(I);
-Zs0_opad(I) <= zo(I) when (enc_mode_channels(I) = "000") else sdat_dir_channels(I);
+Zs0_opad(I) <= zo(I) when (enc_mode(I)(1 downto 0) = "00") else sdat_dir(I);
 
 sclk(I) <= Bs0_ipad(I);
 
@@ -105,13 +110,13 @@ port map (
     sclk_i              => sclk(I),
     sdat_i              => '0',
     sdat_o              => sdato(I),
-    sdat_dir_o          => sdat_dir_channels(I),
+    sdat_dir_o          => sdat_dir(I),
     -- Position Bus Input
     sysbus_i            => sysbus_i,
     posbus_i            => posbus_i,
     -- CS Interface
-    enc_mode_o          => enc_mode_channels(I),
-    iobuf_ctrl_o        => iobuf_ctrl_channels(I)
+    enc_mode_o          => enc_mode(I),
+    iobuf_ctrl_o        => iobuf_ctrl(I)
 );
 
 END GENERATE;

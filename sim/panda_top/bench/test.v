@@ -5,7 +5,8 @@ module test;
 
 panda_top_tb tb();
 
-reg [511:0]     test_name = "POSITION_TEST";
+//reg [511:0]     test_name = "POSITION_TEST";
+reg [511:0]     test_name = "ENCLOOPBACK_TEST";
 
 reg [1:0]       wrs, rsp;
 reg [3:0]       IRQ_STATUS;
@@ -352,13 +353,17 @@ join
 
     $finish;
 end
-else if (test_name == "INENC_TEST") begin
+else if (test_name == "ENCLOOPBACK_TEST") begin
     repeat(1250) @(posedge tb.uut.ps.FCLK);
-    // SLOW_INENC_CTRL_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_B000, 4, 32'h3, wrs);
-    // SLOW_OUTENC_CTRL_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_B000, 4, 32'h7, wrs);
-    repeat(25000) @(posedge tb.uut.ps.FCLK);
+    REG_WRITE(SLOW_BASE, SLOW_INENC_CTRL_ADDR, 3);
+    REG_WRITE(SLOW_BASE, SLOW_OUTENC_CTRL_ADDR, 7);
+    REG_WRITE(OUTENC_BASE, OUTENC_A_VAL_ADDR, 66);  // inenc_a[0]
+    REG_WRITE(OUTENC_BASE, OUTENC_B_VAL_ADDR, 70);  // inenc_b[0]
+    REG_WRITE(OUTENC_BASE, OUTENC_PROTOCOL_ADDR, 4);  // inenc_b[0]
+
+    tb.encoder.Turn(1500);
+
+    repeat(2500) @(posedge tb.uut.ps.FCLK);
     $finish;
 end
 else if (test_name == "SSIENC_TEST") begin

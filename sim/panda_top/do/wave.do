@@ -1,3 +1,12 @@
+add wave -divider {Encoder IO}
+add wave \
+sim:/test/tb/uut/Am0_pad_io \
+sim:/test/tb/uut/As0_pad_io \
+sim:/test/tb/uut/Bm0_pad_io \
+sim:/test/tb/uut/Bs0_pad_io \
+sim:/test/tb/uut/Zm0_pad_io \
+sim:/test/tb/uut/Zs0_pad_io
+
 add wave -divider {Blocks}
 add wave -group "TB"    sim:/test/tb/*
 add wave -group "TOP"   sim:/test/tb/uut/*
@@ -35,23 +44,29 @@ sim:/test/tb/uut/panda_counter_inst/COUNTER_GEN(0)/panda_counter_block/*
 add wave -group "COUNTER_1" \
 sim:/test/tb/uut/panda_counter_inst/COUNTER_GEN(1)/panda_counter_block/*
 
-add wave -group "INENC_BLOCK" \
+add wave -group "INENC_TOP" \
+sim:/test/tb/uut/panda_inenc_inst/*
+
+add wave -group "INENC_BLOCK0" \
 sim:/test/tb/uut/panda_inenc_inst/INENC_GEN(0)/panda_inenc_block_inst/*
 
-add wave -group "OUTENC_BLOCK" \
+add wave -group "INENC_BLOCK1" \
+sim:/test/tb/uut/panda_inenc_inst/INENC_GEN(1)/panda_inenc_block_inst/*
+
+add wave -group "OUTENC_TOP" \
+sim:/test/tb/uut/panda_outenc_inst/*
+
+add wave -group "OUTENC_BLOCK0" \
 sim:/test/tb/uut/panda_outenc_inst/ENCOUT_GEN(0)/panda_outenc_block_inst/*
 
-add wave -group "SSI_MASTER" \
-sim:/test/tb/uut/panda_inenc_inst/INENC_GEN(0)/panda_inenc_block_inst/panda_ssimstr_inst/*
-
-add wave -group "SSI_SLAVE" \
-sim:/test/tb/uut/panda_outenc_inst/ENCOUT_GEN(0)/panda_outenc_block_inst/panda_ssislv_inst/*
+add wave -group "OUTENC_BLOCK1" \
+sim:/test/tb/uut/panda_outenc_inst/ENCOUT_GEN(1)/panda_outenc_block_inst/*
 
 add wave -group "ENC_MODEL" \
 sim:/test/tb/encoder/*
 
 add wave -group "DAUGHTER_MODEL" \
-sim:/test/tb/daughter_card_model_inst/*
+sim:/test/tb/DCARD(0)/daughter_card/*
 
 add wave -group "SLOW" \
 sim:/test/tb/uut/panda_slowctrl_inst/*
