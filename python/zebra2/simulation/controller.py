@@ -11,10 +11,15 @@ class Controller(object):
         self.z.start_event_loop()
 
     # Must return an integer
-    def do_read_data(self, block, num, reg):
-        block = self.z.blocks[(block, num)]
-        name = block.regs[reg]
-        value = getattr(block, name)
+    def do_read_data(self, block_num, num, reg):
+        try:
+            block = self.z.blocks[(block_num, num)]
+            name = block.regs[reg]
+        except KeyError:
+            print 'Unknown register', block_num, num, reg
+            value = 0
+        else:
+            value = getattr(block, name)
         return value
 
     def do_write_config(self, block, num, reg, value):
@@ -22,6 +27,8 @@ class Controller(object):
 
     def do_write_table(self, block, num, reg, data):
         self.z.post_wait((block, num, "TABLE", data))
+
+    # The two methods below need to become register level simulations
 
     # Must return two boolean arrays, each 128 entries long.  The first array is
     # the current bit readback, the second is set if the bit value has changed
@@ -43,8 +50,3 @@ class Controller(object):
         for i in changed_d:
             changed[i] = 1
         return bus, changed
-
-    # Sets capture configuration
-    def set_capture_masks(self,
-            bit_capture, pos_capture, framed_mask, extended_mask):
-        pass

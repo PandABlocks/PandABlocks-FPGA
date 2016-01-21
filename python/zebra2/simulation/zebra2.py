@@ -74,13 +74,18 @@ class Zebra2(Task):
             reg_data = self.get_next_event(timeout)
         # If we got a register set, process that
         if reg_data:
-            (block, num, reg, value), done = reg_data
+            (block_num, num, reg, value), done = reg_data
             # calculate FPGA timestamp from current time
             diff = time.time() - self.start_time
             ts = int(diff / CLOCK_TICK)
             # lookup block object and reg name
-            block = self.blocks[(block, num)]
-            name = block.regs[reg]
+            try:
+                block = self.blocks[(block_num, num)]
+                name = block.regs[reg]
+            except KeyError:
+                print 'Unknown register', block_num, num, reg
+                done.set()
+                return
             # make an event with the register set
             event = Event(ts, reg={name: value})
             # if the event changes a mux then update listeners

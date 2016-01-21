@@ -1,5 +1,19 @@
 # Register interface definition
 
+# This special register block is not present in the config file and contains
+# fixed register definitions used in the hardware interface.
+#   Alas, because hardware access occurs during the processing of this file, it
+# is necessary to place this section at the start!
+*REG        31
+    BIT_READ_RST        0
+    BIT_READ_VALUE      1
+    POS_READ_RST        2
+    POS_READ_VALUE      3
+    POS_READ_CHANGES    4
+    BIT_CAPTURE_MASK    5
+    POS_CAPTURE_MASK    6
+
+
 TTLOUT      0
     VAL             0
 
@@ -141,7 +155,7 @@ PGEN        14
     SAMPLES         2
     CYCLES          3
     POSN            20 21
-    TABLE           long    2^20
+    TABLE           long    2^20    4 5
 
 PCOMP       15
     ENABLE          0
@@ -157,7 +171,7 @@ PCOMP       15
     LUT_ENABLE      10
     ACT             98 99 100 101
     PULSE           102 103 104 105
-    TABLE           long    2^10
+    TABLE           long    2^10    11 12
 
 PCAP        16
     ENABLE          0
@@ -204,14 +218,3 @@ BITS        29
 
 POSITIONS   30
     ZERO            0
-
-# This special register block is not present in the config file and contains
-# fixed register definitions used in the hardware interface
-*REG        31
-    BIT_READ_RST        0
-    BIT_READ_VALUE      1
-    POS_READ_RST        2
-    POS_READ_VALUE      3
-    POS_READ_CHANGES    4
-    BIT_CAPTURE_MASK    5
-    POS_CAPTURE_MASK    6

@@ -69,14 +69,6 @@ def run_simulation(conn):
             data = read(conn, length * 4)
             data = numpy.fromstring(data, dtype = numpy.int32)
             controller.do_write_table(block, num, reg, data)
-        elif command == 'C':
-            bits, changes = controller.do_read_bits()
-            conn.sendall(struct.pack('256?', *bits + changes))
-        elif command == 'P':
-            positions, changes = controller.do_read_positions()
-            conn.sendall(struct.pack('32I32?', *positions + changes))
-        elif command == 'M':
-            controller.set_capture_masks(*struct.unpack('4I', read(conn, 16)))
         else:
             print 'Unexpected command', repr(command_word)
             raise SocketFail('Unexpected command')
