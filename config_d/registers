@@ -5,13 +5,17 @@
 #   Alas, because hardware access occurs during the processing of this file, it
 # is necessary to place this section at the start!
 *REG        31
-    BIT_READ_RST        0
-    BIT_READ_VALUE      1
-    POS_READ_RST        2
-    POS_READ_VALUE      3
-    POS_READ_CHANGES    4
-    BIT_CAPTURE_MASK    5
-    POS_CAPTURE_MASK    6
+    BIT_READ_RST            0
+    BIT_READ_VALUE          1
+    POS_READ_RST            2
+    POS_READ_VALUE          3
+    POS_READ_CHANGES        4
+    PCAP_START_WRITE        5
+    PCAP_WRITE              6
+    PCAP_FRAMING_MASK       7
+    PCAP_ARM                8
+    PCAP_DISARM             9
+    PCAP_FRAMING_ENABLE     10
 
 
 TTLOUT      0
