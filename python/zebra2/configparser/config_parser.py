@@ -22,7 +22,7 @@ def populate_registers(config_dir):
     instance = None
     for line in open(fname).readlines():
         empty = line.strip() == ""
-        if empty or line.startswith("#"):
+        if empty or line.strip().startswith("#"):
             pass
         elif line.startswith(" "):
             name, val = line.strip().split(" ", 1)

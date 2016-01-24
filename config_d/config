@@ -206,6 +206,7 @@ PCAP
     ENABLE          param       bit_mux
     FRAME           param       bit_mux
     CAPTURE         param       bit_mux
+    MISSED_CAPTURES read
     ACTIVE          bit_out
 
     CAPTURE_TS      ext_out     timestamp
