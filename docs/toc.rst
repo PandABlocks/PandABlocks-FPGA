@@ -12,3 +12,4 @@ Contents:
     fields.rst
     blocks/index.rst
     fpga_testing.rst
+    configparser.rst

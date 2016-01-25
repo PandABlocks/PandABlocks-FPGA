@@ -16,7 +16,7 @@ class Zebra2ControllerTest(unittest.TestCase):
         self.z = Zebra2(config_dir)
 
     def test_init(self):
-        bits_base = Block.registers["BITS"].base
+        bits_base = Block.parser.blocks["BITS"].base
         for i, val in enumerate(self.z.bit_bus):
             if i == self.z.blocks[(bits_base, 0)].ONE:
                 self.assertEqual(val, 1)
@@ -26,14 +26,14 @@ class Zebra2ControllerTest(unittest.TestCase):
             self.assertEqual(val, 0)
 
     def test_clocks_set(self):
-        clocks_reg = Block.registers["CLOCKS"]
+        clocks_reg = Block.parser.blocks["CLOCKS"]
         clocks = self.z.blocks[(clocks_reg.base, 0)]
-        clocks_period_reg_lo = int(clocks_reg.fields["A_PERIOD"].split()[0])
+        clocks_period_reg_lo = int(clocks_reg.fields["A_PERIOD"].reg[0])
         self.assertEqual(clocks.A_PERIOD, 0)
         self.assertEqual(self.z.wakeups, [])
         self.assertEqual(self.z.bit_bus[clocks.A], 0)
         # set 1s period
-        one_second = 1.0 / CLOCK_TICK
+        one_second = int(1.0 / CLOCK_TICK + 0.5)
         data = (clocks_reg.base, 0,
             clocks_period_reg_lo, one_second)
         self.z.post(data)
@@ -46,7 +46,7 @@ class Zebra2ControllerTest(unittest.TestCase):
         self.assertAlmostEqual(
             self.z.wakeups[0][0], reg_ticks + one_second / 2, delta=10000)
         self.assertEqual(self.z.wakeups[0][1], clocks)
-        self.assertEqual(self.z.bit_bus[clocks.A], 1)
+        self.assertEqual(self.z.bit_bus[clocks.A], 0)
         # handle another event
         start = time.time()
         self.z.handle_events()
@@ -57,17 +57,17 @@ class Zebra2ControllerTest(unittest.TestCase):
         self.assertAlmostEqual(
             self.z.wakeups[0][0], reg_ticks + one_second, delta=10000)
         self.assertEqual(self.z.wakeups[0][1], clocks)
-        self.assertEqual(self.z.bit_bus[clocks.A], 0)
+        self.assertEqual(self.z.bit_bus[clocks.A], 1)
 
     def test_changing_inp(self):
-        div_reg = Block.registers["DIV"]
+        div_reg = Block.parser.blocks["DIV"]
         div = self.z.blocks[(div_reg.base, 0)]
-        bits_reg = Block.registers["BITS"]
+        bits_reg = Block.parser.blocks["BITS"]
         bits = self.z.blocks[(bits_reg.base, 0)]
         # check disconnected
         self.assertEqual(div.INP, bits.ZERO)
         # connect to BITS.A
-        data = (div_reg.base, 0, int(div_reg.fields["INP"]), bits.A)
+        data = (div_reg.base, 0, int(div_reg.fields["INP"].reg[0]), bits.A)
         self.z.post(data)
         self.z.handle_events()
         self.assertEqual(div.INP, bits.A)
@@ -75,7 +75,7 @@ class Zebra2ControllerTest(unittest.TestCase):
         self.assertEqual(self.z.bit_bus[bits.A], 0)
         self.assertEqual(self.z.bit_bus[div.OUTD], 0)
         # toggle
-        data = (bits_reg.base, 0, int(bits_reg.fields["A_SET"]), 1)
+        data = (bits_reg.base, 0, int(bits_reg.fields["A_SET"].reg[0]), 1)
         self.z.post(data)
         self.z.handle_events()
         self.assertEqual(self.z.bit_bus[bits.A], 1)

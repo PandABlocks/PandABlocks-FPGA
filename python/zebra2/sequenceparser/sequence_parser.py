@@ -86,7 +86,7 @@ class FpgaSequence(object):
         self.block = block
         self.fpga_dir = fpga_dir
         # field types
-        fields = Block.config[block.upper()].fields
+        fields = Block.parser.blocks[block.upper()].fields
         # Get the column headings
         self.bus_in = ["TS", "SIM_RESET"]
         self.bus_out = ["TS"]

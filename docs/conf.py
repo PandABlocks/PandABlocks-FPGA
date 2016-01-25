@@ -35,8 +35,13 @@ else:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-          'matplotlib.sphinxext.plot_directive',
-          ]
+    'matplotlib.sphinxext.plot_directive',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
+]
+
+napoleon_use_ivar=True
+autoclass_content="both"
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
 

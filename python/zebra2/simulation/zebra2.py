@@ -34,7 +34,10 @@ class Zebra2(Task):
             self.pos_listeners.append([])
         # Dict (name, i) -> Block()
         self.blocks = {}
-        for name, config in Block.config.items():
+        for name, config_block in Block.parser.blocks.items():
+            if not config_block.num:
+                # no number means *REGS block
+                continue
             # check if we have a block of the right type
             try:
                 imp = __import__("zebra2.simulation." + name.lower())
@@ -49,12 +52,12 @@ class Zebra2(Task):
                     pass
                 cls.__name__ = name.title()
             # Make an instance of it
-            for i in range(config.num):
+            for i in range(config_block.num):
                 inst = cls(i+1)
                 self.blocks[(inst.reg_base, i)] = inst
         # update specials
         #bit_zero = self.blocks[("BITS", 0)].ZERO
-        bits_base = Block.registers["BITS"].base
+        bits_base = Block.parser.blocks["BITS"].base
         bit_one = self.blocks[(bits_base, 0)].ONE
         #pos_zero = self.blocks[("POSITIONS", 0).ZERO]
         self.bit_bus[bit_one] = 1
