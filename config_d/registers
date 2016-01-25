@@ -14,8 +14,8 @@
     POS_CAPTURE_MASK    6
 
 TTLIN       18
-    VAL             2 3 4 5 6 7
     TERM            0
+    VAL             2 3 4 5 6 7
 
 TTLOUT      0
     VAL             0
@@ -115,8 +115,8 @@ OUTENC      9
     A               0
     B               1
     Z               2
-    CONN            3
     POSN            4
+    CONN            3
     PROTOCOL        5
     BITS            6
     QPRESCALAR      7
@@ -206,14 +206,14 @@ BITS        29
     ONE             1
 
 CLOCKS      28
-    A               122
-    B               123
-    C               124
-    D               125
     A_PERIOD        0
     B_PERIOD        1
     C_PERIOD        2
     D_PERIOD        3
+    A               122
+    B               123
+    C               124
+    D               125
 
 
 POSITIONS   30

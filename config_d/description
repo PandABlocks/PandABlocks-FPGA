@@ -32,58 +32,58 @@ SRGATE
     VAL             
 
 DIV         Pulse divider
-    DIVISOR         Divisor value
-    FIRST_PULSE     Where to send first pulse
-    FORCE_RST       Reset internal counter state machine
     INP             Input pulse train
     RST             On rising edge, reset counter state machine
+    DIVISOR         Divisor value
+    FIRST_PULSE     Where to send first pulse
+    COUNT           Internal counter value
+    FORCE_RST       Reset internal counter state machine
     OUTD            Divided pulse output
     OUTN            Non-divided pulse output
-    COUNT           Internal counter value
 
 PULSE       One-shot pulse delay and stretch
+    INP             Input pulse train
+    RST             On rising edge, reset QUEUE and ERR outputs
     DELAY           Output pulse delay (0 for no delay)
     WIDTH           Output pulse width (0 for input pulse width)
     FORCE_RST       Reset QUEUE and ERR outputs
-    INP             Input pulse train
-    RST             On rising edge, reset QUEUE and ERR outputs
-    OUT             Output pulse train
-    PERR            Error output if a pulse could not be generated
     ERR_OVERFLOW    Missed pulse was due to overflow of internal queue
     ERR_PERIOD      Producing a pulse would cause it to overlap with previous
     QUEUE           Length of the delay queue
     MISSED_CNT      Number of pulses not produced because of an ERR condition
+    OUT             Output pulse train
+    PERR            Error output if a pulse could not be generated
 
 SEQ         
     GATE            
     INPA            
     INPB            
     INPC            
-    INPD            
-    ACTIVE          
-    PRESCALE        
-    TABLE_LENGTH    
-    SOFT_GATE       
+    INPD
+    PRESCALE
+    SOFT_GATE
+    TABLE_LENGTH
+    TABLE_CYCLE
     CUR_FRAME       
     CUR_FCYCLE      
     CUR_TCYCLE      
-    TABLE_STROBES   
-    TABLE_CYCLE     
+    TABLE_STROBES
     OUTA            
     OUTB            
     OUTC            
     OUTD            
     OUTE            
-    OUTF            
+    OUTF
+    ACTIVE
     TABLE           
 
 INENC       
     PROTOCOL        
     CLKRATE         
     FRAMERATE       
-    BITS            
-    RST_ON_Z        
-    SETP            
+    BITS
+    SETP
+    RST_ON_Z
     A               
     B               
     Z               
