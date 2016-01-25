@@ -5,8 +5,8 @@ module test;
 
 panda_top_tb tb();
 
-//reg [511:0]     test_name = "POSITION_TEST";
-reg [511:0]     test_name = "ENCLOOPBACK_TEST";
+reg [511:0]     test_name = "POSITION_TEST";
+//reg [511:0]     test_name = "ENCLOOPBACK_TEST";
 
 reg [1:0]       wrs, rsp;
 reg [3:0]       IRQ_STATUS;

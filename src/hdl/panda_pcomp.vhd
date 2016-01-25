@@ -32,38 +32,61 @@ port (
     PCOMP_FLTR_THOLD    : in  std_logic_vector(15 downto 0);
     -- Output pulse
     act_o               : out std_logic;
+    err_o               : out std_logic_vector(31 downto 0);
     pulse_o             : out std_logic
 );
 end panda_pcomp;
 
 architecture rtl of panda_pcomp is
 
-type state_t is (IDLE, POS, NEG);
+type fsm_t is (WAIT_ENABLE, WAIT_START, WAIT_WIDTH, IS_FINISHED, PCOMP_ERR);
+signal pcomp_fsm        : fsm_t;
 
-signal enabled          : std_logic;
 signal enable_prev      : std_logic;
 signal enable_rise      : std_logic;
+signal enable_fall      : std_logic;
 
-signal state            : state_t;
 signal start            : signed(31 downto 0);
 signal width            : signed(31 downto 0);
 
 signal posn             : signed(31 downto 0);
 signal posn_prev        : signed(31 downto 0);
+signal last_posn        : signed(31 downto 0);
 signal posn_latched     : signed(31 downto 0);
+
+signal fltr_counter     : signed(15 downto 0);
+signal posn_dir         : std_logic;
+signal posn_trans       : std_logic;
+signal puls_dir         : std_logic := '1';
+signal dir_matched      : std_logic := '0';
 
 signal puls_start       : signed(31 downto 0);
 signal puls_width       : signed(31 downto 0);
 signal puls_step        : signed(31 downto 0);
-
-signal puls_dir         : std_logic := '1';
-
 signal puls_counter     : unsigned(31 downto 0);
-signal posn_dir         : std_logic;
-signal posn_trans       : std_logic;
-signal fltr_counter     : signed(15 downto 0);
+
+signal start_up         : std_logic;
+signal start_down       : std_logic;
+signal start_crossed    : std_logic;
+
+signal width_up         : std_logic;
+signal width_down       : std_logic;
+signal width_crossed    : std_logic;
 
 begin
+
+--
+-- Register inputs and detect rise/fall edges required
+-- for the design.
+process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        enable_prev <= enable_i;
+    end if;
+end process;
+
+enable_rise <= enable_i and not enable_prev;
+enable_fall <= not enable_i and enable_prev;
 
 --
 -- Direction flag detection
@@ -103,7 +126,7 @@ begin
                     if (posn_dir = '0') then
                         fltr_counter <= fltr_counter + 1;
                     else
-                        fltr_counter <= fltr_counter -1;
+                        fltr_counter <= fltr_counter - 1;
                     end if;
                 end if;
             end if;
@@ -114,28 +137,13 @@ end process;
 --
 -- Sign conversion for calculations based on encoder direction
 --
-puls_width <= signed('0'&PCOMP_WIDTH(30 downto 0)) when (puls_dir = '0') else
+puls_width <= signed('0'&PCOMP_WIDTH(30 downto 0)) when (PCOMP_DIR = '0') else
                 signed(unsigned(not PCOMP_WIDTH) + 1);
 
-puls_step <= signed('0'&PCOMP_STEP(30 downto 0)) when (puls_dir = '0') else
+puls_step <= signed('0'&PCOMP_STEP(30 downto 0)) when (PCOMP_DIR = '0') else
                 signed(unsigned(not PCOMP_STEP) + 1);
 
 puls_start <= signed(PCOMP_START);
-
---
--- Enable input Start/Stop module's operation
---
-enable_rise <= enable_i and not enable_prev;
-
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        enable_prev <= enable_i;
-    end if;
-end process;
-
--- Module is enabled when user enables and encoder auto-direction matches.
-enabled <= '1' when (enable_i = '1' and PCOMP_DIR = puls_dir) else '0';
 
 --
 -- Latch position on the rising edge of enable_i input, and calculate live
@@ -144,83 +152,153 @@ enabled <= '1' when (enable_i = '1' and PCOMP_DIR = puls_dir) else '0';
 detect_pos : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        -- Keep latched value for RELATIVE mode
-        if (enable_rise = '1') then
-            posn_latched <= signed(posn_i);
-        end if;
-
-        -- RELATIVE mode runs relative to rising edge of enable_i input
-        if (PCOMP_RELATIVE = '1') then
-            posn <= signed(posn_i) - posn_latched;
+        if (reset_i = '1') then
+            posn_latched <= (others => '0');
+            posn <= (others => '0');
         else
-            posn <= signed(posn_i);
+            -- Keep latched value for RELATIVE mode
+            if (enable_rise = '1') then
+                posn_latched <= signed(posn_i);
+            end if;
+
+            -- RELATIVE mode runs relative to rising edge of enable_i input
+            if (PCOMP_RELATIVE = '1') then
+                posn <= signed(posn_i) - posn_latched;
+            else
+                posn <= signed(posn_i);
+            end if;
         end if;
     end if;
 end process;
 
+--
+-- Detects when START and WIDTH points are crossed over up or downwards.
+--
+-- This logic requires one encoder reading before and after the threshold.
+-- Otherwise, it means that the encoder is moving slower than the motor, and
+-- an error is flagged.
+--
+detect_crossing : process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if (reset_i = '1') then
+            start_up <= '0';
+            start_down <= '0';
+            width_up <= '0';
+            width_down <= '0';
+            last_posn <= (others => '0');
+        else
+            if (posn_trans = '1') then
+                last_posn <= posn;
+            end if;
+
+            -- Detect that start value is crossed up or down.
+            if (last_posn < start and start <= posn) then
+                start_up <= '1';
+            elsif (last_posn > start and start >= posn) then
+                start_down <= '1';
+            else
+                start_up <= '0';
+                start_down <= '0';
+            end if;
+
+            -- Detect that width value is crossed up or down.
+            if (last_posn < width and width <= posn) then
+                width_up <= '1';
+            elsif (last_posn > width and width >= posn) then
+                width_down <= '1';
+            else
+                width_up <= '0';
+                width_down <= '0';
+            end if;
+         end if;
+    end if;
+end process;
+
+
+-- Make sure that auto-detect Motor direction matches to desired
+-- user selection.
+dir_matched <= '1' when (PCOMP_DIR = puls_dir) else '0';
+
+-- Generate crossing pulses only when moving in the right direction.
+start_crossed <= (start_up or start_down) and dir_matched;
+width_crossed <= (width_up or width_down) and dir_matched;
+
+--
+-- Pulse generator state machine
+--
 outp_gen : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        -- Reset state machine on Enable
-        if (enabled = '0') then
-            state <= IDLE;
+        if (reset_i = '1' or enable_fall = '1') then
+            pcomp_fsm <= WAIT_ENABLE;
             start <= (others => '0');
             width <= (others => '0');
             puls_counter <= (others => '0');
+            act_o <= '0';
+            err_o <= (others => '0');
         else
-            case (state) is
-                -- Wait for START at the gate beginning
-                when IDLE =>
+            case (pcomp_fsm) is
+                -- Wait for enable rise to start operation.
+                when WAIT_ENABLE =>
                     start <= (others => '0');
                     width <= (others => '0');
                     puls_counter <= (others => '0');
+                    start <= puls_start;
+                    width <= puls_start + puls_width;
 
-                    if (posn = puls_start) then
-                        start <= puls_start;
-                        width <= puls_start + puls_width;
-                        state <= POS;
+                    if (enable_rise = '1') then
+                        pcomp_fsm <= WAIT_START;
+                        act_o <= '1';
                     end if;
 
-                -- Assert output pulse for WIDTH
-                when POS =>
-                    if (posn = width) then
-                        state <= NEG;
+                -- Wait for start crossing to assert the output pulse.
+                when WAIT_START =>
+                    if (width_crossed = '1') then
+                        pcomp_fsm <= PCOMP_ERR;
+                        err_o(0) <= '1';
+                    elsif (start_crossed = '1') then
                         start <= start + puls_step;
+                        pcomp_fsm <= WAIT_WIDTH;
+                    end if;
+
+                -- Wait for width crossing to de-assert the output pulse.
+                when WAIT_WIDTH =>
+                    if (start_crossed = '1') then
+                        pcomp_fsm <= PCOMP_ERR;
+                        err_o(1) <= '1';
+                    elsif (width_crossed = '1') then
                         width <= width + puls_step;
                         puls_counter <= puls_counter + 1;
+                        pcomp_fsm <= IS_FINISHED;
                     end if;
 
-                -- De-assert output pulse and wait until next start
-                when NEG =>
-                    if (puls_counter = unsigned(PCOMP_NUM)) then
-                        state <= IDLE;
-                    elsif (posn = start) then
-                        state <= POS;
+                -- Check for finishing conditions.
+                when IS_FINISHED =>
+                    -- Run forever until disabled.
+                    if (unsigned(PCOMP_NUM) = 0) then
+                        pcomp_fsm <= WAIT_START;
+                    -- Run for NPulses and stop.
+                    elsif (puls_counter = unsigned(PCOMP_NUM)) then
+                        pcomp_fsm <= WAIT_ENABLE;
+                        act_o <= '0';
+                    else
+                        pcomp_fsm <= WAIT_START;
                     end if;
+
+                when PCOMP_ERR =>
+                    act_o <= '0';
 
                 when others =>
             end case;
         end if;
-
-        -- Block becomes active with enable_rise until either disabled
-        -- or all pulses are generated.
-        if (enable_i = '0') then
-            act_o <= '0';
-        else
-            if (enable_rise = '1') then
-                act_o <= '1';
-            elsif (state = NEG and puls_counter = unsigned(PCOMP_NUM)) then
-                act_o <= '0';
-            end if;
-        end if;
-
     end if;
 end process;
 
 -- Assign output pulse when module is enabled.
-pulse_o <= '1' when (state = IDLE and posn = puls_start and enabled = '1') else
-        '1' when (state = POS and enabled = '1') else
-        '0' when (state = NEG and enabled = '1') else '0';
+pulse_o <=  '1' when (pcomp_fsm = WAIT_START and start_crossed = '1') else
+            '1' when (pcomp_fsm = WAIT_WIDTH) else
+            '0' when (pcomp_fsm = IS_FINISHED) else '0';
 
 end rtl;
 
