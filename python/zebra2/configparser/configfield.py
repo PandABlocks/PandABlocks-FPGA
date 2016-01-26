@@ -15,13 +15,15 @@ class ConfigField(object):
         desc (str): The description of the field
     """
 
-    def __init__(self, name, reg_lines=None, config_lines=None, desc_lines=None):
+    def __init__(self,
+            name, reg_lines=None, config_lines=None, desc_lines=None):
         """Initialise with relevant config/reg/desc lines for this field
 
         Args:
             reg_lines (list): Optional lines specifying field in registers file
             config_lines (list): Optional lines specifying field in config file
-            desc_lines (list): Optional line specifying field in descriptions file
+            desc_lines (list): Optional line specifying field in descriptions
+            file
         """
 
         # parse reg_lines for name and reg info
@@ -75,4 +77,3 @@ class ConfigField(object):
             return self.cls_args[0]
         else:
             return ""
-
