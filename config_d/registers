@@ -28,14 +28,15 @@
     # PCAP_FRAMING_ENABLE must also be set separately.
     PCAP_FRAMING_MASK       7
     PCAP_FRAMING_ENABLE     10
+    PCAP_FRAMING_MODE       11
 
     # It's possible these belong on PCAP...
     PCAP_ARM                8
     PCAP_DISARM             9
 
-    # Slow read and write status.
-    SLOW_WRITE_STATUS       11
-    SLOW_READ_STATUS        12
+    # Slow read and write status: if 1 transaction in progress, if 0 transaction
+    # complete.
+    SLOW_REGISTER_STATUS    12
 
 
 # These registers are used by the kernel driver to read the data capture stream.
