@@ -33,6 +33,21 @@
     PCAP_ARM                8
     PCAP_DISARM             9
 
+# These registers are used by the kernel driver to read the data capture stream.
+# This block is not used by the server, but is here for documentation and other
+# automated tools.
+*DRV        25
+    # The physical address of each DMA block is written to this register.
+    PCAP_DMA_ADDR           0
+    # This register configures the maximum interval between capture interrupts
+    PCAP_TIMEOUT            1
+    # Interrupt status and acknowledge
+    PCAP_IRQ_STATUS         2
+    # ? Should this be merged into IRQ status for a single read?
+    PCAP_SAMPLE_COUNT       3
+    # DMA block size in bytes
+    PCAP_BLOCK_SIZE         4
+
 
 TTLOUT      0
     VAL             0
