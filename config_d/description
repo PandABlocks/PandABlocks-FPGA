@@ -180,12 +180,6 @@ PCAP        Position capture control
     FRAME_LENGTH    Length of captured frame
     CAPTURE_OFFSET  Offset of capture into capture frame
     ADC_COUNT       Number of ADC samples in captured frame
-#     ARM             Enables data capture experiment
-#     DISARM          Abort data capture in progress
-#     RESET           Abort and disconnect
-#     STATUS          Data capture status
-#     WAITING         Number of clients waiting for experiment to start
-#     DOWNLOADING     Number of clients receiving data
 
 BITS        Soft inputs and constant bits
     A_SET           The value that output A should take
