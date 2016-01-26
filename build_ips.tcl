@@ -25,17 +25,17 @@ generate_target all [get_files $origin_dir/pulse_queue/pulse_queue.xci]
 synth_ip [get_ips pulse_queue]
 
 #
-# Create PCAP FIFO IP
+# Create PCAP DMA FIFO IP
 #
 create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
--module_name pcap_fifo -dir $origin_dir/
+-module_name pcap_dma_fifo -dir $origin_dir/
 
 set_property -dict [list \
     CONFIG.Performance_Options {First_Word_Fall_Through} \
     CONFIG.Input_Data_Width {32}    \
     CONFIG.Data_Count {true}        \
     CONFIG.Output_Data_Width {32}   \
-] [get_ips pcap_fifo]
+] [get_ips pcap_dma_fifo]
 
-generate_target all [get_files $origin_dir/pcap_fifo/pcap_fifo.xci]
-synth_ip [get_ips pcap_fifo]
+generate_target all [get_files $origin_dir/pcap_dma_fifo/pcap_dma_fifo.xci]
+synth_ip [get_ips pcap_dma_fifo]

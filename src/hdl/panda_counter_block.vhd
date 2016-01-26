@@ -64,28 +64,28 @@ begin
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Enable Control
-                if (mem_addr_i = COUNTER_ENABLE_VAL_ADDR) then
+                if (mem_addr_i = COUNTER_ENABLE) then
                     ENABLE_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
                 -- Trigger
-                if (mem_addr_i = COUNTER_TRIGGER_VAL_ADDR) then
+                if (mem_addr_i = COUNTER_TRIGGER) then
                     TRIGGER_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
                 -- Counter Direction
-                if (mem_addr_i = COUNTER_DIR_ADDR) then
+                if (mem_addr_i = COUNTER_DIR) then
                     DIR <= mem_dat_i(0);
                 end if;
 
                 -- Counter Start Value
-                if (mem_addr_i = COUNTER_START_ADDR) then
+                if (mem_addr_i = COUNTER_START) then
                     START <= mem_dat_i;
                     START_LOAD <= '1';
                 end if;
 
                 -- Counter Step Value
-                if (mem_addr_i = COUNTER_STEP_ADDR) then
+                if (mem_addr_i = COUNTER_STEP) then
                     STEP <= mem_dat_i;
                 end if;
             end if;

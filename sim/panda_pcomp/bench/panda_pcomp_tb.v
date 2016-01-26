@@ -68,14 +68,14 @@ initial begin
     PCOMP_FLTR_THOLD = 0;
 
     repeat(1250) @(posedge clk_i)
-    PCOMP_START = 4000;
+    PCOMP_START = 100;
     PCOMP_STEP  = 0;
-    PCOMP_WIDTH = 2000;
-    PCOMP_NUM   = 5;
+    PCOMP_WIDTH = 1400;
+    PCOMP_NUM   = 3;
     PCOMP_RELATIVE = 0;
-    PCOMP_DIR = 1;
-    PCOMP_FLTR_DELTAT = 125*10;
-    PCOMP_FLTR_THOLD = 2;
+    PCOMP_DIR = 0;
+    PCOMP_FLTR_DELTAT = 32;
+    PCOMP_FLTR_THOLD = 1;
     repeat(1250) @(posedge clk_i)
 
     enable_i = 1;
@@ -86,9 +86,9 @@ initial begin
         if (j%2) DELTA = -1;
         else DELTA = 1;
 
-        for (i=0; i<5000;i=i+1) begin
+        for (i=0; i<1500;i=i+1) begin
             posn_i = posn_i + DELTA;
-            repeat(125) @(posedge clk_i);
+            repeat(25) @(posedge clk_i);
         end
     end
 

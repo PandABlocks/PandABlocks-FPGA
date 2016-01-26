@@ -596,7 +596,7 @@ port map (
 --
 -- POSITION CAPTURE
 --
-panda_pcap_inst : entity work.panda_pcap_block
+panda_pcap_inst : entity work.panda_pcap_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -624,10 +624,11 @@ port map (
     m_axi_wvalid        => S_AXI_HP0_wvalid,
 
     mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(PCAP_CS),
+    mem_cs_i            => mem_cs,
     mem_wstb_i          => mem_wstb,
     mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(PCAP_CS),
+    mem_dat_0_o         => mem_read_data(PCAP_CS),
+    mem_dat_1_o         => mem_read_data(DRV_CS),
 
     sysbus_i            => sysbus,
     posbus_i            => posbus,

@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pcap_block.vhd
+--  File:       panda_pcap_top.vhd
 --  Desc:       Position capture module
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_pcap_block is
+entity panda_pcap_top is
 generic (
     AXI_BURST_LEN       : integer := 16;
     AXI_ADDR_WIDTH      : integer := 32;
@@ -46,11 +46,12 @@ port (
     m_axi_wstrb         : out std_logic_vector(AXI_DATA_WIDTH/8-1 downto 0);
     m_axi_wid           : out std_logic_vector(5 downto 0);
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
+    mem_cs_i            : in  std_logic_vector(2**PAGE_NUM-1 downto 0);
     mem_wstb_i          : in  std_logic;
     mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
     mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
+    mem_dat_0_o         : out std_logic_vector(31 downto 0);
+    mem_dat_1_o         : out std_logic_vector(31 downto 0);
     -- Block inputs
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
@@ -59,35 +60,43 @@ port (
     pcap_actv_o         : out std_logic;
     pcap_irq_o          : out std_logic
 );
-end panda_pcap_block;
+end panda_pcap_top;
 
-architecture rtl of panda_pcap_block is
+architecture rtl of panda_pcap_top is
+
+type pcap_fsm_t is (IDLE, ARMED, ENABLED, FINISH_TRIG);
+signal pcap_fsm         : pcap_fsm_t;
 
 signal ENABLE_VAL       : std_logic_vector(SBUSBW-1 downto 0);
-signal TRIGGER_VAL      : std_logic_vector(SBUSBW-1 downto 0);
-signal TIMEOUT_VAL      : std_logic_vector(31 downto 0);
-signal DMAADDR_WSTB     : std_logic;
+signal FRAME_VAL        : std_logic_vector(SBUSBW-1 downto 0);
+signal CAPTURE_VAL      : std_logic_vector(SBUSBW-1 downto 0);
+signal MISSED_CAPTURES  : unsigned(31 downto 0);
+signal ERR_STATUS       : std_logic_vector(31 downto 0);
+
+signal START_WRITE      : std_logic;
+signal WRITE            : std_logic_vector(31 downto 0);
+signal WRITE_WSTB       : std_logic;
+signal FRAMING_MASK     : std_logic_vector(31 downto 0);
+signal FRAMING_ENABLE   : std_logic;
+signal ARM              : std_logic;
+signal DISARM           : std_logic;
+
 signal DMAADDR          : std_logic_vector(31 downto 0);
+signal DMAADDR_WSTB     : std_logic;
+signal BLOCK_SIZE       : std_logic_vector(31 downto 0);
+signal TIMEOUT          : std_logic_vector(31 downto 0);
 signal IRQ_STATUS       : std_logic_vector(3 downto 0);
 signal SMPL_COUNT       : std_logic_vector(31 downto 0);
-signal CAPTURE_MASK     : std_logic_vector(46 downto 0);
-signal FRAME_ENA        : std_logic_vector(31 downto 0);
-signal BLOCK_SIZE       : std_logic_vector(31 downto 0);
-signal ERR_STATUS       : std_logic_vector(31 downto 0) := (others => '0');
-signal TRIG_MISSES      : unsigned(31 downto 0);
 
-signal pcap_data_lt     : std32_array(46 downto 0);
-
-signal soft_arm         : std_logic;
-signal soft_disarm      : std_logic;
 signal enable           : std_logic;
 signal enable_prev      : std_logic;
 signal enable_fall      : std_logic;
-signal trigger          : std_logic;
-signal trigger_prev     : std_logic;
-signal trigger_rise     : std_logic;
-signal soft_trigger     : std_logic := '0';
+signal capture          : std_logic;
+signal capture_prev     : std_logic;
+signal capture_rise     : std_logic;
+signal frame            : std_logic;
 
+signal pcap_data_lt     : std32_array(46 downto 0);
 signal pcap_dat         : std_logic_vector(31 downto 0) := (others => '0');
 signal pcap_wstb        : std_logic := '0';
 
@@ -96,125 +105,108 @@ signal INT_DISARM       : std_logic;
 signal pcap_armed       : std_logic;
 signal pcap_enabled     : std_logic;
 signal pcap_disarmed    : std_logic_vector(1 downto 0);
-signal ongoing_trigger  : std_logic;
+signal ongoing_capture  : std_logic;
 signal pcap_fifo_rst    : std_logic := '0';
 
-signal field_count      : integer range 0 to 47;
-
-type pcap_fsm_t is (IDLE, ARMED, ENABLED, FINISH_TRIG);
-signal pcap_fsm         : pcap_fsm_t;
+-- Mask BRAM signals
+signal mask_length      : unsigned(5 downto 0);
+signal mask_addra       : unsigned(5 downto 0);
+signal mask_addrb       : unsigned(5 downto 0);
+signal mask_doutb       : std_logic_vector(31 downto 0);
 
 begin
 
+-- Assign outputs.
 pcap_actv_o <= pcap_armed;
 
---
--- Control System Register Interface
---
-REG_WRITE : process(clk_i)
-begin
+-- Bitbus Assignments.
+process(clk_i) begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            ENABLE_VAL  <= TO_SVECTOR(0, SBUSBW);
-            TRIGGER_VAL <= TO_SVECTOR(0, SBUSBW);
-            DMAADDR_WSTB <= '0';
-            DMAADDR <= (others => '0');
-            SOFT_ARM <= '0';
-            SOFT_DISARM <= '0';
-            TIMEOUT_VAL <= TO_SVECTOR(0, 32);
-            CAPTURE_MASK <= (others => '0');
-            FRAME_ENA <= (others => '0');
-            BLOCK_SIZE <= TO_SVECTOR(8192, 32);
-        else
-            -- Single clock pulse
-            SOFT_ARM <= '0';
-            SOFT_DISARM <= '0';
-            DMAADDR_WSTB <= '0';
-
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
-                -- Pulse start position
-                if (mem_addr_i = PCAP_ENABLE_VAL_ADDR) then
-                    ENABLE_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                -- Pulse start position
-                if (mem_addr_i = PCAP_TRIGGER_VAL_ADDR) then
-                    TRIGGER_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                -- DMA block Soft ARM
-                if (mem_addr_i = PCAP_SOFT_ARM_ADDR) then
-                    SOFT_ARM <= '1';
-                end if;
-
-                -- DMA block address
-                if (mem_addr_i = PCAP_DMAADDR_ADDR) then
-                    DMAADDR <= mem_dat_i;
-                    DMAADDR_WSTB <= '1';
-                end if;
-
-                -- IRQ Timeout value
-                if (mem_addr_i = PCAP_TIMEOUT_ADDR) then
-                    TIMEOUT_VAL <= mem_dat_i;
-                end if;
-
-                -- DMA Soft Disarm
-                if (mem_addr_i = PCAP_SOFT_DISARM_ADDR) then
-                    SOFT_DISARM <= '1';
-                end if;
-
-                -- BitBus Capture Enable Mask
-                if (mem_addr_i = PCAP_BITBUS_MASK_ADDR) then
-                    CAPTURE_MASK(3 downto 0) <= mem_dat_i(3 downto 0);
-                end if;
-
-                -- Main PosBus Capture Enable Mask
-                -- [0] is never captures.
-                if (mem_addr_i = PCAP_CAPTURE_MASK_ADDR) then
-                    CAPTURE_MASK(34 downto 4) <= mem_dat_i(31 downto 1);
-                end if;
-
-                -- Extended Values Capture Enable Mask
-                if (mem_addr_i = PCAP_EXT_MASK_ADDR) then
-                    -- Encoder extension
-                    CAPTURE_MASK(38 downto 35) <= mem_dat_i(4 downto 1);
-                    -- ADC extension
-                    CAPTURE_MASK(46 downto 39) <= mem_dat_i(29 downto 22);
-                end if;
-
-                -- Framing Enable
-                if (mem_addr_i = PCAP_FRAME_ENA_ADDR) then
-                    FRAME_ENA <= mem_dat_i;
-                end if;
-
-                -- Host DMA Block memory size [in Bytes].
-                if (mem_addr_i = PCAP_BLOCK_SIZE_ADDR) then
-                    BLOCK_SIZE <= mem_dat_i;
-                end if;
-
-            end if;
-        end if;
+        enable <= SBIT(sysbus_i, ENABLE_VAL);
+        capture <= SBIT(sysbus_i, CAPTURE_VAL);
+        frame <= SBIT(sysbus_i, FRAME_VAL);
     end if;
 end process;
 
-REG_READ : process(clk_i)
+-- Detect rise/falling edge of internal signals.
+enable_fall <= not enable and enable_prev;
+capture_rise <= capture and not capture_prev;
+
+--
+-- Block Control Register Interface.
+--
+panda_pcap_ctrl_inst : entity work.panda_pcap_ctrl
+port map (
+    clk_i                   => clk_i,
+    reset_i                 => reset_i,
+
+    mem_cs_i                => mem_cs_i,
+    mem_wstb_i              => mem_wstb_i,
+    mem_addr_i              => mem_addr_i,
+    mem_dat_i               => mem_dat_i,
+    mem_dat_0_o             => mem_dat_0_o,
+    mem_dat_1_o             => mem_dat_1_o,
+
+    ENABLE                  => ENABLE_VAL,
+    FRAME                   => FRAME_VAL,
+    CAPTURE                 => CAPTURE_VAL,
+    MISSED_CAPTURES         => std_logic_vector(MISSED_CAPTURES),
+    ERR_STATUS              => ERR_STATUS,
+
+    START_WRITE             => START_WRITE,
+    WRITE                   => WRITE,
+    WRITE_WSTB              => WRITE_WSTB,
+    FRAMING_MASK            => FRAMING_MASK,
+    FRAMING_ENABLE          => FRAMING_ENABLE,
+    ARM                     => ARM,
+    DISARM                  => DISARM,
+
+    DMAADDR                 => DMAADDR,
+    DMAADDR_WSTB            => DMAADDR_WSTB,
+    BLOCK_SIZE              => BLOCK_SIZE,
+    TIMEOUT                 => TIMEOUT,
+    IRQ_STATUS(3 downto 0)  => IRQ_STATUS,
+    IRQ_STATUS(31 downto 4) => (others => '0'),
+    SMPL_COUNT              => SMPL_COUNT
+);
+
+--
+-- Position Bus capture mask is implemented using a Block RAM to
+-- achieve minimum dead time between capture triggers.
+-- Data is pushed into the buffer sequentially followed by reset.
+mask_spbram_inst : entity work.panda_spbram
+generic map (
+    AW          => 6,
+    DW          => 32
+)
+port map (
+    addra       => std_logic_vector(mask_addra),
+    addrb       => std_logic_vector(mask_addrb),
+    clka        => clk_i,
+    clkb        => clk_i,
+    dina        => WRITE,
+    doutb       => mask_doutb,
+    wea         => WRITE_WSTB
+);
+
+-- Fill mask buffer with capture indices sequentially, and
+-- latch buffer length.
+process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            mask_length <= (others => '0');
+            mask_addra <= (others => '0');
         else
-            case (mem_addr_i) is
-                when PCAP_IRQ_STATUS_ADDR =>
-                    mem_dat_o <= X"0000000" & IRQ_STATUS;
-                when PCAP_SMPL_COUNT_ADDR =>
-                    mem_dat_o <= SMPL_COUNT;
-                when PCAP_TRIG_MISSES_ADDR =>
-                    mem_dat_o <= std_logic_vector(TRIG_MISSES);
-                when PCAP_ERR_STATUS_ADDR =>
-                    mem_dat_o <= ERR_STATUS;
-                when others =>
-                    mem_dat_o <= (others => '0');
-            end case;
+            if (START_WRITE = '1') then
+                mask_addra <= (others => '0');
+            elsif (WRITE_WSTB = '1') then
+                mask_addra <= mask_addra + 1;
+            end if;
+
+            if (pcap_fsm = ARMED and enable = '1') then
+                mask_length <= mask_addra;
+            end if;
         end if;
     end if;
 end process;
@@ -222,8 +214,6 @@ end process;
 --
 -- Arm/Trigger/Disarm State Machine
 --
-enable_fall <= not enable and enable_prev;
-
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
@@ -239,7 +229,7 @@ process(clk_i) begin
             case (pcap_fsm) is
                 -- Wait for user arm.
                 when IDLE =>
-                    if (SOFT_ARM = '1') then
+                    if (ARM = '1') then
                         pcap_fsm <= ARMED;
                         pcap_armed <= '1';
                         pcap_disarmed(0) <= '0';
@@ -251,7 +241,7 @@ process(clk_i) begin
                 when ARMED =>
                     pcap_fifo_rst <= '0';
 
-                    if (SOFT_DISARM = '1') then
+                    if (DISARM = '1') then
                         pcap_fsm <= IDLE;
                         pcap_armed <= '0';
                         pcap_disarmed(0) <= '1';
@@ -262,16 +252,16 @@ process(clk_i) begin
                     end if;
 
                 -- Enabled until capture is finished or user disarm or
-                -- missed trigger.
+                -- missed capture.
                 when ENABLED =>
-                    if (SOFT_DISARM = '1' or INT_DISARM = '1'
+                    if (DISARM = '1' or INT_DISARM = '1'
                             or enable_fall = '1') then
                         -- Position bus is written sequentially into the
                         -- buffer and this takes 36 clock cycles for each
-                        -- capture trigger.
+                        -- capture capture.
                         -- We must wait until all fields are written into the
                         -- buffer for proper finish.
-                        if (ongoing_trigger = '1') then
+                        if (ongoing_capture = '1') then
                             pcap_fsm <= FINISH_TRIG;
                         else
                             pcap_fsm <= IDLE;
@@ -280,7 +270,7 @@ process(clk_i) begin
                         end if;
                     end if;
 
-                    if (SOFT_DISARM = '1') then
+                    if (DISARM = '1') then
                         pcap_disarmed(0) <= '1';
                     end if;
 
@@ -288,9 +278,9 @@ process(clk_i) begin
                         pcap_disarmed(1) <= '1';
                     end if;
 
-                -- Wait for ongoing trigger capture finish.
+                -- Wait for ongoing capture capture finish.
                 when FINISH_TRIG =>
-                    if (ongoing_trigger = '0') then
+                    if (ongoing_capture = '0') then
                         pcap_fsm <= IDLE;
                         pcap_armed <= '0';
                         pcap_enabled <= '0';
@@ -304,39 +294,25 @@ process(clk_i) begin
 end process;
 
 --
--- Design Bus Assignments
 --
-process(clk_i) begin
-    if rising_edge(clk_i) then
-        enable <= SBIT(sysbus_i, ENABLE_VAL);
-        trigger <= SBIT(sysbus_i, TRIGGER_VAL);
-    end if;
-end process;
-
 --
--- Total number of fields that can be captured include Bit Bus, Position Bus
--- and Extended Bus.
---
--- CAPTURE_MASK register controls which fields are captured. So, on every
--- capture trigger, it takes 47 clock cycles to walk through the CAPTURE_MASK
--- register bit-by-bit to check whether the associated field is captured.
---
-trigger_rise <= trigger and not trigger_prev;
+pcap_dat <= pcap_data_lt(to_integer(mask_doutb));
 
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            trigger_prev <= '0';
-            ongoing_trigger <= '0';
-            field_count <= 0;
-            TRIG_MISSES <= (others => '0');
+            capture_prev <= '0';
+            ongoing_capture <= '0';
+            mask_addrb <= (others => '0');
+            MISSED_CAPTURES <= (others => '0');
             INT_DISARM <= '0';
+            mask_addrb <= (others => '0');
         else
-            trigger_prev <= trigger;
+            capture_prev <= capture;
 
-            -- Latch all capture fields on rising edge of trigger only when
+            -- Latch all capture fields on rising edge of capture only when
             -- position capture is enabled.
-            if (trigger_rise = '1' and pcap_enabled = '1') then
+            if (capture_rise = '1' and pcap_enabled = '1') then
                 pcap_data_lt(0) <= sysbus_i(31 downto 0);
                 pcap_data_lt(1) <= sysbus_i(63 downto 32);
                 pcap_data_lt(2) <= sysbus_i(95 downto 64);
@@ -345,49 +321,46 @@ process(clk_i) begin
                 pcap_data_lt(46 downto 35) <= extbus_i;
             end if;
 
-            -- Walk CAPTURE_MASK register bit-by-bit on every trigger.
-            if (trigger_rise = '1' and pcap_enabled = '1') then
-                ongoing_trigger <= '1';
-            elsif (field_count = 46) then
-                ongoing_trigger <= '0';
+            -- Capture ongoing flag runs while mask buffer is read through.
+            if (capture_rise = '1' and pcap_enabled = '1') then
+                ongoing_capture <= '1';
+            elsif (mask_addrb = mask_length - 1) then
+                ongoing_capture <= '0';
             end if;
 
-            -- Counter is active follwing trigger until all CAPTURE_MASK
+            -- Counter is active follwing capture until all CAPTURE_MASK
             -- register is consumed.
-            if (ongoing_trigger = '1') then
-                field_count <= field_count + 1;
+            if (ongoing_capture = '1') then
+                mask_addrb <= mask_addrb + 1;
             else
-                field_count <= 0;
+                mask_addrb <= (others => '0');
             end if;
 
             -- Finally, generate pcap data and write strobe.
-            if (ongoing_trigger = '1') then
-                if (CAPTURE_MASK(field_count) = '1') then
-                    pcap_dat <= pcap_data_lt(field_count);
-                    pcap_wstb <= '1';
-                else
-                    pcap_wstb <= '0';
-                end if;
+            if (ongoing_capture = '1') then
+                pcap_wstb <= '1';
+            else
+                pcap_wstb <= '0';
             end if;
 
-            -- Keep track of missed triggers.
-            if (pcap_fsm = IDLE and SOFT_ARM = '1') then
-                TRIG_MISSES <= (others => '0');
+            -- Keep track of missed captures.
+            if (pcap_fsm = IDLE and ARM = '1') then
+                MISSED_CAPTURES <= (others => '0');
                 INT_DISARM <= '0';
-            elsif (ongoing_trigger = '1' and trigger_rise = '1') then
-                TRIG_MISSES <= TRIG_MISSES + 1;
+            elsif (ongoing_capture = '1' and capture_rise = '1') then
+                MISSED_CAPTURES <= MISSED_CAPTURES + 1;
                 INT_DISARM <= '1';
             end if;
         end if;
     end if;
 end process;
 
+ERR_STATUS(31 downto 1) <= (others => '0');
 ERR_STATUS(0) <= INT_DISARM;
 
 --
 -- Position Capture Core IP instantiation
 --
-
 panda_pcap_inst : entity work.panda_pcap
 port map (
     clk_i               => clk_i,
@@ -400,9 +373,9 @@ port map (
     pcap_wstb_i         => pcap_wstb,
     irq_o               => pcap_irq_o,
 
-    TIMEOUT_VAL         => TIMEOUT_VAL,
     DMAADDR             => DMAADDR,
     DMAADDR_WSTB        => DMAADDR_WSTB,
+    TIMEOUT_VAL         => TIMEOUT,
     IRQ_STATUS          => IRQ_STATUS,
     SMPL_COUNT          => SMPL_COUNT,
     BLOCK_SIZE          => BLOCK_SIZE,

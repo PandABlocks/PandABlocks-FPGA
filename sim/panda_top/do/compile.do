@@ -12,7 +12,7 @@ vlib msim
 # Compile Sources
 #
 vcom -64 -93 -work xil_defaultlib  \
-"${IP}/pcap_fifo/sim/pcap_fifo.vhd"\
+"${IP}/pcap_dma_fifo/sim/pcap_dma_fifo.vhd"\
 "${IP}/pulse_queue/sim/pulse_queue.vhd"\
 "${SRC}/defines/type_defines.vhd" \
 "${SRC}/defines/addr_defines.vhd" \
@@ -68,7 +68,8 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_reg.vhd" \
 "${SRC}/panda_axi3_write_master.vhd" \
 "${SRC}/panda_pcap.vhd" \
-"${SRC}/panda_pcap_block.vhd" \
+"${SRC}/panda_pcap_ctrl.vhd" \
+"${SRC}/panda_pcap_top.vhd" \
 "${SRC}/panda_slowctrl_top.vhd" \
 "${SRC}/panda_top.vhd"
 

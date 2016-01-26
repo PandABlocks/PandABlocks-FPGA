@@ -204,155 +204,6 @@ else if (test_name == "SEQ_TEST") begin
     tb.uut.ps.ps.ps.inst.read_data(32'h43C0_6038,  4, read_data, wrs);
     $display("STATE = (%0d)\n",read_data);
 end
-else if (test_name == "PCAP_TEST") begin
-    $display("RUNNING PCAP TEST...");
-
-    base = 32'h43C1_1000;
-    addr = 32'h1000_0000;
-    read_addr = 32'h1000_0000;
-    irq_count = 0;
-    total_samples = 0;
-
-    repeat(1250) @(posedge tb.uut.ps.FCLK);
-
-fork
-begin
-    // CLOCKS-CLKA/B/C/D
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C000,  4, 125, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C004,  4, 250, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C008,  4, 500, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C00C,  4, 1000, wrs);
-
-    // Set-up Counters 0/1
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D000 + 4*COUNTER_ENABLE_VAL_ADDR,  4, 118, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D000 + 4*COUNTER_TRIGGER_VAL_ADDR, 4, 122, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D000 + 4*COUNTER_STEP_ADDR, 4, 1, wrs);
-
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D100 + 4*COUNTER_ENABLE_VAL_ADDR,  4, 118, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D100 + 4*COUNTER_TRIGGER_VAL_ADDR, 4, 122, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D100 + 4*COUNTER_STEP_ADDR, 4, 1, wrs);
-
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D300 + 4*COUNTER_ENABLE_VAL_ADDR,  4, 118, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D300 + 4*COUNTER_TRIGGER_VAL_ADDR, 4, 122, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D300 + 4*COUNTER_STEP_ADDR, 4, 1, wrs);
-
-    // PCAP_ENABLE_VAL_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_ENABLE_VAL_ADDR, 4, 118, wrs);
-
-    // PCAP_TRIGGER_VAL_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_TRIGGER_VAL_ADDR, 4, 122, wrs);
-
-    // PCAP_BITBUS_MASK_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_BITBUS_MASK_ADDR, 4, 0, wrs);
-
-    // PCAP_CAPTURE_MASK_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_CAPTURE_MASK_ADDR, 4,
-    32'h0000_B000, wrs);
-
-    // PCAP_EXT_MASK_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_EXT_MASK_ADDR, 4, 0, wrs);
-
-    // PCAP_TIMEOUT_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_TIMEOUT_ADDR, 4, 0, wrs);
-
-    // PCAP_DMAADDR_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_DMAADDR_ADDR, 4, addr, wrs);
-
-    // PCAP_SOFT_ARM_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_SOFT_ARM_ADDR, 4, 1, wrs);
-
-    // PCAP_DMAADDR_ADDR
-    addr = addr + tb.BLOCK_SIZE;
-    tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_DMAADDR_ADDR, 4, addr, wrs);
-
-    // SOFTA/
-    repeat(1250) @(posedge tb.uut.ps.FCLK);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_D000,  4, 1, wrs);
-    repeat(125 * 1000) @(posedge tb.uut.ps.FCLK);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_D000,  4, 0, wrs);
-end
-
-begin
-    while (1) begin
-        // Wait for DMA irq
-        tb.uut.ps.ps.ps.inst.wait_interrupt(0,IRQ_STATUS);
-        // Read IRQ Status and Sample Count Registers
-        tb.uut.ps.ps.ps.inst.read_data(base+4*PCAP_IRQ_STATUS_ADDR,  4, IRQ_STATUS, wrs);
-        tb.uut.ps.ps.ps.inst.read_data(base+4*PCAP_SMPL_COUNT_ADDR,  4, SMPL_COUNT, wrs);
-
-        // Keep track of address and sample count.
-        smpl_table[irq_count] = SMPL_COUNT;
-        addr_table[irq_count] = read_addr;
-        irq_count = irq_count + 1;
-
-        // Set next DMA address
-        read_addr = addr;
-        addr = addr + tb.BLOCK_SIZE;
-
-        if (IRQ_STATUS == 4'b0001) begin
-            $display("IRQ on BLOCK_FINISHED with %d samples.", SMPL_COUNT);
-            // PCAP_DMAADDR_ADDR
-            tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_DMAADDR_ADDR, 4, addr, wrs);
-        end
-        else if (IRQ_STATUS == 4'b0010) begin
-            $display("IRQ on CAPT_FINISHED with %d samples.", SMPL_COUNT);
-
-            // Read scattered data from host memory into a file.
-            for (i=0; i<irq_count; i=i+1) begin
-                $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
-                tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
-                total_samples = total_samples + smpl_table[i];
-            end
-
-            $display("Total Samples = %d", total_samples);
-            $finish;
-        end
-        else if (IRQ_STATUS == 4'b0011) begin
-            $display("IRQ on TIMEOUT with %d samples.", SMPL_COUNT);
-            // PCAP_DMAADDR_ADDR
-            tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_DMAADDR_ADDR, 4, addr, wrs);
-        end
-        else if (IRQ_STATUS == 4'b0100) begin
-            $display("IRQ on DISARM with %d samples.", SMPL_COUNT);
-            // Read scattered data from host memory into a file.
-            for (i=0; i<irq_count; i=i+1) begin
-                $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
-                tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
-                total_samples = total_samples + smpl_table[i];
-            end
-            $display("Total Samples = %d", total_samples);
-            $finish;
-        end
-        else if (IRQ_STATUS == 4'b0110) begin
-            $display("IRQ on INT_DISARM with %d samples.", SMPL_COUNT);
-            // Read scattered data from host memory into a file.
-            for (i=0; i<irq_count; i=i+1) begin
-                $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
-                tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
-                total_samples = total_samples + smpl_table[i];
-            end
-            $display("Total Samples = %d", total_samples);
-            $finish;
-        end
-        else if (IRQ_STATUS == 4'b0101) begin
-            $display("IRQ on ADDR_ERROR...");
-            $finish;
-        end
-    end
-end
-
-begin
-    repeat(125 * 1000) @(posedge tb.uut.ps.FCLK);
-    // PCAP_SOFT_DISARM_ADDR
-    //tb.uut.ps.ps.ps.inst.write_data(base+4*PCAP_SOFT_DISARM_ADDR, 4, 1, wrs);
-end
-
-join
-
-    repeat(1250) @(posedge tb.uut.ps.FCLK);
-
-    $finish;
-end
 else if (test_name == "ENCLOOPBACK_TEST") begin
     repeat(1250) @(posedge tb.uut.ps.FCLK);
     REG_WRITE(SLOW_BASE, SLOW_INENC_CTRL_ADDR, 3);
@@ -367,36 +218,36 @@ else if (test_name == "ENCLOOPBACK_TEST") begin
     $finish;
 end
 else if (test_name == "SSIENC_TEST") begin
-    repeat(1250) @(posedge tb.uut.ps.FCLK);
-    // CLOCKS-CLKA as trigger source
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C000,  4, 12500, wrs);
-    // Set-up Counters 0 as position source
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D000 + 4*COUNTER_ENABLE_VAL_ADDR,  4, 118, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D000 + 4*COUNTER_TRIGGER_VAL_ADDR, 4, 122, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_D000 + 4*COUNTER_STEP_ADDR, 4, 1, wrs);
-
-    // SLOW_INENC_CTRL_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_B000, 4, 32'hC, wrs);
-    // SLOW_OUTENC_CTRL_ADDR
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_B004, 4, 32'h28, wrs);
-
-    // Set-up OutEnc
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_PROTOCOL_ADDR, 4, 1, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_BITS_ADDR, 4, 24, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_POSN_VAL_ADDR, 4, 12, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_BITS_ADDR, 4, 24, wrs);
-
-    // Set-up InEnc
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_PROTOCOL_ADDR, 4, 1, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_BITS_ADDR, 4, 24, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_CLKRATE_ADDR, 4, 125, wrs);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_FRAMERATE_ADDR, 4, 100, wrs);
-
-    repeat(1250) @(posedge tb.uut.ps.FCLK);
-    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_D000,  4, 1, wrs);
-
-    repeat(40000) @(posedge tb.uut.ps.FCLK);
-    $finish;
+//    repeat(1250) @(posedge tb.uut.ps.FCLK);
+//    // CLOCKS-CLKA as trigger source
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_C000,  4, 12500, wrs);
+//    // Set-up Counters 0 as position source
+//    REG_WRITE(COUNTER_BASE, COUNTER_ENABLE, 118);
+//    REG_WRITE(COUNTER_BASE, COUNTER_TRIGGER, 122);
+//    REG_WRITE(COUNTER_BASE, COUNTER_STEP, 1);
+//
+//    // SLOW_INENC_CTRL_ADDR
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_B000, 4, 32'hC, wrs);
+//    // SLOW_OUTENC_CTRL_ADDR
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_B004, 4, 32'h28, wrs);
+//
+//    // Set-up OutEnc
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_PROTOCOL_ADDR, 4, 1, wrs);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_BITS_ADDR, 4, 24, wrs);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_POSN_VAL_ADDR, 4, 12, wrs);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_BITS_ADDR, 4, 24, wrs);
+//
+//    // Set-up InEnc
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_PROTOCOL_ADDR, 4, 1, wrs);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_BITS_ADDR, 4, 24, wrs);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_CLKRATE_ADDR, 4, 125, wrs);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_FRAMERATE_ADDR, 4, 100, wrs);
+//
+//    repeat(1250) @(posedge tb.uut.ps.FCLK);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_D000,  4, 1, wrs);
+//
+//    repeat(40000) @(posedge tb.uut.ps.FCLK);
+//    $finish;
 end
 else if (test_name == "POSITION_TEST") begin
     $display("Running POSITION TEST...");
@@ -414,6 +265,12 @@ else if (test_name == "POSITION_TEST") begin
     REG_WRITE(SLOW_BASE, SLOW_INENC_CTRL_ADDR, 32'h3);
     REG_WRITE(SLOW_BASE, SLOW_OUTENC_CTRL_ADDR, 32'h7);
 
+    // Setup a timer for capture input test
+    REG_WRITE(COUNTER_BASE, COUNTER_ENABLE, 106);       // pcap_act
+    REG_WRITE(COUNTER_BASE, COUNTER_TRIGGER, 102);      // pcomp_pulse
+    REG_WRITE(COUNTER_BASE, COUNTER_START, 1000);
+    REG_WRITE(COUNTER_BASE, COUNTER_STEP, 500);
+
     // Setup Position Compare Block
     REG_WRITE(PCOMP_BASE, PCOMP_ENABLE_VAL_ADDR, 106);  // pcap_act
     REG_WRITE(PCOMP_BASE, PCOMP_POSN_VAL_ADDR, 1);      // inenc_posn(0)
@@ -421,18 +278,21 @@ else if (test_name == "POSITION_TEST") begin
     REG_WRITE(PCOMP_BASE, PCOMP_STEP_ADDR, 0);
     REG_WRITE(PCOMP_BASE, PCOMP_WIDTH_ADDR, 1400);
     REG_WRITE(PCOMP_BASE, PCOMP_NUM_ADDR, 3);
+    REG_WRITE(PCOMP_BASE, PCOMP_FLTR_DELTAT_ADDR, 32);
+    REG_WRITE(PCOMP_BASE, PCOMP_FLTR_THOLD_ADDR, 1);
 
     // Setup Position Capture
-    REG_WRITE(PCAP_BASE, PCAP_ENABLE_VAL_ADDR, 98);     // pcomp_act(0)
-    REG_WRITE(PCAP_BASE, PCAP_TRIGGER_VAL_ADDR, 102);   // pcomp_pulse
-    REG_WRITE(PCAP_BASE, PCAP_BITBUS_MASK_ADDR, 0);
-    REG_WRITE(PCAP_BASE, PCAP_CAPTURE_MASK_ADDR, 2);
-    REG_WRITE(PCAP_BASE, PCAP_EXT_MASK_ADDR, 0);
-    REG_WRITE(PCAP_BASE, PCAP_TIMEOUT_ADDR, 0);
-    REG_WRITE(PCAP_BASE, PCAP_DMAADDR_ADDR, addr);
-    REG_WRITE(PCAP_BASE, PCAP_SOFT_ARM_ADDR, 1);
+    REG_WRITE(REG_BASE, REG_PCAP_START_WRITE, 1);
+    REG_WRITE(REG_BASE, REG_PCAP_WRITE, 4);     // enc #1
+    REG_WRITE(REG_BASE, REG_PCAP_WRITE, 15);    // counter #1
+
+    REG_WRITE(PCAP_BASE, PCAP_ENABLE, 98);     // pcomp_act(0)
+    REG_WRITE(PCAP_BASE, PCAP_CAPTURE, 102);   // pcomp_pulse
+    REG_WRITE(DRV_BASE, DRV_PCAP_TIMEOUT, 0);
+    REG_WRITE(DRV_BASE, DRV_PCAP_DMAADDR, addr);
+    REG_WRITE(REG_BASE, REG_PCAP_ARM, 1);
     addr = addr + tb.BLOCK_SIZE;
-    REG_WRITE(PCAP_BASE, PCAP_DMAADDR_ADDR, addr);
+    REG_WRITE(DRV_BASE, DRV_PCAP_DMAADDR, addr);
     repeat(1250) @(posedge tb.uut.ps.FCLK);
 
 fork
@@ -450,8 +310,8 @@ begin
         // Wait for DMA irq
         tb.uut.ps.ps.ps.inst.wait_interrupt(0,IRQ_STATUS);
         // Read IRQ Status and Sample Count Registers
-        REG_READ(PCAP_BASE, PCAP_IRQ_STATUS_ADDR, IRQ_STATUS);
-        REG_READ(PCAP_BASE, PCAP_SMPL_COUNT_ADDR, SMPL_COUNT);
+        REG_READ(DRV_BASE, DRV_PCAP_IRQ_STATUS, IRQ_STATUS);
+        REG_READ(DRV_BASE, DRV_PCAP_SMPL_COUNT, SMPL_COUNT);
 
         // Keep track of address and sample count.
         smpl_table[irq_count] = SMPL_COUNT;
@@ -464,8 +324,8 @@ begin
 
         if (IRQ_STATUS == 4'b0001) begin
             $display("IRQ on BLOCK_FINISHED with %d samples.", SMPL_COUNT);
-            // PCAP_DMAADDR_ADDR
-            REG_WRITE(PCAP_BASE, PCAP_DMAADDR_ADDR, addr);
+            // DRV_PCAP_DMAADDR
+            REG_WRITE(DRV_BASE, DRV_PCAP_DMAADDR, addr);
         end
         else if (IRQ_STATUS == 4'b0010) begin
             $display("IRQ on CAPT_FINISHED with %d samples.", SMPL_COUNT);
@@ -482,7 +342,7 @@ begin
         end
         else if (IRQ_STATUS == 4'b0011) begin
             $display("IRQ on TIMEOUT with %d samples.", SMPL_COUNT);
-            REG_WRITE(PCAP_BASE, PCAP_DMAADDR_ADDR, addr);
+            REG_WRITE(DRV_BASE, DRV_PCAP_DMAADDR, addr);
         end
         else if (IRQ_STATUS == 4'b0100) begin
             $display("IRQ on DISARM with %d samples.", SMPL_COUNT);

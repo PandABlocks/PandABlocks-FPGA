@@ -23,4 +23,4 @@ view wave
 
 add wave -Radix Decimal sim:/panda_pcomp_tb/uut/*
 
-run 50000us
+run 5000us

@@ -71,7 +71,10 @@ sim:/test/tb/DCARD(0)/daughter_card/*
 add wave -group "SLOW" \
 sim:/test/tb/uut/panda_slowctrl_inst/*
 
-add wave -group "PCAP_BLOCK" \
+add wave -group "PCAP_MASK" \
+sim:/test/tb/uut/panda_pcap_inst/mask_spbram_inst/*
+
+add wave -group "PCAP_TOP" \
 sim:/test/tb/uut/panda_pcap_inst/*
 
 add wave -group "PCAP" \

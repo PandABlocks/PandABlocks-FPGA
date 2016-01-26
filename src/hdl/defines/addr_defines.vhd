@@ -37,13 +37,12 @@ constant COUNTER_CS             : natural := 13;
 constant PGEN                   : natural := 14;
 constant PCOMP_CS               : natural := 15;
 constant PCAP_CS                : natural := 16;
-constant CLOCKS_CS              : natural := 28;
-constant BITS_CS                : natural := 29;
-constant POSITIONS_CS           : natural := 30;
+constant SLOW_CS                : natural := 26;
+constant CLOCKS_CS              : natural := 27;
+constant BITS_CS                : natural := 28;
+constant POSITIONS_CS           : natural := 29;
+constant DRV_CS                 : natural := 30;
 constant REG_CS                 : natural := 31;
-
--- This is for testing on the Picozed carrier
-constant SLOW_CS                : natural := 27;
 
 
 --
@@ -120,27 +119,17 @@ constant OUTENC_QPRESCALAR_ADDR : std_logic_vector := TO_SVECTOR(7, BLK_AW);
 constant OUTENC_FRC_QSTATE_ADDR : std_logic_vector := TO_SVECTOR(8, BLK_AW);
 constant OUTENC_QSTATE_ADDR     : std_logic_vector := TO_SVECTOR(9, BLK_AW);
 
-constant COUNTER_ENABLE_VAL_ADDR: std_logic_vector  := TO_SVECTOR(0, BLK_AW);
-constant COUNTER_TRIGGER_VAL_ADDR: std_logic_vector := TO_SVECTOR(1, BLK_AW);
-constant COUNTER_DIR_ADDR       : std_logic_vector  := TO_SVECTOR(2, BLK_AW);
-constant COUNTER_START_ADDR     : std_logic_vector  := TO_SVECTOR(3, BLK_AW);
-constant COUNTER_STEP_ADDR      : std_logic_vector  := TO_SVECTOR(4, BLK_AW);
+constant COUNTER_ENABLE         : std_logic_vector  := TO_SVECTOR(0, BLK_AW);
+constant COUNTER_TRIGGER        : std_logic_vector  := TO_SVECTOR(1, BLK_AW);
+constant COUNTER_DIR            : std_logic_vector  := TO_SVECTOR(2, BLK_AW);
+constant COUNTER_START          : std_logic_vector  := TO_SVECTOR(3, BLK_AW);
+constant COUNTER_STEP           : std_logic_vector  := TO_SVECTOR(4, BLK_AW);
 
-constant PCAP_ENABLE_VAL_ADDR   : std_logic_vector := TO_SVECTOR(0, PAGE_AW);
-constant PCAP_TRIGGER_VAL_ADDR  : std_logic_vector := TO_SVECTOR(1, PAGE_AW);
-constant PCAP_DMAADDR_ADDR      : std_logic_vector := TO_SVECTOR(2, PAGE_AW);
-constant PCAP_SOFT_ARM_ADDR     : std_logic_vector := TO_SVECTOR(3, PAGE_AW);
-constant PCAP_SOFT_DISARM_ADDR  : std_logic_vector := TO_SVECTOR(4, PAGE_AW);
-constant PCAP_TIMEOUT_ADDR      : std_logic_vector := TO_SVECTOR(6, PAGE_AW);
-constant PCAP_BITBUS_MASK_ADDR  : std_logic_vector := TO_SVECTOR(7, PAGE_AW);
-constant PCAP_CAPTURE_MASK_ADDR : std_logic_vector := TO_SVECTOR(8, PAGE_AW);
-constant PCAP_EXT_MASK_ADDR     : std_logic_vector := TO_SVECTOR(9,  PAGE_AW);
-constant PCAP_FRAME_ENA_ADDR    : std_logic_vector := TO_SVECTOR(10, PAGE_AW);
-constant PCAP_IRQ_STATUS_ADDR   : std_logic_vector := TO_SVECTOR(11, PAGE_AW);
-constant PCAP_SMPL_COUNT_ADDR   : std_logic_vector := TO_SVECTOR(12, PAGE_AW);
-constant PCAP_BLOCK_SIZE_ADDR   : std_logic_vector := TO_SVECTOR(13, PAGE_AW);
-constant PCAP_TRIG_MISSES_ADDR  : std_logic_vector := TO_SVECTOR(14, PAGE_AW);
-constant PCAP_ERR_STATUS_ADDR   : std_logic_vector := TO_SVECTOR(15, PAGE_AW);
+constant PCAP_ENABLE            : std_logic_vector := TO_SVECTOR(0, PAGE_AW);
+constant PCAP_FRAME             : std_logic_vector := TO_SVECTOR(1, PAGE_AW);
+constant PCAP_CAPTURE           : std_logic_vector := TO_SVECTOR(2, PAGE_AW);
+constant PCAP_MISSED_CAPTURES   : std_logic_vector := TO_SVECTOR(3, PAGE_AW);
+constant PCAP_ERR_STATUS        : std_logic_vector := TO_SVECTOR(4, PAGE_AW);
 
 constant PCOMP_ENABLE_VAL_ADDR  : std_logic_vector := TO_SVECTOR(0, BLK_AW);
 constant PCOMP_POSN_VAL_ADDR    : std_logic_vector := TO_SVECTOR(1, BLK_AW);
@@ -157,6 +146,24 @@ constant PCOMP_LUT_ENABLE_ADDR  : std_logic_vector := TO_SVECTOR(10, BLK_AW);
 constant SLOW_INENC_CTRL_ADDR   : std_logic_vector := TO_SVECTOR(0, PAGE_AW);
 constant SLOW_OUTENC_CTRL_ADDR  : std_logic_vector := TO_SVECTOR(1, PAGE_AW);
 constant SLOW_VERSION_ADDR      : std_logic_vector := TO_SVECTOR(2, PAGE_AW);
+
+constant REG_BIT_READ_RST       : std_logic_vector := TO_SVECTOR(0, PAGE_AW);
+constant REG_BIT_READ_VALUE     : std_logic_vector := TO_SVECTOR(1, PAGE_AW);
+constant REG_POS_READ_RST       : std_logic_vector := TO_SVECTOR(2, PAGE_AW);
+constant REG_POS_READ_VALUE     : std_logic_vector := TO_SVECTOR(3, PAGE_AW);
+constant REG_POS_READ_CHANGES   : std_logic_vector := TO_SVECTOR(4, PAGE_AW);
+constant REG_PCAP_START_WRITE   : std_logic_vector := TO_SVECTOR(5, PAGE_AW);
+constant REG_PCAP_WRITE         : std_logic_vector := TO_SVECTOR(6, PAGE_AW);
+constant REG_PCAP_FRAMING_MASK  : std_logic_vector := TO_SVECTOR(7, PAGE_AW);
+constant REG_PCAP_FRAMING_ENABLE: std_logic_vector := TO_SVECTOR(8, PAGE_AW);
+constant REG_PCAP_ARM           : std_logic_vector := TO_SVECTOR(9, PAGE_AW);
+constant REG_PCAP_DISARM        : std_logic_vector := TO_SVECTOR(10,PAGE_AW);
+
+constant DRV_PCAP_DMAADDR       : std_logic_vector := TO_SVECTOR(0, PAGE_AW);
+constant DRV_PCAP_BLOCK_SIZE    : std_logic_vector := TO_SVECTOR(1, PAGE_AW);
+constant DRV_PCAP_TIMEOUT       : std_logic_vector := TO_SVECTOR(2, PAGE_AW);
+constant DRV_PCAP_IRQ_STATUS    : std_logic_vector := TO_SVECTOR(3, PAGE_AW);
+constant DRV_PCAP_SMPL_COUNT    : std_logic_vector := TO_SVECTOR(4, PAGE_AW);
 
 --
 -- TOP Block Register Address Space
@@ -181,9 +188,6 @@ end record;
 
 constant BITS     : tBITS := (0,1,2,3);
 
-
-constant REG_BIT_READ_RST_ADDR  : std_logic_vector := TO_SVECTOR(0, BLK_AW);
-constant REG_BIT_READ_VALUE_ADDR: std_logic_vector := TO_SVECTOR(1, BLK_AW);
 
 end addr_defines;
 

@@ -1,36 +1,39 @@
-localparam TTL_CS                   = 0;
-localparam LVDS_CS                  = 1;
-localparam LUT_CS                   = 2;
-localparam SRGATE_CS                = 3;
-localparam DIV_CS                   = 4;
-localparam PULSE_CS                 = 5;
-localparam SEQ_CS                   = 6;
-localparam INENC_CS                 = 7;
-localparam QDEC_CS                  = 8;
-localparam OUTENC_CS                = 9;
-localparam POSENC                   = 10;
-localparam CALC                     = 11;
-localparam ADDER                    = 12;
-localparam COUNTER_CS               = 13;
-localparam PGEN                     = 14;
-localparam PCOMP_CS                 = 15;
-localparam PCAP_CS                  = 16;
-localparam SLOW_CS                  = 27;
-localparam CLOCKS_CS                = 28;
-localparam BITS_CS                  = 29;
-localparam POSITIONS_CS             = 30;
-localparam REG_CS                   = 31;
+localparam TTL_CS       = 0;
+localparam LVDS_CS      = 1;
+localparam LUT_CS       = 2;
+localparam SRGATE_CS    = 3;
+localparam DIV_CS       = 4;
+localparam PULSE_CS     = 5;
+localparam SEQ_CS       = 6;
+localparam INENC_CS     = 7;
+localparam QDEC_CS      = 8;
+localparam OUTENC_CS    = 9;
+localparam POSENC       = 10;
+localparam CALC         = 11;
+localparam ADDER        = 12;
+localparam COUNTER_CS   = 13;
+localparam PGEN         = 14;
+localparam PCOMP_CS     = 15;
+localparam PCAP_CS      = 16;
+localparam SLOW_CS      = 26;
+localparam CLOCKS_CS    = 27;
+localparam BITS_CS      = 28;
+localparam POSITIONS_CS = 29;
+localparam DRV_CS       = 30;
+localparam REG_CS       = 31;
 
 
 // Panda Base Address
-localparam BASE                     = 32'h43C0_0000;
-
-localparam INENC_BASE               = BASE + 4096 * INENC_CS;
-localparam PCOMP_BASE               = BASE + 4096 * PCOMP_CS;
-localparam PCAP_BASE                = BASE + 4096 * PCAP_CS;
-localparam OUTENC_BASE              = BASE + 4096 * OUTENC_CS;
-localparam SLOW_BASE                = BASE + 4096 * SLOW_CS;
-localparam CLOCKS_BASE              = BASE + 4096 * CLOCKS_CS;
+localparam BASE                 = 32'h43C0_0000;
+localparam INENC_BASE           = BASE + 4096 * INENC_CS;
+localparam PCOMP_BASE           = BASE + 4096 * PCOMP_CS;
+localparam PCAP_BASE            = BASE + 4096 * PCAP_CS;
+localparam OUTENC_BASE          = BASE + 4096 * OUTENC_CS;
+localparam SLOW_BASE            = BASE + 4096 * SLOW_CS;
+localparam CLOCKS_BASE          = BASE + 4096 * CLOCKS_CS;
+localparam COUNTER_BASE         = BASE + 4096 * COUNTER_CS;
+localparam DRV_BASE             = BASE + 4096 * DRV_CS;
+localparam REG_BASE             = BASE + 4096 * REG_CS;
 
 // Block Registers
 
@@ -105,27 +108,17 @@ localparam OUTENC_QPRESCALAR_ADDR   = 7;
 localparam OUTENC_FRC_QSTATE_ADDR   = 8;
 localparam OUTENC_QSTATE_ADDR       = 9;
 
-localparam COUNTER_ENABLE_VAL_ADDR  = 0;
-localparam COUNTER_TRIGGER_VAL_ADDR = 1;
-localparam COUNTER_DIR_ADDR         = 2;
-localparam COUNTER_START_ADDR       = 3;
-localparam COUNTER_STEP_ADDR        = 4;
+localparam COUNTER_ENABLE           = 0;
+localparam COUNTER_TRIGGER          = 1;
+localparam COUNTER_DIR              = 2;
+localparam COUNTER_START            = 3;
+localparam COUNTER_STEP             = 4;
 
-localparam PCAP_ENABLE_VAL_ADDR     = 0;
-localparam PCAP_TRIGGER_VAL_ADDR    = 1;
-localparam PCAP_DMAADDR_ADDR        = 2;
-localparam PCAP_SOFT_ARM_ADDR       = 3;
-localparam PCAP_SOFT_DISARM_ADDR    = 4;
-localparam PCAP_TIMEOUT_ADDR        = 6;
-localparam PCAP_BITBUS_MASK_ADDR    = 7;
-localparam PCAP_CAPTURE_MASK_ADDR   = 8;
-localparam PCAP_EXT_MASK_ADDR       = 9;
-localparam PCAP_FRAME_ENA_ADDR      = 10;
-localparam PCAP_IRQ_STATUS_ADDR     = 11;
-localparam PCAP_SMPL_COUNT_ADDR     = 12;
-localparam PCAP_BLOCK_SIZE_ADDR     = 13;
-localparam PCAP_TRIG_MISSES_ADDR    = 14;
-localparam PCAP_ERR_STATUS_ADDR     = 15;
+localparam PCAP_ENABLE              = 0;
+localparam PCAP_FRAME               = 1;
+localparam PCAP_CAPTURE             = 2;
+localparam PCAP_MISSED_CAPTURES     = 3;
+localparam PCAP_ERR_STATUS          = 4;
 
 localparam PCOMP_ENABLE_VAL_ADDR    = 0;
 localparam PCOMP_POSN_VAL_ADDR      = 1;
@@ -141,4 +134,22 @@ localparam PCOMP_LUT_ENABLE_ADDR    = 10;
 
 localparam SLOW_INENC_CTRL_ADDR     = 0;
 localparam SLOW_OUTENC_CTRL_ADDR    = 1;
+
+localparam REG_BIT_READ_RST         = 0;
+localparam REG_BIT_READ_VALUE       = 1;
+localparam REG_POS_READ_RST         = 2;
+localparam REG_POS_READ_VALUE       = 3;
+localparam REG_POS_READ_CHANGES     = 4;
+localparam REG_PCAP_START_WRITE     = 5;
+localparam REG_PCAP_WRITE           = 6;
+localparam REG_PCAP_FRAMING_MASK    = 7;
+localparam REG_PCAP_FRAMING_ENABLE  = 8;
+localparam REG_PCAP_ARM             = 9;
+localparam REG_PCAP_DISARM          = 10;
+
+localparam DRV_PCAP_DMAADDR         = 0;
+localparam DRV_PCAP_BLOCK_SIZE      = 1;
+localparam DRV_PCAP_TIMEOUT         = 2;
+localparam DRV_PCAP_IRQ_STATUS      = 3;
+localparam DRV_PCAP_SMPL_COUNT      = 4;
 
