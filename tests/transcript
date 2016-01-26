@@ -160,8 +160,8 @@
 > ERR Field is not a table
 
 < TTLIN.*?
-> !VAL 0 bit_out
-> !TERM 1 param enum
+> !VAL 1 bit_out
+> !TERM 0 param enum
 > .
 
 < TTLIN2.VAL=x
@@ -387,13 +387,13 @@
 
 # LUT
 < LUT.*?
-> !FUNC 6 param lut
-> !INPB 1 param bit_mux
-> !INPC 2 param bit_mux
-> !INPA 0 param bit_mux
-> !VAL 5 bit_out
-> !INPD 3 param bit_mux
-> !INPE 4 param bit_mux
+> !FUNC 0 param lut
+> !INPB 2 param bit_mux
+> !INPC 3 param bit_mux
+> !INPA 1 param bit_mux
+> !VAL 6 bit_out
+> !INPD 4 param bit_mux
+> !INPE 5 param bit_mux
 > .
 
 < LUT1.INPC.INFO?
