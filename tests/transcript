@@ -669,20 +669,21 @@
 
 # Add some position capture tests
 < PCAP.*?
-> !FRAME_LENGTH 5 ext_out
-> !DISARM 9 software
-> !RESET 10 software
-> !CAPTURE_OFFSET 6 ext_out
-> !ACTIVE 3 bit_out
-> !STATUS 11 software
+> !FRAME_LENGTH 6 ext_out
+> !DISARM 10 software
+> !RESET 11 software
+> !CAPTURE_OFFSET 7 ext_out
+> !WAITING 13 software
+> !ACTIVE 4 bit_out
+> !STATUS 12 software
 > !FRAME 1 param bit_mux
 > !ENABLE 0 param bit_mux
-> !WAITING 12 software
+> !MISSED_CAPTURES 3 read uint
 > !CAPTURE 2 param bit_mux
-> !DOWNLOADING 13 software
-> !CAPTURE_TS 4 ext_out timestamp
-> !ARM 8 software
-> !ADC_COUNT 7 ext_out
+> !DOWNLOADING 14 software
+> !CAPTURE_TS 5 ext_out timestamp
+> !ARM 9 software
+> !ADC_COUNT 8 ext_out
 > .
 
 # Encoder enums
