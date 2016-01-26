@@ -1,0 +1,55 @@
+{% macro outputs(type) -%}
+{% for name, block in blocks.iteritems() %}
+{% for fieldname, field in block.fields.iteritems() %}
+{% if type == 'bit_out' and field.cls in [type]%}
+    {{"%s_%s   : in std_logic_vector(%d downto 0);"|format(name.replace("*",""), field.name, block.num-1 )}}
+{% elif type == 'pos_out' and field.cls in [type] %}
+    {{"%s_%s   : in posbus_t(%d downto 0);"|format(name.replace("*",""), field.name, block.num-1 )}}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endmacro %}
+
+{% macro bus_arch(type) -%}
+{% for name, block in blocks.iteritems() %}
+{% for fieldname, field in block.fields.iteritems() %}
+{% if field.cls in [type]%}
+{% set counter = 0 -%}
+{% for register in field.reg %}
+{{"%s_o(%s) <= %s_%s(%d);"|format(type, register, name.replace("*",""), field.name, counter)}}
+{% set counter = counter + 1 -%}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endmacro %}
+
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library work;
+use work.type_defines.all;
+use work.addr_defines.all;
+use work.top_defines.all;
+
+entity panda_busses is
+port (
+    -- BitBus Inputs
+    {{outputs('bit_out')}}
+    -- Position Inputs
+    {{outputs('pos_out')}}
+    -- Bus Outputs
+    bitbus_o            : out std_logic_vector(127 downto 0);
+    posbus_o            : out posbus_t(63 downto 0);
+);
+end panda_busses;
+
+architecture rtl of panda_busses is
+
+begin
+{{bus_arch('bit_out')}}
+{{bus_arch('pos_out')}}
+
+end rtl;

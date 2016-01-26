@@ -27,8 +27,8 @@ def genearateOutput(templatefile, outputfile, variables):
 def main():
     cfgParser = ConfigParser(CONFIG_PATH)
     variables = {"blocks": cfgParser.blocks}
-
     genearateOutput('addr_defines_template', "addr_defines.vhd", variables)
+    genearateOutput('panda_buses_template', "panda_buses.vhd", variables)
 
 if __name__ == "__main__":
     main()
