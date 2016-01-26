@@ -10,8 +10,8 @@ class ConfigBlock(object):
         num (int): The number of blocks that should be created (e.g. 2)
         base (int): The base register offset for this block
         desc (str): The description for this block
-        fields (OrderedDict of str: Field): A map of field name to
-            Field class instance for each field the block has
+        fields (OrderedDict): map str field_name -> :class:`.ConfigField`
+            instance for each field the block has
     """
 
     def __init__(self, reg_line, config_line=None, desc_line=None):
@@ -59,10 +59,10 @@ class ConfigBlock(object):
         self.fields = OrderedDict()
 
     def add_field(self, field):
-        """Add a Field instance to self.fields dictionary
+        """Add a ConfigField instance to self.fields dictionary
 
         Args:
-            field (Field): Field instance
+            field (ConfigField): ConfigField instance
         """
         assert field.name not in self.fields, \
             "Field %s already part of block %s" % (field.name, self.name)

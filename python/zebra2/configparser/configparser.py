@@ -14,8 +14,8 @@ class ConfigParser(object):
     files, checking for validity
 
     Attributes:
-        blocks (OrderedDict): map block name -> ConfigBlock instance where block
-            name doesn't include number (e.g. "SEQ")
+        blocks (OrderedDict): map str block_name -> :class:`.ConfigBlock`
+            instance where block name doesn't include number (e.g. "SEQ")
     """
 
     def __init__(self, config_dir):
