@@ -11,7 +11,7 @@ class Controller(object):
         self.z.start_event_loop()
 
     # Must return an integer
-    def do_read_data(self, block_num, num, reg):
+    def do_read_register(self, block_num, num, reg):
         try:
             block = self.z.blocks[(block_num, num)]
             name = block.regs[reg]
@@ -22,7 +22,7 @@ class Controller(object):
             value = getattr(block, name)
         return value
 
-    def do_write_config(self, block, num, reg, value):
+    def do_write_register(self, block, num, reg, value):
         self.z.post_wait((block, num, reg, value))
 
     def do_write_table(self, block, num, reg, data):

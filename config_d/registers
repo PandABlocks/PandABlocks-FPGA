@@ -5,13 +5,53 @@
 #   Alas, because hardware access occurs during the processing of this file, it
 # is necessary to place this section at the start!
 *REG        31
-    BIT_READ_RST        0
-    BIT_READ_VALUE      1
-    POS_READ_RST        2
-    POS_READ_VALUE      3
-    POS_READ_CHANGES    4
-    BIT_CAPTURE_MASK    5
-    POS_CAPTURE_MASK    6
+    # Bit bus readout registers: first write to BIT_READ_RST to capture a
+    # snapshot of the bit bus and its changes, then read BIT_READ_VALUE 8 times
+    # to read out bit bus values and change flags.
+    BIT_READ_RST            0
+    BIT_READ_VALUE          1
+
+    # Position bus readout registers: first write to POS_READ_RST to snapshot
+    # the position bus and the change set, then read POS_READ_VALUE 32 times to
+    # read out the positions, and finally read the change set from
+    # POS_READ_CHANGES.
+    POS_READ_RST            2
+    POS_READ_VALUE          3
+    POS_READ_CHANGES        4
+
+    # The capture set is written by first writing to PCAP_START_WRITE and then
+    # writing the required changes to PCAP_WRITE
+    PCAP_START_WRITE        5
+    PCAP_WRITE              6
+    # Framing capture for each position is controlled by writing to
+    # PCAP_FRAMING_MASK.  If framing capture is required then
+    # PCAP_FRAMING_ENABLE must also be set separately.
+    PCAP_FRAMING_MASK       7
+    PCAP_FRAMING_ENABLE     10
+
+    # It's possible these belong on PCAP...
+    PCAP_ARM                8
+    PCAP_DISARM             9
+
+    # Slow read and write status.
+    SLOW_WRITE_STATUS       11
+    SLOW_READ_STATUS        12
+
+
+# These registers are used by the kernel driver to read the data capture stream.
+# This block is not used by the server, but is here for documentation and other
+# automated tools.
+*DRV        25
+    # The physical address of each DMA block is written to this register.
+    PCAP_DMA_ADDR           0
+    # This register configures the maximum interval between capture interrupts
+    PCAP_TIMEOUT            1
+    # Interrupt status and acknowledge
+    PCAP_IRQ_STATUS         2
+    # ? Should this be merged into IRQ status for a single read?
+    PCAP_SAMPLE_COUNT       3
+    # DMA block size in bytes
+    PCAP_BLOCK_SIZE         4
 
 TTLIN       18
     VAL             2 3 4 5 6 7
@@ -91,12 +131,13 @@ SEQ         6
     TABLE           short   512    13 14 15
 
 INENC       7
-    PROTOCOL        0
+    PROTOCOL        slow 0
     CLKRATE         1
     FRAMERATE       2
     BITS            3
     SETP            4
     RST_ON_Z        5
+    EXTENSION       6
     A               66 67 68 69
     B               70 71 72 73
     Z               74 75 76 77
@@ -188,10 +229,12 @@ PCAP        16
     ENABLE          0
     FRAME           1
     CAPTURE         2
+    MISSED_CAPTURES 3
     ACTIVE          106
     CAPTURE_TS      33 34
     FRAME_LENGTH    35
     CAPTURE_OFFSET  36
+    ADC_COUNT       37
 
 BITS        29
     A_SET           0
