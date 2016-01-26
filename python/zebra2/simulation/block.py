@@ -80,7 +80,10 @@ class Block(object):
                 setattr(self, name, 0)
                 # everything else is "reg_offset [filter]"
                 split = reg_name.split(" ", 1)
-                reg_offset = int(split[0])
+                if split[0] == "slow":
+                    reg_offset = int(split[1])
+                else:
+                    reg_offset = int(split[0])
                 self.regs[reg_offset] = name
 
     def on_event(self, event):

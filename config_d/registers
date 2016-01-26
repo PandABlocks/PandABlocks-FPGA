@@ -33,6 +33,11 @@
     PCAP_ARM                8
     PCAP_DISARM             9
 
+    # Slow read and write status.
+    SLOW_WRITE_STATUS       11
+    SLOW_READ_STATUS        12
+
+
 # These registers are used by the kernel driver to read the data capture stream.
 # This block is not used by the server, but is here for documentation and other
 # automated tools.
@@ -120,7 +125,7 @@ SEQ         6
     TABLE           short   512    13 14 15
 
 INENC       7
-    PROTOCOL        0
+    PROTOCOL        slow 0
     CLKRATE         1
     FRAMERATE       2
     BITS            3
