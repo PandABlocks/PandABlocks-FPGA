@@ -44,13 +44,13 @@
 # automated tools.
 *DRV        25
     # The physical address of each DMA block is written to this register.
-    PCAP_DMA_ADDR           0
+    PCAP_DMAADDR            0
     # This register configures the maximum interval between capture interrupts
     PCAP_TIMEOUT            1
     # Interrupt status and acknowledge
     PCAP_IRQ_STATUS         2
     # ? Should this be merged into IRQ status for a single read?
-    PCAP_SAMPLE_COUNT       3
+    PCAP_SMPL_COUNT         3
     # DMA block size in bytes
     PCAP_BLOCK_SIZE         4
 
@@ -142,8 +142,8 @@ INENC       7
     B               70 71 72 73
     Z               74 75 76 77
     CONN            78 79 80 81
-    ENC_POSN        1 2 3 4
     EXTENSION       6
+    POSN            1 2 3 4
 
 QDEC        8
     RST_ON_Z        3
@@ -151,7 +151,7 @@ QDEC        8
     A               0
     B               1
     Z               2
-    ENC_POSN        5 6 7 8
+    POSN            5 6 7 8
 
 OUTENC      9
     PROTOCOL        5
@@ -166,7 +166,7 @@ OUTENC      9
     QSTATE          9
 
 POSENC      10
-    ENC_POSN        0
+    POSN            0
     QPRESCALAR      1
     MODE            2
     FORCE_QSTATE    3
@@ -231,13 +231,14 @@ PCAP        16
     FRAME           1
     CAPTURE         2
     MISSED_CAPTURES 3
+    ERR_STATUS      4
     ACTIVE          106
     CAPTURE_TS      33 34
     FRAME_LENGTH    35
     CAPTURE_OFFSET  36
     ADC_COUNT       37
 
-BITS        29
+BITS        28
     A_SET           0
     B_SET           1
     C_SET           2
@@ -249,7 +250,7 @@ BITS        29
     ZERO            0
     ONE             1
 
-CLOCKS      28
+CLOCKS      29
     A_PERIOD        0
     B_PERIOD        1
     C_PERIOD        2
@@ -259,9 +260,5 @@ CLOCKS      28
     C               124
     D               125
 
-
 POSITIONS   30
     ZERO            0
-
-
-
