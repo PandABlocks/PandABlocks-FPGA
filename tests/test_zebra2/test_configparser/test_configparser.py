@@ -40,7 +40,7 @@ BLOCK2[3]
                                   "..", "..", "..", "config_d")
         p = ConfigParser(config_dir)
         ttlin = p.blocks["TTLIN"]
-        self.assertEqual(ttlin.fields.keys(), ["VAL", "TERM"])
+        self.assertEqual(ttlin.fields.keys(), ["TERM", "VAL"])
         val = ttlin.fields["VAL"]
         self.assertEqual(val.cls, "bit_out")
         self.assertEqual(val.name, "VAL")
