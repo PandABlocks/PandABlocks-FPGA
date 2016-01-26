@@ -45,6 +45,7 @@ class BlockTest(unittest.TestCase):
         b = ConfigBlock("name 1", "name", "name desc")
         b.add_field(f)
         self.assertEqual(b.fields.keys(), ["FIELD"])
+        self.assertEqual(b.FIELD, "FIELD")
         self.assertEqual(b.fields.values(), [f])
         self.assertRaises(AssertionError, b.add_field, f)
 

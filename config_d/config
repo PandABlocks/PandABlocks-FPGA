@@ -214,12 +214,6 @@ PCAP
     CAPTURE_OFFSET  ext_out
     ADC_COUNT       ext_out
 
-    ARM             software    arm
-    DISARM          software    disarm
-    RESET           software    reset
-    STATUS          software    status
-    WAITING         software    waiting
-    DOWNLOADING     software    downloading
 
 BITS
     A_SET           param       bit
