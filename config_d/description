@@ -14,22 +14,22 @@ LVDSOUT     LVDS output
     VAL             LVDS output value
 
 LUT         Logic lookup table
+    FUNC            Logic function for table computation
     INPA            Input A
     INPB            Input B
     INPC            Input C
     INPD            Input D
     INPE            Input E
-    FUNC            Logic function for table computation
     VAL             Lookup table output
 
-SRGATE      
-    SET             
-    RST             
-    SET_EDGE        
-    RST_EDGE        
-    FORCE_SET       
-    FORCE_RST       
-    VAL             
+SRGATE
+    SET_EDGE        Output set edge (0 = rising edge, 1 = falling edge)
+    RST_EDGE        Output reset edge (0 = rising edge, 1 = falling edge)
+    FORCE_SET       Set output to 1
+    FORCE_RST       Reset output to 0
+    SET             A falling/rising edge sets the output to 1
+    RST             A falling/rising edge resets the output to 0
+    VAL             Output value
 
 DIV         Pulse divider
     DIVISOR         Divisor value
@@ -54,36 +54,36 @@ PULSE       One-shot pulse delay and stretch
     QUEUE           Length of the delay queue
     MISSED_CNT      Number of pulses not produced because of an ERR condition
 
-SEQ         
-    GATE            
-    INPA            
-    INPB            
-    INPC            
-    INPD            
-    ACTIVE          
-    PRESCALE        
-    TABLE_LENGTH    
-    SOFT_GATE       
-    CUR_FRAME       
-    CUR_FCYCLE      
-    CUR_TCYCLE      
-    TABLE_STROBES   
-    TABLE_CYCLE     
-    OUTA            
-    OUTB            
-    OUTC            
-    OUTD            
-    OUTE            
-    OUTF            
-    TABLE           
+SEQ
+    PRESCALE        Prescalar for system clock
+    SOFT_GATE       soft gate pulse
+    TABLE_LENGTH    Number of frames in the table
+    TABLE_CYCLE     Number of times the table will cycle
+    GATE            Rising edge starts sequencer, falling edge stops sequencer
+    INPA            Trigger input A
+    INPB            Trigger input B
+    INPC            Trigger input C
+    INPD            Trigger input D
+    OUTA            Output A
+    OUTB            Output B
+    OUTC            Output C
+    OUTD            Output D
+    OUTE            Output E
+    OUTF            Output F
+    ACTIVE          Sequencer active flag
+    CUR_FRAME       Sequencer current frame number
+    CUR_FCYCLE      Current number of times the frame has cycled
+    CUR_TCYCLE      Current number of times the table has cycled
+    TABLE_STROBES   Number of times data has been written to the table
+    TABLE           Sequencer configuration
 
 INENC       
     PROTOCOL        
     CLKRATE         
     FRAMERATE       
-    BITS            
-    RST_ON_Z        
-    SETP            
+    BITS
+    SETP
+    RST_ON_Z
     A               
     B               
     Z               
@@ -91,41 +91,41 @@ INENC
     ENC_POSN        
     EXTENSION       
 
-QDEC        
+QDEC
+    RST_ON_Z
+    SETP
     A               
     B               
-    Z               
-    RST_ON_Z        
-    SETP            
+    Z
     ENC_POSN        
 
-OUTENC      
-    A               
-    B               
-    Z               
-    POSN            
-    CONN            
+OUTENC
     PROTOCOL        
     BITS            
     QPRESCALAR      
-    FORCE_QSTATE    
+    FORCE_QSTATE
+    A
+    B
+    Z
+    POSN
+    CONN
     QSTATE          
 
 POSENC      
     ENC_POSN        
     QPRESCALAR      
     MODE            
-    FORCE_QSTATE    
-    QSTATE          
-    A               
-    B               
+    FORCE_QSTATE
+    A
+    B
+    QSTATE
 
-CALC        
-    A               
-    B               
+CALC
     KA              
     KB              
-    SCALE           
+    SCALE
+    A
+    B
     RESULT          
 
 ADDER       
@@ -133,37 +133,37 @@ ADDER
     OUTSCALE        
     RESULT          
 
-COUNTER     
-    ENABLE          
-    TRIGGER         
-    DIR             
-    START           
-    STEP            
-    COUNT           
-    CARRY           
+COUNTER
+    DIR             Up/Down direction (0 = Up, 1 = Down)
+    START           Counter start value
+    STEP            Up/Down step value
+    ENABLE          Rising edge enables counter. Falling edge disables
+    TRIGGER         Rising edge ticks the counter up/down by user-defined value
+    CARRY           Internal counter overflow status
+    COUNT           Output
 
-PGEN        
-    ENABLE          
-    TRIGGER         
+PGEN
     SAMPLES         
-    CYCLES          
+    CYCLES
+    ENABLE
+    TRIGGER
     POSN            
     TABLE           
 
-PCOMP       
-    ENABLE          
-    POSN            
-    START           
-    STEP            
-    WIDTH           
-    NUM             
-    RELATIVE        
+PCOMP
+    START           Pulse start position value
+    STEP            Pulse step value
+    WIDTH           Pulse width value
+    NUM             Pulse number to be generated
+    RELATIVE        Relative position compare enable
     DIR             
     FLTR_DELTAT     
     FLTR_THOLD      
-    LUT_ENABLE      
-    ACT             
-    PULSE           
+    LUT_ENABLE      Relative position compare LUT mode
+    ENABLE          Rising edge enables block. Falling edge disables
+    POSN            Position data from position-data bus
+    ACT             Active output is high while block is in operation
+    PULSE           Output pulse
     TABLE           
 
 ADC         

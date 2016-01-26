@@ -27,6 +27,14 @@ Parameters
 =============== === ======= ===================================================
 Name            Dir Type    Description
 =============== === ======= ===================================================
+PRESCALE        W   UInt32  Prescalar for system clock
+SOFT_GATE       W   Bit     Soft Gate pulse
+TABLE_LENGTH    W   Uint16  Number of frames in the table
+TABLE_CYCLE     W   UInt32  Number of times the table will cycle
+TABLE_RST       W   UInt32  | Resets table write address to the beginning of the
+                            | table
+TABLE_DATA      W   UInt32  Table data to be pushed sequentially to the buffer
+TABLE_WSTB      W   UInt32  Number of times data has been written to the table
 GATE            In  Bit     | Gate input:
                             | - Rising edge: Starts the sequencer state machine
                             | - Falling edge: Stops the state machine and puts
@@ -35,16 +43,13 @@ INPA            In  Bit     Trigger input A
 INPB            In  Bit     Trigger input B
 INPC            In  Bit     Trigger input C
 INPD            In  Bit     Trigger input D
-OUTA            Out Bit     Blocak output A
-OUTB            Out Bit     Blocak output B
-OUTC            Out Bit     Blocak output C
-OUTD            Out Bit     Blocak output D
-OUTE            Out Bit     Blocak output E
-OUTF            Out Bit     Blocak output F
+OUTA            Out Bit     Output A
+OUTB            Out Bit     Output B
+OUTC            Out Bit     Output C
+OUTD            Out Bit     Output D
+OUTE            Out Bit     Output E
+OUTF            Out Bit     Output F
 ACTIVE          Out Bit     Sequencer Active Flag
-PRESCALE        W   UInt32  Prescalar for system clock
-TABLE_LENGTH    W   Uint16  Number of frames in the table
-SOFT_GATE       W   Bit     Soft Gate pulse
 CUR_FRAME       R   UInt32  | Sequencer current frame number value. 0 in
                             | INACTIVE state, 1 indexed in ACTIVE state.
 CUR_FCYCLE      R   UInt32  | Sequencer current frame cycle value. 0 in
@@ -52,11 +57,6 @@ CUR_FCYCLE      R   UInt32  | Sequencer current frame cycle value. 0 in
 CUR_TCYCLE      R   UInt32  | Sequencer current table cycle value. 0 in
                             | INACTIVE state, 1 indexed in ACTIVE state.
 TABLE_STROBES   R   UInt32  Number of times data has been written to the table
-TABLE_CYCLE     W   UInt32  Number of cycles for the table
-TABLE_RST       W   UInt32  | Resets table write address to the beginning of the
-                            | table
-TABLE_DATA      W   UInt32  Table data to be pushed sequentially to the buffer
-TABLE_WSTB      W   UInt32  Number of times data has been written to the table
 =============== === ======= ===================================================
 
 Sequencer Frame Composition
