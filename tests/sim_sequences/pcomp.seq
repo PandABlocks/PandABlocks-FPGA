@@ -1,0 +1,97 @@
+###############
+$ Increasing position with +ve dir
+
+3       : START=5
+4       : STEP=3
+5       : WIDTH=2
+6       : NUM=3
+10      : ENABLE=1
+11      :
+12      : POSN=1
+13      : POSN=2
+14      : POSN=3
+15      : POSN=4
+16      : POSN=5        : PULSE=1, ACT=1
+17      : POSN=6
+18      : POSN=7        : PULSE=0
+23      : POSN=8        : PULSE=1
+26      : POSN=9
+33      : POSN=10       : PULSE=0
+36      : POSN=11       : PULSE=1
+43      : POSN=12
+46      : POSN=13       : PULSE=0, ACT=0
+
+###############
+$ Decreasing position with +ve dir
+
+2       : POSN=10
+3       : START=5
+4       : STEP=10
+5       : WIDTH=7
+6       : NUM=3
+10      : ENABLE=1
+11      :
+12      : POSN=9
+13      : POSN=8
+14      : POSN=7
+15      : POSN=6
+16      : POSN=5
+17      : POSN=4
+18      : POSN=3
+
+###############
+$ Decreasing position with -ve dir
+
+2       : POSN=10
+3       : START=5
+4       : STEP=3
+5       : WIDTH=2
+6       : NUM=2
+7       : DIR=1
+10      : ENABLE=1
+11      :
+12      : POSN=9
+13      : POSN=8
+14      : POSN=7
+15      : POSN=6
+16      : POSN=5    : PULSE=1, ACT=1
+17      : POSN=4
+18      : POSN=3    : PULSE=0
+20      : POSN=2    : PULSE=1
+21      : POSN=1
+22      : POSN=0    : PULSE=0, ACT=0
+
+###############
+$ Disable after start
+
+2       : POSN=10
+3       : START=5
+4       : STEP=10
+5       : WIDTH=7
+6       : NUM=3
+7       : DIR=1
+10      : ENABLE=1
+12      : POSN=9
+13      : POSN=8
+14      : POSN=7
+15      : POSN=6
+16      : POSN=5            : PULSE=1, ACT=1
+18      : POSN=4, ENABLE=0  : ACT=0, PULSE=0
+
+###############
+$ Disable with start
+
+2       : POSN=10
+3       : START=5
+4       : STEP=10
+5       : WIDTH=7
+6       : NUM=3
+7       : DIR=1
+10      : ENABLE=1
+12      : POSN=9
+13      : POSN=8
+14      : POSN=7
+15      : POSN=6
+16      : POSN=5, ENABLE=0
+17      : POSN=4
+18      : POSN=3

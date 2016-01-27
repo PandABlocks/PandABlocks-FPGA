@@ -1,6 +1,6 @@
 ###############
 $ Count Up
-3       : START=2
+3       : START=2       : COUNT=2
 4       : STEP=2
 6       : ENABLE=1
 10      : TRIGGER=1     : COUNT=4
@@ -17,7 +17,7 @@ $ Count Up
 
 ###############
 $ Count Down
-3       : START=20
+3       : START=20      : COUNT=20
 4       : STEP=2
 5       : DIR=1
 6       : ENABLE=1
@@ -35,7 +35,7 @@ $ Count Down
 
 ###############
 $ Reverse Count
-3       : START=20
+3       : START=20      : COUNT=20
 4       : STEP=2
 5       : DIR=1
 6       : ENABLE=1
@@ -57,7 +57,7 @@ $ Reverse Count
 
 ###############
 $ Reverse at trigger
-3       : START=20
+3       : START=20          : COUNT=20
 4       : STEP=2
 5       : DIR=1
 6       : ENABLE=1
@@ -79,7 +79,7 @@ $ Reverse at trigger
 
 ###############
 $ Disable and trigger
-3       : START=20
+3       : START=20              : COUNT=20
 4       : STEP=2
 5       : DIR=1
 6       : ENABLE=1
@@ -95,7 +95,7 @@ $ Disable and trigger
 
 ###############
 $ Change step and trigger
-3       : START=20
+3       : START=20              : COUNT=20
 4       : STEP=2
 5       : DIR=1
 6       : ENABLE=1
@@ -110,7 +110,7 @@ $ Change step and trigger
 
 ###############
 $ Overflow
-3       : START=4294967290
+3       : START=4294967290      : COUNT=4294967290
 4       : STEP=2
 6       : ENABLE=1
 10      : TRIGGER=1             : COUNT=4294967292
@@ -118,5 +118,5 @@ $ Overflow
 22      : TRIGGER=1             : COUNT=4294967294
 23      : TRIGGER=0
 24      : TRIGGER=1             : COUNT=4294967296, CARRY=1
-25      : TRIGGER=0
+25      : TRIGGER=0             : CARRY=0
 26      : ENABLE=0
