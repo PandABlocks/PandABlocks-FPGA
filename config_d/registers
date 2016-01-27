@@ -30,7 +30,7 @@
     PCAP_FRAMING_ENABLE     10
     PCAP_FRAMING_MODE       11
 
-    # It's possible these belong on PCAP...
+    # Position capture control
     PCAP_ARM                8
     PCAP_DISARM             9
 
@@ -143,7 +143,7 @@ INENC       7
     Z               74 75 76 77
     CONN            78 79 80 81
     EXTENSION       6
-    POSN            1 2 3 4
+    POSN            1 2 3 4 / 33 34 35 36
 
 QDEC        8
     RST_ON_Z        3
@@ -224,7 +224,7 @@ PCOMP       15
 ADC         26
     TRIGGER         0
     RST             1
-    DATA            22 23 24 25 26 27 28 29
+    DATA            22 23 24 25 26 27 28 29 / 54 55 56 57 58 59 60 61
 
 PCAP        16
     ENABLE          0
@@ -233,10 +233,14 @@ PCAP        16
     MISSED_CAPTURES 3
     ERR_STATUS      4
     ACTIVE          106
-    CAPTURE_TS      33 34
-    FRAME_LENGTH    35
-    CAPTURE_OFFSET  36
-    ADC_COUNT       37
+    CAPTURE_TS      62 63
+    FRAME_LENGTH    37
+    CAPTURE_OFFSET  38
+    ADC_COUNT       32
+    BITA            0 39
+    BITB            1 40
+    BITC            2 41
+    BITD            3 42
 
 BITS        28
     A_SET           0

@@ -212,8 +212,13 @@ PCAP
 
     CAPTURE_TS      ext_out     timestamp
     FRAME_LENGTH    ext_out
-    CAPTURE_OFFSET  ext_out
-    ADC_COUNT       ext_out
+    CAPTURE_OFFSET  ext_out     offset
+    ADC_COUNT       ext_out     adc_count
+
+    BITA            ext_out     bits
+    BITB            ext_out     bits
+    BITC            ext_out     bits
+    BITD            ext_out     bits
 
 BITS
     A_SET           param       bit

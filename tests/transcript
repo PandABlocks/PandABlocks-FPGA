@@ -670,15 +670,19 @@
 # Add some position capture tests
 < PCAP.*?
 > !FRAME_LENGTH 7 ext_out
-> !CAPTURE_OFFSET 8 ext_out
+> !CAPTURE_OFFSET 8 ext_out offset
 > !ACTIVE 5 bit_out
+> !BITA 10 ext_out bits
+> !BITD 13 ext_out bits
+> !BITC 12 ext_out bits
+> !BITB 11 ext_out bits
 > !ENABLE 0 param bit_mux
 > !MISSED_CAPTURES 3 read uint
 > !CAPTURE 2 param bit_mux
 > !CAPTURE_TS 6 ext_out timestamp
 > !ERR_STATUS 4 read uint
 > !FRAME 1 param bit_mux
-> !ADC_COUNT 9 ext_out
+> !ADC_COUNT 9 ext_out adc_count
 > .
 
 # Encoder enums
@@ -687,6 +691,7 @@
 > !Triggered
 > !Difference
 > !Extended
+> !Average
 > .
 
 < INENC1.POSN.CAPTURE=No
