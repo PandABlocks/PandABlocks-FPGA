@@ -9,7 +9,7 @@ package addr_defines is
 
 -- Functional Address Space Chip Selects
 {%  for name, block in blocks.iteritems() %}
-constant {{name.replace("*","")}}_CS : natural := {{block.base}};
+constant {{name}}_CS : natural := {{block.base}};
 {%  endfor %}
 
 -- Block Register Address Space
