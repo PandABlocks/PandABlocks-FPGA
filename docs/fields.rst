@@ -83,8 +83,10 @@ Field type          Description
 ``time``            Configurable timer parameter.
 ``bit_out``         Bit output, can be configured for data capture and as bit
                     input for ``param bit_mux`` fields.
-``pos_out``         Position output, can be configured for data capture and as
+``pos_out`` [extra] Position output, can be configured for data capture and as
                     position input for ``param pos_mux`` fields.
+``ext_out`` [extra] Extended output values, can be configured for data capture,
+                    but not available on position bus.
 ``table``           Table data with special access methods.
 =================== ============================================================
 
@@ -144,7 +146,7 @@ Field type          Description
     Note that changing ``UNITS`` doesn't change the delay, only how it is
     reported and interpreted.
 
-``bit_out``
+``bit_out`` [extra]
     Fields of this type are used for block outputs which contribute to the
     internal bit system bus, and they contribute to the ``*CHANGES.BITS`` change
     group.  The following attributes are supported by fields of this type:
@@ -205,6 +207,32 @@ Field type          Description
 
     ``RAW``
         This returns the underlying 32-bit number on the position bus.
+
+    The optional extra field is used to manage four varieties of value on the
+    position bus:
+
+    =============== ============================================================
+    (default)       Default positions.
+    ``encoder``     Encoder values with possible 16-bit extension.
+    ``adc``         ADC values with averaging option.
+    ``const``       Constant value, cannot be captured.  The only field of this
+                    type is ``POSITIONS.ZERO``.
+    =============== ============================================================
+
+``ext_out`` [extra]
+    Fields of this type represent values that can be captured but which are not
+    present on the position bus.  These fields also support the capture control
+    fields of ``bit_out`` fields.
+
+    The optional extra field is used to identify the following categories of
+    extra field:
+
+    =============== ============================================================
+    (default)       Ordinary 32 bit values.
+    ``timestamp``   Extended dynamic range timestamp.
+    ``adc_count``   Number of ADC samples in each capture window.
+    ``bits``        Special bits capture fields.
+    =============== ============================================================
 
 ``table``
     Values of this type are used for long tables of numbers.  This server

@@ -28,14 +28,15 @@
     # PCAP_FRAMING_ENABLE must also be set separately.
     PCAP_FRAMING_MASK       7
     PCAP_FRAMING_ENABLE     10
+    PCAP_FRAMING_MODE       11
 
-    # It's possible these belong on PCAP...
+    # Position capture control
     PCAP_ARM                8
     PCAP_DISARM             9
 
-    # Slow read and write status.
-    SLOW_WRITE_STATUS       11
-    SLOW_READ_STATUS        12
+    # Slow read and write status: if 1 transaction in progress, if 0 transaction
+    # complete.
+    SLOW_REGISTER_STATUS    12
 
 
 # These registers are used by the kernel driver to read the data capture stream.
@@ -43,13 +44,13 @@
 # automated tools.
 *DRV        25
     # The physical address of each DMA block is written to this register.
-    PCAP_DMA_ADDR           0
+    PCAP_DMAADDR            0
     # This register configures the maximum interval between capture interrupts
     PCAP_TIMEOUT            1
     # Interrupt status and acknowledge
     PCAP_IRQ_STATUS         2
     # ? Should this be merged into IRQ status for a single read?
-    PCAP_SAMPLE_COUNT       3
+    PCAP_SMPL_COUNT         3
     # DMA block size in bytes
     PCAP_BLOCK_SIZE         4
 
@@ -141,8 +142,8 @@ INENC       7
     B               70 71 72 73
     Z               74 75 76 77
     CONN            78 79 80 81
-    ENC_POSN        1 2 3 4
     EXTENSION       6
+    POSN            1 2 3 4 / 33 34 35 36
 
 QDEC        8
     RST_ON_Z        3
@@ -150,7 +151,7 @@ QDEC        8
     A               0
     B               1
     Z               2
-    ENC_POSN        5 6 7 8
+    POSN            5 6 7 8
 
 OUTENC      9
     PROTOCOL        5
@@ -165,7 +166,7 @@ OUTENC      9
     QSTATE          9
 
 POSENC      10
-    ENC_POSN        0
+    POSN            0
     QPRESCALAR      1
     MODE            2
     FORCE_QSTATE    3
@@ -223,20 +224,25 @@ PCOMP       15
 ADC         26
     TRIGGER         0
     RST             1
-    DATA            22 23 24 25 26 27 28 29
+    DATA            22 23 24 25 26 27 28 29 / 54 55 56 57 58 59 60 61
 
 PCAP        16
     ENABLE          0
     FRAME           1
     CAPTURE         2
     MISSED_CAPTURES 3
+    ERR_STATUS      4
     ACTIVE          106
-    CAPTURE_TS      33 34
-    FRAME_LENGTH    35
-    CAPTURE_OFFSET  36
-    ADC_COUNT       37
+    CAPTURE_TS      62 63
+    FRAME_LENGTH    37
+    CAPTURE_OFFSET  38
+    ADC_COUNT       32
+    BITA            0 39
+    BITB            1 40
+    BITC            2 41
+    BITD            3 42
 
-BITS        29
+BITS        28
     A_SET           0
     B_SET           1
     C_SET           2
@@ -248,7 +254,7 @@ BITS        29
     ZERO            0
     ONE             1
 
-CLOCKS      28
+CLOCKS      29
     A_PERIOD        0
     B_PERIOD        1
     C_PERIOD        2
@@ -258,9 +264,5 @@ CLOCKS      28
     C               124
     D               125
 
-
 POSITIONS   30
     ZERO            0
-
-
-

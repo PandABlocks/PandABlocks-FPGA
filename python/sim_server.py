@@ -59,16 +59,31 @@ def run_simulation(conn):
         command_word = read(conn, 4)
         command, block, num, reg = struct.unpack('cBBB', command_word)
         if command == 'R':
+            # Read one register
             tx = controller.do_read_register(block, num, reg)
             conn.sendall(struct.pack('I', tx))
         elif command == 'W':
+            # Write one register
             value, = struct.unpack('I', read(conn, 4))
             controller.do_write_register(block, num, reg, value)
         elif command == 'T':
+            # Write data array to large table
             length, = struct.unpack('I', read(conn, 4))
             data = read(conn, length * 4)
             data = numpy.fromstring(data, dtype = numpy.int32)
             controller.do_write_table(block, num, reg, data)
+        elif command == 'D':
+            # Retrieve increment of data stream
+            length, = struct.unpack('I', read(conn, 4))
+            data = controller.do_read_capture(length / 4)
+            if data is None:
+                conn.sendall(struct.pack('I', -1))
+            else:
+                assert data.dtype == numpy.int32
+                raw_data = data.data
+                assert len(raw_data) <= length
+                conn.sendall(struct.pack('I', len(raw_data)))
+                conn.sendall(raw_data)
         else:
             print 'Unexpected command', repr(command_word)
             raise SocketFail('Unexpected command')
