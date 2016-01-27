@@ -8,31 +8,31 @@ use work.type_defines.all;
 package addr_defines is
 
 -- Functional Address Space Chip Selects
-{% for name, block in blocks.iteritems() %}
-    {{-"constant %s_CS : natural := %d;"|format(name.replace("*",""), block.base )}}
-{% endfor %}
+{%  for name, block in blocks.iteritems() %}
+constant {{name.replace("*","")}}_CS : natural := {{block.base}};
+{%  endfor %}
 
 -- Block Register Address Space
 
-{% for blockname, block in blocks.iteritems() -%}
+{%  for blockname, block in blocks.iteritems() %}
+-- {{blockname}} Block:
+{%      for fieldname, field in block.fields.iteritems() %}
+{%          if field.cls in ['param', 'read', 'write' ] %}
+constant {{blockname}}_{{fieldname}} : std_logic_vector := TO_SVECTOR({{field.reg[0]}}, BLK_AW);
+{%          elif field.cls == "time" %}
+constant {{blockname}}_{{fieldname}}_L : std_logic_vector := TO_SVECTOR({{field.reg[0]}}, BLK_AW);
+constant {{blockname}}_{{fieldname}}_H : std_logic_vector := TO_SVECTOR({{field.reg[1]}}, BLK_AW);
+{%          elif field.cls == "table" and field.reg[0] == "short" %}
+constant {{blockname}}_{{fieldname}}_START : std_logic_vector := TO_SVECTOR({{field.reg[2]}}, BLK_AW);
+constant {{blockname}}_{{fieldname}}_DATA : std_logic_vector := TO_SVECTOR({{field.reg[3]}}, BLK_AW);
+constant {{blockname}}_{{fieldname}}_LENGTH : std_logic_vector := TO_SVECTOR({{field.reg[4]}}, BLK_AW);
+{%          elif field.cls == "table" and field.reg[0] == "long" %}
+constant {{blockname}}_{{fieldname}}_START : std_logic_vector := TO_SVECTOR({{field.reg[2]}}, BLK_AW);
+constant {{blockname}}_{{fieldname}}_DATA : std_logic_vector := TO_SVECTOR({{field.reg[3]}}, BLK_AW);
+{%          endif %}
+{%      endfor %}
 
-{{"-- %s Block:" |format(blockname )}}
-{% for fieldname, field in block.fields.iteritems() %}
-{% if field.cls in ['param', 'read', 'write' ] %}
-{{"constant %s_%s : std_logic_vector := TO_SVECTOR(%s, BLK_AW);"|format(blockname, fieldname, field.reg[0])}}
-{% elif field.cls == "time" %}
-{{"constant %s_%s_L : std_logic_vector := TO_SVECTOR(%s, BLK_AW);"|format(blockname, fieldname, field.reg[0])}}
-{{"constant %s_%s_H : std_logic_vector := TO_SVECTOR(%s, BLK_AW);"|format(blockname, fieldname, field.reg[1])}}
-{% elif field.cls == "table" and field.reg[0] == "short" %}
-{{"constant %s_%s_START : std_logic_vector := TO_SVECTOR(%s, BLK_AW);"|format(blockname, fieldname, field.reg[2])}}
-{{"constant %s_%s_DATA : std_logic_vector := TO_SVECTOR(%s, BLK_AW);"|format(blockname, fieldname, field.reg[3])}}
-{{"constant %s_%s_LENGTH : std_logic_vector := TO_SVECTOR(%s, BLK_AW);"|format(blockname, fieldname, field.reg[4])}}
-{% elif field.cls == "table" and field.reg[0] == "long" %}
-{{"constant %s_%s_START : std_logic_vector := TO_SVECTOR(%s, BLK_AW);"|format(blockname, fieldname, field.reg[2])}}
-{{"constant %s_%s_DATA : std_logic_vector := TO_SVECTOR(%s, BLK_AW);"|format(blockname, fieldname, field.reg[3])}}
-{% endif %}
-{% endfor %}
-{% endfor %}
+{%  endfor %}
 
 end addr_defines;
 
