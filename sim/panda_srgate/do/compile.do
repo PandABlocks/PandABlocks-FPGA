@@ -11,9 +11,9 @@ vcom -64 -93 -work xil_defaultlib   \
 
 vlog -work xil_defaultlib \
 "../bench/panda_srgate_tb.v" \
-"/dls_sw/FPGA/Xilinx/14.7/ISE_DS/ISE//verilog/src/glbl.v"
+"../bench/glbl.v"
 
-vopt -64 +acc -L secureip -L xil_defaultlib -work xil_defaultlib xil_defaultlib.panda_srgate_tb -o panda_srgate_opt glbl
+vopt -64 +acc -L xil_defaultlib -work xil_defaultlib xil_defaultlib.panda_srgate_tb -o panda_srgate_opt glbl
 
 vsim -t 1ps -voptargs=+acc -lib xil_defaultlib panda_srgate_tb
 
