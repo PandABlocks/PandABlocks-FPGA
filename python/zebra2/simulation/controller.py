@@ -1,3 +1,5 @@
+import numpy
+
 from .zebra2 import Zebra2
 
 
@@ -28,25 +30,8 @@ class Controller(object):
     def do_write_table(self, block, num, reg, data):
         self.z.post_wait((block, num, "TABLE", data))
 
-    # The two methods below need to become register level simulations
-
-    # Must return two boolean arrays, each 128 entries long.  The first array is
-    # the current bit readback, the second is set if the bit value has changed
-    # since the last reading.
-    def do_read_bits(self):
-        bus, changed_d = self.z.bit_bus[:], self.z.bit_changed
-        self.z.bit_changed = {}
-        changed = [0] * 128
-        for i in changed_d:
-            changed[i] = 1
-        # TODO: this double counts, why?
-        return bus, changed
-
-    # Must return a 32-entry array of ints and a 32-bit boolean array.
-    def do_read_positions(self):
-        bus, changed_d = self.z.pos_bus[:], self.z.pos_changed
-        self.z.pos_changed = {}
-        changed = [0] * 32
-        for i in changed_d:
-            changed[i] = 1
-        return bus, changed
+    def do_read_capture(self, max_length):
+        # Must return either None to signal end of capture stream (or no capture
+        # stream available), or a 1-d numpy int32 array of at most max_length --
+        # can be zero length to indicate no data available yet.
+        return numpy.array([], dtype=numpy.int32)
