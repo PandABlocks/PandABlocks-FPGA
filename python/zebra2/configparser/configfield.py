@@ -15,27 +15,25 @@ class ConfigField(object):
         desc (str): The description of the field
     """
 
-    def __init__(self, name, reg_lines=None, config_lines=None, desc_lines=None):
+    def __init__(self, name, reg_lines, config_lines=None, desc_lines=None):
         """Initialise with relevant config/reg/desc lines for this field
 
         Args:
-            reg_lines (list): Optional lines specifying field in registers file
+            reg_lines (list): Lines specifying field in registers file
             config_lines (list): Optional lines specifying field in config file
-            desc_lines (list): Optional line specifying field in descriptions file
+            desc_lines (list): Optional line specifying field in descriptions
+            file
         """
 
         # parse reg_lines for name and reg info
         self.name = name
-        if reg_lines:
-            assert len(reg_lines) == 1, \
-                "Expected one reg line, got %s" % reg_lines
-            reg_split = reg_lines[0].split()
-            reg_name = reg_split[0]
-            assert reg_name == self.name, \
-                "Reg name %s != field name %s" % (reg_name, self.name)
-            self.reg = reg_split[1:]
-        else:
-            self.reg = None
+        assert len(reg_lines) == 1, \
+            "Expected one reg line, got %s" % reg_lines
+        reg_split = reg_lines[0].split()
+        reg_name = reg_split[0]
+        assert reg_name == self.name, \
+            "Reg name %s != field name %s" % (reg_name, self.name)
+        self.reg = reg_split[1:]
 
         # parse config_lines for name and cls*
         if config_lines:
@@ -75,4 +73,3 @@ class ConfigField(object):
             return self.cls_args[0]
         else:
             return ""
-

@@ -14,8 +14,8 @@ class ConfigParser(object):
     files, checking for validity
 
     Attributes:
-        blocks (OrderedDict): map block name -> ConfigBlock instance where block
-            name doesn't include number (e.g. "SEQ")
+        blocks (OrderedDict): map str block_name -> :class:`.ConfigBlock`
+            instance where block name doesn't include number (e.g. "SEQ")
     """
 
     def __init__(self, config_dir):
@@ -98,8 +98,11 @@ class ConfigParser(object):
             # iterate through the fields
             for field_name in fields:
                 args = {}
-                if field_name in reg_fields:
-                    args["reg_lines"] = reg_fields[field_name]
+                assert field_name in reg_fields, \
+                    "%s.%s missing from reg file" % (block_name, field_name)
+                args["reg_lines"] = reg_fields[field_name]
+                assert field_name in config_fields or block_name[0] =='*', \
+                    "%s.%s missing from config file" % (block_name, field_name)
                 if field_name in config_fields:
                     args["config_lines"] = config_fields[field_name]
                 if field_name in desc_fields:

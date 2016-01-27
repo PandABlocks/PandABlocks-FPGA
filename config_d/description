@@ -22,7 +22,7 @@ LUT         Logic lookup table
     INPE            Input E
     VAL             Lookup table output
 
-SRGATE
+SRGATE      Set reset gate
     SET_EDGE        Output set edge (0 = rising edge, 1 = falling edge)
     RST_EDGE        Output reset edge (0 = rising edge, 1 = falling edge)
     FORCE_SET       Set output to 1
@@ -54,7 +54,7 @@ PULSE       One-shot pulse delay and stretch
     QUEUE           Length of the delay queue
     MISSED_CNT      Number of pulses not produced because of an ERR condition
 
-SEQ
+SEQ         Sequencer
     PRESCALE        Prescalar for system clock
     SOFT_GATE       soft gate pulse
     TABLE_LENGTH    Number of frames in the table
@@ -81,50 +81,51 @@ INENC
     PROTOCOL        
     CLKRATE         
     FRAMERATE       
-    BITS
-    SETP
-    RST_ON_Z
+    BITS            
+    SETP            
+    RST_ON_Z        
     A               
     B               
     Z               
     CONN            
     ENC_POSN        
+    EXTENSION       
 
-QDEC
-    RST_ON_Z
-    SETP
+QDEC        
+    RST_ON_Z        
+    SETP            
     A               
     B               
-    Z
+    Z               
     ENC_POSN        
 
-OUTENC
+OUTENC      
     PROTOCOL        
     BITS            
     QPRESCALAR      
-    FORCE_QSTATE
-    A
-    B
-    Z
-    POSN
-    CONN
+    FORCE_QSTATE    
+    A               
+    B               
+    Z               
+    POSN            
+    CONN            
     QSTATE          
 
 POSENC      
     ENC_POSN        
     QPRESCALAR      
     MODE            
-    FORCE_QSTATE
-    A
-    B
-    QSTATE
+    FORCE_QSTATE    
+    A               
+    B               
+    QSTATE          
 
-CALC
+CALC        
     KA              
     KB              
-    SCALE
-    A
-    B
+    SCALE           
+    A               
+    B               
     RESULT          
 
 ADDER       
@@ -132,7 +133,7 @@ ADDER
     OUTSCALE        
     RESULT          
 
-COUNTER
+COUNTER     Up/Down pulse counter
     DIR             Up/Down direction (0 = Up, 1 = Down)
     START           Counter start value
     STEP            Up/Down step value
@@ -141,29 +142,29 @@ COUNTER
     CARRY           Internal counter overflow status
     COUNT           Output
 
-PGEN
+PGEN        
     SAMPLES         
-    CYCLES
-    ENABLE
-    TRIGGER
+    CYCLES          
+    ENABLE          
+    TRIGGER         
     POSN            
     TABLE           
 
-PCOMP
+PCOMP       Position compare
     START           Pulse start position value
     STEP            Pulse step value
     WIDTH           Pulse width value
     NUM             Pulse number to be generated
     RELATIVE        Relative position compare enable
-    DIR             
-    FLTR_DELTAT     
-    FLTR_THOLD      
+    DIR             Direction of crossing
+    FLTR_DELTAT     Time interval to check if encoder moved more than FLTR_THOLD
+    FLTR_THOLD      Encoder movement in FLTR_DELTAT to change current dir
     LUT_ENABLE      Relative position compare LUT mode
     ENABLE          Rising edge enables block. Falling edge disables
     POSN            Position data from position-data bus
     ACT             Active output is high while block is in operation
     PULSE           Output pulse
-    TABLE           
+    TABLE           Table of points to use instead of START/STEP/WIDTH
 
 ADC         
     TRIGGER         
@@ -178,6 +179,7 @@ PCAP        Position capture control
     CAPTURE_TS      Timestamp of captured data
     FRAME_LENGTH    Length of captured frame
     CAPTURE_OFFSET  Offset of capture into capture frame
+    ADC_COUNT       Number of ADC samples in captured frame
     ARM             Enables data capture experiment
     DISARM          Abort data capture in progress
     RESET           Abort and disconnect

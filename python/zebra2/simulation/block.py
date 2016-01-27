@@ -71,7 +71,10 @@ class Block(object):
                 # Initialise the attribute value to 0
                 setattr(self, name, 0)
                 # everything else is "reg_offset [filter]"
-                reg_offset = int(field.reg[0])
+                if field.reg[0] == "slow":
+                    reg_offset = int(field.reg[1])
+                else:
+                    reg_offset = int(field.reg[0])
                 self.regs[reg_offset] = name
 
     def on_event(self, event):
