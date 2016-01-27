@@ -1,41 +1,24 @@
 from .block import Block
-from .event import Event
+
 
 class Srgate(Block):
 
-    def do_set(self, next_event, event):
-        """Set the output value high on the acting edge of a SET input or on a
-        FORCE SET action"""
-        next_event.bit[self.VAL] = 1
+    def on_changes(self, ts, changes):
+        """Handle changes at a particular timestamp, then return the timestamp
+        when we next need to be called"""
+        # This is a ConfigBlock object
+        b = self.config_block
 
-    def do_reset(self, next_event, event):
-        """Reset the block, either called on the acting edge of RST input or
-        on a FORCE RST action"""
-        next_event.bit[self.VAL] = 0
+        # Set attributes
+        for name, value in changes.items():
+            setattr(self, name, value)
 
-    def do_process_inputs(self, next_event, event):
-        # if we got a reset, and it was high, do a reset
-        if event.bit.get(self.RST, None) == self.RST_EDGE:
-            self.do_reset(next_event, event)
-        # if we got a set, then process it
-        elif event.bit.get(self.SET, None) == self.SET_EDGE:
-            self.do_set(next_event, event)
-
-    def on_event(self, event):
-        """Handle register, bit and pos changes at a particular timestamps,
-        then generate output events and return when we next need to be called"""
-        next_event = Event()
-        # if we got register changes, handle those
-        if event.reg:
-            for name, value in event.reg.items():
-                setattr(self, name, value)
-                if name == "FORCE_RST" and value:
-                    self.do_reset(next_event, event)
-                elif name == "FORCE_SET" and value:
-                    self.do_set(next_event, event)
-                else:
-                    self.do_process_inputs(next_event, event)
-        else:
-            self.do_process_inputs(next_event, event)
-        # return any changes and next ts
-        return next_event
+        # Force regs take priority
+        if b.FORCE_RST in changes:
+            self.VAL = 0
+        elif b.FORCE_SET in changes:
+            self.VAL = 1
+        elif changes.get(b.RST, None) == self.RST_EDGE:
+            self.VAL = 0
+        elif changes.get(b.SET, None) == self.SET_EDGE:
+            self.VAL = 1

@@ -61,9 +61,14 @@ class ConfigBlock(object):
     def add_field(self, field):
         """Add a ConfigField instance to self.fields dictionary
 
+        This also sets an attribute on itself so we can do safer lookups. E.g.
+        self.FORCE_RST = "FORCE_RST"
+
         Args:
             field (ConfigField): ConfigField instance
         """
         assert field.name not in self.fields, \
             "Field %s already part of block %s" % (field.name, self.name)
         self.fields[field.name] = field
+        setattr(self, field.name, field.name)
+

@@ -1,8 +1,3 @@
-import os
-import sys
-
-from .event import Event
-
 from ..configparser import ConfigParser
 
 
@@ -10,9 +5,37 @@ class Block(object):
 
     @classmethod
     def load_config(cls, config_dir):
+        """Load the config def, then add properties to subclasses"""
         cls.parser = ConfigParser(config_dir)
+        for subclass in cls.__subclasses__():
+            subclass.add_properties()
 
-    def __init__(self, num):
+    @classmethod
+    def add_properties(cls):
+        block_name = cls.__name__.upper()
+        cls.config_block = cls.parser.blocks[block_name]
+        # add a property that stores changes for outputs
+        for name, field in cls.config_block.fields.items():
+            cls.add_property(name)
+
+    @classmethod
+    def add_property(cls, attr):
+        def setter(self, v):
+            if getattr(self, attr) != v:
+                if not hasattr(self, "_changes"):
+                    self._changes = {}
+                setattr(self, "_%s" % attr, v)
+                self._changes[attr] = v
+        def getter(self):
+            return getattr(self, "_%s" % attr, 0)
+        setattr(cls, attr, property(getter, setter))
+
+    def on_event(self, ts, changes):
+        for name, value in changes.items():
+            setattr(self, name, value)
+        return None
+
+    def oldinit(self, num):
         block_name = type(self).__name__.upper()
         config_block = self.parser.blocks[block_name]
         self.reg_base = config_block.base
@@ -77,7 +100,3 @@ class Block(object):
                     reg_offset = int(field.reg[0])
                 self.regs[reg_offset] = name
 
-    def on_event(self, event):
-        for name, value in event.reg.items():
-            setattr(self, name, value)
-        return Event()
