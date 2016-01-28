@@ -36,6 +36,10 @@ def main():
     blocks = collections.OrderedDict()
     for blockname, block in cfgParser.blocks.items():
         blocks.update({blockname.replace("*", ""): block})
+         #filter out the 'slow' keyword from those registers that have it
+        for fieldname, field in block.fields.items():
+            if field.reg[0] == 'slow':
+                field.reg[0] = field.reg[1]
 
     variables = {"blocks": blocks}
     genearateOutput('addr_defines_template', "addr_defines.vhd", variables)
