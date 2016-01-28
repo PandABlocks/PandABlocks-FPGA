@@ -1,5 +1,6 @@
 import numpy
 import threading
+import time
 
 from .zebra2 import Zebra2
 
@@ -11,8 +12,15 @@ class Controller(object):
         self.z = Zebra2(config_dir)
         self.capture = Capture()
 
+        self.dummy_data = DummyData(self)
+
     def start(self):
         self.z.start_event_loop()
+        self.dummy_data.start()
+
+
+    # --------------------------------------------------------------------------
+    # Interface to TCP server
 
     # Must return an integer
     def do_read_register(self, block_num, num, reg):
@@ -27,6 +35,7 @@ class Controller(object):
         return value
 
     def do_write_register(self, block, num, reg, value):
+        self.dummy_data.write_register(block == 31, reg, value)
         self.z.post_wait((block, num, reg, value))
 
     def do_write_table(self, block, num, reg, data):
@@ -36,13 +45,16 @@ class Controller(object):
         return self.capture.read(max_length)
 
 
-    # Call this periodically to generate data to be captured.
-    def send_capture_data(self, data):
-        self.capture.write(data)
+    # --------------------------------------------------------------------------
+    # Data interface from hardware simulation
 
     # Call when arming data capture
     def start_capture_data(self):
         self.capture.write_start()
+
+    # Call this periodically to generate data to be captured.
+    def send_capture_data(self, data):
+        self.capture.write(data)
 
     # Call at end of capture
     def end_capture_data(self):
@@ -60,7 +72,6 @@ class Capture(object):
         self.length = 0
 
     def write_start(self):
-        print 'Arming data capture'
         with self.lock:
             if self.active or self.length > 0:
                 print 'Arming before previous capture complete'
@@ -82,7 +93,6 @@ class Capture(object):
             self.active = True
 
     def write_end(self):
-        print 'Disarming data capture'
         with self.lock:
             self.active = False
 
@@ -101,3 +111,33 @@ class Capture(object):
             else:
                 # Return None to indicate end of data capture stream
                 return None
+
+
+class DummyData(threading.Thread):
+    def __init__(self, controller):
+        super(DummyData, self).__init__()
+        self.controller = controller
+        self.armed = False
+
+    def run(self):
+        while True:
+            time.sleep(1)
+            if self.armed:
+                for i in range(10):
+                    if not self.armed:
+                        break
+                    self.controller.send_capture_data(
+                        numpy.arange(1024, dtype=numpy.int32))
+                    time.sleep(0.2)
+                self.controller.end_capture_data()
+                self.armed = False
+
+    def write_register(self, cs, reg, value):
+        if cs:
+            if reg == 8:
+                print "arm dummy data"
+                self.controller.start_capture_data()
+                self.armed = True
+            elif reg == 9:
+                print "disarm dummy data"
+                self.armed = False
