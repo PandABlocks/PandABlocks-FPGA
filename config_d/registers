@@ -219,6 +219,7 @@ PCOMP       15
     POSN            1
     ACT             98 99 100 101
     PULSE           102 103 104 105
+    FLTR_DIR        13
     TABLE           long    2^10    11 12
 
 ADC         26

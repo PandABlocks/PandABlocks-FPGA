@@ -195,6 +195,7 @@ PCOMP[4]
     POSN            param       pos_mux
     ACT             bit_out
     PULSE           bit_out
+    FLTR_DIR        read
     TABLE           table
 
 ADC[8]

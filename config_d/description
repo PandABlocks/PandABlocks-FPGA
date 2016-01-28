@@ -164,6 +164,7 @@ PCOMP       Position compare
     POSN            Position data from position-data bus
     ACT             Active output is high while block is in operation
     PULSE           Output pulse
+    FLTR_DIR        If deltaT > 0 this is the current direction
     TABLE           Table of points to use instead of START/STEP/WIDTH
 
 ADC         

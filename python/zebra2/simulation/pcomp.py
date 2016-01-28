@@ -10,7 +10,7 @@ class Pcomp(Block):
 
     def __init__(self):
         # Current direction of POSN stream
-        self.tdir = FWD
+        self.FLTR_DIR = FWD
         # Next tick to check deltat
         self.tnext = 0
         # Last position cache for deltat check
@@ -32,6 +32,7 @@ class Pcomp(Block):
         for name, value in changes.items():
             setattr(self, name, value)
 
+
         # If changing the DELTAT filter then init values
         if b.FLTR_DELTAT in changes:
             if self.FLTR_DELTAT:
@@ -41,12 +42,12 @@ class Pcomp(Block):
                 self.tnext = 0
 
         # calculate current dir of POSN on deltat
-        if self.tnext and ts > self.tnext:
+        if self.tnext and ts >= self.tnext:
             deltap = self.POSN - self.tposn
             if deltap > self.FLTR_THOLD:
-                self.tdir = FWD
+                self.FLTR_DIR = FWD
             elif deltap < self.FLTR_THOLD:
-                self.tdir = BWD
+                self.FLTR_DIR = BWD
             self.tnext = ts + self.FLTR_DELTAT
             self.tposn = self.POSN
 
@@ -75,7 +76,7 @@ class Pcomp(Block):
                 transition = self.POSN <= self.cpoint
             # if direction filter is on, then check it matches
             if self.tnext:
-                transition &= self.DIR == self.tdir
+                transition &= self.DIR == self.FLTR_DIR
             # if transition then set output and increment compare point
             if transition:
                 self.ACT = 1
