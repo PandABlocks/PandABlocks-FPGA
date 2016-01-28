@@ -7,6 +7,18 @@ use work.type_defines.all;
 
 package addr_defines is
 
+-- Memory Setup Parameters
+-- Total of 128KByte memory is divided into 32 pages of 4K each.
+-- Each page can address 16 design blocks
+-- Each block can hold 64 DWORD registers
+
+-- Number of total pages = 2**CSW
+constant PAGE_NUM               : natural := 5;
+-- Number of DWORDs per page = 2**PAGE_AW
+constant PAGE_AW                : natural := 10;
+-- Number of DWORS per block = 2**BLK_AW
+constant BLK_AW                 : natural := 6;
+
 -- Functional Address Space Chip Selects
 {%  for name, block in blocks.iteritems() %}
 constant {{name}}_CS : natural := {{block.base}};
@@ -18,17 +30,17 @@ constant {{name}}_CS : natural := {{block.base}};
 -- {{blockname}} Block:
 {%      for fieldname, field in block.fields.iteritems() %}
 {%          if field.cls in ['param', 'read', 'write' ] %}
-constant {{blockname}}_{{fieldname}} : std_logic_vector := TO_SVECTOR({{field.reg[0]}}, BLK_AW);
+constant {{blockname}}_{{fieldname}} : natural := {{field.reg[0]}};
 {%          elif field.cls == "time" %}
-constant {{blockname}}_{{fieldname}}_L : std_logic_vector := TO_SVECTOR({{field.reg[0]}}, BLK_AW);
-constant {{blockname}}_{{fieldname}}_H : std_logic_vector := TO_SVECTOR({{field.reg[1]}}, BLK_AW);
+constant {{blockname}}_{{fieldname}}_L : natural := {{field.reg[0]}};
+constant {{blockname}}_{{fieldname}}_H : natural := {{field.reg[1]}};
 {%          elif field.cls == "table" and field.reg[0] == "short" %}
-constant {{blockname}}_{{fieldname}}_START : std_logic_vector := TO_SVECTOR({{field.reg[2]}}, BLK_AW);
-constant {{blockname}}_{{fieldname}}_DATA : std_logic_vector := TO_SVECTOR({{field.reg[3]}}, BLK_AW);
-constant {{blockname}}_{{fieldname}}_LENGTH : std_logic_vector := TO_SVECTOR({{field.reg[4]}}, BLK_AW);
+constant {{blockname}}_{{fieldname}}_START : natural := {{field.reg[2]}};
+constant {{blockname}}_{{fieldname}}_DATA : natural := {{field.reg[3]}};
+constant {{blockname}}_{{fieldname}}_LENGTH : natural := {{field.reg[4]}};
 {%          elif field.cls == "table" and field.reg[0] == "long" %}
-constant {{blockname}}_{{fieldname}}_START : std_logic_vector := TO_SVECTOR({{field.reg[2]}}, BLK_AW);
-constant {{blockname}}_{{fieldname}}_DATA : std_logic_vector := TO_SVECTOR({{field.reg[3]}}, BLK_AW);
+constant {{blockname}}_{{fieldname}}_START : natural := {{field.reg[2]}};
+constant {{blockname}}_{{fieldname}}_DATA : natural := {{field.reg[3]}};
 {%          endif %}
 {%      endfor %}
 
