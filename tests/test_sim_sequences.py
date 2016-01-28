@@ -46,8 +46,13 @@ class SequenceTest(unittest.TestCase):
         next_ts = None
         for ts in self.sequence.inputs:
             while next_ts is not None and next_ts < ts:
-                next_ts = block.on_changes(next_ts, {})
-                self.assertEqual(block._changes, {})
+                last_ts = next_ts
+                next_ts = block.on_changes(last_ts, {})
+                changes = dict((k, v) for k, v in block._changes.items() \
+                               if k in regs or k in bus)
+                self.assertEqual(
+                    changes, {},
+                    "%d: Block changed %s" % (last_ts, changes))
             assert next_ts is None or ts <= next_ts, \
                 "Expected ts %d, got ts %d" % (ts, next_ts)
             changes = self.sequence.inputs[ts]
