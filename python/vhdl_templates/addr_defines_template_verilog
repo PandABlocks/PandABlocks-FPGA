@@ -1,0 +1,42 @@
+// Functional Address Space Chip Selects
+{%  for name, block in blocks.iteritems() %}
+localparam {{name}}_CS  = {{block.base}};
+{%  endfor %}
+
+// Block Register Address Space
+
+{%  for blockname, block in blocks.iteritems() %}
+// {{blockname}} Block:
+{%      for fieldname, field in block.fields.iteritems() %}
+{%          if field.cls in ['param', 'read', 'write' ] %}
+localparam {{blockname}}_{{fieldname}}  = {{field.reg[0]}};
+{%          elif field.cls == "time" %}
+localparam {{blockname}}_{{fieldname}}_L  = {{field.reg[0]}};
+localparam {{blockname}}_{{fieldname}}_H  = {{field.reg[1]}};
+{%          elif field.cls == "table" and field.reg[0] == "short" %}
+localparam {{blockname}}_{{fieldname}}_START  = {{field.reg[2]}};
+localparam {{blockname}}_{{fieldname}}_DATA  = {{field.reg[3]}};
+localparam {{blockname}}_{{fieldname}}_LENGTH  = {{field.reg[4]}};
+{%          elif field.cls == "table" and field.reg[0] == "long" %}
+localparam {{blockname}}_{{fieldname}}_START  = {{field.reg[2]}};
+localparam {{blockname}}_{{fieldname}}_DATA  = {{field.reg[3]}};
+{%          endif %}
+{%          if blockname in ['REG', 'DRV'] %}
+localparam {{blockname}}_{{fieldname}}  = {{field.reg[0]}};
+{%          endif %}
+{%      endfor %}
+
+{%  endfor %}
+
+// Panda Base Address
+localparam BASE                 = 32'h43C0_0000;
+localparam INENC_BASE           = BASE + 4096 * INENC_CS;
+localparam PCOMP_BASE           = BASE + 4096 * PCOMP_CS;
+localparam PCAP_BASE            = BASE + 4096 * PCAP_CS;
+localparam OUTENC_BASE          = BASE + 4096 * OUTENC_CS;
+localparam SLOW_BASE            = BASE + 4096 * SLOW_CS;
+localparam CLOCKS_BASE          = BASE + 4096 * CLOCKS_CS;
+localparam COUNTER_BASE         = BASE + 4096 * COUNTER_CS;
+localparam DRV_BASE             = BASE + 4096 * DRV_CS;
+localparam REG_BASE             = BASE + 4096 * REG_CS;
+
