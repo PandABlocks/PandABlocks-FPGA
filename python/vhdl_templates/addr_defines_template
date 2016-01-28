@@ -42,6 +42,9 @@ constant {{blockname}}_{{fieldname}}_LENGTH : natural := {{field.reg[4]}};
 constant {{blockname}}_{{fieldname}}_START : natural := {{field.reg[2]}};
 constant {{blockname}}_{{fieldname}}_DATA : natural := {{field.reg[3]}};
 {%          endif %}
+{%          if blockname in ['REG', 'DRV'] %}
+constant {{blockname}}_{{fieldname}} : natural := {{field.reg[0]}};
+{%          endif %}
 {%      endfor %}
 
 {%  endfor %}
