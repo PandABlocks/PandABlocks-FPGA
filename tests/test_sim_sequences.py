@@ -1,7 +1,9 @@
-#!/bin/env python
+#!/bin/env dls-python
 
 import sys
 import os
+from pkg_resources import require
+require("numpy")
 
 # add our python dir
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
@@ -43,6 +45,9 @@ class SequenceTest(unittest.TestCase):
                     bus[name] = 0
         next_ts = None
         for ts in self.sequence.inputs:
+            while next_ts is not None and next_ts < ts:
+                next_ts = block.on_changes(next_ts, {})
+                self.assertEqual(block._changes, {})
             assert next_ts is None or ts <= next_ts, \
                 "Expected ts %d, got ts %d" % (ts, next_ts)
             changes = self.sequence.inputs[ts]
@@ -50,8 +55,10 @@ class SequenceTest(unittest.TestCase):
             # check that when _mux fields appear in changes that they actually
             # have changes, as our blocks expect this
             for name, val in changes.items():
-                field = block.config_block.fields[name]
-                if field.typ.endswith("_mux"):
+                # Check that this is a valid field name
+                self.assertIn(name, dir(block.config_block))
+                field = block.config_block.fields.get(name, None)
+                if field and field.typ.endswith("_mux"):
                     current = bus.get(name, 0)
                     self.assertNotEqual(
                         val, current,

@@ -70,5 +70,12 @@ class ConfigBlock(object):
         assert field.name not in self.fields, \
             "Field %s already part of block %s" % (field.name, self.name)
         self.fields[field.name] = field
-        setattr(self, field.name, field.name)
+        if field.cls == "table":
+            # These are the register interface for tables
+            suffs = ["RST", "DATA", "LENGTH"]
+            attrs = ["%s_%s" % (field.name, suff) for suff in suffs]
+        else:
+            attrs = [field.name]
+        for attr in attrs:
+            setattr(self, attr, attr)
 
