@@ -15,7 +15,6 @@ port (
     --Quadrature A,B and Z input
     a_i                 : in  std_logic;
     b_i                 : in  std_logic;
-    z_i                 : in  std_logic;
     --Step/Direction outputs
     quad_reset_o        : out std_logic;
     quad_trans_o        : out std_logic;

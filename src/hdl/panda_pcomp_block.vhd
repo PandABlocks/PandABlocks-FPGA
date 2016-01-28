@@ -23,7 +23,6 @@ port (
     mem_wstb_i          : in  std_logic;
     mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
     mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Block inputs
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
@@ -51,9 +50,12 @@ signal FLTR_THOLD       : std_logic_vector(15 downto 0);
 signal enable           : std_logic;
 signal posn             : std_logic_vector(31 downto 0);
 
+signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
+
 begin
 
-mem_dat_o <= (others => '0');
+-- Integer conversion for address.
+mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Control System Interface
@@ -75,52 +77,52 @@ begin
         else
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Pulse start position
-                if (mem_addr_i = PCOMP_ENABLE_VAL_ADDR) then
+                if (mem_addr = PCOMP_ENABLE) then
                     ENABLE_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
                 -- Pulse start position
-                if (mem_addr_i = PCOMP_POSN_VAL_ADDR) then
+                if (mem_addr = PCOMP_POSN) then
                     POSN_VAL <= mem_dat_i(PBUSBW-1 downto 0);
                 end if;
 
                 -- Pulse start position
-                if (mem_addr_i = PCOMP_START_ADDR) then
+                if (mem_addr = PCOMP_START) then
                     START <= mem_dat_i;
                 end if;
 
                 -- Pulse step value
-                if (mem_addr_i = PCOMP_STEP_ADDR) then
+                if (mem_addr = PCOMP_STEP) then
                     STEP <= mem_dat_i;
                 end if;
 
                 -- Pulse width value
-                if (mem_addr_i = PCOMP_WIDTH_ADDR) then
+                if (mem_addr = PCOMP_WIDTH) then
                     WIDTH <= mem_dat_i;
                 end if;
 
                 -- Pulse count value
-                if (mem_addr_i = PCOMP_NUM_ADDR) then
+                if (mem_addr = PCOMP_NUMBER) then
                     NUM <= mem_dat_i;
                 end if;
 
                 -- PComp relative flag
-                if (mem_addr_i = PCOMP_RELATIVE_ADDR) then
+                if (mem_addr = PCOMP_RELATIVE) then
                     RELATIVE <= mem_dat_i(0);
                 end if;
 
                 -- PComp direction flag
-                if (mem_addr_i = PCOMP_DIR_ADDR) then
+                if (mem_addr = PCOMP_DIR) then
                     DIR <= mem_dat_i(0);
                 end if;
 
                 -- PComp direction filter DeltaT flag
-                if (mem_addr_i = PCOMP_FLTR_DELTAT_ADDR) then
+                if (mem_addr = PCOMP_FLTR_DELTAT) then
                     FLTR_DELTAT <= mem_dat_i;
                 end if;
 
                 -- PComp direction filter threshold flag
-                if (mem_addr_i = PCOMP_FLTR_THOLD_ADDR) then
+                if (mem_addr = PCOMP_FLTR_THOLD) then
                     FLTR_THOLD <= mem_dat_i(15 downto 0);
                 end if;
 
@@ -133,7 +135,6 @@ end process;
 -- Design Bus Assignments
 --
 process(clk_i)
-    variable t_counter  : unsigned(31 downto 0);
 begin
     if rising_edge(clk_i) then
         enable <= SBIT(sysbus_i, ENABLE_VAL);
@@ -144,7 +145,7 @@ end process;
 --
 -- Position Compare IP
 --
-panda_pcomp_inst : entity work.panda_pcomp
+pcomp_inst : entity work.panda_pcomp
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
@@ -152,16 +153,17 @@ port map (
     enable_i            => enable,
     posn_i              => posn,
 
-    PCOMP_START         => START,
-    PCOMP_STEP          => STEP,
-    PCOMP_WIDTH         => WIDTH,
-    PCOMP_NUM           => NUM,
-    PCOMP_RELATIVE      => RELATIVE,
-    PCOMP_DIR           => DIR,
-    PCOMP_FLTR_DELTAT   => FLTR_DELTAT,
-    PCOMP_FLTR_THOLD    => FLTR_THOLD,
+    START               => START,
+    STEP                => STEP,
+    WIDTH               => WIDTH,
+    NUM                 => NUM,
+    RELATIVE            => RELATIVE,
+    DIR                 => DIR,
+    FLTR_DELTAT         => FLTR_DELTAT,
+    FLTR_THOLD          => FLTR_THOLD,
 
     act_o               => act_o,
+    err_o               => open,
     pulse_o             => pulse_o
 );
 

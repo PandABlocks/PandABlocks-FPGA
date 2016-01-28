@@ -28,6 +28,9 @@ architecture rtl of panda_clocks_top is
 
 begin
 
+-- Unused outputs.
+mem_dat_o <= (others => '0');
+
 --
 -- Instantiate BITS Blocks :
 --  There are BITS_NUM amount of encoders on the board
@@ -41,7 +44,6 @@ port map (
     mem_wstb_i          => mem_wstb_i,
     mem_addr_i          => mem_addr_i(BLK_AW-1 downto 0),
     mem_dat_i           => mem_dat_i,
-    mem_dat_o           => open,
 
     clocks_o            => clocks_o
 );

@@ -30,7 +30,7 @@ end panda_div_top;
 architecture rtl of panda_div_top is
 
 signal mem_blk_cs           : std_logic_vector(DIV_NUM-1 downto 0);
-signal mem_read_data        : std32_array(2**(PAGE_AW-BLK_AW)-1 downto 0);
+signal mem_read_data        : std32_array(DIV_NUM-1 downto 0);
 
 begin
 

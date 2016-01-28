@@ -23,7 +23,6 @@ port (
     mem_wstb_i          : in  std_logic;
     mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
     mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Block outputs
     clocks_o            : out std_logic_vector(3 downto 0)
 );
@@ -36,10 +35,11 @@ signal CLOCKB_DIV       : std_logic_vector(31 downto 0) := (others => '0');
 signal CLOCKC_DIV       : std_logic_vector(31 downto 0) := (others => '0');
 signal CLOCKD_DIV       : std_logic_vector(31 downto 0) := (others => '0');
 
-signal mem_addr         : integer range 0 to 2**BLK_AW-1;
+signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
 
 begin
 
+-- Integer conversion for address.
 mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
@@ -56,19 +56,19 @@ begin
         else
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = CLOCKS.CLOCKA_DIV) then
+                if (mem_addr = CLOCKS_A_PERIOD) then
                     CLOCKA_DIV <= mem_dat_i;
                 end if;
 
-                if (mem_addr = CLOCKS.CLOCKB_DIV) then
+                if (mem_addr = CLOCKS_B_PERIOD) then
                     CLOCKB_DIV <= mem_dat_i;
                 end if;
 
-                if (mem_addr = CLOCKS.CLOCKC_DIV) then
+                if (mem_addr = CLOCKS_C_PERIOD) then
                     CLOCKC_DIV <= mem_dat_i;
                 end if;
 
-                if (mem_addr = CLOCKS.CLOCKD_DIV) then
+                if (mem_addr = CLOCKS_D_PERIOD) then
                     CLOCKD_DIV <= mem_dat_i;
                 end if;
             end if;

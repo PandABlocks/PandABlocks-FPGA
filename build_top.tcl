@@ -44,10 +44,12 @@ read_vhdl ../src/hdl/panda_csr_if.vhd
 read_vhdl ../src/hdl/panda_spbram.vhd
 read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0_S00_AXI.vhd
 read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0.vhd
-read_vhdl ../src/hdl/panda_ttl_block.vhd
-read_vhdl ../src/hdl/panda_ttl_top.vhd
-read_vhdl ../src/hdl/panda_lvds_block.vhd
-read_vhdl ../src/hdl/panda_lvds_top.vhd
+read_vhdl ../src/hdl/panda_ttlout_block.vhd
+read_vhdl ../src/hdl/panda_ttlout_top.vhd
+read_vhdl ../src/hdl/panda_ttlin_top.vhd
+read_vhdl ../src/hdl/panda_lvdsout_block.vhd
+read_vhdl ../src/hdl/panda_lvdsout_top.vhd
+read_vhdl ../src/hdl/panda_lvdsin_top.vhd
 read_vhdl ../src/hdl/panda_lut.vhd
 read_vhdl ../src/hdl/panda_lut_block.vhd
 read_vhdl ../src/hdl/panda_lut_top.vhd
@@ -72,8 +74,10 @@ read_vhdl ../src/hdl/panda_qenc.vhd
 read_vhdl ../src/hdl/panda_qdec.vhd
 read_vhdl ../src/hdl/panda_quadin.vhd
 read_vhdl ../src/hdl/panda_quadout.vhd
+read_vhdl ../src/hdl/panda_inenc.vhd
 read_vhdl ../src/hdl/panda_inenc_block.vhd
 read_vhdl ../src/hdl/panda_inenc_top.vhd
+read_vhdl ../src/hdl/panda_outenc.vhd
 read_vhdl ../src/hdl/panda_outenc_block.vhd
 read_vhdl ../src/hdl/panda_outenc_top.vhd
 read_vhdl ../src/hdl/panda_pcomp.vhd
@@ -87,17 +91,20 @@ read_vhdl ../src/hdl/panda_bits_block.vhd
 read_vhdl ../src/hdl/panda_bits_top.vhd
 read_vhdl ../src/hdl/panda_reg.vhd
 read_vhdl ../src/hdl//panda_axi3_write_master.vhd
+read_vhdl ../src/hdl/panda_pcap_ctrl.vhd
+read_vhdl ../src/hdl/panda_pcap_posproc.vhd
+read_vhdl ../src/hdl/panda_pcap_dsp.vhd
 read_vhdl ../src/hdl/panda_pcap.vhd
-read_vhdl ../src/hdl/panda_pcap_block.vhd
+read_vhdl ../src/hdl/panda_pcap_top.vhd
 read_vhdl ../src/hdl/panda_slowctrl_top.vhd
 read_vhdl ../src/hdl/panda_top.vhd
 
 # Import IPs
 import_ip ./ip_repo/pulse_queue/pulse_queue.xci
-import_ip ./ip_repo/pcap_fifo/pcap_fifo.xci
+import_ip ./ip_repo/pcap_dma_fifo/pcap_dma_fifo.xci
 
 # Read constraint files
-read_xdc  ../src/const/panda_user.xdc
+read_xdc  ../src/const/panda_top.xdc
 
 # Report IP Status before starting P&R
 report_ip_status

@@ -30,7 +30,7 @@ end panda_counter_top;
 architecture rtl of panda_counter_top is
 
 signal mem_blk_cs           : std_logic_vector(COUNTER_NUM-1 downto 0);
-signal mem_read_data        : std32_array(2**(PAGE_AW-BLK_AW)-1 downto 0);
+signal mem_read_data        : std32_array(COUNTER_NUM-1 downto 0);
 
 begin
 

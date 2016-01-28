@@ -32,7 +32,7 @@ architecture rtl of panda_div is
 
 signal input_prev       : std_logic;
 signal input_rise       : std_logic;
-signal counter          : unsigned(31 downto 0) := (others => '0');
+signal counter          : unsigned(31 downto 0);
 signal pulsmask         : std_logic;
 
 signal DIVISOR_prev     : std_logic_vector(31 downto 0);

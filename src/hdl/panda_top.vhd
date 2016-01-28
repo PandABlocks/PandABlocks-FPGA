@@ -68,12 +68,102 @@ end panda_top;
 
 architecture rtl of panda_top is
 
+component panda_ps is
+port (
+  FCLK_CLK0 : out STD_LOGIC;
+  FCLK_LEDS : out STD_LOGIC_VECTOR ( 31 downto 0 );
+  FCLK_RESET0_N : out STD_LOGIC_VECTOR ( 0 to 0 );
+  IRQ_F2P : in STD_LOGIC_VECTOR ( 0 to 0 );
+  S_AXI_HP0_arready : out STD_LOGIC;
+  S_AXI_HP0_awready : out STD_LOGIC;
+  S_AXI_HP0_bvalid : out STD_LOGIC;
+  S_AXI_HP0_rlast : out STD_LOGIC;
+  S_AXI_HP0_rvalid : out STD_LOGIC;
+  S_AXI_HP0_wready : out STD_LOGIC;
+  S_AXI_HP0_bresp : out STD_LOGIC_VECTOR ( 1 downto 0 );
+  S_AXI_HP0_rresp : out STD_LOGIC_VECTOR ( 1 downto 0 );
+  S_AXI_HP0_bid : out STD_LOGIC_VECTOR ( 5 downto 0 );
+  S_AXI_HP0_rid : out STD_LOGIC_VECTOR ( 5 downto 0 );
+  S_AXI_HP0_rdata : out STD_LOGIC_VECTOR ( 31 downto 0 );
+  S_AXI_HP0_arvalid : in STD_LOGIC;
+  S_AXI_HP0_awvalid : in STD_LOGIC;
+  S_AXI_HP0_bready : in STD_LOGIC;
+  S_AXI_HP0_rready : in STD_LOGIC;
+  S_AXI_HP0_wlast : in STD_LOGIC;
+  S_AXI_HP0_wvalid : in STD_LOGIC;
+  S_AXI_HP0_arburst : in STD_LOGIC_VECTOR ( 1 downto 0 );
+  S_AXI_HP0_arlock : in STD_LOGIC_VECTOR ( 1 downto 0 );
+  S_AXI_HP0_arsize : in STD_LOGIC_VECTOR ( 2 downto 0 );
+  S_AXI_HP0_awburst : in STD_LOGIC_VECTOR ( 1 downto 0 );
+  S_AXI_HP0_awlock : in STD_LOGIC_VECTOR ( 1 downto 0 );
+  S_AXI_HP0_awsize : in STD_LOGIC_VECTOR ( 2 downto 0 );
+  S_AXI_HP0_arprot : in STD_LOGIC_VECTOR ( 2 downto 0 );
+  S_AXI_HP0_awprot : in STD_LOGIC_VECTOR ( 2 downto 0 );
+  S_AXI_HP0_araddr : in STD_LOGIC_VECTOR ( 31 downto 0 );
+  S_AXI_HP0_awaddr : in STD_LOGIC_VECTOR ( 31 downto 0 );
+  S_AXI_HP0_arcache : in STD_LOGIC_VECTOR ( 3 downto 0 );
+  S_AXI_HP0_arlen : in STD_LOGIC_VECTOR ( 3 downto 0 );
+  S_AXI_HP0_arqos : in STD_LOGIC_VECTOR ( 3 downto 0 );
+  S_AXI_HP0_awcache : in STD_LOGIC_VECTOR ( 3 downto 0 );
+  S_AXI_HP0_awlen : in STD_LOGIC_VECTOR ( 3 downto 0 );
+  S_AXI_HP0_awqos : in STD_LOGIC_VECTOR ( 3 downto 0 );
+  S_AXI_HP0_arid : in STD_LOGIC_VECTOR ( 5 downto 0 );
+  S_AXI_HP0_awid : in STD_LOGIC_VECTOR ( 5 downto 0 );
+  S_AXI_HP0_wid : in STD_LOGIC_VECTOR ( 5 downto 0 );
+  S_AXI_HP0_wdata : in STD_LOGIC_VECTOR ( 31 downto 0 );
+  S_AXI_HP0_wstrb : in STD_LOGIC_VECTOR ( 3 downto 0 );
+  M00_AXI_awaddr : out STD_LOGIC_VECTOR ( 31 downto 0 );
+  M00_AXI_awprot : out STD_LOGIC_VECTOR ( 2 downto 0 );
+  M00_AXI_awvalid : out STD_LOGIC;
+  M00_AXI_awready : in STD_LOGIC;
+  M00_AXI_wdata : out STD_LOGIC_VECTOR ( 31 downto 0 );
+  M00_AXI_wstrb : out STD_LOGIC_VECTOR ( 3 downto 0 );
+  M00_AXI_wvalid : out STD_LOGIC;
+  M00_AXI_wready : in STD_LOGIC;
+  M00_AXI_bresp : in STD_LOGIC_VECTOR ( 1 downto 0 );
+  M00_AXI_bvalid : in STD_LOGIC;
+  M00_AXI_bready : out STD_LOGIC;
+  M00_AXI_araddr : out STD_LOGIC_VECTOR ( 31 downto 0 );
+  M00_AXI_arprot : out STD_LOGIC_VECTOR ( 2 downto 0 );
+  M00_AXI_arvalid : out STD_LOGIC;
+  M00_AXI_arready : in STD_LOGIC;
+  M00_AXI_rdata : in STD_LOGIC_VECTOR ( 31 downto 0 );
+  M00_AXI_rresp : in STD_LOGIC_VECTOR ( 1 downto 0 );
+  M00_AXI_rvalid : in STD_LOGIC;
+  M00_AXI_rready : out STD_LOGIC;
+  DDR_cas_n : inout STD_LOGIC;
+  DDR_cke : inout STD_LOGIC;
+  DDR_ck_n : inout STD_LOGIC;
+  DDR_ck_p : inout STD_LOGIC;
+  DDR_cs_n : inout STD_LOGIC;
+  DDR_reset_n : inout STD_LOGIC;
+  DDR_odt : inout STD_LOGIC;
+  DDR_ras_n : inout STD_LOGIC;
+  DDR_we_n : inout STD_LOGIC;
+  DDR_ba : inout STD_LOGIC_VECTOR ( 2 downto 0 );
+  DDR_addr : inout STD_LOGIC_VECTOR ( 14 downto 0 );
+  DDR_dm : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+  DDR_dq : inout STD_LOGIC_VECTOR ( 31 downto 0 );
+  DDR_dqs_n : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+  DDR_dqs_p : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+  FIXED_IO_mio : inout STD_LOGIC_VECTOR ( 53 downto 0 );
+  FIXED_IO_ddr_vrn : inout STD_LOGIC;
+  FIXED_IO_ddr_vrp : inout STD_LOGIC;
+  FIXED_IO_ps_srstb : inout STD_LOGIC;
+  FIXED_IO_ps_clk : inout STD_LOGIC;
+  FIXED_IO_ps_porb : inout STD_LOGIC
+);
+end component panda_ps;
+
+
 component ila_0
 port (
     clk             : in  std_logic;
     probe0          : in  std_logic_vector(63 downto 0)
 );
 end component;
+
+signal probe0               : std_logic_vector(63 downto 0);
 
 -- Signal declarations
 signal FCLK_CLK0            : std_logic;
@@ -149,15 +239,14 @@ signal mem_read_data        : std32_array(2**PAGE_NUM-1 downto 0) :=
                                 (others => (others => '0'));
 signal IRQ_F2P              : std_logic_vector(0 downto 0);
 
-signal probe0               : std_logic_vector(63 downto 0);
-
 -- Design Level Busses :
 signal sysbus               : sysbus_t := (others => '0');
 signal posbus               : posbus_t := (others => (others => '0'));
 signal extbus               : extbus_t := (others => (others => '0'));
 
 -- Input Encoder
-signal inenc_posn           : std32_array(ENC_NUM-1 downto 0);
+signal posn_inenc_low       : std32_array(ENC_NUM-1 downto 0);
+signal posn_inenc_high      : std32_array(ENC_NUM-1 downto 0) := (others => (others => '0'));
 signal inenc_a              : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_b              : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_z              : std_logic_vector(ENC_NUM-1 downto 0);
@@ -185,7 +274,7 @@ signal seq_outf             : std_logic_vector(SEQ_NUM-1 downto 0);
 signal seq_act              : std_logic_vector(SEQ_NUM-1 downto 0);
 
 signal counter_carry        : std_logic_vector(COUNTER_NUM-1 downto 0);
-signal counter_val          : std32_array(COUNTER_NUM-1 downto 0);
+signal posn_counter         : std32_array(COUNTER_NUM-1 downto 0);
 
 signal pcomp_act            : std_logic_vector(PCOMP_NUM-1 downto 0);
 signal pcomp_pulse          : std_logic_vector(PCOMP_NUM-1 downto 0);
@@ -201,8 +290,11 @@ signal clocks               : std_logic_vector(3 downto 0);
 signal soft                 : std_logic_vector(3 downto 0);
 
 signal adc_low              : std32_array(7 downto 0) := (others => (others => '0'));
-
 signal adc_high             : std32_array(7 downto 0) := (others => (others => '0'));
+
+attribute keep              : string;
+attribute keep of sysbus    : signal is "true";
+attribute keep of posbus    : signal is "true";
 
 begin
 
@@ -215,7 +307,8 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
 --
 -- Panda Processor System Block design instantiation
 --
-ps : entity work.panda_ps
+--ps : entity work.panda_ps
+ps : panda_ps
 port map (
     FCLK_CLK0                   => FCLK_CLK0,
     FCLK_RESET0_N               => FCLK_RESET0_N,
@@ -348,68 +441,69 @@ port map (
 --
 -- TTL
 --
-panda_ttl_inst : entity work.panda_ttl_top
+ttlin_inst : entity work.panda_ttlin_top
+port map (
+    clk_i               => FCLK_CLK0,
+    pad_i               => ttlin_pad_i,
+    val_o               => ttlin_val
+);
+
+ttlout_inst : entity work.panda_ttlout_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(TTL_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
-
     sysbus_i            => sysbus,
-
-    pad_i               => ttlin_pad_i,
-    val_o               => ttlin_val,
     pad_o               => ttlout_pad_o
 );
 
 --
 -- LVDS
 --
-panda_lvds_inst : entity work.panda_lvds_top
+lvdsin_inst : entity work.panda_lvdsin_top
+port map (
+    clk_i               => FCLK_CLK0,
+    pad_i               => lvdsin_pad_i,
+    val_o               => lvdsin_val
+);
+
+lvdsout_inst : entity work.panda_lvdsout_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(LVDS_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
-
     sysbus_i            => sysbus,
-
-    pad_i               => lvdsin_pad_i,
-    val_o               => lvdsin_val,
     pad_o               => lvdsout_pad_o
 );
 
 --
 -- 5-Input LUT
 --
-panda_lut_inst : entity work.panda_lut_top
+lut_inst : entity work.panda_lut_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(LUT_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
-
     sysbus_i            => sysbus,
-
     out_o               => lut_val
 );
 
 --
 -- 5-Input LUT
 --
-panda_srgate_inst : entity work.panda_srgate_top
+srgate_inst : entity work.panda_srgate_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -428,7 +522,7 @@ port map (
 --
 -- DIVIDER
 --
-panda_div_inst : entity work.panda_div_top
+div_inst : entity work.panda_div_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -449,7 +543,7 @@ port map (
 --
 -- PULSE GENERATOR
 --
-panda_pulse_inst : entity work.panda_pulse_top
+pulse_inst : entity work.panda_pulse_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -457,7 +551,6 @@ port map (
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(PULSE_CS),
     mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(PULSE_CS),
 
@@ -470,7 +563,7 @@ port map (
 --
 -- SEQEUENCER
 --
-panda_seq_inst : entity work.panda_sequencer_top
+seq_inst : entity work.panda_sequencer_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -478,7 +571,6 @@ port map (
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(SEQ_CS),
     mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(SEQ_CS),
 
@@ -497,11 +589,11 @@ port map (
 -- INENC (Encoder Inputs)
 --
 inenc_ctrl(0) <= enc0_ctrl_pad_i;
-inenc_ctrl(1) <= enc0_ctrl_pad_i;
-inenc_ctrl(2) <= enc0_ctrl_pad_i;
-inenc_ctrl(3) <= enc0_ctrl_pad_i;
+inenc_ctrl(1) <= "0000";
+inenc_ctrl(2) <= "0000";
+inenc_ctrl(3) <= "0000";
 
-panda_inenc_inst : entity work.panda_inenc_top
+inenc_inst : entity work.panda_inenc_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -509,9 +601,8 @@ port map (
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(INENC_CS),
     mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
-    mem_dat_o           => open,
+    mem_dat_o           => mem_read_data(INENC_CS),
 
     Am0_pad_io          => Am0_pad_io,
     Bm0_pad_io          => Bm0_pad_io,
@@ -523,13 +614,13 @@ port map (
     b_o                 => inenc_b,
     z_o                 => inenc_z,
     conn_o              => inenc_conn,
-    posn_o              => inenc_posn
+    posn_o              => posn_inenc_low
 );
 
 --
 -- OUTENC (Encoder Inputs)
 --
-panda_outenc_inst : entity work.panda_outenc_top
+outenc_inst : entity work.panda_outenc_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -553,7 +644,7 @@ port map (
 --
 -- COUNTER/TIMER
 --
-panda_counter_inst : entity work.panda_counter_top
+counter_inst : entity work.panda_counter_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -568,13 +659,13 @@ port map (
     sysbus_i            => sysbus,
     -- Output pulse
     carry_o             => counter_carry,
-    count_o             => counter_val
+    count_o             => posn_counter
 );
 
 --
 -- POSITION COMPARE
 --
-panda_pcomp_inst : entity work.panda_pcomp_top
+pcomp_inst : entity work.panda_pcomp_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -584,7 +675,7 @@ port map (
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
-    mem_dat_o           => open,
+    mem_dat_o           => mem_read_data(PCOMP_CS),
 
     sysbus_i            => sysbus,
     posbus_i            => posbus,
@@ -596,7 +687,7 @@ port map (
 --
 -- POSITION CAPTURE
 --
-panda_pcap_inst : entity work.panda_pcap_top
+pcap_inst : entity work.panda_pcap_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -641,7 +732,7 @@ port map (
 --
 -- REG (System Bus Readback)
 --
-panda_reg_inst : entity work.panda_reg
+reg_inst : entity work.panda_reg
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -659,7 +750,7 @@ port map (
 --
 -- CLOCKS
 --
-panda_clocks_inst : entity work.panda_clocks_top
+clocks_inst : entity work.panda_clocks_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -669,7 +760,7 @@ port map (
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
-    mem_dat_o           => open,
+    mem_dat_o           => mem_read_data(CLOCKS_CS),
 
     clocks_o            => clocks
 );
@@ -677,7 +768,7 @@ port map (
 --
 -- BITS
 --
-panda_bits_inst : entity work.panda_bits_top
+bits_inst : entity work.panda_bits_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -687,7 +778,7 @@ port map (
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
-    mem_dat_o           => open,
+    mem_dat_o           => mem_read_data(BITS_CS),
 
     zero_o              => zero,
     one_o               => one,
@@ -697,7 +788,7 @@ port map (
 --
 -- SLOW CONTROLLER FPGA
 --
-panda_slowctrl_inst : entity work.panda_slowctrl_top
+slowctrl_inst : entity work.panda_slowctrl_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -741,20 +832,27 @@ sysbus(97 downto 90)    <= counter_carry;
 sysbus(101 downto 98)   <= pcomp_act;
 sysbus(105 downto 102)  <= pcomp_pulse;
 sysbus(106)             <= pcap_act;
+sysbus(117 downto 107)  <= (others => '0');
 sysbus(121 downto 118)  <= soft;
 sysbus(125 downto 122)  <= clocks;
+sysbus(127 downto 126)  <= (others => '0');
 
 --
 -- Position Bus   : Assignments
 --
 posbus(0) <= (others => '0');
-posbus(4 downto 1)   <= inenc_posn;
-posbus(19 downto 12) <= counter_val;
-posbus(29 downto 22) <= adc_low;
+posbus(4 downto 1)   <= posn_inenc_low;
+posbus(8 downto 5)   <= (others => (others => '0')); -- QDEC
+posbus(10 downto 9)  <= (others => (others => '0')); -- ADDER
+posbus(18 downto 11) <= posn_counter;
+posbus(20 downto 19) <= (others => (others => '0')); -- PGEN
+posbus(28 downto 21) <= adc_low;
+posbus(31 downto 29) <= (others => (others => '0')); -- Not Used
 
 --
 -- Extended Bus   : Assignments
 --
+extbus(3 downto 0)  <= posn_inenc_high;
 extbus(11 downto 4) <= adc_high;
 
 end rtl;

@@ -19,10 +19,12 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/defines/top_defines.vhd" \
 "${SRC}/panda_csr_if.vhd" \
 "${SRC}/panda_spbram.vhd" \
-"${SRC}/panda_ttl_block.vhd" \
-"${SRC}/panda_ttl_top.vhd" \
-"${SRC}/panda_lvds_block.vhd" \
-"${SRC}/panda_lvds_top.vhd" \
+"${SRC}/panda_ttlout_block.vhd" \
+"${SRC}/panda_ttlout_top.vhd" \
+"${SRC}/panda_ttlin_top.vhd" \
+"${SRC}/panda_lvdsout_block.vhd" \
+"${SRC}/panda_lvdsout_top.vhd" \
+"${SRC}/panda_lvdsin_top.vhd" \
 "${SRC}/panda_lut.vhd" \
 "${SRC}/panda_lut_block.vhd" \
 "${SRC}/panda_lut_top.vhd" \
@@ -69,6 +71,8 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_axi3_write_master.vhd" \
 "${SRC}/panda_pcap.vhd" \
 "${SRC}/panda_pcap_ctrl.vhd" \
+"${SRC}/panda_pcap_posproc.vhd" \
+"${SRC}/panda_pcap_dsp.vhd" \
 "${SRC}/panda_pcap_top.vhd" \
 "${SRC}/panda_slowctrl_top.vhd" \
 "${SRC}/panda_top.vhd"

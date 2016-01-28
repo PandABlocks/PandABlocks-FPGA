@@ -58,10 +58,12 @@ signal a, b, z          : std_logic;
 signal conn             : std_logic;
 signal posn             : std_logic_vector(31 downto 0);
 
+signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
+
 begin
 
--- Status information to upper-level
-enc_mode_o <= PROTOCOL;
+-- Integer conversion for address.
+mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Configuration Register Write/Read
@@ -85,47 +87,47 @@ begin
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- A Channel Select
-                if (mem_addr_i = OUTENC_A_VAL_ADDR) then
+                if (mem_addr = OUTENC_A) then
                     A_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
                 -- B Channel Select
-                if (mem_addr_i = OUTENC_B_VAL_ADDR) then
+                if (mem_addr = OUTENC_B) then
                     B_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
                 -- Z Channel Select
-                if (mem_addr_i = OUTENC_Z_VAL_ADDR) then
+                if (mem_addr = OUTENC_Z) then
                     Z_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
                 -- Conn Channel Select
-                if (mem_addr_i = OUTENC_CONN_VAL_ADDR) then
+                if (mem_addr = OUTENC_CONN) then
                     CONN_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
                 -- Position Bus selection
-                if (mem_addr_i = OUTENC_POSN_VAL_ADDR) then
+                if (mem_addr = OUTENC_POSN) then
                     POSN_VAL <= mem_dat_i(PBUSBW-1 downto 0);
                 end if;
 
                 -- Encoder Protocol
-                if (mem_addr_i = OUTENC_PROTOCOL_ADDR) then
+                if (mem_addr = OUTENC_PROTOCOL) then
                     PROTOCOL <= mem_dat_i(2 downto 0);
                 end if;
 
                 -- SSI Number of Bits
-                if (mem_addr_i = OUTENC_BITS_ADDR) then
+                if (mem_addr = OUTENC_BITS) then
                     BITS <= mem_dat_i(7 downto 0);
                 end if;
 
                 -- Quadrature Encoder Transition Period
-                if (mem_addr_i = OUTENC_QPRESCALAR_ADDR) then
+                if (mem_addr = OUTENC_QPRESCALAR) then
                     QPRESCALAR <= mem_dat_i(15 downto 0);
                 end if;
 
                 -- Force Quadrature Encoder State
-                if (mem_addr_i = OUTENC_FRC_QSTATE_ADDR) then
+                if (mem_addr = OUTENC_FRC_QSTATE) then
                     FORCE_QSTATE <= mem_dat_i(0);
                     FORCE_QSTATE_WSTB <= '1';
                 end if;
@@ -141,11 +143,7 @@ begin
         if (reset_i = '1') then
             mem_dat_o <= (others => '0');
         else
-            case (mem_addr_i) is
-                when OUTENC_QSTATE_ADDR =>
-                    mem_dat_o <= (0 => QSTATE, others => '0');
-                when others =>
-            end case;
+            mem_dat_o <= (0 => QSTATE, others => '0');
         end if;
     end if;
 end process;
@@ -180,7 +178,7 @@ port map (
     z_o                 => z_o,
     conn_o              => conn_o,
     sclk_i              => sclk_i,
-    sdat_i              => '0',
+    sdat_i              => sdat_i,
     sdat_o              => sdat_o,
     sdat_dir_o          => sdat_dir_o,
     -- Block Parameters

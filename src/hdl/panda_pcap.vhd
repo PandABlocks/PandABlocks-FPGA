@@ -78,6 +78,20 @@ constant IRQ_DISARMED       : std_logic_vector(3 downto 0) := "0100";
 constant IRQ_ADDR_ERROR     : std_logic_vector(3 downto 0) := "0101";
 constant IRQ_INT_DISARMED   : std_logic_vector(3 downto 0) := "0110";
 
+component pcap_dma_fifo
+port (
+    clk                 : in std_logic;
+    rst                 : in std_logic;
+    din                 : in std_logic_vector(31 DOWNTO 0);
+    wr_en               : in std_logic;
+    rd_en               : in std_logic;
+    dout                : out std_logic_vector(31 DOWNTO 0);
+    full                : out std_logic;
+    empty               : out std_logic;
+    data_count          : out std_logic_vector(10 downto 0)
+);
+end component;
+
 type pcap_fsm_t is (IDLE, ACTV, DO_DMA, IS_FINISHED, IRQ, ABORTED);
 signal pcap_fsm             : pcap_fsm_t;
 
@@ -118,7 +132,7 @@ BLOCK_TLP_SIZE <= "000000" & BLOCK_SIZE(31 downto 6);
 --
 -- 32bit-to-64-bit FIFO with 1K sample depth
 --
-pcap_dma_fifo_inst : entity work.pcap_dma_fifo
+dma_fifo_inst : pcap_dma_fifo
 port map (
     rst             => pcap_frst_i,
     clk             => clk_i,

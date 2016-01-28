@@ -22,14 +22,14 @@ port (
     enable_i            : in  std_logic;
     posn_i              : in  std_logic_vector(31 downto 0);
     -- Block inputs
-    PCOMP_START         : in  std_logic_vector(31 downto 0);
-    PCOMP_STEP          : in  std_logic_vector(31 downto 0);
-    PCOMP_WIDTH         : in  std_logic_vector(31 downto 0);
-    PCOMP_NUM           : in  std_logic_vector(31 downto 0);
-    PCOMP_RELATIVE      : in  std_logic;
-    PCOMP_DIR           : in  std_logic;
-    PCOMP_FLTR_DELTAT   : in  std_logic_vector(31 downto 0);
-    PCOMP_FLTR_THOLD    : in  std_logic_vector(15 downto 0);
+    START               : in  std_logic_vector(31 downto 0);
+    STEP                : in  std_logic_vector(31 downto 0);
+    WIDTH               : in  std_logic_vector(31 downto 0);
+    NUM                 : in  std_logic_vector(31 downto 0);
+    RELATIVE            : in  std_logic;
+    DIR                 : in  std_logic;
+    FLTR_DELTAT         : in  std_logic_vector(31 downto 0);
+    FLTR_THOLD          : in  std_logic_vector(15 downto 0);
     -- Output pulse
     act_o               : out std_logic;
     err_o               : out std_logic_vector(31 downto 0);
@@ -39,15 +39,15 @@ end panda_pcomp;
 
 architecture rtl of panda_pcomp is
 
-type fsm_t is (WAIT_ENABLE, WAIT_START, WAIT_WIDTH, IS_FINISHED, PCOMP_ERR);
+type fsm_t is (WAIT_ENABLE, WAIT_START, WAIT_WIDTH, IS_FINISHED, ERR);
 signal pcomp_fsm        : fsm_t;
 
 signal enable_prev      : std_logic;
 signal enable_rise      : std_logic;
 signal enable_fall      : std_logic;
 
-signal start            : signed(31 downto 0);
-signal width            : signed(31 downto 0);
+signal cur_start        : signed(31 downto 0);
+signal cur_width        : signed(31 downto 0);
 
 signal posn             : signed(31 downto 0);
 signal posn_prev        : signed(31 downto 0);
@@ -109,13 +109,13 @@ begin
             posn_prev <= posn;
 
             -- Reset counters on deltaT tick
-            if (t_counter = unsigned(PCOMP_FLTR_DELTAT)) then
+            if (t_counter = unsigned(FLTR_DELTAT)) then
                 t_counter := (others => '0');
                 fltr_counter <= (others => '0');
                 -- Detect direction
                 -- '0' +
                 -- '1' -
-                if (abs(fltr_counter) > signed(PCOMP_FLTR_THOLD)) then
+                if (abs(fltr_counter) > signed(FLTR_THOLD)) then
                     puls_dir <= fltr_counter(15);
                 end if;
             -- Increment deltaT and keep track of direction ticks
@@ -137,13 +137,13 @@ end process;
 --
 -- Sign conversion for calculations based on encoder direction
 --
-puls_width <= signed('0'&PCOMP_WIDTH(30 downto 0)) when (PCOMP_DIR = '0') else
-                signed(unsigned(not PCOMP_WIDTH) + 1);
+puls_width <= signed('0'&WIDTH(30 downto 0)) when (DIR = '0') else
+                signed(unsigned(not WIDTH) + 1);
 
-puls_step <= signed('0'&PCOMP_STEP(30 downto 0)) when (PCOMP_DIR = '0') else
-                signed(unsigned(not PCOMP_STEP) + 1);
+puls_step <= signed('0'&STEP(30 downto 0)) when (DIR = '0') else
+                signed(unsigned(not STEP) + 1);
 
-puls_start <= signed(PCOMP_START);
+puls_start <= signed(START);
 
 --
 -- Latch position on the rising edge of enable_i input, and calculate live
@@ -162,7 +162,7 @@ begin
             end if;
 
             -- RELATIVE mode runs relative to rising edge of enable_i input
-            if (PCOMP_RELATIVE = '1') then
+            if (RELATIVE = '1') then
                 posn <= signed(posn_i) - posn_latched;
             else
                 posn <= signed(posn_i);
@@ -192,20 +192,20 @@ begin
                 last_posn <= posn;
             end if;
 
-            -- Detect that start value is crossed up or down.
-            if (last_posn < start and start <= posn) then
+            -- Detect that cur_start value is crossed up or down.
+            if (last_posn < cur_start and cur_start <= posn) then
                 start_up <= '1';
-            elsif (last_posn > start and start >= posn) then
+            elsif (last_posn > cur_start and cur_start >= posn) then
                 start_down <= '1';
             else
                 start_up <= '0';
                 start_down <= '0';
             end if;
 
-            -- Detect that width value is crossed up or down.
-            if (last_posn < width and width <= posn) then
+            -- Detect that cur_width value is crossed up or down.
+            if (last_posn < cur_width and cur_width <= posn) then
                 width_up <= '1';
-            elsif (last_posn > width and width >= posn) then
+            elsif (last_posn > cur_width and cur_width >= posn) then
                 width_down <= '1';
             else
                 width_up <= '0';
@@ -218,7 +218,7 @@ end process;
 
 -- Make sure that auto-detect Motor direction matches to desired
 -- user selection.
-dir_matched <= '1' when (PCOMP_DIR = puls_dir) else '0';
+dir_matched <= '1' when (DIR = puls_dir) else '0';
 
 -- Generate crossing pulses only when moving in the right direction.
 start_crossed <= (start_up or start_down) and dir_matched;
@@ -232,43 +232,43 @@ begin
     if rising_edge(clk_i) then
         if (reset_i = '1' or enable_fall = '1') then
             pcomp_fsm <= WAIT_ENABLE;
-            start <= (others => '0');
-            width <= (others => '0');
+            cur_start <= (others => '0');
+            cur_width <= (others => '0');
             puls_counter <= (others => '0');
             act_o <= '0';
             err_o <= (others => '0');
         else
             case (pcomp_fsm) is
-                -- Wait for enable rise to start operation.
+                -- Wait for enable rise to cur_start operation.
                 when WAIT_ENABLE =>
-                    start <= (others => '0');
-                    width <= (others => '0');
+                    cur_start <= (others => '0');
+                    cur_width <= (others => '0');
                     puls_counter <= (others => '0');
-                    start <= puls_start;
-                    width <= puls_start + puls_width;
+                    cur_start <= puls_start;
+                    cur_width <= puls_start + puls_width;
 
                     if (enable_rise = '1') then
                         pcomp_fsm <= WAIT_START;
                         act_o <= '1';
                     end if;
 
-                -- Wait for start crossing to assert the output pulse.
+                -- Wait for cur_start crossing to assert the output pulse.
                 when WAIT_START =>
                     if (width_crossed = '1') then
-                        pcomp_fsm <= PCOMP_ERR;
+                        pcomp_fsm <= ERR;
                         err_o(0) <= '1';
                     elsif (start_crossed = '1') then
-                        start <= start + puls_step;
+                        cur_start <= cur_start + puls_step;
                         pcomp_fsm <= WAIT_WIDTH;
                     end if;
 
-                -- Wait for width crossing to de-assert the output pulse.
+                -- Wait for cur_width crossing to de-assert the output pulse.
                 when WAIT_WIDTH =>
                     if (start_crossed = '1') then
-                        pcomp_fsm <= PCOMP_ERR;
+                        pcomp_fsm <= ERR;
                         err_o(1) <= '1';
                     elsif (width_crossed = '1') then
-                        width <= width + puls_step;
+                        cur_width <= cur_width + puls_step;
                         puls_counter <= puls_counter + 1;
                         pcomp_fsm <= IS_FINISHED;
                     end if;
@@ -276,17 +276,17 @@ begin
                 -- Check for finishing conditions.
                 when IS_FINISHED =>
                     -- Run forever until disabled.
-                    if (unsigned(PCOMP_NUM) = 0) then
+                    if (unsigned(NUM) = 0) then
                         pcomp_fsm <= WAIT_START;
                     -- Run for NPulses and stop.
-                    elsif (puls_counter = unsigned(PCOMP_NUM)) then
+                    elsif (puls_counter = unsigned(NUM)) then
                         pcomp_fsm <= WAIT_ENABLE;
                         act_o <= '0';
                     else
                         pcomp_fsm <= WAIT_START;
                     end if;
 
-                when PCOMP_ERR =>
+                when ERR =>
                     act_o <= '0';
 
                 when others =>

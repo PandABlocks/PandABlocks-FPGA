@@ -32,20 +32,25 @@ end panda_lut_block;
 
 architecture rtl of panda_lut_block is
 
-signal INPA_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
-signal INPB_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
-signal INPC_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
-signal INPD_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
-signal INPE_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
-signal FUNC             : std_logic_vector(31 downto 0) := (others => '0');
+signal INPA_VAL         : std_logic_vector(SBUSBW-1 downto 0);
+signal INPB_VAL         : std_logic_vector(SBUSBW-1 downto 0);
+signal INPC_VAL         : std_logic_vector(SBUSBW-1 downto 0);
+signal INPD_VAL         : std_logic_vector(SBUSBW-1 downto 0);
+signal INPE_VAL         : std_logic_vector(SBUSBW-1 downto 0);
+signal FUNC             : std_logic_vector(31 downto 0);
 
-signal inpa             : std_logic := '0';
-signal inpb             : std_logic := '0';
-signal inpc             : std_logic := '0';
-signal inpd             : std_logic := '0';
-signal inpe             : std_logic := '0';
+signal inpa             : std_logic;
+signal inpb             : std_logic;
+signal inpc             : std_logic;
+signal inpd             : std_logic;
+signal inpe             : std_logic;
+
+signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
 
 begin
+
+-- Integer conversion for address.
+mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Control System Interface
@@ -54,37 +59,37 @@ REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            INPA_VAL <= TO_SVECTOR(127, SBUSBW);
-            INPB_VAL <= TO_SVECTOR(127, SBUSBW);
-            INPC_VAL <= TO_SVECTOR(127, SBUSBW);
-            INPD_VAL <= TO_SVECTOR(127, SBUSBW);
-            INPE_VAL <= TO_SVECTOR(127, SBUSBW);
+            INPA_VAL <= TO_SVECTOR(0, SBUSBW);
+            INPB_VAL <= TO_SVECTOR(0, SBUSBW);
+            INPC_VAL <= TO_SVECTOR(0, SBUSBW);
+            INPD_VAL <= TO_SVECTOR(0, SBUSBW);
+            INPE_VAL <= TO_SVECTOR(0, SBUSBW);
             FUNC <= (others => '0');
         else
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr_i = LUT_INPA_VAL_ADDR) then
+                if (mem_addr = LUT_INPA) then
                     INPA_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                if (mem_addr_i = LUT_INPB_VAL_ADDR) then
+                if (mem_addr = LUT_INPB) then
                     INPB_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                if (mem_addr_i = LUT_INPC_VAL_ADDR) then
+                if (mem_addr = LUT_INPC) then
                     INPC_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                if (mem_addr_i = LUT_INPD_VAL_ADDR) then
+                if (mem_addr = LUT_INPD) then
                     INPD_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                if (mem_addr_i = LUT_INPE_VAL_ADDR) then
+                if (mem_addr = LUT_INPE) then
                     INPE_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
                 -- LUT Function value
-                if (mem_addr_i = LUT_FUNC_ADDR) then
+                if (mem_addr = LUT_FUNC) then
                     FUNC <= mem_dat_i;
                 end if;
             end if;

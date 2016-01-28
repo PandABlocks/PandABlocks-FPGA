@@ -41,7 +41,6 @@ port map (
     reset               => reset_i,
     a_i                 => a_i,
     b_i                 => b_i,
-    z_i                 => z_i,
     quad_reset_o        => quad_reset,
     quad_trans_o        => quad_trans,
     quad_dir_o          => quad_dir

@@ -44,7 +44,12 @@ signal STEP             : std_logic_vector(31 downto 0);
 signal enable           : std_logic := '0';
 signal trigger          : std_logic := '0';
 
+signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
+
 begin
+
+-- Integer conversion for address.
+mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Control System Interface
@@ -64,28 +69,28 @@ begin
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Enable Control
-                if (mem_addr_i = COUNTER_ENABLE) then
+                if (mem_addr = COUNTER_ENABLE) then
                     ENABLE_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
                 -- Trigger
-                if (mem_addr_i = COUNTER_TRIGGER) then
+                if (mem_addr = COUNTER_TRIGGER) then
                     TRIGGER_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
                 -- Counter Direction
-                if (mem_addr_i = COUNTER_DIR) then
+                if (mem_addr = COUNTER_DIR) then
                     DIR <= mem_dat_i(0);
                 end if;
 
                 -- Counter Start Value
-                if (mem_addr_i = COUNTER_START) then
+                if (mem_addr = COUNTER_START) then
                     START <= mem_dat_i;
                     START_LOAD <= '1';
                 end if;
 
                 -- Counter Step Value
-                if (mem_addr_i = COUNTER_STEP) then
+                if (mem_addr = COUNTER_STEP) then
                     STEP <= mem_dat_i;
                 end if;
             end if;

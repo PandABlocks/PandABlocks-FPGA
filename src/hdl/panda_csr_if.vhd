@@ -73,7 +73,6 @@ begin
     return data(to_integer(unsigned(addr(AW+CSW+1 downto AW+2))));
 end;
 
-
 signal new_write_access     : std_logic := '0';
 signal new_read_access      : std_logic := '0';
 signal ongoing_write        : std_logic := '0';
@@ -184,7 +183,7 @@ end generate S_AXI_RDATA_DFF;
 
 -- Memory read data multiplexer
 -- There are 2**CS pages
-READ_DATA_MUX : process(mem_dat_i)
+READ_DATA_MUX : process(mem_dat_i, S_AXI_ARADDR)
 begin
     mem_read_data <= RD_DATA_MUX(mem_dat_i, S_AXI_ARADDR, MEM_CSWIDTH, MEM_AWIDTH);
 end process;

@@ -15,7 +15,7 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
-    -- Memory Bus Interface
+    -- Encoder inputs from Bitbus
     a_i                 : in  std_logic;
     b_i                 : in  std_logic;
     z_i                 : in  std_logic;
@@ -48,9 +48,12 @@ architecture rtl of panda_outenc is
 signal quad_a           : std_logic;
 signal quad_b           : std_logic;
 
-signal sdat_dir         : std_logic := '0';
+signal sdat_dir         : std_logic;
 
 begin
+
+-- Unused signals.
+sdat_dir <= '0';
 
 -- Status information to upper-level
 enc_mode_o <= PROTOCOL;

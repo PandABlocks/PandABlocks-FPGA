@@ -42,7 +42,12 @@ signal index                : unsigned(2 downto 0):= "000";
 signal index_prev           : unsigned(2 downto 0):= "000";
 signal sysbus_rstb          : std_logic := '0';
 
+signal mem_addr             : natural range 0 to (2**mem_addr_i'length - 1);
+
 begin
+
+-- Integer conversion for address.
+mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- System Bus is un-packed into an array of 16-bit words, so that on a
@@ -67,10 +72,10 @@ begin
         sysbus_rstb <= '0';
 
         if (mem_cs_i = '1' and mem_wstb_i = '1' and
-              mem_addr_i(BLK_AW-1 downto 0) = REG_BIT_READ_RST) then
+              mem_addr = REG_BIT_READ_RST) then
             index <= (others => '0');
         elsif (mem_cs_i = '1' and mem_rstb_i = '1' and
-              mem_addr_i(BLK_AW-1 downto 0) = REG_BIT_READ_VALUE) then
+              mem_addr = REG_BIT_READ_VALUE) then
             index <= index + 1;
             sysbus_change_clear(to_integer(index)) <= '1';
             sysbus_rstb <= '1';

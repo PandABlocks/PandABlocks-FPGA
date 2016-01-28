@@ -19,7 +19,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/defines/addr_defines.vhd" \
 "${SRC}/defines/top_defines.vhd" \
 "${SRC}/panda_axi3_write_master.vhd" \
-"${SRC}/panda_csr_if.vhd" \
+"${SRC}/panda_pcap_dsp.vhd" \
 "${SRC}/panda_pcap.vhd" \
 "${SRC}/panda_pcap_block.vhd" \
 "../../panda_top/bench/test_interface.vhd" \

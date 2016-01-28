@@ -34,17 +34,22 @@ end panda_div_block;
 
 architecture rtl of panda_div_block is
 
-signal INP_VAL      : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
-signal RST_VAL      : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
+signal INP_VAL      : std_logic_vector(SBUSBW-1 downto 0);
+signal RST_VAL      : std_logic_vector(SBUSBW-1 downto 0);
 signal FIRST_PULSE  : std_logic := '0';
-signal DIVISOR      : std_logic_vector(31 downto 0) := (others => '0');
-signal COUNT        : std_logic_vector(31 downto 0) := (others => '0');
-signal FORCE_RST    : std_logic := '0';
+signal DIVISOR      : std_logic_vector(31 downto 0);
+signal COUNT        : std_logic_vector(31 downto 0);
+signal FORCE_RST    : std_logic;
 
-signal inp          : std_logic := '0';
-signal rst          : std_logic := '0';
+signal inp          : std_logic;
+signal rst          : std_logic;
+
+signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
 
 begin
+
+-- Integer conversion for address.
+mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Control System Interface
@@ -63,23 +68,23 @@ begin
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr_i = DIV_INP_VAL_ADDR) then
+                if (mem_addr = DIV_INP) then
                     INP_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                if (mem_addr_i = DIV_RST_VAL_ADDR) then
+                if (mem_addr = DIV_RST) then
                     RST_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                if (mem_addr_i = DIV_FIRST_PULSE_ADDR) then
+                if (mem_addr = DIV_FIRST_PULSE) then
                     FIRST_PULSE <= mem_dat_i(0);
                 end if;
 
-                if (mem_addr_i = DIV_DIVISOR_ADDR) then
+                if (mem_addr = DIV_DIVISOR) then
                     DIVISOR <= mem_dat_i;
                 end if;
 
-                if (mem_addr_i = DIV_FORCE_RST_ADDR) then
+                if (mem_addr = DIV_FORCE_RST) then
                     FORCE_RST <= '1';
                 end if;
             end if;

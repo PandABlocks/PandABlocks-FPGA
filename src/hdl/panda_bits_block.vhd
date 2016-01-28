@@ -1,6 +1,13 @@
 --------------------------------------------------------------------------------
---  File:       panda_bits_block.vhd
---  Desc:       Position compare output pulse generator
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : BITS block register interface.
+--                There are 4 configuration registers for each soft input.
 --
 --------------------------------------------------------------------------------
 
@@ -38,10 +45,11 @@ signal SOFTB_SET        : std_logic := '0';
 signal SOFTC_SET        : std_logic := '0';
 signal SOFTD_SET        : std_logic := '0';
 
-signal mem_addr         : integer range 0 to 2**BLK_AW-1;
+signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
 
 begin
 
+-- Integer conversion for address.
 mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
@@ -54,19 +62,19 @@ begin
         else
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = BITS.SOFTA_SET) then
+                if (mem_addr = BITS_A_SET) then
                     SOFTA_SET <= mem_dat_i(0);
                 end if;
 
-                if (mem_addr = BITS.SOFTB_SET) then
+                if (mem_addr = BITS_B_SET) then
                     SOFTB_SET <= mem_dat_i(0);
                 end if;
 
-                if (mem_addr = BITS.SOFTC_SET) then
+                if (mem_addr = BITS_C_SET) then
                     SOFTC_SET <= mem_dat_i(0);
                 end if;
 
-                if (mem_addr = BITS.SOFTD_SET) then
+                if (mem_addr = BITS_D_SET) then
                     SOFTD_SET <= mem_dat_i(0);
                 end if;
             end if;

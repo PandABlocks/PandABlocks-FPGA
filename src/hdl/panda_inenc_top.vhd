@@ -1,3 +1,15 @@
+--------------------------------------------------------------------------------
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Top-level design instantiating 4 channels of INENC block.
+--
+--------------------------------------------------------------------------------
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -19,7 +31,6 @@ port (
     mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
-    mem_rstb_i          : in  std_logic;
     mem_dat_i           : in  std_logic_vector(31 downto 0);
     mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Encoder I/O Pads
@@ -39,19 +50,39 @@ end panda_inenc_top;
 
 architecture rtl of panda_inenc_top is
 
-signal mem_blk_cs           : std_logic_vector(ENC_NUM-1 downto 0);
+signal mem_blk_cs       : std_logic_vector(ENC_NUM-1 downto 0);
 
-signal iobuf_ctrl           : iobuf_ctrl_array(ENC_NUM-1 downto 0);
+signal iobuf_ctrl       : iobuf_ctrl_array(ENC_NUM-1 downto 0);
 
-signal Am0_ipad, Am0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
-signal Bm0_ipad, Bm0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
-signal Zm0_ipad, Zm0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
+-- Pads connecting to IOBUF.
+signal Am0_ipad         : std_logic_vector(ENC_NUM-1 downto 0);
+signal Bm0_ipad         : std_logic_vector(ENC_NUM-1 downto 0);
+signal Zm0_ipad         : std_logic_vector(ENC_NUM-1 downto 0);
+signal Am0_opad         : std_logic_vector(ENC_NUM-1 downto 0);
+signal Bm0_opad         : std_logic_vector(ENC_NUM-1 downto 0);
+signal Zm0_opad         : std_logic_vector(ENC_NUM-1 downto 0);
 
+signal Am0_ireg         : std_logic_vector(ENC_NUM-1 downto 0);
+signal Bm0_ireg         : std_logic_vector(ENC_NUM-1 downto 0);
+signal Zm0_ireg         : std_logic_vector(ENC_NUM-1 downto 0);
+
+signal ctrl_ireg        : std4_array(ENC_NUM-1 downto 0);
 begin
 
 -- Unused outputs.
-
 mem_dat_o <= (others => '0');
+Am0_opad <= "0000";
+Zm0_opad <= "0000";
+
+-- Register input pads following IOBUS.
+process (clk_i) begin
+    if rising_edge(clk_i) then
+        Am0_ireg <= Am0_ipad;
+        Bm0_ireg <= Bm0_ipad;
+        Zm0_ireg <= Zm0_ipad;
+        ctrl_ireg <= ctrl_pad_i;
+    end if;
+end process;
 
 --
 -- Instantiate INENC Blocks :
@@ -79,7 +110,7 @@ mem_blk_cs(I) <= '1'
 
 panda_inenc_block_inst : entity work.panda_inenc_block
 port map (
-    -- Clock and Reset
+
     clk_i               => clk_i,
     reset_i             => reset_i,
 
@@ -87,23 +118,23 @@ port map (
     mem_wstb_i          => mem_wstb_i,
     mem_addr_i          => mem_addr_i(BLK_AW-1 downto 0),
     mem_dat_i           => mem_dat_i,
-    -- Encoder I/O Pads
-    a_i                 => Am0_ipad(I),
-    b_i                 => Bm0_ipad(I),
-    z_i                 => Zm0_ipad(I),
+
+    a_i                 => Am0_ireg(I),
+    b_i                 => Bm0_ireg(I),
+    z_i                 => Zm0_ireg(I),
     mclk_o              => Bm0_opad(I),
-    mdat_i              => Am0_ipad(I),
+    mdat_i              => Am0_ireg(I),
     mdat_o              => open,
-    -- Status
+    conn_i              => ctrl_ireg(I)(0),
+
+    a_o                 => a_o(I),
+    b_o                 => b_o(I),
+    z_o                 => z_o(I),
+    conn_o              => conn_o(I),
+
     posn_o              => posn_o(I),
     iobuf_ctrl_o        => iobuf_ctrl(I)
 );
-
--- Assign raw encoder inputs to system bus.
-a_o(I) <= Am0_ipad(I);
-b_o(I) <= Bm0_ipad(I);
-z_o(I) <= Zm0_ipad(I);
-conn_o(I) <= ctrl_pad_i(I)(0);
 
 END GENERATE;
 

@@ -5,8 +5,11 @@ use ieee.numeric_std.all;
 library work;
 use work.test_interface.all;
 
-ENTITY panda_top_tb IS
-END panda_top_tb;
+entity panda_top_tb is
+    port (
+        ttlin_pad       : std_logic_vector(5 downto 0)
+    );
+end panda_top_tb;
 
 ARCHITECTURE behavior OF panda_top_tb IS 
 
@@ -61,7 +64,6 @@ signal DATA_OUT_P       : std_logic_vector(3 downto 0);
 
 signal inputs           : unsigned(15 downto 0) := X"0000";
 
-signal ttlin_pad        : std_logic_vector(5 downto 0);
 signal lvdsin_pad       : std_logic_vector(1 downto 0);
 
 
@@ -86,7 +88,6 @@ begin
     end if;
 end process;
 
-ttlin_pad <= std_logic_vector(inputs(13 downto 8));
 lvdsin_pad <= std_logic_vector(inputs(15 downto 14));
 
 -- Instantiate the Unit Under Test (UUT)

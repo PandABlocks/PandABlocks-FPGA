@@ -16,7 +16,6 @@ port (
     mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
-    mem_rstb_i          : in  std_logic;
     mem_dat_i           : in  std_logic_vector(31 downto 0);
     mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Encoder I/O Pads
@@ -35,7 +34,7 @@ end panda_sequencer_top;
 architecture rtl of panda_sequencer_top is
 
 signal mem_blk_cs           : std_logic_vector(SEQ_NUM-1 downto 0);
-signal mem_read_data        : std32_array(2**(PAGE_AW-BLK_AW)-1 downto 0);
+signal mem_read_data        : std32_array(SEQ_NUM-1 downto 0);
 
 begin
 

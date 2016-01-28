@@ -60,12 +60,12 @@ signal pulse_queue_data_count   : std_logic_vector(10 downto 0);
 
 signal inp_rise                 : std_logic;
 signal inp_fall                 : std_logic;
-signal ongoing_pulse            : std_logic := '0';
+signal ongoing_pulse            : std_logic;
 
 signal rst_prev                 : std_logic;
 signal rst_rise                 : std_logic;
 signal reset                    : std_logic;
-signal pulse                    : std_logic := '0';
+signal pulse                    : std_logic;
 
 signal DELAY_prev               : std_logic_vector(47 downto 0);
 signal WIDTH_prev               : std_logic_vector(47 downto 0);
@@ -79,7 +79,7 @@ signal timestamp_prev           : unsigned(47 downto 0);
 signal pulse_ts                 : unsigned(47 downto 0);
 
 signal delta_T                  : unsigned(47 downto 0);
-signal missed_pulses            : unsigned(15 downto 0);
+signal missed_pulses            : unsigned(31 downto 0);
 
 signal is_first_pulse           : std_logic := '1';
 signal period_error             : std_logic := '0';
@@ -207,16 +207,15 @@ begin
             -- incoming pulse is stored in the queue along with pulse value.
             -- (DELAY=0 is special again).
 
-            -- Queue full confition flags an error, and ticks missing pulse 
+            -- Queue full confition flags an error, and ticks missing pulse
             -- counter.
             if (inp_rise = '1' and pulse_queue_full = '1') then
                 ERR_OVERFLOW <= '1';
                 missed_pulses <= missed_pulses + 1;
                 perr_o <= '1';
-            end if;
             -- Pulse period must obey Xilinx FIFO IP latency following the first
             -- pulse.
-            if (inp_rise = '1' and period_error = '1') then
+            elsif (inp_rise = '1' and period_error = '1') then
                 ERR_PERIOD <= '1';
                 missed_pulses <= missed_pulses + 1;
                 perr_o <= '1';
@@ -286,7 +285,7 @@ end process;
 out_o <= pulse;
 
 -- Output assignments.
-MISSED_CNT <= X"0000" & std_logic_vector(missed_pulses);
+MISSED_CNT <= std_logic_vector(missed_pulses);
 QUEUE <= pulse_queue_data_count;
 
 end rtl;

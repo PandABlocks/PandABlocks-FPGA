@@ -34,9 +34,12 @@ architecture rtl of panda_slowctrl_top is
 signal inenc_buf_ctrl       : std_logic_vector(5 downto 0);
 signal outenc_buf_ctrl      : std_logic_vector(5 downto 0);
 
+signal mem_addr             : natural range 0 to (2**mem_addr_i'length - 1);
+
 begin
 
-mem_dat_o <= (others => '0');
+-- Integer conversion for address.
+mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Control System Register Interface
@@ -55,7 +58,7 @@ begin
                 -- SSI   : 0x0C
                 -- Endat : 0x14
                 -- BiSS  : 0x1C
-                if (mem_addr_i = SLOW_INENC_CTRL_ADDR) then
+                if (mem_addr = SLOW_INENC_CTRL) then
                     inenc_buf_ctrl <= mem_dat_i(5 downto 0);
                 end if;
 
@@ -66,7 +69,7 @@ begin
                 -- BiSS  : 0x18
                 -- Pass  : 0x07
                 -- DCard Output Channel Buffer Ctrl
-                if (mem_addr_i = SLOW_OUTENC_CTRL_ADDR) then
+                if (mem_addr = SLOW_OUTENC_CTRL) then
                     outenc_buf_ctrl <= mem_dat_i(5 downto 0);
                 end if;
            end if;
@@ -83,12 +86,7 @@ begin
         if (reset_i = '1') then
             mem_dat_o <= (others => '0');
         else
-            case (mem_addr_i) is
-                when SLOW_VERSION_ADDR =>
-                    mem_dat_o <= X"87654321";
-                when others =>
-                    mem_dat_o <= (others => '0');
-            end case;
+            mem_dat_o <= X"87654321";
         end if;
     end if;
 end process;

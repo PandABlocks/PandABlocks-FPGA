@@ -3,9 +3,15 @@ module test;
 `include "./registers.v"
 `include "./apis_tb.v"
 
-panda_top_tb tb();
+// Inputs to testbench
+reg [5:0]   ttlin_pad;
 
-reg [511:0]     test_name = "POSITION_TEST";
+panda_top_tb tb(
+    .ttlin_pad      ( ttlin_pad)
+);
+
+//reg [511:0]     test_name = "PCAP_TEST";
+reg [511:0]     test_name = "FRAMING_TEST";
 //reg [511:0]     test_name = "ENCLOOPBACK_TEST";
 
 reg [1:0]       wrs, rsp;
@@ -32,7 +38,7 @@ integer         data;
 reg [31:0]      read_addr;
 reg             active;
 
-integer i;
+integer i, n;
 
 
 // Wrapper for Zynx AXI4 transactions.
@@ -206,11 +212,11 @@ else if (test_name == "SEQ_TEST") begin
 end
 else if (test_name == "ENCLOOPBACK_TEST") begin
     repeat(1250) @(posedge tb.uut.ps.FCLK);
-    REG_WRITE(SLOW_BASE, SLOW_INENC_CTRL_ADDR, 3);
-    REG_WRITE(SLOW_BASE, SLOW_OUTENC_CTRL_ADDR, 7);
-    REG_WRITE(OUTENC_BASE, OUTENC_A_VAL_ADDR, 66);  // inenc_a[0]
-    REG_WRITE(OUTENC_BASE, OUTENC_B_VAL_ADDR, 70);  // inenc_b[0]
-    REG_WRITE(OUTENC_BASE, OUTENC_PROTOCOL_ADDR, 4);  // inenc_b[0]
+    REG_WRITE(SLOW_BASE, SLOW_INENC_CTRL, 3);
+    REG_WRITE(SLOW_BASE, SLOW_OUTENC_CTRL, 7);
+    REG_WRITE(OUTENC_BASE, OUTENC_A, 66);  // inenc_a[0]
+    REG_WRITE(OUTENC_BASE, OUTENC_B, 70);  // inenc_b[0]
+    REG_WRITE(OUTENC_BASE, OUTENC_PROTOCOL, 4);  // inenc_b[0]
 
     tb.encoder.Turn(1500);
 
@@ -226,22 +232,22 @@ else if (test_name == "SSIENC_TEST") begin
 //    REG_WRITE(COUNTER_BASE, COUNTER_TRIGGER, 122);
 //    REG_WRITE(COUNTER_BASE, COUNTER_STEP, 1);
 //
-//    // SLOW_INENC_CTRL_ADDR
+//    // SLOW_INENC_CTRL
 //    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_B000, 4, 32'hC, wrs);
-//    // SLOW_OUTENC_CTRL_ADDR
+//    // SLOW_OUTENC_CTRL
 //    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_B004, 4, 32'h28, wrs);
 //
 //    // Set-up OutEnc
-//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_PROTOCOL_ADDR, 4, 1, wrs);
-//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_BITS_ADDR, 4, 24, wrs);
-//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_POSN_VAL_ADDR, 4, 12, wrs);
-//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_BITS_ADDR, 4, 24, wrs);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_PROTOCOL, 4, 1, wrs);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_BITS, 4, 24, wrs);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_POSN, 4, 12, wrs);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_8000 + 4*OUTENC_BITS, 4, 24, wrs);
 //
 //    // Set-up InEnc
-//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_PROTOCOL_ADDR, 4, 1, wrs);
-//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_BITS_ADDR, 4, 24, wrs);
-//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_CLKRATE_ADDR, 4, 125, wrs);
-//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_FRAMERATE_ADDR, 4, 100, wrs);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_PROTOCOL, 4, 1, wrs);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_BITS, 4, 24, wrs);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_CLKRATE, 4, 125, wrs);
+//    tb.uut.ps.ps.ps.inst.write_data(32'h43C0_7000 + 4*INENC_FRAMERATE, 4, 100, wrs);
 //
 //    repeat(1250) @(posedge tb.uut.ps.FCLK);
 //    tb.uut.ps.ps.ps.inst.write_data(32'h43C1_D000,  4, 1, wrs);
@@ -249,8 +255,8 @@ else if (test_name == "SSIENC_TEST") begin
 //    repeat(40000) @(posedge tb.uut.ps.FCLK);
 //    $finish;
 end
-else if (test_name == "POSITION_TEST") begin
-    $display("Running POSITION TEST...");
+else if (test_name == "PCAP_TEST") begin
+    $display("Running PCAP TEST...");
 
     base = 32'h43C1_1000;
     addr = 32'h1000_0000;
@@ -262,8 +268,8 @@ else if (test_name == "POSITION_TEST") begin
 
     repeat(1250) @(posedge tb.uut.ps.FCLK);
     // Setup Slow Controller Block for Absolute
-    REG_WRITE(SLOW_BASE, SLOW_INENC_CTRL_ADDR, 32'h3);
-    REG_WRITE(SLOW_BASE, SLOW_OUTENC_CTRL_ADDR, 32'h7);
+    REG_WRITE(SLOW_BASE, SLOW_INENC_CTRL, 32'h3);
+    REG_WRITE(SLOW_BASE, SLOW_OUTENC_CTRL, 32'h7);
 
     // Setup a timer for capture input test
     REG_WRITE(COUNTER_BASE, COUNTER_ENABLE, 106);       // pcap_act
@@ -272,22 +278,22 @@ else if (test_name == "POSITION_TEST") begin
     REG_WRITE(COUNTER_BASE, COUNTER_STEP, 500);
 
     // Setup Position Compare Block
-    REG_WRITE(PCOMP_BASE, PCOMP_ENABLE_VAL_ADDR, 106);  // pcap_act
-    REG_WRITE(PCOMP_BASE, PCOMP_POSN_VAL_ADDR, 1);      // inenc_posn(0)
-    REG_WRITE(PCOMP_BASE, PCOMP_START_ADDR, 100);
-    REG_WRITE(PCOMP_BASE, PCOMP_STEP_ADDR, 0);
-    REG_WRITE(PCOMP_BASE, PCOMP_WIDTH_ADDR, 1400);
-    REG_WRITE(PCOMP_BASE, PCOMP_NUM_ADDR, 3);
-    REG_WRITE(PCOMP_BASE, PCOMP_FLTR_DELTAT_ADDR, 32);
-    REG_WRITE(PCOMP_BASE, PCOMP_FLTR_THOLD_ADDR, 1);
+    REG_WRITE(PCOMP_BASE, PCOMP_ENABLE, 106);           // pcap_act
+    REG_WRITE(PCOMP_BASE, PCOMP_POSN, 1);               // inenc_posn(0)
+    REG_WRITE(PCOMP_BASE, PCOMP_START, 100);
+    REG_WRITE(PCOMP_BASE, PCOMP_STEP, 0);
+    REG_WRITE(PCOMP_BASE, PCOMP_WIDTH, 1400);
+    REG_WRITE(PCOMP_BASE, PCOMP_NUMBER, 3);
+    REG_WRITE(PCOMP_BASE, PCOMP_FLTR_DELTAT, 32);
+    REG_WRITE(PCOMP_BASE, PCOMP_FLTR_THOLD, 1);
 
     // Setup Position Capture
     REG_WRITE(REG_BASE, REG_PCAP_START_WRITE, 1);
-    REG_WRITE(REG_BASE, REG_PCAP_WRITE, 4);     // enc #1
-    REG_WRITE(REG_BASE, REG_PCAP_WRITE, 15);    // counter #1
+    REG_WRITE(REG_BASE, REG_PCAP_WRITE, 1);             // enc #1
+    REG_WRITE(REG_BASE, REG_PCAP_WRITE, 11);            // counter #1
 
-    REG_WRITE(PCAP_BASE, PCAP_ENABLE, 98);     // pcomp_act(0)
-    REG_WRITE(PCAP_BASE, PCAP_CAPTURE, 102);   // pcomp_pulse
+    REG_WRITE(PCAP_BASE, PCAP_ENABLE, 98);              // pcomp_act(0)
+    REG_WRITE(PCAP_BASE, PCAP_CAPTURE, 102);            // pcomp_pulse
     REG_WRITE(DRV_BASE, DRV_PCAP_TIMEOUT, 0);
     REG_WRITE(DRV_BASE, DRV_PCAP_DMAADDR, addr);
     REG_WRITE(REG_BASE, REG_PCAP_ARM, 1);
@@ -297,12 +303,155 @@ else if (test_name == "POSITION_TEST") begin
 
 fork
 begin
-    tb.encoder.Turn(1500);
-    tb.encoder.Turn(-1500);
-    tb.encoder.Turn(1500);
-    tb.encoder.Turn(-1500);
-    tb.encoder.Turn(1500);
-    tb.encoder.Turn(-1500);
+
+    for (i=0; i<10; i=i+1) begin
+        tb.encoder.Turn(1500);
+        tb.encoder.Turn(-1500);
+    end
+end
+
+begin
+    while (1) begin
+        // Wait for DMA irq
+        tb.uut.ps.ps.ps.inst.wait_interrupt(0,IRQ_STATUS);
+        // Read IRQ Status and Sample Count Registers
+        REG_READ(DRV_BASE, DRV_PCAP_IRQ_STATUS, IRQ_STATUS);
+        REG_READ(DRV_BASE, DRV_PCAP_SMPL_COUNT, SMPL_COUNT);
+
+        // Keep track of address and sample count.
+        smpl_table[irq_count] = SMPL_COUNT;
+        addr_table[irq_count] = read_addr;
+        irq_count = irq_count + 1;
+
+        // Set next DMA address
+        read_addr = addr;
+        addr = addr + tb.BLOCK_SIZE;
+
+        if (IRQ_STATUS == 4'b0001) begin
+            $display("IRQ on BLOCK_FINISHED with %d samples.", SMPL_COUNT);
+            // DRV_PCAP_DMAADDR
+            REG_WRITE(DRV_BASE, DRV_PCAP_DMAADDR, addr);
+        end
+        else if (IRQ_STATUS == 4'b0010) begin
+            $display("IRQ on CAPT_FINISHED with %d samples.", SMPL_COUNT);
+
+            // Read scattered data from host memory into a file.
+            for (i=0; i<irq_count; i=i+1) begin
+                $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
+                tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
+                total_samples = total_samples + smpl_table[i];
+            end
+
+            $display("Total Samples = %d", total_samples);
+            $finish;
+        end
+        else if (IRQ_STATUS == 4'b0011) begin
+            $display("IRQ on TIMEOUT with %d samples.", SMPL_COUNT);
+            REG_WRITE(DRV_BASE, DRV_PCAP_DMAADDR, addr);
+        end
+        else if (IRQ_STATUS == 4'b0100) begin
+            $display("IRQ on DISARM with %d samples.", SMPL_COUNT);
+            // Read scattered data from host memory into a file.
+            for (i=0; i<irq_count; i=i+1) begin
+                $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
+                tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
+                total_samples = total_samples + smpl_table[i];
+            end
+            $display("Total Samples = %d", total_samples);
+            $finish;
+        end
+        else if (IRQ_STATUS == 4'b0110) begin
+            $display("IRQ on INT_DISARM with %d samples.", SMPL_COUNT);
+            // Read scattered data from host memory into a file.
+            for (i=0; i<irq_count; i=i+1) begin
+                $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
+                tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
+                total_samples = total_samples + smpl_table[i];
+            end
+            $display("Total Samples = %d", total_samples);
+            $finish;
+        end
+        else if (IRQ_STATUS == 4'b0101) begin
+            $display("IRQ on ADDR_ERROR...");
+            $finish;
+        end
+    end
+end
+
+join
+
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+
+    $finish;
+end
+else if (test_name == "FRAMING_TEST") begin
+    $display("Running FRAMING TEST...");
+
+    base = 32'h43C1_1000;
+    addr = 32'h1000_0000;
+    read_addr = 32'h1000_0000;
+    irq_count = 0;
+    total_samples = 0;
+    ttlin_pad = 0;
+
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    // Setup Slow Controller Block for Absolute
+    REG_WRITE(SLOW_BASE, SLOW_INENC_CTRL, 32'h3);
+    REG_WRITE(SLOW_BASE, SLOW_OUTENC_CTRL, 32'h7);
+
+    // Setup a timer for capture input test
+    REG_WRITE(COUNTER_BASE, COUNTER_ENABLE, 2);       // TTL #0
+    REG_WRITE(COUNTER_BASE, COUNTER_TRIGGER, 4);      // TTL #2
+    REG_WRITE(COUNTER_BASE, COUNTER_START, 1000);
+    REG_WRITE(COUNTER_BASE, COUNTER_STEP, 500);
+
+    // Setup Position Capture
+    REG_WRITE(REG_BASE, REG_PCAP_START_WRITE, 1);
+    REG_WRITE(REG_BASE, REG_PCAP_WRITE, 11);    // counter #1
+    REG_WRITE(REG_BASE, REG_PCAP_WRITE, 12);    // counter #2
+
+    REG_WRITE(PCAP_BASE, PCAP_ENABLE,  2);      // TTL #0
+    REG_WRITE(PCAP_BASE, PCAP_FRAME,   3);      // TTL #1
+    REG_WRITE(PCAP_BASE, PCAP_CAPTURE, 4);      // TTL #2
+
+    REG_WRITE(REG_BASE, REG_PCAP_FRAMING_MASK, 32'h180);
+    REG_WRITE(REG_BASE, REG_PCAP_FRAMING_ENABLE, 1);
+    REG_WRITE(REG_BASE, REG_PCAP_FRAMING_MODE, 0);
+
+    REG_WRITE(DRV_BASE, DRV_PCAP_TIMEOUT, 0);
+    REG_WRITE(DRV_BASE, DRV_PCAP_DMAADDR, addr);
+    REG_WRITE(REG_BASE, REG_PCAP_ARM, 1);
+    addr = addr + tb.BLOCK_SIZE;
+    REG_WRITE(DRV_BASE, DRV_PCAP_DMAADDR, addr);
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+
+fork
+
+begin
+    ttlin_pad[0] = 1;
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+
+    for (i = 0; i < 10; i = i+1) begin
+        ttlin_pad[1] = 1;
+        repeat(500) @(posedge tb.uut.ps.FCLK);
+        ttlin_pad[1] = 0;
+        repeat(1500) @(posedge tb.uut.ps.FCLK);
+    end
+
+    repeat(4000) @(posedge tb.uut.ps.FCLK);
+    ttlin_pad[0] = 0;
+end
+
+begin
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+
+    repeat(750) @(posedge tb.uut.ps.FCLK);
+    for (n = 0; n < 5; n = n+1) begin
+        ttlin_pad[2] = 1;
+        repeat(500) @(posedge tb.uut.ps.FCLK);
+        ttlin_pad[2] = 0;
+        repeat(3500) @(posedge tb.uut.ps.FCLK);
+    end
 end
 
 begin

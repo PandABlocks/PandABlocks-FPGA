@@ -1,6 +1,13 @@
 --------------------------------------------------------------------------------
---  File:       panda_bits.vhd
---  Desc:       Position user bits.
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : BITS block provides 4 user configurable soft inputs.
+--                Soft inputs are controlled through register interface.
 --
 --------------------------------------------------------------------------------
 

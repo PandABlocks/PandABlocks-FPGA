@@ -37,12 +37,17 @@ signal RST_VAL          : std_logic_vector(SBUSBW-1 downto 0) := (others => '1')
 signal SET_EDGE         : std_logic := '0';
 signal RST_EDGE         : std_logic := '0';
 signal FORCE_SET        : std_logic := '0';
-signal FORCE_RST      : std_logic := '0';
+signal FORCE_RST        : std_logic := '0';
 
 signal set              : std_logic := '0';
 signal rst              : std_logic := '0';
 
+signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
+
 begin
+
+-- Integer conversion for address.
+mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Control System Interface
@@ -51,10 +56,10 @@ REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            SET_VAL <= TO_SVECTOR(127, SBUSBW);
-            RST_VAL <= TO_SVECTOR(126, SBUSBW);
-            SET_EDGE <= '1';
-            RST_EDGE <= '1';
+            SET_VAL <= TO_SVECTOR(0, SBUSBW);
+            RST_VAL <= TO_SVECTOR(0, SBUSBW);
+            SET_EDGE <= '0';
+            RST_EDGE <= '0';
             FORCE_SET <= '0';
             FORCE_RST <= '0';
         else
@@ -64,28 +69,28 @@ begin
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr_i = SRGATE_SET_VAL_ADDR) then
+                if (mem_addr = SRGATE_SET) then
                     SET_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                if (mem_addr_i = SRGATE_RST_VAL_ADDR) then
+                if (mem_addr = SRGATE_RST) then
                     RST_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
                 -- Parameters
-                if (mem_addr_i = SRGATE_SET_EDGE_ADDR) then
+                if (mem_addr = SRGATE_SET_EDGE) then
                     SET_EDGE <= mem_dat_i(0);
                 end if;
 
-                if (mem_addr_i = SRGATE_RST_EDGE_ADDR) then
+                if (mem_addr = SRGATE_RST_EDGE) then
                     RST_EDGE <= mem_dat_i(0);
                 end if;
 
-                if (mem_addr_i = SRGATE_FORCE_SET_ADDR) then
+                if (mem_addr = SRGATE_FORCE_SET) then
                     FORCE_SET <= mem_dat_i(0);
                 end if;
 
-                if (mem_addr_i = SRGATE_FORCE_RST_ADDR) then
+                if (mem_addr = SRGATE_FORCE_RST) then
                     FORCE_RST <= mem_dat_i(0);
                 end if;
 

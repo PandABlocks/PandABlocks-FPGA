@@ -34,20 +34,25 @@ end panda_pulse_block;
 
 architecture rtl of panda_pulse_block is
 
-signal INP_VAL      : std_logic_vector(SBUSBW-1 downto 0) := (others => '0');
-signal RST_VAL      : std_logic_vector(SBUSBW-1 downto 0) := (others => '0');
-signal DELAY        : std_logic_vector(47 downto 0) := (others => '0');
-signal WIDTH        : std_logic_vector(47 downto 0) := (others => '0');
-signal FORCE_RST    : std_logic := '0';
-signal MISSED_CNT   : std_logic_vector(31 downto 0) := (others => '0');
-signal ERR_OVERFLOW : std_logic := '0';
-signal ERR_PERIOD   : std_logic := '0';
-signal QUEUE        : std_logic_vector(10 downto 0);
+signal INP_VAL          : std_logic_vector(SBUSBW-1 downto 0);
+signal RST_VAL          : std_logic_vector(SBUSBW-1 downto 0);
+signal DELAY            : std_logic_vector(47 downto 0);
+signal WIDTH            : std_logic_vector(47 downto 0);
+signal FORCE_RST        : std_logic := '0';
+signal MISSED_CNT       : std_logic_vector(31 downto 0);
+signal ERR_OVERFLOW     : std_logic := '0';
+signal ERR_PERIOD       : std_logic := '0';
+signal QUEUE            : std_logic_vector(10 downto 0);
 
-signal inp          : std_logic := '0';
-signal rst          : std_logic := '0';
+signal inp              : std_logic;
+signal rst              : std_logic;
+
+signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
 
 begin
+
+-- Integer conversion for address.
+mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Control System Interface
@@ -66,31 +71,31 @@ begin
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr_i = PULSE_INP_VAL_ADDR) then
+                if (mem_addr = PULSE_INP) then
                     INP_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                if (mem_addr_i = PULSE_RST_VAL_ADDR) then
+                if (mem_addr = PULSE_RST) then
                     RST_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                if (mem_addr_i = PULSE_DELAY_L_ADDR) then
+                if (mem_addr = PULSE_DELAY_L) then
                     DELAY(31 downto 0)<= mem_dat_i;
                 end if;
 
-                if (mem_addr_i = PULSE_DELAY_H_ADDR) then
+                if (mem_addr = PULSE_DELAY_H) then
                     DELAY(47 downto 32)<= mem_dat_i(15 downto 0);
                 end if;
 
-                if (mem_addr_i = PULSE_WIDTH_L_ADDR) then
+                if (mem_addr = PULSE_WIDTH_L) then
                     WIDTH(31 downto 0)<= mem_dat_i;
                 end if;
 
-                if (mem_addr_i = PULSE_WIDTH_H_ADDR) then
+                if (mem_addr = PULSE_WIDTH_H) then
                     WIDTH(47 downto 32)<= mem_dat_i(15 downto 0);
                 end if;
 
-                if (mem_addr_i = PULSE_FORCE_RST_ADDR) then
+                if (mem_addr = PULSE_FORCE_RST) then
                     FORCE_RST <= '1';
                 end if;
             end if;
@@ -107,14 +112,14 @@ begin
         if (reset_i = '1') then
             mem_dat_o <= (others => '0');
         else
-            case (mem_addr_i) is
-                when PULSE_ERR_OVERFLOW_ADDR =>
+            case (mem_addr) is
+                when PULSE_ERR_OVERFLOW =>
                     mem_dat_o <= ZEROS(31) & ERR_OVERFLOW;
-                when PULSE_ERR_PERIOD_ADDR =>
+                when PULSE_ERR_PERIOD =>
                     mem_dat_o <= ZEROS(31) & ERR_PERIOD;
-                when PULSE_QUEUE_ADDR =>
+                when PULSE_QUEUE =>
                     mem_dat_o <= ZEROS(21) & QUEUE;
-                when PULSE_MISSED_CNT_ADDR =>
+                when PULSE_MISSED_CNT =>
                     mem_dat_o <= MISSED_CNT;
                 when others =>
                     mem_dat_o <= (others => '0');

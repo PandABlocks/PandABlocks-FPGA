@@ -45,14 +45,20 @@ signal Bs0_ipad, Bs0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
 signal Zs0_ipad, Zs0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
 
 signal ao,bo, zo            : std_logic_vector(ENC_NUM-1 downto 0);
-signal sclk, sdato          : std_logic_vector(ENC_NUM-1 downto 0);
+signal sclk                 : std_logic_vector(ENC_NUM-1 downto 0);
+signal sdato                : std_logic_vector(ENC_NUM-1 downto 0);
+signal sdati                : std_logic_vector(ENC_NUM-1 downto 0);
 
 signal sdat_dir             : std_logic_vector(ENC_NUM-1 downto 0);
 
-signal mem_read_data        : std32_array(2**(PAGE_AW-BLK_AW)-1 downto 0);
+signal mem_read_data        : std32_array(ENC_NUM-1 downto 0);
 
 begin
 
+-- Unused signals.
+sdati <= "0000";
+
+-- Multiplex read data among multiple instantiations of the block.
 mem_dat_o <= mem_read_data(to_integer(unsigned(mem_addr_i(PAGE_AW-1 downto BLK_AW))));
 
 --
@@ -108,7 +114,7 @@ port map (
     z_o                 => zo(I),
     conn_o              => conn_o(I),
     sclk_i              => sclk(I),
-    sdat_i              => '0',
+    sdat_i              => sdati(I),
     sdat_o              => sdato(I),
     sdat_dir_o          => sdat_dir(I),
     -- Position Bus Input

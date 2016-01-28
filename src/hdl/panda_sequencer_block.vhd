@@ -62,7 +62,12 @@ signal inpb             : std_logic := '0';
 signal inpc             : std_logic := '0';
 signal inpd             : std_logic := '0';
 
+signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
+
 begin
+
+-- Integer conversion for address.
+mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Control System Interface
@@ -89,48 +94,48 @@ begin
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr_i = SEQ_GATE_VAL_ADDR) then
+                if (mem_addr = SEQ_GATE) then
                     GATE_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                if (mem_addr_i = SEQ_INPA_VAL_ADDR) then
+                if (mem_addr = SEQ_INPA) then
                     INPA_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                if (mem_addr_i = SEQ_INPB_VAL_ADDR) then
+                if (mem_addr = SEQ_INPB) then
                     INPB_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                if (mem_addr_i = SEQ_INPC_VAL_ADDR) then
+                if (mem_addr = SEQ_INPC) then
                     INPC_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                if (mem_addr_i = SEQ_INPD_VAL_ADDR) then
+                if (mem_addr = SEQ_INPD) then
                     INPD_VAL <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
 
-                if (mem_addr_i = SEQ_SOFT_GATE_ADDR) then
+                if (mem_addr = SEQ_SOFT_GATE) then
                     SOFT_GATE <= mem_dat_i(0);
                 end if;
 
-                if (mem_addr_i = SEQ_PRESCALE_ADDR) then
+                if (mem_addr = SEQ_PRESCALE) then
                     PRESCALE <= mem_dat_i;
                 end if;
 
-                if (mem_addr_i = SEQ_TABLE_RST_ADDR) then
+                if (mem_addr = SEQ_TABLE_RST) then
                     TABLE_RST <= '1';
                 end if;
 
-                if (mem_addr_i = SEQ_TABLE_DATA_ADDR) then
+                if (mem_addr = SEQ_TABLE_DATA) then
                     TABLE_DATA <= mem_dat_i;
                     TABLE_WSTB <= '1';
                 end if;
 
-                if (mem_addr_i = SEQ_TABLE_CYCLE_ADDR) then
+                if (mem_addr = SEQ_TABLE_CYCLE) then
                     TABLE_CYCLE <= mem_dat_i;
                 end if;
 
-                if (mem_addr_i = SEQ_TABLE_LENGTH_ADDR) then
+                if (mem_addr = SEQ_TABLE_LENGTH) then
                     TABLE_LENGTH <= mem_dat_i(15 downto 0);
                 end if;
             end if;
@@ -146,14 +151,14 @@ begin
         if (reset_i = '1') then
             mem_dat_o <= (others => '0');
         else
-            case (mem_addr_i) is
-                when SEQ_CUR_FRAME_ADDR =>
+            case (mem_addr) is
+                when SEQ_CUR_FRAME =>
                     mem_dat_o <= CUR_FRAME;
-                when SEQ_CUR_FCYCLE_ADDR =>
+                when SEQ_CUR_FCYCLE =>
                     mem_dat_o <= CUR_FCYCLES;
-                when SEQ_CUR_TCYCLE_ADDR =>
+                when SEQ_CUR_TCYCLE =>
                     mem_dat_o <= CUR_TCYCLE;
---                when SEQ_CUR_STATE_ADDR =>
+--                when SEQ_CUR_STATE =>
 --                    mem_dat_o <= CUR_STATE;
                 when others =>
                     mem_dat_o <= (others => '0');

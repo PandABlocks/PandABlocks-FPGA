@@ -78,6 +78,7 @@ signal WRITE            : std_logic_vector(31 downto 0);
 signal WRITE_WSTB       : std_logic;
 signal FRAMING_MASK     : std_logic_vector(31 downto 0);
 signal FRAMING_ENABLE   : std_logic;
+signal FRAMING_MODE     : std_logic_vector(31 downto 0);
 signal ARM              : std_logic;
 signal DISARM           : std_logic;
 
@@ -93,10 +94,13 @@ signal enable_prev      : std_logic;
 signal enable_fall      : std_logic;
 signal capture          : std_logic;
 signal capture_prev     : std_logic;
-signal capture_rise     : std_logic;
 signal frame            : std_logic;
 
-signal pcap_data_lt     : std32_array(46 downto 0);
+signal capture_pulse    : std_logic;
+signal ongoing_capture  : std_logic;
+
+signal capture_data     : std32_array(63 downto 0);
+signal capture_data_lt  : std32_array(63 downto 0);
 signal pcap_dat         : std_logic_vector(31 downto 0) := (others => '0');
 signal pcap_wstb        : std_logic := '0';
 
@@ -105,7 +109,6 @@ signal INT_DISARM       : std_logic;
 signal pcap_armed       : std_logic;
 signal pcap_enabled     : std_logic;
 signal pcap_disarmed    : std_logic_vector(1 downto 0);
-signal ongoing_capture  : std_logic;
 signal pcap_fifo_rst    : std_logic := '0';
 
 -- Mask BRAM signals
@@ -123,26 +126,27 @@ pcap_actv_o <= pcap_armed;
 process(clk_i) begin
     if rising_edge(clk_i) then
         enable <= SBIT(sysbus_i, ENABLE_VAL);
-        capture <= SBIT(sysbus_i, CAPTURE_VAL);
-        frame <= SBIT(sysbus_i, FRAME_VAL);
+
+        -- Mask all triggers with enable input.
+        capture <= SBIT(sysbus_i, CAPTURE_VAL) and enable;
+        frame <= SBIT(sysbus_i, FRAME_VAL) and enable;
     end if;
 end process;
 
 -- Detect rise/falling edge of internal signals.
 enable_fall <= not enable and enable_prev;
-capture_rise <= capture and not capture_prev;
 
 --
 -- Block Control Register Interface.
 --
-panda_pcap_ctrl_inst : entity work.panda_pcap_ctrl
+pcap_ctrl_inst : entity work.panda_pcap_ctrl
 port map (
     clk_i                   => clk_i,
     reset_i                 => reset_i,
 
     mem_cs_i                => mem_cs_i,
     mem_wstb_i              => mem_wstb_i,
-    mem_addr_i              => mem_addr_i,
+    mem_addr_i              => mem_addr_i(BLK_AW-1 downto 0),
     mem_dat_i               => mem_dat_i,
     mem_dat_0_o             => mem_dat_0_o,
     mem_dat_1_o             => mem_dat_1_o,
@@ -158,6 +162,7 @@ port map (
     WRITE_WSTB              => WRITE_WSTB,
     FRAMING_MASK            => FRAMING_MASK,
     FRAMING_ENABLE          => FRAMING_ENABLE,
+    FRAMING_MODE            => FRAMING_MODE,
     ARM                     => ARM,
     DISARM                  => DISARM,
 
@@ -294,35 +299,47 @@ process(clk_i) begin
 end process;
 
 --
+-- Position Capture Data Processing
 --
---
-pcap_dat <= pcap_data_lt(to_integer(mask_doutb));
+pcap_dsp_inst : entity work.panda_pcap_dsp
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+
+    posbus_i            => posbus_i,
+    sysbus_i            => sysbus_i,
+    extbus_i            => extbus_i,
+
+    enable_i            => enable,
+    frame_i             => frame,
+    capture_i           => capture,
+    capture_o           => capture_pulse,
+    posn_o              => capture_data,
+
+    FRAMING_MASK        => FRAMING_MASK,
+    FRAMING_ENABLE      => FRAMING_ENABLE,
+    FRAMING_MODE        => FRAMING_MODE
+);
+
+pcap_dat <= capture_data_lt(to_integer(mask_doutb));
 
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            capture_prev <= '0';
             ongoing_capture <= '0';
+            mask_addrb <= (others => '0');
             mask_addrb <= (others => '0');
             MISSED_CAPTURES <= (others => '0');
             INT_DISARM <= '0';
-            mask_addrb <= (others => '0');
         else
-            capture_prev <= capture;
-
             -- Latch all capture fields on rising edge of capture only when
             -- position capture is enabled.
-            if (capture_rise = '1' and pcap_enabled = '1') then
-                pcap_data_lt(0) <= sysbus_i(31 downto 0);
-                pcap_data_lt(1) <= sysbus_i(63 downto 32);
-                pcap_data_lt(2) <= sysbus_i(95 downto 64);
-                pcap_data_lt(3) <= sysbus_i(127 downto 96);
-                pcap_data_lt(34 downto 4) <= posbus_i(31 downto 1);
-                pcap_data_lt(46 downto 35) <= extbus_i;
+            if (capture_pulse = '1' and pcap_enabled = '1') then
+                capture_data_lt <= capture_data;
             end if;
 
             -- Capture ongoing flag runs while mask buffer is read through.
-            if (capture_rise = '1' and pcap_enabled = '1') then
+            if (capture_pulse = '1' and pcap_enabled = '1') then
                 ongoing_capture <= '1';
             elsif (mask_addrb = mask_length - 1) then
                 ongoing_capture <= '0';
@@ -347,7 +364,7 @@ process(clk_i) begin
             if (pcap_fsm = IDLE and ARM = '1') then
                 MISSED_CAPTURES <= (others => '0');
                 INT_DISARM <= '0';
-            elsif (ongoing_capture = '1' and capture_rise = '1') then
+            elsif (ongoing_capture = '1' and capture_pulse = '1') then
                 MISSED_CAPTURES <= MISSED_CAPTURES + 1;
                 INT_DISARM <= '1';
             end if;
@@ -355,13 +372,10 @@ process(clk_i) begin
     end if;
 end process;
 
-ERR_STATUS(31 downto 1) <= (others => '0');
-ERR_STATUS(0) <= INT_DISARM;
-
 --
 -- Position Capture Core IP instantiation
 --
-panda_pcap_inst : entity work.panda_pcap
+pcap_inst : entity work.panda_pcap
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
@@ -402,6 +416,9 @@ port map (
     m_axi_wstrb         => m_axi_wstrb,
     m_axi_wid           => m_axi_wid
 );
+
+ERR_STATUS(31 downto 1) <= (others => '0');
+ERR_STATUS(0) <= INT_DISARM;
 
 end rtl;
 

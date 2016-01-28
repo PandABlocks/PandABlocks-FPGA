@@ -1,6 +1,13 @@
 --------------------------------------------------------------------------------
---  File:       panda_clocks.vhd
---  Desc:       Position user clocks.
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : CLOCKS block provides 4 user configurable clock sources.
+--                Clock period is controlled by user register in clock ticks.
 --
 --------------------------------------------------------------------------------
 
@@ -67,7 +74,7 @@ reset <= config_reset or reset_i;
 
 
 -- Clock generator instantiations
-panda_clockgen_A : panda_clockgen
+clockgen_A : panda_clockgen
 port map (
     clk_i           => clk_i,
     reset_i         => reset,
@@ -75,7 +82,7 @@ port map (
     DIV             => CLOCKA_DIV
 );
 
-panda_clockgen_B : panda_clockgen
+clockgen_B : panda_clockgen
 port map (
     clk_i           => clk_i,
     reset_i         => reset,
@@ -83,7 +90,7 @@ port map (
     DIV             => CLOCKB_DIV
 );
 
-panda_clockgen_C : panda_clockgen
+clockgen_C : panda_clockgen
 port map (
     clk_i           => clk_i,
     reset_i         => reset,
@@ -91,7 +98,7 @@ port map (
     DIV             => CLOCKC_DIV
 );
 
-panda_clockgen_D : panda_clockgen
+clockgen_D : panda_clockgen
 port map (
     clk_i           => clk_i,
     reset_i         => reset,
