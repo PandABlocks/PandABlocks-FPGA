@@ -43,7 +43,8 @@ def main():
 
     variables = {"blocks": blocks}
     genearateOutput('addr_defines_template', "addr_defines.vhd", variables)
-    genearateOutput('panda_buses_template', "panda_buses.vhd", variables)
+    genearateOutput('addr_defines_template_verilog', "addr_defines.v", variables)
+    genearateOutput('panda_buses_template', "panda_busses.vhd", variables)
 
 if __name__ == "__main__":
     main()

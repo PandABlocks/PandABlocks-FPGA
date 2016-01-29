@@ -16,7 +16,7 @@ port (
 {%          if field.cls == 'bit_out' %}
     {{name}}_{{field.name}}   : in std_logic_vector({{block.num-1}} downto 0);
 {%          elif field.cls == 'pos_out'%}
-    {{name}}_{{field.name}}   : in in posbus_t({{block.num-1}} downto 0);
+    {{name}}_{{field.name}}   : in std32_array({{block.num-1}} downto 0);
 {%          endif %}
 {%      endfor %}
 
@@ -24,7 +24,7 @@ port (
 
     -- Bus Outputs
     bitbus_o            : out std_logic_vector(127 downto 0);
-    posbus_o            : out posbus_t(63 downto 0);
+    posbus_o            : out std32_array(31 downto 0)
 );
 end panda_busses;
 

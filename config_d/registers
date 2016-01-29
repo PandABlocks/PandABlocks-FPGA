@@ -111,7 +111,6 @@ PULSE       5
 SEQ         6
     PRESCALE        5
     SOFT_GATE       6
-    TABLE_LENGTH    7
     TABLE_CYCLE     8
     GATE            0
     INPA            1
@@ -138,11 +137,11 @@ INENC       7
     BITS            3
     SETP            4
     RST_ON_Z        5
+    EXTENSION       6
     A               66 67 68 69
     B               70 71 72 73
     Z               74 75 76 77
     CONN            78 79 80 81
-    EXTENSION       6
     POSN            1 2 3 4 / 33 34 35 36
 
 QDEC        8
@@ -174,14 +173,6 @@ POSENC      10
     B               86 87 88 89
     QSTATE          4
 
-CALC        11
-    KA              2
-    KB              3
-    SCALE           4
-    A               0
-    B               1
-    RESULT          9 10
-
 # Hard wired inputs!
 ADDER       12
     MASK            1
@@ -209,7 +200,7 @@ PCOMP       15
     START           2
     STEP            3
     WIDTH           4
-    NUM             5
+    PNUM            5
     RELATIVE        6
     DIR             7
     FLTR_DELTAT     8
@@ -267,3 +258,8 @@ CLOCKS      29
 
 POSITIONS   30
     ZERO            0
+
+SLOW        27
+    INENC_CTRL      0
+    OUTENC_CTRL     1
+

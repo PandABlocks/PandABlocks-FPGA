@@ -68,7 +68,6 @@ PULSE[4]
 SEQ[4]
     PRESCALE        param
     SOFT_GATE       write       bit
-    TABLE_LENGTH    param       uint 511
     TABLE_CYCLE     param
     GATE            param       bit_mux
     INPA            param       bit_mux
@@ -150,14 +149,6 @@ POSENC[4]
     B               bit_out
     QSTATE          read        bit
 
-CALC[2]
-    KA              param
-    KB              param
-    SCALE           param
-    A               param       pos_mux
-    B               param       pos_mux
-    RESULT          pos_out
-
 # Hard wired inputs!
 ADDER
     MASK            param
@@ -185,7 +176,7 @@ PCOMP[4]
     START           param       position
     STEP            param       position
     WIDTH           param       position
-    NUM             param
+    PNUM            param
     RELATIVE        param
     DIR             param
     FLTR_DELTAT     param
@@ -245,3 +236,7 @@ CLOCKS
 
 POSITIONS
     ZERO            pos_out     const
+
+SLOW
+    INENC_CTRL      param
+    OUTENC_CTRL     param
