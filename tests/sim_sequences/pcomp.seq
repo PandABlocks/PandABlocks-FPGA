@@ -4,7 +4,7 @@ $ Increasing position with +ve dir
 3       : START=5
 4       : STEP=3
 5       : WIDTH=2
-6       : NUM=3
+6       : PNUM=3
 10      : ENABLE=1
 11      :
 12      : POSN=1
@@ -28,7 +28,7 @@ $ Decreasing position with +ve dir
 3       : START=5
 4       : STEP=10
 5       : WIDTH=7
-6       : NUM=3
+6       : PNUM=3
 10      : ENABLE=1
 11      :
 12      : POSN=9
@@ -46,7 +46,7 @@ $ Decreasing position with -ve dir
 3       : START=5
 4       : STEP=3
 5       : WIDTH=2
-6       : NUM=2
+6       : PNUM=2
 7       : DIR=1
 10      : ENABLE=1
 11      :
@@ -68,7 +68,7 @@ $ Disable after start
 3       : START=5
 4       : STEP=10
 5       : WIDTH=7
-6       : NUM=3
+6       : PNUM=3
 7       : DIR=1
 10      : ENABLE=1
 12      : POSN=9
@@ -85,7 +85,7 @@ $ Disable with start
 3       : START=5
 4       : STEP=10
 5       : WIDTH=7
-6       : NUM=3
+6       : PNUM=3
 7       : DIR=1
 10      : ENABLE=1
 12      : POSN=9
@@ -103,7 +103,7 @@ $ Increasing position with +ve dir jitter below threshold
 3       : START=5
 4       : STEP=3
 5       : WIDTH=2
-6       : NUM=3
+6       : PNUM=3
 10      : ENABLE=1
 11      : FLTR_DELTAT=5
 13      : FLTR_THOLD=1
@@ -131,7 +131,7 @@ $ Increasing position with +ve dir large jitter inside deltaT
 3       : START=5
 4       : STEP=3
 5       : WIDTH=2
-6       : NUM=3
+6       : PNUM=3
 10      : ENABLE=1
 11      : FLTR_DELTAT=5
 13      : FLTR_THOLD=1
@@ -158,7 +158,7 @@ $ Increasing position with +ve dir large jitter on deltaT edge
 3       : START=5
 4       : STEP=3
 5       : WIDTH=2
-6       : NUM=3
+6       : PNUM=3
 10      : ENABLE=1
 11      : FLTR_DELTAT=5
 13      : FLTR_THOLD=1
@@ -185,7 +185,7 @@ $ Increasing position with +ve dir jitter below FLTR_THOLD on deltaT edge
 3       : START=5
 4       : STEP=3
 5       : WIDTH=2
-6       : NUM=3
+6       : PNUM=3
 10      : ENABLE=1
 11      : FLTR_DELTAT=5
 13      : FLTR_THOLD=1
@@ -211,7 +211,7 @@ $ Increasing position with +ve dir jitter above threshold then return to start
 3       : START=5
 4       : STEP=3
 5       : WIDTH=2
-6       : NUM=3
+6       : PNUM=3
 10      : ENABLE=1
 12      : FLTR_DELTAT=2
 13      : FLTR_THOLD=1
@@ -241,7 +241,7 @@ $ Increasing position with +ve dir jitter above threshold before start
 3       : START=5
 4       : STEP=3
 5       : WIDTH=2
-6       : NUM=3
+6       : PNUM=3
 10      : ENABLE=1
 12      : FLTR_DELTAT=3
 13      : FLTR_THOLD=1
@@ -267,7 +267,7 @@ $ Increasing position with +ve dir jitter above threshold before start
 3       : START=5
 4       : STEP=4
 5       : WIDTH=3
-6       : NUM=3
+6       : PNUM=3
 10      : ENABLE=1
 12      : FLTR_DELTAT=3
 13      : FLTR_THOLD=1

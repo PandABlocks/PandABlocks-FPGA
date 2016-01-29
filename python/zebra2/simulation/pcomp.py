@@ -93,8 +93,8 @@ class Pcomp(Block):
                         self.cpoint += self.STEP - self.WIDTH
                     else:
                         self.cpoint -= self.STEP - self.WIDTH
-                    # if we've done NUM, then stop
-                    if self.cnum >= self.NUM:
+                    # if we've done PNUM, then stop
+                    if self.cnum >= self.PNUM:
                         self.ACT = 0
                     else:
                         self.cout = 1

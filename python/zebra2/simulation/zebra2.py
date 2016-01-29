@@ -1,6 +1,5 @@
 from .task import Task
 from .block import Block
-from .event import Event
 
 import time
 import bisect
