@@ -213,14 +213,30 @@ localparam SLOW_INENC_CTRL  = 0;
 localparam SLOW_OUTENC_CTRL  = 1;
 
 
-// Panda Base Address
-localparam BASE                 = 32'h43C0_0000;
-localparam INENC_BASE           = BASE + 4096 * INENC_CS;
-localparam PCOMP_BASE           = BASE + 4096 * PCOMP_CS;
-localparam PCAP_BASE            = BASE + 4096 * PCAP_CS;
-localparam OUTENC_BASE          = BASE + 4096 * OUTENC_CS;
-localparam SLOW_BASE            = BASE + 4096 * SLOW_CS;
-localparam CLOCKS_BASE          = BASE + 4096 * CLOCKS_CS;
-localparam COUNTER_BASE         = BASE + 4096 * COUNTER_CS;
-localparam DRV_BASE             = BASE + 4096 * DRV_CS;
-localparam REG_BASE             = BASE + 4096 * REG_CS;
+// Panda Base Address and block base addresses
+localparam BASE = 32'h43C0_0000;
+localparam REG_BASE = BASE + 4096 * REG_CS;
+localparam DRV_BASE = BASE + 4096 * DRV_CS;
+localparam TTLIN_BASE = BASE + 4096 * TTLIN_CS;
+localparam TTLOUT_BASE = BASE + 4096 * TTLOUT_CS;
+localparam LVDSIN_BASE = BASE + 4096 * LVDSIN_CS;
+localparam LVDSOUT_BASE = BASE + 4096 * LVDSOUT_CS;
+localparam LUT_BASE = BASE + 4096 * LUT_CS;
+localparam SRGATE_BASE = BASE + 4096 * SRGATE_CS;
+localparam DIV_BASE = BASE + 4096 * DIV_CS;
+localparam PULSE_BASE = BASE + 4096 * PULSE_CS;
+localparam SEQ_BASE = BASE + 4096 * SEQ_CS;
+localparam INENC_BASE = BASE + 4096 * INENC_CS;
+localparam QDEC_BASE = BASE + 4096 * QDEC_CS;
+localparam OUTENC_BASE = BASE + 4096 * OUTENC_CS;
+localparam POSENC_BASE = BASE + 4096 * POSENC_CS;
+localparam ADDER_BASE = BASE + 4096 * ADDER_CS;
+localparam COUNTER_BASE = BASE + 4096 * COUNTER_CS;
+localparam PGEN_BASE = BASE + 4096 * PGEN_CS;
+localparam PCOMP_BASE = BASE + 4096 * PCOMP_CS;
+localparam ADC_BASE = BASE + 4096 * ADC_CS;
+localparam PCAP_BASE = BASE + 4096 * PCAP_CS;
+localparam BITS_BASE = BASE + 4096 * BITS_CS;
+localparam CLOCKS_BASE = BASE + 4096 * CLOCKS_CS;
+localparam POSITIONS_BASE = BASE + 4096 * POSITIONS_CS;
+localparam SLOW_BASE = BASE + 4096 * SLOW_CS;

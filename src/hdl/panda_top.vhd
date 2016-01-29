@@ -296,8 +296,6 @@ signal bits_b               : std_logic_vector(0 downto 0);
 signal bits_c               : std_logic_vector(0 downto 0);
 signal bits_d               : std_logic_vector(0 downto 0);
 
-signal soft                 : std_logic_vector(3 downto 0);
-
 signal adc_low              : std32_array(7 downto 0) := (others => (others => '0'));
 signal adc_high             : std32_array(7 downto 0) := (others => (others => '0'));
 
@@ -741,7 +739,7 @@ port map (
 --
 -- REG (System Bus Readback)
 --
-reg_inst : entity work.panda_reg
+reg_inst : entity work.panda_reg_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -753,7 +751,8 @@ port map (
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(REG_CS),
 
-    sysbus_i            => sysbus
+    sysbus_i            => sysbus,
+    posbus_i            => posbus
 );
 
 --

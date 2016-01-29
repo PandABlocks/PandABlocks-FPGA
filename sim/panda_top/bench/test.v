@@ -1,6 +1,6 @@
 module test;
 
-`include "./registers.v"
+`include "./addr_defines.v"
 `include "./apis_tb.v"
 
 // Inputs to testbench
@@ -10,8 +10,9 @@ panda_top_tb tb(
     .ttlin_pad      ( ttlin_pad)
 );
 
+reg [511:0]     test_name = "READBACK_TEST";
 //reg [511:0]     test_name = "PCAP_TEST";
-reg [511:0]     test_name = "FRAMING_TEST";
+//reg [511:0]     test_name = "FRAMING_TEST";
 //reg [511:0]     test_name = "ENCLOOPBACK_TEST";
 
 reg [1:0]       wrs, rsp;
@@ -27,6 +28,7 @@ reg [31:0]      smpl_table[31: 0];
 integer         irq_count;
 
 reg [31:0]      read_data;
+reg [31:0]      readback;
 
 
 integer         fid;
@@ -70,6 +72,8 @@ initial begin
 end
 
 initial begin
+    ttlin_pad <= 0;
+
     wait(tb.uut.ps.tb_ARESETn === 0) @(posedge tb.uut.ps.FCLK);
     wait(tb.uut.ps.tb_ARESETn === 1) @(posedge tb.uut.ps.FCLK);
 
@@ -80,7 +84,50 @@ initial begin
     tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h1);
     tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h0);
 
-if (test_name == "TTL_TEST") begin
+if (test_name == "READBACK_TEST") begin
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    REG_WRITE(REG_BASE, REG_BIT_READ_RST, 1);
+    for (i = 0; i < 8; i = i + 1) begin
+        REG_READ(REG_BASE, REG_BIT_READ_VALUE, readback);
+        $display("System Bus Readback %d = %08x", i, readback);
+    end
+
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    REG_WRITE(REG_BASE, REG_BIT_READ_RST, 1);
+    for (i = 0; i < 8; i = i + 1) begin
+        REG_READ(REG_BASE, REG_BIT_READ_VALUE, readback);
+        $display("System Bus Readback %d = %08x", i, readback);
+    end
+
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    ttlin_pad <= 6'b101010;
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    ttlin_pad <= 0;
+
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    REG_WRITE(REG_BASE, REG_BIT_READ_RST, 1);
+    for (i = 0; i < 8; i = i + 1) begin
+        REG_READ(REG_BASE, REG_BIT_READ_VALUE, readback);
+        $display("System Bus Readback %d = %08x", i, readback);
+    end
+
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    REG_WRITE(BITS_BASE, BITS_A_SET, 1);
+    REG_WRITE(BITS_BASE, BITS_B_SET, 1);
+    REG_WRITE(BITS_BASE, BITS_A_SET, 0);
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    REG_WRITE(REG_BASE, REG_BIT_READ_RST, 1);
+    for (i = 0; i < 8; i = i + 1) begin
+        REG_READ(REG_BASE, REG_BIT_READ_VALUE, readback);
+        $display("System Bus Readback %d = %08x", i, readback);
+    end
+
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    $finish;
+end
+else if (test_name == "TTL_TEST") begin
     // TTL Loopback for TTLOUT[5:0]
     tb.uut.ps.ps.ps.inst.write_data(32'h43C0_0000,  4, 0, wrs);
     tb.uut.ps.ps.ps.inst.write_data(32'h43C0_0100,  4, 1, wrs);
@@ -283,7 +330,7 @@ else if (test_name == "PCAP_TEST") begin
     REG_WRITE(PCOMP_BASE, PCOMP_START, 100);
     REG_WRITE(PCOMP_BASE, PCOMP_STEP, 0);
     REG_WRITE(PCOMP_BASE, PCOMP_WIDTH, 1400);
-    REG_WRITE(PCOMP_BASE, PCOMP_NUMBER, 3);
+    REG_WRITE(PCOMP_BASE, PCOMP_PNUM, 3);
     REG_WRITE(PCOMP_BASE, PCOMP_FLTR_DELTAT, 32);
     REG_WRITE(PCOMP_BASE, PCOMP_FLTR_THOLD, 1);
 

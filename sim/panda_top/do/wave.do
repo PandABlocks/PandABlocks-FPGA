@@ -12,3 +12,10 @@ add wave -group "TB"    sim:/test/tb/*
 add wave -group "TOP"   sim:/test/tb/uut/*
 add wave -group "PS"    sim:/test/tb/uut/ps/ps/*
 add wave -group "CSR"   sim:/test/tb/uut/panda_csr_if_inst/*
+
+add wave -group "REG_TOP" \
+sim:/test/tb/uut/reg_inst/*
+
+add wave -group "REG" \
+sim:/test/tb/uut/reg_inst/reg_inst/*
+

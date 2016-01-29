@@ -17,6 +17,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/defines/type_defines.vhd" \
 "${SRC}/defines/addr_defines.vhd" \
 "${SRC}/defines/top_defines.vhd" \
+"${SRC}/panda_busses.vhd" \
 "${SRC}/panda_csr_if.vhd" \
 "${SRC}/panda_spbram.vhd" \
 "${SRC}/panda_ttlout_block.vhd" \
@@ -68,6 +69,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_bits_block.vhd" \
 "${SRC}/panda_bits_top.vhd" \
 "${SRC}/panda_reg.vhd" \
+"${SRC}/panda_reg_top.vhd" \
 "${SRC}/panda_axi3_write_master.vhd" \
 "${SRC}/panda_pcap.vhd" \
 "${SRC}/panda_pcap_ctrl.vhd" \
