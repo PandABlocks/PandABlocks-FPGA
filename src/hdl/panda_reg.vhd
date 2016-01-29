@@ -32,16 +32,17 @@ type bit16_array is array(natural range <>) of std_logic_vector(15 downto 0);
 
 signal sbus                 : bit16_array(7 downto 0);
 signal sbus_prev            : bit16_array(7 downto 0);
-signal sbus_change          : bit16_array(7 downto 0);
-signal sbus_change_clear    : std_logic_vector(7 downto 0);
+signal sbus_latched         : bit16_array(7 downto 0);
 signal index                : unsigned(2 downto 0);
+signal sbus_change          : bit16_array(7 downto 0);
+signal sbus_change_latched  : bit16_array(7 downto 0);
 
 signal pbus                 : posbus_t;
 signal pbus_prev            : posbus_t;
 signal pbus_latched         : posbus_t;
 signal p_index              : unsigned(4 downto 0);
-signal pbus_change_latched  : std_logic_vector(31 downto 0);
 signal pbus_change          : std_logic_vector(31 downto 0);
+signal pbus_change_latched  : std_logic_vector(31 downto 0);
 
 begin
 
@@ -73,19 +74,21 @@ begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             index <= (others => '0');
-            sbus_prev <= (others => (others => '0'));
             sbus_change <= (others => (others => '0'));
-            sbus_change_clear <= (others => '0');
+            sbus_change_latched <= (others => (others => '0'));
+            sbus_latched <= (others => (others => '0'));
         else
-            -- Clear and Read Strobe is a single clock flag
-            sbus_change_clear <= (others => '0');
+            -- Latch System Bus and Change Registers
+            if (BIT_READ_RST = '1') then
+                sbus_latched <= sbus;
+                sbus_change_latched <= sbus_change;
+            end if;
 
-            -- Keep track of read strobes to multiplex data source.
+            -- 16-read strobes will read all system bus and changed flags.
             if (BIT_READ_RST = '1') then
                 index <= (others => '0');
             elsif (BIT_READ_RSTB = '1') then
                 index <= index + 1;
-                sbus_change_clear(to_integer(index)) <= '1';
             end if;
 
             -- Change register is cleared on read, and it keeps track of changes
@@ -93,7 +96,7 @@ begin
             sbus_prev <= sbus;
             for I in 0 to 7 loop
                 -- Reset/Clear to current change status rather than 0.
-                if (sbus_change_clear(I) = '1') then
+                if (BIT_READ_RST = '1') then
                     sbus_change(I) <= sbus(I) xor sbus_prev(I);
                 else
                     sbus_change(I) <= (sbus(I) xor sbus_prev(I)) or sbus_change(I);
@@ -104,7 +107,7 @@ begin
 end process;
 
 -- Packed read data output.
-BIT_READ_VALUE <= sbus_prev(to_integer(index)) & sbus_change(to_integer(index));
+BIT_READ_VALUE <= sbus_latched(to_integer(index)) & sbus_change_latched(to_integer(index));
 
 --
 -- POSITION BUS Readback

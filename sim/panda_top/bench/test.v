@@ -10,7 +10,7 @@ panda_top_tb tb(
     .ttlin_pad      ( ttlin_pad)
 );
 
-reg [511:0]     test_name = "READBACK_POS_TEST";
+reg [511:0]     test_name = "READBACK_BIT_TEST";
 //reg [511:0]     test_name = "PCAP_TEST";
 //reg [511:0]     test_name = "FRAMING_TEST";
 //reg [511:0]     test_name = "ENCLOOPBACK_TEST";
@@ -108,6 +108,18 @@ if (test_name == "READBACK_BIT_TEST") begin
     REG_WRITE(BITS_BASE, BITS_A_SET, 1);
     REG_WRITE(BITS_BASE, BITS_B_SET, 1);
     REG_WRITE(BITS_BASE, BITS_A_SET, 0);
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    REG_WRITE(REG_BASE, REG_BIT_READ_RST, 1);
+    for (i = 0; i < 8; i = i + 1) begin
+        REG_READ(REG_BASE, REG_BIT_READ_VALUE, readback);
+        $display("System Bus Readback %d = %08x", i, readback);
+    end
+
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    REG_WRITE(BITS_BASE, BITS_A_SET, 1);
+    REG_WRITE(BITS_BASE, BITS_B_SET, 0);
     repeat(1250) @(posedge tb.uut.ps.FCLK);
 
     repeat(1250) @(posedge tb.uut.ps.FCLK);
