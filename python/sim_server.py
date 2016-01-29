@@ -77,7 +77,7 @@ def run_simulation(conn):
             length, = struct.unpack('I', read(conn, 4))
             data = controller.do_read_capture(length / 4)
             if data is None:
-                conn.sendall(struct.pack('I', -1))
+                conn.sendall(struct.pack('i', -1))
             else:
                 assert data.dtype == numpy.int32
                 raw_data = data.data
