@@ -60,6 +60,7 @@ subtype pbus_muxsel_t is std_logic_vector(PBUSBW-1 downto 0);
 function SBIT(sbus : std_logic_vector; sel : sbus_muxsel_t) return std_logic;
 function PFIELD(pbus : std32_array; sel : pbus_muxsel_t) return std_logic_vector;
 function ZEROS(num : positive) return std_logic_vector;
+function COMP(a : std_logic_vector; b: std_logic_vector) return std_logic;
 
 end top_defines;
 
@@ -83,6 +84,15 @@ function ZEROS(num : positive) return std_logic_vector is
 begin
     return (vector);
 end ZEROS;
+
+function COMP (a : std_logic_vector; b: std_logic_vector) return std_logic is
+begin
+    if (a/= b) then
+        return '1';
+    else
+        return '0';
+    end if;
+end COMP;
 
 end top_defines;
 

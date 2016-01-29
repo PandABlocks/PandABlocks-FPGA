@@ -10,7 +10,7 @@ panda_top_tb tb(
     .ttlin_pad      ( ttlin_pad)
 );
 
-reg [511:0]     test_name = "READBACK_TEST";
+reg [511:0]     test_name = "READBACK_POS_TEST";
 //reg [511:0]     test_name = "PCAP_TEST";
 //reg [511:0]     test_name = "FRAMING_TEST";
 //reg [511:0]     test_name = "ENCLOOPBACK_TEST";
@@ -84,14 +84,7 @@ initial begin
     tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h1);
     tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h0);
 
-if (test_name == "READBACK_TEST") begin
-    repeat(1250) @(posedge tb.uut.ps.FCLK);
-    REG_WRITE(REG_BASE, REG_BIT_READ_RST, 1);
-    for (i = 0; i < 8; i = i + 1) begin
-        REG_READ(REG_BASE, REG_BIT_READ_VALUE, readback);
-        $display("System Bus Readback %d = %08x", i, readback);
-    end
-
+if (test_name == "READBACK_BIT_TEST") begin
     repeat(1250) @(posedge tb.uut.ps.FCLK);
     REG_WRITE(REG_BASE, REG_BIT_READ_RST, 1);
     for (i = 0; i < 8; i = i + 1) begin
@@ -123,6 +116,29 @@ if (test_name == "READBACK_TEST") begin
         REG_READ(REG_BASE, REG_BIT_READ_VALUE, readback);
         $display("System Bus Readback %d = %08x", i, readback);
     end
+
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    $finish;
+end
+if (test_name == "READBACK_POS_TEST") begin
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    REG_WRITE(REG_BASE, REG_POS_READ_RST, 1);
+    for (i = 0; i < 32; i = i + 1) begin
+        REG_READ(REG_BASE, REG_POS_READ_VALUE, readback);
+        $display("System Bus Readback %d = %08x", i, readback);
+    end
+
+    tb.encoder.Turn(1500);
+
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    REG_WRITE(REG_BASE, REG_POS_READ_RST, 1);
+    for (i = 0; i < 32; i = i + 1) begin
+        REG_READ(REG_BASE, REG_POS_READ_VALUE, readback);
+        $display("System Bus Readback %d = %08x", i, readback);
+    end
+
+    REG_READ(REG_BASE, REG_POS_READ_CHANGES, readback);
+   $display("REG_POS_READ_CHANGES = %08x", i, readback);
 
     repeat(1250) @(posedge tb.uut.ps.FCLK);
     $finish;

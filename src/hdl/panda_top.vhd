@@ -284,17 +284,21 @@ signal irq_enable           : std_logic := '0';
 
 signal pcap_act             : std_logic_vector(0 downto 0);
 
-signal zero                 : std_logic;
-signal one                  : std_logic;
 signal clocks_a             : std_logic_vector(0 downto 0);
 signal clocks_b             : std_logic_vector(0 downto 0);
 signal clocks_c             : std_logic_vector(0 downto 0);
 signal clocks_d             : std_logic_vector(0 downto 0);
 
+signal bits_zero            : std_logic_vector(0 downto 0);
+signal bits_one             : std_logic_vector(0 downto 0);
+
 signal bits_a               : std_logic_vector(0 downto 0);
 signal bits_b               : std_logic_vector(0 downto 0);
 signal bits_c               : std_logic_vector(0 downto 0);
 signal bits_d               : std_logic_vector(0 downto 0);
+
+signal posenc_a             : std_logic_vector(3 downto 0) := "0000";
+signal posenc_b             : std_logic_vector(3 downto 0) := "0000";
 
 signal adc_low              : std32_array(7 downto 0) := (others => (others => '0'));
 signal adc_high             : std32_array(7 downto 0) := (others => (others => '0'));
@@ -791,8 +795,8 @@ port map (
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(BITS_CS),
 
-    zero_o              => zero,
-    one_o               => one,
+    zero_o              => bits_zero(0),
+    one_o               => bits_one(0),
 
     bits_a_o            => bits_a(0),
     bits_b_o            => bits_b(0),
@@ -825,8 +829,8 @@ port map (
 busses_inst : entity work.panda_busses
 port map (
     -- System Bus Signals
-    BITS_ZERO       => "0",
-    BITS_ONE        => "1",
+    BITS_ZERO       => bits_zero,
+    BITS_ONE        => bits_one,
     TTLIN_VAL       => ttlin_val,
     LVDSIN_VAL      => lvdsin_val,
     LUT_VAL         => lut_val,
@@ -846,8 +850,8 @@ port map (
     INENC_B         => inenc_b,
     INENC_Z         => inenc_z,
     INENC_CONN      => inenc_conn,
-    POSENC_A        => "0000",
-    POSENC_B        => "0000",
+    POSENC_A        => posenc_a,
+    POSENC_B        => posenc_b,
     COUNTER_CARRY   => counter_carry,
     PCOMP_ACT       => pcomp_act,
     PCOMP_PULSE     => pcomp_pulse,

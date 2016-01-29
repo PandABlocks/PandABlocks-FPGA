@@ -31,6 +31,7 @@ signal BIT_READ_RST           : std_logic;
 signal BIT_READ_RSTB          : std_logic;
 signal BIT_READ_VALUE         : std_logic_vector(31 downto 0);
 signal POS_READ_RST           : std_logic;
+signal POS_READ_RSTB          : std_logic;
 signal POS_READ_VALUE         : std_logic_vector(31 downto 0);
 signal POS_READ_CHANGES       : std_logic_vector(31 downto 0);
 
@@ -72,6 +73,9 @@ end process;
 BIT_READ_RSTB <= '1' when (mem_cs_i = '1' and mem_rstb_i = '1' and
                  mem_addr = REG_BIT_READ_VALUE) else '0';
 
+POS_READ_RSTB <= '1' when (mem_cs_i = '1' and mem_rstb_i = '1' and
+                 mem_addr = REG_POS_READ_VALUE) else '0';
+
 --
 -- Status Register Read
 --
@@ -107,6 +111,7 @@ port map (
     BIT_READ_RSTB       => BIT_READ_RSTB,
     BIT_READ_VALUE      => BIT_READ_VALUE,
     POS_READ_RST        => POS_READ_RST,
+    POS_READ_RSTB       => POS_READ_RSTB,
     POS_READ_VALUE      => POS_READ_VALUE,
     POS_READ_CHANGES    => POS_READ_CHANGES,
 

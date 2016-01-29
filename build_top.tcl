@@ -40,6 +40,7 @@ read_bd   panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 read_vhdl ../src/hdl/defines/type_defines.vhd
 read_vhdl ../src/hdl/defines/addr_defines.vhd
 read_vhdl ../src/hdl/defines/top_defines.vhd
+read_vhdl ../src/hdl/panda_busses.vhd
 read_vhdl ../src/hdl/panda_csr_if.vhd
 read_vhdl ../src/hdl/panda_spbram.vhd
 read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0_S00_AXI.vhd
@@ -90,6 +91,7 @@ read_vhdl ../src/hdl/panda_bits.vhd
 read_vhdl ../src/hdl/panda_bits_block.vhd
 read_vhdl ../src/hdl/panda_bits_top.vhd
 read_vhdl ../src/hdl/panda_reg.vhd
+read_vhdl ../src/hdl/panda_reg_top.vhd
 read_vhdl ../src/hdl//panda_axi3_write_master.vhd
 read_vhdl ../src/hdl/panda_pcap_ctrl.vhd
 read_vhdl ../src/hdl/panda_pcap_posproc.vhd
