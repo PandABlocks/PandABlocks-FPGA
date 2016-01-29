@@ -173,7 +173,7 @@ $ Increasing position with +ve dir large jitter on deltaT edge
 26      : POSN=0        : FLTR_DIR=1
 27      : POSN=8
 31      :               : PULSE=1, FLTR_DIR=0
-35      : POSN=9
+35      : POSN=9        :
 38      : POSN=10       : PULSE=0
 41      : POSN=11       : PULSE=1
 46      : POSN=12
@@ -235,7 +235,7 @@ $ Increasing position with +ve dir jitter above threshold then return to start
 
 
 ###############
-$ Increasing position with +ve dir jitter above threshold before start
+$ Increasing position with +ve dir jitter above threshold before start and activating on Width
 #this should start the puls when the next deltaT window starts
 #this is interesting if the end of the deltaT window falls on the WIDTH value,
 3       : START=5
@@ -285,3 +285,76 @@ $ Increasing position with +ve dir jitter above threshold before start
 27      : POSN=10
 28      : POSN=11
 29      : POSN=12       : PULSE=0
+
+
+###############
+$ decreasing from above start point with +ve direction and direction change above start point
+#this should not initiate the pulses until we first go under the start point
+#and the direction changes to the correct dir.
+#*this fails if the first reading is on the end of a filter window
+3       : START=5
+4       : STEP=4
+5       : WIDTH=3
+6       : PNUM=3
+10      : ENABLE=1
+12      : FLTR_DELTAT=3
+13      : FLTR_THOLD=1
+14      :
+15      : POSN=11
+16      : POSN=10
+17      : POSN=9
+18      : POSN=8
+19      : POSN=7
+20      : POSN=6
+23      : POSN=5
+25      : POSN=3
+27      : POSN=1
+28      : POSN=2
+29      : POSN=3
+30      : POSN=4
+31      : POSN=0
+43      : POSN=5
+44      : POSN=6
+45      : POSN=7        : PULSE=1, ACT=1
+46      : POSN=8        : PULSE=0
+47      : POSN=9        : PULSE=1
+48      : POSN=10
+49      : POSN=11
+50      : POSN=12       : PULSE=0
+
+
+
+###############
+$ Error if point where pulse is produced skips more than 2 compare points
+#this occurs if we detected the start point in the right conditions but before
+#the direction changed and we also passed at least one width compare point.
+3       : START=5
+4       : STEP=4
+5       : WIDTH=2
+6       : PNUM=3
+10      : ENABLE=1
+12      : FLTR_DELTAT=5
+13      : FLTR_THOLD=1
+14      :
+15      : POSN=11
+16      : POSN=10
+17      : POSN=9
+18      : POSN=8
+19      : POSN=7
+20      : POSN=6
+23      : POSN=5
+25      : POSN=3
+27      : POSN=1
+28      : POSN=2
+29      : POSN=3
+30      : POSN=4
+31      : POSN=0
+43      : POSN=5
+44      : POSN=6
+45      : POSN=7
+46      : POSN=8
+47      : POSN=9        : ERROR=1, ACT=0
+48      : POSN=10
+49      : POSN=11
+50      : POSN=12
+

@@ -187,6 +187,7 @@ PCOMP[4]
     ACT             bit_out
     PULSE           bit_out
     FLTR_DIR        read
+    ERROR           read
     TABLE           table
 
 ADC[8]
