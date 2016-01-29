@@ -282,11 +282,20 @@ signal pcomp_pulse          : std_logic_vector(PCOMP_NUM-1 downto 0);
 signal panda_spbram_wea     : std_logic := '0';
 signal irq_enable           : std_logic := '0';
 
-signal pcap_act             : std_logic;
+signal pcap_act             : std_logic_vector(0 downto 0);
 
 signal zero                 : std_logic;
 signal one                  : std_logic;
-signal clocks               : std_logic_vector(3 downto 0);
+signal clocks_a             : std_logic_vector(0 downto 0);
+signal clocks_b             : std_logic_vector(0 downto 0);
+signal clocks_c             : std_logic_vector(0 downto 0);
+signal clocks_d             : std_logic_vector(0 downto 0);
+
+signal bits_a               : std_logic_vector(0 downto 0);
+signal bits_b               : std_logic_vector(0 downto 0);
+signal bits_c               : std_logic_vector(0 downto 0);
+signal bits_d               : std_logic_vector(0 downto 0);
+
 signal soft                 : std_logic_vector(3 downto 0);
 
 signal adc_low              : std32_array(7 downto 0) := (others => (others => '0'));
@@ -453,7 +462,7 @@ port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
     mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(TTL_CS),
+    mem_cs_i            => mem_cs(TTLOUT_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
@@ -476,7 +485,7 @@ port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
     mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(LVDS_CS),
+    mem_cs_i            => mem_cs(LVDSOUT_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
@@ -725,7 +734,7 @@ port map (
     posbus_i            => posbus,
     extbus_i            => extbus,
 
-    pcap_actv_o         => pcap_act,
+    pcap_actv_o         => pcap_act(0),
     pcap_irq_o          => IRQ_F2P(0)
 );
 
@@ -762,7 +771,10 @@ port map (
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(CLOCKS_CS),
 
-    clocks_o            => clocks
+    clocks_a_o          => clocks_a(0),
+    clocks_b_o          => clocks_b(0),
+    clocks_c_o          => clocks_c(0),
+    clocks_d_o          => clocks_d(0)
 );
 
 --
@@ -782,7 +794,11 @@ port map (
 
     zero_o              => zero,
     one_o               => one,
-    soft_o              => soft
+
+    bits_a_o            => bits_a(0),
+    bits_b_o            => bits_b(0),
+    bits_c_o            => bits_c(0),
+    bits_d_o            => bits_d(0)
 );
 
 --
@@ -803,56 +819,66 @@ port map (
 );
 
 --
--- System Bus   : Assignments
+-- Bit assignment for System and Position busses are managed within
+-- automatically generated file. The provides a robust synchronisation
+-- between hardware and software layers.
 --
-sysbus(0)               <= zero;
-sysbus(1)               <= one;
-sysbus(7 downto 2)      <= ttlin_val;
-sysbus(9 downto 8)      <= lvdsin_val;
-sysbus(17 downto 10)    <= lut_val;
-sysbus(21 downto 18)    <= srgate_val;
-sysbus(25 downto 22)    <= div_outd;
-sysbus(29 downto 26)    <= div_outn;
-sysbus(33 downto 30)    <= pulse_out;
-sysbus(37 downto 34)    <= pulse_perr;
-sysbus(41 downto 38)    <= seq_outa;
-sysbus(45 downto 42)    <= seq_outb;
-sysbus(49 downto 46)    <= seq_outc;
-sysbus(53 downto 50)    <= seq_outd;
-sysbus(57 downto 54)    <= seq_oute;
-sysbus(61 downto 58)    <= seq_outf;
-sysbus(65 downto 62)    <= seq_act;
-sysbus(69 downto 66)    <= inenc_a;
-sysbus(73 downto 70)    <= inenc_b;
-sysbus(77 downto 74)    <= inenc_z;
-sysbus(81 downto 78)    <= inenc_conn;
-sysbus(85 downto 82)    <= (others => '0'); --POSENC_A
-sysbus(89 downto 86)    <= (others => '0'); --POSENC_B
-sysbus(97 downto 90)    <= counter_carry;
-sysbus(101 downto 98)   <= pcomp_act;
-sysbus(105 downto 102)  <= pcomp_pulse;
-sysbus(106)             <= pcap_act;
-sysbus(117 downto 107)  <= (others => '0');
-sysbus(121 downto 118)  <= soft;
-sysbus(125 downto 122)  <= clocks;
-sysbus(127 downto 126)  <= (others => '0');
-
---
--- Position Bus   : Assignments
---
-posbus(0) <= (others => '0');
-posbus(4 downto 1)   <= posn_inenc_low;
-posbus(8 downto 5)   <= (others => (others => '0')); -- QDEC
-posbus(10 downto 9)  <= (others => (others => '0')); -- ADDER
-posbus(18 downto 11) <= posn_counter;
-posbus(20 downto 19) <= (others => (others => '0')); -- PGEN
-posbus(28 downto 21) <= adc_low;
-posbus(31 downto 29) <= (others => (others => '0')); -- Not Used
+busses_inst : entity work.panda_busses
+port map (
+    -- System Bus Signals
+    BITS_ZERO       => "0",
+    BITS_ONE        => "1",
+    TTLIN_VAL       => ttlin_val,
+    LVDSIN_VAL      => lvdsin_val,
+    LUT_VAL         => lut_val,
+    SRGATE_VAL      => srgate_val,
+    DIV_OUTD        => div_outd,
+    DIV_OUTN        => div_outn,
+    PULSE_OUT       => pulse_out,
+    PULSE_PERR      => pulse_perr,
+    SEQ_OUTA        => seq_outa,
+    SEQ_OUTB        => seq_outb,
+    SEQ_OUTC        => seq_outc,
+    SEQ_OUTD        => seq_outd,
+    SEQ_OUTE        => seq_oute,
+    SEQ_OUTF        => seq_outf,
+    SEQ_ACTIVE      => seq_act,
+    INENC_A         => inenc_a,
+    INENC_B         => inenc_b,
+    INENC_Z         => inenc_z,
+    INENC_CONN      => inenc_conn,
+    POSENC_A        => "0000",
+    POSENC_B        => "0000",
+    COUNTER_CARRY   => counter_carry,
+    PCOMP_ACT       => pcomp_act,
+    PCOMP_PULSE     => pcomp_pulse,
+    PCAP_ACTIVE     => pcap_act,
+    BITS_A          => bits_a,
+    BITS_B          => bits_b,
+    BITS_C          => bits_c,
+    BITS_D          => bits_d,
+    CLOCKS_A        => clocks_a,
+    CLOCKS_B        => clocks_b,
+    CLOCKS_C        => clocks_c,
+    CLOCKS_D        => clocks_d,
+    -- Position Bus Signals
+    POSITIONS_ZERO  => (others => (others => '0')),
+    INENC_POSN      => posn_inenc_low,
+    QDEC_POSN       => (others => (others => '0')),
+    ADDER_RESULT    => (others => (others => '0')),
+    COUNTER_COUNT   => posn_counter,
+    PGEN_POSN       => (others => (others => '0')),
+    ADC_DATA        => (others => (others => '0')),
+    -- Bus Outputs
+    bitbus_o        => sysbus,
+    posbus_o        => posbus
+);
 
 --
 -- Extended Bus   : Assignments
 --
 extbus(3 downto 0)  <= posn_inenc_high;
 extbus(11 downto 4) <= adc_high;
+
 
 end rtl;

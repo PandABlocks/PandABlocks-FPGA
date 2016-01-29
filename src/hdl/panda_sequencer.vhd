@@ -40,7 +40,7 @@ port (
     -- Block Parameters
     PRESCALE            : in  std_logic_vector(31 downto 0);
     SOFT_GATE           : in  std_logic;
-    TABLE_RST           : in  std_logic;
+    TABLE_START         : in  std_logic;
     TABLE_DATA          : in  std_logic_vector(31 downto 0);
     TABLE_WSTB          : in  std_logic;
     TABLE_CYCLE         : in  std_logic_vector(31 downto 0);
@@ -134,7 +134,7 @@ TABLE_LENGTH_DWORD <= "00" & TABLE_LENGTH(15 downto 2);
 FILL_SEQ_TABLE : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (TABLE_RST = '1') then
+        if (TABLE_START = '1') then
             seq_waddr <= 0;
         -- Increment Sequencer Table Write Pointer
         elsif (TABLE_WSTB = '1') then

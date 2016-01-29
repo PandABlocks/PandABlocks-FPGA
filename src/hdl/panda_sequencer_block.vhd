@@ -47,7 +47,7 @@ signal INPD_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1')
 
 signal PRESCALE         : std_logic_vector(31 downto 0) := (others => '0');
 signal SOFT_GATE        : std_logic := '0';
-signal TABLE_RST        : std_logic := '0';
+signal TABLE_START        : std_logic := '0';
 signal TABLE_DATA       : std_logic_vector(31 downto 0) := (others => '0');
 signal TABLE_WSTB       : std_logic := '0';
 signal TABLE_CYCLE      : std_logic_vector(31 downto 0) := (others => '0');
@@ -83,13 +83,13 @@ begin
             INPD_VAL <= TO_SVECTOR(0, SBUSBW);
             PRESCALE <= (others => '0');
             SOFT_GATE <= '0';
-            TABLE_RST <= '0';
+            TABLE_START <= '0';
             TABLE_DATA <= (others => '0');
             TABLE_WSTB <= '0';
             TABLE_CYCLE <= (others => '0');
             TABLE_LENGTH <= (others => '0');
         else
-            TABLE_RST <= '0';
+            TABLE_START <= '0';
             TABLE_WSTB <= '0';
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
@@ -122,8 +122,8 @@ begin
                     PRESCALE <= mem_dat_i;
                 end if;
 
-                if (mem_addr = SEQ_TABLE_RST) then
-                    TABLE_RST <= '1';
+                if (mem_addr = SEQ_TABLE_START) then
+                    TABLE_START <= '1';
                 end if;
 
                 if (mem_addr = SEQ_TABLE_DATA) then
@@ -201,7 +201,7 @@ port map (
 
     PRESCALE            => PRESCALE,
     SOFT_GATE           => SOFT_GATE,
-    TABLE_RST           => TABLE_RST,
+    TABLE_START         => TABLE_START,
     TABLE_DATA          => TABLE_DATA,
     TABLE_WSTB          => TABLE_WSTB,
     TABLE_CYCLE         => TABLE_CYCLE,

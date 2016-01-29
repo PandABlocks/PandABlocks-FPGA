@@ -24,7 +24,10 @@ port (
     mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
     mem_dat_i           : in  std_logic_vector(31 downto 0);
     -- Block outputs
-    clocks_o            : out std_logic_vector(3 downto 0)
+    clocks_a_o          : out std_logic;
+    clocks_b_o          : out std_logic;
+    clocks_c_o          : out std_logic;
+    clocks_d_o          : out std_logic
 );
 end panda_clocks_block;
 
@@ -84,10 +87,10 @@ port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
 
-    clocka_o            => clocks_o(0),
-    clockb_o            => clocks_o(1),
-    clockc_o            => clocks_o(2),
-    clockd_o            => clocks_o(3),
+    clocka_o            => clocks_a_o,
+    clockb_o            => clocks_b_o,
+    clockc_o            => clocks_c_o,
+    clockd_o            => clocks_d_o,
 
     CLOCKA_DIV          => CLOCKA_DIV,
     CLOCKB_DIV          => CLOCKB_DIV,

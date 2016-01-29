@@ -35,7 +35,11 @@ port (
     -- Output pulses
     zero_o              : out std_logic;
     one_o               : out std_logic;
-    soft_o              : out std_logic_vector(3 downto 0)
+
+    bits_a_o            : out std_logic;
+    bits_b_o            : out std_logic;
+    bits_c_o            : out std_logic;
+    bits_d_o            : out std_logic
 );
 end panda_bits_top;
 
@@ -62,7 +66,11 @@ port map (
 
     zero_o              => zero_o,
     one_o               => one_o,
-    soft_o              => soft_o
+
+    bits_a_o            => bits_a_o,
+    bits_b_o            => bits_b_o,
+    bits_c_o            => bits_c_o,
+    bits_d_o            => bits_d_o
 );
 
 end rtl;

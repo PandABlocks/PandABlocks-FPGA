@@ -127,7 +127,7 @@ begin
                 end if;
 
                 -- Force Quadrature Encoder State
-                if (mem_addr = OUTENC_FRC_QSTATE) then
+                if (mem_addr = OUTENC_FORCE_QSTATE) then
                     FORCE_QSTATE <= mem_dat_i(0);
                     FORCE_QSTATE_WSTB <= '1';
                 end if;

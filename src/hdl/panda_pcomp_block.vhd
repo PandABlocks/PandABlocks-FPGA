@@ -102,7 +102,7 @@ begin
                 end if;
 
                 -- Pulse count value
-                if (mem_addr = PCOMP_NUMBER) then
+                if (mem_addr = PCOMP_PNUM) then
                     NUM <= mem_dat_i;
                 end if;
 

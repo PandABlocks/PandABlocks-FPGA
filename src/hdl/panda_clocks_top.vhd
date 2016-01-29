@@ -20,7 +20,10 @@ port (
     mem_dat_i           : in  std_logic_vector(31 downto 0);
     mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Output pulses
-    clocks_o            : out std_logic_vector(3 downto 0)
+    clocks_a_o          : out std_logic;
+    clocks_b_o          : out std_logic;
+    clocks_c_o          : out std_logic;
+    clocks_d_o          : out std_logic
 );
 end panda_clocks_top;
 
@@ -45,7 +48,10 @@ port map (
     mem_addr_i          => mem_addr_i(BLK_AW-1 downto 0),
     mem_dat_i           => mem_dat_i,
 
-    clocks_o            => clocks_o
+    clocks_a_o          => clocks_a_o,
+    clocks_b_o          => clocks_b_o,
+    clocks_c_o          => clocks_c_o,
+    clocks_d_o          => clocks_d_o
 );
 
 end rtl;
