@@ -107,6 +107,7 @@ docs: $(DOCS_BUILD_DIR)/index.html
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -f simserver
+	find -name '*.pyc' -delete
 
 .PHONY: clean
 
