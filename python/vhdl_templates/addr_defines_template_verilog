@@ -28,15 +28,8 @@ localparam {{blockname}}_{{fieldname}}  = {{field.reg[0]}};
 
 {%  endfor %}
 
-// Panda Base Address
-localparam BASE                 = 32'h43C0_0000;
-localparam INENC_BASE           = BASE + 4096 * INENC_CS;
-localparam PCOMP_BASE           = BASE + 4096 * PCOMP_CS;
-localparam PCAP_BASE            = BASE + 4096 * PCAP_CS;
-localparam OUTENC_BASE          = BASE + 4096 * OUTENC_CS;
-localparam SLOW_BASE            = BASE + 4096 * SLOW_CS;
-localparam CLOCKS_BASE          = BASE + 4096 * CLOCKS_CS;
-localparam COUNTER_BASE         = BASE + 4096 * COUNTER_CS;
-localparam DRV_BASE             = BASE + 4096 * DRV_CS;
-localparam REG_BASE             = BASE + 4096 * REG_CS;
-
+// Panda Base Address and block base addresses
+localparam BASE = 32'h43C0_0000;
+{%  for blockname, block in blocks.iteritems() %}
+localparam {{blockname}}_BASE = BASE + 4096 * {{blockname}}_CS;
+{%  endfor %}
