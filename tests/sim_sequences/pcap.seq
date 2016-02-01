@@ -68,4 +68,29 @@ $ capture bit bus TTLIN
 21      : CAPTURE=1, TTLIN1.VAL=0       : DATA=16
 22      : ENABLE=0, CAPTURE=0           : ACTIVE=0
 
+#####################
+$ framing on counters
+2       : START_WRITE=0
+4       : WRITE=12
+5       : FRAMING_MASK=0x1000
+6       : FRAMING_ENABLE=1
+10      : ARM=0                         : ACTIVE=1
+11      : ENABLE=1, COUNTER1.COUNT=10
+# Live frame
+12      : FRAME=1
+13      : CAPTURE=1, FRAME=0
+14      : CAPTURE=0
+15      : COUNTER1.COUNT=20
+16      : FRAME=1                       : DATA=10
+17      : FRAME=0
+18      : COUNTER1.COUNT=30
+# Dead frame
+19      : FRAME=1
+20      : FRAME=0
+# Live frame
+21      : COUNTER1.COUNT=50
+22      : CAPTURE=1
+23      : COUNTER1.COUNT=35, CAPTURE=0
+25      : FRAME=1                       : DATA=5
+26      : FRAME=0, ENABLE=0             : ACTIVE=0
 

@@ -14,8 +14,6 @@ POW_TWO = 2 ** np.arange(32)
 class Pcap(Block):
 
     def __init__(self):
-        # This is the number of captures written this frame
-        self.frame_captures = 0
         # This is the ext_bus values to copy
         self.ext_bus = np.zeros(64, dtype=np.int32)
         # These are the ext_bus indexes to capture and the generated masks
@@ -24,7 +22,7 @@ class Pcap(Block):
         self.frame_mask = np.zeros(32, dtype=np.bool_)
         self.alt_frame_mask = np.zeros(32, dtype=np.bool_)
         self.ext_mask = np.zeros(64, dtype=np.bool_)
-        self.pos_bus_cache = np.zeros(32, dtype=np.bool_)
+        self.pos_bus_cache = np.zeros(32, dtype=np.int32)
         # This is the pending data to push
         self.pending_data = None
         # This is the last frame ts
@@ -33,6 +31,8 @@ class Pcap(Block):
         self.ts_start = 0
         # This forward lookup of name to ext_bus
         self.ext_names = {}
+        # Has there been a capture during this frame?
+        self.live_frame = False
         for name, field in self.config_block.fields.items():
             if field.cls == "ext_out":
                 if len(field.reg) > 1:
@@ -128,7 +128,7 @@ class Pcap(Block):
         if self.ts_frame > -1 and self.live_frame:
             b = self.config_block
             # Frame pos bus
-            diff = self.pos_bus_cache - self.pos_bus
+            diff = self.pos_bus - self.pos_bus_cache
             self.ext_bus[self.frame_mask] = diff[self.frame_mask]
             # Alt mode is average
             avg = (self.pos_bus + self.pos_bus_cache) / 2
@@ -149,11 +149,17 @@ class Pcap(Block):
         and non-framed mode"""
         b = self.config_block
         if self.FRAMING_ENABLE:
-            self.frame_captures += 1
-            if self.frame_captures > 1:
+            if self.live_frame:
                 # more than one CAPTURE within a frame, error
                 self.ERR_STATUS = 1
                 self.ACTIVE = 0
+                return
+            elif self.ts_frame == -1:
+                # capture signal before first frame signal
+                self.ERR_STATUS = 3
+                self.ACTIVE = 0
+                return
+            self.live_frame = True
         # Capture pos bus
         self.ext_bus[self.capture_mask] = self.pos_bus[self.capture_mask]
         # Ext bus

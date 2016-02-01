@@ -32,6 +32,8 @@ class SequenceTest(unittest.TestCase):
             "zebra2.simulation", fromlist=[self.block.title()])
         # make instance of block
         block = getattr(imp, self.block.title())()
+        block.bit_bus.fill(0)
+        block.pos_bus.fill(0)
         # make default regs dict
         regs = {}
         bus = {}
