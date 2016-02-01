@@ -156,6 +156,7 @@ PCOMP       Position compare
     ACT             Active output is high while block is in operation
     PULSE           Output pulse
     FLTR_DIR        If deltaT > 0 this is the current direction
+    ERROR           True if pulse is initiated after at least two compare ponts
     TABLE           Table of points to use instead of START/STEP/WIDTH
 
 ADC         
