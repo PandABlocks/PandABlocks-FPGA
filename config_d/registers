@@ -237,10 +237,10 @@ PCAP        16
     FRAME_LENGTH    37
     CAPTURE_OFFSET  38
     ADC_COUNT       32
-    BITA            0 39
-    BITB            1 40
-    BITC            2 41
-    BITD            3 42
+    BITA            39
+    BITB            40
+    BITC            41
+    BITD            42
 
 BITS        28
     A_SET           0

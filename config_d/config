@@ -215,10 +215,10 @@ PCAP
     CAPTURE_OFFSET  ext_out     offset
     ADC_COUNT       ext_out     adc_count
 
-    BITA            ext_out     bits
-    BITB            ext_out     bits
-    BITC            ext_out     bits
-    BITD            ext_out     bits
+    BITA            ext_out     bits 0
+    BITB            ext_out     bits 1
+    BITC            ext_out     bits 2
+    BITD            ext_out     bits 3
 
 BITS
     A_SET           param       bit
