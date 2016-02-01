@@ -10,7 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
 
 # and our parser dir is
 parser_dir = os.path.join(os.path.dirname(__file__), "..", "tests", "sim_sequences")
-fpga_dir = os.path.join(os.path.dirname(__file__), "..", "tests",  "fpga_sequences")
+fpga_dir = os.path.join(os.path.dirname(__file__), "..", "build",  "fpga_sequences")
 
 
 import unittest
