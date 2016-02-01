@@ -1,7 +1,12 @@
+import numpy as np
+
 from ..configparser import ConfigParser
 
 
 class Block(object):
+    bit_bus = np.zeros(128, dtype=np.bool_)
+    pos_bus = np.zeros(32, dtype=np.int32)
+    enc_bus = np.zeros(4, dtype=np.int32)
 
     @classmethod
     def load_config(cls, config_dir):
@@ -14,14 +19,32 @@ class Block(object):
     def add_properties(cls):
         block_name = cls.__name__.upper()
         cls.config_block = cls.parser.blocks[block_name]
-        # add a property that stores changes for outputs
+        # compute list of field names
+        field_names = []
+        # populate from config_block fields
         for name, field in cls.config_block.fields.items():
+            if field.cls == "table":
+                for suff in ["RST", "DATA", "LENGTH"]:
+                    field_names.append("%s_%s" % (name, suff))
+            else:
+                field_names.append(name)
+        # augment with PCAP special fields
+        if block_name == "PCAP":
+            for name in cls.parser.blocks["*REG"].fields:
+                if name.startswith("PCAP_"):
+                    field_names.append(name[len("PCAP_"):])
+            # Special DATA output should appear in changes each time
+            # it is written to
+            cls.add_property("DATA", True)
+        # add a property that stores changes for outputs
+        for name in field_names:
+            setattr(cls.config_block, name, name)
             cls.add_property(name)
 
     @classmethod
-    def add_property(cls, attr):
+    def add_property(cls, attr, force=False):
         def setter(self, v):
-            if getattr(self, attr) != v:
+            if force or getattr(self, attr) != v:
                 if not hasattr(self, "_changes"):
                     self._changes = {}
                 setattr(self, "_%s" % attr, v)
