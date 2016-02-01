@@ -8,3 +8,4 @@ from .counter import Counter
 from .div import Div
 from .lut import Lut
 from .pcomp import Pcomp
+from .pcap import Pcap

@@ -38,11 +38,11 @@ class SequenceTest(unittest.TestCase):
         # get a list of all regs we are checking
         for ts in self.sequence.outputs:
             for name in self.sequence.outputs[ts]:
-                field = block.config_block.fields[name]
-                if not field.cls.endswith("_out"):
-                    regs[name] = 0
-                else:
+                field = block.config_block.fields.get(name, None)
+                if field and field.cls.endswith("_out"):
                     bus[name] = 0
+                else:
+                    regs[name] = 0
         next_ts = None
         for ts in self.sequence.inputs:
             while next_ts is not None and next_ts < ts:
@@ -60,15 +60,25 @@ class SequenceTest(unittest.TestCase):
             # check that when _mux fields appear in changes that they actually
             # have changes, as our blocks expect this
             for name, val in changes.items():
-                # Check that this is a valid field name
-                self.assertIn(name, dir(block.config_block))
-                field = block.config_block.fields.get(name, None)
-                if field and field.typ.endswith("_mux"):
-                    current = bus.get(name, 0)
-                    self.assertNotEqual(
-                        val, current,
-                        "%d: %s already set to %d" % (ts, name, val))
-                    bus[name] = val
+                # If there is a dot in the name, it's a bit or pos bus entry
+                if "." in name:
+                    if name in Block.parser.bit_bus:
+                        idx = Block.parser.bit_bus[name]
+                        Block.bit_bus[idx] = val
+                    else:
+                        idx = Block.parser.pos_bus[name]
+                        Block.pos_bus[idx] = val
+                    changes.pop(name)
+                else:
+                    # Check that this is a valid field name
+                    self.assertIn(name, dir(block.config_block))
+                    field = block.config_block.fields.get(name, None)
+                    if field and field.typ.endswith("_mux"):
+                        current = bus.get(name, 0)
+                        self.assertNotEqual(
+                            val, current,
+                            "%d: %s already set to %d" % (ts, name, val))
+                        bus[name] = val
 
             # work out what changed and check they were mentioned
             next_ts = block.on_changes(ts, changes)
