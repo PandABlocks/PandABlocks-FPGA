@@ -128,7 +128,7 @@ class DummyData(threading.Thread):
                         break
                     self.controller.send_capture_data(
                         numpy.arange(1024, dtype=numpy.int32))
-                    time.sleep(0.2)
+                    time.sleep(0.02)
                 self.controller.end_capture_data()
                 self.armed = False
 
