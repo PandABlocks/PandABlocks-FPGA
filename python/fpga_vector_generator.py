@@ -41,6 +41,7 @@ class FpgaSequence(object):
                 self.reg_out.append(name)
             else:
                 self.reg_in.append(name)
+                self.reg_in.append(name + "_WSTB")
         self.make_lines()
 
     def write(self):
@@ -56,7 +57,6 @@ class FpgaSequence(object):
             f.write("\t".join(headings) + "\n")
             lines = getattr(self, name + "_lines")
             for line in lines:
-                print line
                 f.write("\t".join(line) + "\n")
             f.close()
 
@@ -74,6 +74,15 @@ class FpgaSequence(object):
         self.reg_in_lines.append(lreg_in)
         self.reg_out_lines.append(lreg_out)
 
+    def set_wstb(self,ts, previous, current):
+        changes = {}
+        for name in self.reg_in:
+            if current.get(name, 0) != previous.get(name, 0):
+                changes.update({name + "_WSTB": 1}),
+            else:
+                changes.update({name + "_WSTB": 0})
+        return changes
+
     def make_lines(self):
         # make lines list
         self.bus_in_lines = []
@@ -85,12 +94,15 @@ class FpgaSequence(object):
         for sequence in self.parser.sequences:
             # reset simultion
             current = {}
+            previous = {}
             self.add_line(ts_off, dict(SIM_RESET=1))
             ts_off += 10
             # start the sequence
             for ts in sequence.inputs:
+                previous.update(current)
                 current.update(sequence.inputs[ts])
                 current.update(sequence.outputs[ts])
+                current.update(self.set_wstb(ts, previous, current))
                 self.add_line(ts + ts_off, current)
             ts_off += ts + 1
 
