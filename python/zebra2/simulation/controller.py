@@ -38,7 +38,7 @@ class Controller(object):
         self.dummy_data.write_register(block == 31, reg, value)
         self.z.post_wait((block, num, reg, value))
 
-    def do_write_table(self, block, num, reg, data):
+    def do_write_table(self, block, num, data):
         self.z.post_wait((block, num, "TABLE", data))
 
     def do_read_capture(self, max_length):
@@ -118,17 +118,20 @@ class DummyData(threading.Thread):
         super(DummyData, self).__init__()
         self.controller = controller
         self.armed = False
+        self.daemon = True
 
     def run(self):
         while True:
             time.sleep(1)
             if self.armed:
+                print 'Starting data generation'
                 for i in range(10):
                     if not self.armed:
                         break
                     self.controller.send_capture_data(
                         numpy.arange(1024, dtype=numpy.int32))
                     time.sleep(0.02)
+                print 'Completed data generation'
                 self.controller.end_capture_data()
                 self.armed = False
 

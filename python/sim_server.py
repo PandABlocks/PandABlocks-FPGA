@@ -71,7 +71,7 @@ def run_simulation(conn):
             length, = struct.unpack('I', read(conn, 4))
             data = read(conn, length * 4)
             data = numpy.fromstring(data, dtype = numpy.int32)
-            controller.do_write_table(block, num, reg, data)
+            controller.do_write_table(block, num, data)
         elif command == 'D':
             # Retrieve increment of data stream
             length, = struct.unpack('I', read(conn, 4))
