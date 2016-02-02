@@ -28,7 +28,7 @@ class Controller(object):
             block = self.z.blocks[(block_num, num)]
             name = block.regs[reg]
         except KeyError:
-            print 'Unknown register', block_num, num, reg
+            # Unknown register, just ignore
             value = 0
         else:
             value = getattr(block, name)
@@ -135,9 +135,7 @@ class DummyData(threading.Thread):
     def write_register(self, cs, reg, value):
         if cs:
             if reg == 8:
-                print "arm dummy data"
                 self.controller.start_capture_data()
                 self.armed = True
             elif reg == 9:
-                print "disarm dummy data"
                 self.armed = False

@@ -86,7 +86,7 @@ class Zebra2(Task):
                 block = self.blocks[(block_num, num)]
                 name = block.regs[reg]
             except KeyError:
-                print 'Unknown register', block_num, num, reg
+                # Ignore unknown register
                 done.set()
                 return
             # make an event with the register set
