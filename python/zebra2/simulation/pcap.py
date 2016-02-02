@@ -12,6 +12,7 @@ POW_TWO = 2 ** np.arange(32)
 
 
 class Pcap(Block):
+    tick_data = True
 
     def __init__(self):
         # This is the ext_bus values to copy
@@ -24,7 +25,9 @@ class Pcap(Block):
         self.ext_mask = np.zeros(64, dtype=np.bool_)
         self.pos_bus_cache = np.zeros(32, dtype=np.int32)
         # This is the pending data to push
-        self.pending_data = None
+        self.buf = np.zeros(MAX_BUFFER, dtype=np.int32)
+        self.buf_len = 0
+        self.buf_produced = 0
         # This is the last frame ts
         self.ts_frame = 0
         # This is when we raised ACTIVE
@@ -75,6 +78,8 @@ class Pcap(Block):
             self.ts_frame = -1
             self.ts_start = ts
             self.live_frame = False
+            self.buf_len = 0
+            self.buf_produced = 0
 
         # Disarm from ENABLE falling edge
         if changes.get(b.ENABLE, None) == 0:
@@ -91,15 +96,11 @@ class Pcap(Block):
                 self.do_capture(ts)
 
         # If there was pending_data then write it here
-        ts_next = None
-        if self.pending_data is not None:
-            self.DATA = self.pending_data[self.pending_index]
-            self.pending_index += 1
-            if self.pending_index >= len(self.pending_data):
-                self.pending_data = None
-            else:
-                ts_next = ts + 1
-        return ts_next
+        if self.tick_data and self.buf_len > self.buf_produced:
+            self.DATA = self.buf[self.buf_produced]
+            self.buf_produced += 1
+            if self.buf_len > self.buf_produced:
+                return ts + 1
 
     def calculate_masks(self):
         """Calculate the masks of for framed and captured data, and alternate
@@ -192,10 +193,12 @@ class Pcap(Block):
         """Push the data from our ext_bus into the output buffer. Note that
         in the FPGA this is clocked out one by one, but we push it all in one
         go and make sure we don't get another push until self.pushing_til"""
-        if self.pending_data is not None:
+        if self.tick_data and self.buf_len > self.buf_produced:
             # Told to push more data when we hadn't finished the last capture
             self.ERR_STATUS = 2
             self.ACTIVE = 0
         else:
-            self.pending_data = self.ext_bus[self.store_indices]
-            self.pending_index = 0
+            new_data = self.ext_bus[self.store_indices]
+            new_size = len(new_data)
+            self.buf[self.buf_len:self.buf_len+new_size] = new_data
+            self.buf_len += len(new_data)

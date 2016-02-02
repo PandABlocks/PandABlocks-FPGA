@@ -12,6 +12,14 @@ class ConfigBlock(object):
         desc (str): The description for this block
         fields (OrderedDict): map str field_name -> :class:`.ConfigField`
             instance for each field the block has
+        registers (OrderedDict): map str attr_name -> (int reg num, ConfigField)
+
+    Also, there will be an attribute for each attr_name in registers.keys()
+    that also has that string as its value. This will allow lookup of register
+    strings in a safe way. For example:
+
+        self.TABLE_DATA = "TABLE_DATA"
+
     """
 
     def __init__(self, reg_line, config_line=None, desc_line=None):
@@ -40,7 +48,7 @@ class ConfigBlock(object):
             assert config_name == self.name, \
                 "Config name %s != reg name %s" % (config_name, self.name)
         else:
-            self.num = None
+            self.num = 1
 
         # parse desc_lines for descriptions
         if desc_line:
@@ -55,8 +63,9 @@ class ConfigBlock(object):
         else:
             self.desc = None
 
-        # setup the field dict
+        # setup the field and registers dicts
         self.fields = OrderedDict()
+        self.registers = OrderedDict()
 
     def add_field(self, field):
         """Add a ConfigField instance to self.fields dictionary
@@ -70,3 +79,28 @@ class ConfigBlock(object):
         assert field.name not in self.fields, \
             "Field %s already part of block %s" % (field.name, self.name)
         self.fields[field.name] = field
+
+        # List register attributes for each field
+        attrs = []
+        if field.cls and field.cls.endswith("_out"):
+            # No registers for out, just set attribute
+            setattr(self, field.name, field.name)
+        elif field.cls == "table":
+            attrs.append(("%s_START" % field.name, field.reg[2]))
+            if field.reg[0] == "short":
+                attrs.append(("%s_DATA" % field.name, field.reg[3]))
+                attrs.append(("%s_LENGTH" % field.name, field.reg[4]))
+            else:
+                attrs.append(("%s_LENGTH" % field.name, field.reg[3]))
+        elif field.cls == "time":
+            attrs.append(("%s_L" % field.name, field.reg[0]))
+            attrs.append(("%s_H" % field.name, field.reg[1]))
+        elif field.reg[0] == "slow":
+            attrs.append((field.name, field.reg[1]))
+        else:
+            attrs.append((field.name, field.reg[0]))
+
+        # Create registers entries
+        for name, reg in attrs:
+            setattr(self, name, name)
+            self.registers[name] = (int(reg), field)

@@ -1,15 +1,15 @@
 ################################
 $ Pulse stretching with no delay
-1       : WIDTH=5
-2       : DELAY=0
+1       : WIDTH_L=5
+2       : DELAY_L=0
 7       : INP=1         : QUEUE=1, OUT=1
 8       : INP=0         :
 12      :               : QUEUE=0, OUT=0
 
 #############################
 $ Pulse delay with no stretch
-1       : WIDTH=0
-2       : DELAY=10
+1       : WIDTH_L=0
+2       : DELAY_L=10
 7       : INP=1         : QUEUE=1
 10      : INP=0         : QUEUE=2
 17      :               : QUEUE=1, OUT=1
@@ -17,8 +17,8 @@ $ Pulse delay with no stretch
 
 #########################
 $ Pulse delay and stretch
-1       : WIDTH=10
-2       : DELAY=10
+1       : WIDTH_L=10
+2       : DELAY_L=10
 7       : INP=1         : QUEUE=2
 8       : INP=0
 17      :               : QUEUE=1, OUT=1
@@ -26,15 +26,15 @@ $ Pulse delay and stretch
 
 #####################
 $ No delay or stretch
-1       : WIDTH=0
-2       : DELAY=0
+1       : WIDTH_L=0
+2       : DELAY_L=0
 7       : INP=1         : OUT=1
 8       : INP=0         : OUT=0
 
 ###################################
 $ Pulse train stretched and delayed
-1       : WIDTH=5
-2       : DELAY=10
+1       : WIDTH_L=5
+2       : DELAY_L=10
 14      : INP=1         : QUEUE=2
 16      : INP=0
 23      : INP=1         : QUEUE=4
@@ -46,8 +46,8 @@ $ Pulse train stretched and delayed
 
 #################################################
 $ Stretched and delayed pulses too close together
-1       : WIDTH=5
-2       : DELAY=10
+1       : WIDTH_L=5
+2       : DELAY_L=10
 14      : INP=1         : QUEUE=2
 16      : INP=0
 20      : INP=1         : PERR=1, MISSED_CNT=1, ERR_PERIOD=1
