@@ -14,7 +14,6 @@ CLOCK_TICK = 1.0 / 125e6
 POW_TWO = 2 ** np.arange(32)
 
 
-
 class Controller(object):
 
     def __init__(self, config_dir):
@@ -78,7 +77,6 @@ class Controller(object):
         if name == "PCAP":
             self.pcap = inst
             inst.tick_data = False
-
 
     def do_read_register(self, block_num, num, reg):
         """Read the register value for a given block and register number
@@ -224,7 +222,6 @@ class Controller(object):
             next_time = self.wakeups[0][0] * CLOCK_TICK + self.start_time
             return next_time - time.time()
 
-
     def update_listeners(self, block, name, value):
         """Update listeners for muxes on block
 
@@ -261,7 +258,6 @@ class Controller(object):
         if old_bus_val != new_bus_val:
             return {block: {name: new_bus_val}}
 
-
     def capture_bit_bus(self):
         """Capture bit bus so BIT_READ_VALUE can use it"""
         self._bit_read_data = deque()
@@ -285,4 +281,3 @@ class Controller(object):
     @property
     def POS_READ_VALUE(self):
         return self._pos_read_data.popleft()
-
