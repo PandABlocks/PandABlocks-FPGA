@@ -56,6 +56,7 @@ class FpgaSequence(object):
             f.write("\t".join(headings) + "\n")
             lines = getattr(self, name + "_lines")
             for line in lines:
+                print line
                 f.write("\t".join(line) + "\n")
             f.close()
 
@@ -91,7 +92,7 @@ class FpgaSequence(object):
                 current.update(sequence.inputs[ts])
                 current.update(sequence.outputs[ts])
                 self.add_line(ts + ts_off, current)
-            ts_off += ts
+            ts_off += ts + 1
 
 def generate_fpga_test_vectors():
     sequences = []
