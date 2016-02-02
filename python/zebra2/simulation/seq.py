@@ -23,7 +23,7 @@ class Seq(Block):
         self.frpt_queue = deque()
         self.trpt_queue = deque()
         self.end_queue = deque()
-        self.table = numpy.zeros(512*4, dtype=numpy.uint32)
+        self.table = numpy.zeros(shape=(512,4), dtype=numpy.uint32)
 
     def do_start(self, ts):
         self.ACTIVE = 1
@@ -48,16 +48,16 @@ class Seq(Block):
 
     def process_inputs(self, ts):
         if self.ACTIVE and self.frame_ok:
-            self.check_inputs(ts)
-
-    def check_inputs(self, ts):
-        self.get_table_data()
-        incheck = self.params['inMask'] & self.params['inCond']
-        if (self.INPA & (self.params['inMask'] & 1) == incheck & 1)\
-            and (self.INPB & ((self.params['inMask'] & 2) >> 1) == (incheck & 2) >> 1)\
-            and (self.INPC & ((self.params['inMask'] & 4) >> 2) == (incheck & 4) >> 2)\
-            and (self.INPD & ((self.params['inMask'] & 8) >> 3) == (incheck & 8) >> 3):
-            self.process_phase1(ts)
+            self.get_cur_frame_data()
+            incheck = self.params['inMask'] & self.params['inCond']
+            if (self.INPA & (self.params['inMask'] & 1) == incheck & 1)\
+                and (self.INPB & ((self.params['inMask'] & 2) >> 1)
+                         == (incheck & 2) >> 1)\
+                and (self.INPC & ((self.params['inMask'] & 4) >> 2)
+                         == (incheck & 4) >> 2)\
+                and (self.INPD & ((self.params['inMask'] & 8) >> 3)
+                         == (incheck & 8) >> 3):
+                self.process_phase1(ts)
 
     def process_phase1(self, ts):
         self.set_outputs('p1Out')
@@ -70,7 +70,7 @@ class Seq(Block):
             self.trpt_queue.popleft()
 
     def process_phase2(self, ts):
-        self.get_table_data()
+        self.get_cur_frame_data()
         self.set_outputs('p2Out')
         #go to next frame
         if self.CUR_FRAME < self.TABLE_LENGTH\
@@ -97,14 +97,14 @@ class Seq(Block):
 
     def do_table_write(self):
         self.frame_ok = False
-        self.table[self.twrite_addr] = self.TABLE_DATA
-        self.twrite_addr += 1
-        #check that the whole frame is written
+        self.table[self.twrite_addr][self.fword_count] = self.TABLE_DATA
         self.fword_count += 1
         self.table_strobes += 1
+        #check that the whole frame is written
         if self.fword_count == 4:
             self.fword_count = 0
             self.frame_ok = True
+            self.twrite_addr += 1
         self.TABLE_STROBES = self.table_strobes
 
     def do_table_reset(self):
@@ -121,15 +121,15 @@ class Seq(Block):
             self.CUR_TCYCLE = 1
         self.table_strobes = 0
 
-    def get_table_data(self):
-        table_offset = 4*(self.CUR_FRAME - 1)
-        self.params['rpt'] = self.table[0 + table_offset]
-        self.params['p1Len'] = self.table[2 + table_offset] * self.PRESCALE
-        self.params['p2Len'] = self.table[3 + table_offset] * self.PRESCALE
-        self.params['inMask'] = (self.table[1 + table_offset] >> 28) & 0xF
-        self.params['inCond'] = (self.table[1 + table_offset] >> 24) & 0xF
-        self.params['p2Out'] = (self.table[1 + table_offset] >> 8) & 0x3F
-        self.params['p1Out'] = (self.table[1 + table_offset] >> 16) & 0x3F
+    def get_cur_frame_data(self):
+        #make the data more easily managable
+        self.params['rpt'] = self.table[self.CUR_FRAME-1][0]
+        self.params['p1Len'] = self.table[self.CUR_FRAME-1][2] * self.PRESCALE
+        self.params['p2Len'] = self.table[self.CUR_FRAME-1][3] * self.PRESCALE
+        self.params['inMask'] = (self.table[self.CUR_FRAME-1][1] >> 28) & 0xF
+        self.params['inCond'] = (self.table[self.CUR_FRAME-1][1] >> 24) & 0xF
+        self.params['p2Out'] = (self.table[self.CUR_FRAME-1][1] >> 8) & 0x3F
+        self.params['p1Out'] = (self.table[self.CUR_FRAME-1][1] >> 16) & 0x3F
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
@@ -170,20 +170,20 @@ class Seq(Block):
         if self.frpt_queue and self.frpt_queue[0] == ts:
             self.CUR_FCYCLE += 1
             self.frpt_queue.popleft()
-            self.check_inputs(ts)
+            self.process_inputs(ts)
         #handle the table repeat
         if self.trpt_queue and self.trpt_queue[0] == ts:
             self.CUR_TCYCLE += 1
             self.CUR_FRAME  = 1
             self.CUR_FCYCLE = 1
             self.trpt_queue.popleft()
-            self.check_inputs(ts)
+            self.process_inputs(ts)
         #handle the next frame
         if self.next_frame_queue and self.next_frame_queue[0] <= ts:
             self.CUR_FRAME += 1
             self.CUR_FCYCLE = 1
             self.next_frame_queue.popleft()
-            self.check_inputs(ts)
+            self.process_inputs(ts)
         #handle the end of the sequence
         if self.end_queue and self.end_queue[0] == ts:
             self.set_outputs('zero')
