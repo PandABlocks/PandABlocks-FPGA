@@ -125,11 +125,13 @@ class DummyData(threading.Thread):
             time.sleep(1)
             if self.armed:
                 print 'Starting data generation'
+                n = 0
                 for i in range(10):
                     if not self.armed:
                         break
                     self.controller.send_capture_data(
-                        numpy.arange(1024, dtype=numpy.int32))
+                        n + numpy.arange(1024, dtype=numpy.int32))
+                    n += 1024
                     time.sleep(0.02)
                 print 'Completed data generation'
                 self.controller.end_capture_data()
