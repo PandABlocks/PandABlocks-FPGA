@@ -98,7 +98,7 @@ $ Disable with start
 
 
 ###############
-$ Increasing position with +ve dir jitter below threshold
+$ Increasing position with jitter below FLTR_THOLD
 #this should just do the normal behaviour
 3       : START=5
 4       : STEP=3
@@ -126,7 +126,7 @@ $ Increasing position with +ve dir jitter below threshold
 
 
 ###############
-$ Increasing position with +ve dir large jitter inside deltaT
+$ Increasing position with jitter above FLTR_THOLD inside deltaT
 #this should ignore the jitter as it is inside the deltaT window
 3       : START=5
 4       : STEP=3
@@ -152,7 +152,7 @@ $ Increasing position with +ve dir large jitter inside deltaT
 47      : POSN=13       : PULSE=0, ACT=0
 
 ###############
-$ Increasing position with +ve dir large jitter on deltaT edge
+$ Increasing position with jitter above FLTR_THOLD on deltaT edge
 #this should report the jitter, reverse direction and
 #everything in the deltaT is ignored until next deltaT window
 3       : START=5
@@ -180,7 +180,7 @@ $ Increasing position with +ve dir large jitter on deltaT edge
 49      : POSN=13       : PULSE=0, ACT=0
 
 ###############
-$ Increasing position with +ve dir jitter below FLTR_THOLD on deltaT edge
+$ Increasing position with jitter below FLTR_THOLD on deltaT edge
 #this should ignore the jitter
 3       : START=5
 4       : STEP=3
@@ -206,7 +206,7 @@ $ Increasing position with +ve dir jitter below FLTR_THOLD on deltaT edge
 49      : POSN=13       : PULSE=0, ACT=0
 
 ###############
-$ Increasing position with +ve dir jitter above threshold then return to start
+$ Increasing position with jitter above FLTR_THOLD then return to start
 #this won't restart as the pulse has already been started
 3       : START=5
 4       : STEP=3
@@ -235,8 +235,8 @@ $ Increasing position with +ve dir jitter above threshold then return to start
 
 
 ###############
-$ Increasing position with +ve dir jitter above threshold before start and activating on Width
-#this should start the puls when the next deltaT window starts
+$ Increasing position with jitter above FLTR_THOLD before start
+#this should start the pulse when the next deltaT window starts
 #this is interesting if the end of the deltaT window falls on the WIDTH value,
 3       : START=5
 4       : STEP=3
@@ -261,8 +261,8 @@ $ Increasing position with +ve dir jitter above threshold before start and activ
 29      : POSN=12
 
 ###############
-$ Increasing position with +ve dir jitter above threshold before start
-#this should start the puls when the next deltaT window starts and continue the
+$ Increasing position with jitter above threshold before start
+#this should start the pulse when the next deltaT window starts and continue the
 #pulse as if it was started in the right spot
 3       : START=5
 4       : STEP=4
@@ -288,7 +288,7 @@ $ Increasing position with +ve dir jitter above threshold before start
 
 
 ###############
-$ decreasing from above start point with +ve direction and direction change above start point
+$ Decreasing from above start with +ve direction filter and direction change above start point
 #this should not initiate the pulses until we first go under the start point
 #and the direction changes to the correct dir.
 #*this fails if the first reading is on the end of a filter window
@@ -325,7 +325,7 @@ $ decreasing from above start point with +ve direction and direction change abov
 
 
 ###############
-$ Error if point where pulse is produced skips more than 2 compare points
+$ Pulse is produced after skipping more than 2 compare points
 #this occurs if we detected the start point in the right conditions but before
 #the direction changed and we also passed at least one width compare point.
 3       : START=5
