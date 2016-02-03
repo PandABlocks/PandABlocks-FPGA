@@ -40,6 +40,15 @@ def main():
         for fieldname, field in block.fields.items():
             if field.reg[0] == 'slow':
                 field.reg[0] = field.reg[1]
+            #filter out register numbers after a "/"
+            tempreg = []
+            copy = True
+            for num in field.reg:
+                if num == "/": copy = False
+                if copy : tempreg.append(num)
+            field.reg = tempreg
+
+
 
     variables = {"blocks": blocks}
     genearateOutput('addr_defines_template', "addr_defines.vhd", variables)
