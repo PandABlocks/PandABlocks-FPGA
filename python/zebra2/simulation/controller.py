@@ -271,13 +271,15 @@ class Controller(object):
     def capture_bit_bus(self):
         """Capture bit bus so BIT_READ_VALUE can use it"""
         self._bit_read_data = deque()
-        for i in range(4):
+        tmp_bits = np.empty(32, dtype=np.bool_)
+        for i in range(8):
             # Pack bits from bit_bus into 32-bit number and add it to list
-            vals = Block.bits_to_int(Block.bit_bus[i*32:(i+1)*32])
+            # Top half is bit bus
+            tmp_bits[16:] = Block.bit_bus[i*16:(i+1)*16]
+            # Bottom half is bit changes
+            tmp_bits[:16] = self.bit_changes[i*16:(i+1)*16]
+            vals = Block.bits_to_int(tmp_bits)
             self._bit_read_data.append(vals)
-            # Do the same for the change bits
-            change = Block.bits_to_int(self.bit_changes[i*32:(i+1)*32])
-            self._bit_read_data.append(change)
         self.bit_changes.fill(0)
 
     @property
