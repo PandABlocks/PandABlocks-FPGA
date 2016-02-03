@@ -33,6 +33,7 @@
 > !ADC 8
 > !DIV 4
 > !INENC 4
+> !SLOW 1
 > !PGEN 2
 > !LVDSIN 2
 > !POSITIONS 1
@@ -41,7 +42,6 @@
 > !PULSE 4
 > !SRGATE 4
 > !LUT 8
-> !CALC 2
 > !LVDSOUT 2
 > !COUNTER 8
 > !ADDER 1
