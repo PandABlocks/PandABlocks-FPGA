@@ -1,143 +1,297 @@
-import numpy
-import threading
 import time
+import bisect
+from collections import deque
 
-from .zebra2 import Zebra2
+import numpy as np
+
+from .block import Block
+
+
+# FPGA clock tick in seconds
+CLOCK_TICK = 1.0 / 125e6
 
 
 class Controller(object):
 
     def __init__(self, config_dir):
-        # start the controller task
-        self.z = Zebra2(config_dir)
-        self.capture = Capture()
+        Block.load_config(config_dir)
+        # Changesets
+        self.bit_changes = np.zeros(128, dtype=np.bool_)
+        self.pos_changes = np.zeros(32, dtype=np.bool_)
+        # Lookup from (block_num, num, reg) -> (Block instance, attr_name)
+        self.lookup = {}
+        # Map (block, attr) -> bus, bus_changes, idx
+        # Map ("bit"/"pos", idx) -> block, attr
+        self.bus_lookup = {}
+        for name, config_block in Block.parser.blocks.items():
+            if not name.startswith("*"):
+                self._create_block(name, config_block)
+        # Now divert the *REG registers to PCAP or ourself
+        reg_config = Block.parser.blocks["*REG"]
+        for attr_name, (reg, field) in reg_config.registers.items():
+            if attr_name.startswith("PCAP_"):
+                attr_name = attr_name[len("PCAP_"):]
+                block = self.pcap
+            else:
+                block = self
+            self.lookup[(reg_config.base, 0, reg)] = (block, attr_name)
+        # Slow control always complete
+        self.SLOW_REGISTER_STATUS = 0
+        # When did we start
+        self.start_time = time.time()
+        # When do our blocks next need to be woken up?
+        # List of (int ts, Block block, dict changes)
+        self.wakeups = []
+        # What blocks are listening to each bit_bus and pos_bus parameter?
+        # Dict of str bus_name -> [Block block]
+        self.listeners = {}
 
-        self.dummy_data = DummyData(self)
+    def _create_block(self, name, config_block):
+        """Create an instance of the block if we can, or a Block if we can't
 
-    def start(self):
-        self.z.start_event_loop()
-        self.dummy_data.start()
-
-
-    # --------------------------------------------------------------------------
-    # Interface to TCP server
-
-    # Must return an integer
-    def do_read_register(self, block_num, num, reg):
+        Args:
+            name (str): The name of the block (E.g. PCAP)
+            config_block (ConfigBlock): ConfigBlock instance to configure it
+        """
+        # check if we have a block of the right type
         try:
-            block = self.z.blocks[(block_num, num)]
-            name = block.regs[reg]
+            imp = __import__("zebra2.simulation." + name.lower())
+            package = getattr(imp.simulation, name.lower())
+            clsnames = [n for n in dir(package) if n.upper() == name]
+            cls = getattr(package, clsnames[0])
+            print "Got %s sim" % cls.__name__
+        except ImportError:
+            print "No %s sim, using Block" % name.title()
+
+            class cls(Block):
+                pass
+            cls.__name__ = name.title()
+            cls.add_properties()
+
+        # Make instances of it
+        for i in range(config_block.num):
+            inst = cls()
+            for attr_name, (reg, field) in config_block.registers.items():
+                self.lookup[(config_block.base, i, reg)] = (inst, attr_name)
+                if field.cls == "table" and field.reg[0] == "long":
+                    # Long tables need a special entry
+                    entry = (inst, "TABLE_DATA")
+                    self.lookup[(config_block.base, i, -1)] = entry
+            for attr_name, (indexes, field) in config_block.outputs.items():
+                if field.cls == "pos_out":
+                    bus, bus_changes = Block.pos_bus, self.pos_changes
+                elif field.cls == "bit_out":
+                    bus, bus_changes = Block.bit_bus, self.bit_changes
+                else:
+                    # ignore ext_out
+                    continue
+                idx = int(field.reg[i])
+                self.bus_lookup[(inst, attr_name)] = (bus, bus_changes, idx)
+                self.bus_lookup[(field.cls[:3], idx)] = (inst, attr_name)
+
+        # Store PCAP
+        if name == "PCAP":
+            self.pcap = inst
+            inst.tick_data = False
+
+    def do_read_register(self, block_num, num, reg):
+        """Read the register value for a given block and register number
+
+        Args:
+            block_num (int): The register base for the block
+            num (int): The instance number of the block (from 0..maxnum-1)
+            reg (int): The field register offset for the block
+
+        Returns:
+            int: The value of the register
+        """
+        try:
+            block, name = self.lookup[(block_num, num, reg)]
         except KeyError:
-            print 'Unknown register', block_num, num, reg
+            print 'Unknown read register', block_num, num, reg
             value = 0
         else:
             value = getattr(block, name)
         return value
 
-    def do_write_register(self, block, num, reg, value):
-        self.dummy_data.write_register(block == 31, reg, value)
-        self.z.post_wait((block, num, reg, value))
+    def do_write_register(self, block_num, num, reg, value):
+        """Write the register value for a given block and register number
 
-    def do_write_table(self, block, num, reg, data):
-        self.z.post_wait((block, num, "TABLE", data))
+        Args:
+            block_num (int): The register base for the block
+            num (int): The instance number of the block (from 0..maxnum-1)
+            reg (int): The field register offset for the block
+            value (int): The value to write
+        """
+        try:
+            block, name = self.lookup[(block_num, num, reg)]
+        except KeyError:
+            print 'Unknown write register', block_num, num, reg
+        else:
+            if block == self:
+                if name == "BIT_READ_RST":
+                    self.capture_bit_bus()
+                elif name == "POS_READ_RST":
+                    self.capture_pos_bus()
+            else:
+                field = block.config_block.fields.get(name, None)
+                if field and field.typ.endswith("_mux"):
+                    block_changes = self.update_listeners(block, name, value)
+                else:
+                    block_changes = {block: {name: value}}
+                self.do_tick(block_changes)
+
+    def do_write_table(self, block_num, num, data):
+        """Write a table value for a given block and register number
+
+        Args:
+            block_num (int): The register base for the block
+            num (int): The instance number of the block (from 0..maxnum-1)
+            data (numpy.ndarray): The data to write
+        """
+        try:
+            block, name = self.lookup[(block_num, num, -1)]
+        except KeyError:
+            print 'Unknown table register', block_num, num
+        else:
+            # Send data to long table data attribute of block
+            block_changes = {block: {name: data}}
+            self.do_tick(block_changes)
 
     def do_read_capture(self, max_length):
-        return self.capture.read(max_length)
+        """Read the capture data array from self.pcap
 
+        Args:
+            max_length (int): Max number of int32 words to read
+        """
+        if self.pcap.buf_len > 0:
+            data_length = min(self.pcap.buf_len, max_length)
+            result = +self.pcap.buf[:data_length]
+            self.pcap.buf[:self.pcap.buf_len - data_length] = \
+                self.pcap.buf[data_length:self.pcap.buf_len]
+            self.pcap.buf_len -= data_length
+            return result
+        elif self.pcap.ACTIVE:
+            # Return empty array if there's no data but we're still active
+            return self.pcap.buf[:0]
+        else:
+            # Return None to indicate end of data capture stream
+            return None
 
-    # --------------------------------------------------------------------------
-    # Data interface from hardware simulation
+    def do_tick(self, block_changes=None):
+        """Tick the simulation given the block and changes, or None
 
-    # Call when arming data capture
-    def start_capture_data(self):
-        self.capture.write_start()
-
-    # Call this periodically to generate data to be captured.
-    def send_capture_data(self, data):
-        self.capture.write(data)
-
-    # Call at end of capture
-    def end_capture_data(self):
-        self.capture.write_end()
-
-
-# Writing to this class is roughly equivalent to sending data to DMA on h/w
-class Capture(object):
-    max_buffer = 1 << 16
-
-    def __init__(self):
-        self.lock = threading.Lock()
-        self.active = False
-        self.buffer = numpy.empty(self.max_buffer, dtype = numpy.int32)
-        self.length = 0
-
-    def write_start(self):
-        with self.lock:
-            if self.active or self.length > 0:
-                print 'Arming before previous capture complete'
-            self.active = True
-            self.length = 0
-
-    def write(self, data):
-        with self.lock:
-            data_length = len(data)
-            free_length = self.max_buffer - self.length
-            if data_length > free_length:
-                print 'Capture data overflow, %d words lost', \
-                    len(data) - free_length
-                data_length = free_length
-
-            self.buffer[self.length:self.length + data_length] = \
-                data[:data_length]
-            self.length += data_length
-            self.active = True
-
-    def write_end(self):
-        with self.lock:
-            self.active = False
-
-    def read(self, max_length):
-        with self.lock:
-            if self.length > 0:
-                data_length = min(self.length, max_length)
-                result = +self.buffer[:data_length]
-                self.buffer[:self.length - data_length] = \
-                    self.buffer[data_length:self.length]
-                self.length -= data_length
-                return result
-            elif self.active:
-                # Return empty array if there's no data but we're still active
-                return self.buffer[:0]
+        Args:
+            block_changes (dict): map str name -> int value of attrs that have changed
+        """
+        ts = int((time.time() - self.start_time) / CLOCK_TICK)
+        if block_changes is None:
+            block_changes = {}
+        # If we have a wakeup, then make sure we aren't going back in time
+        if self.wakeups:
+            wake_ts, _, _ = self.wakeups[0]
+            if ts > wake_ts:
+                ts = wake_ts
+        # Keep adding blocks to be processed at this ts
+        while self.wakeups:
+            wake_ts, wake_block, wake_changes = self.wakeups[0]
+            if ts == wake_ts:
+                block_changes.setdefault(wake_block, wake_changes)
+                self.wakeups.pop(0)
             else:
-                # Return None to indicate end of data capture stream
-                return None
+                break
+        # Wake the selected blocks up
+        if block_changes:
+            new_wakeups = []
+            for block, changes in block_changes.items():
+                next_ts = block.on_changes(ts, changes)
+                # Update bit_bus and pos_bus
+                for attr, val in getattr(block, "_changes", {}).items():
+                    # Map (block, attr) -> bus, bus_changes, idx
+                    # Map (bus, idx) -> block, attr
+                    data = self.bus_lookup.get((block, attr), None)
+                    if data is None:
+                        continue
+                    bus, bus_changes, idx = data
+                    bus[idx] = val
+                    bus_changes[idx] = 1
+                    # If someone's listening, tell them about it
+                    for lblock, lattr in self.listeners.get((block, attr), ()):
+                        new_wakeups.append((ts+1, lblock, {lattr: val}))
+                # Tell us when we're next due to be woken
+                if next_ts is not None:
+                    new_wakeups.append((next_ts, block, {}))
+            # Insert all the new_wakeups into the table
+            for item in new_wakeups:
+                index = bisect.bisect(self.wakeups, item)
+                self.wakeups.insert(index, item)
 
+    def calc_timeout(self):
+        """Calculate how long before the next wakeup is due
 
-class DummyData(threading.Thread):
-    def __init__(self, controller):
-        super(DummyData, self).__init__()
-        self.controller = controller
-        self.armed = False
+        Returns:
+            int: The time before next wakeup, can also be negative or None
+        """
+        if self.wakeups:
+            next_time = self.wakeups[0][0] * CLOCK_TICK + self.start_time
+            return next_time - time.time()
 
-    def run(self):
-        while True:
-            time.sleep(1)
-            if self.armed:
-                for i in range(10):
-                    if not self.armed:
-                        break
-                    self.controller.send_capture_data(
-                        numpy.arange(1024, dtype=numpy.int32))
-                    time.sleep(0.2)
-                self.controller.end_capture_data()
-                self.armed = False
+    def update_listeners(self, block, name, value):
+        """Update listeners for muxes on block
 
-    def write_register(self, cs, reg, value):
-        if cs:
-            if reg == 8:
-                print "arm dummy data"
-                self.controller.start_capture_data()
-                self.armed = True
-            elif reg == 9:
-                print "disarm dummy data"
-                self.armed = False
+        Args:
+            block (Block): Block that is updating an attr value
+            name (str): Attribute name that is changin
+            value (int): New value
+
+        Returns:
+            dict: map block -> {name: value} to be passed as block_changes
+        """
+        # Remove any old listener entries
+        for listeners in self.listeners.values():
+            try:
+                listeners.remove((block, name))
+            except ValueError:
+                pass
+        # get field info
+        field = block.config_block.fields[name]
+        # check old values
+        old_bus_val = getattr(block, name)
+        if field.typ == "bit_mux":
+            new_bus_val = Block.bit_bus[value]
+        else:
+            new_bus_val = Block.pos_bus[value]
+        lblock, lattr = self.bus_lookup[(field.typ[:3], value)]
+        # Update listeners for this field
+        self.listeners.setdefault((lblock, lattr), []).append((block, name))
+        # Generate changes
+        if old_bus_val != new_bus_val:
+            return {block: {name: new_bus_val}}
+
+    def capture_bit_bus(self):
+        """Capture bit bus so BIT_READ_VALUE can use it"""
+        self._bit_read_data = deque()
+        tmp_bits = np.empty(32, dtype=np.bool_)
+        for i in range(8):
+            # Pack bits from bit_bus into 32-bit number and add it to list
+            # Top half is bit bus
+            tmp_bits[16:] = Block.bit_bus[i*16:(i+1)*16]
+            # Bottom half is bit changes
+            tmp_bits[:16] = self.bit_changes[i*16:(i+1)*16]
+            vals = Block.bits_to_int(tmp_bits)
+            self._bit_read_data.append(vals)
+        self.bit_changes.fill(0)
+
+    @property
+    def BIT_READ_VALUE(self):
+        return int(self._bit_read_data.popleft())
+
+    def capture_pos_bus(self):
+        """Capture pos bus so POS_READ_VALUE and POS_READ_CHANGES can read it"""
+        self._pos_read_data = deque(Block.pos_bus)
+        self.POS_READ_CHANGES = int(Block.bits_to_int(self.pos_changes))
+        self.pos_changes.fill(0)
+
+    @property
+    def POS_READ_VALUE(self):
+        return int(self._pos_read_data.popleft())

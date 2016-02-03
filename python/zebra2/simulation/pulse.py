@@ -24,16 +24,18 @@ class Pulse(Block):
         based on DELAY and WIDTH"""
         # If the queue isn't valid at the moment then error
         # If there isn't room for 2 on the queue then error
+        width = self.WIDTH_L + (self.WIDTH_H << 32)
+        delay = self.DELAY_L + (self.DELAY_H << 32)
         if ts < self.valid_ts or len(self.queue) + 2 > MAX_QUEUE:
             self.PERR = 1
             self.MISSED_CNT += 1
             self.ERR_OVERFLOW = 1
         # If there is no specified width then use the width of input pulse
-        elif self.WIDTH == 0:
-            self.queue.append((ts + self.DELAY, self.INP))
+        elif width == 0:
+            self.queue.append((ts + delay, self.INP))
         elif self.INP:
             # generate both high and low queue from inp
-            start = ts + self.DELAY
+            start = ts + delay
             # make sure that start is after any pulse on queue
             if self.queue and start < self.queue[-1][0] + MIN_QUEUE_DELTA:
                 self.PERR = 1
@@ -41,7 +43,7 @@ class Pulse(Block):
                 self.ERR_PERIOD = 1
             else:
                 self.queue.append((start, 1))
-                self.queue.append((start + self.WIDTH, 0))
+                self.queue.append((start + width, 0))
 
     def do_reset(self, ts):
         """Reset the block, either called on rising edge of RST input or
@@ -69,7 +71,7 @@ class Pulse(Block):
         # Set attributes, and flag clear queue
         for name, value in changes.items():
             setattr(self, name, value)
-            if name in (b.DELAY, b.WIDTH):
+            if name in (b.DELAY_L, b.DELAY_H, b.WIDTH_L, b.WIDTH_H):
                 self.do_clear_queue(ts)
 
         # Check reset and pulse inputs
