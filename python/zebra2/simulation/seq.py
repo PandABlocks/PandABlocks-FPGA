@@ -148,7 +148,7 @@ class Seq(Block):
                 self.do_stop()
         elif b.TABLE_DATA in changes:
             self.do_table_write()
-        elif b.TABLE_RST in changes:
+        elif b.TABLE_START in changes:
             self.reset_state()
             self.do_table_reset()
         elif b.TABLE_LENGTH in changes:

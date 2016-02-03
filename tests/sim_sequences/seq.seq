@@ -3,7 +3,7 @@ $ Multiple frames, multiple frame and table cycles
 
 3       : TABLE_CYCLE=2
 4       : PRESCALE=2
-5       : TABLE_RST=0
+5       : TABLE_START=0
 #--FRAME 1 -----------------------
 # REPEATS           = 2
 # INPUT MASK        = 0x1
@@ -81,7 +81,7 @@ $ Multiple frames, multiple frame and table cycles
 $ Writing inputs before a whole frame is written
 1       : TABLE_CYCLE=1
 2       : PRESCALE=2
-3       : TABLE_RST=0
+3       : TABLE_START=0
 #--FRAME 1 -----------------------
 # REPEATS           = 1
 # INPUT MASK        = 0xF
@@ -109,7 +109,7 @@ $ Writing inputs before a whole frame is written
 $ Writing inputs after sequencer has finished
 1       : TABLE_CYCLE=1
 2       : PRESCALE=2
-3       : TABLE_RST=0
+3       : TABLE_START=0
 #--FRAME 1 -----------------------
 # REPEATS           = 1
 # INPUT MASK        = 0xF
@@ -139,7 +139,7 @@ $ Single frame, multiple frame and table cycles
 
 2       : PRESCALE=2
 3       : TABLE_CYCLE=2
-4       : TABLE_RST=0
+4       : TABLE_START=0
 #--FRAME 1 -----------------------
 # REPEATS           = 1
 # INPUT MASK        = F
@@ -178,7 +178,7 @@ $ Setting inactive before finished and restarting
 
 2       : PRESCALE=2
 3       : TABLE_CYCLE=2
-4       : TABLE_RST=0
+4       : TABLE_START=0
 #--FRAME 1 -----------------------
 # REPEATS           = 1
 # INPUT MASK        = 0x1
@@ -219,7 +219,7 @@ $ Setting inactive before finished and restarting
 $ Reset table and write more data
 1       : TABLE_CYCLE=1
 2       : PRESCALE=2
-3       : TABLE_RST=0
+3       : TABLE_START=0
 #--FRAME 1 -----------------------
 # REPEATS           = 2
 # INPUT MASK        = 0x1
@@ -258,10 +258,10 @@ $ Reset table and write more data
 36      :                           : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1
         :                           : OUTF=1
 
-38      : TABLE_RST=0               : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0
+38      : TABLE_START=0               : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0
         :                           : OUTF=0, ACTIVE=0, CUR_FCYCLE=0
         :                           : CUR_FRAME=0, CUR_TCYCLE=0
-39      : TABLE_RST=0
+39      : TABLE_START=0
 40      : INPA=0, INPB=0, INPC=0, INPD=0
 
 #--FRAME 1 -----------------------
