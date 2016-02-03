@@ -7,9 +7,6 @@ from .block import Block
 # off
 MAX_BUFFER = 1 << 16
 
-# These are the powers of two in an array
-POW_TWO = 2 ** np.arange(32)
-
 
 class Pcap(Block):
     tick_data = True
@@ -176,7 +173,7 @@ class Pcap(Block):
             bit_idx = self.ext_names["BIT%s" % suff]
             if self.ext_mask[bit_idx]:
                 bits = self.bit_bus[i*32:(i+1)*32]
-                self.ext_bus[bit_idx] = np.dot(bits, POW_TWO)
+                self.ext_bus[bit_idx] = Block.bits_to_int(bits)
         # encoder extensions
         for i in range(4):
             enc_idx = self.ext_names["ENC%d" % (i + 1)]

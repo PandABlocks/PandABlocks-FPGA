@@ -10,16 +10,19 @@ from .block import Block
 # FPGA clock tick in seconds
 CLOCK_TICK = 1.0 / 125e6
 
-# These are the powers of two in an array
-POW_TWO = 2 ** np.arange(32)
-
 
 class Controller(object):
 
     def __init__(self, config_dir):
         Block.load_config(config_dir)
+        # Changesets
+        self.bit_changes = np.zeros(128, dtype=np.bool_)
+        self.pos_changes = np.zeros(32, dtype=np.bool_)
         # Lookup from (block_num, num, reg) -> (Block instance, attr_name)
         self.lookup = {}
+        # Map (block, attr) -> bus, bus_changes, idx
+        # Map ("bit"/"pos", idx) -> block, attr
+        self.bus_lookup = {}
         for name, config_block in Block.parser.blocks.items():
             if not name.startswith("*"):
                 self._create_block(name, config_block)
@@ -37,7 +40,7 @@ class Controller(object):
         # When did we start
         self.start_time = time.time()
         # When do our blocks next need to be woken up?
-        # List of (int ts, Block block)
+        # List of (int ts, Block block, dict changes)
         self.wakeups = []
         # What blocks are listening to each bit_bus and pos_bus parameter?
         # Dict of str bus_name -> [Block block]
@@ -63,6 +66,7 @@ class Controller(object):
             class cls(Block):
                 pass
             cls.__name__ = name.title()
+            cls.add_properties()
 
         # Make instances of it
         for i in range(config_block.num):
@@ -71,8 +75,20 @@ class Controller(object):
                 self.lookup[(config_block.base, i, reg)] = (inst, attr_name)
                 if field.cls == "table" and field.reg[0] == "long":
                     # Long tables need a special entry
-                    self.lookup[(config_block.base, i, -1)] = (inst,
-                                                               "TABLE_DATA")
+                    entry = (inst, "TABLE_DATA")
+                    self.lookup[(config_block.base, i, -1)] = entry
+            for attr_name, (indexes, field) in config_block.outputs.items():
+                if field.cls == "pos_out":
+                    bus, bus_changes = Block.pos_bus, self.pos_changes
+                elif field.cls == "bit_out":
+                    bus, bus_changes = Block.bit_bus, self.bit_changes
+                else:
+                    # ignore ext_out
+                    continue
+                idx = int(field.reg[i])
+                self.bus_lookup[(inst, attr_name)] = (bus, bus_changes, idx)
+                self.bus_lookup[(field.cls[:3], idx)] = (inst, attr_name)
+
         # Store PCAP
         if name == "PCAP":
             self.pcap = inst
@@ -166,8 +182,7 @@ class Controller(object):
         """Tick the simulation given the block and changes, or None
 
         Args:
-            block (Block): Optional Block instance that needs input
-            changes (dict): map str name -> int value of attrs that have changed
+            block_changes (dict): map str name -> int value of attrs that have changed
         """
         ts = int((time.time() - self.start_time) / CLOCK_TICK)
         if block_changes is None:
@@ -178,7 +193,7 @@ class Controller(object):
             if ts > wake_ts:
                 ts = wake_ts
         # Keep adding blocks to be processed at this ts
-        while True:
+        while self.wakeups:
             wake_ts, wake_block, wake_changes = self.wakeups[0]
             if ts == wake_ts:
                 block_changes.setdefault(wake_block, wake_changes)
@@ -191,22 +206,21 @@ class Controller(object):
             for block, changes in block_changes.items():
                 next_ts = block.on_changes(ts, changes)
                 # Update bit_bus and pos_bus
-                for attr, val in block._changes.items():
-                    bus_name = "%s.%s" % (block.block_name, attr)
-                    if bus_name in Block.parser.bit_bus:
-                        idx = Block.parser.bit_bus[bus_name]
-                        Block.bit_bus[idx] = val
-                        Block.bit_changes[idx] = 1
-                    elif bus_name in Block.parser.pos_bus:
-                        idx = Block.parser.pos_bus[bus_name]
-                        Block.pos_bus[idx] = val
-                        Block.pos_changes[idx] = 1
+                for attr, val in getattr(block, "_changes", {}).items():
+                    # Map (block, attr) -> bus, bus_changes, idx
+                    # Map (bus, idx) -> block, attr
+                    data = self.bus_lookup.get((block, attr), None)
+                    if data is None:
+                        continue
+                    bus, bus_changes, idx = data
+                    bus[idx] = val
+                    bus_changes[idx] = 1
                     # If someone's listening, tell them about it
-                    for lblock, lattr in self.listeners.get(bus_name, ()):
-                        new_wakeups.append((lblock, ts+1, {lattr: val}))
+                    for lblock, lattr in self.listeners.get((block, attr), ()):
+                        new_wakeups.append((ts+1, lblock, {lattr: val}))
                 # Tell us when we're next due to be woken
                 if next_ts is not None:
-                    new_wakeups.append(block, next_ts, {})
+                    new_wakeups.append((next_ts, block, {}))
             # Insert all the new_wakeups into the table
             for item in new_wakeups:
                 index = bisect.bisect(self.wakeups, item)
@@ -240,20 +254,16 @@ class Controller(object):
             except ValueError:
                 pass
         # get field info
-        field = block.fields[name]
+        field = block.config_block.fields[name]
         # check old values
+        old_bus_val = getattr(block, name)
         if field.typ == "bit_mux":
-            old_idx = Block.parser.bit_bus[getattr(block, name)]
-            old_bus_val = Block.bit_bus[old_idx]
             new_bus_val = Block.bit_bus[value]
-            bus_name = Block.parser.bit_bus[value]
         else:
-            old_idx = Block.parser.pos_bus[getattr(block, name)]
-            old_bus_val = Block.pos_bus[old_idx]
             new_bus_val = Block.pos_bus[value]
-            bus_name = Block.parser.pos_bus[value]
+        lblock, lattr = self.bus_lookup[(field.typ[:3], value)]
         # Update listeners for this field
-        self.listeners.setdefault(bus_name, []).append((block, name))
+        self.listeners.setdefault((lblock, lattr), []).append((block, name))
         # Generate changes
         if old_bus_val != new_bus_val:
             return {block: {name: new_bus_val}}
@@ -263,21 +273,23 @@ class Controller(object):
         self._bit_read_data = deque()
         for i in range(4):
             # Pack bits from bit_bus into 32-bit number and add it to list
-            vals = np.dot(self.bit_bus[i*32:(i+1)*32], POW_TWO)
+            vals = Block.bits_to_int(Block.bit_bus[i*32:(i+1)*32])
             self._bit_read_data.append(vals)
             # Do the same for the change bits
-            change = np.dot(self.bit_changes[i*32:(i+1)*32], POW_TWO)
+            change = Block.bits_to_int(self.bit_changes[i*32:(i+1)*32])
             self._bit_read_data.append(change)
+        self.bit_changes.fill(0)
 
     @property
     def BIT_READ_VALUE(self):
-        return self._bit_read_data.popleft()
+        return int(self._bit_read_data.popleft())
 
     def capture_pos_bus(self):
         """Capture pos bus so POS_READ_VALUE and POS_READ_CHANGES can read it"""
-        self._pos_read_data = deque(self.pos_bus)
-        self.POS_READ_CHANGES = np.dot(self.pos_changes, POW_TWO)
+        self._pos_read_data = deque(Block.pos_bus)
+        self.POS_READ_CHANGES = int(Block.bits_to_int(self.pos_changes))
+        self.pos_changes.fill(0)
 
     @property
     def POS_READ_VALUE(self):
-        return self._pos_read_data.popleft()
+        return int(self._pos_read_data.popleft())

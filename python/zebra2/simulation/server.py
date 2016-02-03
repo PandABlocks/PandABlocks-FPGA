@@ -2,6 +2,8 @@ import socket
 import select
 import struct
 
+import numpy as np
+
 
 class SocketFail(Exception):
     pass
@@ -72,7 +74,7 @@ class Server(object):
             # Write data array to large table
             length, = struct.unpack('I', self._read(4))
             data = self._read(length * 4)
-            data = numpy.fromstring(data, dtype = numpy.int32)
+            data = np.fromstring(data, dtype=np.int32)
             self.controller.do_write_table(block, num, data)
         elif command == 'D':
             # Retrieve increment of data stream
@@ -81,7 +83,7 @@ class Server(object):
             if data is None:
                 self.sock.sendall(struct.pack('i', -1))
             else:
-                assert data.dtype == numpy.int32
+                assert data.dtype == np.int32
                 raw_data = data.data
                 assert len(raw_data) <= length
                 self.sock.sendall(struct.pack('I', len(raw_data)))

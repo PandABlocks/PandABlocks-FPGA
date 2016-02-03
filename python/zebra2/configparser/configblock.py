@@ -13,6 +13,7 @@ class ConfigBlock(object):
         fields (OrderedDict): map str field_name -> :class:`.ConfigField`
             instance for each field the block has
         registers (OrderedDict): map str attr_name -> (int reg num, ConfigField)
+        outputs (OrderedDict): map str attr_name -> ([int out idx], ConfigField)
 
     Also, there will be an attribute for each attr_name in registers.keys()
     that also has that string as its value. This will allow lookup of register
@@ -66,6 +67,7 @@ class ConfigBlock(object):
         # setup the field and registers dicts
         self.fields = OrderedDict()
         self.registers = OrderedDict()
+        self.outputs = OrderedDict()
 
     def add_field(self, field):
         """Add a ConfigField instance to self.fields dictionary
@@ -85,6 +87,8 @@ class ConfigBlock(object):
         if field.cls and field.cls.endswith("_out"):
             # No registers for out, just set attribute
             setattr(self, field.name, field.name)
+            indexes = [int(x) for x in field.reg[:self.num]]
+            self.outputs[field.name] = (indexes, field)
         elif field.cls == "table":
             attrs.append(("%s_START" % field.name, field.reg[2]))
             if field.reg[0] == "short":

@@ -129,7 +129,10 @@ class ConfigParser(object):
                     continue
                 for i in range(block.num):
                     idx = int(field.reg[i])
-                    bus_name = "%s%d.%s" % (block_name, i+1, field_name)
+                    if block.num == 1:
+                        bus_name = "%s.%s" % (block_name, field_name)
+                    else:
+                        bus_name = "%s%d.%s" % (block_name, i+1, field_name)
                     bus[bus_name] = idx
 
         self.blocks[block.name] = block
