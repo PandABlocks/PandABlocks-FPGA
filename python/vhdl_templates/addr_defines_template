@@ -27,27 +27,13 @@ constant {{name}}_CS : natural := {{block.base}};
 -- Block Register Address Space
 
 {%  for blockname, block in blocks.iteritems() %}
--- {{blockname}} Block:
-{%      for fieldname, field in block.fields.iteritems() %}
-{%          if field.cls in ['param', 'read', 'write' ] %}
-constant {{blockname}}_{{fieldname}} : natural := {{field.reg[0]}};
-{%          elif field.cls == "time" %}
-constant {{blockname}}_{{fieldname}}_L : natural := {{field.reg[0]}};
-constant {{blockname}}_{{fieldname}}_H : natural := {{field.reg[1]}};
-{%          elif field.cls == "table" and field.reg[0] == "short" %}
-constant {{blockname}}_{{fieldname}}_START : natural := {{field.reg[2]}};
-constant {{blockname}}_{{fieldname}}_DATA : natural := {{field.reg[3]}};
-constant {{blockname}}_{{fieldname}}_LENGTH : natural := {{field.reg[4]}};
-{%          elif field.cls == "table" and field.reg[0] == "long" %}
-constant {{blockname}}_{{fieldname}}_START : natural := {{field.reg[2]}};
-constant {{blockname}}_{{fieldname}}_DATA : natural := {{field.reg[3]}};
-{%          endif %}
-{%          if blockname in ['REG', 'DRV'] %}
-constant {{blockname}}_{{fieldname}} : natural := {{field.reg[0]}};
-{%          endif %}
+// {{blockname}} Block:
+{%      for regname, reg in block.registers.iteritems() %}
+constant {{blockname}}_{{regname}} : natural := {{reg[0]}};
 {%      endfor %}
 
 {%  endfor %}
+
 
 end addr_defines;
 

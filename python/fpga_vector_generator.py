@@ -10,7 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
 
 # and our parser dir is
 parser_dir = os.path.join(os.path.dirname(__file__), "..", "tests", "sim_sequences")
-fpga_dir = os.path.join(os.path.dirname(__file__), "..", "tests",  "fpga_sequences")
+fpga_dir = os.path.join(os.path.dirname(__file__), "..", "build",  "fpga_sequences")
 
 
 import unittest
@@ -41,6 +41,7 @@ class FpgaSequence(object):
                 self.reg_out.append(name)
             else:
                 self.reg_in.append(name)
+                self.reg_in.append(name + "_WSTB")
         self.make_lines()
 
     def write(self):
@@ -73,6 +74,15 @@ class FpgaSequence(object):
         self.reg_in_lines.append(lreg_in)
         self.reg_out_lines.append(lreg_out)
 
+    def set_wstb(self,ts, previous, current):
+        changes = {}
+        for name in self.reg_in:
+            if current.get(name, 0) != previous.get(name, 0):
+                changes.update({name + "_WSTB": 1}),
+            else:
+                changes.update({name + "_WSTB": 0})
+        return changes
+
     def make_lines(self):
         # make lines list
         self.bus_in_lines = []
@@ -84,14 +94,17 @@ class FpgaSequence(object):
         for sequence in self.parser.sequences:
             # reset simultion
             current = {}
+            previous = {}
             self.add_line(ts_off, dict(SIM_RESET=1))
             ts_off += 10
             # start the sequence
             for ts in sequence.inputs:
+                previous.update(current)
                 current.update(sequence.inputs[ts])
                 current.update(sequence.outputs[ts])
+                current.update(self.set_wstb(ts, previous, current))
                 self.add_line(ts + ts_off, current)
-            ts_off += ts
+            ts_off += ts + 1
 
 def generate_fpga_test_vectors():
     sequences = []
