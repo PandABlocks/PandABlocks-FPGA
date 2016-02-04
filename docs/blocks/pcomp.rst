@@ -64,6 +64,7 @@ generate, or if the ENABLE = 0 is set at the same time as a position match.
 Jitter compensation
 -------------------
 Jitter is ignored if it is below the threshold
+
 .. plot::
 
     from block_plot import make_block_plot
@@ -75,6 +76,7 @@ Jitter is ignored if it is below the threshold
     make_block_plot("pcomp", "Increasing position with jitter below FLTR_THOLD on deltaT edge")
 
 If jitter occurs inside the deltaT window it will be ignored regardless of it's magnitude
+
 .. plot::
 
     from block_plot import make_block_plot
@@ -82,6 +84,7 @@ If jitter occurs inside the deltaT window it will be ignored regardless of it's 
 
 If jitter above the threshold occurs on deltaT edge, it will disturb the output
 until the next deltaT window
+
 .. plot::
 
     from block_plot import make_block_plot
@@ -90,6 +93,7 @@ until the next deltaT window
 
 If the puse has already started, jitter causing a return to the start value will
 not restart the pulse.
+
 .. plot::
 
     from block_plot import make_block_plot
@@ -98,6 +102,7 @@ not restart the pulse.
 If the jitter occurs before the start and is above the threshold, the pulse will
 be started on the next deltaT window. If the next deltaT windows happens to fall
 on the width compare point, the pulses will 'catch up' to the approperiate value
+
 .. plot::
 
     from block_plot import make_block_plot
@@ -107,6 +112,7 @@ If the position is above the start point and the direction filter is positive,
 the pulse wont be initiated by a jitter that registers a position increase until
 the position goes under the start point and the direction changes to match the
 direction filter.
+
 .. plot::
 
     from block_plot import make_block_plot
@@ -117,6 +123,7 @@ Error condition
 ---------------
 If at least two compare points are missed, the set the ERROR register and the
 outputs will cease.
+
 .. plot::
 
     from block_plot import make_block_plot
