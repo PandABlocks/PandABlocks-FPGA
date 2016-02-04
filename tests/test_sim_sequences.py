@@ -40,8 +40,7 @@ class SequenceTest(unittest.TestCase):
         # get a list of all regs we are checking
         for ts in self.sequence.outputs:
             for name in self.sequence.outputs[ts]:
-                field = block.config_block.fields.get(name, None)
-                if field and field.cls.endswith("_out"):
+                if name in block.config_block.outputs:
                     bus[name] = 0
                 else:
                     regs[name] = 0
@@ -50,7 +49,7 @@ class SequenceTest(unittest.TestCase):
             while next_ts is not None and next_ts < ts:
                 last_ts = next_ts
                 next_ts = block.on_changes(last_ts, {})
-                changes = dict((k, v) for k, v in block._changes.items() \
+                changes = dict((k, v) for k, v in block._changes.items()
                                if k in regs or k in bus)
                 self.assertEqual(
                     changes, {},
@@ -115,6 +114,7 @@ class SequenceTest(unittest.TestCase):
                         "%d: Attr %s = %d != %d" % (ts, name, actual, val))
 
             block._changes.clear()
+
 
 def make_suite():
     suite = unittest.TestSuite()
