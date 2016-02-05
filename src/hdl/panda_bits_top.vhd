@@ -31,11 +31,9 @@ port (
     mem_wstb_i          : in  std_logic;
     mem_rstb_i          : in  std_logic;
     mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Output pulses
     zero_o              : out std_logic;
     one_o               : out std_logic;
-
     bits_a_o            : out std_logic;
     bits_b_o            : out std_logic;
     bits_c_o            : out std_logic;
@@ -46,9 +44,6 @@ end panda_bits_top;
 architecture rtl of panda_bits_top is
 
 begin
-
--- Unused outputs.
-mem_dat_o <= (others => '0');
 
 --
 -- Instantiate BITS Blocks :

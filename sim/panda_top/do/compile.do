@@ -4,6 +4,8 @@ set SRC {../../../src/hdl}
 set IP {../../../output/ip_repo}
 set MODEL {../../panda_top/bench/zynq_model}
 
+set SLOW {../../../../SlowFPGA/src/hdl}
+
 vlib work
 vlib msim
 
@@ -17,6 +19,8 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/defines/type_defines.vhd" \
 "${SRC}/defines/addr_defines.vhd" \
 "${SRC}/defines/top_defines.vhd" \
+"${SRC}/defines/panda_version.vhd" \
+"${SRC}/pulse2pulse.vhd" \
 "${SRC}/panda_busses.vhd" \
 "${SRC}/panda_csr_if.vhd" \
 "${SRC}/panda_spbram.vhd" \
@@ -76,8 +80,22 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_pcap_posproc.vhd" \
 "${SRC}/panda_pcap_dsp.vhd" \
 "${SRC}/panda_pcap_top.vhd" \
+"${SRC}/panda_slow_tx.vhd" \
+"${SRC}/panda_slow_rx.vhd" \
+"${SRC}/panda_slowctrl.vhd" \
+"${SRC}/panda_slowctrl_block.vhd" \
 "${SRC}/panda_slowctrl_top.vhd" \
-"${SRC}/panda_top.vhd"
+"${SRC}/panda_top.vhd"          \
+
+#
+# Slow Controller
+#
+vcom -64 -93 -work xil_defaultlib  \
+"${SLOW}/slow_defines.vhd"      \
+"${SLOW}/slow_serial_if.vhd"    \
+"${SLOW}/slow_top.vhd"          \
+
+
 
 # Compile Testbench
 #

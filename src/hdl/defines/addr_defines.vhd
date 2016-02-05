@@ -2,22 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library work;
-use work.type_defines.all;
-
 package addr_defines is
-
--- Memory Setup Parameters
--- Total of 128KByte memory is divided into 32 pages of 4K each.
--- Each page can address 16 design blocks
--- Each block can hold 64 DWORD registers
-
--- Number of total pages = 2**CSW
-constant PAGE_NUM               : natural := 5;
--- Number of DWORDs per page = 2**PAGE_AW
-constant PAGE_AW                : natural := 10;
--- Number of DWORS per block = 2**BLK_AW
-constant BLK_AW                 : natural := 6;
 
 -- Functional Address Space Chip Selects
 constant REG_CS : natural := 31;
@@ -49,19 +34,22 @@ constant SLOW_CS : natural := 27;
 -- Block Register Address Space
 
 -- REG Block:
-constant REG_BIT_READ_RST : natural := 0;
-constant REG_BIT_READ_VALUE : natural := 1;
-constant REG_POS_READ_RST : natural := 2;
-constant REG_POS_READ_VALUE : natural := 3;
-constant REG_POS_READ_CHANGES : natural := 4;
-constant REG_PCAP_START_WRITE : natural := 5;
-constant REG_PCAP_WRITE : natural := 6;
-constant REG_PCAP_FRAMING_MASK : natural := 7;
-constant REG_PCAP_FRAMING_ENABLE : natural := 10;
-constant REG_PCAP_FRAMING_MODE : natural := 11;
-constant REG_PCAP_ARM : natural := 8;
-constant REG_PCAP_DISARM : natural := 9;
-constant REG_SLOW_REGISTER_STATUS : natural := 12;
+constant REG_FPGA_VERSION : natural := 0;
+constant REG_FPGA_BUILD : natural := 1;
+constant REG_SLOW_VERSION : natural := 2;
+constant REG_BIT_READ_RST : natural := 3;
+constant REG_BIT_READ_VALUE : natural := 4;
+constant REG_POS_READ_RST : natural := 5;
+constant REG_POS_READ_VALUE : natural := 6;
+constant REG_POS_READ_CHANGES : natural := 7;
+constant REG_PCAP_START_WRITE : natural := 8;
+constant REG_PCAP_WRITE : natural := 9;
+constant REG_PCAP_FRAMING_MASK : natural := 10;
+constant REG_PCAP_FRAMING_ENABLE : natural := 11;
+constant REG_PCAP_FRAMING_MODE : natural := 12;
+constant REG_PCAP_ARM : natural := 13;
+constant REG_PCAP_DISARM : natural := 14;
+constant REG_SLOW_REGISTER_STATUS : natural := 15;
 
 -- DRV Block:
 constant DRV_PCAP_DMAADDR : natural := 0;
@@ -230,8 +218,8 @@ constant CLOCKS_D_PERIOD : natural := 3;
 -- POSITIONS Block:
 
 -- SLOW Block:
-constant SLOW_INENC_CTRL : natural := 0;
-constant SLOW_OUTENC_CTRL : natural := 1;
+constant SLOW_FPGA_VERSION : natural := 0;
+constant SLOW_ENC_CONN : natural := 1;
 
 
 end addr_defines;

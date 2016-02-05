@@ -146,7 +146,7 @@ port map (
 
     mem_cs_i                => mem_cs_i,
     mem_wstb_i              => mem_wstb_i,
-    mem_addr_i              => mem_addr_i(BLK_AW-1 downto 0),
+    mem_addr_i              => mem_addr_i,
     mem_dat_i               => mem_dat_i,
     mem_dat_0_o             => mem_dat_0_o,
     mem_dat_1_o             => mem_dat_1_o,

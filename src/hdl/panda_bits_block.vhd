@@ -30,7 +30,6 @@ port (
     mem_wstb_i          : in  std_logic;
     mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
     mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Block outputs
     zero_o              : out std_logic;
     one_o               : out std_logic;

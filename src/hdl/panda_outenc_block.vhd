@@ -30,6 +30,8 @@ port (
     sdat_i              : in  std_logic;
     sdat_o              : out std_logic;
     sdat_dir_o          : out std_logic;
+    -- Block Outputs.
+    slow_tlp_o          : out slow_packet;
     -- Position Field interface
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
@@ -57,6 +59,8 @@ signal QSTATE           : std_logic;
 signal a, b, z          : std_logic;
 signal conn             : std_logic;
 signal posn             : std_logic_vector(31 downto 0);
+
+signal slow             : slow_packet;
 
 signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
 
@@ -205,6 +209,48 @@ begin
         conn <= SBIT(sysbus_i, CONN_VAL);
     end if;
 end process;
+
+--
+-- Issue a Write command to Slow Controller
+--
+SLOW_WRITE : process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if (reset_i = '1') then
+            slow.strobe <= '0';
+            slow.address <= (others => '0');
+            slow.data <= (others => '0');
+        else
+            -- Single clock cycle strobe
+            slow.strobe <= '0';
+            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+                if (mem_addr = OUTENC_PROTOCOL) then
+                    slow.strobe <= '1';
+                    slow.address <= ZEROS(PAGE_AW-BLK_AW) & mem_addr_i;
+                    case (mem_dat_i(2 downto 0)) is
+                        when "000"  => -- INC
+                            slow.data <= ZEROS(24) & X"07";
+                        when "001"  => -- SSI
+                            slow.data <= ZEROS(24) & X"28";
+                        when "010"  => -- EnDat
+                            slow.data <= ZEROS(24) & X"10";
+                        when "011"  => -- BiSS
+                            slow.data <= ZEROS(24) & X"18";
+                        when "100"  => -- Pass
+                            slow.data <= ZEROS(24) & X"07";
+                        when others =>
+                            slow.strobe <= '0';
+                            slow.address <= (others => '0');
+                            slow.data <= (others => '0');
+                    end case;
+                end if;
+           end if;
+        end if;
+    end if;
+end process;
+
+slow_tlp_o <= slow;
+
 
 end rtl;
 

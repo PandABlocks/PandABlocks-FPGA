@@ -130,7 +130,6 @@ end panda_clockgen;
 architecture rtl of panda_clockgen is
 
 signal counter32        : unsigned(31 downto 0);
-signal DIV_PREV         : std_logic_vector(31 downto 0);
 signal PERIOD           : unsigned(31 downto 0);
 
 begin

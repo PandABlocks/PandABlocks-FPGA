@@ -47,7 +47,7 @@ mem_blk_cs(I) <= '1'
     when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_SVECTOR(I, PAGE_AW-BLK_AW)
             and mem_cs_i = '1') else '0';
 
-panda_counter_block : entity work.panda_counter_block
+counter_block_inst : entity work.panda_counter_block
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

@@ -41,8 +41,8 @@ signal START            : std_logic_vector(31 downto 0);
 signal START_LOAD       : std_logic;
 signal STEP             : std_logic_vector(31 downto 0);
 
-signal enable           : std_logic := '0';
-signal trigger          : std_logic := '0';
+signal enable           : std_logic;
+signal trigger          : std_logic;
 
 signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
 

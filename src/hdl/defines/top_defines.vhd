@@ -10,6 +10,18 @@ package top_defines is
 --
 --  CONSTANTs :
 --
+-- Memory Setup Parameters
+-- Total of 128KByte memory is divided into 32 pages of 4K each.
+-- Each page can address 16 design blocks
+-- Each block can hold 64 DWORD registers
+
+-- Number of total pages = 2**CSW
+constant PAGE_NUM               : natural := 5;
+-- Number of DWORDs per page = 2**PAGE_AW
+constant PAGE_AW                : natural := 10;
+-- Number of DWORS per block = 2**BLK_AW
+constant BLK_AW                 : natural := 6;
+
 
 -- Block instantiation numbers
 constant TTLIN_NUM          : positive := 6;
@@ -42,6 +54,23 @@ constant EBUSW              : positive := 12;
 --
 -- TYPEs :
 --
+type slow_packet is
+record
+    strobe      : std_logic;
+    address     : std_logic_vector(PAGE_AW-1 downto 0);
+    data        : std_logic_vector(31 downto 0);
+end record;
+type slow_packet_array is array(natural range <>) of slow_packet;
+
+subtype iobuf_ctrl_t is std_logic_vector(2 downto 0);
+type iobuf_ctrl_array is array(natural range <>) of iobuf_ctrl_t;
+
+subtype encmode_t is std_logic_vector(2 downto 0);
+type encmode_array is array(natural range <>) of encmode_t;
+
+subtype seq_out_t is std_logic_vector(5 downto 0);
+type seq_out_array is array(natural range <>) of seq_out_t;
+
 subtype sysbus_t is std_logic_vector(SBUSW-1 downto 0);
 subtype posbus_t is std32_array(PBUSW-1 downto 0);
 subtype extbus_t is std32_array(EBUSW-1 downto 0);
@@ -59,8 +88,6 @@ subtype pbus_muxsel_t is std_logic_vector(PBUSBW-1 downto 0);
 -- Return selected System Bus bit
 function SBIT(sbus : std_logic_vector; sel : sbus_muxsel_t) return std_logic;
 function PFIELD(pbus : std32_array; sel : pbus_muxsel_t) return std_logic_vector;
-function ZEROS(num : positive) return std_logic_vector;
-function COMP(a : std_logic_vector; b: std_logic_vector) return std_logic;
 
 end top_defines;
 
@@ -77,22 +104,6 @@ function PFIELD(pbus : std32_array; sel : pbus_muxsel_t) return std_logic_vector
 begin
     return pbus(to_integer(unsigned(sel)));
 end PFIELD;
-
--- Return a std_logic_vector filled with zeros
-function ZEROS(num : positive) return std_logic_vector is
-    variable vector : std_logic_vector(num-1 downto 0) := (others => '0');
-begin
-    return (vector);
-end ZEROS;
-
-function COMP (a : std_logic_vector; b: std_logic_vector) return std_logic is
-begin
-    if (a/= b) then
-        return '1';
-    else
-        return '0';
-    end if;
-end COMP;
 
 end top_defines;
 

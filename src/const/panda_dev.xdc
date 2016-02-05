@@ -1,8 +1,12 @@
-# ----------------------------------------------------------------------------
 # User LEDs - Bank 35
-# ----------------------------------------------------------------------------
-set_property PACKAGE_PIN Y18 [get_ports {leds[0]            }];
-set_property PACKAGE_PIN Y19 [get_ports {leds[1]            }];
+set_property PACKAGE_PIN Y18 [get_ports {leds_o[0]}];
+set_property PACKAGE_PIN Y19 [get_ports {leds_o[1]}];
+
+# Using PMOD 1
+set_property PACKAGE_PIN AA17 [get_ports {spi_sclk_i}]; # PMOD1_D0_N
+set_property PACKAGE_PIN AA16 [get_ports {spi_sclk_o}]; # PMOD1_D0_P
+set_property PACKAGE_PIN AB11 [get_ports {spi_dat_i }]; # PMOD1_D1_N
+set_property PACKAGE_PIN AA11 [get_ports {spi_dat_o }]; # PMOD1_D1_P
 
 # FMC CARRIER TEST BOARD
 set_property PACKAGE_PIN L6  [get_ports {Am0_pad_io[0]      }];   #LA06_P
@@ -80,3 +84,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports -of_objects [get_iobanks 34]];
 set_property IOSTANDARD LVCMOS18 [get_ports -of_objects [get_iobanks 35]];
 # Set the bank voltage for IO Bank 13 to 3.3V by default.
 set_property IOSTANDARD LVCMOS33 [get_ports -of_objects [get_iobanks 13]];
+
+# SPI Clock Constraints
+create_generated_clock -name slowctrl_inst/slowctrl_block_inst/slowctrl_inst/sclk_prebuf -source [get_pins {ps/processing_system7_0/inst/PS7_i/FCLKCLK[0]}] -divide_by 16 [get_pins {slowctrl_inst/slowctrl_block_inst/slowctrl_inst/sclk_prebuf_reg/Q}]
+

@@ -40,6 +40,7 @@ read_bd   panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 read_vhdl ../src/hdl/defines/type_defines.vhd
 read_vhdl ../src/hdl/defines/addr_defines.vhd
 read_vhdl ../src/hdl/defines/top_defines.vhd
+read_vhdl ../src/hdl/defines/panda_version.vhd
 read_vhdl ../src/hdl/panda_busses.vhd
 read_vhdl ../src/hdl/panda_csr_if.vhd
 read_vhdl ../src/hdl/panda_spbram.vhd
@@ -98,6 +99,11 @@ read_vhdl ../src/hdl/panda_pcap_posproc.vhd
 read_vhdl ../src/hdl/panda_pcap_dsp.vhd
 read_vhdl ../src/hdl/panda_pcap.vhd
 read_vhdl ../src/hdl/panda_pcap_top.vhd
+read_vhdl ../src/hdl/pulse2pulse.vhd
+read_vhdl ../src/hdl/panda_slow_tx.vhd
+read_vhdl ../src/hdl/panda_slow_rx.vhd
+read_vhdl ../src/hdl/panda_slowctrl.vhd
+read_vhdl ../src/hdl/panda_slowctrl_block.vhd
 read_vhdl ../src/hdl/panda_slowctrl_top.vhd
 read_vhdl ../src/hdl/panda_top.vhd
 

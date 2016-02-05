@@ -43,7 +43,7 @@ port (
     ssi_sck_i           : in  std_logic;
     ssi_dat_o           : out std_logic;
     -- parallel interface
-    posn_i              : in  posn_t;
+    posn_i              : in  std_logic_vector(31 downto 0);
     -- status
     ssi_rd_sof          : out std_logic
 );

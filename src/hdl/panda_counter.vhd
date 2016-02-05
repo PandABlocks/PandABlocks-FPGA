@@ -32,6 +32,8 @@ architecture rtl of panda_counter is
 
 signal trigger_prev     : std_logic;
 signal trigger_rise     : std_logic;
+signal enable_prev      : std_logic;
+signal enable_fall      : std_logic;
 signal counter          : unsigned(32 downto 0);
 
 begin
@@ -41,10 +43,12 @@ process(clk_i)
 begin
     if rising_edge(clk_i) then
         trigger_prev <= trigger_i;
+        enable_prev <= enable_i;
     end if;
 end process;
 
 trigger_rise <= trigger_i and not trigger_prev;
+enable_fall <= not enable_i and enable_prev;
 
 --
 -- Up/Down Counter
@@ -57,16 +61,14 @@ begin
         else
             if (START_LOAD = '1') then
                 counter <= unsigned('0' & START);
-            elsif (enable_i = '1') then
-                if (trigger_rise = '1') then
-                    if (DIR = '0') then
-                        counter <= counter + unsigned(STEP);
-                    else
-                        counter <= counter - unsigned(STEP);
-                    end if;
-                end if;
-            elsif (enable_i = '1') then
+            elsif (enable_fall = '1') then
                 counter <= (others => '0');
+            elsif (trigger_rise = '1') then
+                if (DIR = '0') then
+                    counter <= counter + unsigned(STEP);
+                else
+                    counter <= counter - unsigned(STEP);
+                end if;
             end if;
         end if;
     end if;

@@ -40,6 +40,7 @@ port (
     -- Block Inputs
     ctrl_pad_i          : in  std4_array(ENC_NUM-1 downto 0);
     -- Block Outputs
+    slow_tlp_o          : out slow_packet;
     a_o                 : out std_logic_vector(ENC_NUM-1 downto 0);
     b_o                 : out std_logic_vector(ENC_NUM-1 downto 0);
     z_o                 : out std_logic_vector(ENC_NUM-1 downto 0);
@@ -67,6 +68,9 @@ signal Bm0_ireg         : std_logic_vector(ENC_NUM-1 downto 0);
 signal Zm0_ireg         : std_logic_vector(ENC_NUM-1 downto 0);
 
 signal ctrl_ireg        : std4_array(ENC_NUM-1 downto 0);
+
+signal slow_tlp         : slow_packet_array(ENC_NUM-1 downto 0);
+
 begin
 
 -- Unused outputs.
@@ -132,11 +136,30 @@ port map (
     z_o                 => z_o(I),
     conn_o              => conn_o(I),
 
+    slow_tlp_o          => slow_tlp(I),
     posn_o              => posn_o(I),
     iobuf_ctrl_o        => iobuf_ctrl(I)
 );
 
 END GENERATE;
+
+--
+-- Assign correct Slow Register Address
+--
+process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        slow_tlp_o.strobe <= '0';
+
+        for I in 0 to ENC_NUM-1 loop
+            if (slow_tlp(I).strobe = '1') then
+                slow_tlp_o.strobe <= '1';
+                slow_tlp_o.address <= std_logic_vector(to_unsigned(I, PAGE_AW));
+                slow_tlp_o.data <= slow_tlp(I).data;
+            end if;
+        end loop;
+    end if;
+end process;
 
 end rtl;
 

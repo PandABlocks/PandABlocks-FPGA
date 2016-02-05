@@ -28,19 +28,22 @@ localparam SLOW_CS  = 27;
 // Block Register Address Space
 
 // REG Block:
-localparam REG_BIT_READ_RST  = 0;
-localparam REG_BIT_READ_VALUE  = 1;
-localparam REG_POS_READ_RST  = 2;
-localparam REG_POS_READ_VALUE  = 3;
-localparam REG_POS_READ_CHANGES  = 4;
-localparam REG_PCAP_START_WRITE  = 5;
-localparam REG_PCAP_WRITE  = 6;
-localparam REG_PCAP_FRAMING_MASK  = 7;
-localparam REG_PCAP_FRAMING_ENABLE  = 10;
-localparam REG_PCAP_FRAMING_MODE  = 11;
-localparam REG_PCAP_ARM  = 8;
-localparam REG_PCAP_DISARM  = 9;
-localparam REG_SLOW_REGISTER_STATUS  = 12;
+localparam REG_FPGA_VERSION  = 0;
+localparam REG_FPGA_BUILD  = 1;
+localparam REG_SLOW_VERSION  = 2;
+localparam REG_BIT_READ_RST  = 3;
+localparam REG_BIT_READ_VALUE  = 4;
+localparam REG_POS_READ_RST  = 5;
+localparam REG_POS_READ_VALUE  = 6;
+localparam REG_POS_READ_CHANGES  = 7;
+localparam REG_PCAP_START_WRITE  = 8;
+localparam REG_PCAP_WRITE  = 9;
+localparam REG_PCAP_FRAMING_MASK  = 10;
+localparam REG_PCAP_FRAMING_ENABLE  = 11;
+localparam REG_PCAP_FRAMING_MODE  = 12;
+localparam REG_PCAP_ARM  = 13;
+localparam REG_PCAP_DISARM  = 14;
+localparam REG_SLOW_REGISTER_STATUS  = 15;
 
 // DRV Block:
 localparam DRV_PCAP_DMAADDR  = 0;
@@ -209,8 +212,8 @@ localparam CLOCKS_D_PERIOD  = 3;
 // POSITIONS Block:
 
 // SLOW Block:
-localparam SLOW_INENC_CTRL  = 0;
-localparam SLOW_OUTENC_CTRL  = 1;
+localparam SLOW_FPGA_VERSION  = 0;
+localparam SLOW_ENC_CONN  = 1;
 
 
 // Panda Base Address and block base addresses

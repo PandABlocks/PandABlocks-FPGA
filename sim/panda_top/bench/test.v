@@ -10,9 +10,10 @@ panda_top_tb tb(
     .ttlin_pad      ( ttlin_pad)
 );
 
-reg [511:0]     test_name = "READBACK_BIT_TEST";
+//reg [511:0]     test_name = "COUNTER_TEST";
+//reg [511:0]     test_name = "READBACK_BIT_TEST";
 //reg [511:0]     test_name = "PCAP_TEST";
-//reg [511:0]     test_name = "FRAMING_TEST";
+reg [511:0]     test_name = "FRAMING_TEST";
 //reg [511:0]     test_name = "ENCLOOPBACK_TEST";
 
 reg [1:0]       wrs, rsp;
@@ -155,6 +156,15 @@ if (test_name == "READBACK_POS_TEST") begin
     repeat(1250) @(posedge tb.uut.ps.FCLK);
     $finish;
 end
+if (test_name == "COUNTER_TEST") begin
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    REG_WRITE(CLOCKS_BASE, CLOCKS_A_PERIOD, 125);
+    REG_WRITE(COUNTER_BASE, COUNTER_STEP, 1);
+    REG_WRITE(COUNTER_BASE, COUNTER_TRIGGER, 122);
+    REG_WRITE(COUNTER_BASE, COUNTER_ENABLE, 1);
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    $finish;
+end
 else if (test_name == "TTL_TEST") begin
     // TTL Loopback for TTLOUT[5:0]
     tb.uut.ps.ps.ps.inst.write_data(32'h43C0_0000,  4, 0, wrs);
@@ -287,8 +297,8 @@ else if (test_name == "SEQ_TEST") begin
 end
 else if (test_name == "ENCLOOPBACK_TEST") begin
     repeat(1250) @(posedge tb.uut.ps.FCLK);
-    REG_WRITE(SLOW_BASE, SLOW_INENC_CTRL, 3);
-    REG_WRITE(SLOW_BASE, SLOW_OUTENC_CTRL, 7);
+    REG_WRITE(INENC_BASE, INENC_PROTOCOL, 0);
+    REG_WRITE(OUTENC_BASE, OUTENC_PROTOCOL, 0);
     REG_WRITE(OUTENC_BASE, OUTENC_A, 66);  // inenc_a[0]
     REG_WRITE(OUTENC_BASE, OUTENC_B, 70);  // inenc_b[0]
     REG_WRITE(OUTENC_BASE, OUTENC_PROTOCOL, 4);  // inenc_b[0]
@@ -342,9 +352,8 @@ else if (test_name == "PCAP_TEST") begin
     repeat(1250) @(posedge tb.uut.ps.FCLK);
 
     repeat(1250) @(posedge tb.uut.ps.FCLK);
-    // Setup Slow Controller Block for Absolute
-    REG_WRITE(SLOW_BASE, SLOW_INENC_CTRL, 32'h3);
-    REG_WRITE(SLOW_BASE, SLOW_OUTENC_CTRL, 32'h7);
+    REG_WRITE(INENC_BASE, INENC_PROTOCOL, 0);
+    REG_WRITE(OUTENC_BASE, OUTENC_PROTOCOL, 0);
 
     // Setup a timer for capture input test
     REG_WRITE(COUNTER_BASE, COUNTER_ENABLE, 106);       // pcap_act
@@ -469,10 +478,12 @@ else if (test_name == "FRAMING_TEST") begin
     total_samples = 0;
     ttlin_pad = 0;
 
-    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    repeat(12500) @(posedge tb.uut.ps.FCLK);
     // Setup Slow Controller Block for Absolute
-    REG_WRITE(SLOW_BASE, SLOW_INENC_CTRL, 32'h3);
-    REG_WRITE(SLOW_BASE, SLOW_OUTENC_CTRL, 32'h7);
+    REG_WRITE(INENC_BASE, INENC_PROTOCOL, 0);
+    repeat(5000) @(posedge tb.uut.ps.FCLK);
+    REG_WRITE(OUTENC_BASE, OUTENC_PROTOCOL, 0);
+    repeat(1250) @(posedge tb.uut.ps.FCLK);
 
     // Setup a timer for capture input test
     REG_WRITE(COUNTER_BASE, COUNTER_ENABLE, 2);       // TTL #0
@@ -480,17 +491,22 @@ else if (test_name == "FRAMING_TEST") begin
     REG_WRITE(COUNTER_BASE, COUNTER_START, 1000);
     REG_WRITE(COUNTER_BASE, COUNTER_STEP, 500);
 
+    REG_WRITE(COUNTER_BASE + 32'h100, COUNTER_ENABLE, 2);       // TTL #0
+    REG_WRITE(COUNTER_BASE + 32'h100, COUNTER_TRIGGER, 4);      // TTL #2
+    REG_WRITE(COUNTER_BASE + 32'h100, COUNTER_START, 10000);
+    REG_WRITE(COUNTER_BASE + 32'h100, COUNTER_STEP, 1000);
+
     // Setup Position Capture
     REG_WRITE(REG_BASE, REG_PCAP_START_WRITE, 1);
-    REG_WRITE(REG_BASE, REG_PCAP_WRITE, 11);    // counter #1
-    REG_WRITE(REG_BASE, REG_PCAP_WRITE, 12);    // counter #2
+    REG_WRITE(REG_BASE, REG_PCAP_WRITE, 12);    // counter #1
+    REG_WRITE(REG_BASE, REG_PCAP_WRITE, 13);    // counter #2
 
     REG_WRITE(PCAP_BASE, PCAP_ENABLE,  2);      // TTL #0
     REG_WRITE(PCAP_BASE, PCAP_FRAME,   3);      // TTL #1
     REG_WRITE(PCAP_BASE, PCAP_CAPTURE, 4);      // TTL #2
 
     REG_WRITE(REG_BASE, REG_PCAP_FRAMING_MASK, 32'h180);
-    REG_WRITE(REG_BASE, REG_PCAP_FRAMING_ENABLE, 1);
+    REG_WRITE(REG_BASE, REG_PCAP_FRAMING_ENABLE, 0);
     REG_WRITE(REG_BASE, REG_PCAP_FRAMING_MODE, 0);
 
     REG_WRITE(DRV_BASE, DRV_PCAP_TIMEOUT, 0);

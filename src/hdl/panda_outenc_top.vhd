@@ -27,6 +27,8 @@ port (
     Bs0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
     Zs0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
     conn_o              : out   std_logic_vector(ENC_NUM-1 downto 0);
+    -- Block Outputs
+    slow_tlp_o          : out slow_packet;
     -- Position data value
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t
@@ -52,6 +54,8 @@ signal sdati                : std_logic_vector(ENC_NUM-1 downto 0);
 signal sdat_dir             : std_logic_vector(ENC_NUM-1 downto 0);
 
 signal mem_read_data        : std32_array(ENC_NUM-1 downto 0);
+
+signal slow_tlp         : slow_packet_array(ENC_NUM-1 downto 0);
 
 begin
 
@@ -117,6 +121,8 @@ port map (
     sdat_i              => sdati(I),
     sdat_o              => sdato(I),
     sdat_dir_o          => sdat_dir(I),
+    -- Block Outputs
+    slow_tlp_o          => slow_tlp(I),
     -- Position Bus Input
     sysbus_i            => sysbus_i,
     posbus_i            => posbus_i,
@@ -126,6 +132,24 @@ port map (
 );
 
 END GENERATE;
+
+--
+-- Assign correct Slow Register Address
+--
+process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        slow_tlp_o.strobe <= '0';
+
+        for I in 0 to ENC_NUM-1 loop
+            if (slow_tlp(I).strobe = '1') then
+                slow_tlp_o.strobe <= '1';
+                slow_tlp_o.address <= std_logic_vector(to_unsigned(I+4, PAGE_AW));
+                slow_tlp_o.data <= slow_tlp(I).data;
+            end if;
+        end loop;
+    end if;
+end process;
 
 end rtl;
 

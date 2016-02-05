@@ -11,7 +11,7 @@ entity panda_top_tb is
     );
 end panda_top_tb;
 
-ARCHITECTURE behavior OF panda_top_tb IS 
+ARCHITECTURE behavior OF panda_top_tb IS
 
 --Inputs
 signal enc0_ctrl_pad_i : std_logic_vector(3 downto 0) := (others => '0');
@@ -49,6 +49,7 @@ signal Zs0_pad_io       : std_logic_vector(3 downto 0);
 signal enc0_ctrl_pad_o  : std_logic_vector(11 downto 0);
 signal leds             : std_logic_vector(1 downto 0);
 signal clk              : std_logic := '1';
+signal clk50            : std_logic := '1';
 
 signal A_IN_P           : std_logic_vector(3 downto 0) := "0000";
 signal B_IN_P           : std_logic_vector(3 downto 0) := "0000";
@@ -66,6 +67,15 @@ signal inputs           : unsigned(15 downto 0) := X"0000";
 
 signal lvdsin_pad       : std_logic_vector(1 downto 0);
 
+signal enc_ctrl1_io     : std_logic_vector(15 downto 0);
+signal enc_ctrl2_io     : std_logic_vector(15 downto 0);
+signal enc_ctrl3_io     : std_logic_vector(15 downto 0);
+signal enc_ctrl4_io     : std_logic_vector(15 downto 0);
+
+signal spi_sclk_i       : std_logic;
+signal spi_dat_i        : std_logic;
+signal spi_sclk_o       : std_logic;
+signal spi_dat_o        : std_logic;
 
 -- #of Burst per Host Block. Each AXI3 burst has 16 strobes.
 constant TLP_SIZE       : integer := 128;
@@ -77,6 +87,7 @@ begin
 
 -- System Clock
 clk <= not clk after 4 ns;
+clk50 <= not clk50 after 10 ns;
 
 --
 -- TTL/LVDS IO
@@ -120,15 +131,41 @@ PORT MAP (
     As0_pad_io          => As0_pad_io,
     Bs0_pad_io          => Bs0_pad_io,
     Zs0_pad_io          => Zs0_pad_io,
-    enc0_ctrl_pad_i     => enc0_ctrl_pad_i,
-    enc0_ctrl_pad_o     => enc0_ctrl_pad_o,
     ttlin_pad_i         => ttlin_pad,
     lvdsin_pad_i        => lvdsin_pad,
     ttlout_pad_o        => open,
     lvdsout_pad_o       => open,
-    leds                => leds
+
+    spi_sclk_i          => spi_sclk_i,
+    spi_dat_i           => spi_dat_i,
+    spi_dat_o           => spi_dat_o,
+    spi_sclk_o          => spi_sclk_o,
+
+    enc0_ctrl_pad_i     => enc0_ctrl_pad_i,
+    enc0_ctrl_pad_o     => enc0_ctrl_pad_o,
+    leds_o              => leds
 );
 
+
+slow_top_inst : entity work.slow_top
+port map (
+    clk_i               => clk50,
+    -- Encoder Daughter Card Control interface
+    enc_ctrl1_io        => enc_ctrl1_io,
+    enc_ctrl2_io        => enc_ctrl2_io,
+    enc_ctrl3_io        => enc_ctrl3_io,
+    enc_ctrl4_io        => enc_ctrl4_io,
+    -- Serial Physical interface
+    spi_sclk_i          => spi_sclk_o,
+    spi_dat_i           => spi_dat_o,
+    spi_dat_o           => spi_dat_i,
+    spi_sclk_o          => spi_sclk_i
+);
+
+enc_ctrl1_io(15 downto 12) <= "1000";
+enc_ctrl2_io(15 downto 12) <= "1000";
+enc_ctrl3_io(15 downto 12) <= "1000";
+enc_ctrl4_io(15 downto 12) <= "1000";
 
 --
 -- There are 4x Daughter Cards on the system

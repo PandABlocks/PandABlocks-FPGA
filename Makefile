@@ -16,8 +16,13 @@ VIVADO_VER = 2015.1
 BOARD = pzed-z7030
 OUT_DIR = output
 IMAGE_DIR = images
+HDL_DIR = ./src/hdl
+
+DEV = true
 
 VIVADO = source /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh > /dev/null
+
+GIT_VERSION = $(shell git describe --abbrev=8 --always)
 
 #####################################################################
 # Project related files (DON'T TOUCH)
@@ -32,10 +37,14 @@ DEVTREE_DTS = $(SDK_EXPORT)/device_tree_bsp_0/system.dts
 DEVTREE_DTB = $(SDK_EXPORT)/device_tree_bsp_0/devicetree.dtb
 BOOT_FILE = $(IMAGE_DIR)/boot.bin
 
+TOP_FILE = $(HDL_DIR)/panda_top.vhd
+VERSION_FILE = $(HDL_DIR)/defines/panda_version.vhd
+
 #####################################################################
 # BUILD TARGETS includes HW and SW
+.PHONY: clean PREPROC VERSION
 
-all: $(OUT_DIR) $(IP_CORES) $(PS_CORE) $(FPGA_BIT) $(SDK_EXPORT) $(DEVTREE_DTB) $(BOOT_FILE)
+all: PREPROC VERSION $(OUT_DIR) $(IP_CORES) $(PS_CORE) $(FPGA_BIT) $(SDK_EXPORT) $(DEVTREE_DTB) $(BOOT_FILE)
 devicetree: $(DEVTREE_DTB)
 boot: $(BOOT_FILE)
 
@@ -43,7 +52,29 @@ boot: $(BOOT_FILE)
 # HW Projects Build
 
 clean :
+	rm -f $(VERSION_FILE)
 	rm -rf $(OUT_DIR)
+
+PREPROC :
+	rm -rf src/hdl/panda_top.vhd
+ifeq ($(DEV),true)
+	/bin/echo "Building for DEV BOARD"
+	cpp -E -P -DDEV $(TOP_FILE).in -o $(TOP_FILE)
+	ln -sf panda_dev.xdc ./src/const/panda_top.xdc
+else
+	/bin/echo "Building for PandA CARRIER"
+	cpp -E -P $(TOP_FILE).in -o $(TOP_FILE)
+	ln -sf panda_carrier.xdc ./src/const/panda_top.xdc
+endif
+
+VERSION :
+	rm -f $(VERSION_FILE)
+	echo 'library ieee;' >> $(VERSION_FILE)
+	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
+	echo 'package panda_version is' >> $(VERSION_FILE)
+	echo -n 'constant FPGA_VERSION: std_logic_vector(31 downto 0)' \ >> $(VERSION_FILE)
+	echo ' := X"$(GIT_VERSION)";' >> $(VERSION_FILE)
+	echo 'end panda_version;' >> $(VERSION_FILE)
 
 $(OUT_DIR) :
 	mkdir $(OUT_DIR)
@@ -69,7 +100,7 @@ $(FPGA_BIT):
 	rm -rf $(OUT_DIR)/panda_top
 	cd $(OUT_DIR) && \
 	    $(VIVADO) && vivado -mode batch -source ../build_top.tcl
-	scp $(FPGA_BIT) root@172.23.252.201:/boot
+	scp $(FPGA_BIT) root@172.23.252.201:/opt
 
 #####################################################################
 # SW Projects Build

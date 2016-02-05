@@ -6,6 +6,7 @@ library work;
 use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
+use work.panda_version.all;
 
 entity panda_reg_top is
 port (
@@ -19,9 +20,10 @@ port (
     mem_rstb_i          : in  std_logic;
     mem_dat_i           : in  std_logic_vector(31 downto 0);
     mem_dat_o           : out std_logic_vector(31 downto 0);
-    -- Encoder I/O Pads
+    -- Readback signals
     sysbus_i            : in  sysbus_t;
-    posbus_i            : in  posbus_t
+    posbus_i            : in  posbus_t;
+    slowctrl_busy_i     : in  std_logic
 );
 end panda_reg_top;
 
@@ -86,12 +88,16 @@ begin
             mem_dat_o <= (others => '0');
         else
             case (mem_addr) is
+                when REG_FPGA_VERSION =>
+                    mem_dat_o <= FPGA_VERSION;
                 when REG_BIT_READ_VALUE =>
                     mem_dat_o <= BIT_READ_VALUE;
                 when REG_POS_READ_VALUE =>
                     mem_dat_o <= POS_READ_VALUE;
                 when REG_POS_READ_CHANGES =>
                     mem_dat_o <= POS_READ_CHANGES;
+                when REG_SLOW_REGISTER_STATUS =>
+                    mem_dat_o <= ZEROS(31) & slowctrl_busy_i;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;

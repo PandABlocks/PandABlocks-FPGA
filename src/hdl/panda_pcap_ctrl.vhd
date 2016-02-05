@@ -21,7 +21,7 @@ port (
     -- Memory Bus Interface.
     mem_cs_i            : in  std_logic_vector(2**PAGE_NUM-1 downto 0);
     mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
+    mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
     mem_dat_i           : in  std_logic_vector(31 downto 0);
     mem_dat_0_o         : out std_logic_vector(31 downto 0);
     mem_dat_1_o         : out std_logic_vector(31 downto 0);
