@@ -1,0 +1,360 @@
+###############
+$ Increasing position with +ve dir
+
+3       : START=5
+4       : STEP=3
+5       : WIDTH=2
+6       : PNUM=3
+10      : ENABLE=1
+11      :
+12      : POSN=1
+13      : POSN=2
+14      : POSN=3
+15      : POSN=4
+16      : POSN=5        : PULSE=1, ACT=1
+17      : POSN=6
+18      : POSN=7        : PULSE=0
+23      : POSN=8        : PULSE=1
+26      : POSN=9
+33      : POSN=10       : PULSE=0
+36      : POSN=11       : PULSE=1
+43      : POSN=12
+46      : POSN=13       : PULSE=0, ACT=0
+
+###############
+$ Decreasing position with +ve dir
+
+2       : POSN=10
+3       : START=5
+4       : STEP=10
+5       : WIDTH=7
+6       : PNUM=3
+10      : ENABLE=1
+11      :
+12      : POSN=9
+13      : POSN=8
+14      : POSN=7
+15      : POSN=6
+16      : POSN=5
+17      : POSN=4
+18      : POSN=3
+
+###############
+$ Decreasing position with -ve dir
+
+2       : POSN=10
+3       : START=5
+4       : STEP=3
+5       : WIDTH=2
+6       : PNUM=2
+7       : DIR=1
+10      : ENABLE=1
+11      :
+12      : POSN=9
+13      : POSN=8
+14      : POSN=7
+15      : POSN=6
+16      : POSN=5    : PULSE=1, ACT=1
+17      : POSN=4
+18      : POSN=3    : PULSE=0
+20      : POSN=2    : PULSE=1
+21      : POSN=1
+22      : POSN=0    : PULSE=0, ACT=0
+
+###############
+$ Disable after start
+
+2       : POSN=10
+3       : START=5
+4       : STEP=10
+5       : WIDTH=7
+6       : PNUM=3
+7       : DIR=1
+10      : ENABLE=1
+12      : POSN=9
+13      : POSN=8
+14      : POSN=7
+15      : POSN=6
+16      : POSN=5            : PULSE=1, ACT=1
+18      : POSN=4, ENABLE=0  : ACT=0, PULSE=0
+
+###############
+$ Disable with start
+
+2       : POSN=10
+3       : START=5
+4       : STEP=10
+5       : WIDTH=7
+6       : PNUM=3
+7       : DIR=1
+10      : ENABLE=1
+12      : POSN=9
+13      : POSN=8
+14      : POSN=7
+15      : POSN=6
+16      : POSN=5, ENABLE=0
+17      : POSN=4
+18      : POSN=3
+
+
+###############
+$ Increasing position with jitter below FLTR_THOLD
+#this should just do the normal behaviour
+3       : START=5
+4       : STEP=3
+5       : WIDTH=2
+6       : PNUM=3
+10      : ENABLE=1
+11      : FLTR_DELTAT=5
+13      : FLTR_THOLD=1
+14      :
+15      : POSN=1
+16      : POSN=2
+17      : POSN=3
+18      : POSN=4
+19      : POSN=5        : PULSE=1, ACT=1
+20      : POSN=4
+21      : POSN=5
+24      : POSN=6
+27      : POSN=7        : PULSE=0
+29      : POSN=8        : PULSE=1
+33      : POSN=9
+36      : POSN=10       : PULSE=0
+39      : POSN=11       : PULSE=1
+44      : POSN=12
+47      : POSN=13       : PULSE=0, ACT=0
+
+
+###############
+$ Increasing position with jitter above FLTR_THOLD inside deltaT
+#this should ignore the jitter as it is inside the deltaT window
+3       : START=5
+4       : STEP=3
+5       : WIDTH=2
+6       : PNUM=3
+10      : ENABLE=1
+11      : FLTR_DELTAT=5
+13      : FLTR_THOLD=1
+14      :
+15      : POSN=1
+16      : POSN=2
+17      : POSN=3
+18      : POSN=4
+19      : POSN=5        : PULSE=1, ACT=1
+20      : POSN=6
+21      : POSN=7        : PULSE=0
+24      : POSN=0
+25      : POSN=8        : PULSE=1
+33      : POSN=9
+36      : POSN=10       : PULSE=0
+39      : POSN=11       : PULSE=1
+44      : POSN=12
+47      : POSN=13       : PULSE=0, ACT=0
+
+###############
+$ Increasing position with jitter above FLTR_THOLD on deltaT edge
+#this should report the jitter, reverse direction and
+#everything in the deltaT is ignored until next deltaT window
+3       : START=5
+4       : STEP=3
+5       : WIDTH=2
+6       : PNUM=3
+10      : ENABLE=1
+11      : FLTR_DELTAT=5
+13      : FLTR_THOLD=1
+14      :
+15      : POSN=1
+16      : POSN=2
+17      : POSN=3
+18      : POSN=4
+21      : POSN=5        : PULSE=1, ACT=1
+22      : POSN=6
+23      : POSN=7        : PULSE=0
+26      : POSN=0        : FLTR_DIR=1
+27      : POSN=8
+31      :               : PULSE=1, FLTR_DIR=0
+35      : POSN=9        :
+38      : POSN=10       : PULSE=0
+41      : POSN=11       : PULSE=1
+46      : POSN=12
+49      : POSN=13       : PULSE=0, ACT=0
+
+###############
+$ Increasing position with jitter below FLTR_THOLD on deltaT edge
+#this should ignore the jitter
+3       : START=5
+4       : STEP=3
+5       : WIDTH=2
+6       : PNUM=3
+10      : ENABLE=1
+11      : FLTR_DELTAT=5
+13      : FLTR_THOLD=1
+14      :
+15      : POSN=1
+16      : POSN=2
+17      : POSN=3
+18      : POSN=4
+21      : POSN=5        : PULSE=1, ACT=1
+22      : POSN=6
+23      : POSN=7        : PULSE=0
+26      : POSN=6
+27      : POSN=8        : PULSE=1
+35      : POSN=9
+38      : POSN=10       : PULSE=0
+41      : POSN=11       : PULSE=1
+46      : POSN=12
+49      : POSN=13       : PULSE=0, ACT=0
+
+###############
+$ Increasing position with jitter above FLTR_THOLD then return to start
+#this won't restart as the pulse has already been started
+3       : START=5
+4       : STEP=3
+5       : WIDTH=2
+6       : PNUM=3
+10      : ENABLE=1
+12      : FLTR_DELTAT=2
+13      : FLTR_THOLD=1
+14      :
+17      : POSN=1
+18      : POSN=2
+19      : POSN=3
+20      : POSN=4
+21      : POSN=5        : PULSE=1, ACT=1
+22      : POSN=6
+23      : POSN=7        : PULSE=0
+24      : POSN=1
+26      : POSN=5        :
+27      : POSN=6
+28      : POSN=8        : PULSE=1
+30      : POSN=9
+31      : POSN=10       : PULSE=0
+33      : POSN=11       : PULSE=1
+35      : POSN=12
+37      : POSN=13       : PULSE=0, ACT=0
+
+
+###############
+$ Increasing position with jitter above FLTR_THOLD before start
+#this should start the pulse when the next deltaT window starts
+#this is interesting if the end of the deltaT window falls on the WIDTH value,
+3       : START=5
+4       : STEP=3
+5       : WIDTH=2
+6       : PNUM=3
+10      : ENABLE=1
+12      : FLTR_DELTAT=3
+13      : FLTR_THOLD=1
+14      :
+17      : POSN=1
+18      : POSN=2
+19      : POSN=3
+20      : POSN=4
+21      : POSN=0
+22      : POSN=5
+23      : POSN=6
+24      : POSN=7        : PULSE=1, ACT=1
+25      : POSN=8        : PULSE=0
+26      : POSN=9        : PULSE=1
+27      : POSN=10       : PULSE=0
+28      : POSN=11       : PULSE=1
+29      : POSN=12
+
+###############
+$ Increasing position with jitter above threshold before start
+#this should start the pulse when the next deltaT window starts and continue the
+#pulse as if it was started in the right spot
+3       : START=5
+4       : STEP=4
+5       : WIDTH=3
+6       : PNUM=3
+10      : ENABLE=1
+12      : FLTR_DELTAT=3
+13      : FLTR_THOLD=1
+14      :
+17      : POSN=1
+18      : POSN=2
+19      : POSN=3
+20      : POSN=4
+21      : POSN=0
+22      : POSN=5
+23      : POSN=6
+24      : POSN=7        : PULSE=1, ACT=1
+25      : POSN=8        : PULSE=0
+26      : POSN=9        : PULSE=1
+27      : POSN=10
+28      : POSN=11
+29      : POSN=12       : PULSE=0
+
+
+###############
+$ Decreasing from above start with +ve direction filter and direction change above start point
+#this should not initiate the pulses until we first go under the start point
+#and the direction changes to the correct dir.
+#*this fails if the first reading is on the end of a filter window
+3       : START=5
+4       : STEP=4
+5       : WIDTH=3
+6       : PNUM=3
+10      : ENABLE=1
+12      : FLTR_DELTAT=3
+13      : FLTR_THOLD=1
+14      :
+15      : POSN=11
+16      : POSN=10
+17      : POSN=9
+18      : POSN=8
+19      : POSN=7
+20      : POSN=6
+23      : POSN=5
+25      : POSN=3
+27      : POSN=1
+28      : POSN=2
+29      : POSN=3
+30      : POSN=4
+31      : POSN=0
+43      : POSN=5
+44      : POSN=6
+45      : POSN=7        : PULSE=1, ACT=1
+46      : POSN=8        : PULSE=0
+47      : POSN=9        : PULSE=1
+48      : POSN=10
+49      : POSN=11
+50      : POSN=12       : PULSE=0
+
+
+
+###############
+$ Pulse is produced after skipping more than 2 compare points
+#this occurs if we detected the start point in the right conditions but before
+#the direction changed and we also passed at least one width compare point.
+3       : START=5
+4       : STEP=4
+5       : WIDTH=2
+6       : PNUM=3
+10      : ENABLE=1
+12      : FLTR_DELTAT=5
+13      : FLTR_THOLD=1
+14      :
+15      : POSN=11
+16      : POSN=10
+17      : POSN=9
+18      : POSN=8
+19      : POSN=7
+20      : POSN=6
+23      : POSN=5
+25      : POSN=3
+27      : POSN=1
+28      : POSN=2
+29      : POSN=3
+30      : POSN=4
+31      : POSN=0
+43      : POSN=5
+44      : POSN=6
+45      : POSN=7
+46      : POSN=8
+47      : POSN=9        : ERROR=1, ACT=0
+48      : POSN=10
+49      : POSN=11
+50      : POSN=12
+

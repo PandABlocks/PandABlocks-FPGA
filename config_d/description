@@ -57,7 +57,6 @@ PULSE       One-shot pulse delay and stretch
 SEQ         Sequencer
     PRESCALE        Prescalar for system clock
     SOFT_GATE       soft gate pulse
-    TABLE_LENGTH    Number of frames in the table
     TABLE_CYCLE     Number of times the table will cycle
     GATE            Rising edge starts sequencer, falling edge stops sequencer
     INPA            Trigger input A
@@ -84,12 +83,12 @@ INENC
     BITS            
     SETP            
     RST_ON_Z        
+    EXTENSION       
     A               
     B               
     Z               
     CONN            
     POSN            
-    EXTENSION       
 
 QDEC        
     RST_ON_Z        
@@ -120,14 +119,6 @@ POSENC
     B               
     QSTATE          
 
-CALC        
-    KA              
-    KB              
-    SCALE           
-    A               
-    B               
-    RESULT          
-
 ADDER       
     MASK            
     OUTSCALE        
@@ -154,7 +145,7 @@ PCOMP       Position compare
     START           Pulse start position value
     STEP            Pulse step value
     WIDTH           Pulse width value
-    NUM             Pulse number to be generated
+    PNUM            Pulse number to be generated
     RELATIVE        Relative position compare enable
     DIR             Direction of crossing
     FLTR_DELTAT     Time interval to check if encoder moved more than FLTR_THOLD
@@ -164,6 +155,8 @@ PCOMP       Position compare
     POSN            Position data from position-data bus
     ACT             Active output is high while block is in operation
     PULSE           Output pulse
+    FLTR_DIR        If deltaT > 0 this is the current direction
+    ERROR           True if pulse is initiated after at least two compare ponts
     TABLE           Table of points to use instead of START/STEP/WIDTH
 
 ADC         
@@ -205,3 +198,8 @@ CLOCKS      Configurable clocks
 
 POSITIONS   Constants
     ZERO            Constant zero position
+
+
+SLOW        Slow control FPGA
+    INENC_CTRL      Daugther card input control
+    OUTENC_CTRL     Daughter card output control

@@ -1,0 +1,96 @@
+########################
+$ Arming and soft disarm
+3       : ARM=0             : ACTIVE=1
+5       : ENABLE=1
+8       : DISARM=0          : ACTIVE=0
+
+########################
+$ Arming and hard disarm
+3       : ARM=0             : ACTIVE=1
+5       : ENABLE=1
+6       : ENABLE=0          : ACTIVE=0
+
+########################
+$ capture timestamp
+2       : START_WRITE=0
+4       : WRITE=62
+6       : WRITE=63
+10      : ARM=0             : ACTIVE=1
+11      : ENABLE=1
+12      : CAPTURE=1         : DATA=2
+13      :                   : DATA=0
+14      : CAPTURE=0
+16      : CAPTURE=1         : DATA=6
+17      : CAPTURE=0         : DATA=0
+20      : ENABLE=0          : ACTIVE=0
+
+#########################
+$ capture too close together
+2       : START_WRITE=0
+4       : WRITE=62
+6       : WRITE=63
+8       : WRITE=0
+10      : ARM=0             : ACTIVE=1
+11      : ENABLE=1
+12      : CAPTURE=1         : DATA=2
+13      : CAPTURE=0         : DATA=0
+14      :                   : DATA=0
+16      : CAPTURE=1         : DATA=6
+17      : CAPTURE=0         : DATA=0
+18      : CAPTURE=1         : ACTIVE=0, ERR_STATUS=2
+
+######################
+$ capture pos bus enc1
+2       : START_WRITE=0
+4       : WRITE=1
+10      : ARM=0                         : ACTIVE=1
+11      : ENABLE=1
+13      : CAPTURE=1                     : DATA=0
+14      : CAPTURE=0
+15      : CAPTURE=1, INENC1.POSN=100    : DATA=100
+16      : CAPTURE=0, INENC1.POSN=50
+18      : CAPTURE=1                     : DATA=50
+22      : ENABLE=0, CAPTURE=0           : ACTIVE=0
+
+
+#######################
+$ capture bit bus TTLIN
+2       : START_WRITE=0
+4       : WRITE=39
+10      : ARM=0                         : ACTIVE=1
+11      : ENABLE=1
+13      : CAPTURE=1                     : DATA=0
+14      : CAPTURE=0
+15      : CAPTURE=1, TTLIN1.VAL=1       : DATA=4
+16      : CAPTURE=0, TTLIN3.VAL=1
+18      : CAPTURE=1                     : DATA=20
+19      : CAPTURE=0
+21      : CAPTURE=1, TTLIN1.VAL=0       : DATA=16
+22      : ENABLE=0, CAPTURE=0           : ACTIVE=0
+
+#####################
+$ framing on counters
+2       : START_WRITE=0
+4       : WRITE=12
+5       : FRAMING_MASK=0x1000
+6       : FRAMING_ENABLE=1
+10      : ARM=0                         : ACTIVE=1
+11      : ENABLE=1, COUNTER1.COUNT=10
+# Live frame
+12      : FRAME=1
+13      : CAPTURE=1, FRAME=0
+14      : CAPTURE=0
+15      : COUNTER1.COUNT=20
+16      : FRAME=1                       : DATA=10
+17      : FRAME=0
+18      : COUNTER1.COUNT=30
+# Dead frame
+19      : FRAME=1
+20      : FRAME=0
+# Live frame
+21      : COUNTER1.COUNT=50
+22      : CAPTURE=1
+23      : COUNTER1.COUNT=35, CAPTURE=0
+25      : FRAME=1                       : DATA=5
+26      : FRAME=0, ENABLE=0             : ACTIVE=0
+

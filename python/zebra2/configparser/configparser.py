@@ -16,6 +16,10 @@ class ConfigParser(object):
     Attributes:
         blocks (OrderedDict): map str block_name -> :class:`.ConfigBlock`
             instance where block name doesn't include number (e.g. "SEQ")
+        bit_bus (OrderedDict): map str block_name.field_name -> int bit_bus_idx
+            for each block and field
+        pos_bus (OrderedDict): map str block_name.field_name -> int pos_bus_idx
+            for each block and field
     """
 
     def __init__(self, config_dir):
@@ -26,6 +30,8 @@ class ConfigParser(object):
         """
         self.config_dir = config_dir
         self.blocks = OrderedDict()
+        self.bit_bus = OrderedDict()
+        self.pos_bus = OrderedDict()
         self.parse()
 
     def parse(self):
@@ -70,45 +76,66 @@ class ConfigParser(object):
         self._warn_ordering(config, reg, desc, "of blocks")
 
         # now step through blocks
-        for block_name, (reg_line, reg_fields) in reg.items():
+        for block_name in reg:
+            self._make_block_config(block_name, reg, config, desc)
+
+    def _make_block_config(self, block_name, reg, config, desc):
+        reg_line, reg_fields = reg[block_name]
+        args = {}
+
+        # lookup fields in desc
+        if block_name in desc:
+            args["desc_line"], desc_fields = desc[block_name]
+        else:
+            desc_fields = {}
+
+        # if block is in config, use its field list instead of registers
+        if block_name in config:
+            args["config_line"], config_fields = config[block_name]
+            fields = config_fields.copy()
+            # add in any of the register fields
+            for field_name in reg_fields:
+                if field_name not in fields:
+                    fields[field_name] = None
+        else:
+            config_fields = {}
+            fields = reg_fields
+
+        # warn if fields are reordered
+        self._warn_ordering(config_fields, reg_fields, desc_fields,
+                            "of fields in %s" % block_name)
+        block = ConfigBlock(reg_line, **args)
+        # iterate through the fields
+        for field_name in fields:
             args = {}
+            assert field_name in reg_fields, \
+                "%s.%s missing from reg file" % (block_name, field_name)
+            args["reg_lines"] = reg_fields[field_name]
+            assert field_name in config_fields or block_name[0] == '*', \
+                "%s.%s missing from config file" % (block_name, field_name)
+            if field_name in config_fields:
+                args["config_lines"] = config_fields[field_name]
+            if field_name in desc_fields:
+                args["desc_lines"] = desc_fields[field_name]
+            field = ConfigField(field_name, **args)
+            block.add_field(field)
+            # Add entry to bit bus or pos bus if it's there
+            if field.cls and field.cls.endswith("_out"):
+                if field.cls == "bit_out":
+                    bus = self.bit_bus
+                elif field.cls == "pos_out":
+                    bus = self.pos_bus
+                else:
+                    continue
+                for i in range(block.num):
+                    idx = int(field.reg[i])
+                    if block.num == 1:
+                        bus_name = "%s.%s" % (block_name, field_name)
+                    else:
+                        bus_name = "%s%d.%s" % (block_name, i+1, field_name)
+                    bus[bus_name] = idx
 
-            # lookup fields in desc
-            if block_name in desc:
-                args["desc_line"], desc_fields = desc[block_name]
-            else:
-                desc_fields = {}
-
-            # if block is in config, use its field list instead of registers
-            if block_name in config:
-                args["config_line"], config_fields = config[block_name]
-                fields = config_fields.copy()
-                # add in any of the register fields
-                for field_name in reg_fields:
-                    if field_name not in fields:
-                        fields[field_name] = None
-            else:
-                config_fields = {}
-                fields = reg_fields
-
-            # warn if fields are reordered
-            self._warn_ordering(config_fields, reg_fields, desc_fields,
-                                "of fields in %s" % block_name)
-            block = ConfigBlock(reg_line, **args)
-            # iterate through the fields
-            for field_name in fields:
-                args = {}
-                assert field_name in reg_fields, \
-                    "%s.%s missing from reg file" % (block_name, field_name)
-                args["reg_lines"] = reg_fields[field_name]
-                assert field_name in config_fields or block_name[0] =='*', \
-                    "%s.%s missing from config file" % (block_name, field_name)
-                if field_name in config_fields:
-                    args["config_lines"] = config_fields[field_name]
-                if field_name in desc_fields:
-                    args["desc_lines"] = desc_fields[field_name]
-                block.add_field(ConfigField(field_name, **args))
-            self.blocks[block.name] = block
+        self.blocks[block.name] = block
 
     def _warn_ordering(self, config, reg, desc, err):
         """Check ordering of overlapping subsets of 3 ordered dicts

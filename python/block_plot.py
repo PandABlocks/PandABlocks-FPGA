@@ -1,24 +1,17 @@
 #!/bin/env dls-python
+from pkg_resources import require
+require("matplotlib")
+require("numpy")
 
 import sys
 import os
-
-from pkg_resources import require
-require("matplotlib")
-
-# add our simulations dir
-parser_dir = os.path.join(
-    os.path.dirname(__file__), "..", "tests", "sim_zebra2_sequences")
-
 from collections import OrderedDict
-import itertools
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 from zebra2.sequenceparser import SequenceParser
-from zebra2.simulation.block import Block
-Block.load_config(os.path.join(os.path.dirname(__file__), '..', 'config_d'))
+from zebra2.configparser import ConfigParser
 
 
 TRANSITION_HEIGHT = 0.6
@@ -29,6 +22,11 @@ TOP_HEIGHT = 0.6
 BOTTOM_HEIGHT = 1.0
 VERTICAL_STRETCH = 0.5
 
+# add our parser and config dirs
+parser_dir = os.path.join(
+    os.path.dirname(__file__), "..", "tests", "sim_sequences")
+config_dir = os.path.join( os.path.dirname(__file__), "..", "config_d")
+
 
 def legend_label(text, x, y, off):
     plt.annotate(text, xy=(x, y), xytext=(x-off, y),
@@ -38,7 +36,7 @@ def plot_bit(trace_items, offset, crossdist):
     for name, (tracex, tracey) in trace_items:
         tracey = np.array(tracey)
         offset -= PULSE_HEIGHT + PLOT_OFFSET
-        lines = plt.plot(tracex, tracey + offset, linewidth=2)
+        plt.plot(tracex, tracey + offset, linewidth=2)
         # add label
         legend_label(name, 0, tracey[0] + offset + PULSE_HEIGHT / 2., crossdist)
     return offset
@@ -78,13 +76,13 @@ def plot_pos(trace_items, offset, crossdist, ts):
 def make_block_plot(block, title):
     # Load the correct sequence file
     fname = block + ".seq"
-    parser = SequenceParser(os.path.join(parser_dir, fname))
-    matches = [s for s in parser.sequences if s.name == title]
+    sparser = SequenceParser(os.path.join(parser_dir, fname))
+    matches = [s for s in sparser.sequences if s.name == title]
     assert len(matches) == 1, 'Unknown title "%s" or multiple matches' % title
     sequence = matches[0]
-    imp = __import__("zebra2.simulation." + block, fromlist=[block.title()])
+    cparser = ConfigParser(config_dir)
     # make instance of block
-    block = getattr(imp, block.title())(1)
+    block = cparser.blocks[block.upper()]
     # do a plot
     in_bits_names = []
     out_bits_names = []
@@ -95,27 +93,22 @@ def make_block_plot(block, title):
     # walk the inputs and outputs and add traces
     for ts in sequence.inputs:
         for name in sequence.inputs[ts].keys():
-            if name not in block.fields:
+            _, field = block.registers[name]
+            if field.cls == "param" and field.typ == "bit_mux":
+                in_bits_names.append(name)
+            elif field.cls == "param" and field.typ == "pos_mux":
+                in_positions_names.append(name)
+            else:
                 in_regs_names.append(name)
-            else:
-                field = block.fields[name]
-                if field.cls == "param" and field.typ == "bit_mux":
-                    in_bits_names.append(name)
-                elif field.cls == "param" and field.typ == "pos_mux":
-                    in_positions_names.append(name)
-                else:
-                    in_regs_names.append(name)
         for name in sequence.outputs[ts].keys():
-            if name not in block.fields:
-                out_regs_names.append(name)
-            else:
-                field = block.fields[name]
+            if name in block.outputs:
+                _, field = block.outputs[name]
                 if field.cls == "bit_out":
                     out_bits_names.append(name)
                 elif field.cls == "pos_out":
                     out_positions_names.append(name)
-                else:
-                    out_regs_names.append(name)
+            else:
+                out_regs_names.append(name)
 
     def bit_traces():
         trace_items = in_bits.items() + out_bits.items()
