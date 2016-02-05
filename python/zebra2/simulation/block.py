@@ -4,7 +4,7 @@ from ..configparser import ConfigParser
 
 
 # These are the powers of two in an array
-POW_TWO = 2 ** np.arange(32, dtype=np.int32)
+POW_TWO = 2 ** np.arange(32, dtype=np.uint32)
 
 
 class Block(object):
@@ -46,6 +46,8 @@ class Block(object):
             # Special DATA output should appear in changes each time
             # it is written to
             cls.add_property("DATA", True)
+            # Special ERROR output
+            cls.add_property("ERROR")
         # add a property that stores changes for outputs
         for name in attr_names:
             cls.add_property(name)

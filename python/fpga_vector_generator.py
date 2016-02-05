@@ -26,22 +26,32 @@ class FpgaSequence(object):
         self.block = block
         self.fpga_dir = fpga_dir
         # field types
-        fields = Block.parser.blocks[block.upper()].fields
+        config_block = Block.parser.blocks[block.upper()]
         # Get the column headings
         self.bus_in = ["TS", "SIM_RESET"]
         self.bus_out = ["TS"]
         self.reg_in = ["TS"]
         self.reg_out = ["TS"]
-        for name, field in fields.items():
+        # Add registers
+        for name, (_, field) in config_block.registers.items():
             if field.typ.endswith("_mux"):
                 self.bus_in.append(name)
-            elif field.cls.endswith("_out"):
-                self.bus_out.append(name)
             elif field.cls == "read":
                 self.reg_out.append(name)
             else:
                 self.reg_in.append(name)
                 self.reg_in.append(name + "_WSTB")
+        # Add outputs
+        for name, (_, field) in config_block.outputs.items():
+            if field.cls != "ext_out":
+                self.bus_out.append(name)
+        # Add PCAP registers if we are a pcap block
+        if block == "pcap":
+            reg_block = Block.parser.blocks["*REG"]
+            for name in reg_block.registers:
+                if name.startswith("PCAP_"):
+                    self.reg_in.append(name[len("PCAP_"):])
+            self.bus_out += ["DATA", "DATA_WSTB", "ERROR"]
         self.make_lines()
 
     def write(self):
@@ -76,7 +86,7 @@ class FpgaSequence(object):
 
     def set_wstb(self,ts, previous, current):
         changes = {}
-        for name in self.reg_in:
+        for name in self.reg_in + ["DATA"]:
             if current.get(name, 0) != previous.get(name, 0):
                 changes.update({name + "_WSTB": 1}),
             else:

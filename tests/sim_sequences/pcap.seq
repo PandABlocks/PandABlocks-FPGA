@@ -37,7 +37,7 @@ $ capture too close together
 14      :                   : DATA=0
 16      : CAPTURE=1         : DATA=6
 17      : CAPTURE=0         : DATA=0
-18      : CAPTURE=1         : ACTIVE=0, ERR_STATUS=2
+18      : CAPTURE=1         : ACTIVE=0, ERR_STATUS=2, ERROR=1
 
 ######################
 $ capture pos bus enc1
@@ -61,11 +61,11 @@ $ capture bit bus TTLIN
 11      : ENABLE=1
 13      : CAPTURE=1                     : DATA=0
 14      : CAPTURE=0
-15      : CAPTURE=1, TTLIN1.VAL=1       : DATA=4
+15      : CAPTURE=1, TTLIN1.VAL=1       : DATA=0x4
 16      : CAPTURE=0, TTLIN3.VAL=1
-18      : CAPTURE=1                     : DATA=20
+18      : CAPTURE=1                     : DATA=0x14
 19      : CAPTURE=0
-21      : CAPTURE=1, TTLIN1.VAL=0       : DATA=16
+21      : CAPTURE=1, TTLIN1.VAL=0       : DATA=0x10
 22      : ENABLE=0, CAPTURE=0           : ACTIVE=0
 
 #####################
