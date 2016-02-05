@@ -20,7 +20,7 @@ template_environment = Environment(
 def render_template(template_filename, context):
     return template_environment.get_template(template_filename).render(context)
 
-def genearateOutput(templatefile, outputfile, variables):
+def generateOutput(templatefile, outputfile, variables):
     fname = os.path.join(OUTPUT_DIR, outputfile)
     with open(fname, 'w') as f:
         output_file = render_template(templatefile, variables)
@@ -51,9 +51,9 @@ def main():
 
 
     variables = {"blocks": blocks}
-    genearateOutput('addr_defines_template', "addr_defines.vhd", variables)
-    genearateOutput('addr_defines_template_verilog', "addr_defines.v", variables)
-    genearateOutput('panda_buses_template', "panda_busses.vhd", variables)
+    generateOutput('addr_defines_template', "addr_defines.vhd", variables)
+    generateOutput('addr_defines_template_verilog', "addr_defines.v", variables)
+    generateOutput('panda_buses_template', "panda_busses.vhd", variables)
 
 if __name__ == "__main__":
     main()

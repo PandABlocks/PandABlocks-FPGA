@@ -182,7 +182,8 @@ class Controller(object):
         """Tick the simulation given the block and changes, or None
 
         Args:
-            block_changes (dict): map str name -> int value of attrs that have changed
+            block_changes (dict): map str name -> int value of attrs that have
+            changed
         """
         ts = int((time.time() - self.start_time) / CLOCK_TICK)
         if block_changes is None:
