@@ -48,6 +48,9 @@ class Pcap(Block):
         for i, v in enumerate(adc.fields["DATA"].reg[9:]):
             self.ext_names["DATA%d" % (i + 1)] = int(v)
 
+        # Counter for fake injected data
+        self.inject_base = 0
+
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
@@ -77,6 +80,8 @@ class Pcap(Block):
             self.live_frame = False
             self.buf_len = 0
             self.buf_produced = 0
+            # Reset the injected counter
+            self.inject_base = 0
 
         # Disarm from ENABLE falling edge
         if changes.get(b.ENABLE, None) == 0:
@@ -98,6 +103,9 @@ class Pcap(Block):
             self.buf_produced += 1
             if self.buf_len > self.buf_produced:
                 return ts + 1
+
+        if b.INJECT in changes:
+            self.inject_data(changes.get(b.INJECT))
 
     def calculate_masks(self):
         """Calculate the masks of for framed and captured data, and alternate
@@ -214,3 +222,9 @@ class Pcap(Block):
         else:
             # Return None to indicate end of data capture stream
             return None
+
+    def inject_data(self, count):
+        data = self.inject_base + np.arange(count, dtype=np.int32)
+        self.buf[self.buf_len:self.buf_len+count] = data
+        self.buf_len += count
+        self.inject_base += count

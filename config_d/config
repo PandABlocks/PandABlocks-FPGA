@@ -213,6 +213,9 @@ PCAP
     BITC            ext_out     bits 2
     BITD            ext_out     bits 3
 
+    # Fake register for injecting test data
+    INJECT          write
+
 BITS
     A_SET           param       bit
     B_SET           param       bit

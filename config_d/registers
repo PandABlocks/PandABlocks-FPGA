@@ -240,6 +240,7 @@ PCAP        16
     BITB            40
     BITC            41
     BITD            42
+    INJECT          5
 
 BITS        28
     A_SET           0
