@@ -38,12 +38,14 @@ extensions = [
     'matplotlib.sphinxext.plot_directive',
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
+    'zebra2.sphinxext.sequence_plot_directive',
 ]
 
 napoleon_use_ivar=True
 autoclass_content="both"
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
