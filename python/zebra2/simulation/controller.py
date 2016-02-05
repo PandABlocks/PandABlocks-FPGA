@@ -164,19 +164,7 @@ class Controller(object):
         Args:
             max_length (int): Max number of int32 words to read
         """
-        if self.pcap.buf_len > 0:
-            data_length = min(self.pcap.buf_len, max_length)
-            result = +self.pcap.buf[:data_length]
-            self.pcap.buf[:self.pcap.buf_len - data_length] = \
-                self.pcap.buf[data_length:self.pcap.buf_len]
-            self.pcap.buf_len -= data_length
-            return result
-        elif self.pcap.ACTIVE:
-            # Return empty array if there's no data but we're still active
-            return self.pcap.buf[:0]
-        else:
-            # Return None to indicate end of data capture stream
-            return None
+        return self.pcap.read_data(max_length)
 
     def do_tick(self, block_changes=None):
         """Tick the simulation given the block and changes, or None

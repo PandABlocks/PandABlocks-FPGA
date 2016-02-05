@@ -4,7 +4,7 @@ from ..configparser import ConfigParser
 
 
 # These are the powers of two in an array
-POW_TWO = 2 ** np.arange(32, dtype=np.int32)
+POW_TWO = 2 ** np.arange(32, dtype=np.uint32)
 
 
 class Block(object):

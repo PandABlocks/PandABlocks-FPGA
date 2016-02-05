@@ -199,3 +199,18 @@ class Pcap(Block):
             new_size = len(new_data)
             self.buf[self.buf_len:self.buf_len+new_size] = new_data
             self.buf_len += len(new_data)
+
+    def read_data(self, max_length):
+        if self.buf_len > 0:
+            data_length = min(self.buf_len, max_length)
+            result = +self.buf[:data_length]
+            self.buf[:self.buf_len - data_length] = \
+                self.buf[data_length:self.buf_len]
+            self.buf_len -= data_length
+            return result
+        elif self.ACTIVE:
+            # Return empty array if there's no data but we're still active
+            return self.buf[:0]
+        else:
+            # Return None to indicate end of data capture stream
+            return None
