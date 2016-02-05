@@ -29,7 +29,6 @@ port (
     capture_i           : in  std_logic;
     capture_o           : out std_logic;
     posn_o              : out std32_array(63 downto 0);
-
     -- Block register
     FRAMING_MASK        : in  std_logic_vector(31 downto 0);
     FRAMING_ENABLE      : in  std_logic;
@@ -39,12 +38,10 @@ end panda_pcap_dsp;
 
 architecture rtl of panda_pcap_dsp is
 
-signal enable_prev      : std_logic;
 signal frame_prev       : std_logic;
 signal capture_prev     : std_logic;
 signal ongoing_capture  : std_logic;
 
-signal enable_rise      : std_logic;
 signal frame_rise       : std_logic;
 signal capture_rise     : std_logic;
 
@@ -61,26 +58,26 @@ begin
 -- Input registers.
 process(clk_i) begin
     if rising_edge(clk_i) then
-        enable_prev <= enable_i;
         frame_prev <= frame_i;
         capture_prev <= capture_i;
     end if;
 end process;
 
 -- Detect rise/falling edge of internal signals.
-enable_rise <= enable_i and not enable_prev;
 frame_rise <= frame_i and not frame_prev;
 capture_rise <= capture_i and not capture_prev;
 
 
--- Capture flag behaviour is based on FRAMING mode.
+-- Capture flag behaviour is based on FRAMING mode and enable.
+-- Enable makes sure that capture pulse will not be generated
+-- preventing triggering oncoming modules higher level.
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             capture_o <= '0';
         else
             if (FRAMING_ENABLE = '0') then
-                capture_o <= capture_rise;
+                capture_o <= capture_rise and enable_i;
             else
                 capture_o <= frame_rise and ongoing_capture;
             end if;
@@ -102,15 +99,23 @@ end process;
 --
 process(clk_i) begin
     if rising_edge(clk_i) then
-        if (reset_i = '1' or enable_rise = '1') then
+        if (reset_i = '1') then
             ongoing_capture <= '0';
         else
-            if (frame_rise = '1' and capture_rise = '1') then
-                ongoing_capture <= '1';
-            elsif (frame_rise = '1') then
+            if (enable_i = '1') then
+                -- If happens on the same clock, capture belongs the
+                -- immediate frame.
+                if (frame_rise = '1' and capture_rise = '1') then
+                    ongoing_capture <= '1';
+                -- Otherwise start a clear frame.
+                elsif (frame_rise = '1') then
+                    ongoing_capture <= '0';
+                -- Flag that capture pulse received.
+                elsif (capture_rise = '1') then
+                    ongoing_capture <= '1';
+                end if;
+            else
                 ongoing_capture <= '0';
-            elsif (capture_rise = '1') then
-                ongoing_capture <= '1';
             end if;
         end if;
     end if;

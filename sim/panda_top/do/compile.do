@@ -79,6 +79,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_pcap_ctrl.vhd" \
 "${SRC}/panda_pcap_posproc.vhd" \
 "${SRC}/panda_pcap_dsp.vhd" \
+"${SRC}/panda_pcap_buffer.vhd" \
 "${SRC}/panda_pcap_top.vhd" \
 "${SRC}/panda_slow_tx.vhd" \
 "${SRC}/panda_slow_rx.vhd" \

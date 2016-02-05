@@ -64,24 +64,20 @@ end panda_pcap_top;
 
 architecture rtl of panda_pcap_top is
 
-type pcap_fsm_t is (IDLE, ARMED, ENABLED, FINISH_TRIG);
-signal pcap_fsm         : pcap_fsm_t;
-
 signal ENABLE_VAL       : std_logic_vector(SBUSBW-1 downto 0);
 signal FRAME_VAL        : std_logic_vector(SBUSBW-1 downto 0);
 signal CAPTURE_VAL      : std_logic_vector(SBUSBW-1 downto 0);
 signal MISSED_CAPTURES  : unsigned(31 downto 0);
 signal ERR_STATUS       : std_logic_vector(31 downto 0);
 
+signal ARM              : std_logic;
+signal DISARM           : std_logic;
 signal START_WRITE      : std_logic;
 signal WRITE            : std_logic_vector(31 downto 0);
 signal WRITE_WSTB       : std_logic;
 signal FRAMING_MASK     : std_logic_vector(31 downto 0);
 signal FRAMING_ENABLE   : std_logic;
 signal FRAMING_MODE     : std_logic_vector(31 downto 0);
-signal ARM              : std_logic;
-signal DISARM           : std_logic;
-
 signal DMAADDR          : std_logic_vector(31 downto 0);
 signal DMAADDR_WSTB     : std_logic;
 signal BLOCK_SIZE       : std_logic_vector(31 downto 0);
@@ -100,7 +96,6 @@ signal capture_pulse    : std_logic;
 signal ongoing_capture  : std_logic;
 
 signal capture_data     : std32_array(63 downto 0);
-signal capture_data_lt  : std32_array(63 downto 0);
 signal pcap_dat         : std_logic_vector(31 downto 0) := (others => '0');
 signal pcap_wstb        : std_logic := '0';
 
@@ -176,129 +171,6 @@ port map (
 );
 
 --
--- Position Bus capture mask is implemented using a Block RAM to
--- achieve minimum dead time between capture triggers.
--- Data is pushed into the buffer sequentially followed by reset.
-mask_spbram_inst : entity work.panda_spbram
-generic map (
-    AW          => 6,
-    DW          => 32
-)
-port map (
-    addra       => std_logic_vector(mask_addra),
-    addrb       => std_logic_vector(mask_addrb),
-    clka        => clk_i,
-    clkb        => clk_i,
-    dina        => WRITE,
-    doutb       => mask_doutb,
-    wea         => WRITE_WSTB
-);
-
--- Fill mask buffer with capture indices sequentially, and
--- latch buffer length.
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            mask_length <= (others => '0');
-            mask_addra <= (others => '0');
-        else
-            if (START_WRITE = '1') then
-                mask_addra <= (others => '0');
-            elsif (WRITE_WSTB = '1') then
-                mask_addra <= mask_addra + 1;
-            end if;
-
-            if (pcap_fsm = ARMED and enable = '1') then
-                mask_length <= mask_addra;
-            end if;
-        end if;
-    end if;
-end process;
-
---
--- Arm/Trigger/Disarm State Machine
---
-process(clk_i) begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            pcap_armed <= '0';
-            pcap_disarmed <= "00";
-            pcap_enabled <= '0';
-            pcap_fsm <= IDLE;
-            enable_prev <= '0';
-            pcap_fifo_rst <= '0';
-        else
-            enable_prev <= enable;
-
-            case (pcap_fsm) is
-                -- Wait for user arm.
-                when IDLE =>
-                    if (ARM = '1') then
-                        pcap_fsm <= ARMED;
-                        pcap_armed <= '1';
-                        pcap_disarmed(0) <= '0';
-                        pcap_enabled <= '0';
-                        pcap_fifo_rst <= '1';
-                    end if;
-
-                -- Wait for enable flag.
-                when ARMED =>
-                    pcap_fifo_rst <= '0';
-
-                    if (DISARM = '1') then
-                        pcap_fsm <= IDLE;
-                        pcap_armed <= '0';
-                        pcap_disarmed(0) <= '1';
-                        pcap_enabled <= '0';
-                    elsif (enable = '1') then
-                        pcap_fsm <= ENABLED;
-                        pcap_enabled <= '1';
-                    end if;
-
-                -- Enabled until capture is finished or user disarm or
-                -- missed capture.
-                when ENABLED =>
-                    if (DISARM = '1' or INT_DISARM = '1'
-                            or enable_fall = '1') then
-                        -- Position bus is written sequentially into the
-                        -- buffer and this takes 36 clock cycles for each
-                        -- capture capture.
-                        -- We must wait until all fields are written into the
-                        -- buffer for proper finish.
-                        if (ongoing_capture = '1') then
-                            pcap_fsm <= FINISH_TRIG;
-                        else
-                            pcap_fsm <= IDLE;
-                            pcap_armed <= '0';
-                            pcap_enabled <= '0';
-                        end if;
-                    end if;
-
-                    if (DISARM = '1') then
-                        pcap_disarmed(0) <= '1';
-                    end if;
-
-                    if (INT_DISARM = '1') then
-                        pcap_disarmed(1) <= '1';
-                    end if;
-
-                -- Wait for ongoing capture capture finish.
-                when FINISH_TRIG =>
-                    if (ongoing_capture = '0') then
-                        pcap_fsm <= IDLE;
-                        pcap_armed <= '0';
-                        pcap_enabled <= '0';
-                    end if;
-
-                when others =>
-                    pcap_fsm <= IDLE;
-            end case;
-        end if;
-    end if;
-end process;
-
---
 -- Position Capture Data Processing
 --
 pcap_dsp_inst : entity work.panda_pcap_dsp
@@ -321,56 +193,25 @@ port map (
     FRAMING_MODE        => FRAMING_MODE
 );
 
-pcap_dat <= capture_data_lt(to_integer(mask_doutb));
-
-process(clk_i) begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            ongoing_capture <= '0';
-            mask_addrb <= (others => '0');
-            mask_addrb <= (others => '0');
-            MISSED_CAPTURES <= (others => '0');
-            INT_DISARM <= '0';
-        else
-            -- Latch all capture fields on rising edge of capture only when
-            -- position capture is enabled.
-            if (capture_pulse = '1' and pcap_enabled = '1') then
-                capture_data_lt <= capture_data;
-            end if;
-
-            -- Capture ongoing flag runs while mask buffer is read through.
-            if (capture_pulse = '1' and pcap_enabled = '1') then
-                ongoing_capture <= '1';
-            elsif (mask_addrb = mask_length - 1) then
-                ongoing_capture <= '0';
-            end if;
-
-            -- Counter is active follwing capture until all CAPTURE_MASK
-            -- register is consumed.
-            if (ongoing_capture = '1') then
-                mask_addrb <= mask_addrb + 1;
-            else
-                mask_addrb <= (others => '0');
-            end if;
-
-            -- Finally, generate pcap data and write strobe.
-            if (ongoing_capture = '1') then
-                pcap_wstb <= '1';
-            else
-                pcap_wstb <= '0';
-            end if;
-
-            -- Keep track of missed captures.
-            if (pcap_fsm = IDLE and ARM = '1') then
-                MISSED_CAPTURES <= (others => '0');
-                INT_DISARM <= '0';
-            elsif (ongoing_capture = '1' and capture_pulse = '1') then
-                MISSED_CAPTURES <= MISSED_CAPTURES + 1;
-                INT_DISARM <= '1';
-            end if;
-        end if;
-    end if;
-end process;
+--
+-- Pcap Mask Buffer
+--
+pcap_buffer : entity work.panda_pcap_buffer
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+    -- Configuration Registers
+    START_WRITE         => START_WRITE,
+    WRITE               => WRITE,
+    WRITE_WSTB          => WRITE_WSTB,
+    -- Block inputs
+    fatpipe_i           => capture_data,
+    capture_i           => capture_pulse,
+    -- Output pulses
+    pcap_dat_o          => pcap_dat,
+    pcap_dat_valid_o    => pcap_wstb,
+    ongoing_capture_o   => ongoing_capture
+);
 
 --
 -- Position Capture Core IP instantiation
@@ -380,13 +221,14 @@ port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
 
-    enabled_i           => pcap_armed,
-    disarmed_i          => pcap_disarmed,
-    pcap_frst_i         => pcap_fifo_rst,
+    enable_i            => enable,
+    abort_i             => '0',
     pcap_dat_i          => pcap_dat,
     pcap_wstb_i         => pcap_wstb,
     irq_o               => pcap_irq_o,
 
+    ARM                 => ARM,
+    DISARM              => DISARM,
     DMAADDR             => DMAADDR,
     DMAADDR_WSTB        => DMAADDR_WSTB,
     TIMEOUT_VAL         => TIMEOUT,
@@ -416,6 +258,7 @@ port map (
     m_axi_wstrb         => m_axi_wstrb,
     m_axi_wid           => m_axi_wid
 );
+
 
 ERR_STATUS(31 downto 1) <= (others => '0');
 ERR_STATUS(0) <= INT_DISARM;

@@ -37,11 +37,4 @@ add wave -radix unsigned -group "Slow Serial IF" \
 sim:/test/tb/slow_top_inst/serial_if_inst/*
 
 add wave -divider {POSITION CAPTURE}
-add wave -radix unsigned -group "Ctrl" \
-sim:/test/tb/uut/pcap_inst/pcap_ctrl_inst/*
-add wave -radix unsigned -group "Mask Memory" \
-sim:/test/tb/uut/pcap_inst/mask_spbram_inst/*
-add wave -radix unsigned -group "DSP" \
-sim:/test/tb/uut/pcap_inst/pcap_dsp_inst/*
-add wave -radix unsigned -group "Pcap" \
-sim:/test/tb/uut/pcap_inst/pcap_inst/*
+

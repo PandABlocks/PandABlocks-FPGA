@@ -23,22 +23,21 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
-
-    enabled_i           : in  std_logic;
-    disarmed_i          : in  std_logic_vector(1 downto 0);
-    pcap_frst_i         : in  std_logic;
+    -- Block Inputs and Outputs
+    enable_i            : in  std_logic;
+    abort_i             : in  std_logic;
     pcap_dat_i          : in  std_logic_vector(31 downto 0);
     pcap_wstb_i         : in  std_logic;
-
     irq_o               : out std_logic;
-
+    -- Register interface
+    ARM                 : in  std_logic;
+    DISARM              : in  std_logic;
     TIMEOUT_VAL         : in  std_logic_vector(31 downto 0);
     DMAADDR_WSTB        : in  std_logic;
     DMAADDR             : in  std_logic_vector(31 downto 0);
     IRQ_STATUS          : out std_logic_vector(3 downto 0);
     SMPL_COUNT          : out std_logic_vector(31 downto 0);
     BLOCK_SIZE          : in  std_logic_vector(31 downto 0);
-
     -- AXI3 HP Bus Write Only Interface
     m_axi_awready       : in  std_logic;
     m_axi_awaddr        : out std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
@@ -92,6 +91,9 @@ port (
 );
 end component;
 
+type pcap_trig_t is (IDLE, ARMED, ENABLED, FINISH_TRIG);
+signal pcap_trig         : pcap_trig_t;
+
 type pcap_fsm_t is (IDLE, ACTV, DO_DMA, IS_FINISHED, IRQ, ABORTED);
 signal pcap_fsm             : pcap_fsm_t;
 
@@ -118,6 +120,14 @@ signal fifo_count           : integer range 0 to 2047;
 
 signal sample_count         : unsigned(31 downto 0);
 
+signal enable_prev      : std_logic;
+signal enable_fall      : std_logic;
+
+signal pcap_armed       : std_logic;
+signal pcap_enabled     : std_logic;
+signal pcap_disarmed    : std_logic_vector(1 downto 0);
+signal pcap_fifo_rst    : std_logic := '0';
+
 begin
 
 -- Assign outputs.
@@ -130,11 +140,97 @@ irq_o <= dma_irq;
 BLOCK_TLP_SIZE <= "000000" & BLOCK_SIZE(31 downto 6);
 
 --
+-- Arm/Enable/Disarm State Machine
+--
+
+-- Detect rise/falling edge of internal signals.
+enable_fall <= not enable_i and enable_prev;
+
+process(clk_i) begin
+    if rising_edge(clk_i) then
+        if (reset_i = '1') then
+            pcap_armed <= '0';
+            pcap_disarmed <= "00";
+            pcap_enabled <= '0';
+            pcap_trig <= IDLE;
+            enable_prev <= '0';
+            pcap_fifo_rst <= '0';
+        else
+            enable_prev <= enable_i;
+
+            case (pcap_trig) is
+                -- Wait for user arm.
+                when IDLE =>
+                    if (ARM = '1') then
+                        pcap_trig <= ARMED;
+                        pcap_armed <= '1';
+                        pcap_disarmed(0) <= '0';
+                        pcap_enabled <= '0';
+                        pcap_fifo_rst <= '1';
+                    end if;
+
+                -- Wait for enable flag.
+                when ARMED =>
+                    pcap_fifo_rst <= '0';
+
+                    if (DISARM = '1') then
+                        pcap_trig <= IDLE;
+                        pcap_armed <= '0';
+                        pcap_disarmed(0) <= '1';
+                        pcap_enabled <= '0';
+                    elsif (enable_i = '1') then
+                        pcap_trig <= ENABLED;
+                        pcap_enabled <= '1';
+                    end if;
+
+                -- Enabled until capture is finished or user disarm or
+                -- missed capture.
+                when ENABLED =>
+                    if (DISARM = '1' or abort_i = '1'
+                            or enable_fall = '1') then
+                        -- Position bus is written sequentially into the
+                        -- buffer and this takes 36 clock cycles for each
+                        -- capture capture.
+                        -- We must wait until all fields are written into the
+                        -- buffer for proper finish.
+                        if (pcap_wstb_i = '1') then
+                            pcap_trig <= FINISH_TRIG;
+                        else
+                            pcap_trig <= IDLE;
+                            pcap_armed <= '0';
+                            pcap_enabled <= '0';
+                        end if;
+                    end if;
+
+                    if (DISARM = '1') then
+                        pcap_disarmed(0) <= '1';
+                    end if;
+
+                    if (abort_i = '1') then
+                        pcap_disarmed(1) <= '1';
+                    end if;
+
+                -- Wait for ongoing capture capture finish.
+                when FINISH_TRIG =>
+                    if (pcap_wstb_i = '0') then
+                        pcap_trig <= IDLE;
+                        pcap_armed <= '0';
+                        pcap_enabled <= '0';
+                    end if;
+
+                when others =>
+                    pcap_trig <= IDLE;
+            end case;
+        end if;
+    end if;
+end process;
+
+--
 -- 32bit-to-64-bit FIFO with 1K sample depth
 --
 dma_fifo_inst : pcap_dma_fifo
 port map (
-    rst             => pcap_frst_i,
+    rst             => pcap_fifo_rst,
     clk             => clk_i,
     din             => pcap_dat_i,
     wr_en           => pcap_wstb_i,
@@ -210,7 +306,7 @@ begin
                     sample_count <= (others => '0');
                     dma_start <= '0';
                     axi_awaddr_val <= unsigned(DMAADDR);
-                    if (enabled_i = '1') then
+                    if (pcap_armed = '1') then
                         pcap_fsm <= ACTV;
                     end if;
 
@@ -240,12 +336,12 @@ begin
                         pcap_fsm <= DO_DMA;
                     -- If enable flag is de-asserted while DMAing the last
                     -- TLP, no need to do a 0 byte DMA
-                    elsif (enabled_i = '0' and fifo_count = 0) then
+                    elsif (pcap_armed = '0' and fifo_count = 0) then
                         last_tlp_flag <= '1';
                         pcap_fsm <= IS_FINISHED;
                     -- Enable de-asserted, and there is less than 1 TLP worth
                     -- data, empty the queue.
-                    elsif (enabled_i = '0' and fifo_count <= 16) then
+                    elsif (pcap_armed = '0' and fifo_count <= 16) then
                         last_tlp_flag <= '1';
                         dma_start <= '1';
                         sample_count <= sample_count + fifo_count;
@@ -268,9 +364,9 @@ begin
                     -- Last TLP happens on either scan capture finish, or
                     -- graceful finish on DISARM.
                     if (last_tlp_flag = '1') then
-                        if (disarmed_i(0) = '1') then
+                        if (pcap_disarmed(0) = '1') then
                             IRQ_STATUS <= IRQ_DISARMED;
-                        elsif (disarmed_i(1) = '1') then
+                        elsif (pcap_disarmed(1) = '1') then
                             IRQ_STATUS <= IRQ_INT_DISARMED;
                         else
                             IRQ_STATUS <= IRQ_CAPT_FINISHED;
@@ -323,7 +419,7 @@ begin
                 -- Clear flag and wait for user DISARM.
                 when ABORTED =>
                     dma_irq <= '0';
-                    if (enabled_i = '0') then
+                    if (pcap_armed = '0') then
                         pcap_fsm <= IDLE;
                     end if;
 
