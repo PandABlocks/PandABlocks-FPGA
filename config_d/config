@@ -239,5 +239,5 @@ POSITIONS
     ZERO            pos_out     const
 
 SLOW
-    INENC_CTRL      param
-    OUTENC_CTRL     param
+    FPGA_VERSION    read
+    ENC_CONN        read
