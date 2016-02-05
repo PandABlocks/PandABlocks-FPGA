@@ -199,5 +199,5 @@ POSITIONS   Constants
 
 
 SLOW
-    INENC_CTRL      Daugther card input control
-    OUTENC_CTRL     Daughter card output control
+    FPGA_VERSION    Slow Controller FPGA Version
+    ENC_CONN        Encoder Connection Status

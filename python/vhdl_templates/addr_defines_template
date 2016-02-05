@@ -2,22 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library work;
-use work.type_defines.all;
-
 package addr_defines is
-
--- Memory Setup Parameters
--- Total of 128KByte memory is divided into 32 pages of 4K each.
--- Each page can address 16 design blocks
--- Each block can hold 64 DWORD registers
-
--- Number of total pages = 2**CSW
-constant PAGE_NUM               : natural := 5;
--- Number of DWORDs per page = 2**PAGE_AW
-constant PAGE_AW                : natural := 10;
--- Number of DWORS per block = 2**BLK_AW
-constant BLK_AW                 : natural := 6;
 
 -- Functional Address Space Chip Selects
 {%  for name, block in blocks.iteritems() %}
