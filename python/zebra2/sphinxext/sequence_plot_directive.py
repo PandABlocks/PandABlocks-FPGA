@@ -15,6 +15,9 @@ parser_dir = os.path.join(
 class sequence_plot_node(nodes.Element):
     pass
 
+class table_plot_node(nodes.Element):
+    pass
+
 class sequence_plot_directive(Directive):
 
     has_content = False
@@ -48,75 +51,96 @@ class sequence_plot_directive(Directive):
 
         #if it is a sequencer plot, plot the table
         if blockname == 'seq':
-            #make the header for the table
-            hdr = []
-            # hdr.append(
-            # '======= ======= ======= ==== =========== ==== ===========')
-            hdr.append(
-                '======= = = = = = = = = ==== = = = = = = ==== = = = = = =')
-            hdr.append(
-                '#       Use Inp Inp Val Ph1  Ph1 Out     Ph2  Ph2 Out    ')
-            hdr.append(
-                '------- ------- ------- ---- ----------- ---- -----------')
-            hdr.append(
-                'Repeats A B C D A B C D Time A B C D E F Time A B C D E F')
-            hdr.append(
-                '======= = = = = = = = = ==== = = = = = = ==== = = = = = =')
 
+            table_node = table_plot_node()
             #get the correct sequence
             fname = blockname + ".seq"
             sparser = SequenceParser(os.path.join(parser_dir, fname))
             matches = [s for s in sparser.sequences if s.name == plotname]
             sequence = matches[0]
 
+            alltables = []
             seqtable = []
             table_write = 0
             frame_count = 0
+            table_count = 0
             #get the table data from the sequence file and count the frames
             for ts in sequence.inputs:
+                # if 'TABLE_START' in sequence.inputs[ts]:
+                #     table_count += 1
                 if 'TABLE_DATA' in sequence.inputs[ts]:
                     table_write += 1
                     seqtable.append(sequence.inputs[ts]['TABLE_DATA'])
                     if table_write % 4 == 0:
                         frame_count += 1
-            #fill the body with the data from the sequence file
-            body = []
-            for frame in range(frame_count):
-                #get the parameters of the table
-                params = self.get_frame_data(seqtable, frame)
-                #create the string for the table content
-                body.append('{rpt}       '
-                            '{inmaska} {inmaskb} {inmaskc} {inmaskd} '
-                            '{inconda} {incondb} {incondc} {incondd} '
-                            '{p1Len}    '
-                            '{p1oa} {p1ob} {p1oc} {p1od} {p1oe} {p1of} '
-                            '{p2Len}    '
-                            '{p2oa} {p2ob} {p2oc} {p2od} {p2oe} {p2of} '
-                            .format(**params))
+                if 'TABLE_LENGTH' in sequence.inputs[ts]:
+                    alltables.append(seqtable)
+                    seqtable = []
+                    frame_count = 0
+                    table_write = 0
 
-                # body.append('{rpt}       {inMask}       '
-                #             '{inCond}      {p1Len}    '
-                #             '{p1Out} {p2Len}    {p2Out}'.format(**params))
+            for st in alltables:
+                table_count += 1
+                #make the header for the table
+                hdr = []
+                # hdr.append(
+                # '======= ======= ======= ==== =========== ==== ===========')
+                hdr.append(
+                    '======= = = = = = = = = ==== = = = = = = ==== = = = = = =')
+                hdr.append(
+                    "T" + str(table_count))
+                hdr.append(
+                    '---------------------------------------------------------')
+                hdr.append(
+                    '#       Use Inp Inp Val Ph1  Ph1 Out     Ph2  Ph2 Out    ')
+                hdr.append(
+                    '------- ------- ------- ---- ----------- ---- -----------')
+                hdr.append(
+                    'Repeats A B C D A B C D Time A B C D E F Time A B C D E F')
+                hdr.append(
+                    '======= = = = = = = = = ==== = = = = = = ==== = = = = = =')
 
-            #put the final border on the table
-            table = hdr + body
-            table.append(
-                '======= = = = = = = = = ==== = = = = = = ==== = = = = = =')
 
-            content = statemachine.ViewList(initlist=table)
-            #call the table directive with the new table content
-            rstTable = tables.RSTTable(self.name,
-            self.arguments,
-            self.options,
-            content,
-            self.lineno,
-            self.content_offset,
-            self.block_text,
-            self.state,
-            self.state_machine)
 
-            table_node = rstTable.run()
-            return[table_node[0]]
+                #fill the body with the data from the sequence file
+                body = []
+                for frame in range(len(st) / 4):
+                    #get the parameters of the table
+                    params = self.get_frame_data(st, frame)
+                    #create the string for the table content
+                    body.append('{rpt}       '
+                                '{inmaska} {inmaskb} {inmaskc} {inmaskd} '
+                                '{inconda} {incondb} {incondc} {incondd} '
+                                '{p1Len}    '
+                                '{p1oa} {p1ob} {p1oc} {p1od} {p1oe} {p1of} '
+                                '{p2Len}    '
+                                '{p2oa} {p2ob} {p2oc} {p2od} {p2oe} {p2of} '
+                                .format(**params))
+
+                    # body.append('{rpt}       {inMask}       '
+                    #             '{inCond}      {p1Len}    '
+                    #             '{p1Out} {p2Len}    {p2Out}'.format(**params))
+
+                #put the final border on the table
+                table = hdr + body
+                table.append(
+                    '======= = = = = = = = = ==== = = = = = = ==== = = = = = =')
+
+                content = statemachine.ViewList(initlist=table)
+                #call the table directive with the new table content
+                rstTable = tables.RSTTable(self.name,
+                self.arguments,
+                self.options,
+                content,
+                self.lineno,
+                self.content_offset,
+                self.block_text,
+                self.state,
+                self.state_machine)
+
+                tnode = rstTable.run()
+                table_node.append(tnode[0])
+            return[table_node]
         else:
             return [node]
 
@@ -160,6 +184,7 @@ def setup(app):
 
     app.add_directive('sequence_plot', sequence_plot_directive)
 
+    app.add_node(table_plot_node, html=(visit_table_plot, depart_table_plot))
     app.add_node(sequence_plot_node, html=(visit_sequence_plot, depart_sequence_plot))
 
 def visit_sequence_plot(self, node):
@@ -172,3 +197,9 @@ def depart_sequence_plot(self, node):
     pass
     #put stuff here to happen after
     # self.body.append("SOMETHING APPENDED AFTER")
+
+def visit_table_plot(self, node):
+    pass
+
+def depart_table_plot(self, node):
+    pass
