@@ -101,14 +101,15 @@ def make_block_plot(block, title):
             else:
                 in_regs_names.append(name)
         for name in sequence.outputs[ts].keys():
-            if name in block.outputs:
-                _, field = block.outputs[name]
-                if field.cls == "bit_out":
-                    out_bits_names.append(name)
-                elif field.cls == "pos_out":
-                    out_positions_names.append(name)
-            else:
-                out_regs_names.append(name)
+            if name not in ['TABLE_STROBES']:
+                if name in block.outputs:
+                    _, field = block.outputs[name]
+                    if field.cls == "bit_out":
+                        out_bits_names.append(name)
+                    elif field.cls == "pos_out":
+                        out_positions_names.append(name)
+                else:
+                    out_regs_names.append(name)
 
     def bit_traces():
         trace_items = in_bits.items() + out_bits.items()
@@ -139,6 +140,20 @@ def make_block_plot(block, title):
             in_regs[name] = ([], [])
         elif name in out_regs_names:
             out_regs[name] = ([], [])
+
+    #add traces for sequencer tables
+    if block.name == 'SEQ':
+        in_regs['TABLE'] = ([],[])
+        table_count = 0
+        for ts in sequence.inputs:
+            for name in sequence.inputs[ts].keys():
+                if name == "TABLE_START":
+                    in_regs['TABLE'][0].append(ts)
+                    in_regs['TABLE'][1].append('load...')
+                if name == "TABLE_LENGTH":
+                    table_count += 1
+                    in_regs['TABLE'][0].append(ts)
+                    in_regs['TABLE'][1].append('T' + str(table_count))
 
     # fill in first point
     for name, (tracex, tracey) in bit_traces():
