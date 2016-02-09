@@ -45,20 +45,18 @@ If DELAY=0, then the INP pulse will be stretched with only the propogation delay
 of the block (1 clock tick). WIDTH may take any value, as long as input pulses
 are spaced enough to allow stretched pulses to be produced.
 
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("pulse", "Pulse stretching with no delay")
+.. sequence_plot::
+   :block: pulse
+   :title: Pulse stretching with no delay
 
 Zero Width
 ----------
 
 If WIDTH=0, then the INP pulse width will be used. DELAY must be >4 clock ticks.
 
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("pulse", "Pulse delay with no stretch")
+.. sequence_plot::
+   :block: pulse
+   :title: Pulse delay with no stretch
 
 Width and Delay
 ---------------
@@ -71,15 +69,13 @@ restrictions apply:
 * There must be >3 clock ticks where output is 0 between pulses. This means
   that WIDTH < T - 3 where T is the minimum INP pulse period
 
-.. plot::
+.. sequence_plot::
+   :block: pulse
+   :title: Pulse delay and stretch
 
-    from block_plot import make_block_plot
-    make_block_plot("pulse", "Pulse delay and stretch")
-
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("pulse", "Pulse train stretched and delayed")
+.. sequence_plot::
+   :block: pulse
+   :title: Pulse train stretched and delayed
 
 Pulse period error
 ------------------
@@ -87,8 +83,7 @@ Pulse period error
 The following example shows what happens when the period between pulses is too
 short.
 
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("pulse", "Stretched and delayed pulses too close together")
+.. sequence_plot::
+   :block: pulse
+   :title: Stretched and delayed pulses too close together
 

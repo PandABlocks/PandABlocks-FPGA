@@ -23,42 +23,35 @@ COUNT           Out Pos     Counter output value
 Testing Function Output
 ----------------------------
 
-.. plot::
+.. sequence_plot::
+   :block: counter
+   :title: Count Up
 
-    from block_plot import make_block_plot
-    make_block_plot("counter", "Count Up")
+.. sequence_plot::
+   :block: counter
+   :title: Count Down
 
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("counter", "Count Down")
-
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("counter", "Reverse Count")
+.. sequence_plot::
+   :block: counter
+   :title: Reverse Count
 
 If the Enable input goes low at the same time as a trigger, there will be no
 output value on the next clock tick.
 
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("counter", "Disable and trigger")
-
+.. sequence_plot::
+   :block: counter
+   :title: Disable and trigger
 
 If the step size is changed at the same time as a trigger input rising edge,
 the output value for that trigger will be the new step size.
 
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("counter", "Change step and trigger")
+.. sequence_plot::
+   :block: counter
+   :title: Change step and trigger
 
 If the count goes higher than the max value for a uint32 (4294967295) the CARRY
 output gets set high.
 
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("counter", "Overflow")
+.. sequence_plot::
+   :block: counter
+   :title: Overflow
