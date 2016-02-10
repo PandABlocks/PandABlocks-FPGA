@@ -273,8 +273,8 @@
 
 
 < TTLIN.VAL.*?
-> !CAPTURE_INDEX
-> !CAPTURE
+> !CAPTURE_WORD
+> !OFFSET
 > !INFO
 > .
 
@@ -440,39 +440,34 @@
 > .
 
 < TTLIN1.VAL.CAPTURE?
+< TTLIN1.VAL.CAPTURE_WORD?
+> ERR No such attribute
+> OK =PCAP.BITA
+
+< PCAP.BITA.CAPTURE?
 > OK =No
 
-< TTLIN1.VAL.CAPTURE=1
-< TTLIN1.VAL.CAPTURE=Triggered
+< *ENUMS.PCAP.BITA.CAPTURE?
+> !No
+> !Capture
+> .
+
+< PCAP.BITA.CAPTURE=1
+< PCAP.BITA.CAPTURE=Capture
 > ERR Not a valid capture option
 > OK
 
 < *CAPTURE?
-> !*BITS0
+> !PCAP.BITA
 > .
-
-< TTLIN1.VAL.CAPTURE_INDEX?
-> OK =0:2
 
 < INENC2.POSN.CAPTURE=Triggered
 > OK
 
 < *CAPTURE?
 > !INENC2.POSN
-> !*BITS0
+> !PCAP.BITA
 > .
-
-< TTLIN1.VAL.CAPTURE_INDEX?
-> OK =1:2
-
-< TTLIN2.VAL.CAPTURE=Triggered
-> OK
-
-< TTLIN2.VAL.CAPTURE_INDEX?
-> OK =1:3
-
-< INENC3.POSN.CAPTURE_INDEX?
-> OK =
 
 # Change reporting
 < *CHANGES.CONFIG=
@@ -681,6 +676,7 @@
 > !CAPTURE 2 param bit_mux
 > !CAPTURE_TS 6 ext_out timestamp
 > !ERR_STATUS 4 read uint
+> !INJECT 14 write uint
 > !FRAME 1 param bit_mux
 > !ADC_COUNT 9 ext_out adc_count
 > .
@@ -690,8 +686,8 @@
 > !No
 > !Triggered
 > !Difference
-> !Extended
 > !Average
+> !Extended
 > .
 
 < INENC1.POSN.CAPTURE=No
@@ -714,14 +710,13 @@
 < *ENUMS.PCAP.CAPTURE_TS.CAPTURE?
 < PCAP.CAPTURE_TS?
 > !No
-> !Short
-> !Long
+> !Trigger
+> !Frame
 > .
 > ERR Field not readable
 
 # At the moment the capture state for this field is stuck at No
-< PCAP.CAPTURE_TS.CAPTURE=Long
+< PCAP.CAPTURE_TS.CAPTURE=Frame
 < PCAP.CAPTURE_TS.CAPTURE?
 > OK
-> OK =No
-
+> OK =Frame
