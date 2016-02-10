@@ -97,9 +97,8 @@ signal FCLK_RESET0          : std_logic;
 
 signal data                 : unsigned(31 downto 0);
 
-constant TLP_SIZE           : integer := 128;           -- #of Burst Of 16 DWORDs
-constant BLOCK_SIZE         : integer := TLP_SIZE * 64; -- 8KByte
-constant DMA_SIZE           : integer := 10*BLOCK_SIZE;
+constant SAMPLE_SIZE        : integer := 1024*1024;
+constant BLOCK_SIZE         : integer := 8192;
 
 begin
 
@@ -218,21 +217,23 @@ port map (
     mem_wstb_o                  => mem_wstb
 );
 
-uut: entity work.panda_pcap_block
+uut: entity work.panda_pcap_top
 PORT MAP (
     clk_i                       => FCLK_CLK0,
     reset_i                     => FCLK_RESET0,
 
-    mem_cs_i                    => mem_cs(0),
-    mem_wstb_i                  => mem_wstb,
-    mem_addr_i                  => mem_addr(9 downto 0),
-    mem_dat_i                   => mem_odat,
-    mem_dat_o                   => open,
+    mem_addr_i => mem_addr,
+    mem_cs_i => mem_cs,
+    mem_wstb_i => mem_wstb,
+    mem_dat_i => mem_odat,
+    mem_dat_0_o => mem_read_data(PCAP_CS),
+    mem_dat_1_o => mem_read_data(DRV_CS),
 
     sysbus_i                    => sysbus,
     posbus_i                    => posbus,
     extbus_i                    => extbus,
     pcap_irq_o                  => IRQ_F2P(0),
+    pcap_actv_o                 => open,
 
     m_axi_awaddr                => S_AXI_HP0_awaddr,
     m_axi_awburst               => S_AXI_HP0_awburst,
@@ -263,23 +264,22 @@ PORT MAP (
 process
 begin
     data <= (others => '0');
-    PROC_CLK_EAT(3000, FCLK_CLK0);
+    PROC_CLK_EAT(5000, FCLK_CLK0);
     sysbus(0) <= '1';                       -- enable.
-    PROC_CLK_EAT(100, FCLK_CLK0);
-    L1 : FOR I IN 0 TO (DMA_SIZE/4)-1 LOOP
-        sysbus(1) <= '1';                   -- trigger.
+    PROC_CLK_EAT(1000, FCLK_CLK0);
+    L1 : FOR I IN 0 TO SAMPLE_SIZE-1 LOOP
+        sysbus(2) <= '1';                   -- trigger.
         PROC_CLK_EAT(1, FCLK_CLK0);
-        sysbus(1) <= '0';
-        PROC_CLK_EAT(2000, FCLK_CLK0);
+        sysbus(2) <= '0';
+        PROC_CLK_EAT(124, FCLK_CLK0);
         data <= data + 1;
     end loop;
     PROC_CLK_EAT(100, FCLK_CLK0);
     sysbus(0) <= '0';
+    PROC_CLK_EAT(12500, FCLK_CLK0);
 end process;
 
-sysbus(127 downto 96) <= std_logic_vector(data);
-
-posbus(1) <= std_logic_vector(data);
-extbus(1) <= std_logic_vector(data);
+posbus(12) <= std_logic_vector(data);
+posbus(13) <= std_logic_vector(data);
 
 end;

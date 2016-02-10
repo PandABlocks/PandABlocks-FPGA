@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pcap_dsp.vhd
+--  File:       panda_pcap_frame.vhd
 --  Desc:       Position capture module
 --
 --------------------------------------------------------------------------------
@@ -13,30 +13,31 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_pcap_dsp is
+entity panda_pcap_frame is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
 
+    -- Block register
+    FRAMING_MASK        : in  std_logic_vector(31 downto 0);
+    FRAMING_ENABLE      : in  std_logic;
+    FRAMING_MODE        : in  std_logic_vector(31 downto 0);
+
     -- Block input and outputs.
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
     extbus_i            : in  extbus_t;
-
     enable_i            : in  std_logic;
     frame_i             : in  std_logic;
     capture_i           : in  std_logic;
     capture_o           : out std_logic;
     posn_o              : out std32_array(63 downto 0);
-    -- Block register
-    FRAMING_MASK        : in  std_logic_vector(31 downto 0);
-    FRAMING_ENABLE      : in  std_logic;
-    FRAMING_MODE        : in  std_logic_vector(31 downto 0)
+    error_o             : out std_logic
 );
-end panda_pcap_dsp;
+end panda_pcap_frame;
 
-architecture rtl of panda_pcap_dsp is
+architecture rtl of panda_pcap_frame is
 
 signal frame_prev       : std_logic;
 signal capture_prev     : std_logic;
@@ -101,6 +102,7 @@ process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             ongoing_capture <= '0';
+            error_o <= '0';
         else
             if (enable_i = '1') then
                 -- If happens on the same clock, capture belongs the
@@ -116,6 +118,14 @@ process(clk_i) begin
                 end if;
             else
                 ongoing_capture <= '0';
+            end if;
+
+            -- Flag an error if more than one (1) capture pulse is received
+            -- within a frame.
+            error_o <= '0';
+
+            if (FRAMING_ENABLE = '1' and ongoing_capture = '1') then
+                error_o <= '1';
             end if;
         end if;
     end if;

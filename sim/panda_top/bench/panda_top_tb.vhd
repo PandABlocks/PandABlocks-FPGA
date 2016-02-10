@@ -51,16 +51,16 @@ signal leds             : std_logic_vector(1 downto 0);
 signal clk              : std_logic := '1';
 signal clk50            : std_logic := '1';
 
-signal A_IN_P           : std_logic_vector(3 downto 0) := "0000";
-signal B_IN_P           : std_logic_vector(3 downto 0) := "0000";
-signal Z_IN_P           : std_logic_vector(3 downto 0) := "0000";
+signal A_IN_P           : std_logic_vector(3 downto 0);
+signal B_IN_P           : std_logic_vector(3 downto 0);
+signal Z_IN_P           : std_logic_vector(3 downto 0);
 signal CLK_OUT_P        : std_logic_vector(3 downto 0);
-signal DATA_IN_P        : std_logic_vector(3 downto 0) := "0000";
+signal DATA_IN_P        : std_logic_vector(3 downto 0);
 
 signal A_OUT_P          : std_logic_vector(3 downto 0);
 signal B_OUT_P          : std_logic_vector(3 downto 0);
 signal Z_OUT_P          : std_logic_vector(3 downto 0);
-signal CLK_IN_P         : std_logic_vector(3 downto 0) := "0000";
+signal CLK_IN_P         : std_logic_vector(3 downto 0);
 signal DATA_OUT_P       : std_logic_vector(3 downto 0);
 
 signal inputs           : unsigned(15 downto 0) := X"0000";
@@ -77,11 +77,7 @@ signal spi_dat_i        : std_logic;
 signal spi_sclk_o       : std_logic;
 signal spi_dat_o        : std_logic;
 
--- #of Burst per Host Block. Each AXI3 burst has 16 strobes.
-constant TLP_SIZE       : integer := 128;
-
--- Host Block Size. Each TLP has 16 x 4 bytes.
-constant BLOCK_SIZE     : integer := TLP_SIZE * 64; -- 8KByte
+constant BLOCK_SIZE     : integer := 8192;
 
 begin
 
@@ -209,7 +205,10 @@ port map (
 );
 
 -- Loopback on SSI
---CLK_IN_P <= CLK_OUT_P;
---DATA_IN_P <= DATA_OUT_P;
+CLK_IN_P(0) <= CLK_OUT_P(0);
+DATA_IN_P(0) <= DATA_OUT_P(0);
+
+
+--CLK_IN_P(0) <= A_IN_P(0);
 
 end;

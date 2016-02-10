@@ -22,7 +22,7 @@ entity panda_slow_rx is
 generic (
     AW              : natural := 10;
     DW              : natural := 32;
-    CLKDIV          : natural := 100
+    CLKDIV          : natural := 125
 );
 port (
     clk_i           : in  std_logic;
@@ -41,7 +41,7 @@ architecture rtl of panda_slow_rx is
 
 -- Ticks in terms of internal serial clock period.
 -- SysClk / CLKDIV
-constant SYNCPERIOD             : natural := 8;
+constant SYNCPERIOD             : natural := 5; -- 5usec
 
 type sh_states is (sync, idle, shifting, data_valid);
 signal sh_state                 : sh_states;
@@ -55,7 +55,7 @@ signal link_up                  : std_logic;
 signal sdi                      : std_logic;
 signal sclk                     : std_logic;
 signal sclk_prev                : std_logic;
-signal sclkn                    : std_logic;
+signal sclkn_fall               : std_logic;
 
 begin
 
@@ -72,7 +72,7 @@ begin
     end if;
 end process;
 
-sclkn <= not sclk and sclk_prev;
+sclkn_fall <= not sclk and sclk_prev;
 
 --
 -- Generate serial clock to be used internally
@@ -108,14 +108,14 @@ begin
             -- Sync counter keeps track of sclk_i in two states.
             -- Transition to idle state makes sure that a reset is applied.
             if (sh_state = sync) then
-                if (sclkn = '1') then
+                if (sclkn_fall = '1') then
                     sync_counter := 0;
-                elsif (sclk_ce = '1') then
+                elsif (sclk_ce = '1' and sclk = '1') then
                     sync_counter := sync_counter + 1;
                 end if;
             -- Shifting state
             elsif (sh_state = shifting) then
-                if (sclkn = '1') then
+                if (sclkn_fall = '1') then
                     sync_counter := 0;
                 elsif (sclk_ce = '1') then
                     sync_counter := sync_counter + 1;
@@ -161,20 +161,20 @@ begin
                 when idle =>
                     sh_counter <= (others => '0');
                     rd_val_o <= '0';
-                    if (sclkn = '1') then
+                    if (sclkn_fall = '1') then
                         sh_state <= shifting;
                     end if;
 
                 -- Keep track of clock outputs and shift data out
                 when shifting =>
-                    if (sclkn = '1') then
+                    if (sclkn_fall = '1') then
                         shift_in <= shift_in(AW+DW-2 downto 0) & sdi;
                         sh_counter <= sh_counter + 1;
                     end if;
 
                     if (link_up = '0') then
                         sh_state <= sync;
-                    elsif (sclkn = '1' and sh_counter = AW+DW-1) then
+                    elsif (sclkn_fall = '1' and sh_counter = AW+DW-1) then
                         sh_state <= data_valid;
                     end if;
 

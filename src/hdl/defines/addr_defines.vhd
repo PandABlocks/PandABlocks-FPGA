@@ -52,11 +52,13 @@ constant REG_PCAP_DISARM : natural := 14;
 constant REG_SLOW_REGISTER_STATUS : natural := 15;
 
 -- DRV Block:
-constant DRV_PCAP_DMAADDR : natural := 0;
-constant DRV_PCAP_TIMEOUT : natural := 1;
-constant DRV_PCAP_IRQ_STATUS : natural := 2;
-constant DRV_PCAP_SMPL_COUNT : natural := 3;
-constant DRV_PCAP_BLOCK_SIZE : natural := 4;
+constant DRV_PCAP_DMA_RESET : natural := 0;
+constant DRV_PCAP_DMA_START : natural := 1;
+constant DRV_PCAP_DMA_ADDR : natural := 2;
+constant DRV_PCAP_TIMEOUT : natural := 3;
+constant DRV_PCAP_IRQ_STATUS : natural := 4;
+constant DRV_PCAP_SMPL_COUNT : natural := 5;
+constant DRV_PCAP_BLOCK_SIZE : natural := 6;
 
 -- TTLIN Block:
 constant TTLIN_TERM : natural := 0;
@@ -175,7 +177,7 @@ constant PGEN_CYCLES : natural := 3;
 constant PGEN_ENABLE : natural := 0;
 constant PGEN_TRIGGER : natural := 1;
 constant PGEN_TABLE_START : natural := 4;
-constant PGEN_TABLE_DATA : natural := 5;
+constant PGEN_TABLE_LENGTH : natural := 5;
 
 -- PCOMP Block:
 constant PCOMP_START : natural := 2;
@@ -189,8 +191,10 @@ constant PCOMP_FLTR_THOLD : natural := 9;
 constant PCOMP_LUT_ENABLE : natural := 10;
 constant PCOMP_ENABLE : natural := 0;
 constant PCOMP_POSN : natural := 1;
+constant PCOMP_FLTR_DIR : natural := 13;
+constant PCOMP_ERROR : natural := 14;
 constant PCOMP_TABLE_START : natural := 11;
-constant PCOMP_TABLE_DATA : natural := 12;
+constant PCOMP_TABLE_LENGTH : natural := 12;
 
 -- ADC Block:
 constant ADC_TRIGGER : natural := 0;
@@ -220,6 +224,7 @@ constant CLOCKS_D_PERIOD : natural := 3;
 -- SLOW Block:
 constant SLOW_FPGA_VERSION : natural := 0;
 constant SLOW_ENC_CONN : natural := 1;
+
 
 
 end addr_defines;

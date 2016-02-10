@@ -53,8 +53,8 @@ architecture rtl of panda_inenc_block is
 
 -- Block Configuration Registers
 signal PROTOCOL         : std_logic_vector(2 downto 0);
-signal CLKRATE          : std_logic_vector(15 downto 0);
-signal FRAMERATE        : std_logic_vector(15 downto 0);
+signal CLKRATE          : std_logic_vector(31 downto 0);
+signal FRAMERATE        : std_logic_vector(31 downto 0);
 signal BITS             : std_logic_vector(7 downto 0);
 signal SETP             : std_logic_vector(31 downto 0);
 signal SETP_WSTB        : std_logic;
@@ -71,7 +71,7 @@ begin
 mem_addr <= to_integer(unsigned(mem_addr_i));
 
 -- A write to a configuration register initiates a reset on the core
--- blocks.
+-- block.
 reset <= reset_i or (mem_cs_i and mem_wstb_i);
 
 --
@@ -98,11 +98,11 @@ begin
                 end if;
 
                 if (mem_addr = INENC_CLKRATE) then
-                    CLKRATE <= mem_dat_i(15 downto 0);
+                    CLKRATE <= mem_dat_i;
                 end if;
 
                 if (mem_addr = INENC_FRAMERATE) then
-                    FRAMERATE <= mem_dat_i(15 downto 0);
+                    FRAMERATE <= mem_dat_i;
                 end if;
 
                 if (mem_addr = INENC_BITS) then
@@ -154,7 +154,8 @@ port map (
 );
 
 --
--- Issue a Write command to Slow Controller
+-- Issue a Write command to Slow Controller when a write is detected on
+-- PROTOCOL register
 --
 SLOW_WRITE : process(clk_i)
 begin

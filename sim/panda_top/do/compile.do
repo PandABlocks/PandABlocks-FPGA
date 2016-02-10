@@ -23,7 +23,6 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/pulse2pulse.vhd" \
 "${SRC}/panda_busses.vhd" \
 "${SRC}/panda_csr_if.vhd" \
-"${SRC}/panda_spbram.vhd" \
 "${SRC}/panda_ttlout_block.vhd" \
 "${SRC}/panda_ttlout_top.vhd" \
 "${SRC}/panda_ttlin_top.vhd" \
@@ -75,11 +74,13 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_reg.vhd" \
 "${SRC}/panda_reg_top.vhd" \
 "${SRC}/panda_axi3_write_master.vhd" \
-"${SRC}/panda_pcap.vhd" \
 "${SRC}/panda_pcap_ctrl.vhd" \
 "${SRC}/panda_pcap_posproc.vhd" \
-"${SRC}/panda_pcap_dsp.vhd" \
+"${SRC}/panda_pcap_frame.vhd" \
+"${SRC}/panda_pcap_arming.vhd" \
 "${SRC}/panda_pcap_buffer.vhd" \
+"${SRC}/panda_pcap_core.vhd" \
+"${SRC}/panda_pcap_dma.vhd" \
 "${SRC}/panda_pcap_top.vhd" \
 "${SRC}/panda_slow_tx.vhd" \
 "${SRC}/panda_slow_rx.vhd" \
@@ -104,6 +105,9 @@ vlog -work xil_defaultlib "../bench/incr_encoder_model.v" \
 
 vcom -64 -93 -work xil_defaultlib  \
 "../bench/test_interface.vhd" \
+"../bench/SN65HVD05D.vhd" \
+"../bench/SN75LBC174A.vhd" \
+"../bench/SN75LBC175A.vhd" \
 "../bench/daughter_card_model.vhd" \
 "../bench/panda_top_tb.vhd"
 

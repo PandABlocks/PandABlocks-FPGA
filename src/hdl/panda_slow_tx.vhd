@@ -22,7 +22,7 @@ entity panda_slow_tx is
 generic (
     AW              : natural := 10;
     DW              : natural := 32;
-    CLKDIV          : natural := 100
+    CLKDIV          : natural := 125
 );
 port (
     clk_i           : in  std_logic;
@@ -42,7 +42,7 @@ end panda_slow_tx;
 architecture rtl of panda_slow_tx is
 
 -- Ticks in terms of internal serial clock period.
-constant DEADPERIOD             : natural := 10;
+constant DEADPERIOD             : natural := 10;    -- 10usec
 
 type sh_states is (idle, sync, shifting, deadtime);
 signal sh_state                 : sh_states;

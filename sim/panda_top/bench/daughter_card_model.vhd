@@ -4,23 +4,20 @@ USE ieee.std_logic_1164.ALL;
 library unisim;
 use unisim.vcomponents.all;
 
-library work;
-use work.test_interface.all;
-
 entity daughter_card_model is
 port (
     -- Front Panel via DB15
-    A_IN_P      : in  std_logic;
-    B_IN_P      : in  std_logic;
-    Z_IN_P      : in  std_logic;
-    CLK_OUT_P   : out std_logic;
-    DATA_IN_P   : in  std_logic;
+    A_IN_P      : in    std_logic;
+    B_IN_P      : in    std_logic;
+    Z_IN_P      : in    std_logic;
+    CLK_OUT_P   : inout std_logic;
+    DATA_IN_P   : inout std_logic;
 
-    A_OUT_P     : out std_logic;
-    B_OUT_P     : out std_logic;
-    Z_OUT_P     : out std_logic;
-    CLK_IN_P    : in  std_logic;
-    DATA_OUT_P  : out std_logic;
+    A_OUT_P     : out   std_logic;
+    B_OUT_P     : out   std_logic;
+    Z_OUT_P     : out   std_logic;
+    CLK_IN_P    : inout std_logic;
+    DATA_OUT_P  : inout std_logic;
 
     -- FMC Interface
     A_IN        : inout  std_logic;
@@ -44,11 +41,6 @@ signal CTRL_IN_N    : std_logic_vector(11 downto 0);
 
 begin
 
--- Not used
-CTRL_OUT <= "0000";
-
-CTRL_IN_N <= not CTRL_IN;
-
 -- These are the 74VHD153 Multiplexer chips on the board.
 process(CTRL_IN)
 begin
@@ -70,36 +62,77 @@ begin
 
 end process;
 
--- Input/Master Buffers
-AIN: IOBUF port map (
-I=>A_IN_P, O=>open, T=>CTRL_IN_N(0), IO=>A_IN);
 
-BIN: IOBUF port map (
-I=>B_IN_P, O=>open, T=>CTRL_IN_N(0), IO=>B_IN);
+SN75LBC175A_inst : entity work.SN75LBC175A
+port map (
+    Y1     => A_IN,
+    Y2     => B_IN,
+    Y3     => Z_IN,
+    Y4     => open,
 
-ZIN: IOBUF port map (
-I=>Z_IN_P, O=>open, T=>CTRL_IN_N(1), IO=>Z_IN);
+    A1     => A_IN_P,
+    A2     => B_IN_P,
+    A3     => Z_IN_P,
+    A4     => '0',
 
---CLK_OUT: IOBUF port map (
---I=>'0', O=>CLK_OUT_P, T=>'1', IO=>B_IN);
---
---DATA_IN: IOBUF port map (
---I=>DATA_IN_P, O=>open, T=>mux1(1), IO=>A_IN);
+    EN12    => CTRL_IN(0),
+    EN34    => CTRL_IN(1)
+);
 
--- Output/Slave Buffers
-AOUT: IOBUF port map (
-I=>'0', O=>A_OUT_P, T=>CTRL_IN(2), IO=>A_OUT);
+SN75LBC174A_inst : entity work.SN75LBC174A
+port map (
+    A1     => A_OUT,
+    A2     => B_OUT,
+    A3     => Z_OUT,
+    A4     => open,
 
-BOUT: IOBUF port map (
-I=>'0', O=>B_OUT_P, T=>CTRL_IN(2), IO=>B_OUT);
+    Y1     => A_OUT_P,
+    Y2     => B_OUT_P,
+    Y3     => Z_OUT_P,
+    Y4     => open,
 
-ZOUT: IOBUF port map (
-I=>'0', O=>Z_OUT_P, T=>CTRL_IN(3), IO=>Z_OUT);
+    EN12    => CTRL_IN(2),
+    EN34    => CTRL_IN(3)
+);
 
---CLK_IN: IOBUF port map (
---I=>CLK_IN_P, O=>open, T=>CTRL_IN(5), IO=>B_OUT);
---
---DATA_OUT: IOBUF port map (
---I=>'0', O=>DATA_OUT_P, T=>mux2(0), IO=>A_OUT);
+SN65HVD05D_u10 : entity work.SN65HVD05D
+port map (
+    A       => DATA_IN_P,
+
+    R       => A_IN,
+    REn     => mux1(1),
+    DE      => mux1(0),
+    D       => A_IN
+);
+
+SN65HVD05D_u12 : entity work.SN65HVD05D
+port map (
+    A       => CLK_OUT_P,
+
+    R       => open,
+    REn     => '1',
+    DE      => CTRL_IN(4),
+    D       => B_IN
+);
+
+SN65HVD05D_u15 : entity work.SN65HVD05D
+port map (
+    A       => DATA_OUT_P,
+
+    R       => A_OUT,
+    REn     => mux2(1),
+    DE      => mux2(0),
+    D       => A_OUT
+);
+
+SN65HVD05D_u16 : entity work.SN65HVD05D
+port map (
+    A       => CLK_IN_P,
+
+    R       => B_OUT,
+    REn     => CTRL_IN(5),
+    DE      => '0',
+    D       => open
+);
 
 end;

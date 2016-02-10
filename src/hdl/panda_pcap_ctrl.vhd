@@ -29,7 +29,6 @@ port (
     ENABLE              : out std_logic_vector(SBUSBW-1 downto 0);
     FRAME               : out std_logic_vector(SBUSBW-1 downto 0);
     CAPTURE             : out std_logic_vector(SBUSBW-1 downto 0);
-    MISSED_CAPTURES     : in  std_logic_vector(31 downto 0);
     ERR_STATUS          : in  std_logic_vector(31 downto 0);
 
     START_WRITE         : out std_logic;
@@ -41,12 +40,13 @@ port (
     ARM                 : out std_logic;
     DISARM              : out std_logic;
 
-    DMAADDR             : out std_logic_vector(31 downto 0);
-    DMAADDR_WSTB        : out std_logic;
+    DMA_RESET           : out std_logic;
+    DMA_START           : out std_logic;
+    DMA_ADDR            : out std_logic_vector(31 downto 0);
+    DMA_ADDR_WSTB       : out std_logic;
     BLOCK_SIZE          : out std_logic_vector(31 downto 0);
     TIMEOUT             : out std_logic_vector(31 downto 0);
-    IRQ_STATUS          : in  std_logic_vector(31 downto 0);
-    SMPL_COUNT          : in  std_logic_vector(31 downto 0)
+    IRQ_STATUS          : in  std_logic_vector(31 downto 0)
 );
 end panda_pcap_ctrl;
 
@@ -154,19 +154,33 @@ REG_DRV_SPACE : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            DMAADDR <= (others => '0');
-            DMAADDR_WSTB <= '0';
+            DMA_RESET <= '0';
+            DMA_START <= '0';
+            DMA_ADDR <= (others => '0');
+            DMA_ADDR_WSTB <= '0';
             BLOCK_SIZE <= TO_SVECTOR(8192, 32);
             TIMEOUT <= TO_SVECTOR(0, 32);
         else
             -- Single clock pulse
-            DMAADDR_WSTB <= '0';
+            DMA_RESET <= '0';
+            DMA_START <= '0';
+            DMA_ADDR_WSTB <= '0';
 
             if (mem_cs_i(DRV_CS) = '1' and mem_wstb_i = '1') then
+                -- DMA Engine reset.
+                if (mem_addr = DRV_PCAP_DMA_RESET) then
+                    DMA_RESET <= '1';
+                end if;
+
+                -- DMA Engine Enable.
+                if (mem_addr = DRV_PCAP_DMA_START) then
+                    DMA_START <= '1';
+                end if;
+
                 -- DMA block address
-                if (mem_addr = DRV_PCAP_DMAADDR) then
-                    DMAADDR <= mem_dat_i;
-                    DMAADDR_WSTB <= '1';
+                if (mem_addr = DRV_PCAP_DMA_ADDR) then
+                    DMA_ADDR <= mem_dat_i;
+                    DMA_ADDR_WSTB <= '1';
                 end if;
 
                 -- Host DMA Block memory size [in Bytes].
@@ -191,8 +205,6 @@ begin
             mem_dat_1_o <= (others => '0');
         else
             case (mem_addr) is
-                when PCAP_MISSED_CAPTURES =>
-                    mem_dat_0_o <= MISSED_CAPTURES;
                 when PCAP_ERR_STATUS =>
                     mem_dat_0_o <= ERR_STATUS;
                 when others =>
@@ -202,8 +214,6 @@ begin
             case (mem_addr) is
                 when DRV_PCAP_IRQ_STATUS =>
                     mem_dat_1_o <= IRQ_STATUS;
-                when DRV_PCAP_SMPL_COUNT =>
-                    mem_dat_1_o <= SMPL_COUNT;
                 when others =>
                     mem_dat_1_o <= (others => '0');
             end case;

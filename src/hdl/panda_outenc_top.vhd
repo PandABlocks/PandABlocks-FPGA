@@ -50,12 +50,10 @@ signal ao,bo, zo            : std_logic_vector(ENC_NUM-1 downto 0);
 signal sclk                 : std_logic_vector(ENC_NUM-1 downto 0);
 signal sdato                : std_logic_vector(ENC_NUM-1 downto 0);
 signal sdati                : std_logic_vector(ENC_NUM-1 downto 0);
-
 signal sdat_dir             : std_logic_vector(ENC_NUM-1 downto 0);
+signal slow_tlp             : slow_packet_array(ENC_NUM-1 downto 0);
 
 signal mem_read_data        : std32_array(ENC_NUM-1 downto 0);
-
-signal slow_tlp         : slow_packet_array(ENC_NUM-1 downto 0);
 
 begin
 

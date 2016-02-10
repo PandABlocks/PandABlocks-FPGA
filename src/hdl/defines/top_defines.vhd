@@ -7,9 +7,18 @@ use work.type_defines.all;
 
 package top_defines is
 
---
---  CONSTANTs :
---
+--------------------------------------------------------------------------
+-- Enable Module Instantiations
+constant DIV_INST               : boolean := false;
+constant PULSE_INST             : boolean := false;
+constant SEQ_INST               : boolean := false;
+constant INENC_INST             : boolean := false;
+constant OUTENC_INST            : boolean := false;
+constant PCOMP_INST             : boolean := false;
+constant PCAP_INST              : boolean := true;
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------------
 -- Memory Setup Parameters
 -- Total of 128KByte memory is divided into 32 pages of 4K each.
 -- Each page can address 16 design blocks
@@ -21,9 +30,9 @@ constant PAGE_NUM               : natural := 5;
 constant PAGE_AW                : natural := 10;
 -- Number of DWORS per block = 2**BLK_AW
 constant BLK_AW                 : natural := 6;
+--------------------------------------------------------------------------
 
-
--- Block instantiation numbers
+-- Block instantiation numbers--------------------------------------------
 constant TTLIN_NUM          : positive := 6;
 constant TTLOUT_NUM         : positive := 10;
 constant LVDSIN_NUM         : positive := 2;
@@ -39,6 +48,7 @@ constant ENC_NUM            : positive := 4;
 constant PCOMP_NUM          : positive := 4;
 constant SEQ_NUM            : positive := 4;
 constant BITS_NUM           : positive := 1;
+--------------------------------------------------------------------------
 
 -- Bit Bus Width, Multiplexer Select Width.
 constant SBUSW              : positive := 128;

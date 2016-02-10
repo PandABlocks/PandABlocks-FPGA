@@ -120,8 +120,7 @@ port map (
     enc_bits_i      => BITS,
     ssi_sck_i       => sclk_i,
     ssi_dat_o       => sdat_o,
-    posn_i          => posn_i,
-    ssi_rd_sof      => open
+    posn_i          => posn_i
 );
 
 end rtl;

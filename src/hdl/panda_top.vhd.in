@@ -290,7 +290,6 @@ signal pcomp_act            : std_logic_vector(PCOMP_NUM-1 downto 0);
 signal pcomp_pulse          : std_logic_vector(PCOMP_NUM-1 downto 0);
 
 signal panda_spbram_wea     : std_logic := '0';
-signal irq_enable           : std_logic := '0';
 
 signal pcap_act             : std_logic_vector(0 downto 0);
 
@@ -544,9 +543,11 @@ port map (
     out_o               => srgate_val
 );
 
---
+---------------------------------------------------------------------------
 -- DIVIDER
---
+---------------------------------------------------------------------------
+DIV_GEN : IF (DIV_INST = true) GENERATE
+
 div_inst : entity work.panda_div_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -565,9 +566,13 @@ port map (
     outn_o              => div_outn
 );
 
---
+END GENERATE;
+
+---------------------------------------------------------------------------
 -- PULSE GENERATOR
---
+---------------------------------------------------------------------------
+PULSE_GEN : IF (PULSE_INST = true) GENERATE
+
 pulse_inst : entity work.panda_pulse_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -585,9 +590,13 @@ port map (
     perr_o              => pulse_perr
 );
 
---
+END GENERATE;
+
+---------------------------------------------------------------------------
 -- SEQEUENCER
---
+---------------------------------------------------------------------------
+SEQ_GEN : IF (SEQ_INST = true) GENERATE
+
 seq_inst : entity work.panda_sequencer_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -610,9 +619,13 @@ port map (
     active_o            => seq_act
 );
 
---
+END GENERATE;
+
+---------------------------------------------------------------------------
 -- INENC (Encoder Inputs)
---
+---------------------------------------------------------------------------
+INENC_GEN : IF (INENC_INST = true) GENERATE
+
 inenc_inst : entity work.panda_inenc_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -638,9 +651,13 @@ port map (
     posn_o              => posn_inenc_low
 );
 
---
+END GENERATE;
+
+---------------------------------------------------------------------------
 -- OUTENC (Encoder Inputs)
---
+---------------------------------------------------------------------------
+OUTENC_GEN : IF (OUTENC_INST = true) GENERATE
+
 outenc_inst : entity work.panda_outenc_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -664,6 +681,8 @@ port map (
     posbus_i            => posbus
 );
 
+END GENERATE;
+
 --
 -- COUNTER/TIMER
 --
@@ -685,9 +704,11 @@ port map (
     count_o             => posn_counter
 );
 
---
+---------------------------------------------------------------------------
 -- POSITION COMPARE
---
+---------------------------------------------------------------------------
+PCOMP_GEN : IF (PCOMP_INST = true) GENERATE
+
 pcomp_inst : entity work.panda_pcomp_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -707,9 +728,13 @@ port map (
     pulse_o             => pcomp_pulse
 );
 
---
+END GENERATE;
+
+---------------------------------------------------------------------------
 -- POSITION CAPTURE
---
+---------------------------------------------------------------------------
+PCAP_GEN : IF (PCAP_INST = true) GENERATE
+
 pcap_inst : entity work.panda_pcap_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -751,6 +776,8 @@ port map (
     pcap_actv_o         => pcap_act(0),
     pcap_irq_o          => IRQ_F2P(0)
 );
+
+END GENERATE;
 
 --
 -- REG (System, Position Bus and Special Register Readbacks)

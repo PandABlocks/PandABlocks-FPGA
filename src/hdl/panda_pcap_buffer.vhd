@@ -26,8 +26,7 @@ port (
     -- Output pulses
     pcap_dat_o          : out std_logic_vector(31 downto 0);
     pcap_dat_valid_o    : out std_logic;
-    ongoing_capture_o   : out std_logic
-
+    error_o             : out std_logic
 );
 end panda_pcap_buffer;
 
@@ -43,7 +42,6 @@ signal mask_doutb       : std_logic_vector(31 downto 0);
 begin
 
 pcap_dat_o <= capture_data_lt(to_integer(mask_doutb));
-ongoing_capture_o <= ongoing_capture;
 
 --
 -- Position Bus capture mask is implemented using a Block RAM to
@@ -92,14 +90,15 @@ process(clk_i) begin
             ongoing_capture <= '0';
             mask_addrb <= (others => '0');
             mask_addrb <= (others => '0');
+            error_o <= '0';
         else
-            -- Latch all capture fields on rising edge of capture only when
-            -- position capture is enabled.
-            if (capture_i = '1') then
+            -- Latch all capture fields on rising edge of capture, ignore
+            -- if a new capture arrives.
+            if (capture_i = '1' and ongoing_capture = '0') then
                 capture_data_lt <= fatpipe_i;
             end if;
 
-            -- Capture ongoing flag runs while mask buffer is read through.
+            -- Ongoing flag runs while mask buffer is read through.
             if (capture_i = '1') then
                 ongoing_capture <= '1';
             elsif (mask_addrb = mask_length - 1) then
@@ -116,9 +115,18 @@ process(clk_i) begin
 
             -- Generate pcap data and write strobe.
             pcap_dat_valid_o <= ongoing_capture;
+
+            -- Flag an error when a capture pulse is received during an ongoing 
+            -- capture
+            error_o <= '0';
+            if (ongoing_capture = '1' and capture_i = '1') then
+                error_o <= '1';
+            end if;
         end if;
     end if;
 end process;
+
+
 
 end rtl;
 

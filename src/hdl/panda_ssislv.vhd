@@ -16,7 +16,7 @@
 --  Limitations & Assumptions:
 -----------------------------------------------------------------------------
 --  Known Errors: This design is still under test. Please send any bug
---reports to isa.uzun@diamond.ac.uk
+--  reports to isa.uzun@diamond.ac.uk
 -----------------------------------------------------------------------------
 --  TO DO List:
 -----------------------------------------------------------------------------
@@ -24,10 +24,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-
-library work;
-use work.type_defines.all;
-use work.addr_defines.all;
 
 entity panda_ssislv is
 generic (
@@ -43,52 +39,76 @@ port (
     ssi_sck_i           : in  std_logic;
     ssi_dat_o           : out std_logic;
     -- parallel interface
-    posn_i              : in  std_logic_vector(31 downto 0);
-    -- status
-    ssi_rd_sof          : out std_logic
+    posn_i              : in  std_logic_vector(31 downto 0)
 );
 end entity;
 
 architecture rtl of panda_ssislv is
 
-type state_t is (IDLE, TX, LAST, DEAD);
+constant SYNCPERIOD         : natural := 125 * 5;  -- 5usec
 
-signal state                : state_t;
+type state_t is (sync, idle, shifting, data_valid);
+signal sh_state             : state_t;
 
-signal enc_dat_slr          : std_logic_vector(31 downto 0);
-signal ssi_sck_d1           : std_logic := '1';
-signal ssi_sck_d2           : std_logic := '1';
-signal ssi_sck_rise         : std_logic;
-signal tcount               : unsigned(9 downto 0);
+signal sync_counter         : natural range 0 to SYNCPERIOD;
+signal shift_out            : std_logic_vector(31 downto 0);
+signal sclk                 : std_logic;
+signal sclk_prev            : std_logic;
+signal sclk_rise            : std_logic;
+signal sh_counter           : unsigned(5 downto 0);
+signal link_up              : std_logic;
 
 begin
-
--- Flags start of SSI read cycle
-ssi_rd_sof <= '1' when (state = IDLE and ssi_sck_d2 = '0')
-                else '0';
-
--- Timeout counter used for keeping track of incoming
--- bits. If a new clock edge does not arrive in 512
--- clock cycles (~10us), resets the state machine
-timeout_gen : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        -- Reset timeout counter on clock rise
-        if (state = IDLE or ssi_sck_rise = '1') then
-            tcount <= (others => '0');
-        elsif (state = TX) then
-            tcount <= tcount + 1;
-        end if;
-    end if;
-end process;
 
 -- Register input SSI clock
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        ssi_sck_d1 <= ssi_sck_i;
-        ssi_sck_d2 <= ssi_sck_d1;
-        ssi_sck_rise <= ssi_sck_d1 and not ssi_sck_d2;
+        sclk <= ssi_sck_i;
+        sclk_prev <= sclk;
+    end if;
+end process;
+
+sclk_rise <= sclk and not sclk_prev;
+
+process (clk_i)
+begin
+    if (rising_edge(clk_i)) then
+        if (reset_i = '1') then
+            link_up <= '0';
+            sync_counter <= 0;
+        else
+            -- Sync counter keeps track of sclk_i in two states.
+            -- Transition to idle state makes sure that a reset is applied.
+            if (sh_state = sync) then
+                if (sclk = '1') then
+                    sync_counter <= sync_counter + 1;
+                else
+                    sync_counter <= 0;
+                end if;
+
+                -- Link is up.
+                if (sync_counter = SYNCPERIOD-1) then
+                    link_up <= '1';
+                    sync_counter <= 0;
+                end if;
+            -- Shifting state, look for clock transitions.
+            elsif (sh_state = shifting) then
+                if (sclk_rise = '1') then
+                    sync_counter <= 0;
+                else
+                    sync_counter <= sync_counter + 1;
+                end if;
+
+                -- Link is lost.
+                if (sync_counter = SYNCPERIOD-1) then
+                    link_up <= '0';
+                    sync_counter <= 0;
+                end if;
+            else
+                sync_counter <= 0;
+            end if;
+        end if;
     end if;
 end process;
 
@@ -96,51 +116,44 @@ end process;
 -- SSI Slave State Machine
 --
 process(clk_i)
-    variable bitcount       : unsigned(7 downto 0);
-    variable dcount         : integer range 2500 downto 0;
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            state <= IDLE;
-            bitcount := (others => '0');
-            dcount := 0;
+            sh_state <= SYNC;
+            sh_counter <= (others => '0');
         else
-            case (state) is
-                -- First Low-transition indicates incoming clock stream
-                when IDLE =>
-                    if (ssi_sck_d2 = '0') then
-                        state <= TX;
+            case (sh_state) is
+                -- Detect 
+                when SYNC =>
+                    sh_counter <= (others => '0');
+                    if (link_up = '1') then
+                        sh_state <= idle;
                     end if;
-                    bitcount := (others => '0');
-                    dcount := 0;
+
+                -- First Low-transition indicates incoming clock stream
+                when idle =>
+                    sh_counter <= (others => '0');
+                    if (sclk_prev = '0') then
+                        sh_state <= shifting;
+                    end if;
+
                 -- Keep track of incoming ssi clocks
-                when TX =>
-                    if (ssi_sck_rise = '1') then
-                        bitcount := bitcount + 1;
+                when shifting =>
+                    if (sclk_rise = '1') then
+                        sh_counter <= sh_counter + 1;
                     end if;
 
                     -- On clock wait timeout go back to idle, OR
                     -- N bits successfully received and wait for clk='1'
-                    if (tcount(9) = '1') then
-                        state <= IDLE;
-                    elsif (bitcount = unsigned(enc_bits_i)) then
-                        state <= LAST;
+                    if (link_up = '0') then
+                        sh_state <= sync;
+                    elsif (sh_counter = unsigned(enc_bits_i) + 1) then
+                        sh_state <= data_valid;
                     end if;
 
                 -- Wait for clock to be asserted to '1' by master
-                when LAST =>
-                    if (tcount(9) = '1') then
-                        state <= IDLE;
-                    elsif (ssi_sck_rise = '1') then
-                        state <= DEAD;
-                    end if;
-
-                -- Wait for 25us deadtime before accepting new request
-                when DEAD =>
-                    dcount := dcount + 1;
-                    if (dcount = 2500) then
-                        state <= IDLE;
-                    end if;
+                when data_valid =>
+                        sh_state <= idle;
 
                 when others =>
 
@@ -154,25 +167,25 @@ process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            enc_dat_slr <= (others => '0');
+            shift_out <= (others => '0');
             ssi_dat_o <= '1';
         else
-            -- Latch encoder value to be shifted in idle state, and
-            if (state = IDLE and ssi_sck_d2 = '0') then
-                enc_dat_slr <= posn_i;
-            elsif (state = TX and ssi_sck_rise = '1') then
-                enc_dat_slr <= enc_dat_slr(30 downto 0) & enc_dat_slr(31);
+            -- Latch encoder value to be shifted in idle sh_state, and
+            if (sh_state = idle and sclk_prev = '0') then
+                shift_out <= posn_i;
+            elsif (sh_state = shifting and sclk_rise = '1') then
+                shift_out <= shift_out(30 downto 0) & shift_out(31);
             end if;
 
-            -- Shift bits in TX state on incoming clock
+            -- Shift bits in shifting sh_state on incoming clock
             -- Data is set to '1' during idle
             -- Data is set to '0' during dead period
-            if (state = IDLE) then
+            if (sh_state = idle) then
                 ssi_dat_o <= '1';
-            elsif (state = DEAD) then
+            elsif (sh_state = data_valid) then
                 ssi_dat_o <= '0';
-            elsif (state = TX and ssi_sck_rise = '1') then
-                ssi_dat_o <= enc_dat_slr(to_integer(unsigned(enc_bits_i))-1);
+            elsif (sh_state = shifting and sclk_rise = '1') then
+                ssi_dat_o <= shift_out(to_integer(unsigned(enc_bits_i))-1);
             end if;
         end if;
     end if;

@@ -43,8 +43,8 @@ port (
     conn_o              : out std_logic;
     -- Block Parameters
     PROTOCOL            : in  std_logic_vector(2 downto 0);
-    CLKRATE             : in  std_logic_vector(15 downto 0);
-    FRAMERATE           : in  std_logic_vector(15 downto 0);
+    CLKRATE             : in  std_logic_vector(31 downto 0);
+    FRAMERATE           : in  std_logic_vector(31 downto 0);
     BITS                : in  std_logic_vector(7 downto 0);
     SETP                : in  std_logic_vector(31 downto 0);
     SETP_WSTB           : in  std_logic;
@@ -123,7 +123,7 @@ port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     enc_bits_i      => BITS,
-    enc_presc_i     => CLKRATE,
+    sclk_presc_i    => CLKRATE,
     enc_rate_i      => FRAMERATE,
     ssi_sck_o       => mclk_o,
     ssi_dat_i       => mdat_i,

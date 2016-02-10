@@ -67,7 +67,6 @@ architecture rtl of panda_pcap_top is
 signal ENABLE_VAL       : std_logic_vector(SBUSBW-1 downto 0);
 signal FRAME_VAL        : std_logic_vector(SBUSBW-1 downto 0);
 signal CAPTURE_VAL      : std_logic_vector(SBUSBW-1 downto 0);
-signal MISSED_CAPTURES  : unsigned(31 downto 0);
 signal ERR_STATUS       : std_logic_vector(31 downto 0);
 
 signal ARM              : std_logic;
@@ -78,44 +77,30 @@ signal WRITE_WSTB       : std_logic;
 signal FRAMING_MASK     : std_logic_vector(31 downto 0);
 signal FRAMING_ENABLE   : std_logic;
 signal FRAMING_MODE     : std_logic_vector(31 downto 0);
-signal DMAADDR          : std_logic_vector(31 downto 0);
-signal DMAADDR_WSTB     : std_logic;
+signal DMA_RESET        : std_logic;
+signal DMA_START        : std_logic;
+signal DMA_ADDR         : std_logic_vector(31 downto 0);
+signal DMA_ADDR_WSTB    : std_logic;
 signal BLOCK_SIZE       : std_logic_vector(31 downto 0);
 signal TIMEOUT          : std_logic_vector(31 downto 0);
-signal IRQ_STATUS       : std_logic_vector(3 downto 0);
-signal SMPL_COUNT       : std_logic_vector(31 downto 0);
+signal IRQ_STATUS       : std_logic_vector(31 downto 0);
 
 signal enable           : std_logic;
-signal enable_prev      : std_logic;
-signal enable_fall      : std_logic;
 signal capture          : std_logic;
-signal capture_prev     : std_logic;
 signal frame            : std_logic;
 
-signal capture_pulse    : std_logic;
-signal ongoing_capture  : std_logic;
-
 signal capture_data     : std32_array(63 downto 0);
-signal pcap_dat         : std_logic_vector(31 downto 0) := (others => '0');
-signal pcap_wstb        : std_logic := '0';
+signal pcap_dat         : std_logic_vector(31 downto 0);
+signal pcap_dat_valid   : std_logic;
 
-signal INT_DISARM       : std_logic;
-
-signal pcap_armed       : std_logic;
-signal pcap_enabled     : std_logic;
-signal pcap_disarmed    : std_logic_vector(1 downto 0);
-signal pcap_fifo_rst    : std_logic := '0';
-
--- Mask BRAM signals
-signal mask_length      : unsigned(5 downto 0);
-signal mask_addra       : unsigned(5 downto 0);
-signal mask_addrb       : unsigned(5 downto 0);
-signal mask_doutb       : std_logic_vector(31 downto 0);
+signal dma_fifo_reset   : std_logic;
+signal dma_fifo_ready   : std_logic;
+signal pcap_status      : std_logic_vector(2 downto 0);
+signal pcap_actv        : std_logic;
 
 begin
 
--- Assign outputs.
-pcap_actv_o <= pcap_armed;
+pcap_actv_o <= pcap_actv;
 
 -- Bitbus Assignments.
 process(clk_i) begin
@@ -127,9 +112,6 @@ process(clk_i) begin
         frame <= SBIT(sysbus_i, FRAME_VAL) and enable;
     end if;
 end process;
-
--- Detect rise/falling edge of internal signals.
-enable_fall <= not enable and enable_prev;
 
 --
 -- Block Control Register Interface.
@@ -149,7 +131,6 @@ port map (
     ENABLE                  => ENABLE_VAL,
     FRAME                   => FRAME_VAL,
     CAPTURE                 => CAPTURE_VAL,
-    MISSED_CAPTURES         => std_logic_vector(MISSED_CAPTURES),
     ERR_STATUS              => ERR_STATUS,
 
     START_WRITE             => START_WRITE,
@@ -161,107 +142,91 @@ port map (
     ARM                     => ARM,
     DISARM                  => DISARM,
 
-    DMAADDR                 => DMAADDR,
-    DMAADDR_WSTB            => DMAADDR_WSTB,
+    DMA_RESET               => DMA_RESET,
+    DMA_START               => DMA_START,
+    DMA_ADDR                => DMA_ADDR,
+    DMA_ADDR_WSTB           => DMA_ADDR_WSTB,
     BLOCK_SIZE              => BLOCK_SIZE,
     TIMEOUT                 => TIMEOUT,
-    IRQ_STATUS(3 downto 0)  => IRQ_STATUS,
-    IRQ_STATUS(31 downto 4) => (others => '0'),
-    SMPL_COUNT              => SMPL_COUNT
+    IRQ_STATUS              => IRQ_STATUS
 );
 
---
--- Position Capture Data Processing
---
-pcap_dsp_inst : entity work.panda_pcap_dsp
+pcap_core : entity work.panda_pcap_core
 port map (
-    clk_i               => clk_i,
-    reset_i             => reset_i,
+    clk_i                   => clk_i,
+    reset_i                 => reset_i,
 
-    posbus_i            => posbus_i,
-    sysbus_i            => sysbus_i,
-    extbus_i            => extbus_i,
+    START_WRITE             => START_WRITE,
+    WRITE                   => WRITE,
+    WRITE_WSTB              => WRITE_WSTB,
+    FRAMING_MASK            => FRAMING_MASK,
+    FRAMING_ENABLE          => FRAMING_ENABLE,
+    FRAMING_MODE            => FRAMING_MODE,
+    ARM                     => ARM,
+    DISARM                  => DISARM,
+    ERR_STATUS              => ERR_STATUS,
 
-    enable_i            => enable,
-    frame_i             => frame,
-    capture_i           => capture,
-    capture_o           => capture_pulse,
-    posn_o              => capture_data,
+    enable_i                => enable,
+    capture_i               => capture,
+    frame_i                 => frame,
+    dma_fifo_ready_i        => dma_fifo_ready,
+    sysbus_i                => sysbus_i,
+    posbus_i                => posbus_i,
+    extbus_i                => extbus_i,
 
-    FRAMING_MASK        => FRAMING_MASK,
-    FRAMING_ENABLE      => FRAMING_ENABLE,
-    FRAMING_MODE        => FRAMING_MODE
-);
-
---
--- Pcap Mask Buffer
---
-pcap_buffer : entity work.panda_pcap_buffer
-port map (
-    clk_i               => clk_i,
-    reset_i             => reset_i,
-    -- Configuration Registers
-    START_WRITE         => START_WRITE,
-    WRITE               => WRITE,
-    WRITE_WSTB          => WRITE_WSTB,
-    -- Block inputs
-    fatpipe_i           => capture_data,
-    capture_i           => capture_pulse,
-    -- Output pulses
-    pcap_dat_o          => pcap_dat,
-    pcap_dat_valid_o    => pcap_wstb,
-    ongoing_capture_o   => ongoing_capture
+    dma_fifo_reset_o        => dma_fifo_reset,
+    pcap_dat_o              => pcap_dat,
+    pcap_dat_valid_o        => pcap_dat_valid,
+    pcap_actv_o             => pcap_actv,
+    pcap_status_o           => pcap_status
 );
 
 --
 -- Position Capture Core IP instantiation
 --
-pcap_inst : entity work.panda_pcap
+pcap_dma_inst : entity work.panda_pcap_dma
 port map (
-    clk_i               => clk_i,
-    reset_i             => reset_i,
+    clk_i                   => clk_i,
+    reset_i                 => reset_i,
 
-    enable_i            => enable,
-    abort_i             => '0',
-    pcap_dat_i          => pcap_dat,
-    pcap_wstb_i         => pcap_wstb,
-    irq_o               => pcap_irq_o,
+    DMA_RESET               => DMA_RESET,
+    DMA_INIT                => DMA_START,
+    DMA_ADDR                => DMA_ADDR,
+    DMA_ADDR_WSTB           => DMA_ADDR_WSTB,
+    TIMEOUT                 => TIMEOUT,
+    IRQ_STATUS              => IRQ_STATUS,
+    BLOCK_SIZE              => BLOCK_SIZE,
 
-    ARM                 => ARM,
-    DISARM              => DISARM,
-    DMAADDR             => DMAADDR,
-    DMAADDR_WSTB        => DMAADDR_WSTB,
-    TIMEOUT_VAL         => TIMEOUT,
-    IRQ_STATUS          => IRQ_STATUS,
-    SMPL_COUNT          => SMPL_COUNT,
-    BLOCK_SIZE          => BLOCK_SIZE,
+    pcap_enabled_i          => pcap_actv,
+    pcap_status_i           => pcap_status,
+    dma_fifo_reset_i        => dma_fifo_reset,
+    dma_fifo_ready_o        => dma_fifo_ready,
+    pcap_dat_i              => pcap_dat,
+    pcap_wstb_i             => pcap_dat_valid,
+    irq_o                   => pcap_irq_o,
 
-    m_axi_awready       => m_axi_awready,
-    m_axi_awaddr        => m_axi_awaddr,
-    m_axi_awvalid       => m_axi_awvalid,
-    m_axi_awburst       => m_axi_awburst,
-    m_axi_awcache       => m_axi_awcache,
-    m_axi_awid          => m_axi_awid,
-    m_axi_awlen         => m_axi_awlen,
-    m_axi_awlock        => m_axi_awlock,
-    m_axi_awprot        => m_axi_awprot,
-    m_axi_awqos         => m_axi_awqos,
-    m_axi_awsize        => m_axi_awsize,
-    m_axi_bid           => m_axi_bid,
-    m_axi_bready        => m_axi_bready,
-    m_axi_bresp         => m_axi_bresp,
-    m_axi_bvalid        => m_axi_bvalid,
-    m_axi_wready        => m_axi_wready,
-    m_axi_wdata         => m_axi_wdata,
-    m_axi_wvalid        => m_axi_wvalid,
-    m_axi_wlast         => m_axi_wlast,
-    m_axi_wstrb         => m_axi_wstrb,
-    m_axi_wid           => m_axi_wid
+    m_axi_awready           => m_axi_awready,
+    m_axi_awaddr            => m_axi_awaddr,
+    m_axi_awvalid           => m_axi_awvalid,
+    m_axi_awburst           => m_axi_awburst,
+    m_axi_awcache           => m_axi_awcache,
+    m_axi_awid              => m_axi_awid,
+    m_axi_awlen             => m_axi_awlen,
+    m_axi_awlock            => m_axi_awlock,
+    m_axi_awprot            => m_axi_awprot,
+    m_axi_awqos             => m_axi_awqos,
+    m_axi_awsize            => m_axi_awsize,
+    m_axi_bid               => m_axi_bid,
+    m_axi_bready            => m_axi_bready,
+    m_axi_bresp             => m_axi_bresp,
+    m_axi_bvalid            => m_axi_bvalid,
+    m_axi_wready            => m_axi_wready,
+    m_axi_wdata             => m_axi_wdata,
+    m_axi_wvalid            => m_axi_wvalid,
+    m_axi_wlast             => m_axi_wlast,
+    m_axi_wstrb             => m_axi_wstrb,
+    m_axi_wid               => m_axi_wid
 );
-
-
-ERR_STATUS(31 downto 1) <= (others => '0');
-ERR_STATUS(0) <= INT_DISARM;
 
 end rtl;
 

@@ -22,7 +22,7 @@ entity panda_slowctrl is
 generic (
     AW              : natural := 10;
     DW              : natural := 32;
-    CLKDIV          : natural := 50
+    CLKDIV          : natural := 125
 );
 port (
     clk_i           : in  std_logic;
@@ -45,8 +45,6 @@ port (
 end panda_slowctrl;
 
 architecture rtl of panda_slowctrl is
-
-constant DEADPERIOD             : natural := 10;
 
 type sh_states is (idle, sync, shifting, deadtime);
 signal sh_state                 : sh_states;

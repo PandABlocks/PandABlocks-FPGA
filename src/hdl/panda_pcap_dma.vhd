@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pcap.vhd
+--  File:       panda_pcap_dma.vhd
 --  Desc:       Position capture module
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_pcap is
+entity panda_pcap_dma is
 generic (
     AXI_BURST_LEN       : integer := 16;
     AXI_ADDR_WIDTH      : integer := 32;
@@ -23,21 +23,25 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
-    -- Block Inputs and Outputs
-    enable_i            : in  std_logic;
-    abort_i             : in  std_logic;
+
+    -- Block Input and Outputs
+    pcap_enabled_i      : in  std_logic;
+    pcap_status_i       : in  std_logic_vector(2 downto 0);
+    dma_fifo_reset_i    : in  std_logic;
+    dma_fifo_ready_o    : out std_logic;
     pcap_dat_i          : in  std_logic_vector(31 downto 0);
     pcap_wstb_i         : in  std_logic;
     irq_o               : out std_logic;
-    -- Register interface
-    ARM                 : in  std_logic;
-    DISARM              : in  std_logic;
-    TIMEOUT_VAL         : in  std_logic_vector(31 downto 0);
-    DMAADDR_WSTB        : in  std_logic;
-    DMAADDR             : in  std_logic_vector(31 downto 0);
-    IRQ_STATUS          : out std_logic_vector(3 downto 0);
-    SMPL_COUNT          : out std_logic_vector(31 downto 0);
+
+    -- Block Registers
+    DMA_RESET           : in  std_logic;
+    DMA_INIT            : in  std_logic;
+    DMA_ADDR            : in  std_logic_vector(31 downto 0);
+    DMA_ADDR_WSTB       : in  std_logic;
+    TIMEOUT             : in  std_logic_vector(31 downto 0);
+    IRQ_STATUS          : out std_logic_vector(31 downto 0);
     BLOCK_SIZE          : in  std_logic_vector(31 downto 0);
+
     -- AXI3 HP Bus Write Only Interface
     m_axi_awready       : in  std_logic;
     m_axi_awaddr        : out std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
@@ -61,9 +65,9 @@ port (
     m_axi_wstrb         : out std_logic_vector(AXI_DATA_WIDTH/8-1 downto 0);
     m_axi_wid           : out std_logic_vector(5 downto 0)
 );
-end panda_pcap;
+end panda_pcap_dma;
 
-architecture rtl of panda_pcap is
+architecture rtl of panda_pcap_dma is
 
 -- Number of byte per AXI3 burst
 constant BURST_LEN          : integer := AXI_BURST_LEN * AXI_ADDR_WIDTH/8;
@@ -75,7 +79,8 @@ constant IRQ_CAPT_FINISHED  : std_logic_vector(3 downto 0) := "0010";
 constant IRQ_TIMEOUT        : std_logic_vector(3 downto 0) := "0011";
 constant IRQ_DISARMED       : std_logic_vector(3 downto 0) := "0100";
 constant IRQ_ADDR_ERROR     : std_logic_vector(3 downto 0) := "0101";
-constant IRQ_INT_DISARMED   : std_logic_vector(3 downto 0) := "0110";
+constant IRQ_PCAP_ERROR     : std_logic_vector(3 downto 0) := "0110";
+constant IRQ_DMA_ERROR      : std_logic_vector(3 downto 0) := "0111";
 
 component pcap_dma_fifo
 port (
@@ -91,23 +96,22 @@ port (
 );
 end component;
 
-type pcap_trig_t is (IDLE, ARMED, ENABLED, FINISH_TRIG);
-signal pcap_trig         : pcap_trig_t;
-
-type pcap_fsm_t is (IDLE, ACTV, DO_DMA, IS_FINISHED, IRQ, ABORTED);
+type pcap_fsm_t is (INIT, IDLE, ACTV, DO_DMA, IS_FINISHED, IRQ, ABORTED);
 signal pcap_fsm             : pcap_fsm_t;
 
 signal BLOCK_TLP_SIZE       : std_logic_vector(31 downto 0);
 
 signal m_axi_burst_len      : std_logic_vector(4 downto 0) := TO_SVECTOR(16, 5);
 
+signal reset                : std_logic;
+
 signal dma_start            : std_logic;
 signal dma_done             : std_logic;
 signal dma_irq              : std_logic;
 signal dma_error            : std_logic;
 signal tlp_count            : unsigned(31 downto 0);
-signal last_tlp_flag        : std_logic;
-signal pcap_timeout_flag    : std_logic;
+signal last_tlp             : std_logic;
+signal pcap_timeout         : std_logic;
 signal axi_awaddr_val       : unsigned(31 downto 0);
 signal axi_wdata_val        : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
 signal next_dmaaddr_valid   : std_logic;
@@ -117,21 +121,24 @@ signal fifo_data_count      : std_logic_vector(10 downto 0);
 signal fifo_rd_en           : std_logic;
 signal fifo_dout            : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
 signal fifo_count           : integer range 0 to 2047;
+signal fifo_full            : std_logic;
 
-signal sample_count         : unsigned(31 downto 0);
-
-signal enable_prev      : std_logic;
-signal enable_fall      : std_logic;
-
-signal pcap_armed       : std_logic;
-signal pcap_enabled     : std_logic;
-signal pcap_disarmed    : std_logic_vector(1 downto 0);
-signal pcap_fifo_rst    : std_logic := '0';
+signal irq_flags            : std_logic_vector(3 downto 0);
+signal sample_count         : unsigned(15 downto 0);
+signal sample_count_latch   : unsigned(15 downto 0);
 
 begin
 
 -- Assign outputs.
 irq_o <= dma_irq;
+
+dma_fifo_ready_o <= not fifo_full;
+
+IRQ_STATUS <= std_logic_vector(sample_count_latch) &
+              X"000" & irq_flags;
+
+-- DMA engine reset
+reset <= reset_i or DMA_RESET;
 
 --
 -- Convert BLOCK_SIZE [in Bytes] to TLP_Count. Each TLP has 16 beats of DWORDS.
@@ -140,124 +147,49 @@ irq_o <= dma_irq;
 BLOCK_TLP_SIZE <= "000000" & BLOCK_SIZE(31 downto 6);
 
 --
--- Arm/Enable/Disarm State Machine
---
-
--- Detect rise/falling edge of internal signals.
-enable_fall <= not enable_i and enable_prev;
-
-process(clk_i) begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            pcap_armed <= '0';
-            pcap_disarmed <= "00";
-            pcap_enabled <= '0';
-            pcap_trig <= IDLE;
-            enable_prev <= '0';
-            pcap_fifo_rst <= '0';
-        else
-            enable_prev <= enable_i;
-
-            case (pcap_trig) is
-                -- Wait for user arm.
-                when IDLE =>
-                    if (ARM = '1') then
-                        pcap_trig <= ARMED;
-                        pcap_armed <= '1';
-                        pcap_disarmed(0) <= '0';
-                        pcap_enabled <= '0';
-                        pcap_fifo_rst <= '1';
-                    end if;
-
-                -- Wait for enable flag.
-                when ARMED =>
-                    pcap_fifo_rst <= '0';
-
-                    if (DISARM = '1') then
-                        pcap_trig <= IDLE;
-                        pcap_armed <= '0';
-                        pcap_disarmed(0) <= '1';
-                        pcap_enabled <= '0';
-                    elsif (enable_i = '1') then
-                        pcap_trig <= ENABLED;
-                        pcap_enabled <= '1';
-                    end if;
-
-                -- Enabled until capture is finished or user disarm or
-                -- missed capture.
-                when ENABLED =>
-                    if (DISARM = '1' or abort_i = '1'
-                            or enable_fall = '1') then
-                        -- Position bus is written sequentially into the
-                        -- buffer and this takes 36 clock cycles for each
-                        -- capture capture.
-                        -- We must wait until all fields are written into the
-                        -- buffer for proper finish.
-                        if (pcap_wstb_i = '1') then
-                            pcap_trig <= FINISH_TRIG;
-                        else
-                            pcap_trig <= IDLE;
-                            pcap_armed <= '0';
-                            pcap_enabled <= '0';
-                        end if;
-                    end if;
-
-                    if (DISARM = '1') then
-                        pcap_disarmed(0) <= '1';
-                    end if;
-
-                    if (abort_i = '1') then
-                        pcap_disarmed(1) <= '1';
-                    end if;
-
-                -- Wait for ongoing capture capture finish.
-                when FINISH_TRIG =>
-                    if (pcap_wstb_i = '0') then
-                        pcap_trig <= IDLE;
-                        pcap_armed <= '0';
-                        pcap_enabled <= '0';
-                    end if;
-
-                when others =>
-                    pcap_trig <= IDLE;
-            end case;
-        end if;
-    end if;
-end process;
-
---
 -- 32bit-to-64-bit FIFO with 1K sample depth
 --
 dma_fifo_inst : pcap_dma_fifo
 port map (
-    rst             => pcap_fifo_rst,
+    rst             => dma_fifo_reset_i,
     clk             => clk_i,
     din             => pcap_dat_i,
     wr_en           => pcap_wstb_i,
     rd_en           => fifo_rd_en,
     dout            => fifo_dout,
-    full            => open,
+    full            => fifo_full,
     empty           => open,
     data_count      => fifo_data_count
 );
 
 fifo_count <= to_integer(unsigned(fifo_data_count));
 
-
 --
 -- PCAP Main State Machine
 --
+-- Order of actions are as follows for Initialisation, and IRQ handling
+--
+--
+--                INIT         IRQ
+--              ----------- ----------
+-- RESET       | 1.w       |          |
+-- ENABLE      | 3.w       |          |
+-- ADDR        | 2.w, 4.w  | 3.w      |
+-- IRQ_FLAGS   |           | 1.r      |
+-- SMPL_COUNT  |           | 2.r      |
+--
+
 PCAP_STATE : process(clk_i)
     variable timeout_counter        : unsigned(31 downto 0);
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            pcap_fsm <= IDLE;
+        if (reset = '1') then
+            pcap_fsm <= INIT;
             dma_irq <= '0';
-            last_tlp_flag <= '0';
-            pcap_timeout_flag <= '0';
+            last_tlp <= '0';
+            pcap_timeout <= '0';
             dma_start <= '0';
-            IRQ_STATUS <= IRQ_IDLE;
+            irq_flags <= IRQ_IDLE;
             axi_awaddr_val <= (others => '0');
             next_dmaaddr_valid <= '0';
             next_dmaaddr_clear <= '0';
@@ -265,12 +197,12 @@ begin
             m_axi_burst_len <= TO_SVECTOR(16, 5);
             tlp_count <= (others => '0');
             sample_count <= (others => '0');
-            SMPL_COUNT <= (others => '0');
+            sample_count_latch <= (others => '0');
         else
-            -- DMAADDR_WSTB strobe is used as a handshake between PS and
+            -- DMA_ADDR_WSTB strobe is used as a handshake between PS and
             -- PL logic. If PS can not keep up with the DMA rate by setting
             -- next DMA address on irq, DMA will be aborted.
-            if (DMAADDR_WSTB = '1') then
+            if (DMA_ADDR_WSTB = '1') then
                 next_dmaaddr_valid <= '1';
             -- Clear flag once DMA Block is consumed
             elsif (next_dmaaddr_clear = '1') then
@@ -279,12 +211,12 @@ begin
 
             --
             -- Timeout Counter.
-            -- TIMEOUT_VAL = 0 disables the counter, otherwise counter is
+            -- TIMEOUT = 0 disables the counter, otherwise counter is
             -- active only in ACTV state.
-            if (unsigned(TIMEOUT_VAL) = 0 or pcap_fsm /= ACTV) then
+            if (unsigned(TIMEOUT) = 0 or pcap_fsm /= ACTV) then
                 timeout_counter := (others => '0');
             else
-                if (timeout_counter = unsigned(TIMEOUT_VAL) - 1) then
+                if (timeout_counter = unsigned(TIMEOUT) - 1) then
                     timeout_counter := (others => '0');
                 else
                     timeout_counter := timeout_counter + 1;
@@ -298,28 +230,40 @@ begin
             -- sample_count    : # of samples (DWORDs) DMAed per IRQ.
             -- m_axi_burst_len : # of beats in individual AXI3 write.
             case pcap_fsm is
-                -- Once armed, logic waits for enable input.
-                when IDLE =>
-                    last_tlp_flag <= '0';
-                    pcap_timeout_flag <= '0';
+                -- Wait Initialistion by kernel driver
+                when INIT =>
+                    last_tlp <= '0';
+                    pcap_timeout <= '0';
                     tlp_count <= (others => '0');
                     sample_count <= (others => '0');
                     dma_start <= '0';
-                    axi_awaddr_val <= unsigned(DMAADDR);
-                    if (pcap_armed = '1') then
+                    axi_awaddr_val <= unsigned(DMA_ADDR);
+                    if (DMA_INIT = '1') then
+                        pcap_fsm <= IDLE;
+                    end if;
+
+                -- Once armed, logic waits for enable input.
+                when IDLE =>
+                    last_tlp <= '0';
+                    pcap_timeout <= '0';
+                    tlp_count <= (others => '0');
+                    sample_count <= (others => '0');
+                    dma_start <= '0';
+--                    axi_awaddr_val <= unsigned(DMA_ADDR);
+                    if (pcap_enabled_i = '1') then
                         pcap_fsm <= ACTV;
                     end if;
 
                 -- Wait until FIFO has enough data worth for a AXI3 burst
                 -- (16 beats).
                 when ACTV =>
-                    pcap_timeout_flag <= '0';
-                    last_tlp_flag <= '0';
+                    pcap_timeout <= '0';
+                    last_tlp <= '0';
 
                     -- Timeout occured, transfer all data in the buffer before
                     -- raising IRQ.
-                    if (timeout_counter = unsigned(TIMEOUT_VAL) - 1) then
-                        pcap_timeout_flag <= '1';
+                    if (timeout_counter = unsigned(TIMEOUT) - 1) then
+                        pcap_timeout <= '1';
                         if (fifo_count = 0) then
                             pcap_fsm <= IS_FINISHED;
                         else
@@ -328,7 +272,7 @@ begin
                             m_axi_burst_len <= fifo_data_count(4 downto 0);
                             pcap_fsm <= DO_DMA;
                         end if;
-                    -- More than 1 TLP still in the queue.
+                    -- More than 1 TLP in the queue. ???
                     elsif (fifo_count > 16) then
                         dma_start <= '1';
                         sample_count <= sample_count + AXI_BURST_LEN;
@@ -336,13 +280,13 @@ begin
                         pcap_fsm <= DO_DMA;
                     -- If enable flag is de-asserted while DMAing the last
                     -- TLP, no need to do a 0 byte DMA
-                    elsif (pcap_armed = '0' and fifo_count = 0) then
-                        last_tlp_flag <= '1';
+                    elsif (pcap_enabled_i = '0' and fifo_count = 0) then
+                        last_tlp <= '1';
                         pcap_fsm <= IS_FINISHED;
                     -- Enable de-asserted, and there is less than 1 TLP worth
                     -- data, empty the queue.
-                    elsif (pcap_armed = '0' and fifo_count <= 16) then
-                        last_tlp_flag <= '1';
+                    elsif (pcap_enabled_i = '0' and fifo_count <= 16) then
+                        last_tlp <= '1';
                         dma_start <= '1';
                         sample_count <= sample_count + fifo_count;
                         m_axi_burst_len <= fifo_data_count(4 downto 0);
@@ -363,38 +307,40 @@ begin
                 when IS_FINISHED =>
                     -- Last TLP happens on either scan capture finish, or
                     -- graceful finish on DISARM.
-                    if (last_tlp_flag = '1') then
-                        if (pcap_disarmed(0) = '1') then
-                            IRQ_STATUS <= IRQ_DISARMED;
-                        elsif (pcap_disarmed(1) = '1') then
-                            IRQ_STATUS <= IRQ_INT_DISARMED;
+                    if (last_tlp = '1') then
+                        if (pcap_status_i(0) = '1') then
+                            irq_flags <= IRQ_DISARMED;
+                        elsif (pcap_status_i(1) = '1') then
+                            irq_flags <= IRQ_PCAP_ERROR;
+                        elsif (pcap_status_i(2) = '1') then
+                            irq_flags <= IRQ_DMA_ERROR;
                         else
-                            IRQ_STATUS <= IRQ_CAPT_FINISHED;
+                            irq_flags <= IRQ_CAPT_FINISHED;
                         end if;
                         pcap_fsm <= IRQ;
                         dma_irq <= '1';
-                        SMPL_COUNT <= std_logic_vector(sample_count);
+                        sample_count_latch <= sample_count;
                     -- Switch to next buffer when Timeout happens or current
                     -- buffer is finished.
                     -- Make sure that next dma address is valid.
-                    elsif (pcap_timeout_flag = '1' or
+                    elsif (pcap_timeout = '1' or
                                 tlp_count = unsigned(BLOCK_TLP_SIZE)) then
                         tlp_count <= (others => '0');
                         dma_irq <= '1';
-                        SMPL_COUNT <= std_logic_vector(sample_count);
+                        sample_count_latch <= sample_count;
                         if (next_dmaaddr_valid = '1') then
                             pcap_fsm <= IRQ;
                             -- Set IRQ status flag.
-                            if (pcap_timeout_flag = '1') then
-                                IRQ_STATUS <= IRQ_TIMEOUT;
+                            if (pcap_timeout = '1') then
+                                irq_flags <= IRQ_TIMEOUT;
                             else
-                                IRQ_STATUS <= IRQ_BUFFER_FINISHED;
+                                irq_flags <= IRQ_BUFFER_FINISHED;
                             end if;
-                            axi_awaddr_val <= unsigned(DMAADDR);
+                            axi_awaddr_val <= unsigned(DMA_ADDR);
                             next_dmaaddr_clear <= '1';
                         else
                             pcap_fsm <= ABORTED;
-                            IRQ_STATUS <= IRQ_ADDR_ERROR;
+                            irq_flags <= IRQ_ADDR_ERROR;
                         end if;
                     -- Block buffer is not consumed and Pcap is still active,
                     -- increment address in the current buffer and continue
@@ -410,7 +356,7 @@ begin
                     sample_count <= (others => '0');
                     next_dmaaddr_clear <= '0';
                     -- PCap finished and last TLP DMAed.
-                    if (last_tlp_flag = '1') then
+                    if (last_tlp = '1') then
                         pcap_fsm <= IDLE;
                     else
                         pcap_fsm <= ACTV;
@@ -419,7 +365,7 @@ begin
                 -- Clear flag and wait for user DISARM.
                 when ABORTED =>
                     dma_irq <= '0';
-                    if (pcap_armed = '0') then
+                    if (pcap_enabled_i = '0') then
                         pcap_fsm <= IDLE;
                     end if;
 
@@ -449,7 +395,7 @@ generic map (
 )
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
+    reset_i             => reset,
 
     m_axi_burst_len     => m_axi_burst_len,
 
