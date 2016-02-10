@@ -4,32 +4,29 @@ module test;
 
 panda_pcap_tb tb();
 
-reg [1:0]       wrs, rsp;
-reg [3:0]       IRQ_STATUS;
-reg [31:0]      SMPL_COUNT;
+reg [ 1:0]      wrs, rsp;
+reg [31:0]      IRQ_STATUS;
+reg [ 7:0]      IRQ_FLAGS;
+reg [15:0]      SMPL_COUNT;
 reg [31:0]      dma_addr;
 reg [31:0]      addr;
 reg [31:0]      base;
 reg [31:0]      total_samples;
-
-reg [31:0]    addr_table[1023: 0];
-reg [31:0]    smpl_table[1023: 0];
-integer         irq_count;
-
+reg [31:0]      addr_table[1023: 0];
+reg [31:0]      smpl_table[1023: 0];
 reg [31:0]      read_data;
 reg [31:0]      readback;
-
+reg [31:0]      read_addr;
+reg             active;
 
 integer         fid;
 integer         r;
 integer         len;
-
+integer         irq_count;
 integer         data;
+integer         i, n, j;
+integer         NUMSAMPLE;
 
-reg [31:0]      read_addr;
-reg             active;
-
-integer i, n;
 // Wrapper for Zynx AXI4 transactions.
 task REG_WRITE;
     input [31: 0] base;
@@ -48,6 +45,15 @@ begin
     tb.zynq.ps.inst.read_data(base + 4*addr,  4, val, wrs);
 end
 endtask
+
+task WAIT_IRQ;
+    input  [31: 0] status;
+begin
+    // Wait for DMA irq
+    tb.zynq.ps.inst.wait_interrupt(0,IRQ_STATUS);
+end
+endtask
+
 
 `include "./apis_tb.v"
 
@@ -92,6 +98,7 @@ initial begin
     REG_WRITE(REG_BASE, REG_PCAP_WRITE, 12);    // counter #1
     REG_WRITE(REG_BASE, REG_PCAP_WRITE, 13);    // counter #2
 
+    // TTL Inputs are coming from *_tb.vhd
     REG_WRITE(PCAP_BASE, PCAP_ENABLE,  0);      // TTL #0
     REG_WRITE(PCAP_BASE, PCAP_FRAME,   1);      // TTL #1
     REG_WRITE(PCAP_BASE, PCAP_CAPTURE, 2);      // TTL #2
@@ -101,7 +108,7 @@ initial begin
     REG_WRITE(REG_BASE, REG_PCAP_FRAMING_MODE, 0);
 
     REG_WRITE(DRV_BASE, DRV_PCAP_BLOCK_SIZE, tb.BLOCK_SIZE);
-    REG_WRITE(DRV_BASE, DRV_PCAP_TIMEOUT, 0);
+    REG_WRITE(DRV_BASE, DRV_PCAP_TIMEOUT, 2500);
     REG_WRITE(DRV_BASE, DRV_PCAP_DMA_RESET, 1);     // DMA reset
     REG_WRITE(DRV_BASE, DRV_PCAP_DMA_ADDR, addr);   // Init
     REG_WRITE(DRV_BASE, DRV_PCAP_DMA_START, 1);     // ...
@@ -111,71 +118,7 @@ initial begin
     REG_WRITE(REG_BASE, REG_PCAP_ARM, 1);
 
 fork begin
-    while (1) begin
-        // Wait for DMA irq
-        tb.zynq.ps.inst.wait_interrupt(0,IRQ_STATUS);
-        // Read IRQ Status and Sample Count Registers
-        REG_READ(DRV_BASE, DRV_PCAP_IRQ_STATUS, IRQ_STATUS);
-        REG_READ(DRV_BASE, DRV_PCAP_SMPL_COUNT, SMPL_COUNT);
-
-        // Keep track of address and sample count.
-        smpl_table[irq_count] = SMPL_COUNT;
-        addr_table[irq_count] = read_addr;
-        irq_count = irq_count + 1;
-
-        // Set next DMA address
-        read_addr = addr;
-        addr = addr + tb.BLOCK_SIZE;
-
-        if (IRQ_STATUS == 4'b0001) begin
-            $display("IRQ on BLOCK_FINISHED with %d samples.", SMPL_COUNT);
-            // DRV_PCAP_DMA_ADDR
-            REG_WRITE(DRV_BASE, DRV_PCAP_DMA_ADDR, addr);
-        end
-        else if (IRQ_STATUS == 4'b0010) begin
-            $display("IRQ on CAPT_FINISHED with %d samples.", SMPL_COUNT);
-
-            // Read scattered data from host memory into a file.
-            for (i=0; i<irq_count; i=i+1) begin
-                $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
-                tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
-                total_samples = total_samples + smpl_table[i];
-            end
-
-            $display("Total Samples = %d", total_samples);
-            $finish;
-        end
-        else if (IRQ_STATUS == 4'b0011) begin
-            $display("IRQ on TIMEOUT with %d samples.", SMPL_COUNT);
-            REG_WRITE(DRV_BASE, DRV_PCAP_DMA_ADDR, addr);
-        end
-        else if (IRQ_STATUS == 4'b0100) begin
-            $display("IRQ on DISARM with %d samples.", SMPL_COUNT);
-            // Read scattered data from host memory into a file.
-            for (i=0; i<irq_count; i=i+1) begin
-                $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
-                tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
-                total_samples = total_samples + smpl_table[i];
-            end
-            $display("Total Samples = %d", total_samples);
-            $finish;
-        end
-        else if (IRQ_STATUS == 4'b0110) begin
-            $display("IRQ on INT_DISARM with %d samples.", SMPL_COUNT);
-            // Read scattered data from host memory into a file.
-            for (i=0; i<irq_count; i=i+1) begin
-                $display("Reading %d Samples from Address=%08x", smpl_table[i], addr_table[i]);
-                tb_read_to_file("master_hp1","read_from_hp1.txt",addr_table[i],4*smpl_table[i],rsp);
-                total_samples = total_samples + smpl_table[i];
-            end
-            $display("Total Samples = %d", total_samples);
-            $finish;
-        end
-        else if (IRQ_STATUS == 4'b0101) begin
-            $display("IRQ on ADDR_ERROR...");
-            $finish;
-        end
-    end
+    `include "../../panda_top/bench/irq_handler.v"
 end
 
 join

@@ -18,30 +18,24 @@ reg [511:0]     test_name = "FRAMING_TEST";
 
 reg [ 1:0]      wrs, rsp;
 reg [31:0]      IRQ_STATUS;
-reg [ 3:0]      IRQ_FLAGS;
+reg [ 7:0]      IRQ_FLAGS;
 reg [15:0]      SMPL_COUNT;
 reg [31:0]      dma_addr;
 reg [31:0]      addr;
 reg [31:0]      base;
 reg [31:0]      total_samples;
-
 reg [31:0]      addr_table[31: 0];
 reg [31:0]      smpl_table[31: 0];
-integer         irq_count;
-
 reg [31:0]      read_data;
 reg [31:0]      readback;
-
+reg [31:0]      read_addr;
+reg             active;
 
 integer         fid;
 integer         r;
 integer         len;
-
+integer         irq_count;
 integer         data;
-
-reg [31:0]      read_addr;
-reg             active;
-
 integer i, n, j;
 integer NUMSAMPLE;
 
@@ -61,6 +55,14 @@ task REG_READ;
     output [31: 0] val;
 begin
     tb.uut.ps.ps.ps.inst.read_data(base + 4*addr,  4, val, wrs);
+end
+endtask
+
+task WAIT_IRQ;
+    input  [31: 0] status;
+begin
+    // Wait for DMA irq
+    tb.uut.ps.ps.ps.inst.wait_interrupt(0,IRQ_STATUS);
 end
 endtask
 

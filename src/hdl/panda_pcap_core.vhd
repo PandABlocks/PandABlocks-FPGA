@@ -39,6 +39,7 @@ port (
     dma_fifo_reset_o    : out std_logic;
     pcap_dat_o          : out std_logic_vector(31 downto 0);
     pcap_dat_valid_o    : out std_logic;
+    pcap_enabled_o      : out std_logic;
     pcap_actv_o         : out std_logic;
     pcap_status_o       : out std_logic_vector(2 downto 0)
 );
@@ -63,6 +64,7 @@ begin
 
 pcap_dat_valid_o <= pcap_dat_valid;
 pcap_status_o <= pcap_status;
+pcap_enabled_o <= pcap_enabled;
 pcap_actv_o <= pcap_armed;
 
 pcap_arming : entity work.panda_pcap_arming
