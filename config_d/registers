@@ -49,16 +49,21 @@
 # This block is not used by the server, but is here for documentation and other
 # automated tools.
 *DRV        25
+    # This register is used to reset DMA engine.
+    PCAP_DMA_RESET          0
+    # This register is used to initialise DMA engine with first set of
+    # addresses.
+    PCAP_DMA_START          1
     # The physical address of each DMA block is written to this register.
-    PCAP_DMAADDR            0
+    PCAP_DMA_ADDR           2
     # This register configures the maximum interval between capture interrupts
-    PCAP_TIMEOUT            1
+    PCAP_TIMEOUT            3
     # Interrupt status and acknowledge
-    PCAP_IRQ_STATUS         2
+    PCAP_IRQ_STATUS         4
     # ? Should this be merged into IRQ status for a single read?
-    PCAP_SMPL_COUNT         3
+    PCAP_SMPL_COUNT         5
     # DMA block size in bytes
-    PCAP_BLOCK_SIZE         4
+    PCAP_BLOCK_SIZE         6
 
 TTLIN       18
     TERM            0

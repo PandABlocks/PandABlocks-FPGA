@@ -1,27 +1,22 @@
 // Functional Address Space Chip Selects
 {%  for name, block in blocks.iteritems() %}
-localparam {{name}}_CS  = {{block.base}};
+localparam {{name}}_CS = {{block.base}};
 {%  endfor %}
 
 // Block Register Address Space
 
-
-
-    for blockname, block in cfgParser.blocks.items():
-        print "BLOCKNAMe", blockname, "block", block
-        for regname, reg in block.registers.items():
-            print "REGNAME", regname, "register", reg[0]
-
 {%  for blockname, block in blocks.iteritems() %}
 // {{blockname}} Block:
 {%      for regname, reg in block.registers.iteritems() %}
-localPPparam {{blockname}}_{{regname}}  = {{reg[0]}};
+localparam {{blockname}}_{{regname}} = {{reg[0]}};
 {%      endfor %}
 
 {%  endfor %}
+
 
 // Panda Base Address and block base addresses
 localparam BASE = 32'h43C0_0000;
 {%  for blockname, block in blocks.iteritems() %}
 localparam {{blockname}}_BASE = BASE + 4096 * {{blockname}}_CS;
 {%  endfor %}
+

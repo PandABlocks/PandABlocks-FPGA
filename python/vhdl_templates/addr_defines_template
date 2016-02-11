@@ -12,7 +12,7 @@ constant {{name}}_CS : natural := {{block.base}};
 -- Block Register Address Space
 
 {%  for blockname, block in blocks.iteritems() %}
-// {{blockname}} Block:
+-- {{blockname}} Block:
 {%      for regname, reg in block.registers.iteritems() %}
 constant {{blockname}}_{{regname}} : natural := {{reg[0]}};
 {%      endfor %}
