@@ -36,7 +36,8 @@ class Pcap(Block):
         for name, field in self.config_block.fields.items():
             if field.cls == "ext_out":
                 if len(field.reg) > 1:
-                    self.ext_names[name] = [int(arg) for arg in field.reg]
+                    self.ext_names[name] = \
+                        [int(field.reg[0]), int(field.reg[2])]
                 else:
                     self.ext_names[name] = int(field.reg[0])
         # Add some entries for encoder extended

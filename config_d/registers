@@ -232,7 +232,7 @@ PCAP        16
     MISSED_CAPTURES 3
     ERR_STATUS      4
     ACTIVE          106
-    CAPTURE_TS      62 63
+    CAPTURE_TS      62 / 63
     FRAME_LENGTH    37
     CAPTURE_OFFSET  38
     ADC_COUNT       32
