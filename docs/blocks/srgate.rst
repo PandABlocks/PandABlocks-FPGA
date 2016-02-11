@@ -28,27 +28,21 @@ Normal conditions
 The normal behaviour is to set the output VAL on the configured edge of the
 SET or RESET input.
 
-.. plot::
+.. sequence_plot::
+   :block: srgate
+   :title: Set on rising Edge
 
-    from block_plot import make_block_plot
-    make_block_plot("srgate", "Set on rising Edge")
+.. sequence_plot::
+   :block: srgate
+   :title: Set on falling Edge
 
-.. plot::
+.. sequence_plot::
+   :block: srgate
+   :title: Reset on rising Edge
 
-    from block_plot import make_block_plot
-    make_block_plot("srgate", "Set on falling Edge")
-
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("srgate", "Reset on rising Edge")
-
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("srgate", "Reset on falling Edge")
-
-
+.. sequence_plot::
+   :block: srgate
+   :title: Reset on falling Edge
 
 Active edge configure conditions
 --------------------------------
@@ -56,26 +50,20 @@ if the active edge is 'rising' then reset to 'falling' at the same time as a
 rising edge on the SET input, the block will ignore the rising edge and set
 the output VAL on the falling edge of the SET input.
 
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("srgate", "Rising SET with SET_EDGE reconfigure")
+.. sequence_plot::
+   :block: srgate
+   :title: Rising SET with SET_EDGE reconfigure
 
 If the active edge changes to 'falling'  at the same time as a falling edge
 on the SET input, the output VAL will be set following this.
 
-.. plot::
+.. sequence_plot::
+   :block: srgate
+   :title: Falling SET wtih SET_EDGE reconfigure
 
-    from block_plot import make_block_plot
-    make_block_plot("srgate", "Falling SET wtih SET_EDGE reconfigure")
-
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("srgate",
-                    "Falling RST with with reset edge reconfigure")
-
-
+.. sequence_plot::
+   :block: srgate
+   :title: Falling RST with with reset edge reconfigure
 
 Set-reset conditions
 --------------------
@@ -84,7 +72,7 @@ When determining the output if two values are set simultaneously, FORCE_SET and
 FORCE_RESET registers take priority over the input bus, and reset takes priority
 over set.
 
-.. plot::
+.. sequence_plot::
+   :block: srgate
+   :title: Set-reset conditions
 
-    from block_plot import make_block_plot
-    make_block_plot("srgate", "Set-reset conditions")

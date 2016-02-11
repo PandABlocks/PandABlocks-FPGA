@@ -17,3 +17,4 @@ Each block is documented with examples
     seq
     counter
     pcomp
+    pcap

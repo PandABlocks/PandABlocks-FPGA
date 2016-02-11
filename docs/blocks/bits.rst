@@ -29,7 +29,6 @@ Outputs follow parameters
 This example shows how the values on the bit bus follow the parameter values
 after a 1 clock tick propogation delay
 
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("bits", "Outputs follow inputs")
+.. sequence_plot::
+   :block: bits
+   :title: Outputs follow inputs

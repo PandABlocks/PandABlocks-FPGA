@@ -81,23 +81,10 @@ sets the sequencer in the ACTIVE state. The sequencer cycles through frames and
 waits for inputs to meet the pre-configured input requirements before setting
 outputs in phase-1 and phase2
 
-TABLE_DATA
-~~~~~~~~~~~
+.. sequence_plot::
+   :block: seq
+   :title: Multiple frames, multiple frame and table cycles
 
-======= = = = = = = = = ==== = = = = ==== = = = =
-#       Use Inp Inp Val Ph1  Ph1 Out Ph2  Ph2 Out
-------- ------- ------- ---- ------- ---- -------
-Repeats A B C D A B C D Time A B C D Time A B C D
-======= = = = = = = = = ==== = = = = ==== = = = =
-1       1 1 1 1 1 1 1 1 2    1 0 0 0 1    1 1 1 1
-2       1 1 1 1 0 1 1 1 3    1 1 1 1 2    0 1 0 0
-======= = = = = = = = = ==== = = = = ==== = = = =
-
-
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("seq", "Multiple frames, multiple frame and table cycles")
 
 Inputs outside of active state
 ------------------------------
@@ -107,112 +94,28 @@ action are ignored. Similarly, when the sequencer finishes all frame and table
 cycles, it sets the active state to 0, thus any inputs after this will be
 ignored.
 
-TABLE_DATA
-~~~~~~~~~~~
+.. sequence_plot::
+   :block: seq
+   :title: Writing inputs before a whole frame is written
 
-FRAME 1
-
-================ ======================
-Field            Value
-================ ======================
-REPEATS           1
-INPUT MASK        F
-INPUT CONDITIONS  F
-PHASE 1 OUTPUTS   01 (OUTA)
-PHASE 2 OUTPUTS   3F
-PHASE 1 LENGTH    2*PRESCALE
-PHASE 2 LENGTH    1*PRESCALE
-================ ======================
-
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("seq", "Writing inputs before a whole frame is written")
-
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("seq", "Writing inputs after sequencer has finished")
+.. sequence_plot::
+   :block: seq
+   :title: Writing inputs after sequencer has finished
 
 Sequencer and table reset
 -------------------------
 If the sequencer is set to an inactive state, and then reset to active, the
 sequencer will start from the beginning of the table.
 
-TABLE_DATA
-~~~~~~~~~~~
-
-FRAME 1
-
-================ ======================
-Field            Value
-================ ======================
-REPEATS           1
-INPUT MASK        F
-INPUT CONDITIONS  F
-PHASE 1 OUTPUTS   01 (OUTA)
-PHASE 2 OUTPUTS   3F
-PHASE 1 LENGTH    2*PRESCALE
-PHASE 2 LENGTH    1*PRESCALE
-================ ======================
-
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("seq", "Setting inactive before finished and restarting")
-
+.. sequence_plot::
+   :block: seq
+   :title: Setting inactive before finished and restarting
 
 A table reset and data write must provide a whole table. If a table is currently
 written with multiple frames, and a table reset and write overwrites the table
 with less frames, only the new table will be executed. It is not possible to
 partially overwrite a table.
 
-TABLE_DATA
-~~~~~~~~~~~
-
-TABLE 1, FRAME 1
-
-================ ======================
-Field            Value
-================ ======================
-REPEATS           1
-INPUT MASK        F
-INPUT CONDITIONS  F
-PHASE 1 OUTPUTS   01 (OUTA)
-PHASE 2 OUTPUTS   3F
-PHASE 1 LENGTH    2*PRESCALE
-PHASE 2 LENGTH    1*PRESCALE
-================ ======================
-
-TABLE 1, FRAME 2
-
-================ ======================
-Field            Value
-================ ======================
-REPEATS           2
-INPUT MASK        F
-INPUT CONDITIONS  E (INPB, INPC, INPD)
-PHASE 1 OUTPUTS   3F
-PHASE 2 OUTPUTS   02 (OUTB)
-PHASE 1 LENGTH    3*PRESCALE
-PHASE 2 LENGTH    2*PRESCALE
-================ ======================
-
-TABLE 2, FRAME 1
-
-================ ======================
-Field            Value
-================ ======================
-REPEATS           1
-INPUT MASK        1
-INPUT CONDITIONS  1  (INPA)
-PHASE 1 OUTPUTS   04 (OUTC)
-PHASE 2 OUTPUTS   08 (OUTD)
-PHASE 1 LENGTH    1*PRESCALE
-PHASE 2 LENGTH    2*PRESCALE
-================ ======================
-
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("seq", "Reset table and write more data")
+.. sequence_plot::
+   :block: seq
+   :title: Reset table and write more data

@@ -32,15 +32,13 @@ INP pulses to OUTN. The following two examples illustrate how the FIRST_PULSE
 parameter controls the initial value of COUNT, which controls whether OUTD or
 OUTN gets the next pulse.
 
-.. plot::
+.. sequence_plot::
+   :block: div
+   :title: Start on OUTN
 
-    from block_plot import make_block_plot
-    make_block_plot("div", "Start on OUTN")
-
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("div", "Start on OUTD")
+.. sequence_plot::
+   :block: div
+   :title: Start on OUTD
 
 Reset conditions
 ----------------
@@ -49,8 +47,7 @@ If a RESET rising edge, or a FORCE_RESET parameter write is received at the same
 time as an INP rising edge, the input signal is ignored and the block reset. It
 makes no difference where the falling edge of the RESET comes.
 
-.. plot::
-
-    from block_plot import make_block_plot
-    make_block_plot("div", "Reset conditions")
+.. sequence_plot::
+   :block: div
+   :title: Reset conditions
 
