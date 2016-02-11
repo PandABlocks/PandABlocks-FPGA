@@ -21,6 +21,8 @@ nc localhost 9999 </dev/null
 # running before taking itself into the background.
 $PYTHON python/sim_server.py -d "$CONFIG_DIR"  &&
 
+# We normally omit --show-reachable=yes because it generates *lots* of noises
+# when there's a crash!
 exec valgrind --leak-check=full --track-origins=yes \
     '@@BUILD_DIR@@'/sim_server/sim_server \
     -f"$PERSISTENCE" -p$CONFIG_PORT -d$DATA_PORT -R -c"$CONFIG_DIR" "$@"
