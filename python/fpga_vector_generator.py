@@ -8,19 +8,19 @@ import os
 # add our python dir
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
 
+from zebra2.simulation.block import Block
+from zebra2.sequenceparser import SequenceParser
+
 # and our parser dir is
 parser_dir = os.path.join(
     os.path.dirname(__file__), "..", "tests", "sim_sequences")
 fpga_dir = os.path.join(
     os.path.dirname(__file__), "..", "build",  "fpga_sequences")
-
-
-import unittest
-
-from zebra2.simulation.block import Block
-from zebra2.sequenceparser import SequenceParser
-
 Block.load_config(os.path.join(os.path.dirname(__file__), '..', 'config_d'))
+
+# Time between SIM_RESET being set high and the next test starting
+RESET_DEADTIME = 100
+
 
 class FpgaSequence(object):
     def __init__(self, parser, block, fpga_dir):
@@ -108,7 +108,7 @@ class FpgaSequence(object):
             current = {}
             previous = {}
             self.add_line(ts_off, dict(SIM_RESET=1))
-            ts_off += 10
+            ts_off += RESET_DEADTIME
             # start the sequence
             for ts in sequence.inputs:
                 previous.update(current)
@@ -117,6 +117,7 @@ class FpgaSequence(object):
                 current.update(self.set_wstb(ts, previous, current))
                 self.add_line(ts + ts_off, current)
             ts_off += ts + 1
+
 
 def generate_fpga_test_vectors():
     sequences = []
