@@ -73,52 +73,64 @@ def plot_pos(trace_items, offset, crossdist, ts):
         legend_label(name, 0, TRANSITION_HEIGHT / 2. + offset, crossdist)
     return offset
 
-def make_block_plot(block, title):
+def make_block_plot(blockname, title):
     # Load the correct sequence file
-    fname = block + ".seq"
+    fname = blockname + ".seq"
     sparser = SequenceParser(os.path.join(parser_dir, fname))
     matches = [s for s in sparser.sequences if s.name == title]
     assert len(matches) == 1, 'Unknown title "%s" or multiple matches' % title
     sequence = matches[0]
     cparser = ConfigParser(config_dir)
+
     # make instance of block
-    block = cparser.blocks[block.upper()]
-    # do a plot
-    in_bits_names = []
-    out_bits_names = []
-    in_positions_names = []
-    out_positions_names = []
-    in_regs_names = []
-    out_regs_names = []
-    # walk the inputs and outputs and add traces
+    block = cparser.blocks[blockname.upper()]
+
+    # walk the inputs and outputs and add the names we're interested in
+    in_bits_names = set()
+    out_bits_names = set()
+    in_positions_names = set()
+    out_positions_names = set()
+    in_regs_names = set()
+    out_regs_names = set()
     for ts in sequence.inputs:
         for name in sequence.inputs[ts].keys():
-            _, field = block.registers[name]
-            if field.cls == "param" and field.typ == "bit_mux":
-                in_bits_names.append(name)
-            elif field.cls == "param" and field.typ == "pos_mux":
-                in_positions_names.append(name)
-            else:
-                in_regs_names.append(name)
-        for name in sequence.outputs[ts].keys():
-            if name not in ['TABLE_STROBES']:
-                if name in block.outputs:
-                    _, field = block.outputs[name]
-                    if field.cls == "bit_out":
-                        out_bits_names.append(name)
-                    elif field.cls == "pos_out":
-                        out_positions_names.append(name)
+            # if there is a dot in the name, it's a bit or pos bus entry
+            if "." in name:
+                if name in cparser.bit_bus:
+                    in_bits_names.add(name)
+                elif name in cparser.pos_bus:
+                    in_positions_names.add(name)
+            elif block.name == "PCAP" and name in ["ARM", "DISARM"]:
+                # Add in PCAP specials
+                in_regs_names.add(name)
+                block.fields[name] = None
+            elif name.startswith("TABLE_"):
+                # Add table special
+                in_regs_names.add("TABLE")
+            elif name.endswith("_L") or name.endswith("_H"):
+                # Add times for time registers
+                in_regs_names.add(name[:-2])
+            elif name in block.registers:
+                _, field = block.registers[name]
+                if field.cls == "param" and field.typ == "bit_mux":
+                    in_bits_names.add(name)
+                elif field.cls == "param" and field.typ == "pos_mux":
+                    in_positions_names.add(name)
                 else:
-                    out_regs_names.append(name)
-
-    def bit_traces():
-        trace_items = in_bits.items() + out_bits.items()
-        return trace_items
-
-    def pos_traces():
-        trace_items = in_positions.items() + out_positions.items() + \
-            in_regs.items() + out_regs.items()
-        return trace_items
+                    in_regs_names.add(name)
+        for name in sequence.outputs[ts].keys():
+            if name in block.outputs:
+                _, field = block.outputs[name]
+                if field.cls == "bit_out":
+                    out_bits_names.add(name)
+                elif field.cls == "pos_out":
+                    out_positions_names.add(name)
+            elif block.name == "PCAP" and name == "DATA":
+                # Add in PCAP output
+                out_regs_names.add(name)
+                block.fields[name] = None
+            elif name != "TABLE_STROBES":
+                out_regs_names.add(name)
 
     # sort the traces by block field order
     in_bits = OrderedDict()
@@ -141,19 +153,14 @@ def make_block_plot(block, title):
         elif name in out_regs_names:
             out_regs[name] = ([], [])
 
-    #add traces for sequencer tables
-    if block.name == 'SEQ':
-        in_regs['TABLE'] = ([],[])
-        table_count = 0
-        for ts in sequence.inputs:
-            for name in sequence.inputs[ts].keys():
-                if name == "TABLE_START":
-                    in_regs['TABLE'][0].append(ts)
-                    in_regs['TABLE'][1].append('load...')
-                if name == "TABLE_LENGTH":
-                    table_count += 1
-                    in_regs['TABLE'][0].append(ts)
-                    in_regs['TABLE'][1].append('T' + str(table_count))
+    def bit_traces():
+        trace_items = in_bits.items() + out_bits.items()
+        return trace_items
+
+    def pos_traces():
+        trace_items = in_positions.items() + out_positions.items() + \
+            in_regs.items() + out_regs.items()
+        return trace_items
 
     # fill in first point
     for name, (tracex, tracey) in bit_traces():
@@ -161,27 +168,61 @@ def make_block_plot(block, title):
         tracey.append(0)
 
     # now populate traces
+    table_count = 0
+    capture_count = 0
+    data_count = 0
+    lohi = {}
     for ts in sequence.inputs:
+        inputs = sequence.inputs[ts]
+        outputs = sequence.outputs[ts]
         for name, (tracex, tracey) in bit_traces():
             if name in sequence.inputs[ts]:
                 tracex.append(ts)
                 tracex.append(ts)
                 tracey.append(tracey[-1])
-                tracey.append(sequence.inputs[ts][name])
+                tracey.append(inputs[name])
             elif name in sequence.outputs[ts]:
                 tracex.append(ts+1)
                 tracex.append(ts+1)
                 tracey.append(tracey[-1])
-                tracey.append(sequence.outputs[ts][name])
+                tracey.append(outputs[name])
         for name, (tracex, tracey) in pos_traces():
+            if name == "TABLE":
+                if "TABLE_START" in inputs:
+                    inputs["TABLE"] = "load..."
+                elif "TABLE_LENGTH" in inputs:
+                    table_count += 1
+                    inputs['TABLE'] = "T%d" % table_count
+            elif name == "DATA":
+                if "START_WRITE" in inputs:
+                    capture_count = 0
+                elif "WRITE" in inputs:
+                    capture_count += 1
+            elif name + "_L" in inputs:
+                lohi[name + "_L"] = inputs[name + "_L"]
+                inputs[name] = lohi[name + "_L"] + \
+                    (lohi.get(name + "_H", 0) << 32)
+            elif name + "_H" in inputs:
+                lohi[name + "_H"] = inputs[name + "_H"]
+                inputs[name] = lohi.get(name + "_L", 0) + \
+                    (lohi[name + "_H"] << 32)
             if name in sequence.inputs[ts]:
-                if not tracey or tracey[-1] != sequence.inputs[ts][name]:
+                if block.name == "LUT" and name == "FUNC":
+                    inputs[name] = hex(inputs[name])
+                if not tracey or tracey[-1] != inputs[name]:
                     tracex.append(ts)
-                    tracey.append(sequence.inputs[ts][name])
+                    tracey.append(inputs[name])
             elif name in sequence.outputs[ts]:
-                if not tracey or tracey[-1] != sequence.outputs[ts][name]:
+                if block.name == "PCAP" and name == "DATA":
+                    data_count += 1
+                    if data_count % capture_count == 1:
+                        outputs[name] = "Row%d" % (data_count / capture_count)
+                    else:
+                        # This is a subsequent count, ignore it
+                        continue
+                if not tracey or tracey[-1] != outputs[name]:
                     tracex.append(ts+1)
-                    tracey.append(sequence.outputs[ts][name])
+                    tracey.append(outputs[name])
 
     # add in an extra point at a major tick interval
     ts += 2
