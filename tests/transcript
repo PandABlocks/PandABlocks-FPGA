@@ -442,23 +442,23 @@
 < TTLIN1.VAL.CAPTURE?
 < TTLIN1.VAL.CAPTURE_WORD?
 > ERR No such attribute
-> OK =PCAP.BITA
+> OK =PCAP.BITS0
 
-< PCAP.BITA.CAPTURE?
+< PCAP.BITS0.CAPTURE?
 > OK =No
 
-< *ENUMS.PCAP.BITA.CAPTURE?
+< *ENUMS.PCAP.BITS0.CAPTURE?
 > !No
 > !Capture
 > .
 
-< PCAP.BITA.CAPTURE=1
-< PCAP.BITA.CAPTURE=Capture
+< PCAP.BITS0.CAPTURE=1
+< PCAP.BITS0.CAPTURE=Capture
 > ERR Not a valid capture option
 > OK
 
 < *CAPTURE?
-> !PCAP.BITA Capture
+> !PCAP.BITS0 Capture
 > .
 
 < INENC2.POSN.CAPTURE=Triggered
@@ -466,7 +466,7 @@
 
 < *CAPTURE?
 > !INENC2.POSN Triggered
-> !PCAP.BITA Capture
+> !PCAP.BITS0 Capture
 > .
 
 # Change reporting
@@ -667,17 +667,16 @@
 > !FRAME_LENGTH 7 ext_out
 > !CAPTURE_OFFSET 8 ext_out offset
 > !ACTIVE 5 bit_out
-> !BITA 10 ext_out bits
-> !BITD 13 ext_out bits
-> !BITC 12 ext_out bits
-> !BITB 11 ext_out bits
 > !ENABLE 0 param bit_mux
 > !MISSED_CAPTURES 3 read uint
 > !CAPTURE 2 param bit_mux
+> !BITS0 10 ext_out bits
+> !BITS3 13 ext_out bits
 > !CAPTURE_TS 6 ext_out timestamp
 > !ERR_STATUS 4 read uint
-> !INJECT 14 write uint
+> !BITS2 12 ext_out bits
 > !FRAME 1 param bit_mux
+> !BITS1 11 ext_out bits
 > !ADC_COUNT 9 ext_out adc_count
 > .
 
