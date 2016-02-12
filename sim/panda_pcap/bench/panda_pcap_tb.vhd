@@ -9,6 +9,9 @@ use work.top_defines.all;
 use work.test_interface.all;
 
 ENTITY panda_pcap_tb IS
+    port (
+        ttlin_pad           : in std_logic_vector(5 downto 0)
+    );
 END panda_pcap_tb;
 
 ARCHITECTURE behavior OF panda_pcap_tb IS
@@ -97,7 +100,6 @@ signal FCLK_RESET0          : std_logic;
 
 signal data                 : unsigned(31 downto 0);
 
-constant SAMPLE_SIZE        : integer := 8192;
 constant BLOCK_SIZE         : integer := 8192;
 
 begin
@@ -261,30 +263,21 @@ PORT MAP (
 --
 -- Sample data
 --
-process
-begin
-    data <= (others => '0');
-    PROC_CLK_EAT(5000, FCLK_CLK0);
-    sysbus(0) <= '1';                       -- enable.
-    PROC_CLK_EAT(125, FCLK_CLK0);
-    L1 : FOR I IN 1 TO SAMPLE_SIZE LOOP
-        sysbus(2) <= '1';                   -- trigger.
-        PROC_CLK_EAT(1, FCLK_CLK0);
-        sysbus(2) <= '0';
-        if ((I mod 2000) = 0) then
-            PROC_CLK_EAT(2500, FCLK_CLK0);
-        else
-            PROC_CLK_EAT(124, FCLK_CLK0);
-        end if;
+sysbus(7 downto 2) <= ttlin_pad;
 
-        data <= data + 1;
-    end loop;
-    PROC_CLK_EAT(100, FCLK_CLK0);
-    sysbus(0) <= '0';
-    PROC_CLK_EAT(12500, FCLK_CLK0);
+process(FCLK_CLK0)
+begin
+    if rising_edge(FCLK_CLK0) then
+        if (ttlin_pad(0) = '0') then        -- Enable
+            data <= (others => '0');
+        elsif (ttlin_pad(2) = '1') then     -- Capture
+            data <= data + 1;
+        end if;
+    end if;
 end process;
 
 posbus(12) <= std_logic_vector(data);
 posbus(13) <= std_logic_vector(data(30 downto 0) & '0');
+posbus(15) <= std_logic_vector(data(29 downto 0) & "00");
 
 end;

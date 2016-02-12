@@ -7,7 +7,7 @@ use work.test_interface.all;
 
 entity panda_top_tb is
     port (
-        ttlin_pad       : std_logic_vector(5 downto 0)
+        ttlin_pad       : in std_logic_vector(5 downto 0)
     );
 end panda_top_tb;
 

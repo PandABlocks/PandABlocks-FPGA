@@ -39,9 +39,10 @@ vopt -64 +acc -L unisims_ver -L unimacro_ver -L secureip -L xil_defaultlib -L ge
 
 vsim -t 1ps -pli "/dls_sw/FPGA/Xilinx/Vivado/2015.1/lib/lnx64.o/libxil_vsim.so" -lib xil_defaultlib test_opt
 
+add wave -group "Test" sim:/test/*
+add wave -group "TB" sim:/test/tb/*
 add wave -group "TOP" sim:/test/tb/uut/*
 add wave -group "DMA" sim:/test/tb/uut/pcap_dma_inst/*
-
-
+add wave -group "Arming" sim:/test/tb/uut/pcap_core/pcap_arming/*
 
 run -all

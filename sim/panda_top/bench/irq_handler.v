@@ -1,6 +1,7 @@
 while (1) begin
     // Wait for DMA irq
     WAIT_IRQ(IRQ_STATUS);
+
     // Read IRQ Status and Sample Count Registers
     REG_READ(DRV_BASE, DRV_PCAP_IRQ_STATUS, IRQ_STATUS);
     SMPL_COUNT = IRQ_STATUS[31:16];
@@ -10,19 +11,18 @@ while (1) begin
     smpl_table[irq_count] = SMPL_COUNT;
     addr_table[irq_count] = read_addr;
     irq_count = irq_count + 1;
-
     // Set next DMA address
     read_addr = addr;
     addr = addr + tb.BLOCK_SIZE;
+
+    // DRV_PCAP_DMA_ADDR
+    REG_WRITE(DRV_BASE, DRV_PCAP_DMA_ADDR, addr);
 
     if (IRQ_FLAGS[0] == 1'b0) begin
         if (IRQ_FLAGS[5] == 1'b1)
             $display("IRQ on TIMEOUT with %d samples.", SMPL_COUNT);
         else if (IRQ_FLAGS[6] == 1'b1)
             $display("IRQ on BLOCK_FINISHED with %d samples.", SMPL_COUNT);
-
-        // DRV_PCAP_DMA_ADDR
-        REG_WRITE(DRV_BASE, DRV_PCAP_DMA_ADDR, addr);
     end
     else if (IRQ_FLAGS[0] == 1'b1) begin
         $display("IRQ on COMPLETION with %d samples.", SMPL_COUNT);
@@ -36,9 +36,13 @@ while (1) begin
         end
 
         $display("Total Samples = %d", total_samples);
-        // DRV_PCAP_DMA_ADDR
-        REG_WRITE(DRV_BASE, DRV_PCAP_DMA_ADDR, addr);
-        $finish;
+
+        // Wait for new ARM
+        irq_count = 0;
+        total_samples = 0;
+        pcap_completed = 1;
+
+//        $finish;
     end
 end
 
