@@ -19,7 +19,7 @@ fpga_dir = os.path.join(
 Block.load_config(os.path.join(os.path.dirname(__file__), '..', 'config_d'))
 
 # Time between SIM_RESET being set high and the next test starting
-RESET_DEADTIME = 100
+RESET_DEADTIME = 12500
 
 
 class FpgaSequence(object):

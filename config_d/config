@@ -1,8 +1,3 @@
-# Interface definition
-#
-# Notes:
-#   bit_out definitions correspond to a bit on the system bus
-
 TTLIN[6]
     TERM            param       enum 2
         0   High-Z
@@ -149,7 +144,6 @@ POSENC[4]
     B               bit_out
     QSTATE          read        bit
 
-# Hard wired inputs!
 ADDER
     MASK            param
     OUTSCALE        param
@@ -208,10 +202,10 @@ PCAP
     CAPTURE_OFFSET  ext_out     offset
     ADC_COUNT       ext_out     adc_count
 
-    BITA            ext_out     bits 0
-    BITB            ext_out     bits 1
-    BITC            ext_out     bits 2
-    BITD            ext_out     bits 3
+    BITS0           ext_out     bits 0
+    BITS1           ext_out     bits 1
+    BITS2           ext_out     bits 2
+    BITS3           ext_out     bits 3
 
 BITS
     A_SET           param       bit
