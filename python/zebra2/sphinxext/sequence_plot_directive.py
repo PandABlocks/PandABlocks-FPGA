@@ -4,10 +4,14 @@ from matplotlib.sphinxext import plot_directive
 from docutils.parsers.rst import Directive
 from docutils import nodes
 
-
 from zebra2.sequenceparser import SequenceParser
+from zebra2.configparser import ConfigParser
+
+
 parser_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "tests", "sim_sequences")
+config_dir = os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "config_d")
 
 
 class sequence_plot_node(nodes.Element):
@@ -45,7 +49,7 @@ class sequence_plot_directive(Directive):
         node = sequence_plot_node(rawsource=text, **self.options)
 
         #if it is a sequencer plot, plot the table
-        if blockname in ["seq"]:
+        if blockname in ["seq", "pcap"]:
             #get the correct sequence
             fname = blockname + ".seq"
             sparser = SequenceParser(os.path.join(parser_dir, fname))
@@ -58,6 +62,92 @@ class sequence_plot_directive(Directive):
             return [table_node]
         else:
             return [node]
+
+    def make_pcap_table(self, sequence):
+        table_node = table_plot_node()
+        # get our ext names
+        cparser = ConfigParser(config_dir)
+        # find the inputs that change
+        input_changes = []
+        data_header = []
+        for inputs in sequence.inputs.values():
+            for name in inputs:
+                if "." in name:
+                    input_changes.append(name)
+                elif name == "START_WRITE":
+                    data_header = []
+                elif name == "WRITE":
+                    hdr_name = cparser.ext_names[int(inputs[name])]
+                    data_header.append(hdr_name)
+        if not data_header:
+            return table_node
+        table_hdr = ["Row"]
+        # This contains instructions about how to process each data entry
+        # - None: Just emit it
+        # - str name: It is the higher order bits of a given name
+        # - [int shift]: For each shifted value, emit the relevant bit entry
+        bit_extracts = []
+        for name in data_header:
+            if name.startswith("BITS"):
+                # Add relevant bit entries
+                quadrant = int(name[4])
+                shifts = []
+                bit_extracts.append(shifts)
+                for bus_name in input_changes:
+                    r = range(quadrant * 32, (quadrant + 1) * 32)
+                    idx = cparser.bit_bus.get(bus_name, None)
+                    if idx in r and bus_name not in table_hdr:
+                        table_hdr.append(bus_name)
+                        shifts.append(idx - quadrant * 32)
+            elif name.endswith("_H"):
+                # This is the higher order entry
+                bit_extracts.append(name[:-2])
+            else:
+                # Add pos entry
+                bit_extracts.append(None)
+                table_hdr.append(name)
+        # Create a table
+        table = nodes.table()
+        table_node += table
+        tgroup = nodes.tgroup(cols=len(table_hdr))
+        table += tgroup
+        for col_width in [len(x) for x in table_hdr]:
+            tgroup += nodes.colspec(colwidth=col_width)
+        # add the header
+        thead = nodes.thead()
+        tgroup += thead
+        thead += self.make_row(table_hdr)
+        # add the body
+        tbody = nodes.tbody()
+        tgroup += tbody
+        # Add each row
+        r = 0
+        row = [r]
+        high = {}
+        i = 0
+        for outputs in sequence.outputs.values():
+            data = outputs.get("DATA", None)
+            if data is not None:
+                extract = bit_extracts[i]
+                if type(extract) == list:
+                    for shift in extract:
+                        row.append((data >> shift) & 1)
+                elif type(extract) == str:
+                    high[extract] = data
+                else:
+                    row.append(data)
+                i += 1
+                if i >= len(bit_extracts):
+                    for name, val in high.items():
+                        idx = [ix for ix, x in enumerate(table_hdr)
+                               if x == name][0]
+                        row[idx] += val << 32
+                    tbody += self.make_row(row)
+                    r += 1
+                    row = [r]
+                    high = {}
+                    i = 0
+        return table_node
 
     def make_all_seq_tables(self, sequence):
         table_node = table_plot_node()
