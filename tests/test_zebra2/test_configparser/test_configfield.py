@@ -67,15 +67,6 @@ class FieldTest(unittest.TestCase):
         self.assertEqual(f.reg, ["4"])
         self.assertEqual(f.desc, None)
 
-    def test_no_reg(self):
-        c = "    ARM  software\n".splitlines()
-        f = ConfigField("ARM", config_lines=c)
-        self.assertEqual(f.name, "ARM")
-        self.assertEqual(f.cls, "software")
-        self.assertEqual(f.cls_args, [])
-        self.assertEqual(f.cls_extra, [])
-        self.assertEqual(f.reg, None)
-        self.assertEqual(f.desc, None)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

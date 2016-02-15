@@ -173,8 +173,8 @@ class Pcap(Block):
         if self.ext_mask[off_idx]:
             self.ext_bus[off_idx] = ts - self.ts_frame
         # bit arrays
-        for i, suff in enumerate("ABCD"):
-            bit_idx = self.ext_names["BIT%s" % suff]
+        for i in range(4):
+            bit_idx = self.ext_names["BITS%d" % i]
             if self.ext_mask[bit_idx]:
                 bits = self.bit_bus[i*32:(i+1)*32]
                 self.ext_bus[bit_idx] = Block.bits_to_int(bits)
