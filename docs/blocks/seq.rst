@@ -119,3 +119,11 @@ partially overwrite a table.
 .. sequence_plot::
    :block: seq
    :title: Reset table and write more data
+
+
+If the gate signal is re asserted to high after completion, the sequencer will
+restart.
+
+.. sequence_plot::
+   :block: seq
+   :title: Gate dropped on completion, re-raised for re-execution of same frame table
