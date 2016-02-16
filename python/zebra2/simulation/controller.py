@@ -42,6 +42,8 @@ class Controller(object):
         # When do our blocks next need to be woken up?
         # List of (int ts, Block block, dict changes)
         self.wakeups = []
+        # These are the next wakeup times for each block
+        self.next_wakeup = {}
         # What blocks are listening to each bit_bus and pos_bus parameter?
         # Dict of str bus_name -> [Block block]
         self.listeners = {}
@@ -187,11 +189,11 @@ class Controller(object):
             if ts == wake_ts:
                 block_changes.setdefault(wake_block, wake_changes)
                 self.wakeups.pop(0)
+                self.next_wakeup[wake_block] = None
             else:
                 break
         # Wake the selected blocks up
         if block_changes:
-            new_wakeups = []
             for block, changes in block_changes.items():
                 next_ts = block.on_changes(ts, changes)
                 # Update bit_bus and pos_bus
@@ -206,14 +208,34 @@ class Controller(object):
                     bus_changes[idx] = 1
                     # If someone's listening, tell them about it
                     for lblock, lattr in self.listeners.get((block, attr), ()):
-                        new_wakeups.append((ts+1, lblock, {lattr: val}))
+                        self.insert_wakeup(ts+1, lblock, {lattr: val})
+                block._changes = {}
+                # Remove the old wakeup if we have one
+                self.remove_wakeup(block)
                 # Tell us when we're next due to be woken
                 if next_ts is not None:
-                    new_wakeups.append((next_ts, block, {}))
-            # Insert all the new_wakeups into the table
-            for item in new_wakeups:
-                index = bisect.bisect(self.wakeups, item)
-                self.wakeups.insert(index, item)
+                    self.insert_wakeup(next_ts, block, {})
+
+    def insert_wakeup(self, ts, block, changes):
+        item = (ts, block, changes)
+        # Insert the new wakeup
+        index = bisect.bisect(self.wakeups, item)
+        self.wakeups.insert(index, item)
+        self.next_wakeup[block] = ts
+
+    def remove_wakeup(self, block):
+        # Delete the old entry
+        old_ts = self.next_wakeup.get(block, None)
+        if old_ts is not None:
+            index = bisect.bisect(self.wakeups, (old_ts, None, None))
+            while True:
+                wakeup = self.wakeups[index]
+                assert wakeup[0] == old_ts, \
+                    "Gone too far %d > %d" % (wakeup[0], old_ts)
+                if wakeup[1] == block:
+                    self.wakeups.pop(index)
+                    self.next_wakeup[block] = None
+                    return
 
     def calc_timeout(self):
         """Calculate how long before the next wakeup is due
