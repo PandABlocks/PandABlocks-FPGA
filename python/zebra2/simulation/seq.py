@@ -136,7 +136,6 @@ class Seq(Block):
         when we next need to be called"""
         # This is a ConfigBlock object
         b = self.config_block
-
         # Set attributes
         for name, value in changes.items():
             setattr(self, name, value)
@@ -186,5 +185,6 @@ class Seq(Block):
             self.process_inputs(ts)
         #handle the end of the sequence
         if self.end_queue and self.end_queue[0] == ts:
+            self.end_queue.popleft()
             self.set_outputs('zero')
             self.ACTIVE = 0
