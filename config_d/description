@@ -76,53 +76,53 @@ SEQ         Sequencer
     TABLE_STROBES   Number of times data has been written to the table
     TABLE           Sequencer configuration
 
-INENC       
-    PROTOCOL        
-    CLKRATE         
-    FRAMERATE       
-    BITS            
-    SETP            
-    RST_ON_Z        
-    EXTENSION       
-    A               
-    B               
-    Z               
-    CONN            
-    POSN            
+INENC       Input encoder
+    PROTOCOL        Type of absolute/incremental protocol
+    CLKRATE         Clock rate
+    FRAMERATE       Frame rate
+    BITS            Number of bits
+    SETP            Set point
+    RST_ON_Z        Zero position on Z rising edge
+    EXTENSION       Bits higher than 32-bits
+    A               Quadrature A if in incremental mode
+    B               Quadrature B if in incremental mode
+    Z               Z index channel if in incremental mode
+    CONN            Signal detected
+    POSN            Current position
 
-QDEC        
-    RST_ON_Z        
-    SETP            
-    A               
-    B               
-    Z               
-    POSN            
+QDEC        Quadrature decoder
+    RST_ON_Z        Zero position on Z rising edge
+    SETP            Set point
+    A               Quadrature A
+    B               Quadrature B
+    Z               Z index channel
+    POSN            Output position
 
-OUTENC      
-    PROTOCOL        
-    BITS            
-    QPRESCALAR      
-    FORCE_QSTATE    
-    A               
-    B               
-    Z               
-    POSN            
-    CONN            
-    QSTATE          
+OUTENC      Output encoder
+    PROTOCOL        Type of absolute/incremental protocol
+    BITS            Number of bits
+    QPRESCALAR      Quadrature prescalar
+    FORCE_QSTATE    Force quadrature state
+    A               Input for A (only straight through)
+    B               Input for B (only straight through)
+    Z               Input for Z (only straight through)
+    POSN            Input for position (all other protocols)
+    CONN            Input for connected
+    QSTATE          Quadrature state
 
-POSENC      
-    POSN            
-    QPRESCALAR      
-    MODE            
-    FORCE_QSTATE    
-    A               
-    B               
-    QSTATE          
+POSENC      Quadrature and step/direction encoder
+    POSN            Output position
+    QPRESCALAR      Prescalar for quadrature output
+    MODE            Quadrature or step/direction
+    FORCE_QSTATE    Force the quadrature state to catch up
+    A               Quadrature A/Step output
+    B               Quadrature B/Direction output
+    QSTATE          State of quadrature output
 
-ADDER       
-    MASK            
-    OUTSCALE        
-    RESULT          
+ADDER       Position adder
+    MASK            Mask of inputs to use
+    OUTSCALE        Scale output
+    RESULT          Output
 
 COUNTER     Up/Down pulse counter
     DIR             Up/Down direction (0 = Up, 1 = Down)
@@ -133,13 +133,13 @@ COUNTER     Up/Down pulse counter
     CARRY           Internal counter overflow status
     COUNT           Output
 
-PGEN        
-    SAMPLES         
-    CYCLES          
-    ENABLE          
-    TRIGGER         
-    POSN            
-    TABLE           
+PGEN        Position generator
+    SAMPLES         Number of samples
+    CYCLES          Number of cycles
+    ENABLE          Enable output
+    TRIGGER         Trigger a sample to be produced
+    POSN            Current sample
+    TABLE           Table of positions to be output
 
 PCOMP       Position compare
     START           Pulse start position value
@@ -159,20 +159,28 @@ PCOMP       Position compare
     ERROR           True if pulse is initiated after at least two compare ponts
     TABLE           Table of points to use instead of START/STEP/WIDTH
 
-ADC         
-    TRIGGER         
-    RST             
-    DATA            
+ADC         Analogue inputs
+    TRIGGER         When to trigger for data?
+    RST             Reset accumulator?
+    DATA            Current value
 
 PCAP        Position capture control
     ENABLE          Data capture enable
     FRAME           Data capture frame
     CAPTURE         Data capture event
+    MISSED_CAPTURES Have any captures been lost?
+    ERR_STATUS      Was last capture successful?
     ACTIVE          Data capture in progress
+
     CAPTURE_TS      Timestamp of captured data
     FRAME_LENGTH    Length of captured frame
     CAPTURE_OFFSET  Offset of capture into capture frame
     ADC_COUNT       Number of ADC samples in captured frame
+
+    BITS0           Quadrant 0 of bit_bus
+    BITS1           Quadrant 1 of bit_bus
+    BITS2           Quadrant 2 of bit_bus
+    BITS3           Quadrant 3 of bit_bus
 
 BITS        Soft inputs and constant bits
     A_SET           The value that output A should take
