@@ -66,7 +66,7 @@
     PCAP_BLOCK_SIZE         6
 
 TTLIN       18
-    TERM            0
+    TERM            slow 0
     VAL             2 3 4 5 6 7
 
 TTLOUT      0
@@ -85,7 +85,7 @@ LUT         2
     INPC            2
     INPD            3
     INPE            4
-    VAL             10 11 12 13 14 15 16 17
+    OUT             10 11 12 13 14 15 16 17
 
 SRGATE      3
     SET_EDGE        2
@@ -94,24 +94,22 @@ SRGATE      3
     FORCE_RST       5
     SET             0
     RST             1
-    VAL             18 19 20 21
+    OUT             18 19 20 21
 
 DIV         4
     DIVISOR         2
     FIRST_PULSE     3
-    FORCE_RST       5
     INP             0
-    RST             1
+    ENABLE          1
     OUTD            22 23 24 25
     OUTN            26 27 28 29
-    COUNT           4
+    OUT             4
 
 PULSE       5
     DELAY           3 2     >3
     WIDTH           5 4     >3
-    FORCE_RST       6
     INP             0
-    RST             1
+    ENABLE          1
     OUT             30 31 32 33
     PERR            34 35 36 37
     ERR_OVERFLOW    7
@@ -121,9 +119,8 @@ PULSE       5
 
 SEQ         6
     PRESCALE        5
-    SOFT_GATE       6
     TABLE_CYCLE     8
-    GATE            0
+    ENABLE          0
     INPA            1
     INPB            2
     INPC            3
@@ -138,22 +135,24 @@ SEQ         6
     CUR_FRAME       9
     CUR_FCYCLE      10
     CUR_TCYCLE      11
-    TABLE_STROBES   12
     TABLE           short   512    13 14 15
 
 INENC       7
     PROTOCOL        slow 0
-    CLKRATE         1
-    FRAMERATE       2
+    CLK_PERIOD      1
+    FRAME_PERIOD    2
     BITS            3
     SETP            4
     RST_ON_Z        5
     EXTENSION       6
+    ERR_FRAME       7
+    ERR_RESPONSE    8
+    ENC_STATUS      9
     A               66 67 68 69
     B               70 71 72 73
     Z               74 75 76 77
     CONN            78 79 80 81
-    POSN            1 2 3 4 / 33 34 35 36
+    VAL             1 2 3 4 / 33 34 35 36
 
 QDEC        8
     RST_ON_Z        3
@@ -161,50 +160,51 @@ QDEC        8
     A               0
     B               1
     Z               2
-    POSN            5 6 7 8
+    OUT             5 6 7 8
 
 OUTENC      9
     PROTOCOL        5
     BITS            6
-    QPRESCALAR      7
-    FORCE_QSTATE    8
+    QPERIOD         7
+    ENABLE          8
     A               0
     B               1
     Z               2
-    POSN            4
+    VAL             4
     CONN            3
     QSTATE          9
 
 POSENC      10
-    POSN            0
-    QPRESCALAR      1
-    MODE            2
-    FORCE_QSTATE    3
+    INP             0
+    QPERIOD         1
+    ENABLE          3
+    PROTOCOL        2
     A               82 83 84 85
     B               86 87 88 89
     QSTATE          4
 
-# Hard wired inputs!
 ADDER       12
-    MASK            1
-    OUTSCALE        2
-    RESULT          11
+    INPA            0
+    INPB            1
+    INPC            2
+    INPD            3
+    SCALE           4
+    OUT             10 11
 
 COUNTER     13
     DIR             2
     START           3
     STEP            4
     ENABLE          0
-    TRIGGER         1
+    TRIG            1
     CARRY           90 91 92 93 94 95 96 97
-    COUNT           12 13 14 15 16 17 18 19
+    OUT             12 13 14 15 16 17 18 19
 
 PGEN        14
-    SAMPLES         2
     CYCLES          3
     ENABLE          0
-    TRIGGER         1
-    POSN            20 21
+    TRIG            1
+    OUT             20 21
     TABLE           long    2^20    4 5
 
 PCOMP       15
@@ -216,25 +216,22 @@ PCOMP       15
     DIR             7
     FLTR_DELTAT     8
     FLTR_THOLD      9
-    LUT_ENABLE      10
+    USE_TABLE       10
     ENABLE          0
-    POSN            1
-    ACT             98 99 100 101
-    PULSE           102 103 104 105
+    INP             1
+    ACTIVE          98 99 100 101
+    OUT             102 103 104 105
     FLTR_DIR        13
     ERROR           14
     TABLE           long    2^10    11 12
 
 ADC         26
-    TRIGGER         0
-    RST             1
-    DATA            22 23 24 25 26 27 28 29 / 54 55 56 57 58 59 60 61
+    OUT             22 23 24 25 26 27 28 29 / 54 55 56 57 58 59 60 61
 
 PCAP        16
     ENABLE          0
     FRAME           1
     CAPTURE         2
-    MISSED_CAPTURES 3
     ERR_STATUS      4
     ACTIVE          106
     CAPTURE_TS      62 / 63
@@ -247,14 +244,14 @@ PCAP        16
     BITS3           42
 
 BITS        28
-    A_SET           0
-    B_SET           1
-    C_SET           2
-    D_SET           3
-    A               118
-    B               119
-    C               120
-    D               121
+    A               0
+    B               1
+    C               2
+    D               3
+    OUTA            118
+    OUTB            119
+    OUTC            120
+    OUTD            121
     ZERO            0
     ONE             1
 
@@ -263,10 +260,10 @@ CLOCKS      29
     B_PERIOD        1
     C_PERIOD        2
     D_PERIOD        3
-    A               122
-    B               123
-    C               124
-    D               125
+    OUTA            122
+    OUTB            123
+    OUTC            124
+    OUTD            125
 
 POSITIONS   30
     ZERO            0
