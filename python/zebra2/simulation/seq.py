@@ -46,6 +46,7 @@ class Seq(Block):
         self.frpt_queue.clear()
         self.trpt_queue.clear()
         self.next_frame_queue.clear()
+        self.end_queue.clear()
 
     def process_inputs(self, ts):
         if self.ACTIVE and self.frame_ok:
