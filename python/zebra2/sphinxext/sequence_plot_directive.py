@@ -1,8 +1,9 @@
 import os
 
 from matplotlib.sphinxext import plot_directive
-from docutils.parsers.rst import Directive
-from docutils import nodes
+from docutils.parsers.rst.directives import images
+from docutils.parsers.rst import Directive, states
+from docutils import nodes, statemachine
 
 from zebra2.sequenceparser import SequenceParser
 from zebra2.configparser import ConfigParser
@@ -27,7 +28,10 @@ class sequence_plot_directive(Directive):
     has_content = False
     required_arguments = 0
     optional_arguments = 0
-    option_spec = {'block': str, 'title': str, 'table': bool}
+    option_spec = {'block': str, 'title': str, 'table': bool, 'nofigs': bool}
+
+    def catch_insert_input(self, total_lines, source=None):
+        self.total_lines = total_lines
 
     def run(self):
 
@@ -39,14 +43,23 @@ class sequence_plot_directive(Directive):
             "from block_plot import make_block_plot",
             "make_block_plot('%s', '%s')" % (blockname, plotname)]
 
-        #call the plot directive directive to insert the plot
+        # override include_input so we get the result
+        old_insert_input = self.state_machine.insert_input
+        self.state_machine.insert_input = self.catch_insert_input
+
         plot_directive.plot_directive(
             self.name, self.arguments, self.options, plot_content, self.lineno,
             self.content_offset, self.block_text, self.state,
             self.state_machine)
 
-        text = '\n'.join(plot_content)
-        node = sequence_plot_node(rawsource=text, **self.options)
+        self.state_machine.insert_input = old_insert_input
+        plot_node = sequence_plot_node()
+        node = sequence_plot_node()
+
+        # do a nested parse of the lines
+        self.state.nested_parse(
+            statemachine.ViewList(initlist=self.total_lines),
+            self.content_offset, plot_node)
 
         #if it is a sequencer plot, plot the table
         if blockname in ["seq", "pcap"]:
@@ -57,11 +70,13 @@ class sequence_plot_directive(Directive):
             sequence = matches[0]
             if blockname == "seq":
                 table_node = self.make_all_seq_tables(sequence)
+                node.append(table_node)
+                node.append(plot_node)
             else:
                 table_node = self.make_pcap_table(sequence)
-            return [table_node]
-        else:
-            return [node]
+                node.append(plot_node)
+                node.append(table_node)
+        return [node]
 
     def make_pcap_table(self, sequence):
         table_node = table_plot_node()
@@ -252,14 +267,9 @@ def setup(app):
 
 def visit_sequence_plot(self, node):
     pass
-    #put stuff here to happen before
-    # self.body.append("SOME TEXT HERE BEFORE\n")
-    # self.body.append(node.attributes['title']+'\n')
 
 def depart_sequence_plot(self, node):
     pass
-    #put stuff here to happen after
-    # self.body.append("SOMETHING APPENDED AFTER")
 
 def visit_table_plot(self, node):
     pass
