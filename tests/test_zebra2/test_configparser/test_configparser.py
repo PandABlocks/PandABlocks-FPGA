@@ -2,6 +2,8 @@
 import unittest
 import sys
 import os
+import logging
+logging.basicConfig()
 
 # Module import
 sys.path.append(os.path.join(os.path.dirname(__file__),
