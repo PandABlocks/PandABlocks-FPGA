@@ -93,11 +93,14 @@ read_vhdl ../src/hdl/panda_bits_block.vhd
 read_vhdl ../src/hdl/panda_bits_top.vhd
 read_vhdl ../src/hdl/panda_reg.vhd
 read_vhdl ../src/hdl/panda_reg_top.vhd
-read_vhdl ../src/hdl//panda_axi3_write_master.vhd
+read_vhdl ../src/hdl/panda_axi3_write_master.vhd
+read_vhdl ../src/hdl/panda_pcap_arming.vhd
+read_vhdl ../src/hdl/panda_pcap_buffer.vhd
+read_vhdl ../src/hdl/panda_pcap_core.vhd
 read_vhdl ../src/hdl/panda_pcap_ctrl.vhd
+read_vhdl ../src/hdl/panda_pcap_dma.vhd
+read_vhdl ../src/hdl/panda_pcap_frame.vhd
 read_vhdl ../src/hdl/panda_pcap_posproc.vhd
-read_vhdl ../src/hdl/panda_pcap_dsp.vhd
-read_vhdl ../src/hdl/panda_pcap.vhd
 read_vhdl ../src/hdl/panda_pcap_top.vhd
 read_vhdl ../src/hdl/pulse2pulse.vhd
 read_vhdl ../src/hdl/panda_slow_tx.vhd

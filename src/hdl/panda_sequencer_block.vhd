@@ -39,28 +39,29 @@ end panda_sequencer_block;
 
 architecture rtl of panda_sequencer_block is
 
-signal GATE_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
-signal INPA_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
-signal INPB_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
-signal INPC_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
-signal INPD_VAL         : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
+signal GATE_VAL         : std_logic_vector(SBUSBW-1 downto 0);
+signal INPA_VAL         : std_logic_vector(SBUSBW-1 downto 0);
+signal INPB_VAL         : std_logic_vector(SBUSBW-1 downto 0);
+signal INPC_VAL         : std_logic_vector(SBUSBW-1 downto 0);
+signal INPD_VAL         : std_logic_vector(SBUSBW-1 downto 0);
 
-signal PRESCALE         : std_logic_vector(31 downto 0) := (others => '0');
-signal SOFT_GATE        : std_logic := '0';
-signal TABLE_START        : std_logic := '0';
-signal TABLE_DATA       : std_logic_vector(31 downto 0) := (others => '0');
-signal TABLE_WSTB       : std_logic := '0';
-signal TABLE_CYCLE      : std_logic_vector(31 downto 0) := (others => '0');
-signal TABLE_LENGTH     : std_logic_vector(15 downto 0) := (others => '0');
-signal CUR_FRAME        : std_logic_vector(31 downto 0) := (others => '0');
-signal CUR_FCYCLES      : std_logic_vector(31 downto 0) := (others => '0');
-signal CUR_TCYCLE       : std_logic_vector(31 downto 0) := (others => '0');
+signal PRESCALE         : std_logic_vector(31 downto 0);
+signal SOFT_GATE        : std_logic;
+signal TABLE_START      : std_logic;
+signal TABLE_DATA       : std_logic_vector(31 downto 0);
+signal TABLE_WSTB       : std_logic;
+signal TABLE_CYCLE      : std_logic_vector(31 downto 0);
+signal TABLE_LENGTH     : std_logic_vector(15 downto 0);
+signal TABLE_LENGTH_WSTB: std_logic;
+signal CUR_FRAME        : std_logic_vector(31 downto 0);
+signal CUR_FCYCLE       : std_logic_vector(31 downto 0);
+signal CUR_TCYCLE       : std_logic_vector(31 downto 0);
 
-signal gate             : std_logic := '0';
-signal inpa             : std_logic := '0';
-signal inpb             : std_logic := '0';
-signal inpc             : std_logic := '0';
-signal inpd             : std_logic := '0';
+signal gate             : std_logic;
+signal inpa             : std_logic;
+signal inpb             : std_logic;
+signal inpc             : std_logic;
+signal inpd             : std_logic;
 
 signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
 
@@ -88,9 +89,11 @@ begin
             TABLE_WSTB <= '0';
             TABLE_CYCLE <= (others => '0');
             TABLE_LENGTH <= (others => '0');
+            TABLE_LENGTH_WSTB <= '0';
         else
             TABLE_START <= '0';
             TABLE_WSTB <= '0';
+            TABLE_LENGTH_WSTB <= '0';
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
@@ -137,6 +140,7 @@ begin
 
                 if (mem_addr = SEQ_TABLE_LENGTH) then
                     TABLE_LENGTH <= mem_dat_i(15 downto 0);
+                    TABLE_LENGTH_WSTB <= '1';
                 end if;
             end if;
         end if;
@@ -155,11 +159,9 @@ begin
                 when SEQ_CUR_FRAME =>
                     mem_dat_o <= CUR_FRAME;
                 when SEQ_CUR_FCYCLE =>
-                    mem_dat_o <= CUR_FCYCLES;
+                    mem_dat_o <= CUR_FCYCLE;
                 when SEQ_CUR_TCYCLE =>
                     mem_dat_o <= CUR_TCYCLE;
---                when SEQ_CUR_STATE =>
---                    mem_dat_o <= CUR_STATE;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;
@@ -185,6 +187,7 @@ end process;
 panda_sequencer : entity work.panda_sequencer
 port map (
     clk_i               => clk_i,
+    reset_i             => reset_i,
 
     gate_i              => gate,
     inpa_i              => inpa,
@@ -206,11 +209,11 @@ port map (
     TABLE_WSTB          => TABLE_WSTB,
     TABLE_CYCLE         => TABLE_CYCLE,
     TABLE_LENGTH        => TABLE_LENGTH,
+    TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB,
 
     CUR_FRAME           => CUR_FRAME,
-    CUR_FCYCLES         => CUR_FCYCLES,
-    CUR_TCYCLE          => CUR_TCYCLE,
-    CUR_STATE           => open
+    CUR_FCYCLE          => CUR_FCYCLE,
+    CUR_TCYCLE          => CUR_TCYCLE
 );
 
 end rtl;

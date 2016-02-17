@@ -64,6 +64,17 @@ constant EBUSW              : positive := 12;
 --
 -- TYPEs :
 --
+type seq_t is
+record
+    repeats     : unsigned(31 downto 0);
+    trig_mask   : std_logic_vector(3 downto 0);
+    trig_cond   : std_logic_vector(3 downto 0);
+    outp_ph1    : std_logic_vector(5 downto 0);
+    outp_ph2    : std_logic_vector(5 downto 0);
+    ph1_time    : unsigned(31 downto 0);
+    ph2_time    : unsigned(31 downto 0);
+end record;
+
 type slow_packet is
 record
     strobe      : std_logic;
