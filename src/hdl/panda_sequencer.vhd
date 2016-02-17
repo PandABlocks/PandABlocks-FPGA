@@ -332,13 +332,13 @@ CUR_FCYCLE <= std_logic_vector(repeat_count);
 CUR_TCYCLE  <= std_logic_vector(table_count);
 
 -- Gated Block Outputs.
-outa_o <= out_val(0);-- when (gate_val = '1') else '0';
-outb_o <= out_val(1);-- when (gate_val = '1') else '0';
-outc_o <= out_val(2);-- when (gate_val = '1') else '0';
-outd_o <= out_val(3);-- when (gate_val = '1') else '0';
-oute_o <= out_val(4);-- when (gate_val = '1') else '0';
-outf_o <= out_val(5);-- when (gate_val = '1') else '0';
-active_o <= active when (gate_val = '1') else '0';
+outa_o <= out_val(0);
+outb_o <= out_val(1);
+outc_o <= out_val(2);
+outd_o <= out_val(3);
+oute_o <= out_val(4);
+outf_o <= out_val(5);
+active_o <= active;
 
 
 end rtl;
