@@ -205,7 +205,7 @@ PGEN        14
     ENABLE          0
     TRIGGER         1
     POSN            20 21
-    TABLE           long    2^20    4 5
+    TABLE           long    2^8    4 5
 
 PCOMP       15
     START           2
@@ -223,7 +223,7 @@ PCOMP       15
     PULSE           102 103 104 105
     FLTR_DIR        13
     ERROR           14
-    TABLE           long    2^10    11 12
+    TABLE           long    2^2    11 12
 
 ADC         26
     TRIGGER         0
