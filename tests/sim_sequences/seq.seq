@@ -198,7 +198,10 @@ $ Setting inactive before finished and restarting
 25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1, OUTB=1, OUTC=1
 29      :                           : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1
         :                           : OUTF=1
-
+31      :                           : OUTA=1, OUTB=1, OUTC=1, OUTD=0, OUTE=0
+        :                           : OUTF=0, CUR_TCYCLE=2
+35      :                           : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1
+        :                           : OUTF=1
 36      : GATE=0                    : OUTA=0, OUTB=0, OUTC=0, OUTD=0, OUTE=0
         :                           : OUTF=0, ACTIVE=0, CUR_FCYCLE=0
         :                           : CUR_FRAME=0, CUR_TCYCLE=0
