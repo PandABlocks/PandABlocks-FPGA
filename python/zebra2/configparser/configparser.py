@@ -20,6 +20,8 @@ class ConfigParser(object):
             for each block and field
         pos_bus (OrderedDict): map str block_name.field_name -> int pos_bus_idx
             for each block and field
+        ext_names (OrderedDict): map int ext_bus_idx -> str
+            block_name.field_name for each block and field
     """
 
     def __init__(self, config_dir):
@@ -32,6 +34,7 @@ class ConfigParser(object):
         self.blocks = OrderedDict()
         self.bit_bus = OrderedDict()
         self.pos_bus = OrderedDict()
+        self.ext_names = OrderedDict()
         self.parse()
 
     def parse(self):
@@ -105,6 +108,7 @@ class ConfigParser(object):
         self._warn_ordering(config_fields, reg_fields, desc_fields,
                             "of fields in %s" % block_name)
         block = ConfigBlock(reg_line, **args)
+        self.blocks[block.name] = block
         # iterate through the fields
         for field_name in fields:
             args = {}
@@ -121,21 +125,38 @@ class ConfigParser(object):
             block.add_field(field)
             # Add entry to bit bus or pos bus if it's there
             if field.cls and field.cls.endswith("_out"):
-                if field.cls == "bit_out":
-                    bus = self.bit_bus
-                elif field.cls == "pos_out":
-                    bus = self.pos_bus
-                else:
-                    continue
                 for i in range(block.num):
-                    idx = int(field.reg[i])
-                    if block.num == 1:
-                        bus_name = "%s.%s" % (block_name, field_name)
-                    else:
-                        bus_name = "%s%d.%s" % (block_name, i+1, field_name)
-                    bus[bus_name] = idx
+                    self._add_bus_entry(block, i, field)
 
-        self.blocks[block.name] = block
+    def _add_bus_entry(self, block, i, field):
+        if block.num == 1:
+            bus_name = "%s.%s" % (block.name, field.name)
+        else:
+            bus_name = "%s%d.%s" % (block.name, i+1, field.name)
+        if field.cls == "bit_out":
+            # add a bus entry to the bit bus
+            idx = int(field.reg[i])
+            self.bit_bus[bus_name] = idx
+        elif field.cls == "pos_out":
+            # add a bus entry to the pos bus
+            idx = int(field.reg[i])
+            self.pos_bus[bus_name] = idx
+            # add the corresponding entry to the ext names lookup
+            self.ext_names[idx] = bus_name
+            # If we have extended entries then add them
+            # A reg line looks like 1 2 3 4 / 33 34 35 36
+            # so index to get rid of the slash
+            if len(field.reg) > block.num * 2 + 1:
+                idx = int(field.reg[block.num + 1 + i])
+                self.ext_names[idx] = bus_name + "_H"
+        else:
+            # an entry just in the ext bus
+            idx = int(field.reg[0])
+            self.ext_names[idx] = field.name
+            if len(field.reg) > 2:
+                # For time, looks like 62 / 63, so add both
+                idx = int(field.reg[2])
+                self.ext_names[idx] = field.name + "_H"
 
     def _warn_ordering(self, config, reg, desc, err):
         """Check ordering of overlapping subsets of 3 ordered dicts

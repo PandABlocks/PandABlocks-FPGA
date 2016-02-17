@@ -98,8 +98,10 @@ def make_block_plot(blockname, title):
             if "." in name:
                 if name in cparser.bit_bus:
                     in_bits_names.add(name)
+                    block.fields[name] = None
                 elif name in cparser.pos_bus:
                     in_positions_names.add(name)
+                    block.fields[name] = None
             elif block.name == "PCAP" and name in ["ARM", "DISARM"]:
                 # Add in PCAP specials
                 in_regs_names.add(name)

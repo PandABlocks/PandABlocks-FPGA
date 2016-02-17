@@ -53,7 +53,7 @@ class BlockTest(unittest.TestCase):
         r = "BLOCK 4"
         b = ConfigBlock(r)
         self.assertEqual(b.name, "BLOCK")
-        self.assertEqual(b.num, None)
+        self.assertEqual(b.num, 1)
         self.assertEqual(b.base, 4)
         self.assertEqual(b.desc, None)
         self.assertEqual(b.fields, OrderedDict())
