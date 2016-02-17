@@ -192,7 +192,7 @@ $ Setting inactive before finished and restarting
 7       : TABLE_DATA=0x1F073800     : TABLE_STROBES=2
 8       : TABLE_DATA=0x00000002     : TABLE_STROBES=3
 9       : TABLE_DATA=0x00000001     : TABLE_STROBES=4
-10      : TABLE_LENGTH=1
+11      : TABLE_LENGTH=1
 16      : GATE=1                    : ACTIVE=1, CUR_FRAME=1
         :                           : CUR_FCYCLE=1, CUR_TCYCLE=1
 25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1, OUTB=1, OUTC=1
@@ -246,7 +246,7 @@ $ Reset table and write more data
 14      : TABLE_DATA=0xFE3F0200     : TABLE_STROBES=6
 15      : TABLE_DATA=0x00000003     : TABLE_STROBES=7
 16      : TABLE_DATA=0x00000002     : TABLE_STROBES=8
-17      : TABLE_LENGTH=2
+18      : TABLE_LENGTH=2
 23      : GATE=1                    : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1
 26      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1, OUTB=1, OUTC=1
@@ -276,9 +276,9 @@ $ Reset table and write more data
 42      : TABLE_DATA=0x11040800     : TABLE_STROBES=2
 43      : TABLE_DATA=0x00000001     : TABLE_STROBES=3
 44      : TABLE_DATA=0x00000002     : TABLE_STROBES=4
-45      : TABLE_LENGTH=1            : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
+46      : TABLE_LENGTH=1            :
+47      :                           : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1
-
 56      : INPA=1                    : OUTA=0, OUTB=0, OUTC=1, OUTD=0, OUTE=0
         :                           : OUTF=0
 58      :                           : OUTD=1, OUTC=0
@@ -305,7 +305,7 @@ $ Gate dropped on completion, re-raised for re-execution of same frame table
 7       : TABLE_DATA=0xFF013F00             : TABLE_STROBES=2
 8       : TABLE_DATA=0x00000002             : TABLE_STROBES=3
 9       : TABLE_DATA=0x00000001             : TABLE_STROBES=4
-10      : TABLE_LENGTH=1
+11      : TABLE_LENGTH=1
 16      : GATE=1                            : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                                   : CUR_TCYCLE=1
 25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
