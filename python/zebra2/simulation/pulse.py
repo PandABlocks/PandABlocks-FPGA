@@ -46,8 +46,7 @@ class Pulse(Block):
                 self.queue.append((start + width, 0))
 
     def do_reset(self, ts):
-        """Reset the block, either called on rising edge of RST input or
-        when FORCE_RST reg is written to"""
+        """Reset the block, either called on rising edge of ENABLE"""
         self.MISSED_CNT = 0
         self.ERR_OVERFLOW = 0
         self.ERR_PERIOD = 0
@@ -75,7 +74,7 @@ class Pulse(Block):
                 self.do_clear_queue(ts)
 
         # Check reset and pulse inputs
-        if b.FORCE_RST in changes or changes.get(b.RST, None):
+        if changes.get(b.ENABLE, None):
             self.do_reset(ts)
         elif b.INP in changes:
             self.do_pulse(ts, changes)

@@ -7,42 +7,42 @@ $ Increasing position with +ve dir
 6       : PNUM=3
 10      : ENABLE=1
 11      :
-12      : POSN=1
-13      : POSN=2
-14      : POSN=3
-15      : POSN=4
-16      : POSN=5        : PULSE=1, ACT=1
-17      : POSN=6
-18      : POSN=7        : PULSE=0
-23      : POSN=8        : PULSE=1
-26      : POSN=9
-33      : POSN=10       : PULSE=0
-36      : POSN=11       : PULSE=1
-43      : POSN=12
-46      : POSN=13       : PULSE=0, ACT=0
+12      : INP=1
+13      : INP=2
+14      : INP=3
+15      : INP=4
+16      : INP=5        : OUT=1, ACTIVE=1
+17      : INP=6
+18      : INP=7        : OUT=0
+23      : INP=8        : OUT=1
+26      : INP=9
+33      : INP=10       : OUT=0
+36      : INP=11       : OUT=1
+43      : INP=12
+46      : INP=13       : OUT=0, ACTIVE=0
 
 ###############
 $ Decreasing position with +ve dir
 
-2       : POSN=10
+2       : INP=10
 3       : START=5
 4       : STEP=10
 5       : WIDTH=7
 6       : PNUM=3
 10      : ENABLE=1
 11      :
-12      : POSN=9
-13      : POSN=8
-14      : POSN=7
-15      : POSN=6
-16      : POSN=5
-17      : POSN=4
-18      : POSN=3
+12      : INP=9
+13      : INP=8
+14      : INP=7
+15      : INP=6
+16      : INP=5
+17      : INP=4
+18      : INP=3
 
 ###############
 $ Decreasing position with -ve dir
 
-2       : POSN=10
+2       : INP=10
 3       : START=5
 4       : STEP=3
 5       : WIDTH=2
@@ -50,51 +50,51 @@ $ Decreasing position with -ve dir
 7       : DIR=1
 10      : ENABLE=1
 11      :
-12      : POSN=9
-13      : POSN=8
-14      : POSN=7
-15      : POSN=6
-16      : POSN=5    : PULSE=1, ACT=1
-17      : POSN=4
-18      : POSN=3    : PULSE=0
-20      : POSN=2    : PULSE=1
-21      : POSN=1
-22      : POSN=0    : PULSE=0, ACT=0
+12      : INP=9
+13      : INP=8
+14      : INP=7
+15      : INP=6
+16      : INP=5    : OUT=1, ACTIVE=1
+17      : INP=4
+18      : INP=3    : OUT=0
+20      : INP=2    : OUT=1
+21      : INP=1
+22      : INP=0    : OUT=0, ACTIVE=0
 
 ###############
 $ Disable after start
 
-2       : POSN=10
+2       : INP=10
 3       : START=5
 4       : STEP=10
 5       : WIDTH=7
 6       : PNUM=3
 7       : DIR=1
 10      : ENABLE=1
-12      : POSN=9
-13      : POSN=8
-14      : POSN=7
-15      : POSN=6
-16      : POSN=5            : PULSE=1, ACT=1
-18      : POSN=4, ENABLE=0  : ACT=0, PULSE=0
+12      : INP=9
+13      : INP=8
+14      : INP=7
+15      : INP=6
+16      : INP=5            : OUT=1, ACTIVE=1
+18      : INP=4, ENABLE=0  : ACTIVE=0, OUT=0
 
 ###############
 $ Disable with start
 
-2       : POSN=10
+2       : INP=10
 3       : START=5
 4       : STEP=10
 5       : WIDTH=7
 6       : PNUM=3
 7       : DIR=1
 10      : ENABLE=1
-12      : POSN=9
-13      : POSN=8
-14      : POSN=7
-15      : POSN=6
-16      : POSN=5, ENABLE=0
-17      : POSN=4
-18      : POSN=3
+12      : INP=9
+13      : INP=8
+14      : INP=7
+15      : INP=6
+16      : INP=5, ENABLE=0
+17      : INP=4
+18      : INP=3
 
 
 ###############
@@ -108,21 +108,21 @@ $ Increasing position with jitter below FLTR_THOLD
 11      : FLTR_DELTAT=5
 13      : FLTR_THOLD=1
 14      :
-15      : POSN=1
-16      : POSN=2
-17      : POSN=3
-18      : POSN=4
-19      : POSN=5        : PULSE=1, ACT=1
-20      : POSN=4
-21      : POSN=5
-24      : POSN=6
-27      : POSN=7        : PULSE=0
-29      : POSN=8        : PULSE=1
-33      : POSN=9
-36      : POSN=10       : PULSE=0
-39      : POSN=11       : PULSE=1
-44      : POSN=12
-47      : POSN=13       : PULSE=0, ACT=0
+15      : INP=1
+16      : INP=2
+17      : INP=3
+18      : INP=4
+19      : INP=5        : OUT=1, ACTIVE=1
+20      : INP=4
+21      : INP=5
+24      : INP=6
+27      : INP=7        : OUT=0
+29      : INP=8        : OUT=1
+33      : INP=9
+36      : INP=10       : OUT=0
+39      : INP=11       : OUT=1
+44      : INP=12
+47      : INP=13       : OUT=0, ACTIVE=0
 
 
 ###############
@@ -136,20 +136,20 @@ $ Increasing position with jitter above FLTR_THOLD inside deltaT
 11      : FLTR_DELTAT=5
 13      : FLTR_THOLD=1
 14      :
-15      : POSN=1
-16      : POSN=2
-17      : POSN=3
-18      : POSN=4
-19      : POSN=5        : PULSE=1, ACT=1
-20      : POSN=6
-21      : POSN=7        : PULSE=0
-24      : POSN=0
-25      : POSN=8        : PULSE=1
-33      : POSN=9
-36      : POSN=10       : PULSE=0
-39      : POSN=11       : PULSE=1
-44      : POSN=12
-47      : POSN=13       : PULSE=0, ACT=0
+15      : INP=1
+16      : INP=2
+17      : INP=3
+18      : INP=4
+19      : INP=5        : OUT=1, ACTIVE=1
+20      : INP=6
+21      : INP=7        : OUT=0
+24      : INP=0
+25      : INP=8        : OUT=1
+33      : INP=9
+36      : INP=10       : OUT=0
+39      : INP=11       : OUT=1
+44      : INP=12
+47      : INP=13       : OUT=0, ACTIVE=0
 
 ###############
 $ Increasing position with jitter above FLTR_THOLD on deltaT edge
@@ -163,21 +163,21 @@ $ Increasing position with jitter above FLTR_THOLD on deltaT edge
 11      : FLTR_DELTAT=5
 13      : FLTR_THOLD=1
 14      :
-15      : POSN=1
-16      : POSN=2
-17      : POSN=3
-18      : POSN=4
-21      : POSN=5        : PULSE=1, ACT=1
-22      : POSN=6
-23      : POSN=7        : PULSE=0
-26      : POSN=0        : FLTR_DIR=1
-27      : POSN=8
-31      :               : PULSE=1, FLTR_DIR=0
-35      : POSN=9        :
-38      : POSN=10       : PULSE=0
-41      : POSN=11       : PULSE=1
-46      : POSN=12
-49      : POSN=13       : PULSE=0, ACT=0
+15      : INP=1
+16      : INP=2
+17      : INP=3
+18      : INP=4
+21      : INP=5        : OUT=1, ACTIVE=1
+22      : INP=6
+23      : INP=7        : OUT=0
+26      : INP=0        : FLTR_DIR=1
+27      : INP=8
+31      :               : OUT=1, FLTR_DIR=0
+35      : INP=9        :
+38      : INP=10       : OUT=0
+41      : INP=11       : OUT=1
+46      : INP=12
+49      : INP=13       : OUT=0, ACTIVE=0
 
 ###############
 $ Increasing position with jitter below FLTR_THOLD on deltaT edge
@@ -190,20 +190,20 @@ $ Increasing position with jitter below FLTR_THOLD on deltaT edge
 11      : FLTR_DELTAT=5
 13      : FLTR_THOLD=1
 14      :
-15      : POSN=1
-16      : POSN=2
-17      : POSN=3
-18      : POSN=4
-21      : POSN=5        : PULSE=1, ACT=1
-22      : POSN=6
-23      : POSN=7        : PULSE=0
-26      : POSN=6
-27      : POSN=8        : PULSE=1
-35      : POSN=9
-38      : POSN=10       : PULSE=0
-41      : POSN=11       : PULSE=1
-46      : POSN=12
-49      : POSN=13       : PULSE=0, ACT=0
+15      : INP=1
+16      : INP=2
+17      : INP=3
+18      : INP=4
+21      : INP=5        : OUT=1, ACTIVE=1
+22      : INP=6
+23      : INP=7        : OUT=0
+26      : INP=6
+27      : INP=8        : OUT=1
+35      : INP=9
+38      : INP=10       : OUT=0
+41      : INP=11       : OUT=1
+46      : INP=12
+49      : INP=13       : OUT=0, ACTIVE=0
 
 ###############
 $ Increasing position with jitter above FLTR_THOLD then return to start
@@ -216,22 +216,22 @@ $ Increasing position with jitter above FLTR_THOLD then return to start
 12      : FLTR_DELTAT=2
 13      : FLTR_THOLD=1
 14      :
-17      : POSN=1
-18      : POSN=2
-19      : POSN=3
-20      : POSN=4
-21      : POSN=5        : PULSE=1, ACT=1
-22      : POSN=6
-23      : POSN=7        : PULSE=0
-24      : POSN=1
-26      : POSN=5        :
-27      : POSN=6
-28      : POSN=8        : PULSE=1
-30      : POSN=9
-31      : POSN=10       : PULSE=0
-33      : POSN=11       : PULSE=1
-35      : POSN=12
-37      : POSN=13       : PULSE=0, ACT=0
+17      : INP=1
+18      : INP=2
+19      : INP=3
+20      : INP=4
+21      : INP=5        : OUT=1, ACTIVE=1
+22      : INP=6
+23      : INP=7        : OUT=0
+24      : INP=1
+26      : INP=5        :
+27      : INP=6
+28      : INP=8        : OUT=1
+30      : INP=9
+31      : INP=10       : OUT=0
+33      : INP=11       : OUT=1
+35      : INP=12
+37      : INP=13       : OUT=0, ACTIVE=0
 
 
 ###############
@@ -246,19 +246,19 @@ $ Increasing position with jitter above FLTR_THOLD before start
 12      : FLTR_DELTAT=3
 13      : FLTR_THOLD=1
 14      :
-17      : POSN=1
-18      : POSN=2
-19      : POSN=3
-20      : POSN=4
-21      : POSN=0
-22      : POSN=5
-23      : POSN=6
-24      : POSN=7        : PULSE=1, ACT=1
-25      : POSN=8        : PULSE=0
-26      : POSN=9        : PULSE=1
-27      : POSN=10       : PULSE=0
-28      : POSN=11       : PULSE=1
-29      : POSN=12
+17      : INP=1
+18      : INP=2
+19      : INP=3
+20      : INP=4
+21      : INP=0
+22      : INP=5
+23      : INP=6
+24      : INP=7        : OUT=1, ACTIVE=1
+25      : INP=8        : OUT=0
+26      : INP=9        : OUT=1
+27      : INP=10       : OUT=0
+28      : INP=11       : OUT=1
+29      : INP=12
 
 ###############
 $ Increasing position with jitter above threshold before start
@@ -272,19 +272,19 @@ $ Increasing position with jitter above threshold before start
 12      : FLTR_DELTAT=3
 13      : FLTR_THOLD=1
 14      :
-17      : POSN=1
-18      : POSN=2
-19      : POSN=3
-20      : POSN=4
-21      : POSN=0
-22      : POSN=5
-23      : POSN=6
-24      : POSN=7        : PULSE=1, ACT=1
-25      : POSN=8        : PULSE=0
-26      : POSN=9        : PULSE=1
-27      : POSN=10
-28      : POSN=11
-29      : POSN=12       : PULSE=0
+17      : INP=1
+18      : INP=2
+19      : INP=3
+20      : INP=4
+21      : INP=0
+22      : INP=5
+23      : INP=6
+24      : INP=7        : OUT=1, ACTIVE=1
+25      : INP=8        : OUT=0
+26      : INP=9        : OUT=1
+27      : INP=10
+28      : INP=11
+29      : INP=12       : OUT=0
 
 
 ###############
@@ -300,27 +300,27 @@ $ Decreasing from above start with +ve direction filter and direction change abo
 12      : FLTR_DELTAT=3
 13      : FLTR_THOLD=1
 14      :
-15      : POSN=11
-16      : POSN=10
-17      : POSN=9
-18      : POSN=8
-19      : POSN=7
-20      : POSN=6
-23      : POSN=5
-25      : POSN=3
-27      : POSN=1
-28      : POSN=2
-29      : POSN=3
-30      : POSN=4
-31      : POSN=0
-43      : POSN=5
-44      : POSN=6
-45      : POSN=7        : PULSE=1, ACT=1
-46      : POSN=8        : PULSE=0
-47      : POSN=9        : PULSE=1
-48      : POSN=10
-49      : POSN=11
-50      : POSN=12       : PULSE=0
+15      : INP=11
+16      : INP=10
+17      : INP=9
+18      : INP=8
+19      : INP=7
+20      : INP=6
+23      : INP=5
+25      : INP=3
+27      : INP=1
+28      : INP=2
+29      : INP=3
+30      : INP=4
+31      : INP=0
+43      : INP=5
+44      : INP=6
+45      : INP=7        : OUT=1, ACTIVE=1
+46      : INP=8        : OUT=0
+47      : INP=9        : OUT=1
+48      : INP=10
+49      : INP=11
+50      : INP=12       : OUT=0
 
 
 
@@ -336,25 +336,25 @@ $ Pulse is produced after skipping more than 2 compare points
 12      : FLTR_DELTAT=5
 13      : FLTR_THOLD=1
 14      :
-15      : POSN=11
-16      : POSN=10
-17      : POSN=9
-18      : POSN=8
-19      : POSN=7
-20      : POSN=6
-23      : POSN=5
-25      : POSN=3
-27      : POSN=1
-28      : POSN=2
-29      : POSN=3
-30      : POSN=4
-31      : POSN=0
-43      : POSN=5
-44      : POSN=6
-45      : POSN=7
-46      : POSN=8
-47      : POSN=9        : ERROR=1, ACT=0
-48      : POSN=10
-49      : POSN=11
-50      : POSN=12
+15      : INP=11
+16      : INP=10
+17      : INP=9
+18      : INP=8
+19      : INP=7
+20      : INP=6
+23      : INP=5
+25      : INP=3
+27      : INP=1
+28      : INP=2
+29      : INP=3
+30      : INP=4
+31      : INP=0
+43      : INP=5
+44      : INP=6
+45      : INP=7
+46      : INP=8
+47      : INP=9        : ERROR=1, ACTIVE=0
+48      : INP=10
+49      : INP=11
+50      : INP=12
 

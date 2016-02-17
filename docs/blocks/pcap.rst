@@ -12,7 +12,6 @@ Name            Dir Type    Description
 ENABLE          In  Bit     Data capture enable
 FRAME           In  Bit     Data capture frame
 CAPTURE         In  Bit     Data capture event
-MISSED_CAPTURES R   UInt32  Missed capture count
 ERR_STATUS      R   UInt32  Block error status
 ACTIVE          Out Bit     Data capture in progress
 CAPTURE_TS                  Timestamp of captured data

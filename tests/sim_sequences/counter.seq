@@ -1,122 +1,122 @@
 ###############
 $ Count Up
-3       : START=2       : COUNT=2
+3       : START=2       : OUT=2
 4       : STEP=2
 6       : ENABLE=1
-10      : TRIGGER=1     : COUNT=4
-21      : TRIGGER=0
-22      : TRIGGER=1     : COUNT=6
-23      : TRIGGER=0
-24      : TRIGGER=1     : COUNT=8
-25      : TRIGGER=0
-26      : TRIGGER=1     : COUNT=10
-27      : TRIGGER=0
+10      : TRIG=1     : OUT=4
+21      : TRIG=0
+22      : TRIG=1     : OUT=6
+23      : TRIG=0
+24      : TRIG=1     : OUT=8
+25      : TRIG=0
+26      : TRIG=1     : OUT=10
+27      : TRIG=0
 28      : ENABLE=0
-29      : TRIGGER=1
-30      : TRIGGER=0
+29      : TRIG=1
+30      : TRIG=0
 
 ###############
 $ Count Down
-3       : START=20      : COUNT=20
+3       : START=20      : OUT=20
 4       : STEP=2
 5       : DIR=1
 6       : ENABLE=1
-10      : TRIGGER=1     : COUNT=18
-21      : TRIGGER=0
-22      : TRIGGER=1     : COUNT=16
-23      : TRIGGER=0
-24      : TRIGGER=1     : COUNT=14
-25      : TRIGGER=0
-26      : TRIGGER=1     : COUNT=12
-27      : TRIGGER=0
+10      : TRIG=1     : OUT=18
+21      : TRIG=0
+22      : TRIG=1     : OUT=16
+23      : TRIG=0
+24      : TRIG=1     : OUT=14
+25      : TRIG=0
+26      : TRIG=1     : OUT=12
+27      : TRIG=0
 28      : ENABLE=0
-29      : TRIGGER=1
-30      : TRIGGER=0
+29      : TRIG=1
+30      : TRIG=0
 
 ###############
 $ Reverse Count
-3       : START=20      : COUNT=20
+3       : START=20      : OUT=20
 4       : STEP=2
 5       : DIR=1
 6       : ENABLE=1
-10      : TRIGGER=1         : COUNT=18
-21      : TRIGGER=0
-22      : TRIGGER=1         : COUNT=16
-23      : TRIGGER=0
-24      : TRIGGER=1         : COUNT=14
-25      : TRIGGER=0
-26      : TRIGGER=1         : COUNT=12
-27      : TRIGGER=0,DIR=0
-28      : TRIGGER=1         : COUNT=14
-29      : TRIGGER=0
-30      : TRIGGER=1         : COUNT=16
-31      : TRIGGER=0
+10      : TRIG=1         : OUT=18
+21      : TRIG=0
+22      : TRIG=1         : OUT=16
+23      : TRIG=0
+24      : TRIG=1         : OUT=14
+25      : TRIG=0
+26      : TRIG=1         : OUT=12
+27      : TRIG=0,DIR=0
+28      : TRIG=1         : OUT=14
+29      : TRIG=0
+30      : TRIG=1         : OUT=16
+31      : TRIG=0
 33      : ENABLE=0
-34      : TRIGGER=1
-35      : TRIGGER=0
+34      : TRIG=1
+35      : TRIG=0
 
 ###############
 $ Reverse at trigger
-3       : START=20          : COUNT=20
+3       : START=20          : OUT=20
 4       : STEP=2
 5       : DIR=1
 6       : ENABLE=1
-10      : TRIGGER=1         : COUNT=18
-21      : TRIGGER=0
-22      : TRIGGER=1         : COUNT=16
-23      : TRIGGER=0
-24      : TRIGGER=1         : COUNT=14
-25      : TRIGGER=0
-26      : TRIGGER=1,DIR=0   : COUNT=16
-27      : TRIGGER=0
-28      : TRIGGER=1         : COUNT=18
-29      : TRIGGER=0
-30      : TRIGGER=1         : COUNT=20
-31      : TRIGGER=0
+10      : TRIG=1         : OUT=18
+21      : TRIG=0
+22      : TRIG=1         : OUT=16
+23      : TRIG=0
+24      : TRIG=1         : OUT=14
+25      : TRIG=0
+26      : TRIG=1,DIR=0   : OUT=16
+27      : TRIG=0
+28      : TRIG=1         : OUT=18
+29      : TRIG=0
+30      : TRIG=1         : OUT=20
+31      : TRIG=0
 33      : ENABLE=0
-34      : TRIGGER=1
-35      : TRIGGER=0
+34      : TRIG=1
+35      : TRIG=0
 
 ###############
 $ Disable and trigger
-3       : START=20              : COUNT=20
+3       : START=20              : OUT=20
 4       : STEP=2
 5       : DIR=1
 6       : ENABLE=1
-10      : TRIGGER=1             : COUNT=18
-21      : TRIGGER=0
-22      : TRIGGER=1             : COUNT=16
-23      : TRIGGER=0
-24      : TRIGGER=1             : COUNT=14
-25      : TRIGGER=0
-26      : TRIGGER=1,ENABLE=0
-27      : TRIGGER=0
+10      : TRIG=1             : OUT=18
+21      : TRIG=0
+22      : TRIG=1             : OUT=16
+23      : TRIG=0
+24      : TRIG=1             : OUT=14
+25      : TRIG=0
+26      : TRIG=1,ENABLE=0
+27      : TRIG=0
 
 
 ###############
 $ Change step and trigger
-3       : START=20              : COUNT=20
+3       : START=20              : OUT=20
 4       : STEP=2
 5       : DIR=1
 6       : ENABLE=1
-10      : TRIGGER=1             : COUNT=18
-21      : TRIGGER=0
-22      : TRIGGER=1,STEP=4      : COUNT=14
-23      : TRIGGER=0
-24      : TRIGGER=1             : COUNT=10
-25      : TRIGGER=0
-26      : TRIGGER=1,ENABLE=0
-27      : TRIGGER=0
+10      : TRIG=1             : OUT=18
+21      : TRIG=0
+22      : TRIG=1,STEP=4      : OUT=14
+23      : TRIG=0
+24      : TRIG=1             : OUT=10
+25      : TRIG=0
+26      : TRIG=1,ENABLE=0
+27      : TRIG=0
 
 ###############
 $ Overflow
-3       : START=4294967290      : COUNT=4294967290
+3       : START=4294967290      : OUT=4294967290
 4       : STEP=2
 6       : ENABLE=1
-10      : TRIGGER=1             : COUNT=4294967292
-21      : TRIGGER=0
-22      : TRIGGER=1             : COUNT=4294967294
-23      : TRIGGER=0
-24      : TRIGGER=1             : COUNT=4294967296, CARRY=1
-25      : TRIGGER=0             : CARRY=0
+10      : TRIG=1             : OUT=4294967292
+21      : TRIG=0
+22      : TRIG=1             : OUT=4294967294
+23      : TRIG=0
+24      : TRIG=1             : OUT=4294967296, CARRY=1
+25      : TRIG=0             : CARRY=0
 26      : ENABLE=0

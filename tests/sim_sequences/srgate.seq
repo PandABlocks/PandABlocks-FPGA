@@ -1,33 +1,33 @@
 ###############
 $ Set on rising Edge
 1       : SET_EDGE=1
-5       : SET=1         : VAL=1
+5       : SET=1         : OUT=1
 7       : SET=0
-8       : FORCE_RST=0   : VAL=0
+8       : FORCE_RST=0   : OUT=0
 
 ###############
 $ Set on falling Edge
 1       : SET_EDGE=0
 5       : SET=1
-6       : SET=0         : VAL=1
-8       : FORCE_RST=0   : VAL=0
+6       : SET=0         : OUT=1
+8       : FORCE_RST=0   : OUT=0
 
 ###############
 $ Rising SET with SET_EDGE reconfigure
 1       : SET_EDGE=1
 3       : SET_EDGE=0, SET=1
-4       : SET=0             : VAL=1
-6       : FORCE_RST=0       : VAL=0
+4       : SET=0             : OUT=1
+6       : FORCE_RST=0       : OUT=0
 8       : SET=1
-10      : SET=0             : VAL=1
-13      : FORCE_RST=0       : VAL=0
+10      : SET=0             : OUT=1
+13      : FORCE_RST=0       : OUT=0
 
 ###############
 $ Reset on rising Edge
 1       : RST_EDGE=1
 2       : SET_EDGE=1
-3       : SET=1             : VAL=1
-5       : RST=1             : VAL=0
+3       : SET=1             : OUT=1
+5       : RST=1             : OUT=0
 6       : RST=0
 7       : RST_EDGE=0
 8       : SET_EDGE=0
@@ -36,9 +36,9 @@ $ Reset on rising Edge
 $ Reset on falling Edge
 1       : RST_EDGE=0
 2       : SET_EDGE=1
-3       : SET=1             : VAL=1
+3       : SET=1             : OUT=1
 5       : RST=1
-6       : RST=0             : VAL=0
+6       : RST=0             : OUT=0
 
 ###############
 $ Set-reset conditions
@@ -50,25 +50,25 @@ $ Set-reset conditions
 
 10      : FORCE_RST=0, SET=1
 11      : SET=0
-15      : SET=1                 : VAL=1
+15      : SET=1                 : OUT=1
 
-18      : RST=1, FORCE_SET=0    : VAL=1
+18      : RST=1, FORCE_SET=0    : OUT=1
 19      : RST=0
-20      : FORCE_RST=0           : VAL=0
+20      : FORCE_RST=0           : OUT=0
 
 
 ###############
 $ Falling SET wtih SET_EDGE reconfigure
 1       : SET_EDGE=1
-3       : SET=1                 : VAL=1
-5       : FORCE_RST=0           : VAL=0
-8       : SET_EDGE=0, SET=0     : VAL=1
-9       : FORCE_RST=0           : VAL=0
+3       : SET=1                 : OUT=1
+5       : FORCE_RST=0           : OUT=0
+8       : SET_EDGE=0, SET=0     : OUT=1
+9       : FORCE_RST=0           : OUT=0
 
 ###############
 $ Falling RST with with reset edge reconfigure
 1       : SET_EDGE=1
-2       : RST_EDGE=1, SET=1   : VAL=1
-4       : RST=1, SET_EDGE=0     : VAL=0
-5       : SET=0                 : VAL=1
-8       : RST_EDGE=0, RST=0 : VAL=0
+2       : RST_EDGE=1, SET=1   : OUT=1
+4       : RST=1, SET_EDGE=0     : OUT=0
+5       : SET=0                 : OUT=1
+8       : RST_EDGE=0, RST=0 : OUT=0

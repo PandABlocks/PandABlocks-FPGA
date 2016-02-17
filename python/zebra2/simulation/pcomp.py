@@ -9,7 +9,7 @@ BWD = 1
 class Pcomp(Block):
 
     def __init__(self):
-        # Current direction of POSN stream
+        # Current direction of INP stream
         self.FLTR_DIR = FWD
         # Next tick to check deltat
         self.tnext = 0
@@ -43,25 +43,25 @@ class Pcomp(Block):
         if b.FLTR_DELTAT in changes:
             if self.FLTR_DELTAT:
                 self.tnext = ts + self.FLTR_DELTAT
-                self.tposn = self.POSN
+                self.tposn = self.INP
             else:
                 self.tnext = 0
 
-        # calculate current dir of POSN on deltat
+        # calculate current dir of INP on deltat
         if self.tnext and ts >= self.tnext:
-            deltap = self.POSN - self.tposn
+            deltap = self.INP - self.tposn
             if deltap > self.FLTR_THOLD:
                 self.FLTR_DIR = FWD
             elif deltap < self.FLTR_THOLD:
                 self.FLTR_DIR = BWD
             self.tnext = ts + self.FLTR_DELTAT
-            self.tposn = self.POSN
+            self.tposn = self.INP
 
          #check to see if we are waiting to cross the start point
-        if self.ENABLE and b.POSN in changes:
-            if self.DIR == FWD and self.POSN < self.cpoint:
+        if self.ENABLE and b.INP in changes:
+            if self.DIR == FWD and self.INP < self.cpoint:
                 self.wait_start = False
-            elif self.DIR == BWD and self.POSN > self.cpoint:
+            elif self.DIR == BWD and self.INP > self.cpoint:
                 self.wait_start = False
 
         # handle enable transitions
@@ -69,7 +69,7 @@ class Pcomp(Block):
             if self.ENABLE:
                 # if relative then start position is from current pos
                 if self.RELATIVE:
-                    self.cpoint = self.START + self.POSN
+                    self.cpoint = self.START + self.INP
                 else:
                     self.cpoint = self.START
                 # next pulse should be 1
@@ -77,8 +77,8 @@ class Pcomp(Block):
                 # reset num points counter
                 self.cnum = 0
             else:
-                self.ACT = 0
-                self.PULSE = 0
+                self.ACTIVE = 0
+                self.OUT = 0
                 self.wait_start = True
                 self.cpoint_skipped = 0
 
@@ -90,9 +90,9 @@ class Pcomp(Block):
                 self.cpoint_skipped = 0
             # check if transition
             if self.DIR == FWD:
-                transition = self.POSN >= self.cpoint and not self.wait_start
+                transition = self.INP >= self.cpoint and not self.wait_start
             else:
-                transition = self.POSN <= self.cpoint and not self.wait_start
+                transition = self.INP <= self.cpoint and not self.wait_start
             # if direction filter is on, then check it matches
             if self.tnext:
                 #calculate if compare points have been skipped
@@ -107,8 +107,8 @@ class Pcomp(Block):
                 transition &= self.DIR == self.FLTR_DIR
             # if transition then set output and increment compare point
             if transition and self.cpoint_skipped <= 1:
-                self.ACT = 1
-                self.PULSE = self.cout
+                self.ACTIVE = 1
+                self.OUT = self.cout
                 if self.cout:
                     if self.DIR == FWD:
                         self.cpoint += self.WIDTH
@@ -123,12 +123,12 @@ class Pcomp(Block):
                         self.cpoint -= self.STEP - self.WIDTH
                     # if we've done PNUM, then stop
                     if self.cnum >= self.PNUM:
-                        self.ACT = 0
+                        self.ACTIVE = 0
                     else:
                         self.cout = 1
             elif transition and self.cpoint_skipped > 1:
                 self.ERROR = 1
-                self.ACT = 0
+                self.ACTIVE = 0
 
         if self.tnext:
             return self.tnext

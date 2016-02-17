@@ -14,5 +14,5 @@ class Lut(Block):
         row = (self.INPA << 4) + (self.INPB << 3) + (self.INPC << 2) + \
             (self.INPD << 1) + self.INPE
         # We then shift the 32-bit FUNC to get the right row in the LSB, and
-        # extract this as self.VAL
-        self.VAL = (self.FUNC >> row) & 1
+        # extract this as self.OUT
+        self.OUT = (self.FUNC >> row) & 1
