@@ -33,7 +33,7 @@ TABLE_RST       W   UInt32  | Resets table write address to the beginning of the
                             | table
 TABLE_DATA      W   UInt32  Table data to be pushed sequentially to the buffer
 TABLE_WSTB      W   UInt32  Number of times data has been written to the table
-ENABLE            In  Bit     | Gate input:
+ENABLE          In  Bit     | Gate input:
                             | - Rising edge: Starts the sequencer state machine
                             | - Falling edge: Stops the state machine and puts
                             |   it into FINISHED state

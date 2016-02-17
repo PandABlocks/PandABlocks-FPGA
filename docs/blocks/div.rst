@@ -21,7 +21,7 @@ INP             In  Bit     Input pulse train
 RESET           In  Bit     On rising edge, reset counter state machine
 OUTD            Out Bit     Divided pulse output
 OUTN            Out Bit     Non-divided pulse output
-OUT           R   UInt32  Internal counter value in range [0..DIVISOR-1)
+OUT             R   UInt32  Internal counter value in range [0..DIVISOR-1)
 =============== === ======= ===================================================
 
 Which output do pulses go to
@@ -43,9 +43,8 @@ OUTN gets the next pulse.
 Reset conditions
 ----------------
 
-If a RESET rising edge, or a FORCE_RESET parameter write is received at the same
-time as an INP rising edge, the input signal is ignored and the block reset. It
-makes no difference where the falling edge of the RESET comes.
+If an ENABLE falling edge is received at the same time as an INP rising edge,
+the input signal is ignored and the block reset.
 
 .. sequence_plot::
    :block: div

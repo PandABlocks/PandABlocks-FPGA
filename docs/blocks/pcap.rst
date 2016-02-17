@@ -18,10 +18,10 @@ CAPTURE_TS                  Timestamp of captured data
 FRAME_LENGTH                Length of captured frame
 CAPTURE_OFFSET              Offset of capture into capture frame
 ADC_COUNT                   Number of ADC samples in captured frame
-BITA
-BITB
-BITC
-BITD
+BITS0                       Quadrant 0 of bit_bus
+BITS1                       Quadrant 1 of bit_bus
+BITS2                       Quadrant 2 of bit_bus
+BITS3                       Quadrant 3 of bit_bus
 =============== === ======= ===================================================
 
 Arming
