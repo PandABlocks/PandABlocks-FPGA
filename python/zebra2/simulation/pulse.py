@@ -74,9 +74,9 @@ class Pulse(Block):
                 self.do_clear_queue(ts)
 
         # Check reset and pulse inputs
-        if changes.get(b.ENABLE, None):
+        if changes.get(b.ENABLE, None) == 0:
             self.do_reset(ts)
-        elif b.INP in changes:
+        elif b.INP in changes and self.ENABLE:
             self.do_pulse(ts, changes)
 
         # if we have an pulse on our queue that is due, produce it

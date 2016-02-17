@@ -11,19 +11,20 @@ class Div(Block):
     def do_pulse(self, inp):
         """We've received a bit event on INP, on a rising edge send it out of
         OUTN or OUTD, on a falling edge set them both low"""
-        if inp:
-            self.OUT += 1
-            if self.OUT >= self.DIVISOR:
-                self.OUT = 0
-                self.OUTD = 1
+        if self.ENABLE:
+            if inp:
+                self.OUT += 1
+                if self.OUT >= self.DIVISOR:
+                    self.OUT = 0
+                    self.OUTD = 1
+                else:
+                    self.OUTN = 1
             else:
-                self.OUTN = 1
-        else:
-            self.OUTD = 0
-            self.OUTN = 0
+                self.OUTD = 0
+                self.OUTN = 0
 
     def do_reset(self):
-        """Reset the block, either called on rising edge of ENABLE"""
+        """Reset the block, either called on rising edge of RST"""
         self.OUTD = 0
         self.OUTN = 0
         if self.FIRST_PULSE == OUTN:
@@ -44,7 +45,8 @@ class Div(Block):
             if name not in (b.INP, b.ENABLE):
                 reset = True
 
-        if reset or changes.get(b.ENABLE, None):
+        #Reset on the falling edge of ENABLE or other register write
+        if reset or changes.get(b.ENABLE, None) == 0:
             self.do_reset()
         elif b.INP in changes:
             self.do_pulse(changes[b.INP])

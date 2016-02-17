@@ -1,6 +1,7 @@
 ###############
 $ Start on OUTN
 1       : DIVISOR=3
+3       : ENABLE=1
 5       : INP=1         : OUTN=1, OUT=1
 6       : INP=0         : OUTN=0
 8       : INP=1         : OUTN=1, OUT=2
@@ -11,7 +12,8 @@ $ Start on OUTN
 ###############
 $ Start on OUTD
 1       : DIVISOR=3
-2       : FIRST_PULSE=1 : OUT=2
+2       : ENABLE=1
+3       : FIRST_PULSE=1 : OUT=2
 5       : INP=1         : OUTD=1, OUT=0
 6       : INP=0         : OUTD=0
 8       : INP=1         : OUTN=1, OUT=1
@@ -24,16 +26,11 @@ $ Start on OUTD
 ##################
 $ Reset conditions
 1       : DIVISOR=3
+3       : ENABLE=1
 5       : INP=1             : OUTN=1, OUT=1
 6       : INP=0             : OUTN=0
-8       : INP=1, ENABLE=1    : OUT=0
-10      : INP=0
-15      : INP=1             : OUTN=1, OUT=1
-17      : ENABLE=0
-18      : INP=0             : OUTN=0
-20      : INP=1             : OUTN=1, OUT=2
-23      : ENABLE=1     : OUTN=0, OUT=0
-25      : INP=0
+8       : INP=1, ENABLE=0   : OUT=0
+9       : INP=0
 
 
 
