@@ -44,7 +44,7 @@
 > !LUT 8
 > !LVDSOUT 2
 > !COUNTER 8
-> !ADDER 1
+> !ADDER 2
 > !CLOCKS 1
 > !BITS 1
 > !QDEC 4
@@ -387,11 +387,11 @@
 
 # LUT
 < LUT.*?
+> !OUT 6 bit_out
 > !FUNC 0 param lut
 > !INPB 2 param bit_mux
 > !INPC 3 param bit_mux
 > !INPA 1 param bit_mux
-> !VAL 6 bit_out
 > !INPD 4 param bit_mux
 > !INPE 5 param bit_mux
 > .
@@ -461,11 +461,11 @@
 > !PCAP.BITS0 Capture
 > .
 
-< INENC2.POSN.CAPTURE=Triggered
+< INENC2.VAL.CAPTURE=Triggered
 > OK
 
 < *CAPTURE?
-> !INENC2.POSN Triggered
+> !INENC2.VAL Triggered
 > !PCAP.BITS0 Capture
 > .
 
@@ -482,11 +482,11 @@
 < *CHANGES.ATTR?
 > .
 
-< INENC2.POSN.CAPTURE=Triggered
+< INENC2.VAL.CAPTURE=Triggered
 > OK
 
 < *CHANGES.ATTR?
-> !INENC2.POSN.CAPTURE=Triggered
+> !INENC2.VAL.CAPTURE=Triggered
 > .
 
 # Pulse time
@@ -613,10 +613,10 @@
 
 # Check for change readbacks
 
-< BITS.A_SET=0
-< BITS.A?
-< BITS.A_SET=1
-< BITS.A?
+< BITS.A=0
+< BITS.OUTA?
+< BITS.A=1
+< BITS.OUTA?
 > OK
 > OK =0
 > OK
@@ -633,8 +633,8 @@
 > OK
 
 # Check that *CHANGES.BITS= actually works
-< BITS.A_SET=0
-< BITS.A_SET=1
+< BITS.A=0
+< BITS.A=1
 < *CHANGES.BITS=
 < *CHANGES.BITS?
 > OK
@@ -643,45 +643,44 @@
 > .
 
 # Ok, this is what we expect
-< BITS.A?
-< BITS.A_SET=0
-< BITS.A?
-< BITS.A_SET=1
-< BITS.A?
+< BITS.OUTA?
+< BITS.A=0
+< BITS.OUTA?
+< BITS.A=1
+< BITS.OUTA?
 > OK =1
 > OK
 > OK =0
 > OK
 > OK =1
 
-< BITS.A_SET=0
+< BITS.A=0
 < *CHANGES.BITS?
 < *CHANGES.BITS?
 > OK
-> !BITS.A=0
+> !BITS.OUTA=0
 > .
 > .
 
 # Add some position capture tests
 < PCAP.*?
-> !FRAME_LENGTH 7 ext_out
-> !CAPTURE_OFFSET 8 ext_out offset
-> !ACTIVE 5 bit_out
+> !FRAME_LENGTH 6 ext_out
+> !CAPTURE_OFFSET 7 ext_out offset
+> !ACTIVE 4 bit_out
 > !ENABLE 0 param bit_mux
-> !MISSED_CAPTURES 3 read uint
+> !BITS2 11 ext_out bits
 > !CAPTURE 2 param bit_mux
-> !BITS0 10 ext_out bits
-> !BITS3 13 ext_out bits
-> !CAPTURE_TS 6 ext_out timestamp
-> !ERR_STATUS 4 read uint
-> !BITS2 12 ext_out bits
+> !BITS0 9 ext_out bits
+> !BITS3 12 ext_out bits
+> !CAPTURE_TS 5 ext_out timestamp
+> !ERR_STATUS 3 read enum
 > !FRAME 1 param bit_mux
-> !BITS1 11 ext_out bits
-> !ADC_COUNT 9 ext_out adc_count
+> !BITS1 10 ext_out bits
+> !ADC_COUNT 8 ext_out adc_count
 > .
 
 # Encoder enums
-< *ENUMS.INENC.POSN.CAPTURE?
+< *ENUMS.INENC.VAL.CAPTURE?
 > !No
 > !Triggered
 > !Difference
@@ -689,14 +688,14 @@
 > !Extended
 > .
 
-< INENC1.POSN.CAPTURE=No
-< INENC1.POSN.CAPTURE?
-< INENC1.POSN.CAPTURE=Triggered
-< INENC1.POSN.CAPTURE?
-< INENC1.POSN.CAPTURE=Difference
-< INENC1.POSN.CAPTURE?
-< INENC1.POSN.CAPTURE=Extended
-< INENC1.POSN.CAPTURE?
+< INENC1.VAL.CAPTURE=No
+< INENC1.VAL.CAPTURE?
+< INENC1.VAL.CAPTURE=Triggered
+< INENC1.VAL.CAPTURE?
+< INENC1.VAL.CAPTURE=Difference
+< INENC1.VAL.CAPTURE?
+< INENC1.VAL.CAPTURE=Extended
+< INENC1.VAL.CAPTURE?
 > OK
 > OK =No
 > OK

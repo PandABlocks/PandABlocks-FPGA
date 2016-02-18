@@ -303,19 +303,19 @@ $ Gate dropped on completion, re-raised for re-execution of same frame table
 # PHASE 1 LENGTH    = 2*PRESCALE
 # PHASE 2 LENGTH    = 1*PRESCALE
 #---------------------------------
-6       : TABLE_DATA=0x00000001             : TABLE_STROBES=1
-7       : TABLE_DATA=0xFF013F00             : TABLE_STROBES=2
-8       : TABLE_DATA=0x00000002             : TABLE_STROBES=3
-9       : TABLE_DATA=0x00000001             : TABLE_STROBES=4
+6       : TABLE_DATA=0x00000001
+7       : TABLE_DATA=0xFF013F00
+8       : TABLE_DATA=0x00000002
+9       : TABLE_DATA=0x00000001
 11      : TABLE_LENGTH=1
-16      : GATE=1                            : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
+16      : ENABLE=1                          : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                                   : CUR_TCYCLE=1
 25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
 29      :                                   : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
 31      :                                   : OUTA=0, OUTB=0, OUTC=0, OUTD=0
         :                                   : OUTE=0, OUTF=0, ACTIVE=0
-41      : GATE=0                            : CUR_FRAME=0, CUR_FCYCLE=0, CUR_TCYCLE=0
-1041    : GATE=1                            : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
+41      : ENABLE=0                          : CUR_FRAME=0, CUR_FCYCLE=0, CUR_TCYCLE=0
+1041    : ENABLE=1                          : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                                   : CUR_TCYCLE=1, OUTA=1
 1045    :                                   : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
 1047    :                                   : OUTA=0, OUTB=0, OUTC=0, OUTD=0
