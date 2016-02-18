@@ -9,5 +9,5 @@ class Bits(Block):
         # if we got register changes, handle those
         for name, value in changes.items():
             setattr(self, name, value)
-            if name.endswith("_SET"):
-                setattr(self, name[:-len("_SET")], value)
+            if name in ['A', 'B', 'C', 'D']:
+                setattr(self, 'OUT'+name, value)

@@ -11,14 +11,14 @@ Parameters
 =============== === ======= ===================================================
 Name            Dir Type    Description
 =============== === ======= ===================================================
-A_SET           R/W Bit     The value that output A should take
-B_SET           R/W Bit     The value that output B should take
-C_SET           R/W Bit     The value that output C should take
-D_SET           R/W Bit     The value that output D should take
-A               Out Bit     The value of A_SET on the bit bus
-B               Out Bit     The value of B_SET on the bit bus
-C               Out Bit     The value of C_SET on the bit bus
-D               Out Bit     The value of D_SET on the bit bus
+A               R/W Bit     The value that output A should take
+B               R/W Bit     The value that output B should take
+C               R/W Bit     The value that output C should take
+D               R/W Bit     The value that output D should take
+OUTA            Out Bit     The value of A on the bit bus
+OUTB            Out Bit     The value of B on the bit bus
+OUTC            Out Bit     The value of C on the bit bus
+OUTD            Out Bit     The value of D on the bit bus
 ZERO            Out Bit     The constant value 0 on the bit bus
 ONE             Out Bit     The constant value 1 on the bit bus
 =============== === ======= ===================================================

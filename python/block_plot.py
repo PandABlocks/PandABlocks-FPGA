@@ -127,7 +127,7 @@ def make_block_plot(blockname, title):
                     out_bits_names.add(name)
                 elif field.cls == "pos_out":
                     out_positions_names.add(name)
-            elif block.name == "PCAP" and name == "DATA":
+            elif block.name == "PCAP" and name == "OUT":
                 # Add in PCAP output
                 out_regs_names.add(name)
                 block.fields[name] = None
@@ -215,7 +215,7 @@ def make_block_plot(blockname, title):
                     tracex.append(ts)
                     tracey.append(inputs[name])
             elif name in sequence.outputs[ts]:
-                if block.name == "PCAP" and name == "DATA":
+                if block.name == "PCAP" and name == "OUT":
                     data_count += 1
                     if data_count % capture_count == 1:
                         outputs[name] = "Row%d" % (data_count / capture_count)
