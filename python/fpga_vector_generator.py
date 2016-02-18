@@ -61,6 +61,7 @@ class FpgaSequence(object):
             pos_bus = OrderedDict()
             for x in range(128):
                 bit_bus[x] = 'UNUSED'
+            for x in range(32):
                 pos_bus[x] = 'UNUSED'
             configparser = ConfigParser(config_dir)
             for entry, val in configparser.bit_bus.items():
@@ -115,7 +116,8 @@ class FpgaSequence(object):
         #if we have a pcap block, fill the pos_bus and bit_bus output files
         if self.pos_bus and self.bit_bus:
             lpos_bus = [str(current.get(name, 0)) for name in self.pos_bus]
-            lbit_bus = [str(current.get(name, 0)) for name in self.bit_bus]
+            lbit_bus = [str(current.get(name, 1)) if name == 'BITS.ONE'
+                        else str(current.get(name, 0))for name in self.bit_bus]
             lpos_bus[0] = str(ts+1)
             lbit_bus[0] = str(ts+1)
             self.pos_bus_lines.append(lpos_bus)
