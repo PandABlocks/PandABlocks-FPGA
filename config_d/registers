@@ -236,6 +236,7 @@ PCAP        16
     CAPTURE         2
     MISSED_CAPTURES 3
     ERR_STATUS      4
+    IRQ             5
     ACTIVE          106
     CAPTURE_TS      62 / 63
     FRAME_LENGTH    37

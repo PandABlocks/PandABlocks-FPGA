@@ -176,6 +176,13 @@ class ConfigParser(object):
                 warning("Different ordering %s. First error: \n"
                         "c=%s/r=%s/d=%s" % (err, c, r, d))
                 break
+        # warn for any extra fields in config or desc
+        extra_config = set(config) - set(reg)
+        if extra_config:
+            warning("Extra config fields %s" % list(extra_config))
+        extra_desc = set(desc) - set(reg)
+        if extra_desc:
+            warning("Extra desc fields %s" % list(extra_desc))
 
     def _read_lines(self, fname):
         """Read lines from file in config_dir

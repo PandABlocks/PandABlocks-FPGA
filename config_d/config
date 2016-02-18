@@ -195,6 +195,7 @@ PCAP
     CAPTURE         param       bit_mux
     MISSED_CAPTURES read
     ERR_STATUS      read
+    IRQ             param       bit_mux
     ACTIVE          bit_out
 
     CAPTURE_TS      ext_out     timestamp

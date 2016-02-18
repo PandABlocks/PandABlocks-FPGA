@@ -18,6 +18,7 @@ class Seq(Block):
         self.fword_count = 0
         self.table_strobes = 0
         self.frame_ok = False
+        self.set_active_queue = deque()
         self.p2_queue = deque()
         self.next_frame_queue = deque()
         self.frpt_queue = deque()
@@ -45,6 +46,7 @@ class Seq(Block):
         self.frpt_queue.clear()
         self.trpt_queue.clear()
         self.next_frame_queue.clear()
+        self.end_queue.clear()
 
     def process_inputs(self, ts):
         if self.ACTIVE and self.frame_ok:
@@ -136,7 +138,6 @@ class Seq(Block):
         when we next need to be called"""
         # This is a ConfigBlock object
         b = self.config_block
-
         # Set attributes
         for name, value in changes.items():
             setattr(self, name, value)
@@ -152,7 +153,7 @@ class Seq(Block):
             self.reset_state()
             self.do_table_reset()
         elif b.TABLE_LENGTH in changes:
-            self.do_table_write_finished()
+            self.set_active_queue.append(ts+1)
 
         input_bits = [b.INPA, b.INPB, b.INPC, b.INPD]
         if any(x in changes for x in input_bits):
@@ -162,6 +163,10 @@ class Seq(Block):
                 self.frpt_queue.popleft()
             self.process_inputs(ts)
 
+        #if we are due to set registers after a TABLE_LENGTH write
+        if self.set_active_queue and self.set_active_queue[0] <= ts:
+            self.set_active_queue.popleft()
+            self.do_table_write_finished()
         #set phase 2 outputs when the phase 1 time has finished
         if self.p2_queue and self.p2_queue[0] == ts:
             self.p2_queue.popleft()
@@ -186,5 +191,6 @@ class Seq(Block):
             self.process_inputs(ts)
         #handle the end of the sequence
         if self.end_queue and self.end_queue[0] == ts:
+            self.end_queue.popleft()
             self.set_outputs('zero')
             self.ACTIVE = 0
