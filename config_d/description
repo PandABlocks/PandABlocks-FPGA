@@ -170,6 +170,7 @@ PCAP        Position capture control
     CAPTURE         Data capture event
     MISSED_CAPTURES Have any captures been lost?
     ERR_STATUS      Was last capture successful?
+    IRQ             IRQ pulse output
     ACTIVE          Data capture in progress
 
     CAPTURE_TS      Timestamp of captured data
