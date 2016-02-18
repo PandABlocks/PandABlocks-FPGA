@@ -12,17 +12,16 @@ Name            Dir Type    Description
 ENABLE          In  Bit     Data capture enable
 FRAME           In  Bit     Data capture frame
 CAPTURE         In  Bit     Data capture event
-MISSED_CAPTURES R   UInt32  Missed capture count
 ERR_STATUS      R   UInt32  Block error status
 ACTIVE          Out Bit     Data capture in progress
 CAPTURE_TS                  Timestamp of captured data
 FRAME_LENGTH                Length of captured frame
 CAPTURE_OFFSET              Offset of capture into capture frame
 ADC_COUNT                   Number of ADC samples in captured frame
-BITA
-BITB
-BITC
-BITD
+BITS0                       Quadrant 0 of bit_bus
+BITS1                       Quadrant 1 of bit_bus
+BITS2                       Quadrant 2 of bit_bus
+BITS3                       Quadrant 3 of bit_bus
 =============== === ======= ===================================================
 
 Arming

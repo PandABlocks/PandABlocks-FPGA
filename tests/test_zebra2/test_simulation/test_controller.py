@@ -69,11 +69,11 @@ class ControllerTest(unittest.TestCase):
         div_inp_reg = int(div_config.fields["INP"].reg[0])
         div, inp = self.c.lookup[(div_config.base, 0, div_inp_reg)]
         bits_config = Block.parser.blocks["BITS"]
-        bits_a_set_reg = int(bits_config.fields["A_SET"].reg[0])
+        bits_a_set_reg = int(bits_config.fields["A"].reg[0])
         bits, a_set = self.c.lookup[(bits_config.base, 0, bits_a_set_reg)]
         bits_a_idx = Block.parser.bit_bus["BITS.A"]
         self.assertEqual(inp, "INP")
-        self.assertEqual(a_set, "A_SET")
+        self.assertEqual(a_set, "A")
         # check disconnected
         self.assertEqual(div.INP, 0)
         # connect to BITS.A

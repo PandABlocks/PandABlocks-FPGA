@@ -13,16 +13,16 @@ class Counter(Block):
         for name, value in changes.items():
             setattr(self, name, value)
             if name == b.START:
-                self.COUNT = value
+                self.OUT = value
 
         # process trigger on rising edge
-        if self.ENABLE and b.TRIGGER in changes:
-            if changes[b.TRIGGER]:
+        if self.ENABLE and b.TRIG in changes:
+            if changes[b.TRIG]:
                 if self.DIR == 0:
-                    self.COUNT += self.STEP
+                    self.OUT += self.STEP
                 else:
-                    self.COUNT -= self.STEP
-                if self.COUNT > (2**32 - 1):
+                    self.OUT -= self.STEP
+                if self.OUT > (2**32 - 1):
                     self.CARRY = 1
             elif self.CARRY:
                 self.CARRY = 0

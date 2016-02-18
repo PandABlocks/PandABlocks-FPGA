@@ -15,10 +15,10 @@ class Srgate(Block):
 
         # Force regs take priority
         if b.FORCE_RST in changes:
-            self.VAL = 0
+            self.OUT = 0
         elif b.FORCE_SET in changes:
-            self.VAL = 1
+            self.OUT = 1
         elif changes.get(b.RST, None) == self.RST_EDGE:
-            self.VAL = 0
+            self.OUT = 0
         elif changes.get(b.SET, None) == self.SET_EDGE:
-            self.VAL = 1
+            self.OUT = 1

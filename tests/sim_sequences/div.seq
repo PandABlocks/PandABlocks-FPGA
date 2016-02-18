@@ -1,39 +1,36 @@
 ###############
 $ Start on OUTN
 1       : DIVISOR=3
-5       : INP=1         : OUTN=1, COUNT=1
+3       : ENABLE=1
+5       : INP=1         : OUTN=1, OUT=1
 6       : INP=0         : OUTN=0
-8       : INP=1         : OUTN=1, COUNT=2
+8       : INP=1         : OUTN=1, OUT=2
 11      : INP=0         : OUTN=0
-15      : INP=1         : OUTD=1, COUNT=0
+15      : INP=1         : OUTD=1, OUT=0
 16      : INP=0         : OUTD=0
 
 ###############
 $ Start on OUTD
 1       : DIVISOR=3
-2       : FIRST_PULSE=1 : COUNT=2
-5       : INP=1         : OUTD=1, COUNT=0
+2       : ENABLE=1
+3       : FIRST_PULSE=1 : OUT=2
+5       : INP=1         : OUTD=1, OUT=0
 6       : INP=0         : OUTD=0
-8       : INP=1         : OUTN=1, COUNT=1
+8       : INP=1         : OUTN=1, OUT=1
 11      : INP=0         : OUTN=0
-15      : INP=1         : OUTN=1, COUNT=2
+15      : INP=1         : OUTN=1, OUT=2
 16      : INP=0         : OUTN=0
-21      : INP=1         : OUTD=1, COUNT=0
+21      : INP=1         : OUTD=1, OUT=0
 26      : INP=0         : OUTD=0
 
 ##################
 $ Reset conditions
 1       : DIVISOR=3
-5       : INP=1             : OUTN=1, COUNT=1
+3       : ENABLE=1
+5       : INP=1             : OUTN=1, OUT=1
 6       : INP=0             : OUTN=0
-8       : INP=1, RST=1    : COUNT=0
-10      : INP=0
-15      : INP=1             : OUTN=1, COUNT=1
-17      : RST=0
-18      : INP=0             : OUTN=0
-20      : INP=1             : OUTN=1, COUNT=2
-23      : FORCE_RST=1     : OUTN=0, COUNT=0
-25      : INP=0
+8       : INP=1, ENABLE=0   : OUT=0
+9       : INP=0
 
 
 

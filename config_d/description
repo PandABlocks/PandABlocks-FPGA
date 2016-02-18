@@ -20,7 +20,7 @@ LUT         Logic lookup table
     INPC            Input C
     INPD            Input D
     INPE            Input E
-    VAL             Lookup table output
+    OUT             Lookup table output
 
 SRGATE      Set reset gate
     SET_EDGE        Output set edge (0 = rising edge, 1 = falling edge)
@@ -29,24 +29,22 @@ SRGATE      Set reset gate
     FORCE_RST       Reset output to 0
     SET             A falling/rising edge sets the output to 1
     RST             A falling/rising edge resets the output to 0
-    VAL             Output value
+    OUT             Output value
 
 DIV         Pulse divider
     DIVISOR         Divisor value
     FIRST_PULSE     Where to send first pulse
-    FORCE_RST       Reset internal counter state machine
     INP             Input pulse train
-    RST             On rising edge, reset counter state machine
+    ENABLE          Reset on falling edge, enable on rising
     OUTD            Divided pulse output
     OUTN            Non-divided pulse output
-    COUNT           Internal counter value
+    OUT             Internal counter value
 
 PULSE       One-shot pulse delay and stretch
     DELAY           Output pulse delay (0 for no delay)
     WIDTH           Output pulse width (0 for input pulse width)
-    FORCE_RST       Reset QUEUE and ERR outputs
     INP             Input pulse train
-    RST             On rising edge, reset QUEUE and ERR outputs
+    ENABLE          Reset on falling edge, enable on rising
     OUT             Output pulse train
     PERR            Error output if a pulse could not be generated
     ERR_OVERFLOW    Missed pulse was due to overflow of internal queue
@@ -56,9 +54,8 @@ PULSE       One-shot pulse delay and stretch
 
 SEQ         Sequencer
     PRESCALE        Prescalar for system clock
-    SOFT_GATE       soft gate pulse
     TABLE_CYCLE     Number of times the table will cycle
-    GATE            Rising edge starts sequencer, falling edge stops sequencer
+    ENABLE          Reset on falling edge, enable on rising
     INPA            Trigger input A
     INPB            Trigger input B
     INPC            Trigger input C
@@ -73,22 +70,24 @@ SEQ         Sequencer
     CUR_FRAME       Sequencer current frame number
     CUR_FCYCLE      Current number of times the frame has cycled
     CUR_TCYCLE      Current number of times the table has cycled
-    TABLE_STROBES   Number of times data has been written to the table
     TABLE           Sequencer configuration
 
 INENC       Input encoder
     PROTOCOL        Type of absolute/incremental protocol
-    CLKRATE         Clock rate
-    FRAMERATE       Frame rate
+    CLK_PERIOD      Clock rate
+    FRAME_PERIOD    Frame rate
     BITS            Number of bits
     SETP            Set point
     RST_ON_Z        Zero position on Z rising edge
     EXTENSION       Bits higher than 32-bits
+    ERR_FRAME       Set if frame overrun
+    ERR_RESPONSE    No response from encoder
+    ENC_STATUS      Extended encoder status read from device
     A               Quadrature A if in incremental mode
     B               Quadrature B if in incremental mode
     Z               Z index channel if in incremental mode
     CONN            Signal detected
-    POSN            Current position
+    VAL             Current position
 
 QDEC        Quadrature decoder
     RST_ON_Z        Zero position on Z rising edge
@@ -96,49 +95,51 @@ QDEC        Quadrature decoder
     A               Quadrature A
     B               Quadrature B
     Z               Z index channel
-    POSN            Output position
+    OUT             Output position
 
 OUTENC      Output encoder
     PROTOCOL        Type of absolute/incremental protocol
     BITS            Number of bits
-    QPRESCALAR      Quadrature prescalar
-    FORCE_QSTATE    Force quadrature state
+    QPERIOD         Quadrature prescalar
+    ENABLE          Halt on falling edge, reset and enable on rising
     A               Input for A (only straight through)
     B               Input for B (only straight through)
     Z               Input for Z (only straight through)
-    POSN            Input for position (all other protocols)
+    VAL             Input for position (all other protocols)
     CONN            Input for connected
     QSTATE          Quadrature state
 
 POSENC      Quadrature and step/direction encoder
-    POSN            Output position
-    QPRESCALAR      Prescalar for quadrature output
-    MODE            Quadrature or step/direction
-    FORCE_QSTATE    Force the quadrature state to catch up
+    INP             Output position
+    QPERIOD         Prescalar for quadrature output
+    ENABLE          Halt on falling edge, reset and enable on rising
+    PROTOCOL        Quadrature or step/direction
     A               Quadrature A/Step output
     B               Quadrature B/Direction output
     QSTATE          State of quadrature output
 
 ADDER       Position adder
-    MASK            Mask of inputs to use
-    OUTSCALE        Scale output
-    RESULT          Output
+    INPA            Position input A
+    INPB            Position input B
+    INPC            Position input C
+    INPD            Position input D
+    SCALE           Scale divisor after add
+    OUT             Position output
 
 COUNTER     Up/Down pulse counter
     DIR             Up/Down direction (0 = Up, 1 = Down)
     START           Counter start value
     STEP            Up/Down step value
-    ENABLE          Rising edge enables counter. Falling edge disables
-    TRIGGER         Rising edge ticks the counter up/down by user-defined value
+    ENABLE          Halt on falling edge, reset and enable on rising
+    TRIG            Rising edge ticks the counter up/down by user-defined value
     CARRY           Internal counter overflow status
-    COUNT           Output
+    OUT             Output
 
 PGEN        Position generator
-    SAMPLES         Number of samples
     CYCLES          Number of cycles
-    ENABLE          Enable output
-    TRIGGER         Trigger a sample to be produced
-    POSN            Current sample
+    ENABLE          Halt on falling edge, reset and enable on rising
+    TRIG            Trigger a sample to be produced
+    OUT             Current sample
     TABLE           Table of positions to be output
 
 PCOMP       Position compare
@@ -150,25 +151,22 @@ PCOMP       Position compare
     DIR             Direction of crossing
     FLTR_DELTAT     Time interval to check if encoder moved more than FLTR_THOLD
     FLTR_THOLD      Encoder movement in FLTR_DELTAT to change current dir
-    LUT_ENABLE      Relative position compare LUT mode
-    ENABLE          Rising edge enables block. Falling edge disables
-    POSN            Position data from position-data bus
-    ACT             Active output is high while block is in operation
-    PULSE           Output pulse
+    USE_TABLE       Relative position compare LUT mode
+    ENABLE          Reset on falling edge, enable on rising
+    INP             Position data from position-data bus
+    ACTIVE          Active output is high while block is in operation
+    OUT             Output pulse
     FLTR_DIR        If deltaT > 0 this is the current direction
     ERROR           True if pulse is initiated after at least two compare ponts
     TABLE           Table of points to use instead of START/STEP/WIDTH
 
 ADC         Analogue inputs
-    TRIGGER         When to trigger for data?
-    RST             Reset accumulator?
-    DATA            Current value
+    OUT             Current value
 
 PCAP        Position capture control
     ENABLE          Data capture enable
     FRAME           Data capture frame
     CAPTURE         Data capture event
-    MISSED_CAPTURES Have any captures been lost?
     ERR_STATUS      Was last capture successful?
     IRQ             IRQ pulse output
     ACTIVE          Data capture in progress
@@ -184,14 +182,14 @@ PCAP        Position capture control
     BITS3           Quadrant 3 of bit_bus
 
 BITS        Soft inputs and constant bits
-    A_SET           The value that output A should take
-    B_SET           The value that output B should take
-    C_SET           The value that output C should take
-    D_SET           The value that output D should take
-    A               The value of A_SET on the bit bus
-    B               The value of B_SET on the bit bus
-    C               The value of C_SET on the bit bus
-    D               The value of D_SET on the bit bus
+    A               The value that output A should take
+    B               The value that output B should take
+    C               The value that output C should take
+    D               The value that output D should take
+    OUTA            The value of A on the bit bus
+    OUTB            The value of B on the bit bus
+    OUTC            The value of C on the bit bus
+    OUTD            The value of D on the bit bus
     ZERO            The constant value 0 on the bit bus
     ONE             The constant value 1 on the bit bus
 
@@ -200,14 +198,13 @@ CLOCKS      Configurable clocks
     B_PERIOD        Period of clock B output
     C_PERIOD        Period of clock C output
     D_PERIOD        Period of clock D output
-    A               Clock A output
-    B               Clock B output
-    C               Clock C output
-    D               Clock D output
+    OUTA            Clock A output
+    OUTB            Clock B output
+    OUTC            Clock C output
+    OUTD            Clock D output
 
 POSITIONS   Constants
     ZERO            Constant zero position
-
 
 SLOW        Slow control FPGA
     FPGA_VERSION    Slow Controller FPGA Version
