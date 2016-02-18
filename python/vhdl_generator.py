@@ -56,8 +56,9 @@ def main():
     generateOutput('panda_buses_template', "panda_busses.vhd", variables)
 
     for blockname, block in cfgParser.blocks.items():
-        generateOutput('panda_block_ctrl_template', "panda_" + blockname.lower() + "_ctrl.vhd", {'block': block})
-
+        generateOutput('panda_block_ctrl_template',
+                       "panda_" + blockname.lower() + "_ctrl.vhd",
+                       {'block': block})
 
 if __name__ == "__main__":
     main()
