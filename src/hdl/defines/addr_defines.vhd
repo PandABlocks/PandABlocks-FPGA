@@ -206,6 +206,7 @@ constant PCAP_FRAME : natural := 1;
 constant PCAP_CAPTURE : natural := 2;
 constant PCAP_MISSED_CAPTURES : natural := 3;
 constant PCAP_ERR_STATUS : natural := 4;
+constant PCAP_IRQ : natural := 5;
 
 -- BITS Block:
 constant BITS_A_SET : natural := 0;

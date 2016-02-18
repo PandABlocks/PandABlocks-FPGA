@@ -67,6 +67,7 @@ architecture rtl of panda_pcap_top is
 signal ENABLE_VAL       : std_logic_vector(SBUSBW-1 downto 0);
 signal FRAME_VAL        : std_logic_vector(SBUSBW-1 downto 0);
 signal CAPTURE_VAL      : std_logic_vector(SBUSBW-1 downto 0);
+signal IRQ_VAL          : std_logic_vector(SBUSBW-1 downto 0);
 signal ERR_STATUS       : std_logic_vector(31 downto 0);
 
 signal ARM              : std_logic;
@@ -99,6 +100,11 @@ signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_active      : std_logic;
 signal pcap_enabled     : std_logic;
 
+signal pcap_irq         : std_logic;
+signal irq              : std_logic;
+signal irq_prev         : std_logic;
+signal irq_rise         : std_logic;
+
 begin
 
 pcap_actv_o <= pcap_active;
@@ -107,12 +113,17 @@ pcap_actv_o <= pcap_active;
 process(clk_i) begin
     if rising_edge(clk_i) then
         enable <= SBIT(sysbus_i, ENABLE_VAL);
-
         -- Mask all triggers with enable input.
-        capture <= SBIT(sysbus_i, CAPTURE_VAL) and enable;
-        frame <= SBIT(sysbus_i, FRAME_VAL) and enable;
+        capture <= SBIT(sysbus_i, CAPTURE_VAL);
+        frame <= SBIT(sysbus_i, FRAME_VAL);
+        --
+        irq <= SBIT(sysbus_i, IRQ_VAL);
+        irq_prev <= irq;
     end if;
 end process;
+
+irq_rise <= irq and not irq_prev;
+pcap_irq_o <= pcap_irq when (IRQ_VAL = "0000000") else irq_rise;
 
 --
 -- Block Control Register Interface.
@@ -132,6 +143,7 @@ port map (
     ENABLE                  => ENABLE_VAL,
     FRAME                   => FRAME_VAL,
     CAPTURE                 => CAPTURE_VAL,
+    IRQ                     => IRQ_VAL,
     ERR_STATUS              => ERR_STATUS,
 
     START_WRITE             => START_WRITE,
@@ -205,7 +217,7 @@ port map (
     dma_fifo_ready_o        => dma_fifo_ready,
     pcap_dat_i              => pcap_dat,
     pcap_wstb_i             => pcap_dat_valid,
-    irq_o                   => pcap_irq_o,
+    irq_o                   => pcap_irq,
 
     m_axi_awready           => m_axi_awready,
     m_axi_awaddr            => m_axi_awaddr,

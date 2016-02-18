@@ -30,6 +30,7 @@ reg [31:0]      read_data;
 reg [31:0]      readback;
 reg [31:0]      read_addr;
 reg             active;
+reg             pcap_completed;
 
 integer         fid;
 integer         r;
@@ -431,7 +432,7 @@ else if (test_name == "FRAMING_TEST") begin
     irq_count = 0;
     total_samples = 0;
     ttlin_pad = 0;
-    NUMSAMPLE = 128;
+    NUMSAMPLE = 16;
 
     repeat(500) @(posedge tb.uut.ps.FCLK);
 
@@ -470,6 +471,10 @@ else if (test_name == "FRAMING_TEST") begin
     REG_WRITE(REG_BASE, REG_PCAP_ARM, 1);
     repeat(1250) @(posedge tb.uut.ps.FCLK);
 
+    // Number of samples per channel
+    pcap_completed = 0;
+    NUMSAMPLE = 16;
+
 fork
 
 // Enable
@@ -477,8 +482,10 @@ begin
     ttlin_pad[0] = 1;
     repeat(1250) @(posedge tb.uut.ps.FCLK);
     wait (n == NUMSAMPLE - 1);
-    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    repeat(1) @(posedge tb.uut.ps.FCLK);
     ttlin_pad[0] = 0;
+    wait (pcap_completed == 1);
+    $finish;
 end
 
 // Frame

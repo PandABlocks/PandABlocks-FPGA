@@ -21,6 +21,6 @@ vsim -t 1ps -voptargs=+acc -lib xil_defaultlib panda_pcomp_tb
 
 view wave
 
-add wave -Radix Decimal sim:/panda_pcomp_tb/uut/*
+do wave.do
 
 run 5000us

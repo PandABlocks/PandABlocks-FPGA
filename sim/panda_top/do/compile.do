@@ -9,7 +9,7 @@ set SLOW {../../../../SlowFPGA/src/hdl}
 vlib work
 vlib msim
 
-#do bfm.do
+do bfm.do
 
 # Compile Sources
 #
@@ -42,6 +42,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_pulse_block.vhd" \
 "${SRC}/panda_pulse_top.vhd" \
 "${SRC}/panda_spbram.vhd" \
+"${SRC}/panda_sequencer_table.vhd" \
 "${SRC}/panda_sequencer.vhd" \
 "${SRC}/panda_sequencer_block.vhd" \
 "${SRC}/panda_sequencer_top.vhd" \
