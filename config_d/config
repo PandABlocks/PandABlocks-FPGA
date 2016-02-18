@@ -20,7 +20,7 @@ LUT[8]
     INPC            param       bit_mux
     INPD            param       bit_mux
     INPE            param       bit_mux
-    VAL             bit_out
+    OUT             bit_out
 
 SRGATE[4]
     SET_EDGE        param       enum 2
@@ -33,26 +33,24 @@ SRGATE[4]
     FORCE_RST       write       action
     SET             param       bit_mux
     RST             param       bit_mux
-    VAL             bit_out
+    OUT             bit_out
 
 DIV[4]
     DIVISOR         param
     FIRST_PULSE     param       enum 2
         0   OutN
         1   OutD
-    FORCE_RST       write       action
     INP             param       bit_mux
-    RST             param       bit_mux
+    ENABLE          param       bit_mux
     OUTD            bit_out
     OUTN            bit_out
-    COUNT           read
+    OUT             read
 
 PULSE[4]
     DELAY           time
     WIDTH           time
-    FORCE_RST       write       action
     INP             param       bit_mux
-    RST             param       bit_mux
+    ENABLE          param       bit_mux
     OUT             bit_out
     PERR            bit_out
     ERR_OVERFLOW    read        bit
@@ -62,9 +60,8 @@ PULSE[4]
 
 SEQ[4]
     PRESCALE        param
-    SOFT_GATE       write       bit
     TABLE_CYCLE     param
-    GATE            param       bit_mux
+    ENABLE          param       bit_mux
     INPA            param       bit_mux
     INPB            param       bit_mux
     INPC            param       bit_mux
@@ -79,7 +76,6 @@ SEQ[4]
     CUR_FRAME       read
     CUR_FCYCLE      read
     CUR_TCYCLE      read
-    TABLE_STROBES   read
     TABLE           table
         31:0    NREPEATS
         35:32   INPUT_MASK
@@ -90,23 +86,25 @@ SEQ[4]
         127:96  TIME_PH_B
 
 INENC[4]
-    PROTOCOL        param       enum 5
+    PROTOCOL        param       enum 4
         0   Quadrature
         1   SSI
         2   BISS
         3   enDat
-        4   enDat/BISS
-    CLKRATE         param
-    FRAMERATE       param
+    CLK_PERIOD      param       time
+    FRAME_PERIOD    param       time
     BITS            param       uint 63
     SETP            write       position
     RST_ON_Z        param       bit
     EXTENSION       read        int
+    ERR_FRAME       read        bit
+    ERR_RESPONSE    read        bit
+    ENC_STATUS      read
     A               bit_out
     B               bit_out
     Z               bit_out
     CONN            bit_out
-    POSN            pos_out     encoder
+    VAL             pos_out     encoder
 
 QDEC[4]
     RST_ON_Z        param       bit
@@ -114,56 +112,67 @@ QDEC[4]
     A               param       bit_mux
     B               param       bit_mux
     Z               param       bit_mux
-    POSN            pos_out
+    OUT             pos_out
 
 OUTENC[4]
     PROTOCOL        param       enum 5
-        0   Pos-Quad
+        0   Quadrature
         1   SSI
         2   BISS
         3   enDat
         4   ABZ
-    BITS            param
-    QPRESCALAR      param
-    FORCE_QSTATE    write       action
+    BITS            param       uint 32
+    QPERIOD         param       time
+    ENABLE          param       bit_mux
     A               param       bit_mux
     B               param       bit_mux
     Z               param       bit_mux
-    POSN            param       pos_mux
+    VAL             param       pos_mux
     CONN            param       bit_mux
-    QSTATE          read        bit
+    QSTATE          read        enum 3
+        0   Disabled
+        1   At position
+        2   Slewing
 
 POSENC[4]
-    POSN            param       pos_mux
-    QPRESCALAR      param       bit
-    MODE            param       enum 2
-        0   quadrature
-        1   step+direction
-    FORCE_QSTATE    write       action
+    INP             param       pos_mux
+    QPERIOD         param       time
+    ENABLE          param       bit_mux
+    PROTOCOL        param       enum 2
+        0   Quadrature
+        1   Step/Direction
     A               bit_out
     B               bit_out
-    QSTATE          read        bit
+    QSTATE          read        enum 3
+        0   Disabled
+        1   At position
+        2   Slewing
 
-ADDER
-    MASK            param
-    OUTSCALE        param
-    RESULT          pos_out
+ADDER[2]
+    INPA            param       pos_mux
+    INPB            param       pos_mux
+    INPC            param       pos_mux
+    INPD            param       pos_mux
+    SCALE           param       enum 3
+        0   /1
+        1   /2
+        2   /4
+    OUT             pos_out
 
 COUNTER[8]
     DIR             param       bit_mux
     START           param
     STEP            param
     ENABLE          param       bit_mux
-    TRIGGER         param       bit_mux
+    TRIG            param       bit_mux
     CARRY           bit_out
-    COUNT           pos_out
+    OUT             pos_out
 
 PGEN[2]
-    SAMPLES         param
     CYCLES          param
     ENABLE          param       bit_mux
-    TRIGGER         param       bit_mux
-    POSN            pos_out
+    TRIG            param       bit_mux
+    OUT             pos_out
     TABLE           table
 
 PCOMP[4]
@@ -171,30 +180,41 @@ PCOMP[4]
     STEP            param       position
     WIDTH           param       position
     PNUM            param
-    RELATIVE        param
-    DIR             param
+    RELATIVE        param       enum 2
+        0   Absolute
+        1   Relative
+    DIR             param       enum 2
+        0   Positive
+        1   Negative
     FLTR_DELTAT     param
     FLTR_THOLD      param
-    LUT_ENABLE      param
+    USE_TABLE       param       enum 2
+        0   No
+        1   Yes
     ENABLE          param       bit_mux
-    POSN            param       pos_mux
-    ACT             bit_out
-    PULSE           bit_out
-    FLTR_DIR        read
-    ERROR           read
+    INP             param       pos_mux
+    ACTIVE          bit_out
+    OUT             bit_out
+    FLTR_DIR        read        enum 2
+        0   Positive
+        1   Negative
+    ERROR           read        enum 2
+        0   Ok
+        1   Pulse error
     TABLE           table
 
 ADC[8]
-    TRIGGER         param       bit_mux
-    RST             param       bit_mux
-    DATA            pos_out     adc
+    OUT             pos_out     adc
 
 PCAP
     ENABLE          param       bit_mux
     FRAME           param       bit_mux
     CAPTURE         param       bit_mux
-    MISSED_CAPTURES read
-    ERR_STATUS      read
+    ERR_STATUS      read        enum 4
+        0   Ok
+        1   Capture before frame
+        2   Multiple captures
+        3   Buffer overrun
     ACTIVE          bit_out
 
     CAPTURE_TS      ext_out     timestamp
@@ -208,14 +228,14 @@ PCAP
     BITS3           ext_out     bits 3
 
 BITS
-    A_SET           param       bit
-    B_SET           param       bit
-    C_SET           param       bit
-    D_SET           param       bit
-    A               bit_out
-    B               bit_out
-    C               bit_out
-    D               bit_out
+    A               param       bit
+    B               param       bit
+    C               param       bit
+    D               param       bit
+    OUTA            bit_out
+    OUTB            bit_out
+    OUTC            bit_out
+    OUTD            bit_out
     ZERO            bit_out
     ONE             bit_out
 
@@ -224,10 +244,10 @@ CLOCKS
     B_PERIOD        param       time
     C_PERIOD        param       time
     D_PERIOD        param       time
-    A               bit_out
-    B               bit_out
-    C               bit_out
-    D               bit_out
+    OUTA            bit_out
+    OUTB            bit_out
+    OUTC            bit_out
+    OUTD            bit_out
 
 POSITIONS
     ZERO            pos_out     const

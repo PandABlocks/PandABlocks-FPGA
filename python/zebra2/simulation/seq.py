@@ -107,7 +107,6 @@ class Seq(Block):
             self.fword_count = 0
             self.frame_ok = True
             self.twrite_addr += 1
-        self.TABLE_STROBES = self.table_strobes
 
     def do_table_reset(self):
         self.twrite_addr = 0
@@ -116,7 +115,7 @@ class Seq(Block):
         self.reset_state()
 
     def do_table_write_finished(self):
-        if self.GATE:
+        if self.ENABLE:
             self.ACTIVE = 1
             self.CUR_FRAME = 1
             self.CUR_FCYCLE = 1
@@ -142,8 +141,8 @@ class Seq(Block):
         for name, value in changes.items():
             setattr(self, name, value)
 
-        if b.SOFT_GATE in changes or b.GATE in changes:
-            if self.SOFT_GATE or self.GATE:
+        if  b.ENABLE in changes:
+            if self.ENABLE:
                 self.do_start(ts)
             else:
                 self.do_stop()

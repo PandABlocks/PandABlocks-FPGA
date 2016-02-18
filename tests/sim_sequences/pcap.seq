@@ -47,8 +47,8 @@ $ capture pos bus enc1
 11      : ENABLE=1
 13      : CAPTURE=1                     : DATA=0
 14      : CAPTURE=0
-15      : CAPTURE=1, INENC1.POSN=100    : DATA=100
-16      : CAPTURE=0, INENC1.POSN=50
+15      : CAPTURE=1, INENC1.VAL=100    : DATA=100
+16      : CAPTURE=0, INENC1.VAL=50
 18      : CAPTURE=1                     : DATA=50
 22      : ENABLE=0, CAPTURE=0           : ACTIVE=0
 
@@ -116,22 +116,22 @@ $ framing on counters
 5       : FRAMING_MASK=0x1000
 6       : FRAMING_ENABLE=1
 10      : ARM=0                         : ACTIVE=1
-11      : ENABLE=1, COUNTER1.COUNT=10
+11      : ENABLE=1, COUNTER1.OUT=10
 # Live frame
 12      : FRAME=1
 13      : CAPTURE=1, FRAME=0
 14      : CAPTURE=0
-15      : COUNTER1.COUNT=20
+15      : COUNTER1.OUT=20
 16      : FRAME=1                       : DATA=10
 17      : FRAME=0
-18      : COUNTER1.COUNT=30
+18      : COUNTER1.OUT=30
 # Dead frame
 19      : FRAME=1
 20      : FRAME=0
 # Live frame
-21      : COUNTER1.COUNT=50
+21      : COUNTER1.OUT=50
 22      : CAPTURE=1
-23      : COUNTER1.COUNT=35, CAPTURE=0
+23      : COUNTER1.OUT=35, CAPTURE=0
 25      : FRAME=1                       : DATA=5
 26      : FRAME=0, ENABLE=0             : ACTIVE=0
 
@@ -142,7 +142,7 @@ $ Capture before first frame
 5       : FRAMING_MASK=0x1000
 6       : FRAMING_ENABLE=1
 10      : ARM=0                         : ACTIVE=1
-11      : ENABLE=1, COUNTER1.COUNT=10
+11      : ENABLE=1, COUNTER1.OUT=10
 # Live frame
 12      : CAPTURE=1                     : ACTIVE=0, ERR_STATUS=3
 13      : FRAME=1
@@ -156,12 +156,12 @@ $ More than one capture within a frame
 5       : FRAMING_MASK=0x1000
 6       : FRAMING_ENABLE=1
 10      : ARM=0                         : ACTIVE=1
-11      : ENABLE=1, COUNTER1.COUNT=10
+11      : ENABLE=1, COUNTER1.OUT=10
 # Live frame
 12      : FRAME=1
 13      : CAPTURE=1, FRAME=0
 14      : CAPTURE=0
-15      : COUNTER1.COUNT=20
+15      : COUNTER1.OUT=20
 16      : CAPTURE=1                     : ACTIVE=0, ERR_STATUS=1
 17      : CAPTURE=0
 
@@ -173,22 +173,22 @@ $ framing on counters average mode
 6       : FRAMING_ENABLE=1
 7       : FRAMING_MODE=0x1000
 10      : ARM=0                         : ACTIVE=1
-11      : ENABLE=1, COUNTER1.COUNT=10
+11      : ENABLE=1, COUNTER1.OUT=10
 # Live frame
 12      : FRAME=1
 13      : CAPTURE=1, FRAME=0
 14      : CAPTURE=0
-15      : COUNTER1.COUNT=20
+15      : COUNTER1.OUT=20
 16      : FRAME=1                       : DATA=15
 17      : FRAME=0
-18      : COUNTER1.COUNT=30
+18      : COUNTER1.OUT=30
 # Dead frame
 19      : FRAME=1
 20      : FRAME=0
 # Live frame
-21      : COUNTER1.COUNT=50
+21      : COUNTER1.OUT=50
 22      : CAPTURE=1
-23      : COUNTER1.COUNT=35, CAPTURE=0
+23      : COUNTER1.OUT=35, CAPTURE=0
 25      : FRAME=1                       : DATA=32
 26      : FRAME=0, ENABLE=0             : ACTIVE=0
 
