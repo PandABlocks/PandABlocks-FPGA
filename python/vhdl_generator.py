@@ -55,5 +55,9 @@ def main():
     generateOutput('addr_defines_template_verilog', "addr_defines.v", variables)
     generateOutput('panda_buses_template', "panda_busses.vhd", variables)
 
+    for blockname, block in cfgParser.blocks.items():
+        generateOutput('panda_block_ctrl_template', "panda_" + blockname.lower() + "_ctrl.vhd", {'block': block})
+
+
 if __name__ == "__main__":
     main()
