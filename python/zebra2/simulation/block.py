@@ -70,4 +70,3 @@ class Block(object):
     def on_changes(self, ts, changes):
         for name, value in changes.items():
             setattr(self, name, value)
-        return None

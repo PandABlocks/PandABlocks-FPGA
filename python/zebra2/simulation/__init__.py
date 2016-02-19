@@ -10,3 +10,4 @@ from .lut import Lut
 from .pcomp import Pcomp
 from .pcap import Pcap
 from .seq import Seq
+from .pgen import Pgen

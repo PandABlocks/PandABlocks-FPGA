@@ -197,6 +197,8 @@ class Controller(object):
             for block, changes in block_changes.items():
                 next_ts = block.on_changes(ts, changes)
                 # Update bit_bus and pos_bus
+                # map block -> changes
+                new_wakeups = {}
                 for attr, val in getattr(block, "_changes", {}).items():
                     # Map (block, attr) -> bus, bus_changes, idx
                     # Map (bus, idx) -> block, attr
@@ -208,7 +210,9 @@ class Controller(object):
                     bus_changes[idx] = 1
                     # If someone's listening, tell them about it
                     for lblock, lattr in self.listeners.get((block, attr), ()):
-                        self.insert_wakeup(ts+1, lblock, {lattr: val})
+                        new_wakeups.setdefault(lblock, {})[lattr] = val
+                for lblock, changes in new_wakeups.items():
+                    self.insert_wakeup(ts+1, lblock, changes)
                 block._changes = {}
                 # Remove the old wakeup if we have one
                 self.remove_wakeup(block)
@@ -233,6 +237,8 @@ class Controller(object):
                 assert wakeup[0] == old_ts, \
                     "Gone too far %d > %d" % (wakeup[0], old_ts)
                 if wakeup[1] == block:
+                    assert wakeup[2] == {}, \
+                        "Popping a wakeup with changes: %s" %(wakeup)
                     self.wakeups.pop(index)
                     self.next_wakeup[block] = None
                     return

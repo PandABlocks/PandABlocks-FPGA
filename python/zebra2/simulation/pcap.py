@@ -85,7 +85,7 @@ class Pcap(Block):
             self.ACTIVE = 0
 
         # Handle input signals
-        if self.ACTIVE and self.ENABLE:
+        if self.ACTIVE:
             # if framing signal then process FRAMING_MASK selected signals
             if self.FRAMING_ENABLE and self.FRAMING_MASK and \
                     changes.get(b.FRAME, None):
