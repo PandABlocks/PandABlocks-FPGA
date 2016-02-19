@@ -168,7 +168,6 @@ PCAP        Position capture control
     FRAME           Data capture frame
     CAPTURE         Data capture event
     ERR_STATUS      Was last capture successful?
-    IRQ             IRQ pulse output
     ACTIVE          Data capture in progress
 
     CAPTURE_TS      Timestamp of captured data
