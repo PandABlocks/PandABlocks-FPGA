@@ -49,8 +49,12 @@ DRIVER_BUILD_FILES := $(DRIVER_FILES:driver/%=$(DRIVER_BUILD_DIR)/%)
 $(DRIVER_BUILD_FILES): $(DRIVER_BUILD_DIR)/%: driver/%
 	ln -s $$(readlink -e $<) $@
 
+# The driver register header file needs to be built.
+DRIVER_HEADER = $(DRIVER_BUILD_DIR)/panda_drv.h
+$(DRIVER_HEADER): driver/panda_drv.py config_d/registers
+	$(PYTHON) $< >$@
 
-$(PANDA_KO): $(DRIVER_BUILD_DIR) $(DRIVER_BUILD_FILES)
+$(PANDA_KO): $(DRIVER_BUILD_DIR) $(DRIVER_BUILD_FILES) $(DRIVER_HEADER)
 	$(MAKE) -C $(KERNEL_DIR) M=$< modules \
             ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE)
 	touch $@
