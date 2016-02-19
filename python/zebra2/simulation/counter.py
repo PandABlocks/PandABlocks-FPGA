@@ -15,6 +15,9 @@ class Counter(Block):
             if name == b.START:
                 self.OUT = value
 
+        if changes.get(b.ENABLE, None):
+            self.OUT = self.START
+
         # process trigger on rising edge
         if self.ENABLE and b.TRIG in changes:
             if changes[b.TRIG]:

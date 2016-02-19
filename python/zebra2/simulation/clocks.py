@@ -2,7 +2,6 @@ from .block import Block
 
 
 class Clocks(Block):
-
     def __init__(self):
         self.start_ts = 0
 
@@ -15,7 +14,7 @@ class Clocks(Block):
             # reset all clocks
             self.start_ts = ts
             for out in "ABCD":
-                setattr(self, out, 0)
+                setattr(self, 'OUT' + out, 0)
 
         # decide if we need to produce any clocks
         next_ts = []
@@ -26,11 +25,11 @@ class Clocks(Block):
                 half = period / 2
                 # produce clock low level at start of period
                 if off == 0:
-                    setattr(self, out, 0)
+                    setattr(self, 'OUT' + out, 0)
                     next_ts.append(ts + half)
                 # produce clock low level at half period
                 elif off == half:
-                    setattr(self, out, 1)
+                    setattr(self, 'OUT' + out, 1)
                     next_ts.append(ts - half + period)
         # now work out when next to make a pulse
         if next_ts:

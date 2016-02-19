@@ -1,39 +1,39 @@
 ##################################
 $ Setting a parameter starts clock
-3       : A_PERIOD=9        : A=0
-7       :                   : A=1
-12      :                   : A=0
-16      :                   : A=1
-21      :                   : A=0
-23      : A_PERIOD=4        : A=0
-25      :                   : A=1
-27      :                   : A=0
-29      :                   : A=1
-31      :                   : A=0
+3       : A_PERIOD=9        : OUTA=0
+7       :                   : OUTA=1
+12      :                   : OUTA=0
+16      :                   : OUTA=1
+21      :                   : OUTA=0
+23      : A_PERIOD=4        : OUTA=0
+25      :                   : OUTA=1
+27      :                   : OUTA=0
+29      :                   : OUTA=1
+31      :                   : OUTA=0
 32      : A_PERIOD=0
 
 #######################################
 $ Clocks restart whenever parameter set
-3       : A_PERIOD=8        : A=0
-7       :                   : A=1
-11      :                   : A=0
-15      :                   : A=1
-16      : B_PERIOD=6        : A=0, B=0
-19      :                   : B=1
-20      :                   : A=1
-22      :                   : B=0
-24      :                   : A=0
-25      :                   : B=1
-28      :                   : A=1, B=0
-31      :                   : B=1
-32      :                   : A=0
-34      :                   : B=0
-36      :                   : A=1
-37      :                   : B=1
-40      :                   : A=0, B=0
-43      :                   : B=1
-44      : A_PERIOD=0        : A=0, B=0
-47      :                   : B=1
-50      :                   : B=0
-53      :                   : B=1
-54      : B_PERIOD=0        : B=0
+3       : A_PERIOD=8        : OUTA=0
+7       :                   : OUTA=1
+11      :                   : OUTA=0
+15      :                   : OUTA=1
+16      : B_PERIOD=6        : OUTA=0, OUTB=0
+19      :                   : OUTB=1
+20      :                   : OUTA=1
+22      :                   : OUTB=0
+24      :                   : OUTA=0
+25      :                   : OUTB=1
+28      :                   : OUTA=1, OUTB=0
+31      :                   : OUTB=1
+32      :                   : OUTA=0
+34      :                   : OUTB=0
+36      :                   : OUTA=1
+37      :                   : OUTB=1
+40      :                   : OUTA=0, OUTB=0
+43      :                   : OUTB=1
+44      : A_PERIOD=0        : OUTA=0, OUTB=0
+47      :                   : OUTB=1
+50      :                   : OUTB=0
+53      :                   : OUTB=1
+54      : B_PERIOD=0        : OUTB=0
