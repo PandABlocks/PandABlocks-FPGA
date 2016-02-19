@@ -149,14 +149,12 @@ PCOMP       Position compare
     PNUM            Pulse number to be generated
     RELATIVE        Relative position compare enable
     DIR             Direction of crossing
-    FLTR_DELTAT     Time interval to check if encoder moved more than FLTR_THOLD
-    FLTR_THOLD      Encoder movement in FLTR_DELTAT to change current dir
+    DELTAP          Position offset before START condition can be met
     USE_TABLE       Relative position compare LUT mode
     ENABLE          Reset on falling edge, enable on rising
     INP             Position data from position-data bus
     ACTIVE          Active output is high while block is in operation
     OUT             Output pulse
-    FLTR_DIR        If deltaT > 0 this is the current direction
     ERROR           True if pulse is initiated after at least two compare ponts
     TABLE           Table of points to use instead of START/STEP/WIDTH
 

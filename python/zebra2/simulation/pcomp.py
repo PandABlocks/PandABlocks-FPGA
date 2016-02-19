@@ -9,8 +9,6 @@ BWD = 1
 class Pcomp(Block):
 
     def __init__(self):
-        # Current direction of INP stream
-        self.FLTR_DIR = FWD
         # Next tick to check deltat
         self.tnext = 0
         # Last position cache for deltat check
@@ -35,29 +33,11 @@ class Pcomp(Block):
         for name, value in changes.items():
             setattr(self, name, value)
 
-        # If changing the DELTAT filter then init values
-        if b.FLTR_DELTAT in changes:
-            if self.FLTR_DELTAT:
-                self.tnext = ts + self.FLTR_DELTAT
-                self.tposn = self.INP
-            else:
-                self.tnext = 0
-
-        # calculate current dir of INP on deltat
-        if self.tnext and ts >= self.tnext:
-            deltap = self.INP - self.tposn
-            if deltap > self.FLTR_THOLD:
-                self.FLTR_DIR = FWD
-            elif deltap < self.FLTR_THOLD:
-                self.FLTR_DIR = BWD
-            self.tnext = ts + self.FLTR_DELTAT
-            self.tposn = self.INP
-
          #check to see if we are waiting to cross the start point
         if self.ENABLE and b.INP in changes:
-            if self.DIR == FWD and self.INP < self.cpoint:
+            if self.DIR == FWD and self.INP < self.cpoint - self.DELTAP:
                 self.wait_start = False
-            elif self.DIR == BWD and self.INP > self.cpoint:
+            elif self.DIR == BWD and self.INP > self.cpoint + self.DELTAP:
                 self.wait_start = False
 
         # handle enable transitions
@@ -83,10 +63,6 @@ class Pcomp(Block):
                 transition = self.INP >= self.cpoint and not self.wait_start
             else:
                 transition = self.INP <= self.cpoint and not self.wait_start
-            # if direction filter is on, then check it matches
-            if self.tnext:
-                transition &= self.DIR == self.FLTR_DIR
-            # if transition then set output and increment compare point
             if transition:
                 self.OUT = self.cout
                 if self.cout:

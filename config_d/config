@@ -186,8 +186,7 @@ PCOMP[4]
     DIR             param       enum 2
         0   Positive
         1   Negative
-    FLTR_DELTAT     param
-    FLTR_THOLD      param
+    DELTAP          param
     USE_TABLE       param       enum 2
         0   No
         1   Yes
@@ -195,9 +194,6 @@ PCOMP[4]
     INP             param       pos_mux
     ACTIVE          bit_out
     OUT             bit_out
-    FLTR_DIR        read        enum 2
-        0   Positive
-        1   Negative
     ERROR           read        enum 2
         0   Ok
         1   Pulse error

@@ -96,209 +96,14 @@ $ Disable with start
 17      : INP=4
 18      : INP=3
 
-
 ###############
-$ Increasing position with jitter below FLTR_THOLD
-#this should just do the normal behaviour
-3       : START=5
-4       : STEP=3
-5       : WIDTH=2
-6       : PNUM=3
-10      : ENABLE=1     : ACTIVE=1
-11      : FLTR_DELTAT=5
-13      : FLTR_THOLD=1
-14      :
-15      : INP=1
-16      : INP=2
-17      : INP=3
-18      : INP=4
-19      : INP=5        : OUT=1
-20      : INP=4
-21      : INP=5
-24      : INP=6
-27      : INP=7        : OUT=0
-29      : INP=8        : OUT=1
-33      : INP=9
-36      : INP=10       : OUT=0
-39      : INP=11       : OUT=1
-44      : INP=12
-47      : INP=13       : OUT=0, ACTIVE=0
-
-
-###############
-$ Increasing position with jitter above FLTR_THOLD inside deltaT
-#this should ignore the jitter as it is inside the deltaT window
-3       : START=5
-4       : STEP=3
-5       : WIDTH=2
-6       : PNUM=3
-10      : ENABLE=1     : ACTIVE=1
-11      : FLTR_DELTAT=5
-13      : FLTR_THOLD=1
-14      :
-15      : INP=1
-16      : INP=2
-17      : INP=3
-18      : INP=4
-19      : INP=5        : OUT=1
-20      : INP=6
-21      : INP=7        : OUT=0
-24      : INP=0
-25      : INP=8        : OUT=1
-33      : INP=9
-36      : INP=10       : OUT=0
-39      : INP=11       : OUT=1
-44      : INP=12
-47      : INP=13       : OUT=0, ACTIVE=0
-
-###############
-$ Increasing position with jitter above FLTR_THOLD on deltaT edge
-#this should report the jitter, reverse direction and
-#everything in the deltaT is ignored until next deltaT window
-3       : START=5
-4       : STEP=3
-5       : WIDTH=2
-6       : PNUM=3
-10      : ENABLE=1      : ACTIVE=1
-11      : FLTR_DELTAT=5
-13      : FLTR_THOLD=1
-14      :
-15      : INP=1
-16      : INP=2
-17      : INP=3
-18      : INP=4
-21      : INP=5        : OUT=1
-22      : INP=6
-23      : INP=7        : OUT=0
-26      : INP=0        : FLTR_DIR=1
-27      : INP=8
-31      :               : OUT=1, FLTR_DIR=0
-35      : INP=9        :
-38      : INP=10       : OUT=0
-41      : INP=11       : OUT=1
-46      : INP=12
-49      : INP=13       : OUT=0, ACTIVE=0
-
-###############
-$ Increasing position with jitter below FLTR_THOLD on deltaT edge
-#this should ignore the jitter
-3       : START=5
-4       : STEP=3
-5       : WIDTH=2
-6       : PNUM=3
-10      : ENABLE=1      : ACTIVE=1
-11      : FLTR_DELTAT=5
-13      : FLTR_THOLD=1
-14      :
-15      : INP=1
-16      : INP=2
-17      : INP=3
-18      : INP=4
-21      : INP=5        : OUT=1
-22      : INP=6
-23      : INP=7        : OUT=0
-26      : INP=6
-27      : INP=8        : OUT=1
-35      : INP=9
-38      : INP=10       : OUT=0
-41      : INP=11       : OUT=1
-46      : INP=12
-49      : INP=13       : OUT=0, ACTIVE=0
-
-###############
-$ Increasing position with jitter above FLTR_THOLD then return to start
-#this won't restart as the pulse has already been started
-3       : START=5
-4       : STEP=3
-5       : WIDTH=2
-6       : PNUM=3
-10      : ENABLE=1      : ACTIVE=1
-12      : FLTR_DELTAT=2
-13      : FLTR_THOLD=1
-14      :
-17      : INP=1
-18      : INP=2
-19      : INP=3
-20      : INP=4
-21      : INP=5        : OUT=1
-22      : INP=6
-23      : INP=7        : OUT=0
-24      : INP=1
-26      : INP=5        :
-27      : INP=6
-28      : INP=8        : OUT=1
-30      : INP=9
-31      : INP=10       : OUT=0
-33      : INP=11       : OUT=1
-35      : INP=12
-37      : INP=13       : OUT=0, ACTIVE=0
-
-
-###############
-$ Increasing position with jitter above FLTR_THOLD before start
-#this should start the pulse when the next deltaT window starts
-#this is interesting if the end of the deltaT window falls on the WIDTH value,
-3       : START=5
-4       : STEP=3
-5       : WIDTH=2
-6       : PNUM=3
-10      : ENABLE=1      : ACTIVE=1
-12      : FLTR_DELTAT=3
-13      : FLTR_THOLD=1
-14      :
-17      : INP=1
-18      : INP=2
-19      : INP=3
-20      : INP=4
-21      : INP=0
-22      : INP=5
-23      : INP=6
-24      : INP=7        : OUT=1
-25      : INP=8        : OUT=0
-26      : INP=9        : OUT=1
-27      : INP=10       : OUT=0
-28      : INP=11       : OUT=1
-29      : INP=12
-
-###############
-$ Increasing position with jitter above threshold before start
-#this should start the pulse when the next deltaT window starts and continue the
-#pulse as if it was started in the right spot
+$ Wait to be below start - DELTAP
 3       : START=5
 4       : STEP=4
 5       : WIDTH=3
 6       : PNUM=3
+7       : DELTAP = 2
 10      : ENABLE=1      : ACTIVE=1
-12      : FLTR_DELTAT=3
-13      : FLTR_THOLD=1
-14      :
-17      : INP=1
-18      : INP=2
-19      : INP=3
-20      : INP=4
-21      : INP=0
-22      : INP=5
-23      : INP=6
-24      : INP=7        : OUT=1
-25      : INP=8        : OUT=0
-26      : INP=9        : OUT=1
-27      : INP=10
-28      : INP=11
-29      : INP=12       : OUT=0
-
-
-###############
-$ Decreasing from above start with +ve direction filter and direction change above start point
-#this should not initiate the pulses until we first go under the start point
-#and the direction changes to the correct dir.
-#*this fails if the first reading is on the end of a filter window
-3       : START=5
-4       : STEP=4
-5       : WIDTH=3
-6       : PNUM=3
-10      : ENABLE=1      : ACTIVE=1
-12      : FLTR_DELTAT=3
-13      : FLTR_THOLD=1
 14      :
 15      : INP=11
 16      : INP=10
@@ -307,56 +112,21 @@ $ Decreasing from above start with +ve direction filter and direction change abo
 19      : INP=7
 20      : INP=6
 23      : INP=5
-25      : INP=3
-27      : INP=1
-28      : INP=2
+25      : INP=4
+27      : INP=5
+28      : INP=6
 29      : INP=3
 30      : INP=4
 31      : INP=0
-43      : INP=5
+43      : INP=5        : OUT=1
 44      : INP=6
-45      : INP=7        : OUT=1
+45      : INP=7
 46      : INP=8        : OUT=0
 47      : INP=9        : OUT=1
 48      : INP=10
 49      : INP=11
 50      : INP=12       : OUT=0
 
-
-
-###############
-$ Error is produced after skipping more than 2 compare points
-#this occurs if we detected the start point in the right conditions but before
-#the direction changed and we also passed at least one width compare point.
-3       : START=5
-4       : STEP=4
-5       : WIDTH=2
-6       : PNUM=3
-10      : ENABLE=1      : ACTIVE=1
-12      : FLTR_DELTAT=5
-13      : FLTR_THOLD=1
-14      :
-15      : INP=11
-16      : INP=10
-17      : INP=9
-18      : INP=8
-19      : INP=7
-20      : INP=6
-23      : INP=5
-25      : INP=3
-27      : INP=1
-28      : INP=2
-29      : INP=3
-30      : INP=4
-31      : INP=0
-43      : INP=5
-44      : INP=6
-45      : INP=7
-46      : INP=8
-47      : INP=9        : ERROR=1, ACTIVE=0
-48      : INP=10
-49      : INP=11
-50      : INP=12
 
 ###############
 $ Error produced if we skip two compare points
