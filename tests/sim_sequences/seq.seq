@@ -30,7 +30,7 @@ $ Multiple frames, multiple frame and table cycles
 17      : TABLE_DATA=0x220C3300
 18      : TABLE_DATA=0x00000004
 19      : TABLE_DATA=0x00000004
-26      : TABLE_LENGTH=2
+26      : TABLE_LENGTH=8
 30      : ENABLE=1                    : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1
 35      : INPA=1                    : OUTA=1, OUTB=1, OUTC=1
@@ -96,7 +96,7 @@ $ Writing inputs before a whole frame is written
 8       : TABLE_DATA=0x00000002
 9       : TABLE_DATA=0x00000001
 10      : INPA=0, INPB=0, INPC=0, INPD=0
-11      : TABLE_LENGTH=1
+11      : TABLE_LENGTH=4
 17      : ENABLE=1                    : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1
 24      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
@@ -122,7 +122,7 @@ $ Writing inputs after sequencer has finished
 6       : TABLE_DATA=0xFF013F00
 7       : TABLE_DATA=0x00000002
 8       : TABLE_DATA=0x00000001
-9       : TABLE_LENGTH=1
+9       : TABLE_LENGTH=4
 15      : ENABLE=1                    : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1
 25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
@@ -152,7 +152,7 @@ $ Single frame, multiple frame and table cycles
 7       : TABLE_DATA=0xFF013F00
 8       : TABLE_DATA=0x00000002
 9       : TABLE_DATA=0x00000001
-10      : TABLE_LENGTH=1
+10      : TABLE_LENGTH=4
 16      : ENABLE=1                    : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1
 25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
@@ -191,7 +191,7 @@ $ Setting inactive before finished and restarting
 7       : TABLE_DATA=0x1F073800
 8       : TABLE_DATA=0x00000002
 9       : TABLE_DATA=0x00000001
-11      : TABLE_LENGTH=1
+11      : TABLE_LENGTH=4
 16      : ENABLE=1                  : ACTIVE=1, CUR_FRAME=1
         :                           : CUR_FCYCLE=1, CUR_TCYCLE=1
 25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1, OUTB=1, OUTC=1
@@ -248,7 +248,7 @@ $ Reset table and write more data
 14      : TABLE_DATA=0xFE3F0200
 15      : TABLE_DATA=0x00000003
 16      : TABLE_DATA=0x00000002
-18      : TABLE_LENGTH=2
+18      : TABLE_LENGTH=8
 23      : ENABLE=1                  : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1
 26      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1, OUTB=1, OUTC=1
@@ -278,7 +278,7 @@ $ Reset table and write more data
 42      : TABLE_DATA=0x11040800
 43      : TABLE_DATA=0x00000001
 44      : TABLE_DATA=0x00000002
-46      : TABLE_LENGTH=1            :
+46      : TABLE_LENGTH=4            :
 47      :                           : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1
 56      : INPA=1                    : OUTA=0, OUTB=0, OUTC=1, OUTD=0, OUTE=0
@@ -307,7 +307,7 @@ $ Gate dropped on completion, re-raised for re-execution of same frame table
 7       : TABLE_DATA=0xFF013F00
 8       : TABLE_DATA=0x00000002
 9       : TABLE_DATA=0x00000001
-11      : TABLE_LENGTH=1
+11      : TABLE_LENGTH=4
 16      : ENABLE=1                          : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                                   : CUR_TCYCLE=1
 25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1

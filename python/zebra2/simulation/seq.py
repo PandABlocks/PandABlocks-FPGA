@@ -75,14 +75,14 @@ class Seq(Block):
         self.get_cur_frame_data()
         self.set_outputs('p2Out')
         #go to next frame
-        if self.CUR_FRAME < self.TABLE_LENGTH\
+        if self.CUR_FRAME < self.TABLE_LENGTH / 4 \
             and self.CUR_FCYCLE == self.params['rpt']:
             self.next_frame_queue.append((ts + self.params['p2Len']))
         #handle repeating frames
         elif self.CUR_FCYCLE < self.params['rpt']:# or self.CUR_FCYCLE == 0:
             self.frpt_queue.append((ts + self.params['p2Len']))
         #handle repeating tables
-        elif self.CUR_FRAME == self.TABLE_LENGTH:
+        elif self.CUR_FRAME == self.TABLE_LENGTH / 4:
             if self.CUR_TCYCLE < self.TABLE_CYCLE:# or self.CUR_TCYCLE == 0:
                 self.trpt_queue.append((ts + self.params['p2Len']))
             elif self.CUR_TCYCLE == self.TABLE_CYCLE:
@@ -141,7 +141,7 @@ class Seq(Block):
         for name, value in changes.items():
             setattr(self, name, value)
 
-        if  b.ENABLE in changes:
+        if b.ENABLE in changes:
             if self.ENABLE:
                 self.do_start(ts)
             else:

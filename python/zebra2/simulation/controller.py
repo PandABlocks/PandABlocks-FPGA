@@ -77,7 +77,7 @@ class Controller(object):
                 self.lookup[(config_block.base, i, reg)] = (inst, attr_name)
                 if field.cls == "table" and field.reg[0] == "long":
                     # Long tables need a special entry
-                    entry = (inst, "TABLE_DATA")
+                    entry = (inst, "TABLE_ADDR")
                     self.lookup[(config_block.base, i, -1)] = entry
             for attr_name, (indexes, field) in config_block.outputs.items():
                 if field.cls == "pos_out":
