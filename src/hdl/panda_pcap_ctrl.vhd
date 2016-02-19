@@ -47,6 +47,7 @@ port (
     DMA_ADDR_WSTB       : out std_logic;
     BLOCK_SIZE          : out std_logic_vector(31 downto 0);
     TIMEOUT             : out std_logic_vector(31 downto 0);
+    TIMEOUT_WSTB        : out std_logic;
     IRQ_STATUS          : in  std_logic_vector(31 downto 0)
 );
 end panda_pcap_ctrl;
@@ -165,13 +166,15 @@ begin
             DMA_START <= '0';
             DMA_ADDR <= (others => '0');
             DMA_ADDR_WSTB <= '0';
-            BLOCK_SIZE <= TO_SVECTOR(8192, 32);
+            BLOCK_SIZE <= TO_SVECTOR(0, 32);
             TIMEOUT <= TO_SVECTOR(0, 32);
+            TIMEOUT_WSTB <= '0';
         else
             -- Single clock pulse
             DMA_RESET <= '0';
             DMA_START <= '0';
             DMA_ADDR_WSTB <= '0';
+            TIMEOUT_WSTB <= '0';
 
             if (mem_cs_i(DRV_CS) = '1' and mem_wstb_i = '1') then
                 -- DMA Engine reset.
@@ -198,6 +201,7 @@ begin
                 -- IRQ Timeout value
                 if (mem_addr = DRV_PCAP_TIMEOUT) then
                     TIMEOUT <= mem_dat_i;
+                    TIMEOUT_WSTB <= '1';
                 end if;
             end if;
         end if;

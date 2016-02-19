@@ -39,6 +39,7 @@ port (
     DMA_ADDR            : in  std_logic_vector(31 downto 0);
     DMA_ADDR_WSTB       : in  std_logic;
     TIMEOUT             : in  std_logic_vector(31 downto 0);
+    TIMEOUT_WSTB        : in  std_logic;
     IRQ_STATUS          : out std_logic_vector(31 downto 0);
     BLOCK_SIZE          : in  std_logic_vector(31 downto 0);
 
@@ -219,7 +220,9 @@ if rising_edge(clk_i) then
             pcap_timeout <= pcap_timeout;
         end if;
 
-        if (pcap_fsm /= ACTV) then
+        if (TIMEOUT_WSTB = '1') then
+            timeout_counter <= (others => '0');
+        elsif (pcap_fsm /= ACTV) then
             timeout_counter <= (others => '0');
         else
             timeout_counter <= timeout_counter + 1;

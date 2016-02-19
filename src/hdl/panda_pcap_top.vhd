@@ -84,6 +84,7 @@ signal DMA_ADDR         : std_logic_vector(31 downto 0);
 signal DMA_ADDR_WSTB    : std_logic;
 signal BLOCK_SIZE       : std_logic_vector(31 downto 0);
 signal TIMEOUT          : std_logic_vector(31 downto 0);
+signal TIMEOUT_WSTB     : std_logic;
 signal IRQ_STATUS       : std_logic_vector(31 downto 0);
 
 signal enable           : std_logic;
@@ -161,6 +162,7 @@ port map (
     DMA_ADDR_WSTB           => DMA_ADDR_WSTB,
     BLOCK_SIZE              => BLOCK_SIZE,
     TIMEOUT                 => TIMEOUT,
+    TIMEOUT_WSTB            => TIMEOUT_WSTB,
     IRQ_STATUS              => IRQ_STATUS
 );
 
@@ -208,6 +210,7 @@ port map (
     DMA_ADDR                => DMA_ADDR,
     DMA_ADDR_WSTB           => DMA_ADDR_WSTB,
     TIMEOUT                 => TIMEOUT,
+    TIMEOUT_WSTB            => TIMEOUT_WSTB,
     IRQ_STATUS              => IRQ_STATUS,
     BLOCK_SIZE              => BLOCK_SIZE,
 
