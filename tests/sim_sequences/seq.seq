@@ -41,9 +41,10 @@ $ Multiple frames, multiple frame and table cycles
         :                           : OUTF=0, CUR_FCYCLE=2
 45      :                           : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1
         :                           : OUTF=1
+47      :                           : CUR_FRAME=2, CUR_FCYCLE=1
 
 55      : INPB=1,INPA=0             : OUTA=0, OUTB=0, OUTC=1, OUTD=1, OUTE=0
-        :                           : OUTF=0, CUR_FRAME=2, CUR_FCYCLE=1
+        :                           : OUTF=0
 63      :                           : OUTA=1, OUTB=1, OUTC=0, OUTD=0, OUTE=1
         :                           : OUTF=1
 
@@ -61,9 +62,10 @@ $ Multiple frames, multiple frame and table cycles
         :                           : OUTF=0, CUR_FCYCLE=2
 97      :                           : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1
         :                           : OUTF=1
+99      :                           : CUR_FRAME=2, CUR_FCYCLE=1
 
 100     : INPB=1,INPA=0             : OUTA=0, OUTB=0, OUTC=1, OUTD=1, OUTE=0
-        :                           : OUTF=0, CUR_FRAME=2, CUR_FCYCLE=1
+        :                           : OUTF=0
 108     :                           : OUTA=1, OUTB=1, OUTC=0, OUTD=0, OUTE=1
         :                           : OUTF=1
 

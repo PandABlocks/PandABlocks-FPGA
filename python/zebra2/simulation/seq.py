@@ -128,6 +128,8 @@ class Seq(Block):
         when we next need to be called"""
         # This is a ConfigBlock object
         b = self.config_block
+        # This is the next time we need to be called
+        next_ts = None
         # Set attributes
         for name, value in changes.items():
             setattr(self, name, value)
@@ -183,3 +185,9 @@ class Seq(Block):
                 self.queue.popleft()
                 self.do_table_write_finished()
 
+        # if we have anything else on the queue, return when it's due
+        if self.queue:
+            next_ts = self.queue[0][0]
+            assert next_ts >= ts, "Going back in time %s >= %s" % (next_ts, ts)
+
+        return next_ts
