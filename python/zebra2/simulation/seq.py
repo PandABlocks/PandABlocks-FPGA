@@ -18,12 +18,7 @@ class Seq(Block):
         self.fword_count = 0
         self.table_strobes = 0
         self.frame_ok = False
-        self.set_active_queue = deque()
-        self.p2_queue = deque()
-        self.next_frame_queue = deque()
-        self.frpt_queue = deque()
-        self.trpt_queue = deque()
-        self.end_queue = deque()
+        self.queue = deque()
         self.table = numpy.zeros(shape=(512,4), dtype=numpy.uint32)
 
     def do_start(self, ts):
@@ -42,11 +37,7 @@ class Seq(Block):
         self.CUR_FRAME = 0
         self.CUR_FCYCLE = 0
         self.CUR_TCYCLE = 0
-        self.p2_queue.clear()
-        self.frpt_queue.clear()
-        self.trpt_queue.clear()
-        self.next_frame_queue.clear()
-        self.end_queue.clear()
+        self.queue.clear()
 
     def process_inputs(self, ts):
         if self.ACTIVE and self.frame_ok:
@@ -63,30 +54,30 @@ class Seq(Block):
 
     def process_phase1(self, ts):
         self.set_outputs('p1Out')
-        self.p2_queue.append((ts + self.params['p1Len']))
+        self.queue.append((ts + self.params['p1Len'], "phase2"))
         #if we receive an input that matches criteria, and we are due to process
         #a repeat queue, clear the queue to prevent the outputs being set twice
-        if self.frpt_queue and self.frpt_queue[0] == ts:
-            self.frpt_queue.popleft()
-        if self.trpt_queue and self.trpt_queue[0] == ts:
-            self.trpt_queue.popleft()
+        if self.queue and self.queue[0][1] == "frpt":
+            self.queue.popleft()
+        if self.queue and self.queue[0][1] == "trpt":
+            self.queue.popleft()
 
     def process_phase2(self, ts):
         self.get_cur_frame_data()
         self.set_outputs('p2Out')
-        #go to next frame
-        if self.CUR_FRAME < self.TABLE_LENGTH / 4 \
-            and self.CUR_FCYCLE == self.params['rpt']:
-            self.next_frame_queue.append((ts + self.params['p2Len']))
         #handle repeating frames
-        elif self.CUR_FCYCLE < self.params['rpt']:# or self.CUR_FCYCLE == 0:
-            self.frpt_queue.append((ts + self.params['p2Len']))
+        if self.CUR_FCYCLE < self.params['rpt']:# or self.CUR_FCYCLE == 0:
+            self.queue.append((ts + self.params['p2Len'], "frpt"))
+        #go to next frame
+        elif self.CUR_FRAME < self.TABLE_LENGTH / 4 \
+            and self.CUR_FCYCLE == self.params['rpt']:
+            self.queue.append((ts + self.params['p2Len'], "next_frame"))
         #handle repeating tables
         elif self.CUR_FRAME == self.TABLE_LENGTH / 4:
             if self.CUR_TCYCLE < self.TABLE_CYCLE:# or self.CUR_TCYCLE == 0:
-                self.trpt_queue.append((ts + self.params['p2Len']))
+                self.queue.append((ts + self.params['p2Len'], "trpt"))
             elif self.CUR_TCYCLE == self.TABLE_CYCLE:
-                self.end_queue.append(ts + self.params['p2Len'])
+                self.queue.append((ts + self.params['p2Len'], "end"))
 
     def set_outputs(self, phse):
         #TODO: make sure order is correct here
@@ -152,44 +143,43 @@ class Seq(Block):
             self.reset_state()
             self.do_table_reset()
         elif b.TABLE_LENGTH in changes:
-            self.set_active_queue.append(ts+1)
+            self.queue.append((ts+1, "active"))
 
         input_bits = [b.INPA, b.INPB, b.INPC, b.INPD]
         if any(x in changes for x in input_bits):
             #if we are due to repeat, pop off the queue so we wait until
             #the inputs are correct again
-            if self.frpt_queue:
-                self.frpt_queue.popleft()
+            if self.queue and self.queue[0][1] == "frpt":
+                self.queue.popleft()
             self.process_inputs(ts)
 
-        #if we are due to set registers after a TABLE_LENGTH write
-        if self.set_active_queue and self.set_active_queue[0] <= ts:
-            self.set_active_queue.popleft()
-            self.do_table_write_finished()
         #set phase 2 outputs when the phase 1 time has finished
-        if self.p2_queue and self.p2_queue[0] == ts:
-            self.p2_queue.popleft()
-            self.process_phase2(ts)
-        #handle the frame repeat
-        if self.frpt_queue and self.frpt_queue[0] == ts:
-            self.CUR_FCYCLE += 1
-            self.frpt_queue.popleft()
-            self.process_inputs(ts)
-        #handle the table repeat
-        if self.trpt_queue and self.trpt_queue[0] == ts:
-            self.CUR_TCYCLE += 1
-            self.CUR_FRAME  = 1
-            self.CUR_FCYCLE = 1
-            self.trpt_queue.popleft()
-            self.process_inputs(ts)
-        #handle the next frame
-        if self.next_frame_queue and self.next_frame_queue[0] <= ts:
-            self.CUR_FRAME += 1
-            self.CUR_FCYCLE = 1
-            self.next_frame_queue.popleft()
-            self.process_inputs(ts)
-        #handle the end of the sequence
-        if self.end_queue and self.end_queue[0] == ts:
-            self.end_queue.popleft()
-            self.set_outputs('zero')
-            self.ACTIVE = 0
+        if self.queue and self.queue[0][0] == ts:
+            if self.queue[0][1] == "phase2":
+                self.queue.popleft()
+                self.process_phase2(ts)
+            elif self.queue[0][1] == "frpt":
+                self.CUR_FCYCLE += 1
+                self.queue.popleft()
+                self.process_inputs(ts)
+            elif self.queue[0][1] == "trpt":
+                self.CUR_TCYCLE += 1
+                self.CUR_FRAME  = 1
+                self.CUR_FCYCLE = 1
+                self.queue.popleft()
+                self.process_inputs(ts)
+            elif self.queue[0][1] == "end":
+                self.queue.popleft()
+                self.set_outputs('zero')
+                self.ACTIVE = 0
+        if self.queue and self.queue[0][0] <= ts:
+            if self.queue[0][1] == "next_frame":
+                self.CUR_FRAME += 1
+                self.CUR_FCYCLE = 1
+                self.queue.popleft()
+                self.process_inputs(ts)
+             #if we are due to set registers after a TABLE_LENGTH write
+            elif self.queue[0][1] == "active":
+                self.queue.popleft()
+                self.do_table_write_finished()
+
