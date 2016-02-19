@@ -44,8 +44,6 @@ read_vhdl ../src/hdl/defines/panda_version.vhd
 read_vhdl ../src/hdl/panda_busses.vhd
 read_vhdl ../src/hdl/panda_csr_if.vhd
 read_vhdl ../src/hdl/panda_spbram.vhd
-read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0_S00_AXI.vhd
-read_vhdl ../src/ip_repo/panda_pcap_1.0/hdl/panda_pcap_v1_0.vhd
 read_vhdl ../src/hdl/panda_ttlout_block.vhd
 read_vhdl ../src/hdl/panda_ttlout_top.vhd
 read_vhdl ../src/hdl/panda_ttlin_top.vhd

@@ -119,8 +119,8 @@ signal fifo_full            : std_logic;
 
 signal irq_flags            : std_logic_vector(7 downto 0);
 signal irq_flags_latch      : std_logic_vector(7 downto 0);
-signal sample_count         : unsigned(15 downto 0);
-signal sample_count_latch   : unsigned(15 downto 0);
+signal sample_count         : unsigned(23 downto 0);
+signal sample_count_latch   : unsigned(23 downto 0);
 
 begin
 
@@ -129,8 +129,7 @@ irq_o <= dma_irq;
 
 dma_fifo_ready_o <= not fifo_full;
 
-IRQ_STATUS <= std_logic_vector(sample_count_latch) &
-              X"00" & irq_flags_latch;
+IRQ_STATUS <= std_logic_vector(sample_count_latch) & irq_flags_latch;
 
 -- DMA engine reset
 reset <= reset_i or DMA_RESET;
