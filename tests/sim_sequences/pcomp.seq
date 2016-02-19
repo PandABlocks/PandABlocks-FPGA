@@ -5,13 +5,13 @@ $ Increasing position with +ve dir
 4       : STEP=3
 5       : WIDTH=2
 6       : PNUM=3
-10      : ENABLE=1
+10      : ENABLE=1     : ACTIVE=1
 11      :
 12      : INP=1
 13      : INP=2
 14      : INP=3
 15      : INP=4
-16      : INP=5        : OUT=1, ACTIVE=1
+16      : INP=5        : OUT=1
 17      : INP=6
 18      : INP=7        : OUT=0
 23      : INP=8        : OUT=1
@@ -29,7 +29,7 @@ $ Decreasing position with +ve dir
 4       : STEP=10
 5       : WIDTH=7
 6       : PNUM=3
-10      : ENABLE=1
+10      : ENABLE=1     : ACTIVE=1
 11      :
 12      : INP=9
 13      : INP=8
@@ -48,13 +48,13 @@ $ Decreasing position with -ve dir
 5       : WIDTH=2
 6       : PNUM=2
 7       : DIR=1
-10      : ENABLE=1
+10      : ENABLE=1     : ACTIVE=1
 11      :
 12      : INP=9
 13      : INP=8
 14      : INP=7
 15      : INP=6
-16      : INP=5    : OUT=1, ACTIVE=1
+16      : INP=5    : OUT=1
 17      : INP=4
 18      : INP=3    : OUT=0
 20      : INP=2    : OUT=1
@@ -70,13 +70,13 @@ $ Disable after start
 5       : WIDTH=7
 6       : PNUM=3
 7       : DIR=1
-10      : ENABLE=1
+10      : ENABLE=1          : ACTIVE=1
 12      : INP=9
 13      : INP=8
 14      : INP=7
 15      : INP=6
-16      : INP=5            : OUT=1, ACTIVE=1
-18      : INP=4, ENABLE=0  : ACTIVE=0, OUT=0
+16      : INP=5             : OUT=1
+18      : INP=4, ENABLE=0   : ACTIVE=0, OUT=0
 
 ###############
 $ Disable with start
@@ -87,12 +87,12 @@ $ Disable with start
 5       : WIDTH=7
 6       : PNUM=3
 7       : DIR=1
-10      : ENABLE=1
+10      : ENABLE=1          : ACTIVE=1
 12      : INP=9
 13      : INP=8
 14      : INP=7
 15      : INP=6
-16      : INP=5, ENABLE=0
+16      : INP=5, ENABLE=0   : ACTIVE=0
 17      : INP=4
 18      : INP=3
 
@@ -104,7 +104,7 @@ $ Increasing position with jitter below FLTR_THOLD
 4       : STEP=3
 5       : WIDTH=2
 6       : PNUM=3
-10      : ENABLE=1
+10      : ENABLE=1     : ACTIVE=1
 11      : FLTR_DELTAT=5
 13      : FLTR_THOLD=1
 14      :
@@ -112,7 +112,7 @@ $ Increasing position with jitter below FLTR_THOLD
 16      : INP=2
 17      : INP=3
 18      : INP=4
-19      : INP=5        : OUT=1, ACTIVE=1
+19      : INP=5        : OUT=1
 20      : INP=4
 21      : INP=5
 24      : INP=6
@@ -132,7 +132,7 @@ $ Increasing position with jitter above FLTR_THOLD inside deltaT
 4       : STEP=3
 5       : WIDTH=2
 6       : PNUM=3
-10      : ENABLE=1
+10      : ENABLE=1     : ACTIVE=1
 11      : FLTR_DELTAT=5
 13      : FLTR_THOLD=1
 14      :
@@ -140,7 +140,7 @@ $ Increasing position with jitter above FLTR_THOLD inside deltaT
 16      : INP=2
 17      : INP=3
 18      : INP=4
-19      : INP=5        : OUT=1, ACTIVE=1
+19      : INP=5        : OUT=1
 20      : INP=6
 21      : INP=7        : OUT=0
 24      : INP=0
@@ -159,7 +159,7 @@ $ Increasing position with jitter above FLTR_THOLD on deltaT edge
 4       : STEP=3
 5       : WIDTH=2
 6       : PNUM=3
-10      : ENABLE=1
+10      : ENABLE=1      : ACTIVE=1
 11      : FLTR_DELTAT=5
 13      : FLTR_THOLD=1
 14      :
@@ -167,7 +167,7 @@ $ Increasing position with jitter above FLTR_THOLD on deltaT edge
 16      : INP=2
 17      : INP=3
 18      : INP=4
-21      : INP=5        : OUT=1, ACTIVE=1
+21      : INP=5        : OUT=1
 22      : INP=6
 23      : INP=7        : OUT=0
 26      : INP=0        : FLTR_DIR=1
@@ -186,7 +186,7 @@ $ Increasing position with jitter below FLTR_THOLD on deltaT edge
 4       : STEP=3
 5       : WIDTH=2
 6       : PNUM=3
-10      : ENABLE=1
+10      : ENABLE=1      : ACTIVE=1
 11      : FLTR_DELTAT=5
 13      : FLTR_THOLD=1
 14      :
@@ -194,7 +194,7 @@ $ Increasing position with jitter below FLTR_THOLD on deltaT edge
 16      : INP=2
 17      : INP=3
 18      : INP=4
-21      : INP=5        : OUT=1, ACTIVE=1
+21      : INP=5        : OUT=1
 22      : INP=6
 23      : INP=7        : OUT=0
 26      : INP=6
@@ -212,7 +212,7 @@ $ Increasing position with jitter above FLTR_THOLD then return to start
 4       : STEP=3
 5       : WIDTH=2
 6       : PNUM=3
-10      : ENABLE=1
+10      : ENABLE=1      : ACTIVE=1
 12      : FLTR_DELTAT=2
 13      : FLTR_THOLD=1
 14      :
@@ -220,7 +220,7 @@ $ Increasing position with jitter above FLTR_THOLD then return to start
 18      : INP=2
 19      : INP=3
 20      : INP=4
-21      : INP=5        : OUT=1, ACTIVE=1
+21      : INP=5        : OUT=1
 22      : INP=6
 23      : INP=7        : OUT=0
 24      : INP=1
@@ -242,7 +242,7 @@ $ Increasing position with jitter above FLTR_THOLD before start
 4       : STEP=3
 5       : WIDTH=2
 6       : PNUM=3
-10      : ENABLE=1
+10      : ENABLE=1      : ACTIVE=1
 12      : FLTR_DELTAT=3
 13      : FLTR_THOLD=1
 14      :
@@ -253,7 +253,7 @@ $ Increasing position with jitter above FLTR_THOLD before start
 21      : INP=0
 22      : INP=5
 23      : INP=6
-24      : INP=7        : OUT=1, ACTIVE=1
+24      : INP=7        : OUT=1
 25      : INP=8        : OUT=0
 26      : INP=9        : OUT=1
 27      : INP=10       : OUT=0
@@ -268,7 +268,7 @@ $ Increasing position with jitter above threshold before start
 4       : STEP=4
 5       : WIDTH=3
 6       : PNUM=3
-10      : ENABLE=1
+10      : ENABLE=1      : ACTIVE=1
 12      : FLTR_DELTAT=3
 13      : FLTR_THOLD=1
 14      :
@@ -279,7 +279,7 @@ $ Increasing position with jitter above threshold before start
 21      : INP=0
 22      : INP=5
 23      : INP=6
-24      : INP=7        : OUT=1, ACTIVE=1
+24      : INP=7        : OUT=1
 25      : INP=8        : OUT=0
 26      : INP=9        : OUT=1
 27      : INP=10
@@ -296,7 +296,7 @@ $ Decreasing from above start with +ve direction filter and direction change abo
 4       : STEP=4
 5       : WIDTH=3
 6       : PNUM=3
-10      : ENABLE=1
+10      : ENABLE=1      : ACTIVE=1
 12      : FLTR_DELTAT=3
 13      : FLTR_THOLD=1
 14      :
@@ -315,7 +315,7 @@ $ Decreasing from above start with +ve direction filter and direction change abo
 31      : INP=0
 43      : INP=5
 44      : INP=6
-45      : INP=7        : OUT=1, ACTIVE=1
+45      : INP=7        : OUT=1
 46      : INP=8        : OUT=0
 47      : INP=9        : OUT=1
 48      : INP=10
@@ -325,14 +325,14 @@ $ Decreasing from above start with +ve direction filter and direction change abo
 
 
 ###############
-$ Pulse is produced after skipping more than 2 compare points
+$ Error is produced after skipping more than 2 compare points
 #this occurs if we detected the start point in the right conditions but before
 #the direction changed and we also passed at least one width compare point.
 3       : START=5
 4       : STEP=4
 5       : WIDTH=2
 6       : PNUM=3
-10      : ENABLE=1
+10      : ENABLE=1      : ACTIVE=1
 12      : FLTR_DELTAT=5
 13      : FLTR_THOLD=1
 14      :
@@ -358,3 +358,20 @@ $ Pulse is produced after skipping more than 2 compare points
 49      : INP=11
 50      : INP=12
 
+###############
+$ Error produced if we skip two compare points
+3       : START=5
+4       : STEP=4
+5       : WIDTH=2
+6       : PNUM=3
+10      : ENABLE=1      : ACTIVE=1
+14      :
+27      : INP=1
+28      : INP=2
+29      : INP=3
+30      : INP=4
+31      : INP=0
+43      : INP=5
+47      : INP=10        : ERROR=1, ACTIVE=0
+49      : INP=11
+50      : INP=12

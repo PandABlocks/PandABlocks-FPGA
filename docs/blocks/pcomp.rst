@@ -121,4 +121,4 @@ outputs will cease.
 
 .. sequence_plot::
    :block: pcomp
-   :title: Pulse is produced after skipping more than 2 compare points
+   :title: Error is produced after skipping more than 2 compare points
