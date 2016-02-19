@@ -88,6 +88,7 @@ process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             ongoing_capture <= '0';
+            pcap_dat_valid_o <= '0';
             mask_addrb <= (others => '0');
             mask_addrb <= (others => '0');
             error_o <= '0';

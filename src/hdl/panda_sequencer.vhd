@@ -58,6 +58,8 @@ architecture rtl of panda_sequencer is
 constant SEQ_LEN            : positive := 4 * 512;
 constant SEQ_AW             : positive := 11;           -- log2(SEQ_LEN)
 
+signal TABLE_FRAMES         : std_logic_vector(15 downto 0);
+
 signal current_frame        : seq_t;
 signal next_frame           : seq_t;
 signal load_next            : std_logic;
@@ -93,7 +95,11 @@ signal last_fcycle          : std_logic := '0';
 signal last_tcycle          : std_logic := '0';
 
 signal ongoing_frame        : std_logic;
+
 begin
+
+-- Convert # of DWORDs to # of Frames.
+TABLE_FRAMES <= "00" & TABLE_LENGTH(15 downto 2);
 
 -- Block inputs.
 inp_val <= inpd_i & inpc_i & inpb_i & inpa_i;
@@ -125,7 +131,7 @@ port map (
     TABLE_START         => TABLE_START,
     TABLE_DATA          => TABLE_DATA,
     TABLE_WSTB          => TABLE_WSTB,
-    TABLE_LENGTH        => TABLE_LENGTH,
+    TABLE_LENGTH        => TABLE_FRAMES,
     TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB
 );
 
@@ -271,7 +277,7 @@ end if;
 end process;
 
 last_fcycle <= '1' when (current_frame.repeats /= 0 and repeat_count = current_frame.repeats) else '0';
-last_frame <= last_fcycle when (frame_count = unsigned(TABLE_LENGTH)) else '0';
+last_frame <= last_fcycle when (frame_count = unsigned(TABLE_FRAMES)) else '0';
 
 last_tcycle <= last_frame when (TABLE_CYCLE /= X"0000_0000" and table_count = unsigned(TABLE_CYCLE)) else '0';
 

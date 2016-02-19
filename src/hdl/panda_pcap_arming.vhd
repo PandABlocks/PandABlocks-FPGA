@@ -61,6 +61,10 @@ end process;
 --
 -- Arm/Enable/Disarm State Machine
 --
+
+-- Flush capture FIFO on ARM.
+dma_fifo_reset_o <= ARM;
+
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
@@ -68,7 +72,6 @@ process(clk_i) begin
             pcap_armed_o <= '0';
             pcap_enabled_o <= '0';
             pcap_status_o <= "000";
-            dma_fifo_reset_o <= '0';
         else
             case (panda_arm_fsm) is
                 -- Wait for user arm.
@@ -78,20 +81,16 @@ process(clk_i) begin
                         pcap_armed_o <= '1';
                         pcap_enabled_o <= '0';
                         pcap_status_o <= "000";
-                        dma_fifo_reset_o <= '1';
                     end if;
 
                 -- Wait for fifo reset to be completed.
                 when IS_FIFO_READY =>
-                    dma_fifo_reset_o <= '0';
                     if (dma_fifo_ready_i = '1') then
                         panda_arm_fsm <= ARMED;
                     end if;
 
                 -- Wait for enable pulse from the system bus.
                 when ARMED =>
-                    dma_fifo_reset_o <= '0';
-
                     -- Abort has priority than enable pulse.
                     if (abort_capture = '1') then
                         panda_arm_fsm <= IDLE;

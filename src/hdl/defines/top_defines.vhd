@@ -9,12 +9,12 @@ package top_defines is
 
 --------------------------------------------------------------------------
 -- Enable Module Instantiations
-constant DIV_INST               : boolean := false;
-constant PULSE_INST             : boolean := false;
-constant SEQ_INST               : boolean := false;
-constant INENC_INST             : boolean := false;
-constant OUTENC_INST            : boolean := false;
-constant PCOMP_INST             : boolean := false;
+constant DIV_INST               : boolean := true;
+constant PULSE_INST             : boolean := true;
+constant SEQ_INST               : boolean := true;
+constant INENC_INST             : boolean := true;
+constant OUTENC_INST            : boolean := true;
+constant PCOMP_INST             : boolean := true;
 constant PCAP_INST              : boolean := true;
 --------------------------------------------------------------------------
 
