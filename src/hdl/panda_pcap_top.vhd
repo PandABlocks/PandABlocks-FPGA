@@ -215,6 +215,7 @@ port map (
     BLOCK_SIZE              => BLOCK_SIZE,
 
     pcap_enabled_i          => pcap_enabled,
+    pcap_armed_i            => pcap_active,
     pcap_status_i           => pcap_status,
     dma_fifo_reset_i        => dma_fifo_reset,
     dma_fifo_ready_o        => dma_fifo_ready,

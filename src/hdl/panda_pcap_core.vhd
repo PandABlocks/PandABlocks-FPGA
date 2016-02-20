@@ -119,6 +119,7 @@ port map (
     WRITE               => WRITE,
     WRITE_WSTB          => WRITE_WSTB,
     -- Block inputs
+    enable_i            => pcap_enabled,
     fatpipe_i           => capture_data,
     capture_i           => capture_pulse,
     -- Output pulses

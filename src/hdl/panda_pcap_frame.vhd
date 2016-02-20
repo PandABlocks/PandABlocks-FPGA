@@ -39,6 +39,8 @@ end panda_pcap_frame;
 
 architecture rtl of panda_pcap_frame is
 
+signal reset            : std_logic;
+
 signal frame_prev       : std_logic;
 signal capture_prev     : std_logic;
 signal ongoing_capture  : std_logic;
@@ -68,17 +70,19 @@ end process;
 frame_rise <= frame_i and not frame_prev;
 capture_rise <= capture_i and not capture_prev;
 
+-- Disable block when it is not enabled.
+reset <= reset_i and not enable_i;
 
 -- Capture flag behaviour is based on FRAMING mode and enable.
 -- Enable makes sure that capture pulse will not be generated
 -- preventing triggering oncoming modules higher level.
 process(clk_i) begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
+        if (reset = '1') then
             capture_o <= '0';
         else
             if (FRAMING_ENABLE = '0') then
-                capture_o <= capture_rise and enable_i;
+                capture_o <= capture_rise;
             else
                 capture_o <= frame_rise and ongoing_capture;
             end if;
@@ -100,7 +104,7 @@ end process;
 --
 process(clk_i) begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
+        if (reset = '1') then
             ongoing_capture <= '0';
             error_o <= '0';
         else
@@ -137,7 +141,7 @@ end process;
 --
 process(clk_i) begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
+        if (reset = '1') then
             timestamp <= (others => '0');
             frame_ts <= (others => '0');
             capture_ts <= (others => '0');
@@ -175,7 +179,7 @@ PROC_ENC : FOR I IN 1 TO 4 GENERATE
 pcap_posproc_encoder : entity work.panda_pcap_posproc
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
+    reset_i             => reset,
 
     posn_i              => posbus_i(I),
     extn_i              => extbus_i(I-1),
@@ -196,7 +200,7 @@ PROC_OTHERS : FOR I IN 5 TO 20 GENERATE
 pcap_posproc_encoder : entity work.panda_pcap_posproc
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
+    reset_i             => reset,
 
     posn_i              => posbus_i(I),
     extn_i              => (others => '0'),

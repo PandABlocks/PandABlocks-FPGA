@@ -21,6 +21,7 @@ port (
     WRITE               : in  std_logic_vector(31 downto 0);
     WRITE_WSTB          : in  std_logic;
     -- Block inputs
+    enable_i            : in  std_logic;
     fatpipe_i           : in  std32_array(63 downto 0);
     capture_i           : in  std_logic;
     -- Output pulses
@@ -86,7 +87,7 @@ end process;
 
 process(clk_i) begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
+        if (reset_i = '1' or enable_i = '0') then
             ongoing_capture <= '0';
             pcap_dat_valid_o <= '0';
             mask_addrb <= (others => '0');
@@ -126,8 +127,6 @@ process(clk_i) begin
         end if;
     end if;
 end process;
-
-
 
 end rtl;
 

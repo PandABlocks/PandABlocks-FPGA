@@ -26,6 +26,7 @@ port (
 
     -- Block Input and Outputs
     pcap_enabled_i      : in  std_logic;
+    pcap_armed_i        : in  std_logic;
     pcap_status_i       : in  std_logic_vector(2 downto 0);
     dma_fifo_reset_i    : in  std_logic;
     dma_fifo_ready_o    : out std_logic;
@@ -118,6 +119,8 @@ signal fifo_dout            : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
 signal fifo_count           : integer range 0 to 2047;
 signal fifo_full            : std_logic;
 
+signal pcap_armed           : std_logic;
+signal pcap_armed_fall      : std_logic;
 signal irq_flags            : std_logic_vector(7 downto 0);
 signal irq_flags_latch      : std_logic_vector(7 downto 0);
 signal sample_count         : unsigned(23 downto 0);
@@ -131,6 +134,15 @@ irq_o <= dma_irq;
 dma_fifo_ready_o <= not fifo_full;
 
 IRQ_STATUS <= std_logic_vector(sample_count_latch) & irq_flags_latch;
+
+-- Input Registers
+INP_REGS : process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        pcap_armed <= pcap_armed_i;
+        pcap_armed_fall <= not pcap_armed_i and pcap_armed;
+    end if;
+end process;
 
 -- DMA engine reset
 reset <= reset_i or DMA_RESET;
@@ -252,8 +264,13 @@ if rising_edge(clk_i) then
                 tlp_count <= (others => '0');
                 sample_count <= (others => '0');
                 dma_start <= '0';
+                -- If an ARM->DISARM happens while waiting, still
+                -- produce an interrupt.
                 if (pcap_enabled_i = '1') then
                     pcap_fsm <= ACTV;
+                elsif (pcap_armed_fall = '1') then
+                    last_tlp <= '1';
+                    pcap_fsm <= IS_FINISHED;
                 end if;
 
             -- Wait until FIFO has enough data worth for a AXI3 burst
