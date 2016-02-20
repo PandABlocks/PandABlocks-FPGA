@@ -251,6 +251,7 @@ if rising_edge(clk_i) then
             when INIT =>
                 last_tlp <= '0';
                 tlp_count <= (others => '0');
+                irq_flags <= (others => '0');
                 sample_count <= (others => '0');
                 dma_start <= '0';
                 axi_awaddr_val <= unsigned(DMA_ADDR);
@@ -262,6 +263,7 @@ if rising_edge(clk_i) then
             when IDLE =>
                 last_tlp <= '0';
                 tlp_count <= (others => '0');
+                irq_flags <= (others => '0');
                 sample_count <= (others => '0');
                 dma_start <= '0';
                 -- If an ARM->DISARM happens while waiting, still
@@ -390,11 +392,11 @@ if rising_edge(clk_i) then
             -- Set IRQ flag, and either continue or stop operation
             when IRQ =>
                 dma_irq <= '0';
-                irq_flags_latch <= irq_flags;
-                sample_count_latch <= sample_count;
+                next_dmaaddr_clear <= '0';
                 irq_flags <= (others => '0');
                 sample_count <= (others => '0');
-                next_dmaaddr_clear <= '0';
+                irq_flags_latch <= irq_flags;
+                sample_count_latch <= sample_count;
                 -- PCap finished and last TLP DMAed.
                 if (last_tlp = '1') then
                     pcap_fsm <= IDLE;
@@ -405,6 +407,9 @@ if rising_edge(clk_i) then
             -- Clear flag and wait for user DISARM.
             when ABORTED =>
                 dma_irq <= '0';
+                next_dmaaddr_clear <= '0';
+                irq_flags_latch <= irq_flags;
+                sample_count_latch <= sample_count;
                 if (pcap_enabled_i = '0') then
                     pcap_fsm <= IDLE;
                 end if;

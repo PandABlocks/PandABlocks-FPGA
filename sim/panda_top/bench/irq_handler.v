@@ -4,7 +4,7 @@ while (1) begin
 
     // Read IRQ Status and Sample Count Registers
     REG_READ(DRV_BASE, DRV_PCAP_IRQ_STATUS, IRQ_STATUS);
-    SMPL_COUNT = IRQ_STATUS[31:16];
+    SMPL_COUNT = IRQ_STATUS[31:8];
     IRQ_FLAGS = IRQ_STATUS[7:0];
 
     // Keep track of address and sample count.
