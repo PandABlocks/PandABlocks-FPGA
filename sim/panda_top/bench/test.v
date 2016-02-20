@@ -13,10 +13,12 @@ panda_top_tb tb(
 //reg [511:0]     test_name = "COUNTER_TEST";
 //reg [511:0]     test_name = "READBACK_BIT_TEST";
 //reg [511:0]     test_name = "PCAP_TEST";
-reg [511:0]     test_name = "FRAMING_TEST";
+//reg [511:0]     test_name = "FRAMING_TEST";
 //reg [511:0]     test_name = "ENCODER_TEST";
 //reg [511:0]     test_name = "DRIVER_TEST";
 //reg [511:0]     test_name = "TIMEOUT_TEST";
+
+`define TESTNAME    "test.driver.v"
 
 reg [ 1:0]      wrs, rsp;
 reg [31:0]      IRQ_STATUS;
@@ -65,14 +67,16 @@ initial begin
     /*
      * Start TEST Cases
      */
-    if (test_name == "FRAMING_TEST") begin
-        `include "test.framing.v"
-    end
-    else begin
-        $display("NO TEST SELECTED...");
-        repeat(100000) @(posedge tb.uut.FCLK_CLK0);
-        $finish;
-    end
+    `include `TESTNAME
+
+//    if (test_name == "FRAMING_TEST") begin
+//        `include "test.framing.v"
+//    end
+//    else begin
+//        $display("NO TEST SELECTED...");
+//        repeat(100000) @(posedge tb.uut.FCLK_CLK0);
+//        $finish;
+//    end
 end
 
 endmodule
