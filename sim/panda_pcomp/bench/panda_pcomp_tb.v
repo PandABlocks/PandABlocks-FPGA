@@ -17,8 +17,7 @@ reg [31:0] WIDTH;
 reg [31:0] NUM;
 reg RELATIVE;
 reg DIR;
-reg [31:0] FLTR_DELTAT;
-reg [15:0] FLTR_THOLD;
+reg [31:0] DELTAP;
 
 // Outputs
 wire [31:0] err_o;
@@ -56,21 +55,20 @@ end
 
 // Instantiate the Unit Under Test (UUT)
 panda_pcomp uut (
-    .clk_i          ( clk_i             ),
-    .reset_i        ( reset_i           ),
-    .enable_i       ( enable_i          ),
-    .posn_i         ( posn_i            ),
-    .START          ( START             ),
-    .STEP           ( STEP              ),
-    .WIDTH          ( WIDTH             ),
-    .NUM            ( NUM               ),
-    .RELATIVE       ( RELATIVE          ),
-    .DIR            ( DIR               ),
-    .FLTR_DELTAT    ( FLTR_DELTAT       ),
-    .FLTR_THOLD     ( FLTR_THOLD        ),
-    .act_o          ( act_o             ),
-    .err_o          ( err_o             ),
-    .pulse_o        ( pulse_o           )
+    .clk_i              ( clk_i             ),
+    .reset_i            ( reset_i           ),
+    .enable_i           ( enable_i          ),
+    .posn_i             ( posn_i            ),
+    .START              ( START             ),
+    .STEP               ( STEP              ),
+    .WIDTH              ( WIDTH             ),
+    .NUM                ( NUM               ),
+    .RELATIVE           ( RELATIVE          ),
+    .DIR                ( DIR               ),
+    .DELTAP             ( DELTAP            ),
+    .act_o              ( act_o             ),
+    .err_o              ( err_o             ),
+    .pulse_o            ( pulse_o           )
 );
 
 //
@@ -82,7 +80,7 @@ begin : bus_inputs
     localparam N        = 4;
     reg [31:0] vectors[31: 0];
 
-    reg     [8192:0] line;
+    reg     [8192*10:0] line;
     integer          file, c, r, i;
     reg     [31: 0]  TS;
 
@@ -112,10 +110,10 @@ end
 initial
 begin : reg_inputs
     localparam filename = "pcomp_reg_in.txt";
-    localparam N        = 23;
+    localparam N        = 21;
     reg [31:0] vectors[31: 0];
 
-    reg     [8192:0] line;
+    reg     [8192*10:0] line;
     integer          file, c, r, i;
     reg     [31: 0]  TS;
 
@@ -127,14 +125,13 @@ fork
     begin
         while (1) begin
             @(posedge clk_i);
-            START        = vectors[1];
-            STEP         = vectors[3];
-            WIDTH        = vectors[5];
-            NUM          = vectors[7];
-            RELATIVE     = vectors[9];
-            DIR          = vectors[11];
-            FLTR_DELTAT  = vectors[13];
-            FLTR_THOLD   = vectors[15];
+            START       = vectors[1];
+            STEP        = vectors[3];
+            WIDTH       = vectors[5];
+            NUM         = vectors[7];
+            RELATIVE    = vectors[9];
+            DIR         = vectors[11];
+            DELTAP      = vectors[13];
         end
     end
 join
@@ -150,7 +147,7 @@ begin : bus_outputs
     localparam N        = 3;
     reg [31:0] vectors[31: 0];
 
-    reg     [8192:0] line;
+    reg     [8192*10:0] line;
     integer          file, c, r, i;
     reg     [31: 0]  TS;
 

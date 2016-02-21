@@ -11,6 +11,7 @@ enable = 0;
 capture = 0;
 
 repeat(500) @(posedge tb.uut.ps.FCLK);
+
 // Setup a timer for capture input test
 REG_WRITE(COUNTER_BASE, COUNTER_ENABLE, 62);    // SEQ_ACTIVE
 REG_WRITE(COUNTER_BASE, COUNTER_TRIGGER, 38);   // SEQ_OUTA
@@ -51,19 +52,21 @@ REG_WRITE(DRV_BASE, DRV_PCAP_DMA_START, 1);     // ...
 addr = addr + tb.BLOCK_SIZE;                    //
 REG_WRITE(DRV_BASE, DRV_PCAP_DMA_ADDR, addr);   //
 
-REG_WRITE(REG_BASE, REG_PCAP_ARM, 1);
 repeat(1250) @(posedge tb.uut.ps.FCLK);
+
+ARMS = 2;
 
 fork
 
-// Enable
+// Generate consecutive ARM signals.
 begin
-    wait (pcap_completed == 1);
-    repeat(1250) @(posedge tb.uut.ps.FCLK);
-    pcap_completed = 0;
-    REG_WRITE(REG_BASE, REG_PCAP_ARM, 1);
-    wait (pcap_completed == 1);
-    repeat(1250) @(posedge tb.uut.ps.FCLK);
+    for (k = 0; k < ARMS; k = k + 1) begin
+        REG_WRITE(REG_BASE, REG_PCAP_ARM, 1);
+        wait (pcap_completed == 1);
+        pcap_completed = 0;
+        // Gap until next arming.
+        repeat(12500) @(posedge tb.uut.FCLK_CLK0);
+    end
     $finish;
 end
 

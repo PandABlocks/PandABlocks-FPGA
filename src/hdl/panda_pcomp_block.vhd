@@ -44,8 +44,7 @@ signal WIDTH            : std_logic_vector(31 downto 0);
 signal NUM              : std_logic_vector(31 downto 0);
 signal RELATIVE         : std_logic;
 signal DIR              : std_logic;
-signal FLTR_DELTAT      : std_logic_vector(31 downto 0);
-signal FLTR_THOLD       : std_logic_vector(15 downto 0);
+signal DELTAP           : std_logic_vector(31 downto 0);
 
 signal enable           : std_logic;
 signal posn             : std_logic_vector(31 downto 0);
@@ -72,8 +71,7 @@ begin
             WIDTH <= (others => '0');
             NUM <= (others => '0');
             RELATIVE <= '0';
-            FLTR_DELTAT <= (others => '0');
-            FLTR_THOLD <= (others => '0');
+            DELTAP <= (others => '0');
         else
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Pulse start position
@@ -116,16 +114,10 @@ begin
                     DIR <= mem_dat_i(0);
                 end if;
 
-                -- PComp direction filter DeltaT flag
-                if (mem_addr = PCOMP_FLTR_DELTAT) then
-                    FLTR_DELTAT <= mem_dat_i;
+                -- Start DeltaP value
+                if (mem_addr = PCOMP_DELTAP) then
+                    DELTAP <= mem_dat_i;
                 end if;
-
-                -- PComp direction filter threshold flag
-                if (mem_addr = PCOMP_FLTR_THOLD) then
-                    FLTR_THOLD <= mem_dat_i(15 downto 0);
-                end if;
-
             end if;
         end if;
     end if;
@@ -159,8 +151,7 @@ port map (
     NUM                 => NUM,
     RELATIVE            => RELATIVE,
     DIR                 => DIR,
-    FLTR_DELTAT         => FLTR_DELTAT,
-    FLTR_THOLD          => FLTR_THOLD,
+    DELTAP              => DELTAP,
 
     act_o               => act_o,
     err_o               => open,

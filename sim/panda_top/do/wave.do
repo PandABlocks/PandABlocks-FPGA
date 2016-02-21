@@ -16,7 +16,6 @@ add wave -group "DMA Engine" -radix decimal \
 "sim:/test/tb/uut/PCAP_GEN/pcap_inst/pcap_dma_inst/*"
 add wave -group "PCap Core" -radix decimal \
 "sim:/test/tb/uut/PCAP_GEN/pcap_inst/pcap_core/*"
-
 add wave -group "Arming" -radix decimal \
 "sim:/test/tb/uut/PCAP_GEN/pcap_inst/pcap_core/pcap_arming/*"
 
@@ -39,9 +38,9 @@ add wave -group "Arming" -radix decimal \
 #"sim:/test/tb/DCARD(0)/daughter_card/SN65HVD05D_u16/*"
 #
 #
-#add wave -divider {ENCODER}
-#add wave -group "Input Encoder 0" \
-#"sim:/test/tb/uut/INENC_GEN/inenc_inst/*"
+add wave -divider {ENCODER}
+add wave -group "Input Encoder 0" \
+"sim:/test/tb/uut/INENC_GEN/inenc_inst/*"
 #
 #add wave -group "Output Encoder 0" \
 #"sim:/test/tb/uut/OUTENC_GEN/outenc_inst/*"
@@ -51,4 +50,12 @@ add wave -group "Arming" -radix decimal \
 #add wave -group "SSI Slave" \
 #"sim:/test/tb/uut/OUTENC_GEN/outenc_inst/ENCOUT_GEN(0)/panda_outenc_block_inst/panda_outenc_inst/panda_ssislv_inst/*"
 
-
+add wave -divider {PCOMPARE}
+add wave -group "Block 0" -radix Decimal \
+"sim:/test/tb/uut/PCOMP_GEN/pcomp_inst/PCOMP_GEN(0)/pcomp_block_inst/*"
+add wave -group "Pulse 0" -radix Decimal \
+"sim:/test/tb/uut/PCOMP_GEN/pcomp_inst/PCOMP_GEN(0)/pcomp_block_inst/pcomp_inst/*"
+add wave -group "Block 1" -radix Decimal \
+"sim:/test/tb/uut/PCOMP_GEN/pcomp_inst/PCOMP_GEN(1)/pcomp_block_inst/*"
+add wave -group "Pulse 1" -radix Decimal \
+"sim:/test/tb/uut/PCOMP_GEN/pcomp_inst/PCOMP_GEN(1)/pcomp_block_inst/pcomp_inst/*"

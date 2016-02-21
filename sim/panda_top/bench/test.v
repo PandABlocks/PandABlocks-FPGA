@@ -10,15 +10,7 @@ panda_top_tb tb(
     .ttlin_pad      ( ttlin_pad)
 );
 
-//reg [511:0]     test_name = "COUNTER_TEST";
-//reg [511:0]     test_name = "READBACK_BIT_TEST";
-//reg [511:0]     test_name = "PCAP_TEST";
-//reg [511:0]     test_name = "FRAMING_TEST";
-//reg [511:0]     test_name = "ENCODER_TEST";
-//reg [511:0]     test_name = "DRIVER_TEST";
-//reg [511:0]     test_name = "TIMEOUT_TEST";
-
-`define TESTNAME    "test.driver.v"
+`define TESTNAME    "test.pcap.v"
 
 reg [ 1:0]      wrs, rsp;
 reg [31:0]      IRQ_STATUS;
@@ -33,7 +25,7 @@ reg [31:0]      read_addr;
 reg             pcap_completed;
 
 integer         irq_count;
-integer         n, j, k, m;
+integer         i, n, j, k, m;
 integer         NUMSAMPLE;
 integer         ARMS;
 
@@ -51,7 +43,7 @@ initial begin
     SMPL_COUNT = 0;
     NUMSAMPLE = 0;
     ARMS = 0;
-    n = 0; j = 0; k = 0; m = 0;
+    i = 0; n = 0; j = 0; k = 0; m = 0;
 
     // Initial RESET to Zynq
     wait(tb.uut.ps.tb_ARESETn === 0) @(posedge tb.uut.ps.FCLK);
@@ -68,15 +60,6 @@ initial begin
      * Start TEST Cases
      */
     `include `TESTNAME
-
-//    if (test_name == "FRAMING_TEST") begin
-//        `include "test.framing.v"
-//    end
-//    else begin
-//        $display("NO TEST SELECTED...");
-//        repeat(100000) @(posedge tb.uut.FCLK_CLK0);
-//        $finish;
-//    end
 end
 
 endmodule

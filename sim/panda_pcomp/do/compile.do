@@ -21,6 +21,9 @@ vsim -t 1ps -voptargs=+acc -lib xil_defaultlib panda_pcomp_tb
 
 view wave
 
-do wave.do
+add wave -group TB  -radix decimal /panda_pcomp_tb/*
+add wave -group UUT -radix decimal /panda_pcomp_tb/uut/*
+
+#do wave.do
 
 run 5000us

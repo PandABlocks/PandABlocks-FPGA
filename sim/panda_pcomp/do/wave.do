@@ -19,6 +19,8 @@ add wave -noupdate -expand -group TB -radix decimal /panda_pcomp_tb/pulse_o
 add wave -noupdate -expand -group TB -color Red -radix decimal /panda_pcomp_tb/PULSE
 add wave -noupdate -radix decimal -radixshowbase 0 /panda_pcomp_tb/uut/posn
 add wave -noupdate -radix decimal -radixshowbase 0 /panda_pcomp_tb/uut/posn_prev
+add wave -noupdate -radix decimal -radixshowbase 0 /panda_pcomp_tb/FLTR_DELTAT
+add wave -noupdate /panda_pcomp_tb/uut/FLTR_DELTAT_WSTB
 add wave -noupdate -radix unsigned -radixshowbase 0 /panda_pcomp_tb/uut/deltat_counter
 add wave -noupdate /panda_pcomp_tb/uut/fltr_reset
 add wave -noupdate -radix decimal -radixshowbase 0 /panda_pcomp_tb/uut/fltr_counter
@@ -34,6 +36,7 @@ add wave -noupdate -group UUT -radix decimal /panda_pcomp_tb/uut/NUM
 add wave -noupdate -group UUT -radix decimal /panda_pcomp_tb/uut/RELATIVE
 add wave -noupdate -group UUT -radix decimal /panda_pcomp_tb/uut/DIR
 add wave -noupdate -group UUT -radix decimal /panda_pcomp_tb/uut/FLTR_DELTAT
+add wave -noupdate -group UUT -radix decimal /panda_pcomp_tb/uut/FLTR_DELTAT_WSTB
 add wave -noupdate -group UUT -radix decimal /panda_pcomp_tb/uut/FLTR_THOLD
 add wave -noupdate -group UUT -radix decimal /panda_pcomp_tb/uut/act_o
 add wave -noupdate -group UUT -radix decimal /panda_pcomp_tb/uut/err_o
@@ -65,4 +68,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1413856289 ps} {1414239143 ps}
+WaveRestoreZoom {801584144 ps} {802964646 ps}

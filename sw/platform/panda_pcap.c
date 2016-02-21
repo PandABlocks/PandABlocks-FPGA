@@ -70,7 +70,9 @@ static inline void pcap_writereg(void __iomem *offset, u32 val)
 
 static irqreturn_t panda_pcap_isr(int irq, void *dev_id)
 {
-    printk(KERN_INFO "IRQ received\n");
+    struct zynq_pcap *pcap = dev_id;
+    printk(KERN_INFO "IRQ received: %08x\n", readl(pcap->base_addr+0x19010));
+    writel(0, pcap->base_addr+0x19008);
     return IRQ_HANDLED;
 }
 

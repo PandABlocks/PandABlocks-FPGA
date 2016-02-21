@@ -90,6 +90,8 @@ begin
             case (mem_addr) is
                 when REG_FPGA_VERSION =>
                     mem_dat_o <= FPGA_VERSION;
+                when REG_FPGA_BUILD =>
+                    mem_dat_o <= FPGA_BUILD;
                 when REG_BIT_READ_VALUE =>
                     mem_dat_o <= BIT_READ_VALUE;
                 when REG_POS_READ_VALUE =>
