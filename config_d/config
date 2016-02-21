@@ -173,8 +173,7 @@ PCOMP[4]
     PNUM            param
     RELATIVE        param
     DIR             param
-    FLTR_DELTAT     param
-    FLTR_THOLD      param
+    DELTAP          param
     LUT_ENABLE      param
     ENABLE          param       bit_mux
     POSN            param       pos_mux

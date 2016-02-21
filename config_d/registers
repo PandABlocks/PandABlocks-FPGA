@@ -212,8 +212,7 @@ PCOMP       15
     PNUM            5
     RELATIVE        6
     DIR             7
-    FLTR_DELTAT     8
-    FLTR_THOLD      9
+    DELTAP          8
     LUT_ENABLE      10
     ENABLE          0
     POSN            1

@@ -148,8 +148,7 @@ PCOMP       Position compare
     PNUM            Pulse number to be generated
     RELATIVE        Relative position compare enable
     DIR             Direction of crossing
-    FLTR_DELTAT     Time interval to check if encoder moved more than FLTR_THOLD
-    FLTR_THOLD      Encoder movement in FLTR_DELTAT to change current dir
+    DELTAP          DeltaP for start position
     LUT_ENABLE      Relative position compare LUT mode
     ENABLE          Rising edge enables block. Falling edge disables
     POSN            Position data from position-data bus
