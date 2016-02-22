@@ -90,11 +90,12 @@ class ConfigBlock(object):
             indexes = [int(x) for x in field.reg[:self.num]]
             self.outputs[field.name] = (indexes, field)
         elif field.cls == "table":
-            attrs.append(("%s_START" % field.name, field.reg[2]))
             if field.reg[0] == "short":
+                attrs.append(("%s_START" % field.name, field.reg[2]))
                 attrs.append(("%s_DATA" % field.name, field.reg[3]))
                 attrs.append(("%s_LENGTH" % field.name, field.reg[4]))
             else:
+                attrs.append(("%s_ADDRESS" % field.name, field.reg[2]))
                 attrs.append(("%s_LENGTH" % field.name, field.reg[3]))
         elif field.cls == "time":
             attrs.append(("%s_L" % field.name, field.reg[0]))
