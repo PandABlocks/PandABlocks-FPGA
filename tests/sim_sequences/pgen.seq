@@ -1,0 +1,46 @@
+###############
+$ Normal operation
+
+3       : CYCLES=2
+4       : TABLE_ADDRESS=PGEN_1000.txt
+5       : ENABLE=1
+10      : TRIG=1        : OUT=100
+11      : TRIG=0
+12      : TRIG=1        : OUT=101
+13      : TRIG=0
+14      : TRIG=1        : OUT=102
+15      : TRIG=0
+16      : TRIG=1        : OUT=103
+17      : TRIG=0
+18      : TRIG=1        : OUT=104
+19      : TRIG=0
+20      : TRIG=1        : OUT=105
+21      : TRIG=0
+22      : TRIG=1        : OUT=106
+23      : TRIG=0
+24      : TRIG=1        : OUT=111
+25      : TRIG=0
+26      : TRIG=1        : OUT=152
+27      : TRIG=0
+28      : TRIG=1        : OUT=132
+29      : TRIG=0
+30      : TRIG=1        : OUT=100
+31      : TRIG=0
+32      : TRIG=1        : OUT=101
+33      : TRIG=0
+34      : TRIG=1        : OUT=102
+35      : TRIG=0
+36      : TRIG=1        : OUT=103
+37      : TRIG=0
+38      : TRIG=1        : OUT=104
+39      : TRIG=0
+40      : TRIG=1        : OUT=105
+41      : TRIG=0
+42      : TRIG=1        : OUT=106
+43      : TRIG=0
+44      : TRIG=1        : OUT=111
+45      : TRIG=0
+46      : TRIG=1        : OUT=152
+47      : TRIG=0
+48      : TRIG=1        : OUT=132
+49      : TRIG=0
