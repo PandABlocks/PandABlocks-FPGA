@@ -60,8 +60,6 @@
     PCAP_TIMEOUT            3
     # Interrupt status and acknowledge
     PCAP_IRQ_STATUS         4
-    # ? Should this be merged into IRQ status for a single read?
-    PCAP_SMPL_COUNT         5
     # DMA block size in bytes
     PCAP_BLOCK_SIZE         6
 
