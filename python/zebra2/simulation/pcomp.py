@@ -1,5 +1,5 @@
 from .block import Block
-
+import os
 
 # for directions
 FWD = 0
@@ -34,7 +34,7 @@ class Pcomp(Block):
             setattr(self, name, value)
 
          #check to see if we are waiting to cross the start point
-        if self.ENABLE and b.INP in changes:
+        if self.ENABLE:
             if self.DIR == FWD and self.INP < self.cpoint - self.DELTAP:
                 self.wait_start = False
             elif self.DIR == BWD and self.INP > self.cpoint + self.DELTAP:

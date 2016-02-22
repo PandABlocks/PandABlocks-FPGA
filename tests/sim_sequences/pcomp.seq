@@ -103,9 +103,9 @@ $ Wait to be below start - DELTAP
 5       : WIDTH=3
 6       : PNUM=3
 7       : DELTAP = 2
-10      : ENABLE=1      : ACTIVE=1
+10      : INP=11
 14      :
-15      : INP=11
+15      : ENABLE=1    : ACTIVE=1
 16      : INP=10
 17      : INP=9
 18      : INP=8
@@ -127,9 +127,19 @@ $ Wait to be below start - DELTAP
 49      : INP=11
 50      : INP=12       : OUT=0
 
+###############
+$ Error skipping multiple compare points
+3       : START=5
+4       : STEP=4
+5       : WIDTH=3
+6       : PNUM=3
+7       : DELTAP = 2
+10      : ENABLE=1      : ACTIVE=1
+14      :
+15      : INP=11        : ERROR=1, ACTIVE=0
 
 ###############
-$ Error produced if we skip two compare points
+$ Error is produced after skipping more than 2 compare points
 3       : START=5
 4       : STEP=4
 5       : WIDTH=2
