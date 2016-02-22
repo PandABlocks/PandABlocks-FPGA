@@ -46,13 +46,14 @@ port (
 
     -- AXI3 HP Bus Write Only Interface
     m_axi_awready       : in  std_logic;
+    m_axi_awregion      : out std_logic_vector(3 downto 0);
     m_axi_awaddr        : out std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
     m_axi_awvalid       : out std_logic;
     m_axi_awburst       : out std_logic_vector(1 downto 0);
     m_axi_awcache       : out std_logic_vector(3 downto 0);
     m_axi_awid          : out std_logic_vector(5 downto 0);
-    m_axi_awlen         : out std_logic_vector(3 downto 0);
-    m_axi_awlock        : out std_logic_vector(1 downto 0);
+    m_axi_awlen         : out std_logic_vector(7 downto 0);
+    m_axi_awlock        : out std_logic_vector(0 downto 0);
     m_axi_awprot        : out std_logic_vector(2 downto 0);
     m_axi_awqos         : out std_logic_vector(3 downto 0);
     m_axi_awsize        : out std_logic_vector(2 downto 0);
@@ -64,8 +65,7 @@ port (
     m_axi_wdata         : out std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
     m_axi_wvalid        : out std_logic;
     m_axi_wlast         : out std_logic;
-    m_axi_wstrb         : out std_logic_vector(AXI_DATA_WIDTH/8-1 downto 0);
-    m_axi_wid           : out std_logic_vector(5 downto 0)
+    m_axi_wstrb         : out std_logic_vector(AXI_DATA_WIDTH/8-1 downto 0)
 );
 end panda_pcap_dma;
 
@@ -445,6 +445,7 @@ port map (
     m_axi_burst_len     => m_axi_burst_len,
 
     m_axi_awready       => m_axi_awready,
+    m_axi_awregion      => m_axi_awregion,
     m_axi_awaddr        => m_axi_awaddr,
     m_axi_awvalid       => m_axi_awvalid,
     m_axi_awburst       => m_axi_awburst,
@@ -464,7 +465,6 @@ port map (
     m_axi_wvalid        => m_axi_wvalid,
     m_axi_wlast         => m_axi_wlast,
     m_axi_wstrb         => m_axi_wstrb,
-    m_axi_wid           => m_axi_wid,
 
     dma_addr            => std_logic_vector(axi_awaddr_val),
     dma_data            => axi_wdata_val,

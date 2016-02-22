@@ -80,42 +80,25 @@ port (
     FCLK_LEDS : out STD_LOGIC_VECTOR ( 31 downto 0 );
     FCLK_RESET0_N : out STD_LOGIC_VECTOR ( 0 to 0 );
     IRQ_F2P : in STD_LOGIC_VECTOR ( 0 to 0 );
-    S_AXI_HP0_arready : out STD_LOGIC;
     S_AXI_HP0_awready : out STD_LOGIC;
+    S_AXI_HP0_awregion : in STD_LOGIC_vector(3 downto 0);
     S_AXI_HP0_bvalid : out STD_LOGIC;
-    S_AXI_HP0_rlast : out STD_LOGIC;
-    S_AXI_HP0_rvalid : out STD_LOGIC;
     S_AXI_HP0_wready : out STD_LOGIC;
     S_AXI_HP0_bresp : out STD_LOGIC_VECTOR ( 1 downto 0 );
-    S_AXI_HP0_rresp : out STD_LOGIC_VECTOR ( 1 downto 0 );
     S_AXI_HP0_bid : out STD_LOGIC_VECTOR ( 5 downto 0 );
-    S_AXI_HP0_rid : out STD_LOGIC_VECTOR ( 5 downto 0 );
-    S_AXI_HP0_rdata : out STD_LOGIC_VECTOR ( 31 downto 0 );
-    S_AXI_HP0_arvalid : in STD_LOGIC;
     S_AXI_HP0_awvalid : in STD_LOGIC;
     S_AXI_HP0_bready : in STD_LOGIC;
-    S_AXI_HP0_rready : in STD_LOGIC;
     S_AXI_HP0_wlast : in STD_LOGIC;
     S_AXI_HP0_wvalid : in STD_LOGIC;
-    S_AXI_HP0_arburst : in STD_LOGIC_VECTOR ( 1 downto 0 );
-    S_AXI_HP0_arlock : in STD_LOGIC_VECTOR ( 1 downto 0 );
-    S_AXI_HP0_arsize : in STD_LOGIC_VECTOR ( 2 downto 0 );
     S_AXI_HP0_awburst : in STD_LOGIC_VECTOR ( 1 downto 0 );
-    S_AXI_HP0_awlock : in STD_LOGIC_VECTOR ( 1 downto 0 );
+    S_AXI_HP0_awlock : in STD_LOGIC_VECTOR ( 0 downto 0 );
     S_AXI_HP0_awsize : in STD_LOGIC_VECTOR ( 2 downto 0 );
-    S_AXI_HP0_arprot : in STD_LOGIC_VECTOR ( 2 downto 0 );
     S_AXI_HP0_awprot : in STD_LOGIC_VECTOR ( 2 downto 0 );
-    S_AXI_HP0_araddr : in STD_LOGIC_VECTOR ( 31 downto 0 );
     S_AXI_HP0_awaddr : in STD_LOGIC_VECTOR ( 31 downto 0 );
-    S_AXI_HP0_arcache : in STD_LOGIC_VECTOR ( 3 downto 0 );
-    S_AXI_HP0_arlen : in STD_LOGIC_VECTOR ( 3 downto 0 );
-    S_AXI_HP0_arqos : in STD_LOGIC_VECTOR ( 3 downto 0 );
     S_AXI_HP0_awcache : in STD_LOGIC_VECTOR ( 3 downto 0 );
-    S_AXI_HP0_awlen : in STD_LOGIC_VECTOR ( 3 downto 0 );
+    S_AXI_HP0_awlen : in STD_LOGIC_VECTOR ( 7 downto 0 );
     S_AXI_HP0_awqos : in STD_LOGIC_VECTOR ( 3 downto 0 );
-    S_AXI_HP0_arid : in STD_LOGIC_VECTOR ( 5 downto 0 );
     S_AXI_HP0_awid : in STD_LOGIC_VECTOR ( 5 downto 0 );
-    S_AXI_HP0_wid : in STD_LOGIC_VECTOR ( 5 downto 0 );
     S_AXI_HP0_wdata : in STD_LOGIC_VECTOR ( 31 downto 0 );
     S_AXI_HP0_wstrb : in STD_LOGIC_VECTOR ( 3 downto 0 );
     M00_AXI_awaddr : out STD_LOGIC_VECTOR ( 31 downto 0 );
@@ -197,41 +180,24 @@ signal M00_AXI_rresp : std_logic_vector ( 1 downto 0 );
 signal M00_AXI_rvalid : std_logic;
 signal M00_AXI_rready : std_logic;
 
-signal S_AXI_HP0_arready : std_logic := '0';
 signal S_AXI_HP0_awready : std_logic := '1';
+signal S_AXI_HP0_awregion : std_logic_vector(3 downto 0);
 signal S_AXI_HP0_bid : std_logic_vector(5 downto 0) := (others => '0');
 signal S_AXI_HP0_bresp : std_logic_vector(1 downto 0) := (others => '0');
 signal S_AXI_HP0_bvalid : std_logic := '1';
-signal S_AXI_HP0_rdata : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
-signal S_AXI_HP0_rid : std_logic_vector(5 downto 0) := (others => '0');
-signal S_AXI_HP0_rlast : std_logic := '0';
-signal S_AXI_HP0_rresp : std_logic_vector(1 downto 0) := (others => '0');
-signal S_AXI_HP0_rvalid : std_logic := '0';
 signal S_AXI_HP0_wready : std_logic := '1';
-signal S_AXI_HP0_araddr : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
-signal S_AXI_HP0_arburst : std_logic_vector(1 downto 0);
-signal S_AXI_HP0_arcache : std_logic_vector(3 downto 0);
-signal S_AXI_HP0_arid : std_logic_vector(5 downto 0);
-signal S_AXI_HP0_arlen : std_logic_vector(3 downto 0);
-signal S_AXI_HP0_arlock : std_logic_vector(1 downto 0);
-signal S_AXI_HP0_arprot : std_logic_vector(2 downto 0);
-signal S_AXI_HP0_arqos : std_logic_vector(3 downto 0);
-signal S_AXI_HP0_arsize : std_logic_vector(2 downto 0);
-signal S_AXI_HP0_arvalid : std_logic;
 signal S_AXI_HP0_awaddr : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
 signal S_AXI_HP0_awburst : std_logic_vector(1 downto 0);
 signal S_AXI_HP0_awcache : std_logic_vector(3 downto 0);
 signal S_AXI_HP0_awid : std_logic_vector(5 downto 0);
-signal S_AXI_HP0_awlen : std_logic_vector(3 downto 0);
-signal S_AXI_HP0_awlock : std_logic_vector(1 downto 0);
+signal S_AXI_HP0_awlen : std_logic_vector(7 downto 0);
+signal S_AXI_HP0_awlock : std_logic_vector(0 downto 0);
 signal S_AXI_HP0_awprot : std_logic_vector(2 downto 0);
 signal S_AXI_HP0_awqos : std_logic_vector(3 downto 0);
 signal S_AXI_HP0_awsize : std_logic_vector(2 downto 0);
 signal S_AXI_HP0_awvalid : std_logic;
 signal S_AXI_HP0_bready : std_logic;
-signal S_AXI_HP0_rready : std_logic;
 signal S_AXI_HP0_wdata : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
-signal S_AXI_HP0_wid : std_logic_vector(5 downto 0);
 signal S_AXI_HP0_wlast : std_logic;
 signal S_AXI_HP0_wstrb : std_logic_vector(AXI_DATA_WIDTH/8-1 downto 0);
 signal S_AXI_HP0_wvalid : std_logic;
@@ -382,17 +348,6 @@ port map (
     M00_AXI_wstrb(3 downto 0) => M00_AXI_wstrb(3 downto 0),
     M00_AXI_wvalid => M00_AXI_wvalid,
 
-    S_AXI_HP0_araddr => S_AXI_HP0_araddr ,
-    S_AXI_HP0_arburst => S_AXI_HP0_arburst,
-    S_AXI_HP0_arcache => S_AXI_HP0_arcache,
-    S_AXI_HP0_arid => S_AXI_HP0_arid ,
-    S_AXI_HP0_arlen => S_AXI_HP0_arlen ,
-    S_AXI_HP0_arlock => S_AXI_HP0_arlock ,
-    S_AXI_HP0_arprot => S_AXI_HP0_arprot ,
-    S_AXI_HP0_arqos => S_AXI_HP0_arqos ,
-    S_AXI_HP0_arready => S_AXI_HP0_arready,
-    S_AXI_HP0_arsize => S_AXI_HP0_arsize ,
-    S_AXI_HP0_arvalid => S_AXI_HP0_arvalid,
     S_AXI_HP0_awaddr => S_AXI_HP0_awaddr ,
     S_AXI_HP0_awburst => S_AXI_HP0_awburst,
     S_AXI_HP0_awcache => S_AXI_HP0_awcache,
@@ -402,20 +357,14 @@ port map (
     S_AXI_HP0_awprot => S_AXI_HP0_awprot ,
     S_AXI_HP0_awqos => S_AXI_HP0_awqos ,
     S_AXI_HP0_awready => S_AXI_HP0_awready,
+    S_AXI_HP0_awregion => S_AXI_HP0_awregion,
     S_AXI_HP0_awsize => S_AXI_HP0_awsize ,
     S_AXI_HP0_awvalid => S_AXI_HP0_awvalid,
     S_AXI_HP0_bid => S_AXI_HP0_bid ,
     S_AXI_HP0_bready => S_AXI_HP0_bready ,
     S_AXI_HP0_bresp => S_AXI_HP0_bresp ,
     S_AXI_HP0_bvalid => S_AXI_HP0_bvalid ,
-    S_AXI_HP0_rdata => S_AXI_HP0_rdata ,
-    S_AXI_HP0_rid => S_AXI_HP0_rid ,
-    S_AXI_HP0_rlast => S_AXI_HP0_rlast ,
-    S_AXI_HP0_rready => S_AXI_HP0_rready ,
-    S_AXI_HP0_rresp => S_AXI_HP0_rresp ,
-    S_AXI_HP0_rvalid => S_AXI_HP0_rvalid ,
     S_AXI_HP0_wdata => S_AXI_HP0_wdata ,
-    S_AXI_HP0_wid => S_AXI_HP0_wid ,
     S_AXI_HP0_wlast => S_AXI_HP0_wlast ,
     S_AXI_HP0_wready => S_AXI_HP0_wready ,
     S_AXI_HP0_wstrb => S_AXI_HP0_wstrb ,
@@ -749,6 +698,7 @@ port map (
     m_axi_awprot => S_AXI_HP0_awprot,
     m_axi_awqos => S_AXI_HP0_awqos,
     m_axi_awready => S_AXI_HP0_awready,
+    m_axi_awregion => S_AXI_HP0_awregion,
     m_axi_awsize => S_AXI_HP0_awsize,
     m_axi_awvalid => S_AXI_HP0_awvalid,
     m_axi_bid => S_AXI_HP0_bid,
@@ -756,7 +706,6 @@ port map (
     m_axi_bresp => S_AXI_HP0_bresp,
     m_axi_bvalid => S_AXI_HP0_bvalid,
     m_axi_wdata => S_AXI_HP0_wdata,
-    m_axi_wid => S_AXI_HP0_wid,
     m_axi_wlast => S_AXI_HP0_wlast,
     m_axi_wready => S_AXI_HP0_wready,
     m_axi_wstrb => S_AXI_HP0_wstrb,

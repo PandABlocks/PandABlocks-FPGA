@@ -48,7 +48,7 @@ generate_target all [get_files ./panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/pa
 open_bd_design $origin_dir/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 
 file mkdir $origin_dir/panda_ps/panda_ps.sdk
-write_hwdef -file $origin_dir/panda_ps_wrapper.hdf
+write_hwdef -force -file $origin_dir/panda_ps_wrapper.hdf
 
 # Report IP Status
 report_ip_status

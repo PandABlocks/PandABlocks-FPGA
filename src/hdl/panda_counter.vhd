@@ -62,7 +62,7 @@ begin
             if (START_LOAD = '1') then
                 counter <= unsigned('0' & START);
             elsif (enable_fall = '1') then
-                counter <= (others => '0');
+                counter <= unsigned('0' & START);
             elsif (trigger_rise = '1') then
                 if (DIR = '0') then
                     counter <= counter + unsigned(STEP);

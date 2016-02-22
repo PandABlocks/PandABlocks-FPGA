@@ -9,7 +9,7 @@ set SLOW {../../../../SlowFPGA/src/hdl}
 vlib work
 vlib msim
 
-# do bfm.do
+do bfm.do
 
 # Compile Sources
 #

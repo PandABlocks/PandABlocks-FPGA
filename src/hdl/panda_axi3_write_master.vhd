@@ -27,13 +27,14 @@ port (
     m_axi_burst_len     : in  std_logic_vector(4 downto 0);
     -- AXI3 HP Bus Write Only Interface
     m_axi_awready       : in  std_logic;
+    m_axi_awregion      : out std_logic_vector(3 downto 0);
     m_axi_awaddr        : out std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
     m_axi_awvalid       : out std_logic;
     m_axi_awburst       : out std_logic_vector(1 downto 0);
     m_axi_awcache       : out std_logic_vector(3 downto 0);
     m_axi_awid          : out std_logic_vector(5 downto 0);
-    m_axi_awlen         : out std_logic_vector(3 downto 0);
-    m_axi_awlock        : out std_logic_vector(1 downto 0);
+    m_axi_awlen         : out std_logic_vector(7 downto 0);
+    m_axi_awlock        : out std_logic_vector(0 downto 0);
     m_axi_awprot        : out std_logic_vector(2 downto 0);
     m_axi_awqos         : out std_logic_vector(3 downto 0);
     m_axi_awsize        : out std_logic_vector(2 downto 0);
@@ -46,7 +47,6 @@ port (
     m_axi_wvalid        : out std_logic;
     m_axi_wlast         : out std_logic;
     m_axi_wstrb         : out std_logic_vector(AXI_DATA_WIDTH/8-1 downto 0);
-    m_axi_wid           : out std_logic_vector(5 downto 0);
     -- Interface to data FIFO
     dma_addr            : in  std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
     dma_read            : out std_logic;
@@ -79,18 +79,17 @@ AXI_BURST_LEN <= to_integer(unsigned(m_axi_burst_len));
 --
 -- Write Address
 --
-
+M_AXI_AWREGION <= "0000";
 -- Single threaded
 M_AXI_AWID <= "000000";
-M_AXI_WID <= "000000";
 -- Burst LENgth is number of transaction beats, minus 1
-M_AXI_AWLEN <= TO_SVECTOR(AXI_BURST_LEN-1, 4);
+M_AXI_AWLEN <= TO_SVECTOR(AXI_BURST_LEN-1, 8);
 -- Size should be AXI_DATA_WIDTH, in 2^SIZE bytes
 M_AXI_AWSIZE <= TO_SVECTOR(LOG2(AXI_DATA_WIDTH/8), 3);
 -- INCR burst type is usually used, except for keyhole bursts
 M_AXI_AWBURST <= "01";
 -- AXI3 atomic access encoding for Normal acces
-M_AXI_AWLOCK <= "00";
+M_AXI_AWLOCK <= "0";
 -- Memory type encoding for 'Device Non-bufferable'
 M_AXI_AWCACHE <= "0010";
 -- Protection encoding for 'Non-secure access'

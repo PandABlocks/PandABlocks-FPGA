@@ -19,6 +19,13 @@ add wave -group "PCap Core" -radix decimal \
 add wave -group "Arming" -radix decimal \
 "sim:/test/tb/uut/PCAP_GEN/pcap_inst/pcap_core/pcap_arming/*"
 
+add wave -divider {COUNTER}
+add wave -group "Block 0" -radix decimal \
+"sim:/test/tb/uut/counter_inst/COUNTER_GEN(0)/counter_block_inst/*"
+add wave -group "Counter 0" -radix decimal \
+"sim:/test/tb/uut/counter_inst/COUNTER_GEN(0)/counter_block_inst/panda_counter/*"
+
+
 #add wave -divider {TEST BENCH}
 #add wave -group "Encoder Model" \
 #"sim:/test/tb/encoder/*"

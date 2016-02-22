@@ -104,6 +104,7 @@ vlog -64 -incr -work axi_protocol_converter_v2_1  +incdir+${MODEL}/zynq_ps.srcs/
 
 vlog -64 -incr -work xil_defaultlib  +incdir+${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/processing_system7_bfm_v2_0/e69044ca/hdl +incdir+${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_infrastructure_v1_1/cf21a66f/hdl/verilog \
 "${MODEL}/zynq_ps.srcs/sources_1/bd/zynq_ps/ip/zynq_ps_auto_pc_0/sim/zynq_ps_auto_pc_0.v" \
+"${MODEL}/zynq_ps.srcs/sources_1/bd/zynq_ps/ip/zynq_ps_auto_pc_1/sim/zynq_ps_auto_pc_1.v" \
 
 vcom -64 -93 -work xil_defaultlib  \
 "${MODEL}/zynq_ps.srcs/sources_1/bd/zynq_ps/hdl/zynq_ps.vhd" \
