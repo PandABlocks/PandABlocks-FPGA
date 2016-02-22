@@ -65,54 +65,14 @@ generate, or if the ENABLE = 0 is set at the same time as a position match.
    :block: pcomp
    :title: Disable with start
 
-Jitter compensation
--------------------
-Jitter is ignored if it is below the threshold
+Wait condition
+--------------
+There will be no output until the input position goes under the DELTAP and
+subsequently crosses the START compare point
 
 .. sequence_plot::
    :block: pcomp
-   :title: Increasing position with jitter below FLTR_THOLD
-
-.. sequence_plot::
-   :block: pcomp
-   :title: Increasing position with jitter below FLTR_THOLD on deltaT edge
-
-If jitter occurs inside the deltaT window it will be ignored regardless of it's magnitude
-
-.. sequence_plot::
-   :block: pcomp
-   :title: Increasing position with jitter above FLTR_THOLD inside deltaT
-
-If jitter above the threshold occurs on deltaT edge, it will disturb the output
-until the next deltaT window
-
-.. sequence_plot::
-   :block: pcomp
-   :title: Increasing position with jitter above FLTR_THOLD on deltaT edge
-
-If the puse has already started, jitter causing a return to the start value will
-not restart the pulse.
-
-.. sequence_plot::
-   :block: pcomp
-   :title: Increasing position with jitter above FLTR_THOLD then return to start
-
-If the jitter occurs before the start and is above the threshold, the pulse will
-be started on the next deltaT window. If the next deltaT windows happens to fall
-on the width compare point, the pulses will 'catch up' to the approperiate value
-
-.. sequence_plot::
-   :block: pcomp
-   :title: Increasing position with jitter above FLTR_THOLD before start
-
-If the position is above the start point and the direction filter is positive,
-the pulse wont be initiated by a jitter that registers a position increase until
-the position goes under the start point and the direction changes to match the
-direction filter.
-
-.. sequence_plot::
-   :block: pcomp
-   :title: Decreasing from above start with +ve direction filter and direction change above start point
+   :title: Wait to be below start - DELTAP
 
 Error condition
 ---------------
@@ -122,3 +82,15 @@ outputs will cease.
 .. sequence_plot::
    :block: pcomp
    :title: Error is produced after skipping more than 2 compare points
+
+.. sequence_plot::
+   :block: pcomp
+   :title: Error skipping multiple compare points
+
+Table usage
+-----------
+The table provides a list of compare points and widths
+
+.. sequence_plot::
+   :block: pcomp
+   :title: Table
