@@ -101,7 +101,6 @@ read_vhdl ../src/hdl/panda_pcap_dma.vhd
 read_vhdl ../src/hdl/panda_pcap_frame.vhd
 read_vhdl ../src/hdl/panda_pcap_posproc.vhd
 read_vhdl ../src/hdl/panda_pcap_top.vhd
-read_vhdl ../src/hdl/pulse2pulse.vhd
 read_vhdl ../src/hdl/panda_slow_tx.vhd
 read_vhdl ../src/hdl/panda_slow_rx.vhd
 read_vhdl ../src/hdl/panda_slowctrl.vhd

@@ -20,7 +20,8 @@ reg DIR;
 reg [31:0] DELTAP;
 
 // Outputs
-wire [31:0] err_o;
+wire err_o;
+reg  ERR;
 wire act_o;
 reg  ACT;
 wire pulse_o;
@@ -161,6 +162,34 @@ fork
             @(posedge clk_i);
             ACT   = vectors[1];
             PULSE = vectors[2];
+        end
+    end
+join
+
+end
+
+//
+// Read Reg Outputs
+//
+initial
+begin : reg_outputs
+    localparam filename = "pcomp_reg_out.txt";
+    localparam N        = 2;
+    reg [31:0] vectors[31: 0];
+
+    reg     [8192*10:0] line;
+    integer          file, c, r, i;
+    reg     [31: 0]  TS;
+
+fork
+    begin
+        `include "./file_io.v"
+    end
+
+    begin
+        while (1) begin
+            @(posedge clk_i);
+            ERR = vectors[1];
         end
     end
 join
