@@ -92,7 +92,7 @@ read_vhdl ../src/hdl/panda_bits_block.vhd
 read_vhdl ../src/hdl/panda_bits_top.vhd
 read_vhdl ../src/hdl/panda_reg.vhd
 read_vhdl ../src/hdl/panda_reg_top.vhd
-read_vhdl ../src/hdl/panda_axi3_write_master.vhd
+read_vhdl ../src/hdl/panda_axi_write_master.vhd
 read_vhdl ../src/hdl/panda_pcap_arming.vhd
 read_vhdl ../src/hdl/panda_pcap_buffer.vhd
 read_vhdl ../src/hdl/panda_pcap_core.vhd

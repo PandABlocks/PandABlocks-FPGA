@@ -151,7 +151,7 @@ initial begin
     addr = addr + tb.BLOCK_SIZE;                    //
     REG_WRITE(DRV_BASE, DRV_PCAP_DMA_ADDR, addr);   //
 
-    NUMSAMPLE = 1024;
+    NUMSAMPLE = 5000;
     ARMS = 3;
 fork
 

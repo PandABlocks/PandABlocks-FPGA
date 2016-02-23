@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_axi3_write_master.vhd
+--  File:       panda_axi_write_master.vhd
 --  Desc:       Position capture module
 --
 --------------------------------------------------------------------------------
@@ -13,9 +13,8 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_axi3_write_master is
+entity panda_axi_write_master is
 generic (
---    AXI_BURST_LEN       : integer := 16;
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32
 );
@@ -23,9 +22,9 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
-    -- AXI3 Transaction Parameters
-    m_axi_burst_len     : in  std_logic_vector(4 downto 0);
-    -- AXI3 HP Bus Write Only Interface
+    -- AXI Transaction Parameters
+    m_axi_burst_len     : in  std_logic_vector(7 downto 0);
+    -- AXI HP Bus Write Only Interface
     m_axi_awready       : in  std_logic;
     m_axi_awregion      : out std_logic_vector(3 downto 0);
     m_axi_awaddr        : out std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
@@ -55,12 +54,9 @@ port (
     dma_done            : out std_logic;
     dma_error           : out std_logic
 );
-end panda_axi3_write_master;
+end panda_axi_write_master;
 
-architecture rtl of panda_axi3_write_master is
-
---constant WLEN_COUNT_WIDTH   : integer := LOG2(AXI_BURST_LEN-2) + 2;
-constant WLEN_COUNT_WIDTH   : integer := 5;
+architecture rtl of panda_axi_write_master is
 
 signal AXI_BURST_LEN        : integer;
 signal awvalid              : std_logic;
@@ -70,7 +66,7 @@ signal bready               : std_logic;
 signal wnext                : std_logic;
 signal aw_throttle          : std_logic;
 signal w_throttle           : std_logic;
-signal wlen_count           : unsigned(WLEN_COUNT_WIDTH-1 downto 0);
+signal wlen_count           : unsigned(7 downto 0);
 
 begin
 

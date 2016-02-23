@@ -74,7 +74,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/panda_bits_top.vhd" \
 "${SRC}/panda_reg.vhd" \
 "${SRC}/panda_reg_top.vhd" \
-"${SRC}/panda_axi3_write_master.vhd" \
+"${SRC}/panda_axi_write_master.vhd" \
 "${SRC}/panda_pcap_ctrl.vhd" \
 "${SRC}/panda_pcap_posproc.vhd" \
 "${SRC}/panda_pcap_frame.vhd" \
@@ -114,7 +114,8 @@ vcom -64 -93 -work xil_defaultlib  \
 
 vlog -work xil_defaultlib "../bench/test.v"
 
-vopt -64 +acc -L unisims_ver -L unimacro_ver -L secureip -L xil_defaultlib -L generic_baseblocks_v2_1 -L fifo_generator_v12_0 -L axi_data_fifo_v2_1 -L axi_infrastructure_v1_1 -L axi_register_slice_v2_1 -L axi_protocol_converter_v2_1 -work xil_defaultlib xil_defaultlib.test xil_defaultlib.glbl -o test_opt
+vopt -64 +acc -L unisims_ver -L unimacro_ver -L secureip -L xil_defaultlib -L generic_baseblocks_v2_1 -L fifo_generator_v12_0 -L axi_data_fifo_v2_1 -L axi_infrastructure_v1_1 -L axi_register_slice_v2_1 -L axi_protocol_converter_v2_1 -L axi_clock_converter_v2_1 -L blk_mem_gen_v8_2 -L axi_dwidth_converter_v2_1 -work xil_defaultlib xil_defaultlib.test xil_defaultlib.glbl -o test_opt
+
 
 vsim -t 1ps -pli "/dls_sw/FPGA/Xilinx/Vivado/2015.1/lib/lnx64.o/libxil_vsim.so" -lib xil_defaultlib test_opt
 

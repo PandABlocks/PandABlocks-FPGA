@@ -71,7 +71,7 @@ end panda_pcap_dma;
 
 architecture rtl of panda_pcap_dma is
 
--- Number of byte per AXI3 burst
+-- Number of byte per AXI burst
 constant BURST_LEN          : integer := AXI_BURST_LEN * AXI_ADDR_WIDTH/8;
 
 -- IRQ Status encoding
@@ -92,7 +92,7 @@ port (
 end component;
 
 signal BLOCK_TLP_SIZE       : std_logic_vector(31 downto 0);
-signal m_axi_burst_len      : std_logic_vector(4 downto 0) := TO_SVECTOR(16, 5);
+signal m_axi_burst_len      : std_logic_vector(7 downto 0) := TO_SVECTOR(AXI_BURST_LEN, 8);
 signal reset                : std_logic;
 
 type pcap_fsm_t is (INIT, IDLE, ACTV, DO_DMA, IS_FINISHED, IRQ, ABORTED);
@@ -148,7 +148,8 @@ end process;
 reset <= reset_i or DMA_RESET;
 
 --
--- Convert BLOCK_SIZE [in Bytes] to TLP_Count. Each TLP has 16 beats of DWORDS.
+-- Convert BLOCK_SIZE [in Bytes] to TLP_Count. Each TLP has AXI_BURST_LEN beats of 
+-- DWORDS.
 -- TLP_COUNT = BLOCK_SIZE/64
 --
 BLOCK_TLP_SIZE <= "000000" & BLOCK_SIZE(31 downto 6);
@@ -203,7 +204,7 @@ if rising_edge(clk_i) then
         next_dmaaddr_valid <= '0';
         next_dmaaddr_clear <= '0';
         timeout_counter <= (others => '0');
-        m_axi_burst_len <= TO_SVECTOR(16, 5);
+        m_axi_burst_len <= TO_SVECTOR(AXI_BURST_LEN, 8);
         tlp_count <= (others => '0');
         sample_count <= (others => '0');
         sample_count_latch <= (others => '0');
@@ -249,6 +250,7 @@ if rising_edge(clk_i) then
         case pcap_fsm is
             -- Wait Initialistion by kernel driver
             when INIT =>
+                dma_irq <= '0';
                 last_tlp <= '0';
                 tlp_count <= (others => '0');
                 irq_flags <= (others => '0');
@@ -275,8 +277,8 @@ if rising_edge(clk_i) then
                     pcap_fsm <= IS_FINISHED;
                 end if;
 
-            -- Wait until FIFO has enough data worth for a AXI3 burst
-            -- (16 beats).
+            -- Wait until FIFO has enough data worth for a AXI burst
+            -- (AXI_BURST_LEN beats).
             when ACTV =>
                 last_tlp <= '0';
 
@@ -288,14 +290,14 @@ if rising_edge(clk_i) then
                     else
                         dma_start <= '1';
                         sample_count <= sample_count + fifo_count;
-                        m_axi_burst_len <= fifo_data_count(4 downto 0);
+                        m_axi_burst_len <= fifo_data_count(7 downto 0);
                         pcap_fsm <= DO_DMA;
                     end if;
                 -- More than 1 TLP in the queue. ???
-                elsif (fifo_count > 16) then
+                elsif (fifo_count > AXI_BURST_LEN) then
                     dma_start <= '1';
                     sample_count <= sample_count + AXI_BURST_LEN;
-                    m_axi_burst_len <= TO_SVECTOR(AXI_BURST_LEN, 5);
+                    m_axi_burst_len <= TO_SVECTOR(AXI_BURST_LEN, 8);
                     pcap_fsm <= DO_DMA;
                 -- If enable flag is de-asserted while DMAing the last
                 -- TLP, no need to do a 0 byte DMA
@@ -304,11 +306,11 @@ if rising_edge(clk_i) then
                     pcap_fsm <= IS_FINISHED;
                 -- Enable de-asserted, and there is less than 1 TLP worth
                 -- data, empty the queue.
-                elsif (pcap_enabled_i = '0' and fifo_count <= 16) then
+                elsif (pcap_enabled_i = '0' and fifo_count <= AXI_BURST_LEN) then
                     last_tlp <= '1';
                     dma_start <= '1';
                     sample_count <= sample_count + fifo_count;
-                    m_axi_burst_len <= fifo_data_count(4 downto 0);
+                    m_axi_burst_len <= fifo_data_count(7 downto 0);
                     pcap_fsm <= DO_DMA;
                 end if;
 
@@ -433,7 +435,7 @@ WORD_SWAP_64 : if (AXI_DATA_WIDTH = 64) generate
     axi_wdata_val(31 downto 0) <= fifo_dout(63 downto 32);
 end generate;
 
-dma_write_master : entity work.panda_axi3_write_master
+dma_write_master : entity work.panda_axi_write_master
 generic map (
     AXI_ADDR_WIDTH      => AXI_ADDR_WIDTH,
     AXI_DATA_WIDTH      => AXI_DATA_WIDTH

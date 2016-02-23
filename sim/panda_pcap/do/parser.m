@@ -1,4 +1,4 @@
-function parser(Arms, Channels)
+function [x] = parser(Arms, Channels)
 
 x=load('read_from_hp1.txt');
 

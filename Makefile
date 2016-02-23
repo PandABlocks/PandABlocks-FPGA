@@ -56,6 +56,10 @@ boot: $(BOOT_FILE)
 clean :
 	rm -f $(VERSION_FILE)
 	rm -rf $(OUT_DIR)
+	find . -iname transcript -exec rm -f {} \;
+	find . -iname *.wlf -exec rm -f {} \;
+	find . -iname work -exec rm -rf {} \;
+	find . -iname msim -exec rm -rf {} \;
 
 PREPROC :
 	rm -rf src/hdl/panda_top.vhd

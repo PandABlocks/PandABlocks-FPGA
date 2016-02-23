@@ -55,8 +55,8 @@ REG_WRITE(DRV_BASE, DRV_PCAP_DMA_START, 1);     // ...
 addr = addr + tb.BLOCK_SIZE;                    //
 REG_WRITE(DRV_BASE, DRV_PCAP_DMA_ADDR, addr);   //
 
-NUMSAMPLE = 4567;
-ARMS = 2;
+NUMSAMPLE = 5000;
+ARMS = 1;
 
 fork
 
