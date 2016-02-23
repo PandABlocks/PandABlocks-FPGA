@@ -76,6 +76,8 @@ class sequence_plot_directive(Directive):
                 table_node = self.make_pcap_table(sequence)
                 node.append(plot_node)
                 node.append(table_node)
+        else:
+            node.append(plot_node)
         return [node]
 
     def make_pcap_table(self, sequence):
