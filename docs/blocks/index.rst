@@ -18,3 +18,4 @@ Each block is documented with examples
     counter
     pcomp
     pcap
+    pgen

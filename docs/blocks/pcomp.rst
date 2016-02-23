@@ -94,3 +94,11 @@ The table provides a list of compare points and widths
 .. sequence_plot::
    :block: pcomp
    :title: Table
+
+.. sequence_plot::
+   :block: pcomp
+   :title: Table repeats
+
+.. sequence_plot::
+   :block: pcomp
+   :title: Table negative direction
