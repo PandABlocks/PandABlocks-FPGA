@@ -1,4 +1,4 @@
-import os
+import os, csv
 
 from matplotlib.sphinxext import plot_directive
 from docutils.parsers.rst.directives import images
@@ -62,7 +62,7 @@ class sequence_plot_directive(Directive):
             self.content_offset, plot_node)
 
         #if it is a sequencer plot, plot the table
-        if blockname in ["seq", "pcap"]:
+        if blockname in ["seq", "pcap", "pgen", "pcomp"]:
             #get the correct sequence
             fname = blockname + ".seq"
             sparser = SequenceParser(os.path.join(parser_dir, fname))
@@ -70,6 +70,10 @@ class sequence_plot_directive(Directive):
             sequence = matches[0]
             if blockname == "seq":
                 table_node = self.make_all_seq_tables(sequence)
+                node.append(table_node)
+                node.append(plot_node)
+            elif blockname in [ "pgen", "pcomp"]:
+                table_node = self.make_long_tables(sequence)
                 node.append(table_node)
                 node.append(plot_node)
             else:
@@ -165,6 +169,42 @@ class sequence_plot_directive(Directive):
                     high = {}
                     i = 0
         return table_node
+
+    def make_long_tables(self, sequence):
+        table_node = table_plot_node()
+        table_data = []
+        table = nodes.table()
+        for ts in sequence.inputs:
+            if 'TABLE_ADDRESS' in sequence.inputs[ts]:
+                #open the table
+                file_dir = os.path.join(os.path.dirname(__file__), "..", "..",
+                                        "..", "tests", "sim_sequences",
+                                        "long_tables",
+                                        sequence.inputs[ts]['TABLE_ADDRESS'])
+                assert os.path.isfile(file_dir), "%s does not exist" %(file_dir)
+                with open(file_dir, "rb") as table:
+                    reader = csv.DictReader(table, delimiter='\t')
+                    table_data = [line for line in reader]
+        if table_data:
+            col_widths = [len(x) for x in table_data[0].values()]
+            ncols = len(col_widths)
+            table = nodes.table()
+            # set the column width specs
+            tgroup = nodes.tgroup(cols=ncols)
+            table += tgroup
+            for col_width in col_widths:
+                tgroup += nodes.colspec(colwidth=col_width)
+            # add the header
+            thead = nodes.thead()
+            tgroup += thead
+            h1_text = table_data[0].keys()
+            thead += self.make_row(h1_text)
+            tbody = nodes.tbody()
+            tgroup += tbody
+            row = []
+            for line in table_data:
+                tbody += self.make_row(line.values())
+        return table
 
     def make_all_seq_tables(self, sequence):
         table_node = table_plot_node()
