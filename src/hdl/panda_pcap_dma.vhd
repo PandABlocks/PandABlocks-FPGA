@@ -341,11 +341,11 @@ if rising_edge(clk_i) then
 
                 if (switch_block = '1') then
                     irq_flags(6) <= '1';
-                end if;
 
-                if (next_dmaaddr_valid = '0') then
-                    irq_flags(0) <= '1';
-                    irq_flags(4) <= '1';
+                    if (next_dmaaddr_valid = '0') then
+                        irq_flags(0) <= '1';
+                        irq_flags(4) <= '1';
+                    end if;
                 end if;
 
                 -- Switch buffers conditionally.
@@ -406,15 +406,13 @@ if rising_edge(clk_i) then
                     pcap_fsm <= ACTV;
                 end if;
 
-            -- Clear flag and wait for user DISARM.
+            -- Aborted on un-recovarable error.
+            -- Requires full reset cycle.
             when ABORTED =>
                 dma_irq <= '0';
                 next_dmaaddr_clear <= '0';
                 irq_flags_latch <= irq_flags;
                 sample_count_latch <= sample_count;
-                if (pcap_enabled_i = '0') then
-                    pcap_fsm <= IDLE;
-                end if;
 
             when others =>
 

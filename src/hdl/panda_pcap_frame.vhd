@@ -223,15 +223,14 @@ posn_o(28 downto 21) <= (others => (others => '0'));
 posn_o(31 downto 29) <= posbus_i(31 downto 29);
 
 -- posn_o(35 downto 32) <= Encoder extention
-posn_o(36) <= std_logic_vector(capture_ts(31 downto  0));
-posn_o(37) <= std_logic_vector(capture_ts(63 downto 32));
-posn_o(38) <= std_logic_vector(frame_length);
-posn_o(39) <= std_logic_vector(capture_offset);
-posn_o(40) <= sysbus_i(31 downto 0);
-posn_o(41) <= sysbus_i(63 downto 32);
-posn_o(42) <= sysbus_i(95 downto 64);
-posn_o(43) <= sysbus_i(127 downto 96);
-posn_o(63 downto 44) <= (others => (others => '0'));
+posn_o(37) <= std_logic_vector(frame_length);
+posn_o(38) <= std_logic_vector(capture_offset);
+posn_o(39) <= sysbus_i(31 downto 0);
+posn_o(40) <= sysbus_i(63 downto 32);
+posn_o(41) <= sysbus_i(95 downto 64);
+posn_o(42) <= sysbus_i(127 downto 96);
+posn_o(62) <= std_logic_vector(capture_ts(31 downto  0));
+posn_o(63) <= std_logic_vector(capture_ts(63 downto 32));
 
 end rtl;
 
