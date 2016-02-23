@@ -1,5 +1,6 @@
 from .block import Block
 import os
+import csv
 
 class Pgen(Block):
     def __init__(self):
@@ -21,13 +22,14 @@ class Pgen(Block):
         if b.TABLE_ADDRESS in changes:
             self.active = 1
             #open the table
-            # self.TABLE_ADDRESS = 'PGEN_1000.txt'
-            current_dir = os.path.dirname(os.path.realpath(__file__))
-            file_dir = os.path.join(current_dir,
-                                    'long_tables', self.TABLE_ADDRESS)
+            file_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                    "tests", "sim_sequences", "long_tables",
+                                    self.TABLE_ADDRESS)
+
             assert os.path.isfile(file_dir), "%s does not exist" % (file_dir)
-            table = open(file_dir, 'r')
-            self.table_data = [int(line) for line in table]
+            with open(file_dir, "rb") as table:
+                reader = csv.DictReader(table)
+                self.table_data = [int(line['POS']) for line in reader]
 
         if b.TRIG in changes and self.TRIG:
             #send an output from the table on rising TRIG edge if enabled
