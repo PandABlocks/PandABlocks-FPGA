@@ -91,19 +91,19 @@ class Pcomp(Block):
                         self.OUT = 1
                     if self.INP >= self.fall:
                         self.OUT = 0
-                        if self.current_line < len(self.table_data):
+                        if self.current_line < self.TABLE_LENGTH/8:
                             self.current_line += 1
                 elif self.DIR == BWD and not self.wait_start:
                     if self.INP <= self.rise:
                         self.OUT = 1
                     if self.INP <= self.fall:
                         self.OUT = 0
-                        if self.current_line < len(self.table_data):
+                        if self.current_line < self.TABLE_LENGTH/8:
                             self.current_line += 1
 
             #handle table repeats
                 if self.table_repeat < self.PNUM \
-                        and self.current_line == len(self.table_data):
+                        and self.current_line == self.TABLE_LENGTH/8:
                     self.table_step += self.STEP
                     self.table_repeat += 1
                     self.current_line = 0

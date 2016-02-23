@@ -159,7 +159,8 @@ $ Error is produced after skipping more than 2 compare points
 
 ###############
 $ Table
-4       : TABLE_ADDRESS=PCOMP_1000.txt
+3       : TABLE_ADDRESS=PCOMP_1000.txt
+4       : TABLE_LENGTH=40
 5       : USE_TABLE=1
 6       : DELTAP=2
 7       : PNUM=1
@@ -183,7 +184,8 @@ $ Table
 
 ###############
 $ Table repeats
-4       : TABLE_ADDRESS=PCOMP_2000.txt
+3       : TABLE_ADDRESS=PCOMP_2000.txt
+4       : TABLE_LENGTH=16
 5       : USE_TABLE=1
 6       : PNUM=2
 7       : STEP = 30
@@ -203,7 +205,8 @@ $ Table repeats
 
 ###############
 $ Table negative direction
-4       : TABLE_ADDRESS=PCOMP_3000.txt
+3       : TABLE_ADDRESS=PCOMP_3000.txt
+4       : TABLE_LENGTH=16
 5       : USE_TABLE=1
 6       : PNUM=2
 7       : STEP = 30

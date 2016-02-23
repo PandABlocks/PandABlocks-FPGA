@@ -36,7 +36,7 @@ class Pgen(Block):
             if self.ENABLE and self.active:
                 self.OUT = self.table_data[self.current_line]
                 self.current_line += 1
-                if self.current_line == len(self.table_data):
+                if self.current_line == self.TABLE_LENGTH/4:
                     self.current_cycle += 1
                     self.current_line = 0
                 if self.current_cycle == self.CYCLES: self.active = 0

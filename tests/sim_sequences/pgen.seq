@@ -3,7 +3,8 @@ $ Normal operation
 
 3       : CYCLES=2
 4       : TABLE_ADDRESS=PGEN_1000.txt
-5       : ENABLE=1
+5       : TABLE_LENGTH=40
+6       : ENABLE=1
 10      : TRIG=1        : OUT=100
 11      : TRIG=0
 12      : TRIG=1        : OUT=101
