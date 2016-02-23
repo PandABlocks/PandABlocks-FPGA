@@ -155,3 +155,62 @@ $ Error is produced after skipping more than 2 compare points
 47      : INP=10        : ERROR=1, ACTIVE=0
 49      : INP=11
 50      : INP=12
+
+
+###############
+$ Table
+4       : TABLE_ADDRESS=PCOMP_1000.txt
+5       : USE_TABLE=1
+6       : DELTAP=2
+7       : PNUM=1
+9       : INP=5
+10      : ENABLE=1      : ACTIVE=1
+15      : INP=1
+17      : INP=5         : OUT=1
+19      : INP=10        : OUT=0
+21      : INP=15        : OUT=1
+23      : INP=20        : OUT=0
+25      : INP=25
+27      : INP=26        : OUT=1
+29      : INP=27
+31      : INP=28        : OUT=0
+33      : INP=29        : OUT=1
+35      : INP=30
+37      : INP=31        : OUT=0
+39      : INP=35        : OUT=1
+41      : INP=40        : OUT=0
+43      : INP=45        : ACTIVE=0
+
+###############
+$ Table repeats
+4       : TABLE_ADDRESS=PCOMP_2000.txt
+5       : USE_TABLE=1
+6       : PNUM=2
+7       : STEP = 30
+10      : ENABLE=1      : ACTIVE=1
+15      : INP=1
+17      : INP=5         : OUT=1
+19      : INP=10        : OUT=0
+21      : INP=15        : OUT=1
+23      : INP=20        : OUT=0
+25      : INP=25
+27      : INP=30        : OUT=0
+29      : INP=35        : OUT=1
+31      : INP=40        : OUT=0
+33      : INP=45        : OUT=1
+35      : INP=50        : OUT=0
+36      : INP=55        : ACTIVE=0
+
+###############
+$ Table negative direction
+4       : TABLE_ADDRESS=PCOMP_3000.txt
+5       : USE_TABLE=1
+6       : PNUM=2
+7       : STEP = 30
+10      : ENABLE=1      : ACTIVE=1
+15      : INP=25
+17      : INP=20        : OUT=1
+19      : INP=15        : OUT=0
+21      : INP=10        : OUT=1
+23      : INP=5         : OUT=0
+25      : INP=1
