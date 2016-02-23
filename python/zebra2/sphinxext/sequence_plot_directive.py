@@ -172,6 +172,7 @@ class sequence_plot_directive(Directive):
 
     def make_long_tables(self, sequence):
         table_node = table_plot_node()
+        alltables = []
         table_data = []
         table = nodes.table()
         for ts in sequence.inputs:
@@ -185,7 +186,8 @@ class sequence_plot_directive(Directive):
                 with open(file_dir, "rb") as table:
                     reader = csv.DictReader(table, delimiter='\t')
                     table_data = [line for line in reader]
-        if table_data:
+                alltables.append(table_data)
+        for lt in alltables:
             col_widths = [len(x) for x in table_data[0].values()]
             ncols = len(col_widths)
             table = nodes.table()
@@ -197,6 +199,7 @@ class sequence_plot_directive(Directive):
             # add the header
             thead = nodes.thead()
             tgroup += thead
+            thead += self.make_row(["T%d" % len(alltables)], [ncols-1])
             h1_text = table_data[0].keys()
             thead += self.make_row(h1_text)
             tbody = nodes.tbody()
@@ -204,7 +207,8 @@ class sequence_plot_directive(Directive):
             row = []
             for line in table_data:
                 tbody += self.make_row(line.values())
-        return table
+            table_node.append(table)
+        return table_node
 
     def make_all_seq_tables(self, sequence):
         table_node = table_plot_node()
