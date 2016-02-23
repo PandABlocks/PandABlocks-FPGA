@@ -50,7 +50,10 @@ class SequenceParser(object):
                 t = t.strip()
                 k, v = t.split("=")
                 # detect 0x prefix automatically
-                d[k.strip()] = int(v.strip(), 0)
+                if k == "TABLE_ADDRESS":
+                    d[k.strip()] = v.strip()
+                else:
+                    d[k.strip()] = int(v.strip(), 0)
         return d
 
 
