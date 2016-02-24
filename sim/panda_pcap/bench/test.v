@@ -151,8 +151,8 @@ initial begin
     addr = addr + tb.BLOCK_SIZE;                    //
     REG_WRITE(DRV_BASE, DRV_PCAP_DMA_ADDR, addr);   //
 
-    NUMSAMPLE = 5000;
-    ARMS = 3;
+    NUMSAMPLE = 100;
+    ARMS = 1;
 fork
 
 // Generate consecutive ARM signals.

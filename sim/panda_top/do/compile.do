@@ -14,6 +14,7 @@ do bfm.do
 # Compile Sources
 #
 vcom -64 -93 -work xil_defaultlib  \
+"../bench/panda_ps_wrapper.vhd" \
 "${IP}/pcap_dma_fifo/sim/pcap_dma_fifo.vhd"\
 "${IP}/pulse_queue/sim/pulse_queue.vhd"\
 "${SRC}/defines/type_defines.vhd" \

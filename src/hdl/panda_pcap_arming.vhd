@@ -20,17 +20,17 @@ port (
     enable_i            : in  std_logic;
     abort_i             : in  std_logic;
     ongoing_capture_i   : in  std_logic;
-    dma_fifo_reset_o    : out std_logic;
-    dma_fifo_ready_i    : in  std_logic;
+    dma_full_i          : in  std_logic;
     pcap_armed_o        : out std_logic;
     pcap_enabled_o      : out std_logic;
+    pcap_done_o         : out std_logic;
     pcap_status_o       : out std_logic_vector(2 downto 0)
 );
 end panda_pcap_arming;
 
 architecture rtl of panda_pcap_arming is
 
-type pcap_arm_t is (IDLE, IS_FIFO_READY, ARMED, ENABLED, WAIT_ONGOING_WRITE);
+type pcap_arm_t is (IDLE, ARMED, ENABLED, WAIT_ONGOING_WRITE);
 signal panda_arm_fsm        : pcap_arm_t;
 
 signal enable_prev          : std_logic;
@@ -49,8 +49,7 @@ process(clk_i) begin
 end process;
 
 -- Blocks operation is aborted under following conditions.
--- dma_fifo_ready_i is ties to FIFO's full flag.
-abort_capture <= DISARM or abort_i or not dma_fifo_ready_i;
+abort_capture <= DISARM or abort_i or dma_full_i;
 
 process(clk_i) begin
     if rising_edge(clk_i) then
@@ -61,32 +60,24 @@ end process;
 --
 -- Arm/Enable/Disarm State Machine
 --
-
--- Flush capture FIFO on ARM.
-dma_fifo_reset_o <= ARM;
-
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             panda_arm_fsm <= IDLE;
             pcap_armed_o <= '0';
             pcap_enabled_o <= '0';
+            pcap_done_o <= '0';
             pcap_status_o <= "000";
         else
             case (panda_arm_fsm) is
                 -- Wait for user arm.
                 when IDLE =>
+                    pcap_done_o <= '0';
                     if (ARM = '1') then
-                        panda_arm_fsm <= IS_FIFO_READY;
+                        panda_arm_fsm <= ARMED;
                         pcap_armed_o <= '1';
                         pcap_enabled_o <= '0';
                         pcap_status_o <= "000";
-                    end if;
-
-                -- Wait for fifo reset to be completed.
-                when IS_FIFO_READY =>
-                    if (dma_fifo_ready_i = '1') then
-                        panda_arm_fsm <= ARMED;
                     end if;
 
                 -- Wait for enable pulse from the system bus.
@@ -96,6 +87,7 @@ process(clk_i) begin
                         panda_arm_fsm <= IDLE;
                         pcap_armed_o <= '0';
                         pcap_enabled_o <= '0';
+                        pcap_done_o <= '1';
                     elsif (enable_i = '1') then
                         panda_arm_fsm <= ENABLED;
                         pcap_enabled_o <= '1';
@@ -123,23 +115,24 @@ process(clk_i) begin
                             panda_arm_fsm <= IDLE;
                             pcap_armed_o <= '0';
                             pcap_enabled_o <= '0';
+                            pcap_done_o <= '1';
                         end if;
-                    end if;
 
-                    -- Set abort flags accordingly.
-                    -- User disarm;
-                    if (DISARM = '1') then
-                        pcap_status_o(0) <= '1';
-                    end if;
+                        -- Set abort flags accordingly.
+                        -- User disarm;
+                        if (DISARM = '1') then
+                            pcap_status_o(0) <= '1';
+                        end if;
 
-                    -- Pcap block error;
-                    if (abort_i = '1') then
-                        pcap_status_o(1) <= '1';
-                    end if;
+                        -- Pcap block error;
+                        if (abort_i = '1') then
+                            pcap_status_o(1) <= '1';
+                        end if;
 
-                    -- DMA FIFO full;
-                    if (dma_fifo_ready_i = '0') then
-                        pcap_status_o(2) <= '1';
+                        -- DMA FIFO full;
+                        if (dma_full_i = '0') then
+                            pcap_status_o(2) <= '1';
+                        end if;
                     end if;
 
                 -- Wait for ongoing capture capture finish.
@@ -148,6 +141,7 @@ process(clk_i) begin
                         panda_arm_fsm <= IDLE;
                         pcap_armed_o <= '0';
                         pcap_enabled_o <= '0';
+                        pcap_done_o <= '1';
                     end if;
 
                 when others =>

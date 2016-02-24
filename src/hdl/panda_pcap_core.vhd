@@ -31,7 +31,7 @@ port (
     enable_i            : in  std_logic;
     capture_i           : in  std_logic;
     frame_i             : in  std_logic;
-    dma_fifo_ready_i    : in  std_logic;
+    dma_full_i          : in  std_logic;
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
     extbus_i            : in  extbus_t;
@@ -39,7 +39,7 @@ port (
     dma_fifo_reset_o    : out std_logic;
     pcap_dat_o          : out std_logic_vector(31 downto 0);
     pcap_dat_valid_o    : out std_logic;
-    pcap_enabled_o      : out std_logic;
+    pcap_done_o         : out std_logic;
     pcap_actv_o         : out std_logic;
     pcap_status_o       : out std_logic_vector(2 downto 0)
 );
@@ -64,7 +64,6 @@ begin
 
 pcap_dat_valid_o <= pcap_dat_valid;
 pcap_status_o <= pcap_status;
-pcap_enabled_o <= pcap_enabled;
 pcap_actv_o <= pcap_armed;
 
 pcap_arming : entity work.panda_pcap_arming
@@ -75,11 +74,11 @@ port map (
     DISARM              => DISARM,
     enable_i            => enable_i,
     abort_i             => pcap_error,
-    dma_fifo_reset_o    => dma_fifo_reset_o,
-    dma_fifo_ready_i    => dma_fifo_ready_i,
+    dma_full_i          => dma_full_i,
     ongoing_capture_i   => pcap_dat_valid,
     pcap_armed_o        => pcap_armed,
     pcap_enabled_o      => pcap_enabled,
+    pcap_done_o         => pcap_done_o,
     pcap_status_o       => pcap_status
 );
 

@@ -96,10 +96,10 @@ signal pcap_dat         : std_logic_vector(31 downto 0);
 signal pcap_dat_valid   : std_logic;
 
 signal dma_fifo_reset   : std_logic;
-signal dma_fifo_ready   : std_logic;
+signal dma_full         : std_logic;
 signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_active      : std_logic;
-signal pcap_enabled     : std_logic;
+signal pcap_done   : std_logic;
 
 signal pcap_irq         : std_logic;
 signal irq              : std_logic;
@@ -184,15 +184,14 @@ port map (
     enable_i                => enable,
     capture_i               => capture,
     frame_i                 => frame,
-    dma_fifo_ready_i        => dma_fifo_ready,
+    dma_full_i              => dma_full,
     sysbus_i                => sysbus_i,
     posbus_i                => posbus_i,
     extbus_i                => extbus_i,
 
-    dma_fifo_reset_o        => dma_fifo_reset,
     pcap_dat_o              => pcap_dat,
     pcap_dat_valid_o        => pcap_dat_valid,
-    pcap_enabled_o          => pcap_enabled,
+    pcap_done_o             => pcap_done,
     pcap_actv_o             => pcap_active,
     pcap_status_o           => pcap_status
 );
@@ -214,11 +213,9 @@ port map (
     IRQ_STATUS              => IRQ_STATUS,
     BLOCK_SIZE              => BLOCK_SIZE,
 
-    pcap_enabled_i          => pcap_enabled,
-    pcap_armed_i            => pcap_active,
+    pcap_done_i             => pcap_done,
     pcap_status_i           => pcap_status,
-    dma_fifo_reset_i        => dma_fifo_reset,
-    dma_fifo_ready_o        => dma_fifo_ready,
+    dma_full_o              => dma_full,
     pcap_dat_i              => pcap_dat,
     pcap_wstb_i             => pcap_dat_valid,
     irq_o                   => pcap_irq,

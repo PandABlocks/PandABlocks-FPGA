@@ -138,11 +138,10 @@ vlog -64 -incr -work axi_dwidth_converter_v2_1  +incdir+${MODEL}/zynq_ps.srcs/so
 "${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_top.v" \
 
 vlog -64 -incr -work xil_defaultlib  +incdir+${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/processing_system7_bfm_v2_0/e69044ca/hdl +incdir+${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_infrastructure_v1_1/cf21a66f/hdl/verilog \
-"${MODEL}/zynq_ps.srcs/sources_1/bd/zynq_ps/ip/zynq_ps_auto_us_0/sim/zynq_ps_auto_us_0.v" \
+"${MODEL}/zynq_ps.srcs/sources_1/bd/zynq_ps/ip/zynq_ps_auto_us_df_0/sim/zynq_ps_auto_us_df_0.v" \
 
 vcom -64 -93 -work xil_defaultlib  \
 "${MODEL}/zynq_ps.srcs/sources_1/bd/zynq_ps/hdl/zynq_ps.vhd" \
-"../bench/panda_ps_wrapper.vhd" \
 
 # compile glbl module
 vlog -work xil_defaultlib "glbl.v"
