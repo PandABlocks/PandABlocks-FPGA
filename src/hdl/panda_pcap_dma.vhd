@@ -93,6 +93,7 @@ signal reset                : std_logic;
 type pcap_fsm_t is (INIT, ACTV, DO_DMA, IS_FINISHED, IRQ, COMPLETED);
 signal pcap_fsm             : pcap_fsm_t;
 
+signal timeout_reset        : std_logic;
 signal timeout_counter      : unsigned(31 downto 0);
 signal pcap_timeout         : std_logic;
 
@@ -198,19 +199,13 @@ process(clk_i) begin
             pcap_timeout <= '0';
             timeout_counter <= (others => '0');
         else
-            if (unsigned(TIMEOUT) = 0) then
+            if (unsigned(TIMEOUT) = 0 or timeout_reset = '1') then
                 pcap_timeout <= '0';
-            elsif (pcap_fsm = ACTV and timeout_counter = unsigned(TIMEOUT) - 1) then
+            elsif (timeout_counter = unsigned(TIMEOUT) - 1) then
                 pcap_timeout <= '1';
-            elsif (pcap_fsm = IRQ) then
-                pcap_timeout <= '0';
-            else
-                pcap_timeout <= pcap_timeout;
             end if;
 
-            if (TIMEOUT_WSTB = '1') then
-                timeout_counter <= (others => '0');
-            elsif (pcap_fsm /= ACTV) then
+            if (TIMEOUT_WSTB = '1' or timeout_reset = '1') then
                 timeout_counter <= (others => '0');
             else
                 timeout_counter <= timeout_counter + 1;
@@ -259,6 +254,7 @@ if rising_edge(clk_i) then
         sample_count <= (others => '0');
         sample_count_latch <= (others => '0');
         fifo_reset <= '1';
+        timeout_reset <= '1';
     else
         case pcap_fsm is
             -- Wait Initialistion by kernel driver
@@ -273,6 +269,7 @@ if rising_edge(clk_i) then
                 if (DMA_INIT = '1') then
                     pcap_fsm <= ACTV;
                     fifo_reset <= '0';
+                    timeout_reset <= '0';
                 end if;
 
             -- Wait until FIFO has enough data worth for a AXI burst
@@ -366,6 +363,7 @@ if rising_edge(clk_i) then
                     end if;
                 elsif(pcap_timeout = '1' or switch_block = '1') then
                     dma_irq <= '1';
+                    timeout_reset <= '1';
                     tlp_count <= (others => '0');
 
                     -- Switch to next buffer when Timeout happens or current
@@ -390,6 +388,7 @@ if rising_edge(clk_i) then
             -- Set IRQ flag, and either continue or stop operation
             when IRQ =>
                 dma_irq <= '0';
+                timeout_reset <= '0';
                 next_dmaaddr_clear <= '0';
                 last_tlp <= '0';
                 irq_flags_latch <= irq_flags;
@@ -407,6 +406,7 @@ if rising_edge(clk_i) then
             -- Requires full DMA reset-init cycle.
             when COMPLETED =>
                 dma_irq <= '0';
+                timeout_reset <= '1';
                 next_dmaaddr_clear <= '0';
                 last_tlp <= '0';
                 irq_flags_latch <= irq_flags;
