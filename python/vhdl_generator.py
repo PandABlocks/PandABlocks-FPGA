@@ -48,8 +48,6 @@ def main():
                 if copy : tempreg.append(num)
             field.reg = tempreg
 
-
-
     variables = {"blocks": blocks}
     generateOutput('addr_defines_template', "addr_defines.vhd", variables)
     generateOutput('addr_defines_template_verilog', "addr_defines.v", variables)
