@@ -10,7 +10,7 @@ panda_top_tb tb(
     .ttlin_pad      ( ttlin_pad)
 );
 
-`define TESTNAME    "test.framing.v"
+`define TESTNAME    "test.driver.v"
 
 reg [ 1:0]      wrs, rsp;
 reg [31:0]      IRQ_STATUS;
@@ -50,7 +50,7 @@ initial begin
     wait(tb.uut.ps.tb_ARESETn === 1) @(posedge tb.uut.ps.FCLK);
 
     $display("Reset Done. Setting the Slave profiles \n");
-    tb.uut.ps.ps.ps.inst.set_slave_profile("S_AXI_HP0",2'b11);
+    tb.uut.ps.ps.ps.inst.set_slave_profile("S_AXI_HP0",2'b10);
     $display("Profile Done\n");
 
     tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h1);

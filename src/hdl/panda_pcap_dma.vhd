@@ -50,8 +50,8 @@ port (
     m_axi_awburst       : out std_logic_vector(1 downto 0);
     m_axi_awcache       : out std_logic_vector(3 downto 0);
     m_axi_awid          : out std_logic_vector(5 downto 0);
-    m_axi_awlen         : out std_logic_vector(7 downto 0);
-    m_axi_awlock        : out std_logic_vector(0 downto 0);
+    m_axi_awlen         : out std_logic_vector(3 downto 0);
+    m_axi_awlock        : out std_logic_vector(1 downto 0);
     m_axi_awprot        : out std_logic_vector(2 downto 0);
     m_axi_awqos         : out std_logic_vector(3 downto 0);
     m_axi_awsize        : out std_logic_vector(2 downto 0);

@@ -2,7 +2,6 @@ while (1) begin
     // Wait for DMA irq
     WAIT_IRQ(IRQ_STATUS);
 
-    repeat(1250) @(posedge tb.FCLK_CLK0);
     // Read IRQ Status and Sample Count Registers
     REG_READ(DRV_BASE, DRV_PCAP_IRQ_STATUS, IRQ_STATUS);
     SMPL_COUNT = IRQ_STATUS[31:8];

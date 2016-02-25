@@ -132,8 +132,6 @@ initial begin
     // Setup Position Capture
     REG_WRITE(REG_BASE, REG_PCAP_START_WRITE, 1);
     REG_WRITE(REG_BASE, REG_PCAP_WRITE, 12);    // counter #1
-    REG_WRITE(REG_BASE, REG_PCAP_WRITE, 13);    // counter #2
-    REG_WRITE(REG_BASE, REG_PCAP_WRITE, 15);    // counter #4
 
     REG_WRITE(PCAP_BASE, PCAP_ENABLE,  2);      // TTL #0
     REG_WRITE(PCAP_BASE, PCAP_FRAME,   3);      // TTL #1
@@ -151,7 +149,7 @@ initial begin
     addr = addr + tb.BLOCK_SIZE;                    //
     REG_WRITE(DRV_BASE, DRV_PCAP_DMA_ADDR, addr);   //
 
-    NUMSAMPLE = 100;
+    NUMSAMPLE = 16;
     ARMS = 1;
 fork
 

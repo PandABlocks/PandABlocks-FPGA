@@ -111,34 +111,6 @@ vlog -64 -incr -work axi_protocol_converter_v2_1  +incdir+${MODEL}/zynq_ps.srcs/
 
 vlog -64 -incr -work xil_defaultlib  +incdir+${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/processing_system7_bfm_v2_0/e69044ca/hdl +incdir+${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_infrastructure_v1_1/cf21a66f/hdl/verilog \
 "${MODEL}/zynq_ps.srcs/sources_1/bd/zynq_ps/ip/zynq_ps_auto_pc_0/sim/zynq_ps_auto_pc_0.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/bd/zynq_ps/ip/zynq_ps_auto_pc_1/sim/zynq_ps_auto_pc_1.v" \
-
-vlog -64 -incr -work axi_clock_converter_v2_1  +incdir+${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/processing_system7_bfm_v2_0/e69044ca/hdl +incdir+${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_infrastructure_v1_1/cf21a66f/hdl/verilog \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_clock_converter_v2_1/07772de4/hdl/verilog/axi_clock_converter_v2_1_axic_sync_clock_converter.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_clock_converter_v2_1/07772de4/hdl/verilog/axi_clock_converter_v2_1_axic_sample_cycle_ratio.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_clock_converter_v2_1/07772de4/hdl/verilog/axi_clock_converter_v2_1_axi_clock_converter.v" \
-
-vcom -64 -93 -work blk_mem_gen_v8_2  \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/blk_mem_gen_v8_2/834889ee/simulation/blk_mem_gen_v8_2.vhd" \
-
-vlog -64 -incr -work axi_dwidth_converter_v2_1  +incdir+${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/processing_system7_bfm_v2_0/e69044ca/hdl +incdir+${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_infrastructure_v1_1/cf21a66f/hdl/verilog \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_a_downsizer.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_b_downsizer.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_r_downsizer.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_w_downsizer.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_axi_downsizer.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_axi4lite_downsizer.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_axi4lite_upsizer.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_a_upsizer.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_r_upsizer.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_w_upsizer.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_w_upsizer_pktfifo.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_r_upsizer_pktfifo.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_axi_upsizer.v" \
-"${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_dwidth_converter_v2_1/d98fa611/hdl/verilog/axi_dwidth_converter_v2_1_top.v" \
-
-vlog -64 -incr -work xil_defaultlib  +incdir+${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/processing_system7_bfm_v2_0/e69044ca/hdl +incdir+${MODEL}/zynq_ps.srcs/sources_1/ipshared/xilinx.com/axi_infrastructure_v1_1/cf21a66f/hdl/verilog \
-"${MODEL}/zynq_ps.srcs/sources_1/bd/zynq_ps/ip/zynq_ps_auto_us_df_0/sim/zynq_ps_auto_us_df_0.v" \
 
 vcom -64 -93 -work xil_defaultlib  \
 "${MODEL}/zynq_ps.srcs/sources_1/bd/zynq_ps/hdl/zynq_ps.vhd" \

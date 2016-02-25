@@ -15,15 +15,15 @@ repeat(500) @(posedge tb.uut.ps.FCLK);
 // Setup a timer for capture input test
 REG_WRITE(COUNTER_BASE, COUNTER_ENABLE, 62);    // SEQ_ACTIVE
 REG_WRITE(COUNTER_BASE, COUNTER_TRIGGER, 38);   // SEQ_OUTA
-REG_WRITE(COUNTER_BASE, COUNTER_START, 100);
-REG_WRITE(COUNTER_BASE, COUNTER_STEP, 50);
+REG_WRITE(COUNTER_BASE, COUNTER_START, 0);
+REG_WRITE(COUNTER_BASE, COUNTER_STEP, 1);
 
 // Setup a sequencer to output 10 pulses with 200usec period.
 REG_WRITE(SEQ_BASE, SEQ_PRESCALE, 125);         // 1usec
 REG_WRITE(SEQ_BASE, SEQ_TABLE_CYCLE, 1);        // Don't repeat
 
 REG_WRITE(SEQ_BASE, SEQ_TABLE_START, 0);
-REG_WRITE(SEQ_BASE, SEQ_TABLE_DATA, 10);      // Repeats
+REG_WRITE(SEQ_BASE, SEQ_TABLE_DATA, 16);      // Repeats
 REG_WRITE(SEQ_BASE, SEQ_TABLE_DATA, 32'h1F003F00);
 REG_WRITE(SEQ_BASE, SEQ_TABLE_DATA, 1);         // 1us on
 REG_WRITE(SEQ_BASE, SEQ_TABLE_DATA, 1);         // 1us off
@@ -54,7 +54,7 @@ REG_WRITE(DRV_BASE, DRV_PCAP_DMA_ADDR, addr);   //
 
 repeat(1250) @(posedge tb.uut.ps.FCLK);
 
-ARMS = 2;
+ARMS = 1;
 
 fork
 

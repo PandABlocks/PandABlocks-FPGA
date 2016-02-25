@@ -74,77 +74,6 @@ end panda_top;
 
 architecture rtl of panda_top is
 
-component panda_ps is
-port (
-    FCLK_CLK0 : out STD_LOGIC;
-    FCLK_LEDS : out STD_LOGIC_VECTOR ( 31 downto 0 );
-    FCLK_RESET0_N : out STD_LOGIC_VECTOR ( 0 to 0 );
-    IRQ_F2P : in STD_LOGIC_VECTOR ( 0 to 0 );
-    S_AXI_HP0_awready : out STD_LOGIC;
-    S_AXI_HP0_awregion : in STD_LOGIC_vector(3 downto 0);
-    S_AXI_HP0_bvalid : out STD_LOGIC;
-    S_AXI_HP0_wready : out STD_LOGIC;
-    S_AXI_HP0_bresp : out STD_LOGIC_VECTOR ( 1 downto 0 );
-    S_AXI_HP0_bid : out STD_LOGIC_VECTOR ( 5 downto 0 );
-    S_AXI_HP0_awvalid : in STD_LOGIC;
-    S_AXI_HP0_bready : in STD_LOGIC;
-    S_AXI_HP0_wlast : in STD_LOGIC;
-    S_AXI_HP0_wvalid : in STD_LOGIC;
-    S_AXI_HP0_awburst : in STD_LOGIC_VECTOR ( 1 downto 0 );
-    S_AXI_HP0_awlock : in STD_LOGIC_VECTOR ( 0 downto 0 );
-    S_AXI_HP0_awsize : in STD_LOGIC_VECTOR ( 2 downto 0 );
-    S_AXI_HP0_awprot : in STD_LOGIC_VECTOR ( 2 downto 0 );
-    S_AXI_HP0_awaddr : in STD_LOGIC_VECTOR ( 31 downto 0 );
-    S_AXI_HP0_awcache : in STD_LOGIC_VECTOR ( 3 downto 0 );
-    S_AXI_HP0_awlen : in STD_LOGIC_VECTOR ( 7 downto 0 );
-    S_AXI_HP0_awqos : in STD_LOGIC_VECTOR ( 3 downto 0 );
-    S_AXI_HP0_awid : in STD_LOGIC_VECTOR ( 5 downto 0 );
-    S_AXI_HP0_wdata : in STD_LOGIC_VECTOR ( 31 downto 0 );
-    S_AXI_HP0_wstrb : in STD_LOGIC_VECTOR ( 3 downto 0 );
-    M00_AXI_awaddr : out STD_LOGIC_VECTOR ( 31 downto 0 );
-    M00_AXI_awprot : out STD_LOGIC_VECTOR ( 2 downto 0 );
-    M00_AXI_awvalid : out STD_LOGIC;
-    M00_AXI_awready : in STD_LOGIC;
-    M00_AXI_wdata : out STD_LOGIC_VECTOR ( 31 downto 0 );
-    M00_AXI_wstrb : out STD_LOGIC_VECTOR ( 3 downto 0 );
-    M00_AXI_wvalid : out STD_LOGIC;
-    M00_AXI_wready : in STD_LOGIC;
-    M00_AXI_bresp : in STD_LOGIC_VECTOR ( 1 downto 0 );
-    M00_AXI_bvalid : in STD_LOGIC;
-    M00_AXI_bready : out STD_LOGIC;
-    M00_AXI_araddr : out STD_LOGIC_VECTOR ( 31 downto 0 );
-    M00_AXI_arprot : out STD_LOGIC_VECTOR ( 2 downto 0 );
-    M00_AXI_arvalid : out STD_LOGIC;
-    M00_AXI_arready : in STD_LOGIC;
-    M00_AXI_rdata : in STD_LOGIC_VECTOR ( 31 downto 0 );
-    M00_AXI_rresp : in STD_LOGIC_VECTOR ( 1 downto 0 );
-    M00_AXI_rvalid : in STD_LOGIC;
-    M00_AXI_rready : out STD_LOGIC;
-    DDR_cas_n : inout STD_LOGIC;
-    DDR_cke : inout STD_LOGIC;
-    DDR_ck_n : inout STD_LOGIC;
-    DDR_ck_p : inout STD_LOGIC;
-    DDR_cs_n : inout STD_LOGIC;
-    DDR_reset_n : inout STD_LOGIC;
-    DDR_odt : inout STD_LOGIC;
-    DDR_ras_n : inout STD_LOGIC;
-    DDR_we_n : inout STD_LOGIC;
-    DDR_ba : inout STD_LOGIC_VECTOR ( 2 downto 0 );
-    DDR_addr : inout STD_LOGIC_VECTOR ( 14 downto 0 );
-    DDR_dm : inout STD_LOGIC_VECTOR ( 3 downto 0 );
-    DDR_dq : inout STD_LOGIC_VECTOR ( 31 downto 0 );
-    DDR_dqs_n : inout STD_LOGIC_VECTOR ( 3 downto 0 );
-    DDR_dqs_p : inout STD_LOGIC_VECTOR ( 3 downto 0 );
-    FIXED_IO_mio : inout STD_LOGIC_VECTOR ( 53 downto 0 );
-    FIXED_IO_ddr_vrn : inout STD_LOGIC;
-    FIXED_IO_ddr_vrp : inout STD_LOGIC;
-    FIXED_IO_ps_srstb : inout STD_LOGIC;
-    FIXED_IO_ps_clk : inout STD_LOGIC;
-    FIXED_IO_ps_porb : inout STD_LOGIC
-);
-end component panda_ps;
-
-
 component ila_0
 port (
     clk : in std_logic;
@@ -190,8 +119,8 @@ signal S_AXI_HP0_awaddr : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
 signal S_AXI_HP0_awburst : std_logic_vector(1 downto 0);
 signal S_AXI_HP0_awcache : std_logic_vector(3 downto 0);
 signal S_AXI_HP0_awid : std_logic_vector(5 downto 0);
-signal S_AXI_HP0_awlen : std_logic_vector(7 downto 0);
-signal S_AXI_HP0_awlock : std_logic_vector(0 downto 0);
+signal S_AXI_HP0_awlen : std_logic_vector(3 downto 0);
+signal S_AXI_HP0_awlock : std_logic_vector(1 downto 0);
 signal S_AXI_HP0_awprot : std_logic_vector(2 downto 0);
 signal S_AXI_HP0_awqos : std_logic_vector(3 downto 0);
 signal S_AXI_HP0_awsize : std_logic_vector(2 downto 0);
@@ -297,8 +226,7 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
 --
 -- Panda Processor System Block design instantiation
 --
---ps : entity work.panda_ps
-ps : panda_ps
+ps : entity work.panda_ps
 port map (
     FCLK_CLK0 => FCLK_CLK0,
     FCLK_RESET0_N => FCLK_RESET0_N,
@@ -351,24 +279,42 @@ port map (
     S_AXI_HP0_awaddr => S_AXI_HP0_awaddr ,
     S_AXI_HP0_awburst => S_AXI_HP0_awburst,
     S_AXI_HP0_awcache => S_AXI_HP0_awcache,
-    S_AXI_HP0_awid => S_AXI_HP0_awid ,
-    S_AXI_HP0_awlen => S_AXI_HP0_awlen ,
-    S_AXI_HP0_awlock => S_AXI_HP0_awlock ,
-    S_AXI_HP0_awprot => S_AXI_HP0_awprot ,
-    S_AXI_HP0_awqos => S_AXI_HP0_awqos ,
+    S_AXI_HP0_awid => S_AXI_HP0_awid,
+    S_AXI_HP0_awlen => S_AXI_HP0_awlen,
+    S_AXI_HP0_awlock => "00", --S_AXI_HP0_awlock,
+    S_AXI_HP0_awprot => S_AXI_HP0_awprot,
+    S_AXI_HP0_awqos => S_AXI_HP0_awqos,
     S_AXI_HP0_awready => S_AXI_HP0_awready,
-    S_AXI_HP0_awregion => S_AXI_HP0_awregion,
-    S_AXI_HP0_awsize => S_AXI_HP0_awsize ,
+    S_AXI_HP0_awsize => S_AXI_HP0_awsize,
     S_AXI_HP0_awvalid => S_AXI_HP0_awvalid,
-    S_AXI_HP0_bid => S_AXI_HP0_bid ,
-    S_AXI_HP0_bready => S_AXI_HP0_bready ,
-    S_AXI_HP0_bresp => S_AXI_HP0_bresp ,
-    S_AXI_HP0_bvalid => S_AXI_HP0_bvalid ,
-    S_AXI_HP0_wdata => S_AXI_HP0_wdata ,
-    S_AXI_HP0_wlast => S_AXI_HP0_wlast ,
-    S_AXI_HP0_wready => S_AXI_HP0_wready ,
-    S_AXI_HP0_wstrb => S_AXI_HP0_wstrb ,
-    S_AXI_HP0_wvalid => S_AXI_HP0_wvalid
+    S_AXI_HP0_bid => S_AXI_HP0_bid,
+    S_AXI_HP0_bready => S_AXI_HP0_bready,
+    S_AXI_HP0_bresp => S_AXI_HP0_bresp,
+    S_AXI_HP0_bvalid => S_AXI_HP0_bvalid,
+    S_AXI_HP0_wdata => S_AXI_HP0_wdata,
+    S_AXI_HP0_wid => (others => '0'),
+    S_AXI_HP0_wlast => S_AXI_HP0_wlast,
+    S_AXI_HP0_wready => S_AXI_HP0_wready,
+    S_AXI_HP0_wstrb => S_AXI_HP0_wstrb,
+    S_AXI_HP0_wvalid => S_AXI_HP0_wvalid,
+
+    S_AXI_HP0_araddr => (others => '0'),
+    S_AXI_HP0_arburst => (others => '0'),
+    S_AXI_HP0_arcache => (others => '0'),
+    S_AXI_HP0_arid => (others => '0'),
+    S_AXI_HP0_arlen => (others => '0'),
+    S_AXI_HP0_arlock => (others => '0'),
+    S_AXI_HP0_arprot => (others => '0'),
+    S_AXI_HP0_arqos => (others => '0'),
+    S_AXI_HP0_arsize => (others => '0'),
+    S_AXI_HP0_arvalid => '0',
+    S_AXI_HP0_rready => '0',
+    S_AXI_HP0_rdata => open,
+    S_AXI_HP0_rid => open,
+    S_AXI_HP0_rresp => open,
+    S_AXI_HP0_rvalid => open,
+    S_AXI_HP0_arready => open,
+    S_AXI_HP0_rlast => open
 );
 
 --

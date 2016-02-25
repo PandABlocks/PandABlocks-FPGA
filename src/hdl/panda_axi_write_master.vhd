@@ -32,8 +32,8 @@ port (
     m_axi_awburst       : out std_logic_vector(1 downto 0);
     m_axi_awcache       : out std_logic_vector(3 downto 0);
     m_axi_awid          : out std_logic_vector(5 downto 0);
-    m_axi_awlen         : out std_logic_vector(7 downto 0);
-    m_axi_awlock        : out std_logic_vector(0 downto 0);
+    m_axi_awlen         : out std_logic_vector(3 downto 0);
+    m_axi_awlock        : out std_logic_vector(1 downto 0);
     m_axi_awprot        : out std_logic_vector(2 downto 0);
     m_axi_awqos         : out std_logic_vector(3 downto 0);
     m_axi_awsize        : out std_logic_vector(2 downto 0);
@@ -79,13 +79,13 @@ M_AXI_AWREGION <= "0000";
 -- Single threaded
 M_AXI_AWID <= "000000";
 -- Burst LENgth is number of transaction beats, minus 1
-M_AXI_AWLEN <= TO_SVECTOR(AXI_BURST_LEN-1, 8);
+M_AXI_AWLEN <= TO_SVECTOR(AXI_BURST_LEN-1, 4);
 -- Size should be AXI_DATA_WIDTH, in 2^SIZE bytes
 M_AXI_AWSIZE <= TO_SVECTOR(LOG2(AXI_DATA_WIDTH/8), 3);
 -- INCR burst type is usually used, except for keyhole bursts
 M_AXI_AWBURST <= "01";
 -- AXI3 atomic access encoding for Normal acces
-M_AXI_AWLOCK <= "0";
+M_AXI_AWLOCK <= "00";
 -- Memory type encoding for 'Device Non-bufferable'
 M_AXI_AWCACHE <= "0010";
 -- Protection encoding for 'Non-secure access'

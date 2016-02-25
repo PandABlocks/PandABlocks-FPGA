@@ -49,23 +49,40 @@ entity panda_ps is
     M00_AXI_wready : in STD_LOGIC;
     M00_AXI_wstrb : out STD_LOGIC_VECTOR ( 3 downto 0 );
     M00_AXI_wvalid : out STD_LOGIC;
+    S_AXI_HP0_araddr : in STD_LOGIC_VECTOR ( 31 downto 0 );
+    S_AXI_HP0_arburst : in STD_LOGIC_VECTOR ( 1 downto 0 );
+    S_AXI_HP0_arcache : in STD_LOGIC_VECTOR ( 3 downto 0 );
+    S_AXI_HP0_arid : in STD_LOGIC_VECTOR ( 5 downto 0 );
+    S_AXI_HP0_arlen : in STD_LOGIC_VECTOR ( 3 downto 0 );
+    S_AXI_HP0_arlock : in STD_LOGIC_VECTOR ( 1 downto 0 );
+    S_AXI_HP0_arprot : in STD_LOGIC_VECTOR ( 2 downto 0 );
+    S_AXI_HP0_arqos : in STD_LOGIC_VECTOR ( 3 downto 0 );
+    S_AXI_HP0_arready : out STD_LOGIC;
+    S_AXI_HP0_arsize : in STD_LOGIC_VECTOR ( 2 downto 0 );
+    S_AXI_HP0_arvalid : in STD_LOGIC;
     S_AXI_HP0_awaddr : in STD_LOGIC_VECTOR ( 31 downto 0 );
     S_AXI_HP0_awburst : in STD_LOGIC_VECTOR ( 1 downto 0 );
     S_AXI_HP0_awcache : in STD_LOGIC_VECTOR ( 3 downto 0 );
     S_AXI_HP0_awid : in STD_LOGIC_VECTOR ( 5 downto 0 );
-    S_AXI_HP0_awlen : in STD_LOGIC_VECTOR ( 7 downto 0 );
-    S_AXI_HP0_awlock : in STD_LOGIC_VECTOR ( 0 downto 0 );
+    S_AXI_HP0_awlen : in STD_LOGIC_VECTOR ( 3 downto 0 );
+    S_AXI_HP0_awlock : in STD_LOGIC_VECTOR ( 1 downto 0 );
     S_AXI_HP0_awprot : in STD_LOGIC_VECTOR ( 2 downto 0 );
     S_AXI_HP0_awqos : in STD_LOGIC_VECTOR ( 3 downto 0 );
     S_AXI_HP0_awready : out STD_LOGIC;
-    S_AXI_HP0_awregion : in STD_LOGIC_VECTOR ( 3 downto 0 );
     S_AXI_HP0_awsize : in STD_LOGIC_VECTOR ( 2 downto 0 );
     S_AXI_HP0_awvalid : in STD_LOGIC;
     S_AXI_HP0_bid : out STD_LOGIC_VECTOR ( 5 downto 0 );
     S_AXI_HP0_bready : in STD_LOGIC;
     S_AXI_HP0_bresp : out STD_LOGIC_VECTOR ( 1 downto 0 );
     S_AXI_HP0_bvalid : out STD_LOGIC;
+    S_AXI_HP0_rdata : out STD_LOGIC_VECTOR ( 31 downto 0 );
+    S_AXI_HP0_rid : out STD_LOGIC_VECTOR ( 5 downto 0 );
+    S_AXI_HP0_rlast : out STD_LOGIC;
+    S_AXI_HP0_rready : in STD_LOGIC;
+    S_AXI_HP0_rresp : out STD_LOGIC_VECTOR ( 1 downto 0 );
+    S_AXI_HP0_rvalid : out STD_LOGIC;
     S_AXI_HP0_wdata : in STD_LOGIC_VECTOR ( 31 downto 0 );
+    S_AXI_HP0_wid : in STD_LOGIC_VECTOR ( 5 downto 0 );
     S_AXI_HP0_wlast : in STD_LOGIC;
     S_AXI_HP0_wready : out STD_LOGIC;
     S_AXI_HP0_wstrb : in STD_LOGIC_VECTOR ( 3 downto 0 );
@@ -129,7 +146,6 @@ port map (
     S_AXI_HP0_awprot    => S_AXI_HP0_awprot ,
     S_AXI_HP0_awqos     => S_AXI_HP0_awqos  ,
     S_AXI_HP0_awready   => S_AXI_HP0_awready,
-    S_AXI_HP0_awregion  => S_AXI_HP0_awregion,
     S_AXI_HP0_awsize    => S_AXI_HP0_awsize ,
     S_AXI_HP0_awvalid   => S_AXI_HP0_awvalid,
     S_AXI_HP0_bid       => S_AXI_HP0_bid    ,
@@ -141,6 +157,24 @@ port map (
     S_AXI_HP0_wready    => S_AXI_HP0_wready ,
     S_AXI_HP0_wstrb     => S_AXI_HP0_wstrb  ,
     S_AXI_HP0_wvalid    => S_AXI_HP0_wvalid ,
+    S_AXI_HP0_wid => (others => '0'),
+    S_AXI_HP0_araddr => (others => '0'),
+    S_AXI_HP0_arburst => (others => '0'),
+    S_AXI_HP0_arcache => (others => '0'),
+    S_AXI_HP0_arid => (others => '0'),
+    S_AXI_HP0_arlen => (others => '0'),
+    S_AXI_HP0_arlock => (others => '0'),
+    S_AXI_HP0_arprot => (others => '0'),
+    S_AXI_HP0_arqos => (others => '0'),
+    S_AXI_HP0_arsize => (others => '0'),
+    S_AXI_HP0_arvalid => '0',
+    S_AXI_HP0_rready => '0',
+    S_AXI_HP0_rdata => open,
+    S_AXI_HP0_rid => open,
+    S_AXI_HP0_rresp => open,
+    S_AXI_HP0_rvalid => open,
+    S_AXI_HP0_arready => open,
+    S_AXI_HP0_rlast => open,
 
     PS_CLK              => FCLK,
     PS_PORB             => tb_RESETn,

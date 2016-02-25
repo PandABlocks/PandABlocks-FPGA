@@ -34,7 +34,6 @@ signal act_i                : std_logic := '0';
 signal pulse_i              : std_logic := '0';
 
 signal S_AXI_HP0_awready    : std_logic := '1';
-signal S_AXI_HP0_awregion   : std_logic_vector(3 downto 0);
 signal S_AXI_HP0_bid        : std_logic_vector(5 downto 0) := (others => '0');
 signal S_AXI_HP0_bresp      : std_logic_vector(1 downto 0) := (others => '0');
 signal S_AXI_HP0_bvalid     : std_logic := '1';
@@ -43,8 +42,8 @@ signal S_AXI_HP0_awaddr     : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
 signal S_AXI_HP0_awburst    : std_logic_vector(1 downto 0);
 signal S_AXI_HP0_awcache    : std_logic_vector(3 downto 0);
 signal S_AXI_HP0_awid       : std_logic_vector(5 downto 0);
-signal S_AXI_HP0_awlen      : std_logic_vector(7 downto 0);
-signal S_AXI_HP0_awlock     : std_logic_vector(0 downto 0);
+signal S_AXI_HP0_awlen      : std_logic_vector(3 downto 0);
+signal S_AXI_HP0_awlock     : std_logic_vector(1 downto 0);
 signal S_AXI_HP0_awprot     : std_logic_vector(2 downto 0);
 signal S_AXI_HP0_awqos      : std_logic_vector(3 downto 0);
 signal S_AXI_HP0_awsize     : std_logic_vector(2 downto 0);
@@ -131,7 +130,6 @@ port map (
     S_AXI_HP0_awprot        => S_AXI_HP0_awprot ,
     S_AXI_HP0_awqos         => S_AXI_HP0_awqos  ,
     S_AXI_HP0_awready       => S_AXI_HP0_awready,
-    S_AXI_HP0_awregion      => S_AXI_HP0_awregion,
     S_AXI_HP0_awsize        => S_AXI_HP0_awsize ,
     S_AXI_HP0_awvalid       => S_AXI_HP0_awvalid,
     S_AXI_HP0_bid           => S_AXI_HP0_bid    ,
@@ -143,6 +141,24 @@ port map (
     S_AXI_HP0_wready        => S_AXI_HP0_wready ,
     S_AXI_HP0_wstrb         => S_AXI_HP0_wstrb  ,
     S_AXI_HP0_wvalid        => S_AXI_HP0_wvalid ,
+    S_AXI_HP0_wid => (others => '0'),
+    S_AXI_HP0_araddr => (others => '0'),
+    S_AXI_HP0_arburst => (others => '0'),
+    S_AXI_HP0_arcache => (others => '0'),
+    S_AXI_HP0_arid => (others => '0'),
+    S_AXI_HP0_arlen => (others => '0'),
+    S_AXI_HP0_arlock => (others => '0'),
+    S_AXI_HP0_arprot => (others => '0'),
+    S_AXI_HP0_arqos => (others => '0'),
+    S_AXI_HP0_arsize => (others => '0'),
+    S_AXI_HP0_arvalid => '0',
+    S_AXI_HP0_rready => '0',
+    S_AXI_HP0_rdata => open,
+    S_AXI_HP0_rid => open,
+    S_AXI_HP0_rresp => open,
+    S_AXI_HP0_rvalid => open,
+    S_AXI_HP0_arready => open,
+    S_AXI_HP0_rlast => open,
 
     PS_CLK                  => FCLK_CLK0,
     PS_PORB                 => tb_RESETn,
@@ -212,7 +228,6 @@ PORT MAP (
     m_axi_awprot                => S_AXI_HP0_awprot,
     m_axi_awqos                 => S_AXI_HP0_awqos,
     m_axi_awready               => S_AXI_HP0_awready,
-    m_axi_awregion              => S_AXI_HP0_awregion,
     m_axi_awsize                => S_AXI_HP0_awsize,
     m_axi_awvalid               => S_AXI_HP0_awvalid,
     m_axi_bid                   => S_AXI_HP0_bid,
