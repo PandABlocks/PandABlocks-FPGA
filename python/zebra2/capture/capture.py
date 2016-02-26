@@ -1,5 +1,5 @@
 #!/bin/env dls-python
-import sys, os
+import sys, os, re
 import socket
 from xml.parsers.expat import errors, ErrorString
 import datetime
@@ -8,6 +8,7 @@ from pkg_resources import require
 require("h5py")
 import h5py
 import numpy
+
 
 import xml.etree.ElementTree
 
@@ -30,36 +31,36 @@ class Capture(object):
         self.s.sendall(msg)
 
     def get_data(self):
+        input_string = ""
+        data_start = False
         while True:
             data_stream = self.s.recv(4096)
-            if self.parse_data(data_stream): break
+            input_string += data_stream
+            print data_stream.strip()
+            if data_stream == "OK\n" and data_start:
+                break
+            elif data_stream == "OK\n":
+                data_start = True
+        self.parse_data(input_string.split('\n'))
         self.close_connection()
         self.write_hdf5(self.data)
 
     def parse_data(self, data_stream):
-        finished = 0
+        header = ""
+        for line in data_stream:
+            if line.startswith("<"):
+                header += line
+            elif not line.startswith('OK') and line:
+                self.data.append(line.strip().split(" "))
         try:
             #get the header
-            root = xml.etree.ElementTree.fromstring(data_stream)
+            root = xml.etree.ElementTree.fromstring(header)
             # for data_stream in root.iter('data'):
             #     print "data", data_stream.attrib
             # for field in root.iter('field'):
             #     print "field", field.attrib
         except xml.etree.ElementTree.ParseError, e:
-            if ErrorString(e.code) == errors.XML_ERROR_SYNTAX:
-                #if it doesn't fit in the xml, check to see if we have the data
-                #if we receive OK and we have data, we have reached the end
-                if data_stream == 'OK\n' and self.data:
-                    print "END REACHED"
-                    finished = 1
-                elif data_stream != 'OK\n':
-                    # print "dATA", data_stream
-                    self.data.append(data_stream.strip().split(" "))
-                    print data_stream.strip()
-            else:
-                print 'EXCEPTION:', e
-                finished = 1
-        return finished
+            print 'EXCEPTION:', e
 
     def close_connection(self):
         self.s.close()
