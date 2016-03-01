@@ -59,7 +59,7 @@ PULSE[4]
     MISSED_CNT      read
 
 SEQ[4]
-    PRESCALE        param
+    PRESCALE        param       time
     TABLE_CYCLE     param
     ENABLE          param       bit_mux
     INPA            param       bit_mux
