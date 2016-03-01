@@ -17,12 +17,6 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
-    -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Block Parameters
 {%  for fieldname, field in block.fields.iteritems() %}
 {%      if field.cls in ['param', 'write'] %}
@@ -35,11 +29,21 @@ port (
     {{fieldname}}       : in  std_logic_vector(31 downto 0);
 {%      endif %}
 {%  endfor %}
+    -- Memory Bus Interface
+    mem_cs_i            : in  std_logic;
+    mem_wstb_i          : in  std_logic;
+    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
+    mem_dat_i           : in  std_logic_vector(31 downto 0);
+    mem_dat_o           : out std_logic_vector(31 downto 0)
 );
-end panda_pulse_ctrl;
-architecture rtl of panda_pulse_ctrl is
+end panda_{{block.name|lower}}_ctrl;
+architecture rtl of panda_{{block.name|lower}}_ctrl is
+
+signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
 
 begin
+
+mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Control System Interface
@@ -68,15 +72,15 @@ begin
                 -- Input Select Control Registers
 {%  for fieldname, field in block.fields.iteritems() %}
 {%      if field.cls in ['param', 'write'] %}
-                if (mem_addr_i = {{block.name}}_{{fieldname}}) then
+                if (mem_addr = {{block.name}}_{{fieldname}}) then
                     {{fieldname}} <= mem_dat_i;
                     {{fieldname}}_WSTB <= '1';
                 end if;
 {%      elif field.cls in ['time'] %}
-                if (mem_addr_i = {{block.name}}_{{fieldname}}_L) then
+                if (mem_addr = {{block.name}}_{{fieldname}}_L) then
                     {{fieldname}}(31 downto 0)<= mem_dat_i;
                 end if;
-                if (mem_addr_i = {{block.name}}_{{fieldname}}_H) then
+                if (mem_addr = {{block.name}}_{{fieldname}}_H) then
                     {{fieldname}}(63 downto 32)<= mem_dat_i;
                     {{fieldname}}_WSTB <= '1';
                 end if;
@@ -97,7 +101,7 @@ begin
         if (reset_i = '1') then
             mem_dat_o <= (others => '0');
         else
-            case (mem_addr_i) is
+            case (mem_addr) is
 {%  for fieldname, field in block.fields.iteritems() %}
 {%      if field.cls in ['read'] %}
                 when {{block.name}}_{{fieldname}} =>

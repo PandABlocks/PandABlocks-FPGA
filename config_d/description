@@ -38,7 +38,7 @@ DIV         Pulse divider
     ENABLE          Reset on falling edge, enable on rising
     OUTD            Divided pulse output
     OUTN            Non-divided pulse output
-    OUT             Internal counter value
+    COUNT           Internal counter value
 
 PULSE       One-shot pulse delay and stretch
     DELAY           Output pulse delay (0 for no delay)
