@@ -61,7 +61,7 @@ PULSE[4]
     MISSED_CNT      read
 
 SEQ[4]
-    PRESCALE        param
+    PRESCALE        param       time
     SOFT_GATE       write       bit
     TABLE_CYCLE     param
     GATE            param       bit_mux
