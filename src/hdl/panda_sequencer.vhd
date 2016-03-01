@@ -293,11 +293,13 @@ begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             presc_ce <= '0';
-            clk_cnt := (0=>'1', others => '0');
+            --clk_cnt := (0=>'1', others => '0');
+            clk_cnt := (others => '0');
         else
             if (presc_reset = '1') then
                 presc_ce <= '0';
-                clk_cnt := (0=>'1', others => '0');
+                --clk_cnt := (0=>'1', others => '0');
+                clk_cnt := (others => '0');
             elsif (clk_cnt =  unsigned(PRESCALE)-1) then
                 presc_ce <= '1';
                 clk_cnt := (others => '0');

@@ -69,6 +69,7 @@ end panda_pcap_dma;
 
 architecture rtl of panda_pcap_dma is
 
+constant AXI_BURST_WIDTH    : integer := LOG2(AXI_BURST_LEN);
 -- Number of byte per AXI burst
 constant BURST_LEN          : integer := AXI_BURST_LEN * AXI_ADDR_WIDTH/8;
 
@@ -87,7 +88,7 @@ port (
 end component;
 
 signal BLOCK_TLP_SIZE       : unsigned(31 downto 0);
-signal m_axi_burst_len      : std_logic_vector(7 downto 0) := TO_SVECTOR(AXI_BURST_LEN, 8);
+signal m_axi_burst_len      : std_logic_vector(AXI_BURST_WIDTH-1 downto 0) := TO_SVECTOR(AXI_BURST_LEN, AXI_BURST_WIDTH);
 signal reset                : std_logic;
 
 type pcap_fsm_t is (INIT, ACTV, DO_DMA, IS_FINISHED, IRQ, COMPLETED);
@@ -249,7 +250,7 @@ if rising_edge(clk_i) then
         irq_flags_latch <= (others => '0');
         axi_awaddr_val <= (others => '0');
         next_dmaaddr_clear <= '0';
-        m_axi_burst_len <= TO_SVECTOR(AXI_BURST_LEN, 8);
+        m_axi_burst_len <= TO_SVECTOR(AXI_BURST_LEN, AXI_BURST_WIDTH);
         tlp_count <= (others => '0');
         sample_count <= (others => '0');
         sample_count_latch <= (others => '0');
@@ -283,14 +284,14 @@ if rising_edge(clk_i) then
                     else
                         dma_start <= '1';
                         sample_count <= sample_count + fifo_count;
-                        m_axi_burst_len <= fifo_data_count(7 downto 0);
+                        m_axi_burst_len <= fifo_data_count(AXI_BURST_WIDTH-1 downto 0);
                         pcap_fsm <= DO_DMA;
                     end if;
                 -- More than 1 TLP in the queue. ???
                 elsif (fifo_count > AXI_BURST_LEN) then
                     dma_start <= '1';
                     sample_count <= sample_count + AXI_BURST_LEN;
-                    m_axi_burst_len <= TO_SVECTOR(AXI_BURST_LEN, 8);
+                    m_axi_burst_len <= TO_SVECTOR(AXI_BURST_LEN, AXI_BURST_WIDTH);
                     pcap_fsm <= DO_DMA;
                 -- If enable flag is de-asserted while DMAing the last
                 -- TLP, no need to do a 0 byte DMA
@@ -303,7 +304,7 @@ if rising_edge(clk_i) then
                     last_tlp <= '1';
                     dma_start <= '1';
                     sample_count <= sample_count + fifo_count;
-                    m_axi_burst_len <= fifo_data_count(7 downto 0);
+                    m_axi_burst_len <= fifo_data_count(AXI_BURST_WIDTH-1 downto 0);
                     pcap_fsm <= DO_DMA;
                 end if;
 
@@ -433,6 +434,7 @@ end generate;
 
 dma_write_master : entity work.panda_axi_write_master
 generic map (
+    AXI_BURST_WIDTH     => AXI_BURST_WIDTH,
     AXI_ADDR_WIDTH      => AXI_ADDR_WIDTH,
     AXI_DATA_WIDTH      => AXI_DATA_WIDTH
 )

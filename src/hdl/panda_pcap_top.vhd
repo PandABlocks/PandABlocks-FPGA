@@ -99,7 +99,7 @@ signal dma_fifo_reset   : std_logic;
 signal dma_full         : std_logic;
 signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_active      : std_logic;
-signal pcap_done   : std_logic;
+signal pcap_done        : std_logic;
 
 signal pcap_irq         : std_logic;
 signal irq              : std_logic;

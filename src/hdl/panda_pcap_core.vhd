@@ -85,7 +85,7 @@ port map (
 --
 -- Position Capture Data Processing
 --
-pcap_frame_inst : entity work.panda_pcap_frame
+pcap_frame : entity work.panda_pcap_frame
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

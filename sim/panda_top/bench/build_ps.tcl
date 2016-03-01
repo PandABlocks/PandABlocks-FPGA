@@ -22,6 +22,7 @@ set_property "board_part" "em.avnet.com:picozed_7030:part0:1.0" $obj
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj
+set_property "target_simulator" "Questa" $obj
 
 # Create block design
 # (THIS is exported from Vivado design tool)
@@ -43,6 +44,12 @@ set_property "top" "zynq_ps_wrapper" $obj
 # Generate Output Files
 generate_target all [get_files ./zynq_model/zynq_ps.srcs/sources_1/bd/zynq_ps/zynq_ps.bd]
 open_bd_design $origin_dir/zynq_model/zynq_ps.srcs/sources_1/bd/zynq_ps/zynq_ps.bd
+
+# Set 'sim_1' fileset properties
+set obj [get_filesets sim_1]
+set_property "top" "zynq_ps_wrapper" $obj
+
+launch_simulation -scripts_only
 
 # Report IP Status
 report_ip_status

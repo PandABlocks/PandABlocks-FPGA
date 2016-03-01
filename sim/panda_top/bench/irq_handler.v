@@ -26,7 +26,7 @@ while (1) begin
     end
     else if (IRQ_FLAGS[0] == 1'b1) begin
         $display("IRQ on COMPLETION with %d samples.", SMPL_COUNT);
-        $display("Completion Status = %d", IRQ_FLAGS);
+        $display("Completion Status = %02x", IRQ_FLAGS);
 
         // Read scattered data from host memory into a file.
         for (j=0; j<irq_count; j=j+1) begin

@@ -281,7 +281,7 @@ port map (
     S_AXI_HP0_awcache => S_AXI_HP0_awcache,
     S_AXI_HP0_awid => S_AXI_HP0_awid,
     S_AXI_HP0_awlen => S_AXI_HP0_awlen,
-    S_AXI_HP0_awlock => "00", --S_AXI_HP0_awlock,
+    S_AXI_HP0_awlock => S_AXI_HP0_awlock,
     S_AXI_HP0_awprot => S_AXI_HP0_awprot,
     S_AXI_HP0_awqos => S_AXI_HP0_awqos,
     S_AXI_HP0_awready => S_AXI_HP0_awready,
@@ -292,29 +292,10 @@ port map (
     S_AXI_HP0_bresp => S_AXI_HP0_bresp,
     S_AXI_HP0_bvalid => S_AXI_HP0_bvalid,
     S_AXI_HP0_wdata => S_AXI_HP0_wdata,
--- S_AXI_HP0_wid => (others => '0'),
     S_AXI_HP0_wlast => S_AXI_HP0_wlast,
     S_AXI_HP0_wready => S_AXI_HP0_wready,
     S_AXI_HP0_wstrb => S_AXI_HP0_wstrb,
     S_AXI_HP0_wvalid => S_AXI_HP0_wvalid
-
--- S_AXI_HP0_araddr => (others => '0'),
--- S_AXI_HP0_arburst => (others => '0'),
--- S_AXI_HP0_arcache => (others => '0'),
--- S_AXI_HP0_arid => (others => '0'),
--- S_AXI_HP0_arlen => (others => '0'),
--- S_AXI_HP0_arlock => (others => '0'),
--- S_AXI_HP0_arprot => (others => '0'),
--- S_AXI_HP0_arqos => (others => '0'),
--- S_AXI_HP0_arsize => (others => '0'),
--- S_AXI_HP0_arvalid => '0',
--- S_AXI_HP0_rready => '0',
--- S_AXI_HP0_rdata => open,
--- S_AXI_HP0_rid => open,
--- S_AXI_HP0_rresp => open,
--- S_AXI_HP0_rvalid => open,
--- S_AXI_HP0_arready => open,
--- S_AXI_HP0_rlast => open
 );
 
 --

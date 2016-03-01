@@ -130,7 +130,7 @@ process(clk_i) begin
                         end if;
 
                         -- DMA FIFO full;
-                        if (dma_full_i = '0') then
+                        if (dma_full_i = '1') then
                             pcap_status_o(2) <= '1';
                         end if;
                     end if;

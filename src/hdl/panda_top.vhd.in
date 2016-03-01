@@ -281,7 +281,7 @@ port map (
     S_AXI_HP0_awcache           => S_AXI_HP0_awcache,
     S_AXI_HP0_awid              => S_AXI_HP0_awid,
     S_AXI_HP0_awlen             => S_AXI_HP0_awlen,
-    S_AXI_HP0_awlock            => "00", --S_AXI_HP0_awlock,
+    S_AXI_HP0_awlock            => S_AXI_HP0_awlock,
     S_AXI_HP0_awprot            => S_AXI_HP0_awprot,
     S_AXI_HP0_awqos             => S_AXI_HP0_awqos,
     S_AXI_HP0_awready           => S_AXI_HP0_awready,

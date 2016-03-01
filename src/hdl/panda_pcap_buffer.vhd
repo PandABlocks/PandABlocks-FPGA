@@ -101,7 +101,7 @@ process(clk_i) begin
             end if;
 
             -- Ongoing flag runs while mask buffer is read through.
-            if (capture_i = '1') then
+            if (capture_i = '1' and ongoing_capture = '0') then
                 ongoing_capture <= '1';
             elsif (mask_addrb = mask_length - 1) then
                 ongoing_capture <= '0';

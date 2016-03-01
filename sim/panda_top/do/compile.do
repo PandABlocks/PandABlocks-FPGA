@@ -3,13 +3,9 @@ file delete -force read_from_hp1.txt
 set SRC {../../../src/hdl}
 set IP {../../../output/ip_repo}
 set MODEL {../../panda_top/bench/zynq_model}
-
 set SLOW {../../../../SlowFPGA/src/hdl}
 
-vlib work
-vlib msim
-
-#do bfm.do
+#do ../bench/zynq_model/zynq_ps.sim/sim_1/behav/zynq_ps_wrapper_compile.do
 
 # Compile Sources
 #

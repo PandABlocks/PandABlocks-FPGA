@@ -15,6 +15,7 @@ use work.top_defines.all;
 
 entity panda_axi_write_master is
 generic (
+    AXI_BURST_WIDTH     : integer := 4;
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32
 );
@@ -23,7 +24,7 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- AXI Transaction Parameters
-    m_axi_burst_len     : in  std_logic_vector(7 downto 0);
+    m_axi_burst_len     : in  std_logic_vector(3 downto 0);
     -- AXI HP Bus Write Only Interface
     m_axi_awready       : in  std_logic;
     m_axi_awregion      : out std_logic_vector(3 downto 0);
@@ -32,7 +33,7 @@ port (
     m_axi_awburst       : out std_logic_vector(1 downto 0);
     m_axi_awcache       : out std_logic_vector(3 downto 0);
     m_axi_awid          : out std_logic_vector(5 downto 0);
-    m_axi_awlen         : out std_logic_vector(3 downto 0);
+    m_axi_awlen         : out std_logic_vector(AXI_BURST_WIDTH-1 downto 0);
     m_axi_awlock        : out std_logic_vector(1 downto 0);
     m_axi_awprot        : out std_logic_vector(2 downto 0);
     m_axi_awqos         : out std_logic_vector(3 downto 0);
@@ -66,7 +67,7 @@ signal bready               : std_logic;
 signal wnext                : std_logic;
 signal aw_throttle          : std_logic;
 signal w_throttle           : std_logic;
-signal wlen_count           : unsigned(7 downto 0);
+signal wlen_count           : unsigned(AXI_BURST_WIDTH-1 downto 0);
 
 begin
 
@@ -86,8 +87,8 @@ M_AXI_AWSIZE <= TO_SVECTOR(LOG2(AXI_DATA_WIDTH/8), 3);
 M_AXI_AWBURST <= "01";
 -- AXI3 atomic access encoding for Normal acces
 M_AXI_AWLOCK <= "00";
--- Memory type encoding for 'Device Non-bufferable'
-M_AXI_AWCACHE <= "0010";
+-- Memory type encoding Not Allocated, Modifiable and Bufferable
+M_AXI_AWCACHE <= "0011";
 -- Protection encoding for 'Non-secure access'
 M_AXI_AWPROT <= "000";
 -- Not participating in any QoS scheme

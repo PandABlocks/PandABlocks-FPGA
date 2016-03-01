@@ -18,6 +18,11 @@ add wave -group "PCap Core" -radix decimal \
 "sim:/test/tb/uut/PCAP_GEN/pcap_inst/pcap_core/*"
 add wave -group "Arming" -radix decimal \
 "sim:/test/tb/uut/PCAP_GEN/pcap_inst/pcap_core/pcap_arming/*"
+add wave -group "Frame" -radix decimal \
+"sim:/test/tb/uut/PCAP_GEN/pcap_inst/pcap_core/pcap_frame/*"
+add wave -group "Buffer" -radix decimal \
+"sim:/test/tb/uut/PCAP_GEN/pcap_inst/pcap_core/pcap_buffer/*"
+
 
 add wave -divider {COUNTER}
 add wave -group "Block 0" -radix decimal \
