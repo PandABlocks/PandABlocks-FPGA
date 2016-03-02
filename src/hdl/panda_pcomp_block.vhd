@@ -36,92 +36,57 @@ architecture rtl of panda_pcomp_block is
 
 type state_t is (IDLE, POS, NEG);
 
-signal ENABLE_VAL       : std_logic_vector(SBUSBW-1 downto 0);
-signal POSN_VAL         : std_logic_vector(PBUSBW-1 downto 0);
+signal ENABLE_VAL       : std_logic_vector(31 downto 0);
+signal POSN_VAL         : std_logic_vector(31 downto 0);
 signal START            : std_logic_vector(31 downto 0);
 signal STEP             : std_logic_vector(31 downto 0);
 signal WIDTH            : std_logic_vector(31 downto 0);
 signal NUM              : std_logic_vector(31 downto 0);
-signal RELATIVE         : std_logic;
-signal DIR              : std_logic;
+signal RELATIVE         : std_logic_vector(31 downto 0);
+signal DIR              : std_logic_vector(31 downto 0);
 signal DELTAP           : std_logic_vector(31 downto 0);
+signal ERR              : std_logic_vector(31 downto 0);
 
 signal enable           : std_logic;
 signal posn             : std_logic_vector(31 downto 0);
 
-signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
-
 begin
-
--- Integer conversion for address.
-mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Control System Interface
 --
-REG_WRITE : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            ENABLE_VAL <= TO_SVECTOR(0, SBUSBW);
-            POSN_VAL <= (others => '0');
-            DIR <= '0';
-            START <= (others => '0');
-            STEP <= (others => '0');
-            WIDTH <= (others => '0');
-            NUM <= (others => '0');
-            RELATIVE <= '0';
-            DELTAP <= (others => '0');
-        else
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
-                -- Pulse start position
-                if (mem_addr = PCOMP_ENABLE) then
-                    ENABLE_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
+pcomp_ctrl : entity work.panda_pcomp_ctrl
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
 
-                -- Pulse start position
-                if (mem_addr = PCOMP_POSN) then
-                    POSN_VAL <= mem_dat_i(PBUSBW-1 downto 0);
-                end if;
+    mem_cs_i            => mem_cs_i,
+    mem_wstb_i          => mem_wstb_i,
+    mem_addr_i          => mem_addr_i,
+    mem_dat_i           => mem_dat_i,
 
-                -- Pulse start position
-                if (mem_addr = PCOMP_START) then
-                    START <= mem_dat_i;
-                end if;
-
-                -- Pulse step value
-                if (mem_addr = PCOMP_STEP) then
-                    STEP <= mem_dat_i;
-                end if;
-
-                -- Pulse width value
-                if (mem_addr = PCOMP_WIDTH) then
-                    WIDTH <= mem_dat_i;
-                end if;
-
-                -- Pulse count value
-                if (mem_addr = PCOMP_PNUM) then
-                    NUM <= mem_dat_i;
-                end if;
-
-                -- PComp relative flag
-                if (mem_addr = PCOMP_RELATIVE) then
-                    RELATIVE <= mem_dat_i(0);
-                end if;
-
-                -- PComp direction flag
-                if (mem_addr = PCOMP_DIR) then
-                    DIR <= mem_dat_i(0);
-                end if;
-
-                -- Start DeltaP value
-                if (mem_addr = PCOMP_DELTAP) then
-                    DELTAP <= mem_dat_i;
-                end if;
-            end if;
-        end if;
-    end if;
-end process;
+    START               => START,
+    START_WSTB          => open,
+    STEP                => STEP,
+    STEP_WSTB           => open,
+    WIDTH               => WIDTH,
+    WIDTH_WSTB          => open,
+    PNUM                => NUM,
+    PNUM_WSTB           => open,
+    RELATIVE            => RELATIVE,
+    RELATIVE_WSTB       => open,
+    DIR                 => DIR,
+    DIR_WSTB            => open,
+    DELTAP              => DELTAP,
+    DELTAP_WSTB         => open,
+    USE_TABLE           => open,
+    USE_TABLE_WSTB      => open,
+    ENABLE              => ENABLE_VAL,
+    ENABLE_WSTB         => open,
+    INP                 => POSN_VAL,
+    INP_WSTB            => open,
+    ERROR               => ERR
+);
 
 --
 -- Design Bus Assignments
@@ -129,8 +94,8 @@ end process;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        enable <= SBIT(sysbus_i, ENABLE_VAL);
-        posn <= PFIELD(posbus_i, POSN_VAL);
+        enable <= SBIT(sysbus_i, ENABLE_VAL(SBUSBW-1 downto 0));
+        posn <= PFIELD(posbus_i, POSN_VAL(PBUSBW-1 downto 0));
     end if;
 end process;
 
@@ -149,8 +114,8 @@ port map (
     STEP                => STEP,
     WIDTH               => WIDTH,
     NUM                 => NUM,
-    RELATIVE            => RELATIVE,
-    DIR                 => DIR,
+    RELATIVE            => RELATIVE(0),
+    DIR                 => DIR(0),
     DELTAP              => DELTAP,
 
     act_o               => act_o,

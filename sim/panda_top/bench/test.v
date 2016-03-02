@@ -1,6 +1,6 @@
 module test;
 
-`include "./addr_defines.v"
+`include "../../../src/hdl/autogen/addr_defines.v"
 `include "./apis_tb.v"
 
 // Inputs to testbench

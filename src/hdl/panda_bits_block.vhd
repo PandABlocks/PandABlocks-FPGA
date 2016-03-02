@@ -42,47 +42,35 @@ end panda_bits_block;
 
 architecture rtl of panda_bits_block is
 
-signal SOFTA_SET        : std_logic := '0';
-signal SOFTB_SET        : std_logic := '0';
-signal SOFTC_SET        : std_logic := '0';
-signal SOFTD_SET        : std_logic := '0';
-
-signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
+signal A                : std_logic_vector(31 downto 0);
+signal B                : std_logic_vector(31 downto 0);
+signal C                : std_logic_vector(31 downto 0);
+signal D                : std_logic_vector(31 downto 0);
 
 begin
-
--- Integer conversion for address.
-mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Control System Interface
 --
-REG_WRITE : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-        else
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
-                -- Input Select Control Registers
-                if (mem_addr = BITS_A_SET) then
-                    SOFTA_SET <= mem_dat_i(0);
-                end if;
+bits_ctrl : entity work.panda_bits_ctrl
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
 
-                if (mem_addr = BITS_B_SET) then
-                    SOFTB_SET <= mem_dat_i(0);
-                end if;
+    mem_cs_i            => mem_cs_i,
+    mem_wstb_i          => mem_wstb_i,
+    mem_addr_i          => mem_addr_i,
+    mem_dat_i           => mem_dat_i,
 
-                if (mem_addr = BITS_C_SET) then
-                    SOFTC_SET <= mem_dat_i(0);
-                end if;
-
-                if (mem_addr = BITS_D_SET) then
-                    SOFTD_SET <= mem_dat_i(0);
-                end if;
-            end if;
-        end if;
-    end if;
-end process;
+    A                   => A,
+    A_WSTB              => open,
+    B                   => B,
+    B_WSTB              => open,
+    C                   => C,
+    C_WSTB              => open,
+    D                   => D,
+    D_WSTB              => open
+);
 
 --
 -- Block instantiation.
@@ -99,10 +87,10 @@ port map (
     softc_o             => bits_c_o,
     softd_o             => bits_d_o,
 
-    SOFTA_SET           => SOFTA_SET,
-    SOFTB_SET           => SOFTB_SET,
-    SOFTC_SET           => SOFTC_SET,
-    SOFTD_SET           => SOFTD_SET
+    SOFTA_SET           => A(0),
+    SOFTB_SET           => B(0),
+    SOFTC_SET           => C(0),
+    SOFTD_SET           => D(0)
 );
 
 end rtl;

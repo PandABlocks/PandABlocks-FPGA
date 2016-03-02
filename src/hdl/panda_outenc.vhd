@@ -21,6 +21,7 @@ port (
     z_i                 : in  std_logic;
     conn_i              : in  std_logic;
     posn_i              : in  std_logic_vector(31 downto 0);
+    enable_i            : in  std_logic;
     -- Encoder I/O Pads
     a_o                 : out std_logic;
     b_o                 : out std_logic;
@@ -33,10 +34,8 @@ port (
     -- Block parameters
     PROTOCOL            : in  std_logic_vector(2 downto 0);
     BITS                : in  std_logic_vector(7 downto 0);
-    QPRESCALAR          : in  std_logic_vector(15 downto 0);
-    FORCE_QSTATE        : in  std_logic;
-    FORCE_QSTATE_WSTB   : in  std_logic;
-    QSTATE              : out std_logic;
+    QPERIOD             : in  std_logic_vector(15 downto 0);
+    QSTATE              : out std_logic_vector(31 downto 0);
     -- Status interface
     enc_mode_o          : out encmode_t;
     iobuf_ctrl_o        : out std_logic_vector(2 downto 0)
@@ -101,11 +100,10 @@ panda_quadout_inst : entity work.panda_quadout
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
-    qenc_presc_i    => QPRESCALAR,
-    force_val_i     => FORCE_QSTATE,
-    force_wstb_i    => FORCE_QSTATE_WSTB,
+    enable_i        => enable_i,
+    QPERIOD         => QPERIOD,
     posn_i          => posn_i,
-    qstate_o        => QSTATE,
+    QSTATE          => QSTATE,
     a_o             => quad_a,
     b_o             => quad_b
 );

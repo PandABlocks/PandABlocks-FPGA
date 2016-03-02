@@ -52,22 +52,25 @@ end entity;
 architecture rtl of panda_inenc_block is
 
 -- Block Configuration Registers
-signal PROTOCOL         : std_logic_vector(2 downto 0);
-signal CLKRATE          : std_logic_vector(31 downto 0);
-signal FRAMERATE        : std_logic_vector(31 downto 0);
-signal BITS             : std_logic_vector(7 downto 0);
+signal PROTOCOL         : std_logic_vector(31 downto 0);
+signal CLK_PERIOD       : std_logic_vector(31 downto 0);
+signal FRAME_PERIOD     : std_logic_vector(31 downto 0);
+signal BITS             : std_logic_vector(31 downto 0);
 signal SETP             : std_logic_vector(31 downto 0);
 signal SETP_WSTB        : std_logic;
-signal RST_ON_Z         : std_logic;
+signal RST_ON_Z         : std_logic_vector(31 downto 0);
+signal EXTENSION        : std_logic_vector(31 downto 0);
+signal ERR_FRAME        : std_logic_vector(31 downto 0);
+signal ERR_RESPONSE     : std_logic_vector(31 downto 0);
+signal ENC_STATUS       : std_logic_vector(31 downto 0);
 
 signal reset            : std_logic;
 signal slow             : slow_packet;
 
-signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
+signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
 
 begin
 
--- Integer conversion for address.
 mem_addr <= to_integer(unsigned(mem_addr_i));
 
 -- A write to a configuration register initiates a reset on the core
@@ -75,52 +78,36 @@ mem_addr <= to_integer(unsigned(mem_addr_i));
 reset <= reset_i or (mem_cs_i and mem_wstb_i);
 
 --
--- Configuration Register Read
+-- Control System Interface
 --
-REG_WRITE : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            PROTOCOL  <= "000";
-            CLKRATE   <= (others => '0');
-            FRAMERATE <= (others => '0');
-            BITS      <= (others => '0');
-            SETP      <= (others => '0');
-            SETP_WSTB <= '0';
-            RST_ON_Z  <= '0';
-        else
-            -- Setpoint write strobe
-            SETP_WSTB <= '0';
+inenc_ctrl : entity work.panda_inenc_ctrl
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
 
-             if (mem_cs_i = '1' and mem_wstb_i = '1') then
-                if (mem_addr = INENC_PROTOCOL) then
-                    PROTOCOL <= mem_dat_i(2 downto 0);
-                end if;
+    mem_cs_i            => mem_cs_i,
+    mem_wstb_i          => mem_wstb_i,
+    mem_addr_i          => mem_addr_i,
+    mem_dat_i           => mem_dat_i,
+    mem_dat_o           => open,
 
-                if (mem_addr = INENC_CLKRATE) then
-                    CLKRATE <= mem_dat_i;
-                end if;
-
-                if (mem_addr = INENC_FRAMERATE) then
-                    FRAMERATE <= mem_dat_i;
-                end if;
-
-                if (mem_addr = INENC_BITS) then
-                    BITS <= mem_dat_i(7 downto 0);
-                end if;
-
-                if (mem_addr = INENC_SETP) then
-                    SETP <= mem_dat_i(31 downto 0);
-                    SETP_WSTB <= '1';
-                end if;
-
-                if (mem_addr = INENC_RST_ON_Z) then
-                    RST_ON_Z <= mem_dat_i(0);
-                end if;
-           end if;
-        end if;
-    end if;
-end process;
+    PROTOCOL            => PROTOCOL,
+    PROTOCOL_WSTB       => open,
+    CLK_PERIOD          => CLK_PERIOD,
+    CLK_PERIOD_WSTB     => open,
+    FRAME_PERIOD        => FRAME_PERIOD,
+    FRAME_PERIOD_WSTB   => open,
+    BITS                => BITS,
+    BITS_WSTB           => open,
+    SETP                => SETP,
+    SETP_WSTB           => SETP_WSTB,
+    RST_ON_Z            => RST_ON_Z,
+    RST_ON_Z_WSTB       => open,
+    EXTENSION           => EXTENSION,
+    ERR_FRAME           => ERR_FRAME,
+    ERR_RESPONSE        => ERR_RESPONSE,
+    ENC_STATUS          => ENC_STATUS
+);
 
 panda_inenc_inst : entity work.panda_inenc
 port map (
@@ -141,13 +128,13 @@ port map (
     z_o                 => z_o,
     conn_o              => conn_o,
     -- Block Parameters
-    PROTOCOL            => PROTOCOL,
-    CLKRATE             => CLKRATE,
-    FRAMERATE           => FRAMERATE,
-    BITS                => BITS,
+    PROTOCOL            => PROTOCOL(2 downto 0),
+    CLKRATE             => CLK_PERIOD,
+    FRAMERATE           => FRAME_PERIOD,
+    BITS                => BITS(7 downto 0),
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
-    RST_ON_Z            => RST_ON_Z,
+    RST_ON_Z            => RST_ON_Z(0),
     -- Status
     posn_o              => posn_o,
     iobuf_ctrl_o        => iobuf_ctrl_o

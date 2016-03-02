@@ -51,7 +51,6 @@ localparam DRV_PCAP_DMA_START = 1;
 localparam DRV_PCAP_DMA_ADDR = 2;
 localparam DRV_PCAP_TIMEOUT = 3;
 localparam DRV_PCAP_IRQ_STATUS = 4;
-localparam DRV_PCAP_SMPL_COUNT = 5;
 localparam DRV_PCAP_BLOCK_SIZE = 6;
 
 // TTLIN Block:
@@ -84,9 +83,8 @@ localparam SRGATE_RST = 1;
 // DIV Block:
 localparam DIV_DIVISOR = 2;
 localparam DIV_FIRST_PULSE = 3;
-localparam DIV_FORCE_RST = 5;
 localparam DIV_INP = 0;
-localparam DIV_RST = 1;
+localparam DIV_ENABLE = 1;
 localparam DIV_COUNT = 4;
 
 // PULSE Block:
@@ -94,9 +92,8 @@ localparam PULSE_DELAY_L = 3;
 localparam PULSE_DELAY_H = 2;
 localparam PULSE_WIDTH_L = 5;
 localparam PULSE_WIDTH_H = 4;
-localparam PULSE_FORCE_RST = 6;
 localparam PULSE_INP = 0;
-localparam PULSE_RST = 1;
+localparam PULSE_ENABLE = 1;
 localparam PULSE_ERR_OVERFLOW = 7;
 localparam PULSE_ERR_PERIOD = 8;
 localparam PULSE_QUEUE = 9;
@@ -104,9 +101,8 @@ localparam PULSE_MISSED_CNT = 10;
 
 // SEQ Block:
 localparam SEQ_PRESCALE = 5;
-localparam SEQ_SOFT_GATE = 6;
 localparam SEQ_TABLE_CYCLE = 8;
-localparam SEQ_GATE = 0;
+localparam SEQ_ENABLE = 0;
 localparam SEQ_INPA = 1;
 localparam SEQ_INPB = 2;
 localparam SEQ_INPC = 3;
@@ -114,19 +110,21 @@ localparam SEQ_INPD = 4;
 localparam SEQ_CUR_FRAME = 9;
 localparam SEQ_CUR_FCYCLE = 10;
 localparam SEQ_CUR_TCYCLE = 11;
-localparam SEQ_TABLE_STROBES = 12;
 localparam SEQ_TABLE_START = 13;
 localparam SEQ_TABLE_DATA = 14;
 localparam SEQ_TABLE_LENGTH = 15;
 
 // INENC Block:
 localparam INENC_PROTOCOL = 0;
-localparam INENC_CLKRATE = 1;
-localparam INENC_FRAMERATE = 2;
+localparam INENC_CLK_PERIOD = 1;
+localparam INENC_FRAME_PERIOD = 2;
 localparam INENC_BITS = 3;
 localparam INENC_SETP = 4;
 localparam INENC_RST_ON_Z = 5;
 localparam INENC_EXTENSION = 6;
+localparam INENC_ERR_FRAME = 7;
+localparam INENC_ERR_RESPONSE = 8;
+localparam INENC_ENC_STATUS = 9;
 
 // QDEC Block:
 localparam QDEC_RST_ON_Z = 3;
@@ -138,39 +136,41 @@ localparam QDEC_Z = 2;
 // OUTENC Block:
 localparam OUTENC_PROTOCOL = 5;
 localparam OUTENC_BITS = 6;
-localparam OUTENC_QPRESCALAR = 7;
-localparam OUTENC_FORCE_QSTATE = 8;
+localparam OUTENC_QPERIOD = 7;
+localparam OUTENC_ENABLE = 8;
 localparam OUTENC_A = 0;
 localparam OUTENC_B = 1;
 localparam OUTENC_Z = 2;
-localparam OUTENC_POSN = 4;
+localparam OUTENC_VAL = 4;
 localparam OUTENC_CONN = 3;
 localparam OUTENC_QSTATE = 9;
 
 // POSENC Block:
-localparam POSENC_POSN = 0;
-localparam POSENC_QPRESCALAR = 1;
-localparam POSENC_MODE = 2;
-localparam POSENC_FORCE_QSTATE = 3;
+localparam POSENC_INP = 0;
+localparam POSENC_QPERIOD = 1;
+localparam POSENC_ENABLE = 3;
+localparam POSENC_PROTOCOL = 2;
 localparam POSENC_QSTATE = 4;
 
 // ADDER Block:
-localparam ADDER_MASK = 1;
-localparam ADDER_OUTSCALE = 2;
+localparam ADDER_INPA = 0;
+localparam ADDER_INPB = 1;
+localparam ADDER_INPC = 2;
+localparam ADDER_INPD = 3;
+localparam ADDER_SCALE = 4;
 
 // COUNTER Block:
 localparam COUNTER_DIR = 2;
 localparam COUNTER_START = 3;
 localparam COUNTER_STEP = 4;
 localparam COUNTER_ENABLE = 0;
-localparam COUNTER_TRIGGER = 1;
+localparam COUNTER_TRIG = 1;
 
 // PGEN Block:
-localparam PGEN_SAMPLES = 2;
 localparam PGEN_CYCLES = 3;
 localparam PGEN_ENABLE = 0;
-localparam PGEN_TRIGGER = 1;
-localparam PGEN_TABLE_START = 4;
+localparam PGEN_TRIG = 1;
+localparam PGEN_TABLE_ADDRESS = 4;
 localparam PGEN_TABLE_LENGTH = 5;
 
 // PCOMP Block:
@@ -181,30 +181,26 @@ localparam PCOMP_PNUM = 5;
 localparam PCOMP_RELATIVE = 6;
 localparam PCOMP_DIR = 7;
 localparam PCOMP_DELTAP = 8;
-localparam PCOMP_LUT_ENABLE = 10;
+localparam PCOMP_USE_TABLE = 10;
 localparam PCOMP_ENABLE = 0;
-localparam PCOMP_POSN = 1;
+localparam PCOMP_INP = 1;
 localparam PCOMP_ERROR = 14;
-localparam PCOMP_TABLE_START = 11;
+localparam PCOMP_TABLE_ADDRESS = 11;
 localparam PCOMP_TABLE_LENGTH = 12;
 
 // ADC Block:
-localparam ADC_TRIGGER = 0;
-localparam ADC_RST = 1;
 
 // PCAP Block:
 localparam PCAP_ENABLE = 0;
 localparam PCAP_FRAME = 1;
 localparam PCAP_CAPTURE = 2;
-localparam PCAP_MISSED_CAPTURES = 3;
 localparam PCAP_ERR_STATUS = 4;
-localparam PCAP_IRQ = 5;
 
 // BITS Block:
-localparam BITS_A_SET = 0;
-localparam BITS_B_SET = 1;
-localparam BITS_C_SET = 2;
-localparam BITS_D_SET = 3;
+localparam BITS_A = 0;
+localparam BITS_B = 1;
+localparam BITS_C = 2;
+localparam BITS_D = 3;
 
 // CLOCKS Block:
 localparam CLOCKS_A_PERIOD = 0;

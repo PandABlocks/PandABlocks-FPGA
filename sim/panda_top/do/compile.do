@@ -11,14 +11,22 @@ set SLOW {../../../../SlowFPGA/src/hdl}
 #
 vcom -64 -93 -work xil_defaultlib  \
 "../bench/panda_ps_wrapper.vhd" \
+"${SRC}/autogen/addr_defines.vhd" \
+"${SRC}/autogen/panda_busses.vhd" \
+"${SRC}/autogen/panda_div_ctrl.vhd" \
+"${SRC}/autogen/panda_pulse_ctrl.vhd" \
+"${SRC}/autogen/panda_seq_ctrl.vhd" \
+"${SRC}/autogen/panda_inenc_ctrl.vhd" \
+"${SRC}/autogen/panda_outenc_ctrl.vhd" \
+"${SRC}/autogen/panda_counter_ctrl.vhd" \
+"${SRC}/autogen/panda_pcomp_ctrl.vhd" \
+"${SRC}/autogen/panda_bits_ctrl.vhd" \
 "${IP}/pcap_dma_fifo/sim/pcap_dma_fifo.vhd"\
 "${IP}/pulse_queue/sim/pulse_queue.vhd"\
 "${SRC}/defines/type_defines.vhd" \
-"${SRC}/defines/addr_defines.vhd" \
 "${SRC}/defines/top_defines.vhd" \
 "${SRC}/defines/panda_version.vhd" \
 "${SRC}/pulse2pulse.vhd" \
-"${SRC}/panda_busses.vhd" \
 "${SRC}/panda_csr_if.vhd" \
 "${SRC}/panda_ttlout_block.vhd" \
 "${SRC}/panda_ttlout_top.vhd" \

@@ -9,6 +9,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.type_defines.all;
+
 entity panda_pulse is
 port (
     -- Clock and Reset
@@ -16,17 +19,18 @@ port (
     reset_i             : in  std_logic;
     -- Block Input and Outputs
     inp_i               : in  std_logic;
-    rst_i               : in  std_logic;
+    enable_i            : in  std_logic;
     out_o               : out std_logic;
     perr_o              : out std_logic;
     -- Block Parameters
     DELAY               : in  std_logic_vector(47 downto 0);
+    DELAY_WSTB          : in  std_logic;
     WIDTH               : in  std_logic_vector(47 downto 0);
-    FORCE_RST           : in  std_logic;
+    WIDTH_WSTB          : in  std_logic;
     -- Block Status
-    ERR_OVERFLOW        : out std_logic;
-    ERR_PERIOD          : out std_logic;
-    QUEUE               : out std_logic_vector(10 downto 0);
+    ERR_OVERFLOW        : out std_logic_vector(31 downto 0);
+    ERR_PERIOD          : out std_logic_vector(31 downto 0);
+    QUEUE               : out std_logic_vector(31 downto 0);
     MISSED_CNT          : out std_logic_vector(31 downto 0)
 );
 end panda_pulse;
@@ -62,8 +66,6 @@ signal inp_rise                 : std_logic;
 signal inp_fall                 : std_logic;
 signal ongoing_pulse            : std_logic;
 
-signal rst_prev                 : std_logic;
-signal rst_rise                 : std_logic;
 signal reset                    : std_logic;
 signal pulse                    : std_logic;
 
@@ -97,18 +99,13 @@ process(clk_i)
 begin
     if rising_edge(clk_i) then
         inp_prev <= inp_i;
-        rst_prev <= rst_i;
         DELAY_prev <= DELAY;
         WIDTH_prev <= WIDTH;
     end if;
 end process;
 
 -- Initial/Bitbus/Config Reset combined
-rst_rise <= rst_i and not rst_prev;
-
-config_reset <= '1' when (DELAY /= DELAY_prev or WIDTH /= WIDTH_prev)
-                    else '0';
-reset <= rst_rise or FORCE_RST or config_reset or reset_i;
+reset <= reset_i or DELAY_WSTB or WIDTH_WSTB or not enable_i;
 
 -- Free running global timestamp counter, it will be the time resolution
 -- for pulse generation.
@@ -181,8 +178,8 @@ begin
             ongoing_pulse <= '0';
             pulse_queue_wstb <= '0';
             inp_rise_prev <= '0';
-            ERR_OVERFLOW <= '0';
-            ERR_PERIOD <= '0';
+            ERR_OVERFLOW <= (others => '0');
+            ERR_PERIOD <= (others => '0');
             missed_pulses <= (others => '0');
             timestamp_prev <= (others => '0');
             queue_din <= (others => '0');
@@ -210,13 +207,13 @@ begin
             -- Queue full confition flags an error, and ticks missing pulse
             -- counter.
             if (inp_rise = '1' and pulse_queue_full = '1') then
-                ERR_OVERFLOW <= '1';
+                ERR_OVERFLOW(0) <= '1';
                 missed_pulses <= missed_pulses + 1;
                 perr_o <= '1';
             -- Pulse period must obey Xilinx FIFO IP latency following the first
             -- pulse.
             elsif (inp_rise = '1' and period_error = '1') then
-                ERR_PERIOD <= '1';
+                ERR_PERIOD(0) <= '1';
                 missed_pulses <= missed_pulses + 1;
                 perr_o <= '1';
             end if;
@@ -286,6 +283,6 @@ out_o <= pulse;
 
 -- Output assignments.
 MISSED_CNT <= std_logic_vector(missed_pulses);
-QUEUE <= pulse_queue_data_count;
+QUEUE <= ZEROS(32-pulse_queue_data_count'length) &  pulse_queue_data_count;
 
 end rtl;

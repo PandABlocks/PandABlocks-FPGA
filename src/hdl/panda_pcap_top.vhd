@@ -67,7 +67,6 @@ architecture rtl of panda_pcap_top is
 signal ENABLE_VAL       : std_logic_vector(SBUSBW-1 downto 0);
 signal FRAME_VAL        : std_logic_vector(SBUSBW-1 downto 0);
 signal CAPTURE_VAL      : std_logic_vector(SBUSBW-1 downto 0);
-signal IRQ_VAL          : std_logic_vector(SBUSBW-1 downto 0);
 signal ERR_STATUS       : std_logic_vector(31 downto 0);
 
 signal ARM              : std_logic;
@@ -101,11 +100,6 @@ signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_active      : std_logic;
 signal pcap_done        : std_logic;
 
-signal pcap_irq         : std_logic;
-signal irq              : std_logic;
-signal irq_prev         : std_logic;
-signal irq_rise         : std_logic;
-
 begin
 
 pcap_actv_o <= pcap_active;
@@ -114,17 +108,10 @@ pcap_actv_o <= pcap_active;
 process(clk_i) begin
     if rising_edge(clk_i) then
         enable <= SBIT(sysbus_i, ENABLE_VAL);
-        -- Mask all triggers with enable input.
         capture <= SBIT(sysbus_i, CAPTURE_VAL);
         frame <= SBIT(sysbus_i, FRAME_VAL);
-        --
-        irq <= SBIT(sysbus_i, IRQ_VAL);
-        irq_prev <= irq;
     end if;
 end process;
-
-irq_rise <= irq and not irq_prev;
-pcap_irq_o <= pcap_irq when (IRQ_VAL = "0000000") else irq_rise;
 
 --
 -- Block Control Register Interface.
@@ -144,7 +131,6 @@ port map (
     ENABLE                  => ENABLE_VAL,
     FRAME                   => FRAME_VAL,
     CAPTURE                 => CAPTURE_VAL,
-    IRQ                     => IRQ_VAL,
     ERR_STATUS              => ERR_STATUS,
 
     START_WRITE             => START_WRITE,
@@ -218,7 +204,7 @@ port map (
     dma_full_o              => dma_full,
     pcap_dat_i              => pcap_dat,
     pcap_wstb_i             => pcap_dat_valid,
-    irq_o                   => pcap_irq,
+    irq_o                   => pcap_irq_o,
 
     m_axi_awready           => m_axi_awready,
     m_axi_awregion          => m_axi_awregion,

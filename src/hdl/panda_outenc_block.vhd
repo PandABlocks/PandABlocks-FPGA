@@ -44,21 +44,21 @@ end entity;
 architecture rtl of panda_outenc_block is
 
 -- Block Configuration Registers
-signal A_VAL            : std_logic_vector(SBUSBW-1 downto 0);
-signal B_VAL            : std_logic_vector(SBUSBW-1 downto 0);
-signal Z_VAL            : std_logic_vector(SBUSBW-1 downto 0);
-signal CONN_VAL         : std_logic_vector(SBUSBW-1 downto 0);
-signal POSN_VAL         : std_logic_vector(PBUSBW-1 downto 0);
-signal PROTOCOL         : std_logic_vector(2 downto 0);
-signal BITS             : std_logic_vector(7 downto 0);
-signal QPRESCALAR       : std_logic_vector(15 downto 0);
-signal FORCE_QSTATE     : std_logic;
-signal FORCE_QSTATE_WSTB: std_logic;
-signal QSTATE           : std_logic;
+signal A_VAL            : std_logic_vector(31 downto 0);
+signal B_VAL            : std_logic_vector(31 downto 0);
+signal Z_VAL            : std_logic_vector(31 downto 0);
+signal CONN_VAL         : std_logic_vector(31 downto 0);
+signal ENABLE_VAL       : std_logic_vector(31 downto 0);
+signal POSN_VAL         : std_logic_vector(31 downto 0);
+signal PROTOCOL         : std_logic_vector(31 downto 0);
+signal BITS             : std_logic_vector(31 downto 0);
+signal QPERIOD          : std_logic_vector(31 downto 0);
+signal QSTATE           : std_logic_vector(31 downto 0);
 
 signal a, b, z          : std_logic;
 signal conn             : std_logic;
 signal posn             : std_logic_vector(31 downto 0);
+signal enable           : std_logic;
 
 signal slow             : slow_packet;
 
@@ -70,87 +70,40 @@ begin
 mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
--- Configuration Register Write/Read
+-- Control System Interface
 --
-REG_WRITE : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            A_VAL <= (others => '0');
-            B_VAL <= (others => '0');
-            Z_VAL <= (others => '0');
-            CONN_VAL <= (others => '0');
-            POSN_VAL <= (others => '0');
-            PROTOCOL <= "000";
-            BITS <= TO_SVECTOR(24, 8);
-            FORCE_QSTATE <= '0';
-            FORCE_QSTATE_WSTB <= '0';
-            QPRESCALAR <= TO_SVECTOR(100,16);
-        else
-            FORCE_QSTATE_WSTB <= '0';
+outenc_ctrl : entity work.panda_outenc_ctrl
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
-                -- A Channel Select
-                if (mem_addr = OUTENC_A) then
-                    A_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
+    mem_cs_i            => mem_cs_i,
+    mem_wstb_i          => mem_wstb_i,
+    mem_addr_i          => mem_addr_i,
+    mem_dat_i           => mem_dat_i,
+    mem_dat_o           => open,
 
-                -- B Channel Select
-                if (mem_addr = OUTENC_B) then
-                    B_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                -- Z Channel Select
-                if (mem_addr = OUTENC_Z) then
-                    Z_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                -- Conn Channel Select
-                if (mem_addr = OUTENC_CONN) then
-                    CONN_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                -- Position Bus selection
-                if (mem_addr = OUTENC_POSN) then
-                    POSN_VAL <= mem_dat_i(PBUSBW-1 downto 0);
-                end if;
-
-                -- Encoder Protocol
-                if (mem_addr = OUTENC_PROTOCOL) then
-                    PROTOCOL <= mem_dat_i(2 downto 0);
-                end if;
-
-                -- SSI Number of Bits
-                if (mem_addr = OUTENC_BITS) then
-                    BITS <= mem_dat_i(7 downto 0);
-                end if;
-
-                -- Quadrature Encoder Transition Period
-                if (mem_addr = OUTENC_QPRESCALAR) then
-                    QPRESCALAR <= mem_dat_i(15 downto 0);
-                end if;
-
-                -- Force Quadrature Encoder State
-                if (mem_addr = OUTENC_FORCE_QSTATE) then
-                    FORCE_QSTATE <= mem_dat_i(0);
-                    FORCE_QSTATE_WSTB <= '1';
-                end if;
-
-            end if;
-        end if;
-    end if;
-end process;
-
-REG_READ : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
-        else
-            mem_dat_o <= (0 => QSTATE, others => '0');
-        end if;
-    end if;
-end process;
+    -- Block Parameters
+    PROTOCOL            => PROTOCOL,
+    PROTOCOL_WSTB       => open,
+    BITS                => BITS,
+    BITS_WSTB           => open,
+    QPERIOD             => QPERIOD,
+    QPERIOD_WSTB        => open,
+    ENABLE              => ENABLE_VAL,
+    ENABLE_WSTB         => open,
+    A                   => A_VAL,
+    A_WSTB              => open,
+    B                   => B_VAL,
+    B_WSTB              => open,
+    Z                   => Z_VAL,
+    Z_WSTB              => open,
+    VAL                 => POSN_VAL,
+    VAL_WSTB            => open,
+    CONN                => CONN_VAL,
+    CONN_WSTB           => open,
+    QSTATE              => QSTATE
+);
 
 --
 -- Design Bus Assignments
@@ -158,7 +111,21 @@ end process;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        posn <= PFIELD(posbus_i, POSN_VAL);
+        posn <= PFIELD(posbus_i, POSN_VAL(PBUSBW-1 downto 0));
+    end if;
+end process;
+
+--
+-- Pass A/B/Z through from System Bus.
+--
+process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        a <= SBIT(sysbus_i, A_VAL(SBUSBW-1 downto 0));
+        b <= SBIT(sysbus_i, B_VAL(SBUSBW-1 downto 0));
+        z <= SBIT(sysbus_i, Z_VAL(SBUSBW-1 downto 0));
+        conn <= SBIT(sysbus_i, CONN_VAL(SBUSBW-1 downto 0));
+        enable <= SBIT(sysbus_i, ENABLE_VAL(SBUSBW-1 downto 0));
     end if;
 end process;
 
@@ -176,6 +143,7 @@ port map (
     z_i                 => z,
     conn_i              => conn,
     posn_i              => posn,
+    enable_i            => enable,
     -- Encoder I/O Pads
     a_o                 => a_o,
     b_o                 => b_o,
@@ -186,29 +154,14 @@ port map (
     sdat_o              => sdat_o,
     sdat_dir_o          => sdat_dir_o,
     -- Block Parameters
-    PROTOCOL            => PROTOCOL,
-    BITS                => BITS,
-    QPRESCALAR          => QPRESCALAR,
-    FORCE_QSTATE        => FORCE_QSTATE,
-    FORCE_QSTATE_WSTB   => FORCE_QSTATE_WSTB,
+    PROTOCOL            => PROTOCOL(2 downto 0),
+    BITS                => BITS(7 downto 0),
+    QPERIOD             => QPERIOD(15 downto 0),
     QSTATE              => QSTATE,
     -- CS Interface
     enc_mode_o          => enc_mode_o,
     iobuf_ctrl_o        => iobuf_ctrl_o
 );
-
---
--- Pass A/B/Z through from System Bus.
---
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        a <= SBIT(sysbus_i, A_VAL);
-        b <= SBIT(sysbus_i, B_VAL);
-        z <= SBIT(sysbus_i, Z_VAL);
-        conn <= SBIT(sysbus_i, CONN_VAL);
-    end if;
-end process;
 
 --
 -- Issue a Write command to Slow Controller
@@ -250,7 +203,6 @@ begin
 end process;
 
 slow_tlp_o <= slow;
-
 
 end rtl;
 

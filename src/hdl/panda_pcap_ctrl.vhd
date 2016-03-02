@@ -29,7 +29,6 @@ port (
     ENABLE              : out std_logic_vector(SBUSBW-1 downto 0);
     FRAME               : out std_logic_vector(SBUSBW-1 downto 0);
     CAPTURE             : out std_logic_vector(SBUSBW-1 downto 0);
-    IRQ                 : out std_logic_vector(SBUSBW-1 downto 0);
     ERR_STATUS          : in  std_logic_vector(31 downto 0);
 
     START_WRITE         : out std_logic;
@@ -71,7 +70,6 @@ begin
             ENABLE  <= TO_SVECTOR(0, SBUSBW);
             FRAME <= TO_SVECTOR(0, SBUSBW);
             CAPTURE <= TO_SVECTOR(0, SBUSBW);
-            IRQ <= TO_SVECTOR(0, SBUSBW);
         else
             if (mem_cs_i(PCAP_CS) = '1' and mem_wstb_i = '1') then
                 -- Enable bitbus mux select.
@@ -87,11 +85,6 @@ begin
                 -- Capture bitbus mux select.
                 if (mem_addr = PCAP_CAPTURE) then
                     CAPTURE <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                -- Irq bitbus mux select.
-                if (mem_addr = PCAP_IRQ) then
-                    IRQ <= mem_dat_i(SBUSBW-1 downto 0);
                 end if;
             end if;
         end if;

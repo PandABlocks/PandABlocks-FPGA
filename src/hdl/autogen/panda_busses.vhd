@@ -25,10 +25,10 @@ port (
     -- LVDSOUT Block
 
     -- LUT Block
-    LUT_VAL   : in std_logic_vector(7 downto 0);
+    LUT_OUT   : in std_logic_vector(7 downto 0);
 
     -- SRGATE Block
-    SRGATE_VAL   : in std_logic_vector(3 downto 0);
+    SRGATE_OUT   : in std_logic_vector(3 downto 0);
 
     -- DIV Block
     DIV_OUTD   : in std_logic_vector(3 downto 0);
@@ -52,10 +52,10 @@ port (
     INENC_B   : in std_logic_vector(3 downto 0);
     INENC_Z   : in std_logic_vector(3 downto 0);
     INENC_CONN   : in std_logic_vector(3 downto 0);
-    INENC_POSN   : in std32_array(3 downto 0);
+    INENC_VAL   : in std32_array(3 downto 0);
 
     -- QDEC Block
-    QDEC_POSN   : in std32_array(3 downto 0);
+    QDEC_OUT   : in std32_array(3 downto 0);
 
     -- OUTENC Block
 
@@ -64,38 +64,38 @@ port (
     POSENC_B   : in std_logic_vector(3 downto 0);
 
     -- ADDER Block
-    ADDER_RESULT   : in std32_array(0 downto 0);
+    ADDER_OUT   : in std32_array(1 downto 0);
 
     -- COUNTER Block
     COUNTER_CARRY   : in std_logic_vector(7 downto 0);
-    COUNTER_COUNT   : in std32_array(7 downto 0);
+    COUNTER_OUT   : in std32_array(7 downto 0);
 
     -- PGEN Block
-    PGEN_POSN   : in std32_array(1 downto 0);
+    PGEN_OUT   : in std32_array(1 downto 0);
 
     -- PCOMP Block
-    PCOMP_ACT   : in std_logic_vector(3 downto 0);
-    PCOMP_PULSE   : in std_logic_vector(3 downto 0);
+    PCOMP_ACTIVE   : in std_logic_vector(3 downto 0);
+    PCOMP_OUT   : in std_logic_vector(3 downto 0);
 
     -- ADC Block
-    ADC_DATA   : in std32_array(7 downto 0);
+    ADC_OUT   : in std32_array(7 downto 0);
 
     -- PCAP Block
     PCAP_ACTIVE   : in std_logic_vector(0 downto 0);
 
     -- BITS Block
-    BITS_A   : in std_logic_vector(0 downto 0);
-    BITS_B   : in std_logic_vector(0 downto 0);
-    BITS_C   : in std_logic_vector(0 downto 0);
-    BITS_D   : in std_logic_vector(0 downto 0);
+    BITS_OUTA   : in std_logic_vector(0 downto 0);
+    BITS_OUTB   : in std_logic_vector(0 downto 0);
+    BITS_OUTC   : in std_logic_vector(0 downto 0);
+    BITS_OUTD   : in std_logic_vector(0 downto 0);
     BITS_ZERO   : in std_logic_vector(0 downto 0);
     BITS_ONE   : in std_logic_vector(0 downto 0);
 
     -- CLOCKS Block
-    CLOCKS_A   : in std_logic_vector(0 downto 0);
-    CLOCKS_B   : in std_logic_vector(0 downto 0);
-    CLOCKS_C   : in std_logic_vector(0 downto 0);
-    CLOCKS_D   : in std_logic_vector(0 downto 0);
+    CLOCKS_OUTA   : in std_logic_vector(0 downto 0);
+    CLOCKS_OUTB   : in std_logic_vector(0 downto 0);
+    CLOCKS_OUTC   : in std_logic_vector(0 downto 0);
+    CLOCKS_OUTD   : in std_logic_vector(0 downto 0);
 
     -- POSITIONS Block
     POSITIONS_ZERO   : in std32_array(0 downto 0);
@@ -134,20 +134,20 @@ bitbus_o(9) <= LVDSIN_VAL(1);
 -- LVDSOUT Outputs:
 
 -- LUT Outputs:
-bitbus_o(10) <= LUT_VAL(0);
-bitbus_o(11) <= LUT_VAL(1);
-bitbus_o(12) <= LUT_VAL(2);
-bitbus_o(13) <= LUT_VAL(3);
-bitbus_o(14) <= LUT_VAL(4);
-bitbus_o(15) <= LUT_VAL(5);
-bitbus_o(16) <= LUT_VAL(6);
-bitbus_o(17) <= LUT_VAL(7);
+bitbus_o(10) <= LUT_OUT(0);
+bitbus_o(11) <= LUT_OUT(1);
+bitbus_o(12) <= LUT_OUT(2);
+bitbus_o(13) <= LUT_OUT(3);
+bitbus_o(14) <= LUT_OUT(4);
+bitbus_o(15) <= LUT_OUT(5);
+bitbus_o(16) <= LUT_OUT(6);
+bitbus_o(17) <= LUT_OUT(7);
 
 -- SRGATE Outputs:
-bitbus_o(18) <= SRGATE_VAL(0);
-bitbus_o(19) <= SRGATE_VAL(1);
-bitbus_o(20) <= SRGATE_VAL(2);
-bitbus_o(21) <= SRGATE_VAL(3);
+bitbus_o(18) <= SRGATE_OUT(0);
+bitbus_o(19) <= SRGATE_OUT(1);
+bitbus_o(20) <= SRGATE_OUT(2);
+bitbus_o(21) <= SRGATE_OUT(3);
 
 -- DIV Outputs:
 bitbus_o(22) <= DIV_OUTD(0);
@@ -216,16 +216,16 @@ bitbus_o(78) <= INENC_CONN(0);
 bitbus_o(79) <= INENC_CONN(1);
 bitbus_o(80) <= INENC_CONN(2);
 bitbus_o(81) <= INENC_CONN(3);
-posbus_o(1) <= INENC_POSN(0);
-posbus_o(2) <= INENC_POSN(1);
-posbus_o(3) <= INENC_POSN(2);
-posbus_o(4) <= INENC_POSN(3);
+posbus_o(1) <= INENC_VAL(0);
+posbus_o(2) <= INENC_VAL(1);
+posbus_o(3) <= INENC_VAL(2);
+posbus_o(4) <= INENC_VAL(3);
 
 -- QDEC Outputs:
-posbus_o(5) <= QDEC_POSN(0);
-posbus_o(6) <= QDEC_POSN(1);
-posbus_o(7) <= QDEC_POSN(2);
-posbus_o(8) <= QDEC_POSN(3);
+posbus_o(5) <= QDEC_OUT(0);
+posbus_o(6) <= QDEC_OUT(1);
+posbus_o(7) <= QDEC_OUT(2);
+posbus_o(8) <= QDEC_OUT(3);
 
 -- OUTENC Outputs:
 
@@ -240,7 +240,8 @@ bitbus_o(88) <= POSENC_B(2);
 bitbus_o(89) <= POSENC_B(3);
 
 -- ADDER Outputs:
-posbus_o(11) <= ADDER_RESULT(0);
+posbus_o(10) <= ADDER_OUT(0);
+posbus_o(11) <= ADDER_OUT(1);
 
 -- COUNTER Outputs:
 bitbus_o(90) <= COUNTER_CARRY(0);
@@ -251,55 +252,55 @@ bitbus_o(94) <= COUNTER_CARRY(4);
 bitbus_o(95) <= COUNTER_CARRY(5);
 bitbus_o(96) <= COUNTER_CARRY(6);
 bitbus_o(97) <= COUNTER_CARRY(7);
-posbus_o(12) <= COUNTER_COUNT(0);
-posbus_o(13) <= COUNTER_COUNT(1);
-posbus_o(14) <= COUNTER_COUNT(2);
-posbus_o(15) <= COUNTER_COUNT(3);
-posbus_o(16) <= COUNTER_COUNT(4);
-posbus_o(17) <= COUNTER_COUNT(5);
-posbus_o(18) <= COUNTER_COUNT(6);
-posbus_o(19) <= COUNTER_COUNT(7);
+posbus_o(12) <= COUNTER_OUT(0);
+posbus_o(13) <= COUNTER_OUT(1);
+posbus_o(14) <= COUNTER_OUT(2);
+posbus_o(15) <= COUNTER_OUT(3);
+posbus_o(16) <= COUNTER_OUT(4);
+posbus_o(17) <= COUNTER_OUT(5);
+posbus_o(18) <= COUNTER_OUT(6);
+posbus_o(19) <= COUNTER_OUT(7);
 
 -- PGEN Outputs:
-posbus_o(20) <= PGEN_POSN(0);
-posbus_o(21) <= PGEN_POSN(1);
+posbus_o(20) <= PGEN_OUT(0);
+posbus_o(21) <= PGEN_OUT(1);
 
 -- PCOMP Outputs:
-bitbus_o(98) <= PCOMP_ACT(0);
-bitbus_o(99) <= PCOMP_ACT(1);
-bitbus_o(100) <= PCOMP_ACT(2);
-bitbus_o(101) <= PCOMP_ACT(3);
-bitbus_o(102) <= PCOMP_PULSE(0);
-bitbus_o(103) <= PCOMP_PULSE(1);
-bitbus_o(104) <= PCOMP_PULSE(2);
-bitbus_o(105) <= PCOMP_PULSE(3);
+bitbus_o(98) <= PCOMP_ACTIVE(0);
+bitbus_o(99) <= PCOMP_ACTIVE(1);
+bitbus_o(100) <= PCOMP_ACTIVE(2);
+bitbus_o(101) <= PCOMP_ACTIVE(3);
+bitbus_o(102) <= PCOMP_OUT(0);
+bitbus_o(103) <= PCOMP_OUT(1);
+bitbus_o(104) <= PCOMP_OUT(2);
+bitbus_o(105) <= PCOMP_OUT(3);
 
 -- ADC Outputs:
-posbus_o(22) <= ADC_DATA(0);
-posbus_o(23) <= ADC_DATA(1);
-posbus_o(24) <= ADC_DATA(2);
-posbus_o(25) <= ADC_DATA(3);
-posbus_o(26) <= ADC_DATA(4);
-posbus_o(27) <= ADC_DATA(5);
-posbus_o(28) <= ADC_DATA(6);
-posbus_o(29) <= ADC_DATA(7);
+posbus_o(22) <= ADC_OUT(0);
+posbus_o(23) <= ADC_OUT(1);
+posbus_o(24) <= ADC_OUT(2);
+posbus_o(25) <= ADC_OUT(3);
+posbus_o(26) <= ADC_OUT(4);
+posbus_o(27) <= ADC_OUT(5);
+posbus_o(28) <= ADC_OUT(6);
+posbus_o(29) <= ADC_OUT(7);
 
 -- PCAP Outputs:
 bitbus_o(106) <= PCAP_ACTIVE(0);
 
 -- BITS Outputs:
-bitbus_o(118) <= BITS_A(0);
-bitbus_o(119) <= BITS_B(0);
-bitbus_o(120) <= BITS_C(0);
-bitbus_o(121) <= BITS_D(0);
+bitbus_o(118) <= BITS_OUTA(0);
+bitbus_o(119) <= BITS_OUTB(0);
+bitbus_o(120) <= BITS_OUTC(0);
+bitbus_o(121) <= BITS_OUTD(0);
 bitbus_o(0) <= BITS_ZERO(0);
 bitbus_o(1) <= BITS_ONE(0);
 
 -- CLOCKS Outputs:
-bitbus_o(122) <= CLOCKS_A(0);
-bitbus_o(123) <= CLOCKS_B(0);
-bitbus_o(124) <= CLOCKS_C(0);
-bitbus_o(125) <= CLOCKS_D(0);
+bitbus_o(122) <= CLOCKS_OUTA(0);
+bitbus_o(123) <= CLOCKS_OUTB(0);
+bitbus_o(124) <= CLOCKS_OUTC(0);
+bitbus_o(125) <= CLOCKS_OUTD(0);
 
 -- POSITIONS Outputs:
 posbus_o(0) <= POSITIONS_ZERO(0);

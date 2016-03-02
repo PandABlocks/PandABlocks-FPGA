@@ -14,11 +14,10 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     --Position data
-    qenc_presc_i        : in  std_logic_vector(15 downto 0);
-    force_val_i         : in  std_logic;
-    force_wstb_i        : in  std_logic;
+    enable_i            : in  std_logic;
+    QPERIOD             : in  std_logic_vector(15 downto 0);
     posn_i              : in  std_logic_vector(31 downto 0);
-    qstate_o            : out std_logic;
+    QSTATE              : out std_logic_vector(31 downto 0);
     --Quadrature A,B and Z input
     a_o                 : out std_logic;
     b_o                 : out std_logic
@@ -35,17 +34,28 @@ signal qenc_dir         : std_logic;
 signal qenc_trans       : std_logic;
 signal posn_tracker_en  : std_logic;
 signal reset            : std_logic;
+signal enable           : std_logic;
+signal enable_rise      : std_logic;
 
 begin
 
 -- Status output
-qstate_o <= posn_tracking;
+QSTATE <= (0 => posn_tracking, others => '0');
 
 -- To make life easier...
 posn <= signed(posn_i);
 
 -- Internal reset.
-reset <= reset_i or force_wstb_i;
+reset <= reset_i;
+
+-- Input Registers
+process(clk_i) begin
+    if rising_edge(clk_i) then
+        enable <= enable_i;
+    end if;
+end process;
+
+enable_rise <= enable_i and not enable;
 
 --
 -- Generate QENC clk defined by the prescalar
@@ -57,11 +67,11 @@ begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             qenc_clk_ce <= '0';
-            clk_cnt := X"0000";
+            clk_cnt := (others => '0');
         else
-            if (clk_cnt =  unsigned('0' & qenc_presc_i(15 downto 1))-1) then
+            if (clk_cnt =  unsigned('0' & QPERIOD(15 downto 1))-1) then
                 qenc_clk_ce <= '1';
-                clk_cnt := X"0000";
+                clk_cnt := (others => '0');
             else
                 qenc_clk_ce <= '0';
                 clk_cnt := clk_cnt + 1;
@@ -81,14 +91,10 @@ begin
             posn_tracker <= (others => '0');
             posn_tracker_en <= '0';
         else
-            -- User controlled Latch & Go (or not)
-            if (force_wstb_i = '1') then
-                -- Latch only when it is told.
-                if (force_val_i = '1') then
-                    posn_tracker <= posn;
-                end if;
-                -- Copy enable/disable input
-                posn_tracker_en <= force_val_i;
+            -- Latch & Go
+            if (enable_rise = '1') then
+                posn_tracker <= posn;
+                posn_tracker_en <= '1';
             -- On every transition, update internal counter
             elsif (qenc_trans = '1') then
                 if (qenc_dir = '0') then

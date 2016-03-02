@@ -34,99 +34,46 @@ end panda_pulse_block;
 
 architecture rtl of panda_pulse_block is
 
-signal INP_VAL          : std_logic_vector(SBUSBW-1 downto 0);
-signal RST_VAL          : std_logic_vector(SBUSBW-1 downto 0);
-signal DELAY            : std_logic_vector(47 downto 0);
-signal WIDTH            : std_logic_vector(47 downto 0);
-signal FORCE_RST        : std_logic := '0';
+signal INP_VAL          : std_logic_vector(31 downto 0);
+signal ENABLE_VAL       : std_logic_vector(31 downto 0);
+signal DELAY            : std_logic_vector(63 downto 0);
+signal DELAY_WSTB       : std_logic;
+signal WIDTH            : std_logic_vector(63 downto 0);
+signal WIDTH_WSTB       : std_logic;
 signal MISSED_CNT       : std_logic_vector(31 downto 0);
-signal ERR_OVERFLOW     : std_logic := '0';
-signal ERR_PERIOD       : std_logic := '0';
-signal QUEUE            : std_logic_vector(10 downto 0);
+signal ERR_OVERFLOW     : std_logic_vector(31 downto 0);
+signal ERR_PERIOD       : std_logic_vector(31 downto 0);
+signal QUEUE            : std_logic_vector(31 downto 0);
 
 signal inp              : std_logic;
-signal rst              : std_logic;
-
-signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
+signal enable           : std_logic;
 
 begin
 
--- Integer conversion for address.
-mem_addr <= to_integer(unsigned(mem_addr_i));
+pulse_ctrl : entity work.panda_pulse_ctrl
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
 
---
--- Control System Interface
---
-REG_WRITE : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            INP_VAL <= TO_SVECTOR(0, SBUSBW);
-            RST_VAL <= TO_SVECTOR(0, SBUSBW);
-            DELAY <= (others => '0');
-            WIDTH <= (others => '0');
-            FORCE_RST <= '0';
-        else
-            FORCE_RST <= '0';
+    mem_cs_i            => mem_cs_i,
+    mem_wstb_i          => mem_wstb_i,
+    mem_addr_i          => mem_addr_i,
+    mem_dat_i           => mem_dat_i,
+    mem_dat_o           => mem_dat_o,
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
-                -- Input Select Control Registers
-                if (mem_addr = PULSE_INP) then
-                    INP_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                if (mem_addr = PULSE_RST) then
-                    RST_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                if (mem_addr = PULSE_DELAY_L) then
-                    DELAY(31 downto 0)<= mem_dat_i;
-                end if;
-
-                if (mem_addr = PULSE_DELAY_H) then
-                    DELAY(47 downto 32)<= mem_dat_i(15 downto 0);
-                end if;
-
-                if (mem_addr = PULSE_WIDTH_L) then
-                    WIDTH(31 downto 0)<= mem_dat_i;
-                end if;
-
-                if (mem_addr = PULSE_WIDTH_H) then
-                    WIDTH(47 downto 32)<= mem_dat_i(15 downto 0);
-                end if;
-
-                if (mem_addr = PULSE_FORCE_RST) then
-                    FORCE_RST <= '1';
-                end if;
-            end if;
-        end if;
-    end if;
-end process;
-
---
--- Status Register Read
---
-REG_READ : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
-        else
-            case (mem_addr) is
-                when PULSE_ERR_OVERFLOW =>
-                    mem_dat_o <= ZEROS(31) & ERR_OVERFLOW;
-                when PULSE_ERR_PERIOD =>
-                    mem_dat_o <= ZEROS(31) & ERR_PERIOD;
-                when PULSE_QUEUE =>
-                    mem_dat_o <= ZEROS(21) & QUEUE;
-                when PULSE_MISSED_CNT =>
-                    mem_dat_o <= MISSED_CNT;
-                when others =>
-                    mem_dat_o <= (others => '0');
-            end case;
-        end if;
-    end if;
-end process;
+    DELAY               => DELAY,
+    DELAY_WSTB          => DELAY_WSTB,
+    WIDTH               => WIDTH,
+    WIDTH_WSTB          => WIDTH_WSTB,
+    INP                 => INP_VAL,
+    INP_WSTB            => open,
+    ENABLE              => ENABLE_VAL,
+    ENABLE_WSTB         => open,
+    ERR_OVERFLOW        => ERR_OVERFLOW,
+    ERR_PERIOD          => ERR_PERIOD,
+    QUEUE               => QUEUE,
+    MISSED_CNT          => MISSED_CNT
+);
 
 --
 -- Core Input Port Assignments
@@ -134,8 +81,8 @@ end process;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        inp <= SBIT(sysbus_i, INP_VAL);
-        rst <= SBIT(sysbus_i, RST_VAL);
+        inp <= SBIT(sysbus_i, INP_VAL(SBUSBW-1 downto 0));
+        enable <= SBIT(sysbus_i, ENABLE_VAL(SBUSBW-1 downto 0));
     end if;
 end process;
 
@@ -147,13 +94,14 @@ port map (
     reset_i             => reset_i,
 
     inp_i               => inp,
-    rst_i               => rst,
+    enable_i            => enable,
     out_o               => out_o,
     perr_o              => perr_o,
 
-    DELAY               => DELAY,
-    WIDTH               => WIDTH,
-    FORCE_RST           => FORCE_RST,
+    DELAY               => DELAY(47 downto 0),
+    DELAY_WSTB          => DELAY_WSTB,
+    WIDTH               => WIDTH(47 downto 0),
+    WIDTH_WSTB          => WIDTH_WSTB,
     ERR_OVERFLOW        => ERR_OVERFLOW,
     ERR_PERIOD          => ERR_PERIOD,
     QUEUE               => QUEUE,

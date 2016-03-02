@@ -25,7 +25,7 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Block Input and Outputs
-    gate_i              : in  std_logic;
+    enable_i            : in  std_logic;
     inpa_i              : in  std_logic;
     inpb_i              : in  std_logic;
     inpc_i              : in  std_logic;
@@ -48,7 +48,7 @@ port (
     TABLE_LENGTH_WSTB   : in  std_logic;
     -- Block Status
     CUR_FRAME           : out std_logic_vector(31 downto 0);
-    CUR_FCYCLE         : out std_logic_vector(31 downto 0);
+    CUR_FCYCLE          : out std_logic_vector(31 downto 0);
     CUR_TCYCLE          : out std_logic_vector(31 downto 0)
 );
 end panda_sequencer;
@@ -83,10 +83,10 @@ signal next_trig_valid      : std_logic;
 
 signal presc_reset          : std_logic;
 signal presc_ce             : std_logic;
-signal gate_val             : std_logic;
-signal gate_prev            : std_logic;
-signal gate_fall            : std_logic;
-signal gate_rise            : std_logic;
+signal enable_val           : std_logic;
+signal enable_prev          : std_logic;
+signal enable_fall          : std_logic;
+signal enable_rise          : std_logic;
 signal table_ready          : std_logic;
 signal fsm_reset            : std_logic;
 
@@ -103,18 +103,18 @@ TABLE_FRAMES <= "00" & TABLE_LENGTH(15 downto 2);
 
 -- Block inputs.
 inp_val <= inpd_i & inpc_i & inpb_i & inpa_i;
-gate_val <= gate_i and table_ready;
+enable_val <= enable_i and table_ready;
 
 -- Input register and edge detection.
 Registers : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        gate_prev <= gate_val;
+        enable_prev <= enable_val;
     end if;
 end process;
 
-gate_fall <= not gate_val and gate_prev;
-gate_rise <= gate_val and not gate_prev;
+enable_fall <= not enable_val and enable_prev;
+enable_rise <= enable_val and not enable_prev;
 
 --
 -- Sequencer TABLE interface
@@ -149,7 +149,7 @@ next_trig_valid <= '1' when (next_frame.trig_mask /= "0000" and
                                 next_trig = "1111") else '0';
 
 -- Reset condition for state machine.
-fsm_reset <= '1' when (reset_i = '1' or TABLE_START = '1' or gate_fall = '1')
+fsm_reset <= '1' when (reset_i = '1' or TABLE_START = '1' or enable_fall = '1')
              else '0';
 
 -- Total frame length
@@ -173,7 +173,7 @@ if rising_edge(clk_i) then
         table_count <= (others => '0');
         ongoing_frame <= '0';
     -- Gate rise latches first frame, and set block active.
-    elsif (gate_rise = '1') then
+    elsif (enable_rise = '1') then
         current_frame <= next_frame;
         load_next <= '1';
         active <= '1';
