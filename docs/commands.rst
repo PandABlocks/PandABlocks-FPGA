@@ -135,16 +135,26 @@ below:
 +-------------------------------+----------------------------------------------+
 | ``*CAPTURE=``                 | Reset data capture.                          |
 +-------------------------------+----------------------------------------------+
-| ``*BITS``\ n\ ``?``           | List bits in bit group, `n` is 0 to 3.       |
-+-------------------------------+----------------------------------------------+
 | ``*POSITIONS?``               | Enumerate possible capture positions.        |
 +-------------------------------+----------------------------------------------+
 | ``*VERBOSE=``\ value          | Control command logging.                     |
 +-------------------------------+----------------------------------------------+
+| ``*PCAP.``\ field\ ``?``      | Special position capture status fields.      |
+|                               | `field` can be any of ``STATUS``,            |
+|                               | ``CAPTURED``, or ``COMPLETION``.             |
++-------------------------------+----------------------------------------------+
+| ``*PCAP.``\ field\ ``=``      | Position capture actions.  `field` can be    |
+|                               | either ``ARM``, or ``DISARM``.               |
++-------------------------------+----------------------------------------------+
 
 ``*IDN?``
-    Returns system identification string.  Will probably have system version
-    information in the future.
+    Returns system identification string, for example the following::
+
+        OK =PandA cfd4128-dirty 00000106 dbb76f26 00000000
+
+    The first field after "PandA" is the software version, the second field is
+    the FPGA version, the third the firmware build number, and the fourth field
+    identifies the supporting firmware.
 
 ``*ECHO string?``
     Returns string back to caller.  Not terribly useful.  Note that the echoed
@@ -288,15 +298,10 @@ below:
 ``*CAPTURE?``
     This returns a list of all positions and bit masks that will be written to
     the data capture port.  This list is controlled by setting the ``.CAPTURE``
-    attribute on the corresponding bit and position fields.
+    attribute on the corresponding position fields.
 
 ``*CAPTURE=``
     This resets all ``.CAPTURE`` flags to zero so that no data will be captured.
-
-``*BITS``\ n\ ``?``
-    Bits are captured in four groups of 32 bits each, the capture groups are
-    named ``*BITS0`` to ``*BITS4``.  This command lists the bits, in order,
-    associated with the corresponding bit capture group.
 
 ``*POSITIONS?``
     This command lists all 32 position capture fields in order.
@@ -304,3 +309,43 @@ below:
 ``*VERBOSE=``\ value
     If ``*VERBOSE=1`` is set then every command will be echoed to the server's
     log.  Set ``*VERBOSE=0`` to restore normal quiet behaviour.
+
+| ``*PCAP.STATUS?``
+| ``*PCAP.CAPTURED?``
+| ``*PCAP.COMPLETION?``
+
+    Interrogates status of position capture:
+
+    =========== ================================================================
+    STATUS      Returns string with three fields: "Busy" or "Idle", followed by
+                the number of connected readers, and the number taking data.
+    CAPTURED    Returns number of samples captured in the current or most recent
+                data capture.
+    COMPLETION  Returns completion status from most recent data capture, as
+                listed in the table below.
+    =========== ================================================================
+
+    The completion codes have the following meaning:
+
+    =================== ========================================================
+    Busy                Capture in progress.
+    Ok                  Capture completed without error or intervention.
+    Disarmed            Capture was manually disarmed by ``*PCAP.DISARM=``
+                        command.
+    Framing error       Data capture framing error, probably due to incorrectly
+                        configured capture.
+    DMA data error      Internal data error, should not occur.
+    Driver data overrun Data capture too fast, internal buffers overrun.  Can
+                        also occur if PandA processor overloaded.
+    =================== ========================================================
+
+| ``*PCAP.ARM=``
+| ``*PCAP.DISARM=``
+
+    Top level capture control:
+
+    =========== ================================================================
+    ARM         Initiates data capture.  Will fail if capture already in
+                progress, or no fields configured for capture.
+    DISARM      Halts ongoing data capture.
+    =========== ================================================================

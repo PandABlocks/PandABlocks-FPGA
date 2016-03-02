@@ -12,6 +12,7 @@ The set of hardware blocks can be interrogated with the ``*BLOCKS?`` command::
     > !ADC 8
     > !DIV 4
     > !INENC 4
+    > !SLOW 1
     > !PGEN 2
     > !LVDSIN 2
     > !POSITIONS 1
@@ -20,7 +21,6 @@ The set of hardware blocks can be interrogated with the ``*BLOCKS?`` command::
     > !PULSE 4
     > !SRGATE 4
     > !LUT 8
-    > !CALC 2
     > !LVDSOUT 2
     > !COUNTER 8
     > !ADDER 1
@@ -35,8 +35,8 @@ fields, and the `block`\ ``.*?`` command can be used to interrogate the list of
 fields::
 
     < TTLIN.*?
-    > !VAL 0 bit_out
-    > !TERM 1 param enum
+    > !VAL 1 bit_out
+    > !TERM 0 param enum
     > .
 
 This tells us that block ``TTLIN`` has two fields, ``TTLIN.VAL`` and
@@ -50,14 +50,13 @@ Each field has one or more attributes depending on the field type.  The list of
 attributes can be interrogated with the `block`\ ``.``\ field\ ``.*?`` command::
 
     < TTLIN.VAL.*?
-    > !CAPTURE_INDEX
-    > !CAPTURE
+    > !CAPTURE_WORD
+    > !OFFSET
     > !INFO
     > .
     < TTLIN.TERM.*?
     > !LABELS
     > !INFO
-    > !RAW
     > .
 
 All fields have the ``.INFO`` attribute, which just repeats the type information
@@ -105,7 +104,7 @@ Field type          Description
 ``write`` subtype
     Fields of this type can only be written and are used for immediate actions
     on a block.  The ``action`` subtype is used to support actions without any
-    parameters, for example the followig command forces a soft reset on the
+    parameters, for example the following command forces a soft reset on the
     given pulse block::
 
         < PULSE1.FORCE_RESET=
