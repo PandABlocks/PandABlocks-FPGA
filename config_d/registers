@@ -101,7 +101,7 @@ DIV         4
     ENABLE          1
     OUTD            22 23 24 25
     OUTN            26 27 28 29
-    OUT             4
+    COUNT           4
 
 PULSE       5
     DELAY           3 2     >3

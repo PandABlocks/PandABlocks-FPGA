@@ -44,7 +44,7 @@ DIV[4]
     ENABLE          param       bit_mux
     OUTD            bit_out
     OUTN            bit_out
-    OUT             read
+    COUNT           read
 
 PULSE[4]
     DELAY           time
