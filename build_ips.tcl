@@ -39,3 +39,19 @@ set_property -dict [list \
 
 generate_target all [get_files $origin_dir/pcap_dma_fifo/pcap_dma_fifo.xci]
 synth_ip [get_ips pcap_dma_fifo]
+
+#
+# Create PGEN DMA FIFO IP
+#
+create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+-module_name pgen_dma_fifo -dir $origin_dir/
+
+set_property -dict [list \
+    CONFIG.Performance_Options {First_Word_Fall_Through} \
+    CONFIG.Input_Data_Width {32}    \
+    CONFIG.Data_Count {true}        \
+    CONFIG.Output_Data_Width {32}   \
+] [get_ips pgen_dma_fifo]
+
+generate_target all [get_files $origin_dir/pgen_dma_fifo/pgen_dma_fifo.xci]
+synth_ip [get_ips pgen_dma_fifo]

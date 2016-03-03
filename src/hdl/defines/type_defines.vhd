@@ -4,6 +4,9 @@ use ieee.numeric_std.all;
 
 package type_defines is
 
+subtype std8_t is std_logic_vector(7 downto 0);
+type std8_array is array(natural range <>) of std8_t;
+
 subtype std32_t is std_logic_vector(31 downto 0);
 type std32_array is array(natural range <>) of std32_t;
 

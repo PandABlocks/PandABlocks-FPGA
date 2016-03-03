@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_slowctrl_block.vhd
+--  File:       slowctrl_block.vhd
 --  Desc:       Position compare output pulse generator
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_slowctrl_block is
+entity slowctrl_block is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -34,9 +34,9 @@ port (
     spi_sclk_o          : out std_logic;
     spi_dat_o           : out std_logic
 );
-end panda_slowctrl_block;
+end slowctrl_block;
 
-architecture rtl of panda_slowctrl_block is
+architecture rtl of slowctrl_block is
 
 signal FPGA_VERSION     : std_logic_vector(31 downto 0);
 signal ENC_CONN         : std_logic_vector(31 downto 0);
@@ -112,7 +112,7 @@ end process;
 --
 -- Serial interface core
 --
-slowctrl_inst : entity work.panda_slowctrl
+slowctrl_inst : entity work.slowctrl
 generic map (
     AW              => PAGE_AW
 )

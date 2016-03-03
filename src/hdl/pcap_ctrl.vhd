@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pcap_ctrl.vhd
+--  File:       pcap_ctrl.vhd
 --  Desc:       Position capture module
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_pcap_ctrl is
+entity pcap_ctrl is
 port (
     -- Clock and Reset.
     clk_i               : in  std_logic;
@@ -49,9 +49,9 @@ port (
     TIMEOUT_WSTB        : out std_logic;
     IRQ_STATUS          : in  std_logic_vector(31 downto 0)
 );
-end panda_pcap_ctrl;
+end pcap_ctrl;
 
-architecture rtl of panda_pcap_ctrl is
+architecture rtl of pcap_ctrl is
 
 signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
 

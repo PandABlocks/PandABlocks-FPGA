@@ -71,3 +71,13 @@ add wave -group "Block 1" -radix Decimal \
 "sim:/test/tb/uut/PCOMP_GEN/pcomp_inst/PCOMP_GEN(1)/pcomp_block_inst/*"
 add wave -group "Pulse 1" -radix Decimal \
 "sim:/test/tb/uut/PCOMP_GEN/pcomp_inst/PCOMP_GEN(1)/pcomp_block_inst/pcomp_inst/*"
+
+add wave -divider {PGEN}
+add wave -group "DMA ENGINE" \
+"sim:/test/tb/uut/table_dma_engine/*"
+add wave -group "READ MASTER" \
+"sim:/test/tb/uut/table_dma_engine/axi_read_master/*"
+add wave -group "PGEN0" \
+"sim:/test/tb/uut/pgen_inst/PGEN_GEN(0)/pgen_block_inst/panda_pgen/*"
+add wave -group "PGEN1" \
+"sim:/test/tb/uut/pgen_inst/PGEN_GEN(1)/pgen_block_inst/panda_pgen/*"

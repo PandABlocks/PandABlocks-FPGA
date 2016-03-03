@@ -116,7 +116,7 @@ end process;
 --
 -- Block Control Register Interface.
 --
-pcap_ctrl_inst : entity work.panda_pcap_ctrl
+pcap_ctrl_inst : entity work.pcap_ctrl
 port map (
     clk_i                   => clk_i,
     reset_i                 => reset_i,

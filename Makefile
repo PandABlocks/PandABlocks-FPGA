@@ -39,7 +39,7 @@ DEVTREE_DTS = $(SDK_EXPORT)/device_tree_bsp_0/system.dts
 DEVTREE_DTB = $(SDK_EXPORT)/device_tree_bsp_0/devicetree.dtb
 BOOT_FILE = $(IMAGE_DIR)/boot.bin
 
-TOP_FILE = $(HDL_DIR)/panda_top.vhd
+TOP_FILE = $(HDL_DIR)/top.vhd
 VERSION_FILE = $(HDL_DIR)/defines/panda_version.vhd
 
 #####################################################################

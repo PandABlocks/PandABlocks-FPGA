@@ -39,7 +39,6 @@ port (
     active_o            : out std_logic;
     -- Block Parameters
     PRESCALE            : in  std_logic_vector(31 downto 0);
-    SOFT_GATE           : in  std_logic;
     TABLE_START         : in  std_logic;
     TABLE_DATA          : in  std_logic_vector(31 downto 0);
     TABLE_WSTB          : in  std_logic;

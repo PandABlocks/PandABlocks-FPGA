@@ -35,6 +35,13 @@ port (
     CUR_FRAME       : in  std_logic_vector(31 downto 0);
     CUR_FCYCLE       : in  std_logic_vector(31 downto 0);
     CUR_TCYCLE       : in  std_logic_vector(31 downto 0);
+    TABLE_START       : out std_logic_vector(31 downto 0);
+    TABLE_START_WSTB  : out std_logic;
+    TABLE_DATA       : out std_logic_vector(31 downto 0);
+    TABLE_DATA_WSTB  : out std_logic;
+    TABLE_LENGTH       : out std_logic_vector(31 downto 0);
+    TABLE_LENGTH_WSTB  : out std_logic;
+
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
@@ -72,6 +79,12 @@ begin
             INPC_WSTB <= '0';
             INPD <= (others => '0');
             INPD_WSTB <= '0';
+            TABLE_START <= (others => '0');
+            TABLE_START_WSTB <= '0';
+            TABLE_DATA <= (others => '0');
+            TABLE_DATA_WSTB <= '0';
+            TABLE_LENGTH <= (others => '0');
+            TABLE_LENGTH_WSTB <= '0';
         else
             PRESCALE_WSTB <= '0';
             TABLE_CYCLE_WSTB <= '0';
@@ -80,6 +93,9 @@ begin
             INPB_WSTB <= '0';
             INPC_WSTB <= '0';
             INPD_WSTB <= '0';
+            TABLE_START_WSTB <= '0';
+            TABLE_DATA_WSTB <= '0';
+            TABLE_LENGTH_WSTB <= '0';
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
@@ -110,6 +126,18 @@ begin
                 if (mem_addr = SEQ_INPD) then
                     INPD <= mem_dat_i;
                     INPD_WSTB <= '1';
+                end if;
+                if (mem_addr = SEQ_TABLE_START) then
+                    TABLE_START <= mem_dat_i;
+                    TABLE_START_WSTB <= '1';
+                end if;
+                if (mem_addr = SEQ_TABLE_DATA) then
+                    TABLE_DATA <= mem_dat_i;
+                    TABLE_DATA_WSTB <= '1';
+                end if;
+                if (mem_addr = SEQ_TABLE_LENGTH) then
+                    TABLE_LENGTH <= mem_dat_i;
+                    TABLE_LENGTH_WSTB <= '1';
                 end if;
 
             end if;

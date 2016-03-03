@@ -60,7 +60,6 @@ port (
     Zs0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
 #ifdef DEV
     -- Status I/O
-    leds_o              : out   std_logic_vector(1 downto 0);
     enc0_ctrl_pad_i     : in    std_logic_vector(3  downto 0);
     enc0_ctrl_pad_o     : out   std_logic_vector(11 downto 0);
 #endif
@@ -87,7 +86,6 @@ signal probe0               : std_logic_vector(63 downto 0);
 signal FCLK_CLK0            : std_logic;
 signal FCLK_RESET0_N        : std_logic_vector(0 downto 0);
 signal FCLK_RESET0          : std_logic;
-signal FCLK_LEDS            : std_logic_vector(31 downto 0);
 
 signal M00_AXI_awaddr       : std_logic_vector ( 31 downto 0 );
 signal M00_AXI_awprot       : std_logic_vector ( 2 downto 0 );
@@ -130,6 +128,25 @@ signal S_AXI_HP0_wdata      : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
 signal S_AXI_HP0_wlast      : std_logic;
 signal S_AXI_HP0_wstrb      : std_logic_vector(AXI_DATA_WIDTH/8-1 downto 0);
 signal S_AXI_HP0_wvalid     : std_logic;
+
+signal S_AXI_HP1_araddr     : STD_LOGIC_VECTOR ( 31 downto 0 );
+signal S_AXI_HP1_arburst    : STD_LOGIC_VECTOR ( 1 downto 0 );
+signal S_AXI_HP1_arcache    : STD_LOGIC_VECTOR ( 3 downto 0 );
+signal S_AXI_HP1_arid       : STD_LOGIC_VECTOR ( 5 downto 0 );
+signal S_AXI_HP1_arlen      : STD_LOGIC_VECTOR ( 7 downto 0 );
+signal S_AXI_HP1_arlock     : STD_LOGIC_VECTOR ( 0 to 0 );
+signal S_AXI_HP1_arprot     : STD_LOGIC_VECTOR ( 2 downto 0 );
+signal S_AXI_HP1_arqos      : STD_LOGIC_VECTOR ( 3 downto 0 );
+signal S_AXI_HP1_arready    : STD_LOGIC;
+signal S_AXI_HP1_arregion   : STD_LOGIC_VECTOR ( 3 downto 0 );
+signal S_AXI_HP1_arsize     : STD_LOGIC_VECTOR ( 2 downto 0 );
+signal S_AXI_HP1_arvalid    : STD_LOGIC;
+signal S_AXI_HP1_rdata      : STD_LOGIC_VECTOR ( 31 downto 0 );
+signal S_AXI_HP1_rid        : STD_LOGIC_VECTOR ( 5 downto 0 );
+signal S_AXI_HP1_rlast      : STD_LOGIC;
+signal S_AXI_HP1_rready     : STD_LOGIC;
+signal S_AXI_HP1_rresp      : STD_LOGIC_VECTOR ( 1 downto 0 );
+signal S_AXI_HP1_rvalid     : STD_LOGIC;
 
 signal mem_cs               : std_logic_vector(2**PAGE_NUM-1 downto 0);
 signal mem_addr             : std_logic_vector(PAGE_AW-1 downto 0);
@@ -207,12 +224,22 @@ signal posenc_b             : std_logic_vector(3 downto 0) := "0000";
 signal adc_low              : std32_array(7 downto 0) := (others => (others => '0'));
 signal adc_high             : std32_array(7 downto 0) := (others => (others => '0'));
 
+signal pgen_out             : std32_array(PGEN_NUM-1 downto 0);
+
 signal slowctrl_busy        : std_logic;
     
 signal enc0_ctrl_pad        : std_logic_vector(11 downto 0);
 
 signal inenc_slow_tlp       : slow_packet;
 signal outenc_slow_tlp      : slow_packet;
+
+signal rdma_req             : std_logic_vector(5 downto 0);
+signal rdma_ack             : std_logic_vector(5 downto 0);
+signal rdma_done            : std_logic;
+signal rdma_addr            : std32_array(5 downto 0);
+signal rdma_len             : std8_array(5 downto 0);
+signal rdma_data            : std_logic_vector(31 downto 0);
+signal rdma_valid           : std_logic_vector(5 downto 0);
 
 attribute keep              : string;
 attribute keep of sysbus    : signal is "true";
@@ -230,7 +257,6 @@ ps : entity work.panda_ps
 port map (
     FCLK_CLK0                   => FCLK_CLK0,
     FCLK_RESET0_N               => FCLK_RESET0_N,
-    FCLK_LEDS                   => FCLK_LEDS,
 
     DDR_addr(14 downto 0)       => DDR_addr(14 downto 0),
     DDR_ba(2 downto 0)          => DDR_ba(2 downto 0),
@@ -295,7 +321,26 @@ port map (
     S_AXI_HP0_wlast             => S_AXI_HP0_wlast,
     S_AXI_HP0_wready            => S_AXI_HP0_wready,
     S_AXI_HP0_wstrb             => S_AXI_HP0_wstrb,
-    S_AXI_HP0_wvalid            => S_AXI_HP0_wvalid
+    S_AXI_HP0_wvalid            => S_AXI_HP0_wvalid,
+
+    S_AXI_HP1_araddr            => S_AXI_HP1_araddr,
+    S_AXI_HP1_arburst           => S_AXI_HP1_arburst,
+    S_AXI_HP1_arcache           => S_AXI_HP1_arcache,
+    S_AXI_HP1_arid              => S_AXI_HP1_arid,
+    S_AXI_HP1_arlen             => S_AXI_HP1_arlen,
+    S_AXI_HP1_arlock            => S_AXI_HP1_arlock,
+    S_AXI_HP1_arprot            => S_AXI_HP1_arprot,
+    S_AXI_HP1_arqos             => S_AXI_HP1_arqos,
+    S_AXI_HP1_arready           => S_AXI_HP1_arready,
+    S_AXI_HP1_arregion          => S_AXI_HP1_arregion,
+    S_AXI_HP1_arsize            => S_AXI_HP1_arsize,
+    S_AXI_HP1_arvalid           => S_AXI_HP1_arvalid,
+    S_AXI_HP1_rdata             => S_AXI_HP1_rdata,
+    S_AXI_HP1_rid               => S_AXI_HP1_rid,
+    S_AXI_HP1_rlast             => S_AXI_HP1_rlast,
+    S_AXI_HP1_rready            => S_AXI_HP1_rready,
+    S_AXI_HP1_rresp             => S_AXI_HP1_rresp,
+    S_AXI_HP1_rvalid            => S_AXI_HP1_rvalid
 );
 
 --
@@ -311,7 +356,6 @@ port map (
     S_AXI_CLK                   => FCLK_CLK0,
     S_AXI_RST                   => FCLK_RESET0,
     S_AXI_AWADDR                => M00_AXI_awaddr,
---    S_AXI_AWPROT                => M00_AXI_awprot,
     S_AXI_AWVALID               => M00_AXI_awvalid,
     S_AXI_AWREADY               => M00_AXI_awready,
     S_AXI_WDATA                 => M00_AXI_wdata,
@@ -322,14 +366,12 @@ port map (
     S_AXI_BVALID                => M00_AXI_bvalid,
     S_AXI_BREADY                => M00_AXI_bready,
     S_AXI_ARADDR                => M00_AXI_araddr,
---    S_AXI_ARPROT                => M00_AXI_arprot,
     S_AXI_ARVALID               => M00_AXI_arvalid,
     S_AXI_ARREADY               => M00_AXI_arready,
     S_AXI_RDATA                 => M00_AXI_rdata,
     S_AXI_RRESP                 => M00_AXI_rresp,
     S_AXI_RVALID                => M00_AXI_rvalid,
     S_AXI_RREADY                => M00_AXI_rready,
-    -- Bus Memory Interface
     mem_addr_o                  => mem_addr,
     mem_dat_i                   => mem_read_data,
     mem_dat_o                   => mem_odat,
@@ -338,9 +380,9 @@ port map (
     mem_wstb_o                  => mem_wstb
 );
 
---
+---------------------------------------------------------------------------
 -- TTL
---
+---------------------------------------------------------------------------
 ttlin_inst : entity work.panda_ttlin_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -361,9 +403,9 @@ port map (
     pad_o               => ttlout_pad_o
 );
 
---
+---------------------------------------------------------------------------
 -- LVDS
---
+---------------------------------------------------------------------------
 lvdsin_inst : entity work.panda_lvdsin_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -384,9 +426,9 @@ port map (
     pad_o               => lvdsout_pad_o
 );
 
---
+---------------------------------------------------------------------------
 -- 5-Input LUT
---
+---------------------------------------------------------------------------
 lut_inst : entity work.panda_lut_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -400,22 +442,19 @@ port map (
     out_o               => lut_val
 );
 
---
--- 5-Input LUT
---
+---------------------------------------------------------------------------
+-- SRGATE
+---------------------------------------------------------------------------
 srgate_inst : entity work.panda_srgate_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(SRGATE_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
-
     sysbus_i            => sysbus,
-
     out_o               => srgate_val
 );
 
@@ -428,16 +467,13 @@ div_inst : entity work.panda_div_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(DIV_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(DIV_CS),
-
     sysbus_i            => sysbus,
-
     outd_o              => div_outd,
     outn_o              => div_outn
 );
@@ -453,15 +489,12 @@ pulse_inst : entity work.panda_pulse_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(PULSE_CS),
     mem_wstb_i          => mem_wstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(PULSE_CS),
-
     sysbus_i            => sysbus,
-
     out_o               => pulse_out,
     perr_o              => pulse_perr
 );
@@ -477,15 +510,12 @@ seq_inst : entity work.panda_sequencer_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(SEQ_CS),
     mem_wstb_i          => mem_wstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(SEQ_CS),
-
     sysbus_i            => sysbus,
-
     outa_o              => seq_outa,
     outb_o              => seq_outb,
     outc_o              => seq_outc,
@@ -538,44 +568,37 @@ outenc_inst : entity work.panda_outenc_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(OUTENC_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(OUTENC_CS),
-
     As0_pad_io          => As0_pad_io,
     Bs0_pad_io          => Bs0_pad_io,
     Zs0_pad_io          => Zs0_pad_io,
     conn_o              => outenc_conn,
-
     slow_tlp_o          => outenc_slow_tlp,
-
     sysbus_i            => sysbus,
     posbus_i            => posbus
 );
 
 END GENERATE;
 
---
+---------------------------------------------------------------------------
 -- COUNTER/TIMER
---
+---------------------------------------------------------------------------
 counter_inst : entity work.panda_counter_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(COUNTER_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(COUNTER_CS),
-
     sysbus_i            => sysbus,
-    -- Output pulse
     carry_o             => counter_carry,
     count_o             => posn_counter
 );
@@ -589,17 +612,14 @@ pcomp_inst : entity work.panda_pcomp_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(PCOMP_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(PCOMP_CS),
-
     sysbus_i            => sysbus,
     posbus_i            => posbus,
-
     act_o               => pcomp_act,
     pulse_o             => pcomp_pulse
 );
@@ -615,7 +635,6 @@ pcap_inst : entity work.panda_pcap_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     m_axi_awaddr        => S_AXI_HP0_awaddr,
     m_axi_awburst       => S_AXI_HP0_awburst,
     m_axi_awcache       => S_AXI_HP0_awcache,
@@ -637,80 +656,129 @@ port map (
     m_axi_wready        => S_AXI_HP0_wready,
     m_axi_wstrb         => S_AXI_HP0_wstrb,
     m_axi_wvalid        => S_AXI_HP0_wvalid,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs,
     mem_wstb_i          => mem_wstb,
     mem_dat_i           => mem_odat,
     mem_dat_0_o         => mem_read_data(PCAP_CS),
     mem_dat_1_o         => mem_read_data(DRV_CS),
-
     sysbus_i            => sysbus,
     posbus_i            => posbus,
     extbus_i            => extbus,
-
     pcap_actv_o         => pcap_act(0),
     pcap_irq_o          => IRQ_F2P(0)
 );
 
 END GENERATE;
 
---
+---------------------------------------------------------------------------
+-- POSITION GENERATION
+---------------------------------------------------------------------------
+pgen_inst : entity work.panda_pgen_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(PGEN_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_dat_i           => mem_odat,
+    dma_req_o           => rdma_req(1 downto 0),
+    dma_ack_i           => rdma_ack(1 downto 0),
+    dma_done_i          => rdma_done,
+    dma_addr_o          => rdma_addr(1 downto 0),
+    dma_len_o           => rdma_len(1 downto 0),
+    dma_data_i          => rdma_data,
+    dma_valid_i         => rdma_valid(1 downto 0),
+    sysbus_i            => sysbus,
+    out_o               => pgen_out
+);
+
+
+---------------------------------------------------------------------------
+-- TABLE DMA ENGINE
+---------------------------------------------------------------------------
+table_dma_engine : entity work.table_dma_engine
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+    -- Zynq HP1 Bus
+    m_axi_araddr        => S_AXI_HP1_araddr,
+    m_axi_arburst       => S_AXI_HP1_arburst,
+    m_axi_arcache       => S_AXI_HP1_arcache,
+    m_axi_arid          => S_AXI_HP1_arid,
+    m_axi_arlen         => S_AXI_HP1_arlen,
+    m_axi_arlock        => S_AXI_HP1_arlock,
+    m_axi_arprot        => S_AXI_HP1_arprot,
+    m_axi_arqos         => S_AXI_HP1_arqos,
+    m_axi_arready       => S_AXI_HP1_arready,
+    m_axi_arregion      => S_AXI_HP1_arregion,
+    m_axi_arsize        => S_AXI_HP1_arsize,
+    m_axi_arvalid       => S_AXI_HP1_arvalid,
+    m_axi_rdata         => S_AXI_HP1_rdata,
+    m_axi_rid           => S_AXI_HP1_rid,
+    m_axi_rlast         => S_AXI_HP1_rlast,
+    m_axi_rready        => S_AXI_HP1_rready,
+    m_axi_rresp         => S_AXI_HP1_rresp,
+    m_axi_rvalid        => S_AXI_HP1_rvalid,
+    -- Slaves' DMA Engine Interface
+    dma_req_i           => rdma_req,
+    dma_ack_o           => rdma_ack,
+    dma_done_o          => rdma_done,
+    dma_addr_i          => rdma_addr,
+    dma_len_i           => rdma_len,
+    dma_data_o          => rdma_data,
+    dma_valid_o         => rdma_valid
+);
+
+---------------------------------------------------------------------------
 -- REG (System, Position Bus and Special Register Readbacks)
---
+---------------------------------------------------------------------------
 reg_inst : entity work.panda_reg_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(REG_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(REG_CS),
-
     sysbus_i            => sysbus,
     posbus_i            => posbus,
-
     slowctrl_busy_i     => slowctrl_busy
 );
 
---
+---------------------------------------------------------------------------
 -- CLOCKS
---
+---------------------------------------------------------------------------
 clocks_inst : entity work.panda_clocks_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(CLOCKS_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(CLOCKS_CS),
-
     clocks_a_o          => clocks_a(0),
     clocks_b_o          => clocks_b(0),
     clocks_c_o          => clocks_c(0),
     clocks_d_o          => clocks_d(0)
 );
 
---
+---------------------------------------------------------------------------
 -- BITS
---
+---------------------------------------------------------------------------
 bits_inst : entity work.panda_bits_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(BITS_CS),
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
-
     zero_o              => bits_zero(0),
     one_o               => bits_one(0),
     bits_a_o            => bits_a(0),
@@ -719,35 +787,30 @@ port map (
     bits_d_o            => bits_d(0)
 );
 
---
+---------------------------------------------------------------------------
 -- SLOW CONTROLLER FPGA
---
-slowctrl_inst : entity work.panda_slowctrl_top
+---------------------------------------------------------------------------
+slowctrl_inst : entity work.slowctrl_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
     mem_addr_i          => mem_addr,
     mem_cs_i            => mem_cs(SLOW_CS),
     mem_wstb_i          => mem_wstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(SLOW_CS),
-
     inenc_tlp_i         => inenc_slow_tlp,
     outenc_tlp_i        => outenc_slow_tlp,
     busy_o              => slowctrl_busy,
-
     spi_sclk_o          => spi_sclk_o,
     spi_dat_o           => spi_dat_o,
     spi_sclk_i          => spi_sclk_i,
     spi_dat_i           => spi_dat_i
 );
 
---
--- Bit assignment for System and Position busses are managed within
--- automatically generated file. The provides a robust synchronisation
--- between hardware and software layers.
---
+---------------------------------------------------------------------------
+-- BUS ASSIGNMENTS
+---------------------------------------------------------------------------
 busses_inst : entity work.panda_busses
 port map (
     TTLIN_VAL       => ttlin_val,
@@ -776,7 +839,7 @@ port map (
     ADDER_OUT       => (others => (others => '0')),
     COUNTER_CARRY   => counter_carry,
     COUNTER_OUT     => posn_counter,
-    PGEN_OUT        => (others => (others => '0')),
+    PGEN_OUT        => pgen_out,
     PCOMP_ACTIVE    => pcomp_act,
     PCOMP_OUT       => pcomp_pulse,
     ADC_OUT         => (others => (others => '0')),
@@ -807,9 +870,6 @@ extbus(3 downto 0)  <= posn_inenc_high;
 extbus(11 downto 4) <= adc_high;
 
 #ifdef DEV
--- Blink some LEDs on the dev board.
-leds_o <= FCLK_LEDS(26 downto 25);
-
 -- Direct interface to Daughter Card via FMC on the dev board.
 enc0_ctrl_pad_o <= enc0_ctrl_pad;
 

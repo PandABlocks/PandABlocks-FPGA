@@ -40,13 +40,7 @@ rd_fd = $fopen(file_name,"a+");
 $display("From TB_TEST : %0s : Starting Read burst at address %h",port_name,addr);
 while (bytes > 0) begin
   case(port_name)
-   "master_gp0" :   tb.uut.ps.ps.hp1.cdn_axi3_master_bfm_inst.READ_BURST(20, addr, trnsfr_lngth, 3'b010, 2'b00, 2'b00, 4'b0000, 3'b000, rd_data, rrrsp);
-   "master_gp1" :   tb.uut.ps.ps.hp1.cdn_axi3_master_bfm_inst.READ_BURST(20, addr, trnsfr_lngth, 3'b010, 2'b00, 2'b00, 4'b0000, 3'b000, rd_data, rrrsp);
-   "master_hp0" :   tb.uut.ps.ps.hp1.cdn_axi3_master_bfm_inst.READ_BURST(20, addr, trnsfr_lngth, 3'b010, 2'b00, 2'b00, 4'b0000, 3'b000, rd_data, rrrsp);
    "master_hp1" :   tb.uut.ps.ps.hp1.cdn_axi3_master_bfm_inst.READ_BURST(20, addr, trnsfr_lngth, 3'b010, 2'b00, 2'b00, 4'b0000, 3'b000, rd_data, rrrsp);
-   "master_hp2" :   tb.uut.ps.ps.hp1.cdn_axi3_master_bfm_inst.READ_BURST(20, addr, trnsfr_lngth, 3'b010, 2'b00, 2'b00, 4'b0000, 3'b000, rd_data, rrrsp);
-   "master_hp3" :   tb.uut.ps.ps.hp1.cdn_axi3_master_bfm_inst.READ_BURST(20, addr, trnsfr_lngth, 3'b010, 2'b00, 2'b00, 4'b0000, 3'b000, rd_data, rrrsp);
-   "master_acp" :   tb.uut.ps.ps.hp1.cdn_axi3_master_bfm_inst.READ_BURST(20, addr, trnsfr_lngth, 3'b010, 2'b00, 2'b00, 4'b0000, 3'b000, rd_data, rrrsp);
   endcase
 
   repeat(trnsfr_lngth+1) begin
@@ -116,13 +110,7 @@ while (bytes > 0) begin
    succ = $fscanf(wr_fd,"%h",wr_data[511:480]);
   end 
   case(port_name)  
-    "master_gp0" : tb.uut.ps.ps.hp1.cdn_axi3_master_bfm_inst.WRITE_BURST(60,addr, trnsfr_lngth, 3'b010, 2'b00, 2'b00, 4'b0000, 3'b000, wr_data, trnsfr_bytes, rwrsp);
-    "master_gp1" : tb.uut.ps.ps.hp1.cdn_axi3_master_bfm_inst.WRITE_BURST(61,addr, trnsfr_lngth, 3'b010, 2'b00, 2'b00, 4'b0000, 3'b000, wr_data, trnsfr_bytes, rwrsp);
-    "master_hp0" : tb.uut.ps.ps.hp1.cdn_axi3_master_bfm_inst.WRITE_BURST(70,addr, trnsfr_lngth, 3'b010, 2'b00, 2'b00, 4'b0000, 3'b000, wr_data, trnsfr_bytes, rwrsp);
     "master_hp1" : tb.uut.ps.ps.hp1.cdn_axi3_master_bfm_inst.WRITE_BURST(71,addr, trnsfr_lngth, 3'b010, 2'b00, 2'b00, 4'b0000, 3'b000, wr_data, trnsfr_bytes, rwrsp);
-    "master_hp2" : tb.uut.ps.ps.hp1.cdn_axi3_master_bfm_inst.WRITE_BURST(72,addr, trnsfr_lngth, 3'b010, 2'b00, 2'b00, 4'b0000, 3'b000, wr_data, trnsfr_bytes, rwrsp);
-    "master_hp3" : tb.uut.ps.ps.hp1.cdn_axi3_master_bfm_inst.WRITE_BURST(73,addr, trnsfr_lngth, 3'b010, 2'b00, 2'b00, 4'b0000, 3'b000, wr_data, trnsfr_bytes, rwrsp);
-    "master_acp" : tb.uut.ps.ps.hp1.cdn_axi3_master_bfm_inst.WRITE_BURST(80,addr, trnsfr_lngth, 3'b010, 2'b00, 2'b00, 4'b0000, 3'b000, wr_data, trnsfr_bytes, rwrsp);
   endcase
 
   bytes = bytes - trnsfr_bytes;

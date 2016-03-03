@@ -140,7 +140,7 @@ BLOCK_TLP_SIZE <= to_unsigned((to_integer(unsigned(BLOCK_SIZE)) / BURST_LEN),32)
 reset <= reset_i or DMA_RESET;
 
 --
--- 32bit-to-64-bit FIFO with 1K sample depth
+-- 32bit FIFO with 1K sample depth
 --
 dma_fifo_inst : pcap_dma_fifo
 port map (

@@ -10,7 +10,7 @@ panda_top_tb tb(
     .ttlin_pad      ( ttlin_pad)
 );
 
-`define TESTNAME    "test.driver.v"
+`define TESTNAME    "test.pgen.v"
 
 reg [ 1:0]      wrs, rsp;
 reg [31:0]      IRQ_STATUS;
@@ -28,6 +28,8 @@ integer         irq_count;
 integer         i, n, j, k, m;
 integer         NUMSAMPLE;
 integer         ARMS;
+integer         PGEN_REPEAT;
+integer         PGEN_SAMPLES;
 
 `include "tasks.v"
 
@@ -52,6 +54,9 @@ initial begin
     $display("Reset Done. Setting the Slave profiles \n");
     tb.uut.ps.ps.ps.inst.set_slave_profile("S_AXI_HP0",2'b10);
     $display("Profile Done\n");
+ 
+    $display("Start Preload \n");
+    tb.uut.ps.ps.ps.inst.pre_load_mem_from_file("preload_ddr.txt",32'h2000_0000,65536);
 
     tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h1);
     tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h0);

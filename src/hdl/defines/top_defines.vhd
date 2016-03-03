@@ -43,6 +43,7 @@ constant DIV_NUM            : positive := 4;
 constant PULSE_NUM          : positive := 4;
 
 constant COUNTER_NUM        : positive := 8;
+constant PGEN_NUM           : positive := 2;
 
 constant ENC_NUM            : positive := 4;
 constant PCOMP_NUM          : positive := 4;

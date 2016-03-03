@@ -10,9 +10,8 @@ for R = 1:Arms
     a = x(start:start+len-1);
     start = start + len;
     y = reshape(a,Channels,[]);
-    for C = 1:Channels
-        mean(diff(y(C,:)))
-    end
+    mean(diff(y'))
+    plot(diff(y'));
 end
 
 

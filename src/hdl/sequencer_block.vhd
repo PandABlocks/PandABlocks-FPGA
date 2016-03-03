@@ -46,7 +46,6 @@ signal INPC_VAL         : std_logic_vector(31 downto 0);
 signal INPD_VAL         : std_logic_vector(31 downto 0);
 
 signal PRESCALE         : std_logic_vector(31 downto 0);
-signal SOFT_GATE        : std_logic;
 signal TABLE_START      : std_logic;
 signal TABLE_DATA       : std_logic_vector(31 downto 0);
 signal TABLE_WSTB       : std_logic;
@@ -95,7 +94,13 @@ port map (
     INPD_WSTB           => open,
     CUR_FRAME           => CUR_FRAME,
     CUR_FCYCLE          => CUR_FCYCLE,
-    CUR_TCYCLE          => CUR_TCYCLE
+    CUR_TCYCLE          => CUR_TCYCLE,
+    TABLE_START         => open,
+    TABLE_START_WSTB    => TABLE_START,
+    TABLE_DATA          => TABLE_DATA,
+    TABLE_DATA_WSTB     => TABLE_WSTB,
+    TABLE_LENGTH        => TABLE_LENGTH,
+    TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB
 );
 
 --
@@ -132,7 +137,6 @@ port map (
     active_o            => active_o,
 
     PRESCALE            => PRESCALE,
-    SOFT_GATE           => SOFT_GATE,
     TABLE_START         => TABLE_START,
     TABLE_DATA          => TABLE_DATA,
     TABLE_WSTB          => TABLE_WSTB,

@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_slowctrl_top.vhd
+--  File:       slowctrl_top.vhd
 --  Desc:       Position capture module
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_slowctrl_top is
+entity slowctrl_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -34,15 +34,15 @@ port (
     spi_sclk_i          : in  std_logic;
     spi_dat_i           : in  std_logic
 );
-end panda_slowctrl_top;
+end slowctrl_top;
 
-architecture rtl of panda_slowctrl_top is
+architecture rtl of slowctrl_top is
 
 begin
 --
 --
 --
-slowctrl_block_inst : entity work.panda_slowctrl_block
+slowctrl_block_inst : entity work.slowctrl_block
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,

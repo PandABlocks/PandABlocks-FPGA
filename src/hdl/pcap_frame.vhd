@@ -173,29 +173,7 @@ end process;
 --
 -- Instantiate Position Processing Blocks
 --
-
-PROC_ENC : FOR I IN 1 TO 4 GENERATE
-
-pcap_posproc_encoder : entity work.panda_pcap_posproc
-port map (
-    clk_i               => clk_i,
-    reset_i             => reset,
-
-    posn_i              => posbus_i(I),
-    extn_i              => extbus_i(I-1),
-
-    frame_i             => frame_rise,
-    capture_i           => capture_rise,
-    posn_o              => posn_o(I),
-    extn_o              => posn_o(I+31),
-
-    FRAMING_ENABLE      => FRAMING_ENABLE,
-    FRAMING_MODE        => FRAMING_MODE(I)
-);
-
-END GENERATE;
-
-PROC_OTHERS : FOR I IN 5 TO 20 GENERATE
+PROC_OTHERS : FOR I IN 1 TO 31 GENERATE
 
 pcap_posproc_encoder : entity work.panda_pcap_posproc
 port map (
@@ -217,10 +195,6 @@ END GENERATE;
 
 -- Zero field
 posn_o(0) <= posbus_i(0);
-
--- Bypass ADC Inputs
-posn_o(28 downto 21) <= (others => (others => '0'));
-posn_o(31 downto 29) <= posbus_i(31 downto 29);
 
 -- posn_o(35 downto 32) <= Encoder extention
 posn_o(37) <= std_logic_vector(frame_length);

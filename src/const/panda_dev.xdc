@@ -1,7 +1,3 @@
-# User LEDs - Bank 35
-set_property PACKAGE_PIN Y18 [get_ports {leds_o[0]}];
-set_property PACKAGE_PIN Y19 [get_ports {leds_o[1]}];
-
 # Using PMOD 1
 set_property PACKAGE_PIN AA17 [get_ports {spi_sclk_i}]; # PMOD1_D0_N
 set_property PACKAGE_PIN AA16 [get_ports {spi_sclk_o}]; # PMOD1_D0_P

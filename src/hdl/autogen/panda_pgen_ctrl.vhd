@@ -24,6 +24,11 @@ port (
     ENABLE_WSTB  : out std_logic;
     TRIG       : out std_logic_vector(31 downto 0);
     TRIG_WSTB  : out std_logic;
+    TABLE_ADDRESS       : out std_logic_vector(31 downto 0);
+    TABLE_ADDRESS_WSTB  : out std_logic;
+    TABLE_LENGTH       : out std_logic_vector(31 downto 0);
+    TABLE_LENGTH_WSTB  : out std_logic;
+
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
@@ -53,10 +58,16 @@ begin
             ENABLE_WSTB <= '0';
             TRIG <= (others => '0');
             TRIG_WSTB <= '0';
+            TABLE_ADDRESS <= (others => '0');
+            TABLE_ADDRESS_WSTB <= '0';
+            TABLE_LENGTH <= (others => '0');
+            TABLE_LENGTH_WSTB <= '0';
         else
             CYCLES_WSTB <= '0';
             ENABLE_WSTB <= '0';
             TRIG_WSTB <= '0';
+            TABLE_ADDRESS_WSTB <= '0';
+            TABLE_LENGTH_WSTB <= '0';
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
@@ -71,6 +82,14 @@ begin
                 if (mem_addr = PGEN_TRIG) then
                     TRIG <= mem_dat_i;
                     TRIG_WSTB <= '1';
+                end if;
+                if (mem_addr = PGEN_TABLE_ADDRESS) then
+                    TABLE_ADDRESS <= mem_dat_i;
+                    TABLE_ADDRESS_WSTB <= '1';
+                end if;
+                if (mem_addr = PGEN_TABLE_LENGTH) then
+                    TABLE_LENGTH <= mem_dat_i;
+                    TABLE_LENGTH_WSTB <= '1';
                 end if;
 
             end if;

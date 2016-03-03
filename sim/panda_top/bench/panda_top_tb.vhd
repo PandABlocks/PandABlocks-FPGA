@@ -138,8 +138,7 @@ PORT MAP (
     spi_sclk_o          => spi_sclk_o,
 
     enc0_ctrl_pad_i     => enc0_ctrl_pad_i,
-    enc0_ctrl_pad_o     => enc0_ctrl_pad_o,
-    leds_o              => leds
+    enc0_ctrl_pad_o     => enc0_ctrl_pad_o
 );
 
 

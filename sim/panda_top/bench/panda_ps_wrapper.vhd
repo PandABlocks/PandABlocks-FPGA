@@ -68,7 +68,26 @@ entity panda_ps is
     S_AXI_HP0_wlast : in STD_LOGIC;
     S_AXI_HP0_wready : out STD_LOGIC;
     S_AXI_HP0_wstrb : in STD_LOGIC_VECTOR ( 3 downto 0 );
-    S_AXI_HP0_wvalid : in STD_LOGIC
+    S_AXI_HP0_wvalid : in STD_LOGIC;
+
+    S_AXI_HP1_araddr : in STD_LOGIC_VECTOR ( 31 downto 0 );
+    S_AXI_HP1_arburst : in STD_LOGIC_VECTOR ( 1 downto 0 );
+    S_AXI_HP1_arcache : in STD_LOGIC_VECTOR ( 3 downto 0 );
+    S_AXI_HP1_arid : in STD_LOGIC_VECTOR ( 5 downto 0 );
+    S_AXI_HP1_arlen : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    S_AXI_HP1_arlock : in STD_LOGIC_VECTOR ( 0 to 0 );
+    S_AXI_HP1_arprot : in STD_LOGIC_VECTOR ( 2 downto 0 );
+    S_AXI_HP1_arqos : in STD_LOGIC_VECTOR ( 3 downto 0 ); 
+    S_AXI_HP1_arready : out STD_LOGIC;
+    S_AXI_HP1_arregion : in STD_LOGIC_VECTOR ( 3 downto 0 );
+    S_AXI_HP1_arsize : in STD_LOGIC_VECTOR ( 2 downto 0 );
+    S_AXI_HP1_arvalid : in STD_LOGIC;
+    S_AXI_HP1_rdata : out STD_LOGIC_VECTOR ( 31 downto 0 );
+    S_AXI_HP1_rid : out STD_LOGIC_VECTOR ( 5 downto 0 );
+    S_AXI_HP1_rlast : out STD_LOGIC;
+    S_AXI_HP1_rready : in STD_LOGIC;
+    S_AXI_HP1_rresp : out STD_LOGIC_VECTOR ( 1 downto 0 ); 
+    S_AXI_HP1_rvalid : out STD_LOGIC
   );
 end panda_ps;
 
@@ -140,6 +159,25 @@ port map (
     S_AXI_HP0_wready    => S_AXI_HP0_wready ,
     S_AXI_HP0_wstrb     => S_AXI_HP0_wstrb  ,
     S_AXI_HP0_wvalid    => S_AXI_HP0_wvalid ,
+
+    S_AXI_HP1_araddr => S_AXI_HP1_araddr,
+    S_AXI_HP1_arburst => S_AXI_HP1_arburst,
+    S_AXI_HP1_arcache => S_AXI_HP1_arcache,
+    S_AXI_HP1_arid => S_AXI_HP1_arid,
+    S_AXI_HP1_arlen => S_AXI_HP1_arlen,
+    S_AXI_HP1_arlock => S_AXI_HP1_arlock,
+    S_AXI_HP1_arprot => S_AXI_HP1_arprot,
+    S_AXI_HP1_arqos => S_AXI_HP1_arqos,
+    S_AXI_HP1_arready => S_AXI_HP1_arready,
+    S_AXI_HP1_arregion => S_AXI_HP1_arregion,
+    S_AXI_HP1_arsize => S_AXI_HP1_arsize,
+    S_AXI_HP1_arvalid => S_AXI_HP1_arvalid,
+    S_AXI_HP1_rdata => S_AXI_HP1_rdata,
+    S_AXI_HP1_rid => S_AXI_HP1_rid,
+    S_AXI_HP1_rlast => S_AXI_HP1_rlast,
+    S_AXI_HP1_rready => S_AXI_HP1_rready,
+    S_AXI_HP1_rresp => S_AXI_HP1_rresp,
+    S_AXI_HP1_rvalid => S_AXI_HP1_rvalid,
 
     PS_CLK              => FCLK,
     PS_PORB             => tb_RESETn,

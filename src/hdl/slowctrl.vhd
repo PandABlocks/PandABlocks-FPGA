@@ -18,7 +18,7 @@ use ieee.numeric_std.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity panda_slowctrl is
+entity slowctrl is
 generic (
     AW              : natural := 10;
     DW              : natural := 32;
@@ -42,9 +42,9 @@ port (
     spi_sclk_i      : in  std_logic;
     spi_dat_i       : in  std_logic
 );
-end panda_slowctrl;
+end slowctrl;
 
-architecture rtl of panda_slowctrl is
+architecture rtl of slowctrl is
 
 type sh_states is (idle, sync, shifting, deadtime);
 signal sh_state                 : sh_states;

@@ -38,11 +38,7 @@ while (1) begin
         $display("Total Samples = %d", total_samples);
 
         // Wait for new ARM
-        irq_count = 0;
-        total_samples = 0;
         pcap_completed = 1;
-
-//        $finish;
     end
 end
 
