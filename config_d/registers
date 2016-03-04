@@ -68,21 +68,21 @@ TTLIN       18
     VAL             2 3 4 5 6 7
 
 TTLOUT      0
-    VAL             0
+    VAL             0 1
 
 LVDSIN      17
     VAL             8 9
 
 LVDSOUT     1
-    VAL             0
+    VAL             0 1
 
 LUT         2
     FUNC            5
-    INPA            0
-    INPB            1
-    INPC            2
-    INPD            3
-    INPE            4
+    INPA            0 6
+    INPB            1 7
+    INPC            2 8
+    INPD            3 9
+    INPE            4 10
     OUT             10 11 12 13 14 15 16 17
 
 SRGATE      3
@@ -90,15 +90,15 @@ SRGATE      3
     RST_EDGE        3
     FORCE_SET       4
     FORCE_RST       5
-    SET             0
-    RST             1
+    SET             0 6
+    RST             1 7
     OUT             18 19 20 21
 
 DIV         4
     DIVISOR         2
     FIRST_PULSE     3
-    INP             0
-    ENABLE          1
+    INP             0 5
+    ENABLE          1 6
     OUTD            22 23 24 25
     OUTN            26 27 28 29
     COUNT           4
@@ -106,8 +106,8 @@ DIV         4
 PULSE       5
     DELAY           3 2     >3
     WIDTH           5 4     >3
-    INP             0
-    ENABLE          1
+    INP             0 11
+    ENABLE          1 12
     OUT             30 31 32 33
     PERR            34 35 36 37
     ERR_OVERFLOW    7
@@ -118,11 +118,11 @@ PULSE       5
 SEQ         6
     PRESCALE        5
     TABLE_CYCLE     8
-    ENABLE          0
-    INPA            1
-    INPB            2
-    INPC            3
-    INPD            4
+    ENABLE          0 12
+    INPA            1 13
+    INPB            2 14
+    INPC            3 15
+    INPD            4 16
     OUTA            38 39 40 41
     OUTB            42 43 44 45
     OUTC            46 47 48 49
@@ -155,27 +155,27 @@ INENC       7
 QDEC        8
     RST_ON_Z        3
     SETP            4
-    A               0
-    B               1
-    Z               2
+    A               0 5
+    B               1 6
+    Z               2 7
     OUT             5 6 7 8
 
 OUTENC      9
     PROTOCOL        5
     BITS            6
     QPERIOD         7
-    ENABLE          8
-    A               0
-    B               1
-    Z               2
+    ENABLE          8 10
+    A               0 11
+    B               1 12
+    Z               2 13
     VAL             4
-    CONN            3
+    CONN            3 14
     QSTATE          9
 
 POSENC      10
     INP             0
     QPERIOD         1
-    ENABLE          3
+    ENABLE          3 5
     PROTOCOL        2
     A               82 83 84 85
     B               86 87 88 89
@@ -190,18 +190,18 @@ ADDER       12
     OUT             10 11
 
 COUNTER     13
-    DIR             2
+    DIR             2 5
     START           3
     STEP            4
-    ENABLE          0
-    TRIG            1
+    ENABLE          0 6
+    TRIG            1 7
     CARRY           90 91 92 93 94 95 96 97
     OUT             12 13 14 15 16 17 18 19
 
 PGEN        14
     CYCLES          3
-    ENABLE          0
-    TRIG            1
+    ENABLE          0 6
+    TRIG            1 7
     OUT             20 21
     TABLE           long    2^8    4 5
 
@@ -214,7 +214,7 @@ PCOMP       15
     DIR             7
     DELTAP          8
     USE_TABLE       10
-    ENABLE          0
+    ENABLE          0 15
     INP             1
     ACTIVE          98 99 100 101
     OUT             102 103 104 105
@@ -225,9 +225,9 @@ ADC         26
     OUT             22 23 24 25 26 27 28 29 / 54 55 56 57 58 59 60 61
 
 PCAP        16
-    ENABLE          0
-    FRAME           1
-    CAPTURE         2
+    ENABLE          0 5
+    FRAME           1 6
+    CAPTURE         2 7
     ERR_STATUS      4
     ACTIVE          106
     CAPTURE_TS      62 / 63
