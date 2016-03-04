@@ -194,7 +194,8 @@ Field type          Description
 
     ``CAPTURE``
         This can be set to enable capture of this field.  The precise options
-        for capture depend on the extra options
+        for capture depend on the extra options, see the capture section for
+        details.
 
     The following attributes support formatting of the field when reading it:
     the current value is returned subject to the formatting rules described
@@ -228,8 +229,12 @@ Field type          Description
 
 ``ext_out`` [extra]
     Fields of this type represent values that can be captured but which are not
-    present on the position bus.  These fields also support the capture control
-    fields of ``bit_out`` fields.
+    present on the position bus.  These fields also support one capture control
+    field:
+
+    ``CAPTURE``
+        As for ``pos_out``, can be set to enable capture of this field.  The
+        available options are documented in the capture section.
 
     The optional extra field is used to identify the following categories of
     extra field:
@@ -237,6 +242,7 @@ Field type          Description
     =============== ============================================================
     (default)       Ordinary 32 bit values.
     ``timestamp``   Extended dynamic range timestamp.
+    ``offset``      Extra field to support timestamp capture.
     ``adc_count``   Number of ADC samples in each capture window.
     ``bits``        Special bits capture fields.
     =============== ============================================================
