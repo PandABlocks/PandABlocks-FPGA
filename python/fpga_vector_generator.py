@@ -41,7 +41,7 @@ class FpgaSequence(object):
         self.pos_bus = []
         # Add registers
         for name, (_, field) in config_block.registers.items():
-            if field.typ.endswith("_mux"):
+            if field and field.cls.endswith("_mux"):
                 self.bus_in.append(name)
             elif field.cls == "read":
                 self.reg_out.append(name)

@@ -127,7 +127,7 @@ OUTENC[4]
     A               bit_mux
     B               bit_mux
     Z               bit_mux
-    VAL             param       pos_mux
+    VAL             pos_mux
     CONN            bit_mux
     QSTATE          read        enum 3
         0   Disabled
@@ -135,7 +135,7 @@ OUTENC[4]
         2   Slewing
 
 POSENC[4]
-    INP             param       pos_mux
+    INP             pos_mux
     QPERIOD         param       time
     ENABLE          bit_mux
     PROTOCOL        param       enum 2
@@ -149,10 +149,10 @@ POSENC[4]
         2   Slewing
 
 ADDER[2]
-    INPA            param       pos_mux
-    INPB            param       pos_mux
-    INPC            param       pos_mux
-    INPD            param       pos_mux
+    INPA            pos_mux
+    INPB            pos_mux
+    INPC            pos_mux
+    INPD            pos_mux
     SCALE           param       enum 3
         0   /1
         1   /2
@@ -191,7 +191,7 @@ PCOMP[4]
         0   No
         1   Yes
     ENABLE          bit_mux
-    INP             param       pos_mux
+    INP             pos_mux
     ACTIVE          bit_out
     OUT             bit_out
     ERROR           read        enum 2
