@@ -176,7 +176,7 @@
 < TTLIN2.TERM?
 > OK =High-Z
 
-< TTLIN2.TERM.LABELS?
+< *ENUMS.TTLIN2.TERM?
 > !High-Z
 > !50-Ohm
 > .
@@ -429,8 +429,8 @@
 < *DESC.TTLIN.TERM?
 > OK =Select TTL input termination
 
-< *DESC.TTLIN.TERM.LABELS?
-> OK =List of possible enumeration values
+< *DESC.TTLIN.TERM.INFO?
+> OK =Class information for field
 
 # Capture and capture index
 < *CAPTURE=

@@ -55,7 +55,6 @@ attributes can be interrogated with the `block`\ ``.``\ field\ ``.*?`` command::
     > !INFO
     > .
     < TTLIN.TERM.*?
-    > !LABELS
     > !INFO
     > .
 
@@ -80,8 +79,9 @@ Field type          Description
 ``write`` subtype   A write only field, `subtype` determines possible values
                     and attributes.
 ``time``            Configurable timer parameter.
-``bit_out``         Bit output, can be configured for data capture and as bit
-                    input for ``param bit_mux`` fields.
+``bit_out``         Bit output, can be configured as bit input for ``bit_mux``
+                    fields.
+``bit_mux``         Bit input with configurable delay.
 ``pos_out`` [extra] Position output, can be configured for data capture and as
                     position input for ``param pos_mux`` fields.
 ``ext_out`` [extra] Extended output values, can be configured for data capture,
@@ -145,49 +145,57 @@ Field type          Description
     Note that changing ``UNITS`` doesn't change the delay, only how it is
     reported and interpreted.
 
-``bit_out`` [extra]
+``bit_out``
     Fields of this type are used for block outputs which contribute to the
     internal bit system bus, and they contribute to the ``*CHANGES.BITS`` change
-    group.  The following attributes are supported by fields of this type:
+    group.  They can be captured via the appropriate ``PCAP.BITS``\ n block as
+    reported by the ``CAPTURE_WORD`` attribute.
 
-    ``CAPTURE``
-        This read/write field can be set to 1 to enable capture of this bit.
-        Enabling capture will enable the corresponding ``*BITS``\ n block as
-        reported by ``*CAPTURE?``.
+    The following attributes are supported by fields of this type:
 
-    ``CAPTURE_INDEX``
-        This reports exactly where this bit will be captured, for example::
+    ``CAPTURE_WORD``
+        This identifies which ``pos_out`` value can be used to capture this bit.
 
-            < TTLIN3.VAL.CAPTURE_INDEX?
-            > OK =3:2
-            < *CAPTURE?
-            > !INENC1.ENC_POSN
-            > !INENC2.ENC_POSN
-            > !INENC3.ENC_POSN
-            > !*BITS0
-            > .
+    ``OFFSET``
+        This is the bit offset into the captured word of this particular bit.
 
-        The capture index ``3:2`` tells us that this bit will be captured as bit
-        number 2 of the capture word number 3, ``*BITS0`` as reported by
-        ``*CAPTURE?``.
+    For example::
 
-        If the field is not enabled for capture then this field returns an empty
-        string.
+        < TTLIN1.VAL.CAPTURE_WORD?
+        > OK =PCAP.BITS0
+        < TTLIN1.VAL.OFFSET?
+        > OK =2
+
+    This tells us that if ``PCAP.BITS0`` is captured then ``TTLIN1.VAL`` can be
+    read as bit 2 of this word, counting from the least significant bit.
 
     The field itself can be read to return the current value of the bit.
 
-``pos_out``
+``bit_mux``
+    Bit input selectors for blocks.  Each of these fields can be set to the name
+    of a corresponding ``bit_out`` field, for example::
+
+        < TTLOUT1.VAL=TTLIN1.VAL
+        > OK
+
+    There are two attributes:
+
+    ``DELAY``
+        This can be set to any value between 0 and ``MAX_DELAY`` to delay the
+        bit input to the block by the specified number of clock ticks.
+
+    ``MAX_DELAY``
+        This returns the maximum delay that can be set for this input.
+
+``pos_out`` [extra]
     Fields of this type are used for block outputs which contribute to the
     internal position bus, and they contribute to the ``*CHANGES.POSN`` change
     group.  The following attributes support capture control:
 
     ``CAPTURE``
-        As for ``bit_out``, this field is used to enable capture of this
-        position output.
-
-    ``CAPTURE_INDEX``
-        This is the sequence number of the captured word as reported by
-        ``*CAPTURE?`` or blank.
+        This can be set to enable capture of this field.  The precise options
+        for capture depend on the extra options, see the capture section for
+        details.
 
     The following attributes support formatting of the field when reading it:
     the current value is returned subject to the formatting rules described
@@ -201,14 +209,15 @@ Field type          Description
             raw * scale + offset
 
     ``UNITS``
-        This field can be set to any string, and is provided for the convenience
-        of the user interface.
+        This field can be set to any UTF-8 string, and is provided for the
+        convenience of the user interface.
 
     ``RAW``
-        This returns the underlying 32-bit number on the position bus.
+        This returns the underlying signed 32-bit number on the position bus.
 
     The optional extra field is used to manage four varieties of value on the
-    position bus:
+    position bus.  These determine how values are processed and which capture
+    options are possible:
 
     =============== ============================================================
     (default)       Default positions.
@@ -220,8 +229,12 @@ Field type          Description
 
 ``ext_out`` [extra]
     Fields of this type represent values that can be captured but which are not
-    present on the position bus.  These fields also support the capture control
-    fields of ``bit_out`` fields.
+    present on the position bus.  These fields also support one capture control
+    field:
+
+    ``CAPTURE``
+        As for ``pos_out``, can be set to enable capture of this field.  The
+        available options are documented in the capture section.
 
     The optional extra field is used to identify the following categories of
     extra field:
@@ -229,6 +242,7 @@ Field type          Description
     =============== ============================================================
     (default)       Ordinary 32 bit values.
     ``timestamp``   Extended dynamic range timestamp.
+    ``offset``      Extra field to support timestamp capture.
     ``adc_count``   Number of ADC samples in each capture window.
     ``bits``        Special bits capture fields.
     =============== ============================================================
@@ -265,8 +279,7 @@ Field type          Description
         table.
 
     ``LENGTH``
-        This is the current number of words in the table.  The rest of the table
-        is filled with zeros.
+        This is the current number of words in the table.
 
     ``B``
         This read-only attribute returns the content of the table in base-64.
@@ -284,11 +297,14 @@ The following field sub-types can be used for ``param``, ``read`` and ``write``
 fields.
 
 ``uint``
-    This is the most basic type: the value read or written is a 32-bit number.
-    There is one fixed attribute:
+    This is the most basic type: the value read or written is an unsigned 32-bit
+    number.  There is one fixed attribute:
 
     ``MAX``
         This returns the maximum value that can be written to this field.
+
+``int``
+    Similar to ``uint``, but signed, and there is no upper limit on the value.
 
 ``bit``
     A value which is 0 or 1, there are no extra attributes.
@@ -297,14 +313,12 @@ fields.
     A value which cannot be read and always writes as 0.  Only useful for
     ``write`` fields.
 
-``bit_mux``, ``pos_mux``
-    Input selectors for blocks.  Each of these fields can be set to the name of
-    a corresponding ``bit_out`` or ``pos_out`` field, for example::
+``pos_mux``
+    Position input selectors for blocks.  Each of these fields can be set to the
+    name of a corresponding ``pos_out`` field, for example::
 
-        < TTLOUT1.VAL=TTLIN1.VAL
+        < ADDER1.INPA=ADC2.OUT
         > OK
-
-    There are no extra attributes.
 
 ``lut``
     This field sub-type is used for the 5-input lookup table function
@@ -333,31 +347,67 @@ fields.
 
 ``enum``
     Enumeration fields define a list of valid strings which can be written to
-    the field.  One attributes is supported:
+    the field.  To interrogate the list of valid enumeration values use the
+    ``*ENUMS`` command, for example::
 
-    ``LABELS``
-        This returns the list of valid enumeration values, for example::
+        < *ENUMS.TTLIN1.TERM?
+        > !High-Z
+        > !50-Ohm
+        > .
 
-            < TTLIN1.TERM.LABELS?
-            > !High-Z
-            > !50-Ohm
-            > .
+``position``
+    This is used for floating point numbers which are converted from or to an
+    underlying 32-bit signed value via the conversion
+
+        value = raw * scale + offset
+
+    The following attributes are supported and are the same as for ``pos_out``:
+
+    ``OFFSET``, ``SCALE``
+        These numbers can be set to configure the conversion from the underlying
+        position to the reported value.  The value reported when reading the
+        field is
+
+            raw * scale + offset
+
+    ``UNITS``
+        This field can be set to any UTF-8 string, and is provided for the
+        convenience of the user interface.
+
+    ``RAW``
+        This returns the underlying signed 32-bit number.
+
+``time``
+    As for the ``time`` field type, converts between time in specified units and
+    time in FPGA clock ticks.  The following fields are supported:
+
+    ``UNITS``
+        This attribute can be set to any of the strings ``min``, ``s``, ``ms``,
+        or ``us``, and is used to interpret how values read and written to the
+        field are interpreted.
+
+    ``RAW``
+        This attribute can be read or written to report or set the delay in FPGA
+        ticks.
 
 
 Summary of Sub-Types
 --------------------
 
-=========== =========== ========================================================
-Sub-type    Attributes  Description
-=========== =========== ========================================================
-uint        MAX         Possibly bounded 32-bit unsigned integer value
-bit                     Bit: 0 or 1
-action                  Write only, no value
-bit_mux                 Bit input multiplexer selection
-pos_mux                 Position input mutiplexer selection
-lut         RAW         5 input lookup table logical formula
-enum        LABELS      Enumeration selection
-=========== =========== ========================================================
+=========== =============== ====================================================
+Sub-type    Attributes      Description
+=========== =============== ====================================================
+uint        MAX             Possibly bounded 32-bit unsigned integer value
+int                         Unbounded 32-bit signed integer value
+bit                         Bit: 0 or 1
+action                      Write only, no value
+pos_mux                     Position input mutiplexer selection
+lut         RAW             5 input lookup table logical formula
+enum        LABELS          Enumeration selection
+position    RAW, OFFSET,    Floating point numbers interpreting integer
+            SCALE, UNITS    according to specified scaling factor and offset
+time        RAW, UNITS      Time intervals converted to FPGA ticks
+=========== =============== ====================================================
 
 
 Summary of Attributes
@@ -369,14 +419,19 @@ Field (sub)type Attribute       Description                             R W C M
 (all)           INFO            Returns type of field                   R
 uint            MAX             Maximum allowed integer value           R
 lut             RAW             Computed Lookup Table 32-bit value      R
-enum            LABELS          List of enumeration labels              R     M
 time            UNITS           Units and scaling selection for time    R W C
 \               RAW             Raw time in FPGA clock cycles           R W
-bit_out         CAPTURE         Bit capture control                     R W C
-\               CAPTURE_INDEX   Bit capture word and bit index          R
+\               MIN             Minimum valid setting (for type only)   R
+bit_out         CAPTURE_WORD    Capturable word containing this bit     R
+\               OFFSET          Offset of this bit in captured word     R
+bit_mux         DELAY           Bit input delay in FPGA ticks           R W C
+\               MAX_DELAY       Maximum valid delay                     R
 pos_out         CAPTURE         Position capture control                R W C
-\               CAPTURE_INDEX   Position capture word index             R
 \               OFFSET          Position offset                         R W C
+\               SCALE           Position scaling                        R W C
+\               UNITS           Position units                          R W C
+\               RAW             Underlying raw position value           R
+position        OFFSET          Position offset                         R W C
 \               SCALE           Position scaling                        R W C
 \               UNITS           Position units                          R W C
 \               RAW             Underlying raw position value           R
