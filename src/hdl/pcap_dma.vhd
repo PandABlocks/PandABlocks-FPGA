@@ -276,9 +276,14 @@ if rising_edge(clk_i) then
             -- Wait until FIFO has enough data worth for a AXI burst
             -- (AXI_BURST_LEN beats).
             when ACTV =>
+                -- An unrecoverable error occured, no need to continue finishing
+                -- off the buffer.
+                if (pcap_completed = '1' and pcap_status_i /= "000") then
+                    last_tlp <= '1';
+                    pcap_fsm <= IS_FINISHED;
                 -- Timeout occured, transfer all data in the buffer before
                 -- raising IRQ.
-                if (pcap_timeout = '1') then
+                elsif (pcap_timeout = '1') then
                     if (fifo_count = 0) then
                         pcap_fsm <= IS_FINISHED;
                     else
@@ -287,7 +292,7 @@ if rising_edge(clk_i) then
                         m_axi_burst_len <= fifo_data_count(AXI_BURST_WIDTH-1 downto 0);
                         pcap_fsm <= DO_DMA;
                     end if;
-                -- More than 1 TLP in the queue. ???
+                -- More than 1 TLP in the queue.
                 elsif (fifo_count > AXI_BURST_LEN) then
                     dma_start <= '1';
                     sample_count <= sample_count + AXI_BURST_LEN;
@@ -320,8 +325,7 @@ if rising_edge(clk_i) then
             -- Decide what to do next.
             -- Sets IRQ status and latch Sample Counts accordingly.
             when IS_FINISHED =>
-                -- Last TLP happens on either scan capture finish, or
-                -- graceful finish on DISARM.
+                -- Last TLP happens on either scan capture finish or error.
                 if (last_tlp = '1') then
                     -- PCAP completed
                     irq_flags(0) <= '1';

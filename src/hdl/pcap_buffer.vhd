@@ -39,10 +39,8 @@ signal mask_length      : unsigned(5 downto 0);
 signal mask_addra       : unsigned(5 downto 0);
 signal mask_addrb       : unsigned(5 downto 0);
 signal mask_doutb       : std_logic_vector(31 downto 0);
-
+signal capture          : std_logic;
 begin
-
-pcap_dat_o <= capture_data_lt(to_integer(mask_doutb));
 
 --
 -- Position Bus capture mask is implemented using a Block RAM to
@@ -85,48 +83,52 @@ begin
     end if;
 end process;
 
+capture <= capture_i or ongoing_capture;
+
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1' or enable_i = '0') then
             ongoing_capture <= '0';
-            pcap_dat_valid_o <= '0';
-            mask_addrb <= (others => '0');
             mask_addrb <= (others => '0');
             error_o <= '0';
+            pcap_dat_valid_o <= '0';
         else
-            -- Latch all capture fields on rising edge of capture, ignore
-            -- if a new capture arrives.
-            if (capture_i = '1' and ongoing_capture = '0') then
+            -- Latch all capture fields on rising edge of capture.
+            if (capture_i = '1' and mask_addrb = 0) then
                 capture_data_lt <= fatpipe_i;
             end if;
 
             -- Ongoing flag runs while mask buffer is read through.
-            if (capture_i = '1' and ongoing_capture = '0') then
-                ongoing_capture <= '1';
-            elsif (mask_addrb = mask_length - 1) then
+            -- Do not produce ongoing pulse if len = 1
+            if (mask_addrb = mask_length - 1) then
                 ongoing_capture <= '0';
+            elsif (capture_i = '1' and mask_addrb = 0) then
+                ongoing_capture <= '1';
             end if;
 
-            -- Counter is active follwing capture until all CAPTURE_MASK
-            -- register is consumed.
-            if (ongoing_capture = '1') then
-                mask_addrb <= mask_addrb + 1;
+            -- Counter is active follwing capture and rolls over.
+            if (capture = '1') then
+                if (mask_addrb = mask_length - 1) then
+                    mask_addrb <= (others => '0');
+                else
+                    mask_addrb <= mask_addrb + 1;
+                end if;
             else
                 mask_addrb <= (others => '0');
             end if;
 
-            -- Generate pcap data and write strobe.
-            pcap_dat_valid_o <= ongoing_capture;
+            pcap_dat_valid_o <= capture;
 
-            -- Flag an error when a capture pulse is received during an ongoing 
-            -- capture
-            error_o <= '0';
-            if (ongoing_capture = '1' and capture_i = '1') then
-                error_o <= '1';
+            -- Flag an error on consecutive captures
+            if (ongoing_capture = '1' and mask_addrb <= mask_length - 1) then
+                error_o <= capture_i;
             end if;
         end if;
     end if;
 end process;
+
+-- Generate pcap data and write strobe.
+pcap_dat_o <= capture_data_lt(to_integer(mask_doutb));
 
 end rtl;
 

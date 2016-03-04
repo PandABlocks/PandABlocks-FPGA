@@ -18,9 +18,9 @@ port (
     DISARM              : in  std_logic;
     -- Block Inputs and Outputs
     enable_i            : in  std_logic;
-    abort_i             : in  std_logic;
+    pcap_error_i        : in  std_logic;
     ongoing_capture_i   : in  std_logic;
-    dma_full_i          : in  std_logic;
+    dma_error_i         : in  std_logic;
     pcap_armed_o        : out std_logic;
     pcap_enabled_o      : out std_logic;
     pcap_done_o         : out std_logic;
@@ -36,8 +36,14 @@ signal panda_arm_fsm        : pcap_arm_t;
 signal enable_prev          : std_logic;
 signal enable_fall          : std_logic;
 signal abort_capture        : std_logic;
+signal pcap_armed           : std_logic;
+signal pcap_enabled         : std_logic;
 
 begin
+
+-- Assign outputs
+pcap_armed_o <= pcap_armed;
+pcap_enabled_o <= pcap_enabled;
 
 -- Register inputs, and detect rise/falling edge of internal signals.
 enable_fall <= not enable_i and enable_prev;
@@ -49,11 +55,12 @@ process(clk_i) begin
 end process;
 
 -- Blocks operation is aborted under following conditions.
-abort_capture <= DISARM or abort_i or dma_full_i;
+abort_capture <= DISARM or pcap_error_i or dma_error_i;
 
 process(clk_i) begin
     if rising_edge(clk_i) then
         enable_prev <= enable_i;
+
     end if;
 end process;
 
@@ -64,10 +71,31 @@ process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             panda_arm_fsm <= IDLE;
-            pcap_armed_o <= '0';
-            pcap_enabled_o <= '0';
+            pcap_armed <= '0';
+            pcap_enabled <= '0';
             pcap_done_o <= '0';
             pcap_status_o <= "000";
+        -- Stop capturing on error if armed.
+        elsif (pcap_armed = '1' and abort_capture = '1') then
+            panda_arm_fsm <= IDLE;
+            pcap_armed <= '0';
+            pcap_enabled <= '0';
+            pcap_done_o <= '1';
+            -- Set abort flags accordingly.
+            -- User disarm;
+            if (DISARM = '1') then
+                pcap_status_o(0) <= '1';
+            end if;
+
+            -- Pcap block error;
+            if (pcap_error_i = '1') then
+                pcap_status_o(1) <= '1';
+            end if;
+
+            -- DMA FIFO full;
+            if (dma_error_i = '1') then
+                pcap_status_o(2) <= '1';
+            end if;
         else
             case (panda_arm_fsm) is
                 -- Wait for user arm.
@@ -75,22 +103,16 @@ process(clk_i) begin
                     pcap_done_o <= '0';
                     if (ARM = '1') then
                         panda_arm_fsm <= ARMED;
-                        pcap_armed_o <= '1';
-                        pcap_enabled_o <= '0';
+                        pcap_armed <= '1';
+                        pcap_enabled <= '0';
                         pcap_status_o <= "000";
                     end if;
 
                 -- Wait for enable pulse from the system bus.
                 when ARMED =>
-                    -- Abort has priority than enable pulse.
-                    if (abort_capture = '1') then
-                        panda_arm_fsm <= IDLE;
-                        pcap_armed_o <= '0';
-                        pcap_enabled_o <= '0';
-                        pcap_done_o <= '1';
-                    elsif (enable_i = '1') then
+                    if (enable_i = '1') then
                         panda_arm_fsm <= ENABLED;
-                        pcap_enabled_o <= '1';
+                        pcap_enabled <= '1';
                     end if;
 
                     -- Set abort flags accordingly. If finish_block is due
@@ -99,48 +121,33 @@ process(clk_i) begin
                         pcap_status_o(0) <= '1';
                     end if;
 
-                    if (abort_i = '1') then
+                    if (pcap_error_i = '1') then
                         pcap_status_o(1) <= '1';
                     end if;
 
                 -- Enabled until capture is finished or user disarm or
                 -- block error.
                 when ENABLED =>
-                    if (abort_capture = '1' or enable_fall = '1') then
-                        -- Abort gracefully, and make sure that ongoing write
+                    if (enable_fall = '1') then
+                        -- Complete gracefully, and make sure that ongoing write
                         -- into the DMA fifo is completed.
                         if (ongoing_capture_i = '1') then
                             panda_arm_fsm <= WAIT_ONGOING_WRITE;
                         else
                             panda_arm_fsm <= IDLE;
-                            pcap_armed_o <= '0';
-                            pcap_enabled_o <= '0';
+                            pcap_armed <= '0';
+                            pcap_enabled <= '0';
                             pcap_done_o <= '1';
                         end if;
-
-                        -- Set abort flags accordingly.
-                        -- User disarm;
-                        if (DISARM = '1') then
-                            pcap_status_o(0) <= '1';
-                        end if;
-
-                        -- Pcap block error;
-                        if (abort_i = '1') then
-                            pcap_status_o(1) <= '1';
-                        end if;
-
-                        -- DMA FIFO full;
-                        if (dma_full_i = '1') then
-                            pcap_status_o(2) <= '1';
-                        end if;
                     end if;
+
 
                 -- Wait for ongoing capture capture finish.
                 when WAIT_ONGOING_WRITE =>
                     if (ongoing_capture_i = '0') then
                         panda_arm_fsm <= IDLE;
-                        pcap_armed_o <= '0';
-                        pcap_enabled_o <= '0';
+                        pcap_armed <= '0';
+                        pcap_enabled <= '0';
                         pcap_done_o <= '1';
                     end if;
 

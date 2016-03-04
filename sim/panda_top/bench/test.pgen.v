@@ -11,7 +11,7 @@ enable = 0;
 capture = 0;
 
 PGEN_REPEAT  = 1;
-PGEN_SAMPLES = 10000;
+PGEN_SAMPLES = 10;
 
 repeat(125) @(posedge tb.uut.ps.FCLK);
 
