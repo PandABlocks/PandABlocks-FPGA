@@ -13,9 +13,9 @@ class Div(Block):
         OUTN or OUTD, on a falling edge set them both low"""
         if self.ENABLE:
             if inp:
-                self.OUT += 1
-                if self.OUT >= self.DIVISOR:
-                    self.OUT = 0
+                self.COUNT += 1
+                if self.COUNT >= self.DIVISOR:
+                    self.COUNT = 0
                     self.OUTD = 1
                 else:
                     self.OUTN = 1
@@ -28,9 +28,9 @@ class Div(Block):
         self.OUTD = 0
         self.OUTN = 0
         if self.FIRST_PULSE == OUTN:
-            self.OUT = 0
+            self.COUNT = 0
         else:
-            self.OUT = self.DIVISOR - 1
+            self.COUNT = self.DIVISOR - 1
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
