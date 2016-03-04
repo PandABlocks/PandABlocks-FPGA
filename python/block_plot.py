@@ -114,9 +114,9 @@ def make_block_plot(blockname, title):
                 in_regs_names.add(name[:-2])
             elif name in block.registers:
                 _, field = block.registers[name]
-                if field.cls == "param" and field.typ == "bit_mux":
+                if field.cls == "bit_mux":
                     in_bits_names.add(name)
-                elif field.cls == "param" and field.typ == "pos_mux":
+                elif field.cls == "pos_mux":
                     in_positions_names.add(name)
                 else:
                     in_regs_names.add(name)

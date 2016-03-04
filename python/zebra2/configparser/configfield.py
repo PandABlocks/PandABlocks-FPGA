@@ -65,11 +65,3 @@ class ConfigField(object):
                 self.desc = ""
         else:
             self.desc = None
-
-    @property
-    def typ(self):
-        """Returns first cls_arg if it exists"""
-        if self.cls_args:
-            return self.cls_args[0]
-        else:
-            return ""
