@@ -102,7 +102,7 @@ All system commands are prefixed with a leading ``*`` character.  The simplest
 command is ``*IDN?`` which returns a system identification string::
 
     < *IDN?
-    > OK =PandA
+    > OK =PandA SW: 330bd94-dirty FPGA: 0.1.9 d1275f61 00000000
 
 The available system commands are tabulated here and listed in more detail
 below:
@@ -150,7 +150,7 @@ below:
 ``*IDN?``
     Returns system identification string, for example the following::
 
-        OK =PandA cfd4128-dirty 00000106 dbb76f26 00000000
+        OK =PandA SW: 330bd94-dirty FPGA: 0.1.9 d1275f61 00000000
 
     The first field after "PandA" is the software version, the second field is
     the FPGA version, the third the firmware build number, and the fourth field
@@ -203,15 +203,13 @@ below:
         > OK =TTL input
         < *DESC.TTLIN.TERM?
         > OK =Select TTL input termination
-        < *DESC.TTLIN.TERM.LABELS?
-        > OK =List of possible enumeration values
+        < *DESC.TTLIN.TERM.INFO?
+        > OK =Class information for field
 
 | ``*ENUMS.``\ block\ ``.``\ field\ ``?``
 | ``*ENUMS.``\ block\ ``.``\ field\ ``.``\ attr\ ``?``
 
     Returns list of enumerations for given field or attribute, if appropriate.
-    For fields returns the same as interrogating the ``.LABELS`` attribute of
-    the field.
 
 | ``*CHANGES?``
 | ``*CHANGES.CONFIG?``
