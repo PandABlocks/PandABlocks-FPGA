@@ -74,7 +74,7 @@ class SequenceTest(unittest.TestCase):
                     # Check that this is a valid field name
                     self.assertIn(name, dir(block.config_block))
                     field = block.config_block.fields.get(name, None)
-                    if field and field.typ.endswith("_mux"):
+                    if field and field.cls.endswith("_mux"):
                         current = bus.get(name, 0)
                         self.assertNotEqual(
                             val, current,

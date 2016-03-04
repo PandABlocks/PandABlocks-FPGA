@@ -100,6 +100,11 @@ class ConfigBlock(object):
         elif field.cls == "time":
             attrs.append(("%s_L" % field.name, field.reg[0]))
             attrs.append(("%s_H" % field.name, field.reg[1]))
+        elif field.cls == "bit_mux":
+            attrs.append((field.name, field.reg[0]))
+            # Add a DLY register, but note that the logic for this is handled in
+            # the controller, not in each block level simulation
+            attrs.append(("%s_DLY" % field.name, field.reg[1]))
         elif field.reg[0] == "slow":
             attrs.append((field.name, field.reg[1]))
         else:

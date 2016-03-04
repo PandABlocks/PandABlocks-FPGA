@@ -50,6 +50,9 @@ class Controller(object):
         # What blocks are listening to each bit_bus and pos_bus parameter?
         # Dict of str bus_name -> [Block block]
         self.listeners = {}
+        # What delay should each bit_mux have
+        # Dict of (Block block, str attr) -> int dly
+        self.delays = {}
 
     def _create_block(self, name, config_block):
         """Create an instance of the block if we can, or a Block if we can't
@@ -64,9 +67,9 @@ class Controller(object):
             package = getattr(imp.simulation, name.lower())
             clsnames = [n for n in dir(package) if n.upper() == name]
             cls = getattr(package, clsnames[0])
-            print "Got %s sim" % cls.__name__
+            # print "Got %s sim" % cls.__name__
         except ImportError:
-            print "No %s sim, using Block" % name.title()
+            # print "No %s sim, using Block" % name.title()
 
             class cls(Block):
                 pass
@@ -140,8 +143,12 @@ class Controller(object):
                     self.capture_pos_bus()
             else:
                 field = block.config_block.fields.get(name, None)
-                if field and field.typ.endswith("_mux"):
-                    block_changes = self.update_listeners(block, name, value)
+                if field is None and name.endswith("_DLY"):
+                    # Note: this is different from the FPGA implementation
+                    block_changes = {}
+                    self.delays[(block, name[:-4])] = value
+                elif field and field.cls.endswith("_mux"):
+                    block_changes = self.update_mux(block, name, value)
                 else:
                     block_changes = {block: {name: value}}
                 self.do_tick(block_changes)
@@ -196,34 +203,46 @@ class Controller(object):
             else:
                 break
         # Wake the selected blocks up
-        if block_changes:
-            for block, changes in block_changes.items():
-                next_ts = block.on_changes(ts, changes)
-                # Update bit_bus and pos_bus
-                # map block -> changes
-                new_wakeups = {}
-                for attr, val in getattr(block, "_changes", {}).items():
-                    # Map (block, attr) -> bus, bus_changes, idx
-                    # Map (bus, idx) -> block, attr
-                    data = self.bus_lookup.get((block, attr), None)
-                    if data is None:
-                        continue
-                    bus, bus_changes, idx = data
-                    bus[idx] = val
-                    bus_changes[idx] = 1
-                    # If someone's listening, tell them about it
-                    for lblock, lattr in self.listeners.get((block, attr), ()):
-                        new_wakeups.setdefault(lblock, {})[lattr] = val
-                for lblock, changes in new_wakeups.items():
-                    self.insert_wakeup(ts+1, lblock, changes)
-                block._changes = {}
-                # Remove the old wakeup if we have one
-                self.remove_wakeup(block)
-                # Tell us when we're next due to be woken
-                if next_ts is not None:
-                    self.insert_wakeup(next_ts, block, {})
+        new_wakeups = self.process_blocks(ts, block_changes)
+        # Schedule the wakeups at the correct time
+        for (block, wakeup), changes in new_wakeups.items():
+            self.remove_wakeup(block)
+            self.insert_wakeup(wakeup, block, changes)
+
+    def process_blocks(self, ts, block_changes):
+        # map block -> changes
+        new_wakeups = {}
+        for block, changes in block_changes.items():
+            # Remove the old wakeup if we have one
+            self.remove_wakeup(block)
+            next_ts = block.on_changes(ts, changes)
+            # Update bit_bus and pos_bus
+            for attr, val in getattr(block, "_changes", {}).items():
+                # Map (block, attr) -> bus, bus_changes, idx
+                # Map (bus, idx) -> block, attr
+                data = self.bus_lookup.get((block, attr), None)
+                if data is None:
+                    continue
+                bus, bus_changes, idx = data
+                bus[idx] = val
+                bus_changes[idx] = 1
+                # If someone's listening, tell them about it
+                for lblock, lattr in self.listeners.get((block, attr), ()):
+                    # How long do they need to wait for an event
+                    dly = self.delays.get((lblock, lattr), 0)
+                    # Add it to our list of new wakeups for this block
+                    key = (lblock, ts+1+dly)
+                    new_wakeups.setdefault(key, {})[lattr] = val
+            # Reset the changed attributes dict
+            block._changes = {}
+            # If we are due to be woken up, add this one to the wakeup dict
+            if next_ts is not None:
+                new_wakeups.setdefault((block, next_ts), {})
+        return new_wakeups
 
     def insert_wakeup(self, ts, block, changes):
+        assert block not in self.next_wakeup, \
+            "Block %s already has a wakeup" % block
         item = (ts, block, changes)
         # Insert the new wakeup
         index = bisect.bisect(self.wakeups, item)
@@ -232,7 +251,7 @@ class Controller(object):
 
     def remove_wakeup(self, block):
         # Delete the old entry
-        old_ts = self.next_wakeup.get(block, None)
+        old_ts = self.next_wakeup.pop(block, None)
         if old_ts is not None:
             index = bisect.bisect(self.wakeups, (old_ts, None, None))
             while True:
@@ -241,9 +260,8 @@ class Controller(object):
                     "Gone too far %d > %d" % (wakeup[0], old_ts)
                 if wakeup[1] == block:
                     assert wakeup[2] == {}, \
-                        "Popping a wakeup with changes: %s" %(wakeup)
+                        "Popping a wakeup with changes: %s" % wakeup
                     self.wakeups.pop(index)
-                    self.next_wakeup[block] = None
                     return
 
     def calc_timeout(self):
@@ -256,12 +274,12 @@ class Controller(object):
             next_time = self.wakeups[0][0] * CLOCK_TICK + self.start_time
             return next_time - time.time()
 
-    def update_listeners(self, block, name, value):
+    def update_mux(self, block, name, value):
         """Update listeners for muxes on block
 
         Args:
             block (Block): Block that is updating an attr value
-            name (str): Attribute name that is changin
+            name (str): Attribute name that is changing
             value (int): New value
 
         Returns:
@@ -277,11 +295,11 @@ class Controller(object):
         field = block.config_block.fields[name]
         # check old values
         old_bus_val = getattr(block, name)
-        if field.typ == "bit_mux":
+        if field.cls == "bit_mux":
             new_bus_val = Block.bit_bus[value]
         else:
             new_bus_val = Block.pos_bus[value]
-        lblock, lattr = self.bus_lookup[(field.typ[:3], value)]
+        lblock, lattr = self.bus_lookup[(field.cls[:3], value)]
         # Update listeners for this field
         self.listeners.setdefault((lblock, lattr), []).append((block, name))
         # Generate changes
