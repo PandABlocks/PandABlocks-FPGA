@@ -22,7 +22,7 @@ args = parser.parse_args()
 
 server = socket.socket()
 server.connect((args.server, args.port))
-server.settimeout(0.1)
+server.settimeout(0.5)
 
 transcript = open(args.script, 'r')
 
