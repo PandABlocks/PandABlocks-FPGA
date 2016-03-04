@@ -19,7 +19,7 @@ port (
     reset_i             : in  std_logic;
     -- Block Parameters
 {%  for regname, reg in block.registers.iteritems() %}
-{%      if reg[1].cls in ['param', 'write', 'table', 'time'] %}
+{%      if reg[1].cls in ['param', 'write', 'table', 'time', 'bit_mux', 'pos_mux'] %}
     {{regname}}       : out std_logic_vector(31 downto 0);
     {{regname}}_WSTB  : out std_logic;
 {%      elif reg[1].cls in ['read'] %}
@@ -50,14 +50,14 @@ begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
 {%  for regname, reg in block.registers.iteritems() %}
-{%      if reg[1].cls in ['param', 'write', 'table', 'time'] %}
+{%      if reg[1].cls in ['param', 'write', 'table', 'time', 'bit_mux', 'pos_mux'] %}
             {{regname}} <= (others => '0');
             {{regname}}_WSTB <= '0';
 {%      endif %}
 {%  endfor %}
         else
 {%  for regname, reg in block.registers.iteritems() %}
-{%      if reg[1].cls in ['param', 'write', 'table', 'time'] %}
+{%      if reg[1].cls in ['param', 'write', 'table', 'time', 'bit_mux', 'pos_mux'] %}
             {{regname}}_WSTB <= '0';
 {%      endif %}
 {%  endfor %}
@@ -65,7 +65,7 @@ begin
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
 {%  for regname, reg in block.registers.iteritems() %}
-{%      if reg[1].cls in ['param', 'write', 'table', 'time'] %}
+{%      if reg[1].cls in ['param', 'write', 'table', 'time', 'bit_mux', 'pos_mux'] %}
                 if (mem_addr = {{block.name}}_{{regname}}) then
                     {{regname}} <= mem_dat_i;
                     {{regname}}_WSTB <= '1';
