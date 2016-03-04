@@ -389,15 +389,15 @@
 < LUT.*?
 > !OUT 6 bit_out
 > !FUNC 0 param lut
-> !INPB 2 param bit_mux
-> !INPC 3 param bit_mux
-> !INPA 1 param bit_mux
-> !INPD 4 param bit_mux
-> !INPE 5 param bit_mux
+> !INPB 2 bit_mux
+> !INPC 3 bit_mux
+> !INPA 1 bit_mux
+> !INPD 4 bit_mux
+> !INPE 5 bit_mux
 > .
 
 < LUT1.INPC.INFO?
-> OK =param bit_mux
+> OK =bit_mux
 
 < LUT.FUNC.*?
 > !INFO
@@ -667,14 +667,14 @@
 > !FRAME_LENGTH 6 ext_out
 > !CAPTURE_OFFSET 7 ext_out offset
 > !ACTIVE 4 bit_out
-> !ENABLE 0 param bit_mux
+> !ENABLE 0 bit_mux
 > !BITS2 11 ext_out bits
-> !CAPTURE 2 param bit_mux
+> !CAPTURE 2 bit_mux
 > !BITS0 9 ext_out bits
 > !BITS3 12 ext_out bits
 > !CAPTURE_TS 5 ext_out timestamp
 > !ERR_STATUS 3 read enum
-> !FRAME 1 param bit_mux
+> !FRAME 1 bit_mux
 > !BITS1 10 ext_out bits
 > !ADC_COUNT 8 ext_out adc_count
 > .
