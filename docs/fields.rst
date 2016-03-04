@@ -81,11 +81,12 @@ Field type          Description
 ``time``            Configurable timer parameter.
 ``bit_out``         Bit output, can be configured as bit input for ``bit_mux``
                     fields.
-``bit_mux``         Bit input with configurable delay.
 ``pos_out`` [extra] Position output, can be configured for data capture and as
-                    position input for ``param pos_mux`` fields.
+                    position input for ``pos_mux`` fields.
 ``ext_out`` [extra] Extended output values, can be configured for data capture,
                     but not available on position bus.
+``bit_mux``         Bit input with configurable delay.
+``pos_mux``         Position input multiplexer selection.
 ``table``           Table data with special access methods.
 =================== ============================================================
 
@@ -171,22 +172,6 @@ Field type          Description
 
     The field itself can be read to return the current value of the bit.
 
-``bit_mux``
-    Bit input selectors for blocks.  Each of these fields can be set to the name
-    of a corresponding ``bit_out`` field, for example::
-
-        < TTLOUT1.VAL=TTLIN1.VAL
-        > OK
-
-    There are two attributes:
-
-    ``DELAY``
-        This can be set to any value between 0 and ``MAX_DELAY`` to delay the
-        bit input to the block by the specified number of clock ticks.
-
-    ``MAX_DELAY``
-        This returns the maximum delay that can be set for this input.
-
 ``pos_out`` [extra]
     Fields of this type are used for block outputs which contribute to the
     internal position bus, and they contribute to the ``*CHANGES.POSN`` change
@@ -246,6 +231,29 @@ Field type          Description
     ``adc_count``   Number of ADC samples in each capture window.
     ``bits``        Special bits capture fields.
     =============== ============================================================
+
+``bit_mux``
+    Bit input selectors for blocks.  Each of these fields can be set to the name
+    of a corresponding ``bit_out`` field, for example::
+
+        < TTLOUT1.VAL=TTLIN1.VAL
+        > OK
+
+    There are two attributes:
+
+    ``DELAY``
+        This can be set to any value between 0 and ``MAX_DELAY`` to delay the
+        bit input to the block by the specified number of clock ticks.
+
+    ``MAX_DELAY``
+        This returns the maximum delay that can be set for this input.
+
+``pos_mux``
+    Position input selectors for blocks.  Each of these fields can be set to the
+    name of a corresponding ``pos_out`` field, for example::
+
+        < ADDER1.INPA=ADC2.OUT
+        > OK
 
 ``table``
     Values of this type are used for long tables of numbers.  This server
@@ -312,13 +320,6 @@ fields.
 ``action``
     A value which cannot be read and always writes as 0.  Only useful for
     ``write`` fields.
-
-``pos_mux``
-    Position input selectors for blocks.  Each of these fields can be set to the
-    name of a corresponding ``pos_out`` field, for example::
-
-        < ADDER1.INPA=ADC2.OUT
-        > OK
 
 ``lut``
     This field sub-type is used for the 5-input lookup table function
@@ -401,7 +402,6 @@ uint        MAX             Possibly bounded 32-bit unsigned integer value
 int                         Unbounded 32-bit signed integer value
 bit                         Bit: 0 or 1
 action                      Write only, no value
-pos_mux                     Position input mutiplexer selection
 lut         RAW             5 input lookup table logical formula
 enum        LABELS          Enumeration selection
 position    RAW, OFFSET,    Floating point numbers interpreting integer
