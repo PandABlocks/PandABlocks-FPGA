@@ -37,6 +37,9 @@ class Controller(object):
             self.lookup[(reg_config.base, 0, reg)] = (block, attr_name)
         # Slow control always complete
         self.SLOW_REGISTER_STATUS = 0
+        self.FPGA_VERSION = 0x111
+        self.FPGA_BUILD = 0x222
+        self.SLOW_VERSION = 0x333
         # When did we start
         self.start_time = time.time()
         # When do our blocks next need to be woken up?
