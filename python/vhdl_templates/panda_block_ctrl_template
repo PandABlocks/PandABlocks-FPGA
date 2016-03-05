@@ -18,22 +18,12 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Block Parameters
-{%  for fieldname, field in block.fields.iteritems() %}
-{%      if field.cls in ['param', 'write'] %}
-    {{fieldname}}       : out std_logic_vector(31 downto 0);
-    {{fieldname}}_WSTB  : out std_logic;
-{%      elif field.cls in ['table'] %}
-    {{fieldname}}_START : out std_logic_vector(31 downto 0);
-    {{fieldname}}_START_WSTB  : out std_logic;
-    {{fieldname}}_DATA : out std_logic_vector(31 downto 0);
-    {{fieldname}}_DATA_WSTB  : out std_logic;
-    {{fieldname}}_LENGTH : out std_logic_vector(31 downto 0);
-    {{fieldname}}_LENGTH_WSTB  : out std_logic;
-{%      elif field.cls in ['time'] %}
-    {{fieldname}}       : out std_logic_vector(63 downto 0);
-    {{fieldname}}_WSTB  : out std_logic;
-{%      elif field.cls in ['read'] %}
-    {{fieldname}}       : in  std_logic_vector(31 downto 0);
+{%  for regname, reg in block.registers.iteritems() %}
+{%      if reg[1].cls in ['param', 'write', 'table', 'time', 'bit_mux', 'pos_mux'] %}
+    {{regname}}       : out std_logic_vector(31 downto 0);
+    {{regname}}_WSTB  : out std_logic;
+{%      elif reg[1].cls in ['read'] %}
+    {{regname}}       : in  std_logic_vector(31 downto 0);
 {%      endif %}
 {%  endfor %}
     -- Memory Bus Interface
@@ -59,61 +49,26 @@ REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-{%  for fieldname, field in block.fields.iteritems() %}
-{%      if field.cls in ['param', 'write'] %}
-            {{fieldname}} <= (others => '0');
-            {{fieldname}}_WSTB <= '0';
-{%      elif field.cls in ['table'] %}
-            {{fieldname}}_START <= (others => '0');
-            {{fieldname}}_START_WSTB <= '0';
-            {{fieldname}}_DATA <= (others => '0');
-            {{fieldname}}_DATA_WSTB <= '0';
-            {{fieldname}}_LENGTH <= (others => '0');
-            {{fieldname}}_LENGTH_WSTB <= '0';
-{%      elif field.cls in ['time'] %}
-            {{fieldname}} <= (others => '0');
-            {{fieldname}}_WSTB <= '0';
+{%  for regname, reg in block.registers.iteritems() %}
+{%      if reg[1].cls in ['param', 'write', 'table', 'time', 'bit_mux', 'pos_mux'] %}
+            {{regname}} <= (others => '0');
+            {{regname}}_WSTB <= '0';
 {%      endif %}
 {%  endfor %}
         else
-{%  for fieldname, field in block.fields.iteritems() %}
-{%      if field.cls in ['param', 'write', 'time'] %}
-            {{fieldname}}_WSTB <= '0';
-{%      elif field.cls in ['table'] %}
-            {{fieldname}}_START_WSTB <= '0';
-            {{fieldname}}_DATA_WSTB <= '0';
-            {{fieldname}}_LENGTH_WSTB <= '0';
+{%  for regname, reg in block.registers.iteritems() %}
+{%      if reg[1].cls in ['param', 'write', 'table', 'time', 'bit_mux', 'pos_mux'] %}
+            {{regname}}_WSTB <= '0';
 {%      endif %}
 {%  endfor %}
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
-{%  for fieldname, field in block.fields.iteritems() %}
-{%      if field.cls in ['param', 'write'] %}
-                if (mem_addr = {{block.name}}_{{fieldname}}) then
-                    {{fieldname}} <= mem_dat_i;
-                    {{fieldname}}_WSTB <= '1';
-                end if;
-{%      elif field.cls in ['table'] %}
-                if (mem_addr = {{block.name}}_{{fieldname}}_START) then
-                    {{fieldname}}_START <= mem_dat_i;
-                    {{fieldname}}_START_WSTB <= '1';
-                end if;
-                if (mem_addr = {{block.name}}_{{fieldname}}_DATA) then
-                    {{fieldname}}_DATA <= mem_dat_i;
-                    {{fieldname}}_DATA_WSTB <= '1';
-                end if;
-                if (mem_addr = {{block.name}}_{{fieldname}}_LENTGH) then
-                    {{fieldname}}_LENGTH <= mem_dat_i;
-                    {{fieldname}}_LENGTH_WSTB <= '1';
-                end if;
-{%      elif field.cls in ['time'] %}
-                if (mem_addr = {{block.name}}_{{fieldname}}_L) then
-                    {{fieldname}}(31 downto 0)<= mem_dat_i;
-                end if;
-                if (mem_addr = {{block.name}}_{{fieldname}}_H) then
-                    {{fieldname}}(63 downto 32)<= mem_dat_i;
-                    {{fieldname}}_WSTB <= '1';
+{%  for regname, reg in block.registers.iteritems() %}
+{%      if reg[1].cls in ['param', 'write', 'table', 'time', 'bit_mux', 'pos_mux'] %}
+                if (mem_addr = {{block.name}}_{{regname}}) then
+                    {{regname}} <= mem_dat_i;
+                    {{regname}}_WSTB <= '1';
                 end if;
 {%      endif %}
 {%  endfor %}
