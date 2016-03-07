@@ -80,7 +80,7 @@ class Pcomp(Block):
                     self.wait_start = True
 
              #check to see if we are waiting to cross the start point
-            if self.ENABLE:
+            if self.ACTIVE:
                 if self.DIR == FWD and self.INP < self.rise - self.DELTAP or\
                         self.DIR == BWD and self.INP > self.rise + self.DELTAP:
                     self.wait_start = False
@@ -113,7 +113,7 @@ class Pcomp(Block):
         #behaviour without tables
         else:
              #check to see if we are waiting to cross the start point
-            if self.ENABLE:
+            if self.ACTIVE:
                 if self.DIR == FWD and self.INP < self.cpoint - self.DELTAP or\
                         self.DIR == BWD and self.INP > self.cpoint + self.DELTAP:
                     self.wait_start = False
@@ -136,7 +136,7 @@ class Pcomp(Block):
                     self.OUT = 0
                     self.wait_start = True
             # handle pulses if active
-            if self.ENABLE:
+            if self.ACTIVE:
                 if self.DIR == FWD:
                     transition = self.INP >= self.cpoint and not self.wait_start
                 else:
@@ -164,5 +164,6 @@ class Pcomp(Block):
                             or self.DIR == BWD and self.INP < self.cpoint:
                         self.ERROR = 1
                         self.ACTIVE = 0
+                        self.OUT = 0
             if self.tnext:
                 return self.tnext
