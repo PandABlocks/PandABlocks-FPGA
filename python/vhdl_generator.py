@@ -54,8 +54,6 @@ def main():
     generateOutput('panda_buses_template', "panda_busses.vhd", variables)
 
     for blockname, block in cfgParser.blocks.items():
-        if blockname == "SEQ":
-            pass
         if not blockname.startswith('*'):
             generateOutput('panda_block_ctrl_template',
                            blockname.lower() + "_ctrl.vhd",
