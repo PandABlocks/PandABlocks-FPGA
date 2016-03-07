@@ -10,8 +10,8 @@ arm = 0;
 enable = 0;
 capture = 0;
 
-PGEN_REPEAT  = 1;
-PGEN_SAMPLES = 10;
+PGEN_REPEAT  = 2;
+PGEN_SAMPLES = 5;
 
 repeat(125) @(posedge tb.uut.ps.FCLK);
 
@@ -46,7 +46,6 @@ REG_WRITE(SEQ_BASE, SEQ_INPA, 1);               // BITS_ONE
 // Setup Position Capture
 REG_WRITE(REG_BASE, REG_PCAP_START_WRITE, 1);
 REG_WRITE(REG_BASE, REG_PCAP_WRITE, 20);        // PGEN-0
-REG_WRITE(REG_BASE, REG_PCAP_WRITE, 21);        // PGEN-0
 
 REG_WRITE(PCAP_BASE, PCAP_ENABLE,  62);         // SEQ_ACTIVE
 REG_WRITE(PCAP_BASE, PCAP_FRAME,   0);          // BITS_ZER0

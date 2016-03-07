@@ -7,7 +7,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_reg is
+entity reg is
 port (
     -- Clock and Reset
     clk_i                   : in  std_logic;
@@ -24,9 +24,9 @@ port (
     sysbus_i                : in  sysbus_t;
     posbus_i                : in  posbus_t
 );
-end panda_reg;
+end reg;
 
-architecture rtl of panda_reg is
+architecture rtl of reg is
 
 type bit16_array is array(natural range <>) of std_logic_vector(15 downto 0);
 

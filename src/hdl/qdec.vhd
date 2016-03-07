@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_qdec.vhd
+--  File:       qdec.vhd
 --  Desc:       HDL implementation of a quadrature decoder
 --------------------------------------------------------------------------------
 
@@ -7,7 +7,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 
-entity panda_qdec is
+entity qdec is
 port (
     -- Clock and reset signals
     clk                 : in  std_logic;
@@ -20,9 +20,9 @@ port (
     quad_trans_o        : out std_logic;
     quad_dir_o          : out std_logic
 );
-end panda_qdec;
+end qdec;
 
-architecture rtl of panda_qdec is
+architecture rtl of qdec is
 
 -- Input buffers / filters for quadrature signals
 signal quad_cha_buf         : std_logic_vector(3 downto 0);

@@ -20,7 +20,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_bits is
+entity bits is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -38,9 +38,9 @@ port (
     SOFTC_SET           : in  std_logic;
     SOFTD_SET           : in  std_logic
 );
-end panda_bits;
+end bits;
 
-architecture rtl of panda_bits is
+architecture rtl of bits is
 
 begin
 

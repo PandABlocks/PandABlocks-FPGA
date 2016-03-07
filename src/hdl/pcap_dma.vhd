@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pcap_dma.vhd
+--  File:       pcap_dma.vhd
 --  Desc:       Position capture module
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_pcap_dma is
+entity pcap_dma is
 generic (
     AXI_BURST_LEN       : integer := 16;
     AXI_ADDR_WIDTH      : integer := 32;
@@ -65,9 +65,9 @@ port (
     m_axi_wlast         : out std_logic;
     m_axi_wstrb         : out std_logic_vector(AXI_DATA_WIDTH/8-1 downto 0)
 );
-end panda_pcap_dma;
+end pcap_dma;
 
-architecture rtl of panda_pcap_dma is
+architecture rtl of pcap_dma is
 
 constant AXI_BURST_WIDTH    : integer := LOG2(AXI_BURST_LEN);
 -- Number of byte per AXI burst
@@ -436,7 +436,7 @@ WORD_SWAP_64 : if (AXI_DATA_WIDTH = 64) generate
     axi_wdata_val(31 downto 0) <= fifo_dout(63 downto 32);
 end generate;
 
-dma_write_master : entity work.panda_axi_write_master
+dma_write_master : entity work.axi_write_master
 generic map (
     AXI_BURST_WIDTH     => AXI_BURST_WIDTH,
     AXI_ADDR_WIDTH      => AXI_ADDR_WIDTH,

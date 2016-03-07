@@ -18,7 +18,7 @@ use ieee.numeric_std.all;
 library work;
 use work.top_defines.all;
 
-entity panda_ttlin_top is
+entity ttlin_top is
 port (
     -- Clocks and Resets
     clk_i               : in  std_logic;
@@ -26,9 +26,9 @@ port (
     pad_i               : in  std_logic_vector(TTLIN_NUM-1 downto 0);
     val_o               : out std_logic_vector(TTLIN_NUM-1 downto 0)
 );
-end panda_ttlin_top;
+end ttlin_top;
 
-architecture rtl of panda_ttlin_top is
+architecture rtl of ttlin_top is
 
 begin
 

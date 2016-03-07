@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pcomp.vhd
+--  File:       pcomp.vhd
 --  Desc:       Position compare output pulse generator
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_pcomp is
+entity pcomp is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -21,6 +21,7 @@ port (
     -- Block inputs
     enable_i            : in  std_logic;
     posn_i              : in  std_logic_vector(31 downto 0);
+    table_posn_i        : in  std_logic_vector(63 downto 0);
     -- Block inputs
     START               : in  std_logic_vector(31 downto 0);
     STEP                : in  std_logic_vector(31 downto 0);
@@ -29,14 +30,15 @@ port (
     RELATIVE            : in  std_logic;
     DIR                 : in  std_logic;
     DELTAP              : in  std_logic_vector(31 downto 0);
+    USE_TABLE           : in  std_logic;
     -- Output pulse
     act_o               : out std_logic;
-    err_o               : out std_logic;
-    pulse_o             : out std_logic
+    pulse_o             : out std_logic;
+    err_o               : out std_logic_vector(31 downto 0)
 );
-end panda_pcomp;
+end pcomp;
 
-architecture rtl of panda_pcomp is
+architecture rtl of pcomp is
 
 type fsm_t is (WAIT_ENABLE, WAIT_DELTAP, WAIT_START, WAIT_WIDTH, WAIT_IN_ERROR);
 signal pcomp_fsm        : fsm_t;
@@ -44,8 +46,10 @@ signal pcomp_fsm        : fsm_t;
 signal enable_prev      : std_logic;
 signal enable_rise      : std_logic;
 signal enable_fall      : std_logic;
-signal posn             : signed(31 downto 0);
+signal posn_input       : signed(31 downto 0);
 signal posn_latched     : signed(31 downto 0);
+signal posn_relative    : signed(31 downto 0);
+signal posn             : signed(31 downto 0);
 signal puls_start       : signed(31 downto 0);
 signal puls_width       : signed(31 downto 0);
 signal puls_step        : signed(31 downto 0);
@@ -57,11 +61,15 @@ signal error_detect     : std_logic;
 signal posn_error       : std_logic;
 signal pulse            : std_logic;
 
+signal table_start      : signed(31 downto 0);
+signal table_width      : signed(31 downto 0);
+signal table_dir        : std_logic;
+
 begin
 
 --
 -- Register inputs and detect rise/fall edges required
--- for the design.
+--
 process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -73,48 +81,57 @@ enable_rise <= enable_i and not enable_prev;
 enable_fall <= not enable_i and enable_prev;
 
 --
+--
+--
+table_start <= signed(table_posn_i(31 downto 0));
+table_width <= signed(table_posn_i(63 downto 32));
+table_dir <= '0' when (table_start < table_width) else '0';
+
+--
 -- Sign conversion for calculations based on encoder direction
 --
---puls_width <= signed('0'&WIDTH(30 downto 0)) when (DIR = '0') else
---                signed(unsigned(not WIDTH) + 1);
---
---puls_step <= signed('0'&STEP(30 downto 0)) when (DIR = '0') else
---                signed(unsigned(not STEP) + 1);
-
 puls_width <= signed(WIDTH);
 puls_step <= signed(STEP);
 puls_start <= signed(START);
 puls_deltap <= signed(unsigned(not DELTAP) + 1);
---puls_deltap <= signed(unsigned(not DELTAP) + 1) when (DIR = '0') else signed(DELTAP);
 
 --
 -- Latch position on the rising edge of enable_i input, and calculate live
 -- Pulse Start position based on RELATIVE flag and encoder direction signal.
 --
-detect_pos : process(clk_i)
-begin
+posn_relative <= signed(posn_i) - posn_latched;
+posn_input <= signed(posn_i) when (RELATIVE = '0') else posn_relative;
+
+process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
+            posn <= (others => '0');
             posn_latched <= (others => '0');
         else
             -- Keep latched value for RELATIVE mode
             if (enable_rise = '1') then
                 posn_latched <= signed(posn_i);
             end if;
+
+            -- Absolute posn input is used for Table mode.
+            if (USE_TABLE = '1') then
+                posn <= posn_input;
+            -- Normal mode calculates the position relative to Start.
+            else
+                if (DIR = '0') then
+                    posn <= posn_input - signed(START);
+                else
+                    posn <= signed(START)  - posn_input;
+                end if;
+            end if;
         end if;
     end if;
 end process;
 
--- RELATIVE mode runs relative to rising edge of enable_i input
-posn <= (signed(posn_i) - posn_latched) when (RELATIVE = '1') else
-        (signed(posn_i) - signed(START)) when (DIR = '0') else
-        (signed(START)  - signed(posn_i));
-
 --
 -- Pulse generator state machine
 --
-error_detect <= '1' when (pcomp_fsm = WAIT_START or pcomp_fsm = WAIT_WIDTH)
-                    else '0';
+error_detect <= '1' when (pcomp_fsm = WAIT_START or pcomp_fsm = WAIT_WIDTH) else '0';
 posn_error <= '1' when (error_detect = '1' and posn > next_crossing) else '0';
 
 outp_gen : process(clk_i)
@@ -124,11 +141,11 @@ if rising_edge(clk_i) then
         pulse <= '0';
         puls_counter <= (others => '0');
         act_o <= '0';
-        err_o <= '0';
+        err_o <= (others => '0');
         pcomp_fsm <= WAIT_ENABLE;
-        -- On error stuck is ERROR state until re-enabled.
+    -- On error stuck is ERROR state until re-enabled.
     elsif (posn_error = '1') then
-        err_o <= '1';
+        err_o(0) <= '1';
         pulse <= '0';
         puls_counter <= (others => '0');
         act_o <= '0';

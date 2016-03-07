@@ -20,7 +20,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_lvdsout_block is
+entity lvdsout_block is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -35,9 +35,9 @@ port (
     -- Output pulse
     pad_o               : out std_logic
 );
-end panda_lvdsout_block;
+end lvdsout_block;
 
-architecture rtl of panda_lvdsout_block is
+architecture rtl of lvdsout_block is
 
 signal VAL      : std_logic_vector(SBUSBW-1 downto 0);
 

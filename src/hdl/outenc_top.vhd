@@ -10,7 +10,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_outenc_top is
+entity outenc_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -33,9 +33,9 @@ port (
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t
 );
-end panda_outenc_top;
+end outenc_top;
 
-architecture rtl of panda_outenc_top is
+architecture rtl of outenc_top is
 
 signal mem_blk_cs           : std_logic_vector(ENC_NUM-1 downto 0);
 
@@ -99,7 +99,7 @@ Zs0_opad(I) <= zo(I) when (enc_mode(I)(1 downto 0) = "00") else sdat_dir(I);
 
 sclk(I) <= Bs0_ipad(I);
 
-panda_outenc_block_inst : entity work.panda_outenc_block
+outenc_block_inst : entity work.outenc_block
 port map (
     -- Clock and Reset
     clk_i               => clk_i,

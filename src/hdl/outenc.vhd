@@ -10,7 +10,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_outenc is
+entity outenc is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -42,7 +42,7 @@ port (
 );
 end entity;
 
-architecture rtl of panda_outenc is
+architecture rtl of outenc is
 
 signal quad_a           : std_logic;
 signal quad_b           : std_logic;
@@ -96,7 +96,7 @@ end process;
 --
 -- INCREMENTAL OUT
 --
-panda_quadout_inst : entity work.panda_quadout
+quadout_inst : entity work.quadout
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
@@ -111,7 +111,7 @@ port map (
 --
 -- SSI SLAVE
 --
-panda_ssislv_inst : entity work.panda_ssislv
+ssislv_inst : entity work.ssislv
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,

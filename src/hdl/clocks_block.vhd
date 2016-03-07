@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_clocks_block.vhd
+--  File:       clocks_block.vhd
 --  Desc:       Position compare output pulse generator
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_clocks_block is
+entity clocks_block is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -29,73 +29,70 @@ port (
     clocks_c_o          : out std_logic;
     clocks_d_o          : out std_logic
 );
-end panda_clocks_block;
+end clocks_block;
 
-architecture rtl of panda_clocks_block is
+architecture rtl of clocks_block is
 
-signal CLOCKA_DIV       : std_logic_vector(31 downto 0) := (others => '0');
-signal CLOCKB_DIV       : std_logic_vector(31 downto 0) := (others => '0');
-signal CLOCKC_DIV       : std_logic_vector(31 downto 0) := (others => '0');
-signal CLOCKD_DIV       : std_logic_vector(31 downto 0) := (others => '0');
+signal CLOCKA_PERIOD    : std_logic_vector(31 downto 0) := (others => '0');
+signal CLOCKB_PERIOD    : std_logic_vector(31 downto 0) := (others => '0');
+signal CLOCKC_PERIOD    : std_logic_vector(31 downto 0) := (others => '0');
+signal CLOCKD_PERIOD    : std_logic_vector(31 downto 0) := (others => '0');
 
-signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
+signal A_PERIOD_WSTB    : std_logic;
+signal B_PERIOD_WSTB    : std_logic;
+signal C_PERIOD_WSTB    : std_logic;
+signal D_PERIOD_WSTB    : std_logic;
+
+signal reset            : std_logic;
 
 begin
-
--- Integer conversion for address.
-mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Control System Interface
 --
-REG_WRITE : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            CLOCKA_DIV <= (others => '0');
-            CLOCKB_DIV <= (others => '0');
-            CLOCKC_DIV <= (others => '0');
-            CLOCKD_DIV <= (others => '0');
-        else
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
-                -- Input Select Control Registers
-                if (mem_addr = CLOCKS_A_PERIOD) then
-                    CLOCKA_DIV <= mem_dat_i;
-                end if;
+clocks_ctrl : entity work.clocks_ctrl
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+    sysbus_i            => (others => '0'),
+    posbus_i            => (others => (others => '0')),
 
-                if (mem_addr = CLOCKS_B_PERIOD) then
-                    CLOCKB_DIV <= mem_dat_i;
-                end if;
+    mem_cs_i            => mem_cs_i,
+    mem_wstb_i          => mem_wstb_i,
+    mem_addr_i          => mem_addr_i,
+    mem_dat_i           => mem_dat_i,
+    mem_dat_o           => open,
 
-                if (mem_addr = CLOCKS_C_PERIOD) then
-                    CLOCKC_DIV <= mem_dat_i;
-                end if;
+    A_PERIOD            => CLOCKA_PERIOD,
+    A_PERIOD_WSTB       => A_PERIOD_WSTB,
+    B_PERIOD            => CLOCKB_PERIOD,
+    B_PERIOD_WSTB       => B_PERIOD_WSTB,
+    C_PERIOD            => CLOCKC_PERIOD,
+    C_PERIOD_WSTB       => C_PERIOD_WSTB,
+    D_PERIOD            => CLOCKD_PERIOD,
+    D_PERIOD_WSTB       => D_PERIOD_WSTB
+);
 
-                if (mem_addr = CLOCKS_D_PERIOD) then
-                    CLOCKD_DIV <= mem_dat_i;
-                end if;
-            end if;
-        end if;
-    end if;
-end process;
+reset <= reset_i or A_PERIOD_WSTB or B_PERIOD_WSTB or
+            C_PERIOD_WSTB or D_PERIOD_WSTB;
 
 --
 -- Block instantiation.
 --
-panda_clocks_inst  : entity work.panda_clocks
+clocks_inst  : entity work.clocks
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
+    reset_i             => reset,
 
     clocka_o            => clocks_a_o,
     clockb_o            => clocks_b_o,
     clockc_o            => clocks_c_o,
     clockd_o            => clocks_d_o,
 
-    CLOCKA_DIV          => CLOCKA_DIV,
-    CLOCKB_DIV          => CLOCKB_DIV,
-    CLOCKC_DIV          => CLOCKC_DIV,
-    CLOCKD_DIV          => CLOCKD_DIV
+    CLOCKA_PERIOD       => CLOCKA_PERIOD,
+    CLOCKB_PERIOD       => CLOCKB_PERIOD,
+    CLOCKC_PERIOD       => CLOCKC_PERIOD,
+    CLOCKD_PERIOD       => CLOCKD_PERIOD
 );
 
 end rtl;

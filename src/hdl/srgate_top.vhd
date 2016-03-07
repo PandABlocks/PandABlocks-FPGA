@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pcomp.vhd
+--  File:       pcomp.vhd
 --  Desc:       Position compare output pulse generator
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_srgate_top is
+entity srgate_top is
 port (
     -- Clocks and Resets
     clk_i               : in  std_logic;
@@ -29,9 +29,9 @@ port (
     -- TTL I/O
     out_o               : out std_logic_vector(SRGATE_NUM-1 downto 0)
  );
-end panda_srgate_top;
+end srgate_top;
 
-architecture rtl of panda_srgate_top is
+architecture rtl of srgate_top is
 
 -- Total number of digital outputs
 signal mem_blk_cs       : std_logic_vector(SRGATE_NUM-1 downto 0);
@@ -46,7 +46,7 @@ mem_blk_cs(I) <= '1'
     when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_SVECTOR(I, PAGE_AW-BLK_AW)
             and mem_cs_i = '1') else '0';
 
-panda_srgate_block : entity work.panda_srgate_block
+srgate_block : entity work.srgate_block
 port map (
     -- Clock and Reset
     clk_i               => clk_i,

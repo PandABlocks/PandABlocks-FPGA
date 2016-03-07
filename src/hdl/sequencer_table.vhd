@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_sequencer_table.vhd
+--  File:       sequencer_table.vhd
 --  Desc:       Programmable Sequencer.
 --
 --  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
@@ -13,7 +13,7 @@ library work;
 use work.type_defines.all;
 use work.top_defines.all;
 
-entity panda_sequencer_table is
+entity sequencer_table is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -29,9 +29,9 @@ port (
     TABLE_LENGTH        : in  std_logic_vector(15 downto 0);
     TABLE_LENGTH_WSTB   : in  std_logic
 );
-end panda_sequencer_table;
+end sequencer_table;
 
-architecture rtl of panda_sequencer_table is
+architecture rtl of sequencer_table is
 
 constant AW                     : positive := 9;           -- log2(SEQ_LEN)
 
@@ -84,7 +84,7 @@ seq_di <= TABLE_DATA;
 
 SEQ_TABLE_GEN : FOR I in 0 to 3 GENERATE
 
-spbram : entity work.panda_spbram
+spbram_inst : entity work.spbram
 generic map (
     AW          => AW,
     DW          => 32

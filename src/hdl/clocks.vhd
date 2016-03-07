@@ -15,7 +15,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity panda_clocks is
+entity clocks is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -26,16 +26,16 @@ port (
     clockc_o            : out std_logic;
     clockd_o            : out std_logic;
     -- Block Parameters
-    CLOCKA_DIV          : in  std_logic_vector(31 downto 0);
-    CLOCKB_DIV          : in  std_logic_vector(31 downto 0);
-    CLOCKC_DIV          : in  std_logic_vector(31 downto 0);
-    CLOCKD_DIV          : in  std_logic_vector(31 downto 0)
+    CLOCKA_PERIOD       : in  std_logic_vector(31 downto 0);
+    CLOCKB_PERIOD       : in  std_logic_vector(31 downto 0);
+    CLOCKC_PERIOD       : in  std_logic_vector(31 downto 0);
+    CLOCKD_PERIOD       : in  std_logic_vector(31 downto 0)
 );
-end panda_clocks;
+end clocks;
 
-architecture rtl of panda_clocks is
+architecture rtl of clocks is
 
-component panda_clockgen is
+component clockgen is
 port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
@@ -44,72 +44,45 @@ port (
 );
 end component;
 
-signal DIVA_PREV        : std_logic_vector(31 downto 0);
-signal DIVB_PREV        : std_logic_vector(31 downto 0);
-signal DIVC_PREV        : std_logic_vector(31 downto 0);
-signal DIVD_PREV        : std_logic_vector(31 downto 0);
-signal config_reset     : std_logic;
-signal reset            : std_logic;
-
 begin
-
--- Register inputs
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        DIVA_PREV <= CLOCKA_DIV;
-        DIVB_PREV <= CLOCKB_DIV;
-        DIVC_PREV <= CLOCKC_DIV;
-        DIVD_PREV <= CLOCKD_DIV;
-    end if;
-end process;
-
-config_reset <= '1' when (CLOCKA_DIV /= DIVA_PREV) or
-                         (CLOCKB_DIV /= DIVB_PREV) or
-                         (CLOCKC_DIV /= DIVC_PREV) or
-                         (CLOCKD_DIV /= DIVD_PREV)
-                else '0';
-
-reset <= config_reset or reset_i;
-
 
 -- Clock generator instantiations
-clockgen_A : panda_clockgen
+clockgen_A : clockgen
 port map (
     clk_i           => clk_i,
-    reset_i         => reset,
+    reset_i         => reset_i,
     clock_o         => clocka_o,
-    DIV             => CLOCKA_DIV
+    DIV             => CLOCKA_PERIOD
 );
 
-clockgen_B : panda_clockgen
+clockgen_B : clockgen
 port map (
     clk_i           => clk_i,
-    reset_i         => reset,
+    reset_i         => reset_i,
     clock_o         => clockb_o,
-    DIV             => CLOCKB_DIV
+    DIV             => CLOCKB_PERIOD
 );
 
-clockgen_C : panda_clockgen
+clockgen_C : clockgen
 port map (
     clk_i           => clk_i,
-    reset_i         => reset,
+    reset_i         => reset_i,
     clock_o         => clockc_o,
-    DIV             => CLOCKC_DIV
+    DIV             => CLOCKC_PERIOD
 );
 
-clockgen_D : panda_clockgen
+clockgen_D : clockgen
 port map (
     clk_i           => clk_i,
-    reset_i         => reset,
+    reset_i         => reset_i,
     clock_o         => clockd_o,
-    DIV             => CLOCKD_DIV
+    DIV             => CLOCKD_PERIOD
 );
 
 end rtl;
 
 --------------------------------------------------------------------------------
---  File:       panda_clockgen.vhd
+--  File:       clockgen.vhd
 --  Desc:       Programmable clock generator with ~50% duty cycle.
 --
 --------------------------------------------------------------------------------
@@ -118,16 +91,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity panda_clockgen is
+entity clockgen is
 port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     clock_o             : out std_logic;
     DIV                 : in  std_logic_vector(31 downto 0)
 );
-end panda_clockgen;
+end clockgen;
 
-architecture rtl of panda_clockgen is
+architecture rtl of clockgen is
 
 signal counter32        : unsigned(31 downto 0);
 signal PERIOD           : unsigned(31 downto 0);
@@ -135,7 +108,7 @@ signal PERIOD           : unsigned(31 downto 0);
 begin
 
 --
--- CLOCKA = F_AXI / (CLOCKA_DIV+1)
+-- CLOCKA = F_AXI / (CLOCKA_PERIOD+1)
 -- With ~50% duty cycle.
 --
 

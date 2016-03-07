@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_axi_write_master.vhd
+--  File:       axi_write_master.vhd
 --  Desc:       Position capture module
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_axi_write_master is
+entity axi_write_master is
 generic (
     AXI_BURST_WIDTH     : integer := 4;
     AXI_ADDR_WIDTH      : integer := 32;
@@ -55,9 +55,9 @@ port (
     dma_done            : out std_logic;
     dma_error           : out std_logic
 );
-end panda_axi_write_master;
+end axi_write_master;
 
-architecture rtl of panda_axi_write_master is
+architecture rtl of axi_write_master is
 
 signal AXI_BURST_LEN        : integer;
 signal awvalid              : std_logic;

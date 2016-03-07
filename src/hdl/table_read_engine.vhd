@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity table_dma_engine is
+entity table_read_engine is
 generic (
     SLAVES              : natural := 6
 );
@@ -49,9 +49,9 @@ port (
     dma_data_o          : out std_logic_vector(31 downto 0);
     dma_valid_o         : out std_logic_vector(SLAVES-1 downto 0)
 );
-end table_dma_engine;
+end table_read_engine;
 
-architecture rtl of table_dma_engine is
+architecture rtl of table_read_engine is
 
 type state_t is (ARBITING, DO_DMA);
 signal rdma_fsm         : state_t;

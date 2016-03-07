@@ -20,7 +20,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_lvdsout_top is
+entity lvdsout_top is
 port (
     -- Clocks and Resets
     clk_i               : in  std_logic;
@@ -36,9 +36,9 @@ port (
     -- LVDS I/O
     pad_o               : out std_logic_vector(LVDSOUT_NUM-1 downto 0)
 );
-end panda_lvdsout_top;
+end lvdsout_top;
 
-architecture rtl of panda_lvdsout_top is
+architecture rtl of lvdsout_top is
 
 -- Total number of digital outputs
 signal mem_blk_cs       : std_logic_vector(LVDSOUT_NUM-1 downto 0);
@@ -55,7 +55,7 @@ mem_blk_cs(I) <= '1'
     when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_SVECTOR(I, PAGE_AW-BLK_AW)
             and mem_cs_i = '1') else '0';
 
-lvdsout_block : entity work.panda_lvdsout_block
+lvdsout_block : entity work.lvdsout_block
 port map (
     -- Clock and Reset
     clk_i               => clk_i,

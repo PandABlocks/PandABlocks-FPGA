@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pulse.vhd
+--  File:       pulse.vhd
 --  Desc:       Programmable Pulse Generator.
 --
 --  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
@@ -12,7 +12,7 @@ use ieee.numeric_std.all;
 library work;
 use work.type_defines.all;
 
-entity panda_pulse is
+entity pulse is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -33,9 +33,9 @@ port (
     QUEUE               : out std_logic_vector(31 downto 0);
     MISSED_CNT          : out std_logic_vector(31 downto 0)
 );
-end panda_pulse;
+end pulse;
 
-architecture rtl of panda_pulse is
+architecture rtl of pulse is
 
 component pulse_queue
 port (

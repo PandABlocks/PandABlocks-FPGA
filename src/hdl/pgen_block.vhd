@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pgen_block.vhd
+--  File:       pgen_block.vhd
 --  Desc:       Position compare output pulse generator
 --
 --------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ use ieee.numeric_std.all;
 library work;
 use work.top_defines.all;
 
-entity panda_pgen_block is
+entity pgen_block is
 port (
     -- Clock and Reset
     clk_i                   : in  std_logic;
@@ -33,9 +33,9 @@ port (
     sysbus_i                : in  sysbus_t;
     out_o                   : out std_logic_vector(31 downto 0)
 );
-end panda_pgen_block;
+end pgen_block;
 
-architecture rtl of panda_pgen_block is
+architecture rtl of pgen_block is
 
 signal ENABLE_VAL           : std_logic_vector(31 downto 0);
 signal TRIG_VAL             : std_logic_vector(31 downto 0);
@@ -52,10 +52,14 @@ begin
 --
 -- Control System Interface
 --
-pgen_ctrl : entity work.panda_pgen_ctrl
+pgen_ctrl : entity work.pgen_ctrl
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
+    sysbus_i            => sysbus_i,
+    posbus_i            => (others => (others => '0')),
+    trig_o              => trig,
+    enable_o            => enable,
 
     mem_cs_i            => mem_cs_i,
     mem_wstb_i          => mem_wstb_i,
@@ -66,26 +70,11 @@ port map (
     CYCLES              => CYCLES,
     TABLE_ADDRESS       => TABLE_ADDR,
     TABLE_LENGTH        => TABLE_LENGTH,
-    TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB,
-    ENABLE              => ENABLE_VAL,
-    ENABLE_WSTB         => open,
-    TRIG                => TRIG_VAL,
-    TRIG_WSTB           => open
+    TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB
 );
 
---
--- Core Input Port Assignments
---
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        enable <= SBIT(sysbus_i, ENABLE_VAL(SBUSBW-1 downto 0));
-        trig <= SBIT(sysbus_i, TRIG_VAL(SBUSBW-1 downto 0));
-    end if;
-end process;
-
 -- LUT Block Core Instantiation
-panda_pgen : entity work.panda_pgen
+pgen : entity work.pgen
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_div.vhd
+--  File:       div.vhd
 --  Desc:       Dual output Pulse Divider.
 --
 --  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
@@ -9,7 +9,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity panda_div is
+entity div is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -27,9 +27,9 @@ port (
     -- Block Status
     COUNT               : out std_logic_vector(31 downto 0)
 );
-end panda_div;
+end div;
 
-architecture rtl of panda_div is
+architecture rtl of div is
 
 signal reset            : std_logic;
 signal input_prev       : std_logic;

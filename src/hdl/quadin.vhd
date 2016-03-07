@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_quadin.vhd
+--  File:       quadin.vhd
 --  Desc:       Incremental Encoder Input interface module. Implements an up/down
 --              counter around a 4x Quadrature decoder block.
 --------------------------------------------------------------------------------
@@ -7,7 +7,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 
-entity panda_quadin is
+entity quadin is
 port (
     -- Clock and reset signals
     clk_i               : in  std_logic;
@@ -22,9 +22,9 @@ port (
     setp_wstb_i         : in  std_logic;
     posn_o              : out std_logic_vector(31 downto 0)
 );
-end panda_quadin;
+end quadin;
 
-architecture rtl of panda_quadin is
+architecture rtl of quadin is
 
 signal quad_trans       : std_logic;
 signal quad_dir         : std_logic;
@@ -35,7 +35,7 @@ signal z_old            : std_logic;
 begin
 
 -- Quadrature Decoder instantiation
-panda_qdec_inst : entity work.panda_qdec
+qdec_inst : entity work.qdec
 port map (
     clk                 => clk_i,
     reset               => reset_i,

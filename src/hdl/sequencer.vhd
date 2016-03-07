@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_sequencer.vhd
+--  File:       sequencer.vhd
 --  Desc:       Programmable Sequencer.
 --
 --  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
@@ -19,7 +19,7 @@ use UNISIM.vcomponents.all;
 library UNIMACRO;
 use unimacro.Vcomponents.all;
 
-entity panda_sequencer is
+entity sequencer is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -50,9 +50,9 @@ port (
     CUR_FCYCLE          : out std_logic_vector(31 downto 0);
     CUR_TCYCLE          : out std_logic_vector(31 downto 0)
 );
-end panda_sequencer;
+end sequencer;
 
-architecture rtl of panda_sequencer is
+architecture rtl of sequencer is
 
 constant SEQ_LEN            : positive := 4 * 512;
 constant SEQ_AW             : positive := 11;           -- log2(SEQ_LEN)
@@ -118,7 +118,7 @@ enable_rise <= enable_val and not enable_prev;
 --
 -- Sequencer TABLE interface
 --
-sequencer_table : entity work.panda_sequencer_table
+sequencer_table : entity work.sequencer_table
 port map (
     clk_i               => clk_i,
     reset_i             => fsm_reset,

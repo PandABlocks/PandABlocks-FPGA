@@ -8,7 +8,7 @@ use work.addr_defines.all;
 use work.top_defines.all;
 use work.panda_version.all;
 
-entity panda_reg_top is
+entity reg_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -25,9 +25,9 @@ port (
     posbus_i            : in  posbus_t;
     slowctrl_busy_i     : in  std_logic
 );
-end panda_reg_top;
+end reg_top;
 
-architecture rtl of panda_reg_top is
+architecture rtl of reg_top is
 
 signal BIT_READ_RST           : std_logic;
 signal BIT_READ_RSTB          : std_logic;
@@ -110,7 +110,7 @@ end process;
 --
 -- Instantiate
 --
-reg_inst : entity work.panda_reg
+reg_inst : entity work.reg
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

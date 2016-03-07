@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pcap_core.vhd
+--  File:       pcap_core.vhd
 --  Desc:       Position capture_i module
 --
 --------------------------------------------------------------------------------
@@ -12,7 +12,7 @@ library work;
 use work.type_defines.all;
 use work.top_defines.all;
 
-entity panda_pcap_core is
+entity pcap_core is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -43,9 +43,9 @@ port (
     pcap_actv_o         : out std_logic;
     pcap_status_o       : out std_logic_vector(2 downto 0)
 );
-end panda_pcap_core;
+end pcap_core;
 
-architecture rtl of panda_pcap_core is
+architecture rtl of pcap_core is
 
 signal capture_pulse    : std_logic;
 
@@ -66,7 +66,7 @@ pcap_dat_valid_o <= pcap_dat_valid;
 pcap_status_o <= pcap_status;
 pcap_actv_o <= pcap_armed;
 
-pcap_arming : entity work.panda_pcap_arming
+pcap_arming : entity work.pcap_arming
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
@@ -85,7 +85,7 @@ port map (
 --
 -- Position Capture Data Processing
 --
-pcap_frame : entity work.panda_pcap_frame
+pcap_frame : entity work.pcap_frame
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
@@ -109,7 +109,7 @@ port map (
 --
 -- Pcap Mask Buffer
 --
-pcap_buffer : entity work.panda_pcap_buffer
+pcap_buffer : entity work.pcap_buffer
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

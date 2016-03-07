@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_quadout.vhd
+--  File:       quadout.vhd
 --  Desc:       HDL implementation of a Incremental Encoder Output module.
 --              The module follows position input and 4x quadrature encodes when
 --              enabled.
@@ -8,7 +8,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity panda_quadout is
+entity quadout is
 port (
     -- Clock and reset signals
     clk_i               : in  std_logic;
@@ -22,9 +22,9 @@ port (
     a_o                 : out std_logic;
     b_o                 : out std_logic
 );
-end panda_quadout;
+end quadout;
 
-architecture rtl of panda_quadout is
+architecture rtl of quadout is
 
 signal qenc_clk_ce      : std_logic;
 signal posn             : signed(31 downto 0);
@@ -141,7 +141,7 @@ end process;
 qenc_trans <= posn_tracking and qenc_clk_ce;
 
 -- Instantiate Quadrature Encoder
-panda_qenc_inst : entity work.panda_qenc
+qenc_inst : entity work.qenc
 port map (
     clk_i           => clk_i,
     reset_i         => reset,

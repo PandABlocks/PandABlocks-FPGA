@@ -7,7 +7,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_pgen_top is
+entity pgen_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -29,9 +29,9 @@ port (
     sysbus_i            : in  sysbus_t;
     out_o               : out std32_array(PGEN_NUM-1 downto 0)
 );
-end panda_pgen_top;
+end pgen_top;
 
-architecture rtl of panda_pgen_top is
+architecture rtl of pgen_top is
 
 signal mem_blk_cs           : std_logic_vector(PGEN_NUM-1 downto 0);
 
@@ -48,7 +48,7 @@ mem_blk_cs(I) <= '1'
     when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_SVECTOR(I, PAGE_AW-BLK_AW)
             and mem_cs_i = '1') else '0';
 
-pgen_block_inst : entity work.panda_pgen_block
+pgen_block_inst : entity work.pgen_block
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

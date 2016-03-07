@@ -5,7 +5,7 @@ set IP {../../../output/ip_repo}
 set MODEL {../../panda_top/bench/zynq_model}
 set SLOW {../../../../SlowFPGA/src/hdl}
 
-#do ../bench/zynq_model/zynq_ps.sim/sim_1/behav/zynq_ps_wrapper_compile.do
+do ../bench/zynq_model/zynq_ps.sim/sim_1/behav/zynq_ps_wrapper_compile.do
 
 # Compile Sources
 #
@@ -13,21 +13,27 @@ vcom -64 -93 -work xil_defaultlib  \
 "../bench/panda_ps_wrapper.vhd" \
 "${IP}/pcap_dma_fifo/sim/pcap_dma_fifo.vhd"\
 "${IP}/pgen_dma_fifo/sim/pgen_dma_fifo.vhd"\
+"${IP}/pcomp_dma_fifo/sim/pcomp_dma_fifo.vhd"\
 "${IP}/pulse_queue/sim/pulse_queue.vhd"\
 "${SRC}/defines/type_defines.vhd" \
 "${SRC}/defines/top_defines.vhd" \
 "${SRC}/defines/panda_version.vhd" \
+"${SRC}/bitmux.vhd" \
+"${SRC}/posmux.vhd" \
 "${SRC}/autogen/addr_defines.vhd" \
 "${SRC}/autogen/panda_busses.vhd" \
-"${SRC}/autogen/panda_div_ctrl.vhd" \
-"${SRC}/autogen/panda_pulse_ctrl.vhd" \
-"${SRC}/autogen/panda_seq_ctrl.vhd" \
-"${SRC}/autogen/panda_inenc_ctrl.vhd" \
-"${SRC}/autogen/panda_outenc_ctrl.vhd" \
-"${SRC}/autogen/panda_counter_ctrl.vhd" \
-"${SRC}/autogen/panda_pcomp_ctrl.vhd" \
-"${SRC}/autogen/panda_pgen_ctrl.vhd" \
-"${SRC}/autogen/panda_bits_ctrl.vhd" \
+"${SRC}/autogen/div_ctrl.vhd" \
+"${SRC}/autogen/pulse_ctrl.vhd" \
+"${SRC}/autogen/seq_ctrl.vhd" \
+"${SRC}/autogen/inenc_ctrl.vhd" \
+"${SRC}/autogen/outenc_ctrl.vhd" \
+"${SRC}/autogen/counter_ctrl.vhd" \
+"${SRC}/autogen/pcomp_ctrl.vhd" \
+"${SRC}/autogen/pgen_ctrl.vhd" \
+"${SRC}/autogen/bits_ctrl.vhd" \
+"${SRC}/autogen/lut_ctrl.vhd" \
+"${SRC}/autogen/srgate_ctrl.vhd" \
+"${SRC}/autogen/clocks_ctrl.vhd" \
 "${SRC}/csr_if.vhd" \
 "${SRC}/ttlout_block.vhd" \
 "${SRC}/ttlout_top.vhd" \
@@ -69,6 +75,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/counter.vhd" \
 "${SRC}/counter_block.vhd" \
 "${SRC}/counter_top.vhd" \
+"${SRC}/pcomp_table.vhd" \
 "${SRC}/pcomp.vhd" \
 "${SRC}/pcomp_block.vhd" \
 "${SRC}/pcomp_top.vhd" \
@@ -81,7 +88,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/reg.vhd" \
 "${SRC}/reg_top.vhd" \
 "${SRC}/axi_write_master.vhd" \
-"${SRC}/pcap_ctrl.vhd" \
+"${SRC}/pcap_core_ctrl.vhd" \
 "${SRC}/pcap_posproc.vhd" \
 "${SRC}/pcap_frame.vhd" \
 "${SRC}/pcap_arming.vhd" \
@@ -95,7 +102,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/slowctrl_block.vhd" \
 "${SRC}/slowctrl_top.vhd" \
 "${SRC}/axi_read_master.vhd" \
-"${SRC}/table_dma_engine.vhd" \
+"${SRC}/table_read_engine.vhd" \
 "${SRC}/pgen.vhd" \
 "${SRC}/pgen_block.vhd" \
 "${SRC}/pgen_top.vhd" \

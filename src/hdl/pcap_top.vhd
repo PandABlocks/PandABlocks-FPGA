@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pcap_top.vhd
+--  File:       pcap_top.vhd
 --  Desc:       Position capture module
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_pcap_top is
+entity pcap_top is
 generic (
     AXI_BURST_LEN       : integer := 16;
     AXI_ADDR_WIDTH      : integer := 32;
@@ -60,9 +60,9 @@ port (
     pcap_actv_o         : out std_logic;
     pcap_irq_o          : out std_logic
 );
-end panda_pcap_top;
+end pcap_top;
 
-architecture rtl of panda_pcap_top is
+architecture rtl of pcap_top is
 
 signal ENABLE_VAL       : std_logic_vector(SBUSBW-1 downto 0);
 signal FRAME_VAL        : std_logic_vector(SBUSBW-1 downto 0);
@@ -116,7 +116,7 @@ end process;
 --
 -- Block Control Register Interface.
 --
-pcap_ctrl_inst : entity work.pcap_ctrl
+pcap_ctrl_inst : entity work.pcap_core_ctrl
 port map (
     clk_i                   => clk_i,
     reset_i                 => reset_i,
@@ -152,7 +152,7 @@ port map (
     IRQ_STATUS              => IRQ_STATUS
 );
 
-pcap_core : entity work.panda_pcap_core
+pcap_core : entity work.pcap_core
 port map (
     clk_i                   => clk_i,
     reset_i                 => reset_i,
@@ -185,7 +185,7 @@ port map (
 --
 -- Position Capture Core IP instantiation
 --
-pcap_dma_inst : entity work.panda_pcap_dma
+pcap_dma_inst : entity work.pcap_dma
 port map (
     clk_i                   => clk_i,
     reset_i                 => reset_i,

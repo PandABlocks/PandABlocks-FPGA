@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_lut_block.vhd
+--  File:       lut_block.vhd
 --  Desc:       Position compare output pulse generator
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_lut_block is
+entity lut_block is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -28,16 +28,12 @@ port (
     -- Output pulse
     out_o               : out std_logic
 );
-end panda_lut_block;
+end lut_block;
 
-architecture rtl of panda_lut_block is
+architecture rtl of lut_block is
 
-signal INPA_VAL         : std_logic_vector(SBUSBW-1 downto 0);
-signal INPB_VAL         : std_logic_vector(SBUSBW-1 downto 0);
-signal INPC_VAL         : std_logic_vector(SBUSBW-1 downto 0);
-signal INPD_VAL         : std_logic_vector(SBUSBW-1 downto 0);
-signal INPE_VAL         : std_logic_vector(SBUSBW-1 downto 0);
 signal FUNC             : std_logic_vector(31 downto 0);
+signal FUNC_WSTB        : std_logic;
 
 signal inpa             : std_logic;
 signal inpb             : std_logic;
@@ -45,75 +41,37 @@ signal inpc             : std_logic;
 signal inpd             : std_logic;
 signal inpe             : std_logic;
 
-signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
-
 begin
-
--- Integer conversion for address.
-mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Control System Interface
 --
-REG_WRITE : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            INPA_VAL <= TO_SVECTOR(0, SBUSBW);
-            INPB_VAL <= TO_SVECTOR(0, SBUSBW);
-            INPC_VAL <= TO_SVECTOR(0, SBUSBW);
-            INPD_VAL <= TO_SVECTOR(0, SBUSBW);
-            INPE_VAL <= TO_SVECTOR(0, SBUSBW);
-            FUNC <= (others => '0');
-        else
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
-                -- Input Select Control Registers
-                if (mem_addr = LUT_INPA) then
-                    INPA_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
+lut_ctrl : entity work.lut_ctrl
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+    sysbus_i            => sysbus_i,
+    posbus_i            => (others => (others => '0')),
+    inpa_o              => inpa,
+    inpb_o              => inpb,
+    inpc_o              => inpc,
+    inpd_o              => inpd,
+    inpe_o              => inpe,
 
-                if (mem_addr = LUT_INPB) then
-                    INPB_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
+    mem_cs_i            => mem_cs_i,
+    mem_wstb_i          => mem_wstb_i,
+    mem_addr_i          => mem_addr_i,
+    mem_dat_i           => mem_dat_i,
+    mem_dat_o           => open,
 
-                if (mem_addr = LUT_INPC) then
-                    INPC_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
+    FUNC                => FUNC,
+    FUNC_WSTB           => open
 
-                if (mem_addr = LUT_INPD) then
-                    INPD_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                if (mem_addr = LUT_INPE) then
-                    INPE_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                -- LUT Function value
-                if (mem_addr = LUT_FUNC) then
-                    FUNC <= mem_dat_i;
-                end if;
-            end if;
-        end if;
-    end if;
-end process;
-
---
--- Core Input Port Assignments
---
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        inpa <= SBIT(sysbus_i, INPA_VAL);
-        inpb <= SBIT(sysbus_i, INPB_VAL);
-        inpc <= SBIT(sysbus_i, INPC_VAL);
-        inpd <= SBIT(sysbus_i, INPD_VAL);
-        inpe <= SBIT(sysbus_i, INPE_VAL);
-    end if;
-end process;
+);
 
 
 -- LUT Block Core Instantiation
-panda_lut : entity work.panda_lut
+lut : entity work.lut
 port map (
     clk_i       => clk_i,
     reset_i     => reset_i,

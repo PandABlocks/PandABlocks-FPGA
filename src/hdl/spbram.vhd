@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------
 --  Project      : Diamond Diamond FOFB Communication Controller
---  Filename     : panda_spbram.vhd
+--  Filename     : spbram.vhd
 --  Purpose      : Generic VHDL Block RAM code
 --  Author       : Isa S. Uzun
 ----------------------------------------------------------------------------
@@ -18,7 +18,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity panda_spbram is
+entity spbram is
     generic (
         AW          : natural := 8;
         DW          : natural := 32
@@ -32,9 +32,9 @@ entity panda_spbram is
         doutb       : out std_logic_vector(DW-1 downto 0);
         wea         : in  std_logic
     );
-end panda_spbram;
+end spbram;
 
-architecture rtl of panda_spbram is
+architecture rtl of spbram is
 
 type mem_type is array (2**AW-1 downto 0) of std_logic_vector (DW-1 downto 0);
 shared variable mem : mem_type := (others => (others => '0'));

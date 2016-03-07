@@ -20,7 +20,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_bits_block is
+entity bits_block is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -38,9 +38,9 @@ port (
     bits_c_o            : out std_logic;
     bits_d_o            : out std_logic
 );
-end panda_bits_block;
+end bits_block;
 
-architecture rtl of panda_bits_block is
+architecture rtl of bits_block is
 
 signal A                : std_logic_vector(31 downto 0);
 signal B                : std_logic_vector(31 downto 0);
@@ -52,10 +52,12 @@ begin
 --
 -- Control System Interface
 --
-bits_ctrl : entity work.panda_bits_ctrl
+bits_ctrl : entity work.bits_ctrl
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
+    sysbus_i            => (others => '0'),
+    posbus_i            => (others => (others => '0')),
 
     mem_cs_i            => mem_cs_i,
     mem_wstb_i          => mem_wstb_i,
@@ -75,7 +77,7 @@ port map (
 --
 -- Block instantiation.
 --
-panda_bits_inst  : entity work.panda_bits
+bits_inst  : entity work.bits
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

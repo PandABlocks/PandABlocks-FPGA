@@ -20,7 +20,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_bits_top is
+entity bits_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -39,9 +39,9 @@ port (
     bits_c_o            : out std_logic;
     bits_d_o            : out std_logic
 );
-end panda_bits_top;
+end bits_top;
 
-architecture rtl of panda_bits_top is
+architecture rtl of bits_top is
 
 begin
 
@@ -49,7 +49,7 @@ begin
 -- Instantiate BITS Blocks :
 --  There are BITS_NUM amount of encoders on the board
 --
-panda_bits_block : entity work.panda_bits_block
+bits_block : entity work.bits_block
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       pgen.vhd
+--  File:       pcomp_table.vhd
 --  Desc:       5-Input LUT.
 --
 --  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
@@ -9,10 +9,10 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity pgen is
+entity pcomp_table is
 generic (
     AXI_BURST_LEN       : integer := 256;
-    DW                  : natural := 32     -- Output Data Width
+    DW                  : natural := 64
 );
 port (
     -- Clock and Reset
@@ -36,21 +36,22 @@ port (
     dma_data_i          : in  std_logic_vector(31 downto 0);
     dma_valid_i         : in  std_logic
 );
-end pgen;
+end pcomp_table;
 
-architecture rtl of pgen is
+architecture rtl of pcomp_table is
 
-component pgen_dma_fifo
+component pcomp_dma_fifo
 port (
-    clk                 : in std_logic;
+    wr_clk              : in std_logic;
+    rd_clk              : in std_logic;
     rst                 : in std_logic;
     din                 : in std_logic_vector(31 DOWNTO 0);
     wr_en               : in std_logic;
     rd_en               : in std_logic;
-    dout                : out std_logic_vector(31 DOWNTO 0);
+    dout                : out std_logic_vector(DW-1 DOWNTO 0);
     full                : out std_logic;
     empty               : out std_logic;
-    data_count          : out std_logic_vector(10 downto 0)
+    wr_data_count       : out std_logic_vector(10 downto 0)
 );
 end component;
 
@@ -66,9 +67,9 @@ signal table_ready      : std_logic;
 signal fifo_reset       : std_logic;
 signal fifo_rd_en       : std_logic;
 signal fifo_dout        : std_logic_vector(DW-1 downto 0);
-signal fifo_count       : integer range 0 to 2047;
-signal fifo_full        : std_logic;
 signal fifo_data_count  : std_logic_vector(10 downto 0);
+signal fifo_count       : integer range 0 to (2**fifo_data_count'length)-1;
+signal fifo_full        : std_logic;
 signal fifo_available   : std_logic;
 
 signal trig             : std_logic;
@@ -93,17 +94,18 @@ reset <= reset_i or not table_ready or enable_fall;
 --
 -- 32bit FIFO with 1K sample depth
 --
-dma_fifo_inst : pgen_dma_fifo
+dma_fifo_inst : pcomp_dma_fifo
 port map (
     rst             => fifo_reset,
-    clk             => clk_i,
+    wr_clk          => clk_i,
+    rd_clk          => clk_i,
     din             => dma_data_i,
     wr_en           => dma_valid_i,
     rd_en           => fifo_rd_en,
     dout            => fifo_dout,
     full            => fifo_full,
     empty           => open,
-    data_count      => fifo_data_count
+    wr_data_count   => fifo_data_count
 );
 
 fifo_reset <= reset;

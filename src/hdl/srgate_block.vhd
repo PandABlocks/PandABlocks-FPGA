@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_srgate_block.vhd
+--  File:       srgate_block.vhd
 --  Desc:       Position compare output pulse generator
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_srgate_block is
+entity srgate_block is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -28,91 +28,50 @@ port (
     -- Output pulse
     out_o               : out std_logic
 );
-end panda_srgate_block;
+end srgate_block;
 
-architecture rtl of panda_srgate_block is
+architecture rtl of srgate_block is
 
-signal SET_VAL          : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
-signal RST_VAL          : std_logic_vector(SBUSBW-1 downto 0) := (others => '1');
-signal SET_EDGE         : std_logic := '0';
-signal RST_EDGE         : std_logic := '0';
-signal FORCE_SET        : std_logic := '0';
-signal FORCE_RST        : std_logic := '0';
+signal SET_EDGE         : std_logic_vector(31 downto 0);
+signal RST_EDGE         : std_logic_vector(31 downto 0);
+signal FORCE_SET        : std_logic;
+signal FORCE_RST        : std_logic;
 
-signal set              : std_logic := '0';
-signal rst              : std_logic := '0';
-
-signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
+signal set              : std_logic;
+signal rst              : std_logic;
 
 begin
-
--- Integer conversion for address.
-mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
 -- Control System Interface
 --
-REG_WRITE : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            SET_VAL <= TO_SVECTOR(0, SBUSBW);
-            RST_VAL <= TO_SVECTOR(0, SBUSBW);
-            SET_EDGE <= '0';
-            RST_EDGE <= '0';
-            FORCE_SET <= '0';
-            FORCE_RST <= '0';
-        else
-            -- Force strobe is single clock pulse
-            FORCE_SET <= '0';
-            FORCE_RST <= '0';
+srgate_ctrl : entity work.srgate_ctrl
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+    sysbus_i            => sysbus_i,
+    posbus_i            => (others => (others => '0')),
+    set_o               => set,
+    rst_o               => rst,
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
-                -- Input Select Control Registers
-                if (mem_addr = SRGATE_SET) then
-                    SET_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
+    mem_cs_i            => mem_cs_i,
+    mem_wstb_i          => mem_wstb_i,
+    mem_addr_i          => mem_addr_i,
+    mem_dat_i           => mem_dat_i,
+    mem_dat_o           => open,
 
-                if (mem_addr = SRGATE_RST) then
-                    RST_VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                -- Parameters
-                if (mem_addr = SRGATE_SET_EDGE) then
-                    SET_EDGE <= mem_dat_i(0);
-                end if;
-
-                if (mem_addr = SRGATE_RST_EDGE) then
-                    RST_EDGE <= mem_dat_i(0);
-                end if;
-
-                if (mem_addr = SRGATE_FORCE_SET) then
-                    FORCE_SET <= mem_dat_i(0);
-                end if;
-
-                if (mem_addr = SRGATE_FORCE_RST) then
-                    FORCE_RST <= mem_dat_i(0);
-                end if;
-
-            end if;
-        end if;
-    end if;
-end process;
-
---
--- Core Input Port Assignments
---
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        set <= SBIT(sysbus_i, SET_VAL);
-        rst <= SBIT(sysbus_i, RST_VAL);
-    end if;
-end process;
-
+    SET_EDGE            => SET_EDGE,
+    SET_EDGE_WSTB       => open,
+    RST_EDGE            => RST_EDGE,
+    RST_EDGE_WSTB       => open,
+    FORCE_SET           => open,
+    FORCE_SET_WSTB      => FORCE_SET,
+    FORCE_RST           => open,
+    FORCE_RST_WSTB      => FORCE_RST
+);
 
 -- LUT Block Core Instantiation
-panda_srgate : entity work.panda_srgate
+srgate : entity work.srgate
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
@@ -121,8 +80,8 @@ port map (
     rst_i           => rst,
     out_o           => out_o,
 
-    SET_EDGE        => SET_EDGE,
-    RST_EDGE        => RST_EDGE,
+    SET_EDGE        => SET_EDGE(0),
+    RST_EDGE        => RST_EDGE(0),
     FORCE_SET       => FORCE_SET,
     FORCE_RST       => FORCE_RST
 );

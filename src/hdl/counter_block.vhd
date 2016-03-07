@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_counter_block.vhd
+--  File:       counter_block.vhd
 --  Desc:       Position compare output pulse generator
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_counter_block is
+entity counter_block is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -30,9 +30,9 @@ port (
     count_o             : out std_logic_vector(31 downto 0);
     carry_o             : out std_logic
 );
-end panda_counter_block;
+end counter_block;
 
-architecture rtl of panda_counter_block is
+architecture rtl of counter_block is
 
 signal ENABLE_VAL       : std_logic_vector(31 downto 0);
 signal TRIG_VAL         : std_logic_vector(31 downto 0);
@@ -49,10 +49,14 @@ begin
 --
 -- Control System Interface
 --
-counter_ctrl : entity work.panda_counter_ctrl
+counter_ctrl : entity work.counter_ctrl
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
+    sysbus_i            => sysbus_i,
+    posbus_i            => (others => (others => '0')),
+    trig_o              => trig,
+    enable_o            => enable,
 
     mem_cs_i            => mem_cs_i,
     mem_wstb_i          => mem_wstb_i,
@@ -64,27 +68,11 @@ port map (
     START               => START,
     START_WSTB          => START_WSTB,
     STEP                => STEP,
-    STEP_WSTB           => open,
-    ENABLE              => ENABLE_VAL,
-    ENABLE_WSTB         => open,
-    TRIG                => TRIG_VAL,
-    TRIG_WSTB           => open
+    STEP_WSTB           => open
 );
 
---
--- Core Input Port Assignments
---
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        enable <= SBIT(sysbus_i, ENABLE_VAL(SBUSBW-1 downto 0));
-        trig <= SBIT(sysbus_i, TRIG_VAL(SBUSBW-1 downto 0));
-    end if;
-end process;
-
-
 -- LUT Block Core Instantiation
-panda_counter : entity work.panda_counter
+counter : entity work.counter
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

@@ -43,6 +43,7 @@ add_files ../src/hdl/
 import_ip ./ip_repo/pulse_queue/pulse_queue.xci
 import_ip ./ip_repo/pcap_dma_fifo/pcap_dma_fifo.xci
 import_ip ./ip_repo/pgen_dma_fifo/pgen_dma_fifo.xci
+import_ip ./ip_repo/pcomp_dma_fifo/pcomp_dma_fifo.xci
 
 # Read constraint files
 read_xdc  ../src/const/panda_top.xdc

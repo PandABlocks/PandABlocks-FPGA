@@ -383,14 +383,14 @@ port map (
 ---------------------------------------------------------------------------
 -- TTL
 ---------------------------------------------------------------------------
-ttlin_inst : entity work.panda_ttlin_top
+ttlin_inst : entity work.ttlin_top
 port map (
     clk_i               => FCLK_CLK0,
     pad_i               => ttlin_pad_i,
     val_o               => ttlin_val
 );
 
-ttlout_inst : entity work.panda_ttlout_top
+ttlout_inst : entity work.ttlout_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -406,14 +406,14 @@ port map (
 ---------------------------------------------------------------------------
 -- LVDS
 ---------------------------------------------------------------------------
-lvdsin_inst : entity work.panda_lvdsin_top
+lvdsin_inst : entity work.lvdsin_top
 port map (
     clk_i               => FCLK_CLK0,
     pad_i               => lvdsin_pad_i,
     val_o               => lvdsin_val
 );
 
-lvdsout_inst : entity work.panda_lvdsout_top
+lvdsout_inst : entity work.lvdsout_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -429,7 +429,7 @@ port map (
 ---------------------------------------------------------------------------
 -- 5-Input LUT
 ---------------------------------------------------------------------------
-lut_inst : entity work.panda_lut_top
+lut_inst : entity work.lut_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -445,7 +445,7 @@ port map (
 ---------------------------------------------------------------------------
 -- SRGATE
 ---------------------------------------------------------------------------
-srgate_inst : entity work.panda_srgate_top
+srgate_inst : entity work.srgate_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -463,7 +463,7 @@ port map (
 ---------------------------------------------------------------------------
 DIV_GEN : IF (DIV_INST = true) GENERATE
 
-div_inst : entity work.panda_div_top
+div_inst : entity work.div_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -485,7 +485,7 @@ END GENERATE;
 ---------------------------------------------------------------------------
 PULSE_GEN : IF (PULSE_INST = true) GENERATE
 
-pulse_inst : entity work.panda_pulse_top
+pulse_inst : entity work.pulse_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -506,7 +506,7 @@ END GENERATE;
 ---------------------------------------------------------------------------
 SEQ_GEN : IF (SEQ_INST = true) GENERATE
 
-seq_inst : entity work.panda_sequencer_top
+seq_inst : entity work.sequencer_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -532,7 +532,7 @@ END GENERATE;
 ---------------------------------------------------------------------------
 INENC_GEN : IF (INENC_INST = true) GENERATE
 
-inenc_inst : entity work.panda_inenc_top
+inenc_inst : entity work.inenc_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -564,7 +564,7 @@ END GENERATE;
 ---------------------------------------------------------------------------
 OUTENC_GEN : IF (OUTENC_INST = true) GENERATE
 
-outenc_inst : entity work.panda_outenc_top
+outenc_inst : entity work.outenc_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -588,7 +588,7 @@ END GENERATE;
 ---------------------------------------------------------------------------
 -- COUNTER/TIMER
 ---------------------------------------------------------------------------
-counter_inst : entity work.panda_counter_top
+counter_inst : entity work.counter_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -608,7 +608,7 @@ port map (
 ---------------------------------------------------------------------------
 PCOMP_GEN : IF (PCOMP_INST = true) GENERATE
 
-pcomp_inst : entity work.panda_pcomp_top
+pcomp_inst : entity work.pcomp_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -618,6 +618,13 @@ port map (
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(PCOMP_CS),
+    dma_req_o           => rdma_req(5 downto 2),
+    dma_ack_i           => rdma_ack(5 downto 2),
+    dma_done_i          => rdma_done,
+    dma_addr_o          => rdma_addr(5 downto 2),
+    dma_len_o           => rdma_len(5 downto 2),
+    dma_data_i          => rdma_data,
+    dma_valid_i         => rdma_valid(5 downto 2),
     sysbus_i            => sysbus,
     posbus_i            => posbus,
     act_o               => pcomp_act,
@@ -631,7 +638,7 @@ END GENERATE;
 ---------------------------------------------------------------------------
 PCAP_GEN : IF (PCAP_INST = true) GENERATE
 
-pcap_inst : entity work.panda_pcap_top
+pcap_inst : entity work.pcap_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -674,7 +681,7 @@ END GENERATE;
 ---------------------------------------------------------------------------
 -- POSITION GENERATION
 ---------------------------------------------------------------------------
-pgen_inst : entity work.panda_pgen_top
+pgen_inst : entity work.pgen_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -697,7 +704,7 @@ port map (
 ---------------------------------------------------------------------------
 -- TABLE DMA ENGINE
 ---------------------------------------------------------------------------
-table_dma_engine : entity work.table_dma_engine
+table_engine : entity work.table_read_engine
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -733,7 +740,7 @@ port map (
 ---------------------------------------------------------------------------
 -- REG (System, Position Bus and Special Register Readbacks)
 ---------------------------------------------------------------------------
-reg_inst : entity work.panda_reg_top
+reg_inst : entity work.reg_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -751,7 +758,7 @@ port map (
 ---------------------------------------------------------------------------
 -- CLOCKS
 ---------------------------------------------------------------------------
-clocks_inst : entity work.panda_clocks_top
+clocks_inst : entity work.clocks_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -770,7 +777,7 @@ port map (
 ---------------------------------------------------------------------------
 -- BITS
 ---------------------------------------------------------------------------
-bits_inst : entity work.panda_bits_top
+bits_inst : entity work.bits_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,

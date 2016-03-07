@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pcap_buffer.vhd
+--  File:       pcap_buffer.vhd
 --  Desc:       Position capture module
 --
 --------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ use ieee.numeric_std.all;
 library work;
 use work.type_defines.all;
 
-entity panda_pcap_buffer is
+entity pcap_buffer is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -29,9 +29,9 @@ port (
     pcap_dat_valid_o    : out std_logic;
     error_o             : out std_logic
 );
-end panda_pcap_buffer;
+end pcap_buffer;
 
-architecture rtl of panda_pcap_buffer is
+architecture rtl of pcap_buffer is
 
 signal ongoing_capture  : std_logic;
 signal capture_data_lt  : std32_array(63 downto 0);
@@ -46,7 +46,7 @@ begin
 -- Position Bus capture mask is implemented using a Block RAM to
 -- achieve minimum dead time between capture triggers.
 -- Data is pushed into the buffer sequentially followed by reset.
-mask_spbram_inst : entity work.panda_spbram
+mask_spbram : entity work.spbram
 generic map (
     AW          => 6,
     DW          => 32

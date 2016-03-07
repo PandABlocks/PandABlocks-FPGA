@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pulse_block.vhd
+--  File:       pulse_block.vhd
 --  Desc:       Position compare output pulse generator
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_pulse_block is
+entity pulse_block is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -30,9 +30,9 @@ port (
     out_o               : out std_logic;
     perr_o              : out std_logic
 );
-end panda_pulse_block;
+end pulse_block;
 
-architecture rtl of panda_pulse_block is
+architecture rtl of pulse_block is
 
 signal INP_VAL          : std_logic_vector(31 downto 0);
 signal ENABLE_VAL       : std_logic_vector(31 downto 0);
@@ -50,10 +50,14 @@ signal enable           : std_logic;
 
 begin
 
-pulse_ctrl : entity work.panda_pulse_ctrl
+pulse_ctrl : entity work.pulse_ctrl
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
+    sysbus_i            => sysbus_i,
+    posbus_i            => (others => (others => '0')),
+    inp_o               => inp,
+    enable_o            => enable,
 
     mem_cs_i            => mem_cs_i,
     mem_wstb_i          => mem_wstb_i,
@@ -61,34 +65,20 @@ port map (
     mem_dat_i           => mem_dat_i,
     mem_dat_o           => mem_dat_o,
 
-    DELAY               => DELAY,
-    DELAY_WSTB          => DELAY_WSTB,
-    WIDTH               => WIDTH,
-    WIDTH_WSTB          => WIDTH_WSTB,
-    INP                 => INP_VAL,
-    INP_WSTB            => open,
-    ENABLE              => ENABLE_VAL,
-    ENABLE_WSTB         => open,
+    DELAY_L             => DELAY(31 downto 0),
+    DELAY_H             => DELAY(63 downto 32),
+    DELAY_H_WSTB        => DELAY_WSTB,
+    WIDTH_L             => WIDTH(31 downto 0),
+    WIDTH_H             => WIDTH(63 downto 32),
+    WIDTH_H_WSTB        => WIDTH_WSTB,
     ERR_OVERFLOW        => ERR_OVERFLOW,
     ERR_PERIOD          => ERR_PERIOD,
     QUEUE               => QUEUE,
     MISSED_CNT          => MISSED_CNT
 );
 
---
--- Core Input Port Assignments
---
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        inp <= SBIT(sysbus_i, INP_VAL(SBUSBW-1 downto 0));
-        enable <= SBIT(sysbus_i, ENABLE_VAL(SBUSBW-1 downto 0));
-    end if;
-end process;
-
-
 -- LUT Block Core Instantiation
-panda_pulse : entity work.panda_pulse
+pulse : entity work.pulse
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

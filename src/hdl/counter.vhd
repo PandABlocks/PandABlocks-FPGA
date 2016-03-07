@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_counter.vhd
+--  File:       counter.vhd
 --  Desc:       Programmable Pulse Generator.
 --
 --  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
@@ -9,7 +9,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity panda_counter is
+entity counter is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -26,9 +26,9 @@ port (
     -- Block Status
     COUNT               : out std_logic_vector(31 downto 0)
 );
-end panda_counter;
+end counter;
 
-architecture rtl of panda_counter is
+architecture rtl of counter is
 
 signal trigger_prev     : std_logic;
 signal trigger_rise     : std_logic;

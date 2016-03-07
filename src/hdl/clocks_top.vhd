@@ -7,7 +7,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_clocks_top is
+entity clocks_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -25,9 +25,9 @@ port (
     clocks_c_o          : out std_logic;
     clocks_d_o          : out std_logic
 );
-end panda_clocks_top;
+end clocks_top;
 
-architecture rtl of panda_clocks_top is
+architecture rtl of clocks_top is
 
 begin
 
@@ -38,7 +38,7 @@ mem_dat_o <= (others => '0');
 -- Instantiate BITS Blocks :
 --  There are BITS_NUM amount of encoders on the board
 --
-panda_clocks_block : entity work.panda_clocks_block
+clocks_block : entity work.clocks_block
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

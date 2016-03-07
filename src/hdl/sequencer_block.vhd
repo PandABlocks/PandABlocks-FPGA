@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_sequencer_block.vhd
+--  File:       sequencer_block.vhd
 --  Desc:       Position compare output sequencer generator
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_sequencer_block is
+entity sequencer_block is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -35,9 +35,9 @@ port (
     outf_o              : out std_logic;
     active_o            : out std_logic
 );
-end panda_sequencer_block;
+end sequencer_block;
 
-architecture rtl of panda_sequencer_block is
+architecture rtl of sequencer_block is
 
 signal ENABLE_VAL       : std_logic_vector(31 downto 0);
 signal INPA_VAL         : std_logic_vector(31 downto 0);
@@ -67,10 +67,17 @@ begin
 --
 -- Control System Interface
 --
-seq_ctrl : entity work.panda_seq_ctrl
+seq_ctrl : entity work.seq_ctrl
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
+    sysbus_i            => sysbus_i,
+    posbus_i            => (others => (others => '0')),
+    enable_o            => enable,
+    inpa_o              => inpa,
+    inpb_o              => inpb,
+    inpc_o              => inpc,
+    inpd_o              => inpd,
 
     mem_cs_i            => mem_cs_i,
     mem_wstb_i          => mem_wstb_i,
@@ -82,16 +89,6 @@ port map (
     PRESCALE_WSTB       => open,
     TABLE_CYCLE         => TABLE_CYCLE,
     TABLE_CYCLE_WSTB    => open,
-    ENABLE              => ENABLE_VAL,
-    ENABLE_WSTB         => open,
-    INPA                => INPA_VAL,
-    INPA_WSTB           => open,
-    INPB                => INPB_VAL,
-    INPB_WSTB           => open,
-    INPC                => INPC_VAL,
-    INPC_WSTB           => open,
-    INPD                => INPD_VAL,
-    INPD_WSTB           => open,
     CUR_FRAME           => CUR_FRAME,
     CUR_FCYCLE          => CUR_FCYCLE,
     CUR_TCYCLE          => CUR_TCYCLE,
@@ -103,22 +100,8 @@ port map (
     TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB
 );
 
---
--- Core Input Port Assignments
---
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        enable <= SBIT(sysbus_i, ENABLE_VAL(SBUSBW-1 downto 0));
-        inpa <= SBIT(sysbus_i, INPA_VAL(SBUSBW-1 downto 0));
-        inpb <= SBIT(sysbus_i, INPB_VAL(SBUSBW-1 downto 0));
-        inpc <= SBIT(sysbus_i, INPC_VAL(SBUSBW-1 downto 0));
-        inpd <= SBIT(sysbus_i, INPD_VAL(SBUSBW-1 downto 0));
-    end if;
-end process;
-
 -- LUT Block Core Instantiation
-panda_sequencer : entity work.panda_sequencer
+sequencer : entity work.sequencer
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

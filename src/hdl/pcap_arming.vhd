@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pcap_arming.vhd
+--  File:       pcap_arming.vhd
 --  Desc:       Position capture module
 --
 --------------------------------------------------------------------------------
@@ -8,7 +8,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity panda_pcap_arming is
+entity pcap_arming is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -26,12 +26,12 @@ port (
     pcap_done_o         : out std_logic;
     pcap_status_o       : out std_logic_vector(2 downto 0)
 );
-end panda_pcap_arming;
+end pcap_arming;
 
-architecture rtl of panda_pcap_arming is
+architecture rtl of pcap_arming is
 
 type pcap_arm_t is (IDLE, ARMED, ENABLED, WAIT_ONGOING_WRITE);
-signal panda_arm_fsm        : pcap_arm_t;
+signal arm_fsm        : pcap_arm_t;
 
 signal enable_prev          : std_logic;
 signal enable_fall          : std_logic;
@@ -70,14 +70,14 @@ end process;
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            panda_arm_fsm <= IDLE;
+            arm_fsm <= IDLE;
             pcap_armed <= '0';
             pcap_enabled <= '0';
             pcap_done_o <= '0';
             pcap_status_o <= "000";
         -- Stop capturing on error if armed.
         elsif (pcap_armed = '1' and abort_capture = '1') then
-            panda_arm_fsm <= IDLE;
+            arm_fsm <= IDLE;
             pcap_armed <= '0';
             pcap_enabled <= '0';
             pcap_done_o <= '1';
@@ -97,12 +97,12 @@ process(clk_i) begin
                 pcap_status_o(2) <= '1';
             end if;
         else
-            case (panda_arm_fsm) is
+            case (arm_fsm) is
                 -- Wait for user arm.
                 when IDLE =>
                     pcap_done_o <= '0';
                     if (ARM = '1') then
-                        panda_arm_fsm <= ARMED;
+                        arm_fsm <= ARMED;
                         pcap_armed <= '1';
                         pcap_enabled <= '0';
                         pcap_status_o <= "000";
@@ -111,7 +111,7 @@ process(clk_i) begin
                 -- Wait for enable pulse from the system bus.
                 when ARMED =>
                     if (enable_i = '1') then
-                        panda_arm_fsm <= ENABLED;
+                        arm_fsm <= ENABLED;
                         pcap_enabled <= '1';
                     end if;
 
@@ -132,9 +132,9 @@ process(clk_i) begin
                         -- Complete gracefully, and make sure that ongoing write
                         -- into the DMA fifo is completed.
                         if (ongoing_capture_i = '1') then
-                            panda_arm_fsm <= WAIT_ONGOING_WRITE;
+                            arm_fsm <= WAIT_ONGOING_WRITE;
                         else
-                            panda_arm_fsm <= IDLE;
+                            arm_fsm <= IDLE;
                             pcap_armed <= '0';
                             pcap_enabled <= '0';
                             pcap_done_o <= '1';
@@ -145,14 +145,14 @@ process(clk_i) begin
                 -- Wait for ongoing capture capture finish.
                 when WAIT_ONGOING_WRITE =>
                     if (ongoing_capture_i = '0') then
-                        panda_arm_fsm <= IDLE;
+                        arm_fsm <= IDLE;
                         pcap_armed <= '0';
                         pcap_enabled <= '0';
                         pcap_done_o <= '1';
                     end if;
 
                 when others =>
-                    panda_arm_fsm <= IDLE;
+                    arm_fsm <= IDLE;
             end case;
         end if;
     end if;

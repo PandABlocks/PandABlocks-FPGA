@@ -19,7 +19,7 @@ use work.top_defines.all;
 use work.type_defines.all;
 use work.addr_defines.all;
 
-entity panda_inenc_block is
+entity inenc_block is
 port (
     -- Clock and Reset.
     clk_i               : in  std_logic;
@@ -49,7 +49,7 @@ port (
 );
 end entity;
 
-architecture rtl of panda_inenc_block is
+architecture rtl of inenc_block is
 
 -- Block Configuration Registers
 signal PROTOCOL         : std_logic_vector(31 downto 0);
@@ -80,10 +80,12 @@ reset <= reset_i or (mem_cs_i and mem_wstb_i);
 --
 -- Control System Interface
 --
-inenc_ctrl : entity work.panda_inenc_ctrl
+inenc_ctrl : entity work.inenc_ctrl
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
+    sysbus_i            => (others => '0'),
+    posbus_i            => (others => (others => '0')),
 
     mem_cs_i            => mem_cs_i,
     mem_wstb_i          => mem_wstb_i,
@@ -109,7 +111,7 @@ port map (
     ENC_STATUS          => ENC_STATUS
 );
 
-panda_inenc_inst : entity work.panda_inenc
+inenc_inst : entity work.inenc
 port map (
     -- Clock and Reset
     clk_i               => clk_i,

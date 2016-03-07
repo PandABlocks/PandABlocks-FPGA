@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pcap_posproc.vhd
+--  File:       pcap_posproc.vhd
 --  Desc:       Position field processing (not ADC fields).
 --
 --              Although the data path is fixed to 64-bits, it will be trimmed
@@ -15,7 +15,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_pcap_posproc is
+entity pcap_posproc is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -31,9 +31,9 @@ port (
     FRAMING_ENABLE      : in  std_logic;
     FRAMING_MODE        : in  std_logic
 );
-end panda_pcap_posproc;
+end pcap_posproc;
 
-architecture rtl of panda_pcap_posproc is
+architecture rtl of pcap_posproc is
 
 signal posin            : std_logic_vector(63 downto 0);
 signal posout           : std_logic_vector(63 downto 0);

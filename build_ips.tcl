@@ -55,3 +55,21 @@ set_property -dict [list \
 
 generate_target all [get_files $origin_dir/pgen_dma_fifo/pgen_dma_fifo.xci]
 synth_ip [get_ips pgen_dma_fifo]
+
+#
+# Create PCOMP DMA FIFO IP
+#
+create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+-module_name pcomp_dma_fifo -dir $origin_dir/
+
+set_property -dict [list \
+    CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
+    CONFIG.Performance_Options {First_Word_Fall_Through} \
+    CONFIG.Input_Data_Width {32}    \
+    CONFIG.Use_Extra_Logic {true}   \
+    CONFIG.Write_Data_Count {true}  \
+    CONFIG.Output_Data_Width {64}   \
+] [get_ips pcomp_dma_fifo]
+
+generate_target all [get_files $origin_dir/pcomp_dma_fifo/pcomp_dma_fifo.xci]
+synth_ip [get_ips pcomp_dma_fifo]

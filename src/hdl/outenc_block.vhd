@@ -10,7 +10,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_outenc_block is
+entity outenc_block is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -41,7 +41,7 @@ port (
 );
 end entity;
 
-architecture rtl of panda_outenc_block is
+architecture rtl of outenc_block is
 
 -- Block Configuration Registers
 signal A_VAL            : std_logic_vector(31 downto 0);
@@ -72,10 +72,18 @@ mem_addr <= to_integer(unsigned(mem_addr_i));
 --
 -- Control System Interface
 --
-outenc_ctrl : entity work.panda_outenc_ctrl
+outenc_ctrl : entity work.outenc_ctrl
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
+    sysbus_i            => sysbus_i,
+    posbus_i            => posbus_i,
+    a_o                 => a,
+    b_o                 => b,
+    z_o                 => z,
+    conn_o              => conn,
+    enable_o            => enable,
+    val_o               => posn,
 
     mem_cs_i            => mem_cs_i,
     mem_wstb_i          => mem_wstb_i,
@@ -90,49 +98,13 @@ port map (
     BITS_WSTB           => open,
     QPERIOD             => QPERIOD,
     QPERIOD_WSTB        => open,
-    ENABLE              => ENABLE_VAL,
-    ENABLE_WSTB         => open,
-    A                   => A_VAL,
-    A_WSTB              => open,
-    B                   => B_VAL,
-    B_WSTB              => open,
-    Z                   => Z_VAL,
-    Z_WSTB              => open,
-    VAL                 => POSN_VAL,
-    VAL_WSTB            => open,
-    CONN                => CONN_VAL,
-    CONN_WSTB           => open,
     QSTATE              => QSTATE
 );
 
 --
--- Design Bus Assignments
---
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        posn <= PFIELD(posbus_i, POSN_VAL(PBUSBW-1 downto 0));
-    end if;
-end process;
-
---
--- Pass A/B/Z through from System Bus.
---
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        a <= SBIT(sysbus_i, A_VAL(SBUSBW-1 downto 0));
-        b <= SBIT(sysbus_i, B_VAL(SBUSBW-1 downto 0));
-        z <= SBIT(sysbus_i, Z_VAL(SBUSBW-1 downto 0));
-        conn <= SBIT(sysbus_i, CONN_VAL(SBUSBW-1 downto 0));
-        enable <= SBIT(sysbus_i, ENABLE_VAL(SBUSBW-1 downto 0));
-    end if;
-end process;
-
---
 -- Core instantiation
 --
-panda_outenc_inst : entity work.panda_outenc
+outenc_inst : entity work.outenc
 port map (
     -- Clock and Reset
     clk_i               => clk_i,

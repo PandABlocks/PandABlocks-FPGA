@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_srgate.vhd
+--  File:       srgate.vhd
 --  Desc:       SR Gate Generator.
 --
 --  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
@@ -9,7 +9,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity panda_srgate is
+entity srgate is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -24,9 +24,9 @@ port (
     FORCE_SET           : in  std_logic;
     FORCE_RST           : in  std_logic
 );
-end panda_srgate;
+end srgate;
 
-architecture rtl of panda_srgate is
+architecture rtl of srgate is
 
 signal set_prev         : std_logic;
 signal rst_prev         : std_logic;

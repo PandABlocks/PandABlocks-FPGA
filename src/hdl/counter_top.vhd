@@ -7,7 +7,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_counter_top is
+entity counter_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -25,9 +25,9 @@ port (
     carry_o             : out std_logic_vector(COUNTER_NUM-1 downto 0);
     count_o             : out std32_array(COUNTER_NUM-1 downto 0)
 );
-end panda_counter_top;
+end counter_top;
 
-architecture rtl of panda_counter_top is
+architecture rtl of counter_top is
 
 signal mem_blk_cs           : std_logic_vector(COUNTER_NUM-1 downto 0);
 signal mem_read_data        : std32_array(COUNTER_NUM-1 downto 0);
@@ -47,7 +47,7 @@ mem_blk_cs(I) <= '1'
     when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_SVECTOR(I, PAGE_AW-BLK_AW)
             and mem_cs_i = '1') else '0';
 
-counter_block_inst : entity work.panda_counter_block
+counter_block_inst : entity work.counter_block
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

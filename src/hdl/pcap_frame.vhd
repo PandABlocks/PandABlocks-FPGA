@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_pcap_frame.vhd
+--  File:       pcap_frame.vhd
 --  Desc:       Position capture module
 --
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
-entity panda_pcap_frame is
+entity pcap_frame is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -35,9 +35,9 @@ port (
     posn_o              : out std32_array(63 downto 0);
     error_o             : out std_logic
 );
-end panda_pcap_frame;
+end pcap_frame;
 
-architecture rtl of panda_pcap_frame is
+architecture rtl of pcap_frame is
 
 signal reset            : std_logic;
 
@@ -175,7 +175,7 @@ end process;
 --
 PROC_OTHERS : FOR I IN 1 TO 31 GENERATE
 
-pcap_posproc_encoder : entity work.panda_pcap_posproc
+pcap_posproc_encoder : entity work.pcap_posproc
 port map (
     clk_i               => clk_i,
     reset_i             => reset,

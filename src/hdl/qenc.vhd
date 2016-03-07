@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_qenc.vhd
+--  File:       qenc.vhd
 --  Desc:       HDL implementation of a quadrature encoder
 --------------------------------------------------------------------------------
 
@@ -7,7 +7,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 
-entity panda_qenc is
+entity qenc is
 port (
     -- Clock and reset signals
     clk_i               : in  std_logic;
@@ -19,9 +19,9 @@ port (
     a_o                 : out std_logic;
     b_o                 : out std_logic
 );
-end panda_qenc;
+end qenc;
 
-architecture rtl of panda_qenc is
+architecture rtl of qenc is
 
 -- Quadrature 4X decoding state machine signals
 signal quad_st              : std_logic_vector(1 downto 0) := "00";

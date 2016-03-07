@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       panda_lut.vhd
+--  File:       lut.vhd
 --  Desc:       5-Input LUT.
 --
 --  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
@@ -9,7 +9,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity panda_lut is
+entity lut is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -24,9 +24,9 @@ port (
     -- Block Parameters
     FUNC                : in  std_logic_vector(31 downto 0)
 );
-end panda_lut;
+end lut;
 
-architecture rtl of panda_lut is
+architecture rtl of lut is
 
 signal index            : unsigned(4 downto 0);
 

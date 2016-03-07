@@ -58,19 +58,26 @@ localparam TTLIN_TERM = 0;
 
 // TTLOUT Block:
 localparam TTLOUT_VAL = 0;
+localparam TTLOUT_VAL_DLY = 1;
 
 // LVDSIN Block:
 
 // LVDSOUT Block:
 localparam LVDSOUT_VAL = 0;
+localparam LVDSOUT_VAL_DLY = 1;
 
 // LUT Block:
 localparam LUT_FUNC = 5;
 localparam LUT_INPA = 0;
+localparam LUT_INPA_DLY = 6;
 localparam LUT_INPB = 1;
+localparam LUT_INPB_DLY = 7;
 localparam LUT_INPC = 2;
+localparam LUT_INPC_DLY = 8;
 localparam LUT_INPD = 3;
+localparam LUT_INPD_DLY = 9;
 localparam LUT_INPE = 4;
+localparam LUT_INPE_DLY = 10;
 
 // SRGATE Block:
 localparam SRGATE_SET_EDGE = 2;
@@ -78,13 +85,17 @@ localparam SRGATE_RST_EDGE = 3;
 localparam SRGATE_FORCE_SET = 4;
 localparam SRGATE_FORCE_RST = 5;
 localparam SRGATE_SET = 0;
+localparam SRGATE_SET_DLY = 6;
 localparam SRGATE_RST = 1;
+localparam SRGATE_RST_DLY = 7;
 
 // DIV Block:
 localparam DIV_DIVISOR = 2;
 localparam DIV_FIRST_PULSE = 3;
 localparam DIV_INP = 0;
+localparam DIV_INP_DLY = 5;
 localparam DIV_ENABLE = 1;
+localparam DIV_ENABLE_DLY = 6;
 localparam DIV_COUNT = 4;
 
 // PULSE Block:
@@ -93,7 +104,9 @@ localparam PULSE_DELAY_H = 2;
 localparam PULSE_WIDTH_L = 5;
 localparam PULSE_WIDTH_H = 4;
 localparam PULSE_INP = 0;
+localparam PULSE_INP_DLY = 11;
 localparam PULSE_ENABLE = 1;
+localparam PULSE_ENABLE_DLY = 12;
 localparam PULSE_ERR_OVERFLOW = 7;
 localparam PULSE_ERR_PERIOD = 8;
 localparam PULSE_QUEUE = 9;
@@ -103,10 +116,15 @@ localparam PULSE_MISSED_CNT = 10;
 localparam SEQ_PRESCALE = 5;
 localparam SEQ_TABLE_CYCLE = 8;
 localparam SEQ_ENABLE = 0;
+localparam SEQ_ENABLE_DLY = 12;
 localparam SEQ_INPA = 1;
+localparam SEQ_INPA_DLY = 13;
 localparam SEQ_INPB = 2;
+localparam SEQ_INPB_DLY = 14;
 localparam SEQ_INPC = 3;
+localparam SEQ_INPC_DLY = 15;
 localparam SEQ_INPD = 4;
+localparam SEQ_INPD_DLY = 16;
 localparam SEQ_CUR_FRAME = 9;
 localparam SEQ_CUR_FCYCLE = 10;
 localparam SEQ_CUR_TCYCLE = 11;
@@ -130,25 +148,34 @@ localparam INENC_ENC_STATUS = 9;
 localparam QDEC_RST_ON_Z = 3;
 localparam QDEC_SETP = 4;
 localparam QDEC_A = 0;
+localparam QDEC_A_DLY = 5;
 localparam QDEC_B = 1;
+localparam QDEC_B_DLY = 6;
 localparam QDEC_Z = 2;
+localparam QDEC_Z_DLY = 7;
 
 // OUTENC Block:
 localparam OUTENC_PROTOCOL = 5;
 localparam OUTENC_BITS = 6;
 localparam OUTENC_QPERIOD = 7;
 localparam OUTENC_ENABLE = 8;
+localparam OUTENC_ENABLE_DLY = 10;
 localparam OUTENC_A = 0;
+localparam OUTENC_A_DLY = 11;
 localparam OUTENC_B = 1;
+localparam OUTENC_B_DLY = 12;
 localparam OUTENC_Z = 2;
+localparam OUTENC_Z_DLY = 13;
 localparam OUTENC_VAL = 4;
 localparam OUTENC_CONN = 3;
+localparam OUTENC_CONN_DLY = 14;
 localparam OUTENC_QSTATE = 9;
 
 // POSENC Block:
 localparam POSENC_INP = 0;
 localparam POSENC_QPERIOD = 1;
 localparam POSENC_ENABLE = 3;
+localparam POSENC_ENABLE_DLY = 5;
 localparam POSENC_PROTOCOL = 2;
 localparam POSENC_QSTATE = 4;
 
@@ -160,16 +187,20 @@ localparam ADDER_INPD = 3;
 localparam ADDER_SCALE = 4;
 
 // COUNTER Block:
-localparam COUNTER_DIR = 2;
-localparam COUNTER_START = 3;
-localparam COUNTER_STEP = 4;
+localparam COUNTER_DIR = 4;
+localparam COUNTER_START = 5;
+localparam COUNTER_STEP = 6;
 localparam COUNTER_ENABLE = 0;
-localparam COUNTER_TRIG = 1;
+localparam COUNTER_ENABLE_DLY = 1;
+localparam COUNTER_TRIG = 2;
+localparam COUNTER_TRIG_DLY = 3;
 
 // PGEN Block:
 localparam PGEN_CYCLES = 3;
 localparam PGEN_ENABLE = 0;
+localparam PGEN_ENABLE_DLY = 6;
 localparam PGEN_TRIG = 1;
+localparam PGEN_TRIG_DLY = 7;
 localparam PGEN_TABLE_ADDRESS = 4;
 localparam PGEN_TABLE_LENGTH = 5;
 
@@ -183,6 +214,7 @@ localparam PCOMP_DIR = 7;
 localparam PCOMP_DELTAP = 8;
 localparam PCOMP_USE_TABLE = 10;
 localparam PCOMP_ENABLE = 0;
+localparam PCOMP_ENABLE_DLY = 15;
 localparam PCOMP_INP = 1;
 localparam PCOMP_ERROR = 14;
 localparam PCOMP_TABLE_ADDRESS = 11;
@@ -192,8 +224,11 @@ localparam PCOMP_TABLE_LENGTH = 12;
 
 // PCAP Block:
 localparam PCAP_ENABLE = 0;
+localparam PCAP_ENABLE_DLY = 5;
 localparam PCAP_FRAME = 1;
+localparam PCAP_FRAME_DLY = 6;
 localparam PCAP_CAPTURE = 2;
+localparam PCAP_CAPTURE_DLY = 7;
 localparam PCAP_ERR_STATUS = 4;
 
 // BITS Block:
