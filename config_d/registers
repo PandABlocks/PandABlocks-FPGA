@@ -190,11 +190,11 @@ ADDER       12
     OUT             10 11
 
 COUNTER     13
-    DIR             2 5
-    START           3
-    STEP            4
-    ENABLE          0 6
-    TRIG            1 7
+    DIR             4
+    START           5
+    STEP            6
+    ENABLE          0 1
+    TRIG            2 3
     CARRY           90 91 92 93 94 95 96 97
     OUT             12 13 14 15 16 17 18 19
 

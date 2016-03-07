@@ -58,7 +58,7 @@ def main():
             pass
         if not blockname.startswith('*'):
             generateOutput('panda_block_ctrl_template',
-                           "panda_" + blockname.lower() + "_ctrl.vhd",
+                           blockname.lower() + "_ctrl.vhd",
                            {'block': block})
 
 if __name__ == "__main__":

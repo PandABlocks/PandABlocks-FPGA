@@ -160,7 +160,7 @@ ADDER[2]
     OUT             pos_out
 
 COUNTER[8]
-    DIR             bit_mux
+    DIR             param
     START           param
     STEP            param
     ENABLE          bit_mux
