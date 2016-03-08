@@ -7,45 +7,48 @@ from pkg_resources import require
 require("numpy")
 require("h5py")
 import h5py
-# add our python dir
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
-
 import unittest
 
-REFERENCE_HDF5 = "20160229092339.hdf5"
-hdf5_file_path = os.path.join(os.path.dirname(__file__),"..", "..", "python", "zebra2",
-                        "capture", "hdf5", REFERENCE_HDF5)
+# add our python dir
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "python"))
+
+from zebra2.capture import Capture
+
 
 test_script = os.path.join(os.path.dirname(__file__),  "testseq")
 
 class SystemTest(unittest.TestCase):
 
-    def __init__(self,hostname, cmdport, rcvport, options):
+    def __init__(self,hostname, cmdport, rcvport, options, reference_hdf):
         name = '{}'.format("<TEST PARAM>")
         setattr(self, name, self.runTest)
         super(SystemTest, self).__init__(name)
         self.options = options
         self.data = []
+        self.hdf5_file_path = os.path.join(os.path.dirname(__file__),'hdf5',
+                                           reference_hdf)
 
         #setup connection
         self.cmdsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.cmdsock.connect((hostname, cmdport))
         self.cmdsock.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
+        self.cmdsock.settimeout(1)
 
         self.rcvsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.rcvsock.connect((hostname, rcvport))
         self.rcvsock.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
+        self.rcvsock.settimeout(1)
 
         #load testscript (testseq)
         self.test_script = open(test_script, 'r')
 
     def send_set_options(self):
-        for option in self.options:
-            config_msg = option + "\n"
-            self.rcvsock.sendall(config_msg)
-            # print "SENDING:", config_msg
-            data_stream = self.rcvsock.recv(4096)
-            # print "RECEIVED: ", data_stream
+        config_msg = " ".join(self.options) + '\n'
+        self.rcvsock.sendall(config_msg)
+        print "SENDING:", config_msg
+        data_stream = self.rcvsock.recv(4096)
+        # data_stream = self.get_data()
+        print "RECEIVED: ", data_stream
 
     def send_test_commands(self):
         #send the test commands
@@ -63,27 +66,30 @@ class SystemTest(unittest.TestCase):
         input_string = ""
         data_start = False
         while True:
-            data_stream = self.rcvsock.recv(4096)
+            try:
+                data_stream = self.rcvsock.recv(4096)
+            except socket.timeout:
+                break
             input_string += data_stream
             print data_stream.strip()
             if data_stream.startswith("OK"):
                 break
-        self.parse_data(input_string.split('\n'))
+        return self.parse_data(input_string.split('\n'))[1]
 
     def parse_data(self, data_stream):
         header = ""
+        data = ""
         for line in data_stream:
             if line.startswith("<"):
                 header += line
             elif not line.startswith('OK') and line:
                 self.data.append(line.strip().split(" "))
+                data = self.data
+        return [header, data]
 
     def check_data(self):
-        self.open_hdf5_file()
-
-    def open_hdf5_file(self):
-        #open refrence hdf5 file
-        hdf5_file = h5py.File(hdf5_file_path,  "r")
+        #open refrence hdf5 file and check that the data matches
+        hdf5_file = h5py.File(self.hdf5_file_path,  "r")
         for item in hdf5_file.attrs.keys():
             print item + ":", hdf5_file.attrs[item]
         counts = hdf5_file['/Scan/data/counts']
@@ -96,24 +102,36 @@ class SystemTest(unittest.TestCase):
 
     #RENAME
     def runTest(self):
-        #send specific test config
         self.send_set_options()
-        #start sending lines from the testscript
         self.send_test_commands()
-        #get the data
         self.get_data()
-        #check to see if the data is the same as in the refrence hdf5 file
         self.check_data()
         #cleanup
         self.test_script.close()
         self.cmdsock.close()
         self.rcvsock.close()
 
+#generate reference HDF5 file
+def generateHDF(hostname,cmdport, rcvport, output_dir):
+    print "GENERATING REFERENCE HDF5 FILE"
+    capture = Capture(hostname, rcvport, output_dir)
+    capture.send_test_commands(hostname, cmdport,test_script)
+    capture.run()
+    print "REFRENCE HDF5 FILE GENERATED OK"
+    return capture.hdf_file
+
 def make_suite():
+    hdf_name = generateHDF('localhost', 8888, 8889,
+                           os.path.join(os.path.dirname(__file__), 'hdf5'))
     suite = unittest.TestSuite()
-    options = ["XML"]
-    testcase = SystemTest('localhost', 8888, 8889, options)
-    suite.addTest(testcase)
+    options = [["XML"]]
+    options.append(["XML", "FRAMED", "SCALED"])
+    options.append(["XML", "FRAMED", "UNSCALED"])
+    options.append(["XML", "ASCII", "SCALED"])
+    for option in options:
+        print "OPTION", option
+        testcase = SystemTest('localhost', 8888, 8889, option, hdf_name)
+        suite.addTest(testcase)
     return suite
 
 if __name__ == '__main__':
