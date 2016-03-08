@@ -15,10 +15,13 @@ import xml.etree.ElementTree
 class Capture(object):
     def __init__(self,hostname, port, output_dir):
         self.data = []
+        self.hdf_file = ""
         self.output_dir = output_dir
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((hostname, port))
         self.s.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
+
+        # self.s.settimeout(1)
         print 'connecting to {} port {}'.format(hostname, port)
 
     def run(self):
@@ -73,8 +76,8 @@ class Capture(object):
     def write_hdf5(self, data):
 
         self.create_output_directory(self.output_dir)
-
-        HDF5_FILE = os.path.join(self.output_dir, self.get_timestamp() + '.hdf5')
+        self.hdf_file = self.get_timestamp() + '.hdf5'
+        HDF5_FILE = os.path.join(self.output_dir, self.hdf_file)
 
         npdata = numpy.array(data)
         print "NPDATA", npdata
@@ -103,6 +106,26 @@ class Capture(object):
         st = datetime.datetime.fromtimestamp(ts).strftime('%Y%m%d%H%M%S')
         return st
 
+    def send_test_commands(self, host, port, test_script_path):
+        try:
+            test_script = open(test_script_path, 'r')
+            cmdsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            cmdsock.connect((host, port))
+            cmdsock.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
+            cmdsock.settimeout(1)
+            #send the test commands
+            for line in test_script:
+                cmdsock.sendall(line)
+                if line[:1].isdigit() or "TABLE<" in line:
+                    pass
+                    # print "TABLE", line
+                else:
+                    data_stream = cmdsock.recv(4096)
+            cmdsock.close()
+        except Exception as e:
+            cmdsock.close()
+            print "Exception: ", e
+
 def capture_data(hostname, port, output_dir):
     capture = Capture(hostname, port, output_dir)
     capture.run()
@@ -120,7 +143,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
     capture_data(args.hostname, args.port, args.output)
 
-
-#connect to the capture stream
-
-#print to a hdf5 file
