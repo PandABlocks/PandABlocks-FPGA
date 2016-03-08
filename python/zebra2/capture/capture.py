@@ -37,9 +37,9 @@ class Capture(object):
             data_stream = self.s.recv(4096)
             input_string += data_stream
             print data_stream.strip()
-            if data_stream == "OK\n" and data_start:
+            if data_stream.startswith("END") and data_start:
                 break
-            elif data_stream == "OK\n":
+            elif data_stream.startswith('OK'):
                 data_start = True
         self.parse_data(input_string.split('\n'))
         self.close_connection()
@@ -48,10 +48,11 @@ class Capture(object):
     def parse_data(self, data_stream):
         header = ""
         for line in data_stream:
-            if line.startswith("<"):
-                header += line
-            elif not line.startswith('OK') and line:
-                self.data.append(line.strip().split(" "))
+            if line:
+                if line.startswith("<"):
+                    header += line
+                elif not line.startswith('OK') and not line.startswith("END"):
+                    self.data.append(line.strip().split(" "))
         try:
             #get the header
             root = xml.etree.ElementTree.fromstring(header)
