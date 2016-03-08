@@ -118,11 +118,11 @@ PULSE       5
 SEQ         6
     PRESCALE        5
     TABLE_CYCLE     8
-    ENABLE          0 12
-    INPA            1 13
-    INPB            2 14
-    INPC            3 15
-    INPD            4 16
+    ENABLE          0 16
+    INPA            1 17
+    INPB            2 18
+    INPC            3 19
+    INPD            4 20
     OUTA            38 39 40 41
     OUTB            42 43 44 45
     OUTC            46 47 48 49
