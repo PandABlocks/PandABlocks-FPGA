@@ -101,9 +101,9 @@ class Seq(Block):
 
     def do_table_reset(self):
         self.twrite_addr = 0
+        self.fword_count = 0
         self.ACTIVE = 0
         self.set_outputs('zero')
-        self.reset_state()
 
     def do_table_write_finished(self):
         if self.ENABLE:
@@ -127,6 +127,7 @@ class Seq(Block):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
         # This is a ConfigBlock object
+        print changes
         b = self.config_block
         # This is the next time we need to be called
         next_ts = None
