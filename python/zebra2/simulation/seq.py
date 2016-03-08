@@ -127,7 +127,6 @@ class Seq(Block):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
         # This is a ConfigBlock object
-        print changes
         b = self.config_block
         # This is the next time we need to be called
         next_ts = None
