@@ -10,7 +10,7 @@ ZPKG="${3:?}"
 
 ZPKG_DIR="$BUILD_DIR"/zpkg
 
-DIRS=(usr/share/panda usr/bin state var/run etc/init.d etc/rc.d)
+DIRS=(share/panda bin state var/run etc/init.d etc/rc.d)
 
 # Create empty skeleton
 rm -f "$BUILD_DIR"/panda-server@*.zpg  &&
@@ -20,9 +20,9 @@ for d in "${DIRS[@]}"; do
 done  &&
 
 # Populate target tree
-cp "$BUILD_DIR"/driver/panda.ko "$ZPKG_DIR"/usr/share/panda  &&
-cp "$BUILD_DIR"/server/server "$ZPKG_DIR"/usr/bin/panda_server  &&
-cp -r "$TOP"/config_d "$ZPKG_DIR"/usr/share/panda  &&
+cp "$BUILD_DIR"/driver/panda.ko "$ZPKG_DIR"/share/panda  &&
+cp "$BUILD_DIR"/server/server "$ZPKG_DIR"/bin/panda_server  &&
+cp -r "$TOP"/config_d "$ZPKG_DIR"/share/panda  &&
 cp "$TOP"/etc/panda-server "$ZPKG_DIR"/etc/init.d  &&
 ln -s ../init.d/panda-server "$ZPKG_DIR"/etc/rc.d/S200panda-server  &&
 ln -s ../init.d/panda-server "$ZPKG_DIR"/etc/rc.d/K200panda-server  &&
