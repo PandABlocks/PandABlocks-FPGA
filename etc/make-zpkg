@@ -28,4 +28,4 @@ ln -s ../init.d/panda-server "$ZPKG_DIR"/etc/rc.d/S200panda-server  &&
 ln -s ../init.d/panda-server "$ZPKG_DIR"/etc/rc.d/K200panda-server  &&
 
 # Assemble final package
-tar czf $ZPKG -C "$ZPKG_DIR" .
+tar czf $ZPKG -C "$ZPKG_DIR" . --owner=0 --group=0
