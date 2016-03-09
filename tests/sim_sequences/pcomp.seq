@@ -151,8 +151,8 @@ $ Error is produced after skipping more than 2 compare points
 29      : INP=3
 30      : INP=4
 31      : INP=0
-43      : INP=5
-47      : INP=10        : ERROR=1, ACTIVE=0
+43      : INP=5         : OUT=1
+47      : INP=10        : ERROR=1, ACTIVE=0, OUT=0
 49      : INP=11
 50      : INP=12
 

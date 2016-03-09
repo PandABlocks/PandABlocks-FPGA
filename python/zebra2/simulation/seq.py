@@ -101,9 +101,9 @@ class Seq(Block):
 
     def do_table_reset(self):
         self.twrite_addr = 0
+        self.fword_count = 0
         self.ACTIVE = 0
         self.set_outputs('zero')
-        self.reset_state()
 
     def do_table_write_finished(self):
         if self.ENABLE:
