@@ -76,6 +76,7 @@ class FpgaSequence(object):
             for name in reg_block.registers:
                 if name.startswith("PCAP_"):
                     self.reg_in.append(name[len("PCAP_"):])
+                    self.reg_in.append(name[len("PCAP_"):] + "_WSTB")
             self.bus_out += ["DATA", "DATA_WSTB", "ERROR"]
         self.make_lines()
 
