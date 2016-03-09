@@ -204,6 +204,7 @@ PGEN        14
     TRIG            1 7
     OUT             20 21
     TABLE           long    2^8    4 5
+    TABLE_STATUS    8
 
 PCOMP       15
     START           2
@@ -220,6 +221,7 @@ PCOMP       15
     OUT             102 103 104 105
     ERROR           14
     TABLE           long    2^2    11 12
+    TABLE_STATUS    16
 
 ADC         26
     OUT             22 23 24 25 26 27 28 29 / 54 55 56 57 58 59 60 61
