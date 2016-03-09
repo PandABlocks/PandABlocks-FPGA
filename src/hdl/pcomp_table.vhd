@@ -1,13 +1,22 @@
 --------------------------------------------------------------------------------
---  File:       pcomp_table.vhd
---  Desc:       5-Input LUT.
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
---  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Position compare long table read interface.
+--                32-bit data in and 64-bit data out interface.
+--
 --------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+
+library work;
+use work.type_defines.all;
 
 entity pcomp_table is
 generic (
@@ -27,6 +36,7 @@ port (
     TABLE_ADDR          : in  std_logic_vector(31 downto 0);
     TABLE_LENGTH        : in  std_logic_vector(31 downto 0);
     TABLE_LENGTH_WSTB   : in  std_logic;
+    STATUS              : out std_logic_vector(31 downto 0);
     -- DMA Engine Interface
     dma_req_o           : out std_logic;
     dma_ack_i           : in  std_logic;
@@ -70,6 +80,7 @@ signal fifo_dout        : std_logic_vector(DW-1 downto 0);
 signal fifo_data_count  : std_logic_vector(10 downto 0);
 signal fifo_count       : integer range 0 to (2**fifo_data_count'length)-1;
 signal fifo_full        : std_logic;
+signal fifo_empty       : std_logic;
 signal fifo_available   : std_logic;
 
 signal trig             : std_logic;
@@ -80,6 +91,9 @@ signal enable_fall      : std_logic;
 signal count            : unsigned(31 downto 0);
 signal dma_len          : unsigned(8 downto 0);
 signal dma_addr         : unsigned(31 downto 0);
+
+signal dma_underrun     : std_logic;
+signal table_end        : std_logic;
 
 begin
 
@@ -92,7 +106,7 @@ out_o <= fifo_dout;
 reset <= reset_i or not table_ready or enable_fall;
 
 --
--- 32bit FIFO with 1K sample depth
+-- Asymetric 32/64-bit FIFO with 1K sample depth
 --
 dma_fifo_inst : pcomp_dma_fifo
 port map (
@@ -104,13 +118,16 @@ port map (
     rd_en           => fifo_rd_en,
     dout            => fifo_dout,
     full            => fifo_full,
-    empty           => open,
+    empty           => fifo_empty,
     wr_data_count   => fifo_data_count
 );
 
 fifo_reset <= reset;
 fifo_rd_en <= trig_pulse;
 fifo_count <= to_integer(unsigned(fifo_data_count));
+
+-- There is space (>256 words) in the fifo, so perform data read from
+-- host memory.
 fifo_available <= '1' when (fifo_count < 768) else '0';
 
 --
@@ -150,6 +167,9 @@ process(clk_i) begin
     end if;
 end process;
 
+--
+-- Main State Machine.
+--
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset = '1') then
@@ -159,6 +179,9 @@ process(clk_i) begin
             dma_len <= (others => '0');
             table_cycle <= (others => '0');
             pgen_fsm <= IDLE;
+        -- Can't keep-up data rate, stop since data is corrupt
+        elsif (dma_underrun = '1') then
+            pgen_fsm <= FINISHED;
         else
             case pgen_fsm is
                 when IDLE =>
@@ -221,6 +244,41 @@ process(clk_i) begin
                     dma_addr <= (others => '0');
                     dma_len <= (others => '0');
             end case;
+        end if;
+    end if;
+end process;
+
+--
+-- Error detection, and reporting.
+--
+process(clk_i) begin
+    if rising_edge(clk_i) then
+        if (reset = '1') then
+            dma_underrun <= '0';
+            table_end <= '0';
+            STATUS <= (others => '0');
+        else
+            -- Detect Table End reached once in operation.
+            if (pgen_fsm = FINISHED and fifo_empty = '1' and trig_pulse = '1') then
+                table_end <= '1';
+            end if;
+
+            -- Detect DMA underrun, and stop operation.
+            if (trig_pulse = '1' and fifo_empty = '1') then
+                dma_underrun <= '1';
+            end if;
+
+            -- Assign STATUS output as Enum.
+            if (table_ready = '0') then
+                STATUS <= TO_SVECTOR(1,32);
+            elsif (table_end = '1') then
+                STATUS <= TO_SVECTOR(2,32);
+            elsif (dma_underrun = '1') then
+                STATUS <= TO_SVECTOR(3,32);
+            else
+                STATUS <= (others => '0');
+            end if;
+
         end if;
     end if;
 end process;

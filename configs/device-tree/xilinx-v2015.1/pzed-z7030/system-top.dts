@@ -16,8 +16,16 @@
 	};
 };
 
-&gem0 {
-	local-mac-address = [00 0a 35 00 22 5c];
+&usb0 {
+	dr_mode = "host";
+	phy_type = "ulpi";
+	status = "okay";
+	usb-reset = <&gpio0 7 0>;
+};
+
+&clkc {
+	fclk-enable = <0xf>;
+	ps-clk-frequency = <33333333>;
 };
 
 &qspi {
@@ -44,13 +52,11 @@
 	};
 };
 
-/ {
-};
-
 &gem0 {
 	phy-handle = <&phy0>;
 	phy-mode = "rgmii-id";
-	
+	local-mac-address = [00 0a 35 00 22 5c];
+	enet-reset = <&gpio0 47 0>;
 	mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -79,5 +85,3 @@
 		};
 	};
 };
-
-

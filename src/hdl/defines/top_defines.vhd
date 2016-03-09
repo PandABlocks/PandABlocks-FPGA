@@ -42,6 +42,7 @@ constant SRGATE_NUM         : positive := 4;
 constant DIV_NUM            : positive := 4;
 constant PULSE_NUM          : positive := 4;
 
+constant ADDER_NUM          : positive := 2;
 constant COUNTER_NUM        : positive := 8;
 constant PGEN_NUM           : positive := 2;
 

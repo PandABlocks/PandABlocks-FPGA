@@ -21,6 +21,7 @@ port (
     mem_wstb_i              : in  std_logic;
     mem_addr_i              : in  std_logic_vector(BLK_AW-1 downto 0);
     mem_dat_i               : in  std_logic_vector(31 downto 0);
+    mem_dat_o               : out std_logic_vector(31 downto 0);
     -- DMA Engine Interface
     dma_req_o               : out std_logic;
     dma_ack_i               : in  std_logic;
@@ -43,6 +44,7 @@ signal CYCLES               : std_logic_vector(31 downto 0);
 signal TABLE_ADDR           : std_logic_vector(31 downto 0);
 signal TABLE_LENGTH         : std_logic_vector(31 downto 0);
 signal TABLE_LENGTH_WSTB    : std_logic;
+signal TABLE_STATUS         : std_logic_vector(31 downto 0);
 
 signal enable               : std_logic;
 signal trig                 : std_logic;
@@ -65,12 +67,14 @@ port map (
     mem_wstb_i          => mem_wstb_i,
     mem_addr_i          => mem_addr_i,
     mem_dat_i           => mem_dat_i,
+    mem_dat_o           => mem_dat_o,
 
     -- Block Parameters
     CYCLES              => CYCLES,
     TABLE_ADDRESS       => TABLE_ADDR,
     TABLE_LENGTH        => TABLE_LENGTH,
-    TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB
+    TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB,
+    TABLE_STATUS        => TABLE_STATUS
 );
 
 -- LUT Block Core Instantiation
@@ -87,6 +91,7 @@ port map (
     TABLE_ADDR          => TABLE_ADDR,
     TABLE_LENGTH        => TABLE_LENGTH,
     TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB,
+    STATUS              => TABLE_STATUS,
 
     dma_req_o           => dma_req_o,
     dma_ack_i           => dma_ack_i,

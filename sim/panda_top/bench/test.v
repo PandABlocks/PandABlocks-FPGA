@@ -10,7 +10,7 @@ panda_top_tb tb(
     .ttlin_pad      ( ttlin_pad)
 );
 
-`define TESTNAME    "test.pgen.v"
+`define TESTNAME    "test.pcomp_table.v"
 
 reg [ 1:0]      wrs, rsp;
 reg [31:0]      IRQ_STATUS;
@@ -22,6 +22,7 @@ reg [31:0]      total_samples;
 reg [31:0]      addr_table[31: 0];
 reg [31:0]      smpl_table[31: 0];
 reg [31:0]      read_addr;
+reg             pcap_armed;
 reg             pcap_completed;
 
 integer         irq_count;
@@ -54,12 +55,6 @@ initial begin
     $display("Reset Done. Setting the Slave profiles \n");
     tb.uut.ps.ps.ps.inst.set_slave_profile("S_AXI_HP0",2'b10);
     $display("Profile Done\n");
- 
-    $display("Start Preload \n");
-    tb.uut.ps.ps.ps.inst.pre_load_mem_from_file("preload_ddr.txt",32'h2000_0000,65536);
-
-    tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h1);
-    tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h0);
 
     /*
      * Start TEST Cases

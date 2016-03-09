@@ -7,25 +7,26 @@
 module panda_pcomp_tb;
 
 // Inputs
-reg clk_i = 0;
-reg reset_i;
-reg enable_i;
-reg [31:0] posn_i;
-reg [31:0] START;
-reg [31:0] STEP;
-reg [31:0] WIDTH;
-reg [31:0] NUM;
-reg RELATIVE;
-reg DIR;
-reg [31:0] DELTAP;
+reg         clk_i = 0;
+reg         reset_i;
+reg         enable_i;
+reg [31:0]  posn_i;
+reg [31:0]  START;
+reg [31:0]  STEP;
+reg [31:0]  WIDTH;
+reg [31:0]  NUM;
+reg         RELATIVE;
+reg         DIR;
+reg [31:0]  DELTAP;
+reg         USE_TABLE;
 
 // Outputs
-wire err_o;
-reg  ERR;
-wire act_o;
-reg  ACT;
-wire pulse_o;
-reg  PULSE;
+wire [31: 0]    err_o;
+reg  [31: 0]    ERR;
+wire            act_o;
+reg             ACT;
+wire            pulse_o;
+reg             PULSE;
 
 // Testbench specific
 integer timestamp = 0;
@@ -47,7 +48,7 @@ end
 // is used.
 //
 initial begin
-    repeat(5) @(posedge clk_i);
+    repeat(12500) @(posedge clk_i);
     while (1) begin
         @(posedge clk_i);
         timestamp <= timestamp + 1;
@@ -55,7 +56,7 @@ initial begin
 end
 
 // Instantiate the Unit Under Test (UUT)
-panda_pcomp uut (
+pcomp uut (
     .clk_i              ( clk_i             ),
     .reset_i            ( reset_i           ),
     .enable_i           ( enable_i          ),
@@ -69,7 +70,9 @@ panda_pcomp uut (
     .DELTAP             ( DELTAP            ),
     .act_o              ( act_o             ),
     .err_o              ( err_o             ),
-    .pulse_o            ( pulse_o           )
+    .pulse_o            ( pulse_o           ),
+    .table_posn_i       ( 64'h0             ),
+    .USE_TABLE          ( USE_TABLE         )
 );
 
 //
@@ -81,7 +84,7 @@ begin : bus_inputs
     localparam N        = 4;
     reg [31:0] vectors[31: 0];
 
-    reg     [8192*10:0] line;
+    reg     [8192*2*10:0] line;
     integer          file, c, r, i;
     reg     [31: 0]  TS;
 
@@ -114,7 +117,7 @@ begin : reg_inputs
     localparam N        = 21;
     reg [31:0] vectors[31: 0];
 
-    reg     [8192*10:0] line;
+    reg     [8192*2*10:0] line;
     integer          file, c, r, i;
     reg     [31: 0]  TS;
 
@@ -133,6 +136,7 @@ fork
             RELATIVE    = vectors[9];
             DIR         = vectors[11];
             DELTAP      = vectors[13];
+            USE_TABLE   = vectors[15];
         end
     end
 join
@@ -148,7 +152,7 @@ begin : bus_outputs
     localparam N        = 3;
     reg [31:0] vectors[31: 0];
 
-    reg     [8192*10:0] line;
+    reg     [8192*2*10:0] line;
     integer          file, c, r, i;
     reg     [31: 0]  TS;
 
@@ -177,7 +181,7 @@ begin : reg_outputs
     localparam N        = 2;
     reg [31:0] vectors[31: 0];
 
-    reg     [8192*10:0] line;
+    reg     [8192*2*10:0] line;
     integer          file, c, r, i;
     reg     [31: 0]  TS;
 

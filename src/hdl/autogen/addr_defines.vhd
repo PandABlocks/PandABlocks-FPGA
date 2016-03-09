@@ -122,15 +122,15 @@ constant PULSE_MISSED_CNT : natural := 10;
 constant SEQ_PRESCALE : natural := 5;
 constant SEQ_TABLE_CYCLE : natural := 8;
 constant SEQ_ENABLE : natural := 0;
-constant SEQ_ENABLE_DLY : natural := 12;
+constant SEQ_ENABLE_DLY : natural := 16;
 constant SEQ_INPA : natural := 1;
-constant SEQ_INPA_DLY : natural := 13;
+constant SEQ_INPA_DLY : natural := 17;
 constant SEQ_INPB : natural := 2;
-constant SEQ_INPB_DLY : natural := 14;
+constant SEQ_INPB_DLY : natural := 18;
 constant SEQ_INPC : natural := 3;
-constant SEQ_INPC_DLY : natural := 15;
+constant SEQ_INPC_DLY : natural := 19;
 constant SEQ_INPD : natural := 4;
-constant SEQ_INPD_DLY : natural := 16;
+constant SEQ_INPD_DLY : natural := 20;
 constant SEQ_CUR_FRAME : natural := 9;
 constant SEQ_CUR_FCYCLE : natural := 10;
 constant SEQ_CUR_TCYCLE : natural := 11;
@@ -209,6 +209,7 @@ constant PGEN_TRIG : natural := 1;
 constant PGEN_TRIG_DLY : natural := 7;
 constant PGEN_TABLE_ADDRESS : natural := 4;
 constant PGEN_TABLE_LENGTH : natural := 5;
+constant PGEN_TABLE_STATUS : natural := 8;
 
 -- PCOMP Block:
 constant PCOMP_START : natural := 2;
@@ -225,6 +226,7 @@ constant PCOMP_INP : natural := 1;
 constant PCOMP_ERROR : natural := 14;
 constant PCOMP_TABLE_ADDRESS : natural := 11;
 constant PCOMP_TABLE_LENGTH : natural := 12;
+constant PCOMP_TABLE_STATUS : natural := 16;
 
 -- ADC Block:
 

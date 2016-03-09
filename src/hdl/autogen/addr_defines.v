@@ -116,15 +116,15 @@ localparam PULSE_MISSED_CNT = 10;
 localparam SEQ_PRESCALE = 5;
 localparam SEQ_TABLE_CYCLE = 8;
 localparam SEQ_ENABLE = 0;
-localparam SEQ_ENABLE_DLY = 12;
+localparam SEQ_ENABLE_DLY = 16;
 localparam SEQ_INPA = 1;
-localparam SEQ_INPA_DLY = 13;
+localparam SEQ_INPA_DLY = 17;
 localparam SEQ_INPB = 2;
-localparam SEQ_INPB_DLY = 14;
+localparam SEQ_INPB_DLY = 18;
 localparam SEQ_INPC = 3;
-localparam SEQ_INPC_DLY = 15;
+localparam SEQ_INPC_DLY = 19;
 localparam SEQ_INPD = 4;
-localparam SEQ_INPD_DLY = 16;
+localparam SEQ_INPD_DLY = 20;
 localparam SEQ_CUR_FRAME = 9;
 localparam SEQ_CUR_FCYCLE = 10;
 localparam SEQ_CUR_TCYCLE = 11;
@@ -203,6 +203,7 @@ localparam PGEN_TRIG = 1;
 localparam PGEN_TRIG_DLY = 7;
 localparam PGEN_TABLE_ADDRESS = 4;
 localparam PGEN_TABLE_LENGTH = 5;
+localparam PGEN_TABLE_STATUS = 8;
 
 // PCOMP Block:
 localparam PCOMP_START = 2;
@@ -219,6 +220,7 @@ localparam PCOMP_INP = 1;
 localparam PCOMP_ERROR = 14;
 localparam PCOMP_TABLE_ADDRESS = 11;
 localparam PCOMP_TABLE_LENGTH = 12;
+localparam PCOMP_TABLE_STATUS = 16;
 
 // ADC Block:
 

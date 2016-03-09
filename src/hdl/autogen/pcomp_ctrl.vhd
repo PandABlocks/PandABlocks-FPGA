@@ -43,6 +43,7 @@ port (
     TABLE_ADDRESS_WSTB  : out std_logic;
     TABLE_LENGTH       : out std_logic_vector(31 downto 0);
     TABLE_LENGTH_WSTB  : out std_logic;
+    TABLE_STATUS       : in  std_logic_vector(31 downto 0);
     enable_o : out std_logic;
     inp_o : out std_logic_vector(31 downto 0);
     -- Memory Bus Interface
@@ -189,6 +190,8 @@ begin
             case (mem_addr) is
                 when PCOMP_ERROR =>
                     mem_dat_o <= ERROR;
+                when PCOMP_TABLE_STATUS =>
+                    mem_dat_o <= TABLE_STATUS;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;

@@ -45,10 +45,11 @@ end pcomp_top;
 architecture rtl of pcomp_top is
 
 signal mem_blk_cs       : std_logic_vector(PCOMP_NUM-1 downto 0);
+signal mem_read_data    : std32_array(PULSE_NUM-1 downto 0);
 
 begin
 
-mem_dat_o <= (others => '0');
+mem_dat_o <= mem_read_data(to_integer(unsigned(mem_addr_i(PAGE_AW-1 downto BLK_AW))));
 
 --
 -- Instantiate PCOMP Blocks :
@@ -71,6 +72,7 @@ port map (
     mem_wstb_i          => mem_wstb_i,
     mem_addr_i          => mem_addr_i(BLK_AW-1 downto 0),
     mem_dat_i           => mem_dat_i,
+    mem_dat_o           => mem_read_data(I),
 
     sysbus_i            => sysbus_i,
     posbus_i            => posbus_i,

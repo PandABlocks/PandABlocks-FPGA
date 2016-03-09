@@ -5,7 +5,7 @@ set IP {../../../output/ip_repo}
 set MODEL {../../panda_top/bench/zynq_model}
 set SLOW {../../../../SlowFPGA/src/hdl}
 
-do ../bench/zynq_model/zynq_ps.sim/sim_1/behav/zynq_ps_wrapper_compile.do
+#do ../bench/zynq_model/zynq_ps.sim/sim_1/behav/zynq_ps_wrapper_compile.do
 
 # Compile Sources
 #
@@ -34,6 +34,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/autogen/lut_ctrl.vhd" \
 "${SRC}/autogen/srgate_ctrl.vhd" \
 "${SRC}/autogen/clocks_ctrl.vhd" \
+"${SRC}/autogen/adder_ctrl.vhd" \
 "${SRC}/csr_if.vhd" \
 "${SRC}/ttlout_block.vhd" \
 "${SRC}/ttlout_top.vhd" \
@@ -82,6 +83,9 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/clocks.vhd" \
 "${SRC}/clocks_block.vhd" \
 "${SRC}/clocks_top.vhd" \
+"${SRC}/adder.vhd" \
+"${SRC}/adder_block.vhd" \
+"${SRC}/adder_top.vhd" \
 "${SRC}/bits.vhd" \
 "${SRC}/bits_block.vhd" \
 "${SRC}/bits_top.vhd" \

@@ -197,6 +197,7 @@ signal seq_act : std_logic_vector(SEQ_NUM-1 downto 0);
 
 signal counter_carry : std_logic_vector(COUNTER_NUM-1 downto 0);
 signal posn_counter : std32_array(COUNTER_NUM-1 downto 0);
+signal adder_out : std32_array(ADDER_NUM-1 downto 0);
 
 signal pcomp_act : std_logic_vector(PCOMP_NUM-1 downto 0);
 signal pcomp_pulse : std_logic_vector(PCOMP_NUM-1 downto 0);
@@ -604,6 +605,22 @@ port map (
 );
 
 ---------------------------------------------------------------------------
+-- ADDER
+---------------------------------------------------------------------------
+adder_inst : entity work.adder_top
+port map (
+    clk_i => FCLK_CLK0,
+    reset_i => FCLK_RESET0,
+    mem_addr_i => mem_addr,
+    mem_cs_i => mem_cs(ADDER_CS),
+    mem_wstb_i => mem_wstb,
+    mem_rstb_i => mem_rstb,
+    mem_dat_i => mem_odat,
+    posbus_i => posbus,
+    out_o => adder_out
+);
+
+---------------------------------------------------------------------------
 -- POSITION COMPARE
 ---------------------------------------------------------------------------
 PCOMP_GEN : IF (PCOMP_INST = true) GENERATE
@@ -689,6 +706,7 @@ port map (
     mem_cs_i => mem_cs(PGEN_CS),
     mem_wstb_i => mem_wstb,
     mem_dat_i => mem_odat,
+    mem_dat_o => mem_read_data(PGEN_CS),
     dma_req_o => rdma_req(1 downto 0),
     dma_ack_i => rdma_ack(1 downto 0),
     dma_done_i => rdma_done,
@@ -843,7 +861,7 @@ port map (
     QDEC_OUT => (others => (others => '0')),
     POSENC_A => posenc_a,
     POSENC_B => posenc_b,
-    ADDER_OUT => (others => (others => '0')),
+    ADDER_OUT => adder_out,
     COUNTER_CARRY => counter_carry,
     COUNTER_OUT => posn_counter,
     PGEN_OUT => pgen_out,

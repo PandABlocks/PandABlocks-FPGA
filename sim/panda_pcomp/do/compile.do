@@ -8,8 +8,8 @@ vmap xil_defaultlib msim/xil_defaultlib
 vcom -64 -93 -work xil_defaultlib   \
 "../../../src/hdl/defines/type_defines.vhd" \
 "../../../src/hdl/defines/top_defines.vhd"  \
-"../../../src/hdl/defines/addr_defines.vhd" \
-"../../../src/hdl/panda_pcomp.vhd"
+"../../../src/hdl/autogen/addr_defines.vhd" \
+"../../../src/hdl/pcomp.vhd"
 
 vlog -work xil_defaultlib \
 "../bench/panda_pcomp_tb.v" \
@@ -26,4 +26,4 @@ view wave
 
 do wave.do
 
-run 10000us
+run 2ms

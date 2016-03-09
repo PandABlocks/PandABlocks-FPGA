@@ -13,6 +13,12 @@ capture = 0;
 PGEN_REPEAT  = 2;
 PGEN_SAMPLES = 5;
 
+$display("Start Preload \n");
+tb.uut.ps.ps.ps.inst.pre_load_mem_from_file("preload_ddr.txt",32'h2000_0000,65536);
+
+tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h1);
+tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h0);
+
 repeat(125) @(posedge tb.uut.ps.FCLK);
 
 REG_WRITE(PGEN_BASE, PGEN_CYCLES, PGEN_REPEAT);
