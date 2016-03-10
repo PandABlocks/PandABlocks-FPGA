@@ -52,6 +52,7 @@ def main():
     generateOutput('addr_defines_template', "addr_defines.vhd", variables)
     generateOutput('addr_defines_template_verilog', "addr_defines.v", variables)
     generateOutput('panda_buses_template', "panda_busses.vhd", variables)
+    generateOutput('panda_bitbus_template', "panda_bitbus.v", variables)
 
     for blockname, block in cfgParser.blocks.items():
         if not blockname.startswith('*'):
