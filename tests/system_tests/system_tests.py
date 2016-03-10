@@ -3,11 +3,13 @@
 import sys
 import os
 import socket
+import struct
 from pkg_resources import require
 require("numpy")
 require("h5py")
 import h5py
 import unittest
+import xml.etree.ElementTree
 
 # add our python dir
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "python"))
@@ -20,11 +22,12 @@ test_script = os.path.join(os.path.dirname(__file__),  "testseq")
 class SystemTest(unittest.TestCase):
 
     def __init__(self,hostname, cmdport, rcvport, options, reference_hdf):
-        name = '{}'.format("<TEST PARAM>")
+        name = '{}'.format(' '.join(options))
         setattr(self, name, self.runTest)
         super(SystemTest, self).__init__(name)
         self.options = options
         self.data = []
+        self.header_fields = []
         self.hdf5_file_path = os.path.join(os.path.dirname(__file__),'hdf5',
                                            reference_hdf)
 
@@ -45,10 +48,7 @@ class SystemTest(unittest.TestCase):
     def send_set_options(self):
         config_msg = " ".join(self.options) + '\n'
         self.rcvsock.sendall(config_msg)
-        print "SENDING:", config_msg
         data_stream = self.rcvsock.recv(4096)
-        # data_stream = self.get_data()
-        print "RECEIVED: ", data_stream
 
     def send_test_commands(self):
         #send the test commands
@@ -63,29 +63,68 @@ class SystemTest(unittest.TestCase):
                 # print "RECEIVED: ", data_stream
 
     def get_data(self):
-        input_string = ""
-        data_start = False
+        data_string = ""
+        binary_data_string = ""
+        header_string = ""
         while True:
             try:
                 data_stream = self.rcvsock.recv(4096)
+                # print [data_stream]
             except socket.timeout:
                 break
-            input_string += data_stream
-            print data_stream.strip()
-            if data_stream.startswith("OK"):
+            if data_stream.startswith("END"):
                 break
-        return self.parse_data(input_string.split('\n'))[1]
+            elif data_stream.startswith("<"):
+                header_string += data_stream
+            elif data_stream.startswith("BIN"):
+                binary_data_string += data_stream
+            else:
+                data_string += data_stream
+        if header_string:
+            self.parse_header(header_string)
+        if data_string:
+            self.data = self.parse_data(data_string.split('\n'))
+        elif binary_data_string:
+            self.data = self.parse_binary(binary_data_string.strip('BIN ').split("BIN "))
 
     def parse_data(self, data_stream):
-        header = ""
-        data = ""
+        data = []
+        bin_data = []
         for line in data_stream:
-            if line.startswith("<"):
-                header += line
-            elif not line.startswith('OK') and line:
-                self.data.append(line.strip().split(" "))
-                data = self.data
-        return [header, data]
+            if not line.startswith('OK') and line:
+                data.append(line.strip().split(" "))
+        return data
+
+    def parse_header(self, header):
+        try:
+            #get the header
+            root = xml.etree.ElementTree.fromstring(header)
+            # for data_stream in root.iter('data'):
+                # print "data", data_stream.attrib
+            for field in root.iter('field'):
+                self.header_fields.append(field.attrib)
+        except xml.etree.ElementTree.ParseError, e:
+            print 'EXCEPTION:', e
+
+    def parse_binary(self, binary_stream):
+        binary_data = []
+        fmt = self.get_bin_unpack_fmt()
+        for line in binary_stream:
+            packet_length = struct.unpack('<I', line[0:4])[0]
+            binary_data.append(struct.unpack(fmt, line[4:packet_length]))
+        return binary_data
+
+    def get_bin_unpack_fmt(self):
+        format_chars = {
+            'int32': 'i',
+            'uint32': 'I',
+            'int64': 'q',
+            'uint64': 'Q',
+            'double': 'd'}
+        fmt = '<'
+        for field in self.header_fields:
+            fmt += format_chars[field['type']]
+        return fmt
 
     def check_data(self):
         #open refrence hdf5 file and check that the data matches
@@ -94,10 +133,10 @@ class SystemTest(unittest.TestCase):
             print item + ":", hdf5_file.attrs[item]
         counts = hdf5_file['/Scan/data/counts']
         positions = hdf5_file['/Scan/data/positions']
-        print "{}\t{}\t{}".format("\n#", "counts", "positions")
+        # print "{}\t{}\t{}".format("\n#", "counts", "positions")
         for i in range(len(counts)):
-            self.assertEqual(counts[i], self.data[i][0])#MAKE SURE THE REFERENCE FILE USED THE SAME SETTINGS HERE
-            print "{}\t{}\t{}".format(i, counts[i], positions[i])
+            self.assertEqual(counts[i], str(self.data[i][0]))
+            # print "{}\t{}\t{}".format(i, counts[i], positions[i])
         hdf5_file.close()
 
     #RENAME
@@ -129,7 +168,6 @@ def make_suite():
     options.append(["XML", "FRAMED", "UNSCALED"])
     options.append(["XML", "ASCII", "SCALED"])
     for option in options:
-        print "OPTION", option
         testcase = SystemTest('localhost', 8888, 8889, option, hdf_name)
         suite.addTest(testcase)
     return suite
