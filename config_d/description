@@ -141,6 +141,7 @@ PGEN        Position generator
     TRIG            Trigger a sample to be produced
     OUT             Current sample
     TABLE           Table of positions to be output
+    TABLE_STATUS    Table status
 
 PCOMP       Position compare
     START           Pulse start position value
@@ -157,6 +158,7 @@ PCOMP       Position compare
     OUT             Output pulse
     ERROR           True if pulse is initiated after at least two compare ponts
     TABLE           Table of points to use instead of START/STEP/WIDTH
+    TABLE_STATUS    Table status
 
 ADC         Analogue inputs
     OUT             Current value

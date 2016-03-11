@@ -4,7 +4,7 @@
 # fixed register definitions used in the hardware interface.
 #   Alas, because hardware access occurs during the processing of this file, it
 # is necessary to place this section at the start!
-*REG        31
+*REG        0
     #
     # FPGA Version and Build Identification Values
     #
@@ -44,11 +44,15 @@
     # complete.
     SLOW_REGISTER_STATUS    15
 
+    # This array of registers is used to program data delays on the capture bus
+    PCAP_BIT_DELAY          28 .. 31
+    PCAP_DATA_DELAY         32 .. 63
+
 
 # These registers are used by the kernel driver to read the data capture stream.
 # This block is not used by the server, but is here for documentation and other
 # automated tools.
-*DRV        25
+*DRV        1
     # This register is used to reset DMA engine.
     PCAP_DMA_RESET          0
     # This register is used to initialise DMA engine with first set of
@@ -63,20 +67,20 @@
     # DMA block size in bytes
     PCAP_BLOCK_SIZE         6
 
-TTLIN       18
+TTLIN       3
     TERM            slow 0
     VAL             2 3 4 5 6 7
 
-TTLOUT      0
+TTLOUT      4
     VAL             0 1
 
-LVDSIN      17
+LVDSIN      5
     VAL             8 9
 
-LVDSOUT     1
+LVDSOUT     6
     VAL             0 1
 
-LUT         2
+LUT         7
     FUNC            5
     INPA            0 6
     INPB            1 7
@@ -85,7 +89,7 @@ LUT         2
     INPE            4 10
     OUT             10 11 12 13 14 15 16 17
 
-SRGATE      3
+SRGATE      8
     SET_EDGE        2
     RST_EDGE        3
     FORCE_SET       4
@@ -94,7 +98,7 @@ SRGATE      3
     RST             1 7
     OUT             18 19 20 21
 
-DIV         4
+DIV         9
     DIVISOR         2
     FIRST_PULSE     3
     INP             0 5
@@ -103,7 +107,7 @@ DIV         4
     OUTN            26 27 28 29
     COUNT           4
 
-PULSE       5
+PULSE       10
     DELAY           3 2     >3
     WIDTH           5 4     >3
     INP             0 11
@@ -115,7 +119,7 @@ PULSE       5
     QUEUE           9
     MISSED_CNT      10
 
-SEQ         6
+SEQ         11
     PRESCALE        5
     TABLE_CYCLE     8
     ENABLE          0 16
@@ -135,7 +139,7 @@ SEQ         6
     CUR_TCYCLE      11
     TABLE           short   512    13 14 15
 
-INENC       7
+INENC       12
     PROTOCOL        slow 0
     CLK_PERIOD      1
     FRAME_PERIOD    2
@@ -152,7 +156,7 @@ INENC       7
     CONN            78 79 80 81
     VAL             1 2 3 4 / 33 34 35 36
 
-QDEC        8
+QDEC        13
     RST_ON_Z        3
     SETP            4
     A               0 5
@@ -160,7 +164,7 @@ QDEC        8
     Z               2 7
     OUT             5 6 7 8
 
-OUTENC      9
+OUTENC      14
     PROTOCOL        5
     BITS            6
     QPERIOD         7
@@ -172,7 +176,7 @@ OUTENC      9
     CONN            3 14
     QSTATE          9
 
-POSENC      10
+POSENC      15
     INP             0
     QPERIOD         1
     ENABLE          3 5
@@ -181,7 +185,7 @@ POSENC      10
     B               86 87 88 89
     QSTATE          4
 
-ADDER       12
+ADDER       16
     INPA            0
     INPB            1
     INPC            2
@@ -189,7 +193,7 @@ ADDER       12
     SCALE           4
     OUT             10 11
 
-COUNTER     13
+COUNTER     17
     DIR             4
     START           5
     STEP            6
@@ -198,14 +202,15 @@ COUNTER     13
     CARRY           90 91 92 93 94 95 96 97
     OUT             12 13 14 15 16 17 18 19
 
-PGEN        14
+PGEN        18
     CYCLES          3
     ENABLE          0 6
     TRIG            1 7
     OUT             20 21
     TABLE           long    2^8    4 5
+    TABLE_STATUS    8
 
-PCOMP       15
+PCOMP       19
     START           2
     STEP            3
     WIDTH           4
@@ -220,11 +225,12 @@ PCOMP       15
     OUT             102 103 104 105
     ERROR           14
     TABLE           long    2^2    11 12
+    TABLE_STATUS    16
 
-ADC         26
+ADC         20
     OUT             22 23 24 25 26 27 28 29 / 54 55 56 57 58 59 60 61
 
-PCAP        16
+PCAP        21
     ENABLE          0 5
     FRAME           1 6
     CAPTURE         2 7
@@ -239,7 +245,7 @@ PCAP        16
     BITS2           41
     BITS3           42
 
-BITS        28
+BITS        22
     A               0
     B               1
     C               2
@@ -251,7 +257,7 @@ BITS        28
     ZERO            0
     ONE             1
 
-CLOCKS      29
+CLOCKS      23
     A_PERIOD        0
     B_PERIOD        1
     C_PERIOD        2
@@ -261,9 +267,9 @@ CLOCKS      29
     OUTC            124
     OUTD            125
 
-POSITIONS   30
+POSITIONS   24
     ZERO            0
 
-SLOW        27
+SLOW        25
     FPGA_VERSION    0
     ENC_CONN        1

@@ -160,7 +160,9 @@ ADDER[2]
     OUT             pos_out
 
 COUNTER[8]
-    DIR             param
+    DIR             param       enum 2
+        0   Up
+        1   Down
     START           param
     STEP            param
     ENABLE          bit_mux
@@ -174,6 +176,11 @@ PGEN[2]
     TRIG            bit_mux
     OUT             pos_out
     TABLE           table
+    TABLE_STATUS    read        enum 4
+        0   Ok
+        1   Table not ready
+        2   Table end reached
+        3   DMA overrun
 
 PCOMP[4]
     START           param       position
@@ -198,6 +205,11 @@ PCOMP[4]
         0   Ok
         1   Pulse error
     TABLE           table
+    TABLE_STATUS    read        enum 4
+        0   Ok
+        1   Table not ready
+        2   Table end reached
+        3   DMA overrun
 
 ADC[8]
     OUT             pos_out     adc
