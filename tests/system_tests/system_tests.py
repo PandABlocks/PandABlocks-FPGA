@@ -10,6 +10,7 @@ require("h5py")
 import h5py
 import unittest
 import xml.etree.ElementTree
+import numpy as np
 
 # add our python dir
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "python"))
@@ -85,7 +86,8 @@ class SystemTest(unittest.TestCase):
         if data_string:
             self.data = self.parse_data(data_string.split('\n'))
         elif binary_data_string:
-            self.data = self.parse_binary(binary_data_string.strip('BIN ').split("BIN "))
+            self.data = self.parse_binary(
+                binary_data_string.strip('BIN ').split("BIN "))
 
     def parse_data(self, data_stream):
         data = []
@@ -108,10 +110,18 @@ class SystemTest(unittest.TestCase):
 
     def parse_binary(self, binary_stream):
         binary_data = []
-        fmt = self.get_bin_unpack_fmt()
+        fmt, data_size = self.get_bin_unpack_fmt()
         for line in binary_stream:
+            #find the packet length from the first 4 bits
             packet_length = struct.unpack('<I', line[0:4])[0]
-            binary_data.append(struct.unpack(fmt, line[4:packet_length]))
+            #strip off the first 4 bits which hold the packet length
+            actual_data = line[4:len(line)]
+            #split the data
+            split_data = [
+                actual_data[x:x+data_size]
+                for x in range(0,len(actual_data),data_size)]
+            for section in split_data:
+                binary_data.append(struct.unpack(fmt, section))
         return binary_data
 
     def get_bin_unpack_fmt(self):
@@ -122,9 +132,11 @@ class SystemTest(unittest.TestCase):
             'uint64': 'Q',
             'double': 'd'}
         fmt = '<'
+        expected_data_size = 0
         for field in self.header_fields:
             fmt += format_chars[field['type']]
-        return fmt
+            expected_data_size += np.dtype(field['type']).itemsize
+        return fmt, expected_data_size
 
     def check_data(self):
         #open refrence hdf5 file and check that the data matches
