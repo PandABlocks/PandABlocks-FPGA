@@ -23,7 +23,7 @@ set origin_dir .
 set_param board.repoPaths ../configs
 
 # Create project
-create_project panda_top $origin_dir/panda_top -part xc7z030sbg485-1
+create_project -force panda_top $origin_dir/panda_top -part xc7z030sbg485-1
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]

@@ -63,34 +63,6 @@ mem_addr <= to_integer(unsigned(mem_addr_i));
 --
 -- Control System Register Interface
 --
-REG_PCAP_SPACE : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            ENABLE  <= TO_SVECTOR(0, SBUSBW);
-            FRAME <= TO_SVECTOR(0, SBUSBW);
-            CAPTURE <= TO_SVECTOR(0, SBUSBW);
-        else
-            if (mem_cs_i(PCAP_CS) = '1' and mem_wstb_i = '1') then
-                -- Enable bitbus mux select.
-                if (mem_addr = PCAP_ENABLE) then
-                    ENABLE <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                -- Frame bitbus mux select.
-                if (mem_addr = PCAP_FRAME) then
-                    FRAME <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-
-                -- Capture bitbus mux select.
-                if (mem_addr = PCAP_CAPTURE) then
-                    CAPTURE <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-            end if;
-        end if;
-    end if;
-end process;
-
 REG_REG_SPACE : process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -205,16 +177,8 @@ REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_0_o <= (others => '0');
             mem_dat_1_o <= (others => '0');
         else
-            case (mem_addr) is
-                when PCAP_ERR_STATUS =>
-                    mem_dat_0_o <= ERR_STATUS;
-                when others =>
-                    mem_dat_0_o <= (others => '0');
-            end case;
-
             case (mem_addr) is
                 when DRV_PCAP_IRQ_STATUS =>
                     mem_dat_1_o <= IRQ_STATUS;

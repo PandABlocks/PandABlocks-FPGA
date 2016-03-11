@@ -43,7 +43,7 @@ port (
     dma_full_i          : in  std_logic;
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
-    extbus_i            : in  extbus_t;
+    extbus_i            : in  std32_array(ENC_NUM-1 downto 0);
     -- Block outputs
     dma_fifo_reset_o    : out std_logic;
     pcap_dat_o          : out std_logic_vector(31 downto 0);

@@ -61,7 +61,7 @@ port (
     -- Block inputs
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
-    extbus_i            : in  extbus_t;
+    extbus_i            : in  std32_array(ENC_NUM-1 downto 0);
     -- Output pulses
     pcap_actv_o         : out std_logic;
     pcap_irq_o          : out std_logic
@@ -92,10 +92,6 @@ signal TIMEOUT          : std_logic_vector(31 downto 0);
 signal TIMEOUT_WSTB     : std_logic;
 signal IRQ_STATUS       : std_logic_vector(31 downto 0);
 
-signal enable           : std_logic;
-signal capture          : std_logic;
-signal frame            : std_logic;
-
 signal capture_data     : std32_array(63 downto 0);
 signal pcap_dat         : std_logic_vector(31 downto 0);
 signal pcap_dat_valid   : std_logic;
@@ -106,23 +102,46 @@ signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_active      : std_logic;
 signal pcap_done        : std_logic;
 
+signal enable           : std_logic;
+signal capture          : std_logic;
+signal frame            : std_logic;
+signal enable_dly       : std_logic;
+signal capture_dly      : std_logic;
+signal frame_dly        : std_logic;
+signal sysbus_dly       : sysbus_t;
+signal posbus_dly       : posbus_t;
+signal extbus_dly       : std32_array(ENC_NUM-1 downto 0);
+
 begin
 
 pcap_actv_o <= pcap_active;
 
--- Bitbus Assignments.
-process(clk_i) begin
-    if rising_edge(clk_i) then
-        enable <= SBIT(sysbus_i, ENABLE_VAL);
-        capture <= SBIT(sysbus_i, CAPTURE_VAL);
-        frame <= SBIT(sysbus_i, FRAME_VAL);
-    end if;
-end process;
-
 --
 -- Block Control Register Interface.
 --
-pcap_ctrl_inst : entity work.pcap_core_ctrl
+pcap_ctrl_inst : entity work.pcap_ctrl
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+    sysbus_i            => sysbus_i,
+    posbus_i            => (others => (others => '0')),
+    enable_o            => enable,
+    capture_o           => capture,
+    frame_o             => frame,
+
+    ERR_STATUS          => ERR_STATUS,
+
+    mem_cs_i            => mem_cs_i(PCAP_CS),
+    mem_wstb_i          => mem_wstb_i,
+    mem_addr_i          => mem_addr_i(BLK_AW-1 downto 0),
+    mem_dat_i           => mem_dat_i,
+    mem_dat_o           => mem_dat_0_o
+);
+
+--
+-- *REGs and *DMA space needs special treatment.
+--
+pcap_core_ctrl_inst : entity work.pcap_core_ctrl
 port map (
     clk_i                   => clk_i,
     reset_i                 => reset_i,
@@ -158,6 +177,31 @@ port map (
     IRQ_STATUS              => IRQ_STATUS
 );
 
+pcap_delay_inst : entity work.pcap_delay
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+
+    sysbus_i            => sysbus_i,
+    posbus_i            => posbus_i,
+    extbus_i            => extbus_i,
+    enable_i            => enable,
+    capture_i           => capture,
+    frame_i             => frame,
+
+    sysbus_o            => sysbus_dly,
+    posbus_o            => posbus_dly,
+    extbus_o            => extbus_dly,
+    enable_o            => enable_dly,
+    capture_o           => capture_dly,
+    frame_o             => frame_dly,
+
+    mem_cs_i            => mem_cs_i(PCAP_CS),
+    mem_wstb_i          => mem_wstb_i,
+    mem_addr_i          => mem_addr_i(BLK_AW-1 downto 0),
+    mem_dat_i           => mem_dat_i
+);
+
 --
 -- Position Capture Core IP instantiation
 --
@@ -176,13 +220,13 @@ port map (
     DISARM                  => DISARM,
     ERR_STATUS              => ERR_STATUS,
 
-    enable_i                => enable,
-    capture_i               => capture,
-    frame_i                 => frame,
+    enable_i                => enable_dly,
+    capture_i               => capture_dly,
+    frame_i                 => frame_dly,
     dma_full_i              => dma_full,
-    sysbus_i                => sysbus_i,
-    posbus_i                => posbus_i,
-    extbus_i                => extbus_i,
+    sysbus_i                => sysbus_dly,
+    posbus_i                => posbus_dly,
+    extbus_i                => extbus_dly,
 
     pcap_dat_o              => pcap_dat,
     pcap_dat_valid_o        => pcap_dat_valid,

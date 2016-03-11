@@ -22,3 +22,7 @@ add wave -radix Decimal -group "DMA" \
 add wave -group "Framing" \
 "sim:/test/tb/uut/PCAP_GEN/pcap_inst/pcap_core/pcap_frame/*"
 
+add wave -noupdate -divider {Counter}
+add wave -group "Counter 0" \
+"sim:/test/tb/uut/counter_inst/COUNTER_GEN(0)/counter_block_inst/*"
+

@@ -39,48 +39,24 @@ end ttlout_block;
 
 architecture rtl of ttlout_block is
 
-signal VAL       : std_logic_vector(SBUSBW-1 downto 0);
-
--- Block Core IO
-signal val_i            : std_logic := '0';
-
-signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
-
 begin
 
--- Integer conversion for address.
-mem_addr <= to_integer(unsigned(mem_addr_i));
-
+--
 -- Control System Interface
 --
-REG_WRITE : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            VAL <= TO_SVECTOR(0, SBUSBW);
-        else
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
-                -- Pulse start position
-                if (mem_addr = TTLOUT_VAL) then
-                    VAL <= mem_dat_i(SBUSBW-1 downto 0);
-                end if;
-            end if;
-        end if;
-    end if;
-end process;
+ttlout_ctrl_inst : entity work.ttlout_ctrl
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+    sysbus_i            => sysbus_i,
+    posbus_i            => (others => (others => '0')),
+    val_o               => pad_o,
 
---
--- Core Input Port Assignments
---
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        val_i <= SBIT(sysbus_i, VAL);
-    end if;
-end process;
-
--- TTLOUT Block Core Instantiation
-pad_o <= val_i;
+    mem_cs_i            => mem_cs_i,
+    mem_wstb_i          => mem_wstb_i,
+    mem_addr_i          => mem_addr_i,
+    mem_dat_i           => mem_dat_i
+);
 
 end rtl;
 

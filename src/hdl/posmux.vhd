@@ -43,9 +43,8 @@ begin
 -- Select bit on the system bus.
 posn <= PFIELD(posbus_i, POSMUX_SEL(PBUSBW-1 downto 0));
 
--- Apply delay. POS_DLY = 0 1 clock delay which is absorbed as
--- system_bus delay.
-
+-- Apply delay. POS_DLY = 0 means 1 clock delay which is use to register
+-- multiplexer output.
 DLY_GEN : for I in 0 to 31 generate
     SRLC32E_inst : SRLC32E
     port map (

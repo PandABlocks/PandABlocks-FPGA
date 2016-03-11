@@ -164,7 +164,7 @@ signal IRQ_F2P              : std_logic_vector(0 downto 0);
 -- Design Level Busses :
 signal sysbus               : sysbus_t := (others => '0');
 signal posbus               : posbus_t := (others => (others => '0'));
-signal extbus               : extbus_t := (others => (others => '0'));
+signal extbus               : std32_array(ENC_NUM-1 downto 0);
 
 -- Input Encoder
 signal posn_inenc_low       : std32_array(ENC_NUM-1 downto 0);
@@ -222,8 +222,7 @@ signal bits_d               : std_logic_vector(0 downto 0);
 signal posenc_a             : std_logic_vector(3 downto 0) := "0000";
 signal posenc_b             : std_logic_vector(3 downto 0) := "0000";
 
-signal adc_low              : std32_array(7 downto 0) := (others => (others => '0'));
-signal adc_high             : std32_array(7 downto 0) := (others => (others => '0'));
+signal adc_out              : std32_array(7 downto 0) := (others => (others => '0'));
 
 signal pgen_out             : std32_array(PGEN_NUM-1 downto 0);
 
@@ -892,7 +891,6 @@ port map (
 -- Extended Bus   : Assignments
 --
 extbus(3 downto 0)  <= posn_inenc_high;
-extbus(11 downto 4) <= adc_high;
 
 #ifdef DEV
 -- Direct interface to Daughter Card via FMC on the dev board.

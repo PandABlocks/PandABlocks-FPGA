@@ -35,6 +35,9 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/autogen/srgate_ctrl.vhd" \
 "${SRC}/autogen/clocks_ctrl.vhd" \
 "${SRC}/autogen/adder_ctrl.vhd" \
+"${SRC}/autogen/ttlout_ctrl.vhd" \
+"${SRC}/autogen/lvdsout_ctrl.vhd" \
+"${SRC}/autogen/pcap_ctrl.vhd" \
 "${SRC}/csr_if.vhd" \
 "${SRC}/ttlout_block.vhd" \
 "${SRC}/ttlout_top.vhd" \
@@ -92,6 +95,8 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/reg.vhd" \
 "${SRC}/reg_top.vhd" \
 "${SRC}/axi_write_master.vhd" \
+"${SRC}/delay_line.vhd" \
+"${SRC}/pcap_delay.vhd" \
 "${SRC}/pcap_core_ctrl.vhd" \
 "${SRC}/pcap_posproc.vhd" \
 "${SRC}/pcap_frame.vhd" \

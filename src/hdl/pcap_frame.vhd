@@ -32,7 +32,7 @@ port (
     -- Block input and outputs.
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
-    extbus_i            : in  extbus_t;
+    extbus_i            : in  std32_array(ENC_NUM-1 downto 0);
     enable_i            : in  std_logic;
     frame_i             : in  std_logic;
     capture_i           : in  std_logic;
@@ -213,7 +213,7 @@ posn_o(40) <= sysbus_i(63 downto 32);
 posn_o(41) <= sysbus_i(95 downto 64);
 posn_o(42) <= sysbus_i(127 downto 96);
 posn_o(53 downto 43) <= (others => (others => '0'));
-posn_o(61 downto 54) <= extbus_i(11 downto 4);  -- ADC extension
+posn_o(61 downto 54) <= (others => (others => '0'));  -- ADC extension
 posn_o(62) <= std_logic_vector(capture_ts(31 downto  0));
 posn_o(63) <= std_logic_vector(capture_ts(63 downto 32));
 
