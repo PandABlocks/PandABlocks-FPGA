@@ -141,6 +141,8 @@ class Controller(object):
                     self.capture_bit_bus()
                 elif name == "POS_READ_RST":
                     self.capture_pos_bus()
+                else:
+                    print 'Not writing register %s to %s' % (name, value)
             else:
                 field = block.config_block.fields.get(name, None)
                 if field is None and name.endswith("_DLY"):

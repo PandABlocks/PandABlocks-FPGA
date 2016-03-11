@@ -22,7 +22,7 @@ class Capture(object):
         self.s.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
 
         # self.s.settimeout(1)
-        print 'connecting to {} port {}'.format(hostname, port)
+        # print 'connecting to {} port {}'.format(hostname, port)
 
     def run(self):
         self.set_options()
@@ -39,7 +39,7 @@ class Capture(object):
         while True:
             data_stream = self.s.recv(4096)
             input_string += data_stream
-            print data_stream.strip()
+            # print data_stream.strip()
             if data_stream.startswith("END") and data_start:
                 break
             elif data_stream.startswith('OK'):
@@ -80,7 +80,6 @@ class Capture(object):
         HDF5_FILE = os.path.join(self.output_dir, self.hdf_file)
 
         npdata = numpy.array(data)
-        print "NPDATA", npdata
         positions = numpy.array(npdata[:,1])
         counts = numpy.array(npdata[:,0])
 
