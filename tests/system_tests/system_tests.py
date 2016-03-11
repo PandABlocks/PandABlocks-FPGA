@@ -121,7 +121,7 @@ class SystemTest(unittest.TestCase):
                 actual_data[x:x+data_size]
                 for x in range(0,len(actual_data),data_size)]
             for section in split_data:
-                binary_data.append(struct.unpack(fmt, section))
+                binary_data.append(list(struct.unpack(fmt, section)))
         return binary_data
 
     def get_bin_unpack_fmt(self):
@@ -147,7 +147,11 @@ class SystemTest(unittest.TestCase):
         positions = hdf5_file['/Scan/data/positions']
         # print "{}\t{}\t{}".format("\n#", "counts", "positions")
         for i in range(len(counts)):
+            #rescale data
+            if self.header_data['process'] == 'Unscaled':
+                self.data[i][0] =  self.data[i][0]/ 125000000.0
             self.assertEqual(counts[i], str(self.data[i][0]))
+            self.assertEqual(float(positions[i]), float(self.data[i][1]))
             # print "{}\t{}\t{}".format(i, counts[i], self.data[i][0])
         hdf5_file.close()
 
