@@ -19,3 +19,6 @@ add wave -radix Decimal -group "PCap" \
 "sim:/test/tb/uut/PCAP_GEN/pcap_inst/pcap_core/*"
 add wave -radix Decimal -group "DMA" \
 "sim:/test/tb/uut/PCAP_GEN/pcap_inst/pcap_dma_inst/*"
+add wave -group "Framing" \
+"sim:/test/tb/uut/PCAP_GEN/pcap_inst/pcap_core/pcap_frame/*"
+

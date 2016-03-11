@@ -1,48 +1,69 @@
-file delete -force read_from_hp1.txt
-
-set SRC {../../../src/hdl}
-set IP {../../../output/ip_repo}
-set MODEL {../../panda_top/bench/zynq_model}
-
 vlib work
 vlib msim
 
-#do ../../panda_top/do/bfm.do
+vlib msim/fifo_generator_v12_0
+vlib msim/xil_defaultlib
 
-#
-# Compile Testbench
-#
-vlog -work xil_defaultlib "../bench/test.v" \
-"glbl.v"
+vmap fifo_generator_v12_0 msim/fifo_generator_v12_0
+vmap xil_defaultlib msim/xil_defaultlib
+
+set SRC {../../../src/hdl}
+set IP {../../../output/ip_repo/pcap_dma_fifo}
+
+vcom -64 -93 -work fifo_generator_v12_0  \
+"${IP}/fifo_generator_v12_0/simulation/fifo_generator_vhdl_beh.vhd" \
+"${IP}/fifo_generator_v12_0/hdl/fifo_generator_v12_0_vh_rfs.vhd" \
 
 vcom -64 -93 -work xil_defaultlib  \
-"${IP}/pcap_dma_fifo/sim/pcap_dma_fifo.vhd"\
-"${IP}/pulse_queue/sim/pulse_queue.vhd"\
-"${SRC}/defines/type_defines.vhd" \
-"${SRC}/defines/addr_defines.vhd" \
+"${IP}/sim/pcap_dma_fifo.vhd"\
+"${SRC}/autogen/addr_defines.vhd" \
 "${SRC}/defines/top_defines.vhd" \
-"${SRC}/panda_axi_write_master.vhd" \
-"${SRC}/panda_spbram.vhd" \
-"${SRC}/panda_csr_if.vhd" \
-"${SRC}/panda_pcap_ctrl.vhd" \
-"${SRC}/panda_pcap_buffer.vhd" \
-"${SRC}/panda_pcap_posproc.vhd" \
-"${SRC}/panda_pcap_frame.vhd" \
-"${SRC}/panda_pcap_arming.vhd" \
-"${SRC}/panda_pcap_dma.vhd" \
-"${SRC}/panda_pcap_core.vhd" \
-"${SRC}/panda_pcap_top.vhd" \
-"../../panda_top/bench/test_interface.vhd" \
-"../bench/panda_pcap_tb.vhd" \
+"${SRC}/defines/top_defines.vhd" \
+"${SRC}/defines/panda_version.vhd" \
+"${SRC}/spbram.vhd" \
+"${SRC}/axi_write_master.vhd" \
+"${SRC}/pcap_posproc.vhd" \
+"${SRC}/pcap_frame.vhd" \
+"${SRC}/pcap_arming.vhd" \
+"${SRC}/pcap_buffer.vhd" \
+"${SRC}/pcap_core.vhd" \
+"../bench/pcap_core_wrapper.vhd" \
 
-vopt -64 +acc -L unisims_ver -L unimacro_ver -L secureip -L xil_defaultlib -L generic_baseblocks_v2_1 -L fifo_generator_v12_0 -L axi_data_fifo_v2_1 -L axi_infrastructure_v1_1 -L axi_register_slice_v2_1 -L axi_protocol_converter_v2_1 -L axi_clock_converter_v2_1 -L blk_mem_gen_v8_2 -L axi_dwidth_converter_v2_1 -work xil_defaultlib xil_defaultlib.test xil_defaultlib.glbl -o test_opt
 
-vsim -t 1ps -pli "/dls_sw/FPGA/Xilinx/Vivado/2015.1/lib/lnx64.o/libxil_vsim.so" -lib xil_defaultlib test_opt
+vlog -work xil_defaultlib   \
+"../bench/pcap_core_tb.v"   \
+"/dls_sw/FPGA/Xilinx/14.7/ISE_DS/ISE/verilog/src/glbl.v"
 
-add wave -group "Test" sim:/test/*
-add wave -group "TB" sim:/test/tb/*
-add wave -group "TOP" sim:/test/tb/uut/*
-add wave -group "DMA" sim:/test/tb/uut/pcap_dma_inst/*
-add wave -group "Arming" sim:/test/tb/uut/pcap_core/pcap_arming/*
+vopt -64 +acc -L secureip -L xil_defaultlib -work xil_defaultlib xil_defaultlib.pcap_core_tb -o pcap_core_opt glbl
+
+vsim -t 1ps -voptargs=+acc -lib xil_defaultlib pcap_core_opt
+
+view wave
+
+
+add wave -noupdate -radix decimal /pcap_core_tb/ACTIVE
+add wave -noupdate -radix decimal /pcap_core_tb/uut/pcap_core_inst/pcap_actv_o
+add wave -noupdate -radix decimal -radixshowbase 0 /pcap_core_tb/DATA
+add wave -noupdate -radix decimal /pcap_core_tb/DATA_WSTB
+add wave -noupdate -radix decimal -radixshowbase 0 /pcap_core_tb/pcap_dat_o
+add wave -noupdate -radix decimal /pcap_core_tb/pcap_dat_valid_o
+add wave -noupdate -radix decimal /pcap_core_tb/ERROR
+
+add wave -group "TB" -radix Decimal \
+"sim:/pcap_core_tb/*"
+
+add wave -group "Core" -radix Decimal \
+"sim:/pcap_core_tb/uut/pcap_core_inst/*"
+
+add wave -group "Buffer" -radix Decimal \
+"sim:/pcap_core_tb/uut/pcap_core_inst/pcap_buffer/*"
+
+add wave -group "Frame" -radix Decimal \
+"sim:/pcap_core_tb/uut/pcap_core_inst/pcap_frame/*"
+
+add wave -group "Processing-1" \
+"sim:/pcap_core_tb/uut/pcap_core_inst/pcap_frame/PROC_OTHERS(1)/pcap_posproc_encoder/*"
+
+
 
 run -all

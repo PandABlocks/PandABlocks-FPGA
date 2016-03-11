@@ -34,12 +34,6 @@ integer timestamp = 0;
 // Clock and Reset
 always #4 clk_i = !clk_i;
 
-initial begin
-    reset_i = 1;
-    repeat(10) @(posedge clk_i);
-    reset_i = 0;
-end
-
 //
 // Values in the test files are arranged on FPGA clock ticks on the
 // first column. This way all files are read syncronously.

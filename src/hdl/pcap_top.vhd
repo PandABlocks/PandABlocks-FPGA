@@ -1,6 +1,12 @@
 --------------------------------------------------------------------------------
---  File:       pcap_top.vhd
---  Desc:       Position capture module
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Position Capture top-level module.
 --
 --------------------------------------------------------------------------------
 
@@ -152,6 +158,9 @@ port map (
     IRQ_STATUS              => IRQ_STATUS
 );
 
+--
+-- Position Capture Core IP instantiation
+--
 pcap_core : entity work.pcap_core
 port map (
     clk_i                   => clk_i,
@@ -183,7 +192,7 @@ port map (
 );
 
 --
--- Position Capture Core IP instantiation
+-- Position Capture DMA Engine
 --
 pcap_dma_inst : entity work.pcap_dma
 port map (

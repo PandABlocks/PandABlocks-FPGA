@@ -1,19 +1,15 @@
-----------------------------------------------------------------------------
---  Project      : Diamond Diamond FOFB Communication Controller
---  Filename     : spbram.vhd
---  Purpose      : Generic VHDL Block RAM code
---  Author       : Isa S. Uzun
-----------------------------------------------------------------------------
---  Copyright (c) 2006 Diamond Light Source Ltd.
---  All rights reserved.
-----------------------------------------------------------------------------
---  Description  : Infers user defined Dual-Port Block RAM
-----------------------------------------------------------------------------
---  Limitations & Assumptions:
-----------------------------------------------------------------------------
---  Known Errors: This design is still under test. Please send any bug
---  reports to isa.uzun@diamond.ac.uk
-----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Infers user defined Dual-Port Block RAM
+--
+--------------------------------------------------------------------------------
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;

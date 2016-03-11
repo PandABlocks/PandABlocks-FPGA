@@ -54,8 +54,9 @@ end sequencer;
 
 architecture rtl of sequencer is
 
-constant SEQ_LEN            : positive := 4 * 512;
-constant SEQ_AW             : positive := 11;           -- log2(SEQ_LEN)
+constant SEQ_FRAMES         : positive := 1024;
+constant SEQ_BYTE_LEN       : positive := 4 * SEQ_FRAMES;
+constant SEQ_AW             : positive := LOG2(SEQ_BYTE_LEN);
 
 signal TABLE_FRAMES         : std_logic_vector(15 downto 0);
 
@@ -119,6 +120,9 @@ enable_rise <= enable_val and not enable_prev;
 -- Sequencer TABLE interface
 --
 sequencer_table : entity work.sequencer_table
+generic map (
+    SEQ_LEN             => SEQ_FRAMES
+)
 port map (
     clk_i               => clk_i,
     reset_i             => fsm_reset,

@@ -24,6 +24,7 @@ port (
     pcap_armed_o        : out std_logic;
     pcap_enabled_o      : out std_logic;
     pcap_done_o         : out std_logic;
+    timestamp_o         : out std_logic_vector(63 downto 0);
     pcap_status_o       : out std_logic_vector(2 downto 0)
 );
 end pcap_arming;
@@ -31,13 +32,14 @@ end pcap_arming;
 architecture rtl of pcap_arming is
 
 type pcap_arm_t is (IDLE, ARMED, ENABLED, WAIT_ONGOING_WRITE);
-signal arm_fsm        : pcap_arm_t;
+signal arm_fsm          : pcap_arm_t;
 
-signal enable_prev          : std_logic;
-signal enable_fall          : std_logic;
-signal abort_capture        : std_logic;
-signal pcap_armed           : std_logic;
-signal pcap_enabled         : std_logic;
+signal timestamp        : unsigned(63 downto 0);
+signal enable_prev      : std_logic;
+signal enable_fall      : std_logic;
+signal abort_capture    : std_logic;
+signal pcap_armed       : std_logic;
+signal pcap_enabled     : std_logic;
 
 begin
 
@@ -154,6 +156,25 @@ process(clk_i) begin
                 when others =>
                     arm_fsm <= IDLE;
             end case;
+        end if;
+    end if;
+end process;
+
+--
+-- Timestamp counter for the experiment starting from ARM.
+--
+timestamp_o <= std_logic_vector(timestamp);
+
+process(clk_i) begin
+    if rising_edge(clk_i) then
+        if (reset_i = '1') then
+            timestamp <= (others => '0');
+        elsif (ARM = '1') then
+            timestamp <= to_unsigned(1, 64);
+        elsif (pcap_armed = '1') then
+            timestamp <= timestamp + 1;
+        else
+            timestamp <= (others => '0');
         end if;
     end if;
 end process;

@@ -1,6 +1,7 @@
 module test;
 
 `include "../../../src/hdl/autogen/addr_defines.v"
+`include "../../../src/hdl/autogen/panda_bitbus.v"
 `include "./apis_tb.v"
 
 // Inputs to testbench
@@ -10,7 +11,7 @@ panda_top_tb tb(
     .ttlin_pad      ( ttlin_pad)
 );
 
-`define TESTNAME    "test.pcomp_table.v"
+`define TESTNAME    "test.framing.v"
 
 reg [ 1:0]      wrs, rsp;
 reg [31:0]      IRQ_STATUS;
@@ -24,6 +25,7 @@ reg [31:0]      smpl_table[31: 0];
 reg [31:0]      read_addr;
 reg             pcap_armed;
 reg             pcap_completed;
+reg [31:0]      framing_mask;
 
 integer         irq_count;
 integer         i, n, j, k, m;

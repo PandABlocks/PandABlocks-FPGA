@@ -14,6 +14,9 @@ use work.type_defines.all;
 use work.top_defines.all;
 
 entity sequencer_table is
+generic (
+    SEQ_LEN             : positive := 9
+);
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -33,7 +36,7 @@ end sequencer_table;
 
 architecture rtl of sequencer_table is
 
-constant AW                     : positive := 9;           -- log2(SEQ_LEN)
+constant AW                     : positive := LOG2(SEQ_LEN);
 
 signal seq_dout                 : std32_array(3 downto 0);
 

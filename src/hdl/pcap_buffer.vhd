@@ -1,6 +1,13 @@
 --------------------------------------------------------------------------------
---  File:       pcap_buffer.vhd
---  Desc:       Position capture module
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Position Capture Buffer reads user selected fields serially
+--                from extended position bus.
 --
 --------------------------------------------------------------------------------
 
@@ -40,6 +47,7 @@ signal mask_addra       : unsigned(5 downto 0);
 signal mask_addrb       : unsigned(5 downto 0);
 signal mask_doutb       : std_logic_vector(31 downto 0);
 signal capture          : std_logic;
+
 begin
 
 --
@@ -88,6 +96,7 @@ capture <= capture_i or ongoing_capture;
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1' or enable_i = '0') then
+            capture_data_lt <= (others => (others => '0'));
             ongoing_capture <= '0';
             mask_addrb <= (others => '0');
             error_o <= '0';

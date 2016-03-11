@@ -1,7 +1,16 @@
 --------------------------------------------------------------------------------
---  File:       pcap_core.vhd
---  Desc:       Position capture_i module
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Position Capture Core module handles core functionalities:
+--                  * Arming of the block,
+--                  * Frame/Capture handling,
+--                  * Buffered output.
+--                  * Error generation.
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -47,8 +56,8 @@ end pcap_core;
 
 architecture rtl of pcap_core is
 
+signal timestamp        : std_logic_vector(63 downto 0);
 signal capture_pulse    : std_logic;
-
 signal capture_data     : std32_array(63 downto 0);
 signal pcap_buffer_error: std_logic;
 signal pcap_frame_error : std_logic;
@@ -66,6 +75,9 @@ pcap_dat_valid_o <= pcap_dat_valid;
 pcap_status_o <= pcap_status;
 pcap_actv_o <= pcap_armed;
 
+--
+-- Arm/Disarm/Enable Control Logic
+--
 pcap_arming : entity work.pcap_arming
 port map (
     clk_i               => clk_i,
@@ -79,11 +91,12 @@ port map (
     pcap_armed_o        => pcap_armed,
     pcap_enabled_o      => pcap_enabled,
     pcap_done_o         => pcap_done_o,
+    timestamp_o         => timestamp,
     pcap_status_o       => pcap_status
 );
 
 --
--- Position Capture Data Processing
+-- Encoder and ADC Position Data Processing
 --
 pcap_frame : entity work.pcap_frame
 port map (
@@ -101,6 +114,7 @@ port map (
     enable_i            => pcap_enabled,
     frame_i             => frame_i,
     capture_i           => capture_i,
+    timestamp_i         => timestamp,
     capture_o           => capture_pulse,
     posn_o              => capture_data,
     error_o             => pcap_frame_error
@@ -130,7 +144,7 @@ port map (
 -- These errors signals termination of PCAP operation.
 pcap_error <= pcap_buffer_error or pcap_frame_error;
 
-ERR_STATUS(31 downto 2) <= (others => '0');
+ERR_STATUS(31 downto 3) <= (others => '0');
 ERR_STATUS(2 downto 0) <= pcap_status;
 
 end rtl;
