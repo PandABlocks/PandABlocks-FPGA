@@ -1,0 +1,20 @@
+
+{%  for name, block in blocks.iteritems() %}
+{%      for fieldname, field in block.fields.iteritems() %}
+{%          if field.cls == 'bit_out'%}
+{%              set bitbus_counter = 0 -%}
+{%              for register in field.reg %}
+localparam {{name}}_{{field.name}}{{bitbus_counter}} = {{register}};
+{%                  set bitbus_counter = bitbus_counter + 1 %}
+{%              endfor %}
+{%          elif field.cls == 'pos_out'%}
+{%              set posbus_counter = 0 -%}
+{%              for register in field.reg %}
+localparam {{name}}_{{field.name}}{{posbus_counter}} = {{register}};
+{%                  set posbus_counter = posbus_counter + 1 %}
+{%              endfor %}
+{%          endif %}
+{%      endfor %}
+{%  endfor %}
+
+
