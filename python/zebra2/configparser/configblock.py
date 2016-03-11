@@ -107,6 +107,10 @@ class ConfigBlock(object):
             attrs.append(("%s_DLY" % field.name, field.reg[1]))
         elif field.reg[0] == "slow":
             attrs.append((field.name, field.reg[1]))
+        elif ".." in field.reg:
+            array = range(int(field.reg[0]), int(field.reg[2]) + 1)
+            for n, r in enumerate(array):
+                attrs.append(("%s_%d" % (field.name, n), r))
         else:
             attrs.append((field.name, field.reg[0]))
 

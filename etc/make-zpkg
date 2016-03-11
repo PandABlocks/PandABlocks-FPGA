@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# This script assembles all the components required for a Panda install and
+# creates the target package.
+
+TOP="${1:?}"
+BUILD_DIR="${2:?}"
+ZPKG="${3:?}"
+
+
+ZPKG_DIR="$BUILD_DIR"/zpkg
+
+DIRS=(share/panda bin state var/run etc/init.d etc/rc.d)
+
+# Create empty skeleton
+rm -f "$BUILD_DIR"/panda-server@*.zpg  &&
+rm -rf "$ZPKG_DIR"  &&
+for d in "${DIRS[@]}"; do
+    mkdir -p "$ZPKG_DIR"/$d
+done  &&
+
+# Populate target tree
+cp "$BUILD_DIR"/driver/panda.ko "$ZPKG_DIR"/share/panda  &&
+cp "$BUILD_DIR"/server/server "$ZPKG_DIR"/bin/panda_server  &&
+cp -r "$TOP"/config_d "$ZPKG_DIR"/share/panda  &&
+cp "$TOP"/etc/panda-server "$ZPKG_DIR"/etc/init.d  &&
+ln -s ../init.d/panda-server "$ZPKG_DIR"/etc/rc.d/S200panda-server  &&
+ln -s ../init.d/panda-server "$ZPKG_DIR"/etc/rc.d/K200panda-server  &&
+
+# Assemble final package
+tar czf $ZPKG -C "$ZPKG_DIR" . --owner=0 --group=0
