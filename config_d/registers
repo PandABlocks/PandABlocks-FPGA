@@ -45,8 +45,8 @@
     SLOW_REGISTER_STATUS    15
 
     # This array of registers is used to program data delays on the capture bus
-    BIT_DELAY               28 .. 31
-    DATA_DELAY              32 .. 63
+    PCAP_BIT_DELAY          28 .. 31
+    PCAP_DATA_DELAY         32 .. 63
 
 
 # These registers are used by the kernel driver to read the data capture stream.
