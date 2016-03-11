@@ -10,7 +10,6 @@ require("h5py")
 import h5py
 import unittest
 import xml.etree.ElementTree
-import numpy as np
 
 # add our python dir
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "python"))
@@ -29,6 +28,7 @@ class SystemTest(unittest.TestCase):
         self.options = options
         self.data = []
         self.header_fields = []
+        self.header_data = {}
         self.hdf5_file_path = os.path.join(os.path.dirname(__file__),'hdf5',
                                            reference_hdf)
 
@@ -101,8 +101,8 @@ class SystemTest(unittest.TestCase):
         try:
             #get the header
             root = xml.etree.ElementTree.fromstring(header)
-            # for data_stream in root.iter('data'):
-                # print "data", data_stream.attrib
+            for header_data in root.iter('data'):
+                self.header_data = header_data.attrib
             for field in root.iter('field'):
                 self.header_fields.append(field.attrib)
         except xml.etree.ElementTree.ParseError, e:
@@ -135,7 +135,7 @@ class SystemTest(unittest.TestCase):
         expected_data_size = 0
         for field in self.header_fields:
             fmt += format_chars[field['type']]
-            expected_data_size += np.dtype(field['type']).itemsize
+        expected_data_size = int(self.header_data['sample_bytes'])
         return fmt, expected_data_size
 
     def check_data(self):
@@ -148,7 +148,7 @@ class SystemTest(unittest.TestCase):
         # print "{}\t{}\t{}".format("\n#", "counts", "positions")
         for i in range(len(counts)):
             self.assertEqual(counts[i], str(self.data[i][0]))
-            # print "{}\t{}\t{}".format(i, counts[i], positions[i])
+            # print "{}\t{}\t{}".format(i, counts[i], self.data[i][0])
         hdf5_file.close()
 
     #RENAME
