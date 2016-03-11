@@ -25,6 +25,7 @@ class Pcap(Block):
         self.buf = np.zeros(MAX_BUFFER, dtype=np.int32)
         self.buf_len = 0
         self.buf_produced = 0
+        self.pend_data = None
         # This is the last frame ts
         self.ts_frame = 0
         # This is when we raised ACTIVE
@@ -79,6 +80,7 @@ class Pcap(Block):
             self.live_frame = False
             self.buf_len = 0
             self.buf_produced = 0
+            self.pend_data = None
 
         # Disarm from ENABLE falling edge
         if changes.get(b.ENABLE, None) == 0:
@@ -96,10 +98,15 @@ class Pcap(Block):
 
         # If there was pending_data then write it here
         if self.tick_data and self.buf_len > self.buf_produced:
-            self.DATA = self.buf[self.buf_produced]
-            self.buf_produced += 1
+            if self.pend_data is not None:
+                # copy across pending data and increment
+                self.DATA = self.pend_data
+                self.buf_produced += 1
             if self.buf_len > self.buf_produced:
+                self.pend_data = self.buf[self.buf_produced]
                 return ts + 1
+            else:
+                self.pend_data = None
 
     def calculate_masks(self):
         """Calculate the masks of for framed and captured data, and alternate
@@ -193,8 +200,9 @@ class Pcap(Block):
     def push_data(self, ts):
         """Push the data from our ext_bus into the output buffer. Note that
         in the FPGA this is clocked out one by one, but we push it all in one
-        go and make sure we don't get another push until self.pushing_til"""
-        if self.tick_data and self.buf_len > self.buf_produced:
+        go and make sure we don't get another push until we've done all but one
+        sample"""
+        if self.tick_data and self.buf_len > self.buf_produced + 1:
             # Told to push more data when we hadn't finished the last capture
             self.ERR_STATUS = 2
             self.ERROR = 1
