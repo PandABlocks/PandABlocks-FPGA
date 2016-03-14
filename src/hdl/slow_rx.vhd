@@ -7,8 +7,7 @@
 --------------------------------------------------------------------------------
 --
 --  Description : Serial Interface Synchronous Recevier core.
---                Runs at F(sclk_ce) = F(clk_i) / (2 * CLKDIV)
---
+--                Manages link status, and receives incoming SPI transaction,
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -62,7 +61,6 @@ begin
 --
 -- Register inputs and detect rise/fall edges.
 --
-
 process (clk_i)
 begin
     if (rising_edge(clk_i)) then
@@ -75,7 +73,7 @@ end process;
 sclkn_fall <= not sclk and sclk_prev;
 
 --
--- Generate serial clock to be used internally
+-- Presclaed clock to be used internally.
 --
 process (clk_i)
     variable clk_div : natural range 0 to CLKDIV;
@@ -96,8 +94,12 @@ begin
     end if;
 end process;
 
-
-process (clk_i)
+--
+-- State machine has to first synchronise with the master for successfull data
+-- receipt.
+-- This is achived by having Idle state of 5used between data transfers.
+--
+Link_Manager : process (clk_i)
     variable sync_counter : natural range 0 to SYNCPERIOD;
 begin
     if (rising_edge(clk_i)) then
@@ -105,15 +107,20 @@ begin
             link_up <= '0';
             sync_counter := 0;
         else
-            -- Sync counter keeps track of sclk_i in two states.
-            -- Transition to idle state makes sure that a reset is applied.
+            -- In Sync state:
+            -- We need to catch the link while there is not incoming data, so
+            -- Catch sclk = '1' for SYNCPERIOD, and then set link up.
             if (sh_state = sync) then
+                -- A received clock indicates we are in the middle of an SSI
+                -- transaction, so wait until it is finished.
                 if (sclkn_fall = '1') then
                     sync_counter := 0;
                 elsif (sclk_ce = '1' and sclk = '1') then
                     sync_counter := sync_counter + 1;
                 end if;
-            -- Shifting state
+            -- In Shifting state:
+            -- It means that we started SSI transaction, and we need to make 
+            -- sure that we receive all the clocks.
             elsif (sh_state = shifting) then
                 if (sclkn_fall = '1') then
                     sync_counter := 0;
@@ -124,7 +131,8 @@ begin
                 sync_counter := 0;
             end if;
 
-            -- Sync requires sck=1 longer than 5 incoming clock periods.
+            -- Set the Link Up when we are once synced. Link will go down,
+            -- if data comms is broken.
             if (sh_state = sync and sync_counter = SYNCPERIOD-1) then
                 link_up <= '1';
             elsif (sh_state = shifting and sync_counter = SYNCPERIOD-1) then
@@ -149,7 +157,8 @@ begin
         else
             -- Main state machine
             case sh_state is
-                -- Sync to incoming stream by catching timeout on sclk_i
+                -- Sync to incoming stream by monitoring sclk_i = '1'
+                -- status for SYNCPERIOD.
                 when sync =>
                     sh_counter <= (others => '0');
                     rd_val_o <= '0';
@@ -157,7 +166,8 @@ begin
                         sh_state <= idle;
                     end if;
 
-                -- Wait for falling edge on sclk input
+                -- Wait for falling edge on sclk input indicating start 
+                -- of transaction.
                 when idle =>
                     sh_counter <= (others => '0');
                     rd_val_o <= '0';
@@ -172,12 +182,14 @@ begin
                         sh_counter <= sh_counter + 1;
                     end if;
 
+                    -- Monitor link status
                     if (link_up = '0') then
                         sh_state <= sync;
                     elsif (sclkn_fall = '1' and sh_counter = AW+DW-1) then
                         sh_state <= data_valid;
                     end if;
 
+                -- Assert data valid pulse.
                 when data_valid =>
                     rd_adr_o <= shift_in(AW+DW-1 downto DW);
                     rd_dat_o <= shift_in(DW-1 downto 0);

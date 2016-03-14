@@ -7,7 +7,8 @@
 --------------------------------------------------------------------------------
 --
 --  Description : Serial Interface Synchronous Trasmitter core.
---                Runs at F(sclk_ce) = F(clk_i) / (2 * CLKDIV)
+--                Generates SPI transactions (Data + Clock) with clock rate
+--                at SPI_CLK = 125MHz / (2 * CLKDIV)
 --
 --------------------------------------------------------------------------------
 
@@ -55,8 +56,7 @@ signal sh_counter               : unsigned(5 downto 0);
 begin
 
 --
--- Generate serial clock to be used internally
--- F(sclk_ce) = F(clk_i) / (2 * CLKDIV)
+-- Presclaed clock to be used internally.
 --
 process (clk_i)
     variable clk_div : natural range 0 to CLKDIV;
@@ -79,6 +79,8 @@ end process;
 
 --
 -- Serial Transmit State Machine
+--
+-- SPI Clock output is 2*prescaled clock.
 --
 process (clk_i)
 begin

@@ -41,7 +41,7 @@ port (
     USE_TABLE           : in  std_logic;
     -- Output pulse
     act_o               : out std_logic;
-    pulse_o             : out std_logic;
+    out_o               : out std_logic;
     err_o               : out std_logic_vector(31 downto 0)
 );
 end pcomp;
@@ -81,7 +81,7 @@ signal neg_cross        : std_logic;
 begin
 
 -- Assign outputs.
-pulse_o <= pulse;
+out_o <= pulse;
 
 --
 -- Register inputs and detect rise/fall edges required

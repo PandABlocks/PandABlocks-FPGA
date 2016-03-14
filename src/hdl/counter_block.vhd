@@ -27,7 +27,7 @@ port (
     -- Block inputs
     sysbus_i            : in  sysbus_t;
     -- Output pulse
-    count_o             : out std_logic_vector(31 downto 0);
+    out_o               : out std_logic_vector(31 downto 0);
     carry_o             : out std_logic
 );
 end counter_block;
@@ -79,14 +79,14 @@ port map (
 
     enable_i            => enable,
     trigger_i           => trig,
-    carry_o             => carry_o,
 
     DIR                 => DIR(0),
     START               => START,
     START_LOAD          => START_WSTB,
     STEP                => STEP,
 
-    COUNT               => count_o
+    carry_o             => carry_o,
+    out_o               => out_o
 );
 
 end rtl;

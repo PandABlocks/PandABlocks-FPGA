@@ -182,7 +182,7 @@ signal outenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
 signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
 signal lvdsin_val           : std_logic_vector(LVDSIN_NUM-1 downto 0);
 signal lut_val              : std_logic_vector(LUT_NUM-1 downto 0);
-signal srgate_val           : std_logic_vector(SRGATE_NUM-1 downto 0);
+signal srgate_out           : std_logic_vector(SRGATE_NUM-1 downto 0);
 signal div_outd             : std_logic_vector(DIV_NUM-1 downto 0);
 signal div_outn             : std_logic_vector(DIV_NUM-1 downto 0);
 signal pulse_out            : std_logic_vector(PULSE_NUM-1 downto 0);
@@ -193,14 +193,13 @@ signal seq_outc             : std_logic_vector(SEQ_NUM-1 downto 0);
 signal seq_outd             : std_logic_vector(SEQ_NUM-1 downto 0);
 signal seq_oute             : std_logic_vector(SEQ_NUM-1 downto 0);
 signal seq_outf             : std_logic_vector(SEQ_NUM-1 downto 0);
-signal seq_act              : std_logic_vector(SEQ_NUM-1 downto 0);
+signal seq_active           : std_logic_vector(SEQ_NUM-1 downto 0);
 
 signal counter_carry        : std_logic_vector(COUNTER_NUM-1 downto 0);
-signal posn_counter         : std32_array(COUNTER_NUM-1 downto 0);
 signal adder_out            : std32_array(ADDER_NUM-1 downto 0);
 
-signal pcomp_act            : std_logic_vector(PCOMP_NUM-1 downto 0);
-signal pcomp_pulse          : std_logic_vector(PCOMP_NUM-1 downto 0);
+signal pcomp_active         : std_logic_vector(PCOMP_NUM-1 downto 0);
+signal pcomp_out          : std_logic_vector(PCOMP_NUM-1 downto 0);
 
 signal panda_spbram_wea     : std_logic := '0';
 
@@ -219,8 +218,10 @@ signal bits_b               : std_logic_vector(0 downto 0);
 signal bits_c               : std_logic_vector(0 downto 0);
 signal bits_d               : std_logic_vector(0 downto 0);
 
-signal posenc_a             : std_logic_vector(3 downto 0) := "0000";
-signal posenc_b             : std_logic_vector(3 downto 0) := "0000";
+signal qdec_out             : std32_array(QDEC_NUM-1 downto 0);
+signal counter_out          : std32_array(COUNTER_NUM-1 downto 0);
+signal posenc_a             : std_logic_vector(POSENC_NUM-1 downto 0);
+signal posenc_b             : std_logic_vector(POSENC_NUM-1 downto 0);
 
 signal adc_out              : std32_array(7 downto 0) := (others => (others => '0'));
 
@@ -455,7 +456,7 @@ port map (
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
     sysbus_i            => sysbus,
-    out_o               => srgate_val
+    out_o               => srgate_out
 );
 
 ---------------------------------------------------------------------------
@@ -522,7 +523,7 @@ port map (
     outd_o              => seq_outd,
     oute_o              => seq_oute,
     outf_o              => seq_outf,
-    active_o            => seq_act
+    active_o            => seq_active
 );
 
 END GENERATE;
@@ -530,8 +531,6 @@ END GENERATE;
 ---------------------------------------------------------------------------
 -- INENC (Encoder Inputs)
 ---------------------------------------------------------------------------
-INENC_GEN : IF (INENC_INST = true) GENERATE
-
 inenc_inst : entity work.inenc_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -557,13 +556,27 @@ port map (
     posn_o              => posn_inenc_low
 );
 
-END GENERATE;
+---------------------------------------------------------------------------
+-- QDEC
+---------------------------------------------------------------------------
+qdec_inst : entity work.qdec_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(QDEC_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => mem_read_data(QDEC_CS),
+
+    sysbus_i            => sysbus,
+    out_o               => qdec_out
+);
 
 ---------------------------------------------------------------------------
 -- OUTENC (Encoder Inputs)
 ---------------------------------------------------------------------------
-OUTENC_GEN : IF (OUTENC_INST = true) GENERATE
-
 outenc_inst : entity work.outenc_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -583,7 +596,24 @@ port map (
     posbus_i            => posbus
 );
 
-END GENERATE;
+---------------------------------------------------------------------------
+-- OUTENC (Encoder Inputs)
+---------------------------------------------------------------------------
+posenc_inst : entity work.posenc_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(POSENC_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => mem_read_data(POSENC_CS),
+    a_o                 => posenc_a,
+    b_o                 => posenc_b,
+    sysbus_i            => sysbus,
+    posbus_i            => posbus
+);
 
 ---------------------------------------------------------------------------
 -- COUNTER/TIMER
@@ -600,7 +630,7 @@ port map (
     mem_dat_o           => mem_read_data(COUNTER_CS),
     sysbus_i            => sysbus,
     carry_o             => counter_carry,
-    count_o             => posn_counter
+    out_o               => counter_out
 );
 
 ---------------------------------------------------------------------------
@@ -643,8 +673,8 @@ port map (
     dma_valid_i         => rdma_valid(5 downto 2),
     sysbus_i            => sysbus,
     posbus_i            => posbus,
-    act_o               => pcomp_act,
-    pulse_o             => pcomp_pulse
+    act_o               => pcomp_active,
+    out_o               => pcomp_out
 );
 
 END GENERATE;
@@ -840,7 +870,7 @@ port map (
     TTLIN_VAL       => ttlin_val,
     LVDSIN_VAL      => lvdsin_val,
     LUT_OUT         => lut_val,
-    SRGATE_OUT      => srgate_val,
+    SRGATE_OUT      => srgate_out,
     DIV_OUTD        => div_outd,
     DIV_OUTN        => div_outn,
     PULSE_OUT       => pulse_out,
@@ -851,21 +881,21 @@ port map (
     SEQ_OUTD        => seq_outd,
     SEQ_OUTE        => seq_oute,
     SEQ_OUTF        => seq_outf,
-    SEQ_ACTIVE      => seq_act,
+    SEQ_ACTIVE      => seq_active,
     INENC_A         => inenc_a,
     INENC_B         => inenc_b,
     INENC_Z         => inenc_z,
     INENC_CONN      => inenc_conn,
     INENC_VAL       => posn_inenc_low,
-    QDEC_OUT        => (others => (others => '0')),
+    QDEC_OUT        => qdec_out,
     POSENC_A        => posenc_a,
     POSENC_B        => posenc_b,
     ADDER_OUT       => adder_out,
     COUNTER_CARRY   => counter_carry,
-    COUNTER_OUT     => posn_counter,
+    COUNTER_OUT     => counter_out,
     PGEN_OUT        => pgen_out,
-    PCOMP_ACTIVE    => pcomp_act,
-    PCOMP_OUT       => pcomp_pulse,
+    PCOMP_ACTIVE    => pcomp_active,
+    PCOMP_OUT       => pcomp_out,
     ADC_OUT         => (others => (others => '0')),
     PCAP_ACTIVE     => pcap_act,
     -- System Bus Signals

@@ -28,7 +28,7 @@ port (
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
     act_o               : out std_logic;
-    pulse_o             : out std_logic;
+    out_o             : out std_logic;
     -- DMA Interface.
     dma_req_o           : out std_logic;
     dma_ack_i           : in  std_logic;
@@ -62,7 +62,6 @@ signal TABLE_LENGTH_WSTB    : std_logic;
 signal pcomp_error          : std_logic_vector(31 downto 0);
 signal TABLE_STATUS         : std_logic_vector(31 downto 0);
 
-signal pulse                : std_logic;
 signal enable               : std_logic;
 signal posn                 : std_logic_vector(31 downto 0);
 
@@ -71,9 +70,6 @@ signal table_posn           : std_logic_vector(63 downto 0);
 signal table_read           : std_logic;
 
 begin
-
--- Assign outputs.
-pulse_o <= pulse;
 
 --
 -- Control System Interface
@@ -141,7 +137,7 @@ port map (
 
     act_o               => act_o,
     err_o               => pcomp_error,
-    pulse_o             => pulse
+    out_o               => out_o
 );
 
 --

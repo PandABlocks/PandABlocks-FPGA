@@ -102,7 +102,7 @@ end process;
 --
 -- Incremental Encoder Instantiation :
 --
-quadin : entity work.quadin
+qdec : entity work.qdec
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
@@ -112,7 +112,7 @@ port map (
     setp_val_i      => SETP,
     setp_wstb_i     => SETP_WSTB,
     rst_z_i         => RST_ON_Z,
-    posn_o          => posn_incr
+    out_o           => posn_incr
 );
 
 --

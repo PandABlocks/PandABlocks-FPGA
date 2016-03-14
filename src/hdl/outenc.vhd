@@ -34,7 +34,7 @@ port (
     -- Block parameters
     PROTOCOL            : in  std_logic_vector(2 downto 0);
     BITS                : in  std_logic_vector(7 downto 0);
-    QPERIOD             : in  std_logic_vector(15 downto 0);
+    QPERIOD             : in  std_logic_vector(31 downto 0);
     QSTATE              : out std_logic_vector(31 downto 0);
     -- Status interface
     enc_mode_o          : out encmode_t;
@@ -96,7 +96,7 @@ end process;
 --
 -- INCREMENTAL OUT
 --
-quadout_inst : entity work.quadout
+qenc_inst : entity work.qenc
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,

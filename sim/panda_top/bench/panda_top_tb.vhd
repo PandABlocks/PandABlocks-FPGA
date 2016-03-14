@@ -4,6 +4,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.test_interface.all;
+use work.type_defines.all;
 
 entity panda_top_tb is
     port (
@@ -50,6 +51,7 @@ signal enc0_ctrl_pad_o  : std_logic_vector(11 downto 0);
 signal leds             : std_logic_vector(1 downto 0);
 signal clk              : std_logic := '1';
 signal clk50            : std_logic := '1';
+signal reset            : std_logic := '1';
 
 signal A_IN_P           : std_logic_vector(3 downto 0);
 signal B_IN_P           : std_logic_vector(3 downto 0);
@@ -76,6 +78,10 @@ signal spi_sclk_i       : std_logic;
 signal spi_dat_i        : std_logic;
 signal spi_sclk_o       : std_logic;
 signal spi_dat_o        : std_logic;
+signal ssi_data         : integer;
+signal ssi_slave_data   : std_logic_vector(31 downto 0);
+signal ssi_master_data  : std_logic_vector(31 downto 0);
+
 
 constant BLOCK_SIZE     : integer := 8192;
 
@@ -84,7 +90,7 @@ begin
 -- System Clock
 clk <= not clk after 4 ns;
 clk50 <= not clk50 after 10 ns;
-
+reset <= '0' after 100 ns;
 --
 -- TTL/LVDS IO
 --
@@ -138,7 +144,7 @@ PORT MAP (
     spi_sclk_o          => spi_sclk_o,
 
     enc0_ctrl_pad_i     => enc0_ctrl_pad_i,
-    enc0_ctrl_pad_o     => enc0_ctrl_pad_o
+    enc0_ctrl_pad_o     => open
 );
 
 
@@ -190,7 +196,7 @@ DCARD : FOR I IN 0 TO 3 GENERATE
         CLK_IN_P    => CLK_IN_P(I),
         DATA_OUT_P  => DATA_OUT_P(I),
 
-        CTRL_IN     => enc0_ctrl_pad_o,
+        CTRL_IN     => enc_ctrl1_io(11 downto 0),
         CTRL_OUT    => open --enc0_ctrl_pad_i
     );
 
@@ -203,11 +209,45 @@ port map (
     B           => B_IN_P(0)
 );
 
--- Loopback on SSI
-CLK_IN_P(0) <= CLK_OUT_P(0);
-DATA_IN_P(0) <= DATA_OUT_P(0);
+--
+-- SSI SLAVE -> PANDA -> SSI MASTER
+--
+
+process
+begin
+    ssi_data <= 0;
+    PROC_CLK_EAT(1250, clk);
+
+    LOOP
+        ssi_data <= ssi_data + 100;
+        PROC_CLK_EAT(12500, clk);
+    END LOOP;
+end process;
+
+ssi_slave_data <= TO_SVECTOR(ssi_data, 32);
+
+SSI_SLAVE : entity work.ssislv
+port map (
+    clk_i           => clk,
+    reset_i         => reset,
+    enc_bits_i      => TO_SVECTOR(24, 8),
+    ssi_sck_i       => CLK_OUT_P(0),
+    ssi_dat_o       => DATA_IN_P(0),
+    posn_i          => ssi_slave_data
+);
 
 
---CLK_IN_P(0) <= A_IN_P(0);
+SSI_MASTER : entity work.ssimstr
+port map (
+    clk_i           => clk,
+    reset_i         => reset,
+    enc_bits_i      => TO_SVECTOR(16, 8),
+    sclk_presc_i    => TO_SVECTOR(125, 32),
+    enc_rate_i      => TO_SVECTOR(12500, 32),
+    ssi_sck_o       => CLK_IN_P(0),
+    ssi_dat_i       => DATA_OUT_P(0),
+    posn_o          => ssi_master_data,
+    posn_valid_o    => open
+);
 
 end;

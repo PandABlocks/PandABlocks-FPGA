@@ -38,7 +38,7 @@ port (
     posbus_i            : in  posbus_t;
     -- Output pulse
     act_o               : out std_logic_vector(PCOMP_NUM-1 downto 0);
-    pulse_o             : out std_logic_vector(PCOMP_NUM-1 downto 0)
+    out_o             : out std_logic_vector(PCOMP_NUM-1 downto 0)
 );
 end pcomp_top;
 
@@ -86,7 +86,7 @@ port map (
     dma_valid_i         => dma_valid_i(I),
 
     act_o               => act_o(I),
-    pulse_o             => pulse_o(I)
+    out_o               => out_o(I)
 );
 
 END GENERATE;

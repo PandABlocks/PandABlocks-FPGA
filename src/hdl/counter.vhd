@@ -24,7 +24,7 @@ port (
     START_LOAD          : in  std_logic;
     STEP                : in  std_logic_vector(31 downto 0);
     -- Block Status
-    COUNT               : out std_logic_vector(31 downto 0)
+    out_o               : out std_logic_vector(31 downto 0)
 );
 end counter;
 
@@ -74,7 +74,7 @@ begin
     end if;
 end process;
 
-COUNT <= std_logic_vector(counter(31 downto 0));
+out_o <= std_logic_vector(counter(31 downto 0));
 carry_o <= counter(32);
 
 end rtl;

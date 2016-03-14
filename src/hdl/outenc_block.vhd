@@ -128,7 +128,7 @@ port map (
     -- Block Parameters
     PROTOCOL            => PROTOCOL(2 downto 0),
     BITS                => BITS(7 downto 0),
-    QPERIOD             => QPERIOD(15 downto 0),
+    QPERIOD             => QPERIOD,
     QSTATE              => QSTATE,
     -- CS Interface
     enc_mode_o          => enc_mode_o,

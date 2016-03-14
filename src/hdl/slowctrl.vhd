@@ -9,6 +9,10 @@
 --  Description : Serial Interface core is used to handle communication between
 --                Zynq and Slow Control FPGA.
 --
+--                TX Engine sends data at 2usec clock rate on a write request,
+--                and asserts busy flag.
+--                RX Engine has an internal 1usec clock to Sync and monitor
+--                link status.
 --------------------------------------------------------------------------------
 
 library ieee;
