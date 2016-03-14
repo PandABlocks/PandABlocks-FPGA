@@ -11,3 +11,4 @@ from .pcomp import Pcomp
 from .pcap import Pcap
 from .seq import Seq
 from .pgen import Pgen
+from .adder import Adder
