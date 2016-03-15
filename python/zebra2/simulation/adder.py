@@ -4,7 +4,7 @@ import csv
 
 class Adder(Block):
     def __init__(self):
-        self.scale = {0:1, 1:2, 2:4}
+        self.scale = {0:0, 1:1, 2:2}
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
@@ -16,5 +16,6 @@ class Adder(Block):
         for name, value in changes.items():
             setattr(self, name, value)
 
-        self.OUT = (self.INPA + self.INPB + self.INPC + self.INPD)/self.scale[self.SCALE]
+        self.OUT = (self.INPA + self.INPB + self.INPC + self.INPD)\
+                   >>self.scale[self.SCALE]
 
