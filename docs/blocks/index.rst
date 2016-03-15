@@ -19,3 +19,4 @@ Each block is documented with examples
     pcomp
     pcap
     pgen
+    adder
