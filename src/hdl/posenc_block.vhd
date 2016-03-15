@@ -35,6 +35,7 @@ architecture rtl of posenc_block is
 -- Block Configuration Registers
 signal PROTOCOL         : std_logic_vector(31 downto 0);
 signal QPERIOD          : std_logic_vector(31 downto 0);
+signal QPERIOD_WSTB     : std_logic;
 signal QSTATE           : std_logic_vector(31 downto 0);
 
 signal enable           : std_logic;
@@ -64,7 +65,7 @@ port map (
     PROTOCOL            => PROTOCOL,
     PROTOCOL_WSTB       => open,
     QPERIOD             => QPERIOD,
-    QPERIOD_WSTB        => open,
+    QPERIOD_WSTB        => QPERIOD_WSTB,
     QSTATE              => QSTATE
 );
 
@@ -84,6 +85,7 @@ port map (
     -- Block Parameters
     PROTOCOL            => PROTOCOL,
     QPERIOD             => QPERIOD,
+    QPERIOD_WSTB        => QPERIOD_WSTB,
     QSTATE              => QSTATE
 );
 

@@ -24,6 +24,7 @@ port (
     -- Block parameters
     PROTOCOL            : in  std_logic_vector(31 downto 0);
     QPERIOD             : in  std_logic_vector(31 downto 0);
+    QPERIOD_WSTB        : in  std_logic;
     QSTATE              : out std_logic_vector(31 downto 0)
 );
 end entity;
@@ -42,8 +43,9 @@ port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     enable_i        => enable_i,
-    QPERIOD         => QPERIOD,
     posn_i          => posn_i,
+    QPERIOD         => QPERIOD,
+    QPERIOD_WSTB    => QPERIOD_WSTB,
     QSTATE          => QSTATE,
     a_o             => a,
     b_o             => b,

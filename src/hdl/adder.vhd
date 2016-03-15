@@ -1,8 +1,13 @@
 --------------------------------------------------------------------------------
---  File:       adder.vhd
---  Desc:       Dual output Pulse Divider.
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
---  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : 4-Channel adder block with ouput scaling.
+--
 --------------------------------------------------------------------------------
 
 library ieee;

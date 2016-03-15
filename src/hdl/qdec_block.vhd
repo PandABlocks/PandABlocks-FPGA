@@ -79,9 +79,9 @@ port map (
     a_i             => a,
     b_i             => b,
     z_i             => z,
-    setp_val_i      => SETP,
-    setp_wstb_i     => SETP_WSTB,
-    rst_z_i         => RST_ON_Z(0),
+    SETP            => SETP,
+    SETP_WSTB       => SETP_WSTB,
+    RST_ON_Z        => RST_ON_Z(0),
     out_o           => out_o
 );
 

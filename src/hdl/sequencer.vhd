@@ -285,34 +285,20 @@ last_frame <= last_fcycle when (frame_count = unsigned(TABLE_FRAMES)) else '0';
 last_tcycle <= last_frame when (TABLE_CYCLE /= X"0000_0000" and table_count = unsigned(TABLE_CYCLE)) else '0';
 
 --
--- Prescalar CE counter :
+-- Prescaler:
 --  On a trigger event, a reset is applied to synchronise CE pulses with the
 --  trigger input.
+--clk_cnt := (0=>'1', others => '0');
+
 presc_reset <= '1' when (seq_sm = WAIT_TRIGGER and current_trig_valid = '1') else '0';
 
-presc_counter : process(clk_i)
-    variable clk_cnt    : unsigned(31 downto 0) := (others => '0');
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            presc_ce <= '0';
-            --clk_cnt := (0=>'1', others => '0');
-            clk_cnt := (others => '0');
-        else
-            if (presc_reset = '1') then
-                presc_ce <= '0';
-                --clk_cnt := (0=>'1', others => '0');
-                clk_cnt := (others => '0');
-            elsif (clk_cnt =  unsigned(PRESCALE)-1) then
-                presc_ce <= '1';
-                clk_cnt := (others => '0');
-            else
-                presc_ce <= '0';
-                clk_cnt := clk_cnt + 1;
-            end if;
-        end if;
-    end if;
-end process;
+seq_presc : entity work.prescaler
+port map (
+    clk_i       => clk_i,
+    reset_i     => presc_reset,
+    PERIOD      => PRESCALE,
+    pulse_o     => presc_ce
+);
 
 --
 -- Frame counter :

@@ -43,6 +43,8 @@ end entity;
 
 architecture rtl of outenc_block is
 
+signal reset            : std_logic;
+
 -- Block Configuration Registers
 signal A_VAL            : std_logic_vector(31 downto 0);
 signal B_VAL            : std_logic_vector(31 downto 0);
@@ -51,8 +53,11 @@ signal CONN_VAL         : std_logic_vector(31 downto 0);
 signal ENABLE_VAL       : std_logic_vector(31 downto 0);
 signal POSN_VAL         : std_logic_vector(31 downto 0);
 signal PROTOCOL         : std_logic_vector(31 downto 0);
+signal PROTOCOL_WSTB    : std_logic;
 signal BITS             : std_logic_vector(31 downto 0);
+signal BITS_WSTB        : std_logic;
 signal QPERIOD          : std_logic_vector(31 downto 0);
+signal QPERIOD_WSTB     : std_logic;
 signal QSTATE           : std_logic_vector(31 downto 0);
 
 signal a, b, z          : std_logic;
@@ -68,6 +73,9 @@ begin
 
 -- Integer conversion for address.
 mem_addr <= to_integer(unsigned(mem_addr_i));
+
+-- Certain parameter changes must initiate a block reset.
+reset <= reset_i or PROTOCOL_WSTB or BITS_WSTB;
 
 --
 -- Control System Interface
@@ -93,11 +101,11 @@ port map (
 
     -- Block Parameters
     PROTOCOL            => PROTOCOL,
-    PROTOCOL_WSTB       => open,
+    PROTOCOL_WSTB       => PROTOCOL_WSTB,
     BITS                => BITS,
-    BITS_WSTB           => open,
+    BITS_WSTB           => BITS_WSTB,
     QPERIOD             => QPERIOD,
-    QPERIOD_WSTB        => open,
+    QPERIOD_WSTB        => QPERIOD_WSTB,
     QSTATE              => QSTATE
 );
 
@@ -108,7 +116,7 @@ outenc_inst : entity work.outenc
 port map (
     -- Clock and Reset
     clk_i               => clk_i,
-    reset_i             => reset_i,
+    reset_i             => reset,
     --
     a_i                 => a,
     b_i                 => b,
@@ -129,6 +137,7 @@ port map (
     PROTOCOL            => PROTOCOL(2 downto 0),
     BITS                => BITS(7 downto 0),
     QPERIOD             => QPERIOD,
+    QPERIOD_WSTB        => QPERIOD_WSTB,
     QSTATE              => QSTATE,
     -- CS Interface
     enc_mode_o          => enc_mode_o,

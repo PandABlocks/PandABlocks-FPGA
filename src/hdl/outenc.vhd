@@ -35,6 +35,7 @@ port (
     PROTOCOL            : in  std_logic_vector(2 downto 0);
     BITS                : in  std_logic_vector(7 downto 0);
     QPERIOD             : in  std_logic_vector(31 downto 0);
+    QPERIOD_WSTB        : in  std_logic;
     QSTATE              : out std_logic_vector(31 downto 0);
     -- Status interface
     enc_mode_o          : out encmode_t;
@@ -100,10 +101,11 @@ qenc_inst : entity work.qenc
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
-    enable_i        => enable_i,
     QPERIOD         => QPERIOD,
-    posn_i          => posn_i,
+    QPERIOD_WSTB    => QPERIOD_WSTB,
     QSTATE          => QSTATE,
+    enable_i        => enable_i,
+    posn_i          => posn_i,
     a_o             => quad_a,
     b_o             => quad_b
 );
@@ -115,10 +117,10 @@ ssislv_inst : entity work.ssislv
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
-    enc_bits_i      => BITS,
+    BITS            => BITS,
+    posn_i          => posn_i,
     ssi_sck_i       => sclk_i,
-    ssi_dat_o       => sdat_o,
-    posn_i          => posn_i
+    ssi_dat_o       => sdat_o
 );
 
 end rtl;

@@ -10,6 +10,7 @@ use ieee.numeric_std.all;
 entity prescaler is
 port (
     clk_i           : in  std_logic;
+    reset_i         : in  std_logic;
     PERIOD          : in  std_logic_vector(31 downto 0);
     pulse_o         : out std_logic
 );
@@ -18,20 +19,8 @@ end prescaler;
 architecture rtl of prescaler is
 
 signal clk_cnt      : unsigned(31 downto 0) := (others => '0');
-signal period_prev  : std_logic_vector(31 downto 0);
-signal reset        : std_logic;
 
 begin
-
--- Apply internal reset when configuration changes.
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        period_prev <= PERIOD;
-    end if;
-end process;
-
-reset <= '1' when (period_prev /= PERIOD) else '0';
 
 --
 -- Generate QENC clk defined by the prescaler
@@ -39,7 +28,7 @@ reset <= '1' when (period_prev /= PERIOD) else '0';
 qenc_clk_gen : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset = '1') then
+        if (reset_i = '1') then
             pulse_o <= '0';
             clk_cnt <= (others => '0');
         else

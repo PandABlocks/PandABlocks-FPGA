@@ -109,9 +109,9 @@ port map (
     a_i             => a_i,
     b_i             => b_i,
     z_i             => z_i,
-    setp_val_i      => SETP,
-    setp_wstb_i     => SETP_WSTB,
-    rst_z_i         => RST_ON_Z,
+    SETP            => SETP,
+    SETP_WSTB       => SETP_WSTB,
+    RST_ON_Z        => RST_ON_Z,
     out_o           => posn_incr
 );
 
@@ -122,9 +122,9 @@ ssimstr_inst : entity work.ssimstr
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
-    enc_bits_i      => BITS,
-    sclk_presc_i    => CLKRATE,
-    enc_rate_i      => FRAMERATE,
+    BITS            => BITS,
+    CLKRATE         => CLKRATE,
+    FRAMERATE       => FRAMERATE,
     ssi_sck_o       => mclk_o,
     ssi_dat_i       => mdat_i,
     posn_o          => posn_ssi,

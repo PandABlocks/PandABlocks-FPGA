@@ -26,9 +26,9 @@ port (
     b_i                 : in  std_logic;
     z_i                 : in  std_logic;
     --Position data
-    rst_z_i             : in  std_logic;
-    setp_val_i          : in  std_logic_vector(31 downto 0);
-    setp_wstb_i         : in  std_logic;
+    RST_ON_Z            : in  std_logic;
+    SETP                : in  std_logic_vector(31 downto 0);
+    SETP_WSTB           : in  std_logic;
     out_o               : out std_logic_vector(31 downto 0)
 );
 end qdec;
@@ -63,10 +63,10 @@ process(clk_i) begin
         if (reset_i = '1') then
             quad_count <= (others => '0');
         else
-            if (rst_z_i = '1' and z_i = '1') then
+            if (RST_ON_Z = '1' and z_i = '1') then
                 quad_count <= (others => '0');
-            elsif (setp_wstb_i = '1') then
-                quad_count <= setp_val_i;
+            elsif (SETP_WSTB = '1') then
+                quad_count <= SETP;
             elsif (quad_trans = '1') then
                 if (quad_reset = '1') then
                     -- Reset is aligned to quad_trans, and reset value

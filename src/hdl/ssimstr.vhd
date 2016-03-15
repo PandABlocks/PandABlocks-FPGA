@@ -32,13 +32,13 @@ port (
     -- Global system and reset interface
     clk_i           : in  std_logic;
     reset_i         : in  std_logic;
-    -- serial interface
-    enc_bits_i      : in  std_logic_vector(7 downto 0);
-    sclk_presc_i    : in  std_logic_vector(31 downto 0);
-    enc_rate_i      : in  std_logic_vector(31 downto 0);
+    -- Block Parameters
+    BITS            : in  std_logic_vector(7 downto 0);
+    CLKRATE         : in  std_logic_vector(31 downto 0);
+    FRAMERATE       : in  std_logic_vector(31 downto 0);
+    -- Block Inputs and Outputs
     ssi_sck_o       : out std_logic;
     ssi_dat_i       : in  std_logic;
-    -- parallel interface
     posn_o          : out std_logic_vector(31 downto 0);
     posn_valid_o    : out std_logic
 );
@@ -59,53 +59,32 @@ signal smpl_sdi         : std_logic;
 signal mclk_cnt         : unsigned(7 downto 0);
 signal clk_cnt          : unsigned(31 downto 0);
 signal frame_cnt        : unsigned(31 downto 0);
-signal sclk_presc       : unsigned(31 downto 0);
+signal CLKRATE_2x       : std_logic_vector(31 downto 0);
 
 begin
 
 -- Connect outputs
 ssi_sck_o <= sclk;
 
--- sclk_ce runs 2x faster than presc
-sclk_presc <= unsigned('0' & sclk_presc_i(31 downto 1));
+-- Generate Internal SSI Clock (@2x freq) from system clock
+CLKRATE_2x <= '0' & CLKRATE(31 downto 1);
 
--- Generate SSI Clock Rate from system clock
-sclk_gen : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            sclk_ce <= '0';
-            clk_cnt <= (others=> '0');
-        else
-            if (clk_cnt = sclk_presc - 1) then
-                sclk_ce <= '1';
-                clk_cnt <= (others=> '0');
-            else
-                sclk_ce <= '0';
-                clk_cnt <= clk_cnt + 1;
-            end if;
-        end if;
-    end if;
-end process;
+sclk_presc : entity work.prescaler
+port map (
+    clk_i       => clk_i,
+    reset_i     => reset_i,
+    PERIOD      => CLKRATE_2x,
+    pulse_o     => sclk_ce
+);
 
--- Generate Internal SSI Rate from system clock
-ssi_frame_gen : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            sfrm_ce <= '0';
-            frame_cnt <= (others=> '0');
-        else
-            if (frame_cnt =  unsigned(enc_rate_i) - 1) then
-                sfrm_ce <= '1';
-                frame_cnt <= (others=> '0');
-            else
-                sfrm_ce <= '0';
-                frame_cnt <= frame_cnt + 1;
-            end if;
-        end if;
-    end if;
-end process;
+-- Generate Internal SSI Frame from system clock
+frame_presc : entity work.prescaler
+port map (
+    clk_i       => clk_i,
+    reset_i     => reset_i,
+    PERIOD      => FRAMERATE,
+    pulse_o     => sfrm_ce
+);
 
 -- SSI Master FSM
 ssi_fsm_gen : process(clk_i)
@@ -145,7 +124,7 @@ begin
                     -- clk_ce ticks are every half period, so count 2*BITS
                     if (sclk_ce = '1' and sclk = '0') then
                         mclk_cnt <= mclk_cnt + 1;
-                        if (mclk_cnt = unsigned(enc_bits_i))then
+                        if (mclk_cnt = unsigned(BITS))then
                             mclk_fsm <= DATA_OUT;
                         end if;
                     end if;

@@ -1,9 +1,17 @@
 --------------------------------------------------------------------------------
---  File:       qenc.vhd
---  Desc:       HDL implementation of a Incremental Encoder Output module.
---              The module follows position input and 4x quadrature encodes when
---              enabled.
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
+--
+--  Description : HDL implementation of a Incremental Encoder Output module.
+--                The module follows position input and 4x quadrature encodes 
+--                when enabled.
+--
+--------------------------------------------------------------------------------
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -17,6 +25,7 @@ port (
     enable_i            : in  std_logic;
     posn_i              : in  std_logic_vector(31 downto 0);
     QPERIOD             : in  std_logic_vector(31 downto 0);
+    QPERIOD_WSTB        : in  std_logic;
     QSTATE              : out std_logic_vector(31 downto 0);
     --Quadrature A/B and Step/Direction Outputs
     a_o                 : out std_logic;
@@ -41,7 +50,6 @@ begin
 -- Assign outputs
 step_o <= qenc_trans;
 dir_o <= qenc_dir;
-QSTATE <= (0 => posn_tracking, others => '0');
 
 -- Input Registers
 process(clk_i) begin
@@ -60,6 +68,7 @@ posn <= signed(posn_i);
 prescalar_inst : entity work.prescaler
 port map (
     clk_i       => clk_i,
+    reset_i     => QPERIOD_WSTB,
     PERIOD      => QPERIOD,
     pulse_o     => qenc_clk
 );
@@ -133,4 +142,12 @@ port map (
     b_o             => b_o
 );
 
+-- State output
+--  0   Disabled
+--  1   At position
+--  2   Slewing
+QSTATE(31 downto 2) <= (others => '0');
+QSTATE(1 downto 0) <= "00" when (enable = '0') else
+                      "01" when (posn_tracking = '0') else
+                      "10";
 end rtl;

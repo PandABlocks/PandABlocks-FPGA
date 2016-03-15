@@ -230,7 +230,7 @@ SSI_SLAVE : entity work.ssislv
 port map (
     clk_i           => clk,
     reset_i         => reset,
-    enc_bits_i      => TO_SVECTOR(24, 8),
+    BITS            => TO_SVECTOR(24, 8),
     ssi_sck_i       => CLK_OUT_P(0),
     ssi_dat_o       => DATA_IN_P(0),
     posn_i          => ssi_slave_data
@@ -241,9 +241,9 @@ SSI_MASTER : entity work.ssimstr
 port map (
     clk_i           => clk,
     reset_i         => reset,
-    enc_bits_i      => TO_SVECTOR(16, 8),
-    sclk_presc_i    => TO_SVECTOR(125, 32),
-    enc_rate_i      => TO_SVECTOR(12500, 32),
+    BITS            => TO_SVECTOR(16, 8),
+    CLKRATE         => TO_SVECTOR(125, 32),
+    FRAMERATE       => TO_SVECTOR(12500, 32),
     ssi_sck_o       => CLK_IN_P(0),
     ssi_dat_i       => DATA_OUT_P(0),
     posn_o          => ssi_master_data,

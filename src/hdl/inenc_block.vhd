@@ -53,9 +53,13 @@ architecture rtl of inenc_block is
 
 -- Block Configuration Registers
 signal PROTOCOL         : std_logic_vector(31 downto 0);
+signal PROTOCOL_WSTB    : std_logic;
 signal CLK_PERIOD       : std_logic_vector(31 downto 0);
+signal CLK_PERIOD_WSTB  : std_logic;
 signal FRAME_PERIOD     : std_logic_vector(31 downto 0);
+signal FRAME_PERIOD_WSTB: std_logic;
 signal BITS             : std_logic_vector(31 downto 0);
+signal BITS_WSTB        : std_logic;
 signal SETP             : std_logic_vector(31 downto 0);
 signal SETP_WSTB        : std_logic;
 signal RST_ON_Z         : std_logic_vector(31 downto 0);
@@ -73,9 +77,9 @@ begin
 
 mem_addr <= to_integer(unsigned(mem_addr_i));
 
--- A write to a configuration register initiates a reset on the core
--- block.
-reset <= reset_i or (mem_cs_i and mem_wstb_i);
+-- Certain parameter changes must initiate a block reset.
+reset <= reset_i or PROTOCOL_WSTB or CLK_PERIOD_WSTB or
+            FRAME_PERIOD_WSTB or BITS_WSTB;
 
 --
 -- Control System Interface
@@ -94,13 +98,13 @@ port map (
     mem_dat_o           => open,
 
     PROTOCOL            => PROTOCOL,
-    PROTOCOL_WSTB       => open,
+    PROTOCOL_WSTB       => PROTOCOL_WSTB,
     CLK_PERIOD          => CLK_PERIOD,
-    CLK_PERIOD_WSTB     => open,
+    CLK_PERIOD_WSTB     => CLK_PERIOD_WSTB,
     FRAME_PERIOD        => FRAME_PERIOD,
-    FRAME_PERIOD_WSTB   => open,
+    FRAME_PERIOD_WSTB   => FRAME_PERIOD_WSTB,
     BITS                => BITS,
-    BITS_WSTB           => open,
+    BITS_WSTB           => BITS_WSTB,
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z,

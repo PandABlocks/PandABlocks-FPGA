@@ -30,16 +30,15 @@ generic (
     N                   : positive := 24 -- # of encoder bits
 );
 port (
-    -- Global system and reset interface
+    -- Global system and reset interface.
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
-    -- Configuration interface
-    enc_bits_i          : in  std_logic_vector(7 downto 0);
-    -- serial interface
+    -- Configuration interface.
+    BITS                : in  std_logic_vector(7 downto 0);
+    -- Block Input and Outputs.
+    posn_i              : in  std_logic_vector(31 downto 0);
     ssi_sck_i           : in  std_logic;
-    ssi_dat_o           : out std_logic;
-    -- parallel interface
-    posn_i              : in  std_logic_vector(31 downto 0)
+    ssi_dat_o           : out std_logic
 );
 end entity;
 
@@ -147,7 +146,7 @@ begin
                     -- N bits successfully received and wait for clk='1'
                     if (link_up = '0') then
                         sh_state <= sync;
-                    elsif (sh_counter = unsigned(enc_bits_i) + 1) then
+                    elsif (sh_counter = unsigned(BITS) + 1) then
                         sh_state <= data_valid;
                     end if;
 
@@ -185,7 +184,7 @@ begin
             elsif (sh_state = data_valid) then
                 ssi_dat_o <= '0';
             elsif (sh_state = shifting and sclk_rise = '1') then
-                ssi_dat_o <= shift_out(to_integer(unsigned(enc_bits_i))-1);
+                ssi_dat_o <= shift_out(to_integer(unsigned(BITS))-1);
             end if;
         end if;
     end if;
