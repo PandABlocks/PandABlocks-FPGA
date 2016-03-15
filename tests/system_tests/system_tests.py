@@ -167,17 +167,21 @@ class SystemTest(unittest.TestCase):
         self.rcvsock.close()
 
 #generate reference HDF5 file
-def generateHDF(hostname,cmdport, rcvport, output_dir):
+def generateHDF(hostname,cmdport, rcvport, output_dir, output_name):
     print "GENERATING REFERENCE HDF5 FILE"
-    capture = Capture(hostname, rcvport, output_dir)
+    capture = Capture(hostname, rcvport, output_dir, output_name)
     capture.send_test_commands(hostname, cmdport,test_script)
     capture.run()
     print "REFRENCE HDF5 FILE GENERATED OK"
     return capture.hdf_file
 
 def make_suite():
-    hdf_name = generateHDF('localhost', 8888, 8889,
-                           os.path.join(os.path.dirname(__file__), 'hdf5'))
+    #if there is no hdf5 file present, generate one, otherwise use the one that is there
+    hdf_name = 'reference.hdf5'
+    if not os.path.isfile('hdf5/reference.hdf5'):
+        hdf_name = generateHDF('localhost', 8888, 8889,
+                               os.path.join(os.path.dirname(__file__), 'hdf5'),
+                               'reference')
     suite = unittest.TestSuite()
     options = [["XML"]]
     options.append(["XML", "FRAMED", "SCALED"])
