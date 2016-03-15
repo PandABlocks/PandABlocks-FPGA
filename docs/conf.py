@@ -37,9 +37,16 @@ else:
 extensions = [
     'matplotlib.sphinxext.plot_directive',
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
     'zebra2.sphinxext.sequence_plot_directive',
 ]
+# Something a bit odd: on some systems we find napoleon under sphinx.ext, on
+# others under sphinxcontrib.  Try both, select the appropriate one.
+try:
+    import sphinx.ext.napoleon
+except ImportError:
+    extensions.append('sphinxcontrib.napoleon')
+else:
+    extensions.append('sphinx.ext.napoleon')
 
 napoleon_use_ivar=True
 autoclass_content="both"
