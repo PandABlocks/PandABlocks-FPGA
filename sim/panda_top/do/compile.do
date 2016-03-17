@@ -7,10 +7,15 @@ set SLOW {../../../../SlowFPGA/src/hdl}
 
 #do ../bench/zynq_model/zynq_ps.sim/sim_1/behav/zynq_ps_wrapper_compile.do
 
+#
+# Slow Controller
+#
+#
 # Compile Sources
 #
 vcom -64 -93 -work xil_defaultlib  \
 "../bench/panda_ps_wrapper.vhd" \
+"${SLOW}/slow_defines.vhd"      \
 "${IP}/pcap_dma_fifo/sim/pcap_dma_fifo.vhd"\
 "${IP}/pgen_dma_fifo/sim/pgen_dma_fifo.vhd"\
 "${IP}/pcomp_dma_fifo/sim/pcomp_dma_fifo.vhd"\
@@ -36,6 +41,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/autogen/srgate_ctrl.vhd" \
 "${SRC}/autogen/clocks_ctrl.vhd" \
 "${SRC}/autogen/adder_ctrl.vhd" \
+"${SRC}/autogen/ttlin_ctrl.vhd" \
 "${SRC}/autogen/ttlout_ctrl.vhd" \
 "${SRC}/autogen/lvdsout_ctrl.vhd" \
 "${SRC}/autogen/pcap_ctrl.vhd" \
@@ -44,6 +50,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/csr_if.vhd" \
 "${SRC}/ttlout_block.vhd" \
 "${SRC}/ttlout_top.vhd" \
+"${SRC}/ttlin_block.vhd" \
 "${SRC}/ttlin_top.vhd" \
 "${SRC}/lvdsout_block.vhd" \
 "${SRC}/lvdsout_top.vhd" \
@@ -125,15 +132,12 @@ vcom -64 -93 -work xil_defaultlib  \
 "${SRC}/pgen_top.vhd" \
 "${SRC}/top.vhd"          \
 
-#
-# Slow Controller
-#
 vcom -64 -93 -work xil_defaultlib  \
-"${SLOW}/slow_defines.vhd"      \
-"${SLOW}/slow_serial_if.vhd"    \
+"${SLOW}/enc_ctrl.vhd"    \
+"${SLOW}/ttl_ctrl.vhd"    \
+"${SLOW}/leds_ctrl.vhd"    \
+"${SLOW}/serial_ctrl.vhd"    \
 "${SLOW}/slow_top.vhd"          \
-
-
 
 # Compile Testbench
 #

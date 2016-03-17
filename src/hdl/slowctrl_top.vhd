@@ -27,6 +27,7 @@ port (
     -- Block Input and Outputs
     inenc_tlp_i         : in  slow_packet;
     outenc_tlp_i        : in  slow_packet;
+    ttlin_tlp_i         : in  slow_packet;
     busy_o              : out std_logic;
     -- Serial Physical interface
     spi_sclk_o          : out std_logic;
@@ -55,6 +56,7 @@ port map (
 
     inenc_tlp_i     => inenc_tlp_i,
     outenc_tlp_i    => outenc_tlp_i,
+    ttlin_tlp_i     => ttlin_tlp_i,
     busy_o          => busy_o,
 
     spi_sclk_o      => spi_sclk_o,

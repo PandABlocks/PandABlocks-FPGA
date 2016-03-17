@@ -27,6 +27,7 @@ port (
     -- Block Input and Outputs
     inenc_tlp_i         : in  slow_packet;
     outenc_tlp_i        : in  slow_packet;
+    ttlin_tlp_i         : in  slow_packet;
     busy_o              : out std_logic;
     -- Serial Physical interface
     spi_sclk_i          : in  std_logic;
@@ -59,7 +60,7 @@ rdadr_reg <= to_integer(unsigned(rd_adr));
 mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
--- Control System Interface
+-- Priority IF-ELSE for accepting write command.
 --
 REG_WRITE : process(clk_i)
 begin
@@ -79,6 +80,10 @@ begin
                 wr_req <= '1';
                 wr_adr <= outenc_tlp_i.address;
                 wr_dat <= outenc_tlp_i.data;
+            elsif (ttlin_tlp_i.strobe = '1') then
+                wr_req <= '1';
+                wr_adr <= ttlin_tlp_i.address;
+                wr_dat <= ttlin_tlp_i.data;
             elsif (mem_cs_i = '1' and mem_wstb_i = '1') then
                 wr_req <= '0';
                 wr_adr <= std_logic_vector(to_unsigned(mem_addr, PAGE_AW));
@@ -114,6 +119,7 @@ end process;
 --
 slowctrl_inst : entity work.slowctrl
 generic map (
+    CLKDIV          => 125,
     AW              => PAGE_AW
 )
 port map (
@@ -155,7 +161,6 @@ begin
         end if;
     end if;
 end process;
-
 
 end rtl;
 

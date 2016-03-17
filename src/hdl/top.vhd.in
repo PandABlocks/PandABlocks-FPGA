@@ -233,6 +233,7 @@ signal enc0_ctrl_pad        : std_logic_vector(11 downto 0);
 
 signal inenc_slow_tlp       : slow_packet;
 signal outenc_slow_tlp      : slow_packet;
+signal ttlin_slow_tlp       : slow_packet;
 
 signal rdma_req             : std_logic_vector(5 downto 0);
 signal rdma_ack             : std_logic_vector(5 downto 0);
@@ -387,8 +388,15 @@ port map (
 ttlin_inst : entity work.ttlin_top
 port map (
     clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(TTLIN_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_rstb_i          => mem_rstb,
+    mem_dat_i           => mem_odat,
     pad_i               => ttlin_pad_i,
-    val_o               => ttlin_val
+    val_o               => ttlin_val,
+    slow_tlp_o          => ttlin_slow_tlp
 );
 
 ttlout_inst : entity work.ttlout_top
@@ -855,6 +863,7 @@ port map (
     mem_dat_o           => mem_read_data(SLOW_CS),
     inenc_tlp_i         => inenc_slow_tlp,
     outenc_tlp_i        => outenc_slow_tlp,
+    ttlin_tlp_i         => ttlin_slow_tlp,
     busy_o              => slowctrl_busy,
     spi_sclk_o          => spi_sclk_o,
     spi_dat_o           => spi_dat_o,

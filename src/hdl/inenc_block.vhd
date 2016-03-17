@@ -43,7 +43,6 @@ port (
     z_o                 : out std_logic;
     conn_o              : out std_logic;
     -- Block Outputs.
-    slow_tlp_o          : out slow_packet;
     posn_o              : out std_logic_vector(31 downto 0);
     iobuf_ctrl_o        : out std_logic_vector(2 downto 0)
 );
@@ -146,44 +145,5 @@ port map (
     iobuf_ctrl_o        => iobuf_ctrl_o
 );
 
---
--- Issue a Write command to Slow Controller when a write is detected on
--- PROTOCOL register
---
-SLOW_WRITE : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            slow.strobe <= '0';
-            slow.address <= (others => '0');
-            slow.data <= (others => '0');
-        else
-            -- Single clock cycle strobe
-            slow.strobe <= '0';
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
-                if (mem_addr = INENC_PROTOCOL) then
-                    slow.strobe <= '1';
-                    slow.address <= ZEROS(PAGE_AW-BLK_AW) & mem_addr_i;
-                    case (mem_dat_i(2 downto 0)) is
-                        when "000"  => -- INC
-                            slow.data <= ZEROS(24) & X"03";
-                        when "001"  => -- SSI
-                            slow.data <= ZEROS(24) & X"0C";
-                        when "010"  => -- EnDat
-                            slow.data <= ZEROS(24) & X"14";
-                        when "011"  => -- BiSS
-                            slow.data <= ZEROS(24) & X"1C";
-                        when others =>
-                            slow.strobe <= '0';
-                            slow.address <= (others => '0');
-                            slow.data <= (others => '0');
-                    end case;
-                end if;
-           end if;
-        end if;
-    end if;
-end process;
-
-slow_tlp_o <= slow;
 
 end rtl;

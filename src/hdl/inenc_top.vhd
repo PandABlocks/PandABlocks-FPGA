@@ -21,6 +21,7 @@ library work;
 use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
+use work.slow_defines.all;
 
 entity inenc_top is
 port (
@@ -51,6 +52,44 @@ end inenc_top;
 
 architecture rtl of inenc_top is
 
+--
+-- Return Daughter Card control value.
+--
+function ASSIGN_DATA (mem_dat_i : std_logic_vector) return std_logic_vector is
+begin
+    case (mem_dat_i(2 downto 0)) is
+        when "000"  => -- INC
+            return ZEROS(24) & X"03";
+        when "001"  => -- SSI
+            return ZEROS(24) & X"0C";
+        when "010"  => -- EnDat
+            return ZEROS(24) & X"14";
+        when "011"  => -- BiSS
+            return ZEROS(24) & X"1C";
+        when others =>
+            return TO_SVECTOR(0, 32);
+    end case;
+end ASSIGN_DATA;
+
+--
+-- Return slow controller address value.
+--
+function ASSIGN_ADDR (mem_addr_i : std_logic_vector) return std_logic_vector is
+begin
+    case mem_addr_i(PAGE_AW-1 downto BLK_AW) is
+        when "0000"  => -- INC
+            return TO_SVECTOR(INENC1_PROTOCOL, PAGE_AW);
+        when "0001"  => -- SSI
+            return TO_SVECTOR(INENC2_PROTOCOL, PAGE_AW);
+        when "0010"  => -- EnDat
+            return TO_SVECTOR(INENC3_PROTOCOL, PAGE_AW);
+        when "0011"  => -- BiSS
+            return TO_SVECTOR(INENC4_PROTOCOL, PAGE_AW);
+        when others =>
+            return TO_SVECTOR(0, PAGE_AW);
+    end case;
+end ASSIGN_ADDR;
+
 signal mem_blk_cs       : std_logic_vector(ENC_NUM-1 downto 0);
 
 signal iobuf_ctrl       : iobuf_ctrl_array(ENC_NUM-1 downto 0);
@@ -68,8 +107,6 @@ signal Bm0_ireg         : std_logic_vector(ENC_NUM-1 downto 0);
 signal Zm0_ireg         : std_logic_vector(ENC_NUM-1 downto 0);
 
 signal ctrl_ireg        : std4_array(ENC_NUM-1 downto 0);
-
-signal slow_tlp         : slow_packet_array(ENC_NUM-1 downto 0);
 
 begin
 
@@ -136,7 +173,6 @@ port map (
     z_o                 => z_o(I),
     conn_o              => conn_o(I),
 
-    slow_tlp_o          => slow_tlp(I),
     posn_o              => posn_o(I),
     iobuf_ctrl_o        => iobuf_ctrl(I)
 );
@@ -144,22 +180,30 @@ port map (
 END GENERATE;
 
 --
--- Assign correct Slow Register Address
+-- Issue a Write command to Slow Controller when a write is detected on
+-- PROTOCOL register
 --
-process(clk_i)
+SLOW_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        slow_tlp_o.strobe <= '0';
-
-        for I in 0 to ENC_NUM-1 loop
-            if (slow_tlp(I).strobe = '1') then
-                slow_tlp_o.strobe <= '1';
-                slow_tlp_o.address <= std_logic_vector(to_unsigned(I, PAGE_AW));
-                slow_tlp_o.data <= slow_tlp(I).data;
-            end if;
-        end loop;
+        if (reset_i = '1') then
+            slow_tlp_o.strobe <= '0';
+            slow_tlp_o.address <= (others => '0');
+            slow_tlp_o.data <= (others => '0');
+        else
+            -- Single clock cycle strobe
+            slow_tlp_o.strobe <= '0';
+            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+                if (mem_addr_i(BLK_AW-1 downto 0) = TO_SVECTOR(INENC_PROTOCOL, BLK_AW)) then
+                    slow_tlp_o.strobe <= '1';
+                    slow_tlp_o.data <= ASSIGN_DATA(mem_dat_i);
+                    slow_tlp_o.address <= ASSIGN_ADDR(mem_addr_i);
+                end if;
+           end if;
+        end if;
     end if;
 end process;
+
 
 end rtl;
 
