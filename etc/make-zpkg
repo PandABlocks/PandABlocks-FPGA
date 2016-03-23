@@ -10,7 +10,7 @@ ZPKG="${3:?}"
 
 ZPKG_DIR="$BUILD_DIR"/zpkg
 
-DIRS=(share/panda bin state var/run etc/init.d etc/rc.d)
+DIRS=(share/panda bin state etc/init.d etc/rc.d)
 
 # Create empty skeleton
 rm -f "$BUILD_DIR"/panda-server@*.zpg  &&
