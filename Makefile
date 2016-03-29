@@ -34,10 +34,6 @@ default: $(DEFAULT_TARGETS)
 .PHONY: default
 
 
-$(BUILD_DIR)/%:
-	mkdir -p $@
-
-
 export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
 
 # ------------------------------------------------------------------------------
@@ -111,15 +107,25 @@ docs: $(DOCS_BUILD_DIR)/index.html
 # ------------------------------------------------------------------------------
 # Build installation package
 
-ZPKG = $(BUILD_DIR)/panda-server@$(GIT_VERSION).zpg
+SERVER_ZPKG = $(BUILD_DIR)/panda-server@$(GIT_VERSION).zpg
+CONFIG_ZPKG = $(BUILD_DIR)/panda-config@$(GIT_VERSION).zpg
 
-$(ZPKG): $(PANDA_KO) $(SERVER) $(wildcard config_d/* etc/*)
-	etc/make-zpkg . $(BUILD_DIR) $@
+$(SERVER_ZPKG): $(PANDA_KO) $(SERVER) $(wildcard etc/*)
 
-zpkg: $(ZPKG)
+$(CONFIG_ZPKG): $(wildcard config_d/*)
+
+$(BUILD_DIR)/%.zpg:
+	etc/make-zpkg $(TOP) $(BUILD_DIR) $@
+
+zpkg: $(SERVER_ZPKG) $(CONFIG_ZPKG)
 .PHONY: zpkg
 
+
 # ------------------------------------------------------------------------------
+
+# This needs to go more or less last to avoid conflict with other targets.
+$(BUILD_DIR)/%:
+	mkdir -p $@
 
 clean:
 	rm -rf $(BUILD_DIR)
