@@ -64,38 +64,23 @@ class SystemTest(unittest.TestCase):
                 # print "RECEIVED: ", data_stream
 
     def get_data(self):
-        data_string = ""
-        binary_data_string = ""
-        header_string = ""
-        while True:
+        data_stream = ""
+        while not data_stream.startswith("END"):
             try:
                 data_stream = self.rcvsock.recv(4096)
                 # print [data_stream]
             except socket.timeout:
                 break
-            if data_stream.startswith("END"):
-                break
-            elif data_stream.startswith("<"):
-                header_string += data_stream
+            if data_stream.startswith("<"):
+                self.parse_header(data_stream)
             elif data_stream.startswith("BIN"):
-                binary_data_string += data_stream
+                self.data += self.parse_binary(data_stream.strip('BIN '))
             else:
-                data_string += data_stream
-        if header_string:
-            self.parse_header(header_string)
-        if data_string:
-            self.data = self.parse_data(data_string.split('\n'))
-        elif binary_data_string:
-            self.data = self.parse_binary(
-                binary_data_string.strip('BIN ').split("BIN "))
+                self.data += self.parse_data(data_stream)
 
     def parse_data(self, data_stream):
-        data = []
-        bin_data = []
-        for line in data_stream:
-            if not line.startswith('OK') and line:
-                data.append(line.strip().split(" "))
-        return data
+        if not data_stream.startswith('OK') and data_stream:
+            return tuple([data_stream.strip().split(" ")])
 
     def parse_header(self, header):
         try:
@@ -111,17 +96,16 @@ class SystemTest(unittest.TestCase):
     def parse_binary(self, binary_stream):
         binary_data = []
         fmt, data_size = self.get_bin_unpack_fmt()
-        for line in binary_stream:
-            #find the packet length from the first 4 bits
-            packet_length = struct.unpack('<I', line[0:4])[0]
-            #strip off the first 4 bits which hold the packet length
-            actual_data = line[4:len(line)]
-            #split the data
-            split_data = [
-                actual_data[x:x+data_size]
-                for x in range(0,len(actual_data),data_size)]
-            for section in split_data:
-                binary_data.append(list(struct.unpack(fmt, section)))
+        #find the packet length from the first 4 bits
+        packet_length = struct.unpack('<I', binary_stream[0:4])[0]
+        #strip off the first 4 bits which hold the packet length
+        actual_data = binary_stream[4:len(binary_stream)]
+        #split the data
+        split_data = [
+            actual_data[x:x+data_size]
+            for x in range(0,len(actual_data),data_size)]
+        for section in split_data:
+            binary_data.append(list(struct.unpack(fmt, section)))
         return binary_data
 
     def get_bin_unpack_fmt(self):
@@ -176,7 +160,7 @@ def generateHDF(hostname,cmdport, rcvport, output_dir, output_name):
     return capture.hdf_file
 
 def make_suite():
-    #if there is no hdf5 file present, generate one, otherwise use the one that is there
+    #generate hdf5 file if not present, otherwise use the one that is there
     hdf_name = 'reference.hdf5'
     if not os.path.isfile('hdf5/reference.hdf5'):
         hdf_name = generateHDF('localhost', 8888, 8889,
