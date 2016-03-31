@@ -270,11 +270,12 @@ class Controller(object):
         """Calculate how long before the next wakeup is due
 
         Returns:
-            int: The time before next wakeup, can also be negative or None
+            int: The time before next wakeup or zero if past or None if no
+            wakeup set
         """
         if self.wakeups:
             next_time = self.wakeups[0][0] * CLOCK_TICK + self.start_time
-            return next_time - time.time()
+            return max(0, next_time - time.time())
 
     def update_mux(self, block, name, value):
         """Update listeners for muxes on block

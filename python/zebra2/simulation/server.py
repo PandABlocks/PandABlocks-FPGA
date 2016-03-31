@@ -37,12 +37,12 @@ class Server(object):
         try:
             while True:
                 timeout = self.controller.calc_timeout()
-                if timeout is None or timeout > 0:
-                    # wait for up to timeout for some data
-                    (rlist, _, _) = select.select((self.sock,), (), (), timeout)
-                    # If we got a response, service it
-                    if rlist:
-                        self._respond()
+                # wait for up to timeout for some data
+                # timeout can be negative!
+                (rlist, _, _) = select.select((self.sock,), (), (), timeout)
+                # If we got a response, service it
+                if rlist:
+                    self._respond()
                 # Now service the controller
                 self.controller.do_tick()
         except (KeyboardInterrupt, SocketFail) as e:
