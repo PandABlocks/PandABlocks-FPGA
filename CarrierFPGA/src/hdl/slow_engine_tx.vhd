@@ -19,7 +19,10 @@ use ieee.numeric_std.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity panda_slow_tx is
+library work;
+use work.type_defines.all;
+
+entity slow_engine_tx is
 generic (
     AW              : natural := 10;
     DW              : natural := 32;
@@ -38,9 +41,9 @@ port (
     spi_sclk_o      : out std_logic;
     spi_dat_o       : out std_logic
 );
-end panda_slow_tx;
+end slow_engine_tx;
 
-architecture rtl of panda_slow_tx is
+architecture rtl of slow_engine_tx is
 
 -- Ticks in terms of internal serial clock period.
 constant DEADPERIOD             : natural := 10;    -- 10usec
@@ -58,24 +61,13 @@ begin
 --
 -- Presclaed clock to be used internally.
 --
-process (clk_i)
-    variable clk_div : natural range 0 to CLKDIV;
-begin
-    if (rising_edge(clk_i)) then
-        if (reset_i = '1') then
-            clk_div := 0;
-            sclk_ce <= '0';
-        else
-            if (clk_div = CLKDIV - 1) then
-                clk_div := 0;
-                sclk_ce <= '1';
-            else
-                clk_div := clk_div + 1;
-                sclk_ce <= '0';
-            end if;
-        end if;
-    end if;
-end process;
+shift_clk: entity work.prescaler
+port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    PERIOD          => TO_SVECTOR(CLKDIV, 32),
+    pulse_o         => sclk_ce
+);
 
 --
 -- Serial Transmit State Machine

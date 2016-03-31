@@ -22,23 +22,17 @@ use work.type_defines.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity serial_ctrl is
-generic (
-    -- Serial Clock Divider : 50/(2*50) = 0.5MHz
-    CLKDIV          : natural := 50;
-    AW              : natural := 10;
-    DW              : natural := 32
-);
+entity serial_comms is
 port (
     -- 50MHz system clock
     clk_i           : in  std_logic;
     reset_i         : in  std_logic;
-    -- Encoder Daughter Card Control interface
+    -- Encoder Daughter Card Control
     enc_ctrl1_o     : out std_logic_vector(11 downto 0);
     enc_ctrl2_o     : out std_logic_vector(11 downto 0);
     enc_ctrl3_o     : out std_logic_vector(11 downto 0);
     enc_ctrl4_o     : out std_logic_vector(11 downto 0);
-    -- Front-Panel Control Values
+    -- Front-Panel Control
     ttlin_term_o    : out std_logic_vector(5 downto 0);
     ttl_leds_o      : out std_logic_vector(15 downto 0);
     status_leds_o   : out std_logic_vector(3 downto 0);
@@ -50,9 +44,12 @@ port (
     spi_sclk_o      : out std_logic;
     spi_dat_o       : out std_logic
 );
-end serial_ctrl;
+end serial_comms;
 
-architecture rtl of serial_ctrl is
+architecture rtl of serial_comms is
+
+constant AW         : natural := 10;
+constant DW         : natural := 32;
 
 signal wr_req       : std_logic;
 signal wr_dat       : std_logic_vector(DW-1 downto 0);
@@ -62,29 +59,26 @@ signal rd_dat       : std_logic_vector(DW-1 downto 0);
 signal rd_val       : std_logic;
 signal busy         : std_logic;
 
+signal wr_start     : std_logic;
 signal txadr_reg    : natural range 0 to (2**AW - 1);
-signal rxadr_reg    : natural range 0 to (2**AW - 1);
-signal status_index  : natural range 0 to REGS_NUM-1;
-signal wr_rst  : std_logic;
+signal status_index : natural range 0 to REGS_NUM-1;
 
 begin
-
-rxadr_reg <= to_integer(unsigned(rd_adr));
 
 --
 -- Serial Interface TX/RX Core IP
 --
-slowctrl_inst : entity work.slowctrl
+slow_engine_inst : entity work.slow_engine
 generic map (
     AW              => AW,
     DW              => DW,
-    CLKDIV          => CLKDIV
+    CLKDIV          => 50
 )
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
 
-    wr_rst_i        => wr_rst,
+    wr_rst_i        => '0',
     wr_req_i        => wr_req,
     wr_dat_i        => wr_dat,
     wr_adr_i        => wr_adr,
@@ -100,9 +94,17 @@ port map (
 );
 
 --
--- Write Register Interface : Continuously cycle through the status registers,
--- and transfer them to the master.
---
+-- Transmit Interface :
+-- Continuously cycles and transmits the status registers, and transfer them
+-- to the master at 100us rate.
+write_trigger : entity work.prescaler
+port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    PERIOD          => TO_SVECTOR(5000, 32),
+    pulse_o         => wr_start
+);
+
 WRITE_REGISTERS : process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
@@ -110,10 +112,10 @@ WRITE_REGISTERS : process(clk_i) begin
             wr_req <= '0';
             wr_adr <= (others => '0');
             wr_dat <= (others => '0');
-            wr_rst <= '0';
         else
             -- Cycle through registers contiuously.
-            if (busy = '0' and wr_req = '0') then
+--            if (busy = '0' and wr_req = '0') then
+            if (busy = '0' and wr_start = '1') then
                 wr_req <= '1';
                 wr_adr <= TO_SVECTOR(status_index, AW);
                 wr_dat <= status_regs_i(status_index);
@@ -168,13 +170,5 @@ port map (
     ttl_leds_o      => ttl_leds_o,
     status_leds_o   => status_leds_o
 );
-
-
----- Slow Controller Control Registers
---wr_rst <= '0';
---
---if (rd_val = '1' and rxadr_reg = WRITE_RESET) then
---    wr_rst <= '1';
---end if;
 
 end rtl;

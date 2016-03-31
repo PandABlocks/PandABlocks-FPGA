@@ -50,9 +50,9 @@ set_property PACKAGE_PIN K2  [get_ports {ttlout_pad_o[9]}];
 
 # Slow Controller SPI Interface
 set_property PACKAGE_PIN K4 [get_ports {spi_sclk_o}];
-set_property PACKAGE_PIN P8 [get_ports {spi_dat_o }];
-set_property PACKAGE_PIN K4 [get_ports {spi_sclk_i}];
-set_property PACKAGE_PIN K3 [get_ports {spi_dat_i }];
+set_property PACKAGE_PIN K3 [get_ports {spi_dat_o }];
+set_property PACKAGE_PIN N8 [get_ports {spi_sclk_i}];
+set_property PACKAGE_PIN P8 [get_ports {spi_dat_i }];
 
 # Set the bank voltage for IO Bank 34 to 1.8V by default.
 set_property IOSTANDARD LVCMOS18 [get_ports -of_objects [get_iobanks 34]];

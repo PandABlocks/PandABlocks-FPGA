@@ -11,7 +11,7 @@ panda_top_tb tb(
     .ttlin_pad      ( ttlin_pad)
 );
 
-`define TESTNAME    "test.ssi.v"
+`define TESTNAME    "test.slow.v"
 
 reg [ 1:0]      wrs, rsp;
 reg [31:0]      IRQ_STATUS;
@@ -36,10 +36,7 @@ integer         PGEN_SAMPLES;
 
 `include "tasks.v"
 
-assign ttlin_pad[0] = enable;
-assign ttlin_pad[1] = 0;
-assign ttlin_pad[2] = capture;
-assign ttlin_pad[5:3] = 0;
+assign ttlin_pad[5:0] = 0;
 
 initial begin
     wrs = 0; rsp = 0;

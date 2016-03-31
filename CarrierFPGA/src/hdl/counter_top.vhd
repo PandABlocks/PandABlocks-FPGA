@@ -29,8 +29,8 @@ end counter_top;
 
 architecture rtl of counter_top is
 
-signal mem_blk_cs           : std_logic_vector(COUNTER_NUM-1 downto 0);
-signal mem_read_data        : std32_array(COUNTER_NUM-1 downto 0);
+signal mem_blk_cs       : std_logic_vector(COUNTER_NUM-1 downto 0);
+signal mem_read_data    : std32_array(2**BLK_NUM-1 downto 0);
 
 begin
 
@@ -44,7 +44,7 @@ COUNTER_GEN : FOR I IN 0 TO COUNTER_NUM-1 GENERATE
 
 -- Generate Block chip select signal
 mem_blk_cs(I) <= '1'
-    when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_SVECTOR(I, PAGE_AW-BLK_AW)
+    when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_SVECTOR(I, BLK_NUM)
             and mem_cs_i = '1') else '0';
 
 counter_block_inst : entity work.counter_block

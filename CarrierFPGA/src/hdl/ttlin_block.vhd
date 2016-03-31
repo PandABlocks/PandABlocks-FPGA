@@ -37,29 +37,7 @@ end ttlin_block;
 
 architecture rtl of ttlin_block is
 
-signal TERM             : std_logic_vector(31 downto 0);
-signal TERM_WSTB        : std_logic;
-
 begin
-
---
--- Control System Interface
---
-ttlin_ctrl_inst : entity work.ttlin_ctrl
-port map (
-    clk_i               => clk_i,
-    reset_i             => reset_i,
-    sysbus_i            => (others => '0'),
-    posbus_i            => (others => (others => '0')),
-
-    TERM                => TERM,
-    TERM_WSTB           => TERM_WSTB,
-
-    mem_cs_i            => mem_cs_i,
-    mem_wstb_i          => mem_wstb_i,
-    mem_addr_i          => mem_addr_i,
-    mem_dat_i           => mem_dat_i
-);
 
 -- Always register external I/O pads.
 process(clk_i)

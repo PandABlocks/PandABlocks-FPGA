@@ -15,9 +15,9 @@ use work.top_defines.all;
 
 entity axi_write_master is
 generic (
-    AXI_BURST_WIDTH     : integer := 4;
-    AXI_ADDR_WIDTH      : integer := 32;
-    AXI_DATA_WIDTH      : integer := 32
+    AXI_BURST_WIDTH     : natural := 4;
+    AXI_ADDR_WIDTH      : natural := 32;
+    AXI_DATA_WIDTH      : natural := 32
 );
 port (
     -- Clock and Reset
@@ -59,7 +59,7 @@ end axi_write_master;
 
 architecture rtl of axi_write_master is
 
-signal AXI_BURST_LEN        : integer;
+signal AXI_BURST_LEN        : unsigned(3 downto 0);
 signal awvalid              : std_logic;
 signal wvalid               : std_logic;
 signal wlast                : std_logic;
@@ -71,7 +71,7 @@ signal wlen_count           : unsigned(AXI_BURST_WIDTH-1 downto 0);
 
 begin
 
-AXI_BURST_LEN <= to_integer(unsigned(m_axi_burst_len));
+AXI_BURST_LEN <= unsigned(m_axi_burst_len);
 
 --
 -- Write Address
@@ -80,7 +80,7 @@ M_AXI_AWREGION <= "0000";
 -- Single threaded
 M_AXI_AWID <= "000000";
 -- Burst LENgth is number of transaction beats, minus 1
-M_AXI_AWLEN <= TO_SVECTOR(AXI_BURST_LEN-1, 4);
+M_AXI_AWLEN <= std_logic_vector(AXI_BURST_LEN - 1);
 -- Size should be AXI_DATA_WIDTH, in 2^SIZE bytes
 M_AXI_AWSIZE <= TO_SVECTOR(LOG2(AXI_DATA_WIDTH/8), 3);
 -- INCR burst type is usually used, except for keyhole bursts

@@ -78,9 +78,19 @@ signal spi_sclk_i       : std_logic;
 signal spi_dat_i        : std_logic;
 signal spi_sclk_o       : std_logic;
 signal spi_dat_o        : std_logic;
-signal ssi_data         : integer;
+signal ssi_data         : natural;
 signal ssi_slave_data   : std_logic_vector(31 downto 0);
 signal ssi_master_data  : std_logic_vector(31 downto 0);
+
+signal shift_reg_sdata_o: std_logic;
+signal shift_reg_sclk_o : std_logic;
+signal shift_reg_latch_o: std_logic;
+signal shift_reg_oe_n_o : std_logic;
+
+signal shift_reg        : std_logic_vector(31 downto 0);
+signal led_x            : std_logic_vector(0 to 15);
+signal term_x           : std_logic_vector(0 to  5);
+signal led_status_x     : std_logic_vector(0 to  3);
 
 
 constant BLOCK_SIZE     : integer := 8192;
@@ -150,18 +160,44 @@ PORT MAP (
 
 slow_top_inst : entity work.slow_top
 port map (
-    clk_i               => clk50,
-    -- Encoder Daughter Card Control interface
+    clk50_i             => clk50,
+    -- Encoder Daughter Card Control Interface
     enc_ctrl1_io        => enc_ctrl1_io,
     enc_ctrl2_io        => enc_ctrl2_io,
     enc_ctrl3_io        => enc_ctrl3_io,
     enc_ctrl4_io        => enc_ctrl4_io,
-    -- Serial Physical interface
+    -- Serial Physical Interface
     spi_sclk_i          => spi_sclk_o,
     spi_dat_i           => spi_dat_o,
     spi_dat_o           => spi_dat_i,
-    spi_sclk_o          => spi_sclk_i
+    spi_sclk_o          => spi_sclk_i,
+    -- Front Panel Interface
+    shift_reg_sdata_o   => shift_reg_sdata_o,
+    shift_reg_sclk_o    => shift_reg_sclk_o,
+    shift_reg_latch_o   => shift_reg_latch_o,
+    shift_reg_oe_n_o    => shift_reg_oe_n_o
 );
+
+
+--
+-- Front Panel Shift Registers = 4x SN74HC595
+--
+
+process(shift_reg_sclk_o)
+begin
+    if rising_edge(shift_reg_sclk_o) then
+        shift_reg <= shift_reg_sdata_o & shift_reg(31 downto 1);
+    end if;
+end process;
+
+process(shift_reg_latch_o)
+begin
+    if rising_edge(shift_reg_latch_o) then
+        led_x <= shift_reg(31 downto 16);
+        term_x <= shift_reg(15 downto 10);
+        led_status_x <= shift_reg(7 downto 4);
+    end if;
+end process;
 
 enc_ctrl1_io(15 downto 12) <= "1000";
 enc_ctrl2_io(15 downto 12) <= "1000";

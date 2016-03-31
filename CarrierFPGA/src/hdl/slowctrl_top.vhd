@@ -28,6 +28,7 @@ port (
     inenc_tlp_i         : in  slow_packet;
     outenc_tlp_i        : in  slow_packet;
     ttlin_tlp_i         : in  slow_packet;
+    led_tlp_i           : in  slow_packet;
     busy_o              : out std_logic;
     -- Serial Physical interface
     spi_sclk_o          : out std_logic;
@@ -40,9 +41,7 @@ end slowctrl_top;
 architecture rtl of slowctrl_top is
 
 begin
---
---
---
+
 slowctrl_block_inst : entity work.slowctrl_block
 port map (
     clk_i           => clk_i,
@@ -57,6 +56,7 @@ port map (
     inenc_tlp_i     => inenc_tlp_i,
     outenc_tlp_i    => outenc_tlp_i,
     ttlin_tlp_i     => ttlin_tlp_i,
+    led_tlp_i       => led_tlp_i,
     busy_o          => busy_o,
 
     spi_sclk_o      => spi_sclk_o,

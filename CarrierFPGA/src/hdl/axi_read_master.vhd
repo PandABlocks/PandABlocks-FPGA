@@ -15,9 +15,9 @@ use work.top_defines.all;
 
 entity axi_read_master is
 generic (
-    AXI_BURST_WIDTH     : integer := 8;
-    AXI_ADDR_WIDTH      : integer := 32;
-    AXI_DATA_WIDTH      : integer := 32
+    AXI_BURST_WIDTH     : natural := 8;
+    AXI_ADDR_WIDTH      : natural := 32;
+    AXI_DATA_WIDTH      : natural := 32
 );
 port (
     -- Clock and Reset

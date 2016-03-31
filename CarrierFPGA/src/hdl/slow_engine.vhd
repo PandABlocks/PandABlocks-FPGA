@@ -22,7 +22,7 @@ use ieee.numeric_std.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity slowctrl is
+entity slow_engine is
 generic (
     AW              : natural := 10;
     DW              : natural := 32;
@@ -46,32 +46,13 @@ port (
     spi_sclk_i      : in  std_logic;
     spi_dat_i       : in  std_logic
 );
-end slowctrl;
+end slow_engine;
 
-architecture rtl of slowctrl is
-
-type sh_states is (idle, sync, shifting, deadtime);
-signal sh_state                 : sh_states;
-
-signal sclk                     : std_logic;
-signal sclk_ce                  : std_logic;
-signal send_start               : std_logic;
-
-signal addr_reg                 : std_logic_vector(AW-1 downto 0);
-signal data_reg                 : std_logic_vector(DW-1 downto 0);
-signal shift_out                : std_logic_vector(AW+DW downto 0);
-
-signal sh_counter               : unsigned(5 downto 0);
-signal ncs_int                  : std_logic;
-signal sdi                      : std_logic;
-
-signal read_byte_val            : std_logic;
-signal data_read_val            : std_logic;
-signal data_read                : std_logic_vector(DW-1 downto 0);
+architecture rtl of slow_engine is
 
 begin
 
-slow_tx_inst : entity work.panda_slow_tx
+slow_engine_tx_inst : entity work.slow_engine_tx
 generic map (
     AW              => AW,
     DW              => DW,
@@ -91,7 +72,7 @@ port map (
     spi_dat_o       => spi_dat_o
 );
 
-slow_rx_inst : entity work.panda_slow_rx
+slow_engine_rx_inst : entity work.slow_engine_rx
 generic map (
     AW              => AW,
     DW              => DW,

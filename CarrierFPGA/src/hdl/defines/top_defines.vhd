@@ -8,17 +8,6 @@ use work.type_defines.all;
 package top_defines is
 
 --------------------------------------------------------------------------
--- Enable Module Instantiations
-constant DIV_INST               : boolean := true;
-constant PULSE_INST             : boolean := true;
-constant SEQ_INST               : boolean := true;
-constant INENC_INST             : boolean := true;
-constant OUTENC_INST            : boolean := true;
-constant PCOMP_INST             : boolean := true;
-constant PCAP_INST              : boolean := true;
---------------------------------------------------------------------------
-
---------------------------------------------------------------------------
 -- Memory Setup Parameters
 -- Total of 128KByte memory is divided into 32 pages of 4K each.
 -- Each page can address 16 design blocks
@@ -30,39 +19,40 @@ constant PAGE_NUM               : natural := 5;
 constant PAGE_AW                : natural := 10;
 -- Number of DWORS per block = 2**BLK_AW
 constant BLK_AW                 : natural := 6;
+-- Number of total block's bit width
+constant BLK_NUM                : natural := PAGE_AW - BLK_AW;
 --------------------------------------------------------------------------
 
 -- Block instantiation numbers--------------------------------------------
-constant TTLIN_NUM          : positive := 6;
-constant TTLOUT_NUM         : positive := 10;
-constant LVDSIN_NUM         : positive := 2;
-constant LVDSOUT_NUM        : positive := 2;
-constant LUT_NUM            : positive := 8;
-constant SRGATE_NUM         : positive := 4;
-constant DIV_NUM            : positive := 4;
-constant PULSE_NUM          : positive := 4;
-
-constant QDEC_NUM           : positive := 4;
-constant ADDER_NUM          : positive := 2;
-constant COUNTER_NUM        : positive := 8;
-constant PGEN_NUM           : positive := 2;
-constant POSENC_NUM         : positive := 4;
-constant ENC_NUM            : positive := 4;
-constant PCOMP_NUM          : positive := 4;
-constant SEQ_NUM            : positive := 4;
-constant BITS_NUM           : positive := 1;
+constant TTLIN_NUM          : natural := 6;
+constant TTLOUT_NUM         : natural := 10;
+constant LVDSIN_NUM         : natural := 2;
+constant LVDSOUT_NUM        : natural := 2;
+constant LUT_NUM            : natural := 8;
+constant SRGATE_NUM         : natural := 4;
+constant DIV_NUM            : natural := 4;
+constant PULSE_NUM          : natural := 4;
+constant QDEC_NUM           : natural := 4;
+constant ADDER_NUM          : natural := 2;
+constant COUNTER_NUM        : natural := 8;
+constant PGEN_NUM           : natural := 2;
+constant POSENC_NUM         : natural := 4;
+constant ENC_NUM            : natural := 4;
+constant PCOMP_NUM          : natural := 4;
+constant SEQ_NUM            : natural := 4;
+constant BITS_NUM           : natural := 1;
 --------------------------------------------------------------------------
 
 -- Bit Bus Width, Multiplexer Select Width.
-constant SBUSW              : positive := 128;
-constant SBUSBW             : positive := 7;
+constant SBUSW              : natural := 128;
+constant SBUSBW             : natural := 7;
 
 -- Position Bus Width, Multiplexer Select Width.
-constant PBUSW              : positive := 32;
-constant PBUSBW             : positive := 5;
+constant PBUSW              : natural := 32;
+constant PBUSBW             : natural := 5;
 
 -- Extended Position Bus Width.
-constant EBUSW              : positive := 12;
+constant EBUSW              : natural := 12;
 
 --
 -- TYPEs :

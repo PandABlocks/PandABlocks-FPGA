@@ -1,0 +1,5 @@
+vhdl work   ../../../CarrierFPGA/src/hdl/defines/*.vhd
+vhdl work   ../../../CarrierFPGA/src/hdl/slow_engine_rx.vhd
+vhdl work   ../../../CarrierFPGA/src/hdl/slow_engine_tx.vhd
+vhdl work   ../../../CarrierFPGA/src/hdl/slow_engine.vhd
+vhdl work   ../../src/hdl/*.vhd

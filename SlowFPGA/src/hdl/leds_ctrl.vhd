@@ -50,7 +50,7 @@ begin
 rx_addr <= to_integer(unsigned(rx_addr_i));
 
 --
--- Read Register Interface
+-- Receive Register Interface
 --
 process(clk_i) begin
     if rising_edge(clk_i) then

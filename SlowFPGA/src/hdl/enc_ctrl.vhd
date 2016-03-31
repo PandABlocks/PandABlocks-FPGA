@@ -17,7 +17,6 @@ use ieee.numeric_std.all;
 
 library work;
 use work.slow_defines.all;
-use work.type_defines.all;
 
 library unisim;
 use unisim.vcomponents.all;

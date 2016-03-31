@@ -193,3 +193,7 @@ $(BOOT_FILE) : $(IMAGE_DIR)
 dts:
 	$(PWD)/configs/linux-xlnx/scripts/dtc -f -I dtb -O dts -o devicetree.dts $(DEVTREE_DTB)
 
+zpkg: output/panda_top.bit
+	mkdir -p output/share/panda/
+	cp $^ output/share/panda
+	tar czf output/panda-fpga@$(GIT_VERSION).zpg -C output share

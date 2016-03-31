@@ -98,7 +98,7 @@ END GENERATE;
 
 --
 -- Issue a Write command to Slow Controller when a write is detected on
--- PROTOCOL register
+-- TTLIN_TERM register
 --
 SLOW_WRITE : process(clk_i)
 begin
@@ -120,8 +120,6 @@ begin
         end if;
     end if;
 end process;
-
-
 
 end rtl;
 

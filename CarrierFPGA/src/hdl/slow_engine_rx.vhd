@@ -17,7 +17,10 @@ use ieee.numeric_std.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity panda_slow_rx is
+library work;
+use work.type_defines.all;
+
+entity slow_engine_rx is
 generic (
     AW              : natural := 10;
     DW              : natural := 32;
@@ -34,9 +37,9 @@ port (
     spi_sclk_i      : in  std_logic;
     spi_dat_i       : in  std_logic
 );
-end panda_slow_rx;
+end slow_engine_rx;
 
-architecture rtl of panda_slow_rx is
+architecture rtl of slow_engine_rx is
 
 -- Ticks in terms of internal serial clock period.
 -- SysClk / CLKDIV
@@ -47,7 +50,8 @@ signal sh_state                 : sh_states;
 
 signal shift_in                 : std_logic_vector(AW+DW-1 downto 0);
 
-signal sh_counter               : unsigned(5 downto 0);
+signal sync_counter             : unsigned(4 downto 0);
+signal shift_counter            : unsigned(5 downto 0);
 
 signal sclk_ce                  : std_logic;
 signal link_up                  : std_logic;
@@ -75,24 +79,13 @@ sclkn_fall <= not sclk and sclk_prev;
 --
 -- Presclaed clock to be used internally.
 --
-process (clk_i)
-    variable clk_div : natural range 0 to CLKDIV;
-begin
-    if (rising_edge(clk_i)) then
-        if (reset_i = '1') then
-            clk_div := 0;
-            sclk_ce <= '0';
-        else
-            if (clk_div = CLKDIV - 1) then
-                clk_div := 0;
-                sclk_ce <= '1';
-            else
-                clk_div := clk_div + 1;
-                sclk_ce <= '0';
-            end if;
-        end if;
-    end if;
-end process;
+shift_clk: entity work.prescaler
+port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    PERIOD          => TO_SVECTOR(CLKDIV, 32),
+    pulse_o         => sclk_ce
+);
 
 --
 -- State machine has to first synchronise with the master for successfull data
@@ -100,12 +93,11 @@ end process;
 -- This is achived by having Idle state of 5used between data transfers.
 --
 Link_Manager : process (clk_i)
-    variable sync_counter : natural range 0 to SYNCPERIOD;
 begin
     if (rising_edge(clk_i)) then
         if (reset_i = '1') then
             link_up <= '0';
-            sync_counter := 0;
+            sync_counter <= (others => '0');
         else
             -- In Sync state:
             -- We need to catch the link while there is not incoming data, so
@@ -114,28 +106,28 @@ begin
                 -- A received clock indicates we are in the middle of an SSI
                 -- transaction, so wait until it is finished.
                 if (sclkn_fall = '1') then
-                    sync_counter := 0;
+                    sync_counter <= (others => '0');
                 elsif (sclk_ce = '1' and sclk = '1') then
-                    sync_counter := sync_counter + 1;
+                    sync_counter <= sync_counter + 1;
                 end if;
             -- In Shifting state:
             -- It means that we started SSI transaction, and we need to make 
             -- sure that we receive all the clocks.
             elsif (sh_state = shifting) then
                 if (sclkn_fall = '1') then
-                    sync_counter := 0;
+                    sync_counter <= (others => '0');
                 elsif (sclk_ce = '1') then
-                    sync_counter := sync_counter + 1;
+                    sync_counter <= sync_counter + 1;
                 end if;
             else
-                sync_counter := 0;
+                sync_counter <= (others => '0');
             end if;
 
             -- Set the Link Up when we are once synced. Link will go down,
             -- if data comms is broken.
-            if (sh_state = sync and sync_counter = SYNCPERIOD-1) then
+            if (sh_state = sync and sync_counter = SYNCPERIOD) then
                 link_up <= '1';
-            elsif (sh_state = shifting and sync_counter = SYNCPERIOD-1) then
+            elsif (sh_state = shifting and sync_counter = SYNCPERIOD) then
                 link_up <= '0';
             end if;
         end if;
@@ -149,7 +141,7 @@ process (clk_i)
 begin
     if (rising_edge(clk_i)) then
         if (reset_i = '1') then
-            sh_counter <= (others => '0');
+            shift_counter <= (others => '0');
             shift_in <= (others => '0');
             rd_adr_o <= (others => '0');
             rd_dat_o <= (others => '0');
@@ -160,7 +152,7 @@ begin
                 -- Sync to incoming stream by monitoring sclk_i = '1'
                 -- status for SYNCPERIOD.
                 when sync =>
-                    sh_counter <= (others => '0');
+                    shift_counter <= (others => '0');
                     rd_val_o <= '0';
                     if (link_up = '1') then
                         sh_state <= idle;
@@ -169,7 +161,7 @@ begin
                 -- Wait for falling edge on sclk input indicating start 
                 -- of transaction.
                 when idle =>
-                    sh_counter <= (others => '0');
+                    shift_counter <= (others => '0');
                     rd_val_o <= '0';
                     if (sclkn_fall = '1') then
                         sh_state <= shifting;
@@ -179,13 +171,13 @@ begin
                 when shifting =>
                     if (sclkn_fall = '1') then
                         shift_in <= shift_in(AW+DW-2 downto 0) & sdi;
-                        sh_counter <= sh_counter + 1;
+                        shift_counter <= shift_counter + 1;
                     end if;
 
                     -- Monitor link status
                     if (link_up = '0') then
                         sh_state <= sync;
-                    elsif (sclkn_fall = '1' and sh_counter = AW+DW-1) then
+                    elsif (sclkn_fall = '1' and shift_counter = AW+DW-1) then
                         sh_state <= data_valid;
                     end if;
 

@@ -1,0 +1,1 @@
+../../../SlowFPGA/src/hdl/slow_defines.vhd

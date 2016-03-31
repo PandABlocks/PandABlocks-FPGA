@@ -17,10 +17,11 @@ type std4_array is array(natural range <>) of std4_t;
 -- Functions
 --
 function TO_INTEGER(arg : std_logic_vector) return integer;
-function TO_SVECTOR(arg : integer; size: natural) return std_logic_vector;
-function LOG2(arg : integer) return integer;
+function TO_SVECTOR(arg, size: natural) return std_logic_vector;
+function LOG2(arg : natural) return natural;
 function ZEROS(num : positive) return std_logic_vector;
 function COMP(a : std_logic_vector; b: std_logic_vector) return std_logic;
+function BITREV(A : std_logic_vector) return std_logic_vector;
 
 end type_defines;
 
@@ -33,12 +34,12 @@ begin
 end TO_INTEGER;
 
 -- Converts integer to std_logic_vector
-function TO_SVECTOR(arg : integer; size: natural) return std_logic_vector is
+function TO_SVECTOR(arg, size: natural) return std_logic_vector is
 begin
     return std_logic_vector(to_unsigned(arg, size));
 end TO_SVECTOR;
 
-function LOG2(arg: integer) return integer is
+function LOG2(arg: natural) return natural is
     variable t : natural := arg;
     variable n : natural := 0;
 begin
@@ -65,5 +66,14 @@ begin
     end if;
 end COMP;
 
+function BITREV(A : std_logic_vector) return std_logic_vector is
+    variable B : std_logic_vector(A'length-1 downto 0);
+begin
+    for i in A'range loop
+        B(B'left - i) := A(i);
+    end loop;
+
+    return B;
+end BITREV;
 
 end type_defines;

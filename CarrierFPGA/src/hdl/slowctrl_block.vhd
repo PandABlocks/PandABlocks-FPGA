@@ -28,6 +28,7 @@ port (
     inenc_tlp_i         : in  slow_packet;
     outenc_tlp_i        : in  slow_packet;
     ttlin_tlp_i         : in  slow_packet;
+    led_tlp_i           : in  slow_packet;
     busy_o              : out std_logic;
     -- Serial Physical interface
     spi_sclk_i          : in  std_logic;
@@ -60,7 +61,8 @@ rdadr_reg <= to_integer(unsigned(rd_adr));
 mem_addr <= to_integer(unsigned(mem_addr_i));
 
 --
--- Priority IF-ELSE for accepting write command.
+-- There are multiple transmit sources coming across the design blocks.
+-- Use priority IF-ELSE for accepting write command.
 --
 REG_WRITE : process(clk_i)
 begin
@@ -84,32 +86,15 @@ begin
                 wr_req <= '1';
                 wr_adr <= ttlin_tlp_i.address;
                 wr_dat <= ttlin_tlp_i.data;
-            elsif (mem_cs_i = '1' and mem_wstb_i = '1') then
-                wr_req <= '0';
-                wr_adr <= std_logic_vector(to_unsigned(mem_addr, PAGE_AW));
-                wr_dat <= mem_dat_i;
+            elsif (led_tlp_i.strobe = '1') then
+                wr_req <= '1';
+                wr_adr <= led_tlp_i.address;
+                wr_dat <= led_tlp_i.data;
+--            elsif (mem_cs_i = '1' and mem_wstb_i = '1') then
+--                wr_req <= '0';
+--                wr_adr <= std_logic_vector(to_unsigned(mem_addr, PAGE_AW));
+--                wr_dat <= mem_dat_i;
             end if;
-        end if;
-    end if;
-end process;
-
---
--- Status Register Read
---
-REG_READ : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
-        else
-            case (mem_addr) is
-                when SLOW_FPGA_VERSION =>
-                    mem_dat_o <= FPGA_VERSION;
-                when SLOW_ENC_CONN =>
-                    mem_dat_o <= ENC_CONN;
-                when others =>
-                    mem_dat_o <= (others => '0');
-            end case;
         end if;
     end if;
 end process;
@@ -117,10 +102,11 @@ end process;
 --
 -- Serial interface core
 --
-slowctrl_inst : entity work.slowctrl
+slow_engine_inst : entity work.slow_engine
 generic map (
-    CLKDIV          => 125,
-    AW              => PAGE_AW
+    AW              => PAGE_AW,
+    DW              => 32,
+    CLKDIV          => 125
 )
 port map (
     clk_i           => clk_i,
@@ -142,9 +128,9 @@ port map (
 );
 
 --
+-- Receive and store incoming status updates from Slow FPGA.
 --
---
-SLOW_READ : process(clk_i)
+process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
@@ -161,6 +147,28 @@ begin
         end if;
     end if;
 end process;
+
+--
+-- CSR Status Register Read
+--
+REG_READ : process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if (reset_i = '1') then
+            mem_dat_o <= (others => '0');
+        else
+            case (mem_addr) is
+                when SLOW_FPGA_VERSION =>
+                    mem_dat_o <= FPGA_VERSION;
+                when SLOW_ENC_CONN =>
+                    mem_dat_o <= ENC_CONN;
+                when others =>
+                    mem_dat_o <= (others => '0');
+            end case;
+        end if;
+    end if;
+end process;
+
 
 end rtl;
 

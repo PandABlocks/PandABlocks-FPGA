@@ -25,17 +25,22 @@ use unisim.vcomponents.all;
 entity slow_top is
 port (
     -- 50MHz system clock
-    clk_i               : in    std_logic;
-    -- Encoder Daughter Card Control interface
+    clk50_i               : in    std_logic;
+    -- Zynq Tx/Rx Serial Interface
+    spi_sclk_i          : in    std_logic;
+    spi_dat_i           : in    std_logic;
+    spi_sclk_o          : out   std_logic;
+    spi_dat_o           : out   std_logic;
+    -- Encoder Daughter Card Control Interface
     enc_ctrl1_io        : inout std_logic_vector(15 downto 0);
     enc_ctrl2_io        : inout std_logic_vector(15 downto 0);
     enc_ctrl3_io        : inout std_logic_vector(15 downto 0);
     enc_ctrl4_io        : inout std_logic_vector(15 downto 0);
-    -- Serial Physical interface
-    spi_sclk_i          : in    std_logic;
-    spi_dat_i           : in    std_logic;
-    spi_sclk_o          : out   std_logic;
-    spi_dat_o           : out   std_logic
+    -- Front Panel Shift Register Interface
+    shift_reg_sdata_o   : out std_logic;
+    shift_reg_sclk_o    : out std_logic;
+    shift_reg_latch_o   : out std_logic;
+    shift_reg_oe_n_o    : out std_logic
 );
 end slow_top;
 
@@ -71,13 +76,15 @@ port map (
     A1      => '1',
     A2      => '1',
     A3      => '1',
-    CLK     => clk_i,
+    CLK     => clk50_i,
     D       => '1'
 );
 
 reset <= not reset_n;
 
+--
 -- Assign outputs
+--
 enc_ctrl1_io(11 downto 0) <= enc_ctrl1;
 enc_ctrl2_io(11 downto 0) <= enc_ctrl2;
 enc_ctrl3_io(11 downto 0) <= enc_ctrl3;
@@ -88,25 +95,46 @@ enc_connected <=    enc_ctrl1_io(15) &
                     enc_ctrl3_io(15) &
                     enc_ctrl4_io(15);
 
-serial_if_inst : entity work.serial_ctrl
+--
+-- Data Send/Receive Engine to Zynq
+--
+serial_comms_inst : entity work.serial_comms
 port map (
-    clk_i           => clk_i,
-    reset_i         => reset,
+    clk_i               => clk50_i,
+    reset_i             => reset,
 
-    enc_ctrl1_o     => enc_ctrl1(11 downto 0),
-    enc_ctrl2_o     => enc_ctrl2(11 downto 0),
-    enc_ctrl3_o     => enc_ctrl3(11 downto 0),
-    enc_ctrl4_o     => enc_ctrl4(11 downto 0),
+    enc_ctrl1_o         => enc_ctrl1(11 downto 0),
+    enc_ctrl2_o         => enc_ctrl2(11 downto 0),
+    enc_ctrl3_o         => enc_ctrl3(11 downto 0),
+    enc_ctrl4_o         => enc_ctrl4(11 downto 0),
 
-    ttlin_term_o    => ttlin_term,
-    ttl_leds_o      => ttl_leds,
-    status_leds_o   => status_leds,
-    status_regs_i   => status_regs,
+    ttlin_term_o        => ttlin_term,
+    ttl_leds_o          => ttl_leds,
+    status_leds_o       => status_leds,
+    status_regs_i       => status_regs,
 
-    spi_sclk_i      => spi_sclk_i,
-    spi_dat_i       => spi_dat_i,
-    spi_sclk_o      => spi_sclk_o,
-    spi_dat_o       => spi_dat_o
+    spi_sclk_i          => spi_sclk_i,
+    spi_dat_i           => spi_dat_i,
+    spi_sclk_o          => spi_sclk_o,
+    spi_dat_o           => spi_dat_o
+);
+
+--
+-- Front Panel Shift Register Interface
+--
+fpanel_if_inst : entity work.fpanel_if
+port map (
+    clk_i               => clk50_i,
+    reset_i             => reset,
+
+    ttlin_term_i        => ttlin_term,
+    ttl_leds_i          => ttl_leds,
+    status_leds_i       => status_leds,
+
+    shift_reg_sdata_o   => shift_reg_sdata_o,
+    shift_reg_sclk_o    => shift_reg_sclk_o,
+    shift_reg_latch_o   => shift_reg_latch_o,
+    shift_reg_oe_n_o    => shift_reg_oe_n_o
 );
 
 --

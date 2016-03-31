@@ -12,6 +12,9 @@ library work;
 use work.top_defines.all;
 
 entity pgen_block is
+generic (
+    BLOCK_NUM               : natural := 0
+);
 port (
     -- Clock and Reset
     clk_i                   : in  std_logic;
