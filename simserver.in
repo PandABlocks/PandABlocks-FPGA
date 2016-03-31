@@ -1,0 +1,26 @@
+#!/bin/sh
+
+HERE="$(dirname "$0")"
+
+# This is filled in from the setting in CONFIG
+PYTHON='@@PYTHON@@'
+
+CONFIG_DIR="$HERE"/config_d
+PERSISTENCE='@@BUILD_DIR@@'/persistence.state
+
+CONFIG_PORT=8888
+DATA_PORT=8889
+
+# Force any previously running instance of the simulation server to go away --
+# this can happen if sim_server failed on startup for any reason.
+nc localhost 9999 </dev/null
+
+# Run the simulation server as a daemon.  It will ensure its socket is up and
+# running before taking itself into the background.
+$PYTHON "$HERE"/python/sim_server.py -d "$CONFIG_DIR"  &&
+
+# We normally omit --show-reachable=yes because it generates *lots* of noises
+# when there's a crash!
+exec valgrind --leak-check=full --track-origins=yes \
+    '@@BUILD_DIR@@'/sim_server/sim_server \
+    -f"$PERSISTENCE" -p$CONFIG_PORT -d$DATA_PORT -R -c"$CONFIG_DIR" "$@"

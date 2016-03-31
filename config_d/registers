@@ -1,0 +1,275 @@
+# Register interface definition
+
+# This special register block is not present in the config file and contains
+# fixed register definitions used in the hardware interface.
+#   Alas, because hardware access occurs during the processing of this file, it
+# is necessary to place this section at the start!
+*REG        0
+    #
+    # FPGA Version and Build Identification Values
+    #
+    FPGA_VERSION            0
+    FPGA_BUILD              1
+    SLOW_VERSION            2
+    # Bit bus readout registers: first write to BIT_READ_RST to capture a
+    # snapshot of the bit bus and its changes, then read BIT_READ_VALUE 8 times
+    # to read out bit bus values and change flags.
+    BIT_READ_RST            3
+    BIT_READ_VALUE          4
+
+    # Position bus readout registers: first write to POS_READ_RST to snapshot
+    # the position bus and the change set, then read POS_READ_VALUE 32 times to
+    # read out the positions, and finally read the change set from
+    # POS_READ_CHANGES.
+    POS_READ_RST            5
+    POS_READ_VALUE          6
+    POS_READ_CHANGES        7
+
+    # The capture set is written by first writing to PCAP_START_WRITE and then
+    # writing the required changes to PCAP_WRITE
+    PCAP_START_WRITE        8
+    PCAP_WRITE              9
+    # Framing capture for each position is controlled by writing to
+    # PCAP_FRAMING_MASK.  If framing capture is required then
+    # PCAP_FRAMING_ENABLE must also be set separately.
+    PCAP_FRAMING_MASK       10
+    PCAP_FRAMING_ENABLE     11
+    PCAP_FRAMING_MODE       12
+
+    # Position capture control
+    PCAP_ARM                13
+    PCAP_DISARM             14
+
+    # Slow read and write status: if 1 transaction in progress, if 0 transaction
+    # complete.
+    SLOW_REGISTER_STATUS    15
+
+    # This array of registers is used to program data delays on the capture bus
+    PCAP_BIT_DELAY          28 .. 31
+    PCAP_DATA_DELAY         32 .. 63
+
+
+# These registers are used by the kernel driver to read the data capture stream.
+# This block is not used by the server, but is here for documentation and other
+# automated tools.
+*DRV        1
+    # This register is used to reset DMA engine.
+    PCAP_DMA_RESET          0
+    # This register is used to initialise DMA engine with first set of
+    # addresses.
+    PCAP_DMA_START          1
+    # The physical address of each DMA block is written to this register.
+    PCAP_DMA_ADDR           2
+    # This register configures the maximum interval between capture interrupts
+    PCAP_TIMEOUT            3
+    # Interrupt status and acknowledge
+    PCAP_IRQ_STATUS         4
+    # DMA block size in bytes
+    PCAP_BLOCK_SIZE         6
+
+TTLIN       3
+    TERM            slow 0
+    VAL             2 3 4 5 6 7
+
+TTLOUT      4
+    VAL             0 1
+
+LVDSIN      5
+    VAL             8 9
+
+LVDSOUT     6
+    VAL             0 1
+
+LUT         7
+    FUNC            5
+    INPA            0 6
+    INPB            1 7
+    INPC            2 8
+    INPD            3 9
+    INPE            4 10
+    OUT             10 11 12 13 14 15 16 17
+
+SRGATE      8
+    SET_EDGE        2
+    RST_EDGE        3
+    FORCE_SET       4
+    FORCE_RST       5
+    SET             0 6
+    RST             1 7
+    OUT             18 19 20 21
+
+DIV         9
+    DIVISOR         2
+    FIRST_PULSE     3
+    INP             0 5
+    ENABLE          1 6
+    OUTD            22 23 24 25
+    OUTN            26 27 28 29
+    COUNT           4
+
+PULSE       10
+    DELAY           3 2     >3
+    WIDTH           5 4     >3
+    INP             0 11
+    ENABLE          1 12
+    OUT             30 31 32 33
+    PERR            34 35 36 37
+    ERR_OVERFLOW    7
+    ERR_PERIOD      8
+    QUEUE           9
+    MISSED_CNT      10
+
+SEQ         11
+    PRESCALE        5
+    TABLE_CYCLE     8
+    ENABLE          0 16
+    INPA            1 17
+    INPB            2 18
+    INPC            3 19
+    INPD            4 20
+    OUTA            38 39 40 41
+    OUTB            42 43 44 45
+    OUTC            46 47 48 49
+    OUTD            50 51 52 53
+    OUTE            54 55 56 57
+    OUTF            58 59 60 61
+    ACTIVE          62 63 64 65
+    CUR_FRAME       9
+    CUR_FCYCLE      10
+    CUR_TCYCLE      11
+    TABLE           short   512    13 14 15
+
+INENC       12
+    PROTOCOL        slow 0
+    CLK_PERIOD      1
+    FRAME_PERIOD    2
+    BITS            3
+    SETP            4
+    RST_ON_Z        5
+    EXTENSION       6
+    ERR_FRAME       7
+    ERR_RESPONSE    8
+    ENC_STATUS      9
+    A               66 67 68 69
+    B               70 71 72 73
+    Z               74 75 76 77
+    CONN            78 79 80 81
+    VAL             1 2 3 4 / 33 34 35 36
+
+QDEC        13
+    RST_ON_Z        3
+    SETP            4
+    A               0 5
+    B               1 6
+    Z               2 7
+    OUT             5 6 7 8
+
+OUTENC      14
+    PROTOCOL        5
+    BITS            6
+    QPERIOD         7
+    ENABLE          8 10
+    A               0 11
+    B               1 12
+    Z               2 13
+    VAL             4
+    CONN            3 14
+    QSTATE          9
+
+POSENC      15
+    INP             0
+    QPERIOD         1
+    ENABLE          3 5
+    PROTOCOL        2
+    A               82 83 84 85
+    B               86 87 88 89
+    QSTATE          4
+
+ADDER       16
+    INPA            0
+    INPB            1
+    INPC            2
+    INPD            3
+    SCALE           4
+    OUT             10 11
+
+COUNTER     17
+    DIR             4
+    START           5
+    STEP            6
+    ENABLE          0 1
+    TRIG            2 3
+    CARRY           90 91 92 93 94 95 96 97
+    OUT             12 13 14 15 16 17 18 19
+
+PGEN        18
+    CYCLES          3
+    ENABLE          0 6
+    TRIG            1 7
+    OUT             20 21
+    TABLE           long    2^8    4 5
+    TABLE_STATUS    8
+
+PCOMP       19
+    START           2
+    STEP            3
+    WIDTH           4
+    PNUM            5
+    RELATIVE        6
+    DIR             7
+    DELTAP          8
+    USE_TABLE       10
+    ENABLE          0 15
+    INP             1
+    ACTIVE          98 99 100 101
+    OUT             102 103 104 105
+    ERROR           14
+    TABLE           long    2^2    11 12
+    TABLE_STATUS    16
+
+ADC         20
+    OUT             22 23 24 25 26 27 28 29 / 54 55 56 57 58 59 60 61
+
+PCAP        21
+    ENABLE          0 5
+    FRAME           1 6
+    CAPTURE         2 7
+    ERR_STATUS      4
+    ACTIVE          106
+    CAPTURE_TS      62 / 63
+    FRAME_LENGTH    37
+    CAPTURE_OFFSET  38
+    ADC_COUNT       32
+    BITS0           39
+    BITS1           40
+    BITS2           41
+    BITS3           42
+
+BITS        22
+    A               0
+    B               1
+    C               2
+    D               3
+    OUTA            118
+    OUTB            119
+    OUTC            120
+    OUTD            121
+    ZERO            0
+    ONE             1
+
+CLOCKS      23
+    A_PERIOD        0
+    B_PERIOD        1
+    C_PERIOD        2
+    D_PERIOD        3
+    OUTA            122
+    OUTB            123
+    OUTC            124
+    OUTD            125
+
+POSITIONS   24
+    ZERO            0
+
+SLOW        25
+    FPGA_VERSION    0
+    ENC_CONN        1

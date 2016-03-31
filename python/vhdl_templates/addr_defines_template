@@ -1,0 +1,28 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+package addr_defines is
+
+-- Functional Address Space Chip Selects
+{%  for name, block in blocks.iteritems() %}
+constant {{name}}_CS : natural := {{block.base}};
+{%  endfor %}
+
+-- Block Register Address Space
+
+{%  for blockname, block in blocks.iteritems() %}
+-- {{blockname}} Block:
+{%      for regname, reg in block.registers.iteritems() %}
+constant {{blockname}}_{{regname}} : natural := {{reg[0]}};
+{%      endfor %}
+
+{%  endfor %}
+
+
+end addr_defines;
+
+package body addr_defines is
+
+
+end addr_defines;

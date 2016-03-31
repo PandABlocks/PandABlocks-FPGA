@@ -1,0 +1,56 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library work;
+use work.type_defines.all;
+use work.addr_defines.all;
+use work.top_defines.all;
+
+entity panda_busses is
+port (
+
+{%  for name, block in blocks.iteritems() %}
+    -- {{name}} Block
+{%      for fieldname, field in block.fields.iteritems() %}
+{%          if field.cls == 'bit_out' %}
+    {{name}}_{{field.name}}   : in std_logic_vector({{block.num-1}} downto 0);
+{%          elif field.cls == 'pos_out'%}
+    {{name}}_{{field.name}}   : in std32_array({{block.num-1}} downto 0);
+{%          endif %}
+{%      endfor %}
+
+{%  endfor %}
+
+    -- Bus Outputs
+    bitbus_o            : out std_logic_vector(127 downto 0);
+    posbus_o            : out std32_array(31 downto 0)
+);
+end panda_busses;
+
+architecture rtl of panda_busses is
+
+begin
+
+{%  for name, block in blocks.iteritems() %}
+-- {{name}} Outputs:
+{%      for fieldname, field in block.fields.iteritems() %}
+{%          if field.cls == 'bit_out'%}
+{%              set bitbus_counter = 0 -%}
+{%              for register in field.reg %}
+bitbus_o({{register}}) <= {{name}}_{{field.name}}({{bitbus_counter}});
+{%                  set bitbus_counter = bitbus_counter + 1 %}
+{%              endfor %}
+{%          elif field.cls == 'pos_out'%}
+{%              set posbus_counter = 0 -%}
+{%              for register in field.reg %}
+posbus_o({{register}}) <= {{name}}_{{field.name}}({{posbus_counter}});
+{%                  set posbus_counter = posbus_counter + 1 %}
+{%              endfor %}
+{%          endif %}
+{%      endfor %}
+
+{%  endfor %}
+
+
+end rtl;

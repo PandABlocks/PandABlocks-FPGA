@@ -1,0 +1,219 @@
+###############
+$ Increasing position with +ve dir
+
+3       : START=5
+4       : STEP=3
+5       : WIDTH=2
+6       : PNUM=3
+10      : ENABLE=1     : ACTIVE=1
+11      :
+12      : INP=1
+13      : INP=2
+14      : INP=3
+15      : INP=4
+16      : INP=5        : OUT=1
+17      : INP=6
+18      : INP=7        : OUT=0
+23      : INP=8        : OUT=1
+26      : INP=9
+33      : INP=10       : OUT=0
+36      : INP=11       : OUT=1
+43      : INP=12
+46      : INP=13       : OUT=0, ACTIVE=0
+
+###############
+$ Decreasing position with +ve dir
+
+2       : INP=10
+3       : START=5
+4       : STEP=10
+5       : WIDTH=7
+6       : PNUM=3
+10      : ENABLE=1     : ACTIVE=1
+11      :
+12      : INP=9
+13      : INP=8
+14      : INP=7
+15      : INP=6
+16      : INP=5
+17      : INP=4
+18      : INP=3
+
+###############
+$ Decreasing position with -ve dir
+
+2       : INP=10
+3       : START=5
+4       : STEP=3
+5       : WIDTH=2
+6       : PNUM=2
+7       : DIR=1
+10      : ENABLE=1     : ACTIVE=1
+11      :
+12      : INP=9
+13      : INP=8
+14      : INP=7
+15      : INP=6
+16      : INP=5    : OUT=1
+17      : INP=4
+18      : INP=3    : OUT=0
+20      : INP=2    : OUT=1
+21      : INP=1
+22      : INP=0    : OUT=0, ACTIVE=0
+
+###############
+$ Disable after start
+
+2       : INP=10
+3       : START=5
+4       : STEP=10
+5       : WIDTH=7
+6       : PNUM=3
+7       : DIR=1
+10      : ENABLE=1          : ACTIVE=1
+12      : INP=9
+13      : INP=8
+14      : INP=7
+15      : INP=6
+16      : INP=5             : OUT=1
+18      : INP=4, ENABLE=0   : ACTIVE=0, OUT=0
+
+###############
+$ Disable with start
+
+2       : INP=10
+3       : START=5
+4       : STEP=10
+5       : WIDTH=7
+6       : PNUM=3
+7       : DIR=1
+10      : ENABLE=1          : ACTIVE=1
+12      : INP=9
+13      : INP=8
+14      : INP=7
+15      : INP=6
+16      : INP=5, ENABLE=0   : ACTIVE=0
+17      : INP=4
+18      : INP=3
+
+###############
+$ Wait to be below start - DELTAP
+3       : START=5
+4       : STEP=4
+5       : WIDTH=3
+6       : PNUM=3
+7       : DELTAP = 2
+10      : INP=11
+14      :
+15      : ENABLE=1    : ACTIVE=1
+16      : INP=10
+17      : INP=9
+18      : INP=8
+19      : INP=7
+20      : INP=6
+23      : INP=5
+25      : INP=4
+27      : INP=5
+28      : INP=6
+29      : INP=3
+30      : INP=4
+31      : INP=0
+43      : INP=5        : OUT=1
+44      : INP=6
+45      : INP=7
+46      : INP=8        : OUT=0
+47      : INP=9        : OUT=1
+48      : INP=10
+49      : INP=11
+50      : INP=12       : OUT=0
+
+###############
+$ Error skipping multiple compare points
+3       : START=5
+4       : STEP=4
+5       : WIDTH=3
+6       : PNUM=3
+7       : DELTAP = 2
+10      : ENABLE=1      : ACTIVE=1
+14      :
+15      : INP=11        : ERROR=1, ACTIVE=0
+
+###############
+$ Error is produced after skipping more than 2 compare points
+3       : START=5
+4       : STEP=4
+5       : WIDTH=2
+6       : PNUM=3
+10      : ENABLE=1      : ACTIVE=1
+14      :
+27      : INP=1
+28      : INP=2
+29      : INP=3
+30      : INP=4
+31      : INP=0
+43      : INP=5         : OUT=1
+47      : INP=10        : ERROR=1, ACTIVE=0, OUT=0
+49      : INP=11
+50      : INP=12
+
+
+###############
+$ Table
+3       : TABLE_ADDRESS=PCOMP_1000.txt
+4       : TABLE_LENGTH=40
+5       : USE_TABLE=1
+6       : DELTAP=2
+7       : PNUM=1
+9       : INP=5
+10      : ENABLE=1      : ACTIVE=1
+15      : INP=1
+17      : INP=5         : OUT=1
+19      : INP=10        : OUT=0
+21      : INP=15        : OUT=1
+23      : INP=20        : OUT=0
+25      : INP=25
+27      : INP=26        : OUT=1
+29      : INP=27
+31      : INP=28        : OUT=0
+33      : INP=29        : OUT=1
+35      : INP=30
+37      : INP=31        : OUT=0
+39      : INP=35        : OUT=1
+41      : INP=40        : OUT=0
+43      : INP=45        : ACTIVE=0
+
+###############
+$ Table repeats
+3       : TABLE_ADDRESS=PCOMP_2000.txt
+4       : TABLE_LENGTH=16
+5       : USE_TABLE=1
+6       : PNUM=2
+7       : STEP = 30
+10      : ENABLE=1      : ACTIVE=1
+15      : INP=1
+17      : INP=5         : OUT=1
+19      : INP=10        : OUT=0
+21      : INP=15        : OUT=1
+23      : INP=20        : OUT=0
+25      : INP=25
+27      : INP=30        : OUT=0
+29      : INP=35        : OUT=1
+31      : INP=40        : OUT=0
+33      : INP=45        : OUT=1
+35      : INP=50        : OUT=0
+36      : INP=55        : ACTIVE=0
+
+###############
+$ Table negative direction
+3       : TABLE_ADDRESS=PCOMP_3000.txt
+4       : TABLE_LENGTH=16
+5       : USE_TABLE=1
+6       : PNUM=2
+7       : STEP = 30
+10      : ENABLE=1      : ACTIVE=1
+15      : INP=25
+17      : INP=20        : OUT=1
+19      : INP=15        : OUT=0
+21      : INP=10        : OUT=1
+23      : INP=5         : OUT=0
+25      : INP=1

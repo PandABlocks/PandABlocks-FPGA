@@ -1,0 +1,30 @@
+# Example configuration file for building PandA server and driver.
+#
+# Copy this file to a file named CONFIG and edit as appropriate.
+
+
+# Default build location.  Default is to build in build subdirectory.
+#
+# BUILD_DIR = $(TOP)/build
+
+# Python interpreter.  Default interpreter is python2, needs to be 2.7
+#
+# PYTHON = python2
+
+# Compiler settings.  Default cross compile prefix given here.  If BINUTILS_DIR
+# is specified it will be prepended to the path for building the driver and
+# target server.
+#
+# CROSS_COMPILE = arm-xilinx-linux-gnueabi-
+# BINUTILS_DIR = /dls_sw/FPGA/Xilinx/SDK/2015.1/gnu/arm/lin/bin
+
+# Where the kernel was compiled.  Use zebra2-rootfs to build this.  This is only
+# required if building the driver target.
+#
+# KERNEL_DIR = /scratch/tmp/zebra2-rootfs/build/linux
+
+# List of default targets build when running make
+#
+# DEFAULT_TARGETS = driver server sim_server docs
+
+# vim: set filetype=make:
