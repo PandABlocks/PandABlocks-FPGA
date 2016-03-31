@@ -17,11 +17,12 @@ $ capture timestamp
 6       : WRITE=63
 10      : ARM=0             : ACTIVE=1
 11      : ENABLE=1
-12      : CAPTURE=1         : DATA=2
-13      :                   : DATA=0
-14      : CAPTURE=0
-16      : CAPTURE=1         : DATA=6
-17      : CAPTURE=0         : DATA=0
+12      : CAPTURE=1
+13      :                   : DATA=2
+14      : CAPTURE=0         : DATA=0
+16      : CAPTURE=1
+17      : CAPTURE=0         : DATA=6
+18      :                   : DATA=0
 20      : ENABLE=0          : ACTIVE=0
 
 #########################
@@ -32,12 +33,13 @@ $ capture too close together
 8       : WRITE=0
 10      : ARM=0             : ACTIVE=1
 11      : ENABLE=1
-12      : CAPTURE=1         : DATA=2
-13      : CAPTURE=0         : DATA=0
+12      : CAPTURE=1
+13      : CAPTURE=0         : DATA=2
 14      :                   : DATA=0
-16      : CAPTURE=1         : DATA=6
-17      : CAPTURE=0         : DATA=0
-18      : CAPTURE=1         : ACTIVE=0, ERR_STATUS=2, ERROR=1
+15      :                   : DATA=0
+16      : CAPTURE=1
+17      : CAPTURE=0         : DATA=6
+18      : CAPTURE=1         : DATA=0, ACTIVE=0, ERR_STATUS=2, ERROR=1
 
 ######################
 $ capture pos bus enc1
@@ -45,11 +47,12 @@ $ capture pos bus enc1
 4       : WRITE=1
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
-13      : CAPTURE=1                     : DATA=0
-14      : CAPTURE=0
-15      : CAPTURE=1, INENC1.VAL=100    : DATA=100
-16      : CAPTURE=0, INENC1.VAL=50
-18      : CAPTURE=1                     : DATA=50
+13      : CAPTURE=1
+14      : CAPTURE=0                     : DATA=0
+15      : CAPTURE=1, INENC1.VAL=100
+16      : CAPTURE=0, INENC1.VAL=50      : DATA=100
+18      : CAPTURE=1
+19      :                               : DATA=50
 22      : ENABLE=0, CAPTURE=0           : ACTIVE=0
 
 
@@ -59,14 +62,14 @@ $ capture bit bus TTLIN
 4       : WRITE=39
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
-13      : CAPTURE=1                     : DATA=0
-14      : CAPTURE=0
-15      : CAPTURE=1, TTLIN1.VAL=1       : DATA=0x4
-16      : CAPTURE=0, TTLIN3.VAL=1
-18      : CAPTURE=1                     : DATA=0x14
-19      : CAPTURE=0
-21      : CAPTURE=1, TTLIN1.VAL=0       : DATA=0x10
-22      : ENABLE=0, CAPTURE=0           : ACTIVE=0
+13      : CAPTURE=1
+14      : CAPTURE=0                     : DATA=0
+15      : CAPTURE=1, TTLIN1.VAL=1
+16      : CAPTURE=0, TTLIN3.VAL=1       : DATA=0x4
+18      : CAPTURE=1
+19      : CAPTURE=0                     : DATA=0x14
+21      : CAPTURE=1, TTLIN1.VAL=0
+22      : ENABLE=0, CAPTURE=0           : DATA=0x10, ACTIVE=0
 
 #######################
 $ capture bit bus SEQ
@@ -74,13 +77,14 @@ $ capture bit bus SEQ
 4       : WRITE=40
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
-13      : CAPTURE=1                     : DATA=0
-14      : CAPTURE=0
-15      : CAPTURE=1, SEQ1.OUTA=1        : DATA=0x40
-16      : CAPTURE=0, SEQ3.OUTA=1
-18      : CAPTURE=1                     : DATA=0x140
-19      : CAPTURE=0
-21      : CAPTURE=1,  SEQ1.OUTA=0       : DATA=0x100
+13      : CAPTURE=1
+14      : CAPTURE=0                     : DATA=0
+15      : CAPTURE=1, SEQ1.OUTA=1
+16      : CAPTURE=0, SEQ3.OUTA=1        : DATA=0x40
+18      : CAPTURE=1
+19      : CAPTURE=0                     : DATA=0x140
+21      : CAPTURE=1,  SEQ1.OUTA=0
+22      :                               : DATA=0x100
 24      : ENABLE=0, CAPTURE=0           :  ACTIVE=0
 
 #######################
@@ -92,22 +96,23 @@ $ capture bit bus order
 6       : WRITE=42
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
-13      : CAPTURE=1, TTLIN1.VAL=1       : DATA=0x4
-14      : CAPTURE=0                     : DATA=0
+13      : CAPTURE=1, TTLIN1.VAL=1
+14      : CAPTURE=0                     : DATA=0x4
 15      :                               : DATA=0
 16      :                               : DATA=0
-17      : CAPTURE=1,SEQ1.OUTA=1         : DATA=0x4
-18      : CAPTURE=0                     : DATA=0x40
-19      :                               : DATA=0
+17      : CAPTURE=1,SEQ1.OUTA=1         : DATA=0
+18      : CAPTURE=0                     : DATA=0x4
+19      :                               : DATA=0x40
 20      :                               : DATA=0
-21      : CAPTURE=1, COUNTER8.CARRY=1   : DATA=0x4
-22      : CAPTURE=0                     : DATA=0x40
-23      :                               : DATA=0
-24      :                               : DATA=0x2
-25      : CAPTURE=1, INENC1.A=1         : DATA=0x4
-26      : CAPTURE=0                     : DATA=0x40
-27      :                               : DATA=0x4
-28      :                               : DATA=0x2
+21      : CAPTURE=1, COUNTER8.CARRY=1   : DATA=0
+22      : CAPTURE=0                     : DATA=0x4
+23      :                               : DATA=0x40
+24      :                               : DATA=0
+25      : CAPTURE=1, INENC1.A=1         : DATA=0x2
+26      : CAPTURE=0                     : DATA=0x4
+27      :                               : DATA=0x40
+28      :                               : DATA=0x4
+29      :                               : DATA=0x2
 
 #####################
 $ framing on counters
@@ -122,8 +127,8 @@ $ framing on counters
 13      : CAPTURE=1, FRAME=0
 14      : CAPTURE=0
 15      : COUNTER1.OUT=20
-16      : FRAME=1                       : DATA=10
-17      : FRAME=0
+16      : FRAME=1
+17      : FRAME=0                       : DATA=10
 18      : COUNTER1.OUT=30
 # Dead frame
 19      : FRAME=1
@@ -132,8 +137,8 @@ $ framing on counters
 21      : COUNTER1.OUT=50
 22      : CAPTURE=1
 23      : COUNTER1.OUT=35, CAPTURE=0
-25      : FRAME=1                       : DATA=5
-26      : FRAME=0, ENABLE=0             : ACTIVE=0
+25      : FRAME=1
+26      : FRAME=0, ENABLE=0             : DATA=5, ACTIVE=0
 
 #####################
 $ Capture before first frame
@@ -179,8 +184,8 @@ $ framing on counters average mode
 13      : CAPTURE=1, FRAME=0
 14      : CAPTURE=0
 15      : COUNTER1.OUT=20
-16      : FRAME=1                       : DATA=15
-17      : FRAME=0
+16      : FRAME=1
+17      : FRAME=0                       : DATA=15
 18      : COUNTER1.OUT=30
 # Dead frame
 19      : FRAME=1
@@ -189,8 +194,8 @@ $ framing on counters average mode
 21      : COUNTER1.OUT=50
 22      : CAPTURE=1
 23      : COUNTER1.OUT=35, CAPTURE=0
-25      : FRAME=1                       : DATA=32
-26      : FRAME=0, ENABLE=0             : ACTIVE=0
+25      : FRAME=1
+26      : FRAME=0, ENABLE=0             : DATA=32, ACTIVE=0
 
 #####################
 $ Capture offset
@@ -204,14 +209,14 @@ $ Capture offset
 12      : FRAME=1
 13      : CAPTURE=1, FRAME=0
 14      : CAPTURE=0
-16      : FRAME=1                       : DATA=1
-17      : FRAME=0
+16      : FRAME=1
+17      : FRAME=0                       : DATA=1
 # Dead frame
 19      : FRAME=1
 20      : FRAME=0
 # Live frame
 22      : CAPTURE=1
 23      : CAPTURE=0
-25      : FRAME=1                       : DATA=3
-26      : FRAME=0, ENABLE=0             : ACTIVE=0
+25      : FRAME=1
+26      : FRAME=0, ENABLE=0             : DATA=3, ACTIVE=0
 
