@@ -25,5 +25,3 @@ FPGA_VER_POINT := $(shell printf %x   $$(($(FPGA_VER_POINT) & 0xf)))
 FPGA_VER := v$(FPGA_VER_MAJOR).$(FPGA_VER_MINOR).$(shell \
     printf %d 0x$(FPGA_VER_POINT))
 FPGA_VER_REGISTER := 0000$(FPGA_VER_MAJOR)$(FPGA_VER_MINOR)$(FPGA_VER_POINT)
-
-NOW := $(shell date +"%Y%m%d")

@@ -18,6 +18,11 @@
 # CROSS_COMPILE = arm-xilinx-linux-gnueabi-
 # BINUTILS_DIR = /dls_sw/FPGA/Xilinx/SDK/2015.1/gnu/arm/lin/bin
 
+# FPGA build tools.
+#
+# LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
+# ISE_SETUP = /dls_sw/apps/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
+
 # Where the kernel was compiled.  Use zebra2-rootfs to build this.  This is only
 # required if building the driver target.
 #
