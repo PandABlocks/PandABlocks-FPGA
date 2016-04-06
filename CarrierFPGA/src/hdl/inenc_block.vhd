@@ -16,8 +16,6 @@ use ieee.numeric_std.all;
 
 library work;
 use work.top_defines.all;
-use work.type_defines.all;
-use work.addr_defines.all;
 
 entity inenc_block is
 port (
@@ -36,22 +34,19 @@ port (
     mclk_o              : out std_logic;
     mdat_i              : in  std_logic;
     mdat_o              : out std_logic;
-    conn_i              : in  std_logic;
-    -- Loopback outputs.
-    a_o                 : out std_logic;
-    b_o                 : out std_logic;
-    z_o                 : out std_logic;
     conn_o              : out std_logic;
     -- Block Outputs.
+    DCARD_MODE          : in  std_logic_vector(31 downto 0);
+    PROTOCOL            : out std_logic_vector(2 downto 0);
     posn_o              : out std_logic_vector(31 downto 0);
-    iobuf_ctrl_o        : out std_logic_vector(2 downto 0)
+    posn_upper_o        : out std_logic_vector(31 downto 0)
 );
 end entity;
 
 architecture rtl of inenc_block is
 
 -- Block Configuration Registers
-signal PROTOCOL         : std_logic_vector(31 downto 0);
+signal PROTOCOL_i       : std_logic_vector(31 downto 0);
 signal PROTOCOL_WSTB    : std_logic;
 signal CLK_PERIOD       : std_logic_vector(31 downto 0);
 signal CLK_PERIOD_WSTB  : std_logic;
@@ -73,6 +68,9 @@ signal slow             : slow_packet;
 signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
 
 begin
+
+-- Assign outputs
+PROTOCOL <= PROTOCOL_i(2 downto 0);
 
 mem_addr <= to_integer(unsigned(mem_addr_i));
 
@@ -96,7 +94,7 @@ port map (
     mem_dat_i           => mem_dat_i,
     mem_dat_o           => open,
 
-    PROTOCOL            => PROTOCOL,
+    PROTOCOL            => PROTOCOL_i,
     PROTOCOL_WSTB       => PROTOCOL_WSTB,
     CLK_PERIOD          => CLK_PERIOD,
     CLK_PERIOD_WSTB     => CLK_PERIOD_WSTB,
@@ -111,7 +109,8 @@ port map (
     EXTENSION           => EXTENSION,
     ERR_FRAME           => ERR_FRAME,
     ERR_RESPONSE        => ERR_RESPONSE,
-    ENC_STATUS          => ENC_STATUS
+    ENC_STATUS          => ENC_STATUS,
+    DCARD_MODE          => DCARD_MODE
 );
 
 inenc_inst : entity work.inenc
@@ -126,14 +125,10 @@ port map (
     mclk_o              => mclk_o,
     mdat_i              => mdat_i,
     mdat_o              => mdat_o,
-    conn_i              => conn_i,
-    -- Loopback outputs.
-    a_o                 => a_o,
-    b_o                 => b_o,
-    z_o                 => z_o,
     conn_o              => conn_o,
     -- Block Parameters
-    PROTOCOL            => PROTOCOL(2 downto 0),
+    DCARD_MODE          => DCARD_MODE,
+    PROTOCOL            => PROTOCOL_i(2 downto 0),
     CLKRATE             => CLK_PERIOD,
     FRAMERATE           => FRAME_PERIOD,
     BITS                => BITS(7 downto 0),
@@ -142,8 +137,7 @@ port map (
     RST_ON_Z            => RST_ON_Z(0),
     -- Status
     posn_o              => posn_o,
-    iobuf_ctrl_o        => iobuf_ctrl_o
+    posn_upper_o        => posn_upper_o
 );
-
 
 end rtl;

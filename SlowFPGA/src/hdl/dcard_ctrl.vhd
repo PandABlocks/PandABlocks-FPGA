@@ -6,8 +6,10 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : Daughter Card control logic for on-board buffers based on the
---                PROTOCOL and CARD MODE.
+--  Description : Daughter Card control logic for on-board buffers based on :
+--                PROTOCOL,
+--                DCARD MODE, and
+--                OUTENC_CONN connection from user.
 --
 --------------------------------------------------------------------------------
 
@@ -29,6 +31,7 @@ port (
     dcard_ctrl3_io      : inout std_logic_vector(15 downto 0);
     dcard_ctrl4_io      : inout std_logic_vector(15 downto 0);
     -- Front Panel Shift Register Interface
+    OUTENC_CONN         : in  std_logic_vector(3 downto 0);
     INENC_PROTOCOL      : in  std3_array(3 downto 0);
     OUTENC_PROTOCOL     : in  std3_array(3 downto 0);
     DCARD_MODE          : out std4_array(3 downto 0)

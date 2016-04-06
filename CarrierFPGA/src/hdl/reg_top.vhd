@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
-use work.type_defines.all;
+use work.support.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 use work.panda_version.all;
@@ -23,7 +23,8 @@ port (
     -- Readback signals
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
-    slowctrl_busy_i     : in  std_logic
+    slowctrl_busy_i     : in  std_logic;
+    SLOW_FPGA_VERSION   : in  std_logic_vector(31 downto 0)
 );
 end reg_top;
 
@@ -92,6 +93,8 @@ begin
                     mem_dat_o <= FPGA_VERSION;
                 when REG_FPGA_BUILD =>
                     mem_dat_o <= FPGA_BUILD;
+                when REG_SLOW_VERSION =>
+                    mem_dat_o <= SLOW_FPGA_VERSION;
                 when REG_BIT_READ_VALUE =>
                     mem_dat_o <= BIT_READ_VALUE;
                 when REG_POS_READ_VALUE =>

@@ -2,13 +2,17 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.top_defines.all;
+use work.support.all;
+
 package slow_defines is
 
 -- Number of Status Registers
 constant REGS_NUM           : natural := 4;
 
 --
--- Write Only Registers
+-- WRITE ONLY Registers
 --
 constant WRITE_RESET        : natural := 0;
 constant INENC1_PROTOCOL    : natural := 1;
@@ -30,12 +34,40 @@ constant TTLIN8_TERM        : natural := 16;
 constant TTL_LEDS           : natural := 17;
 constant STATUS_LEDS        : natural := 18;
 
+--
+-- READ ONLY Registers
+--
+constant SLOW_VERSION       : natural := 0;
+constant DCARD1_MODE        : natural := 1;
+constant DCARD2_MODE        : natural := 2;
+constant DCARD3_MODE        : natural := 3;
+constant DCARD4_MODE        : natural := 4;
 
---
--- Read Only Registers
---
-constant FPGA_VERSION       : natural := 0;
-constant ENC_CONN           : natural := 1;
+-- Input Encoder Address List
+constant INPROT_ADDR_LIST   : page_array(ENC_NUM-1 downto 0) := (
+                                TO_SVECTOR(INENC4_PROTOCOL, PAGE_AW),
+                                TO_SVECTOR(INENC3_PROTOCOL, PAGE_AW),
+                                TO_SVECTOR(INENC2_PROTOCOL, PAGE_AW),
+                                TO_SVECTOR(INENC1_PROTOCOL, PAGE_AW)
+                            );
+
+-- Output Encoder Address List
+constant OUTPROT_ADDR_LIST  : page_array(ENC_NUM-1 downto 0) := (
+                                TO_SVECTOR(OUTENC4_PROTOCOL, PAGE_AW),
+                                TO_SVECTOR(OUTENC3_PROTOCOL, PAGE_AW),
+                                TO_SVECTOR(OUTENC2_PROTOCOL, PAGE_AW),
+                                TO_SVECTOR(OUTENC1_PROTOCOL, PAGE_AW)
+                            );
+
+-- TTLIN TERM Address List
+constant TTLTERM_ADDR_LIST  : page_array(TTLIN_NUM-1 downto 0) := (
+                                TO_SVECTOR(TTLIN1_TERM, PAGE_AW),
+                                TO_SVECTOR(TTLIN2_TERM, PAGE_AW),
+                                TO_SVECTOR(TTLIN3_TERM, PAGE_AW),
+                                TO_SVECTOR(TTLIN4_TERM, PAGE_AW),
+                                TO_SVECTOR(TTLIN5_TERM, PAGE_AW),
+                                TO_SVECTOR(TTLIN6_TERM, PAGE_AW)
+                            );
 
 end slow_defines;
 

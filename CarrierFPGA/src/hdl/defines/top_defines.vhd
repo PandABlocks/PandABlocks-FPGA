@@ -2,9 +2,6 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library work;
-use work.type_defines.all;
-
 package top_defines is
 
 --------------------------------------------------------------------------
@@ -43,7 +40,7 @@ constant SEQ_NUM            : natural := 4;
 constant BITS_NUM           : natural := 1;
 --------------------------------------------------------------------------
 
--- Bit Bus Width, Multiplexer Select Width.
+-- Bit Bus Width, Multiplexer Select Width -------------------------------
 constant SBUSW              : natural := 128;
 constant SBUSBW             : natural := 7;
 
@@ -53,6 +50,7 @@ constant PBUSBW             : natural := 5;
 
 -- Extended Position Bus Width.
 constant EBUSW              : natural := 12;
+--------------------------------------------------------------------------
 
 --
 -- TYPEs :
@@ -76,11 +74,23 @@ record
 end record;
 type slow_packet_array is array(natural range <>) of slow_packet;
 
-subtype iobuf_ctrl_t is std_logic_vector(2 downto 0);
-type iobuf_ctrl_array is array(natural range <>) of iobuf_ctrl_t;
+subtype std3_t is std_logic_vector(2 downto 0);
+type std3_array is array(natural range <>) of std3_t;
 
-subtype encmode_t is std_logic_vector(2 downto 0);
-type encmode_array is array(natural range <>) of encmode_t;
+subtype std4_t is std_logic_vector(3 downto 0);
+type std4_array is array(natural range <>) of std4_t;
+
+subtype std8_t is std_logic_vector(7 downto 0);
+type std8_array is array(natural range <>) of std8_t;
+
+subtype std16_t is std_logic_vector(15 downto 0);
+type std16_array is array(natural range <>) of std16_t;
+
+subtype std32_t is std_logic_vector(31 downto 0);
+type std32_array is array(natural range <>) of std32_t;
+
+subtype page_t is std_logic_vector(PAGE_AW-1 downto 0);
+type page_array is array(natural range <>) of page_t;
 
 subtype seq_out_t is std_logic_vector(5 downto 0);
 type seq_out_array is array(natural range <>) of seq_out_t;
@@ -89,32 +99,30 @@ subtype sysbus_t is std_logic_vector(SBUSW-1 downto 0);
 subtype posbus_t is std32_array(PBUSW-1 downto 0);
 subtype extbus_t is std32_array(EBUSW-1 downto 0);
 
--- System Bus Multiplexer Select array type
-subtype sbus_muxsel_t is std_logic_vector(SBUSBW-1 downto 0);
-type sbus_muxsel_array is array (natural range <>) of sbus_muxsel_t;
-
-subtype pbus_muxsel_t is std_logic_vector(PBUSBW-1 downto 0);
-
 --
 -- FUNCTIONs :
 --
 
 -- Return selected System Bus bit
-function SBIT(sbus : std_logic_vector; sel : sbus_muxsel_t) return std_logic;
-function PFIELD(pbus : std32_array; sel : pbus_muxsel_t) return std_logic_vector;
+function SBIT(sbus, sel : std_logic_vector)
+    return std_logic;
+function PFIELD(pbus : std32_array; sel : std_logic_vector)
+    return std_logic_vector;
 
 end top_defines;
 
 package body top_defines is
 
 -- Return selected System Bus bit
-function SBIT(sbus : std_logic_vector; sel : sbus_muxsel_t) return std_logic is
+function SBIT(sbus, sel : std_logic_vector)
+    return std_logic is
 begin
     return sbus(to_integer(unsigned(sel)));
 end SBIT;
 
 -- Return selected Position Bus field
-function PFIELD(pbus : std32_array; sel : pbus_muxsel_t) return std_logic_vector is
+function PFIELD(pbus : std32_array; sel : std_logic_vector)
+    return std_logic_vector is
 begin
     return pbus(to_integer(unsigned(sel)));
 end PFIELD;

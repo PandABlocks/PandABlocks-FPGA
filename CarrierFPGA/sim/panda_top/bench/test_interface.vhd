@@ -8,8 +8,8 @@ library std;
 use std.textio.all;
 
 library work;
+use work.support.all;
 use work.top_defines.all;
-use work.type_defines.all;
 use work.addr_defines.all;
 
 -- Package Declaration

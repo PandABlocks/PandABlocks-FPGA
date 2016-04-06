@@ -9,8 +9,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
-use work.type_defines.all;
-use work.addr_defines.all;
+use work.support.all;
 use work.top_defines.all;
 
 entity srgate_top is

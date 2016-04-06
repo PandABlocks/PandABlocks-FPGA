@@ -81,7 +81,8 @@ VERSION :
 	echo -n 'constant FPGA_VERSION: std_logic_vector(31 downto 0)' \ >> $(VERSION_FILE)
 	echo ' := X"$(FIRMWARE)";' >> $(VERSION_FILE)
 	echo -n 'constant FPGA_BUILD: std_logic_vector(31 downto 0)' \ >> $(VERSION_FILE)
-	echo ' := X"$(GIT_VERSION)";' >> $(VERSION_FILE)
+	echo ' := X"$(FIRMWARE)";' >> $(VERSION_FILE)
+#	echo ' := X"$(GIT_VERSION)";' >> $(VERSION_FILE)
 	echo 'end panda_version;' >> $(VERSION_FILE)
 
 $(OUT_DIR) :

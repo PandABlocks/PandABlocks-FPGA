@@ -57,8 +57,6 @@ signal sclk             : std_logic;
 signal smpl_hold        : std_logic_vector(31 downto 0);
 signal smpl_sdi         : std_logic;
 signal mclk_cnt         : unsigned(7 downto 0);
-signal clk_cnt          : unsigned(31 downto 0);
-signal frame_cnt        : unsigned(31 downto 0);
 signal CLKRATE_2x       : std_logic_vector(31 downto 0);
 
 begin
@@ -121,7 +119,7 @@ begin
                         sclk <= not sclk;
                     end if;
 
-                    -- clk_ce ticks are every half period, so count 2*BITS
+                    -- Keep track of number of BITS received
                     if (sclk_ce = '1' and sclk = '0') then
                         mclk_cnt <= mclk_cnt + 1;
                         if (mclk_cnt = unsigned(BITS))then

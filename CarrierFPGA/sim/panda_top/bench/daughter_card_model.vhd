@@ -28,18 +28,21 @@ port (
     B_OUT       : inout std_logic;
     Z_OUT       : inout std_logic;
 
-    CTRL_IN     : in  std_logic_vector(11 downto 0);
-    CTRL_OUT    : out std_logic_vector(3  downto 0)
+    DCARD_MODE  : in    std_logic_vector(3 downto 0);
+    DCARD_CTRL  : inout std_logic_vector(15 downto 0)
 );
 end daughter_card_model;
 
 architecture behavior of daughter_card_model is
 
+signal CTRL_IN      : std_logic_vector(11 downto 0);
 signal mux1         : std_logic_vector(1 downto 0);
 signal mux2         : std_logic_vector(1 downto 0);
-signal CTRL_IN_N    : std_logic_vector(11 downto 0);
 
 begin
+
+CTRL_IN <= DCARD_CTRL(11 downto 0);
+DCARD_CTRL(15 downto 12) <= DCARD_MODE;
 
 -- These are the 74VHD153 Multiplexer chips on the board.
 process(CTRL_IN)

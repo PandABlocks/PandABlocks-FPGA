@@ -33,6 +33,7 @@ port (
     ttlin_term_o    : out std_logic_vector(5 downto 0);
     ttl_leds_o      : out std_logic_vector(15 downto 0);
     status_leds_o   : out std_logic_vector(3 downto 0);
+    outenc_conn_o   : out std_logic_vector(3 downto 0);
     -- Serial Physical interface
     spi_sclk_i      : in  std_logic;
     spi_dat_i       : in  std_logic;
@@ -122,7 +123,8 @@ port map (
     rx_valid_i      => rd_val,
     rx_data_i       => rd_dat,
     ttl_leds_o      => ttl_leds_o,
-    status_leds_o   => status_leds_o
+    status_leds_o   => status_leds_o,
+    outenc_conn_o   => outenc_conn_o
 );
 
 --
@@ -134,7 +136,7 @@ send_trigger : entity work.prescaler
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
-    PERIOD          => TO_SVECTOR(5000, 32),
+    PERIOD          => TO_SVECTOR(50_000, 32),
     pulse_o         => wr_start
 );
 
@@ -172,6 +174,5 @@ process(clk_i) begin
         end if;
     end if;
 end process;
-
 
 end rtl;

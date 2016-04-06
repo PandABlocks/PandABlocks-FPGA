@@ -16,8 +16,6 @@ use ieee.numeric_std.all;
 
 library work;
 use work.top_defines.all;
-use work.type_defines.all;
-use work.addr_defines.all;
 
 entity qdec_block is
 port (

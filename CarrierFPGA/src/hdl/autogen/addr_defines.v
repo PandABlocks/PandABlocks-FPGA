@@ -179,6 +179,7 @@ localparam INENC_EXTENSION = 6;
 localparam INENC_ERR_FRAME = 7;
 localparam INENC_ERR_RESPONSE = 8;
 localparam INENC_ENC_STATUS = 9;
+localparam INENC_DCARD_MODE = 10;
 
 // QDEC Block:
 localparam QDEC_RST_ON_Z = 3;

@@ -6,7 +6,8 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : Apply 0-31 Delay to POSN 
+--  Description : Read configuration registers, and apply 0-31 delay taps to
+--                System Bus bits and Position Bus fields.
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -14,7 +15,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
-use work.type_defines.all;
+use work.support.all;
 use work.top_defines.all;
 use work.addr_defines.all;
 
@@ -95,7 +96,7 @@ DATA_DELAY_WRITE : process(clk_i) begin
 end process;
 
 --
--- Apply Delays To Position Fields,
+-- Apply Delays To System Bus,
 --
 BIT_DELAY_GEN : FOR I IN 0 TO 3 GENERATE
 
@@ -109,6 +110,9 @@ port map (
 
 END GENERATE;
 
+--
+-- Apply Delays To Position Fields,
+--
 POS_DELAY_GEN : FOR I IN 0 TO 31 GENERATE
 
 data_delay_inst : entity work.delay_line

@@ -83,6 +83,7 @@ INENC       Input encoder
     ERR_FRAME       Set if frame overrun
     ERR_RESPONSE    No response from encoder
     ENC_STATUS      Extended encoder status read from device
+    DCARD_MODE      Daughter card jumper mode
     A               Quadrature A if in incremental mode
     B               Quadrature B if in incremental mode
     Z               Z index channel if in incremental mode

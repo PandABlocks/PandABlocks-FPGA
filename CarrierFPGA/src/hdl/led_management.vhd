@@ -10,8 +10,8 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
+use work.support.all;
 use work.top_defines.all;
-use work.type_defines.all;
 use work.slow_defines.all;
 
 entity led_management is
@@ -22,6 +22,7 @@ port (
     -- Block Input and Outputs
     ttlin_i             : in  std_logic_vector(TTLIN_NUM-1 downto 0);
     ttlout_i            : in  std_logic_vector(TTLOUT_NUM-1 downto 0);
+    outenc_conn_i       : in  std_logic_vector(ENC_NUM-1 downto 0);
     slow_tlp_o          : out slow_packet
 );
 end led_management;
@@ -36,11 +37,12 @@ signal val              : std_logic_vector(LED_COUNT-1 downto 0);
 signal val_prev         : std_logic_vector(LED_COUNT-1 downto 0);
 signal oldval           : std_logic_vector(LED_COUNT-1 downto 0);
 signal changed          : std_logic_vector(LED_COUNT-1 downto 0);
-signal pulse            : std_logic_vector(LED_COUNT-1 downto 0);
+signal leds             : std_logic_vector(LED_COUNT-1 downto 0);
+signal custom           : std_logic_vector(15 downto 0) := (others => '0');
 
 begin
 
--- Check and Send LED status to Slow FPGA every 50ms;
+-- Send packets to Slow FPGA every 50ms;
 frame_presc : entity work.prescaler
 port map (
     clk_i       => clk_i,
@@ -60,7 +62,7 @@ process(clk_i) begin
             val_prev <= (others => '0');
             oldval <= (others => '0');
             changed <= (others => '0');
-            pulse <= (others => '0');
+            leds <= (others => '0');
         else
             -- Combine all I/O to detect change bits;
             val <= ttlin_i & ttlout_i;
@@ -73,25 +75,30 @@ process(clk_i) begin
                 changed <= (val xor val_prev) or changed;
             end if;
 
-            -- Toggle individual pulses;
+            -- Toggle individual ledss;
             FOR I IN 0 TO LED_COUNT-1 LOOP
                 if (check_tick = '1') then
                     oldval(I) <= val(I);
 
                     if (changed(I) = '1') then
                         if (val(I) = oldval(I)) then
-                            pulse(I) <= not val(I);
+                            leds(I) <= not val(I);
                         else
-                            pulse(I) <= val(I);
+                            leds(I) <= val(I);
                         end if;
                     else
-                        pulse(I) <= val(I);
+                        leds(I) <= val(I);
                     end if;
                 end if;
             END LOOP;
         end if;
     end if;
 end process;
+
+--
+-- Custom bits currently includes OutEnc disconnect action.
+--
+custom <= ZEROS(12) & outenc_conn_i;
 
 --
 -- Send a packet to Slow FPGA @check_tick rate of 50ms;
@@ -108,7 +115,7 @@ begin
 
             if (check_tick = '1') then
                 slow_tlp_o.strobe <= '1';
-                slow_tlp_o.data <= X"0000" & pulse;
+                slow_tlp_o.data <= custom & leds;
                 slow_tlp_o.address <= TO_SVECTOR(TTL_LEDS, PAGE_AW);
             end if;
         end if;

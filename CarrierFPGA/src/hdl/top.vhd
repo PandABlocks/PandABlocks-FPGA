@@ -12,9 +12,9 @@ library unisim;
 use unisim.vcomponents.all;
 
 library work;
-use work.top_defines.all;
-use work.type_defines.all;
+use work.support.all;
 use work.addr_defines.all;
+use work.top_defines.all;
 
 entity panda_top is
 generic (
@@ -167,8 +167,8 @@ signal posbus : posbus_t := (others => (others => '0'));
 signal extbus : std32_array(ENC_NUM-1 downto 0);
 
 -- Input Encoder
-signal posn_inenc_low : std32_array(ENC_NUM-1 downto 0);
-signal posn_inenc_high : std32_array(ENC_NUM-1 downto 0) := (others => (others => '0'));
+signal inenc_val : std32_array(ENC_NUM-1 downto 0);
+signal inenc_val_upper : std32_array(ENC_NUM-1 downto 0);
 signal inenc_a : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_b : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_z : std_logic_vector(ENC_NUM-1 downto 0);
@@ -232,10 +232,8 @@ signal slowctrl_busy : std_logic;
 
 signal enc0_ctrl_pad : std_logic_vector(11 downto 0);
 
-signal inenc_slow_tlp : slow_packet;
-signal outenc_slow_tlp : slow_packet;
-signal ttlin_slow_tlp : slow_packet;
-signal led_slow_tlp : slow_packet;
+signal slow_tlp_registers : slow_packet;
+signal slow_tlp_leds : slow_packet;
 
 signal rdma_req : std_logic_vector(5 downto 0);
 signal rdma_ack : std_logic_vector(5 downto 0);
@@ -244,6 +242,22 @@ signal rdma_addr : std32_array(5 downto 0);
 signal rdma_len : std8_array(5 downto 0);
 signal rdma_data : std_logic_vector(31 downto 0);
 signal rdma_valid : std_logic_vector(5 downto 0);
+
+signal A_IN : std_logic_vector(ENC_NUM-1 downto 0);
+signal B_IN : std_logic_vector(ENC_NUM-1 downto 0);
+signal Z_IN : std_logic_vector(ENC_NUM-1 downto 0);
+signal CLK_OUT : std_logic_vector(ENC_NUM-1 downto 0);
+signal DATA_IN : std_logic_vector(ENC_NUM-1 downto 0);
+signal A_OUT : std_logic_vector(ENC_NUM-1 downto 0);
+signal B_OUT : std_logic_vector(ENC_NUM-1 downto 0);
+signal Z_OUT : std_logic_vector(ENC_NUM-1 downto 0);
+signal CLK_IN : std_logic_vector(ENC_NUM-1 downto 0);
+signal DATA_OUT : std_logic_vector(ENC_NUM-1 downto 0);
+signal OUTPROT : std3_array(ENC_NUM-1 downto 0);
+signal INPROT : std3_array(ENC_NUM-1 downto 0);
+
+signal SLOW_FPGA_VERSION : std_logic_vector(31 downto 0);
+signal DCARD_MODE : std32_array(ENC_NUM-1 downto 0);
 
 attribute keep : string;
 attribute keep of sysbus : signal is "true";
@@ -397,8 +411,7 @@ port map (
     mem_rstb_i => mem_rstb,
     mem_dat_i => mem_odat,
     pad_i => ttlin_pad_i,
-    val_o => ttlin_val,
-    slow_tlp_o => ttlin_slow_tlp
+    val_o => ttlin_val
 );
 
 ttlout_inst : entity work.ttlout_top
@@ -535,25 +548,21 @@ inenc_inst : entity work.inenc_top
 port map (
     clk_i => FCLK_CLK0,
     reset_i => FCLK_RESET0,
-
     mem_addr_i => mem_addr,
     mem_cs_i => mem_cs(INENC_CS),
     mem_wstb_i => mem_wstb,
     mem_dat_i => mem_odat,
     mem_dat_o => mem_read_data(INENC_CS),
-
-    Am0_pad_io => Am0_pad_io,
-    Bm0_pad_io => Bm0_pad_io,
-    Zm0_pad_io => Zm0_pad_io,
-
-    slow_tlp_o => inenc_slow_tlp,
-    ctrl_pad_i => inenc_ctrl,
-
-    a_o => inenc_a,
-    b_o => inenc_b,
-    z_o => inenc_z,
-    conn_o => inenc_conn,
-    posn_o => posn_inenc_low
+    A_IN => A_IN,
+    B_IN => B_IN,
+    Z_IN => Z_IN,
+    CLK_OUT => CLK_OUT,
+    DATA_IN => DATA_IN,
+    CONN_OUT => inenc_conn,
+    DCARD_MODE => DCARD_MODE,
+    PROTOCOL => INPROT,
+    posn_o => inenc_val,
+    posn_upper_o => inenc_val_upper
 );
 
 ---------------------------------------------------------------------------
@@ -563,13 +572,11 @@ qdec_inst : entity work.qdec_top
 port map (
     clk_i => FCLK_CLK0,
     reset_i => FCLK_RESET0,
-
     mem_addr_i => mem_addr,
     mem_cs_i => mem_cs(QDEC_CS),
     mem_wstb_i => mem_wstb,
     mem_dat_i => mem_odat,
     mem_dat_o => mem_read_data(QDEC_CS),
-
     sysbus_i => sysbus,
     out_o => qdec_out
 );
@@ -587,13 +594,15 @@ port map (
     mem_rstb_i => mem_rstb,
     mem_dat_i => mem_odat,
     mem_dat_o => mem_read_data(OUTENC_CS),
-    As0_pad_io => As0_pad_io,
-    Bs0_pad_io => Bs0_pad_io,
-    Zs0_pad_io => Zs0_pad_io,
-    conn_o => outenc_conn,
-    slow_tlp_o => outenc_slow_tlp,
+    A_OUT => A_OUT,
+    B_OUT => B_OUT,
+    Z_OUT => Z_OUT,
+    CLK_IN => CLK_IN,
+    DATA_OUT => DATA_OUT,
+    CONN_OUT => outenc_conn,
     sysbus_i => sysbus,
-    posbus_i => posbus
+    posbus_i => posbus,
+    PROTOCOL => OUTPROT
 );
 
 ---------------------------------------------------------------------------
@@ -791,6 +800,7 @@ port map (
     mem_dat_o => mem_read_data(REG_CS),
     sysbus_i => sysbus,
     posbus_i => posbus,
+    SLOW_FPGA_VERSION => SLOW_FPGA_VERSION,
     slowctrl_busy_i => slowctrl_busy
 );
 
@@ -836,6 +846,17 @@ port map (
 ---------------------------------------------------------------------------
 -- SLOW CONTROLLER FPGA
 ---------------------------------------------------------------------------
+slow_registers_inst : entity work.slow_registers
+port map (
+    clk_i => FCLK_CLK0,
+    reset_i => FCLK_RESET0,
+    mem_addr_i => mem_addr,
+    mem_cs_i => mem_cs,
+    mem_wstb_i => mem_wstb,
+    mem_dat_i => mem_odat,
+    slow_tlp_o => slow_tlp_registers
+);
+
 slowctrl_inst : entity work.slowctrl_top
 port map (
     clk_i => FCLK_CLK0,
@@ -845,15 +866,15 @@ port map (
     mem_wstb_i => mem_wstb,
     mem_dat_i => mem_odat,
     mem_dat_o => mem_read_data(SLOW_CS),
-    inenc_tlp_i => inenc_slow_tlp,
-    outenc_tlp_i => outenc_slow_tlp,
-    ttlin_tlp_i => ttlin_slow_tlp,
-    led_tlp_i => led_slow_tlp,
-    busy_o => slowctrl_busy,
     spi_sclk_o => spi_sclk_o,
     spi_dat_o => spi_dat_o,
     spi_sclk_i => spi_sclk_i,
-    spi_dat_i => spi_dat_i
+    spi_dat_i => spi_dat_i,
+    registers_tlp_i => slow_tlp_registers,
+    leds_tlp_i => slow_tlp_leds,
+    busy_o => slowctrl_busy,
+    SLOW_FPGA_VERSION => SLOW_FPGA_VERSION,
+    DCARD_MODE => DCARD_MODE
 );
 
 ---------------------------------------------------------------------------
@@ -876,11 +897,11 @@ port map (
     SEQ_OUTE => seq_oute,
     SEQ_OUTF => seq_outf,
     SEQ_ACTIVE => seq_active,
-    INENC_A => inenc_a,
-    INENC_B => inenc_b,
-    INENC_Z => inenc_z,
+    INENC_A => A_IN,
+    INENC_B => B_IN,
+    INENC_Z => Z_IN,
     INENC_CONN => inenc_conn,
-    INENC_VAL => posn_inenc_low,
+    INENC_VAL => inenc_val,
     QDEC_OUT => qdec_out,
     POSENC_A => posenc_a,
     POSENC_B => posenc_b,
@@ -912,7 +933,7 @@ port map (
 );
 
 ---------------------------------------------------------------------------
--- SLOW FPGA FRONT PANEL LED
+-- SLOW FPGA Misc Communication (LED, Custom)
 ---------------------------------------------------------------------------
 led_management_inst : entity work.led_management
 port map (
@@ -921,13 +942,44 @@ port map (
     -- Block Input and Outputs
     ttlin_i => ttlin_val,
     ttlout_i => ttlout_val,
-    slow_tlp_o => led_slow_tlp
+    outenc_conn_i => outenc_conn,
+    slow_tlp_o => slow_tlp_leds
 );
 
 ---------------------------------------------------------------------------
 -- Extended Bus : Assignments
 ---------------------------------------------------------------------------
-extbus(3 downto 0) <= posn_inenc_high;
+extbus(3 downto 0) <= inenc_val_upper;
+
+---------------------------------------------------------------------------
+-- On-Chip IOBIF Control for Daughter Card Interfacing
+---------------------------------------------------------------------------
+dcard_interface_inst : entity work.dcard_interface
+port map (
+    clk_i => FCLK_CLK0,
+    reset_i => FCLK_RESET0,
+
+    Am0_pad_io => Am0_pad_io,
+    Bm0_pad_io => Bm0_pad_io,
+    Zm0_pad_io => Zm0_pad_io,
+    As0_pad_io => As0_pad_io,
+    Bs0_pad_io => Bs0_pad_io,
+    Zs0_pad_io => Zs0_pad_io,
+
+    INPROT => INPROT,
+    OUTPROT => OUTPROT,
+
+    A_IN => A_IN,
+    B_IN => B_IN,
+    Z_IN => Z_IN,
+    A_OUT => A_OUT,
+    B_OUT => B_OUT,
+    Z_OUT => Z_OUT,
+    CLK_OUT => CLK_OUT,
+    DATA_IN => DATA_IN,
+    CLK_IN => CLK_IN,
+    DATA_OUT => DATA_OUT
+);
 
 
 -- Direct interface to Daughter Card via FMC on the dev board.

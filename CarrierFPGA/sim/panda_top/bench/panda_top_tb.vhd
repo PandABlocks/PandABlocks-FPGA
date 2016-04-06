@@ -4,7 +4,8 @@ use ieee.numeric_std.all;
 
 library work;
 use work.test_interface.all;
-use work.type_defines.all;
+use work.support.all;
+use work.top_defines.all;
 
 entity panda_top_tb is
     port (
@@ -69,10 +70,7 @@ signal inputs           : unsigned(15 downto 0) := X"0000";
 
 signal lvdsin_pad       : std_logic_vector(1 downto 0);
 
-signal enc_ctrl1_io     : std_logic_vector(15 downto 0);
-signal enc_ctrl2_io     : std_logic_vector(15 downto 0);
-signal enc_ctrl3_io     : std_logic_vector(15 downto 0);
-signal enc_ctrl4_io     : std_logic_vector(15 downto 0);
+signal dcard_ctrl_io    : std16_array(3 downto 0);
 
 signal spi_sclk_i       : std_logic;
 signal spi_dat_i        : std_logic;
@@ -92,6 +90,7 @@ signal led_x            : std_logic_vector(0 to 15);
 signal term_x           : std_logic_vector(0 to  5);
 signal led_status_x     : std_logic_vector(0 to  3);
 
+signal DCARD_MODE       : std4_array(3 downto 0);
 
 constant BLOCK_SIZE     : integer := 8192;
 
@@ -161,23 +160,22 @@ PORT MAP (
 slow_top_inst : entity work.slow_top
 port map (
     clk50_i             => clk50,
-    -- Encoder Daughter Card Control Interface
-    enc_ctrl1_io        => enc_ctrl1_io,
-    enc_ctrl2_io        => enc_ctrl2_io,
-    enc_ctrl3_io        => enc_ctrl3_io,
-    enc_ctrl4_io        => enc_ctrl4_io,
     -- Serial Physical Interface
     spi_sclk_i          => spi_sclk_o,
     spi_dat_i           => spi_dat_o,
     spi_dat_o           => spi_dat_i,
     spi_sclk_o          => spi_sclk_i,
+    -- Encoder Daughter Card Control Interface
+    dcard_ctrl1_io      => dcard_ctrl_io(0),
+    dcard_ctrl2_io      => dcard_ctrl_io(1),
+    dcard_ctrl3_io      => dcard_ctrl_io(2),
+    dcard_ctrl4_io      => dcard_ctrl_io(3),
     -- Front Panel Interface
     shift_reg_sdata_o   => shift_reg_sdata_o,
     shift_reg_sclk_o    => shift_reg_sclk_o,
     shift_reg_latch_o   => shift_reg_latch_o,
     shift_reg_oe_n_o    => shift_reg_oe_n_o
 );
-
 
 --
 -- Front Panel Shift Registers = 4x SN74HC595
@@ -199,14 +197,14 @@ begin
     end if;
 end process;
 
-enc_ctrl1_io(15 downto 12) <= "1000";
-enc_ctrl2_io(15 downto 12) <= "1000";
-enc_ctrl3_io(15 downto 12) <= "1000";
-enc_ctrl4_io(15 downto 12) <= "1000";
-
 --
 -- There are 4x Daughter Cards on the system
 --
+DCARD_MODE(0) <= "0001";
+DCARD_MODE(1) <= "0010";
+DCARD_MODE(2) <= "0011";
+DCARD_MODE(3) <= "0100";
+
 DCARD : FOR I IN 0 TO 3 GENERATE
 
     daughter_card : entity work.daughter_card_model
@@ -232,8 +230,8 @@ DCARD : FOR I IN 0 TO 3 GENERATE
         CLK_IN_P    => CLK_IN_P(I),
         DATA_OUT_P  => DATA_OUT_P(I),
 
-        CTRL_IN     => enc_ctrl1_io(11 downto 0),
-        CTRL_OUT    => open --enc0_ctrl_pad_i
+        DCARD_MODE  => DCARD_MODE(I),
+        DCARD_CTRL  => dcard_ctrl_io(I)
     );
 
 END GENERATE;

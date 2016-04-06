@@ -14,11 +14,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library unisim;
-use unisim.vcomponents.all;
-
 library work;
-use work.type_defines.all;
+use work.support.all;
 
 entity slow_engine_rx is
 generic (
@@ -43,14 +40,14 @@ architecture rtl of slow_engine_rx is
 
 -- Ticks in terms of internal serial clock period.
 -- SysClk / CLKDIV
-constant SYNCPERIOD             : natural := 5; -- 5usec
+constant SYNCPERIOD             : natural := 125 * 5; -- 5usec
 
 type sh_states is (sync, idle, shifting, data_valid);
 signal sh_state                 : sh_states;
 
 signal shift_in                 : std_logic_vector(AW+DW-1 downto 0);
 
-signal sync_counter             : unsigned(4 downto 0);
+signal sync_counter             : natural range 0 to SYNCPERIOD;
 signal shift_counter            : unsigned(5 downto 0);
 
 signal sclk_ce                  : std_logic;
@@ -97,38 +94,42 @@ begin
     if (rising_edge(clk_i)) then
         if (reset_i = '1') then
             link_up <= '0';
-            sync_counter <= (others => '0');
+            sync_counter <= 0;
         else
             -- In Sync state:
             -- We need to catch the link while there is not incoming data, so
             -- Catch sclk = '1' for SYNCPERIOD, and then set link up.
             if (sh_state = sync) then
-                -- A received clock indicates we are in the middle of an SSI
-                -- transaction, so wait until it is finished.
-                if (sclkn_fall = '1') then
-                    sync_counter <= (others => '0');
-                elsif (sclk_ce = '1' and sclk = '1') then
+                -- SCLK=0 indicates an ongoing transaction, so counter is reset.
+                if (sclk = '1') then
                     sync_counter <= sync_counter + 1;
+                else
+                    sync_counter <= 0;
                 end if;
+
+                -- Link is up.
+                if (sync_counter = SYNCPERIOD-1) then
+                    link_up <= '1';
+                    sync_counter <= 0;
+                end if;
+
             -- In Shifting state:
             -- It means that we started SSI transaction, and we need to make 
             -- sure that we receive all the clocks.
             elsif (sh_state = shifting) then
                 if (sclkn_fall = '1') then
-                    sync_counter <= (others => '0');
-                elsif (sclk_ce = '1') then
+                    sync_counter <= 0;
+                else
                     sync_counter <= sync_counter + 1;
                 end if;
-            else
-                sync_counter <= (others => '0');
-            end if;
 
-            -- Set the Link Up when we are once synced. Link will go down,
-            -- if data comms is broken.
-            if (sh_state = sync and sync_counter = SYNCPERIOD) then
-                link_up <= '1';
-            elsif (sh_state = shifting and sync_counter = SYNCPERIOD) then
-                link_up <= '0';
+                -- Link is lost.
+                if (sync_counter = SYNCPERIOD-1) then
+                    link_up <= '0';
+                    sync_counter <= 0;
+                end if;
+            else
+                sync_counter <= 0;
             end if;
         end if;
     end if;

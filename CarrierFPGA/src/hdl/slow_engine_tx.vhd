@@ -16,11 +16,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library unisim;
-use unisim.vcomponents.all;
-
 library work;
-use work.type_defines.all;
+use work.support.all;
 
 entity slow_engine_tx is
 generic (

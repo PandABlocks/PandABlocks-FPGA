@@ -10,7 +10,6 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
-use work.type_defines.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 
@@ -38,6 +37,7 @@ port (
     ERR_FRAME       : in  std_logic_vector(31 downto 0);
     ERR_RESPONSE       : in  std_logic_vector(31 downto 0);
     ENC_STATUS       : in  std_logic_vector(31 downto 0);
+    DCARD_MODE       : in  std_logic_vector(31 downto 0);
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
@@ -133,6 +133,8 @@ begin
                     mem_dat_o <= ERR_RESPONSE;
                 when INENC_ENC_STATUS =>
                     mem_dat_o <= ENC_STATUS;
+                when INENC_DCARD_MODE =>
+                    mem_dat_o <= DCARD_MODE;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;

@@ -6,8 +6,8 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : Encoder Daugther Card receive interface.
---
+--  Description : Encoder Daugther Card receive front_panel led and custom.
+--                bus updates from Zynq FPGA.
 --
 --------------------------------------------------------------------------------
 
@@ -16,11 +16,8 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
+use work.support.all;
 use work.slow_defines.all;
-use work.type_defines.all;
-
-library unisim;
-use unisim.vcomponents.all;
 
 entity leds_ctrl is
 generic (
@@ -37,7 +34,8 @@ port (
     rx_data_i       : in  std_logic_vector(DW-1 downto 0);
     -- Encoder Daughter Card Control interface
     ttl_leds_o      : out std_logic_vector(15 downto 0);
-    status_leds_o   : out std_logic_vector(3 downto 0)
+    status_leds_o   : out std_logic_vector(3 downto 0);
+    outenc_conn_o   : out std_logic_vector(3 downto 0)
 );
 end leds_ctrl;
 
@@ -60,6 +58,7 @@ process(clk_i) begin
         else
             if (rx_valid_i = '1' and rx_addr = TTL_LEDS) then
                 ttl_leds_o <= rx_data_i(15 downto 0);
+                outenc_conn_o <= rx_data_i(19 downto 16);
             end if;
 
             if (rx_valid_i = '1' and rx_addr = STATUS_LEDS) then

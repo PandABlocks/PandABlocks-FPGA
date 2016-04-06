@@ -185,6 +185,7 @@ constant INENC_EXTENSION : natural := 6;
 constant INENC_ERR_FRAME : natural := 7;
 constant INENC_ERR_RESPONSE : natural := 8;
 constant INENC_ENC_STATUS : natural := 9;
+constant INENC_DCARD_MODE : natural := 10;
 
 -- QDEC Block:
 constant QDEC_RST_ON_Z : natural := 3;

@@ -150,6 +150,7 @@ INENC       12
     ERR_FRAME       7
     ERR_RESPONSE    8
     ENC_STATUS      9
+    DCARD_MODE      10
     A               66 67 68 69
     B               70 71 72 73
     Z               74 75 76 77

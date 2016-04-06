@@ -18,11 +18,23 @@ tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h1);
 tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h0);
 
 repeat(1250) @(posedge tb.uut.ps.FCLK);
-REG_WRITE(TTLOUT_BASE, TTLOUT_VAL, BITS_ONE0);
+REG_WRITE(INENC_BASE, INENC_PROTOCOL, 0);
 repeat(25000) @(posedge tb.uut.ps.FCLK);
-REG_WRITE(TTLOUT_BASE, TTLOUT_VAL, BITS_ZERO0);
-REG_WRITE(TTLOUT_BASE+32'h100, TTLOUT_VAL, BITS_ONE0);
+REG_WRITE(INENC_BASE + 32'h100, INENC_PROTOCOL, 1);
 repeat(25000) @(posedge tb.uut.ps.FCLK);
+REG_WRITE(INENC_BASE + 32'h200, INENC_PROTOCOL, 2);
+repeat(25000) @(posedge tb.uut.ps.FCLK);
+REG_WRITE(INENC_BASE + 32'h300, INENC_PROTOCOL, 3);
+repeat(25000) @(posedge tb.uut.ps.FCLK);
+
+repeat(1250) @(posedge tb.uut.ps.FCLK);
+REG_WRITE(OUTENC_BASE, OUTENC_PROTOCOL, 0);
+repeat(25000) @(posedge tb.uut.ps.FCLK);
+REG_WRITE(OUTENC_BASE + 32'h100, OUTENC_PROTOCOL, 1);
+repeat(25000) @(posedge tb.uut.ps.FCLK);
+REG_WRITE(OUTENC_BASE + 32'h200, OUTENC_PROTOCOL, 2);
+repeat(25000) @(posedge tb.uut.ps.FCLK);
+REG_WRITE(OUTENC_BASE + 32'h300, OUTENC_PROTOCOL, 3);
 repeat(25000) @(posedge tb.uut.ps.FCLK);
 
 $finish;

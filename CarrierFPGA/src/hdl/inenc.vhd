@@ -19,10 +19,6 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library work;
-use work.type_defines.all;
-use work.addr_defines.all;
-
 entity inenc is
 port (
     -- Clock and Reset
@@ -35,13 +31,9 @@ port (
     mclk_o              : out std_logic;
     mdat_i              : in  std_logic;
     mdat_o              : out std_logic;
-    conn_i              : in  std_logic;
-    -- Loopback outputs
-    a_o                 : out std_logic;
-    b_o                 : out std_logic;
-    z_o                 : out std_logic;
     conn_o              : out std_logic;
     -- Block Parameters
+    DCARD_MODE          : in  std_logic_vector(31 downto 0);
     PROTOCOL            : in  std_logic_vector(2 downto 0);
     CLKRATE             : in  std_logic_vector(31 downto 0);
     FRAMERATE           : in  std_logic_vector(31 downto 0);
@@ -51,53 +43,23 @@ port (
     RST_ON_Z            : in  std_logic;
     -- Block Outputs
     posn_o              : out std_logic_vector(31 downto 0);
-    iobuf_ctrl_o        : out std_logic_vector(2 downto 0)
+    posn_upper_o        : out std_logic_vector(31 downto 0)
 );
 end entity;
 
 architecture rtl of inenc is
 
-signal endat_mdir       : std_logic;
 signal posn_incr        : std_logic_vector(31 downto 0);
 signal posn_ssi         : std_logic_vector(31 downto 0);
 
 begin
 
--- Unused signals
+-- Unused outputs
 mdat_o <= '0';
-endat_mdir <= '0';
+posn_upper_o <= (others => '0');
 
--- Output assignments
-a_o <= a_i;
-b_o <= b_i;
-z_o <= z_i;
-conn_o <= conn_i;
-
---
--- Setup IOBUF Control Values :
---  Due to Encoder I/O multiplexing on device pins, on-chip
---  IOBUFs have to be configured according to protocol selected.
-IOBUF_CTRL : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            iobuf_ctrl_o <= "111";
-        else
-            case (PROTOCOL) is
-                when "000"  =>                              -- INC
-                    iobuf_ctrl_o <= "111";
-                when "001"  =>                              -- SSI
-                    iobuf_ctrl_o <= "101";
-                when "010"  =>                              -- EnDat
-                    iobuf_ctrl_o <= endat_mdir & "00";
-                when "011"  =>                              -- BiSS
-                    iobuf_ctrl_o <= endat_mdir & "00";
-                when others =>
-                    iobuf_ctrl_o <= "111";
-            end case;
-        end if;
-    end if;
-end process;
+-- Connection status comes from Slow FPGA interface on CTRL_D12
+conn_o <= DCARD_MODE(0);
 
 --
 -- Incremental Encoder Instantiation :

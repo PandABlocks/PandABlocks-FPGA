@@ -1,9 +1,21 @@
+--------------------------------------------------------------------------------
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Implement delay line with NO reset so that it can be mapped 
+--                onto a Slice LUT.
+--
+--------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
-use work.type_defines.all;
+use work.support.all;
 
 entity delay_line is
 generic (
