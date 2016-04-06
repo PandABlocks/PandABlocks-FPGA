@@ -1,0 +1,5 @@
+CarrierFPGA/src/hdl/defines/*.vhd
+CarrierFPGA/src/hdl/slow_engine_rx.vhd
+CarrierFPGA/src/hdl/slow_engine_tx.vhd
+CarrierFPGA/src/hdl/slow_engine.vhd
+SlowFPGA/src/hdl/*.vhd

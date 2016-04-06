@@ -264,6 +264,3 @@ POSITIONS
 SLOW
     FPGA_VERSION    read
     ENC_CONN        read
-
-*SPECIAL
-    FILENAME
