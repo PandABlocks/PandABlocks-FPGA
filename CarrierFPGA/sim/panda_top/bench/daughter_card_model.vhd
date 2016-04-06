@@ -5,6 +5,9 @@ library unisim;
 use unisim.vcomponents.all;
 
 entity daughter_card_model is
+generic (
+    LOOPBACK    : boolean := false
+);
 port (
     -- Front Panel via DB15
     A_IN_P      : in    std_logic;
@@ -28,21 +31,36 @@ port (
     B_OUT       : inout std_logic;
     Z_OUT       : inout std_logic;
 
-    DCARD_MODE  : in    std_logic_vector(3 downto 0);
     DCARD_CTRL  : inout std_logic_vector(15 downto 0)
 );
 end daughter_card_model;
 
 architecture behavior of daughter_card_model is
 
+signal CLK_OUT_P_i  : std_logic;
+signal A_OUT_P_i    : std_logic;
+signal B_OUT_P_i    : std_logic;
+signal Z_OUT_P_i    : std_logic;
+signal DATA_OUT_P_i : std_logic;
+
 signal CTRL_IN      : std_logic_vector(11 downto 0);
 signal mux1         : std_logic_vector(1 downto 0);
 signal mux2         : std_logic_vector(1 downto 0);
+signal DCARD_MODE   : std_logic_vector(3 downto 0);
 
 begin
 
 CTRL_IN <= DCARD_CTRL(11 downto 0);
-DCARD_CTRL(15 downto 12) <= DCARD_MODE;
+
+DCARD_CTRL(15 downto 12) <= "1111" when (LOOPBACK = true) else "0101";
+
+-- LOOPBACK Configuration
+A_OUT_P <= A_IN_P when (LOOPBACK = true) else A_OUT_P_i;
+B_OUT_P <= B_IN_P when (LOOPBACK = true) else B_OUT_P_i;
+Z_OUT_P <= Z_IN_P when (LOOPBACK = true) else Z_OUT_P_i;
+
+CLK_OUT_P <= CLK_IN_P when (LOOPBACK = true) else CLK_OUT_P_i;
+DATA_OUT_P <= DATA_IN_P when (LOOPBACK = true) else DATA_OUT_P_i;
 
 -- These are the 74VHD153 Multiplexer chips on the board.
 process(CTRL_IN)
@@ -89,9 +107,9 @@ port map (
     A3     => Z_OUT,
     A4     => open,
 
-    Y1     => A_OUT_P,
-    Y2     => B_OUT_P,
-    Y3     => Z_OUT_P,
+    Y1     => A_OUT_P_i,
+    Y2     => B_OUT_P_i,
+    Y3     => Z_OUT_P_i,
     Y4     => open,
 
     EN12    => CTRL_IN(2),
@@ -110,7 +128,7 @@ port map (
 
 SN65HVD05D_u12 : entity work.SN65HVD05D
 port map (
-    A       => CLK_OUT_P,
+    A       => CLK_OUT_P_i,
 
     R       => open,
     REn     => '1',
@@ -120,7 +138,7 @@ port map (
 
 SN65HVD05D_u15 : entity work.SN65HVD05D
 port map (
-    A       => DATA_OUT_P,
+    A       => DATA_OUT_P_i,
 
     R       => A_OUT,
     REn     => mux2(1),

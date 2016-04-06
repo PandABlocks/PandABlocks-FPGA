@@ -38,7 +38,8 @@ signal val_prev         : std_logic_vector(LED_COUNT-1 downto 0);
 signal oldval           : std_logic_vector(LED_COUNT-1 downto 0);
 signal changed          : std_logic_vector(LED_COUNT-1 downto 0);
 signal leds             : std_logic_vector(LED_COUNT-1 downto 0);
-signal custom           : std_logic_vector(15 downto 0) := (others => '0');
+signal data             : std_logic_vector(31 downto 0) := (others => '0');
+signal data_prev        : std_logic_vector(31 downto 0);
 
 begin
 
@@ -98,7 +99,7 @@ end process;
 --
 -- Custom bits currently includes OutEnc disconnect action.
 --
-custom <= ZEROS(12) & outenc_conn_i;
+data <= ZEROS(12) & outenc_conn_i & leds;
 
 --
 -- Send a packet to Slow FPGA @check_tick rate of 50ms;
@@ -110,12 +111,16 @@ begin
             slow_tlp_o.strobe <= '0';
             slow_tlp_o.address <= (others => '0');
             slow_tlp_o.data <= (others => '0');
+            data_prev <= (others => '0');
         else
+            data_prev <= data;
             slow_tlp_o.strobe <= '0';
 
-            if (check_tick = '1') then
+            -- Transfer TLP to Slow FPGA only when data changes to keep the
+            -- traffic low.
+            if (data /= data_prev) then
                 slow_tlp_o.strobe <= '1';
-                slow_tlp_o.data <= custom & leds;
+                slow_tlp_o.data <= data;
                 slow_tlp_o.address <= TO_SVECTOR(TTL_LEDS, PAGE_AW);
             end if;
         end if;

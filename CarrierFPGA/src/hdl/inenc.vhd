@@ -19,6 +19,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.top_defines.all;
+
 entity inenc is
 port (
     -- Clock and Reset
@@ -28,9 +31,9 @@ port (
     a_i                 : in  std_logic;
     b_i                 : in  std_logic;
     z_i                 : in  std_logic;
-    mclk_o              : out std_logic;
-    mdat_i              : in  std_logic;
-    mdat_o              : out std_logic;
+    clk_out_o           : out std_logic;
+    data_in_i           : in  std_logic;
+    clk_in_i            : in  std_logic;
     conn_o              : out std_logic;
     -- Block Parameters
     DCARD_MODE          : in  std_logic_vector(31 downto 0);
@@ -51,11 +54,11 @@ architecture rtl of inenc is
 
 signal posn_incr        : std_logic_vector(31 downto 0);
 signal posn_ssi         : std_logic_vector(31 downto 0);
+signal posn_ssi_sniffer : std_logic_vector(31 downto 0);
 
 begin
 
 -- Unused outputs
-mdat_o <= '0';
 posn_upper_o <= (others => '0');
 
 -- Connection status comes from Slow FPGA interface on CTRL_D12
@@ -80,17 +83,30 @@ port map (
 --
 -- SSI Master Instantiation :
 --
-ssimstr_inst : entity work.ssimstr
+ssi_master_inst : entity work.ssi_master
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     BITS            => BITS,
     CLKRATE         => CLKRATE,
     FRAMERATE       => FRAMERATE,
-    ssi_sck_o       => mclk_o,
-    ssi_dat_i       => mdat_i,
+    ssi_sck_o       => clk_out_o,
+    ssi_dat_i       => data_in_i,
     posn_o          => posn_ssi,
     posn_valid_o    => open
+);
+
+--
+-- SSI Sniffer Instantiation :
+--
+ssi_sniffer_inst : entity work.ssi_sniffer
+port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    BITS            => BITS,
+    ssi_sck_i       => clk_in_i,
+    ssi_dat_i       => data_in_i,
+    posn_o          => posn_ssi_sniffer
 );
 
 --
@@ -102,10 +118,14 @@ begin
         case (PROTOCOL) is
             when "000"  =>              -- INC
                 posn_o <= posn_incr;
-            when "001"  =>              -- SSI
-                posn_o <= posn_ssi;
+            when "001"  =>              -- SSI & Loopback
+                if (DCARD_MODE(3 downto 1) = DCARD_LOOPBACK) then
+                    posn_o <= posn_ssi_sniffer;
+                else
+                    posn_o <= posn_ssi;
+                end if;
             when others =>
-                posn_o <= posn_incr;
+                posn_o <= (others => '0');
         end case;
     end if;
 end process;

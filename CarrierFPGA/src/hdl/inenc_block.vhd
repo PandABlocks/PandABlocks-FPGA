@@ -31,9 +31,9 @@ port (
     a_i                 : in  std_logic;
     b_i                 : in  std_logic;
     z_i                 : in  std_logic;
-    mclk_o              : out std_logic;
-    mdat_i              : in  std_logic;
-    mdat_o              : out std_logic;
+    clk_out_o           : out std_logic;
+    data_in_i           : in  std_logic;
+    clk_in_i            : in  std_logic;
     conn_o              : out std_logic;
     -- Block Outputs.
     DCARD_MODE          : in  std_logic_vector(31 downto 0);
@@ -122,9 +122,9 @@ port map (
     a_i                 => a_i,
     b_i                 => b_i,
     z_i                 => z_i,
-    mclk_o              => mclk_o,
-    mdat_i              => mdat_i,
-    mdat_o              => mdat_o,
+    clk_out_o           => clk_out_o,
+    data_in_i           => data_in_i,
+    clk_in_i            => clk_in_i,
     conn_o              => conn_o,
     -- Block Parameters
     DCARD_MODE          => DCARD_MODE,

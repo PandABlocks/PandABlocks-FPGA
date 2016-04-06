@@ -63,7 +63,7 @@ port map (
 --
 -- SSI SLAVE
 --
-ssislv_inst : entity work.ssislv
+ssi_slave_inst : entity work.ssi_slave
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,

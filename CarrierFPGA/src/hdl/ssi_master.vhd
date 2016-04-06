@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------
 --  Project      : Diamond PandA SSI Encoder Splitter
---  Filename     : ssimstr.vhd
+--  Filename     : ssi_master.vhd
 --  Purpose      : Absolute encoder SSI Master
 --
 --  Author       : Dr. Isa Servan Uzun
@@ -27,7 +27,7 @@ use ieee.numeric_std.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity ssimstr is
+entity ssi_master is
 port (
     -- Global system and reset interface
     clk_i           : in  std_logic;
@@ -44,7 +44,7 @@ port (
 );
 end entity;
 
-architecture rtl of ssimstr is
+architecture rtl of ssi_master is
 
 -- Signal declarations
 type mclk_fsm_t is (WAIT_FRAME, SYNC_TO_CLK, GEN_MCLK, DATA_OUT);

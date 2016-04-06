@@ -52,6 +52,9 @@ constant PBUSBW             : natural := 5;
 constant EBUSW              : natural := 12;
 --------------------------------------------------------------------------
 
+constant DCARD_NORMAL       : std_logic_vector(2 downto 0) := "000";
+constant DCARD_LOOPBACK     : std_logic_vector(2 downto 0) := "111";
+
 --
 -- TYPEs :
 --

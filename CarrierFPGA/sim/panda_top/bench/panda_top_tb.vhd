@@ -90,8 +90,6 @@ signal led_x            : std_logic_vector(0 to 15);
 signal term_x           : std_logic_vector(0 to  5);
 signal led_status_x     : std_logic_vector(0 to  3);
 
-signal DCARD_MODE       : std4_array(3 downto 0);
-
 constant BLOCK_SIZE     : integer := 8192;
 
 begin
@@ -200,14 +198,12 @@ end process;
 --
 -- There are 4x Daughter Cards on the system
 --
-DCARD_MODE(0) <= "0001";
-DCARD_MODE(1) <= "0010";
-DCARD_MODE(2) <= "0011";
-DCARD_MODE(3) <= "0100";
-
 DCARD : FOR I IN 0 TO 3 GENERATE
 
     daughter_card : entity work.daughter_card_model
+    generic map (
+        LOOPBACK    => false
+    )
     port map (
         -- panda_top interface.
         A_IN        => Am0_pad_io(I),
@@ -230,7 +226,6 @@ DCARD : FOR I IN 0 TO 3 GENERATE
         CLK_IN_P    => CLK_IN_P(I),
         DATA_OUT_P  => DATA_OUT_P(I),
 
-        DCARD_MODE  => DCARD_MODE(I),
         DCARD_CTRL  => dcard_ctrl_io(I)
     );
 
@@ -275,7 +270,7 @@ SSI_MASTER : entity work.ssimstr
 port map (
     clk_i           => clk,
     reset_i         => reset,
-    BITS            => TO_SVECTOR(16, 8),
+    BITS            => TO_SVECTOR(24, 8),
     CLKRATE         => TO_SVECTOR(125, 32),
     FRAMERATE       => TO_SVECTOR(12500, 32),
     ssi_sck_o       => CLK_IN_P(0),

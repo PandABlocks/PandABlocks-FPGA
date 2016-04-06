@@ -90,45 +90,48 @@ begin
     return enc_ctrl_pad;
 end CONV_PADS;
 
-signal inenc_ctrl1      : std_logic_vector(7 downto 0);
-signal inenc_ctrl2      : std_logic_vector(7 downto 0);
-signal inenc_ctrl3      : std_logic_vector(7 downto 0);
-signal inenc_ctrl4      : std_logic_vector(7 downto 0);
-
-signal outenc_ctrl1     : std_logic_vector(7 downto 0);
-signal outenc_ctrl2     : std_logic_vector(7 downto 0);
-signal outenc_ctrl3     : std_logic_vector(7 downto 0);
-signal outenc_ctrl4     : std_logic_vector(7 downto 0);
+signal DCARD_MODE_i     : std4_array(3 downto 0);
+signal inenc_ctrl       : std8_array(3 downto 0);
+signal outenc_ctrl      : std8_array(3 downto 0);
 
 begin
 
--- Assign CTRL values for Input Encoder ICs on the Daughter Card
-inenc_ctrl1 <= INENC_CONV(INENC_PROTOCOL(0));
-inenc_ctrl2 <= INENC_CONV(INENC_PROTOCOL(1));
-inenc_ctrl3 <= INENC_CONV(INENC_PROTOCOL(2));
-inenc_ctrl4 <= INENC_CONV(INENC_PROTOCOL(3));
+-- DCARD configuration from on-board 0-Ohm settings.
+DCARD_MODE_i(0) <= dcard_ctrl1_io(15 downto 12);
+DCARD_MODE_i(1) <= dcard_ctrl2_io(15 downto 12);
+DCARD_MODE_i(2) <= dcard_ctrl3_io(15 downto 12);
+DCARD_MODE_i(3) <= dcard_ctrl4_io(15 downto 12);
 
--- Assign CTRL values for Output Encoder ICs on the Daughter Card
-outenc_ctrl1 <= OUTENC_CONV(OUTENC_PROTOCOL(0));
-outenc_ctrl2 <= OUTENC_CONV(OUTENC_PROTOCOL(1));
-outenc_ctrl3 <= OUTENC_CONV(OUTENC_PROTOCOL(2));
-outenc_ctrl4 <= OUTENC_CONV(OUTENC_PROTOCOL(3));
+-- Assign CTRL values for Input Encoder ICs on the Daughter Card
+INENC_CTRL_GEN : FOR I IN 0 TO 3 GENERATE
+    inenc_ctrl(I) <= INENC_CONV(INENC_PROTOCOL(I));
+END GENERATE;
+
+-- Output Encoder Buffer Control depends on Daughter Card Mode, Protocol, and
+-- OUTENC_CONN setting.
+--
+process(INENC_PROTOCOL, OUTENC_PROTOCOL, DCARD_MODE_i, OUTENC_CONN)
+begin
+    FOR I IN 0 TO 3 LOOP
+        -- Disable all OUTENC buffers. ???
+        if (OUTENC_CONN(I) = '0') then
+            outenc_ctrl(I) <= OUTENC_CONV(OUTENC_PROTOCOL(I));
+        -- Daugther Card in LOOPBACK mode.
+        elsif (DCARD_MODE_i(I)(3 downto 1) = DCARD_LOOPBACK) then
+            outenc_ctrl(I) <= OUTENC_CONV(INENC_PROTOCOL(I));
+        -- Daughter Card in NORMAL mode.
+        else
+            outenc_ctrl(I) <= OUTENC_CONV(OUTENC_PROTOCOL(I));
+        end if;
+    END LOOP;
+end process;
 
 -- Interleave Input and Output Controls to the Daughter Card Pins.
-dcard_ctrl1_io(11 downto 0) <= CONV_PADS(inenc_ctrl1, outenc_ctrl1);
-dcard_ctrl2_io(11 downto 0) <= CONV_PADS(inenc_ctrl2, outenc_ctrl2);
-dcard_ctrl3_io(11 downto 0) <= CONV_PADS(inenc_ctrl3, outenc_ctrl3);
-dcard_ctrl4_io(11 downto 0) <= CONV_PADS(inenc_ctrl4, outenc_ctrl4);
+dcard_ctrl1_io(11 downto 0) <= CONV_PADS(inenc_ctrl(0), outenc_ctrl(0));
+dcard_ctrl2_io(11 downto 0) <= CONV_PADS(inenc_ctrl(1), outenc_ctrl(1));
+dcard_ctrl3_io(11 downto 0) <= CONV_PADS(inenc_ctrl(2), outenc_ctrl(2));
+dcard_ctrl4_io(11 downto 0) <= CONV_PADS(inenc_ctrl(3), outenc_ctrl(3));
 
--- DCARD configuration from on-board 0-Ohm settings.
-DCARD_MODE(0) <= dcard_ctrl1_io(15 downto 12);
-DCARD_MODE(1) <= dcard_ctrl2_io(15 downto 12);
-DCARD_MODE(2) <= dcard_ctrl3_io(15 downto 12);
-DCARD_MODE(3) <= dcard_ctrl4_io(15 downto 12);
-
-dcard_ctrl1_io(15 downto 12) <= "ZZZZ";
-dcard_ctrl2_io(15 downto 12) <= "ZZZZ";
-dcard_ctrl3_io(15 downto 12) <= "ZZZZ";
-dcard_ctrl4_io(15 downto 12) <= "ZZZZ";
+DCARD_MODE <= DCARD_MODE_i;
 
 end rtl;

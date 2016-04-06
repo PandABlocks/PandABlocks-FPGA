@@ -558,6 +558,7 @@ port map (
     Z_IN => Z_IN,
     CLK_OUT => CLK_OUT,
     DATA_IN => DATA_IN,
+    CLK_IN => CLK_IN,
     CONN_OUT => inenc_conn,
     DCARD_MODE => DCARD_MODE,
     PROTOCOL => INPROT,

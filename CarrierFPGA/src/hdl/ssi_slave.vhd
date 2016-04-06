@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------
 --  Project      : Diamond Zebra SSI Encoder Splitter
---  Filename     : ssislv.vhd
+--  Filename     : ssi_slave.vhd
 --  Purpose      : Absolute encoder SSI splitter
 --
 --  Author       : Dr. Isa Servan Uzun
@@ -25,7 +25,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity ssislv is
+entity ssi_slave is
 generic (
     N                   : positive := 24 -- # of encoder bits
 );
@@ -42,7 +42,7 @@ port (
 );
 end entity;
 
-architecture rtl of ssislv is
+architecture rtl of ssi_slave is
 
 constant SYNCPERIOD         : natural := 125 * 5;  -- 5usec
 

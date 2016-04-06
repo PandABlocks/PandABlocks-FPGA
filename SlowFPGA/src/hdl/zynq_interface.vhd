@@ -19,6 +19,7 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 use work.slow_defines.all;
+use work.slow_version.all;
 
 entity zynq_interface is
 port (
@@ -29,11 +30,11 @@ port (
     INENC_PROTOCOL  : out std3_array(3 downto 0);
     OUTENC_PROTOCOL : out std3_array(3 downto 0);
     DCARD_MODE      : in  std4_array(3 downto 0);
+    OUTENC_CONN_O   : out std_logic_vector(3 downto 0);
     -- Front-Panel Control
     ttlin_term_o    : out std_logic_vector(5 downto 0);
     ttl_leds_o      : out std_logic_vector(15 downto 0);
     status_leds_o   : out std_logic_vector(3 downto 0);
-    outenc_conn_o   : out std_logic_vector(3 downto 0);
     -- Serial Physical interface
     spi_sclk_i      : in  std_logic;
     spi_dat_i       : in  std_logic;
@@ -124,7 +125,7 @@ port map (
     rx_data_i       => rd_dat,
     ttl_leds_o      => ttl_leds_o,
     status_leds_o   => status_leds_o,
-    outenc_conn_o   => outenc_conn_o
+    outenc_conn_o   => OUTENC_CONN_O
 );
 
 --
@@ -136,12 +137,12 @@ send_trigger : entity work.prescaler
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
-    PERIOD          => TO_SVECTOR(50_000, 32),
+    PERIOD          => TO_SVECTOR(5000, 32),
     pulse_o         => wr_start
 );
 
 -- Assemble Status Register List
-STATUS_LIST(SLOW_VERSION) <= X"12345678";
+STATUS_LIST(SLOW_VERSION) <= FPGAVersion;
 STATUS_LIST(DCARD1_MODE) <= ZEROS(28) & DCARD_MODE(0);
 STATUS_LIST(DCARD2_MODE) <= ZEROS(28) & DCARD_MODE(1);
 STATUS_LIST(DCARD3_MODE) <= ZEROS(28) & DCARD_MODE(2);

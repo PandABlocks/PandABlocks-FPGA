@@ -38,6 +38,7 @@ port (
     Z_IN                : in  std_logic_vector(ENC_NUM-1 downto 0);
     CLK_OUT             : out std_logic_vector(ENC_NUM-1 downto 0);
     DATA_IN             : in  std_logic_vector(ENC_NUM-1 downto 0);
+    CLK_IN              : in  std_logic_vector(ENC_NUM-1 downto 0);
     CONN_OUT            : out std_logic_vector(ENC_NUM-1 downto 0);
     -- Block Outputs
     DCARD_MODE          : in  std32_array(ENC_NUM-1 downto 0);
@@ -81,9 +82,9 @@ port map (
     a_i                 => A_IN(I),
     b_i                 => B_IN(I),
     z_i                 => Z_IN(I),
-    mclk_o              => CLK_OUT(I),
-    mdat_i              => DATA_IN(I),
-    mdat_o              => open,
+    clk_out_o           => CLK_OUT(I),
+    data_in_i           => DATA_IN(I),
+    clk_in_i            => CLK_IN(I),
     conn_o              => CONN_OUT(I),
 
     DCARD_MODE          => DCARD_MODE(I),

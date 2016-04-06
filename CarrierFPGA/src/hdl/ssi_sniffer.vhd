@@ -17,25 +17,21 @@ use ieee.numeric_std.all;
 library work;
 use work.support.all;
 
-entity slow_engine_rx is
-generic (
-    AW              : natural := 10;
-    DW              : natural := 32
-);
+entity ssi_sniffer is
 port (
     clk_i           : in  std_logic;
     reset_i         : in  std_logic;
-    -- Transaction interface
-    rd_adr_o        : out std_logic_vector(AW-1 downto 0);
-    rd_dat_o        : out std_logic_vector(DW-1 downto 0);
-    rd_val_o        : out std_logic;
-    -- Serial Physical interface
-    spi_sclk_i      : in  std_logic;
-    spi_dat_i       : in  std_logic
+    -- Configuration interface
+    BITS            : in  std_logic_vector(7 downto 0);
+    -- Physical SSI interface
+    ssi_sck_i       : in  std_logic;
+    ssi_dat_i       : in  std_logic;
+    -- Block outputs
+    posn_o          : out std_logic_vector(31 downto 0)
 );
-end slow_engine_rx;
+end ssi_sniffer;
 
-architecture rtl of slow_engine_rx is
+architecture rtl of ssi_sniffer is
 
 -- Ticks in terms of internal serial clock period.
 constant SYNCPERIOD             : natural := 125 * 5; -- 5usec
@@ -43,7 +39,7 @@ constant SYNCPERIOD             : natural := 125 * 5; -- 5usec
 type sh_states is (sync, idle, shifting, data_valid);
 signal sh_state                 : sh_states;
 
-signal shift_in                 : std_logic_vector(AW+DW-1 downto 0);
+signal shift_in                 : std_logic_vector(31 downto 0);
 
 signal sync_counter             : natural range 0 to SYNCPERIOD;
 signal shift_counter            : unsigned(5 downto 0);
@@ -62,8 +58,8 @@ begin
 process (clk_i)
 begin
     if (rising_edge(clk_i)) then
-        sclk <= spi_sclk_i;
-        sdi <= spi_dat_i;
+        sclk <= ssi_sck_i;
+        sdi <= ssi_dat_i;
         sclk_prev <= sclk;
     end if;
 end process;
@@ -130,17 +126,12 @@ begin
         if (reset_i = '1') then
             shift_counter <= (others => '0');
             shift_in <= (others => '0');
-            rd_adr_o <= (others => '0');
-            rd_dat_o <= (others => '0');
-            rd_val_o <= '0';
         else
             -- Main state machine
             case sh_state is
                 -- Sync to incoming stream by monitoring sclk_i = '1'
                 -- status for SYNCPERIOD.
                 when sync =>
-                    shift_counter <= (others => '0');
-                    rd_val_o <= '0';
                     if (link_up = '1') then
                         sh_state <= idle;
                     end if;
@@ -148,8 +139,6 @@ begin
                 -- Wait for falling edge on sclk input indicating start 
                 -- of transaction.
                 when idle =>
-                    shift_counter <= (others => '0');
-                    rd_val_o <= '0';
                     if (sclkn_fall = '1') then
                         sh_state <= shifting;
                     end if;
@@ -157,26 +146,30 @@ begin
                 -- Keep track of clock outputs and shift data out
                 when shifting =>
                     if (sclkn_fall = '1') then
-                        shift_in <= shift_in(AW+DW-2 downto 0) & sdi;
+                        shift_in <= shift_in(30 downto 0) & sdi;
                         shift_counter <= shift_counter + 1;
                     end if;
 
                     -- Monitor link status
                     if (link_up = '0') then
                         sh_state <= sync;
-                    elsif (sclkn_fall = '1' and shift_counter = AW+DW-1) then
+                        shift_in <= (others => '0');
+                        shift_counter <= (others => '0');
+                    elsif (sclkn_fall = '1' and shift_counter = unsigned(BITS)-1) then
                         sh_state <= data_valid;
                     end if;
 
-                -- Assert data valid pulse.
+                -- Latch and assert data valid pulse.
                 when data_valid =>
-                    rd_adr_o <= shift_in(AW+DW-1 downto DW);
-                    rd_dat_o <= shift_in(DW-1 downto 0);
-                    rd_val_o <= '1';
+                    posn_o <= shift_in;
                     sh_state <= idle;
+                    shift_in <= (others => '0');
+                    shift_counter <= (others => '0');
 
                 when others =>
                     sh_state <= idle;
+                    shift_in <= (others => '0');
+                    shift_counter <= (others => '0');
             end case;
         end if;
     end if;

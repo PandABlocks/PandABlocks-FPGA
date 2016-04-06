@@ -55,6 +55,7 @@ process(clk_i) begin
         if (reset_i = '1') then
             ttl_leds_o <= (others => '0');
             status_leds_o <= (others => '0');
+            outenc_conn_o <= (others => '0');
         else
             if (rx_valid_i = '1' and rx_addr = TTL_LEDS) then
                 ttl_leds_o <= rx_data_i(15 downto 0);

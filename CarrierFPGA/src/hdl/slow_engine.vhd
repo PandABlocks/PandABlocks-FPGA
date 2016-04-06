@@ -75,8 +75,7 @@ port map (
 slow_engine_rx_inst : entity work.slow_engine_rx
 generic map (
     AW              => AW,
-    DW              => DW,
-    CLKDIV          => CLKDIV
+    DW              => DW
 )
 port map (
     clk_i           => clk_i,
