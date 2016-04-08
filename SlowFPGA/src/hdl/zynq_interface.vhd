@@ -71,7 +71,7 @@ slow_engine_inst : entity work.slow_engine
 generic map (
     AW              => AW,
     DW              => DW,
-    CLKDIV          => 50
+    SYS_PERIOD      => 20       -- 50MHz
 )
 port map (
     clk_i           => clk_i,

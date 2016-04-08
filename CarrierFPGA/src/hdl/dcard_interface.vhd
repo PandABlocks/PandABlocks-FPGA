@@ -101,9 +101,9 @@ begin
                     inenc_ctrl(I) <= "111";
                 when "001"  =>                              -- SSI
                     inenc_ctrl(I) <= "101";
-                when "010"  =>                              -- EnDat
-                    inenc_ctrl(I) <= inenc_dir(I) & "00";
-                when "011"  =>                              -- BiSS
+                when "010"  =>                              -- BiSS-C
+                    inenc_ctrl(I) <= "101";
+                when "011"  =>                              -- EnDat
                     inenc_ctrl(I) <= inenc_dir(I) & "00";
                 when others =>
                     inenc_ctrl(I) <= "111";

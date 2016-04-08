@@ -34,8 +34,8 @@ port (
     reset_i         : in  std_logic;
     -- Block Parameters
     BITS            : in  std_logic_vector(7 downto 0);
-    CLKRATE         : in  std_logic_vector(31 downto 0);
-    FRAMERATE       : in  std_logic_vector(31 downto 0);
+    CLK_PERIOD      : in  std_logic_vector(31 downto 0);
+    FRAME_PERIOD    : in  std_logic_vector(31 downto 0);
     -- Block Inputs and Outputs
     ssi_sck_o       : out std_logic;
     ssi_dat_i       : in  std_logic;
@@ -46,42 +46,40 @@ end entity;
 
 architecture rtl of ssi_master is
 
--- Signal declarations
-type mclk_fsm_t is (WAIT_FRAME, SYNC_TO_CLK, GEN_MCLK, DATA_OUT);
-signal mclk_fsm         : mclk_fsm_t;
-signal msdi_fsm         : mclk_fsm_t;
-
-signal sclk_ce          : std_logic;
-signal sfrm_ce          : std_logic;
-signal sclk             : std_logic;
-signal smpl_hold        : std_logic_vector(31 downto 0);
-signal smpl_sdi         : std_logic;
-signal mclk_cnt         : unsigned(7 downto 0);
-signal CLKRATE_2x       : std_logic_vector(31 downto 0);
+signal frame_pulse          : std_logic;
+signal serial_clock         : std_logic;
+signal serial_clock_prev    : std_logic;
+signal shift_enable         : std_logic;
+signal shift_clock          : std_logic;
+signal shift_data           : std_logic;
 
 begin
 
 -- Connect outputs
-ssi_sck_o <= sclk;
-
--- Generate Internal SSI Clock (@2x freq) from system clock
-CLKRATE_2x <= '0' & CLKRATE(31 downto 1);
-
-sclk_presc : entity work.prescaler
-port map (
-    clk_i       => clk_i,
-    reset_i     => reset_i,
-    PERIOD      => CLKRATE_2x,
-    pulse_o     => sclk_ce
-);
+ssi_sck_o <= serial_clock;
 
 -- Generate Internal SSI Frame from system clock
 frame_presc : entity work.prescaler
 port map (
     clk_i       => clk_i,
     reset_i     => reset_i,
-    PERIOD      => FRAMERATE,
-    pulse_o     => sfrm_ce
+    PERIOD      => FRAME_PERIOD,
+    pulse_o     => frame_pulse
+);
+
+clock_train_inst : entity work.ssi_clock_gen
+generic map (
+    DEAD_PERIOD     => (10000/8)    -- 10us
+)
+port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    N               => BITS,
+    CLK_PERIOD      => CLK_PERIOD,
+    start_i         => frame_pulse,
+    clock_pulse_o   => serial_clock,
+    active_o        => shift_enable,
+    busy_o          => open
 );
 
 -- SSI Master FSM
@@ -89,86 +87,30 @@ ssi_fsm_gen : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if reset_i = '1' then
-            sclk <= '1';
-            mclk_cnt <= (others=> '0');
+            serial_clock_prev <= '0';
         else
-            if (sclk_ce = '1') then
-                msdi_fsm <= mclk_fsm;
-            end if;
-
-            case (mclk_fsm) is
-                -- Wait for SSI frame trigger
-                when WAIT_FRAME =>
-                    sclk <= '1';
-                    mclk_cnt <= (others=> '0');
-
-                    if (sfrm_ce = '1') then
-                        mclk_fsm <= SYNC_TO_CLK;
-                    end if;
-
-                -- Sync to next internal SSI clock
-                when SYNC_TO_CLK =>
-                    if (sclk_ce = '1') then
-                        mclk_fsm <= GEN_MCLK;
-                        sclk <= '0';
-                    end if;
-
-                -- Generate N clock pulses
-                when GEN_MCLK =>
-                    if (sclk_ce = '1') then
-                        sclk <= not sclk;
-                    end if;
-
-                    -- Keep track of number of BITS received
-                    if (sclk_ce = '1' and sclk = '0') then
-                        mclk_cnt <= mclk_cnt + 1;
-                        if (mclk_cnt = unsigned(BITS))then
-                            mclk_fsm <= DATA_OUT;
-                        end if;
-                    end if;
-
-                -- Output strobe
-                when DATA_OUT =>
-                    mclk_fsm <= WAIT_FRAME;
-
-                when others =>
-            end case;
+            serial_clock_prev <= serial_clock;
         end if;
     end if;
 end process;
 
--- Sample clock is aligned on the rising edge of next clock. This gives us
--- full clock period for propagation delay
-smpl_sdi <= '1' when (msdi_fsm = GEN_MCLK and sclk_ce = '1' and sclk = '0')
-                else '0';
+-- Shift source synchronous data on the Falling egde of clock.
+shift_clock <= not serial_clock and serial_clock_prev;
+shift_data <= ssi_dat_i;
 
-latch_data : process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            posn_o <= (others => '0');
-            posn_valid_o <= '0';
-            smpl_hold <= (others => '0');
-        else
-            -- Shift-in incoming data during MCLK generation
-            if (mclk_fsm = WAIT_FRAME) then
-                smpl_hold <= (others => '0');
-            elsif (mclk_fsm = GEN_MCLK) then
-                if (smpl_sdi = '1') then
-                    smpl_hold <= smpl_hold(30 downto 0) & ssi_dat_i;
-                end if;
-            end if;
-
-            -- Latch posn output at the end of frame
-            if (mclk_fsm = DATA_OUT) then
-                posn_o <= smpl_hold;
-                posn_valid_o <= '1';
-            else
-                posn_valid_o <= '0';
-            end if;
-        end if;
-    end if;
-end process;
+shifter_in_inst : entity work.shifter_in
+generic map (
+    DW              => 32
+)
+port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    enable_i        => shift_enable,
+    clock_i         => shift_clock,
+    data_i          => shift_data,
+    data_o          => posn_o,
+    data_valid_o    => posn_valid_o
+);
 
 end rtl;
 

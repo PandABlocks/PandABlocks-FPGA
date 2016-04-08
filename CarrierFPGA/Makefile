@@ -197,4 +197,4 @@ dts:
 zpkg: output/panda_top.bit
 	mkdir -p output/share/panda/
 	cp $^ output/share/panda
-	tar czf output/panda-fpga@$(GIT_VERSION).zpg -C output share
+	tar czf ../build/panda-fpga@$(GIT_VERSION).zpg -C output share

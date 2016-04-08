@@ -47,10 +47,10 @@ begin
             return X"03";
         when "001"  => -- SSI
             return X"0C";
-        when "010"  => -- EnDat
+        when "010"  => -- BiSS-C
+            return X"0C";
+        when "011"  => -- EnDat
             return X"14";
-        when "011"  => -- BiSS
-            return X"1C";
         when others =>
             return X"00";
     end case;
@@ -63,10 +63,10 @@ begin
             return X"07";
         when "001"  => -- SSI
             return X"28";
-        when "010"  => -- EnDat
+        when "010"  => -- BiSS-C
+            return X"28";
+        when "011"  => -- EnDat
             return X"10";
-        when "011"  => -- BiSS
-            return X"18";
         when "100"  => -- Pass
             return X"07";
         when others =>

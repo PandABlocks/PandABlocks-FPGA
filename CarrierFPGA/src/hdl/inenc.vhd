@@ -38,8 +38,8 @@ port (
     -- Block Parameters
     DCARD_MODE          : in  std_logic_vector(31 downto 0);
     PROTOCOL            : in  std_logic_vector(2 downto 0);
-    CLKRATE             : in  std_logic_vector(31 downto 0);
-    FRAMERATE           : in  std_logic_vector(31 downto 0);
+    CLK_PERIOD          : in  std_logic_vector(31 downto 0);
+    FRAME_PERIOD        : in  std_logic_vector(31 downto 0);
     BITS                : in  std_logic_vector(7 downto 0);
     SETP                : in  std_logic_vector(31 downto 0);
     SETP_WSTB           : in  std_logic;
@@ -88,8 +88,8 @@ port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     BITS            => BITS,
-    CLKRATE         => CLKRATE,
-    FRAMERATE       => FRAMERATE,
+    CLK_PERIOD      => CLK_PERIOD,
+    FRAME_PERIOD    => FRAME_PERIOD,
     ssi_sck_o       => clk_out_o,
     ssi_dat_i       => data_in_i,
     posn_o          => posn_ssi,

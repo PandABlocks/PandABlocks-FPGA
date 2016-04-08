@@ -19,8 +19,9 @@ use work.support.all;
 
 entity slow_engine_rx is
 generic (
-    AW              : natural := 10;
-    DW              : natural := 32
+    AW              : natural;
+    DW              : natural;
+    SYNCPERIOD      : natural
 );
 port (
     clk_i           : in  std_logic;
@@ -38,21 +39,17 @@ end slow_engine_rx;
 architecture rtl of slow_engine_rx is
 
 -- Ticks in terms of internal serial clock period.
-constant SYNCPERIOD             : natural := 125 * 5; -- 5usec
+constant BITS               : natural := AW + DW;
 
-type sh_states is (sync, idle, shifting, data_valid);
-signal sh_state                 : sh_states;
-
-signal shift_in                 : std_logic_vector(AW+DW-1 downto 0);
-
-signal sync_counter             : natural range 0 to SYNCPERIOD;
-signal shift_counter            : unsigned(5 downto 0);
-
-signal link_up                  : std_logic;
-signal sdi                      : std_logic;
-signal sclk                     : std_logic;
-signal sclk_prev                : std_logic;
-signal sclkn_fall               : std_logic;
+signal serial_clock         : std_logic;
+signal serial_clock_prev    : std_logic;
+signal shift_counter        : unsigned(5 downto 0);
+signal link_up              : std_logic;
+signal shift_enabled        : std_logic;
+signal shift_clock          : std_logic;
+signal shift_data           : std_logic;
+signal shift_in             : std_logic_vector(BITS-1 downto 0);
+signal shift_in_valid       : std_logic;
 
 begin
 
@@ -62,64 +59,25 @@ begin
 process (clk_i)
 begin
     if (rising_edge(clk_i)) then
-        sclk <= spi_sclk_i;
-        sdi <= spi_dat_i;
-        sclk_prev <= sclk;
+        serial_clock <= spi_sclk_i;
+        serial_clock_prev <= serial_clock;
     end if;
 end process;
 
-sclkn_fall <= not sclk and sclk_prev;
+-- Shift source synchronous data on the Falling egde of clock
+shift_clock <= not serial_clock and serial_clock_prev;
 
---
--- State machine has to first synchronise with the master for successfull data
--- receipt.
--- This is achived by having Idle state of 5used between data transfers.
---
-Link_Manager : process (clk_i)
-begin
-    if (rising_edge(clk_i)) then
-        if (reset_i = '1') then
-            link_up <= '0';
-            sync_counter <= 0;
-        else
-            -- In Sync state:
-            -- We need to catch the link while there is not incoming data, so
-            -- Catch sclk = '1' for SYNCPERIOD, and then set link up.
-            if (sh_state = sync) then
-                -- SCLK=0 indicates an ongoing transaction, so counter is reset.
-                if (sclk = '1') then
-                    sync_counter <= sync_counter + 1;
-                else
-                    sync_counter <= 0;
-                end if;
-
-                -- Link is up.
-                if (sync_counter = SYNCPERIOD-1) then
-                    link_up <= '1';
-                    sync_counter <= 0;
-                end if;
-
-            -- In Shifting state:
-            -- It means that we started SSI transaction, and we need to make 
-            -- sure that we receive all the clocks.
-            elsif (sh_state = shifting) then
-                if (sclkn_fall = '1') then
-                    sync_counter <= 0;
-                else
-                    sync_counter <= sync_counter + 1;
-                end if;
-
-                -- Link is lost.
-                if (sync_counter = SYNCPERIOD-1) then
-                    link_up <= '0';
-                    sync_counter <= 0;
-                end if;
-            else
-                sync_counter <= 0;
-            end if;
-        end if;
-    end if;
-end process;
+ssi_link_detect_inst : entity work.ssi_link_detect
+generic map (
+    SYNCPERIOD          => SYNCPERIOD
+)
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+    clock_i             => serial_clock,
+    active_i            => shift_enabled,
+    link_up_o           => link_up
+);
 
 --
 -- Serial Receive State Machine
@@ -127,59 +85,50 @@ end process;
 process (clk_i)
 begin
     if (rising_edge(clk_i)) then
-        if (reset_i = '1') then
+        if (reset_i = '1' or link_up = '0') then
             shift_counter <= (others => '0');
-            shift_in <= (others => '0');
-            rd_adr_o <= (others => '0');
-            rd_dat_o <= (others => '0');
-            rd_val_o <= '0';
+            shift_enabled <= '0';
         else
-            -- Main state machine
-            case sh_state is
-                -- Sync to incoming stream by monitoring sclk_i = '1'
-                -- status for SYNCPERIOD.
-                when sync =>
-                    shift_counter <= (others => '0');
-                    rd_val_o <= '0';
-                    if (link_up = '1') then
-                        sh_state <= idle;
-                    end if;
+            -- Following link_up, wait for first falling egde of
+            -- clock to enable shifting.
+            if (shift_clock = '1' and shift_enabled = '0') then
+                shift_enabled <= '1';
+            elsif (shift_clock = '1' and shift_counter = BITS-1) then
+                shift_enabled <= '0';
+            end if;
 
-                -- Wait for falling edge on sclk input indicating start 
-                -- of transaction.
-                when idle =>
-                    shift_counter <= (others => '0');
-                    rd_val_o <= '0';
-                    if (sclkn_fall = '1') then
-                        sh_state <= shifting;
-                    end if;
-
-                -- Keep track of clock outputs and shift data out
-                when shifting =>
-                    if (sclkn_fall = '1') then
-                        shift_in <= shift_in(AW+DW-2 downto 0) & sdi;
-                        shift_counter <= shift_counter + 1;
-                    end if;
-
-                    -- Monitor link status
-                    if (link_up = '0') then
-                        sh_state <= sync;
-                    elsif (sclkn_fall = '1' and shift_counter = AW+DW-1) then
-                        sh_state <= data_valid;
-                    end if;
-
-                -- Assert data valid pulse.
-                when data_valid =>
-                    rd_adr_o <= shift_in(AW+DW-1 downto DW);
-                    rd_dat_o <= shift_in(DW-1 downto 0);
-                    rd_val_o <= '1';
-                    sh_state <= idle;
-
-                when others =>
-                    sh_state <= idle;
-            end case;
+            -- Once enabled, shift data into the register.
+            if (shift_enabled = '1') then
+                if (shift_clock = '1') then
+                    shift_counter <= shift_counter + 1;
+                end if;
+            else
+                shift_counter <= (others => '0');
+            end if;
         end if;
     end if;
 end process;
+
+-- Shift data into a register once enabled.
+shift_data <= spi_dat_i;
+
+shifter_in_inst : entity work.shifter_in
+generic map (
+    DW              => BITS
+)
+port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    enable_i        => shift_enabled,
+    clock_i         => shift_clock,
+    data_i          => shift_data,
+    data_o          => shift_in,
+    data_valid_o    => shift_in_valid
+);
+
+-- Assign register interface outputs to upper level.
+rd_adr_o <= shift_in(BITS-1 downto DW);
+rd_dat_o <= shift_in(DW-1 downto 0);
+rd_val_o <= shift_in_valid;
 
 end rtl;

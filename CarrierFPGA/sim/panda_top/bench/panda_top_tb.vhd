@@ -255,7 +255,7 @@ end process;
 
 ssi_slave_data <= TO_SVECTOR(ssi_data, 32);
 
-SSI_SLAVE : entity work.ssislv
+SSI_SLAVE : entity work.ssi_slave
 port map (
     clk_i           => clk,
     reset_i         => reset,
@@ -266,13 +266,13 @@ port map (
 );
 
 
-SSI_MASTER : entity work.ssimstr
+SSI_MASTER : entity work.ssi_master
 port map (
     clk_i           => clk,
     reset_i         => reset,
     BITS            => TO_SVECTOR(24, 8),
-    CLKRATE         => TO_SVECTOR(125, 32),
-    FRAMERATE       => TO_SVECTOR(12500, 32),
+    CLK_PERIOD      => TO_SVECTOR(125, 32),
+    FRAME_PERIOD    => TO_SVECTOR(12500, 32),
     ssi_sck_o       => CLK_IN_P(0),
     ssi_dat_i       => DATA_OUT_P(0),
     posn_o          => ssi_master_data,

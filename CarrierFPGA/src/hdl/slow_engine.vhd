@@ -26,7 +26,10 @@ entity slow_engine is
 generic (
     AW              : natural := 10;
     DW              : natural := 32;
-    CLKDIV          : natural := 125
+    SYS_PERIOD      : natural := 8;     -- Sys clock [ns]
+    CLK_PERIOD      : natural := 2000;  -- 2 us
+    SYNC_PERIOD     : natural := 5000;  -- 5 us
+    DEAD_PERIOD     : natural := 10000  -- 10 us
 );
 port (
     clk_i           : in  std_logic;
@@ -56,7 +59,8 @@ slow_engine_tx_inst : entity work.slow_engine_tx
 generic map (
     AW              => AW,
     DW              => DW,
-    CLKDIV          => CLKDIV
+    CLK_PERIOD      => (CLK_PERIOD/SYS_PERIOD),
+    DEAD_PERIOD     => (DEAD_PERIOD/SYS_PERIOD)
 )
 port map (
     clk_i           => clk_i,
@@ -75,7 +79,8 @@ port map (
 slow_engine_rx_inst : entity work.slow_engine_rx
 generic map (
     AW              => AW,
-    DW              => DW
+    DW              => DW,
+    SYNCPERIOD      => (SYNC_PERIOD/SYS_PERIOD)
 )
 port map (
     clk_i           => clk_i,

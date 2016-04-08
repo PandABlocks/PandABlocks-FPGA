@@ -129,8 +129,8 @@ port map (
     -- Block Parameters
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => PROTOCOL_i(2 downto 0),
-    CLKRATE             => CLK_PERIOD,
-    FRAMERATE           => FRAME_PERIOD,
+    CLK_PERIOD          => CLK_PERIOD,
+    FRAME_PERIOD        => FRAME_PERIOD,
     BITS                => BITS(7 downto 0),
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
