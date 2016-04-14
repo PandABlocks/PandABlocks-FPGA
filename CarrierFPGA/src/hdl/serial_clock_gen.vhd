@@ -20,7 +20,7 @@ use work.support.all;
 entity clock_train_gen is
 generic (
     DEAD_PERIOD     : natural := 125 * 20
-)
+);
 port (
     clk_i           : in  std_logic;
     reset_i         : in  std_logic;
@@ -34,7 +34,7 @@ end clock_train_gen;
 architecture rtl of clock_train_gen is
 
 -- Signal declarations
-type fsm_state_t is (WAIT_START, SYNC_TO_CLK, GEN_MCLK, DATA_OUT);
+type fsm_state_t is (WAIT_START, SYNC_TO_CLK, GEN_MCLK, DEADTIME);
 signal fsm_state        : fsm_state_t;
 
 signal serial_clk_2x    : std_logic;
@@ -42,6 +42,7 @@ signal serial_clk       : std_logic;
 signal CLK_PERIOD_2x    : std_logic_vector(31 downto 0);
 signal dead_counter     : natural range 0 to DEAD_PERIOD;
 signal mclk_cnt         : natural range 0 to (2**N'length -1 );
+signal frame_pulse      : std_logic;
 
 begin
 

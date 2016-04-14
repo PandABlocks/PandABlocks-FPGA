@@ -1,6 +1,12 @@
 --------------------------------------------------------------------------------
---  File:       div_block.vhd
---  Desc:       Position compare output pulse generator
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Programmable Divider Block top-level module.
 --
 --------------------------------------------------------------------------------
 

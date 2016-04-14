@@ -41,6 +41,7 @@ architecture rtl of slow_engine_rx is
 -- Ticks in terms of internal serial clock period.
 constant BITS               : natural := AW + DW;
 
+signal serial_data          : std_logic;
 signal serial_clock         : std_logic;
 signal serial_clock_prev    : std_logic;
 signal shift_counter        : unsigned(5 downto 0);
@@ -61,6 +62,7 @@ begin
     if (rising_edge(clk_i)) then
         serial_clock <= spi_sclk_i;
         serial_clock_prev <= serial_clock;
+        serial_data <= spi_dat_i;
     end if;
 end process;
 
@@ -110,7 +112,7 @@ begin
 end process;
 
 -- Shift data into a register once enabled.
-shift_data <= spi_dat_i;
+shift_data <= serial_data;
 
 shifter_in_inst : entity work.shifter_in
 generic map (

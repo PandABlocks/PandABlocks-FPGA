@@ -142,38 +142,37 @@ port map (
 --
 pcap_core_ctrl_inst : entity work.pcap_core_ctrl
 port map (
-    clk_i                   => clk_i,
-    reset_i                 => reset_i,
+    clk_i               => clk_i,
+    reset_i             => reset_i,
 
-    mem_cs_i                => mem_cs_i,
-    mem_wstb_i              => mem_wstb_i,
-    mem_addr_i              => mem_addr_i,
-    mem_dat_i               => mem_dat_i,
-    mem_dat_0_o             => mem_dat_0_o,
-    mem_dat_1_o             => mem_dat_1_o,
+    mem_cs_i            => mem_cs_i,
+    mem_wstb_i          => mem_wstb_i,
+    mem_addr_i          => mem_addr_i,
+    mem_dat_i           => mem_dat_i,
+    mem_dat_o           => mem_dat_1_o,
 
-    ENABLE                  => ENABLE_VAL,
-    FRAME                   => FRAME_VAL,
-    CAPTURE                 => CAPTURE_VAL,
-    ERR_STATUS              => ERR_STATUS,
+    ENABLE              => ENABLE_VAL,
+    FRAME               => FRAME_VAL,
+    CAPTURE             => CAPTURE_VAL,
+    ERR_STATUS          => ERR_STATUS,
 
-    START_WRITE             => START_WRITE,
-    WRITE                   => WRITE,
-    WRITE_WSTB              => WRITE_WSTB,
-    FRAMING_MASK            => FRAMING_MASK,
-    FRAMING_ENABLE          => FRAMING_ENABLE,
-    FRAMING_MODE            => FRAMING_MODE,
-    ARM                     => ARM,
-    DISARM                  => DISARM,
+    START_WRITE         => START_WRITE,
+    WRITE               => WRITE,
+    WRITE_WSTB          => WRITE_WSTB,
+    FRAMING_MASK        => FRAMING_MASK,
+    FRAMING_ENABLE      => FRAMING_ENABLE,
+    FRAMING_MODE        => FRAMING_MODE,
+    ARM                 => ARM,
+    DISARM              => DISARM,
 
-    DMA_RESET               => DMA_RESET,
-    DMA_START               => DMA_START,
-    DMA_ADDR                => DMA_ADDR,
-    DMA_ADDR_WSTB           => DMA_ADDR_WSTB,
-    BLOCK_SIZE              => BLOCK_SIZE,
-    TIMEOUT                 => TIMEOUT,
-    TIMEOUT_WSTB            => TIMEOUT_WSTB,
-    IRQ_STATUS              => IRQ_STATUS
+    DMA_RESET           => DMA_RESET,
+    DMA_START           => DMA_START,
+    DMA_ADDR            => DMA_ADDR,
+    DMA_ADDR_WSTB       => DMA_ADDR_WSTB,
+    BLOCK_SIZE          => BLOCK_SIZE,
+    TIMEOUT             => TIMEOUT,
+    TIMEOUT_WSTB        => TIMEOUT_WSTB,
+    IRQ_STATUS          => IRQ_STATUS
 );
 
 pcap_delay_inst : entity work.pcap_delay

@@ -18,6 +18,8 @@ tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h1);
 tb.uut.ps.ps.ps.inst.fpga_soft_reset(32'h0);
 
 repeat(2500) @(posedge tb.uut.ps.FCLK);
+// Read IRQ Status and Sample Count Registers
+repeat(2500) @(posedge tb.uut.ps.FCLK);
 REG_WRITE(OUTENC_BASE, OUTENC_CONN, BITS_ONE0);     // Slow
 repeat(15000) @(posedge tb.uut.ps.FCLK);
 REG_WRITE(OUTENC_BASE, OUTENC_PROTOCOL, 1);         // Slow
@@ -32,5 +34,7 @@ REG_WRITE(INENC_BASE, INENC_FRAME_PERIOD,12500);
 REG_WRITE(INENC_BASE, INENC_BITS, 24);
 
 repeat(50000) @(posedge tb.uut.ps.FCLK);
+REG_READ(INENC_BASE, INENC_DCARD_MODE, IRQ_STATUS);
+$display("DCARD_MODE = %08x", IRQ_STATUS);
 
 $finish;

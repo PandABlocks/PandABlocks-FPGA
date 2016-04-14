@@ -27,6 +27,7 @@ port (
     mem_wstb_i          : in  std_logic;
     mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
     mem_dat_i           : in  std_logic_vector(31 downto 0);
+    mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Encoder I/O Pads.
     a_i                 : in  std_logic;
     b_i                 : in  std_logic;
@@ -54,6 +55,8 @@ signal FRAME_PERIOD     : std_logic_vector(31 downto 0);
 signal FRAME_PERIOD_WSTB: std_logic;
 signal BITS             : std_logic_vector(31 downto 0);
 signal BITS_WSTB        : std_logic;
+signal BITS_CRC         : std_logic_vector(31 downto 0);
+signal BITS_CRC_WSTB    : std_logic;
 signal SETP             : std_logic_vector(31 downto 0);
 signal SETP_WSTB        : std_logic;
 signal RST_ON_Z         : std_logic_vector(31 downto 0);
@@ -65,18 +68,14 @@ signal ENC_STATUS       : std_logic_vector(31 downto 0);
 signal reset            : std_logic;
 signal slow             : slow_packet;
 
-signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
-
 begin
 
 -- Assign outputs
 PROTOCOL <= PROTOCOL_i(2 downto 0);
 
-mem_addr <= to_integer(unsigned(mem_addr_i));
-
 -- Certain parameter changes must initiate a block reset.
 reset <= reset_i or PROTOCOL_WSTB or CLK_PERIOD_WSTB or
-            FRAME_PERIOD_WSTB or BITS_WSTB;
+            FRAME_PERIOD_WSTB or BITS_WSTB or BITS_CRC_WSTB;
 
 --
 -- Control System Interface
@@ -92,7 +91,7 @@ port map (
     mem_wstb_i          => mem_wstb_i,
     mem_addr_i          => mem_addr_i,
     mem_dat_i           => mem_dat_i,
-    mem_dat_o           => open,
+    mem_dat_o           => mem_dat_o,
 
     PROTOCOL            => PROTOCOL_i,
     PROTOCOL_WSTB       => PROTOCOL_WSTB,
@@ -102,6 +101,8 @@ port map (
     FRAME_PERIOD_WSTB   => FRAME_PERIOD_WSTB,
     BITS                => BITS,
     BITS_WSTB           => BITS_WSTB,
+    BITS_CRC            => BITS_CRC,
+    BITS_CRC_WSTB       => BITS_CRC_WSTB,
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z,
@@ -132,6 +133,7 @@ port map (
     CLK_PERIOD          => CLK_PERIOD,
     FRAME_PERIOD        => FRAME_PERIOD,
     BITS                => BITS(7 downto 0),
+    BITS_CRC            => BITS_CRC(7 downto 0),
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z(0),

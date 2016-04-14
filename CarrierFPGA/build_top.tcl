@@ -44,6 +44,7 @@ import_ip ./ip_repo/pulse_queue/pulse_queue.xci
 import_ip ./ip_repo/pcap_dma_fifo/pcap_dma_fifo.xci
 import_ip ./ip_repo/pgen_dma_fifo/pgen_dma_fifo.xci
 import_ip ./ip_repo/pcomp_dma_fifo/pcomp_dma_fifo.xci
+import_ip ./ip_repo/ila_32x8K/ila_32x8K.xci
 
 # Read constraint files
 read_xdc  ../src/const/panda_top.xdc
@@ -51,7 +52,7 @@ read_xdc  ../src/const/panda_top.xdc
 # Report IP Status before starting P&R
 report_ip_status
 
-synth_design -top panda_top
+synth_design -top panda_top -flatten_hierarchy none
 
 opt_design
 write_debug_probes -force panda_top.ltx

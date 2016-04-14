@@ -23,8 +23,7 @@ port (
     mem_wstb_i          : in  std_logic;
     mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
     mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_0_o         : out std_logic_vector(31 downto 0);
-    mem_dat_1_o         : out std_logic_vector(31 downto 0);
+    mem_dat_o         : out std_logic_vector(31 downto 0);
     -- Block Register Interface.
     ENABLE              : out std_logic_vector(SBUSBW-1 downto 0);
     FRAME               : out std_logic_vector(SBUSBW-1 downto 0);
@@ -173,17 +172,20 @@ begin
     end if;
 end process;
 
-REG_READ : process(clk_i)
+--
+-- Driver space register readback
+--
+REG_READ_DRV : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_1_o <= (others => '0');
+            mem_dat_o <= (others => '0');
         else
             case (mem_addr) is
                 when DRV_PCAP_IRQ_STATUS =>
-                    mem_dat_1_o <= IRQ_STATUS;
+                    mem_dat_o <= IRQ_STATUS;
                 when others =>
-                    mem_dat_1_o <= (others => '0');
+                    mem_dat_o <= (others => '0');
             end case;
         end if;
     end if;

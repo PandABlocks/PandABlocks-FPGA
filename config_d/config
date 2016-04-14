@@ -94,6 +94,7 @@ INENC[4]
     CLK_PERIOD      param       time
     FRAME_PERIOD    param       time
     BITS            param       uint 63
+    BITS_CRC        param       uint 63
     SETP            write       position
     RST_ON_Z        param       bit
     EXTENSION       read        int

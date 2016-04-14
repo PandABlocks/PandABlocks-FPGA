@@ -26,9 +26,7 @@ PROM_FILE = $(SYSTEM).mcs
 # Custom Project dependant defines
 VERSION_FILE = slow_version.vhd
 
-
-include $(TOP)/SlowFPGA/VERSION
-
+include $(TOP)/VERSION
 
 # Print the names of unlocked (unconstrainted) IOs
 export XIL_PAR_DESIGN_CHECK_VERBOSE=1
@@ -42,16 +40,14 @@ mcs: $(PROM_FILE)
 
 .PHONY: mcs bits netlist
 
-
-$(VERSION_FILE): VERSION
+$(VERSION_FILE):
 	rm -f $@
-	echo 'library ieee;' >>$@
-	echo 'use ieee.std_logic_1164.all;' >>$@
-	echo 'package slow_version is' >>$@
-	echo -n 'constant FPGAVersion: std_logic_vector(31 downto 0)' \ >>$@
-	echo ' := X"$(FPGA_VER_REGISTER)";' >>$@
-	echo 'end slow_version;' >>$@
-
+	echo 'library ieee;' >> $@
+	echo 'use ieee.std_logic_1164.all;' >> $@
+	echo 'package slow_version is' >> $@
+	echo -n 'constant SlowFPGAVersion: std_logic_vector(31 downto 0)' \ >> $@
+	echo ' := X"$(FIRMWARE)";' >> $@
+	echo 'end slow_version;' >> $@
 
 # We have to take a bit of care when building the list file: it turns out that
 # xst can't cope with long file names.

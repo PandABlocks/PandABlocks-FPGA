@@ -2,4 +2,7 @@ CarrierFPGA/src/hdl/defines/*.vhd
 CarrierFPGA/src/hdl/slow_engine_rx.vhd
 CarrierFPGA/src/hdl/slow_engine_tx.vhd
 CarrierFPGA/src/hdl/slow_engine.vhd
+CarrierFPGA/src/hdl/ssi_link_detect.vhd
+CarrierFPGA/src/hdl/shifter_in.vhd
+CarrierFPGA/src/hdl/ssi_clock_gen.vhd
 SlowFPGA/src/hdl/*.vhd

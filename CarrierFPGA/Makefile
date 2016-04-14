@@ -24,7 +24,7 @@ VIVADO = source /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh > /dev/nu
 
 GIT_VERSION = $(shell git describe --abbrev=8 --always)
 
-include VERSION
+include ../VERSION
 
 #####################################################################
 # Project related files (DON'T TOUCH)

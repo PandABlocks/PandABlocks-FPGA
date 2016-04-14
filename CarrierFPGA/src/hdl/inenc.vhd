@@ -41,6 +41,7 @@ port (
     CLK_PERIOD          : in  std_logic_vector(31 downto 0);
     FRAME_PERIOD        : in  std_logic_vector(31 downto 0);
     BITS                : in  std_logic_vector(7 downto 0);
+    BITS_CRC            : in  std_logic_vector(7 downto 0);
     SETP                : in  std_logic_vector(31 downto 0);
     SETP_WSTB           : in  std_logic;
     RST_ON_Z            : in  std_logic;
@@ -52,9 +53,10 @@ end entity;
 
 architecture rtl of inenc is
 
-signal posn_incr        : std_logic_vector(31 downto 0);
-signal posn_ssi         : std_logic_vector(31 downto 0);
-signal posn_ssi_sniffer : std_logic_vector(31 downto 0);
+signal posn_incr            : std_logic_vector(31 downto 0);
+signal posn_ssi             : std_logic_vector(31 downto 0);
+signal posn_ssi_sniffer     : std_logic_vector(31 downto 0);
+signal posn_biss_sniffer    : std_logic_vector(47 downto 0);
 
 begin
 
@@ -110,6 +112,20 @@ port map (
 );
 
 --
+-- BISS Sniffer Instantiation :
+--
+biss_sniffer_inst : entity work.biss_sniffer
+port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    BITS            => BITS,
+    BITS_CRC        => BITS_CRC,
+    ssi_sck_i       => clk_in_i,
+    ssi_dat_i       => data_in_i,
+    posn_o          => posn_biss_sniffer
+);
+
+--
 -- Position Output Multiplexer
 --
 POSN_MUX : process(clk_i)
@@ -123,6 +139,12 @@ begin
                     posn_o <= posn_ssi_sniffer;
                 else
                     posn_o <= posn_ssi;
+                end if;
+            when "010"  =>              -- BISS & Loopback
+                if (DCARD_MODE(3 downto 1) = DCARD_LOOPBACK) then
+                    posn_o <= posn_biss_sniffer(31 downto 0);
+                else
+                    posn_o <= (others => '0');
                 end if;
             when others =>
                 posn_o <= (others => '0');

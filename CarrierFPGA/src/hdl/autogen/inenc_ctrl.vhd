@@ -29,6 +29,8 @@ port (
     FRAME_PERIOD_WSTB  : out std_logic;
     BITS       : out std_logic_vector(31 downto 0);
     BITS_WSTB  : out std_logic;
+    BITS_CRC       : out std_logic_vector(31 downto 0);
+    BITS_CRC_WSTB  : out std_logic;
     SETP       : out std_logic_vector(31 downto 0);
     SETP_WSTB  : out std_logic;
     RST_ON_Z       : out std_logic_vector(31 downto 0);
@@ -71,6 +73,8 @@ begin
             FRAME_PERIOD_WSTB <= '0';
             BITS <= (others => '0');
             BITS_WSTB <= '0';
+            BITS_CRC <= (others => '0');
+            BITS_CRC_WSTB <= '0';
             SETP <= (others => '0');
             SETP_WSTB <= '0';
             RST_ON_Z <= (others => '0');
@@ -80,6 +84,7 @@ begin
             CLK_PERIOD_WSTB <= '0';
             FRAME_PERIOD_WSTB <= '0';
             BITS_WSTB <= '0';
+            BITS_CRC_WSTB <= '0';
             SETP_WSTB <= '0';
             RST_ON_Z_WSTB <= '0';
 
@@ -100,6 +105,10 @@ begin
                 if (mem_addr = INENC_BITS) then
                     BITS <= mem_dat_i;
                     BITS_WSTB <= '1';
+                end if;
+                if (mem_addr = INENC_BITS_CRC) then
+                    BITS_CRC <= mem_dat_i;
+                    BITS_CRC_WSTB <= '1';
                 end if;
                 if (mem_addr = INENC_SETP) then
                     SETP <= mem_dat_i;

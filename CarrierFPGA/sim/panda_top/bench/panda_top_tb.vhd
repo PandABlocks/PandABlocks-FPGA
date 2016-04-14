@@ -76,7 +76,7 @@ signal spi_sclk_i       : std_logic;
 signal spi_dat_i        : std_logic;
 signal spi_sclk_o       : std_logic;
 signal spi_dat_o        : std_logic;
-signal ssi_data         : natural;
+signal ssi_data         : signed(31 downto 0);
 signal ssi_slave_data   : std_logic_vector(31 downto 0);
 signal ssi_master_data  : std_logic_vector(31 downto 0);
 
@@ -202,7 +202,7 @@ DCARD : FOR I IN 0 TO 3 GENERATE
 
     daughter_card : entity work.daughter_card_model
     generic map (
-        LOOPBACK    => false
+        LOOPBACK    => true
     )
     port map (
         -- panda_top interface.
@@ -244,16 +244,16 @@ port map (
 
 process
 begin
-    ssi_data <= 0;
+    ssi_data <= (others => '0');
     PROC_CLK_EAT(1250, clk);
 
     LOOP
-        ssi_data <= ssi_data + 100;
+        ssi_data <= ssi_data - 100;
         PROC_CLK_EAT(12500, clk);
     END LOOP;
 end process;
 
-ssi_slave_data <= TO_SVECTOR(ssi_data, 32);
+ssi_slave_data <= std_logic_vector(ssi_data);
 
 SSI_SLAVE : entity work.ssi_slave
 port map (

@@ -73,14 +73,14 @@ end panda_top;
 
 architecture rtl of panda_top is
 
-component ila_0
+component ila_32x8K
 port (
     clk             : in  std_logic;
-    probe0          : in  std_logic_vector(63 downto 0)
+    probe0          : in  std_logic_vector(31 downto 0)
 );
 end component;
 
-signal probe0               : std_logic_vector(63 downto 0);
+signal probe0               : std_logic_vector(31 downto 0);
 
 -- Signal declarations
 signal FCLK_CLK0            : std_logic;
@@ -173,7 +173,6 @@ signal inenc_a              : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_b              : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_z              : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_conn           : std_logic_vector(ENC_NUM-1 downto 0);
-signal inenc_ctrl           : std4_array(ENC_NUM-1 downto 0);
 
 -- Output Encoder
 signal outenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
@@ -874,8 +873,13 @@ port map (
     registers_tlp_i     => slow_tlp_registers,
     leds_tlp_i          => slow_tlp_leds,
     busy_o              => slowctrl_busy,
+#ifdef DEV
+    SLOW_FPGA_VERSION   => open,
+    DCARD_MODE          => open
+#else
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
     DCARD_MODE          => DCARD_MODE
+#endif
 );
 
 ---------------------------------------------------------------------------
@@ -986,10 +990,12 @@ port map (
 -- Direct interface to Daughter Card via FMC on the dev board.
 enc0_ctrl_pad_o <= enc0_ctrl_pad;
 
-inenc_ctrl(0) <= enc0_ctrl_pad_i;
-inenc_ctrl(1) <= "0000";
-inenc_ctrl(2) <= "0000";
-inenc_ctrl(3) <= "0000";
+DCARD_MODE(0) <= ZEROS(28) & enc0_ctrl_pad_i;
+DCARD_MODE(1) <= ZEROS(32);
+DCARD_MODE(2) <= ZEROS(32);
+DCARD_MODE(3) <= ZEROS(32);
+
+SLOW_FPGA_VERSION <= X"AA55AA55";
 
 -- Integer conversion for address.
 mem_addr_reg <= to_integer(unsigned(mem_addr));
@@ -1001,57 +1007,48 @@ REG_WRITE : process(FCLK_CLK0)
 begin
     if rising_edge(FCLK_CLK0) then
         if (FCLK_RESET0 = '1') then
-            inenc_buf_ctrl  <= (others => '0');
+            inenc_buf_ctrl <= (others => '0');
             outenc_buf_ctrl <= (others => '0');
         else
+            -- DCard Input Channel Buffer Ctrl
+            -- Inc : 0x03
+            -- SSI : 0x0C
+            -- BiSS : 0x0C
+            -- Endat : 0x14
+            case (INPROT(0)) is
+                when "000" => -- INC
+                    inenc_buf_ctrl <= "00" & X"3";
+                when "001" => -- SSI
+                    inenc_buf_ctrl <= "00" & X"C";
+                when "010" => -- BiSS
+                    inenc_buf_ctrl <= "00" & X"C";
+                when "011" => -- EnDat
+                    inenc_buf_ctrl <= "01" & X"4";
+                when others =>
+                    inenc_buf_ctrl <= (others => '0');
+            end case;
 
-            if (mem_cs(INENC_CS) = '1' and mem_wstb = '1') then
-                -- DCard Input Channel Buffer Ctrl
-                -- Inc   : 0x03
-                -- SSI   : 0x0C
-                -- Endat : 0x14
-                -- BiSS  : 0x1C
-                if (mem_addr_reg = INENC_PROTOCOL) then
-                    case (mem_odat(2 downto 0)) is
-                        when "000"  => -- INC
-                            inenc_buf_ctrl <= "00" & X"3";
-                        when "001"  => -- SSI
-                            inenc_buf_ctrl <= "00" & X"C";
-                        when "010"  => -- EnDat
-                            inenc_buf_ctrl <= "01" & X"4";
-                        when "011"  => -- BiSS
-                            inenc_buf_ctrl <= "01" & X"C";
-                        when others =>
-                            inenc_buf_ctrl <= (others => '0');
-                    end case;
-                end if;
-            end if;
-
-            if (mem_cs(OUTENC_CS) = '1' and mem_wstb = '1') then
-                -- DCard Output Channel Buffer Ctrl
-                -- Inc   : 0x07
-                -- SSI   : 0x28
-                -- Endat : 0x10
-                -- BiSS  : 0x18
-                -- Pass  : 0x07
-                -- DCard Output Channel Buffer Ctrl
-                if (mem_addr_reg = OUTENC_PROTOCOL) then
-                    case (mem_odat(2 downto 0)) is
-                        when "000"  => -- INC
-                            outenc_buf_ctrl <= "00" & X"7";
-                        when "001"  => -- SSI
-                            outenc_buf_ctrl <= "10" & X"8";
-                        when "010"  => -- EnDat
-                            outenc_buf_ctrl <= "01" & X"0";
-                        when "011"  => -- BiSS
-                            outenc_buf_ctrl <= "01" & X"8";
-                        when "100"  => -- Pass
-                            outenc_buf_ctrl <= "00" & X"7";
-                        when others =>
-                            outenc_buf_ctrl <= (others => '0');
-                    end case;
-                end if;
-           end if;
+            -- DCard Output Channel Buffer Ctrl
+            -- Inc : 0x07
+            -- SSI : 0x28
+            -- BiSS : 0x28
+            -- Endat : 0x10
+            -- Pass : 0x07
+            -- DCard Output Channel Buffer Ctrl
+            case (OUTPROT(0)) is
+                when "000" => -- INC
+                    outenc_buf_ctrl <= "00" & X"7";
+                when "001" => -- SSI
+                    outenc_buf_ctrl <= "10" & X"8";
+                when "010" => -- BiSS
+                    outenc_buf_ctrl <= "10" & X"8";
+                when "011" => -- EnDat
+                    outenc_buf_ctrl <= "01" & X"0";
+                when "100" => -- Pass
+                    outenc_buf_ctrl <= "00" & X"7";
+                when others =>
+                    outenc_buf_ctrl <= (others => '0');
+            end case;
         end if;
     end if;
 end process;

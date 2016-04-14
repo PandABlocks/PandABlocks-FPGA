@@ -874,8 +874,8 @@ port map (
     leds_tlp_i => slow_tlp_leds,
     busy_o => slowctrl_busy,
 
-    SLOW_FPGA_VERSION => open,
-    DCARD_MODE => open
+    SLOW_FPGA_VERSION => SLOW_FPGA_VERSION,
+    DCARD_MODE => DCARD_MODE
 
 
 
@@ -990,12 +990,12 @@ port map (
 -- Direct interface to Daughter Card via FMC on the dev board.
 enc0_ctrl_pad_o <= enc0_ctrl_pad;
 
-DCARD_MODE(0) <= ZEROS(28) & enc0_ctrl_pad_i;
-DCARD_MODE(1) <= ZEROS(32);
-DCARD_MODE(2) <= ZEROS(32);
-DCARD_MODE(3) <= ZEROS(32);
-
-SLOW_FPGA_VERSION <= X"AA55AA55";
+--DCARD_MODE(0) <= ZEROS(28) & enc0_ctrl_pad_i;
+--DCARD_MODE(1) <= ZEROS(32);
+--DCARD_MODE(2) <= ZEROS(32);
+--DCARD_MODE(3) <= ZEROS(32);
+--
+--SLOW_FPGA_VERSION <= X"AA55AA55";
 
 -- Integer conversion for address.
 mem_addr_reg <= to_integer(unsigned(mem_addr));

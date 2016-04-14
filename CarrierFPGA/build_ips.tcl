@@ -73,3 +73,18 @@ set_property -dict [list \
 
 generate_target all [get_files $origin_dir/pcomp_dma_fifo/pcomp_dma_fifo.xci]
 synth_ip [get_ips pcomp_dma_fifo]
+
+
+#
+# Create ILA IP (32-bit wide with 8K Depth)
+#
+create_ip -name ila -vendor xilinx.com -library ip -version 5.1 \
+-module_name ila_32x8K -dir $origin_dir/
+
+set_property -dict [list \
+    CONFIG.C_PROBE0_WIDTH {32}  \
+    CONFIG.C_DATA_DEPTH {8192}  \
+] [get_ips ila_32x8K]
+
+generate_target all [get_files $origin_dir/ila_32x8K/ila_32x8K.xci]
+synth_ip [get_ips ila_32x8K]

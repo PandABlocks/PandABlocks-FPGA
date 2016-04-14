@@ -1,3 +1,15 @@
+--------------------------------------------------------------------------------
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Programmable Divider Block top-level module instantiates
+--                user-defined number of Divider cores.
+--------------------------------------------------------------------------------
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -36,7 +48,7 @@ begin
 mem_dat_o <= mem_read_data(to_integer(unsigned(mem_addr_i(PAGE_AW-1 downto BLK_AW))));
 
 --
--- Instantiate DIVUENCER Blocks :
+-- Instantiate DIVIDER Blocks :
 --  There are DIV_NUM amount of encoders on the board
 --
 DIV_GEN : FOR I IN 0 TO DIV_NUM-1 GENERATE
