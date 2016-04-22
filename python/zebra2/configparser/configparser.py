@@ -57,7 +57,8 @@ class ConfigParser(object):
         config = sections["config"]
         reg = sections["registers"]
         desc = sections["description"]
-        config_set = set(config)
+        # Exclude blocks starting with * from checks
+        config_set = set([b for b in sections["config"] if b[0] != '*'])
         reg_set = set(reg)
         desc_set = set(desc)
         all_set = config_set | reg_set | desc_set

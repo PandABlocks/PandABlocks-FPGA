@@ -263,3 +263,7 @@ POSITIONS
 SLOW
     FPGA_VERSION    read
     ENC_CONN        read
+
+*METADATA
+    MODEL           string
+    YAML            multiline
