@@ -280,6 +280,9 @@ Field type          Description
         < SEQ3.TABLE.LENGTH?
         > OK =12
 
+    Note that when data is sent in base-64 format, each individual line must
+    encode a multiple of four bytes, otherwise the write will be rejected.
+
     The following attributes are provided by this field type:
 
     ``MAX_LENGTH``

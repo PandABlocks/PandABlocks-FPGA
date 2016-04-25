@@ -218,13 +218,13 @@
 > OK =9
 
 < PCOMP2.TABLE<B
-< 1234567=
-< ABCd
+< 123456789ab
+< ABCdef
 <
 > OK
 
 < PCOMP2.TABLE.LENGTH?
-> OK =2
+> OK =3
 
 < PCOMP2.TABLE<<
 < 1 2 3 4 5 6 7 8
@@ -233,7 +233,7 @@
 > OK
 
 < PCOMP2.TABLE.LENGTH?
-> OK =11
+> OK =12
 
 < SEQ2.TABLE<
 < 1 2 3 4 5 6 7 8
@@ -567,8 +567,8 @@
 
 # Somewhat more challenging test taken from wikipedia.
 < SEQ1.TABLE<B
-< TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz
-< IHNpbmd1bGFyIHBhc3Npb24gZnJvbQo=
+< TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1
+< dCBieSB0aGlzIHNpbmd1bGFyIHBhc3Npb24gZnJvbQo=
 <
 > OK
 
