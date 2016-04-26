@@ -178,7 +178,7 @@ class ConfigParser(object):
                         "c=%s/r=%s/d=%s" % (err, c, r, d))
                 break
         # warn for any extra fields in config or desc
-        extra_config = set(config) - set(reg)
+        extra_config = set(config) - set(reg) - set(['*METADATA'])
         if extra_config:
             warning("Extra config fields %s" % list(extra_config))
         extra_desc = set(desc) - set(reg)
