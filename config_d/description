@@ -208,5 +208,16 @@ POSITIONS   Constants
     ZERO            Constant zero position
 
 SLOW        Slow control FPGA
-    FPGA_VERSION    Slow Controller FPGA Version
-    ENC_CONN        Encoder Connection Status
+    TEMP1_VAL       On-board temperature sensor values
+    TEMP2_VAL       On-board temperature sensor values
+    TEMP3_VAL       On-board temperature sensor values
+    TEMP4_VAL       On-board temperature sensor values
+    TEMP5_VAL       On-board temperature sensor values
+    FMC_12V         On-board voltage sensor values
+    ENC_24V         On-board voltage sensor values
+    FMC_15VP        On-board voltage sensor values
+    FMC_15VN        On-board voltage sensor values
+    SFP_3V3         On-board voltage sensor values
+    IO_5V0          On-board voltage sensor values
+    PICO_5V0        On-board voltage sensor values
+    ALIM_12V0       On-board voltage sensor values

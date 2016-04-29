@@ -71,7 +71,7 @@ slow_engine_inst : entity work.slow_engine
 generic map (
     AW              => AW,
     DW              => DW,
-    SYS_PERIOD      => 20       -- 50MHz
+    SYS_PERIOD      => 10       -- 100MHz
 )
 port map (
     clk_i           => clk_i,
@@ -147,6 +147,8 @@ STATUS_LIST(DCARD1_MODE) <= ZEROS(28) & DCARD_MODE(0);
 STATUS_LIST(DCARD2_MODE) <= ZEROS(28) & DCARD_MODE(1);
 STATUS_LIST(DCARD3_MODE) <= ZEROS(28) & DCARD_MODE(2);
 STATUS_LIST(DCARD4_MODE) <= ZEROS(28) & DCARD_MODE(3);
+STATUS_LIST(TEMP1_VAL) <= X"AABBCCDD";
+STATUS_LIST(TEMP2_VAL) <= X"11223344";
 
 process(clk_i) begin
     if rising_edge(clk_i) then

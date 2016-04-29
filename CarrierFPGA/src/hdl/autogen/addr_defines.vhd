@@ -292,8 +292,19 @@ constant CLOCKS_D_PERIOD : natural := 3;
 -- POSITIONS Block:
 
 -- SLOW Block:
-constant SLOW_FPGA_VERSION : natural := 0;
-constant SLOW_ENC_CONN : natural := 1;
+constant SLOW_TEMP1_VAL : natural := 0;
+constant SLOW_TEMP2_VAL : natural := 1;
+constant SLOW_TEMP3_VAL : natural := 2;
+constant SLOW_TEMP4_VAL : natural := 3;
+constant SLOW_TEMP5_VAL : natural := 4;
+constant SLOW_FMC_12V : natural := 5;
+constant SLOW_ENC_24V : natural := 6;
+constant SLOW_FMC_15VP : natural := 7;
+constant SLOW_FMC_15VN : natural := 8;
+constant SLOW_SFP_3V3 : natural := 9;
+constant SLOW_IO_5V0 : natural := 10;
+constant SLOW_PICO_5V0 : natural := 11;
+constant SLOW_ALIM_12V0 : natural := 12;
 
 
 

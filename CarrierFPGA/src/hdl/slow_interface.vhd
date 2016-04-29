@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       slowctrl_block.vhd
+--  File:       slow_interface.vhd
 --  Desc:       Position compare output pulse generator
 --
 --------------------------------------------------------------------------------
@@ -12,17 +12,11 @@ library work;
 use work.top_defines.all;
 use work.slow_defines.all;
 
-entity slowctrl_block is
+entity slow_interface is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
-    -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Serial Physical interface
     spi_sclk_i          : in  std_logic;
     spi_dat_i           : in  std_logic;
@@ -33,11 +27,13 @@ port (
     leds_tlp_i          : in  slow_packet;
     busy_o              : out std_logic;
     SLOW_FPGA_VERSION   : out std_logic_vector(31 downto 0);
-    DCARD_MODE          : out std32_array(ENC_NUM-1 downto 0)
+    DCARD_MODE          : out std32_array(ENC_NUM-1 downto 0);
+    TEMP_MON            : out std32_array(4 downto 0);
+    VOLT_MON            : out std32_array(7 downto 0)
 );
-end slowctrl_block;
+end slow_interface;
 
-architecture rtl of slowctrl_block is
+architecture rtl of slow_interface is
 
 signal wr_req           : std_logic;
 signal wr_dat           : std_logic_vector(31 downto 0);
@@ -46,14 +42,9 @@ signal rd_adr           : std_logic_vector(PAGE_AW-1 downto 0);
 signal rd_dat           : std_logic_vector(31 downto 0);
 signal rd_val           : std_logic;
 
-signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
-signal read_addr        : natural range 0 to (2**mem_addr_i'length - 1);
+signal read_addr        : natural range 0 to (2**rd_adr'length - 1);
 
 begin
-
--- Integer conversion for address.
-mem_addr <= to_integer(unsigned(mem_addr_i));
-mem_dat_o <= (others => '0');
 
 --
 -- Serial Interface core instantiation
@@ -82,7 +73,6 @@ port map (
     spi_sclk_i      => spi_sclk_i,
     spi_dat_i       => spi_dat_i
 );
-
 
 --
 -- There are multiple transmit sources coming across the design blocks.
@@ -123,25 +113,49 @@ begin
         if (reset_i = '1') then
             SLOW_FPGA_VERSION <= (others => '0');
             DCARD_MODE <= (others => (others => '0'));
+            TEMP_MON <= (others => (others => '0'));
+            VOLT_MON <= (others => (others => '0'));
         else
-            if (rd_val = '1' and read_addr = SLOW_VERSION) then
-                SLOW_FPGA_VERSION <= rd_dat;
-            end if;
-
-            if (rd_val = '1' and read_addr = DCARD1_MODE) then
-                DCARD_MODE(0) <= rd_dat;
-            end if;
-
-            if (rd_val = '1' and read_addr = DCARD2_MODE) then
-                DCARD_MODE(1) <= rd_dat;
-            end if;
-
-            if (rd_val = '1' and read_addr = DCARD3_MODE) then
-                DCARD_MODE(2) <= rd_dat;
-            end if;
-
-            if (rd_val = '1' and read_addr = DCARD4_MODE) then
-                DCARD_MODE(3) <= rd_dat;
+            if (rd_val = '1') then
+                case read_addr is
+                    when SLOW_VERSION =>
+                        SLOW_FPGA_VERSION <= rd_dat;
+                    when DCARD1_MODE =>
+                        DCARD_MODE(0) <= rd_dat;
+                    when DCARD2_MODE =>
+                        DCARD_MODE(1) <= rd_dat;
+                    when DCARD3_MODE =>
+                        DCARD_MODE(2) <= rd_dat;
+                    when DCARD4_MODE =>
+                        DCARD_MODE(3) <= rd_dat;
+                    when TEMP1_VAL =>
+                        TEMP_MON(0) <= rd_dat;
+                    when TEMP2_VAL =>
+                        TEMP_MON(1) <= rd_dat;
+                    when TEMP3_VAL =>
+                        TEMP_MON(2) <= rd_dat;
+                    when TEMP4_VAL =>
+                        TEMP_MON(3) <= rd_dat;
+                    when TEMP5_VAL =>
+                        TEMP_MON(4) <= rd_dat;
+                    when FMC_12V   =>
+                        VOLT_MON(0) <= rd_dat;
+                    when ENC_24V   =>
+                        VOLT_MON(1) <= rd_dat;
+                    when FMC_15VP  =>
+                        VOLT_MON(2) <= rd_dat;
+                    when FMC_15VN  =>
+                        VOLT_MON(3) <= rd_dat;
+                    when SFP_3V3   =>
+                        VOLT_MON(4) <= rd_dat;
+                    when IO_5V0    =>
+                        VOLT_MON(5) <= rd_dat;
+                    when PICO_5V0  =>
+                        VOLT_MON(6) <= rd_dat;
+                    when ALIM_12V0  =>
+                        VOLT_MON(7) <= rd_dat;
+                    when others =>
+                end case;
             end if;
         end if;
     end if;

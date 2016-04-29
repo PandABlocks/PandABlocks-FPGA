@@ -21,8 +21,19 @@ port (
     sysbus_i            : in sysbus_t;
     posbus_i            : in posbus_t;
     -- Block Parameters
-    FPGA_VERSION       : in  std_logic_vector(31 downto 0);
-    ENC_CONN       : in  std_logic_vector(31 downto 0);
+    TEMP1_VAL       : in  std_logic_vector(31 downto 0);
+    TEMP2_VAL       : in  std_logic_vector(31 downto 0);
+    TEMP3_VAL       : in  std_logic_vector(31 downto 0);
+    TEMP4_VAL       : in  std_logic_vector(31 downto 0);
+    TEMP5_VAL       : in  std_logic_vector(31 downto 0);
+    FMC_12V       : in  std_logic_vector(31 downto 0);
+    ENC_24V       : in  std_logic_vector(31 downto 0);
+    FMC_15VP       : in  std_logic_vector(31 downto 0);
+    FMC_15VN       : in  std_logic_vector(31 downto 0);
+    SFP_3V3       : in  std_logic_vector(31 downto 0);
+    IO_5V0       : in  std_logic_vector(31 downto 0);
+    PICO_5V0       : in  std_logic_vector(31 downto 0);
+    ALIM_12V0       : in  std_logic_vector(31 downto 0);
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
@@ -68,10 +79,32 @@ begin
             mem_dat_o <= (others => '0');
         else
             case (mem_addr) is
-                when SLOW_FPGA_VERSION =>
-                    mem_dat_o <= FPGA_VERSION;
-                when SLOW_ENC_CONN =>
-                    mem_dat_o <= ENC_CONN;
+                when SLOW_TEMP1_VAL =>
+                    mem_dat_o <= TEMP1_VAL;
+                when SLOW_TEMP2_VAL =>
+                    mem_dat_o <= TEMP2_VAL;
+                when SLOW_TEMP3_VAL =>
+                    mem_dat_o <= TEMP3_VAL;
+                when SLOW_TEMP4_VAL =>
+                    mem_dat_o <= TEMP4_VAL;
+                when SLOW_TEMP5_VAL =>
+                    mem_dat_o <= TEMP5_VAL;
+                when SLOW_FMC_12V =>
+                    mem_dat_o <= FMC_12V;
+                when SLOW_ENC_24V =>
+                    mem_dat_o <= ENC_24V;
+                when SLOW_FMC_15VP =>
+                    mem_dat_o <= FMC_15VP;
+                when SLOW_FMC_15VN =>
+                    mem_dat_o <= FMC_15VN;
+                when SLOW_SFP_3V3 =>
+                    mem_dat_o <= SFP_3V3;
+                when SLOW_IO_5V0 =>
+                    mem_dat_o <= IO_5V0;
+                when SLOW_PICO_5V0 =>
+                    mem_dat_o <= PICO_5V0;
+                when SLOW_ALIM_12V0 =>
+                    mem_dat_o <= ALIM_12V0;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;

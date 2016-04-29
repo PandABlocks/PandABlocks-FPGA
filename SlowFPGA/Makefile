@@ -4,14 +4,14 @@ endif
 
 VPATH = $(SRC_DIR)
 
+DEV = true
 
 # Top-level design name
 SYSTEM = slow_top
 
 LIST_FILE = $(SYSTEM).lst
-
-SCR_FILE = $(SRC_DIR)/syn/xilinx/$(SYSTEM).scr
-UCF_FILE = $(SRC_DIR)/syn/constr/$(SYSTEM).ucf
+SCR_FILE = $(SYSTEM).scr
+UCF_FILE = $(SYSTEM).ucf
 
 POSTSYN_NETLIST = $(SYSTEM).ngc
 NGD_FILE = $(SYSTEM).ngd
@@ -22,9 +22,11 @@ TWX_FILE = $(SYSTEM).twx
 BIT_FILE = $(SYSTEM).bit
 PROM_FILE = $(SYSTEM).mcs
 
-
 # Custom Project dependant defines
+TOP_FILE = $(SRC_DIR)/src/hdl/$(SYSTEM).vhd
 VERSION_FILE = slow_version.vhd
+
+IP_DIR = $(SRC_DIR)/syn/implementation
 
 include $(TOP)/VERSION
 
@@ -39,6 +41,33 @@ bits : $(BIT_FILE)
 mcs: $(PROM_FILE)
 
 .PHONY: mcs bits netlist
+
+$(SCR_FILE) :
+ifeq ($(DEV),true)
+	/bin/echo "Building for DEV BOARD"
+	cp $(SRC_DIR)/syn/xilinx/slow_top.scr.dev $@
+else
+	/bin/echo "Building for PandA CARRIER"
+	cp $(SRC_DIR)/syn/xilinx/slow_top.scr.panda $@
+endif
+
+$(UCF_FILE) :
+ifeq ($(DEV),true)
+	/bin/echo "Building for DEV BOARD"
+	cp $(SRC_DIR)/syn/constr/slow_top.ucf.dev $@
+else
+	/bin/echo "Building for PandA CARRIER"
+	cp $(SRC_DIR)/syn/constr/slow_top.ucf.panda $@
+endif
+
+$(TOP_FILE) : $(TOP_FILE).in $(UCF_FILE) $(SCR_FILE)
+ifeq ($(DEV),true)
+	/bin/echo "Building for DEV BOARD"
+	cpp -E -P -DDEV $< -o $@
+else
+	/bin/echo "Building for PandA CARRIER"
+	cpp -E -P $< -o $@
+endif
 
 $(VERSION_FILE):
 	rm -f $@
@@ -57,7 +86,7 @@ $(LIST_FILE): slow_top.files
 	echo 'vhdl work slow_version.vhd' >>$@
 
 
-$(POSTSYN_NETLIST): $(LIST_FILE) $(SCR_FILE) $(VERSION_FILE)
+$(POSTSYN_NETLIST): $(TOP_FILE) $(LIST_FILE) $(SCR_FILE) $(VERSION_FILE)
 	xst -ifn $(SCR_FILE)
 
 
@@ -65,8 +94,8 @@ MAP_FLAGS = -detail -w -ol high -pr b
 PAR_FLAGS = -w -ol high
 TRCE_FLAGS = -e 3 -l 3
 
-$(BIT_FILE): $(POSTSYN_NETLIST) $(UCF_FILE)
-	ngdbuild -uc $(UCF_FILE) $(POSTSYN_NETLIST)
+$(BIT_FILE): $(POSTSYN_NETLIST)
+	ngdbuild -uc $(UCF_FILE) -sd $(IP_DIR) $(POSTSYN_NETLIST)
 	map $(MAP_FLAGS) $(NGD_FILE) -o $(MAPPED_NCD_FILE) $(PCF_FILE)
 	par $(PAR_FLAGS) $(MAPPED_NCD_FILE) $(ROUTED_NCD_FILE) $(PCF_FILE)
 	trce $(TRCE_FLAGS) $(ROUTED_NCD_FILE) $(PCF_FILE) -xml $(TWX_FILE)

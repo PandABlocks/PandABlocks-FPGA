@@ -286,8 +286,19 @@ localparam CLOCKS_D_PERIOD = 3;
 // POSITIONS Block:
 
 // SLOW Block:
-localparam SLOW_FPGA_VERSION = 0;
-localparam SLOW_ENC_CONN = 1;
+localparam SLOW_TEMP1_VAL = 0;
+localparam SLOW_TEMP2_VAL = 1;
+localparam SLOW_TEMP3_VAL = 2;
+localparam SLOW_TEMP4_VAL = 3;
+localparam SLOW_TEMP5_VAL = 4;
+localparam SLOW_FMC_12V = 5;
+localparam SLOW_ENC_24V = 6;
+localparam SLOW_FMC_15VP = 7;
+localparam SLOW_FMC_15VN = 8;
+localparam SLOW_SFP_3V3 = 9;
+localparam SLOW_IO_5V0 = 10;
+localparam SLOW_PICO_5V0 = 11;
+localparam SLOW_ALIM_12V0 = 12;
 
 
 

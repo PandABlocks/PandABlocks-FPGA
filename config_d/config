@@ -263,5 +263,16 @@ POSITIONS
     ZERO            pos_out     const
 
 SLOW
-    FPGA_VERSION    read
-    ENC_CONN        read
+    TEMP1_VAL       read
+    TEMP2_VAL       read
+    TEMP3_VAL       read
+    TEMP4_VAL       read
+    TEMP5_VAL       read
+    FMC_12V         read
+    ENC_24V         read
+    FMC_15VP        read
+    FMC_15VN        read
+    SFP_3V3         read
+    IO_5V0          read
+    PICO_5V0        read
+    ALIM_12V0       read

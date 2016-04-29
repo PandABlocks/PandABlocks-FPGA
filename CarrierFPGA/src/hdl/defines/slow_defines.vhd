@@ -42,6 +42,19 @@ constant DCARD1_MODE        : natural := 1;
 constant DCARD2_MODE        : natural := 2;
 constant DCARD3_MODE        : natural := 3;
 constant DCARD4_MODE        : natural := 4;
+constant TEMP1_VAL          : natural := 5;
+constant TEMP2_VAL          : natural := 6;
+constant TEMP3_VAL          : natural := 7;
+constant TEMP4_VAL          : natural := 8;
+constant TEMP5_VAL          : natural := 9;
+constant FMC_12V            : natural := 10;
+constant ENC_24V            : natural := 11;
+constant FMC_15VP           : natural := 12;
+constant FMC_15VN           : natural := 13;
+constant SFP_3V3            : natural := 14;
+constant IO_5V0             : natural := 15;
+constant PICO_5V0           : natural := 16;
+constant ALIM_12V0          : natural := 17;
 
 -- Input Encoder Address List
 constant INPROT_ADDR_LIST   : page_array(ENC_NUM-1 downto 0) := (

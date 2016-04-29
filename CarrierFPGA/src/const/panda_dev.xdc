@@ -80,7 +80,3 @@ set_property IOSTANDARD LVCMOS18 [get_ports -of_objects [get_iobanks 34]];
 set_property IOSTANDARD LVCMOS18 [get_ports -of_objects [get_iobanks 35]];
 # Set the bank voltage for IO Bank 13 to 3.3V by default.
 set_property IOSTANDARD LVCMOS33 [get_ports -of_objects [get_iobanks 13]];
-
-# SPI Clock Constraints
-create_generated_clock -name slowctrl_inst/slowctrl_block_inst/slowctrl_inst/sclk_prebuf -source [get_pins {ps/processing_system7_0/inst/PS7_i/FCLKCLK[0]}] -divide_by 16 [get_pins {slowctrl_inst/slowctrl_block_inst/slowctrl_inst/sclk_prebuf_reg/Q}]
-

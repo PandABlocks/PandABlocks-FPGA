@@ -1,0 +1,33 @@
+
+#Created by Constraints Editor (xc6slx9-tqg144-3) - 2012/01/10
+NET "clk50_i" TNM_NET = "clk50_i";
+TIMESPEC TS_clk50_i = PERIOD "clk50_i" 10 ns HIGH 50 %;
+#
+NET "clk50_i"                   LOC = L15;
+
+NET "spi_sclk_i"                LOC = T3;  # PMOD1
+NET "spi_sclk_o"                LOC = R3;  # PMOD2
+NET "spi_dat_i"                 LOC = P6;  # PMOD3
+NET "spi_dat_o"                 LOC = N5;  # PMOD4
+
+NET "shift_reg_sdata_o"         LOC = V9;
+NET "shift_reg_sclk_o"          LOC = T9;
+NET "shift_reg_latch_o"         LOC = V4;
+NET "shift_reg_oe_n_o"          LOC = T4;
+
+NET "dcard_ctrl1_io[0]"         LOC = U16;
+NET "dcard_ctrl1_io[1]"         LOC = U15;
+NET "dcard_ctrl1_io[2]"         LOC = U13;
+NET "dcard_ctrl1_io[3]"         LOC = M11;
+NET "dcard_ctrl1_io[4]"         LOC = R11;
+NET "dcard_ctrl1_io[5]"         LOC = T12;
+NET "dcard_ctrl1_io[6]"         LOC = N10;
+NET "dcard_ctrl1_io[7]"         LOC = M10;
+NET "dcard_ctrl1_io[8]"         LOC = U11;
+NET "dcard_ctrl1_io[9]"         LOC = R10;
+NET "dcard_ctrl1_io[10]"        LOC = V16;
+NET "dcard_ctrl1_io[11]"        LOC = V15;
+NET "dcard_ctrl1_io[12]"        LOC = V13;
+NET "dcard_ctrl1_io[13]"        LOC = N11;
+NET "dcard_ctrl1_io[14]"        LOC = T11;
+NET "dcard_ctrl1_io[15]"        LOC = V12;
