@@ -45,48 +45,54 @@ port (
     FIXED_IO_ps_porb : inout std_logic;
     FIXED_IO_ps_srstb : inout std_logic;
 
-    -- Slow Controller Serial interface
-    spi_sclk_o : out std_logic;
-    spi_dat_o : out std_logic;
-    spi_sclk_i : in std_logic;
-    spi_dat_i : in std_logic;
-
     -- RS485 Channel 0 Encoder I/O
-    Am0_pad_io : inout std_logic_vector(ENC_NUM-1 downto 0);
-    Bm0_pad_io : inout std_logic_vector(ENC_NUM-1 downto 0);
-    Zm0_pad_io : inout std_logic_vector(ENC_NUM-1 downto 0);
-    As0_pad_io : inout std_logic_vector(ENC_NUM-1 downto 0);
-    Bs0_pad_io : inout std_logic_vector(ENC_NUM-1 downto 0);
-    Zs0_pad_io : inout std_logic_vector(ENC_NUM-1 downto 0);
-
-    -- Status I/O
-    enc0_ctrl_pad_i : in std_logic_vector(3 downto 0);
-    enc0_ctrl_pad_o : out std_logic_vector(11 downto 0);
-
+    AM0_PAD_IO : inout std_logic_vector(3 downto 0);
+    BM0_PAD_IO : inout std_logic_vector(3 downto 0);
+    ZM0_PAD_IO : inout std_logic_vector(3 downto 0);
+    AS0_PAD_IO : inout std_logic_vector(3 downto 0);
+    BS0_PAD_IO : inout std_logic_vector(3 downto 0);
+    ZS0_PAD_IO : inout std_logic_vector(3 downto 0);
     -- Discrete I/O
-    ttlin_pad_i : in std_logic_vector(TTLIN_NUM-1 downto 0);
-    ttlout_pad_o : out std_logic_vector(TTLOUT_NUM-1 downto 0);
-    lvdsin_pad_i : in std_logic_vector(LVDSIN_NUM-1 downto 0);
-    lvdsout_pad_o : out std_logic_vector(LVDSOUT_NUM-1 downto 0)
+    TTLIN_PAD_I : in std_logic_vector(5 downto 0);
+    TTLOUT_PAD_O : out std_logic_vector(9 downto 0);
+    LVDSIN_PAD_I : in std_logic_vector(1 downto 0);
+    LVDSOUT_PAD_O : out std_logic_vector(1 downto 0);
+    -- GTX Clock Resources
+    GTXCLK0_P : in std_logic;
+    GTXCLK0_N : in std_logic;
+    GTXCLK1_P : in std_logic;
+    GTXCLK1_N : in std_logic;
+    -- GTX I/O Resources
+    FMC_DP0_C2M_P : out std_logic;
+    FMC_DP0_C2M_N : out std_logic;
+    FMC_DP0_M2C_P : in std_logic;
+    FMC_DP0_M2C_N : in std_logic;
+    SFP_TX_P : out std_logic_vector(2 downto 0);
+    SFP_TX_N : out std_logic_vector(2 downto 0);
+    SFP_RX_P : in std_logic_vector(2 downto 0);
+    SFP_RX_N : in std_logic_vector(2 downto 0);
+    -- FMC Differential IO
+    FMC_LA_P : inout std_logic_vector(33 downto 0);
+    FMC_LA_N : inout std_logic_vector(33 downto 0);
+    -- Slow Controller Serial interface
+    SPI_SCLK_O : out std_logic;
+    SPI_DAT_O : out std_logic;
+    SPI_SCLK_I : in std_logic;
+    SPI_DAT_I : in std_logic
 );
 end panda_top;
-
 architecture rtl of panda_top is
-
 component ila_32x8K
 port (
     clk : in std_logic;
     probe0 : in std_logic_vector(31 downto 0)
 );
 end component;
-
 signal probe0 : std_logic_vector(31 downto 0);
-
 -- Signal declarations
 signal FCLK_CLK0 : std_logic;
 signal FCLK_RESET0_N : std_logic_vector(0 downto 0);
 signal FCLK_RESET0 : std_logic;
-
 signal M00_AXI_awaddr : std_logic_vector ( 31 downto 0 );
 signal M00_AXI_awprot : std_logic_vector ( 2 downto 0 );
 signal M00_AXI_awvalid : std_logic;
@@ -106,7 +112,6 @@ signal M00_AXI_rdata : std_logic_vector ( 31 downto 0 );
 signal M00_AXI_rresp : std_logic_vector ( 1 downto 0 );
 signal M00_AXI_rvalid : std_logic;
 signal M00_AXI_rready : std_logic;
-
 signal S_AXI_HP0_awready : std_logic := '1';
 signal S_AXI_HP0_awregion : std_logic_vector(3 downto 0);
 signal S_AXI_HP0_bid : std_logic_vector(5 downto 0) := (others => '0');
@@ -128,7 +133,6 @@ signal S_AXI_HP0_wdata : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
 signal S_AXI_HP0_wlast : std_logic;
 signal S_AXI_HP0_wstrb : std_logic_vector(AXI_DATA_WIDTH/8-1 downto 0);
 signal S_AXI_HP0_wvalid : std_logic;
-
 signal S_AXI_HP1_araddr : STD_LOGIC_VECTOR ( 31 downto 0 );
 signal S_AXI_HP1_arburst : STD_LOGIC_VECTOR ( 1 downto 0 );
 signal S_AXI_HP1_arcache : STD_LOGIC_VECTOR ( 3 downto 0 );
@@ -147,7 +151,6 @@ signal S_AXI_HP1_rlast : STD_LOGIC;
 signal S_AXI_HP1_rready : STD_LOGIC;
 signal S_AXI_HP1_rresp : STD_LOGIC_VECTOR ( 1 downto 0 );
 signal S_AXI_HP1_rvalid : STD_LOGIC;
-
 signal mem_cs : std_logic_vector(2**PAGE_NUM-1 downto 0);
 signal mem_addr : std_logic_vector(PAGE_AW-1 downto 0);
 signal mem_odat : std_logic_vector(31 downto 0);
@@ -158,14 +161,11 @@ signal mem_read_data : std32_array(2**PAGE_NUM-1 downto 0) :=
 signal mem_addr_reg : natural range 0 to (2**mem_addr'length - 1);
 signal inenc_buf_ctrl : std_logic_vector(5 downto 0);
 signal outenc_buf_ctrl : std_logic_vector(5 downto 0);
-
 signal IRQ_F2P : std_logic_vector(0 downto 0);
-
 -- Design Level Busses :
 signal sysbus : sysbus_t := (others => '0');
 signal posbus : posbus_t := (others => (others => '0'));
 signal extbus : std32_array(ENC_NUM-1 downto 0);
-
 -- Input Encoder
 signal inenc_val : std32_array(ENC_NUM-1 downto 0);
 signal inenc_val_upper : std32_array(ENC_NUM-1 downto 0);
@@ -173,10 +173,8 @@ signal inenc_a : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_b : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_z : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_conn : std_logic_vector(ENC_NUM-1 downto 0);
-
 -- Output Encoder
 signal outenc_conn : std_logic_vector(ENC_NUM-1 downto 0);
-
 -- Discrete Block Outputs :
 signal ttlin_val : std_logic_vector(TTLIN_NUM-1 downto 0);
 signal ttlout_val : std_logic_vector(TTLOUT_NUM-1 downto 0);
@@ -194,46 +192,32 @@ signal seq_outd : std_logic_vector(SEQ_NUM-1 downto 0);
 signal seq_oute : std_logic_vector(SEQ_NUM-1 downto 0);
 signal seq_outf : std_logic_vector(SEQ_NUM-1 downto 0);
 signal seq_active : std_logic_vector(SEQ_NUM-1 downto 0);
-
 signal counter_carry : std_logic_vector(COUNTER_NUM-1 downto 0);
 signal adder_out : std32_array(ADDER_NUM-1 downto 0);
-
 signal pcomp_active : std_logic_vector(PCOMP_NUM-1 downto 0);
 signal pcomp_out : std_logic_vector(PCOMP_NUM-1 downto 0);
-
 signal panda_spbram_wea : std_logic := '0';
-
 signal pcap_act : std_logic_vector(0 downto 0);
-
 signal clocks_a : std_logic_vector(0 downto 0);
 signal clocks_b : std_logic_vector(0 downto 0);
 signal clocks_c : std_logic_vector(0 downto 0);
 signal clocks_d : std_logic_vector(0 downto 0);
-
 signal bits_zero : std_logic_vector(0 downto 0);
 signal bits_one : std_logic_vector(0 downto 0);
-
 signal bits_a : std_logic_vector(0 downto 0);
 signal bits_b : std_logic_vector(0 downto 0);
 signal bits_c : std_logic_vector(0 downto 0);
 signal bits_d : std_logic_vector(0 downto 0);
-
 signal qdec_out : std32_array(QDEC_NUM-1 downto 0);
 signal counter_out : std32_array(COUNTER_NUM-1 downto 0);
 signal posenc_a : std_logic_vector(POSENC_NUM-1 downto 0);
 signal posenc_b : std_logic_vector(POSENC_NUM-1 downto 0);
-
 signal adc_out : std32_array(7 downto 0) := (others => (others => '0'));
-
 signal pgen_out : std32_array(PGEN_NUM-1 downto 0);
-
 signal slowctrl_busy : std_logic;
-
 signal enc0_ctrl_pad : std_logic_vector(11 downto 0);
-
 signal slow_tlp_registers : slow_packet;
 signal slow_tlp_leds : slow_packet;
-
 signal rdma_req : std_logic_vector(5 downto 0);
 signal rdma_ack : std_logic_vector(5 downto 0);
 signal rdma_done : std_logic;
@@ -241,7 +225,6 @@ signal rdma_addr : std32_array(5 downto 0);
 signal rdma_len : std8_array(5 downto 0);
 signal rdma_data : std_logic_vector(31 downto 0);
 signal rdma_valid : std_logic_vector(5 downto 0);
-
 signal A_IN : std_logic_vector(ENC_NUM-1 downto 0);
 signal B_IN : std_logic_vector(ENC_NUM-1 downto 0);
 signal Z_IN : std_logic_vector(ENC_NUM-1 downto 0);
@@ -254,19 +237,14 @@ signal CLK_IN : std_logic_vector(ENC_NUM-1 downto 0);
 signal DATA_OUT : std_logic_vector(ENC_NUM-1 downto 0);
 signal OUTPROT : std3_array(ENC_NUM-1 downto 0);
 signal INPROT : std3_array(ENC_NUM-1 downto 0);
-
 signal SLOW_FPGA_VERSION : std_logic_vector(31 downto 0);
 signal DCARD_MODE : std32_array(ENC_NUM-1 downto 0);
-
 attribute keep : string;
 attribute keep of sysbus : signal is "true";
 attribute keep of posbus : signal is "true";
-
 begin
-
 -- Internal clocks and resets
 FCLK_RESET0 <= not FCLK_RESET0_N(0);
-
 --
 -- Panda Processor System Block design instantiation
 --
@@ -274,7 +252,6 @@ ps : entity work.panda_ps
 port map (
     FCLK_CLK0 => FCLK_CLK0,
     FCLK_RESET0_N => FCLK_RESET0_N,
-
     DDR_addr(14 downto 0) => DDR_addr(14 downto 0),
     DDR_ba(2 downto 0) => DDR_ba(2 downto 0),
     DDR_cas_n => DDR_cas_n,
@@ -290,7 +267,6 @@ port map (
     DDR_ras_n => DDR_ras_n,
     DDR_reset_n => DDR_reset_n,
     DDR_we_n => DDR_we_n,
-
     FIXED_IO_ddr_vrn => FIXED_IO_ddr_vrn,
     FIXED_IO_ddr_vrp => FIXED_IO_ddr_vrp,
     FIXED_IO_mio(53 downto 0) => FIXED_IO_mio(53 downto 0),
@@ -298,7 +274,6 @@ port map (
     FIXED_IO_ps_porb => FIXED_IO_ps_porb,
     FIXED_IO_ps_srstb => FIXED_IO_ps_srstb,
     IRQ_F2P => IRQ_F2P,
-
     M00_AXI_araddr(31 downto 0) => M00_AXI_araddr(31 downto 0),
     M00_AXI_arprot(2 downto 0) => M00_AXI_arprot(2 downto 0),
     M00_AXI_arready => M00_AXI_arready,
@@ -318,7 +293,6 @@ port map (
     M00_AXI_wready => M00_AXI_wready,
     M00_AXI_wstrb(3 downto 0) => M00_AXI_wstrb(3 downto 0),
     M00_AXI_wvalid => M00_AXI_wvalid,
-
     S_AXI_HP0_awaddr => S_AXI_HP0_awaddr ,
     S_AXI_HP0_awburst => S_AXI_HP0_awburst,
     S_AXI_HP0_awcache => S_AXI_HP0_awcache,
@@ -339,7 +313,6 @@ port map (
     S_AXI_HP0_wready => S_AXI_HP0_wready,
     S_AXI_HP0_wstrb => S_AXI_HP0_wstrb,
     S_AXI_HP0_wvalid => S_AXI_HP0_wvalid,
-
     S_AXI_HP1_araddr => S_AXI_HP1_araddr,
     S_AXI_HP1_arburst => S_AXI_HP1_arburst,
     S_AXI_HP1_arcache => S_AXI_HP1_arcache,
@@ -359,7 +332,6 @@ port map (
     S_AXI_HP1_rresp => S_AXI_HP1_rresp,
     S_AXI_HP1_rvalid => S_AXI_HP1_rvalid
 );
-
 --
 -- Control and Status Memory Interface
 --
@@ -396,7 +368,6 @@ port map (
     mem_rstb_o => mem_rstb,
     mem_wstb_o => mem_wstb
 );
-
 ---------------------------------------------------------------------------
 -- TTL
 ---------------------------------------------------------------------------
@@ -409,10 +380,9 @@ port map (
     mem_wstb_i => mem_wstb,
     mem_rstb_i => mem_rstb,
     mem_dat_i => mem_odat,
-    pad_i => ttlin_pad_i,
+    pad_i => TTLIN_PAD_I,
     val_o => ttlin_val
 );
-
 ttlout_inst : entity work.ttlout_top
 port map (
     clk_i => FCLK_CLK0,
@@ -425,19 +395,16 @@ port map (
     sysbus_i => sysbus,
     pad_o => ttlout_val
 );
-
-ttlout_pad_o <= ttlout_val;
-
+TTLOUT_PAD_O <= ttlout_val;
 ---------------------------------------------------------------------------
 -- LVDS
 ---------------------------------------------------------------------------
 lvdsin_inst : entity work.lvdsin_top
 port map (
     clk_i => FCLK_CLK0,
-    pad_i => lvdsin_pad_i,
+    pad_i => LVDSIN_PAD_I,
     val_o => lvdsin_val
 );
-
 lvdsout_inst : entity work.lvdsout_top
 port map (
     clk_i => FCLK_CLK0,
@@ -448,9 +415,8 @@ port map (
     mem_rstb_i => mem_rstb,
     mem_dat_i => mem_odat,
     sysbus_i => sysbus,
-    pad_o => lvdsout_pad_o
+    pad_o => LVDSOUT_PAD_O
 );
-
 ---------------------------------------------------------------------------
 -- 5-Input LUT
 ---------------------------------------------------------------------------
@@ -466,7 +432,6 @@ port map (
     sysbus_i => sysbus,
     out_o => lut_val
 );
-
 ---------------------------------------------------------------------------
 -- SRGATE
 ---------------------------------------------------------------------------
@@ -482,7 +447,6 @@ port map (
     sysbus_i => sysbus,
     out_o => srgate_out
 );
-
 ---------------------------------------------------------------------------
 -- DIVIDER
 ---------------------------------------------------------------------------
@@ -500,7 +464,6 @@ port map (
     outd_o => div_outd,
     outn_o => div_outn
 );
-
 ---------------------------------------------------------------------------
 -- PULSE GENERATOR
 ---------------------------------------------------------------------------
@@ -517,7 +480,6 @@ port map (
     out_o => pulse_out,
     perr_o => pulse_perr
 );
-
 ---------------------------------------------------------------------------
 -- SEQEUENCER
 ---------------------------------------------------------------------------
@@ -539,7 +501,6 @@ port map (
     outf_o => seq_outf,
     active_o => seq_active
 );
-
 ---------------------------------------------------------------------------
 -- INENC (Encoder Inputs)
 ---------------------------------------------------------------------------
@@ -564,7 +525,6 @@ port map (
     posn_o => inenc_val,
     posn_upper_o => inenc_val_upper
 );
-
 ---------------------------------------------------------------------------
 -- QDEC
 ---------------------------------------------------------------------------
@@ -580,7 +540,6 @@ port map (
     sysbus_i => sysbus,
     out_o => qdec_out
 );
-
 ---------------------------------------------------------------------------
 -- OUTENC (Encoder Inputs)
 ---------------------------------------------------------------------------
@@ -604,7 +563,6 @@ port map (
     posbus_i => posbus,
     PROTOCOL => OUTPROT
 );
-
 ---------------------------------------------------------------------------
 -- OUTENC (Encoder Inputs)
 ---------------------------------------------------------------------------
@@ -623,7 +581,6 @@ port map (
     sysbus_i => sysbus,
     posbus_i => posbus
 );
-
 ---------------------------------------------------------------------------
 -- COUNTER/TIMER
 ---------------------------------------------------------------------------
@@ -641,7 +598,6 @@ port map (
     carry_o => counter_carry,
     out_o => counter_out
 );
-
 ---------------------------------------------------------------------------
 -- ADDER
 ---------------------------------------------------------------------------
@@ -657,7 +613,6 @@ port map (
     posbus_i => posbus,
     out_o => adder_out
 );
-
 ---------------------------------------------------------------------------
 -- POSITION COMPARE
 ---------------------------------------------------------------------------
@@ -683,7 +638,6 @@ port map (
     act_o => pcomp_active,
     out_o => pcomp_out
 );
-
 ---------------------------------------------------------------------------
 -- POSITION CAPTURE
 ---------------------------------------------------------------------------
@@ -724,7 +678,6 @@ port map (
     pcap_actv_o => pcap_act(0),
     pcap_irq_o => IRQ_F2P(0)
 );
-
 ---------------------------------------------------------------------------
 -- POSITION GENERATION
 ---------------------------------------------------------------------------
@@ -747,8 +700,6 @@ port map (
     sysbus_i => sysbus,
     out_o => pgen_out
 );
-
-
 ---------------------------------------------------------------------------
 -- TABLE DMA ENGINE
 ---------------------------------------------------------------------------
@@ -784,7 +735,6 @@ port map (
     dma_data_o => rdma_data,
     dma_valid_o => rdma_valid
 );
-
 ---------------------------------------------------------------------------
 -- REG (System, Position Bus and Special Register Readbacks)
 ---------------------------------------------------------------------------
@@ -803,7 +753,6 @@ port map (
     SLOW_FPGA_VERSION => SLOW_FPGA_VERSION,
     slowctrl_busy_i => slowctrl_busy
 );
-
 ---------------------------------------------------------------------------
 -- CLOCKS
 ---------------------------------------------------------------------------
@@ -822,7 +771,6 @@ port map (
     clocks_c_o => clocks_c(0),
     clocks_d_o => clocks_d(0)
 );
-
 ---------------------------------------------------------------------------
 -- BITS
 ---------------------------------------------------------------------------
@@ -842,7 +790,6 @@ port map (
     bits_c_o => bits_c(0),
     bits_d_o => bits_d(0)
 );
-
 ---------------------------------------------------------------------------
 -- SLOW CONTROLLER FPGA
 ---------------------------------------------------------------------------
@@ -856,7 +803,6 @@ port map (
     mem_dat_i => mem_odat,
     slow_tlp_o => slow_tlp_registers
 );
-
 slowctrl_inst : entity work.slowctrl_top
 port map (
     clk_i => FCLK_CLK0,
@@ -866,21 +812,16 @@ port map (
     mem_wstb_i => mem_wstb,
     mem_dat_i => mem_odat,
     mem_dat_o => mem_read_data(SLOW_CS),
-    spi_sclk_o => spi_sclk_o,
-    spi_dat_o => spi_dat_o,
-    spi_sclk_i => spi_sclk_i,
-    spi_dat_i => spi_dat_i,
+    spi_sclk_o => SPI_SCLK_O,
+    spi_dat_o => SPI_DAT_O,
+    spi_sclk_i => SPI_SCLK_I,
+    spi_dat_i => SPI_DAT_I,
     registers_tlp_i => slow_tlp_registers,
     leds_tlp_i => slow_tlp_leds,
     busy_o => slowctrl_busy,
     SLOW_FPGA_VERSION => SLOW_FPGA_VERSION,
-
-    DCARD_MODE => open
-
-
-
+    DCARD_MODE => DCARD_MODE
 );
-
 ---------------------------------------------------------------------------
 -- BUS ASSIGNMENTS
 ---------------------------------------------------------------------------
@@ -935,7 +876,6 @@ port map (
     bitbus_o => sysbus,
     posbus_o => posbus
 );
-
 ---------------------------------------------------------------------------
 -- SLOW FPGA Misc Communication (LED, Custom)
 ---------------------------------------------------------------------------
@@ -949,30 +889,25 @@ port map (
     outenc_conn_i => outenc_conn,
     slow_tlp_o => slow_tlp_leds
 );
-
 ---------------------------------------------------------------------------
 -- Extended Bus : Assignments
 ---------------------------------------------------------------------------
 extbus(3 downto 0) <= inenc_val_upper;
-
 ---------------------------------------------------------------------------
--- On-Chip IOBIF Control for Daughter Card Interfacing
+-- On-Chip IOBUF Control for Daughter Card Interfacing
 ---------------------------------------------------------------------------
 dcard_interface_inst : entity work.dcard_interface
 port map (
     clk_i => FCLK_CLK0,
     reset_i => FCLK_RESET0,
-
-    Am0_pad_io => Am0_pad_io,
-    Bm0_pad_io => Bm0_pad_io,
-    Zm0_pad_io => Zm0_pad_io,
-    As0_pad_io => As0_pad_io,
-    Bs0_pad_io => Bs0_pad_io,
-    Zs0_pad_io => Zs0_pad_io,
-
+    Am0_pad_io => AM0_PAD_IO,
+    Bm0_pad_io => BM0_PAD_IO,
+    Zm0_pad_io => ZM0_PAD_IO,
+    As0_pad_io => AS0_PAD_IO,
+    Bs0_pad_io => BS0_PAD_IO,
+    Zs0_pad_io => ZS0_PAD_IO,
     INPROT => INPROT,
     OUTPROT => OUTPROT,
-
     A_IN => A_IN,
     B_IN => B_IN,
     Z_IN => Z_IN,
@@ -984,87 +919,44 @@ port map (
     CLK_IN => CLK_IN,
     DATA_OUT => DATA_OUT
 );
-
-
--- Direct interface to Daughter Card via FMC on the dev board.
-enc0_ctrl_pad_o <= enc0_ctrl_pad;
-
-DCARD_MODE(0) <= ZEROS(28) & enc0_ctrl_pad_i;
-DCARD_MODE(1) <= ZEROS(32);
-DCARD_MODE(2) <= ZEROS(32);
-DCARD_MODE(3) <= ZEROS(32);
-
--- Integer conversion for address.
-mem_addr_reg <= to_integer(unsigned(mem_addr));
-
---
--- Catch PROTOCOL write to INENC0 and OUTENC0 modules.
---
-REG_WRITE : process(FCLK_CLK0)
-begin
-    if rising_edge(FCLK_CLK0) then
-        if (FCLK_RESET0 = '1') then
-            inenc_buf_ctrl <= (others => '0');
-            outenc_buf_ctrl <= (others => '0');
-        else
-            -- DCard Input Channel Buffer Ctrl
-            -- Inc : 0x03
-            -- SSI : 0x0C
-            -- BiSS : 0x0C
-            -- Endat : 0x14
-            case (INPROT(0)) is
-                when "000" => -- INC
-                    inenc_buf_ctrl <= "00" & X"3";
-                when "001" => -- SSI
-                    inenc_buf_ctrl <= "00" & X"C";
-                when "010" => -- BiSS
-                    inenc_buf_ctrl <= "00" & X"C";
-                when "011" => -- EnDat
-                    inenc_buf_ctrl <= "01" & X"4";
-                when others =>
-                    inenc_buf_ctrl <= (others => '0');
-            end case;
-
-            -- DCard Output Channel Buffer Ctrl
-            -- Inc : 0x07
-            -- SSI : 0x28
-            -- BiSS : 0x28
-            -- Endat : 0x10
-            -- Pass : 0x07
-            -- DCard Output Channel Buffer Ctrl
-            case (OUTPROT(0)) is
-                when "000" => -- INC
-                    outenc_buf_ctrl <= "00" & X"7";
-                when "001" => -- SSI
-                    outenc_buf_ctrl <= "10" & X"8";
-                when "010" => -- BiSS
-                    outenc_buf_ctrl <= "10" & X"8";
-                when "011" => -- EnDat
-                    outenc_buf_ctrl <= "01" & X"0";
-                when "100" => -- Pass
-                    outenc_buf_ctrl <= "00" & X"7";
-                when others =>
-                    outenc_buf_ctrl <= (others => '0');
-            end case;
-        end if;
-    end if;
-end process;
-
--- Daughter Card Buffer Control Signals
-enc0_ctrl_pad(1 downto 0) <= inenc_buf_ctrl(1 downto 0);
-enc0_ctrl_pad(3 downto 2) <= outenc_buf_ctrl(1 downto 0);
-enc0_ctrl_pad(4) <= inenc_buf_ctrl(2);
-enc0_ctrl_pad(5) <= outenc_buf_ctrl(2);
-enc0_ctrl_pad(7 downto 6) <= inenc_buf_ctrl(4 downto 3);
-enc0_ctrl_pad(9 downto 8) <= outenc_buf_ctrl(4 downto 3);
-enc0_ctrl_pad(10) <= inenc_buf_ctrl(5);
-enc0_ctrl_pad(11) <= outenc_buf_ctrl(5);
-
---
--- >>>>>>>>>>>>> 1 BOARD - ENDS
---
-
-
-
-
+---------------------------------------------------------------------------
+-- FMC Loopback design
+---------------------------------------------------------------------------
+fmc_inst : entity work.fmc_loopback
+port map (
+    clk_i => FCLK_CLK0,
+    reset_i => FCLK_RESET0,
+    mem_addr_i => mem_addr,
+    mem_cs_i => mem_cs(FMC_CS),
+    mem_wstb_i => mem_wstb,
+    mem_dat_i => mem_odat,
+    mem_dat_o => mem_read_data(FMC_CS),
+    FMC_LA_P => FMC_LA_P,
+    FMC_LA_N => FMC_LA_N,
+    GTREFCLK_N => GTXCLK1_N,
+    GTREFCLK_P => GTXCLK1_P,
+    TXP_OUT => FMC_DP0_C2M_P,
+    TXN_OUT => FMC_DP0_C2M_N,
+    RXP_IN => FMC_DP0_M2C_P,
+    RXN_IN => FMC_DP0_M2C_N
+);
+---------------------------------------------------------------------------
+-- SFP Loopback design
+---------------------------------------------------------------------------
+sfp_inst : entity work.sfp_loopback
+port map (
+    clk_i => FCLK_CLK0,
+    reset_i => FCLK_RESET0,
+    mem_addr_i => mem_addr,
+    mem_cs_i => mem_cs(SFP_CS),
+    mem_wstb_i => mem_wstb,
+    mem_dat_i => mem_odat,
+    mem_dat_o => mem_read_data(SFP_CS),
+    GTREFCLK_N => GTXCLK0_N,
+    GTREFCLK_P => GTXCLK0_P,
+    RXN_IN => SFP_RX_N,
+    RXP_IN => SFP_RX_P,
+    TXN_OUT => SFP_TX_N,
+    TXP_OUT => SFP_TX_P
+);
 end rtl;

@@ -45,29 +45,55 @@ port (
     FIXED_IO_ps_porb    : inout std_logic;
     FIXED_IO_ps_srstb   : inout std_logic;
 
-    -- Slow Controller Serial interface
-    spi_sclk_o          : out std_logic;
-    spi_dat_o           : out std_logic;
-    spi_sclk_i          : in  std_logic;
-    spi_dat_i           : in  std_logic;
-
     -- RS485 Channel 0 Encoder I/O
-    Am0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
-    Bm0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
-    Zm0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
-    As0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
-    Bs0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
-    Zs0_pad_io          : inout std_logic_vector(ENC_NUM-1 downto 0);
+    AM0_PAD_IO          : inout std_logic_vector(3 downto 0);
+    BM0_PAD_IO          : inout std_logic_vector(3 downto 0);
+    ZM0_PAD_IO          : inout std_logic_vector(3 downto 0);
+    AS0_PAD_IO          : inout std_logic_vector(3 downto 0);
+    BS0_PAD_IO          : inout std_logic_vector(3 downto 0);
+    ZS0_PAD_IO          : inout std_logic_vector(3 downto 0);
+
 #ifdef DEV
     -- Status I/O
     enc0_ctrl_pad_i     : in    std_logic_vector(3  downto 0);
     enc0_ctrl_pad_o     : out   std_logic_vector(11 downto 0);
+    SFP_TX_DISABLE      : out   std_logic;
 #endif
+
     -- Discrete I/O
-    ttlin_pad_i         : in    std_logic_vector(TTLIN_NUM-1 downto 0);
-    ttlout_pad_o        : out   std_logic_vector(TTLOUT_NUM-1 downto 0);
-    lvdsin_pad_i        : in    std_logic_vector(LVDSIN_NUM-1 downto 0);
-    lvdsout_pad_o       : out   std_logic_vector(LVDSOUT_NUM-1 downto 0)
+    TTLIN_PAD_I         : in    std_logic_vector(5 downto 0);
+    TTLOUT_PAD_O        : out   std_logic_vector(9 downto 0);
+    LVDSIN_PAD_I        : in    std_logic_vector(1 downto 0);
+    LVDSOUT_PAD_O       : out   std_logic_vector(1 downto 0);
+
+    -- GTX Clock Resources
+#ifndef DEV
+    GTXCLK0_P           : in    std_logic;
+    GTXCLK0_N           : in    std_logic;
+    GTXCLK1_P           : in    std_logic;
+    GTXCLK1_N           : in    std_logic;
+
+    -- GTX I/O Resources
+    FMC_DP0_C2M_P       : out   std_logic;
+    FMC_DP0_C2M_N       : out   std_logic;
+    FMC_DP0_M2C_P       : in    std_logic;
+    FMC_DP0_M2C_N       : in    std_logic;
+
+    SFP_TX_P            : out   std_logic_vector(2 downto 0);
+    SFP_TX_N            : out   std_logic_vector(2 downto 0);
+    SFP_RX_P            : in    std_logic_vector(2 downto 0);
+    SFP_RX_N            : in    std_logic_vector(2 downto 0);
+
+    -- FMC Differential IO
+    FMC_LA_P            : inout std_logic_vector(33 downto 0);
+    FMC_LA_N            : inout std_logic_vector(33 downto 0);
+#endif
+
+    -- Slow Controller Serial interface
+    SPI_SCLK_O          : out std_logic;
+    SPI_DAT_O           : out std_logic;
+    SPI_SCLK_I          : in  std_logic;
+    SPI_DAT_I           : in  std_logic
 );
 end panda_top;
 
@@ -267,6 +293,10 @@ begin
 -- Internal clocks and resets
 FCLK_RESET0 <= not FCLK_RESET0_N(0);
 
+#ifdef DEV
+SFP_TX_DISABLE <= '0';
+#endif
+
 --
 -- Panda Processor System Block design instantiation
 --
@@ -409,7 +439,7 @@ port map (
     mem_wstb_i          => mem_wstb,
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
-    pad_i               => ttlin_pad_i,
+    pad_i               => TTLIN_PAD_I,
     val_o               => ttlin_val
 );
 
@@ -426,7 +456,7 @@ port map (
     pad_o               => ttlout_val
 );
 
-ttlout_pad_o <= ttlout_val;
+TTLOUT_PAD_O <= ttlout_val;
 
 ---------------------------------------------------------------------------
 -- LVDS
@@ -434,7 +464,7 @@ ttlout_pad_o <= ttlout_val;
 lvdsin_inst : entity work.lvdsin_top
 port map (
     clk_i               => FCLK_CLK0,
-    pad_i               => lvdsin_pad_i,
+    pad_i               => LVDSIN_PAD_I,
     val_o               => lvdsin_val
 );
 
@@ -448,7 +478,7 @@ port map (
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
     sysbus_i            => sysbus,
-    pad_o               => lvdsout_pad_o
+    pad_o               => LVDSOUT_PAD_O
 );
 
 ---------------------------------------------------------------------------
@@ -866,10 +896,10 @@ port map (
     mem_wstb_i          => mem_wstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(SLOW_CS),
-    spi_sclk_o          => spi_sclk_o,
-    spi_dat_o           => spi_dat_o,
-    spi_sclk_i          => spi_sclk_i,
-    spi_dat_i           => spi_dat_i,
+    spi_sclk_o          => SPI_SCLK_O,
+    spi_dat_o           => SPI_DAT_O,
+    spi_sclk_i          => SPI_SCLK_I,
+    spi_dat_i           => SPI_DAT_I,
     registers_tlp_i     => slow_tlp_registers,
     leds_tlp_i          => slow_tlp_leds,
     busy_o              => slowctrl_busy,
@@ -956,19 +986,19 @@ port map (
 extbus(3 downto 0)  <= inenc_val_upper;
 
 ---------------------------------------------------------------------------
--- On-Chip IOBIF Control for Daughter Card Interfacing
+-- On-Chip IOBUF Control for Daughter Card Interfacing
 ---------------------------------------------------------------------------
 dcard_interface_inst : entity work.dcard_interface
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
 
-    Am0_pad_io          => Am0_pad_io,
-    Bm0_pad_io          => Bm0_pad_io,
-    Zm0_pad_io          => Zm0_pad_io,
-    As0_pad_io          => As0_pad_io,
-    Bs0_pad_io          => Bs0_pad_io,
-    Zs0_pad_io          => Zs0_pad_io,
+    Am0_pad_io          => AM0_PAD_IO,
+    Bm0_pad_io          => BM0_PAD_IO,
+    Zm0_pad_io          => ZM0_PAD_IO,
+    As0_pad_io          => AS0_PAD_IO,
+    Bs0_pad_io          => BS0_PAD_IO,
+    Zs0_pad_io          => ZS0_PAD_IO,
 
     INPROT              => INPROT,
     OUTPROT             => OUTPROT,
@@ -984,6 +1014,58 @@ port map (
     CLK_IN              => CLK_IN,
     DATA_OUT            => DATA_OUT
 );
+
+#ifndef DEV
+---------------------------------------------------------------------------
+-- FMC Loopback design
+---------------------------------------------------------------------------
+fmc_inst : entity work.fmc_loopback
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(FMC_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => mem_read_data(FMC_CS),
+
+    FMC_LA_P            => FMC_LA_P,
+    FMC_LA_N            => FMC_LA_N,
+
+    GTREFCLK_N          => GTXCLK1_N,
+    GTREFCLK_P          => GTXCLK1_P,
+    TXP_OUT             => FMC_DP0_C2M_P,
+    TXN_OUT             => FMC_DP0_C2M_N,
+    RXP_IN              => FMC_DP0_M2C_P,
+    RXN_IN              => FMC_DP0_M2C_N
+);
+#endif
+
+#ifndef DEV
+---------------------------------------------------------------------------
+-- SFP Loopback design
+---------------------------------------------------------------------------
+sfp_inst : entity work.sfp_loopback
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    mem_addr_i          => mem_addr,
+    mem_cs_i            => mem_cs(SFP_CS),
+    mem_wstb_i          => mem_wstb,
+    mem_dat_i           => mem_odat,
+    mem_dat_o           => mem_read_data(SFP_CS),
+
+    GTREFCLK_N          => GTXCLK0_N,
+    GTREFCLK_P          => GTXCLK0_P,
+    RXN_IN              => SFP_RX_N,
+    RXP_IN              => SFP_RX_P,
+    TXN_OUT             => SFP_TX_N,
+    TXP_OUT             => SFP_TX_P
+);
+
+#endif
 
 #ifdef DEV
 -- Direct interface to Daughter Card via FMC on the dev board.

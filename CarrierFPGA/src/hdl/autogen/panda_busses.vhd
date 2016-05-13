@@ -101,6 +101,10 @@ port (
 
     -- SLOW Block
 
+    -- FMC Block
+
+    -- SFP Block
+
 
     -- Bus Outputs
     bitbus_o            : out std_logic_vector(127 downto 0);
@@ -305,6 +309,10 @@ bitbus_o(125) <= CLOCKS_OUTD(0);
 posbus_o(0) <= POSITIONS_ZERO(0);
 
 -- SLOW Outputs:
+
+-- FMC Outputs:
+
+-- SFP Outputs:
 
 
 

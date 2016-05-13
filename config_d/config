@@ -276,3 +276,17 @@ SLOW
     IO_5V0          read
     PICO_5V0        read
     ALIM_12V0       read
+
+FMC
+    LINK_UP         read
+    ERROR_COUNT     read
+    LA_P_ERROR      read
+    LA_N_ERROR      read
+
+SFP
+    LINK1_UP        read
+    ERROR1_COUNT    read
+    LINK2_UP        read
+    ERROR2_COUNT    read
+    LINK3_UP        read
+    ERROR3_COUNT    read

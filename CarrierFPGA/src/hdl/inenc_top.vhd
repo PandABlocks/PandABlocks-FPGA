@@ -50,15 +50,6 @@ end inenc_top;
 
 architecture rtl of inenc_top is
 
-component ila_32x8K
-port (
-    clk                 : in  std_logic;
-    probe0              : in  std_logic_vector(31 downto 0)
-);
-end component;
-
-signal probe0           : std_logic_vector(31 downto 0);
-
 signal posn             : std32_array(ENC_NUM-1 downto 0);
 signal mem_blk_cs       : std_logic_vector(ENC_NUM-1 downto 0);
 signal mem_read_data    : std32_array(2**BLK_NUM-1 downto 0);
@@ -108,20 +99,6 @@ port map (
 );
 
 END GENERATE;
-
---
--- ILA Instantiation
---
-ila_0_inst : ila_32x8K
-port map (
-    clk                 => clk_i,
-    probe0              => probe0
-);
-
-probe0(0) <= DATA_IN(0);
-probe0(1) <= CLK_IN(0);
-probe0(5 downto 2) <= DCARD_MODE(0)(3 downto 0);
-probe0(31 downto 6) <= posn(0)(25 downto 0);
 
 end rtl;
 

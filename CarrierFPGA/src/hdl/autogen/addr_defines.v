@@ -24,6 +24,8 @@ localparam BITS_CS = 22;
 localparam CLOCKS_CS = 23;
 localparam POSITIONS_CS = 24;
 localparam SLOW_CS = 25;
+localparam FMC_CS = 26;
+localparam SFP_CS = 27;
 
 // Block Register Address Space
 
@@ -300,6 +302,20 @@ localparam SLOW_IO_5V0 = 10;
 localparam SLOW_PICO_5V0 = 11;
 localparam SLOW_ALIM_12V0 = 12;
 
+// FMC Block:
+localparam FMC_LINK_UP = 0;
+localparam FMC_ERROR_COUNT = 1;
+localparam FMC_LA_P_ERROR = 2;
+localparam FMC_LA_N_ERROR = 3;
+
+// SFP Block:
+localparam SFP_LINK1_UP = 0;
+localparam SFP_ERROR1_COUNT = 1;
+localparam SFP_LINK2_UP = 2;
+localparam SFP_ERROR2_COUNT = 3;
+localparam SFP_LINK3_UP = 4;
+localparam SFP_ERROR3_COUNT = 5;
+
 
 
 // Panda Base Address and block base addresses
@@ -329,3 +345,5 @@ localparam BITS_BASE = BASE + 4096 * BITS_CS;
 localparam CLOCKS_BASE = BASE + 4096 * CLOCKS_CS;
 localparam POSITIONS_BASE = BASE + 4096 * POSITIONS_CS;
 localparam SLOW_BASE = BASE + 4096 * SLOW_CS;
+localparam FMC_BASE = BASE + 4096 * FMC_CS;
+localparam SFP_BASE = BASE + 4096 * SFP_CS;

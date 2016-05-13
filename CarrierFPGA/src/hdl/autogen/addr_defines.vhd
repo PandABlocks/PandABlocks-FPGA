@@ -30,6 +30,8 @@ constant BITS_CS : natural := 22;
 constant CLOCKS_CS : natural := 23;
 constant POSITIONS_CS : natural := 24;
 constant SLOW_CS : natural := 25;
+constant FMC_CS : natural := 26;
+constant SFP_CS : natural := 27;
 
 -- Block Register Address Space
 
@@ -305,6 +307,20 @@ constant SLOW_SFP_3V3 : natural := 9;
 constant SLOW_IO_5V0 : natural := 10;
 constant SLOW_PICO_5V0 : natural := 11;
 constant SLOW_ALIM_12V0 : natural := 12;
+
+-- FMC Block:
+constant FMC_LINK_UP : natural := 0;
+constant FMC_ERROR_COUNT : natural := 1;
+constant FMC_LA_P_ERROR : natural := 2;
+constant FMC_LA_N_ERROR : natural := 3;
+
+-- SFP Block:
+constant SFP_LINK1_UP : natural := 0;
+constant SFP_ERROR1_COUNT : natural := 1;
+constant SFP_LINK2_UP : natural := 2;
+constant SFP_ERROR2_COUNT : natural := 3;
+constant SFP_LINK3_UP : natural := 4;
+constant SFP_ERROR3_COUNT : natural := 5;
 
 
 

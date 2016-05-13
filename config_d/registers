@@ -286,3 +286,17 @@ SLOW        25
     IO_5V0          10
     PICO_5V0        11
     ALIM_12V0       12
+
+FMC         26
+    LINK_UP         0
+    ERROR_COUNT     1
+    LA_P_ERROR      2
+    LA_N_ERROR      3
+
+SFP         27
+    LINK1_UP        0
+    ERROR1_COUNT    1
+    LINK2_UP        2
+    ERROR2_COUNT    3
+    LINK3_UP        4
+    ERROR3_COUNT    5

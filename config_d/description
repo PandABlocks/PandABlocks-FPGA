@@ -221,3 +221,17 @@ SLOW        Slow control FPGA
     IO_5V0          On-board voltage sensor values
     PICO_5V0        On-board voltage sensor values
     ALIM_12V0       On-board voltage sensor values
+
+FMC         FMC Block Status
+    LINK_UP         GTX link status
+    ERROR_COUNT     GTX loopback
+    LA_P_ERROR      LA_P loopback status
+    LA_N_ERROR      LA_N loopback status
+
+SFP         SFP Block Status
+    LINK1_UP        GTX-1 link status
+    ERROR1_COUNT    GTX-1 loopback
+    LINK2_UP        GTX-2 link status
+    ERROR2_COUNT    GTX-2 loopback
+    LINK3_UP        GTX-3 link status
+    ERROR3_COUNT    GTX-3 loopback

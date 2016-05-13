@@ -88,3 +88,47 @@ set_property -dict [list \
 
 generate_target all [get_files $origin_dir/ila_32x8K/ila_32x8K.xci]
 synth_ip [get_ips ila_32x8K]
+
+#
+# Create FMC GTX Aurora IP
+#
+create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \
+-module_name fmcgtx -dir $origin_dir/
+
+set_property -dict [list \
+    CONFIG.identical_protocol_file {aurora_8b10b_single_lane_2byte} \
+    CONFIG.gt0_val {true}                                           \
+    CONFIG.gt0_val_tx_refclk {REFCLK1_Q0}                           \
+    CONFIG.identical_val_tx_line_rate {3.125}                       \
+    CONFIG.identical_val_tx_reference_clock {156.250}               \
+    CONFIG.identical_val_rx_line_rate {3.125}                       \
+    CONFIG.identical_val_rx_reference_clock {156.250}               \
+] [get_ips fmcgtx]
+
+generate_target all [get_files $origin_dir/fmcgtx/fmcgtx.xci]
+synth_ip [get_ips fmcgtx]
+
+#
+# Create SFP GTX Aurora IP
+#
+create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \
+-module_name sfpgtx -dir $origin_dir/
+
+
+set_property -dict [list \
+    CONFIG.identical_protocol_file {aurora_8b10b_single_lane_2byte} \
+    CONFIG.gt0_val_tx_refclk {REFCLK0_Q0}                           \
+    CONFIG.gt0_val {true}                                           \
+    CONFIG.gt1_val_tx_refclk {REFCLK0_Q0}                           \
+    CONFIG.gt1_val {true}                                           \
+    CONFIG.gt2_val_tx_refclk {REFCLK0_Q0}                           \
+    CONFIG.gt2_val {true}                                           \
+    CONFIG.identical_val_tx_line_rate {2.5}                         \
+    CONFIG.identical_val_tx_reference_clock {125.000}               \
+    CONFIG.identical_val_rx_line_rate {2.5}                         \
+    CONFIG.identical_val_rx_reference_clock {125.000}               \
+] [get_ips sfpgtx]
+
+generate_target all [get_files $origin_dir/sfpgtx/sfpgtx.xci]
+synth_ip [get_ips sfpgtx]
+
