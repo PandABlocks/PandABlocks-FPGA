@@ -47,14 +47,14 @@ constant TEMP_SFP           : natural := 6;
 constant TEMP_ENC_L         : natural := 7;
 constant TEMP_PICO          : natural := 8;
 constant TEMP_ENC_R         : natural := 9;
-constant FMC_12V            : natural := 10;
-constant ENC_24V            : natural := 11;
-constant FMC_15VP           : natural := 12;
-constant FMC_15VN           : natural := 13;
-constant SFP_3V3            : natural := 14;
-constant IO_5V0             : natural := 15;
-constant PICO_5V0           : natural := 16;
-constant ALIM_12V0          : natural := 17;
+constant ALIM_12V0          : natural := 10;
+constant PICO_5V0           : natural := 11;
+constant IO_5V0             : natural := 12;
+constant SFP_3V3            : natural := 13;
+constant FMC_15VN           : natural := 14;
+constant FMC_15VP           : natural := 15;
+constant ENC_24V            : natural := 16;
+constant FMC_12V            : natural := 17;
 
 -- Input Encoder Address List
 constant INPROT_ADDR_LIST   : page_array(ENC_NUM-1 downto 0) := (

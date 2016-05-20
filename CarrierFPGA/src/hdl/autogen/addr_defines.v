@@ -293,14 +293,14 @@ localparam SLOW_TEMP_SFP = 1;
 localparam SLOW_TEMP_ENC_L = 2;
 localparam SLOW_TEMP_PICO = 3;
 localparam SLOW_TEMP_ENC_R = 4;
-localparam SLOW_FMC_12V = 5;
-localparam SLOW_ENC_24V = 6;
-localparam SLOW_FMC_15VP = 7;
-localparam SLOW_FMC_15VN = 8;
-localparam SLOW_SFP_3V3 = 9;
-localparam SLOW_IO_5V0 = 10;
-localparam SLOW_PICO_5V0 = 11;
-localparam SLOW_ALIM_12V0 = 12;
+localparam SLOW_ALIM_12V0 = 5;
+localparam SLOW_PICO_5V0 = 6;
+localparam SLOW_IO_5V0 = 7;
+localparam SLOW_SFP_3V3 = 8;
+localparam SLOW_FMC_15VN = 9;
+localparam SLOW_FMC_15VP = 10;
+localparam SLOW_ENC_24V = 11;
+localparam SLOW_FMC_12V = 12;
 
 // FMC Block:
 localparam FMC_LINK_UP = 0;

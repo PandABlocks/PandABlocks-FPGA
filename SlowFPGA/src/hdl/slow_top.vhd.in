@@ -46,7 +46,9 @@ port (
     shift_reg_oe_n_o    : out   std_logic;
     -- I2C Temperature Sensor Interface
     i2c_temp_sda        : inout std_logic;
-    i2c_temp_scl        : inout std_logic
+    i2c_temp_scl        : inout std_logic;
+    i2c_vmon_sda        : inout std_logic;
+    i2c_vmon_scl        : inout std_logic
 );
 end slow_top;
 
@@ -76,6 +78,7 @@ signal INENC_PROTOCOL       : std3_array(3 downto 0);
 signal OUTENC_PROTOCOL      : std3_array(3 downto 0);
 signal DCARD_MODE           : std4_array(3 downto 0);
 signal TEMP_MON             : std32_array(4 downto 0);
+signal VOLT_MON             : std32_array(7 downto 0);
 signal reset_n              : std_logic;
 signal reset                : std_logic;
 signal ttlin_term           : std_logic_vector(5 downto 0);
@@ -121,7 +124,8 @@ port map (
     INENC_PROTOCOL      => INENC_PROTOCOL,
     OUTENC_PROTOCOL     => OUTENC_PROTOCOL,
     DCARD_MODE          => DCARD_MODE,
-    TEMP_MON            => TEMP_MON
+    TEMP_MON            => TEMP_MON,
+    VOLT_MON            => VOLT_MON
 );
 
 --
@@ -177,6 +181,18 @@ port map (
     TEMP_MON            => TEMP_MON
 );
 
+--
+-- Temp sensor interface
+--
+voltage_sensors_inst : entity work.voltage_sensors
+port map (
+    clk_i               => clk50_i,
+    reset_i             => reset,
+    sda                 => i2c_vmon_sda,
+    scl                 => i2c_vmon_scl,
+    VOLT_MON            => VOLT_MON
+);
+
 --icon_inst : icon
 --port map (
 --    CONTROL0    => CONTROL0
@@ -190,16 +206,11 @@ port map (
 --    TRIG0               => TRIG0
 --);
 --
---TRIG0(0) <= i2c_temp_scl;
---TRIG0(1) <= i2c_temp_sda;
---TRIG0(2) <= debug(0);
---TRIG0(3) <= debug(2);
---TRIG0(7 downto 4) <= (others => '0');
+--TRIG0(7 downto 0) <= (others => '0');
 --
---DATA(0) <= i2c_temp_scl;
---DATA(1) <= i2c_temp_sda;
---DATA(17 downto 2) <= TEMP_PSU(15 downto 0);
---DATA(33 downto 18) <= debug;
---DATA(63 downto 34) <= (others => '0');
+--DATA(15 downto 0) <= VOLT_MON(0)(15 downto 0);
+--DATA(31 downto 16) <= VOLT_MON(1)(15 downto 0);
+--DATA(47 downto 32) <= VOLT_MON(6)(15 downto 0);
+--DATA(63 downto 48) <= VOLT_MON(7)(15 downto 0);
 
 end rtl;

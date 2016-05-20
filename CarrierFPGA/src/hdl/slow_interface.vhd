@@ -128,6 +128,7 @@ begin
                         DCARD_MODE(2) <= rd_dat;
                     when DCARD4_MODE =>
                         DCARD_MODE(3) <= rd_dat;
+                    -- TEmperature monitor
                     when TEMP_PSU =>
                         TEMP_MON(0) <= rd_dat;
                     when TEMP_SFP =>
@@ -138,21 +139,22 @@ begin
                         TEMP_MON(3) <= rd_dat;
                     when TEMP_ENC_R =>
                         TEMP_MON(4) <= rd_dat;
-                    when FMC_12V   =>
-                        VOLT_MON(0) <= rd_dat;
-                    when ENC_24V   =>
-                        VOLT_MON(1) <= rd_dat;
-                    when FMC_15VP  =>
-                        VOLT_MON(2) <= rd_dat;
-                    when FMC_15VN  =>
-                        VOLT_MON(3) <= rd_dat;
-                    when SFP_3V3   =>
-                        VOLT_MON(4) <= rd_dat;
-                    when IO_5V0    =>
-                        VOLT_MON(5) <= rd_dat;
-                    when PICO_5V0  =>
-                        VOLT_MON(6) <= rd_dat;
+                    -- Voltage monitor
                     when ALIM_12V0  =>
+                        VOLT_MON(0) <= rd_dat;
+                    when PICO_5V0  =>
+                        VOLT_MON(1) <= rd_dat;
+                    when IO_5V0    =>
+                        VOLT_MON(2) <= rd_dat;
+                    when SFP_3V3   =>
+                        VOLT_MON(3) <= rd_dat;
+                    when FMC_15VN  =>
+                        VOLT_MON(4) <= rd_dat;
+                    when FMC_15VP  =>
+                        VOLT_MON(5) <= rd_dat;
+                    when ENC_24V   =>
+                        VOLT_MON(6) <= rd_dat;
+                    when FMC_12V   =>
                         VOLT_MON(7) <= rd_dat;
                     when others =>
                 end case;

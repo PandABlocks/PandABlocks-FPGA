@@ -299,14 +299,14 @@ constant SLOW_TEMP_SFP : natural := 1;
 constant SLOW_TEMP_ENC_L : natural := 2;
 constant SLOW_TEMP_PICO : natural := 3;
 constant SLOW_TEMP_ENC_R : natural := 4;
-constant SLOW_FMC_12V : natural := 5;
-constant SLOW_ENC_24V : natural := 6;
-constant SLOW_FMC_15VP : natural := 7;
-constant SLOW_FMC_15VN : natural := 8;
-constant SLOW_SFP_3V3 : natural := 9;
-constant SLOW_IO_5V0 : natural := 10;
-constant SLOW_PICO_5V0 : natural := 11;
-constant SLOW_ALIM_12V0 : natural := 12;
+constant SLOW_ALIM_12V0 : natural := 5;
+constant SLOW_PICO_5V0 : natural := 6;
+constant SLOW_IO_5V0 : natural := 7;
+constant SLOW_SFP_3V3 : natural := 8;
+constant SLOW_FMC_15VN : natural := 9;
+constant SLOW_FMC_15VP : natural := 10;
+constant SLOW_ENC_24V : natural := 11;
+constant SLOW_FMC_12V : natural := 12;
 
 -- FMC Block:
 constant FMC_LINK_UP : natural := 0;
