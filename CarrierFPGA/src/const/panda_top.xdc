@@ -1,1 +1,1 @@
-panda_carrier.xdc
+panda_dev.xdc

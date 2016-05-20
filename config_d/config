@@ -263,11 +263,11 @@ POSITIONS
     ZERO            pos_out     const
 
 SLOW
-    TEMP1_VAL       read
-    TEMP2_VAL       read
-    TEMP3_VAL       read
-    TEMP4_VAL       read
-    TEMP5_VAL       read
+    TEMP_PSU        read        int
+    TEMP_SFP        read        int
+    TEMP_ENC_L      read        int
+    TEMP_PICO       read        int
+    TEMP_ENC_R      read        int
     FMC_12V         read
     ENC_24V         read
     FMC_15VP        read

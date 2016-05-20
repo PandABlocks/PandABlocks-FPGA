@@ -52,28 +52,21 @@ port (
     AS0_PAD_IO : inout std_logic_vector(3 downto 0);
     BS0_PAD_IO : inout std_logic_vector(3 downto 0);
     ZS0_PAD_IO : inout std_logic_vector(3 downto 0);
+
+
+    -- Status I/O
+    enc0_ctrl_pad_i : in std_logic_vector(3 downto 0);
+    enc0_ctrl_pad_o : out std_logic_vector(11 downto 0);
+    SFP_TX_DISABLE : out std_logic;
+
+
     -- Discrete I/O
     TTLIN_PAD_I : in std_logic_vector(5 downto 0);
     TTLOUT_PAD_O : out std_logic_vector(9 downto 0);
     LVDSIN_PAD_I : in std_logic_vector(1 downto 0);
     LVDSOUT_PAD_O : out std_logic_vector(1 downto 0);
+
     -- GTX Clock Resources
-    GTXCLK0_P : in std_logic;
-    GTXCLK0_N : in std_logic;
-    GTXCLK1_P : in std_logic;
-    GTXCLK1_N : in std_logic;
-    -- GTX I/O Resources
-    FMC_DP0_C2M_P : out std_logic;
-    FMC_DP0_C2M_N : out std_logic;
-    FMC_DP0_M2C_P : in std_logic;
-    FMC_DP0_M2C_N : in std_logic;
-    SFP_TX_P : out std_logic_vector(2 downto 0);
-    SFP_TX_N : out std_logic_vector(2 downto 0);
-    SFP_RX_P : in std_logic_vector(2 downto 0);
-    SFP_RX_N : in std_logic_vector(2 downto 0);
-    -- FMC Differential IO
-    FMC_LA_P : inout std_logic_vector(33 downto 0);
-    FMC_LA_N : inout std_logic_vector(33 downto 0);
     -- Slow Controller Serial interface
     SPI_SCLK_O : out std_logic;
     SPI_DAT_O : out std_logic;
@@ -245,6 +238,7 @@ attribute keep of posbus : signal is "true";
 begin
 -- Internal clocks and resets
 FCLK_RESET0 <= not FCLK_RESET0_N(0);
+SFP_TX_DISABLE <= '0';
 --
 -- Panda Processor System Block design instantiation
 --
@@ -820,7 +814,7 @@ port map (
     leds_tlp_i => slow_tlp_leds,
     busy_o => slowctrl_busy,
     SLOW_FPGA_VERSION => SLOW_FPGA_VERSION,
-    DCARD_MODE => DCARD_MODE
+    DCARD_MODE => open
 );
 ---------------------------------------------------------------------------
 -- BUS ASSIGNMENTS
@@ -919,44 +913,75 @@ port map (
     CLK_IN => CLK_IN,
     DATA_OUT => DATA_OUT
 );
----------------------------------------------------------------------------
--- FMC Loopback design
----------------------------------------------------------------------------
-fmc_inst : entity work.fmc_loopback
-port map (
-    clk_i => FCLK_CLK0,
-    reset_i => FCLK_RESET0,
-    mem_addr_i => mem_addr,
-    mem_cs_i => mem_cs(FMC_CS),
-    mem_wstb_i => mem_wstb,
-    mem_dat_i => mem_odat,
-    mem_dat_o => mem_read_data(FMC_CS),
-    FMC_LA_P => FMC_LA_P,
-    FMC_LA_N => FMC_LA_N,
-    GTREFCLK_N => GTXCLK1_N,
-    GTREFCLK_P => GTXCLK1_P,
-    TXP_OUT => FMC_DP0_C2M_P,
-    TXN_OUT => FMC_DP0_C2M_N,
-    RXP_IN => FMC_DP0_M2C_P,
-    RXN_IN => FMC_DP0_M2C_N
-);
----------------------------------------------------------------------------
--- SFP Loopback design
----------------------------------------------------------------------------
-sfp_inst : entity work.sfp_loopback
-port map (
-    clk_i => FCLK_CLK0,
-    reset_i => FCLK_RESET0,
-    mem_addr_i => mem_addr,
-    mem_cs_i => mem_cs(SFP_CS),
-    mem_wstb_i => mem_wstb,
-    mem_dat_i => mem_odat,
-    mem_dat_o => mem_read_data(SFP_CS),
-    GTREFCLK_N => GTXCLK0_N,
-    GTREFCLK_P => GTXCLK0_P,
-    RXN_IN => SFP_RX_N,
-    RXP_IN => SFP_RX_P,
-    TXN_OUT => SFP_TX_N,
-    TXP_OUT => SFP_TX_P
-);
+-- Direct interface to Daughter Card via FMC on the dev board.
+enc0_ctrl_pad_o <= enc0_ctrl_pad;
+DCARD_MODE(0) <= ZEROS(28) & enc0_ctrl_pad_i;
+DCARD_MODE(1) <= ZEROS(32);
+DCARD_MODE(2) <= ZEROS(32);
+DCARD_MODE(3) <= ZEROS(32);
+-- Integer conversion for address.
+mem_addr_reg <= to_integer(unsigned(mem_addr));
+--
+-- Catch PROTOCOL write to INENC0 and OUTENC0 modules.
+--
+REG_WRITE : process(FCLK_CLK0)
+begin
+    if rising_edge(FCLK_CLK0) then
+        if (FCLK_RESET0 = '1') then
+            inenc_buf_ctrl <= (others => '0');
+            outenc_buf_ctrl <= (others => '0');
+        else
+            -- DCard Input Channel Buffer Ctrl
+            -- Inc : 0x03
+            -- SSI : 0x0C
+            -- BiSS : 0x0C
+            -- Endat : 0x14
+            case (INPROT(0)) is
+                when "000" => -- INC
+                    inenc_buf_ctrl <= "00" & X"3";
+                when "001" => -- SSI
+                    inenc_buf_ctrl <= "00" & X"C";
+                when "010" => -- BiSS
+                    inenc_buf_ctrl <= "00" & X"C";
+                when "011" => -- EnDat
+                    inenc_buf_ctrl <= "01" & X"4";
+                when others =>
+                    inenc_buf_ctrl <= (others => '0');
+            end case;
+            -- DCard Output Channel Buffer Ctrl
+            -- Inc : 0x07
+            -- SSI : 0x28
+            -- BiSS : 0x28
+            -- Endat : 0x10
+            -- Pass : 0x07
+            -- DCard Output Channel Buffer Ctrl
+            case (OUTPROT(0)) is
+                when "000" => -- INC
+                    outenc_buf_ctrl <= "00" & X"7";
+                when "001" => -- SSI
+                    outenc_buf_ctrl <= "10" & X"8";
+                when "010" => -- BiSS
+                    outenc_buf_ctrl <= "10" & X"8";
+                when "011" => -- EnDat
+                    outenc_buf_ctrl <= "01" & X"0";
+                when "100" => -- Pass
+                    outenc_buf_ctrl <= "00" & X"7";
+                when others =>
+                    outenc_buf_ctrl <= (others => '0');
+            end case;
+        end if;
+    end if;
+end process;
+-- Daughter Card Buffer Control Signals
+enc0_ctrl_pad(1 downto 0) <= inenc_buf_ctrl(1 downto 0);
+enc0_ctrl_pad(3 downto 2) <= outenc_buf_ctrl(1 downto 0);
+enc0_ctrl_pad(4) <= inenc_buf_ctrl(2);
+enc0_ctrl_pad(5) <= outenc_buf_ctrl(2);
+enc0_ctrl_pad(7 downto 6) <= inenc_buf_ctrl(4 downto 3);
+enc0_ctrl_pad(9 downto 8) <= outenc_buf_ctrl(4 downto 3);
+enc0_ctrl_pad(10) <= inenc_buf_ctrl(5);
+enc0_ctrl_pad(11) <= outenc_buf_ctrl(5);
+--
+-- >>>>>>>>>>>>> 1 BOARD - ENDS
+--
 end rtl;

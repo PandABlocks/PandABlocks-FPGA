@@ -83,4 +83,5 @@ NET "dcard_ctrl4_io[13]"      LOC = P127;
 NET "dcard_ctrl4_io[14]"      LOC = P131;
 NET "dcard_ctrl4_io[15]"      LOC = P132;
 
-
+NET "i2c_temp_sda"            LOC = P61;
+NET "i2c_temp_scl"            LOC = P62;

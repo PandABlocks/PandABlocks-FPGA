@@ -43,7 +43,10 @@ port (
     shift_reg_sdata_o : out std_logic;
     shift_reg_sclk_o : out std_logic;
     shift_reg_latch_o : out std_logic;
-    shift_reg_oe_n_o : out std_logic
+    shift_reg_oe_n_o : out std_logic;
+    -- I2C Temperature Sensor Interface
+    i2c_temp_sda : inout std_logic;
+    i2c_temp_scl : inout std_logic
 );
 end slow_top;
 
@@ -54,8 +57,6 @@ port (
     CONTROL0 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0)
 );
 end component;
-
-signal CONTROL0 : STD_LOGIC_VECTOR(35 DOWNTO 0);
 
 component ila
 port (
@@ -68,15 +69,15 @@ end component;
 
 signal DATA : STD_LOGIC_VECTOR(63 DOWNTO 0);
 signal TRIG0 : STD_LOGIC_VECTOR(7 DOWNTO 0);
+signal CONTROL0 : STD_LOGIC_VECTOR(35 DOWNTO 0);
 
 signal OUTENC_CONN : std_logic_vector(3 downto 0);
 signal INENC_PROTOCOL : std3_array(3 downto 0);
 signal OUTENC_PROTOCOL : std3_array(3 downto 0);
 signal DCARD_MODE : std4_array(3 downto 0);
-
+signal TEMP_MON : std32_array(4 downto 0);
 signal reset_n : std_logic;
 signal reset : std_logic;
-
 signal ttlin_term : std_logic_vector(5 downto 0);
 signal ttl_leds : std_logic_vector(15 downto 0);
 signal status_leds : std_logic_vector(3 downto 0);
@@ -119,7 +120,8 @@ port map (
 
     INENC_PROTOCOL => INENC_PROTOCOL,
     OUTENC_PROTOCOL => OUTENC_PROTOCOL,
-    DCARD_MODE => DCARD_MODE
+    DCARD_MODE => DCARD_MODE,
+    TEMP_MON => TEMP_MON
 );
 
 --
@@ -154,42 +156,50 @@ fpanel_if_inst : entity work.fpanel_if
 port map (
     clk_i => clk50_i,
     reset_i => reset,
-
     ttlin_term_i => ttlin_term,
     ttl_leds_i => ttl_leds,
     status_leds_i => status_leds,
-
     shift_reg_sdata_o => shift_reg_sdata_o,
     shift_reg_sclk_o => shift_reg_sclk_o,
     shift_reg_latch_o => shift_reg_latch_o,
     shift_reg_oe_n_o => shift_reg_oe_n_o
 );
 
-
 --
--- Chipscope
+-- Temp sensor interface
 --
-icon_inst : icon
+temp_sensors_inst : entity work.temp_sensors
 port map (
-    CONTROL0 => CONTROL0
+    clk_i => clk50_i,
+    reset_i => reset,
+    sda => i2c_temp_sda,
+    scl => i2c_temp_scl,
+    TEMP_MON => TEMP_MON
 );
 
-ila_inst : ila
-port map (
-    CONTROL => CONTROL0,
-    CLK => clk50_i,
-    DATA => DATA,
-    TRIG0 => TRIG0
-);
-
-TRIG0(0) <= spi_sclk_i;
-TRIG0(1) <= spi_dat_i;
-TRIG0(7 downto 2) <= (others => '0');
-
-DATA(0) <= spi_sclk_i;
-DATA(1) <= spi_dat_i;
-DATA(4 downto 2) <= INENC_PROTOCOL(0);
-DATA(7 downto 5) <= OUTENC_PROTOCOL(0);
-DATA(63 downto 8) <= (others => '0');
+--icon_inst : icon
+--port map (
+-- CONTROL0 => CONTROL0
+--);
+--
+--ila_inst : ila
+--port map (
+-- CONTROL => CONTROL0,
+-- CLK => clk50_i,
+-- DATA => DATA,
+-- TRIG0 => TRIG0
+--);
+--
+--TRIG0(0) <= i2c_temp_scl;
+--TRIG0(1) <= i2c_temp_sda;
+--TRIG0(2) <= debug(0);
+--TRIG0(3) <= debug(2);
+--TRIG0(7 downto 4) <= (others => '0');
+--
+--DATA(0) <= i2c_temp_scl;
+--DATA(1) <= i2c_temp_sda;
+--DATA(17 downto 2) <= TEMP_PSU(15 downto 0);
+--DATA(33 downto 18) <= debug;
+--DATA(63 downto 34) <= (others => '0');
 
 end rtl;

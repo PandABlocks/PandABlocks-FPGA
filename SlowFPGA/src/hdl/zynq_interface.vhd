@@ -24,22 +24,23 @@ use work.slow_version.all;
 entity zynq_interface is
 port (
     -- 50MHz system clock
-    clk_i           : in  std_logic;
-    reset_i         : in  std_logic;
+    clk_i               : in  std_logic;
+    reset_i             : in  std_logic;
     -- Encoder Daughter Card Control and Status Registers
-    INENC_PROTOCOL  : out std3_array(3 downto 0);
-    OUTENC_PROTOCOL : out std3_array(3 downto 0);
-    DCARD_MODE      : in  std4_array(3 downto 0);
-    OUTENC_CONN_O   : out std_logic_vector(3 downto 0);
+    INENC_PROTOCOL      : out std3_array(3 downto 0);
+    OUTENC_PROTOCOL     : out std3_array(3 downto 0);
+    OUTENC_CONN_O       : out std_logic_vector(3 downto 0);
+    DCARD_MODE          : in  std4_array(3 downto 0);
+    TEMP_MON            : in std32_array(4 downto 0);
     -- Front-Panel Control
-    ttlin_term_o    : out std_logic_vector(5 downto 0);
-    ttl_leds_o      : out std_logic_vector(15 downto 0);
-    status_leds_o   : out std_logic_vector(3 downto 0);
+    ttlin_term_o        : out std_logic_vector(5 downto 0);
+    ttl_leds_o          : out std_logic_vector(15 downto 0);
+    status_leds_o       : out std_logic_vector(3 downto 0);
     -- Serial Physical interface
-    spi_sclk_i      : in  std_logic;
-    spi_dat_i       : in  std_logic;
-    spi_sclk_o      : out std_logic;
-    spi_dat_o       : out std_logic
+    spi_sclk_i          : in  std_logic;
+    spi_dat_i           : in  std_logic;
+    spi_sclk_o          : out std_logic;
+    spi_dat_o           : out std_logic
 );
 end zynq_interface;
 
@@ -147,8 +148,11 @@ STATUS_LIST(DCARD1_MODE) <= ZEROS(28) & DCARD_MODE(0);
 STATUS_LIST(DCARD2_MODE) <= ZEROS(28) & DCARD_MODE(1);
 STATUS_LIST(DCARD3_MODE) <= ZEROS(28) & DCARD_MODE(2);
 STATUS_LIST(DCARD4_MODE) <= ZEROS(28) & DCARD_MODE(3);
-STATUS_LIST(TEMP1_VAL) <= X"AABBCCDD";
-STATUS_LIST(TEMP2_VAL) <= X"11223344";
+STATUS_LIST(TEMP_PSU)    <= TEMP_MON(0);
+STATUS_LIST(TEMP_SFP)    <= TEMP_MON(1);
+STATUS_LIST(TEMP_ENC_L)  <= TEMP_MON(2);
+STATUS_LIST(TEMP_PICO)   <= TEMP_MON(3);
+STATUS_LIST(TEMP_ENC_R)  <= TEMP_MON(4);
 
 process(clk_i) begin
     if rising_edge(clk_i) then

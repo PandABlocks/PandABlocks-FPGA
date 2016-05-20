@@ -208,11 +208,11 @@ POSITIONS   Constants
     ZERO            Constant zero position
 
 SLOW        Slow control FPGA
-    TEMP1_VAL       On-board temperature sensor values
-    TEMP2_VAL       On-board temperature sensor values
-    TEMP3_VAL       On-board temperature sensor values
-    TEMP4_VAL       On-board temperature sensor values
-    TEMP5_VAL       On-board temperature sensor values
+    TEMP_PSU        On-board temperature [Power Supply]
+    TEMP_SFP        On-board temperature [SFP]
+    TEMP_ENC_L      On-board temperature [Left Encoder]
+    TEMP_PICO       On-board temperature [Picozed]
+    TEMP_ENC_R      On-board temperature [Right Encoder]
     FMC_12V         On-board voltage sensor values
     ENC_24V         On-board voltage sensor values
     FMC_15VP        On-board voltage sensor values

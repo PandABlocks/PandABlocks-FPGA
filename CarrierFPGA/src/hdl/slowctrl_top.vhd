@@ -1,7 +1,13 @@
 --------------------------------------------------------------------------------
---  File:       slowctrl_top.vhd
---  Desc:       Position capture module
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Zynq-to-Spartan6 Slow Control Interface top-level.
+--                Interface is provided with dedicated SPI-like serial links.
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -38,13 +44,15 @@ end slowctrl_top;
 
 architecture rtl of slowctrl_top is
 
+-- Gather various Temperature and Voltage readouts from Slow FPGA into
+-- arrays.
 signal TEMP_MON         : std32_array(4 downto 0);
 signal VOLT_MON         : std32_array(7 downto 0);
 
 begin
 
 --
--- Slow controller interface
+-- Slow controller physical serial interface
 --
 slow_interface : entity work.slow_interface
 port map (
@@ -76,11 +84,11 @@ port map (
     sysbus_i            => (others => '0'),
     posbus_i            => (others => (others => '0')),
     -- Block Parameters
-    TEMP1_VAL           => TEMP_MON(0),
-    TEMP2_VAL           => TEMP_MON(1),
-    TEMP3_VAL           => TEMP_MON(2),
-    TEMP4_VAL           => TEMP_MON(3),
-    TEMP5_VAL           => TEMP_MON(4),
+    TEMP_PSU            => TEMP_MON(0),
+    TEMP_SFP            => TEMP_MON(1),
+    TEMP_ENC_L          => TEMP_MON(2),
+    TEMP_PICO           => TEMP_MON(3),
+    TEMP_ENC_R          => TEMP_MON(4),
     FMC_12V             => VOLT_MON(0),
     ENC_24V             => VOLT_MON(1),
     FMC_15VP            => VOLT_MON(2),

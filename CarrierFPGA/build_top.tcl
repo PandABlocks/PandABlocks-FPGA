@@ -55,8 +55,8 @@ add_files -norecurse ./ip_repo/pulse_queue/pulse_queue.xci
 add_files -norecurse ./ip_repo/pcap_dma_fifo/pcap_dma_fifo.xci
 add_files -norecurse ./ip_repo/pgen_dma_fifo/pgen_dma_fifo.xci
 add_files -norecurse ./ip_repo/pcomp_dma_fifo/pcomp_dma_fifo.xci
-add_files -norecurse ./ip_repo/fmcgtx/fmcgtx.xci
-add_files -norecurse ./ip_repo/sfpgtx/sfpgtx.xci
+#add_files -norecurse ./ip_repo/fmcgtx/fmcgtx.xci
+#add_files -norecurse ./ip_repo/sfpgtx/sfpgtx.xci
 #add_files -norecurse ./ip_repo/ila_32x8K/ila_32x8K.xci
 
 # Read constraint files
@@ -91,9 +91,9 @@ write_debug_probes -force panda_top.ltx
 route_design
 
 write_checkpoint -force panda_top_routed.dcp
-report_utilization -file panda_top_routed.rpt
+report_utilization -file post_route_utilization_summary.rpt
 
-set timingreport [report_timing_summary -no_header -no_detailed_paths -return_string -file panda_top_timing.rpt]
+set timingreport [report_timing_summary -no_header -no_detailed_paths -return_string -file post_route_timing_summary.rpt]
 
 if {! [string match -nocase {*timing constraints are met*} $timingreport]} {
     send_msg_id showstopper-0 error "Timing constraints weren't met."

@@ -294,11 +294,11 @@ constant CLOCKS_D_PERIOD : natural := 3;
 -- POSITIONS Block:
 
 -- SLOW Block:
-constant SLOW_TEMP1_VAL : natural := 0;
-constant SLOW_TEMP2_VAL : natural := 1;
-constant SLOW_TEMP3_VAL : natural := 2;
-constant SLOW_TEMP4_VAL : natural := 3;
-constant SLOW_TEMP5_VAL : natural := 4;
+constant SLOW_TEMP_PSU : natural := 0;
+constant SLOW_TEMP_SFP : natural := 1;
+constant SLOW_TEMP_ENC_L : natural := 2;
+constant SLOW_TEMP_PICO : natural := 3;
+constant SLOW_TEMP_ENC_R : natural := 4;
 constant SLOW_FMC_12V : natural := 5;
 constant SLOW_ENC_24V : natural := 6;
 constant SLOW_FMC_15VP : natural := 7;

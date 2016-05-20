@@ -21,11 +21,11 @@ port (
     sysbus_i            : in sysbus_t;
     posbus_i            : in posbus_t;
     -- Block Parameters
-    TEMP1_VAL       : in  std_logic_vector(31 downto 0);
-    TEMP2_VAL       : in  std_logic_vector(31 downto 0);
-    TEMP3_VAL       : in  std_logic_vector(31 downto 0);
-    TEMP4_VAL       : in  std_logic_vector(31 downto 0);
-    TEMP5_VAL       : in  std_logic_vector(31 downto 0);
+    TEMP_PSU       : in  std_logic_vector(31 downto 0);
+    TEMP_SFP       : in  std_logic_vector(31 downto 0);
+    TEMP_ENC_L       : in  std_logic_vector(31 downto 0);
+    TEMP_PICO       : in  std_logic_vector(31 downto 0);
+    TEMP_ENC_R       : in  std_logic_vector(31 downto 0);
     FMC_12V       : in  std_logic_vector(31 downto 0);
     ENC_24V       : in  std_logic_vector(31 downto 0);
     FMC_15VP       : in  std_logic_vector(31 downto 0);
@@ -79,16 +79,16 @@ begin
             mem_dat_o <= (others => '0');
         else
             case (mem_addr) is
-                when SLOW_TEMP1_VAL =>
-                    mem_dat_o <= TEMP1_VAL;
-                when SLOW_TEMP2_VAL =>
-                    mem_dat_o <= TEMP2_VAL;
-                when SLOW_TEMP3_VAL =>
-                    mem_dat_o <= TEMP3_VAL;
-                when SLOW_TEMP4_VAL =>
-                    mem_dat_o <= TEMP4_VAL;
-                when SLOW_TEMP5_VAL =>
-                    mem_dat_o <= TEMP5_VAL;
+                when SLOW_TEMP_PSU =>
+                    mem_dat_o <= TEMP_PSU;
+                when SLOW_TEMP_SFP =>
+                    mem_dat_o <= TEMP_SFP;
+                when SLOW_TEMP_ENC_L =>
+                    mem_dat_o <= TEMP_ENC_L;
+                when SLOW_TEMP_PICO =>
+                    mem_dat_o <= TEMP_PICO;
+                when SLOW_TEMP_ENC_R =>
+                    mem_dat_o <= TEMP_ENC_R;
                 when SLOW_FMC_12V =>
                     mem_dat_o <= FMC_12V;
                 when SLOW_ENC_24V =>
