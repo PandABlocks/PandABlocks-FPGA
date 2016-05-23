@@ -1,4 +1,6 @@
+# ----------------------------------------------------------------------------
 # Encoder IO
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN V11  [get_ports {AM0_PAD_IO[0]}];
 set_property PACKAGE_PIN AA11 [get_ports {BM0_PAD_IO[0]}];
 set_property PACKAGE_PIN AA14 [get_ports {ZM0_PAD_IO[0]}];
@@ -31,11 +33,13 @@ set_property PACKAGE_PIN W16  [get_ports {AS0_PAD_IO[3]}];
 set_property PACKAGE_PIN T17  [get_ports {BS0_PAD_IO[3]}];
 set_property PACKAGE_PIN W18  [get_ports {ZS0_PAD_IO[3]}];
 
+# ----------------------------------------------------------------------------
 # TTL and LVDS IO
-set_property PACKAGE_PIN M2 [get_ports {LVDSIN_PAD_I[0]}];
-set_property PACKAGE_PIN N1 [get_ports {LVDSIN_PAD_I[1]}];
-set_property PACKAGE_PIN M1 [get_ports {LVDSOUT_PAD_O[0]}];
-set_property PACKAGE_PIN P1 [get_ports {LVDSOUT_PAD_O[1]}];
+# ----------------------------------------------------------------------------
+set_property PACKAGE_PIN M2  [get_ports {LVDSIN_PAD_I[0]}];
+set_property PACKAGE_PIN N1  [get_ports {LVDSIN_PAD_I[1]}];
+set_property PACKAGE_PIN M1  [get_ports {LVDSOUT_PAD_O[0]}];
+set_property PACKAGE_PIN P1  [get_ports {LVDSOUT_PAD_O[1]}];
 
 set_property PACKAGE_PIN M4  [get_ports {TTLIN_PAD_I[0]}];
 set_property PACKAGE_PIN J2  [get_ports {TTLIN_PAD_I[1]}];
@@ -55,13 +59,17 @@ set_property PACKAGE_PIN P2  [get_ports {TTLOUT_PAD_O[7]}];
 set_property PACKAGE_PIN L7  [get_ports {TTLOUT_PAD_O[8]}];
 set_property PACKAGE_PIN K2  [get_ports {TTLOUT_PAD_O[9]}];
 
+# ----------------------------------------------------------------------------
 # Slow Controller SPI Interface)
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN K4 [get_ports {SPI_SCLK_O}];
 set_property PACKAGE_PIN K3 [get_ports {SPI_DAT_O }];
 set_property PACKAGE_PIN N8 [get_ports {SPI_SCLK_I}];
 set_property PACKAGE_PIN P8 [get_ports {SPI_DAT_I }];
 
+# ----------------------------------------------------------------------------
 # FMC Differential Pins
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN H3   [get_ports {FMC_LA_N[3]   }];  # "H3.JX1_LVDS_0_N.JX1.13.LA03_N"
 set_property PACKAGE_PIN H4   [get_ports {FMC_LA_P[3]   }];  # "H4.JX1_LVDS_0_P.JX1.11.LA03_P"
 set_property PACKAGE_PIN G2   [get_ports {FMC_LA_N[8]   }];  # "G2.JX1_LVDS_2_N.JX1.19.LA08_N"
@@ -135,20 +143,37 @@ set_property PACKAGE_PIN N6   [get_ports {FMC_LA_P[27]  }];  # "N6.JX2_LVDS_21_P
 #set_property PACKAGE_PIN B3   [get_ports {FMC_CLK0_C2M_N}];  # "B3.JX1_LVDS_12_N.JX1.49.CLK0_C2M_N"
 #set_property PACKAGE_PIN B4   [get_ports {FMC_CLK0_C2M_P}];  # "B4.JX1_LVDS_12_P.JX1.47.CLK0_C2M_P"
 
-
-# GTX Clocks
+# ----------------------------------------------------------------------------
+# MGT REF CLKS - Bank 112
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN U9 [get_ports GTXCLK0_P]
 set_property PACKAGE_PIN V9 [get_ports GTXCLK0_N]
 set_property PACKAGE_PIN U5 [get_ports GTXCLK1_P]
 set_property PACKAGE_PIN V5 [get_ports GTXCLK1_N]
 
+# ----------------------------------------------------------------------------
+# MGT Timing Constraints
+# ----------------------------------------------------------------------------
 create_clock -period 8.000  [get_ports GTXCLK0_P]
 create_clock -period 6.400  [get_ports GTXCLK1_P]
 
-# FMC GTX Assignments
+# Async false reset paths
+set_false_path -to [get_pins -hierarchical -filter {NAME =~ *_txfsmresetdone_r*/CLR}]
+set_false_path -to [get_pins -hierarchical -filter {NAME =~ *_txfsmresetdone_r*/D}]
+set_false_path -to [get_pins -hierarchical -filter {NAME =~ *reset_on_error_in_r*/D}]
+
+# Status register reads from GTX Loopback -> AXI
+set_false_path -from [get_clocks -filter {NAME =~ *TXOUTCLK}] -to [get_clocks clk_fpga_0]
+
+# ----------------------------------------------------------------------------
+# FMC MGTs - Bank 112
+# ----------------------------------------------------------------------------
 set_property LOC GTXE2_CHANNEL_X0Y0 \
 [get_cells fmc_inst/fmcgtx_exdes_i/fmcgtx_support_i/fmcgtx_init_i/U0/fmcgtx_i/gt0_fmcgtx_i/gtxe2_i]
 
+# ----------------------------------------------------------------------------
+# SFP MGTs - Bank 112
+# ----------------------------------------------------------------------------
 set_property LOC GTXE2_CHANNEL_X0Y1 \
 [get_cells sfp_inst/sfpgtx_exdes_i/sfpgtx_support_i/sfpgtx_init_i/U0/sfpgtx_i/gt0_sfpgtx_i/gtxe2_i]
 
@@ -158,14 +183,16 @@ set_property LOC GTXE2_CHANNEL_X0Y2 \
 set_property LOC GTXE2_CHANNEL_X0Y3 \
 [get_cells sfp_inst/sfpgtx_exdes_i/sfpgtx_support_i/sfpgtx_init_i/U0/sfpgtx_i/gt2_sfpgtx_i/gtxe2_i]
 
-# SFP
-set_false_path -to [get_pins -hierarchical -filter {NAME =~ *_txfsmresetdone_r*/CLR}]
-set_false_path -to [get_pins -hierarchical -filter {NAME =~ *_txfsmresetdone_r*/D}]
-set_false_path -to [get_pins -hierarchical -filter {NAME =~ *reset_on_error_in_r*/D}]
+# ----------------------------------------------------------------------------
+# IOB Packing Constraints
+# ----------------------------------------------------------------------------
+set_property IOB true [get_cells -hierarchical la_counter_reg[*]]
+set_property IOB true [get_cells -hierarchical fmc_din_n_reg[*]]
+set_property IOB true [get_cells -hierarchical fmc_din_p_reg[*]]
 
-# Status register reads from GTX Loopback -> AXI
-set_false_path -from [get_clocks -filter {NAME =~ *TXOUTCLK}] -to [get_clocks clk_fpga_0]
-
+# ----------------------------------------------------------------------------
+# VCCOIO Constraints
+# ----------------------------------------------------------------------------
 # Set the bank voltage for IO Bank 34 to 1.8V by default.
 set_property IOSTANDARD LVCMOS18 [get_ports -of_objects [get_iobanks 34]];
 # Set the bank voltage for IO Bank 35 to 1.8V by default.

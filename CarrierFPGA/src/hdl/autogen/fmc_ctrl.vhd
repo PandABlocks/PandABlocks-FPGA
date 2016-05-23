@@ -21,6 +21,7 @@ port (
     sysbus_i            : in sysbus_t;
     posbus_i            : in posbus_t;
     -- Block Parameters
+    FMC_PRSNT       : in  std_logic_vector(31 downto 0);
     LINK_UP       : in  std_logic_vector(31 downto 0);
     ERROR_COUNT       : in  std_logic_vector(31 downto 0);
     LA_P_ERROR       : in  std_logic_vector(31 downto 0);
@@ -70,6 +71,8 @@ begin
             mem_dat_o <= (others => '0');
         else
             case (mem_addr) is
+                when FMC_FMC_PRSNT =>
+                    mem_dat_o <= FMC_PRSNT;
                 when FMC_LINK_UP =>
                     mem_dat_o <= LINK_UP;
                 when FMC_ERROR_COUNT =>

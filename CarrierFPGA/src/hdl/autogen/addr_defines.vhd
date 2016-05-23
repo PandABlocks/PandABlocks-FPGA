@@ -309,10 +309,11 @@ constant SLOW_ENC_24V : natural := 11;
 constant SLOW_FMC_12V : natural := 12;
 
 -- FMC Block:
-constant FMC_LINK_UP : natural := 0;
-constant FMC_ERROR_COUNT : natural := 1;
-constant FMC_LA_P_ERROR : natural := 2;
-constant FMC_LA_N_ERROR : natural := 3;
+constant FMC_FMC_PRSNT : natural := 0;
+constant FMC_LINK_UP : natural := 1;
+constant FMC_ERROR_COUNT : natural := 2;
+constant FMC_LA_P_ERROR : natural := 3;
+constant FMC_LA_N_ERROR : natural := 4;
 
 -- SFP Block:
 constant SFP_LINK1_UP : natural := 0;

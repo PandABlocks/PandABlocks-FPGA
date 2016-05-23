@@ -57,7 +57,6 @@ port (
     -- Status I/O
     enc0_ctrl_pad_i : in std_logic_vector(3 downto 0);
     enc0_ctrl_pad_o : out std_logic_vector(11 downto 0);
-    SFP_TX_DISABLE : out std_logic;
 
 
     -- Discrete I/O
@@ -238,10 +237,9 @@ attribute keep of posbus : signal is "true";
 begin
 -- Internal clocks and resets
 FCLK_RESET0 <= not FCLK_RESET0_N(0);
-SFP_TX_DISABLE <= '0';
---
+---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
---
+---------------------------------------------------------------------------
 ps : entity work.panda_ps
 port map (
     FCLK_CLK0 => FCLK_CLK0,
@@ -326,9 +324,9 @@ port map (
     S_AXI_HP1_rresp => S_AXI_HP1_rresp,
     S_AXI_HP1_rvalid => S_AXI_HP1_rvalid
 );
---
+---------------------------------------------------------------------------
 -- Control and Status Memory Interface
---
+---------------------------------------------------------------------------
 -- 0x43c00000
 panda_csr_if_inst : entity work.panda_csr_if
 generic map (
@@ -368,12 +366,6 @@ port map (
 ttlin_inst : entity work.ttlin_top
 port map (
     clk_i => FCLK_CLK0,
-    reset_i => FCLK_RESET0,
-    mem_addr_i => mem_addr,
-    mem_cs_i => mem_cs(TTLIN_CS),
-    mem_wstb_i => mem_wstb,
-    mem_rstb_i => mem_rstb,
-    mem_dat_i => mem_odat,
     pad_i => TTLIN_PAD_I,
     val_o => ttlin_val
 );
@@ -884,10 +876,6 @@ port map (
     slow_tlp_o => slow_tlp_leds
 );
 ---------------------------------------------------------------------------
--- Extended Bus : Assignments
----------------------------------------------------------------------------
-extbus(3 downto 0) <= inenc_val_upper;
----------------------------------------------------------------------------
 -- On-Chip IOBUF Control for Daughter Card Interfacing
 ---------------------------------------------------------------------------
 dcard_interface_inst : entity work.dcard_interface
@@ -913,6 +901,10 @@ port map (
     CLK_IN => CLK_IN,
     DATA_OUT => DATA_OUT
 );
+---------------------------------------------------------------------------
+-- Extended Bus : Assignments
+---------------------------------------------------------------------------
+extbus(3 downto 0) <= inenc_val_upper;
 -- Direct interface to Daughter Card via FMC on the dev board.
 enc0_ctrl_pad_o <= enc0_ctrl_pad;
 DCARD_MODE(0) <= ZEROS(28) & enc0_ctrl_pad_i;

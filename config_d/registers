@@ -288,10 +288,11 @@ SLOW        25
     FMC_12V         12
 
 FMC         26
-    LINK_UP         0
-    ERROR_COUNT     1
-    LA_P_ERROR      2
-    LA_N_ERROR      3
+    FMC_PRSNT       0
+    LINK_UP         1
+    ERROR_COUNT     2
+    LA_P_ERROR      3
+    LA_N_ERROR      4
 
 SFP         27
     LINK1_UP        0

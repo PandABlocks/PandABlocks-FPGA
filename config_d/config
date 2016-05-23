@@ -278,6 +278,7 @@ SLOW
     FMC_12V         read
 
 FMC
+    FMC_PRSNT       read
     LINK_UP         read
     ERROR_COUNT     read
     LA_P_ERROR      read

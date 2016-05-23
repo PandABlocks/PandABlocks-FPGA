@@ -341,30 +341,30 @@ end component;
     constant DLY : time := 1 ns;
 
 --************************** Register Declarations ****************************
-attribute ASYNC_REG                        : string;
-    signal   gt_txfsmresetdone_i             : std_logic;
-signal   gt_rxfsmresetdone_i             : std_logic;
-    signal   gt_txfsmresetdone_r             : std_logic;
-    signal   gt_txfsmresetdone_r2            : std_logic;
-attribute ASYNC_REG of gt_txfsmresetdone_r     : signal is "TRUE";
-attribute ASYNC_REG of gt_txfsmresetdone_r2     : signal is "TRUE";
+attribute ASYNC_REG                         : string;
+signal   gt_txfsmresetdone_i                : std_logic;
+signal   gt_rxfsmresetdone_i                : std_logic;
+signal   gt_txfsmresetdone_r                : std_logic;
+signal   gt_txfsmresetdone_r2               : std_logic;
+attribute ASYNC_REG of gt_txfsmresetdone_r  : signal is "TRUE";
+attribute ASYNC_REG of gt_txfsmresetdone_r2 : signal is "TRUE";
 
-    signal   gt0_txfsmresetdone_i            : std_logic;
-signal   gt0_rxfsmresetdone_i            : std_logic;
-    signal   gt0_txfsmresetdone_r            : std_logic;
-    signal   gt0_txfsmresetdone_r2           : std_logic;
-attribute ASYNC_REG of gt0_txfsmresetdone_r     : signal is "TRUE";
-attribute ASYNC_REG of gt0_txfsmresetdone_r2     : signal is "TRUE";
-signal   gt0_rxresetdone_r               : std_logic;
-signal   gt0_rxresetdone_r2              : std_logic;
-signal   gt0_rxresetdone_r3              : std_logic;
-attribute ASYNC_REG of gt0_rxresetdone_r     : signal is "TRUE";
-attribute ASYNC_REG of gt0_rxresetdone_r2     : signal is "TRUE";
-attribute ASYNC_REG of gt0_rxresetdone_r3     : signal is "TRUE";
+signal   gt0_txfsmresetdone_i               : std_logic;
+signal   gt0_rxfsmresetdone_i               : std_logic;
+signal   gt0_txfsmresetdone_r               : std_logic;
+signal   gt0_txfsmresetdone_r2              : std_logic;
+attribute ASYNC_REG of gt0_txfsmresetdone_r : signal is "TRUE";
+attribute ASYNC_REG of gt0_txfsmresetdone_r2: signal is "TRUE";
+signal   gt0_rxresetdone_r                  : std_logic;
+signal   gt0_rxresetdone_r2                 : std_logic;
+signal   gt0_rxresetdone_r3                 : std_logic;
+attribute ASYNC_REG of gt0_rxresetdone_r    : signal is "TRUE";
+attribute ASYNC_REG of gt0_rxresetdone_r2   : signal is "TRUE";
+attribute ASYNC_REG of gt0_rxresetdone_r3   : signal is "TRUE";
 
 
-signal   reset_pulse                     : std_logic_vector(3 downto 0);
-    signal   reset_counter  :   unsigned(5 downto 0) := "000000";
+signal   reset_pulse                        : std_logic_vector(3 downto 0);
+signal   reset_counter                      : unsigned(5 downto 0) := "000000";
 
 
 --**************************** Wire Declarations ******************************
@@ -619,288 +619,268 @@ signal    cpllreset_i                     : std_logic;
   signal gt0_rxfsmresetdone_s : std_logic_vector(0 downto 0);
   signal rxresetdone_vio_s : std_logic_vector(0 downto 0);
   signal rxresetdone_vio_i : std_logic;
-   function and_reduce(arg: std_logic_vector) return std_logic is
-	variable result: std_logic;
-    begin
-	result := '1';
-	for i in arg'range loop
-	    result := result and arg(i);
-	end loop;
-        return result;
-    end;
 
-
---**************************** Main Body of Code *******************************
 begin
 
-    --  Static signal Assigments
-tied_to_ground_i                             <= '0';
-tied_to_ground_vec_i                         <= x"0000000000000000";
-tied_to_vcc_i                                <= '1';
-tied_to_vcc_vec_i                            <= "11111111";
+--  Static signal Assigments
+tied_to_ground_i     <= '0';
+tied_to_ground_vec_i <= x"0000000000000000";
+tied_to_vcc_i        <= '1';
+tied_to_vcc_vec_i    <= "11111111";
 
-    
-  
-    
-q0_clk1_refclk_i                             <= '0';
-    ----------------------------- The GT Wrapper -----------------------------
-    
-    -- Use the instantiation template in the example directory to add the GT wrapper to your design.
-    -- In this example, the wrapper is wired up for basic operation with a frame generator and frame 
-    -- checker. The GTs will reset, then attempt to align and transmit data. If channel bonding is 
-    -- enabled, bonding should occur after alignment.
+q0_clk1_refclk_i     <= '0';
 
-    
-    fmcgtx_support_i : fmcgtx_support
-    generic map
-    (
-        EXAMPLE_SIM_GTRESET_SPEEDUP     =>      EXAMPLE_SIM_GTRESET_SPEEDUP,
-        STABLE_CLOCK_PERIOD             =>      STABLE_CLOCK_PERIOD
-    )
-    port map
-    (
-        SOFT_RESET_TX_IN                =>      soft_reset_i,
-        SOFT_RESET_RX_IN                =>      soft_reset_i,
-        DONT_RESET_ON_DATA_ERROR_IN     =>      tied_to_ground_i,
+----------------------------- The GT Wrapper -----------------------------
+
+-- Use the instantiation template in the example directory to add the GT wrapper to your design.
+-- In this example, the wrapper is wired up for basic operation with a frame generator and frame 
+-- checker. The GTs will reset, then attempt to align and transmit data. If channel bonding is 
+-- enabled, bonding should occur after alignment.
+
+
+fmcgtx_support_i : fmcgtx_support
+generic map
+(
+    EXAMPLE_SIM_GTRESET_SPEEDUP     =>      EXAMPLE_SIM_GTRESET_SPEEDUP,
+    STABLE_CLOCK_PERIOD             =>      STABLE_CLOCK_PERIOD
+)
+port map
+(
+    SOFT_RESET_TX_IN                =>      soft_reset_i,
+    SOFT_RESET_RX_IN                =>      soft_reset_i,
+    DONT_RESET_ON_DATA_ERROR_IN     =>      tied_to_ground_i,
     Q0_CLK1_GTREFCLK_PAD_N_IN => Q0_CLK1_GTREFCLK_PAD_N_IN,
     Q0_CLK1_GTREFCLK_PAD_P_IN => Q0_CLK1_GTREFCLK_PAD_P_IN,
-        GT0_TX_FSM_RESET_DONE_OUT       =>      gt0_txfsmresetdone_i,
-        GT0_RX_FSM_RESET_DONE_OUT       =>      gt0_rxfsmresetdone_i,
-        GT0_DATA_VALID_IN               =>      gt0_track_data_i,
- 
+    GT0_TX_FSM_RESET_DONE_OUT       =>      gt0_txfsmresetdone_i,
+    GT0_RX_FSM_RESET_DONE_OUT       =>      gt0_rxfsmresetdone_i,
+    GT0_DATA_VALID_IN               =>      gt0_track_data_i,
+
     GT0_TXUSRCLK_OUT => gt0_txusrclk_i,
     GT0_TXUSRCLK2_OUT => gt0_txusrclk2_i,
     GT0_RXUSRCLK_OUT => gt0_rxusrclk_i,
     GT0_RXUSRCLK2_OUT => gt0_rxusrclk2_i,
 
- 
+    --_____________________________________________________________________
+    --_____________________________________________________________________
+    --GT0  (X0Y0)
 
-        --_____________________________________________________________________
-        --_____________________________________________________________________
-        --GT0  (X0Y0)
-
-        --------------------------------- CPLL Ports -------------------------------
-        gt0_cpllfbclklost_out           =>      gt0_cpllfbclklost_i,
-        gt0_cplllock_out                =>      gt0_cplllock_i,
-        gt0_cpllreset_in                =>      tied_to_ground_i,
-        ---------------------------- Channel - DRP Ports  --------------------------
-        gt0_drpaddr_in                  =>      gt0_drpaddr_i,
-        gt0_drpdi_in                    =>      gt0_drpdi_i,
-        gt0_drpdo_out                   =>      gt0_drpdo_i,
-        gt0_drpen_in                    =>      gt0_drpen_i,
-        gt0_drprdy_out                  =>      gt0_drprdy_i,
-        gt0_drpwe_in                    =>      gt0_drpwe_i,
-        --------------------------- Digital Monitor Ports --------------------------
-        gt0_dmonitorout_out             =>      gt0_dmonitorout_i,
-        ------------------------------- Loopback Ports -----------------------------
-        gt0_loopback_in                 =>      "000",
-        ------------------------------ Power-Down Ports ----------------------------
-        gt0_rxpd_in                     =>      gt0_rxpd_i,
-        gt0_txpd_in                     =>      gt0_txpd_i,
-        --------------------- RX Initialization and Reset Ports --------------------
-        gt0_eyescanreset_in             =>      tied_to_ground_i,
-        gt0_rxuserrdy_in                =>      tied_to_ground_i,
-        -------------------------- RX Margin Analysis Ports ------------------------
-        gt0_eyescandataerror_out        =>      gt0_eyescandataerror_i,
-        gt0_eyescantrigger_in           =>      tied_to_ground_i,
-        ------------------------- Receive Ports - CDR Ports ------------------------
-        gt0_rxcdrhold_in                =>      gt0_rxcdrhold_i,
-        gt0_rxcdrovrden_in              =>      tied_to_ground_i,
-        ------------------- Receive Ports - Clock Correction Ports -----------------
-        gt0_rxclkcorcnt_out             =>      gt0_rxclkcorcnt_i,
-        ------------------ Receive Ports - FPGA RX interface Ports -----------------
-        gt0_rxdata_out                  =>      gt0_rxdata_i,
-        ------------------- Receive Ports - Pattern Checker Ports ------------------
-        gt0_rxprbserr_out               =>      gt0_rxprbserr_i,
-        gt0_rxprbssel_in                =>      gt0_rxprbssel_i,
-        ------------------- Receive Ports - Pattern Checker ports ------------------
-        gt0_rxprbscntreset_in           =>      gt0_rxprbscntreset_i,
-        ------------------ Receive Ports - RX 8B/10B Decoder Ports -----------------
-        gt0_rxdisperr_out               =>      gt0_rxdisperr_i,
-        gt0_rxnotintable_out            =>      gt0_rxnotintable_i,
-        --------------------------- Receive Ports - RX AFE -------------------------
-        gt0_gtxrxp_in                   =>      RXP_IN,
-        ------------------------ Receive Ports - RX AFE Ports ----------------------
-        gt0_gtxrxn_in                   =>      RXN_IN,
-        ------------------- Receive Ports - RX Buffer Bypass Ports -----------------
-        gt0_rxbufreset_in               =>      gt0_rxbufreset_i,
-        gt0_rxbufstatus_out             =>      gt0_rxbufstatus_i,
-        -------------- Receive Ports - RX Byte and Word Alignment Ports ------------
-        gt0_rxbyteisaligned_out         =>      gt0_rxbyteisaligned_i,
-        gt0_rxbyterealign_out           =>      gt0_rxbyterealign_i,
-        gt0_rxcommadet_out              =>      gt0_rxcommadet_i,
-        gt0_rxmcommaalignen_in          =>      gt0_rxmcommaalignen_i,
-        gt0_rxpcommaalignen_in          =>      gt0_rxpcommaalignen_i,
-        --------------------- Receive Ports - RX Equalizer Ports -------------------
-        gt0_rxdfelpmreset_in            =>      tied_to_ground_i,
-        gt0_rxmonitorout_out            =>      gt0_rxmonitorout_i,
-        gt0_rxmonitorsel_in             =>      "00",
-        ------------- Receive Ports - RX Initialization and Reset Ports ------------
-        gt0_gtrxreset_in                =>      tied_to_ground_i,
-        gt0_rxpcsreset_in               =>      tied_to_ground_i,
-        gt0_rxpmareset_in               =>      gt0_rxpmareset_i,
-        ------------------ Receive Ports - RX Margin Analysis ports ----------------
-        gt0_rxlpmen_in                  =>      gt0_rxlpmen_i,
-        ----------------- Receive Ports - RX Polarity Control Ports ----------------
-        gt0_rxpolarity_in               =>      gt0_rxpolarity_i,
-        ------------------- Receive Ports - RX8B/10B Decoder Ports -----------------
-        gt0_rxchariscomma_out           =>      gt0_rxchariscomma_i,
-        gt0_rxcharisk_out               =>      gt0_rxcharisk_i,
-        -------------- Receive Ports -RX Initialization and Reset Ports ------------
-        gt0_rxresetdone_out             =>      gt0_rxresetdone_i,
-        ------------------------ TX Configurable Driver Ports ----------------------
-        gt0_txpostcursor_in             =>      gt0_txpostcursor_i,
-        gt0_txprecursor_in              =>      gt0_txprecursor_i,
-        --------------------- TX Initialization and Reset Ports --------------------
-        gt0_gttxreset_in                =>      tied_to_ground_i,
-        gt0_txuserrdy_in                =>      tied_to_ground_i,
-        ---------------- Transmit Ports - 8b10b Encoder Control Ports --------------
-        gt0_txchardispmode_in           =>      gt0_txchardispmode_i,
-        gt0_txchardispval_in            =>      gt0_txchardispval_i,
-        ------------------ Transmit Ports - Pattern Generator Ports ----------------
-        gt0_txprbsforceerr_in           =>      gt0_txprbsforceerr_i,
-        ---------------------- Transmit Ports - TX Buffer Ports --------------------
-        gt0_txbufstatus_out             =>      gt0_txbufstatus_i,
-        --------------- Transmit Ports - TX Configurable Driver Ports --------------
-        gt0_txdiffctrl_in               =>      gt0_txdiffctrl_i,
-        gt0_txmaincursor_in             =>      "0000000",
-        ------------------ Transmit Ports - TX Data Path interface -----------------
-        gt0_txdata_in                   =>      gt0_txdata_i,
-        ---------------- Transmit Ports - TX Driver and OOB signaling --------------
-        gt0_gtxtxn_out                  =>      TXN_OUT,
-        gt0_gtxtxp_out                  =>      TXP_OUT,
-        ----------- Transmit Ports - TX Fabric Clock Output Control Ports ----------
-        gt0_txoutclkfabric_out          =>      gt0_txoutclkfabric_i,
-        gt0_txoutclkpcs_out             =>      gt0_txoutclkpcs_i,
-        --------------------- Transmit Ports - TX Gearbox Ports --------------------
-        gt0_txcharisk_in                =>      gt0_txcharisk_i,
-        ------------- Transmit Ports - TX Initialization and Reset Ports -----------
-        gt0_txpcsreset_in               =>      tied_to_ground_i,
-        gt0_txresetdone_out             =>      gt0_txresetdone_i,
-        ----------------- Transmit Ports - TX Polarity Control Ports ---------------
-        gt0_txpolarity_in               =>      gt0_txpolarity_i,
-        ------------------ Transmit Ports - pattern Generator Ports ----------------
-        gt0_txprbssel_in                =>      gt0_txprbssel_i,
-
-
+    --------------------------------- CPLL Ports -------------------------------
+    gt0_cpllfbclklost_out           =>      gt0_cpllfbclklost_i,
+    gt0_cplllock_out                =>      gt0_cplllock_i,
+    gt0_cpllreset_in                =>      tied_to_ground_i,
+    ---------------------------- Channel - DRP Ports  --------------------------
+    gt0_drpaddr_in                  =>      gt0_drpaddr_i,
+    gt0_drpdi_in                    =>      gt0_drpdi_i,
+    gt0_drpdo_out                   =>      gt0_drpdo_i,
+    gt0_drpen_in                    =>      gt0_drpen_i,
+    gt0_drprdy_out                  =>      gt0_drprdy_i,
+    gt0_drpwe_in                    =>      gt0_drpwe_i,
+    --------------------------- Digital Monitor Ports --------------------------
+    gt0_dmonitorout_out             =>      gt0_dmonitorout_i,
+    ------------------------------- Loopback Ports -----------------------------
+    gt0_loopback_in                 =>      "000",
+    ------------------------------ Power-Down Ports ----------------------------
+    gt0_rxpd_in                     =>      gt0_rxpd_i,
+    gt0_txpd_in                     =>      gt0_txpd_i,
+    --------------------- RX Initialization and Reset Ports --------------------
+    gt0_eyescanreset_in             =>      tied_to_ground_i,
+    gt0_rxuserrdy_in                =>      tied_to_ground_i,
+    -------------------------- RX Margin Analysis Ports ------------------------
+    gt0_eyescandataerror_out        =>      gt0_eyescandataerror_i,
+    gt0_eyescantrigger_in           =>      tied_to_ground_i,
+    ------------------------- Receive Ports - CDR Ports ------------------------
+    gt0_rxcdrhold_in                =>      gt0_rxcdrhold_i,
+    gt0_rxcdrovrden_in              =>      tied_to_ground_i,
+    ------------------- Receive Ports - Clock Correction Ports -----------------
+    gt0_rxclkcorcnt_out             =>      gt0_rxclkcorcnt_i,
+    ------------------ Receive Ports - FPGA RX interface Ports -----------------
+    gt0_rxdata_out                  =>      gt0_rxdata_i,
+    ------------------- Receive Ports - Pattern Checker Ports ------------------
+    gt0_rxprbserr_out               =>      gt0_rxprbserr_i,
+    gt0_rxprbssel_in                =>      gt0_rxprbssel_i,
+    ------------------- Receive Ports - Pattern Checker ports ------------------
+    gt0_rxprbscntreset_in           =>      gt0_rxprbscntreset_i,
+    ------------------ Receive Ports - RX 8B/10B Decoder Ports -----------------
+    gt0_rxdisperr_out               =>      gt0_rxdisperr_i,
+    gt0_rxnotintable_out            =>      gt0_rxnotintable_i,
+    --------------------------- Receive Ports - RX AFE -------------------------
+    gt0_gtxrxp_in                   =>      RXP_IN,
+    ------------------------ Receive Ports - RX AFE Ports ----------------------
+    gt0_gtxrxn_in                   =>      RXN_IN,
+    ------------------- Receive Ports - RX Buffer Bypass Ports -----------------
+    gt0_rxbufreset_in               =>      gt0_rxbufreset_i,
+    gt0_rxbufstatus_out             =>      gt0_rxbufstatus_i,
+    -------------- Receive Ports - RX Byte and Word Alignment Ports ------------
+    gt0_rxbyteisaligned_out         =>      gt0_rxbyteisaligned_i,
+    gt0_rxbyterealign_out           =>      gt0_rxbyterealign_i,
+    gt0_rxcommadet_out              =>      gt0_rxcommadet_i,
+    gt0_rxmcommaalignen_in          =>      gt0_rxmcommaalignen_i,
+    gt0_rxpcommaalignen_in          =>      gt0_rxpcommaalignen_i,
+    --------------------- Receive Ports - RX Equalizer Ports -------------------
+    gt0_rxdfelpmreset_in            =>      tied_to_ground_i,
+    gt0_rxmonitorout_out            =>      gt0_rxmonitorout_i,
+    gt0_rxmonitorsel_in             =>      "00",
+    ------------- Receive Ports - RX Initialization and Reset Ports ------------
+    gt0_gtrxreset_in                =>      tied_to_ground_i,
+    gt0_rxpcsreset_in               =>      tied_to_ground_i,
+    gt0_rxpmareset_in               =>      gt0_rxpmareset_i,
+    ------------------ Receive Ports - RX Margin Analysis ports ----------------
+    gt0_rxlpmen_in                  =>      gt0_rxlpmen_i,
+    ----------------- Receive Ports - RX Polarity Control Ports ----------------
+    gt0_rxpolarity_in               =>      gt0_rxpolarity_i,
+    ------------------- Receive Ports - RX8B/10B Decoder Ports -----------------
+    gt0_rxchariscomma_out           =>      gt0_rxchariscomma_i,
+    gt0_rxcharisk_out               =>      gt0_rxcharisk_i,
+    -------------- Receive Ports -RX Initialization and Reset Ports ------------
+    gt0_rxresetdone_out             =>      gt0_rxresetdone_i,
+    ------------------------ TX Configurable Driver Ports ----------------------
+    gt0_txpostcursor_in             =>      gt0_txpostcursor_i,
+    gt0_txprecursor_in              =>      gt0_txprecursor_i,
+    --------------------- TX Initialization and Reset Ports --------------------
+    gt0_gttxreset_in                =>      tied_to_ground_i,
+    gt0_txuserrdy_in                =>      tied_to_ground_i,
+    ---------------- Transmit Ports - 8b10b Encoder Control Ports --------------
+    gt0_txchardispmode_in           =>      gt0_txchardispmode_i,
+    gt0_txchardispval_in            =>      gt0_txchardispval_i,
+    ------------------ Transmit Ports - Pattern Generator Ports ----------------
+    gt0_txprbsforceerr_in           =>      gt0_txprbsforceerr_i,
+    ---------------------- Transmit Ports - TX Buffer Ports --------------------
+    gt0_txbufstatus_out             =>      gt0_txbufstatus_i,
+    --------------- Transmit Ports - TX Configurable Driver Ports --------------
+    gt0_txdiffctrl_in               =>      gt0_txdiffctrl_i,
+    gt0_txmaincursor_in             =>      "0000000",
+    ------------------ Transmit Ports - TX Data Path interface -----------------
+    gt0_txdata_in                   =>      gt0_txdata_i,
+    ---------------- Transmit Ports - TX Driver and OOB signaling --------------
+    gt0_gtxtxn_out                  =>      TXN_OUT,
+    gt0_gtxtxp_out                  =>      TXP_OUT,
+    ----------- Transmit Ports - TX Fabric Clock Output Control Ports ----------
+    gt0_txoutclkfabric_out          =>      gt0_txoutclkfabric_i,
+    gt0_txoutclkpcs_out             =>      gt0_txoutclkpcs_i,
+    --------------------- Transmit Ports - TX Gearbox Ports --------------------
+    gt0_txcharisk_in                =>      gt0_txcharisk_i,
+    ------------- Transmit Ports - TX Initialization and Reset Ports -----------
+    gt0_txpcsreset_in               =>      tied_to_ground_i,
+    gt0_txresetdone_out             =>      gt0_txresetdone_i,
+    ----------------- Transmit Ports - TX Polarity Control Ports ---------------
+    gt0_txpolarity_in               =>      gt0_txpolarity_i,
+    ------------------ Transmit Ports - pattern Generator Ports ----------------
+    gt0_txprbssel_in                =>      gt0_txprbssel_i,
 
     --____________________________COMMON PORTS________________________________
      GT0_QPLLOUTCLK_OUT  => open,
      GT0_QPLLOUTREFCLK_OUT => open,
-         sysclk_in => drpclk_in_i
-    );
+     sysclk_in => drpclk_in_i
+);
 
-    -------------------------- User Module Resets -----------------------------
-    -- All the User Modules i.e. FRAME_GEN, FRAME_CHECK and the sync modules
-    -- are held in reset till the RESETDONE goes high. 
-    -- The RESETDONE is registered a couple of times on USRCLK2 and connected 
-    -- to the reset of the modules
-    
+-------------------------- User Module Resets -----------------------------
+-- All the User Modules i.e. FRAME_GEN, FRAME_CHECK and the sync modules
+-- are held in reset till the RESETDONE goes high.
+-- The RESETDONE is registered a couple of times on USRCLK2 and connected
+-- to the reset of the modules
 process(gt0_rxusrclk2_i,gt0_rxresetdone_i)
-    begin
-        if(gt0_rxresetdone_i = '0') then
-            gt0_rxresetdone_r  <= '0'   after DLY;
-            gt0_rxresetdone_r2 <= '0'   after DLY;
-            gt0_rxresetdone_r3 <= '0'   after DLY;
-elsif (gt0_rxusrclk2_i'event and gt0_rxusrclk2_i = '1') then
-            gt0_rxresetdone_r  <= gt0_rxresetdone_i   after DLY;
-            gt0_rxresetdone_r2 <= gt0_rxresetdone_r   after DLY;
-            gt0_rxresetdone_r3  <= gt0_rxresetdone_r2   after DLY;
-        end if;
-    end process;
+begin
+    if(gt0_rxresetdone_i = '0') then
+        gt0_rxresetdone_r  <= '0'   after DLY;
+        gt0_rxresetdone_r2 <= '0'   after DLY;
+        gt0_rxresetdone_r3 <= '0'   after DLY;
+    elsif (gt0_rxusrclk2_i'event and gt0_rxusrclk2_i = '1') then
+        gt0_rxresetdone_r  <= gt0_rxresetdone_i   after DLY;
+        gt0_rxresetdone_r2 <= gt0_rxresetdone_r   after DLY;
+        gt0_rxresetdone_r3  <= gt0_rxresetdone_r2   after DLY;
+    end if;
+end process;
 
 process(gt0_txusrclk2_i,gt0_txfsmresetdone_i)
-    begin
-        if(gt0_txfsmresetdone_i = '0') then
-            gt0_txfsmresetdone_r  <= '0'   after DLY;
-            gt0_txfsmresetdone_r2 <= '0'   after DLY;
-elsif (gt0_txusrclk2_i'event and gt0_txusrclk2_i = '1') then
-            gt0_txfsmresetdone_r  <= gt0_txfsmresetdone_i   after DLY;
-            gt0_txfsmresetdone_r2 <= gt0_txfsmresetdone_r   after DLY;
-        end if;
-    end process;
+begin
+    if(gt0_txfsmresetdone_i = '0') then
+        gt0_txfsmresetdone_r  <= '0'   after DLY;
+        gt0_txfsmresetdone_r2 <= '0'   after DLY;
+    elsif (gt0_txusrclk2_i'event and gt0_txusrclk2_i = '1') then
+        gt0_txfsmresetdone_r  <= gt0_txfsmresetdone_i   after DLY;
+        gt0_txfsmresetdone_r2 <= gt0_txfsmresetdone_r   after DLY;
+    end if;
+end process;
 
-    ------------------------------ Frame Generators ---------------------------
-    -- The example design uses Block RAM based frame generators to provide test
-    -- data to the GTs for transmission. By default the frame generators are 
-    -- loaded with an incrementing data sequence that includes commas/alignment
-    -- characters for alignment. If your protocol uses channel bonding, the 
-    -- frame generator will also be preloaded with a channel bonding sequence.
-    
-    -- You can modify the data transmitted by changing the INIT values of the frame
-    -- generator in this file. Pay careful attention to bit order and the spacing
-    -- of your control and alignment characters.
+------------------------------ Frame Generators ---------------------------
+-- The example design uses Block RAM based frame generators to provide test
+-- data to the GTs for transmission. By default the frame generators are 
+-- loaded with an incrementing data sequence that includes commas/alignment
+-- characters for alignment. If your protocol uses channel bonding, the 
+-- frame generator will also be preloaded with a channel bonding sequence.
 
-    gt0_frame_gen : fmcgtx_GT_FRAME_GEN
-    generic map
-    (
-        WORDS_IN_BRAM                   =>      EXAMPLE_WORDS_IN_BRAM
-    )
-    port map
-    (
-        -- User Interface
-        TX_DATA_OUT(79 downto 32)       =>      gt0_txdata_float_i,
-        TX_DATA_OUT(15 downto 0)        =>      gt0_txdata_float16_i,
-        TX_DATA_OUT(31 downto 16)       =>      gt0_txdata_i,
- 
-        TXCTRL_OUT(7 downto 2)          =>      gt0_txcharisk_float_i,
-        TXCTRL_OUT(1 downto 0)          =>      gt0_txcharisk_i,
-        -- System Interface
-        USER_CLK                        =>      gt0_txusrclk2_i,
-        SYSTEM_RESET                    =>      gt0_tx_system_reset_c
-    );
-    
+-- You can modify the data transmitted by changing the INIT values of the frame
+-- generator in this file. Pay careful attention to bit order and the spacing
+-- of your control and alignment characters.
 
+gt0_frame_gen : fmcgtx_GT_FRAME_GEN
+generic map
+(
+    WORDS_IN_BRAM                   =>      EXAMPLE_WORDS_IN_BRAM
+)
+port map
+(
+    -- User Interface
+    TX_DATA_OUT(79 downto 32)       =>      gt0_txdata_float_i,
+    TX_DATA_OUT(15 downto 0)        =>      gt0_txdata_float16_i,
+    TX_DATA_OUT(31 downto 16)       =>      gt0_txdata_i,
 
-    ---------------------------------- Frame Checkers -------------------------
-    -- The example design uses Block RAM based frame checkers to verify incoming  
-    -- data. By default the frame generators are loaded with a data sequence that 
-    -- matches the outgoing sequence of the frame generators for the TX ports.
-    
-    -- You can modify the expected data sequence by changing the INIT values of the frame
-    -- checkers in this file. Pay careful attention to bit order and the spacing
-    -- of your control and alignment characters.
-    
-    -- When the frame checker receives data, it attempts to synchronise to the 
-    -- incoming pattern by looking for the first sequence in the pattern. Once it 
-    -- finds the first sequence, it increments through the sequence, and indicates an 
-    -- error whenever the next value received does not match the expected value.
+    TXCTRL_OUT(7 downto 2)          =>      gt0_txcharisk_float_i,
+    TXCTRL_OUT(1 downto 0)          =>      gt0_txcharisk_i,
+    -- System Interface
+    USER_CLK                        =>      gt0_txusrclk2_i,
+    SYSTEM_RESET                    =>      gt0_tx_system_reset_c
+);
 
-gt0_frame_check_reset_i                      <= reset_on_data_error_i when (EXAMPLE_CONFIG_INDEPENDENT_LANES=0) else gt0_matchn_i;
+---------------------------------- Frame Checkers -------------------------
+-- The example design uses Block RAM based frame checkers to verify incoming
+-- data. By default the frame generators are loaded with a data sequence that
+-- matches the outgoing sequence of the frame generators for the TX ports.
 
-    -- gt0_frame_check0 is always connected to the lane with the start of char 
-    -- and this lane starts off the data checking on all the other lanes. The INC_IN port is tied off
-gt0_inc_in_i                                 <= '0';
+-- You can modify the expected data sequence by changing the INIT values of the frame
+-- checkers in this file. Pay careful attention to bit order and the spacing
+-- of your control and alignment characters.
 
-    gt0_frame_check : fmcgtx_GT_FRAME_CHECK
-    generic map
-    (
-        RX_DATA_WIDTH                   =>      16,
-        RXCTRL_WIDTH                    =>      2,
-        COMMA_DOUBLE                    =>      x"02bc",
-        WORDS_IN_BRAM                   =>      EXAMPLE_WORDS_IN_BRAM,
-        START_OF_PACKET_CHAR            =>      x"02bc"
-    )
-    port map
-    (
-        -- GT Interface
-        RX_DATA_IN                      =>      gt0_rxdata_i,
-        RXCTRL_IN                       =>      gt0_rxcharisk_i,
-        RXENMCOMMADET_OUT               =>      gt0_rxmcommaalignen_i,
-        RXENPCOMMADET_OUT               =>      gt0_rxpcommaalignen_i,
-        RX_ENCHAN_SYNC_OUT              =>      open,
-        RX_CHANBOND_SEQ_IN              =>      tied_to_ground_i,
-        -- Control Interface
-        INC_IN                          =>      gt0_inc_in_i,
-        INC_OUT                         =>      gt0_inc_out_i,
-        PATTERN_MATCHB_OUT              =>      gt0_matchn_i,
-        RESET_ON_ERROR_IN               =>      gt0_frame_check_reset_i,
-        -- System Interface
-        USER_CLK                        =>      gt0_rxusrclk2_i,
-        SYSTEM_RESET                    =>      gt0_rx_system_reset_c,
-        ERROR_COUNT_OUT                 =>      gt0_error_count_i,
-        TRACK_DATA_OUT                  =>      gt0_track_data_i
-    );
+-- When the frame checker receives data, it attempts to synchronise to the
+-- incoming pattern by looking for the first sequence in the pattern. Once it
+-- finds the first sequence, it increments through the sequence, and indicates an
+-- error whenever the next value received does not match the expected value.
+
+gt0_frame_check_reset_i <= reset_on_data_error_i when (EXAMPLE_CONFIG_INDEPENDENT_LANES=0) else gt0_matchn_i;
+
+-- gt0_frame_check0 is always connected to the lane with the start of char 
+-- and this lane starts off the data checking on all the other lanes. The INC_IN port is tied off
+gt0_inc_in_i                        <= '0';
+
+gt0_frame_check : fmcgtx_GT_FRAME_CHECK
+generic map
+(
+    RX_DATA_WIDTH                   => 16,
+    RXCTRL_WIDTH                    => 2,
+    COMMA_DOUBLE                    => x"02bc",
+    WORDS_IN_BRAM                   => EXAMPLE_WORDS_IN_BRAM,
+    START_OF_PACKET_CHAR            => x"02bc"
+)
+port map
+(
+    -- GT Interface
+    RX_DATA_IN                      => gt0_rxdata_i,
+    RXCTRL_IN                       => gt0_rxcharisk_i,
+    RXENMCOMMADET_OUT               => gt0_rxmcommaalignen_i,
+    RXENPCOMMADET_OUT               => gt0_rxpcommaalignen_i,
+    RX_ENCHAN_SYNC_OUT              => open,
+    RX_CHANBOND_SEQ_IN              => tied_to_ground_i,
+    -- Control Interface
+    INC_IN                          => gt0_inc_in_i,
+    INC_OUT                         => gt0_inc_out_i,
+    PATTERN_MATCHB_OUT              => gt0_matchn_i,
+    RESET_ON_ERROR_IN               => gt0_frame_check_reset_i,
+    -- System Interface
+    USER_CLK                        => gt0_rxusrclk2_i,
+    SYSTEM_RESET                    => gt0_rx_system_reset_c,
+    ERROR_COUNT_OUT                 => gt0_error_count_i,
+    TRACK_DATA_OUT                  => gt0_track_data_i
+);
 
 
 TRACK_DATA_OUT(31 downto 1) <= (others => '0');
@@ -911,14 +891,11 @@ ERROR_COUNT(7 downto 0) <= gt0_error_count_i;
 
 track_data_out_i <= gt0_track_data_i;
 
--------------------------------------------------------------------------------
------------------------------ Debug Signals assignment -----------------------
-
 ------------ optional Ports assignments --------------
 gt0_rxprbscntreset_i                         <= tied_to_ground_i;
 gt0_rxprbssel_i                              <= (others => '0');
 gt0_loopback_i                               <= (others => '0');
- 
+
 gt0_txdiffctrl_i                             <= (others => '0');
 gt0_rxbufreset_i                             <= tied_to_ground_i;
 gt0_rxcdrhold_i                              <= tied_to_ground_i;
@@ -934,21 +911,20 @@ gt0_txpd_i                                   <= (others => '0');
 gt0_txprbsforceerr_i                         <= tied_to_ground_i;
 gt0_txprbssel_i                              <= (others => '0');
 ------------------------------------------------------
-    gt0_rxlpmen_i                                <= tied_to_vcc_i;
+gt0_rxlpmen_i                                <= tied_to_vcc_i;
 
-    -- assign resets for frame_gen modules
-gt0_tx_system_reset_c                        <= not gt0_txfsmresetdone_r2;
+-- assign resets for frame_gen modules
+gt0_tx_system_reset_c <= not gt0_txfsmresetdone_r2;
 
-    -- assign resets for frame_check modules
-gt0_rx_system_reset_c                        <= not gt0_rxresetdone_r3;
-
+-- assign resets for frame_check modules
+gt0_rx_system_reset_c <= not gt0_rxresetdone_r3;
 
 gt0_drpaddr_i <= (others => '0');
 gt0_drpdi_i <= (others => '0');
 gt0_drpen_i <= '0';
 gt0_drpwe_i <= '0';
 
-  soft_reset_i <= tied_to_ground_i;
+soft_reset_i <= tied_to_ground_i;
 
 end RTL;
 

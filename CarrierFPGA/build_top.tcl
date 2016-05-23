@@ -40,8 +40,9 @@ set_property "target_language" "VHDL" $obj
 #
 # Suppress Verilog file related warnings
 set_msg_config -id {[Synth 8-2644]} -suppress
+
 # Elevate critical warnings
-set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
+# set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 
 #
 # STEP#1: setup design sources and constraints
@@ -55,9 +56,9 @@ add_files -norecurse ./ip_repo/pulse_queue/pulse_queue.xci
 add_files -norecurse ./ip_repo/pcap_dma_fifo/pcap_dma_fifo.xci
 add_files -norecurse ./ip_repo/pgen_dma_fifo/pgen_dma_fifo.xci
 add_files -norecurse ./ip_repo/pcomp_dma_fifo/pcomp_dma_fifo.xci
-#add_files -norecurse ./ip_repo/fmcgtx/fmcgtx.xci
-#add_files -norecurse ./ip_repo/sfpgtx/sfpgtx.xci
-#add_files -norecurse ./ip_repo/ila_32x8K/ila_32x8K.xci
+add_files -norecurse ./ip_repo/fmcgtx/fmcgtx.xci
+add_files -norecurse ./ip_repo/sfpgtx/sfpgtx.xci
+add_files -norecurse ./ip_repo/ila_32x8K/ila_32x8K.xci
 
 # Read constraint files
 read_xdc  ../src/const/panda_top.xdc

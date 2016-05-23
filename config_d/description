@@ -223,6 +223,7 @@ SLOW        Slow control FPGA
     FMC_12V         On-board voltage sensor values
 
 FMC         FMC Block Status
+    FMC_PRSNT       FMC present
     LINK_UP         GTX link status
     ERROR_COUNT     GTX loopback
     LA_P_ERROR      LA_P loopback status

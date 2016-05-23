@@ -18,8 +18,6 @@ OUT_DIR = output
 IMAGE_DIR = images
 HDL_DIR = ./src/hdl
 
-DEV = true
-
 VIVADO = source /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh > /dev/null
 
 GIT_VERSION = $(shell git describe --abbrev=8 --always)
@@ -42,6 +40,9 @@ BOOT_FILE = $(IMAGE_DIR)/boot.bin
 TOP_FILE = $(HDL_DIR)/top.vhd
 VERSION_FILE = $(HDL_DIR)/defines/panda_version.vhd
 
+# HW mode (dev, dev-fmc and carrier)
+MODE = dev
+
 #####################################################################
 # BUILD TARGETS includes HW and SW
 .PHONY: clean PREPROC VERSION
@@ -62,15 +63,24 @@ clean :
 	find . -iname msim -exec rm -rf {} \;
 
 PREPROC :
-	rm -rf src/hdl/panda_top.vhd
-ifeq ($(DEV),true)
-	/bin/echo "Building for DEV BOARD"
-	cpp -E -P -DDEV $(TOP_FILE).in -o $(TOP_FILE)
-	ln -sf panda_dev.xdc ./src/const/panda_top.xdc
-else
+	rm -rf $(TOP_FILE)
+
+ifeq ($(MODE),carrier)
 	/bin/echo "Building for PandA CARRIER"
 	cpp -E -P $(TOP_FILE).in -o $(TOP_FILE)
-	ln -sf panda_carrier.xdc ./src/const/panda_top.xdc
+	ln -sf panda_top.xdc.carrier ./src/const/panda_top.xdc
+endif
+
+ifeq ($(MODE),dev)
+	/bin/echo "Building for DEV BOARD"
+	cpp -E -P -DDEV $(TOP_FILE).in -o $(TOP_FILE)
+	ln -sf panda_top.xdc.dev ./src/const/panda_top.xdc
+endif
+
+ifeq ($(MODE),dev-fmc)
+	/bin/echo "Building for DEV FMC LOOPBACK BOARD"
+	ln -sf top.vhd.$(MODE) $(TOP_FILE)
+	ln -sf panda_top.xdc.dev-fmc ./src/const/panda_top.xdc
 endif
 
 VERSION :
