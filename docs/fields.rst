@@ -317,6 +317,11 @@ fields.
 ``int``
     Similar to ``uint``, but signed, and there is no upper limit on the value.
 
+``scalar`` *scale*
+    Floating point values can be read or written, and are converted from and to
+    the underlying signed integer type by multiplication and division by the
+    given scale factor.
+
 ``bit``
     A value which is 0 or 1, there are no extra attributes.
 
@@ -403,6 +408,7 @@ Sub-type    Attributes      Description
 =========== =============== ====================================================
 uint        MAX             Possibly bounded 32-bit unsigned integer value
 int                         Unbounded 32-bit signed integer value
+scalar      RAW             Scaled signed floating point value
 bit                         Bit: 0 or 1
 action                      Write only, no value
 lut         RAW             5 input lookup table logical formula
@@ -421,6 +427,7 @@ Field (sub)type Attribute       Description                             R W C M
 =============== =============== ======================================= = = = =
 (all)           INFO            Returns type of field                   R
 uint            MAX             Maximum allowed integer value           R
+scalar          RAW             Underlying integer value                R W
 lut             RAW             Computed Lookup Table 32-bit value      R
 time            UNITS           Units and scaling selection for time    R W C
 \               RAW             Raw time in FPGA clock cycles           R W
