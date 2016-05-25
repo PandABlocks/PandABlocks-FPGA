@@ -13,15 +13,14 @@ set_property PACKAGE_PIN AA11 [get_ports SPI_DAT_O] ;  # "AA11.BANK13_LVDS_9_P.J
 # ----------------------------------------------------------------------------
 # SPF / PMOD2 Multiplexer - Bank 13
 # ----------------------------------------------------------------------------
-set_property PACKAGE_PIN T17 [get_ports {TTLIN_PAD_I[0] }]  ;  # "T17.BANK13_LVDS_14_N.JX3.94.MUX_D0_N"
-set_property PACKAGE_PIN R17 [get_ports {TTLIN_PAD_I[1] }]  ;  # "R17.BANK13_LVDS_14_P.JX3.92.MUX_D0_P"
-set_property PACKAGE_PIN W13 [get_ports {TTLIN_PAD_I[2] }]  ;  # "W13.BANK13_LVDS_13_N.JX3.93.MUX_D1_N"
-set_property PACKAGE_PIN W12 [get_ports {TTLIN_PAD_I[3] }]  ;  # "W12.BANK13_LVDS_13_P.JX3.91.MUX_D1_P"
-set_property PACKAGE_PIN W16 [get_ports {TTLOUT_PAD_O[0]}]  ;  # "W16.BANK13_LVDS_16_N.JX3.100.MUX_D2_N"
-set_property PACKAGE_PIN V16 [get_ports {TTLOUT_PAD_O[1]}]  ;  # "V16.BANK13_LVDS_16_P.JX3.98.MUX_D2_P"
-set_property PACKAGE_PIN W15 [get_ports {TTLOUT_PAD_O[2]}]  ;  # "W15.BANK13_LVDS_15_N.JX3.99.MUX_D3_N"
-set_property PACKAGE_PIN V15 [get_ports {TTLOUT_PAD_O[3]}]  ;  # "V15.BANK13_LVDS_15_P.JX3.97.MUX_D3_P"
-
+set_property PACKAGE_PIN R17 [get_ports {TTLIN_PAD_I[0] }]  ;  # "R17.BANK13_LVDS_14_P.JX3.92.MUX_D0_P"
+set_property PACKAGE_PIN T17 [get_ports {TTLIN_PAD_I[1] }]  ;  # "T17.BANK13_LVDS_14_N.JX3.94.MUX_D0_N"
+set_property PACKAGE_PIN W12 [get_ports {TTLIN_PAD_I[2] }]  ;  # "W12.BANK13_LVDS_13_P.JX3.91.MUX_D1_P"
+set_property PACKAGE_PIN W13 [get_ports {TTLIN_PAD_I[3] }]  ;  # "W13.BANK13_LVDS_13_N.JX3.93.MUX_D1_N"
+set_property PACKAGE_PIN V16 [get_ports {TTLOUT_PAD_O[0]}]  ;  # "V16.BANK13_LVDS_16_P.JX3.98.MUX_D2_P"
+set_property PACKAGE_PIN W16 [get_ports {TTLOUT_PAD_O[1]}]  ;  # "W16.BANK13_LVDS_16_N.JX3.100.MUX_D2_N"
+set_property PACKAGE_PIN V15 [get_ports {TTLOUT_PAD_O[2]}]  ;  # "V15.BANK13_LVDS_15_P.JX3.97.MUX_D3_P"
+set_property PACKAGE_PIN W15 [get_ports {TTLOUT_PAD_O[3]}]  ;  # "W15.BANK13_LVDS_15_N.JX3.99.MUX_D3_N"
 
 # FMC CARRIER TEST BOARD
 set_property PACKAGE_PIN L6 [get_ports {AM0_PAD_IO[0]}]

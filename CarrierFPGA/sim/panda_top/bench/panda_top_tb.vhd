@@ -69,6 +69,7 @@ signal DATA_OUT_P       : std_logic_vector(3 downto 0);
 signal inputs           : unsigned(15 downto 0) := X"0000";
 
 signal lvdsin_pad       : std_logic_vector(1 downto 0);
+signal ttlout_pad       : std_logic_vector(9 downto 0);
 
 signal dcard_ctrl_io    : std16_array(3 downto 0);
 
@@ -140,9 +141,9 @@ PORT MAP (
     As0_pad_io          => As0_pad_io,
     Bs0_pad_io          => Bs0_pad_io,
     Zs0_pad_io          => Zs0_pad_io,
-    ttlin_pad_i         => ttlin_pad,
+    ttlin_pad_i         => ttlout_pad(5 downto 0), -- ttlin_pad,
     lvdsin_pad_i        => lvdsin_pad,
-    ttlout_pad_o        => open,
+    ttlout_pad_o        => ttlout_pad,
     lvdsout_pad_o       => open,
 
     spi_sclk_i          => spi_sclk_i,
@@ -165,14 +166,19 @@ port map (
     spi_sclk_o          => spi_sclk_i,
     -- Encoder Daughter Card Control Interface
     dcard_ctrl1_io      => dcard_ctrl_io(0),
-    dcard_ctrl2_io      => dcard_ctrl_io(1),
-    dcard_ctrl3_io      => dcard_ctrl_io(2),
-    dcard_ctrl4_io      => dcard_ctrl_io(3),
+--    dcard_ctrl2_io      => dcard_ctrl_io(1),
+--    dcard_ctrl3_io      => dcard_ctrl_io(2),
+--    dcard_ctrl4_io      => dcard_ctrl_io(3),
     -- Front Panel Interface
     shift_reg_sdata_o   => shift_reg_sdata_o,
     shift_reg_sclk_o    => shift_reg_sclk_o,
     shift_reg_latch_o   => shift_reg_latch_o,
-    shift_reg_oe_n_o    => shift_reg_oe_n_o
+    shift_reg_oe_n_o    => shift_reg_oe_n_o,
+    -- I2C Temperature Sensor Interface
+    i2c_temp_sda        => open,
+    i2c_temp_scl        => open,
+    i2c_vmon_sda        => open,
+    i2c_vmon_scl        => open
 );
 
 --

@@ -3,3 +3,6 @@
 /simserver
 *.pyc
 tests/fpga_sequences
+/CarrierFPGA/output/
+/CarrierFPGA/sim/panda_top/bench/zynq_model/
+/SlowFPGA/syn/implementation/
