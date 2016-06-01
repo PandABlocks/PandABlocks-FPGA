@@ -13,6 +13,9 @@ use work.support.all;
 use work.top_defines.all;
 
 entity pcomp_block is
+generic (
+    INST                : natural := 0
+);
 port (
     -- Clock and Reset.
     clk_i               : in  std_logic;
@@ -27,7 +30,7 @@ port (
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
     act_o               : out std_logic;
-    out_o             : out std_logic;
+    out_o               : out std_logic;
     -- DMA Interface.
     dma_req_o           : out std_logic;
     dma_ack_i           : in  std_logic;
@@ -40,6 +43,29 @@ port (
 end pcomp_block;
 
 architecture rtl of pcomp_block is
+
+component ila_128x8K
+port (
+    clk                     : in  std_logic;
+    probe0                  : in  std_logic_vector(15 downto 0);
+    probe1                  : in  std_logic_vector(15 downto 0);
+    probe2                  : in  std_logic_vector(15 downto 0);
+    probe3                  : in  std_logic_vector(15 downto 0);
+    probe4                  : in  std_logic_vector(15 downto 0);
+    probe5                  : in  std_logic_vector(31 downto 0);
+    probe6                  : in  std_logic_vector(31 downto 0);
+    probe7                  : in  std_logic_vector(7 downto 0)
+);
+end component;
+
+signal probe0               : std_logic_vector(15 downto 0);
+signal probe1               : std_logic_vector(15 downto 0);
+signal probe2               : std_logic_vector(15 downto 0);
+signal probe3               : std_logic_vector(15 downto 0);
+signal probe4               : std_logic_vector(15 downto 0);
+signal probe5               : std_logic_vector(31 downto 0);
+signal probe6               : std_logic_vector(31 downto 0);
+signal probe7               : std_logic_vector(7 downto 0);
 
 type state_t is (IDLE, POS, NEG);
 
@@ -58,6 +84,8 @@ signal TABLE_ADDRESS        : std_logic_vector(31 downto 0);
 signal TABLE_LENGTH         : std_logic_vector(31 downto 0);
 signal TABLE_LENGTH_WSTB    : std_logic;
 
+signal pcomp_act            : std_logic;
+signal pcomp_out            : std_logic;
 signal pcomp_error          : std_logic_vector(31 downto 0);
 signal TABLE_STATUS         : std_logic_vector(31 downto 0);
 
@@ -67,6 +95,16 @@ signal posn                 : std_logic_vector(31 downto 0);
 signal table_enable         : std_logic;
 signal table_posn           : std_logic_vector(63 downto 0);
 signal table_read           : std_logic;
+
+attribute MARK_DEBUG            : string;
+attribute MARK_DEBUG of probe0  : signal is "true";
+attribute MARK_DEBUG of probe1  : signal is "true";
+attribute MARK_DEBUG of probe2  : signal is "true";
+attribute MARK_DEBUG of probe3  : signal is "true";
+attribute MARK_DEBUG of probe4  : signal is "true";
+attribute MARK_DEBUG of probe5  : signal is "true";
+attribute MARK_DEBUG of probe6  : signal is "true";
+attribute MARK_DEBUG of probe7  : signal is "true";
 
 begin
 
@@ -134,10 +172,13 @@ port map (
     DELTAP              => DELTAP,
     USE_TABLE           => USE_TABLE(0),
 
-    act_o               => act_o,
+    act_o               => pcomp_act,
     err_o               => pcomp_error,
-    out_o               => out_o
+    out_o               => pcomp_out
 );
+
+act_o <= pcomp_act;
+out_o <= pcomp_out;
 
 --
 -- Position Compare Long Table DMA Interfac
@@ -169,6 +210,39 @@ port map (
     dma_data_i          => dma_data_i,
     dma_valid_i         => dma_valid_i
 );
+
+--ILA_INST : IF (INST = 0) GENERATE
+--
+--ila_128x8K_inst : ila_128x8K
+--port map (
+--    clk                 => clk_i,
+--    probe0              => probe0,
+--    probe1              => probe1,
+--    probe2              => probe2,
+--    probe3              => probe3,
+--    probe4              => probe4,
+--    probe5              => probe5,
+--    probe6              => probe6,
+--    probe7              => probe7
+--);
+--
+--probe0              <= START(15 downto 0);
+--probe1              <= STEP(15 downto 0);
+--probe2              <= WIDTH(15 downto 0);
+--probe3              <= DELTAP(15 downto 0);
+--probe4              <= NUM(15 downto 0);
+--probe5              <= posn(31 downto 0);
+--probe6              <= (others => '0');
+--
+--probe7(0)           <= pcomp_out;
+--probe7(1)           <= pcomp_act;
+--probe7(2)           <= enable;
+--probe7(3)           <= DIR(0);
+--probe7(4)           <= RELATIVE(0);
+--probe7(5)           <= USE_TABLE(0);
+--probe7(7 downto 6)  <= "00";
+--
+--END GENERATE;
 
 end rtl;
 

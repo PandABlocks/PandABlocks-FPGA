@@ -38,15 +38,24 @@ port (
     dcard_ctrl2_io      : inout std_logic_vector(15 downto 0);
     dcard_ctrl3_io      : inout std_logic_vector(15 downto 0);
     dcard_ctrl4_io      : inout std_logic_vector(15 downto 0);
+
+    -- Misc control
+    SEL_GTXCLK1         : out  std_logic; -- 0: Si570, 1: FMC
 #endif
     -- Front Panel Shift Register Interface
     shift_reg_sdata_o   : out   std_logic;
     shift_reg_sclk_o    : out   std_logic;
     shift_reg_latch_o   : out   std_logic;
     shift_reg_oe_n_o    : out   std_logic;
+#ifndef DEV
+    -- I2C Si570 XO Interface
+    i2c_clock_sda       : inout std_logic;
+    i2c_clock_scl       : inout std_logic;
+#endif
     -- I2C Temperature Sensor Interface
     i2c_temp_sda        : inout std_logic;
     i2c_temp_scl        : inout std_logic;
+    -- I2C Voltage Sensor Interface
     i2c_vmon_sda        : inout std_logic;
     i2c_vmon_scl        : inout std_logic
 );
@@ -86,6 +95,10 @@ signal ttl_leds             : std_logic_vector(15 downto 0);
 signal status_leds          : std_logic_vector(3 downto 0);
 
 begin
+
+#ifndef DEV
+SEL_GTXCLK1 <= '1'; -- FMC as clock source
+#endif
 
 --
 -- Startup Reset

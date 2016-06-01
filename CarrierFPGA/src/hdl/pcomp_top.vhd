@@ -62,8 +62,10 @@ mem_blk_cs(I) <= '1'
             and mem_cs_i = '1') else '0';
 
 pcomp_block_inst : entity work.pcomp_block
+generic map (
+    INST                => I
+)
 port map (
-
     clk_i               => clk_i,
     reset_i             => reset_i,
 

@@ -11,7 +11,7 @@ panda_top_tb tb(
     .ttlin_pad      ( ttlin_pad)
 );
 
-`define TESTNAME    "test.pulse.v"
+`define TESTNAME    "test.pcomp.v"
 
 reg [ 1:0]      wrs, rsp;
 reg [31:0]      IRQ_STATUS;

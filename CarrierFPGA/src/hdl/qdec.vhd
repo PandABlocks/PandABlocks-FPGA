@@ -61,7 +61,6 @@ port map (
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            quad_count <= (others => '0');
         else
             if (RST_ON_Z = '1' and z_i = '1') then
                 quad_count <= (others => '0');

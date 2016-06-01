@@ -40,6 +40,15 @@ constant SEQ_NUM            : natural := 4;
 constant BITS_NUM           : natural := 1;
 --------------------------------------------------------------------------
 
+-- Block instantiation numbers--------------------------------------------
+constant LUT_INST           : boolean := true;
+constant SRGATE_INST        : boolean := true;
+constant DIV_INST           : boolean := true;
+constant PULS_INST          : boolean := true;
+constant COUNTER_INST       : boolean := true;
+constant SEQ_INST           : boolean := true;
+constant PGEN_INST          : boolean := true;
+
 -- Bit Bus Width, Multiplexer Select Width -------------------------------
 constant SBUSW              : natural := 128;
 constant SBUSBW             : natural := 7;
