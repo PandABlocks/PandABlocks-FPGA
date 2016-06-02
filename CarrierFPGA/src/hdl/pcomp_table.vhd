@@ -31,6 +31,7 @@ port (
     enable_i            : in  std_logic;
     trig_i              : in  std_logic;
     out_o               : out std_logic_vector(DW-1 downto 0);
+    table_end_o         : out std_logic;
     -- Block Parameters
     CYCLES              : in  std_logic_vector(31 downto 0);
     TABLE_ADDR          : in  std_logic_vector(31 downto 0);
@@ -101,13 +102,15 @@ begin
 dma_len_o <= std_logic_vector(dma_len(7 downto 0));
 dma_addr_o <= std_logic_vector(dma_addr);
 out_o <= fifo_dout;
+table_end_o <= table_end;
 
 -- Reset for state machine
 reset <= reset_i or not table_ready or enable_fall;
 
---
--- Asymetric 32/64-bit FIFO with 1K sample depth
---
+---------------------------------------------------------------------------
+-- Asymetric 32/64-bit FIFO with 1K sample depth is used to store DMA
+-- read samples
+---------------------------------------------------------------------------
 dma_fifo_inst : pcomp_dma_fifo
 port map (
     rst             => fifo_reset,
@@ -130,9 +133,9 @@ fifo_count <= to_integer(unsigned(fifo_data_count));
 -- host memory.
 fifo_available <= '1' when (fifo_count < 768) else '0';
 
---
--- Input registers
---
+---------------------------------------------------------------------------
+-- Input registers and detect rising/falling edges
+---------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
         trig <= trig_i;
@@ -145,10 +148,10 @@ end process;
 trig_pulse <= (trig_i and not trig) and enable_i and table_ready;
 enable_fall <= not enable_i and enable;
 
---
+---------------------------------------------------------------------------
 -- Table ready controls state machine reset. The table is un-validated once
 -- LENGTH=0 written.
---
+---------------------------------------------------------------------------
 TABLE_WORDS <= unsigned(TABLE_LENGTH) srl 2;  -- Byte -> Dword
 
 process(clk_i) begin
@@ -167,9 +170,9 @@ process(clk_i) begin
     end if;
 end process;
 
---
+---------------------------------------------------------------------------
 -- Main State Machine.
---
+---------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset = '1') then
@@ -248,9 +251,9 @@ process(clk_i) begin
     end if;
 end process;
 
---
--- Error detection, and reporting.
---
+---------------------------------------------------------------------------
+-- Error detection, and status reporting
+---------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset = '1') then
@@ -278,7 +281,6 @@ process(clk_i) begin
             else
                 STATUS <= (others => '0');
             end if;
-
         end if;
     end if;
 end process;

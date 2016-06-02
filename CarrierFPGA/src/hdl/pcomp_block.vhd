@@ -95,6 +95,7 @@ signal posn                 : std_logic_vector(31 downto 0);
 signal table_enable         : std_logic;
 signal table_posn           : std_logic_vector(63 downto 0);
 signal table_read           : std_logic;
+signal table_end            : std_logic;
 
 attribute MARK_DEBUG            : string;
 attribute MARK_DEBUG of probe0  : signal is "true";
@@ -162,6 +163,7 @@ port map (
     posn_i              => posn,
     table_posn_i        => table_posn,
     table_read_o        => table_read,
+    table_end_i         => table_end,
 
     START               => START,
     STEP                => STEP,
@@ -195,6 +197,7 @@ port map (
     enable_i            => table_enable,
     trig_i              => table_read,
     out_o               => table_posn,
+    table_end_o         => table_end,
 
     CYCLES              => TO_SVECTOR(1,32),
     TABLE_ADDR          => TABLE_ADDRESS,
