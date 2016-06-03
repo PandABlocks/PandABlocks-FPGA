@@ -51,9 +51,9 @@ signal VOLT_MON         : std32_array(7 downto 0);
 
 begin
 
---
+---------------------------------------------------------------------------
 -- Slow controller physical serial interface
---
+---------------------------------------------------------------------------
 slow_interface : entity work.slow_interface
 port map (
     clk_i               => clk_i,
@@ -73,9 +73,9 @@ port map (
     VOLT_MON            => VOLT_MON
 );
 
---
+---------------------------------------------------------------------------
 -- Slow controller status readback
---
+---------------------------------------------------------------------------
 slow_ctrl_inst : entity work.slow_ctrl
 port map (
     -- Clock and Reset

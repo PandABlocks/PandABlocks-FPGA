@@ -26,6 +26,9 @@ port (
     ERROR_COUNT       : in  std_logic_vector(31 downto 0);
     LA_P_ERROR       : in  std_logic_vector(31 downto 0);
     LA_N_ERROR       : in  std_logic_vector(31 downto 0);
+    GTREFCLK       : in  std_logic_vector(31 downto 0);
+    FMC_CLK0       : in  std_logic_vector(31 downto 0);
+    FMC_CLK1       : in  std_logic_vector(31 downto 0);
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
@@ -81,6 +84,12 @@ begin
                     mem_dat_o <= LA_P_ERROR;
                 when FMC_LA_N_ERROR =>
                     mem_dat_o <= LA_N_ERROR;
+                when FMC_GTREFCLK =>
+                    mem_dat_o <= GTREFCLK;
+                when FMC_FMC_CLK0 =>
+                    mem_dat_o <= FMC_CLK0;
+                when FMC_FMC_CLK1 =>
+                    mem_dat_o <= FMC_CLK1;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;

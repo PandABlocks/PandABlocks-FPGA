@@ -8,15 +8,12 @@ use work.support.all;
 use work.top_defines.all;
 
 entity panda_top_tb is
-    port (
-        ttlin_pad       : in std_logic_vector(5 downto 0)
-    );
 end panda_top_tb;
 
 ARCHITECTURE behavior OF panda_top_tb IS
 
 --Inputs
-signal enc0_ctrl_pad_i : std_logic_vector(3 downto 0) := (others => '0');
+--signal enc0_ctrl_pad_i : std_logic_vector(3 downto 0) := (others => '0');
 
 --BiDirs
 signal DDR_addr         : std_logic_vector(14 downto 0);
@@ -47,6 +44,26 @@ signal As0_pad_io       : std_logic_vector(3 downto 0);
 signal Bs0_pad_io       : std_logic_vector(3 downto 0);
 signal Zs0_pad_io       : std_logic_vector(3 downto 0);
 
+signal GTXCLK0_P        : std_logic := '0';
+signal GTXCLK0_N        : std_logic;
+signal GTXCLK1_P        : std_logic := '0';
+signal GTXCLK1_N        : std_logic;
+signal FMC_DP0_C2M_P    : std_logic;
+signal FMC_DP0_C2M_N    : std_logic;
+signal FMC_DP0_M2C_P    : std_logic;
+signal FMC_DP0_M2C_N    : std_logic;
+signal SFP_TX_P         : std_logic_vector(2 downto 0);
+signal SFP_TX_N         : std_logic_vector(2 downto 0);
+signal SFP_RX_P         : std_logic_vector(2 downto 0);
+signal SFP_RX_N         : std_logic_vector(2 downto 0);
+signal FMC_PRSNT        : std_logic;
+signal FMC_LA_P         : std_logic_vector(33 downto 0);
+signal FMC_LA_N         : std_logic_vector(33 downto 0);
+signal FMC_CLK0_M2C_P   : std_logic := '0';
+signal FMC_CLK0_M2C_N   : std_logic;
+signal FMC_CLK1_M2C_P   : std_logic := '0';
+signal FMC_CLK1_M2C_N   : std_logic;
+
 --Outputs
 signal enc0_ctrl_pad_o  : std_logic_vector(11 downto 0);
 signal leds             : std_logic_vector(1 downto 0);
@@ -68,8 +85,10 @@ signal DATA_OUT_P       : std_logic_vector(3 downto 0);
 
 signal inputs           : unsigned(15 downto 0) := X"0000";
 
-signal lvdsin_pad       : std_logic_vector(1 downto 0);
+signal ttlin_pad        : std_logic_vector(5 downto 0);
 signal ttlout_pad       : std_logic_vector(9 downto 0);
+signal lvdsin_pad       : std_logic_vector(1 downto 0);
+signal lvdsout_pad      : std_logic_vector(1 downto 0);
 
 signal dcard_ctrl_io    : std16_array(3 downto 0);
 
@@ -99,6 +118,16 @@ begin
 clk <= not clk after 4 ns;
 clk50 <= not clk50 after 10 ns;
 reset <= '0' after 100 ns;
+
+GTXCLK0_P <= not GTXCLK0_P after 4 ns;
+GTXCLK0_N <= not GTXCLK0_P;
+GTXCLK1_P <= not GTXCLK1_P after 3.2 ns;
+GTXCLK1_N <= not GTXCLK1_P;
+FMC_CLK0_M2C_P <= not FMC_CLK0_M2C_P after 3.2 ns;
+FMC_CLK0_M2C_N <= not FMC_CLK0_M2C_P;
+FMC_CLK1_M2C_P <= not FMC_CLK1_M2C_P after 3.2 ns;
+FMC_CLK1_M2C_N <= not FMC_CLK1_M2C_P;
+
 --
 -- TTL/LVDS IO
 --
@@ -141,21 +170,62 @@ PORT MAP (
     As0_pad_io          => As0_pad_io,
     Bs0_pad_io          => Bs0_pad_io,
     Zs0_pad_io          => Zs0_pad_io,
-    ttlin_pad_i         => ttlout_pad(5 downto 0), -- ttlin_pad,
+    ttlin_pad_i         => ttlin_pad,
     lvdsin_pad_i        => lvdsin_pad,
     ttlout_pad_o        => ttlout_pad,
-    lvdsout_pad_o       => open,
+    lvdsout_pad_o       => lvdsout_pad,
+--
+    GTXCLK0_P           => GTXCLK0_P,
+    GTXCLK0_N           => GTXCLK0_N,
+    GTXCLK1_P           => GTXCLK1_P,
+    GTXCLK1_N           => GTXCLK1_N,
 
+    FMC_DP0_C2M_P       => FMC_DP0_C2M_P,
+    FMC_DP0_C2M_N       => FMC_DP0_C2M_N,
+    FMC_DP0_M2C_P       => FMC_DP0_M2C_P,
+    FMC_DP0_M2C_N       => FMC_DP0_M2C_N,
+
+    SFP_TX_P            => SFP_TX_P,
+    SFP_TX_N            => SFP_TX_N,
+    SFP_RX_P            => SFP_RX_P,
+    SFP_RX_N            => SFP_RX_N,
+
+    FMC_PRSNT           => FMC_PRSNT,
+    FMC_LA_P            => FMC_LA_P,
+    FMC_LA_N            => FMC_LA_N,
+    FMC_CLK0_M2C_P      => FMC_CLK0_M2C_P,
+    FMC_CLK0_M2C_N      => FMC_CLK0_M2C_N,
+    FMC_CLK1_M2C_P      => FMC_CLK1_M2C_P,
+    FMC_CLK1_M2C_N      => FMC_CLK1_M2C_N,
+--
     spi_sclk_i          => spi_sclk_i,
     spi_dat_i           => spi_dat_i,
     spi_dat_o           => spi_dat_o,
-    spi_sclk_o          => spi_sclk_o,
+    spi_sclk_o          => spi_sclk_o
 
-    enc0_ctrl_pad_i     => enc0_ctrl_pad_i,
-    enc0_ctrl_pad_o     => open
+--    enc0_ctrl_pad_i     => enc0_ctrl_pad_i,
+--    enc0_ctrl_pad_o     => open
 );
 
+--
+-- Loopback I/O
+--
+FMC_PRSNT <= '1';
 
+ttlin_pad <= ttlout_pad(5 downto 0);
+lvdsin_pad <= lvdsout_pad;
+FMC_LA_P(33 downto 17) <= FMC_LA_P(16 downto 0);
+FMC_LA_N(33 downto 17) <= FMC_LA_N(16 downto 0);
+
+SFP_RX_P <= SFP_TX_P;
+SFP_RX_N <= SFP_TX_N;
+
+FMC_DP0_M2C_P <= FMC_DP0_C2M_P;
+FMC_DP0_M2C_N <= FMC_DP0_C2M_N;
+
+--------------------------------------------------------------------------
+-- Slow Controller
+--------------------------------------------------------------------------
 slow_top_inst : entity work.slow_top
 port map (
     clk50_i             => clk50,

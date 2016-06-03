@@ -1,6 +1,12 @@
 --------------------------------------------------------------------------------
---  File:       panda_top.vhd
---  Desc:       PandA top-level design
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : PandA Zynq Top-Level Design File
 --
 --------------------------------------------------------------------------------
 
@@ -84,8 +90,13 @@ port (
     SFP_RX_N            : in    std_logic_vector(2 downto 0);
 
     -- FMC Differential IO
+    FMC_PRSNT           : in    std_logic;
     FMC_LA_P            : inout std_logic_vector(33 downto 0);
     FMC_LA_N            : inout std_logic_vector(33 downto 0);
+    FMC_CLK0_M2C_P      : in    std_logic;
+    FMC_CLK0_M2C_N      : in    std_logic;
+    FMC_CLK1_M2C_P      : in    std_logic;
+    FMC_CLK1_M2C_N      : in    std_logic;
 #endif
 
     -- Slow Controller Serial interface
@@ -283,10 +294,6 @@ signal INPROT               : std3_array(ENC_NUM-1 downto 0);
 
 signal SLOW_FPGA_VERSION    : std_logic_vector(31 downto 0);
 signal DCARD_MODE           : std32_array(ENC_NUM-1 downto 0);
-
---attribute keep              : string;
---attribute keep of sysbus    : signal is "true";
---attribute keep of posbus    : signal is "true";
 
 begin
 
@@ -1044,8 +1051,13 @@ port map (
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(FMC_CS),
 
+    FMC_PRSNT           => FMC_PRSNT,
     FMC_LA_P            => FMC_LA_P,
     FMC_LA_N            => FMC_LA_N,
+    FMC_CLK0_M2C_P      => FMC_CLK0_M2C_P,
+    FMC_CLK0_M2C_N      => FMC_CLK0_M2C_N,
+    FMC_CLK1_M2C_P      => FMC_CLK1_M2C_P,
+    FMC_CLK1_M2C_N      => FMC_CLK1_M2C_N,
 
     GTREFCLK_N          => GTXCLK1_N,
     GTREFCLK_P          => GTXCLK1_P,

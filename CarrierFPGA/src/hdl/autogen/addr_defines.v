@@ -308,6 +308,9 @@ localparam FMC_LINK_UP = 1;
 localparam FMC_ERROR_COUNT = 2;
 localparam FMC_LA_P_ERROR = 3;
 localparam FMC_LA_N_ERROR = 4;
+localparam FMC_GTREFCLK = 5;
+localparam FMC_FMC_CLK0 = 6;
+localparam FMC_FMC_CLK1 = 7;
 
 // SFP Block:
 localparam SFP_LINK1_UP = 0;
@@ -316,6 +319,9 @@ localparam SFP_LINK2_UP = 2;
 localparam SFP_ERROR2_COUNT = 3;
 localparam SFP_LINK3_UP = 4;
 localparam SFP_ERROR3_COUNT = 5;
+localparam SFP_SFP_CLK0 = 6;
+localparam SFP_SFP_CLK1 = 7;
+localparam SFP_SFP_CLK2 = 8;
 
 
 

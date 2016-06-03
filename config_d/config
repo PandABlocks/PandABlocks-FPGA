@@ -283,6 +283,9 @@ FMC
     ERROR_COUNT     read
     LA_P_ERROR      read
     LA_N_ERROR      read
+    GTREFCLK        read
+    FMC_CLK0        read
+    FMC_CLK1        read
 
 SFP
     LINK1_UP        read
@@ -291,3 +294,6 @@ SFP
     ERROR2_COUNT    read
     LINK3_UP        read
     ERROR3_COUNT    read
+    SFP_CLK0        read
+    SFP_CLK1        read
+    SFP_CLK2        read

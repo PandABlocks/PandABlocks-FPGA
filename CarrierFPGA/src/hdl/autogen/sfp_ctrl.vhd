@@ -27,6 +27,9 @@ port (
     ERROR2_COUNT       : in  std_logic_vector(31 downto 0);
     LINK3_UP       : in  std_logic_vector(31 downto 0);
     ERROR3_COUNT       : in  std_logic_vector(31 downto 0);
+    SFP_CLK0       : in  std_logic_vector(31 downto 0);
+    SFP_CLK1       : in  std_logic_vector(31 downto 0);
+    SFP_CLK2       : in  std_logic_vector(31 downto 0);
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
@@ -84,6 +87,12 @@ begin
                     mem_dat_o <= LINK3_UP;
                 when SFP_ERROR3_COUNT =>
                     mem_dat_o <= ERROR3_COUNT;
+                when SFP_SFP_CLK0 =>
+                    mem_dat_o <= SFP_CLK0;
+                when SFP_SFP_CLK1 =>
+                    mem_dat_o <= SFP_CLK1;
+                when SFP_SFP_CLK2 =>
+                    mem_dat_o <= SFP_CLK2;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;

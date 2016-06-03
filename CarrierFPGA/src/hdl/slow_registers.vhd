@@ -48,10 +48,10 @@ begin
 mem_addr <= to_integer(unsigned(mem_addr_i(BLK_AW-1 downto 0)));
 blk_addr <= to_integer(unsigned(mem_addr_i(PAGE_AW-1 downto BLK_AW)));
 
---
+---------------------------------------------------------------------------
 -- Catch user write access to Slow Registers, and generate a TLP to
 -- Slow FPGA.
---
+---------------------------------------------------------------------------
 process(clk_i)
 begin
     if rising_edge(clk_i) then

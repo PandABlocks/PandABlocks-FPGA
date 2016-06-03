@@ -72,27 +72,25 @@ use UNISIM.VCOMPONENTS.ALL;
 --***********************************Entity Declaration************************
 
 entity fmcgtx_exdes is
-generic
-(
-    EXAMPLE_CONFIG_INDEPENDENT_LANES        : integer   := 1;
-    EXAMPLE_LANE_WITH_START_CHAR            : integer   := 0;    -- specifies lane with unique start frame ch
-    EXAMPLE_WORDS_IN_BRAM                   : integer   := 512;  -- specifies amount of data in BRAM
-    EXAMPLE_SIM_GTRESET_SPEEDUP             : string    := "TRUE";    -- simulation setting for GT SecureIP model
-    STABLE_CLOCK_PERIOD                     : integer   := 10; 
-    EXAMPLE_USE_CHIPSCOPE                   : integer   := 0           -- Set to 1 to use Chipscope to drive resets
+generic (
+    EXAMPLE_CONFIG_INDEPENDENT_LANES    : integer   := 1;
+    EXAMPLE_LANE_WITH_START_CHAR        : integer   := 0;
+    EXAMPLE_WORDS_IN_BRAM               : integer   := 512;
+    EXAMPLE_SIM_GTRESET_SPEEDUP         : string    := "TRUE";
+    STABLE_CLOCK_PERIOD                 : integer   := 10;
+    EXAMPLE_USE_CHIPSCOPE               : integer   := 0
 );
-port
-(
-    Q0_CLK1_GTREFCLK_PAD_N_IN               : in   std_logic;
-    Q0_CLK1_GTREFCLK_PAD_P_IN               : in   std_logic;
-    drpclk_in_i                             : in   std_logic;
-    TRACK_DATA_OUT                          : out  std_logic_vector(31 downto 0);
-    ERROR_COUNT                             : out  std_logic_vector(31 downto 0);
-    RXN_IN                                  : in   std_logic;
-    RXP_IN                                  : in   std_logic;
-    TXN_OUT                                 : out  std_logic;
-    TXP_OUT                                 : out  std_logic
-    
+port (
+    Q0_CLK1_GTREFCLK_PAD_N_IN           : in   std_logic;
+    Q0_CLK1_GTREFCLK_PAD_P_IN           : in   std_logic;
+    GTREFCLK                            : out  std_logic;
+    drpclk_in_i                         : in   std_logic;
+    TRACK_DATA_OUT                      : out  std_logic_vector(31 downto 0);
+    ERROR_COUNT                         : out  std_logic_vector(31 downto 0);
+    RXN_IN                              : in   std_logic;
+    RXP_IN                              : in   std_logic;
+    TXN_OUT                             : out  std_logic;
+    TXP_OUT                             : out  std_logic
 );
 
 
@@ -621,6 +619,8 @@ signal    cpllreset_i                     : std_logic;
   signal rxresetdone_vio_i : std_logic;
 
 begin
+
+GTREFCLK <= gt0_txusrclk2_i;
 
 --  Static signal Assigments
 tied_to_ground_i     <= '0';

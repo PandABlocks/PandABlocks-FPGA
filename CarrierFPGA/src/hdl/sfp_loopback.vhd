@@ -29,12 +29,15 @@ end sfp_loopback;
 
 architecture rtl of sfp_loopback is
 
+signal test_clocks      : std_logic_vector(3 downto 0);
 signal LINK1_UP         : std_logic_vector(31 downto 0);
 signal ERROR1_COUNT     : std_logic_vector(31 downto 0);
 signal LINK2_UP         : std_logic_vector(31 downto 0);
 signal ERROR2_COUNT     : std_logic_vector(31 downto 0);
 signal LINK3_UP         : std_logic_vector(31 downto 0);
 signal ERROR3_COUNT     : std_logic_vector(31 downto 0);
+signal FREQ_VAL         : std32_array(3 downto 0);
+signal GTREFCLK         : std_logic_vector(2 downto 0);
 
 begin
 
@@ -45,6 +48,7 @@ sfpgtx_exdes_i : entity work.sfpgtx_exdes
 port map (
     Q0_CLK0_GTREFCLK_PAD_N_IN   => GTREFCLK_N,
     Q0_CLK0_GTREFCLK_PAD_P_IN   => GTREFCLK_P,
+    GTREFCLK                    => GTREFCLK,
     drpclk_in_i                 => clk_i,
     LINK1_UP                    => LINK1_UP,
     ERROR1_COUNT                => ERROR1_COUNT,
@@ -58,6 +62,26 @@ port map (
     TXP_OUT                     => TXP_OUT
 );
 
+---------------------------------------------------------------------------
+-- FMC Clocks Frequency Counter
+---------------------------------------------------------------------------
+
+test_clocks(0) <= GTREFCLK(0);
+test_clocks(1) <= GTREFCLK(1);
+test_clocks(2) <= GTREFCLK(2);
+test_clocks(3) <= '0';
+
+freq_counter_inst : entity work.freq_counter
+port map (
+    refclk          => clk_i,
+    reset           => reset_i,
+    test_clocks     => test_clocks,
+    freq_out        => FREQ_VAL
+);
+
+---------------------------------------------------------------------------
+-- FMC CSR Interface
+---------------------------------------------------------------------------
 sfp_ctrl : entity work.sfp_ctrl
 port map (
     -- Clock and Reset
@@ -72,6 +96,9 @@ port map (
     ERROR2_COUNT                => ERROR2_COUNT,
     LINK3_UP                    => LINK3_UP,
     ERROR3_COUNT                => ERROR3_COUNT,
+    SFP_CLK0                    => FREQ_VAL(0),
+    SFP_CLK1                    => FREQ_VAL(1),
+    SFP_CLK2                    => FREQ_VAL(2),
     -- Memory Bus Interface
     mem_cs_i                    => mem_cs_i,
     mem_wstb_i                  => mem_wstb_i,

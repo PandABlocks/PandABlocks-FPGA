@@ -1,3 +1,20 @@
+--------------------------------------------------------------------------------
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : FMC Loopback Design exercised all LA lines and GTX on the LPC
+--                connector.
+--
+--                This module must be used with Whizz Systems FMC Loopback card
+--                where LA[16:0] are outputs, and loopbacked to LA[33:17] as 
+--                inputs.
+--
+--------------------------------------------------------------------------------
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -21,9 +38,13 @@ port (
     mem_dat_i           : in  std_logic_vector(31 downto 0);
     mem_dat_o           : out std_logic_vector(31 downto 0);
     -- LA I/O
+    FMC_PRSNT           : in    std_logic;
     FMC_LA_P            : inout std_logic_vector(33 downto 0);
     FMC_LA_N            : inout std_logic_vector(33 downto 0);
-    FMC_PRSNT           : in    std_logic;
+    FMC_CLK0_M2C_P      : in    std_logic;
+    FMC_CLK0_M2C_N      : in    std_logic;
+    FMC_CLK1_M2C_P      : in    std_logic;
+    FMC_CLK1_M2C_N      : in    std_logic;
     -- GTX I/O
     TXP_OUT             : out   std_logic;
     TXN_OUT             : out   std_logic;
@@ -44,14 +65,20 @@ signal fmc_din_p_pad    : std_logic_vector(16 downto 0);
 signal fmc_din_n_pad    : std_logic_vector(16 downto 0);
 signal la_p_compare     : std_logic_vector(16 downto 0);
 signal la_n_compare     : std_logic_vector(16 downto 0);
+signal test_clocks      : std_logic_vector(3 downto 0);
 signal LINK_UP          : std_logic_vector(31 downto 0);
 signal ERROR_COUNT      : std_logic_vector(31 downto 0);
 signal LA_P_ERROR       : std_logic_vector(31 downto 0);
 signal LA_N_ERROR       : std_logic_vector(31 downto 0);
+signal FMC_CLK0_M2C     : std_logic;
+signal FMC_CLK1_M2C     : std_logic;
+signal FREQ_VAL         : std32_array(3 downto 0);
+signal GTREFCLK         : std_logic;
+signal FMC_PRSNT_DW     : std_logic_vector(31 downto 0);
 
 begin
 
--- Generate Internal SSI Frame from system clock
+-- Generate prescaled clock for internal counter
 frame_presc : entity work.prescaler
 port map (
     clk_i       => clk_i,
@@ -98,9 +125,9 @@ port map (
 
 END GENERATE;
 
---
--- 1./ LA Pins loopback Test
---
+---------------------------------------------------------------------------
+-- LA Pins loopback Test
+---------------------------------------------------------------------------
 process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -124,13 +151,14 @@ end process;
 LA_P_ERROR <= ZEROS(15) & la_p_compare;
 LA_N_ERROR <= ZEROS(15) & la_n_compare;
 
---
--- 2./ GTX Loopback Test
---
+---------------------------------------------------------------------------
+-- GTX Loopback Test
+---------------------------------------------------------------------------
 fmcgtx_exdes_i : entity work.fmcgtx_exdes
 port map (
     Q0_CLK1_GTREFCLK_PAD_N_IN   => GTREFCLK_N,
     Q0_CLK1_GTREFCLK_PAD_P_IN   => GTREFCLK_P,
+    GTREFCLK                    => GTREFCLK,
     drpclk_in_i                 => clk_i,
     TRACK_DATA_OUT              => LINK_UP,
     ERROR_COUNT                 => ERROR_COUNT,
@@ -140,6 +168,53 @@ port map (
     TXP_OUT                     => TXP_OUT
 );
 
+---------------------------------------------------------------------------
+-- FMC Mezzanine Clocks
+---------------------------------------------------------------------------
+IBUFGDS_CLK0 : IBUFGDS
+generic map (
+    DIFF_TERM   => TRUE,
+    IOSTANDARD  => "LVDS"
+)
+port map (
+    O           => FMC_CLK0_M2C,
+    I           => FMC_CLK0_M2C_P,
+    IB          => FMC_CLK0_M2C_N
+);
+
+IBUFGDS_CLK1 : IBUFGDS
+generic map (
+    DIFF_TERM   => TRUE,
+    IOSTANDARD  => "LVDS"
+)
+port map (
+    O           => FMC_CLK1_M2C,
+    I           => FMC_CLK1_M2C_P,
+    IB          => FMC_CLK1_M2C_N
+);
+
+---------------------------------------------------------------------------
+-- FMC Clocks Frequency Counter
+---------------------------------------------------------------------------
+
+test_clocks(0) <= GTREFCLK;
+test_clocks(1) <= FMC_CLK0_M2C;
+test_clocks(2) <= FMC_CLK1_M2C;
+test_clocks(3) <= '0';
+
+freq_counter_inst : entity work.freq_counter
+port map (
+    refclk          => clk_i,
+    reset           => reset_i,
+    test_clocks     => test_clocks,
+    freq_out        => FREQ_VAL
+);
+
+---------------------------------------------------------------------------
+-- FMC CSR Interface
+---------------------------------------------------------------------------
+FMC_PRSNT_DW <= ZEROS(31) & FMC_PRSNT;
+
 fmc_ctrl : entity work.fmc_ctrl
 port map (
     -- Clock and Reset
@@ -148,11 +223,14 @@ port map (
     sysbus_i                    => (others => '0'),
     posbus_i                    => (others => (others => '0')),
     -- Block Parameters
-    FMC_PRSNT                   => ZEROS(31) & FMC_PRSNT,
+    FMC_PRSNT                   => FMC_PRSNT_DW,
     LINK_UP                     => LINK_UP,
     ERROR_COUNT                 => ERROR_COUNT,
     LA_P_ERROR                  => LA_P_ERROR,
     LA_N_ERROR                  => LA_N_ERROR,
+    GTREFCLK                    => FREQ_VAL(0),
+    FMC_CLK0                    => FREQ_VAL(1),
+    FMC_CLK1                    => FREQ_VAL(2),
     -- Memory Bus Interface
     mem_cs_i                    => mem_cs_i,
     mem_wstb_i                  => mem_wstb_i,

@@ -74,30 +74,31 @@ use UNISIM.VCOMPONENTS.ALL;
 entity sfpgtx_exdes is
 generic
 (
-    EXAMPLE_CONFIG_INDEPENDENT_LANES        : integer   := 1;
-    EXAMPLE_LANE_WITH_START_CHAR            : integer   := 0;    -- specifies lane with unique start frame ch
-    EXAMPLE_WORDS_IN_BRAM                   : integer   := 512;  -- specifies amount of data in BRAM
-    EXAMPLE_SIM_GTRESET_SPEEDUP             : string    := "TRUE";    -- simulation setting for GT SecureIP model
-    STABLE_CLOCK_PERIOD                     : integer   := 10; 
-    EXAMPLE_USE_CHIPSCOPE                   : integer   := 0           -- Set to 1 to use Chipscope to drive resets
+    EXAMPLE_CONFIG_INDEPENDENT_LANES    : integer   := 1;
+    EXAMPLE_LANE_WITH_START_CHAR        : integer   := 0;
+    EXAMPLE_WORDS_IN_BRAM               : integer   := 512;
+    EXAMPLE_SIM_GTRESET_SPEEDUP         : string    := "TRUE";
+    STABLE_CLOCK_PERIOD                 : integer   := 10; 
+    EXAMPLE_USE_CHIPSCOPE               : integer   := 0
 );
 port
 (
-    Q0_CLK0_GTREFCLK_PAD_N_IN               : in   std_logic;
-    Q0_CLK0_GTREFCLK_PAD_P_IN               : in   std_logic;
-    drpclk_in_i                             : in   std_logic;
+    Q0_CLK0_GTREFCLK_PAD_N_IN           : in   std_logic;
+    Q0_CLK0_GTREFCLK_PAD_P_IN           : in   std_logic;
+    GTREFCLK                            : out  std_logic_vector(2 downto 0);
+    drpclk_in_i                         : in   std_logic;
 
-    LINK1_UP                                : out  std_logic_vector(31 downto 0);
-    ERROR1_COUNT                            : out  std_logic_vector(31 downto 0);
-    LINK2_UP                                : out  std_logic_vector(31 downto 0);
-    ERROR2_COUNT                            : out  std_logic_vector(31 downto 0);
-    LINK3_UP                                : out  std_logic_vector(31 downto 0);
-    ERROR3_COUNT                            : out  std_logic_vector(31 downto 0);
+    LINK1_UP                            : out  std_logic_vector(31 downto 0);
+    ERROR1_COUNT                        : out  std_logic_vector(31 downto 0);
+    LINK2_UP                            : out  std_logic_vector(31 downto 0);
+    ERROR2_COUNT                        : out  std_logic_vector(31 downto 0);
+    LINK3_UP                            : out  std_logic_vector(31 downto 0);
+    ERROR3_COUNT                        : out  std_logic_vector(31 downto 0);
 
-    RXN_IN                                  : in   std_logic_vector(2 downto 0);
-    RXP_IN                                  : in   std_logic_vector(2 downto 0);
-    TXN_OUT                                 : out  std_logic_vector(2 downto 0);
-    TXP_OUT                                 : out  std_logic_vector(2 downto 0)
+    RXN_IN                              : in   std_logic_vector(2 downto 0);
+    RXP_IN                              : in   std_logic_vector(2 downto 0);
+    TXN_OUT                             : out  std_logic_vector(2 downto 0);
+    TXP_OUT                             : out  std_logic_vector(2 downto 0)
     
 );
 
@@ -1226,7 +1227,11 @@ signal    cpllreset_i                     : std_logic;
 --**************************** Main Body of Code *******************************
 begin
 
-    --  Static signal Assigments
+GTREFCLK(0) <= gt0_txusrclk2_i;
+GTREFCLK(1) <= gt1_txusrclk2_i;
+GTREFCLK(2) <= gt2_txusrclk2_i;
+
+--  Static signal Assigments
 tied_to_ground_i                             <= '0';
 tied_to_ground_vec_i                         <= x"0000000000000000";
 tied_to_vcc_i                                <= '1';

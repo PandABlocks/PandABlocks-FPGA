@@ -1,6 +1,12 @@
 --------------------------------------------------------------------------------
--- File: panda_top.vhd
--- Desc: PandA top-level design
+-- PandA Motion Project - 2016
+-- Diamond Light Source, Oxford, UK
+-- SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+-- Author : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+-- Description : PandA Zynq Top-Level Design File
 --
 --------------------------------------------------------------------------------
 
@@ -232,9 +238,6 @@ signal OUTPROT : std3_array(ENC_NUM-1 downto 0);
 signal INPROT : std3_array(ENC_NUM-1 downto 0);
 signal SLOW_FPGA_VERSION : std_logic_vector(31 downto 0);
 signal DCARD_MODE : std32_array(ENC_NUM-1 downto 0);
---attribute keep : string;
---attribute keep of sysbus : signal is "true";
---attribute keep of posbus : signal is "true";
 begin
 -- Internal clocks and resets
 FCLK_RESET0 <= not FCLK_RESET0_N(0);

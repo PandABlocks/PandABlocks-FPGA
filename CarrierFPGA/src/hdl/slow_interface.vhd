@@ -1,7 +1,14 @@
 --------------------------------------------------------------------------------
---  File:       slow_interface.vhd
---  Desc:       Position compare output pulse generator
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Zynq-to-Spartan6 Slow Control Interface core handles write
+--                TLPs to Slow FPGA, and accepts status data from Slow FPGA.
+--                Interface is provided with dedicated SPI-like serial links.
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -46,9 +53,9 @@ signal read_addr        : natural range 0 to (2**rd_adr'length - 1);
 
 begin
 
---
+---------------------------------------------------------------------------
 -- Serial Interface core instantiation
---
+---------------------------------------------------------------------------
 slow_engine_inst : entity work.slow_engine
 generic map (
     AW              => PAGE_AW,
@@ -74,10 +81,12 @@ port map (
     spi_dat_i       => spi_dat_i
 );
 
---
+---------------------------------------------------------------------------
 -- There are multiple transmit sources coming across the design blocks.
 -- Use priority IF-ELSE for accepting write command.
 --
+-- THERE IS A RACE CONDITION HERE, NEEDS CARE!!!!
+---------------------------------------------------------------------------
 SENDER : process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -102,9 +111,9 @@ begin
     end if;
 end process;
 
---
+---------------------------------------------------------------------------
 -- Receive and store incoming status updates from Slow FPGA.
---
+---------------------------------------------------------------------------
 read_addr <= to_integer(unsigned(rd_adr));
 
 RECEIVER : process(clk_i)

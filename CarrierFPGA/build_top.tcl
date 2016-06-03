@@ -92,7 +92,7 @@ write_debug_probes -force panda_top.ltx
 #
 route_design
 
-write_checkpoint -force panda_top_routed.dcp
+write_checkpoint -force post_route
 report_utilization -file post_route_utilization_summary.rpt
 
 set timingreport [report_timing_summary -no_header -no_detailed_paths -return_string -file post_route_timing_summary.rpt]

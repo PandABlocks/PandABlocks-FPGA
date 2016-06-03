@@ -8,7 +8,6 @@ module test;
 wire [5:0]   ttlin_pad;
 
 panda_top_tb tb(
-    .ttlin_pad      ( ttlin_pad)
 );
 
 `define TESTNAME    "test.pcomp_table.v"

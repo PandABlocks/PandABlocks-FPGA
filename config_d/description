@@ -228,6 +228,9 @@ FMC         FMC Block Status
     ERROR_COUNT     GTX loopback
     LA_P_ERROR      LA_P loopback status
     LA_N_ERROR      LA_N loopback status
+    GTREFCLK        GT Ref clock freq
+    FMC_CLK0        FMC CLK0 clock freq
+    FMC_CLK1        FMC CLK1 clock freq
 
 SFP         SFP Block Status
     LINK1_UP        GTX-1 link status
@@ -236,3 +239,6 @@ SFP         SFP Block Status
     ERROR2_COUNT    GTX-2 loopback
     LINK3_UP        GTX-3 link status
     ERROR3_COUNT    GTX-3 loopback
+    SFP_CLK0        SFP0 CLK clock freq
+    SFP_CLK1        SFP1 CLK clock freq
+    SFP_CLK2        SFP2 CLK clock freq

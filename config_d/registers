@@ -293,6 +293,9 @@ FMC         26
     ERROR_COUNT     2
     LA_P_ERROR      3
     LA_N_ERROR      4
+    GTREFCLK        5
+    FMC_CLK0        6
+    FMC_CLK1        7
 
 SFP         27
     LINK1_UP        0
@@ -301,3 +304,6 @@ SFP         27
     ERROR2_COUNT    3
     LINK3_UP        4
     ERROR3_COUNT    5
+    SFP_CLK0        6
+    SFP_CLK1        7
+    SFP_CLK2        8
