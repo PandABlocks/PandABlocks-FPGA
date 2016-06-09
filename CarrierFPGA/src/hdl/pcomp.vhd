@@ -172,7 +172,7 @@ table_start <= signed(table_posn_i(63 downto 32));
 table_width <= signed(table_posn_i(31 downto 0));
 
 -- Table read (ack) strobe to table FIFO
-table_read_o <= '1' when (pcomp_fsm = WAIT_ENABLE and enable_rise = '1') or
+table_read_o <= USE_TABLE when (pcomp_fsm = WAIT_ENABLE and enable_rise = '1') or
                          (pcomp_fsm = WAIT_DELTAP and deltap_cross = '1') or
                          (pcomp_fsm = WAIT_WIDTH  and posn_cross = '1')
                 else '0';

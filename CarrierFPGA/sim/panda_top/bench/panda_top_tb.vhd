@@ -13,7 +13,7 @@ end panda_top_tb;
 ARCHITECTURE behavior OF panda_top_tb IS
 
 --Inputs
---signal enc0_ctrl_pad_i : std_logic_vector(3 downto 0) := (others => '0');
+signal enc0_ctrl_pad_i : std_logic_vector(3 downto 0) := (others => '0');
 
 --BiDirs
 signal DDR_addr         : std_logic_vector(14 downto 0);
@@ -174,37 +174,39 @@ PORT MAP (
     lvdsin_pad_i        => lvdsin_pad,
     ttlout_pad_o        => ttlout_pad,
     lvdsout_pad_o       => lvdsout_pad,
+    -- START: Comment out for DEV board
+--    GTXCLK0_P           => GTXCLK0_P,
+--    GTXCLK0_N           => GTXCLK0_N,
+--    GTXCLK1_P           => GTXCLK1_P,
+--    GTXCLK1_N           => GTXCLK1_N,
 --
-    GTXCLK0_P           => GTXCLK0_P,
-    GTXCLK0_N           => GTXCLK0_N,
-    GTXCLK1_P           => GTXCLK1_P,
-    GTXCLK1_N           => GTXCLK1_N,
-
-    FMC_DP0_C2M_P       => FMC_DP0_C2M_P,
-    FMC_DP0_C2M_N       => FMC_DP0_C2M_N,
-    FMC_DP0_M2C_P       => FMC_DP0_M2C_P,
-    FMC_DP0_M2C_N       => FMC_DP0_M2C_N,
-
-    SFP_TX_P            => SFP_TX_P,
-    SFP_TX_N            => SFP_TX_N,
-    SFP_RX_P            => SFP_RX_P,
-    SFP_RX_N            => SFP_RX_N,
-
-    FMC_PRSNT           => FMC_PRSNT,
-    FMC_LA_P            => FMC_LA_P,
-    FMC_LA_N            => FMC_LA_N,
-    FMC_CLK0_M2C_P      => FMC_CLK0_M2C_P,
-    FMC_CLK0_M2C_N      => FMC_CLK0_M2C_N,
-    FMC_CLK1_M2C_P      => FMC_CLK1_M2C_P,
-    FMC_CLK1_M2C_N      => FMC_CLK1_M2C_N,
+--    FMC_DP0_C2M_P       => FMC_DP0_C2M_P,
+--    FMC_DP0_C2M_N       => FMC_DP0_C2M_N,
+--    FMC_DP0_M2C_P       => FMC_DP0_M2C_P,
+--    FMC_DP0_M2C_N       => FMC_DP0_M2C_N,
 --
+--    SFP_TX_P            => SFP_TX_P,
+--    SFP_TX_N            => SFP_TX_N,
+--    SFP_RX_P            => SFP_RX_P,
+--    SFP_RX_N            => SFP_RX_N,
+--
+--    FMC_PRSNT           => FMC_PRSNT,
+--    FMC_LA_P            => FMC_LA_P,
+--    FMC_LA_N            => FMC_LA_N,
+--    FMC_CLK0_M2C_P      => FMC_CLK0_M2C_P,
+--    FMC_CLK0_M2C_N      => FMC_CLK0_M2C_N,
+--    FMC_CLK1_M2C_P      => FMC_CLK1_M2C_P,
+--    FMC_CLK1_M2C_N      => FMC_CLK1_M2C_N,
+    -- END: Comment out for DEV board
+
+    enc0_ctrl_pad_i     => enc0_ctrl_pad_i,
+    enc0_ctrl_pad_o     => open,
+
     spi_sclk_i          => spi_sclk_i,
     spi_dat_i           => spi_dat_i,
     spi_dat_o           => spi_dat_o,
     spi_sclk_o          => spi_sclk_o
 
---    enc0_ctrl_pad_i     => enc0_ctrl_pad_i,
---    enc0_ctrl_pad_o     => open
 );
 
 --
