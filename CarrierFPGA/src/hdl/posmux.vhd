@@ -6,9 +6,9 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : POSS block provides 4 user configurable soft inputs.
---                Soft inputs are controlled through register interface.
---
+--  Description : Position Bus multiplexer with delay line.
+--                DLY = 0 corresponds to 1 clock cycle delay providing a
+--                registered output
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -40,23 +40,16 @@ signal posn             : std_logic_vector(31 downto 0);
 
 begin
 
--- Select bit on the system bus.
+-- Select position field from the position array
 posn <= PFIELD(posbus_i, POSMUX_SEL(PBUSBW-1 downto 0));
 
--- Apply delay. POS_DLY = 0 means 1 clock delay which is use to register
--- multiplexer output.
-DLY_GEN : for I in 0 to 31 generate
-    SRLC32E_inst : SRLC32E
-    port map (
-        Q       => posn_o(I),
-        Q31     => open,
-        A       => POS_DLY(4 downto 0),
-        CE      => '1',
-        CLK     => clk_i,
-        D       => posn(I)
-    );
-end generate;
+-- Feed selected fiedd through the delay line
+delay_line_inst : entity work.delay_line
+port map (
+    clk_i       => clk_i,
+    data_i      => posn,
+    data_o      => posn_o,
+    DELAY       => POS_DLY(4 downto 0)
+);
 
 end rtl;
-
-

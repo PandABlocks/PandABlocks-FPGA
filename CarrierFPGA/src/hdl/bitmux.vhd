@@ -6,9 +6,9 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : BITS block provides 4 user configurable soft inputs.
---                Soft inputs are controlled through register interface.
---
+--  Description : System Bus multiplexer with delay line.
+--                DLY = 0 corresponds to 1 clock cycle delay providing a
+--                registered output
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -36,24 +36,27 @@ end bitmux;
 
 architecture rtl of bitmux is
 
-signal pulse            : std_logic;
+signal bit_in           : std_logic_vector(0 downto 0);
+signal bit_out          : std_logic_vector(0 downto 0);
 
 begin
 
--- Select bit on the system bus.
-pulse <= SBIT(sysbus_i, BITMUX_SEL(SBUSBW-1 downto 0));
+-- Select bit on the system bus
+bit_in(0) <= SBIT(sysbus_i, BITMUX_SEL(SBUSBW-1 downto 0));
 
--- Apply delay. BIT_DLY = 0 1 clock delay which is absorbed as
--- system_bus delay.
-SRLC32E_inst : SRLC32E
+-- Feed selected bit through the delay line
+delay_line_inst : entity work.delay_line
+generic map (
+    DW          => 1
+)
 port map (
-    Q       => bit_o,
-    Q31     => open,
-    A       => BIT_DLY(4 downto 0),
-    CE      => '1',
-    CLK     => clk_i,
-    D       => pulse
+    clk_i       => clk_i,
+    data_i      => bit_in,
+    data_o      => bit_out,
+    DELAY       => BIT_DLY(4 downto 0)
 );
+
+bit_o <= bit_out(0);
 
 end rtl;
 
