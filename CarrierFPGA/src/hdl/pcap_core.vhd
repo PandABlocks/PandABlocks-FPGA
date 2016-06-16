@@ -44,7 +44,6 @@ port (
     posbus_i            : in  posbus_t;
     extbus_i            : in  std32_array(ENC_NUM-1 downto 0);
     -- Block outputs
-    dma_fifo_reset_o    : out std_logic;
     pcap_dat_o          : out std_logic_vector(31 downto 0);
     pcap_dat_valid_o    : out std_logic;
     pcap_done_o         : out std_logic;
@@ -74,9 +73,9 @@ pcap_dat_valid_o <= pcap_dat_valid;
 pcap_status_o <= pcap_status;
 pcap_actv_o <= pcap_armed;
 
---
+--------------------------------------------------------------------------
 -- Arm/Disarm/Enable Control Logic
---
+--------------------------------------------------------------------------
 pcap_arming : entity work.pcap_arming
 port map (
     clk_i               => clk_i,
@@ -94,9 +93,9 @@ port map (
     pcap_status_o       => pcap_status
 );
 
---
+--------------------------------------------------------------------------
 -- Encoder and ADC Position Data Processing
---
+--------------------------------------------------------------------------
 pcap_frame : entity work.pcap_frame
 port map (
     clk_i               => clk_i,
@@ -119,9 +118,9 @@ port map (
     error_o             => pcap_frame_error
 );
 
---
+--------------------------------------------------------------------------
 -- Pcap Mask Buffer
---
+--------------------------------------------------------------------------
 pcap_buffer : entity work.pcap_buffer
 port map (
     clk_i               => clk_i,
@@ -140,7 +139,9 @@ port map (
     error_o             => pcap_buffer_error
 );
 
+--------------------------------------------------------------------------
 -- These errors signals termination of PCAP operation.
+--------------------------------------------------------------------------
 pcap_error <= pcap_buffer_error or pcap_frame_error;
 
 ERR_STATUS(31 downto 3) <= (others => '0');

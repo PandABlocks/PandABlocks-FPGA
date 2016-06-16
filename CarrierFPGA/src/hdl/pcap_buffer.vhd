@@ -6,9 +6,12 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : Position Capture Buffer reads user selected fields serially
---                from extended position bus.
+--  Description : Read requested fields from position bus and feed them serially
+--                to the dma engine
 --
+--                Capture mask for requested fields are stored in a BRAM that is
+--                read sequentially, and output value is used as select to the
+--                multiplexer for position field array
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -70,8 +73,9 @@ port map (
     wea         => WRITE_WSTB
 );
 
--- Fill mask buffer with capture indices sequentially, and
--- latch buffer length.
+--------------------------------------------------------------------------
+-- Fill mask buffer with field indices sequentially, and latch buffer len
+--------------------------------------------------------------------------
 process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -92,6 +96,11 @@ begin
     end if;
 end process;
 
+--------------------------------------------------------------------------
+-- Start reading capture index sequentially following the capture trigger.
+-- An ongoing_capture flag is produced to be used for graceful finish by
+-- the DMA engine.
+--------------------------------------------------------------------------
 capture <= capture_i or ongoing_capture;
 
 process(clk_i) begin
@@ -103,12 +112,12 @@ process(clk_i) begin
             error_o <= '0';
             pcap_dat_valid_o <= '0';
         else
-            -- Latch all capture fields on rising edge of capture.
+            -- Latch all capture fields on rising edge of capture
             if (capture_i = '1' and mask_addrb = 0) then
                 capture_data_lt <= fatpipe_i;
             end if;
 
-            -- Ongoing flag runs while mask buffer is read through.
+            -- Ongoing flag runs while mask buffer is read through
             -- Do not produce ongoing pulse if len = 1
             if (mask_addrb = mask_length - 1) then
                 ongoing_capture <= '0';
@@ -116,7 +125,7 @@ process(clk_i) begin
                 ongoing_capture <= '1';
             end if;
 
-            -- Counter is active follwing capture and rolls over.
+            -- Counter is active follwing capture and rolls over
             if (capture = '1') then
                 if (mask_addrb = mask_length - 1) then
                     mask_addrb <= (others => '0');

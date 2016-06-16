@@ -6,8 +6,10 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : Read configuration registers, and apply 0-31 delay taps to
---                System Bus bits and Position Bus fields.
+--  Description : This module enables the ability to delay capture data by
+--                passing whole System Bus and Position Bus through a delay line
+--
+--                This block is mapped on to REG address space (not PCAP)
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -28,15 +30,9 @@ port (
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
     extbus_i            : in  std32_array(ENC_NUM-1 downto 0);
-    enable_i            : in  std_logic;
-    capture_i           : in  std_logic;
-    frame_i             : in  std_logic;
     sysbus_o            : out sysbus_t;
     posbus_o            : out posbus_t;
     extbus_o            : out std32_array(ENC_NUM-1 downto 0);
-    enable_o            : out std_logic;
-    capture_o           : out std_logic;
-    frame_o             : out std_logic;
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
@@ -56,9 +52,9 @@ begin
 
 mem_addr <= to_integer(unsigned(mem_addr_i));
 
---
+--------------------------------------------------------------------------
 -- Gather DELAY values for System Bus and Position Bus Fields
---
+--------------------------------------------------------------------------
 BIT_DELAY_WRITE : process(clk_i) begin
 
 if rising_edge(clk_i) then
@@ -95,57 +91,46 @@ DATA_DELAY_WRITE : process(clk_i) begin
     end if;
 end process;
 
---
+--------------------------------------------------------------------------
 -- Apply Delays To System Bus,
---
+--------------------------------------------------------------------------
 BIT_DELAY_GEN : FOR I IN 0 TO 3 GENERATE
 
-bit_delay_inst : entity work.delay_line
-port map (
-    clk_i       => clk_i,
-    data_i      => sysbus_i(32*I+31 downto 32*I),
-    data_o      => sysbus_o(32*I+31 downto 32*I),
-    DELAY       => bit_delay_array(I)(4 downto 0)
-);
+    bit_delay_inst : entity work.delay_line
+    port map (
+        clk_i       => clk_i,
+        data_i      => sysbus_i(32*I+31 downto 32*I),
+        data_o      => sysbus_o(32*I+31 downto 32*I),
+        DELAY       => bit_delay_array(I)(4 downto 0)
+    );
 
 END GENERATE;
 
---
--- Apply Delays To Position Fields,
---
+--------------------------------------------------------------------------
+-- Apply Delays To Position Fields, including extended bus
+--------------------------------------------------------------------------
 POS_DELAY_GEN : FOR I IN 0 TO 31 GENERATE
 
-data_delay_inst : entity work.delay_line
-port map (
-    clk_i       => clk_i,
-    data_i      => posbus_i(I),
-    data_o      => posbus_o(I),
-    DELAY       => data_delay_array(I)(4 downto 0)
-);
+    data_delay_inst : entity work.delay_line
+    port map (
+        clk_i       => clk_i,
+        data_i      => posbus_i(I),
+        data_o      => posbus_o(I),
+        DELAY       => data_delay_array(I)(4 downto 0)
+    );
 
 END GENERATE;
 
 EXT_DELAY_GEN : FOR I IN REG_PCAP_DATA_DELAY_1 TO REG_PCAP_DATA_DELAY_4 GENERATE
 
-ext_delay_inst : entity work.delay_line
-port map (
-    clk_i       => clk_i,
-    data_i      => extbus_i(I-REG_PCAP_DATA_DELAY_1),
-    data_o      => extbus_o(I-REG_PCAP_DATA_DELAY_1),
-    DELAY       => data_delay_array(I-REG_PCAP_DATA_DELAY_1+1)(4 downto 0)
-);
+    ext_delay_inst : entity work.delay_line
+    port map (
+        clk_i       => clk_i,
+        data_i      => extbus_i(I-REG_PCAP_DATA_DELAY_1),
+        data_o      => extbus_o(I-REG_PCAP_DATA_DELAY_1),
+        DELAY       => data_delay_array(I-REG_PCAP_DATA_DELAY_1+1)(4 downto 0)
+    );
 
 END GENERATE;
-
---
--- Delay Enable/Frame/Capture signals to line-up with *_DLY=0
---
-process(clk_i) begin
-    if rising_edge(clk_i) then
-        enable_o <= enable_i;
-        frame_o <= frame_i;
-        capture_o <= capture_i;
-    end if;
-end process;
 
 end rtl;

@@ -1,7 +1,15 @@
 --------------------------------------------------------------------------------
---  File:       pcap_arming.vhd
---  Desc:       Position capture module
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Manage arming of the position capture operation.
+--                Position capture starts following soft ARM, and enable signal
+--                The capture stops either on successful completion, DISARM or
+--                error
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -40,6 +48,7 @@ signal enable_fall      : std_logic;
 signal abort_capture    : std_logic;
 signal pcap_armed       : std_logic;
 signal pcap_enabled     : std_logic;
+signal enable           : std_logic;
 
 begin
 
@@ -47,28 +56,24 @@ begin
 pcap_armed_o <= pcap_armed;
 pcap_enabled_o <= pcap_enabled;
 
+--------------------------------------------------------------------------
 -- Register inputs, and detect rise/falling edge of internal signals.
-enable_fall <= not enable_i and enable_prev;
-
+--------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
-        enable_prev <= enable_i;
+        enable <= enable_i;
+        enable_prev <= enable;
+        -- Extra delay to align with frame and capture pulses
+        enable_fall <= not enable and enable_prev;
     end if;
 end process;
 
 -- Blocks operation is aborted under following conditions.
 abort_capture <= DISARM or pcap_error_i or dma_error_i;
 
-process(clk_i) begin
-    if rising_edge(clk_i) then
-        enable_prev <= enable_i;
-
-    end if;
-end process;
-
---
+--------------------------------------------------------------------------
 -- Arm/Enable/Disarm State Machine
---
+--------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
@@ -112,7 +117,7 @@ process(clk_i) begin
 
                 -- Wait for enable pulse from the system bus.
                 when ARMED =>
-                    if (enable_i = '1') then
+                    if (enable = '1') then
                         arm_fsm <= ENABLED;
                         pcap_enabled <= '1';
                     end if;
@@ -160,9 +165,9 @@ process(clk_i) begin
     end if;
 end process;
 
---
+--------------------------------------------------------------------------
 -- Timestamp counter for the experiment starting from ARM.
---
+--------------------------------------------------------------------------
 timestamp_o <= std_logic_vector(timestamp);
 
 process(clk_i) begin

@@ -1,8 +1,16 @@
 --------------------------------------------------------------------------------
---  File:       pcap_core_ctrl.vhd
---  Desc:       Position capture module
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
+--
+--  Description : Position Capture requires an additional register interface
+--                to handle ARMing and DMA related control registers.
+--------------------------------------------------------------------------------
+
+-- *REGs and *DMA space needs custom control block
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -23,13 +31,8 @@ port (
     mem_wstb_i          : in  std_logic;
     mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
     mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o         : out std_logic_vector(31 downto 0);
+    mem_dat_o           : out std_logic_vector(31 downto 0);
     -- Block Register Interface.
-    ENABLE              : out std_logic_vector(SBUSBW-1 downto 0);
-    FRAME               : out std_logic_vector(SBUSBW-1 downto 0);
-    CAPTURE             : out std_logic_vector(SBUSBW-1 downto 0);
-    ERR_STATUS          : in  std_logic_vector(31 downto 0);
-
     START_WRITE         : out std_logic;
     WRITE               : out std_logic_vector(31 downto 0);
     WRITE_WSTB          : out std_logic;
@@ -59,9 +62,9 @@ begin
 -- Integer conversion for address.
 mem_addr <= to_integer(unsigned(mem_addr_i));
 
---
--- Control System Register Interface
---
+--------------------------------------------------------------------------
+-- REG* Address Space interface
+--------------------------------------------------------------------------
 REG_REG_SPACE : process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -122,6 +125,9 @@ begin
     end if;
 end process;
 
+--------------------------------------------------------------------------
+-- DRIVER Address Space interface
+--------------------------------------------------------------------------
 REG_DRV_SPACE : process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -172,9 +178,9 @@ begin
     end if;
 end process;
 
---
--- Driver space register readback
---
+--------------------------------------------------------------------------
+-- DRIVER space register readback
+--------------------------------------------------------------------------
 REG_READ_DRV : process(clk_i)
 begin
     if rising_edge(clk_i) then

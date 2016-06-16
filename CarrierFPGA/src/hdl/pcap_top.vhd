@@ -6,8 +6,12 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : Position Capture top-level module.
+--  Description : Position Capture top-level module. This block instantiates:
 --
+--                  * pcap_ctrl: Block control and status interface
+--                  * pcap_core_ctrl: DMA and ARM register control interface
+--                  * pcap_core: Core position capture module
+--                  * pcap_dma: DMA engine
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -69,9 +73,6 @@ end pcap_top;
 
 architecture rtl of pcap_top is
 
-signal ENABLE_VAL       : std_logic_vector(SBUSBW-1 downto 0);
-signal FRAME_VAL        : std_logic_vector(SBUSBW-1 downto 0);
-signal CAPTURE_VAL      : std_logic_vector(SBUSBW-1 downto 0);
 signal ERR_STATUS       : std_logic_vector(31 downto 0);
 
 signal ARM              : std_logic;
@@ -95,7 +96,6 @@ signal capture_data     : std32_array(63 downto 0);
 signal pcap_dat         : std_logic_vector(31 downto 0);
 signal pcap_dat_valid   : std_logic;
 
-signal dma_fifo_reset   : std_logic;
 signal dma_full         : std_logic;
 signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_active      : std_logic;
@@ -104,9 +104,6 @@ signal pcap_done        : std_logic;
 signal enable           : std_logic;
 signal capture          : std_logic;
 signal frame            : std_logic;
-signal enable_dly       : std_logic;
-signal capture_dly      : std_logic;
-signal frame_dly        : std_logic;
 signal sysbus_dly       : sysbus_t;
 signal posbus_dly       : posbus_t;
 signal extbus_dly       : std32_array(ENC_NUM-1 downto 0);
@@ -115,9 +112,9 @@ begin
 
 pcap_actv_o <= pcap_active;
 
---
--- Block Control Register Interface.
---
+--------------------------------------------------------------------------
+-- Pcap Block control interface
+--------------------------------------------------------------------------
 pcap_ctrl_inst : entity work.pcap_ctrl
 port map (
     clk_i               => clk_i,
@@ -137,9 +134,9 @@ port map (
     mem_dat_o           => mem_dat_0_o
 );
 
---
--- *REGs and *DMA space needs special treatment.
---
+--------------------------------------------------------------------------
+-- *REGs and *DMA space needs custom control block
+--------------------------------------------------------------------------
 pcap_core_ctrl_inst : entity work.pcap_core_ctrl
 port map (
     clk_i               => clk_i,
@@ -150,11 +147,6 @@ port map (
     mem_addr_i          => mem_addr_i,
     mem_dat_i           => mem_dat_i,
     mem_dat_o           => mem_dat_1_o,
-
-    ENABLE              => ENABLE_VAL,
-    FRAME               => FRAME_VAL,
-    CAPTURE             => CAPTURE_VAL,
-    ERR_STATUS          => ERR_STATUS,
 
     START_WRITE         => START_WRITE,
     WRITE               => WRITE,
@@ -175,6 +167,9 @@ port map (
     IRQ_STATUS          => IRQ_STATUS
 );
 
+--------------------------------------------------------------------------
+-- Delay lines for System and Position Bus fields for capture
+--------------------------------------------------------------------------
 pcap_delay_inst : entity work.pcap_delay
 port map (
     clk_i               => clk_i,
@@ -183,26 +178,20 @@ port map (
     sysbus_i            => sysbus_i,
     posbus_i            => posbus_i,
     extbus_i            => extbus_i,
-    enable_i            => enable,
-    capture_i           => capture,
-    frame_i             => frame,
 
     sysbus_o            => sysbus_dly,
     posbus_o            => posbus_dly,
     extbus_o            => extbus_dly,
-    enable_o            => enable_dly,
-    capture_o           => capture_dly,
-    frame_o             => frame_dly,
 
-    mem_cs_i            => mem_cs_i(PCAP_CS),
+    mem_cs_i            => mem_cs_i(REG_CS),
     mem_wstb_i          => mem_wstb_i,
     mem_addr_i          => mem_addr_i(BLK_AW-1 downto 0),
     mem_dat_i           => mem_dat_i
 );
 
---
+--------------------------------------------------------------------------
 -- Position Capture Core IP instantiation
---
+--------------------------------------------------------------------------
 pcap_core : entity work.pcap_core
 port map (
     clk_i                   => clk_i,
@@ -218,9 +207,9 @@ port map (
     DISARM                  => DISARM,
     ERR_STATUS              => ERR_STATUS,
 
-    enable_i                => enable_dly,
-    capture_i               => capture_dly,
-    frame_i                 => frame_dly,
+    enable_i                => enable,
+    capture_i               => capture,
+    frame_i                 => frame,
     dma_full_i              => dma_full,
     sysbus_i                => sysbus_dly,
     posbus_i                => posbus_dly,
@@ -233,9 +222,9 @@ port map (
     pcap_status_o           => pcap_status
 );
 
---
+--------------------------------------------------------------------------
 -- Position Capture DMA Engine
---
+--------------------------------------------------------------------------
 pcap_dma_inst : entity work.pcap_dma
 port map (
     clk_i                   => clk_i,

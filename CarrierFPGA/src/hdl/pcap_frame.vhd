@@ -6,8 +6,9 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : This module handles framing and capture pulse generation to
---                along with ADC/Encoder position processing.
+--  Description : This module handles Framing and Capture pulse generation along
+--                with ADC/Encoder position processing.
+--
 --                Output from this block is fed to Buffer block for capture.
 --
 --------------------------------------------------------------------------------
@@ -63,10 +64,10 @@ signal capture_din      : std32_array(63 downto 0);
 
 begin
 
---
+--------------------------------------------------------------------------
 -- Input registers, and
 -- Detect rise/falling edge of internal signals.
---
+--------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
         frame_prev <= frame_i;
@@ -80,11 +81,13 @@ capture_rise <= capture_i and not capture_prev;
 -- Disable block when it is not enabled.
 reset <= reset_i and not enable_i;
 
+--------------------------------------------------------------------------
 -- Capture flag behaviour is based on FRAMING mode and enable.
 -- Enable makes sure that capture pulse will not be generated
 -- preventing triggering oncoming modules higher level.
 --
 -- Capture output needs 1 clock delay to allow latching of data.
+--------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset = '1') then
@@ -101,7 +104,7 @@ process(clk_i) begin
     end if;
 end process;
 
---
+--------------------------------------------------------------------------
 -- Capture and Frame managements:
 --
 -- A capture between two Frame inputs indicates a live frame
@@ -113,6 +116,7 @@ end process;
 -- CAPTURE:     x           x            x             x
 -- Output          |           |             |             |
 --
+--------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset = '1') then
@@ -147,10 +151,10 @@ process(clk_i) begin
     end if;
 end process;
 
---
+--------------------------------------------------------------------------
 -- There are three timestamp information is captured as: Start of Frame,
 -- Frame Length and Capture Offset.
---
+--------------------------------------------------------------------------
 timestamp <= unsigned(timestamp_i);
 
 process(clk_i) begin
@@ -177,9 +181,9 @@ process(clk_i) begin
     end if;
 end process;
 
---
+--------------------------------------------------------------------------
 -- Instantiate Position Processing Blocks
---
+--------------------------------------------------------------------------
 PROC_OTHERS : FOR I IN 1 TO 31 GENERATE
 
 pcap_posproc_encoder : entity work.pcap_posproc
