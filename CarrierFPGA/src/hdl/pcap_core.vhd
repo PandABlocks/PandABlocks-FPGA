@@ -54,6 +54,9 @@ end pcap_core;
 
 architecture rtl of pcap_core is
 
+signal frame            : std_logic;
+signal capture          : std_logic;
+
 signal timestamp        : std_logic_vector(63 downto 0);
 signal capture_pulse    : std_logic;
 signal capture_data     : std32_array(63 downto 0);
@@ -93,6 +96,10 @@ port map (
     pcap_status_o       => pcap_status
 );
 
+-- Mask capture and frame signals with enable
+capture <= capture_i and enable_i;
+frame <= frame_i and enable_i;
+
 --------------------------------------------------------------------------
 -- Encoder and ADC Position Data Processing
 --------------------------------------------------------------------------
@@ -110,8 +117,8 @@ port map (
     extbus_i            => extbus_i,
 
     enable_i            => pcap_enabled,
-    frame_i             => frame_i,
-    capture_i           => capture_i,
+    frame_i             => frame,   --frame_i,
+    capture_i           => capture, --capture_i,
     timestamp_i         => timestamp,
     capture_o           => capture_pulse,
     posn_o              => capture_data,

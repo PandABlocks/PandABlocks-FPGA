@@ -55,13 +55,14 @@ posin <= extn_i & posn_i;
 posn_delta <= signed(posin) - signed(posn_prev);
 posn_sum <= signed(posin) + signed(posn_prev);
 
---
+--------------------------------------------------------------------------
 -- Position output can be following based on FRAMING mode of operation.
 --
 -- Instantaneous value,
 -- Difference between values at frame start and end.
 -- Average of values at frame start and end.
 --
+--------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then

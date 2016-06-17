@@ -75,6 +75,7 @@ process(clk_i) begin
     end if;
 end process;
 
+-- Both signals are masked with enable_i
 frame_rise <= frame_i and not frame_prev;
 capture_rise <= capture_i and not capture_prev;
 
