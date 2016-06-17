@@ -1,9 +1,15 @@
 --------------------------------------------------------------------------------
---  File:       counter.vhd
---  Desc:       Programmable Pulse Generator.
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
---  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
+--
+--  Description : 32-bit programmable counter
+--
+--------------------------------------------------------------------------------
+
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -50,19 +56,22 @@ end process;
 trigger_rise <= trigger_i and not trigger_prev;
 enable_fall <= not enable_i and enable_prev;
 
---
+--------------------------------------------------------------------------
 -- Up/Down Counter
---
+--------------------------------------------------------------------------
 process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             counter <= (others => '0');
         else
+            -- Load the counter
             if (START_LOAD = '1') then
                 counter <= unsigned('0' & START);
+            -- Re-load when enable de-asserted
             elsif (enable_fall = '1') then
                 counter <= unsigned('0' & START);
+            -- Count up/down on trigger
             elsif (trigger_rise = '1') then
                 if (DIR = '0') then
                     counter <= counter + unsigned(STEP);
