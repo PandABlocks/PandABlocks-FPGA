@@ -150,7 +150,9 @@ port map (
 -- Current trigger match condition is used during the execution of a frame.
 current_trig <= (current_frame.trig_cond xnor inp_val) or not current_frame.trig_mask;
 
-current_trig_valid <= '1' when (current_frame.trig_mask /= "0000" and
+-- Generate valid pulse only when enabled, otherwise last frame of previous
+-- run mask can trigger immediate output
+current_trig_valid <= enable_prev when (current_frame.trig_mask /= "0000" and
                                 current_trig = "1111") else '0';
 
 -- Next trigger match condition is during a transition to the next frame so that
