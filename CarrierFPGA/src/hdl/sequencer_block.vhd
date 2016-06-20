@@ -1,6 +1,13 @@
 --------------------------------------------------------------------------------
---  File:       sequencer_block.vhd
---  Desc:       Position compare output sequencer generator
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Instantiates Control and Status register interface, and
+--                core squencer IP
 --
 --------------------------------------------------------------------------------
 
@@ -62,9 +69,9 @@ signal inpd             : std_logic;
 
 begin
 
---
+--------------------------------------------------------------------------
 -- Control System Interface
---
+--------------------------------------------------------------------------
 seq_ctrl : entity work.seq_ctrl
 port map (
     clk_i               => clk_i,
@@ -98,7 +105,9 @@ port map (
     TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB
 );
 
--- LUT Block Core Instantiation
+--------------------------------------------------------------------------
+-- Sequence Block Core Instantiation
+--------------------------------------------------------------------------
 sequencer : entity work.sequencer
 port map (
     clk_i               => clk_i,

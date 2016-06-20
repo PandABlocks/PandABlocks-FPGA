@@ -1,8 +1,14 @@
 --------------------------------------------------------------------------------
---  File:       sequencer.vhd
---  Desc:       Programmable Sequencer.
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
---  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Sequencer Core IP module generates triggered squence of frames
+--                Frame configurations are stored, and read from sequencer table
+--
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -55,8 +61,6 @@ end sequencer;
 architecture rtl of sequencer is
 
 constant SEQ_FRAMES         : positive := 1024;
-constant SEQ_BYTE_LEN       : positive := 4 * SEQ_FRAMES;
-constant SEQ_AW             : positive := LOG2(SEQ_BYTE_LEN);
 
 signal TABLE_FRAMES         : std_logic_vector(15 downto 0);
 
@@ -98,9 +102,6 @@ signal ongoing_frame        : std_logic;
 
 begin
 
--- Convert # of DWORDs to # of Frames.
-TABLE_FRAMES <= "00" & TABLE_LENGTH(15 downto 2);
-
 -- Block inputs.
 inp_val <= inpd_i & inpc_i & inpb_i & inpa_i;
 enable_val <= enable_i and table_ready;
@@ -116,9 +117,13 @@ end process;
 enable_fall <= not enable_val and enable_prev;
 enable_rise <= enable_val and not enable_prev;
 
---
--- Sequencer TABLE interface
---
+-- Table length is written in terms of DWORDs, and a frame is composed
+-- of 4x DWORDs
+TABLE_FRAMES <= "00" & TABLE_LENGTH(15 downto 2);
+
+--------------------------------------------------------------------------
+-- Sequencer TABLE keeps frame configuration data
+--------------------------------------------------------------------------
 sequencer_table : entity work.sequencer_table
 generic map (
     SEQ_LEN             => SEQ_FRAMES
@@ -138,25 +143,32 @@ port map (
     TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB
 );
 
+--------------------------------------------------------------------------
+-- Trigger management
+--------------------------------------------------------------------------
+
 -- Current trigger match condition is used during the execution of a frame.
 current_trig <= (current_frame.trig_cond xnor inp_val) or not current_frame.trig_mask;
 
 current_trig_valid <= '1' when (current_frame.trig_mask /= "0000" and
                                 current_trig = "1111") else '0';
 
--- Next trigger match condition is during a transition to the next frame so that 
+-- Next trigger match condition is during a transition to the next frame so that
 -- there is no gap between frames.
 next_trig <= (next_frame.trig_cond xnor inp_val) or not next_frame.trig_mask;
 
 next_trig_valid <= '1' when (next_frame.trig_mask /= "0000" and
                                 next_trig = "1111") else '0';
 
+-- Total frame length
+frame_length <= current_frame.ph1_time + current_frame.ph2_time;
+
+--------------------------------------------------------------------------
+-- Sequencer State Machine
+-------------------------------------------------------------------------
 -- Reset condition for state machine.
 fsm_reset <= '1' when (reset_i = '1' or TABLE_START = '1' or enable_fall = '1')
              else '0';
-
--- Total frame length
-frame_length <= current_frame.ph1_time + current_frame.ph2_time;
 
 SEQ_FSM : process(clk_i)
 begin
@@ -284,11 +296,12 @@ last_frame <= last_fcycle when (frame_count = unsigned(TABLE_FRAMES)) else '0';
 
 last_tcycle <= last_frame when (TABLE_CYCLE /= X"0000_0000" and table_count = unsigned(TABLE_CYCLE)) else '0';
 
---
+--------------------------------------------------------------------------
 -- Prescaler:
 --  On a trigger event, a reset is applied to synchronise CE pulses with the
 --  trigger input.
---clk_cnt := (0=>'1', others => '0');
+--  clk_cnt := (0=>'1', others => '0');
+--------------------------------------------------------------------------
 
 presc_reset <= '1' when (seq_sm = WAIT_TRIGGER and current_trig_valid = '1') else '0';
 
@@ -300,10 +313,11 @@ port map (
     pulse_o     => presc_ce
 );
 
---
+--------------------------------------------------------------------------
 -- Frame counter :
 --  On a trigger event, a reset is applied to synchronise counter with the
 --  trigger input. Counter stays synchronous during Phase 1 + Phase 2 states
+--------------------------------------------------------------------------
 process(clk_i)
 begin
     if rising_edge(clk_i) then

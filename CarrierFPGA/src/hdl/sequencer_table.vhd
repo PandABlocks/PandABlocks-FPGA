@@ -1,8 +1,22 @@
 --------------------------------------------------------------------------------
---  File:       sequencer_table.vhd
---  Desc:       Programmable Sequencer.
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
---  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Sequencer table keeps frame configuration data in a flat RAM
+--                Each frame configuration is 128-bits composed of 4x DWORDs
+--                It is written sequentially in DWORDs, and read in 128-bits
+--                      W[0] = repeats
+--                      W[1][31:28] = trig_mask
+--                      W[1][27:24] = trig_cond
+--                      W[1][21:16] = outp_ph1
+--                      W[1][13: 8] = outp_ph2
+--                      W[2]        = ph1_time
+--                      W[3]        = ph2_time
+--
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -15,7 +29,7 @@ use work.top_defines.all;
 
 entity sequencer_table is
 generic (
-    SEQ_LEN             : positive := 9
+    SEQ_LEN             : positive := 1024
 );
 port (
     -- Clock and Reset
@@ -39,21 +53,22 @@ architecture rtl of sequencer_table is
 constant AW                     : positive := LOG2(SEQ_LEN);
 
 signal seq_dout                 : std32_array(3 downto 0);
-
 signal seq_waddr                : unsigned(AW+1 downto 0) := (others => '0');
 signal seq_raddr                : unsigned(AW-1 downto 0);
 signal seq_wren                 : std_logic_vector(3 downto 0);
 signal seq_di                   : std_logic_vector(31 downto 0);
-
 signal table_ready              : std_logic := '0';
 
 begin
 
 table_ready_o <= table_ready;
 
---
--- Blocks _armed_ signal is controlled by start of table write and length strobes.
---
+--------------------------------------------------------------------------
+-- Table configuration starts with applying are reset with a write to
+-- TABLE_START register which in-validates table
+-- This is followed by writing frame configuration data in DWORDs sequentially
+-- Finally, a write to TABLE_LENGTH register validates the table
+--------------------------------------------------------------------------
 SEQ_ARMING : process(clk_i) begin
     if rising_edge(clk_i) then
         if (TABLE_LENGTH_WSTB = '1') then
@@ -64,7 +79,7 @@ SEQ_ARMING : process(clk_i) begin
     end if;
 end process;
 
--- Sequencer TABLE interface
+-- Auto increment table write address
 FILL_SEQ_TABLE : process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -78,6 +93,7 @@ begin
     end if;
 end process;
 
+-- Multiplex incoming DWORDs into the BRAM column
 seq_wren(0) <= TABLE_WSTB when (seq_waddr(1 downto 0) = "00") else '0';
 seq_wren(1) <= TABLE_WSTB when (seq_waddr(1 downto 0) = "01") else '0';
 seq_wren(2) <= TABLE_WSTB when (seq_waddr(1 downto 0) = "10") else '0';
@@ -85,6 +101,7 @@ seq_wren(3) <= TABLE_WSTB when (seq_waddr(1 downto 0) = "11") else '0';
 
 seq_di <= TABLE_DATA;
 
+-- Sequencer table is composed of 4 BRAMs joined as columns
 SEQ_TABLE_GEN : FOR I in 0 to 3 GENERATE
 
 spbram_inst : entity work.spbram
@@ -104,8 +121,7 @@ port map (
 
 END GENERATE;
 
--- Frame loading from memory is done sequencially in 4 words.
-
+-- Frame loading from memory is done in 4 words.
 FRAME_CTRL : process(clk_i)
 begin
     if rising_edge(clk_i) then
