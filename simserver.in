@@ -1,5 +1,5 @@
 #!/bin/sh
-
+set +x
 HERE="$(dirname "$0")"
 
 # This is filled in from the setting in CONFIG

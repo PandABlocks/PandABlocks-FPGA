@@ -1,2 +1,2 @@
 # zebra2 python package
-from .capture import Capture
+from .capture import Capture, DataHandler
