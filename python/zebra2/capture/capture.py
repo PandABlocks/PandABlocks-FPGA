@@ -95,8 +95,9 @@ class DataHandler(object):
 
     def parse_data(self, data_stream):
         if not data_stream.startswith('OK') and data_stream:
-            return [data_stream.strip().split(" ")[i:i+2]
-                    for i in range(0, len(data_stream.strip().split(" ")), 2)]
+            return [data_stream.strip().split(" ")[i:i+len(self.header_fields)]
+                    for i in range(0, len(data_stream.strip().split(" ")),
+                                   len(self.header_fields))]
 
     def parse_header(self, header):
         try:
