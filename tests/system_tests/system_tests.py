@@ -14,7 +14,7 @@ import xml.etree.ElementTree
 # add our python dir
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "python"))
 
-from zebra2.capture import Capture
+from zebra2.capture import Capture, DataHandler
 
 
 test_script = os.path.join(os.path.dirname(__file__),  "testseq")
@@ -26,9 +26,7 @@ class SystemTest(unittest.TestCase):
         setattr(self, name, self.runTest)
         super(SystemTest, self).__init__(name)
         self.options = options
-        self.data = []
         self.header_fields = []
-        self.header_data = {}
         self.hdf5_file_path = os.path.join(os.path.dirname(__file__),'hdf5',
                                            reference_hdf)
 
@@ -45,6 +43,10 @@ class SystemTest(unittest.TestCase):
 
         #load testscript (testseq)
         self.test_script = open(test_script, 'r')
+
+        #make capture object
+        #self.capture = Capture()
+        self.dataHandler = DataHandler()
 
     def send_set_options(self):
         config_msg = " ".join(self.options) + '\n'
@@ -63,65 +65,6 @@ class SystemTest(unittest.TestCase):
                 data_stream = self.cmdsock.recv(4096)
                 # print "RECEIVED: ", data_stream
 
-    def get_data(self):
-        data_stream = ""
-        while not data_stream.startswith("END"):
-            try:
-                data_stream = self.rcvsock.recv(4096)
-                # print [data_stream]
-            except socket.timeout:
-                break
-            if data_stream.startswith("<"):
-                self.parse_header(data_stream)
-            elif data_stream.startswith("BIN"):
-                self.data += self.parse_binary(data_stream.strip('BIN '))
-            else:
-                self.data += self.parse_data(data_stream)
-
-    def parse_data(self, data_stream):
-        if not data_stream.startswith('OK') and data_stream:
-            return tuple([data_stream.strip().split(" ")])
-
-    def parse_header(self, header):
-        try:
-            #get the header
-            root = xml.etree.ElementTree.fromstring(header)
-            for header_data in root.iter('data'):
-                self.header_data = header_data.attrib
-            for field in root.iter('field'):
-                self.header_fields.append(field.attrib)
-        except xml.etree.ElementTree.ParseError, e:
-            print 'EXCEPTION:', e
-
-    def parse_binary(self, binary_stream):
-        binary_data = []
-        fmt, data_size = self.get_bin_unpack_fmt()
-        #find the packet length from the first 4 bits
-        packet_length = struct.unpack('<I', binary_stream[0:4])[0]
-        #strip off the first 4 bits which hold the packet length
-        actual_data = binary_stream[4:len(binary_stream)]
-        #split the data
-        split_data = [
-            actual_data[x:x+data_size]
-            for x in range(0,len(actual_data),data_size)]
-        for section in split_data:
-            binary_data.append(list(struct.unpack(fmt, section)))
-        return binary_data
-
-    def get_bin_unpack_fmt(self):
-        format_chars = {
-            'int32': 'i',
-            'uint32': 'I',
-            'int64': 'q',
-            'uint64': 'Q',
-            'double': 'd'}
-        fmt = '<'
-        expected_data_size = 0
-        for field in self.header_fields:
-            fmt += format_chars[field['type']]
-        expected_data_size = int(self.header_data['sample_bytes'])
-        return fmt, expected_data_size
-
     def check_data(self):
         #open refrence hdf5 file and check that the data matches
         hdf5_file = h5py.File(self.hdf5_file_path,  "r")
@@ -132,10 +75,10 @@ class SystemTest(unittest.TestCase):
         # print "{}\t{}\t{}".format("\n#", "counts", "positions")
         for i in range(len(counts)):
             #rescale data
-            if self.header_data['process'] == 'Unscaled':
-                self.data[i][0] =  self.data[i][0]/ 125000000.0
-            self.assertEqual(counts[i], str(self.data[i][0]))
-            self.assertEqual(float(positions[i]), float(self.data[i][1]))
+            if self.dataHandler.header_data['process'] == 'Unscaled':
+                self.dataHandler.data[i][0] =  self.dataHandler.data[i][0]/ 125000000.0
+            self.assertEqual(counts[i], str(self.dataHandler.data[i][0]))
+            self.assertEqual(float(positions[i]), float(self.dataHandler.data[i][1]))
             # print "{}\t{}\t{}".format(i, counts[i], self.data[i][0])
         hdf5_file.close()
 
@@ -143,7 +86,7 @@ class SystemTest(unittest.TestCase):
     def runTest(self):
         self.send_set_options()
         self.send_test_commands()
-        self.get_data()
+        self.dataHandler.get_data(self.rcvsock)
         self.check_data()
         #cleanup
         self.test_script.close()
