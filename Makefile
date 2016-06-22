@@ -132,10 +132,6 @@ SLOW_FPGA_PROM = slow_top.mcs
 
 
 $(SLOW_FPGA_PROM): $(SLOW_FPGA_BUILD_DIR)
-ifndef ISE_SETUP
-	echo >&2 Must define ISE_SETUP
-	false
-endif
 	source $(ISE_SETUP)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
             TOP=$(TOP) SRC_DIR=$(TOP)/SlowFPGA mcs
 
