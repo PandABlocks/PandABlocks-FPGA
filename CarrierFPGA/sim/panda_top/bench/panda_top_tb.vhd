@@ -229,6 +229,10 @@ FMC_DP0_M2C_N <= FMC_DP0_C2M_N;
 -- Slow Controller
 --------------------------------------------------------------------------
 slow_top_inst : entity work.slow_top
+generic map (
+    STATUS_PERIOD       => 100_000,
+    SYS_PERIOD          => 20
+)
 port map (
     clk50_i             => clk50,
     -- Serial Physical Interface

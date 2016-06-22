@@ -10,7 +10,7 @@ wire [5:0]   ttlin_pad;
 panda_top_tb tb(
 );
 
-`define TESTNAME    "test.pcomp.v"
+`define TESTNAME    "test.slow.v"
 
 reg [ 1:0]      wrs, rsp;
 reg [31:0]      IRQ_STATUS;
