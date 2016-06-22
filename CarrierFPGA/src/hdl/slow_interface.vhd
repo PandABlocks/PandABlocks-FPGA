@@ -56,10 +56,8 @@ begin
 ---------------------------------------------------------------------------
 -- Serial Interface core instantiation
 ---------------------------------------------------------------------------
-slow_engine_inst : entity work.slow_engine
+serial_engine_inst : entity work.serial_engine
 generic map (
-    AW              => PAGE_AW,
-    DW              => 32,
     SYS_PERIOD      => 8        -- 125MHz
 )
 port map (

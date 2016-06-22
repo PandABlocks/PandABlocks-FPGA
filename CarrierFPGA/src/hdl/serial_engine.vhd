@@ -22,10 +22,8 @@ use ieee.numeric_std.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity slow_engine is
+entity serial_engine is
 generic (
-    AW              : natural := 10;
-    DW              : natural := 32;
     SYS_PERIOD      : natural := 8;     -- Sys clock [ns]
     CLK_PERIOD      : natural := 2000;  -- 2 us
     SYNC_PERIOD     : natural := 5000;  -- 5 us
@@ -37,10 +35,10 @@ port (
     -- Transaction interface
     wr_rst_i        : in  std_logic;
     wr_req_i        : in  std_logic;
-    wr_dat_i        : in  std_logic_vector(DW-1 downto 0);
-    wr_adr_i        : in  std_logic_vector(AW-1 downto 0);
-    rd_adr_o        : out std_logic_vector(AW-1 downto 0);
-    rd_dat_o        : out std_logic_vector(DW-1 downto 0);
+    wr_adr_i        : in  std_logic_vector(9 downto 0);
+    wr_dat_i        : in  std_logic_vector(31 downto 0);
+    rd_adr_o        : out std_logic_vector(9 downto 0);
+    rd_dat_o        : out std_logic_vector(31 downto 0);
     rd_val_o        : out std_logic;
     busy_o          : out std_logic;
     -- Serial Physical interface
@@ -49,16 +47,14 @@ port (
     spi_sclk_i      : in  std_logic;
     spi_dat_i       : in  std_logic
 );
-end slow_engine;
+end serial_engine;
 
-architecture rtl of slow_engine is
+architecture rtl of serial_engine is
 
 begin
 
-slow_engine_tx_inst : entity work.slow_engine_tx
+serial_engine_tx_inst : entity work.serial_engine_tx
 generic map (
-    AW              => AW,
-    DW              => DW,
     CLK_PERIOD      => (CLK_PERIOD/SYS_PERIOD),
     DEAD_PERIOD     => (DEAD_PERIOD/SYS_PERIOD)
 )
@@ -76,10 +72,8 @@ port map (
     spi_dat_o       => spi_dat_o
 );
 
-slow_engine_rx_inst : entity work.slow_engine_rx
+serial_engine_rx_inst : entity work.serial_engine_rx
 generic map (
-    AW              => AW,
-    DW              => DW,
     SYNCPERIOD      => (SYNC_PERIOD/SYS_PERIOD)
 )
 port map (

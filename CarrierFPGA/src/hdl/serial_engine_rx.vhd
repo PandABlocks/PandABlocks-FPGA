@@ -17,29 +17,27 @@ use ieee.numeric_std.all;
 library work;
 use work.support.all;
 
-entity slow_engine_rx is
+entity serial_engine_rx is
 generic (
-    AW              : natural;
-    DW              : natural;
     SYNCPERIOD      : natural
 );
 port (
     clk_i           : in  std_logic;
     reset_i         : in  std_logic;
     -- Transaction interface
-    rd_adr_o        : out std_logic_vector(AW-1 downto 0);
-    rd_dat_o        : out std_logic_vector(DW-1 downto 0);
+    rd_adr_o        : out std_logic_vector(9 downto 0);
+    rd_dat_o        : out std_logic_vector(31 downto 0);
     rd_val_o        : out std_logic;
     -- Serial Physical interface
     spi_sclk_i      : in  std_logic;
     spi_dat_i       : in  std_logic
 );
-end slow_engine_rx;
+end serial_engine_rx;
 
-architecture rtl of slow_engine_rx is
+architecture rtl of serial_engine_rx is
 
 -- Ticks in terms of internal serial clock period.
-constant BITS               : natural := AW + DW;
+constant BITS               : natural := 42;
 
 signal serial_data          : std_logic;
 signal serial_clock         : std_logic;
@@ -129,8 +127,8 @@ port map (
 );
 
 -- Assign register interface outputs to upper level.
-rd_adr_o <= shift_in(BITS-1 downto DW);
-rd_dat_o <= shift_in(DW-1 downto 0);
+rd_adr_o <= shift_in(BITS-1 downto 32);
+rd_dat_o <= shift_in(31 downto 0);
 rd_val_o <= shift_in_valid;
 
 end rtl;

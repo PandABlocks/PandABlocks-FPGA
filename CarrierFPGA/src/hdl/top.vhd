@@ -238,6 +238,10 @@ signal OUTPROT : std3_array(ENC_NUM-1 downto 0);
 signal INPROT : std3_array(ENC_NUM-1 downto 0);
 signal SLOW_FPGA_VERSION : std_logic_vector(31 downto 0);
 signal DCARD_MODE : std32_array(ENC_NUM-1 downto 0);
+signal float4_1 : std_logic_vector(3 downto 0);
+signal float32_1 : std_logic_vector(31 downto 0);
+signal float32_2 : std_logic_vector(31 downto 0);
+signal float32_3 : std_logic_vector(31 downto 0);
 begin
 -- Internal clocks and resets
 FCLK_RESET0 <= not FCLK_RESET0_N(0);
@@ -808,7 +812,7 @@ port map (
     mem_dat_i => mem_odat,
     slow_tlp_o => slow_tlp_registers
 );
-slowctrl_inst : entity work.slowctrl_top
+slow_controller_inst : entity work.slow_controller
 port map (
     clk_i => FCLK_CLK0,
     reset_i => FCLK_RESET0,
@@ -825,7 +829,11 @@ port map (
     leds_tlp_i => slow_tlp_leds,
     busy_o => slowctrl_busy,
     SLOW_FPGA_VERSION => SLOW_FPGA_VERSION,
-    DCARD_MODE => open
+    DCARD_MODE(0)(31 downto 4) => DCARD_MODE(0)(31 downto 4),
+    DCARD_MODE(0)(3 downto 0) => float4_1,
+    DCARD_MODE(1) => float32_1,
+    DCARD_MODE(2) => float32_2,
+    DCARD_MODE(3) => float32_3
 );
 ---------------------------------------------------------------------------
 -- BUS ASSIGNMENTS
@@ -926,7 +934,7 @@ port map (
 extbus(3 downto 0) <= inenc_val_upper;
 -- Direct interface to Daughter Card via FMC on the dev board.
 enc0_ctrl_pad_o <= enc0_ctrl_pad;
-DCARD_MODE(0) <= ZEROS(28) & enc0_ctrl_pad_i;
+DCARD_MODE(0)(3 downto 0) <= enc0_ctrl_pad_i;
 DCARD_MODE(1) <= ZEROS(32);
 DCARD_MODE(2) <= ZEROS(32);
 DCARD_MODE(3) <= ZEROS(32);

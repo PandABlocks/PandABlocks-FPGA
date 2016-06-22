@@ -17,7 +17,7 @@ use ieee.numeric_std.all;
 library work;
 use work.top_defines.all;
 
-entity slowctrl_top is
+entity slow_controller is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -40,9 +40,9 @@ port (
     SLOW_FPGA_VERSION   : out std_logic_vector(31 downto 0);
     DCARD_MODE          : out std32_array(ENC_NUM-1 downto 0)
 );
-end slowctrl_top;
+end slow_controller;
 
-architecture rtl of slowctrl_top is
+architecture rtl of slow_controller is
 
 -- Gather various Temperature and Voltage readouts from Slow FPGA into
 -- arrays.

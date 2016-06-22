@@ -19,10 +19,8 @@ use ieee.numeric_std.all;
 library work;
 use work.support.all;
 
-entity slow_engine_tx is
+entity serial_engine_tx is
 generic (
-    AW              : natural;
-    DW              : natural;
     CLK_PERIOD      : natural;
     DEAD_PERIOD     : natural
 );
@@ -32,21 +30,24 @@ port (
     -- Transaction interface
     wr_rst_i        : in  std_logic;
     wr_req_i        : in  std_logic;
-    wr_dat_i        : in  std_logic_vector(DW-1 downto 0);
-    wr_adr_i        : in  std_logic_vector(AW-1 downto 0);
+    wr_dat_i        : in  std_logic_vector(31 downto 0);
+    wr_adr_i        : in  std_logic_vector(9 downto 0);
     busy_o          : out std_logic;
     -- Serial Physical interface
     spi_sclk_o      : out std_logic;
     spi_dat_o       : out std_logic
 );
-end slow_engine_tx;
+end serial_engine_tx;
 
-architecture rtl of slow_engine_tx is
+architecture rtl of serial_engine_tx is
+
+-- Ticks in terms of internal serial clock period.
+constant BITS               : natural := 42;
 
 signal serial_clk           : std_logic;
 signal serial_clk_prev      : std_logic;
 signal serial_clk_rise      : std_logic;
-signal shift_reg            : std_logic_vector(AW+DW downto 0);
+signal shift_reg            : std_logic_vector(BITS downto 0);
 signal active               : std_logic;
 
 begin
@@ -58,7 +59,7 @@ generic map (
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
-    N               => std_logic_vector(to_unsigned(AW+DW, 8)),
+    N               => std_logic_vector(to_unsigned(BITS, 8)),
     CLK_PERIOD      => std_logic_vector(to_unsigned(CLK_PERIOD, 32)),
     start_i         => wr_req_i,
     clock_pulse_o   => serial_clk,

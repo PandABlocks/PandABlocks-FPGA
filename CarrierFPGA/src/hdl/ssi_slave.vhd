@@ -85,6 +85,7 @@ begin
             shift_counter <= (others => '0');
             mono_counter <= 0;
             ssi_dat_o <= '1';
+            shift_reg <= (others => '0');
         else
             case (fsm_state) is
                 -- First Low-transition indicates incoming clock stream
