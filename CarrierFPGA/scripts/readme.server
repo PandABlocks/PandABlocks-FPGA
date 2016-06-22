@@ -1,0 +1,9 @@
+SERVER:
+>> cd /opt
+>> ./server -R -c config_d/config -r config_d/registers -D config_d/description
+
+CLIENT:
+>> cd zebra2-server
+>> simulation/tcp_client.py 172.23.252.201
+
+

@@ -77,12 +77,14 @@ INENC       Input encoder
     CLK_PERIOD      Clock rate
     FRAME_PERIOD    Frame rate
     BITS            Number of bits
+    BITS_CRC        Number of bits for BiSS Error and CRC
     SETP            Set point
     RST_ON_Z        Zero position on Z rising edge
     EXTENSION       Bits higher than 32-bits
     ERR_FRAME       Set if frame overrun
     ERR_RESPONSE    No response from encoder
     ENC_STATUS      Extended encoder status read from device
+    DCARD_MODE      Daughter card jumper mode
     A               Quadrature A if in incremental mode
     B               Quadrature B if in incremental mode
     Z               Z index channel if in incremental mode
@@ -206,5 +208,37 @@ POSITIONS   Constants
     ZERO            Constant zero position
 
 SLOW        Slow control FPGA
-    FPGA_VERSION    Slow Controller FPGA Version
-    ENC_CONN        Encoder Connection Status
+    TEMP_PSU        On-board temperature [Power Supply]
+    TEMP_SFP        On-board temperature [SFP]
+    TEMP_ENC_L      On-board temperature [Left Encoder]
+    TEMP_PICO       On-board temperature [Picozed]
+    TEMP_ENC_R      On-board temperature [Right Encoder]
+    ALIM_12V0       On-board voltage sensor values
+    PICO_5V0        On-board voltage sensor values
+    IO_5V0          On-board voltage sensor values
+    SFP_3V3         On-board voltage sensor values
+    FMC_15VN        On-board voltage sensor values
+    FMC_15VP        On-board voltage sensor values
+    ENC_24V         On-board voltage sensor values
+    FMC_12V         On-board voltage sensor values
+
+FMC         FMC Block Status
+    FMC_PRSNT       FMC present
+    LINK_UP         GTX link status
+    ERROR_COUNT     GTX loopback
+    LA_P_ERROR      LA_P loopback status
+    LA_N_ERROR      LA_N loopback status
+    GTREFCLK        GT Ref clock freq
+    FMC_CLK0        FMC CLK0 clock freq
+    FMC_CLK1        FMC CLK1 clock freq
+
+SFP         SFP Block Status
+    LINK1_UP        GTX-1 link status
+    ERROR1_COUNT    GTX-1 loopback
+    LINK2_UP        GTX-2 link status
+    ERROR2_COUNT    GTX-2 loopback
+    LINK3_UP        GTX-3 link status
+    ERROR3_COUNT    GTX-3 loopback
+    SFP_CLK0        SFP0 CLK clock freq
+    SFP_CLK1        SFP1 CLK clock freq
+    SFP_CLK2        SFP2 CLK clock freq

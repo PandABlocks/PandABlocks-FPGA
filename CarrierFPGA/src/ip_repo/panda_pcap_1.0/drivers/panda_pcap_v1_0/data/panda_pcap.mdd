@@ -1,0 +1,10 @@
+
+
+OPTION psf_version = 2.1;
+
+BEGIN DRIVER panda_pcap
+	OPTION supported_peripherals = (panda_pcap);
+	OPTION copyfiles = all;
+	OPTION VERSION = 1.0;
+	OPTION NAME = panda_pcap;
+END DRIVER

@@ -22,6 +22,8 @@ DRIVER_BUILD_DIR = $(BUILD_DIR)/driver
 SERVER_BUILD_DIR = $(BUILD_DIR)/server
 SIM_SERVER_BUILD_DIR = $(BUILD_DIR)/sim_server
 DOCS_BUILD_DIR = $(BUILD_DIR)/html
+SLOW_FPGA_BUILD_DIR = $(BUILD_DIR)/SlowFPGA
+CARRIER_FPGA_BUILD_DIR = $(BUILD_DIR)/CarrierFPGA
 
 DRIVER_FILES := $(wildcard driver/*)
 SERVER_FILES := $(wildcard server/*)
@@ -119,6 +121,22 @@ $(BUILD_DIR)/%.zpg:
 
 zpkg: $(SERVER_ZPKG) $(CONFIG_ZPKG)
 .PHONY: zpkg
+
+
+# ------------------------------------------------------------------------------
+# FPGA builds
+
+export LM_LICENSE_FILE
+
+SLOW_FPGA_PROM = slow_top.mcs
+
+
+$(SLOW_FPGA_PROM): $(SLOW_FPGA_BUILD_DIR)
+	source $(ISE_SETUP)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
+            TOP=$(TOP) SRC_DIR=$(TOP)/SlowFPGA mcs
+
+slow-fpga: $(SLOW_FPGA_PROM)
+.PHONY: slow-fpga
 
 
 # ------------------------------------------------------------------------------

@@ -144,12 +144,14 @@ INENC       12
     CLK_PERIOD      1
     FRAME_PERIOD    2
     BITS            3
-    SETP            4
-    RST_ON_Z        5
-    EXTENSION       6
-    ERR_FRAME       7
-    ERR_RESPONSE    8
-    ENC_STATUS      9
+    BITS_CRC        4
+    SETP            5
+    RST_ON_Z        6
+    EXTENSION       7
+    ERR_FRAME       8
+    ERR_RESPONSE    9
+    ENC_STATUS      10
+    DCARD_MODE      11
     A               66 67 68 69
     B               70 71 72 73
     Z               74 75 76 77
@@ -271,5 +273,37 @@ POSITIONS   24
     ZERO            0
 
 SLOW        25
-    FPGA_VERSION    0
-    ENC_CONN        1
+    TEMP_PSU        0
+    TEMP_SFP        1
+    TEMP_ENC_L      2
+    TEMP_PICO       3
+    TEMP_ENC_R      4
+    ALIM_12V0       5
+    PICO_5V0        6
+    IO_5V0          7
+    SFP_3V3         8
+    FMC_15VN        9
+    FMC_15VP        10
+    ENC_24V         11
+    FMC_12V         12
+
+FMC         26
+    FMC_PRSNT       0
+    LINK_UP         1
+    ERROR_COUNT     2
+    LA_P_ERROR      3
+    LA_N_ERROR      4
+    GTREFCLK        5
+    FMC_CLK0        6
+    FMC_CLK1        7
+
+SFP         27
+    LINK1_UP        0
+    ERROR1_COUNT    1
+    LINK2_UP        2
+    ERROR2_COUNT    3
+    LINK3_UP        4
+    ERROR3_COUNT    5
+    SFP_CLK0        6
+    SFP_CLK1        7
+    SFP_CLK2        8
