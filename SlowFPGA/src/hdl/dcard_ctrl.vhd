@@ -90,7 +90,8 @@ begin
     return enc_ctrl_pad;
 end CONV_PADS;
 
-signal DCARD_MODE_i     : std4_array(3 downto 0);
+signal DCARD_MODE_i     : std4_array(3 downto 0)
+                            := (others => (others => '0'));
 signal inenc_ctrl       : std8_array(3 downto 0);
 signal outenc_ctrl      : std8_array(3 downto 0);
 

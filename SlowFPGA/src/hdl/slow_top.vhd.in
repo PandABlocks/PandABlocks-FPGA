@@ -24,6 +24,14 @@ library unisim;
 use unisim.vcomponents.all;
 
 entity slow_top is
+generic (
+    STATUS_PERIOD       : natural := 10_000_000;-- 10ms
+#ifdef DEV
+    SYS_PERIOD          : natural := 10         -- 10ns
+#else
+    SYS_PERIOD          : natural := 20         -- 20ns
+#endif
+);
 port (
     -- 50MHz system clock
     clk50_i             : in    std_logic;
@@ -120,6 +128,10 @@ reset <= not reset_n;
 -- Data Send/Receive Engine to Zynq
 --
 zynq_interface_inst : entity work.zynq_interface
+generic map (
+    STATUS_PERIOD   => STATUS_PERIOD,
+    SYS_PERIOD      => SYS_PERIOD
+)
 port map (
     clk_i               => clk50_i,
     reset_i             => reset,

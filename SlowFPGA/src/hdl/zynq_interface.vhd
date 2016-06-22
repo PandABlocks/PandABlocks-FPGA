@@ -22,14 +22,17 @@ use work.slow_defines.all;
 use work.slow_version.all;
 
 entity zynq_interface is
+generic (
+    STATUS_PERIOD       : natural := 10_000_000;-- 10ms
+    SYS_PERIOD          : natural := 20         -- 20ns/50MHz
+);
 port (
     -- 50MHz system clock
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Encoder Daughter Card Control and Status Registers
-    INENC_PROTOCOL      : out std3_array(3 downto 0);
-    OUTENC_PROTOCOL     : out std3_array(3 downto 0);
-    OUTENC_CONN_O       : out std_logic_vector(3 downto 0);
+    INENC_PROTOCOL      : buffer std3_array(3 downto 0);
+    OUTENC_PROTOCOL     : buffer std3_array(3 downto 0);
     DCARD_MODE          : in  std4_array(3 downto 0);
     TEMP_MON            : in std32_array(4 downto 0);
     VOLT_MON            : in std32_array(7 downto 0);
@@ -37,6 +40,7 @@ port (
     ttlin_term_o        : out std_logic_vector(5 downto 0);
     ttl_leds_o          : out std_logic_vector(15 downto 0);
     status_leds_o       : out std_logic_vector(3 downto 0);
+    outenc_conn_o       : out std_logic_vector(3 downto 0);
     -- Serial Physical interface
     spi_sclk_i          : in  std_logic;
     spi_dat_i           : in  std_logic;
@@ -47,33 +51,39 @@ end zynq_interface;
 
 architecture rtl of zynq_interface is
 
-constant AW                 : natural := 10;
-constant DW                 : natural := 32;
-constant STATUS_NUM         : natural := 32;
+-- Pack dcard outenc and inenc readback values with mode pin value
+function dcard_pack (
+    outenc      : std_logic_vector;
+    inenc       : std_logic_vector;
+    mode        : std_logic_vector
+) return std_logic_vector is
+begin
+    -- Align at 8-bit boundries
+    return X"00" &  "00000" & outenc & "00000" & inenc & X"0" & mode;
+end dcard_pack;
 
-signal STATUS_LIST          : std32_array(STATUS_NUM-1 downto 0) := (others => (others => '0'));
+-- There are 32 status registers allocated for slow controller
+signal STATUS_LIST          : std32_array(31 downto 0) :=
+                                        (others => (others => '0'));
+signal register_index       : natural range 0 to 31;
 
 signal wr_req               : std_logic;
-signal wr_dat               : std_logic_vector(DW-1 downto 0);
-signal wr_adr               : std_logic_vector(AW-1 downto 0);
-signal rd_adr               : std_logic_vector(AW-1 downto 0);
-signal rd_dat               : std_logic_vector(DW-1 downto 0);
+signal wr_dat               : std_logic_vector(31 downto 0);
+signal wr_adr               : std_logic_vector(9 downto 0);
+signal rd_adr               : std_logic_vector(9 downto 0);
+signal rd_dat               : std_logic_vector(31 downto 0);
 signal rd_val               : std_logic;
 signal busy                 : std_logic;
-
 signal wr_start             : std_logic;
-signal register_index       : natural range 0 to STATUS_NUM-1;
 
 begin
 
---
--- Serial Interface TX/RX Core IP
---
-slow_engine_inst : entity work.slow_engine
+--------------------------------------------------------------------------
+-- Serial Interface TX/RX Engine IP
+--------------------------------------------------------------------------
+serial_engine_inst : entity work.serial_engine
 generic map (
-    AW              => AW,
-    DW              => DW,
-    SYS_PERIOD      => 10       -- 100MHz
+    SYS_PERIOD      => SYS_PERIOD
 )
 port map (
     clk_i           => clk_i,
@@ -95,7 +105,7 @@ port map (
 );
 
 --
--- Receive Configuration Registers
+-- Receive Configuration Registers from Zynq
 --
 enc_ctrl_inst : entity work.enc_ctrl
 port map (
@@ -127,28 +137,27 @@ port map (
     rx_data_i       => rd_dat,
     ttl_leds_o      => ttl_leds_o,
     status_leds_o   => status_leds_o,
-    outenc_conn_o   => OUTENC_CONN_O
+    outenc_conn_o   => outenc_conn_o
 );
 
 --
 -- Transmit Interface :
--- Continuously cycles and transmits the status registers, and transfer them
--- to the master at 1ms intervals.
+-- Transmit the status registers to Zynq in a rolling fashion at 10ms intervals
 --
 send_trigger : entity work.prescaler
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
-    PERIOD          => TO_SVECTOR(5000, 32),
+    PERIOD          => TO_SVECTOR(STATUS_PERIOD/SYS_PERIOD, 32),
     pulse_o         => wr_start
 );
 
 -- Assemble Status Register List
 STATUS_LIST(SLOW_VERSION) <= SlowFPGAVersion;
-STATUS_LIST(DCARD1_MODE) <= ZEROS(28) & DCARD_MODE(0);
-STATUS_LIST(DCARD2_MODE) <= ZEROS(28) & DCARD_MODE(1);
-STATUS_LIST(DCARD3_MODE) <= ZEROS(28) & DCARD_MODE(2);
-STATUS_LIST(DCARD4_MODE) <= ZEROS(28) & DCARD_MODE(3);
+STATUS_LIST(DCARD1_MODE) <= dcard_pack(OUTENC_PROTOCOL(0), INENC_PROTOCOL(0), DCARD_MODE(0));
+STATUS_LIST(DCARD2_MODE) <= dcard_pack(OUTENC_PROTOCOL(1), INENC_PROTOCOL(1), DCARD_MODE(1));
+STATUS_LIST(DCARD3_MODE) <= dcard_pack(OUTENC_PROTOCOL(2), INENC_PROTOCOL(2), DCARD_MODE(2));
+STATUS_LIST(DCARD4_MODE) <= dcard_pack(OUTENC_PROTOCOL(3), INENC_PROTOCOL(3), DCARD_MODE(3));
 STATUS_LIST(TEMP_PSU)    <= TEMP_MON(0);
 STATUS_LIST(TEMP_SFP)    <= TEMP_MON(1);
 STATUS_LIST(TEMP_ENC_L)  <= TEMP_MON(2);
@@ -174,10 +183,10 @@ process(clk_i) begin
             -- Cycle through registers contiuously.
             if (busy = '0' and wr_start = '1') then
                 wr_req <= '1';
-                wr_adr <= TO_SVECTOR(register_index, AW);
+                wr_adr <= TO_SVECTOR(register_index, 10);
                 wr_dat <= STATUS_LIST(register_index);
                 -- Keep track of registers
-                if (register_index = STATUS_NUM - 1) then
+                if (register_index = 31) then
                     register_index <= 0;
                 else
                     register_index <= register_index + 1;
