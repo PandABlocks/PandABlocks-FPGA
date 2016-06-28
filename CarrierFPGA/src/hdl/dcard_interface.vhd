@@ -6,7 +6,8 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : Top-level design instantiating 4 channels of INENC block.
+--  Description : Encoder Daughter Card IO interface handling signal
+--                multiplexing
 --
 --------------------------------------------------------------------------------
 
@@ -55,9 +56,6 @@ architecture rtl of dcard_interface is
 signal Am0_ipad, Am0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
 signal Bm0_ipad, Bm0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
 signal Zm0_ipad, Zm0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
-signal Am0_ireg             : std_logic_vector(ENC_NUM-1 downto 0);
-signal Bm0_ireg             : std_logic_vector(ENC_NUM-1 downto 0);
-signal Zm0_ireg             : std_logic_vector(ENC_NUM-1 downto 0);
 
 signal As0_ipad, As0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
 signal Bs0_ipad, Bs0_opad   : std_logic_vector(ENC_NUM-1 downto 0);
@@ -75,15 +73,6 @@ inenc_dir <= "0000";
 outenc_dir <= "0000";
 Am0_opad <= "0000";
 Zm0_opad <= "0000";
-
--- Register input pads following IOBUS.
-process (clk_i) begin
-    if rising_edge(clk_i) then
-        Am0_ireg <= Am0_ipad;
-        Bm0_ireg <= Bm0_ipad;
-        Zm0_ireg <= Zm0_ipad;
-    end if;
-end process;
 
 --
 --  On-chip IOBUF control for INENC Blocks :
@@ -123,14 +112,25 @@ IOBUF_Zm0 : IOBUF port map (
 I=>Zm0_opad(I), O=>Zm0_ipad(I), T=>inenc_ctrl(I)(0), IO=>Zm0_pad_io(I));
 
 -- Interface to Input Encoder Block.
-A_IN(I) <= Am0_ireg(I);
-B_IN(I) <= Bm0_ireg(I);
-Z_IN(I) <= Zm0_ireg(I);
 Bm0_opad(I) <= CLK_OUT(I);
-DATA_IN(I) <= Am0_ireg(I);
+
+a_filt : entity work.delay_filter port map(
+    clk_i => clk_i, reset_i => reset_i,
+        pulse_i => Am0_ipad(I), filt_o => A_IN(I));
+
+b_filt : entity work.delay_filter port map(
+    clk_i => clk_i, reset_i => reset_i,
+        pulse_i => Bm0_ipad(I), filt_o => B_IN(I));
+
+z_filt : entity work.delay_filter port map(
+    clk_i => clk_i, reset_i => reset_i,
+        pulse_i => Zm0_ipad(I), filt_o => Z_IN(I));
+
+din_filt : entity work.delay_filter port map(
+    clk_i => clk_i, reset_i => reset_i,
+        pulse_i => Am0_ipad(I), filt_o => DATA_IN(I));
 
 END GENERATE;
-
 
 --
 --  On-chip IOBUF control for OUTENC Blocks :
@@ -178,7 +178,10 @@ I=>Zs0_opad(I), O=>Zs0_ipad(I), T=>outenc_ctrl(I)(0), IO=>Zs0_pad_io(I));
 As0_opad(I) <= A_OUT(I) when (OUTPROT(I)(1 downto 0) = "00") else DATA_OUT(I);
 Bs0_opad(I) <= B_OUT(I);
 Zs0_opad(I) <= Z_OUT(I);
-CLK_IN(I) <= Bs0_ipad(I);
+
+din_filt : entity work.delay_filter port map(
+    clk_i => clk_i, reset_i => reset_i,
+        pulse_i => Bs0_ipad(I), filt_o => CLK_IN(I));
 
 END GENERATE;
 
