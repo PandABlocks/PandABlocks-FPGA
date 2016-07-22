@@ -7,10 +7,7 @@ module test;
 // Inputs to testbench
 wire [5:0]   ttlin_pad;
 
-panda_top_tb tb(
-);
-
-`define TESTNAME    "test.slow.v"
+`define TESTNAME    "test.biss.v"
 
 reg [ 1:0]      wrs, rsp;
 reg [31:0]      IRQ_STATUS;
@@ -36,6 +33,11 @@ integer         PGEN_SAMPLES;
 `include "tasks.v"
 
 assign ttlin_pad[5:0] = 0;
+
+// Instantiate Testbench
+panda_top_tb tb(
+    .pcap_armed     (   pcap_armed  )
+);
 
 initial begin
     wrs = 0; rsp = 0;

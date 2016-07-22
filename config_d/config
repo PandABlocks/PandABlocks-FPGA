@@ -106,6 +106,7 @@ INENC[4]
     B               bit_out
     Z               bit_out
     CONN            bit_out
+    TRANS           bit_out
     VAL             pos_out     encoder
 
 QDEC[4]

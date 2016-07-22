@@ -11,7 +11,7 @@
 --                PROTOCOL register input.
 --
 --                To save I/O pins, the design multiplexed 3-pins to implement
---                supported protocols.
+--                all supported protocols.
 --
 --------------------------------------------------------------------------------
 
@@ -47,7 +47,8 @@ port (
     RST_ON_Z            : in  std_logic;
     -- Block Outputs
     posn_o              : out std_logic_vector(31 downto 0);
-    posn_upper_o        : out std_logic_vector(31 downto 0)
+    posn_upper_o        : out std_logic_vector(31 downto 0);
+    posn_trans_o        : out std_logic
 );
 end entity;
 
@@ -57,11 +58,18 @@ signal posn_incr            : std_logic_vector(31 downto 0);
 signal posn_ssi             : std_logic_vector(31 downto 0);
 signal posn_ssi_sniffer     : std_logic_vector(31 downto 0);
 signal posn_biss_sniffer    : std_logic_vector(47 downto 0);
+signal posn                 : std_logic_vector(47 downto 0);
+signal posn_prev            : std_logic_vector(47 downto 0);
 
 begin
 
--- Unused outputs
-posn_upper_o <= (others => '0');
+--------------------------------------------------------------------------
+-- Assign outputs
+--------------------------------------------------------------------------
+posn_o <= posn(31 downto 0);
+
+-- Only Biss supports more than 32-bits
+posn_upper_o <= X"0000" & posn(47 downto 32);
 
 -- Connection status comes from Slow FPGA interface on CTRL_D12
 conn_o <= DCARD_MODE(0);
@@ -125,30 +133,50 @@ port map (
     posn_o          => posn_biss_sniffer
 );
 
---
+--------------------------------------------------------------------------
 -- Position Output Multiplexer
---
-POSN_MUX : process(clk_i)
+-- If Daughter Card is configured as External Loopback, sniffer instantiations
+-- for absolute protocols are used.
+--------------------------------------------------------------------------
+process(clk_i)
 begin
     if rising_edge(clk_i) then
         case (PROTOCOL) is
             when "000"  =>              -- INC
-                posn_o <= posn_incr;
+                posn(31 downto 0) <= posn_incr;
+                posn(47 downto 32) <= (others => '0');
+
             when "001"  =>              -- SSI & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_LOOPBACK) then
-                    posn_o <= posn_ssi_sniffer;
+                    posn(31 downto 0) <= posn_ssi_sniffer;
                 else
-                    posn_o <= posn_ssi;
+                    posn(31 downto 0) <= posn_ssi;
                 end if;
+                posn(47 downto 32) <= (others => '0');
+
             when "010"  =>              -- BISS & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_LOOPBACK) then
-                    posn_o <= posn_biss_sniffer(31 downto 0);
+                    posn <= posn_biss_sniffer;
                 else
-                    posn_o <= (others => '0');
+                    posn <= (others => '0');
                 end if;
             when others =>
-                posn_o <= (others => '0');
+                posn <= (others => '0');
         end case;
+    end if;
+end process;
+
+-- Position change detection for debugging purpose
+process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        posn_prev <= posn;
+
+        if (posn /= posn_prev) then
+            posn_trans_o <= '1';
+        else
+            posn_trans_o <= '0';
+        end if;
     end if;
 end process;
 

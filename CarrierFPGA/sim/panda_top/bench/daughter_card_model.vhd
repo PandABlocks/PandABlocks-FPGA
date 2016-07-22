@@ -52,7 +52,7 @@ begin
 
 CTRL_IN <= DCARD_CTRL(11 downto 0);
 
-DCARD_CTRL(15 downto 12) <= "1111" when (LOOPBACK = true) else "0101";
+DCARD_CTRL(15 downto 12) <= "1111" when (LOOPBACK = true) else "0001";
 
 -- LOOPBACK Configuration
 A_OUT_P <= A_IN_P when (LOOPBACK = true) else A_OUT_P_i;

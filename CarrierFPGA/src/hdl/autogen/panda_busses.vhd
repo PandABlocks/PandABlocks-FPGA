@@ -51,6 +51,7 @@ port (
     INENC_B   : in std_logic_vector(3 downto 0);
     INENC_Z   : in std_logic_vector(3 downto 0);
     INENC_CONN   : in std_logic_vector(3 downto 0);
+    INENC_TRANS   : in std_logic_vector(3 downto 0);
     INENC_VAL   : in std32_array(3 downto 0);
 
     -- QDEC Block
@@ -219,6 +220,10 @@ bitbus_o(78) <= INENC_CONN(0);
 bitbus_o(79) <= INENC_CONN(1);
 bitbus_o(80) <= INENC_CONN(2);
 bitbus_o(81) <= INENC_CONN(3);
+bitbus_o(107) <= INENC_TRANS(0);
+bitbus_o(108) <= INENC_TRANS(1);
+bitbus_o(109) <= INENC_TRANS(2);
+bitbus_o(110) <= INENC_TRANS(3);
 posbus_o(1) <= INENC_VAL(0);
 posbus_o(2) <= INENC_VAL(1);
 posbus_o(3) <= INENC_VAL(2);

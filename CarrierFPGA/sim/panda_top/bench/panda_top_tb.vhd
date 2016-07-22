@@ -8,12 +8,15 @@ use work.support.all;
 use work.top_defines.all;
 
 entity panda_top_tb is
+    port (
+        pcap_armed      : in std_logic
+    );
 end panda_top_tb;
 
 ARCHITECTURE behavior OF panda_top_tb IS
 
 --Inputs
-signal enc0_ctrl_pad_i : std_logic_vector(3 downto 0) := (others => '0');
+signal enc0_ctrl_pad_i : std_logic_vector(3 downto 0) := (others => '1');
 
 --BiDirs
 signal DDR_addr         : std_logic_vector(14 downto 0);
@@ -69,7 +72,7 @@ signal enc0_ctrl_pad_o  : std_logic_vector(11 downto 0);
 signal leds             : std_logic_vector(1 downto 0);
 signal clk              : std_logic := '1';
 signal clk50            : std_logic := '1';
-signal reset            : std_logic := '1';
+signal init_reset            : std_logic := '1';
 
 signal A_IN_P           : std_logic_vector(3 downto 0);
 signal B_IN_P           : std_logic_vector(3 downto 0);
@@ -96,7 +99,7 @@ signal spi_sclk_i       : std_logic;
 signal spi_dat_i        : std_logic;
 signal spi_sclk_o       : std_logic;
 signal spi_dat_o        : std_logic;
-signal ssi_data         : signed(31 downto 0);
+signal ssi_data         : signed(31 downto 0) := (others => '0');
 signal ssi_slave_data   : std_logic_vector(31 downto 0);
 signal ssi_master_data  : std_logic_vector(31 downto 0);
 
@@ -114,10 +117,12 @@ constant BLOCK_SIZE     : integer := 8192;
 
 begin
 
--- System Clock
+--------------------------------------------------------------------------
+-- Clocks
+--------------------------------------------------------------------------
 clk <= not clk after 4 ns;
 clk50 <= not clk50 after 10 ns;
-reset <= '0' after 100 ns;
+init_reset <= '0' after 15 us;
 
 GTXCLK0_P <= not GTXCLK0_P after 4 ns;
 GTXCLK0_N <= not GTXCLK0_P;
@@ -128,9 +133,9 @@ FMC_CLK0_M2C_N <= not FMC_CLK0_M2C_P;
 FMC_CLK1_M2C_P <= not FMC_CLK1_M2C_P after 3.2 ns;
 FMC_CLK1_M2C_N <= not FMC_CLK1_M2C_P;
 
---
+--------------------------------------------------------------------------
 -- TTL/LVDS IO
---
+--------------------------------------------------------------------------
 process(clk)
 begin
     if rising_edge(clk) then
@@ -140,8 +145,14 @@ end process;
 
 lvdsin_pad <= std_logic_vector(inputs(15 downto 14));
 
+--------------------------------------------------------------------------
 -- Instantiate the Unit Under Test (UUT)
+-- Disables GTX instantiations for speed-up
+--------------------------------------------------------------------------
 uut: entity work.panda_top
+GENERIC MAP (
+    SIM                 => "TRUE"
+)
 PORT MAP (
     DDR_addr            => DDR_addr,
     DDR_ba              => DDR_ba,
@@ -175,32 +186,32 @@ PORT MAP (
     ttlout_pad_o        => ttlout_pad,
     lvdsout_pad_o       => lvdsout_pad,
     -- START: Comment out for DEV board
---    GTXCLK0_P           => GTXCLK0_P,
---    GTXCLK0_N           => GTXCLK0_N,
---    GTXCLK1_P           => GTXCLK1_P,
---    GTXCLK1_N           => GTXCLK1_N,
---
---    FMC_DP0_C2M_P       => FMC_DP0_C2M_P,
---    FMC_DP0_C2M_N       => FMC_DP0_C2M_N,
---    FMC_DP0_M2C_P       => FMC_DP0_M2C_P,
---    FMC_DP0_M2C_N       => FMC_DP0_M2C_N,
---
---    SFP_TX_P            => SFP_TX_P,
---    SFP_TX_N            => SFP_TX_N,
---    SFP_RX_P            => SFP_RX_P,
---    SFP_RX_N            => SFP_RX_N,
---
---    FMC_PRSNT           => FMC_PRSNT,
---    FMC_LA_P            => FMC_LA_P,
---    FMC_LA_N            => FMC_LA_N,
---    FMC_CLK0_M2C_P      => FMC_CLK0_M2C_P,
---    FMC_CLK0_M2C_N      => FMC_CLK0_M2C_N,
---    FMC_CLK1_M2C_P      => FMC_CLK1_M2C_P,
---    FMC_CLK1_M2C_N      => FMC_CLK1_M2C_N,
+    GTXCLK0_P           => GTXCLK0_P,
+    GTXCLK0_N           => GTXCLK0_N,
+    GTXCLK1_P           => GTXCLK1_P,
+    GTXCLK1_N           => GTXCLK1_N,
+
+    FMC_DP0_C2M_P       => FMC_DP0_C2M_P,
+    FMC_DP0_C2M_N       => FMC_DP0_C2M_N,
+    FMC_DP0_M2C_P       => FMC_DP0_M2C_P,
+    FMC_DP0_M2C_N       => FMC_DP0_M2C_N,
+
+    SFP_TX_P            => SFP_TX_P,
+    SFP_TX_N            => SFP_TX_N,
+    SFP_RX_P            => SFP_RX_P,
+    SFP_RX_N            => SFP_RX_N,
+
+    FMC_PRSNT           => FMC_PRSNT,
+    FMC_LA_P            => FMC_LA_P,
+    FMC_LA_N            => FMC_LA_N,
+    FMC_CLK0_M2C_P      => FMC_CLK0_M2C_P,
+    FMC_CLK0_M2C_N      => FMC_CLK0_M2C_N,
+    FMC_CLK1_M2C_P      => FMC_CLK1_M2C_P,
+    FMC_CLK1_M2C_N      => FMC_CLK1_M2C_N,
     -- END: Comment out for DEV board
 
-    enc0_ctrl_pad_i     => enc0_ctrl_pad_i,
-    enc0_ctrl_pad_o     => open,
+--    enc0_ctrl_pad_i     => enc0_ctrl_pad_i,
+--    enc0_ctrl_pad_o     => open,
 
     spi_sclk_i          => spi_sclk_i,
     spi_dat_i           => spi_dat_i,
@@ -242,9 +253,9 @@ port map (
     spi_sclk_o          => spi_sclk_i,
     -- Encoder Daughter Card Control Interface
     dcard_ctrl1_io      => dcard_ctrl_io(0),
---    dcard_ctrl2_io      => dcard_ctrl_io(1),
---    dcard_ctrl3_io      => dcard_ctrl_io(2),
---    dcard_ctrl4_io      => dcard_ctrl_io(3),
+    dcard_ctrl2_io      => dcard_ctrl_io(1),
+    dcard_ctrl3_io      => dcard_ctrl_io(2),
+    dcard_ctrl4_io      => dcard_ctrl_io(3),
     -- Front Panel Interface
     shift_reg_sdata_o   => shift_reg_sdata_o,
     shift_reg_sclk_o    => shift_reg_sclk_o,
@@ -257,10 +268,9 @@ port map (
     i2c_vmon_scl        => open
 );
 
---
+--------------------------------------------------------------------------
 -- Front Panel Shift Registers = 4x SN74HC595
---
-
+--------------------------------------------------------------------------
 process(shift_reg_sclk_o)
 begin
     if rising_edge(shift_reg_sclk_o) then
@@ -277,9 +287,9 @@ begin
     end if;
 end process;
 
---
+--------------------------------------------------------------------------
 -- There are 4x Daughter Cards on the system
---
+--------------------------------------------------------------------------
 DCARD : FOR I IN 0 TO 3 GENERATE
 
     daughter_card : entity work.daughter_card_model
@@ -320,45 +330,44 @@ port map (
     B           => B_IN_P(0)
 );
 
---
+--------------------------------------------------------------------------
 -- SSI SLAVE -> PANDA -> SSI MASTER
---
-
+--------------------------------------------------------------------------
 process
 begin
-    ssi_data <= (others => '0');
-    PROC_CLK_EAT(1250, clk);
+    wait until (pcap_armed = '1');
 
-    LOOP
-        ssi_data <= ssi_data - 100;
-        PROC_CLK_EAT(12500, clk);
-    END LOOP;
+    loop
+        ssi_data <= ssi_data + 1;
+        PROC_CLK_EAT(125, clk);
+    end loop;
+
+    wait;
 end process;
 
 ssi_slave_data <= std_logic_vector(ssi_data);
 
-SSI_SLAVE : entity work.ssi_slave
-port map (
-    clk_i           => clk,
-    reset_i         => reset,
-    BITS            => TO_SVECTOR(24, 8),
-    ssi_sck_i       => CLK_OUT_P(0),
-    ssi_dat_o       => DATA_IN_P(0),
-    posn_i          => ssi_slave_data
-);
-
-
 SSI_MASTER : entity work.ssi_master
 port map (
     clk_i           => clk,
-    reset_i         => reset,
-    BITS            => TO_SVECTOR(24, 8),
+    reset_i         => init_reset,
+    BITS            => TO_SVECTOR(19, 8),
     CLK_PERIOD      => TO_SVECTOR(125, 32),
     FRAME_PERIOD    => TO_SVECTOR(12500, 32),
     ssi_sck_o       => CLK_IN_P(0),
     ssi_dat_i       => DATA_OUT_P(0),
     posn_o          => ssi_master_data,
     posn_valid_o    => open
+);
+
+SSI_SLAVE : entity work.ssi_slave
+port map (
+    clk_i           => clk,
+    reset_i         => init_reset,
+    BITS            => TO_SVECTOR(19, 8),
+    ssi_sck_i       => CLK_OUT_P(0),
+    ssi_dat_o       => DATA_IN_P(0),
+    posn_i          => ssi_slave_data
 );
 
 end;

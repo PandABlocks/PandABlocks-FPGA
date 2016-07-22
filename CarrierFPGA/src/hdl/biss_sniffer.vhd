@@ -188,26 +188,4 @@ begin
     end if;
 end process;
 
-----
----- ILA Instantiation
-----
---ila_0_inst : ila_32x8K
---port map (
---    clk                 => clk_i,
---    probe0              => probe0
---);
---
---probe0(0) <= ssi_sck_i;
---probe0(1) <= ssi_dat_i;
---probe0(2) <= biss_frame;
---probe0(3) <= biss_scd;
---probe0(4) <= shift_enabled;
---probe0(12 downto 5) <= std_logic_vector(shift_counter);
---probe0(13) <= serial_clock_rise;
---probe0(14) <= serial_clock_fall;
---probe0(15) <= serial_data;
---probe0(16) <= link_up;
---probe0(17) <= serial_clock;
---probe0(31 downto 18) <= shift_in(13 downto 0);
-
 end rtl;

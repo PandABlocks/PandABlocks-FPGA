@@ -24,6 +24,7 @@ use work.top_defines.all;
 
 entity panda_top is
 generic (
+    SIM                 : string  := "FALSE";
     AXI_BURST_LEN       : integer := 16;
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32
@@ -209,6 +210,7 @@ signal inenc_a              : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_b              : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_z              : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_conn           : std_logic_vector(ENC_NUM-1 downto 0);
+signal inenc_trans          : std_logic_vector(ENC_NUM-1 downto 0);
 
 -- Output Encoder
 signal outenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
@@ -616,7 +618,8 @@ port map (
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => INPROT,
     posn_o              => inenc_val,
-    posn_upper_o        => inenc_val_upper
+    posn_upper_o        => inenc_val_upper,
+    posn_trans_o        => inenc_trans
 );
 
 ---------------------------------------------------------------------------
@@ -970,6 +973,7 @@ port map (
     INENC_B         => B_IN,
     INENC_Z         => Z_IN,
     INENC_CONN      => inenc_conn,
+    INENC_TRANS     => inenc_trans,
     INENC_VAL       => inenc_val,
     QDEC_OUT        => qdec_out,
     POSENC_A        => posenc_a,
@@ -1049,56 +1053,65 @@ port map (
 ---------------------------------------------------------------------------
 -- FMC Loopback design
 ---------------------------------------------------------------------------
-fmc_inst : entity work.fmc_loopback
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
+FMC_GEN : IF (SIM = "FALSE") GENERATE
 
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(FMC_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(FMC_CS),
+    fmc_inst : entity work.fmc_loopback
+    port map (
+        clk_i               => FCLK_CLK0,
+        reset_i             => FCLK_RESET0,
 
-    FMC_PRSNT           => FMC_PRSNT,
-    FMC_LA_P            => FMC_LA_P,
-    FMC_LA_N            => FMC_LA_N,
-    FMC_CLK0_M2C_P      => FMC_CLK0_M2C_P,
-    FMC_CLK0_M2C_N      => FMC_CLK0_M2C_N,
-    FMC_CLK1_M2C_P      => FMC_CLK1_M2C_P,
-    FMC_CLK1_M2C_N      => FMC_CLK1_M2C_N,
+        mem_addr_i          => mem_addr,
+        mem_cs_i            => mem_cs(FMC_CS),
+        mem_wstb_i          => mem_wstb,
+        mem_dat_i           => mem_odat,
+        mem_dat_o           => mem_read_data(FMC_CS),
 
-    GTREFCLK_N          => GTXCLK1_N,
-    GTREFCLK_P          => GTXCLK1_P,
-    TXP_OUT             => FMC_DP0_C2M_P,
-    TXN_OUT             => FMC_DP0_C2M_N,
-    RXP_IN              => FMC_DP0_M2C_P,
-    RXN_IN              => FMC_DP0_M2C_N
-);
+        FMC_PRSNT           => FMC_PRSNT,
+        FMC_LA_P            => FMC_LA_P,
+        FMC_LA_N            => FMC_LA_N,
+        FMC_CLK0_M2C_P      => FMC_CLK0_M2C_P,
+        FMC_CLK0_M2C_N      => FMC_CLK0_M2C_N,
+        FMC_CLK1_M2C_P      => FMC_CLK1_M2C_P,
+        FMC_CLK1_M2C_N      => FMC_CLK1_M2C_N,
+
+        GTREFCLK_N          => GTXCLK1_N,
+        GTREFCLK_P          => GTXCLK1_P,
+        TXP_OUT             => FMC_DP0_C2M_P,
+        TXN_OUT             => FMC_DP0_C2M_N,
+        RXP_IN              => FMC_DP0_M2C_P,
+        RXN_IN              => FMC_DP0_M2C_N
+    );
+
+END GENERATE;
+
 #endif
 
 #ifndef DEV
 ---------------------------------------------------------------------------
 -- SFP Loopback design
 ---------------------------------------------------------------------------
-sfp_inst : entity work.sfp_loopback
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
+SFP_GEN : IF (SIM = "FALSE") GENERATE
 
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(SFP_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(SFP_CS),
+    sfp_inst : entity work.sfp_loopback
+    port map (
+        clk_i               => FCLK_CLK0,
+        reset_i             => FCLK_RESET0,
 
-    GTREFCLK_N          => GTXCLK0_N,
-    GTREFCLK_P          => GTXCLK0_P,
-    RXN_IN              => SFP_RX_N,
-    RXP_IN              => SFP_RX_P,
-    TXN_OUT             => SFP_TX_N,
-    TXP_OUT             => SFP_TX_P
-);
+        mem_addr_i          => mem_addr,
+        mem_cs_i            => mem_cs(SFP_CS),
+        mem_wstb_i          => mem_wstb,
+        mem_dat_i           => mem_odat,
+        mem_dat_o           => mem_read_data(SFP_CS),
+
+        GTREFCLK_N          => GTXCLK0_N,
+        GTREFCLK_P          => GTXCLK0_P,
+        RXN_IN              => SFP_RX_N,
+        RXP_IN              => SFP_RX_P,
+        TXN_OUT             => SFP_TX_N,
+        TXP_OUT             => SFP_TX_P
+    );
+
+END GENERATE;
 
 #endif
 

@@ -1,1 +1,1 @@
-panda_top.xdc.dev
+panda_top.xdc.carrier

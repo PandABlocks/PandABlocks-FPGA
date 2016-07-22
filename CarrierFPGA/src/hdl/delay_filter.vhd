@@ -8,7 +8,8 @@
 --
 --  Description : A three-clock-cycle delay filter combine to reject low level
 --                noise and large, short duration noise spikes that typically
---                occur in motor system applications
+--                occur in motor system applications (similar to the digital
+--                filters of the HCTL-2016)
 --
 --------------------------------------------------------------------------------
 
@@ -65,6 +66,7 @@ FJKC : process(clk_i) begin
                 when "01" => filt <= '0';
                 when "10" => filt <= '1';
                 when "11" => filt <= not filt;
+                when others => filt <= filt;
             end case;
         end if;
     end if;

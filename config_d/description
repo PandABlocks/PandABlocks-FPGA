@@ -89,6 +89,7 @@ INENC       Input encoder
     B               Quadrature B if in incremental mode
     Z               Z index channel if in incremental mode
     CONN            Signal detected
+    TRANS           Position transtion
     VAL             Current position
 
 QDEC        Quadrature decoder

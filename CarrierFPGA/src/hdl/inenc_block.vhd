@@ -40,7 +40,8 @@ port (
     DCARD_MODE          : in  std_logic_vector(31 downto 0);
     PROTOCOL            : out std_logic_vector(2 downto 0);
     posn_o              : out std_logic_vector(31 downto 0);
-    posn_upper_o        : out std_logic_vector(31 downto 0)
+    posn_upper_o        : out std_logic_vector(31 downto 0);
+    posn_trans_o        : out std_logic
 );
 end entity;
 
@@ -119,7 +120,7 @@ port map (
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset,
-    -- Encoder I/O Pads
+
     a_i                 => a_i,
     b_i                 => b_i,
     z_i                 => z_i,
@@ -127,7 +128,7 @@ port map (
     data_in_i           => data_in_i,
     clk_in_i            => clk_in_i,
     conn_o              => conn_o,
-    -- Block Parameters
+
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => PROTOCOL_i(2 downto 0),
     CLK_PERIOD          => CLK_PERIOD,
@@ -137,9 +138,10 @@ port map (
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z(0),
-    -- Status
+
     posn_o              => posn_o,
-    posn_upper_o        => posn_upper_o
+    posn_upper_o        => posn_upper_o,
+    posn_trans_o        => posn_trans_o
 );
 
 end rtl;
