@@ -28,7 +28,7 @@ port (
     ssi_sck_i       : in  std_logic;
     ssi_dat_i       : in  std_logic;
     -- Block outputs
-    posn_o          : out std_logic_vector(47 downto 0)
+    posn_o          : out std_logic_vector(31 downto 0)
 );
 end biss_sniffer;
 
@@ -56,7 +56,7 @@ signal serial_clock         : std_logic;
 signal serial_clock_prev    : std_logic;
 signal link_up              : std_logic;
 signal biss_scd             : std_logic;
-signal shift_in             : std_logic_vector(posn_o'length-1 downto 0);
+signal shift_in             : std_logic_vector(31 downto 0);
 signal shift_in_valid       : std_logic;
 signal biss_frame           : std_logic;
 signal serial_data          : std_logic;
@@ -64,8 +64,17 @@ signal serial_clock_fall    : std_logic;
 signal serial_clock_rise    : std_logic;
 signal shift_counter        : unsigned(7 downto 0);
 signal shift_enabled        : std_logic;
+signal posn                 : std_logic_vector(31 downto 0);
+
+attribute MARK_DEBUG        : string;
+attribute MARK_DEBUG of ssi_sck_i   : signal is "true";
+attribute MARK_DEBUG of ssi_dat_i   : signal is "true";
+attribute MARK_DEBUG of posn        : signal is "true";
 
 begin
+
+-- Assign outputs
+posn_o <= posn;
 
 -- Frame BITs includes: Start&CDS + Data + Extra(Error/CRC)
 FRAME_LEN <= 2 + unsigned(BITS) + unsigned(BITS_CRC);
@@ -129,7 +138,7 @@ begin
                 biss_scd <= '0';
             end if;
 
-            -- Keep track of bits received durin SCD frame.
+            -- Keep track of bits received during SCD frame.
             if (biss_scd = '1') then
                 if (serial_clock_rise = '1') then
                     shift_counter <= shift_counter + 1;
@@ -175,17 +184,28 @@ begin
         FOR I IN shift_in'range LOOP
             -- Have to handle 0-bit configuration. Horrible indeed.
             if (LEN = 0) then
-                posn_o(I) <= '0';
+                posn(I) <= '0';
             else
             -- Sign bit or not depending on BITS parameter.
                 if (I < LEN) then
-                    posn_o(I) <= shift_in(I);
+                    posn(I) <= shift_in(I);
                 else
-                    posn_o(I) <= shift_in(LEN-1);
+                    posn(I) <= shift_in(LEN-1);
                 end if;
             end if;
         END LOOP;
     end if;
 end process;
+
+ila_inst : ila_32x8K
+port map (
+    clk         => clk_i,
+    probe0      => probe0
+);
+
+probe0(0) <= ssi_sck_i;
+probe0(1) <= ssi_dat_i;
+probe0(17 downto 2) <= posn(15 downto 0);
+probe0(31 downto 18) <= (others => '0');
 
 end rtl;

@@ -28,11 +28,12 @@ module biss_sniffer_tb;
 reg clk_i = 0;
 reg reset_i;
 reg [7:0] BITS = 19;
+reg [7:0] BITS_CRC = 8;
 reg ssi_sck_i;
 reg ssi_dat_i;
 
 // Outputs
-wire [47:0] posn_o;
+wire [31:0] posn_o;
 
 integer fid, r;
 
@@ -50,6 +51,7 @@ biss_sniffer uut (
     .clk_i      ( clk_i         ),
     .reset_i    ( reset_i       ),
     .BITS       ( BITS          ),
+    .BITS_CRC   ( BITS_CRC      ),
     .ssi_sck_i  ( ssi_sck_i     ),
     .ssi_dat_i  ( ssi_dat_i     ),
     .posn_o     ( posn_o        )
@@ -64,7 +66,7 @@ initial begin
 
     // Read and ignore description field
     while (!$feof(fid)) begin
-        r = $fscanf(fid, "%d %d\n", ssi_sck_i, ssi_dat_i);
+        r = $fscanf(fid, "%d %d\n", ssi_dat_i, ssi_sck_i);
         @(posedge clk_i);
     end
 

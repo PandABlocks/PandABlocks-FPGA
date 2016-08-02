@@ -32,7 +32,6 @@ port (
     -- Block input and outputs.
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
-    extbus_i            : in  std32_array(ENC_NUM-1 downto 0);
     enable_i            : in  std_logic;
     frame_i             : in  std_logic;
     capture_i           : in  std_logic;
@@ -209,7 +208,7 @@ END GENERATE;
 -- Zero field
 posn_o(0)  <= posbus_i(0);
 posn_o(32) <= (others => '0');
-posn_o(36 downto 33) <= extbus_i(3 downto 0);   -- Encoder extension
+posn_o(36 downto 33) <= (others => (others => '0'));
 posn_o(37) <= std_logic_vector(frame_length);
 posn_o(38) <= std_logic_vector(capture_offset);
 posn_o(39) <= sysbus_i(31 downto 0);

@@ -40,7 +40,6 @@ port (
     DCARD_MODE          : in  std_logic_vector(31 downto 0);
     PROTOCOL            : out std_logic_vector(2 downto 0);
     posn_o              : out std_logic_vector(31 downto 0);
-    posn_upper_o        : out std_logic_vector(31 downto 0);
     posn_trans_o        : out std_logic
 );
 end entity;
@@ -140,7 +139,6 @@ port map (
     RST_ON_Z            => RST_ON_Z(0),
 
     posn_o              => posn_o,
-    posn_upper_o        => posn_upper_o,
     posn_trans_o        => posn_trans_o
 );
 

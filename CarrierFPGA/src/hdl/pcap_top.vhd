@@ -64,7 +64,6 @@ port (
     -- Block inputs
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
-    extbus_i            : in  std32_array(ENC_NUM-1 downto 0);
     -- Output pulses
     pcap_actv_o         : out std_logic;
     pcap_irq_o          : out std_logic
@@ -106,7 +105,6 @@ signal capture          : std_logic;
 signal frame            : std_logic;
 signal sysbus_dly       : sysbus_t;
 signal posbus_dly       : posbus_t;
-signal extbus_dly       : std32_array(ENC_NUM-1 downto 0);
 
 begin
 
@@ -177,11 +175,9 @@ port map (
 
     sysbus_i            => sysbus_i,
     posbus_i            => posbus_i,
-    extbus_i            => extbus_i,
 
     sysbus_o            => sysbus_dly,
     posbus_o            => posbus_dly,
-    extbus_o            => extbus_dly,
 
     mem_cs_i            => mem_cs_i(REG_CS),
     mem_wstb_i          => mem_wstb_i,
@@ -213,7 +209,6 @@ port map (
     dma_full_i              => dma_full,
     sysbus_i                => sysbus_dly,
     posbus_i                => posbus_dly,
-    extbus_i                => extbus_dly,
 
     pcap_dat_o              => pcap_dat,
     pcap_dat_valid_o        => pcap_dat_valid,

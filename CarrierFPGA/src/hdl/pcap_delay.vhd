@@ -29,10 +29,8 @@ port (
     -- Inputs and Outputs
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
-    extbus_i            : in  std32_array(ENC_NUM-1 downto 0);
     sysbus_o            : out sysbus_t;
     posbus_o            : out posbus_t;
-    extbus_o            : out std32_array(ENC_NUM-1 downto 0);
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
@@ -117,18 +115,6 @@ POS_DELAY_GEN : FOR I IN 0 TO 31 GENERATE
         data_i      => posbus_i(I),
         data_o      => posbus_o(I),
         DELAY       => data_delay_array(I)(4 downto 0)
-    );
-
-END GENERATE;
-
-EXT_DELAY_GEN : FOR I IN REG_PCAP_DATA_DELAY_1 TO REG_PCAP_DATA_DELAY_4 GENERATE
-
-    ext_delay_inst : entity work.delay_line
-    port map (
-        clk_i       => clk_i,
-        data_i      => extbus_i(I-REG_PCAP_DATA_DELAY_1),
-        data_o      => extbus_o(I-REG_PCAP_DATA_DELAY_1),
-        DELAY       => data_delay_array(I-REG_PCAP_DATA_DELAY_1+1)(4 downto 0)
     );
 
 END GENERATE;

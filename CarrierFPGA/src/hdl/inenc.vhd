@@ -47,7 +47,6 @@ port (
     RST_ON_Z            : in  std_logic;
     -- Block Outputs
     posn_o              : out std_logic_vector(31 downto 0);
-    posn_upper_o        : out std_logic_vector(31 downto 0);
     posn_trans_o        : out std_logic
 );
 end entity;
@@ -57,19 +56,16 @@ architecture rtl of inenc is
 signal posn_incr            : std_logic_vector(31 downto 0);
 signal posn_ssi             : std_logic_vector(31 downto 0);
 signal posn_ssi_sniffer     : std_logic_vector(31 downto 0);
-signal posn_biss_sniffer    : std_logic_vector(47 downto 0);
-signal posn                 : std_logic_vector(47 downto 0);
-signal posn_prev            : std_logic_vector(47 downto 0);
+signal posn_biss_sniffer    : std_logic_vector(31 downto 0);
+signal posn                 : std_logic_vector(31 downto 0);
+signal posn_prev            : std_logic_vector(31 downto 0);
 
 begin
 
 --------------------------------------------------------------------------
 -- Assign outputs
 --------------------------------------------------------------------------
-posn_o <= posn(31 downto 0);
-
--- Only Biss supports more than 32-bits
-posn_upper_o <= X"0000" & posn(47 downto 32);
+posn_o <= posn;
 
 -- Connection status comes from Slow FPGA interface on CTRL_D12
 conn_o <= DCARD_MODE(0);
@@ -143,16 +139,14 @@ begin
     if rising_edge(clk_i) then
         case (PROTOCOL) is
             when "000"  =>              -- INC
-                posn(31 downto 0) <= posn_incr;
-                posn(47 downto 32) <= (others => '0');
+                posn <= posn_incr;
 
             when "001"  =>              -- SSI & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_LOOPBACK) then
-                    posn(31 downto 0) <= posn_ssi_sniffer;
+                    posn <= posn_ssi_sniffer;
                 else
-                    posn(31 downto 0) <= posn_ssi;
+                    posn <= posn_ssi;
                 end if;
-                posn(47 downto 32) <= (others => '0');
 
             when "010"  =>              -- BISS & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_LOOPBACK) then

@@ -44,7 +44,6 @@ port (
     DCARD_MODE          : in  std32_array(ENC_NUM-1 downto 0);
     PROTOCOL            : out std3_array(ENC_NUM-1 downto 0);
     posn_o              : out std32_array(ENC_NUM-1 downto 0);
-    posn_upper_o        : out std32_array(ENC_NUM-1 downto 0);
     posn_trans_o        : out std_logic_vector(ENC_NUM-1 downto 0)
 );
 end inenc_top;
@@ -96,7 +95,6 @@ port map (
     DCARD_MODE          => DCARD_MODE(I),
     PROTOCOL            => PROTOCOL(I),
     posn_o              => posn(I),
-    posn_upper_o        => posn_upper_o(I),
     posn_trans_o        => posn_trans_o(I)
 );
 

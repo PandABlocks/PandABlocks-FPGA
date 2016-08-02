@@ -42,7 +42,6 @@ port (
     dma_full_i          : in  std_logic;
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
-    extbus_i            : in  std32_array(ENC_NUM-1 downto 0);
     -- Block outputs
     pcap_dat_o          : out std_logic_vector(31 downto 0);
     pcap_dat_valid_o    : out std_logic;
@@ -114,7 +113,6 @@ port map (
 
     posbus_i            => posbus_i,
     sysbus_i            => sysbus_i,
-    extbus_i            => extbus_i,
 
     enable_i            => pcap_enabled,
     frame_i             => frame,   --frame_i,
