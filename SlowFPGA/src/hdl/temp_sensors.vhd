@@ -111,7 +111,7 @@ start_presc : entity work.prescaler
 port map (
     clk_i       => clk_i,
     reset_i     => reset_i,
-    PERIOD      => TO_SVECTOR(50_000_000,32), -- 100ms
+    PERIOD      => TO_SVECTOR(50_000_000,32), -- 1sec
     pulse_o     => i2c_start
 );
 

@@ -2,18 +2,22 @@
 #Created by Constraints Editor (xc6slx9-tqg144-3) - 2012/01/10
 NET "clk50_i" TNM_NET = "clk50_i";
 TIMESPEC TS_clk50_i = PERIOD "clk50_i" 20 ns HIGH 50 %;
-#
-NET "clk50_i"               LOC = P134;
 
-NET "spi_sclk_i"            LOC = P69;  # SPI_FPGA_CLK
-NET "spi_dat_i"             LOC = P66;  # SPI_FPGA_DI
-NET "spi_sclk_o"            LOC = P67;  # SPI_FPGA_CS
-NET "spi_dat_o"             LOC = P64;  # SPI_FPGA_DO
+NET "clk125_i" TNM_NET = "clk125_i";
+TIMESPEC TS_clk50_i = PERIOD "clk125_i" 8 ns HIGH 50 %;
 
-NET "shift_reg_sdata_o"     LOC = P7;
-NET "shift_reg_sclk_o"      LOC = P8;
-NET "shift_reg_latch_o"     LOC = P9;
-NET "shift_reg_oe_n_o"      LOC = P10;
+NET "clk50_i"                 LOC = P134;
+NET "clk125_i"                LOC = P92;
+
+NET "spi_sclk_i"              LOC = P69;  # SPI_FPGA_CLK
+NET "spi_dat_i"               LOC = P66;  # SPI_FPGA_DI
+NET "spi_sclk_o"              LOC = P67;  # SPI_FPGA_CS
+NET "spi_dat_o"               LOC = P64;  # SPI_FPGA_DO
+
+NET "shift_reg_sdata_o"       LOC = P7;
+NET "shift_reg_sclk_o"        LOC = P8;
+NET "shift_reg_latch_o"       LOC = P9;
+NET "shift_reg_oe_n_o"        LOC = P10;
 
 NET "dcard_ctrl1_io[0]"       LOC = P14;
 NET "dcard_ctrl1_io[1]"       LOC = P15;

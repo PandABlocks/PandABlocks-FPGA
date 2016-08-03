@@ -4,7 +4,7 @@ endif
 
 VPATH = $(SRC_DIR)
 
-DEV = true
+DEV = false
 
 # Top-level design name
 SYSTEM = slow_top
