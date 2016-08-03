@@ -1192,5 +1192,14 @@ enc0_ctrl_pad(11) <= outenc_buf_ctrl(5);
 
 #endif
 
+--ila_inst : ila_32x8K
+--port map (
+--    clk         => FCLK_CLK0,
+--    probe0      => probe0
+--);
+--
+--probe0(0) <= SPI_SCLK_I;
+--probe0(1) <= SPI_DAT_I;
+--probe0(31 downto 2) <= (others => '0');
 
 end rtl;

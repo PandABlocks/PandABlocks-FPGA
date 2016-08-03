@@ -197,15 +197,15 @@ begin
     end if;
 end process;
 
-ila_inst : ila_32x8K
-port map (
-    clk         => clk_i,
-    probe0      => probe0
-);
-
-probe0(0) <= ssi_sck_i;
-probe0(1) <= ssi_dat_i;
-probe0(17 downto 2) <= posn(15 downto 0);
-probe0(31 downto 18) <= (others => '0');
+--ila_inst : ila_32x8K
+--port map (
+--    clk         => clk_i,
+--    probe0      => probe0
+--);
+--
+--probe0(0) <= ssi_sck_i;
+--probe0(1) <= ssi_dat_i;
+--probe0(17 downto 2) <= posn(15 downto 0);
+--probe0(31 downto 18) <= (others => '0');
 
 end rtl;

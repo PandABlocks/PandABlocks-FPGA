@@ -63,9 +63,9 @@ set_property PACKAGE_PIN K2  [get_ports {TTLOUT_PAD_O[9]}];
 # Slow Controller SPI Interface)
 # -------------------------------------------------------------------
 set_property PACKAGE_PIN K4 [get_ports {SPI_SCLK_O}];
-set_property PACKAGE_PIN K3 [get_ports {SPI_DAT_O }];
+set_property PACKAGE_PIN K3 [get_ports {SPI_DAT_I }];
 set_property PACKAGE_PIN N8 [get_ports {SPI_SCLK_I}];
-set_property PACKAGE_PIN P8 [get_ports {SPI_DAT_I }];
+set_property PACKAGE_PIN P8 [get_ports {SPI_DAT_O }];
 
 # -------------------------------------------------------------------
 # FMC Differential Pins

@@ -41,7 +41,7 @@ TOP_FILE = $(HDL_DIR)/top.vhd
 VERSION_FILE = $(HDL_DIR)/defines/panda_version.vhd
 
 # HW mode (dev, dev-fmc and carrier)
-MODE = dev
+MODE = carrier
 
 #####################################################################
 # BUILD TARGETS includes HW and SW
