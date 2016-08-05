@@ -28,7 +28,7 @@ VERSION_FILE = slow_version.vhd
 
 IP_DIR = $(SRC_DIR)/syn/implementation
 
-include $(TOP)/VERSION
+include $(TOP)/SLOW_VERSION
 
 # Print the names of unlocked (unconstrainted) IOs
 export XIL_PAR_DESIGN_CHECK_VERBOSE=1
