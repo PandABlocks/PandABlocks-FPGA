@@ -48,10 +48,13 @@ signal wr_adr           : std_logic_vector(PAGE_AW-1 downto 0);
 signal rd_adr           : std_logic_vector(PAGE_AW-1 downto 0);
 signal rd_dat           : std_logic_vector(31 downto 0);
 signal rd_val           : std_logic;
+signal busy             : std_logic;
 
 signal read_addr        : natural range 0 to (2**rd_adr'length - 1);
 
 begin
+
+busy_o <= busy;
 
 ---------------------------------------------------------------------------
 -- Serial Interface core instantiation
@@ -71,7 +74,7 @@ port map (
     rd_adr_o        => rd_adr,
     rd_dat_o        => rd_dat,
     rd_val_o        => rd_val,
-    busy_o          => busy_o,
+    busy_o          => busy,
 
     spi_sclk_o      => spi_sclk_o,
     spi_dat_o       => spi_dat_o,
@@ -100,7 +103,8 @@ begin
                 wr_req <= '1';
                 wr_adr <= registers_tlp_i.address;
                 wr_dat <= registers_tlp_i.data;
-            elsif (leds_tlp_i.strobe = '1') then
+            -- Ignore led updates when busy
+            elsif (leds_tlp_i.strobe = '1' and busy = '0') then
                 wr_req <= '1';
                 wr_adr <= leds_tlp_i.address;
                 wr_dat <= leds_tlp_i.data;

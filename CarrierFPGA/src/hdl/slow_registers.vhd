@@ -51,6 +51,8 @@ blk_addr <= to_integer(unsigned(mem_addr_i(PAGE_AW-1 downto BLK_AW)));
 ---------------------------------------------------------------------------
 -- Catch user write access to Slow Registers, and generate a TLP to
 -- Slow FPGA.
+-- Driver makes sure not to issue a register write when the serial engine
+-- is busy.
 ---------------------------------------------------------------------------
 process(clk_i)
 begin

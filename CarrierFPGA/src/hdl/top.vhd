@@ -1108,12 +1108,13 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
     );
 
 END GENERATE;
-ila_inst : ila_32x8K
-port map (
-    clk => FCLK_CLK0,
-    probe0 => probe0
-);
-probe0(0) <= SPI_SCLK_I;
-probe0(1) <= SPI_DAT_I;
-probe0(31 downto 2) <= (others => '0');
+--ila_inst : ila_32x8K
+--port map (
+-- clk => FCLK_CLK0,
+-- probe0 => probe0
+--);
+--
+--probe0(0) <= SPI_SCLK_I;
+--probe0(1) <= SPI_DAT_I;
+--probe0(31 downto 2) <= (others => '0');
 end rtl;

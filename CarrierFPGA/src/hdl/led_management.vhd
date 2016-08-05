@@ -35,7 +35,6 @@ constant LED_COUNT      : natural := TTLIN_NUM + TTLOUT_NUM;
 signal check_tick       : std_logic;
 signal val              : std_logic_vector(LED_COUNT-1 downto 0);
 signal val_prev         : std_logic_vector(LED_COUNT-1 downto 0);
-signal oldval           : std_logic_vector(LED_COUNT-1 downto 0);
 signal changed          : std_logic_vector(LED_COUNT-1 downto 0);
 signal leds             : std_logic_vector(LED_COUNT-1 downto 0);
 signal data             : std_logic_vector(31 downto 0) := (others => '0');
@@ -43,7 +42,9 @@ signal data_prev        : std_logic_vector(31 downto 0);
 
 begin
 
--- Send packets to Slow FPGA every 50ms;
+--------------------------------------------------------------------------
+-- 50ms counter tick
+--------------------------------------------------------------------------
 frame_presc : entity work.prescaler
 port map (
     clk_i       => clk_i,
@@ -52,41 +53,34 @@ port map (
     pulse_o     => check_tick
 );
 
---
+--------------------------------------------------------------------------
 -- Detect change on I/O @check_tick, and toggle led pulses accordingly.
 -- LEDs are toggled in sync with the check_tick, not actual I/O transition.
---
+--------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             val <= (others => '0');
             val_prev <= (others => '0');
-            oldval <= (others => '0');
             changed <= (others => '0');
             leds <= (others => '0');
         else
-            -- Combine all I/O to detect change bits;
+            -- Combine all I/O to detect change bits
             val <= ttlin_i & ttlout_i;
             val_prev <= val;
 
-            -- Check whether a transition occured during 50ms;
+            -- Check whether a transition occured during 50ms
             if (check_tick = '1') then
-                changed <= val xor val_prev;
+                changed <= (others => '0');
             else
                 changed <= (val xor val_prev) or changed;
             end if;
 
-            -- Toggle individual ledss;
+            -- Toggle individual leds
             FOR I IN 0 TO LED_COUNT-1 LOOP
                 if (check_tick = '1') then
-                    oldval(I) <= val(I);
-
                     if (changed(I) = '1') then
-                        if (val(I) = oldval(I)) then
-                            leds(I) <= not val(I);
-                        else
-                            leds(I) <= val(I);
-                        end if;
+                        leds(I) <= not leds(I);
                     else
                         leds(I) <= val(I);
                     end if;
@@ -101,9 +95,9 @@ end process;
 --
 data <= ZEROS(12) & outenc_conn_i & leds;
 
---
--- Send a packet to Slow FPGA @check_tick rate of 50ms;
---
+--------------------------------------------------------------------------
+-- Send a packet to Slow FPGA only if data is changed
+--------------------------------------------------------------------------
 SLOW_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
