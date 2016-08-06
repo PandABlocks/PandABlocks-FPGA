@@ -92,3 +92,5 @@ NET "i2c_temp_scl"            LOC = P62;
 
 NET "i2c_vmon_sda"            LOC = P84;
 NET "i2c_vmon_scl"            LOC = P85;
+
+NET "SEL_GTXCLK1"             LOC = P144;

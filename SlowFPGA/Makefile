@@ -99,7 +99,7 @@ $(BIT_FILE): $(POSTSYN_NETLIST)
 	map $(MAP_FLAGS) $(NGD_FILE) -o $(MAPPED_NCD_FILE) $(PCF_FILE)
 	par $(PAR_FLAGS) $(MAPPED_NCD_FILE) $(ROUTED_NCD_FILE) $(PCF_FILE)
 	trce $(TRCE_FLAGS) $(ROUTED_NCD_FILE) $(PCF_FILE) -xml $(TWX_FILE)
-	bitgen -w $(ROUTED_NCD_FILE)
+	bitgen -intstyle xflow -w $(ROUTED_NCD_FILE) -g ConfigRate:1
 
 $(PROM_FILE): $(BIT_FILE)
 	promgen -w -p mcs -o $@ -u 0 $<
