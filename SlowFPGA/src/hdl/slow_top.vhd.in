@@ -130,30 +130,17 @@ port map (
     I           => clk50_i
 );
 
---reset_inst : SRL16
---port map (
---    Q           => init_reset_n,
---    A0          => '1',
---    A1          => '1',
---    A2          => '1',
---    A3          => '1',
---    CLK         => clk125_i,
---    D           => '1'
---);
---
---init_reset <= not init_reset_n;
-
 clkgen_inst : entity work.clkgen
 port map (
   CLK_IN1       => clk125_i,
   CLK_OUT1      => clk50_pll,
-  RESET         => '0', --init_reset,
+  RESET         => '0',
   LOCKED        => reset_n
  );
 
 reset <= not reset_n;
 
-sysclk <= clk50_pll;
+sysclk <= clk50_pad;    -- clk50_pll;
 
 --
 -- Data Send/Receive Engine to Zynq

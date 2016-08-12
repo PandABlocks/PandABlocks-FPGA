@@ -1,105 +1,48 @@
-ifndef TOP
-$(error Do not call this make file directly)
+#
+# Xilinx ISE Environment
+#
+PLATFORM = $(shell uname -m)
+
+ifeq ($(PLATFORM),x86_64)
+	ISE=source /dls_sw/apps/FPGA/Xilinx/14.7/ISE_DS/settings64.sh > /dev/null
 endif
 
-VPATH = $(SRC_DIR)
+ifeq ($(PLATFORM),i686)
+	ISE=source /dls_sw/apps/FPGA/Xilinx/14.7/ISE_DS/settings32.sh > /dev/null
+endif
 
-DEV = false
+PATH := $(PATH):/dls_sw/apps/FPGA/Precision/2012b/Mgc_home/bin
 
-# Top-level design name
-SYSTEM = slow_top
-
-LIST_FILE = $(SYSTEM).lst
-SCR_FILE = $(SYSTEM).scr
-UCF_FILE = $(SYSTEM).ucf
-
-POSTSYN_NETLIST = $(SYSTEM).ngc
-NGD_FILE = $(SYSTEM).ngd
-MAPPED_NCD_FILE = $(SYSTEM)_map.ncd
-ROUTED_NCD_FILE = $(SYSTEM).ncd
-PCF_FILE = $(SYSTEM).pcf
-TWX_FILE = $(SYSTEM).twx
-BIT_FILE = $(SYSTEM).bit
-PROM_FILE = $(SYSTEM).mcs
-
-# Custom Project dependant defines
-TOP_FILE = $(SRC_DIR)/src/hdl/$(SYSTEM).vhd
-VERSION_FILE = slow_version.vhd
-
-IP_DIR = $(SRC_DIR)/syn/implementation
-
-include $(TOP)/SLOW_VERSION
-
+#
 # Print the names of unlocked (unconstrainted) IOs
+#
 export XIL_PAR_DESIGN_CHECK_VERBOSE=1
 
+#
+# Name of the PC to be used for programming the FPGA
+#
+JTAG_PC=pc0001
 
-netlist: $(POSTSYN_NETLIST)
+#
+# Hardware Platform Settings
+#
 
-bits : $(BIT_FILE)
+main: clean
+	$(ISE) && make -C syn/run -f ../Makefile bits
+	$(ISE) && make -C syn/run -f ../Makefile mcs
 
-mcs: $(PROM_FILE)
+picoblaze:
+	util/picoblaze/Picoasm/picoasm -i rtl/slow_pblaze/assembler/slow_pblaze_rom.psm -t rtl/slow_pblaze/assembler/ROM_form.vhd -d rtl/slow_pblaze/vhdl
 
-.PHONY: mcs bits netlist
+download:
+	$(ISE) && make -C syn/run -f ../Makefile JTAG_PC=$(JTAG_PC) download
 
-$(SCR_FILE) :
-ifeq ($(DEV),true)
-	/bin/echo "Building for DEV BOARD"
-	cp $(SRC_DIR)/syn/xilinx/slow_top.scr.dev $@
-else
-	/bin/echo "Building for PandA CARRIER"
-	cp $(SRC_DIR)/syn/xilinx/slow_top.scr.panda $@
-endif
+program:
+	$(ISE) && make -C syn/run -f ../Makefile JTAG_PC=$(JTAG_PC) program
 
-$(UCF_FILE) :
-ifeq ($(DEV),true)
-	/bin/echo "Building for DEV BOARD"
-	cp $(SRC_DIR)/syn/constr/slow_top.ucf.dev $@
-else
-	/bin/echo "Building for PandA CARRIER"
-	cp $(SRC_DIR)/syn/constr/slow_top.ucf.panda $@
-endif
+hwclean:
+	$(ISE) && make -C syn/run -f ../Makefile hwclean
+	$(ISE) && make -C syn/run -f ../Makefile clean
 
-$(TOP_FILE) : $(TOP_FILE).in $(UCF_FILE) $(SCR_FILE)
-ifeq ($(DEV),true)
-	/bin/echo "Building for DEV BOARD"
-	cpp -E -P -DDEV $< -o $@
-else
-	/bin/echo "Building for PandA CARRIER"
-	cpp -E -P $< -o $@
-endif
-
-$(VERSION_FILE):
-	rm -f $@
-	echo 'library ieee;' >> $@
-	echo 'use ieee.std_logic_1164.all;' >> $@
-	echo 'package slow_version is' >> $@
-	echo -n 'constant SlowFPGAVersion: std_logic_vector(31 downto 0)' \ >> $@
-	echo ' := X"$(FIRMWARE)";' >> $@
-	echo 'end slow_version;' >> $@
-
-# We have to take a bit of care when building the list file: it turns out that
-# xst can't cope with long file names.
-$(LIST_FILE): slow_top.files
-	ln -sfn $(TOP) top
-	sed "s:^:vhdl work top/:" $< >$@
-	echo 'vhdl work slow_version.vhd' >>$@
-
-
-$(POSTSYN_NETLIST): $(TOP_FILE) $(LIST_FILE) $(SCR_FILE) $(VERSION_FILE)
-	xst -ifn $(SCR_FILE)
-
-
-MAP_FLAGS = -detail -w -ol high -pr b
-PAR_FLAGS = -w -ol high
-TRCE_FLAGS = -e 3 -l 3
-
-$(BIT_FILE): $(POSTSYN_NETLIST)
-	ngdbuild -uc $(UCF_FILE) -sd $(IP_DIR) $(POSTSYN_NETLIST)
-	map $(MAP_FLAGS) $(NGD_FILE) -o $(MAPPED_NCD_FILE) $(PCF_FILE)
-	par $(PAR_FLAGS) $(MAPPED_NCD_FILE) $(ROUTED_NCD_FILE) $(PCF_FILE)
-	trce $(TRCE_FLAGS) $(ROUTED_NCD_FILE) $(PCF_FILE) -xml $(TWX_FILE)
-	bitgen -intstyle xflow -w $(ROUTED_NCD_FILE) -g ConfigRate:1
-
-$(PROM_FILE): $(BIT_FILE)
-	promgen -w -p mcs -o $@ -u 0 $<
+clean:
+	$(ISE) && make -C syn/run -f ../Makefile clean

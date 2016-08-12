@@ -1,16 +1,5 @@
 include ../CONFIG
-include ../../VERSION
-
-all:
-	@echo "----------------------------------------"
-	@echo "Makefile to build UDP Sniffer firmware :"
-	@echo "----------------------------------------"
-	@echo "Run make with any of the following targets"
-	@echo " "
-	@echo " netlist  : Generates the netlist for the project for given target board "
-	@echo " bits     : Run implementation tools to generate the bitstream
-	@echo " download : Downloads the bitstream onto the board"
-	@echo " program  : Generate mcs file from bitstream and program the PROM"
+include ../../../SLOW_VERSION
 
 netlist: $(POSTSYN_NETLIST)
 
@@ -18,14 +7,14 @@ bits : $(BIT_FILE)
 
 mcs: $(PROM_FILE)
 
-$(VERSION_FILE): ../../VERSION
-	rm -rf $@
-	echo 'library ieee;' >>$@
-	echo 'use ieee.std_logic_1164.all;' >>$@
-	echo 'package slow_version is' >>$@
-	echo -n 'constant FPGAVersion: std_logic_vector(31 downto 0)' \ >>$@
-	echo ' := X"$(FPGA_VER_REGISTER)";' >>$@
-	echo 'end slow_version;' >>$@
+$(VERSION_FILE):
+	rm -f $@
+	echo 'library ieee;' >> $@
+	echo 'use ieee.std_logic_1164.all;' >> $@
+	echo 'package slow_version is' >> $@
+	echo -n 'constant SlowFPGAVersion: std_logic_vector(31 downto 0)' \ >> $@
+	echo ' := X"$(FIRMWARE)";' >> $@
+	echo 'end slow_version;' >> $@
 
 $(NETLIST_DIR):
 	mkdir $(NETLIST_DIR)
@@ -42,7 +31,6 @@ $(SCR_FILE):
 
 $(POSTSYN_NETLIST): $(NETLIST_DIR) $(COREGEN_NGC_FILES) $(LIST_FILE) $(SCR_FILE) $(VERSION_FILE)
 	xst -ifn $(SCR_FILE)
-#	precision -rtlplus -shell -file ../syn_scripts/slow_top.tcl
 
 $(UCF_FILE):
 	cat ../constr/$(UCF_FILE) > $(UCF_FILE)
