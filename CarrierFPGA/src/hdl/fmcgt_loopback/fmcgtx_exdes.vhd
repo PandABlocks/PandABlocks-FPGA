@@ -85,6 +85,7 @@ port (
     Q0_CLK1_GTREFCLK_PAD_P_IN           : in   std_logic;
     GTREFCLK                            : out  std_logic;
     drpclk_in_i                         : in   std_logic;
+    SOFT_RESET                          : in   std_logic;
     TRACK_DATA_OUT                      : out  std_logic_vector(31 downto 0);
     ERROR_COUNT                         : out  std_logic_vector(31 downto 0);
     RXN_IN                              : in   std_logic;
@@ -924,7 +925,7 @@ gt0_drpdi_i <= (others => '0');
 gt0_drpen_i <= '0';
 gt0_drpwe_i <= '0';
 
-soft_reset_i <= tied_to_ground_i;
+soft_reset_i <= SOFT_RESET;
 
 end RTL;
 

@@ -29,6 +29,8 @@ port (
     GTREFCLK       : in  std_logic_vector(31 downto 0);
     FMC_CLK0       : in  std_logic_vector(31 downto 0);
     FMC_CLK1       : in  std_logic_vector(31 downto 0);
+    SOFT_RESET       : out std_logic_vector(31 downto 0);
+    SOFT_RESET_WSTB  : out std_logic;
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
@@ -54,10 +56,17 @@ REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
+            SOFT_RESET <= (others => '0');
+            SOFT_RESET_WSTB <= '0';
         else
+            SOFT_RESET_WSTB <= '0';
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
+                if (mem_addr = FMC_SOFT_RESET) then
+                    SOFT_RESET <= mem_dat_i;
+                    SOFT_RESET_WSTB <= '1';
+                end if;
 
             end if;
         end if;

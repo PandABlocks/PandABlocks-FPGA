@@ -317,6 +317,7 @@ constant FMC_LA_N_ERROR : natural := 4;
 constant FMC_GTREFCLK : natural := 5;
 constant FMC_FMC_CLK0 : natural := 6;
 constant FMC_FMC_CLK1 : natural := 7;
+constant FMC_SOFT_RESET : natural := 8;
 
 -- SFP Block:
 constant SFP_LINK1_UP : natural := 0;
@@ -325,9 +326,10 @@ constant SFP_LINK2_UP : natural := 2;
 constant SFP_ERROR2_COUNT : natural := 3;
 constant SFP_LINK3_UP : natural := 4;
 constant SFP_ERROR3_COUNT : natural := 5;
-constant SFP_SFP_CLK0 : natural := 6;
-constant SFP_SFP_CLK1 : natural := 7;
-constant SFP_SFP_CLK2 : natural := 8;
+constant SFP_SFP_CLK1 : natural := 6;
+constant SFP_SFP_CLK2 : natural := 7;
+constant SFP_SFP_CLK3 : natural := 8;
+constant SFP_SOFT_RESET : natural := 9;
 
 
 

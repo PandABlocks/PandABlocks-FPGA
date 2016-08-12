@@ -75,6 +75,7 @@ signal FMC_CLK1_M2C     : std_logic;
 signal FREQ_VAL         : std32_array(3 downto 0);
 signal GTREFCLK         : std_logic;
 signal FMC_PRSNT_DW     : std_logic_vector(31 downto 0);
+signal SOFT_RESET       : std_logic;
 
 begin
 
@@ -160,6 +161,7 @@ port map (
     Q0_CLK1_GTREFCLK_PAD_P_IN   => GTREFCLK_P,
     GTREFCLK                    => GTREFCLK,
     drpclk_in_i                 => clk_i,
+    SOFT_RESET                  => SOFT_RESET,
     TRACK_DATA_OUT              => LINK_UP,
     ERROR_COUNT                 => ERROR_COUNT,
     RXN_IN                      => RXN_IN,
@@ -231,6 +233,8 @@ port map (
     GTREFCLK                    => FREQ_VAL(0),
     FMC_CLK0                    => FREQ_VAL(1),
     FMC_CLK1                    => FREQ_VAL(2),
+    SOFT_RESET                  => open,
+    SOFT_RESET_WSTB             => SOFT_RESET,
     -- Memory Bus Interface
     mem_cs_i                    => mem_cs_i,
     mem_wstb_i                  => mem_wstb_i,

@@ -40,14 +40,11 @@ BOOT_FILE = $(IMAGE_DIR)/boot.bin
 TOP_FILE = $(HDL_DIR)/top.vhd
 VERSION_FILE = $(HDL_DIR)/defines/panda_version.vhd
 
-# HW mode (dev, dev-fmc and carrier)
-MODE = carrier
-
 #####################################################################
 # BUILD TARGETS includes HW and SW
-.PHONY: clean PREPROC VERSION
+.PHONY: clean VERSION
 
-all: PREPROC VERSION $(OUT_DIR) $(IP_CORES) $(PS_CORE) $(FPGA_BIT) $(SDK_EXPORT) $(DEVTREE_DTB) $(BOOT_FILE)
+all: VERSION $(OUT_DIR) $(IP_CORES) $(PS_CORE) $(FPGA_BIT) $(SDK_EXPORT) $(DEVTREE_DTB) $(BOOT_FILE)
 devicetree: $(DEVTREE_DTB)
 boot: $(BOOT_FILE)
 
@@ -61,27 +58,6 @@ clean :
 	find . -iname *.wlf -exec rm -f {} \;
 	find . -iname work -exec rm -rf {} \;
 	find . -iname msim -exec rm -rf {} \;
-
-PREPROC :
-	rm -rf $(TOP_FILE)
-
-ifeq ($(MODE),carrier)
-	/bin/echo "Building for PandA CARRIER"
-	cpp -E -P $(TOP_FILE).in -o $(TOP_FILE)
-	ln -sf panda_top.xdc.carrier ./src/const/panda_top.xdc
-endif
-
-ifeq ($(MODE),dev)
-	/bin/echo "Building for DEV BOARD"
-	cpp -E -P -DDEV $(TOP_FILE).in -o $(TOP_FILE)
-	ln -sf panda_top.xdc.dev ./src/const/panda_top.xdc
-endif
-
-ifeq ($(MODE),dev-fmc)
-	/bin/echo "Building for DEV FMC LOOPBACK BOARD"
-	ln -sf top.vhd.$(MODE) $(TOP_FILE)
-	ln -sf panda_top.xdc.dev-fmc ./src/const/panda_top.xdc
-endif
 
 VERSION :
 	rm -f $(VERSION_FILE)
@@ -119,7 +95,6 @@ $(FPGA_BIT):
 	rm -rf $(OUT_DIR)/panda_top
 	cd $(OUT_DIR) && \
 	    $(VIVADO) && vivado -mode batch -source ../build_top.tcl
-	scp $(FPGA_BIT) root@172.23.252.202:/opt
 
 #####################################################################
 # SW Projects Build

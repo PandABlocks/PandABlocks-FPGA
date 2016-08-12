@@ -38,6 +38,7 @@ signal LINK3_UP         : std_logic_vector(31 downto 0);
 signal ERROR3_COUNT     : std_logic_vector(31 downto 0);
 signal FREQ_VAL         : std32_array(3 downto 0);
 signal GTREFCLK         : std_logic_vector(2 downto 0);
+signal SOFT_RESET       : std_logic;
 
 begin
 
@@ -50,6 +51,7 @@ port map (
     Q0_CLK0_GTREFCLK_PAD_P_IN   => GTREFCLK_P,
     GTREFCLK                    => GTREFCLK,
     drpclk_in_i                 => clk_i,
+    SOFT_RESET                  => SOFT_RESET,
     LINK1_UP                    => LINK1_UP,
     ERROR1_COUNT                => ERROR1_COUNT,
     LINK2_UP                    => LINK2_UP,
@@ -96,9 +98,11 @@ port map (
     ERROR2_COUNT                => ERROR2_COUNT,
     LINK3_UP                    => LINK3_UP,
     ERROR3_COUNT                => ERROR3_COUNT,
-    SFP_CLK0                    => FREQ_VAL(0),
-    SFP_CLK1                    => FREQ_VAL(1),
-    SFP_CLK2                    => FREQ_VAL(2),
+    SFP_CLK1                    => FREQ_VAL(0),
+    SFP_CLK2                    => FREQ_VAL(1),
+    SFP_CLK3                    => FREQ_VAL(2),
+    SOFT_RESET                  => open,
+    SOFT_RESET_WSTB             => SOFT_RESET,
     -- Memory Bus Interface
     mem_cs_i                    => mem_cs_i,
     mem_wstb_i                  => mem_wstb_i,

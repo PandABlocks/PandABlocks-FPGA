@@ -27,9 +27,11 @@ port (
     ERROR2_COUNT       : in  std_logic_vector(31 downto 0);
     LINK3_UP       : in  std_logic_vector(31 downto 0);
     ERROR3_COUNT       : in  std_logic_vector(31 downto 0);
-    SFP_CLK0       : in  std_logic_vector(31 downto 0);
     SFP_CLK1       : in  std_logic_vector(31 downto 0);
     SFP_CLK2       : in  std_logic_vector(31 downto 0);
+    SFP_CLK3       : in  std_logic_vector(31 downto 0);
+    SOFT_RESET       : out std_logic_vector(31 downto 0);
+    SOFT_RESET_WSTB  : out std_logic;
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
@@ -55,10 +57,17 @@ REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
+            SOFT_RESET <= (others => '0');
+            SOFT_RESET_WSTB <= '0';
         else
+            SOFT_RESET_WSTB <= '0';
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
+                if (mem_addr = SFP_SOFT_RESET) then
+                    SOFT_RESET <= mem_dat_i;
+                    SOFT_RESET_WSTB <= '1';
+                end if;
 
             end if;
         end if;
@@ -87,12 +96,12 @@ begin
                     mem_dat_o <= LINK3_UP;
                 when SFP_ERROR3_COUNT =>
                     mem_dat_o <= ERROR3_COUNT;
-                when SFP_SFP_CLK0 =>
-                    mem_dat_o <= SFP_CLK0;
                 when SFP_SFP_CLK1 =>
                     mem_dat_o <= SFP_CLK1;
                 when SFP_SFP_CLK2 =>
                     mem_dat_o <= SFP_CLK2;
+                when SFP_SFP_CLK3 =>
+                    mem_dat_o <= SFP_CLK3;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;

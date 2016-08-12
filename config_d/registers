@@ -297,6 +297,7 @@ FMC         26
     GTREFCLK        5
     FMC_CLK0        6
     FMC_CLK1        7
+    SOFT_RESET      8
 
 SFP         27
     LINK1_UP        0
@@ -305,6 +306,7 @@ SFP         27
     ERROR2_COUNT    3
     LINK3_UP        4
     ERROR3_COUNT    5
-    SFP_CLK0        6
-    SFP_CLK1        7
-    SFP_CLK2        8
+    SFP_CLK1        6
+    SFP_CLK2        7
+    SFP_CLK3        8
+    SOFT_RESET      9

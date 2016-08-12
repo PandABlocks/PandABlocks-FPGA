@@ -78,7 +78,7 @@ generic
     EXAMPLE_LANE_WITH_START_CHAR        : integer   := 0;
     EXAMPLE_WORDS_IN_BRAM               : integer   := 512;
     EXAMPLE_SIM_GTRESET_SPEEDUP         : string    := "TRUE";
-    STABLE_CLOCK_PERIOD                 : integer   := 10; 
+    STABLE_CLOCK_PERIOD                 : integer   := 8;
     EXAMPLE_USE_CHIPSCOPE               : integer   := 0
 );
 port
@@ -87,6 +87,7 @@ port
     Q0_CLK0_GTREFCLK_PAD_P_IN           : in   std_logic;
     GTREFCLK                            : out  std_logic_vector(2 downto 0);
     drpclk_in_i                         : in   std_logic;
+    SOFT_RESET                          : in   std_logic;
 
     LINK1_UP                            : out  std_logic_vector(31 downto 0);
     ERROR1_COUNT                        : out  std_logic_vector(31 downto 0);
@@ -99,23 +100,13 @@ port
     RXP_IN                              : in   std_logic_vector(2 downto 0);
     TXN_OUT                             : out  std_logic_vector(2 downto 0);
     TXP_OUT                             : out  std_logic_vector(2 downto 0)
-    
 );
 
 
 end sfpgtx_exdes;
-    
+
 architecture RTL of sfpgtx_exdes is
-    attribute DowngradeIPIdentifiedWarnings: string;
-    attribute DowngradeIPIdentifiedWarnings of RTL : architecture is "yes";
 
-    attribute CORE_GENERATION_INFO : string;
-    attribute CORE_GENERATION_INFO of RTL : architecture is "sfpgtx,gtwizard_v3_5,{protocol_file=aurora_8b10b_single_lane_2byte}";
-
---**************************Component Declarations*****************************
-
-
-    
 component sfpgtx_support
 generic
 (
@@ -1237,20 +1228,12 @@ tied_to_ground_vec_i                         <= x"0000000000000000";
 tied_to_vcc_i                                <= '1';
 tied_to_vcc_vec_i                            <= "11111111";
 
-    
-  
-    
-  
-    
-  
-    
 q0_clk0_refclk_i                             <= '0';
-    ----------------------------- The GT Wrapper -----------------------------
-    
-    -- Use the instantiation template in the example directory to add the GT wrapper to your design.
-    -- In this example, the wrapper is wired up for basic operation with a frame generator and frame 
-    -- checker. The GTs will reset, then attempt to align and transmit data. If channel bonding is 
-    -- enabled, bonding should occur after alignment.
+----------------------------- The GT Wrapper -----------------------------
+-- Use the instantiation template in the example directory to add the GT wrapper to your design.
+-- In this example, the wrapper is wired up for basic operation with a frame generator and frame
+-- checker. The GTs will reset, then attempt to align and transmit data. If channel bonding is
+-- enabled, bonding should occur after alignment.
 
     
     sfpgtx_support_i : sfpgtx_support
@@ -1264,8 +1247,8 @@ q0_clk0_refclk_i                             <= '0';
         SOFT_RESET_TX_IN                =>      soft_reset_i,
         SOFT_RESET_RX_IN                =>      soft_reset_i,
         DONT_RESET_ON_DATA_ERROR_IN     =>      tied_to_ground_i,
-    Q0_CLK0_GTREFCLK_PAD_N_IN => Q0_CLK0_GTREFCLK_PAD_N_IN,
-    Q0_CLK0_GTREFCLK_PAD_P_IN => Q0_CLK0_GTREFCLK_PAD_P_IN,
+        Q0_CLK0_GTREFCLK_PAD_N_IN       => Q0_CLK0_GTREFCLK_PAD_N_IN,
+        Q0_CLK0_GTREFCLK_PAD_P_IN       => Q0_CLK0_GTREFCLK_PAD_P_IN,
         GT0_TX_FSM_RESET_DONE_OUT       =>      gt0_txfsmresetdone_i,
         GT0_RX_FSM_RESET_DONE_OUT       =>      gt0_rxfsmresetdone_i,
         GT0_DATA_VALID_IN               =>      gt0_track_data_i,
@@ -2008,7 +1991,7 @@ gt2_drpdi_i <= (others => '0');
 gt2_drpen_i <= '0';
 gt2_drpwe_i <= '0';
 
-  soft_reset_i <= tied_to_ground_i;
+soft_reset_i <= SOFT_RESET;
 
 end RTL;
 
