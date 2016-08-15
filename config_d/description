@@ -233,6 +233,7 @@ FMC         FMC Block Status
     FMC_CLK0        FMC CLK0 clock freq
     FMC_CLK1        FMC CLK1 clock freq
     SOFT_RESET      GTX Soft Reset
+    EXT_CLK         External clock freq
 
 SFP         SFP Block Status
     LINK1_UP        GTX-1 link status

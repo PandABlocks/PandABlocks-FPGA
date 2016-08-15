@@ -93,6 +93,10 @@ port (
     FMC_CLK1_M2C_P      : in    std_logic;
     FMC_CLK1_M2C_N      : in    std_logic;
 
+    -- External Differential Clock (via front panel SMA)
+    EXTCLK_P            : in    std_logic;
+    EXTCLK_N            : in    std_logic;
+
     -- Slow Controller Serial interface
     SPI_SCLK_O          : out std_logic;
     SPI_DAT_O           : out std_logic;
@@ -239,6 +243,7 @@ signal clocks_a             : std_logic_vector(0 downto 0);
 signal clocks_b             : std_logic_vector(0 downto 0);
 signal clocks_c             : std_logic_vector(0 downto 0);
 signal clocks_d             : std_logic_vector(0 downto 0);
+signal extclk               : std_logic;
 
 signal bits_zero            : std_logic_vector(0 downto 0);
 signal bits_one             : std_logic_vector(0 downto 0);
@@ -295,6 +300,7 @@ signal float32_3            : std_logic_vector(31 downto 0);
 
 begin
 
+-- Enable SFP_1 and SFP_2
 SFP_TxDis <= "00";
 
 -- Internal clocks and resets
@@ -483,8 +489,6 @@ LVDSOUT_PAD_O <= lvdsout_val;
 ---------------------------------------------------------------------------
 -- 5-Input LUT
 ---------------------------------------------------------------------------
-LUT_GEN : IF (LUT_INST = true) GENERATE
-
 lut_inst : entity work.lut_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -498,13 +502,9 @@ port map (
     out_o               => lut_val
 );
 
-END GENERATE;
-
 ---------------------------------------------------------------------------
 -- SRGATE
 ---------------------------------------------------------------------------
-SRGATE_GEN : IF (SRGATE_INST = true) GENERATE
-
 srgate_inst : entity work.srgate_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -518,13 +518,9 @@ port map (
     out_o               => srgate_out
 );
 
-END GENERATE;
-
 ---------------------------------------------------------------------------
 -- DIVIDER
 ---------------------------------------------------------------------------
-DIV_GEN : IF (DIV_INST = true) GENERATE
-
 div_inst : entity work.div_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -540,13 +536,9 @@ port map (
     outn_o              => div_outn
 );
 
-END GENERATE;
-
 ---------------------------------------------------------------------------
 -- PULSE GENERATOR
 ---------------------------------------------------------------------------
-PULS_GEN : IF (PULS_INST = true) GENERATE
-
 pulse_inst : entity work.pulse_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -561,13 +553,9 @@ port map (
     perr_o              => pulse_perr
 );
 
-END GENERATE;
-
 ---------------------------------------------------------------------------
 -- SEQEUENCER
 ---------------------------------------------------------------------------
-SEQ_GEN : IF (SEQ_INST = true) GENERATE
-
 seq_inst : entity work.sequencer_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -586,8 +574,6 @@ port map (
     outf_o              => seq_outf,
     active_o            => seq_active
 );
-
-END GENERATE;
 
 ---------------------------------------------------------------------------
 -- INENC (Encoder Inputs)
@@ -676,8 +662,6 @@ port map (
 ---------------------------------------------------------------------------
 -- COUNTER/TIMER
 ---------------------------------------------------------------------------
-COUNTER_GEN : IF (COUNTER_INST = true) GENERATE
-
 counter_inst : entity work.counter_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -692,8 +676,6 @@ port map (
     carry_o             => counter_carry,
     out_o               => counter_out
 );
-
-END GENERATE;
 
 ---------------------------------------------------------------------------
 -- ADDER
@@ -780,8 +762,6 @@ port map (
 ---------------------------------------------------------------------------
 -- POSITION GENERATION
 ---------------------------------------------------------------------------
-PGEN_GEN : IF (PGEN_INST = true) GENERATE
-
 pgen_inst : entity work.pgen_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -801,8 +781,6 @@ port map (
     sysbus_i            => sysbus,
     out_o               => pgen_out
 );
-
-END GENERATE;
 
 ---------------------------------------------------------------------------
 -- TABLE DMA ENGINE
@@ -1041,6 +1019,9 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
     port map (
         clk_i               => FCLK_CLK0,
         reset_i             => FCLK_RESET0,
+
+        EXTCLK_P            => EXTCLK_P,
+        EXTCLK_N            => EXTCLK_N,
 
         mem_addr_i          => mem_addr,
         mem_cs_i            => mem_cs(FMC_CS),

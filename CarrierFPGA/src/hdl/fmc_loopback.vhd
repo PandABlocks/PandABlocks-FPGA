@@ -37,6 +37,9 @@ port (
     mem_wstb_i          : in  std_logic;
     mem_dat_i           : in  std_logic_vector(31 downto 0);
     mem_dat_o           : out std_logic_vector(31 downto 0);
+    -- External Differential Clock (via front panel SMA)
+    EXTCLK_P            : in    std_logic;
+    EXTCLK_N            : in    std_logic;
     -- LA I/O
     FMC_PRSNT           : in    std_logic;
     FMC_LA_P            : inout std_logic_vector(33 downto 0);
@@ -74,6 +77,7 @@ signal FMC_CLK0_M2C     : std_logic;
 signal FMC_CLK1_M2C     : std_logic;
 signal FREQ_VAL         : std32_array(3 downto 0);
 signal GTREFCLK         : std_logic;
+signal EXTCLK           : std_logic;
 signal FMC_PRSNT_DW     : std_logic_vector(31 downto 0);
 signal SOFT_RESET       : std_logic;
 
@@ -195,6 +199,20 @@ port map (
     IB          => FMC_CLK1_M2C_N
 );
 
+--------------------------------------------------------------------------
+-- External Clock interface (for testing)
+--------------------------------------------------------------------------
+IBUFGDS_EXT : IBUFGDS
+generic map (
+    DIFF_TERM   => FALSE,
+    IOSTANDARD  => "LVDS_25"
+)
+port map (
+    O           => EXTCLK,
+    I           => EXTCLK_P,
+    IB          => EXTCLK_N
+);
+
 ---------------------------------------------------------------------------
 -- FMC Clocks Frequency Counter
 ---------------------------------------------------------------------------
@@ -202,7 +220,7 @@ port map (
 test_clocks(0) <= GTREFCLK;
 test_clocks(1) <= FMC_CLK0_M2C;
 test_clocks(2) <= FMC_CLK1_M2C;
-test_clocks(3) <= '0';
+test_clocks(3) <= EXTCLK;
 
 freq_counter_inst : entity work.freq_counter
 port map (
@@ -233,6 +251,7 @@ port map (
     GTREFCLK                    => FREQ_VAL(0),
     FMC_CLK0                    => FREQ_VAL(1),
     FMC_CLK1                    => FREQ_VAL(2),
+    EXT_CLK                     => FREQ_VAL(3),
     SOFT_RESET                  => open,
     SOFT_RESET_WSTB             => SOFT_RESET,
     -- Memory Bus Interface

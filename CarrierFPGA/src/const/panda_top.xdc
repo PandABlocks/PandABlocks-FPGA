@@ -60,6 +60,14 @@ set_property PACKAGE_PIN L7  [get_ports {TTLOUT_PAD_O[8]}];
 set_property PACKAGE_PIN K2  [get_ports {TTLOUT_PAD_O[9]}];
 
 # -------------------------------------------------------------------
+# External Clock Constraints
+# -------------------------------------------------------------------
+set_property PACKAGE_PIN Y18  [get_ports {EXTCLK_P}];
+set_property PACKAGE_PIN Y19  [get_ports {EXTCLK_N}];
+
+create_clock -period 8.000    [get_ports EXTCLK_P]
+
+# -------------------------------------------------------------------
 # Slow Controller SPI Interface)
 # -------------------------------------------------------------------
 set_property PACKAGE_PIN K4 [get_ports {SPI_SCLK_O}];
@@ -170,7 +178,8 @@ set_clock_groups -asynchronous \
     -group clk_fpga_0 \
     -group FMC_CLK0_M2C_P \
     -group FMC_CLK1_M2C_P \
-    -group [get_clocks -filter {NAME =~ *TXOUTCLK}]
+    -group [get_clocks -filter {NAME =~ *TXOUTCLK}] \
+    -group EXTCLK_P
 
 # -------------------------------------------------------------------
 # FMC MGTs - Bank 112
@@ -213,5 +222,6 @@ set_property IOSTANDARD LVCMOS33 [get_ports -of_objects [get_iobanks 13]];
 # -------------------------------------------------------------------
 # Override Differential Pairs' IOSTANDARD
 # -------------------------------------------------------------------
-set_property IOSTANDARD LVDS [get_ports FMC_CLK0_M2C_P]
-set_property IOSTANDARD LVDS [get_ports FMC_CLK1_M2C_P]
+set_property IOSTANDARD LVDS    [get_ports FMC_CLK0_M2C_P]
+set_property IOSTANDARD LVDS    [get_ports FMC_CLK1_M2C_P]
+set_property IOSTANDARD LVDS_25 [get_ports EXTCLK_P]

@@ -298,6 +298,7 @@ FMC         26
     FMC_CLK0        6
     FMC_CLK1        7
     SOFT_RESET      8
+    EXT_CLK         9
 
 SFP         27
     LINK1_UP        0

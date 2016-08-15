@@ -1,6 +1,24 @@
+--------------------------------------------------------------------------------
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : REG block is a special block providing access to TOP level
+--                status information.
+--                This block is mapped onto a page on address space, but is
+--                handled specially by tcp server.
+--
+--------------------------------------------------------------------------------
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+
+library unisim;
+use unisim.vcomponents.all;
 
 library work;
 use work.support.all;
@@ -30,13 +48,13 @@ end reg_top;
 
 architecture rtl of reg_top is
 
-signal BIT_READ_RST           : std_logic;
-signal BIT_READ_RSTB          : std_logic;
-signal BIT_READ_VALUE         : std_logic_vector(31 downto 0);
-signal POS_READ_RST           : std_logic;
-signal POS_READ_RSTB          : std_logic;
-signal POS_READ_VALUE         : std_logic_vector(31 downto 0);
-signal POS_READ_CHANGES       : std_logic_vector(31 downto 0);
+signal BIT_READ_RST         : std_logic;
+signal BIT_READ_RSTB        : std_logic;
+signal BIT_READ_VALUE       : std_logic_vector(31 downto 0);
+signal POS_READ_RST         : std_logic;
+signal POS_READ_RSTB        : std_logic;
+signal POS_READ_VALUE       : std_logic_vector(31 downto 0);
+signal POS_READ_CHANGES     : std_logic_vector(31 downto 0);
 
 signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
 
@@ -45,9 +63,9 @@ begin
 -- Integer conversion for address.
 mem_addr <= to_integer(unsigned(mem_addr_i));
 
---
--- Control System Interface
---
+--------------------------------------------------------------------------
+-- Control System Register Write Interface
+--------------------------------------------------------------------------
 REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -73,15 +91,17 @@ begin
     end if;
 end process;
 
+-- System Bus and Position bus fields are read sequentially, and read strobe
+-- is used to increment the field index
 BIT_READ_RSTB <= '1' when (mem_cs_i = '1' and mem_rstb_i = '1' and
                  mem_addr = REG_BIT_READ_VALUE) else '0';
 
 POS_READ_RSTB <= '1' when (mem_cs_i = '1' and mem_rstb_i = '1' and
                  mem_addr = REG_POS_READ_VALUE) else '0';
 
---
+--------------------------------------------------------------------------
 -- Status Register Read
---
+--------------------------------------------------------------------------
 REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -110,9 +130,9 @@ begin
     end if;
 end process;
 
---
--- Instantiate
---
+--------------------------------------------------------------------------
+-- Instantiate Special REG* block
+--------------------------------------------------------------------------
 reg_inst : entity work.reg
 port map (
     clk_i               => clk_i,

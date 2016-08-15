@@ -31,6 +31,7 @@ port (
     FMC_CLK1       : in  std_logic_vector(31 downto 0);
     SOFT_RESET       : out std_logic_vector(31 downto 0);
     SOFT_RESET_WSTB  : out std_logic;
+    EXT_CLK       : in  std_logic_vector(31 downto 0);
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
@@ -99,6 +100,8 @@ begin
                     mem_dat_o <= FMC_CLK0;
                 when FMC_FMC_CLK1 =>
                     mem_dat_o <= FMC_CLK1;
+                when FMC_EXT_CLK =>
+                    mem_dat_o <= EXT_CLK;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;

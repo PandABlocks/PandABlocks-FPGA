@@ -288,6 +288,7 @@ FMC
     FMC_CLK0        read
     FMC_CLK1        read
     SOFT_RESET      write       action
+    EXT_CLK         read
 
 SFP
     LINK1_UP        read

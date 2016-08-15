@@ -318,6 +318,7 @@ constant FMC_GTREFCLK : natural := 5;
 constant FMC_FMC_CLK0 : natural := 6;
 constant FMC_FMC_CLK1 : natural := 7;
 constant FMC_SOFT_RESET : natural := 8;
+constant FMC_EXT_CLK : natural := 9;
 
 -- SFP Block:
 constant SFP_LINK1_UP : natural := 0;
