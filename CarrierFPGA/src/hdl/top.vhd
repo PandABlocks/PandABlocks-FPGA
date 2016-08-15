@@ -266,9 +266,6 @@ signal slowctrl_busy        : std_logic;
     
 signal enc0_ctrl_pad        : std_logic_vector(11 downto 0);
 
-signal slow_tlp_registers   : slow_packet;
-signal slow_tlp_leds        : slow_packet;
-
 signal rdma_req             : std_logic_vector(5 downto 0);
 signal rdma_ack             : std_logic_vector(5 downto 0);
 signal rdma_done            : std_logic;
@@ -879,7 +876,7 @@ port map (
 ---------------------------------------------------------------------------
 -- SLOW CONTROLLER FPGA
 ---------------------------------------------------------------------------
-slow_registers_inst : entity work.slow_registers
+slow_inst : entity work.slow_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -887,24 +884,14 @@ port map (
     mem_cs_i            => mem_cs,
     mem_wstb_i          => mem_wstb,
     mem_dat_i           => mem_odat,
-    slow_tlp_o          => slow_tlp_registers
-);
-
-slow_controller_inst : entity work.slow_controller
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(SLOW_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(SLOW_CS),
+    ttlin_i             => ttlin_val,
+    ttlout_i            => ttlout_val,
+    outenc_conn_i       => outenc_conn,
     spi_sclk_o          => SPI_SCLK_O,
     spi_dat_o           => SPI_DAT_O,
     spi_sclk_i          => SPI_SCLK_I,
     spi_dat_i           => SPI_DAT_I,
-    registers_tlp_i     => slow_tlp_registers,
-    leds_tlp_i          => slow_tlp_leds,
     busy_o              => slowctrl_busy,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
     DCARD_MODE          => DCARD_MODE
@@ -964,20 +951,6 @@ port map (
     -- Bus Outputs
     bitbus_o        => sysbus,
     posbus_o        => posbus
-);
-
----------------------------------------------------------------------------
--- SLOW FPGA Misc Communication (LED, Custom)
----------------------------------------------------------------------------
-led_management_inst : entity work.led_management
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-    -- Block Input and Outputs
-    ttlin_i             => ttlin_val,
-    ttlout_i            => ttlout_val,
-    outenc_conn_i       => outenc_conn,
-    slow_tlp_o          => slow_tlp_leds
 );
 
 ---------------------------------------------------------------------------
