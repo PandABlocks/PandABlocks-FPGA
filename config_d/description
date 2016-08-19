@@ -234,6 +234,7 @@ FMC         FMC Block Status
     FMC_CLK1        FMC CLK1 clock freq
     SOFT_RESET      GTX Soft Reset
     EXT_CLK         External clock freq
+    LOOP_PERIOD     Loopback toggle period for IO
 
 SFP         SFP Block Status
     LINK1_UP        GTX-1 link status

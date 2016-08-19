@@ -9,51 +9,47 @@
 #  Step 6. Generates devicetree.dtb file and copies to TFTP server
 
 #####################################################################
-# Modify accordingly following lines
-# Everything is build under $(PWD)/$(OUT_DIR)
-TAR_REPO = /dls_sw/FPGA/Xilinx/OSLinux/tar-balls
-VIVADO_VER = 2015.1
-BOARD = pzed-z7030
-OUT_DIR = output
-IMAGE_DIR = images
-HDL_DIR = ./src/hdl
-
-VIVADO = source /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh > /dev/null
-
 GIT_VERSION = $(shell git describe --abbrev=8 --always)
 
-include ../VERSION
+RUNVIVADO = source $(VIVADO) && vivado
+
+include $(TOP)/VERSION
+
+SRCDIR = $(TOP)/CarrierFPGA
+HDLDIR = $(TOP)/CarrierFPGA/src/hdl
 
 #####################################################################
 # Project related files (DON'T TOUCH)
 
-PS_DIR   = $(OUT_DIR)/panda_ps/panda_ps.srcs
-IP_CORES = $(OUT_DIR)/ip_repo
+PS_DIR   = $(OUTDIR)/panda_ps/panda_ps.srcs
+IP_CORES = $(OUTDIR)/ip_repo
 PS_CORE  = $(PS_DIR)/sources_1/bd/panda_ps/hdl/panda_ps.vhd
-FPGA_BIT = $(OUT_DIR)/panda_top.bit
-SDK_EXPORT = $(OUT_DIR)/panda_top/panda_top.sdk
+FPGA_BIT = $(OUTDIR)/panda_top.bit
+SDK_EXPORT = $(OUTDIR)/panda_top/panda_top.sdk
 FSBL_ELF   = $(SDK_EXPORT)/fsbl/Debug/fsbl.elf
 DEVTREE_DTS = $(SDK_EXPORT)/device_tree_bsp_0/system.dts
 DEVTREE_DTB = $(SDK_EXPORT)/device_tree_bsp_0/devicetree.dtb
 BOOT_FILE = $(IMAGE_DIR)/boot.bin
 
-TOP_FILE = $(HDL_DIR)/top.vhd
-VERSION_FILE = $(HDL_DIR)/defines/panda_version.vhd
+TOP_FILE = $(HDLDIR)/top.vhd
+VERSION_FILE = $(HDLDIR)/defines/panda_version.vhd
 
 #####################################################################
 # BUILD TARGETS includes HW and SW
 .PHONY: clean VERSION
 
-all: VERSION $(OUT_DIR) $(IP_CORES) $(PS_CORE) $(FPGA_BIT) $(SDK_EXPORT) $(DEVTREE_DTB) $(BOOT_FILE)
-devicetree: $(DEVTREE_DTB)
-boot: $(BOOT_FILE)
+default : fpga
+fpga : panda_top.bit
+devicetree : $(DEVTREE_DTB)
+boot : $(BOOT_FILE)
+.PHONY: default fpga devicetree boot
 
 #####################################################################
 # HW Projects Build
 
 clean :
 	rm -f $(VERSION_FILE)
-	rm -rf $(OUT_DIR)
+	rm -rf $(OUTDIR)
 	find . -iname transcript -exec rm -f {} \;
 	find . -iname *.wlf -exec rm -f {} \;
 	find . -iname work -exec rm -rf {} \;
@@ -66,41 +62,36 @@ VERSION :
 	echo 'package panda_version is' >> $(VERSION_FILE)
 	echo -n 'constant FPGA_VERSION: std_logic_vector(31 downto 0)' \ >> $(VERSION_FILE)
 	echo ' := X"$(FIRMWARE)";' >> $(VERSION_FILE)
-	echo -n 'constant FPGA_BUILD: std_logic_vector(31 downto 0)' \ >> $(VERSION_FILE)
-	echo ' := X"$(FIRMWARE)";' >> $(VERSION_FILE)
-#	echo ' := X"$(GIT_VERSION)";' >> $(VERSION_FILE)
 	echo 'end panda_version;' >> $(VERSION_FILE)
 
-$(OUT_DIR) :
-	mkdir $(OUT_DIR)
-
-# STEP-0 ##########################################################
-# Build IP CORES
+###########################################################
+# Build FPGA
 
 $(IP_CORES) :
-	cd $(OUT_DIR) && \
-	    $(VIVADO) && vivado -mode batch -source ../build_ips.tcl
-
-# STEP-1 ##########################################################
-# Build PS Core Block Design
+	$(RUNVIVADO) -mode batch -source $(SRCDIR)/build_ips.tcl \
+	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR)
 
 $(PS_CORE) :
-	cd $(OUT_DIR) && \
-	    $(VIVADO) && vivado -mode batch -source ../build_ps.tcl
+	$(RUNVIVADO) -mode batch -source $(SRCDIR)/build_ps.tcl \
+	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR)
 
-# STEP-2 ##########################################################
-# Build top-level design
+panda_top.bit : VERSION $(IP_CORES) $(PS_CORE) $(IP_CORES)
+	$(RUNVIVADO) -mode batch -source $(SRCDIR)/build_top.tcl \
+	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR) \
+		-tclargs $(FMC_DESIGN) -tclargs $(SFP_DESIGN)
 
-$(FPGA_BIT):
-	rm -rf $(OUT_DIR)/panda_top
-	cd $(OUT_DIR) && \
-	    $(VIVADO) && vivado -mode batch -source ../build_top.tcl
 
 #####################################################################
 # SW Projects Build
 #
 # Build HW Platform, FSBL and Device Tree
 #
+# Modify accordingly following lines
+# Everything is build under $(PWD)/$(OUTDIR)
+TAR_REPO = /dls_sw/FPGA/Xilinx/OSLinux/tar-balls
+BOARD = pzed-z7030
+IMAGE_DIR = images
+
 
 #########################################################################
 # DEVICE_TREE:
@@ -139,7 +130,7 @@ sw_clean:
 # Build all XSDK projects for FSBL and Device Tree
 
 $(SDK_EXPORT): $(DEVTREE_BSP)/$(DEVTREE_NAME)
-	$(VIVADO) && \
+	$(RUNVIVADO) && \
 	    xsdk -batch build_xsdk.tcl
 
 
@@ -171,7 +162,7 @@ $(IMAGE_DIR):
 	mkdir $(IMAGE_DIR)
 
 $(BOOT_FILE) : $(IMAGE_DIR)
-	$(VIVADO) && \
+	$(RUNVIVADO) && \
 	    bootgen -w -image configs/boot.bif -o i $(IMAGE_DIR)/boot.bin
 	cp ./output/panda_top/panda_top.sdk/fsbl/Release/fsbl.elf $(IMAGE_DIR)
 	cp ./output/panda_top.bit $(IMAGE_DIR)

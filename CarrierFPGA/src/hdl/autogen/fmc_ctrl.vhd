@@ -32,6 +32,8 @@ port (
     SOFT_RESET       : out std_logic_vector(31 downto 0);
     SOFT_RESET_WSTB  : out std_logic;
     EXT_CLK       : in  std_logic_vector(31 downto 0);
+    LOOP_PERIOD       : out std_logic_vector(31 downto 0);
+    LOOP_PERIOD_WSTB  : out std_logic;
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
@@ -59,14 +61,21 @@ begin
         if (reset_i = '1') then
             SOFT_RESET <= (others => '0');
             SOFT_RESET_WSTB <= '0';
+            LOOP_PERIOD <= (others => '0');
+            LOOP_PERIOD_WSTB <= '0';
         else
             SOFT_RESET_WSTB <= '0';
+            LOOP_PERIOD_WSTB <= '0';
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
                 if (mem_addr = FMC_SOFT_RESET) then
                     SOFT_RESET <= mem_dat_i;
                     SOFT_RESET_WSTB <= '1';
+                end if;
+                if (mem_addr = FMC_LOOP_PERIOD) then
+                    LOOP_PERIOD <= mem_dat_i;
+                    LOOP_PERIOD_WSTB <= '1';
                 end if;
 
             end if;

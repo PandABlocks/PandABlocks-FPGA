@@ -1,26 +1,13 @@
-## Create an in-memory project
-#create_project -in_memory -part xc7z030sbg485-1
-#
-## Set the directory path for the new project
-#set proj_dir [get_property directory [current_project]]
-#
-## Set project properties
-#set_property "board_part" "em.avnet.com:picozed_7030:part0:1.0" [current_project]
-#set_property "default_lib" "xil_defaultlib" [current_project]
-#set_property "simulator_language" "Mixed" [current_project]
-#set_property "target_language" "VHDL" [current_project]
+# Source directory
+set SRCDIR [lindex $argv 0]
+set_param board.repoPaths $SRCDIR/configs
 
-#
-# This script generates PS part of the firmware based as Zynq
-# Block design
-#
+# Build directory
+set origin_dir [lindex $argv 1]
 
-# Set the reference directory to where the script is
-#set origin_dir [file dirname [info script]]
-set origin_dir .
-
-# Set User Repository for PicoZed Board Definition File
-set_param board.repoPaths ../configs
+# FMC and SFP Application Names are passed as arguments
+set FMC_DESIGN [lindex $argv 2]
+set SFP_DESIGN [lindex $argv 3]
 
 # Create project
 create_project -force panda_top $origin_dir/panda_top -part xc7z030sbg485-1
@@ -49,7 +36,11 @@ set_msg_config -id {[Synth 8-2644]} -suppress
 #
 # Read design files
 read_bd   panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
-add_files ../src/hdl/
+add_files $SRCDIR/src/hdl/autogen
+add_files $SRCDIR/src/hdl/defines
+add_files $SRCDIR/src/hdl/base
+add_files $SRCDIR/src/hdl/FMC/$FMC_DESIGN/hdl
+add_files $SRCDIR/src/hdl/SFP/$SFP_DESIGN/hdl
 
 # Import IPs
 add_files -norecurse ./ip_repo/pulse_queue/pulse_queue.xci
@@ -59,10 +50,11 @@ add_files -norecurse ./ip_repo/pcomp_dma_fifo/pcomp_dma_fifo.xci
 add_files -norecurse ./ip_repo/fmcgtx/fmcgtx.xci
 add_files -norecurse ./ip_repo/sfpgtx/sfpgtx.xci
 add_files -norecurse ./ip_repo/ila_32x8K/ila_32x8K.xci
-#add_files -norecurse ./ip_repo/ila_128x8K/ila_128x8K.xci
 
 # Read constraint files
-read_xdc  ../src/const/panda_top.xdc
+read_xdc $SRCDIR/src/const/panda_top.xdc
+read_xdc $SRCDIR/src/hdl/FMC/$FMC_DESIGN/const/fmc.xdc
+read_xdc $SRCDIR/src/hdl/SFP/$SFP_DESIGN/const/sfp.xdc
 
 # Report IP Status before starting P&R
 report_ip_status

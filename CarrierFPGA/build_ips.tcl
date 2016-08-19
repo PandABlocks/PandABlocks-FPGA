@@ -1,6 +1,9 @@
-set origin_dir ./ip_repo
+# Source directory
+set SRCDIR [lindex $argv 0]
+set_param board.repoPaths $SRCDIR/configs
 
-set_param board.repoPaths ../configs
+# Build directory
+set origin_dir [lindex $argv 1]/ip_repo
 
 # Create Managed IP Project
 create_project managed_ip_project $origin_dir/managed_ip_project -part xc7z030sbg485-1 -ip

@@ -26,7 +26,7 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity fmc_loopback is
+entity fmc_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -56,30 +56,43 @@ port (
     GTREFCLK_P          : in    std_logic;
     GTREFCLK_N          : in    std_logic
 );
-end fmc_loopback;
+end fmc_top;
 
-architecture rtl of fmc_loopback is
+architecture rtl of fmc_top is
 
-signal la_counter       : unsigned(16 downto 0) := (others => '0');
-signal clock_en         : std_logic;
-signal fmc_din_p        : std_logic_vector(16 downto 0);
-signal fmc_din_n        : std_logic_vector(16 downto 0);
-signal fmc_din_p_pad    : std_logic_vector(16 downto 0);
-signal fmc_din_n_pad    : std_logic_vector(16 downto 0);
-signal la_p_compare     : std_logic_vector(16 downto 0);
-signal la_n_compare     : std_logic_vector(16 downto 0);
-signal test_clocks      : std_logic_vector(3 downto 0);
-signal LINK_UP          : std_logic_vector(31 downto 0);
-signal ERROR_COUNT      : std_logic_vector(31 downto 0);
-signal LA_P_ERROR       : std_logic_vector(31 downto 0);
-signal LA_N_ERROR       : std_logic_vector(31 downto 0);
-signal FMC_CLK0_M2C     : std_logic;
-signal FMC_CLK1_M2C     : std_logic;
-signal FREQ_VAL         : std32_array(3 downto 0);
-signal GTREFCLK         : std_logic;
-signal EXTCLK           : std_logic;
-signal FMC_PRSNT_DW     : std_logic_vector(31 downto 0);
-signal SOFT_RESET       : std_logic;
+signal probe0               : std_logic_vector(31 downto 0);
+signal clock_en             : std_logic;
+signal fmc_din_p            : std_logic_vector(16 downto 0);
+signal fmc_din_n            : std_logic_vector(16 downto 0);
+signal fmc_din_p_pad        : std_logic_vector(16 downto 0);
+signal fmc_din_n_pad        : std_logic_vector(16 downto 0);
+signal la_p_compare         : std_logic_vector(16 downto 0);
+signal la_n_compare         : std_logic_vector(16 downto 0);
+signal test_clocks          : std_logic_vector(3 downto 0);
+signal LINK_UP              : std_logic_vector(31 downto 0);
+signal ERROR_COUNT          : std_logic_vector(31 downto 0);
+signal LA_P_ERROR           : std_logic_vector(31 downto 0);
+signal LA_N_ERROR           : std_logic_vector(31 downto 0);
+signal FMC_CLK0_M2C         : std_logic;
+signal FMC_CLK1_M2C         : std_logic;
+signal FREQ_VAL             : std32_array(3 downto 0);
+signal GTREFCLK             : std_logic;
+signal EXTCLK               : std_logic;
+signal FMC_PRSNT_DW         : std_logic_vector(31 downto 0);
+signal SOFT_RESET           : std_logic;
+signal LOOP_PERIOD_WSTB     : std_logic;
+signal LOOP_PERIOD          : std_logic_vector(31 downto 0);
+
+signal pbrs_data            : std_logic_vector(16 downto 0) := X"5555"&'0';
+signal pbrs_data_prev       : std_logic_vector(16 downto 0);
+
+attribute MARK_DEBUG        : string;
+attribute MARK_DEBUG of probe0  : signal is "true";
+
+attribute IOB               : string;
+attribute IOB of pbrs_data  : signal is "true";
+attribute IOB of fmc_din_p  : signal is "true";
+attribute IOB of fmc_din_n  : signal is "true";
 
 begin
 
@@ -87,48 +100,21 @@ begin
 frame_presc : entity work.prescaler
 port map (
     clk_i       => clk_i,
-    reset_i     => reset_i,
-    PERIOD      => X"0000_0004",
+    reset_i     => LOOP_PERIOD_WSTB,
+    PERIOD      => LOOP_PERIOD,
     pulse_o     => clock_en
 );
 
-INOUT_PADS : FOR I IN 0 TO 16 GENERATE
+-- Bottom half is output
+FMC_LA_P(16 downto 0) <= pbrs_data;
+FMC_LA_N(16 downto 0) <= pbrs_data;
 
--- LA[16:0] are outputs
-iobuf_dop : iobuf
-port map (
-    I  => la_counter(I),
-    O  => open,
-    IO => FMC_LA_P(I),
-    T  => '0'
-);
+-- Upper half is input
+FMC_LA_P(33 downto 17) <= (others => 'Z');
+FMC_LA_N(33 downto 17) <= (others => 'Z');
+fmc_din_p_pad <= FMC_LA_P(33 downto 17);
+fmc_din_n_pad <= FMC_LA_N(33 downto 17);
 
-iobuf_don : iobuf
-port map (
-    I  => la_counter(I),
-    O  => open,
-    IO => FMC_LA_N(I),
-    T  => '0'
-);
-
--- LA[33:17] are inputs
-iobuf_dip : iobuf
-port map (
-    I  => '0',
-    O  => fmc_din_p_pad(I),
-    IO => FMC_LA_P(I + 17),
-    T  => '1'
-);
-
-iobuf_din : iobuf
-port map (
-    I  => '0',
-    O  => fmc_din_n_pad(I),
-    IO => FMC_LA_N(I + 17),
-    T  => '1'
-);
-
-END GENERATE;
 
 ---------------------------------------------------------------------------
 -- LA Pins loopback Test
@@ -137,18 +123,19 @@ process(clk_i)
 begin
     if rising_edge(clk_i) then
         -- Register and pack into IOB
-        fmc_din_n <= fmc_din_n_pad;
         fmc_din_p <= fmc_din_p_pad;
+        fmc_din_n <= fmc_din_n_pad;
+
+        pbrs_data_prev <= pbrs_data;
 
         -- Relax loopback timing for signal travelling out and back in.
         if (clock_en = '1') then
-            -- Free running counter when enabled.
-            la_counter <= la_counter + 1;
-
+            -- Shift test pattern
+            pbrs_data <= pbrs_data(15 downto 0) & pbrs_data(16);
             -- Comparator on LA lines individually, and set '1' for un-matching
             -- bits.
-            la_p_compare <= fmc_din_p xor std_logic_vector(la_counter);
-            la_n_compare <= fmc_din_n xor std_logic_vector(la_counter);
+            la_p_compare <= fmc_din_p xor pbrs_data_prev;
+            la_n_compare <= fmc_din_n xor pbrs_data_prev;
         end if;
     end if;
 end process;
@@ -254,6 +241,8 @@ port map (
     EXT_CLK                     => FREQ_VAL(3),
     SOFT_RESET                  => open,
     SOFT_RESET_WSTB             => SOFT_RESET,
+    LOOP_PERIOD                 => LOOP_PERIOD,
+    LOOP_PERIOD_WSTB            => LOOP_PERIOD_WSTB,
     -- Memory Bus Interface
     mem_cs_i                    => mem_cs_i,
     mem_wstb_i                  => mem_wstb_i,
@@ -261,6 +250,20 @@ port map (
     mem_dat_i                   => mem_dat_i,
     mem_dat_o                   => mem_dat_o
 );
+
+--
+-- Chipscope
+--
+--ila_inst : ila_32x8K
+--port map (
+--    clk         => clk_i,
+--    probe0      => probe0
+--);
+--
+--probe0(0) <= clock_en;
+--probe0(15 downto 1) <= fmc_din_n(14 downto 0);
+--probe0(30 downto 16) <= pbrs_data_prev(14 downto 0);
+--probe0(31) <= '0';
 
 end rtl;
 

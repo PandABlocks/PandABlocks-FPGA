@@ -205,9 +205,10 @@ set_property LOC GTXE2_CHANNEL_X0Y3 \
 # -------------------------------------------------------------------
 # IOB Packing Constraints
 # -------------------------------------------------------------------
-set_property IOB true [get_cells -hierarchical la_counter_reg[*]]
-set_property IOB true [get_cells -hierarchical fmc_din_n_reg[*]]
-set_property IOB true [get_cells -hierarchical fmc_din_p_reg[*]]
+#set_property IOB true [get_cells -hierarchical pbrs_data_p[*]]
+#set_property IOB true [get_cells -hierarchical pbrs_data_n[*]]
+#set_property IOB true [get_cells -hierarchical fmc_din_p_reg[*]]
+#set_property IOB true [get_cells -hierarchical fmc_din_p_reg[*]]
 
 # -------------------------------------------------------------------
 # IOSTANDARD VCCOIO Constraints

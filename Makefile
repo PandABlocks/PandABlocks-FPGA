@@ -6,12 +6,12 @@ TOP := $(CURDIR)
 # Build defaults that can be overwritten by the CONFIG file if present
 
 BUILD_DIR = $(TOP)/build
+VIVADO = /dls_sw/FPGA/Xilinx/Vivado/2015.1/settings64.sh
 PYTHON = python2
 ARCH = arm
 CROSS_COMPILE = arm-xilinx-linux-gnueabi-
 BINUTILS_DIR = /dls_sw/FPGA/Xilinx/SDK/2015.1/gnu/arm/lin/bin
 KERNEL_DIR = $(error Define KERNEL_DIR before building driver)
-# DEFAULT_TARGETS = driver server sim_server docs zpkg
 DEFAULT_TARGETS = sim_server docs zpkg
 
 -include CONFIG
@@ -24,7 +24,7 @@ CC = $(CROSS_COMPILE)gcc
 SIM_SERVER_BUILD_DIR = $(BUILD_DIR)/sim_server
 DOCS_BUILD_DIR = $(BUILD_DIR)/html
 SLOW_FPGA_BUILD_DIR = $(BUILD_DIR)/SlowFPGA
-CARRIER_FPGA_BUILD_DIR = $(BUILD_DIR)/CarrierFPGA
+FPGA_BUILD_DIR = $(BUILD_DIR)/CarrierFPGA
 
 DRIVER_FILES := $(wildcard driver/*)
 SERVER_FILES := $(wildcard server/*)
@@ -36,65 +36,7 @@ endif
 default: $(DEFAULT_TARGETS)
 .PHONY: default
 
-
 export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
-
-# ------------------------------------------------------------------------------
-# # Kernel driver building
-# 
-# PANDA_KO = $(DRIVER_BUILD_DIR)/panda.ko
-# 
-# # Building kernel modules out of tree is a headache.  The best workaround is to
-# # link all the source files into the build directory.
-# DRIVER_BUILD_FILES := $(DRIVER_FILES:driver/%=$(DRIVER_BUILD_DIR)/%)
-# $(DRIVER_BUILD_FILES): $(DRIVER_BUILD_DIR)/%: driver/%
-# 	ln -s $$(readlink -e $<) $@
-# 
-# # The driver register header file needs to be built.
-# DRIVER_HEADER = $(DRIVER_BUILD_DIR)/panda_drv.h
-# $(DRIVER_HEADER): driver/panda_drv.py config_d/registers
-# 	$(PYTHON) $< >$@
-# 
-# $(PANDA_KO): $(DRIVER_BUILD_DIR) $(DRIVER_BUILD_FILES) $(DRIVER_HEADER)
-# 	$(MAKE) -C $(KERNEL_DIR) M=$< modules \
-#             ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE)
-# 	touch $@
-# 
-# 
-# driver: $(PANDA_KO)
-# .PHONY: driver
-# 
-
-# # ------------------------------------------------------------------------------
-# # Socket server
-# 
-# SERVER = $(SERVER_BUILD_DIR)/server
-# SIM_SERVER = $(SIM_SERVER_BUILD_DIR)/sim_server
-# SERVER_FILES := $(wildcard server/*)
-# 
-# $(SERVER): $(SERVER_BUILD_DIR) $(SERVER_FILES)
-# 	$(MAKE) -C $< -f $(TOP)/server/Makefile \
-#             VPATH=$(TOP)/server TOP=$(TOP) CC=$(CC)
-# 
-# # Two differences with building sim_server: we use the native compiler, not the
-# # cross-compiler, and we only build the sim_server target.
-# $(SIM_SERVER): $(SIM_SERVER_BUILD_DIR) $(SERVER_FILES)
-# 	$(MAKE) -C $< -f $(TOP)/server/Makefile \
-#             VPATH=$(TOP)/server TOP=$(TOP) sim_server
-# 
-# # Construction of simserver launch script.
-# SIMSERVER_SUBSTS += s:@@PYTHON@@:$(PYTHON):;
-# SIMSERVER_SUBSTS += s:@@BUILD_DIR@@:$(BUILD_DIR):;
-# 
-# simserver: simserver.in
-# 	sed '$(SIMSERVER_SUBSTS)' $< >$@
-# 	chmod +x $@
-# 
-# server: $(SERVER)
-# sim_server: $(SIM_SERVER) simserver
-# 
-# .PHONY: server sim_server
-# 
 
 # ------------------------------------------------------------------------------
 # Documentation
@@ -127,6 +69,9 @@ zpkg: $(SERVER_ZPKG) $(CONFIG_ZPKG)
 # ------------------------------------------------------------------------------
 # FPGA builds
 
+FMC_DESIGN = loopback
+SFP_DESIGN = loopback
+
 export LM_LICENSE_FILE
 
 SLOW_FPGA_PROM = slow_top.mcs
@@ -139,6 +84,10 @@ $(SLOW_FPGA_PROM): $(SLOW_FPGA_BUILD_DIR)
 slow-fpga: $(SLOW_FPGA_PROM)
 .PHONY: slow-fpga
 
+carrier: $(FPGA_BUILD_DIR)
+	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
+	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) \
+		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN)
 
 # ------------------------------------------------------------------------------
 

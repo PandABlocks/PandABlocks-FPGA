@@ -319,6 +319,7 @@ constant FMC_FMC_CLK0 : natural := 6;
 constant FMC_FMC_CLK1 : natural := 7;
 constant FMC_SOFT_RESET : natural := 8;
 constant FMC_EXT_CLK : natural := 9;
+constant FMC_LOOP_PERIOD : natural := 10;
 
 -- SFP Block:
 constant SFP_LINK1_UP : natural := 0;

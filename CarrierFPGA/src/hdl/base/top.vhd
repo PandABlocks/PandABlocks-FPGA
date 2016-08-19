@@ -60,19 +60,12 @@ port (
     BS0_PAD_IO          : inout std_logic_vector(3 downto 0);
     ZS0_PAD_IO          : inout std_logic_vector(3 downto 0);
 
-#ifdef DEV
-    -- Status I/O
-    enc0_ctrl_pad_i     : in    std_logic_vector(3  downto 0);
-    enc0_ctrl_pad_o     : out   std_logic_vector(11 downto 0);
-#endif
-
     -- Discrete I/O
     TTLIN_PAD_I         : in    std_logic_vector(5 downto 0);
     TTLOUT_PAD_O        : out   std_logic_vector(9 downto 0);
     LVDSIN_PAD_I        : in    std_logic_vector(1 downto 0);
     LVDSOUT_PAD_O       : out   std_logic_vector(1 downto 0);
 
-#ifndef DEV
     -- On-baord GTX Clock Resources
     GTXCLK0_P           : in    std_logic;
     GTXCLK0_N           : in    std_logic;
@@ -99,7 +92,10 @@ port (
     FMC_CLK0_M2C_N      : in    std_logic;
     FMC_CLK1_M2C_P      : in    std_logic;
     FMC_CLK1_M2C_N      : in    std_logic;
-#endif
+
+    -- External Differential Clock (via front panel SMA)
+    EXTCLK_P            : in    std_logic;
+    EXTCLK_N            : in    std_logic;
 
     -- Slow Controller Serial interface
     SPI_SCLK_O          : out std_logic;
@@ -110,13 +106,6 @@ port (
 end panda_top;
 
 architecture rtl of panda_top is
-
-component ila_32x8K
-port (
-    clk             : in  std_logic;
-    probe0          : in  std_logic_vector(31 downto 0)
-);
-end component;
 
 signal probe0               : std_logic_vector(31 downto 0);
 
@@ -205,9 +194,6 @@ signal posbus               : posbus_t := (others => (others => '0'));
 
 -- Input Encoder
 signal inenc_val            : std32_array(ENC_NUM-1 downto 0);
-signal inenc_a              : std_logic_vector(ENC_NUM-1 downto 0);
-signal inenc_b              : std_logic_vector(ENC_NUM-1 downto 0);
-signal inenc_z              : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_conn           : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_trans          : std_logic_vector(ENC_NUM-1 downto 0);
 
@@ -247,6 +233,7 @@ signal clocks_a             : std_logic_vector(0 downto 0);
 signal clocks_b             : std_logic_vector(0 downto 0);
 signal clocks_c             : std_logic_vector(0 downto 0);
 signal clocks_d             : std_logic_vector(0 downto 0);
+signal extclk               : std_logic;
 
 signal bits_zero            : std_logic_vector(0 downto 0);
 signal bits_one             : std_logic_vector(0 downto 0);
@@ -268,9 +255,6 @@ signal pgen_out             : std32_array(PGEN_NUM-1 downto 0);
 signal slowctrl_busy        : std_logic;
     
 signal enc0_ctrl_pad        : std_logic_vector(11 downto 0);
-
-signal slow_tlp_registers   : slow_packet;
-signal slow_tlp_leds        : slow_packet;
 
 signal rdma_req             : std_logic_vector(5 downto 0);
 signal rdma_ack             : std_logic_vector(5 downto 0);
@@ -303,6 +287,7 @@ signal float32_3            : std_logic_vector(31 downto 0);
 
 begin
 
+-- Enable SFP_1 and SFP_2
 SFP_TxDis <= "00";
 
 -- Internal clocks and resets
@@ -491,8 +476,6 @@ LVDSOUT_PAD_O <= lvdsout_val;
 ---------------------------------------------------------------------------
 -- 5-Input LUT
 ---------------------------------------------------------------------------
-LUT_GEN : IF (LUT_INST = true) GENERATE
-
 lut_inst : entity work.lut_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -506,13 +489,9 @@ port map (
     out_o               => lut_val
 );
 
-END GENERATE;
-
 ---------------------------------------------------------------------------
 -- SRGATE
 ---------------------------------------------------------------------------
-SRGATE_GEN : IF (SRGATE_INST = true) GENERATE
-
 srgate_inst : entity work.srgate_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -526,13 +505,9 @@ port map (
     out_o               => srgate_out
 );
 
-END GENERATE;
-
 ---------------------------------------------------------------------------
 -- DIVIDER
 ---------------------------------------------------------------------------
-DIV_GEN : IF (DIV_INST = true) GENERATE
-
 div_inst : entity work.div_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -548,13 +523,9 @@ port map (
     outn_o              => div_outn
 );
 
-END GENERATE;
-
 ---------------------------------------------------------------------------
 -- PULSE GENERATOR
 ---------------------------------------------------------------------------
-PULS_GEN : IF (PULS_INST = true) GENERATE
-
 pulse_inst : entity work.pulse_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -569,13 +540,9 @@ port map (
     perr_o              => pulse_perr
 );
 
-END GENERATE;
-
 ---------------------------------------------------------------------------
 -- SEQEUENCER
 ---------------------------------------------------------------------------
-SEQ_GEN : IF (SEQ_INST = true) GENERATE
-
 seq_inst : entity work.sequencer_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -594,8 +561,6 @@ port map (
     outf_o              => seq_outf,
     active_o            => seq_active
 );
-
-END GENERATE;
 
 ---------------------------------------------------------------------------
 -- INENC (Encoder Inputs)
@@ -684,8 +649,6 @@ port map (
 ---------------------------------------------------------------------------
 -- COUNTER/TIMER
 ---------------------------------------------------------------------------
-COUNTER_GEN : IF (COUNTER_INST = true) GENERATE
-
 counter_inst : entity work.counter_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -700,8 +663,6 @@ port map (
     carry_o             => counter_carry,
     out_o               => counter_out
 );
-
-END GENERATE;
 
 ---------------------------------------------------------------------------
 -- ADDER
@@ -788,8 +749,6 @@ port map (
 ---------------------------------------------------------------------------
 -- POSITION GENERATION
 ---------------------------------------------------------------------------
-PGEN_GEN : IF (PGEN_INST = true) GENERATE
-
 pgen_inst : entity work.pgen_top
 port map (
     clk_i               => FCLK_CLK0,
@@ -809,8 +768,6 @@ port map (
     sysbus_i            => sysbus,
     out_o               => pgen_out
 );
-
-END GENERATE;
 
 ---------------------------------------------------------------------------
 -- TABLE DMA ENGINE
@@ -909,7 +866,7 @@ port map (
 ---------------------------------------------------------------------------
 -- SLOW CONTROLLER FPGA
 ---------------------------------------------------------------------------
-slow_registers_inst : entity work.slow_registers
+slow_inst : entity work.slow_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
@@ -917,35 +874,17 @@ port map (
     mem_cs_i            => mem_cs,
     mem_wstb_i          => mem_wstb,
     mem_dat_i           => mem_odat,
-    slow_tlp_o          => slow_tlp_registers
-);
-
-slow_controller_inst : entity work.slow_controller
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(SLOW_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(SLOW_CS),
+    ttlin_i             => ttlin_val,
+    ttlout_i            => ttlout_val,
+    outenc_conn_i       => outenc_conn,
     spi_sclk_o          => SPI_SCLK_O,
     spi_dat_o           => SPI_DAT_O,
     spi_sclk_i          => SPI_SCLK_I,
     spi_dat_i           => SPI_DAT_I,
-    registers_tlp_i     => slow_tlp_registers,
-    leds_tlp_i          => slow_tlp_leds,
     busy_o              => slowctrl_busy,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
-#ifdef DEV
-    DCARD_MODE(0)(31 downto 4)  => DCARD_MODE(0)(31 downto 4),
-    DCARD_MODE(0)(3 downto 0)   => float4_1,
-    DCARD_MODE(1)               => float32_1,
-    DCARD_MODE(2)               => float32_2,
-    DCARD_MODE(3)               => float32_3
-#else
     DCARD_MODE          => DCARD_MODE
-#endif
 );
 
 ---------------------------------------------------------------------------
@@ -1005,20 +944,6 @@ port map (
 );
 
 ---------------------------------------------------------------------------
--- SLOW FPGA Misc Communication (LED, Custom)
----------------------------------------------------------------------------
-led_management_inst : entity work.led_management
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-    -- Block Input and Outputs
-    ttlin_i             => ttlin_val,
-    ttlout_i            => ttlout_val,
-    outenc_conn_i       => outenc_conn,
-    slow_tlp_o          => slow_tlp_leds
-);
-
----------------------------------------------------------------------------
 -- On-Chip IOBUF Control for Daughter Card Interfacing
 ---------------------------------------------------------------------------
 dcard_interface_inst : entity work.dcard_interface
@@ -1048,16 +973,18 @@ port map (
     DATA_OUT            => DATA_OUT
 );
 
-#ifndef DEV
 ---------------------------------------------------------------------------
 -- FMC Loopback design
 ---------------------------------------------------------------------------
 FMC_GEN : IF (SIM = "FALSE") GENERATE
 
-    fmc_inst : entity work.fmc_loopback
+    fmc_inst : entity work.fmc_top
     port map (
         clk_i               => FCLK_CLK0,
         reset_i             => FCLK_RESET0,
+
+        EXTCLK_P            => EXTCLK_P,
+        EXTCLK_N            => EXTCLK_N,
 
         mem_addr_i          => mem_addr,
         mem_cs_i            => mem_cs(FMC_CS),
@@ -1083,15 +1010,12 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
 
 END GENERATE;
 
-#endif
-
-#ifndef DEV
 ---------------------------------------------------------------------------
 -- SFP Loopback design
 ---------------------------------------------------------------------------
 SFP_GEN : IF (SIM = "FALSE") GENERATE
 
-    sfp_inst : entity work.sfp_loopback
+    sfp_inst : entity work.sfp_top
     port map (
         clk_i               => FCLK_CLK0,
         reset_i             => FCLK_RESET0,
@@ -1111,89 +1035,6 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
     );
 
 END GENERATE;
-
-#endif
-
-#ifdef DEV
--- Direct interface to Daughter Card via FMC on the dev board.
-enc0_ctrl_pad_o <= enc0_ctrl_pad;
-
-DCARD_MODE(0)(3 downto 0) <= enc0_ctrl_pad_i;
-DCARD_MODE(1) <= ZEROS(32);
-DCARD_MODE(2) <= ZEROS(32);
-DCARD_MODE(3) <= ZEROS(32);
-
--- Integer conversion for address.
-mem_addr_reg <= to_integer(unsigned(mem_addr));
-
---
--- Catch PROTOCOL write to INENC0 and OUTENC0 modules.
---
-REG_WRITE : process(FCLK_CLK0)
-begin
-    if rising_edge(FCLK_CLK0) then
-        if (FCLK_RESET0 = '1') then
-            inenc_buf_ctrl <= (others => '0');
-            outenc_buf_ctrl <= (others => '0');
-        else
-            -- DCard Input Channel Buffer Ctrl
-            -- Inc : 0x03
-            -- SSI : 0x0C
-            -- BiSS : 0x0C
-            -- Endat : 0x14
-            case (INPROT(0)) is
-                when "000" => -- INC
-                    inenc_buf_ctrl <= "00" & X"3";
-                when "001" => -- SSI
-                    inenc_buf_ctrl <= "00" & X"C";
-                when "010" => -- BiSS
-                    inenc_buf_ctrl <= "00" & X"C";
-                when "011" => -- EnDat
-                    inenc_buf_ctrl <= "01" & X"4";
-                when others =>
-                    inenc_buf_ctrl <= (others => '0');
-            end case;
-
-            -- DCard Output Channel Buffer Ctrl
-            -- Inc : 0x07
-            -- SSI : 0x28
-            -- BiSS : 0x28
-            -- Endat : 0x10
-            -- Pass : 0x07
-            -- DCard Output Channel Buffer Ctrl
-            case (OUTPROT(0)) is
-                when "000" => -- INC
-                    outenc_buf_ctrl <= "00" & X"7";
-                when "001" => -- SSI
-                    outenc_buf_ctrl <= "10" & X"8";
-                when "010" => -- BiSS
-                    outenc_buf_ctrl <= "10" & X"8";
-                when "011" => -- EnDat
-                    outenc_buf_ctrl <= "01" & X"0";
-                when "100" => -- Pass
-                    outenc_buf_ctrl <= "00" & X"7";
-                when others =>
-                    outenc_buf_ctrl <= (others => '0');
-            end case;
-        end if;
-    end if;
-end process;
-
--- Daughter Card Buffer Control Signals
-enc0_ctrl_pad(1 downto 0) <= inenc_buf_ctrl(1 downto 0);
-enc0_ctrl_pad(3 downto 2) <= outenc_buf_ctrl(1 downto 0);
-enc0_ctrl_pad(4) <= inenc_buf_ctrl(2);
-enc0_ctrl_pad(5) <= outenc_buf_ctrl(2);
-enc0_ctrl_pad(7 downto 6) <= inenc_buf_ctrl(4 downto 3);
-enc0_ctrl_pad(9 downto 8) <= outenc_buf_ctrl(4 downto 3);
-enc0_ctrl_pad(10) <= inenc_buf_ctrl(5);
-enc0_ctrl_pad(11) <= outenc_buf_ctrl(5);
-
---
--- >>>>>>>>>>>>> DEV BOARD - ENDS
---
-
-#endif
 
 --ila_inst : ila_32x8K
 --port map (

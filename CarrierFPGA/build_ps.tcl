@@ -2,16 +2,14 @@
 # This script generates PS part of the firmware based as Zynq
 # Block design
 #
+set SRCDIR [lindex $argv 0]
+set_param board.repoPaths $SRCDIR/configs
 
-# Set the reference directory to where the script is
-#set origin_dir [file dirname [info script]]
-set origin_dir .
-
-# Set User Repository for PicoZed Board Definition File
-set_param board.repoPaths ../configs
+# Build directory
+set origin_dir [lindex $argv 1]
 
 # Create project
-create_project panda_ps $origin_dir/panda_ps -part xc7z030sbg485-1
+create_project -force panda_ps $origin_dir/panda_ps -part xc7z030sbg485-1
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -28,7 +26,7 @@ update_ip_catalog
 
 # Create block design
 # (THIS is exported from Vivado design tool)
-source ../src/bd/panda_ps.tcl
+source $SRCDIR/src/bd/panda_ps.tcl
 
 # Generate the wrapper
 set design_name [get_bd_designs]

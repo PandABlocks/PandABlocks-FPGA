@@ -6,7 +6,7 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity sfp_loopback is
+entity sfp_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -25,9 +25,9 @@ port (
     TXN_OUT             : out std_logic_vector(2 downto 0);
     TXP_OUT             : out std_logic_vector(2 downto 0)
 );
-end sfp_loopback;
+end sfp_top;
 
-architecture rtl of sfp_loopback is
+architecture rtl of sfp_top is
 
 signal test_clocks      : std_logic_vector(3 downto 0);
 signal LINK1_UP         : std_logic_vector(31 downto 0);

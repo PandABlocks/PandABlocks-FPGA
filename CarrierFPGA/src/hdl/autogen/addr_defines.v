@@ -313,6 +313,7 @@ localparam FMC_FMC_CLK0 = 6;
 localparam FMC_FMC_CLK1 = 7;
 localparam FMC_SOFT_RESET = 8;
 localparam FMC_EXT_CLK = 9;
+localparam FMC_LOOP_PERIOD = 10;
 
 // SFP Block:
 localparam SFP_LINK1_UP = 0;

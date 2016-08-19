@@ -112,7 +112,7 @@ begin
                 when REG_FPGA_VERSION =>
                     mem_dat_o <= FPGA_VERSION;
                 when REG_FPGA_BUILD =>
-                    mem_dat_o <= FPGA_BUILD;
+                    mem_dat_o <= FPGA_VERSION;
                 when REG_SLOW_VERSION =>
                     mem_dat_o <= SLOW_FPGA_VERSION;
                 when REG_BIT_READ_VALUE =>
