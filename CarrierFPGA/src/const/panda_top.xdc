@@ -165,50 +165,16 @@ set_property PACKAGE_PIN V5 [get_ports GTXCLK1_N]
 # -------------------------------------------------------------------
 create_clock -period 8.000  [get_ports GTXCLK0_P]
 create_clock -period 6.400  [get_ports GTXCLK1_P]
-create_clock -period 6.400  [get_ports FMC_CLK0_M2C_P]
-create_clock -period 6.400  [get_ports FMC_CLK1_M2C_P]
 
-# Async false reset paths
-set_false_path -to [get_pins -hierarchical -filter {NAME =~ *_txfsmresetdone_r*/CLR}]
-set_false_path -to [get_pins -hierarchical -filter {NAME =~ *_txfsmresetdone_r*/D}]
-set_false_path -to [get_pins -hierarchical -filter {NAME =~ *reset_on_error_in_r*/D}]
-
+# -------------------------------------------------------------------
 # Status register reads from GTX Loopback -> AXI
+# -------------------------------------------------------------------
 set_clock_groups -asynchronous \
     -group clk_fpga_0 \
     -group FMC_CLK0_M2C_P \
     -group FMC_CLK1_M2C_P \
     -group [get_clocks -filter {NAME =~ *TXOUTCLK}] \
     -group EXTCLK_P
-
-# -------------------------------------------------------------------
-# FMC MGTs - Bank 112
-# -------------------------------------------------------------------
-set_property LOC GTXE2_CHANNEL_X0Y0 \
-[get_cells FMC_GEN.fmc_inst/fmcgtx_exdes_i/fmcgtx_support_i/fmcgtx_init_i/U0/fmcgtx_i/gt0_fmcgtx_i/gtxe2_i]
-
-# -------------------------------------------------------------------
-# SFP MGTs - Bank 112
-# -------------------------------------------------------------------
-set_property PACKAGE_PIN AB21   [get_ports {SFP_TxDis[0]  }];   #SFP1_IO1
-set_property PACKAGE_PIN AB22   [get_ports {SFP_TxDis[1]  }];   #SFP2_IO1
-
-set_property LOC GTXE2_CHANNEL_X0Y1 \
-[get_cells SFP_GEN.sfp_inst/sfpgtx_exdes_i/sfpgtx_support_i/sfpgtx_init_i/U0/sfpgtx_i/gt0_sfpgtx_i/gtxe2_i]
-
-set_property LOC GTXE2_CHANNEL_X0Y2 \
-[get_cells SFP_GEN.sfp_inst/sfpgtx_exdes_i/sfpgtx_support_i/sfpgtx_init_i/U0/sfpgtx_i/gt1_sfpgtx_i/gtxe2_i]
-
-set_property LOC GTXE2_CHANNEL_X0Y3 \
-[get_cells SFP_GEN.sfp_inst/sfpgtx_exdes_i/sfpgtx_support_i/sfpgtx_init_i/U0/sfpgtx_i/gt2_sfpgtx_i/gtxe2_i]
-
-# -------------------------------------------------------------------
-# IOB Packing Constraints
-# -------------------------------------------------------------------
-#set_property IOB true [get_cells -hierarchical pbrs_data_p[*]]
-#set_property IOB true [get_cells -hierarchical pbrs_data_n[*]]
-#set_property IOB true [get_cells -hierarchical fmc_din_p_reg[*]]
-#set_property IOB true [get_cells -hierarchical fmc_din_p_reg[*]]
 
 # -------------------------------------------------------------------
 # IOSTANDARD VCCOIO Constraints

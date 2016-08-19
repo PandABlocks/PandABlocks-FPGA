@@ -52,9 +52,9 @@ add_files -norecurse ./ip_repo/sfpgtx/sfpgtx.xci
 add_files -norecurse ./ip_repo/ila_32x8K/ila_32x8K.xci
 
 # Read constraint files
-read_xdc $SRCDIR/src/const/panda_top.xdc
 read_xdc $SRCDIR/src/hdl/FMC/$FMC_DESIGN/const/fmc.xdc
 read_xdc $SRCDIR/src/hdl/SFP/$SFP_DESIGN/const/sfp.xdc
+read_xdc $SRCDIR/src/const/panda_top.xdc
 
 # Report IP Status before starting P&R
 report_ip_status

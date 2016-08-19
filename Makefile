@@ -72,22 +72,17 @@ zpkg: $(SERVER_ZPKG) $(CONFIG_ZPKG)
 FMC_DESIGN = loopback
 SFP_DESIGN = loopback
 
-export LM_LICENSE_FILE
-
-SLOW_FPGA_PROM = slow_top.mcs
-
-
-$(SLOW_FPGA_PROM): $(SLOW_FPGA_BUILD_DIR)
-	source $(ISE_SETUP)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
-            TOP=$(TOP) SRC_DIR=$(TOP)/SlowFPGA mcs
-
-slow-fpga: $(SLOW_FPGA_PROM)
-.PHONY: slow-fpga
-
-carrier: $(FPGA_BUILD_DIR)
+carrier-fpga: $(FPGA_BUILD_DIR)
 	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
 	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) \
 		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN)
+
+slow-fpga: $(SLOW_FPGA_BUILD_DIR)
+	source $(ISE_SETUP)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
+            TOP=$(TOP) SRC_DIR=$(TOP)/SlowFPGA mcs
+
+
+.PHONY: carrier-fpga slow-fpga
 
 # ------------------------------------------------------------------------------
 
