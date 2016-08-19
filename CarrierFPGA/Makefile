@@ -39,7 +39,7 @@ VERSION_FILE = $(HDLDIR)/defines/panda_version.vhd
 .PHONY: clean VERSION
 
 default : fpga
-fpga : panda_top.bit
+fpga : panda_top.bit zpkg
 devicetree : $(DEVTREE_DTB)
 boot : $(BOOT_FILE)
 .PHONY: default fpga devicetree boot
@@ -75,11 +75,15 @@ $(PS_CORE) :
 	$(RUNVIVADO) -mode batch -source $(SRCDIR)/build_ps.tcl \
 	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR)
 
-panda_top.bit : VERSION $(IP_CORES) $(PS_CORE) $(IP_CORES)
+panda_top.bit : VERSION $(IP_CORES) $(PS_CORE)
 	$(RUNVIVADO) -mode batch -source $(SRCDIR)/build_top.tcl \
 	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR) \
 		-tclargs $(FMC_DESIGN) -tclargs $(SFP_DESIGN)
 
+zpkg:
+	mkdir -p output/share/panda/
+	cp $(OUTDIR)/panda_top.bit output/share/panda
+	tar czf $(TOP)/build/panda-fpga@$(GIT_VERSION).zpg -C output share
 
 #####################################################################
 # SW Projects Build
@@ -170,7 +174,4 @@ $(BOOT_FILE) : $(IMAGE_DIR)
 dts:
 	$(PWD)/configs/linux-xlnx/scripts/dtc -f -I dtb -O dts -o devicetree.dts $(DEVTREE_DTB)
 
-zpkg: output/panda_top.bit
-	mkdir -p output/share/panda/
-	cp $^ output/share/panda
-	tar czf ../build/panda-fpga@$(GIT_VERSION).zpg -C output share
+

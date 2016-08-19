@@ -7,6 +7,7 @@ TOP := $(CURDIR)
 
 BUILD_DIR = $(TOP)/build
 VIVADO = /dls_sw/FPGA/Xilinx/Vivado/2015.1/settings64.sh
+ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
 PYTHON = python2
 ARCH = arm
 CROSS_COMPILE = arm-xilinx-linux-gnueabi-
@@ -52,7 +53,6 @@ docs: $(DOCS_BUILD_DIR)/index.html
 # ------------------------------------------------------------------------------
 # Build installation package
 
-# SERVER_ZPKG = $(BUILD_DIR)/panda-server@$(GIT_VERSION).zpg
 CONFIG_ZPKG = $(BUILD_DIR)/panda-config@$(GIT_VERSION).zpg
 
 $(SERVER_ZPKG): $(PANDA_KO) $(SERVER) $(wildcard etc/*)
@@ -77,12 +77,16 @@ carrier-fpga: $(FPGA_BUILD_DIR)
 	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) \
 		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN)
 
+carrier-zpkg: $(FPGA_BUILD_DIR)
+	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
+	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) zpkg
+
 slow-fpga: $(SLOW_FPGA_BUILD_DIR)
-	source $(ISE_SETUP)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
+	source $(ISE)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
             TOP=$(TOP) SRC_DIR=$(TOP)/SlowFPGA mcs
 
 
-.PHONY: carrier-fpga slow-fpga
+.PHONY: carrier-fpga slow-fpga carrier-zpkg
 
 # ------------------------------------------------------------------------------
 

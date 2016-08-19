@@ -1,48 +1,67 @@
-#
-# Xilinx ISE Environment
-#
-PLATFORM = $(shell uname -m)
-
-ifeq ($(PLATFORM),x86_64)
-	ISE=source /dls_sw/apps/FPGA/Xilinx/14.7/ISE_DS/settings64.sh > /dev/null
+ifndef TOP
+$(error Do not call this make file directly)
 endif
 
-ifeq ($(PLATFORM),i686)
-	ISE=source /dls_sw/apps/FPGA/Xilinx/14.7/ISE_DS/settings32.sh > /dev/null
-endif
+VPATH = $(SRC_DIR)
 
-PATH := $(PATH):/dls_sw/apps/FPGA/Precision/2012b/Mgc_home/bin
+# Top-level design name
+SYSTEM = slow_top
 
-#
+LIST_FILE = $(SYSTEM).lst
+
+SCR_FILE = $(SRC_DIR)/syn/xilinx/$(SYSTEM).scr
+UCF_FILE = $(SRC_DIR)/syn/constr/$(SYSTEM).ucf
+
+POSTSYN_NETLIST = $(SYSTEM).ngc
+NGD_FILE = $(SYSTEM).ngd
+MAPPED_NCD_FILE = $(SYSTEM)_map.ncd
+ROUTED_NCD_FILE = $(SYSTEM).ncd
+PCF_FILE = $(SYSTEM).pcf
+TWX_FILE = $(SYSTEM).twx
+BIT_FILE = $(SYSTEM).bit
+PROM_FILE = $(SYSTEM).mcs
+
+VERSION_FILE = $(TOP)/SlowFPGA/src/hdl/defines/slow_version.vhd
+
+include $(TOP)/SLOW_VERSION
+
 # Print the names of unlocked (unconstrainted) IOs
-#
 export XIL_PAR_DESIGN_CHECK_VERBOSE=1
 
-#
-# Name of the PC to be used for programming the FPGA
-#
-JTAG_PC=pc0001
+bits : $(BIT_FILE)
 
-#
-# Hardware Platform Settings
-#
+mcs: $(PROM_FILE)
 
-main: clean
-	$(ISE) && make -C syn/run -f ../Makefile bits
-	$(ISE) && make -C syn/run -f ../Makefile mcs
+.PHONY: mcs bits netlist
 
-picoblaze:
-	util/picoblaze/Picoasm/picoasm -i rtl/slow_pblaze/assembler/slow_pblaze_rom.psm -t rtl/slow_pblaze/assembler/ROM_form.vhd -d rtl/slow_pblaze/vhdl
+VERSION :
+	rm -f $(VERSION_FILE)
+	echo 'library ieee;' >> $(VERSION_FILE)
+	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
+	echo 'package slow_version is' >> $(VERSION_FILE)
+	echo -n 'constant SLOW_FPGA_VERSION: std_logic_vector(31 downto 0)' \ >> $(VERSION_FILE)
+	echo ' := X"$(FIRMWARE)";' >> $(VERSION_FILE)
+	echo 'end slow_version;' >> $(VERSION_FILE)
 
-download:
-	$(ISE) && make -C syn/run -f ../Makefile JTAG_PC=$(JTAG_PC) download
 
-program:
-	$(ISE) && make -C syn/run -f ../Makefile JTAG_PC=$(JTAG_PC) program
+# We have to take a bit of care when building the list file: it turns out that
+# xst can't cope with long file names.
+$(LIST_FILE): slow_top.files
+	ln -sfn $(TOP) top
+	sed "s:^:vhdl work top/:" $< >$@
 
-hwclean:
-	$(ISE) && make -C syn/run -f ../Makefile hwclean
-	$(ISE) && make -C syn/run -f ../Makefile clean
+MAP_FLAGS = -detail -w -ol high -pr b
+PAR_FLAGS = -w -ol high
+TRCE_FLAGS = -e 3 -l 3
 
-clean:
-	$(ISE) && make -C syn/run -f ../Makefile clean
+$(BIT_FILE): VERSION $(LIST_FILE)
+	xst -ifn $(SCR_FILE)
+	ngdbuild -uc $(UCF_FILE) $(POSTSYN_NETLIST)
+	map $(MAP_FLAGS) $(NGD_FILE) -o $(MAPPED_NCD_FILE) $(PCF_FILE)
+	par $(PAR_FLAGS) $(MAPPED_NCD_FILE) $(ROUTED_NCD_FILE) $(PCF_FILE)
+	trce $(TRCE_FLAGS) $(ROUTED_NCD_FILE) $(PCF_FILE) -xml $(TWX_FILE)
+	bitgen -w $(ROUTED_NCD_FILE)
+
+
+$(PROM_FILE): $(BIT_FILE)
+	promgen -w -p mcs -o $@ -u 0 $<

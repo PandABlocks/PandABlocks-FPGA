@@ -98,7 +98,6 @@ signal status_leds          : std_logic_vector(3 downto 0);
 signal clk50_pad            : std_logic;
 signal clk50_pll            : std_logic;
 signal sysclk               : std_logic;
-signal counter              : unsigned(15 downto 0);
 signal spi_sclk             : std_logic;
 signal spi_dat              : std_logic;
 
@@ -194,9 +193,9 @@ port map (
     shift_reg_oe_n_o    => shift_reg_oe_n_o
 );
 
---
+--------------------------------------------------------------------------
 -- Temp sensor interface
---
+--------------------------------------------------------------------------
 temp_sensors_inst : entity work.temp_sensors
 port map (
     clk_i               => sysclk,
@@ -206,9 +205,9 @@ port map (
     TEMP_MON            => TEMP_MON
 );
 
---
--- Temp sensor interface
---
+--------------------------------------------------------------------------
+-- Voltage measurement interface
+--------------------------------------------------------------------------
 voltage_sensors_inst : entity work.voltage_sensors
 port map (
     clk_i               => sysclk,
@@ -218,35 +217,30 @@ port map (
     VOLT_MON            => VOLT_MON
 );
 
-icon_inst : icon
-port map (
-    CONTROL0    => CONTROL0
-);
-
-ila_inst : ila
-port map (
-    CONTROL             => CONTROL0,
-    CLK                 => sysclk,
-    DATA                => DATA,
-    TRIG0               => TRIG0
-);
-
-TRIG0(0) <= spi_sclk_i;
-TRIG0(1) <= spi_sclk;
-TRIG0(7 downto 2) <= (others => '0');
-
-DATA(0) <= spi_sclk_i;
-DATA(1) <= spi_dat_i;
-DATA(2) <= spi_sclk;
-DATA(3) <= spi_dat;
-DATA(15 downto 4) <= (others => '0');
-DATA(31 downto 16) <= std_logic_vector(counter);
-
-process(sysclk)
-begin
-    if rising_edge(sysclk) then
-        counter <= counter + 1;
-    end if;
-end process;
+--------------------------------------------------------------------------
+-- Chipscope
+--------------------------------------------------------------------------
+-- icon_inst : icon
+-- port map (
+--     CONTROL0    => CONTROL0
+-- );
+-- 
+-- ila_inst : ila
+-- port map (
+--     CONTROL             => CONTROL0,
+--     CLK                 => sysclk,
+--     DATA                => DATA,
+--     TRIG0               => TRIG0
+-- );
+-- 
+-- TRIG0(0) <= spi_sclk_i;
+-- TRIG0(1) <= spi_sclk;
+-- TRIG0(7 downto 2) <= (others => '0');
+-- 
+-- DATA(0) <= spi_sclk_i;
+-- DATA(1) <= spi_dat_i;
+-- DATA(2) <= spi_sclk;
+-- DATA(3) <= spi_dat;
+-- DATA(15 downto 4) <= (others => '0');
 
 end rtl;
