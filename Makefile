@@ -69,7 +69,7 @@ zpkg: $(SERVER_ZPKG) $(CONFIG_ZPKG)
 # ------------------------------------------------------------------------------
 # FPGA builds
 
-FMC_DESIGN = loopback
+FMC_DESIGN = 24VIO
 SFP_DESIGN = loopback
 
 carrier-fpga: $(FPGA_BUILD_DIR)

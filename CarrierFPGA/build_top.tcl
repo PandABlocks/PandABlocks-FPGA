@@ -3,14 +3,14 @@ set SRCDIR [lindex $argv 0]
 set_param board.repoPaths $SRCDIR/configs
 
 # Build directory
-set origin_dir [lindex $argv 1]
+set BUILDIR [lindex $argv 1]
 
 # FMC and SFP Application Names are passed as arguments
 set FMC_DESIGN [lindex $argv 2]
 set SFP_DESIGN [lindex $argv 3]
 
 # Create project
-create_project -force panda_top $origin_dir/panda_top -part xc7z030sbg485-1
+create_project -force panda_top $BUILDIR/panda_top -part xc7z030sbg485-1
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -102,5 +102,5 @@ write_bitstream -force panda_top.bit
 #
 # Export HW for SDK
 #
-file mkdir $origin_dir/panda_top/panda_top.sdk
-write_hwdef -file $origin_dir/panda_top_wrapper.hdf -force
+file mkdir $BUILDIR/panda_top/panda_top.sdk
+write_hwdef -file $BUILDIR/panda_top_wrapper.hdf -force

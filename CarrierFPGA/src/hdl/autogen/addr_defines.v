@@ -304,16 +304,22 @@ localparam SLOW_FMC_12V = 12;
 
 // FMC Block:
 localparam FMC_FMC_PRSNT = 0;
-localparam FMC_LINK_UP = 1;
-localparam FMC_ERROR_COUNT = 2;
-localparam FMC_LA_P_ERROR = 3;
-localparam FMC_LA_N_ERROR = 4;
-localparam FMC_GTREFCLK = 5;
-localparam FMC_FMC_CLK0 = 6;
-localparam FMC_FMC_CLK1 = 7;
-localparam FMC_SOFT_RESET = 8;
-localparam FMC_EXT_CLK = 9;
-localparam FMC_LOOP_PERIOD = 10;
+localparam FMC_OUT1 = 1;
+localparam FMC_OUT1_DLY = 9;
+localparam FMC_OUT2 = 2;
+localparam FMC_OUT2_DLY = 10;
+localparam FMC_OUT3 = 3;
+localparam FMC_OUT3_DLY = 11;
+localparam FMC_OUT4 = 4;
+localparam FMC_OUT4_DLY = 12;
+localparam FMC_OUT5 = 5;
+localparam FMC_OUT5_DLY = 13;
+localparam FMC_OUT6 = 6;
+localparam FMC_OUT6_DLY = 14;
+localparam FMC_OUT7 = 7;
+localparam FMC_OUT7_DLY = 15;
+localparam FMC_OUT8 = 8;
+localparam FMC_OUT8_DLY = 16;
 
 // SFP Block:
 localparam SFP_LINK1_UP = 0;

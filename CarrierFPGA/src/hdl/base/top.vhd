@@ -107,9 +107,7 @@ end panda_top;
 
 architecture rtl of panda_top is
 
-signal probe0               : std_logic_vector(31 downto 0);
-
--- Signal declarations
+-- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
 signal FCLK_RESET0_N        : std_logic_vector(0 downto 0);
 signal FCLK_RESET0          : std_logic;
@@ -175,6 +173,9 @@ signal S_AXI_HP1_rready     : STD_LOGIC;
 signal S_AXI_HP1_rresp      : STD_LOGIC_VECTOR ( 1 downto 0 );
 signal S_AXI_HP1_rvalid     : STD_LOGIC;
 
+signal IRQ_F2P              : std_logic_vector(0 downto 0);
+
+-- Configuration and Status Interface Block
 signal mem_cs               : std_logic_vector(2**PAGE_NUM-1 downto 0);
 signal mem_addr             : std_logic_vector(PAGE_AW-1 downto 0);
 signal mem_odat             : std_logic_vector(31 downto 0);
@@ -183,14 +184,15 @@ signal mem_rstb             : std_logic;
 signal mem_read_data        : std32_array(2**PAGE_NUM-1 downto 0) :=
                                 (others => (others => '0'));
 signal mem_addr_reg         : natural range 0 to (2**mem_addr'length - 1);
-signal inenc_buf_ctrl       : std_logic_vector(5 downto 0);
-signal outenc_buf_ctrl      : std_logic_vector(5 downto 0);
 
-signal IRQ_F2P              : std_logic_vector(0 downto 0);
 
--- Design Level Busses :
+-- Top Level Signals
 signal sysbus               : sysbus_t := (others => '0');
 signal posbus               : posbus_t := (others => (others => '0'));
+
+--
+signal inenc_buf_ctrl       : std_logic_vector(5 downto 0);
+signal outenc_buf_ctrl      : std_logic_vector(5 downto 0);
 
 -- Input Encoder
 signal inenc_val            : std32_array(ENC_NUM-1 downto 0);
@@ -229,20 +231,6 @@ signal panda_spbram_wea     : std_logic := '0';
 
 signal pcap_act             : std_logic_vector(0 downto 0);
 
-signal clocks_a             : std_logic_vector(0 downto 0);
-signal clocks_b             : std_logic_vector(0 downto 0);
-signal clocks_c             : std_logic_vector(0 downto 0);
-signal clocks_d             : std_logic_vector(0 downto 0);
-signal extclk               : std_logic;
-
-signal bits_zero            : std_logic_vector(0 downto 0);
-signal bits_one             : std_logic_vector(0 downto 0);
-
-signal bits_a               : std_logic_vector(0 downto 0);
-signal bits_b               : std_logic_vector(0 downto 0);
-signal bits_c               : std_logic_vector(0 downto 0);
-signal bits_d               : std_logic_vector(0 downto 0);
-
 signal qdec_out             : std32_array(QDEC_NUM-1 downto 0);
 signal counter_out          : std32_array(COUNTER_NUM-1 downto 0);
 signal posenc_a             : std_logic_vector(POSENC_NUM-1 downto 0);
@@ -280,10 +268,29 @@ signal INPROT               : std3_array(ENC_NUM-1 downto 0);
 signal SLOW_FPGA_VERSION    : std_logic_vector(31 downto 0);
 signal DCARD_MODE           : std32_array(ENC_NUM-1 downto 0);
 
-signal float4_1             : std_logic_vector(3 downto 0);
-signal float32_1            : std_logic_vector(31 downto 0);
-signal float32_2            : std_logic_vector(31 downto 0);
-signal float32_3            : std_logic_vector(31 downto 0);
+-- Clocks Block
+signal clocks_outa          : std_logic_vector(0 downto 0);
+signal clocks_outb          : std_logic_vector(0 downto 0);
+signal clocks_outc          : std_logic_vector(0 downto 0);
+signal clocks_outd          : std_logic_vector(0 downto 0);
+
+-- BITS Block
+signal bits_zero            : std_logic_vector(0 downto 0);
+signal bits_one             : std_logic_vector(0 downto 0);
+signal bits_outa            : std_logic_vector(0 downto 0);
+signal bits_outb            : std_logic_vector(0 downto 0);
+signal bits_outc            : std_logic_vector(0 downto 0);
+signal bits_outd            : std_logic_vector(0 downto 0);
+
+-- FMC Block
+signal fmc_inp1             : std_logic_vector(0 downto 0);
+signal fmc_inp2             : std_logic_vector(0 downto 0);
+signal fmc_inp3             : std_logic_vector(0 downto 0);
+signal fmc_inp4             : std_logic_vector(0 downto 0);
+signal fmc_inp5             : std_logic_vector(0 downto 0);
+signal fmc_inp6             : std_logic_vector(0 downto 0);
+signal fmc_inp7             : std_logic_vector(0 downto 0);
+signal fmc_inp8             : std_logic_vector(0 downto 0);
 
 begin
 
@@ -837,10 +844,10 @@ port map (
     mem_rstb_i          => mem_rstb,
     mem_dat_i           => mem_odat,
     mem_dat_o           => mem_read_data(CLOCKS_CS),
-    clocks_a_o          => clocks_a(0),
-    clocks_b_o          => clocks_b(0),
-    clocks_c_o          => clocks_c(0),
-    clocks_d_o          => clocks_d(0)
+    clocks_a_o          => clocks_outa(0),
+    clocks_b_o          => clocks_outb(0),
+    clocks_c_o          => clocks_outc(0),
+    clocks_d_o          => clocks_outd(0)
 );
 
 ---------------------------------------------------------------------------
@@ -857,10 +864,10 @@ port map (
     mem_dat_i           => mem_odat,
     zero_o              => bits_zero(0),
     one_o               => bits_one(0),
-    bits_a_o            => bits_a(0),
-    bits_b_o            => bits_b(0),
-    bits_c_o            => bits_c(0),
-    bits_d_o            => bits_d(0)
+    bits_a_o            => bits_outa(0),
+    bits_b_o            => bits_outb(0),
+    bits_c_o            => bits_outc(0),
+    bits_d_o            => bits_outd(0)
 );
 
 ---------------------------------------------------------------------------
@@ -885,62 +892,6 @@ port map (
     busy_o              => slowctrl_busy,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
     DCARD_MODE          => DCARD_MODE
-);
-
----------------------------------------------------------------------------
--- BUS ASSIGNMENTS
----------------------------------------------------------------------------
-busses_inst : entity work.panda_busses
-port map (
-    TTLIN_VAL       => ttlin_val,
-    LVDSIN_VAL      => lvdsin_val,
-    LUT_OUT         => lut_val,
-    SRGATE_OUT      => srgate_out,
-    DIV_OUTD        => div_outd,
-    DIV_OUTN        => div_outn,
-    PULSE_OUT       => pulse_out,
-    PULSE_PERR      => pulse_perr,
-    SEQ_OUTA        => seq_outa,
-    SEQ_OUTB        => seq_outb,
-    SEQ_OUTC        => seq_outc,
-    SEQ_OUTD        => seq_outd,
-    SEQ_OUTE        => seq_oute,
-    SEQ_OUTF        => seq_outf,
-    SEQ_ACTIVE      => seq_active,
-    INENC_A         => A_IN,
-    INENC_B         => B_IN,
-    INENC_Z         => Z_IN,
-    INENC_CONN      => inenc_conn,
-    INENC_TRANS     => inenc_trans,
-    INENC_VAL       => inenc_val,
-    QDEC_OUT        => qdec_out,
-    POSENC_A        => posenc_a,
-    POSENC_B        => posenc_b,
-    ADDER_OUT       => adder_out,
-    COUNTER_CARRY   => counter_carry,
-    COUNTER_OUT     => counter_out,
-    PGEN_OUT        => pgen_out,
-    PCOMP_ACTIVE    => pcomp_active,
-    PCOMP_OUT       => pcomp_out,
-    ADC_OUT         => (others => (others => '0')),
-    PCAP_ACTIVE     => pcap_act,
-    -- System Bus Signals
-    BITS_OUTA       => bits_a,
-    BITS_OUTB       => bits_b,
-    BITS_OUTC       => bits_c,
-    BITS_OUTD       => bits_d,
-    BITS_ZERO       => bits_zero,
-    BITS_ONE        => bits_one,
-    -- CLOCKS Block
-    CLOCKS_OUTA     => clocks_a,
-    CLOCKS_OUTB     => clocks_b,
-    CLOCKS_OUTC     => clocks_c,
-    CLOCKS_OUTD     => clocks_d,
-    -- Position Bus Signals
-    POSITIONS_ZERO  => (others => (others => '0')),
-    -- Bus Outputs
-    bitbus_o        => sysbus,
-    posbus_o        => posbus
 );
 
 ---------------------------------------------------------------------------
@@ -980,6 +931,8 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
 
     fmc_inst : entity work.fmc_top
     port map (
+        -- DO NOT EDIT BELOW THIS LINE ---------------------
+        -- Standard FMC Block ports, do not add to or delete
         clk_i               => FCLK_CLK0,
         reset_i             => FCLK_RESET0,
 
@@ -1005,7 +958,20 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
         TXP_OUT             => FMC_DP0_C2M_P,
         TXN_OUT             => FMC_DP0_C2M_N,
         RXP_IN              => FMC_DP0_M2C_P,
-        RXN_IN              => FMC_DP0_M2C_N
+        RXN_IN              => FMC_DP0_M2C_N,
+        -- DO NOT EDIT ABOVE THIS LINE ---------------------
+
+        -- EDIT BELOW THIS LINE ----------------------------
+        -- Add and connect application specific ports here
+        sysbus_i            => sysbus,
+        fmc_inp1_o          => fmc_inp1(0),
+        fmc_inp2_o          => fmc_inp2(0),
+        fmc_inp3_o          => fmc_inp3(0),
+        fmc_inp4_o          => fmc_inp4(0),
+        fmc_inp5_o          => fmc_inp5(0),
+        fmc_inp6_o          => fmc_inp6(0),
+        fmc_inp7_o          => fmc_inp7(0),
+        fmc_inp8_o          => fmc_inp8(0)
     );
 
 END GENERATE;
@@ -1036,14 +1002,91 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
 
 END GENERATE;
 
---ila_inst : ila_32x8K
---port map (
---    clk         => FCLK_CLK0,
---    probe0      => probe0
---);
---
---probe0(0) <= SPI_SCLK_I;
---probe0(1) <= SPI_DAT_I;
---probe0(31 downto 2) <= (others => '0');
+-- EDIT BELOW THIS LINE ---------------------------------------------------
+-- Add and connect System and Position Bus signals from all Blocks
+---------------------------------------------------------------------------
+busses_inst : entity work.panda_busses
+port map (
+    -- REG Block
+    -- DRV Block
+    -- TTLIN Block
+    TTLIN_VAL       => ttlin_val,
+    -- TTLOUT Block
+    -- LVDSIN Block
+    LVDSIN_VAL      => lvdsin_val,
+    -- LVDSOUT Block
+    -- LUT Block
+    LUT_OUT         => lut_val,
+    -- SRGATE Block
+    SRGATE_OUT      => srgate_out,
+    -- DIV Block
+    DIV_OUTD        => div_outd,
+    DIV_OUTN        => div_outn,
+    -- PULSE Block
+    PULSE_OUT       => pulse_out,
+    -- SEQ Block
+    SEQ_OUTA        => seq_outa,
+    SEQ_OUTB        => seq_outb,
+    SEQ_OUTC        => seq_outc,
+    SEQ_OUTD        => seq_outd,
+    SEQ_OUTE        => seq_oute,
+    SEQ_OUTF        => seq_outf,
+    SEQ_ACTIVE      => seq_active,
+    -- INENC Block
+    INENC_A         => A_IN,
+    INENC_B         => B_IN,
+    INENC_Z         => Z_IN,
+    INENC_CONN      => inenc_conn,
+    INENC_TRANS     => inenc_trans,
+    INENC_VAL       => inenc_val,
+    -- QDEC Block
+    QDEC_OUT        => qdec_out,
+    -- OUTENC Block
+    -- POSENC Block
+    POSENC_A        => posenc_a,
+    POSENC_B        => posenc_b,
+    -- ADDER Block
+    ADDER_OUT       => adder_out,
+    -- COUNTER Block
+    COUNTER_CARRY   => counter_carry,
+    COUNTER_OUT     => counter_out,
+    -- PGEN Block
+    PGEN_OUT        => pgen_out,
+    -- PCOMP Block
+    PCOMP_ACTIVE    => pcomp_active,
+    PCOMP_OUT       => pcomp_out,
+    -- ADC Block
+    ADC_OUT         => (others => (others => '0')),
+    -- PCAP Block
+    PCAP_ACTIVE     => pcap_act,
+    -- BITS Block
+    BITS_OUTA       => bits_outa,
+    BITS_OUTB       => bits_outb,
+    BITS_OUTC       => bits_outc,
+    BITS_OUTD       => bits_outd,
+    BITS_ZERO       => bits_zero,
+    BITS_ONE        => bits_one,
+    -- CLOCKS Block
+    CLOCKS_OUTA     => clocks_outa,
+    CLOCKS_OUTB     => clocks_outb,
+    CLOCKS_OUTC     => clocks_outc,
+    CLOCKS_OUTD     => clocks_outd,
+    -- POSITIONS Block
+    POSITIONS_ZERO  => (others => (others => '0')),
+    -- SLOW Block
+    -- FMC_24VIO Block
+    FMC_INP1        => fmc_inp1,
+    FMC_INP2        => fmc_inp2,
+    FMC_INP3        => fmc_inp3,
+    FMC_INP4        => fmc_inp4,
+    FMC_INP5        => fmc_inp5,
+    FMC_INP6        => fmc_inp6,
+    FMC_INP7        => fmc_inp7,
+    FMC_INP8        => fmc_inp8,
+    -- SFP Block
+    -- Bus Outputs
+    bitbus_o        => sysbus,
+    posbus_o        => posbus
+);
 
 end rtl;

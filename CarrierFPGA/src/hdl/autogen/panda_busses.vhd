@@ -35,7 +35,6 @@ port (
 
     -- PULSE Block
     PULSE_OUT   : in std_logic_vector(3 downto 0);
-    PULSE_PERR   : in std_logic_vector(3 downto 0);
 
     -- SEQ Block
     SEQ_OUTA   : in std_logic_vector(3 downto 0);
@@ -103,6 +102,14 @@ port (
     -- SLOW Block
 
     -- FMC Block
+    FMC_INP1   : in std_logic_vector(0 downto 0);
+    FMC_INP2   : in std_logic_vector(0 downto 0);
+    FMC_INP3   : in std_logic_vector(0 downto 0);
+    FMC_INP4   : in std_logic_vector(0 downto 0);
+    FMC_INP5   : in std_logic_vector(0 downto 0);
+    FMC_INP6   : in std_logic_vector(0 downto 0);
+    FMC_INP7   : in std_logic_vector(0 downto 0);
+    FMC_INP8   : in std_logic_vector(0 downto 0);
 
     -- SFP Block
 
@@ -168,10 +175,6 @@ bitbus_o(30) <= PULSE_OUT(0);
 bitbus_o(31) <= PULSE_OUT(1);
 bitbus_o(32) <= PULSE_OUT(2);
 bitbus_o(33) <= PULSE_OUT(3);
-bitbus_o(34) <= PULSE_PERR(0);
-bitbus_o(35) <= PULSE_PERR(1);
-bitbus_o(36) <= PULSE_PERR(2);
-bitbus_o(37) <= PULSE_PERR(3);
 
 -- SEQ Outputs:
 bitbus_o(38) <= SEQ_OUTA(0);
@@ -316,6 +319,14 @@ posbus_o(0) <= POSITIONS_ZERO(0);
 -- SLOW Outputs:
 
 -- FMC Outputs:
+bitbus_o(34) <= FMC_INP1(0);
+bitbus_o(35) <= FMC_INP2(0);
+bitbus_o(36) <= FMC_INP3(0);
+bitbus_o(37) <= FMC_INP4(0);
+bitbus_o(111) <= FMC_INP5(0);
+bitbus_o(112) <= FMC_INP6(0);
+bitbus_o(113) <= FMC_INP7(0);
+bitbus_o(114) <= FMC_INP8(0);
 
 -- SFP Outputs:
 

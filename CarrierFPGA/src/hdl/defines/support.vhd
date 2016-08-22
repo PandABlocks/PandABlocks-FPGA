@@ -9,6 +9,7 @@ package support is
 --
 function TO_INTEGER(arg : std_logic_vector) return integer;
 function TO_SVECTOR(arg: natural; size: natural) return std_logic_vector;
+function TO_STDV1(arg : std_logic) return std_logic_vector(0 downto 0);
 function LOG2(arg : natural) return natural;
 function ZEROS(num : positive) return std_logic_vector;
 function COMP(a : std_logic_vector; b: std_logic_vector) return std_logic;
@@ -48,6 +49,15 @@ begin
     return (vector);
 end ZEROS;
 
+-- Converts std_logic to std_logic_vector(0:0)
+function TO_STDV1(arg : std_logic) return std_logic_vector(0 downto 0) is
+    variable temp   : std_logic_vector(0 downto 0);
+begin
+    temp(0) := arg;
+    return temp;
+end TO_STDV1;
+
+-- Compare two vectors
 function COMP (a : std_logic_vector; b: std_logic_vector) return std_logic is
 begin
     if (a/= b) then
@@ -57,6 +67,7 @@ begin
     end if;
 end COMP;
 
+-- Bit reversal
 function BITREV(A : std_logic_vector) return std_logic_vector is
     variable B : std_logic_vector(A'length-1 downto 0);
 begin
