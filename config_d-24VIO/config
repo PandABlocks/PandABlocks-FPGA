@@ -278,7 +278,7 @@ SLOW
     FMC_12V         read
 
 FMC
-    FMC_PRSNT       read
+    PRESENT         read
     OUT1            bit_mux
     OUT2            bit_mux
     OUT3            bit_mux
@@ -287,6 +287,21 @@ FMC
     OUT6            bit_mux
     OUT7            bit_mux
     OUT8            bit_mux
+    IN_PWR_ON       param       enum 2
+        0   Off
+        1   On
+    OUT_PWR_ON      param       enum 2
+        0   Off
+        1   On
+    IN_VTSEL        param       enum 2
+        0   5V
+        1   24V
+    IN_DB           param       enum 4
+        0   None
+        1   0.025ms
+        2   0.75ms
+        3   3ms
+    IN_FAULT        read
     INP1            bit_out
     INP2            bit_out
     INP3            bit_out

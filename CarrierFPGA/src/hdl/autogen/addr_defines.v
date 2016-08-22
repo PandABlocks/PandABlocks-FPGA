@@ -303,7 +303,7 @@ localparam SLOW_ENC_24V = 11;
 localparam SLOW_FMC_12V = 12;
 
 // FMC Block:
-localparam FMC_FMC_PRSNT = 0;
+localparam FMC_PRESENT = 0;
 localparam FMC_OUT1 = 1;
 localparam FMC_OUT1_DLY = 9;
 localparam FMC_OUT2 = 2;
@@ -320,6 +320,11 @@ localparam FMC_OUT7 = 7;
 localparam FMC_OUT7_DLY = 15;
 localparam FMC_OUT8 = 8;
 localparam FMC_OUT8_DLY = 16;
+localparam FMC_IN_PWR_ON = 17;
+localparam FMC_OUT_PWR_ON = 18;
+localparam FMC_IN_VTSEL = 19;
+localparam FMC_IN_DB = 20;
+localparam FMC_IN_FAULT = 21;
 
 // SFP Block:
 localparam SFP_LINK1_UP = 0;

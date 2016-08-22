@@ -288,7 +288,7 @@ SLOW        25
     FMC_12V         12
 
 FMC         26
-    FMC_PRSNT       0
+    PRESENT         0
     OUT1            1 9
     OUT2            2 10
     OUT3            3 11
@@ -297,6 +297,11 @@ FMC         26
     OUT6            6 14
     OUT7            7 15
     OUT8            8 16
+    IN_PWR_ON       17
+    OUT_PWR_ON      18
+    IN_VTSEL        19
+    IN_DB           20
+    IN_FAULT        21
     INP1            34
     INP2            35
     INP3            36

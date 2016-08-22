@@ -29,10 +29,8 @@ constant TTLIN3_TERM        : natural := 11;
 constant TTLIN4_TERM        : natural := 12;
 constant TTLIN5_TERM        : natural := 13;
 constant TTLIN6_TERM        : natural := 14;
-constant TTLIN7_TERM        : natural := 15;
-constant TTLIN8_TERM        : natural := 16;
-constant TTL_LEDS           : natural := 17;
-constant STATUS_LEDS        : natural := 18;
+constant TTL_LEDS           : natural := 15;
+constant STATUS_LEDS        : natural := 16;
 
 --
 -- READ ONLY Registers
@@ -74,12 +72,12 @@ constant OUTPROT_ADDR_LIST  : page_array(ENC_NUM-1 downto 0) := (
 
 -- TTLIN TERM Address List
 constant TTLTERM_ADDR_LIST  : page_array(TTLIN_NUM-1 downto 0) := (
-                                TO_SVECTOR(TTLIN1_TERM, PAGE_AW),
-                                TO_SVECTOR(TTLIN2_TERM, PAGE_AW),
-                                TO_SVECTOR(TTLIN3_TERM, PAGE_AW),
-                                TO_SVECTOR(TTLIN4_TERM, PAGE_AW),
+                                TO_SVECTOR(TTLIN6_TERM, PAGE_AW),
                                 TO_SVECTOR(TTLIN5_TERM, PAGE_AW),
-                                TO_SVECTOR(TTLIN6_TERM, PAGE_AW)
+                                TO_SVECTOR(TTLIN4_TERM, PAGE_AW),
+                                TO_SVECTOR(TTLIN3_TERM, PAGE_AW),
+                                TO_SVECTOR(TTLIN2_TERM, PAGE_AW),
+                                TO_SVECTOR(TTLIN1_TERM, PAGE_AW)
                             );
 
 end slow_defines;

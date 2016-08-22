@@ -78,6 +78,11 @@ signal FMC_CLK0_M2C     : std_logic;
 signal FMC_CLK1_M2C     : std_logic;
 signal EXTCLK           : std_logic;
 signal FMC_PRSNT_DW     : std_logic_vector(31 downto 0);
+signal IN_PWR_ON        : std_logic_vector(31 downto 0);
+signal OUT_PWR_ON       : std_logic_vector(31 downto 0);
+signal IN_DB            : std_logic_vector(31 downto 0);
+signal IN_FAULT         : std_logic_vector(31 downto 0);
+signal IN_VTSEL         : std_logic_vector(31 downto 0);
 signal fmc_in           : std_logic_vector(7 downto 0);
 signal fmc_out          : std_logic_vector(7 downto 0);
 
@@ -135,7 +140,7 @@ port map (
     sysbus_i            => sysbus_i,
     posbus_i            => (others => (others => '0')),
     -- Block Parameters
-    FMC_PRSNT           => FMC_PRSNT_DW,
+    PRESENT             => FMC_PRSNT_DW,
     out1_o              => fmc_out(0),
     out2_o              => fmc_out(1),
     out3_o              => fmc_out(2),
@@ -144,6 +149,11 @@ port map (
     out6_o              => fmc_out(5),
     out7_o              => fmc_out(6),
     out8_o              => fmc_out(7),
+    IN_PWR_ON           => IN_PWR_ON,
+    OUT_PWR_ON          => OUT_PWR_ON,
+    IN_DB               => IN_DB,
+    IN_FAULT            => IN_FAULT,
+    IN_VTSEL            => IN_VTSEL,
     -- Memory Bus Interface
     mem_cs_i            => mem_cs_i,
     mem_wstb_i          => mem_wstb_i,
@@ -161,6 +171,11 @@ port map (
     reset_i             => reset_i,
     FMC_LA_P            => FMC_LA_P,
     FMC_LA_N            => FMC_LA_N,
+    IN_PWR_ON           => IN_PWR_ON(0),
+    OUT_PWR_ON          => OUT_PWR_ON(0),
+    IN_VTSEL            => IN_VTSEL(0),
+    IN_DB               => IN_DB(1 downto 0),
+    IN_FAULT            => IN_FAULT,
     fmc_in_o            => fmc_in,
     fmc_out_i           => fmc_out
 );

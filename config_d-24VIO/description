@@ -223,7 +223,7 @@ SLOW        Slow control FPGA
     FMC_12V         On-board voltage sensor values
 
 FMC   FMC 24V IO Module
-    FMC_PRSNT       FMC present
+    PRESENT        FMC present
     OUT1            24V Output-1
     OUT2            24V Output-2
     OUT3            24V Output-3
@@ -232,6 +232,11 @@ FMC   FMC 24V IO Module
     OUT6            24V Output-6
     OUT7            24V Output-7
     OUT8            24V Output-8
+    IN_PWR_ON       Enable Input Power
+    OUT_PWR_ON      Enable Output Power
+    IN_VTSEL        Input Voltage Select
+    IN_DB           Debounce Time Select
+    IN_FAULT        Voltage and Temp Alarm (Active Low)
     INP1            24V Input-1
     INP2            24V Input-2
     INP3            24V Input-3

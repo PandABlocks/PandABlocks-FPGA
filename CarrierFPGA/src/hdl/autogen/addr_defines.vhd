@@ -309,7 +309,7 @@ constant SLOW_ENC_24V : natural := 11;
 constant SLOW_FMC_12V : natural := 12;
 
 -- FMC Block:
-constant FMC_FMC_PRSNT : natural := 0;
+constant FMC_PRESENT : natural := 0;
 constant FMC_OUT1 : natural := 1;
 constant FMC_OUT1_DLY : natural := 9;
 constant FMC_OUT2 : natural := 2;
@@ -326,6 +326,11 @@ constant FMC_OUT7 : natural := 7;
 constant FMC_OUT7_DLY : natural := 15;
 constant FMC_OUT8 : natural := 8;
 constant FMC_OUT8_DLY : natural := 16;
+constant FMC_IN_PWR_ON : natural := 17;
+constant FMC_OUT_PWR_ON : natural := 18;
+constant FMC_IN_VTSEL : natural := 19;
+constant FMC_IN_DB : natural := 20;
+constant FMC_IN_FAULT : natural := 21;
 
 -- SFP Block:
 constant SFP_LINK1_UP : natural := 0;

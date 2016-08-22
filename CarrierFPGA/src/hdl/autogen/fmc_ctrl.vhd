@@ -21,7 +21,16 @@ port (
     sysbus_i            : in sysbus_t;
     posbus_i            : in posbus_t;
     -- Block Parameters
-    FMC_PRSNT       : in  std_logic_vector(31 downto 0);
+    PRESENT       : in  std_logic_vector(31 downto 0);
+    IN_PWR_ON       : out std_logic_vector(31 downto 0);
+    IN_PWR_ON_WSTB  : out std_logic;
+    OUT_PWR_ON       : out std_logic_vector(31 downto 0);
+    OUT_PWR_ON_WSTB  : out std_logic;
+    IN_VTSEL       : out std_logic_vector(31 downto 0);
+    IN_VTSEL_WSTB  : out std_logic;
+    IN_DB       : out std_logic_vector(31 downto 0);
+    IN_DB_WSTB  : out std_logic;
+    IN_FAULT       : in  std_logic_vector(31 downto 0);
     out1_o : out std_logic;
     out2_o : out std_logic;
     out3_o : out std_logic;
@@ -119,6 +128,14 @@ begin
             OUT8_WSTB <= '0';
             OUT8_DLY <= (others => '0');
             OUT8_DLY_WSTB <= '0';
+            IN_PWR_ON <= (others => '0');
+            IN_PWR_ON_WSTB <= '0';
+            OUT_PWR_ON <= (others => '0');
+            OUT_PWR_ON_WSTB <= '0';
+            IN_VTSEL <= (others => '0');
+            IN_VTSEL_WSTB <= '0';
+            IN_DB <= (others => '0');
+            IN_DB_WSTB <= '0';
         else
             OUT1_WSTB <= '0';
             OUT1_DLY_WSTB <= '0';
@@ -136,6 +153,10 @@ begin
             OUT7_DLY_WSTB <= '0';
             OUT8_WSTB <= '0';
             OUT8_DLY_WSTB <= '0';
+            IN_PWR_ON_WSTB <= '0';
+            OUT_PWR_ON_WSTB <= '0';
+            IN_VTSEL_WSTB <= '0';
+            IN_DB_WSTB <= '0';
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
@@ -203,6 +224,22 @@ begin
                     OUT8_DLY <= mem_dat_i;
                     OUT8_DLY_WSTB <= '1';
                 end if;
+                if (mem_addr = FMC_IN_PWR_ON) then
+                    IN_PWR_ON <= mem_dat_i;
+                    IN_PWR_ON_WSTB <= '1';
+                end if;
+                if (mem_addr = FMC_OUT_PWR_ON) then
+                    OUT_PWR_ON <= mem_dat_i;
+                    OUT_PWR_ON_WSTB <= '1';
+                end if;
+                if (mem_addr = FMC_IN_VTSEL) then
+                    IN_VTSEL <= mem_dat_i;
+                    IN_VTSEL_WSTB <= '1';
+                end if;
+                if (mem_addr = FMC_IN_DB) then
+                    IN_DB <= mem_dat_i;
+                    IN_DB_WSTB <= '1';
+                end if;
 
             end if;
         end if;
@@ -219,8 +256,10 @@ begin
             mem_dat_o <= (others => '0');
         else
             case (mem_addr) is
-                when FMC_FMC_PRSNT =>
-                    mem_dat_o <= FMC_PRSNT;
+                when FMC_PRESENT =>
+                    mem_dat_o <= PRESENT;
+                when FMC_IN_FAULT =>
+                    mem_dat_o <= IN_FAULT;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;
