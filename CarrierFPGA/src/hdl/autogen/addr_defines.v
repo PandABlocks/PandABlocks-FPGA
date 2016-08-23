@@ -325,6 +325,13 @@ localparam FMC_OUT_PWR_ON = 18;
 localparam FMC_IN_VTSEL = 19;
 localparam FMC_IN_DB = 20;
 localparam FMC_IN_FAULT = 21;
+localparam FMC_OUT_PUSHPL = 22;
+localparam FMC_OUT_FLTR = 23;
+localparam FMC_OUT_SRIAL = 24;
+localparam FMC_OUT_FAULT = 25;
+localparam FMC_OUT_EN = 26;
+localparam FMC_OUT_CONFIG = 27;
+localparam FMC_OUT_STATUS = 28;
 
 // SFP Block:
 localparam SFP_LINK1_UP = 0;

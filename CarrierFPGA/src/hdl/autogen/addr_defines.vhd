@@ -331,6 +331,13 @@ constant FMC_OUT_PWR_ON : natural := 18;
 constant FMC_IN_VTSEL : natural := 19;
 constant FMC_IN_DB : natural := 20;
 constant FMC_IN_FAULT : natural := 21;
+constant FMC_OUT_PUSHPL : natural := 22;
+constant FMC_OUT_FLTR : natural := 23;
+constant FMC_OUT_SRIAL : natural := 24;
+constant FMC_OUT_FAULT : natural := 25;
+constant FMC_OUT_EN : natural := 26;
+constant FMC_OUT_CONFIG : natural := 27;
+constant FMC_OUT_STATUS : natural := 28;
 
 -- SFP Block:
 constant SFP_LINK1_UP : natural := 0;

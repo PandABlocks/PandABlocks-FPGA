@@ -25,13 +25,22 @@ port (
     -- FMC LA I/O
     FMC_LA_P            : inout std_logic_vector(33 downto 0);
     FMC_LA_N            : inout std_logic_vector(33 downto 0);
-    -- MAX31915 control interface
+    --
     IN_PWR_ON           : in  std_logic;
     OUT_PWR_ON          : in  std_logic;
+    OUT_EN              : in  std_logic;
+    -- MAX31915 control interface
     IN_VTSEL            : in  std_logic;
     IN_DB               : in  std_logic_vector(1 downto 0);
     IN_FAULT            : out std_logic_vector(31 downto 0);
-    -- 24VIO Inteface
+    -- MAX14900 control interface
+    OUT_PUSHPL          : in  std_logic;
+    OUT_FLTR            : in  std_logic;
+    OUT_SRIAL           : in  std_logic;
+    OUT_FAULT           : out std_logic_vector(31 downto 0);
+    OUT_CONFIG          : in  std_logic_vector(15 downto 0);
+    OUT_STATUS          : out std_logic_vector(31 downto 0);
+    -- 24V <-> IO Inteface
     fmc_in_o            : out std_logic_vector(7 downto 0);
     fmc_out_i           : in  std_logic_vector(7 downto 0)
 );
@@ -66,6 +75,7 @@ FMC_LA_N(7) <= fmc_out_i(7);
 --------------------------------------------------------------------------
 FMC_LA_P(8) <= IN_PWR_ON;
 FMC_LA_N(8) <= OUT_PWR_ON;
+FMC_LA_N(13) <= OUT_EN;
 
 --------------------------------------------------------------------------
 -- MAX31915 Octal, Digital Input Translator Control
@@ -90,14 +100,35 @@ IN_FAULT(0) <= FMC_LA_N(10);     -- UVFAULT
 -- Indicates Hot Temperature Alarm. OR’ed with the UVFAULT indicator
 IN_FAULT(1) <= FMC_LA_P(11);     -- FAULT
 
---
-FMC_LA_N(11) <= '0';
+--------------------------------------------------------------------------
+-- MAX14900E Octal, High-Speed, Industrial, High-Side Switch
+--------------------------------------------------------------------------
+
+FMC_LA_P(14) <= OUT_PUSHPL;     -- Global Push-Pull/High-Side Select
+FMC_LA_N(14) <= OUT_FLTR;       -- Glitch Filter Enable
+FMC_LA_P(15) <= OUT_SRIAL;      -- Serial/Parallel Select
+OUT_FAULT(0) <= FMC_LA_N(15);   -- Global Fault
+
+-- 16-bit SPI Configuration and Status Interface
+max14900_ctrl_inst : entity work.max14900_ctrl
+port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    csn_o           => FMC_LA_N(11),
+    sclk_o          => FMC_LA_P(12),
+    miso_i          => FMC_LA_P(13),
+    mosi_o          => FMC_LA_N(12),
+    config_i        => OUT_CONFIG,
+    status_o        => OUT_STATUS(15 downto 0)
+);
 
 -- Unused IO
-FMC_LA_P(33 downto 12) <= (others => 'Z');
-FMC_LA_N(33 downto 12) <= (others => 'Z');
+FMC_LA_P(33 downto 16) <= (others => 'Z');
+FMC_LA_N(33 downto 16) <= (others => 'Z');
 
 IN_FAULT(31 downto 2) <= (others => '0');
+OUT_FAULT(31 downto 1) <= (others => '0');
+OUT_STATUS(31 downto 16) <= (others => '0');
 
 end rtl;
 

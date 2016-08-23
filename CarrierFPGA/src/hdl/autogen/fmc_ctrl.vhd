@@ -31,6 +31,18 @@ port (
     IN_DB       : out std_logic_vector(31 downto 0);
     IN_DB_WSTB  : out std_logic;
     IN_FAULT       : in  std_logic_vector(31 downto 0);
+    OUT_PUSHPL       : out std_logic_vector(31 downto 0);
+    OUT_PUSHPL_WSTB  : out std_logic;
+    OUT_FLTR       : out std_logic_vector(31 downto 0);
+    OUT_FLTR_WSTB  : out std_logic;
+    OUT_SRIAL       : out std_logic_vector(31 downto 0);
+    OUT_SRIAL_WSTB  : out std_logic;
+    OUT_FAULT       : in  std_logic_vector(31 downto 0);
+    OUT_EN       : out std_logic_vector(31 downto 0);
+    OUT_EN_WSTB  : out std_logic;
+    OUT_CONFIG       : out std_logic_vector(31 downto 0);
+    OUT_CONFIG_WSTB  : out std_logic;
+    OUT_STATUS       : in  std_logic_vector(31 downto 0);
     out1_o : out std_logic;
     out2_o : out std_logic;
     out3_o : out std_logic;
@@ -136,6 +148,16 @@ begin
             IN_VTSEL_WSTB <= '0';
             IN_DB <= (others => '0');
             IN_DB_WSTB <= '0';
+            OUT_PUSHPL <= (others => '0');
+            OUT_PUSHPL_WSTB <= '0';
+            OUT_FLTR <= (others => '0');
+            OUT_FLTR_WSTB <= '0';
+            OUT_SRIAL <= (others => '0');
+            OUT_SRIAL_WSTB <= '0';
+            OUT_EN <= (others => '0');
+            OUT_EN_WSTB <= '0';
+            OUT_CONFIG <= (others => '0');
+            OUT_CONFIG_WSTB <= '0';
         else
             OUT1_WSTB <= '0';
             OUT1_DLY_WSTB <= '0';
@@ -157,6 +179,11 @@ begin
             OUT_PWR_ON_WSTB <= '0';
             IN_VTSEL_WSTB <= '0';
             IN_DB_WSTB <= '0';
+            OUT_PUSHPL_WSTB <= '0';
+            OUT_FLTR_WSTB <= '0';
+            OUT_SRIAL_WSTB <= '0';
+            OUT_EN_WSTB <= '0';
+            OUT_CONFIG_WSTB <= '0';
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
@@ -240,6 +267,26 @@ begin
                     IN_DB <= mem_dat_i;
                     IN_DB_WSTB <= '1';
                 end if;
+                if (mem_addr = FMC_OUT_PUSHPL) then
+                    OUT_PUSHPL <= mem_dat_i;
+                    OUT_PUSHPL_WSTB <= '1';
+                end if;
+                if (mem_addr = FMC_OUT_FLTR) then
+                    OUT_FLTR <= mem_dat_i;
+                    OUT_FLTR_WSTB <= '1';
+                end if;
+                if (mem_addr = FMC_OUT_SRIAL) then
+                    OUT_SRIAL <= mem_dat_i;
+                    OUT_SRIAL_WSTB <= '1';
+                end if;
+                if (mem_addr = FMC_OUT_EN) then
+                    OUT_EN <= mem_dat_i;
+                    OUT_EN_WSTB <= '1';
+                end if;
+                if (mem_addr = FMC_OUT_CONFIG) then
+                    OUT_CONFIG <= mem_dat_i;
+                    OUT_CONFIG_WSTB <= '1';
+                end if;
 
             end if;
         end if;
@@ -260,6 +307,10 @@ begin
                     mem_dat_o <= PRESENT;
                 when FMC_IN_FAULT =>
                     mem_dat_o <= IN_FAULT;
+                when FMC_OUT_FAULT =>
+                    mem_dat_o <= OUT_FAULT;
+                when FMC_OUT_STATUS =>
+                    mem_dat_o <= OUT_STATUS;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;

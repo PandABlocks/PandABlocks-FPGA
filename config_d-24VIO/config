@@ -302,6 +302,21 @@ FMC
         2   0.75ms
         3   3ms
     IN_FAULT        read
+    OUT_PUSHPL      param       enum 2
+        0   High-side
+        1   Push-pull
+    OUT_FLTR        param       enum 2
+        0   Off
+        1   On
+    OUT_SRIAL       param       enum 2
+        0   Parallel
+        1   Serial
+    OUT_FAULT       read
+    OUT_EN          param       enum 2
+        0   Disable
+        1   Enable
+    OUT_CONFIG      param
+    OUT_STATUS      read
     INP1            bit_out
     INP2            bit_out
     INP3            bit_out

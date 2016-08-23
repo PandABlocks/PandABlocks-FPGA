@@ -235,8 +235,15 @@ FMC   FMC 24V IO Module
     IN_PWR_ON       Enable Input Power
     OUT_PWR_ON      Enable Output Power
     IN_VTSEL        Input Voltage Select
-    IN_DB           Debounce Time Select
-    IN_FAULT        Voltage and Temp Alarm (Active Low)
+    IN_DB           Input Debounce Time Select
+    IN_FAULT        Input Voltage and Temp Alarm (Active Low)
+    OUT_PUSHPL      Output Global Push-Pull/High-Side Select
+    OUT_FLTR        Output Glitch Filter Enable
+    OUT_SRIAL       Output Serial/Parallel Select
+    OUT_FAULT       Output Global Fault Output
+    OUT_EN          Output Enable
+    OUT_CONFIG      Output Raw Configuration Value
+    OUT_STATUS      Output Raw Status Value
     INP1            24V Input-1
     INP2            24V Input-2
     INP3            24V Input-3

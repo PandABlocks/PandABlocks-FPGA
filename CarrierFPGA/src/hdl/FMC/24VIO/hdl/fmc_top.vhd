@@ -83,6 +83,14 @@ signal OUT_PWR_ON       : std_logic_vector(31 downto 0);
 signal IN_DB            : std_logic_vector(31 downto 0);
 signal IN_FAULT         : std_logic_vector(31 downto 0);
 signal IN_VTSEL         : std_logic_vector(31 downto 0);
+signal OUT_PUSHPL       : std_logic_vector(31 downto 0);
+signal OUT_FLTR         : std_logic_vector(31 downto 0);
+signal OUT_SRIAL        : std_logic_vector(31 downto 0);
+signal OUT_FAULT        : std_logic_vector(31 downto 0);
+signal OUT_EN           : std_logic_vector(31 downto 0);
+signal OUT_CONFIG       : std_logic_vector(31 downto 0);
+signal OUT_STATUS       : std_logic_vector(31 downto 0);
+
 signal fmc_in           : std_logic_vector(7 downto 0);
 signal fmc_out          : std_logic_vector(7 downto 0);
 
@@ -154,6 +162,13 @@ port map (
     IN_DB               => IN_DB,
     IN_FAULT            => IN_FAULT,
     IN_VTSEL            => IN_VTSEL,
+    OUT_PUSHPL          => OUT_PUSHPL,
+    OUT_FLTR            => OUT_FLTR,
+    OUT_SRIAL           => OUT_SRIAL,
+    OUT_FAULT           => OUT_FAULT,
+    OUT_EN              => OUT_EN,
+    OUT_CONFIG          => OUT_CONFIG,
+    OUT_STATUS          => OUT_STATUS,
     -- Memory Bus Interface
     mem_cs_i            => mem_cs_i,
     mem_wstb_i          => mem_wstb_i,
@@ -176,6 +191,13 @@ port map (
     IN_VTSEL            => IN_VTSEL(0),
     IN_DB               => IN_DB(1 downto 0),
     IN_FAULT            => IN_FAULT,
+    OUT_PUSHPL          => OUT_PUSHPL(0),
+    OUT_FLTR            => OUT_FLTR(0),
+    OUT_SRIAL           => OUT_SRIAL(0),
+    OUT_FAULT           => OUT_FAULT,
+    OUT_EN              => OUT_EN(0),
+    OUT_CONFIG          => OUT_CONFIG(15 downto 0),
+    OUT_STATUS          => OUT_STATUS,
     fmc_in_o            => fmc_in,
     fmc_out_i           => fmc_out
 );

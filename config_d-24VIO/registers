@@ -302,6 +302,13 @@ FMC         26
     IN_VTSEL        19
     IN_DB           20
     IN_FAULT        21
+    OUT_PUSHPL      22
+    OUT_FLTR        23
+    OUT_SRIAL       24
+    OUT_FAULT       25
+    OUT_EN          26
+    OUT_CONFIG      27
+    OUT_STATUS      28
     INP1            34
     INP2            35
     INP3            36
