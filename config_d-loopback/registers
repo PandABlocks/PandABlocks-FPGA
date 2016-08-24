@@ -113,7 +113,6 @@ PULSE       10
     INP             0 11
     ENABLE          1 12
     OUT             30 31 32 33
-    PERR            34 35 36 37
     ERR_OVERFLOW    7
     ERR_PERIOD      8
     QUEUE           9

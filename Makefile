@@ -69,10 +69,16 @@ zpkg: $(SERVER_ZPKG) $(CONFIG_ZPKG)
 # ------------------------------------------------------------------------------
 # FPGA builds
 
-FMC_DESIGN = 24VIO
+FMC_DESIGN = loopback
+#FMC_DESIGN = 24VIO
 SFP_DESIGN = loopback
 
 carrier-fpga: $(FPGA_BUILD_DIR)
+
+	rm -f config_d
+	ln -s config_d-$(FMC_DESIGN) config_d
+	rm -rf $(TOP)/CarrierFPGA/src/hdl/autogen
+	cd python && ./vhdl_generator.py
 	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
 	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) \
 		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN)

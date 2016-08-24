@@ -282,15 +282,17 @@ signal bits_outb            : std_logic_vector(0 downto 0);
 signal bits_outc            : std_logic_vector(0 downto 0);
 signal bits_outd            : std_logic_vector(0 downto 0);
 
--- FMC Block
-signal fmc_inp1             : std_logic_vector(0 downto 0);
-signal fmc_inp2             : std_logic_vector(0 downto 0);
-signal fmc_inp3             : std_logic_vector(0 downto 0);
-signal fmc_inp4             : std_logic_vector(0 downto 0);
-signal fmc_inp5             : std_logic_vector(0 downto 0);
-signal fmc_inp6             : std_logic_vector(0 downto 0);
-signal fmc_inp7             : std_logic_vector(0 downto 0);
-signal fmc_inp8             : std_logic_vector(0 downto 0);
+-- EDIT BELOW THIS LINE ----------------------------
+-- Add FMC application specific signal
+--signal fmc_inp1             : std_logic_vector(0 downto 0);
+--signal fmc_inp2             : std_logic_vector(0 downto 0);
+--signal fmc_inp3             : std_logic_vector(0 downto 0);
+--signal fmc_inp4             : std_logic_vector(0 downto 0);
+--signal fmc_inp5             : std_logic_vector(0 downto 0);
+--signal fmc_inp6             : std_logic_vector(0 downto 0);
+--signal fmc_inp7             : std_logic_vector(0 downto 0);
+--signal fmc_inp8             : std_logic_vector(0 downto 0);
+-- EDIT ABOVE THIS LINE ----------------------------
 
 begin
 
@@ -931,6 +933,19 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
 
     fmc_inst : entity work.fmc_top
     port map (
+        -- EDIT BELOW THIS LINE ----------------------------
+        -- Add FMC application specific port mapping
+--        sysbus_i            => sysbus,
+--        fmc_inp1_o          => fmc_inp1(0),
+--        fmc_inp2_o          => fmc_inp2(0),
+--        fmc_inp3_o          => fmc_inp3(0),
+--        fmc_inp4_o          => fmc_inp4(0),
+--        fmc_inp5_o          => fmc_inp5(0),
+--        fmc_inp6_o          => fmc_inp6(0),
+--        fmc_inp7_o          => fmc_inp7(0),
+--        fmc_inp8_o          => fmc_inp8(0),
+        -- EDIT ABOVE THIS LINE ----------------------------
+
         -- DO NOT EDIT BELOW THIS LINE ---------------------
         -- Standard FMC Block ports, do not add to or delete
         clk_i               => FCLK_CLK0,
@@ -958,20 +973,8 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
         TXP_OUT             => FMC_DP0_C2M_P,
         TXN_OUT             => FMC_DP0_C2M_N,
         RXP_IN              => FMC_DP0_M2C_P,
-        RXN_IN              => FMC_DP0_M2C_N,
+        RXN_IN              => FMC_DP0_M2C_N
         -- DO NOT EDIT ABOVE THIS LINE ---------------------
-
-        -- EDIT BELOW THIS LINE ----------------------------
-        -- Add and connect application specific ports here
-        sysbus_i            => sysbus,
-        fmc_inp1_o          => fmc_inp1(0),
-        fmc_inp2_o          => fmc_inp2(0),
-        fmc_inp3_o          => fmc_inp3(0),
-        fmc_inp4_o          => fmc_inp4(0),
-        fmc_inp5_o          => fmc_inp5(0),
-        fmc_inp6_o          => fmc_inp6(0),
-        fmc_inp7_o          => fmc_inp7(0),
-        fmc_inp8_o          => fmc_inp8(0)
     );
 
 END GENERATE;
@@ -1074,15 +1077,19 @@ port map (
     -- POSITIONS Block
     POSITIONS_ZERO  => (others => (others => '0')),
     -- SLOW Block
-    -- FMC_24VIO Block
-    FMC_INP1        => fmc_inp1,
-    FMC_INP2        => fmc_inp2,
-    FMC_INP3        => fmc_inp3,
-    FMC_INP4        => fmc_inp4,
-    FMC_INP5        => fmc_inp5,
-    FMC_INP6        => fmc_inp6,
-    FMC_INP7        => fmc_inp7,
-    FMC_INP8        => fmc_inp8,
+
+    -- EDIT BELOW THIS LINE ----------------------------
+    -- Add FMC application specific port mapping
+--    FMC_INP1        => fmc_inp1,
+--    FMC_INP2        => fmc_inp2,
+--    FMC_INP3        => fmc_inp3,
+--    FMC_INP4        => fmc_inp4,
+--    FMC_INP5        => fmc_inp5,
+--    FMC_INP6        => fmc_inp6,
+--    FMC_INP7        => fmc_inp7,
+--    FMC_INP8        => fmc_inp8,
+    -- EDIT ABOVE THIS LINE ----------------------------
+
     -- SFP Block
     -- Bus Outputs
     bitbus_o        => sysbus,
