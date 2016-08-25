@@ -8,9 +8,9 @@
 --  Copyright (c) 2012 Diamond Light Source Ltd.
 --  All rights reserved.
 -----------------------------------------------------------------------------
---  Module Description: Master SSI module continuously reads from Absolute
---  encoders acting as slaves. N clock cycles are generated, and on falling edge
---  of each clock, data input is latched and shifted into N-bit register.
+--  Module Description: MAX14900 SPI control interface.
+--                      Configuration data write and status read are performed
+--                      on the same cycle at 1ms continuously.
 -----------------------------------------------------------------------------
 
 library ieee;
@@ -57,10 +57,12 @@ signal shiftreg         : std_logic_vector(DW-1 downto 0);
 
 begin
 
-SPI_PERIOD <= std_logic_vector(to_unsigned(100 * usec / 8, 32)) when
+-- Set SPI data transmission rate from master to slave
+SPI_PERIOD <= std_logic_vector(to_unsigned(1000 * usec / 8, 32)) when
                 (SIM = false) else
                     std_logic_vector(to_unsigned(100 * usec / 8, 32));
 
+-- Set SPI clock to 1MHz.
 SCLK_PERIOD <= std_logic_vector(to_unsigned(1 * usec / 8, 32));
 
 -- Connect outputs
@@ -76,6 +78,7 @@ port map (
     pulse_o     => spi_update
 );
 
+-- Generate SCLK output from master to slave for 16 ticks
 clock_train_inst : entity work.max14900_sclk_gen
 generic map (
     N               => 16
@@ -90,7 +93,6 @@ port map (
     busy_o          => open
 );
 
--- SSI Master FSM
 ssi_fsm_gen : process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -98,7 +100,7 @@ begin
     end if;
 end process;
 
--- Shift source synchronous data on the Falling egde of clock.
+-- Shift data in and out on clock edges
 sclk_rise <= sclk and not sclk_prev;
 sclk_fall <= not sclk and sclk_prev;
 

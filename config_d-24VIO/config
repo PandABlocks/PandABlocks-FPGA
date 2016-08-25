@@ -287,9 +287,6 @@ FMC
     OUT6            bit_mux
     OUT7            bit_mux
     OUT8            bit_mux
-    IN_PWR_ON       param       enum 2
-        0   Off
-        1   On
     OUT_PWR_ON      param       enum 2
         0   Off
         1   On

@@ -232,7 +232,6 @@ FMC   FMC 24V IO Module
     OUT6            24V Output-6
     OUT7            24V Output-7
     OUT8            24V Output-8
-    IN_PWR_ON       Enable Input Power
     OUT_PWR_ON      Enable Output Power
     IN_VTSEL        Input Voltage Select
     IN_DB           Input Debounce Time Select

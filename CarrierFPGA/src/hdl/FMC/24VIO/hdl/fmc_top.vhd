@@ -6,12 +6,8 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : FMC Loopback Design exercised all LA lines and GTX on the LPC
---                connector.
---
---                This module must be used with Whizz Systems FMC Loopback card
---                where LA[16:0] are outputs, and loopbacked to LA[33:17] as 
---                inputs.
+--  Description : FMC Top-Level Generic VHDL entity to support various FMC
+--                modules.
 --
 --------------------------------------------------------------------------------
 
@@ -78,7 +74,6 @@ signal FMC_CLK0_M2C     : std_logic;
 signal FMC_CLK1_M2C     : std_logic;
 signal EXTCLK           : std_logic;
 signal FMC_PRSNT_DW     : std_logic_vector(31 downto 0);
-signal IN_PWR_ON        : std_logic_vector(31 downto 0);
 signal OUT_PWR_ON       : std_logic_vector(31 downto 0);
 signal IN_DB            : std_logic_vector(31 downto 0);
 signal IN_FAULT         : std_logic_vector(31 downto 0);
@@ -157,7 +152,6 @@ port map (
     out6_o              => fmc_out(5),
     out7_o              => fmc_out(6),
     out8_o              => fmc_out(7),
-    IN_PWR_ON           => IN_PWR_ON,
     OUT_PWR_ON          => OUT_PWR_ON,
     IN_DB               => IN_DB,
     IN_FAULT            => IN_FAULT,
@@ -186,7 +180,6 @@ port map (
     reset_i             => reset_i,
     FMC_LA_P            => FMC_LA_P,
     FMC_LA_N            => FMC_LA_N,
-    IN_PWR_ON           => IN_PWR_ON(0),
     OUT_PWR_ON          => OUT_PWR_ON(0),
     IN_VTSEL            => IN_VTSEL(0),
     IN_DB               => IN_DB(1 downto 0),
