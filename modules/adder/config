@@ -1,0 +1,12 @@
+ADDER[2]
+    INPA            pos_mux
+    INPB            pos_mux
+    INPC            pos_mux
+    INPD            pos_mux
+    SCALE           param       enum 3
+        0   /1
+        1   /2
+        2   /4
+    OUT             pos_out
+
+

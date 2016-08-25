@@ -1,0 +1,11 @@
+PULSE[4]
+    DELAY           time
+    WIDTH           time
+    INP             bit_mux
+    ENABLE          bit_mux
+    OUT             bit_out
+    ERR_OVERFLOW    read        bit
+    ERR_PERIOD      read        bit
+    QUEUE           read        uint 1023
+    MISSED_CNT      read
+

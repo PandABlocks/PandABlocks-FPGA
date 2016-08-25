@@ -1,0 +1,9 @@
+LUT[8]
+    FUNC            param       lut
+    INPA            bit_mux
+    INPB            bit_mux
+    INPC            bit_mux
+    INPD            bit_mux
+    INPE            bit_mux
+    OUT             bit_out
+

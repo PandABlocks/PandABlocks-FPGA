@@ -1,0 +1,15 @@
+POSENC[4]
+    INP             pos_mux
+    QPERIOD         param       time
+    ENABLE          bit_mux
+    PROTOCOL        param       enum 2
+        0   Quadrature
+        1   Step/Direction
+    A               bit_out
+    B               bit_out
+    QSTATE          read        enum 3
+        0   Disabled
+        1   At position
+        2   Slewing
+
+

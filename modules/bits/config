@@ -1,0 +1,13 @@
+BITS
+    A               param       bit
+    B               param       bit
+    C               param       bit
+    D               param       bit
+    OUTA            bit_out
+    OUTB            bit_out
+    OUTC            bit_out
+    OUTD            bit_out
+    ZERO            bit_out
+    ONE             bit_out
+
+

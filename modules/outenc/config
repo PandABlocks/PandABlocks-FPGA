@@ -1,0 +1,21 @@
+OUTENC[4]
+    PROTOCOL        param       enum 5
+        0   Quadrature
+        1   SSI
+        2   BISS
+        3   enDat
+        4   ABZ
+    BITS            param       uint 32
+    QPERIOD         param       time
+    ENABLE          bit_mux
+    A               bit_mux
+    B               bit_mux
+    Z               bit_mux
+    VAL             pos_mux
+    CONN            bit_mux
+    QSTATE          read        enum 3
+        0   Disabled
+        1   At position
+        2   Slewing
+
+

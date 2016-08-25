@@ -1,0 +1,28 @@
+SEQ[4]
+    PRESCALE        param       time
+    TABLE_CYCLE     param
+    ENABLE          bit_mux
+    INPA            bit_mux
+    INPB            bit_mux
+    INPC            bit_mux
+    INPD            bit_mux
+    OUTA            bit_out
+    OUTB            bit_out
+    OUTC            bit_out
+    OUTD            bit_out
+    OUTE            bit_out
+    OUTF            bit_out
+    ACTIVE          bit_out
+    CUR_FRAME       read
+    CUR_FCYCLE      read
+    CUR_TCYCLE      read
+    TABLE           table
+        31:0    NREPEATS
+        35:32   INPUT_MASK
+        39:36   TRIGGER_MASK
+        45:40   OUT_PH_A
+        51:46   OUT_PH_B
+        95:64   TIME_PH_A
+        127:96  TIME_PH_B
+
+

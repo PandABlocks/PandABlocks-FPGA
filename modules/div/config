@@ -1,0 +1,11 @@
+DIV[4]
+    DIVISOR         param
+    FIRST_PULSE     param       enum 2
+        0   OutN
+        1   OutD
+    INP             bit_mux
+    ENABLE          bit_mux
+    OUTD            bit_out
+    OUTN            bit_out
+    COUNT           read
+
