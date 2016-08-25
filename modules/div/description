@@ -1,0 +1,10 @@
+DIV         Pulse divider
+    DIVISOR         Divisor value
+    FIRST_PULSE     Where to send first pulse
+    INP             Input pulse train
+    ENABLE          Reset on falling edge, enable on rising
+    OUTD            Divided pulse output
+    OUTN            Non-divided pulse output
+    COUNT           Internal counter value
+
+

@@ -1,0 +1,9 @@
+QDEC        Quadrature decoder
+    RST_ON_Z        Zero position on Z rising edge
+    SETP            Set point
+    A               Quadrature A
+    B               Quadrature B
+    Z               Z index channel
+    OUT             Output position
+
+

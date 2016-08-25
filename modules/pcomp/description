@@ -1,0 +1,18 @@
+PCOMP       Position compare
+    START           Pulse start position value
+    STEP            Pulse step value
+    WIDTH           Pulse width value
+    PNUM            Pulse number to be generated
+    RELATIVE        Relative position compare enable
+    DIR             Direction of crossing
+    DELTAP          Position offset before START condition can be met
+    USE_TABLE       Relative position compare LUT mode
+    ENABLE          Reset on falling edge, enable on rising
+    INP             Position data from position-data bus
+    ACTIVE          Active output is high while block is in operation
+    OUT             Output pulse
+    ERROR           True if pulse is initiated after at least two compare ponts
+    TABLE           Table of points to use instead of START/STEP/WIDTH
+    TABLE_STATUS    Table status
+
+

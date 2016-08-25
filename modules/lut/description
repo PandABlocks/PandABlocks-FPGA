@@ -1,0 +1,10 @@
+LUT         Logic lookup table
+    FUNC            Logic function for table computation
+    INPA            Input A
+    INPB            Input B
+    INPC            Input C
+    INPD            Input D
+    INPE            Input E
+    OUT             Lookup table output
+
+
