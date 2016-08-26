@@ -1,0 +1,14 @@
+TTLIN       TTL input
+    TERM            Select TTL input termination
+    VAL             TTL input value
+
+TTLOUT      TTL output
+    VAL             TTL output value
+
+LVDSIN      LVDS input
+    VAL             LVDS input value
+
+LVDSOUT     LVDS output
+    VAL             LVDS output value
+
+

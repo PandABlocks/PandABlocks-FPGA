@@ -1,0 +1,15 @@
+TTLIN[6]
+    TERM            param       enum 2
+        0   High-Z
+        1   50-Ohm
+    VAL             bit_out
+
+TTLOUT[10]
+    VAL             bit_mux
+
+LVDSIN[2]
+    VAL             bit_out
+
+LVDSOUT[2]
+    VAL             bit_mux
+
