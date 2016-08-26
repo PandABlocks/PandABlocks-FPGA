@@ -1,0 +1,17 @@
+PCOMP       19
+    START           2
+    STEP            3
+    WIDTH           4
+    PNUM            5
+    RELATIVE        6
+    DIR             7
+    DELTAP          8
+    USE_TABLE       10
+    ENABLE          0 15
+    INP             1
+    ACTIVE          98 99 100 101
+    OUT             102 103 104 105
+    ERROR           14
+    TABLE           long    2^2    11 12
+    TABLE_STATUS    16
+

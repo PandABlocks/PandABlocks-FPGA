@@ -1,0 +1,16 @@
+PCAP        21
+    ENABLE          0 5
+    FRAME           1 6
+    CAPTURE         2 7
+    ERR_STATUS      4
+    ACTIVE          106
+    CAPTURE_TS      62 / 63
+    FRAME_LENGTH    37
+    CAPTURE_OFFSET  38
+    ADC_COUNT       32
+    BITS0           39
+    BITS1           40
+    BITS2           41
+    BITS3           42
+
+

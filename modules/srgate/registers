@@ -1,0 +1,10 @@
+SRGATE      8
+    SET_EDGE        2
+    RST_EDGE        3
+    FORCE_SET       4
+    FORCE_RST       5
+    SET             0 6
+    RST             1 7
+    OUT             18 19 20 21
+
+

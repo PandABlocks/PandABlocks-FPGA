@@ -1,0 +1,9 @@
+PGEN        18
+    CYCLES          3
+    ENABLE          0 6
+    TRIG            1 7
+    OUT             20 21
+    TABLE           long    2^8    4 5
+    TABLE_STATUS    8
+
+

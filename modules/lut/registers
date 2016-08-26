@@ -1,0 +1,10 @@
+LUT         7
+    FUNC            5
+    INPA            0 6
+    INPB            1 7
+    INPC            2 8
+    INPD            3 9
+    INPE            4 10
+    OUT             10 11 12 13 14 15 16 17
+
+

@@ -1,0 +1,11 @@
+CLOCKS      23
+    A_PERIOD        0
+    B_PERIOD        1
+    C_PERIOD        2
+    D_PERIOD        3
+    OUTA            122
+    OUTB            123
+    OUTC            124
+    OUTD            125
+
+

@@ -1,0 +1,9 @@
+ADDER       16
+    INPA            0
+    INPB            1
+    INPC            2
+    INPD            3
+    SCALE           4
+    OUT             10 11
+
+

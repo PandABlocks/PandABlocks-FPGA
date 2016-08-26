@@ -1,0 +1,9 @@
+POSENC      15
+    INP             0
+    QPERIOD         1
+    ENABLE          3 5
+    PROTOCOL        2
+    A               82 83 84 85
+    B               86 87 88 89
+    QSTATE          4
+
