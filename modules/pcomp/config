@@ -1,4 +1,4 @@
-PCOMP[4]
+PCOMP[{{app_config["PCOMP"]}}]
     START           param       position
     STEP            param       position
     WIDTH           param       position

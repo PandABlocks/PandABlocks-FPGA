@@ -1,4 +1,4 @@
-SEQ[4]
+SEQ[{{app_config["SEQ"]}}]
     PRESCALE        param       time
     TABLE_CYCLE     param
     ENABLE          bit_mux

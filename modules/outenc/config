@@ -1,4 +1,4 @@
-OUTENC[4]
+OUTENC[{{app_config["OUTENC"]}}]
     PROTOCOL        param       enum 5
         0   Quadrature
         1   SSI

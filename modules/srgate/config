@@ -1,4 +1,4 @@
-SRGATE[4]
+SRGATE[{{app_config["SRGATE"]}}]
     SET_EDGE        param       enum 2
         0   Falling
         1   Rising

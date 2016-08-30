@@ -1,4 +1,4 @@
-COUNTER[8]
+COUNTER[{{app_config["COUNTER"]}}]
     DIR             param       enum 2
         0   Up
         1   Down

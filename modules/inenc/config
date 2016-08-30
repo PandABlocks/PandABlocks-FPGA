@@ -1,4 +1,4 @@
-INENC[4]
+INENC[{{app_config["INENC"]}}]
     PROTOCOL        param       enum 4
         0   Quadrature
         1   SSI

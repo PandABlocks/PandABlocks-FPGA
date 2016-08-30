@@ -1,4 +1,4 @@
-PGEN[2]
+PGEN[{{app_config["PGEN"]}}]
     CYCLES          param
     ENABLE          bit_mux
     TRIG            bit_mux

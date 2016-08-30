@@ -1,4 +1,4 @@
-DIV[4]
+DIV[{{app_config["DIV"]}}]
     DIVISOR         param
     FIRST_PULSE     param       enum 2
         0   OutN
@@ -8,4 +8,5 @@ DIV[4]
     OUTD            bit_out
     OUTN            bit_out
     COUNT           read
+
 

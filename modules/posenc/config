@@ -1,4 +1,4 @@
-POSENC[4]
+POSENC[{{app_config["POSENC"]}}]
     INP             pos_mux
     QPERIOD         param       time
     ENABLE          bit_mux

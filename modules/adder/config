@@ -1,4 +1,4 @@
-ADDER[2]
+ADDER[{{app_config["ADDER"]}}]
     INPA            pos_mux
     INPB            pos_mux
     INPC            pos_mux

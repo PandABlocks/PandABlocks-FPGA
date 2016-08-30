@@ -1,4 +1,4 @@
-LUT[8]
+LUT[{{app_config["LUT"]}}]
     FUNC            param       lut
     INPA            bit_mux
     INPB            bit_mux
@@ -6,4 +6,5 @@ LUT[8]
     INPD            bit_mux
     INPE            bit_mux
     OUT             bit_out
+
 
