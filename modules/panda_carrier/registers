@@ -1,0 +1,32 @@
+# These registers are used by the kernel driver to read the data capture stream.
+# This block is not used by the server, but is here for documentation and other
+# automated tools.
+*DRV        1
+    # This register is used to reset DMA engine.
+    PCAP_DMA_RESET          0
+    # This register is used to initialise DMA engine with first set of
+    # addresses.
+    PCAP_DMA_START          1
+    # The physical address of each DMA block is written to this register.
+    PCAP_DMA_ADDR           2
+    # This register configures the maximum interval between capture interrupts
+    PCAP_TIMEOUT            3
+    # Interrupt status and acknowledge
+    PCAP_IRQ_STATUS         4
+    # DMA block size in bytes
+    PCAP_BLOCK_SIZE         6
+
+TTLIN       3
+    TERM            slow 0
+    VAL             2 3 4 5 6 7
+
+TTLOUT      4
+    VAL             0 1
+
+LVDSIN      5
+    VAL             8 9
+
+LVDSOUT     6
+    VAL             0 1
+
+
