@@ -53,8 +53,9 @@ class ConfigGenerator(object):
                 outfile.write(infile.read())
             for config in app_config.keys():
                 description_file = os.path.join(MODULE_DIR, config.lower(), "description")
-                with open(description_file) as infile:
-                    outfile.write(infile.read())
+                if os.path.isfile(description_file):
+                    with open(description_file) as infile:
+                        outfile.write(infile.read())
 
     def extractFileInfo(self, file):
         file_info = collections.OrderedDict()
@@ -95,7 +96,6 @@ class ConfigGenerator(object):
             meta_info = self.parseMetaFile(meta_file, block)
             #check the defined number in the config against the max in the meta
             if int(app_config[block]) > int(meta_info["MAX"]):
-                print block,app_config[block], "> MAX ", meta_info["MAX"]
                 raise ValueError('Max value exceeded for ' + block)
 
     def newBitBus(self, block):

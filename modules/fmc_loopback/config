@@ -1,0 +1,13 @@
+FMC
+    FMC_PRSNT       read
+    LINK_UP         read
+    ERROR_COUNT     read
+    LA_P_ERROR      read
+    LA_N_ERROR      read
+    GTREFCLK        read
+    FMC_CLK0        read
+    FMC_CLK1        read
+    SOFT_RESET      write       action
+    EXT_CLK         read
+    LOOP_PERIOD     param
+
