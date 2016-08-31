@@ -1,8 +1,8 @@
 CLOCKS      {{newBlockNo()}}
-    A_PERIOD        0
-    B_PERIOD        1
-    C_PERIOD        2
-    D_PERIOD        3
+    A_PERIOD        {{newBlockReg("CLOCKS")}}
+    B_PERIOD        {{newBlockReg("CLOCKS")}}
+    C_PERIOD        {{newBlockReg("CLOCKS")}}
+    D_PERIOD        {{newBlockReg("CLOCKS")}}
     OUTA            {{newBitBus("CLOCKS")}}
     OUTB            {{newBitBus("CLOCKS")}}
     OUTC            {{newBitBus("CLOCKS")}}

@@ -21,10 +21,12 @@ class ConfigGenerator(object):
         self.template_environment.globals['newBitBus'] = self.newBitBus
         self.template_environment.globals['newBlockNo'] = self.newBlockNo
         self.template_environment.globals['newPosBus'] = self.newPosBus
+        self.template_environment.globals['newBlockReg'] = self.newBlockReg
         self.app_config = collections.OrderedDict()
         self.current_bit_bus_value = 9
         self.current_pos_bus_value = 0
         self.current_block = 6
+        self.block_regs = {}
 
     def render_template(self, template_filename, context):
         return self.template_environment.get_template(template_filename).render(context)
@@ -33,7 +35,9 @@ class ConfigGenerator(object):
         #generate the output config file
         fname = os.path.join(OUTPUT_DIR, outputfile)
         with open(fname, 'w') as f:
-            #get the config templates from the base
+            #get the config templates from the panda_carrier and base
+            output_file = self.render_template(os.path.join("base/", outputfile), variables)
+            f.write(output_file)
             output_file = self.render_template(os.path.join("panda_carrier/", outputfile), variables)
             f.write(output_file)
             for config in app_config.keys():
@@ -69,7 +73,12 @@ class ConfigGenerator(object):
     def parseAppFile(self, appfile):
         file = os.path.join(APP_DIR, appfile)
         self.app_config = self.extractFileInfo(file)
+        self.initBlockRegs()
         return self.extractFileInfo(file)
+
+    def initBlockRegs(self):
+        for block in self.app_config.keys():
+            self.block_regs[block] = -1
 
     def parseMetaFile(self, meta_file, block):
         meta_info = collections.OrderedDict()
@@ -112,6 +121,19 @@ class ConfigGenerator(object):
     def newBlockNo(self):
         self.current_block += 1
         return str(self.current_block)
+
+    def newBlockReg(self, block, type = '', offset=-1):
+        if self.block_regs[block] < offset:
+            self.block_regs[block] = offset
+        if self.block_regs[block] < 64:
+            self.block_regs[block] += 1
+        else:
+            raise ValueError('Max register value exceeded')
+        out = str(self.block_regs[block])
+        if 'bit_mux' in type:
+            self.block_regs[block] += 1
+            out += ' ' + str(self.block_regs[block])
+        return out
 
 if __name__ == '__main__':
     if not os.path.exists(OUTPUT_DIR):

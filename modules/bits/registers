@@ -1,8 +1,8 @@
 BITS        {{newBlockNo()}}
-    A               0
-    B               1
-    C               2
-    D               3
+    A               {{newBlockReg("BITS")}}
+    B               {{newBlockReg("BITS")}}
+    C               {{newBlockReg("BITS")}}
+    D               {{newBlockReg("BITS")}}
     OUTA            {{newBitBus("BITS")}}
     OUTB            {{newBitBus("BITS")}}
     OUTC            {{newBitBus("BITS")}}

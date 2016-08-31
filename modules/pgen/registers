@@ -1,9 +1,9 @@
 PGEN        {{newBlockNo()}}
-    CYCLES          3
-    ENABLE          0 6
-    TRIG            1 7
+    CYCLES          {{newBlockReg("PGEN")}}
+    ENABLE          {{newBlockReg("PGEN", type='bit_mux')}}
+    TRIG            {{newBlockReg("PGEN", type='bit_mux')}}
     OUT             {{newPosBus("PGEN")}}
     TABLE           long    2^8    4 5
-    TABLE_STATUS    8
+    TABLE_STATUS    {{newBlockReg("PGEN")}}
 
 

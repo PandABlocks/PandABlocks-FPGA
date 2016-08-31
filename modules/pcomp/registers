@@ -1,18 +1,18 @@
 PCOMP       {{newBlockNo()}}
-    START           2
-    STEP            3
-    WIDTH           4
-    PNUM            5
-    RELATIVE        6
-    DIR             7
-    DELTAP          8
-    USE_TABLE       10
-    ENABLE          0 15
-    INP             1
+    START           {{newBlockReg("PCOMP")}}
+    STEP            {{newBlockReg("PCOMP")}}
+    WIDTH           {{newBlockReg("PCOMP")}}
+    PNUM            {{newBlockReg("PCOMP")}}
+    RELATIVE        {{newBlockReg("PCOMP")}}
+    DIR             {{newBlockReg("PCOMP")}}
+    DELTAP          {{newBlockReg("PCOMP")}}
+    USE_TABLE       {{newBlockReg("PCOMP")}}
+    ENABLE          {{newBlockReg("PCOMP", type='bit_mux')}}
+    INP             {{newBlockReg("PCOMP")}}
     ACTIVE          {{newBitBus("PCOMP")}}
     OUT             {{newBitBus("PCOMP")}}
-    ERROR           14
+    ERROR           {{newBlockReg("PCOMP")}}
     TABLE           long    2^2    11 12
-    TABLE_STATUS    16
+    TABLE_STATUS    {{newBlockReg("PCOMP")}}
 
 
