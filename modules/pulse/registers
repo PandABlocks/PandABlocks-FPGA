@@ -3,7 +3,7 @@ PULSE       10
     WIDTH           5 4     >3
     INP             0 11
     ENABLE          1 12
-    OUT             30 31 32 33
+    OUT             {{newBitBus("PULSE")}}
     ERR_OVERFLOW    7
     ERR_PERIOD      8
     QUEUE           9

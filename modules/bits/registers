@@ -3,10 +3,10 @@ BITS        22
     B               1
     C               2
     D               3
-    OUTA            118
-    OUTB            119
-    OUTC            120
-    OUTD            121
+    OUTA            {{newBitBus("BITS")}}
+    OUTB            {{newBitBus("BITS")}}
+    OUTC            {{newBitBus("BITS")}}
+    OUTD            {{newBitBus("BITS")}}
     ZERO            0
     ONE             1
 

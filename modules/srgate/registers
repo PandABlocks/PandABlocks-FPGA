@@ -5,6 +5,6 @@ SRGATE      8
     FORCE_RST       5
     SET             0 6
     RST             1 7
-    OUT             18 19 20 21
+    OUT             {{newBitBus("srgate")}}
 
 

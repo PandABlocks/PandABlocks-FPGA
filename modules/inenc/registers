@@ -11,10 +11,10 @@ INENC       12
     ERR_RESPONSE    9
     ENC_STATUS      10
     DCARD_MODE      11
-    A               66 67 68 69
-    B               70 71 72 73
-    Z               74 75 76 77
-    CONN            78 79 80 81
+    A               {{newBitBus("INENC")}}
+    B               {{newBitBus("INENC")}}
+    Z               {{newBitBus("INENC")}}
+    CONN            {{newBitBus("INENC")}}
     TRANS           107 108 109 110
     VAL             1 2 3 4 / 33 34 35 36
 

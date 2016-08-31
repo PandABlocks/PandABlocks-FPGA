@@ -19,6 +19,8 @@ class ConfigGenerator(object):
             trim_blocks=True)
 
         self.template_environment.globals['newBitBus'] = self.newBitBus
+        self.app_config = collections.OrderedDict()
+        self.last_bit_bus_value = 9
 
     def render_template(self, template_filename, context):
         return self.template_environment.get_template(template_filename).render(context)
@@ -73,11 +75,12 @@ class ConfigGenerator(object):
 
     def parseAppFile(self, appfile):
         file = os.path.join(APP_DIR, appfile)
+        self.app_config = self.extractFileInfo(file)
         return self.extractFileInfo(file)
 
-    def parseMetaFile(self, metafile, block):
+    def parseMetaFile(self, meta_file, block):
         meta_info = collections.OrderedDict()
-        meta_file = os.path.join(MODULE_DIR, block.lower(), "meta")
+        # meta_file = os.path.join(MODULE_DIR, block.lower(), "meta")
         try:
             meta_info = self.extractFileInfo(meta_file)
         except:
@@ -94,10 +97,11 @@ class ConfigGenerator(object):
                 print block, "> MAX ", meta_info["MAX"], ", CHANGING TO MAX: ", meta_info["MAX"]
 
     def newBitBus(self, block):
-        bus_values = ""
-        for values in range(app_config[block])
-            pass
-        return "NEW VALUE: "
+        bus_values = []
+        for values in range(int(self.app_config[block.upper()])):
+            self.last_bit_bus_value += 1
+            bus_values.append(str(self.last_bit_bus_value))
+        return " ".join(bus_values)
 
 if __name__ == '__main__':
     if not os.path.exists(OUTPUT_DIR):

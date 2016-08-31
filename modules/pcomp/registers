@@ -9,8 +9,8 @@ PCOMP       19
     USE_TABLE       10
     ENABLE          0 15
     INP             1
-    ACTIVE          98 99 100 101
-    OUT             102 103 104 105
+    ACTIVE          {{newBitBus("PCOMP")}}
+    OUT             {{newBitBus("PCOMP")}}
     ERROR           14
     TABLE           long    2^2    11 12
     TABLE_STATUS    16

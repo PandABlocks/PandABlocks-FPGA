@@ -4,7 +4,7 @@ COUNTER     17
     STEP            6
     ENABLE          0 1
     TRIG            2 3
-    CARRY           90 91 92 93 94 95 96 97
+    CARRY           {{newBitBus("COUNTER")}}
     OUT             12 13 14 15 16 17 18 19
 
 
