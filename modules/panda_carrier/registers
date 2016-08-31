@@ -29,4 +29,35 @@ LVDSIN      5
 LVDSOUT     6
     VAL             0 1
 
+INENC       12
+    PROTOCOL        slow 0
+    CLK_PERIOD      1
+    FRAME_PERIOD    2
+    BITS            3
+    BITS_CRC        4
+    SETP            5
+    RST_ON_Z        6
+    EXTENSION       7
+    ERR_FRAME       8
+    ERR_RESPONSE    9
+    ENC_STATUS      10
+    DCARD_MODE      11
+    A               66 67 68 69
+    B               70 71 72 73
+    Z               74 75 76 77
+    CONN            78 79 80 81
+    TRANS           107 108 109 110
+    VAL             1 2 3 4 / 33 34 35 36
+
+OUTENC      14
+    PROTOCOL        5
+    BITS            6
+    QPERIOD         7
+    ENABLE          8 10
+    A               0 11
+    B               1 12
+    Z               2 13
+    VAL             4
+    CONN            3 14
+    QSTATE          9
 

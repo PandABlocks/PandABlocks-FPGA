@@ -11,4 +11,35 @@ LVDSIN      LVDS input
 LVDSOUT     LVDS output
     VAL             LVDS output value
 
+INENC       Input encoder
+    PROTOCOL        Type of absolute/incremental protocol
+    CLK_PERIOD      Clock rate
+    FRAME_PERIOD    Frame rate
+    BITS            Number of bits
+    BITS_CRC        Number of bits for BiSS Error and CRC
+    SETP            Set point
+    RST_ON_Z        Zero position on Z rising edge
+    EXTENSION       Bits higher than 32-bits
+    ERR_FRAME       Set if frame overrun
+    ERR_RESPONSE    No response from encoder
+    ENC_STATUS      Extended encoder status read from device
+    DCARD_MODE      Daughter card jumper mode
+    A               Quadrature A if in incremental mode
+    B               Quadrature B if in incremental mode
+    Z               Z index channel if in incremental mode
+    CONN            Signal detected
+    TRANS           Position transtion
+    VAL             Current position
+
+OUTENC      Output encoder
+    PROTOCOL        Type of absolute/incremental protocol
+    BITS            Number of bits
+    QPERIOD         Quadrature prescalar
+    ENABLE          Halt on falling edge, reset and enable on rising
+    A               Input for A (only straight through)
+    B               Input for B (only straight through)
+    Z               Input for Z (only straight through)
+    VAL             Input for position (all other protocols)
+    CONN            Input for connected
+    QSTATE          Quadrature state
 

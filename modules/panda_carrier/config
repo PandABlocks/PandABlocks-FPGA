@@ -13,4 +13,47 @@ LVDSIN[2]
 LVDSOUT[2]
     VAL             bit_mux
 
+INENC[4]
+    PROTOCOL        param       enum 4
+        0   Quadrature
+        1   SSI
+        2   BISS
+        3   enDat
+    CLK_PERIOD      param       time
+    FRAME_PERIOD    param       time
+    BITS            param       uint 63
+    BITS_CRC        param       uint 63
+    SETP            write       position
+    RST_ON_Z        param       bit
+    EXTENSION       read        int
+    ERR_FRAME       read        bit
+    ERR_RESPONSE    read        bit
+    ENC_STATUS      read
+    DCARD_MODE      read
+    A               bit_out
+    B               bit_out
+    Z               bit_out
+    CONN            bit_out
+    TRANS           bit_out
+    VAL             pos_out     encoder
+
+OUTENC[4]
+    PROTOCOL        param       enum 5
+        0   Quadrature
+        1   SSI
+        2   BISS
+        3   enDat
+        4   ABZ
+    BITS            param       uint 32
+    QPERIOD         param       time
+    ENABLE          bit_mux
+    A               bit_mux
+    B               bit_mux
+    Z               bit_mux
+    VAL             pos_mux
+    CONN            bit_mux
+    QSTATE          read        enum 3
+        0   Disabled
+        1   At position
+        2   Slewing
 
