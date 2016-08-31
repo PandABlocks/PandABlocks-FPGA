@@ -1,4 +1,4 @@
-PCOMP       19
+PCOMP       {{newBlockNo()}}
     START           2
     STEP            3
     WIDTH           4

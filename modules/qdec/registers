@@ -1,9 +1,9 @@
-QDEC        13
+QDEC        {{newBlockNo()}}
     RST_ON_Z        3
     SETP            4
     A               0 5
     B               1 6
     Z               2 7
-    OUT             5 6 7 8
+    OUT             {{newPosBus("qdec")}}
 
 

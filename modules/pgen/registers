@@ -1,8 +1,8 @@
-PGEN        18
+PGEN        {{newBlockNo()}}
     CYCLES          3
     ENABLE          0 6
     TRIG            1 7
-    OUT             20 21
+    OUT             {{newPosBus("PGEN")}}
     TABLE           long    2^8    4 5
     TABLE_STATUS    8
 

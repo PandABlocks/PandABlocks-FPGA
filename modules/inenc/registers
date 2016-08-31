@@ -1,4 +1,4 @@
-INENC       12
+INENC       {{newBlockNo()}}
     PROTOCOL        slow 0
     CLK_PERIOD      1
     FRAME_PERIOD    2

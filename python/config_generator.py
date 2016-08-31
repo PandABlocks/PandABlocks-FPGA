@@ -19,8 +19,12 @@ class ConfigGenerator(object):
             trim_blocks=True)
 
         self.template_environment.globals['newBitBus'] = self.newBitBus
+        self.template_environment.globals['newBlockNo'] = self.newBlockNo
+        self.template_environment.globals['newPosBus'] = self.newPosBus
         self.app_config = collections.OrderedDict()
-        self.last_bit_bus_value = 9
+        self.current_bit_bus_value = 9
+        self.current_pos_bus_value = 0
+        self.current_block = 6
 
     def render_template(self, template_filename, context):
         return self.template_environment.get_template(template_filename).render(context)
@@ -47,17 +51,6 @@ class ConfigGenerator(object):
                 description_file = os.path.join(MODULE_DIR, config.lower(), "description")
                 with open(description_file) as infile:
                     outfile.write(infile.read())
-
-# def generateRegisters(self, templatefiles, outputfile, variables):
-#     #generate the output registers files
-#     fname = os.path.join(OUTPUT_DIR, outputfile)
-#     with open(fname, 'w') as f:
-#         #get the config templates from the base
-#         output_file = render_template("panda_carrier/registers", variables)
-#         f.write(output_file)
-#         for config in templatefiles.keys():
-#             output_file = render_template(config.lower() + "/registers", variables)
-#             f.write(output_file)
 
     def extractFileInfo(self, file):
         file_info = collections.OrderedDict()
@@ -92,16 +85,33 @@ class ConfigGenerator(object):
             meta_file = os.path.join(MODULE_DIR, block.lower(), "meta")
             meta_info = self.parseMetaFile(meta_file, block)
             #check the defined number in the config against the max in the meta
-            if app_config[block] > meta_info["MAX"]:
-                app_config[block] = meta_info["MAX"]
-                print block, "> MAX ", meta_info["MAX"], ", CHANGING TO MAX: ", meta_info["MAX"]
+            if int(app_config[block]) > int(meta_info["MAX"]):
+                print block,app_config[block], "> MAX ", meta_info["MAX"]
+                raise ValueError('Max value exceeded for ' + block)
 
     def newBitBus(self, block):
         bus_values = []
         for values in range(int(self.app_config[block.upper()])):
-            self.last_bit_bus_value += 1
-            bus_values.append(str(self.last_bit_bus_value))
+            if int(self.current_bit_bus_value) < 128:
+                self.current_bit_bus_value += 1
+                bus_values.append(str(self.current_bit_bus_value))
+            else:
+                raise ValueError('Max bit bus value exceeded')
         return " ".join(bus_values)
+
+    def newPosBus(self, block):
+        bus_values = []
+        for values in range(int(self.app_config[block.upper()])):
+            if int(self.current_pos_bus_value) < 64:
+                self.current_pos_bus_value += 1
+                bus_values.append(str(self.current_pos_bus_value))
+            else:
+                raise ValueError('Max pos bus value exceeded')
+        return " ".join(bus_values)
+
+    def newBlockNo(self):
+        self.current_block += 1
+        return str(self.current_block)
 
 if __name__ == '__main__':
     if not os.path.exists(OUTPUT_DIR):
@@ -112,6 +122,7 @@ if __name__ == '__main__':
     app_config = cfg.parseAppFile("myapp")
     variables = {"app_config": app_config}
 
+    #-check that each requested config doesn't exceed the max (from the meta file)
     cfg.checkBlockMax(app_config)
 
     #combine all relevent descriptions for the output description file
@@ -119,13 +130,11 @@ if __name__ == '__main__':
 
     #combine all relevent config for the output config file
     cfg.generateOutputFile(app_config, "config", variables)
-        #-check that each requested config doesn't exceed the max (from the meta file)
         #-make sure to only include the ones that aren't 0
         #-other error checking ?
 
     #combine all relevent registers for the output registers file
     cfg.generateOutputFile(app_config, "registers", variables)
-        #-check that each requested config doesn't exceed the max (from the meta file)
         #-check there are only unique bit numbers ?
         #-other error checking ?
 

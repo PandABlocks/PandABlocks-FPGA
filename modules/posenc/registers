@@ -1,4 +1,4 @@
-POSENC      15
+POSENC      {{newBlockNo()}}
     INP             0
     QPERIOD         1
     ENABLE          3 5

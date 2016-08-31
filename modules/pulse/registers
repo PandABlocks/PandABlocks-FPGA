@@ -1,4 +1,4 @@
-PULSE       10
+PULSE       {{newBlockNo()}}
     DELAY           3 2     >3
     WIDTH           5 4     >3
     INP             0 11

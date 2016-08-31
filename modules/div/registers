@@ -1,4 +1,4 @@
-DIV         9
+DIV         {{newBlockNo()}}
     DIVISOR         2
     FIRST_PULSE     3
     INP             0 5

@@ -1,4 +1,4 @@
-SRGATE      8
+SRGATE      {{newBlockNo()}}
     SET_EDGE        2
     RST_EDGE        3
     FORCE_SET       4

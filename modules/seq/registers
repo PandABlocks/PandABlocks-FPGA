@@ -1,4 +1,4 @@
-SEQ         11
+SEQ         {{newBlockNo()}}
     PRESCALE        5
     TABLE_CYCLE     8
     ENABLE          0 16

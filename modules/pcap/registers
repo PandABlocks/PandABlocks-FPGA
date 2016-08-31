@@ -1,4 +1,4 @@
-PCAP        21
+PCAP        {{newBlockNo()}}
     ENABLE          0 5
     FRAME           1 6
     CAPTURE         2 7

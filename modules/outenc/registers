@@ -1,4 +1,4 @@
-OUTENC      14
+OUTENC      {{newBlockNo()}}
     PROTOCOL        5
     BITS            6
     QPERIOD         7

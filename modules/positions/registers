@@ -1,4 +1,4 @@
-POSITIONS   24
+POSITIONS   {{newBlockNo()}}
     ZERO            0
 
 

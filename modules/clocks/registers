@@ -1,4 +1,4 @@
-CLOCKS      23
+CLOCKS      {{newBlockNo()}}
     A_PERIOD        0
     B_PERIOD        1
     C_PERIOD        2

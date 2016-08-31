@@ -1,4 +1,4 @@
-LUT         7
+LUT         {{newBlockNo()}}
     FUNC            5
     INPA            0 6
     INPB            1 7
