@@ -21,7 +21,7 @@ TWX_FILE = $(SYSTEM).twx
 BIT_FILE = $(SYSTEM).bit
 PROM_FILE = $(SYSTEM).mcs
 
-VERSION_FILE = $(TOP)/SlowFPGA/src/hdl/defines/slow_version.vhd
+VERSION_FILE = $(TOP)/SlowFPGA/src/hdl/slow_version.vhd
 
 include $(TOP)/SLOW_VERSION
 

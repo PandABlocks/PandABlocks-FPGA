@@ -15,9 +15,6 @@ end panda_top_tb;
 
 ARCHITECTURE behavior OF panda_top_tb IS
 
---Inputs
-signal enc0_ctrl_pad_i : std_logic_vector(3 downto 0) := (others => '1');
-
 --BiDirs
 signal DDR_addr         : std_logic_vector(14 downto 0);
 signal DDR_ba           : std_logic_vector(2 downto 0);
@@ -47,6 +44,8 @@ signal As0_pad_io       : std_logic_vector(3 downto 0);
 signal Bs0_pad_io       : std_logic_vector(3 downto 0);
 signal Zs0_pad_io       : std_logic_vector(3 downto 0);
 
+signal EXTCLK_P         : std_logic := '0';
+signal EXTCLK_N         : std_logic;
 signal GTXCLK0_P        : std_logic := '0';
 signal GTXCLK0_N        : std_logic;
 signal GTXCLK1_P        : std_logic := '0';
@@ -185,7 +184,10 @@ PORT MAP (
     lvdsin_pad_i        => lvdsin_pad,
     ttlout_pad_o        => ttlout_pad,
     lvdsout_pad_o       => lvdsout_pad,
-    -- START: Comment out for DEV board
+
+    EXTCLK_P            => EXTCLK_P,
+    EXTCLK_N            => EXTCLK_N,
+
     GTXCLK0_P           => GTXCLK0_P,
     GTXCLK0_N           => GTXCLK0_N,
     GTXCLK1_P           => GTXCLK1_P,
@@ -208,10 +210,6 @@ PORT MAP (
     FMC_CLK0_M2C_N      => FMC_CLK0_M2C_N,
     FMC_CLK1_M2C_P      => FMC_CLK1_M2C_P,
     FMC_CLK1_M2C_N      => FMC_CLK1_M2C_N,
-    -- END: Comment out for DEV board
-
---    enc0_ctrl_pad_i     => enc0_ctrl_pad_i,
---    enc0_ctrl_pad_o     => open,
 
     spi_sclk_i          => spi_sclk_i,
     spi_dat_i           => spi_dat_i,
@@ -246,6 +244,7 @@ generic map (
 )
 port map (
     clk50_i             => clk50,
+    clk125_i            => '0',
     -- Serial Physical Interface
     spi_sclk_i          => spi_sclk_o,
     spi_dat_i           => spi_dat_o,

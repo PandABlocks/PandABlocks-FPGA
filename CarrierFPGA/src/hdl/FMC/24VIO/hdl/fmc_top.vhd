@@ -28,6 +28,12 @@ port (
     -- Standard FMC Block ports, do not add to or delete
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
+    -- Bus Inputs
+    bitbus_i            : in  std_logic_vector(127 downto 0);
+    posbus_i            : in  std32_array(31 downto 0);
+    -- Generic Inputs to BitBus and PosBus from FMC and SFP
+    fmc_inputs_o        : out std_logic_vector(15 downto 0);
+    fmc_data_o          : out std32_array(16 downto 0);
     -- Memory Bus Interface
     mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
     mem_cs_i            : in  std_logic;
@@ -51,20 +57,7 @@ port (
     RXP_IN              : in    std_logic;
     RXN_IN              : in    std_logic;
     GTREFCLK_P          : in    std_logic;
-    GTREFCLK_N          : in    std_logic;
-    -- DO NOT EDIT ABOVE THIS LINE ---------------------
-
-    -- EDIT BELOW THIS LINE ----------------------------
-    -- Add application specific ports and connect on the top-level
-    sysbus_i            : in    sysbus_t;
-    fmc_inp1_o          : out   std_logic;
-    fmc_inp2_o          : out   std_logic;
-    fmc_inp3_o          : out   std_logic;
-    fmc_inp4_o          : out   std_logic;
-    fmc_inp5_o          : out   std_logic;
-    fmc_inp6_o          : out   std_logic;
-    fmc_inp7_o          : out   std_logic;
-    fmc_inp8_o          : out   std_logic
+    GTREFCLK_N          : in    std_logic
 );
 end fmc_top;
 
@@ -140,7 +133,7 @@ port map (
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
-    sysbus_i            => sysbus_i,
+    sysbus_i            => bitbus_i,
     posbus_i            => (others => (others => '0')),
     -- Block Parameters
     PRESENT             => FMC_PRSNT_DW,
@@ -198,14 +191,17 @@ port map (
 ---------------------------------------------------------------------------
 -- Assign outputs
 ---------------------------------------------------------------------------
-fmc_inp1_o <= fmc_in(0);
-fmc_inp2_o <= fmc_in(1);
-fmc_inp3_o <= fmc_in(2);
-fmc_inp4_o <= fmc_in(3);
-fmc_inp5_o <= fmc_in(4);
-fmc_inp6_o <= fmc_in(5);
-fmc_inp7_o <= fmc_in(6);
-fmc_inp8_o <= fmc_in(7);
+fmc_inputs_o(0) <= fmc_in(0);
+fmc_inputs_o(1) <= fmc_in(1);
+fmc_inputs_o(2) <= fmc_in(2);
+fmc_inputs_o(3) <= fmc_in(3);
+fmc_inputs_o(4) <= fmc_in(4);
+fmc_inputs_o(5) <= fmc_in(5);
+fmc_inputs_o(6) <= fmc_in(6);
+fmc_inputs_o(7) <= fmc_in(7);
+fmc_inputs_o(15 downto 8) <= (others => '0');
+
+fmc_data_o <= (others => (others => '0'));
 
 end rtl;
 

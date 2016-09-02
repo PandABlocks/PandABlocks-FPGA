@@ -1,0 +1,17 @@
+set SRC {../../../src/hdl}
+set IP {../../../../build/CarrierFPGA/ip_repo}
+
+vcom -64 -93 -work xil_defaultlib  \
+"${IP}/fmcgtx/fmcgtx/example_design/fmcgtx_tx_startup_fsm.vhd" \
+"${IP}/fmcgtx/fmcgtx/example_design/fmcgtx_rx_startup_fsm.vhd" \
+"${IP}/fmcgtx/fmcgtx_init.vhd" \
+"${IP}/fmcgtx/fmcgtx_cpll_railing.vhd" \
+"${IP}/fmcgtx/fmcgtx_gt.vhd" \
+"${IP}/fmcgtx/fmcgtx_multi_gt.vhd" \
+"${IP}/fmcgtx/fmcgtx/example_design/fmcgtx_sync_block.vhd" \
+"${IP}/fmcgtx/fmcgtx.vhd" \
+"${SRC}/autogen/fmc_ctrl.vhd" \
+"${SRC}/FMC/loopback/hdl/fmcgt_loopback/support/*.vhd" \
+"${SRC}/FMC/loopback/hdl/fmcgt_loopback/*.vhd" \
+"${SRC}/FMC/loopback/hdl/fmc_top.vhd"
+

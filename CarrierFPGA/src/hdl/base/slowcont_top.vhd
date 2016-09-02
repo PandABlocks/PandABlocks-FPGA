@@ -23,7 +23,7 @@ library work;
 use work.top_defines.all;
 use work.addr_defines.all;
 
-entity slow_top is
+entity slowcont_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -48,9 +48,9 @@ port (
     SLOW_FPGA_VERSION   : out std_logic_vector(31 downto 0);
     DCARD_MODE          : out std32_array(ENC_NUM-1 downto 0)
 );
-end slow_top;
+end slowcont_top;
 
-architecture rtl of slow_top is
+architecture rtl of slowcont_top is
 
 -- Gather various Temperature and Voltage readouts from Slow FPGA into
 -- arrays.

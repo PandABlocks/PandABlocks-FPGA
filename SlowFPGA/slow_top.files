@@ -6,5 +6,4 @@ CarrierFPGA/src/hdl/base/ssi_link_detect.vhd
 CarrierFPGA/src/hdl/base/shifter_in.vhd
 CarrierFPGA/src/hdl/base/ssi_clock_gen.vhd
 CarrierFPGA/src/hdl/base/prescaler.vhd
-SlowFPGA/src/hdl/defines/*.vhd
 SlowFPGA/src/hdl/*.vhd

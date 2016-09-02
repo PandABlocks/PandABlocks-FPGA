@@ -7,7 +7,7 @@ module test;
 // Inputs to testbench
 wire [5:0]   ttlin_pad;
 
-`define TESTNAME    "test.biss.v"
+`define TESTNAME    "test.csr.v"
 
 reg [ 1:0]      wrs, rsp;
 reg [31:0]      IRQ_STATUS;

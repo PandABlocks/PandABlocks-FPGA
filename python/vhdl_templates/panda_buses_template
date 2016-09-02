@@ -10,17 +10,22 @@ entity panda_busses is
 port (
 
 {%  for name, block in blocks.iteritems() %}
+{%      if name != 'FMC' and name != 'SFP' %}
     -- {{name}} Block
-{%      for fieldname, field in block.fields.iteritems() %}
-{%          if field.cls == 'bit_out' %}
+{%          for fieldname, field in block.fields.iteritems() %}
+{%              if field.cls == 'bit_out' %}
     {{name}}_{{field.name}}   : in std_logic_vector({{block.num-1}} downto 0);
-{%          elif field.cls == 'pos_out'%}
+{%              elif field.cls == 'pos_out' %}
     {{name}}_{{field.name}}   : in std32_array({{block.num-1}} downto 0);
-{%          endif %}
-{%      endfor %}
-
+{%              endif %}
+{%          endfor %}
+{%      endif %}
 {%  endfor %}
-
+    -- Generic Inputs to BitBus and PosBus from FMC and SFP
+    fmc_inputs_i        : in  std_logic_vector(15 downto 0);
+    fmc_data_i          : in  std32_array(16 downto 0);
+    sfp_inputs_i        : in  std_logic_vector(15 downto 0);
+    sfp_data_i          : in  std32_array(16 downto 0);
     -- Bus Outputs
     bitbus_o            : out std_logic_vector(127 downto 0);
     posbus_o            : out std32_array(31 downto 0)
@@ -31,20 +36,36 @@ architecture rtl of panda_busses is
 
 begin
 
+{% set bitbus_counter = [] %}
+{% set posbus_counter = [] %}
 {%  for name, block in blocks.iteritems() %}
 -- {{name}} Outputs:
 {%      for fieldname, field in block.fields.iteritems() %}
 {%          if field.cls == 'bit_out'%}
-{%              set bitbus_counter = 0 -%}
+{%              if name != 'FMC' %}
+{%                  set bitbus_counter = [] %}
+{%              endif %}
 {%              for register in field.reg %}
-bitbus_o({{register}}) <= {{name}}_{{field.name}}({{bitbus_counter}});
-{%                  set bitbus_counter = bitbus_counter + 1 %}
+{%                  if name == 'FMC' %}
+bitbus_o({{register}}) <= fmc_inputs_i({{bitbus_counter|length}});
+{%                  elif name == 'SFP' %}
+{%                  else %}
+bitbus_o({{register}}) <= {{name}}_{{field.name}}({{bitbus_counter|length}});
+{%                  endif  %}
+{%                  do bitbus_counter.append('1') %}
 {%              endfor %}
 {%          elif field.cls == 'pos_out'%}
-{%              set posbus_counter = 0 -%}
+{%              if name != 'FMC' %}
+{%                  set posbus_counter = [] %}
+{%              endif %}
 {%              for register in field.reg %}
-posbus_o({{register}}) <= {{name}}_{{field.name}}({{posbus_counter}});
-{%                  set posbus_counter = posbus_counter + 1 %}
+{%                  if name == 'FMC' %}
+posbus_o({{register}}) <= fmc_data_i({{posbus_counter|length}});
+{%                  elif name == 'SFP' %}
+{%                  else %}
+posbus_o({{register}}) <= {{name}}_{{field.name}}({{posbus_counter|length}});
+{%                  endif  %}
+{%                  do posbus_counter.append('1') %}
 {%              endfor %}
 {%          endif %}
 {%      endfor %}

@@ -15,7 +15,8 @@ TEMPLATE_DIR = os.path.join(PATH, 'vhdl_templates')
 template_environment = Environment(
     autoescape=False,
     loader=FileSystemLoader(TEMPLATE_DIR),
-    trim_blocks=True)
+    trim_blocks=True,
+    extensions=["jinja2.ext.do",])
 
 def render_template(template_filename, context):
     return template_environment.get_template(template_filename).render(context)

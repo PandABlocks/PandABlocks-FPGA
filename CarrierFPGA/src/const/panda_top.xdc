@@ -196,5 +196,6 @@ set_property IOSTANDARD LVDS_25 [get_ports EXTCLK_P]
 # -------------------------------------------------------------------
 # Enable on-chip pulldown for floating inputs
 # -------------------------------------------------------------------
-set_property PULLTYPE PULLDOWN [get_ports TTLIN_PAD*[*]]
+set_property PULLTYPE PULLDOWN [get_ports TTLIN_PAD_I[*]]
+set_property PULLTYPE PULLDOWN [get_ports LVDSIN_PAD_I[*]]
 
