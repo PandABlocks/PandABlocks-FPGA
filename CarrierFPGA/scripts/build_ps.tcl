@@ -21,9 +21,6 @@ set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj
 
-set_property ip_repo_paths ../src/ip_repo $obj
-update_ip_catalog
-
 # Create block design
 # (THIS is exported from Vivado design tool)
 source $SRCDIR/src/bd/panda_ps.tcl
@@ -42,7 +39,7 @@ set obj [get_filesets sources_1]
 set_property "top" "panda_ps_wrapper" $obj
 
 # Generate Output Files
-generate_target all [get_files ./panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd]
+generate_target all [get_files $origin_dir/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd]
 open_bd_design $origin_dir/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 
 file mkdir $origin_dir/panda_ps/panda_ps.sdk
