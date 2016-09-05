@@ -43,13 +43,13 @@ add_files $SRCDIR/src/hdl/FMC/$FMC_DESIGN/hdl
 add_files $SRCDIR/src/hdl/SFP/$SFP_DESIGN/hdl
 
 # Import IPs
-add_files -norecurse ./ip_repo/pulse_queue/pulse_queue.xci
-add_files -norecurse ./ip_repo/pcap_dma_fifo/pcap_dma_fifo.xci
-add_files -norecurse ./ip_repo/pgen_dma_fifo/pgen_dma_fifo.xci
-add_files -norecurse ./ip_repo/pcomp_dma_fifo/pcomp_dma_fifo.xci
-add_files -norecurse ./ip_repo/fmcgtx/fmcgtx.xci
-add_files -norecurse ./ip_repo/sfpgtx/sfpgtx.xci
-add_files -norecurse ./ip_repo/ila_32x8K/ila_32x8K.xci
+add_files -norecurse $BUILDIR/ip_repo/pulse_queue/pulse_queue.xci
+add_files -norecurse $BUILDIR/ip_repo/pcap_dma_fifo/pcap_dma_fifo.xci
+add_files -norecurse $BUILDIR/ip_repo/pgen_dma_fifo/pgen_dma_fifo.xci
+add_files -norecurse $BUILDIR/ip_repo/pcomp_dma_fifo/pcomp_dma_fifo.xci
+add_files -norecurse $BUILDIR/ip_repo/fmcgtx/fmcgtx.xci
+add_files -norecurse $BUILDIR/ip_repo/sfpgtx/sfpgtx.xci
+add_files -norecurse $BUILDIR/ip_repo/ila_32x8K/ila_32x8K.xci
 
 # Read constraint files
 read_xdc $SRCDIR/src/hdl/FMC/$FMC_DESIGN/const/fmc.xdc
