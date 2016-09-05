@@ -83,6 +83,10 @@ carrier-fpga: $(FPGA_BUILD_DIR)
 	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) \
 		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN)
 
+devicetree: $(FPGA_BUILD_DIR)
+	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
+	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) devicetree
+
 carrier-zpkg: $(FPGA_BUILD_DIR)
 	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
 	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) zpkg

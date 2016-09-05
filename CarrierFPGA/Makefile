@@ -11,6 +11,9 @@
 #####################################################################
 GIT_VERSION = $(shell git describe --abbrev=8 --always)
 
+
+
+
 RUNVIVADO = source $(VIVADO) && vivado
 
 include $(TOP)/VERSION
@@ -40,7 +43,7 @@ VERSION_FILE = $(HDLDIR)/defines/panda_version.vhd
 
 default : fpga
 fpga : panda_top.bit zpkg
-devicetree : $(DEVTREE_DTB)
+devicetree : $(SDK_EXPORT)
 boot : $(BOOT_FILE)
 .PHONY: default fpga devicetree boot
 
@@ -91,8 +94,9 @@ zpkg:
 # Build HW Platform, FSBL and Device Tree
 #
 # Modify accordingly following lines
-# Everything is build under $(PWD)/$(OUTDIR)
+# Everything is build under $(OUTDIR)
 TAR_REPO = /dls_sw/FPGA/Xilinx/OSLinux/tar-balls
+VIVADO_VER = 2015.1
 BOARD = pzed-z7030
 IMAGE_DIR = images
 
@@ -109,7 +113,7 @@ DEVTREE_TAG = xilinx-v$(VIVADO_VER)
 DEVTREE_NAME = device-tree-xlnx-$(DEVTREE_TAG)
 
 # Device-tree BSP will be extracted in $(DEVTREE_BSP) as below
-DEVTREE_BSP = $(PWD)/output/bsp/
+DEVTREE_BSP = $(OUTDIR)/bsp/
 
 $(DEVTREE_BSP)/$(DEVTREE_NAME) :
 ifeq ($(SOURCES), git)
@@ -134,9 +138,9 @@ sw_clean:
 # Build all XSDK projects for FSBL and Device Tree
 
 $(SDK_EXPORT): $(DEVTREE_BSP)/$(DEVTREE_NAME)
-	$(RUNVIVADO) && \
-	    xsdk -batch build_xsdk.tcl
-
+	cp $(SRCDIR)/build_xsdk.tcl $(OUTDIR)
+	xsdk -batch -source $(OUTDIR)/build_xsdk.tcl \
+	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR)
 
 # Step-6 ###############################################################
 # Generate the DTB file after device-tree bsp generated
@@ -145,7 +149,7 @@ $(SDK_EXPORT): $(DEVTREE_BSP)/$(DEVTREE_NAME)
 # system.dts     : XSDK generated, and included in system-top.dts
 #
 
-DTS_CONFIG_DIR = $(PWD)/configs/device-tree/$(DEVTREE_TAG)/$(BOARD)
+DTS_CONFIG_DIR = $(SRCDIR)/configs/device-tree/$(DEVTREE_TAG)/$(BOARD)
 DTS_CONFIG_FILE = $(DTS_CONFIG_DIR)/system-top.dts
 DTS_BUILD_DIR = $(SDK_EXPORT)/device_tree_bsp_0
 DTS_TOP_FILE = $(DTS_BUILD_DIR)/system-top.dts
@@ -157,7 +161,7 @@ $(DTS_TOP_FILE): $(DEVTREE_DTS)
 
 $(DEVTREE_DTB) : $(DTS_TOP_FILE)
 	echo "Building DEVICE TREE..."
-	$(PWD)/configs/linux-xlnx/scripts/dtc -f -I dts -O dtb -o $(DEVTREE_DTB) $(DTS_TOP_FILE)
+	$(SRCDIR)/configs/linux-xlnx/scripts/dtc -f -I dts -O dtb -o $(DEVTREE_DTB) $(DTS_TOP_FILE)
 # 	scp $(DEVTREE_DTB) iu42@serv2:/tftpboot
 
 # Step-6 ###############################################################
@@ -172,6 +176,4 @@ $(BOOT_FILE) : $(IMAGE_DIR)
 	cp ./output/panda_top.bit $(IMAGE_DIR)
 
 dts:
-	$(PWD)/configs/linux-xlnx/scripts/dtc -f -I dtb -O dts -o devicetree.dts $(DEVTREE_DTB)
-
-
+	$(SRCDIR)/configs/linux-xlnx/scripts/dtc -f -I dtb -O dts -o devicetree.dts $(DEVTREE_DTB)

@@ -102,5 +102,5 @@ write_bitstream -force panda_top.bit
 #
 # Export HW for SDK
 #
-file mkdir $BUILDIR/panda_top/panda_top.sdk
+#file mkdir $BUILDIR/panda_top/panda_top.sdk
 write_hwdef -file $BUILDIR/panda_top_wrapper.hdf -force

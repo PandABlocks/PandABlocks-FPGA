@@ -160,10 +160,6 @@ proc create_root_design { parentCell } {
   set IRQ_F2P [ create_bd_port -dir I -from 0 -to 0 -type intr IRQ_F2P ]
   set_property -dict [ list CONFIG.PortWidth {1}  ] $IRQ_F2P
 
-  # Create instance: GND, and set properties
-  set GND [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 GND ]
-  set_property -dict [ list CONFIG.CONST_VAL {0}  ] $GND
-
   # Create instance: proc_sys_reset_0, and set properties
   set proc_sys_reset_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0 ]
 
@@ -250,9 +246,9 @@ CONFIG.PCW_QSPI_GRP_SINGLE_SS_IO {MIO 1 .. 6} CONFIG.PCW_QSPI_PERIPHERAL_CLKSRC 
 CONFIG.PCW_QSPI_PERIPHERAL_ENABLE {1} CONFIG.PCW_QSPI_PERIPHERAL_FREQMHZ {200} \
 CONFIG.PCW_SD0_GRP_CD_ENABLE {1} CONFIG.PCW_SD0_GRP_CD_IO {MIO 46} \
 CONFIG.PCW_SD0_GRP_WP_ENABLE {0} CONFIG.PCW_SD0_PERIPHERAL_ENABLE {1} \
-CONFIG.PCW_SD0_SD0_IO {MIO 40 .. 45} CONFIG.PCW_SD1_GRP_CD_ENABLE {1} \
-CONFIG.PCW_SD1_GRP_WP_ENABLE {0} CONFIG.PCW_SD1_PERIPHERAL_ENABLE {1} \
-CONFIG.PCW_SD1_SD1_IO {MIO 10 .. 15} CONFIG.PCW_SDIO_PERIPHERAL_CLKSRC {IO PLL} \
+CONFIG.PCW_SD0_SD0_IO {MIO 40 .. 45} CONFIG.PCW_SD1_GRP_CD_ENABLE {0} \
+CONFIG.PCW_SD1_GRP_WP_ENABLE {0} CONFIG.PCW_SD1_PERIPHERAL_ENABLE {0} \
+CONFIG.PCW_SD1_SD1_IO {<Select>} CONFIG.PCW_SDIO_PERIPHERAL_CLKSRC {IO PLL} \
 CONFIG.PCW_SDIO_PERIPHERAL_FREQMHZ {50} CONFIG.PCW_S_AXI_HP0_DATA_WIDTH {64} \
 CONFIG.PCW_TTC0_CLK0_PERIPHERAL_CLKSRC {CPU_1X} CONFIG.PCW_TTC0_CLK0_PERIPHERAL_FREQMHZ {111.111115} \
 CONFIG.PCW_TTC0_CLK1_PERIPHERAL_CLKSRC {CPU_1X} CONFIG.PCW_TTC0_CLK1_PERIPHERAL_FREQMHZ {111.111115} \
@@ -309,7 +305,6 @@ CONFIG.preset {Default}  ] $processing_system7_0
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
 
   # Create port connections
-  connect_bd_net -net GND_dout [get_bd_pins GND/dout] [get_bd_pins processing_system7_0/SDIO1_CDN]
   connect_bd_net -net IRQ_F2P_1 [get_bd_ports IRQ_F2P] [get_bd_pins processing_system7_0/IRQ_F2P]
   connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins proc_sys_reset_0/interconnect_aresetn] [get_bd_pins read_dma_interface/ARESETN] [get_bd_pins register_interface/ARESETN] [get_bd_pins write_dma_converter/s_axi_aresetn]
   connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_ports FCLK_RESET0_N] [get_bd_pins proc_sys_reset_0/peripheral_aresetn] [get_bd_pins read_dma_interface/M00_ARESETN] [get_bd_pins read_dma_interface/S00_ARESETN] [get_bd_pins register_interface/M00_ARESETN] [get_bd_pins register_interface/S00_ARESETN]
