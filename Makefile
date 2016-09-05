@@ -77,7 +77,7 @@ carrier-fpga: $(FPGA_BUILD_DIR)
 
 	rm -f config_d
 	ln -s config_d-$(FMC_DESIGN) config_d
-	rm -rf $(TOP)/CarrierFPGA/src/hdl/autogen
+#	rm -rf $(TOP)/CarrierFPGA/src/hdl/autogen
 	cd python && ./vhdl_generator.py
 	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
 	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) \

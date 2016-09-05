@@ -71,15 +71,15 @@ VERSION :
 # Build FPGA
 
 $(IP_CORES) :
-	$(RUNVIVADO) -mode batch -source $(SRCDIR)/build_ips.tcl \
+	$(RUNVIVADO) -mode batch -source $(SRCDIR)/scripts/build_ips.tcl \
 	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR)
 
 $(PS_CORE) :
-	$(RUNVIVADO) -mode batch -source $(SRCDIR)/build_ps.tcl \
+	$(RUNVIVADO) -mode batch -source $(SRCDIR)/scripts/build_ps.tcl \
 	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR)
 
 panda_top.bit : VERSION $(IP_CORES) $(PS_CORE)
-	$(RUNVIVADO) -mode batch -source $(SRCDIR)/build_top.tcl \
+	$(RUNVIVADO) -mode batch -source $(SRCDIR)/scripts/build_top.tcl \
 	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR) \
 		-tclargs $(FMC_DESIGN) -tclargs $(SFP_DESIGN)
 
