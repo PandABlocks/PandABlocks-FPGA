@@ -21,34 +21,19 @@ port (
     sysbus_i            : in sysbus_t;
     posbus_i            : in posbus_t;
     -- Block Parameters
-    PRESENT       : in  std_logic_vector(31 downto 0);
-    OUT_PWR_ON       : out std_logic_vector(31 downto 0);
-    OUT_PWR_ON_WSTB  : out std_logic;
-    IN_VTSEL       : out std_logic_vector(31 downto 0);
-    IN_VTSEL_WSTB  : out std_logic;
-    IN_DB       : out std_logic_vector(31 downto 0);
-    IN_DB_WSTB  : out std_logic;
-    IN_FAULT       : in  std_logic_vector(31 downto 0);
-    OUT_PUSHPL       : out std_logic_vector(31 downto 0);
-    OUT_PUSHPL_WSTB  : out std_logic;
-    OUT_FLTR       : out std_logic_vector(31 downto 0);
-    OUT_FLTR_WSTB  : out std_logic;
-    OUT_SRIAL       : out std_logic_vector(31 downto 0);
-    OUT_SRIAL_WSTB  : out std_logic;
-    OUT_FAULT       : in  std_logic_vector(31 downto 0);
-    OUT_EN       : out std_logic_vector(31 downto 0);
-    OUT_EN_WSTB  : out std_logic;
-    OUT_CONFIG       : out std_logic_vector(31 downto 0);
-    OUT_CONFIG_WSTB  : out std_logic;
-    OUT_STATUS       : in  std_logic_vector(31 downto 0);
-    out1_o : out std_logic;
-    out2_o : out std_logic;
-    out3_o : out std_logic;
-    out4_o : out std_logic;
-    out5_o : out std_logic;
-    out6_o : out std_logic;
-    out7_o : out std_logic;
-    out8_o : out std_logic;
+    FMC_PRSNT       : in  std_logic_vector(31 downto 0);
+    LINK_UP       : in  std_logic_vector(31 downto 0);
+    ERROR_COUNT       : in  std_logic_vector(31 downto 0);
+    LA_P_ERROR       : in  std_logic_vector(31 downto 0);
+    LA_N_ERROR       : in  std_logic_vector(31 downto 0);
+    GTREFCLK       : in  std_logic_vector(31 downto 0);
+    FMC_CLK0       : in  std_logic_vector(31 downto 0);
+    FMC_CLK1       : in  std_logic_vector(31 downto 0);
+    SOFT_RESET       : out std_logic_vector(31 downto 0);
+    SOFT_RESET_WSTB  : out std_logic;
+    EXT_CLK       : in  std_logic_vector(31 downto 0);
+    LOOP_PERIOD       : out std_logic_vector(31 downto 0);
+    LOOP_PERIOD_WSTB  : out std_logic;
     -- Memory Bus Interface
     mem_cs_i            : in  std_logic;
     mem_wstb_i          : in  std_logic;
@@ -62,38 +47,6 @@ architecture rtl of fmc_ctrl is
 
 signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
 
-signal OUT1      : std_logic_vector(31 downto 0);
-signal OUT1_WSTB : std_logic;
-signal OUT1_DLY      : std_logic_vector(31 downto 0);
-signal OUT1_DLY_WSTB : std_logic;
-signal OUT2      : std_logic_vector(31 downto 0);
-signal OUT2_WSTB : std_logic;
-signal OUT2_DLY      : std_logic_vector(31 downto 0);
-signal OUT2_DLY_WSTB : std_logic;
-signal OUT3      : std_logic_vector(31 downto 0);
-signal OUT3_WSTB : std_logic;
-signal OUT3_DLY      : std_logic_vector(31 downto 0);
-signal OUT3_DLY_WSTB : std_logic;
-signal OUT4      : std_logic_vector(31 downto 0);
-signal OUT4_WSTB : std_logic;
-signal OUT4_DLY      : std_logic_vector(31 downto 0);
-signal OUT4_DLY_WSTB : std_logic;
-signal OUT5      : std_logic_vector(31 downto 0);
-signal OUT5_WSTB : std_logic;
-signal OUT5_DLY      : std_logic_vector(31 downto 0);
-signal OUT5_DLY_WSTB : std_logic;
-signal OUT6      : std_logic_vector(31 downto 0);
-signal OUT6_WSTB : std_logic;
-signal OUT6_DLY      : std_logic_vector(31 downto 0);
-signal OUT6_DLY_WSTB : std_logic;
-signal OUT7      : std_logic_vector(31 downto 0);
-signal OUT7_WSTB : std_logic;
-signal OUT7_DLY      : std_logic_vector(31 downto 0);
-signal OUT7_DLY_WSTB : std_logic;
-signal OUT8      : std_logic_vector(31 downto 0);
-signal OUT8_WSTB : std_logic;
-signal OUT8_DLY      : std_logic_vector(31 downto 0);
-signal OUT8_DLY_WSTB : std_logic;
 
 begin
 
@@ -106,177 +59,23 @@ REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            OUT1 <= (others => '0');
-            OUT1_WSTB <= '0';
-            OUT1_DLY <= (others => '0');
-            OUT1_DLY_WSTB <= '0';
-            OUT2 <= (others => '0');
-            OUT2_WSTB <= '0';
-            OUT2_DLY <= (others => '0');
-            OUT2_DLY_WSTB <= '0';
-            OUT3 <= (others => '0');
-            OUT3_WSTB <= '0';
-            OUT3_DLY <= (others => '0');
-            OUT3_DLY_WSTB <= '0';
-            OUT4 <= (others => '0');
-            OUT4_WSTB <= '0';
-            OUT4_DLY <= (others => '0');
-            OUT4_DLY_WSTB <= '0';
-            OUT5 <= (others => '0');
-            OUT5_WSTB <= '0';
-            OUT5_DLY <= (others => '0');
-            OUT5_DLY_WSTB <= '0';
-            OUT6 <= (others => '0');
-            OUT6_WSTB <= '0';
-            OUT6_DLY <= (others => '0');
-            OUT6_DLY_WSTB <= '0';
-            OUT7 <= (others => '0');
-            OUT7_WSTB <= '0';
-            OUT7_DLY <= (others => '0');
-            OUT7_DLY_WSTB <= '0';
-            OUT8 <= (others => '0');
-            OUT8_WSTB <= '0';
-            OUT8_DLY <= (others => '0');
-            OUT8_DLY_WSTB <= '0';
-            OUT_PWR_ON <= (others => '0');
-            OUT_PWR_ON_WSTB <= '0';
-            IN_VTSEL <= (others => '0');
-            IN_VTSEL_WSTB <= '0';
-            IN_DB <= (others => '0');
-            IN_DB_WSTB <= '0';
-            OUT_PUSHPL <= (others => '0');
-            OUT_PUSHPL_WSTB <= '0';
-            OUT_FLTR <= (others => '0');
-            OUT_FLTR_WSTB <= '0';
-            OUT_SRIAL <= (others => '0');
-            OUT_SRIAL_WSTB <= '0';
-            OUT_EN <= (others => '0');
-            OUT_EN_WSTB <= '0';
-            OUT_CONFIG <= (others => '0');
-            OUT_CONFIG_WSTB <= '0';
+            SOFT_RESET <= (others => '0');
+            SOFT_RESET_WSTB <= '0';
+            LOOP_PERIOD <= (others => '0');
+            LOOP_PERIOD_WSTB <= '0';
         else
-            OUT1_WSTB <= '0';
-            OUT1_DLY_WSTB <= '0';
-            OUT2_WSTB <= '0';
-            OUT2_DLY_WSTB <= '0';
-            OUT3_WSTB <= '0';
-            OUT3_DLY_WSTB <= '0';
-            OUT4_WSTB <= '0';
-            OUT4_DLY_WSTB <= '0';
-            OUT5_WSTB <= '0';
-            OUT5_DLY_WSTB <= '0';
-            OUT6_WSTB <= '0';
-            OUT6_DLY_WSTB <= '0';
-            OUT7_WSTB <= '0';
-            OUT7_DLY_WSTB <= '0';
-            OUT8_WSTB <= '0';
-            OUT8_DLY_WSTB <= '0';
-            OUT_PWR_ON_WSTB <= '0';
-            IN_VTSEL_WSTB <= '0';
-            IN_DB_WSTB <= '0';
-            OUT_PUSHPL_WSTB <= '0';
-            OUT_FLTR_WSTB <= '0';
-            OUT_SRIAL_WSTB <= '0';
-            OUT_EN_WSTB <= '0';
-            OUT_CONFIG_WSTB <= '0';
+            SOFT_RESET_WSTB <= '0';
+            LOOP_PERIOD_WSTB <= '0';
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = FMC_OUT1) then
-                    OUT1 <= mem_dat_i;
-                    OUT1_WSTB <= '1';
+                if (mem_addr = FMC_SOFT_RESET) then
+                    SOFT_RESET <= mem_dat_i;
+                    SOFT_RESET_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT1_DLY) then
-                    OUT1_DLY <= mem_dat_i;
-                    OUT1_DLY_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT2) then
-                    OUT2 <= mem_dat_i;
-                    OUT2_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT2_DLY) then
-                    OUT2_DLY <= mem_dat_i;
-                    OUT2_DLY_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT3) then
-                    OUT3 <= mem_dat_i;
-                    OUT3_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT3_DLY) then
-                    OUT3_DLY <= mem_dat_i;
-                    OUT3_DLY_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT4) then
-                    OUT4 <= mem_dat_i;
-                    OUT4_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT4_DLY) then
-                    OUT4_DLY <= mem_dat_i;
-                    OUT4_DLY_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT5) then
-                    OUT5 <= mem_dat_i;
-                    OUT5_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT5_DLY) then
-                    OUT5_DLY <= mem_dat_i;
-                    OUT5_DLY_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT6) then
-                    OUT6 <= mem_dat_i;
-                    OUT6_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT6_DLY) then
-                    OUT6_DLY <= mem_dat_i;
-                    OUT6_DLY_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT7) then
-                    OUT7 <= mem_dat_i;
-                    OUT7_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT7_DLY) then
-                    OUT7_DLY <= mem_dat_i;
-                    OUT7_DLY_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT8) then
-                    OUT8 <= mem_dat_i;
-                    OUT8_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT8_DLY) then
-                    OUT8_DLY <= mem_dat_i;
-                    OUT8_DLY_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT_PWR_ON) then
-                    OUT_PWR_ON <= mem_dat_i;
-                    OUT_PWR_ON_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_IN_VTSEL) then
-                    IN_VTSEL <= mem_dat_i;
-                    IN_VTSEL_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_IN_DB) then
-                    IN_DB <= mem_dat_i;
-                    IN_DB_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT_PUSHPL) then
-                    OUT_PUSHPL <= mem_dat_i;
-                    OUT_PUSHPL_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT_FLTR) then
-                    OUT_FLTR <= mem_dat_i;
-                    OUT_FLTR_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT_SRIAL) then
-                    OUT_SRIAL <= mem_dat_i;
-                    OUT_SRIAL_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT_EN) then
-                    OUT_EN <= mem_dat_i;
-                    OUT_EN_WSTB <= '1';
-                end if;
-                if (mem_addr = FMC_OUT_CONFIG) then
-                    OUT_CONFIG <= mem_dat_i;
-                    OUT_CONFIG_WSTB <= '1';
+                if (mem_addr = FMC_LOOP_PERIOD) then
+                    LOOP_PERIOD <= mem_dat_i;
+                    LOOP_PERIOD_WSTB <= '1';
                 end if;
 
             end if;
@@ -294,14 +93,24 @@ begin
             mem_dat_o <= (others => '0');
         else
             case (mem_addr) is
-                when FMC_PRESENT =>
-                    mem_dat_o <= PRESENT;
-                when FMC_IN_FAULT =>
-                    mem_dat_o <= IN_FAULT;
-                when FMC_OUT_FAULT =>
-                    mem_dat_o <= OUT_FAULT;
-                when FMC_OUT_STATUS =>
-                    mem_dat_o <= OUT_STATUS;
+                when FMC_FMC_PRSNT =>
+                    mem_dat_o <= FMC_PRSNT;
+                when FMC_LINK_UP =>
+                    mem_dat_o <= LINK_UP;
+                when FMC_ERROR_COUNT =>
+                    mem_dat_o <= ERROR_COUNT;
+                when FMC_LA_P_ERROR =>
+                    mem_dat_o <= LA_P_ERROR;
+                when FMC_LA_N_ERROR =>
+                    mem_dat_o <= LA_N_ERROR;
+                when FMC_GTREFCLK =>
+                    mem_dat_o <= GTREFCLK;
+                when FMC_FMC_CLK0 =>
+                    mem_dat_o <= FMC_CLK0;
+                when FMC_FMC_CLK1 =>
+                    mem_dat_o <= FMC_CLK1;
+                when FMC_EXT_CLK =>
+                    mem_dat_o <= EXT_CLK;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;
@@ -312,78 +121,6 @@ end process;
 --
 -- Instantiate Delay Blocks for System and Position Bus Fields
 --
-bitmux_OUT1 : entity work.bitmux
-port map (
-    clk_i       => clk_i,
-    sysbus_i    => sysbus_i,
-    bit_o       => out1_o,
-    BITMUX_SEL  => OUT1,
-    BIT_DLY     => OUT1_DLY
-);
-
-bitmux_OUT2 : entity work.bitmux
-port map (
-    clk_i       => clk_i,
-    sysbus_i    => sysbus_i,
-    bit_o       => out2_o,
-    BITMUX_SEL  => OUT2,
-    BIT_DLY     => OUT2_DLY
-);
-
-bitmux_OUT3 : entity work.bitmux
-port map (
-    clk_i       => clk_i,
-    sysbus_i    => sysbus_i,
-    bit_o       => out3_o,
-    BITMUX_SEL  => OUT3,
-    BIT_DLY     => OUT3_DLY
-);
-
-bitmux_OUT4 : entity work.bitmux
-port map (
-    clk_i       => clk_i,
-    sysbus_i    => sysbus_i,
-    bit_o       => out4_o,
-    BITMUX_SEL  => OUT4,
-    BIT_DLY     => OUT4_DLY
-);
-
-bitmux_OUT5 : entity work.bitmux
-port map (
-    clk_i       => clk_i,
-    sysbus_i    => sysbus_i,
-    bit_o       => out5_o,
-    BITMUX_SEL  => OUT5,
-    BIT_DLY     => OUT5_DLY
-);
-
-bitmux_OUT6 : entity work.bitmux
-port map (
-    clk_i       => clk_i,
-    sysbus_i    => sysbus_i,
-    bit_o       => out6_o,
-    BITMUX_SEL  => OUT6,
-    BIT_DLY     => OUT6_DLY
-);
-
-bitmux_OUT7 : entity work.bitmux
-port map (
-    clk_i       => clk_i,
-    sysbus_i    => sysbus_i,
-    bit_o       => out7_o,
-    BITMUX_SEL  => OUT7,
-    BIT_DLY     => OUT7_DLY
-);
-
-bitmux_OUT8 : entity work.bitmux
-port map (
-    clk_i       => clk_i,
-    sysbus_i    => sysbus_i,
-    bit_o       => out8_o,
-    BITMUX_SEL  => OUT8,
-    BIT_DLY     => OUT8_DLY
-);
-
 
 
 

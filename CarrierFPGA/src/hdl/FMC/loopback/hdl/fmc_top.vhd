@@ -31,6 +31,12 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
+    -- Bus Inputs
+    bitbus_i            : in  std_logic_vector(127 downto 0);
+    posbus_i            : in  std32_array(31 downto 0);
+    -- Generic Inputs to BitBus and PosBus from FMC and SFP
+    fmc_inputs_o        : out std_logic_vector(15 downto 0);
+    fmc_data_o          : out std32_array(16 downto 0);
     -- Memory Bus Interface
     mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
     mem_cs_i            : in  std_logic;

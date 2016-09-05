@@ -135,3 +135,6 @@ set_property -dict [list \
 generate_target all [get_files $origin_dir/sfpgtx/sfpgtx.xci]
 synth_ip [get_ips sfpgtx]
 
+# Close project
+close_project
+exit

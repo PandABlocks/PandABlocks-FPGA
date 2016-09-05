@@ -143,12 +143,4 @@ localparam CLOCKS_OUTB0 = 123;
 localparam CLOCKS_OUTC0 = 124;
 localparam CLOCKS_OUTD0 = 125;
 localparam POSITIONS_ZERO0 = 0;
-localparam FMC_INP10 = 34;
-localparam FMC_INP20 = 35;
-localparam FMC_INP30 = 36;
-localparam FMC_INP40 = 37;
-localparam FMC_INP50 = 111;
-localparam FMC_INP60 = 112;
-localparam FMC_INP70 = 113;
-localparam FMC_INP80 = 114;
 
