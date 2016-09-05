@@ -1,0 +1,11 @@
+## There is an offset [MIO + 906]
+## Make MIO0 1 to select Zynq MIO[15:9] to switch to JX2 from eMMC
+echo 915 > /sys/class/gpio/export
+echo out > /sys/class/gpio/gpio915/direction
+echo 1 > /sys/class/gpio/gpio915/value
+
+-- Similarly set other MIO as you wish
+echo 915 > /sys/class/gpio/export
+echo out > /sys/class/gpio/gpio915/direction
+echo 1 > /sys/class/gpio/gpio915/value
+
