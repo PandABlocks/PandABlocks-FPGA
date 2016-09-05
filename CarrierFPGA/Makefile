@@ -86,7 +86,7 @@ panda_top.bit : VERSION $(IP_CORES) $(PS_CORE)
 zpkg:
 	mkdir -p output/share/panda/
 	cp $(OUTDIR)/panda_top.bit output/share/panda
-	tar czf $(TOP)/build/panda-fpga@$(GIT_VERSION).zpg -C output share
+	tar czf $(TOP)/build/panda-fpga@$(FIRMWARE)_FMC_$(FMC_DESIGN)_SFP_$(SFP_DESIGN).zpg -C output share
 
 #####################################################################
 # SW Projects Build

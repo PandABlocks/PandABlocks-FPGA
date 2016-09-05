@@ -2,6 +2,7 @@
 # drivers for interfacing to the FPGA resources.
 
 TOP := $(CURDIR)
+include $(TOP)/VERSION
 
 # Build defaults that can be overwritten by the CONFIG file if present
 
@@ -51,22 +52,6 @@ docs: $(DOCS_BUILD_DIR)/index.html
 
 
 # ------------------------------------------------------------------------------
-# Build installation package
-
-CONFIG_ZPKG = $(BUILD_DIR)/panda-config@$(GIT_VERSION).zpg
-
-$(SERVER_ZPKG): $(PANDA_KO) $(SERVER) $(wildcard etc/*)
-
-$(CONFIG_ZPKG): $(wildcard config_d/*)
-
-$(BUILD_DIR)/%.zpg:
-	etc/make-zpkg $(TOP) $(BUILD_DIR) $@
-
-zpkg: $(SERVER_ZPKG) $(CONFIG_ZPKG)
-.PHONY: zpkg
-
-
-# ------------------------------------------------------------------------------
 # FPGA builds
 
 FMC_DESIGN = loopback
@@ -89,7 +74,8 @@ devicetree: $(FPGA_BUILD_DIR)
 
 carrier-zpkg: $(FPGA_BUILD_DIR)
 	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
-	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) zpkg
+	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) \
+		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN) zpkg
 
 slow-fpga: $(SLOW_FPGA_BUILD_DIR)
 	source $(ISE)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
@@ -97,6 +83,22 @@ slow-fpga: $(SLOW_FPGA_BUILD_DIR)
 
 
 .PHONY: carrier-fpga slow-fpga carrier-zpkg
+
+# ------------------------------------------------------------------------------
+# Build installation package
+
+#CONFIG_ZPKG = $(BUILD_DIR)/panda-config@$(GIT_VERSION).zpg
+CONFIG_ZPKG = $(BUILD_DIR)/panda-config@$(FIRMWARE)_FMC_$(FMC_DESIGN)_SFP_$(SFP_DESIGN).zpg -C output share
+
+$(SERVER_ZPKG): $(PANDA_KO) $(SERVER) $(wildcard etc/*)
+
+$(CONFIG_ZPKG): $(wildcard config_d/*)
+
+$(BUILD_DIR)/%.zpg:
+	etc/make-zpkg $(TOP) $(BUILD_DIR) $@
+
+zpkg: $(SERVER_ZPKG) $(CONFIG_ZPKG)
+.PHONY: zpkg
 
 # ------------------------------------------------------------------------------
 
