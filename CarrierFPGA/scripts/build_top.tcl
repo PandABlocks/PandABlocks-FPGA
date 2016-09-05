@@ -35,7 +35,7 @@ set_msg_config -id {[Synth 8-2644]} -suppress
 # STEP#1: setup design sources and constraints
 #
 # Read design files
-read_bd   panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
+read_bd   $BUILDIR/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 add_files $SRCDIR/src/hdl/autogen
 add_files $SRCDIR/src/hdl/defines
 add_files $SRCDIR/src/hdl/base
@@ -104,3 +104,5 @@ write_bitstream -force panda_top.bit
 #
 #file mkdir $BUILDIR/panda_top/panda_top.sdk
 write_hwdef -file $BUILDIR/panda_top_wrapper.hdf -force
+
+close_project
