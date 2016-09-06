@@ -61,22 +61,21 @@ class ConfigGenerator(object):
                     with open(description_file) as infile:
                         outfile.write(infile.read())
 
-    def extractFileInfo(self, file):
+    def extractFileInfo(self, file_name):
         file_info = collections.OrderedDict()
-        with open(file, 'rb') as csvfile:
+        for line in file(file_name):
+            row = line.split()
             try:
-                appreader = csv.reader(csvfile, delimiter=' ')
-                for row in appreader:
-                    #ignore comments and put in dictionary
-                    if row and not row[0].startswith("#"):
-                        #strip the '_loopback'
-                        if "_LOOPBACK" in row[0]:
-                            file_info[row[0].split('_LOOPBACK')[0]] = row[1]
-                        else:
-                            file_info[row[0]] = row[1]
+                #ignore comments and put in dictionary
+                if row and not row[0].startswith("#"):
+                    #strip the '_loopback'
+                    if "_LOOPBACK" in row[0]:
+                        file_info[row[0].split('_LOOPBACK')[0]] = row[1]
+                    else:
+                        file_info[row[0]] = row[1]
             except:
             #NEED SOME EXTRA CHECKING ON THIS FILE
-                print "INVALID ENTRY, LINE", appreader.line_num,": ", row
+                print "INVALID ENTRY, LINE", file.line_num,": ", row
         return file_info
 
     def parseAppFile(self, appfile):
