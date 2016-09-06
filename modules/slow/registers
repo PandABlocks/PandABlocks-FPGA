@@ -1,15 +1,15 @@
-SLOW        25
-    TEMP_PSU        0
-    TEMP_SFP        1
-    TEMP_ENC_L      2
-    TEMP_PICO       3
-    TEMP_ENC_R      4
-    ALIM_12V0       5
-    PICO_5V0        6
-    IO_5V0          7
-    SFP_3V3         8
-    FMC_15VN        9
-    FMC_15VP        10
-    ENC_24V         11
-    FMC_12V         12
+SLOW        {{newBlockNo()}}
+    TEMP_PSU        {{newBlockReg("SLOW")}}
+    TEMP_SFP        {{newBlockReg("SLOW")}}
+    TEMP_ENC_L      {{newBlockReg("SLOW")}}
+    TEMP_PICO       {{newBlockReg("SLOW")}}
+    TEMP_ENC_R      {{newBlockReg("SLOW")}}
+    ALIM_12V0       {{newBlockReg("SLOW")}}
+    PICO_5V0        {{newBlockReg("SLOW")}}
+    IO_5V0          {{newBlockReg("SLOW")}}
+    SFP_3V3         {{newBlockReg("SLOW")}}
+    FMC_15VN        {{newBlockReg("SLOW")}}
+    FMC_15VP        {{newBlockReg("SLOW")}}
+    ENC_24V         {{newBlockReg("SLOW")}}
+    FMC_12V         {{newBlockReg("SLOW")}}
 

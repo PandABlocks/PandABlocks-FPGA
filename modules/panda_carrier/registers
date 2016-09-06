@@ -1,45 +1,45 @@
-TTLIN       3
+TTLIN       {{newBlockNo()}}
     TERM            slow 0
-    VAL             2 3 4 5 6 7
+    VAL             {{newBitBus("TTLIN")}}
 
-TTLOUT      4
-    VAL             0 1
+TTLOUT      {{newBlockNo()}}
+    VAL             {{newBlockReg("TTLOUT", type='bit_mux')}}
 
-LVDSIN      5
-    VAL             8 9
+LVDSIN      {{newBlockNo()}}
+    VAL             {{newBitBus("LVDSIN")}}
 
-LVDSOUT     6
-    VAL             0 1
+LVDSOUT     {{newBlockNo()}}
+    VAL             {{newBlockReg("LVDSOUT", type='bit_mux')}}
 
-INENC       12
-    PROTOCOL        slow 0
-    CLK_PERIOD      1
-    FRAME_PERIOD    2
-    BITS            3
-    BITS_CRC        4
-    SETP            5
-    RST_ON_Z        6
-    EXTENSION       7
-    ERR_FRAME       8
-    ERR_RESPONSE    9
-    ENC_STATUS      10
-    DCARD_MODE      11
-    A               66 67 68 69
-    B               70 71 72 73
-    Z               74 75 76 77
-    CONN            78 79 80 81
-    TRANS           107 108 109 110
+INENC       {{newBlockNo()}}
+    PROTOCOL        slow {{newBlockReg("INENC")}}
+    CLK_PERIOD      {{newBlockReg("INENC")}}
+    FRAME_PERIOD    {{newBlockReg("INENC")}}
+    BITS            {{newBlockReg("INENC")}}
+    BITS_CRC        {{newBlockReg("INENC")}}
+    SETP            {{newBlockReg("INENC")}}
+    RST_ON_Z        {{newBlockReg("INENC")}}
+    EXTENSION       {{newBlockReg("INENC")}}
+    ERR_FRAME       {{newBlockReg("INENC")}}
+    ERR_RESPONSE    {{newBlockReg("INENC")}}
+    ENC_STATUS      {{newBlockReg("INENC")}}
+    DCARD_MODE      {{newBlockReg("INENC")}}
+    A               {{newBitBus("INENC")}}
+    B               {{newBitBus("INENC")}}
+    Z               {{newBitBus("INENC")}}
+    CONN            {{newBitBus("INENC")}}
+    TRANS           {{newBitBus("INENC")}}
     VAL             1 2 3 4 / 33 34 35 36
 
-OUTENC      14
-    PROTOCOL        5
-    BITS            6
-    QPERIOD         7
-    ENABLE          8 10
-    A               0 11
-    B               1 12
-    Z               2 13
-    VAL             4
-    CONN            3 14
-    QSTATE          9
+OUTENC      {{newBlockNo()}}
+    PROTOCOL        {{newBlockReg("OUTENC")}}
+    BITS            {{newBlockReg("OUTENC")}}
+    QPERIOD         {{newBlockReg("OUTENC")}}
+    ENABLE          {{newBlockReg("OUTENC", type='bit_mux')}}
+    A               {{newBlockReg("OUTENC", type='bit_mux')}}
+    B               {{newBlockReg("OUTENC", type='bit_mux')}}
+    Z               {{newBlockReg("OUTENC", type='bit_mux')}}
+    VAL             {{newBlockReg("OUTENC")}}
+    CONN            {{newBlockReg("OUTENC", type='bit_mux')}}
+    QSTATE          {{newBlockReg("OUTENC")}}
 

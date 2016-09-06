@@ -1,12 +1,12 @@
-SFP         27
-    LINK1_UP        0
-    ERROR1_COUNT    1
-    LINK2_UP        2
-    ERROR2_COUNT    3
-    LINK3_UP        4
-    ERROR3_COUNT    5
-    SFP_CLK1        6
-    SFP_CLK2        7
-    SFP_CLK3        8
-    SOFT_RESET      9
+SFP         {{newBlockNo()}}
+    LINK1_UP        {{newBlockReg("SFP")}}
+    ERROR1_COUNT    {{newBlockReg("SFP")}}
+    LINK2_UP        {{newBlockReg("SFP")}}
+    ERROR2_COUNT    {{newBlockReg("SFP")}}
+    LINK3_UP        {{newBlockReg("SFP")}}
+    ERROR3_COUNT    {{newBlockReg("SFP")}}
+    SFP_CLK1        {{newBlockReg("SFP")}}
+    SFP_CLK2        {{newBlockReg("SFP")}}
+    SFP_CLK3        {{newBlockReg("SFP")}}
+    SOFT_RESET      {{newBlockReg("SFP")}}
 

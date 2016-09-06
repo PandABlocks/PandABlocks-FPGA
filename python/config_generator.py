@@ -25,8 +25,9 @@ class ConfigGenerator(object):
         self.app_config = collections.OrderedDict()
         self.current_bit_bus_value = 9
         self.current_pos_bus_value = 0
-        self.current_block = 6
+        self.current_block = 2
         self.block_regs = {}
+        self.panda_carrier_config = {"TTLIN": 6, "TTLOUT": 10, "LVDSIN": 2, "LVDSOUT": 2, "INENC": 4, "OUTENC": 4}
 
     def render_template(self, template_filename, context):
         return self.template_environment.get_template(template_filename).render(context)
@@ -41,7 +42,10 @@ class ConfigGenerator(object):
             output_file = self.render_template(os.path.join("panda_carrier/", outputfile), variables)
             f.write(output_file)
             for config in app_config.keys():
-                output_file = self.render_template(os.path.join(config.lower(), outputfile), variables)
+                if config in ["FMC", "SFP"]:
+                    output_file = self.render_template(os.path.join(config.lower() + "_loopback", outputfile), variables)
+                else:
+                    output_file = self.render_template(os.path.join(config.lower(), outputfile), variables)
                 f.write(output_file)
 
     def generateDescription(self, app_config, outputfile):
@@ -65,7 +69,11 @@ class ConfigGenerator(object):
                 for row in appreader:
                     #ignore comments and put in dictionary
                     if row and not row[0].startswith("#"):
-                        file_info[row[0]] = row[1]
+                        #strip the '_loopback'
+                        if "_LOOPBACK" in row[0]:
+                            file_info[row[0].split('_LOOPBACK')[0]] = row[1]
+                        else:
+                            file_info[row[0]] = row[1]
             except:
             #NEED SOME EXTRA CHECKING ON THIS FILE
                 print "INVALID ENTRY, LINE", appreader.line_num,": ", row
@@ -74,6 +82,8 @@ class ConfigGenerator(object):
     def parseAppFile(self, appfile):
         file = os.path.join(APP_DIR, appfile)
         self.app_config = self.extractFileInfo(file)
+        #add the carrier_config modules
+        self.app_config.update(self.panda_carrier_config)
         self.initBlockRegs()
         return self.extractFileInfo(file)
 
@@ -92,7 +102,10 @@ class ConfigGenerator(object):
 
     def checkBlockMax(self, app_config):
         for block in app_config.keys():
-            meta_file = os.path.join(MODULE_DIR, block.lower(), "meta")
+            if block in ['FMC', 'SFP']:
+                meta_file = os.path.join(MODULE_DIR, block.lower() + '_loopback', "meta")
+            else:
+                meta_file = os.path.join(MODULE_DIR, block.lower(), "meta")
             meta_info = self.parseMetaFile(meta_file, block)
             #check the defined number in the config against the max in the meta
             if int(app_config[block]) > int(meta_info["MAX"]):
