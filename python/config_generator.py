@@ -111,24 +111,22 @@ class ConfigGenerator(object):
                 raise ValueError('Max value exceeded for ' + block)
 
     def newBitBus(self, block):
-        bus_values = []
-        for values in range(int(self.app_config[block.upper()])):
-            if int(self.current_bit_bus_value) < 128:
-                self.current_bit_bus_value += 1
-                bus_values.append(str(self.current_bit_bus_value))
-            else:
-                raise ValueError('Max bit bus value exceeded')
-        return " ".join(bus_values)
+        bus_values, self.current_bit_bus_value = self.newBus(block, 128, 'bit_bus', self.current_bit_bus_value)
+        return bus_values
 
     def newPosBus(self, block):
+        bus_values, self.current_pos_bus_value = self.newBus(block, 64, 'pos_bus', self.current_pos_bus_value)
+        return bus_values
+
+    def newBus(self, block, limit, type, current_val):
         bus_values = []
         for values in range(int(self.app_config[block.upper()])):
-            if int(self.current_pos_bus_value) < 64:
-                self.current_pos_bus_value += 1
-                bus_values.append(str(self.current_pos_bus_value))
+            if int(current_val) < limit:
+                current_val += 1
+                bus_values.append(str(current_val))
             else:
-                raise ValueError('Max pos bus value exceeded')
-        return " ".join(bus_values)
+                raise ValueError('Max '+ type + ' value of ' + str(limit) + ' exceeded')
+        return " ".join(bus_values), current_val
 
     def newBlockNo(self):
         self.current_block += 1
