@@ -13,54 +13,64 @@ APP_DIR = os.path.join(ROOT_DIR, "apps")
 
 class ConfigGenerator(object):
     def __init__(self):
-        self.template_environment = Environment(
+        self.temp_env = Environment(
             autoescape=False,
             loader=FileSystemLoader(MODULE_DIR),
             trim_blocks=True)
 
-        self.template_environment.globals['newBitBus'] = self.newBitBus
-        self.template_environment.globals['newBlockNo'] = self.newBlockNo
-        self.template_environment.globals['newPosBus'] = self.newPosBus
-        self.template_environment.globals['newBlockReg'] = self.newBlockReg
+        self.temp_env.globals['newBitBus'] = self.newBitBus
+        self.temp_env.globals['newBlockNo'] = self.newBlockNo
+        self.temp_env.globals['newPosBus'] = self.newPosBus
+        self.temp_env.globals['newBlockReg'] = self.newBlockReg
         self.app_config = collections.OrderedDict()
         self.current_bit_bus_value = 9
         self.current_pos_bus_value = 0
         self.current_block = 2
         self.block_regs = {}
-        self.panda_carrier_config = {"TTLIN": 6, "TTLOUT": 10, "LVDSIN": 2, "LVDSOUT": 2, "INENC": 4, "OUTENC": 4}
+        self.panda_carrier_config = {"TTLIN": 6,
+                                     "TTLOUT": 10,
+                                     "LVDSIN": 2,
+                                     "LVDSOUT": 2,
+                                     "INENC": 4,
+                                     "OUTENC": 4}
         self.processing_block = ''
 
-    def render_template(self, template_filename, context):
-        return self.template_environment.get_template(template_filename).render(context)
+    def render_template(self, template_filename, context={}):
+        return self.temp_env.get_template(template_filename).render(context)
 
-    def generateOutputFile(self, app_config, outputfile, variables):
-        #generate the output config file
-        fname = os.path.join(OUTPUT_DIR, outputfile)
+    def generateOutputFile(self, app_config, out_dir, variables):
+        self.startEmptyFile(out_dir)
+        output = self.render_template(os.path.join("base/", out_dir))
+        self.writeOutputFile(out_dir, output)
+        output = self.render_template(os.path.join("panda_carrier/", out_dir))
+        self.writeOutputFile(out_dir, output)
+        for config in app_config.keys():
+            if config in ["FMC", "SFP"]:
+                output = self.render_template(os.path.join(config.lower() + "_loopback", out_dir), variables)
+            else:
+                output = self.render_template(os.path.join(config.lower(), out_dir), variables)
+            self.writeOutputFile(out_dir, output)
+
+    def generateDescription(self, app_config, out_dir):
+        self.startEmptyFile(out_dir)
+        desc_file = os.path.join(MODULE_DIR, "panda_carrier", "description")
+        with open(desc_file) as infile:
+            self.writeOutputFile(out_dir, infile.read())
+        for config in app_config.keys():
+            desc_file = os.path.join(MODULE_DIR, config.lower(), "description")
+            if os.path.isfile(desc_file):
+                with open(desc_file) as infile:
+                    self.writeOutputFile(out_dir, infile.read())
+
+    def startEmptyFile(self, out_dir):
+        fname = os.path.join(OUTPUT_DIR, out_dir)
         with open(fname, 'w') as f:
-            #get the config templates from the panda_carrier and base
-            output_file = self.render_template(os.path.join("base/", outputfile), variables)
-            f.write(output_file)
-            output_file = self.render_template(os.path.join("panda_carrier/", outputfile), variables)
-            f.write(output_file)
-            for config in app_config.keys():
-                if config in ["FMC", "SFP"]:
-                    output_file = self.render_template(os.path.join(config.lower() + "_loopback", outputfile), variables)
-                else:
-                    output_file = self.render_template(os.path.join(config.lower(), outputfile), variables)
-                f.write(output_file)
+            f.write('')
 
-    def generateDescription(self, app_config, outputfile):
-        fname = os.path.join(OUTPUT_DIR, outputfile)
-        with open(fname, 'w') as outfile:
-            #get the description from the base
-            description_file =  os.path.join(MODULE_DIR, "panda_carrier", "description")
-            with open(description_file) as infile:
-                outfile.write(infile.read())
-            for config in app_config.keys():
-                description_file = os.path.join(MODULE_DIR, config.lower(), "description")
-                if os.path.isfile(description_file):
-                    with open(description_file) as infile:
-                        outfile.write(infile.read())
+    def writeOutputFile(self, out_dir, out_file):
+        fname = os.path.join(OUTPUT_DIR, out_dir)
+        with open(fname, 'a') as f:
+            f.write(out_file)
 
     def extractFileInfo(self, file_name):
         file_info = collections.OrderedDict()
