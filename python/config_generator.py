@@ -28,6 +28,7 @@ class ConfigGenerator(object):
         self.current_block = 2
         self.block_regs = {}
         self.panda_carrier_config = {"TTLIN": 6, "TTLOUT": 10, "LVDSIN": 2, "LVDSOUT": 2, "INENC": 4, "OUTENC": 4}
+        self.processing_block = ''
 
     def render_template(self, template_filename, context):
         return self.template_environment.get_template(template_filename).render(context)
@@ -110,15 +111,16 @@ class ConfigGenerator(object):
             if int(app_config[block]) > int(meta_info["MAX"]):
                 raise ValueError('Max value exceeded for ' + block)
 
-    def newBitBus(self, block):
-        bus_values, self.current_bit_bus_value = self.newBus(block, 128, 'bit_bus', self.current_bit_bus_value)
+    def newBitBus(self):
+        bus_values, self.current_bit_bus_value = self.newBus(128, 'bit_bus', self.current_bit_bus_value)
         return bus_values
 
-    def newPosBus(self, block):
-        bus_values, self.current_pos_bus_value = self.newBus(block, 64, 'pos_bus', self.current_pos_bus_value)
+    def newPosBus(self):
+        bus_values, self.current_pos_bus_value = self.newBus(64, 'pos_bus', self.current_pos_bus_value)
         return bus_values
 
-    def newBus(self, block, limit, type, current_val):
+    def newBus(self, limit, type, current_val):
+        block = self.processing_block
         bus_values = []
         for values in range(int(self.app_config[block.upper()])):
             if int(current_val) < limit:
@@ -128,11 +130,13 @@ class ConfigGenerator(object):
                 raise ValueError('Max '+ type + ' value of ' + str(limit) + ' exceeded')
         return " ".join(bus_values), current_val
 
-    def newBlockNo(self):
+    def newBlockNo(self, block):
+        self.processing_block = block
         self.current_block += 1
         return str(self.current_block)
 
-    def newBlockReg(self, block, type = '', offset=-1):
+    def newBlockReg(self, type='', offset=-1):
+        block = self.processing_block
         if self.block_regs[block] < offset:
             self.block_regs[block] = offset
         if self.block_regs[block] < 64:

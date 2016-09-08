@@ -1,10 +1,10 @@
-POSENC      {{newBlockNo()}}
-    INP             {{newBlockReg("POSENC")}}
-    QPERIOD         {{newBlockReg("POSENC")}}
-    ENABLE          {{newBlockReg("POSENC", type='bit_mux')}}
-    PROTOCOL        {{newBlockReg("POSENC")}}
-    A               {{newBitBus("POSENC")}}
-    B               {{newBitBus("POSENC")}}
-    QSTATE          {{newBlockReg("POSENC")}}
+POSENC      {{newBlockNo("POSENC")}}
+    INP             {{newBlockReg()}}
+    QPERIOD         {{newBlockReg()}}
+    ENABLE          {{newBlockReg(type='bit_mux')}}
+    PROTOCOL        {{newBlockReg()}}
+    A               {{newBitBus()}}
+    B               {{newBitBus()}}
+    QSTATE          {{newBlockReg()}}
 
 

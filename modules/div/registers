@@ -1,10 +1,10 @@
-DIV         {{newBlockNo()}}
-    DIVISOR         {{newBlockReg("DIV")}}
-    FIRST_PULSE     {{newBlockReg("DIV")}}
-    INP             {{newBlockReg("DIV", type='bit_mux')}}
-    ENABLE          {{newBlockReg("DIV", type='bit_mux')}}
-    OUTD            {{newBitBus("DIV")}}
-    OUTN            {{newBitBus("DIV")}}
-    COUNT           {{newBlockReg("DIV")}}
+DIV         {{newBlockNo("DIV")}}
+    DIVISOR         {{newBlockReg()}}
+    FIRST_PULSE     {{newBlockReg()}}
+    INP             {{newBlockReg(type='bit_mux')}}
+    ENABLE          {{newBlockReg(type='bit_mux')}}
+    OUTD            {{newBitBus()}}
+    OUTN            {{newBitBus()}}
+    COUNT           {{newBlockReg()}}
 
 

@@ -1,11 +1,11 @@
-CLOCKS      {{newBlockNo()}}
-    A_PERIOD        {{newBlockReg("CLOCKS")}}
-    B_PERIOD        {{newBlockReg("CLOCKS")}}
-    C_PERIOD        {{newBlockReg("CLOCKS")}}
-    D_PERIOD        {{newBlockReg("CLOCKS")}}
-    OUTA            {{newBitBus("CLOCKS")}}
-    OUTB            {{newBitBus("CLOCKS")}}
-    OUTC            {{newBitBus("CLOCKS")}}
-    OUTD            {{newBitBus("CLOCKS")}}
+CLOCKS      {{newBlockNo("CLOCKS")}}
+    A_PERIOD        {{newBlockReg()}}
+    B_PERIOD        {{newBlockReg()}}
+    C_PERIOD        {{newBlockReg()}}
+    D_PERIOD        {{newBlockReg()}}
+    OUTA            {{newBitBus()}}
+    OUTB            {{newBitBus()}}
+    OUTC            {{newBitBus()}}
+    OUTD            {{newBitBus()}}
 
 

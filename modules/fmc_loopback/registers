@@ -1,13 +1,13 @@
-FMC         {{newBlockNo()}}
-    FMC_PRSNT       {{newBlockReg("FMC")}}
-    LINK_UP         {{newBlockReg("FMC")}}
-    ERROR_COUNT     {{newBlockReg("FMC")}}
-    LA_P_ERROR      {{newBlockReg("FMC")}}
-    LA_N_ERROR      {{newBlockReg("FMC")}}
-    GTREFCLK        {{newBlockReg("FMC")}}
-    FMC_CLK0        {{newBlockReg("FMC")}}
-    FMC_CLK1        {{newBlockReg("FMC")}}
-    SOFT_RESET      {{newBlockReg("FMC")}}
-    EXT_CLK         {{newBlockReg("FMC")}}
-    LOOP_PERIOD     {{newBlockReg("FMC")}}
+FMC         {{newBlockNo("FMC")}}
+    FMC_PRSNT       {{newBlockReg()}}
+    LINK_UP         {{newBlockReg()}}
+    ERROR_COUNT     {{newBlockReg()}}
+    LA_P_ERROR      {{newBlockReg()}}
+    LA_N_ERROR      {{newBlockReg()}}
+    GTREFCLK        {{newBlockReg()}}
+    FMC_CLK0        {{newBlockReg()}}
+    FMC_CLK1        {{newBlockReg()}}
+    SOFT_RESET      {{newBlockReg()}}
+    EXT_CLK         {{newBlockReg()}}
+    LOOP_PERIOD     {{newBlockReg()}}
 

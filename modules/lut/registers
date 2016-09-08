@@ -1,10 +1,10 @@
-LUT         {{newBlockNo()}}
-    FUNC            {{newBlockReg("LUT")}}
-    INPA            {{newBlockReg("LUT", type='bit_mux')}}
-    INPB            {{newBlockReg("LUT", type='bit_mux')}}
-    INPC            {{newBlockReg("LUT", type='bit_mux')}}
-    INPD            {{newBlockReg("LUT", type='bit_mux')}}
-    INPE            {{newBlockReg("LUT", type='bit_mux')}}
-    OUT             {{newBitBus("LUT")}}
+LUT         {{newBlockNo("LUT")}}
+    FUNC            {{newBlockReg()}}
+    INPA            {{newBlockReg(type='bit_mux')}}
+    INPB            {{newBlockReg(type='bit_mux')}}
+    INPC            {{newBlockReg(type='bit_mux')}}
+    INPD            {{newBlockReg(type='bit_mux')}}
+    INPE            {{newBlockReg(type='bit_mux')}}
+    OUT             {{newBitBus()}}
 
 

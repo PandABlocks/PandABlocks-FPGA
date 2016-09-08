@@ -1,9 +1,9 @@
-ADDER       {{newBlockNo()}}
-    INPA            {{newBlockReg("ADDER")}}
-    INPB            {{newBlockReg("ADDER")}}
-    INPC            {{newBlockReg("ADDER")}}
-    INPD            {{newBlockReg("ADDER")}}
-    SCALE           {{newBlockReg("ADDER")}}
-    OUT             {{newPosBus("ADDER")}}
+ADDER       {{newBlockNo("ADDER")}}
+    INPA            {{newBlockReg()}}
+    INPB            {{newBlockReg()}}
+    INPC            {{newBlockReg()}}
+    INPD            {{newBlockReg()}}
+    SCALE           {{newBlockReg()}}
+    OUT             {{newPosBus()}}
 
 

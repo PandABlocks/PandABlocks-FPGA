@@ -1,12 +1,12 @@
-SFP         {{newBlockNo()}}
-    LINK1_UP        {{newBlockReg("SFP")}}
-    ERROR1_COUNT    {{newBlockReg("SFP")}}
-    LINK2_UP        {{newBlockReg("SFP")}}
-    ERROR2_COUNT    {{newBlockReg("SFP")}}
-    LINK3_UP        {{newBlockReg("SFP")}}
-    ERROR3_COUNT    {{newBlockReg("SFP")}}
-    SFP_CLK1        {{newBlockReg("SFP")}}
-    SFP_CLK2        {{newBlockReg("SFP")}}
-    SFP_CLK3        {{newBlockReg("SFP")}}
-    SOFT_RESET      {{newBlockReg("SFP")}}
+SFP         {{newBlockNo("SFP")}}
+    LINK1_UP        {{newBlockReg()}}
+    ERROR1_COUNT    {{newBlockReg()}}
+    LINK2_UP        {{newBlockReg()}}
+    ERROR2_COUNT    {{newBlockReg()}}
+    LINK3_UP        {{newBlockReg()}}
+    ERROR3_COUNT    {{newBlockReg()}}
+    SFP_CLK1        {{newBlockReg()}}
+    SFP_CLK2        {{newBlockReg()}}
+    SFP_CLK3        {{newBlockReg()}}
+    SOFT_RESET      {{newBlockReg()}}
 

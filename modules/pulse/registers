@@ -1,12 +1,12 @@
-PULSE       {{newBlockNo()}}
+PULSE       {{newBlockNo("PULSE")}}
     DELAY           3 2     >3
     WIDTH           5 4     >3
-    INP             {{newBlockReg("PULSE", type='bit_mux')}}
-    ENABLE          {{newBlockReg("PULSE", type='bit_mux')}}
-    OUT             {{newBitBus("PULSE")}}
-    ERR_OVERFLOW    {{newBlockReg("PULSE")}}
-    ERR_PERIOD      {{newBlockReg("PULSE")}}
-    QUEUE           {{newBlockReg("PULSE")}}
-    MISSED_CNT      {{newBlockReg("PULSE")}}
+    INP             {{newBlockReg(type='bit_mux')}}
+    ENABLE          {{newBlockReg(type='bit_mux')}}
+    OUT             {{newBitBus()}}
+    ERR_OVERFLOW    {{newBlockReg()}}
+    ERR_PERIOD      {{newBlockReg()}}
+    QUEUE           {{newBlockReg()}}
+    MISSED_CNT      {{newBlockReg()}}
 
 

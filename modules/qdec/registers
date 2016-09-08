@@ -1,9 +1,9 @@
-QDEC        {{newBlockNo()}}
-    RST_ON_Z        {{newBlockReg("QDEC")}}
-    SETP            {{newBlockReg("QDEC")}}
-    A               {{newBlockReg("QDEC", type='bit_mux')}}
-    B               {{newBlockReg("QDEC", type='bit_mux')}}
-    Z               {{newBlockReg("QDEC", type='bit_mux')}}
-    OUT             {{newPosBus("QDEC")}}
+QDEC        {{newBlockNo("QDEC")}}
+    RST_ON_Z        {{newBlockReg()}}
+    SETP            {{newBlockReg()}}
+    A               {{newBlockReg(type='bit_mux')}}
+    B               {{newBlockReg(type='bit_mux')}}
+    Z               {{newBlockReg(type='bit_mux')}}
+    OUT             {{newPosBus()}}
 
 
