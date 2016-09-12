@@ -10,41 +10,31 @@ BUILD_DIR = $(TOP)/build
 VIVADO = /dls_sw/FPGA/Xilinx/Vivado/2015.1/settings64.sh
 ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
 PYTHON = python2
+SPHINX_BUILD = sphinx-build
 ARCH = arm
-CROSS_COMPILE = arm-xilinx-linux-gnueabi-
-BINUTILS_DIR = /dls_sw/FPGA/Xilinx/SDK/2015.1/gnu/arm/lin/bin
-KERNEL_DIR = $(error Define KERNEL_DIR before building driver)
-DEFAULT_TARGETS = sim_server docs zpkg
+DEFAULT_TARGETS = docs zpkg
 
 -include CONFIG
 
 
 CC = $(CROSS_COMPILE)gcc
 
-# DRIVER_BUILD_DIR = $(BUILD_DIR)/driver
-# SERVER_BUILD_DIR = $(BUILD_DIR)/server
-SIM_SERVER_BUILD_DIR = $(BUILD_DIR)/sim_server
 DOCS_BUILD_DIR = $(BUILD_DIR)/html
 SLOW_FPGA_BUILD_DIR = $(BUILD_DIR)/SlowFPGA
 FPGA_BUILD_DIR = $(BUILD_DIR)/CarrierFPGA
 
-DRIVER_FILES := $(wildcard driver/*)
-SERVER_FILES := $(wildcard server/*)
-
-ifdef BINUTILS_DIR
-PATH := $(BINUTILS_DIR):$(PATH)
-endif
 
 default: $(DEFAULT_TARGETS)
 .PHONY: default
 
 export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
 
+
 # ------------------------------------------------------------------------------
 # Documentation
 
 $(DOCS_BUILD_DIR)/index.html: $(wildcard docs/*.rst docs/*/*.rst docs/conf.py)
-	sphinx-build -b html docs $(DOCS_BUILD_DIR)
+	$(SPHINX_BUILD) -b html docs $(DOCS_BUILD_DIR)
 
 docs: $(DOCS_BUILD_DIR)/index.html
 
@@ -90,8 +80,6 @@ slow-fpga: $(SLOW_FPGA_BUILD_DIR)
 #CONFIG_ZPKG = $(BUILD_DIR)/panda-config@$(GIT_VERSION).zpg
 CONFIG_ZPKG = $(BUILD_DIR)/panda-config@$(FIRMWARE)_FMC_$(FMC_DESIGN)_SFP_$(SFP_DESIGN).zpg -C output share
 
-$(SERVER_ZPKG): $(PANDA_KO) $(SERVER) $(wildcard etc/*)
-
 $(CONFIG_ZPKG): $(wildcard config_d/*)
 
 $(BUILD_DIR)/%.zpg:
@@ -108,7 +96,6 @@ $(BUILD_DIR)/%:
 
 clean:
 	rm -rf $(BUILD_DIR)
-	rm -f simserver
 	find -name '*.pyc' -delete
 
 .PHONY: clean
