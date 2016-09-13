@@ -8,14 +8,15 @@ include $(TOP)/VERSION
 
 BUILD_DIR = $(TOP)/build
 VIVADO = /dls_sw/FPGA/Xilinx/Vivado/2015.1/settings64.sh
+LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
 ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
 PYTHON = python2
 SPHINX_BUILD = sphinx-build
-ARCH = arm
 DEFAULT_TARGETS = docs zpkg
 
 -include CONFIG
 
+export LM_LICENSE_FILE
 
 CC = $(CROSS_COMPILE)gcc
 

@@ -1,0 +1,31 @@
+# Example configuration file for building PandA firmware, and for simulation
+#
+# Copy this file to a file named CONFIG and edit as appropriate.
+
+
+# Default build location.  Default is to build in build subdirectory.
+#
+# BUILD_DIR = $(TOP)/build
+
+# Path to setup for Vivado and ISE development kits.  Needed for FPGA build.
+#
+# VIVADO = /dls_sw/FPGA/Xilinx/Vivado/2015.1/settings64.sh
+# ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
+
+# License server for Vivado.
+#
+# LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
+
+# Python interpreter for running scripts
+#
+# PYTHON = python2
+
+# Sphinx build for documentation.
+#
+# SPHINX_BUILD = sphinx-build
+
+# List of default targets build when running make
+#
+# DEFAULT_TARGETS = docs zpkg
+
+# vim: set filetype=make:
