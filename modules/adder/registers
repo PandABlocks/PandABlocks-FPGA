@@ -1,0 +1,9 @@
+ADDER       {{newBlockNo("ADDER")}}
+    INPA            {{newBlockReg()}}
+    INPB            {{newBlockReg()}}
+    INPC            {{newBlockReg()}}
+    INPD            {{newBlockReg()}}
+    SCALE           {{newBlockReg()}}
+    OUT             {{newPosBus()}}
+
+

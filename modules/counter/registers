@@ -1,0 +1,10 @@
+COUNTER     {{newBlockNo("COUNTER")}}
+    DIR             {{newBlockReg()}}
+    START           {{newBlockReg()}}
+    STEP            {{newBlockReg()}}
+    ENABLE          {{newBlockReg(type='bit_mux')}}
+    TRIG            {{newBlockReg(type='bit_mux')}}
+    CARRY           {{newBitBus()}}
+    OUT             {{newPosBus()}}
+
+

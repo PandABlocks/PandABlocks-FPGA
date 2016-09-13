@@ -1,0 +1,18 @@
+PCOMP       {{newBlockNo("PCOMP")}}
+    START           {{newBlockReg()}}
+    STEP            {{newBlockReg()}}
+    WIDTH           {{newBlockReg()}}
+    PNUM            {{newBlockReg()}}
+    RELATIVE        {{newBlockReg()}}
+    DIR             {{newBlockReg()}}
+    DELTAP          {{newBlockReg()}}
+    USE_TABLE       {{newBlockReg()}}
+    ENABLE          {{newBlockReg(type='bit_mux')}}
+    INP             {{newBlockReg()}}
+    ACTIVE          {{newBitBus()}}
+    OUT             {{newBitBus()}}
+    ERROR           {{newBlockReg()}}
+    TABLE           long    2^2    11 12
+    TABLE_STATUS    {{newBlockReg()}}
+
+

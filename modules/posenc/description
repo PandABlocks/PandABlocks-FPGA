@@ -1,0 +1,10 @@
+POSENC      Quadrature and step/direction encoder
+    INP             Output position
+    QPERIOD         Prescalar for quadrature output
+    ENABLE          Halt on falling edge, reset and enable on rising
+    PROTOCOL        Quadrature or step/direction
+    A               Quadrature A/Step output
+    B               Quadrature B/Direction output
+    QSTATE          State of quadrature output
+
+

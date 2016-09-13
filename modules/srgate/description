@@ -1,0 +1,10 @@
+SRGATE      Set reset gate
+    SET_EDGE        Output set edge (0 = rising edge, 1 = falling edge)
+    RST_EDGE        Output reset edge (0 = rising edge, 1 = falling edge)
+    FORCE_SET       Set output to 1
+    FORCE_RST       Reset output to 0
+    SET             A falling/rising edge sets the output to 1
+    RST             A falling/rising edge resets the output to 0
+    OUT             Output value
+
+

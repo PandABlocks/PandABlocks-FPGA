@@ -1,0 +1,21 @@
+SEQ         {{newBlockNo("SEQ")}}
+    PRESCALE        {{newBlockReg()}}
+    TABLE_CYCLE     {{newBlockReg()}}
+    ENABLE          {{newBlockReg(type='bit_mux')}}
+    INPA            {{newBlockReg(type='bit_mux')}}
+    INPB            {{newBlockReg(type='bit_mux')}}
+    INPC            {{newBlockReg(type='bit_mux')}}
+    INPD            {{newBlockReg(type='bit_mux')}}
+    OUTA            {{newBitBus()}}
+    OUTB            {{newBitBus()}}
+    OUTC            {{newBitBus()}}
+    OUTD            {{newBitBus()}}
+    OUTE            {{newBitBus()}}
+    OUTF            {{newBitBus()}}
+    ACTIVE          {{newBitBus()}}
+    CUR_FRAME       {{newBlockReg()}}
+    CUR_FCYCLE      {{newBlockReg()}}
+    CUR_TCYCLE      {{newBlockReg()}}
+    TABLE           short   512    13 14 15
+
+

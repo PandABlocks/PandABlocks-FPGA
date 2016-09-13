@@ -1,0 +1,9 @@
+QDEC[{{app_config["QDEC"]}}]
+    RST_ON_Z        param       bit
+    SETP            write       position
+    A               bit_mux
+    B               bit_mux
+    Z               bit_mux
+    OUT             pos_out
+
+

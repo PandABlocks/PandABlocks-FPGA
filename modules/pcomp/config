@@ -1,0 +1,30 @@
+PCOMP[{{app_config["PCOMP"]}}]
+    START           param       position
+    STEP            param       position
+    WIDTH           param       position
+    PNUM            param
+    RELATIVE        param       enum 2
+        0   Absolute
+        1   Relative
+    DIR             param       enum 2
+        0   Positive
+        1   Negative
+    DELTAP          param
+    USE_TABLE       param       enum 2
+        0   No
+        1   Yes
+    ENABLE          bit_mux
+    INP             pos_mux
+    ACTIVE          bit_out
+    OUT             bit_out
+    ERROR           read        enum 2
+        0   Ok
+        1   Pulse error
+    TABLE           table
+    TABLE_STATUS    read        enum 4
+        0   Ok
+        1   Table not ready
+        2   Table end reached
+        3   DMA overrun
+
+

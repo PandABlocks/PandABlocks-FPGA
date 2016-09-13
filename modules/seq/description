@@ -1,0 +1,21 @@
+SEQ         Sequencer
+    PRESCALE        Prescalar for system clock
+    TABLE_CYCLE     Number of times the table will cycle
+    ENABLE          Reset on falling edge, enable on rising
+    INPA            Trigger input A
+    INPB            Trigger input B
+    INPC            Trigger input C
+    INPD            Trigger input D
+    OUTA            Output A
+    OUTB            Output B
+    OUTC            Output C
+    OUTD            Output D
+    OUTE            Output E
+    OUTF            Output F
+    ACTIVE          Sequencer active flag
+    CUR_FRAME       Sequencer current frame number
+    CUR_FCYCLE      Current number of times the frame has cycled
+    CUR_TCYCLE      Current number of times the table has cycled
+    TABLE           Sequencer configuration
+
+

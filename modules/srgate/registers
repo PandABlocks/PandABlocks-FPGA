@@ -1,0 +1,10 @@
+SRGATE      {{newBlockNo("SRGATE")}}
+    SET_EDGE        {{newBlockReg()}}
+    RST_EDGE        {{newBlockReg()}}
+    FORCE_SET       {{newBlockReg()}}
+    FORCE_RST       {{newBlockReg()}}
+    SET             {{newBlockReg(type='bit_mux')}}
+    RST             {{newBlockReg(type='bit_mux')}}
+    OUT             {{newBitBus()}}
+
+

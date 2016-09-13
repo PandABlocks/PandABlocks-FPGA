@@ -1,0 +1,15 @@
+SLOW        {{newBlockNo("SLOW")}}
+    TEMP_PSU        {{newBlockReg()}}
+    TEMP_SFP        {{newBlockReg()}}
+    TEMP_ENC_L      {{newBlockReg()}}
+    TEMP_PICO       {{newBlockReg()}}
+    TEMP_ENC_R      {{newBlockReg()}}
+    ALIM_12V0       {{newBlockReg()}}
+    PICO_5V0        {{newBlockReg()}}
+    IO_5V0          {{newBlockReg()}}
+    SFP_3V3         {{newBlockReg()}}
+    FMC_15VN        {{newBlockReg()}}
+    FMC_15VP        {{newBlockReg()}}
+    ENC_24V         {{newBlockReg()}}
+    FMC_12V         {{newBlockReg()}}
+

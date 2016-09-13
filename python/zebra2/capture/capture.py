@@ -20,7 +20,7 @@ class Capture(object):
         # self.output_name = output_name
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((hostname, port))
-        self.s.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
+        #self.s.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
 
         # self.s.settimeout(1)
         # print 'connecting to {} port {}'.format(hostname, port)
@@ -76,6 +76,7 @@ class DataHandler(object):
     def get_data(self, rcvsock):
         data_stream = ""
         while True:
+            #this section should be made to match exactly what is expected
             try:
                 data_stream = rcvsock.recv(4096)
                 print [data_stream]

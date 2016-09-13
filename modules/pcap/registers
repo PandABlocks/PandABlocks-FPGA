@@ -1,0 +1,16 @@
+PCAP        {{newBlockNo("PCAP")}}
+    ENABLE          {{newBlockReg(type='bit_mux')}}
+    FRAME           {{newBlockReg(type='bit_mux')}}
+    CAPTURE         {{newBlockReg(type='bit_mux')}}
+    ERR_STATUS      {{newBlockReg()}}
+    ACTIVE          {{newBitBus()}}
+    CAPTURE_TS      62 / 63
+    FRAME_LENGTH    37
+    CAPTURE_OFFSET  38
+    ADC_COUNT       32
+    BITS0           39
+    BITS1           40
+    BITS2           41
+    BITS3           42
+
+

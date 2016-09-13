@@ -1,0 +1,13 @@
+BITS        Soft inputs and constant bits
+    A               The value that output A should take
+    B               The value that output B should take
+    C               The value that output C should take
+    D               The value that output D should take
+    OUTA            The value of A on the bit bus
+    OUTB            The value of B on the bit bus
+    OUTC            The value of C on the bit bus
+    OUTD            The value of D on the bit bus
+    ZERO            The constant value 0 on the bit bus
+    ONE             The constant value 1 on the bit bus
+
+

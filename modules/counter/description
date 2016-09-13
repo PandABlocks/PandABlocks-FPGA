@@ -1,0 +1,10 @@
+COUNTER     Up/Down pulse counter
+    DIR             Up/Down direction (0 = Up, 1 = Down)
+    START           Counter start value
+    STEP            Up/Down step value
+    ENABLE          Halt on falling edge, reset and enable on rising
+    TRIG            Rising edge ticks the counter up/down by user-defined value
+    CARRY           Internal counter overflow status
+    OUT             Output
+
+

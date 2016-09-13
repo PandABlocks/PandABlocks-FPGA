@@ -1,0 +1,13 @@
+BITS        {{newBlockNo("BITS")}}
+    A               {{newBlockReg()}}
+    B               {{newBlockReg()}}
+    C               {{newBlockReg()}}
+    D               {{newBlockReg()}}
+    OUTA            {{newBitBus()}}
+    OUTB            {{newBitBus()}}
+    OUTC            {{newBitBus()}}
+    OUTD            {{newBitBus()}}
+    ZERO            0
+    ONE             1
+
+

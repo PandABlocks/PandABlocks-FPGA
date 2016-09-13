@@ -1,0 +1,15 @@
+SLOW
+    TEMP_PSU        read        int
+    TEMP_SFP        read        int
+    TEMP_ENC_L      read        int
+    TEMP_PICO       read        int
+    TEMP_ENC_R      read        int
+    ALIM_12V0       read
+    PICO_5V0        read
+    IO_5V0          read
+    SFP_3V3         read
+    FMC_15VN        read
+    FMC_15VP        read
+    ENC_24V         read
+    FMC_12V         read
+

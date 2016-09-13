@@ -1,0 +1,10 @@
+LUT         {{newBlockNo("LUT")}}
+    FUNC            {{newBlockReg()}}
+    INPA            {{newBlockReg(type='bit_mux')}}
+    INPB            {{newBlockReg(type='bit_mux')}}
+    INPC            {{newBlockReg(type='bit_mux')}}
+    INPD            {{newBlockReg(type='bit_mux')}}
+    INPE            {{newBlockReg(type='bit_mux')}}
+    OUT             {{newBitBus()}}
+
+
