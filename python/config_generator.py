@@ -46,7 +46,9 @@ class ConfigGenerator(object):
         output = self.render_template(os.path.join("panda_carrier/", out_dir))
         self.write_output_file(out_dir, output)
         for config in app_config.keys():
-            output = self.render_template(os.path.join(config.lower(), out_dir), variables)
+            output = self.render_template(
+                os.path.join(config.lower(),out_dir),
+                variables)
             self.write_output_file(out_dir, output)
 
     def generate_description(self, app_config, out_dir):
@@ -113,14 +115,23 @@ class ConfigGenerator(object):
                 raise ValueError('Max value exceeded for ' + block)
 
     def new_bit_bus(self):
-        bus_values, self.curr_bitbus = self.new_bus(128, 'bit_bus', self.curr_bitbus)
+        bus_values, self.curr_bitbus = self.new_bus(
+            128,
+            'bit_bus',
+            self.curr_bitbus)
         return bus_values
 
     def new_pos_bus(self, location='lower'):
         if location == 'lower':
-            bus_values, self.curr_posbus = self.new_bus(32, 'pos_bus', self.curr_posbus)
+            bus_values, self.curr_posbus = self.new_bus(
+                32,
+                'pos_bus',
+                self.curr_posbus)
         else:
-            bus_values, self.curr_posbus_upper = self.new_bus(64, 'pos_bus', self.curr_posbus_upper)
+            bus_values, self.curr_posbus_upper = self.new_bus(
+                64,
+                'pos_bus',
+                self.curr_posbus_upper)
         return bus_values
 
     def new_bus(self, limit, type, current_val):
@@ -168,7 +179,7 @@ if __name__ == '__main__':
     app_config = cfg.parse_app_file("myapp")
     variables = {"app_config": app_config}
 
-    #-check that each requested config doesn't exceed the max (from the meta file)
+    #-check that each requested config doesn't exceed the max (from meta file)
     cfg.checkBlockMax(app_config)
 
     #combine all relevent descriptions for the output description file
