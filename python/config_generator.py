@@ -148,7 +148,7 @@ class ConfigGenerator(object):
         self.current_block += 1
         return str(self.current_block)
 
-    def new_block_reg(self, type='', offset=-1):
+    def new_block_reg(self, typ='', offset=-1):
         block = self.processing_block
         if self.block_regs[block] < offset:
             self.block_regs[block] = offset
@@ -157,7 +157,7 @@ class ConfigGenerator(object):
         else:
             raise ValueError('Max register value exceeded')
         out = str(self.block_regs[block])
-        if 'bit_mux' in type:
+        if 'bit_mux' in typ:
             self.block_regs[block] += 1
             out += ' ' + str(self.block_regs[block])
         return out

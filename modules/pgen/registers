@@ -1,7 +1,7 @@
 PGEN        {{newBlockNo("PGEN")}}
     CYCLES          {{newBlockReg()}}
-    ENABLE          {{newBlockReg(type='bit_mux')}}
-    TRIG            {{newBlockReg(type='bit_mux')}}
+    ENABLE          {{newBlockReg(typ='bit_mux')}}
+    TRIG            {{newBlockReg(typ='bit_mux')}}
     OUT             {{newPosBus()}}
     TABLE           long    2^8    4 5
     TABLE_STATUS    {{newBlockReg()}}

@@ -1,11 +1,11 @@
 SEQ         {{newBlockNo("SEQ")}}
     PRESCALE        {{newBlockReg()}}
     TABLE_CYCLE     {{newBlockReg()}}
-    ENABLE          {{newBlockReg(type='bit_mux')}}
-    INPA            {{newBlockReg(type='bit_mux')}}
-    INPB            {{newBlockReg(type='bit_mux')}}
-    INPC            {{newBlockReg(type='bit_mux')}}
-    INPD            {{newBlockReg(type='bit_mux')}}
+    ENABLE          {{newBlockReg(typ='bit_mux')}}
+    INPA            {{newBlockReg(typ='bit_mux')}}
+    INPB            {{newBlockReg(typ='bit_mux')}}
+    INPC            {{newBlockReg(typ='bit_mux')}}
+    INPD            {{newBlockReg(typ='bit_mux')}}
     OUTA            {{newBitBus()}}
     OUTB            {{newBitBus()}}
     OUTC            {{newBitBus()}}

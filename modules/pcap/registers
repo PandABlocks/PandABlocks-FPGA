@@ -1,7 +1,7 @@
 PCAP        {{newBlockNo("PCAP")}}
-    ENABLE          {{newBlockReg(type='bit_mux')}}
-    FRAME           {{newBlockReg(type='bit_mux')}}
-    CAPTURE         {{newBlockReg(type='bit_mux')}}
+    ENABLE          {{newBlockReg(typ='bit_mux')}}
+    FRAME           {{newBlockReg(typ='bit_mux')}}
+    CAPTURE         {{newBlockReg(typ='bit_mux')}}
     ERR_STATUS      {{newBlockReg()}}
     ACTIVE          {{newBitBus()}}
     CAPTURE_TS      {{newPosBus(location='upper')}} / {{newPosBus(location='upper')}}

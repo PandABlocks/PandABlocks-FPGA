@@ -1,7 +1,7 @@
 POSENC      {{newBlockNo("POSENC")}}
     INP             {{newBlockReg()}}
     QPERIOD         {{newBlockReg()}}
-    ENABLE          {{newBlockReg(type='bit_mux')}}
+    ENABLE          {{newBlockReg(typ='bit_mux')}}
     PROTOCOL        {{newBlockReg()}}
     A               {{newBitBus()}}
     B               {{newBitBus()}}
