@@ -3,7 +3,7 @@ PGEN        {{newBlockNo("PGEN")}}
     ENABLE          {{newBlockReg(typ='bit_mux')}}
     TRIG            {{newBlockReg(typ='bit_mux')}}
     OUT             {{newPosBus()}}
-    TABLE           long    2^8    4 5
+    TABLE           long    2^8    {{newBlockReg(typ='ltable')}}
     TABLE_STATUS    {{newBlockReg()}}
 
 

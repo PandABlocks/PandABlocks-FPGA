@@ -16,6 +16,6 @@ SEQ         {{newBlockNo("SEQ")}}
     CUR_FRAME       {{newBlockReg()}}
     CUR_FCYCLE      {{newBlockReg()}}
     CUR_TCYCLE      {{newBlockReg()}}
-    TABLE           short   512    13 14 15
+    TABLE           short   512    {{newBlockReg(typ='stable')}}
 
 

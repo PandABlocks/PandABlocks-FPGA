@@ -1,6 +1,6 @@
 PULSE       {{newBlockNo("PULSE")}}
-    DELAY           3 2     >3
-    WIDTH           5 4     >3
+    DELAY           {{newBlockReg(typ='time')}}     >3
+    WIDTH           {{newBlockReg(typ='time')}}     >3
     INP             {{newBlockReg(typ='bit_mux')}}
     ENABLE          {{newBlockReg(typ='bit_mux')}}
     OUT             {{newBitBus()}}

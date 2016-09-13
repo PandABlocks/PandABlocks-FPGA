@@ -157,7 +157,12 @@ class ConfigGenerator(object):
         else:
             raise ValueError('Max register value exceeded')
         out = str(self.block_regs[block])
-        if 'bit_mux' in typ:
+        if typ in ['bit_mux', 'ltable', 'time']:
+            self.block_regs[block] += 1
+            out += ' ' + str(self.block_regs[block])
+        elif typ in ['stable']:
+            self.block_regs[block] += 1
+            out += ' ' + str(self.block_regs[block])
             self.block_regs[block] += 1
             out += ' ' + str(self.block_regs[block])
         return out
