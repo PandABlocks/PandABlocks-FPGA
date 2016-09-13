@@ -46,10 +46,7 @@ class ConfigGenerator(object):
         output = self.render_template(os.path.join("panda_carrier/", out_dir))
         self.write_output_file(out_dir, output)
         for config in app_config.keys():
-            if config in ["FMC", "SFP"]:
-                output = self.render_template(os.path.join(config.lower() + "_loopback", out_dir), variables)
-            else:
-                output = self.render_template(os.path.join(config.lower(), out_dir), variables)
+            output = self.render_template(os.path.join(config.lower(), out_dir), variables)
             self.write_output_file(out_dir, output)
 
     def generate_description(self, app_config, out_dir):
