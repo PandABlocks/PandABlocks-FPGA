@@ -79,11 +79,7 @@ class ConfigGenerator(object):
             row = line.split()
             try:
                 if row and not row[0].startswith("#"):
-                    #strip the '_loopback'
-                    if "_LOOPBACK" in row[0]:
-                        file_info[row[0].split('_LOOPBACK')[0]] = row[1]
-                    else:
-                        file_info[row[0]] = row[1]
+                    file_info[row[0]] = row[1]
             except:
             #NEED SOME EXTRA CHECKING ON THIS FILE
                 print "INVALID ENTRY, LINE", file.line_num,": ", row
@@ -99,6 +95,8 @@ class ConfigGenerator(object):
 
     def init_block_regs(self):
         for block in self.app_config.keys():
+            #remove the FMC and SFP names after the underscore
+            block = block.split('_')[0]
             self.block_regs[block] = -1
 
     def parse_meta_file(self, meta_file, block):
@@ -111,10 +109,7 @@ class ConfigGenerator(object):
 
     def checkBlockMax(self, app_config):
         for block in app_config.keys():
-            if block in ['FMC', 'SFP']:
-                meta_file = os.path.join(MODULE_DIR, block.lower() + '_loopback', "meta")
-            else:
-                meta_file = os.path.join(MODULE_DIR, block.lower(), "meta")
+            meta_file = os.path.join(MODULE_DIR, block.lower(), "meta")
             meta_info = self.parse_meta_file(meta_file, block)
             #check the defined number in the config against the max in the meta
             if int(app_config[block]) > int(meta_info["MAX"]):
