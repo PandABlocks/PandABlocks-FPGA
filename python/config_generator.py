@@ -25,6 +25,7 @@ class ConfigGenerator(object):
         self.app_config = collections.OrderedDict()
         self.curr_bitbus = 9
         self.curr_posbus = 0
+        self.curr_posbus_upper = 32
         self.current_block = 2
         self.block_regs = {}
         self.panda_carrier_config = {"TTLIN": 6,
@@ -123,8 +124,11 @@ class ConfigGenerator(object):
         bus_values, self.curr_bitbus = self.new_bus(128, 'bit_bus', self.curr_bitbus)
         return bus_values
 
-    def new_pos_bus(self):
-        bus_values, self.curr_posbus = self.new_bus(64, 'pos_bus', self.curr_posbus)
+    def new_pos_bus(self, location='lower'):
+        if location == 'lower':
+            bus_values, self.curr_posbus = self.new_bus(32, 'pos_bus', self.curr_posbus)
+        else:
+            bus_values, self.curr_posbus_upper = self.new_bus(64, 'pos_bus', self.curr_posbus_upper)
         return bus_values
 
     def new_bus(self, limit, type, current_val):

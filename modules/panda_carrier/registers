@@ -29,7 +29,7 @@ INENC       {{newBlockNo("INENC")}}
     Z               {{newBitBus()}}
     CONN            {{newBitBus()}}
     TRANS           {{newBitBus()}}
-    VAL             1 2 3 4 / 33 34 35 36
+    VAL             {{newPosBus()}} / {{newPosBus(location='upper')}}
 
 OUTENC      {{newBlockNo("OUTENC")}}
     PROTOCOL        {{newBlockReg()}}
