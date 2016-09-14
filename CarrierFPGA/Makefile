@@ -42,7 +42,7 @@ VERSION_FILE = $(HDLDIR)/defines/panda_version.vhd
 .PHONY: clean VERSION
 
 default : fpga
-fpga : panda_top.bit zpkg
+fpga : panda_top.bit
 devicetree : $(SDK_EXPORT)
 boot : $(BOOT_FILE)
 .PHONY: default fpga devicetree boot
@@ -83,10 +83,6 @@ panda_top.bit : VERSION $(IP_CORES) $(PS_CORE)
 	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR) \
 		-tclargs $(FMC_DESIGN) -tclargs $(SFP_DESIGN)
 
-zpkg:
-	mkdir -p output/share/panda/
-	cp $(OUTDIR)/panda_top.bit output/share/panda
-	tar czf $(TOP)/build/panda-fpga@$(FIRMWARE)_FMC_$(FMC_DESIGN)_SFP_$(SFP_DESIGN).zpg -C output share
 
 #####################################################################
 # SW Projects Build

@@ -3,3 +3,6 @@ d share/panda/config_d
 t share/panda/config_d config_d/config
 t share/panda/config_d config_d/registers
 t share/panda/config_d config_d/description
+
+# Firmware
+b share/panda panda_top.bit

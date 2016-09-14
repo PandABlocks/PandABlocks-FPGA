@@ -12,6 +12,8 @@ LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
 ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
 PYTHON = python2
 SPHINX_BUILD = sphinx-build
+PANDA_ROOTFS = $(error Define PANDA_ROOTFS in CONFIG file)
+MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 DEFAULT_TARGETS = docs zpkg
 
 -include CONFIG
@@ -63,31 +65,26 @@ devicetree: $(FPGA_BUILD_DIR)
 	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
 	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) devicetree
 
-carrier-zpkg: $(FPGA_BUILD_DIR)
-	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
-	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) \
-		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN) zpkg
-
 slow-fpga: $(SLOW_FPGA_BUILD_DIR)
 	source $(ISE)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
             TOP=$(TOP) SRC_DIR=$(TOP)/SlowFPGA mcs
 
 
-.PHONY: carrier-fpga slow-fpga carrier-zpkg
+.PHONY: carrier-fpga slow-fpga
 
 # ------------------------------------------------------------------------------
 # Build installation package
 
-#CONFIG_ZPKG = $(BUILD_DIR)/panda-config@$(GIT_VERSION).zpg
-CONFIG_ZPKG = $(BUILD_DIR)/panda-config@$(FIRMWARE)_FMC_$(FMC_DESIGN)_SFP_$(SFP_DESIGN).zpg -C output share
+ZPKG_VERSION = $(FIRMWARE)_FMC_$(FMC_DESIGN)_SFP_$(SFP_DESIGN)
 
-$(CONFIG_ZPKG): $(wildcard config_d/*)
+zpkg: etc/panda-server.list $(FIRMWARE_BUILD)
+	$(error Still need to specify FIRMWARE_BUILD dependencies)
+	rm -f $(BUILD_DIR)/*.zpg
+	$(MAKE_ZPKG) -t $(TOP) -b $(BUILD_DIR) -d $(BUILD_DIR) \
+            $< $(ZPKG_VERSION).$(GIT_VERSION)
 
-$(BUILD_DIR)/%.zpg:
-	etc/make-zpkg $(TOP) $(BUILD_DIR) $@
-
-zpkg: $(SERVER_ZPKG) $(CONFIG_ZPKG)
 .PHONY: zpkg
+
 
 # ------------------------------------------------------------------------------
 
