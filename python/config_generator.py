@@ -25,6 +25,7 @@ class ConfigGenerator(object):
         self.app_config = collections.OrderedDict()
         self.curr_bitbus = 9
         self.curr_posbus = 0
+        self.curr_posbus_upper = 32
         self.current_block = 2
         self.block_regs = {}
         self.panda_carrier_config = {"TTLIN": 6,
@@ -45,10 +46,9 @@ class ConfigGenerator(object):
         output = self.render_template(os.path.join("panda_carrier/", out_dir))
         self.write_output_file(out_dir, output)
         for config in app_config.keys():
-            if config in ["FMC", "SFP"]:
-                output = self.render_template(os.path.join(config.lower() + "_loopback", out_dir), variables)
-            else:
-                output = self.render_template(os.path.join(config.lower(), out_dir), variables)
+            output = self.render_template(
+                os.path.join(config.lower(),out_dir),
+                variables)
             self.write_output_file(out_dir, output)
 
     def generate_description(self, app_config, out_dir):
@@ -78,11 +78,7 @@ class ConfigGenerator(object):
             row = line.split()
             try:
                 if row and not row[0].startswith("#"):
-                    #strip the '_loopback'
-                    if "_LOOPBACK" in row[0]:
-                        file_info[row[0].split('_LOOPBACK')[0]] = row[1]
-                    else:
-                        file_info[row[0]] = row[1]
+                    file_info[row[0]] = row[1]
             except:
             #NEED SOME EXTRA CHECKING ON THIS FILE
                 print "INVALID ENTRY, LINE", file.line_num,": ", row
@@ -98,6 +94,8 @@ class ConfigGenerator(object):
 
     def init_block_regs(self):
         for block in self.app_config.keys():
+            #remove the FMC and SFP names after the underscore
+            block = block.split('_')[0]
             self.block_regs[block] = -1
 
     def parse_meta_file(self, meta_file, block):
@@ -110,21 +108,30 @@ class ConfigGenerator(object):
 
     def checkBlockMax(self, app_config):
         for block in app_config.keys():
-            if block in ['FMC', 'SFP']:
-                meta_file = os.path.join(MODULE_DIR, block.lower() + '_loopback', "meta")
-            else:
-                meta_file = os.path.join(MODULE_DIR, block.lower(), "meta")
+            meta_file = os.path.join(MODULE_DIR, block.lower(), "meta")
             meta_info = self.parse_meta_file(meta_file, block)
             #check the defined number in the config against the max in the meta
             if int(app_config[block]) > int(meta_info["MAX"]):
                 raise ValueError('Max value exceeded for ' + block)
 
     def new_bit_bus(self):
-        bus_values, self.curr_bitbus = self.new_bus(128, 'bit_bus', self.curr_bitbus)
+        bus_values, self.curr_bitbus = self.new_bus(
+            128,
+            'bit_bus',
+            self.curr_bitbus)
         return bus_values
 
-    def new_pos_bus(self):
-        bus_values, self.curr_posbus = self.new_bus(64, 'pos_bus', self.curr_posbus)
+    def new_pos_bus(self, location='lower'):
+        if location == 'lower':
+            bus_values, self.curr_posbus = self.new_bus(
+                32,
+                'pos_bus',
+                self.curr_posbus)
+        else:
+            bus_values, self.curr_posbus_upper = self.new_bus(
+                64,
+                'pos_bus',
+                self.curr_posbus_upper)
         return bus_values
 
     def new_bus(self, limit, type, current_val):
@@ -144,7 +151,7 @@ class ConfigGenerator(object):
         self.current_block += 1
         return str(self.current_block)
 
-    def new_block_reg(self, type='', offset=-1):
+    def new_block_reg(self, typ='', offset=-1):
         block = self.processing_block
         if self.block_regs[block] < offset:
             self.block_regs[block] = offset
@@ -153,7 +160,12 @@ class ConfigGenerator(object):
         else:
             raise ValueError('Max register value exceeded')
         out = str(self.block_regs[block])
-        if 'bit_mux' in type:
+        if typ in ['bit_mux', 'ltable', 'time']:
+            self.block_regs[block] += 1
+            out += ' ' + str(self.block_regs[block])
+        elif typ in ['stable']:
+            self.block_regs[block] += 1
+            out += ' ' + str(self.block_regs[block])
             self.block_regs[block] += 1
             out += ' ' + str(self.block_regs[block])
         return out
@@ -167,7 +179,7 @@ if __name__ == '__main__':
     app_config = cfg.parse_app_file("myapp")
     variables = {"app_config": app_config}
 
-    #-check that each requested config doesn't exceed the max (from the meta file)
+    #-check that each requested config doesn't exceed the max (from meta file)
     cfg.checkBlockMax(app_config)
 
     #combine all relevent descriptions for the output description file

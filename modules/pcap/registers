@@ -1,16 +1,16 @@
 PCAP        {{newBlockNo("PCAP")}}
-    ENABLE          {{newBlockReg(type='bit_mux')}}
-    FRAME           {{newBlockReg(type='bit_mux')}}
-    CAPTURE         {{newBlockReg(type='bit_mux')}}
+    ENABLE          {{newBlockReg(typ='bit_mux')}}
+    FRAME           {{newBlockReg(typ='bit_mux')}}
+    CAPTURE         {{newBlockReg(typ='bit_mux')}}
     ERR_STATUS      {{newBlockReg()}}
     ACTIVE          {{newBitBus()}}
-    CAPTURE_TS      62 / 63
-    FRAME_LENGTH    37
-    CAPTURE_OFFSET  38
-    ADC_COUNT       32
-    BITS0           39
-    BITS1           40
-    BITS2           41
-    BITS3           42
+    CAPTURE_TS      {{newPosBus(location='upper')}} / {{newPosBus(location='upper')}}
+    FRAME_LENGTH    {{newPosBus(location='upper')}}
+    CAPTURE_OFFSET  {{newPosBus(location='upper')}}
+    ADC_COUNT       {{newPosBus(location='upper')}}
+    BITS0           {{newPosBus(location='upper')}}
+    BITS1           {{newPosBus(location='upper')}}
+    BITS2           {{newPosBus(location='upper')}}
+    BITS3           {{newPosBus(location='upper')}}
 
 

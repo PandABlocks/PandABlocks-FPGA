@@ -7,12 +7,12 @@ PCOMP       {{newBlockNo("PCOMP")}}
     DIR             {{newBlockReg()}}
     DELTAP          {{newBlockReg()}}
     USE_TABLE       {{newBlockReg()}}
-    ENABLE          {{newBlockReg(type='bit_mux')}}
+    ENABLE          {{newBlockReg(typ='bit_mux')}}
     INP             {{newBlockReg()}}
     ACTIVE          {{newBitBus()}}
     OUT             {{newBitBus()}}
     ERROR           {{newBlockReg()}}
-    TABLE           long    2^2    11 12
+    TABLE           long    2^2    {{newBlockReg(typ='ltable')}}
     TABLE_STATUS    {{newBlockReg()}}
 
 

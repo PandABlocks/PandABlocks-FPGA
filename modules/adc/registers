@@ -1,4 +1,4 @@
 ADC         {{newBlockNo("ADC")}}
-    OUT            {{newPosBus()}} / 54 55 56 57 58 59 60 61
+    OUT            {{newPosBus()}} / {{newPosBus(location='upper')}}
 
 
