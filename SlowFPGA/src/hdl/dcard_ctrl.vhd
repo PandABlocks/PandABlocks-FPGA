@@ -98,6 +98,8 @@ signal outenc_ctrl      : std8_array(3 downto 0);
 begin
 
 -- DCARD configuration from on-board 0-Ohm settings.
+-- These pins have weak pull-ups on the chip to detect
+-- un-installed daughter cards
 DCARD_MODE_i(0) <= dcard_ctrl1_io(15 downto 12);
 DCARD_MODE_i(1) <= dcard_ctrl2_io(15 downto 12);
 DCARD_MODE_i(2) <= dcard_ctrl3_io(15 downto 12);

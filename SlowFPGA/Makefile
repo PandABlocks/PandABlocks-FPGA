@@ -64,4 +64,6 @@ $(BIT_FILE): VERSION $(LIST_FILE)
 
 
 $(PROM_FILE): $(BIT_FILE)
+	promgen -w -p hex -o slow_top.hex -u 0 $<
+	virtexHex2Bin < slow_top.hex > slow_top.bin
 	promgen -w -p mcs -o $@ -u 0 $<
