@@ -82,9 +82,6 @@ process(clk_i) begin
             data_prev <= (others => '0');
             data_slr <= (others => '0');
         else
-            -- Output enabled after reset;
-            shift_reg_oe_n_o <= '0';
-
             -- Register input data with gaps according to schematics;
             data <= BITREV(ttl_leds_i) & BITREV(ttlin_term_i) &
                         "00" & BITREV(status_leds_i) & "0000";
@@ -135,6 +132,11 @@ process(clk_i) begin
                         shift_reg_latch <= '0';
                         shift_fsm <= IDLE;
                     end if;
+
+                    -- Enable shift register output permanently after the 
+                    --first write;
+                    shift_reg_oe_n_o <= '0';
+
 
                 when others =>
             end case;

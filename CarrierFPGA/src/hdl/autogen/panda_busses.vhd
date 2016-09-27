@@ -286,6 +286,14 @@ posbus_o(0) <= POSITIONS_ZERO(0);
 -- SLOW Outputs:
 
 -- FMC Outputs:
+bitbus_o(34) <= fmc_inputs_i(0);
+bitbus_o(35) <= fmc_inputs_i(1);
+bitbus_o(36) <= fmc_inputs_i(2);
+bitbus_o(37) <= fmc_inputs_i(3);
+bitbus_o(111) <= fmc_inputs_i(4);
+bitbus_o(112) <= fmc_inputs_i(5);
+bitbus_o(113) <= fmc_inputs_i(6);
+bitbus_o(114) <= fmc_inputs_i(7);
 
 -- SFP Outputs:
 

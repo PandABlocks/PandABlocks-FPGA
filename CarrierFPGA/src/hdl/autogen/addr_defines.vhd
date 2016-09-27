@@ -309,17 +309,34 @@ constant SLOW_ENC_24V : natural := 11;
 constant SLOW_FMC_12V : natural := 12;
 
 -- FMC Block:
-constant FMC_FMC_PRSNT : natural := 0;
-constant FMC_LINK_UP : natural := 1;
-constant FMC_ERROR_COUNT : natural := 2;
-constant FMC_LA_P_ERROR : natural := 3;
-constant FMC_LA_N_ERROR : natural := 4;
-constant FMC_GTREFCLK : natural := 5;
-constant FMC_FMC_CLK0 : natural := 6;
-constant FMC_FMC_CLK1 : natural := 7;
-constant FMC_SOFT_RESET : natural := 8;
-constant FMC_EXT_CLK : natural := 9;
-constant FMC_LOOP_PERIOD : natural := 10;
+constant FMC_PRESENT : natural := 0;
+constant FMC_OUT1 : natural := 1;
+constant FMC_OUT1_DLY : natural := 9;
+constant FMC_OUT2 : natural := 2;
+constant FMC_OUT2_DLY : natural := 10;
+constant FMC_OUT3 : natural := 3;
+constant FMC_OUT3_DLY : natural := 11;
+constant FMC_OUT4 : natural := 4;
+constant FMC_OUT4_DLY : natural := 12;
+constant FMC_OUT5 : natural := 5;
+constant FMC_OUT5_DLY : natural := 13;
+constant FMC_OUT6 : natural := 6;
+constant FMC_OUT6_DLY : natural := 14;
+constant FMC_OUT7 : natural := 7;
+constant FMC_OUT7_DLY : natural := 15;
+constant FMC_OUT8 : natural := 8;
+constant FMC_OUT8_DLY : natural := 16;
+constant FMC_OUT_PWR_ON : natural := 17;
+constant FMC_IN_VTSEL : natural := 18;
+constant FMC_IN_DB : natural := 19;
+constant FMC_IN_FAULT : natural := 20;
+constant FMC_OUT_PUSHPL : natural := 21;
+constant FMC_OUT_FLTR : natural := 22;
+constant FMC_OUT_SRIAL : natural := 23;
+constant FMC_OUT_FAULT : natural := 24;
+constant FMC_OUT_EN : natural := 25;
+constant FMC_OUT_CONFIG : natural := 26;
+constant FMC_OUT_STATUS : natural := 27;
 
 -- SFP Block:
 constant SFP_LINK1_UP : natural := 0;

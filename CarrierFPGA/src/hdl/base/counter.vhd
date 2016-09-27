@@ -39,7 +39,7 @@ architecture rtl of counter is
 signal trigger_prev     : std_logic;
 signal trigger_rise     : std_logic;
 signal enable_prev      : std_logic;
-signal enable_fall      : std_logic;
+signal enable_rise      : std_logic;
 signal counter          : unsigned(32 downto 0);
 
 begin
@@ -54,7 +54,7 @@ begin
 end process;
 
 trigger_rise <= trigger_i and not trigger_prev;
-enable_fall <= not enable_i and enable_prev;
+enable_rise <= enable_i and not enable_prev;
 
 --------------------------------------------------------------------------
 -- Up/Down Counter
@@ -68,8 +68,8 @@ begin
             -- Load the counter
             if (START_LOAD = '1') then
                 counter <= unsigned('0' & START);
-            -- Re-load when enable de-asserted
-            elsif (enable_fall = '1') then
+            -- Re-load on enable rising edge
+            elsif (enable_rise = '1') then
                 counter <= unsigned('0' & START);
             -- Count up/down on trigger
             elsif (trigger_rise = '1') then
