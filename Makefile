@@ -47,8 +47,8 @@ docs: $(DOCS_BUILD_DIR)/index.html
 # ------------------------------------------------------------------------------
 # FPGA builds
 
-FMC_DESIGN = loopback
-#FMC_DESIGN = 24VIO
+#FMC_DESIGN = loopback
+FMC_DESIGN = 24VIO
 SFP_DESIGN = loopback
 
 carrier-fpga: $(FPGA_BUILD_DIR)
