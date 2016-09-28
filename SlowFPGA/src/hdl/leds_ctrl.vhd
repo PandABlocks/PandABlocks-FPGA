@@ -60,10 +60,7 @@ process(clk_i) begin
             if (rx_valid_i = '1' and rx_addr = TTL_LEDS) then
                 ttl_leds_o <= rx_data_i(15 downto 0);
                 outenc_conn_o <= rx_data_i(19 downto 16);
-            end if;
-
-            if (rx_valid_i = '1' and rx_addr = STATUS_LEDS) then
-                status_leds_o <= rx_data_i(3 downto 0);
+                status_leds_o <= rx_data_i(23 downto 20);
             end if;
         end if;
     end if;

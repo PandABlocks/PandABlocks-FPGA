@@ -395,7 +395,7 @@ port map (
 -- Control and Status Memory Interface
 ---------------------------------------------------------------------------
 -- 0x43c00000
-panda_csr_if_inst : entity work.panda_csr_if
+axi_lite_slave_inst : entity work.axi_lite_slave
 generic map (
     MEM_CSWIDTH                 => PAGE_NUM,
     MEM_AWIDTH                  => PAGE_AW
