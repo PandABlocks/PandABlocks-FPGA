@@ -220,6 +220,7 @@ PCAP
     ENABLE          bit_mux
     FRAME           bit_mux
     CAPTURE         bit_mux
+    FRAME_NUM	    param
     ERR_STATUS      read        enum 4
         0   Ok
         1   Capture before frame

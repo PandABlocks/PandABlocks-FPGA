@@ -29,6 +29,7 @@ port (
     FRAMING_ENABLE      : in  std_logic;
     FRAMING_MASK        : in  std_logic_vector(31 downto 0);
     FRAMING_MODE        : in  std_logic_vector(31 downto 0);
+    FRAME_NUM           : in  std_logic_vector(31 downto 0);
     -- Block input and outputs.
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
@@ -37,6 +38,7 @@ port (
     capture_i           : in  std_logic;
     timestamp_i         : in  std_logic_vector(63 downto 0);
     capture_o           : out std_logic;
+    frames_completed_o	: out std_logic;
     posn_o              : out std32_array(63 downto 0);
     error_o             : out std_logic
 );
@@ -59,9 +61,14 @@ signal frame_ts         : unsigned(31 downto 0);
 signal frame_length     : unsigned(31 downto 0);
 signal capture_offset   : unsigned(31 downto 0);
 
+signal frame_counter	: unsigned(31 downto 0);
+
 signal capture_din      : std32_array(63 downto 0);
 
 begin
+
+-- Disable block when it is not enabled.
+reset <= reset_i and not enable_i;
 
 --------------------------------------------------------------------------
 -- Input registers, and
@@ -78,8 +85,6 @@ end process;
 frame_rise <= frame_i and not frame_prev;
 capture_rise <= capture_i and not capture_prev;
 
--- Disable block when it is not enabled.
-reset <= reset_i and not enable_i;
 
 --------------------------------------------------------------------------
 -- Capture flag behaviour is based on FRAMING mode and enable.
@@ -181,6 +186,32 @@ process(clk_i) begin
     end if;
 end process;
 
+
+--------------------------------------------------------------------------
+-- Keep track of incoming frame pulses, and generate completion signal once
+-- all expected frames are received
+--------------------------------------------------------------------------
+process(clk_i) begin
+    if rising_edge(clk_i) then
+        if (reset = '1') then
+            frames_completed_o <= '0';
+	    frame_counter <= (others => '0');
+        else
+	    if (FRAME_NUM = X"0000_0000") then
+            	frames_completed_o <= '0';
+	    	frame_counter <= (others => '0');
+	    elsif (frame_counter = unsigned(FRAME_NUM)) then
+		frames_completed_o <= '1';
+	    	frame_counter <= frame_counter;
+            elsif (frame_rise = '1') then
+		frames_completed_o <= '0';
+            	frame_counter <= frame_counter + 1;
+	    end if;
+        end if;
+    end if;
+end process;
+
+
 --------------------------------------------------------------------------
 -- Instantiate Position Processing Blocks
 --------------------------------------------------------------------------
@@ -192,12 +223,12 @@ port map (
     reset_i             => reset,
 
     posn_i              => posbus_i(I),
-    extn_i              => (others => '0'),
+    extn_i		=> (others => '0'),
 
     frame_i             => frame_rise,
     capture_i           => capture_rise,
     posn_o              => posn_o(I),
-    extn_o              => open,
+    extn_o		=> open,
 
     FRAMING_ENABLE      => FRAMING_ENABLE,
     FRAMING_MASK        => FRAMING_MASK(I),
