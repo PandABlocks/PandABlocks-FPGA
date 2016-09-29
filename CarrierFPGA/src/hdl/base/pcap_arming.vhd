@@ -26,7 +26,7 @@ port (
     DISARM              : in  std_logic;
     -- Block Inputs and Outputs
     enable_i            : in  std_logic;
-    frames_completed_i	: in  std_logic;
+    frames_completed_i  : in  std_logic;
     pcap_error_i        : in  std_logic;
     ongoing_capture_i   : in  std_logic;
     dma_error_i         : in  std_logic;
@@ -41,17 +41,17 @@ end pcap_arming;
 architecture rtl of pcap_arming is
 
 type pcap_arm_t is (IDLE, ARMED, ENABLED, WAIT_ONGOING_WRITE);
-signal arm_fsm          	: pcap_arm_t;
+signal arm_fsm                  : pcap_arm_t;
 
-signal timestamp        	: unsigned(63 downto 0);
-signal enable_prev      	: std_logic;
-signal enable_fall      	: std_logic;
-signal abort_capture    	: std_logic;
-signal pcap_armed       	: std_logic;
-signal pcap_enabled     	: std_logic;
-signal enable           	: std_logic;
-signal frames_completed		: std_logic;
-signal frames_completed_rise	: std_logic;
+signal timestamp                : unsigned(63 downto 0);
+signal enable_prev              : std_logic;
+signal enable_fall              : std_logic;
+signal abort_capture            : std_logic;
+signal pcap_armed               : std_logic;
+signal pcap_enabled             : std_logic;
+signal enable                   : std_logic;
+signal frames_completed         : std_logic;
+signal frames_completed_rise    : std_logic;
 
 begin
 
@@ -66,15 +66,15 @@ process(clk_i) begin
     if rising_edge(clk_i) then
         enable <= enable_i;
         enable_prev <= enable;
-	
-	frames_completed <= frames_completed_i;
 
-	-- Extra delay to align with frame and capture pulses
+        frames_completed <= frames_completed_i;
+
+        -- Extra delay to align with frame and capture pulses
         enable_fall <= not enable and enable_prev;
+        frames_completed_rise <= frames_completed_i and not frames_completed;
     end if;
 end process;
-	
-frames_completed_rise <= frames_completed_i and not frames_completed;
+
 
 -- Blocks operation is aborted under following conditions.
 abort_capture <= DISARM or pcap_error_i or dma_error_i;

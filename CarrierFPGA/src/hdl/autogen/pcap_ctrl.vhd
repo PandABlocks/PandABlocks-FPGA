@@ -24,6 +24,7 @@ port (
     FRAME_NUM       : out std_logic_vector(31 downto 0);
     FRAME_NUM_WSTB  : out std_logic;
     ERR_STATUS       : in  std_logic_vector(31 downto 0);
+    FRAME_COUNT       : in  std_logic_vector(31 downto 0);
     enable_o : out std_logic;
     frame_o : out std_logic;
     capture_o : out std_logic;
@@ -135,6 +136,8 @@ begin
             case (mem_addr) is
                 when PCAP_ERR_STATUS =>
                     mem_dat_o <= ERR_STATUS;
+                when PCAP_FRAME_COUNT =>
+                    mem_dat_o <= FRAME_COUNT;
                 when others =>
                     mem_dat_o <= (others => '0');
             end case;

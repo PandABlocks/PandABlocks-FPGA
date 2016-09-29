@@ -35,6 +35,7 @@ port (
     FRAMING_ENABLE      : in  std_logic;
     FRAMING_MODE        : in  std_logic_vector(31 downto 0);
     FRAME_NUM           : in  std_logic_vector(31 downto 0);
+    FRAME_COUNT         : out std_logic_vector(31 downto 0);
     ERR_STATUS          : out std_logic_vector(31 downto 0);
     -- Block inputs
     enable_i            : in  std_logic;
@@ -56,7 +57,7 @@ architecture rtl of pcap_core is
 
 signal frame            : std_logic;
 signal capture          : std_logic;
-signal frames_completed	: std_logic;
+signal frames_completed : std_logic;
 
 signal timestamp        : std_logic_vector(63 downto 0);
 signal capture_pulse    : std_logic;
@@ -87,7 +88,7 @@ port map (
     ARM                 => ARM,
     DISARM              => DISARM,
     enable_i            => enable_i,
-	frames_completed_i	=> frames_completed,
+    frames_completed_i  => frames_completed,
     pcap_error_i        => pcap_error,
     dma_error_i         => dma_full_i,
     ongoing_capture_i   => pcap_dat_valid,
@@ -113,7 +114,8 @@ port map (
     FRAMING_MASK        => FRAMING_MASK,
     FRAMING_ENABLE      => FRAMING_ENABLE,
     FRAMING_MODE        => FRAMING_MODE,
-	FRAME_NUM			=> FRAME_NUM, 
+    FRAME_NUM           => FRAME_NUM,
+    FRAME_COUNT         => FRAME_COUNT,
 
     posbus_i            => posbus_i,
     sysbus_i            => sysbus_i,
@@ -123,8 +125,8 @@ port map (
     capture_i           => capture,
     timestamp_i         => timestamp,
     capture_o           => capture_pulse,
-	frames_completed_o	=> frames_completed,
-	posn_o              => capture_data,
+    frames_completed_o  => frames_completed,
+    posn_o              => capture_data,
     error_o             => pcap_frame_error
 );
 
