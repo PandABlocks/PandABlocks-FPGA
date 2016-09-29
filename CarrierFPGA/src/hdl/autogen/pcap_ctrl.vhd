@@ -21,6 +21,8 @@ port (
     sysbus_i            : in sysbus_t;
     posbus_i            : in posbus_t;
     -- Block Parameters
+    FRAME_NUM       : out std_logic_vector(31 downto 0);
+    FRAME_NUM_WSTB  : out std_logic;
     ERR_STATUS       : in  std_logic_vector(31 downto 0);
     enable_o : out std_logic;
     frame_o : out std_logic;
@@ -74,6 +76,8 @@ begin
             CAPTURE_WSTB <= '0';
             CAPTURE_DLY <= (others => '0');
             CAPTURE_DLY_WSTB <= '0';
+            FRAME_NUM <= (others => '0');
+            FRAME_NUM_WSTB <= '0';
         else
             ENABLE_WSTB <= '0';
             ENABLE_DLY_WSTB <= '0';
@@ -81,6 +85,7 @@ begin
             FRAME_DLY_WSTB <= '0';
             CAPTURE_WSTB <= '0';
             CAPTURE_DLY_WSTB <= '0';
+            FRAME_NUM_WSTB <= '0';
 
             if (mem_cs_i = '1' and mem_wstb_i = '1') then
                 -- Input Select Control Registers
@@ -107,6 +112,10 @@ begin
                 if (mem_addr = PCAP_CAPTURE_DLY) then
                     CAPTURE_DLY <= mem_dat_i;
                     CAPTURE_DLY_WSTB <= '1';
+                end if;
+                if (mem_addr = PCAP_FRAME_NUM) then
+                    FRAME_NUM <= mem_dat_i;
+                    FRAME_NUM_WSTB <= '1';
                 end if;
 
             end if;

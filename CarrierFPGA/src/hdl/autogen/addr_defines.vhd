@@ -277,6 +277,7 @@ constant PCAP_FRAME : natural := 1;
 constant PCAP_FRAME_DLY : natural := 6;
 constant PCAP_CAPTURE : natural := 2;
 constant PCAP_CAPTURE_DLY : natural := 7;
+constant PCAP_FRAME_NUM : natural := 3;
 constant PCAP_ERR_STATUS : natural := 4;
 
 -- BITS Block:

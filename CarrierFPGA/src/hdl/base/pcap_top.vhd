@@ -124,7 +124,7 @@ port map (
     capture_o           => capture,
     frame_o             => frame,
 
-    FRAME_NUM		=> FRAME_NUM,
+    FRAME_NUM           => FRAME_NUM,
     ERR_STATUS          => ERR_STATUS,
 
     mem_cs_i            => mem_cs_i(PCAP_CS),
@@ -201,7 +201,7 @@ port map (
     FRAMING_MASK            => FRAMING_MASK,
     FRAMING_ENABLE          => FRAMING_ENABLE,
     FRAMING_MODE            => FRAMING_MODE,
-    FRAME_NUM		    => FRAME_NUM,
+    FRAME_NUM               => FRAME_NUM,
     ARM                     => ARM,
     DISARM                  => DISARM,
     ERR_STATUS              => ERR_STATUS,

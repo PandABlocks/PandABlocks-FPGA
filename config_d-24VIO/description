@@ -169,14 +169,13 @@ PCAP        Position capture control
     ENABLE          Data capture enable
     FRAME           Data capture frame
     CAPTURE         Data capture event
+    FRAME_NUM       Total frames to be captured
     ERR_STATUS      Was last capture successful?
     ACTIVE          Data capture in progress
-
     CAPTURE_TS      Timestamp of captured data
     FRAME_LENGTH    Length of captured frame
     CAPTURE_OFFSET  Offset of capture into capture frame
     ADC_COUNT       Number of ADC samples in captured frame
-
     BITS0           Quadrant 0 of bit_bus
     BITS1           Quadrant 1 of bit_bus
     BITS2           Quadrant 2 of bit_bus
