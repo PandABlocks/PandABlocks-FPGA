@@ -71,7 +71,7 @@ signal enc0_ctrl_pad_o  : std_logic_vector(11 downto 0);
 signal leds             : std_logic_vector(1 downto 0);
 signal clk              : std_logic := '1';
 signal clk50            : std_logic := '1';
-signal init_reset            : std_logic := '1';
+signal init_reset       : std_logic := '1';
 
 signal A_IN_P           : std_logic_vector(3 downto 0);
 signal B_IN_P           : std_logic_vector(3 downto 0);
@@ -218,12 +218,55 @@ PORT MAP (
 
 );
 
---
+--------------------------------------------------------------------------
+-- TTL IN
+--------------------------------------------------------------------------
+ttlin_pad(5 downto 2) <= "0000";
+
+process
+begin
+    ttlin_pad(0) <= '0';
+FOR N in 0 TO 1 LOOP
+    PROC_CLK_EAT(125 * 50, clk);
+    FRAME : for N in 0 to 149 loop
+        PROC_CLK_EAT(125, clk);
+        ttlin_pad(0) <= '1';
+        PROC_CLK_EAT(250, clk);
+        ttlin_pad(0) <= '0';
+        PROC_CLK_EAT(125, clk);
+    end loop FRAME;
+    wait until (pcap_armed = '1');
+END LOOP;
+
+    wait;
+end process;
+
+process
+begin
+    ttlin_pad(1) <= '0';
+FOR N in 0 TO 1 LOOP
+    PROC_CLK_EAT(125 * 50, clk);
+    PROC_CLK_EAT(250, clk);
+    CAPTURE : for N in 0 to 148 loop
+        PROC_CLK_EAT(125, clk);
+        ttlin_pad(1) <= '1';
+        PROC_CLK_EAT(250, clk);
+        ttlin_pad(1) <= '0';
+        PROC_CLK_EAT(125, clk);
+    end loop CAPTURE;
+
+    wait until (pcap_armed = '1');
+END LOOP;
+
+
+    wait;
+end process;
+
+--------------------------------------------------------------------------
 -- Loopback I/O
---
+--------------------------------------------------------------------------
 FMC_PRSNT <= '1';
 
-ttlin_pad <= ttlout_pad(5 downto 0);
 lvdsin_pad <= lvdsout_pad;
 FMC_LA_P(33 downto 17) <= FMC_LA_P(16 downto 0);
 FMC_LA_N(33 downto 17) <= FMC_LA_N(16 downto 0);
