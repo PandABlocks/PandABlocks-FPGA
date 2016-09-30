@@ -44,7 +44,7 @@ port (
     spi_sclk_i          : in  std_logic;
     spi_dat_i           : in  std_logic;
     -- Block Input and Outputs
-    busy_o              : out std_logic;
+    cmd_ready_n_o       : out std_logic;
     SLOW_FPGA_VERSION   : out std_logic_vector(31 downto 0);
     DCARD_MODE          : out std32_array(ENC_NUM-1 downto 0)
 );
@@ -108,7 +108,7 @@ port map (
 
     registers_tlp_i     => slow_reg_tlp,
     leds_tlp_i          => slow_leds_tlp,
-    busy_o              => busy_o,
+    cmd_ready_n_o       => cmd_ready_n_o,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
     DCARD_MODE          => DCARD_MODE,
     TEMP_MON            => TEMP_MON,

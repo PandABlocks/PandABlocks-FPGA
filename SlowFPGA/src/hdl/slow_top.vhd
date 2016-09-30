@@ -63,13 +63,13 @@ end slow_top;
 
 architecture rtl of slow_top is
 
-component icon
+component chipscope_icon
 port (
     CONTROL0 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0)
 );
 end component;
 
-component ila
+component chipscope_ila
 port (
     CONTROL : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
     CLK     : IN STD_LOGIC;
@@ -220,27 +220,23 @@ port map (
 --------------------------------------------------------------------------
 -- Chipscope
 --------------------------------------------------------------------------
--- icon_inst : icon
--- port map (
---     CONTROL0    => CONTROL0
--- );
--- 
--- ila_inst : ila
--- port map (
---     CONTROL             => CONTROL0,
---     CLK                 => sysclk,
---     DATA                => DATA,
---     TRIG0               => TRIG0
--- );
--- 
--- TRIG0(0) <= spi_sclk_i;
--- TRIG0(1) <= spi_sclk;
--- TRIG0(7 downto 2) <= (others => '0');
--- 
--- DATA(0) <= spi_sclk_i;
--- DATA(1) <= spi_dat_i;
--- DATA(2) <= spi_sclk;
--- DATA(3) <= spi_dat;
--- DATA(15 downto 4) <= (others => '0');
+chipscope_icon_inst : chipscope_icon
+port map (
+    CONTROL0    => CONTROL0
+);
+
+chipscope_ila_inst : chipscope_ila
+port map (
+    CONTROL             => CONTROL0,
+    CLK                 => sysclk,
+    DATA                => DATA,
+    TRIG0               => TRIG0
+);
+
+TRIG0 <= (others => '0');
+
+DATA(2 downto 0) <= INENC_PROTOCOL(0);
+DATA(5 downto 3) <= OUTENC_PROTOCOL(0);
+DATA(31 downto 6) <= (others => '0');
 
 end rtl;
