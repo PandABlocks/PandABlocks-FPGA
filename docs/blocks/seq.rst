@@ -62,13 +62,29 @@ Sequencer Frame Composition
 =============== ================ ==============================================
 Bit Field       Name             Description
 =============== ================ ==============================================
-[31:0]          Nrepeats         Number of repeats(cycles) for the frame
-[35:32]         Input Use        Input bit mask for triggering use
-[39:36]         Input Conditions Input conditions to trigger
-[45:40]         Phase 1 Outputs  Output values during phase 1
-[51:46]         Phase 2 Outputs  Output values during phase 2
-[95:64]         Phase 1 Time     Phase 1 length in pre-scaled clock ticks
-[127:96]        Phase 2 Time     Phase 2 length in pre-scaled clock ticks
+[31:0]          REPEATS          Number of repeats(cycles) for the frame
+[32:32]         USE_INPA         Input A bit mask for triggering use
+[33:33]         USE_INPB         Input B bit mask for triggering use
+[34:34]         USE_INPC         Input C bit mask for triggering use
+[35:35]         USE_INPD         Input D bit mask for triggering use
+[36:36]         INPA             Input A conditions to trigger
+[37:37]         INPB             Input B conditions to trigger
+[38:38]         INPC             Input C conditions to trigger
+[39:39]         INPD             Input D conditions to trigger
+[95:64]         PH1_TIME         Phase 1 length in pre-scaled clock ticks
+[40:40]         PH1_OUTA         Output A value during phase 1
+[41:41]         PH1_OUTB         Output B value during phase 1
+[42:42]         PH1_OUTC         Output C value during phase 1
+[43:43]         PH1_OUTD         Output D value during phase 1
+[44:44]         PH1_OUTE         Output E value during phase 1
+[45:45]         PH1_OUTF         Output F value during phase 1
+[127:96]        PH2_TIME         Phase 2 length in pre-scaled clock ticks
+[46:46]         PH2_OUTA         Output A value during phase 2
+[47:47]         PH2_OUTB         Output B value during phase 2
+[48:48]         PH2_OUTC         Output C value during phase 2
+[49:49]         PH2_OUTD         Output D value during phase 2
+[50:50]         PH2_OUTE         Output E value during phase 2
+[51:51]         PH2_OUTF         Output F value during phase 2
 =============== ================ ==============================================
 
 Normal operation
