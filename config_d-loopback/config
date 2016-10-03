@@ -76,13 +76,29 @@ SEQ[4]
     CUR_FCYCLE      read
     CUR_TCYCLE      read
     TABLE           table
-        31:0    NREPEATS
-        35:32   INPUT_MASK
-        39:36   TRIGGER_MASK
-        45:40   OUT_PH_A
-        51:46   OUT_PH_B
-        95:64   TIME_PH_A
-        127:96  TIME_PH_B
+        31:0    REPEATS
+        32:32   USE_INPA
+        33:33   USE_INPB
+        34:34   USE_INPC
+        35:35   USE_INPD
+        36:36   INPA
+        37:37   INPB
+        38:38   INPC
+        39:39   INPD
+        95:64   PH1_TIME
+        40:40   PH1_OUTA
+        41:41   PH1_OUTB
+        42:42   PH1_OUTC
+        43:43   PH1_OUTD
+        44:44   PH1_OUTE
+        45:45   PH1_OUTF
+        127:96  PH2_TIME
+        46:46   PH2_OUTA
+        47:47   PH2_OUTB
+        48:48   PH2_OUTC
+        49:49   PH2_OUTD
+        50:50   PH2_OUTE
+        51:51   PH2_OUTF
 
 INENC[4]
     PROTOCOL        param       enum 4
