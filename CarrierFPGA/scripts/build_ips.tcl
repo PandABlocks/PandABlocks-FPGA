@@ -135,6 +135,22 @@ set_property -dict [list \
 generate_target all [get_files $origin_dir/sfpgtx/sfpgtx.xci]
 synth_ip [get_ips sfpgtx]
 
+#
+# Create SlowFPGA Command FIFO
+#
+create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+-module_name slow_cmd_fifo -dir $origin_dir/
+
+set_property -dict [list \
+    CONFIG.Performance_Options {First_Word_Fall_Through} \
+    CONFIG.Input_Data_Width {42}    \
+    CONFIG.Output_Data_Width {42}   \
+] [get_ips slow_cmd_fifo]
+
+generate_target all [get_files $origin_dir/slow_cmd_fifo/slow_cmd_fifo.xci]
+synth_ip [get_ips slow_cmd_fifo]
+
+
 # Close project
 close_project
 exit

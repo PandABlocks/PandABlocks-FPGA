@@ -30,7 +30,6 @@ constant TTLIN4_TERM        : natural := 12;
 constant TTLIN5_TERM        : natural := 13;
 constant TTLIN6_TERM        : natural := 14;
 constant TTL_LEDS           : natural := 15;
-constant STATUS_LEDS        : natural := 16;
 
 --
 -- READ ONLY Registers

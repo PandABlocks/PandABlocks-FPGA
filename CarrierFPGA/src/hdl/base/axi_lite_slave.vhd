@@ -8,7 +8,7 @@ use unisim.vcomponents.all;
 library work;
 use work.top_defines.all;
 
-entity panda_csr_if is
+entity axi_lite_slave is
 generic (
     AXI_AWIDTH          : integer := 32;
     AXI_DWIDTH          : integer := 32;
@@ -46,9 +46,9 @@ port (
     mem_addr_o          : out std_logic_vector(MEM_AWIDTH-1 downto 0);
     mem_dat_i           : in  std32_array(2**MEM_CSWIDTH-1 downto 0)
 );
-end entity panda_csr_if;
+end entity axi_lite_slave;
 
-architecture rtl of panda_csr_if is
+architecture rtl of axi_lite_slave is
 
 -- Get ChipSelect vector
 function CSGEN(

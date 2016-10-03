@@ -72,6 +72,7 @@ end pcap_top;
 
 architecture rtl of pcap_top is
 
+signal FRAME_NUM        : std_logic_vector(31 downto 0);
 signal ERR_STATUS       : std_logic_vector(31 downto 0);
 
 signal ARM              : std_logic;
@@ -82,6 +83,7 @@ signal WRITE_WSTB       : std_logic;
 signal FRAMING_MASK     : std_logic_vector(31 downto 0);
 signal FRAMING_ENABLE   : std_logic;
 signal FRAMING_MODE     : std_logic_vector(31 downto 0);
+signal FRAME_COUNT      : std_logic_vector(31 downto 0);
 signal DMA_RESET        : std_logic;
 signal DMA_START        : std_logic;
 signal DMA_ADDR         : std_logic_vector(31 downto 0);
@@ -123,6 +125,8 @@ port map (
     capture_o           => capture,
     frame_o             => frame,
 
+    FRAME_NUM           => FRAME_NUM,
+    FRAME_COUNT         => FRAME_COUNT,
     ERR_STATUS          => ERR_STATUS,
 
     mem_cs_i            => mem_cs_i(PCAP_CS),
@@ -199,6 +203,8 @@ port map (
     FRAMING_MASK            => FRAMING_MASK,
     FRAMING_ENABLE          => FRAMING_ENABLE,
     FRAMING_MODE            => FRAMING_MODE,
+    FRAME_NUM               => FRAME_NUM,
+    FRAME_COUNT             => FRAME_COUNT,
     ARM                     => ARM,
     DISARM                  => DISARM,
     ERR_STATUS              => ERR_STATUS,

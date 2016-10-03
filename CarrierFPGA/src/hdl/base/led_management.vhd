@@ -1,8 +1,15 @@
 --------------------------------------------------------------------------------
---  File:       led_management.vhd
---  Desc:       SR Gate Generator.
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
---  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : LED status management for TTL input and outputs
+--                TTL signals are monitored at 50ms interval and a packet
+--                containing led status is sent to SlowFPGA
+--
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -36,11 +43,17 @@ signal check_tick       : std_logic;
 signal val              : std_logic_vector(LED_COUNT-1 downto 0);
 signal val_prev         : std_logic_vector(LED_COUNT-1 downto 0);
 signal changed          : std_logic_vector(LED_COUNT-1 downto 0);
-signal leds             : std_logic_vector(LED_COUNT-1 downto 0);
+signal ttlio_leds       : std_logic_vector(LED_COUNT-1 downto 0);
+signal status_leds      : std_logic_vector(3 downto 0);
 signal data             : std_logic_vector(31 downto 0) := (others => '0');
 signal data_prev        : std_logic_vector(31 downto 0);
 
 begin
+
+--------------------------------------------------------------------------
+-- Hardware Status LEDs for the time being
+--------------------------------------------------------------------------
+status_leds <= "0001";
 
 --------------------------------------------------------------------------
 -- 50ms counter tick
@@ -63,7 +76,7 @@ process(clk_i) begin
             val <= (others => '0');
             val_prev <= (others => '0');
             changed <= (others => '0');
-            leds <= (others => '0');
+            ttlio_leds <= (others => '0');
         else
             -- Combine all I/O to detect change bits
             val <= ttlin_i & ttlout_i;
@@ -76,13 +89,13 @@ process(clk_i) begin
                 changed <= (val xor val_prev) or changed;
             end if;
 
-            -- Toggle individual leds
+            -- Toggle individual ttlio_leds
             FOR I IN 0 TO LED_COUNT-1 LOOP
                 if (check_tick = '1') then
                     if (changed(I) = '1') then
-                        leds(I) <= not leds(I);
+                        ttlio_leds(I) <= not ttlio_leds(I);
                     else
-                        leds(I) <= val(I);
+                        ttlio_leds(I) <= val(I);
                     end if;
                 end if;
             END LOOP;
@@ -90,10 +103,10 @@ process(clk_i) begin
     end if;
 end process;
 
---
+--------------------------------------------------------------------------
 -- Custom bits currently includes OutEnc disconnect action.
---
-data <= ZEROS(12) & outenc_conn_i & leds;
+--------------------------------------------------------------------------
+data <= ZEROS(8) & status_leds & outenc_conn_i & ttlio_leds;
 
 --------------------------------------------------------------------------
 -- Send a packet to Slow FPGA only if data is changed

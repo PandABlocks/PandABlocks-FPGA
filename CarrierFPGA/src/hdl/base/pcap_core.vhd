@@ -34,6 +34,8 @@ port (
     FRAMING_MASK        : in  std_logic_vector(31 downto 0);
     FRAMING_ENABLE      : in  std_logic;
     FRAMING_MODE        : in  std_logic_vector(31 downto 0);
+    FRAME_NUM           : in  std_logic_vector(31 downto 0);
+    FRAME_COUNT         : out std_logic_vector(31 downto 0);
     ERR_STATUS          : out std_logic_vector(31 downto 0);
     -- Block inputs
     enable_i            : in  std_logic;
@@ -55,6 +57,7 @@ architecture rtl of pcap_core is
 
 signal frame            : std_logic;
 signal capture          : std_logic;
+signal frames_completed : std_logic;
 
 signal timestamp        : std_logic_vector(63 downto 0);
 signal capture_pulse    : std_logic;
@@ -85,6 +88,7 @@ port map (
     ARM                 => ARM,
     DISARM              => DISARM,
     enable_i            => enable_i,
+    frames_completed_i  => frames_completed,
     pcap_error_i        => pcap_error,
     dma_error_i         => dma_full_i,
     ongoing_capture_i   => pcap_dat_valid,
@@ -95,9 +99,9 @@ port map (
     pcap_status_o       => pcap_status
 );
 
--- Mask capture and frame signals with enable
-capture <= capture_i and enable_i;
-frame <= frame_i and enable_i;
+-- Mask capture and frame signals only when core is active (armed)
+capture <= capture_i and pcap_armed;
+frame <= frame_i and pcap_armed;
 
 --------------------------------------------------------------------------
 -- Encoder and ADC Position Data Processing
@@ -110,15 +114,18 @@ port map (
     FRAMING_MASK        => FRAMING_MASK,
     FRAMING_ENABLE      => FRAMING_ENABLE,
     FRAMING_MODE        => FRAMING_MODE,
+    FRAME_NUM           => FRAME_NUM,
+    FRAME_COUNT         => FRAME_COUNT,
 
     posbus_i            => posbus_i,
     sysbus_i            => sysbus_i,
 
     enable_i            => pcap_enabled,
-    frame_i             => frame,   --frame_i,
-    capture_i           => capture, --capture_i,
+    frame_i             => frame,
+    capture_i           => capture,
     timestamp_i         => timestamp,
     capture_o           => capture_pulse,
+    frames_completed_o  => frames_completed,
     posn_o              => capture_data,
     error_o             => pcap_frame_error
 );

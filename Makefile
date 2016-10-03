@@ -12,7 +12,6 @@ LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
 ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
 PYTHON = python2
 SPHINX_BUILD = sphinx-build
-PANDA_ROOTFS = $(error Define PANDA_ROOTFS in CONFIG file)
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 DEFAULT_TARGETS = docs zpkg
 
@@ -75,13 +74,13 @@ slow-fpga: $(SLOW_FPGA_BUILD_DIR)
 # ------------------------------------------------------------------------------
 # Build installation package
 
-ZPKG_VERSION = $(FIRMWARE)_FMC_$(FMC_DESIGN)_SFP_$(SFP_DESIGN)
+ZPKG_VERSION = FMC_$(FMC_DESIGN)_SFP_$(SFP_DESIGN)-$(FIRMWARE)
 
-zpkg: etc/panda-server.list $(FIRMWARE_BUILD)
-	$(error Still need to specify FIRMWARE_BUILD dependencies)
+zpkg: etc/panda-fpga.list $(FIRMWARE_BUILD)
+#	$(error Still need to specify FIRMWARE_BUILD dependencies)
 	rm -f $(BUILD_DIR)/*.zpg
 	$(MAKE_ZPKG) -t $(TOP) -b $(BUILD_DIR) -d $(BUILD_DIR) \
-            $< $(ZPKG_VERSION).$(GIT_VERSION)
+            $< $(ZPKG_VERSION)
 
 .PHONY: zpkg
 

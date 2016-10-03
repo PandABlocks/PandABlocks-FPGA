@@ -32,7 +32,7 @@ port (
     -- Block Input and Outputs
     registers_tlp_i     : in  slow_packet;
     leds_tlp_i          : in  slow_packet;
-    busy_o              : out std_logic;
+    cmd_ready_n_o       : out std_logic;
     SLOW_FPGA_VERSION   : out std_logic_vector(31 downto 0);
     DCARD_MODE          : out std32_array(ENC_NUM-1 downto 0);
     TEMP_MON            : out std32_array(4 downto 0);
@@ -42,6 +42,19 @@ end slow_interface;
 
 architecture rtl of slow_interface is
 
+component slow_cmd_fifo
+port (
+    clk                 : in std_logic;
+    rst                 : in std_logic;
+    din                 : in std_logic_vector(41 DOWNTO 0);
+    wr_en               : in std_logic;
+    rd_en               : in std_logic;
+    dout                : out std_logic_vector(41 DOWNTO 0);
+    full                : out std_logic;
+    empty               : out std_logic
+);
+end component;
+
 signal wr_req           : std_logic;
 signal wr_dat           : std_logic_vector(31 downto 0);
 signal wr_adr           : std_logic_vector(PAGE_AW-1 downto 0);
@@ -49,12 +62,16 @@ signal rd_adr           : std_logic_vector(PAGE_AW-1 downto 0);
 signal rd_dat           : std_logic_vector(31 downto 0);
 signal rd_val           : std_logic;
 signal busy             : std_logic;
-
 signal read_addr        : natural range 0 to (2**rd_adr'length - 1);
+signal cmd_din          : std_logic_vector(41 downto 0);
+signal cmd_dout         : std_logic_vector(41 downto 0);
+signal cmd_empty        : std_logic;
+signal cmd_full         : std_logic;
+signal cmd_rd_en        : std_logic;
 
 begin
 
-busy_o <= busy;
+cmd_ready_n_o <= cmd_full; --busy;
 
 ---------------------------------------------------------------------------
 -- Serial Interface core instantiation
@@ -84,10 +101,24 @@ port map (
 
 ---------------------------------------------------------------------------
 -- There are multiple transmit sources coming across the design blocks.
--- Use priority IF-ELSE for accepting write command.
---
--- THERE IS A RACE CONDITION HERE, NEEDS CARE!!!!
+-- Incoming commands to SlowFPGA from Arm are buffered and then priority
+-- IF-ELSE is used for sending write commands
 ---------------------------------------------------------------------------
+
+cmd_din <= registers_tlp_i.address & registers_tlp_i.data;
+
+slow_cmd_fifo_inst : slow_cmd_fifo
+port map (
+    clk             => clk_i,
+    rst             => reset_i,
+    din             => cmd_din,
+    wr_en           => registers_tlp_i.strobe,
+    rd_en           => cmd_rd_en,
+    dout            => cmd_dout,
+    full            => cmd_full,
+    empty           => cmd_empty
+);
+
 SENDER : process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -95,16 +126,19 @@ begin
             wr_req <= '0';
             wr_adr <= (others => '0');
             wr_dat <= (others => '0');
+            cmd_rd_en <= '0';
         else
             wr_req <= '0';
+            cmd_rd_en <= '0';
 
-            -- There are two sources wanting to send TLPs to Slow FPGA.
-            if (registers_tlp_i.strobe = '1') then
+            -- Zynq->SlowFPGA command has priority
+            if (cmd_empty = '0' and busy = '0' and wr_req = '0') then
                 wr_req <= '1';
-                wr_adr <= registers_tlp_i.address;
-                wr_dat <= registers_tlp_i.data;
+                wr_adr <= cmd_dout(41 downto 32);
+                wr_dat <= cmd_dout(31 downto 0);
+                cmd_rd_en <= '1';
             -- Ignore led updates when busy
-            elsif (leds_tlp_i.strobe = '1' and busy = '0') then
+            elsif (leds_tlp_i.strobe = '1' and busy = '0' and wr_req = '0') then
                 wr_req <= '1';
                 wr_adr <= leds_tlp_i.address;
                 wr_dat <= leds_tlp_i.data;

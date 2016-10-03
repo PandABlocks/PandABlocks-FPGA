@@ -6,7 +6,11 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : Encoder position field processing.
+--  Description : Position fields processing block.
+--				  Block can output:
+-- 				   - Instantaneous value,
+-- 				   - Difference between values at frame start and end.
+-- 				   - Average of values at frame start and end.
 --
 --------------------------------------------------------------------------------
 
@@ -57,11 +61,6 @@ posn_sum <= signed(posin) + signed(posn_prev);
 
 --------------------------------------------------------------------------
 -- Position output can be following based on FRAMING mode of operation.
---
--- Instantaneous value,
--- Difference between values at frame start and end.
--- Average of values at frame start and end.
---
 --------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
@@ -83,7 +82,7 @@ process(clk_i) begin
                     -- Send captured value in sync to frame pulse
                     if (FRAMING_MASK = '0') then
                         posout <= posin_capture;
-                    -- Output Difference or Aberage Value
+                    -- Output Difference or Average Value
                     else
                         if (FRAMING_MODE = '0') then
                             posout <= std_logic_vector(posn_delta);

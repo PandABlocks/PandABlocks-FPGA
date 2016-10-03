@@ -236,7 +236,9 @@ PCAP        21
     ENABLE          0 5
     FRAME           1 6
     CAPTURE         2 7
+    FRAME_NUM       3
     ERR_STATUS      4
+    FRAME_COUNT     8
     ACTIVE          106
     CAPTURE_TS      62 / 63
     FRAME_LENGTH    37
