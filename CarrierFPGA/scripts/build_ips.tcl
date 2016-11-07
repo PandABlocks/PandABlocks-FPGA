@@ -150,7 +150,6 @@ set_property -dict [list \
 generate_target all [get_files $origin_dir/slow_cmd_fifo/slow_cmd_fifo.xci]
 synth_ip [get_ips slow_cmd_fifo]
 
-
 # Close project
 close_project
 exit

@@ -24,7 +24,6 @@ constant ADDER_CS : natural := 16;
 constant COUNTER_CS : natural := 17;
 constant PGEN_CS : natural := 18;
 constant PCOMP_CS : natural := 19;
-constant ADC_CS : natural := 20;
 constant PCAP_CS : natural := 21;
 constant BITS_CS : natural := 22;
 constant CLOCKS_CS : natural := 23;
@@ -268,8 +267,6 @@ constant PCOMP_TABLE_ADDRESS : natural := 11;
 constant PCOMP_TABLE_LENGTH : natural := 12;
 constant PCOMP_TABLE_STATUS : natural := 16;
 
--- ADC Block:
-
 -- PCAP Block:
 constant PCAP_ENABLE : natural := 0;
 constant PCAP_ENABLE_DLY : natural := 5;
@@ -311,34 +308,13 @@ constant SLOW_ENC_24V : natural := 11;
 constant SLOW_FMC_12V : natural := 12;
 
 -- FMC Block:
-constant FMC_PRESENT : natural := 0;
-constant FMC_OUT1 : natural := 1;
-constant FMC_OUT1_DLY : natural := 9;
-constant FMC_OUT2 : natural := 2;
-constant FMC_OUT2_DLY : natural := 10;
-constant FMC_OUT3 : natural := 3;
-constant FMC_OUT3_DLY : natural := 11;
-constant FMC_OUT4 : natural := 4;
-constant FMC_OUT4_DLY : natural := 12;
-constant FMC_OUT5 : natural := 5;
-constant FMC_OUT5_DLY : natural := 13;
-constant FMC_OUT6 : natural := 6;
-constant FMC_OUT6_DLY : natural := 14;
-constant FMC_OUT7 : natural := 7;
-constant FMC_OUT7_DLY : natural := 15;
-constant FMC_OUT8 : natural := 8;
-constant FMC_OUT8_DLY : natural := 16;
-constant FMC_OUT_PWR_ON : natural := 17;
-constant FMC_IN_VTSEL : natural := 18;
-constant FMC_IN_DB : natural := 19;
-constant FMC_IN_FAULT : natural := 20;
-constant FMC_OUT_PUSHPL : natural := 21;
-constant FMC_OUT_FLTR : natural := 22;
-constant FMC_OUT_SRIAL : natural := 23;
-constant FMC_OUT_FAULT : natural := 24;
-constant FMC_OUT_EN : natural := 25;
-constant FMC_OUT_CONFIG : natural := 26;
-constant FMC_OUT_STATUS : natural := 27;
+constant FMC_ENABLE : natural := 0;
+constant FMC_ENABLE_DLY : natural := 1;
+constant FMC_PRESENT : natural := 2;
+constant FMC_ADC1_GAIN : natural := 3;
+constant FMC_ADC2_GAIN : natural := 4;
+constant FMC_ADC3_GAIN : natural := 5;
+constant FMC_ADC4_GAIN : natural := 6;
 
 -- SFP Block:
 constant SFP_LINK1_UP : natural := 0;

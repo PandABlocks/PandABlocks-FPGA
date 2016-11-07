@@ -68,20 +68,12 @@ signal FMC_CLK0_M2C     : std_logic;
 signal FMC_CLK1_M2C     : std_logic;
 signal EXTCLK           : std_logic;
 signal FMC_PRSNT_DW     : std_logic_vector(31 downto 0);
-signal OUT_PWR_ON       : std_logic_vector(31 downto 0);
-signal IN_DB            : std_logic_vector(31 downto 0);
-signal IN_FAULT         : std_logic_vector(31 downto 0);
-signal IN_VTSEL         : std_logic_vector(31 downto 0);
-signal OUT_PUSHPL       : std_logic_vector(31 downto 0);
-signal OUT_FLTR         : std_logic_vector(31 downto 0);
-signal OUT_SRIAL        : std_logic_vector(31 downto 0);
-signal OUT_FAULT        : std_logic_vector(31 downto 0);
-signal OUT_EN           : std_logic_vector(31 downto 0);
-signal OUT_CONFIG       : std_logic_vector(31 downto 0);
-signal OUT_STATUS       : std_logic_vector(31 downto 0);
+signal ADC1_GAIN        : std_logic_vector(31 downto 0);
+signal ADC2_GAIN        : std_logic_vector(31 downto 0);
+signal ADC3_GAIN        : std_logic_vector(31 downto 0);
+signal ADC4_GAIN        : std_logic_vector(31 downto 0);
 
-signal fmc_in           : std_logic_vector(7 downto 0);
-signal fmc_out          : std_logic_vector(7 downto 0);
+signal enable           : std_logic;
 
 begin
 
@@ -136,27 +128,13 @@ port map (
     reset_i             => reset_i,
     sysbus_i            => bitbus_i,
     posbus_i            => (others => (others => '0')),
+    enable_o            => enable,
     -- Block Parameters
     PRESENT             => FMC_PRSNT_DW,
-    out1_o              => fmc_out(0),
-    out2_o              => fmc_out(1),
-    out3_o              => fmc_out(2),
-    out4_o              => fmc_out(3),
-    out5_o              => fmc_out(4),
-    out6_o              => fmc_out(5),
-    out7_o              => fmc_out(6),
-    out8_o              => fmc_out(7),
-    OUT_PWR_ON          => OUT_PWR_ON,
-    IN_DB               => IN_DB,
-    IN_FAULT            => IN_FAULT,
-    IN_VTSEL            => IN_VTSEL,
-    OUT_PUSHPL          => OUT_PUSHPL,
-    OUT_FLTR            => OUT_FLTR,
-    OUT_SRIAL           => OUT_SRIAL,
-    OUT_FAULT           => OUT_FAULT,
-    OUT_EN              => OUT_EN,
-    OUT_CONFIG          => OUT_CONFIG,
-    OUT_STATUS          => OUT_STATUS,
+    ADC1_GAIN           => ADC1_GAIN,
+    ADC2_GAIN           => ADC2_GAIN,
+    ADC3_GAIN           => ADC3_GAIN,
+    ADC4_GAIN           => ADC4_GAIN,
     -- Memory Bus Interface
     mem_cs_i            => mem_cs_i,
     mem_wstb_i          => mem_wstb_i,
@@ -168,41 +146,32 @@ port map (
 ---------------------------------------------------------------------------
 -- FMC Application Core
 ---------------------------------------------------------------------------
-fmc_24vio_inst : entity work.fmc_24vio
+fmc_acq420_inst : entity work.fmc_acq420
 port map (
-    clk_i               => clk_i,
+    -- Clock and Reset
+    clk125_i            => clk_i,
+    clk100_i            => clk_aux_i,
     reset_i             => reset_i,
+    -- Block Inputs
+    enable_i            => enable,
+    -- Block Parameters
+    ADC1_GAIN           => ADC1_GAIN(1 downto 0),
+    ADC2_GAIN           => ADC2_GAIN(1 downto 0),
+    ADC3_GAIN           => ADC3_GAIN(1 downto 0),
+    ADC4_GAIN           => ADC4_GAIN(1 downto 0),
+    -- FMC LA I/O
     FMC_LA_P            => FMC_LA_P,
     FMC_LA_N            => FMC_LA_N,
-    OUT_PWR_ON          => OUT_PWR_ON(0),
-    IN_VTSEL            => IN_VTSEL(0),
-    IN_DB               => IN_DB(1 downto 0),
-    IN_FAULT            => IN_FAULT,
-    OUT_PUSHPL          => OUT_PUSHPL(0),
-    OUT_FLTR            => OUT_FLTR(0),
-    OUT_SRIAL           => OUT_SRIAL(0),
-    OUT_FAULT           => OUT_FAULT,
-    OUT_EN              => OUT_EN(0),
-    OUT_CONFIG          => OUT_CONFIG(15 downto 0),
-    OUT_STATUS          => OUT_STATUS,
-    fmc_in_o            => fmc_in,
-    fmc_out_i           => fmc_out
+    -- ADC Data Interface
+    adc_data_val_o      => fmc_inputs_o(3 downto 0),
+    adc_data_o          => fmc_data_o(3 downto 0)
 );
 
 ---------------------------------------------------------------------------
 -- Assign outputs
 ---------------------------------------------------------------------------
-fmc_inputs_o(0) <= fmc_in(0);
-fmc_inputs_o(1) <= fmc_in(1);
-fmc_inputs_o(2) <= fmc_in(2);
-fmc_inputs_o(3) <= fmc_in(3);
-fmc_inputs_o(4) <= fmc_in(4);
-fmc_inputs_o(5) <= fmc_in(5);
-fmc_inputs_o(6) <= fmc_in(6);
-fmc_inputs_o(7) <= fmc_in(7);
-fmc_inputs_o(15 downto 8) <= (others => '0');
-
-fmc_data_o <= (others => (others => '0'));
+fmc_inputs_o(15 downto 4) <= (others => '0');
+fmc_data_o(15 downto 4) <= (others => (others => '0'));
 
 end rtl;
 

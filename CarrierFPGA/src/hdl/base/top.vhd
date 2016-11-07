@@ -109,6 +109,7 @@ architecture rtl of panda_top is
 
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
+signal FCLK_CLK1            : std_logic;
 signal FCLK_RESET0_N        : std_logic_vector(0 downto 0);
 signal FCLK_RESET0          : std_logic;
 
@@ -304,6 +305,7 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
 ps : entity work.panda_ps
 port map (
     FCLK_CLK0                   => FCLK_CLK0,
+    FCLK_CLK1                   => FCLK_CLK1,
     FCLK_RESET0_N               => FCLK_RESET0_N,
 
     DDR_addr(14 downto 0)       => DDR_addr(14 downto 0),
@@ -930,6 +932,7 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
     fmc_inst : entity work.fmc_top
     port map (
         clk_i               => FCLK_CLK0,
+        clk_aux_i           => FCLK_CLK1,
         reset_i             => FCLK_RESET0,
 
         bitbus_i            => sysbus,
@@ -1044,8 +1047,6 @@ port map (
     -- PCOMP Block
     PCOMP_ACTIVE    => pcomp_active,
     PCOMP_OUT       => pcomp_out,
-    -- ADC Block
-    ADC_OUT         => (others => (others => '0')),
     -- PCAP Block
     PCAP_ACTIVE     => pcap_act,
     -- BITS Block

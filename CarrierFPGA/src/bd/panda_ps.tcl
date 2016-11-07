@@ -156,6 +156,7 @@ proc create_root_design { parentCell } {
   # Create ports
   set FCLK_CLK0 [ create_bd_port -dir O -type clk FCLK_CLK0 ]
   set_property -dict [ list CONFIG.ASSOCIATED_BUSIF {M00_AXI:S_AXI_HP0:S_AXI_HP1}  ] $FCLK_CLK0
+  set FCLK_CLK1 [ create_bd_port -dir O -type clk FCLK_CLK1 ]
   set FCLK_RESET0_N [ create_bd_port -dir O -from 0 -to 0 -type rst FCLK_RESET0_N ]
   set IRQ_F2P [ create_bd_port -dir I -from 0 -to 0 -type intr IRQ_F2P ]
   set_property -dict [ list CONFIG.PortWidth {1}  ] $IRQ_F2P
@@ -172,14 +173,14 @@ CONFIG.PCW_ENET0_ENET0_IO {MIO 16 .. 27} CONFIG.PCW_ENET0_GRP_MDIO_ENABLE {1} \
 CONFIG.PCW_ENET0_GRP_MDIO_IO {MIO 52 .. 53} CONFIG.PCW_ENET0_PERIPHERAL_CLKSRC {IO PLL} \
 CONFIG.PCW_ENET0_PERIPHERAL_ENABLE {1} CONFIG.PCW_ENET0_PERIPHERAL_FREQMHZ {1000 Mbps} \
 CONFIG.PCW_ENET0_RESET_ENABLE {1} CONFIG.PCW_ENET0_RESET_IO {MIO 47} \
-CONFIG.PCW_EN_CLK0_PORT {1} CONFIG.PCW_EN_CLK1_PORT {0} \
+CONFIG.PCW_EN_CLK0_PORT {1} CONFIG.PCW_EN_CLK1_PORT {1} \
 CONFIG.PCW_EN_CLK2_PORT {0} CONFIG.PCW_EN_CLK3_PORT {0} \
 CONFIG.PCW_EN_DDR {1} CONFIG.PCW_EN_RST0_PORT {1} \
 CONFIG.PCW_EN_RST1_PORT {0} CONFIG.PCW_EN_RST2_PORT {0} \
 CONFIG.PCW_EN_RST3_PORT {0} CONFIG.PCW_FCLK0_PERIPHERAL_CLKSRC {IO PLL} \
 CONFIG.PCW_FCLK1_PERIPHERAL_CLKSRC {IO PLL} CONFIG.PCW_FCLK2_PERIPHERAL_CLKSRC {IO PLL} \
 CONFIG.PCW_FCLK3_PERIPHERAL_CLKSRC {IO PLL} CONFIG.PCW_FCLK_CLK0_BUF {true} \
-CONFIG.PCW_FCLK_CLK1_BUF {false} CONFIG.PCW_FCLK_CLK2_BUF {false} \
+CONFIG.PCW_FCLK_CLK1_BUF {true} CONFIG.PCW_FCLK_CLK2_BUF {false} \
 CONFIG.PCW_FCLK_CLK3_BUF {false} CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {125} \
 CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {100} CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {33.333333} \
 CONFIG.PCW_FPGA3_PERIPHERAL_FREQMHZ {50} CONFIG.PCW_GPIO_EMIO_GPIO_ENABLE {0} \
@@ -309,6 +310,7 @@ CONFIG.preset {Default}  ] $processing_system7_0
   connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins proc_sys_reset_0/interconnect_aresetn] [get_bd_pins read_dma_interface/ARESETN] [get_bd_pins register_interface/ARESETN] [get_bd_pins write_dma_converter/s_axi_aresetn]
   connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_ports FCLK_RESET0_N] [get_bd_pins proc_sys_reset_0/peripheral_aresetn] [get_bd_pins read_dma_interface/M00_ARESETN] [get_bd_pins read_dma_interface/S00_ARESETN] [get_bd_pins register_interface/M00_ARESETN] [get_bd_pins register_interface/S00_ARESETN]
   connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_ports FCLK_CLK0] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP1_ACLK] [get_bd_pins read_dma_interface/ACLK] [get_bd_pins read_dma_interface/M00_ACLK] [get_bd_pins read_dma_interface/S00_ACLK] [get_bd_pins register_interface/ACLK] [get_bd_pins register_interface/M00_ACLK] [get_bd_pins register_interface/S00_ACLK] [get_bd_pins write_dma_converter/s_axi_aclk]
+  connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_ports FCLK_CLK1] [get_bd_pins processing_system7_0/FCLK_CLK1]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins proc_sys_reset_0/ext_reset_in] [get_bd_pins processing_system7_0/FCLK_RESET0_N]
 
   # Create address segments
@@ -331,4 +333,6 @@ CONFIG.preset {Default}  ] $processing_system7_0
 
 create_root_design ""
 
+
+puts "\n\nWARNING: This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 

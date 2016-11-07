@@ -1,4 +1,4 @@
-function [x y]= parser(Fields)
+function [x]= parser(Fields)
 
 f=fopen('log.file');
 x = fread(f,[Fields,inf],'int32');
