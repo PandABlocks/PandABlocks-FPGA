@@ -7,10 +7,10 @@
 --------------------------------------------------------------------------------
 --
 --  Description : Position fields processing block.
---				  Block can output:
--- 				   - Instantaneous value,
--- 				   - Difference between values at frame start and end.
--- 				   - Average of values at frame start and end.
+--  Block can output:
+--      - Instantaneous value,
+--      - Difference between values at frame start and end.
+--      - Average of values at frame start and end.
 --
 --------------------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity pcap_posproc is
+entity pcap_capture is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -28,6 +28,7 @@ port (
     extn_i              : in  std_logic_vector(31 downto 0);
     frame_i             : in  std_logic;
     capture_i           : in  std_logic;
+    data_val_i          : in  std_logic;
     posn_o              : out std_logic_vector(31 downto 0);
     extn_o              : out std_logic_vector(31 downto 0);
     -- Block register
@@ -35,9 +36,9 @@ port (
     FRAMING_MASK        : in  std_logic;
     FRAMING_MODE        : in  std_logic
 );
-end pcap_posproc;
+end pcap_capture;
 
-architecture rtl of pcap_posproc is
+architecture rtl of pcap_capture is
 
 signal posin            : std_logic_vector(63 downto 0);
 signal posin_capture    : std_logic_vector(63 downto 0);
@@ -55,12 +56,37 @@ extn_o <= posout(63 downto 32);
 -- Combine into 64-bit values.
 posin <= extn_i & posn_i;
 
--- Calculate Delta and Sum from Frame-to-Frame
+-- Calculate on-the-fly Difference from Frame-to-Frame
 posn_delta <= signed(posin) - signed(posn_prev);
+
+-- Sum incoming data Frame-to-Frame
+process(clk_i) begin
+    if rising_edge(clk_i) then
+        if (reset_i = '1') then
+            posn_sum <= (others => '0');
+        else
+            -- If data arrived on the same clock with frame
+            if (frame_i = '1' and data_val_i = '1') then
+                posn_sum <= signed(posin);
+            -- Reset accumulator on frame input
+            elsif (frame_i = '1' and data_val_i = '0') then
+                posn_sum <= (others => '0');
+            -- Accumulate incoming data
+            elsif (data_val_i = '1') then
+                posn_sum <= posn_sum + signed(posin);
+            end if;
+        end if;
+    end if;
+end process;
+
+
+
 posn_sum <= signed(posin) + signed(posn_prev);
 
 --------------------------------------------------------------------------
 -- Position output can be following based on FRAMING mode of operation.
+-- A capture between two Frame inputs indicates a live frame
+-- where data is captured at the end when in FRAMING mode.
 --------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
@@ -74,24 +100,25 @@ process(clk_i) begin
                 posin_capture <= posin;
             end if;
 
-            -- Output new POSN on frame input.
+            -- Framing selected globally, so capture accordingly
             if (FRAMING_ENABLE = '1') then
                 if (frame_i = '1') then
                     posn_prev <= posin;
 
-                    -- Send captured value in sync to frame pulse
+                    -- Framing mode not selected, capture on trigger
                     if (FRAMING_MASK = '0') then
                         posout <= posin_capture;
-                    -- Output Difference or Average Value
                     else
+                        -- Normal framing mode : Difference
                         if (FRAMING_MODE = '0') then
                             posout <= std_logic_vector(posn_delta);
+                        -- Special framing mode : Average
                         else
-                            posout <= std_logic_vector(posn_sum srl 1);
+                            posout <= std_logic_vector(posn_sum);
                         end if;
                     end if;
                 end if;
-            -- Else output instantaneous value.
+            -- Framing not enabled capture instantaneously
             else
                 posout <= posin;
             end if;

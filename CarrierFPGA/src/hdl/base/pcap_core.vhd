@@ -41,6 +41,7 @@ port (
     enable_i            : in  std_logic;
     capture_i           : in  std_logic;
     frame_i             : in  std_logic;
+    data_val_i          : in  std_logic;
     dma_full_i          : in  std_logic;
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
@@ -123,6 +124,7 @@ port map (
     enable_i            => pcap_enabled,
     frame_i             => frame,
     capture_i           => capture,
+    data_val_i          => data_val_i,
     timestamp_i         => timestamp,
     capture_o           => capture_pulse,
     frames_completed_o  => frames_completed,

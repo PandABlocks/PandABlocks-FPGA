@@ -37,6 +37,7 @@ port (
     enable_i            : in  std_logic;
     frame_i             : in  std_logic;
     capture_i           : in  std_logic;
+    data_val_i          : in  std_logic;
     timestamp_i         : in  std_logic_vector(63 downto 0);
     capture_o           : out std_logic;
     frames_completed_o  : out std_logic;
@@ -219,7 +220,7 @@ FRAME_COUNT <= std_logic_vector(frame_counter);
 --------------------------------------------------------------------------
 PROC_OTHERS : FOR I IN 1 TO 31 GENERATE
 
-pcap_posproc_encoder : entity work.pcap_posproc
+pcap_capture_inst : entity work.pcap_capture
 port map (
     clk_i               => clk_i,
     reset_i             => reset,
@@ -229,6 +230,7 @@ port map (
 
     frame_i             => frame_rise,
     capture_i           => capture_rise,
+    data_val_i          => data_val_i,
     posn_o              => posn_o(I),
     extn_o              => open,
 
