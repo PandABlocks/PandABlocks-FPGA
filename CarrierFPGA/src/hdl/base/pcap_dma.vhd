@@ -13,9 +13,9 @@ use work.support.all;
 
 entity pcap_dma is
 generic (
-    AXI_BURST_LEN       : integer := 16;
-    AXI_ADDR_WIDTH      : integer := 32;
-    AXI_DATA_WIDTH      : integer := 32
+    AXI_BURST_LEN       : natural := 16;        -- AXI3 standard
+    AXI_ADDR_WIDTH      : natural := 32;
+    AXI_DATA_WIDTH      : natural := 32
 );
 port (
     -- Clock and Reset
@@ -67,7 +67,8 @@ end pcap_dma;
 
 architecture rtl of pcap_dma is
 
-constant AXI_BURST_WIDTH    : integer := LOG2(AXI_BURST_LEN);
+-- Bit-width required to represent maximum burst length (5)
+constant AXI_BURST_WIDTH    : integer := LOG2(AXI_BURST_LEN) + 1;
 -- Number of byte per AXI burst
 constant BURST_LEN          : integer := AXI_BURST_LEN * AXI_ADDR_WIDTH/8;
 
@@ -81,12 +82,12 @@ port (
     dout                : out std_logic_vector(31 DOWNTO 0);
     full                : out std_logic;
     empty               : out std_logic;
-    data_count          : out std_logic_vector(10 downto 0)
+    data_count          : out std_logic_vector(11 downto 0)
 );
 end component;
 
 signal BLOCK_TLP_SIZE       : unsigned(31 downto 0);
-signal m_axi_burst_len      : std_logic_vector(AXI_BURST_WIDTH-1 downto 0) := TO_SVECTOR(AXI_BURST_LEN, AXI_BURST_WIDTH);
+signal M_AXI_BURST_LEN      : std_logic_vector(AXI_BURST_WIDTH-1 downto 0);
 signal reset                : std_logic;
 
 type pcap_fsm_t is (INIT, ACTV, DO_DMA, IS_FINISHED, IRQ, COMPLETED);
@@ -95,6 +96,7 @@ signal pcap_fsm             : pcap_fsm_t;
 signal timeout_reset        : std_logic;
 signal timeout_counter      : unsigned(31 downto 0);
 signal pcap_timeout         : std_logic;
+signal pcap_timeout_latch   : std_logic;
 
 signal dma_start            : std_logic;
 signal dma_done             : std_logic;
@@ -108,10 +110,11 @@ signal next_dmaaddr_valid   : std_logic;
 signal next_dmaaddr_clear   : std_logic;
 signal switch_block         : std_logic;
 
-signal fifo_data_count      : std_logic_vector(10 downto 0);
+signal fifo_data_count      : std_logic_vector(11 downto 0);
+signal fifo_count           : unsigned(11 downto 0);
+signal transfer_size        : unsigned(AXI_BURST_WIDTH-1 downto 0);
 signal fifo_rd_en           : std_logic;
 signal fifo_dout            : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
-signal fifo_count           : integer range 0 to 2047;
 signal fifo_full            : std_logic;
 signal fifo_reset           : std_logic;
 
@@ -153,7 +156,10 @@ port map (
     data_count      => fifo_data_count
 );
 
-fifo_count <= to_integer(unsigned(fifo_data_count));
+fifo_count <= unsigned(fifo_data_count);
+transfer_size <= to_unsigned(AXI_BURST_LEN, AXI_BURST_WIDTH)
+                   when (fifo_count > AXI_BURST_LEN) else
+                     unsigned(fifo_data_count(AXI_BURST_WIDTH-1 downto 0));
 
 --
 -- PCAP Main State Machine
@@ -188,10 +194,11 @@ process(clk_i) begin
     end if;
 end process;
 
---
+--------------------------------------------------------------------------
 -- Timeout Counter.
 -- TIMEOUT = 0 disables the counter, otherwise counter is
 -- active only in ACTV state.
+--------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset = '1') then
@@ -206,6 +213,8 @@ process(clk_i) begin
 
             if (TIMEOUT_WSTB = '1' or timeout_reset = '1') then
                 timeout_counter <= (others => '0');
+            elsif (timeout_counter = unsigned(TIMEOUT) - 1) then
+                timeout_counter <= timeout_counter;
             else
                 timeout_counter <= timeout_counter + 1;
             end if;
@@ -227,12 +236,13 @@ process(clk_i) begin
     end if;
 end process;
 
---
+--------------------------------------------------------------------------
 -- Main State Machine
 --
 -- tlp_count       : # of TLPs DMAed per IRQ.
 -- sample_count    : # of samples (DWORDs) DMAed per IRQ.
--- m_axi_burst_len : # of beats in individual AXI3 write.
+-- M_AXI_BURST_LEN : # of beats in individual AXI3 write.
+--------------------------------------------------------------------------
 
 switch_block <= '1' when (tlp_count = BLOCK_TLP_SIZE) else  '0';
 
@@ -248,11 +258,12 @@ if rising_edge(clk_i) then
         irq_flags_latch <= (others => '0');
         axi_awaddr_val <= (others => '0');
         next_dmaaddr_clear <= '0';
-        m_axi_burst_len <= TO_SVECTOR(AXI_BURST_LEN, AXI_BURST_WIDTH);
+        M_AXI_BURST_LEN <= TO_SVECTOR(AXI_BURST_LEN, AXI_BURST_WIDTH);
         tlp_count <= (others => '0');
         sample_count <= (others => '0');
         sample_count_latch <= (others => '0');
         fifo_reset <= '1';
+        pcap_timeout_latch <= '0';
         timeout_reset <= '1';
     else
         case pcap_fsm is
@@ -265,6 +276,7 @@ if rising_edge(clk_i) then
                 sample_count <= (others => '0');
                 dma_start <= '0';
                 axi_awaddr_val <= unsigned(DMA_ADDR);
+                pcap_timeout_latch <= '0';
                 if (DMA_INIT = '1') then
                     pcap_fsm <= ACTV;
                     fifo_reset <= '0';
@@ -282,19 +294,20 @@ if rising_edge(clk_i) then
                 -- Timeout occured, transfer all data in the buffer before
                 -- raising IRQ.
                 elsif (pcap_timeout = '1') then
+                    pcap_timeout_latch <= '1';
                     if (fifo_count = 0) then
                         pcap_fsm <= IS_FINISHED;
                     else
                         dma_start <= '1';
-                        sample_count <= sample_count + fifo_count;
-                        m_axi_burst_len <= fifo_data_count(AXI_BURST_WIDTH-1 downto 0);
+                        sample_count <= sample_count + transfer_size;
+                        M_AXI_BURST_LEN <= std_logic_vector(transfer_size);
                         pcap_fsm <= DO_DMA;
                     end if;
-                -- More than 1 TLP in the queue.
+                -- At least 1 TLP in available the queue
                 elsif (fifo_count > AXI_BURST_LEN) then
                     dma_start <= '1';
-                    sample_count <= sample_count + AXI_BURST_LEN;
-                    m_axi_burst_len <= TO_SVECTOR(AXI_BURST_LEN, AXI_BURST_WIDTH);
+                    sample_count <= sample_count + transfer_size;
+                    M_AXI_BURST_LEN <= std_logic_vector(transfer_size);
                     pcap_fsm <= DO_DMA;
                 -- If enable flag is de-asserted while DMAing the last
                 -- TLP, no need to do a 0 byte DMA
@@ -306,8 +319,8 @@ if rising_edge(clk_i) then
                 elsif (pcap_completed = '1' and fifo_count <= AXI_BURST_LEN) then
                     last_tlp <= '1';
                     dma_start <= '1';
-                    sample_count <= sample_count + fifo_count;
-                    m_axi_burst_len <= fifo_data_count(AXI_BURST_WIDTH-1 downto 0);
+                    sample_count <= sample_count + transfer_size;
+                    M_AXI_BURST_LEN <= std_logic_vector(transfer_size);
                     pcap_fsm <= DO_DMA;
                 end if;
 
@@ -331,13 +344,15 @@ if rising_edge(clk_i) then
                     irq_flags(3 downto 1) <= pcap_status_i;
                 end if;
 
-                if (pcap_timeout = '1') then
+                if (pcap_timeout_latch = '1') then
                     irq_flags(5) <= '1';
                 end if;
 
                 if (switch_block = '1') then
                     irq_flags(6) <= '1';
+                end if;
 
+                if (pcap_timeout_latch = '1' or switch_block = '1') then
                     if (next_dmaaddr_valid = '0') then
                         irq_flags(0) <= '1';
                         irq_flags(4) <= '1';
@@ -364,8 +379,9 @@ if rising_edge(clk_i) then
                         next_dmaaddr_clear <= '1';
                         pcap_fsm <= IRQ;
                     end if;
-                elsif(pcap_timeout = '1' or switch_block = '1') then
+                elsif(pcap_timeout_latch = '1' or switch_block = '1') then
                     dma_irq <= '1';
+                    pcap_timeout_latch <= '0';
                     timeout_reset <= '1';
                     tlp_count <= (others => '0');
 
@@ -444,7 +460,7 @@ port map (
     clk_i               => clk_i,
     reset_i             => reset,
 
-    m_axi_burst_len     => m_axi_burst_len,
+    m_axi_burst_len     => M_AXI_BURST_LEN,
 
     m_axi_awready       => m_axi_awready,
     m_axi_awregion      => m_axi_awregion,
