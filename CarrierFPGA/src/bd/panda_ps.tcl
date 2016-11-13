@@ -276,7 +276,7 @@ CONFIG.PCW_UIPARAM_DDR_T_FAW {40.0} CONFIG.PCW_UIPARAM_DDR_T_RAS_MIN {35.0} \
 CONFIG.PCW_UIPARAM_DDR_T_RC {48.75} CONFIG.PCW_UIPARAM_DDR_USE_INTERNAL_VREF {1} \
 CONFIG.PCW_USB0_PERIPHERAL_ENABLE {1} CONFIG.PCW_USB0_PERIPHERAL_FREQMHZ {60} \
 CONFIG.PCW_USB0_RESET_ENABLE {1} CONFIG.PCW_USB0_RESET_IO {MIO 7} \
-CONFIG.PCW_USB0_USB0_IO {MIO 28 .. 39} CONFIG.PCW_USE_AXI_NONSECURE {0} \
+CONFIG.PCW_USB0_USB0_IO {MIO 28 .. 39} CONFIG.PCW_USE_AXI_NONSECURE {1} \
 CONFIG.PCW_USE_FABRIC_INTERRUPT {1} CONFIG.PCW_USE_M_AXI_GP0 {1} \
 CONFIG.PCW_USE_M_AXI_GP1 {0} CONFIG.PCW_USE_S_AXI_GP0 {0} \
 CONFIG.PCW_USE_S_AXI_HP0 {1} CONFIG.PCW_USE_S_AXI_HP1 {1} \
@@ -292,7 +292,7 @@ CONFIG.preset {Default}  ] $processing_system7_0
 
   # Create instance: write_dma_converter, and set properties
   set write_dma_converter [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dwidth_converter:2.1 write_dma_converter ]
-  set_property -dict [ list CONFIG.MAX_SPLIT_BEATS {16} CONFIG.PROTOCOL {AXI3} CONFIG.READ_WRITE_MODE {WRITE_ONLY}  ] $write_dma_converter
+  set_property -dict [ list CONFIG.FIFO_MODE {1} CONFIG.MAX_SPLIT_BEATS {16} CONFIG.PROTOCOL {AXI3} CONFIG.READ_WRITE_MODE {WRITE_ONLY}  ] $write_dma_converter
 
   # Create interface connections
   connect_bd_intf_net -intf_net S00_AXI_1 [get_bd_intf_pins processing_system7_0/M_AXI_GP0] [get_bd_intf_pins register_interface/S00_AXI]

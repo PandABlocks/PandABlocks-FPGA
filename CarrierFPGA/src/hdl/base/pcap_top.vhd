@@ -97,7 +97,7 @@ signal capture_data     : std32_array(63 downto 0);
 signal pcap_dat         : std_logic_vector(31 downto 0);
 signal pcap_dat_valid   : std_logic;
 
-signal dma_full         : std_logic;
+signal dma_error         : std_logic;
 signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_active      : std_logic;
 signal pcap_done        : std_logic;
@@ -212,10 +212,10 @@ port map (
     enable_i                => enable,
     capture_i               => capture,
     frame_i                 => frame,
-    dma_full_i              => dma_full,
     sysbus_i                => sysbus_dly,
     posbus_i                => posbus_dly,
 
+    dma_error_i             => dma_error,
     pcap_dat_o              => pcap_dat,
     pcap_dat_valid_o        => pcap_dat_valid,
     pcap_done_o             => pcap_done,
@@ -242,7 +242,7 @@ port map (
 
     pcap_done_i             => pcap_done,
     pcap_status_i           => pcap_status,
-    dma_full_o              => dma_full,
+    dma_error_o             => dma_error,
     pcap_dat_i              => pcap_dat,
     pcap_wstb_i             => pcap_dat_valid,
     irq_o                   => pcap_irq_o,

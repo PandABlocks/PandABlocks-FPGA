@@ -27,7 +27,7 @@ port (
     pcap_wstb_i         : in  std_logic;
     pcap_done_i         : in  std_logic;
     pcap_status_i       : in  std_logic_vector(2 downto 0);
-    dma_full_o          : out std_logic;
+    dma_error_o          : out std_logic;
     irq_o               : out std_logic;
 
     -- Block Registers
@@ -93,6 +93,7 @@ signal reset                : std_logic;
 type pcap_fsm_t is (INIT, ACTV, DO_DMA, IS_FINISHED, IRQ, COMPLETED);
 signal pcap_fsm             : pcap_fsm_t;
 
+signal first_data           : std_logic;
 signal timeout_counter      : unsigned(31 downto 0);
 signal pcap_timeout         : std_logic;
 signal pcap_timeout_latch   : std_logic;
@@ -125,7 +126,7 @@ begin
 -- Assign outputs.
 irq_o <= dma_irq;
 
-dma_full_o <= fifo_full;
+dma_error_o <= fifo_full or dma_error;
 
 -- TLP_COUNT = BLOCK_SIZE/BURST_LEN
 BLOCK_TLP_SIZE <= to_unsigned((to_integer(unsigned(BLOCK_SIZE)) / BURST_LEN),32);
@@ -197,10 +198,18 @@ end process;
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset = '1') then
+            first_data <= '0';
             pcap_timeout <= '0';
             timeout_counter <= (others => '0');
             pcap_timeout_latch <= '0';
         else
+            -- Wait until first data received to prevent empty timeout IRQs
+            if (pcap_fsm = INIT) then
+                first_data <= '0';
+            elsif (pcap_wstb_i = '1') then
+                first_data <= '1';
+            end if;
+
             if (pcap_fsm = INIT or pcap_fsm = IRQ) then
                 pcap_timeout <= '0';
                 timeout_counter <= (others => '0');
@@ -209,7 +218,7 @@ process(clk_i) begin
                 if (unsigned(TIMEOUT) = 0) then
                     pcap_timeout <= '0';
                 elsif (timeout_counter = unsigned(TIMEOUT) - 1) then
-                    pcap_timeout <= '1';
+                    pcap_timeout <= first_data;
                 end if;
             end if;
 
@@ -367,6 +376,7 @@ irq_flags(3 downto 1) <= pcap_status_i;
 irq_flags(4) <= not next_dmaaddr_valid;
 irq_flags(5) <= pcap_timeout_latch;
 irq_flags(6) <= switch_block;
+irq_flags(7) <= '0';
 
 
 --

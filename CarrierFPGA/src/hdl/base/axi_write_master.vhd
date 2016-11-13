@@ -84,8 +84,8 @@ M_AXI_AWSIZE <= TO_SVECTOR(LOG2(AXI_DATA_WIDTH/8), 3);
 M_AXI_AWBURST <= "01";
 -- AXI3 atomic access encoding for Normal acces
 M_AXI_AWLOCK <= "00";
--- Memory type encoding Not Allocated, Modifiable and Bufferable
-M_AXI_AWCACHE <= "0011";
+-- Cacheable write-through, no allocate
+M_AXI_AWCACHE <= "0010";
 -- Protection encoding for 'Non-secure access'
 M_AXI_AWPROT <= "000";
 -- Not participating in any QoS scheme
@@ -209,30 +209,14 @@ begin
     end if;
 end process;
 
--- The write response channel provides feedback that the write has committed
--- to memory. BREADY will occur when all of the data and the write address
--- has arrived and been accepted by the slave.
---
--- The write issuance (number of outstanding write addresses) is started by
--- the Address Write transfer, and is completed by a BREADY/BRESP.
---
--- The BRESP bit [1] is used indicate any errors from the interconnect or
--- slave for the entire write burst. This example will capture the error°
--- into the ERROR output.
+-- Always accept a write response from slave
+bready <= '1';
 
-WRITE_RESPONSE_CHANNEL: process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            bready <= '0';
-        else
-            bready <= '1';
-        end if;
-    end if;
-end process;
+dma_done <= M_AXI_BVALID;
 
-dma_done <= bready and M_AXI_BVALID;
-dma_error <= bready and M_AXI_BVALID and M_AXI_BRESP(1);
+-- The BRESP is used indicate any errors from the interconnect or
+-- slave for the entire write burst.
+dma_error <= M_AXI_BVALID and (M_AXI_BRESP(1) or M_AXI_BRESP(0));
 dma_read <= wnext;
 
 end rtl;
