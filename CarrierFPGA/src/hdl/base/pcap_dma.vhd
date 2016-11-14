@@ -108,6 +108,8 @@ signal axi_awaddr_val       : unsigned(31 downto 0);
 signal axi_wdata_val        : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
 signal next_dmaaddr_valid   : std_logic;
 signal switch_block         : std_logic;
+signal pcap_wstb            : std_logic;
+signal writing_sample       : std_logic;
 
 signal fifo_data_count      : std_logic_vector(11 downto 0);
 signal fifo_count           : unsigned(11 downto 0);
@@ -195,6 +197,8 @@ end process;
 -- TIMEOUT = 0 disables the counter, otherwise counter is active only in
 -- ACTV state.
 --------------------------------------------------------------------------
+writing_sample <= pcap_wstb_i or pcap_wstb;
+
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset = '1') then
@@ -202,7 +206,9 @@ process(clk_i) begin
             pcap_timeout <= '0';
             timeout_counter <= (others => '0');
             pcap_timeout_latch <= '0';
+            pcap_wstb <= '0';
         else
+            pcap_wstb <= pcap_wstb_i;
             -- Wait until first data received to prevent empty timeout IRQs
             if (pcap_fsm = INIT) then
                 first_data <= '0';
@@ -210,7 +216,9 @@ process(clk_i) begin
                 first_data <= '1';
             end if;
 
-            if (pcap_fsm = INIT or pcap_fsm = IRQ) then
+            -- Reset timeout on start-up and interrupts, and synchronise to
+            -- first incoming sample
+            if (pcap_fsm = INIT or pcap_fsm = IRQ or first_data = '0') then
                 pcap_timeout <= '0';
                 timeout_counter <= (others => '0');
             else
@@ -218,7 +226,7 @@ process(clk_i) begin
                 if (unsigned(TIMEOUT) = 0) then
                     pcap_timeout <= '0';
                 elsif (timeout_counter = unsigned(TIMEOUT) - 1) then
-                    pcap_timeout <= first_data;
+                    pcap_timeout <= '1';
                 end if;
             end if;
 
@@ -285,7 +293,7 @@ if rising_edge(clk_i) then
                     pcap_fsm <= IRQ;
                 -- Timeout occured, transfer all data in the buffer before
                 -- raising IRQ.
-                elsif (pcap_timeout = '1') then
+                elsif (pcap_timeout = '1' and writing_sample = '0') then
                     if (fifo_count = 0) then
                         pcap_fsm <= IRQ;
                     else
@@ -295,13 +303,13 @@ if rising_edge(clk_i) then
                         pcap_fsm <= DO_DMA;
                     end if;
                 -- At least 1 TLP in available the queue
-                elsif (fifo_count > AXI_BURST_LEN) then
+                elsif (fifo_count > AXI_BURST_LEN and writing_sample = '0') then
                     dma_start <= '1';
                     sample_count <= sample_count + transfer_size;
                     M_AXI_BURST_LEN <= std_logic_vector(transfer_size);
                     pcap_fsm <= DO_DMA;
                 -- Position compare completed
-                elsif (pcap_completed = '1') then
+                elsif (pcap_completed = '1' and writing_sample = '0') then
                     last_tlp <= '1';
                     if (fifo_count = 0) then
                         pcap_fsm <= IRQ;
@@ -377,7 +385,6 @@ irq_flags(4) <= not next_dmaaddr_valid;
 irq_flags(5) <= pcap_timeout_latch;
 irq_flags(6) <= switch_block;
 irq_flags(7) <= '0';
-
 
 --
 -- AXI DMA Master Engine

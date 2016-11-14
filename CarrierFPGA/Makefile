@@ -134,7 +134,7 @@ sw_clean:
 # Build all XSDK projects for FSBL and Device Tree
 
 $(SDK_EXPORT): $(DEVTREE_BSP)/$(DEVTREE_NAME)
-	cp $(SRCDIR)/build_xsdk.tcl $(OUTDIR)
+	cp $(SRCDIR)/scripts/build_xsdk.tcl $(OUTDIR)
 	xsdk -batch -source $(OUTDIR)/build_xsdk.tcl \
 	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR)
 
