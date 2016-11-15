@@ -24,7 +24,6 @@ constant ADDER_CS : natural := 16;
 constant COUNTER_CS : natural := 17;
 constant PGEN_CS : natural := 18;
 constant PCOMP_CS : natural := 19;
-constant ADC_CS : natural := 20;
 constant PCAP_CS : natural := 21;
 constant BITS_CS : natural := 22;
 constant CLOCKS_CS : natural := 23;
@@ -267,8 +266,6 @@ constant PCOMP_ERROR : natural := 14;
 constant PCOMP_TABLE_ADDRESS : natural := 11;
 constant PCOMP_TABLE_LENGTH : natural := 12;
 constant PCOMP_TABLE_STATUS : natural := 16;
-
--- ADC Block:
 
 -- PCAP Block:
 constant PCAP_ENABLE : natural := 0;

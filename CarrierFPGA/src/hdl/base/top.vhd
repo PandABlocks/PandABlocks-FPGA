@@ -181,13 +181,14 @@ signal read_strobe          : std_logic_vector(MOD_COUNT-1 downto 0);
 signal read_strobe_delay    : std_logic_vector(MOD_COUNT-1 downto 0);
 signal read_address         : std_logic_vector(PAGE_AW-1 downto 0);
 signal read_data            : std32_array(MOD_COUNT-1 downto 0);
-signal read_ack             : std_logic_vector(MOD_COUNT-1 downto 0);
+signal read_ack             : std_logic_vector(MOD_COUNT-1 downto 0) := (others
+=> '1');
 signal write_strobe         : std_logic_vector(MOD_COUNT-1 downto 0);
 signal write_strobe_delay   : std_logic_vector(MOD_COUNT-1 downto 0);
 signal write_address        : std_logic_vector(PAGE_AW-1 downto 0);
 signal write_data           : std_logic_vector(31 downto 0);
-signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0);
-
+signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
+=> '1');
 -- Top Level Signals
 signal sysbus               : sysbus_t := (others => '0');
 signal posbus               : posbus_t := (others => (others => '0'));
@@ -429,12 +430,12 @@ port map (
     read_strobe_o               => read_strobe,
     read_address_o              => read_address,
     read_data_i                 => read_data,
-    read_ack_i                  => read_strobe_delay,
+    read_ack_i                  => read_ack,        --read_strobe_delay,
 
     write_strobe_o              => write_strobe,
     write_address_o             => write_address,
     write_data_o                => write_data,
-    write_ack_i                 => write_strobe_delay
+    write_ack_i                 => write_ack        --write_strobe_delay
 );
 
 read_ack_delay : entity work.delay_line
@@ -1192,8 +1193,6 @@ port map (
     -- PCOMP Block
     PCOMP_ACTIVE    => pcomp_active,
     PCOMP_OUT       => pcomp_out,
-    -- ADC Block
-    ADC_OUT         => (others => (others => '0')),
     -- PCAP Block
     PCAP_ACTIVE     => pcap_act,
     -- BITS Block

@@ -18,7 +18,6 @@ localparam ADDER_CS = 16;
 localparam COUNTER_CS = 17;
 localparam PGEN_CS = 18;
 localparam PCOMP_CS = 19;
-localparam ADC_CS = 20;
 localparam PCAP_CS = 21;
 localparam BITS_CS = 22;
 localparam CLOCKS_CS = 23;
@@ -262,8 +261,6 @@ localparam PCOMP_TABLE_ADDRESS = 11;
 localparam PCOMP_TABLE_LENGTH = 12;
 localparam PCOMP_TABLE_STATUS = 16;
 
-// ADC Block:
-
 // PCAP Block:
 localparam PCAP_ENABLE = 0;
 localparam PCAP_ENABLE_DLY = 5;
@@ -369,7 +366,6 @@ localparam ADDER_BASE = BASE + 4096 * ADDER_CS;
 localparam COUNTER_BASE = BASE + 4096 * COUNTER_CS;
 localparam PGEN_BASE = BASE + 4096 * PGEN_CS;
 localparam PCOMP_BASE = BASE + 4096 * PCOMP_CS;
-localparam ADC_BASE = BASE + 4096 * ADC_CS;
 localparam PCAP_BASE = BASE + 4096 * PCAP_CS;
 localparam BITS_BASE = BASE + 4096 * BITS_CS;
 localparam CLOCKS_BASE = BASE + 4096 * CLOCKS_CS;

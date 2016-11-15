@@ -229,9 +229,6 @@ PCOMP[4]
         2   Table end reached
         3   DMA overrun
 
-ADC[8]
-    OUT             pos_out     adc
-
 PCAP
     ENABLE          bit_mux
     FRAME           bit_mux

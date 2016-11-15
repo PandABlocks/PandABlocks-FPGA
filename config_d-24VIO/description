@@ -162,9 +162,6 @@ PCOMP       Position compare
     TABLE           Table of points to use instead of START/STEP/WIDTH
     TABLE_STATUS    Table status
 
-ADC         Analogue inputs
-    OUT             Current value
-
 PCAP        Position capture control
     ENABLE          Data capture enable
     FRAME           Data capture frame
