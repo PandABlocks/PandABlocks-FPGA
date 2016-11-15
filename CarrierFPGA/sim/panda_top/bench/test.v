@@ -10,6 +10,7 @@ wire [5:0]   ttlin_pad;
 `define TESTNAME    "test.pcap.v"
 
 reg [ 1:0]      wrs, rsp;
+reg [31:0]      REG_VALUE;
 reg [31:0]      IRQ_STATUS;
 reg [ 7:0]      IRQ_FLAGS;
 reg [15:0]      SMPL_COUNT;

@@ -46,17 +46,22 @@ port (
     enable_o : out std_logic;
     inp_o : out std_logic_vector(31 downto 0);
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0)
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic
 );
 end pcomp_ctrl;
 
 architecture rtl of pcomp_ctrl is
 
-signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
+signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 
 signal ENABLE      : std_logic_vector(31 downto 0);
 signal ENABLE_WSTB : std_logic;
@@ -67,7 +72,12 @@ signal INP_WSTB : std_logic;
 
 begin
 
-mem_addr <= to_integer(unsigned(mem_addr_i));
+-- Unused outputs
+read_ack_o <= '0';
+write_ack_o <= '0';
+
+read_addr <= to_integer(unsigned(read_address_i));
+write_addr <= to_integer(unsigned(write_address_i));
 
 --
 -- Control System Interface
@@ -117,58 +127,58 @@ begin
             TABLE_ADDRESS_WSTB <= '0';
             TABLE_LENGTH_WSTB <= '0';
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = PCOMP_START) then
-                    START <= mem_dat_i;
+                if (write_addr = PCOMP_START) then
+                    START <= write_data_i;
                     START_WSTB <= '1';
                 end if;
-                if (mem_addr = PCOMP_STEP) then
-                    STEP <= mem_dat_i;
+                if (write_addr = PCOMP_STEP) then
+                    STEP <= write_data_i;
                     STEP_WSTB <= '1';
                 end if;
-                if (mem_addr = PCOMP_WIDTH) then
-                    WIDTH <= mem_dat_i;
+                if (write_addr = PCOMP_WIDTH) then
+                    WIDTH <= write_data_i;
                     WIDTH_WSTB <= '1';
                 end if;
-                if (mem_addr = PCOMP_PNUM) then
-                    PNUM <= mem_dat_i;
+                if (write_addr = PCOMP_PNUM) then
+                    PNUM <= write_data_i;
                     PNUM_WSTB <= '1';
                 end if;
-                if (mem_addr = PCOMP_RELATIVE) then
-                    RELATIVE <= mem_dat_i;
+                if (write_addr = PCOMP_RELATIVE) then
+                    RELATIVE <= write_data_i;
                     RELATIVE_WSTB <= '1';
                 end if;
-                if (mem_addr = PCOMP_DIR) then
-                    DIR <= mem_dat_i;
+                if (write_addr = PCOMP_DIR) then
+                    DIR <= write_data_i;
                     DIR_WSTB <= '1';
                 end if;
-                if (mem_addr = PCOMP_DELTAP) then
-                    DELTAP <= mem_dat_i;
+                if (write_addr = PCOMP_DELTAP) then
+                    DELTAP <= write_data_i;
                     DELTAP_WSTB <= '1';
                 end if;
-                if (mem_addr = PCOMP_USE_TABLE) then
-                    USE_TABLE <= mem_dat_i;
+                if (write_addr = PCOMP_USE_TABLE) then
+                    USE_TABLE <= write_data_i;
                     USE_TABLE_WSTB <= '1';
                 end if;
-                if (mem_addr = PCOMP_ENABLE) then
-                    ENABLE <= mem_dat_i;
+                if (write_addr = PCOMP_ENABLE) then
+                    ENABLE <= write_data_i;
                     ENABLE_WSTB <= '1';
                 end if;
-                if (mem_addr = PCOMP_ENABLE_DLY) then
-                    ENABLE_DLY <= mem_dat_i;
+                if (write_addr = PCOMP_ENABLE_DLY) then
+                    ENABLE_DLY <= write_data_i;
                     ENABLE_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = PCOMP_INP) then
-                    INP <= mem_dat_i;
+                if (write_addr = PCOMP_INP) then
+                    INP <= write_data_i;
                     INP_WSTB <= '1';
                 end if;
-                if (mem_addr = PCOMP_TABLE_ADDRESS) then
-                    TABLE_ADDRESS <= mem_dat_i;
+                if (write_addr = PCOMP_TABLE_ADDRESS) then
+                    TABLE_ADDRESS <= write_data_i;
                     TABLE_ADDRESS_WSTB <= '1';
                 end if;
-                if (mem_addr = PCOMP_TABLE_LENGTH) then
-                    TABLE_LENGTH <= mem_dat_i;
+                if (write_addr = PCOMP_TABLE_LENGTH) then
+                    TABLE_LENGTH <= write_data_i;
                     TABLE_LENGTH_WSTB <= '1';
                 end if;
 
@@ -184,15 +194,15 @@ REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            read_data_o <= (others => '0');
         else
-            case (mem_addr) is
+            case (read_addr) is
                 when PCOMP_ERROR =>
-                    mem_dat_o <= ERROR;
+                    read_data_o <= ERROR;
                 when PCOMP_TABLE_STATUS =>
-                    mem_dat_o <= TABLE_STATUS;
+                    read_data_o <= TABLE_STATUS;
                 when others =>
-                    mem_dat_o <= (others => '0');
+                    read_data_o <= (others => '0');
             end case;
         end if;
     end if;

@@ -38,7 +38,8 @@ architecture rtl of delay_line is
 subtype data_t is std_logic_vector(DW-1 downto 0);
 type data_array is array(natural range <>) of data_t;
 
-signal taps_line             : data_array(TAPS-1 downto 0);
+signal taps_line        : data_array(TAPS-1 downto 0) := (others =>
+                                        (others => '0'));
 
 begin
 

@@ -14,11 +14,15 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic;
     -- Encoder I/O Pads
     a_o                 : out std_logic;
     b_o                 : out std_logic;
@@ -51,15 +55,10 @@ signal a, b, z          : std_logic;
 signal posn             : std_logic_vector(31 downto 0);
 signal enable           : std_logic;
 
-signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
-
 begin
 
 -- Assign outputs
 PROTOCOL <= PROTOCOL_i(2 downto 0);
-
--- Integer conversion for address.
-mem_addr <= to_integer(unsigned(mem_addr_i));
 
 -- Certain parameter changes must initiate a block reset.
 reset <= reset_i or PROTOCOL_WSTB or BITS_WSTB;
@@ -80,11 +79,15 @@ port map (
     enable_o            => enable,
     val_o               => posn,
 
-    mem_cs_i            => mem_cs_i,
-    mem_wstb_i          => mem_wstb_i,
-    mem_addr_i          => mem_addr_i,
-    mem_dat_i           => mem_dat_i,
-    mem_dat_o           => open,
+    read_strobe_i       => read_strobe_i,
+    read_address_i      => read_address_i,
+    read_data_o         => read_data_o,
+    read_ack_o          => read_ack_o,
+
+    write_strobe_i      => write_strobe_i,
+    write_address_i     => write_address_i,
+    write_data_i        => write_data_i,
+    write_ack_o         => write_ack_o,
 
     -- Block Parameters
     PROTOCOL            => PROTOCOL_i,

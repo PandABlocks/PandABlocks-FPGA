@@ -67,6 +67,21 @@ end pcap_dma;
 
 architecture rtl of pcap_dma is
 
+component ila_32x8K
+port (
+    clk                     : in  std_logic;
+    probe0                  : in  std_logic_vector(31 downto 0);
+    probe1                  : in  std_logic_vector(31 downto 0)
+);
+end component;
+
+signal probe0               : std_logic_vector(31 downto 0);
+signal probe1               : std_logic_vector(31 downto 0);
+
+attribute MARK_DEBUG            : string;
+attribute MARK_DEBUG of probe0  : signal is "true";
+attribute MARK_DEBUG of probe1  : signal is "true";
+
 -- Bit-width required to represent maximum burst length (5)
 constant AXI_BURST_WIDTH    : integer := LOG2(AXI_BURST_LEN) + 1;
 -- Number of byte per AXI burst
@@ -122,6 +137,8 @@ signal irq_flags            : std_logic_vector(7 downto 0);
 signal sample_count         : unsigned(23 downto 0);
 
 signal pcap_completed       : std_logic;
+
+signal IRQ_STATUS_T         : std_logic_vector(31 downto 0);
 
 begin
 
@@ -265,7 +282,8 @@ begin
 if rising_edge(clk_i) then
     if (reset = '1') then
         pcap_fsm <= INIT;
-        IRQ_STATUS <= (others => '0');
+        IRQ_STATUS_T <= (others => '0');
+--        IRQ_STATUS <= (others => '0');
         dma_irq <= '0';
         last_tlp <= '0';
         dma_start <= '0';
@@ -352,8 +370,8 @@ if rising_edge(clk_i) then
                 tlp_count <= (others => '0');
 
                 -- Latch IRQ status flags
-                IRQ_STATUS(31 downto 8) <= std_logic_vector(sample_count);
-                IRQ_STATUS(7 downto 0) <= irq_flags;
+                IRQ_STATUS_T(31 downto 8) <= std_logic_vector(sample_count);
+                IRQ_STATUS_T(7 downto 0) <= irq_flags;
 
                 -- Next state
                 if (last_tlp = '1' or next_dmaaddr_valid = '0') then
@@ -439,6 +457,19 @@ port map (
     dma_done            => dma_done,
     dma_error           => dma_error
 );
+
+IRQ_STATUS <= IRQ_STATUS_T;
+
+--ila_inst : ila_32x8K
+--port map (
+--    clk                 => clk_i,
+--    probe0              => probe0,
+--    probe1              => probe1
+--);
+--
+--probe0(0) <= dma_irq;
+--probe0(31 downto 1) <= (others => '0');
+--probe1 <= IRQ_STATUS_T;
 
 end rtl;
 

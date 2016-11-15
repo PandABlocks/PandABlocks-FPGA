@@ -29,17 +29,22 @@ port (
     inp_o : out std_logic;
     enable_o : out std_logic;
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0)
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic
 );
 end div_ctrl;
 
 architecture rtl of div_ctrl is
 
-signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
+signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 
 signal INP      : std_logic_vector(31 downto 0);
 signal INP_WSTB : std_logic;
@@ -52,7 +57,12 @@ signal ENABLE_DLY_WSTB : std_logic;
 
 begin
 
-mem_addr <= to_integer(unsigned(mem_addr_i));
+-- Unused outputs
+read_ack_o <= '0';
+write_ack_o <= '0';
+
+read_addr <= to_integer(unsigned(read_address_i));
+write_addr <= to_integer(unsigned(write_address_i));
 
 --
 -- Control System Interface
@@ -81,30 +91,30 @@ begin
             ENABLE_WSTB <= '0';
             ENABLE_DLY_WSTB <= '0';
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = DIV_DIVISOR) then
-                    DIVISOR <= mem_dat_i;
+                if (write_addr = DIV_DIVISOR) then
+                    DIVISOR <= write_data_i;
                     DIVISOR_WSTB <= '1';
                 end if;
-                if (mem_addr = DIV_FIRST_PULSE) then
-                    FIRST_PULSE <= mem_dat_i;
+                if (write_addr = DIV_FIRST_PULSE) then
+                    FIRST_PULSE <= write_data_i;
                     FIRST_PULSE_WSTB <= '1';
                 end if;
-                if (mem_addr = DIV_INP) then
-                    INP <= mem_dat_i;
+                if (write_addr = DIV_INP) then
+                    INP <= write_data_i;
                     INP_WSTB <= '1';
                 end if;
-                if (mem_addr = DIV_INP_DLY) then
-                    INP_DLY <= mem_dat_i;
+                if (write_addr = DIV_INP_DLY) then
+                    INP_DLY <= write_data_i;
                     INP_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = DIV_ENABLE) then
-                    ENABLE <= mem_dat_i;
+                if (write_addr = DIV_ENABLE) then
+                    ENABLE <= write_data_i;
                     ENABLE_WSTB <= '1';
                 end if;
-                if (mem_addr = DIV_ENABLE_DLY) then
-                    ENABLE_DLY <= mem_dat_i;
+                if (write_addr = DIV_ENABLE_DLY) then
+                    ENABLE_DLY <= write_data_i;
                     ENABLE_DLY_WSTB <= '1';
                 end if;
 
@@ -120,13 +130,13 @@ REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            read_data_o <= (others => '0');
         else
-            case (mem_addr) is
+            case (read_addr) is
                 when DIV_COUNT =>
-                    mem_dat_o <= COUNT;
+                    read_data_o <= COUNT;
                 when others =>
-                    mem_dat_o <= (others => '0');
+                    read_data_o <= (others => '0');
             end case;
         end if;
     end if;

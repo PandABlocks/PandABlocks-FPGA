@@ -12,11 +12,15 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Memory Bus Interface
-    mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic;
     -- GTX I/O
     GTREFCLK_N          : in  std_logic;
     GTREFCLK_P          : in  std_logic;
@@ -41,6 +45,18 @@ signal GTREFCLK         : std_logic_vector(2 downto 0);
 signal SOFT_RESET       : std_logic;
 
 begin
+
+-- Acknowledgement to AXI Lite interface
+write_ack_o <= '1';
+
+read_ack_delay : entity work.delay_line
+generic map (DW => 1)
+port map (
+    clk_i       => clk_i,
+    data_i(0)   => read_strobe_i,
+    data_o(0)   => read_ack_o,
+    DELAY       => RD_ADDR2ACK
+);
 
 --
 -- 2./ GTX Loopback Test
@@ -104,11 +120,15 @@ port map (
     SOFT_RESET                  => open,
     SOFT_RESET_WSTB             => SOFT_RESET,
     -- Memory Bus Interface
-    mem_cs_i                    => mem_cs_i,
-    mem_wstb_i                  => mem_wstb_i,
-    mem_addr_i                  => mem_addr_i(BLK_AW-1 downto 0),
-    mem_dat_i                   => mem_dat_i,
-    mem_dat_o                   => mem_dat_o
+    read_strobe_i               => read_strobe_i,
+    read_address_i              => read_address_i(BLK_AW-1 downto 0),
+    read_data_o                 => read_data_o,
+    read_ack_o                  => open,
+
+    write_strobe_i              => write_strobe_i,
+    write_address_i             => write_address_i(BLK_AW-1 downto 0),
+    write_data_i                => write_data_i,
+    write_ack_o                 => open
 );
 
 end rtl;

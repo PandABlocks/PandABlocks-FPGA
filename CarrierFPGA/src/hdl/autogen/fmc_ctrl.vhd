@@ -50,17 +50,22 @@ port (
     out7_o : out std_logic;
     out8_o : out std_logic;
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0)
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic
 );
 end fmc_ctrl;
 
 architecture rtl of fmc_ctrl is
 
-signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
+signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 
 signal OUT1      : std_logic_vector(31 downto 0);
 signal OUT1_WSTB : std_logic;
@@ -97,7 +102,12 @@ signal OUT8_DLY_WSTB : std_logic;
 
 begin
 
-mem_addr <= to_integer(unsigned(mem_addr_i));
+-- Unused outputs
+read_ack_o <= '0';
+write_ack_o <= '0';
+
+read_addr <= to_integer(unsigned(read_address_i));
+write_addr <= to_integer(unsigned(write_address_i));
 
 --
 -- Control System Interface
@@ -180,102 +190,102 @@ begin
             OUT_EN_WSTB <= '0';
             OUT_CONFIG_WSTB <= '0';
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = FMC_OUT1) then
-                    OUT1 <= mem_dat_i;
+                if (write_addr = FMC_OUT1) then
+                    OUT1 <= write_data_i;
                     OUT1_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT1_DLY) then
-                    OUT1_DLY <= mem_dat_i;
+                if (write_addr = FMC_OUT1_DLY) then
+                    OUT1_DLY <= write_data_i;
                     OUT1_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT2) then
-                    OUT2 <= mem_dat_i;
+                if (write_addr = FMC_OUT2) then
+                    OUT2 <= write_data_i;
                     OUT2_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT2_DLY) then
-                    OUT2_DLY <= mem_dat_i;
+                if (write_addr = FMC_OUT2_DLY) then
+                    OUT2_DLY <= write_data_i;
                     OUT2_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT3) then
-                    OUT3 <= mem_dat_i;
+                if (write_addr = FMC_OUT3) then
+                    OUT3 <= write_data_i;
                     OUT3_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT3_DLY) then
-                    OUT3_DLY <= mem_dat_i;
+                if (write_addr = FMC_OUT3_DLY) then
+                    OUT3_DLY <= write_data_i;
                     OUT3_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT4) then
-                    OUT4 <= mem_dat_i;
+                if (write_addr = FMC_OUT4) then
+                    OUT4 <= write_data_i;
                     OUT4_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT4_DLY) then
-                    OUT4_DLY <= mem_dat_i;
+                if (write_addr = FMC_OUT4_DLY) then
+                    OUT4_DLY <= write_data_i;
                     OUT4_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT5) then
-                    OUT5 <= mem_dat_i;
+                if (write_addr = FMC_OUT5) then
+                    OUT5 <= write_data_i;
                     OUT5_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT5_DLY) then
-                    OUT5_DLY <= mem_dat_i;
+                if (write_addr = FMC_OUT5_DLY) then
+                    OUT5_DLY <= write_data_i;
                     OUT5_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT6) then
-                    OUT6 <= mem_dat_i;
+                if (write_addr = FMC_OUT6) then
+                    OUT6 <= write_data_i;
                     OUT6_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT6_DLY) then
-                    OUT6_DLY <= mem_dat_i;
+                if (write_addr = FMC_OUT6_DLY) then
+                    OUT6_DLY <= write_data_i;
                     OUT6_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT7) then
-                    OUT7 <= mem_dat_i;
+                if (write_addr = FMC_OUT7) then
+                    OUT7 <= write_data_i;
                     OUT7_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT7_DLY) then
-                    OUT7_DLY <= mem_dat_i;
+                if (write_addr = FMC_OUT7_DLY) then
+                    OUT7_DLY <= write_data_i;
                     OUT7_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT8) then
-                    OUT8 <= mem_dat_i;
+                if (write_addr = FMC_OUT8) then
+                    OUT8 <= write_data_i;
                     OUT8_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT8_DLY) then
-                    OUT8_DLY <= mem_dat_i;
+                if (write_addr = FMC_OUT8_DLY) then
+                    OUT8_DLY <= write_data_i;
                     OUT8_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT_PWR_ON) then
-                    OUT_PWR_ON <= mem_dat_i;
+                if (write_addr = FMC_OUT_PWR_ON) then
+                    OUT_PWR_ON <= write_data_i;
                     OUT_PWR_ON_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_IN_VTSEL) then
-                    IN_VTSEL <= mem_dat_i;
+                if (write_addr = FMC_IN_VTSEL) then
+                    IN_VTSEL <= write_data_i;
                     IN_VTSEL_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_IN_DB) then
-                    IN_DB <= mem_dat_i;
+                if (write_addr = FMC_IN_DB) then
+                    IN_DB <= write_data_i;
                     IN_DB_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT_PUSHPL) then
-                    OUT_PUSHPL <= mem_dat_i;
+                if (write_addr = FMC_OUT_PUSHPL) then
+                    OUT_PUSHPL <= write_data_i;
                     OUT_PUSHPL_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT_FLTR) then
-                    OUT_FLTR <= mem_dat_i;
+                if (write_addr = FMC_OUT_FLTR) then
+                    OUT_FLTR <= write_data_i;
                     OUT_FLTR_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT_SRIAL) then
-                    OUT_SRIAL <= mem_dat_i;
+                if (write_addr = FMC_OUT_SRIAL) then
+                    OUT_SRIAL <= write_data_i;
                     OUT_SRIAL_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT_EN) then
-                    OUT_EN <= mem_dat_i;
+                if (write_addr = FMC_OUT_EN) then
+                    OUT_EN <= write_data_i;
                     OUT_EN_WSTB <= '1';
                 end if;
-                if (mem_addr = FMC_OUT_CONFIG) then
-                    OUT_CONFIG <= mem_dat_i;
+                if (write_addr = FMC_OUT_CONFIG) then
+                    OUT_CONFIG <= write_data_i;
                     OUT_CONFIG_WSTB <= '1';
                 end if;
 
@@ -291,19 +301,19 @@ REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            read_data_o <= (others => '0');
         else
-            case (mem_addr) is
+            case (read_addr) is
                 when FMC_PRESENT =>
-                    mem_dat_o <= PRESENT;
+                    read_data_o <= PRESENT;
                 when FMC_IN_FAULT =>
-                    mem_dat_o <= IN_FAULT;
+                    read_data_o <= IN_FAULT;
                 when FMC_OUT_FAULT =>
-                    mem_dat_o <= OUT_FAULT;
+                    read_data_o <= OUT_FAULT;
                 when FMC_OUT_STATUS =>
-                    mem_dat_o <= OUT_STATUS;
+                    read_data_o <= OUT_STATUS;
                 when others =>
-                    mem_dat_o <= (others => '0');
+                    read_data_o <= (others => '0');
             end case;
         end if;
     end if;

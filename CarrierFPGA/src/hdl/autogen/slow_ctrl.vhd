@@ -35,22 +35,32 @@ port (
     ENC_24V       : in  std_logic_vector(31 downto 0);
     FMC_12V       : in  std_logic_vector(31 downto 0);
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0)
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic
 );
 end slow_ctrl;
 
 architecture rtl of slow_ctrl is
 
-signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
+signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 
 
 begin
 
-mem_addr <= to_integer(unsigned(mem_addr_i));
+-- Unused outputs
+read_ack_o <= '0';
+write_ack_o <= '0';
+
+read_addr <= to_integer(unsigned(read_address_i));
+write_addr <= to_integer(unsigned(write_address_i));
 
 --
 -- Control System Interface
@@ -61,7 +71,7 @@ begin
         if (reset_i = '1') then
         else
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i = '1') then
                 -- Input Select Control Registers
 
             end if;
@@ -76,37 +86,37 @@ REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            read_data_o <= (others => '0');
         else
-            case (mem_addr) is
+            case (read_addr) is
                 when SLOW_TEMP_PSU =>
-                    mem_dat_o <= TEMP_PSU;
+                    read_data_o <= TEMP_PSU;
                 when SLOW_TEMP_SFP =>
-                    mem_dat_o <= TEMP_SFP;
+                    read_data_o <= TEMP_SFP;
                 when SLOW_TEMP_ENC_L =>
-                    mem_dat_o <= TEMP_ENC_L;
+                    read_data_o <= TEMP_ENC_L;
                 when SLOW_TEMP_PICO =>
-                    mem_dat_o <= TEMP_PICO;
+                    read_data_o <= TEMP_PICO;
                 when SLOW_TEMP_ENC_R =>
-                    mem_dat_o <= TEMP_ENC_R;
+                    read_data_o <= TEMP_ENC_R;
                 when SLOW_ALIM_12V0 =>
-                    mem_dat_o <= ALIM_12V0;
+                    read_data_o <= ALIM_12V0;
                 when SLOW_PICO_5V0 =>
-                    mem_dat_o <= PICO_5V0;
+                    read_data_o <= PICO_5V0;
                 when SLOW_IO_5V0 =>
-                    mem_dat_o <= IO_5V0;
+                    read_data_o <= IO_5V0;
                 when SLOW_SFP_3V3 =>
-                    mem_dat_o <= SFP_3V3;
+                    read_data_o <= SFP_3V3;
                 when SLOW_FMC_15VN =>
-                    mem_dat_o <= FMC_15VN;
+                    read_data_o <= FMC_15VN;
                 when SLOW_FMC_15VP =>
-                    mem_dat_o <= FMC_15VP;
+                    read_data_o <= FMC_15VP;
                 when SLOW_ENC_24V =>
-                    mem_dat_o <= ENC_24V;
+                    read_data_o <= ENC_24V;
                 when SLOW_FMC_12V =>
-                    mem_dat_o <= FMC_12V;
+                    read_data_o <= FMC_12V;
                 when others =>
-                    mem_dat_o <= (others => '0');
+                    read_data_o <= (others => '0');
             end case;
         end if;
     end if;

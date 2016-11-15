@@ -23,17 +23,22 @@ port (
     -- Block Parameters
     val_o : out std_logic;
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0)
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic
 );
 end ttlout_ctrl;
 
 architecture rtl of ttlout_ctrl is
 
-signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
+signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 
 signal VAL      : std_logic_vector(31 downto 0);
 signal VAL_WSTB : std_logic;
@@ -42,7 +47,12 @@ signal VAL_DLY_WSTB : std_logic;
 
 begin
 
-mem_addr <= to_integer(unsigned(mem_addr_i));
+-- Unused outputs
+read_ack_o <= '0';
+write_ack_o <= '0';
+
+read_addr <= to_integer(unsigned(read_address_i));
+write_addr <= to_integer(unsigned(write_address_i));
 
 --
 -- Control System Interface
@@ -59,14 +69,14 @@ begin
             VAL_WSTB <= '0';
             VAL_DLY_WSTB <= '0';
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = TTLOUT_VAL) then
-                    VAL <= mem_dat_i;
+                if (write_addr = TTLOUT_VAL) then
+                    VAL <= write_data_i;
                     VAL_WSTB <= '1';
                 end if;
-                if (mem_addr = TTLOUT_VAL_DLY) then
-                    VAL_DLY <= mem_dat_i;
+                if (write_addr = TTLOUT_VAL_DLY) then
+                    VAL_DLY <= write_data_i;
                     VAL_DLY_WSTB <= '1';
                 end if;
 
@@ -82,11 +92,11 @@ REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            read_data_o <= (others => '0');
         else
-            case (mem_addr) is
+            case (read_addr) is
                 when others =>
-                    mem_dat_o <= (others => '0');
+                    read_data_o <= (others => '0');
             end case;
         end if;
     end if;
