@@ -6,8 +6,8 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : 4-Channel adder block with ouput scaling.
---
+--  Description : 4-Channel adder block with sign inversion option and output
+--                scaling
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -25,8 +25,13 @@ port (
     inpc_i              : in  std_logic_vector(31 downto 0);
     inpd_i              : in  std_logic_vector(31 downto 0);
     out_o               : out std_logic_vector(31 downto 0);
-    -- Block Parameters
+    -- Block Parameters and Status
+--    INPA_INVERT         : in  std_logic;
+--    INPB_INVERT         : in  std_logic;
+--    INPC_INVERT         : in  std_logic;
+--    INPD_INVERT         : in  std_logic;
     SCALE               : in  std_logic_vector(1 downto 0)
+--    STATUS              : out std_logic_vector(1 downto 0)
 );
 end adder;
 
@@ -36,6 +41,7 @@ signal posn_adder       : signed(33 downto 0);
 
 begin
 
+-- Sign extension and inversion of input data
 posn_adder <= resize(signed(inpa_i), posn_adder'length) +
               resize(signed(inpb_i), posn_adder'length) +
               resize(signed(inpc_i), posn_adder'length) +

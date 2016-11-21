@@ -27,7 +27,7 @@ module biss_sniffer_tb;
 // Inputs
 reg clk_i = 0;
 reg reset_i;
-reg [7:0] BITS = 19;
+reg [7:0] BITS = 32;
 reg [7:0] BITS_CRC = 8;
 reg ssi_sck_i;
 reg ssi_dat_i;

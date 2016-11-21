@@ -37,11 +37,11 @@ architecture rtl of biss_sniffer is
 component ila_32x8K
 port (
     clk                     : in  std_logic;
-    probe0                  : in  std_logic_vector(31 downto 0)
+    probe0                  : in  std_logic_vector(35 downto 0)
 );
 end component;
 
-signal probe0               : std_logic_vector(31 downto 0);
+signal probe0               : std_logic_vector(35 downto 0);
 
 -- Ticks in terms of internal serial clock period.
 constant SYNCPERIOD         : natural := 125 * 5; -- 5usec
@@ -50,6 +50,7 @@ constant SYNCPERIOD         : natural := 125 * 5; -- 5usec
 signal FRAME_LEN            : unsigned(7 downto 0);
 signal LEN                  : natural range 0 to 2**BITS'length-1;
 
+signal reset                : std_logic;
 signal serial_data_prev     : std_logic;
 signal serial_data_rise     : std_logic;
 signal serial_clock         : std_logic;
@@ -63,7 +64,7 @@ signal serial_data          : std_logic;
 signal serial_clock_fall    : std_logic;
 signal serial_clock_rise    : std_logic;
 signal shift_counter        : unsigned(7 downto 0);
-signal shift_enabled        : std_logic;
+signal shift_valid          : std_logic;
 signal posn                 : std_logic_vector(31 downto 0);
 
 attribute MARK_DEBUG        : string;
@@ -110,17 +111,18 @@ port map (
     link_up_o           => link_up
 );
 
+reset <= reset_i or not link_up;
 --
 -- Serial Receive State Machine
 --
 process (clk_i)
 begin
     if (rising_edge(clk_i)) then
-        if (reset_i = '1' or link_up = '0') then
+        if (reset = '1') then
             shift_counter <= (others => '0');
             biss_frame <= '0';
             biss_scd <= '0';
-            shift_enabled <= '0';
+            shift_valid <= '0';
         else
             -- BISS Frame: Starts with falling edge of master clock.
             if (serial_clock_fall = '1' and biss_frame = '0') then
@@ -150,9 +152,9 @@ begin
             -- Encoder data is received within SCD so need a separate valid
             -- flag to shift data into the shift register.
             if (serial_clock_rise = '1' and shift_counter = 1) then
-                shift_enabled <= '1';
+                shift_valid <= '1';
             elsif (serial_clock_rise = '1' and shift_counter = unsigned(BITS) + 1) then
-                shift_enabled <= '0';
+                shift_valid <= '0';
             end if;
         end if;
     end if;
@@ -164,8 +166,8 @@ generic map (
 )
 port map (
     clk_i           => clk_i,
-    reset_i         => reset_i,
-    enable_i        => shift_enabled,
+    reset_i         => reset,
+    valid_i         => shift_valid,
     clock_i         => serial_clock_fall,
     data_i          => serial_data,
     data_o          => shift_in,
@@ -197,15 +199,15 @@ begin
     end if;
 end process;
 
---ila_inst : ila_32x8K
---port map (
---    clk         => clk_i,
---    probe0      => probe0
---);
---
---probe0(0) <= ssi_sck_i;
---probe0(1) <= ssi_dat_i;
---probe0(17 downto 2) <= posn(15 downto 0);
---probe0(31 downto 18) <= (others => '0');
+ila_inst : ila_32x8K
+port map (
+    clk         => clk_i,
+    probe0      => probe0
+);
+
+probe0(31 downto 0) <= posn;
+probe0(32) <= ssi_sck_i;
+probe0(33) <= ssi_dat_i;
+probe0(35 downto 34) <= (others => '0');
 
 end rtl;

@@ -59,6 +59,23 @@ signal read_data        : std32_array(TTLOUT_NUM-1 downto 0);
 signal write_strobe     : std_logic_vector(TTLOUT_NUM-1 downto 0);
 signal posn             : std32_array(ENC_NUM-1 downto 0);
 
+component icon
+  PORT (
+    CONTROL0 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0));
+end component;
+
+component ila
+  PORT (
+    CONTROL : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
+    CLK : IN STD_LOGIC;
+    DATA : IN STD_LOGIC_VECTOR(35 DOWNTO 0);
+    TRIG0 : IN STD_LOGIC_VECTOR(7 DOWNTO 0));
+end component;
+
+signal CONTROL0 : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal DATA     : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal TRIG0    : STD_LOGIC_VECTOR(7 DOWNTO 0);
+
 begin
 
 -- Acknowledgement to AXI Lite interface
@@ -120,6 +137,27 @@ port map (
 );
 
 END GENERATE;
+
+
+--icon_name : icon
+--  port map (
+--    CONTROL0 => CONTROL0);
+--
+--ila_name : ila
+--  port map (
+--    CONTROL => CONTROL0,
+--    CLK => clk_i,
+--    DATA => DATA,
+--    TRIG0 => TRIG0);
+--
+--
+--TRIG0(0) <= CLK_IN(0);
+--TRIG0(7 downto 1) <= (others => '0');
+--
+--DATA(31 downto 0) <= posn(0);
+--DATA(32) <= CLK_IN(0);
+--DATA(33) <= DATA_IN(0);
+--DATA(35 downto 34) <= "00";
 
 end rtl;
 
