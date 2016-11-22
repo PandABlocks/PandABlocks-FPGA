@@ -28,7 +28,8 @@ module biss_sniffer_tb;
 reg clk_i = 0;
 reg reset_i;
 reg [7:0] BITS = 32;
-reg [7:0] BITS_CRC = 8;
+reg [7:0] STATUS_BITS = 2;
+reg [7:0] CRC_BITS = 6;
 reg ssi_sck_i;
 reg ssi_dat_i;
 
@@ -51,7 +52,8 @@ biss_sniffer uut (
     .clk_i      ( clk_i         ),
     .reset_i    ( reset_i       ),
     .BITS       ( BITS          ),
-    .BITS_CRC   ( BITS_CRC      ),
+    .STATUS_BITS( STATUS_BITS   ),
+    .CRC_BITS   ( CRC_BITS      ),
     .ssi_sck_i  ( ssi_sck_i     ),
     .ssi_dat_i  ( ssi_dat_i     ),
     .posn_o     ( posn_o        )
@@ -62,7 +64,7 @@ initial begin
     ssi_dat_i = 1;
 
     repeat (50) @(posedge clk_i);
-    fid = $fopen("ila.csv", "r");
+    fid = $fopen("biss.prn", "r");
 
     // Read and ignore description field
     while (!$feof(fid)) begin

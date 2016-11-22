@@ -29,8 +29,10 @@ port (
     FRAME_PERIOD_WSTB  : out std_logic;
     BITS       : out std_logic_vector(31 downto 0);
     BITS_WSTB  : out std_logic;
-    BITS_CRC       : out std_logic_vector(31 downto 0);
-    BITS_CRC_WSTB  : out std_logic;
+    STATUS_BITS       : out std_logic_vector(31 downto 0);
+    STATUS_BITS_WSTB  : out std_logic;
+    CRC_BITS       : out std_logic_vector(31 downto 0);
+    CRC_BITS_WSTB  : out std_logic;
     SETP       : out std_logic_vector(31 downto 0);
     SETP_WSTB  : out std_logic;
     RST_ON_Z       : out std_logic_vector(31 downto 0);
@@ -83,8 +85,10 @@ begin
             FRAME_PERIOD_WSTB <= '0';
             BITS <= (others => '0');
             BITS_WSTB <= '0';
-            BITS_CRC <= (others => '0');
-            BITS_CRC_WSTB <= '0';
+            STATUS_BITS <= (others => '0');
+            STATUS_BITS_WSTB <= '0';
+            CRC_BITS <= (others => '0');
+            CRC_BITS_WSTB <= '0';
             SETP <= (others => '0');
             SETP_WSTB <= '0';
             RST_ON_Z <= (others => '0');
@@ -94,7 +98,8 @@ begin
             CLK_PERIOD_WSTB <= '0';
             FRAME_PERIOD_WSTB <= '0';
             BITS_WSTB <= '0';
-            BITS_CRC_WSTB <= '0';
+            STATUS_BITS_WSTB <= '0';
+            CRC_BITS_WSTB <= '0';
             SETP_WSTB <= '0';
             RST_ON_Z_WSTB <= '0';
 
@@ -116,9 +121,13 @@ begin
                     BITS <= write_data_i;
                     BITS_WSTB <= '1';
                 end if;
-                if (write_addr = INENC_BITS_CRC) then
-                    BITS_CRC <= write_data_i;
-                    BITS_CRC_WSTB <= '1';
+                if (write_addr = INENC_STATUS_BITS) then
+                    STATUS_BITS <= write_data_i;
+                    STATUS_BITS_WSTB <= '1';
+                end if;
+                if (write_addr = INENC_CRC_BITS) then
+                    CRC_BITS <= write_data_i;
+                    CRC_BITS_WSTB <= '1';
                 end if;
                 if (write_addr = INENC_SETP) then
                     SETP <= write_data_i;

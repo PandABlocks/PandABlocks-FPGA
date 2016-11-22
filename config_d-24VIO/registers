@@ -143,14 +143,15 @@ INENC       12
     CLK_PERIOD      1
     FRAME_PERIOD    2
     BITS            3
-    BITS_CRC        4
-    SETP            5
-    RST_ON_Z        6
-    EXTENSION       7
-    ERR_FRAME       8
-    ERR_RESPONSE    9
-    ENC_STATUS      10
-    DCARD_MODE      11
+    STATUS_BITS     4
+    CRC_BITS        5
+    SETP            6
+    RST_ON_Z        7
+    EXTENSION       8
+    ERR_FRAME       9
+    ERR_RESPONSE    10
+    ENC_STATUS      11
+    DCARD_MODE      12
     A               66 67 68 69
     B               70 71 72 73
     Z               74 75 76 77

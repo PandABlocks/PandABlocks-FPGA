@@ -59,8 +59,10 @@ signal FRAME_PERIOD     : std_logic_vector(31 downto 0);
 signal FRAME_PERIOD_WSTB: std_logic;
 signal BITS             : std_logic_vector(31 downto 0);
 signal BITS_WSTB        : std_logic;
-signal BITS_CRC         : std_logic_vector(31 downto 0);
-signal BITS_CRC_WSTB    : std_logic;
+signal STATUS_BITS      : std_logic_vector(31 downto 0);
+signal STATUS_BITS_WSTB : std_logic;
+signal CRC_BITS         : std_logic_vector(31 downto 0);
+signal CRC_BITS_WSTB    : std_logic;
 signal SETP             : std_logic_vector(31 downto 0);
 signal SETP_WSTB        : std_logic;
 signal RST_ON_Z         : std_logic_vector(31 downto 0);
@@ -79,7 +81,8 @@ PROTOCOL <= PROTOCOL_i(2 downto 0);
 
 -- Certain parameter changes must initiate a block reset.
 reset <= reset_i or PROTOCOL_WSTB or CLK_PERIOD_WSTB or
-            FRAME_PERIOD_WSTB or BITS_WSTB or BITS_CRC_WSTB;
+            FRAME_PERIOD_WSTB or BITS_WSTB or
+                STATUS_BITS_WSTB or CRC_BITS_WSTB;
 
 --
 -- Control System Interface
@@ -109,8 +112,10 @@ port map (
     FRAME_PERIOD_WSTB   => FRAME_PERIOD_WSTB,
     BITS                => BITS,
     BITS_WSTB           => BITS_WSTB,
-    BITS_CRC            => BITS_CRC,
-    BITS_CRC_WSTB       => BITS_CRC_WSTB,
+    STATUS_BITS         => STATUS_BITS,
+    STATUS_BITS_WSTB    => STATUS_BITS_WSTB,
+    CRC_BITS            => CRC_BITS,
+    CRC_BITS_WSTB       => CRC_BITS_WSTB,
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z,
@@ -141,7 +146,8 @@ port map (
     CLK_PERIOD          => CLK_PERIOD,
     FRAME_PERIOD        => FRAME_PERIOD,
     BITS                => BITS(7 downto 0),
-    BITS_CRC            => BITS_CRC(7 downto 0),
+    STATUS_BITS         => STATUS_BITS(7 downto 0),
+    CRC_BITS            => CRC_BITS(7 downto 0),
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z(0),

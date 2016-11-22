@@ -180,14 +180,15 @@ constant INENC_PROTOCOL : natural := 0;
 constant INENC_CLK_PERIOD : natural := 1;
 constant INENC_FRAME_PERIOD : natural := 2;
 constant INENC_BITS : natural := 3;
-constant INENC_BITS_CRC : natural := 4;
-constant INENC_SETP : natural := 5;
-constant INENC_RST_ON_Z : natural := 6;
-constant INENC_EXTENSION : natural := 7;
-constant INENC_ERR_FRAME : natural := 8;
-constant INENC_ERR_RESPONSE : natural := 9;
-constant INENC_ENC_STATUS : natural := 10;
-constant INENC_DCARD_MODE : natural := 11;
+constant INENC_STATUS_BITS : natural := 4;
+constant INENC_CRC_BITS : natural := 5;
+constant INENC_SETP : natural := 6;
+constant INENC_RST_ON_Z : natural := 7;
+constant INENC_EXTENSION : natural := 8;
+constant INENC_ERR_FRAME : natural := 9;
+constant INENC_ERR_RESPONSE : natural := 10;
+constant INENC_ENC_STATUS : natural := 11;
+constant INENC_DCARD_MODE : natural := 12;
 
 -- QDEC Block:
 constant QDEC_RST_ON_Z : natural := 3;

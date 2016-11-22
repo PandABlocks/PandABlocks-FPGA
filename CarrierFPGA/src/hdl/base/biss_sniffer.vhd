@@ -23,7 +23,8 @@ port (
     reset_i         : in  std_logic;
     -- Configuration interface
     BITS            : in  std_logic_vector(7 downto 0);
-    BITS_CRC        : in  std_logic_vector(7 downto 0);
+    STATUS_BITS     : in  std_logic_vector(7 downto 0);
+    CRC_BITS        : in  std_logic_vector(7 downto 0);
     -- Physical SSI interface
     ssi_sck_i       : in  std_logic;
     ssi_dat_i       : in  std_logic;
@@ -34,69 +35,51 @@ end biss_sniffer;
 
 architecture rtl of biss_sniffer is
 
-component ila_32x8K
-port (
-    clk                     : in  std_logic;
-    probe0                  : in  std_logic_vector(35 downto 0)
-);
-end component;
-
-signal probe0               : std_logic_vector(35 downto 0);
-
 -- Ticks in terms of internal serial clock period.
 constant SYNCPERIOD         : natural := 125 * 5; -- 5usec
+type biss_fsm_t is (IDLE, ACK, START, WAIT_ZERO, DATA_RANGE, TIMEOUT);
 
 -- Number of all bits per BiSS Frame
-signal FRAME_LEN            : unsigned(7 downto 0);
+signal DATA_BITS            : unsigned(7 downto 0);
 signal LEN                  : natural range 0 to 2**BITS'length-1;
-
 signal reset                : std_logic;
-signal serial_data_prev     : std_logic;
-signal serial_data_rise     : std_logic;
+
+signal data_count           : unsigned(7 downto 0);
+signal timeout_count        : unsigned(10 downto 0);
+signal biss_fsm             : biss_fsm_t;
+signal biss_frame           : std_logic;
+signal data_valid           : std_logic;
+signal status_valid         : std_logic;
+signal crc_valid            : std_logic;
+
 signal serial_clock         : std_logic;
 signal serial_clock_prev    : std_logic;
+signal serial_clock_rise    : std_logic;
+signal serial_data          : std_logic;
 signal link_up              : std_logic;
-signal biss_scd             : std_logic;
 signal shift_in             : std_logic_vector(31 downto 0);
 signal shift_in_valid       : std_logic;
-signal biss_frame           : std_logic;
-signal serial_data          : std_logic;
-signal serial_clock_fall    : std_logic;
-signal serial_clock_rise    : std_logic;
-signal shift_counter        : unsigned(7 downto 0);
-signal shift_valid          : std_logic;
 signal posn                 : std_logic_vector(31 downto 0);
 
-attribute MARK_DEBUG        : string;
-attribute MARK_DEBUG of ssi_sck_i   : signal is "true";
-attribute MARK_DEBUG of ssi_dat_i   : signal is "true";
-attribute MARK_DEBUG of posn        : signal is "true";
+signal uBITS                : unsigned(7 downto 0);
+signal uSTATUS_BITS         : unsigned(7 downto 0);
+signal uCRC_BITS            : unsigned(7 downto 0);
 
 begin
+
+-- Internal signal assignments
+serial_clock <= ssi_sck_i;
+serial_data <= ssi_dat_i;
+
+uBITS        <= unsigned(BITS);
+uSTATUS_BITS <= unsigned(STATUS_BITS);
+uCRC_BITS    <= unsigned(CRC_BITS);
 
 -- Assign outputs
 posn_o <= posn;
 
 -- Frame BITs includes: Start&CDS + Data + Extra(Error/CRC)
-FRAME_LEN <= 2 + unsigned(BITS) + unsigned(BITS_CRC);
-
---
--- Register inputs and detect rise/fall edges.
---
-process (clk_i)
-begin
-    if (rising_edge(clk_i)) then
-        serial_clock <= ssi_sck_i;
-        serial_clock_prev <= serial_clock;
-        serial_data <= ssi_dat_i;
-        serial_data_prev <= serial_data;
-    end if;
-end process;
-
--- Shift source synchronous data on the Falling egde of clock
-serial_clock_fall <= not serial_clock and serial_clock_prev;
-serial_clock_rise <= serial_clock and not serial_clock_prev;
-serial_data_rise <= serial_data and not serial_data_prev;
+DATA_BITS <= uBITS + uSTATUS_BITS + uCRC_BITS;
 
 -- Detect link if clock is asserted for > 5us.
 link_detect_inst : entity work.ssi_link_detect
@@ -111,7 +94,12 @@ port map (
     link_up_o           => link_up
 );
 
+-- Internal reset when link is down
 reset <= reset_i or not link_up;
+
+-- Data latch happens on rising edge of incoming clock
+serial_clock_rise <= serial_clock and not serial_clock_prev;
+
 --
 -- Serial Receive State Machine
 --
@@ -119,42 +107,99 @@ process (clk_i)
 begin
     if (rising_edge(clk_i)) then
         if (reset = '1') then
-            shift_counter <= (others => '0');
+            biss_fsm <= IDLE;
             biss_frame <= '0';
-            biss_scd <= '0';
-            shift_valid <= '0';
         else
-            -- BISS Frame: Starts with falling edge of master clock.
-            if (serial_clock_fall = '1' and biss_frame = '0') then
+            -- For rising edge detection
+            serial_clock_prev <= serial_clock;
+
+            -- Unidirectional point-to-point BiSS communication
+            case biss_fsm is
+                when IDLE =>
+                    if (serial_clock = '0') then
+                        biss_fsm <= ACK;
+                    end if;
+
+                when ACK =>
+                    if (serial_clock_rise = '1' and serial_data = '0') then
+                        biss_fsm <= START;
+                    end if;
+
+                when START =>
+                    if (serial_clock_rise = '1' and serial_data = '1') then
+                        biss_fsm <= WAIT_ZERO;
+                    end if;
+
+                when WAIT_ZERO =>
+                    if (serial_clock_rise = '1' and serial_data = '0') then
+                        biss_fsm <= DATA_RANGE;
+                    end if;
+
+                when DATA_RANGE =>
+                    if (data_count = DATA_BITS) then
+                        biss_fsm <= TIMEOUT;
+                    end if;
+
+                when TIMEOUT =>
+                    if (timeout_count(timeout_count'left) = '1') then
+                        biss_fsm <= IDLE;
+                    end if;
+            end case;
+
+            -- Set active biss frame flag for link disconnection
+            if (biss_fsm = IDLE and serial_clock = '0') then
                 biss_frame <= '1';
-            elsif (serial_clock_rise = '1' and shift_counter = FRAME_LEN-1) then
+            elsif (biss_fsm = TIMEOUT) then
                 biss_frame <= '0';
             end if;
+        end if;
+    end if;
+end process;
 
-            -- BISS Single Cycle Data: Starts with slave's acknowledgement.
-            if (biss_frame = '1') then
-                if (serial_data_rise = '1' and biss_scd = '0') then
-                    biss_scd <= '1';
+process (clk_i)
+begin
+    if (rising_edge(clk_i)) then
+        if (reset = '1') then
+            data_count <= (others => '0');
+            timeout_count <= (others => '0');
+            data_valid <= '0';
+            status_valid <= '0';
+            crc_valid <= '0';
+        else
+            -- Keep track of bits received during SCD frame.
+            if (biss_fsm = DATA_RANGE) then
+                if (serial_clock_rise = '1') then
+                    data_count <= data_count + 1;
                 end if;
             else
-                biss_scd <= '0';
+                data_count <= (others => '0');
             end if;
 
             -- Keep track of bits received during SCD frame.
-            if (biss_scd = '1') then
-                if (serial_clock_rise = '1') then
-                    shift_counter <= shift_counter + 1;
-                end if;
+            if (biss_fsm = TIMEOUT) then
+                timeout_count <= timeout_count + 1;
             else
-                shift_counter <= (others => '0');
+                timeout_count <= (others => '0');
             end if;
 
-            -- Encoder data is received within SCD so need a separate valid
-            -- flag to shift data into the shift register.
-            if (serial_clock_rise = '1' and shift_counter = 1) then
-                shift_valid <= '1';
-            elsif (serial_clock_rise = '1' and shift_counter = unsigned(BITS) + 1) then
-                shift_valid <= '0';
+            if (biss_fsm = DATA_RANGE) then
+                if (data_count <= uBITS-1) then
+                    data_valid <= '1';
+                    status_valid <= '0';
+                    crc_valid <= '0';
+                elsif (data_count <= (uBITS + uSTATUS_BITS-1)) then
+                    data_valid <= '0';
+                    status_valid <= '1';
+                    crc_valid <= '0';
+                else
+                    data_valid <= '0';
+                    status_valid <= '0';
+                    crc_valid <= '1';
+                end if;
+            else
+                data_valid <= '0';
+                status_valid <= '0';
+                crc_valid <= '0';
             end if;
         end if;
     end if;
@@ -167,8 +212,8 @@ generic map (
 port map (
     clk_i           => clk_i,
     reset_i         => reset,
-    valid_i         => shift_valid,
-    clock_i         => serial_clock_fall,
+    enable_i        => data_valid,
+    clock_i         => serial_clock_rise,
     data_i          => serial_data,
     data_o          => shift_in,
     data_valid_o    => shift_in_valid
@@ -198,16 +243,5 @@ begin
         END LOOP;
     end if;
 end process;
-
-ila_inst : ila_32x8K
-port map (
-    clk         => clk_i,
-    probe0      => probe0
-);
-
-probe0(31 downto 0) <= posn;
-probe0(32) <= ssi_sck_i;
-probe0(33) <= ssi_dat_i;
-probe0(35 downto 34) <= (others => '0');
 
 end rtl;

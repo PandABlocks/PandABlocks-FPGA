@@ -25,7 +25,7 @@ port (
     clk_i           : in  std_logic;
     reset_i         : in  std_logic;
     -- Physical SSI interface
-    valid_i        : in  std_logic;
+    enable_i        : in  std_logic;
     clock_i         : in  std_logic;
     data_i          : in  std_logic;
     -- Block outputs
@@ -42,7 +42,7 @@ signal valid_fall  : std_logic;
 
 begin
 
-valid_fall <= not valid_i and valid_prev;
+valid_fall <= not enable_i and valid_prev;
 
 --
 -- Shift data into the register when validd, and latch output once it is
@@ -55,7 +55,7 @@ begin
             data_o <= (others => '0');
             data_valid_o <= '0';
         else
-            valid_prev <= valid_i;
+            valid_prev <= enable_i;
             data_valid_o <= '0';
 
             -- Latch data output and clear shift register.
@@ -63,8 +63,8 @@ begin
                 data_o <= smpl_hold;
                 data_valid_o <= '1';
                 smpl_hold <= (others => '0');
-            -- Shift data when validd.
-            elsif (valid_i = '1') then
+            -- Shift data when enabled.
+            elsif (enable_i = '1') then
                 if (clock_i = '1') then
                     smpl_hold <= smpl_hold(DW-2 downto 0) & data_i;
                 end if;

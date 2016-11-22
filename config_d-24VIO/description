@@ -76,7 +76,8 @@ INENC       Input encoder
     CLK_PERIOD      Clock rate
     FRAME_PERIOD    Frame rate
     BITS            Number of bits
-    BITS_CRC        Number of bits for BiSS Error and CRC
+    STATUS_BITS     Number of bits for BiSS Warning and Error
+    CRC_BITS        Number of bits for BiSS CRC
     SETP            Set point
     RST_ON_Z        Zero position on Z rising edge
     EXTENSION       Bits higher than 32-bits

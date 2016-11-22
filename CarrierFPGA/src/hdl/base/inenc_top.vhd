@@ -60,8 +60,12 @@ signal write_strobe     : std_logic_vector(TTLOUT_NUM-1 downto 0);
 signal posn             : std32_array(ENC_NUM-1 downto 0);
 
 component icon
-  PORT (
-    CONTROL0 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0));
+PORT (
+    CONTROL0 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
+    CONTROL1 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
+    CONTROL2 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
+    CONTROL3 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0)
+);
 end component;
 
 component ila
@@ -73,8 +77,17 @@ component ila
 end component;
 
 signal CONTROL0 : STD_LOGIC_VECTOR(35 DOWNTO 0);
-signal DATA     : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal CONTROL1 : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal CONTROL2 : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal CONTROL3 : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal DATA0    : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal DATA1    : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal DATA2    : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal DATA3    : STD_LOGIC_VECTOR(35 DOWNTO 0);
 signal TRIG0    : STD_LOGIC_VECTOR(7 DOWNTO 0);
+signal TRIG1    : STD_LOGIC_VECTOR(7 DOWNTO 0);
+signal TRIG2    : STD_LOGIC_VECTOR(7 DOWNTO 0);
+signal TRIG3    : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
 begin
 
@@ -139,25 +152,74 @@ port map (
 END GENERATE;
 
 
---icon_name : icon
---  port map (
---    CONTROL0 => CONTROL0);
---
---ila_name : ila
---  port map (
---    CONTROL => CONTROL0,
---    CLK => clk_i,
---    DATA => DATA,
---    TRIG0 => TRIG0);
---
---
---TRIG0(0) <= CLK_IN(0);
---TRIG0(7 downto 1) <= (others => '0');
---
---DATA(31 downto 0) <= posn(0);
---DATA(32) <= CLK_IN(0);
---DATA(33) <= DATA_IN(0);
---DATA(35 downto 34) <= "00";
+icon_name : icon
+port map (
+    CONTROL0 => CONTROL0,
+    CONTROL1 => CONTROL1,
+    CONTROL2 => CONTROL2,
+    CONTROL3 => CONTROL3
+);
+
+ila_0 : ila
+port map (
+    CONTROL => CONTROL0,
+    CLK     => clk_i,
+    DATA    => DATA0,
+    TRIG0   => TRIG0
+);
+
+TRIG0(0) <= CLK_IN(0);
+TRIG0(7 downto 1) <= (others => '0');
+DATA0(31 downto 0) <= posn(0);
+DATA0(32) <= CLK_IN(0);
+DATA0(33) <= DATA_IN(0);
+DATA0(35 downto 34) <= "00";
+
+
+ila_1 : ila
+port map (
+    CONTROL => CONTROL1,
+    CLK     => clk_i,
+    DATA    => DATA1,
+    TRIG0   => TRIG1
+);
+
+TRIG1(0) <= CLK_IN(1);
+TRIG1(7 downto 1) <= (others => '0');
+DATA1(31 downto 0) <= posn(1);
+DATA1(32) <= CLK_IN(1);
+DATA1(33) <= DATA_IN(1);
+DATA1(35 downto 34) <= "00";
+
+ila_2 : ila
+port map (
+    CONTROL => CONTROL2,
+    CLK     => clk_i,
+    DATA    => DATA2,
+    TRIG0   => TRIG2
+);
+
+TRIG2(0) <= CLK_IN(2);
+TRIG2(7 downto 1) <= (others => '0');
+DATA2(31 downto 0) <= posn(2);
+DATA2(32) <= CLK_IN(2);
+DATA2(33) <= DATA_IN(2);
+DATA2(35 downto 34) <= "00";
+
+ila_3 : ila
+port map (
+    CONTROL => CONTROL3,
+    CLK     => clk_i,
+    DATA    => DATA3,
+    TRIG0   => TRIG3
+);
+
+TRIG3(0) <= CLK_IN(3);
+TRIG3(7 downto 1) <= (others => '0');
+DATA3(31 downto 0) <= posn(3);
+DATA3(32) <= CLK_IN(3);
+DATA3(33) <= DATA_IN(3);
+DATA3(35 downto 34) <= "00";
 
 end rtl;
 
