@@ -41,11 +41,11 @@ port (
     CLK_PERIOD          : in  std_logic_vector(31 downto 0);
     FRAME_PERIOD        : in  std_logic_vector(31 downto 0);
     BITS                : in  std_logic_vector(7 downto 0);
-    STATUS_BITS         : in  std_logic_vector(7 downto 0);
-    CRC_BITS            : in  std_logic_vector(7 downto 0);
     SETP                : in  std_logic_vector(31 downto 0);
     SETP_WSTB           : in  std_logic;
     RST_ON_Z            : in  std_logic;
+    STATUS              : out std_logic_vector(31 downto 0);
+    STATUS_RSTB         : in  std_logic;
     -- Block Outputs
     posn_o              : out std_logic_vector(31 downto 0);
     posn_trans_o        : out std_logic
@@ -124,12 +124,14 @@ port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     BITS            => BITS,
-    STATUS_BITS     => STATUS_BITS,
-    CRC_BITS        => CRC_BITS,
+    STATUS          => STATUS(1 downto 0),
+    STATUS_RSTB     => STATUS_RSTB,
     ssi_sck_i       => clk_in_i,
     ssi_dat_i       => data_in_i,
     posn_o          => posn_biss_sniffer
 );
+
+STATUS(31 downto 2) <= (others => '0');
 
 --------------------------------------------------------------------------
 -- Position Output Multiplexer

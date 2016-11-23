@@ -1,14 +1,19 @@
-%function [x ts f1 f7]=pcap(filename)
+function [ts x xref y yref]=pcap(filename)
 
-fields=7;
-f = fopen(filename); x = fread(f,'7*uint32=>uint32'); fclose(f); 
-x = reshape(x, fields, []);
-x1 = x(1,:); 
-x2 = x(2,:);
+fields=6;
+f = fopen(filename); x = fread(f,'6*uint32=>uint32'); fclose(f); 
+raw = reshape(x, fields, []);
+x1 = raw(1,:); 
+x2 = raw(2,:);
 ts = double(x1) + double(x2)*2^32;
-f1= x(3,:);
-f7= x(7,:);
-f1 = typecast(f1, 'int32');
-f7 = typecast(f7, 'int32');
 
+x = raw(3,:);
+xref = raw(4,:);
 
+y = raw(5,:);
+yref = raw(6,:);
+
+x = 1024*typecast(x, 'int32');
+xref = 1024*typecast(xref, 'int32');
+y = 1024*typecast(y, 'int32');
+yref = 1024*typecast(yref, 'int32');

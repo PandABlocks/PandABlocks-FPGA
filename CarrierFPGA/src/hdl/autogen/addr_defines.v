@@ -174,15 +174,10 @@ localparam INENC_PROTOCOL = 0;
 localparam INENC_CLK_PERIOD = 1;
 localparam INENC_FRAME_PERIOD = 2;
 localparam INENC_BITS = 3;
-localparam INENC_STATUS_BITS = 4;
-localparam INENC_CRC_BITS = 5;
-localparam INENC_SETP = 6;
-localparam INENC_RST_ON_Z = 7;
-localparam INENC_EXTENSION = 8;
-localparam INENC_ERR_FRAME = 9;
-localparam INENC_ERR_RESPONSE = 10;
-localparam INENC_ENC_STATUS = 11;
-localparam INENC_DCARD_MODE = 12;
+localparam INENC_SETP = 4;
+localparam INENC_RST_ON_Z = 5;
+localparam INENC_STATUS = 6;
+localparam INENC_DCARD_MODE = 7;
 
 // QDEC Block:
 localparam QDEC_RST_ON_Z = 3;
@@ -224,7 +219,11 @@ localparam ADDER_INPA = 0;
 localparam ADDER_INPB = 1;
 localparam ADDER_INPC = 2;
 localparam ADDER_INPD = 3;
-localparam ADDER_SCALE = 4;
+localparam ADDER_INPA_INVERT = 4;
+localparam ADDER_INPB_INVERT = 5;
+localparam ADDER_INPC_INVERT = 6;
+localparam ADDER_INPD_INVERT = 7;
+localparam ADDER_SCALE = 8;
 
 // COUNTER Block:
 localparam COUNTER_DIR = 4;

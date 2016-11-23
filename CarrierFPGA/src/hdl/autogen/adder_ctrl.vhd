@@ -21,6 +21,14 @@ port (
     sysbus_i            : in sysbus_t;
     posbus_i            : in posbus_t;
     -- Block Parameters
+    INPA_INVERT       : out std_logic_vector(31 downto 0);
+    INPA_INVERT_WSTB  : out std_logic;
+    INPB_INVERT       : out std_logic_vector(31 downto 0);
+    INPB_INVERT_WSTB  : out std_logic;
+    INPC_INVERT       : out std_logic_vector(31 downto 0);
+    INPC_INVERT_WSTB  : out std_logic;
+    INPD_INVERT       : out std_logic_vector(31 downto 0);
+    INPD_INVERT_WSTB  : out std_logic;
     SCALE       : out std_logic_vector(31 downto 0);
     SCALE_WSTB  : out std_logic;
     inpa_o : out std_logic_vector(31 downto 0);
@@ -78,6 +86,14 @@ begin
             INPC_WSTB <= '0';
             INPD <= (others => '0');
             INPD_WSTB <= '0';
+            INPA_INVERT <= (others => '0');
+            INPA_INVERT_WSTB <= '0';
+            INPB_INVERT <= (others => '0');
+            INPB_INVERT_WSTB <= '0';
+            INPC_INVERT <= (others => '0');
+            INPC_INVERT_WSTB <= '0';
+            INPD_INVERT <= (others => '0');
+            INPD_INVERT_WSTB <= '0';
             SCALE <= (others => '0');
             SCALE_WSTB <= '0';
         else
@@ -85,6 +101,10 @@ begin
             INPB_WSTB <= '0';
             INPC_WSTB <= '0';
             INPD_WSTB <= '0';
+            INPA_INVERT_WSTB <= '0';
+            INPB_INVERT_WSTB <= '0';
+            INPC_INVERT_WSTB <= '0';
+            INPD_INVERT_WSTB <= '0';
             SCALE_WSTB <= '0';
 
             if (write_strobe_i = '1') then
@@ -104,6 +124,22 @@ begin
                 if (write_addr = ADDER_INPD) then
                     INPD <= write_data_i;
                     INPD_WSTB <= '1';
+                end if;
+                if (write_addr = ADDER_INPA_INVERT) then
+                    INPA_INVERT <= write_data_i;
+                    INPA_INVERT_WSTB <= '1';
+                end if;
+                if (write_addr = ADDER_INPB_INVERT) then
+                    INPB_INVERT <= write_data_i;
+                    INPB_INVERT_WSTB <= '1';
+                end if;
+                if (write_addr = ADDER_INPC_INVERT) then
+                    INPC_INVERT <= write_data_i;
+                    INPC_INVERT_WSTB <= '1';
+                end if;
+                if (write_addr = ADDER_INPD_INVERT) then
+                    INPD_INVERT <= write_data_i;
+                    INPD_INVERT_WSTB <= '1';
                 end if;
                 if (write_addr = ADDER_SCALE) then
                     SCALE <= write_data_i;

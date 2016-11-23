@@ -180,15 +180,10 @@ constant INENC_PROTOCOL : natural := 0;
 constant INENC_CLK_PERIOD : natural := 1;
 constant INENC_FRAME_PERIOD : natural := 2;
 constant INENC_BITS : natural := 3;
-constant INENC_STATUS_BITS : natural := 4;
-constant INENC_CRC_BITS : natural := 5;
-constant INENC_SETP : natural := 6;
-constant INENC_RST_ON_Z : natural := 7;
-constant INENC_EXTENSION : natural := 8;
-constant INENC_ERR_FRAME : natural := 9;
-constant INENC_ERR_RESPONSE : natural := 10;
-constant INENC_ENC_STATUS : natural := 11;
-constant INENC_DCARD_MODE : natural := 12;
+constant INENC_SETP : natural := 4;
+constant INENC_RST_ON_Z : natural := 5;
+constant INENC_STATUS : natural := 6;
+constant INENC_DCARD_MODE : natural := 7;
 
 -- QDEC Block:
 constant QDEC_RST_ON_Z : natural := 3;
@@ -230,7 +225,11 @@ constant ADDER_INPA : natural := 0;
 constant ADDER_INPB : natural := 1;
 constant ADDER_INPC : natural := 2;
 constant ADDER_INPD : natural := 3;
-constant ADDER_SCALE : natural := 4;
+constant ADDER_INPA_INVERT : natural := 4;
+constant ADDER_INPB_INVERT : natural := 5;
+constant ADDER_INPC_INVERT : natural := 6;
+constant ADDER_INPD_INVERT : natural := 7;
+constant ADDER_SCALE : natural := 8;
 
 -- COUNTER Block:
 constant COUNTER_DIR : natural := 4;

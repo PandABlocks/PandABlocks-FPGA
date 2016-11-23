@@ -38,6 +38,10 @@ signal pulse_buf        : std_logic_vector(3 downto 0) := "0000";
 signal filt             : std_logic := '0';
 signal jk               : std_logic_vector(1 downto 0);
 
+-- Pack all 4 FFs into the same slice
+attribute async_reg     : string;
+attribute async_reg of pulse_buf : signal is "TRUE";
+
 begin
 
 --------------------------------------------------------------------------

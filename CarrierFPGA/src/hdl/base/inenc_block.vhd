@@ -15,6 +15,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
+use work.addr_defines.all;
 use work.top_defines.all;
 
 entity inenc_block is
@@ -59,20 +60,17 @@ signal FRAME_PERIOD     : std_logic_vector(31 downto 0);
 signal FRAME_PERIOD_WSTB: std_logic;
 signal BITS             : std_logic_vector(31 downto 0);
 signal BITS_WSTB        : std_logic;
-signal STATUS_BITS      : std_logic_vector(31 downto 0);
-signal STATUS_BITS_WSTB : std_logic;
-signal CRC_BITS         : std_logic_vector(31 downto 0);
-signal CRC_BITS_WSTB    : std_logic;
 signal SETP             : std_logic_vector(31 downto 0);
 signal SETP_WSTB        : std_logic;
 signal RST_ON_Z         : std_logic_vector(31 downto 0);
-signal EXTENSION        : std_logic_vector(31 downto 0);
-signal ERR_FRAME        : std_logic_vector(31 downto 0);
-signal ERR_RESPONSE     : std_logic_vector(31 downto 0);
-signal ENC_STATUS       : std_logic_vector(31 downto 0);
+signal STATUS           : std_logic_vector(31 downto 0);
+signal STATUS_RSTB      : std_logic;
+signal read_ack         : std_logic;
 
 signal reset            : std_logic;
 signal slow             : slow_packet;
+
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
 
 begin
 
@@ -81,8 +79,7 @@ PROTOCOL <= PROTOCOL_i(2 downto 0);
 
 -- Certain parameter changes must initiate a block reset.
 reset <= reset_i or PROTOCOL_WSTB or CLK_PERIOD_WSTB or
-            FRAME_PERIOD_WSTB or BITS_WSTB or
-                STATUS_BITS_WSTB or CRC_BITS_WSTB;
+            FRAME_PERIOD_WSTB or BITS_WSTB;
 
 --
 -- Control System Interface
@@ -112,20 +109,28 @@ port map (
     FRAME_PERIOD_WSTB   => FRAME_PERIOD_WSTB,
     BITS                => BITS,
     BITS_WSTB           => BITS_WSTB,
-    STATUS_BITS         => STATUS_BITS,
-    STATUS_BITS_WSTB    => STATUS_BITS_WSTB,
-    CRC_BITS            => CRC_BITS,
-    CRC_BITS_WSTB       => CRC_BITS_WSTB,
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z,
     RST_ON_Z_WSTB       => open,
-    EXTENSION           => EXTENSION,
-    ERR_FRAME           => ERR_FRAME,
-    ERR_RESPONSE        => ERR_RESPONSE,
-    ENC_STATUS          => ENC_STATUS,
+    STATUS              => STATUS,
     DCARD_MODE          => DCARD_MODE
 );
+
+-- Generate read strobe to clear STATUS register on readback
+read_ack_delay : entity work.delay_line
+generic map (DW => 1)
+port map (
+    clk_i       => clk_i,
+    data_i(0)   => read_strobe_i,
+    data_o(0)   => read_ack,
+    DELAY       => RD_ADDR2ACK
+);
+
+read_addr <= to_integer(unsigned(read_address_i));
+
+STATUS_RSTB <= '1' when (read_ack = '1' and read_addr = INENC_STATUS)
+                    else '0';
 
 inenc_inst : entity work.inenc
 port map (
@@ -146,11 +151,11 @@ port map (
     CLK_PERIOD          => CLK_PERIOD,
     FRAME_PERIOD        => FRAME_PERIOD,
     BITS                => BITS(7 downto 0),
-    STATUS_BITS         => STATUS_BITS(7 downto 0),
-    CRC_BITS            => CRC_BITS(7 downto 0),
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z(0),
+    STATUS              => STATUS,
+    STATUS_RSTB         => STATUS_RSTB,
 
     posn_o              => posn_o,
     posn_trans_o        => posn_trans_o
