@@ -112,10 +112,10 @@ INENC[4]
     SETP            write       position
     RST_ON_Z        param       bit
     STATUS          read        enum 4
-        0   No Error
-        1   Encoder Error
-        2   CRC Error
-        3   Encoder and CRC Error
+        0   All OK
+        1   Link Down
+        2   Encoder Error
+        3   Link Down and Error
     DCARD_MODE      read
     A               bit_out
     B               bit_out

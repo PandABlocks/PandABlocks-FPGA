@@ -37,8 +37,8 @@ reg STATUS_RSTB = 0;
 // Outputs
 wire [31:0] posn_0;
 wire [31:0] posn_1;
-wire [1:0] STATUS_0;
-wire [1:0] STATUS_1;
+wire [31:0] STATUS_0;
+wire [31:0] STATUS_1;
 
 integer fid_0, fid_1, r;
 
@@ -78,6 +78,10 @@ biss_sniffer uut_1 (
 initial begin
     ssi_sck_0 = 1;
     ssi_dat_0 = 1;
+
+    // Clear STATUS first thing
+    repeat (10) @(posedge clk_i);
+    STATUS_RSTB <= 1'b1;@(posedge clk_i);STATUS_RSTB <= 1'b0;
 
     repeat (50) @(posedge clk_i);
     fid_0 = $fopen("biss0.prn", "r");

@@ -54,6 +54,8 @@ end entity;
 
 architecture rtl of inenc is
 
+signal encSTATUS            : std32_array(3 downto 0);
+
 signal posn_incr            : std_logic_vector(31 downto 0);
 signal posn_ssi             : std_logic_vector(31 downto 0);
 signal posn_ssi_sniffer     : std_logic_vector(31 downto 0);
@@ -71,9 +73,9 @@ posn_o <= posn;
 -- Connection status comes from Slow FPGA interface on CTRL_D12
 conn_o <= DCARD_MODE(0);
 
---
+--------------------------------------------------------------------------
 -- Incremental Encoder Instantiation :
---
+--------------------------------------------------------------------------
 qdec : entity work.qdec
 port map (
     clk_i           => clk_i,
@@ -87,9 +89,11 @@ port map (
     out_o           => posn_incr
 );
 
---
--- SSI Master Instantiation :
---
+--------------------------------------------------------------------------
+-- SSI Instantiations
+--------------------------------------------------------------------------
+
+-- SSI Master
 ssi_master_inst : entity work.ssi_master
 port map (
     clk_i           => clk_i,
@@ -103,38 +107,38 @@ port map (
     posn_valid_o    => open
 );
 
---
--- SSI Sniffer Instantiation :
---
+-- SSI Sniffer
 ssi_sniffer_inst : entity work.ssi_sniffer
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     BITS            => BITS,
+    STATUS          => encSTATUS(0),
+    STATUS_RSTB     => STATUS_RSTB,
     ssi_sck_i       => clk_in_i,
     ssi_dat_i       => data_in_i,
     posn_o          => posn_ssi_sniffer
 );
 
---
--- BISS Sniffer Instantiation :
---
+--------------------------------------------------------------------------
+-- BiSS Instantiations
+--------------------------------------------------------------------------
+
+-- BiSS Sniffer
 biss_sniffer_inst : entity work.biss_sniffer
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     BITS            => BITS,
-    STATUS          => STATUS(1 downto 0),
+    STATUS          => encSTATUS(1),
     STATUS_RSTB     => STATUS_RSTB,
     ssi_sck_i       => clk_in_i,
     ssi_dat_i       => data_in_i,
     posn_o          => posn_biss_sniffer
 );
 
-STATUS(31 downto 2) <= (others => '0');
-
 --------------------------------------------------------------------------
--- Position Output Multiplexer
+-- Position Data and STATUS readback multiplexer
 -- If Daughter Card is configured as External Loopback, sniffer instantiations
 -- for absolute protocols are used.
 --------------------------------------------------------------------------
@@ -144,27 +148,34 @@ begin
         case (PROTOCOL) is
             when "000"  =>              -- INC
                 posn <= posn_incr;
+                STATUS <= (others => '0');
 
             when "001"  =>              -- SSI & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_LOOPBACK) then
                     posn <= posn_ssi_sniffer;
+                    STATUS <= encSTATUS(0);
                 else
                     posn <= posn_ssi;
+                    STATUS <= (others => '0');
                 end if;
 
             when "010"  =>              -- BISS & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_LOOPBACK) then
                     posn <= posn_biss_sniffer;
+                    STATUS <= encSTATUS(1);
                 else
                     posn <= (others => '0');
+                    STATUS <= (others => '0');
                 end if;
             when others =>
                 posn <= (others => '0');
+                STATUS <= (others => '0');
         end case;
     end if;
 end process;
 
--- Position change detection for debugging purpose
+-- Position change flag is used for debugging purpose by capturing
+-- encoder data
 process(clk_i)
 begin
     if rising_edge(clk_i) then

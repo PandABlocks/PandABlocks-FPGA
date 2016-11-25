@@ -23,7 +23,7 @@ port (
     reset_i         : in  std_logic;
     -- Configuration interface
     BITS            : in  std_logic_vector(7 downto 0);
-    STATUS          : out std_logic_vector(1 downto 0);
+    STATUS          : out std_logic_vector(31 downto 0);
     STATUS_RSTB     : in  std_logic;
     -- Physical SSI interface
     ssi_sck_i       : in  std_logic;
@@ -72,10 +72,6 @@ signal crc_calc             : std_logic_vector(5 downto 0);
 
 begin
 
--- Internal signal assignments
-serial_clock <= ssi_sck_i;
-serial_data <= ssi_dat_i;
-
 -- Per BiSS-C Protocol BP3
 uBITS        <= unsigned(BITS);
 uSTATUS_BITS <= X"02";  -- nE(0) and nW(0)
@@ -84,7 +80,30 @@ uCRC_BITS    <= X"06";  -- 6-bits for data
 -- Data range = Data + nE + nW + CRC
 DATA_BITS <= uBITS + uSTATUS_BITS + uCRC_BITS;
 
+--------------------------------------------------------------------------
+-- Internal signal assignments
+--------------------------------------------------------------------------
+serial_clock <= ssi_sck_i;
+serial_data <= ssi_dat_i;
+
+process (clk_i)
+begin
+    if (rising_edge(clk_i)) then
+        serial_clock_prev <= serial_clock;
+        serial_data_prev <= serial_data;
+    end if;
+end process;
+
+-- Internal reset when link is down
+reset <= reset_i or not link_up;
+
+-- Data latch happens on rising edge of incoming clock
+serial_clock_rise <= serial_clock and not serial_clock_prev;
+serial_data_rise <= serial_data and not serial_data_prev;
+
+--------------------------------------------------------------------------
 -- Detect link if clock is asserted for > 5us.
+--------------------------------------------------------------------------
 link_detect_inst : entity work.ssi_link_detect
 generic map (
     SYNCPERIOD          => SYNCPERIOD
@@ -97,27 +116,9 @@ port map (
     link_up_o           => link_up
 );
 
--- Internal reset when link is down
-reset <= reset_i or not link_up;
-
--- Data latch happens on rising edge of incoming clock
-serial_clock_rise <= serial_clock and not serial_clock_prev;
-serial_data_rise <= serial_data and not serial_data_prev;
-
---
--- For rising edge detection
---
-process (clk_i)
-begin
-    if (rising_edge(clk_i)) then
-        serial_clock_prev <= serial_clock;
-        serial_data_prev <= serial_data;
-    end if;
-end process;
-
---
+--------------------------------------------------------------------------
 -- Biss-C profile BP3 receive State Machine
---
+--------------------------------------------------------------------------
 process (clk_i)
 begin
     if (rising_edge(clk_i)) then
@@ -168,8 +169,10 @@ begin
     end if;
 end process;
 
+--------------------------------------------------------------------------
 -- Generate valid flags for Data, Status and CRC parts of the
 -- incoming serial data stream
+--------------------------------------------------------------------------
 process (clk_i)
 begin
     if (rising_edge(clk_i)) then
@@ -212,7 +215,9 @@ begin
     end if;
 end process;
 
+--------------------------------------------------------------------------
 -- Shift position data in
+--------------------------------------------------------------------------
 data_in_inst : entity work.shifter_in
 generic map (
     DW              => data'length
@@ -275,25 +280,21 @@ port map (
 -- Dynamic bit length require sign extention logic
 -- Latch position data when Error and CRC valid
 --------------------------------------------------------------------------
-intBITS <= to_integer(unsigned(BITS));
+intBITS <= to_integer(uBITS);
 
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            posn_o <= (others => '0');
-        else
-            if (crc_strobe = '1') then
-                if (nError(1) = '1' and crc = crc_calc) then
-                FOR I IN data'range LOOP
-                    -- Sign bit or not depending on BITS parameter.
-                    if (I < intBITS) then
-                        posn_o(I) <= data(I);
-                    else
-                        posn_o(I) <= data(intBITS-1);
-                    end if;
-                END LOOP;
+        if (crc_strobe = '1') then
+            if (nError(1) = '1' and crc = crc_calc) then
+            FOR I IN data'range LOOP
+                -- Sign bit or not depending on BITS parameter.
+                if (I < intBITS) then
+                    posn_o(I) <= data(I);
+                else
+                    posn_o(I) <= data(intBITS-1);
                 end if;
+            END LOOP;
             end if;
         end if;
     end if;
@@ -305,20 +306,18 @@ end process;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            STATUS <= "00";
+        if (STATUS_RSTB = '1') then
+            STATUS <= (others => '0');
         else
-            if (STATUS_RSTB = '1') then
-                STATUS <= "00";
-            elsif (crc_strobe = '1') then
-                -- Capture CRC error
-                if (crc /= crc_calc) then
-                    STATUS(1) <= '1';
-                end if;
+            -- Latch link_down
+            if (link_up = '0') then
+                STATUS(0) <= '1';
+            end if;
 
-                -- Capture encoder Error bit
-                if (nError(1) = '0') then
-                    STATUS(0) <= '1';
+            -- Capture encoder and CRC error
+            if (crc_strobe = '1') then
+                if (crc /= crc_calc or nError(1) = '0') then
+                    STATUS(1) <= '1';
                 end if;
             end if;
         end if;
