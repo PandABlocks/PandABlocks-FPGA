@@ -33,12 +33,16 @@ end delay_filter;
 
 architecture rtl of delay_filter is
 
+-- Pack into IOB
+signal pulse_iob        : std_logic;
+attribute iob           : string;
+attribute iob of pulse_iob  : signal is "TRUE"; 
+
 -- Input buffers / filters for quadrature signals
-signal pulse_buf        : std_logic_vector(3 downto 0) := "0000";
+signal pulse_buf        : std_logic_vector(2 downto 0) := "000";
 signal filt             : std_logic := '0';
 signal jk               : std_logic_vector(1 downto 0);
 
--- Pack all 4 FFs into the same slice
 attribute async_reg     : string;
 attribute async_reg of pulse_buf : signal is "TRUE";
 
@@ -50,14 +54,15 @@ begin
 --------------------------------------------------------------------------
 shift_reg : process(clk_i) begin
     if rising_edge(clk_i) then
+        pulse_iob <= pulse_i;
         --sample inputs, place into shift registers
-        pulse_buf <= (pulse_buf(2) & pulse_buf(1) & pulse_buf(0) & pulse_i);
+        pulse_buf <= pulse_buf(1) & pulse_buf(0) & pulse_iob;
     end if;
 end process;
 
 -- JK flip flop inputs from 3-stage delay line
-jk(1) <= pulse_buf(3) and pulse_buf(2) and pulse_buf(1);    -- J
-jk(0) <= not(pulse_buf(3) or pulse_buf(2) or pulse_buf(1)); -- K
+jk(1) <= pulse_buf(2) and pulse_buf(1) and pulse_buf(0);    -- J
+jk(0) <= not(pulse_buf(2) or pulse_buf(1) or pulse_buf(0)); -- K
 
 -- JK Flip Flop
 FJKC : process(clk_i) begin

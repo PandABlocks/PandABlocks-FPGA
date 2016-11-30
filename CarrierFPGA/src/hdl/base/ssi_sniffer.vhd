@@ -49,6 +49,7 @@ signal serial_clock         : std_logic;
 signal serial_clock_prev    : std_logic;
 signal link_up              : std_logic;
 signal data                 : std_logic_vector(posn_o'length-1 downto 0);
+signal data_valid           : std_logic;
 signal ssi_frame            : std_logic;
 signal serial_data          : std_logic;
 signal serial_clock_fall    : std_logic;
@@ -151,7 +152,7 @@ port map (
     clock_i         => serial_clock_fall,
     data_i          => serial_data,
     data_o          => data,
-    data_valid_o    => open
+    data_valid_o    => data_valid
 );
 
 --------------------------------------------------------------------------
@@ -162,14 +163,16 @@ intBITS <= to_integer(uBITS);
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        FOR I IN data'range LOOP
-            -- Sign bit or not depending on BITS parameter.
-            if (I < intBITS) then
-                posn_o(I) <= data(I);
-            else
-                posn_o(I) <= data(intBITS-1);
-            end if;
-        END LOOP;
+        if (data_valid = '1') then
+            FOR I IN data'range LOOP
+                -- Sign bit or not depending on BITS parameter.
+                if (I < intBITS) then
+                    posn_o(I) <= data(I);
+                else
+                    posn_o(I) <= data(intBITS-1);
+                end if;
+            END LOOP;
+        end if;
     end if;
 end process;
 
