@@ -152,74 +152,73 @@ port map (
 END GENERATE;
 
 
-icon_name : icon
-port map (
-    CONTROL0 => CONTROL0,
-    CONTROL1 => CONTROL1,
-    CONTROL2 => CONTROL2,
-    CONTROL3 => CONTROL3
-);
-
-ila_0 : ila
-port map (
-    CONTROL => CONTROL0,
-    CLK     => clk_i,
-    DATA    => DATA0,
-    TRIG0   => TRIG0
-);
-
-TRIG0(0) <= CLK_IN(0);
-TRIG0(7 downto 1) <= (others => '0');
-DATA0(31 downto 0) <= posn(0);
-DATA0(32) <= CLK_IN(0);
-DATA0(33) <= DATA_IN(0);
-DATA0(35 downto 34) <= "00";
-
-
-ila_1 : ila
-port map (
-    CONTROL => CONTROL1,
-    CLK     => clk_i,
-    DATA    => DATA1,
-    TRIG0   => TRIG1
-);
-
-TRIG1(0) <= CLK_IN(1);
-TRIG1(7 downto 1) <= (others => '0');
-DATA1(31 downto 0) <= posn(1);
-DATA1(32) <= CLK_IN(1);
-DATA1(33) <= DATA_IN(1);
-DATA1(35 downto 34) <= "00";
-
-ila_2 : ila
-port map (
-    CONTROL => CONTROL2,
-    CLK     => clk_i,
-    DATA    => DATA2,
-    TRIG0   => TRIG2
-);
-
-TRIG2(0) <= CLK_IN(2);
-TRIG2(7 downto 1) <= (others => '0');
-DATA2(31 downto 0) <= posn(2);
-DATA2(32) <= CLK_IN(2);
-DATA2(33) <= DATA_IN(2);
-DATA2(35 downto 34) <= "00";
-
-ila_3 : ila
-port map (
-    CONTROL => CONTROL3,
-    CLK     => clk_i,
-    DATA    => DATA3,
-    TRIG0   => TRIG3
-);
-
-TRIG3(0) <= CLK_IN(3);
-TRIG3(7 downto 1) <= (others => '0');
-DATA3(31 downto 0) <= posn(3);
-DATA3(32) <= CLK_IN(3);
-DATA3(33) <= DATA_IN(3);
-DATA3(35 downto 34) <= "00";
+--icon_name : icon
+--port map (
+--    CONTROL0 => CONTROL0,
+--    CONTROL1 => CONTROL1,
+--    CONTROL2 => CONTROL2,
+--    CONTROL3 => CONTROL3
+--);
+--
+--ila_0 : ila
+--port map (
+--    CONTROL => CONTROL0,
+--    CLK     => clk_i,
+--    DATA    => DATA0,
+--    TRIG0   => TRIG0
+--);
+--
+--TRIG0(0) <= CLK_IN(0);
+--TRIG0(7 downto 1) <= (others => '0');
+--DATA0(31 downto 0) <= posn(0);
+--DATA0(32) <= CLK_IN(0);
+--DATA0(33) <= DATA_IN(0);
+--DATA0(35 downto 34) <= "00";
+--
+--
+--ila_1 : ila
+--port map (
+--    CONTROL => CONTROL1,
+--    CLK     => clk_i,
+--    DATA    => DATA1,
+--    TRIG0   => TRIG1
+--);
+--
+--TRIG1(0) <= CLK_IN(1);
+--TRIG1(7 downto 1) <= (others => '0');
+--DATA1(31 downto 0) <= posn(1);
+--DATA1(32) <= CLK_IN(1);
+--DATA1(33) <= DATA_IN(1);
+--DATA1(35 downto 34) <= "00";
+--
+--ila_2 : ila
+--port map (
+--    CONTROL => CONTROL2,
+--    CLK     => clk_i,
+--    DATA    => DATA2,
+--    TRIG0   => TRIG2
+--);
+--
+--TRIG2(0) <= CLK_IN(2);
+--TRIG2(7 downto 1) <= (others => '0');
+--DATA2(31 downto 0) <= posn(2);
+--DATA2(32) <= CLK_IN(2);
+--DATA2(33) <= DATA_IN(2);
+--DATA2(35 downto 34) <= "00";
+--
+--ila_3 : ila
+--port map (
+--    CONTROL => CONTROL3,
+--    CLK     => clk_i,
+--    DATA    => DATA3,
+--    TRIG0   => TRIG3
+--);
+--
+--TRIG3(0) <= CLK_IN(3);
+--TRIG3(7 downto 1) <= (others => '0');
+--DATA3(31 downto 0) <= posn(3);
+--DATA3(32) <= CLK_IN(3);
+--DATA3(33) <= DATA_IN(3);
+--DATA3(35 downto 34) <= "00";
 
 end rtl;
-

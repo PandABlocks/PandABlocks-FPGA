@@ -33,11 +33,6 @@ end delay_filter;
 
 architecture rtl of delay_filter is
 
--- Pack into IOB
-signal pulse_iob        : std_logic;
-attribute iob           : string;
-attribute iob of pulse_iob  : signal is "TRUE"; 
-
 -- Input buffers / filters for quadrature signals
 signal pulse_buf        : std_logic_vector(2 downto 0) := "000";
 signal filt             : std_logic := '0';
@@ -54,9 +49,8 @@ begin
 --------------------------------------------------------------------------
 shift_reg : process(clk_i) begin
     if rising_edge(clk_i) then
-        pulse_iob <= pulse_i;
         --sample inputs, place into shift registers
-        pulse_buf <= pulse_buf(1) & pulse_buf(0) & pulse_iob;
+        pulse_buf <= pulse_buf(1) & pulse_buf(0) & pulse_i;
     end if;
 end process;
 

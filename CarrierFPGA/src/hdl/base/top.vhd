@@ -176,7 +176,6 @@ signal S_AXI_HP1_rvalid     : STD_LOGIC;
 signal IRQ_F2P              : std_logic_vector(0 downto 0);
 
 -- Configuration and Status Interface Block
-
 signal read_strobe          : std_logic_vector(MOD_COUNT-1 downto 0);
 signal read_strobe_delay    : std_logic_vector(MOD_COUNT-1 downto 0);
 signal read_address         : std_logic_vector(PAGE_AW-1 downto 0);
@@ -189,11 +188,12 @@ signal write_address        : std_logic_vector(PAGE_AW-1 downto 0);
 signal write_data           : std_logic_vector(31 downto 0);
 signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
 => '1');
+
 -- Top Level Signals
 signal sysbus               : sysbus_t := (others => '0');
 signal posbus               : posbus_t := (others => (others => '0'));
 
---
+-- Daughter card control signals
 signal inenc_buf_ctrl       : std_logic_vector(5 downto 0);
 signal outenc_buf_ctrl      : std_logic_vector(5 downto 0);
 
@@ -292,6 +292,11 @@ signal fmc_data             : std32_array(16 downto 0);
 -- SFP Block
 signal sfp_inputs           : std_logic_vector(15 downto 0);
 signal sfp_data             : std32_array(16 downto 0);
+
+-- Make schematics a bit more clear for analysis
+attribute keep              : string;
+attribute keep of sysbus    : signal is "true";
+attribute keep of posbus    : signal is "true";
 
 begin
 
