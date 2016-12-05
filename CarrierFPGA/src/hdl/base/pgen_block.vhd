@@ -20,11 +20,15 @@ port (
     clk_i                   : in  std_logic;
     reset_i                 : in  std_logic;
     -- Memory Bus Interface
-    mem_cs_i                : in  std_logic;
-    mem_wstb_i              : in  std_logic;
-    mem_addr_i              : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i               : in  std_logic_vector(31 downto 0);
-    mem_dat_o               : out std_logic_vector(31 downto 0);
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic;
     -- DMA Engine Interface
     dma_req_o               : out std_logic;
     dma_ack_i               : in  std_logic;
@@ -66,11 +70,15 @@ port map (
     trig_o              => trig,
     enable_o            => enable,
 
-    mem_cs_i            => mem_cs_i,
-    mem_wstb_i          => mem_wstb_i,
-    mem_addr_i          => mem_addr_i,
-    mem_dat_i           => mem_dat_i,
-    mem_dat_o           => mem_dat_o,
+    read_strobe_i       => read_strobe_i,
+    read_address_i      => read_address_i,
+    read_data_o         => read_data_o,
+    read_ack_o          => read_ack_o,
+
+    write_strobe_i      => write_strobe_i,
+    write_address_i     => write_address_i,
+    write_data_i        => write_data_i,
+    write_ack_o         => write_ack_o,
 
     -- Block Parameters
     CYCLES              => CYCLES,

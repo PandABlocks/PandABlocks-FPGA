@@ -42,7 +42,7 @@ port (
     capture_i           : in  std_logic;
     frame_i             : in  std_logic;
     data_val_i          : in  std_logic;
-    dma_full_i          : in  std_logic;
+    dma_error_i         : in  std_logic;
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
     -- Block outputs
@@ -55,6 +55,8 @@ port (
 end pcap_core;
 
 architecture rtl of pcap_core is
+
+signal pcap_reset       : std_logic;
 
 signal frame            : std_logic;
 signal capture          : std_logic;
@@ -71,7 +73,7 @@ signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_dat_valid   : std_logic;
 
 signal pcap_armed       : std_logic;
-signal pcap_enabled     : std_logic;
+signal pcap_start       : std_logic;
 
 begin
 
@@ -91,10 +93,10 @@ port map (
     enable_i            => enable_i,
     frames_completed_i  => frames_completed,
     pcap_error_i        => pcap_error,
-    dma_error_i         => dma_full_i,
+    dma_error_i         => dma_error_i,
     ongoing_capture_i   => pcap_dat_valid,
     pcap_armed_o        => pcap_armed,
-    pcap_enabled_o      => pcap_enabled,
+    pcap_start_o        => pcap_start,
     pcap_done_o         => pcap_done_o,
     timestamp_o         => timestamp,
     pcap_status_o       => pcap_status
@@ -104,13 +106,16 @@ port map (
 capture <= capture_i and pcap_armed;
 frame <= frame_i and pcap_armed;
 
+-- Issue a reset to sub-blocks on pcap start
+pcap_reset <= reset_i or pcap_start;
+
 --------------------------------------------------------------------------
 -- Encoder and ADC Position Data Processing
 --------------------------------------------------------------------------
 pcap_frame : entity work.pcap_frame
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
+    reset_i             => pcap_reset,
 
     FRAMING_MASK        => FRAMING_MASK,
     FRAMING_ENABLE      => FRAMING_ENABLE,
@@ -121,7 +126,6 @@ port map (
     posbus_i            => posbus_i,
     sysbus_i            => sysbus_i,
 
-    enable_i            => pcap_enabled,
     frame_i             => frame,
     capture_i           => capture,
     data_val_i          => data_val_i,
@@ -138,13 +142,12 @@ port map (
 pcap_buffer : entity work.pcap_buffer
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
+    reset_i             => pcap_reset,
     -- Configuration Registers
     START_WRITE         => START_WRITE,
     WRITE               => WRITE,
     WRITE_WSTB          => WRITE_WSTB,
     -- Block inputs
-    enable_i            => pcap_enabled,
     fatpipe_i           => capture_data,
     capture_i           => capture_pulse,
     -- Output pulses

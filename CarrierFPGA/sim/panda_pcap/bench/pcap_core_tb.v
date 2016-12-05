@@ -57,7 +57,7 @@ pcap_core_wrapper uut (
     .sysbus_i           ( 128'h0) , //sysbus_i          ),
     .posbus_i           ( posbus            ),
     .extbus_i           ( extbus_i          ),
-    .dma_fifo_reset_o   ( dma_fifo_reset_o  ),
+//    .dma_fifo_reset_o   ( dma_fifo_reset_o  ),
     .pcap_dat_o         ( pcap_dat_o        ),
     .pcap_dat_valid_o   ( pcap_dat_valid_o  ),
     .pcap_done_o        ( pcap_done_o       ),

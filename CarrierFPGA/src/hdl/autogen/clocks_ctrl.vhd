@@ -30,22 +30,32 @@ port (
     D_PERIOD       : out std_logic_vector(31 downto 0);
     D_PERIOD_WSTB  : out std_logic;
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0)
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic
 );
 end clocks_ctrl;
 
 architecture rtl of clocks_ctrl is
 
-signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
+signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 
 
 begin
 
-mem_addr <= to_integer(unsigned(mem_addr_i));
+-- Unused outputs
+read_ack_o <= '0';
+write_ack_o <= '0';
+
+read_addr <= to_integer(unsigned(read_address_i));
+write_addr <= to_integer(unsigned(write_address_i));
 
 --
 -- Control System Interface
@@ -68,22 +78,22 @@ begin
             C_PERIOD_WSTB <= '0';
             D_PERIOD_WSTB <= '0';
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = CLOCKS_A_PERIOD) then
-                    A_PERIOD <= mem_dat_i;
+                if (write_addr = CLOCKS_A_PERIOD) then
+                    A_PERIOD <= write_data_i;
                     A_PERIOD_WSTB <= '1';
                 end if;
-                if (mem_addr = CLOCKS_B_PERIOD) then
-                    B_PERIOD <= mem_dat_i;
+                if (write_addr = CLOCKS_B_PERIOD) then
+                    B_PERIOD <= write_data_i;
                     B_PERIOD_WSTB <= '1';
                 end if;
-                if (mem_addr = CLOCKS_C_PERIOD) then
-                    C_PERIOD <= mem_dat_i;
+                if (write_addr = CLOCKS_C_PERIOD) then
+                    C_PERIOD <= write_data_i;
                     C_PERIOD_WSTB <= '1';
                 end if;
-                if (mem_addr = CLOCKS_D_PERIOD) then
-                    D_PERIOD <= mem_dat_i;
+                if (write_addr = CLOCKS_D_PERIOD) then
+                    D_PERIOD <= write_data_i;
                     D_PERIOD_WSTB <= '1';
                 end if;
 
@@ -99,11 +109,11 @@ REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            read_data_o <= (others => '0');
         else
-            case (mem_addr) is
+            case (read_addr) is
                 when others =>
-                    mem_dat_o <= (others => '0');
+                    read_data_o <= (others => '0');
             end case;
         end if;
     end if;

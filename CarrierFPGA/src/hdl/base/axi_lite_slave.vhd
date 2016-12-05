@@ -1,191 +1,294 @@
+-- Implements register interface to LMBF system
+
+-- This is an AXI-Lite slave which only accepts full 32-bit writes.  The
+-- incoming 16-bit address is split into four parts:
+--
+--  +----------+---------------+---------------+------+
+--  | Ignored  | Module select | Reg address   | Byte |
+--  +----------+---------------+---------------+------+
+--              MOD_ADDR_BITS   REG_ADDR_BITS   BYTE_BITS
+--
+-- The module select field is used to determine which sub-module receives the
+-- associated read or write, and the reg address field is passed through to the
+-- sub-module.
+--
+-- The internal write interface is quite simple: the appropriate read_strobe as
+-- selected by "module select" is pulsed for one clock cycle after the
+-- write_address and write_data outputs are valid:
+--
+--  State           | IDLE  | START |WRITING| DONE  |
+--                           ________________________
+--  write_data_o,   XXXXXXXXX________________________
+--  write_address_o
+--                                    _______
+--  write_strobe_o  _________________/       \_______
+--
+-- This means that modules can implement a simple one-cycle write interface.
+--
+-- Inevitably, the read interface is a little more involved, and completion can
+-- be stretched by the module using the module specific read_ack signal.  For
+-- single cycle reads which don't depend on read_strobe, read_ack can be
+-- permanently high as shown here:
+--
+--  State           | IDLE  | START |READING| DONE  |
+--                           ________________________
+--  read_address_o  XXXXXXXXX________________________
+--                                    _______
+--  read_strobe_o   _________________/       \_______
+--                                   ________
+--  read_data_i     XXXXXXXXXXXXXXXXX________XXXXXXXX
+--                  _________________________________
+--  read_ack_i                                          (permanently high)
+--
+-- Alternatively read_ack can be generated some delay after read_strobe if it is
+-- necessary to delay the generation of read_data:
+--
+--  State           | IDLE  | START |READING|READING|READING| DONE  |
+--                           ________________________________________
+--  read_address_o  XXXXXXXXX________________________________________
+--                                    _______
+--  read_strobe_o   _________________/       \_______________________
+--                                                   ________
+--  read_data_i     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX________XXXXXXXX
+--                                                    _______
+--  read_ack_i      _________________________________/       \_______
+--
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-
-library unisim;
-use unisim.vcomponents.all;
 
 library work;
 use work.top_defines.all;
 
 entity axi_lite_slave is
 generic (
-    AXI_AWIDTH          : integer := 32;
-    AXI_DWIDTH          : integer := 32;
-    MEM_CSWIDTH         : integer := 5 ;  -- Memory pages = 2**CSW
-    MEM_AWIDTH          : integer := 8;   -- 2**AW Words per page
-    MEM_DWIDTH          : integer := 32   -- Width of data bus
+    ADDR_BITS : natural := 32;
+    DATA_BITS : natural := 32
 );
 port (
-    -- AXI4-Lite Clock and Reset
-    S_AXI_CLK           : in std_logic;
-    S_AXI_RST           : in std_logic;
-    -- AXI4-Lite SLAVE SINGLE INTERFACE
-    S_AXI_AWADDR        : in  std_logic_vector(AXI_AWIDTH-1 downto 0);
-    S_AXI_AWVALID       : in  std_logic;
-    S_AXI_AWREADY       : out std_logic;
-    S_AXI_WDATA         : in  std_logic_vector(AXI_DWIDTH-1 downto 0);
-    S_AXI_WSTRB         : in  std_logic_vector((AXI_DWIDTH/8)-1 downto 0);
-    S_AXI_WVALID        : in  std_logic;
-    S_AXI_WREADY        : out std_logic;
-    S_AXI_BRESP         : out std_logic_vector(1 downto 0);
-    S_AXI_BVALID        : out std_logic;
-    S_AXI_BREADY        : in  std_logic;
-    S_AXI_ARADDR        : in  std_logic_vector(AXI_AWIDTH-1 downto 0);
-    S_AXI_ARVALID       : in  std_logic;
-    S_AXI_ARREADY       : out std_logic;
-    S_AXI_RDATA         : out std_logic_vector(AXI_DWIDTH-1 downto 0);
-    S_AXI_RRESP         : out std_logic_vector(1 downto 0);
-    S_AXI_RVALID        : out std_logic;
-    S_AXI_RREADY        : in  std_logic;
-    -- Memory Bus Interface Signals
-    mem_cs_o            : out std_logic_vector(2**MEM_CSWIDTH-1 downto 0);
-    mem_rstb_o          : out std_logic;
-    mem_wstb_o          : out std_logic;
-    mem_dat_o           : out std_logic_vector(MEM_DWIDTH-1 downto 0);
-    mem_addr_o          : out std_logic_vector(MEM_AWIDTH-1 downto 0);
-    mem_dat_i           : in  std32_array(2**MEM_CSWIDTH-1 downto 0)
+    clk_i           : in std_logic;
+    reset_i         : in std_logic;
+
+    -- AXI-Lite read interface
+    araddr_i        : in std_logic_vector(ADDR_BITS-1 downto 0);
+    arprot_i        : in std_logic_vector(2 downto 0);        -- Ignored
+    arready_o       : out std_logic;
+    arvalid_i       : in std_logic;
+    --
+    rdata_o         : out std_logic_vector(DATA_BITS-1 downto 0);
+    rresp_o         : out std_logic_vector(1 downto 0);
+    rready_i        : in std_logic;
+    rvalid_o        : out std_logic;
+
+    -- AXI-Lite write interface
+    awaddr_i        : in std_logic_vector(ADDR_BITS-1 downto 0);
+    awprot_i        : in std_logic_vector(2 downto 0);        -- Ignored
+    awready_o       : out std_logic;
+    awvalid_i       : in std_logic;
+    --
+    wdata_i         : in std_logic_vector(DATA_BITS-1 downto 0);
+    wstrb_i         : in std_logic_vector(DATA_BITS/8-1 downto 0);
+    wready_o        : out std_logic;
+    wvalid_i        : in std_logic;
+    --
+    bresp_o         : out std_logic_vector(1 downto 0);
+    bready_i        : in std_logic;
+    bvalid_o        : out std_logic;
+
+    -- Internal read interface
+    read_strobe_o   : out std_logic_vector(MOD_COUNT-1 downto 0);
+    read_address_o  : out std_logic_vector(PAGE_AW-1 downto 0);
+    read_data_i     : in  std32_array(MOD_COUNT-1 downto 0);
+    read_ack_i      : in  std_logic_vector(MOD_COUNT-1 downto 0);
+
+    -- Internal write interface
+    write_strobe_o  : out std_logic_vector(MOD_COUNT-1 downto 0);
+    write_address_o : out std_logic_vector(PAGE_AW-1 downto 0);
+    write_data_o    : out std_logic_vector(31 downto 0);
+    write_ack_i     : in  std_logic_vector(MOD_COUNT-1 downto 0)
 );
-end entity axi_lite_slave;
+end;
 
-architecture rtl of axi_lite_slave is
+architecture axi_lite_slave of axi_lite_slave is
 
--- Get ChipSelect vector
-function CSGEN(
-    data        : std_logic_vector;
-    CSW         : integer;
-    AW          : integer
-) return std_logic_vector is
-    variable result : std_logic_vector(2**CSW-1 downto 0) := (others => '0');
+constant BYTE_BITS : natural := 2;
+
+function to_std_logic(bool : boolean) return std_logic is
 begin
-    result(to_integer(unsigned(data(AW+CSW+1 downto AW+2)))) := '1';
+    if bool then
+        return '1';
+    else
+        return '0';
+    end if;
+end;
+
+-- Returns field of specified width starting at offset start in data
+function read_field(
+    data : std_logic_vector;
+    width : natural; start : natural) return std_logic_vector
+is
+    variable result : std_logic_vector(width-1 downto 0);
+begin
+    result := data(start + width - 1 downto start);
     return result;
 end;
 
--- Read Data multiplexer
-function RD_DATA_MUX(
-    data        : std32_array;
-    addr        : std_logic_vector;
-    CSW         : integer;
-    AW          : integer
-) return std_logic_vector is
+-- Decodes an address into a single bit strobe
+function compute_strobe(index : natural) return std_logic_vector
+is
+    variable result : std_logic_vector(MOD_COUNT-1 downto 0) := (others => '0');
 begin
-    return data(to_integer(unsigned(addr(AW+CSW+1 downto AW+2))));
+    result(index) := '1';
+    return result;
 end;
 
-signal new_write_access     : std_logic := '0';
-signal new_read_access      : std_logic := '0';
-signal ongoing_write        : std_logic := '0';
-signal ongoing_read         : std_logic := '0';
-signal mem_read_data        : std_logic_vector(31 downto 0);
-signal read_valid           : std_logic_vector(1 downto 0);
+-- Extracts module address from AXI address
+function module_address(addr : std_logic_vector) return MOD_RANGE
+is begin
+    return to_integer(unsigned(
+        read_field(addr, PAGE_NUM, PAGE_AW + BYTE_BITS)));
+end;
+
+-- Extracts register address from AXI address
+function register_address(addr : std_logic_vector) return std_logic_vector
+is begin
+    return read_field(addr, PAGE_AW, BYTE_BITS);
+end;
+
+function vector_and(data : std_logic_vector) return std_logic is
+    variable result : std_logic := '1';
+begin
+    for i in data'range loop
+        result := result and data(i);
+    end loop;
+    return result;
+end function;
+
+-- ------------------------------------------------------------------------
+-- Reading state
+type read_state_t is (READ_IDLE, READ_START, READ_READING, READ_DONE);
+signal read_state           : read_state_t;
+signal read_module_address  : MOD_RANGE;
+
+signal read_strobe          : std_logic_vector(MOD_COUNT-1 downto 0);
+signal read_ack             : std_logic := '0';
+signal read_data            : std_logic_vector(31 downto 0);
+
+-- ------------------------------------------------------------------------
+-- Writing state
+
+-- The data and address for writes can come separately.
+type write_state_t is (WRITE_IDLE, WRITE_START, WRITE_WRITING, WRITE_DONE);
+signal write_state          : write_state_t;
+signal write_module_address : MOD_RANGE;
+signal valid_write          : std_logic;
+
+signal write_strobe         : std_logic_vector(MOD_COUNT-1 downto 0);
+signal write_ack            : std_logic;
 
 begin
 
--- Detect new transaction.
--- Only allow one access at a time
-new_write_access <= not (ongoing_read or ongoing_write) and
-                            S_AXI_AWVALID and S_AXI_WVALID;
-new_read_access <= not (ongoing_read or ongoing_write) and
-                            S_AXI_ARVALID and not new_write_access;
+-- ------------------------------------------------------------------------
+-- Read interface.
+read_strobe <= compute_strobe(read_module_address);
+read_ack <= read_ack_i(read_module_address);
+read_data <= read_data_i(read_module_address);
 
--- Acknowledge new transaction.
-S_AXI_AWREADY <= new_write_access;
-S_AXI_WREADY  <= new_write_access;
-S_AXI_ARREADY <= new_read_access;
-
--- Store register address and write data
-Reg: process (S_AXI_CLK) is
-begin
-    if rising_edge(S_AXI_CLK) then
-        if (S_AXI_RST = '1') then
-            mem_addr_o <= (others => '0');
-            mem_dat_o <= (others => '0');
-            mem_cs_o <= (others => '0');
+process (clk_i) begin
+    if rising_edge(clk_i) then
+        if (reset_i = '1') then
+            read_state <= READ_IDLE;
+            read_strobe_o <= (others => '0');
+            read_address_o <= (others => '0');
         else
-            mem_cs_o <= (others => '0');
-            if (new_write_access = '1') then
-                mem_addr_o <= S_AXI_AWADDR(MEM_AWIDTH-1+2 downto 2);
-                mem_dat_o <= S_AXI_WDATA(MEM_DWIDTH-1 downto 0);
-                mem_cs_o <= CSGEN(S_AXI_AWADDR, MEM_CSWIDTH, MEM_AWIDTH);
-            elsif (new_read_access = '1') then
-                mem_addr_o <= S_AXI_ARADDR(MEM_AWIDTH-1+2 downto 2);
-                mem_cs_o <= CSGEN(S_AXI_ARADDR, MEM_CSWIDTH, MEM_AWIDTH);
-            end if;
+            case read_state is
+                when READ_IDLE =>
+                    -- On valid read request latch read address
+                    if (arvalid_i = '1') then
+                        read_module_address <= module_address(araddr_i);
+                        read_address_o <= register_address(araddr_i);
+                        read_state <= READ_START;
+                    end if;
+                when READ_START =>
+                    -- Now pass read request through to selected module
+                    read_strobe_o <= read_strobe;
+                    read_state <= READ_READING;
+                when READ_READING =>
+                    -- Wait for read acknowledge from module
+                    read_strobe_o <= (others => '0');
+                    if (read_ack = '1') then
+                        rdata_o <= read_data;
+                        read_state <= READ_DONE;
+                    end if;
+                when READ_DONE =>
+                    -- Waiting for master to acknowledge our data.
+                    if (rready_i = '1') then
+                        read_state <= READ_IDLE;
+                    end if;
+            end case;
         end if;
     end if;
 end process;
 
--- Handle write access.
-WriteAccess: process (S_AXI_CLK) is
-begin
-    if rising_edge(S_AXI_CLK) then
-        if (S_AXI_RST = '1') then
-            ongoing_write <= '0';
-        elsif (new_write_access = '1') then
-            ongoing_write <= '1';
-        elsif (ongoing_write = '1' and S_AXI_BREADY = '1') then
-            ongoing_write <= '0';
+arready_o <= to_std_logic(read_state = READ_IDLE);
+rvalid_o  <= to_std_logic(read_state = READ_DONE);
+rresp_o <= "00";
+
+
+-- ------------------------------------------------------------------------
+-- Write interface.
+write_strobe <= compute_strobe(write_module_address);
+write_ack <= write_ack_i(write_module_address);
+
+process (clk_i) begin
+    if rising_edge(clk_i) then
+        if (reset_i = '1') then
+            write_state <= WRITE_IDLE;
+            write_address_o <= (others => '0');
+            write_strobe_o <= (others => '0');
+            valid_write <= '0';
+        else
+            case write_state is
+                when WRITE_IDLE =>
+                    -- Wait for valid read and write data
+                    if (awvalid_i = '1' and wvalid_i = '1') then
+                        write_address_o <= register_address(awaddr_i);
+                        write_module_address <= module_address(awaddr_i);
+                        write_data_o <= wdata_i;
+                        valid_write <= vector_and(wstrb_i);
+                        write_state <= WRITE_START;
+                    end if;
+
+                when WRITE_START =>
+                    if (valid_write = '1') then
+                        -- Generate write strobe for valid cycle
+                        write_strobe_o <= write_strobe;
+                        write_state <= WRITE_WRITING;
+                    else
+                        -- For invalid write go straight to completion
+                        write_state <= WRITE_DONE;
+                    end if;
+
+                when WRITE_WRITING =>
+                    write_strobe_o <= (others => '0');
+                    if (write_ack = '1') then
+                        write_state <= WRITE_DONE;
+                    end if;
+
+                when WRITE_DONE =>
+                    -- Wait for master to accept our response
+                    if (bready_i = '1') then
+                        write_state <= WRITE_IDLE;
+                    end if;
+            end case;
         end if;
-        mem_wstb_o <= new_write_access;
-    end if;
-end process WriteAccess;
-
-S_AXI_BVALID <= ongoing_write;
-S_AXI_BRESP  <= (others => '0');
-
--- Handle read access
-ReadAccess: process (S_AXI_CLK) is
-begin
-    if rising_edge(S_AXI_CLK) then
-
-        if (S_AXI_RST = '1') then
-            ongoing_read   <= '0';
-            read_valid <= "00";
-        elsif (new_read_access = '1') then
-            ongoing_read   <= '1';
-            read_valid <= "00";
-        elsif (ongoing_read = '1') then
-            if (S_AXI_RREADY = '1' and read_valid = "00") then
-                read_valid <= "01";
-            elsif (S_AXI_RREADY = '1' and read_valid = "01") then
-                read_valid <= "10";
-            elsif (S_AXI_RREADY = '1' and read_valid = "10") then
-                read_valid <= "00";
-                ongoing_read <= '0';
-            end if;
-        end if;
-
-        mem_rstb_o <= new_read_access;
-
-    end if;
-end process ReadAccess;
-
-S_AXI_RVALID <= read_valid(1);
-S_AXI_RRESP  <= (others => '0');
-
-Not_All_Bits_Are_Used: if (MEM_DWIDTH < AXI_DWIDTH) generate
-begin
-    S_AXI_RDATA(AXI_DWIDTH-1 downto AXI_DWIDTH - MEM_DWIDTH)  <= (others=>'0');
-end generate Not_All_Bits_Are_Used;
-
-S_AXI_RDATA_DFF : for I in MEM_DWIDTH - 1 downto 0 generate
-    begin
-    S_AXI_RDATA_FDRE : FDRE
-        port map (
-          Q     => S_AXI_RDATA(I),
-          C     => S_AXI_CLK,
-          CE    => ongoing_read,
-          D     => mem_read_data(I),
-          R     => S_AXI_RST
-      );
-end generate S_AXI_RDATA_DFF;
-
--- Memory read data multiplexer
--- There are 2**CS pages
-READ_DATA_MUX : process(mem_dat_i, S_AXI_ARADDR)
-begin
-    mem_read_data <= RD_DATA_MUX(mem_dat_i, S_AXI_ARADDR, MEM_CSWIDTH, MEM_AWIDTH);
+   end if;
 end process;
 
-end architecture rtl;
+awready_o <= to_std_logic(write_state = WRITE_START);
+wready_o  <= to_std_logic(write_state = WRITE_START);
+bvalid_o  <= to_std_logic(write_state = WRITE_DONE);
+bresp_o <= "00";
+
+end;

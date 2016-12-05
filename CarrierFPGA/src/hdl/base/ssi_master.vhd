@@ -55,11 +55,9 @@ signal shift_data           : std_logic;
 signal shift_in             : std_logic_vector(31 downto 0);
 
 -- Shift length in integer
-signal LEN                  : natural range 0 to 2**BITS'length-1;
+signal intBITS              : natural range 0 to 2**BITS'length-1;
 
 begin
-
-LEN <= to_integer(unsigned(BITS));
 
 -- Connect outputs
 ssi_sck_o <= serial_clock;
@@ -118,21 +116,24 @@ port map (
     data_valid_o    => posn_valid_o
 );
 
--- Since BITS is a variable, sign extention for position output
--- has to be performed.
+--------------------------------------------------------------------------
+-- Dynamic bit length require sign extention logic
+--------------------------------------------------------------------------
+intBITS <= to_integer(unsigned(BITS));
+
 process(clk_i)
 begin
     if rising_edge(clk_i) then
         FOR I IN shift_in'range LOOP
             -- Have to handle 0-bit configuration. Horrible indeed.
-            if (LEN = 0) then
+            if (intBITS = 0) then
                 posn_o(I) <= '0';
             else
             -- Sign bit or not depending on BITS parameter.
-                if (I < LEN) then
+                if (I < intBITS) then
                     posn_o(I) <= shift_in(I);
                 else
-                    posn_o(I) <= shift_in(LEN-1);
+                    posn_o(I) <= shift_in(intBITS-1);
                 end if;
             end if;
         END LOOP;

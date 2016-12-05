@@ -10,14 +10,16 @@ entity sync_bit is
     port (
         clk_i : in std_logic;
         bit_i : in std_logic;
-        bit_o : out std_logic );
+        bit_o : out std_logic
+);
 end entity;
 
 architecture rtl of sync_bit is
-    signal bit_meta : std_logic;
 
-    attribute async_reg : string;
-    attribute async_reg of bit_meta : signal is "TRUE";
+signal bit_meta : std_logic;
+
+attribute iob   : string;
+attribute iob of bit_meta : signal is "TRUE";
 
 begin
     process (clk_i) begin

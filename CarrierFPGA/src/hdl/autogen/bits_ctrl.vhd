@@ -30,22 +30,32 @@ port (
     D       : out std_logic_vector(31 downto 0);
     D_WSTB  : out std_logic;
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0)
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic
 );
 end bits_ctrl;
 
 architecture rtl of bits_ctrl is
 
-signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
+signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 
 
 begin
 
-mem_addr <= to_integer(unsigned(mem_addr_i));
+-- Unused outputs
+read_ack_o <= '0';
+write_ack_o <= '0';
+
+read_addr <= to_integer(unsigned(read_address_i));
+write_addr <= to_integer(unsigned(write_address_i));
 
 --
 -- Control System Interface
@@ -68,22 +78,22 @@ begin
             C_WSTB <= '0';
             D_WSTB <= '0';
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = BITS_A) then
-                    A <= mem_dat_i;
+                if (write_addr = BITS_A) then
+                    A <= write_data_i;
                     A_WSTB <= '1';
                 end if;
-                if (mem_addr = BITS_B) then
-                    B <= mem_dat_i;
+                if (write_addr = BITS_B) then
+                    B <= write_data_i;
                     B_WSTB <= '1';
                 end if;
-                if (mem_addr = BITS_C) then
-                    C <= mem_dat_i;
+                if (write_addr = BITS_C) then
+                    C <= write_data_i;
                     C_WSTB <= '1';
                 end if;
-                if (mem_addr = BITS_D) then
-                    D <= mem_dat_i;
+                if (write_addr = BITS_D) then
+                    D <= write_data_i;
                     D_WSTB <= '1';
                 end if;
 
@@ -99,11 +109,11 @@ REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            read_data_o <= (others => '0');
         else
-            case (mem_addr) is
+            case (read_addr) is
                 when others =>
-                    mem_dat_o <= (others => '0');
+                    read_data_o <= (others => '0');
             end case;
         end if;
     end if;

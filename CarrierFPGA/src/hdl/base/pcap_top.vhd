@@ -55,12 +55,18 @@ port (
     m_axi_wlast         : out std_logic;
     m_axi_wstrb         : out std_logic_vector(AXI_DATA_WIDTH/8-1 downto 0);
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic_vector(2**PAGE_NUM-1 downto 0);
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_0_o         : out std_logic_vector(31 downto 0);
-    mem_dat_1_o         : out std_logic_vector(31 downto 0);
+    read_strobe_i       : in  std_logic_vector(MOD_COUNT-1 downto 0);
+    read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
+    read_data_0_o       : out std_logic_vector(31 downto 0);
+    read_ack_0_o        : out std_logic;
+    read_data_1_o       : out std_logic_vector(31 downto 0);
+    read_ack_1_o        : out std_logic;
+
+    write_strobe_i      : in  std_logic_vector(MOD_COUNT-1 downto 0);
+    write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_0_o       : out std_logic;
+    write_ack_1_o       : out std_logic;
     -- Block inputs
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
@@ -97,7 +103,7 @@ signal capture_data     : std32_array(63 downto 0);
 signal pcap_dat         : std_logic_vector(31 downto 0);
 signal pcap_dat_valid   : std_logic;
 
-signal dma_full         : std_logic;
+signal dma_error        : std_logic;
 signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_active      : std_logic;
 signal pcap_done        : std_logic;
@@ -109,6 +115,31 @@ signal sysbus_dly       : sysbus_t;
 signal posbus_dly       : posbus_t;
 
 begin
+
+-- This module handles multiple register address spaces
+-- Acknowledgement to AXI Lite interface
+write_ack_0_o <= '1';
+write_ack_1_o <= '1';
+
+read_ack_0 : entity work.delay_line
+generic map (DW => 1)
+port map (
+    clk_i       => clk_i,
+    data_i(0)   => read_strobe_i(PCAP_CS),
+    data_o(0)   => read_ack_0_o,
+    DELAY       => RD_ADDR2ACK
+);
+
+read_ack_1 : entity work.delay_line
+generic map (DW => 1)
+port map (
+    clk_i       => clk_i,
+    data_i(0)   => read_strobe_i(DRV_CS),
+    data_o(0)   => read_ack_1_o,
+    DELAY       => RD_ADDR2ACK
+);
+
+-- Multiplex read data out from multiple instantiations
 
 pcap_actv_o <= pcap_active;
 
@@ -129,11 +160,15 @@ port map (
     FRAME_COUNT         => FRAME_COUNT,
     ERR_STATUS          => ERR_STATUS,
 
-    mem_cs_i            => mem_cs_i(PCAP_CS),
-    mem_wstb_i          => mem_wstb_i,
-    mem_addr_i          => mem_addr_i(BLK_AW-1 downto 0),
-    mem_dat_i           => mem_dat_i,
-    mem_dat_o           => mem_dat_0_o
+    read_strobe_i       => read_strobe_i(PCAP_CS),
+    read_address_i      => read_address_i(BLK_AW-1 downto 0),
+    read_data_o         => read_data_0_o,
+    read_ack_o          => open,
+
+    write_strobe_i      => write_strobe_i(PCAP_CS),
+    write_address_i     => write_address_i(BLK_AW-1 downto 0),
+    write_data_i        => write_data_i,
+    write_ack_o         => open
 );
 
 --------------------------------------------------------------------------
@@ -144,11 +179,15 @@ port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
 
-    mem_cs_i            => mem_cs_i,
-    mem_wstb_i          => mem_wstb_i,
-    mem_addr_i          => mem_addr_i,
-    mem_dat_i           => mem_dat_i,
-    mem_dat_o           => mem_dat_1_o,
+    read_strobe_i       => (others => '0'),
+    read_address_i      => read_address_i,
+    read_data_o         => read_data_1_o,
+    read_ack_o          => open,
+
+    write_strobe_i      => write_strobe_i,
+    write_address_i     => write_address_i,
+    write_data_i        => write_data_i,
+    write_ack_o         => open,
 
     START_WRITE         => START_WRITE,
     WRITE               => WRITE,
@@ -183,10 +222,9 @@ port map (
     sysbus_o            => sysbus_dly,
     posbus_o            => posbus_dly,
 
-    mem_cs_i            => mem_cs_i(REG_CS),
-    mem_wstb_i          => mem_wstb_i,
-    mem_addr_i          => mem_addr_i(BLK_AW-1 downto 0),
-    mem_dat_i           => mem_dat_i
+    write_strobe_i      => write_strobe_i(REG_CS),
+    write_address_i     => write_address_i(BLK_AW-1 downto 0),
+    write_data_i        => write_data_i
 );
 
 --------------------------------------------------------------------------
@@ -212,10 +250,10 @@ port map (
     enable_i                => enable,
     capture_i               => capture,
     frame_i                 => frame,
-    dma_full_i              => dma_full,
     sysbus_i                => sysbus_dly,
     posbus_i                => posbus_dly,
 
+    dma_error_i             => dma_error,
     pcap_dat_o              => pcap_dat,
     pcap_dat_valid_o        => pcap_dat_valid,
     pcap_done_o             => pcap_done,
@@ -242,7 +280,7 @@ port map (
 
     pcap_done_i             => pcap_done,
     pcap_status_i           => pcap_status,
-    dma_full_o              => dma_full,
+    dma_error_o             => dma_error,
     pcap_dat_i              => pcap_dat,
     pcap_wstb_i             => pcap_dat_valid,
     irq_o                   => pcap_irq_o,

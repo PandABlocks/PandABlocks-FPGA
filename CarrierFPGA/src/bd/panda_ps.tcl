@@ -293,7 +293,7 @@ CONFIG.preset {Default}  ] $processing_system7_0
 
   # Create instance: write_dma_converter, and set properties
   set write_dma_converter [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dwidth_converter:2.1 write_dma_converter ]
-  set_property -dict [ list CONFIG.MAX_SPLIT_BEATS {16} CONFIG.PROTOCOL {AXI3} CONFIG.READ_WRITE_MODE {WRITE_ONLY}  ] $write_dma_converter
+  set_property -dict [ list CONFIG.FIFO_MODE {1} CONFIG.MAX_SPLIT_BEATS {16} CONFIG.PROTOCOL {AXI3} CONFIG.READ_WRITE_MODE {WRITE_ONLY}  ] $write_dma_converter
 
   # Create interface connections
   connect_bd_intf_net -intf_net S00_AXI_1 [get_bd_intf_pins processing_system7_0/M_AXI_GP0] [get_bd_intf_pins register_interface/S00_AXI]

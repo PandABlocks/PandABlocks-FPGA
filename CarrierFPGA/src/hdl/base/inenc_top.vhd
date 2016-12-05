@@ -27,11 +27,15 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Memory Bus Interface
-    mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic;
     -- Encoder I/O Pads
     A_IN                : in  std_logic_vector(ENC_NUM-1 downto 0);
     B_IN                : in  std_logic_vector(ENC_NUM-1 downto 0);
@@ -50,13 +54,57 @@ end inenc_top;
 
 architecture rtl of inenc_top is
 
+signal read_strobe      : std_logic_vector(TTLOUT_NUM-1 downto 0);
+signal read_data        : std32_array(TTLOUT_NUM-1 downto 0);
+signal write_strobe     : std_logic_vector(TTLOUT_NUM-1 downto 0);
 signal posn             : std32_array(ENC_NUM-1 downto 0);
-signal mem_blk_cs       : std_logic_vector(ENC_NUM-1 downto 0);
-signal mem_read_data    : std32_array(2**BLK_NUM-1 downto 0);
+
+component icon
+PORT (
+    CONTROL0 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
+    CONTROL1 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
+    CONTROL2 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
+    CONTROL3 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0)
+);
+end component;
+
+component ila
+  PORT (
+    CONTROL : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
+    CLK : IN STD_LOGIC;
+    DATA : IN STD_LOGIC_VECTOR(35 DOWNTO 0);
+    TRIG0 : IN STD_LOGIC_VECTOR(7 DOWNTO 0));
+end component;
+
+signal CONTROL0 : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal CONTROL1 : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal CONTROL2 : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal CONTROL3 : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal DATA0    : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal DATA1    : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal DATA2    : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal DATA3    : STD_LOGIC_VECTOR(35 DOWNTO 0);
+signal TRIG0    : STD_LOGIC_VECTOR(7 DOWNTO 0);
+signal TRIG1    : STD_LOGIC_VECTOR(7 DOWNTO 0);
+signal TRIG2    : STD_LOGIC_VECTOR(7 DOWNTO 0);
+signal TRIG3    : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
 begin
 
-mem_dat_o <= mem_read_data(to_integer(unsigned(mem_addr_i(PAGE_AW-1 downto BLK_AW))));
+-- Acknowledgement to AXI Lite interface
+write_ack_o <= '1';
+
+read_ack_delay : entity work.delay_line
+generic map (DW => 1)
+port map (
+    clk_i       => clk_i,
+    data_i(0)   => read_strobe_i,
+    data_o(0)   => read_ack_o,
+    DELAY       => RD_ADDR2ACK
+);
+
+-- Multiplex read data out from multiple instantiations
+read_data_o <= read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW))));
 
 -- Outputs
 posn_o <= posn;
@@ -67,10 +115,9 @@ posn_o <= posn;
 --
 INENC_GEN : FOR I IN 0 TO ENC_NUM-1 GENERATE
 
--- Generate Block chip select signal
-mem_blk_cs(I) <= '1'
-    when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_SVECTOR(I, PAGE_AW-BLK_AW)
-            and mem_cs_i = '1') else '0';
+-- Sub-module address decoding
+read_strobe(I) <= compute_block_strobe(read_address_i, I) and read_strobe_i;
+write_strobe(I) <= compute_block_strobe(write_address_i, I) and write_strobe_i;
 
 inenc_block_inst : entity work.inenc_block
 port map (
@@ -78,11 +125,15 @@ port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
 
-    mem_cs_i            => mem_blk_cs(I),
-    mem_wstb_i          => mem_wstb_i,
-    mem_addr_i          => mem_addr_i(BLK_AW-1 downto 0),
-    mem_dat_i           => mem_dat_i,
-    mem_dat_o           => mem_read_data(I),
+    read_strobe_i       => read_strobe(I),
+    read_address_i      => read_address_i(BLK_AW-1 downto 0),
+    read_data_o         => read_data(I),
+    read_ack_o          => open,
+
+    write_strobe_i      => write_strobe(I),
+    write_address_i     => write_address_i(BLK_AW-1 downto 0),
+    write_data_i        => write_data_i,
+    write_ack_o         => open,
 
     a_i                 => A_IN(I),
     b_i                 => B_IN(I),
@@ -100,5 +151,74 @@ port map (
 
 END GENERATE;
 
-end rtl;
 
+--icon_name : icon
+--port map (
+--    CONTROL0 => CONTROL0,
+--    CONTROL1 => CONTROL1,
+--    CONTROL2 => CONTROL2,
+--    CONTROL3 => CONTROL3
+--);
+--
+--ila_0 : ila
+--port map (
+--    CONTROL => CONTROL0,
+--    CLK     => clk_i,
+--    DATA    => DATA0,
+--    TRIG0   => TRIG0
+--);
+--
+--TRIG0(0) <= CLK_IN(0);
+--TRIG0(7 downto 1) <= (others => '0');
+--DATA0(31 downto 0) <= posn(0);
+--DATA0(32) <= CLK_IN(0);
+--DATA0(33) <= DATA_IN(0);
+--DATA0(35 downto 34) <= "00";
+--
+--
+--ila_1 : ila
+--port map (
+--    CONTROL => CONTROL1,
+--    CLK     => clk_i,
+--    DATA    => DATA1,
+--    TRIG0   => TRIG1
+--);
+--
+--TRIG1(0) <= CLK_IN(1);
+--TRIG1(7 downto 1) <= (others => '0');
+--DATA1(31 downto 0) <= posn(1);
+--DATA1(32) <= CLK_IN(1);
+--DATA1(33) <= DATA_IN(1);
+--DATA1(35 downto 34) <= "00";
+--
+--ila_2 : ila
+--port map (
+--    CONTROL => CONTROL2,
+--    CLK     => clk_i,
+--    DATA    => DATA2,
+--    TRIG0   => TRIG2
+--);
+--
+--TRIG2(0) <= CLK_IN(2);
+--TRIG2(7 downto 1) <= (others => '0');
+--DATA2(31 downto 0) <= posn(2);
+--DATA2(32) <= CLK_IN(2);
+--DATA2(33) <= DATA_IN(2);
+--DATA2(35 downto 34) <= "00";
+--
+--ila_3 : ila
+--port map (
+--    CONTROL => CONTROL3,
+--    CLK     => clk_i,
+--    DATA    => DATA3,
+--    TRIG0   => TRIG3
+--);
+--
+--TRIG3(0) <= CLK_IN(3);
+--TRIG3(7 downto 1) <= (others => '0');
+--DATA3(31 downto 0) <= posn(3);
+--DATA3(32) <= CLK_IN(3);
+--DATA3(33) <= DATA_IN(3);
+--DATA3(35 downto 34) <= "00";
+
+end rtl;

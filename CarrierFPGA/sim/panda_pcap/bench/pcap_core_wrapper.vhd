@@ -9,7 +9,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
-use work.type_defines.all;
+use work.support.all;
 use work.top_defines.all;
 
 entity pcap_core_wrapper is
@@ -36,7 +36,6 @@ port (
     posbus_i            : in  std_logic_vector(32*32-1 downto 0);
     extbus_i            : in  std_logic_vector(32*12-1 downto 0);
     -- Block outputs
-    dma_fifo_reset_o    : out std_logic;
     pcap_dat_o          : out std_logic_vector(31 downto 0);
     pcap_dat_valid_o    : out std_logic;
     pcap_done_o         : out std_logic;
@@ -79,6 +78,7 @@ port map (
     FRAMING_ENABLE     =>  FRAMING_ENABLE    ,
     FRAMING_MODE       =>  FRAMING_MODE      ,
     ERR_STATUS         =>  ERR_STATUS        ,
+    FRAME_NUM          => (others => '0'),
 
     enable_i           =>  enable_i          ,
     capture_i          =>  capture_i         ,
@@ -86,9 +86,9 @@ port map (
     dma_full_i         =>  dma_full_i        ,
     sysbus_i           =>  sysbus_i          ,
     posbus_i           =>  posbus            ,
-    extbus_i           =>  extbus            ,
+--    extbus_i           =>  extbus            ,
 
-    dma_fifo_reset_o   =>  dma_fifo_reset_o  ,
+ --   dma_fifo_reset_o   =>  dma_fifo_reset_o  ,
     pcap_dat_o         =>  pcap_dat_o        ,
     pcap_dat_valid_o   =>  pcap_dat_valid_o  ,
     pcap_done_o        =>  pcap_done_o       ,

@@ -27,11 +27,15 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Memory Bus Interface.
-    mem_cs_i            : in  std_logic_vector(2**PAGE_NUM-1 downto 0);
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
+    read_strobe_i       : in  std_logic_vector(MOD_COUNT-1 downto 0);
+    read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic_vector(MOD_COUNT-1 downto 0);
+    write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic;
     -- Block Register Interface.
     START_WRITE         : out std_logic;
     WRITE               : out std_logic_vector(31 downto 0);
@@ -55,12 +59,14 @@ end pcap_core_ctrl;
 
 architecture rtl of pcap_core_ctrl is
 
-signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
+signal write_address    : natural range 0 to (2**write_address_i'length - 1);
+signal read_address     : natural range 0 to (2**read_address_i'length - 1);
 
 begin
 
 -- Integer conversion for address.
-mem_addr <= to_integer(unsigned(mem_addr_i));
+read_address <= to_integer(unsigned(read_address_i));
+write_address <= to_integer(unsigned(write_address_i));
 
 --------------------------------------------------------------------------
 -- REG* Address Space interface
@@ -84,40 +90,40 @@ begin
             ARM <= '0';
             DISARM <= '0';
 
-            if (mem_cs_i(REG_CS) = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i(REG_CS) = '1') then
                 -- Memory start reset.
-                if (mem_addr = REG_PCAP_START_WRITE) then
+                if (write_address = REG_PCAP_START_WRITE) then
                     START_WRITE <= '1';
                 end if;
 
                 -- Memory data and strobe.
-                if (mem_addr = REG_PCAP_WRITE) then
-                    WRITE <= mem_dat_i;
+                if (write_address = REG_PCAP_WRITE) then
+                    WRITE <= write_data_i;
                     WRITE_WSTB <= '1';
                 end if;
 
                 -- Framing Mask.
-                if (mem_addr = REG_PCAP_FRAMING_MASK) then
-                    FRAMING_MASK <= mem_dat_i;
+                if (write_address = REG_PCAP_FRAMING_MASK) then
+                    FRAMING_MASK <= write_data_i;
                 end if;
 
                 -- Global Framing Enable.
-                if (mem_addr = REG_PCAP_FRAMING_ENABLE) then
-                    FRAMING_ENABLE <= mem_dat_i(0);
+                if (write_address = REG_PCAP_FRAMING_ENABLE) then
+                    FRAMING_ENABLE <= write_data_i(0);
                 end if;
 
                 -- Framing Mode
-                if (mem_addr = REG_PCAP_FRAMING_MODE) then
-                    FRAMING_MODE <= mem_dat_i;
+                if (write_address = REG_PCAP_FRAMING_MODE) then
+                    FRAMING_MODE <= write_data_i;
                 end if;
 
                 -- DMA block Soft ARM
-                if (mem_addr = REG_PCAP_ARM) then
+                if (write_address = REG_PCAP_ARM) then
                     ARM <= '1';
                 end if;
 
                 -- DMA Soft Disarm
-                if (mem_addr = REG_PCAP_DISARM) then
+                if (write_address = REG_PCAP_DISARM) then
                     DISARM <= '1';
                 end if;
             end if;
@@ -146,31 +152,31 @@ begin
             DMA_ADDR_WSTB <= '0';
             TIMEOUT_WSTB <= '0';
 
-            if (mem_cs_i(DRV_CS) = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i(DRV_CS) = '1') then
                 -- DMA Engine reset.
-                if (mem_addr = DRV_PCAP_DMA_RESET) then
+                if (write_address = DRV_PCAP_DMA_RESET) then
                     DMA_RESET <= '1';
                 end if;
 
                 -- DMA Engine Enable.
-                if (mem_addr = DRV_PCAP_DMA_START) then
+                if (write_address = DRV_PCAP_DMA_START) then
                     DMA_START <= '1';
                 end if;
 
                 -- DMA block address
-                if (mem_addr = DRV_PCAP_DMA_ADDR) then
-                    DMA_ADDR <= mem_dat_i;
+                if (write_address = DRV_PCAP_DMA_ADDR) then
+                    DMA_ADDR <= write_data_i;
                     DMA_ADDR_WSTB <= '1';
                 end if;
 
                 -- Host DMA Block memory size [in Bytes].
-                if (mem_addr = DRV_PCAP_BLOCK_SIZE) then
-                    BLOCK_SIZE <= mem_dat_i;
+                if (write_address = DRV_PCAP_BLOCK_SIZE) then
+                    BLOCK_SIZE <= write_data_i;
                 end if;
 
                 -- IRQ Timeout value
-                if (mem_addr = DRV_PCAP_TIMEOUT) then
-                    TIMEOUT <= mem_dat_i;
+                if (write_address = DRV_PCAP_TIMEOUT) then
+                    TIMEOUT <= write_data_i;
                     TIMEOUT_WSTB <= '1';
                 end if;
             end if;
@@ -185,13 +191,13 @@ REG_READ_DRV : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            read_data_o <= (others => '0');
         else
-            case (mem_addr) is
+            case (read_address) is
                 when DRV_PCAP_IRQ_STATUS =>
-                    mem_dat_o <= IRQ_STATUS;
+                    read_data_o <= IRQ_STATUS;
                 when others =>
-                    mem_dat_o <= (others => '0');
+                    read_data_o <= (others => '0');
             end case;
         end if;
     end if;

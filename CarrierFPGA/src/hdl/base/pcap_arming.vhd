@@ -32,6 +32,7 @@ port (
     dma_error_i         : in  std_logic;
     pcap_armed_o        : out std_logic;
     pcap_enabled_o      : out std_logic;
+    pcap_start_o        : out std_logic;
     pcap_done_o         : out std_logic;
     timestamp_o         : out std_logic_vector(63 downto 0);
     pcap_status_o       : out std_logic_vector(2 downto 0)
@@ -48,7 +49,6 @@ signal enable_prev              : std_logic;
 signal enable_fall              : std_logic;
 signal abort_capture            : std_logic;
 signal pcap_armed               : std_logic;
-signal pcap_enabled             : std_logic;
 signal enable                   : std_logic;
 signal frames_completed         : std_logic;
 signal frames_completed_rise    : std_logic;
@@ -57,7 +57,6 @@ begin
 
 -- Assign outputs
 pcap_armed_o <= pcap_armed;
-pcap_enabled_o <= pcap_enabled;
 
 --------------------------------------------------------------------------
 -- Register inputs, and detect rise/falling edge of internal signals.
@@ -87,14 +86,14 @@ process(clk_i) begin
         if (reset_i = '1') then
             arm_fsm <= IDLE;
             pcap_armed <= '0';
-            pcap_enabled <= '0';
+            pcap_start_o <= '0';
             pcap_done_o <= '0';
             pcap_status_o <= "000";
         -- Stop capturing on error if armed.
         elsif (pcap_armed = '1' and abort_capture = '1') then
             arm_fsm <= IDLE;
             pcap_armed <= '0';
-            pcap_enabled <= '0';
+            pcap_start_o <= '0';
             pcap_done_o <= '1';
             -- Set abort flags accordingly.
             -- User disarm;
@@ -119,7 +118,6 @@ process(clk_i) begin
                     if (ARM = '1') then
                         arm_fsm <= ARMED;
                         pcap_armed <= '1';
-                        pcap_enabled <= '0';
                         pcap_status_o <= "000";
                     end if;
 
@@ -127,22 +125,14 @@ process(clk_i) begin
                 when ARMED =>
                     if (enable = '1') then
                         arm_fsm <= ENABLED;
-                        pcap_enabled <= '1';
-                    end if;
-
-                    -- Set abort flags accordingly. If finish_block is due
-                    -- to completion, no disarmed bits are set.
-                    if (DISARM = '1') then
-                        pcap_status_o(0) <= '1';
-                    end if;
-
-                    if (pcap_error_i = '1') then
-                        pcap_status_o(1) <= '1';
+                        pcap_start_o <= '1';
                     end if;
 
                 -- Enabled until capture is finished or user disarm or
                 -- block error.
                 when ENABLED =>
+                    pcap_start_o <= '0';
+
                     if (enable_fall = '1' or frames_completed_rise = '1') then
                         -- Complete gracefully, and make sure that ongoing write
                         -- into the DMA fifo is completed.
@@ -151,18 +141,15 @@ process(clk_i) begin
                         else
                             arm_fsm <= IDLE;
                             pcap_armed <= '0';
-                            pcap_enabled <= '0';
                             pcap_done_o <= '1';
                         end if;
                     end if;
-
 
                 -- Wait for ongoing capture capture finish.
                 when WAIT_ONGOING_WRITE =>
                     if (ongoing_capture_i = '0') then
                         arm_fsm <= IDLE;
                         pcap_armed <= '0';
-                        pcap_enabled <= '0';
                         pcap_done_o <= '1';
                     end if;
 
@@ -186,11 +173,8 @@ process(clk_i) begin
             timestamp <= to_unsigned(1, 64);
         elsif (pcap_armed = '1') then
             timestamp <= timestamp + 1;
-        else
-            timestamp <= (others => '0');
         end if;
     end if;
 end process;
 
 end rtl;
-

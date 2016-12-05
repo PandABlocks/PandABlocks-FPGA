@@ -22,7 +22,7 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- AXI Transaction Parameters
-    m_axi_burst_len     : in  std_logic_vector(3 downto 0);
+    M_AXI_BURST_LEN     : in  std_logic_vector(AXI_BURST_WIDTH-1 downto 0);
     -- AXI HP Bus Write Only Interface
     m_axi_awready       : in  std_logic;
     m_axi_awregion      : out std_logic_vector(3 downto 0);
@@ -31,7 +31,7 @@ port (
     m_axi_awburst       : out std_logic_vector(1 downto 0);
     m_axi_awcache       : out std_logic_vector(3 downto 0);
     m_axi_awid          : out std_logic_vector(5 downto 0);
-    m_axi_awlen         : out std_logic_vector(AXI_BURST_WIDTH-1 downto 0);
+    m_axi_awlen         : out std_logic_vector(3 downto 0);
     m_axi_awlock        : out std_logic_vector(1 downto 0);
     m_axi_awprot        : out std_logic_vector(2 downto 0);
     m_axi_awqos         : out std_logic_vector(3 downto 0);
@@ -57,7 +57,7 @@ end axi_write_master;
 
 architecture rtl of axi_write_master is
 
-signal AXI_BURST_LEN        : unsigned(3 downto 0);
+signal AXI_BURST_LEN        : unsigned(AXI_BURST_WIDTH-1 downto 0);
 signal awvalid              : std_logic;
 signal wvalid               : std_logic;
 signal wlast                : std_logic;
@@ -69,24 +69,23 @@ signal wlen_count           : unsigned(AXI_BURST_WIDTH-1 downto 0);
 
 begin
 
-AXI_BURST_LEN <= unsigned(m_axi_burst_len);
-
 --
 -- Write Address
 --
 M_AXI_AWREGION <= "0000";
 -- Single threaded
 M_AXI_AWID <= "000000";
--- Burst LENgth is number of transaction beats, minus 1
-M_AXI_AWLEN <= std_logic_vector(AXI_BURST_LEN - 1);
+-- Burst Length is number of transaction beats, minus 1
+AXI_BURST_LEN <= unsigned(M_AXI_BURST_LEN) - 1;
+M_AXI_AWLEN <= std_logic_vector(AXI_BURST_LEN(3 downto 0));
 -- Size should be AXI_DATA_WIDTH, in 2^SIZE bytes
 M_AXI_AWSIZE <= TO_SVECTOR(LOG2(AXI_DATA_WIDTH/8), 3);
 -- INCR burst type is usually used, except for keyhole bursts
 M_AXI_AWBURST <= "01";
 -- AXI3 atomic access encoding for Normal acces
 M_AXI_AWLOCK <= "00";
--- Memory type encoding Not Allocated, Modifiable and Bufferable
-M_AXI_AWCACHE <= "0011";
+-- Cacheable write-through, no allocate
+M_AXI_AWCACHE <= "0010";
 -- Protection encoding for 'Non-secure access'
 M_AXI_AWPROT <= "000";
 -- Not participating in any QoS scheme
@@ -193,7 +192,7 @@ begin
 end process;
 
 -- WLAST generation on the MSB of a counter underflow
-wlast <= '1' when (wlen_count = unsigned(m_axi_burst_len)-1 and wnext = '1') else '0';
+wlast <= '1' when (wlen_count = AXI_BURST_LEN and wnext = '1') else '0';
 
 -- Burst length counter. Uses extra counter register bit to indicate terminal
 -- count to reduce decode logic
@@ -210,30 +209,14 @@ begin
     end if;
 end process;
 
--- The write response channel provides feedback that the write has committed
--- to memory. BREADY will occur when all of the data and the write address
--- has arrived and been accepted by the slave.
---
--- The write issuance (number of outstanding write addresses) is started by
--- the Address Write transfer, and is completed by a BREADY/BRESP.
---
--- The BRESP bit [1] is used indicate any errors from the interconnect or
--- slave for the entire write burst. This example will capture the error°
--- into the ERROR output.
+-- Always accept a write response from slave
+bready <= '1';
 
-WRITE_RESPONSE_CHANNEL: process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            bready <= '0';
-        else
-            bready <= '1';
-        end if;
-    end if;
-end process;
+dma_done <= M_AXI_BVALID;
 
-dma_done <= bready and M_AXI_BVALID;
-dma_error <= bready and M_AXI_BVALID and M_AXI_BRESP(1);
+-- The BRESP is used indicate any errors from the interconnect or
+-- slave for the entire write burst.
+dma_error <= M_AXI_BVALID and (M_AXI_BRESP(1) or M_AXI_BRESP(0));
 dma_read <= wnext;
 
 end rtl;

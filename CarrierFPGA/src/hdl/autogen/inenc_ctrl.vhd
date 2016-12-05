@@ -29,34 +29,39 @@ port (
     FRAME_PERIOD_WSTB  : out std_logic;
     BITS       : out std_logic_vector(31 downto 0);
     BITS_WSTB  : out std_logic;
-    BITS_CRC       : out std_logic_vector(31 downto 0);
-    BITS_CRC_WSTB  : out std_logic;
     SETP       : out std_logic_vector(31 downto 0);
     SETP_WSTB  : out std_logic;
     RST_ON_Z       : out std_logic_vector(31 downto 0);
     RST_ON_Z_WSTB  : out std_logic;
-    EXTENSION       : in  std_logic_vector(31 downto 0);
-    ERR_FRAME       : in  std_logic_vector(31 downto 0);
-    ERR_RESPONSE       : in  std_logic_vector(31 downto 0);
-    ENC_STATUS       : in  std_logic_vector(31 downto 0);
+    STATUS       : in  std_logic_vector(31 downto 0);
     DCARD_MODE       : in  std_logic_vector(31 downto 0);
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0)
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic
 );
 end inenc_ctrl;
 
 architecture rtl of inenc_ctrl is
 
-signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
+signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 
 
 begin
 
-mem_addr <= to_integer(unsigned(mem_addr_i));
+-- Unused outputs
+read_ack_o <= '0';
+write_ack_o <= '0';
+
+read_addr <= to_integer(unsigned(read_address_i));
+write_addr <= to_integer(unsigned(write_address_i));
 
 --
 -- Control System Interface
@@ -73,8 +78,6 @@ begin
             FRAME_PERIOD_WSTB <= '0';
             BITS <= (others => '0');
             BITS_WSTB <= '0';
-            BITS_CRC <= (others => '0');
-            BITS_CRC_WSTB <= '0';
             SETP <= (others => '0');
             SETP_WSTB <= '0';
             RST_ON_Z <= (others => '0');
@@ -84,38 +87,33 @@ begin
             CLK_PERIOD_WSTB <= '0';
             FRAME_PERIOD_WSTB <= '0';
             BITS_WSTB <= '0';
-            BITS_CRC_WSTB <= '0';
             SETP_WSTB <= '0';
             RST_ON_Z_WSTB <= '0';
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = INENC_PROTOCOL) then
-                    PROTOCOL <= mem_dat_i;
+                if (write_addr = INENC_PROTOCOL) then
+                    PROTOCOL <= write_data_i;
                     PROTOCOL_WSTB <= '1';
                 end if;
-                if (mem_addr = INENC_CLK_PERIOD) then
-                    CLK_PERIOD <= mem_dat_i;
+                if (write_addr = INENC_CLK_PERIOD) then
+                    CLK_PERIOD <= write_data_i;
                     CLK_PERIOD_WSTB <= '1';
                 end if;
-                if (mem_addr = INENC_FRAME_PERIOD) then
-                    FRAME_PERIOD <= mem_dat_i;
+                if (write_addr = INENC_FRAME_PERIOD) then
+                    FRAME_PERIOD <= write_data_i;
                     FRAME_PERIOD_WSTB <= '1';
                 end if;
-                if (mem_addr = INENC_BITS) then
-                    BITS <= mem_dat_i;
+                if (write_addr = INENC_BITS) then
+                    BITS <= write_data_i;
                     BITS_WSTB <= '1';
                 end if;
-                if (mem_addr = INENC_BITS_CRC) then
-                    BITS_CRC <= mem_dat_i;
-                    BITS_CRC_WSTB <= '1';
-                end if;
-                if (mem_addr = INENC_SETP) then
-                    SETP <= mem_dat_i;
+                if (write_addr = INENC_SETP) then
+                    SETP <= write_data_i;
                     SETP_WSTB <= '1';
                 end if;
-                if (mem_addr = INENC_RST_ON_Z) then
-                    RST_ON_Z <= mem_dat_i;
+                if (write_addr = INENC_RST_ON_Z) then
+                    RST_ON_Z <= write_data_i;
                     RST_ON_Z_WSTB <= '1';
                 end if;
 
@@ -131,21 +129,15 @@ REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            read_data_o <= (others => '0');
         else
-            case (mem_addr) is
-                when INENC_EXTENSION =>
-                    mem_dat_o <= EXTENSION;
-                when INENC_ERR_FRAME =>
-                    mem_dat_o <= ERR_FRAME;
-                when INENC_ERR_RESPONSE =>
-                    mem_dat_o <= ERR_RESPONSE;
-                when INENC_ENC_STATUS =>
-                    mem_dat_o <= ENC_STATUS;
+            case (read_addr) is
+                when INENC_STATUS =>
+                    read_data_o <= STATUS;
                 when INENC_DCARD_MODE =>
-                    mem_dat_o <= DCARD_MODE;
+                    read_data_o <= DCARD_MODE;
                 when others =>
-                    mem_dat_o <= (others => '0');
+                    read_data_o <= (others => '0');
             end case;
         end if;
     end if;

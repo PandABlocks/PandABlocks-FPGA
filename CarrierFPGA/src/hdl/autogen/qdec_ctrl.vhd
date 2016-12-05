@@ -29,17 +29,22 @@ port (
     b_o : out std_logic;
     z_o : out std_logic;
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0)
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic
 );
 end qdec_ctrl;
 
 architecture rtl of qdec_ctrl is
 
-signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
+signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 
 signal A      : std_logic_vector(31 downto 0);
 signal A_WSTB : std_logic;
@@ -56,7 +61,12 @@ signal Z_DLY_WSTB : std_logic;
 
 begin
 
-mem_addr <= to_integer(unsigned(mem_addr_i));
+-- Unused outputs
+read_ack_o <= '0';
+write_ack_o <= '0';
+
+read_addr <= to_integer(unsigned(read_address_i));
+write_addr <= to_integer(unsigned(write_address_i));
 
 --
 -- Control System Interface
@@ -91,38 +101,38 @@ begin
             Z_WSTB <= '0';
             Z_DLY_WSTB <= '0';
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = QDEC_RST_ON_Z) then
-                    RST_ON_Z <= mem_dat_i;
+                if (write_addr = QDEC_RST_ON_Z) then
+                    RST_ON_Z <= write_data_i;
                     RST_ON_Z_WSTB <= '1';
                 end if;
-                if (mem_addr = QDEC_SETP) then
-                    SETP <= mem_dat_i;
+                if (write_addr = QDEC_SETP) then
+                    SETP <= write_data_i;
                     SETP_WSTB <= '1';
                 end if;
-                if (mem_addr = QDEC_A) then
-                    A <= mem_dat_i;
+                if (write_addr = QDEC_A) then
+                    A <= write_data_i;
                     A_WSTB <= '1';
                 end if;
-                if (mem_addr = QDEC_A_DLY) then
-                    A_DLY <= mem_dat_i;
+                if (write_addr = QDEC_A_DLY) then
+                    A_DLY <= write_data_i;
                     A_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = QDEC_B) then
-                    B <= mem_dat_i;
+                if (write_addr = QDEC_B) then
+                    B <= write_data_i;
                     B_WSTB <= '1';
                 end if;
-                if (mem_addr = QDEC_B_DLY) then
-                    B_DLY <= mem_dat_i;
+                if (write_addr = QDEC_B_DLY) then
+                    B_DLY <= write_data_i;
                     B_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = QDEC_Z) then
-                    Z <= mem_dat_i;
+                if (write_addr = QDEC_Z) then
+                    Z <= write_data_i;
                     Z_WSTB <= '1';
                 end if;
-                if (mem_addr = QDEC_Z_DLY) then
-                    Z_DLY <= mem_dat_i;
+                if (write_addr = QDEC_Z_DLY) then
+                    Z_DLY <= write_data_i;
                     Z_DLY_WSTB <= '1';
                 end if;
 
@@ -138,11 +148,11 @@ REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            read_data_o <= (others => '0');
         else
-            case (mem_addr) is
+            case (read_addr) is
                 when others =>
-                    mem_dat_o <= (others => '0');
+                    read_data_o <= (others => '0');
             end case;
         end if;
     end if;

@@ -29,10 +29,9 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic_vector(2**PAGE_NUM-1 downto 0);
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
+    write_strobe_i      : in  std_logic_vector(MOD_COUNT-1 downto 0);
+    write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
     -- Block Outputs
     slow_tlp_o          : out slow_packet
 );
@@ -40,13 +39,13 @@ end slow_registers;
 
 architecture rtl of slow_registers is
 
-signal mem_addr : natural range 0 to (2**BLK_AW - 1);
+signal write_address : natural range 0 to (2**BLK_AW - 1);
 signal blk_addr : natural range 0 to (2**(PAGE_AW-BLK_AW)-1);
 
 begin
 
-mem_addr <= to_integer(unsigned(mem_addr_i(BLK_AW-1 downto 0)));
-blk_addr <= to_integer(unsigned(mem_addr_i(PAGE_AW-1 downto BLK_AW)));
+write_address <= to_integer(unsigned(write_address_i(BLK_AW-1 downto 0)));
+blk_addr <= to_integer(unsigned(write_address_i(PAGE_AW-1 downto BLK_AW)));
 
 ---------------------------------------------------------------------------
 -- Catch user write access to Slow Registers, and generate a TLP to
@@ -64,30 +63,28 @@ begin
         else
             -- Single clock cycle strobe
             slow_tlp_o.strobe <= '0';
-            if (mem_wstb_i = '1') then
-                -- INENC PROTOCOL Slow Registers
-                if (mem_cs_i(INENC_CS) = '1') then
-                    if (mem_addr = INENC_PROTOCOL) then
-                        slow_tlp_o.strobe <= '1';
-                        slow_tlp_o.data <= mem_dat_i;
-                        slow_tlp_o.address <= INPROT_ADDR_LIST(blk_addr);
-                    end if;
-                -- OUTENC PROTOCOL Slow Registers
-                elsif (mem_cs_i(OUTENC_CS) = '1') then
-                    if (mem_addr = OUTENC_PROTOCOL) then
-                        slow_tlp_o.strobe <= '1';
-                        slow_tlp_o.data <= mem_dat_i;
-                        slow_tlp_o.address <= OUTPROT_ADDR_LIST(blk_addr);
-                    end if;
-                -- TTLIN TERM Slow Registers
-                elsif (mem_cs_i(TTLIN_CS) = '1') then
-                    if (mem_addr = TTLIN_TERM) then
-                        slow_tlp_o.strobe <= '1';
-                        slow_tlp_o.data <= mem_dat_i;
-                        slow_tlp_o.address <= TTLTERM_ADDR_LIST(blk_addr);
-                    end if;
+            -- INENC PROTOCOL Slow Registers
+            if (write_strobe_i(INENC_CS) = '1') then
+                if (write_address = INENC_PROTOCOL) then
+                    slow_tlp_o.strobe <= '1';
+                    slow_tlp_o.data <= write_data_i;
+                    slow_tlp_o.address <= INPROT_ADDR_LIST(blk_addr);
                 end if;
-           end if;
+            -- OUTENC PROTOCOL Slow Registers
+            elsif (write_strobe_i(OUTENC_CS) = '1') then
+                if (write_address = OUTENC_PROTOCOL) then
+                    slow_tlp_o.strobe <= '1';
+                    slow_tlp_o.data <= write_data_i;
+                    slow_tlp_o.address <= OUTPROT_ADDR_LIST(blk_addr);
+                end if;
+            -- TTLIN TERM Slow Registers
+            elsif (write_strobe_i(TTLIN_CS) = '1') then
+                if (write_address = TTLIN_TERM) then
+                    slow_tlp_o.strobe <= '1';
+                    slow_tlp_o.data <= write_data_i;
+                    slow_tlp_o.address <= TTLTERM_ADDR_LIST(blk_addr);
+                end if;
+            end if;
         end if;
     end if;
 end process;
