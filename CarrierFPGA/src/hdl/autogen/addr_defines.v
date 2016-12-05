@@ -18,6 +18,7 @@ localparam ADDER_CS = 16;
 localparam COUNTER_CS = 17;
 localparam PGEN_CS = 18;
 localparam PCOMP_CS = 19;
+localparam ADC_CS = 20;
 localparam PCAP_CS = 21;
 localparam BITS_CS = 22;
 localparam CLOCKS_CS = 23;
@@ -261,6 +262,8 @@ localparam PCOMP_TABLE_ADDRESS = 11;
 localparam PCOMP_TABLE_LENGTH = 12;
 localparam PCOMP_TABLE_STATUS = 16;
 
+// ADC Block:
+
 // PCAP Block:
 localparam PCAP_ENABLE = 0;
 localparam PCAP_ENABLE_DLY = 5;
@@ -302,13 +305,34 @@ localparam SLOW_ENC_24V = 11;
 localparam SLOW_FMC_12V = 12;
 
 // FMC Block:
-localparam FMC_ENABLE = 0;
-localparam FMC_ENABLE_DLY = 1;
-localparam FMC_PRESENT = 2;
-localparam FMC_ADC1_GAIN = 3;
-localparam FMC_ADC2_GAIN = 4;
-localparam FMC_ADC3_GAIN = 5;
-localparam FMC_ADC4_GAIN = 6;
+localparam FMC_PRESENT = 0;
+localparam FMC_OUT1 = 1;
+localparam FMC_OUT1_DLY = 9;
+localparam FMC_OUT2 = 2;
+localparam FMC_OUT2_DLY = 10;
+localparam FMC_OUT3 = 3;
+localparam FMC_OUT3_DLY = 11;
+localparam FMC_OUT4 = 4;
+localparam FMC_OUT4_DLY = 12;
+localparam FMC_OUT5 = 5;
+localparam FMC_OUT5_DLY = 13;
+localparam FMC_OUT6 = 6;
+localparam FMC_OUT6_DLY = 14;
+localparam FMC_OUT7 = 7;
+localparam FMC_OUT7_DLY = 15;
+localparam FMC_OUT8 = 8;
+localparam FMC_OUT8_DLY = 16;
+localparam FMC_OUT_PWR_ON = 17;
+localparam FMC_IN_VTSEL = 18;
+localparam FMC_IN_DB = 19;
+localparam FMC_IN_FAULT = 20;
+localparam FMC_OUT_PUSHPL = 21;
+localparam FMC_OUT_FLTR = 22;
+localparam FMC_OUT_SRIAL = 23;
+localparam FMC_OUT_FAULT = 24;
+localparam FMC_OUT_EN = 25;
+localparam FMC_OUT_CONFIG = 26;
+localparam FMC_OUT_STATUS = 27;
 
 // SFP Block:
 localparam SFP_LINK1_UP = 0;
@@ -345,6 +369,7 @@ localparam ADDER_BASE = BASE + 4096 * ADDER_CS;
 localparam COUNTER_BASE = BASE + 4096 * COUNTER_CS;
 localparam PGEN_BASE = BASE + 4096 * PGEN_CS;
 localparam PCOMP_BASE = BASE + 4096 * PCOMP_CS;
+localparam ADC_BASE = BASE + 4096 * ADC_CS;
 localparam PCAP_BASE = BASE + 4096 * PCAP_CS;
 localparam BITS_BASE = BASE + 4096 * BITS_CS;
 localparam CLOCKS_BASE = BASE + 4096 * CLOCKS_CS;

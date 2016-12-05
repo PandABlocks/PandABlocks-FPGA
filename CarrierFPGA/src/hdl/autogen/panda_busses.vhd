@@ -57,6 +57,8 @@ port (
     -- PCOMP Block
     PCOMP_ACTIVE   : in std_logic_vector(3 downto 0);
     PCOMP_OUT   : in std_logic_vector(3 downto 0);
+    -- ADC Block
+    ADC_OUT   : in std32_array(7 downto 0);
     -- PCAP Block
     PCAP_ACTIVE   : in std_logic_vector(0 downto 0);
     -- BITS Block
@@ -251,6 +253,16 @@ bitbus_o(103) <= PCOMP_OUT(1);
 bitbus_o(104) <= PCOMP_OUT(2);
 bitbus_o(105) <= PCOMP_OUT(3);
 
+-- ADC Outputs:
+posbus_o(22) <= ADC_OUT(0);
+posbus_o(23) <= ADC_OUT(1);
+posbus_o(24) <= ADC_OUT(2);
+posbus_o(25) <= ADC_OUT(3);
+posbus_o(26) <= ADC_OUT(4);
+posbus_o(27) <= ADC_OUT(5);
+posbus_o(28) <= ADC_OUT(6);
+posbus_o(29) <= ADC_OUT(7);
+
 -- PCAP Outputs:
 bitbus_o(106) <= PCAP_ACTIVE(0);
 
@@ -274,11 +286,14 @@ posbus_o(0) <= POSITIONS_ZERO(0);
 -- SLOW Outputs:
 
 -- FMC Outputs:
-posbus_o(22) <= fmc_data_i(0);
-posbus_o(23) <= fmc_data_i(1);
-posbus_o(24) <= fmc_data_i(2);
-posbus_o(25) <= fmc_data_i(3);
-bitbus_o(111) <= fmc_inputs_i(0);
+bitbus_o(34) <= fmc_inputs_i(0);
+bitbus_o(35) <= fmc_inputs_i(1);
+bitbus_o(36) <= fmc_inputs_i(2);
+bitbus_o(37) <= fmc_inputs_i(3);
+bitbus_o(111) <= fmc_inputs_i(4);
+bitbus_o(112) <= fmc_inputs_i(5);
+bitbus_o(113) <= fmc_inputs_i(6);
+bitbus_o(114) <= fmc_inputs_i(7);
 
 -- SFP Outputs:
 
