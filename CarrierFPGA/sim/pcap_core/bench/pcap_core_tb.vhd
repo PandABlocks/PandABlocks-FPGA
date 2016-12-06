@@ -12,7 +12,7 @@ END pcap_core_tb;
 ARCHITECTURE behavior OF pcap_core_tb IS 
 
 --Inputs
-signal clk_i            : std_logic := '0';
+signal clk_i            : std_logic := '1';
 signal reset_i          : std_logic := '1';
 signal ARM              : std_logic := '0';
 signal DISARM           : std_logic := '0';
@@ -27,7 +27,7 @@ signal enable_i         : std_logic := '0';
 signal capture_i        : std_logic := '0';
 signal frame_i          : std_logic := '0';
 signal data_val_i       : std_logic := '0';
-signal dma_full_i       : std_logic := '0';
+signal dma_error_i       : std_logic := '0';
 signal sysbus_i         : sysbus_t := (others => '0');
 signal posbus_i         : posbus_t := (others => (others => '0'));
 
@@ -66,8 +66,7 @@ PORT MAP (
     enable_i            => enable_i,
     capture_i           => capture_i,
     frame_i             => frame_i,
-    data_val_i          => data_val_i,
-    dma_full_i          => dma_full_i,
+    dma_error_i         => dma_error_i,
     sysbus_i            => sysbus_i,
     posbus_i            => posbus_i,
     pcap_dat_o          => pcap_dat_o,
@@ -77,10 +76,12 @@ PORT MAP (
     pcap_status_o       => pcap_status_o
 );
 
--- Configuraton Stimulus process
+-- Configuraton
 stim_config: process
 begin
-    -- hold reset state
+    --------------------------------------------------
+    -- Initiliase and ARM
+    -------------------------------------------------
     wait for 1000 ns;
     START_WRITE <= '1'; wait for 8 ns; START_WRITE <= '0';
     wait for 1000 ns;
@@ -88,25 +89,53 @@ begin
     WRITE_WSTB <= '1'; wait for 8 ns; WRITE_WSTB <= '0';
     wait for 1000 ns;
     FRAMING_ENABLE <= '1';
+    FRAMING_MODE(22) <= '1';
     FRAMING_MASK(22) <= '1';
-    wait for 2000 ns;
+    wait for 1000 ns;
     ARM <= '1';wait for 8 ns; ARM <= '0';
-    wait;
+    wait for 10000 ns;
+
+    --------------------------------------------------
+    -- Frame and Capture
+    -------------------------------------------------
+    enable_i <= '1';
+    wait for 10000 ns;
+    adc_data <= (others => '0');
+    for I in 0 to 9 loop
+        frame_i <= '1'; wait for 8 ns; frame_i <= '0';
+
+        adc_loop : for I in 0 to 99 loop
+            adc_data <= adc_data + 1;
+            data_val_i <= '1'; wait for 8 ns; data_val_i <= '0';
+            wait for 100 ns;
+        end loop;
+
+        capture_i <= '1'; wait for 8 ns; capture_i <= '0';
+        wait for 1000 ns;
+    end loop;
+    wait for 10000 ns;
+    enable_i <= '0';
+    wait for 10000 ns;
+    assert false report "Simulation Finished" severity failure;
 end process;
 
 -- ADC Stimulus process
-stim_adc: process
-begin
-    adc_data <= (others => '0');
-    -- hold reset state
-    wait for 1000 ns;
-    adc_loop : loop
-        adc_data <= adc_data + 1;
-        data_val_i <= '1'; wait for 8 ns; data_val_i <= '0';
-        wait for 1000 ns;
-    end loop;
-    wait;
-end process;
+--stim_adc: process
+--begin
+--    -- hold reset state
+--    wait for 10000 ns;
+--    frame_i <= '1'; wait for 8 ns; frame_i <= '0';
+--    wait for 1000 ns;
+--        adc_loop : for I in 0 to 99 loop
+--            adc_data <= adc_data + 1;
+--            data_val_i <= '1'; wait for 8 ns; data_val_i <= '0';
+--            wait for 500 ns;
+--        end loop;
+--    wait for 1000 ns;
+--    frame_i <= '1'; wait for 8 ns; frame_i <= '0';
+--    wait for 10000 ns;
+--    assert false report "Simulation Finished" severity failure;
+--end process;
 
 posbus_i(22) <= std_logic_vector(adc_data);
 posbus_i(23) <= std_logic_vector(adc_data);

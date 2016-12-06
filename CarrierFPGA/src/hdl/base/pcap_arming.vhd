@@ -31,7 +31,6 @@ port (
     ongoing_capture_i   : in  std_logic;
     dma_error_i         : in  std_logic;
     pcap_armed_o        : out std_logic;
-    pcap_enabled_o      : out std_logic;
     pcap_start_o        : out std_logic;
     pcap_done_o         : out std_logic;
     timestamp_o         : out std_logic_vector(63 downto 0);
@@ -101,7 +100,7 @@ process(clk_i) begin
                 pcap_status_o(0) <= '1';
             end if;
 
-            -- Pcap block error;
+            -- Pcap frame or buffer error;
             if (pcap_error_i = '1') then
                 pcap_status_o(1) <= '1';
             end if;
@@ -118,21 +117,21 @@ process(clk_i) begin
                     if (ARM = '1') then
                         arm_fsm <= ARMED;
                         pcap_armed <= '1';
+                        pcap_start_o <= '1';
                         pcap_status_o <= "000";
                     end if;
 
                 -- Wait for enable pulse from the system bus.
                 when ARMED =>
+                    pcap_start_o <= '0';
+
                     if (enable = '1') then
                         arm_fsm <= ENABLED;
-                        pcap_start_o <= '1';
                     end if;
 
                 -- Enabled until capture is finished or user disarm or
                 -- block error.
                 when ENABLED =>
-                    pcap_start_o <= '0';
-
                     if (enable_fall = '1' or frames_completed_rise = '1') then
                         -- Complete gracefully, and make sure that ongoing write
                         -- into the DMA fifo is completed.

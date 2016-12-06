@@ -41,7 +41,6 @@ port (
     enable_i            : in  std_logic;
     capture_i           : in  std_logic;
     frame_i             : in  std_logic;
-    data_val_i          : in  std_logic;
     dma_error_i         : in  std_logic;
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
@@ -96,18 +95,18 @@ port map (
     dma_error_i         => dma_error_i,
     ongoing_capture_i   => pcap_dat_valid,
     pcap_armed_o        => pcap_armed,
-    pcap_start_o        => pcap_start,
+    pcap_start_o        => open, --pcap_start,
     pcap_done_o         => pcap_done_o,
     timestamp_o         => timestamp,
     pcap_status_o       => pcap_status
 );
 
 -- Mask capture and frame signals only when core is active (armed)
-capture <= capture_i and pcap_armed;
-frame <= frame_i and pcap_armed;
+capture <= capture_i and enable_i and pcap_armed;
+frame <= frame_i and enable_i and pcap_armed;
 
--- Issue a reset to sub-blocks on pcap start
-pcap_reset <= reset_i or pcap_start;
+-- Keep sub-block under reset when pcap is not armed
+pcap_reset <= reset_i or not pcap_armed;
 
 --------------------------------------------------------------------------
 -- Encoder and ADC Position Data Processing
@@ -128,7 +127,6 @@ port map (
 
     frame_i             => frame,
     capture_i           => capture,
-    data_val_i          => data_val_i,
     timestamp_i         => timestamp,
     capture_o           => capture_pulse,
     frames_completed_o  => frames_completed,

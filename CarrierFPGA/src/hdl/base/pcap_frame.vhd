@@ -36,7 +36,6 @@ port (
     posbus_i            : in  posbus_t;
     frame_i             : in  std_logic;
     capture_i           : in  std_logic;
-    data_val_i          : in  std_logic;
     timestamp_i         : in  std_logic_vector(63 downto 0);
     capture_o           : out std_logic;
     frames_completed_o  : out std_logic;
@@ -53,15 +52,16 @@ signal ongoing_capture  : std_logic;
 
 signal frame_rise       : std_logic;
 signal capture_rise     : std_logic;
+signal first_frame      : std_logic;
+signal capture          : std_logic;
 
 signal timestamp        : unsigned(63 downto 0);
-signal capture_ts       : unsigned(63 downto 0);
-signal frame_ts         : unsigned(31 downto 0);
-signal frame_length     : unsigned(31 downto 0);
-signal capture_offset   : unsigned(31 downto 0);
+signal capture_ts       : unsigned(63 downto 0) := (others => '0');
+signal frame_ts         : unsigned(31 downto 0) := (others => '0');
+signal frame_length     : unsigned(31 downto 0) := (others => '0');
+signal capture_offset   : unsigned(31 downto 0) := (others => '0');
 
 signal frame_counter    : unsigned(31 downto 0);
-
 signal capture_din      : std32_array(63 downto 0);
 
 begin
@@ -81,29 +81,6 @@ frame_rise <= frame_i and not frame_prev;
 capture_rise <= capture_i and not capture_prev;
 
 --------------------------------------------------------------------------
--- Capture flag behaviour is based on FRAMING mode and enable.
--- Enable makes sure that capture pulse will not be generated
--- preventing triggering oncoming modules higher level.
---
--- Capture output needs 1 clock delay to allow latching of data.
---------------------------------------------------------------------------
-process(clk_i) begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            capture_o <= '0';
-        else
-            -- Just forward incoming pulses.
-            if (FRAMING_ENABLE = '0') then
-                capture_o <= capture_rise;
-            -- Frame-end acts a capture signal.
-            else
-                capture_o <= frame_rise and ongoing_capture;
-            end if;
-        end if;
-    end if;
-end process;
-
---------------------------------------------------------------------------
 -- Capture and Frame managements:
 --
 -- A capture between two Frame inputs indicates a live frame
@@ -116,12 +93,27 @@ end process;
 -- Output          |           |             |             |
 --
 --------------------------------------------------------------------------
+capture <= capture_rise when (FRAMING_ENABLE = '0') else
+                frame_rise and ongoing_capture;
+
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             ongoing_capture <= '0';
+            capture_o <= '0';
+            first_frame <= '0';
             error_o <= '0';
         else
+            -- Align with posn data
+            capture_o <= capture;
+
+            -- First frame arrived flag which is used to detect 'capture
+            -- before frame pulse' error condition
+            -- Resets on arming.
+            if (frame_rise = '1') then
+                first_frame <= '1';
+            end if;
+
             -- If happens on the same clock, capture belongs the
             -- immediate frame.
             if (frame_rise = '1' and capture_rise = '1') then
@@ -134,49 +126,43 @@ process(clk_i) begin
                 ongoing_capture <= '1';
             end if;
 
-            -- Flag an error if more than one (1) capture pulse is received
-            -- within a frame. And, ignore when a capture and frame comes
-            -- at the same time.
-            -- It is latched until next pcap start (via reset port)
-            if (FRAMING_ENABLE = '1') then
-                if (ongoing_capture = '1' and frame_rise = '0') then
-                    error_o <= capture_rise;
-                end if;
+            -- When Framing is enabled, there are two error conditions
+            -- (1) Capture pulse arrives before frame, and
+            -- (2) More than 1 capture pulses in a frame
+            -- Error is latched until next pcap start (via reset port)
+
+            -- Make sure that frame and capture are not on the same clock
+            if (first_frame = '0' and frame_rise = '0') then
+                error_o <= FRAMING_ENABLE and capture_rise;
+            elsif (ongoing_capture = '1' and frame_rise = '0') then
+                error_o <= FRAMING_ENABLE and capture_rise;
             end if;
         end if;
     end if;
 end process;
 
 --------------------------------------------------------------------------
--- There are three timestamp information is captured as: Start of Frame,
+-- There are three timestamp information captured as: Start of Frame,
 -- Frame Length and Capture Offset.
 --------------------------------------------------------------------------
 timestamp <= unsigned(timestamp_i);
 
 process(clk_i) begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            frame_ts <= (others => '0');
-            capture_ts <= (others => '0');
-            frame_length <= (others => '0');
-            capture_offset <= (others => '0');
-        else
-            -- Timestamp for capture pulse.
-            -- Capture offset from frame start.
-            if (capture_rise = '1') then
-                capture_ts <= timestamp;
-                capture_offset <= unsigned(timestamp(31 downto 0)) - frame_ts;
-            end if;
+        -- Timestamp for capture pulse.
+        -- Capture offset from frame start.
+        if (capture_rise = '1') then
+            capture_ts <= timestamp;
+            capture_offset <= unsigned(timestamp(31 downto 0)) - frame_ts;
+        end if;
 
-            -- Frame length.
-            if (frame_rise = '1') then
-                frame_ts <= unsigned(timestamp(31 downto 0));
-                frame_length <= unsigned(timestamp(31 downto 0)) - frame_ts;
-            end if;
+        -- Frame length.
+        if (frame_rise = '1') then
+            frame_ts <= unsigned(timestamp(31 downto 0));
+            frame_length <= unsigned(timestamp(31 downto 0)) - frame_ts;
         end if;
     end if;
 end process;
-
 
 --------------------------------------------------------------------------
 -- Keep track of incoming frame pulses, and generate completion signal once
@@ -215,11 +201,8 @@ port map (
     reset_i             => reset_i,
 
     posn_i              => posbus_i(I),
-    extn_i              => (others => '0'),
-
     frame_i             => frame_rise,
     capture_i           => capture_rise,
-    data_val_i          => data_val_i,
     posn_o              => posn_o(I),
     extn_o              => open,
 

@@ -250,10 +250,10 @@ port map (
     enable_i                => enable,
     capture_i               => capture,
     frame_i                 => frame,
+    dma_error_i             => dma_error,
     sysbus_i                => sysbus_dly,
     posbus_i                => posbus_dly,
 
-    dma_error_i             => dma_error,
     pcap_dat_o              => pcap_dat,
     pcap_dat_valid_o        => pcap_dat_valid,
     pcap_done_o             => pcap_done,
