@@ -76,13 +76,9 @@ INENC       Input encoder
     CLK_PERIOD      Clock rate
     FRAME_PERIOD    Frame rate
     BITS            Number of bits
-    BITS_CRC        Number of bits for BiSS Error and CRC
     SETP            Set point
     RST_ON_Z        Zero position on Z rising edge
-    EXTENSION       Bits higher than 32-bits
-    ERR_FRAME       Set if frame overrun
-    ERR_RESPONSE    No response from encoder
-    ENC_STATUS      Extended encoder status read from device
+    STATUS          Encoder status read from device
     DCARD_MODE      Daughter card jumper mode
     A               Quadrature A if in incremental mode
     B               Quadrature B if in incremental mode
@@ -125,6 +121,10 @@ ADDER       Position adder
     INPB            Position input B
     INPC            Position input C
     INPD            Position input D
+    INPA_INVERT     Sign invert input A
+    INPB_INVERT     Sign invert input B
+    INPC_INVERT     Sign invert input C
+    INPD_INVERT     Sign invert input D
     SCALE           Scale divisor after add
     OUT             Position output
 

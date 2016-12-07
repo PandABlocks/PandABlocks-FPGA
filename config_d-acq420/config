@@ -109,13 +109,13 @@ INENC[4]
     CLK_PERIOD      param       time
     FRAME_PERIOD    param       time
     BITS            param       uint 63
-    BITS_CRC        param       uint 63
     SETP            write       position
     RST_ON_Z        param       bit
-    EXTENSION       read        int
-    ERR_FRAME       read        bit
-    ERR_RESPONSE    read        bit
-    ENC_STATUS      read
+    STATUS          read        enum 4
+        0   All OK
+        1   Link Down
+        2   Encoder Error
+        3   Link Down and Error
     DCARD_MODE      read
     A               bit_out
     B               bit_out
@@ -171,10 +171,23 @@ ADDER[2]
     INPB            pos_mux
     INPC            pos_mux
     INPD            pos_mux
-    SCALE           param       enum 3
+    INPA_INVERT     param       enum 2
+        0   No
+        1   Yes
+    INPB_INVERT     param       enum 2
+        0   No
+        1   Yes
+    INPC_INVERT     param       enum 2
+        0   No
+        1   Yes
+    INPD_INVERT     param       enum 2
+        0   No
+        1   Yes
+    SCALE           param       enum 4
         0   /1
         1   /2
         2   /4
+        3   /8
     OUT             pos_out
 
 COUNTER[8]
