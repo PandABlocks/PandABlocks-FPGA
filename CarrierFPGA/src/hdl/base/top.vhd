@@ -178,13 +178,11 @@ signal IRQ_F2P              : std_logic_vector(0 downto 0);
 
 -- Configuration and Status Interface Block
 signal read_strobe          : std_logic_vector(MOD_COUNT-1 downto 0);
-signal read_strobe_delay    : std_logic_vector(MOD_COUNT-1 downto 0);
 signal read_address         : std_logic_vector(PAGE_AW-1 downto 0);
 signal read_data            : std32_array(MOD_COUNT-1 downto 0);
 signal read_ack             : std_logic_vector(MOD_COUNT-1 downto 0) := (others
 => '1');
 signal write_strobe         : std_logic_vector(MOD_COUNT-1 downto 0);
-signal write_strobe_delay   : std_logic_vector(MOD_COUNT-1 downto 0);
 signal write_address        : std_logic_vector(PAGE_AW-1 downto 0);
 signal write_data           : std_logic_vector(31 downto 0);
 signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
@@ -288,11 +286,11 @@ signal bits_outd            : std_logic_vector(0 downto 0);
 
 -- FMC Block
 signal fmc_inputs           : std_logic_vector(15 downto 0);
-signal fmc_data             : std32_array(16 downto 0);
+signal fmc_data             : std32_array(15 downto 0);
 
 -- SFP Block
 signal sfp_inputs           : std_logic_vector(15 downto 0);
-signal sfp_data             : std32_array(16 downto 0);
+signal sfp_data             : std32_array(15 downto 0);
 
 -- Make schematics a bit more clear for analysis
 attribute keep              : string;
@@ -403,8 +401,8 @@ port map (
 
 ---------------------------------------------------------------------------
 -- Control and Status Memory Interface
+-- Base Address: 0x43c00000
 ---------------------------------------------------------------------------
--- 0x43c00000
 axi_lite_slave_inst : entity work.axi_lite_slave
 port map (
     clk_i                       => FCLK_CLK0,
@@ -437,28 +435,12 @@ port map (
     read_strobe_o               => read_strobe,
     read_address_o              => read_address,
     read_data_i                 => read_data,
-    read_ack_i                  => read_ack,        --read_strobe_delay,
+    read_ack_i                  => read_ack,
 
     write_strobe_o              => write_strobe,
     write_address_o             => write_address,
     write_data_o                => write_data,
-    write_ack_i                 => write_ack        --write_strobe_delay
-);
-
-read_ack_delay : entity work.delay_line
-port map (
-    clk_i       => FCLK_CLK0,
-    data_i      => read_strobe,
-    data_o      => read_strobe_delay,
-    DELAY       => "00010"
-);
-
-write_ack_delay : entity work.delay_line
-port map (
-    clk_i       => FCLK_CLK0,
-    data_i      => write_strobe,
-    data_o      => write_strobe_delay,
-    DELAY       => "00010"
+    write_ack_i                 => write_ack
 );
 
 ---------------------------------------------------------------------------

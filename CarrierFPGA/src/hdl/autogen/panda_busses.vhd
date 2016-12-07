@@ -76,9 +76,9 @@ port (
     -- SLOW Block
     -- Generic Inputs to BitBus and PosBus from FMC and SFP
     fmc_inputs_i        : in  std_logic_vector(15 downto 0);
-    fmc_data_i          : in  std32_array(16 downto 0);
+    fmc_data_i          : in  std32_array(15 downto 0);
     sfp_inputs_i        : in  std_logic_vector(15 downto 0);
-    sfp_data_i          : in  std32_array(16 downto 0);
+    sfp_data_i          : in  std32_array(15 downto 0);
     -- Bus Outputs
     bitbus_o            : out std_logic_vector(127 downto 0);
     posbus_o            : out std32_array(31 downto 0)
