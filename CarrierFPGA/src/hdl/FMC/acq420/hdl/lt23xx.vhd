@@ -106,10 +106,10 @@ generic map (
 port map (
     Q               => adc_sck_o,
     C               => clk_i,
-    CE              => '1',                 -- ongoing_capture,
+    CE              => '1',
     D1              => '1',
     D2              => '0',
-    R               => ongoing_capture_n,   -- '0',
+    R               => ongoing_capture_n,
     S               => '0'
 );
 
@@ -143,21 +143,20 @@ end process;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        adc_data_val_o <= not ongoing_capture_d2 and ongoing_capture_d3;
+        adc_data_val_o <= '0';
 
-        FOR I IN adc_data'range LOOP
-            -- Have to handle 0-bit configuration. Horrible indeed.
-            if (BITS = 0) then
-                adc_data_o(I) <= '0';
-            else
-            -- Sign bit or not depending on BITS parameter.
+        if (ongoing_capture_d2 = '0' and ongoing_capture_d3 = '1') then
+            adc_data_val_o <= '1';
+
+            FOR I IN adc_data'range LOOP
+                -- Sign bit or not depending on BITS parameter.
                 if (I < BITS) then
                     adc_data_o(I) <= adc_data(I);
                 else
                     adc_data_o(I) <= adc_data(BITS-1);
                 end if;
-            end if;
-        END LOOP;
+            END LOOP;
+        end if;
     end if;
 end process;
 

@@ -54,6 +54,8 @@ signal adc_data_val     : std_logic_vector(N-1 downto 0);
 
 begin
 
+adc_busy <= (others => '0');
+
 --------------------------------------------------------------------------
 -- Generate all ADC channels. System clock for LTC is 100MHz.
 --------------------------------------------------------------------------
