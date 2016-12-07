@@ -29,42 +29,20 @@ end iobuf_registered;
 
 architecture rtl of iobuf_registered is
 
-component FDRE is
-port (
-    Q   : out std_logic;
-    C   : in  std_logic;
-    CE  : in  std_logic;
-    R   : in  std_logic;
-    D   : in  std_logic
-);
-end component;
-
--- Pack registers into IOB
-attribute iob               : string;
-attribute iob of FDRE       : component is "TRUE";
-
 signal ipad     : std_logic;
 signal opad     : std_logic;
 
 begin
 
-ofd_inst : FDRE
-port map (
-    Q   => O,
-    C   => clock,
-    CE  => '1',
-    R   => '0',
-    D   => opad
-);
-
-ifd_inst : FDRE
-port map (
-    Q   => ipad,
-    C   => clock,
-    CE  => '1',
-    R   => '0',
-    D   => I
-);
+--------------------------------------------------------------------------
+-- Register and pack into IOBs
+--------------------------------------------------------------------------
+process(clock) begin
+    if rising_edge(clock) then
+        O <= opad;
+        ipad <= I;
+    end if;
+end process;
 
 -- Physical IOBUF instantiations controlled with PROTOCOL
 IOBUF_inst : IOBUF

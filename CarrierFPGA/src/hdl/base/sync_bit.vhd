@@ -18,9 +18,6 @@ architecture rtl of sync_bit is
 
 signal bit_meta : std_logic;
 
-attribute iob   : string;
-attribute iob of bit_meta : signal is "TRUE";
-
 begin
     process (clk_i) begin
         if rising_edge(clk_i) then

@@ -67,19 +67,6 @@ signal outenc_dir           : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_ctrl           : std3_array(ENC_NUM-1 downto 0);
 signal outenc_ctrl          : std3_array(ENC_NUM-1 downto 0);
 
--- Pack outputs into IOB register
-attribute keep              : string;
-attribute keep of Bm0_opad   : signal is "TRUE";
-attribute keep of As0_opad   : signal is "TRUE";
-attribute keep of Bs0_opad   : signal is "TRUE";
-attribute keep of Zs0_opad   : signal is "TRUE";
-
-attribute iob               : string;
-attribute iob of Bm0_opad   : signal is "TRUE";
-attribute iob of As0_opad   : signal is "TRUE";
-attribute iob of Bs0_opad   : signal is "TRUE";
-attribute iob of Zs0_opad   : signal is "TRUE";
-
 begin
 
 -- Unused Nets.
@@ -167,7 +154,7 @@ z_filt : entity work.delay_filter port map(
     filt_o  => Z_IN(I)
 );
 
-din_filt : entity work.delay_filter port map(
+datain_filt : entity work.delay_filter port map(
     clk_i   => clk_i,
     reset_i => reset_i,
     pulse_i => Am0_ipad(I),
@@ -233,7 +220,7 @@ As0_opad(I) <= A_OUT(I) when (OUTPROT(I)(1 downto 0) = "00") else DATA_OUT(I);
 Bs0_opad(I) <= B_OUT(I);
 Zs0_opad(I) <= Z_OUT(I);
 
-din_filt : entity work.delay_filter port map (
+clkin_filt : entity work.delay_filter port map (
     clk_i   => clk_i,
     reset_i => reset_i,
     pulse_i => Bs0_ipad(I),

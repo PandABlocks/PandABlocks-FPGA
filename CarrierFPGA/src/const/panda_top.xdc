@@ -195,6 +195,12 @@ set_property IOSTANDARD LVDS    [get_ports FMC_CLK1_M2C_P]
 set_property IOSTANDARD LVDS_25 [get_ports EXTCLK_P]
 
 # -------------------------------------------------------------------
+# Pack IO registers into IOBs where possible
+# -------------------------------------------------------------------
+set_property iob true [all_inputs]
+set_property iob true [all_outputs]
+
+# -------------------------------------------------------------------
 # Enable on-chip pulldown for floating inputs
 # -------------------------------------------------------------------
 set_property PULLTYPE PULLDOWN [get_ports TTLIN_PAD_I[*]]

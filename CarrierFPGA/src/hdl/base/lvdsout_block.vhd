@@ -42,20 +42,6 @@ end lvdsout_block;
 
 architecture rtl of lvdsout_block is
 
-component FDRE is
-port (
-    Q   : out std_logic;
-    C   : in  std_logic;
-    CE  : in  std_logic;
-    R   : in  std_logic;
-    D   : in  std_logic
-);
-end component;
-
--- Pack registers into IOB
-attribute iob               : string;
-attribute iob of FDRE       : component is "TRUE";
-
 signal opad                 : std_logic;
 
 begin
@@ -83,16 +69,13 @@ port map (
 );
 
 ---------------------------------------------------------------------------
--- Register output and Pack into IOB
+-- Register output and pack into IOB
 ---------------------------------------------------------------------------
-ofd_inst : FDRE
-port map (
-    Q   => pad_o,
-    C   => clk_i,
-    CE  => '1',
-    R   => '0',
-    D   => opad
-);
+process(clk_i) begin
+    if rising_edge(clk_i) then
+        pad_o <= opad;
+    end if;
+end process;
 
 end rtl;
 
