@@ -61,6 +61,7 @@ signal frame_ts         : unsigned(31 downto 0) := (others => '0');
 signal frame_length     : unsigned(31 downto 0) := (others => '0');
 signal capture_offset   : unsigned(31 downto 0) := (others => '0');
 
+signal adc_count        : std_logic_vector(31 downto 0);
 signal frame_counter    : unsigned(31 downto 0);
 signal posbus           : std32_array(31 downto 0);
 signal extbus           : std32_array(31 downto 0);
@@ -105,7 +106,8 @@ process(clk_i) begin
             first_frame <= '0';
             error_o <= '0';
         else
-            -- Align with posn data
+            -- Data processing in capture module has a latency of 1 tick so
+            -- capture signal must be aligned
             capture_o <= capture;
 
             -- First frame arrived flag which is used to detect 'capture
@@ -213,11 +215,14 @@ port map (
 );
 END GENERATE;
 
+-- ADC count is equal to frame_length since we accummulate on every tick
+adc_count <= std_logic_vector(frame_length);
+
 -- Zero field
 posn_o(0)  <= posbus_i(0);
 posn_o(31 downto 1)  <= posbus(31 downto 1);
 
-posn_o(32) <= (others => '0');
+posn_o(32) <= adc_count;                            -- ADC count
 posn_o(36 downto 33) <= extbus(4 downto 1);         -- inenc
 posn_o(37) <= std_logic_vector(frame_length);
 posn_o(38) <= std_logic_vector(capture_offset);

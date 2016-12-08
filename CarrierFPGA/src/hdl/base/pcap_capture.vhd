@@ -38,13 +38,12 @@ end pcap_capture;
 
 architecture rtl of pcap_capture is
 
-signal posn            : signed(63 downto 0);
+signal posn             : signed(63 downto 0);
 signal posn_prev        : signed(63 downto 0);
-signal posn_latch      : signed(63 downto 0);
+signal posn_latch       : signed(63 downto 0);
 signal posout           : signed(63 downto 0);
 signal posn_delta       : signed(63 downto 0);
-signal posn_sum         : signed(63 downto 0);
-signal sample_count     : unsigned(31 downto 0);
+signal posn_accum       : signed(63 downto 0);
 signal capture_mode     : std_logic_vector(2 downto 0);
 
 begin
@@ -57,28 +56,38 @@ extn_o <= std_logic_vector(posout(63 downto 32));
 posn <= resize(signed(posn_i), 64);
 
 --------------------------------------------------------------------------
--- Sum incoming data Frame-to-Frame
+-- Posn data capture processing is based on Mode of Operation
 --------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            posn_sum <= (others => '0');
-            sample_count <= (others => '0');
+            posn_accum <= (others => '0');
+            posn_latch <= (others => '0');
+            posn_prev <= (others => '0');
         else
-            -- If data arrived on the same clock with frame
+            -- Latch posn on capture pulse
+            if (capture_i = '1') then
+                posn_latch <= posn;
+            end if;
+
+            -- Calculate frame-to-frame posn difference
             if (frame_i = '1') then
-                posn_sum <= posn;
-                sample_count <= to_unsigned(1, sample_count'length);
+                posn_prev <= posn;
+            end if;
+
+            -- Accumulate frame-to-frame posn values on every tick
+            -- Reset accumulator on frame pulse, and latch sum value
+            if (frame_i = '1') then
+                posn_accum <= posn;
             -- Accumulate incoming data
             else
-                posn_sum <= posn_sum + posn;
-                sample_count <= sample_count + 1;
+                posn_accum <= posn_accum + posn;
             end if;
         end if;
     end if;
 end process;
 
--- Calculate on-the-fly Difference from Frame-to-Frame
+-- On-the-fly frame-to-frame posn difference
 posn_delta <= posn - posn_prev;
 
 --------------------------------------------------------------------------
@@ -97,20 +106,8 @@ capture_mode <= FRAMING_ENABLE & FRAMING_MASK & FRAMING_MODE;
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            posn_latch <= (others => '0');
-            posn_prev <= (others => '0');
             posout <= (others => '0');
         else
-            -- Store instantaneous value of posn on capture pulse
-            if (capture_i = '1') then
-                posn_latch <= posn;
-            end if;
-
-            -- Store previous sample on frame
-            if (frame_i = '1') then
-                posn_prev <= posn;
-            end if;
-
             -- Multiplex output position data
             case capture_mode is
                 when "000" => posout <= posn;
@@ -120,7 +117,7 @@ process(clk_i) begin
                 when "100" => posout <= posn_latch;
                 when "101" => posout <= posn_latch;
                 when "110" => posout <= posn_delta;
-                when "111" => posout <= posn_sum;
+                when "111" => posout <= posn_accum;
                 when others => posout <= posn;
             end case;
         end if;

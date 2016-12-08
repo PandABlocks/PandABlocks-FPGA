@@ -27,7 +27,7 @@ signal enable_i         : std_logic := '0';
 signal capture_i        : std_logic := '0';
 signal frame_i          : std_logic := '0';
 signal data_val_i       : std_logic := '0';
-signal dma_error_i       : std_logic := '0';
+signal dma_error_i      : std_logic := '0';
 signal sysbus_i         : sysbus_t := (others => '0');
 signal posbus_i         : posbus_t := (others => (others => '0'));
 
@@ -45,7 +45,6 @@ signal adc_data         : unsigned(31 downto 0);
 BEGIN
 
 clk_i <= not clk_i after 4 ns;
-reset_i <= '0' after 100 ns;
 
 -- Instantiate the Unit Under Test (UUT)
 uut: entity work.pcap_core
@@ -76,21 +75,35 @@ PORT MAP (
     pcap_status_o       => pcap_status_o
 );
 
+--------------------------------------------------------------------------
 -- Configuraton
+-- capture_mode flags
+-- 0 x x  : posn
+-- 1 0 x  : posn_latch
+-- 1 1 0  : posn_delta
+-- 1 1 1  : posn_sun
+--------------------------------------------------------------------------
 stim_config: process
 begin
+    adc_data <= (others => '0');
+    reset_i <= '1';
+    wait until (clk_i'event and clk_i = '1');
+    wait for 80 ns; reset_i <= '0';
     --------------------------------------------------
     -- Initiliase and ARM
     -------------------------------------------------
-    wait for 1000 ns;
+    wait for 80 ns;
     START_WRITE <= '1'; wait for 8 ns; START_WRITE <= '0';
-    wait for 1000 ns;
+    wait for 80 ns;
     WRITE <= X"0000_0016";
+    WRITE_WSTB <= '1'; wait for 8 ns; WRITE_WSTB <= '0';
+    wait for 80 ns;
+    WRITE <= X"0000_0020";
     WRITE_WSTB <= '1'; wait for 8 ns; WRITE_WSTB <= '0';
     wait for 1000 ns;
     FRAMING_ENABLE <= '1';
-    FRAMING_MODE(22) <= '1';
     FRAMING_MASK(22) <= '1';
+    FRAMING_MODE(22) <= '1';
     wait for 1000 ns;
     ARM <= '1';wait for 8 ns; ARM <= '0';
     wait for 10000 ns;
@@ -100,14 +113,13 @@ begin
     -------------------------------------------------
     enable_i <= '1';
     wait for 10000 ns;
-    adc_data <= (others => '0');
     for I in 0 to 9 loop
         frame_i <= '1'; wait for 8 ns; frame_i <= '0';
 
         adc_loop : for I in 0 to 99 loop
             adc_data <= adc_data + 1;
             data_val_i <= '1'; wait for 8 ns; data_val_i <= '0';
-            wait for 100 ns;
+            wait for 80 ns;
         end loop;
 
         capture_i <= '1'; wait for 8 ns; capture_i <= '0';
@@ -118,24 +130,6 @@ begin
     wait for 10000 ns;
     assert false report "Simulation Finished" severity failure;
 end process;
-
--- ADC Stimulus process
---stim_adc: process
---begin
---    -- hold reset state
---    wait for 10000 ns;
---    frame_i <= '1'; wait for 8 ns; frame_i <= '0';
---    wait for 1000 ns;
---        adc_loop : for I in 0 to 99 loop
---            adc_data <= adc_data + 1;
---            data_val_i <= '1'; wait for 8 ns; data_val_i <= '0';
---            wait for 500 ns;
---        end loop;
---    wait for 1000 ns;
---    frame_i <= '1'; wait for 8 ns; frame_i <= '0';
---    wait for 10000 ns;
---    assert false report "Simulation Finished" severity failure;
---end process;
 
 posbus_i(22) <= std_logic_vector(adc_data);
 posbus_i(23) <= std_logic_vector(adc_data);
