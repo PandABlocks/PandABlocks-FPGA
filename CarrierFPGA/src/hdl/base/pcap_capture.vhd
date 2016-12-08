@@ -18,6 +18,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.operator.all;
+
 entity pcap_capture is
 port (
     -- Clock and Reset
@@ -38,22 +41,17 @@ end pcap_capture;
 
 architecture rtl of pcap_capture is
 
-signal posn             : signed(63 downto 0);
-signal posn_prev        : signed(63 downto 0);
-signal posn_latch       : signed(63 downto 0);
-signal posout           : signed(63 downto 0);
-signal posn_delta       : signed(63 downto 0);
-signal posn_accum       : signed(63 downto 0);
 signal capture_mode     : std_logic_vector(2 downto 0);
 
+signal posn_latch       : std_logic_vector(31 downto 0);
+signal posn_prev        : std_logic_vector(31 downto 0);
+signal posn_delta       : std_logic_vector(31 downto 0);
+
+signal posn_accum       : signed(64 downto 0);
+signal posn_sum         : signed(63 downto 0);
+signal posn_overflow    : std_logic;
+
 begin
-
--- Output assignments.
-posn_o <= std_logic_vector(posout(31 downto 0));
-extn_o <= std_logic_vector(posout(63 downto 32));
-
--- Combine into 64-bit values.
-posn <= resize(signed(posn_i), 64);
 
 --------------------------------------------------------------------------
 -- Posn data capture processing is based on Mode of Operation
@@ -67,28 +65,30 @@ process(clk_i) begin
         else
             -- Latch posn on capture pulse
             if (capture_i = '1') then
-                posn_latch <= posn;
+                posn_latch <= posn_i;
             end if;
 
             -- Calculate frame-to-frame posn difference
             if (frame_i = '1') then
-                posn_prev <= posn;
+                posn_prev <= posn_i;
             end if;
 
             -- Accumulate frame-to-frame posn values on every tick
             -- Reset accumulator on frame pulse, and latch sum value
             if (frame_i = '1') then
-                posn_accum <= posn;
+                posn_accum <= resize(signed(posn_i), 65);
+
+--                truncate_result(posn_sum, posn_overflow, posn_accum);
             -- Accumulate incoming data
             else
-                posn_accum <= posn_accum + posn;
+                posn_accum <= posn_accum + resize(signed(posn_i), 65);
             end if;
         end if;
     end if;
 end process;
 
 -- On-the-fly frame-to-frame posn difference
-posn_delta <= posn - posn_prev;
+posn_delta <= std_logic_vector(signed(posn_i) - signed(posn_prev));
 
 --------------------------------------------------------------------------
 -- Position output can be following based on FRAMING mode of operation.
@@ -106,19 +106,30 @@ capture_mode <= FRAMING_ENABLE & FRAMING_MASK & FRAMING_MODE;
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            posout <= (others => '0');
+            posn_o <= (others => '0');
+            extn_o <= (others => '0');
         else
             -- Multiplex output position data
             case capture_mode is
-                when "000" => posout <= posn;
-                when "001" => posout <= posn;
-                when "010" => posout <= posn;
-                when "011" => posout <= posn;
-                when "100" => posout <= posn_latch;
-                when "101" => posout <= posn_latch;
-                when "110" => posout <= posn_delta;
-                when "111" => posout <= posn_accum;
-                when others => posout <= posn;
+                when "000" => posn_o <= posn_i;
+                              extn_o <= (others => '0');
+                when "001" => posn_o <= posn_i;
+                              extn_o <= (others => '0');
+                when "010" => posn_o <= posn_i;
+                              extn_o <= (others => '0');
+                when "011" => posn_o <= posn_i;
+                              extn_o <= (others => '0');
+                when "100" => posn_o <= posn_latch;
+                              extn_o <= (others => '0');
+                when "101" => posn_o <= posn_latch;
+                              extn_o <= (others => '0');
+                when "110" => posn_o <= posn_delta;
+                              extn_o <= (others => '0');
+                when "111" => posn_o <= std_logic_vector(posn_accum(31 downto 0));
+                              extn_o <= std_logic_vector(posn_accum(63 downto 32));
+--                when "111" => posn_o <= std_logic_vector(posn_sum(31 downto 0));
+--                              extn_o <= std_logic_vector(posn_sum(63 downto 32));
+                when others =>
             end case;
         end if;
     end if;

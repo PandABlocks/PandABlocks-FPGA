@@ -1,5 +1,5 @@
 library ieee;
 use ieee.std_logic_1164.all;
 package panda_version is
-constant FPGA_VERSION: std_logic_vector(31 downto 0)   := X"06121600";
+constant FPGA_VERSION: std_logic_vector(31 downto 0)   := X"08121600";
 end panda_version;
