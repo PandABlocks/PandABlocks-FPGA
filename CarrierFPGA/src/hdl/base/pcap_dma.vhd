@@ -67,21 +67,6 @@ end pcap_dma;
 
 architecture rtl of pcap_dma is
 
-component ila_32x8K
-port (
-    clk                     : in  std_logic;
-    probe0                  : in  std_logic_vector(31 downto 0);
-    probe1                  : in  std_logic_vector(31 downto 0)
-);
-end component;
-
-signal probe0               : std_logic_vector(31 downto 0);
-signal probe1               : std_logic_vector(31 downto 0);
-
-attribute MARK_DEBUG            : string;
-attribute MARK_DEBUG of probe0  : signal is "true";
-attribute MARK_DEBUG of probe1  : signal is "true";
-
 -- Bit-width required to represent maximum burst length (5)
 constant AXI_BURST_WIDTH    : integer := LOG2(AXI_BURST_LEN) + 1;
 -- Number of byte per AXI burst
@@ -108,6 +93,7 @@ signal reset                : std_logic;
 type pcap_fsm_t is (INIT, ACTV, DO_DMA, IS_FINISHED, IRQ, COMPLETED);
 signal pcap_fsm             : pcap_fsm_t;
 
+signal IRQ_STATUS_T         : std_logic_vector(31 downto 0);
 signal first_data           : std_logic;
 signal timeout_counter      : unsigned(31 downto 0);
 signal pcap_timeout         : std_logic;
@@ -135,23 +121,30 @@ signal fifo_full            : std_logic;
 
 signal irq_flags            : std_logic_vector(7 downto 0);
 signal sample_count         : unsigned(23 downto 0);
-
 signal pcap_completed       : std_logic;
 
-signal IRQ_STATUS_T         : std_logic_vector(31 downto 0);
+signal pcap_error           : std_logic;
 
 begin
 
 -- Assign outputs.
 irq_o <= dma_irq;
 
+-- DMA engine reset
+reset <= reset_i or DMA_RESET;
+
+-- DMA error occurs when fifo is full or AXI transaction error
+-- This flag is used to abort ongoing pcap operation along with other flags
 dma_error_o <= fifo_full or dma_error;
 
 -- TLP_COUNT = BLOCK_SIZE/BURST_LEN
 BLOCK_TLP_SIZE <= to_unsigned((to_integer(unsigned(BLOCK_SIZE)) / BURST_LEN),32);
 
--- DMA engine reset
-reset <= reset_i or DMA_RESET;
+-- Pcap status information
+--  pcap_status_i[0] : user disarmed
+--  pcap_status_i[1] : framing error
+--  pcap_status_i[2] : dma error
+pcap_error <= pcap_status_i(2) or pcap_status_i(1);
 
 --
 -- 32bit FIFO with 1K sample depth
@@ -283,7 +276,6 @@ if rising_edge(clk_i) then
     if (reset = '1') then
         pcap_fsm <= INIT;
         IRQ_STATUS_T <= (others => '0');
---        IRQ_STATUS <= (others => '0');
         dma_irq <= '0';
         last_tlp <= '0';
         dma_start <= '0';
@@ -304,9 +296,9 @@ if rising_edge(clk_i) then
             -- (AXI_BURST_LEN beats).
             when ACTV =>
                 dma_irq <= '0';
-                -- An unrecoverable error occured, no need to continue finishing
-                -- off the buffer.
-                if (pcap_completed = '1' and pcap_status_i /= "000") then
+                -- An unrecoverable error occured, no need to continue 
+                -- finishing off the buffer
+                if (pcap_completed = '1' and pcap_error = '1') then
                     last_tlp <= '1';
                     pcap_fsm <= IRQ;
                 -- Timeout occured, transfer all data in the buffer before
@@ -459,17 +451,6 @@ port map (
 );
 
 IRQ_STATUS <= IRQ_STATUS_T;
-
---ila_inst : ila_32x8K
---port map (
---    clk                 => clk_i,
---    probe0              => probe0,
---    probe1              => probe1
---);
---
---probe0(0) <= dma_irq;
---probe0(31 downto 1) <= (others => '0');
---probe1 <= IRQ_STATUS_T;
 
 end rtl;
 

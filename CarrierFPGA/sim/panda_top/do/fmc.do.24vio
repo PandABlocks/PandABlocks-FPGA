@@ -1,0 +1,9 @@
+set SRC {../../../src/hdl}
+set IP {../../../../build/CarrierFPGA/ip_repo}
+
+vcom -64 -93 -work xil_defaultlib            \
+"${SRC}/FMC/24VIO/hdl/max14900_sclk_gen.vhd" \
+"${SRC}/FMC/24VIO/hdl/max14900_ctrl.vhd"     \
+"${SRC}/FMC/24VIO/hdl/fmc_24vio.vhd"         \
+"${SRC}/FMC/24VIO/hdl/fmc_top.vhd"
+
