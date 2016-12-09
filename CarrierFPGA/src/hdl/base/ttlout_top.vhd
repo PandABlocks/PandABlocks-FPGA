@@ -25,11 +25,15 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Memory Bus Interface
-    mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_rstb_i          : in  std_logic;
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic;
     -- System Bus
     sysbus_i            : in  std_logic_vector(SBUSW-1 downto 0);
     -- TTL I/O
@@ -39,20 +43,32 @@ end ttlout_top;
 
 architecture rtl of ttlout_top is
 
--- Total number of digital outputs
-signal mem_blk_cs       : std_logic_vector(TTLOUT_NUM-1 downto 0);
+signal read_strobe      : std_logic_vector(TTLOUT_NUM-1 downto 0);
+signal read_data        : std32_array(TTLOUT_NUM-1 downto 0);
+signal write_strobe     : std_logic_vector(TTLOUT_NUM-1 downto 0);
 
 begin
+
+-- Acknowledgement to AXI Lite interface
+write_ack_o <= '1';
+
+read_ack_delay : entity work.delay_line
+generic map (DW => 1)
+port map (
+    clk_i       => clk_i,
+    data_i(0)   => read_strobe_i,
+    data_o(0)   => read_ack_o,
+    DELAY       => RD_ADDR2ACK
+);
 
 --
 -- TTLOUT Block
 --
 TTLOUT_GEN : FOR I IN 0 TO (TTLOUT_NUM-1) GENERATE
 
--- Generate Block chip select signal
-mem_blk_cs(I) <= '1'
-    when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_SVECTOR(I, PAGE_AW-BLK_AW)
-            and mem_cs_i = '1') else '0';
+-- Sub-module address decoding
+read_strobe(I) <= compute_block_strobe(read_address_i, I) and read_strobe_i;
+write_strobe(I) <= compute_block_strobe(write_address_i, I) and write_strobe_i;
 
 ttlout_block : entity work.ttlout_block
 port map (
@@ -60,10 +76,15 @@ port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
     -- Memory Bus Interface
-    mem_cs_i            => mem_blk_cs(I),
-    mem_wstb_i          => mem_wstb_i,
-    mem_addr_i          => mem_addr_i(BLK_AW-1 downto 0),
-    mem_dat_i           => mem_dat_i,
+    read_strobe_i       => read_strobe(I),
+    read_address_i      => read_address_i(BLK_AW-1 downto 0),
+    read_data_o         => read_data(I),
+    read_ack_o          => open,
+
+    write_strobe_i      => write_strobe(I),
+    write_address_i     => write_address_i(BLK_AW-1 downto 0),
+    write_data_i        => write_data_i,
+    write_ack_o         => open,
     -- Block inputs
     sysbus_i            => sysbus_i,
     -- Block outputs

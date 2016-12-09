@@ -33,22 +33,32 @@ port (
     SOFT_RESET       : out std_logic_vector(31 downto 0);
     SOFT_RESET_WSTB  : out std_logic;
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0)
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic
 );
 end sfp_ctrl;
 
 architecture rtl of sfp_ctrl is
 
-signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
+signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 
 
 begin
 
-mem_addr <= to_integer(unsigned(mem_addr_i));
+-- Unused outputs
+read_ack_o <= '0';
+write_ack_o <= '0';
+
+read_addr <= to_integer(unsigned(read_address_i));
+write_addr <= to_integer(unsigned(write_address_i));
 
 --
 -- Control System Interface
@@ -62,10 +72,10 @@ begin
         else
             SOFT_RESET_WSTB <= '0';
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = SFP_SOFT_RESET) then
-                    SOFT_RESET <= mem_dat_i;
+                if (write_addr = SFP_SOFT_RESET) then
+                    SOFT_RESET <= write_data_i;
                     SOFT_RESET_WSTB <= '1';
                 end if;
 
@@ -81,29 +91,29 @@ REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            read_data_o <= (others => '0');
         else
-            case (mem_addr) is
+            case (read_addr) is
                 when SFP_LINK1_UP =>
-                    mem_dat_o <= LINK1_UP;
+                    read_data_o <= LINK1_UP;
                 when SFP_ERROR1_COUNT =>
-                    mem_dat_o <= ERROR1_COUNT;
+                    read_data_o <= ERROR1_COUNT;
                 when SFP_LINK2_UP =>
-                    mem_dat_o <= LINK2_UP;
+                    read_data_o <= LINK2_UP;
                 when SFP_ERROR2_COUNT =>
-                    mem_dat_o <= ERROR2_COUNT;
+                    read_data_o <= ERROR2_COUNT;
                 when SFP_LINK3_UP =>
-                    mem_dat_o <= LINK3_UP;
+                    read_data_o <= LINK3_UP;
                 when SFP_ERROR3_COUNT =>
-                    mem_dat_o <= ERROR3_COUNT;
+                    read_data_o <= ERROR3_COUNT;
                 when SFP_SFP_CLK1 =>
-                    mem_dat_o <= SFP_CLK1;
+                    read_data_o <= SFP_CLK1;
                 when SFP_SFP_CLK2 =>
-                    mem_dat_o <= SFP_CLK2;
+                    read_data_o <= SFP_CLK2;
                 when SFP_SFP_CLK3 =>
-                    mem_dat_o <= SFP_CLK3;
+                    read_data_o <= SFP_CLK3;
                 when others =>
-                    mem_dat_o <= (others => '0');
+                    read_data_o <= (others => '0');
             end case;
         end if;
     end if;

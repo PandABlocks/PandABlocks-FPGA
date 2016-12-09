@@ -143,14 +143,10 @@ INENC       12
     CLK_PERIOD      1
     FRAME_PERIOD    2
     BITS            3
-    BITS_CRC        4
-    SETP            5
-    RST_ON_Z        6
-    EXTENSION       7
-    ERR_FRAME       8
-    ERR_RESPONSE    9
-    ENC_STATUS      10
-    DCARD_MODE      11
+    SETP            4
+    RST_ON_Z        5
+    STATUS          6
+    DCARD_MODE      7
     A               66 67 68 69
     B               70 71 72 73
     Z               74 75 76 77
@@ -192,7 +188,11 @@ ADDER       16
     INPB            1
     INPC            2
     INPD            3
-    SCALE           4
+    INPA_INVERT     4
+    INPB_INVERT     5
+    INPC_INVERT     6
+    INPD_INVERT     7
+    SCALE           8
     OUT             10 11
 
 COUNTER     17
@@ -228,9 +228,6 @@ PCOMP       19
     ERROR           14
     TABLE           long    2^2    11 12
     TABLE_STATUS    16
-
-ADC         20
-    OUT             22 23 24 25 26 27 28 29 / 54 55 56 57 58 59 60 61
 
 PCAP        21
     ENABLE          0 5

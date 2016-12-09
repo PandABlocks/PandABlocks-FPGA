@@ -32,12 +32,15 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Memory Bus Interface
-    mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_rstb_i          : in  std_logic;
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic;
     -- Readback signals
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
@@ -56,12 +59,27 @@ signal POS_READ_RSTB        : std_logic;
 signal POS_READ_VALUE       : std_logic_vector(31 downto 0);
 signal POS_READ_CHANGES     : std_logic_vector(31 downto 0);
 
-signal mem_addr         : natural range 0 to (2**mem_addr_i'length - 1);
+signal read_address         : natural range 0 to (2**read_address_i'length - 1);
+signal write_address        : natural range 0 to (2**write_address_i'length - 1);
+signal read_ack             : std_logic;
 
 begin
+-- Acknowledgement to AXI Lite interface
+write_ack_o <= '1';
+read_ack_o <= read_ack;
+
+read_ack_delay : entity work.delay_line
+generic map (DW => 1)
+port map (
+    clk_i       => clk_i,
+    data_i(0)   => read_strobe_i,
+    data_o(0)   => read_ack,
+    DELAY       => RD_ADDR2ACK
+);
 
 -- Integer conversion for address.
-mem_addr <= to_integer(unsigned(mem_addr_i));
+read_address <= to_integer(unsigned(read_address_i));
+write_address <= to_integer(unsigned(write_address_i));
 
 --------------------------------------------------------------------------
 -- Control System Register Write Interface
@@ -76,14 +94,14 @@ begin
             BIT_READ_RST <= '0';
             POS_READ_RST <= '0';
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i = '1') then
                 -- System Bus Read Start
-                if (mem_addr = REG_BIT_READ_RST) then
+                if (write_address = REG_BIT_READ_RST) then
                     BIT_READ_RST <= '1';
                 end if;
 
                 -- Position Bus Read Start
-                if (mem_addr = REG_POS_READ_RST) then
+                if (write_address = REG_POS_READ_RST) then
                     POS_READ_RST <= '1';
                 end if;
             end if;
@@ -93,11 +111,11 @@ end process;
 
 -- System Bus and Position bus fields are read sequentially, and read strobe
 -- is used to increment the field index
-BIT_READ_RSTB <= '1' when (mem_cs_i = '1' and mem_rstb_i = '1' and
-                 mem_addr = REG_BIT_READ_VALUE) else '0';
+BIT_READ_RSTB <= '1' when (read_ack = '1' and
+                 read_address = REG_BIT_READ_VALUE) else '0';
 
-POS_READ_RSTB <= '1' when (mem_cs_i = '1' and mem_rstb_i = '1' and
-                 mem_addr = REG_POS_READ_VALUE) else '0';
+POS_READ_RSTB <= '1' when (read_ack = '1' and
+                 read_address = REG_POS_READ_VALUE) else '0';
 
 --------------------------------------------------------------------------
 -- Status Register Read
@@ -106,25 +124,25 @@ REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            read_data_o <= (others => '0');
         else
-            case (mem_addr) is
+            case (read_address) is
                 when REG_FPGA_VERSION =>
-                    mem_dat_o <= FPGA_VERSION;
+                    read_data_o <= FPGA_VERSION;
                 when REG_FPGA_BUILD =>
-                    mem_dat_o <= FPGA_VERSION;
+                    read_data_o <= FPGA_VERSION;
                 when REG_SLOW_VERSION =>
-                    mem_dat_o <= SLOW_FPGA_VERSION;
+                    read_data_o <= SLOW_FPGA_VERSION;
                 when REG_BIT_READ_VALUE =>
-                    mem_dat_o <= BIT_READ_VALUE;
+                    read_data_o <= BIT_READ_VALUE;
                 when REG_POS_READ_VALUE =>
-                    mem_dat_o <= POS_READ_VALUE;
+                    read_data_o <= POS_READ_VALUE;
                 when REG_POS_READ_CHANGES =>
-                    mem_dat_o <= POS_READ_CHANGES;
+                    read_data_o <= POS_READ_CHANGES;
                 when REG_SLOW_REGISTER_STATUS =>
-                    mem_dat_o <= ZEROS(31) & cmd_ready_n_i;
+                    read_data_o <= ZEROS(31) & cmd_ready_n_i;
                 when others =>
-                    mem_dat_o <= (others => '0');
+                    read_data_o <= (others => '0');
             end case;
         end if;
     end if;

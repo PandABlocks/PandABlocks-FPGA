@@ -8,6 +8,7 @@ set BUILDIR [lindex $argv 1]
 # FMC and SFP Application Names are passed as arguments
 set FMC_DESIGN [lindex $argv 2]
 set SFP_DESIGN [lindex $argv 3]
+set INCR       [lindex $argv 4]
 
 # Create project
 create_project -force panda_top $BUILDIR/panda_top -part xc7z030sbg485-1
@@ -51,6 +52,8 @@ add_files -norecurse $BUILDIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
 add_files -norecurse $BUILDIR/ip_repo/fmcgtx/fmcgtx.xci
 add_files -norecurse $BUILDIR/ip_repo/sfpgtx/sfpgtx.xci
 #add_files -norecurse $BUILDIR/ip_repo/ila_32x8K/ila_32x8K.xci
+#read_edif $BUILDIR/ip_repo/icon.ngc
+#read_edif $BUILDIR/ip_repo/ila.ngc
 
 # Read constraint files
 read_xdc $SRCDIR/src/hdl/FMC/$FMC_DESIGN/const/fmc.xdc
@@ -73,6 +76,13 @@ report_timing_summary -file post_synth_timing_summary.rpt
 # estimates, write checkpoint design
 #
 opt_design
+
+# Run Incremental Implementation
+
+if {$INCR} {
+    read_checkpoint -incremental $SRCDIR/src/incremental/post_route.dcp
+}
+
 place_design
 phys_opt_design
 write_checkpoint -force post_place

@@ -7,17 +7,20 @@ module test;
 // Inputs to testbench
 wire [5:0]   ttlin_pad;
 
-`define TESTNAME    "test.framing.v"
+//`define TESTNAME    "test.pcap.v"
+`define TESTNAME    "test.pcomp.v"
 
 reg [ 1:0]      wrs, rsp;
+reg [31:0]      REG_VALUE;
 reg [31:0]      IRQ_STATUS;
+reg [31:0]      STATUS;
 reg [ 7:0]      IRQ_FLAGS;
 reg [15:0]      SMPL_COUNT;
 reg [31:0]      addr;
 reg [31:0]      base;
 reg [31:0]      total_samples;
-reg [31:0]      addr_table[31: 0];
-reg [31:0]      smpl_table[31: 0];
+reg [31:0]      addr_table[2**16-1: 0];
+reg [31:0]      smpl_table[2**16-1: 0];
 reg [31:0]      read_addr;
 reg             pcap_armed;
 reg             pcap_completed;

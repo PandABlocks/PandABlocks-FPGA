@@ -36,8 +36,10 @@ create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
 set_property -dict [list \
     CONFIG.Performance_Options {First_Word_Fall_Through} \
     CONFIG.Input_Data_Width {32}    \
+    CONFIG.Input_Depth {2048}       \
     CONFIG.Data_Count {true}        \
     CONFIG.Output_Data_Width {32}   \
+    CONFIG.Output_Depth {2048}      \
 ] [get_ips pcap_dma_fifo]
 
 generate_target all [get_files $origin_dir/pcap_dma_fifo/pcap_dma_fifo.xci]

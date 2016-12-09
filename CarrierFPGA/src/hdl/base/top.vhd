@@ -176,21 +176,24 @@ signal S_AXI_HP1_rvalid     : STD_LOGIC;
 signal IRQ_F2P              : std_logic_vector(0 downto 0);
 
 -- Configuration and Status Interface Block
-signal mem_cs               : std_logic_vector(2**PAGE_NUM-1 downto 0);
-signal mem_addr             : std_logic_vector(PAGE_AW-1 downto 0);
-signal mem_odat             : std_logic_vector(31 downto 0);
-signal mem_wstb             : std_logic;
-signal mem_rstb             : std_logic;
-signal mem_read_data        : std32_array(2**PAGE_NUM-1 downto 0) :=
-                                (others => (others => '0'));
-signal mem_addr_reg         : natural range 0 to (2**mem_addr'length - 1);
-
+signal read_strobe          : std_logic_vector(MOD_COUNT-1 downto 0);
+signal read_strobe_delay    : std_logic_vector(MOD_COUNT-1 downto 0);
+signal read_address         : std_logic_vector(PAGE_AW-1 downto 0);
+signal read_data            : std32_array(MOD_COUNT-1 downto 0);
+signal read_ack             : std_logic_vector(MOD_COUNT-1 downto 0) := (others
+=> '1');
+signal write_strobe         : std_logic_vector(MOD_COUNT-1 downto 0);
+signal write_strobe_delay   : std_logic_vector(MOD_COUNT-1 downto 0);
+signal write_address        : std_logic_vector(PAGE_AW-1 downto 0);
+signal write_data           : std_logic_vector(31 downto 0);
+signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
+=> '1');
 
 -- Top Level Signals
 signal sysbus               : sysbus_t := (others => '0');
 signal posbus               : posbus_t := (others => (others => '0'));
 
---
+-- Daughter card control signals
 signal inenc_buf_ctrl       : std_logic_vector(5 downto 0);
 signal outenc_buf_ctrl      : std_logic_vector(5 downto 0);
 
@@ -289,6 +292,11 @@ signal fmc_data             : std32_array(16 downto 0);
 -- SFP Block
 signal sfp_inputs           : std_logic_vector(15 downto 0);
 signal sfp_data             : std32_array(16 downto 0);
+
+-- Make schematics a bit more clear for analysis
+attribute keep              : string;
+attribute keep of sysbus    : signal is "true";
+attribute keep of posbus    : signal is "true";
 
 begin
 
@@ -396,36 +404,59 @@ port map (
 ---------------------------------------------------------------------------
 -- 0x43c00000
 axi_lite_slave_inst : entity work.axi_lite_slave
-generic map (
-    MEM_CSWIDTH                 => PAGE_NUM,
-    MEM_AWIDTH                  => PAGE_AW
-)
 port map (
-    S_AXI_CLK                   => FCLK_CLK0,
-    S_AXI_RST                   => FCLK_RESET0,
-    S_AXI_AWADDR                => M00_AXI_awaddr,
-    S_AXI_AWVALID               => M00_AXI_awvalid,
-    S_AXI_AWREADY               => M00_AXI_awready,
-    S_AXI_WDATA                 => M00_AXI_wdata,
-    S_AXI_WSTRB                 => M00_AXI_wstrb,
-    S_AXI_WVALID                => M00_AXI_wvalid,
-    S_AXI_WREADY                => M00_AXI_wready,
-    S_AXI_BRESP                 => M00_AXI_bresp,
-    S_AXI_BVALID                => M00_AXI_bvalid,
-    S_AXI_BREADY                => M00_AXI_bready,
-    S_AXI_ARADDR                => M00_AXI_araddr,
-    S_AXI_ARVALID               => M00_AXI_arvalid,
-    S_AXI_ARREADY               => M00_AXI_arready,
-    S_AXI_RDATA                 => M00_AXI_rdata,
-    S_AXI_RRESP                 => M00_AXI_rresp,
-    S_AXI_RVALID                => M00_AXI_rvalid,
-    S_AXI_RREADY                => M00_AXI_rready,
-    mem_addr_o                  => mem_addr,
-    mem_dat_i                   => mem_read_data,
-    mem_dat_o                   => mem_odat,
-    mem_cs_o                    => mem_cs,
-    mem_rstb_o                  => mem_rstb,
-    mem_wstb_o                  => mem_wstb
+    clk_i                       => FCLK_CLK0,
+    reset_i                     => FCLK_RESET0,
+
+    araddr_i                    => M00_AXI_araddr,
+    arprot_i                    => M00_AXI_arprot,
+    arready_o                   => M00_AXI_arready,
+    arvalid_i                   => M00_AXI_arvalid,
+
+    rdata_o                     => M00_AXI_rdata,
+    rresp_o                     => M00_AXI_rresp,
+    rready_i                    => M00_AXI_rready,
+    rvalid_o                    => M00_AXI_rvalid,
+
+    awaddr_i                    => M00_AXI_awaddr,
+    awprot_i                    => M00_AXI_awprot,
+    awready_o                   => M00_AXI_awready,
+    awvalid_i                   => M00_AXI_awvalid,
+
+    wdata_i                     => M00_AXI_wdata,
+    wstrb_i                     => M00_AXI_wstrb,
+    wready_o                    => M00_AXI_wready,
+    wvalid_i                    => M00_AXI_wvalid,
+
+    bresp_o                     => M00_AXI_bresp,
+    bvalid_o                    => M00_AXI_bvalid,
+    bready_i                    => M00_AXI_bready,
+
+    read_strobe_o               => read_strobe,
+    read_address_o              => read_address,
+    read_data_i                 => read_data,
+    read_ack_i                  => read_ack,        --read_strobe_delay,
+
+    write_strobe_o              => write_strobe,
+    write_address_o             => write_address,
+    write_data_o                => write_data,
+    write_ack_i                 => write_ack        --write_strobe_delay
+);
+
+read_ack_delay : entity work.delay_line
+port map (
+    clk_i       => FCLK_CLK0,
+    data_i      => read_strobe,
+    data_o      => read_strobe_delay,
+    DELAY       => "00010"
+);
+
+write_ack_delay : entity work.delay_line
+port map (
+    clk_i       => FCLK_CLK0,
+    data_i      => write_strobe,
+    data_o      => write_strobe_delay,
+    DELAY       => "00010"
 );
 
 ---------------------------------------------------------------------------
@@ -442,11 +473,17 @@ ttlout_inst : entity work.ttlout_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(TTLOUT_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
+
+    read_strobe_i       => read_strobe(TTLOUT_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(TTLOUT_CS),
+    read_ack_o          => read_ack(TTLOUT_CS),
+
+    write_strobe_i      => write_strobe(TTLOUT_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(TTLOUT_CS),
+
     sysbus_i            => sysbus,
     pad_o               => ttlout_val
 );
@@ -467,11 +504,17 @@ lvdsout_inst : entity work.lvdsout_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(LVDSOUT_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
+
+    read_strobe_i       => read_strobe(LVDSOUT_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(LVDSOUT_CS),
+    read_ack_o          => read_ack(LVDSOUT_CS),
+
+    write_strobe_i      => write_strobe(LVDSOUT_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(LVDSOUT_CS),
+
     sysbus_i            => sysbus,
     pad_o               => lvdsout_val
 );
@@ -485,11 +528,17 @@ lut_inst : entity work.lut_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(LUT_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
+
+    read_strobe_i       => read_strobe(LUT_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(LUT_CS),
+    read_ack_o          => read_ack(LUT_CS),
+
+    write_strobe_i      => write_strobe(LUT_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(LUT_CS),
+
     sysbus_i            => sysbus,
     out_o               => lut_val
 );
@@ -501,11 +550,17 @@ srgate_inst : entity work.srgate_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(SRGATE_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
+
+    read_strobe_i       => read_strobe(SRGATE_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(SRGATE_CS),
+    read_ack_o          => read_ack(SRGATE_CS),
+
+    write_strobe_i      => write_strobe(SRGATE_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(SRGATE_CS),
+
     sysbus_i            => sysbus,
     out_o               => srgate_out
 );
@@ -517,12 +572,17 @@ div_inst : entity work.div_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(DIV_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(DIV_CS),
+
+    read_strobe_i       => read_strobe(DIV_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(DIV_CS),
+    read_ack_o          => read_ack(DIV_CS),
+
+    write_strobe_i      => write_strobe(DIV_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(DIV_CS),
+
     sysbus_i            => sysbus,
     outd_o              => div_outd,
     outn_o              => div_outn
@@ -535,11 +595,17 @@ pulse_inst : entity work.pulse_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(PULSE_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(PULSE_CS),
+
+    read_strobe_i       => read_strobe(PULSE_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(PULSE_CS),
+    read_ack_o          => read_ack(PULSE_CS),
+
+    write_strobe_i      => write_strobe(PULSE_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(PULSE_CS),
+
     sysbus_i            => sysbus,
     out_o               => pulse_out,
     perr_o              => pulse_perr
@@ -552,11 +618,17 @@ seq_inst : entity work.sequencer_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(SEQ_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(SEQ_CS),
+
+    read_strobe_i       => read_strobe(SEQ_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(SEQ_CS),
+    read_ack_o          => read_ack(SEQ_CS),
+
+    write_strobe_i      => write_strobe(SEQ_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(SEQ_CS),
+
     sysbus_i            => sysbus,
     outa_o              => seq_outa,
     outb_o              => seq_outb,
@@ -574,11 +646,17 @@ inenc_inst : entity work.inenc_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(INENC_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(INENC_CS),
+
+    read_strobe_i       => read_strobe(INENC_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(INENC_CS),
+    read_ack_o          => read_ack(INENC_CS),
+
+    write_strobe_i      => write_strobe(INENC_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(INENC_CS),
+
     A_IN                => A_IN,
     B_IN                => B_IN,
     Z_IN                => Z_IN,
@@ -599,11 +677,17 @@ qdec_inst : entity work.qdec_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(QDEC_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(QDEC_CS),
+
+    read_strobe_i       => read_strobe(QDEC_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(QDEC_CS),
+    read_ack_o          => read_ack(QDEC_CS),
+
+    write_strobe_i      => write_strobe(QDEC_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(QDEC_CS),
+
     sysbus_i            => sysbus,
     out_o               => qdec_out
 );
@@ -615,12 +699,17 @@ outenc_inst : entity work.outenc_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(OUTENC_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(OUTENC_CS),
+
+    read_strobe_i       => read_strobe(OUTENC_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(OUTENC_CS),
+    read_ack_o          => read_ack(OUTENC_CS),
+
+    write_strobe_i      => write_strobe(OUTENC_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(OUTENC_CS),
+
     A_OUT               => A_OUT,
     B_OUT               => B_OUT,
     Z_OUT               => Z_OUT,
@@ -639,12 +728,17 @@ posenc_inst : entity work.posenc_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(POSENC_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(POSENC_CS),
+
+    read_strobe_i       => read_strobe(POSENC_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(POSENC_CS),
+    read_ack_o          => read_ack(POSENC_CS),
+
+    write_strobe_i      => write_strobe(POSENC_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(POSENC_CS),
+
     a_o                 => posenc_a,
     b_o                 => posenc_b,
     sysbus_i            => sysbus,
@@ -658,12 +752,17 @@ counter_inst : entity work.counter_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(COUNTER_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(COUNTER_CS),
+
+    read_strobe_i       => read_strobe(COUNTER_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(COUNTER_CS),
+    read_ack_o          => read_ack(COUNTER_CS),
+
+    write_strobe_i      => write_strobe(COUNTER_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(COUNTER_CS),
+
     sysbus_i            => sysbus,
     carry_o             => counter_carry,
     out_o               => counter_out
@@ -676,11 +775,17 @@ adder_inst : entity work.adder_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(ADDER_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
+
+    read_strobe_i       => read_strobe(ADDER_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(ADDER_CS),
+    read_ack_o          => read_ack(ADDER_CS),
+
+    write_strobe_i      => write_strobe(ADDER_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(ADDER_CS),
+
     posbus_i            => posbus,
     out_o               => adder_out
 );
@@ -692,12 +797,17 @@ pcomp_inst : entity work.pcomp_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(PCOMP_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(PCOMP_CS),
+
+    read_strobe_i       => read_strobe(PCOMP_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(PCOMP_CS),
+    read_ack_o          => read_ack(PCOMP_CS),
+
+    write_strobe_i      => write_strobe(PCOMP_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(PCOMP_CS),
+
     dma_req_o           => rdma_req(5 downto 2),
     dma_ack_i           => rdma_ack(5 downto 2),
     dma_done_i          => rdma_done,
@@ -739,12 +849,20 @@ port map (
     m_axi_wready        => S_AXI_HP0_wready,
     m_axi_wstrb         => S_AXI_HP0_wstrb,
     m_axi_wvalid        => S_AXI_HP0_wvalid,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs,
-    mem_wstb_i          => mem_wstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_0_o         => mem_read_data(PCAP_CS),
-    mem_dat_1_o         => mem_read_data(DRV_CS),
+
+    read_address_i      => read_address,
+    read_strobe_i       => read_strobe,
+    read_data_0_o       => read_data(PCAP_CS),
+    read_ack_0_o        => read_ack(PCAP_CS),
+    read_data_1_o       => read_data(DRV_CS),
+    read_ack_1_o        => read_ack(DRV_CS),
+
+    write_strobe_i      => write_strobe,
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_0_o       => write_ack(PCAP_CS),
+    write_ack_1_o       => write_ack(DRV_CS),
+
     sysbus_i            => sysbus,
     posbus_i            => posbus,
     pcap_actv_o         => pcap_act(0),
@@ -758,11 +876,17 @@ pgen_inst : entity work.pgen_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(PGEN_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(PGEN_CS),
+
+    read_strobe_i       => read_strobe(PGEN_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(PGEN_CS),
+    read_ack_o          => read_ack(PGEN_CS),
+
+    write_strobe_i      => write_strobe(PGEN_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(PGEN_CS),
+
     dma_req_o           => rdma_req(1 downto 0),
     dma_ack_i           => rdma_ack(1 downto 0),
     dma_done_i          => rdma_done,
@@ -817,12 +941,17 @@ reg_inst : entity work.reg_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(REG_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(REG_CS),
+
+    read_strobe_i       => read_strobe(REG_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(REG_CS),
+    read_ack_o          => read_ack(REG_CS),
+
+    write_strobe_i      => write_strobe(REG_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(REG_CS),
+
     sysbus_i            => sysbus,
     posbus_i            => posbus,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
@@ -836,12 +965,17 @@ clocks_inst : entity work.clocks_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(CLOCKS_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(CLOCKS_CS),
+
+    read_strobe_i       => read_strobe(CLOCKS_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(CLOCKS_CS),
+    read_ack_o          => read_ack(CLOCKS_CS),
+
+    write_strobe_i      => write_strobe(CLOCKS_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(CLOCKS_CS),
+
     clocks_a_o          => clocks_outa(0),
     clocks_b_o          => clocks_outb(0),
     clocks_c_o          => clocks_outc(0),
@@ -855,11 +989,17 @@ bits_inst : entity work.bits_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs(BITS_CS),
-    mem_wstb_i          => mem_wstb,
-    mem_rstb_i          => mem_rstb,
-    mem_dat_i           => mem_odat,
+
+    read_strobe_i       => read_strobe(BITS_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(BITS_CS),
+    read_ack_o          => read_ack(BITS_CS),
+
+    write_strobe_i      => write_strobe(BITS_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(BITS_CS),
+
     zero_o              => bits_zero(0),
     one_o               => bits_one(0),
     bits_a_o            => bits_outa(0),
@@ -875,11 +1015,17 @@ slowcont_inst : entity work.slowcont_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-    mem_addr_i          => mem_addr,
-    mem_cs_i            => mem_cs,
-    mem_wstb_i          => mem_wstb,
-    mem_dat_i           => mem_odat,
-    mem_dat_o           => mem_read_data(SLOW_CS),
+
+    read_strobe_i       => read_strobe(SLOW_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(SLOW_CS),
+    read_ack_o          => read_ack(SLOW_CS),
+
+    write_strobe_i      => write_strobe,
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(SLOW_CS),
+
     ttlin_i             => ttlin_val,
     ttlout_i            => ttlout_val,
     outenc_conn_i       => outenc_conn,
@@ -937,11 +1083,15 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
         fmc_inputs_o        => fmc_inputs,
         fmc_data_o          => fmc_data,
 
-        mem_addr_i          => mem_addr,
-        mem_cs_i            => mem_cs(FMC_CS),
-        mem_wstb_i          => mem_wstb,
-        mem_dat_i           => mem_odat,
-        mem_dat_o           => mem_read_data(FMC_CS),
+        read_strobe_i       => read_strobe(FMC_CS),
+        read_address_i      => read_address,
+        read_data_o         => read_data(FMC_CS),
+        read_ack_o          => read_ack(FMC_CS),
+
+        write_strobe_i      => write_strobe(FMC_CS),
+        write_address_i     => write_address,
+        write_data_i        => write_data,
+        write_ack_o         => write_ack(FMC_CS),
 
         EXTCLK_P            => EXTCLK_P,
         EXTCLK_N            => EXTCLK_N,
@@ -975,11 +1125,15 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         clk_i               => FCLK_CLK0,
         reset_i             => FCLK_RESET0,
 
-        mem_addr_i          => mem_addr,
-        mem_cs_i            => mem_cs(SFP_CS),
-        mem_wstb_i          => mem_wstb,
-        mem_dat_i           => mem_odat,
-        mem_dat_o           => mem_read_data(SFP_CS),
+        read_strobe_i       => read_strobe(SFP_CS),
+        read_address_i      => read_address,
+        read_data_o         => read_data(SFP_CS),
+        read_ack_o          => read_ack(SFP_CS),
+
+        write_strobe_i      => write_strobe(SFP_CS),
+        write_address_i     => write_address,
+        write_data_i        => write_data,
+        write_ack_o         => write_ack(SFP_CS),
 
         GTREFCLK_N          => GTXCLK0_N,
         GTREFCLK_P          => GTXCLK0_P,
@@ -1044,8 +1198,6 @@ port map (
     -- PCOMP Block
     PCOMP_ACTIVE    => pcomp_active,
     PCOMP_OUT       => pcomp_out,
-    -- ADC Block
-    ADC_OUT         => (others => (others => '0')),
     -- PCAP Block
     PCAP_ACTIVE     => pcap_act,
     -- BITS Block

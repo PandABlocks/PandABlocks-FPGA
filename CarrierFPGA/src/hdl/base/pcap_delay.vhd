@@ -32,23 +32,22 @@ port (
     sysbus_o            : out sysbus_t;
     posbus_o            : out posbus_t;
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0)
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0)
 );
 end pcap_delay;
 
 architecture rtl of pcap_delay is
 
-signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
+signal write_address : natural range 0 to (2**write_address_i'length - 1);
 
 signal data_delay_array : std32_array(31 downto 0);
 signal bit_delay_array  : std32_array(3 downto 0);
 
 begin
 
-mem_addr <= to_integer(unsigned(mem_addr_i));
+write_address <= to_integer(unsigned(write_address_i));
 
 --------------------------------------------------------------------------
 -- Gather DELAY values for System Bus and Position Bus Fields
@@ -60,10 +59,10 @@ if rising_edge(clk_i) then
         bit_delay_array <= (others => (others => '0'));
     else
         FOR I IN REG_PCAP_BIT_DELAY_0 to REG_PCAP_BIT_DELAY_3 LOOP
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = I) then
-                    bit_delay_array(I-REG_PCAP_BIT_DELAY_0) <= mem_dat_i;
+                if (write_address = I) then
+                    bit_delay_array(I-REG_PCAP_BIT_DELAY_0) <= write_data_i;
                 end if;
             end if;
         END LOOP;
@@ -78,10 +77,10 @@ DATA_DELAY_WRITE : process(clk_i) begin
             data_delay_array <= (others => (others => '0'));
         else
             FOR I IN REG_PCAP_DATA_DELAY_0 to REG_PCAP_DATA_DELAY_31 LOOP
-                if (mem_cs_i = '1' and mem_wstb_i = '1') then
+                if (write_strobe_i = '1') then
                     -- Input Select Control Registers
-                    if (mem_addr = I) then
-                        data_delay_array(I-REG_PCAP_DATA_DELAY_0) <= mem_dat_i;
+                    if (write_address = I) then
+                        data_delay_array(I-REG_PCAP_DATA_DELAY_0) <= write_data_i;
                     end if;
                 end if;
             END LOOP;

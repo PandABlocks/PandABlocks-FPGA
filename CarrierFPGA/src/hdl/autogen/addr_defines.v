@@ -18,7 +18,6 @@ localparam ADDER_CS = 16;
 localparam COUNTER_CS = 17;
 localparam PGEN_CS = 18;
 localparam PCOMP_CS = 19;
-localparam ADC_CS = 20;
 localparam PCAP_CS = 21;
 localparam BITS_CS = 22;
 localparam CLOCKS_CS = 23;
@@ -175,14 +174,10 @@ localparam INENC_PROTOCOL = 0;
 localparam INENC_CLK_PERIOD = 1;
 localparam INENC_FRAME_PERIOD = 2;
 localparam INENC_BITS = 3;
-localparam INENC_BITS_CRC = 4;
-localparam INENC_SETP = 5;
-localparam INENC_RST_ON_Z = 6;
-localparam INENC_EXTENSION = 7;
-localparam INENC_ERR_FRAME = 8;
-localparam INENC_ERR_RESPONSE = 9;
-localparam INENC_ENC_STATUS = 10;
-localparam INENC_DCARD_MODE = 11;
+localparam INENC_SETP = 4;
+localparam INENC_RST_ON_Z = 5;
+localparam INENC_STATUS = 6;
+localparam INENC_DCARD_MODE = 7;
 
 // QDEC Block:
 localparam QDEC_RST_ON_Z = 3;
@@ -224,7 +219,11 @@ localparam ADDER_INPA = 0;
 localparam ADDER_INPB = 1;
 localparam ADDER_INPC = 2;
 localparam ADDER_INPD = 3;
-localparam ADDER_SCALE = 4;
+localparam ADDER_INPA_INVERT = 4;
+localparam ADDER_INPB_INVERT = 5;
+localparam ADDER_INPC_INVERT = 6;
+localparam ADDER_INPD_INVERT = 7;
+localparam ADDER_SCALE = 8;
 
 // COUNTER Block:
 localparam COUNTER_DIR = 4;
@@ -261,8 +260,6 @@ localparam PCOMP_ERROR = 14;
 localparam PCOMP_TABLE_ADDRESS = 11;
 localparam PCOMP_TABLE_LENGTH = 12;
 localparam PCOMP_TABLE_STATUS = 16;
-
-// ADC Block:
 
 // PCAP Block:
 localparam PCAP_ENABLE = 0;
@@ -369,7 +366,6 @@ localparam ADDER_BASE = BASE + 4096 * ADDER_CS;
 localparam COUNTER_BASE = BASE + 4096 * COUNTER_CS;
 localparam PGEN_BASE = BASE + 4096 * PGEN_CS;
 localparam PCOMP_BASE = BASE + 4096 * PCOMP_CS;
-localparam ADC_BASE = BASE + 4096 * ADC_CS;
 localparam PCAP_BASE = BASE + 4096 * PCAP_CS;
 localparam BITS_BASE = BASE + 4096 * BITS_CS;
 localparam CLOCKS_BASE = BASE + 4096 * CLOCKS_CS;

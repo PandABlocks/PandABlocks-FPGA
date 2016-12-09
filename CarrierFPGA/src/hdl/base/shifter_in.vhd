@@ -6,7 +6,7 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : 48-bit serial-to-paraller shifter with enable.
+--  Description : 48-bit serial-to-paraller shifter with valid.
 --
 --------------------------------------------------------------------------------
 
@@ -37,16 +37,16 @@ end shifter_in;
 architecture rtl of shifter_in is
 
 signal smpl_hold    : std_logic_vector(DW-1 downto 0);
-signal enable_prev  : std_logic;
-signal enable_fall  : std_logic;
+signal valid_prev  : std_logic;
+signal valid_fall  : std_logic;
 
 begin
 
-enable_fall <= not enable_i and enable_prev;
+valid_fall <= not enable_i and valid_prev;
 
 --
--- Shift data into the register when enabled, and latch output once it is
--- completed with the falling edge of enable input.
+-- Shift data into the register when validd, and latch output once it is
+-- completed with the falling edge of valid input.
 process (clk_i)
 begin
     if (rising_edge(clk_i)) then
@@ -55,11 +55,11 @@ begin
             data_o <= (others => '0');
             data_valid_o <= '0';
         else
-            enable_prev <= enable_i;
+            valid_prev <= enable_i;
             data_valid_o <= '0';
 
             -- Latch data output and clear shift register.
-            if (enable_fall = '1') then
+            if (valid_fall = '1') then
                 data_o <= smpl_hold;
                 data_valid_o <= '1';
                 smpl_hold <= (others => '0');

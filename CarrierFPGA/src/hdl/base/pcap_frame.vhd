@@ -34,7 +34,6 @@ port (
     -- Block input and outputs.
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
-    enable_i            : in  std_logic;
     frame_i             : in  std_logic;
     capture_i           : in  std_logic;
     timestamp_i         : in  std_logic_vector(63 downto 0);
@@ -46,8 +45,6 @@ port (
 end pcap_frame;
 
 architecture rtl of pcap_frame is
-
-signal reset            : std_logic;
 
 signal frame_prev       : std_logic;
 signal capture_prev     : std_logic;
@@ -68,9 +65,6 @@ signal capture_din      : std32_array(63 downto 0);
 
 begin
 
--- Disable block when it is not enabled.
-reset <= reset_i or not enable_i;
-
 --------------------------------------------------------------------------
 -- Input registers, and
 -- Detect rise/falling edge of internal signals.
@@ -82,10 +76,8 @@ process(clk_i) begin
     end if;
 end process;
 
--- Both signals are masked with enable_i
 frame_rise <= frame_i and not frame_prev;
 capture_rise <= capture_i and not capture_prev;
-
 
 --------------------------------------------------------------------------
 -- Capture flag behaviour is based on FRAMING mode and enable.
@@ -96,7 +88,7 @@ capture_rise <= capture_i and not capture_prev;
 --------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
-        if (reset = '1') then
+        if (reset_i = '1') then
             capture_o <= '0';
         else
             -- Just forward incoming pulses.
@@ -125,29 +117,26 @@ end process;
 --------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
-        if (reset = '1') then
+        if (reset_i = '1') then
             ongoing_capture <= '0';
             error_o <= '0';
         else
-            if (enable_i = '1') then
-                -- If happens on the same clock, capture belongs the
-                -- immediate frame.
-                if (frame_rise = '1' and capture_rise = '1') then
-                    ongoing_capture <= '1';
-                -- Otherwise start a clear frame.
-                elsif (frame_rise = '1') then
-                    ongoing_capture <= '0';
-                -- Flag that capture pulse received.
-                elsif (capture_rise = '1') then
-                    ongoing_capture <= '1';
-                end if;
-            else
+            -- If happens on the same clock, capture belongs the
+            -- immediate frame.
+            if (frame_rise = '1' and capture_rise = '1') then
+                ongoing_capture <= '1';
+            -- Otherwise start a clear frame.
+            elsif (frame_rise = '1') then
                 ongoing_capture <= '0';
+            -- Flag that capture pulse received.
+            elsif (capture_rise = '1') then
+                ongoing_capture <= '1';
             end if;
 
             -- Flag an error if more than one (1) capture pulse is received
             -- within a frame. And, ignore when a capture and frame comes
             -- at the same time.
+            -- It is latched until next pcap start (via reset port)
             if (FRAMING_ENABLE = '1') then
                 if (ongoing_capture = '1' and frame_rise = '0') then
                     error_o <= capture_rise;
@@ -165,7 +154,7 @@ timestamp <= unsigned(timestamp_i);
 
 process(clk_i) begin
     if rising_edge(clk_i) then
-        if (reset = '1') then
+        if (reset_i = '1') then
             frame_ts <= (others => '0');
             capture_ts <= (others => '0');
             frame_length <= (others => '0');
@@ -194,7 +183,7 @@ end process;
 --------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
-        if (reset = '1') then
+        if (reset_i = '1') then
             frames_completed_o <= '0';
             frame_counter <= (others => '0');
         else
@@ -222,7 +211,7 @@ PROC_OTHERS : FOR I IN 1 TO 31 GENERATE
 pcap_posproc_encoder : entity work.pcap_posproc
 port map (
     clk_i               => clk_i,
-    reset_i             => reset,
+    reset_i             => reset_i,
 
     posn_i              => posbus_i(I),
     extn_i              => (others => '0'),

@@ -32,17 +32,22 @@ port (
     set_o : out std_logic;
     rst_o : out std_logic;
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0)
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic
 );
 end srgate_ctrl;
 
 architecture rtl of srgate_ctrl is
 
-signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
+signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 
 signal SET      : std_logic_vector(31 downto 0);
 signal SET_WSTB : std_logic;
@@ -55,7 +60,12 @@ signal RST_DLY_WSTB : std_logic;
 
 begin
 
-mem_addr <= to_integer(unsigned(mem_addr_i));
+-- Unused outputs
+read_ack_o <= '0';
+write_ack_o <= '0';
+
+read_addr <= to_integer(unsigned(read_address_i));
+write_addr <= to_integer(unsigned(write_address_i));
 
 --
 -- Control System Interface
@@ -90,38 +100,38 @@ begin
             RST_WSTB <= '0';
             RST_DLY_WSTB <= '0';
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = SRGATE_SET_EDGE) then
-                    SET_EDGE <= mem_dat_i;
+                if (write_addr = SRGATE_SET_EDGE) then
+                    SET_EDGE <= write_data_i;
                     SET_EDGE_WSTB <= '1';
                 end if;
-                if (mem_addr = SRGATE_RST_EDGE) then
-                    RST_EDGE <= mem_dat_i;
+                if (write_addr = SRGATE_RST_EDGE) then
+                    RST_EDGE <= write_data_i;
                     RST_EDGE_WSTB <= '1';
                 end if;
-                if (mem_addr = SRGATE_FORCE_SET) then
-                    FORCE_SET <= mem_dat_i;
+                if (write_addr = SRGATE_FORCE_SET) then
+                    FORCE_SET <= write_data_i;
                     FORCE_SET_WSTB <= '1';
                 end if;
-                if (mem_addr = SRGATE_FORCE_RST) then
-                    FORCE_RST <= mem_dat_i;
+                if (write_addr = SRGATE_FORCE_RST) then
+                    FORCE_RST <= write_data_i;
                     FORCE_RST_WSTB <= '1';
                 end if;
-                if (mem_addr = SRGATE_SET) then
-                    SET <= mem_dat_i;
+                if (write_addr = SRGATE_SET) then
+                    SET <= write_data_i;
                     SET_WSTB <= '1';
                 end if;
-                if (mem_addr = SRGATE_SET_DLY) then
-                    SET_DLY <= mem_dat_i;
+                if (write_addr = SRGATE_SET_DLY) then
+                    SET_DLY <= write_data_i;
                     SET_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = SRGATE_RST) then
-                    RST <= mem_dat_i;
+                if (write_addr = SRGATE_RST) then
+                    RST <= write_data_i;
                     RST_WSTB <= '1';
                 end if;
-                if (mem_addr = SRGATE_RST_DLY) then
-                    RST_DLY <= mem_dat_i;
+                if (write_addr = SRGATE_RST_DLY) then
+                    RST_DLY <= write_data_i;
                     RST_DLY_WSTB <= '1';
                 end if;
 
@@ -137,11 +147,11 @@ REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            read_data_o <= (others => '0');
         else
-            case (mem_addr) is
+            case (read_addr) is
                 when others =>
-                    mem_dat_o <= (others => '0');
+                    read_data_o <= (others => '0');
             end case;
         end if;
     end if;

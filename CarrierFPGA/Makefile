@@ -81,8 +81,8 @@ $(PS_CORE) :
 panda_top.bit : VERSION $(IP_CORES) $(PS_CORE)
 	$(RUNVIVADO) -mode batch -source $(SRCDIR)/scripts/build_top.tcl \
 	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR) \
-		-tclargs $(FMC_DESIGN) -tclargs $(SFP_DESIGN)
-
+		-tclargs $(FMC_DESIGN) -tclargs $(SFP_DESIGN) \
+		    -tclargs $(INCR)
 
 #####################################################################
 # SW Projects Build
@@ -134,7 +134,7 @@ sw_clean:
 # Build all XSDK projects for FSBL and Device Tree
 
 $(SDK_EXPORT): $(DEVTREE_BSP)/$(DEVTREE_NAME)
-	cp $(SRCDIR)/build_xsdk.tcl $(OUTDIR)
+	cp $(SRCDIR)/scripts/build_xsdk.tcl $(OUTDIR)
 	xsdk -batch -source $(OUTDIR)/build_xsdk.tcl \
 	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR)
 

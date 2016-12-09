@@ -24,7 +24,6 @@ constant ADDER_CS : natural := 16;
 constant COUNTER_CS : natural := 17;
 constant PGEN_CS : natural := 18;
 constant PCOMP_CS : natural := 19;
-constant ADC_CS : natural := 20;
 constant PCAP_CS : natural := 21;
 constant BITS_CS : natural := 22;
 constant CLOCKS_CS : natural := 23;
@@ -181,14 +180,10 @@ constant INENC_PROTOCOL : natural := 0;
 constant INENC_CLK_PERIOD : natural := 1;
 constant INENC_FRAME_PERIOD : natural := 2;
 constant INENC_BITS : natural := 3;
-constant INENC_BITS_CRC : natural := 4;
-constant INENC_SETP : natural := 5;
-constant INENC_RST_ON_Z : natural := 6;
-constant INENC_EXTENSION : natural := 7;
-constant INENC_ERR_FRAME : natural := 8;
-constant INENC_ERR_RESPONSE : natural := 9;
-constant INENC_ENC_STATUS : natural := 10;
-constant INENC_DCARD_MODE : natural := 11;
+constant INENC_SETP : natural := 4;
+constant INENC_RST_ON_Z : natural := 5;
+constant INENC_STATUS : natural := 6;
+constant INENC_DCARD_MODE : natural := 7;
 
 -- QDEC Block:
 constant QDEC_RST_ON_Z : natural := 3;
@@ -230,7 +225,11 @@ constant ADDER_INPA : natural := 0;
 constant ADDER_INPB : natural := 1;
 constant ADDER_INPC : natural := 2;
 constant ADDER_INPD : natural := 3;
-constant ADDER_SCALE : natural := 4;
+constant ADDER_INPA_INVERT : natural := 4;
+constant ADDER_INPB_INVERT : natural := 5;
+constant ADDER_INPC_INVERT : natural := 6;
+constant ADDER_INPD_INVERT : natural := 7;
+constant ADDER_SCALE : natural := 8;
 
 -- COUNTER Block:
 constant COUNTER_DIR : natural := 4;
@@ -267,8 +266,6 @@ constant PCOMP_ERROR : natural := 14;
 constant PCOMP_TABLE_ADDRESS : natural := 11;
 constant PCOMP_TABLE_LENGTH : natural := 12;
 constant PCOMP_TABLE_STATUS : natural := 16;
-
--- ADC Block:
 
 -- PCAP Block:
 constant PCAP_ENABLE : natural := 0;

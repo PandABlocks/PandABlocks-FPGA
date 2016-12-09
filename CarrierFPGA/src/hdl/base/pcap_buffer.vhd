@@ -32,7 +32,6 @@ port (
     WRITE               : in  std_logic_vector(31 downto 0);
     WRITE_WSTB          : in  std_logic;
     -- Block inputs
-    enable_i            : in  std_logic;
     fatpipe_i           : in  std32_array(63 downto 0);
     capture_i           : in  std_logic;
     -- Output pulses
@@ -46,18 +45,19 @@ architecture rtl of pcap_buffer is
 
 signal ongoing_capture  : std_logic;
 signal capture_data_lt  : std32_array(63 downto 0);
-signal mask_length      : unsigned(5 downto 0);
-signal mask_addra       : unsigned(5 downto 0);
+signal mask_length      : unsigned(5 downto 0) := "000000";
+signal mask_addra       : unsigned(5 downto 0) := "000000";
 signal mask_addrb       : unsigned(5 downto 0);
 signal mask_doutb       : std_logic_vector(31 downto 0);
 signal capture          : std_logic;
 
 begin
 
---
+--------------------------------------------------------------------------
 -- Position Bus capture mask is implemented using a Block RAM to
 -- achieve minimum dead time between capture triggers.
 -- Data is pushed into the buffer sequentially followed by reset.
+--------------------------------------------------------------------------
 mask_spbram : entity work.spbram
 generic map (
     AW          => 6,
@@ -79,20 +79,15 @@ port map (
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            mask_length <= (others => '0');
+        if (START_WRITE = '1') then
             mask_addra <= (others => '0');
-        else
-            if (START_WRITE = '1') then
-                mask_addra <= (others => '0');
-            elsif (WRITE_WSTB = '1') then
-                mask_addra <= mask_addra + 1;
-            end if;
-
-            -- User must complete filling the mask before enabling the
-            -- block.
-            mask_length <= mask_addra;
+        elsif (WRITE_WSTB = '1') then
+            mask_addra <= mask_addra + 1;
         end if;
+
+        -- User must complete filling the mask before enabling the
+        -- block.
+        mask_length <= mask_addra;
     end if;
 end process;
 
@@ -105,7 +100,7 @@ capture <= capture_i or ongoing_capture;
 
 process(clk_i) begin
     if rising_edge(clk_i) then
-        if (reset_i = '1' or enable_i = '0') then
+        if (reset_i = '1') then
             capture_data_lt <= (others => (others => '0'));
             ongoing_capture <= '0';
             mask_addrb <= (others => '0');
@@ -138,7 +133,8 @@ process(clk_i) begin
 
             pcap_dat_valid_o <= capture;
 
-            -- Flag an error on consecutive captures
+            -- Flag an error on consecutive captures, it is latched until
+            -- next pcap start (via reset port)
             if (ongoing_capture = '1' and mask_addrb <= mask_length - 1) then
                 error_o <= capture_i;
             end if;

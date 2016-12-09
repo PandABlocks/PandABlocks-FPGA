@@ -44,7 +44,9 @@ signal counter          : unsigned(32 downto 0);
 
 begin
 
+--------------------------------------------------------------------------
 -- Input registering
+--------------------------------------------------------------------------
 process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -58,6 +60,8 @@ enable_rise <= enable_i and not enable_prev;
 
 --------------------------------------------------------------------------
 -- Up/Down Counter
+-- Counter keeps its last value when it is disabled and it is re-loaded
+-- on the rising edge of enable input.
 --------------------------------------------------------------------------
 process(clk_i)
 begin
@@ -72,7 +76,7 @@ begin
             elsif (enable_rise = '1') then
                 counter <= unsigned('0' & START);
             -- Count up/down on trigger
-            elsif (trigger_rise = '1') then
+            elsif (enable_i = '1' and trigger_rise = '1') then
                 if (DIR = '0') then
                     counter <= counter + unsigned(STEP);
                 else

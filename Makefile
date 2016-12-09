@@ -49,6 +49,7 @@ docs: $(DOCS_BUILD_DIR)/index.html
 #FMC_DESIGN = loopback
 FMC_DESIGN = 24VIO
 SFP_DESIGN = loopback
+INCR = false
 
 carrier-fpga: $(FPGA_BUILD_DIR)
 
@@ -58,7 +59,8 @@ carrier-fpga: $(FPGA_BUILD_DIR)
 	cd python && ./vhdl_generator.py
 	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
 	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) \
-		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN)
+		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN) \
+		    INCR=$(INCR)
 
 devicetree: $(FPGA_BUILD_DIR)
 	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \

@@ -15,12 +15,15 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Memory Bus Interface
-    mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_rstb_i          : in  std_logic;
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic;
     -- Encoder I/O Pads
     A_OUT               : out std_logic_vector(ENC_NUM-1 downto 0);
     B_OUT               : out std_logic_vector(ENC_NUM-1 downto 0);
@@ -37,35 +40,52 @@ end outenc_top;
 
 architecture rtl of outenc_top is
 
-signal mem_blk_cs           : std_logic_vector(ENC_NUM-1 downto 0);
-signal mem_read_data        : std32_array(2**BLK_NUM-1 downto 0);
+signal read_strobe      : std_logic_vector(TTLOUT_NUM-1 downto 0);
+signal read_data        : std32_array(TTLOUT_NUM-1 downto 0);
+signal write_strobe     : std_logic_vector(TTLOUT_NUM-1 downto 0);
 
 begin
 
--- Multiplex read data among multiple instantiations of the block.
-mem_dat_o <= mem_read_data(to_integer(unsigned(mem_addr_i(PAGE_AW-1 downto BLK_AW))));
+-- Acknowledgement to AXI Lite interface
+write_ack_o <= '1';
+
+read_ack_delay : entity work.delay_line
+generic map (DW => 1)
+port map (
+    clk_i       => clk_i,
+    data_i(0)   => read_strobe_i,
+    data_o(0)   => read_ack_o,
+    DELAY       => RD_ADDR2ACK
+);
+
+-- Multiplex read data out from multiple instantiations
+read_data_o <= read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW))));
+
 --
 -- Instantiate ENCOUT Blocks :
 --  There are ENC_NUM amount of encoders on the board
 --
 ENCOUT_GEN : FOR I IN 0 TO ENC_NUM-1 GENERATE
 
--- Generate Block chip select signal
-mem_blk_cs(I) <= '1'
-    when (mem_addr_i(PAGE_AW-1 downto BLK_AW) = TO_SVECTOR(I, BLK_NUM)
-            and mem_cs_i = '1') else '0';
+-- Sub-module address decoding
+read_strobe(I) <= compute_block_strobe(read_address_i, I) and read_strobe_i;
+write_strobe(I) <= compute_block_strobe(write_address_i, I) and write_strobe_i;
 
 outenc_block_inst : entity work.outenc_block
 port map (
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
-    -- Memory Interface
-    mem_cs_i            => mem_blk_cs(I),
-    mem_wstb_i          => mem_wstb_i,
-    mem_addr_i          => mem_addr_i(BLK_AW-1 downto 0),
-    mem_dat_i           => mem_dat_i,
-    mem_dat_o           => mem_read_data(I),
+    -- Memory Bus Interface
+    read_strobe_i       => read_strobe(I),
+    read_address_i      => read_address_i(BLK_AW-1 downto 0),
+    read_data_o         => read_data(I),
+    read_ack_o          => open,
+
+    write_strobe_i      => write_strobe(I),
+    write_address_i     => write_address_i(BLK_AW-1 downto 0),
+    write_data_i        => write_data_i,
+    write_ack_o         => open,
     -- Encoder I/O Pads
     a_o                 => A_OUT(I),
     b_o                 => B_OUT(I),

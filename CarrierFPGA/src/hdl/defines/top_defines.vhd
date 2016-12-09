@@ -20,6 +20,12 @@ constant BLK_AW                 : natural := 6;
 constant BLK_NUM                : natural := PAGE_AW - BLK_AW;
 --------------------------------------------------------------------------
 
+constant MOD_COUNT              : natural := 2**PAGE_NUM;
+subtype MOD_RANGE               is natural range 0 to MOD_COUNT-1;
+
+-- Read Addr to Ack delay
+constant RD_ADDR2ACK            : std_logic_vector(4 downto 0) := "00010";
+
 -- Block instantiation numbers--------------------------------------------
 constant TTLIN_NUM          : natural := 6;
 constant TTLOUT_NUM         : natural := 10;
@@ -120,6 +126,8 @@ function SBIT(sbus, sel : std_logic_vector)
     return std_logic;
 function PFIELD(pbus : std32_array; sel : std_logic_vector)
     return std_logic_vector;
+function compute_block_strobe(addr : std_logic_vector; index : natural)
+    return std_logic;
 
 --
 -- Components
@@ -149,6 +157,18 @@ function PFIELD(pbus : std32_array; sel : std_logic_vector)
 begin
     return pbus(to_integer(unsigned(sel)));
 end PFIELD;
+
+
+function compute_block_strobe(addr : std_logic_vector; index : natural)
+    return std_logic is
+begin
+    if addr(PAGE_AW-1 downto BLK_AW) =
+            std_logic_vector(to_unsigned(index, PAGE_AW-BLK_AW)) then
+        return '1';
+    else
+        return '0';
+    end if;
+end compute_block_strobe;
 
 end top_defines;
 

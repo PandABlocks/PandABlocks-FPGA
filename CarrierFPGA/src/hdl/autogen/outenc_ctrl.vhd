@@ -35,17 +35,22 @@ port (
     conn_o : out std_logic;
     val_o : out std_logic_vector(31 downto 0);
     -- Memory Bus Interface
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_addr_i          : in  std_logic_vector(BLK_AW-1 downto 0);
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0)
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic
 );
 end outenc_ctrl;
 
 architecture rtl of outenc_ctrl is
 
-signal mem_addr : natural range 0 to (2**mem_addr_i'length - 1);
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
+signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 
 signal ENABLE      : std_logic_vector(31 downto 0);
 signal ENABLE_WSTB : std_logic;
@@ -72,7 +77,12 @@ signal CONN_DLY_WSTB : std_logic;
 
 begin
 
-mem_addr <= to_integer(unsigned(mem_addr_i));
+-- Unused outputs
+read_ack_o <= '0';
+write_ack_o <= '0';
+
+read_addr <= to_integer(unsigned(read_address_i));
+write_addr <= to_integer(unsigned(write_address_i));
 
 --
 -- Control System Interface
@@ -125,62 +135,62 @@ begin
             CONN_WSTB <= '0';
             CONN_DLY_WSTB <= '0';
 
-            if (mem_cs_i = '1' and mem_wstb_i = '1') then
+            if (write_strobe_i = '1') then
                 -- Input Select Control Registers
-                if (mem_addr = OUTENC_PROTOCOL) then
-                    PROTOCOL <= mem_dat_i;
+                if (write_addr = OUTENC_PROTOCOL) then
+                    PROTOCOL <= write_data_i;
                     PROTOCOL_WSTB <= '1';
                 end if;
-                if (mem_addr = OUTENC_BITS) then
-                    BITS <= mem_dat_i;
+                if (write_addr = OUTENC_BITS) then
+                    BITS <= write_data_i;
                     BITS_WSTB <= '1';
                 end if;
-                if (mem_addr = OUTENC_QPERIOD) then
-                    QPERIOD <= mem_dat_i;
+                if (write_addr = OUTENC_QPERIOD) then
+                    QPERIOD <= write_data_i;
                     QPERIOD_WSTB <= '1';
                 end if;
-                if (mem_addr = OUTENC_ENABLE) then
-                    ENABLE <= mem_dat_i;
+                if (write_addr = OUTENC_ENABLE) then
+                    ENABLE <= write_data_i;
                     ENABLE_WSTB <= '1';
                 end if;
-                if (mem_addr = OUTENC_ENABLE_DLY) then
-                    ENABLE_DLY <= mem_dat_i;
+                if (write_addr = OUTENC_ENABLE_DLY) then
+                    ENABLE_DLY <= write_data_i;
                     ENABLE_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = OUTENC_A) then
-                    A <= mem_dat_i;
+                if (write_addr = OUTENC_A) then
+                    A <= write_data_i;
                     A_WSTB <= '1';
                 end if;
-                if (mem_addr = OUTENC_A_DLY) then
-                    A_DLY <= mem_dat_i;
+                if (write_addr = OUTENC_A_DLY) then
+                    A_DLY <= write_data_i;
                     A_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = OUTENC_B) then
-                    B <= mem_dat_i;
+                if (write_addr = OUTENC_B) then
+                    B <= write_data_i;
                     B_WSTB <= '1';
                 end if;
-                if (mem_addr = OUTENC_B_DLY) then
-                    B_DLY <= mem_dat_i;
+                if (write_addr = OUTENC_B_DLY) then
+                    B_DLY <= write_data_i;
                     B_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = OUTENC_Z) then
-                    Z <= mem_dat_i;
+                if (write_addr = OUTENC_Z) then
+                    Z <= write_data_i;
                     Z_WSTB <= '1';
                 end if;
-                if (mem_addr = OUTENC_Z_DLY) then
-                    Z_DLY <= mem_dat_i;
+                if (write_addr = OUTENC_Z_DLY) then
+                    Z_DLY <= write_data_i;
                     Z_DLY_WSTB <= '1';
                 end if;
-                if (mem_addr = OUTENC_VAL) then
-                    VAL <= mem_dat_i;
+                if (write_addr = OUTENC_VAL) then
+                    VAL <= write_data_i;
                     VAL_WSTB <= '1';
                 end if;
-                if (mem_addr = OUTENC_CONN) then
-                    CONN <= mem_dat_i;
+                if (write_addr = OUTENC_CONN) then
+                    CONN <= write_data_i;
                     CONN_WSTB <= '1';
                 end if;
-                if (mem_addr = OUTENC_CONN_DLY) then
-                    CONN_DLY <= mem_dat_i;
+                if (write_addr = OUTENC_CONN_DLY) then
+                    CONN_DLY <= write_data_i;
                     CONN_DLY_WSTB <= '1';
                 end if;
 
@@ -196,13 +206,13 @@ REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            mem_dat_o <= (others => '0');
+            read_data_o <= (others => '0');
         else
-            case (mem_addr) is
+            case (read_addr) is
                 when OUTENC_QSTATE =>
-                    mem_dat_o <= QSTATE;
+                    read_data_o <= QSTATE;
                 when others =>
-                    mem_dat_o <= (others => '0');
+                    read_data_o <= (others => '0');
             end case;
         end if;
     end if;
