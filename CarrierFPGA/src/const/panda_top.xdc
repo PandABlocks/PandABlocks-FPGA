@@ -195,10 +195,15 @@ set_property IOSTANDARD LVDS    [get_ports FMC_CLK1_M2C_P]
 set_property IOSTANDARD LVDS_25 [get_ports EXTCLK_P]
 
 # -------------------------------------------------------------------
-# Pack IO registers into IOBs where possible
+# Pack fixed carrier board IO into IOBs (modules not included)
 # -------------------------------------------------------------------
-set_property iob true [all_inputs]
-set_property iob true [all_outputs]
+set inputs [filter [all_inputs] {NAME =~ *TTL* || NAME =~ *LVDS* || NAME =~ *SPI* }]
+set outputs [filter [all_outputs] {NAME =~ *TTL* || NAME =~ *LVDS* || NAME =~ *SPI* }]
+set bidirs [filter [all_outputs] {NAME =~ *PAD_IO*}]
+
+set_property iob true $inputs
+set_property iob true $outputs
+set_property iob true $bidirs
 
 # -------------------------------------------------------------------
 # Enable on-chip pulldown for floating inputs

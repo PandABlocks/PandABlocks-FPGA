@@ -86,6 +86,7 @@ signal DISARM           : std_logic;
 signal START_WRITE      : std_logic;
 signal WRITE            : std_logic_vector(31 downto 0);
 signal WRITE_WSTB       : std_logic;
+signal MAX_FRAME        : std_logic_vector(31 downto 0);
 signal FRAMING_MASK     : std_logic_vector(31 downto 0);
 signal FRAMING_ENABLE   : std_logic;
 signal FRAMING_MODE     : std_logic_vector(31 downto 0);
@@ -156,8 +157,7 @@ port map (
     capture_o           => capture,
     frame_o             => frame,
 
-    FRAME_NUM           => FRAME_NUM,
-    FRAME_COUNT         => FRAME_COUNT,
+    MAX_FRAME           => MAX_FRAME,
     ERR_STATUS          => ERR_STATUS,
 
     read_strobe_i       => read_strobe_i(PCAP_CS),
@@ -238,11 +238,10 @@ port map (
     START_WRITE             => START_WRITE,
     WRITE                   => WRITE,
     WRITE_WSTB              => WRITE_WSTB,
+    MAX_FRAME               => MAX_FRAME,
     FRAMING_MASK            => FRAMING_MASK,
     FRAMING_ENABLE          => FRAMING_ENABLE,
     FRAMING_MODE            => FRAMING_MODE,
-    FRAME_NUM               => FRAME_NUM,
-    FRAME_COUNT             => FRAME_COUNT,
     ARM                     => ARM,
     DISARM                  => DISARM,
     ERR_STATUS              => ERR_STATUS,

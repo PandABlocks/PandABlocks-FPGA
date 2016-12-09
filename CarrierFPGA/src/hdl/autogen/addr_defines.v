@@ -268,9 +268,8 @@ localparam PCAP_FRAME = 1;
 localparam PCAP_FRAME_DLY = 6;
 localparam PCAP_CAPTURE = 2;
 localparam PCAP_CAPTURE_DLY = 7;
-localparam PCAP_FRAME_NUM = 3;
+localparam PCAP_MAX_FRAME = 3;
 localparam PCAP_ERR_STATUS = 4;
-localparam PCAP_FRAME_COUNT = 8;
 
 // BITS Block:
 localparam BITS_A = 0;

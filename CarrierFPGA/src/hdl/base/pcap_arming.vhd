@@ -26,7 +26,6 @@ port (
     DISARM              : in  std_logic;
     -- Block Inputs and Outputs
     enable_i            : in  std_logic;
-    frames_completed_i  : in  std_logic;
     pcap_error_i        : in  std_logic;
     ongoing_capture_i   : in  std_logic;
     dma_error_i         : in  std_logic;
@@ -49,8 +48,6 @@ signal enable_fall              : std_logic;
 signal abort_capture            : std_logic;
 signal pcap_armed               : std_logic;
 signal enable                   : std_logic;
-signal frames_completed         : std_logic;
-signal frames_completed_rise    : std_logic;
 
 begin
 
@@ -64,12 +61,8 @@ process(clk_i) begin
     if rising_edge(clk_i) then
         enable <= enable_i;
         enable_prev <= enable;
-
-        frames_completed <= frames_completed_i;
-
         -- Extra delay to align with frame and capture pulses
         enable_fall <= not enable and enable_prev;
-        frames_completed_rise <= frames_completed_i and not frames_completed;
     end if;
 end process;
 
@@ -132,7 +125,7 @@ process(clk_i) begin
                 -- Enabled until capture is finished or user disarm or
                 -- block error.
                 when ENABLED =>
-                    if (enable_fall = '1' or frames_completed_rise = '1') then
+                    if (enable_fall = '1') then
                         -- Complete gracefully, and make sure that ongoing write
                         -- into the DMA fifo is completed.
                         if (ongoing_capture_i = '1') then

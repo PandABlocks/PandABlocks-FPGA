@@ -21,10 +21,9 @@ port (
     sysbus_i            : in sysbus_t;
     posbus_i            : in posbus_t;
     -- Block Parameters
-    FRAME_NUM       : out std_logic_vector(31 downto 0);
-    FRAME_NUM_WSTB  : out std_logic;
+    MAX_FRAME       : out std_logic_vector(31 downto 0);
+    MAX_FRAME_WSTB  : out std_logic;
     ERR_STATUS       : in  std_logic_vector(31 downto 0);
-    FRAME_COUNT       : in  std_logic_vector(31 downto 0);
     enable_o : out std_logic;
     frame_o : out std_logic;
     capture_o : out std_logic;
@@ -87,8 +86,8 @@ begin
             CAPTURE_WSTB <= '0';
             CAPTURE_DLY <= (others => '0');
             CAPTURE_DLY_WSTB <= '0';
-            FRAME_NUM <= (others => '0');
-            FRAME_NUM_WSTB <= '0';
+            MAX_FRAME <= (others => '0');
+            MAX_FRAME_WSTB <= '0';
         else
             ENABLE_WSTB <= '0';
             ENABLE_DLY_WSTB <= '0';
@@ -96,7 +95,7 @@ begin
             FRAME_DLY_WSTB <= '0';
             CAPTURE_WSTB <= '0';
             CAPTURE_DLY_WSTB <= '0';
-            FRAME_NUM_WSTB <= '0';
+            MAX_FRAME_WSTB <= '0';
 
             if (write_strobe_i = '1') then
                 -- Input Select Control Registers
@@ -124,9 +123,9 @@ begin
                     CAPTURE_DLY <= write_data_i;
                     CAPTURE_DLY_WSTB <= '1';
                 end if;
-                if (write_addr = PCAP_FRAME_NUM) then
-                    FRAME_NUM <= write_data_i;
-                    FRAME_NUM_WSTB <= '1';
+                if (write_addr = PCAP_MAX_FRAME) then
+                    MAX_FRAME <= write_data_i;
+                    MAX_FRAME_WSTB <= '1';
                 end if;
 
             end if;
@@ -146,8 +145,6 @@ begin
             case (read_addr) is
                 when PCAP_ERR_STATUS =>
                     read_data_o <= ERR_STATUS;
-                when PCAP_FRAME_COUNT =>
-                    read_data_o <= FRAME_COUNT;
                 when others =>
                     read_data_o <= (others => '0');
             end case;

@@ -26,26 +26,27 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Block register
-    ADC_SCALE           : in  std_logic_vector(1 downto 0);
+    MAX_FRAME           : in  std_logic_vector(2 downto 0);
     FRAMING_ENABLE      : in  std_logic;
     FRAMING_MASK        : in  std_logic_vector(31 downto 0);
     FRAMING_MODE        : in  std_logic_vector(31 downto 0);
-    FRAME_NUM           : in  std_logic_vector(31 downto 0);
-    FRAME_COUNT         : out std_logic_vector(31 downto 0);
     -- Block input and outputs.
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
     frame_i             : in  std_logic;
     capture_i           : in  std_logic;
     timestamp_i         : in  std_logic_vector(63 downto 0);
+
+    overflow_o          : out std_logic_vector(31 downto 0);
     capture_o           : out std_logic;
-    frames_completed_o  : out std_logic;
     posn_o              : out std32_array(63 downto 0);
     error_o             : out std_logic
 );
 end pcap_frame;
 
 architecture rtl of pcap_frame is
+
+signal gain             : natural range 0 to 2**(MAX_FRAME'length)-1;
 
 signal frame_prev       : std_logic;
 signal capture_prev     : std_logic;
@@ -58,12 +59,11 @@ signal capture          : std_logic;
 
 signal timestamp        : unsigned(63 downto 0);
 signal capture_ts       : unsigned(63 downto 0) := (others => '0');
-signal frame_ts         : unsigned(31 downto 0) := (others => '0');
-signal frame_length     : unsigned(31 downto 0) := (others => '0');
-signal capture_offset   : unsigned(31 downto 0) := (others => '0');
+signal frame_ts         : unsigned(63 downto 0) := (others => '0');
+signal frame_length     : unsigned(63 downto 0) := (others => '0');
+signal capture_offset   : unsigned(63 downto 0) := (others => '0');
 
-signal adc_count        : std_logic_vector(31 downto 0);
-signal frame_counter    : unsigned(31 downto 0);
+signal adc_count        : unsigned(31 downto 0);
 signal posbus           : std32_array(31 downto 0);
 signal extbus           : std32_array(31 downto 0);
 
@@ -153,46 +153,19 @@ timestamp <= unsigned(timestamp_i);
 
 process(clk_i) begin
     if rising_edge(clk_i) then
-        -- Timestamp for capture pulse.
-        -- Capture offset from frame start.
+        -- Start of Frame timestamp and Frame Length in ticks
+        if (frame_rise = '1') then
+            frame_ts <= timestamp;
+            frame_length <= timestamp - frame_ts;
+        end if;
+
+        -- Capture timestamps and capture offset from frame start
         if (capture_rise = '1') then
             capture_ts <= timestamp;
-            capture_offset <= unsigned(timestamp(31 downto 0)) - frame_ts;
-        end if;
-
-        -- Frame length.
-        if (frame_rise = '1') then
-            frame_ts <= unsigned(timestamp(31 downto 0));
-            frame_length <= unsigned(timestamp(31 downto 0)) - frame_ts;
+            capture_offset <= timestamp - frame_ts;
         end if;
     end if;
 end process;
-
---------------------------------------------------------------------------
--- Keep track of incoming frame pulses, and generate completion signal once
--- all expected frames are received
---------------------------------------------------------------------------
-process(clk_i) begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            frames_completed_o <= '0';
-            frame_counter <= (others => '0');
-        else
-            if (FRAME_NUM = X"0000_0000") then
-                frames_completed_o <= '0';
-                frame_counter <= (others => '0');
-            elsif (frame_counter = unsigned(FRAME_NUM)) then
-                frames_completed_o <= '1';
-                frame_counter <= frame_counter;
-            elsif (frame_rise = '1') then
-                frames_completed_o <= '0';
-                frame_counter <= frame_counter + 1;
-            end if;
-        end if;
-    end if;
-end process;
-
-FRAME_COUNT <= std_logic_vector(frame_counter);
 
 --------------------------------------------------------------------------
 -- Instantiate Position Processing Blocks
@@ -209,25 +182,27 @@ port map (
     capture_i           => capture_rise,
     posn_o              => posbus(I),
     extn_o              => extbus(I),
+    overflow_o          => overflow_o(I),
 
-    ADC_SCALE           => ADC_SCALE,
+    MAX_FRAME           => MAX_FRAME,
     FRAMING_ENABLE      => FRAMING_ENABLE,
     FRAMING_MASK        => FRAMING_MASK(I),
     FRAMING_MODE        => FRAMING_MODE(I)
 );
 END GENERATE;
 
--- ADC count is equal to frame_length since we accummulate on every tick
-adc_count <= std_logic_vector(frame_length);
+-- ADC count is frame_length/MAX_FRAME
+gain <= to_integer(unsigned(MAX_FRAME));
+adc_count <= resize(shift_right(frame_length, gain), 32);
 
 -- Zero field
 posn_o(0)  <= posbus_i(0);
 posn_o(31 downto 1)  <= posbus(31 downto 1);
 
-posn_o(32) <= adc_count;                            -- ADC count
+posn_o(32) <= std_logic_vector(adc_count);
 posn_o(36 downto 33) <= extbus(4 downto 1);         -- inenc
-posn_o(37) <= std_logic_vector(frame_length);
-posn_o(38) <= std_logic_vector(capture_offset);
+posn_o(37) <= std_logic_vector(frame_length(31 downto 0));
+posn_o(38) <= std_logic_vector(capture_offset(31 downto 0));
 posn_o(39) <= sysbus_i(31 downto 0);
 posn_o(40) <= sysbus_i(63 downto 32);
 posn_o(41) <= sysbus_i(95 downto 64);
