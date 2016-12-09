@@ -33,6 +33,7 @@ port (
     posn_o              : out std_logic_vector(31 downto 0);
     extn_o              : out std_logic_vector(31 downto 0);
     -- Block register
+    ADC_SCALE           : in  std_logic_vector(1 downto 0);
     FRAMING_ENABLE      : in  std_logic;
     FRAMING_MASK        : in  std_logic;
     FRAMING_MODE        : in  std_logic
@@ -41,6 +42,8 @@ end pcap_capture;
 
 architecture rtl of pcap_capture is
 
+signal gain : natural range 0 to 2**(ADC_SCALE'length)-1;
+
 signal capture_mode     : std_logic_vector(2 downto 0);
 
 signal posn_latch       : std_logic_vector(31 downto 0);
@@ -48,20 +51,23 @@ signal posn_prev        : std_logic_vector(31 downto 0);
 signal posn_delta       : std_logic_vector(31 downto 0);
 
 signal posn_accum       : signed(64 downto 0);
+signal data_sel         : signed(64 downto 0);
 signal posn_sum         : signed(63 downto 0);
 signal posn_overflow    : std_logic;
+
 
 begin
 
 --------------------------------------------------------------------------
 -- Posn data capture processing is based on Mode of Operation
 --------------------------------------------------------------------------
-process(clk_i) begin
+process(clk_i)
+begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            posn_accum <= (others => '0');
             posn_latch <= (others => '0');
             posn_prev <= (others => '0');
+            posn_accum <= (others => '0');
         else
             -- Latch posn on capture pulse
             if (capture_i = '1') then
@@ -77,8 +83,6 @@ process(clk_i) begin
             -- Reset accumulator on frame pulse, and latch sum value
             if (frame_i = '1') then
                 posn_accum <= resize(signed(posn_i), 65);
-
---                truncate_result(posn_sum, posn_overflow, posn_accum);
             -- Accumulate incoming data
             else
                 posn_accum <= posn_accum + resize(signed(posn_i), 65);
@@ -89,6 +93,15 @@ end process;
 
 -- On-the-fly frame-to-frame posn difference
 posn_delta <= std_logic_vector(signed(posn_i) - signed(posn_prev));
+
+--------------------------------------------------------------------------
+-- Apply gain to the output of accummulator and detect overflow 
+-- (all combinatorial logic)
+--------------------------------------------------------------------------
+gain <= to_integer(unsigned(ADC_SCALE));
+data_sel <= shift_right(posn_accum, gain);
+truncate_result(posn_sum, posn_overflow, data_sel);
+
 
 --------------------------------------------------------------------------
 -- Position output can be following based on FRAMING mode of operation.
@@ -125,10 +138,8 @@ process(clk_i) begin
                               extn_o <= (others => '0');
                 when "110" => posn_o <= posn_delta;
                               extn_o <= (others => '0');
-                when "111" => posn_o <= std_logic_vector(posn_accum(31 downto 0));
-                              extn_o <= std_logic_vector(posn_accum(63 downto 32));
---                when "111" => posn_o <= std_logic_vector(posn_sum(31 downto 0));
---                              extn_o <= std_logic_vector(posn_sum(63 downto 32));
+                when "111" => posn_o <= std_logic_vector(posn_sum(31 downto 0));
+                              extn_o <= std_logic_vector(posn_sum(63 downto 32));
                 when others =>
             end case;
         end if;

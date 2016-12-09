@@ -31,6 +31,7 @@ port (
     START_WRITE         : in  std_logic;
     WRITE               : in  std_logic_vector(31 downto 0);
     WRITE_WSTB          : in  std_logic;
+    ADC_SCALE           : in  std_logic_vector(1 downto 0);
     FRAMING_MASK        : in  std_logic_vector(31 downto 0);
     FRAMING_ENABLE      : in  std_logic;
     FRAMING_MODE        : in  std_logic_vector(31 downto 0);
@@ -116,6 +117,7 @@ port map (
     clk_i               => clk_i,
     reset_i             => pcap_reset,
 
+    ADC_SCALE           => ADC_SCALE,
     FRAMING_MASK        => FRAMING_MASK,
     FRAMING_ENABLE      => FRAMING_ENABLE,
     FRAMING_MODE        => FRAMING_MODE,

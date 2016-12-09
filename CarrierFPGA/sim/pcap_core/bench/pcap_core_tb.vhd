@@ -56,6 +56,7 @@ PORT MAP (
     START_WRITE         => START_WRITE,
     WRITE               => WRITE,
     WRITE_WSTB          => WRITE_WSTB,
+    ADC_SCALE           => "01",
     FRAMING_MASK        => FRAMING_MASK,
     FRAMING_ENABLE      => FRAMING_ENABLE,
     FRAMING_MODE        => FRAMING_MODE,
@@ -105,18 +106,42 @@ begin
     FRAMING_MASK(22) <= '1';
     FRAMING_MODE(22) <= '1';
     wait for 1000 ns;
-    ARM <= '1';wait for 8 ns; ARM <= '0';
-    wait for 10000 ns;
+    enable_i <= '1';
 
     --------------------------------------------------
-    -- Frame and Capture
+    -- ARM #1
     -------------------------------------------------
-    enable_i <= '1';
+    wait for 10000 ns;
+    ARM <= '1';wait for 8 ns; ARM <= '0';
+    wait for 10000 ns;
+    -- Frame and Capture
     wait for 10000 ns;
     for I in 0 to 9 loop
         frame_i <= '1'; wait for 8 ns; frame_i <= '0';
+        -- adc_loop:
+        for I in 0 to 99 loop
+            adc_data <= adc_data + 1;
+            data_val_i <= '1'; wait for 8 ns; data_val_i <= '0';
+            wait for 80 ns;
+        end loop;
 
-        adc_loop : for I in 0 to 99 loop
+        capture_i <= '1'; wait for 8 ns; capture_i <= '0';
+        wait for 1000 ns;
+    end loop;
+    wait for 50000 ns;
+    DISARM <= '1';wait for 8 ns; DISARM <= '0';
+    --------------------------------------------------
+    -- ARM #2
+    -------------------------------------------------
+    wait for 10000 ns;
+    ARM <= '1';wait for 8 ns; ARM <= '0';
+    wait for 10000 ns;
+    -- Frame and Capture
+    wait for 10000 ns;
+    for I in 0 to 9 loop
+        frame_i <= '1'; wait for 8 ns; frame_i <= '0';
+        -- adc_loop:
+        for I in 0 to 99 loop
             adc_data <= adc_data + 1;
             data_val_i <= '1'; wait for 8 ns; data_val_i <= '0';
             wait for 80 ns;

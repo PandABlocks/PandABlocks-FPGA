@@ -26,6 +26,7 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Block register
+    ADC_SCALE           : in  std_logic_vector(1 downto 0);
     FRAMING_ENABLE      : in  std_logic;
     FRAMING_MASK        : in  std_logic_vector(31 downto 0);
     FRAMING_MODE        : in  std_logic_vector(31 downto 0);
@@ -209,6 +210,7 @@ port map (
     posn_o              => posbus(I),
     extn_o              => extbus(I),
 
+    ADC_SCALE           => ADC_SCALE,
     FRAMING_ENABLE      => FRAMING_ENABLE,
     FRAMING_MASK        => FRAMING_MASK(I),
     FRAMING_MODE        => FRAMING_MODE(I)
