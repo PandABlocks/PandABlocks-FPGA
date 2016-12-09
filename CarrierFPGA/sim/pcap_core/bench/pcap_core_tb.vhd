@@ -22,7 +22,6 @@ signal WRITE_WSTB       : std_logic := '0';
 signal FRAMING_MASK     : std_logic_vector(31 downto 0) := (others => '0');
 signal FRAMING_ENABLE   : std_logic := '0';
 signal FRAMING_MODE     : std_logic_vector(31 downto 0) := (others => '0');
-signal FRAME_NUM        : std_logic_vector(31 downto 0) := (others => '0');
 signal enable_i         : std_logic := '0';
 signal capture_i        : std_logic := '0';
 signal frame_i          : std_logic := '0';
@@ -32,7 +31,6 @@ signal sysbus_i         : sysbus_t := (others => '0');
 signal posbus_i         : posbus_t := (others => (others => '0'));
 
 --Outputs
-signal FRAME_COUNT      : std_logic_vector(31 downto 0);
 signal ERR_STATUS       : std_logic_vector(31 downto 0);
 signal pcap_dat_o       : std_logic_vector(31 downto 0);
 signal pcap_dat_valid_o : std_logic;
@@ -56,12 +54,10 @@ PORT MAP (
     START_WRITE         => START_WRITE,
     WRITE               => WRITE,
     WRITE_WSTB          => WRITE_WSTB,
-    ADC_SCALE           => "01",
+    MAX_FRAME           => "000",
     FRAMING_MASK        => FRAMING_MASK,
     FRAMING_ENABLE      => FRAMING_ENABLE,
     FRAMING_MODE        => FRAMING_MODE,
-    FRAME_NUM           => FRAME_NUM,
-    FRAME_COUNT         => FRAME_COUNT,
     ERR_STATUS          => ERR_STATUS,
     enable_i            => enable_i,
     capture_i           => capture_i,
