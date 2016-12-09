@@ -21,6 +21,7 @@ entity panda_ps is
     DDR_reset_n         : inout STD_LOGIC;
     DDR_we_n            : inout STD_LOGIC;
     FCLK_CLK0           : out STD_LOGIC;
+    FCLK_CLK1           : out STD_LOGIC;
     FCLK_LEDS           : out STD_LOGIC_VECTOR ( 31 downto 0 );
     FCLK_RESET0_N       : out STD_LOGIC_VECTOR ( 0 to 0 );
     FIXED_IO_ddr_vrn : inout STD_LOGIC;
@@ -116,6 +117,7 @@ end process;
 ps : entity work.zynq_ps
 port map (
     FCLK_CLK0           => FCLK,
+    FCLK_CLK1           => FCLK_CLK1,
     FCLK_RESET0_N       => open,
     IRQ_F2P             => irq_f2p_signal,
     -- GP0

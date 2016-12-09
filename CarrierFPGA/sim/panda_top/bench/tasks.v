@@ -35,25 +35,3 @@ initial begin
     tb.uut.ps.ps.ps.inst.set_function_level_info("ALL",0);
     tb.uut.ps.ps.ps.inst.set_channel_level_info("ALL",0);
 end
-
-// Global processes
-reg     arm, arm_prev, arm_rise;
-reg     enable, enable_prev, enable_rise;
-reg     capture;
-
-initial begin
-    arm_prev <= 0;
-    enable_prev <= 0;
-    arm_rise <= 0;
-    enable_rise <= 0;
-end
-
-always @(posedge tb.uut.FCLK_CLK0)
-begin
-    arm_prev <= arm;
-    enable_prev <= enable;
-
-    arm_rise <= arm & !arm_prev;
-    enable_rise <= enable & !enable_prev;
-end
-

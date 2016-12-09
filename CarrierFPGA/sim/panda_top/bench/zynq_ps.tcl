@@ -30,6 +30,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 # If you do not already have a project created,
 # you can create a project using the following command:
 #    create_project project_1 myproj -part xc7z030sbg485-1
+#    set_property BOARD_PART em.avnet.com:picozed_7030:part0:1.0 [current_project]
 
 # CHECKING IF PROJECT EXISTS
 if { [get_projects -quiet] eq "" } {
@@ -148,11 +149,12 @@ proc create_root_design { parentCell } {
   set S_AXI_HP0 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI_HP0 ]
   set_property -dict [ list CONFIG.ADDR_WIDTH {32} CONFIG.ARUSER_WIDTH {0} CONFIG.AWUSER_WIDTH {0} CONFIG.BUSER_WIDTH {0} CONFIG.DATA_WIDTH {32} CONFIG.ID_WIDTH {6} CONFIG.MAX_BURST_LENGTH {16} CONFIG.NUM_READ_OUTSTANDING {2} CONFIG.NUM_WRITE_OUTSTANDING {2} CONFIG.PHASE {0.000} CONFIG.PROTOCOL {AXI3} CONFIG.READ_WRITE_MODE {READ_WRITE} CONFIG.RUSER_WIDTH {0} CONFIG.SUPPORTS_NARROW_BURST {1} CONFIG.WUSER_WIDTH {0}  ] $S_AXI_HP0
   set S_AXI_HP1 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI_HP1 ]
-  set_property -dict [ list CONFIG.ADDR_WIDTH {32} CONFIG.ARUSER_WIDTH {0} CONFIG.AWUSER_WIDTH {0} CONFIG.BUSER_WIDTH {0} CONFIG.CLK_DOMAIN {zynq_ps_ps_0_FCLK_CLK0} CONFIG.DATA_WIDTH {32} CONFIG.ID_WIDTH {6} CONFIG.MAX_BURST_LENGTH {256} CONFIG.NUM_READ_OUTSTANDING {2} CONFIG.NUM_WRITE_OUTSTANDING {2} CONFIG.PHASE {0.000} CONFIG.PROTOCOL {AXI4} CONFIG.READ_WRITE_MODE {READ_ONLY} CONFIG.RUSER_WIDTH {0} CONFIG.SUPPORTS_NARROW_BURST {1} CONFIG.WUSER_WIDTH {0}  ] $S_AXI_HP1
+  set_property -dict [ list CONFIG.ADDR_WIDTH {32} CONFIG.ARUSER_WIDTH {0} CONFIG.AWUSER_WIDTH {0} CONFIG.BUSER_WIDTH {0} CONFIG.DATA_WIDTH {32} CONFIG.ID_WIDTH {6} CONFIG.MAX_BURST_LENGTH {256} CONFIG.NUM_READ_OUTSTANDING {2} CONFIG.NUM_WRITE_OUTSTANDING {2} CONFIG.PHASE {0.000} CONFIG.PROTOCOL {AXI4} CONFIG.READ_WRITE_MODE {READ_ONLY} CONFIG.RUSER_WIDTH {0} CONFIG.SUPPORTS_NARROW_BURST {1} CONFIG.WUSER_WIDTH {0}  ] $S_AXI_HP1
 
   # Create ports
   set FCLK_CLK0 [ create_bd_port -dir O -type clk FCLK_CLK0 ]
   set_property -dict [ list CONFIG.ASSOCIATED_BUSIF {M00_AXI:S_AXI_HP0:S_AXI_HP1}  ] $FCLK_CLK0
+  set FCLK_CLK1 [ create_bd_port -dir O -type clk FCLK_CLK1 ]
   set FCLK_RESET0_N [ create_bd_port -dir O -type rst FCLK_RESET0_N ]
   set IRQ_F2P [ create_bd_port -dir I -from 3 -to 0 -type intr IRQ_F2P ]
   set_property -dict [ list CONFIG.PortWidth {4}  ] $IRQ_F2P
@@ -166,7 +168,7 @@ proc create_root_design { parentCell } {
 
   # Create instance: axi_dmawrite_converter, and set properties
   set axi_dmawrite_converter [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dwidth_converter:2.1 axi_dmawrite_converter ]
-  set_property -dict [ list CONFIG.PROTOCOL {AXI3} CONFIG.READ_WRITE_MODE {WRITE_ONLY}  ] $axi_dmawrite_converter
+  set_property -dict [ list CONFIG.FIFO_MODE {1} CONFIG.MAX_SPLIT_BEATS {16} CONFIG.PROTOCOL {AXI3} CONFIG.READ_WRITE_MODE {WRITE_ONLY}  ] $axi_dmawrite_converter
 
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
@@ -178,7 +180,7 @@ proc create_root_design { parentCell } {
 
   # Create instance: ps, and set properties
   set ps [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7_bfm:2.0 ps ]
-  set_property -dict [ list CONFIG.PCW_FCLK_CLK0_FREQ {125000000} CONFIG.PCW_S_AXI_HP0_DATA_WIDTH {64} CONFIG.PCW_S_AXI_HP1_DATA_WIDTH {64} CONFIG.PCW_S_AXI_HP3_DATA_WIDTH {64} CONFIG.PCW_USE_M_AXI_GP0 {1} CONFIG.PCW_USE_S_AXI_HP0 {1} CONFIG.PCW_USE_S_AXI_HP1 {1} CONFIG.PCW_USE_S_AXI_HP2 {0} CONFIG.PCW_USE_S_AXI_HP3 {1}  ] $ps
+  set_property -dict [ list CONFIG.PCW_FCLK_CLK0_FREQ {125000000} CONFIG.PCW_FCLK_CLK1_FREQ {100000000} CONFIG.PCW_S_AXI_HP0_DATA_WIDTH {64} CONFIG.PCW_S_AXI_HP1_DATA_WIDTH {64} CONFIG.PCW_S_AXI_HP3_DATA_WIDTH {64} CONFIG.PCW_USE_M_AXI_GP0 {1} CONFIG.PCW_USE_S_AXI_HP0 {1} CONFIG.PCW_USE_S_AXI_HP1 {1} CONFIG.PCW_USE_S_AXI_HP2 {0} CONFIG.PCW_USE_S_AXI_HP3 {1}  ] $ps
 
   # Create interface connections
   connect_bd_intf_net -intf_net S00_AXI_1 [get_bd_intf_ports S_AXI_HP1] [get_bd_intf_pins axi_interconnect_0/S00_AXI]
@@ -195,6 +197,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net PS_PORB_1 [get_bd_ports PS_PORB] [get_bd_pins ps/PS_PORB]
   connect_bd_net -net PS_SRSTB_1 [get_bd_ports FCLK_RESET0_N] [get_bd_ports PS_SRSTB] [get_bd_pins axi/ARESETN] [get_bd_pins axi/M00_ARESETN] [get_bd_pins axi/S00_ARESETN] [get_bd_pins axi_dmawrite_converter/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins hp1/m_axi_aresetn] [get_bd_pins ps/PS_SRSTB]
   connect_bd_net -net processing_system7_bfm_0_FCLK_CLK0 [get_bd_ports FCLK_CLK0] [get_bd_pins axi/ACLK] [get_bd_pins axi/M00_ACLK] [get_bd_pins axi/S00_ACLK] [get_bd_pins axi_dmawrite_converter/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins hp1/m_axi_aclk] [get_bd_pins ps/FCLK_CLK0] [get_bd_pins ps/M_AXI_GP0_ACLK] [get_bd_pins ps/S_AXI_HP0_ACLK] [get_bd_pins ps/S_AXI_HP1_ACLK] [get_bd_pins ps/S_AXI_HP3_ACLK]
+  connect_bd_net -net ps_FCLK_CLK1 [get_bd_ports FCLK_CLK1] [get_bd_pins ps/FCLK_CLK1]
 
   # Create address segments
   create_bd_addr_seg -range 0x40000000 -offset 0x0 [get_bd_addr_spaces hp1/Data] [get_bd_addr_segs ps/S_AXI_HP3/HP3_DDR_LOWOCM] SEG_ps_HP3_DDR_LOWOCM
@@ -217,4 +220,6 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
+
+puts "\n\nWARNING: This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 

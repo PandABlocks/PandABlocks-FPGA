@@ -9,7 +9,10 @@ use work.top_defines.all;
 
 entity panda_top_tb is
     port (
-        pcap_armed      : in std_logic
+        pcap_armed      : in std_logic;
+        enable          : in std_logic;
+        frame           : in std_logic;
+        capture         : in std_logic
     );
 end panda_top_tb;
 
@@ -221,46 +224,7 @@ PORT MAP (
 --------------------------------------------------------------------------
 -- TTL IN
 --------------------------------------------------------------------------
-ttlin_pad(5 downto 2) <= "0000";
-
-process
-begin
-    ttlin_pad(0) <= '0';
-FOR N in 0 TO 1 LOOP
-    PROC_CLK_EAT(125 * 50, clk);
-    FRAME : for N in 0 to 149 loop
-        PROC_CLK_EAT(125, clk);
-        ttlin_pad(0) <= '1';
-        PROC_CLK_EAT(250, clk);
-        ttlin_pad(0) <= '0';
-        PROC_CLK_EAT(125, clk);
-    end loop FRAME;
-    wait until (pcap_armed = '1');
-END LOOP;
-
-    wait;
-end process;
-
-process
-begin
-    ttlin_pad(1) <= '0';
-FOR N in 0 TO 1 LOOP
-    PROC_CLK_EAT(125 * 50, clk);
-    PROC_CLK_EAT(250, clk);
-    CAPTURE : for N in 0 to 148 loop
-        PROC_CLK_EAT(125, clk);
-        ttlin_pad(1) <= '1';
-        PROC_CLK_EAT(250, clk);
-        ttlin_pad(1) <= '0';
-        PROC_CLK_EAT(125, clk);
-    end loop CAPTURE;
-
-    wait until (pcap_armed = '1');
-END LOOP;
-
-
-    wait;
-end process;
+ttlin_pad <= (others => '0');
 
 --------------------------------------------------------------------------
 -- Loopback I/O
@@ -268,11 +232,18 @@ end process;
 FMC_PRSNT <= '1';
 
 lvdsin_pad <= lvdsout_pad;
-FMC_LA_P(33 downto 17) <= FMC_LA_P(16 downto 0);
-FMC_LA_N(33 downto 17) <= FMC_LA_N(16 downto 0);
-
 SFP_RX_P <= SFP_TX_P;
 SFP_RX_N <= SFP_TX_N;
+
+--------------------------------------------------------------------------
+-- Loopback I/O
+--------------------------------------------------------------------------
+
+FMC_LA_P(0) <= frame;
+FMC_LA_N(0) <= capture;
+
+FMC_LA_P(33 downto 1) <= (others => 'Z');
+FMC_LA_N(33 downto 1) <= (others => 'Z');
 
 FMC_DP0_M2C_P <= FMC_DP0_C2M_P;
 FMC_DP0_M2C_N <= FMC_DP0_C2M_N;
