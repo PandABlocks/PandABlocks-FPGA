@@ -166,9 +166,8 @@ PCAP        Position capture control
     ENABLE          Data capture enable
     FRAME           Data capture frame
     CAPTURE         Data capture event
-    FRAME_NUM       Total frames to be captured
+    MAX_FRAME       Maximum frame length for averaging
     ERR_STATUS      Was last capture successful?
-    FRAME_COUNT     Current frame count value
     ACTIVE          Data capture in progress
     CAPTURE_TS      Timestamp of captured data
     FRAME_LENGTH    Length of captured frame
