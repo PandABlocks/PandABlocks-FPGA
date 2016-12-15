@@ -4,6 +4,9 @@ endif
 
 VPATH = $(SRC_DIR)
 
+# Carrier Board version
+BOARD = v2
+
 # Top-level design name
 SYSTEM = slow_top
 
@@ -11,7 +14,7 @@ LIST_FILE = $(SYSTEM).lst
 
 SCR_FILE = $(SRC_DIR)/syn/xilinx/$(SYSTEM).scr
 NETLIST_DIR = $(SRC_DIR)/syn/implementation
-UCF_FILE = $(SRC_DIR)/syn/constr/$(SYSTEM).ucf
+UCF_FILE = $(SRC_DIR)/syn/constr/$(SYSTEM)-$(BOARD).ucf
 
 POSTSYN_NETLIST = $(SYSTEM).ngc
 NGD_FILE = $(SYSTEM).ngd

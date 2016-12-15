@@ -46,6 +46,9 @@ docs: $(DOCS_BUILD_DIR)/index.html
 # ------------------------------------------------------------------------------
 # FPGA builds
 
+# Carrier Board Version
+BOARD = v2
+
 #FMC_DESIGN = loopback 24VIO
 #FMC_DESIGN = acq420
 FMC_DESIGN = 24VIO
@@ -69,7 +72,7 @@ devicetree: $(FPGA_BUILD_DIR)
 
 slow-fpga: $(SLOW_FPGA_BUILD_DIR)
 	source $(ISE)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
-            TOP=$(TOP) SRC_DIR=$(TOP)/SlowFPGA mcs
+            TOP=$(TOP) SRC_DIR=$(TOP)/SlowFPGA BOARD=$(BOARD) mcs
 
 
 .PHONY: carrier-fpga slow-fpga
@@ -77,7 +80,7 @@ slow-fpga: $(SLOW_FPGA_BUILD_DIR)
 # ------------------------------------------------------------------------------
 # Build installation package
 
-ZPKG_VERSION = FMC_$(FMC_DESIGN)_SFP_$(SFP_DESIGN)-$(FIRMWARE)
+ZPKG_VERSION = $(BOARD)-FMC_$(FMC_DESIGN)_SFP_$(SFP_DESIGN)-$(FIRMWARE)
 
 zpkg: etc/panda-fpga.list $(FIRMWARE_BUILD)
 #	$(error Still need to specify FIRMWARE_BUILD dependencies)
