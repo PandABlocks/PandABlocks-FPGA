@@ -24,6 +24,7 @@ class ConfigGenerator(object):
         self.temp_env.globals['newPosBus'] = self.new_pos_bus
         self.temp_env.globals['newBlockReg'] = self.new_block_reg
         self.app_config = collections.OrderedDict()
+        self.module_dir = collections.OrderedDict()
         self.curr_bitbus = 9
         self.curr_posbus = 0
         self.curr_posbus_upper = 32
@@ -75,22 +76,26 @@ class ConfigGenerator(object):
 
     def extract_file_info(self, file_name):
         file_info = collections.OrderedDict()
+        module_dir = collections.OrderedDict()
         for line in file(file_name):
             row = line.split()
             try:
                 if row and not row[0].startswith("#"):
-                    file_info[row[0]] = row[1]
+                    #remove the name past underscore for the path only
+                    key = row[0].split('_')[0]
+                    file_info[key] = row[1]
+                    module_dir[row[0]] = row[1]
             except:
             #NEED SOME EXTRA CHECKING ON THIS FILE
                 print "INVALID ENTRY, LINE", file.line_num,": ", row
-        return file_info
+        return file_info, module_dir
 
     def parse_app_file(self, appfile):
         file = os.path.join(APP_DIR, appfile)
-        self.app_config = self.extract_file_info(file)
-        #add the carrier_config modules
+        self.app_config, _ = self.extract_file_info(file)
         self.app_config.update(self.panda_carrier_config)
         self.init_block_regs()
+        #add the carrier_config modules
         return self.extract_file_info(file)
 
     def init_block_regs(self):
@@ -102,17 +107,17 @@ class ConfigGenerator(object):
     def parse_meta_file(self, meta_file, block):
         meta_info = collections.OrderedDict()
         try:
-            meta_info = self.extract_file_info(meta_file)
+            meta_info, _ = self.extract_file_info(meta_file)
         except:
             print "no meta file for: ", block, sys.exc_info()[0]
         return meta_info
 
     def checkBlockMax(self, app_config):
-        for block in app_config.keys():
+        for block in self.module_dir.keys():
             meta_file = os.path.join(MODULE_DIR, block.lower(), "meta")
             meta_info = self.parse_meta_file(meta_file, block)
             #check the defined number in the config against the max in the meta
-            if int(app_config[block]) > int(meta_info["MAX"]):
+            if int(app_config[block.split('_')[0]]) > int(meta_info["MAX"]):
                 raise ValueError('Max value exceeded for ' + block)
 
     def new_bit_bus(self):
@@ -154,7 +159,8 @@ class ConfigGenerator(object):
 
     def new_block_reg(self, typ='', offset=-1):
         block = self.processing_block
-        if self.block_regs[block] < offset:
+        ifving directory
+        `/home/fwf58757/git/gitolite/pandabox/pandaboxApp/src/O.linux-x86_64' self.block_regs[block] < offset:
             self.block_regs[block] = offset
         if self.block_regs[block] < 64:
             self.block_regs[block] += 1
@@ -177,7 +183,7 @@ if __name__ == '__main__':
 
     cfg = ConfigGenerator()
     #read in app config file
-    app_config = cfg.parse_app_file("myapp")
+    _, app_config = cfg.parse_app_file("myapp")
     variables = {"app_config": app_config}
 
     #-check that each requested config doesn't exceed the max (from meta file)
@@ -187,7 +193,7 @@ if __name__ == '__main__':
     cfg.generate_description(app_config, "description")
 
     #combine all relevent config for the output config file
-    cfg.generate_output_file(app_config, "config", variables)
+    cfg.generate_output_file(cfg.module_dir, "config", variables)
         #-make sure to only include the ones that aren't 0
         #-other error checking ?
 
