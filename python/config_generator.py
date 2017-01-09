@@ -159,8 +159,7 @@ class ConfigGenerator(object):
 
     def new_block_reg(self, typ='', offset=-1):
         block = self.processing_block
-        ifving directory
-        `/home/fwf58757/git/gitolite/pandabox/pandaboxApp/src/O.linux-x86_64' self.block_regs[block] < offset:
+        if self.block_regs[block] < offset:
             self.block_regs[block] = offset
         if self.block_regs[block] < 64:
             self.block_regs[block] += 1
