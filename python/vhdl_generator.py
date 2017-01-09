@@ -33,7 +33,7 @@ def main():
 
     cfgParser = ConfigParser(CONFIG_DIR)
 
-    #filter out the '*' charachter from the beginning of register names
+    #filter out the '*' charachter from the beginning of block names
     blocks = collections.OrderedDict()
     for blockname, block in cfgParser.blocks.items():
         blocks.update({blockname.replace("*", ""): block})
@@ -41,11 +41,13 @@ def main():
         for fieldname, field in block.fields.items():
             if field.reg[0] == 'slow':
                 field.reg[0] = field.reg[1]
-            #filter out register numbers after a "/"
+            #filter out register numbers after a "/" whithout copying "/"
             tempreg = []
             copy = True
             for num in field.reg:
-                if num == "/": copy = False
+                if num == "/":
+                    copy = False
+                    continue
                 if copy : tempreg.append(num)
             field.reg = tempreg
 
