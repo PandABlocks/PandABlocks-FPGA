@@ -51,9 +51,20 @@ signal data_prev        : std_logic_vector(31 downto 0);
 begin
 
 --------------------------------------------------------------------------
--- Hardware Status LEDs for the time being
+-- 1 second heartbeat to LED from Zynq -> SlowFPGA
 --------------------------------------------------------------------------
-status_leds <= "0001";
+process(clk_i)
+    variable counter : integer range 0 to 62500000;
+begin
+    if rising_edge(clk_i) then
+        if (counter = 62499999) then
+            status_leds(0) <= not status_leds(0);
+            counter := 0;
+        else
+            counter := counter + 1;
+        end if;
+    end if;
+end process;
 
 --------------------------------------------------------------------------
 -- 50ms counter tick
