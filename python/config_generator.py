@@ -25,7 +25,7 @@ class ConfigGenerator(object):
         self.temp_env.globals['newBlockReg'] = self.new_block_reg
         self.app_config = collections.OrderedDict()
         self.module_dir = collections.OrderedDict()
-        self.curr_bitbus = 0#9
+        self.curr_bitbus = 1#9
         self.curr_posbus = 0
         self.curr_posbus_upper = 32
         self.current_block = 2
@@ -125,7 +125,6 @@ class ConfigGenerator(object):
             128,
             'bit_bus',
             self.curr_bitbus)
-        print 'Bitbus alloc:', bus_values
         return bus_values
 
     def new_pos_bus(self, location='lower'):
@@ -139,7 +138,6 @@ class ConfigGenerator(object):
                 64,
                 'pos_bus',
                 self.curr_posbus_upper)
-        print 'Posbus alloc:', bus_values
         return bus_values
 
     def new_bus(self, limit, type, current_val):
@@ -184,7 +182,7 @@ if __name__ == '__main__':
 
     cfg = ConfigGenerator()
     #read in app config file
-    _, app_config = cfg.parse_app_file("myapp")
+    module_info, app_config = cfg.parse_app_file("myapp")
     variables = {"app_config": app_config}
 
     #-check that each requested config doesn't exceed the max (from meta file)
@@ -194,10 +192,9 @@ if __name__ == '__main__':
     cfg.generate_description(app_config, "description")
 
     #combine all relevent config for the output config file
-    cfg.generate_output_file(cfg.module_dir, "config", variables)
+    cfg.generate_output_file(app_config, "config", variables)
         #-make sure to only include the ones that aren't 0
         #-other error checking ?
-
     #combine all relevent registers for the output registers file
     cfg.generate_output_file(app_config, "registers", variables)
         #-check there are only unique bit numbers ?
