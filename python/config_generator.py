@@ -73,6 +73,7 @@ class ConfigGenerator(object):
         fname = os.path.join(OUTPUT_DIR, out_dir)
         with open(fname, 'a') as f:
             f.write(out_file)
+            f.write('\n')
 
     def extract_file_info(self, file_name):
         file_info = collections.OrderedDict()
