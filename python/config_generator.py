@@ -25,7 +25,7 @@ class ConfigGenerator(object):
         self.temp_env.globals['newBlockReg'] = self.new_block_reg
         self.app_config = collections.OrderedDict()
         self.module_dir = collections.OrderedDict()
-        self.curr_bitbus = 9
+        self.curr_bitbus = 0#9
         self.curr_posbus = 0
         self.curr_posbus_upper = 32
         self.current_block = 2
@@ -125,6 +125,7 @@ class ConfigGenerator(object):
             128,
             'bit_bus',
             self.curr_bitbus)
+        print 'Bitbus alloc:', bus_values
         return bus_values
 
     def new_pos_bus(self, location='lower'):
@@ -138,6 +139,7 @@ class ConfigGenerator(object):
                 64,
                 'pos_bus',
                 self.curr_posbus_upper)
+        print 'Posbus alloc:', bus_values
         return bus_values
 
     def new_bus(self, limit, type, current_val):
