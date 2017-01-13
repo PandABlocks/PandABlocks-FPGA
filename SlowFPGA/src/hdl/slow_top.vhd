@@ -44,6 +44,7 @@ port (
     dcard_ctrl4_io      : inout std_logic_vector(15 downto 0);
     -- Misc control
     SEL_GTXCLK1         : out  std_logic; -- 0: Si570, 1: FMC
+    ENC_LED             : out  std_logic_vector(3 downto 0);
     -- Front Panel Shift Register Interface
     shift_reg_sdata_o   : out   std_logic;
     shift_reg_sclk_o    : out   std_logic;
@@ -107,6 +108,12 @@ spi_sclk_o <= spi_sclk;
 spi_dat_o <= spi_dat;
 
 SEL_GTXCLK1 <= '1'; -- FMC as clock source
+
+-- Encoder LEDs (D5-D8)
+ENC_LED(0) <= not DCARD_MODE(0)(0);
+ENC_LED(1) <= not DCARD_MODE(1)(0);
+ENC_LED(2) <= not DCARD_MODE(2)(0);
+ENC_LED(3) <= not DCARD_MODE(3)(0);
 
 --------------------------------------------------------------------------
 -- Clock PLL and Startup Reset

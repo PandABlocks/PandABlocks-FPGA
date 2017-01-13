@@ -94,3 +94,9 @@ NET "i2c_vmon_sda"            LOC = P84;
 NET "i2c_vmon_scl"            LOC = P85;
 
 NET "SEL_GTXCLK1"             LOC = P144;
+
+NET "ENC_LED[0]"              LOC = P137;
+NET "ENC_LED[1]"              LOC = P138;
+NET "ENC_LED[2]"              LOC = P139;
+NET "ENC_LED[3]"              LOC = P140;
+
