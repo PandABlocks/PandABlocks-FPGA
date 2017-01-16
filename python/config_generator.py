@@ -1,7 +1,7 @@
 #!/bin/env dls-python
 from pkg_resources import require
 require("Jinja2")
-import os, sys
+import os, sys, getopt
 import csv
 import collections
 from jinja2 import Environment, FileSystemLoader
@@ -177,13 +177,25 @@ class ConfigGenerator(object):
             out += ' ' + str(self.block_regs[block])
         return out
 
-if __name__ == '__main__':
+def main(argv):
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
 
     cfg = ConfigGenerator()
+    appfile = ''
     #read in app config file
-    module_info, app_config = cfg.parse_app_file("myapp")
+    try:
+        opts, args = getopt.getopt(argv, "ha:", ["appfile="])
+        print opts, args
+    except getopt.GetoptError:
+        print 'config_generator.py -a <appfile>'
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print 'config_generator.py -a <appfile>'
+        elif opt in ("-a", "--appfile"):
+            appfile = arg
+    module_info, app_config = cfg.parse_app_file(appfile) #this should be a param
     variables = {"app_config": app_config}
 
     #-check that each requested config doesn't exceed the max (from meta file)
@@ -200,3 +212,6 @@ if __name__ == '__main__':
     cfg.generate_output_file(app_config, "registers", variables)
         #-check there are only unique bit numbers ?
         #-other error checking ?
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
