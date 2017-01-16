@@ -40,6 +40,7 @@ port (
     ttlin_term_o        : out std_logic_vector(5 downto 0);
     ttl_leds_o          : out std_logic_vector(15 downto 0);
     status_leds_o       : out std_logic_vector(3 downto 0);
+    enc_leds_o          : out std_logic_vector(3 downto 0);
     outenc_conn_o       : out std_logic_vector(3 downto 0);
     -- Serial Physical interface
     spi_sclk_i          : in  std_logic;
@@ -137,6 +138,7 @@ port map (
     rx_data_i       => rd_dat,
     ttl_leds_o      => ttl_leds_o,
     status_leds_o   => status_leds_o,
+    enc_leds_o      => enc_leds_o,
     outenc_conn_o   => outenc_conn_o
 );
 

@@ -29,6 +29,7 @@ port (
     -- Block Input and Outputs
     ttlin_i             : in  std_logic_vector(TTLIN_NUM-1 downto 0);
     ttlout_i            : in  std_logic_vector(TTLOUT_NUM-1 downto 0);
+    inenc_conn_i        : in  std_logic_vector(ENC_NUM-1 downto 0);
     outenc_conn_i       : in  std_logic_vector(ENC_NUM-1 downto 0);
     slow_tlp_o          : out slow_packet
 );
@@ -117,7 +118,7 @@ end process;
 --------------------------------------------------------------------------
 -- Custom bits currently includes OutEnc disconnect action.
 --------------------------------------------------------------------------
-data <= ZEROS(8) & status_leds & outenc_conn_i & ttlio_leds;
+data <= ZEROS(4) & inenc_conn_i & status_leds & outenc_conn_i & ttlio_leds;
 
 --------------------------------------------------------------------------
 -- Send a packet to Slow FPGA only if data is changed

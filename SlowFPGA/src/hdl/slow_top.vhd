@@ -96,6 +96,7 @@ signal reset                : std_logic;
 signal ttlin_term           : std_logic_vector(5 downto 0);
 signal ttl_leds             : std_logic_vector(15 downto 0);
 signal status_leds          : std_logic_vector(3 downto 0);
+signal enc_leds             : std_logic_vector(3 downto 0);
 signal clk50_pad            : std_logic;
 signal clk50_pll            : std_logic;
 signal sysclk               : std_logic;
@@ -110,10 +111,12 @@ spi_dat_o <= spi_dat;
 SEL_GTXCLK1 <= '1'; -- FMC as clock source
 
 -- Encoder LEDs (D5-D8)
-ENC_LED(0) <= not DCARD_MODE(0)(0);
-ENC_LED(1) <= not DCARD_MODE(1)(0);
-ENC_LED(2) <= not DCARD_MODE(2)(0);
-ENC_LED(3) <= not DCARD_MODE(3)(0);
+--ENC_LED(0) <= not DCARD_MODE(0)(0);
+--ENC_LED(1) <= not DCARD_MODE(1)(0);
+--ENC_LED(2) <= not DCARD_MODE(2)(0);
+--ENC_LED(3) <= not DCARD_MODE(3)(0);
+
+ENC_LED <= enc_leds;
 
 --------------------------------------------------------------------------
 -- Clock PLL and Startup Reset
@@ -156,6 +159,7 @@ port map (
     ttlin_term_o        => ttlin_term,
     ttl_leds_o          => ttl_leds,
     status_leds_o       => status_leds,
+    enc_leds_o          => enc_leds,
     outenc_conn_o       => OUTENC_CONN,
 
     INENC_PROTOCOL      => INENC_PROTOCOL,

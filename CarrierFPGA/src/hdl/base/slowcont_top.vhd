@@ -41,16 +41,17 @@ port (
     -- Digital I/O Interface
     ttlin_i             : in  std_logic_vector(TTLIN_NUM-1 downto 0);
     ttlout_i            : in  std_logic_vector(TTLOUT_NUM-1 downto 0);
+    inenc_conn_i        : in  std_logic_vector(ENC_NUM-1 downto 0);
     outenc_conn_i       : in  std_logic_vector(ENC_NUM-1 downto 0);
+    -- Block Input and Outputs
+    cmd_ready_n_o       : out std_logic;
+    SLOW_FPGA_VERSION   : out std_logic_vector(31 downto 0);
+    DCARD_MODE          : out std32_array(ENC_NUM-1 downto 0);
     -- Serial Physical interface
     spi_sclk_o          : out std_logic;
     spi_dat_o           : out std_logic;
     spi_sclk_i          : in  std_logic;
-    spi_dat_i           : in  std_logic;
-    -- Block Input and Outputs
-    cmd_ready_n_o       : out std_logic;
-    SLOW_FPGA_VERSION   : out std_logic_vector(31 downto 0);
-    DCARD_MODE          : out std32_array(ENC_NUM-1 downto 0)
+    spi_dat_i           : in  std_logic
 );
 end slowcont_top;
 
@@ -103,6 +104,7 @@ port map (
 
     ttlin_i             => ttlin_i,
     ttlout_i            => ttlout_i,
+    inenc_conn_i        => inenc_conn_i,
     outenc_conn_i       => outenc_conn_i,
 
     slow_tlp_o          => slow_leds_tlp
@@ -131,7 +133,7 @@ port map (
 );
 
 ---------------------------------------------------------------------------
--- Slow controller status readback
+-- Status Read process from Slow Controller
 ---------------------------------------------------------------------------
 slow_ctrl_inst : entity work.slow_ctrl
 port map (

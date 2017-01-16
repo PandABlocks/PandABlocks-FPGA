@@ -35,6 +35,7 @@ port (
     -- Encoder Daughter Card Control interface
     ttl_leds_o      : out std_logic_vector(15 downto 0);
     status_leds_o   : out std_logic_vector(3 downto 0);
+    enc_leds_o      : out std_logic_vector(3 downto 0);
     outenc_conn_o   : out std_logic_vector(3 downto 0)
 );
 end leds_ctrl;
@@ -56,11 +57,13 @@ process(clk_i) begin
             ttl_leds_o <= (others => '0');
             status_leds_o <= (others => '0');
             outenc_conn_o <= (others => '0');
+            enc_leds_o <= (others => '0');
         else
             if (rx_valid_i = '1' and rx_addr = TTL_LEDS) then
                 ttl_leds_o <= rx_data_i(15 downto 0);
                 outenc_conn_o <= rx_data_i(19 downto 16);
                 status_leds_o <= rx_data_i(23 downto 20);
+                enc_leds_o <= rx_data_i(27 downto 24);
             end if;
         end if;
     end if;

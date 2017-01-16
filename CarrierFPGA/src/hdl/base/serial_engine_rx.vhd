@@ -67,7 +67,7 @@ end process;
 -- Shift source synchronous data on the Falling egde of clock
 shift_clock <= not serial_clock and serial_clock_prev;
 
-ssi_link_detect_inst : entity work.ssi_link_detect
+serial_link_detect_inst : entity work.serial_link_detect
 generic map (
     SYNCPERIOD          => SYNCPERIOD
 )

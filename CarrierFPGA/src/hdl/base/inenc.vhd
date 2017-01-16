@@ -34,7 +34,6 @@ port (
     clk_out_o           : out std_logic;
     data_in_i           : in  std_logic;
     clk_in_i            : in  std_logic;
-    conn_o              : out std_logic;
     -- Block Parameters
     DCARD_MODE          : in  std_logic_vector(31 downto 0);
     PROTOCOL            : in  std_logic_vector(2 downto 0);
@@ -54,8 +53,6 @@ end entity;
 
 architecture rtl of inenc is
 
-signal encSTATUS            : std32_array(3 downto 0);
-
 signal posn_incr            : std_logic_vector(31 downto 0);
 signal posn_ssi             : std_logic_vector(31 downto 0);
 signal posn_ssi_sniffer     : std_logic_vector(31 downto 0);
@@ -63,15 +60,16 @@ signal posn_biss_sniffer    : std_logic_vector(31 downto 0);
 signal posn                 : std_logic_vector(31 downto 0);
 signal posn_prev            : std_logic_vector(31 downto 0);
 
+signal linkup_incr          : std_logic;
+signal linkup_ssi           : std_logic;
+signal linkup_biss          : std_logic;
+
 begin
 
 --------------------------------------------------------------------------
 -- Assign outputs
 --------------------------------------------------------------------------
 posn_o <= posn;
-
--- Connection status comes from Slow FPGA interface on CTRL_D12
-conn_o <= DCARD_MODE(0);
 
 --------------------------------------------------------------------------
 -- Incremental Encoder Instantiation :
@@ -88,6 +86,8 @@ port map (
     RST_ON_Z        => RST_ON_Z,
     out_o           => posn_incr
 );
+
+linkup_incr <= not DCARD_MODE(0);
 
 --------------------------------------------------------------------------
 -- SSI Instantiations
@@ -113,8 +113,8 @@ port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     BITS            => BITS,
-    STATUS          => encSTATUS(0),
-    STATUS_RSTB     => STATUS_RSTB,
+    link_up_o       => linkup_ssi,
+    error_o         => open,
     ssi_sck_i       => clk_in_i,
     ssi_dat_i       => data_in_i,
     posn_o          => posn_ssi_sniffer
@@ -130,8 +130,8 @@ port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     BITS            => BITS,
-    STATUS          => encSTATUS(1),
-    STATUS_RSTB     => STATUS_RSTB,
+    link_up_o       => linkup_biss,
+    error_o         => open,
     ssi_sck_i       => clk_in_i,
     ssi_dat_i       => data_in_i,
     posn_o          => posn_biss_sniffer
@@ -139,8 +139,8 @@ port map (
 
 --------------------------------------------------------------------------
 -- Position Data and STATUS readback multiplexer
--- If Daughter Card is configured as External Loopback, sniffer instantiations
--- for absolute protocols are used.
+--
+--  Link status information is valid only for loopback configuration
 --------------------------------------------------------------------------
 process(clk_i)
 begin
@@ -148,12 +148,12 @@ begin
         case (PROTOCOL) is
             when "000"  =>              -- INC
                 posn <= posn_incr;
-                STATUS <= (others => '0');
+                STATUS(0) <= linkup_incr;
 
             when "001"  =>              -- SSI & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_LOOPBACK) then
                     posn <= posn_ssi_sniffer;
-                    STATUS <= encSTATUS(0);
+                    STATUS(0) <= linkup_ssi;
                 else
                     posn <= posn_ssi;
                     STATUS <= (others => '0');
@@ -162,11 +162,12 @@ begin
             when "010"  =>              -- BISS & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_LOOPBACK) then
                     posn <= posn_biss_sniffer;
-                    STATUS <= encSTATUS(1);
+                    STATUS(0) <= linkup_biss;
                 else
                     posn <= (others => '0');
                     STATUS <= (others => '0');
                 end if;
+
             when others =>
                 posn <= (others => '0');
                 STATUS <= (others => '0');

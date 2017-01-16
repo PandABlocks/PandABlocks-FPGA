@@ -77,13 +77,18 @@ begin
 -- Assign outputs
 PROTOCOL <= PROTOCOL_i(2 downto 0);
 
+-- Input encoder connection status comes from either
+--  * Dcard pin [12] for incremental, or
+--  * link_up status for absolute in loopback mode
+conn_o <= STATUS(0);
+
 -- Certain parameter changes must initiate a block reset.
 reset <= reset_i or PROTOCOL_WSTB or CLK_PERIOD_WSTB or
             FRAME_PERIOD_WSTB or BITS_WSTB;
 
---
+--------------------------------------------------------------------------
 -- Control System Interface
---
+--------------------------------------------------------------------------
 inenc_ctrl : entity work.inenc_ctrl
 port map (
     clk_i               => clk_i,
@@ -132,6 +137,9 @@ read_addr <= to_integer(unsigned(read_address_i));
 STATUS_RSTB <= '1' when (read_ack = '1' and read_addr = INENC_STATUS)
                     else '0';
 
+--------------------------------------------------------------------------
+-- INENC block instantiation
+--------------------------------------------------------------------------
 inenc_inst : entity work.inenc
 port map (
     -- Clock and Reset
@@ -144,7 +152,6 @@ port map (
     clk_out_o           => clk_out_o,
     data_in_i           => data_in_i,
     clk_in_i            => clk_in_i,
-    conn_o              => conn_o,
 
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => PROTOCOL_i(2 downto 0),

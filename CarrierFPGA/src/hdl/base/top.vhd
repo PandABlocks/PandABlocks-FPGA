@@ -999,27 +999,29 @@ slowcont_inst : entity work.slowcont_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
+    -- Memory Bus Interface
     read_strobe_i       => read_strobe(SLOW_CS),
     read_address_i      => read_address,
     read_data_o         => read_data(SLOW_CS),
     read_ack_o          => read_ack(SLOW_CS),
-
     write_strobe_i      => write_strobe,
     write_address_i     => write_address,
     write_data_i        => write_data,
     write_ack_o         => write_ack(SLOW_CS),
-
+    -- Digital I/O Interface
     ttlin_i             => ttlin_val,
     ttlout_i            => ttlout_val,
+    inenc_conn_i        => inenc_conn,
     outenc_conn_i       => outenc_conn,
+    cmd_ready_n_o       => cmd_ready_n,
+    -- Block Input and Outputs
+    SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
+    DCARD_MODE          => DCARD_MODE,
+    -- Serial Physical interface
     spi_sclk_o          => SPI_SCLK_O,
     spi_dat_o           => SPI_DAT_O,
     spi_sclk_i          => SPI_SCLK_I,
-    spi_dat_i           => SPI_DAT_I,
-    cmd_ready_n_o       => cmd_ready_n,
-    SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
-    DCARD_MODE          => DCARD_MODE
+    spi_dat_i           => SPI_DAT_I
 );
 
 ---------------------------------------------------------------------------

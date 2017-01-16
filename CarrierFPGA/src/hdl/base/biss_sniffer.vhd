@@ -23,8 +23,8 @@ port (
     reset_i         : in  std_logic;
     -- Configuration interface
     BITS            : in  std_logic_vector(7 downto 0);
-    STATUS          : out std_logic_vector(31 downto 0);
-    STATUS_RSTB     : in  std_logic;
+    link_up_o       : out std_logic;
+    error_o         : out std_logic;
     -- Physical SSI interface
     ssi_sck_i       : in  std_logic;
     ssi_dat_i       : in  std_logic;
@@ -104,7 +104,7 @@ serial_data_rise <= serial_data and not serial_data_prev;
 --------------------------------------------------------------------------
 -- Detect link if clock is asserted for > 5us.
 --------------------------------------------------------------------------
-link_detect_inst : entity work.ssi_link_detect
+link_detect_inst : entity work.serial_link_detect
 generic map (
     SYNCPERIOD          => SYNCPERIOD
 )
@@ -301,27 +301,11 @@ begin
 end process;
 
 --------------------------------------------------------------------------
--- Capture Error and CRC status, clear on read
+-- Module status outputs
+--   link_down
+--   Encoder CRC error
 --------------------------------------------------------------------------
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (STATUS_RSTB = '1') then
-            STATUS <= (others => '0');
-        else
-            -- Latch link_down
-            if (link_up = '0') then
-                STATUS(0) <= '1';
-            end if;
-
-            -- Capture encoder and CRC error
-            if (crc_strobe = '1') then
-                if (crc /= crc_calc or nError(1) = '0') then
-                    STATUS(1) <= '1';
-                end if;
-            end if;
-        end if;
-    end if;
-end process;
+link_up_o <= link_up;
+error_o <= crc_strobe when (crc /= crc_calc or nError(1) = '0') else '0';
 
 end rtl;

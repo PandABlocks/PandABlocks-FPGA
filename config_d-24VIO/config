@@ -112,10 +112,8 @@ INENC[4]
     SETP            write       position
     RST_ON_Z        param       bit
     STATUS          read        enum 4
-        0   All OK
-        1   Link Down
-        2   Encoder Error
-        3   Link Down and Error
+        0   Link Down
+        1   Link Up
     DCARD_MODE      read
     A               bit_out
     B               bit_out

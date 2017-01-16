@@ -1,5 +1,5 @@
 library ieee;
 use ieee.std_logic_1164.all;
 package slow_version is
-constant SLOW_FPGA_VERSION: std_logic_vector(31 downto 0)   := X"13011701";
+constant SLOW_FPGA_VERSION: std_logic_vector(31 downto 0)   := X"16011700";
 end slow_version;

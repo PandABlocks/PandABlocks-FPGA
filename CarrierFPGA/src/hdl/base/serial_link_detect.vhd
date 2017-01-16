@@ -15,7 +15,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity ssi_link_detect is
+entity serial_link_detect is
 generic (
     SYNCPERIOD         : natural := 125 * 5 -- 5usec
 );
@@ -30,7 +30,7 @@ port (
 );
 end entity;
 
-architecture rtl of ssi_link_detect is
+architecture rtl of serial_link_detect is
 
 signal sync_counter         : natural range 0 to SYNCPERIOD;
 signal clock_prev           : std_logic;

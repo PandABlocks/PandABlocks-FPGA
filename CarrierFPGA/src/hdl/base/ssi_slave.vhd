@@ -62,7 +62,7 @@ ssi_active <= '1' when (fsm_state = SHIFTING) else '0';
 
 -- Master asserts its clock before starting SSI transaction. This
 -- is used to establish synchonisation.
-ssi_link_detect_inst : entity work.ssi_link_detect
+serial_link_detect_inst : entity work.serial_link_detect
 generic map (
     SYNCPERIOD          => SYNCPERIOD
 )
