@@ -9,5 +9,3 @@ BITS
     OUTD            bit_out
     ZERO            bit_out
     ONE             bit_out
-
-

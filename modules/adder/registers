@@ -3,6 +3,10 @@ ADDER       {{newBlockNo("ADDER")}}
     INPB            {{newBlockReg()}}
     INPC            {{newBlockReg()}}
     INPD            {{newBlockReg()}}
+    INPA_INVERT     {{newBlockReg()}}
+    INPB_INVERT     {{newBlockReg()}}
+    INPC_INVERT     {{newBlockReg()}}
+    INPD_INVERT     {{newBlockReg()}}
     SCALE           {{newBlockReg()}}
     OUT             {{newPosBus()}}
 

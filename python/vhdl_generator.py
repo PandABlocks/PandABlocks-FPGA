@@ -8,7 +8,7 @@ import collections
 
 ROOT_DIR = os.path.abspath(os.pardir)
 OUTPUT_DIR = os.path.join(ROOT_DIR, "CarrierFPGA/src/hdl", "autogen")
-CONFIG_DIR = os.path.join(ROOT_DIR, "config_d")
+CONFIG_DIR = os.path.join(ROOT_DIR, "build/config_d")
 PATH = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(PATH, 'vhdl_templates')
 

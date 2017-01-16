@@ -9,11 +9,10 @@ ADDER           2
 COUNTER         8
 PGEN            2
 PCOMP           4
-ADC             8
 PCAP            1
 BITS            1
 CLOCKS          1
 POSITIONS       1
 SLOW            1
-FMC_LOOPBACK    1
 SFP_LOOPBACK    1
+FMC_24VIO       1

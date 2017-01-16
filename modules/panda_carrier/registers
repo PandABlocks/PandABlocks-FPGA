@@ -16,13 +16,9 @@ INENC       {{newBlockNo("INENC")}}
     CLK_PERIOD      {{newBlockReg()}}
     FRAME_PERIOD    {{newBlockReg()}}
     BITS            {{newBlockReg()}}
-    BITS_CRC        {{newBlockReg()}}
     SETP            {{newBlockReg()}}
     RST_ON_Z        {{newBlockReg()}}
-    EXTENSION       {{newBlockReg()}}
-    ERR_FRAME       {{newBlockReg()}}
-    ERR_RESPONSE    {{newBlockReg()}}
-    ENC_STATUS      {{newBlockReg()}}
+    STATUS          {{newBlockReg()}}
     DCARD_MODE      {{newBlockReg()}}
     A               {{newBitBus()}}
     B               {{newBitBus()}}

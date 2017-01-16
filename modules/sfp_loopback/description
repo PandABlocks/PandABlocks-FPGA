@@ -1,0 +1,11 @@
+SFP         SFP Block Status
+    LINK1_UP        GTX-1 link status
+    ERROR1_COUNT    GTX-1 loopback
+    LINK2_UP        GTX-2 link status
+    ERROR2_COUNT    GTX-2 loopback
+    LINK3_UP        GTX-3 link status
+    ERROR3_COUNT    GTX-3 loopback
+    SFP_CLK1        SFP1 CLK clock freq
+    SFP_CLK2        SFP2 CLK clock freq
+    SFP_CLK3        SFP3 CLK clock freq
+    SOFT_RESET      GTX Soft Reset

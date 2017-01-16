@@ -6,5 +6,3 @@ LUT[{{app_config["LUT"]}}]
     INPD            bit_mux
     INPE            bit_mux
     OUT             bit_out
-
-

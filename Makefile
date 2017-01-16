@@ -48,18 +48,20 @@ docs: $(DOCS_BUILD_DIR)/index.html
 
 # Carrier Board Version
 BOARD = v2
-
-#FMC_DESIGN = loopback 24VIO
-#FMC_DESIGN = acq420
-FMC_DESIGN = 24VIO
-SFP_DESIGN = loopback
 INCR = false
 
-carrier-fpga: $(FPGA_BUILD_DIR)
+# Config application name
+APP_NAME = myapp
+APP_FILE = $(TOP)/apps/$(APP_NAME)
 
-	rm -f config_d
-	ln -s config_d-$(FMC_DESIGN) config_d
-#	rm -rf $(TOP)/CarrierFPGA/src/hdl/autogen
+# Extract FMC and SFP design names from config file
+FMC_DESIGN = $(shell sed -n '/^FMC_/{s///;s/ .*//;p}' $(APP_FILE))
+SFP_DESIGN = $(shell sed -n '/^SFP_/{s///;s/ .*//;p}' $(APP_FILE))
+
+carrier-fpga: $(FPGA_BUILD_DIR)
+	rm -rf $(BUILD_DIR)/config_d
+	rm -rf $(TOP)/CarrierFPGA/src/hdl/autogen
+	cd python && ./config_generator.py
 	cd python && ./vhdl_generator.py
 	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
 	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) \

@@ -22,13 +22,11 @@ INENC[4]
     CLK_PERIOD      param       time
     FRAME_PERIOD    param       time
     BITS            param       uint 63
-    BITS_CRC        param       uint 63
     SETP            write       position
     RST_ON_Z        param       bit
-    EXTENSION       read        int
-    ERR_FRAME       read        bit
-    ERR_RESPONSE    read        bit
-    ENC_STATUS      read
+    STATUS          read        enum 4
+        0   Link Down
+        1   Link Up
     DCARD_MODE      read
     A               bit_out
     B               bit_out

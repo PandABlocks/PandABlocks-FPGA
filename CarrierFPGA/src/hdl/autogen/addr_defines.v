@@ -5,26 +5,26 @@ localparam TTLIN_CS = 3;
 localparam TTLOUT_CS = 4;
 localparam LVDSIN_CS = 5;
 localparam LVDSOUT_CS = 6;
-localparam LUT_CS = 7;
-localparam SRGATE_CS = 8;
-localparam DIV_CS = 9;
-localparam PULSE_CS = 10;
-localparam SEQ_CS = 11;
-localparam INENC_CS = 12;
-localparam QDEC_CS = 13;
-localparam OUTENC_CS = 14;
+localparam INENC_CS = 7;
+localparam OUTENC_CS = 8;
+localparam LUT_CS = 9;
+localparam SRGATE_CS = 10;
+localparam DIV_CS = 11;
+localparam PULSE_CS = 12;
+localparam SEQ_CS = 13;
+localparam QDEC_CS = 14;
 localparam POSENC_CS = 15;
 localparam ADDER_CS = 16;
 localparam COUNTER_CS = 17;
 localparam PGEN_CS = 18;
 localparam PCOMP_CS = 19;
-localparam PCAP_CS = 21;
-localparam BITS_CS = 22;
-localparam CLOCKS_CS = 23;
-localparam POSITIONS_CS = 24;
-localparam SLOW_CS = 25;
+localparam PCAP_CS = 20;
+localparam BITS_CS = 21;
+localparam CLOCKS_CS = 22;
+localparam POSITIONS_CS = 23;
+localparam SLOW_CS = 24;
+localparam SFP_CS = 25;
 localparam FMC_CS = 26;
-localparam SFP_CS = 27;
 
 // Block Register Address Space
 
@@ -103,72 +103,6 @@ localparam TTLOUT_VAL_DLY = 1;
 localparam LVDSOUT_VAL = 0;
 localparam LVDSOUT_VAL_DLY = 1;
 
-// LUT Block:
-localparam LUT_FUNC = 5;
-localparam LUT_INPA = 0;
-localparam LUT_INPA_DLY = 6;
-localparam LUT_INPB = 1;
-localparam LUT_INPB_DLY = 7;
-localparam LUT_INPC = 2;
-localparam LUT_INPC_DLY = 8;
-localparam LUT_INPD = 3;
-localparam LUT_INPD_DLY = 9;
-localparam LUT_INPE = 4;
-localparam LUT_INPE_DLY = 10;
-
-// SRGATE Block:
-localparam SRGATE_SET_EDGE = 2;
-localparam SRGATE_RST_EDGE = 3;
-localparam SRGATE_FORCE_SET = 4;
-localparam SRGATE_FORCE_RST = 5;
-localparam SRGATE_SET = 0;
-localparam SRGATE_SET_DLY = 6;
-localparam SRGATE_RST = 1;
-localparam SRGATE_RST_DLY = 7;
-
-// DIV Block:
-localparam DIV_DIVISOR = 2;
-localparam DIV_FIRST_PULSE = 3;
-localparam DIV_INP = 0;
-localparam DIV_INP_DLY = 5;
-localparam DIV_ENABLE = 1;
-localparam DIV_ENABLE_DLY = 6;
-localparam DIV_COUNT = 4;
-
-// PULSE Block:
-localparam PULSE_DELAY_L = 3;
-localparam PULSE_DELAY_H = 2;
-localparam PULSE_WIDTH_L = 5;
-localparam PULSE_WIDTH_H = 4;
-localparam PULSE_INP = 0;
-localparam PULSE_INP_DLY = 11;
-localparam PULSE_ENABLE = 1;
-localparam PULSE_ENABLE_DLY = 12;
-localparam PULSE_ERR_OVERFLOW = 7;
-localparam PULSE_ERR_PERIOD = 8;
-localparam PULSE_QUEUE = 9;
-localparam PULSE_MISSED_CNT = 10;
-
-// SEQ Block:
-localparam SEQ_PRESCALE = 5;
-localparam SEQ_TABLE_CYCLE = 8;
-localparam SEQ_ENABLE = 0;
-localparam SEQ_ENABLE_DLY = 16;
-localparam SEQ_INPA = 1;
-localparam SEQ_INPA_DLY = 17;
-localparam SEQ_INPB = 2;
-localparam SEQ_INPB_DLY = 18;
-localparam SEQ_INPC = 3;
-localparam SEQ_INPC_DLY = 19;
-localparam SEQ_INPD = 4;
-localparam SEQ_INPD_DLY = 20;
-localparam SEQ_CUR_FRAME = 9;
-localparam SEQ_CUR_FCYCLE = 10;
-localparam SEQ_CUR_TCYCLE = 11;
-localparam SEQ_TABLE_START = 13;
-localparam SEQ_TABLE_DATA = 14;
-localparam SEQ_TABLE_LENGTH = 15;
-
 // INENC Block:
 localparam INENC_PROTOCOL = 0;
 localparam INENC_CLK_PERIOD = 1;
@@ -179,40 +113,106 @@ localparam INENC_RST_ON_Z = 5;
 localparam INENC_STATUS = 6;
 localparam INENC_DCARD_MODE = 7;
 
-// QDEC Block:
-localparam QDEC_RST_ON_Z = 3;
-localparam QDEC_SETP = 4;
-localparam QDEC_A = 0;
-localparam QDEC_A_DLY = 5;
-localparam QDEC_B = 1;
-localparam QDEC_B_DLY = 6;
-localparam QDEC_Z = 2;
-localparam QDEC_Z_DLY = 7;
-
 // OUTENC Block:
-localparam OUTENC_PROTOCOL = 5;
-localparam OUTENC_BITS = 6;
-localparam OUTENC_QPERIOD = 7;
-localparam OUTENC_ENABLE = 8;
-localparam OUTENC_ENABLE_DLY = 10;
-localparam OUTENC_A = 0;
-localparam OUTENC_A_DLY = 11;
-localparam OUTENC_B = 1;
-localparam OUTENC_B_DLY = 12;
-localparam OUTENC_Z = 2;
-localparam OUTENC_Z_DLY = 13;
-localparam OUTENC_VAL = 4;
-localparam OUTENC_CONN = 3;
-localparam OUTENC_CONN_DLY = 14;
-localparam OUTENC_QSTATE = 9;
+localparam OUTENC_PROTOCOL = 0;
+localparam OUTENC_BITS = 1;
+localparam OUTENC_QPERIOD = 2;
+localparam OUTENC_ENABLE = 3;
+localparam OUTENC_ENABLE_DLY = 4;
+localparam OUTENC_A = 5;
+localparam OUTENC_A_DLY = 6;
+localparam OUTENC_B = 7;
+localparam OUTENC_B_DLY = 8;
+localparam OUTENC_Z = 9;
+localparam OUTENC_Z_DLY = 10;
+localparam OUTENC_VAL = 11;
+localparam OUTENC_CONN = 12;
+localparam OUTENC_CONN_DLY = 13;
+localparam OUTENC_QSTATE = 14;
+
+// LUT Block:
+localparam LUT_FUNC = 0;
+localparam LUT_INPA = 1;
+localparam LUT_INPA_DLY = 2;
+localparam LUT_INPB = 3;
+localparam LUT_INPB_DLY = 4;
+localparam LUT_INPC = 5;
+localparam LUT_INPC_DLY = 6;
+localparam LUT_INPD = 7;
+localparam LUT_INPD_DLY = 8;
+localparam LUT_INPE = 9;
+localparam LUT_INPE_DLY = 10;
+
+// SRGATE Block:
+localparam SRGATE_SET_EDGE = 0;
+localparam SRGATE_RST_EDGE = 1;
+localparam SRGATE_FORCE_SET = 2;
+localparam SRGATE_FORCE_RST = 3;
+localparam SRGATE_SET = 4;
+localparam SRGATE_SET_DLY = 5;
+localparam SRGATE_RST = 6;
+localparam SRGATE_RST_DLY = 7;
+
+// DIV Block:
+localparam DIV_DIVISOR = 0;
+localparam DIV_FIRST_PULSE = 1;
+localparam DIV_INP = 2;
+localparam DIV_INP_DLY = 3;
+localparam DIV_ENABLE = 4;
+localparam DIV_ENABLE_DLY = 5;
+localparam DIV_COUNT = 6;
+
+// PULSE Block:
+localparam PULSE_DELAY_L = 0;
+localparam PULSE_DELAY_H = 1;
+localparam PULSE_WIDTH_L = 2;
+localparam PULSE_WIDTH_H = 3;
+localparam PULSE_INP = 4;
+localparam PULSE_INP_DLY = 5;
+localparam PULSE_ENABLE = 6;
+localparam PULSE_ENABLE_DLY = 7;
+localparam PULSE_ERR_OVERFLOW = 8;
+localparam PULSE_ERR_PERIOD = 9;
+localparam PULSE_QUEUE = 10;
+localparam PULSE_MISSED_CNT = 11;
+
+// SEQ Block:
+localparam SEQ_PRESCALE = 0;
+localparam SEQ_TABLE_CYCLE = 1;
+localparam SEQ_ENABLE = 2;
+localparam SEQ_ENABLE_DLY = 3;
+localparam SEQ_INPA = 4;
+localparam SEQ_INPA_DLY = 5;
+localparam SEQ_INPB = 6;
+localparam SEQ_INPB_DLY = 7;
+localparam SEQ_INPC = 8;
+localparam SEQ_INPC_DLY = 9;
+localparam SEQ_INPD = 10;
+localparam SEQ_INPD_DLY = 11;
+localparam SEQ_CUR_FRAME = 12;
+localparam SEQ_CUR_FCYCLE = 13;
+localparam SEQ_CUR_TCYCLE = 14;
+localparam SEQ_TABLE_START = 15;
+localparam SEQ_TABLE_DATA = 16;
+localparam SEQ_TABLE_LENGTH = 17;
+
+// QDEC Block:
+localparam QDEC_RST_ON_Z = 0;
+localparam QDEC_SETP = 1;
+localparam QDEC_A = 2;
+localparam QDEC_A_DLY = 3;
+localparam QDEC_B = 4;
+localparam QDEC_B_DLY = 5;
+localparam QDEC_Z = 6;
+localparam QDEC_Z_DLY = 7;
 
 // POSENC Block:
 localparam POSENC_INP = 0;
 localparam POSENC_QPERIOD = 1;
-localparam POSENC_ENABLE = 3;
-localparam POSENC_ENABLE_DLY = 5;
-localparam POSENC_PROTOCOL = 2;
-localparam POSENC_QSTATE = 4;
+localparam POSENC_ENABLE = 2;
+localparam POSENC_ENABLE_DLY = 3;
+localparam POSENC_PROTOCOL = 4;
+localparam POSENC_QSTATE = 5;
 
 // ADDER Block:
 localparam ADDER_INPA = 0;
@@ -226,50 +226,50 @@ localparam ADDER_INPD_INVERT = 7;
 localparam ADDER_SCALE = 8;
 
 // COUNTER Block:
-localparam COUNTER_DIR = 4;
-localparam COUNTER_START = 5;
-localparam COUNTER_STEP = 6;
-localparam COUNTER_ENABLE = 0;
-localparam COUNTER_ENABLE_DLY = 1;
-localparam COUNTER_TRIG = 2;
-localparam COUNTER_TRIG_DLY = 3;
+localparam COUNTER_DIR = 0;
+localparam COUNTER_START = 1;
+localparam COUNTER_STEP = 2;
+localparam COUNTER_ENABLE = 3;
+localparam COUNTER_ENABLE_DLY = 4;
+localparam COUNTER_TRIG = 5;
+localparam COUNTER_TRIG_DLY = 6;
 
 // PGEN Block:
-localparam PGEN_CYCLES = 3;
-localparam PGEN_ENABLE = 0;
-localparam PGEN_ENABLE_DLY = 6;
-localparam PGEN_TRIG = 1;
-localparam PGEN_TRIG_DLY = 7;
-localparam PGEN_TABLE_ADDRESS = 4;
-localparam PGEN_TABLE_LENGTH = 5;
-localparam PGEN_TABLE_STATUS = 8;
+localparam PGEN_CYCLES = 0;
+localparam PGEN_ENABLE = 1;
+localparam PGEN_ENABLE_DLY = 2;
+localparam PGEN_TRIG = 3;
+localparam PGEN_TRIG_DLY = 4;
+localparam PGEN_TABLE_ADDRESS = 5;
+localparam PGEN_TABLE_LENGTH = 6;
+localparam PGEN_TABLE_STATUS = 7;
 
 // PCOMP Block:
-localparam PCOMP_START = 2;
-localparam PCOMP_STEP = 3;
-localparam PCOMP_WIDTH = 4;
-localparam PCOMP_PNUM = 5;
-localparam PCOMP_RELATIVE = 6;
-localparam PCOMP_DIR = 7;
-localparam PCOMP_DELTAP = 8;
-localparam PCOMP_USE_TABLE = 10;
-localparam PCOMP_ENABLE = 0;
-localparam PCOMP_ENABLE_DLY = 15;
-localparam PCOMP_INP = 1;
-localparam PCOMP_ERROR = 14;
-localparam PCOMP_TABLE_ADDRESS = 11;
-localparam PCOMP_TABLE_LENGTH = 12;
-localparam PCOMP_TABLE_STATUS = 16;
+localparam PCOMP_START = 0;
+localparam PCOMP_STEP = 1;
+localparam PCOMP_WIDTH = 2;
+localparam PCOMP_PNUM = 3;
+localparam PCOMP_RELATIVE = 4;
+localparam PCOMP_DIR = 5;
+localparam PCOMP_DELTAP = 6;
+localparam PCOMP_USE_TABLE = 7;
+localparam PCOMP_ENABLE = 8;
+localparam PCOMP_ENABLE_DLY = 9;
+localparam PCOMP_INP = 10;
+localparam PCOMP_ERROR = 11;
+localparam PCOMP_TABLE_ADDRESS = 12;
+localparam PCOMP_TABLE_LENGTH = 13;
+localparam PCOMP_TABLE_STATUS = 14;
 
 // PCAP Block:
 localparam PCAP_ENABLE = 0;
-localparam PCAP_ENABLE_DLY = 5;
-localparam PCAP_FRAME = 1;
-localparam PCAP_FRAME_DLY = 6;
-localparam PCAP_CAPTURE = 2;
-localparam PCAP_CAPTURE_DLY = 7;
-localparam PCAP_MAX_FRAME = 3;
-localparam PCAP_ERR_STATUS = 4;
+localparam PCAP_ENABLE_DLY = 1;
+localparam PCAP_FRAME = 2;
+localparam PCAP_FRAME_DLY = 3;
+localparam PCAP_CAPTURE = 4;
+localparam PCAP_CAPTURE_DLY = 5;
+localparam PCAP_MAX_FRAME = 6;
+localparam PCAP_ERR_STATUS = 7;
 
 // BITS Block:
 localparam BITS_A = 0;
@@ -300,23 +300,35 @@ localparam SLOW_FMC_15VP = 10;
 localparam SLOW_ENC_24V = 11;
 localparam SLOW_FMC_12V = 12;
 
+// SFP Block:
+localparam SFP_LINK1_UP = 0;
+localparam SFP_ERROR1_COUNT = 1;
+localparam SFP_LINK2_UP = 2;
+localparam SFP_ERROR2_COUNT = 3;
+localparam SFP_LINK3_UP = 4;
+localparam SFP_ERROR3_COUNT = 5;
+localparam SFP_SFP_CLK1 = 6;
+localparam SFP_SFP_CLK2 = 7;
+localparam SFP_SFP_CLK3 = 8;
+localparam SFP_SOFT_RESET = 9;
+
 // FMC Block:
 localparam FMC_PRESENT = 0;
 localparam FMC_OUT1 = 1;
-localparam FMC_OUT1_DLY = 9;
-localparam FMC_OUT2 = 2;
-localparam FMC_OUT2_DLY = 10;
-localparam FMC_OUT3 = 3;
-localparam FMC_OUT3_DLY = 11;
-localparam FMC_OUT4 = 4;
-localparam FMC_OUT4_DLY = 12;
-localparam FMC_OUT5 = 5;
-localparam FMC_OUT5_DLY = 13;
-localparam FMC_OUT6 = 6;
-localparam FMC_OUT6_DLY = 14;
-localparam FMC_OUT7 = 7;
-localparam FMC_OUT7_DLY = 15;
-localparam FMC_OUT8 = 8;
+localparam FMC_OUT1_DLY = 2;
+localparam FMC_OUT2 = 3;
+localparam FMC_OUT2_DLY = 4;
+localparam FMC_OUT3 = 5;
+localparam FMC_OUT3_DLY = 6;
+localparam FMC_OUT4 = 7;
+localparam FMC_OUT4_DLY = 8;
+localparam FMC_OUT5 = 9;
+localparam FMC_OUT5_DLY = 10;
+localparam FMC_OUT6 = 11;
+localparam FMC_OUT6_DLY = 12;
+localparam FMC_OUT7 = 13;
+localparam FMC_OUT7_DLY = 14;
+localparam FMC_OUT8 = 15;
 localparam FMC_OUT8_DLY = 16;
 localparam FMC_OUT_PWR_ON = 17;
 localparam FMC_IN_VTSEL = 18;
@@ -330,18 +342,6 @@ localparam FMC_OUT_EN = 25;
 localparam FMC_OUT_CONFIG = 26;
 localparam FMC_OUT_STATUS = 27;
 
-// SFP Block:
-localparam SFP_LINK1_UP = 0;
-localparam SFP_ERROR1_COUNT = 1;
-localparam SFP_LINK2_UP = 2;
-localparam SFP_ERROR2_COUNT = 3;
-localparam SFP_LINK3_UP = 4;
-localparam SFP_ERROR3_COUNT = 5;
-localparam SFP_SFP_CLK1 = 6;
-localparam SFP_SFP_CLK2 = 7;
-localparam SFP_SFP_CLK3 = 8;
-localparam SFP_SOFT_RESET = 9;
-
 
 
 // Panda Base Address and block base addresses
@@ -352,14 +352,14 @@ localparam TTLIN_BASE = BASE + 4096 * TTLIN_CS;
 localparam TTLOUT_BASE = BASE + 4096 * TTLOUT_CS;
 localparam LVDSIN_BASE = BASE + 4096 * LVDSIN_CS;
 localparam LVDSOUT_BASE = BASE + 4096 * LVDSOUT_CS;
+localparam INENC_BASE = BASE + 4096 * INENC_CS;
+localparam OUTENC_BASE = BASE + 4096 * OUTENC_CS;
 localparam LUT_BASE = BASE + 4096 * LUT_CS;
 localparam SRGATE_BASE = BASE + 4096 * SRGATE_CS;
 localparam DIV_BASE = BASE + 4096 * DIV_CS;
 localparam PULSE_BASE = BASE + 4096 * PULSE_CS;
 localparam SEQ_BASE = BASE + 4096 * SEQ_CS;
-localparam INENC_BASE = BASE + 4096 * INENC_CS;
 localparam QDEC_BASE = BASE + 4096 * QDEC_CS;
-localparam OUTENC_BASE = BASE + 4096 * OUTENC_CS;
 localparam POSENC_BASE = BASE + 4096 * POSENC_CS;
 localparam ADDER_BASE = BASE + 4096 * ADDER_CS;
 localparam COUNTER_BASE = BASE + 4096 * COUNTER_CS;
@@ -370,5 +370,5 @@ localparam BITS_BASE = BASE + 4096 * BITS_CS;
 localparam CLOCKS_BASE = BASE + 4096 * CLOCKS_CS;
 localparam POSITIONS_BASE = BASE + 4096 * POSITIONS_CS;
 localparam SLOW_BASE = BASE + 4096 * SLOW_CS;
-localparam FMC_BASE = BASE + 4096 * FMC_CS;
 localparam SFP_BASE = BASE + 4096 * SFP_CS;
+localparam FMC_BASE = BASE + 4096 * FMC_CS;

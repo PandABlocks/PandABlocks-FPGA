@@ -11,26 +11,26 @@ constant TTLIN_CS : natural := 3;
 constant TTLOUT_CS : natural := 4;
 constant LVDSIN_CS : natural := 5;
 constant LVDSOUT_CS : natural := 6;
-constant LUT_CS : natural := 7;
-constant SRGATE_CS : natural := 8;
-constant DIV_CS : natural := 9;
-constant PULSE_CS : natural := 10;
-constant SEQ_CS : natural := 11;
-constant INENC_CS : natural := 12;
-constant QDEC_CS : natural := 13;
-constant OUTENC_CS : natural := 14;
+constant INENC_CS : natural := 7;
+constant OUTENC_CS : natural := 8;
+constant LUT_CS : natural := 9;
+constant SRGATE_CS : natural := 10;
+constant DIV_CS : natural := 11;
+constant PULSE_CS : natural := 12;
+constant SEQ_CS : natural := 13;
+constant QDEC_CS : natural := 14;
 constant POSENC_CS : natural := 15;
 constant ADDER_CS : natural := 16;
 constant COUNTER_CS : natural := 17;
 constant PGEN_CS : natural := 18;
 constant PCOMP_CS : natural := 19;
-constant PCAP_CS : natural := 21;
-constant BITS_CS : natural := 22;
-constant CLOCKS_CS : natural := 23;
-constant POSITIONS_CS : natural := 24;
-constant SLOW_CS : natural := 25;
+constant PCAP_CS : natural := 20;
+constant BITS_CS : natural := 21;
+constant CLOCKS_CS : natural := 22;
+constant POSITIONS_CS : natural := 23;
+constant SLOW_CS : natural := 24;
+constant SFP_CS : natural := 25;
 constant FMC_CS : natural := 26;
-constant SFP_CS : natural := 27;
 
 -- Block Register Address Space
 
@@ -109,72 +109,6 @@ constant TTLOUT_VAL_DLY : natural := 1;
 constant LVDSOUT_VAL : natural := 0;
 constant LVDSOUT_VAL_DLY : natural := 1;
 
--- LUT Block:
-constant LUT_FUNC : natural := 5;
-constant LUT_INPA : natural := 0;
-constant LUT_INPA_DLY : natural := 6;
-constant LUT_INPB : natural := 1;
-constant LUT_INPB_DLY : natural := 7;
-constant LUT_INPC : natural := 2;
-constant LUT_INPC_DLY : natural := 8;
-constant LUT_INPD : natural := 3;
-constant LUT_INPD_DLY : natural := 9;
-constant LUT_INPE : natural := 4;
-constant LUT_INPE_DLY : natural := 10;
-
--- SRGATE Block:
-constant SRGATE_SET_EDGE : natural := 2;
-constant SRGATE_RST_EDGE : natural := 3;
-constant SRGATE_FORCE_SET : natural := 4;
-constant SRGATE_FORCE_RST : natural := 5;
-constant SRGATE_SET : natural := 0;
-constant SRGATE_SET_DLY : natural := 6;
-constant SRGATE_RST : natural := 1;
-constant SRGATE_RST_DLY : natural := 7;
-
--- DIV Block:
-constant DIV_DIVISOR : natural := 2;
-constant DIV_FIRST_PULSE : natural := 3;
-constant DIV_INP : natural := 0;
-constant DIV_INP_DLY : natural := 5;
-constant DIV_ENABLE : natural := 1;
-constant DIV_ENABLE_DLY : natural := 6;
-constant DIV_COUNT : natural := 4;
-
--- PULSE Block:
-constant PULSE_DELAY_L : natural := 3;
-constant PULSE_DELAY_H : natural := 2;
-constant PULSE_WIDTH_L : natural := 5;
-constant PULSE_WIDTH_H : natural := 4;
-constant PULSE_INP : natural := 0;
-constant PULSE_INP_DLY : natural := 11;
-constant PULSE_ENABLE : natural := 1;
-constant PULSE_ENABLE_DLY : natural := 12;
-constant PULSE_ERR_OVERFLOW : natural := 7;
-constant PULSE_ERR_PERIOD : natural := 8;
-constant PULSE_QUEUE : natural := 9;
-constant PULSE_MISSED_CNT : natural := 10;
-
--- SEQ Block:
-constant SEQ_PRESCALE : natural := 5;
-constant SEQ_TABLE_CYCLE : natural := 8;
-constant SEQ_ENABLE : natural := 0;
-constant SEQ_ENABLE_DLY : natural := 16;
-constant SEQ_INPA : natural := 1;
-constant SEQ_INPA_DLY : natural := 17;
-constant SEQ_INPB : natural := 2;
-constant SEQ_INPB_DLY : natural := 18;
-constant SEQ_INPC : natural := 3;
-constant SEQ_INPC_DLY : natural := 19;
-constant SEQ_INPD : natural := 4;
-constant SEQ_INPD_DLY : natural := 20;
-constant SEQ_CUR_FRAME : natural := 9;
-constant SEQ_CUR_FCYCLE : natural := 10;
-constant SEQ_CUR_TCYCLE : natural := 11;
-constant SEQ_TABLE_START : natural := 13;
-constant SEQ_TABLE_DATA : natural := 14;
-constant SEQ_TABLE_LENGTH : natural := 15;
-
 -- INENC Block:
 constant INENC_PROTOCOL : natural := 0;
 constant INENC_CLK_PERIOD : natural := 1;
@@ -185,40 +119,106 @@ constant INENC_RST_ON_Z : natural := 5;
 constant INENC_STATUS : natural := 6;
 constant INENC_DCARD_MODE : natural := 7;
 
--- QDEC Block:
-constant QDEC_RST_ON_Z : natural := 3;
-constant QDEC_SETP : natural := 4;
-constant QDEC_A : natural := 0;
-constant QDEC_A_DLY : natural := 5;
-constant QDEC_B : natural := 1;
-constant QDEC_B_DLY : natural := 6;
-constant QDEC_Z : natural := 2;
-constant QDEC_Z_DLY : natural := 7;
-
 -- OUTENC Block:
-constant OUTENC_PROTOCOL : natural := 5;
-constant OUTENC_BITS : natural := 6;
-constant OUTENC_QPERIOD : natural := 7;
-constant OUTENC_ENABLE : natural := 8;
-constant OUTENC_ENABLE_DLY : natural := 10;
-constant OUTENC_A : natural := 0;
-constant OUTENC_A_DLY : natural := 11;
-constant OUTENC_B : natural := 1;
-constant OUTENC_B_DLY : natural := 12;
-constant OUTENC_Z : natural := 2;
-constant OUTENC_Z_DLY : natural := 13;
-constant OUTENC_VAL : natural := 4;
-constant OUTENC_CONN : natural := 3;
-constant OUTENC_CONN_DLY : natural := 14;
-constant OUTENC_QSTATE : natural := 9;
+constant OUTENC_PROTOCOL : natural := 0;
+constant OUTENC_BITS : natural := 1;
+constant OUTENC_QPERIOD : natural := 2;
+constant OUTENC_ENABLE : natural := 3;
+constant OUTENC_ENABLE_DLY : natural := 4;
+constant OUTENC_A : natural := 5;
+constant OUTENC_A_DLY : natural := 6;
+constant OUTENC_B : natural := 7;
+constant OUTENC_B_DLY : natural := 8;
+constant OUTENC_Z : natural := 9;
+constant OUTENC_Z_DLY : natural := 10;
+constant OUTENC_VAL : natural := 11;
+constant OUTENC_CONN : natural := 12;
+constant OUTENC_CONN_DLY : natural := 13;
+constant OUTENC_QSTATE : natural := 14;
+
+-- LUT Block:
+constant LUT_FUNC : natural := 0;
+constant LUT_INPA : natural := 1;
+constant LUT_INPA_DLY : natural := 2;
+constant LUT_INPB : natural := 3;
+constant LUT_INPB_DLY : natural := 4;
+constant LUT_INPC : natural := 5;
+constant LUT_INPC_DLY : natural := 6;
+constant LUT_INPD : natural := 7;
+constant LUT_INPD_DLY : natural := 8;
+constant LUT_INPE : natural := 9;
+constant LUT_INPE_DLY : natural := 10;
+
+-- SRGATE Block:
+constant SRGATE_SET_EDGE : natural := 0;
+constant SRGATE_RST_EDGE : natural := 1;
+constant SRGATE_FORCE_SET : natural := 2;
+constant SRGATE_FORCE_RST : natural := 3;
+constant SRGATE_SET : natural := 4;
+constant SRGATE_SET_DLY : natural := 5;
+constant SRGATE_RST : natural := 6;
+constant SRGATE_RST_DLY : natural := 7;
+
+-- DIV Block:
+constant DIV_DIVISOR : natural := 0;
+constant DIV_FIRST_PULSE : natural := 1;
+constant DIV_INP : natural := 2;
+constant DIV_INP_DLY : natural := 3;
+constant DIV_ENABLE : natural := 4;
+constant DIV_ENABLE_DLY : natural := 5;
+constant DIV_COUNT : natural := 6;
+
+-- PULSE Block:
+constant PULSE_DELAY_L : natural := 0;
+constant PULSE_DELAY_H : natural := 1;
+constant PULSE_WIDTH_L : natural := 2;
+constant PULSE_WIDTH_H : natural := 3;
+constant PULSE_INP : natural := 4;
+constant PULSE_INP_DLY : natural := 5;
+constant PULSE_ENABLE : natural := 6;
+constant PULSE_ENABLE_DLY : natural := 7;
+constant PULSE_ERR_OVERFLOW : natural := 8;
+constant PULSE_ERR_PERIOD : natural := 9;
+constant PULSE_QUEUE : natural := 10;
+constant PULSE_MISSED_CNT : natural := 11;
+
+-- SEQ Block:
+constant SEQ_PRESCALE : natural := 0;
+constant SEQ_TABLE_CYCLE : natural := 1;
+constant SEQ_ENABLE : natural := 2;
+constant SEQ_ENABLE_DLY : natural := 3;
+constant SEQ_INPA : natural := 4;
+constant SEQ_INPA_DLY : natural := 5;
+constant SEQ_INPB : natural := 6;
+constant SEQ_INPB_DLY : natural := 7;
+constant SEQ_INPC : natural := 8;
+constant SEQ_INPC_DLY : natural := 9;
+constant SEQ_INPD : natural := 10;
+constant SEQ_INPD_DLY : natural := 11;
+constant SEQ_CUR_FRAME : natural := 12;
+constant SEQ_CUR_FCYCLE : natural := 13;
+constant SEQ_CUR_TCYCLE : natural := 14;
+constant SEQ_TABLE_START : natural := 15;
+constant SEQ_TABLE_DATA : natural := 16;
+constant SEQ_TABLE_LENGTH : natural := 17;
+
+-- QDEC Block:
+constant QDEC_RST_ON_Z : natural := 0;
+constant QDEC_SETP : natural := 1;
+constant QDEC_A : natural := 2;
+constant QDEC_A_DLY : natural := 3;
+constant QDEC_B : natural := 4;
+constant QDEC_B_DLY : natural := 5;
+constant QDEC_Z : natural := 6;
+constant QDEC_Z_DLY : natural := 7;
 
 -- POSENC Block:
 constant POSENC_INP : natural := 0;
 constant POSENC_QPERIOD : natural := 1;
-constant POSENC_ENABLE : natural := 3;
-constant POSENC_ENABLE_DLY : natural := 5;
-constant POSENC_PROTOCOL : natural := 2;
-constant POSENC_QSTATE : natural := 4;
+constant POSENC_ENABLE : natural := 2;
+constant POSENC_ENABLE_DLY : natural := 3;
+constant POSENC_PROTOCOL : natural := 4;
+constant POSENC_QSTATE : natural := 5;
 
 -- ADDER Block:
 constant ADDER_INPA : natural := 0;
@@ -232,50 +232,50 @@ constant ADDER_INPD_INVERT : natural := 7;
 constant ADDER_SCALE : natural := 8;
 
 -- COUNTER Block:
-constant COUNTER_DIR : natural := 4;
-constant COUNTER_START : natural := 5;
-constant COUNTER_STEP : natural := 6;
-constant COUNTER_ENABLE : natural := 0;
-constant COUNTER_ENABLE_DLY : natural := 1;
-constant COUNTER_TRIG : natural := 2;
-constant COUNTER_TRIG_DLY : natural := 3;
+constant COUNTER_DIR : natural := 0;
+constant COUNTER_START : natural := 1;
+constant COUNTER_STEP : natural := 2;
+constant COUNTER_ENABLE : natural := 3;
+constant COUNTER_ENABLE_DLY : natural := 4;
+constant COUNTER_TRIG : natural := 5;
+constant COUNTER_TRIG_DLY : natural := 6;
 
 -- PGEN Block:
-constant PGEN_CYCLES : natural := 3;
-constant PGEN_ENABLE : natural := 0;
-constant PGEN_ENABLE_DLY : natural := 6;
-constant PGEN_TRIG : natural := 1;
-constant PGEN_TRIG_DLY : natural := 7;
-constant PGEN_TABLE_ADDRESS : natural := 4;
-constant PGEN_TABLE_LENGTH : natural := 5;
-constant PGEN_TABLE_STATUS : natural := 8;
+constant PGEN_CYCLES : natural := 0;
+constant PGEN_ENABLE : natural := 1;
+constant PGEN_ENABLE_DLY : natural := 2;
+constant PGEN_TRIG : natural := 3;
+constant PGEN_TRIG_DLY : natural := 4;
+constant PGEN_TABLE_ADDRESS : natural := 5;
+constant PGEN_TABLE_LENGTH : natural := 6;
+constant PGEN_TABLE_STATUS : natural := 7;
 
 -- PCOMP Block:
-constant PCOMP_START : natural := 2;
-constant PCOMP_STEP : natural := 3;
-constant PCOMP_WIDTH : natural := 4;
-constant PCOMP_PNUM : natural := 5;
-constant PCOMP_RELATIVE : natural := 6;
-constant PCOMP_DIR : natural := 7;
-constant PCOMP_DELTAP : natural := 8;
-constant PCOMP_USE_TABLE : natural := 10;
-constant PCOMP_ENABLE : natural := 0;
-constant PCOMP_ENABLE_DLY : natural := 15;
-constant PCOMP_INP : natural := 1;
-constant PCOMP_ERROR : natural := 14;
-constant PCOMP_TABLE_ADDRESS : natural := 11;
-constant PCOMP_TABLE_LENGTH : natural := 12;
-constant PCOMP_TABLE_STATUS : natural := 16;
+constant PCOMP_START : natural := 0;
+constant PCOMP_STEP : natural := 1;
+constant PCOMP_WIDTH : natural := 2;
+constant PCOMP_PNUM : natural := 3;
+constant PCOMP_RELATIVE : natural := 4;
+constant PCOMP_DIR : natural := 5;
+constant PCOMP_DELTAP : natural := 6;
+constant PCOMP_USE_TABLE : natural := 7;
+constant PCOMP_ENABLE : natural := 8;
+constant PCOMP_ENABLE_DLY : natural := 9;
+constant PCOMP_INP : natural := 10;
+constant PCOMP_ERROR : natural := 11;
+constant PCOMP_TABLE_ADDRESS : natural := 12;
+constant PCOMP_TABLE_LENGTH : natural := 13;
+constant PCOMP_TABLE_STATUS : natural := 14;
 
 -- PCAP Block:
 constant PCAP_ENABLE : natural := 0;
-constant PCAP_ENABLE_DLY : natural := 5;
-constant PCAP_FRAME : natural := 1;
-constant PCAP_FRAME_DLY : natural := 6;
-constant PCAP_CAPTURE : natural := 2;
-constant PCAP_CAPTURE_DLY : natural := 7;
-constant PCAP_MAX_FRAME : natural := 3;
-constant PCAP_ERR_STATUS : natural := 4;
+constant PCAP_ENABLE_DLY : natural := 1;
+constant PCAP_FRAME : natural := 2;
+constant PCAP_FRAME_DLY : natural := 3;
+constant PCAP_CAPTURE : natural := 4;
+constant PCAP_CAPTURE_DLY : natural := 5;
+constant PCAP_MAX_FRAME : natural := 6;
+constant PCAP_ERR_STATUS : natural := 7;
 
 -- BITS Block:
 constant BITS_A : natural := 0;
@@ -306,23 +306,35 @@ constant SLOW_FMC_15VP : natural := 10;
 constant SLOW_ENC_24V : natural := 11;
 constant SLOW_FMC_12V : natural := 12;
 
+-- SFP Block:
+constant SFP_LINK1_UP : natural := 0;
+constant SFP_ERROR1_COUNT : natural := 1;
+constant SFP_LINK2_UP : natural := 2;
+constant SFP_ERROR2_COUNT : natural := 3;
+constant SFP_LINK3_UP : natural := 4;
+constant SFP_ERROR3_COUNT : natural := 5;
+constant SFP_SFP_CLK1 : natural := 6;
+constant SFP_SFP_CLK2 : natural := 7;
+constant SFP_SFP_CLK3 : natural := 8;
+constant SFP_SOFT_RESET : natural := 9;
+
 -- FMC Block:
 constant FMC_PRESENT : natural := 0;
 constant FMC_OUT1 : natural := 1;
-constant FMC_OUT1_DLY : natural := 9;
-constant FMC_OUT2 : natural := 2;
-constant FMC_OUT2_DLY : natural := 10;
-constant FMC_OUT3 : natural := 3;
-constant FMC_OUT3_DLY : natural := 11;
-constant FMC_OUT4 : natural := 4;
-constant FMC_OUT4_DLY : natural := 12;
-constant FMC_OUT5 : natural := 5;
-constant FMC_OUT5_DLY : natural := 13;
-constant FMC_OUT6 : natural := 6;
-constant FMC_OUT6_DLY : natural := 14;
-constant FMC_OUT7 : natural := 7;
-constant FMC_OUT7_DLY : natural := 15;
-constant FMC_OUT8 : natural := 8;
+constant FMC_OUT1_DLY : natural := 2;
+constant FMC_OUT2 : natural := 3;
+constant FMC_OUT2_DLY : natural := 4;
+constant FMC_OUT3 : natural := 5;
+constant FMC_OUT3_DLY : natural := 6;
+constant FMC_OUT4 : natural := 7;
+constant FMC_OUT4_DLY : natural := 8;
+constant FMC_OUT5 : natural := 9;
+constant FMC_OUT5_DLY : natural := 10;
+constant FMC_OUT6 : natural := 11;
+constant FMC_OUT6_DLY : natural := 12;
+constant FMC_OUT7 : natural := 13;
+constant FMC_OUT7_DLY : natural := 14;
+constant FMC_OUT8 : natural := 15;
 constant FMC_OUT8_DLY : natural := 16;
 constant FMC_OUT_PWR_ON : natural := 17;
 constant FMC_IN_VTSEL : natural := 18;
@@ -335,18 +347,6 @@ constant FMC_OUT_FAULT : natural := 24;
 constant FMC_OUT_EN : natural := 25;
 constant FMC_OUT_CONFIG : natural := 26;
 constant FMC_OUT_STATUS : natural := 27;
-
--- SFP Block:
-constant SFP_LINK1_UP : natural := 0;
-constant SFP_ERROR1_COUNT : natural := 1;
-constant SFP_LINK2_UP : natural := 2;
-constant SFP_ERROR2_COUNT : natural := 3;
-constant SFP_LINK3_UP : natural := 4;
-constant SFP_ERROR3_COUNT : natural := 5;
-constant SFP_SFP_CLK1 : natural := 6;
-constant SFP_SFP_CLK2 : natural := 7;
-constant SFP_SFP_CLK3 : natural := 8;
-constant SFP_SOFT_RESET : natural := 9;
 
 
 
