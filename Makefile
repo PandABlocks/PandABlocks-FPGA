@@ -51,7 +51,7 @@ BOARD = v2
 INCR = false
 
 # Config application name
-APP_NAME = myapp
+APP_NAME = fmc_24vio-sfp_lback
 APP_FILE = $(TOP)/apps/$(APP_NAME)
 
 # Extract FMC and SFP design names from config file
@@ -61,7 +61,7 @@ SFP_DESIGN = $(shell sed -n '/^SFP_/{s///;s/ .*//;p}' $(APP_FILE))
 carrier-fpga: $(FPGA_BUILD_DIR)
 	rm -rf $(BUILD_DIR)/config_d
 	rm -rf $(TOP)/CarrierFPGA/src/hdl/autogen
-	cd python && ./config_generator.py
+	cd python && ./config_generator.py -a $(APP_FILE)
 	cd python && ./vhdl_generator.py
 	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
 	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) \
