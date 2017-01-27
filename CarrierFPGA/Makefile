@@ -11,9 +11,6 @@
 #####################################################################
 GIT_VERSION = $(shell git describe --abbrev=8 --always)
 
-
-
-
 RUNVIVADO = source $(VIVADO) && vivado
 
 include $(TOP)/VERSION
@@ -39,24 +36,14 @@ VERSION_FILE = $(HDLDIR)/defines/panda_version.vhd
 
 #####################################################################
 # BUILD TARGETS includes HW and SW
-.PHONY: clean VERSION
-
 default : fpga
 fpga : panda_top.bit
 devicetree : $(SDK_EXPORT)
 boot : $(BOOT_FILE)
-.PHONY: default fpga devicetree boot
+.PHONY: default fpga devicetree boot VERSION sw_clean
 
 #####################################################################
 # HW Projects Build
-
-clean :
-	rm -f $(VERSION_FILE)
-	rm -rf $(OUTDIR)
-	find . -iname transcript -exec rm -f {} \;
-	find . -iname *.wlf -exec rm -f {} \;
-	find . -iname work -exec rm -rf {} \;
-	find . -iname msim -exec rm -rf {} \;
 
 VERSION :
 	rm -f $(VERSION_FILE)
@@ -82,7 +69,7 @@ panda_top.bit : VERSION $(IP_CORES) $(PS_CORE)
 	$(RUNVIVADO) -mode batch -source $(SRCDIR)/scripts/build_top.tcl \
 	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR) \
 		-tclargs $(FMC_DESIGN) -tclargs $(SFP_DESIGN) \
-		    -tclargs $(INCR)
+			-tclargs $(INCR_DESIGN)
 
 #####################################################################
 # SW Projects Build
@@ -91,8 +78,6 @@ panda_top.bit : VERSION $(IP_CORES) $(PS_CORE)
 #
 # Modify accordingly following lines
 # Everything is build under $(OUTDIR)
-TAR_REPO = /dls_sw/FPGA/Xilinx/OSLinux/tar-balls
-VIVADO_VER = 2015.1
 BOARD = pzed-z7030
 IMAGE_DIR = images
 
@@ -105,7 +90,7 @@ IMAGE_DIR = images
 SOURCES = tarball
 #SOURCES = git
 
-DEVTREE_TAG = xilinx-v$(VIVADO_VER)
+DEVTREE_TAG = xilinx-v$(DEVTREE_VER)
 DEVTREE_NAME = device-tree-xlnx-$(DEVTREE_TAG)
 
 # Device-tree BSP will be extracted in $(DEVTREE_BSP) as below
@@ -135,7 +120,7 @@ sw_clean:
 
 $(SDK_EXPORT): $(DEVTREE_BSP)/$(DEVTREE_NAME)
 	cp $(SRCDIR)/scripts/build_xsdk.tcl $(OUTDIR)
-	xsdk -batch -source $(OUTDIR)/build_xsdk.tcl \
+	source $(VIVADO) && xsdk -batch -source $(OUTDIR)/build_xsdk.tcl \
 	    -tclargs '$(TOP)/CarrierFPGA' -tclargs $(OUTDIR)
 
 # Step-6 ###############################################################

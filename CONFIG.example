@@ -5,27 +5,48 @@
 
 # Default build location.  Default is to build in build subdirectory.
 #
-# BUILD_DIR = $(TOP)/build
+BUILD_DIR = $(TOP)/build
 
-# Path to setup for Vivado and ISE development kits.  Needed for FPGA build.
-#
-# VIVADO = /dls_sw/FPGA/Xilinx/Vivado/2015.1/settings64.sh
-# ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
+# Development Tool Versions
+VIVADO_VER = 2015.1
+DEVTREE_VER = $(VIVADO_VER)
+
+# EDIT BELOW THIS LINE ---------------------
+# User environment for development tools
+
+VIVADO = /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh
+ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
+TAR_REPO = /dls_sw/FPGA/Xilinx/OSLinux/tar-balls
+
+PANDA_ROOTFS = /home/iu42/targetOS/zebra2-rootfs
 
 # License server for Vivado.
 #
-# LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
+LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
+
+# EDIT ABOVE THIS LINE ---------------------
 
 # Python interpreter for running scripts
 #
-# PYTHON = python2
+PYTHON = python2
 
 # Sphinx build for documentation.
 #
-# SPHINX_BUILD = sphinx-build
+SPHINX_BUILD = sphinx-build
 
 # List of default targets build when running make
 #
-# DEFAULT_TARGETS = docs zpkg
+MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
+DEFAULT_TARGETS = docs zpkg
+
+# Board Configuration
+#
+
+# Carrier Board Version
+BOARD = v2
+
+# FPGA Application Name
+APP_NAME = fmc_lback-sfp_lback
 
 # vim: set filetype=make:
+#

@@ -2,7 +2,6 @@
 # drivers for interfacing to the FPGA resources.
 
 TOP := $(CURDIR)
-include $(TOP)/VERSION
 
 -include CONFIG
 
@@ -36,13 +35,13 @@ docs: $(DOCS_BUILD_DIR)/index.html
 # -------------------------------------------------------------------------
 # FPGA builds
 # -------------------------------------------------------------------------
-INCR = false
-
 APP_FILE = $(TOP)/apps/$(APP_NAME)
 
 # Extract FMC and SFP design names from config file
 FMC_DESIGN = $(shell sed -n '/^FMC_/{s///;s/ .*//;p}' $(APP_FILE))
 SFP_DESIGN = $(shell sed -n '/^SFP_/{s///;s/ .*//;p}' $(APP_FILE))
+
+INCR_DESIGN = false
 
 carrier-fpga: $(FPGA_BUILD_DIR)
 	rm -rf $(BUILD_DIR)/config_d
@@ -52,18 +51,21 @@ carrier-fpga: $(FPGA_BUILD_DIR)
 	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
 	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) \
 		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN) \
-		    INCR=$(INCR)
+			INCR_DESIGN=$(INCR_DESIGN)
 
 devicetree: $(FPGA_BUILD_DIR)
 	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
-	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) devicetree
+	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) TAR_REPO=$(TAR_REPO) \
+		DEVTREE_VER=$(DEVTREE_VER) devicetree
 
 slow-fpga: $(SLOW_FPGA_BUILD_DIR)
 	source $(ISE)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
             TOP=$(TOP) SRC_DIR=$(TOP)/SlowFPGA BOARD=$(BOARD) mcs
 
+sw_clean :
+	$(MAKE) -f $(TOP)/CarrierFPGA/Makefile TOP=$(TOP) sw_clean
 
-.PHONY: carrier-fpga slow-fpga
+.PHONY: carrier-fpga slow-fpga devicetree sw_clean
 
 # -------------------------------------------------------------------------
 # Build installation package
