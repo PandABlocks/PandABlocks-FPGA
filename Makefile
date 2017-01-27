@@ -7,18 +7,14 @@ TOP := $(CURDIR)
 
 export LM_LICENSE_FILE
 
-CC = $(CROSS_COMPILE)gcc
-
 DOCS_BUILD_DIR = $(BUILD_DIR)/html
 SLOW_FPGA_BUILD_DIR = $(BUILD_DIR)/SlowFPGA
 FPGA_BUILD_DIR = $(BUILD_DIR)/CarrierFPGA
-
 
 default: $(DEFAULT_TARGETS)
 .PHONY: default
 
 export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
-
 
 # -------------------------------------------------------------------------
 # Documentation
@@ -58,9 +54,12 @@ devicetree: $(FPGA_BUILD_DIR)
 	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) TAR_REPO=$(TAR_REPO) \
 		DEVTREE_VER=$(DEVTREE_VER) devicetree
 
-slow-fpga: $(SLOW_FPGA_BUILD_DIR)
+slow-fpga: $(SLOW_FPGA_BUILD_DIR) tools/virtexHex2Bin
 	source $(ISE)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
             TOP=$(TOP) SRC_DIR=$(TOP)/SlowFPGA BOARD=$(BOARD) mcs
+
+tools/virtexHex2Bin : tools/virtexHex2Bin.c
+	gcc -o $@ $<
 
 sw_clean :
 	$(MAKE) -f $(TOP)/CarrierFPGA/Makefile TOP=$(TOP) sw_clean
