@@ -10,4 +10,3 @@ FMC         {{newBlockNo("FMC")}}
     SOFT_RESET      {{newBlockReg()}}
     EXT_CLK         {{newBlockReg()}}
     LOOP_PERIOD     {{newBlockReg()}}
-

@@ -4,17 +4,6 @@
 TOP := $(CURDIR)
 include $(TOP)/VERSION
 
-# Build defaults that can be overwritten by the CONFIG file if present
-
-BUILD_DIR = $(TOP)/build
-VIVADO = /dls_sw/FPGA/Xilinx/Vivado/2015.1/settings64.sh
-LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
-ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
-PYTHON = python2
-SPHINX_BUILD = sphinx-build
-MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
-DEFAULT_TARGETS = docs zpkg
-
 -include CONFIG
 
 export LM_LICENSE_FILE
@@ -32,8 +21,9 @@ default: $(DEFAULT_TARGETS)
 export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # Documentation
+# -------------------------------------------------------------------------
 
 $(DOCS_BUILD_DIR)/index.html: $(wildcard docs/*.rst docs/*/*.rst docs/conf.py)
 	$(SPHINX_BUILD) -b html docs $(DOCS_BUILD_DIR)
@@ -43,15 +33,11 @@ docs: $(DOCS_BUILD_DIR)/index.html
 .PHONY: docs
 
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # FPGA builds
-
-# Carrier Board Version
-BOARD = v2
+# -------------------------------------------------------------------------
 INCR = false
 
-# Config application name
-APP_NAME = fmc_24vio-sfp_lback
 APP_FILE = $(TOP)/apps/$(APP_NAME)
 
 # Extract FMC and SFP design names from config file
@@ -79,23 +65,24 @@ slow-fpga: $(SLOW_FPGA_BUILD_DIR)
 
 .PHONY: carrier-fpga slow-fpga
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # Build installation package
+# -------------------------------------------------------------------------
 
 ZPKG_VERSION = $(BOARD)-FMC_$(FMC_DESIGN)_SFP_$(SFP_DESIGN)-$(FIRMWARE)
 
 zpkg: etc/panda-fpga.list $(FIRMWARE_BUILD)
 #	$(error Still need to specify FIRMWARE_BUILD dependencies)
 	rm -f $(BUILD_DIR)/*.zpg
-	$(MAKE_ZPKG) -t $(TOP) -b $(BUILD_DIR) -d $(BUILD_DIR) \
+	$(MAKE_ZPKG) -t $(BUILD_DIR) -b $(BUILD_DIR) -d $(BUILD_DIR) \
             $< $(ZPKG_VERSION)
 
 .PHONY: zpkg
 
-
-# ------------------------------------------------------------------------------
-
+# -------------------------------------------------------------------------
 # This needs to go more or less last to avoid conflict with other targets.
+# -------------------------------------------------------------------------
+
 $(BUILD_DIR)/%:
 	mkdir -p $@
 

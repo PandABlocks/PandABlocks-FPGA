@@ -1057,8 +1057,7 @@ port map (
 ---------------------------------------------------------------------------
 -- FMC Loopback design
 ---------------------------------------------------------------------------
---FMC_GEN : IF (SIM = "FALSE") GENERATE
-
+FMC_GEN : IF (SIM = "FALSE") GENERATE
     fmc_inst : entity work.fmc_top
     port map (
         clk_i               => FCLK_CLK0,
@@ -1099,8 +1098,7 @@ port map (
         RXN_IN              => FMC_DP0_M2C_N
         -- DO NOT EDIT ABOVE THIS LINE ---------------------
     );
-
---END GENERATE;
+END GENERATE;
 
 ---------------------------------------------------------------------------
 -- SFP Loopback design

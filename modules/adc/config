@@ -1,4 +1,0 @@
-ADC[{{app_config["ADC"]}}]
-    OUT             pos_out     adc
-
-

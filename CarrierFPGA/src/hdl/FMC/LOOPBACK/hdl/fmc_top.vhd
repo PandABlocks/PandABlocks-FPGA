@@ -28,21 +28,27 @@ use work.top_defines.all;
 
 entity fmc_top is
 port (
-    -- Clock and Reset
+    -- DO NOT EDIT BELOW THIS LINE ---------------------
+    -- Standard FMC Block ports, do not add to or delete
     clk_i               : in  std_logic;
+    clk_aux_i           : in  std_logic;
     reset_i             : in  std_logic;
     -- Bus Inputs
     bitbus_i            : in  std_logic_vector(127 downto 0);
     posbus_i            : in  std32_array(31 downto 0);
     -- Generic Inputs to BitBus and PosBus from FMC and SFP
     fmc_inputs_o        : out std_logic_vector(15 downto 0);
-    fmc_data_o          : out std32_array(16 downto 0);
+    fmc_data_o          : out std32_array(15 downto 0);
     -- Memory Bus Interface
-    mem_addr_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
-    mem_cs_i            : in  std_logic;
-    mem_wstb_i          : in  std_logic;
-    mem_dat_i           : in  std_logic_vector(31 downto 0);
-    mem_dat_o           : out std_logic_vector(31 downto 0);
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic;
     -- External Differential Clock (via front panel SMA)
     EXTCLK_P            : in    std_logic;
     EXTCLK_N            : in    std_logic;
@@ -101,6 +107,20 @@ attribute IOB of fmc_din_p  : signal is "true";
 attribute IOB of fmc_din_n  : signal is "true";
 
 begin
+
+-- Acknowledgement to AXI Lite interface
+write_ack_o <= '1';
+
+read_ack_delay : entity work.delay_line
+generic map (DW => 1)
+port map (
+    clk_i       => clk_i,
+    data_i(0)   => read_strobe_i,
+    data_o(0)   => read_ack_o,
+    DELAY       => RD_ADDR2ACK
+);
+
+-- Multiplex read data out from multiple instantiations
 
 -- Generate prescaled clock for internal counter
 frame_presc : entity work.prescaler
@@ -231,45 +251,35 @@ FMC_PRSNT_DW <= ZEROS(31) & FMC_PRSNT;
 fmc_ctrl : entity work.fmc_ctrl
 port map (
     -- Clock and Reset
-    clk_i                       => clk_i,
-    reset_i                     => reset_i,
-    sysbus_i                    => (others => '0'),
-    posbus_i                    => (others => (others => '0')),
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+    sysbus_i            => (others => '0'),
+    posbus_i            => (others => (others => '0')),
     -- Block Parameters
-    FMC_PRSNT                   => FMC_PRSNT_DW,
-    LINK_UP                     => LINK_UP,
-    ERROR_COUNT                 => ERROR_COUNT,
-    LA_P_ERROR                  => LA_P_ERROR,
-    LA_N_ERROR                  => LA_N_ERROR,
-    GTREFCLK                    => FREQ_VAL(0),
-    FMC_CLK0                    => FREQ_VAL(1),
-    FMC_CLK1                    => FREQ_VAL(2),
-    EXT_CLK                     => FREQ_VAL(3),
-    SOFT_RESET                  => open,
-    SOFT_RESET_WSTB             => SOFT_RESET,
-    LOOP_PERIOD                 => LOOP_PERIOD,
-    LOOP_PERIOD_WSTB            => LOOP_PERIOD_WSTB,
+    FMC_PRSNT           => FMC_PRSNT_DW,
+    LINK_UP             => LINK_UP,
+    ERROR_COUNT         => ERROR_COUNT,
+    LA_P_ERROR          => LA_P_ERROR,
+    LA_N_ERROR          => LA_N_ERROR,
+    GTREFCLK            => FREQ_VAL(0),
+    FMC_CLK0            => FREQ_VAL(1),
+    FMC_CLK1            => FREQ_VAL(2),
+    EXT_CLK             => FREQ_VAL(3),
+    SOFT_RESET          => open,
+    SOFT_RESET_WSTB     => SOFT_RESET,
+    LOOP_PERIOD         => LOOP_PERIOD,
+    LOOP_PERIOD_WSTB    => LOOP_PERIOD_WSTB,
     -- Memory Bus Interface
-    mem_cs_i                    => mem_cs_i,
-    mem_wstb_i                  => mem_wstb_i,
-    mem_addr_i                  => mem_addr_i(BLK_AW-1 downto 0),
-    mem_dat_i                   => mem_dat_i,
-    mem_dat_o                   => mem_dat_o
-);
+    read_strobe_i       => read_strobe_i,
+    read_address_i      => read_address_i(BLK_AW-1 downto 0),
+    read_data_o         => read_data_o,
+    read_ack_o          => open,
 
---
--- Chipscope
---
---ila_inst : ila_32x8K
---port map (
---    clk         => clk_i,
---    probe0      => probe0
---);
---
---probe0(0) <= clock_en;
---probe0(15 downto 1) <= fmc_din_n(14 downto 0);
---probe0(30 downto 16) <= pbrs_data_prev(14 downto 0);
---probe0(31) <= '0';
+    write_strobe_i      => write_strobe_i,
+    write_address_i     => write_address_i(BLK_AW-1 downto 0),
+    write_data_i        => write_data_i,
+    write_ack_o         => open
+);
 
 end rtl;
 

@@ -199,20 +199,19 @@ adc_count <= resize(shift_right(frame_length, gain), 32);
 posn_o(0)  <= posbus_i(0);
 posn_o(31 downto 1)  <= posbus(31 downto 1);
 
-posn_o(32) <= std_logic_vector(adc_count);
+posn_o(32) <= (others => '0');
 posn_o(36 downto 33) <= extbus(4 downto 1);         -- inenc
-posn_o(37) <= std_logic_vector(frame_length(31 downto 0));
-posn_o(38) <= std_logic_vector(capture_offset(31 downto 0));
-posn_o(39) <= sysbus_i(31 downto 0);
-posn_o(40) <= sysbus_i(63 downto 32);
-posn_o(41) <= sysbus_i(95 downto 64);
-posn_o(42) <= sysbus_i(127 downto 96);
-posn_o(43) <= (others => '0');
-posn_o(51 downto 44) <= extbus(19 downto 12);       -- counter
-posn_o(53 downto 52) <= (others => (others => '0'));
-posn_o(61 downto 54) <= extbus(29 downto 22);       -- ADC
-posn_o(62) <= std_logic_vector(capture_ts(31 downto  0));
-posn_o(63) <= std_logic_vector(capture_ts(63 downto 32));
+posn_o(37) <= std_logic_vector(capture_ts(31 downto  0));
+posn_o(38) <= std_logic_vector(capture_ts(63 downto 32));
+posn_o(39) <= std_logic_vector(frame_length(31 downto 0));
+posn_o(40) <= std_logic_vector(capture_offset(31 downto 0));
+posn_o(41) <= std_logic_vector(adc_count);
+posn_o(42) <= sysbus_i(31 downto 0);
+posn_o(43) <= sysbus_i(63 downto 32);
+posn_o(44) <= sysbus_i(95 downto 64);
+posn_o(45) <= sysbus_i(127 downto 96);
+posn_o(49 downto 46) <= extbus(24 downto 21);       -- ACQ420
+posn_o(63 downto 50) <= (others => (others => '0'));
 
 end rtl;
 

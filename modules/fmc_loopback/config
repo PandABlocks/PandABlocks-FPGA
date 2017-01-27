@@ -10,4 +10,3 @@ FMC
     SOFT_RESET      write       action
     EXT_CLK         read
     LOOP_PERIOD     param
-

@@ -1,4 +1,0 @@
-ADC         {{newBlockNo("ADC")}}
-    OUT            {{newPosBus()}} / {{newPosBus(location='upper')}}
-
-
