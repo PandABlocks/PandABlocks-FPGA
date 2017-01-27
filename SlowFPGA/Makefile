@@ -4,9 +4,6 @@ endif
 
 VPATH = $(SRC_DIR)
 
-# Carrier Board version
-BOARD = v2
-
 # Top-level design name
 SYSTEM = slow_top
 
