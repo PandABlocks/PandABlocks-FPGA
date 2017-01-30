@@ -2,7 +2,7 @@ CarrierFPGA/src/hdl/defines/*.vhd
 CarrierFPGA/src/hdl/base/serial_engine_rx.vhd
 CarrierFPGA/src/hdl/base/serial_engine_tx.vhd
 CarrierFPGA/src/hdl/base/serial_engine.vhd
-CarrierFPGA/src/hdl/base/ssi_link_detect.vhd
+CarrierFPGA/src/hdl/base/serial_link_detect.vhd
 CarrierFPGA/src/hdl/base/shifter_in.vhd
 CarrierFPGA/src/hdl/base/ssi_clock_gen.vhd
 CarrierFPGA/src/hdl/base/prescaler.vhd
