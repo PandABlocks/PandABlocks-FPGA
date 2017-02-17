@@ -4,6 +4,7 @@
 TOP := $(CURDIR)
 
 -include CONFIG
+-include VERSION
 
 export LM_LICENSE_FILE
 
