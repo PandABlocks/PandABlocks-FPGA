@@ -13,6 +13,7 @@ LVDSOUT     {{newBlockNo("LVDSOUT")}}
 
 INENC       {{newBlockNo("INENC")}}
     PROTOCOL        slow {{newBlockReg()}}
+    BYPASS          {{newBlockReg()}}
     CLK_PERIOD      {{newBlockReg()}}
     FRAME_PERIOD    {{newBlockReg()}}
     BITS            {{newBlockReg()}}
@@ -23,18 +24,23 @@ INENC       {{newBlockNo("INENC")}}
     A               {{newBitBus()}}
     B               {{newBitBus()}}
     Z               {{newBitBus()}}
+    DATA            {{newBitBus()}}
+    CLK             {{newBlockReg(typ='bit_mux')}}
     CONN            {{newBitBus()}}
     TRANS           {{newBitBus()}}
     VAL             {{newPosBus()}} / {{newPosBus(location='upper')}}
 
 OUTENC      {{newBlockNo("OUTENC")}}
     PROTOCOL        {{newBlockReg()}}
+    BYPASS          {{newBlockReg()}}
     BITS            {{newBlockReg()}}
     QPERIOD         {{newBlockReg()}}
     ENABLE          {{newBlockReg(typ='bit_mux')}}
     A               {{newBlockReg(typ='bit_mux')}}
     B               {{newBlockReg(typ='bit_mux')}}
     Z               {{newBlockReg(typ='bit_mux')}}
+    DATA            {{newBlockReg(typ='bit_mux')}}
+    CLK             {{newBitBus()}}
     VAL             {{newBlockReg()}}
     CONN            {{newBlockReg(typ='bit_mux')}}
     QSTATE          {{newBlockReg()}}

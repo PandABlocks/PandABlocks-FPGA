@@ -105,30 +105,36 @@ localparam LVDSOUT_VAL_DLY = 1;
 
 // INENC Block:
 localparam INENC_PROTOCOL = 0;
-localparam INENC_CLK_PERIOD = 1;
-localparam INENC_FRAME_PERIOD = 2;
-localparam INENC_BITS = 3;
-localparam INENC_SETP = 4;
-localparam INENC_RST_ON_Z = 5;
-localparam INENC_STATUS = 6;
-localparam INENC_DCARD_MODE = 7;
+localparam INENC_BYPASS = 1;
+localparam INENC_CLK_PERIOD = 2;
+localparam INENC_FRAME_PERIOD = 3;
+localparam INENC_BITS = 4;
+localparam INENC_SETP = 5;
+localparam INENC_RST_ON_Z = 6;
+localparam INENC_STATUS = 7;
+localparam INENC_DCARD_MODE = 8;
+localparam INENC_CLK = 9;
+localparam INENC_CLK_DLY = 10;
 
 // OUTENC Block:
 localparam OUTENC_PROTOCOL = 0;
-localparam OUTENC_BITS = 1;
-localparam OUTENC_QPERIOD = 2;
-localparam OUTENC_ENABLE = 3;
-localparam OUTENC_ENABLE_DLY = 4;
-localparam OUTENC_A = 5;
-localparam OUTENC_A_DLY = 6;
-localparam OUTENC_B = 7;
-localparam OUTENC_B_DLY = 8;
-localparam OUTENC_Z = 9;
-localparam OUTENC_Z_DLY = 10;
-localparam OUTENC_VAL = 11;
-localparam OUTENC_CONN = 12;
-localparam OUTENC_CONN_DLY = 13;
-localparam OUTENC_QSTATE = 14;
+localparam OUTENC_BYPASS = 1;
+localparam OUTENC_BITS = 2;
+localparam OUTENC_QPERIOD = 3;
+localparam OUTENC_ENABLE = 4;
+localparam OUTENC_ENABLE_DLY = 5;
+localparam OUTENC_A = 6;
+localparam OUTENC_A_DLY = 7;
+localparam OUTENC_B = 8;
+localparam OUTENC_B_DLY = 9;
+localparam OUTENC_Z = 10;
+localparam OUTENC_Z_DLY = 11;
+localparam OUTENC_DATA = 12;
+localparam OUTENC_DATA_DLY = 13;
+localparam OUTENC_VAL = 14;
+localparam OUTENC_CONN = 15;
+localparam OUTENC_CONN_DLY = 16;
+localparam OUTENC_QSTATE = 17;
 
 // LUT Block:
 localparam LUT_FUNC = 0;
@@ -313,34 +319,17 @@ localparam SFP_SFP_CLK3 = 8;
 localparam SFP_SOFT_RESET = 9;
 
 // FMC Block:
-localparam FMC_PRESENT = 0;
-localparam FMC_OUT1 = 1;
-localparam FMC_OUT1_DLY = 2;
-localparam FMC_OUT2 = 3;
-localparam FMC_OUT2_DLY = 4;
-localparam FMC_OUT3 = 5;
-localparam FMC_OUT3_DLY = 6;
-localparam FMC_OUT4 = 7;
-localparam FMC_OUT4_DLY = 8;
-localparam FMC_OUT5 = 9;
-localparam FMC_OUT5_DLY = 10;
-localparam FMC_OUT6 = 11;
-localparam FMC_OUT6_DLY = 12;
-localparam FMC_OUT7 = 13;
-localparam FMC_OUT7_DLY = 14;
-localparam FMC_OUT8 = 15;
-localparam FMC_OUT8_DLY = 16;
-localparam FMC_OUT_PWR_ON = 17;
-localparam FMC_IN_VTSEL = 18;
-localparam FMC_IN_DB = 19;
-localparam FMC_IN_FAULT = 20;
-localparam FMC_OUT_PUSHPL = 21;
-localparam FMC_OUT_FLTR = 22;
-localparam FMC_OUT_SRIAL = 23;
-localparam FMC_OUT_FAULT = 24;
-localparam FMC_OUT_EN = 25;
-localparam FMC_OUT_CONFIG = 26;
-localparam FMC_OUT_STATUS = 27;
+localparam FMC_FMC_PRSNT = 0;
+localparam FMC_LINK_UP = 1;
+localparam FMC_ERROR_COUNT = 2;
+localparam FMC_LA_P_ERROR = 3;
+localparam FMC_LA_N_ERROR = 4;
+localparam FMC_GTREFCLK = 5;
+localparam FMC_FMC_CLK0 = 6;
+localparam FMC_FMC_CLK1 = 7;
+localparam FMC_SOFT_RESET = 8;
+localparam FMC_EXT_CLK = 9;
+localparam FMC_LOOP_PERIOD = 10;
 
 
 

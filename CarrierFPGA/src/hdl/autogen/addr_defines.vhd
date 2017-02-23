@@ -111,30 +111,36 @@ constant LVDSOUT_VAL_DLY : natural := 1;
 
 -- INENC Block:
 constant INENC_PROTOCOL : natural := 0;
-constant INENC_CLK_PERIOD : natural := 1;
-constant INENC_FRAME_PERIOD : natural := 2;
-constant INENC_BITS : natural := 3;
-constant INENC_SETP : natural := 4;
-constant INENC_RST_ON_Z : natural := 5;
-constant INENC_STATUS : natural := 6;
-constant INENC_DCARD_MODE : natural := 7;
+constant INENC_BYPASS : natural := 1;
+constant INENC_CLK_PERIOD : natural := 2;
+constant INENC_FRAME_PERIOD : natural := 3;
+constant INENC_BITS : natural := 4;
+constant INENC_SETP : natural := 5;
+constant INENC_RST_ON_Z : natural := 6;
+constant INENC_STATUS : natural := 7;
+constant INENC_DCARD_MODE : natural := 8;
+constant INENC_CLK : natural := 9;
+constant INENC_CLK_DLY : natural := 10;
 
 -- OUTENC Block:
 constant OUTENC_PROTOCOL : natural := 0;
-constant OUTENC_BITS : natural := 1;
-constant OUTENC_QPERIOD : natural := 2;
-constant OUTENC_ENABLE : natural := 3;
-constant OUTENC_ENABLE_DLY : natural := 4;
-constant OUTENC_A : natural := 5;
-constant OUTENC_A_DLY : natural := 6;
-constant OUTENC_B : natural := 7;
-constant OUTENC_B_DLY : natural := 8;
-constant OUTENC_Z : natural := 9;
-constant OUTENC_Z_DLY : natural := 10;
-constant OUTENC_VAL : natural := 11;
-constant OUTENC_CONN : natural := 12;
-constant OUTENC_CONN_DLY : natural := 13;
-constant OUTENC_QSTATE : natural := 14;
+constant OUTENC_BYPASS : natural := 1;
+constant OUTENC_BITS : natural := 2;
+constant OUTENC_QPERIOD : natural := 3;
+constant OUTENC_ENABLE : natural := 4;
+constant OUTENC_ENABLE_DLY : natural := 5;
+constant OUTENC_A : natural := 6;
+constant OUTENC_A_DLY : natural := 7;
+constant OUTENC_B : natural := 8;
+constant OUTENC_B_DLY : natural := 9;
+constant OUTENC_Z : natural := 10;
+constant OUTENC_Z_DLY : natural := 11;
+constant OUTENC_DATA : natural := 12;
+constant OUTENC_DATA_DLY : natural := 13;
+constant OUTENC_VAL : natural := 14;
+constant OUTENC_CONN : natural := 15;
+constant OUTENC_CONN_DLY : natural := 16;
+constant OUTENC_QSTATE : natural := 17;
 
 -- LUT Block:
 constant LUT_FUNC : natural := 0;
@@ -319,34 +325,17 @@ constant SFP_SFP_CLK3 : natural := 8;
 constant SFP_SOFT_RESET : natural := 9;
 
 -- FMC Block:
-constant FMC_PRESENT : natural := 0;
-constant FMC_OUT1 : natural := 1;
-constant FMC_OUT1_DLY : natural := 2;
-constant FMC_OUT2 : natural := 3;
-constant FMC_OUT2_DLY : natural := 4;
-constant FMC_OUT3 : natural := 5;
-constant FMC_OUT3_DLY : natural := 6;
-constant FMC_OUT4 : natural := 7;
-constant FMC_OUT4_DLY : natural := 8;
-constant FMC_OUT5 : natural := 9;
-constant FMC_OUT5_DLY : natural := 10;
-constant FMC_OUT6 : natural := 11;
-constant FMC_OUT6_DLY : natural := 12;
-constant FMC_OUT7 : natural := 13;
-constant FMC_OUT7_DLY : natural := 14;
-constant FMC_OUT8 : natural := 15;
-constant FMC_OUT8_DLY : natural := 16;
-constant FMC_OUT_PWR_ON : natural := 17;
-constant FMC_IN_VTSEL : natural := 18;
-constant FMC_IN_DB : natural := 19;
-constant FMC_IN_FAULT : natural := 20;
-constant FMC_OUT_PUSHPL : natural := 21;
-constant FMC_OUT_FLTR : natural := 22;
-constant FMC_OUT_SRIAL : natural := 23;
-constant FMC_OUT_FAULT : natural := 24;
-constant FMC_OUT_EN : natural := 25;
-constant FMC_OUT_CONFIG : natural := 26;
-constant FMC_OUT_STATUS : natural := 27;
+constant FMC_FMC_PRSNT : natural := 0;
+constant FMC_LINK_UP : natural := 1;
+constant FMC_ERROR_COUNT : natural := 2;
+constant FMC_LA_P_ERROR : natural := 3;
+constant FMC_LA_N_ERROR : natural := 4;
+constant FMC_GTREFCLK : natural := 5;
+constant FMC_FMC_CLK0 : natural := 6;
+constant FMC_FMC_CLK1 : natural := 7;
+constant FMC_SOFT_RESET : natural := 8;
+constant FMC_EXT_CLK : natural := 9;
+constant FMC_LOOP_PERIOD : natural := 10;
 
 
 

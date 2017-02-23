@@ -11,20 +11,21 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Encoder inputs from Bitbus
-    a_i                 : in  std_logic;
-    b_i                 : in  std_logic;
-    z_i                 : in  std_logic;
+    a_ext_i             : in  std_logic;
+    b_ext_i             : in  std_logic;
+    z_ext_i             : in  std_logic;
+    data_ext_i          : in  std_logic;
     posn_i              : in  std_logic_vector(31 downto 0);
     enable_i            : in  std_logic;
     -- Encoder I/O Pads
-    a_o                 : out std_logic;
-    b_o                 : out std_logic;
-    z_o                 : out std_logic;
-    sclk_i              : in  std_logic;
-    sdat_i              : in  std_logic;
-    sdat_o              : out std_logic;
+    A_OUT               : out std_logic;
+    B_OUT               : out std_logic;
+    Z_OUT               : out std_logic;
+    DATA_OUT            : out std_logic;
+    CLK_IN              : in  std_logic;
     -- Block parameters
     PROTOCOL            : in  std_logic_vector(2 downto 0);
+    BYPASS              : in  std_logic;
     BITS                : in  std_logic_vector(7 downto 0);
     QPERIOD             : in  std_logic_vector(31 downto 0);
     QPERIOD_WSTB        : in  std_logic;
@@ -36,13 +37,15 @@ architecture rtl of outenc is
 
 signal quad_a           : std_logic;
 signal quad_b           : std_logic;
+signal sdat             : std_logic;
 
 begin
 
 -- Assign outputs
-a_o <= a_i when (PROTOCOL = "100") else quad_a;
-b_o <= b_i when (PROTOCOL = "100") else quad_b;
-z_o <= z_i when (PROTOCOL = "100") else '0';
+A_OUT <= a_ext_i when (BYPASS = '1') else quad_a;
+B_OUT <= b_ext_i when (BYPASS = '1') else quad_b;
+Z_OUT <= z_ext_i when (BYPASS = '1') else '0';
+DATA_OUT <= data_ext_i when (BYPASS = '1') else sdat;
 
 --
 -- INCREMENTAL OUT
@@ -69,8 +72,8 @@ port map (
     reset_i         => reset_i,
     BITS            => BITS,
     posn_i          => posn_i,
-    ssi_sck_i       => sclk_i,
-    ssi_dat_o       => sdat_o
+    ssi_sck_i       => CLK_IN,
+    ssi_dat_o       => sdat
 );
 
 end rtl;

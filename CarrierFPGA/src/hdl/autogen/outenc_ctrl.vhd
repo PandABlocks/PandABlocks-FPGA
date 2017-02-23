@@ -23,6 +23,8 @@ port (
     -- Block Parameters
     PROTOCOL       : out std_logic_vector(31 downto 0);
     PROTOCOL_WSTB  : out std_logic;
+    BYPASS       : out std_logic_vector(31 downto 0);
+    BYPASS_WSTB  : out std_logic;
     BITS       : out std_logic_vector(31 downto 0);
     BITS_WSTB  : out std_logic;
     QPERIOD       : out std_logic_vector(31 downto 0);
@@ -32,6 +34,7 @@ port (
     a_o : out std_logic;
     b_o : out std_logic;
     z_o : out std_logic;
+    data_o : out std_logic;
     conn_o : out std_logic;
     val_o : out std_logic_vector(31 downto 0);
     -- Memory Bus Interface
@@ -68,6 +71,10 @@ signal Z      : std_logic_vector(31 downto 0);
 signal Z_WSTB : std_logic;
 signal Z_DLY      : std_logic_vector(31 downto 0);
 signal Z_DLY_WSTB : std_logic;
+signal DATA      : std_logic_vector(31 downto 0);
+signal DATA_WSTB : std_logic;
+signal DATA_DLY      : std_logic_vector(31 downto 0);
+signal DATA_DLY_WSTB : std_logic;
 signal VAL      : std_logic_vector(31 downto 0);
 signal VAL_WSTB : std_logic;
 signal CONN      : std_logic_vector(31 downto 0);
@@ -93,6 +100,8 @@ begin
         if (reset_i = '1') then
             PROTOCOL <= (others => '0');
             PROTOCOL_WSTB <= '0';
+            BYPASS <= (others => '0');
+            BYPASS_WSTB <= '0';
             BITS <= (others => '0');
             BITS_WSTB <= '0';
             QPERIOD <= (others => '0');
@@ -113,6 +122,10 @@ begin
             Z_WSTB <= '0';
             Z_DLY <= (others => '0');
             Z_DLY_WSTB <= '0';
+            DATA <= (others => '0');
+            DATA_WSTB <= '0';
+            DATA_DLY <= (others => '0');
+            DATA_DLY_WSTB <= '0';
             VAL <= (others => '0');
             VAL_WSTB <= '0';
             CONN <= (others => '0');
@@ -121,6 +134,7 @@ begin
             CONN_DLY_WSTB <= '0';
         else
             PROTOCOL_WSTB <= '0';
+            BYPASS_WSTB <= '0';
             BITS_WSTB <= '0';
             QPERIOD_WSTB <= '0';
             ENABLE_WSTB <= '0';
@@ -131,6 +145,8 @@ begin
             B_DLY_WSTB <= '0';
             Z_WSTB <= '0';
             Z_DLY_WSTB <= '0';
+            DATA_WSTB <= '0';
+            DATA_DLY_WSTB <= '0';
             VAL_WSTB <= '0';
             CONN_WSTB <= '0';
             CONN_DLY_WSTB <= '0';
@@ -140,6 +156,10 @@ begin
                 if (write_addr = OUTENC_PROTOCOL) then
                     PROTOCOL <= write_data_i;
                     PROTOCOL_WSTB <= '1';
+                end if;
+                if (write_addr = OUTENC_BYPASS) then
+                    BYPASS <= write_data_i;
+                    BYPASS_WSTB <= '1';
                 end if;
                 if (write_addr = OUTENC_BITS) then
                     BITS <= write_data_i;
@@ -180,6 +200,14 @@ begin
                 if (write_addr = OUTENC_Z_DLY) then
                     Z_DLY <= write_data_i;
                     Z_DLY_WSTB <= '1';
+                end if;
+                if (write_addr = OUTENC_DATA) then
+                    DATA <= write_data_i;
+                    DATA_WSTB <= '1';
+                end if;
+                if (write_addr = OUTENC_DATA_DLY) then
+                    DATA_DLY <= write_data_i;
+                    DATA_DLY_WSTB <= '1';
                 end if;
                 if (write_addr = OUTENC_VAL) then
                     VAL <= write_data_i;
@@ -255,6 +283,15 @@ port map (
     bit_o       => z_o,
     BITMUX_SEL  => Z,
     BIT_DLY     => Z_DLY
+);
+
+bitmux_DATA : entity work.bitmux
+port map (
+    clk_i       => clk_i,
+    sysbus_i    => sysbus_i,
+    bit_o       => data_o,
+    BITMUX_SEL  => DATA,
+    BIT_DLY     => DATA_DLY
 );
 
 bitmux_CONN : entity work.bitmux

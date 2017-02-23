@@ -200,8 +200,13 @@ signal outenc_buf_ctrl      : std_logic_vector(5 downto 0);
 signal inenc_val            : std32_array(ENC_NUM-1 downto 0);
 signal inenc_conn           : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_trans          : std_logic_vector(ENC_NUM-1 downto 0);
+signal inenc_a              : std_logic_vector(ENC_NUM-1 downto 0);
+signal inenc_b              : std_logic_vector(ENC_NUM-1 downto 0);
+signal inenc_z              : std_logic_vector(ENC_NUM-1 downto 0);
+signal inenc_data           : std_logic_vector(ENC_NUM-1 downto 0);
 
 -- Output Encoder
+signal outenc_clk           : std_logic_vector(ENC_NUM-1 downto 0);
 signal outenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
 
 -- Discrete Block Outputs :
@@ -630,7 +635,7 @@ inenc_inst : entity work.inenc_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
-
+    -- Memory interface
     read_strobe_i       => read_strobe(INENC_CS),
     read_address_i      => read_address,
     read_data_o         => read_data(INENC_CS),
@@ -640,13 +645,21 @@ port map (
     write_address_i     => write_address,
     write_data_i        => write_data,
     write_ack_o         => write_ack(INENC_CS),
-
+    -- Physical IO Pads
     A_IN                => A_IN,
     B_IN                => B_IN,
     Z_IN                => Z_IN,
     CLK_OUT             => CLK_OUT,
     DATA_IN             => DATA_IN,
     CLK_IN              => CLK_IN,
+    -- Signals passed to internal bus
+    a_int_o             => inenc_a,
+    b_int_o             => inenc_b,
+    z_int_o             => inenc_z,
+    data_int_o          => inenc_data,
+    -- Block Outputs
+    sysbus_i            => sysbus,
+    posbus_i            => posbus,
     CONN_OUT            => inenc_conn,
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => INPROT,
@@ -693,13 +706,16 @@ port map (
     write_address_i     => write_address,
     write_data_i        => write_data,
     write_ack_o         => write_ack(OUTENC_CS),
-
+    -- Physical IO Pads
     A_OUT               => A_OUT,
     B_OUT               => B_OUT,
     Z_OUT               => Z_OUT,
     CLK_IN              => CLK_IN,
     DATA_OUT            => DATA_OUT,
     CONN_OUT            => outenc_conn,
+    -- Signals passed to internal bus
+    clk_int_o           => outenc_clk,
+    --
     sysbus_i            => sysbus,
     posbus_i            => posbus,
     PROTOCOL            => OUTPROT
@@ -1161,15 +1177,17 @@ port map (
     SEQ_OUTF        => seq_outf,
     SEQ_ACTIVE      => seq_active,
     -- INENC Block
-    INENC_A         => A_IN,
-    INENC_B         => B_IN,
-    INENC_Z         => Z_IN,
+    INENC_A         => inenc_a,
+    INENC_B         => inenc_b,
+    INENC_Z         => inenc_z,
+    INENC_DATA      => inenc_data,
     INENC_CONN      => inenc_conn,
     INENC_TRANS     => inenc_trans,
     INENC_VAL       => inenc_val,
     -- QDEC Block
     QDEC_OUT        => qdec_out,
     -- OUTENC Block
+    OUTENC_CLK      => outenc_clk,
     -- POSENC Block
     POSENC_A        => posenc_a,
     POSENC_B        => posenc_b,

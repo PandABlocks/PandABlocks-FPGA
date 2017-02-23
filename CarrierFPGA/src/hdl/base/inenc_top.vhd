@@ -44,7 +44,14 @@ port (
     DATA_IN             : in  std_logic_vector(ENC_NUM-1 downto 0);
     CLK_IN              : in  std_logic_vector(ENC_NUM-1 downto 0);
     CONN_OUT            : out std_logic_vector(ENC_NUM-1 downto 0);
-    -- Block Outputs
+    -- Signals passed to internal bus
+    a_int_o             : out std_logic_vector(ENC_NUM-1 downto 0);
+    b_int_o             : out std_logic_vector(ENC_NUM-1 downto 0);
+    z_int_o             : out std_logic_vector(ENC_NUM-1 downto 0);
+    data_int_o          : out std_logic_vector(ENC_NUM-1 downto 0);
+    -- Block Input and Outputs
+    sysbus_i            : in  sysbus_t;
+    posbus_i            : in  posbus_t;
     DCARD_MODE          : in  std32_array(ENC_NUM-1 downto 0);
     PROTOCOL            : out std3_array(ENC_NUM-1 downto 0);
     posn_o              : out std32_array(ENC_NUM-1 downto 0);
@@ -58,36 +65,6 @@ signal read_strobe      : std_logic_vector(TTLOUT_NUM-1 downto 0);
 signal read_data        : std32_array(TTLOUT_NUM-1 downto 0);
 signal write_strobe     : std_logic_vector(TTLOUT_NUM-1 downto 0);
 signal posn             : std32_array(ENC_NUM-1 downto 0);
-
-component icon
-PORT (
-    CONTROL0 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
-    CONTROL1 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
-    CONTROL2 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
-    CONTROL3 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0)
-);
-end component;
-
-component ila
-  PORT (
-    CONTROL : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
-    CLK : IN STD_LOGIC;
-    DATA : IN STD_LOGIC_VECTOR(35 DOWNTO 0);
-    TRIG0 : IN STD_LOGIC_VECTOR(7 DOWNTO 0));
-end component;
-
-signal CONTROL0 : STD_LOGIC_VECTOR(35 DOWNTO 0);
-signal CONTROL1 : STD_LOGIC_VECTOR(35 DOWNTO 0);
-signal CONTROL2 : STD_LOGIC_VECTOR(35 DOWNTO 0);
-signal CONTROL3 : STD_LOGIC_VECTOR(35 DOWNTO 0);
-signal DATA0    : STD_LOGIC_VECTOR(35 DOWNTO 0);
-signal DATA1    : STD_LOGIC_VECTOR(35 DOWNTO 0);
-signal DATA2    : STD_LOGIC_VECTOR(35 DOWNTO 0);
-signal DATA3    : STD_LOGIC_VECTOR(35 DOWNTO 0);
-signal TRIG0    : STD_LOGIC_VECTOR(7 DOWNTO 0);
-signal TRIG1    : STD_LOGIC_VECTOR(7 DOWNTO 0);
-signal TRIG2    : STD_LOGIC_VECTOR(7 DOWNTO 0);
-signal TRIG3    : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
 begin
 
@@ -108,6 +85,12 @@ read_data_o <= read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK
 
 -- Outputs
 posn_o <= posn;
+
+-- Loopbacks onto system bus
+a_int_o <= A_IN;
+b_int_o <= B_IN;
+z_int_o <= Z_IN;
+data_int_o <= DATA_IN;
 
 --
 -- Instantiate INENC Blocks :
@@ -135,14 +118,16 @@ port map (
     write_data_i        => write_data_i,
     write_ack_o         => open,
 
-    a_i                 => A_IN(I),
-    b_i                 => B_IN(I),
-    z_i                 => Z_IN(I),
-    clk_out_o           => CLK_OUT(I),
-    data_in_i           => DATA_IN(I),
-    clk_in_i            => CLK_IN(I),
-    conn_o              => CONN_OUT(I),
+    A_IN                => A_IN(I),
+    B_IN                => B_IN(I),
+    Z_IN                => Z_IN(I),
+    CLK_OUT             => CLK_OUT(I),
+    DATA_IN             => DATA_IN(I),
+    CLK_IN              => CLK_IN(I),
+    CONN_OUT            => CONN_OUT(I),
 
+    sysbus_i            => sysbus_i,
+    posbus_i            => posbus_i,
     DCARD_MODE          => DCARD_MODE(I),
     PROTOCOL            => PROTOCOL(I),
     posn_o              => posn(I),

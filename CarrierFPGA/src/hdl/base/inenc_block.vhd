@@ -34,14 +34,16 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
     -- Encoder I/O Pads.
-    a_i                 : in  std_logic;
-    b_i                 : in  std_logic;
-    z_i                 : in  std_logic;
-    clk_out_o           : out std_logic;
-    data_in_i           : in  std_logic;
-    clk_in_i            : in  std_logic;
-    conn_o              : out std_logic;
+    A_IN                : in  std_logic;
+    B_IN                : in  std_logic;
+    Z_IN                : in  std_logic;
+    CLK_OUT             : out std_logic;
+    DATA_IN             : in  std_logic;
+    CLK_IN              : in  std_logic;
+    CONN_OUT            : out std_logic;
     -- Block Outputs.
+    sysbus_i            : in  sysbus_t;
+    posbus_i            : in  posbus_t;
     DCARD_MODE          : in  std_logic_vector(31 downto 0);
     PROTOCOL            : out std_logic_vector(2 downto 0);
     posn_o              : out std_logic_vector(31 downto 0);
@@ -51,9 +53,11 @@ end entity;
 
 architecture rtl of inenc_block is
 
+signal clk_ext          : std_logic;
 -- Block Configuration Registers
 signal PROTOCOL_i       : std_logic_vector(31 downto 0);
 signal PROTOCOL_WSTB    : std_logic;
+signal BYPASS           : std_logic_vector(31 downto 0);
 signal CLK_PERIOD       : std_logic_vector(31 downto 0);
 signal CLK_PERIOD_WSTB  : std_logic;
 signal FRAME_PERIOD     : std_logic_vector(31 downto 0);
@@ -80,7 +84,7 @@ PROTOCOL <= PROTOCOL_i(2 downto 0);
 -- Input encoder connection status comes from either
 --  * Dcard pin [12] for incremental, or
 --  * link_up status for absolute in loopback mode
-conn_o <= STATUS(0);
+CONN_OUT <= STATUS(0);
 
 -- Certain parameter changes must initiate a block reset.
 reset <= reset_i or PROTOCOL_WSTB or CLK_PERIOD_WSTB or
@@ -93,8 +97,9 @@ inenc_ctrl : entity work.inenc_ctrl
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
-    sysbus_i            => (others => '0'),
-    posbus_i            => (others => (others => '0')),
+    sysbus_i            => sysbus_i,
+    posbus_i            => posbus_i,
+    clk_o               => clk_ext,
 
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i,
@@ -108,6 +113,7 @@ port map (
 
     PROTOCOL            => PROTOCOL_i,
     PROTOCOL_WSTB       => PROTOCOL_WSTB,
+    BYPASS              => BYPASS,
     CLK_PERIOD          => CLK_PERIOD,
     CLK_PERIOD_WSTB     => CLK_PERIOD_WSTB,
     FRAME_PERIOD        => FRAME_PERIOD,
@@ -145,16 +151,19 @@ port map (
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset,
-
-    a_i                 => a_i,
-    b_i                 => b_i,
-    z_i                 => z_i,
-    clk_out_o           => clk_out_o,
-    data_in_i           => data_in_i,
-    clk_in_i            => clk_in_i,
-
+    --
+    A_IN                => A_IN,
+    B_IN                => B_IN,
+    Z_IN                => Z_IN,
+    CLK_OUT             => CLK_OUT,
+    DATA_IN             => DATA_IN,
+    CLK_IN              => CLK_IN,
+    --
+    clk_out_ext_i       => clk_ext,
+    --
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => PROTOCOL_i(2 downto 0),
+    BYPASS              => BYPASS(0),
     CLK_PERIOD          => CLK_PERIOD,
     FRAME_PERIOD        => FRAME_PERIOD,
     BITS                => BITS(7 downto 0),

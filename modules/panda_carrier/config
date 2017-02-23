@@ -19,6 +19,9 @@ INENC[4]
         1   SSI
         2   BISS
         3   enDat
+    BYPASS          param       enum 2
+        0   Off
+        1   On
     CLK_PERIOD      param       time
     FRAME_PERIOD    param       time
     BITS            param       uint 63
@@ -31,23 +34,29 @@ INENC[4]
     A               bit_out
     B               bit_out
     Z               bit_out
+    DATA            bit_out
+    CLK             bit_mux
     CONN            bit_out
     TRANS           bit_out
     VAL             pos_out     encoder
 
 OUTENC[4]
-    PROTOCOL        param       enum 5
+    PROTOCOL        param       enum 4
         0   Quadrature
         1   SSI
         2   BISS
         3   enDat
-        4   ABZ
+    BYPASS          param       enum 2
+        0   Off
+        1   On
     BITS            param       uint 32
     QPERIOD         param       time
     ENABLE          bit_mux
     A               bit_mux
     B               bit_mux
     Z               bit_mux
+    DATA            bit_mux
+    CLK             bit_out
     VAL             pos_mux
     CONN            bit_mux
     QSTATE          read        enum 3

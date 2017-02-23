@@ -183,8 +183,8 @@ begin
                     outenc_ctrl(I) <= outenc_dir(I) & "10";
                 when "011"  =>                        -- BiSS
                     outenc_ctrl(I) <= outenc_dir(I) & "10";
-                when "100"  =>                        -- Pass-Through
-                    outenc_ctrl(I) <= "000";
+--                when "100"  =>                        -- Pass-Through
+--                    outenc_ctrl(I) <= "000";
                 when others =>
                     outenc_ctrl(I) <= "000";
             end case;

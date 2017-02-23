@@ -23,6 +23,8 @@ port (
     -- Block Parameters
     PROTOCOL       : out std_logic_vector(31 downto 0);
     PROTOCOL_WSTB  : out std_logic;
+    BYPASS       : out std_logic_vector(31 downto 0);
+    BYPASS_WSTB  : out std_logic;
     CLK_PERIOD       : out std_logic_vector(31 downto 0);
     CLK_PERIOD_WSTB  : out std_logic;
     FRAME_PERIOD       : out std_logic_vector(31 downto 0);
@@ -35,6 +37,7 @@ port (
     RST_ON_Z_WSTB  : out std_logic;
     STATUS       : in  std_logic_vector(31 downto 0);
     DCARD_MODE       : in  std_logic_vector(31 downto 0);
+    clk_o : out std_logic;
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
@@ -53,6 +56,10 @@ architecture rtl of inenc_ctrl is
 signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
 signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 
+signal CLK      : std_logic_vector(31 downto 0);
+signal CLK_WSTB : std_logic;
+signal CLK_DLY      : std_logic_vector(31 downto 0);
+signal CLK_DLY_WSTB : std_logic;
 
 begin
 
@@ -72,6 +79,8 @@ begin
         if (reset_i = '1') then
             PROTOCOL <= (others => '0');
             PROTOCOL_WSTB <= '0';
+            BYPASS <= (others => '0');
+            BYPASS_WSTB <= '0';
             CLK_PERIOD <= (others => '0');
             CLK_PERIOD_WSTB <= '0';
             FRAME_PERIOD <= (others => '0');
@@ -82,19 +91,30 @@ begin
             SETP_WSTB <= '0';
             RST_ON_Z <= (others => '0');
             RST_ON_Z_WSTB <= '0';
+            CLK <= (others => '0');
+            CLK_WSTB <= '0';
+            CLK_DLY <= (others => '0');
+            CLK_DLY_WSTB <= '0';
         else
             PROTOCOL_WSTB <= '0';
+            BYPASS_WSTB <= '0';
             CLK_PERIOD_WSTB <= '0';
             FRAME_PERIOD_WSTB <= '0';
             BITS_WSTB <= '0';
             SETP_WSTB <= '0';
             RST_ON_Z_WSTB <= '0';
+            CLK_WSTB <= '0';
+            CLK_DLY_WSTB <= '0';
 
             if (write_strobe_i = '1') then
                 -- Input Select Control Registers
                 if (write_addr = INENC_PROTOCOL) then
                     PROTOCOL <= write_data_i;
                     PROTOCOL_WSTB <= '1';
+                end if;
+                if (write_addr = INENC_BYPASS) then
+                    BYPASS <= write_data_i;
+                    BYPASS_WSTB <= '1';
                 end if;
                 if (write_addr = INENC_CLK_PERIOD) then
                     CLK_PERIOD <= write_data_i;
@@ -115,6 +135,14 @@ begin
                 if (write_addr = INENC_RST_ON_Z) then
                     RST_ON_Z <= write_data_i;
                     RST_ON_Z_WSTB <= '1';
+                end if;
+                if (write_addr = INENC_CLK) then
+                    CLK <= write_data_i;
+                    CLK_WSTB <= '1';
+                end if;
+                if (write_addr = INENC_CLK_DLY) then
+                    CLK_DLY <= write_data_i;
+                    CLK_DLY_WSTB <= '1';
                 end if;
 
             end if;
@@ -146,6 +174,15 @@ end process;
 --
 -- Instantiate Delay Blocks for System and Position Bus Fields
 --
+bitmux_CLK : entity work.bitmux
+port map (
+    clk_i       => clk_i,
+    sysbus_i    => sysbus_i,
+    bit_o       => clk_o,
+    BITMUX_SEL  => CLK,
+    BIT_DLY     => CLK_DLY
+);
+
 
 
 

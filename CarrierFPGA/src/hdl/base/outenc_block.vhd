@@ -24,13 +24,12 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
     -- Encoder I/O Pads
-    a_o                 : out std_logic;
-    b_o                 : out std_logic;
-    z_o                 : out std_logic;
-    sclk_i              : in  std_logic;
-    sdat_i              : in  std_logic;
-    sdat_o              : out std_logic;
-    conn_o              : out std_logic;
+    A_OUT               : out std_logic;
+    B_OUT               : out std_logic;
+    Z_OUT               : out std_logic;
+    CLK_IN              : in  std_logic;
+    DATA_OUT            : out std_logic;
+    CONN_OUT            : out std_logic;
     -- Position Field interface
     PROTOCOL            : out std_logic_vector(2 downto 0);
     sysbus_i            : in  sysbus_t;
@@ -44,6 +43,7 @@ signal reset            : std_logic;
 
 -- Block Configuration Registers
 signal PROTOCOL_i       : std_logic_vector(31 downto 0);
+signal BYPASS           : std_logic_vector(31 downto 0);
 signal PROTOCOL_WSTB    : std_logic;
 signal BITS             : std_logic_vector(31 downto 0);
 signal BITS_WSTB        : std_logic;
@@ -51,7 +51,7 @@ signal QPERIOD          : std_logic_vector(31 downto 0);
 signal QPERIOD_WSTB     : std_logic;
 signal QSTATE           : std_logic_vector(31 downto 0);
 
-signal a, b, z          : std_logic;
+signal a_ext, b_ext, z_ext, data_ext    : std_logic;
 signal posn             : std_logic_vector(31 downto 0);
 signal enable           : std_logic;
 
@@ -72,10 +72,11 @@ port map (
     reset_i             => reset_i,
     sysbus_i            => sysbus_i,
     posbus_i            => posbus_i,
-    a_o                 => a,
-    b_o                 => b,
-    z_o                 => z,
-    conn_o              => conn_o,
+    a_o                 => a_ext,
+    b_o                 => b_ext,
+    z_o                 => z_ext,
+    data_o              => data_ext,
+    conn_o              => CONN_OUT,
     enable_o            => enable,
     val_o               => posn,
 
@@ -92,6 +93,7 @@ port map (
     -- Block Parameters
     PROTOCOL            => PROTOCOL_i,
     PROTOCOL_WSTB       => PROTOCOL_WSTB,
+    BYPASS              => BYPASS,
     BITS                => BITS,
     BITS_WSTB           => BITS_WSTB,
     QPERIOD             => QPERIOD,
@@ -108,20 +110,21 @@ port map (
     clk_i               => clk_i,
     reset_i             => reset,
     --
-    a_i                 => a,
-    b_i                 => b,
-    z_i                 => z,
+    a_ext_i             => a_ext,
+    b_ext_i             => b_ext,
+    z_ext_i             => z_ext,
+    data_ext_i          => data_ext,
     posn_i              => posn,
     enable_i            => enable,
     -- Encoder I/O Pads
-    a_o                 => a_o,
-    b_o                 => b_o,
-    z_o                 => z_o,
-    sclk_i              => sclk_i,
-    sdat_i              => sdat_i,
-    sdat_o              => sdat_o,
+    A_OUT               => A_OUT,
+    B_OUT               => B_OUT,
+    Z_OUT               => Z_OUT,
+    CLK_IN              => CLK_IN,
+    DATA_OUT            => DATA_OUT,
     -- Block Parameters
     PROTOCOL            => PROTOCOL_i(2 downto 0),
+    BYPASS              => BYPASS(0),
     BITS                => BITS(7 downto 0),
     QPERIOD             => QPERIOD,
     QPERIOD_WSTB        => QPERIOD_WSTB,

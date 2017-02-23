@@ -31,6 +31,8 @@ port (
     CLK_IN              : in  std_logic_vector(ENC_NUM-1 downto 0);
     DATA_OUT            : out std_logic_vector(ENC_NUM-1 downto 0);
     CONN_OUT            : out std_logic_vector(ENC_NUM-1 downto 0);
+    -- Signals passed to internal bus
+    clk_int_o           : out std_logic_vector(ENC_NUM-1 downto 0);
     -- Block Input and Outputs
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
@@ -61,6 +63,9 @@ port map (
 -- Multiplex read data out from multiple instantiations
 read_data_o <= read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW))));
 
+-- Loopbacks onto system bus
+clk_int_o <= CLK_IN;
+
 --
 -- Instantiate ENCOUT Blocks :
 --  There are ENC_NUM amount of encoders on the board
@@ -87,13 +92,12 @@ port map (
     write_data_i        => write_data_i,
     write_ack_o         => open,
     -- Encoder I/O Pads
-    a_o                 => A_OUT(I),
-    b_o                 => B_OUT(I),
-    z_o                 => Z_OUT(I),
-    sclk_i              => CLK_IN(I),
-    sdat_i              => '0',
-    sdat_o              => DATA_OUT(I),
-    conn_o              => CONN_OUT(I),
+    A_OUT               => A_OUT(I),
+    B_OUT               => B_OUT(I),
+    Z_OUT               => Z_OUT(I),
+    CLK_IN              => CLK_IN(I),
+    DATA_OUT            => DATA_OUT(I),
+    CONN_OUT            => CONN_OUT(I),
     -- Position Bus Input
     PROTOCOL            => PROTOCOL(I),
     sysbus_i            => sysbus_i,

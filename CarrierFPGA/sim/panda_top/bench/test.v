@@ -9,7 +9,8 @@ wire [5:0]   ttlin_pad;
 
 //`define TESTNAME    "test.pcap.v"
 //`define TESTNAME    "test.pcomp.v"
-`define TESTNAME    "test.fmc-24vio.v"
+//`define TESTNAME    "test.fmc-24vio.v"
+`define TESTNAME    "test.encoder.v"
 
 reg [ 1:0]      wrs, rsp;
 reg [31:0]      REG_VALUE;

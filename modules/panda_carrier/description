@@ -13,6 +13,7 @@ LVDSOUT     LVDS output
 
 INENC       Input encoder
     PROTOCOL        Type of absolute/incremental protocol
+    BYPASS          Bypass/Pass Through encoder signals
     CLK_PERIOD      Clock rate
     FRAME_PERIOD    Frame rate
     BITS            Number of bits
@@ -23,18 +24,23 @@ INENC       Input encoder
     A               Quadrature A if in incremental mode
     B               Quadrature B if in incremental mode
     Z               Z index channel if in incremental mode
+    DATA            Data input from slave encoder
+    CLK             Clock output to slave encoder
     CONN            Signal detected
     TRANS           Position transtion
     VAL             Current position
 
 OUTENC      Output encoder
     PROTOCOL        Type of absolute/incremental protocol
+    BYPASS          Bypass/Pass Through encoder signals
     BITS            Number of bits
     QPERIOD         Quadrature prescalar
     ENABLE          Halt on falling edge, reset and enable on rising
     A               Input for A (only straight through)
     B               Input for B (only straight through)
     Z               Input for Z (only straight through)
+    DATA            Data output to master encoder
+    CLK             Clock input from master encoder
     VAL             Input for position (all other protocols)
     CONN            Input for connected
     QSTATE          Quadrature state
