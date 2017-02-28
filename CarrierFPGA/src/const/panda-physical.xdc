@@ -65,8 +65,6 @@ set_property PACKAGE_PIN K2  [get_ports {TTLOUT_PAD_O[9]}];
 set_property PACKAGE_PIN Y18  [get_ports {EXTCLK_P}];
 set_property PACKAGE_PIN Y19  [get_ports {EXTCLK_N}];
 
-create_clock -period 8.000    [get_ports EXTCLK_P]
-
 # -------------------------------------------------------------------
 # Slow Controller SPI Interface)
 # -------------------------------------------------------------------
@@ -154,28 +152,17 @@ set_property PACKAGE_PIN B4   [get_ports {FMC_CLK1_M2C_P}];
 
 # -------------------------------------------------------------------
 # MGT REF CLKS - Bank 112
-# ----------------------------------------------------------------------------
+# -------------------------------------------------------------------
 set_property PACKAGE_PIN U9 [get_ports GTXCLK0_P]
 set_property PACKAGE_PIN V9 [get_ports GTXCLK0_N]
 set_property PACKAGE_PIN U5 [get_ports GTXCLK1_P]
 set_property PACKAGE_PIN V5 [get_ports GTXCLK1_N]
 
 # -------------------------------------------------------------------
-# MGT Timing Constraints
+# SFP TX Enable (always)
 # -------------------------------------------------------------------
-create_clock -period 8.000  [get_ports GTXCLK0_P]
-create_clock -period 6.400  [get_ports GTXCLK1_P]
-
-# -------------------------------------------------------------------
-# Status register reads from GTX Loopback -> AXI
-# -------------------------------------------------------------------
-set_clock_groups -asynchronous \
-    -group clk_fpga_0 \
-    -group clk_fpga_1 \
-    -group FMC_CLK0_M2C_P \
-    -group FMC_CLK1_M2C_P \
-    -group [get_clocks -filter {NAME =~ *TXOUTCLK}] \
-    -group EXTCLK_P
+set_property PACKAGE_PIN AB21   [get_ports {SFP_TxDis[0]  }];   #SFP1_IO1
+set_property PACKAGE_PIN AB22   [get_ports {SFP_TxDis[1]  }];   #SFP2_IO1
 
 # -------------------------------------------------------------------
 # IOSTANDARD VCCOIO Constraints
@@ -197,17 +184,17 @@ set_property IOSTANDARD LVDS_25 [get_ports EXTCLK_P]
 # -------------------------------------------------------------------
 # Pack fixed carrier board IO into IOBs (modules not included)
 # -------------------------------------------------------------------
-set inputs [filter [all_inputs] {NAME =~ *TTL* || NAME =~ *LVDS* || NAME =~ *SPI* }]
-set outputs [filter [all_outputs] {NAME =~ *TTL* || NAME =~ *LVDS* || NAME =~ *SPI* }]
-set bidirs [filter [all_outputs] {NAME =~ *PAD_IO*}]
+#set inputs [filter [all_inputs] {NAME =~ *TTL* || NAME =~ *LVDS* || NAME =~ *SPI* }]
+#set outputs [filter [all_outputs] {NAME =~ *TTL* || NAME =~ *LVDS* || NAME =~ *SPI* }]
+#set bidirs [filter [all_outputs] {NAME =~ *PAD_IO*}]
 
-set_property iob true $inputs
-set_property iob true $outputs
-set_property iob true $bidirs
+#set_property iob true $inputs
+#set_property iob true $outputs
+#set_property iob true $bidirs
 
 # -------------------------------------------------------------------
 # Enable on-chip pulldown for floating inputs
 # -------------------------------------------------------------------
-set_property PULLTYPE PULLDOWN [get_ports TTLIN_PAD_I[*]]
-set_property PULLTYPE PULLDOWN [get_ports LVDSIN_PAD_I[*]]
+#set_property PULLTYPE PULLDOWN [get_ports TTLIN_PAD_I[*]]
+#set_property PULLTYPE PULLDOWN [get_ports LVDSIN_PAD_I[*]]
 

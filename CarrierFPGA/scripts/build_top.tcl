@@ -52,13 +52,15 @@ add_files -norecurse $BUILDIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
 add_files -norecurse $BUILDIR/ip_repo/fmcgtx/fmcgtx.xci
 add_files -norecurse $BUILDIR/ip_repo/sfpgtx/sfpgtx.xci
 #add_files -norecurse $BUILDIR/ip_repo/ila_32x8K/ila_32x8K.xci
-#read_edif $BUILDIR/ip_repo/icon.ngc
-#read_edif $BUILDIR/ip_repo/ila.ngc
 
 # Read constraint files
 read_xdc $SRCDIR/src/hdl/FMC/$FMC_DESIGN/const/fmc.xdc
 read_xdc $SRCDIR/src/hdl/SFP/$SFP_DESIGN/const/sfp.xdc
-read_xdc $SRCDIR/src/const/panda_top.xdc
+read_xdc $SRCDIR/src/const/panda-timing.xdc
+read_xdc $SRCDIR/src/const/panda-post_synth.xdc
+read_xdc $SRCDIR/src/const/panda-physical.xdc
+set_property used_in_synthesis false [get_files $SRCDIR/src/const/panda-post_synth.xdc]
+set_property used_in_synthesis false [get_files $SRCDIR/src/const/panda-physical.xdc]
 
 # Report IP Status before starting P&R
 report_ip_status
