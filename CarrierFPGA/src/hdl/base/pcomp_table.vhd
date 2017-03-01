@@ -26,7 +26,6 @@ generic (
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
     -- Block Input and Outputs
     enable_i            : in  std_logic;
     trig_i              : in  std_logic;
@@ -73,7 +72,7 @@ signal reset            : std_logic;
 signal TABLE_WORDS      : unsigned(31 downto 0);
 
 signal table_cycle      : unsigned(31 downto 0);
-signal table_ready      : std_logic;
+signal table_ready      : std_logic := '0';
 
 signal fifo_reset       : std_logic;
 signal fifo_rd_en       : std_logic;
@@ -105,7 +104,7 @@ out_o <= fifo_dout;
 table_end_o <= table_end;
 
 -- Reset for state machine
-reset <= reset_i or not table_ready or enable_fall;
+reset <= not table_ready or enable_fall;
 
 ---------------------------------------------------------------------------
 -- Asymetric 32/64-bit FIFO with 1K sample depth is used to store DMA
@@ -156,15 +155,11 @@ TABLE_WORDS <= unsigned(TABLE_LENGTH) srl 2;  -- Byte -> Dword
 
 process(clk_i) begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            table_ready <= '0';
-        else
-            if (TABLE_LENGTH_WSTB = '1') then
-                if (TABLE_WORDS = 0) then
-                    table_ready <= '0';
-                elsif (TABLE_WORDS /= 0) then
-                    table_ready <= '1';
-                end if;
+        if (TABLE_LENGTH_WSTB = '1') then
+            if (TABLE_WORDS = 0) then
+                table_ready <= '0';
+            elsif (TABLE_WORDS /= 0) then
+                table_ready <= '1';
             end if;
         end if;
     end if;

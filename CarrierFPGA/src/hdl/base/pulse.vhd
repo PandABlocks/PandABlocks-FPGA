@@ -16,7 +16,6 @@ entity pulse is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
     -- Block Input and Outputs
     inp_i               : in  std_logic;
     enable_i            : in  std_logic;
@@ -105,7 +104,7 @@ begin
 end process;
 
 -- Initial/Bitbus/Config Reset combined
-reset <= reset_i or DELAY_WSTB or WIDTH_WSTB or not enable_i;
+reset <= DELAY_WSTB or WIDTH_WSTB or not enable_i;
 
 -- Free running global timestamp counter, it will be the time resolution
 -- for pulse generation.

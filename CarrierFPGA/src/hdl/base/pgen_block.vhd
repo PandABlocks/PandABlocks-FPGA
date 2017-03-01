@@ -92,7 +92,6 @@ port map (
 pgen : entity work.pgen
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
 
     enable_i            => enable,
     trig_i              => trig,

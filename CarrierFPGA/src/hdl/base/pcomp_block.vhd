@@ -200,7 +200,6 @@ table_enable <= enable and USE_TABLE(0);
 table_inst : entity work.pcomp_table
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
 
     enable_i            => table_enable,
     trig_i              => table_read,

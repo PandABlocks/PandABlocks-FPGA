@@ -20,7 +20,6 @@ generic (
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
 
     -- Block Input and Outputs
     pcap_dat_i          : in  std_logic_vector(31 downto 0);
@@ -131,7 +130,7 @@ begin
 irq_o <= dma_irq;
 
 -- DMA engine reset
-reset <= reset_i or DMA_RESET;
+reset <= DMA_RESET;
 
 -- DMA error occurs when fifo is full or AXI transaction error
 -- This flag is used to abort ongoing pcap operation along with other flags

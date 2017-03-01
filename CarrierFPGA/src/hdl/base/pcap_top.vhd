@@ -266,7 +266,6 @@ port map (
 pcap_dma_inst : entity work.pcap_dma
 port map (
     clk_i                   => clk_i,
-    reset_i                 => reset_i,
 
     DMA_RESET               => DMA_RESET,
     DMA_INIT                => DMA_START,
