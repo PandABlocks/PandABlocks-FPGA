@@ -40,7 +40,7 @@ architecture rtl of pulse is
 component pulse_queue
 port (
     clk                 : in std_logic;
-    rst                 : in std_logic;
+    srst                : in std_logic;
     din                 : in std_logic_vector(48 DOWNTO 0);
     wr_en               : in std_logic;
     rd_en               : in std_logic;
@@ -132,7 +132,7 @@ end process;
 pulse_queue_inst : pulse_queue
 port map (
     clk         => clk_i,
-    rst         => reset,
+    srst        => reset,
     din         => pulse_queue_din,
     wr_en       => pulse_queue_wstb,
     rd_en       => pulse_queue_rstb,

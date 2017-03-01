@@ -53,7 +53,7 @@ architecture rtl of pgen is
 component pgen_dma_fifo
 port (
     clk                 : in std_logic;
-    rst                 : in std_logic;
+    srst                : in std_logic;
     din                 : in std_logic_vector(31 DOWNTO 0);
     wr_en               : in std_logic;
     rd_en               : in std_logic;
@@ -109,7 +109,7 @@ reset <= reset_i or not table_ready or enable_fall;
 --
 dma_fifo_inst : pgen_dma_fifo
 port map (
-    rst             => fifo_reset,
+    srst            => fifo_reset,
     clk             => clk_i,
     din             => dma_data_i,
     wr_en           => dma_valid_i,

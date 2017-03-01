@@ -75,7 +75,7 @@ constant BURST_LEN          : integer := AXI_BURST_LEN * AXI_ADDR_WIDTH/8;
 component pcap_dma_fifo
 port (
     clk                 : in std_logic;
-    rst                 : in std_logic;
+    srst                : in std_logic;
     din                 : in std_logic_vector(31 DOWNTO 0);
     wr_en               : in std_logic;
     rd_en               : in std_logic;
@@ -151,7 +151,7 @@ pcap_error <= pcap_status_i(2) or pcap_status_i(1);
 --
 dma_fifo_inst : pcap_dma_fifo
 port map (
-    rst             => reset,
+    srst            => reset,
     clk             => clk_i,
     din             => pcap_dat_i,
     wr_en           => pcap_wstb_i,

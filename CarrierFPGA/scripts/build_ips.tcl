@@ -22,6 +22,7 @@ set_property -dict [list \
     CONFIG.Input_Data_Width {49}    \
     CONFIG.Data_Count {true}        \
     CONFIG.Output_Data_Width {49}   \
+    CONFIG.Reset_Type {Synchronous_Reset} \
 ] [get_ips pulse_queue]
 
 generate_target all [get_files $origin_dir/pulse_queue/pulse_queue.xci]
@@ -40,6 +41,7 @@ set_property -dict [list \
     CONFIG.Data_Count {true}        \
     CONFIG.Output_Data_Width {32}   \
     CONFIG.Output_Depth {2048}      \
+    CONFIG.Reset_Type {Synchronous_Reset} \
 ] [get_ips pcap_dma_fifo]
 
 generate_target all [get_files $origin_dir/pcap_dma_fifo/pcap_dma_fifo.xci]
@@ -56,6 +58,7 @@ set_property -dict [list \
     CONFIG.Input_Data_Width {32}    \
     CONFIG.Data_Count {true}        \
     CONFIG.Output_Data_Width {32}   \
+    CONFIG.Reset_Type {Synchronous_Reset} \
 ] [get_ips pgen_dma_fifo]
 
 generate_target all [get_files $origin_dir/pgen_dma_fifo/pgen_dma_fifo.xci]
