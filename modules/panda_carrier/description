@@ -27,7 +27,6 @@ INENC       Input encoder
     DATA            Data input from slave encoder
     CLK             Clock output to slave encoder
     CONN            Signal detected
-    TRANS           Position transtion
     VAL             Current position
 
 OUTENC      Output encoder

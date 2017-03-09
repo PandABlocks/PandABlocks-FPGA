@@ -27,7 +27,6 @@ INENC       {{newBlockNo("INENC")}}
     DATA            {{newBitBus()}}
     CLK             {{newBlockReg(typ='bit_mux')}}
     CONN            {{newBitBus()}}
-    TRANS           {{newBitBus()}}
     VAL             {{newPosBus()}} / {{newPosBus(location='upper')}}
 
 OUTENC      {{newBlockNo("OUTENC")}}

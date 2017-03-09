@@ -199,7 +199,6 @@ signal outenc_buf_ctrl      : std_logic_vector(5 downto 0);
 -- Input Encoder
 signal inenc_val            : std32_array(ENC_NUM-1 downto 0);
 signal inenc_conn           : std_logic_vector(ENC_NUM-1 downto 0);
-signal inenc_trans          : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_a              : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_b              : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_z              : std_logic_vector(ENC_NUM-1 downto 0);
@@ -663,8 +662,7 @@ port map (
     CONN_OUT            => inenc_conn,
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => INPROT,
-    posn_o              => inenc_val,
-    posn_trans_o        => inenc_trans
+    posn_o              => inenc_val
 );
 
 ---------------------------------------------------------------------------
@@ -1182,7 +1180,6 @@ port map (
     INENC_Z         => inenc_z,
     INENC_DATA      => inenc_data,
     INENC_CONN      => inenc_conn,
-    INENC_TRANS     => inenc_trans,
     INENC_VAL       => inenc_val,
     -- QDEC Block
     QDEC_OUT        => qdec_out,

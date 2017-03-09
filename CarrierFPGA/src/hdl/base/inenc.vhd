@@ -49,8 +49,7 @@ port (
     STATUS              : out std_logic_vector(31 downto 0);
     STATUS_RSTB         : in  std_logic;
     -- Block Outputs
-    posn_o              : out std_logic_vector(31 downto 0);
-    posn_trans_o        : out std_logic
+    posn_o              : out std_logic_vector(31 downto 0)
 );
 end entity;
 
@@ -179,21 +178,6 @@ begin
                 posn <= (others => '0');
                 STATUS <= (others => '0');
         end case;
-    end if;
-end process;
-
--- Position change flag is used for debugging purpose by capturing
--- encoder data
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        posn_prev <= posn;
-
-        if (posn /= posn_prev) then
-            posn_trans_o <= '1';
-        else
-            posn_trans_o <= '0';
-        end if;
     end if;
 end process;
 

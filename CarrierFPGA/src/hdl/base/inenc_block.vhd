@@ -46,8 +46,7 @@ port (
     posbus_i            : in  posbus_t;
     DCARD_MODE          : in  std_logic_vector(31 downto 0);
     PROTOCOL            : out std_logic_vector(2 downto 0);
-    posn_o              : out std_logic_vector(31 downto 0);
-    posn_trans_o        : out std_logic
+    posn_o              : out std_logic_vector(31 downto 0)
 );
 end entity;
 
@@ -173,8 +172,7 @@ port map (
     STATUS              => STATUS,
     STATUS_RSTB         => STATUS_RSTB,
 
-    posn_o              => posn_o,
-    posn_trans_o        => posn_trans_o
+    posn_o              => posn_o
 );
 
 end rtl;

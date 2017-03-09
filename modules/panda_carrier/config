@@ -37,7 +37,6 @@ INENC[4]
     DATA            bit_out
     CLK             bit_mux
     CONN            bit_out
-    TRANS           bit_out
     VAL             pos_out     encoder
 
 OUTENC[4]
