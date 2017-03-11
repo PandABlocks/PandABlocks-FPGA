@@ -43,70 +43,38 @@ if { [get_projects -quiet] eq "" } {
 # CHANGE DESIGN NAME HERE
 set design_name panda_ps
 
-# If you do not already have an existing IP Integrator design open,
-# you can create a design using the following command:
-#    create_bd_design $design_name
+# This script was generated for a remote BD.
+set str_bd_folder /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/build/CarrierFPGA/panda_ps/panda_ps.srcs/sources_1/bd
+set str_bd_filepath ${str_bd_folder}/${design_name}/${design_name}.bd
 
-# Creating design if needed
-set errMsg ""
-set nRet 0
-
-set cur_design [current_bd_design -quiet]
-set list_cells [get_bd_cells -quiet]
-
-if { ${design_name} eq "" } {
-   # USE CASES:
-   #    1) Design_name not set
-
-   set errMsg "ERROR: Please set the variable <design_name> to a non-empty value."
-   set nRet 1
-
-} elseif { ${cur_design} ne "" && ${list_cells} eq "" } {
-   # USE CASES:
-   #    2): Current design opened AND is empty AND names same.
-   #    3): Current design opened AND is empty AND names diff; design_name NOT in project.
-   #    4): Current design opened AND is empty AND names diff; design_name exists in project.
-
-   if { $cur_design ne $design_name } {
-      puts "INFO: Changing value of <design_name> from <$design_name> to <$cur_design> since current design is empty."
-      set design_name [get_property NAME $cur_design]
-   }
-   puts "INFO: Constructing design in IPI design <$cur_design>..."
-
-} elseif { ${cur_design} ne "" && $list_cells ne "" && $cur_design eq $design_name } {
-   # USE CASES:
-   #    5) Current design opened AND has components AND same names.
-
-   set errMsg "ERROR: Design <$design_name> already exists in your project, please set the variable <design_name> to another value."
-   set nRet 1
-} elseif { [get_files -quiet ${design_name}.bd] ne "" } {
-   # USE CASES: 
-   #    6) Current opened design, has components, but diff names, design_name exists in project.
-   #    7) No opened design, design_name exists in project.
-
-   set errMsg "ERROR: Design <$design_name> already exists in your project, please set the variable <design_name> to another value."
-   set nRet 2
-
-} else {
-   # USE CASES:
-   #    8) No opened design, design_name not in project.
-   #    9) Current opened design, has components, but diff names, design_name not in project.
-
-   puts "INFO: Currently there is no design <$design_name> in project, so creating one..."
-
-   create_bd_design $design_name
-
-   puts "INFO: Making design <$design_name> as current_bd_design."
-   current_bd_design $design_name
-
+# Check if remote design exists on disk
+if { [file exists $str_bd_filepath ] == 1 } {
+   puts "ERROR: The remote BD file path <$str_bd_filepath> already exists!"
+   return 1
 }
 
-puts "INFO: Currently the variable <design_name> is equal to \"$design_name\"."
+# Check if design exists in memory
+set list_existing_designs [get_bd_designs -quiet $design_name]
+if { $list_existing_designs ne "" } {
+   puts "ERROR: The design <$design_name> already exists in this project!"
+   puts "ERROR: Will not create the remote BD <$design_name> at the folder <$str_bd_folder>."
 
-if { $nRet != 0 } {
-   puts $errMsg
-   return $nRet
+   return 1
 }
+
+# Check if design exists on disk within project
+set list_existing_designs [get_files */${design_name}.bd]
+if { $list_existing_designs ne "" } {
+   puts "ERROR: The design <$design_name> already exists in this project at location:"
+   puts "   $list_existing_designs"
+   puts "ERROR: Will not create the remote BD <$design_name> at the folder <$str_bd_folder>."
+
+   return 1
+}
+
+# Now can create the remote BD
+create_bd_design -dir $str_bd_folder $design_name
+current_bd_design $design_name
 
 ##################################################################
 # DESIGN PROCs
@@ -156,7 +124,6 @@ proc create_root_design { parentCell } {
   # Create ports
   set FCLK_CLK0 [ create_bd_port -dir O -type clk FCLK_CLK0 ]
   set_property -dict [ list CONFIG.ASSOCIATED_BUSIF {M00_AXI:S_AXI_HP0:S_AXI_HP1}  ] $FCLK_CLK0
-  set FCLK_CLK1 [ create_bd_port -dir O -type clk FCLK_CLK1 ]
   set FCLK_RESET0_N [ create_bd_port -dir O -from 0 -to 0 -type rst FCLK_RESET0_N ]
   set IRQ_F2P [ create_bd_port -dir I -from 0 -to 0 -type intr IRQ_F2P ]
   set_property -dict [ list CONFIG.PortWidth {1}  ] $IRQ_F2P
@@ -173,14 +140,14 @@ CONFIG.PCW_ENET0_ENET0_IO {MIO 16 .. 27} CONFIG.PCW_ENET0_GRP_MDIO_ENABLE {1} \
 CONFIG.PCW_ENET0_GRP_MDIO_IO {MIO 52 .. 53} CONFIG.PCW_ENET0_PERIPHERAL_CLKSRC {IO PLL} \
 CONFIG.PCW_ENET0_PERIPHERAL_ENABLE {1} CONFIG.PCW_ENET0_PERIPHERAL_FREQMHZ {1000 Mbps} \
 CONFIG.PCW_ENET0_RESET_ENABLE {1} CONFIG.PCW_ENET0_RESET_IO {MIO 47} \
-CONFIG.PCW_EN_CLK0_PORT {1} CONFIG.PCW_EN_CLK1_PORT {1} \
+CONFIG.PCW_EN_CLK0_PORT {1} CONFIG.PCW_EN_CLK1_PORT {0} \
 CONFIG.PCW_EN_CLK2_PORT {0} CONFIG.PCW_EN_CLK3_PORT {0} \
 CONFIG.PCW_EN_DDR {1} CONFIG.PCW_EN_RST0_PORT {1} \
 CONFIG.PCW_EN_RST1_PORT {0} CONFIG.PCW_EN_RST2_PORT {0} \
 CONFIG.PCW_EN_RST3_PORT {0} CONFIG.PCW_FCLK0_PERIPHERAL_CLKSRC {IO PLL} \
 CONFIG.PCW_FCLK1_PERIPHERAL_CLKSRC {IO PLL} CONFIG.PCW_FCLK2_PERIPHERAL_CLKSRC {IO PLL} \
 CONFIG.PCW_FCLK3_PERIPHERAL_CLKSRC {IO PLL} CONFIG.PCW_FCLK_CLK0_BUF {true} \
-CONFIG.PCW_FCLK_CLK1_BUF {true} CONFIG.PCW_FCLK_CLK2_BUF {false} \
+CONFIG.PCW_FCLK_CLK1_BUF {false} CONFIG.PCW_FCLK_CLK2_BUF {false} \
 CONFIG.PCW_FCLK_CLK3_BUF {false} CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {125} \
 CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {100} CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {33.333333} \
 CONFIG.PCW_FPGA3_PERIPHERAL_FREQMHZ {50} CONFIG.PCW_GPIO_EMIO_GPIO_ENABLE {0} \
@@ -310,7 +277,6 @@ CONFIG.preset {Default}  ] $processing_system7_0
   connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins proc_sys_reset_0/interconnect_aresetn] [get_bd_pins read_dma_interface/ARESETN] [get_bd_pins register_interface/ARESETN] [get_bd_pins write_dma_converter/s_axi_aresetn]
   connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_ports FCLK_RESET0_N] [get_bd_pins proc_sys_reset_0/peripheral_aresetn] [get_bd_pins read_dma_interface/M00_ARESETN] [get_bd_pins read_dma_interface/S00_ARESETN] [get_bd_pins register_interface/M00_ARESETN] [get_bd_pins register_interface/S00_ARESETN]
   connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_ports FCLK_CLK0] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP1_ACLK] [get_bd_pins read_dma_interface/ACLK] [get_bd_pins read_dma_interface/M00_ACLK] [get_bd_pins read_dma_interface/S00_ACLK] [get_bd_pins register_interface/ACLK] [get_bd_pins register_interface/M00_ACLK] [get_bd_pins register_interface/S00_ACLK] [get_bd_pins write_dma_converter/s_axi_aclk]
-  connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_ports FCLK_CLK1] [get_bd_pins processing_system7_0/FCLK_CLK1]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins proc_sys_reset_0/ext_reset_in] [get_bd_pins processing_system7_0/FCLK_RESET0_N]
 
   # Create address segments
@@ -333,6 +299,4 @@ CONFIG.preset {Default}  ] $processing_system7_0
 
 create_root_design ""
 
-
-puts "\n\nWARNING: This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 

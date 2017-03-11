@@ -31,7 +31,6 @@ port (
     -- DO NOT EDIT BELOW THIS LINE ---------------------
     -- Standard FMC Block ports, do not add to or delete
     clk_i               : in  std_logic;
-    clk_aux_i           : in  std_logic;
     reset_i             : in  std_logic;
     -- Bus Inputs
     bitbus_i            : in  std_logic_vector(127 downto 0);
