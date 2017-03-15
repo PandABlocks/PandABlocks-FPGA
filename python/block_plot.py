@@ -25,7 +25,7 @@ VERTICAL_STRETCH = 0.5
 # add our parser and config dirs
 parser_dir = os.path.join(
     os.path.dirname(__file__), "..", "tests", "sim_sequences")
-config_dir = os.path.join( os.path.dirname(__file__), "..", "config_d")
+config_dir = os.path.join( os.path.dirname(__file__), "..",os.environ['BUILD_DIR'], "config_d")
 
 
 def legend_label(text, x, y, off):

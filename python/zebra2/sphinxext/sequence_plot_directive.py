@@ -12,7 +12,7 @@ from zebra2.configparser import ConfigParser
 parser_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "tests", "sim_sequences")
 config_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "config_d")
+    os.path.dirname(__file__), "..", "..", "..", os.environ['BUILD_DIR'], "config_d")
 
 
 class sequence_plot_node(nodes.Element):
