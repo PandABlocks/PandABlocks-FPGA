@@ -42,6 +42,8 @@ add_files $SRCDIR/src/hdl/defines
 add_files $SRCDIR/src/hdl/base
 add_files $SRCDIR/src/hdl/FMC/$FMC_DESIGN/hdl
 add_files $SRCDIR/src/hdl/SFP/$SFP_DESIGN/hdl
+add_files -norecurse -verbose $SRCDIR/src/hdl/SFP/$SFP_DESIGN/hdl/sfpgt_loopback/gt_rom_init_rx.dat 
+add_files -norecurse -verbose $SRCDIR/src/hdl/SFP/$SFP_DESIGN/hdl/sfpgt_loopback/gt_rom_init_tx.dat
 
 # Import IPs
 add_files -norecurse $BUILDIR/ip_repo/pulse_queue/pulse_queue.xci
@@ -106,6 +108,9 @@ if {! [string match -nocase {*timing constraints are met*} $timingreport]} {
     send_msg_id showstopper-0 error "Timing constraints weren't met."
     return -code error
 }
+
+# STEP#post5: report IO
+report_io -verbose -file post_route_report_io.rpt
 
 #
 # STEP#5: generate a bitstream

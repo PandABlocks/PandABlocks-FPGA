@@ -7,6 +7,9 @@
 # IP Integrator Tcl commands easier.
 ################################################################
 
+# Build directory
+set CarrierFPGA_BUILDIR [lindex $argv 1]
+
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
@@ -44,7 +47,7 @@ if { [get_projects -quiet] eq "" } {
 set design_name panda_ps
 
 # This script was generated for a remote BD.
-set str_bd_folder /home/iu42/hardware/trunk/FPGA/PandA-Motion-Project/PandaFPGA/build/CarrierFPGA/panda_ps/panda_ps.srcs/sources_1/bd
+set str_bd_folder $CarrierFPGA_BUILDIR/panda_ps/panda_ps.srcs/sources_1/bd
 set str_bd_filepath ${str_bd_folder}/${design_name}/${design_name}.bd
 
 # Check if remote design exists on disk

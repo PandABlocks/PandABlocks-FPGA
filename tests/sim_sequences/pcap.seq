@@ -13,8 +13,10 @@ $ Arming and hard disarm
 ########################
 $ capture timestamp
 2       : START_WRITE=0
-4       : WRITE=62
-6       : WRITE=63
+4       : WRITE=37
+#config_d/registers/PCAP/CAPTURE_TS (1st element CAPTURE_TS)
+6       : WRITE=38
+#config_d/registers/PCAP/CAPTURE_TS (2nd element CAPTURE_TS_H)
 10      : ARM=0             : ACTIVE=1
 11      : ENABLE=1
 12      : CAPTURE=1
@@ -28,8 +30,8 @@ $ capture timestamp
 #########################
 $ capture too close together
 2       : START_WRITE=0
-4       : WRITE=62
-6       : WRITE=63
+4       : WRITE=37
+6       : WRITE=38
 8       : WRITE=0
 10      : ARM=0             : ACTIVE=1
 11      : ENABLE=1
@@ -45,6 +47,7 @@ $ capture too close together
 $ capture pos bus enc1
 2       : START_WRITE=0
 4       : WRITE=1
+#config_d/registers/PCAP/FRAME (1st element)?
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
 13      : CAPTURE=1
@@ -59,7 +62,8 @@ $ capture pos bus enc1
 #######################
 $ capture bit bus TTLIN
 2       : START_WRITE=0
-4       : WRITE=39
+4       : WRITE=42 
+#39 #config_d/registers/PCAP/BITS0
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
 13      : CAPTURE=1
@@ -74,26 +78,31 @@ $ capture bit bus TTLIN
 #######################
 $ capture bit bus SEQ
 2       : START_WRITE=0
-4       : WRITE=40
+4       : WRITE=43 
+#40 #config_d/registers/PCAP/BITS1
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
 13      : CAPTURE=1
 14      : CAPTURE=0                     : DATA=0
 15      : CAPTURE=1, SEQ1.OUTA=1
-16      : CAPTURE=0, SEQ3.OUTA=1        : DATA=0x40
+16      : CAPTURE=0, SEQ3.OUTA=1        : DATA=0x4
 18      : CAPTURE=1
-19      : CAPTURE=0                     : DATA=0x140
+19      : CAPTURE=0                     : DATA=0x14
 21      : CAPTURE=1,  SEQ1.OUTA=0
-22      :                               : DATA=0x100
+22      :                               : DATA=0x10
 24      : ENABLE=0, CAPTURE=0           :  ACTIVE=0
 
 #######################
 $ capture bit bus order
 2       : START_WRITE=0
-3       : WRITE=39
-4       : WRITE=40
-5       : WRITE=41
-6       : WRITE=42
+3       : WRITE=42
+#39#config_d/registers/PCAP/BITS0
+4       : WRITE=43
+#40#config_d/registers/PCAP/BITS1
+5       : WRITE=44
+#41#config_d/registers/PCAP/BITS2
+6       : WRITE=45
+#42#config_d/registers/PCAP/BITS3
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
 13      : CAPTURE=1, TTLIN1.VAL=1
@@ -200,7 +209,9 @@ $ framing on counters average mode
 #####################
 $ Capture offset
 2       : START_WRITE=0
-4       : WRITE=38
+4       : WRITE=40
+#43
+#40#config_d/registers/PCAP/BITS1
 5       : FRAMING_MASK=0x1
 6       : FRAMING_ENABLE=1
 10      : ARM=0                         : ACTIVE=1
