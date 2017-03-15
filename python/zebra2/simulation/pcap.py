@@ -46,16 +46,15 @@ class Pcap(Block):
         for i, v in enumerate(enc.fields["VAL"].reg[5:]):
             self.ext_names["ENC%d" % (i + 1)] = int(v)
         # And for the ADC accumulator
-        adc = self.parser.blocks["ADC"]
-        for i, v in enumerate(adc.fields["OUT"].reg[9:]):
-            self.ext_names["OUT%d" % (i + 1)] = int(v)
+        #adc = self.parser.blocks["ADC"]
+        #for i, v in enumerate(adc.fields["OUT"].reg[9:]):
+        #    self.ext_names["OUT%d" % (i + 1)] = int(v)
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
         # This is a ConfigBlock object for use to get our strings from
         b = self.config_block
-
         # Set attributes, and flag clear queue
         for name, value in changes.items():
             setattr(self, name, value)
