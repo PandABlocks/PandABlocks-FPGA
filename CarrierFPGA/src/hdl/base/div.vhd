@@ -13,7 +13,6 @@ entity div is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
     -- Block Input and Outputs
     inp_i               : in  std_logic;
     enable_i            : in  std_logic;
@@ -41,7 +40,7 @@ signal is_first_pulse   : std_logic;
 begin
 
 -- Reset on enable and parameter changes
-reset <= reset_i or not enable_i or FIRST_PULSE_WSTB or DIVISOR_WSTB;
+reset <= not enable_i or FIRST_PULSE_WSTB or DIVISOR_WSTB;
 
 -- Detect input pulse rising edege.
 input_rise <= inp_i and not input_prev;

@@ -13,7 +13,6 @@ entity srgate is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
     -- Block Input and Outputs
     set_i               : in  std_logic;
     rst_i               : in  std_logic;
@@ -65,19 +64,15 @@ rst <= rst_fall when (RST_EDGE = '0') else rst_rise;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
+        -- Simple SRGate logic
+        if (FORCE_RST = '1') then
             pulse <= '0';
-        else
-            -- Simple SRGate logic
-            if (FORCE_RST = '1') then
-                pulse <= '0';
-            elsif (FORCE_SET = '1') then
-                pulse <= '1';
-            elsif (rst = '1') then
-                pulse <= '0';
-            elsif (set = '1') then
-                pulse <= '1';
-            end if;
+        elsif (FORCE_SET = '1') then
+            pulse <= '1';
+        elsif (rst = '1') then
+            pulse <= '0';
+        elsif (set = '1') then
+            pulse <= '1';
         end if;
     end if;
 end process;

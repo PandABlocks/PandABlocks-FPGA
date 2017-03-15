@@ -86,7 +86,7 @@ PROTOCOL <= PROTOCOL_i(2 downto 0);
 CONN_OUT <= STATUS(0);
 
 -- Certain parameter changes must initiate a block reset.
-reset <= reset_i or PROTOCOL_WSTB or CLK_PERIOD_WSTB or
+reset <= PROTOCOL_WSTB or CLK_PERIOD_WSTB or
             FRAME_PERIOD_WSTB or BITS_WSTB;
 
 --------------------------------------------------------------------------

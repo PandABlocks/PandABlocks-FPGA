@@ -88,7 +88,6 @@ port map (
 adder : entity work.adder
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
 
     inpa_i              => inpa,
     inpb_i              => inpb,

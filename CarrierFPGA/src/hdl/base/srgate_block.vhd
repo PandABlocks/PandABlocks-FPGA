@@ -81,12 +81,9 @@ port map (
 srgate : entity work.srgate
 port map (
     clk_i           => clk_i,
-    reset_i         => reset_i,
-
     set_i           => set,
     rst_i           => rst,
     out_o           => out_o,
-
     SET_EDGE        => SET_EDGE(0),
     RST_EDGE        => RST_EDGE(0),
     FORCE_SET       => FORCE_SET,

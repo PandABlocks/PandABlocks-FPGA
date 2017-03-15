@@ -18,7 +18,6 @@ entity adder is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
     -- Block Input and Outputs
     inpa_i              : in  std_logic_vector(31 downto 0);
     inpb_i              : in  std_logic_vector(31 downto 0);

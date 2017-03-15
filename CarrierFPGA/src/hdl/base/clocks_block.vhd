@@ -80,7 +80,7 @@ port map (
     D_PERIOD_WSTB       => D_PERIOD_WSTB
 );
 
-reset <= reset_i or A_PERIOD_WSTB or B_PERIOD_WSTB or
+reset <= A_PERIOD_WSTB or B_PERIOD_WSTB or
             C_PERIOD_WSTB or D_PERIOD_WSTB;
 
 --
@@ -103,4 +103,3 @@ port map (
 );
 
 end rtl;
-

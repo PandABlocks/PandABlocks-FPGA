@@ -13,7 +13,6 @@ entity lut is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
     -- Block Input and Outputs
     inpa_i              : in  std_logic;
     inpb_i              : in  std_logic;
@@ -39,14 +38,9 @@ index <= inpa_i & inpb_i & inpc_i & inpd_i & inpe_i;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            out_o <= '0';
-        else
-            out_o <= FUNC(to_integer(index));
-        end if;
+        out_o <= FUNC(to_integer(index));
     end if;
 end process;
-
 
 end rtl;
 
