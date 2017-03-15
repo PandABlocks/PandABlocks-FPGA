@@ -6,3 +6,6 @@ t share/panda/config_d config_d/description
 # Firmware
 b share/panda CarrierFPGA/panda_top.bit
 b share/panda SlowFPGA/slow_top.bin
+# Documentation
+d share/panda/html
+t share/panda/html html/*
