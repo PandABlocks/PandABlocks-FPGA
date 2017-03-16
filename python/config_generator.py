@@ -186,13 +186,13 @@ def main(argv):
     #read in app config file
     try:
         opts, args = getopt.getopt(argv, "ha:", ["appfile="])
-        print opts, args
     except getopt.GetoptError:
         print 'config_generator.py -a <appfile>'
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
             print 'config_generator.py -a <appfile>'
+            sys.exit(2)
         elif opt in ("-a", "--appfile"):
             appfile = arg
     module_info, app_config = cfg.parse_app_file(appfile) #this should be a param

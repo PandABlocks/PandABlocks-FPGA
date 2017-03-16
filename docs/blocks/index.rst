@@ -20,3 +20,11 @@ Each block is documented with examples
     pcap
     pgen
     adder
+    inenc
+    lvdsin
+    lvdsout
+    outenc
+    posenc
+    qdec
+    ttlin
+    ttlout

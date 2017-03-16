@@ -1,3 +1,5 @@
+# THE REGISTER VALUES IN THIS SEQUENCE ARE TAKEN FROM THE CONFIG OF THE
+# fmc_lback-sfp_lback app
 ########################
 $ Arming and soft disarm
 3       : ARM=0             : ACTIVE=1
@@ -71,6 +73,7 @@ $ capture bit bus TTLIN
 15      : CAPTURE=1, TTLIN1.VAL=1
 16      : CAPTURE=0, TTLIN3.VAL=1       : DATA=0x4
 18      : CAPTURE=1
+# TTLIN3.VAL is on allocated 4 (0x10 on posbus)
 19      : CAPTURE=0                     : DATA=0x14
 21      : CAPTURE=1, TTLIN1.VAL=0
 22      : ENABLE=0, CAPTURE=0           : DATA=0x10, ACTIVE=0
@@ -78,18 +81,20 @@ $ capture bit bus TTLIN
 #######################
 $ capture bit bus SEQ
 2       : START_WRITE=0
-4       : WRITE=43 
+4       : WRITE=43
 #40 #config_d/registers/PCAP/BITS1
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
 13      : CAPTURE=1
 14      : CAPTURE=0                     : DATA=0
 15      : CAPTURE=1, SEQ1.OUTA=1
-16      : CAPTURE=0, SEQ3.OUTA=1        : DATA=0x4
+# SEQ1.OUTA is on allocated 58 (0x4000000 on posbus)
+16      : CAPTURE=0, SEQ3.OUTA=1        : DATA=0x4000000
 18      : CAPTURE=1
-19      : CAPTURE=0                     : DATA=0x14
+# SEQ3.OUTA is on allocated 58 (0x10000000 on posbus)
+19      : CAPTURE=0                     : DATA=0x14000000
 21      : CAPTURE=1,  SEQ1.OUTA=0
-22      :                               : DATA=0x10
+22      :                               : DATA=0x10000000
 24      : ENABLE=0, CAPTURE=0           :  ACTIVE=0
 
 #######################
@@ -111,22 +116,23 @@ $ capture bit bus order
 16      :                               : DATA=0
 17      : CAPTURE=1,SEQ1.OUTA=1         : DATA=0
 18      : CAPTURE=0                     : DATA=0x4
-19      :                               : DATA=0x40
+19      :                               : DATA=0x4000000
 20      :                               : DATA=0
 21      : CAPTURE=1, COUNTER8.CARRY=1   : DATA=0
 22      : CAPTURE=0                     : DATA=0x4
-23      :                               : DATA=0x40
+23      :                               : DATA=0x4000000
 24      :                               : DATA=0
-25      : CAPTURE=1, INENC1.A=1         : DATA=0x2
-26      : CAPTURE=0                     : DATA=0x4
-27      :                               : DATA=0x40
-28      :                               : DATA=0x4
-29      :                               : DATA=0x2
+25      : CAPTURE=1, INENC1.A=1         : DATA=0x20
+26      : CAPTURE=0                     : DATA=0x404
+27      :                               : DATA=0x4000000
+28      :                               : DATA=0x0
+29      :                               : DATA=0x20
 
 #####################
 $ framing on counters
 2       : START_WRITE=0
-4       : WRITE=12
+#12#config_d/registers/COUNTER (first val)
+4       : WRITE=11   
 5       : FRAMING_MASK=0x1000
 6       : FRAMING_ENABLE=1
 10      : ARM=0                         : ACTIVE=1
@@ -147,12 +153,13 @@ $ framing on counters
 22      : CAPTURE=1
 23      : COUNTER1.OUT=35, CAPTURE=0
 25      : FRAME=1
-26      : FRAME=0, ENABLE=0             : DATA=5, ACTIVE=0
+26      : FRAME=0, ENABLE=0             : DATA=50, ACTIVE=0
 
 #####################
 $ Capture before first frame
 2       : START_WRITE=0
-4       : WRITE=12
+#12#config_d/registers/COUNTER (first val)
+4       : WRITE=11   
 5       : FRAMING_MASK=0x1000
 6       : FRAMING_ENABLE=1
 10      : ARM=0                         : ACTIVE=1
@@ -166,7 +173,8 @@ $ Capture before first frame
 #####################
 $ More than one capture within a frame
 2       : START_WRITE=0
-4       : WRITE=12
+#12#config_d/registers/COUNTER (first val)
+4       : WRITE=11   
 5       : FRAMING_MASK=0x1000
 6       : FRAMING_ENABLE=1
 10      : ARM=0                         : ACTIVE=1
@@ -182,7 +190,8 @@ $ More than one capture within a frame
 #####################
 $ framing on counters average mode
 2       : START_WRITE=0
-4       : WRITE=12
+#12#config_d/registers/COUNTER (first val)
+4       : WRITE=11   
 5       : FRAMING_MASK=0x1000
 6       : FRAMING_ENABLE=1
 7       : FRAMING_MODE=0x1000
@@ -194,7 +203,7 @@ $ framing on counters average mode
 14      : CAPTURE=0
 15      : COUNTER1.OUT=20
 16      : FRAME=1
-17      : FRAME=0                       : DATA=15
+17      : FRAME=0                       : DATA=10
 18      : COUNTER1.OUT=30
 # Dead frame
 19      : FRAME=1
@@ -204,7 +213,7 @@ $ framing on counters average mode
 22      : CAPTURE=1
 23      : COUNTER1.OUT=35, CAPTURE=0
 25      : FRAME=1
-26      : FRAME=0, ENABLE=0             : DATA=32, ACTIVE=0
+26      : FRAME=0, ENABLE=0             : DATA=50, ACTIVE=0
 
 #####################
 $ Capture offset
