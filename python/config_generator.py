@@ -43,23 +43,23 @@ class ConfigGenerator(object):
 
     def generate_output_file(self, app_config, out_dir, variables):
         self.start_empty_file(out_dir)
-        output = self.render_template(os.path.join("base/", out_dir))
+        output = self.render_template(os.path.join("base/", "config", out_dir))
         self.write_output_file(out_dir, output)
-        output = self.render_template(os.path.join("panda_carrier/", out_dir))
+        output = self.render_template(os.path.join("panda_carrier/", "config", out_dir))
         self.write_output_file(out_dir, output)
         for config in app_config.keys():
             output = self.render_template(
-                os.path.join(config.lower(),out_dir),
+                os.path.join(config.lower(),'config', out_dir),
                 variables)
             self.write_output_file(out_dir, output)
 
     def generate_description(self, app_config, out_dir):
         self.start_empty_file(out_dir)
-        desc_file = os.path.join(MODULE_DIR, "panda_carrier", "description")
+        desc_file = os.path.join(MODULE_DIR, "panda_carrier", "config", "description")
         with open(desc_file) as infile:
             self.write_output_file(out_dir, infile.read())
         for config in app_config.keys():
-            desc_file = os.path.join(MODULE_DIR, config.lower(), "description")
+            desc_file = os.path.join(MODULE_DIR, config.lower(), "config", "description")
             if os.path.isfile(desc_file):
                 with open(desc_file) as infile:
                     self.write_output_file(out_dir, infile.read())
@@ -115,7 +115,7 @@ class ConfigGenerator(object):
 
     def checkBlockMax(self, app_config):
         for block in self.module_dir.keys():
-            meta_file = os.path.join(MODULE_DIR, block.lower(), "meta")
+            meta_file = os.path.join(MODULE_DIR, block.lower(),"config", "meta")
             meta_info = self.parse_meta_file(meta_file, block)
             #check the defined number in the config against the max in the meta
             if int(app_config[block.split('_')[0]]) > int(meta_info["MAX"]):
