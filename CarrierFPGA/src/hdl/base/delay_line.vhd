@@ -48,10 +48,11 @@ begin
 process(clk_i) begin
     if rising_edge(clk_i) then
         taps_line <= taps_line(TAPS-2 downto 0) & data_i;
+        -- Output register
+        data_o <= taps_line(to_integer(unsigned(DELAY)));
     end if;
 end process;
 
-data_o <= taps_line(to_integer(unsigned(DELAY)));
 
 end rtl;
 
