@@ -82,7 +82,6 @@ port map (
 counter : entity work.counter
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
 
     enable_i            => enable,
     trigger_i           => trig,

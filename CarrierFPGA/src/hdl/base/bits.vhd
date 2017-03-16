@@ -19,7 +19,6 @@ entity bits is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
     -- Block Input and Outputs
     zero_o              : out std_logic;
     one_o               : out std_logic;
@@ -46,17 +45,10 @@ one_o <= '1';
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            softa_o <= '0';
-            softb_o <= '0';
-            softc_o <= '0';
-            softd_o <= '0';
-        else
-            softa_o <= SOFTA_SET;
-            softb_o <= SOFTB_SET;
-            softc_o <= SOFTC_SET;
-            softd_o <= SOFTD_SET;
-        end if;
+        softa_o <= SOFTA_SET;
+        softb_o <= SOFTB_SET;
+        softc_o <= SOFTC_SET;
+        softd_o <= SOFTD_SET;
     end if;
 end process;
 

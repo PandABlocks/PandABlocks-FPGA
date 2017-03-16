@@ -19,7 +19,6 @@ entity counter is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
     -- Block Input and Outputs
     enable_i            : in  std_logic;
     trigger_i           : in  std_logic;
@@ -40,7 +39,7 @@ signal trigger_prev     : std_logic;
 signal trigger_rise     : std_logic;
 signal enable_prev      : std_logic;
 signal enable_rise      : std_logic;
-signal counter          : unsigned(32 downto 0);
+signal counter          : unsigned(32 downto 0) := (others => '0');
 
 begin
 
@@ -66,22 +65,18 @@ enable_rise <= enable_i and not enable_prev;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            counter <= (others => '0');
-        else
-            -- Load the counter
-            if (START_LOAD = '1') then
-                counter <= unsigned('0' & START);
-            -- Re-load on enable rising edge
-            elsif (enable_rise = '1') then
-                counter <= unsigned('0' & START);
-            -- Count up/down on trigger
-            elsif (enable_i = '1' and trigger_rise = '1') then
-                if (DIR = '0') then
-                    counter <= counter + unsigned(STEP);
-                else
-                    counter <= counter - unsigned(STEP);
-                end if;
+        -- Load the counter
+        if (START_LOAD = '1') then
+            counter <= unsigned('0' & START);
+        -- Re-load on enable rising edge
+        elsif (enable_rise = '1') then
+            counter <= unsigned('0' & START);
+        -- Count up/down on trigger
+        elsif (enable_i = '1' and trigger_rise = '1') then
+            if (DIR = '0') then
+                counter <= counter + unsigned(STEP);
+            else
+                counter <= counter - unsigned(STEP);
             end if;
         end if;
     end if;

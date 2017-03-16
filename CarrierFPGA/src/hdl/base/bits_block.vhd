@@ -88,7 +88,6 @@ port map (
 bits_inst  : entity work.bits
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
 
     zero_o              => zero_o,
     one_o               => one_o,

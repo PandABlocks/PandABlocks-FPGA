@@ -88,7 +88,6 @@ port map (
 div : entity work.div
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
 
     inp_i               => inp,
     enable_i            => enable,
