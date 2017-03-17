@@ -9,9 +9,12 @@ TOP := $(CURDIR)
 export LM_LICENSE_FILE
 export BUILD_DIR
 
+TARGET = PandABox
+
 DOCS_BUILD_DIR = $(BUILD_DIR)/html
 SLOW_FPGA_BUILD_DIR = $(BUILD_DIR)/SlowFPGA
 FPGA_BUILD_DIR = $(BUILD_DIR)/CarrierFPGA
+TARGET_DIR = $(TOP)/targets/$(TARGET)
 
 default: $(DEFAULT_TARGETS)
 .PHONY: default
@@ -36,25 +39,22 @@ docs: $(DOCS_BUILD_DIR)/index.html
 APP_FILE = $(TOP)/apps/$(APP_NAME)
 
 # Extract FMC and SFP design names from config file
-FMC_DESIGN = $(shell sed -n '/^FMC_/{s///;s/ .*//;p}' $(APP_FILE))
-SFP_DESIGN = $(shell sed -n '/^SFP_/{s///;s/ .*//;p}' $(APP_FILE))
+#FMC_DESIGN = $(shell sed -n '/^FMC_/{s///;s/ .*//;p}' $(APP_FILE))
+#SFP_DESIGN = $(shell sed -n '/^SFP_/{s///;s/ .*//;p}' $(APP_FILE))
+FMC_DESIGN = fmc_loopback
+SFP_DESIGN = sfp_loopback
 
 INCR_DESIGN = false
 
 carrier-fpga: $(FPGA_BUILD_DIR)
 	rm -rf $(BUILD_DIR)/config_d
-	rm -rf $(TOP)/CarrierFPGA/src/hdl/autogen
+	rm -rf $(BUILD_DIR)/CarrierFPGA/autogen
 	cd python && ./config_generator.py -a $(APP_FILE)
 	cd python && ./vhdl_generator.py
 	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
-	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) \
+	    TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(FPGA_BUILD_DIR) \
 		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN) \
 			INCR_DESIGN=$(INCR_DESIGN)
-
-devicetree: $(FPGA_BUILD_DIR)
-	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
-	    TOP=$(TOP) OUTDIR=$(FPGA_BUILD_DIR) TAR_REPO=$(TAR_REPO) \
-		DEVTREE_VER=$(DEVTREE_VER) devicetree
 
 slow-fpga: $(SLOW_FPGA_BUILD_DIR) tools/virtexHex2Bin
 	source $(ISE)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
@@ -63,10 +63,7 @@ slow-fpga: $(SLOW_FPGA_BUILD_DIR) tools/virtexHex2Bin
 tools/virtexHex2Bin : tools/virtexHex2Bin.c
 	gcc -o $@ $<
 
-sw_clean :
-	$(MAKE) -f $(TOP)/CarrierFPGA/Makefile TOP=$(TOP) sw_clean
-
-.PHONY: carrier-fpga slow-fpga devicetree sw_clean
+.PHONY: carrier-fpga slow-fpga
 
 # -------------------------------------------------------------------------
 # Build installation package
@@ -94,13 +91,4 @@ clean:
 	find -name '*.pyc' -delete
 
 .PHONY: clean
-
-# 
-# DEPLOY += $(PANDA_KO)
-# DEPLOY += $(SERVER)
-# 
-# deploy: $(DEPLOY)
-# 	scp $^ root@172.23.252.202:/opt
-# 
-# .PHONY: deploy
 
