@@ -79,32 +79,23 @@ write_addr <= to_integer(unsigned(write_address_i));
 REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
 {%  for regname, reg in block.registers.iteritems() %}
 {%      if reg[1].cls in ['param', 'write', 'table', 'time', 'bit_mux', 'pos_mux'] %}
-            {{regname}} <= (others => '0');
-            {{regname}}_WSTB <= '0';
-{%      endif %}
-{%  endfor %}
-        else
-{%  for regname, reg in block.registers.iteritems() %}
-{%      if reg[1].cls in ['param', 'write', 'table', 'time', 'bit_mux', 'pos_mux'] %}
-            {{regname}}_WSTB <= '0';
+        {{regname}}_WSTB <= '0';
 {%      endif %}
 {%  endfor %}
 
-            if (write_strobe_i = '1') then
-                -- Input Select Control Registers
+        if (write_strobe_i = '1') then
+            -- Input Select Control Registers
 {%  for regname, reg in block.registers.iteritems() %}
 {%      if reg[1].cls in ['param', 'write', 'table', 'time', 'bit_mux', 'pos_mux'] %}
-                if (write_addr = {{block.name}}_{{regname}}) then
-                    {{regname}} <= write_data_i;
-                    {{regname}}_WSTB <= '1';
-                end if;
-{%      endif %}
-{%  endfor %}
-
+            if (write_addr = {{block.name}}_{{regname}}) then
+                {{regname}} <= write_data_i;
+                {{regname}}_WSTB <= '1';
             end if;
+{%      endif %}
+{%  endfor %}
+
         end if;
     end if;
 end process;
@@ -115,20 +106,16 @@ end process;
 REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            read_data_o <= (others => '0');
-        else
-            case (read_addr) is
+        case (read_addr) is
 {%  for fieldname, field in block.fields.iteritems() %}
 {%      if field.cls in ['read'] %}
-                when {{block.name}}_{{fieldname}} =>
-                    read_data_o <= {{fieldname}};
+            when {{block.name}}_{{fieldname}} =>
+                read_data_o <= {{fieldname}};
 {%      endif %}
 {%  endfor %}
-                when others =>
-                    read_data_o <= (others => '0');
-            end case;
-        end if;
+            when others =>
+                read_data_o <= (others => '0');
+        end case;
     end if;
 end process;
 
