@@ -22,7 +22,6 @@ entity reg is
 port (
     -- Clock and Reset
     clk_i                   : in  std_logic;
-    reset_i                 : in  std_logic;
     -- Block register interface
     BIT_READ_RST            : in  std_logic;
     BIT_READ_RSTB           : in  std_logic;
@@ -83,37 +82,30 @@ end process;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            index <= (others => '0');
-            sbus_change <= (others => (others => '0'));
-            sbus_change_latched <= (others => (others => '0'));
-            sbus_latched <= (others => (others => '0'));
-        else
-            -- Latch System Bus and Change Registers
-            if (BIT_READ_RST = '1') then
-                sbus_latched <= sbus;
-                sbus_change_latched <= sbus_change;
-            end if;
-
-            -- 16-read strobes will read all system bus and changed flags.
-            if (BIT_READ_RST = '1') then
-                index <= (others => '0');
-            elsif (BIT_READ_RSTB = '1') then
-                index <= index + 1;
-            end if;
-
-            -- Change register is cleared on read, and it keeps track of changes
-            -- on the system bus.
-            sbus_prev <= sbus;
-            for I in 0 to 7 loop
-                -- Reset/Clear to current change status rather than 0.
-                if (BIT_READ_RST = '1') then
-                    sbus_change(I) <= sbus(I) xor sbus_prev(I);
-                else
-                    sbus_change(I) <= (sbus(I) xor sbus_prev(I)) or sbus_change(I);
-                end if;
-            end loop;
+        -- Latch System Bus and Change Registers
+        if (BIT_READ_RST = '1') then
+            sbus_latched <= sbus;
+            sbus_change_latched <= sbus_change;
         end if;
+
+        -- 16-read strobes will read all system bus and changed flags.
+        if (BIT_READ_RST = '1') then
+            index <= (others => '0');
+        elsif (BIT_READ_RSTB = '1') then
+            index <= index + 1;
+        end if;
+
+        -- Change register is cleared on read, and it keeps track of changes
+        -- on the system bus.
+        sbus_prev <= sbus;
+        for I in 0 to 7 loop
+            -- Reset/Clear to current change status rather than 0.
+            if (BIT_READ_RST = '1') then
+                sbus_change(I) <= sbus(I) xor sbus_prev(I);
+            else
+                sbus_change(I) <= (sbus(I) xor sbus_prev(I)) or sbus_change(I);
+            end if;
+        end loop;
     end if;
 end process;
 
@@ -131,35 +123,28 @@ pbus <= posbus_i;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            p_index <= (others => '0');
-            pbus_change <= (others => '0');
-            pbus_latched <= (others => (others => '0'));
-            pbus_change_latched <= (others => '0');
-        else
-            -- Latch Position Bus and Change Registers
-            if (POS_READ_RST = '1') then
-                pbus_latched <= posbus_i;
-                pbus_change_latched <= pbus_change;
-            end if;
-
-            -- 32-read strobes will read all position bus fields.
-            if (POS_READ_RST = '1') then
-                p_index <= (others => '0');
-            elsif (POS_READ_RSTB = '1') then
-                p_index <= p_index + 1;
-            end if;
-
-            pbus_prev <= pbus;
-            for I in 0 to 31 loop
-                -- Reset/Clear to current change status rather than 0.
-                if (POS_READ_RST = '1') then
-                    pbus_change(I) <= COMP(pbus(I), pbus_prev(I));
-                else
-                    pbus_change(I) <= COMP(pbus(I), pbus_prev(I)) or pbus_change(I);
-                end if;
-            end loop;
+        -- Latch Position Bus and Change Registers
+        if (POS_READ_RST = '1') then
+            pbus_latched <= posbus_i;
+            pbus_change_latched <= pbus_change;
         end if;
+
+        -- 32-read strobes will read all position bus fields.
+        if (POS_READ_RST = '1') then
+            p_index <= (others => '0');
+        elsif (POS_READ_RSTB = '1') then
+            p_index <= p_index + 1;
+        end if;
+
+        pbus_prev <= pbus;
+        for I in 0 to 31 loop
+            -- Reset/Clear to current change status rather than 0.
+            if (POS_READ_RST = '1') then
+                pbus_change(I) <= COMP(pbus(I), pbus_prev(I));
+            else
+                pbus_change(I) <= COMP(pbus(I), pbus_prev(I)) or pbus_change(I);
+            end if;
+        end loop;
     end if;
 end process;
 

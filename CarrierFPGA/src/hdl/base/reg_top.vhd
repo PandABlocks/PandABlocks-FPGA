@@ -30,7 +30,6 @@ entity reg_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -87,23 +86,18 @@ write_address <= to_integer(unsigned(write_address_i));
 REG_WRITE : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            BIT_READ_RST <= '0';
-            POS_READ_RST <= '0';
-        else
-            BIT_READ_RST <= '0';
-            POS_READ_RST <= '0';
+        BIT_READ_RST <= '0';
+        POS_READ_RST <= '0';
 
-            if (write_strobe_i = '1') then
-                -- System Bus Read Start
-                if (write_address = REG_BIT_READ_RST) then
-                    BIT_READ_RST <= '1';
-                end if;
+        if (write_strobe_i = '1') then
+            -- System Bus Read Start
+            if (write_address = REG_BIT_READ_RST) then
+                BIT_READ_RST <= '1';
+            end if;
 
-                -- Position Bus Read Start
-                if (write_address = REG_POS_READ_RST) then
-                    POS_READ_RST <= '1';
-                end if;
+            -- Position Bus Read Start
+            if (write_address = REG_POS_READ_RST) then
+                POS_READ_RST <= '1';
             end if;
         end if;
     end if;
@@ -123,28 +117,24 @@ POS_READ_RSTB <= '1' when (read_ack = '1' and
 REG_READ : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            read_data_o <= (others => '0');
-        else
-            case (read_address) is
-                when REG_FPGA_VERSION =>
-                    read_data_o <= FPGA_VERSION;
-                when REG_FPGA_BUILD =>
-                    read_data_o <= FPGA_VERSION;
-                when REG_SLOW_VERSION =>
-                    read_data_o <= SLOW_FPGA_VERSION;
-                when REG_BIT_READ_VALUE =>
-                    read_data_o <= BIT_READ_VALUE;
-                when REG_POS_READ_VALUE =>
-                    read_data_o <= POS_READ_VALUE;
-                when REG_POS_READ_CHANGES =>
-                    read_data_o <= POS_READ_CHANGES;
-                when REG_SLOW_REGISTER_STATUS =>
-                    read_data_o <= ZEROS(31) & cmd_ready_n_i;
-                when others =>
-                    read_data_o <= (others => '0');
-            end case;
-        end if;
+        case (read_address) is
+            when REG_FPGA_VERSION =>
+                read_data_o <= FPGA_VERSION;
+            when REG_FPGA_BUILD =>
+                read_data_o <= FPGA_VERSION;
+            when REG_SLOW_VERSION =>
+                read_data_o <= SLOW_FPGA_VERSION;
+            when REG_BIT_READ_VALUE =>
+                read_data_o <= BIT_READ_VALUE;
+            when REG_POS_READ_VALUE =>
+                read_data_o <= POS_READ_VALUE;
+            when REG_POS_READ_CHANGES =>
+                read_data_o <= POS_READ_CHANGES;
+            when REG_SLOW_REGISTER_STATUS =>
+                read_data_o <= ZEROS(31) & cmd_ready_n_i;
+            when others =>
+                read_data_o <= (others => '0');
+        end case;
     end if;
 end process;
 
@@ -154,7 +144,6 @@ end process;
 reg_inst : entity work.reg
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
 
     BIT_READ_RST        => BIT_READ_RST,
     BIT_READ_RSTB       => BIT_READ_RSTB,

@@ -936,7 +936,6 @@ port map (
 reg_inst : entity work.reg_top
 port map (
     clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
 
     read_strobe_i       => read_strobe(REG_CS),
     read_address_i      => read_address,
