@@ -13,7 +13,7 @@ TARGET = PandABox
 
 DOCS_BUILD_DIR = $(BUILD_DIR)/html
 SLOW_FPGA_BUILD_DIR = $(BUILD_DIR)/SlowFPGA
-FPGA_BUILD_DIR = $(BUILD_DIR)/CarrierFPGA
+FPGA_BUILD_DIR = $(BUILD_DIR)/$(TARGET)
 TARGET_DIR = $(TOP)/targets/$(TARGET)
 
 default: $(DEFAULT_TARGETS)
@@ -51,7 +51,7 @@ carrier-fpga: $(FPGA_BUILD_DIR)
 	rm -rf $(BUILD_DIR)/CarrierFPGA/autogen
 	cd python && ./config_generator.py -a $(APP_FILE)
 	cd python && ./vhdl_generator.py
-	$(MAKE) -C $< -f $(TOP)/CarrierFPGA/Makefile VIVADO=$(VIVADO) \
+	$(MAKE) -C $< -f $(TARGET_DIR)/Makefile VIVADO=$(VIVADO) \
 	    TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(FPGA_BUILD_DIR) \
 		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN) \
 			INCR_DESIGN=$(INCR_DESIGN)
@@ -72,7 +72,6 @@ tools/virtexHex2Bin : tools/virtexHex2Bin.c
 ZPKG_VERSION = $(BOARD)-FMC_$(FMC_DESIGN)_SFP_$(SFP_DESIGN)-$(FIRMWARE)
 
 zpkg: etc/panda-fpga.list $(FIRMWARE_BUILD)
-#	$(error Still need to specify FIRMWARE_BUILD dependencies)
 	rm -f $(BUILD_DIR)/*.zpg
 	$(MAKE_ZPKG) -t $(BUILD_DIR) -b $(BUILD_DIR) -d $(BUILD_DIR) \
             $< $(ZPKG_VERSION)

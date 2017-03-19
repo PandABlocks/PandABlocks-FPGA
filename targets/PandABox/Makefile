@@ -8,9 +8,6 @@ RUNVIVADO = source $(VIVADO) && vivado
 
 include $(TOP)/VERSION
 
-SRCDIR = $(TOP)/CarrierFPGA
-HDLDIR = $(TOP)/CarrierFPGA/src/hdl
-
 #####################################################################
 # Project related files (DON'T TOUCH)
 
@@ -50,8 +47,7 @@ $(PS_CORE) :
 	$(RUNVIVADO) -mode batch -source $(TARGET_DIR)/scripts/build_ps.tcl \
 	    -tclargs $(TARGET_DIR) -tclargs $(BUILD_DIR)
 
-#panda_top.bit : VERSION $(IP_CORES) $(PS_CORE)
-panda_top.bit : VERSION
+panda_top.bit : VERSION $(IP_CORES) $(PS_CORE)
 	$(RUNVIVADO) -mode batch -source $(TARGET_DIR)/scripts/build_top.tcl \
 	    -tclargs $(TOP) \
 	    -tclargs $(TARGET_DIR) \

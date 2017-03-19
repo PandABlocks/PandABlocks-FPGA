@@ -7,7 +7,7 @@ from  zebra2.configparser import ConfigParser
 import collections
 
 ROOT_DIR = os.path.abspath(os.pardir)
-OUTPUT_DIR = os.path.join(ROOT_DIR, "build/CarrierFPGA", "autogen")
+OUTPUT_DIR = os.path.join(ROOT_DIR, "build/PandABox", "autogen")
 CONFIG_DIR = os.path.join(ROOT_DIR, "build/config_d")
 PATH = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(PATH, 'vhdl_templates')
