@@ -54,7 +54,7 @@ add_files -norecurse $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
 read_bd   $BUILD_DIR/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 
 # Read design files
-add_files -norecurse $TOP_DIR/common/vhdl
+add_files $TOP_DIR/common/vhdl
 add_files -norecurse $TOP_DIR/modules/adder/vhdl
 add_files -norecurse $TOP_DIR/modules/base/vhdl
 add_files -norecurse $TOP_DIR/modules/bits/vhdl
