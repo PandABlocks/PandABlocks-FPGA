@@ -37,6 +37,7 @@ docs: $(DOCS_BUILD_DIR)/index.html
 # FPGA builds
 # -------------------------------------------------------------------------
 APP_FILE = $(TOP)/apps/$(APP_NAME)
+BUILD_DIR = $(TOP)/build
 
 # Extract FMC and SFP design names from config file
 #FMC_DESIGN = $(shell sed -n '/^FMC_/{s///;s/ .*//;p}' $(APP_FILE))
@@ -49,7 +50,7 @@ INCR_DESIGN = false
 carrier-fpga: $(FPGA_BUILD_DIR)
 	rm -rf $(BUILD_DIR)/config_d
 	rm -rf $(BUILD_DIR)/CarrierFPGA/autogen
-	cd python && ./config_generator.py -a $(APP_FILE)
+	cd python && ./config_generator.py -o $(BUILD_DIR) -a $(APP_FILE)
 	cd python && ./vhdl_generator.py
 	$(MAKE) -C $< -f $(TARGET_DIR)/Makefile VIVADO=$(VIVADO) \
 	    TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(FPGA_BUILD_DIR) \

@@ -13,12 +13,14 @@ MODULE_DIR = os.path.join(ROOT_DIR, "modules")
 APP_DIR = os.path.join(ROOT_DIR, "apps")
 
 class ConfigGenerator(object):
-    def __init__(self):
+    def __init__(self, output_dir):
         self.temp_env = Environment(
             autoescape=False,
             loader=FileSystemLoader(MODULE_DIR),
             trim_blocks=True)
-
+        self.output_dir = os.path.join(ROOT_DIR, output_dir, "config_d")
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
         self.temp_env.globals['newBitBus'] = self.new_bit_bus
         self.temp_env.globals['newBlockNo'] = self.new_block_no
         self.temp_env.globals['newPosBus'] = self.new_pos_bus
@@ -65,12 +67,12 @@ class ConfigGenerator(object):
                     self.write_output_file(out_dir, infile.read())
 
     def start_empty_file(self, out_dir):
-        fname = os.path.join(OUTPUT_DIR, out_dir)
+        fname = os.path.join(self.output_dir, out_dir)
         with open(fname, 'w') as f:
             f.write('')
 
     def write_output_file(self, out_dir, out_file):
-        fname = os.path.join(OUTPUT_DIR, out_dir)
+        fname = os.path.join(self.output_dir, out_dir)
         with open(fname, 'a') as f:
             f.write(out_file)
             f.write('\n')
@@ -178,23 +180,24 @@ class ConfigGenerator(object):
         return out
 
 def main(argv):
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
 
-    cfg = ConfigGenerator()
     appfile = ''
     #read in app config file
     try:
-        opts, args = getopt.getopt(argv, "ha:", ["appfile="])
+        opts, args = getopt.getopt(argv, "ha:o:", ["appfile=", "outputdir="])
     except getopt.GetoptError:
-        print 'config_generator.py -a <appfile>'
+        print 'config_generator.py -o <output dir> -a <appfile>'
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
             print 'config_generator.py -a <appfile>'
             sys.exit(2)
+        elif opt in ("-o", "--outputdir"):
+            output_dir = arg
         elif opt in ("-a", "--appfile"):
             appfile = arg
+
+    cfg = ConfigGenerator(output_dir)
     module_info, app_config = cfg.parse_app_file(appfile) #this should be a param
     variables = {"app_config": app_config}
 
