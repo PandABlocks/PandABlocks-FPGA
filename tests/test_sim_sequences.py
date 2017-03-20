@@ -13,7 +13,13 @@ import unittest
 from zebra2.simulation import Block
 from zebra2.sequenceparser import SequenceParser
 
-Block.load_config(os.path.join(os.path.dirname(__file__), '..', 'config_d'))
+try:
+   os.environ['BUILD_DIR']   
+except KeyError:
+   print "Missing BUILD_DIR using default ./build directory"
+   os.environ['BUILD_DIR'] = 'build'
+
+Block.load_config(os.path.join(os.path.dirname(__file__), '..',os.environ['BUILD_DIR'], 'config_d'))
 
 parser_dir = os.path.join(os.path.dirname(__file__), "sim_sequences")
 

@@ -50,6 +50,9 @@ port (
     shift_reg_sclk_o    : out   std_logic;
     shift_reg_latch_o   : out   std_logic;
     shift_reg_oe_n_o    : out   std_logic;
+    -- I2C SFP Interface
+    i2c_sfp_sda         : inout std_logic;
+    i2c_sfp_scl         : inout std_logic;
     -- I2C Si570 XO Interface
     i2c_clock_sda       : inout std_logic;
     i2c_clock_scl       : inout std_logic;
@@ -108,7 +111,8 @@ begin
 spi_sclk_o <= spi_sclk;
 spi_dat_o <= spi_dat;
 
-SEL_GTXCLK1 <= '1'; -- FMC as clock source
+--SEL_GTXCLK1 <= '1'; -- FMC as clock source
+SEL_GTXCLK1 <= '0'; -- Si570 as clock source
 
 -- Encoder LEDs (D5-D8)
 ENC_LED <= enc_leds;
