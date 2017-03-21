@@ -190,7 +190,7 @@ def main(argv):
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print 'config_generator.py -a <appfile>'
+            print 'config_generator.py -o <output dir> -a <appfile>'
             sys.exit(2)
         elif opt in ("-o", "--outputdir"):
             output_dir = arg
