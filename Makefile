@@ -50,8 +50,8 @@ INCR_DESIGN = false
 carrier-fpga: $(FPGA_BUILD_DIR)
 	rm -rf $(BUILD_DIR)/config_d
 	rm -rf $(BUILD_DIR)/CarrierFPGA/autogen
-	cd python && ./config_generator.py -o $(BUILD_DIR) -a $(APP_FILE)
-	cd python && ./vhdl_generator.py
+	cd python && ./config_generator.py -a $(APP_FILE) -o $(FPGA_BUILD_DIR)
+	cd python && ./vhdl_generator.py -o $(FPGA_BUILD_DIR)
 	$(MAKE) -C $< -f $(TARGET_DIR)/Makefile VIVADO=$(VIVADO) \
 	    TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(FPGA_BUILD_DIR) \
 		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN) \

@@ -22,7 +22,7 @@ class VhdlGenerator(object):
             loader=FileSystemLoader(TEMPLATE_DIR),
             trim_blocks=True,
             extensions=["jinja2.ext.do",])
-        self.output_dir = os.path.join(ROOT_DIR, output_dir, "PandABox", "autogen")
+        self.output_dir = os.path.join(ROOT_DIR, output_dir, "autogen")
         self.config_dir = os.path.join(ROOT_DIR, output_dir, "config_d")
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
