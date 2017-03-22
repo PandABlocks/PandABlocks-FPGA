@@ -4,7 +4,7 @@ require("Jinja2")
 import os, sys
 import getopt
 from jinja2 import Environment, FileSystemLoader
-from  zebra2.configparser import ConfigParser
+from  common.python.pandablocks.configparser import ConfigParser
 import collections
 
 ROOT_DIR = os.path.abspath(os.pardir)

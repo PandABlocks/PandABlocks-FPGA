@@ -4,18 +4,21 @@ import sys
 import os
 from pkg_resources import require
 require("numpy")
+import importlib
+import unittest
 
 # add our python dir
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "common", "python", "pandablocks"))
 
-import unittest
-
-from zebra2.simulation import Block
+from block import Block
 from zebra2.sequenceparser import SequenceParser
 
-Block.load_config(os.path.join(os.path.dirname(__file__), '..', 'config_d'))
 
-parser_dir = os.path.join(os.path.dirname(__file__), "sim_sequences")
+import modules
+module_dir = os.path.join(os.path.dirname(modules.__file__))
+
+Block.load_config(os.path.join(os.path.dirname(__file__), '..', 'config_d'))
 
 
 class SequenceTest(unittest.TestCase):
@@ -29,9 +32,10 @@ class SequenceTest(unittest.TestCase):
 
     def runTest(self):
         imp = __import__(
-            "zebra2.simulation", fromlist=[self.block.title()])
+            self.block, fromlist=[self.block.title()])
         # make instance of block
         block = getattr(imp, self.block.title())()
+        block.add_properties()
         block.bit_bus.fill(0)
         block.pos_bus.fill(0)
         # make default regs dict
@@ -119,12 +123,17 @@ class SequenceTest(unittest.TestCase):
 def make_suite():
     suite = unittest.TestSuite()
     sequences = []
-    for fname in os.listdir(parser_dir):
-        if fname.endswith(".seq"):
-            parser = SequenceParser(os.path.join(parser_dir, fname))
-            for seq in parser.sequences:
-                sequences.append((fname.split(".")[0], seq))
+    for module in os.walk(module_dir):
+        if 'sim' in module[1]:
+            sim_sequence_path = os.path.join(module[0], 'sim')
+            sys.path.insert(0, sim_sequence_path)
+            for fname in os.listdir(sim_sequence_path):
+                if fname.endswith(".seq"):
+                    parser = SequenceParser(os.path.join(sim_sequence_path, fname))
+                    for seq in parser.sequences:
+                        sequences.append((fname.split(".")[0], seq))
     # These are the tests that start with !
+
     marks = [s for s in sequences if s[1].mark]
     if marks:
         # If we have any marked, only run those

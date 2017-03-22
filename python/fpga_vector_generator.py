@@ -11,7 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
 
 from zebra2.simulation.block import Block
 from zebra2.sequenceparser import SequenceParser
-from zebra2.configparser import ConfigParser
+from common.python.pandablocks.configparser import ConfigParser
 
 # and our parser dir is
 parser_dir = os.path.join(

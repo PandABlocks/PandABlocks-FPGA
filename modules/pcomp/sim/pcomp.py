@@ -1,4 +1,4 @@
-from .block import Block
+from block import Block
 import os
 import csv
 
@@ -44,9 +44,7 @@ class Pcomp(Block):
         #create a table if we have a long table input
         if b.TABLE_ADDRESS in changes:
             #open the table
-            file_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                                    "tests", "sim_sequences", "long_tables",
-                                    self.TABLE_ADDRESS)
+            file_dir = os.path.join(os.path.dirname(__file__), self.TABLE_ADDRESS)
             assert os.path.isfile(file_dir), "%s does not exist" % (file_dir)
             with open(file_dir, "rb") as table:
                 reader = csv.DictReader(table, delimiter='\t')

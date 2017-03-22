@@ -1,4 +1,4 @@
-from .block import Block
+from block import Block
 
 
 class Lut(Block):

@@ -1,6 +1,6 @@
 from collections import deque
 
-from .block import Block
+from block import Block
 
 
 # max queue size

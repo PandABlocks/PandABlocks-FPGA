@@ -1,6 +1,6 @@
 import numpy as np
 
-from .block import Block
+from block import Block
 
 
 # This is the max size of internal buffer of captured data before being shipped
@@ -34,6 +34,7 @@ class Pcap(Block):
         self.ext_names = {}
         # Has there been a capture during this frame?
         self.live_frame = False
+        self.add_properties()
         for name, field in self.config_block.fields.items():
             if field.cls == "ext_out":
                 if len(field.reg) > 1:

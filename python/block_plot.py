@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from zebra2.sequenceparser import SequenceParser
-from zebra2.configparser import ConfigParser
+from common.python.pandablocks.configparser import ConfigParser
 
 
 TRANSITION_HEIGHT = 0.6
