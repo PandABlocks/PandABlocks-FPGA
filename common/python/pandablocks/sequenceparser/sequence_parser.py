@@ -3,7 +3,7 @@
 import sys
 import os
 
-from zebra2.sequenceparser.sequence import Sequence
+from sequenceparser.sequence import Sequence
 
 class SequenceParser(object):
 

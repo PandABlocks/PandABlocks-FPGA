@@ -12,7 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "common", "python", "pandablocks"))
 
 from block import Block
-from zebra2.sequenceparser import SequenceParser
+from sequenceparser import SequenceParser
 
 
 import modules
