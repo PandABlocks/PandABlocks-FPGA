@@ -10,7 +10,7 @@ import collections
 ROOT_DIR = os.path.abspath(os.pardir)
 # OUTPUT_DIR = os.path.join(ROOT_DIR, "build/PandABox", "autogen")
 # CONFIG_DIR = os.path.join(ROOT_DIR, "build/config_d")
-PAR_DIR = os.path.join(__file__, os.pardir)
+PAR_DIR = os.path.join(__file__, os.pardir, os.pardir)
 ROOT_DIR = os.path.dirname(os.path.abspath(PAR_DIR))
 PATH = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(PATH, 'vhdl_templates')
