@@ -7,7 +7,8 @@ import collections
 from jinja2 import Environment, FileSystemLoader
 
 PAR_DIR = os.path.join(__file__, os.pardir)
-ROOT_DIR = os.path.dirname(os.path.abspath(PAR_DIR))
+COMMON_DIR = os.path.dirname(os.path.abspath(PAR_DIR))
+ROOT_DIR = os.path.join(COMMON_DIR, '..' )
 OUTPUT_DIR = os.path.join(ROOT_DIR, "build", "config_d")
 MODULE_DIR = os.path.join(ROOT_DIR, "modules")
 APP_DIR = os.path.join(ROOT_DIR, "apps")

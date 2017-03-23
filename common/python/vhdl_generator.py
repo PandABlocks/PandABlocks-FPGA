@@ -4,8 +4,9 @@ require("Jinja2")
 import os, sys
 import getopt
 from jinja2 import Environment, FileSystemLoader
-from  common.python.pandablocks.configparser import ConfigParser
 import collections
+
+from pandablocks.configparser import ConfigParser
 
 ROOT_DIR = os.path.abspath(os.pardir)
 # OUTPUT_DIR = os.path.join(ROOT_DIR, "build/PandABox", "autogen")
