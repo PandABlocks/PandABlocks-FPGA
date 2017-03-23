@@ -87,6 +87,12 @@ NET "dcard_ctrl4_io[13]"      LOC = P127 | PULLUP;
 NET "dcard_ctrl4_io[14]"      LOC = P131 | PULLUP;
 NET "dcard_ctrl4_io[15]"      LOC = P132 | PULLUP;
 
+NET "i2c_sfp_sda"             LOC = P87;
+NET "i2c_sfp_scl"             LOC = P88;
+
+NET "i2c_clock_sda"           LOC = P141;
+NET "i2c_clock_scl"           LOC = P142;
+
 NET "i2c_temp_sda"            LOC = P61;
 NET "i2c_temp_scl"            LOC = P62;
 
