@@ -17,7 +17,8 @@ set FMC_DESIGN [lindex $argv 3]
 set SFP_DESIGN [lindex $argv 4]
 
 # Create project
-create_project -force panda_top $BUILD_DIR/panda_top -part xc7z030sbg485-1
+#create_project -force panda_top $BUILD_DIR/panda_top -part xc7z030sbg485-1
+create_project -force -in_memory panda_top $BUILD_DIR/panda_top -part xc7z030sbg485-1
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -42,43 +43,47 @@ set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 # STEP#1: setup design sources and constraints
 #
 # Import IPs
-add_files -norecurse $BUILD_DIR/ip_repo/pulse_queue/pulse_queue.xci
-add_files -norecurse $BUILD_DIR/ip_repo/pcap_dma_fifo/pcap_dma_fifo.xci
-add_files -norecurse $BUILD_DIR/ip_repo/pgen_dma_fifo/pgen_dma_fifo.xci
-add_files -norecurse $BUILD_DIR/ip_repo/pcomp_dma_fifo/pcomp_dma_fifo.xci
-add_files -norecurse $BUILD_DIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
-add_files -norecurse $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
-add_files -norecurse $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
+read_ip $BUILD_DIR/ip_repo/pulse_queue/pulse_queue.xci
+read_ip $BUILD_DIR/ip_repo/pcap_dma_fifo/pcap_dma_fifo.xci
+read_ip $BUILD_DIR/ip_repo/pgen_dma_fifo/pgen_dma_fifo.xci
+read_ip $BUILD_DIR/ip_repo/pcomp_dma_fifo/pcomp_dma_fifo.xci
+read_ip $BUILD_DIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
+read_ip $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
+read_ip $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
 
 # Read Zynq block design
 read_bd   $BUILD_DIR/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 
+# Read auto generated files
+read_vhdl [glob $BUILD_DIR/autogen/*.vhd]
+
 # Read design files
-add_files $TOP_DIR/common/vhdl
-add_files -norecurse $TOP_DIR/modules/adder/vhdl
-add_files -norecurse $TOP_DIR/modules/base/vhdl
-add_files -norecurse $TOP_DIR/modules/bits/vhdl
-add_files -norecurse $TOP_DIR/modules/clocks/vhdl
-add_files -norecurse $TOP_DIR/modules/counter/vhdl
-add_files -norecurse $TOP_DIR/modules/div/vhdl
-add_files -norecurse $TOP_DIR/modules/lut/vhdl
-add_files -norecurse $TOP_DIR/modules/pcap/vhdl
-add_files -norecurse $TOP_DIR/modules/pcomp/vhdl
-add_files -norecurse $TOP_DIR/modules/pgen/vhdl
-add_files -norecurse $TOP_DIR/modules/posenc/vhdl
-add_files -norecurse $TOP_DIR/modules/positions/vhdl
-add_files -norecurse $TOP_DIR/modules/pulse/vhdl
-add_files -norecurse $TOP_DIR/modules/qdec/vhdl
-add_files -norecurse $TOP_DIR/modules/seq/vhdl
-add_files -norecurse $TOP_DIR/modules/slow/vhdl
-add_files -norecurse $TOP_DIR/modules/srgate/vhdl
-add_files $TOP_DIR/modules/$FMC_DESIGN/vhdl
-add_files $TOP_DIR/modules/$SFP_DESIGN/vhdl
+read_vhdl [glob $TOP_DIR/common/vhdl/defines/*.vhd]
+read_vhdl [glob $TOP_DIR/common/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/adder/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/base/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/bits/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/clocks/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/counter/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/div/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/lut/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/pcap/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/pcomp/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/pgen/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/posenc/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/pulse/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/qdec/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/seq/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/slow/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/srgate/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/$FMC_DESIGN/vhdl/fmcgt_loopback/support/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/$FMC_DESIGN/vhdl/fmcgt_loopback/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/$FMC_DESIGN/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/sfpgt_loopback/support/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/sfpgt_loopback/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/*.vhd]
 add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/sfpgt_loopback/gt_rom_init_rx.dat
 add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/sfpgt_loopback/gt_rom_init_tx.dat
-
-# Read auto generated files
-add_files -norecurse $BUILD_DIR/autogen
 
 # Read constraint files
 read_xdc $TOP_DIR/modules/$FMC_DESIGN/const/fmc.xdc
@@ -136,7 +141,7 @@ write_bitstream -force panda_top.bit
 #
 # Export HW for SDK
 #
-#file mkdir $BUILD_DIR/panda_top/panda_top.sdk
 write_hwdef -file $BUILD_DIR/panda_top_wrapper.hdf -force
 
 close_project
+exit
