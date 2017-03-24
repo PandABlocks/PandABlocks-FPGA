@@ -1,13 +1,13 @@
 API doc for configparser
 ========================
 
-.. module: zebra2.configparser
+.. module: common.python.pandablocks.configparser.ConfigParser
 
-.. autoclass:: zebra2.configparser.ConfigParser
+.. autoclass:: common.python.pandablocks.configparser.ConfigParser
     :members:
 
-.. autoclass:: zebra2.configparser.ConfigBlock
+.. autoclass:: common.python.pandablocks.configparser.ConfigBlock
     :members:
 
-.. autoclass:: zebra2.configparser.ConfigField
+.. autoclass:: common.python.pandablocks.configparser.ConfigField
     :members:

@@ -10,7 +10,7 @@ from collections import OrderedDict
 import matplotlib.pyplot as plt
 import numpy as np
 
-from zebra2.sequenceparser import SequenceParser
+from common.python.pandablocks.sequenceparser import SequenceParser
 from common.python.pandablocks.configparser import ConfigParser
 
 
@@ -25,7 +25,13 @@ VERTICAL_STRETCH = 0.5
 # add our parser and config dirs
 parser_dir = os.path.join(
     os.path.dirname(__file__), "..", "tests", "sim_sequences")
-config_dir = os.path.join( os.path.dirname(__file__), "..",os.environ['BUILD_DIR'], "config_d")
+# config_dir = os.path.join( os.path.dirname(__file__), "..",os.environ['BUILD_DIR'], "config_d")
+
+import modules
+MODULE_DIR = os.path.join(os.path.dirname(modules.__file__))
+PAR_DIR = os.path.join(__file__, os.pardir, os.pardir)
+ROOT_DIR = os.path.dirname(os.path.abspath(PAR_DIR))
+CONFIG_DIR = os.path.join(ROOT_DIR, 'config_d')
 
 
 def legend_label(text, x, y, off):
@@ -76,11 +82,13 @@ def plot_pos(trace_items, offset, crossdist, ts):
 def make_block_plot(blockname, title):
     # Load the correct sequence file
     fname = blockname + ".seq"
-    sparser = SequenceParser(os.path.join(parser_dir, fname))
+    sequence_dir = os.path.join(MODULE_DIR, blockname, 'sim')
+    sequence_file = os.path.join(sequence_dir, fname)
+    sparser = SequenceParser(sequence_file)
     matches = [s for s in sparser.sequences if s.name == title]
     assert len(matches) == 1, 'Unknown title "%s" or multiple matches' % title
     sequence = matches[0]
-    cparser = ConfigParser(config_dir)
+    cparser = ConfigParser(CONFIG_DIR)
 
     # make instance of block
     block = cparser.blocks[blockname.upper()]

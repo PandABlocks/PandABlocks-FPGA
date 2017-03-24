@@ -1,6 +1,6 @@
 import numpy as np
 
-from block import Block
+from common.python.pandablocks.block import Block
 
 
 # This is the max size of internal buffer of captured data before being shipped

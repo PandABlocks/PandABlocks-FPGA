@@ -37,7 +37,7 @@ else:
 extensions = [
     'matplotlib.sphinxext.plot_directive',
     'sphinx.ext.autodoc',
-    'zebra2.sphinxext.sequence_plot_directive',
+    'common.python.sphinxext.sequence_plot_directive',
 ]
 # Something a bit odd: on some systems we find napoleon under sphinx.ext, on
 # others under sphinxcontrib.  Try both, select the appropriate one.

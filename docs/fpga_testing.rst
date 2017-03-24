@@ -142,12 +142,12 @@ the block level documentation by writing the following directive::
 
     .. plot::
 
-        from block_plot import make_block_plot
+        from common.python.block_plot import make_block_plot
         make_block_plot("<block>", "<title>")
 
 For instance::
 
     .. plot::
 
-        from block_plot import make_block_plot
+        from common.python.block_plot import make_block_plot
         make_block_plot("pulse", "Pulse stretching with no delay")

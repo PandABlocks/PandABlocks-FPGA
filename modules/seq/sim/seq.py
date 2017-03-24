@@ -1,6 +1,6 @@
 import numpy
 
-from block import Block
+from common.python.pandablocks.block import Block
 from collections import deque, OrderedDict
 
 class Seq(Block):
