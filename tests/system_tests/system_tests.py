@@ -14,7 +14,7 @@ import xml.etree.ElementTree
 # add our python dir
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "python"))
 
-from zebra2.capture import Capture, DataHandler
+from common.python.capture import Capture, DataHandler
 
 
 test_script = os.path.join(os.path.dirname(__file__),  "testseq")

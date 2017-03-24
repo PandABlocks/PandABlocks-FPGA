@@ -23,8 +23,8 @@ args = parser.parse_args()
 
 sys.path.append(os.path.dirname(__file__))
 
-from zebra2.simulation.server import Server
-from zebra2.simulation.controller import Controller
+from simulation.server import Server
+from simulation.controller import Controller
 
 # We daemonise the server by double forking, but we leave the controlling
 # terminal and other file connections alone.
