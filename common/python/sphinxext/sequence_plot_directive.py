@@ -179,7 +179,8 @@ class sequence_plot_directive(Directive):
         for ts in sequence.inputs:
             if 'TABLE_ADDRESS' in sequence.inputs[ts]:
                 #open the table
-                file_dir = os.path.join(sequence_dir, sequence.inputs[ts]['TABLE_ADDRESS'])
+                file_dir = os.path.join(
+                    sequence_dir, sequence.inputs[ts]['TABLE_ADDRESS'])
                 assert os.path.isfile(file_dir), "%s does not exist" %(file_dir)
                 with open(file_dir, "rb") as table:
                     reader = csv.DictReader(table, delimiter='\t')

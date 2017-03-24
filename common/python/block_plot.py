@@ -25,7 +25,6 @@ VERTICAL_STRETCH = 0.5
 # add our parser and config dirs
 parser_dir = os.path.join(
     os.path.dirname(__file__), "..", "tests", "sim_sequences")
-# config_dir = os.path.join( os.path.dirname(__file__), "..",os.environ['BUILD_DIR'], "config_d")
 
 import modules
 MODULE_DIR = os.path.join(os.path.dirname(modules.__file__))
