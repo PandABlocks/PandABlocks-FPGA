@@ -3,7 +3,7 @@
 import sys
 import os
 
-from sequenceparser.sequence import Sequence
+from sequence import Sequence
 
 class SequenceParser(object):
 

@@ -1,4 +1,4 @@
-from block import Block
+from common.python.pandablocks.block import Block
 
 
 class Lut(Block):

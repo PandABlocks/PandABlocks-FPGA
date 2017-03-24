@@ -1,7 +1,6 @@
 from collections import deque
 
-from block import Block
-
+from common.python.pandablocks.block import Block
 
 # max queue size
 MAX_QUEUE = 1023

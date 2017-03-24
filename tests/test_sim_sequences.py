@@ -9,10 +9,9 @@ import unittest
 
 # add our python dir
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "common", "python", "pandablocks"))
 
-from block import Block
-from sequenceparser import SequenceParser
+from common.python.pandablocks.block import Block
+from common.python.pandablocks.sequenceparser import SequenceParser
 
 
 import modules

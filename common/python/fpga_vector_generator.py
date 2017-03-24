@@ -4,22 +4,24 @@ from pkg_resources import require
 require("numpy")
 import sys
 import os
+import getopt
 from collections import OrderedDict
 
 # add our python dir
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
 
-from zebra2.simulation.block import Block
-from zebra2.sequenceparser import SequenceParser
+from common.python.pandablocks.block import Block
+from common.python.pandablocks.sequenceparser import SequenceParser
 from common.python.pandablocks.configparser import ConfigParser
 
-# and our parser dir is
-parser_dir = os.path.join(
-    os.path.dirname(__file__), "..", "tests", "sim_sequences")
-fpga_dir = os.path.join(
-    os.path.dirname(__file__), "..", "build",  "fpga_sequences")
-config_dir = os.path.join(os.path.dirname(__file__), '..', 'config_d')
-Block.load_config(config_dir)
+import modules
+MODULE_DIR = os.path.join(os.path.dirname(modules.__file__))
+PAR_DIR = os.path.join(__file__, os.pardir, os.pardir)
+ROOT_DIR = os.path.dirname(os.path.abspath(PAR_DIR))
+CONFIG_DIR = os.path.join(ROOT_DIR, 'config_d')
+
+
+Block.load_config(CONFIG_DIR)
 
 # Time between SIM_RESET being set high and the next test starting
 RESET_DEADTIME = 12500
@@ -64,7 +66,7 @@ class FpgaSequence(object):
                 bit_bus[x] = 'UNUSED'
             for x in range(32):
                 pos_bus[x] = 'UNUSED'
-            configparser = ConfigParser(config_dir)
+            configparser = ConfigParser(CONFIG_DIR)
             for entry, val in configparser.bit_bus.items():
                 bit_bus[val] = entry
             for entry,val in configparser.pos_bus.items():
@@ -177,15 +179,36 @@ class FpgaSequence(object):
             ts_off += ts + 1
 
 
-def generate_fpga_test_vectors():
+def generate_fpga_test_vectors(build_dir):
     sequences = []
-    for fname in os.listdir(parser_dir):
-        if fname.endswith(".seq"):
-            parser = SequenceParser(os.path.join(parser_dir, fname))
-            for seq in parser.sequences:
-                sequences.append((fname.split(".")[0], seq))
-            # Write the FPGA sequences
-            FpgaSequence(parser, fname.split(".")[0], fpga_dir).write()
+    for module in os.walk(MODULE_DIR):
+        if 'sim' in module[1]:
+            sim_sequence_path = os.path.join(module[0], 'sim')
+            sys.path.insert(0, sim_sequence_path)
+            for fname in os.listdir(sim_sequence_path):
+                if fname.endswith(".seq"):
+                    parser = SequenceParser(os.path.join(sim_sequence_path, fname))
+                    for seq in parser.sequences:
+                        sequences.append((fname.split(".")[0], seq))
+                    FpgaSequence(parser, fname.split(".")[0], build_dir).write()
+    # These are the tests that start with !
+
+def main(argv):
+    output_dir = "build"
+    try:
+        opts, args = getopt.getopt(argv, "ho:", ["outputdir="])
+    except getopt.GetoptError:
+        print 'fpga_vector_generator.py -o <output dir>'
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print 'fpga_vector_generator.py -o <output dir>'
+            sys.exit(2)
+        elif opt in ("-o", "--outputdir"):
+            output_dir = arg
+    generate_fpga_test_vectors(os.path.join(output_dir, 'fpga_sequences'))
+
 
 if __name__ == '__main__':
-    generate_fpga_test_vectors()
+    main(sys.argv[1:])
+    # generate_fpga_test_vectors()

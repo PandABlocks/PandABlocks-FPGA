@@ -5,15 +5,14 @@ from docutils.parsers.rst.directives import images
 from docutils.parsers.rst import Directive, states
 from docutils import nodes, statemachine
 
-from zebra2.sequenceparser import SequenceParser
-from zebra2.configparser import ConfigParser
+from common.python.pandablocks.sequenceparser import SequenceParser
+from common.python.pandablocks.configparser import ConfigParser
 
-
-parser_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "tests", "sim_sequences")
-config_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", os.environ['BUILD_DIR'], "config_d")
-
+import modules
+MODULE_DIR = os.path.join(os.path.dirname(modules.__file__))
+PAR_DIR = os.path.join(__file__, os.pardir, os.pardir, os.pardir)
+ROOT_DIR = os.path.dirname(os.path.abspath(PAR_DIR))
+CONFIG_DIR = os.path.join(ROOT_DIR, 'config_d')
 
 class sequence_plot_node(nodes.Element):
     pass
@@ -40,7 +39,7 @@ class sequence_plot_directive(Directive):
         plotname = self.options['title']
 
         plot_content = [
-            "from block_plot import make_block_plot",
+            "from common.python.block_plot import make_block_plot",
             "make_block_plot('%s', '%s')" % (blockname, plotname)]
 
         # override include_input so we get the result
@@ -65,7 +64,9 @@ class sequence_plot_directive(Directive):
         if blockname in ["seq", "pcap", "pgen", "pcomp"]:
             #get the correct sequence
             fname = blockname + ".seq"
-            sparser = SequenceParser(os.path.join(parser_dir, fname))
+            sequence_dir = os.path.join(MODULE_DIR, blockname, 'sim')
+            sequence_file = os.path.join(sequence_dir, fname)
+            sparser = SequenceParser(sequence_file)
             matches = [s for s in sparser.sequences if s.name == plotname]
             sequence = matches[0]
             if blockname == "seq":
@@ -73,7 +74,7 @@ class sequence_plot_directive(Directive):
                 node.append(table_node)
                 node.append(plot_node)
             elif blockname in [ "pgen", "pcomp"]:
-                table_node = self.make_long_tables(sequence)
+                table_node = self.make_long_tables(sequence, sequence_dir)
                 node.append(table_node)
                 node.append(plot_node)
             else:
@@ -87,7 +88,7 @@ class sequence_plot_directive(Directive):
     def make_pcap_table(self, sequence):
         table_node = table_plot_node()
         # get our ext names
-        cparser = ConfigParser(config_dir)
+        cparser = ConfigParser(CONFIG_DIR)
         # find the inputs that change
         input_changes = []
         data_header = []
@@ -170,7 +171,7 @@ class sequence_plot_directive(Directive):
                     i = 0
         return table_node
 
-    def make_long_tables(self, sequence):
+    def make_long_tables(self, sequence, sequence_dir):
         table_node = table_plot_node()
         alltables = []
         table_data = []
@@ -178,10 +179,8 @@ class sequence_plot_directive(Directive):
         for ts in sequence.inputs:
             if 'TABLE_ADDRESS' in sequence.inputs[ts]:
                 #open the table
-                file_dir = os.path.join(os.path.dirname(__file__), "..", "..",
-                                        "..", "tests", "sim_sequences",
-                                        "long_tables",
-                                        sequence.inputs[ts]['TABLE_ADDRESS'])
+                file_dir = os.path.join(
+                    sequence_dir, sequence.inputs[ts]['TABLE_ADDRESS'])
                 assert os.path.isfile(file_dir), "%s does not exist" %(file_dir)
                 with open(file_dir, "rb") as table:
                     reader = csv.DictReader(table, delimiter='\t')
