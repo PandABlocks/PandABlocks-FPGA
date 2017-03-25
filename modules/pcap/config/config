@@ -2,15 +2,6 @@ PCAP
     ENABLE          bit_mux
     FRAME           bit_mux
     CAPTURE         bit_mux
-    MAX_FRAME       param       enum 8
-        0   16 sec
-        1   16*2 sec
-        2   16*3 sec
-        3   16*4 sec
-        4   16*5 sec
-        5   16*6 sec
-        6   16*7 sec
-        7   16*8 sec
     ERR_STATUS      read        enum 4
         0   Ok
         1   Capture before frame
@@ -20,7 +11,6 @@ PCAP
     CAPTURE_TS      ext_out     timestamp
     FRAME_LENGTH    ext_out
     CAPTURE_OFFSET  ext_out     offset
-    ADC_COUNT       ext_out     adc_count
     BITS0           ext_out     bits 0
     BITS1           ext_out     bits 1
     BITS2           ext_out     bits 2

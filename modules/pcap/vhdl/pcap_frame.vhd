@@ -26,7 +26,6 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Block register
-    MAX_FRAME           : in  std_logic_vector(2 downto 0);
     FRAMING_ENABLE      : in  std_logic;
     FRAMING_MASK        : in  std_logic_vector(31 downto 0);
     FRAMING_MODE        : in  std_logic_vector(31 downto 0);
@@ -46,8 +45,6 @@ end pcap_frame;
 
 architecture rtl of pcap_frame is
 
-signal gain             : natural range 0 to 2**(MAX_FRAME'length)-1;
-
 signal frame_prev       : std_logic;
 signal capture_prev     : std_logic;
 signal ongoing_capture  : std_logic;
@@ -63,7 +60,6 @@ signal frame_ts         : unsigned(63 downto 0) := (others => '0');
 signal frame_length     : unsigned(63 downto 0) := (others => '0');
 signal capture_offset   : unsigned(63 downto 0) := (others => '0');
 
-signal adc_count        : unsigned(31 downto 0);
 signal posbus           : std32_array(31 downto 0);
 signal extbus           : std32_array(31 downto 0);
 
@@ -184,33 +180,30 @@ port map (
     extn_o              => extbus(I),
     overflow_o          => overflow_o(I),
 
-    MAX_FRAME           => MAX_FRAME,
     FRAMING_ENABLE      => FRAMING_ENABLE,
     FRAMING_MASK        => FRAMING_MASK(I),
     FRAMING_MODE        => FRAMING_MODE(I)
 );
 END GENERATE;
 
--- ADC count is frame_length/MAX_FRAME
-gain <= to_integer(unsigned(MAX_FRAME));
-adc_count <= resize(shift_right(frame_length, gain), 32);
-
--- Zero field
+--------------------------------------------------------------------------
+-- Assign 64x32-bits position fields for data capture
+--------------------------------------------------------------------------
 posn_o(0)  <= posbus_i(0);
 posn_o(31 downto 1)  <= posbus(31 downto 1);
 
 posn_o(32) <= (others => '0');
-posn_o(36 downto 33) <= extbus(4 downto 1);         -- inenc
+posn_o(36 downto 33) <= extbus(4 downto 1);
 posn_o(37) <= std_logic_vector(capture_ts(31 downto  0));
 posn_o(38) <= std_logic_vector(capture_ts(63 downto 32));
 posn_o(39) <= std_logic_vector(frame_length(31 downto 0));
 posn_o(40) <= std_logic_vector(capture_offset(31 downto 0));
-posn_o(41) <= std_logic_vector(adc_count);
+posn_o(41) <= (others => '0');
 posn_o(42) <= sysbus_i(31 downto 0);
 posn_o(43) <= sysbus_i(63 downto 32);
 posn_o(44) <= sysbus_i(95 downto 64);
 posn_o(45) <= sysbus_i(127 downto 96);
-posn_o(49 downto 46) <= extbus(24 downto 21);       -- ACQ420
+posn_o(49 downto 46) <= extbus(24 downto 21);
 posn_o(63 downto 50) <= (others => (others => '0'));
 
 end rtl;
