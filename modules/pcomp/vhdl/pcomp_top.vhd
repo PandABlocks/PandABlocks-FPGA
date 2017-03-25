@@ -1,6 +1,12 @@
 --------------------------------------------------------------------------------
---  File:       pcomp_top.vhd
---  Desc:       Position compare instantiations
+--  PandA Motion Project - 2016
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
+--
+--  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--------------------------------------------------------------------------------
+--
+--  Description : Position compare top-level instantiates of core blocks
 --
 --------------------------------------------------------------------------------
 
@@ -79,9 +85,6 @@ read_strobe(I) <= compute_block_strobe(read_address_i, I) and read_strobe_i;
 write_strobe(I) <= compute_block_strobe(write_address_i, I) and write_strobe_i;
 
 pcomp_block_inst : entity work.pcomp_block
-generic map (
-    INST                => I
-)
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
