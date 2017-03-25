@@ -4,11 +4,10 @@ import sys
 import os
 from pkg_resources import require
 require("numpy")
-import importlib
 import unittest
 
 # add our python dir
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
+# sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
 
 from common.python.pandablocks.block import Block
 from common.python.pandablocks.sequenceparser import SequenceParser

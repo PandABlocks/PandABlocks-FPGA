@@ -4,7 +4,7 @@ from collections import deque
 
 import numpy as np
 
-from .block import Block
+from common.python.pandablocks.block import Block
 
 
 # FPGA clock tick in seconds
