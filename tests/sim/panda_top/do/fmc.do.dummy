@@ -1,6 +1,0 @@
-set SRC {../../../src/hdl}
-set IP {../../../../build/CarrierFPGA/ip_repo}
-
-vcom -64 -93 -work xil_defaultlib  \
-"${SRC}/FMC/DUMMY/hdl/fmc_top.vhd"
-
