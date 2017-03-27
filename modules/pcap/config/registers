@@ -7,6 +7,7 @@ PCAP        {{newBlockNo("PCAP")}}
     CAPTURE_TS      {{newPosBus(location='upper')}} / {{newPosBus(location='upper')}}
     FRAME_LENGTH    {{newPosBus(location='upper')}}
     CAPTURE_OFFSET  {{newPosBus(location='upper')}}
+    ADC_COUNT       {{newPosBus(location='upper')}}
     BITS0           {{newPosBus(location='upper')}}
     BITS1           {{newPosBus(location='upper')}}
     BITS2           {{newPosBus(location='upper')}}

@@ -8,7 +8,7 @@
     #
     FPGA_VERSION            0
     FPGA_BUILD              1
-    SLOW_VERSION            2
+    USER_VERSION            2
     # Bit bus readout registers: first write to BIT_READ_RST to capture a
     # snapshot of the bit bus and its changes, then read BIT_READ_VALUE 8 times
     # to read out bit bus values and change flags.
@@ -37,10 +37,6 @@
     # Position capture control
     PCAP_ARM                13
     PCAP_DISARM             14
-
-    # Slow read and write status: if 1 transaction in progress, if 0 transaction
-    # complete.
-    SLOW_REGISTER_STATUS    15
 
     # This array of registers is used to program data delays on the capture bus
     PCAP_BIT_DELAY          28 .. 31

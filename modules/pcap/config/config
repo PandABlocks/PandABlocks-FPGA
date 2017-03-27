@@ -11,8 +11,8 @@ PCAP
     CAPTURE_TS      ext_out     timestamp
     FRAME_LENGTH    ext_out
     CAPTURE_OFFSET  ext_out     offset
+    ADC_COUNT       ext_out     adc_count
     BITS0           ext_out     bits 0
     BITS1           ext_out     bits 1
     BITS2           ext_out     bits 2
     BITS3           ext_out     bits 3
-

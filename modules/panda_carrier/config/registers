@@ -1,5 +1,5 @@
 TTLIN       {{newBlockNo("TTLIN")}}
-    TERM            slow 0
+    TERM            0
     VAL             {{newBitBus()}}
 
 TTLOUT      {{newBlockNo("TTLOUT")}}
@@ -12,7 +12,7 @@ LVDSOUT     {{newBlockNo("LVDSOUT")}}
     VAL             {{newBlockReg(typ='bit_mux')}}
 
 INENC       {{newBlockNo("INENC")}}
-    PROTOCOL        slow {{newBlockReg()}}
+    PROTOCOL        {{newBlockReg()}}
     BYPASS          {{newBlockReg()}}
     CLK_PERIOD      {{newBlockReg()}}
     FRAME_PERIOD    {{newBlockReg()}}
