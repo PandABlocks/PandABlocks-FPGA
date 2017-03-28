@@ -122,7 +122,7 @@ begin
                 read_data_o <= FPGA_VERSION;
             when REG_FPGA_BUILD =>
                 read_data_o <= FPGA_VERSION;
-            when REG_SLOW_VERSION =>
+            when REG_USER_VERSION =>
                 read_data_o <= SLOW_FPGA_VERSION;
             when REG_BIT_READ_VALUE =>
                 read_data_o <= BIT_READ_VALUE;
@@ -130,8 +130,9 @@ begin
                 read_data_o <= POS_READ_VALUE;
             when REG_POS_READ_CHANGES =>
                 read_data_o <= POS_READ_CHANGES;
-            when REG_SLOW_REGISTER_STATUS =>
-                read_data_o <= ZEROS(31) & cmd_ready_n_i;
+            --will we need it in the futur?
+            --when REG_SLOW_REGISTER_STATUS =>
+            --    read_data_o <= ZEROS(31) & cmd_ready_n_i;
             when others =>
                 read_data_o <= (others => '0');
         end case;

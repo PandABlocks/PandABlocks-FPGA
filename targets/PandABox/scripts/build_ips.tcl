@@ -135,9 +135,9 @@ set_property -dict [list \
     CONFIG.gt1_val {true}                                           \
     CONFIG.gt2_val_tx_refclk {REFCLK0_Q0}                           \
     CONFIG.gt2_val {true}                                           \
-    CONFIG.identical_val_tx_line_rate {2.5}                         \
+    CONFIG.identical_val_tx_line_rate {1}                         \
     CONFIG.identical_val_tx_reference_clock {125.000}               \
-    CONFIG.identical_val_rx_line_rate {2.5}                         \
+    CONFIG.identical_val_rx_line_rate {1}                         \
     CONFIG.identical_val_rx_reference_clock {125.000}               \
 ] [get_ips sfpgtx]
 
