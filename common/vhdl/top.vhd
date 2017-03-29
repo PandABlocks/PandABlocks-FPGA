@@ -245,8 +245,6 @@ signal adc_out              : std32_array(7 downto 0) := (others => (others => '
 
 signal pgen_out             : std32_array(PGEN_NUM-1 downto 0);
 
-signal cmd_ready_n          : std_logic;
-
 signal enc0_ctrl_pad        : std_logic_vector(11 downto 0);
 
 signal rdma_req             : std_logic_vector(5 downto 0);
@@ -949,8 +947,7 @@ port map (
 
     sysbus_i            => sysbus,
     posbus_i            => posbus,
-    SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
-    cmd_ready_n_i       => cmd_ready_n
+    SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION
 );
 
 ---------------------------------------------------------------------------
@@ -1024,7 +1021,6 @@ port map (
     ttlout_i            => ttlout_val,
     inenc_conn_i        => inenc_conn,
     outenc_conn_i       => outenc_conn,
-    cmd_ready_n_o       => cmd_ready_n,
     -- Block Input and Outputs
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
     DCARD_MODE          => DCARD_MODE,

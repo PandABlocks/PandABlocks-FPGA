@@ -71,7 +71,7 @@ signal cmd_rd_en        : std_logic;
 
 begin
 
-cmd_ready_n_o <= cmd_full; --busy;
+cmd_ready_n_o <= cmd_full;
 
 ---------------------------------------------------------------------------
 -- Serial Interface core instantiation

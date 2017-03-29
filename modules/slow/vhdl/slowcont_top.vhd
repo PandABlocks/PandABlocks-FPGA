@@ -44,7 +44,6 @@ port (
     inenc_conn_i        : in  std_logic_vector(ENC_NUM-1 downto 0);
     outenc_conn_i       : in  std_logic_vector(ENC_NUM-1 downto 0);
     -- Block Input and Outputs
-    cmd_ready_n_o       : out std_logic;
     SLOW_FPGA_VERSION   : out std_logic_vector(31 downto 0);
     DCARD_MODE          : out std32_array(ENC_NUM-1 downto 0);
     -- Serial Physical interface
@@ -65,11 +64,14 @@ signal VOLT_MON         : std32_array(7 downto 0);
 signal slow_reg_tlp     : slow_packet;
 signal slow_leds_tlp    : slow_packet;
 
+signal cmd_ready_n      : std_logic;
+
 begin
 
--- Acknowledgement to AXI Lite interface
-write_ack_o <= '1';
+-- Accept write data if FIFO is available
+write_ack_o <= not cmd_ready_n;
 
+-- Read acknowledgement to AXI Lite interface
 read_ack_delay : entity work.delay_line
 generic map (DW => 1)
 port map (
@@ -125,7 +127,7 @@ port map (
 
     registers_tlp_i     => slow_reg_tlp,
     leds_tlp_i          => slow_leds_tlp,
-    cmd_ready_n_o       => cmd_ready_n_o,
+    cmd_ready_n_o       => cmd_ready_n,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
     DCARD_MODE          => DCARD_MODE,
     TEMP_MON            => TEMP_MON,

@@ -49,7 +49,7 @@ end pgen;
 
 architecture rtl of pgen is
 
-component pgen_dma_fifo
+component fifo_1K32
 port (
     clk                 : in std_logic;
     srst                : in std_logic;
@@ -59,7 +59,7 @@ port (
     dout                : out std_logic_vector(31 DOWNTO 0);
     full                : out std_logic;
     empty               : out std_logic;
-    data_count          : out std_logic_vector(10 downto 0)
+    data_count          : out std_logic_vector(9 downto 0)
 );
 end component;
 
@@ -75,10 +75,10 @@ signal table_ready      : std_logic := '0';
 signal fifo_reset       : std_logic;
 signal fifo_rd_en       : std_logic;
 signal fifo_dout        : std_logic_vector(DW-1 downto 0);
-signal fifo_count       : integer range 0 to 2047;
+signal fifo_count       : integer range 0 to 1023;
 signal fifo_full        : std_logic;
 signal fifo_empty       : std_logic;
-signal fifo_data_count  : std_logic_vector(10 downto 0);
+signal fifo_data_count  : std_logic_vector(9 downto 0);
 signal fifo_available   : std_logic;
 
 signal trig             : std_logic;
@@ -106,7 +106,7 @@ reset <= not table_ready or enable_fall;
 --
 -- 32bit FIFO with 1K sample depth
 --
-dma_fifo_inst : pgen_dma_fifo
+dma_fifo_inst : fifo_1K32
 port map (
     srst            => fifo_reset,
     clk             => clk_i,

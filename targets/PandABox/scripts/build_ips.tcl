@@ -33,43 +33,23 @@ generate_target all [get_files $BUILD_DIR/pulse_queue/pulse_queue.xci]
 synth_ip [get_ips pulse_queue]
 
 #
-# Create PCAP DMA FIFO IP
+# Create Standard 1Kx32-bit FIFO IP
 #
 create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
--module_name pcap_dma_fifo -dir $BUILD_DIR/
+-module_name fifo_1K32 -dir $BUILD_DIR/
 
 set_property -dict [list \
-    CONFIG.Performance_Options {First_Word_Fall_Through} \
-    CONFIG.Input_Data_Width {32}    \
-    CONFIG.Input_Depth {2048}       \
-    CONFIG.Data_Count {true}        \
-    CONFIG.Output_Data_Width {32}   \
-    CONFIG.Output_Depth {2048}      \
-    CONFIG.Reset_Type {Synchronous_Reset} \
-] [get_ips pcap_dma_fifo]
-
-generate_target all [get_files $BUILD_DIR/pcap_dma_fifo/pcap_dma_fifo.xci]
-synth_ip [get_ips pcap_dma_fifo]
-
-#
-# Create PGEN DMA FIFO IP
-#
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
--module_name pgen_dma_fifo -dir $BUILD_DIR/
-
-set_property -dict [list \
-    CONFIG.Performance_Options {First_Word_Fall_Through} \
     CONFIG.Input_Data_Width {32}    \
     CONFIG.Data_Count {true}        \
     CONFIG.Output_Data_Width {32}   \
     CONFIG.Reset_Type {Synchronous_Reset} \
-] [get_ips pgen_dma_fifo]
+] [get_ips fifo_1K32]
 
-generate_target all [get_files $BUILD_DIR/pgen_dma_fifo/pgen_dma_fifo.xci]
-synth_ip [get_ips pgen_dma_fifo]
+generate_target all [get_files $BUILD_DIR/fifo_1K32/fifo_1K32.xci]
+synth_ip [get_ips fifo_1K32]
 
 #
-# Create PCOMP DMA FIFO IP
+# Create PCOMP DMA FIFO IP (asymmetrical)
 #
 create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
 -module_name pcomp_dma_fifo -dir $BUILD_DIR/
@@ -85,21 +65,6 @@ set_property -dict [list \
 
 generate_target all [get_files $BUILD_DIR/pcomp_dma_fifo/pcomp_dma_fifo.xci]
 synth_ip [get_ips pcomp_dma_fifo]
-
-
-#
-# Create ILA IP (32-bit wide with 8K Depth)
-#
-create_ip -name ila -vendor xilinx.com -library ip -version 5.1 \
--module_name ila_32x8K -dir $BUILD_DIR/
-
-set_property -dict [list \
-    CONFIG.C_PROBE0_WIDTH {32}  \
-    CONFIG.C_DATA_DEPTH {8192}  \
-] [get_ips ila_32x8K]
-
-generate_target all [get_files $BUILD_DIR/ila_32x8K/ila_32x8K.xci]
-synth_ip [get_ips ila_32x8K]
 
 #
 # Create FMC GTX Aurora IP
@@ -135,9 +100,9 @@ set_property -dict [list \
     CONFIG.gt1_val {true}                                           \
     CONFIG.gt2_val_tx_refclk {REFCLK0_Q0}                           \
     CONFIG.gt2_val {true}                                           \
-    CONFIG.identical_val_tx_line_rate {1}                         \
+    CONFIG.identical_val_tx_line_rate {1}                           \
     CONFIG.identical_val_tx_reference_clock {125.000}               \
-    CONFIG.identical_val_rx_line_rate {1}                         \
+    CONFIG.identical_val_rx_line_rate {1}                           \
     CONFIG.identical_val_rx_reference_clock {125.000}               \
 ] [get_ips sfpgtx]
 

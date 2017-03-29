@@ -43,7 +43,6 @@ port (
     -- Readback signals
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
-    cmd_ready_n_i       : in  std_logic;
     SLOW_FPGA_VERSION   : in  std_logic_vector(31 downto 0)
 );
 end reg_top;
@@ -130,9 +129,6 @@ begin
                 read_data_o <= POS_READ_VALUE;
             when REG_POS_READ_CHANGES =>
                 read_data_o <= POS_READ_CHANGES;
-            --will we need it in the futur?
-            --when REG_SLOW_REGISTER_STATUS =>
-            --    read_data_o <= ZEROS(31) & cmd_ready_n_i;
             when others =>
                 read_data_o <= (others => '0');
         end case;

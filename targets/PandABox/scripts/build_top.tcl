@@ -44,8 +44,7 @@ set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 #
 # Import IPs
 read_ip $BUILD_DIR/ip_repo/pulse_queue/pulse_queue.xci
-read_ip $BUILD_DIR/ip_repo/pcap_dma_fifo/pcap_dma_fifo.xci
-read_ip $BUILD_DIR/ip_repo/pgen_dma_fifo/pgen_dma_fifo.xci
+read_ip $BUILD_DIR/ip_repo/fifo_1K32/fifo_1K32.xci
 read_ip $BUILD_DIR/ip_repo/pcomp_dma_fifo/pcomp_dma_fifo.xci
 read_ip $BUILD_DIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
 read_ip $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
