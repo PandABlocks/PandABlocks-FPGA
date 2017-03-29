@@ -37,6 +37,7 @@ port (
     -- System Bus
     sysbus_i            : in  std_logic_vector(SBUSW-1 downto 0);
     -- TTL I/O
+    val_o               : out std_logic_vector(TTLOUT_NUM-1 downto 0);
     pad_o               : out std_logic_vector(TTLOUT_NUM-1 downto 0)
 );
 end ttlout_top;
@@ -88,6 +89,7 @@ port map (
     -- Block inputs
     sysbus_i            => sysbus_i,
     -- Block outputs
+    val_o               => val_o(I),
     pad_o               => pad_o(I)
 );
 

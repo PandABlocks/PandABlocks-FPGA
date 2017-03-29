@@ -42,7 +42,8 @@ end lvdsout_block;
 
 architecture rtl of lvdsout_block is
 
-signal opad                 : std_logic;
+signal val              : std_logic;
+signal pad_iob          : std_logic;
 
 begin
 
@@ -55,7 +56,7 @@ port map (
     reset_i             => reset_i,
     sysbus_i            => sysbus_i,
     posbus_i            => (others => (others => '0')),
-    val_o               => opad,
+    val_o               => val,
 
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i,
@@ -73,9 +74,11 @@ port map (
 ---------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
-        pad_o <= opad;
+        pad_iob <= val;
     end if;
 end process;
+
+pad_o <= pad_iob;
 
 end rtl;
 

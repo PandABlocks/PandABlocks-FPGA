@@ -36,13 +36,15 @@ port (
     -- Block inputs
     sysbus_i            : in  sysbus_t;
     -- Output pulse
+    val_o               : out std_logic;
     pad_o               : out std_logic
 );
 end ttlout_block;
 
 architecture rtl of ttlout_block is
 
-signal opad                 : std_logic;
+signal val              : std_logic;
+signal pad_iob          : std_logic;
 
 begin
 
@@ -55,7 +57,7 @@ port map (
     reset_i             => reset_i,
     sysbus_i            => sysbus_i,
     posbus_i            => (others => (others => '0')),
-    val_o               => opad,
+    val_o               => val,
 
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i,
@@ -73,8 +75,11 @@ port map (
 ---------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
-        pad_o <= opad;
+        pad_iob <= val;
     end if;
 end process;
+
+pad_o <= pad_iob;
+val_o <= val;
 
 end rtl;

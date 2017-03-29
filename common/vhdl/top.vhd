@@ -211,7 +211,6 @@ signal outenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
 signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
 signal ttlout_val           : std_logic_vector(TTLOUT_NUM-1 downto 0);
 signal lvdsin_val           : std_logic_vector(LVDSIN_NUM-1 downto 0);
-signal lvdsout_val          : std_logic_vector(LVDSOUT_NUM-1 downto 0);
 signal lut_val              : std_logic_vector(LUT_NUM-1 downto 0);
 signal srgate_out           : std_logic_vector(SRGATE_NUM-1 downto 0);
 signal div_outd             : std_logic_vector(DIV_NUM-1 downto 0);
@@ -469,10 +468,9 @@ port map (
     write_ack_o         => write_ack(TTLOUT_CS),
 
     sysbus_i            => sysbus,
-    pad_o               => ttlout_val
+    val_o               => ttlout_val,
+    pad_o               => TTLOUT_PAD_O
 );
-
-TTLOUT_PAD_O <= ttlout_val;
 
 ---------------------------------------------------------------------------
 -- LVDS
@@ -500,10 +498,8 @@ port map (
     write_ack_o         => write_ack(LVDSOUT_CS),
 
     sysbus_i            => sysbus,
-    pad_o               => lvdsout_val
+    pad_o               => LVDSOUT_PAD_O
 );
-
-LVDSOUT_PAD_O <= lvdsout_val;
 
 ---------------------------------------------------------------------------
 -- 5-Input LUT
