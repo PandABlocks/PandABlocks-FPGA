@@ -154,7 +154,7 @@ port map (
     sysbus_i            => bitbus_i,
     posbus_i            => (others => (others => '0')),
     -- Block Parameters
-    PRESENT             => FMC_PRSNT_DW,
+    FMC_PRSNT           => FMC_PRSNT_DW,
     out1_o              => fmc_out(0),
     out2_o              => fmc_out(1),
     out3_o              => fmc_out(2),

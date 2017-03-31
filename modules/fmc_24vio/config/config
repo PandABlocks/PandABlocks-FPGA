@@ -1,5 +1,5 @@
 FMC
-    PRESENT         read
+    FMC_PRSNT       read
     OUT1            bit_mux
     OUT2            bit_mux
     OUT3            bit_mux

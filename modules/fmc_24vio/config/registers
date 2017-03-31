@@ -1,5 +1,5 @@
 FMC         {{newBlockNo("FMC")}}
-    PRESENT         {{newBlockReg()}}
+    FMC_PRSNT       {{newBlockReg()}}
     OUT1            {{newBlockReg(typ='bit_mux')}}
     OUT2            {{newBlockReg(typ='bit_mux')}}
     OUT3            {{newBlockReg(typ='bit_mux')}}
