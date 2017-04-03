@@ -30,7 +30,7 @@ import modules
 MODULE_DIR = os.path.join(os.path.dirname(modules.__file__))
 PAR_DIR = os.path.join(__file__, os.pardir, os.pardir)
 ROOT_DIR = os.path.dirname(os.path.abspath(PAR_DIR))
-CONFIG_DIR = os.path.join(ROOT_DIR, 'config_d')
+CONFIG_DIR = os.path.join(os.environ['FPGA_BUILD_DIR'], 'config_d')
 
 
 def legend_label(text, x, y, off):
