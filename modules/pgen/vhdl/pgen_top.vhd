@@ -37,12 +37,12 @@ end pgen_top;
 
 architecture rtl of pgen_top is
 
-signal read_strobe      : std_logic_vector(TTLOUT_NUM-1 downto 0);
-signal read_data        : std32_array(TTLOUT_NUM-1 downto 0);
-signal read_ack         : std_logic_vector(TTLOUT_NUM-1 downto 0);
+signal read_strobe      : std_logic_vector(PGEN_NUM-1 downto 0);
+signal read_data        : std32_array(PGEN_NUM-1 downto 0);
+signal read_ack         : std_logic_vector(PGEN_NUM-1 downto 0);
 
-signal write_strobe     : std_logic_vector(TTLOUT_NUM-1 downto 0);
-signal write_ack        : std_logic_vector(TTLOUT_NUM-1 downto 0);
+signal write_strobe     : std_logic_vector(PGEN_NUM-1 downto 0);
+signal write_ack        : std_logic_vector(PGEN_NUM-1 downto 0);
 
 begin
 
