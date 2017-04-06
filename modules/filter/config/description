@@ -1,0 +1,8 @@
+FILTER
+    MODE            ..
+    TRIG            ..
+    INP             ..
+    ENABLE          ..
+    OUT             ..
+    READY           ..
+    ERR             ..

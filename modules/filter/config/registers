@@ -1,0 +1,8 @@
+FILTER        {{newBlockNo("FILTER")}}
+    MODE            {{newBlockReg()}}
+    TRIG            {{newBlockReg(typ='bit_mux')}}
+    INP             {{newPosBus(location='upper')}}
+    ENABLE          {{newBlockReg(typ='bit_mux')}}
+    OUT             {{newPosBus(location='upper')}}
+    READY           {{newBitBus()}}
+    ERR             {{newBlockReg()}}

@@ -15,5 +15,3 @@ class Filter(Block):
         for name, value in changes.items():
             setattr(self, name, value)
 
-        print changes
-

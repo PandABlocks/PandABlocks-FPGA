@@ -7,7 +7,7 @@ require("numpy")
 import unittest
 
 # add our python dir
-# sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..",))
 
 from common.python.pandablocks.block import Block
 from common.python.pandablocks.sequenceparser import SequenceParser
