@@ -16,7 +16,7 @@ from common.python.pandablocks.sequenceparser import SequenceParser
 import modules
 module_dir = os.path.join(os.path.dirname(modules.__file__))
 
-Block.load_config(os.path.join(os.path.dirname(__file__), '..', 'config_d'))
+Block.load_config(os.path.join(os.path.dirname(__file__), '..', 'build', 'PandABox', 'config_d'))
 
 
 class SequenceTest(unittest.TestCase):
