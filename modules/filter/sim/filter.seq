@@ -1,5 +1,5 @@
 #######################
-$ Difference test
+$ Difference mode
 3       : MODE = 0
 4       : INP = 5
 5       : ENABLE = 1
@@ -9,19 +9,39 @@ $ Difference test
 15      : ENABLE = 0
 
 #######################
-$ Average test 1
+$ Average mode no input change
 2       : MODE = 1
 3       : INP = 20
 5       : ENABLE = 1, INP=20
-10      : TRIG = 1          : OUT=20
+9       : TRIG = 1          : OUT=20
 14      : TRIG = 0
 15      : ENABLE = 0
 
 #######################
-$ Average test 3
+$ Average mode summing inputs
 2       : MODE = 1
 3       : INP = 20
-5       : ENABLE = 1, INP=20
-6       : INP=40
-10      : TRIG = 1          : OUT=36
-14      : TRIG = 0
+4       : ENABLE = 1
+5       : INP = 40
+10      : INP = 20
+14      : TRIG = 1          : OUT=30
+15      : TRIG = 0
+
+#######################
+$ Average mode summing inputs change on enable
+2       : MODE = 1
+3       : INP = 20
+5       : ENABLE = 1, INP=40
+10      : INP = 20
+14      : TRIG = 1          : OUT=28
+15      : TRIG = 0
+
+#######################
+$ Average mode summing inputs change on trig
+2       : MODE = 1
+3       : INP = 20
+4       : ENABLE = 1
+5       : INP = 40
+10      : INP = 20
+14      : TRIG = 1, INP = 50    : OUT=33
+15      : TRIG = 0
