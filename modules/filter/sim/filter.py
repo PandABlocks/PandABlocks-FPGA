@@ -79,5 +79,6 @@ class Filter(Block):
 
         # End the 1 cycle pulse on ready
         if self.queue and self.queue[0][0] == ts:
+            self.queue.popleft()
             self.READY = 0
 

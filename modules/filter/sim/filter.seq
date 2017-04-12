@@ -9,6 +9,44 @@ $ Difference mode
 15      : ENABLE = 0
 
 #######################
+$ Difference mode positive ramping input
+3       : MODE = 0
+4       : INP = 5
+5       : ENABLE = 1, INP = 6
+6       : INP = 7
+7       : INP = 8
+8       : INP = 9
+9       : INP = 10
+10      : TRIG = 1, INP=11      : OUT=5, READY=1
+11      : INP = 12, TRIG = 0    : READY=0
+12      : INP = 13
+13      : INP = 14
+14      : INP = 15
+15      : INP = 16
+16      : INP = 17, TRIG = 1    : OUT = 6, READY = 1
+17      : TRIG = 0              : READY = 0
+18      : ENABLE = 0
+
+#######################
+$ Difference mode negative ramping input
+3       : MODE = 0
+4       : INP = 50
+5       : ENABLE = 1, INP = 45
+6       : INP = 40
+7       : INP = 35
+8       : INP = 30
+9       : INP = 25
+10      : TRIG = 1, INP=20      : OUT=-25, READY=1
+11      : INP = 15, TRIG = 0    : READY=0
+12      : INP = 10
+13      : INP = 5
+14      : INP = 0
+15      : INP = -5
+16      : INP = -10, TRIG = 1    : OUT = -30, READY = 1
+17      : TRIG = 0              : READY = 0
+18      : ENABLE = 0
+
+#######################
 $ Average mode no input change
 2       : MODE = 1
 3       : INP = 20
