@@ -28,4 +28,4 @@ Each block is documented with examples
     posenc
     qdec
     ttlin
-    ttlout
+    filter
