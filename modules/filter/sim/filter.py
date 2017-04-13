@@ -46,6 +46,8 @@ class Filter(Block):
         self.nsamples = ts - self.ts_sum_start
         self.sum += self.INP * (ts - self.ts_sum)
         self.OUT = self.sum / (self.nsamples)
+        self.READY = 1
+        self.queue.append((ts + 1, 0))
 
     def do_sum(self, ts):
         self.sum += self.inp_prev * (ts - self.ts_sum - 1) + self.INP
@@ -76,6 +78,7 @@ class Filter(Block):
         if changes.get(b.TRIG) == 1:
             if self.ENABLE == 1:
                 self.handle_trig(ts)
+                self.set_avearage(ts)
 
         # End the 1 cycle pulse on ready
         if self.queue and self.queue[0][0] == ts:

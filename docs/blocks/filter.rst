@@ -23,7 +23,11 @@ desc....
 
 .. sequence_plot::
    :block: filter
-   :title: Difference mode ramping input
+   :title: Difference mode positive ramping input
+
+.. sequence_plot::
+   :block: filter
+   :title: Difference mode negative ramping input
 
 Average
 ----------------
@@ -32,16 +36,13 @@ desc......
 
 .. sequence_plot::
    :block: filter
-   :title: Average mode no input change
-
-.. sequence_plot::
-   :block: filter
    :title: Average mode summing inputs
 
 .. sequence_plot::
    :block: filter
-   :title: Average mode summing inputs change on enable
+   :title: Average mode positive ramp
 
 .. sequence_plot::
    :block: filter
-   :title: Average mode summing inputs change on trig
+   :title: Average mode negative ramp
+
