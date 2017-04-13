@@ -29,3 +29,4 @@ Each block is documented with examples
     qdec
     ttlin
     filter
+    ttlout
