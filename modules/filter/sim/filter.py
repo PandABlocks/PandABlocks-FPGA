@@ -9,6 +9,7 @@ class Filter(Block):
         self.nsamples = 0
         self.sum = 0
         self.queue = deque()
+        self.avgqueue = deque()
         self.ts_sum_start = 0
         self.ts_sum = 0
         self.inp_prev = 0
@@ -45,9 +46,8 @@ class Filter(Block):
     def average(self, ts):
         self.nsamples = ts - self.ts_sum_start
         self.sum += self.INP * (ts - self.ts_sum)
-        self.OUT = self.sum / (self.nsamples)
-        self.READY = 1
-        self.queue.append((ts + 1, 0))
+        out = self.sum / (self.nsamples)
+        self.avgqueue.append((ts + 32, out))
 
     def do_sum(self, ts):
         self.sum += self.inp_prev * (ts - self.ts_sum - 1) + self.INP
@@ -85,3 +85,8 @@ class Filter(Block):
             self.queue.popleft()
             self.READY = 0
 
+        if self.avgqueue and self.avgqueue[0][0] == ts:
+            self.READY = 1
+            self.OUT = self.avgqueue[0][1]
+            self.avgqueue.popleft()
+            self.queue.append((ts + 1, 0))
