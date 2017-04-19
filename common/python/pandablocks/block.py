@@ -1,6 +1,6 @@
 import numpy as np
 
-from common.python.pandablocks.configparser import ConfigParser
+from pandablocks.configparser import ConfigParser
 
 
 # These are the powers of two in an array
