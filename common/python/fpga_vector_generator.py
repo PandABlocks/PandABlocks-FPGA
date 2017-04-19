@@ -86,7 +86,6 @@ class FpgaSequence(object):
 
     def write(self):
         # Write the lines
-        print "WRITING", self.fpga_dir
         try:
             os.makedirs(self.fpga_dir)
         except OSError:
