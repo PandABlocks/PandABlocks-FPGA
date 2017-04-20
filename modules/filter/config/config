@@ -1,0 +1,11 @@
+FILTER[{{app_config["FILTER"]}}]
+    MODE            param       enum 2
+        0   difference
+        1   average
+    TRIG            bit_mux
+    INP             pos_mux
+    ENABLE          bit_mux
+    OUT             pos_out
+    READY           bit_out
+    ERR             bit_out
+

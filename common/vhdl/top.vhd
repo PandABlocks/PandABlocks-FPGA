@@ -292,6 +292,11 @@ signal fmc_data             : std32_array(15 downto 0);
 signal sfp_inputs           : std_logic_vector(15 downto 0);
 signal sfp_data             : std32_array(15 downto 0);
 
+-- FILTER Block
+signal FILTER_OUT           : std32_array(FILTER_NUM-1 downto 0);   
+signal FILTER_READY         : std_logic_vector(FILTER_NUM-1 downto 0);
+signal FILTER_ERR           : std_logic_vector(FILTER_NUM-1 downto 0);
+
 -- Make schematics a bit more clear for analysis
 attribute keep              : string;
 attribute keep of sysbus    : signal is "true";
@@ -544,6 +549,32 @@ port map (
     sysbus_i            => sysbus,
     out_o               => srgate_out
 );
+
+
+---------------------------------------------------------------------------
+-- FILTER
+---------------------------------------------------------------------------
+inst_filter_top : entity work.filter_top
+port map(
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
+    read_strobe_i       => read_strobe(FILTER_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(FILTER_CS),
+    read_ack_o          => read_ack(FILTER_CS),
+
+    write_strobe_i      => write_strobe(FILTER_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(FILTER_CS),
+    sysbus_i            => sysbus,
+    posbus_i            => posbus,
+    out_o               => FILTER_OUT, 
+    ready_o             => FILTER_READY,
+    err_o               => FILTER_ERR            
+ );
+
 
 ---------------------------------------------------------------------------
 -- DIVIDER
@@ -1208,6 +1239,9 @@ port map (
     fmc_data_i      => fmc_data,
     sfp_inputs_i    => sfp_inputs,
     sfp_data_i      => sfp_data,
+    FILTER_OUT      => FILTER_OUT,
+    FILTER_READY    => FILTER_READY,
+    FILTER_ERR      => FILTER_ERR, 
     -- SFP Block
     -- Bus Outputs
     bitbus_o        => sysbus,
