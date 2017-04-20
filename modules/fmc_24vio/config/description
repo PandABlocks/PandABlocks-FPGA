@@ -1,5 +1,5 @@
 FMC   FMC 24V IO Module
-    PRESENT        FMC present
+    FMC_PRSNT       FMC present
     OUT1            24V Output-1
     OUT2            24V Output-2
     OUT3            24V Output-3

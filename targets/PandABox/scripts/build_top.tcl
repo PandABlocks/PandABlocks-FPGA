@@ -47,8 +47,10 @@ read_ip $BUILD_DIR/ip_repo/pulse_queue/pulse_queue.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32/fifo_1K32.xci
 read_ip $BUILD_DIR/ip_repo/pcomp_dma_fifo/pcomp_dma_fifo.xci
 read_ip $BUILD_DIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
-read_ip $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
 read_ip $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
+if {$FMC_DESIGN == "fmc_loopback"} {
+    read_ip $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
+}
 
 # Read Zynq block design
 read_bd   $BUILD_DIR/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
@@ -84,6 +86,7 @@ read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/sfpgt_loopback/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/*.vhd]
 add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/sfpgt_loopback/gt_rom_init_rx.dat
 add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/sfpgt_loopback/gt_rom_init_tx.dat
+add_files $TOP_DIR/modules/$FMC_DESIGN/vhdl/
 
 # Read constraint files
 read_xdc $TOP_DIR/modules/$FMC_DESIGN/const/fmc.xdc

@@ -1,6 +1,9 @@
 import numpy as np
+import sys, os
 
-from common.python.pandablocks.configparser import ConfigParser
+# add our python dir
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "python"))
+from pandablocks.configparser import ConfigParser
 
 
 # These are the powers of two in an array

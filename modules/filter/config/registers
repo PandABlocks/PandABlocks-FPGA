@@ -6,4 +6,3 @@ FILTER      {{newBlockNo("FILTER")}}
     OUT             {{newPosBus()}}
     READY           {{newBitBus()}}
     ERR             {{newBitBus()}}
-

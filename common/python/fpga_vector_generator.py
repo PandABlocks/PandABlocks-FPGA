@@ -10,15 +10,17 @@ from collections import OrderedDict
 # add our python dir
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "python"))
 
-from common.python.pandablocks.block import Block
-from common.python.pandablocks.sequenceparser import SequenceParser
-from common.python.pandablocks.configparser import ConfigParser
+from pandablocks.block import Block
+from pandablocks.sequenceparser import SequenceParser
+from pandablocks.configparser import ConfigParser
 
-import modules
-MODULE_DIR = os.path.join(os.path.dirname(modules.__file__))
+# import modules
+# MODULE_DIR = os.path.join(os.path.dirname(modules.__file__))
 PAR_DIR = os.path.join(__file__, os.pardir, os.pardir)
+MODULE_DIR = os.path.join(os.path.abspath(PAR_DIR), "..",  "modules")
 ROOT_DIR = os.path.dirname(os.path.abspath(PAR_DIR))
-CONFIG_DIR = os.path.join(ROOT_DIR, 'config_d')
+BUILD_DIR = os.path.join(ROOT_DIR,'build', 'PandABox')
+CONFIG_DIR = os.path.join(BUILD_DIR, 'config_d')
 
 
 Block.load_config(CONFIG_DIR)
@@ -194,7 +196,7 @@ def generate_fpga_test_vectors(build_dir):
     # These are the tests that start with !
 
 def main(argv):
-    output_dir = "build"
+    output_dir = BUILD_DIR
     try:
         opts, args = getopt.getopt(argv, "ho:", ["outputdir="])
     except getopt.GetoptError:

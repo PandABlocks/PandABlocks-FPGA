@@ -1,0 +1,103 @@
+#######################
+$ Difference mode
+3       : MODE = 0
+4       : INP = 5
+5       : ENABLE = 1
+10      : TRIG = 1, INP=8  : OUT=3, READY=1
+11      :                  : READY=0
+14      : TRIG = 0
+15      : ENABLE = 0
+
+#######################
+$ Difference mode positive ramping input
+3       : MODE = 0
+4       : INP = 5
+7       : ENABLE = 1
+10      : INP = 7
+16      : INP = 9
+22      : TRIG = 1, INP=11      : OUT=6, READY=1
+23      :                       : READY=0
+24      : TRIG = 0
+27      : INP = 13
+33      : INP = 15
+39      : TRIG = 1              : OUT = 4, READY = 1
+40      :                       : READY = 0
+42      : TRIG = 0
+45      : ENABLE = 0
+
+#######################
+$ Difference mode negative ramping input
+3       : MODE = 0
+4       : INP = 50
+5       : ENABLE = 1, INP = 45
+6       : INP = 40
+7       : INP = 35
+8       : INP = 30
+9       : INP = 25
+10      : TRIG = 1, INP=20      : OUT=-25, READY=1
+11      : INP = 15, TRIG = 0    : READY=0
+12      : INP = 10
+13      : INP = 5
+14      : INP = 0
+15      : INP = -5
+16      : INP = -10, TRIG = 1    : OUT = -30, READY = 1
+17      : TRIG = 0              : READY = 0
+18      : ENABLE = 0
+
+#######################
+$ Average mode summing inputs
+2       : MODE = 1
+3       : INP = 20
+4       : ENABLE = 1
+5       : INP = 40
+10      : INP = 20
+14      : TRIG = 1
+15      : TRIG = 0
+46      :                   : READY=1, OUT=30
+47      :                   : READY=0
+
+#######################
+$ Average mode positive ramp
+3       : MODE = 1
+4       : INP = 5
+5       : ENABLE = 1, INP = 6
+6       : INP = 7
+7       : INP = 8
+8       : INP = 9
+9       : INP = 10
+10      : TRIG = 1, INP=11
+15      : INP = 12, TRIG = 0
+20      : INP = 13
+25      : INP = 14
+30      : INP = 15
+35      : INP = 16
+42      :                       : READY=1, OUT=9
+43      :                       : READY=0
+45      : TRIG = 1, INP = 17
+50      : TRIG = 0              :
+55      : ENABLE = 0
+77      :                       : READY=1, OUT = 14
+78      :                       : READY=0
+
+#######################
+$ Average mode negative ramp
+3       : MODE = 1
+4       : INP = 19
+5       : ENABLE = 1, INP = 18
+6       : INP = 17
+7       : INP = 16
+8       : INP = 15
+9       : INP = 14
+10      : TRIG = 1, INP=12
+15      : INP = 11, TRIG = 0
+20      : INP = 10
+25      : INP = 9
+30      : INP = 8
+35      : INP = 7
+42      :                       : READY=1, OUT=14
+43      :                       : READY=0
+45      : TRIG = 1, INP = 6
+50      : TRIG = 0
+55      : ENABLE = 0
+77      :                       : READY=1, OUT = 8
+78      :                       : READY=0

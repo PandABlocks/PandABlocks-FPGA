@@ -8,4 +8,3 @@ FILTER[{{app_config["FILTER"]}}]
     OUT             pos_out
     READY           bit_out
     ERR             bit_out
-

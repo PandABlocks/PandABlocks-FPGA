@@ -1,8 +1,8 @@
-FILTER       filter block modes are Difference and Divider  
+FILTER       Filter block modes are Difference and Divider
     MODE            Select operation mode
     TRIG            Trigger event
     INP             Input data
-    ENABLE          Enable event 
+    ENABLE          Enable event
     OUT             Output data
     READY           Output Ready
-    ERR             Error 
+    ERR             Error

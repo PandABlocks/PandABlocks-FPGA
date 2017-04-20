@@ -52,9 +52,9 @@ end pcomp_top;
 
 architecture rtl of pcomp_top is
 
-signal read_strobe      : std_logic_vector(TTLOUT_NUM-1 downto 0);
-signal read_data        : std32_array(TTLOUT_NUM-1 downto 0);
-signal write_strobe     : std_logic_vector(TTLOUT_NUM-1 downto 0);
+signal read_strobe      : std_logic_vector(PCOMP_NUM-1 downto 0);
+signal read_data        : std32_array(PCOMP_NUM-1 downto 0);
+signal write_strobe     : std_logic_vector(PCOMP_NUM-1 downto 0);
 
 begin
 
