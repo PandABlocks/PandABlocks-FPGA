@@ -53,9 +53,9 @@ class Filter(Block):
         self.sum += self.inp_prev * (ts - self.ts_sum - 1) + self.INP
         self.ts_sum = ts
         self.inp_prev = self.INP
-        if sum > (2**32 - 1):
+        if self.sum > (2**32 - 1) or self.sum < -(2**32 - 1):
             self.ERR = 1
-            self.ENABLE == 0
+            self.ENABLE = 0
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
@@ -77,7 +77,10 @@ class Filter(Block):
         # Do actions on rising edge of TRIG
         if changes.get(b.TRIG) == 1:
             if self.ENABLE == 1:
-                self.handle_trig(ts)
+                if not self.avgqueue:
+                    self.handle_trig(ts)
+                else:
+                    self.ERR = 2
                 self.set_avearage(ts)
 
         # End the 1 cycle pulse on ready

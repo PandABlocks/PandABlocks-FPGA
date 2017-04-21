@@ -4,8 +4,7 @@ $ Difference mode
 4       : INP = 5
 5       : ENABLE = 1
 10      : TRIG = 1, INP=8  : OUT=3, READY=1
-11      :                  : READY=0
-14      : TRIG = 0
+11      : TRIG = 0         : READY=0
 15      : ENABLE = 0
 
 #######################
@@ -16,13 +15,11 @@ $ Difference mode positive ramping input
 10      : INP = 7
 16      : INP = 9
 22      : TRIG = 1, INP=11      : OUT=6, READY=1
-23      :                       : READY=0
-24      : TRIG = 0
+23      : TRIG = 0              : READY=0
 27      : INP = 13
 33      : INP = 15
 39      : TRIG = 1              : OUT = 4, READY = 1
-40      :                       : READY = 0
-42      : TRIG = 0
+40      : TRIG = 0              : READY = 0
 45      : ENABLE = 0
 
 #######################
@@ -66,7 +63,8 @@ $ Average mode positive ramp
 8       : INP = 9
 9       : INP = 10
 10      : TRIG = 1, INP=11
-15      : INP = 12, TRIG = 0
+11      : TRIG = 0
+15      : INP = 12
 20      : INP = 13
 25      : INP = 14
 30      : INP = 15
@@ -74,7 +72,7 @@ $ Average mode positive ramp
 42      :                       : READY=1, OUT=9
 43      :                       : READY=0
 45      : TRIG = 1, INP = 17
-50      : TRIG = 0              :
+46      : TRIG = 0              :
 55      : ENABLE = 0
 77      :                       : READY=1, OUT = 14
 78      :                       : READY=0
@@ -89,7 +87,8 @@ $ Average mode negative ramp
 8       : INP = 15
 9       : INP = 14
 10      : TRIG = 1, INP=12
-15      : INP = 11, TRIG = 0
+11      : TRIG = 0
+15      : INP = 11
 20      : INP = 10
 25      : INP = 9
 30      : INP = 8
@@ -97,7 +96,62 @@ $ Average mode negative ramp
 42      :                       : READY=1, OUT=14
 43      :                       : READY=0
 45      : TRIG = 1, INP = 6
-50      : TRIG = 0
+46      : TRIG = 0
 55      : ENABLE = 0
 77      :                       : READY=1, OUT = 8
 78      :                       : READY=0
+
+#######################
+$ Average mode trigger before calculation ready
+3       : MODE = 1
+4       : INP = 5
+5       : ENABLE = 1, INP = 6
+6       : INP = 7
+7       : INP = 8
+8       : INP = 9
+9       : INP = 10
+10      : TRIG = 1, INP=11
+11      : TRIG = 0
+15      : INP = 12
+16      : TRIG = 1              : ERR=2
+17      : TRIG = 0
+20      : INP = 13
+25      : INP = 14
+30      : INP = 15
+35      : INP = 16
+42      :                       : READY=1, OUT=9
+43      :                       : READY=0
+
+#######################
+$ Sum positive overflow
+3       : MODE = 1
+5       : ENABLE = 1
+6       : INP = 4294967294
+7       : INP = 10           : ERR = 1, ENABLE=0
+10      : ENABLE = 1
+11      : INP = 40
+12      : INP = 20
+14      : TRIG = 1
+15      : TRIG = 0
+46      :                   : READY=1, OUT=25
+47      :                   : READY=0
+
+#######################
+$ Sum negative overflow
+3       : MODE = 1
+5       : ENABLE = 1
+6       : INP = -4294967294
+7       : INP = -10           : ERR = 1, ENABLE=0
+10      : ENABLE = 1
+11      : INP = 40
+12      : INP = 20
+14      : TRIG = 1
+15      : TRIG = 0
+46      :                   : READY=1, OUT=25
+47      :                   : READY=0
+
+#######################
+$ Zero division
+
+#######################
+$ Switiching modes before calculation ready
