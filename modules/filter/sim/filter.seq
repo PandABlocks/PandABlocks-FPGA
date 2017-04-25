@@ -52,6 +52,7 @@ $ Average mode summing inputs
 15      : TRIG = 0
 46      :                   : READY=1, OUT=30
 47      :                   : READY=0
+50      : ENABLE = 0
 
 #######################
 $ Average mode positive ramp
@@ -76,6 +77,8 @@ $ Average mode positive ramp
 55      : ENABLE = 0
 77      :                       : READY=1, OUT = 14
 78      :                       : READY=0
+80      : TRIG = 1
+81      : TRIG = 0
 
 #######################
 $ Average mode negative ramp
@@ -100,6 +103,8 @@ $ Average mode negative ramp
 55      : ENABLE = 0
 77      :                       : READY=1, OUT = 8
 78      :                       : READY=0
+80      : TRIG = 1
+81      : TRIG = 0
 
 #######################
 $ Average mode trigger before calculation ready
@@ -121,6 +126,7 @@ $ Average mode trigger before calculation ready
 35      : INP = 16
 42      :                       : READY=1, OUT=9
 43      :                       : READY=0
+50      : ENABLE = 0
 
 #######################
 $ Sum positive overflow
@@ -135,6 +141,7 @@ $ Sum positive overflow
 15      : TRIG = 0
 46      :                   : READY=1, OUT=25
 47      :                   : READY=0
+50      : ENABLE = 0
 
 #######################
 $ Sum negative overflow
@@ -149,6 +156,7 @@ $ Sum negative overflow
 15      : TRIG = 0
 46      :                   : READY=1, OUT=25
 47      :                   : READY=0
+50      : ENABLE = 0
 
 #######################
 $ Zero division
