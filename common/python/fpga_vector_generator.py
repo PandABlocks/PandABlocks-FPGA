@@ -15,7 +15,6 @@ from pandablocks.sequenceparser import SequenceParser
 from pandablocks.configparser import ConfigParser
 
 # import modules
-# MODULE_DIR = os.path.join(os.path.dirname(modules.__file__))
 PAR_DIR = os.path.join(__file__, os.pardir, os.pardir)
 MODULE_DIR = os.path.join(os.path.abspath(PAR_DIR), "..",  "modules")
 ROOT_DIR = os.path.dirname(os.path.abspath(PAR_DIR))
@@ -52,7 +51,6 @@ class FpgaSequence(object):
                 self.reg_out.append(name)
             else:
                 self.reg_in.append(name)
-                self.reg_in.append(name + "_WSTB")
         # Add outputs
         for name, (_, field) in config_block.outputs.items():
             if field.cls != "ext_out":
@@ -80,8 +78,7 @@ class FpgaSequence(object):
             for name in reg_block.registers:
                 if name.startswith("PCAP_"):
                     self.reg_in.append(name[len("PCAP_"):])
-                    self.reg_in.append(name[len("PCAP_"):] + "_WSTB")
-            self.bus_out += ["DATA", "DATA_WSTB", "ERROR"]
+            self.bus_out += ["DATA", "ERROR"]
         self.make_lines()
 
     def write(self):
@@ -129,13 +126,6 @@ class FpgaSequence(object):
             self.pos_bus_lines.append(lpos_bus)
             self.bit_bus_lines.append(lbit_bus)
 
-    def set_wstb(self, changes):
-        strobes = {}
-        for name in self.reg_in + ["DATA"]:
-            if name in changes:
-                strobes[name + "_WSTB"] = 1
-        return strobes
-
     def make_lines(self):
         # make lines list
         self.bus_in_lines = []
@@ -151,33 +141,15 @@ class FpgaSequence(object):
             current = {}
             self.add_line(ts_off, dict(SIM_RESET=1))
             ts_off += RESET_DEADTIME
-            ts_wstb_off = None
             # start the sequence
             for ts in sequence.inputs:
                 changes = {}
-                # Work out if any writestrobes are set
-                strobes = [k for k in current
-                           if k.endswith("_WSTB") and current[k]]
-                # If there are strobes set and we should set them before ts
-                # then add a line for it
-                if strobes:
-                    if ts > ts_wstb_off:
-                        for name in strobes:
-                            current[name] = 0
-                        self.add_line(ts_wstb_off + ts_off, current)
-                    else:
-                        # otherwise just merge them in with the changes
-                        for name in strobes:
-                            changes[name] = 0
                 # Work out what has changed
                 changes.update(sequence.inputs[ts])
                 changes.update(sequence.outputs[ts])
                 # Update our current state with changes
                 current.update(changes)
-                # And with any write strobes that need to be set as a result
-                current.update(self.set_wstb(changes))
                 self.add_line(ts + ts_off, current)
-                ts_wstb_off = ts + 1
             ts_off += ts + 1
 
 
