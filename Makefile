@@ -42,11 +42,13 @@ BUILD_DIR = $(TOP)/build
 FMC_DESIGN = $(shell grep -o 'FMC_[^ ]*' $(APP_FILE) |tr A-Z a-z)
 SFP_DESIGN = $(shell grep -o 'SFP_[^ ]*' $(APP_FILE) |tr A-Z a-z)
 
-carrier-fpga: $(FPGA_BUILD_DIR)
+config_d: $(FPGA_BUILD_DIR)
 	rm -rf $(BUILD_DIR)/config_d
 	rm -rf $(BUILD_DIR)/CarrierFPGA/autogen
 	cd common/python && ./config_generator.py -a $(APP_FILE) -o $(FPGA_BUILD_DIR)
 	cd common/python && ./vhdl_generator.py -o $(FPGA_BUILD_DIR)
+
+carrier-fpga: $(FPGA_BUILD_DIR)
 	$(MAKE) -C $< -f $(TARGET_DIR)/Makefile VIVADO=$(VIVADO) \
 	    TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(FPGA_BUILD_DIR) \
 		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN) \
