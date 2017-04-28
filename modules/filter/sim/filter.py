@@ -53,7 +53,7 @@ class Filter(Block):
         self.sum += self.inp_prev * (ts - self.ts_sum - 1) + self.INP
         self.ts_sum = ts
         self.inp_prev = self.INP
-        if self.sum > (2**32 - 1) or self.sum < -(2**32 - 1):
+        if self.sum > (2**64 - 1) or self.sum < -(2**64 - 1):
             self.ERR = 1
             self.ENABLE = 0
 

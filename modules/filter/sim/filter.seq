@@ -42,6 +42,20 @@ $ Difference mode negative ramping input
 18      : ENABLE = 0
 
 #######################
+$ Difference mode 0 output
+3       : MODE = 0
+4       : INP = -10
+5       : ENABLE = 1
+6       : INP = -8
+7       : INP = -3
+8       : INP = 3
+9       : INP = 8
+10      : INP = 10
+11      : TRIG = 1         : OUT=0, READY=1
+12      : TRIG = 0         : READY=0
+15      : ENABLE = 0
+
+#######################
 $ Average mode summing inputs
 2       : MODE = 1
 3       : INP = 20
@@ -128,35 +142,6 @@ $ Average mode trigger before calculation ready
 43      :                       : READY=0
 50      : ENABLE = 0
 
-#######################
-$ Sum positive overflow
-3       : MODE = 1
-5       : ENABLE = 1
-6       : INP = 4294967294
-7       : INP = 10           : ERR = 1, ENABLE=0
-10      : ENABLE = 1
-11      : INP = 40
-12      : INP = 20
-14      : TRIG = 1
-15      : TRIG = 0
-46      :                   : READY=1, OUT=25
-47      :                   : READY=0
-50      : ENABLE = 0
-
-#######################
-$ Sum negative overflow
-3       : MODE = 1
-5       : ENABLE = 1
-6       : INP = -4294967294
-7       : INP = -10           : ERR = 1, ENABLE=0
-10      : ENABLE = 1
-11      : INP = 40
-12      : INP = 20
-14      : TRIG = 1
-15      : TRIG = 0
-46      :                   : READY=1, OUT=25
-47      :                   : READY=0
-50      : ENABLE = 0
 
 #######################
 $ Zero division
