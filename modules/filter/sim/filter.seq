@@ -46,11 +46,10 @@ $ Difference mode 0 output
 3       : MODE = 0
 4       : INP = -10
 5       : ENABLE = 1
-6       : INP = -8
-7       : INP = -3
-8       : INP = 3
-9       : INP = 8
-10      : INP = 10
+6       : INP = 0
+7       : INP = 10
+8       : INP = 0
+9       : INP = -10
 11      : TRIG = 1         : OUT=0, READY=1
 12      : TRIG = 0         : READY=0
 15      : ENABLE = 0
@@ -62,9 +61,9 @@ $ Average mode summing inputs
 4       : ENABLE = 1
 5       : INP = 40
 10      : INP = 20
-14      : TRIG = 1
+14      : TRIG = 1, INP = 10
 15      : TRIG = 0
-46      :                   : READY=1, OUT=30
+46      :                   : READY=1, OUT=31
 47      :                   : READY=0
 50      : ENABLE = 0
 
@@ -84,12 +83,12 @@ $ Average mode positive ramp
 25      : INP = 14
 30      : INP = 15
 35      : INP = 16
-42      :                       : READY=1, OUT=9
+42      :                       : READY=1, OUT=8
 43      :                       : READY=0
 45      : TRIG = 1, INP = 17
 46      : TRIG = 0              :
 55      : ENABLE = 0
-77      :                       : READY=1, OUT = 14
+77      :                       : READY=1, OUT = 13
 78      :                       : READY=0
 80      : TRIG = 1
 81      : TRIG = 0
@@ -105,17 +104,17 @@ $ Average mode negative ramp
 9       : INP = 14
 10      : TRIG = 1, INP=12
 11      : TRIG = 0
-15      : INP = 11
-20      : INP = 10
-25      : INP = 9
-30      : INP = 8
-35      : INP = 7
-42      :                       : READY=1, OUT=14
+15      : INP = 8
+20      : INP = 4
+25      : INP = 0
+30      : INP = -4
+35      : INP = -8
+42      :                       : READY=1, OUT=15
 43      :                       : READY=0
-45      : TRIG = 1, INP = 6
+45      : TRIG = 1, INP = -10
 46      : TRIG = 0
 55      : ENABLE = 0
-77      :                       : READY=1, OUT = 8
+77      :                       : READY=1, OUT = 0
 78      :                       : READY=0
 80      : TRIG = 1
 81      : TRIG = 0
@@ -138,7 +137,7 @@ $ Average mode trigger before calculation ready
 25      : INP = 14
 30      : INP = 15
 35      : INP = 16
-42      :                       : READY=1, OUT=9
+42      :                       : READY=1, OUT=8
 43      :                       : READY=0
 50      : ENABLE = 0
 

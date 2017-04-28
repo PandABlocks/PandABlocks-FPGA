@@ -44,8 +44,8 @@ class Filter(Block):
         self.queue.append((ts + 1, 0))
 
     def average(self, ts):
-        self.nsamples = ts - self.ts_sum_start
-        self.sum += self.INP * (ts - self.ts_sum)
+        self.nsamples = ts - self.ts_sum_start - 1 #we don't count the trig ts
+        self.sum += self.INP * (ts - self.ts_sum - 1)
         out = self.sum / (self.nsamples)
         self.avgqueue.append((ts + 32, out))
 
