@@ -144,6 +144,31 @@ $ Average mode trigger before calculation ready
 
 #######################
 $ Zero division
+2       : MODE = 1
+3       : INP = 20
+4       : ENABLE = 1
+5       : INP = 10
+6       : INP = 5
+7       : INP = 0
+8       : INP = -5
+9       : INP = -10
+10      : TRIG = 1, INP = -20
+11      : TRIG = 0
+42      :                   : READY=1, OUT=0
+43      :                   : READY=0
+50      : ENABLE = 0
+
 
 #######################
 $ Switiching modes before calculation ready
+2       : MODE = 1
+3       : INP = 20
+4       : ENABLE = 1
+5       : INP = 40
+10      : INP = 20
+14      : TRIG = 1, INP = 10
+15      : TRIG = 0
+20      : MODE = 0
+46      :                   : READY=1, OUT=31
+47      :                   : READY=0
+50      : ENABLE = 0
