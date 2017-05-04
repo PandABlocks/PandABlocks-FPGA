@@ -3,27 +3,43 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity divider is
+
+  generic (g_divider_size  : integer := 64;
+           g_divisor_size  : integer := 32);
+           
   port (clk_i      : in  std_logic;
         enable_i   : in  std_logic; 
-        divisor_i  : in  std_logic_vector(31 downto 0);
-        divider_i  : in  std_logic_vector(63 downto 0);
+        divisor_i  : in  std_logic_vector(g_divisor_size-1 downto 0);
+        divider_i  : in  std_logic_vector(g_divider_size-1 downto 0);
         quot_rdy_o : out std_logic;
-        quot_o     : out std_logic_vector(31 downto 0));
+        quot_o     : out std_logic_vector((g_divider_size-g_divisor_size)-1  downto 0));
 
 end divider;   
 
 architecture rtl of divider is
 
-constant c_divid_msb    : integer := 63;
-constant c_divid_lsb    : integer := 31;
+-- Log 2 function
+function log2 (x : positive) return natural is
+  variable i : natural;
+begin
+  i := 0;
+  while (2**i < x) and i < 31 loop
+    i := i +1;
+  end loop;
+  return i;
+end function;
+      
 
 signal stop     : std_logic;
 signal enable   : std_logic; 
-signal index    : unsigned(5 downto 0);
-signal divider  : unsigned(63 downto 0); 
-signal result   : unsigned(31 downto 0); 
+signal index    : unsigned(log2(g_divisor_size-1) downto 0); 
+signal divider  : unsigned(g_divider_size-1 downto 0); 
+signal result   : unsigned(g_divisor_size-1 downto 0); 
+
+signal divider_comp : unsigned(31 downto 0);
 
 begin
+
 
 ps_divider: process(clk_i)
 begin
@@ -41,27 +57,34 @@ begin
       quot_rdy_o <= '0';
     end if; 
 
-    if index = to_unsigned(c_divid_lsb,index'length) and enable = '1' then
+    if index = to_unsigned(g_divisor_size-1,index'length) then
       stop <= '1';
     else
       stop <= '0';
-    end if;      
-
-    if enable = '1' then  
+    end if;   
+           
+    -- Enable the divider
+    if enable = '1' then         
+          
       -- Shift compare and subtract
-      if divider((c_divid_msb-to_integer(index)) downto (c_divid_lsb-to_integer(index))) >= unsigned(divisor_i) then
-        -- Number of divides 
-        result(c_divid_lsb-to_integer(index)) <= '1';
+      ----------if divider((g_divider_size-to_integer(index))-1 downto (g_divisor_size-to_integer(index))-1) >= unsigned(divisor_i) then
+      if divider((g_divider_size-to_integer(index))-2 downto (g_divisor_size-to_integer(index))-1) >= unsigned(divisor_i) then
+      
+        divider_comp <= divider((g_divider_size-to_integer(index))-2 downto (g_divisor_size-to_integer(index))-1);
+      
+        -- Number of divide 
+        result(g_divisor_size-to_integer(index)-1) <= '1';
         -- Subtract 
-        divider((c_divid_msb-to_integer(index)) downto (c_divid_lsb-to_integer(index))) <= 
-                divider((c_divid_msb-to_integer(index)) downto (c_divid_lsb-to_integer(index))) - unsigned(divisor_i);                
+        ----------divider((g_divider_size-to_integer(index))-1 downto (g_divisor_size-to_integer(index))-1) <= 
+        ----------        divider((g_divider_size-to_integer(index))-1 downto (g_divisor_size-to_integer(index))-1) - unsigned(divisor_i);                
+        divider((g_divider_size-to_integer(index))-2 downto (g_divisor_size-to_integer(index))-1) <= 
+                divider((g_divider_size-to_integer(index))-2 downto (g_divisor_size-to_integer(index))-1) - unsigned(divisor_i);                
       end if;     
 
       -- index count has reach its terminal value 
-      if index /= c_divid_lsb then    
+      if index /= g_divisor_size-1 then    
         index <= index +1;
       end if; 
-
 
     else 
       index <= (others => '0');
