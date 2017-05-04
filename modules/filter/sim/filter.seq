@@ -114,7 +114,7 @@ $ Average mode negative ramp
 45      : TRIG = 1, INP = -10
 46      : TRIG = 0
 55      : ENABLE = 0
-77      :                       : READY=1, OUT = 0
+77      :                       : READY=1, OUT = 2
 78      :                       : READY=0
 80      : TRIG = 1
 81      : TRIG = 0

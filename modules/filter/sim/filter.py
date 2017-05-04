@@ -49,7 +49,7 @@ class Filter(Block):
         self.sum += self.INP * (ts - self.ts_sum - 1)
         out = self.sum / (self.nsamples)
         self.avgqueue.append((ts + 32, out))
-        print "!TS", ts, "SUM", self.sum, "N", self.nsamples
+        self.sum += self.INP #add the input under the trigger to the next bin
 
     def do_sum(self, ts):
         self.sum += self.inp_prev * (ts - self.ts_sum - 1) + self.INP
@@ -58,7 +58,6 @@ class Filter(Block):
         if self.sum > (2**64 - 1) or self.sum < -(2**64 - 1):
             self.ERR = 1
             # self.ENABLE = 0
-        print "TS", ts, "SUM", self.sum, "N", self.nsamples
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
