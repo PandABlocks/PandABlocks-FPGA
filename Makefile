@@ -24,7 +24,7 @@ export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
 # -------------------------------------------------------------------------
 
 export FPGA_BUILD_DIR
-$(DOCS_BUILD_DIR)/index.html: $(wildcard docs/*.rst docs/*/*.rst docs/conf.py)
+$(DOCS_BUILD_DIR)/index.html: $(wildcard docs/*.rst docs/*/*.rst docs/conf.py) config_d
 	$(SPHINX_BUILD) -b html docs $(DOCS_BUILD_DIR)
 
 docs: $(DOCS_BUILD_DIR)/index.html

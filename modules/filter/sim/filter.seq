@@ -63,9 +63,9 @@ $ Average mode summing inputs
 10      : INP = 20
 14      : TRIG = 1, INP = 10
 15      : TRIG = 0
-46      :                   : READY=1, OUT=31
-47      :                   : READY=0
-50      : ENABLE = 0
+49      :                   : READY=1, OUT=31
+50      :                   : READY=0
+53      : ENABLE = 0
 
 #######################
 $ Average mode positive ramp
@@ -83,15 +83,15 @@ $ Average mode positive ramp
 25      : INP = 14
 30      : INP = 15
 35      : INP = 16
-42      :                       : READY=1, OUT=8
-43      :                       : READY=0
-45      : TRIG = 1, INP = 17
-46      : TRIG = 0              :
-55      : ENABLE = 0
-77      :                       : READY=1, OUT = 13
-78      :                       : READY=0
-80      : TRIG = 1
-81      : TRIG = 0
+45      :                       : READY=1, OUT=8
+46      :                       : READY=0
+47      : TRIG = 1, INP = 17
+49      : TRIG = 0              :
+58      : ENABLE = 0
+82      :                       : READY=1, OUT = 13
+83      :                       : READY=0
+85      : TRIG = 1
+86      : TRIG = 0
 
 #######################
 $ Average mode negative ramp
@@ -109,15 +109,15 @@ $ Average mode negative ramp
 25      : INP = 0
 30      : INP = -4
 35      : INP = -8
-42      :                       : READY=1, OUT=15
-43      :                       : READY=0
-45      : TRIG = 1, INP = -10
-46      : TRIG = 0
-55      : ENABLE = 0
-77      :                       : READY=1, OUT = 2
-78      :                       : READY=0
-80      : TRIG = 1
-81      : TRIG = 0
+45      :                       : READY=1, OUT=15
+46      :                       : READY=0
+48      : TRIG = 1, INP = -10
+49      : TRIG = 0
+58      : ENABLE = 0
+83      :                       : READY=1, OUT = 1
+84      :                       : READY=0
+86      : TRIG = 1
+87      : TRIG = 0
 
 #######################
 $ Average mode trigger before calculation ready
@@ -150,8 +150,10 @@ $ Average mode trigger before calculation ready
 75      : INP = 14
 80      : INP = 15
 85      : INP = 16
-92      :                       : READY=1, OUT=8
-93      :                       : READY=0
+95      :                       : READY=1, OUT=8
+96      :                       : READY=0
+100     : TRIG = 1
+101     : TRIG = 0
 
 #######################
 $ Zero division
@@ -165,6 +167,8 @@ $ Zero division
 9       : INP = -10
 10      : TRIG = 1, INP = -20
 11      : TRIG = 0
-42      :                   : READY=1, OUT=0
-43      :                   : READY=0
-50      : ENABLE = 0
+45      :                   : READY=1, OUT=0
+46      :                   : READY=0
+53      : ENABLE = 0
+58      : TRIG = 1
+59      : TRIG = 0
