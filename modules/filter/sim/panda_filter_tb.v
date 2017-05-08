@@ -128,7 +128,6 @@ end
 // OUTPUTS
 //
 // TS»¯¯¯¯¯OUT»¯¯¯¯¯READY»
-//integer bus_out[3:0];
 integer bus_out[2:0];
 reg     is_file_end;
 
