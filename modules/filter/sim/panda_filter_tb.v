@@ -26,6 +26,8 @@ reg [1:0] err_o_dly;
 reg [5:0] cnt_code_results = 0;
 reg [5:0] cnt_file_results = 0;
 
+reg [31:0] test_signal;
+
 always #4 clk_i = ~clk_i;
 
 // $stop Halts a simulation and enters an interactive debug mode
@@ -36,9 +38,11 @@ always @ (posedge clk_i) //----------------------------------------- HERE
     end       
 
 
-integer fid[2:0];
+//integer fid[2:0];
+integer fid[3:0];
 
-integer r[2:0];
+//integer r[2:0];
+integer r[3:0];
 
 //
 // Values in the test files are arranged on FPGA clock ticks on the
@@ -123,16 +127,14 @@ end
 // READ BLOCK EXPECTED OUTPUTS FILE TO COMPARE AGAINTS BLOCK
 // OUTPUTS
 //
-// TS»¯¯¯¯¯OUT»¯¯¯¯¯READY»¯¯¯¯¯ERR
-integer bus_out[3:0];
+// TS»¯¯¯¯¯OUT»¯¯¯¯¯READY»
+//integer bus_out[3:0];
+integer bus_out[2:0];
 reg     is_file_end;
 
 initial begin
-    //OUTN = 0;
-    //OUTD = 0;
     OUT   = 0;
     READY = 0;
-    ERR = 0;
     is_file_end = 0;
 
     @(posedge clk_i);
@@ -141,14 +143,13 @@ initial begin
     fid[2] = $fopen("filter_bus_out.txt", "r"); // TS»¯¯¯¯¯OUT»¯¯¯READY
 
     // Read and ignore description field
-    r[2] = $fscanf(fid[2], "%s %s %s %s\n", bus_out[3], bus_out[2], bus_out[1], bus_out[0]);
+    r[2] = $fscanf(fid[2], "%s %s %s\n", bus_out[2], bus_out[1], bus_out[0]);
 
     while (!$feof(fid[2])) begin
-        r[2] = $fscanf(fid[2], "%d %d %d %d\n", bus_out[3], bus_out[2], bus_out[1], bus_out[0]);
-        wait (timestamp == bus_out[3]) begin
-            OUT = bus_out[2];
-            READY = bus_out[1];
-            ERR = bus_out[0];
+        r[2] = $fscanf(fid[2], "%d %d %d\n", bus_out[2], bus_out[1], bus_out[0]);
+        wait (timestamp == bus_out[2]) begin
+            OUT = bus_out[1];
+            READY = bus_out[0];
         end
         @(posedge clk_i);
     end
@@ -156,6 +157,33 @@ initial begin
     repeat(100) @(posedge clk_i);
 
     is_file_end = 1;
+end
+
+//
+// READ BLOCK EXPECTED ERROR OUTPUTS FILE TO COMPARE AGAINTS ERROR
+// OUTPUTS
+//
+// TS»¯¯¯¯¯ERR»
+integer reg_out[1:0];
+
+initial begin
+    ERR = 0;
+
+    @(posedge clk_i);
+
+    // Open "reg_out" file
+    fid[3] = $fopen("filter_reg_out.txt", "r"); // TS»¯¯¯¯¯ERR
+
+    // Read and ignore description field
+    r[3] = $fscanf(fid[3], "%s %s\n", reg_out[1], reg_out[0]);
+
+    while (!$feof(fid[3])) begin
+        r[3] = $fscanf(fid[3], "%d %d\n", reg_out[1], reg_out[0]);
+        wait (timestamp == reg_out[1]) begin
+            ERR = reg_out[0];
+        end
+        @(posedge clk_i);
+    end
 end
 
 
@@ -174,8 +202,7 @@ begin
     if (READY == 1) begin
         cnt_file_results <= cnt_file_results +1;
     end 
-            
-    
+        
     if (~is_file_end) begin
         if (OUT != out_o & ready_o) begin
             //$display("OUTN error detected at timestamp %d\n", timestamp);

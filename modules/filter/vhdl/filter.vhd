@@ -92,7 +92,7 @@ begin
         sum_num <= sum_num +1; 
       end if;
       -- Trigger the divider  
-      if trig_i = '1' then
+      if trig_i = '1' and enable_i_dly = '1' then
         trig_div_i <= '1'; 
         divisor_i <= std_logic_vector(sum_num);
         -- Complement if the accumulator goes negative  
