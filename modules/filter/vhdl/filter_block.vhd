@@ -33,9 +33,7 @@ port (
     posbus_i            : in  posbus_t;  
     -- Outputs 
     out_o               : out std_logic_vector(31 downto 0);  
-    ready_o             : out std_logic;
-    err_o               : out std_logic     
-    
+    ready_o             : out std_logic    
     
 );
 end filter_block;
@@ -43,16 +41,17 @@ end filter_block;
 architecture rtl of filter_block is
 
 signal MODE     : std_logic_vector(31 downto 0);
-signal trig_o   : std_logic; 
-signal enable_o : std_logic;
-signal inp_o    : std_logic_vector(31 downto 0);
+signal ERR      : std_logic_vector(31 downto 0); 
+signal trig     : std_logic; 
+signal enable   : std_logic;
+signal inp      : std_logic_vector(31 downto 0);
 
 begin
 
 --
 -- Control System Interface
 --
-srgate_ctrl : entity work.filter_ctrl
+filter_ctrl : entity work.filter_ctrl
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
@@ -71,9 +70,10 @@ port map (
 
     MODE                => MODE,
     MODE_WSTB           => open,
-    trig_o              => trig_o,
-    enable_o            => enable_o,
-    inp_o               => inp_o
+    ERR                 => ERR,
+    trig_o              => trig,
+    enable_o            => enable,
+    inp_o               => inp
     
 );
 
@@ -83,13 +83,13 @@ port map (
 filter : entity work.filter
 port map (
     clk_i           => clk_i,
-    mode_i          => mode(1 downto 0),
-    trig_i          => trig_o,
-    inp_i           => inp_o, 
-    enable_i        => enable_o,
+    mode_i          => MODE(1 downto 0),
+    trig_i          => trig,
+    inp_i           => inp, 
+    enable_i        => enable,
     out_o           => out_o,
     ready_o         => ready_o,
-    err_o           => err_o  
+    err_o           => ERR(1 downto 0)  
 );
 
 

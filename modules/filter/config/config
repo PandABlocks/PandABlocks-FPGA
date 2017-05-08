@@ -7,4 +7,8 @@ FILTER[{{app_config["FILTER"]}}]
     ENABLE          bit_mux
     OUT             pos_out
     READY           bit_out
-    ERR             bit_out
+    ERR             read        enum 3
+        0   OK
+        1   Accumulator overflow
+        2   Divider retrigger
+       

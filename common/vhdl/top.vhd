@@ -295,7 +295,6 @@ signal sfp_data             : std32_array(15 downto 0);
 -- FILTER Block
 signal FILTER_OUT           : std32_array(FILTER_NUM-1 downto 0);   
 signal FILTER_READY         : std_logic_vector(FILTER_NUM-1 downto 0);
-signal FILTER_ERR           : std_logic_vector(FILTER_NUM-1 downto 0);
 
 -- Make schematics a bit more clear for analysis
 attribute keep              : string;
@@ -571,8 +570,7 @@ port map(
     sysbus_i            => sysbus,
     posbus_i            => posbus,
     out_o               => FILTER_OUT, 
-    ready_o             => FILTER_READY,
-    err_o               => FILTER_ERR            
+    ready_o             => FILTER_READY            
  );
 
 
@@ -1241,7 +1239,6 @@ port map (
     sfp_data_i      => sfp_data,
     FILTER_OUT      => FILTER_OUT,
     FILTER_READY    => FILTER_READY,
-    FILTER_ERR      => FILTER_ERR, 
     -- SFP Block
     -- Bus Outputs
     bitbus_o        => sysbus,

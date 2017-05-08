@@ -32,9 +32,7 @@ port (
     posbus_i            : in  posbus_t;
     -- TTL I/O
     out_o               : out std32_array(FILTER_NUM-1 downto 0);  
-    ready_o             : out std_logic_vector(FILTER_NUM-1 downto 0);
-    err_o               : out std_logic_vector(FILTER_NUM-1 downto 0)         
-    
+    ready_o             : out std_logic_vector(FILTER_NUM-1 downto 0)            
  );
 end filter_top;
 
@@ -83,8 +81,7 @@ port map (
     sysbus_i            => sysbus_i,
     posbus_i            => posbus_i,
     out_o               => out_o(I),  
-    ready_o             => ready_o(I),
-    err_o               => err_o(I)    
+    ready_o             => ready_o(I)    
 
 );
 

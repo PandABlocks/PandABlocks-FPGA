@@ -5,4 +5,4 @@ FILTER      {{newBlockNo("FILTER")}}
     ENABLE          {{newBlockReg(typ='bit_mux')}}
     OUT             {{newPosBus()}}
     READY           {{newBitBus()}}
-    ERR             {{newBitBus()}}
+    ERR             {{newBlockReg()}}
