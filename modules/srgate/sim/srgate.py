@@ -18,7 +18,7 @@ class Srgate(Block):
             self.OUT = 0
         elif b.FORCE_SET in changes:
             self.OUT = 1
-        elif changes.get(b.RST, None) == self.RST_EDGE:
+        elif changes.get(b.RST, None) == self.RST_EDGE and self.FORCE_SET != 1:
             self.OUT = 0
-        elif changes.get(b.SET, None) == self.SET_EDGE:
+        elif changes.get(b.SET, None) == self.SET_EDGE and self.FORCE_RST != 1:
             self.OUT = 1
