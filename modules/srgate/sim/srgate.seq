@@ -27,16 +27,16 @@ $ Reset on rising Edge
 1       : RST_EDGE=1
 2       : SET_EDGE=1
 3       : SET=1             : OUT=1
+4       : SET=0
 5       : RST=1             : OUT=0
 6       : RST=0
-7       : RST_EDGE=0
-8       : SET_EDGE=0
 
 ###############
 $ Reset on falling Edge
 1       : RST_EDGE=0
 2       : SET_EDGE=1
 3       : SET=1             : OUT=1
+4       : SET=0
 5       : RST=1
 6       : RST=0             : OUT=0
 
@@ -52,6 +52,7 @@ $ Set-reset conditions
 11      : SET=0
 12      : FORCE_RST=0
 15      : SET=1                 : OUT=1
+16      : SET=0
 
 18      : RST=1, FORCE_SET=1    : OUT=1
 19      : RST=0
