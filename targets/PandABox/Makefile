@@ -20,9 +20,10 @@ VERSION_FILE = $(BUILD_DIR)/autogen/panda_version.vhd
 
 #####################################################################
 # BUILD TARGETS includes HW and SW
-default : fpga
-fpga : panda_top.bit
-.PHONY: default fpga VERSION
+default : carrier-fpga
+carrier-fpga : panda_top.bit
+carrier-ip: $(IP_CORES)
+.PHONY: default carrier-fpga carrier_ip VERSION
 
 #####################################################################
 # HW Projects Build
