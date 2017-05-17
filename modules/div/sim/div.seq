@@ -13,7 +13,7 @@ $ Start on OUTN
 $ Start on OUTD
 1       : DIVISOR=3
 2       : ENABLE=1
-3       : FIRST_PULSE=1 : COUNT=2
+3       : FIRST_PULSE=1
 5       : INP=1         : OUTD=1, COUNT=0
 6       : INP=0         : OUTD=0
 8       : INP=1         : OUTN=1, COUNT=1
