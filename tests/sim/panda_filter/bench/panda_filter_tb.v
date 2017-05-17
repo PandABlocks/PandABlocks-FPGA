@@ -26,8 +26,6 @@ reg [1:0] err_o_dly;
 reg [5:0] cnt_code_results = 0;
 reg [5:0] cnt_file_results = 0;
 
-reg [31:0] test_signal;
-
 always #4 clk_i = ~clk_i;
 
 // $stop Halts a simulation and enters an interactive debug mode
