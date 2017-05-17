@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
---  File:       pcomp.vhd
---  Desc:       Position compare output pulse generator
+--  File:       filter_top.vhd
+--  Desc:       Filter top interface block
 --
 --------------------------------------------------------------------------------
 
