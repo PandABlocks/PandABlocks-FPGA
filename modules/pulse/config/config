@@ -4,6 +4,7 @@ PULSE[{{app_config["PULSE"]}}]
     INP             bit_mux
     ENABLE          bit_mux
     OUT             bit_out
+    PERR             bit_out
     ERR_OVERFLOW    read        bit
     ERR_PERIOD      read        bit
     QUEUE           read        uint 1023
