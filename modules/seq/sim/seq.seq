@@ -3,7 +3,8 @@ $ Multiple frames, multiple frame and table cycles
 
 3       : TABLE_CYCLE=2
 4       : PRESCALE=2
-5       : TABLE_START=0
+5       : TABLE_START=1
+6       : TABLE_START=0
 #--FRAME 1 -----------------------
 # REPEATS           = 2
 # INPUT MASK        = 0x1
@@ -82,7 +83,8 @@ $ Multiple frames, multiple frame and table cycles
 $ Writing inputs before a whole frame is written
 1       : TABLE_CYCLE=1
 2       : PRESCALE=2
-3       : TABLE_START=0
+3       : TABLE_START=1
+4       : TABLE_START=0
 #--FRAME 1 -----------------------
 # REPEATS           = 1
 # INPUT MASK        = 0xF
@@ -110,7 +112,8 @@ $ Writing inputs before a whole frame is written
 $ Writing inputs after sequencer has finished
 1       : TABLE_CYCLE=1
 2       : PRESCALE=2
-3       : TABLE_START=0
+3       : TABLE_START=1
+4       : TABLE_START=0
 #--FRAME 1 -----------------------
 # REPEATS           = 1
 # INPUT MASK        = 0xF
@@ -140,7 +143,8 @@ $ Single frame, multiple frame and table cycles
 
 2       : PRESCALE=2
 3       : TABLE_CYCLE=2
-4       : TABLE_START=0
+4       : TABLE_START=1
+5       : TABLE_START=0
 #--FRAME 1 -----------------------
 # REPEATS           = 1
 # INPUT MASK        = F
@@ -179,7 +183,9 @@ $ Setting inactive before finished and restarting
 
 2       : PRESCALE=2
 3       : TABLE_CYCLE=2
-4       : TABLE_START=0
+4       : TABLE_START=1
+5       : TABLE_START=0
+
 #--FRAME 1 -----------------------
 # REPEATS           = 1
 # INPUT MASK        = 0x1
@@ -223,7 +229,8 @@ $ Setting inactive before finished and restarting
 $ Reset table and write more data
 1       : TABLE_CYCLE=1
 2       : PRESCALE=2
-3       : TABLE_START=0
+3       : TABLE_START=1
+4       : TABLE_START=0
 #--FRAME 1 -----------------------
 # REPEATS           = 2
 # INPUT MASK        = 0x1
@@ -295,7 +302,8 @@ $ Gate dropped on completion, re-raised for re-execution of same frame table
 
 2       : PRESCALE=2
 3       : TABLE_CYCLE=1
-4       : TABLE_START=0
+4       : TABLE_START=1
+5       : TABLE_START=0
 #--FRAME 1 -----------------------
 # REPEATS           = 1
 # INPUT MASK        = F
