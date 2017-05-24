@@ -31,7 +31,7 @@ $ Multiple frames, multiple frame and table cycles
 18      : TABLE_DATA=0x00000004
 19      : TABLE_DATA=0x00000004
 26      : TABLE_LENGTH=8
-30      : ENABLE=1                    : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
+30      : ENABLE=1                  : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
         :                           : CUR_TCYCLE=1
 35      : INPA=1                    : OUTA=1, OUTB=1, OUTC=1
 39      :                           : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1
@@ -41,10 +41,10 @@ $ Multiple frames, multiple frame and table cycles
         :                           : OUTF=0, CUR_FCYCLE=2
 45      :                           : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1
         :                           : OUTF=1
-47      :                           : CUR_FRAME=2, CUR_FCYCLE=1
+47      :                           :
 
 55      : INPB=1,INPA=0             : OUTA=0, OUTB=0, OUTC=1, OUTD=1, OUTE=0
-        :                           : OUTF=0
+        :                           : OUTF=0, CUR_FRAME=2, CUR_FCYCLE=1
 63      :                           : OUTA=1, OUTB=1, OUTC=0, OUTD=0, OUTE=1
         :                           : OUTF=1
 
@@ -62,10 +62,10 @@ $ Multiple frames, multiple frame and table cycles
         :                           : OUTF=0, CUR_FCYCLE=2
 97      :                           : OUTA=0, OUTB=0, OUTC=0, OUTD=1, OUTE=1
         :                           : OUTF=1
-99      :                           : CUR_FRAME=2, CUR_FCYCLE=1
+99      :                           :
 
 100     : INPB=1,INPA=0             : OUTA=0, OUTB=0, OUTC=1, OUTD=1, OUTE=0
-        :                           : OUTF=0
+        :                           : OUTF=0, CUR_FRAME=2, CUR_FCYCLE=1
 108     :                           : OUTA=1, OUTB=1, OUTC=0, OUTD=0, OUTE=1
         :                           : OUTF=1
 
