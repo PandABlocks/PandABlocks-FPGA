@@ -4,6 +4,8 @@ endif
 
 VPATH = $(SRC_DIR)
 
+export PATH := $(TOP)/tools:$(PATH)
+
 # Top-level design name
 SYSTEM = slow_top
 
