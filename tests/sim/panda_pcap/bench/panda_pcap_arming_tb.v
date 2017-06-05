@@ -20,7 +20,8 @@ wire pcap_enabled_o;
 wire [2:0] pcap_disarmed_o;
 
 // Instantiate the Unit Under Test (UUT)
-panda_pcap_arming uut (
+//panda_pcap_arming uut (
+pcap_arming uut (  
         .clk_i(clk_i), 
         .reset_i(reset_i), 
         .ARM(ARM), 
