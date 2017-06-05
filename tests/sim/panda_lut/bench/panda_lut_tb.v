@@ -15,7 +15,11 @@ reg         INPC;
 reg         INPD;
 reg         INPE;
 reg [31:0]  FUNC;
+reg         FUNC_WSTB;
 reg         VAL;
+
+reg         err;
+reg         test_result = 0;
 
 // Outputs
 wire        out_o;
@@ -80,7 +84,7 @@ end
 //
 
 // TS»¯¯¯¯¯FUNC
-integer reg_in[1:0];
+integer reg_in[2:0];
 
 initial begin
     FUNC = 0;
@@ -91,12 +95,13 @@ initial begin
     fid[1] = $fopen("lut_reg_in.txt", "r");
 
     // Read and ignore description field
-    r[1] = $fscanf(fid[1], "%s %s\n", reg_in[1], reg_in[0]);
+    r[1] = $fscanf(fid[1], "%s %s %s\n", reg_in[2], reg_in[1], reg_in[0]);
 
     while (!$feof(fid[1])) begin
-        r[1] = $fscanf(fid[1], "%d %d\n", reg_in[1], reg_in[0]);
-        wait (timestamp == reg_in[1]) begin
-            FUNC = reg_in[0];
+        r[1] = $fscanf(fid[1], "%d %d %d\n", reg_in[2], reg_in[1], reg_in[0]);
+        wait (timestamp == reg_in[2]) begin
+            FUNC = reg_in[1];
+            FUNC_WSTB = reg_in[0];
         end
         @(posedge clk_i);
     end
@@ -144,15 +149,26 @@ begin
         // If not equal, display an error.
         if (out_o != VAL) begin
             $display("OUT error detected at timestamp %d\n", timestamp);
-            $finish(2);
-        end
+            //$finish(2);
+            err = 1;    
+            test_result = 1;        
+        end 
     end
 end
 
+// $stop Halts a simulation and enters an interactive debug mode
+// $finish Finishes a simulation and exits the simulation process
+always @ (posedge clk_i) //----------------------------------------- HERE 
+    if (is_file_end) begin
+        $display("Simulation has finished");
+        $finish(2);
+    end 
+
 // Instantiate the Unit Under Test (UUT)
-panda_lut uut (
+//panda_lut uut (
+lut uut (
         .clk_i          ( clk_i             ),
-        .reset_i        ( SIM_RESET         ),
+        //.reset_i        ( SIM_RESET         ),
         .FUNC           ( FUNC              ),
         .inpa_i         ( INPA              ),
         .inpb_i         ( INPB              ),

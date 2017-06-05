@@ -1,0 +1,164 @@
+
+# biss_sniffer_tb.v NO biss0.prn
+# outenc entity and tb component different also no component called quardin_posn
+# panda_pcap 
+#       1. apis_tb.v can't find where it is used
+#       2. panda_pcap_dsp_tb.v can't find a component called pcap_dsp
+#       3. panda_pcap_arming_tb.v   can't find a textio file arming_in.txt  
+# panda_ssi_tb.v can't find the components ssimstr and ssislv
+
+  
+
+# Tests
+# 1.  adder_tb          -- WORKS VHDL testbench self checks
+# 2.  panda_srgate_tb   -- WORKS     
+# 3.  panda_pulse_tb    -- WORKS
+# 4.  panda_pcomp_tb    -- NOT WORKING NEEDS ALOT OF WORK 
+# 5.  pcap_core_tb      -- MULTIPLE TESTBENCHs NOT WORKING (pcap_core_tb.v is the only that uses textio files)
+# 6.  panda_lut_tb      -- WORKS
+# 7.  panda_div_tb      -- WORKS
+# 8.  panda_clock_tb    -- NOT WORKING (problem at the beginning of the test) counter reset so set to zero (32 bits register)
+#                       -- used value is value -1  
+# 9.  panda_filter      -- WORKS
+# 10. panda_sequnecer   -- NOT WORKING (Results not the same as expected ones LOTS OF ERRORS) offset at the start causes the 
+#                       -- expected results to offset by one clock from generated results  
+
+#../../tests/sim/panda_pcomp/bench/file_io.v should this be remove is it used in the pcap and seq tests
+
+# Removed the file_io.v from the sequencer file as it wasn't reading from two files (seq_reg_in.txt, seq_reg_out.txt)
+
+
+create_project regression_tests ../../build/tests/regression_tests -force -part xc7z030sbg485-1 
+
+
+set result_from_test 0;
+set test_passed_cnt 0;
+set test_failed_cnt 0;
+
+set test_passed =:tests;
+set test_failed =:tests;
+
+
+array set tests { 
+        panda_sequencer_2tb 10
+        panda_filter_tb 9
+        panda_clocks_tb 8
+        panda_div_tb 7
+        panda_lut_tb 6
+        pcap_core_tb 5
+        panda_pcomp_tb 4
+        panda_pulse_tb 3
+        panda_srgate_tb 2
+        adder_tb 1
+}
+
+
+source "../../tests/sim/update_textio.tcl"
+
+# Load all the source files
+add_files -norecurse {../../modules/filter/vhdl/divider.vhd
+../../modules/filter/vhdl/filter.vhd
+../../modules/clocks/vhdl/clocks.vhd
+../../modules/clocks/vhdl/clocks.vhd
+../PandABox/ip_repo/pcomp_dma_fifo/pcomp_dma_fifo_funcsim.vhdl
+../../modules/pcomp/vhdl/pcomp.vhd
+../../common/vhdl/defines/support.vhd
+../../modules/pulse/vhdl/pulse.vhd
+../PandABox/ip_repo/pulse_queue/pulse_queue_funcsim.vhdl
+../../modules/div/vhdl/div.vhd 
+../../modules/lut/vhdl/lut.vhd
+../../modules/pcomp/vhdl/pcomp_table.vhd
+../../modules/srgate/vhdl/srgate.vhd
+../../modules/adder/vhdl/adder.vhd
+../../common/vhdl/defines/top_defines.vhd
+../../common/vhdl/spbram.vhd
+../../modules/seq/vhdl/sequencer_table.vhd
+../../SlowFPGA/src/hdl/prescaler.vhd
+../../modules/pcap/vhdl/pcap_arming.vhd
+../../modules/pcap/vhdl/pcap_buffer.vhd
+../../modules/pcap/vhdl/pcap_frame.vhd
+../../common/vhdl/defines/operator.vhd
+../..//modules/pcap/vhdl/pcap_capture.vhd
+../../modules/pcap/vhdl/pcap_core.vhd
+../../modules/seq/vhdl/sequencer.vhd
+../../tests/sim/panda_pcomp/bench/file_io.v
+}
+
+
+set_property SOURCE_SET sources_1 [get_filesets sim_1]
+add_files -fileset sim_1 -norecurse {../../tests/sim/panda_pulse/bench/panda_pulse_tb.v
+../../tests/sim/panda_pcomp/bench/panda_pcomp_tb.v
+../../tests/sim/panda_clocks/bench/panda_clocks_tb.v
+../../tests/sim/panda_div/bench/panda_div_tb.v
+../../tests/sim/panda_filter/bench/panda_filter_tb.v
+../../tests/sim/panda_lut/bench/panda_lut_tb.v
+../../tests/sim/panda_srgate/bench/panda_srgate_tb.v
+../../tests/sim/panda_adder/bench/adder_tb.vhd
+../../tests/sim/panda_pulse/bench/panda_pulse_tb.v
+../../tests/sim/panda_pcap/bench/pcap_core_wrapper.vhd
+../../tests/sim/panda_pcap/bench/pcap_core_tb.v
+../../tests/sim/panda_pcap/bench/pcap_core_2tb.v
+../../tests/sim/panda_sequencer/bench/panda_sequencer_tb.v
+../../tests/sim/panda_sequencer/bench/panda_sequencer_2tb.v
+}
+
+#update_compile_order -fileset source_1
+#update_compile_order -fileset sim_1
+
+foreach test [array names tests] { 
+
+    puts  "###############################################################################################"
+    puts  "                                           $test"
+    puts  "###############################################################################################"           
+    
+    set_property top $test [get_filesets sim_1]
+    set_property top_lib xil_defaultlib [get_filesets sim_1]
+
+    launch_simulation
+
+    run -all
+    
+    get_value test_result; 
+    get_object test_result;
+    set result_from_test [get_value test_result];
+  
+    puts "The test result is $test" 
+  
+    if {$result_from_test == 1} {
+         incr test_failed_cnt +1;
+         puts "##################################### $test has failed #####################################"
+         append test_failed ", " $test  
+         
+    } else {
+         incr test_passed_cnt +1;
+         puts "##################################### $test has passed #####################################"
+         append test_passed ", " $test 
+    }     
+    
+    #puts "The test result is [get_object test_result]";
+    
+    #puts "The number of tests that have passed are $test_passed_cnt";
+    #puts "The number of tests that have failed are $test_failed_cnt";
+      
+    close_sim
+
+}
+
+
+
+
+puts "################################### Tests that have passed ###################################"
+puts "                                                                                              "
+puts "Tests that have passed are $test_passed";
+puts "                                                                                              "    
+puts "################################### Tests that have failed ###################################"
+puts "                                                                                              "  
+puts "Tests that have failed are $test_failed";
+puts "                                                                                              "
+puts "################################## Test passed faile count ###################################"
+puts "Simulation has finished and the number of tests that have passed is $test_passed_cnt";
+puts "                                                                                              " 
+puts "Simulation has finished and the number of tests that have failed is $test_failed_cnt";
+puts "                                                                                              "
+
+

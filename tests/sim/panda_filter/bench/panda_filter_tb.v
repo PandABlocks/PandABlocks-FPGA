@@ -12,6 +12,7 @@ reg ENABLE;
 reg [31:0] INP;
 
 reg [1:0] MODE;
+reg MODE_WSTB;
 reg [1:0] ERR;
 
 wire [31:0] out_o;
@@ -23,8 +24,8 @@ reg [31:0] OUT;
 
 reg [1:0] err_o_dly;
 
-reg [5:0] cnt_code_results = 0;
-reg [5:0] cnt_file_results = 0;
+reg test_result;
+
 
 always #4 clk_i = ~clk_i;
 
@@ -72,7 +73,6 @@ initial begin
     ENABLE = 0;
 
     @(posedge clk_i);
-    //fid[0] = $fopen("div_bus_in.txt", "r");
     fid[0] = $fopen("filter_bus_in.txt", "r");
     
     // Read and ignore description field
@@ -84,10 +84,10 @@ initial begin
 
         wait (timestamp == bus_in[4]) begin
             // TS	SIM_RESET TRIG INP ENABLE
-            SIM_RESET <= bus_in[3];
-            TRIG <= bus_in[2];
-            INP <= bus_in[1];
-            ENABLE <= bus_in[0];
+            SIM_RESET = bus_in[3];
+            TRIG = bus_in[2];
+            INP = bus_in[1];
+            ENABLE = bus_in[0];
         end
         @(posedge clk_i);
     end
@@ -97,11 +97,11 @@ end
 // READ BLOCK REGISTERS VECTOR FILE
 //
 // TS»¯¯¯¯¯MODE»MODE_WSTB»¯¯¯¯INP_WSTB
-integer reg_in[1:0];
+integer reg_in[2:0];
 
 initial begin
     MODE          = 0;
-    //MODE_WSTB     = 0;
+    MODE_WSTB     = 0;
 
     @(posedge clk_i);
 
@@ -109,13 +109,14 @@ initial begin
      fid[1] = $fopen("filter_reg_in.txt", "r");
 
     // Read and ignore description field
-    r[1] = $fscanf(fid[1], "%s %s\n", reg_in[1], reg_in[0]);
+    r[1] = $fscanf(fid[1], "%s %s %s\n", reg_in[2], reg_in[1], reg_in[0]);
 
     while (!$feof(fid[1])) begin
-        r[1] = $fscanf(fid[1], "%d %d\n", reg_in[1], reg_in[0]); 
-        wait (timestamp == reg_in[1])begin  
-            // TS	MODE and MODE_WSTB
-            MODE = reg_in[0];        
+        r[1] = $fscanf(fid[1], "%d %d %d\n", reg_in[2], reg_in[1], reg_in[0]); 
+        wait (timestamp == reg_in[2])begin  
+            // TS	MODE and MODE_WSTB            
+            MODE = reg_in[1];        
+            MODE_WSTB = reg_in[0];
         end
         @(posedge clk_i);
     end
@@ -192,24 +193,24 @@ always @(posedge clk_i)
 begin
     err_o_dly <= err_o; 
     
-    if (ready_o == 1) begin
-        cnt_code_results <= cnt_code_results +1;
-    end
     
-    if (READY == 1) begin
-        cnt_file_results <= cnt_file_results +1;
+    if (err_o[0] == 1 | err_o[1] == 1) begin
+      test_result = 1;
     end 
-        
+    else begin
+      test_result = 0;
+    end     
+            
     if (~is_file_end) begin
         if (OUT != out_o & ready_o) begin
             //$display("OUTN error detected at timestamp %d\n", timestamp);
             $display("OUTN error detected at 1.timestamp the expected value is 2.OUT and result is 3.out_o %d, %d, %d\n", timestamp, OUT, out_o);   
         end
         if (err_o[0] == 1 & err_o_dly[0] == 0) begin
-           $display("ERROR Accumulator overflow the number of results output are %d, %d\n", timestamp, cnt_code_results); 
+           $display("ERROR Accumulator overflow the number of results output are %d\n", timestamp); 
         end  
         if (err_o[1] == 1 & err_o_dly[1] == 0) begin
-          $display("ERROR Divider has been doubled triggered before result ready the number of results output are %d, %d\n", timestamp, cnt_code_results);
+          $display("ERROR Divider has been doubled triggered before result ready the number of results output are %d\n", timestamp);
         end   
     end
 end

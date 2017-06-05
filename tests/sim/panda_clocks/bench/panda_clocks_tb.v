@@ -24,6 +24,12 @@ wire        clockb_o;
 wire        clockc_o;
 wire        clockd_o;
 
+reg         err_clocka  = 0;
+reg         err_clockb  = 0;
+reg         err_clockc  = 0;
+reg         err_clockd  = 0;
+reg         test_result = 0;
+
 integer fid[3:0];
 integer r[3:0];
 
@@ -114,6 +120,7 @@ initial begin
     B = 0;
     C = 0;
     D = 0;
+    is_file_end = 0;
 
     @(posedge clk_i);
 
@@ -133,6 +140,9 @@ initial begin
         end
         @(posedge clk_i);
     end
+    
+    is_file_end = 1;
+
 end
 
 //
@@ -142,27 +152,43 @@ end
 always @(posedge clk_i)
 begin
     if (~is_file_end) begin
+        if (err_clocka == 1 | err_clockb == 1 | err_clockc == 1 | err_clockd == 1 ) begin
+            test_result = 1;
+        end 
         if (clocka_o != A) begin
             $display("A error detected at timestamp %d\n", timestamp);
-            $finish(2);
+            //$finish(2);
+            err_clocka = 1;
         end
         if (clockb_o != B) begin
             $display("B error detected at timestamp %d\n", timestamp);
-            $finish(2);
+            //$finish(2);
+            err_clockb = 1;
         end
         if (clockc_o != C) begin
             $display("C error detected at timestamp %d\n", timestamp);
-            $finish(2);
+            //$finish(2);
+            err_clockc = 1;
         end
         if (clockd_o != D) begin
             $display("D error detected at timestamp %d\n", timestamp);
-            $finish(2);
+            //$finish(2);
+            err_clockd = 1;
         end
     end
 end
 
+
+// $stop Halts a simulation and enters an interactive debug mode
+// $finish Finishes a simulation and exits the simulation process
+always @ (posedge clk_i) //----------------------------------------- HERE 
+    if (is_file_end) begin
+        $stop(2);
+    end  
+
 // Instantiate the Unit Under Test (UUT)
-panda_clocks uut (
+//panda_clocks uut (
+clocks uut (
         .clk_i          ( clk_i             ),
         .reset_i        ( SIM_RESET         ),
 
@@ -171,10 +197,10 @@ panda_clocks uut (
         .clockc_o       ( clockc_o          ),
         .clockd_o       ( clockd_o          ),
 
-        .CLOCKA_DIV     ( A_PERIOD          ),
-        .CLOCKB_DIV     ( B_PERIOD          ),
-        .CLOCKC_DIV     ( C_PERIOD          ),
-        .CLOCKD_DIV     ( D_PERIOD          )
+        .CLOCKA_PERIOD  ( A_PERIOD          ),
+        .CLOCKB_PERIOD  ( B_PERIOD          ),
+        .CLOCKC_PERIOD  ( C_PERIOD          ),
+        .CLOCKD_PERIOD  ( D_PERIOD          )
 );
 
 

@@ -36,6 +36,8 @@ wire [2:0] pcap_status_o;
 
 wire [32*32-1 : 0] posbus;
 
+reg test_result = 1; // HERE ####################################################################################################### 
+
 
 // Instantiate the Unit Under Test (UUT)
 pcap_core_wrapper uut (
@@ -101,7 +103,9 @@ begin : bus_inputs
 
 fork
     begin
-        `include "./file_io.v"
+//        `include "./file_io.v"
+//        `include "..\..\panda_pcomp\bench\file_io.v"
+        `include "../../panda_pcomp/bench/file_io.v"
         $finish;
     end
 
@@ -135,7 +139,9 @@ begin : reg_inputs
 
 fork
     begin
-        `include "./file_io.v"
+//        `include "./file_io.v"
+//        `include "..\..\panda_pcomp\bench\file_io.v"
+        `include "../../panda_pcomp/bench/file_io.v"
     end
 
     begin
@@ -176,7 +182,9 @@ begin : bus_outputs
 
 fork
     begin
-        `include "./file_io.v"
+//        `include "./file_io.v"
+//        `include "..\..\panda_pcomp\bench\file_io.v"
+        `include "../../panda_pcomp/bench/file_io.v"
     end
 
     begin
@@ -209,7 +217,9 @@ begin : pos_inputs
 
 fork
     begin
-        `include "./file_io.v"
+//        `include "./file_io.v"
+//        `include "..\..\panda_pcomp\bench\file_io.v"
+        `include "../../panda_pcomp/bench/file_io.v"
     end
 
     begin
