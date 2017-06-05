@@ -9,14 +9,14 @@ module panda_sequencer_tb;
 reg clk_i = 0;
 
 reg reset_i;
-reg gate_i;
+reg enable_i;
 reg inpa_i;
 reg inpb_i;
 reg inpc_i;
 reg inpd_i;
 
 reg [31:0] PRESCALE;
-reg SOFT_GATE;
+//reg SOFT_GATE;
 reg TABLE_START;
 reg [31:0] TABLE_DATA;
 reg TABLE_WSTB;
@@ -76,10 +76,10 @@ end
 
 
 // Instantiate the Unit Under Test (UUT)
-panda_sequencer uut (
+sequencer uut (
     .clk_i              ( clk_i                 ),
     .reset_i            ( reset_i               ),
-    .gate_i             ( gate_i                ),
+    .enable_i           ( enable_i              ),
     .inpa_i             ( inpa_i                ),
     .inpb_i             ( inpb_i                ),
     .inpc_i             ( inpc_i                ),
@@ -92,7 +92,7 @@ panda_sequencer uut (
     .outf_o             ( outf_o                ),
     .active_o           ( active_o              ),
     .PRESCALE           ( PRESCALE              ),
-    .SOFT_GATE          ( SOFT_GATE             ),
+    //.SOFT_GATE          ( SOFT_GATE             ),
     .TABLE_START        ( TABLE_START           ),
     .TABLE_DATA         ( TABLE_DATA            ),
     .TABLE_WSTB         ( TABLE_WSTB            ),
@@ -119,19 +119,20 @@ begin : bus_inputs
 
 fork
     begin
-        `include "./file_io.v"
+//        `include "./file_io.v"
+        `include "../../panda_pcomp/bench/file_io.v"
         $finish;
     end
 
     begin
         while (1) begin
             @(posedge clk_i);
-            reset_i = vectors[1];
-            gate_i  = vectors[2];
-            inpa_i  = vectors[3];
-            inpb_i  = vectors[4];
-            inpc_i  = vectors[5];
-            inpd_i  = vectors[6];
+            reset_i  = vectors[1];
+            enable_i = vectors[2];
+            inpa_i   = vectors[3];
+            inpb_i   = vectors[4];
+            inpc_i   = vectors[5];
+            inpd_i   = vectors[6];
         end
     end
 join
@@ -156,20 +157,21 @@ begin : reg_inputs
 
 fork
     begin
-        `include "./file_io.v"
+//        `include "./file_io.v"
+        `include "../../panda_pcomp/bench/file_io.v"
     end
 
     begin
         while (1) begin
             @(posedge clk_i);
             PRESCALE     = vectors[1];
-            SOFT_GATE    = vectors[3];
-            TABLE_CYCLE  = vectors[5];
-            TABLE_START  = vectors[8];
-            TABLE_DATA   = vectors[9];
-            TABLE_WSTB   = vectors[10];
-            TABLE_LENGTH = vectors[11];
-            TABLE_LENGTH_WSTB = vectors[12];
+            //SOFT_GATE    = vectors[3];
+            TABLE_CYCLE  = vectors[3];          // was 5
+            TABLE_START  = vectors[5];          // was 8
+            TABLE_DATA   = vectors[7];          // was 9
+            TABLE_WSTB   = vectors[8];          // was 10     
+            TABLE_LENGTH = vectors[9];          // was 11
+            TABLE_LENGTH_WSTB = vectors[10];    // was 12    
         end
     end
 join
@@ -191,7 +193,8 @@ begin : bus_outputs
 
 fork
     begin
-        `include "./file_io.v"
+//        `include "./file_io.v"
+        `include "../../panda_pcomp/bench/file_io.v"
     end
 
     begin
@@ -225,7 +228,8 @@ begin : reg_outputs
 
 fork
     begin
-        `include "./file_io.v"
+        //`include "./file_io.v"
+        `include "../../panda_pcomp/bench/file_io.v"
     end
 
     begin
