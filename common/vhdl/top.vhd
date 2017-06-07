@@ -1183,6 +1183,7 @@ port map (
     DIV_OUTN        => div_outn,
     -- PULSE Block
     PULSE_OUT       => pulse_out,
+    PULSE_PERR      => pulse_perr, 
     -- SEQ Block
     SEQ_OUTA        => seq_outa,
     SEQ_OUTB        => seq_outb,

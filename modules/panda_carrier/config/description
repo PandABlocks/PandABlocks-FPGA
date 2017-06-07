@@ -20,7 +20,7 @@ INENC       Input encoder
     SETP            Set point
     RST_ON_Z        Zero position on Z rising edge
     STATUS          Encoder status read from device
-    DCARD_MODE      Daughter card jumper mode
+    DCARD_ID        Daughter card jumper mode
     A               Quadrature A if in incremental mode
     B               Quadrature B if in incremental mode
     Z               Z index channel if in incremental mode

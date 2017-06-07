@@ -124,7 +124,7 @@ port map (
     RST_ON_Z            => RST_ON_Z,
     RST_ON_Z_WSTB       => open,
     STATUS              => STATUS,
-    DCARD_MODE          => DCARD_MODE
+    DCARD_ID            => '0' & DCARD_MODE(31 downto 1)
 );
 
 -- Generate read strobe to clear STATUS register on readback

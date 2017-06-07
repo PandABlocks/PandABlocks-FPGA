@@ -30,7 +30,15 @@ INENC[4]
     STATUS          read        enum 4
         0   Link Down
         1   Link Up
-    DCARD_MODE      read
+    DCARD_ID        read        enum 8
+        0   DCARD id 0
+        1   Encoder Monitor
+        2   DCARD id 2
+        3   Encoder Control
+        4   DCARD id 3
+        5   DCARD id 4
+        6   DCARD id 5
+        7   Unplugged
     A               bit_out
     B               bit_out
     Z               bit_out

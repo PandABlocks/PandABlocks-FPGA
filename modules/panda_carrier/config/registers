@@ -20,7 +20,7 @@ INENC       {{newBlockNo("INENC")}}
     SETP            {{newBlockReg()}}
     RST_ON_Z        {{newBlockReg()}}
     STATUS          {{newBlockReg()}}
-    DCARD_MODE      {{newBlockReg()}}
+    DCARD_ID        {{newBlockReg()}}
     A               {{newBitBus()}}
     B               {{newBitBus()}}
     Z               {{newBitBus()}}
