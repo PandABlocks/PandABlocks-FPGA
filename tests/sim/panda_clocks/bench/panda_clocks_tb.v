@@ -13,6 +13,10 @@ reg [31: 0] A_PERIOD;
 reg [31: 0] B_PERIOD;
 reg [31: 0] C_PERIOD;
 reg [31: 0] D_PERIOD;
+reg         A_PERIOD_WSTB;
+reg         B_PERIOD_WSTB;
+reg         C_PERIOD_WSTB;
+reg         D_PERIOD_WSTB;
 reg         A;
 reg         B;
 reg         C;
@@ -30,8 +34,10 @@ reg         err_clockc  = 0;
 reg         err_clockd  = 0;
 reg         test_result = 0;
 
-integer fid[3:0];
-integer r[3:0];
+
+integer fid[2:0];
+integer r[2:0];
+
 
 //
 // Values in the test files are arranged on FPGA clock ticks on the
@@ -80,13 +86,17 @@ end
 //
 
 // TS»¯¯¯¯¯A_PERIOD»¯¯¯¯¯¯¯B_PERIOD»¯¯¯¯¯¯¯C_PERIOD»¯¯¯¯¯¯¯D_PERIOD
-integer reg_in[4:0];
+integer reg_in[8:0];
 
 initial begin
     A_PERIOD = 0;
+    A_PERIOD_WSTB = 0;
     B_PERIOD = 0;
+    B_PERIOD_WSTB = 0;
     C_PERIOD = 0;
+    C_PERIOD_WSTB = 0;
     D_PERIOD = 0;
+    D_PERIOD_WSTB = 0;
 
     @(posedge clk_i);
 
@@ -94,15 +104,19 @@ initial begin
     fid[1] = $fopen("clocks_reg_in.txt", "r");
 
     // Read and ignore description field
-    r[1] = $fscanf(fid[1], "%s %s %s %s %s\n", reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
+    r[1] = $fscanf(fid[1], "%s %s %s %s %s %s %s %s %s\n", reg_in[8], reg_in[7], reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
 
     while (!$feof(fid[1])) begin
-        r[1] = $fscanf(fid[1], "%d %d %d %d %d\n", reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
-        wait (timestamp == reg_in[4]) begin
-            A_PERIOD = reg_in[3];
-            B_PERIOD = reg_in[2];
-            C_PERIOD = reg_in[1];
-            D_PERIOD = reg_in[0];
+        r[1] = $fscanf(fid[1], "%d %d %d %d %d %d %d %d %d\n", reg_in[8], reg_in[7], reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
+        wait (timestamp == reg_in[8]) begin
+            A_PERIOD = reg_in[7];
+            A_PERIOD_WSTB = reg_in[6];
+            B_PERIOD = reg_in[5];
+            B_PERIOD_WSTB = reg_in[4];
+            C_PERIOD = reg_in[3];
+            C_PERIOD_WSTB = reg_in[2];          
+            D_PERIOD = reg_in[1];
+            D_PERIOD_WSTB = reg_in[0];
         end
         @(posedge clk_i);
     end
