@@ -13,6 +13,8 @@ TARGET_DIR = $(TOP)/targets/$(TARGET)
 DOCS_BUILD_DIR = $(BUILD_DIR)/$(TARGET)/html
 FPGA_BUILD_DIR = $(BUILD_DIR)/$(TARGET)
 SLOW_FPGA_BUILD_DIR = $(BUILD_DIR)/SlowFPGA
+TEST_DIR = $(TOP)/build/tests
+TEST_SCRIPT_DIR = $(TOP)/tests/sim
 
 default: $(DEFAULT_TARGETS)
 .PHONY: default
@@ -45,6 +47,12 @@ SFP_DESIGN = $(shell grep -o 'SFP_[^ ]*' $(APP_FILE) |tr A-Z a-z)
 # Carrier FPGA targets
 CARRIER_FPGA_TARGETS = carrier-fpga carrier-ip
 
+run-tests: $(TEST_DIR)    
+	rm -rf $(TEST_DIR)/regression_tests
+	rm $(TEST_DIR)/*.jou
+	rm $(TEST_DIR)/*.log
+	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace -source $(TEST_SCRIPT_DIR)/regression_tests.tcl
+
 config_d: $(FPGA_BUILD_DIR)
 	rm -rf $(BUILD_DIR)/config_d
 	rm -rf $(BUILD_DIR)/CarrierFPGA/autogen
@@ -64,7 +72,7 @@ slow-fpga: $(SLOW_FPGA_BUILD_DIR) tools/virtexHex2Bin
 tools/virtexHex2Bin : tools/virtexHex2Bin.c
 	gcc -o $@ $<
 
-.PHONY: carrier-fpga slow-fpga
+.PHONY: carrier-fpga slow-fpga run-tests
 
 # -------------------------------------------------------------------------
 # Build installation package

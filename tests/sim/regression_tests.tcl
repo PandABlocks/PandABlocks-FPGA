@@ -18,14 +18,15 @@
 # 6.  panda_lut_tb      -- WORKS
 # 7.  panda_div_tb      -- WORKS
 # 8.  panda_clock_tb    -- NOT WORKING (problem at the beginning of the test) counter reset so set to zero (32 bits register)
-#                       -- used value is value -1  
+#                       -- used value is value -1 a two clock different need to be implemented CLOCKA_PERIOD, CLOCKB_PERIOD,
+#                       -- CLOCKC_PERIOD, CLOCKD_PERIOD and reset_i  
 # 9.  panda_filter      -- WORKS
 # 10. panda_sequnecer   -- NOT WORKING (Results not the same as expected ones LOTS OF ERRORS) offset at the start causes the 
 #                       -- expected results to offset by one clock from generated results  
 
 #../../tests/sim/panda_pcomp/bench/file_io.v should this be remove is it used in the pcap and seq tests
 
-# Removed the file_io.v from the sequencer file as it wasn't reading from two files (seq_reg_in.txt, seq_reg_out.txt)
+# Does the file_io.v work ?? 
 
 
 create_project regression_tests ../../build/tests/regression_tests -force -part xc7z030sbg485-1 
@@ -35,8 +36,8 @@ set result_from_test 0;
 set test_passed_cnt 0;
 set test_failed_cnt 0;
 
-set test_passed =:tests;
-set test_failed =:tests;
+set test_passed are;
+set test_failed are;
 
 
 array set tests { 
@@ -54,6 +55,7 @@ array set tests {
 
 
 source "../../tests/sim/update_textio.tcl"
+
 
 # Load all the source files
 add_files -norecurse {../../modules/filter/vhdl/divider.vhd
@@ -102,8 +104,6 @@ add_files -fileset sim_1 -norecurse {../../tests/sim/panda_pulse/bench/panda_pul
 ../../tests/sim/panda_sequencer/bench/panda_sequencer_2tb.v
 }
 
-#update_compile_order -fileset source_1
-#update_compile_order -fileset sim_1
 
 foreach test [array names tests] { 
 
@@ -127,33 +127,30 @@ foreach test [array names tests] {
     if {$result_from_test == 1} {
          incr test_failed_cnt +1;
          puts "##################################### $test has failed #####################################"
-         append test_failed ", " $test  
+         append test_failed ", " \n "$test_failed_cnt." $test  
          
     } else {
          incr test_passed_cnt +1;
          puts "##################################### $test has passed #####################################"
-         append test_passed ", " $test 
+         append test_passed ", " \n "$test_passed_cnt." $test 
     }     
     
-    #puts "The test result is [get_object test_result]";
-    
-    #puts "The number of tests that have passed are $test_passed_cnt";
-    #puts "The number of tests that have failed are $test_failed_cnt";
+    #puts "The test result is [get_object test_result]";    
+    #puts "The number of tests that have passed is $test_passed_cnt";
+    #puts "The number of tests that have failed is $test_failed_cnt";
       
     close_sim
 
 }
 
 
-
-
 puts "################################### Tests that have passed ###################################"
 puts "                                                                                              "
-puts "Tests that have passed are $test_passed";
+puts "Tests that have passed $test_passed";
 puts "                                                                                              "    
 puts "################################### Tests that have failed ###################################"
 puts "                                                                                              "  
-puts "Tests that have failed are $test_failed";
+puts "Tests that have failed $test_failed";
 puts "                                                                                              "
 puts "################################## Test passed faile count ###################################"
 puts "Simulation has finished and the number of tests that have passed is $test_passed_cnt";
