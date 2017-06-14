@@ -13,8 +13,10 @@ Name            Dir Type    Description
 =============== === ======= ===================================================
 SET_EDGE        R/W Enum    | 0 - Sets the output to 1 on rising edge
                             | 1 - Sets the output to 1 on falling edge
+                            | 2 - Sets the output to 1 on either edge
 RESET_EDGE      R/W Enum    | 0 - Resets the output on rising edge
-                            | 1 - Resets the outputon falling edge
+                            | 1 - Resets the output on falling edge
+                            | 2 - Resets the output on either edge
 FORCE_RESET     W   Action  Reset output to 0
 FORCE_SET       W   Action  Set output to 0
 SET             In  Bit     A falling/rising edge sets the output to 1
