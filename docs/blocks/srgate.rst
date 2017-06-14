@@ -38,11 +38,19 @@ SET or RESET input.
 
 .. sequence_plot::
    :block: srgate
+   :title: Set on either Edge RST default
+
+.. sequence_plot::
+   :block: srgate
    :title: Reset on rising Edge
 
 .. sequence_plot::
    :block: srgate
    :title: Reset on falling Edge
+
+.. sequence_plot::
+   :block: srgate
+   :title: Reset on either Edge SET default
 
 Active edge configure conditions
 --------------------------------

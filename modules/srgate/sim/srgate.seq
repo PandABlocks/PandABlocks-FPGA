@@ -13,6 +13,15 @@ $ Set on falling Edge
 8       : FORCE_RST=1   : OUT=0
 
 ###############
+$ Set on either Edge RST default
+1       : SET_EDGE=2
+5       : SET=1         : OUT=1
+7       : RST=1         : OUT=0
+8       : RST=0         :
+9       : SET=0         : OUT=1
+10      : FORCE_RST=1   : OUT=0
+
+###############
 $ Rising SET with SET_EDGE reconfigure
 1       : SET_EDGE=1
 3       : SET_EDGE=0, SET=1
@@ -39,6 +48,16 @@ $ Reset on falling Edge
 4       : SET=0
 5       : RST=1
 6       : RST=0             : OUT=0
+
+###############
+$ Reset on either Edge SET default
+1       : RST_EDGE=2
+5       : SET=1         : OUT=1
+6       : SET=0
+7       : RST=1         : OUT=0
+8       : SET=1         : OUT=1
+9       : RST=0         : OUT=0
+10      : FORCE_RST=1   : OUT=0
 
 ###############
 $ Set-reset conditions

@@ -3,6 +3,10 @@ from common.python.pandablocks.block import Block
 
 class Srgate(Block):
 
+    def __init__(self):
+        self.RST_EDGE = 1
+        self.SET_EDGE = 1
+
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
@@ -22,3 +26,7 @@ class Srgate(Block):
             self.OUT = 0
         elif changes.get(b.SET, None) == self.SET_EDGE and self.FORCE_RST != 1:
             self.OUT = 1
+        elif b.SET in changes and self.SET_EDGE == 2 and self.FORCE_RST != 1:
+            self.OUT = 1
+        elif b.RST in changes and self.RST_EDGE == 2 and self.FORCE_SET != 1:
+            self.OUT = 0
