@@ -17,6 +17,7 @@ class Pulse(Block):
     def __init__(self):
         self.queue = deque()
         self.valid_ts = 0
+        self.EDGE = 1
 
     def do_pulse(self, ts, changes):
         """We've received a bit event on INP, so queue some output values
@@ -32,17 +33,25 @@ class Pulse(Block):
         # If there is no specified width then use the width of input pulse
         elif width == 0:
             self.queue.append((ts + delay, self.INP))
-        elif self.INP:
-            # generate both high and low queue from inp
-            start = ts + delay
-            # make sure that start is after any pulse on queue
-            if self.queue and start < self.queue[-1][0] + MIN_QUEUE_DELTA:
-                self.PERR = 1
-                self.MISSED_CNT += 1
-                self.ERR_PERIOD = 1
-            else:
-                self.queue.append((start, 1))
-                self.queue.append((start + width, 0))
+        elif self.INP and self.EDGE==1:
+            self.generate_queue(ts, delay, width)
+        elif not self.INP and self.EDGE==0:
+            self.generate_queue(ts, delay, width)
+        elif self.EDGE==2:
+            self.generate_queue(ts, delay, width)
+
+
+    def generate_queue(self, ts, delay, width):
+        # generate both high and low queue from inp
+        start = ts + delay
+        # make sure that start is after any pulse on queue
+        if self.queue and start < self.queue[-1][0] + MIN_QUEUE_DELTA:
+            self.PERR = 1
+            self.MISSED_CNT += 1
+            self.ERR_PERIOD = 1
+        else:
+            self.queue.append((start, 1))
+            self.queue.append((start + width, 0))
 
     def do_reset(self, ts):
         """Reset the block, either called on rising edge of ENABLE"""

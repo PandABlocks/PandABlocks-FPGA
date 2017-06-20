@@ -9,5 +9,6 @@ PULSE       {{newBlockNo("PULSE")}}
     ERR_PERIOD      {{newBlockReg()}}
     QUEUE           {{newBlockReg()}}
     MISSED_CNT      {{newBlockReg()}}
+    EDGE            {{newBlockReg()}}
 
 

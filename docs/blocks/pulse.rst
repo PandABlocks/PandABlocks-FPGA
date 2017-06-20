@@ -22,7 +22,10 @@ WIDTH           R/W Time    Output pulse width. If 0, the width of the input
                             pulse is used
 FORCE_RESET     W   Action  Reset QUEUE and ERR outputs
 INP             In  Bit     Input pulse train
-RESET           In  Bit     On rising edge, reset QUEUE and ERR outputs
+RESET           In  Bit     On edge defined by EDGE, reset QUEUE and ERR outputs
+EDGE            R/W Enum    | 0 - falling edge
+                            | 1 - rising edge
+                            | 2 - either edge
 OUT             Out Bit     Output pulse train
 PERR            Out Bit     Error output. If a pulse could not be generated
                             This will be set to 1 until the block is RESET
@@ -47,7 +50,7 @@ are spaced enough to allow stretched pulses to be produced.
 
 .. sequence_plot::
    :block: pulse
-   :title: Pulse stretching with no delay
+   :title: Pulse stretching with no delay activate on rising edge
 
 Zero Width
 ----------
@@ -76,6 +79,24 @@ restrictions apply:
 .. sequence_plot::
    :block: pulse
    :title: Pulse train stretched and delayed
+
+Different Edge Activation
+-------------------------
+
+When there is a width specified, it is possible to also specify which edge of
+the input pulse activates the output.
+
+.. sequence_plot::
+   :block: pulse
+   :title: Pulse stretching with no delay activate on rising edge
+
+.. sequence_plot::
+   :block: pulse
+   :title: Pulse stretching with no delay activate on falling edge
+
+.. sequence_plot::
+   :block: pulse
+   :title: Pulse stretching with no delay activate on both edges
 
 Pulse period error
 ------------------

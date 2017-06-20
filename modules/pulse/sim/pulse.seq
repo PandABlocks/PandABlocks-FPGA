@@ -1,10 +1,32 @@
 ################################
-$ Pulse stretching with no delay
+$ Pulse stretching with no delay activate on rising edge
 1       : WIDTH_L=5
 2       : DELAY_L=0
+3       : EDGE=1
 5       : ENABLE=1
 7       : INP=1         : QUEUE=1, OUT=1
 8       : INP=0         :
+12      :               : QUEUE=0, OUT=0
+
+################################
+$ Pulse stretching with no delay activate on falling edge
+1       : WIDTH_L=5
+2       : DELAY_L=0
+3       : EDGE=0
+5       : ENABLE=1
+7       : INP=1         :
+8       : INP=0         : QUEUE=1, OUT=1
+13      :               : QUEUE=0, OUT=0
+
+################################
+$ Pulse stretching with no delay activate on both edges
+1       : WIDTH_L=2
+2       : DELAY_L=0
+3       : EDGE=2
+5       : ENABLE=1
+7       : INP=1         : QUEUE=1, OUT=1
+9       :               : QUEUE=0, OUT=0
+10      : INP=0         : QUEUE=1, OUT=1
 12      :               : QUEUE=0, OUT=0
 
 #############################
