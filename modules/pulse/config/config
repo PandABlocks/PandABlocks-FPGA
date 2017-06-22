@@ -9,7 +9,7 @@ PULSE[{{app_config["PULSE"]}}]
     ERR_PERIOD      read        bit
     QUEUE           read        uint 1023
     MISSED_CNT      read
-    EDGE        param       enum 3
+    TRIG_EDGE        param       enum 3
         0   Falling
         1   Rising
         2   Rising or Falling

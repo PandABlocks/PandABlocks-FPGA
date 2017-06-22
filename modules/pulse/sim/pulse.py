@@ -17,7 +17,7 @@ class Pulse(Block):
     def __init__(self):
         self.queue = deque()
         self.valid_ts = 0
-        self.EDGE = 1
+        self.TRIG_EDGE = 1
 
     def do_pulse(self, ts, changes):
         """We've received a bit event on INP, so queue some output values
@@ -33,11 +33,11 @@ class Pulse(Block):
         # If there is no specified width then use the width of input pulse
         elif width == 0:
             self.queue.append((ts + delay, self.INP))
-        elif self.INP and self.EDGE==1:
+        elif self.INP and self.TRIG_EDGE==1:
             self.generate_queue(ts, delay, width)
-        elif not self.INP and self.EDGE==0:
+        elif not self.INP and self.TRIG_EDGE==0:
             self.generate_queue(ts, delay, width)
-        elif self.EDGE==2:
+        elif self.TRIG_EDGE==2:
             self.generate_queue(ts, delay, width)
 
 
