@@ -80,6 +80,10 @@ restrictions apply:
    :block: pulse
    :title: Pulse train stretched and delayed
 
+.. sequence_plot::
+   :block: pulse
+   :title: No delay or stretch
+
 Different Edge Activation
 -------------------------
 

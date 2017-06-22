@@ -56,6 +56,12 @@ $ No delay or stretch
 5       : ENABLE=1
 7       : INP=1         : OUT=1
 8       : INP=0         : OUT=0
+9       : INP=1         : OUT=1
+11      : INP=0         : OUT=0
+12      : INP=1         : OUT=1
+13      : INP=0         : OUT=0
+15      : INP=1         : OUT=1
+16      : INP=0         : OUT=0
 
 ###################################
 $ Pulse train stretched and delayed
