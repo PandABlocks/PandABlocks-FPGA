@@ -18,7 +18,7 @@ VIVADO = /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh
 ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
 TAR_REPO = /dls_sw/FPGA/Xilinx/OSLinux/tar-balls
 
-PANDA_ROOTFS = /home/iu42/targetOS/zebra2-rootfs
+PANDA_ROOTFS = /home/tmc43/common/PandABlocks-rootfs
 
 # License server for Vivado.
 #
@@ -37,13 +37,15 @@ SPHINX_BUILD = sphinx-build
 # List of default targets build when running make
 #
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
-DEFAULT_TARGETS = docs zpkg
+DEFAULT_TARGETS = docs carrier-fpga slow-fpga zpkg
 
 # Board Configuration
 #
 
 # Carrier Board Version
 BOARD = v2
+
+TARGET = PandABox
 
 # FPGA Application Name
 APP_NAME = fmc_lback-sfp_lback
