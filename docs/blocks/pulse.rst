@@ -23,8 +23,8 @@ WIDTH           R/W Time    Output pulse width. If 0, the width of the input
 FORCE_RESET     W   Action  Reset QUEUE and ERR outputs
 INP             In  Bit     Input pulse train
 RESET           In  Bit     On edge defined by EDGE, reset QUEUE and ERR outputs
-EDGE            R/W Enum    | 0 - falling edge
-                            | 1 - rising edge
+EDGE            R/W Enum    | 0 - rising edgee
+                            | 1 - falling edg
                             | 2 - either edge
 OUT             Out Bit     Output pulse train
 PERR            Out Bit     Error output. If a pulse could not be generated

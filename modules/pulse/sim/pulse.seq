@@ -2,7 +2,7 @@
 $ Pulse stretching with no delay activate on rising edge
 1       : WIDTH_L=5
 2       : DELAY_L=0
-3       : TRIG_EDGE=1
+3       : TRIG_EDGE=0
 5       : ENABLE=1
 7       : INP=1         : QUEUE=1, OUT=1
 8       : INP=0         :
@@ -12,7 +12,7 @@ $ Pulse stretching with no delay activate on rising edge
 $ Pulse stretching with no delay activate on falling edge
 1       : WIDTH_L=5
 2       : DELAY_L=0
-3       : TRIG_EDGE=0
+3       : TRIG_EDGE=1
 5       : ENABLE=1
 7       : INP=1         :
 8       : INP=0         : QUEUE=1, OUT=1

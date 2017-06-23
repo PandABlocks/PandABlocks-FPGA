@@ -9,4 +9,4 @@ PULSE       One-shot pulse delay and stretch
     ERR_PERIOD      Producing a pulse would cause it to overlap with previous
     QUEUE           Length of the delay queue
     MISSED_CNT      Number of pulses not produced because of an ERR condition
-    TRIG_EDGE       INP trigger edge (0 = falling edge, 1 = rising edge, 2 = Rising or Falling)
+    TRIG_EDGE       INP trigger edge (0 = rising edge, 1 = falling edge, 2 = Rising or Falling)
