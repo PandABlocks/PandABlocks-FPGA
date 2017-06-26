@@ -12,7 +12,7 @@ try:
     hex_numbers = []
     for g in match.groups():
         if g:
-            hex_numbers.append("%02x" % int(g))
+            hex_numbers.append("%02x" % min(int(g), 255))
         else:
             hex_numbers.append("00")
     print "".join(hex_numbers[-1:] + hex_numbers[:-1])
