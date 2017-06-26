@@ -9,11 +9,8 @@
 #  Step 6. Generates devicetree.dtb file and copies to TFTP server
 
 #####################################################################
-GIT_VERSION = $(shell git describe --abbrev=8 --always)
 
 RUNVIVADO = source $(VIVADO) && vivado
-
-include $(TOP)/VERSION
 
 SRCDIR = $(TOP)/CarrierFPGA
 HDLDIR = $(TOP)/CarrierFPGA/src/hdl
@@ -51,7 +48,9 @@ VERSION :
 	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
 	echo 'package panda_version is' >> $(VERSION_FILE)
 	echo -n 'constant FPGA_VERSION: std_logic_vector(31 downto 0)' \ >> $(VERSION_FILE)
-	echo ' := X"$(FIRMWARE)";' >> $(VERSION_FILE)
+	echo ' := X"$(VERSION)";' >> $(VERSION_FILE)
+	echo -n 'constant FPGA_BUILD: std_logic_vector(31 downto 0)' \ >> $(VERSION_FILE)
+	echo ' := X"$(SHA)";' >> $(VERSION_FILE)
 	echo 'end panda_version;' >> $(VERSION_FILE)
 
 ###########################################################
