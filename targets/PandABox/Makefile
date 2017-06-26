@@ -2,7 +2,6 @@
 # PandA FPGA/SoC Makefile Builds:
 #
 #####################################################################
-GIT_VERSION = $(shell git describe --abbrev=8 --always)
 
 RUNVIVADO = source $(VIVADO) && vivado
 
@@ -30,11 +29,13 @@ carrier-ip: $(IP_CORES)
 
 VERSION :
 	rm -f $(VERSION_FILE)
-	echo 'library ieee;' > $(VERSION_FILE)
+	echo 'library ieee;' >> $(VERSION_FILE)
 	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
 	echo 'package panda_version is' >> $(VERSION_FILE)
 	echo -n 'constant FPGA_VERSION: std_logic_vector(31 downto 0)' \ >> $(VERSION_FILE)
-	echo ' := X"$(FIRMWARE)";' >> $(VERSION_FILE)
+	echo ' := X"$(VERSION)";' >> $(VERSION_FILE)
+	echo -n 'constant FPGA_BUILD: std_logic_vector(31 downto 0)' \ >> $(VERSION_FILE)
+	echo ' := X"$(SHA)";' >> $(VERSION_FILE)
 	echo 'end panda_version;' >> $(VERSION_FILE)
 
 ###########################################################

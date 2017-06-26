@@ -120,7 +120,7 @@ begin
             when REG_FPGA_VERSION =>
                 read_data_o <= FPGA_VERSION;
             when REG_FPGA_BUILD =>
-                read_data_o <= FPGA_VERSION;
+                read_data_o <= FPGA_BUILD;
             when REG_USER_VERSION =>
                 read_data_o <= SLOW_FPGA_VERSION;
             when REG_BIT_READ_VALUE =>

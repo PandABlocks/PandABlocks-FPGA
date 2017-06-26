@@ -24,8 +24,6 @@ PROM_FILE = $(SYSTEM).mcs
 
 VERSION_FILE = $(TOP)/SlowFPGA/src/hdl/slow_version.vhd
 
-include $(TOP)/SLOW_VERSION
-
 # Print the names of unlocked (unconstrainted) IOs
 export XIL_PAR_DESIGN_CHECK_VERBOSE=1
 
@@ -41,7 +39,7 @@ VERSION :
 	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
 	echo 'package slow_version is' >> $(VERSION_FILE)
 	echo -n 'constant SLOW_FPGA_VERSION: std_logic_vector(31 downto 0)' \ >> $(VERSION_FILE)
-	echo ' := X"$(FIRMWARE)";' >> $(VERSION_FILE)
+	echo ' := X"$(SHA)";' >> $(VERSION_FILE)
 	echo 'end slow_version;' >> $(VERSION_FILE)
 
 

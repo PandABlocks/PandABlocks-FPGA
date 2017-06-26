@@ -4,7 +4,6 @@
 TOP := $(CURDIR)
 
 -include CONFIG
--include VERSION
 
 export LM_LICENSE_FILE
 export BUILD_DIR
@@ -19,7 +18,14 @@ TEST_SCRIPT_DIR = $(TOP)/tests/sim
 default: $(DEFAULT_TARGETS)
 .PHONY: default
 
+# Something like 0.1-1-g5539563-dirty
 export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
+# Split and append .0 to get 0.1.0, then turn into hex to get 00000100
+export VERSION := $(shell ./python/parse_git_version.py "$(GIT_VERSION)")
+# 8 if dirty, 0 if clean
+DIRTY_PRE = $(shell python -c "print 8 if '$(GIT_VERSION)'.endswith('dirty') else 0")
+# Something like 85539563
+export SHA := $(DIRTY_PRE)$(shell git rev-parse --short HEAD)
 
 # -------------------------------------------------------------------------
 # Documentation
@@ -78,12 +84,10 @@ tools/virtexHex2Bin : tools/virtexHex2Bin.c
 # Build installation package
 # -------------------------------------------------------------------------
 
-ZPKG_VERSION = $(BOARD)-$(FMC_DESIGN)_$(SFP_DESIGN)-$(FIRMWARE)
-
 zpkg: etc/panda-fpga.list $(FIRMWARE_BUILD)
 	rm -f $(BUILD_DIR)/*.zpg
 	$(MAKE_ZPKG) -t $(BUILD_DIR) -b $(BUILD_DIR) -d $(BUILD_DIR) \
-            $< $(ZPKG_VERSION)
+            $< $(APP_NAME)-$(GIT_VERSION)
 
 .PHONY: zpkg
 
