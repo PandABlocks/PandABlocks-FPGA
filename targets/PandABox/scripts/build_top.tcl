@@ -78,14 +78,10 @@ read_vhdl [glob $TOP_DIR/modules/seq/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/slow/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/srgate/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/filter/vhdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/$FMC_DESIGN/vhdl/fmcgt_loopback/support/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/$FMC_DESIGN/vhdl/fmcgt_loopback/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/$FMC_DESIGN/vhdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/sfpgt_loopback/support/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/sfpgt_loopback/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/*.vhd]
-add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/sfpgt_loopback/gt_rom_init_rx.dat
-add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/sfpgt_loopback/gt_rom_init_tx.dat
+add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/gt_rom_init_rx.dat
+add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/gt_rom_init_tx.dat
 add_files $TOP_DIR/modules/$FMC_DESIGN/vhdl/
 
 # Read constraint files
