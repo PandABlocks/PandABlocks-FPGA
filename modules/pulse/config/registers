@@ -4,7 +4,6 @@ PULSE       {{newBlockNo("PULSE")}}
     INP             {{newBlockReg(typ='bit_mux')}}
     ENABLE          {{newBlockReg(typ='bit_mux')}}
     OUT             {{newBitBus()}}
-    PERR            {{newBitBus()}}
     ERR_OVERFLOW    {{newBlockReg()}}
     ERR_PERIOD      {{newBlockReg()}}
     QUEUE           {{newBlockReg()}}
