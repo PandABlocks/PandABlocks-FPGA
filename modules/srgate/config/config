@@ -6,7 +6,7 @@ SRGATE[{{app_config["SRGATE"]}}]
     RST_EDGE        param       enum 3
         0   Falling
         1   Rising
-        3   Rising or Falling
+        2   Rising or Falling
     FORCE_SET       write       action
     FORCE_RST       write       action
     SET             bit_mux
