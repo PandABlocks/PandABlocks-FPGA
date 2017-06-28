@@ -4,7 +4,6 @@ PULSE       One-shot pulse delay and stretch
     INP             Input pulse train
     ENABLE          Reset on falling edge, enable on rising
     OUT             Output pulse train
-    PERR            Pulse error 
     ERR_OVERFLOW    Missed pulse was due to overflow of internal queue
     ERR_PERIOD      Producing a pulse would cause it to overlap with previous
     QUEUE           Length of the delay queue

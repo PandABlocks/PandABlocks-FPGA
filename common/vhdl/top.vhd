@@ -216,7 +216,6 @@ signal srgate_out           : std_logic_vector(SRGATE_NUM-1 downto 0);
 signal div_outd             : std_logic_vector(DIV_NUM-1 downto 0);
 signal div_outn             : std_logic_vector(DIV_NUM-1 downto 0);
 signal pulse_out            : std_logic_vector(PULSE_NUM-1 downto 0);
-signal pulse_perr           : std_logic_vector(PULSE_NUM-1 downto 0);
 signal seq_outa             : std_logic_vector(SEQ_NUM-1 downto 0);
 signal seq_outb             : std_logic_vector(SEQ_NUM-1 downto 0);
 signal seq_outc             : std_logic_vector(SEQ_NUM-1 downto 0);
@@ -616,8 +615,7 @@ port map (
     write_ack_o         => write_ack(PULSE_CS),
 
     sysbus_i            => sysbus,
-    out_o               => pulse_out,
-    perr_o              => pulse_perr
+    out_o               => pulse_out
 );
 
 ---------------------------------------------------------------------------
@@ -1183,7 +1181,6 @@ port map (
     DIV_OUTN        => div_outn,
     -- PULSE Block
     PULSE_OUT       => pulse_out,
-    PULSE_PERR      => pulse_perr, 
     -- SEQ Block
     SEQ_OUTA        => seq_outa,
     SEQ_OUTB        => seq_outb,
