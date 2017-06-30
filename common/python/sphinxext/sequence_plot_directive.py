@@ -9,10 +9,9 @@ from common.python.pandablocks.sequenceparser import SequenceParser
 from common.python.pandablocks.configparser import ConfigParser
 
 import modules
+
+
 MODULE_DIR = os.path.join(os.path.dirname(modules.__file__))
-PAR_DIR = os.path.join(__file__, os.pardir, os.pardir, os.pardir)
-ROOT_DIR = os.path.dirname(os.path.abspath(PAR_DIR))
-CONFIG_DIR = os.path.join(os.environ['FPGA_BUILD_DIR'], 'config_d')
 
 
 class sequence_plot_node(nodes.Element):
@@ -88,8 +87,6 @@ class sequence_plot_directive(Directive):
 
     def make_pcap_table(self, sequence):
         table_node = table_plot_node()
-        # get our ext names
-        cparser = ConfigParser(CONFIG_DIR)
         # find the inputs that change
         input_changes = []
         data_header = []
@@ -100,7 +97,7 @@ class sequence_plot_directive(Directive):
                 elif name == "START_WRITE":
                     data_header = []
                 elif name == "WRITE":
-                    hdr_name = cparser.ext_names[int(inputs[name])]
+                    hdr_name = "POSBUS[%d]" % inputs[name]
                     data_header.append(hdr_name)
         if not data_header:
             return table_node
