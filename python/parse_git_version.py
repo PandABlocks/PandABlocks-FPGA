@@ -18,5 +18,5 @@ try:
     print "".join(hex_numbers[-1:] + hex_numbers[:-1])
 except Exception as e:
     logging.exception(e)
-    # Something went wrong, just print 0.0.0
-    print "000000"
+    # Something went wrong, just print 0.0.0c0
+    print "00000000"
