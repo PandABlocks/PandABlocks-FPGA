@@ -26,7 +26,7 @@ port (
     pcap_wstb_i         : in  std_logic;
     pcap_done_i         : in  std_logic;
     pcap_status_i       : in  std_logic_vector(2 downto 0);
-    dma_error_o          : out std_logic;
+    dma_error_o         : out std_logic;
     irq_o               : out std_logic;
 
     -- Block Registers
@@ -71,7 +71,7 @@ constant AXI_BURST_WIDTH    : integer := LOG2(AXI_BURST_LEN) + 1;
 -- Number of byte per AXI burst
 constant BURST_LEN          : integer := AXI_BURST_LEN * AXI_ADDR_WIDTH/8;
 
-component fifo_1K32
+component fifo_1K32_ft
 port (
     clk                 : in std_logic;
     srst                : in std_logic;
@@ -81,7 +81,7 @@ port (
     dout                : out std_logic_vector(31 DOWNTO 0);
     full                : out std_logic;
     empty               : out std_logic;
-    data_count          : out std_logic_vector(9 downto 0)
+    data_count          : out std_logic_vector(10 downto 0)
 );
 end component;
 
@@ -111,8 +111,8 @@ signal switch_block         : std_logic;
 signal pcap_wstb            : std_logic;
 signal writing_sample       : std_logic;
 
-signal fifo_data_count      : std_logic_vector(9 downto 0);
-signal fifo_count           : unsigned(9 downto 0);
+signal fifo_data_count      : std_logic_vector(10 downto 0);
+signal fifo_count           : unsigned(10 downto 0);
 signal transfer_size        : unsigned(AXI_BURST_WIDTH-1 downto 0);
 signal fifo_rd_en           : std_logic;
 signal fifo_dout            : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
@@ -148,7 +148,7 @@ pcap_error <= pcap_status_i(2) or pcap_status_i(1);
 --
 -- 32bit FIFO with 1K sample depth
 --
-dma_fifo_inst : fifo_1K32
+dma_fifo_inst : fifo_1K32_ft
 port map (
     srst            => reset,
     clk             => clk_i,
