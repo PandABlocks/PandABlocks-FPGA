@@ -16,9 +16,9 @@ $ Arming and hard disarm
 $ capture timestamp
 2       : START_WRITE=0
 4       : WRITE=37
-#config_d/registers/PCAP/CAPTURE_TS (1st element CAPTURE_TS)
+# config_d/registers/PCAP/CAPTURE_TS (1st element CAPTURE_TS)
 6       : WRITE=38
-#config_d/registers/PCAP/CAPTURE_TS (2nd element CAPTURE_TS_H)
+# config_d/registers/PCAP/CAPTURE_TS (2nd element CAPTURE_TS_H)
 10      : ARM=0             : ACTIVE=1
 11      : ENABLE=1
 12      : CAPTURE=1
@@ -49,13 +49,13 @@ $ capture too close together
 $ capture pos bus enc1
 2       : START_WRITE=0
 4       : WRITE=1
-#config_d/registers/PCAP/FRAME (1st element)?
+# Capture POS bus element 1 (POS[1])
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
 13      : CAPTURE=1
 14      : CAPTURE=0                     : DATA=0
-15      : CAPTURE=1, INENC1.VAL=100
-16      : CAPTURE=0, INENC1.VAL=50      : DATA=100
+15      : CAPTURE=1, POS[1]=100
+16      : CAPTURE=0, POS[1]=50          : DATA=100
 18      : CAPTURE=1
 19      :                               : DATA=50
 22      : ENABLE=0, CAPTURE=0           : ACTIVE=0
@@ -65,64 +65,69 @@ $ capture pos bus enc1
 $ capture bit bus TTLIN
 2       : START_WRITE=0
 4       : WRITE=42 
-#39 #config_d/registers/PCAP/BITS0
+# config_d/registers/PCAP/BITS0 for BIT[0]..BIT[31]
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
 13      : CAPTURE=1
 14      : CAPTURE=0                     : DATA=0
-15      : CAPTURE=1, TTLIN1.VAL=1
-16      : CAPTURE=0, TTLIN3.VAL=1       : DATA=0x4
+15      : CAPTURE=1, BIT[2]=1
+# BIT[2] appears as bit 2 (0x4) of BITS0
+16      : CAPTURE=0, BIT[4]=1           : DATA=0x4
 18      : CAPTURE=1
-# TTLIN3.VAL is on allocated 4 (0x10 on posbus)
+# BIT[4] appears as bit 4 (0x10) of BITS0
 19      : CAPTURE=0                     : DATA=0x14
-21      : CAPTURE=1, TTLIN1.VAL=0
+21      : CAPTURE=1, BIT[2]=0
 22      : ENABLE=0, CAPTURE=0           : DATA=0x10, ACTIVE=0
 
 #######################
 $ capture bit bus SEQ
 2       : START_WRITE=0
 4       : WRITE=43
-#40 #config_d/registers/PCAP/BITS1
+# config_d/registers/PCAP/BITS1 for BIT[32]..BIT[63]
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
 13      : CAPTURE=1
 14      : CAPTURE=0                     : DATA=0
-15      : CAPTURE=1, SEQ1.OUTA=1
-# SEQ1.OUTA is on allocated 58 (0x4000000 on posbus)
-16      : CAPTURE=0, SEQ3.OUTA=1        : DATA=0x4000000
+15      : CAPTURE=1, BIT[58]=1
+# BIT[58] appears as bit 26 (0x4000000) of BITS1
+16      : CAPTURE=0, BIT[60]=1          : DATA=0x4000000
 18      : CAPTURE=1
-# SEQ3.OUTA is on allocated 58 (0x10000000 on posbus)
+# BIT[60] appears as bit 26 (0x10000000) of BITS1
 19      : CAPTURE=0                     : DATA=0x14000000
-21      : CAPTURE=1,  SEQ1.OUTA=0
+21      : CAPTURE=1, BIT[58]=0
 22      :                               : DATA=0x10000000
-24      : ENABLE=0, CAPTURE=0           :  ACTIVE=0
+24      : ENABLE=0, CAPTURE=0           : ACTIVE=0
 
 #######################
 $ capture bit bus order
 2       : START_WRITE=0
 3       : WRITE=42
-#39#config_d/registers/PCAP/BITS0
+# config_d/registers/PCAP/BITS0 for BIT[0]..BIT[31]
 4       : WRITE=43
-#40#config_d/registers/PCAP/BITS1
+# config_d/registers/PCAP/BITS1 for BIT[32]..BIT[63]
 5       : WRITE=44
-#41#config_d/registers/PCAP/BITS2
+# config_d/registers/PCAP/BITS2 for BIT[64]..BIT[95]
 6       : WRITE=45
-#42#config_d/registers/PCAP/BITS3
+# config_d/registers/PCAP/BITS3 for BIT[96]..BIT[127]
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
-13      : CAPTURE=1, TTLIN1.VAL=1
+13      : CAPTURE=1, BIT[2]=1
+# BIT[2] appears as bit 2 (0x4) of BITS0
 14      : CAPTURE=0                     : DATA=0x4
 15      :                               : DATA=0
 16      :                               : DATA=0
-17      : CAPTURE=1,SEQ1.OUTA=1         : DATA=0
+17      : CAPTURE=1, BIT[58]=1          : DATA=0
 18      : CAPTURE=0                     : DATA=0x4
+# BIT[58] appears as bit 26 (0x4000000) of BITS1
 19      :                               : DATA=0x4000000
 20      :                               : DATA=0
-21      : CAPTURE=1, COUNTER8.CARRY=1   : DATA=0
+21      : CAPTURE=1, BIT[101]=1         : DATA=0
 22      : CAPTURE=0                     : DATA=0x4
 23      :                               : DATA=0x4000000
 24      :                               : DATA=0
-25      : CAPTURE=1, INENC1.A=1         : DATA=0x20
+# BIT[101] appears as bit 5 (0x20) of BITS3
+25      : CAPTURE=1, BIT[10]=1          : DATA=0x20
+# BIT[10] appears as bit 10 (0x400) of BITS0
 26      : CAPTURE=0                     : DATA=0x404
 27      :                               : DATA=0x4000000
 28      :                               : DATA=0x0
@@ -131,39 +136,41 @@ $ capture bit bus order
 #####################
 $ framing on counters
 2       : START_WRITE=0
-#12#config_d/registers/COUNTER (first val)
-4       : WRITE=11   
+# Capture POS bus element 11 (POS[11])
+4       : WRITE=11
+# Frame element 11 to get difference
 5       : FRAMING_MASK=0x1000
 6       : FRAMING_ENABLE=1
 10      : ARM=0                         : ACTIVE=1
-11      : ENABLE=1, COUNTER1.OUT=10
+11      : ENABLE=1, POS[11]=10
 # Live frame
 12      : FRAME=1
 13      : CAPTURE=1, FRAME=0
 14      : CAPTURE=0
-15      : COUNTER1.OUT=20
+15      : POS[11]=20
 16      : FRAME=1
 17      : FRAME=0                       : DATA=10
-18      : COUNTER1.OUT=30
+18      : POS[11]=30
 # Dead frame
 19      : FRAME=1
 20      : FRAME=0
 # Live frame
-21      : COUNTER1.OUT=50
+21      : POS[11]=50
 22      : CAPTURE=1
-23      : COUNTER1.OUT=35, CAPTURE=0
+23      : POS[11]=35, CAPTURE=0
 25      : FRAME=1
 26      : FRAME=0, ENABLE=0             : DATA=50, ACTIVE=0
 
 #####################
 $ Capture before first frame
 2       : START_WRITE=0
-#12#config_d/registers/COUNTER (first val)
-4       : WRITE=11   
+# Capture POS bus element 11 (POS[11])
+4       : WRITE=11
+# Frame element 11 to get difference
 5       : FRAMING_MASK=0x1000
 6       : FRAMING_ENABLE=1
 10      : ARM=0                         : ACTIVE=1
-11      : ENABLE=1, COUNTER1.OUT=10
+11      : ENABLE=1, POS[11]=10
 # Live frame
 12      : CAPTURE=1                     : ACTIVE=0, ERR_STATUS=3
 13      : FRAME=1
@@ -173,45 +180,45 @@ $ Capture before first frame
 #####################
 $ More than one capture within a frame
 2       : START_WRITE=0
-#12#config_d/registers/COUNTER (first val)
+# Capture POS bus element 11 (POS[11])
 4       : WRITE=11   
 5       : FRAMING_MASK=0x1000
 6       : FRAMING_ENABLE=1
 10      : ARM=0                         : ACTIVE=1
-11      : ENABLE=1, COUNTER1.OUT=10
+11      : ENABLE=1, POS[11]=10
 # Live frame
 12      : FRAME=1
 13      : CAPTURE=1, FRAME=0
 14      : CAPTURE=0
-15      : COUNTER1.OUT=20
+15      : POS[11]=20
 16      : CAPTURE=1                     : ACTIVE=0, ERR_STATUS=1
 17      : CAPTURE=0
 
 #####################
 $ framing on counters average mode
 2       : START_WRITE=0
-#12#config_d/registers/COUNTER (first val)
+# Capture POS bus element 11 (POS[11])
 4       : WRITE=11   
 5       : FRAMING_MASK=0x1000
 6       : FRAMING_ENABLE=1
 7       : FRAMING_MODE=0x1000
 10      : ARM=0                         : ACTIVE=1
-11      : ENABLE=1, COUNTER1.OUT=10
+11      : ENABLE=1, POS[11]=10
 # Live frame
 12      : FRAME=1
 13      : CAPTURE=1, FRAME=0
 14      : CAPTURE=0
-15      : COUNTER1.OUT=20
+15      : POS[11]=20
 16      : FRAME=1
 17      : FRAME=0                       : DATA=10
-18      : COUNTER1.OUT=30
+18      : POS[11]=30
 # Dead frame
 19      : FRAME=1
 20      : FRAME=0
 # Live frame
-21      : COUNTER1.OUT=50
+21      : POS[11]=50
 22      : CAPTURE=1
-23      : COUNTER1.OUT=35, CAPTURE=0
+23      : POS[11]=35, CAPTURE=0
 25      : FRAME=1
 26      : FRAME=0, ENABLE=0             : DATA=50, ACTIVE=0
 
@@ -219,8 +226,7 @@ $ framing on counters average mode
 $ Capture offset
 2       : START_WRITE=0
 4       : WRITE=40
-#43
-#40#config_d/registers/PCAP/BITS1
+# config_d/registers/PCAP/CAPTURE_OFFSET
 5       : FRAMING_MASK=0x1
 6       : FRAMING_ENABLE=1
 10      : ARM=0                         : ACTIVE=1

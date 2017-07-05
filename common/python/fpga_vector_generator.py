@@ -60,22 +60,8 @@ class FpgaSequence(object):
         # Add PCAP registers if we are a pcap block
         if block == "pcap":
             #get the headers for the pos_bus and bit_bus
-            self.bit_bus.append("TS")
-            self.pos_bus.append("TS")
-            bit_bus = OrderedDict()
-            pos_bus = OrderedDict()
-            for x in range(128):
-                bit_bus[x] = 'UNUSED'
-            for x in range(32):
-                pos_bus[x] = 'UNUSED'
-            configparser = ConfigParser(CONFIG_DIR)
-            for entry, val in configparser.bit_bus.items():
-                bit_bus[val] = entry
-            for entry,val in configparser.pos_bus.items():
-                pos_bus[val] = entry
-            self.bit_bus.extend(bit_bus.values())
-            self.pos_bus.extend(pos_bus.values())
-
+            self.bit_bus = ["TS"] + ["BIT[%d]" % i for i in range(128)]
+            self.pos_bus = ["TS"] + ["POS[%d]" % i for i in range(32)]
             reg_block = Block.parser.blocks["*REG"]
             for name in reg_block.registers:
                 if name.startswith("PCAP_"):

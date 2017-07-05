@@ -64,13 +64,15 @@ class SequenceTest(unittest.TestCase):
             # have changes, as our blocks expect this
             for name, val in changes.items():
                 # If there is a dot in the name, it's a bit or pos bus entry
-                if "." in name:
-                    if name in Block.parser.bit_bus:
-                        idx = Block.parser.bit_bus[name]
+                if "[" in name:
+                    idx = int(name.split("[")[1].split("]")[0])
+                    if name.startswith("POS"):
+                        Block.pos_bus[idx] = val
+                    elif name.startswith("BIT"):
                         Block.bit_bus[idx] = val
                     else:
-                        idx = Block.parser.pos_bus[name]
-                        Block.pos_bus[idx] = val
+                        raise ValueError(
+                            "Expected POS[n] or BIT[n], got %s" % name)
                     changes.pop(name)
                 else:
                     # Check that this is a valid field name
