@@ -12,8 +12,12 @@ TARGET_DIR = $(TOP)/targets/$(TARGET)
 DOCS_BUILD_DIR = $(BUILD_DIR)/$(TARGET)/html
 FPGA_BUILD_DIR = $(BUILD_DIR)/$(TARGET)
 SLOW_FPGA_BUILD_DIR = $(BUILD_DIR)/SlowFPGA
-TEST_DIR = $(TOP)/build/tests
+TEST_DIR = $(BUILD_DIR)/tests
 TEST_SCRIPT_DIR = $(TOP)/tests/sim
+
+# Repeated from targets/PandABox/Makefile
+IP_CORES = $(FPGA_BUILD_DIR)/ip_repo
+
 
 default: $(DEFAULT_TARGETS)
 .PHONY: default
@@ -53,10 +57,12 @@ SFP_DESIGN = $(shell grep -o 'SFP_[^ ]*' $(APP_FILE) |tr A-Z a-z)
 # Carrier FPGA targets
 CARRIER_FPGA_TARGETS = carrier-fpga carrier-ip
 
-run-tests: $(TEST_DIR)    
+
+run-tests: $(TEST_DIR) $(IP_CORES)
 	rm -rf $(TEST_DIR)/regression_tests
-	rm $(TEST_DIR)/*.jou
-	rm $(TEST_DIR)/*.log
+	rm -rf $(TEST_DIR)/*.jou
+	rm -rf $(TEST_DIR)/*.log
+	cd common/python && ./fpga_vector_generator.py
 	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace -source $(TEST_SCRIPT_DIR)/regression_tests.tcl
 
 config_d: $(FPGA_BUILD_DIR)
@@ -64,11 +70,11 @@ config_d: $(FPGA_BUILD_DIR)
 	cd common/python && ./config_generator.py -a $(APP_FILE) -o $(FPGA_BUILD_DIR)
 	cd common/python && ./vhdl_generator.py -o $(FPGA_BUILD_DIR)
 
-$(CARRIER_FPGA_TARGETS): $(FPGA_BUILD_DIR) config_d
+$(CARRIER_FPGA_TARGETS) $(IP_CORES): $(FPGA_BUILD_DIR) config_d
 	$(MAKE) -C $< -f $(TARGET_DIR)/Makefile VIVADO=$(VIVADO) \
 	    TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(FPGA_BUILD_DIR) \
 		FMC_DESIGN=$(FMC_DESIGN) SFP_DESIGN=$(SFP_DESIGN) \
-		$(MAKECMDGOALS)
+		$@
 
 slow-fpga: $(SLOW_FPGA_BUILD_DIR) tools/virtexHex2Bin
 	source $(ISE)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
