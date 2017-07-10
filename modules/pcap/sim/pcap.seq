@@ -22,10 +22,10 @@ $ capture timestamp
 10      : ARM=0             : ACTIVE=1
 11      : ENABLE=1
 12      : CAPTURE=1
-13      :                   : DATA=2
+13      :                   : DATA=3
 14      : CAPTURE=0         : DATA=0
 16      : CAPTURE=1
-17      : CAPTURE=0         : DATA=6
+17      : CAPTURE=0         : DATA=7
 18      :                   : DATA=0
 20      : ENABLE=0          : ACTIVE=0
 
@@ -38,11 +38,11 @@ $ capture too close together
 10      : ARM=0             : ACTIVE=1
 11      : ENABLE=1
 12      : CAPTURE=1
-13      : CAPTURE=0         : DATA=2
+13      : CAPTURE=0         : DATA=3
 14      :                   : DATA=0
 15      :                   : DATA=0
 16      : CAPTURE=1
-17      : CAPTURE=0         : DATA=6
+17      : CAPTURE=0         : DATA=7
 18      : CAPTURE=1         : DATA=0, ACTIVE=0, ERR_STATUS=2, ERROR=1
 
 ######################
