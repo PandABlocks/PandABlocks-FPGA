@@ -44,7 +44,7 @@ constant ENC_NUM            : natural := 4;
 constant PCOMP_NUM          : natural := 4;
 constant SEQ_NUM            : natural := 4;
 constant BITS_NUM           : natural := 1;
-constant FILTER_NUM         : natural := 2;
+constant FILTER_NUM         : natural := 1;
 --------------------------------------------------------------------------
 
 -- Block instantiation numbers--------------------------------------------

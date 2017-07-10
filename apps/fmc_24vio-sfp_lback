@@ -16,4 +16,4 @@ POSITIONS       1
 SLOW            1
 SFP_LOOPBACK    1
 FMC_24VIO       1
-FILTER          2
+FILTER          1
