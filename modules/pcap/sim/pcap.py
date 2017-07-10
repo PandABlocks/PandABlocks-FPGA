@@ -174,8 +174,8 @@ class Pcap(Block):
         # Ext bus
         ts_idx = self.ext_names[b.CAPTURE_TS]
         if self.ext_mask[ts_idx[0]]:
-            self.ext_bus[ts_idx[0]] = (ts - self.ts_start) & (2 ** 32 - 1)
-            self.ext_bus[ts_idx[1]] = (ts - self.ts_start) >> 32
+            self.ext_bus[ts_idx[0]] = (ts - self.ts_start + 1) & (2 ** 32 -1) #+1 here because in FPGA when ARM is set, the count/ts is reset to 1 not 0
+            self.ext_bus[ts_idx[1]] = (ts - self.ts_start + 1) >> 32 #+1 here because in FPGA when ARM is set, the count/ts is reset to 1 not 0
         off_idx = self.ext_names[b.CAPTURE_OFFSET]
         if self.ext_mask[off_idx]:
             self.ext_bus[off_idx] = ts - self.ts_frame
