@@ -69,7 +69,6 @@ signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_dat_valid   : std_logic;
 signal pcap_armed       : std_logic;
 signal pcap_start       : std_logic;
-signal pcap_overflow    : std_logic_vector(31 downto 0);
 
 begin
 
@@ -130,7 +129,6 @@ port map (
 
     capture_o           => capture_pulse,
     posn_o              => capture_data,
-    overflow_o          => pcap_overflow,
     error_o             => pcap_frame_error
 );
 
@@ -154,8 +152,7 @@ port map (
     error_o             => pcap_buffer_error
 );
 
-ERR_STATUS(31 downto 4) <= (others => '0');
-ERR_STATUS(3) <= vector_or(pcap_overflow);
+ERR_STATUS(31 downto 3) <= (others => '0');
 ERR_STATUS(2 downto 0) <= pcap_status;
 
 end rtl;

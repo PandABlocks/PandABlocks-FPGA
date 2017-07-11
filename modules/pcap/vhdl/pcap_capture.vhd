@@ -32,7 +32,6 @@ port (
     capture_i           : in  std_logic;
     posn_o              : out std_logic_vector(31 downto 0);
     extn_o              : out std_logic_vector(31 downto 0);
-    overflow_o          : out std_logic;
     -- Block register
     FRAMING_ENABLE      : in  std_logic;
     FRAMING_MASK        : in  std_logic;
