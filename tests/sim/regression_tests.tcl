@@ -29,6 +29,7 @@
 # Does the file_io.v work ?? 
 
 
+# Create a vivado project called regression_tests
 create_project regression_tests ../../build/tests/regression_tests -force -part xc7z030sbg485-1 
 
 
@@ -40,6 +41,7 @@ set test_passed are;
 set test_failed are;
 
 
+# Test array (add test here)
 array set tests { 
         panda_sequencer_2tb 10
         panda_filter_tb 9
@@ -54,6 +56,7 @@ array set tests {
 }
 
 
+# Load the textio files into Vivado 
 source "../../tests/sim/update_textio.tcl"
 
 
@@ -87,6 +90,7 @@ add_files -norecurse {../../modules/filter/vhdl/divider.vhd
 }
 
 
+# Load all simulation source files 
 set_property SOURCE_SET sources_1 [get_filesets sim_1]
 add_files -fileset sim_1 -norecurse {../../tests/sim/panda_pulse/bench/panda_pulse_tb.v
 ../../tests/sim/panda_pcomp/bench/panda_pcomp_tb.v
@@ -105,6 +109,7 @@ add_files -fileset sim_1 -norecurse {../../tests/sim/panda_pulse/bench/panda_pul
 }
 
 
+# Loop through all the tests
 foreach test [array names tests] { 
 
     puts  "###############################################################################################"
@@ -117,13 +122,19 @@ foreach test [array names tests] {
     launch_simulation
 
     run -all
-    
+  
+    # All the testbenchs have a signal called test_result 
+    # this is used to indicate when the test fails i.e.
+    # test_result = 1 -- test has failed
+    # test_result = 0 -- test has passed  
     get_value test_result; 
     get_object test_result;
     set result_from_test [get_value test_result];
   
     puts "The test result is $test" 
   
+    # Check to see if the test has passed or failed increment 
+    # test_passed or test_failed variables and append result into variable   
     if {$result_from_test == 1} {
          incr test_failed_cnt +1;
          puts "##################################### $test has failed #####################################"
@@ -134,16 +145,12 @@ foreach test [array names tests] {
          puts "##################################### $test has passed #####################################"
          append test_passed ", " \n "$test_passed_cnt." $test 
     }     
-    
-    #puts "The test result is [get_object test_result]";    
-    #puts "The number of tests that have passed is $test_passed_cnt";
-    #puts "The number of tests that have failed is $test_failed_cnt";
       
     close_sim
 
 }
 
-
+# Print out the result of the regression run
 puts "################################### Tests that have passed ###################################"
 puts "                                                                                              "
 puts "Tests that have passed $test_passed";
@@ -152,7 +159,7 @@ puts "################################### Tests that have failed ###############
 puts "                                                                                              "  
 puts "Tests that have failed $test_failed";
 puts "                                                                                              "
-puts "################################## Test passed faile count ###################################"
+puts "################################# Test passed failed count ###################################"
 puts "Simulation has finished and the number of tests that have passed is $test_passed_cnt";
 puts "                                                                                              " 
 puts "Simulation has finished and the number of tests that have failed is $test_failed_cnt";

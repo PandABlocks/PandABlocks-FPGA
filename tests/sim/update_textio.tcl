@@ -15,6 +15,7 @@ remove_files -fileset sim_1 {../PandABox/fpga_sequences/clocks_bus_in.txt
 ../PandABox/fpga_sequences/lut_bus_out.txt
 ../PandABox/fpga_sequences/lut_reg_in.txt
 ../PandABox/fpga_sequences/lut_reg_out.txt
+../PandABox/fpga_sequences/pcap_bit_bus.txt
 ../PandABox/fpga_sequences/pcap_bus_in.txt
 ../PandABox/fpga_sequences/pcap_bus_out.txt
 ../PandABox/fpga_sequences/pcap_reg_in.txt
@@ -55,6 +56,7 @@ add_files -fileset sim_1 -norecurse {../PandABox/fpga_sequences/clocks_reg_in.tx
 ../PandABox/fpga_sequences/lut_bus_out.txt
 ../PandABox/fpga_sequences/lut_reg_in.txt
 ../PandABox/fpga_sequences/lut_reg_out.txt
+../PandABox/fpga_sequences/pcap_bit_bus.txt
 ../PandABox/fpga_sequences/pcap_bus_in.txt
 ../PandABox/fpga_sequences/pcap_bus_out.txt
 ../PandABox/fpga_sequences/pcap_reg_in.txt
