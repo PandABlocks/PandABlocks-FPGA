@@ -84,7 +84,7 @@ $ Stretched and delayed pulses too close together
 5       : ENABLE=1
 14      : INP=1         : QUEUE=2
 16      : INP=0
-20      : INP=1         : PERR=1, MISSED_CNT=1, ERR_PERIOD=1
+20      : INP=1         : MISSED_CNT=1, ERR_PERIOD=1
 23      : INP=0
 24      :               : QUEUE=1, OUT=1
 27      : INP=1         : QUEUE=3
@@ -92,4 +92,5 @@ $ Stretched and delayed pulses too close together
 33      : INP=0
 37      :               : QUEUE=1, OUT=1
 42      :               : QUEUE=0, OUT=0
-46      : ENABLE=0      : PERR=0, MISSED_CNT=0, ERR_PERIOD=0
+46      : ENABLE=0
+49      : ENABLE=1      : MISSED_CNT=0, ERR_PERIOD=0
