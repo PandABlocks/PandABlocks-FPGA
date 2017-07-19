@@ -17,7 +17,6 @@ class Pulse(Block):
     def __init__(self):
         self.queue = deque()
         self.valid_ts = 0
-        # self.TRIG_EDGE = 1
 
     def do_pulse(self, ts, changes):
         """We've received a bit event on INP, so queue some output values
@@ -27,7 +26,6 @@ class Pulse(Block):
         width = self.WIDTH_L + (self.WIDTH_H << 32)
         delay = self.DELAY_L + (self.DELAY_H << 32)
         if ts < self.valid_ts or len(self.queue) + 2 > MAX_QUEUE:
-            self.PERR = 1
             self.MISSED_CNT += 1
             self.ERR_OVERFLOW = 1
         # If there is no specified width then use the width of input pulse
@@ -46,25 +44,22 @@ class Pulse(Block):
         start = ts + delay
         # make sure that start is after any pulse on queue
         if self.queue and start < self.queue[-1][0] + MIN_QUEUE_DELTA:
-            self.PERR = 1
             self.MISSED_CNT += 1
             self.ERR_PERIOD = 1
         else:
             self.queue.append((start, 1))
             self.queue.append((start + width, 0))
 
-    def do_reset(self, ts):
-        """Reset the block, either called on rising edge of ENABLE"""
+    def do_reset(self):
+        """Reset the block, called on rising edge of ENABLE"""
         self.MISSED_CNT = 0
         self.ERR_OVERFLOW = 0
         self.ERR_PERIOD = 0
-        self.PERR = 0
-        self.OUT = 0
-        self.do_clear_queue(ts)
 
     def do_clear_queue(self, ts):
         """Clear the queue, but not any errors"""
         self.valid_ts = ts + QUEUE_CLEAR_TIME
+        self.OUT = 0
         self.queue.clear()
 
     def on_changes(self, ts, changes):
@@ -81,20 +76,23 @@ class Pulse(Block):
             if name in (b.DELAY_L, b.DELAY_H, b.WIDTH_L, b.WIDTH_H):
                 self.do_clear_queue(ts)
 
-        # Check reset and pulse inputs
-        if changes.get(b.ENABLE, None) == 0:
-            self.do_reset(ts)
-        elif b.INP in changes and self.ENABLE:
+        # On rising edge of enable clear errors
+        if changes.get(b.ENABLE, None) == 1:
+            self.do_reset()
+        # on falling edge of enable reset output and queue
+        elif changes.get(b.ENABLE, None) == 0:
+            self.do_clear_queue(ts)
+
+        # If we got an input and we were enabled then output a pulse
+        if b.INP in changes and self.ENABLE:
             self.do_pulse(ts, changes)
 
-        # if we have an pulse on our queue that is due, produce it
-        if self.queue and self.queue[0][0] == ts:
-            # generate output value
-            self.OUT = self.queue.popleft()[1]
-
-        # if we have anything else on the queue, return when it's due
+        # if we have anything else on the queue return when it's due
         if self.queue:
             next_ts = self.queue[0][0]
+            # if the pulse on our queue is ready to be produced then produce
+            if self.queue[0][0] == ts:
+                self.OUT = self.queue.popleft()[1]
             assert next_ts >= ts, "Going back in time %s >= %s" % (next_ts, ts)
 
         # Event list changed, update status word
