@@ -17,6 +17,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.top_defines.all;
+use work.addr_defines.all;
 
 entity ttlin_top is
 port (

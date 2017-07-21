@@ -9,6 +9,11 @@ package addr_defines is
 constant {{name}}_CS : natural := {{block.base}};
 {%  endfor %}
 
+-- Block instantiation 
+{%  for name, block in blocks.iteritems() %}
+constant {{name}}_NUM : natural := {{block.num}};
+{%  endfor %}
+
 -- Block Register Address Space
 
 {%  for blockname, block in blocks.iteritems() %}

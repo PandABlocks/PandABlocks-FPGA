@@ -8,6 +8,7 @@ use unisim.vcomponents.all;
 library work;
 use work.support.all;
 use work.top_defines.all;
+use work.addr_defines.all;
 
 entity posenc_top is
 port (
