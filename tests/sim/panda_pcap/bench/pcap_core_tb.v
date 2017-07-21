@@ -169,6 +169,23 @@ join
 
 end
 
+// write index
+// (0-31)	posbus;
+//	32		(others => '0');
+// (36-33)	extbus(4 downto 1);
+//	37		capture_ts(31 downto 0);
+//	38		capture_ts(63 downto 32);
+//	39		frame_length(31 downto 0);
+//	40		capture_offset(31 downto 0);
+//	41		(others => '0');
+//	42		sysbus(31 downto 0);
+//	43		sysbus(63 downto 32);
+//	44		sysbus(95 downto 64);
+//	45		sysbus(127 downto 96);
+// (49-46)	extbus;
+// (63-50)	(others => '0');	
+
+
 
 //
 // Read Bus Outputs
