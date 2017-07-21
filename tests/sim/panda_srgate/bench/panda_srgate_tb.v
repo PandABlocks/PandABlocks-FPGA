@@ -8,21 +8,21 @@ always #4 clk_i = ~clk_i;
 integer timestamp = 0;
 
 // Inputs
-reg     SIM_RESET;
-reg     SET;
-reg     RESET;
-reg     SET_EDGE;
-reg     SET_EDGE_WSTB;
-reg     RST_EDGE;
-reg     RST_EDGE_WSTB;
-reg     FORCE_SET;
-reg     FORCE_SET_WSTB;
-reg     FORCE_RST;
-reg     FORCE_RST_WSTB;
-reg     VAL;
+reg       SIM_RESET;
+reg       SET;
+reg       RESET;
+reg [1:0] SET_EDGE;
+reg       SET_EDGE_WSTB;
+reg [1:0] RST_EDGE;
+reg       RST_EDGE_WSTB;
+reg       FORCE_SET;
+reg       FORCE_SET_WSTB;
+reg       FORCE_RST;
+reg       FORCE_RST_WSTB;
+reg       VAL;
 
-reg     err;
-reg     test_result;
+reg       err;
+reg       test_result;
 
 // Outputs
 wire out_o;
