@@ -11,10 +11,11 @@
 
 # Tests
 # 1.  adder_tb          -- WORKS VHDL testbench self checks
-# 2.  panda_srgate_tb   -- WORKS     
-# 3.  panda_pulse_tb    -- WORKS
-# 4.  panda_pcomp_tb    -- NOT WORKING NEEDS ALOT OF WORK 
+# 2.  panda_srgate_tb   -- Need code changes      
+# 3.  panda_pulse_tb    -- Problems negative edge a clock difference two edges doesn't work as I believe that the pulse is too short 
+# 4.  panda_pcomp_tb    -- NOT WORKING NEEDS ALOT OF WORK (pcomp_reg_in.txt has PCOMP_1000.txt, PCOMP_2000.txt, PCOMP_3000.txt in it)
 # 5.  pcap_core_tb      -- MULTIPLE TESTBENCHs NOT WORKING (pcap_core_tb.v is the only that uses textio files)
+#		pcap_core_tb	-- ERR_STATUS problem it looks like its a python problem
 # 6.  panda_lut_tb      -- WORKS
 # 7.  panda_div_tb      -- WORKS
 # 8.  panda_clock_tb    -- NOT WORKING (problem at the beginning of the test) counter reset so set to zero (32 bits register)
@@ -23,10 +24,12 @@
 # 9.  panda_filter      -- WORKS
 # 10. panda_sequnecer   -- NOT WORKING (Results not the same as expected ones LOTS OF ERRORS) offset at the start causes the 
 #                       -- expected results to offset by one clock from generated results  
-
+# 11. bits              -- No testbench
+# 12. counter           -- No testbench
+# 13. pgen              -- No testbench
 #../../tests/sim/panda_pcomp/bench/file_io.v should this be remove is it used in the pcap and seq tests
 
-# Does the file_io.v work ?? 
+# Does the file_io.v work yes it does 
 
 
 # Create a vivado project called regression_tests
@@ -83,9 +86,12 @@ add_files -norecurse {../../modules/filter/vhdl/divider.vhd
 ../../modules/pcap/vhdl/pcap_buffer.vhd
 ../../modules/pcap/vhdl/pcap_frame.vhd
 ../../common/vhdl/defines/operator.vhd
-../..//modules/pcap/vhdl/pcap_capture.vhd
+../../modules/pcap/vhdl/pcap_capture.vhd
 ../../modules/pcap/vhdl/pcap_core.vhd
 ../../modules/seq/vhdl/sequencer.vhd
+../../modules/bits/vhdl/bits.vhd
+../../modules/counter/vhdl/counter.vhd
+../../modules/pgen/vhdl/pgen.vhd
 ../../tests/sim/panda_pcomp/bench/file_io.v
 }
 
