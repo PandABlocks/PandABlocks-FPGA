@@ -1,11 +1,17 @@
 from common.python.pandablocks.block import Block
 
 
+RISING = 0
+FALLING = 1
+EITHER = 2
+
+
 class Srgate(Block):
 
-    def __init__(self):
-        self.RST_EDGE = 1
-        self.SET_EDGE = 1
+    def inp_matches_edge(self, inp, edge):
+        if edge == RISING and inp == 1 or edge == FALLING and inp == 0 \
+                or edge == EITHER and inp is not None:
+            return True
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
@@ -22,11 +28,7 @@ class Srgate(Block):
             self.OUT = 0
         elif b.FORCE_SET in changes:
             self.OUT = 1
-        elif changes.get(b.RST, None) == self.RST_EDGE and self.FORCE_SET != 1:
+        elif self.inp_matches_edge(changes.get(b.RST, None), self.RST_EDGE):
             self.OUT = 0
-        elif changes.get(b.SET, None) == self.SET_EDGE and self.FORCE_RST != 1:
+        elif self.inp_matches_edge(changes.get(b.SET, None), self.SET_EDGE):
             self.OUT = 1
-        elif b.SET in changes and self.SET_EDGE == 2 and self.FORCE_RST != 1:
-            self.OUT = 1
-        elif b.RST in changes and self.RST_EDGE == 2 and self.FORCE_SET != 1:
-            self.OUT = 0
