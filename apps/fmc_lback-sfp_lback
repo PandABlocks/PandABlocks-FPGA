@@ -14,6 +14,6 @@ BITS            1
 CLOCKS          1
 POSITIONS       1
 SLOW            1
-FILTER          2
+FILTER          1
 SFP_LOOPBACK    1
 FMC_LOOPBACK    1
