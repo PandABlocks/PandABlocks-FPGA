@@ -19,6 +19,7 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 use work.slow_defines.all;
+use work.addr_defines.all;
 
 library unisim;
 use unisim.vcomponents.all;
