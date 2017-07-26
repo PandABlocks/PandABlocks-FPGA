@@ -22,7 +22,7 @@ TWX_FILE = $(SYSTEM).twx
 BIT_FILE = $(SYSTEM).bit
 PROM_FILE = $(SYSTEM).mcs
 
-VERSION_FILE = $(TOP)/SlowFPGA/src/hdl/slow_version.vhd
+VERSION_FILE = $(TOP)/build/PandABox/autogen/slow_version.vhd
 
 # Print the names of unlocked (unconstrainted) IOs
 export XIL_PAR_DESIGN_CHECK_VERBOSE=1
