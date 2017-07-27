@@ -1,5 +1,6 @@
 common/vhdl/defines/*.vhd
 build/PandABox/autogen/addr_defines.vhd
+build/PandABox/autogen/slow_version.vhd
 common/vhdl/serial_engine_rx.vhd
 common/vhdl/serial_engine_tx.vhd
 common/vhdl/serial_engine.vhd

@@ -7,3 +7,4 @@ vhdl work top/CarrierFPGA/src/hdl/base/shifter_in.vhd
 vhdl work top/CarrierFPGA/src/hdl/base/ssi_clock_gen.vhd
 vhdl work top/CarrierFPGA/src/hdl/base/prescaler.vhd
 vhdl work top/SlowFPGA/src/hdl/*.vhd
+vhdl work top/build/PandABox/autogen/slow_version.vhd
