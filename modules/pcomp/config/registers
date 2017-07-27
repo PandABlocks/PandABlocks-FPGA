@@ -6,13 +6,10 @@ PCOMP       {{newBlockNo("PCOMP")}}
     RELATIVE        {{newBlockReg()}}
     DIR             {{newBlockReg()}}
     DELTAP          {{newBlockReg()}}
-    USE_TABLE       {{newBlockReg()}}
     ENABLE          {{newBlockReg(typ='bit_mux')}}
     INP             {{newBlockReg()}}
     ACTIVE          {{newBitBus()}}
     OUT             {{newBitBus()}}
     ERROR           {{newBlockReg()}}
-    TABLE           long    2^2    {{newBlockReg(typ='ltable')}}
-    TABLE_STATUS    {{newBlockReg()}}
 
 

@@ -244,8 +244,5 @@ $ Capture offset
 22      : CAPTURE=1
 23      : CAPTURE=0
 25      : FRAME=1
-26      : FRAME=0, ENABLE=0             : DATA=3, ACTIVE=0	
+26      : FRAME=0, ENABLE=0             : DATA=3, ACTIVE=0
 
-########################
-$ Arming and soft disarm
-3       : 
