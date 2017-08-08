@@ -28,12 +28,13 @@ wire        clockb_o;
 wire        clockc_o;
 wire        clockd_o;
 
-reg         err_clocka  = 0;
-reg         err_clockb  = 0;
-reg         err_clockc  = 0;
-reg         err_clockd  = 0;
-reg         test_result = 0;
+reg         err_clocka;
+reg         err_clockb;
+reg         err_clockc;
+reg         err_clockd;
+reg         test_result;
 
+reg         reset_i;
 
 integer fid[2:0];
 integer r[2:0];
@@ -193,6 +194,12 @@ begin
 end
 
 
+always @(A_PERIOD_WSTB or B_PERIOD_WSTB or C_PERIOD_WSTB or D_PERIOD_WSTB) 
+begin
+    reset_i = A_PERIOD_WSTB | B_PERIOD_WSTB | C_PERIOD_WSTB | D_PERIOD_WSTB;
+end 
+
+
 // $stop Halts a simulation and enters an interactive debug mode
 // $finish Finishes a simulation and exits the simulation process
 always @ (posedge clk_i) //----------------------------------------- HERE 
@@ -204,7 +211,7 @@ always @ (posedge clk_i) //----------------------------------------- HERE
 //panda_clocks uut (
 clocks uut (
         .clk_i          ( clk_i             ),
-        .reset_i        ( SIM_RESET         ),
+        .reset_i        ( reset_i           ),
 
         .clocka_o       ( clocka_o          ),
         .clockb_o       ( clockb_o          ),
