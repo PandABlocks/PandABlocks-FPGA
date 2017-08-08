@@ -27,8 +27,11 @@ reg       test_result;
 // Outputs
 wire out_o;
 
-integer fid[3:0];
-integer r[3:0];
+//integer fid[3:0];
+//integer r[3:0];
+integer fid[2:0];
+integer r[2:0];
+
 
 //
 // Values in the test files are arranged on FPGA clock ticks on the
