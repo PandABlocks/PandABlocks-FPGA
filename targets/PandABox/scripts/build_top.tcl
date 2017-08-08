@@ -46,7 +46,6 @@ set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 read_ip $BUILD_DIR/ip_repo/pulse_queue/pulse_queue.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32/fifo_1K32.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32_ft/fifo_1K32_ft.xci
-read_ip $BUILD_DIR/ip_repo/pcomp_dma_fifo/pcomp_dma_fifo.xci
 read_ip $BUILD_DIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
 read_ip $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
 if {$FMC_DESIGN == "fmc_loopback"} {
