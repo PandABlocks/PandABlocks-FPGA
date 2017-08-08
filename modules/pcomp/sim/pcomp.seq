@@ -76,7 +76,7 @@ $ Disable after start
 14      : INP=7
 15      : INP=6
 16      : INP=5             : OUT=1
-18      : INP=4, ENABLE=0   : ACTIVE=0, OUT=0
+25      : INP=4, ENABLE=0   : ACTIVE=0, OUT=0
 
 ###############
 $ Disable with start
@@ -136,7 +136,11 @@ $ Error skipping multiple compare points
 7       : DELTAP = 2
 10      : ENABLE=1      : ACTIVE=1
 14      :
-15      : INP=11        : ERROR=1, ACTIVE=0
+15      : INP=11
+# Takes an extra clock tick for error to propagate through
+16      :               : ERROR=1, ACTIVE=0
+19      : ENABLE=0
+21      : ENABLE=1      : ERROR=0, ACTIVE=1
 
 ###############
 $ Error is produced after skipping more than 2 compare points
@@ -152,8 +156,9 @@ $ Error is produced after skipping more than 2 compare points
 30      : INP=4
 31      : INP=0
 43      : INP=5         : OUT=1
-47      : INP=10        : ERROR=1, ACTIVE=0, OUT=0
-49      : INP=11
+47      : INP=10        : 
+48      :               : ERROR=1, ACTIVE=0, OUT=0
+49      : INP=11         
 50      : INP=12
 
 
