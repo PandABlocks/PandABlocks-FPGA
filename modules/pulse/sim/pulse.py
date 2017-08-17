@@ -17,6 +17,7 @@ class Pulse(Block):
     def __init__(self):
         self.queue = deque()
         self.valid_ts = 0
+        self.ts_pulse_start = 0
 
     def do_pulse(self, ts, changes):
         """We've received a bit event on INP, so queue some output values
@@ -30,10 +31,22 @@ class Pulse(Block):
             self.ERR_OVERFLOW = 1
         # If there is no specified width then use the width of input pulse
         elif width == 0:
-            self.queue.append((ts + delay, self.INP))
+            # Only allow a pulse width minimum of 4 clock ticks
+            # This is kind of hard to do because we can't remove the +4 clk out
+            # If there is no input (and we dont know what the input will be
+            # beforehand)
+            if ts - self.ts_pulse_start > 4:
+                self.queue.append((ts + delay, self.INP))
+                #cancel the generated 4 clock tick pulse end
+                if self.queue[0][0] == ts:
+                    self.queue.popleft()[1]
+            else:
+                self.generate_queue(ts, delay, 4)
         elif self.INP and self.TRIG_EDGE==0:
             self.generate_queue(ts, delay, width)
-        elif not self.INP and self.TRIG_EDGE==1:
+        elif not self.INP and self.TRIG_EDGE==1 and delay == 0:
+            self.generate_queue(ts+1, delay, width)
+        elif not self.INP and self.TRIG_EDGE==1 and delay >= 0:
             self.generate_queue(ts, delay, width)
         elif self.TRIG_EDGE==2:
             self.generate_queue(ts, delay, width)
@@ -62,6 +75,10 @@ class Pulse(Block):
         self.OUT = 0
         self.queue.clear()
 
+    def set_pulse_start(self, ts):
+        if self.INP == 1:
+            self.ts_pulse_start = ts
+
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
@@ -85,6 +102,7 @@ class Pulse(Block):
 
         # If we got an input and we were enabled then output a pulse
         if b.INP in changes and self.ENABLE:
+            self.set_pulse_start(ts)
             self.do_pulse(ts, changes)
 
         # if we have anything else on the queue return when it's due
