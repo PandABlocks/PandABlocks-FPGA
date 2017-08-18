@@ -26,18 +26,19 @@ $ Pulse stretching with no delay activate on both edges
 5       : ENABLE=1
 7       : INP=1         : QUEUE=1, OUT=1
 9       :               : QUEUE=0, OUT=0
-10      : INP=0         : QUEUE=1, OUT=1
-12      :               : QUEUE=0, OUT=0
+20      : INP=0         : QUEUE=2
+21      :               : QUEUE=1, OUT=1
+23      :               : QUEUE=0, OUT=0
 
 #############################
 $ Pulse delay with no stretch
 1       : WIDTH_L=0
 2       : DELAY_L=10
 5       : ENABLE=1
-7       : INP=1         : QUEUE=2
+7       : INP=1         : QUEUE=1
 10      : INP=0         : QUEUE=2
 17      :               : QUEUE=1, OUT=1
-21      :               : QUEUE=0, OUT=0
+20      :               : QUEUE=0, OUT=0
 
 #########################
 $ Pulse delay and stretch
@@ -50,32 +51,18 @@ $ Pulse delay and stretch
 27      :               : QUEUE=0, OUT=0
 
 #####################
-$ No delay or stretch (too close)
+$ No delay or stretch
 1       : WIDTH_L=0
 2       : DELAY_L=0
 5       : ENABLE=1
-7       : INP=1         : OUT=1
-8       : INP=0         : ERR_PERIOD=1
-9       : INP=1         :
-11      : INP=0         : OUT=0
-12      : INP=1         : OUT=1
-13      : INP=0         : ERR_PERIOD=1
-15      : INP=1         : OUT=1
-16      : INP=0         : OUT=0
-
-#####################
-#$ No delay or stretch
-#1       : WIDTH_L=0
-#2       : DELAY_L=0
-#5       : ENABLE=1
-#10      : INP=1         : OUT=1
-#15      : INP=0         : OUT=0
-#20      : INP=1         : OUT=1
-#25      : INP=0         : OUT=0
-#30      : INP=1         : OUT=1
-#35      : INP=0         : OUT=0
-#40      : INP=1         : OUT=1
-#45      : INP=0         : OUT=0
+10      : INP=1         : OUT=1
+15      : INP=0         : OUT=0
+20      : INP=1         : OUT=1
+25      : INP=0         : OUT=0
+30      : INP=1         : OUT=1
+35      : INP=0         : OUT=0
+40      : INP=1         : OUT=1
+45      : INP=0         : OUT=0
 
 ###################################
 $ Pulse train stretched and delayed
