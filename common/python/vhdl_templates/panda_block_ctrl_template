@@ -67,8 +67,8 @@ signal {{regname}}_WSTB : std_logic;
 begin
 
 -- Unused outputs
-read_ack_o <= '0';
-write_ack_o <= '0';
+read_ack_o <= '1';
+write_ack_o <= '1';
 
 read_addr <= to_integer(unsigned(read_address_i));
 write_addr <= to_integer(unsigned(write_address_i));
