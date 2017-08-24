@@ -6,30 +6,26 @@
 #       2. panda_pcap_dsp_tb.v can't find a component called pcap_dsp
 #       3. panda_pcap_arming_tb.v   can't find a textio file arming_in.txt  
 # panda_ssi_tb.v can't find the components ssimstr and ssislv
-
   
 
 # Tests
 # 1.  adder_tb          -- WORKS VHDL testbench self checks
 # 2.  panda_srgate_tb   -- WORKS      
-# 3.  panda_pulse_tb    -- Problems negative edge a clock difference two edges doesn't work as I believe that the pulse is too short 
-# 4.  panda_pcomp_tb    -- NOT WORKING NEEDS ALOT OF WORK (pcomp_reg_in.txt has PCOMP_1000.txt, PCOMP_2000.txt, PCOMP_3000.txt in it)
-# 5.  pcap_core_tb      -- MULTIPLE TESTBENCHs NOT WORKING (pcap_core_tb.v is the only that uses textio files)
-#		pcap_core_tb	-- ERR_STATUS problem it looks like its a python problem
+# 3.  panda_pulse_tb    -- WORKS 
+# 4.  panda_pcomp_tb    -- WORKS 
+# 5.  pcap_core_tb      -- NOT WORKS
 # 6.  panda_lut_tb      -- WORKS
 # 7.  panda_div_tb      -- WORKS
-# 8.  panda_clock_tb    -- NOT WORKING (problem at the beginning of the test) counter reset so set to zero (32 bits register)
-#                       -- used value is value -1 a two clock different need to be implemented CLOCKA_PERIOD, CLOCKB_PERIOD,
-#                       -- CLOCKC_PERIOD, CLOCKD_PERIOD and reset_i  
+# 8.  panda_clock_tb    -- WORKS  
 # 9.  panda_filter      -- WORKS
-# 10. panda_sequnecer   -- NOT WORKING (Results not the same as expected ones LOTS OF ERRORS) offset at the start causes the 
-#                       -- expected results to offset by one clock from generated results  
-# 11. panda_bits_tb     -- WORKS
-# 12. panda_counter_tb  -- WORKS
-# 13. panda_pgen_tb     -- Index to a text file 
-#../../tests/sim/panda_pcomp/bench/file_io.v should this be remove is it used in the pcap and seq tests
+# 10. panda_sequnecer   -- NOT WORKING second set of tests fails   
+# 11. panda_counter_tb  -- WORKS 
+# 12. panda_bits_tb     -- WORKS
 
-# Does the file_io.v work yes it does 
+
+
+# 13. panda_pgen_tb     -- Index to a text file not used  
+#../../tests/sim/panda_pcomp/bench/file_io.v should this be remove is it used in the pcap and seq tests
 
 
 # Create a vivado project called regression_tests
@@ -82,7 +78,6 @@ add_files -norecurse {../../modules/filter/vhdl/divider.vhd
 ../../common/vhdl/defines/top_defines.vhd
 ../../common/vhdl/spbram.vhd
 ../../modules/seq/vhdl/sequencer_table.vhd
-../../SlowFPGA/src/hdl/prescaler.vhd
 ../../modules/pcap/vhdl/pcap_arming.vhd
 ../../modules/pcap/vhdl/pcap_buffer.vhd
 ../../modules/pcap/vhdl/pcap_frame.vhd
@@ -90,6 +85,7 @@ add_files -norecurse {../../modules/filter/vhdl/divider.vhd
 ../../modules/pcap/vhdl/pcap_capture.vhd
 ../../modules/pcap/vhdl/pcap_core.vhd
 ../../modules/seq/vhdl/sequencer.vhd
+../../modules/seq/vhdl/sequencer_prescaler.vhd
 ../../modules/bits/vhdl/bits.vhd
 ../../modules/counter/vhdl/counter.vhd
 ../../modules/pgen/vhdl/pgen.vhd
