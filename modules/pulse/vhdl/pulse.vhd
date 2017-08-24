@@ -260,12 +260,15 @@ inp_fall  <= not inp_i_int and inp_prev;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
+        if  enable_i_dly = '0' and  enable_i = '1' then
+            ERR_OVERFLOW <= (others => '0');
+            ERR_PERIOD <= (others => '0');
+        end if;    
+    
         if (reset = '1') then
             ongoing_pulse <= '0';
             pulse_queue_wstb <= '0';
             inp_rise_prev <= '0';
-            ERR_OVERFLOW <= (others => '0');
-            ERR_PERIOD <= (others => '0');
             missed_pulses <= (others => '0');
             timestamp_prev <= (others => '0');
             queue_din <= (others => '0');
