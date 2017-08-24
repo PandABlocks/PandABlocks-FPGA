@@ -330,3 +330,45 @@ $ Gate dropped on completion, re-raised for re-execution of same frame table
 1045    :                                   : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
 1047    :                                   : OUTA=0, OUTB=0, OUTC=0, OUTD=0
         :                                   : OUTE=0, OUTF=0, ACTIVE=0
+
+###############       
+$ Single frame, multiple frame and table cycles prescale of 1
+
+2       : PRESCALE=1
+3       : TABLE_CYCLE=2
+4       : TABLE_START=1
+5       : TABLE_START=0
+#--FRAME 1 -----------------------
+# REPEATS           = 1
+# INPUT MASK        = F
+# INPUT CONDITIONS  = F
+# PHASE 1 OUTPUTS   = 01    = OUTA
+# PHASE 2 OUTPUTS   = 3F
+# PHASE 1 LENGTH    = 2*PRESCALE
+# PHASE 2 LENGTH    = 1*PRESCALE
+#---------------------------------
+6       : TABLE_DATA=0x00000002
+7       : TABLE_DATA=0xFF013F00
+8       : TABLE_DATA=0x00000004
+9       : TABLE_DATA=0x00000002
+10      : TABLE_LENGTH=4
+16      : ENABLE=1                  : ACTIVE=1, CUR_FRAME=1, CUR_FCYCLE=1
+        :                           : CUR_TCYCLE=1
+25      : INPA=1, INPB=1, INPC=1, INPD=1    : OUTA=1
+29      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+
+31      :                           : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0
+        :                           : OUTF=0, CUR_FCYCLE=2
+35      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+
+37      :                           : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0
+        :                           : OUTF=0, CUR_FCYCLE=1, CUR_TCYCLE=2
+41      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+
+43      :                           : OUTA=1, OUTB=0, OUTC=0, OUTD=0, OUTE=0
+        :                           : OUTF=0, CUR_FCYCLE=2
+47      :                           : OUTB=1, OUTC=1, OUTD=1, OUTE=1, OUTF=1
+49      : INPA=0, INPB=0, INPC=0, INPD=0    : OUTA=0, OUTB=0, OUTC=0, OUTD=0
+        :                           : OUTE=0, OUTF=0, ACTIVE=0
+
+        
