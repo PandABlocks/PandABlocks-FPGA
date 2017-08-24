@@ -552,7 +552,7 @@ port map (
 ---------------------------------------------------------------------------
 -- FILTER
 ---------------------------------------------------------------------------
-inst_filter_top : entity work.filter_top
+filter_top_inst : entity work.filter_top
 port map(
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
