@@ -1,5 +1,8 @@
 # Filter block textio files removal
-remove_files -fileset sim_1 {../PandABox/fpga_sequences/clocks_bus_in.txt
+remove_files -fileset sim_1 {../PandABox/fpga_sequences/adder_bus_in.txt
+../PandABox/fpga_sequences/adder_reg_in.txt
+../PandABox/fpga_sequences/adder_bus_out.txt
+../PandABox/fpga_sequences/clocks_bus_in.txt
 ../PandABox/fpga_sequences/clocks_bus_out.txt
 ../PandABox/fpga_sequences/clocks_reg_in.txt
 ../PandABox/fpga_sequences/clocks_reg_out.txt
@@ -52,7 +55,10 @@ remove_files -fileset sim_1 {../PandABox/fpga_sequences/clocks_bus_in.txt
 }
 
 set_property SOURCE_SET sources_1 [get_filesets sim_1]
-add_files -fileset sim_1 -norecurse {../PandABox/fpga_sequences/clocks_reg_in.txt
+add_files -fileset sim_1 -norecurse {../PandABox/fpga_sequences/adder_bus_in.txt
+../PandABox/fpga_sequences/adder_reg_in.txt
+../PandABox/fpga_sequences/adder_bus_out.txt
+../PandABox/fpga_sequences/clocks_reg_in.txt
 ../PandABox/fpga_sequences/clocks_bus_in.txt
 ../PandABox/fpga_sequences/clocks_reg_out.txt
 ../PandABox/fpga_sequences/clocks_bus_out.txt
