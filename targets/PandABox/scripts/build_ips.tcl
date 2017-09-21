@@ -141,6 +141,48 @@ set_property -dict [list \
 generate_target all [get_files $BUILD_DIR/slow_cmd_fifo/slow_cmd_fifo.xci]
 synth_ip [get_ips slow_cmd_fifo]
 
+#
+# Create Standard Asymmetric 1K, 32-bit(WR), 256-bit(RD) FIFO IP for ACQ430 FMC
+#
+create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+-module_name fmc_acq430_ch_fifo -dir $BUILD_DIR/
+
+set_property -dict [list \
+	CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
+	CONFIG.Input_Data_Width {32} \
+	CONFIG.Input_Depth {256} \
+	CONFIG.Output_Data_Width {256} \
+	CONFIG.Read_Data_Count {true} \
+	CONFIG.Output_Depth {32} \
+	CONFIG.Reset_Type {Asynchronous_Reset} \
+	CONFIG.Full_Flags_Reset_Value {1} \
+	CONFIG.Data_Count_Width {8} \
+	CONFIG.Write_Data_Count_Width {8} \
+	CONFIG.Read_Data_Count_Width {5} \
+	CONFIG.Full_Threshold_Assert_Value {253} \
+	CONFIG.Full_Threshold_Negate_Value {252}
+] [get_ips fmc_acq430_ch_fifo]
+
+generate_target all [get_files $BUILD_DIR/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci]
+synth_ip [get_ips fmc_acq430_ch_fifo]
+
+#
+# Create low level ACQ430 FMC Sample RAM
+#
+create_ip -name dist_mem_gen -vendor xilinx.com -library ip -version 8.0 \ 
+-module_name fmc_acq430_sample_ram -dir $BUILD_DIR/
+
+set_property -dict [list \
+	CONFIG.depth {32} \
+	CONFIG.data_width {24} \
+	CONFIG.memory_type {dual_port_ram} \
+	CONFIG.output_options {registered} \
+	CONFIG.common_output_clk {true}
+] [get_ips fmc_acq430_sample_ram]
+
+generate_target all [get_files $BUILD_DIR/fmc_acq430_sample_ram/fmc_acq430_sample_ram.xci]
+synth_ip [get_ips fmc_acq430_sample_ram]
+
 # Close project
 close_project
 exit
