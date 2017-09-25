@@ -1,0 +1,17 @@
+FMC   FMC ACQ430 ADC Module
+    MODULE_EN                       Blah blah blah
+    ADC_MODE                        Blah blah blah
+    CLK_SELECT                      Blah blah blah
+    ADC_CLKDIV                      Blah blah blah
+    FIFO_RESET                      Blah blah blah
+    FIFO_ENABLE                     Blah blah blah
+    ADC_RESET                       Blah blah blah
+    ADC_ENABLE                      Blah blah blah
+    CH01_DATA                       ADC Channel 1 Data
+    CH02_DATA                       ADC Channel 2 Data
+    CH03_DATA                       ADC Channel 3 Data
+    CH04_DATA                       ADC Channel 4 Data
+    CH05_DATA                       ADC Channel 5 Data
+    CH06_DATA                       ADC Channel 6 Data
+    CH07_DATA                       ADC Channel 7 Data
+    CH08_DATA                       ADC Channel 8 Data
