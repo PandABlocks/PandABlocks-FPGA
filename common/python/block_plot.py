@@ -30,52 +30,53 @@ import modules
 MODULE_DIR = os.path.join(os.path.dirname(modules.__file__))
 PAR_DIR = os.path.join(__file__, os.pardir, os.pardir)
 ROOT_DIR = os.path.dirname(os.path.abspath(PAR_DIR))
-CONFIG_DIR = os.path.join(os.environ['FPGA_BUILD_DIR'], 'config_d')
 
 
 def legend_label(text, x, y, off):
     plt.annotate(text, xy=(x, y), xytext=(x-off, y),
                  horizontalalignment="right", verticalalignment="center")
 
-def plot_bit(trace_items, offset, crossdist):
-    for name, (tracex, tracey) in trace_items:
-        tracey = np.array(tracey)
-        offset -= PULSE_HEIGHT + PLOT_OFFSET
-        plt.plot(tracex, tracey + offset, linewidth=2)
-        # add label
-        legend_label(name, 0, tracey[0] + offset + PULSE_HEIGHT / 2., crossdist)
+def plot_bit(trace_items, names, offset, crossdist):
+    for name, (tracex, tracey) in trace_items.items():
+        if name in names:
+            tracey = np.array(tracey)
+            offset -= PULSE_HEIGHT + PLOT_OFFSET
+            plt.plot(tracex, tracey + offset, linewidth=2)
+            # add label
+            legend_label(name, 0, tracey[0] + offset + PULSE_HEIGHT / 2., crossdist)
     return offset
 
-def plot_pos(trace_items, offset, crossdist, ts):
-    for name, (tracex, tracey) in trace_items:
-        offset -= TRANSITION_HEIGHT + PLOT_OFFSET
-        crossx = [0]
-        top = [offset + TRANSITION_HEIGHT]
-        bottom = [offset]
-        for i, x in enumerate(tracex):
-            # crossover start
-            crossx.append(x - crossdist)
+def plot_pos(trace_items, names, offset, crossdist, ts):
+    for name, (tracex, tracey) in trace_items.items():
+        if name in names:
+            offset -= TRANSITION_HEIGHT + PLOT_OFFSET
+            crossx = [0]
+            top = [offset + TRANSITION_HEIGHT]
+            bottom = [offset]
+            for i, x in enumerate(tracex):
+                # crossover start
+                crossx.append(x - crossdist)
+                top.append(top[-1])
+                bottom.append(bottom[-1])
+                # crossover end
+                crossx.append(x + crossdist)
+                top.append(bottom[-1])
+                bottom.append(top[-2])
+            # add end point
+            crossx.append(ts)
             top.append(top[-1])
             bottom.append(bottom[-1])
-            # crossover end
-            crossx.append(x + crossdist)
-            top.append(bottom[-1])
-            bottom.append(top[-2])
-        # add end point
-        crossx.append(ts)
-        top.append(top[-1])
-        bottom.append(bottom[-1])
 
-        lines = plt.plot(crossx, top)
-        plt.plot(crossx, bottom, color=lines[0].get_color())
-        plt.fill_between(crossx, top, bottom, color=lines[0].get_color())
-        for x, y in zip(tracex, tracey):
-            xy = (crossdist + x, TRANSITION_HEIGHT / 2. + offset)
-            plt.annotate(str(y), xy, color="white", horizontalalignment="left",
-                         verticalalignment="center")
+            lines = plt.plot(crossx, top)
+            plt.plot(crossx, bottom, color=lines[0].get_color())
+            plt.fill_between(crossx, top, bottom, color=lines[0].get_color())
+            for x, y in zip(tracex, tracey):
+                xy = (crossdist + x, TRANSITION_HEIGHT / 2. + offset)
+                plt.annotate(str(y), xy, color="white", horizontalalignment="left",
+                             verticalalignment="center")
 
-        # add label
-        legend_label(name, 0, TRANSITION_HEIGHT / 2. + offset, crossdist)
+            # add label
+            legend_label(name, 0, TRANSITION_HEIGHT / 2. + offset, crossdist)
     return offset
 
 def make_block_plot(blockname, title):
@@ -87,92 +88,44 @@ def make_block_plot(blockname, title):
     matches = [s for s in sparser.sequences if s.name == title]
     assert len(matches) == 1, 'Unknown title "%s" or multiple matches' % title
     sequence = matches[0]
-    cparser = ConfigParser(CONFIG_DIR)
-
-    # make instance of block
-    block = cparser.blocks[blockname.upper()]
 
     # walk the inputs and outputs and add the names we're interested in
-    in_bits_names = set()
-    out_bits_names = set()
-    in_positions_names = set()
-    out_positions_names = set()
-    in_regs_names = set()
-    out_regs_names = set()
+    in_names = []
+    out_names = []
+    pos_names = set()
+
     for ts in sequence.inputs:
-        for name in sequence.inputs[ts].keys():
-            # if there is a dot in the name, it's a bit or pos bus entry
-            if "." in name:
-                if name in cparser.bit_bus:
-                    in_bits_names.add(name)
-                    block.fields[name] = None
-                elif name in cparser.pos_bus:
-                    in_positions_names.add(name)
-                    block.fields[name] = None
-            elif block.name == "PCAP" and name in ["ARM", "DISARM"]:
-                # Add in PCAP specials
-                in_regs_names.add(name)
-                block.fields[name] = None
-            elif name.startswith("TABLE_"):
+        for name, val in sequence.inputs[ts].items():
+            if name.startswith("TABLE_"):
                 # Add table special
-                in_regs_names.add("TABLE")
+                name = "TABLE"
+                pos_names.add(name)
             elif name.endswith("_L") or name.endswith("_H"):
                 # Add times for time registers
-                in_regs_names.add(name[:-2])
-            elif name in block.registers:
-                _, field = block.registers[name]
-                if field.cls == "bit_mux":
-                    in_bits_names.add(name)
-                elif field.cls == "pos_mux":
-                    in_positions_names.add(name)
-                else:
-                    in_regs_names.add(name)
-        for name in sequence.outputs[ts].keys():
-            if name in block.outputs:
-                _, field = block.outputs[name]
-                if field.cls == "bit_out":
-                    out_bits_names.add(name)
-                elif field.cls == "pos_out":
-                    out_positions_names.add(name)
-            elif block.name == "PCAP" and name == "OUT":
-                # Add in PCAP output
-                out_regs_names.add(name)
-                block.fields[name] = None
-            elif name != "TABLE_STROBES":
-                out_regs_names.add(name)
+                name = name[:-2]
+                pos_names.add(name)
+            if name not in in_names:
+                in_names.append(name)
+            if val not in (0, 1):
+                pos_names.add(name)
+        for name, val in sequence.outputs[ts].items():
+            if name != "TABLE_STROBES" and name not in out_names:
+                out_names.append(name)
+            if val not in (0, 1):
+                pos_names.add(name)
 
-    # sort the traces by block field order
-    in_bits = OrderedDict()
-    out_bits = OrderedDict()
-    in_positions = OrderedDict()
-    out_positions = OrderedDict()
-    in_regs = OrderedDict()
-    out_regs = OrderedDict()
-    for name in block.fields:
-        if name in in_bits_names:
-            in_bits[name] = ([], [])
-        elif name in out_bits_names:
-            out_bits[name] = ([], [])
-        elif name in in_positions_names:
-            in_positions[name] = ([], [])
-        elif name in out_positions_names:
-            out_positions[name] = ([], [])
-        elif name in in_regs_names:
-            in_regs[name] = ([], [])
-        elif name in out_regs_names:
-            out_regs[name] = ([], [])
+    # sort the traces into bit and pos traces
+    bit_traces = OrderedDict()
+    pos_traces = OrderedDict()
 
-    def bit_traces():
-        trace_items = in_bits.items() + out_bits.items()
-        return trace_items
-
-    def pos_traces():
-        trace_items = in_positions.items() + out_positions.items() + \
-            in_regs.items() + out_regs.items()
-        return trace_items
+    for name in in_names + out_names:
+        if name in pos_names:
+            pos_traces[name] = ([], [])
+        else:
+            bit_traces[name] = ([], [])
 
     # fill in first point
-    for name, (tracex, tracey) in bit_traces():
+    for name, (tracex, tracey) in bit_traces.items():
         tracex.append(0)
         tracey.append(0)
 
@@ -184,7 +137,7 @@ def make_block_plot(blockname, title):
     for ts in sequence.inputs:
         inputs = sequence.inputs[ts]
         outputs = sequence.outputs[ts]
-        for name, (tracex, tracey) in bit_traces():
+        for name, (tracex, tracey) in bit_traces.items():
             if name in sequence.inputs[ts]:
                 tracex.append(ts)
                 tracex.append(ts)
@@ -195,7 +148,7 @@ def make_block_plot(blockname, title):
                 tracex.append(ts+1)
                 tracey.append(tracey[-1])
                 tracey.append(outputs[name])
-        for name, (tracex, tracey) in pos_traces():
+        for name, (tracex, tracey) in pos_traces.items():
             if name == "TABLE":
                 if "TABLE_START" in inputs:
                     inputs["TABLE"] = "load..."
@@ -216,13 +169,13 @@ def make_block_plot(blockname, title):
                 inputs[name] = lohi.get(name + "_L", 0) + \
                     (lohi[name + "_H"] << 32)
             if name in sequence.inputs[ts]:
-                if block.name == "LUT" and name == "FUNC":
+                if blockname.upper() == "LUT" and name == "FUNC":
                     inputs[name] = hex(inputs[name])
                 if not tracey or tracey[-1] != inputs[name]:
                     tracex.append(ts)
                     tracey.append(inputs[name])
             elif name in sequence.outputs[ts]:
-                if block.name == "PCAP" and name == "OUT":
+                if blockname.upper() == "PCAP" and name == "OUT":
                     data_count += 1
                     if data_count % capture_count == 1:
                         outputs[name] = "Row%d" % (data_count / capture_count)
@@ -247,7 +200,7 @@ def make_block_plot(blockname, title):
         ts += div - off
     plt.xlim(0, ts)
 
-    for name, (tracex, tracey) in bit_traces():
+    for name, (tracex, tracey) in bit_traces.items():
         tracex.append(ts)
         tracey.append(tracey[-1])
 
@@ -256,18 +209,16 @@ def make_block_plot(blockname, title):
 
     # now plot inputs
     offset = 0
-    offset = plot_pos(
-        in_regs.items() + in_positions.items(), offset, crossdist, ts)
-    offset = plot_bit(in_bits.items(), offset, crossdist)
+    offset = plot_pos(pos_traces, in_names, offset, crossdist, ts)
+    offset = plot_bit(bit_traces, in_names, offset, crossdist)
 
     # draw a line
     offset -= PLOT_OFFSET
     plt.plot([0, ts], [offset, offset], 'k--')
 
     # and now do outputs
-    offset = plot_bit(out_bits.items(), offset, crossdist)
-    offset = plot_pos(
-        out_positions.items() + out_regs.items(), offset, crossdist, ts)
+    offset = plot_bit(bit_traces, out_names, offset, crossdist)
+    offset = plot_pos(pos_traces, out_names, offset, crossdist, ts)
 
     plt.ylim(offset - PLOT_OFFSET, 0)
     # add a grid, title, legend, and axis label
