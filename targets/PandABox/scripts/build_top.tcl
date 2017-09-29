@@ -49,6 +49,8 @@ read_ip $BUILD_DIR/ip_repo/fifo_1K32_ft/fifo_1K32_ft.xci
 read_ip $BUILD_DIR/ip_repo/pcomp_dma_fifo/pcomp_dma_fifo.xci
 read_ip $BUILD_DIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
 read_ip $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
+read_ip $BUILD_DIR/ip_repo/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
+read_ip $BUILD_DIR/ip_repo/fmc_acq430_sample_ram/fmc_acq430_sample_ram.xci
 if {$FMC_DESIGN == "fmc_loopback"} {
     read_ip $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
 }
