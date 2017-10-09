@@ -1,20 +1,29 @@
 PCOMP[{{app_config["PCOMP"]}}]
+    PRE_START       param       position
     START           param       position
-    STEP            param       position
     WIDTH           param       position
-    PNUM            param
+    STEP            param       position
+    PULSES          param
     RELATIVE        param       enum 2
         0   Absolute
         1   Relative
     DIR             param       enum 2
         0   Positive
         1   Negative
-    DELTAP          param       position
+        2   Either
     ENABLE          bit_mux
     INP             pos_mux
     ACTIVE          bit_out
     OUT             bit_out
-    ERROR           read        enum 2
-        0   Ok
-        1   Position jumped by more than STEP
+    HEALTH          read        enum 2
+        0   OK
+        1   Error: Position jumped by more than STEP
+        2   Error: Can't guess DIR when both START and PRE_START are 0
+    PRODUCED        read
+    STATE           read        enum 4
+        0   WAIT_ENABLE
+        1   WAIT_DIR
+        2   WAIT_PRE_START
+        3   WAIT_RISING
+        4   WAIT_FALLING
 

@@ -1,74 +1,147 @@
 ###############
-$ Increasing position with +ve dir
+$ 3 Pulses in a +ve direction
+1       : START=4, STEP=3, WIDTH=2, PULSES=3
+2       : INP=2
+3       : ENABLE=1     : ACTIVE=1
+7       : INP=3
+9       : INP=4        : OUT=1, PRODUCED=1
+11      : INP=5
+13      : INP=6        : OUT=0
+15      : INP=7        : OUT=1, PRODUCED=2
+18      : INP=8
+21      : INP=9        : OUT=0
+24      : INP=10       : OUT=1, PRODUCED=3
+27      : INP=11
+31      : INP=12       : OUT=0, ACTIVE=0
+35      : INP=13
 
-3       : START=5
-4       : STEP=3
-5       : WIDTH=2
-6       : PNUM=3
-10      : ENABLE=1     : ACTIVE=1
-11      :
-12      : INP=1
+###############
+$ Enabled while crossing in wrong direction
+1       : START=4, STEP=3, WIDTH=2, PULSES=2
+2       : INP=5
+3       : ENABLE=1     : ACTIVE=1
+5       : INP=4
+7       : INP=3
+9       : INP=4        : OUT=1, PRODUCED=1
+11      : INP=5
+13      : INP=6        : OUT=0
+15      : INP=7        : OUT=1, PRODUCED=2
+18      : INP=8
+21      : INP=9        : OUT=0, ACTIVE=0
+
+###############
+$ 2 Pulses in a -ve direction
+1       : START=2, STEP=3, WIDTH=2, PULSES=2, DIR=1
+2       : INP=3
+3       : ENABLE=1      : ACTIVE=1
+7       : INP=2         : OUT=1, PRODUCED=1
+9       : INP=1
+11      : INP=0         : OUT=0
+13      : INP=-1        : OUT=1, PRODUCED=2
+15      : INP=-2
+18      : INP=-3        : OUT=0, ACTIVE=0
+21      : INP=-4
+
+###############
+$ Calculate direction to be -ve
+1       : START=2, STEP=3, WIDTH=2, PULSES=2, DIR=2
+2       : INP=3
+3       : ENABLE=1      : ACTIVE=1
+7       : INP=2         : OUT=1, PRODUCED=1
+9       : INP=1
+11      : INP=0         : OUT=0
+13      : INP=-1        : OUT=1, PRODUCED=2
+15      : INP=-2
+18      : INP=-3        : OUT=0, ACTIVE=0
+21      : INP=-4
+
+###############
+$ Calculate direction to be +ve
+1       : START=4, STEP=3, WIDTH=2, PULSES=3, DIR=2
+2       : INP=2
+3       : ENABLE=1     : ACTIVE=1
+7       : INP=3
+9       : INP=4        : OUT=1, PRODUCED=1
+11      : INP=5
+13      : INP=6        : OUT=0
+15      : INP=7        : OUT=1, PRODUCED=2
+18      : INP=8
+21      : INP=9        : OUT=0
+24      : INP=10       : OUT=1, PRODUCED=3
+27      : INP=11
+31      : INP=12       : OUT=0, ACTIVE=0
+35      : INP=13
+
+
+###############
+$ Only produce pulse once
+1       : START=4, STEP=3, WIDTH=1, PULSES=2
+2       : INP=2
+3       : ENABLE=1     : ACTIVE=1
+7       : INP=3
+9       : INP=4        : OUT=1, PRODUCED=1
+11      : INP=5        : OUT=0
+13      : INP=6
+15      : INP=5
+17      : INP=4
+19      : INP=3
+21      : INP=4
+23      : INP=5
+25      : INP=6
+27      : INP=7        : OUT=1, PRODUCED=2
+29      : INP=8        : OUT=0, ACTIVE=0
+
+###############
+$ Jittering over the start position
+1       : START=4, STEP=3, WIDTH=2, PULSES=2
+2       : INP=5
+3       : ENABLE=1     : STATE=2, ACTIVE=1
+5       : INP=4
+7       : INP=3        : STATE=3
+9       : INP=4        : STATE=4, OUT=1, PRODUCED=1
+11      : INP=3
 13      : INP=2
-14      : INP=3
-15      : INP=4
-16      : INP=5        : OUT=1
-17      : INP=6
-18      : INP=7        : OUT=0
-23      : INP=8        : OUT=1
-26      : INP=9
-33      : INP=10       : OUT=0
-36      : INP=11       : OUT=1
-43      : INP=12
-46      : INP=13       : OUT=0, ACTIVE=0
-
-###############
-$ Decreasing position with +ve dir
-
-2       : INP=10
-3       : START=5
-4       : STEP=10
-5       : WIDTH=7
-6       : PNUM=3
-10      : ENABLE=1     : ACTIVE=1
-11      :
-12      : INP=9
-13      : INP=8
-14      : INP=7
-15      : INP=6
-16      : INP=5
-17      : INP=4
-18      : INP=3
-
-###############
-$ Decreasing position with -ve dir
-
-2       : INP=10
-3       : START=5
-4       : STEP=3
-5       : WIDTH=2
-6       : PNUM=2
-7       : DIR=1
-10      : ENABLE=1     : ACTIVE=1
-11      :
-12      : INP=9
-13      : INP=8
-14      : INP=7
-15      : INP=6
-16      : INP=5    : OUT=1
-17      : INP=4
-18      : INP=3    : OUT=0
-20      : INP=2    : OUT=1
+15      : INP=1
+17      : INP=0
 21      : INP=1
-22      : INP=0    : OUT=0, ACTIVE=0
+23      : INP=2
+25      : INP=3
+27      : INP=4
+29      : INP=5
+31      : INP=6        : STATE=3, OUT=0
+33      : INP=7        : STATE=4, OUT=1, PRODUCED=2
+35      : INP=8
+37      : INP=9        : STATE=0, OUT=0, ACTIVE=0
+
+###############
+$ Avoiding jitter problem with PRE_START
+1       : START=4, STEP=3, WIDTH=2, PULSES=2, PRE_START=2
+2       : INP=5
+3       : ENABLE=1     : STATE=2, ACTIVE=1
+5       : INP=4
+7       : INP=3
+9       : INP=4
+11      : INP=3
+13      : INP=2
+15      : INP=1        : STATE=3
+17      : INP=0
+21      : INP=1
+23      : INP=2
+25      : INP=3
+27      : INP=4        : STATE=4, OUT=1, PRODUCED=1
+29      : INP=5
+31      : INP=6        : STATE=3, OUT=0
+33      : INP=7        : STATE=4, OUT=1, PRODUCED=2
+35      : INP=8
+37      : INP=9        : STATE=0, OUT=0, ACTIVE=0
 
 ###############
 $ Disable after start
-
 2       : INP=10
 3       : START=5
 4       : STEP=10
 5       : WIDTH=7
-6       : PNUM=3
+6       : PULSES=3
 7       : DIR=1
 10      : ENABLE=1          : ACTIVE=1
 12      : INP=9
@@ -80,12 +153,10 @@ $ Disable after start
 
 ###############
 $ Disable with start
-
 2       : INP=10
 3       : START=5
 4       : STEP=10
 5       : WIDTH=7
-6       : PNUM=3
 7       : DIR=1
 10      : ENABLE=1          : ACTIVE=1
 12      : INP=9
@@ -97,68 +168,102 @@ $ Disable with start
 18      : INP=3
 
 ###############
-$ Wait to be below start - DELTAP
-3       : START=5
-4       : STEP=4
-5       : WIDTH=3
-6       : PNUM=3
-7       : DELTAP = 2
-10      : INP=11
-14      :
-15      : ENABLE=1    : ACTIVE=1
-16      : INP=10
-17      : INP=9
-18      : INP=8
-19      : INP=7
-20      : INP=6
-23      : INP=5
-25      : INP=4
-27      : INP=5
-28      : INP=6
-29      : INP=3
-30      : INP=4
-31      : INP=0
-43      : INP=5        : OUT=1
-44      : INP=6
-45      : INP=7
-46      : INP=8        : OUT=0
-47      : INP=9        : OUT=1
-48      : INP=10
-49      : INP=11
-50      : INP=12       : OUT=0
+$ Absolute Pulses in a +ve direction
+1       : START=4, STEP=5, WIDTH=2, PULSES=3
+2       : INP=9
+3       : ENABLE=1     : ACTIVE=1
+8       : INP=1
+12      : INP=5        : OUT=1, PRODUCED=1
+16      : INP=7        : OUT=0
+20      : INP=8
+24      : INP=9        : OUT=1, PRODUCED=2
+28      : INP=15       : OUT=0, ACTIVE=0
+
 
 ###############
-$ Error skipping multiple compare points
-3       : START=5
-4       : STEP=4
-5       : WIDTH=3
-6       : PNUM=3
-7       : DELTAP = 2
-10      : ENABLE=1      : ACTIVE=1
-14      :
-15      : INP=11
-# Takes an extra clock tick for error to propagate through
-16      :               : ERROR=1, ACTIVE=0
-19      : ENABLE=0
-21      : ENABLE=1      : ERROR=0, ACTIVE=1
+$ Error skipping when OUT=0
+1       : START=4, STEP=5, WIDTH=2
+2       : INP=9
+3       : ENABLE=1     : ACTIVE=1
+8       : INP=1
+12      : INP=5        : OUT=1, PRODUCED=1
+16      : INP=7        : OUT=0
+20      : INP=8
+24      : INP=11       : ACTIVE=0, HEALTH=1
+
+
+###############
+$ Error skipping when OUT=1
+1       : START=4, STEP=5, WIDTH=2
+2       : INP=9
+3       : ENABLE=1     : ACTIVE=1
+8       : INP=1
+12      : INP=5        : OUT=1, PRODUCED=1
+16      : INP=9        : OUT=0, ACTIVE=0, HEALTH=1
+
 
 ###############
 $ Error is produced after skipping more than 2 compare points
-3       : START=5
-4       : STEP=4
-5       : WIDTH=2
-6       : PNUM=3
-10      : ENABLE=1      : ACTIVE=1
-14      :
-27      : INP=1
-28      : INP=2
-29      : INP=3
-30      : INP=4
-31      : INP=0
-43      : INP=5         : OUT=1
-47      : INP=10        : 
-48      :               : ERROR=1, ACTIVE=0, OUT=0
-49      : INP=11         
-50      : INP=12
+1       : START=4, STEP=5, WIDTH=2
+2       : INP=9
+3       : ENABLE=1     : ACTIVE=1
+8       : INP=1
+12      : INP=5        : OUT=1, PRODUCED=1
+16      : INP=7        : OUT=0
+20      : INP=8
+24      : INP=80       : ACTIVE=0, HEALTH=1
 
 
+###############
+$ Relative position compare
+1       : START=3, STEP=4, WIDTH=2, PULSES=2, RELATIVE=1
+2       : INP=1
+5       : INP=2, ENABLE=1 : ACTIVE=1
+7       : INP=3
+9       : INP=4
+11      : INP=5        : OUT=1, PRODUCED=1
+13      : INP=6
+15      : INP=7        : OUT=0
+18      : INP=8
+21      : INP=9        : OUT=1, PRODUCED=2
+23      : INP=10
+25      : INP=11       : OUT=0, ACTIVE=0
+
+
+###############
+$ Guess relative direction +ve
+1       : START=3, STEP=4, WIDTH=2, PULSES=2, RELATIVE=1, DIR=2
+2       : INP=1
+5       : INP=2, ENABLE=1 : ACTIVE=1
+7       : INP=3
+9       : INP=4
+11      : INP=5        : OUT=1, PRODUCED=1
+13      : INP=6
+15      : INP=7        : OUT=0
+18      : INP=8
+21      : INP=9        : OUT=1, PRODUCED=2
+23      : INP=10
+25      : INP=11       : OUT=0, ACTIVE=0
+
+###############
+$ Guess relative direction +ve with PRE_START
+1       : PRE_START=2, STEP=4, WIDTH=2, PULSES=2, RELATIVE=1, DIR=2
+2       : INP=5
+5       : INP=4, ENABLE=1 : ACTIVE=1, STATE=1
+7       : INP=3
+9       : INP=2           : STATE=2
+11      : INP=1           : STATE=3
+13      : INP=2
+15      : INP=3
+17      : INP=4        : STATE=4, OUT=1, PRODUCED=1
+19      : INP=5
+21      : INP=6        : STATE=3, OUT=0
+23      : INP=7
+25      : INP=8        : STATE=4, OUT=1, PRODUCED=2
+28      : INP=10       : STATE=0, OUT=0, ACTIVE=0
+
+###############
+$ Guess relative direction with no START
+1       : STEP=4, WIDTH=2, PULSES=2, RELATIVE=1, DIR=2
+2       : INP=1
+5       : INP=2, ENABLE=1 : HEALTH=2
