@@ -1,11 +1,9 @@
 COUNTER[{{app_config["COUNTER"]}}]
-    DIR             param       enum 2
-        0   Up
-        1   Down
     START           param
     STEP            param
     ENABLE          bit_mux
     TRIG            bit_mux
+    DIR             bit_mux
     CARRY           bit_out
     OUT             pos_out
 
