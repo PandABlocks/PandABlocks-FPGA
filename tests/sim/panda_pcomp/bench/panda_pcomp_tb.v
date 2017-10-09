@@ -8,11 +8,6 @@ module panda_pcomp_tb;
 
 // Inputs
 reg         clk_i = 0;
-reg         reset_i;
-reg         enable_i;
-reg [31: 0] posn_i;
-wire [63: 0] table_posn;
-
 
 integer timestamp = 0;
 
@@ -20,36 +15,29 @@ reg             SIM_RESET;
 reg             ENABLE;
 reg  [31: 0]    INP;
 reg  [31: 0]    START;
+reg 			START_WSTB;
 reg  [31: 0]    STEP;
+reg				STEP_WSTB;
 reg  [31: 0]    WIDTH;
+reg				WIDTH_WSTB;
 reg  [31: 0]    PNUM;
+reg 			PNUM_WSTB;
 reg             RELATIVE;
+reg				RELATIVE_WSTB;
 reg             DIR;
+reg				DIR_WSTB;
 reg  [31: 0]    DELTAP;
-reg             USE_TABLE;
-reg  [31: 0]    TABLE_ADDRESS;
-reg  [31: 0]    TABLE_LENGTH;
+reg 			DELTAP_WSTB;
 reg             ACTIVE;
 reg             OUT;
 reg             ERROR;
-reg  [31: 0]    TABLE_STATUS;
-reg             TABLE_LENGTH_WSTB; 
-wire  [31: 0]   STATUS;
-wire            table_pos;
 
 // Outputs
-wire [31: 0]    err0_o;
-wire            act0_o;
-wire            pulse0_o;
-wire [31: 0]    err1_o;
-wire            act1_o;
-wire            pulse1_o;
+wire [31: 0]    err;
+wire            act;
+wire            out;
 
-wire            table_read;
-wire            table_end;
-wire            dma_req;    
-wire [31: 0]    dma_addr;
-wire [7: 0]     dma_len;
+wire            table_read;   
 
 reg             test_result = 0;
  
@@ -149,29 +137,27 @@ end
 
 
 // pcomp_reg_out.txt
-// TS ###### ERROR ###### TABLE_STATUS
+// TS ###### ERROR ###### 
 
-integer reg_out[2:0];
+integer reg_out[1:0];
 reg     is_2file_end;
 
 initial begin
     ERROR = 0;
-    TABLE_STATUS = 0;
     is_2file_end = 0;
 
     @(posedge clk_i);
 
     // Open "bus_out" file
-    fid[3] = $fopen("pcomp_bus_out.txt", "r"); // TS, VAL
+    fid[3] = $fopen("pcomp_reg_out.txt", "r"); // TS, VAL
 
     // Read and ignore description field
-    r[3] = $fscanf(fid[3], "%s %s %s\n", reg_out[2], reg_out[1], reg_out[0]);
+    r[3] = $fscanf(fid[3], "%s %s\n", reg_out[1], reg_out[0]);
 
     while (!$feof(fid[3])) begin
-        r[3] = $fscanf(fid[3], "%d %d %d \n", reg_out[2], reg_out[1], reg_out[0]);
-        wait (timestamp == reg_out[2]) begin
-            ERROR = reg_out[1];
-            TABLE_STATUS = reg_out[0];
+        r[3] = $fscanf(fid[3], "%d %d\n", reg_out[1], reg_out[0]);
+        wait (timestamp == reg_out[1]) begin
+            ERROR = reg_out[0];
         end
         @(posedge clk_i);
     end
@@ -192,19 +178,23 @@ always @ (posedge clk_i) //----------------------------------------- HERE
 
 //pcomp_reg_in.txt
 // TS ###### START ###### STEP ###### WDITH ###### PNUM ###### RELATIVE ###### DIR ###### DELTAP ###### USE_TABLE ###### TABLE_ADDRESS ######TABLE_LENGTH
-integer reg_in[10:0];
+integer reg_in[14:0];
 
 initial begin
     START = 0;
+    START_WSTB = 0;
     STEP = 0;
+    STEP_WSTB = 0;
     WIDTH = 0;
+    WIDTH_WSTB = 0;
     PNUM = 0;
+    PNUM_WSTB = 0;
     RELATIVE = 0;
+    RELATIVE_WSTB = 0;
     DIR = 0;
+    DIR_WSTB = 0;
     DELTAP = 0;
-    USE_TABLE = 0;
-    TABLE_ADDRESS = 0;
-    TABLE_LENGTH = 0;
+    DELTAP_WSTB = 0;
 
     @(posedge clk_i);
 
@@ -212,23 +202,30 @@ initial begin
     fid[1] = $fopen("pcomp_reg_in.txt", "r");
 
     // Read and ignore description field
-    r[1] = $fscanf(fid[1], "%s %s %s %s %s %s %s %s %s %s %s\n", reg_in[10], reg_in[9], reg_in[8], 
-            reg_in[7], reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
+    r[1] = $fscanf(fid[1], "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n", reg_in[14], reg_in[13], 
+            reg_in[12], reg_in[11], reg_in[10], reg_in[9], reg_in[8], reg_in[7], reg_in[6], reg_in[5], 
+            reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
 
     while (!$feof(fid[1])) begin
-        r[1] = $fscanf(fid[1], "%d %d %d %d %d %d %d %d %d %d %d\n", reg_in[10], reg_in[9], reg_in[8], 
-              reg_in[7], reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
-        wait (timestamp == reg_in[10]) begin
-            START = reg_in[9];
-            STEP = reg_in[8];
-            WIDTH = reg_in[7];
-            PNUM = reg_in[6];
+        r[1] = $fscanf(fid[1], "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", reg_in[14], reg_in[13], 
+            reg_in[12], reg_in[11], reg_in[10], reg_in[9], reg_in[8], reg_in[7], reg_in[6], reg_in[5], 
+            reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
+        wait (timestamp == reg_in[14]) begin
+            START = reg_in[13];
+            START_WSTB = reg_in[12];
+            STEP = reg_in[11];
+            STEP_WSTB = reg_in[10];
+            WIDTH = reg_in[9];
+            WIDTH_WSTB = reg_in[8];
+            PNUM = reg_in[7];
+            PNUM_WSTB = reg_in[6];
             RELATIVE = reg_in[5];
-            DIR = reg_in[4];
-            DELTAP = reg_in[3];
-            USE_TABLE = reg_in[2];
-            TABLE_ADDRESS = reg_in[1];
-            TABLE_LENGTH = reg_in[0];
+            RELATIVE_WSTB = reg_in[4];
+            DIR = reg_in[3];
+            DIR_WSTB = reg_in[2];
+            DELTAP = reg_in[1];
+            DELTAP_WSTB = reg_in[0];
+
         end
         @(posedge clk_i);
     end
@@ -242,18 +239,26 @@ end
 always @(posedge clk_i)
 begin
     if (~is_file_end) begin
-        if (ERROR != err0_o) begin
-          test_result = 1;
-          $display("ERROR detected %d\n", timestamp);
+        if (ACTIVE != act) begin
+            test_result = 1;
+            $display("ERROR active strobes different %d\n", timestamp);
+        end     
+        if (out != OUT) begin
+            test_result = 1;
+            $display("ERROR outputs are different %d\n", timestamp);       
         end   
+        if (ERROR != err[0]) begin
+            test_result = 1;
+            $display("ERROR, error strobe outputs are different %d\n", timestamp);
+        end 
     end
 end
 
 
 // Instantiate the Unit Under Test (UUT)
-pcomp uut0 (
+pcomp uut_pcomp (
     .clk_i              ( clk_i             ),
-    .reset_i            ( reset_i           ),
+    .reset_i            ( SIM_RESET         ),
     .enable_i           ( ENABLE            ),    
     .posn_i             ( INP               ),
     .START              ( START             ),
@@ -263,87 +268,15 @@ pcomp uut0 (
     .RELATIVE           ( RELATIVE          ),    
     .DIR                ( DIR               ),
     .DELTAP             ( DELTAP            ),
-    .act_o              ( act0_o            ),
-    .err_o              ( err0_o            ),
-    .out_o              ( pulse0_o          ),
-    .table_posn_i       ( table_posn        ),
-    .table_read_o       ( table_read        ), ///////////////
-    .table_end_i        ( table_end         ),
-    .USE_TABLE          ( USE_TABLE         )
+    .act_o              ( act               ),
+    .err_o              ( err               ),
+    .out_o              ( out               ),
+    .table_posn_i       ( 0'b0              ),
+    .table_read_o       ( table_read        ), 
+    .table_end_i        ( 0'b0              ),
+    .USE_TABLE          ( 0'b0              )
 );
-
-//pcomp uut1 (
-//    .clk_i              ( clk_i             ),
-//    .reset_i            ( reset_i           ),
-//    .enable_i           ( enable_i          ),
-//    .posn_i             ( posn_i            ),
-//    .START              ( 4000              ),
-//    .STEP               ( 100               ),
-//    .WIDTH              ( 50                ),
-//    .NUM                ( 100               ),
-//    .RELATIVE           ( 1'b0              ),
-//    .DIR                ( 1'b1              ),
-//    .DELTAP             ( 100               ),
-//    .act_o              ( act1_o            ),
-//    .err_o              ( err1_o            ),
-//    .out_o              ( pulse1_o          ),
-//    .table_posn_i       ( 64'h0             ),
-//    .table_read_o       ( table_read        ), ///////////////
-//    .table_end_i        ( 1'b0              ), /////////////// 
-//    .USE_TABLE          ( 1'b0              )
-//);
-
-
-pcomp_table uut2 (
-    .clk_i              ( clk_i             ), //
-    .enable_i           ( ENABLE            ),
-    .trig_i             ( table_read        ), //
-    .out_o              ( table_posn        ),
-    .table_end_o        ( table_end         ),
     
-    .CYCLES             ( 32'h1             ), // -------?
-    .TABLE_ADDR         ( TABLE_ADDRESS     ),
-    .TABLE_LENGTH       ( TABLE_LENGTH      ),
-    .TABLE_LENGTH_WSTB  ( TABLE_LENGTH_WSTB ), //
-    .STATUS             ( STATUS            ),
-    .dma_req_o          ( dma_req           ), // output pcomp_block
-    .dma_ack_i          ( 1'b0              ), // input pcomp_block
-    .dma_done_i         ( 1'b0              ), // input pcomp_block
-    .dma_addr_o         ( dma_addr          ), // output pcomp_block
-    .dma_len_o          ( dma_len           ), // output pcomp_block 
-    .dma_data_i         ( 32'h0             ), // input pcomp_block
-    .dma_valid_i        ( 1'b0              )  // input pcomp_block
-);        
-    
-
-//
-// Read Bus Inputs
-//
-integer i;
-
-initial
-begin : bus_inputs
-    posn_i = 0;
-    reset_i = 1;
-    enable_i = 0;
-    repeat(125) @(posedge clk_i);
-    reset_i = 0;
-    enable_i = 1;
-    posn_i = 5000;
-    repeat(1250) @(posedge clk_i);
-
-    for (i = 0; i < 5000; i = i + 1) begin
-        if (posn_i == 3801)
-            posn_i <= 3750;
-        else
-            posn_i <= posn_i - 1;
-        repeat(125) @(posedge clk_i);
-    end
-
-    repeat(12500) @(posedge clk_i);
-    $finish;
-end
-
 
 endmodule
 

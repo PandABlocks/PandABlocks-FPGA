@@ -29,8 +29,7 @@ port (
     -- Block inputs
     sysbus_i            : in  sysbus_t;
     -- Output pulse
-    out_o               : out std_logic;
-    perr_o              : out std_logic
+    out_o               : out std_logic
 );
 end pulse_block;
 
@@ -95,7 +94,6 @@ port map (
     inp_i               => inp,
     enable_i            => enable,
     out_o               => out_o,
-    perr_o              => perr_o,
 
     TRIG_EDGE           => TRIG_EDGE(1 downto 0),
     TRIG_EDGE_WSTB      => TRIG_EDGE_WSTB,

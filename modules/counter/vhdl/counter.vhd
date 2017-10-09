@@ -36,6 +36,8 @@ end counter;
 
 architecture rtl of counter is
 
+constant c_step_size_one : std_logic_vector(31 downto 0) := x"00000001";
+
 signal step_enable      : std_logic;
 signal trigger_prev     : std_logic;
 signal trigger_rise     : std_logic;
@@ -69,13 +71,10 @@ begin
         if STEP_WSTB = '1' then
             step_enable <= '1';
         end if;    
-        if step_enable = '1' then
-            STEP_default <= STEP;
-        else
-            STEP_default <= std_logic_vector(to_unsigned(1,STEP'length));     
-        end if;
     end if;
 end process;
+
+STEP_default <= STEP when step_enable = '1' else c_step_size_one;
 
 --------------------------------------------------------------------------
 -- Up/Down Counter

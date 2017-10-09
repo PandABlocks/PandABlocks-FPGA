@@ -28,66 +28,56 @@ integer     timestamp = 0;
 always #4 clk_i = ~clk_i;
 
 // Test vector input and outputs.
-reg         SIM_RESET;
-reg         INP;
-//reg         RESET;
-//reg [47: 0] DELAY;
+reg          SIM_RESET;
+reg          INP;
 wire [47: 0] DELAY;
-reg         DELAY_WSTB;
-//reg [47: 0] WIDTH;
+reg          DELAY_WSTB;
 wire [47: 0] WIDTH;
-reg         WIDTH_WSTB;
-
-reg [31: 0] DELAY_L;
-reg         DELAY_L_WSTB;
-reg [15: 0] DELAY_H;
-reg         DELAY_H_WSTB;            
-reg [31: 0] WIDTH_L;
-reg         WIDTH_L_WSTB;            
-reg [15: 0] WIDTH_H;
-reg         WIDTH_H_WSTB;
-
-reg         ENABLE;
-
+reg          WIDTH_WSTB;
+reg [31: 0]  DELAY_L;
+reg          DELAY_L_WSTB;
+reg [15: 0]  DELAY_H;
+reg          DELAY_H_WSTB;            
+reg [31: 0]  WIDTH_L;
+reg          WIDTH_L_WSTB;            
+reg [15: 0]  WIDTH_H;
+reg          WIDTH_H_WSTB;
+reg [1:  0]	 TRIG_EDGE;
+reg 		 TRIG_EDGE_WSTB;
+reg          ENABLE;
 reg          VAL;
-reg          PERR;
 reg          ERR_OVERFLOW;
 reg          ERR_PERIOD;
 reg [10: 0]  QUEUE;
-reg [31: 0]  MISSED_CNT;
-    
+reg [31: 0]  MISSED_CNT;    
 reg          err_out_o;
-reg          err_perr_o;
 reg          test_result = 0;
 
 // Block outputs and status registers.
 wire         out_o;
-wire         perr_o;
 
-wire  [31: 0] missed_cnt_o;
-wire  [31: 0] queue_o;
-wire  [31: 0] err_period_o;
-wire  [31: 0] err_overflow_o;
+wire [31: 0] missed_cnt_o;
+wire [31: 0] queue_o;
+wire [31: 0] err_period_o;
+wire [31: 0] err_overflow_o;
 
 
 // Instantiate Unit Under Test
 pulse uut (
-    .clk_i          ( clk_i         ),
-    //.reset_i        ( SIM_RESET     ),
-    .inp_i          ( INP           ),
-    //.rst_i          ( RESET         ),
-    .enable_i       ( ENABLE        ),  
-    .out_o          ( out_o         ),
-    .perr_o         ( perr_o        ),
-    .DELAY          ( DELAY         ),
-    .DELAY_WSTB     ( DELAY_L_WSTB  ), 
-    .WIDTH          ( WIDTH         ),
-    .WIDTH_WSTB     ( WIDTH_L_WSTB  ),
-    //.FORCE_RST      ( FORCE_RST     ),
-    .ERR_OVERFLOW   ( err_overflow_o),
-    .ERR_PERIOD     ( err_period_o  ),
-    .QUEUE          ( queue_o       ),
-    .MISSED_CNT     ( missed_cnt_o  )
+    .clk_i          ( clk_i          ),
+    .inp_i          ( INP            ),
+    .enable_i       ( ENABLE         ),  
+    .out_o          ( out_o          ),
+    .TRIG_EDGE		( TRIG_EDGE		 ),
+    .TRIG_EDGE_WSTB ( TRIG_EDGE_WSTB ),	
+    .DELAY          ( DELAY          ),
+    .DELAY_WSTB     ( DELAY_WSTB     ), 
+    .WIDTH          ( WIDTH          ),
+    .WIDTH_WSTB     ( WIDTH_WSTB     ),
+    .ERR_OVERFLOW   ( err_overflow_o ),
+    .ERR_PERIOD     ( err_period_o   ),
+    .QUEUE          ( queue_o        ),
+    .MISSED_CNT     ( missed_cnt_o   )
 );
 
 integer fid[3:0];
@@ -153,17 +143,19 @@ end
 // READ BLOCK REGISTERS VECTOR FILE
 //
 // TS»¯¯¯¯¯DELAY»¯¯WIDTH»¯¯FORCE_RESET
-integer reg_in[8:0];
+integer reg_in[10:0];
 
 initial begin
     DELAY_L = 0;
-    DELAY_L_WSTB = 0;
     DELAY_H = 0;
+    DELAY_L_WSTB = 0;
     DELAY_H_WSTB = 0;
     WIDTH_L = 0;
-    WIDTH_WSTB = 0;
     WIDTH_H = 0;
+    WIDTH_L_WSTB = 0;
     WIDTH_H_WSTB = 0;
+    TRIG_EDGE = 0;
+    TRIG_EDGE_WSTB =0;
 
     @(posedge clk_i);
 
@@ -171,19 +163,21 @@ initial begin
     fid[1] = $fopen("pulse_reg_in.txt", "r");
 
     // Read and ignore description field
-    r[1] = $fscanf(fid[1], "%s %s %s %s %s %s %s %s %s\n", reg_in[8], reg_in[7], reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
+    r[1] = $fscanf(fid[1], "%s %s %s %s %s %s %s %s %s %s %s\n", reg_in[10], reg_in[9], reg_in[8], reg_in[7], reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
 
     while (!$feof(fid[1])) begin
-        r[1] = $fscanf(fid[1], "%d %d %d %d %d %d %d %d %d\n", reg_in[8], reg_in[7], reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
-        wait (timestamp == reg_in[8]) begin
-            DELAY_L = reg_in[7];
-            DELAY_L_WSTB = reg_in[6];
-            DELAY_H = reg_in[5];
-            DELAY_H_WSTB = reg_in[4];            
-            WIDTH_L = reg_in[3];
-            WIDTH_L_WSTB = reg_in[2];            
-            WIDTH_H = reg_in[1];
-            WIDTH_H_WSTB = reg_in[0];
+        r[1] = $fscanf(fid[1], "%d %d %d %d %d %d %d %d %d %d %d\n", reg_in[10], reg_in[9], reg_in[8], reg_in[7], reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
+        wait (timestamp == reg_in[10]) begin
+            DELAY_L = reg_in[9];
+            DELAY_L_WSTB = reg_in[8];
+            DELAY_H = reg_in[7];
+            DELAY_H_WSTB = reg_in[6];            
+            WIDTH_L = reg_in[5];
+            WIDTH_L_WSTB = reg_in[4];            
+            WIDTH_H = reg_in[3];
+            WIDTH_H_WSTB = reg_in[2];
+            TRIG_EDGE = reg_in[1];
+            TRIG_EDGE_WSTB = reg_in[0];
         end
         @(posedge clk_i);
     end
@@ -194,18 +188,24 @@ assign DELAY = {DELAY_H, DELAY_L};
 assign WIDTH = {WIDTH_H, WIDTH_L};
 
 
+always @(DELAY_L_WSTB, DELAY_H_WSTB, WIDTH_L_WSTB, WIDTH_H_WSTB)
+	begin
+		WIDTH_WSTB = WIDTH_H_WSTB | WIDTH_L_WSTB;
+		DELAY_WSTB = DELAY_H_WSTB | DELAY_L_WSTB;
+end 
+
+
 //
 // READ BLOCK EXPECTED OUTPUTS FILE TO COMPARE AGAINTS BLOCK
 // OUTPUTS
 //
-// TS»¯¯¯¯¯OUT»¯¯¯¯PERR
+// TS»¯¯¯¯¯OUT
 
-integer bus_out[2:0];
+integer bus_out[1:0];
 reg     is_file_end;
 
 initial begin
     VAL = 0;
-    PERR = 0;
     is_file_end = 0;
 
     @(posedge clk_i);
@@ -214,13 +214,12 @@ initial begin
     fid[2] = $fopen("pulse_bus_out.txt", "r"); // TS, VAL
 
     // Read and ignore description field
-    r[2] = $fscanf(fid[2], "%s %s %s\n", bus_out[2], bus_out[1], bus_out[0]);
+    r[2] = $fscanf(fid[2], "%s %s\n", bus_out[1], bus_out[0]);
 
     while (!$feof(fid[2])) begin
-        r[2] = $fscanf(fid[2], "%d %d %d \n", bus_out[2], bus_out[1], bus_out[0]);
-        wait (timestamp == bus_out[2]) begin
-            VAL = bus_out[1];
-            PERR = bus_out[0];
+        r[2] = $fscanf(fid[2], "%d %d\n", bus_out[1], bus_out[0]);
+        wait (timestamp == bus_out[1]) begin
+            VAL = bus_out[0];
         end
         @(posedge clk_i);
     end
@@ -273,7 +272,7 @@ always @(posedge clk_i)
 begin
     if (~is_file_end) begin
     
-        if (err_out_o == 1 | err_perr_o == 1) begin
+        if (err_out_o == 1) begin
           test_result = 1;
         end   
     
@@ -281,11 +280,6 @@ begin
         if (out_o != VAL) begin
             err_out_o = 1;
             $display("OUT error detected at timestamp %d\n", timestamp);
-        end
-
-        if (perr_o != PERR) begin
-            err_perr_o = 1;  
-            $display("PERR error detected at timestamp %d\n", timestamp);
         end
     end
 end

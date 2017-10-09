@@ -66,24 +66,6 @@ generate_target all [get_files $BUILD_DIR/fifo_1K32_ft/fifo_1K32_ft.xci]
 synth_ip [get_ips fifo_1K32_ft]
 
 #
-# Create PCOMP DMA FIFO IP (asymmetrical)
-#
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
--module_name pcomp_dma_fifo -dir $BUILD_DIR/
-
-set_property -dict [list \
-    CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
-    CONFIG.Performance_Options {First_Word_Fall_Through} \
-    CONFIG.Input_Data_Width {32}    \
-    CONFIG.Use_Extra_Logic {true}   \
-    CONFIG.Write_Data_Count {true}  \
-    CONFIG.Output_Data_Width {64}   \
-] [get_ips pcomp_dma_fifo]
-
-generate_target all [get_files $BUILD_DIR/pcomp_dma_fifo/pcomp_dma_fifo.xci]
-synth_ip [get_ips pcomp_dma_fifo]
-
-#
 # Create FMC GTX Aurora IP
 #
 create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \

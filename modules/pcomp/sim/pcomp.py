@@ -18,6 +18,8 @@ class Pcomp(Block):
         self.cnum = 0
         # State to capture waiting before the position crosses the start point
         self.wait_start = True
+        # flag an error on next ts?
+        self.flag_error = False
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
@@ -29,6 +31,11 @@ class Pcomp(Block):
         for name, value in changes.items():
             setattr(self, name, value)
 
+        if self.flag_error:
+            self.ERROR = 1
+            self.ACTIVE = 0
+            self.OUT = 0
+            self.flag_error = False
 
         # handle enable transitions
         if b.ENABLE in changes:
@@ -41,6 +48,7 @@ class Pcomp(Block):
                     self.cpoint = self.START
                 self.wait_start = True
                 self.cnum = 0
+                self.ERROR = 0
             else:
                 self.ACTIVE = 0
                 self.OUT = 0
@@ -60,21 +68,29 @@ class Pcomp(Block):
                 if self.OUT == 0:
                     if self.DIR == FWD:
                         self.cpoint += self.WIDTH
+                        if self.INP > self.cpoint:
+                            self.flag_error = True
+                            return ts + 1                            
                     else:
-                        self.cpoint -= self.WIDTH
+                        self.cpoint -= self.WIDTH                    
+                        if self.INP < self.cpoint:
+                            self.flag_error = True
+                            return ts + 1                                                    
                     self.OUT = 1
                     self.cnum += 1
                 else:
                     if self.DIR == FWD:
                         self.cpoint += self.STEP - self.WIDTH
+                        if self.INP > self.cpoint:
+                            self.flag_error = True
+                            return ts + 1                           
                     else:
                         self.cpoint -= self.STEP - self.WIDTH
+                        if self.INP < self.cpoint:
+                            self.flag_error = True
+                            return ts + 1                           
                     self.OUT = 0
                     # if we've done PNUM, then stop
                     if self.cnum >= self.PNUM:
                         self.ACTIVE = 0
-                if self.DIR == FWD and self.INP > self.cpoint \
-                        or self.DIR == BWD and self.INP < self.cpoint:
-                    self.ERROR = 1
-                    self.ACTIVE = 0
-                    self.OUT = 0
+

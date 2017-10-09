@@ -63,23 +63,13 @@ signal RELATIVE             : std_logic_vector(31 downto 0);
 signal DIR                  : std_logic_vector(31 downto 0);
 signal DELTAP               : std_logic_vector(31 downto 0);
 signal ERR                  : std_logic_vector(31 downto 0);
-signal USE_TABLE            : std_logic_vector(31 downto 0);
-signal TABLE_ADDRESS        : std_logic_vector(31 downto 0);
-signal TABLE_LENGTH         : std_logic_vector(31 downto 0);
-signal TABLE_LENGTH_WSTB    : std_logic;
 
 signal pcomp_act            : std_logic;
 signal pcomp_out            : std_logic;
 signal pcomp_error          : std_logic_vector(31 downto 0);
-signal TABLE_STATUS         : std_logic_vector(31 downto 0);
 
 signal enable               : std_logic;
 signal posn                 : std_logic_vector(31 downto 0);
-
-signal table_enable         : std_logic;
-signal table_posn           : std_logic_vector(63 downto 0);
-signal table_read           : std_logic;
-signal table_end            : std_logic;
 
 begin
 
@@ -119,14 +109,7 @@ port map (
     DIR_WSTB            => open,
     DELTAP              => DELTAP,
     DELTAP_WSTB         => open,
-    USE_TABLE           => USE_TABLE,
-    USE_TABLE_WSTB      => open,
-    TABLE_ADDRESS       => TABLE_ADDRESS,
-    TABLE_ADDRESS_WSTB  => open,
-    TABLE_LENGTH        => TABLE_LENGTH,
-    TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB,
-    ERROR               => pcomp_error,
-    TABLE_STATUS        => TABLE_STATUS
+    ERROR               => pcomp_error
 );
 
 --
@@ -139,9 +122,9 @@ port map (
 
     enable_i            => enable,
     posn_i              => posn,
-    table_posn_i        => table_posn,
-    table_read_o        => table_read,
-    table_end_i         => table_end,
+    table_posn_i        => (others => '0'),
+    table_read_o        => open,
+    table_end_i         => '0',
 
     START               => START,
     STEP                => STEP,
@@ -150,7 +133,7 @@ port map (
     RELATIVE            => RELATIVE(0),
     DIR                 => DIR(0),
     DELTAP              => DELTAP,
-    USE_TABLE           => USE_TABLE(0),
+    USE_TABLE           => '0',
 
     act_o               => pcomp_act,
     err_o               => pcomp_error,
@@ -159,37 +142,6 @@ port map (
 
 act_o <= pcomp_act;
 out_o <= pcomp_out;
-
---
--- Position Compare Long Table DMA Interfac
---
-
--- Pass enable signal if table is activated.
-table_enable <= enable and USE_TABLE(0);
-
-table_inst : entity work.pcomp_table
-port map (
-    clk_i               => clk_i,
-
-    enable_i            => table_enable,
-    trig_i              => table_read,
-    out_o               => table_posn,
-    table_end_o         => table_end,
-
-    CYCLES              => TO_SVECTOR(1,32),
-    TABLE_ADDR          => TABLE_ADDRESS,
-    TABLE_LENGTH        => TABLE_LENGTH,
-    TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB,
-    STATUS              => TABLE_STATUS,
-
-    dma_req_o           => dma_req_o,
-    dma_ack_i           => dma_ack_i,
-    dma_done_i          => dma_done_i,
-    dma_addr_o          => dma_addr_o,
-    dma_len_o           => dma_len_o,
-    dma_data_i          => dma_data_i,
-    dma_valid_i         => dma_valid_i
-);
 
 end rtl;
 
