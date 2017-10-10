@@ -97,9 +97,8 @@ the user to see what the Block is currently doing:
     WAIT_ENABLE -> WAIT_PRE_START [label=" rising ENABLE "]
 
     WAIT_DIR -> WAIT_ENABLE [label=" Can't guess DIR \n or Disabled "]
-    WAIT_DIR -> WAIT_PRE_START [label=" Absolute DIR calculated "]
-    WAIT_DIR -> WAIT_RISING [label=" Relative DIR calculated "]
-    WAIT_DIR -> WAIT_FALLING [label=" Relative DIR calculated no PRE_START"]    
+    WAIT_DIR -> WAIT_PRE_START [label=" DIR calculated "]
+    WAIT_DIR -> WAIT_FALLING [label=" DIR calculated no PRE_START"]
 
     WAIT_PRE_START -> WAIT_ENABLE [label=" Disabled "]
     WAIT_PRE_START -> WAIT_RISING [label=" < PRE_START "]

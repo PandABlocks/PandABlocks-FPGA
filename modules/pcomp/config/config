@@ -18,7 +18,7 @@ PCOMP[{{app_config["PCOMP"]}}]
     HEALTH          read        enum 2
         0   OK
         1   Error: Position jumped by more than STEP
-        2   Error: Can't guess DIR when both START and PRE_START are 0
+        2   Error: Can't guess DIR when RELATIVE and PRE_START=0 and START=0
     PRODUCED        read
     STATE           read        enum 4
         0   WAIT_ENABLE

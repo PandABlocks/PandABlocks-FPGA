@@ -23,127 +23,52 @@ ERR_GUESS = 2
 class Pcomp(Block):
 
     def __init__(self):
-        # The sign multiplier for direction, None for not guessed yet
-        self.mult = None
+        # The direction of the position compare
+        self.negative = 0
         # The position that we started at
         self.initial = 0
-        # The inp value at the start of the current pulse
-        self.current_pulse = None
+        # The inp value at the start of the current pulse, and the next
+        self.current_crossing = 0
+        self.next_crossing = 0
 
-    def do_enable(self):
-        # When enabled, reset outputs and readbacks
-        self.ACTIVE = 1
-        self.OUT = 0
-        self.HEALTH = OK
-        self.PRODUCED = 0
-        # Latch the position when we started
-        self.initial = self.INP
-        self.current_pulse = None
-        # Direction is specified or guessed
-        if self.DIR == POSITIVE:
-            self.mult = 1
-        elif self.DIR == NEGATIVE:
-            self.mult = -1
-        elif self.DIR == EITHER:
-            self.mult = None
-            return WAIT_DIR
-        # Return the initial state
-        return WAIT_PRE_START
-
-    def do_disable(self, health=OK):
-        # When disabled, set outputs but leave readbacks
-        self.ACTIVE = 0
-        self.OUT = 0
-        self.HEALTH = health
-        return WAIT_ENABLE
-
-    def reached_thresh(self, inp, threshold):
-        return self.mult * (inp - threshold) >= 0
-
-    def do_produce_rising(self, current_pulse):
-        falling = current_pulse + self.mult * self.WIDTH
-        if self.reached_thresh(self.INP, falling):
-            return self.do_disable(ERR_PJUMP)
-        else:
-            self.OUT = 1
-            self.PRODUCED += 1
-            self.current_pulse = current_pulse
-            return WAIT_FALLING
-
-    def do_produce_falling(self):
-        self.OUT = 0
-        if self.PRODUCED == self.PULSES:
-            self.ACTIVE = 0
-            return WAIT_ENABLE
-        else:
-            rising = self.current_pulse + self.mult * self.STEP
-            if self.reached_thresh(self.INP, rising):
-                return self.do_disable(ERR_PJUMP)
-            else:
-                return WAIT_RISING
-
-    def pre_start_thresh(self):
+    def pulse_start(self):
         if self.RELATIVE:
-            thresh = self.initial + self.mult * (self.START - self.PRE_START)
-        else:
-            thresh = self.START - self.mult * self.PRE_START
-        return thresh
-
-    def do_check_dir(self):
-        if self.RELATIVE:
-            # If we are relative then only advance when thresh away from
-            # the initial position
-            if self.PRE_START > 0:
-                if abs(self.INP - self.initial) > self.PRE_START:
-                    # The sign is the other way from where we are going
-                    self.mult = np.sign(self.initial - self.INP)
-                    return WAIT_RISING                    
-            elif self.START > 0:
-                if abs(self.INP - self.initial) >= self.START:
-                    self.mult = np.sign(self.INP - self.initial)
-                    return self.do_rising_check()
+            if self.negative:
+                return self.initial - self.START
             else:
-                return self.do_disable(ERR_GUESS)
+                return self.initial + self.START
         else:
-            sign = np.sign(self.START - self.INP)
-            if sign != 0:
-                self.mult = sign
-                return WAIT_PRE_START
-        return WAIT_DIR
+            return self.START
 
-    def do_pre_start_check(self):
-        # Check we have crossed thresh IN OPPOSITE DIRECTION
-        if self.mult * (self.INP - self.pre_start_thresh()) < 0:
-            return WAIT_RISING
+    def pulse_step(self):
+        if self.negative:
+            return -self.STEP
         else:
-            return WAIT_PRE_START
+            return self.STEP
 
-    def rising_thresh(self):
-        if self.current_pulse is None:
-            if self.RELATIVE:
-                thresh = self.initial + self.mult * self.START
-            else:
-                thresh = self.START
+    def pulse_width(self):
+        if self.negative:
+            return -self.WIDTH
         else:
-            thresh = self.current_pulse + self.mult * self.STEP
-        return thresh
+            return self.WIDTH
 
-    def do_rising_check(self):
-        thresh = self.rising_thresh()
-        if self.reached_thresh(self.INP, thresh):
-            return self.do_produce_rising(thresh)
+    def exceeded_pre_start(self):
+        if self.negative:
+            return self.INP > self.pulse_start() + self.PRE_START
         else:
-            return WAIT_RISING
+            return self.INP < self.pulse_start() - self.PRE_START
 
-    def falling_thresh(self):
-        return self.current_pulse + self.mult * self.WIDTH
-
-    def do_falling_check(self):
-        thresh = self.falling_thresh()
-        if self.reached_thresh(self.INP, thresh):
-            return self.do_produce_falling()
+    def reached_current_crossing(self):
+        if self.negative:
+            return self.INP <= self.current_crossing
         else:
-            return WAIT_FALLING
+            return self.INP >= self.current_crossing
+
+    def reached_next_crossing(self):
+        if self.negative:
+            return self.INP <= self.next_crossing
+        else:
+            return self.INP >= self.next_crossing
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
@@ -156,30 +81,92 @@ class Pcomp(Block):
             setattr(self, name, value)
 
         # Handle enable transitions
-        state = None
+        state = self.STATE
 
         if b.ENABLE in changes:
             if self.ENABLE:
-                # If we get enabled then start listening for points
-                state = self.do_enable()
+                # When enabled, reset outputs and readbacks
+                self.ACTIVE = 1
+                self.HEALTH = OK
+                self.PRODUCED = 0
+                # Latch the position when we started
+                self.initial = self.INP
+                # Direction is specified or guessed
+                if self.DIR == EITHER:
+                    state = WAIT_DIR
+                else:
+                    self.negative = self.DIR
+                    state = WAIT_PRE_START
             else:
-                state = self.do_disable()
+                # When disabled, set outputs
+                self.ACTIVE = 0
+                self.OUT = 0
+                state = WAIT_ENABLE
         elif self.ACTIVE:
             if self.STATE == WAIT_DIR:
-                # Check when we have passed START - PRE_START
-                state = self.do_check_dir()
-                
+                if self.RELATIVE:
+                    # If we are relative then only advance when thresh away from
+                    # the initial position
+                    if self.START + self.PRE_START > 0:
+                        if abs(self.INP - self.initial) >= \
+                                        self.START + self.PRE_START:
+                            if self.PRE_START > 0:
+                                self.negative = self.INP > self.initial
+                                state = WAIT_PRE_START
+                            else:
+                                self.OUT = 1
+                                self.PRODUCED = 1
+                                self.current_crossing = \
+                                    self.pulse_start() + self.pulse_width()
+                                self.next_crossing = \
+                                    self.pulse_start() + self.pulse_step()
+                                self.negative = self.INP < self.initial
+                                state = WAIT_FALLING
+                    else:
+                        self.HEALTH = ERR_GUESS
+                        self.ACTIVE = 0
+                        state = WAIT_ENABLE
+                elif self.START != self.INP:
+                    self.negative = self.INP > self.START
+                    state = WAIT_PRE_START
             elif self.STATE == WAIT_PRE_START:
-                # Check when we have passed START - PRE_START
-                state = self.do_pre_start_check()
+                # Check we have crossed thresh IN OPPOSITE DIRECTION
+                if self.exceeded_pre_start():
+                    self.current_crossing = self.pulse_start()
+                    self.next_crossing = self.pulse_start() + self.pulse_width()
+                    state = WAIT_RISING
             elif self.STATE == WAIT_RISING:
-                # Check when we have passed START
-                state = self.do_rising_check()
+                # Check when we have passed current_crossing
+                if self.reached_current_crossing():
+                    if self.reached_next_crossing():
+                        self.ACTIVE = 0
+                        self.HEALTH = ERR_PJUMP
+                        state = WAIT_ENABLE
+                    else:
+                        self.OUT = 1
+                        self.PRODUCED += 1
+                        self.current_crossing, self.next_crossing = (
+                            self.next_crossing,
+                            self.current_crossing + self.pulse_step())
+                        state = WAIT_FALLING
             elif self.STATE == WAIT_FALLING:
                 # Check when we have passed WIDTH
-                state = self.do_falling_check()
-        
-        if state is not None:
+                if self.reached_current_crossing():
+                    self.OUT = 0
+                    if self.reached_next_crossing():
+                        self.ACTIVE = 0
+                        self.HEALTH = ERR_PJUMP
+                        state = WAIT_ENABLE
+                    elif self.PRODUCED == self.PULSES:
+                        self.ACTIVE = 0
+                        state = WAIT_ENABLE
+                    else:
+                        self.current_crossing, self.next_crossing = (
+                            self.next_crossing,
+                            self.current_crossing + self.pulse_step())
+                        state = WAIT_RISING
+
+        if state != self.STATE:
             self.STATE = state
             # We changed state, might need another transition next clock tick
             return ts + 1

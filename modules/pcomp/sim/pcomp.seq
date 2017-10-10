@@ -251,8 +251,8 @@ $ Guess relative direction +ve with PRE_START
 2       : INP=5
 5       : INP=4, ENABLE=1 : ACTIVE=1, STATE=1
 7       : INP=3
-9       : INP=2
-11      : INP=1           : STATE=3
+9       : INP=2        : STATE=2
+11      : INP=1        : STATE=3
 13      : INP=2
 15      : INP=3
 17      : INP=4        : STATE=4, OUT=1, PRODUCED=1
