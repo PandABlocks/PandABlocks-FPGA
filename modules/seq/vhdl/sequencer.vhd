@@ -307,7 +307,7 @@ last_tcycle <= last_frame when (TABLE_CYCLE /= X"0000_0000" and table_count = un
 
 presc_reset <= '1' when (seq_sm = WAIT_TRIGGER and current_trig_valid = '1') else '0';
 
-seq_presc : entity work.prescaler
+seq_presc : entity work.sequencer_prescaler
 port map (
     clk_i       => clk_i,
     reset_i     => presc_reset,
@@ -328,7 +328,7 @@ begin
         else
             if (presc_reset = '1') then
                 tframe_counter <= (others => '0');
-            elsif (presc_ce = '1') then
+            elsif (presc_ce = '1') then 
                 if (tframe_counter = frame_length - 1) then
                     tframe_counter <= (others => '0');
                 else
