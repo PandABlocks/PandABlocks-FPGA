@@ -49,8 +49,7 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
     -- External Differential Clock (via front panel SMA)
-    EXTCLK_P            : in    std_logic;
-    EXTCLK_N            : in    std_logic;
+    EXTCLK              : in    std_logic;
     -- LA I/O
     FMC_PRSNT           : in    std_logic;
     FMC_LA_P            : inout std_logic_vector(33 downto 0);
@@ -88,7 +87,6 @@ signal FMC_CLK0_M2C         : std_logic;
 signal FMC_CLK1_M2C         : std_logic;
 signal FREQ_VAL             : std32_array(3 downto 0);
 signal GTREFCLK             : std_logic;
-signal EXTCLK               : std_logic;
 signal FMC_PRSNT_DW         : std_logic_vector(31 downto 0);
 signal SOFT_RESET           : std_logic;
 signal LOOP_PERIOD_WSTB     : std_logic;
@@ -209,20 +207,6 @@ port map (
     O           => FMC_CLK1_M2C,
     I           => FMC_CLK1_M2C_P,
     IB          => FMC_CLK1_M2C_N
-);
-
---------------------------------------------------------------------------
--- External Clock interface (for testing)
---------------------------------------------------------------------------
-IBUFGDS_EXT : IBUFGDS
-generic map (
-    DIFF_TERM   => FALSE,
-    IOSTANDARD  => "LVDS_25"
-)
-port map (
-    O           => EXTCLK,
-    I           => EXTCLK_P,
-    IB          => EXTCLK_N
 );
 
 ---------------------------------------------------------------------------

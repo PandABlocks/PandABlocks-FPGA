@@ -12,4 +12,6 @@ SLOW        {{newBlockNo("SLOW")}}
     FMC_15VP        {{newBlockReg()}}
     ENC_24V         {{newBlockReg()}}
     FMC_12V         {{newBlockReg()}}
+    PLL_LOCKED      {{newBlockReg()}}
+    EXT_CLOCK       {{newBlockReg()}}
 
