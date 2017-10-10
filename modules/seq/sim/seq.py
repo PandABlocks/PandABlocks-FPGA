@@ -1,209 +1,186 @@
 import numpy
 
 from common.python.pandablocks.block import Block
-from collections import deque, OrderedDict
+from collections import deque
+
+
+WAIT_ENABLE = 0
+LOAD_TABLE = 1
+WAIT_TRIGGER = 2
+PHASE1 = 3
+PHASE2 = 4
+
+OK = 0
+ERR_LENGTH = 1
+
 
 class Seq(Block):
     def __init__(self):
-        # super(Seq, self).__init__(num)
-        self.params = {'rpt':0,
-                        'inMask': 0,
-                        'inCond':0,
-                        'p1Out':0,
-                        'p2Out':0,
-                        'p1Len':0,
-                        'p2Len':0
-                       }
-        self.twrite_addr = 0
-        self.fword_count = 0
-        self.table_strobes = 0
-        self.frame_ok = False
-        self.queue = deque()
-        self.table = numpy.zeros(shape=(512,4), dtype=numpy.uint32)
+        # Table of data as described in config parameter TABLE
+        self.table = numpy.zeros(shape=(512, 4), dtype=numpy.uint32)
+        # Line of the table, 0..511
+        self.load_line = 0
+        # Word of a line, 0..3
+        self.load_word = 0
+        # Length of the table
+        self.table_length = 0
+        # Next timestamp for phase
+        self.next_ts = None
 
-        self.current_frame = 0
-        self.current_fcycle = 0
-
-    def do_start(self, ts):
-        self.ACTIVE = 1
-        self.current_frame = 1
-        self.CUR_FRAME = self.current_frame
-        self.current_fcycle = 1
-        self.CUR_FCYCLE = self.current_fcycle
-        self.CUR_TCYCLE = 1
-        self.process_inputs(ts)
-
-    def do_stop(self):
-        self.ACTIVE = 0
-        self.set_outputs('zero')
-        self.reset_state()
-
-    def reset_state(self):
-        self.current_frame = 0
-        self.CUR_FRAME = self.current_frame
-        self.current_fcycle = 0
-        self.CUR_FCYCLE = self.current_fcycle
-        self.CUR_TCYCLE = 0
-        self.queue.clear()
-
-    def process_inputs(self, ts):
-        if self.ACTIVE and self.frame_ok:
-            if self.check_inputs():
-                self.process_phase1(ts)
-                self.CUR_FRAME = self.current_frame
-                self.CUR_FCYCLE = self.current_fcycle
-
-    def check_inputs(self):
-        self.get_cur_frame_data()
-        incheck = self.params['inMask'] & self.params['inCond']
-        if (self.INPA & (self.params['inMask'] & 1) == incheck & 1)\
-            and (self.INPB & ((self.params['inMask'] & 2) >> 1)
-                     == (incheck & 2) >> 1)\
-            and (self.INPC & ((self.params['inMask'] & 4) >> 2)
-                     == (incheck & 4) >> 2)\
-            and (self.INPD & ((self.params['inMask'] & 8) >> 3)
-                     == (incheck & 8) >> 3):
-            return True
-
-
-    def process_phase1(self, ts):
-        self.set_outputs('p1Out')
-        self.queue.append((ts + self.params['p1Len'], "phase2"))
-        #if we receive an input that matches criteria, and we are due to process
-        #a repeat queue, clear the queue to prevent the outputs being set twice
-        if self.queue and self.queue[0][1] == "frpt":
-            self.queue.popleft()
-        if self.queue and self.queue[0][1] == "trpt":
-            self.queue.popleft()
-
-    def process_phase2(self, ts):
-        self.get_cur_frame_data()
-        self.set_outputs('p2Out')
-        #handle repeating frames
-        if self.current_fcycle < self.params['rpt']:# or self.CUR_FCYCLE == 0:
-            self.queue.append((ts + self.params['p2Len'], "frpt"))
-        #go to next frame
-        elif self.current_frame < self.TABLE_LENGTH / 4 \
-            and self.current_fcycle == self.params['rpt']:
-            self.queue.append((ts + self.params['p2Len'], "next_frame"))
-        #handle repeating tables
-        elif self.current_frame == self.TABLE_LENGTH / 4:
-            if self.CUR_TCYCLE < self.TABLE_CYCLE:# or self.CUR_TCYCLE == 0:
-                self.queue.append((ts + self.params['p2Len'], "trpt"))
-            elif self.CUR_TCYCLE == self.TABLE_CYCLE:
-                self.queue.append((ts + self.params['p2Len'], "end"))
-
-    def set_outputs(self, phse):
-        #TODO: make sure order is correct here
-        self.OUTA = (self.params[phse] & 1) if phse in self.params else 0
-        self.OUTB = (self.params[phse] & 2) >> 1 if phse in self.params else 0
-        self.OUTC = (self.params[phse] & 4) >> 2 if phse in self.params else 0
-        self.OUTD = (self.params[phse] & 8) >> 3 if phse in self.params else 0
-        self.OUTE = (self.params[phse] & 16) >> 4 if phse in self.params else 0
-        self.OUTF = (self.params[phse] & 32) >> 5 if phse in self.params else 0
-
-    def do_table_write(self):
-        self.frame_ok = False
-        self.table[self.twrite_addr][self.fword_count] = self.TABLE_DATA
-        self.fword_count += 1
-        self.table_strobes += 1
-        #check that the whole frame is written
-        if self.fword_count == 4:
-            self.fword_count = 0
-            self.frame_ok = True
-            self.twrite_addr += 1
-
-    def do_table_reset(self):
-        self.twrite_addr = 0
-        self.fword_count = 0
-        self.ACTIVE = 0
-        self.set_outputs('zero')
-
-    def do_table_write_finished(self):
-        if self.ENABLE:
+    def do_enable(self):
+        if self.table_length > 0:
+            self.TABLE_REPEAT = 1
+            self.TABLE_LINE = 1
+            self.LINE_REPEAT = 1
             self.ACTIVE = 1
-            self.current_frame = 1
-            self.CUR_FRAME = self.current_frame
-            self.current_fcycle = 1
-            self.CUR_FCYCLE = self.current_fcycle
-            self.CUR_TCYCLE = 1
-        self.table_strobes = 0
+            self.next_ts = None
+            return WAIT_TRIGGER
+        else:
+            return WAIT_ENABLE
 
-    def get_cur_frame_data(self):
-        #make the data more easily managable
-        self.params['rpt'] = self.table[self.current_frame-1][0]
-        self.params['p1Len'] = self.table[self.current_frame-1][2] * self.PRESCALE
-        self.params['p2Len'] = self.table[self.current_frame-1][3] * self.PRESCALE
-        self.params['inMask'] = (self.table[self.current_frame-1][1] >> 28) & 0xF
-        self.params['inCond'] = (self.table[self.current_frame-1][1] >> 24) & 0xF
-        self.params['p2Out'] = (self.table[self.current_frame-1][1] >> 8) & 0x3F
-        self.params['p1Out'] = (self.table[self.current_frame-1][1] >> 16) & 0x3F
+    def do_disable(self):
+        self.ACTIVE = 0
+        self.set_outputs(0)
+        return WAIT_ENABLE
+
+    def do_table_start(self):
+        self.load_line = 0
+        self.load_word = 0
+        return LOAD_TABLE
+
+    def do_table_data(self, data):
+        self.table[self.load_line][self.load_word] = data
+        if self.load_word == 3:
+            self.load_line += 1
+            self.load_word = 0
+        else:
+            self.load_word += 1
+        return LOAD_TABLE
+
+    def do_table_length(self, length):
+        assert self.load_word == 0, "Not got a complete line"
+        assert self.load_line * 4 == length, \
+            "Only got %d lines, not %d" % (self.load_line, length)
+        self.table_length = self.load_line
+        return WAIT_ENABLE
+
+    def do_check_trigger(self, ts):
+        # 63:32   POSITION
+        position = self.table[self.TABLE_LINE-1][1]
+        # 19:16   TRIGGER     enum
+        trigger = (self.table[self.TABLE_LINE-1][0] >> 16) & 0xf
+        conditions = [
+            True,
+            self.BITA == 0, self.BITA == 1,
+            self.BITB == 0, self.BITB == 1,
+            self.BITC == 0, self.BITC == 1,
+            self.POSA >= position, self.POSA <= position,
+            self.POSB >= position, self.POSB <= position,
+            self.POSC >= position, self.POSC <= position,
+            True, True, True,
+        ]
+        if conditions[trigger]:
+            return self.do_phase_1(ts)
+        else:
+            return WAIT_TRIGGER
+
+    def set_outputs(self, outputs):
+        self.OUTA = outputs & 1
+        self.OUTB = (outputs >> 1) & 1
+        self.OUTC = (outputs >> 2) & 1
+        self.OUTD = (outputs >> 3) & 1
+        self.OUTE = (outputs >> 4) & 1
+        self.OUTF = (outputs >> 5) & 1
+
+    def do_phase_1(self, ts):
+        # 95:64 TIME1
+        time1 = self.table[self.TABLE_LINE-1][2] * self.PRESCALE
+        if time1 == 0:
+            # Must specify time1
+            time1 = 1
+        # 20:20   OUTA1
+        # 21:21   OUTB1
+        # 22:22   OUTC1
+        # 23:23   OUTD1
+        # 24:24   OUTE1
+        # 25:25   OUTF1
+        outputs = (self.table[self.TABLE_LINE-1][0] >> 20) & 0x3f
+        self.set_outputs(outputs)
+        self.next_ts = ts + time1
+        return PHASE1
+
+    def do_phase_2(self, ts):
+        # 127:96  TIME2
+        time2 = self.table[self.TABLE_LINE-1][3] * self.PRESCALE
+        if time2 > 0:
+            # 26:26   OUTA2
+            # 27:27   OUTB2
+            # 28:28   OUTC2
+            # 29:29   OUTD2
+            # 30:30   OUTE2
+            # 31:31   OUTF2
+            outputs = (self.table[self.TABLE_LINE-1][0] >> 26) & 0x3f
+            self.set_outputs(outputs)
+            self.next_ts = ts + time2
+            return PHASE2
+        else:
+            return self.do_next_line(ts)
+
+    def do_next_line(self, ts):
+        self.next_ts = None
+        # 15:0    REPEATS
+        repeats = self.table[self.TABLE_LINE-1][0] & 0xffff
+        if self.LINE_REPEAT < repeats:
+            self.LINE_REPEAT += 1
+        elif self.TABLE_LINE < self.table_length:
+            self.LINE_REPEAT = 1
+            self.TABLE_LINE += 1
+        elif self.TABLE_REPEAT < self.REPEATS:
+            self.LINE_REPEAT = 1
+            self.TABLE_LINE = 1
+            self.TABLE_REPEAT += 1
+        else:
+            return self.do_disable()
+        return self.do_check_trigger(ts)
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
         # This is a ConfigBlock object
         b = self.config_block
-        # This is the next time we need to be called
-        next_ts = None
         # Set attributes
         for name, value in changes.items():
             setattr(self, name, value)
 
-        if b.ENABLE in changes:
-            if self.ENABLE:
-                self.do_start(ts)
-            else:
-                self.do_stop()
-        elif b.TABLE_DATA in changes:
-            self.do_table_write()
-        elif b.TABLE_START in changes:
-            self.reset_state()
-            self.do_table_reset()
-        elif b.TABLE_LENGTH in changes:
-            self.queue.append((ts+1, "active"))
+        # Loading a table trumps everything
+        if changes.get(b.TABLE_START, None) == 1:
+            self.STATE = self.do_table_start()
 
-        input_bits = [b.INPA, b.INPB, b.INPC, b.INPD]
-        if any(x in changes for x in input_bits):
-            #if we are due to repeat, pop off the queue so we wait until
-            #the inputs are correct again
-            if self.queue and self.queue[0][1] == "frpt":
-                self.queue.popleft()
-            self.process_inputs(ts)
+        # Loading tables are special
+        if self.STATE == LOAD_TABLE:
+            if b.TABLE_DATA in changes:
+                self.STATE = self.do_table_data(changes[b.TABLE_DATA])
+            elif b.TABLE_LENGTH in changes:
+                self.STATE = self.do_table_length(changes[b.TABLE_LENGTH])
+        elif changes.get(b.ENABLE, None) == 0:
+            # Otherwise check for disable
+            self.STATE = self.do_disable()
 
-        #set phase 2 outputs when the phase 1 time has finished
-        if self.queue and self.queue[0][0] == ts:
-            if self.queue[0][1] == "phase2":
-                self.queue.popleft()
-                self.process_phase2(ts)
-            elif self.queue[0][1] == "frpt":
-                self.current_fcycle += 1
-                self.queue.popleft()
-                self.process_inputs(ts)
-            elif self.queue[0][1] == "trpt":
-                self.CUR_TCYCLE += 1
-                self.current_frame  = 1
-                self.current_fcycle = 1
-                self.queue.popleft()
-                self.process_inputs(ts)
-            elif self.queue[0][1] == "end":
-                self.queue.popleft()
-                self.set_outputs('zero')
-                self.ACTIVE = 0
-        if self.queue and self.queue[0][0] <= ts:
-            if self.queue[0][1] == "next_frame":
-                self.current_frame += 1
-                self.current_fcycle = 1
-                self.queue.popleft()
-                self.process_inputs(ts)
-             #if we are due to set registers after a TABLE_LENGTH write
-            elif self.queue[0][1] == "active":
-                self.queue.popleft()
-                self.do_table_write_finished()
+        # If waiting for enable
+        if self.STATE == WAIT_ENABLE:
+            if changes.get(b.ENABLE, None) == 1:
+                self.STATE = self.do_enable()
 
-        # if we have anything else on the queue, return when it's due
-        if self.queue:
-            next_ts = self.queue[0][0]
-            assert next_ts >= ts, "Going back in time %s >= %s" % (next_ts, ts)
+        if self.STATE == WAIT_TRIGGER:
+            # If waiting for triggers check them here
+            self.STATE = self.do_check_trigger(ts)
+        elif self.STATE == PHASE1:
+            # If doing phase 1, check if time has expired
+            if ts == self.next_ts:
+                self.STATE = self.do_phase_2(ts)
+        elif self.STATE == PHASE2:
+            # If doing phase 2, check if time has expired
+            if ts == self.next_ts:
+                self.STATE = self.do_next_line(ts)
 
-        return next_ts
+        return self.next_ts

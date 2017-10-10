@@ -1,21 +1,23 @@
 SEQ         Sequencer
-    PRESCALE        Prescalar for system clock
-    TABLE_CYCLE     Number of times the table will cycle
-    ENABLE          Reset on falling edge, enable on rising
-    INPA            Trigger input A
-    INPB            Trigger input B
-    INPC            Trigger input C
-    INPD            Trigger input D
-    OUTA            Output A
-    OUTB            Output B
-    OUTC            Output C
-    OUTD            Output D
-    OUTE            Output E
-    OUTF            Output F
+    PRESCALE        Prescalar for sequencer table times
+    REPEATS         Number of times the table will repeat
+    ENABLE          Stop on falling edge, reset and enable on rising edge
+    BITA            BITA for optional trigger condition
+    BITB            BITB for optional trigger condition
+    BITC            BITC for optional trigger condition
+    POSA            POSA for optional trigger condition
+    POSB            POSB for optional trigger condition
+    POSC            POSC for optional trigger condition
     ACTIVE          Sequencer active flag
-    CUR_FRAME       Sequencer current frame number
-    CUR_FCYCLE      Current number of times the frame has cycled
-    CUR_TCYCLE      Current number of times the table has cycled
+    OUTA            Output A for phase outputs
+    OUTB            Output B for phase outputs
+    OUTC            Output C for phase outputs
+    OUTD            Output D for phase outputs
+    OUTE            Output E for phase outputs
+    OUTF            Output F for phase outputs
+    TABLE_REPEAT    Current iteration through the entire table
+    TABLE_LINE      Current line in the table that is active
+    LINE_REPEAT     Current iteration of the active table line
     TABLE           Sequencer configuration
 
 

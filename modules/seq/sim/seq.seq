@@ -1,4 +1,33 @@
 ###############
+$! 3 evenly spaced pulses
+
+2   : PRESCALE=1
+3   : TABLE_START=1     : STATE=1
+4   : TABLE_START=0
+# REPEATS = 3
+# TRIGGER = 0 (Immediate)
+# OUT = 0x1 (OUTA1=1, all others 0)
+5   : TABLE_DATA=0x100003
+# POSITION = 0
+6   : TABLE_DATA=0
+# TIME1 = 10
+7   : TABLE_DATA=10
+# TIME2 = 10
+8   : TABLE_DATA=10
+9   : TABLE_LENGTH=4    : STATE=0
+12  : ENABLE=1          : STATE=3, ACTIVE=1, OUTA=1, LINE_REPEAT=1
+22  :                   : STATE=4, OUTA=0
+32  :                   : STATE=3, OUTA=1, LINE_REPEAT=2
+42  :                   : STATE=4, OUTA=0
+52  :                   : STATE=3, OUTA=1, LINE_REPEAT=3
+62  :                   : STATE=4, OUTA=0
+72  :                   : STATE=0, ACTIVE=0
+
+
+
+
+
+###############
 $ Multiple frames, multiple frame and table cycles
 
 3       : TABLE_CYCLE=2
