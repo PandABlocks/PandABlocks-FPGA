@@ -235,7 +235,7 @@ $ Guess relative direction +ve
 1       : START=3, STEP=4, WIDTH=2, PULSES=2, RELATIVE=1, DIR=2
 2       : INP=1
 5       : INP=2, ENABLE=1 : ACTIVE=1
-7       : INP=3
+7       : INP=3             
 9       : INP=4
 11      : INP=5        : OUT=1, PRODUCED=1
 13      : INP=6
@@ -251,7 +251,7 @@ $ Guess relative direction +ve with PRE_START
 2       : INP=5
 5       : INP=4, ENABLE=1 : ACTIVE=1, STATE=1
 7       : INP=3
-9       : INP=2           : STATE=2
+9       : INP=2
 11      : INP=1           : STATE=3
 13      : INP=2
 15      : INP=3
@@ -266,4 +266,5 @@ $ Guess relative direction +ve with PRE_START
 $ Guess relative direction with no START
 1       : STEP=4, WIDTH=2, PULSES=2, RELATIVE=1, DIR=2
 2       : INP=1
-5       : INP=2, ENABLE=1 : HEALTH=2
+5       : INP=2, ENABLE=1 : ACTIVE=1
+6       :                 : ACTIVE=0, HEALTH=2
