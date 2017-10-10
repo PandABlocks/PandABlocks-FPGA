@@ -20,7 +20,7 @@ $ Pulse stretching with no delay activate on falling edge
 
 ################################
 $ Pulse stretching with no delay activate on both edges
-1       : WIDTH_L=2
+1       : WIDTH_L=5
 2       : DELAY_L=0
 3       : TRIG_EDGE=2
 5       : ENABLE=1

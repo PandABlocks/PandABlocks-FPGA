@@ -117,8 +117,8 @@ begin
 
 
 -- DELAY        WDITH       Condtion        Action      INP to start of positive pulse   INP to start of negative pulse       
---  0            0          Not Valid       Bypass              2 clocks                        3 clocks
---  0           Set         Valid                               2 clocks                        3 clocks
+--  0            0          Not Valid       Bypass              1 clocks                        2 clocks
+--  0           Set         Valid                               1 clocks                        1 clocks
 --  Set         0           Not Valid       Bypass              DELAY                           DELAY
 --  Set         Set         Valid                               DELAY                           DELAY
 
