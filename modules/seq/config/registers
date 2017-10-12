@@ -1,4 +1,5 @@
 SEQ         {{newBlockNo("SEQ")}}
+    TABLE           short   512    {{newBlockReg(typ='stable')}}
     PRESCALE        {{newBlockReg()}}
     REPEATS         {{newBlockReg()}}
     ENABLE          {{newBlockReg(typ='bit_mux')}}
@@ -19,6 +20,5 @@ SEQ         {{newBlockNo("SEQ")}}
     TABLE_LINE      {{newBlockReg()}}
     LINE_REPEAT     {{newBlockReg()}}
     STATE           {{newBlockReg()}}
-    TABLE           short   512    {{newBlockReg(typ='stable')}}
 
 

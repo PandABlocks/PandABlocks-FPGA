@@ -1,24 +1,4 @@
 SEQ[{{app_config["SEQ"]}}]
-    PRESCALE        param       time
-    REPEATS         param
-    ENABLE          bit_mux
-    BITA            bit_mux
-    BITB            bit_mux
-    BITC            bit_mux
-    POSA            pos_mux
-    POSB            pos_mux
-    POSC            pos_mux
-    ACTIVE          bit_out
-    OUTA            bit_out
-    OUTB            bit_out
-    OUTC            bit_out
-    OUTD            bit_out
-    OUTE            bit_out
-    OUTF            bit_out
-    TABLE_REPEAT    read
-    TABLE_LINE      read
-    LINE_REPEAT     read
-    STATE           read
     TABLE           table
         15:0    REPEATS
         19:16   TRIGGER     enum
@@ -50,3 +30,28 @@ SEQ[{{app_config["SEQ"]}}]
         29:29   OUTD2
         30:30   OUTE2
         31:31   OUTF2
+    PRESCALE        param       time
+    REPEATS         param
+    ENABLE          bit_mux
+    BITA            bit_mux
+    BITB            bit_mux
+    BITC            bit_mux
+    POSA            pos_mux
+    POSB            pos_mux
+    POSC            pos_mux
+    ACTIVE          bit_out
+    OUTA            bit_out
+    OUTB            bit_out
+    OUTC            bit_out
+    OUTD            bit_out
+    OUTE            bit_out
+    OUTF            bit_out
+    TABLE_REPEAT    read
+    TABLE_LINE      read
+    LINE_REPEAT     read
+    STATE           read    enum
+        0   WAIT_ENABLE
+        1   LOAD_TABLE
+        2   WAIT_TRIGGER
+        3   PHASE1
+        4   PHASE2

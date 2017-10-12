@@ -54,8 +54,6 @@ class ConfigField(object):
 
         # Parse desc_lines for name and description
         if desc_lines:
-            assert len(desc_lines) == 1, \
-                "Expected one desc line got %s" % desc_lines
             desc_split = desc_lines[0].split(None, 1)
             assert desc_split[0] == self.name, \
                 "Desc name %s != field name %s" % (desc_split[0], self.name)
@@ -63,5 +61,8 @@ class ConfigField(object):
                 self.desc = desc_split[1].rstrip()
             else:
                 self.desc = ""
+            # Add on other desc lines as is
+            for line in desc_lines[1:]:
+                self.desc += line
         else:
             self.desc = None

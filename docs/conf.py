@@ -40,6 +40,7 @@ sys.path.append(os.path.join(os.path.abspath('..'),))
 extensions = [
     'matplotlib.sphinxext.plot_directive',
     'sphinx.ext.autodoc',
+    'sphinx.ext.graphviz',
     'common.python.sphinxext.sequence_plot_directive',
 ]
 # Something a bit odd: on some systems we find napoleon under sphinx.ext, on

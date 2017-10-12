@@ -1,4 +1,22 @@
 SEQ         Sequencer
+    TABLE           Sequencer table of lines
+        REPEATS         Number of times the line will repeat
+        TRIGGER         The trigger condition to start the phases
+        POSITION        The position that can be used in trigger condition
+        TIME1           The time the optional phase 1 should take
+        OUTA1           Output A value during phase 1
+        OUTB1           Output B value during phase 1
+        OUTC1           Output C value during phase 1
+        OUTD1           Output D value during phase 1
+        OUTE1           Output E value during phase 1
+        OUTF1           Output F value during phase 1
+        TIME2           The time the mandatory phase 2 should take
+        OUTA2           Output A value during phase 2
+        OUTB2           Output B value during phase 2
+        OUTC2           Output C value during phase 2
+        OUTD2           Output D value during phase 2
+        OUTE2           Output E value during phase 2
+        OUTF2           Output F value during phase 2
     PRESCALE        Prescalar for sequencer table times
     REPEATS         Number of times the table will repeat
     ENABLE          Stop on falling edge, reset and enable on rising edge
@@ -18,6 +36,6 @@ SEQ         Sequencer
     TABLE_REPEAT    Current iteration through the entire table
     TABLE_LINE      Current line in the table that is active
     LINE_REPEAT     Current iteration of the active table line
-    TABLE           Sequencer configuration
+    STATE           Internal statemachine state
 
 
