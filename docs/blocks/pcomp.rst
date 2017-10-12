@@ -79,6 +79,10 @@ We can also ask to the Block to calculate direction for us:
    :block: pcomp
    :title: Calculate direction to be -ve
 
+.. sequence_plot::
+   :block: pcomp
+   :title: Calculate direction to be +ve
+
 Internal statemachine
 ---------------------
 
