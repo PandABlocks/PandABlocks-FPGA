@@ -148,7 +148,7 @@ $ Disable after start
 13      : INP=8
 14      : INP=7
 15      : INP=6
-16      : INP=5             : OUT=1
+16      : INP=5             : OUT=1, PRODUCED=1
 25      : INP=4, ENABLE=0   : ACTIVE=0, OUT=0
 
 ###############
@@ -169,7 +169,7 @@ $ Disable with start
 
 ###############
 $ Absolute Pulses in a +ve direction
-1       : START=4, STEP=5, WIDTH=2, PULSES=3
+1       : START=4, STEP=5, WIDTH=2, PULSES=2
 2       : INP=9
 3       : ENABLE=1     : ACTIVE=1
 8       : INP=1
@@ -252,7 +252,7 @@ $ Guess relative direction +ve with PRE_START
 5       : INP=4, ENABLE=1 : ACTIVE=1, STATE=1
 7       : INP=3
 9       : INP=2        : STATE=2
-11      : INP=1        : STATE=3
+11      : INP=1        : STATE=3 
 13      : INP=2
 15      : INP=3
 17      : INP=4        : STATE=4, OUT=1, PRODUCED=1

@@ -153,12 +153,12 @@ class Pcomp(Block):
                 # Check when we have passed WIDTH
                 if self.reached_current_crossing():
                     self.OUT = 0
-                    if self.reached_next_crossing():
+                    if self.PRODUCED == self.PULSES:
+                        self.ACTIVE = 0
+                        state = WAIT_ENABLE
+                    elif self.reached_next_crossing():
                         self.ACTIVE = 0
                         self.HEALTH = ERR_PJUMP
-                        state = WAIT_ENABLE
-                    elif self.PRODUCED == self.PULSES:
-                        self.ACTIVE = 0
                         state = WAIT_ENABLE
                     else:
                         self.current_crossing, self.next_crossing = (
