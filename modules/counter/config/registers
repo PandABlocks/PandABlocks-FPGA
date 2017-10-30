@@ -1,9 +1,9 @@
 COUNTER     {{newBlockNo("COUNTER")}}
-    DIR             {{newBlockReg()}}
     START           {{newBlockReg()}}
     STEP            {{newBlockReg()}}
     ENABLE          {{newBlockReg(typ='bit_mux')}}
     TRIG            {{newBlockReg(typ='bit_mux')}}
+    DIR             {{newBlockReg(typ='bit_mux')}}
     CARRY           {{newBitBus()}}
     OUT             {{newPosBus()}}
 

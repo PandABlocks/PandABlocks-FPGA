@@ -38,7 +38,6 @@ architecture rtl of counter_block is
 
 signal ENABLE_VAL       : std_logic_vector(31 downto 0);
 signal TRIG_VAL         : std_logic_vector(31 downto 0);
-signal DIR              : std_logic_vector(31 downto 0);
 signal START            : std_logic_vector(31 downto 0);
 signal START_WSTB       : std_logic;
 signal STEP_WSTB        : std_logic;
@@ -46,6 +45,7 @@ signal STEP             : std_logic_vector(31 downto 0);
 
 signal enable           : std_logic;
 signal trig             : std_logic;
+signal dir              : std_logic;
 
 begin
 
@@ -60,6 +60,7 @@ port map (
     posbus_i            => (others => (others => '0')),
     trig_o              => trig,
     enable_o            => enable,
+    dir_o               => dir,
 
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i,
@@ -71,8 +72,6 @@ port map (
     write_data_i        => write_data_i,
     write_ack_o         => write_ack_o,
 
-    DIR                 => DIR,
-    DIR_WSTB            => open,
     START               => START,
     START_WSTB          => START_WSTB,
     STEP                => STEP,
@@ -86,10 +85,10 @@ port map (
 
     enable_i            => enable,
     trigger_i           => trig,
-
-    DIR                 => DIR(0),
+    dir_i               => dir,
+    
     START               => START,
-    START_LOAD          => START_WSTB,
+    START_WSTB          => START_WSTB,
     STEP_WSTB           => STEP_WSTB,
     STEP                => STEP,
 

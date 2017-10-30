@@ -8,19 +8,19 @@ always #4 clk_i = ~clk_i;
 integer timestamp = 0;
 
 // Inputs
-reg        SIM_RESET;
-reg        ENABLE;
-reg        TRIG;
-reg        DIR;
-reg        DIR_WSTB;
+reg        sim_reset;
+reg        enable;
+reg        trig;
+reg        dir;
 reg [31:0] START;
 reg        START_WSTB;
 reg [31:0] STEP;
 reg        STEP_WSTB;
 reg        CARRY;
 reg [31:0] OUT;   
-reg        err;
-reg        test_result;
+reg        enable_dly;
+reg        out_err=0;
+reg        test_result=0;
 
 // Outputs
 wire [31:0] out;
@@ -51,26 +51,28 @@ end
 //
 // READ BLOCK INPUTS VECTOR FILE
 //
-integer bus_in[3:0];     // TS, SET, ENABLE, TRIG
+integer bus_in[4:0];     // TS, SET, ENABLE, TRIG
 initial begin
-    SIM_RESET = 0;
-    ENABLE = 0;
-    TRIG = 0;
+    sim_reset = 0;
+    enable = 0;
+    trig = 0;
+    dir = 0;
 
     @(posedge clk_i);
     fid[0] = $fopen("counter_bus_in.txt", "r");
 
     // Read and ignore description field
-    r[0] = $fscanf(fid[0], "%s %s %s %s\n", bus_in[3], bus_in[2], bus_in[1], bus_in[0]);
+    r[0] = $fscanf(fid[0], "%s %s %s %s %s\n", bus_in[4], bus_in[3], bus_in[2], bus_in[1], bus_in[0]);
 
     while (!$feof(fid[0])) begin
 
-        r[0] = $fscanf(fid[0], "%d %d %d %d\n", bus_in[3],  bus_in[2], bus_in[1], bus_in[0]);
+        r[0] = $fscanf(fid[0], "%d %d %d %d %d\n", bus_in[4], bus_in[3],  bus_in[2], bus_in[1], bus_in[0]);
 
-        wait (timestamp == bus_in[3]) begin
-            SIM_RESET = bus_in[2];
-            ENABLE = bus_in[1];
-            TRIG = bus_in[0];
+        wait (timestamp == bus_in[4]) begin
+            sim_reset = bus_in[3];
+            enable = bus_in[2];
+            trig = bus_in[1];
+            dir = bus_in[0];
         end
         @(posedge clk_i);
     end
@@ -79,11 +81,9 @@ end
 //
 // READ BLOCK REGISTERS VECTOR FILE
 //
-integer reg_in[6:0];     // TS, DIR, DIR_WSTB, START, START_WSTB, STEP, STEP_WSTB 
+integer reg_in[4:0];     // TS, START, START_WSTB, STEP, STEP_WSTB 
 
 initial begin
-    DIR = 0;
-    DIR_WSTB = 0;
     START = 0;
     START_WSTB = 0;
     STEP = 0;
@@ -95,13 +95,11 @@ initial begin
     fid[1] = $fopen("counter_reg_in.txt", "r");
 
     // Read and ignore description field
-    r[1] = $fscanf(fid[1], "%s %s %s %s %s %s %s\n", reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
+    r[1] = $fscanf(fid[1], "%s %s %s %s %s\n", reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
 
     while (!$feof(fid[1])) begin
-        r[1] = $fscanf(fid[1], "%d %d %d %d %d %d %d\n", reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
-        wait (timestamp == reg_in[6]) begin  
-            DIR = reg_in[5];
-            DIR_WSTB = reg_in[4];            
+        r[1] = $fscanf(fid[1], "%d %d %d %d %d\n", reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
+        wait (timestamp == reg_in[4]) begin  
             START = reg_in[3];
             START_WSTB = reg_in[2];            
             STEP = reg_in[1];
@@ -152,13 +150,17 @@ end
 always @(posedge clk_i)
 begin
     if (~is_file_end) begin
-        if (ENABLE == 1) begin
+        enable_dly <= enable;
+        if (enable_dly == 1) begin
             // If not equal, display an error.
             if (out != OUT) begin
                 $display("OUT error detected at timestamp %d\n", timestamp);
-                err = 1;
+                out_err = 1;
                 test_result = 1;
             end 
+            else begin
+                out_err = 0;
+            end     
         end
     end
 end
@@ -176,12 +178,12 @@ always @ (posedge clk_i) //----------------------------------------- HERE
 //panda_srgate uut (
 counter uut (
         .clk_i              ( clk_i             ),
-        .enable_i           ( ENABLE            ),
-        .trigger_i          ( TRIG              ),
+        .enable_i           ( enable            ),
+        .trigger_i          ( trig              ),
+        .dir_i              ( dir               ),
         .carry_o            ( carry             ),
-        .DIR                ( DIR               ),
         .START              ( START             ),
-        .START_LOAD         ( START_WSTB        ),
+        .START_WSTB         ( START_WSTB        ),
         .STEP               ( STEP              ),
         .STEP_WSTB          ( STEP_WSTB         ),
         .out_o              ( out               )

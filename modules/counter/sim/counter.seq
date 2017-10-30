@@ -73,7 +73,7 @@ $ Disable and trigger
 
 ###############
 $ Change step and trigger
-3       : START=20
+3       : START=20, STEP=1
 6       : ENABLE=1           : OUT=20
 9       : TRIG=1             : OUT=21
 11      : TRIG=0
