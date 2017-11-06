@@ -90,6 +90,7 @@ add_files -norecurse {../../modules/filter/vhdl/divider.vhd
 ../../modules/pcap/vhdl/pcap_capture.vhd
 ../../modules/pcap/vhdl/pcap_core.vhd
 ../../modules/seq/vhdl/sequencer.vhd
+../../modules/seq/vhdl/sequencer_prescaler.vhd
 ../../modules/bits/vhdl/bits.vhd
 ../../modules/counter/vhdl/counter.vhd
 ../../modules/pgen/vhdl/pgen.vhd

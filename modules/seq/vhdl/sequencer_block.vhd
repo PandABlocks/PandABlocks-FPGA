@@ -48,28 +48,30 @@ end sequencer_block;
 
 architecture rtl of sequencer_block is
 
-signal ENABLE_VAL       : std_logic_vector(31 downto 0);
-signal INPA_VAL         : std_logic_vector(31 downto 0);
-signal INPB_VAL         : std_logic_vector(31 downto 0);
-signal INPC_VAL         : std_logic_vector(31 downto 0);
-signal INPD_VAL         : std_logic_vector(31 downto 0);
+signal ENABLE_VAL        : std_logic_vector(31 downto 0);
+signal INPA_VAL          : std_logic_vector(31 downto 0);
+signal INPB_VAL          : std_logic_vector(31 downto 0);
+signal INPC_VAL          : std_logic_vector(31 downto 0);
+signal INPD_VAL          : std_logic_vector(31 downto 0);
 
-signal PRESCALE         : std_logic_vector(31 downto 0);
-signal TABLE_START      : std_logic;
-signal TABLE_DATA       : std_logic_vector(31 downto 0);
-signal TABLE_WSTB       : std_logic;
-signal TABLE_CYCLE      : std_logic_vector(31 downto 0);
-signal TABLE_LENGTH     : std_logic_vector(31 downto 0);
-signal TABLE_LENGTH_WSTB: std_logic;
-signal CUR_FRAME        : std_logic_vector(31 downto 0);
-signal CUR_FCYCLE       : std_logic_vector(31 downto 0);
-signal CUR_TCYCLE       : std_logic_vector(31 downto 0);
+signal PRESCALE          : std_logic_vector(31 downto 0);
+signal TABLE_START       : std_logic;
+signal TABLE_DATA        : std_logic_vector(31 downto 0);
+signal TABLE_WSTB        : std_logic;
+signal TABLE_CYCLE       : std_logic_vector(31 downto 0);
+signal TABLE_LENGTH      : std_logic_vector(31 downto 0);
+signal TABLE_LENGTH_WSTB : std_logic;
+signal TABLE_LINE        : std_logic_vector(31 downto 0);
+signal LINE_REPEAT       : std_logic_vector(31 downto 0);
+signal TABLE_REPEAT      : std_logic_vector(31 downto 0);
 
-signal enable           : std_logic;
-signal inpa             : std_logic;
-signal inpb             : std_logic;
-signal inpc             : std_logic;
-signal inpd             : std_logic;
+signal enable            : std_logic;
+signal bita              : std_logic;
+signal bitb              : std_logic;
+signal bitc              : std_logic;
+signal posa              : std_logic_vector(31 downto 0);
+signal posb              : std_logic_vector(31 downto 0);
+signal posc              : std_logic_vector(31 downto 0);
 
 begin
 
@@ -83,10 +85,12 @@ port map (
     sysbus_i            => sysbus_i,
     posbus_i            => (others => (others => '0')),
     enable_o            => enable,
-    inpa_o              => inpa,
-    inpb_o              => inpb,
-    inpc_o              => inpc,
-    inpd_o              => inpd,
+    bita_o              => bita,
+    bitb_o              => bitb,
+    bitc_o              => bitc,
+    posa_o              => posa,
+    posb_o              => posb,
+    posc_o              => posc,
 
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i,
@@ -102,9 +106,9 @@ port map (
     PRESCALE_WSTB       => open,
     TABLE_CYCLE         => TABLE_CYCLE,
     TABLE_CYCLE_WSTB    => open,
-    CUR_FRAME           => CUR_FRAME,
-    CUR_FCYCLE          => CUR_FCYCLE,
-    CUR_TCYCLE          => CUR_TCYCLE,
+    TABLE_LINE          => TABLE_LINE,
+    LINE_REPEAT         => LINE_REPEAT,
+    TABLE_REPEAT        => TABLE_REPEAT,
     TABLE_START         => open,
     TABLE_START_WSTB    => TABLE_START,
     TABLE_DATA          => TABLE_DATA,
@@ -122,10 +126,13 @@ port map (
     reset_i             => reset_i,
 
     enable_i            => enable,
-    inpa_i              => inpa,
-    inpb_i              => inpb,
-    inpc_i              => inpc,
-    inpd_i              => inpd,
+    bita_i              => bita,
+    bitb_i              => bitb,
+    bitc_i              => bitc,
+    posa_i              => posa,
+    posb_i              => posb,
+    posc_i              => posc,    
+    
     outa_o              => outa_o,
     outb_o              => outb_o,
     outc_o              => outc_o,
@@ -142,9 +149,9 @@ port map (
     TABLE_LENGTH        => TABLE_LENGTH(15 downto 0),
     TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB,
 
-    CUR_FRAME           => CUR_FRAME,
-    CUR_FCYCLE          => CUR_FCYCLE,
-    CUR_TCYCLE          => CUR_TCYCLE
+    TABLE_LINE          => TABLE_LINE,
+    LINE_REPEAT         => LINE_REPEAT,
+    TABLE_REPEAT        => TABLE_REPEAT
 );
 
 end rtl;

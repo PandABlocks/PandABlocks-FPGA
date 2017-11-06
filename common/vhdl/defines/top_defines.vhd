@@ -27,34 +27,8 @@ subtype MOD_RANGE               is natural range 0 to MOD_COUNT-1;
 constant RD_ADDR2ACK            : std_logic_vector(4 downto 0) := "00010";
 
 -- Block instantiation numbers--------------------------------------------
---constant TTLIN_NUM          : natural := 6;                               
---constant TTLOUT_NUM         : natural := 10;                              
---constant LVDSIN_NUM         : natural := 2;
---constant LVDSOUT_NUM        : natural := 2;
---constant LUT_NUM            : natural := 8;
---constant SRGATE_NUM         : natural := 4;
---constant DIV_NUM            : natural := 4;
---constant PULSE_NUM          : natural := 4;
---constant QDEC_NUM           : natural := 4;
---constant ADDER_NUM          : natural := 2;
---constant COUNTER_NUM        : natural := 8;
---constant PGEN_NUM           : natural := 2;
---constant POSENC_NUM         : natural := 4;
 constant ENC_NUM            : natural := 4;
---constant PCOMP_NUM          : natural := 4;
---constant SEQ_NUM            : natural := 4;
---constant BITS_NUM           : natural := 1;
---constant FILTER_NUM         : natural := 1;
 --------------------------------------------------------------------------
-
--- Block instantiation numbers--------------------------------------------
---constant LUT_INST           : boolean := true;
---constant SRGATE_INST        : boolean := true;
---constant DIV_INST           : boolean := true;
---constant PULS_INST          : boolean := true;
---constant COUNTER_INST       : boolean := true;
---constant SEQ_INST           : boolean := true;
---constant PGEN_INST          : boolean := true;
 
 -- Bit Bus Width, Multiplexer Select Width -------------------------------
 constant SBUSW              : natural := 128;
@@ -76,13 +50,13 @@ constant DCARD_LOOPBACK     : std_logic_vector(2 downto 0) := "001";
 --
 type seq_t is
 record
-    repeats     : unsigned(31 downto 0);
-    trig_mask   : std_logic_vector(3 downto 0);
-    trig_cond   : std_logic_vector(3 downto 0);
-    outp_ph1    : std_logic_vector(5 downto 0);
-    outp_ph2    : std_logic_vector(5 downto 0);
-    ph1_time    : unsigned(31 downto 0);
-    ph2_time    : unsigned(31 downto 0);
+    repeats     : unsigned(15 downto 0);
+    trigger     : unsigned(3 downto 0);
+    out1        : std_logic_vector(5 downto 0);
+    out2        : std_logic_vector(5 downto 0);
+    position    : signed(31 downto 0);
+    time1       : unsigned(31 downto 0);
+    time2       : unsigned(31 downto 0);
 end record;
 
 type slow_packet is

@@ -207,22 +207,22 @@ $ Table based position compare
 
 
 17  : TABLE_LENGTH=12
-18  : ENABLE=1          : ACTIVE=1, TABLE_LINE=1, LINE_REPEAT=1
-19  : POSA=19
-22  : POSA=20           : OUTB=1
-26  :                   : OUTA=1, TABLE_LINE=2
-27  :                   : OUTA=0
-30  : POSA=19           : OUTA=1, LINE_REPEAT=2
-31  :                   : OUTA=0
-34  : POSA=16           : OUTA=1, LINE_REPEAT=3
-35  :                   : OUTA=0
-38  : POSA=12           : TABLE_LINE=3, LINE_REPEAT=1
-42  : POSA=9            : OUTA=1, OUTB=0
-43  :                   : OUTA=0
-46  :                   : OUTA=1, LINE_REPEAT=2
-47  : POSA=7            : OUTA=0
-50  :                   : ACTIVE=0
-54  : ENABLE=0
+19  : ENABLE=1          : ACTIVE=1, TABLE_LINE=1, LINE_REPEAT=1
+20  : POSA=19
+23  : POSA=20           : OUTB=1
+25  :                   : OUTA=1, TABLE_LINE=2
+28  :                   : OUTA=0
+31  : POSA=19           : OUTA=1, LINE_REPEAT=2
+32  :                   : OUTA=0
+35  : POSA=16           : OUTA=1, LINE_REPEAT=3
+36  :                   : OUTA=0
+39  : POSA=12           : TABLE_LINE=3, LINE_REPEAT=1
+43  : POSA=9            : OUTA=1, OUTB=0
+44  :                   : OUTA=0
+47  :                   : OUTA=1, LINE_REPEAT=2
+48  : POSA=7            : OUTA=0
+51  :                   : ACTIVE=0
+55  : ENABLE=0
 
 
 ###############
