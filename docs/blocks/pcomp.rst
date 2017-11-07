@@ -73,16 +73,6 @@ PULSE still have positive values:
    :block: pcomp
    :title: 2 Pulses in a -ve direction
 
-We can also ask to the Block to calculate direction for us:
-
-.. sequence_plot::
-   :block: pcomp
-   :title: Calculate direction to be -ve
-
-.. sequence_plot::
-   :block: pcomp
-   :title: Calculate direction to be +ve
-
 Internal statemachine
 ---------------------
 
@@ -142,6 +132,23 @@ is used for the condition of crossing into WAIT_START:
 .. sequence_plot::
    :block: pcomp
    :title: Avoiding jitter problem with PRE_START
+
+Guessing the direction
+----------------------
+
+We can also ask to the Block to calculate direction for us:
+
+.. sequence_plot::
+   :block: pcomp
+   :title: Calculate direction to be -ve
+
+This is a one time calculation of direction at the start of operation, once
+the encoder has been moved enough to guess the direction then it is fixed until
+the Block has finished producing pulses:
+
+.. sequence_plot::
+   :block: pcomp
+   :title: Calculate direction to be +ve
 
 
 Interrupting a scan
@@ -213,6 +220,12 @@ We can also guess the direction in relative mode:
    :block: pcomp
    :title: Guess relative direction +ve
 
+This works when going negative too:
+
+.. sequence_plot::
+   :block: pcomp
+   :title: Guess relative direction -ve
+
 And with a PRE_START value we guess the direction to be the opposite to the
 direction the motor is travelling when it exceeds PRE_START:
 
@@ -227,4 +240,24 @@ PRE_START though, the Block will error in this case:
 .. sequence_plot::
    :block: pcomp
    :title: Guess relative direction with no START
+
+
+Use as a Schmitt trigger
+------------------------
+
+We can also make use of a special case with STEP=0 and a negative WIDTH to
+create a Schmitt trigger that will always trigger at START, and turn off when
+INP has dipped WIDTH below START:
+
+.. sequence_plot::
+   :block: pcomp
+   :title: Schmitt trigger
+
+We can use this same special case with a positive width to make a similar
+comparator that turns on at START and off at START+WIDTH, triggering again
+when INP <= START:
+
+.. sequence_plot::
+   :block: pcomp
+   :title: Repeating comparator
 

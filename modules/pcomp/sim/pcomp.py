@@ -1,7 +1,5 @@
 from common.python.pandablocks.block import Block
 
-import numpy as np
-
 # state machine states
 WAIT_ENABLE = 0
 WAIT_DIR = 1
@@ -24,51 +22,58 @@ class Pcomp(Block):
 
     def __init__(self):
         # The direction of the position compare
-        self.negative = 0
+        self.dir_pos = 0
         # The position that we started at
-        self.initial = 0
+        self.posn_latched = 0
         # The inp value at the start of the current pulse, and the next
-        self.current_crossing = 0
+        self.last_crossing = 0
         self.next_crossing = 0
 
     def pulse_start(self):
-        if self.RELATIVE:
-            if self.negative:
-                return self.initial - self.START
-            else:
-                return self.initial + self.START
-        else:
+        if self.dir_pos or self.RELATIVE == 0:
             return self.START
+        else:
+            return -self.START
 
     def pulse_step(self):
-        if self.negative:
-            return -self.STEP
-        else:
+        if self.dir_pos:
             return self.STEP
+        else:
+            return -self.STEP
 
     def pulse_width(self):
-        if self.negative:
-            return -self.WIDTH
-        else:
+        if self.dir_pos:
             return self.WIDTH
-
-    def exceeded_pre_start(self):
-        if self.negative:
-            return self.INP > self.pulse_start() + self.PRE_START
         else:
-            return self.INP < self.pulse_start() - self.PRE_START
+            return -self.WIDTH
 
-    def reached_current_crossing(self):
-        if self.negative:
-            return self.INP <= self.current_crossing
+    def posn(self):
+        if self.RELATIVE:
+            return self.INP - self.posn_latched
         else:
-            return self.INP >= self.current_crossing
+            return self.INP
+
+    def exceeded_prestart(self):
+        if self.dir_pos:
+            return self.posn() < self.pulse_start() - self.PRE_START
+        else:
+            return self.posn() > self.pulse_start() + self.PRE_START
 
     def reached_next_crossing(self):
-        if self.negative:
-            return self.INP <= self.next_crossing
+        if self.next_crossing >= self.last_crossing:
+            return self.posn() >= self.next_crossing
         else:
-            return self.INP >= self.next_crossing
+            return self.posn() <= self.next_crossing
+
+    def jumped_more_than_step(self):
+        too_far = self.last_crossing + self.pulse_step()
+        return (self.last_crossing <= self.next_crossing
+                <= too_far <= self.posn()) or \
+               (self.last_crossing >= self.next_crossing
+                >= too_far >= self.posn())
+
+    def guess_dir_thresh(self):
+        return self.START + self.PRE_START
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
@@ -83,87 +88,94 @@ class Pcomp(Block):
         # Handle enable transitions
         state = self.STATE
 
-        if b.ENABLE in changes:
-            if self.ENABLE:
-                # When enabled, reset outputs and readbacks
-                self.ACTIVE = 1
-                self.HEALTH = OK
-                self.PRODUCED = 0
-                # Latch the position when we started
-                self.initial = self.INP
-                # Direction is specified or guessed
-                if self.DIR == EITHER:
-                    state = WAIT_DIR
-                else:
-                    self.negative = self.DIR
-                    state = WAIT_PRE_START
-            else:
-                # When disabled, set outputs
-                self.ACTIVE = 0
-                self.OUT = 0
-                state = WAIT_ENABLE
-        elif self.ACTIVE:
+        if changes.get(b.ENABLE, None) is 0:
+            # When disabled, set outputs
+            self.ACTIVE = 0
+            self.OUT = 0
+            state = WAIT_ENABLE
+        else:
+            if self.STATE == WAIT_ENABLE:
+                if changes.get(b.ENABLE, None) is 1:
+                    # When enabled, reset outputs and readbacks
+                    self.ACTIVE = 1
+                    self.HEALTH = OK
+                    self.PRODUCED = 0
+                    # Latch the position when we started
+                    self.posn_latched = self.INP
+                    # Direction is specified or guessed
+                    if self.DIR == EITHER:
+                        state = WAIT_DIR
+                    else:
+                        if self.DIR == POSITIVE:
+                            self.dir_pos = 1
+                        else:
+                            self.dir_pos = 0
+                        state = WAIT_PRE_START
             if self.STATE == WAIT_DIR:
                 if self.RELATIVE:
                     # If we are relative then only advance when thresh away from
                     # the initial position
-                    if self.START + self.PRE_START > 0:
-                        if abs(self.INP - self.initial) >= \
-                                        self.START + self.PRE_START:
+                    if self.guess_dir_thresh() > 0:
+                        if abs(self.posn()) >= self.guess_dir_thresh():
                             if self.PRE_START > 0:
-                                self.negative = self.INP > self.initial
+                                self.dir_pos = self.posn() < 0
                                 state = WAIT_PRE_START
                             else:
                                 self.OUT = 1
                                 self.PRODUCED = 1
-                                self.current_crossing = \
-                                    self.pulse_start() + self.pulse_width()
-                                self.next_crossing = \
-                                    self.pulse_start() + self.pulse_step()
-                                self.negative = self.INP < self.initial
+                                if self.posn() > 0:
+                                    self.dir_pos = 1
+                                    self.last_crossing = self.START
+                                    self.next_crossing = self.START + self.WIDTH
+                                else:
+                                    self.dir_pos = 0
+                                    self.last_crossing = -self.START
+                                    self.next_crossing = -self.START-self.WIDTH
                                 state = WAIT_FALLING
                     else:
                         self.HEALTH = ERR_GUESS
                         self.ACTIVE = 0
                         state = WAIT_ENABLE
-                elif self.START != self.INP:
-                    self.negative = self.INP > self.START
+                elif self.START != self.posn():
+                    self.dir_pos = self.posn() < self.START
                     state = WAIT_PRE_START
             elif self.STATE == WAIT_PRE_START:
                 # Check we have crossed thresh IN OPPOSITE DIRECTION
-                if self.exceeded_pre_start():
-                    self.current_crossing = self.pulse_start()
-                    self.next_crossing = self.pulse_start() + self.pulse_width()
+                if self.exceeded_prestart():
+                    if self.dir_pos:
+                        self.last_crossing = self.pulse_start() - 1
+                    else:
+                        self.last_crossing = self.pulse_start() + 1
+                    self.next_crossing = self.pulse_start()
                     state = WAIT_RISING
             elif self.STATE == WAIT_RISING:
-                # Check when we have passed current_crossing
-                if self.reached_current_crossing():
-                    if self.reached_next_crossing():
+                if self.reached_next_crossing():
+                    if self.jumped_more_than_step():
                         self.ACTIVE = 0
                         self.HEALTH = ERR_PJUMP
                         state = WAIT_ENABLE
                     else:
                         self.OUT = 1
                         self.PRODUCED += 1
-                        self.current_crossing, self.next_crossing = (
+                        self.last_crossing, self.next_crossing = (
                             self.next_crossing,
-                            self.current_crossing + self.pulse_step())
+                            self.next_crossing + self.pulse_width())
                         state = WAIT_FALLING
             elif self.STATE == WAIT_FALLING:
                 # Check when we have passed WIDTH
-                if self.reached_current_crossing():
+                if self.reached_next_crossing():
                     self.OUT = 0
                     if self.PRODUCED == self.PULSES:
                         self.ACTIVE = 0
                         state = WAIT_ENABLE
-                    elif self.reached_next_crossing():
+                    elif self.jumped_more_than_step():
                         self.ACTIVE = 0
                         self.HEALTH = ERR_PJUMP
                         state = WAIT_ENABLE
                     else:
-                        self.current_crossing, self.next_crossing = (
+                        self.last_crossing, self.next_crossing = (
                             self.next_crossing,
-                            self.current_crossing + self.pulse_step())
+                            self.last_crossing + self.pulse_step())
                         state = WAIT_RISING
 
         if state != self.STATE:
