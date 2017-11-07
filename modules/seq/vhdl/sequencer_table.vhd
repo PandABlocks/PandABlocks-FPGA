@@ -51,7 +51,7 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Memory reset
-    reset_mem           : in  std_logic;
+----    reset_mem           : in  std_logic;
     -- Block Input and Outputs
     load_next_i         : in  std_logic;
     table_ready_o       : out std_logic;
@@ -70,7 +70,6 @@ architecture rtl of sequencer_table is
 constant AW                     : positive := LOG2(SEQ_LEN);
 constant c_zeros32              : std_logic_vector(31 downto 0) := X"00000000";
 
-signal repeat_frame             : std_logic; 
 signal seq_dout                 : std32_array(3 downto 0);
 signal seq_waddr                : unsigned(AW+1 downto 0) := (others => '0');
 signal seq_raddr                : unsigned(AW-1 downto 0);
@@ -141,9 +140,6 @@ port map (
 END GENERATE; 
 
 
-repeat_frame <= '1' when seq_dout(2) = c_zeros32 and table_ready = '1' and load_next_i = '1' else '0';
-
-
 -- Frame loading from memory is done in 4 words.
 FRAME_CTRL : process(clk_i)
 begin
@@ -163,9 +159,6 @@ begin
                 else
                     seq_raddr <= seq_raddr + 1;
                 end if;
-            -- Table repeats    
-            elsif (reset_mem = '1') then
-                seq_raddr <= (others => '0'); 
             end if;
 
             next_frame_o.repeats <= unsigned(seq_dout(0)(15 downto 0));  -- [0](15 downto 0)    Repeats
