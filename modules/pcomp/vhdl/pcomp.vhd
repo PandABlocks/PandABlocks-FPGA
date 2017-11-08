@@ -88,7 +88,7 @@ signal exceeded_prestart       : std_logic;
 
 signal reached_last_pos        : std_logic;
 signal reached_last_neg        : std_logic;
-signal too_far_crossing        : std_logic;
+signal too_far_crossing        : signed(31 downto 0);
 signal reached_last_crossing   : std_logic;
 signal guess_dir_thresh        : signed(31 downto 0);
 
@@ -283,11 +283,11 @@ begin
                                 else 
                                     if posn > 0 then
                                         dir_pos <= '1';                                           
-                                        last_crossing <= pulse_start_pos
+                                        last_crossing <= pulse_start_pos;
                                         next_crossing <= pulse_start_pos + pulse_width_pos;        
                                     else               
                                         dir_pos <= '0';                                             
-                                        last_crossing <= pulse_start_neg
+                                        last_crossing <= pulse_start_neg;
                                         next_crossing <= pulse_start_neg + pulse_width_neg;
                                     end if;                                                                      
                                     out_o <= '1';
@@ -320,6 +320,7 @@ begin
                             last_crossing <= pulse_start - 1;
                         else
                             last_crossing <= pulse_start + 1;
+                        end if;                                     
                         next_crossing <= pulse_start;
                         -- Jittering at the start  
                         pcomp_fsm <= WAIT_RISING;
