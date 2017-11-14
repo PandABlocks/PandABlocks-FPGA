@@ -51,7 +51,7 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Memory reset
-----    reset_mem           : in  std_logic;
+----    enable_mem_reset    : in  std_logic;
     -- Block Input and Outputs
     load_next_i         : in  std_logic;
     table_ready_o       : out std_logic;

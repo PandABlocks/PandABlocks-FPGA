@@ -101,6 +101,7 @@ signal repeat_count         : unsigned(31 downto 0);
 signal frame_count          : unsigned(15 downto 0);
 signal table_count          : unsigned(31 downto 0);
 signal frame_length         : unsigned(31 downto 0);
+signal frame_length_next    : unsigned(31 downto 0);
 
 type state_t is (WAIT_ENABLE, LOAD_TABLE, PHASE_1, PHASE_2, WAIT_TRIGGER);
 signal seq_sm               : state_t;
@@ -119,25 +120,39 @@ signal enable_prev          : std_logic;
 signal enable_fall          : std_logic;
 signal enable_rise          : std_logic;
 signal table_ready          : std_logic;
-signal fsm_reset            : std_logic;
+signal reset_table          : std_logic;
 
-signal last_frame           : std_logic := '0';
-signal last_fcycle          : std_logic := '0';
-signal last_tcycle          : std_logic := '0';
+signal last_table_line      : std_logic := '0';
+signal last_line_repeat     : std_logic := '0';
+signal last_table_repeat    : std_logic := '0';
 
---signal next_immediate       : std_logic;
 signal current_pos_en       : std_logic_vector(2 downto 0);
 signal next_pos_en          : std_logic_vector(2 downto 0);
 
 signal current_pos_inp      : std_logic;
 signal next_pos_inp         : std_logic;
 
+signal enable_mem_reset     : std_logic;
 signal table_ready_dly      : std_logic;
+
+signal pre_current_time1    : unsigned(63 downto 0);
+signal pre_current_time2    : unsigned(63 downto 0);
+signal pre_next_time1       : unsigned(63 downto 0);
+signal pre_next_time2       : unsigned(63 downto 0);
+
 
 begin
 
 -- Block inputs.
-enable_val <= enable_i and table_ready;
+----enable_val <= enable_i and table_ready;
+enable_val <= enable_i and table_ready_dly;
+
+delay : process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        table_ready_dly <= table_ready;
+    end if;
+end process;         
 
 -- Input register and edge detection.
 Registers : process(clk_i)
@@ -163,7 +178,7 @@ generic map (
 )
 port map (
     clk_i               => clk_i,
-    reset_i             => fsm_reset,
+    reset_i             => reset_table,
 
     load_next_i         => load_next,
     table_ready_o       => table_ready,
@@ -245,11 +260,17 @@ current_trig_valid <= '1' when ((current_frame.trigger = c_immediately) or (curr
 -- Total frame length
 frame_length <= current_frame.time1 + current_frame.time2;
 
+frame_length_next <= next_frame.time1 + next_frame.time2;
+
+
+pre_current_time1 <= current_frame.time1 * unsigned(PRESCALE);
+pre_current_time2 <= current_frame.time2 * unsigned(PRESCALE);
+pre_next_time1 <= next_frame.time1 * unsigned(PRESCALE);
+pre_next_time2 <= next_frame.time2 * unsigned(PRESCALE);
+
 --------------------------------------------------------------------------
 -- Sequencer State Machine
 -------------------------------------------------------------------------
--- Reset condition for state machine.
-fsm_reset <= '1' when (reset_i = '1' or enable_fall = '1') else '0';
 
 
 state_o <= c_state_load_table when seq_sm = LOAD_TABLE else
@@ -258,6 +279,9 @@ state_o <= c_state_load_table when seq_sm = LOAD_TABLE else
            c_state_phase2 when seq_sm = phase_2 else
            c_state_wait_enable;
                     
+
+enable_mem_reset <= '1' when (current_frame.time1 = x"00000000") else '0'; 
+
 
 SEQ_FSM : process(clk_i)
 begin
@@ -268,41 +292,43 @@ if rising_edge(clk_i) then
     load_next <= '0';
 
     -- Reset all registers and state machine.
-    if (fsm_reset = '1') then
+    if (reset_i = '1') then
         seq_sm <= WAIT_ENABLE;
         out_val <= (others => '0');        
         active <= '0';
         repeat_count <= (others => '0');
         frame_count <= (others => '0');
         table_count <= (others => '0');
-    else
-            
-        table_ready_dly <= table_ready;
-                
-        -- Need to do this due to the time it takes for the data to be valid on the memory output        
-        if table_ready_dly = '0' and table_ready = '1' then
-            current_frame <= next_frame;
+    elsif (TABLE_START = '1') then
+        out_val <= (others => '0');
+        seq_sm <= LOAD_TABLE;
+    elsif (enable_fall = '1' and enable_i = '0') then
+        out_val <= (others => '0');      
+        active <= '0';  
+        if seq_sm /= LOAD_TABLE then
+            reset_table <= '1';
+            seq_sm <= WAIT_ENABLE;            
         end if;
-
+    else                    
+        -- State Machine            
         case seq_sm is
                 
             -- State 0
             when WAIT_ENABLE =>
                 -- TABLE load_started
-                if TABLE_START = '1' then
-                    seq_sm <= LOAD_TABLE;
-                elsif enable_rise = '1' then    
-                    load_next <= '1';                       
+                reset_table <= '0';
+                if enable_rise = '1' then    
                     repeat_count <= repeat_count + 1; --
                     frame_count <= frame_count + 1;   --
-                    table_count <= table_count + 1;   --
+----                    table_count <= table_count + 1;   --
+                    table_count <= to_unsigned(1,32);   --
                     -- rising ENABLE and trigger not met 
                     if (next_trig_valid  = '0') then   
                         seq_sm <= WAIT_TRIGGER;                        
                     -- rising ENABLE and trigger met phase1
                     elsif (next_frame.time1 /= to_unsigned(0,32)) then    
                         active <= '1';                   
-                        out_val <= current_frame.out1;     
+                        out_val <= next_frame.out1;     
                         seq_sm <= PHASE_1;            
                     -- rising ENABLE and trigger met and no phase 1
                     else
@@ -310,12 +336,12 @@ if rising_edge(clk_i) then
                         out_val <= next_frame.out2;    
                         seq_sm <= PHASE_2;
                     end if;    
------                    current_frame <= next_frame;
+                    current_frame <= next_frame;
                     load_next <= '1';
                 end if;    
                        
             -- State 1
-            when LOAD_TABLE =>                                       
+            when LOAD_TABLE =>    
                 -- TABLE load complete
                 if table_ready = '1' then
                     seq_sm <= WAIT_ENABLE;
@@ -323,11 +349,8 @@ if rising_edge(clk_i) then
 
             -- State 2
             when WAIT_TRIGGER => 
-                -- TABLE load started 
-                if TABLE_START = '1' then
-                    seq_sm <= LOAD_TABLE;
                 -- trigger met
-                elsif (current_trig_valid = '1') then
+                if (current_trig_valid = '1') then
                     -- trigger met
                     if (current_frame.time1 /= to_unsigned(0,32)) then  
                         out_val <= current_frame.out1;
@@ -342,35 +365,32 @@ if rising_edge(clk_i) then
                 end if;            
                                 
             -- State 3
-            when PHASE_1 =>       
-                -- TABLE load_started
-                if TABLE_START = '1' then
-                    out_val <= (others => '0');        
-                    seq_sm <= LOAD_TABLE;
+            when PHASE_1 =>   
                 --time 1 elapsed                     
-                elsif (presc_ce = '1' and tframe_counter = current_frame.time1-1) then
+                if (presc_ce = '1' and tframe_counter = current_frame.time1-1) then
                     out_val <= current_frame.out2;
                     seq_sm <= PHASE_2;
                 end if;                 
                 
             -- State 4
             when PHASE_2 => 
-                if (presc_ce = '1' and tframe_counter = frame_length - 1) then                                                                           
+                if (presc_ce = '1' and tframe_counter = frame_length - 1) then   
                     -- TABLE load started 
                     -- Table Repeat is finished 
-                    -- = last_fcycle, last_frame, last_tcycle
-                    if (last_tcycle = '1') then 
+                    -- = last_line_repeat, last_table_line, last_table_repeat
+                    if (last_table_repeat = '1') then 
                         out_val <= (others => '0');
                         active <= '0';
+                        reset_table <= '1';
                         seq_sm <= WAIT_ENABLE;
-                    elsif (last_fcycle = '1') then
+                    elsif (last_line_repeat = '1') then
                         repeat_count <= to_unsigned(1,32);
-                        if (last_frame = '1') then
+                        if (last_table_line = '1') then
                             repeat_count <= to_unsigned(1,32);
                             table_count <= table_count + 1;
-                            frame_count <= to_unsigned(1,32);  
+                            frame_count <= to_unsigned(1,16);    
                         else
-                            table_count <= to_unsigned(1,32);
+----                            table_count <= to_unsigned(1,32);
                             frame_count <= frame_count + 1;
                         end if;
                         --
@@ -408,12 +428,12 @@ if rising_edge(clk_i) then
 end if;    
 end process;
 
--- Repeats count equals the number of repeats
-last_fcycle <= '1' when (current_frame.repeats /= 0 and repeat_count = current_frame.repeats) else '0';
--- Number of frames memory depth
-last_frame <= last_fcycle when (frame_count = unsigned(TABLE_FRAMES)) else '0';
--- 
-last_tcycle <= last_frame when (REPEATS /= X"0000_0000" and table_count = unsigned(REPEATS)) else '0';
+-- Repeats count equals the number of repeats (Last Table Repeat)
+last_line_repeat <= '1' when (current_frame.repeats /= 0 and repeat_count = current_frame.repeats) else '0';
+-- Number of frames memory depth (Last Line )
+last_table_line <= last_line_repeat when (frame_count = unsigned(TABLE_FRAMES)) else '0';
+-- Last Table Repeat
+last_table_repeat <= last_table_line when (REPEATS /= X"0000_0000" and table_count = unsigned(REPEATS)) else '0';
 
 --------------------------------------------------------------------------
 -- Prescaler:
@@ -422,9 +442,7 @@ last_tcycle <= last_frame when (REPEATS /= X"0000_0000" and table_count = unsign
 --  clk_cnt := (0=>'1', others => '0');
 --------------------------------------------------------------------------
 
---------------------presc_reset <= '1' when (seq_sm = WAIT_TRIGGER and current_trig_valid = '1') else '0';
-presc_reset <= '1' when (seq_sm = WAIT_TRIGGER and current_trig_valid = '1') or 
-                        (seq_sm = WAIT_ENABLE and current_trig_valid = '1') or 
+presc_reset <= '1' when (seq_sm = WAIT_TRIGGER) or (seq_sm = WAIT_ENABLE) or 
                         (seq_sm = LOAD_TABLE) else '0';
 
 seq_presc : entity work.sequencer_prescaler
@@ -434,6 +452,7 @@ port map (
     PERIOD      => PRESCALE, 
     pulse_o     => presc_ce
 );
+
 
 --------------------------------------------------------------------------
 -- Frame counter :

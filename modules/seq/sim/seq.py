@@ -178,101 +178,49 @@ class Seq(Block):
             self.table.table_start()
             self.set_outputs(0)
             state = LOAD_TABLE
-        elif self.STATE == LOAD_TABLE:
-            # And while we're in this state we ignore everything apart from
-            # table commands
-            if b.TABLE_DATA in changes:
-                self.table.table_data(changes[b.TABLE_DATA])
-            elif b.TABLE_LENGTH in changes:
-                self.table.table_lines(changes[b.TABLE_LENGTH] / 4)
-                self.table.reset()
-                state = WAIT_ENABLE
         elif not self.ENABLE:
             # If we are disabled at any point stop and wait for enable
             self.ACTIVE = 0
             self.set_outputs(0)
-            self.table.reset()
-            state = WAIT_ENABLE
-        elif self.STATE == WAIT_ENABLE:
-            # If we get an enable or we are still active after a table rewrite
-            if changes.get(b.ENABLE, None) == 1 or self.ACTIVE:
-                if self.table.table_ready:
-                    if not self.next_triggers_met():
-                        state = WAIT_TRIGGER
-                    elif self.next_line().time1:
-                        # Do phase 1
-                        self.next_ts = ts + self.next_time1()
-                        self.set_outputs(self.next_line().out1)
-                        state = PHASE1
-                    else:
-                        # Do phase 2
-                        self.next_ts = ts + self.next_time2()
-                        self.set_outputs(self.next_line().out2)
-                        state = PHASE2
-                    self.TABLE_REPEAT = 1
-                    self.TABLE_LINE = 1
-                    self.LINE_REPEAT = 1
-                    self.ACTIVE = 1
-                    self.current_line = self.table.next_line
-                    self.table.load_next()
-        elif self.STATE == WAIT_TRIGGER:
-            if self.current_triggers_met():
-                if self.current_line.time1:
-                    # Do phase 1
-                    self.next_ts = ts + self.current_time1()
-                    self.set_outputs(self.current_line.out1)
-                    state = PHASE1
-                else:
-                    # Do phase 2
-                    self.next_ts = ts + self.current_time2()
-                    self.set_outputs(self.current_line.out2)
-                    state = PHASE2
-        elif self.STATE == PHASE1:
-            # If doing phase 1, check if time has expired
-            if ts >= self.next_ts:
-                # Do phase 2
-                self.next_ts = ts + self.current_time2()
-                self.set_outputs(self.current_line.out2)
-                state = PHASE2
-        elif self.STATE == PHASE2:
-            # If doing phase 2, check if time has expired
-            if ts >= self.next_ts:
-                if self.last_table_repeat():
-                    # If table is finished then we're done
-                    self.ACTIVE = 0
-                    self.set_outputs(0)
-                    self.table.reset()
-                    state = WAIT_ENABLE
-                elif self.last_line_repeat():
-                    if self.last_table_line():
-                        # Finished the last line in the table, advance repeats
+            if self.STATE != LOAD_TABLE:
+                # Not currently loading a table, so reset it and drop back to WAIT_ENABLE
+                self.table.reset()
+                state = WAIT_ENABLE
+        else:
+            if self.STATE == WAIT_ENABLE:
+                # If we get an enable or we are still active after a table rewrite
+                if changes.get(b.ENABLE, None) == 1 or self.ACTIVE:
+                    if self.table.table_ready:
+                        if not self.next_triggers_met():
+                            state = WAIT_TRIGGER
+                        elif self.next_line().time1:
+                            # Do phase 1
+                            self.next_ts = ts + self.next_time1()
+                            self.set_outputs(self.next_line().out1)
+                            state = PHASE1
+                        else:
+                            # Do phase 2
+                            self.next_ts = ts + self.next_time2()
+                            self.set_outputs(self.next_line().out2)
+                            state = PHASE2
+                        self.TABLE_REPEAT = 1
                         self.TABLE_LINE = 1
-                        self.TABLE_REPEAT += 1
-                    else:
-                        # Finished this line, move to the next
-                        self.TABLE_LINE += 1
-                    self.LINE_REPEAT = 1
-                    if not self.next_triggers_met():
-                        state = WAIT_TRIGGER
-                    elif self.next_line().time1:
-                        # Do phase 1
-                        self.next_ts = ts + self.next_time1()
-                        self.set_outputs(self.next_line().out1)
-                        state = PHASE1
-                    else:
-                        # Do phase 2
-                        self.next_ts = ts + self.next_time2()
-                        self.set_outputs(self.next_line().out2)
-                        state = PHASE2
-                    # Have to advance to the next line of the table
-                    self.current_line = self.table.next_line
-                    self.table.load_next()
-                else:
-                    # Repeat the current line again
-                    self.LINE_REPEAT += 1
-                    if not self.current_triggers_met():
-                        state = WAIT_TRIGGER
-                    elif self.current_line.time1:
+                        self.LINE_REPEAT = 1
+                        self.ACTIVE = 1
+                        self.current_line = self.next_line()
+                        self.table.load_next()
+            elif self.STATE == LOAD_TABLE:
+                # And while we're in this state we ignore everything apart from
+                # table commands
+                if b.TABLE_DATA in changes:
+                    self.table.table_data(changes[b.TABLE_DATA])
+                elif b.TABLE_LENGTH in changes:
+                    self.table.table_lines(changes[b.TABLE_LENGTH] / 4)
+                    self.table.reset()
+                    state = WAIT_ENABLE                
+            elif self.STATE == WAIT_TRIGGER:
+                if self.current_triggers_met():
+                    if self.current_line.time1:
                         # Do phase 1
                         self.next_ts = ts + self.current_time1()
                         self.set_outputs(self.current_line.out1)
@@ -282,6 +230,61 @@ class Seq(Block):
                         self.next_ts = ts + self.current_time2()
                         self.set_outputs(self.current_line.out2)
                         state = PHASE2
+            elif self.STATE == PHASE1:
+                # If doing phase 1, check if time has expired
+                if ts >= self.next_ts:
+                    # Do phase 2
+                    self.next_ts = ts + self.current_time2()
+                    self.set_outputs(self.current_line.out2)
+                    state = PHASE2
+            elif self.STATE == PHASE2:
+                # If doing phase 2, check if time has expired
+                if ts >= self.next_ts:
+                    if self.last_table_repeat():
+                        # If table is finished then we're done
+                        self.ACTIVE = 0
+                        self.set_outputs(0)
+                        self.table.reset()
+                        state = WAIT_ENABLE
+                    elif self.last_line_repeat():
+                        if self.last_table_line():
+                            # Finished the last line in the table, advance repeats
+                            self.TABLE_LINE = 1
+                            self.TABLE_REPEAT += 1
+                        else:
+                            # Finished this line, move to the next
+                            self.TABLE_LINE += 1
+                        self.LINE_REPEAT = 1
+                        if not self.next_triggers_met():
+                            state = WAIT_TRIGGER
+                        elif self.next_line().time1:
+                            # Do phase 1
+                            self.next_ts = ts + self.next_time1()
+                            self.set_outputs(self.next_line().out1)
+                            state = PHASE1
+                        else:
+                            # Do phase 2
+                            self.next_ts = ts + self.next_time2()
+                            self.set_outputs(self.next_line().out2)
+                            state = PHASE2
+                        # Have to advance to the next line of the table
+                        self.current_line = self.next_line()
+                        self.table.load_next()
+                    else:
+                        # Repeat the current line again
+                        self.LINE_REPEAT += 1
+                        if not self.current_triggers_met():
+                            state = WAIT_TRIGGER
+                        elif self.current_line.time1:
+                            # Do phase 1
+                            self.next_ts = ts + self.current_time1()
+                            self.set_outputs(self.current_line.out1)
+                            state = PHASE1
+                        else:
+                            # Do phase 2
+                            self.next_ts = ts + self.current_time2()
+                            self.set_outputs(self.current_line.out2)
+                            state = PHASE2
 
         if state != self.STATE:
             # We updated statemachine, might need another tick to check the

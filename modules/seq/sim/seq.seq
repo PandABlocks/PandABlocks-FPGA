@@ -316,17 +316,17 @@ $ Restarting the same table
 8   : TABLE_DATA=5
 
 9   : TABLE_LENGTH=4
-12  : ENABLE=1          : ACTIVE=1, TABLE_REPEAT=1, OUTA=1
-17  :                   : OUTA=0
-22  :                   : OUTA=1, TABLE_REPEAT=2
-24  : ENABLE=0          : ACTIVE=0, OUTA=0
-28  : ENABLE=1          : ACTIVE=1, TABLE_REPEAT=1, OUTA=1
-33  :                   : OUTA=0
-38  :                   : OUTA=1, TABLE_REPEAT=2
-39  : ENABLE=0          : ACTIVE=0, OUTA=0
+13  : ENABLE=1          : ACTIVE=1, TABLE_REPEAT=1, OUTA=1
+18  :                   : OUTA=0
+23  :                   : OUTA=1, TABLE_REPEAT=2
+25  : ENABLE=0          : ACTIVE=0, OUTA=0
+29  : ENABLE=1          : ACTIVE=1, TABLE_REPEAT=1, OUTA=1
+34  :                   : OUTA=0
+39  :                   : OUTA=1, TABLE_REPEAT=2
+40  : ENABLE=0          : ACTIVE=0, OUTA=0
 
 
-###############
+############### CHANGED THE CODE BELOW BECAUSE THE ENABLE_RISE GOES ACTIVE WHILST STILL IN STATE LOAD_TABLE 
 $ Rewriting a table
 3   : TABLE_START=1
 4   : TABLE_START=0
@@ -340,24 +340,24 @@ $ Rewriting a table
 8   : TABLE_DATA=5
 
 9   : TABLE_LENGTH=4
-12  : ENABLE=1          : ACTIVE=1, TABLE_REPEAT=1, OUTA=1
-17  :                   : OUTA=0
-22  :                   : OUTA=1, TABLE_REPEAT=2
-24  : TABLE_START=1     : OUTA=0
-25  : TABLE_START=0
+13  : ENABLE=1          : ACTIVE=1, TABLE_REPEAT=1, OUTA=1
+18  :                   : OUTA=0
+23  :                   : OUTA=1, TABLE_REPEAT=2
+25  : TABLE_START=1     : OUTA=0
+26  : TABLE_START=0
 
 # OUT = 0x1 (OUT1=A)
 # TRIGGER = 0x0 (Immediate)
 # REPEATS = 0x0001
-26  : TABLE_DATA=0x100001
-27  : TABLE_DATA=0
-28  : TABLE_DATA=8
-29  : TABLE_DATA=2
-30  : TABLE_LENGTH=4
-31  :                   : TABLE_REPEAT=1, OUTA=1
-39  :                   : OUTA=0
-41  :                   : TABLE_REPEAT=2, OUTA=1
-44  : ENABLE=0          : ACTIVE=0, OUTA=0
+27  : TABLE_DATA=0x100001
+28  : TABLE_DATA=0
+29  : TABLE_DATA=8
+30  : TABLE_DATA=2
+31  : TABLE_LENGTH=4
+33  :                   : TABLE_REPEAT=1, OUTA=1
+41  :                   : OUTA=0
+43  :                   : TABLE_REPEAT=2, OUTA=1
+46  : ENABLE=0          : ACTIVE=0, OUTA=0
 
 
 
