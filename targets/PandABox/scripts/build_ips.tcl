@@ -123,6 +123,54 @@ set_property -dict [list \
 generate_target all [get_files $BUILD_DIR/slow_cmd_fifo/slow_cmd_fifo.xci]
 synth_ip [get_ips slow_cmd_fifo]
 
+#
+# Create SFP event receiver mgt
+create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \
+-module_name event_receiver_mgt -dir $BUILD_DIR/
+
+set_property -dict [list \
+    CONFIG.gt0_val {false}                              \
+    CONFIG.gt1_val {true}                               \
+    CONFIG.identical_val_tx_reference_clock {125.000}   \
+    CONFIG.gt0_val_tx_data_width {16}                   \
+    CONFIG.gt0_val_encoding {8B/10B}                    \
+    CONFIG.gt0_val_decoding {8B/10B}                    \
+    CONFIG.gt0_val_rxusrclk {RXOUTCLK}                  \
+    CONFIG.gt0_val_comma_preset {K28.1}                 \
+    CONFIG.gt0_val_port_rxcommadet {true}               \
+    CONFIG.gt1_val_tx_refclk {REFCLK1_Q0}               \
+    CONFIG.gt1_val_rx_refclk {REFCLK1_Q0}               \
+    CONFIG.identical_val_rx_reference_clock {125.000}   \
+    CONFIG.gt0_val_tx_line_rate {3.125}                 \
+    CONFIG.gt0_val_tx_int_datawidth {20}                \
+    CONFIG.gt0_val_tx_reference_clock {125.000}         \
+    CONFIG.gt0_val_rx_line_rate {3.125}                 \
+    CONFIG.gt0_val_rx_data_width {16}                   \
+    CONFIG.gt0_val_rx_int_datawidth {20}                \
+    CONFIG.gt0_val_rx_reference_clock {125.000}         \
+    CONFIG.gt0_val_cpll_fbdiv {5}                       \
+    CONFIG.gt0_val_port_rxcharisk {true}                \
+    CONFIG.gt0_val_tx_buffer_bypass_mode {Auto}         \
+    CONFIG.gt0_val_rx_buffer_bypass_mode {Auto}         \
+    CONFIG.gt0_val_align_pcomma_value {1001111100}      \
+    CONFIG.gt0_val_align_mcomma_value {0110000011}      \
+    CONFIG.gt0_val_align_comma_word {Any_Byte_Boundary} \
+    CONFIG.gt0_val_dfe_mode {LPM-Auto}                  \
+    CONFIG.gt0_val_rx_cm_trim {800}                     \
+    CONFIG.gt0_val_clk_cor_seq_1_1 {00000000}           \
+    CONFIG.gt0_val_clk_cor_seq_1_2 {00000000}           \
+    CONFIG.gt0_val_clk_cor_seq_1_3 {00000000}           \
+    CONFIG.gt0_val_clk_cor_seq_1_4 {00000000}           \
+    CONFIG.gt0_val_clk_cor_seq_2_1 {00000000}           \
+    CONFIG.gt0_val_clk_cor_seq_2_2 {00000000}           \
+    CONFIG.gt0_val_clk_cor_seq_2_3 {00000000}           \
+    CONFIG.gt0_val_clk_cor_seq_2_4 {00000000}           \
+] [get_ips event_receiver_mgt]
+
+generate_target all [get_files  $BUILD_DIR/event_receiver_mgt/event_receiver_mgt.xci]
+synth_ip [get_ips event_receiver_mgt]
+
+
 # Close project
 close_project
 exit

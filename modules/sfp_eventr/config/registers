@@ -1,0 +1,5 @@
+SFP       {{newBlockNo("SFP")}}
+    LINKUP          {{newBlockReg()}}
+    EVENT_CODES     {{newBlockReg()}}
+    ECDATA_REGS     {{newBlockReg()}}
+    CLEAR_REGS      {{newBlockReg()}}

@@ -306,7 +306,7 @@ signal eventr_pll_reset     : std_logic;
 signal eventr_pll_locked    : std_logic;
 
 signal SMA_FCLK             : std_logic;
-signal RXOUTCLK             : std_logic := '0'; --------------------------------------------- HERE
+signal RXOUTCLK             : std_logic := '0';  
 
 signal SMA_CLKFBOUT         : std_logic;
 signal SMA_CLK_OUT1         : std_logic;
@@ -536,7 +536,7 @@ eventr_plle2_adv_inst : PLLE2_ADV
         CLKOUT4             => open,
         CLKOUT5             => open,
         -- Input clock control
-        CLKFBIN             => EVENTR_CLKFBOUT_buf,
+        CLKFBIN             => EVENTR_CLKFBOUT_BUF,
         CLKIN1              => EVENTR_CLK_IN1,
         CLKIN2              => '0',
         -- Tied to always select the primary input clock
@@ -592,6 +592,16 @@ begin
     end if;
 end process ps_eventr_clk;
  
+
+-- Changes to be considered remove second PLL/MMCM and use only one and 
+-- instead use the second CLKIN2 and switch between the two using CLKINSEL 
+--  ---------------------------------------
+--  CLKINSEL |   1   |   0   |   CLKIN1 enabled   |
+--  CLKINSEL |   0   |   1   |   CLKIN2 enabled   |  
+--              
+-- The only problem is that during clock switching the PLL has to be reset
+-- this means switching over to the FCLK0 clock during this process 
+-- 
   
 ---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
@@ -1438,6 +1448,13 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         write_address_i     => write_address,
         write_data_i        => write_data,
         write_ack_o         => write_ack(SFP_CS),
+
+        -- Event Receiver PLL locked
+        eventr_pll_locked   => eventr_pll_locked,
+        -- Event Receiver recovered clock
+        rxoutclk_o          => RXOUTCLK,
+        -- PLL event receiver recovered clock
+        EVENTR_CLK_OUT1     => EVENTR_CLK_OUT1,
 
         GTREFCLK_N          => GTXCLK0_N,
         GTREFCLK_P          => GTXCLK0_P,

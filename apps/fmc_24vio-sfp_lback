@@ -14,6 +14,6 @@ BITS            1
 CLOCKS          1
 POSITIONS       1
 SLOW            1
-SFP_LOOPBACK    1
+SFP_EVENTR      1
 FMC_24VIO       1
 FILTER          1

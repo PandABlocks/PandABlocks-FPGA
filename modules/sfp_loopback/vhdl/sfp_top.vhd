@@ -21,6 +21,12 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
+    -- Event Receiver PLL locked
+    eventr_pll_locked   : in  std_logic;
+    -- Event Receiver recovered clock
+    rxoutclk_o          : out std_logic;  
+    -- Event Receiver PLL clock
+    EVENTR_CLK_OUT1     : in  std_logic;  
     -- GTX I/O
     GTREFCLK_N          : in  std_logic;
     GTREFCLK_P          : in  std_logic;
@@ -45,6 +51,11 @@ signal GTREFCLK         : std_logic_vector(2 downto 0);
 signal SOFT_RESET       : std_logic;
 
 begin
+
+-- This is a hack for a problem there needs to be an 
+-- active clock for rxoutclk if there isn't one then
+-- the build will fail with a DRC error 
+rxoutclk_o <= GTREFCLK(0);
 
 -- Acknowledgement to AXI Lite interface
 write_ack_o <= '1';

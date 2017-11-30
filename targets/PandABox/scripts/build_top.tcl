@@ -47,10 +47,16 @@ read_ip $BUILD_DIR/ip_repo/pulse_queue/pulse_queue.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32/fifo_1K32.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32_ft/fifo_1K32_ft.xci
 read_ip $BUILD_DIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
-read_ip $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
+if {$SFP_DESIGN == "sfp_loopback"} {
+    read_ip $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
+} else {
+    read_ip $BUILD_DIR/ip_repo/event_receiver_mgt/event_receiver_mgt.xci
+}
 if {$FMC_DESIGN == "fmc_loopback"} {
     read_ip $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
 }
+#read_ip $BUILD_DIR/ip_repo/event_receiver_mgt/event_receiver_mgt.xci
+
 
 # Read Zynq block design
 read_bd   $BUILD_DIR/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
@@ -80,13 +86,19 @@ read_vhdl [glob $TOP_DIR/modules/srgate/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/filter/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/$FMC_DESIGN/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/*.vhd]
-add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/gt_rom_init_rx.dat
-add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/gt_rom_init_tx.dat
+if {$SFP_DESIGN == "sfp_loopback"} {
+    add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/gt_rom_init_rx.dat
+    add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/gt_rom_init_tx.dat
+}
 add_files $TOP_DIR/modules/$FMC_DESIGN/vhdl/
 
 # Read constraint files
 read_xdc $TOP_DIR/modules/$FMC_DESIGN/const/fmc.xdc
-read_xdc $TOP_DIR/modules/$SFP_DESIGN/const/sfp.xdc
+if {$SFP_DESIGN == "sfp_loopback"} {
+    read_xdc $TOP_DIR/modules/$SFP_DESIGN/const/sfp.xdc
+} else {
+    read_xdc $TOP_DIR/modules/sfp_eventr/const/sfp_event_receiver.xdc
+}
 read_xdc $TARGET_DIR/const/panda-timing.xdc
 read_xdc $TARGET_DIR/const/panda-post_synth.xdc
 read_xdc $TARGET_DIR/const/panda-physical.xdc

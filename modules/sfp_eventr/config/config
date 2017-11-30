@@ -1,0 +1,7 @@
+SFP
+    LINKUP          read
+    EVENT_CODES     read
+    ECDATA_REGS     read
+    CLEAR_REGS      param   enum 2    
+        0 normal operation
+        1 clear registers               
