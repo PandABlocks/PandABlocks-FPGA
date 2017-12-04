@@ -318,10 +318,6 @@ if rising_edge(clk_i) then
                 -- TABLE load_started
                 reset_table <= '0';
                 if enable_rise = '1' then    
-                    repeat_count <= repeat_count + 1; --
-                    frame_count <= frame_count + 1;   --
-----                    table_count <= table_count + 1;   --
-                    table_count <= to_unsigned(1,32);   --
                     -- rising ENABLE and trigger not met 
                     if (next_trig_valid  = '0') then   
                         seq_sm <= WAIT_TRIGGER;                        
@@ -336,6 +332,9 @@ if rising_edge(clk_i) then
                         out_val <= next_frame.out2;    
                         seq_sm <= PHASE_2;
                     end if;    
+                    table_count <= to_unsigned(1,32);   -- TABLE_REPEAT    
+                    frame_count <= frame_count + 1;     -- TABLE_LINE
+                    repeat_count <= repeat_count + 1;   -- LINE_REPEAT
                     current_frame <= next_frame;
                     load_next <= '1';
                 end if;    
@@ -379,19 +378,17 @@ if rising_edge(clk_i) then
                     -- Table Repeat is finished 
                     -- = last_line_repeat, last_table_line, last_table_repeat
                     if (last_table_repeat = '1') then 
-                        out_val <= (others => '0');
                         active <= '0';
+                        out_val <= (others => '0');
                         reset_table <= '1';
                         seq_sm <= WAIT_ENABLE;
                     elsif (last_line_repeat = '1') then
                         repeat_count <= to_unsigned(1,32);
                         if (last_table_line = '1') then
-                            repeat_count <= to_unsigned(1,32);
-                            table_count <= table_count + 1;
-                            frame_count <= to_unsigned(1,16);    
+                            frame_count <= to_unsigned(1,16);   -- TABLE_LINE    
+                            table_count <= table_count + 1;     -- TABLE_REPEAT
                         else
-----                            table_count <= to_unsigned(1,32);
-                            frame_count <= frame_count + 1;
+                            frame_count <= frame_count + 1;     -- TABLE_LINE
                         end if;
                         --
                         if next_trig_valid = '0' then
