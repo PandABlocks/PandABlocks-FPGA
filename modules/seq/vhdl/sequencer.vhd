@@ -100,8 +100,6 @@ signal tframe_counter       : unsigned(31 downto 0);
 signal repeat_count         : unsigned(31 downto 0);
 signal frame_count          : unsigned(15 downto 0);
 signal table_count          : unsigned(31 downto 0);
-signal frame_length         : unsigned(31 downto 0);
-signal frame_length_next    : unsigned(31 downto 0);
 
 type state_t is (WAIT_ENABLE, LOAD_TABLE, PHASE_1, PHASE_2, WAIT_TRIGGER);
 signal seq_sm               : state_t;
@@ -135,11 +133,7 @@ signal next_pos_inp         : std_logic;
 signal enable_mem_reset     : std_logic;
 signal table_ready_dly      : std_logic;
 
-signal pre_current_time1    : unsigned(63 downto 0);
-signal pre_current_time2    : unsigned(63 downto 0);
-signal pre_next_time1       : unsigned(63 downto 0);
-signal pre_next_time2       : unsigned(63 downto 0);
-
+signal next_ts              : unsigned(31 downto 0);
 
 begin
 
@@ -257,17 +251,6 @@ current_pos_inp <= '1' when (current_inp_val = "111") or (current_pos_en /= "000
 current_trig_valid <= '1' when ((current_frame.trigger = c_immediately) or (current_pos_inp = '1')) else '0';  
 
 
--- Total frame length
-frame_length <= current_frame.time1 + current_frame.time2;
-
-frame_length_next <= next_frame.time1 + next_frame.time2;
-
-
-pre_current_time1 <= current_frame.time1 * unsigned(PRESCALE);
-pre_current_time2 <= current_frame.time2 * unsigned(PRESCALE);
-pre_next_time1 <= next_frame.time1 * unsigned(PRESCALE);
-pre_next_time2 <= next_frame.time2 * unsigned(PRESCALE);
-
 --------------------------------------------------------------------------
 -- Sequencer State Machine
 -------------------------------------------------------------------------
@@ -323,11 +306,13 @@ if rising_edge(clk_i) then
                         seq_sm <= WAIT_TRIGGER;                        
                     -- rising ENABLE and trigger met phase1
                     elsif (next_frame.time1 /= to_unsigned(0,32)) then    
+                        next_ts <= next_frame.time1;
                         active <= '1';                   
                         out_val <= next_frame.out1;     
                         seq_sm <= PHASE_1;            
                     -- rising ENABLE and trigger met and no phase 1
                     else
+                        next_ts <= next_frame.time2;
                         active <= '1';
                         out_val <= next_frame.out2;    
                         seq_sm <= PHASE_2;
@@ -352,11 +337,13 @@ if rising_edge(clk_i) then
                 if (current_trig_valid = '1') then
                     -- trigger met
                     if (current_frame.time1 /= to_unsigned(0,32)) then  
+                        next_ts <= current_frame.time1;
                         out_val <= current_frame.out1;
                         active <= '1';                    
                         seq_sm <= PHASE_1;
                     -- trigger met and no phase 1
                     else
+                        next_ts <= current_frame.time2;
                         active <= '1';
                         out_val <= current_frame.out2;
                         seq_sm <= PHASE_2;        
@@ -366,14 +353,15 @@ if rising_edge(clk_i) then
             -- State 3
             when PHASE_1 =>   
                 --time 1 elapsed                     
-                if (presc_ce = '1' and tframe_counter = current_frame.time1-1) then
+                if (presc_ce = '1' and tframe_counter = next_ts -1) then    
+                    next_ts <= current_frame.time2;
                     out_val <= current_frame.out2;
                     seq_sm <= PHASE_2;
                 end if;                 
                 
             -- State 4
             when PHASE_2 => 
-                if (presc_ce = '1' and tframe_counter = frame_length - 1) then   
+                if (presc_ce = '1' and tframe_counter = next_ts -1) then   
                     -- TABLE load started 
                     -- Table Repeat is finished 
                     -- = last_line_repeat, last_table_line, last_table_repeat
@@ -394,9 +382,11 @@ if rising_edge(clk_i) then
                         if next_trig_valid = '0' then
                             seq_sm <= WAIT_TRIGGER;
                         elsif (next_frame.time1 /= to_unsigned(0,32)) then
+                            next_ts <= next_frame.time1;
                             out_val <= next_frame.out1;
                             seq_sm <= PHASE_1;    
                         else
+                            next_ts <= next_frame.time2;
                             out_val <= next_frame.out2;
                             -- Don't need it but here it is any way
                             seq_sm <= PHASE_2;
@@ -408,9 +398,11 @@ if rising_edge(clk_i) then
                         if (current_trig_valid = '0') then
                             seq_sm <= WAIT_TRIGGER;
                         elsif (current_frame.time1 /= to_unsigned(0,32)) then
+                            next_ts <= current_frame.time1;
                             out_val <= current_frame.out1;
                             seq_sm <= PHASE_1;
                         else
+                            next_ts <= current_frame.time2;
                             out_val <= current_frame.out2;
                             -- Don't need it but here it is any way
                             seq_sm <= PHASE_2;
@@ -464,8 +456,8 @@ begin
         else
             if (presc_reset = '1') then
                 tframe_counter <= (others => '0');
-            elsif (presc_ce = '1') then 
-                if (tframe_counter = frame_length - 1) then
+            elsif (presc_ce = '1') then
+                if (tframe_counter = next_ts - 1) then
                     tframe_counter <= (others => '0');
                 else
                     tframe_counter <= tframe_counter + 1;
