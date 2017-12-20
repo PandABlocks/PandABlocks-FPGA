@@ -22,7 +22,7 @@ TWX_FILE = $(SYSTEM).twx
 BIT_FILE = $(SYSTEM).bit
 PROM_FILE = $(SYSTEM).mcs
 
-VERSION_FILE = $(TOP)/build/PandABox/autogen/slow_version.vhd
+VERSION_FILE = $(CARRIER_BUILD_DIR)/autogen/slow_version.vhd
 
 # Print the names of unlocked (unconstrainted) IOs
 export XIL_PAR_DESIGN_CHECK_VERBOSE=1
@@ -47,7 +47,7 @@ VERSION :
 # xst can't cope with long file names.
 $(LIST_FILE): slow_top.files
 	ln -sfn $(TOP) top
-	sed "s:^:vhdl work top/:" $< >$@
+	sed "s:^:vhdl work :" $< >$@
 
 MAP_FLAGS = -detail -w -ol high -pr b
 PAR_FLAGS = -w -ol high

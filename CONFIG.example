@@ -3,25 +3,19 @@
 # Copy this file to a file named CONFIG and edit as appropriate.
 
 
-# Default build location.  Default is to build in build subdirectory.
-#
-BUILD_DIR = $(TOP)/build
-
 # Development Tool Versions
 VIVADO_VER = 2015.1
 DEVTREE_VER = $(VIVADO_VER)
 
 # EDIT BELOW THIS LINE ---------------------
+# Specify build location.  Default is to build in build subdirectory.
+#
+BUILD_DIR = $(TOP)/build
+
 # User environment for development tools
 
 VIVADO = /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh
 ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
-
-PANDA_ROOTFS = /home/tmc43/common/PandABlocks-rootfs
-
-# License server for Vivado.
-#
-LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
 
 # EDIT ABOVE THIS LINE ---------------------
 
@@ -35,7 +29,7 @@ SPHINX_BUILD = sphinx-build
 
 # List of default targets build when running make
 #
-MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
+MAKE_ZPKG_URL = https://raw.githubusercontent.com/PandABlocks/PandABlocks-rootfs/master/make-zpkg
 DEFAULT_TARGETS = docs carrier-fpga slow-fpga zpkg
 
 # Board Configuration
