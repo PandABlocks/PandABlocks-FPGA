@@ -5,15 +5,13 @@ TOP := $(CURDIR)
 
 -include CONFIG
 
-export LM_LICENSE_FILE
-export BUILD_DIR
-
 TARGET_DIR = $(TOP)/targets/$(TARGET)
 DOCS_BUILD_DIR = $(BUILD_DIR)/$(TARGET)/html
 FPGA_BUILD_DIR = $(BUILD_DIR)/$(TARGET)
 SLOW_FPGA_BUILD_DIR = $(BUILD_DIR)/SlowFPGA
 TEST_DIR = $(BUILD_DIR)/tests
 TEST_SCRIPT_DIR = $(TOP)/tests/sim
+ZPKG_SCRIPT = $(TOP)/make-zpkg
 
 # Repeated from targets/PandABox/Makefile
 IP_CORES = $(FPGA_BUILD_DIR)/ip_repo
@@ -47,7 +45,6 @@ docs: $(DOCS_BUILD_DIR)/index.html
 # FPGA builds
 # -------------------------------------------------------------------------
 APP_FILE = $(TOP)/apps/$(APP_NAME)
-BUILD_DIR = $(TOP)/build
 
 # Extract FMC and SFP design names from config file
 FMC_DESIGN = $(shell grep -o 'FMC_[^ ]*' $(APP_FILE) |tr A-Z a-z)
@@ -77,7 +74,7 @@ $(CARRIER_FPGA_TARGETS) $(IP_CORES): $(FPGA_BUILD_DIR) config_d
 
 slow-fpga: $(SLOW_FPGA_BUILD_DIR) tools/virtexHex2Bin
 	source $(ISE)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
-            TOP=$(TOP) SRC_DIR=$(TOP)/SlowFPGA BOARD=$(BOARD) mcs
+            TOP=$(TOP) SRC_DIR=$(TOP)/SlowFPGA CARRIER_BUILD_DIR=$(FPGA_BUILD_DIR) BOARD=$(BOARD) mcs
 
 tools/virtexHex2Bin : tools/virtexHex2Bin.c
 	gcc -o $@ $<
@@ -88,12 +85,20 @@ tools/virtexHex2Bin : tools/virtexHex2Bin.c
 # Build installation package
 # -------------------------------------------------------------------------
 
-zpkg: etc/panda-fpga.list $(FIRMWARE_BUILD)
+make-zpkg_update: 
+	rm -f make-zpkg
+	$(MAKE) $(ZPKG_SCRIPT)	
+
+$(ZPKG_SCRIPT):
+	wget $(MAKE_ZPKG_URL)
+	chmod +x $(ZPKG_SCRIPT)
+
+zpkg: etc/panda-fpga.list $(ZPKG_SCRIPT)
 	rm -f $(BUILD_DIR)/*.zpg
-	$(MAKE_ZPKG) -t $(BUILD_DIR) -b $(BUILD_DIR) -d $(BUILD_DIR) \
+	$(ZPKG_SCRIPT) -t $(BUILD_DIR) -b $(BUILD_DIR) -d $(BUILD_DIR) \
             $< $(APP_NAME)-$(GIT_VERSION)
 
-.PHONY: zpkg
+.PHONY: zpkg make-zpkg_update
 
 # -------------------------------------------------------------------------
 # This needs to go more or less last to avoid conflict with other targets.
