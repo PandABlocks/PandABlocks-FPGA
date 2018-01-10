@@ -13,6 +13,7 @@ SLOW
     ENC_24V         read
     FMC_12V         read
     PLL_LOCKED      read
-    EXT_CLOCK       param       enum 2
-        0 sma
-        1 event receiver
+    EXT_CLOCK       param       enum 3
+        0 int clock
+        1 sma clock
+        2 event receiver
