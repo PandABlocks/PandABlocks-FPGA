@@ -1,7 +1,12 @@
 SFP
     LINKUP          read
-    EVENT_CODES     read
-    ECDATA_REGS     read
-    CLEAR_REGS      param   enum 2    
-        0 normal operation
-        1 clear registers               
+    EVENT_CODEHB    read
+    EVENT_CODERP    read
+    EVENT_CODEEC    read
+    EVENT_CODERE    read
+    EVENT_CODES0    read
+    EVENT_CODES1    read
+    EC_DATA         read
+    KCHAR_DATA      read
+    UTIME           read
+    EVENT_RESET     write

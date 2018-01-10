@@ -1,5 +1,12 @@
 SFP       {{newBlockNo("SFP")}}
     LINKUP          {{newBlockReg()}}
-    EVENT_CODES     {{newBlockReg()}}
-    ECDATA_REGS     {{newBlockReg()}}
-    CLEAR_REGS      {{newBlockReg()}}
+    EVENT_CODEHB    {{newBlockReg()}}
+    EVENT_CODERP    {{newBlockReg()}}
+    EVENT_CODEEC    {{newBlockReg()}}
+    EVENT_CODERE    {{newBlockReg()}}
+    EVENT_CODES0    {{newBlockReg()}}
+    EVENT_CODES1    {{newBlockReg()}}
+    EC_DATA         {{newBlockReg()}}
+    KCHAR_DATA      {{newBlockReg()}}
+    UTIME           {{newBlockReg()}}
+    EVENT_RESET     {{newBlockReg()}}

@@ -1,5 +1,12 @@
 SFP    EVENT_RECEIVER Block Status
     LINKUP          GTX_ER link status
-    EVENT_CODES     Event Codes received
-    ECDATA_REGS     Event code data
-    CLEAR_REGS      Event code register clear 
+    EVENT_CODEHB    Event Code Heart Beat
+    EVENT_CODERP    Event Code Prescale
+    EVENT_CODEEC    Event Code clk
+    EVENT_CODERE    Event Code reset
+    EVENT_CODES0    Event Code Second 0
+    EVENT_CODES1    Event Code Second 1
+    EC_DATA         Event code data
+    KCHAR_DATA      K Characters
+    UTIME           UNIX Time
+    EVENT_RESET     Event Receiver Reset
