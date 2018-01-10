@@ -9,7 +9,7 @@ use unisim.vcomponents.all;
 entity sfp_event_receiver is
     port (GTREFCLK_P        : in  std_logic;
           GTREFCLK_N        : in  std_logic;    
-          reset_i           : in  std_logic;
+          ER_RESET          : in  std_logic;
           EVENTR_CLK        : in  std_logic;
           eventr_pll_locked : in  std_logic;
           rxp_i             : in  std_logic;
@@ -20,7 +20,9 @@ entity sfp_event_receiver is
           rxoutclk_o        : out std_logic;
           rxcharisk_o       : out std_logic_vector(1 downto 0);
           rxdisperr_o       : out std_logic_vector(1 downto 0);
-          linkup_o          : out std_logic
+          linkup_o          : out std_logic;
+          debug_data_o      : out std_logic_vector(3 downto 0);
+          rxnotintable_o    : out std_logic_vector(1 downto 0)     
           );
 
 end sfp_event_receiver;
@@ -81,7 +83,11 @@ component event_receiver_mgt
     ------------------------ Receive Ports - RX AFE Ports ----------------------
     gt0_gtxrxn_in                           : in   std_logic;
     -------------- Receive Ports - RX Byte and Word Alignment Ports ------------
-    gt0_rxcommadet_out                      : out std_logic;     
+    gt0_rxbyteisaligned_out                 : out std_logic;                        -- new
+    gt0_rxbyterealign_out                   : out std_logic;                        -- new
+    gt0_rxcommadet_out                      : out std_logic; 
+    gt0_rxmcommaalignen_in                  : in  std_logic;                        -- new    
+    gt0_rxpcommaalignen_in                  : in  std_logic;                        -- new
     --------------------- Receive Ports - RX Equalizer Ports -------------------
     gt0_rxdfelpmreset_in                    : in   std_logic;
     gt0_rxmonitorout_out                    : out  std_logic_vector(6 downto 0);
@@ -92,7 +98,7 @@ component event_receiver_mgt
     gt0_gtrxreset_in                        : in   std_logic;
     gt0_rxpmareset_in                       : in   std_logic;
     ---------------------- Receive Ports - RX gearbox ports --------------------
-    gt0_rxslide_in                          : in   std_logic;
+--    gt0_rxslide_in                          : in   std_logic;
     ------------------- Receive Ports - RX8B/10B Decoder Ports -----------------
     gt0_rxcharisk_out                       : out  std_logic_vector(1 downto 0);       
     -------------- Receive Ports -RX Initialization and Reset Ports ------------
@@ -126,7 +132,7 @@ end component;
 ATTRIBUTE SYN_BLACK_BOX : BOOLEAN;
 ATTRIBUTE SYN_BLACK_BOX OF event_receiver_mgt : COMPONENT IS TRUE;
 ATTRIBUTE BLACK_BOX_PAD_PIN : STRING;
-ATTRIBUTE BLACK_BOX_PAD_PIN OF event_receiver_mgt : COMPONENT IS "SYSCLK_IN,SOFT_RESET_TX_IN,SOFT_RESET_RX_IN,DONT_RESET_ON_DATA_ERROR_IN,GT0_TX_FSM_RESET_DONE_OUT,GT0_RX_FSM_RESET_DONE_OUT,GT0_DATA_VALID_IN,gt0_cpllfbclklost_out,gt0_cplllock_out, gt0_cplllockdetclk_in,gt0_cpllreset_in,gt0_gtrefclk0_in,gt0_gtrefclk1_in,gt0_drpaddr_in,gt0_drpclk_in,gt0_drpdi_in,gt0_drpdo_out,gt0_drpen_in,gt0_drprdy_out,gt0_drpwe_in,gt0_dmonitorout_out, gt0_eyescanreset_in,gt0_rxuserrdy_in,gt0_eyescandataerror_out,gt0_eyescantrigger_in,gt0_rxusrclk_in,gt0_rxusrclk2_in,gt0_rxdata_out,gt0_rxdisperr_out,gt0_rxnotintable_out,gt0_gtxrxp_in, gt0_gtxrxn_in,gt0_rxcommadet_out,gt0_rxdfelpmreset_in,gt0_rxmonitorout_out,gt0_rxmonitorsel_in,gt0_rxoutclk_out,gt0_gtrxreset_in,gt0_rxpmareset_in,gt0_rxslide_in,gt0_rxcharisk_out, gt0_rxresetdone_out,gt0_gttxreset_in,gt0_txuserrdy_in,gt0_txusrclk_in,gt0_txusrclk2_in,gt0_txdata_in,gt0_gtxtxn_out,gt0_gtxtxp_out,gt0_txoutclk_out,gt0_txoutclkfabric_out,gt0_txoutclkpcs_out, gt0_txcharisk_in gt0_txresetdone_out,GT0_QPLLOUTCLK_IN,GT0_QPLLOUTREFCLK_IN";
+ATTRIBUTE BLACK_BOX_PAD_PIN OF event_receiver_mgt : COMPONENT IS "SYSCLK_IN,SOFT_RESET_TX_IN,SOFT_RESET_RX_IN,DONT_RESET_ON_DATA_ERROR_IN,GT0_TX_FSM_RESET_DONE_OUT,GT0_RX_FSM_RESET_DONE_OUT,GT0_DATA_VALID_IN,gt0_cpllfbclklost_out,gt0_cplllock_out, gt0_cplllockdetclk_in,gt0_cpllreset_in,gt0_gtrefclk0_in,gt0_gtrefclk1_in,gt0_drpaddr_in,gt0_drpclk_in,gt0_drpdi_in,gt0_drpdo_out,gt0_drpen_in,gt0_drprdy_out,gt0_drpwe_in,gt0_dmonitorout_out, gt0_eyescanreset_in,gt0_rxuserrdy_in,gt0_eyescandataerror_out,gt0_eyescantrigger_in,gt0_rxusrclk_in,gt0_rxusrclk2_in,gt0_rxdata_out,gt0_rxdisperr_out,gt0_rxnotintable_out,gt0_gtxrxp_in, gt0_gtxrxn_in,    gt0_rxbyteisaligned_out,gt0_rxbyterealign_out,gt0_rxcommadet_out,gt0_rxmcommaalignen_in,gt0_rxpcommaalignen_in,gt0_rxdfelpmreset_in,gt0_rxmonitorout_out,gt0_rxmonitorsel_in,gt0_rxoutclk_out, gt0_gtrxreset_in,gt0_rxpmareset_in,gt0_rxcharisk_out,gt0_rxresetdone_out,gt0_gttxreset_in,gt0_txuserrdy_in,gt0_txusrclk_in,gt0_txusrclk2_in,gt0_txdata_in,gt0_gtxtxn_out,gt0_gtxtxp_out,gt0_txoutclk_out, gt0_txoutclkfabric_out,gt0_txoutclkpcs_out, gt0_txcharisk_in gt0_txresetdone_out,GT0_QPLLOUTCLK_IN,GT0_QPLLOUTREFCLK_IN";
       
 
 signal GT0_TX_FSM_RESET_DONE_OUT     : std_logic;
@@ -149,6 +155,8 @@ signal gt0_txoutclk_out              : std_logic;
 signal gt0_txoutclkfabric_out        : std_logic;
 signal gt0_txoutclkpcs_out           : std_logic;
 signal gt0_txresetdone_out           : std_logic;
+signal gt0_rxbyteisaligned_out       : std_logic;
+signal gt0_rxbyterealign_out         : std_logic;
 signal gt0_rxcommadet_out            : std_logic;
 signal gt0_qplloutclk_in             : std_logic;
 signal gt0_qplloutrefclk_in          : std_logic;
@@ -173,6 +181,8 @@ rxdisperr_o <= gt0_rxdisperr_out;
 
 rxdata_o <= gt0_rxdata_out; 
 
+rxnotintable_o <= gt0_rxnotintable_out;
+
 
 txcharisk_i <= (others => '0');
 
@@ -193,7 +203,8 @@ gtrefclk_ibufgds : IBUFDS_GTE2
 ps_linkup: process(GTREFCLK)
 begin
     if rising_edge(GTREFCLK) then
-        if (gt0_rxresetdone_out and gt0_txresetdone_out and eventr_pll_locked) = '1' then
+        if ( GT0_TX_FSM_RESET_DONE_OUT and GT0_RX_FSM_RESET_DONE_OUT and 
+             gt0_rxresetdone_out and gt0_txresetdone_out and eventr_pll_locked) = '1' then
             linkup_o <= '1';
         else
             linkup_o <= '0';
@@ -201,9 +212,13 @@ begin
      end if;
  end process ps_linkup;               
  
+ 
+-- Debug information 
+debug_data_o <=  GT0_TX_FSM_RESET_DONE_OUT & GT0_RX_FSM_RESET_DONE_OUT & gt0_rxresetdone_out & gt0_txresetdone_out;
+  
+-- Must go be set high 
+data_valid <= '1';
 
--- Must go high if data is TX
-data_valid <= '0';
 -- TX data
 gt0_txdata_in <= (others => '0');
 
@@ -215,8 +230,8 @@ event_receiver_mgt_inst : event_receiver_mgt
     port map
         (
         SYSCLK_IN                   => GTREFCLK,
-        SOFT_RESET_TX_IN            => reset_i,
-        SOFT_RESET_RX_IN            => reset_i,
+        SOFT_RESET_TX_IN            => ER_RESET,
+        SOFT_RESET_RX_IN            => ER_RESET,
         DONT_RESET_ON_DATA_ERROR_IN => '0',
         GT0_TX_FSM_RESET_DONE_OUT   => GT0_TX_FSM_RESET_DONE_OUT,
         GT0_RX_FSM_RESET_DONE_OUT   => GT0_RX_FSM_RESET_DONE_OUT,
@@ -228,7 +243,7 @@ event_receiver_mgt_inst : event_receiver_mgt
         gt0_cpllfbclklost_out       => gt0_cpllfbclklost_out,
         gt0_cplllock_out            => gt0_cplllock_out,
         gt0_cplllockdetclk_in       => '0',
-        gt0_cpllreset_in            => reset_i,                                         
+        gt0_cpllreset_in            => ER_RESET,                                         
         -------------------------- Channel - Clocking Ports ------------------------
         gt0_gtrefclk0_in            => '0',
         gt0_gtrefclk1_in            => GTREFCLK,
@@ -261,7 +276,11 @@ event_receiver_mgt_inst : event_receiver_mgt
         ------------------------ Receive Ports - RX AFE Ports ----------------------
         gt0_gtxrxn_in               => rxn_i,
         -------------- Receive Ports - RX Byte and Word Alignment Ports ------------
+        gt0_rxbyteisaligned_out     => gt0_rxbyteisaligned_out,
+        gt0_rxbyterealign_out       => gt0_rxbyterealign_out,       
         gt0_rxcommadet_out          => gt0_rxcommadet_out,
+        gt0_rxmcommaalignen_in      => '1',
+        gt0_rxpcommaalignen_in      => '1',
         --------------------- Receive Ports - RX Equalizer Ports -------------------
         gt0_rxdfelpmreset_in        => '0',                            
         gt0_rxmonitorout_out        => gt0_rxmonitorout_out,
@@ -269,16 +288,16 @@ event_receiver_mgt_inst : event_receiver_mgt
         --------------- Receive Ports - RX Fabric Output Control Ports -------------
         gt0_rxoutclk_out            => rxoutclk_o,
         ------------- Receive Ports - RX Initialization and Reset Ports ------------
-        gt0_gtrxreset_in            => reset_i,
+        gt0_gtrxreset_in            => ER_RESET,
         gt0_rxpmareset_in           => '0',
         ---------------------- Receive Ports - RX gearbox ports --------------------
-        gt0_rxslide_in              => '0',
+--        gt0_rxslide_in              => '0',
         ------------------- Receive Ports - RX8B/10B Decoder Ports -----------------
         gt0_rxcharisk_out           => gt0_rxcharisk_out,        
         -------------- Receive Ports -RX Initialization and Reset Ports ------------
         gt0_rxresetdone_out         => gt0_rxresetdone_out,
         --------------------- TX Initialization and Reset Ports --------------------
-        gt0_gttxreset_in            => reset_i,
+        gt0_gttxreset_in            => ER_RESET,
         gt0_txuserrdy_in            => eventr_pll_locked,
         ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
         gt0_txusrclk_in             => EVENTR_CLK,
