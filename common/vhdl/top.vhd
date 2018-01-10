@@ -301,7 +301,7 @@ signal FILTER_READY         : std_logic_vector(FILTER_NUM-1 downto 0);
 signal sma_pll_reset_cnt    : unsigned(9 downto 0) := (others => '0');
 signal sma_pll_reset        : std_logic;
 signal sma_pll_locked       : std_logic;
-signal eventr_pll_reset_cnt : unsigned(9 downto 0) := (others => '0');
+--signal eventr_pll_reset_cnt : unsigned(9 downto 0) := (others => '0');
 signal eventr_pll_reset     : std_logic;
 signal eventr_pll_locked    : std_logic;
 
@@ -482,26 +482,28 @@ end process ps_sma_clk;
 -- Event Receiver PLL reset  
 ---------------------------------------------------------------------------
 
-ps_eventr_reset_pll: process(FCLK_CLK0)
-begin
-    if rising_edge(FCLK_CLK0) then
-        -- Enable the MMCM reset
-        if eventr_pll_reset_cnt /= c_wait_reset and eventr_pll_locked = '0' then
-            eventr_pll_reset_cnt <= eventr_pll_reset_cnt +1;
-        -- Reset the MMCM reset when it goes out of lock
-        elsif eventr_pll_locked = '1' then
-            eventr_pll_reset_cnt <= (others => '0'); 
-        end if;    
-        -- Enable the reset for 32, 125MHz clocks
-        if eventr_pll_locked = '0' then
-            if eventr_pll_reset_cnt = c_wait_reset then
-                eventr_pll_reset <= '0';
-            else
-                eventr_pll_reset <= '1';
-            end if;    
-        end if;            
-    end if;
-end process ps_eventr_reset_pll;    
+--ps_eventr_reset_pll: process(FCLK_CLK0)
+--begin
+--    if rising_edge(FCLK_CLK0) then
+--        -- Enable the MMCM reset
+--        if eventr_pll_reset_cnt /= c_wait_reset and eventr_pll_locked = '0' then
+--            eventr_pll_reset_cnt <= eventr_pll_reset_cnt +1;
+--        -- Reset the MMCM reset when it goes out of lock
+--        elsif eventr_pll_locked = '1' then
+--            eventr_pll_reset_cnt <= (others => '0'); 
+--        end if;    
+--        -- Enable the reset for 32, 125MHz clocks
+--        if eventr_pll_locked = '0' then
+--            if eventr_pll_reset_cnt = c_wait_reset then
+--                eventr_pll_reset <= '0';
+--            else
+--                eventr_pll_reset <= '1';
+--            end if;    
+--        end if;            
+--    end if;
+--end process ps_eventr_reset_pll;    
+
+eventr_pll_reset <= '0';
 
 
 eventr_clkin1_ibufg : BUFG
@@ -602,7 +604,20 @@ end process ps_eventr_clk;
 -- The only problem is that during clock switching the PLL has to be reset
 -- this means switching over to the FCLK0 clock during this process 
 -- 
-  
+
+---------------------------------------------------------------------------
+-- Panda Processor System Block design instantiation
+---------------------------------------------------------------------------  
+--mmcm_cmux : entity work.mmcm_clkmux
+--port map (
+--    FCLK_CLK0_PS        => FCLK_CLK0_PS,     
+--    EXTCLK_P            => EXTCLK_P,  
+--    EXTCLK_N            => EXTCLK_N,
+--    RXOUTCLK            => RXOUTCLK,
+--    ext_clock           => ext_clock,  
+--    FCLK_CLK0           => FCLK_CLK0
+--);
+    
 ---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
 ---------------------------------------------------------------------------
