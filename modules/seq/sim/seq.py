@@ -24,7 +24,7 @@ class SeqTable(object):
         # The current table line index
         self._index = 0
         # If the table is ready
-        self.table_ready = False
+        self.table_ready = 0
         # The next frame
         self.next_line = SeqLine()
 
@@ -178,7 +178,7 @@ class Seq(Block):
             self.table.table_start()
             self.set_outputs(0)
             state = LOAD_TABLE
-        elif not self.ENABLE:
+        elif changes.get(b.ENABLE, None) == False:
             # If we are disabled at any point stop and wait for enable
             self.ACTIVE = 0
             self.set_outputs(0)
@@ -212,12 +212,14 @@ class Seq(Block):
             elif self.STATE == LOAD_TABLE:
                 # And while we're in this state we ignore everything apart from
                 # table commands
-                if b.TABLE_DATA in changes:
+                if self.table.table_ready:
+                    state = WAIT_ENABLE                
+                elif b.TABLE_DATA in changes:
                     self.table.table_data(changes[b.TABLE_DATA])
                 elif b.TABLE_LENGTH in changes:
                     self.table.table_lines(changes[b.TABLE_LENGTH] / 4)
                     self.table.reset()
-                    state = WAIT_ENABLE                
+                    return ts + 1                  
             elif self.STATE == WAIT_TRIGGER:
                 if self.current_triggers_met():
                     if self.current_line.time1:
