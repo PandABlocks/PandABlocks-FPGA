@@ -78,7 +78,7 @@ $ Table repeats
 9   : TABLE_DATA=0x8000001
 10  : TABLE_DATA=0
 11  : TABLE_DATA=0
-12  : TABLE_DATA=3
+12  : TABLE_DATA=5
 
 13  : TABLE_LENGTH=8
 22  : ENABLE=1          : OUTA=1, ACTIVE=1, LINE_REPEAT=1, TABLE_LINE=1, TABLE_REPEAT=1
@@ -86,13 +86,13 @@ $ Table repeats
 29  :                   : OUTA=1, LINE_REPEAT=2
 34  :                   : OUTA=0
 36  :                   : OUTB=1, LINE_REPEAT=1, TABLE_LINE=2
-39  :                   : OUTB=0, OUTA=1, LINE_REPEAT=1, TABLE_LINE=1, TABLE_REPEAT=2
-44  :                   : OUTA=0
-46  :                   : OUTA=1, LINE_REPEAT=2
-51  :                   : OUTA=0
-53  :                   : OUTB=1, LINE_REPEAT=1, TABLE_LINE=2
-56  :                   : OUTB=0, ACTIVE=0
-59  : ENABLE=0
+41  :                   : OUTB=0, OUTA=1, LINE_REPEAT=1, TABLE_LINE=1, TABLE_REPEAT=2
+46  :                   : OUTA=0
+48  :                   : OUTA=1, LINE_REPEAT=2
+53  :                   : OUTA=0
+55  :                   : OUTB=1, LINE_REPEAT=1, TABLE_LINE=2
+60  :                   : OUTB=0, ACTIVE=0
+62  : ENABLE=0
 
 
 ###############
@@ -158,7 +158,8 @@ $ Waiting on bit inputs
 11  : TABLE_DATA=3
 12  : TABLE_DATA=2
 
-13  : TABLE_LENGTH=8    : STATE=0
+13  : TABLE_LENGTH=8
+14  :                   : STATE=0
 15  : ENABLE=1          : STATE=2, ACTIVE=1, TABLE_LINE=1, LINE_REPEAT=1
 18  : BITA=1            : STATE=3, OUTA=1
 19  : BITA=0
@@ -210,7 +211,7 @@ $ Table based position compare
 19  : ENABLE=1          : ACTIVE=1, TABLE_LINE=1, LINE_REPEAT=1
 20  : POSA=19
 23  : POSA=20           : OUTB=1
-25  :                   : OUTA=1, TABLE_LINE=2
+27  :                   : OUTA=1, TABLE_LINE=2
 28  :                   : OUTA=0
 31  : POSA=19           : OUTA=1, LINE_REPEAT=2
 32  :                   : OUTA=0
@@ -316,7 +317,7 @@ $ Restarting the same table
 8   : TABLE_DATA=5
 
 9   : TABLE_LENGTH=4
-13  : ENABLE=1          : ACTIVE=1, TABLE_REPEAT=1, OUTA=1
+13  : ENABLE=1          : ACTIVE=1, TABLE_REPEAT=1, OUTA=1, LINE_REPEAT=1
 18  :                   : OUTA=0
 23  :                   : OUTA=1, TABLE_REPEAT=2
 25  : ENABLE=0          : ACTIVE=0, OUTA=0
@@ -328,7 +329,7 @@ $ Restarting the same table
 
 ############### CHANGED THE CODE BELOW BECAUSE THE ENABLE_RISE GOES ACTIVE WHILST STILL IN STATE LOAD_TABLE 
 $ Rewriting a table
-3   : TABLE_START=1
+3   : TABLE_START=1 : STATE=1
 4   : TABLE_START=0
 
 # OUT = 0x1 (OUT1=A)
@@ -340,10 +341,11 @@ $ Rewriting a table
 8   : TABLE_DATA=5
 
 9   : TABLE_LENGTH=4
-13  : ENABLE=1          : ACTIVE=1, TABLE_REPEAT=1, OUTA=1
-18  :                   : OUTA=0
-23  :                   : OUTA=1, TABLE_REPEAT=2
-25  : TABLE_START=1     : OUTA=0
+10  :                   : STATE=0
+13  : ENABLE=1          : STATE=3, ACTIVE=1, TABLE_REPEAT=1, OUTA=1
+18  :                   : STATE=4, OUTA=0
+23  :                   : STATE=3, OUTA=1, TABLE_REPEAT=2
+25  : TABLE_START=1     : STATE=1, OUTA=0
 26  : TABLE_START=0
 
 # OUT = 0x1 (OUT1=A)
@@ -354,10 +356,11 @@ $ Rewriting a table
 29  : TABLE_DATA=8
 30  : TABLE_DATA=2
 31  : TABLE_LENGTH=4
-33  :                   : TABLE_REPEAT=1, OUTA=1
-41  :                   : OUTA=0
-43  :                   : TABLE_REPEAT=2, OUTA=1
-46  : ENABLE=0          : ACTIVE=0, OUTA=0
+32  :                   : STATE=0
+33  :                   : STATE=3, TABLE_REPEAT=1, OUTA=1
+41  :                   : STATE=4, OUTA=0
+43  :                   : STATE=3, TABLE_REPEAT=2, OUTA=1
+46  : ENABLE=0          : STATE=0, ACTIVE=0, OUTA=0
 
 
 
