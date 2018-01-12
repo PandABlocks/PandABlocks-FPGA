@@ -49,6 +49,7 @@ reg OUTF;
 reg err_outf;
 wire active_o;
 reg ACTIVE;
+reg err_active=0;
 
 wire [31:0] table_line_o;
 reg [31: 0] TABLE_LINE;
@@ -65,11 +66,6 @@ reg         err_state=0;
 reg         test_result=0;
 reg [31: 0] count_tests=0;
 reg         enable_dly;
-
-
-reg [31: 0] PRESCALE_HACK; 
-reg         PRESCALE_WSTB_DLY;
-reg         TABLE_START_WSTB_DLY;
 
 
 // Testbench specific
@@ -101,25 +97,6 @@ initial begin
 end
 
 
-always @ (posedge clk_i) 
-begin
-    PRESCALE_WSTB_DLY <= PRESCALE_WSTB;
-    TABLE_START_WSTB_DLY <= TABLE_START_WSTB;
-    if (TABLE_START_WSTB == 1 & TABLE_START_WSTB_DLY == 0) begin 
-        if (PRESCALE_WSTB_DLY == 1) begin
-            PRESCALE_HACK = PRESCALE;
-        end 
-        else begin
-            PRESCALE_HACK = 1;
-        end 
-    end 
-    else if (reset_i == 1) begin
-        PRESCALE_HACK = 0;
-    end     
-end         
-
-
-
 // Instantiate the Unit Under Test (UUT)
 sequencer uut (
     .clk_i              ( clk_i                 ),
@@ -138,8 +115,7 @@ sequencer uut (
     .oute_o             ( oute_o                ),
     .outf_o             ( outf_o                ),
     .active_o           ( active_o              ),
-//    .PRESCALE           ( PRESCALE              ),
-    .PRESCALE           ( PRESCALE_HACK         ),
+    .PRESCALE           ( PRESCALE              ),
     .TABLE_START        ( TABLE_START           ),
     .TABLE_DATA         ( TABLE_DATA            ),
     .TABLE_WSTB         ( TABLE_DATA_WSTB       ),
@@ -351,12 +327,12 @@ begin
 
     if (~is_file_end) begin
         if (err_outa == 1 | err_outb == 1  | err_outc == 1 | err_outd == 1  | err_oute == 1  | err_outf == 1  | 
-            err_table_line == 1 | err_line_repeat == 1 | err_table_repeat == 1 | err_state == 1) begin
+            err_table_line == 1 | err_line_repeat == 1 | err_table_repeat == 1 | err_state == 1 | err_active == 1) begin
             test_result = 1;
         end 
         // OUTA error check  
         if (OUTA != outa_o) begin
-            $display("OUTA error detected at timestamp %d\n", timestamp);  
+            $display("OUTA error detected at timestamp %d\n",timestamp,"TEST NUMBER %d\n", count_tests);  
             err_outa = 1;
         end 
         else begin
@@ -364,7 +340,7 @@ begin
         end
         // OUTB error check
         if (OUTB != outb_o) begin
-            $display("OUTB error detected at timestamp %d\n", timestamp);  
+            $display("OUTB error detected at timestamp %d\n", timestamp,"TEST NUMBER %d\n", count_tests);  
             err_outb = 1; 
         end
         else begin
@@ -372,7 +348,7 @@ begin
         end    
         // OUTC error check
         if (OUTC != outc_o) begin
-            $display("OUTC error detected at timestamp %d\n", timestamp);  
+            $display("OUTC error detected at timestamp %d\n", timestamp,"TEST NUMBER %d\n", count_tests);  
             err_outc = 1;
         end
         else begin
@@ -380,7 +356,7 @@ begin
         end 
         // OUTD error check
         if (OUTD != outd_o) begin
-            $display("OUTD error detected at timestamp %d\n", timestamp);  
+            $display("OUTD error detected at timestamp %d\n", timestamp,"TEST NUMBER %d\n", count_tests);  
             err_outd = 1;
         end
         else begin
@@ -388,7 +364,7 @@ begin
         end 
         // OUTE error check
         if (OUTE != oute_o) begin
-            $display("OUTE error detected at timestamp %d\n", timestamp);  
+            $display("OUTE error detected at timestamp %d\n", timestamp,"TEST NUMBER %d\n", count_tests);  
             err_oute = 1;
         end
         else begin
@@ -396,7 +372,7 @@ begin
         end 
         // OUTF error check
         if (OUTF != outf_o) begin
-            $display("OUTF error detected at timestamp %d\n", timestamp);  
+            $display("OUTF error detected at timestamp %d\n", timestamp,"TEST NUMBER %d\n", count_tests);  
             err_outf = 1; 
         end
         else begin
@@ -406,7 +382,7 @@ begin
         if (enable_dly == 1) begin
             // TABLE_LINE error check
             if ((TABLE_LINE != 0) && (TABLE_LINE != table_line_o)) begin
-                $display("TABLE_LINE error detected at timestamp %d\n", timestamp);  
+                $display("TABLE_LINE error detected at timestamp %d\n", timestamp,"TEST NUMBER %d\n", count_tests);  
                 err_table_line = 1;
             end 
             else begin
@@ -414,7 +390,7 @@ begin
             end 
             // LINE_REPEAT error check
             if ((LINE_REPEAT != 0) && (LINE_REPEAT != line_repeat_o)) begin
-                $display("LINE_REPEAT error detected at timestamp %d\n", timestamp); 
+                $display("LINE_REPEAT error detected at timestamp %d\n", timestamp,"TEST NUMBER %d\n", count_tests); 
                 err_line_repeat = 1; 
             end
             else begin
@@ -422,7 +398,7 @@ begin
             end 
             // TABLE_REPEAT error check
             if ((TABLE_REPEAT != 0) && (TABLE_REPEAT != table_repeat_o)) begin
-                $display("TABLE_REPEAT error detected at timestamp %d\n", timestamp);
+                $display("TABLE_REPEAT error detected at timestamp %d\n", timestamp,"TEST NUMBER %d\n", count_tests);
                 err_table_repeat = 1;  
             end
             else begin
@@ -430,12 +406,20 @@ begin
             end     
             // STATE error check
             if ((STATE != 0) && (STATE != state_o)) begin
-                $display("STATE error detected at timestamp %d\n", timestamp);
+                $display("STATE error detected at timestamp %d\n", timestamp,"TEST NUMBER %d\n", count_tests);
                 err_state = 1;
             end         
             else begin
                 err_state = 0;
             end 
+            // ACTIVE error check
+            if (ACTIVE != active_o) begin
+                $display("ACTIVE error detected at timestamp %d\n", timestamp,"TEST NUMBER %d\n", count_tests);
+                err_active = 1;
+           end 
+           else begin
+                err_active = 0;
+           end  
         end 
         else begin
             err_table_line = 0;
