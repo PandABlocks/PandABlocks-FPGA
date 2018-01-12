@@ -97,9 +97,9 @@ signal next_frame           : seq_t;
 signal load_next            : std_logic;
 
 signal tframe_counter       : unsigned(31 downto 0);
-signal repeat_count         : unsigned(31 downto 0);
-signal frame_count          : unsigned(15 downto 0);
-signal table_count          : unsigned(31 downto 0);
+signal LINE_REPEAT          : unsigned(31 downto 0);
+signal TABLE_LINE           : unsigned(15 downto 0);
+signal TABLE_REPEAT         : unsigned(31 downto 0);
 
 type state_t is (WAIT_ENABLE, LOAD_TABLE, PHASE_1, PHASE_2, WAIT_TRIGGER);
 signal seq_sm               : state_t;
@@ -279,9 +279,9 @@ if rising_edge(clk_i) then
         seq_sm <= WAIT_ENABLE;
         out_val <= (others => '0');        
         active <= '0';
-        repeat_count <= (others => '0');
-        frame_count <= (others => '0');
-        table_count <= (others => '0');
+        LINE_REPEAT <= (others => '0');
+        TABLE_LINE <= (others => '0');
+        TABLE_REPEAT <= (others => '0');
     elsif (TABLE_START = '1') then
         out_val <= (others => '0');
         seq_sm <= LOAD_TABLE;
@@ -307,21 +307,20 @@ if rising_edge(clk_i) then
                     -- rising ENABLE and trigger met phase1
                     elsif (next_frame.time1 /= to_unsigned(0,32)) then    
                         next_ts <= next_frame.time1;
-                        active <= '1';                   
                         out_val <= next_frame.out1;     
                         seq_sm <= PHASE_1;            
                     -- rising ENABLE and trigger met and no phase 1
                     else
                         next_ts <= next_frame.time2;
-                        active <= '1';
                         out_val <= next_frame.out2;    
                         seq_sm <= PHASE_2;
                     end if;    
-                    table_count <= to_unsigned(1,32);   -- TABLE_REPEAT    
-                    frame_count <= frame_count + 1;     -- TABLE_LINE
-                    repeat_count <= repeat_count + 1;   -- LINE_REPEAT
+                    TABLE_REPEAT <= to_unsigned(1,32);       
+                    TABLE_LINE <= to_unsigned(1,16);     
+                    LINE_REPEAT <= to_unsigned(1,32);   
                     current_frame <= next_frame;
                     load_next <= '1';
+                    active <= '1'; 
                 end if;    
                        
             -- State 1
@@ -371,12 +370,12 @@ if rising_edge(clk_i) then
                         reset_table <= '1';
                         seq_sm <= WAIT_ENABLE;
                     elsif (last_line_repeat = '1') then
-                        repeat_count <= to_unsigned(1,32);
+                        LINE_REPEAT <= to_unsigned(1,32);
                         if (last_table_line = '1') then
-                            frame_count <= to_unsigned(1,16);   -- TABLE_LINE    
-                            table_count <= table_count + 1;     -- TABLE_REPEAT
+                            TABLE_LINE <= to_unsigned(1,16);       
+                            TABLE_REPEAT <= TABLE_REPEAT + 1;     
                         else
-                            frame_count <= frame_count + 1;     -- TABLE_LINE
+                            TABLE_LINE <= TABLE_LINE + 1;     
                         end if;
                         --
                         if next_trig_valid = '0' then
@@ -394,7 +393,7 @@ if rising_edge(clk_i) then
                         current_frame <= next_frame;
                         load_next <= '1';
                     else
-                        repeat_count <= repeat_count + 1;
+                        LINE_REPEAT <= LINE_REPEAT + 1;
                         if (current_trig_valid = '0') then
                             seq_sm <= WAIT_TRIGGER;
                         elsif (current_frame.time1 /= to_unsigned(0,32)) then
@@ -418,11 +417,11 @@ end if;
 end process;
 
 -- Repeats count equals the number of repeats (Last Table Repeat)
-last_line_repeat <= '1' when (current_frame.repeats /= 0 and repeat_count = current_frame.repeats) else '0';
+last_line_repeat <= '1' when (current_frame.repeats /= 0 and LINE_REPEAT = current_frame.repeats) else '0';
 -- Number of frames memory depth (Last Line )
-last_table_line <= last_line_repeat when (frame_count = unsigned(TABLE_FRAMES)) else '0';
+last_table_line <= last_line_repeat when (TABLE_LINE = unsigned(TABLE_FRAMES)) else '0';
 -- Last Table Repeat
-last_table_repeat <= last_table_line when (REPEATS /= X"0000_0000" and table_count = unsigned(REPEATS)) else '0';
+last_table_repeat <= last_table_line when (REPEATS /= X"0000_0000" and TABLE_REPEAT = unsigned(REPEATS)) else '0';
 
 --------------------------------------------------------------------------
 -- Prescaler:
@@ -468,9 +467,9 @@ begin
 end process;
 
 -- Block Status
-table_line_o   <= X"0000" & std_logic_vector(frame_count);
-line_repeat_o <= std_logic_vector(repeat_count);
-table_repeat_o  <= std_logic_vector(table_count);
+table_line_o   <= X"0000" & std_logic_vector(TABLE_LINE);
+line_repeat_o <= std_logic_vector(LINE_REPEAT);
+table_repeat_o  <= std_logic_vector(TABLE_REPEAT);
 
 -- Gated Block Outputs.
 outa_o <= out_val(0);
