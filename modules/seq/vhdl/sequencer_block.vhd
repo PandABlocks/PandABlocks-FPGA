@@ -58,12 +58,14 @@ signal PRESCALE          : std_logic_vector(31 downto 0);
 signal TABLE_START       : std_logic;
 signal TABLE_DATA        : std_logic_vector(31 downto 0);
 signal TABLE_WSTB        : std_logic;
-signal TABLE_CYCLE       : std_logic_vector(31 downto 0);
+signal REPEATS           : std_logic_vector(31 downto 0);   
 signal TABLE_LENGTH      : std_logic_vector(31 downto 0);
 signal TABLE_LENGTH_WSTB : std_logic;
 signal TABLE_LINE        : std_logic_vector(31 downto 0);
 signal LINE_REPEAT       : std_logic_vector(31 downto 0);
 signal TABLE_REPEAT      : std_logic_vector(31 downto 0);
+signal STATE             : std_logic_vector(31 downto 0);
+signal state_o           : std_logic_vector(2 downto 0);   
 
 signal enable            : std_logic;
 signal bita              : std_logic;
@@ -75,46 +77,50 @@ signal posc              : std_logic_vector(31 downto 0);
 
 begin
 
+STATE(2 downto 0) <= state_o;
+STATE(31 downto 3) <= (others => '0');
+
 --------------------------------------------------------------------------
 -- Control System Interface
 --------------------------------------------------------------------------
 seq_ctrl : entity work.seq_ctrl
 port map (
-    clk_i               => clk_i,
-    reset_i             => reset_i,
-    sysbus_i            => sysbus_i,
-    posbus_i            => (others => (others => '0')),
-    enable_o            => enable,
-    bita_o              => bita,
-    bitb_o              => bitb,
-    bitc_o              => bitc,
-    posa_o              => posa,
-    posb_o              => posb,
-    posc_o              => posc,
+    clk_i               => clk_i,                           
+    reset_i             => reset_i,                             
+    sysbus_i            => sysbus_i,                        
+    posbus_i            => (others => (others => '0')),     
+    enable_o            => enable,                              
+    bita_o              => bita,                            
+    bitb_o              => bitb,                                
+    bitc_o              => bitc,                            
+    posa_o              => posa,                              
+    posb_o              => posb,                            
+    posc_o              => posc,                            
 
-    read_strobe_i       => read_strobe_i,
-    read_address_i      => read_address_i,
-    read_data_o         => read_data_o,
-    read_ack_o          => read_ack_o,
+    read_strobe_i       => read_strobe_i,                   
+    read_address_i      => read_address_i,                      
+    read_data_o         => read_data_o,                     
+    read_ack_o          => read_ack_o,                      
 
-    write_strobe_i      => write_strobe_i,
-    write_address_i     => write_address_i,
-    write_data_i        => write_data_i,
-    write_ack_o         => write_ack_o,
+    write_strobe_i      => write_strobe_i,                  
+    write_address_i     => write_address_i,                     
+    write_data_i        => write_data_i,                        
+    write_ack_o         => write_ack_o,                     
 
-    PRESCALE            => PRESCALE,
+    PRESCALE            => PRESCALE,                        
     PRESCALE_WSTB       => open,
-    TABLE_CYCLE         => TABLE_CYCLE,
-    TABLE_CYCLE_WSTB    => open,
-    TABLE_LINE          => TABLE_LINE,
-    LINE_REPEAT         => LINE_REPEAT,
-    TABLE_REPEAT        => TABLE_REPEAT,
+    REPEATS             => REPEATS,                     
+    REPEATS_WSTB        => open,
+    TABLE_LINE          => TABLE_LINE,                                           
+    LINE_REPEAT         => LINE_REPEAT,                         
+    TABLE_REPEAT        => TABLE_REPEAT,                    
     TABLE_START         => open,
-    TABLE_START_WSTB    => TABLE_START,
-    TABLE_DATA          => TABLE_DATA,
-    TABLE_DATA_WSTB     => TABLE_WSTB,
-    TABLE_LENGTH        => TABLE_LENGTH,
-    TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB
+    TABLE_START_WSTB    => TABLE_START,                     
+    TABLE_DATA          => TABLE_DATA,                      
+    TABLE_DATA_WSTB     => TABLE_WSTB,                      
+    TABLE_LENGTH        => TABLE_LENGTH,                    
+    TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB,               
+    STATE               => STATE
 );
 
 --------------------------------------------------------------------------
@@ -126,9 +132,11 @@ port map (
     reset_i             => reset_i,
 
     enable_i            => enable,
+    
     bita_i              => bita,
     bitb_i              => bitb,
     bitc_i              => bitc,
+    
     posa_i              => posa,
     posb_i              => posb,
     posc_i              => posc,    
@@ -145,13 +153,14 @@ port map (
     TABLE_START         => TABLE_START,
     TABLE_DATA          => TABLE_DATA,
     TABLE_WSTB          => TABLE_WSTB,
-    TABLE_CYCLE         => TABLE_CYCLE,
+    REPEATS             => REPEATS,
     TABLE_LENGTH        => TABLE_LENGTH(15 downto 0),
     TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB,
 
-    TABLE_LINE          => TABLE_LINE,
-    LINE_REPEAT         => LINE_REPEAT,
-    TABLE_REPEAT        => TABLE_REPEAT
+    table_line_o        => TABLE_LINE,
+    line_repeat_o       => LINE_REPEAT,
+    table_repeat_o      => TABLE_REPEAT,
+    state_o             => state_o
 );
 
 end rtl;
