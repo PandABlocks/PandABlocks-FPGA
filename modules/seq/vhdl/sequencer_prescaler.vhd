@@ -18,12 +18,16 @@ end sequencer_prescaler;
 
 architecture rtl of sequencer_prescaler is
 
-signal clk_cnt      : unsigned(31 downto 0) := (others => '0');
+constant c_zeros       : unsigned(31 downto 0) := X"00000000";
+
+signal clk_cnt         : unsigned(31 downto 0) := (others => '0');
+signal period_rollover : unsigned(31 downto 0);
 
 begin
 
+period_rollover <= c_zeros when (unsigned(PERIOD) < 1) else unsigned(PERIOD) - 1;
 
-pulse_o <= '1' when (clk_cnt = unsigned(PERIOD)-1) else '0';
+pulse_o <= '1' when (clk_cnt = period_rollover) else '0';
 
 --
 -- Generate QENC clk defined by the prescaler
@@ -34,7 +38,7 @@ begin
         if (reset_i = '1') then
             clk_cnt <= (others => '0');
         else
-            if (clk_cnt =  unsigned(PERIOD)-1) then
+            if (clk_cnt = period_rollover) then
                 clk_cnt <= (others => '0');
             else
                 clk_cnt <= clk_cnt + 1;
