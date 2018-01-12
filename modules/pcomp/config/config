@@ -7,7 +7,7 @@ PCOMP[{{app_config["PCOMP"]}}]
     RELATIVE        param       enum 2
         0   Absolute
         1   Relative
-    DIR             param       enum 2
+    DIR             param       enum 3
         0   Positive
         1   Negative
         2   Either
@@ -15,12 +15,12 @@ PCOMP[{{app_config["PCOMP"]}}]
     INP             pos_mux
     ACTIVE          bit_out
     OUT             bit_out
-    HEALTH          read        enum 2
+    HEALTH          read        enum 3
         0   OK
         1   Error: Position jumped by more than STEP
         2   Error: Can't guess DIR when RELATIVE and PRE_START=0 and START=0
     PRODUCED        read
-    STATE           read        enum 4
+    STATE           read        enum 5
         0   WAIT_ENABLE
         1   WAIT_DIR
         2   WAIT_PRE_START
