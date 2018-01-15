@@ -151,7 +151,7 @@ synth_ip [get_ips fmc_acq430_ch_fifo]
 #
 # Create low level ACQ430 FMC Sample RAM
 #
-create_ip -name dist_mem_gen -vendor xilinx.com -library ip -version 8.0 \ 
+create_ip -name dist_mem_gen -vendor xilinx.com -library ip -version 8.0 \
 -module_name fmc_acq430_sample_ram -dir $BUILD_DIR/
 
 set_property -dict [list \
