@@ -48,8 +48,10 @@ read_ip $BUILD_DIR/ip_repo/fifo_1K32/fifo_1K32.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32_ft/fifo_1K32_ft.xci
 read_ip $BUILD_DIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
 read_ip $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
-read_ip $BUILD_DIR/ip_repo/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
-read_ip $BUILD_DIR/ip_repo/fmc_acq430_sample_ram/fmc_acq430_sample_ram.xci
+if {$FMC_DESIGN == "fmc_acq430"} {
+    read_ip $BUILD_DIR/ip_repo/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
+    read_ip $BUILD_DIR/ip_repo/fmc_acq430_sample_ram/fmc_acq430_sample_ram.xci
+}
 if {$FMC_DESIGN == "fmc_loopback"} {
     read_ip $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
 }
@@ -90,10 +92,17 @@ add_files $TOP_DIR/modules/$FMC_DESIGN/vhdl/
 read_xdc $TOP_DIR/modules/$FMC_DESIGN/const/fmc.xdc
 read_xdc $TOP_DIR/modules/$SFP_DESIGN/const/sfp.xdc
 read_xdc $TARGET_DIR/const/panda-timing.xdc
-read_xdc $TARGET_DIR/const/panda-post_synth.xdc
-read_xdc $TARGET_DIR/const/panda-physical.xdc
-set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth.xdc]
-set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical.xdc]
+if {$FMC_DESIGN == "fmc_acq430"} {
+    read_xdc $TARGET_DIR/const/panda-physical430.xdc
+    read_xdc $TARGET_DIR/const/panda-post_synth430.xdc
+    set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical430.xdc]
+    set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth430.xdc]
+} else {
+    read_xdc $TARGET_DIR/const/panda-physical.xdc
+    read_xdc $TARGET_DIR/const/panda-post_synth.xdc
+    set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical.xdc]
+    set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth.xdc]
+}   
 
 #
 # STEP#2: run synthesis, report utilization and timing estimates, write
