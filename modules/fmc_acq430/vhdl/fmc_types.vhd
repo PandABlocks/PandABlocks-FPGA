@@ -6,6 +6,7 @@
 --! @details															\n
 --! D-TACQ Solutions Ltd Copyright 2014-2017							 		\n
 --!   																\n
+
 --! Standard Libraries - numeric.std for all designs
 library ieee;
 use ieee.std_logic_1164.all;		--! Standard Logic Functions
@@ -59,4 +60,3 @@ type REG_ARRAY is array(15 downto 0) of std_logic_vector(31 downto 0);
 
 
 end package ACQ430TYPES;
-
