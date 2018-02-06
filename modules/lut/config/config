@@ -1,5 +1,30 @@
 LUT[{{app_config["LUT"]}}]
     FUNC            param       lut
+    A               enum    4
+        0   Value of INPA
+        1   Pulse on rising edge of INPA
+        2   Pulse of falling edge of INPA
+        3   Pulse on either edge of INPA
+    B               enum    4
+        0   Value of INPB
+        1   Pulse on rising edge of INPB
+        2   Pulse of falling edge of INPB
+        3   Pulse on either edge of INPB
+    C               enum    4
+        0   Value of INPC
+        1   Pulse on rising edge of INPC
+        2   Pulse of falling edge of INPC
+        3   Pulse on either edge of INPC
+    D               enum    4
+        0   Value of INPD
+        1   Pulse on rising edge of INPD
+        2   Pulse of falling edge of INPD
+        3   Pulse on either edge of INPD
+    E               enum    4
+        0   Value of INPE
+        1   Pulse on rising edge of INPE
+        2   Pulse of falling edge of INPE
+        3   Pulse on either edge of INPE
     INPA            bit_mux
     INPB            bit_mux
     INPC            bit_mux
