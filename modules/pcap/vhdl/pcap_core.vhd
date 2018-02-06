@@ -35,7 +35,7 @@ port (
     FRAMING_MASK        : in  std_logic_vector(31 downto 0);
     FRAMING_ENABLE      : in  std_logic;
     FRAMING_MODE        : in  std_logic_vector(31 downto 0);
-    ERR_STATUS          : out std_logic_vector(31 downto 0);
+    HEALTH              : out std_logic_vector(31 downto 0);
     -- Block inputs
     enable_i            : in  std_logic;
     capture_i           : in  std_logic;
@@ -152,7 +152,7 @@ port map (
     error_o             => pcap_buffer_error
 );
 
-ERR_STATUS(31 downto 3) <= (others => '0');
-ERR_STATUS(2 downto 0) <= pcap_status;
+HEALTH(31 downto 3) <= (others => '0');
+HEALTH(2 downto 0) <= pcap_status;
 
 end rtl;

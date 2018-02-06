@@ -43,7 +43,7 @@ $ capture too close together
 15      :                   : DATA=0
 16      : CAPTURE=1
 17      : CAPTURE=0         : DATA=7
-18      : CAPTURE=1         : DATA=0, ACTIVE=0, ERR_STATUS=2, ERROR=1
+18      : CAPTURE=1         : DATA=0, ACTIVE=0, HEALTH=2, ERROR=1
 
 ######################
 $ capture pos bus enc1
@@ -172,7 +172,7 @@ $ Capture before first frame
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1, POS[11]=10
 # Live frame
-12      : CAPTURE=1                     : ACTIVE=0, ERR_STATUS=3
+12      : CAPTURE=1                     : ACTIVE=0, HEALTH=3
 13      : FRAME=1
 14      : CAPTURE=0, FRAME=0
 
@@ -191,7 +191,7 @@ $ More than one capture within a frame
 13      : CAPTURE=1, FRAME=0
 14      : CAPTURE=0
 15      : POS[11]=20
-16      : CAPTURE=1                     : ACTIVE=0, ERR_STATUS=1
+16      : CAPTURE=1                     : ACTIVE=0, HEALTH=1
 17      : CAPTURE=0
 
 #####################

@@ -12,7 +12,7 @@ Name            Dir Type    Description
 ENABLE          In  Bit     Data capture enable
 FRAME           In  Bit     Data capture frame
 CAPTURE         In  Bit     Data capture event
-ERR_STATUS      R   UInt32  Block error status
+HEALTH          R   UInt32  Block error status
 ACTIVE          Out Bit     Data capture in progress
 CAPTURE_TS                  Timestamp of captured data
 FRAME_LENGTH                Length of captured frame
@@ -41,7 +41,7 @@ Timestamp capture
    :block: pcap
    :title: capture timestamp
 
-If there are capture signals too close together, the ERR_STATUS will be set to 2
+If there are capture signals too close together, the HEALTH will be set to 2
 
 .. sequence_plot::
    :block: pcap

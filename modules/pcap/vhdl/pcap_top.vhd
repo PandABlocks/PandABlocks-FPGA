@@ -79,7 +79,7 @@ end pcap_top;
 architecture rtl of pcap_top is
 
 signal FRAME_NUM        : std_logic_vector(31 downto 0);
-signal ERR_STATUS       : std_logic_vector(31 downto 0);
+signal HEALTH           : std_logic_vector(31 downto 0);
 
 signal ARM              : std_logic;
 signal DISARM           : std_logic;
@@ -156,7 +156,7 @@ port map (
     capture_o           => capture,
     frame_o             => frame,
 
-    ERR_STATUS          => ERR_STATUS,
+    HEALTH              => HEALTH,
 
     read_strobe_i       => read_strobe_i(PCAP_CS),
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
@@ -241,7 +241,7 @@ port map (
     FRAMING_MODE            => FRAMING_MODE,
     ARM                     => ARM,
     DISARM                  => DISARM,
-    ERR_STATUS              => ERR_STATUS,
+    HEALTH                  => HEALTH,
 
     enable_i                => enable,
     capture_i               => capture,

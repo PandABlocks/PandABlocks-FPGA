@@ -26,7 +26,7 @@ port (
     FRAMING_MASK        : in  std_logic_vector(31 downto 0);
     FRAMING_ENABLE      : in  std_logic;
     FRAMING_MODE        : in  std_logic_vector(31 downto 0);
-    ERR_STATUS          : out std_logic_vector(31 downto 0);
+    HEALTH              : out std_logic_vector(31 downto 0);
     -- Block inputs
     enable_i            : in  std_logic;
     capture_i           : in  std_logic;
@@ -77,7 +77,7 @@ port map (
     FRAMING_MASK       =>  FRAMING_MASK      ,
     FRAMING_ENABLE     =>  FRAMING_ENABLE    ,
     FRAMING_MODE       =>  FRAMING_MODE      ,
-    ERR_STATUS         =>  ERR_STATUS        ,
+    HEALTH             =>  HEALTH            ,
 --    FRAME_NUM          => (others => '0'),
 
     enable_i           =>  enable_i          ,

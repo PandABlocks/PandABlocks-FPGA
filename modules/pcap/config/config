@@ -2,7 +2,7 @@ PCAP
     ENABLE          bit_mux
     FRAME           bit_mux
     CAPTURE         bit_mux
-    ERR_STATUS      read        enum 4
+    HEALTH          read        enum 4
         0   Ok
         1   Capture before frame
         2   Multiple captures

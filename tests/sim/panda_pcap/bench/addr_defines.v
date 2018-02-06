@@ -199,7 +199,7 @@ localparam PCAP_ENABLE = 0;
 localparam PCAP_FRAME = 1;
 localparam PCAP_CAPTURE = 2;
 localparam PCAP_MISSED_CAPTURES = 3;
-localparam PCAP_ERR_STATUS = 4;
+localparam PCAP_HEALTH = 4;
 
 // BITS Block:
 localparam BITS_A_SET = 0;

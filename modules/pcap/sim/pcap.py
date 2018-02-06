@@ -73,7 +73,7 @@ class Pcap(Block):
             # Mark as active and reset error
             self.ACTIVE = 1
             self.ERROR = 0
-            self.ERR_STATUS = 0
+            self.HEALTH = 0
             self.calculate_masks()
             self.ts_frame = -1
             self.ts_start = ts
@@ -158,13 +158,13 @@ class Pcap(Block):
         if self.FRAMING_ENABLE:
             if self.live_frame:
                 # more than one CAPTURE within a frame, error
-                self.ERR_STATUS = 1
+                self.HEALTH = 1
                 self.ERROR = 1
                 self.ACTIVE = 0
                 return
             elif self.ts_frame == -1:
                 # capture signal before first frame signal
-                self.ERR_STATUS = 3
+                self.HEALTH = 3
                 self.ERROR = 1
                 self.ACTIVE = 0
                 return
@@ -204,7 +204,7 @@ class Pcap(Block):
         sample"""
         if self.tick_data and self.buf_len > self.buf_produced + 1:
             # Told to push more data when we hadn't finished the last capture
-            self.ERR_STATUS = 2
+            self.HEALTH = 2
             self.ERROR = 1
             self.ACTIVE = 0
         else:

@@ -2,7 +2,7 @@ PCAP        Position capture control
     ENABLE          Data capture enable
     FRAME           Data capture frame
     CAPTURE         Data capture event
-    ERR_STATUS      Was last capture successful?
+    HEALTH          Was last capture successful?
     ACTIVE          Data capture in progress
     CAPTURE_TS      Timestamp of captured data
     FRAME_LENGTH    Length of captured frame

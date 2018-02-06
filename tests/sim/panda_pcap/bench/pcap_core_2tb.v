@@ -26,7 +26,7 @@ reg [31:0] posbus_i[31:0];
 wire [32*12-1:0] extbus_i = 0;
 
 // Outputs
-wire [31:0] ERR_STATUS;
+wire [31:0] HEALTH;
 wire dma_fifo_reset_o;
 wire [31:0] pcap_dat_o;
 wire pcap_dat_valid_o;
@@ -53,7 +53,7 @@ pcap_core_wrapper uut (
     .FRAMING_MASK       ( FRAMING_MASK      ),
     .FRAMING_ENABLE     ( FRAMING_ENABLE    ),
     .FRAMING_MODE       ( FRAMING_MODE      ),
-    .ERR_STATUS         ( ERR_STATUS        ),
+    .HEALTH             ( HEALTH            ),
     .enable_i           ( enable_i          ),
     .capture_i          ( capture_i         ),
     .frame_i            ( frame_i           ),
