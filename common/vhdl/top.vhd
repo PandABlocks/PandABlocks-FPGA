@@ -182,13 +182,11 @@ signal IRQ_F2P              : std_logic_vector(0 downto 0);
 signal read_strobe          : std_logic_vector(MOD_COUNT-1 downto 0);
 signal read_address         : std_logic_vector(PAGE_AW-1 downto 0);
 signal read_data            : std32_array(MOD_COUNT-1 downto 0);
-signal read_ack             : std_logic_vector(MOD_COUNT-1 downto 0) := (others
-=> '1');
+signal read_ack             : std_logic_vector(MOD_COUNT-1 downto 0) := (others => '1');
 signal write_strobe         : std_logic_vector(MOD_COUNT-1 downto 0);
 signal write_address        : std_logic_vector(PAGE_AW-1 downto 0);
 signal write_data           : std_logic_vector(31 downto 0);
-signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
-=> '1');
+signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others => '1');
 
 -- Top Level Signals
 signal sysbus               : sysbus_t := (others => '0');
@@ -298,29 +296,15 @@ signal sfp_data             : std32_array(15 downto 0);
 signal FILTER_OUT           : std32_array(FILTER_NUM-1 downto 0);   
 signal FILTER_READY         : std_logic_vector(FILTER_NUM-1 downto 0);
 
-signal sma_pll_reset_cnt    : unsigned(9 downto 0) := (others => '0');
-signal sma_pll_reset        : std_logic;
+-- SFP Block
+signal sfp_bit0             : std_logic_vector(SFP_NUM-1 downto 0);    
+signal sfp_bit1             : std_logic_vector(SFP_NUM-1 downto 0);    
+signal sfp_bit2             : std_logic_vector(SFP_NUM-1 downto 0);    
+signal sfp_bit3             : std_logic_vector(SFP_NUM-1 downto 0);    
+
 signal sma_pll_locked       : std_logic;
---signal eventr_pll_reset_cnt : unsigned(9 downto 0) := (others => '0');
-signal eventr_pll_reset     : std_logic;
 signal eventr_pll_locked    : std_logic;
-
-signal SMA_FCLK             : std_logic;
-signal RXOUTCLK             : std_logic := '0';  
-
-signal SMA_CLKFBOUT         : std_logic;
-signal SMA_CLK_OUT1         : std_logic;
-signal SMA_CLKFBOUT_BUF     : std_logic;
-signal SMA_CLK_IN1          : std_logic;  
-signal EVENTR_CLKFBOUT      : std_logic;
-signal EVENTR_CLK_OUT1      : std_logic;
-signal EVENTR_CLKFBOUT_BUF  : std_logic;
-signal EVENTR_CLK_IN1       : std_logic;  
-
 signal ext_clock            : std_logic_vector(1 downto 0);
-signal enable_sma_clock     : std_logic;
-signal enable_eventr_clock  : std_logic;
-
 
 -- Make schematics a bit more clear for analysis
 attribute keep              : string;
@@ -335,289 +319,7 @@ SFP_TxDis <= "00";
 
 -- Internal clocks and resets
 FCLK_RESET0 <= not FCLK_RESET0_N(0);
----------------------------------------------------------------------------
--- PLL reset 
----------------------------------------------------------------------------
-
-ps_sma_reset_pll: process(FCLK_CLK0)
-begin
-    if rising_edge(FCLK_CLK0) then
-        -- Enable the MMCM reset
-        if sma_pll_reset_cnt /= c_wait_reset and sma_pll_locked = '0' then
-            sma_pll_reset_cnt <= sma_pll_reset_cnt +1;
-        -- Reset the MMCM reset when it goes out of lock
-        elsif sma_pll_locked = '1' then
-            sma_pll_reset_cnt <= (others => '0'); 
-        end if;    
-        -- Enable the reset for 32, 125MHz clocks
-        if sma_pll_locked = '0' then
-            if sma_pll_reset_cnt = c_wait_reset then
-                sma_pll_reset <= '0';
-            else
-                sma_pll_reset <= '1';
-            end if;    
-        end if;            
-    end if;
-end process ps_sma_reset_pll;    
-
-
-clkin1_ibufgds : IBUFDS
-    port map
-        (O  => SMA_CLK_IN1,
-         I  => EXTCLK_P,
-         IB => EXTCLK_N
-);
-    
--- PLL Clocking PRIMITIVE
---------------------------------------
-
-plle2_adv_inst : PLLE2_ADV
-    generic map
-        (BANDWIDTH           => "OPTIMIZED",
-        COMPENSATION         => "ZHOLD",
-        DIVCLK_DIVIDE        => 1,
-        CLKFBOUT_MULT        => 7,
-        CLKFBOUT_PHASE       => 0.000,
-        CLKOUT0_DIVIDE       => 7,
-        CLKOUT0_PHASE        => 0.000,
-        CLKOUT0_DUTY_CYCLE   => 0.500,
-        CLKIN1_PERIOD        => 8.005)
-    port map
-        -- Output clocks
-        (
-        CLKFBOUT            => SMA_CLKFBOUT,
-        CLKOUT0             => SMA_CLK_OUT1,
-        CLKOUT1             => open,
-        CLKOUT2             => open,
-        CLKOUT3             => open,
-        CLKOUT4             => open,
-        CLKOUT5             => open,
-        -- Input clock control
-        CLKFBIN             => SMA_CLKFBOUT_BUF,
-        CLKIN1              => SMA_CLK_IN1,
-        CLKIN2              => '0',
-        -- Tied to always select the primary input clock
-        CLKINSEL            => '1',
-        -- Ports for dynamic reconfiguration
-        DADDR               => (others => '0'),
-        DCLK                => '0',
-        DEN                 => '0',
-        DI                  => (others => '0'),
-        DO                  => open,
-        DRDY                => open,
-        DWE                 => '0',
-        -- Other control and status signals
-        LOCKED              => sma_pll_locked,
-        PWRDWN              => '0',
-        RST                 => sma_pll_reset
-);
-  
-  
----------------------------------------------------------------------------
-  -- Output buffering
----------------------------------------------------------------------------
-
-clkf_buf : BUFG
-    port map
-        (O => SMA_CLKFBOUT_BUF,
-         I => SMA_CLKFBOUT
-);
-    
----------------------------------------------------------------------------
--- Panda clock switching
----------------------------------------------------------------------------
----- BUFGMUX and BUFGCTRL are both BUFG so i can remove clkout1_buf and use
----- clk_out1
----- The BUFG's seem to be using a BUFGCTRL buffer
-
---    CE0     CE1      S0      S1      0
---     1       0        1       X      I0
---     1       X        1       X      I0
---     0       1        X       1      I1
---     X       1        0       1      I1
---     1       1        1       1     Old Input(valid input clock before state is achieved                                          
-
---BUFGCTRL_inst: BUFGCTRL
---    generic map (
---        INIT_OUT => 0,              -- Initial value of BUFGCTRL output ($VALUES;)
---        PRESELECT_I0 => TRUE,       -- BUFGCTRL output uses I0 input ($VALUES;)
---        PRESELECT_I1 => FALSE       -- BUFGCTRL output uses I1 input ($VALUES;)
---        )
---    port map (
---        O       => FCLK_CLK0,       -- 1-bit output: Clock output
---        CE0     => '1',             -- 1-bit input: Clock enable input for I0
---        CE1     => '1',             -- 1-bit input: Clock enable input for I1
---        I0      => FCLK_CLK0_PS,    -- 1-bit input: Primary clock
---        I1      => clk_out1,        -- 1-bit input: Secondary clock
---        IGNORE0 => '0',             -- 1-bit input: Clock ignore input for I0
---        IGNORE1 => '0',             -- 1-bit input: Clock ignore input for I1
---        S0      => not ext_clock,   -- 1-bit input: Clock select for I0
---        S1      => ext_clock        -- 1-bit input: Clock select for I1
---        );   
-        
-    
-BUFGMUX_inst :BUFGMUX
-    port map (
-        O   => SMA_FCLK,         -- 1-bit output: Clock output
-        I0  => FCLK_CLK0_PS,     -- 1-bit input: Clock input (S=0)
-        I1  => SMA_CLK_OUT1,     -- 1-bit input: Clock input (S=1) 
-        S   => enable_sma_clock  -- 1-bit input: Clock select
-);
-  
-
----------------------------------------------------------------------------
-
-ps_sma_clk: process(FCLK_CLK0_PS)
-begin
-    if rising_edge(FCLK_CLK0_PS)then
-        if ext_clock(0) = '1' and sma_pll_locked = '1' then
-            enable_sma_clock <= '1';
-        else
-            enable_sma_clock <= '0';    
-        end if;    
-    end if;
-end process ps_sma_clk;
-  
----------------------------------------------------------------------------
--- Event Receiver PLL reset  
----------------------------------------------------------------------------
-
---ps_eventr_reset_pll: process(FCLK_CLK0)
---begin
---    if rising_edge(FCLK_CLK0) then
---        -- Enable the MMCM reset
---        if eventr_pll_reset_cnt /= c_wait_reset and eventr_pll_locked = '0' then
---            eventr_pll_reset_cnt <= eventr_pll_reset_cnt +1;
---        -- Reset the MMCM reset when it goes out of lock
---        elsif eventr_pll_locked = '1' then
---            eventr_pll_reset_cnt <= (others => '0'); 
---        end if;    
---        -- Enable the reset for 32, 125MHz clocks
---        if eventr_pll_locked = '0' then
---            if eventr_pll_reset_cnt = c_wait_reset then
---                eventr_pll_reset <= '0';
---            else
---                eventr_pll_reset <= '1';
---            end if;    
---        end if;            
---    end if;
---end process ps_eventr_reset_pll;    
-
-eventr_pll_reset <= '0';
-
-
-eventr_clkin1_ibufg : BUFG
-    port map
-        (O  => EVENTR_CLK_IN1,
-         I  => RXOUTCLK
-);
-
-
--- Event Receiver PLL Clocking PRIMITIVE
---------------------------------------
-
-eventr_plle2_adv_inst : PLLE2_ADV
-    generic map
-        (BANDWIDTH           => "OPTIMIZED",
-        COMPENSATION         => "ZHOLD",
-        DIVCLK_DIVIDE        => 1,
-        CLKFBOUT_MULT        => 7,
-        CLKFBOUT_PHASE       => 0.000,
-        CLKOUT0_DIVIDE       => 7,
-        CLKOUT0_PHASE        => 0.000,
-        CLKOUT0_DUTY_CYCLE   => 0.500,
-        CLKIN1_PERIOD        => 8.000)
-    port map
-        -- Output clocks
-        (
-        CLKFBOUT            => EVENTR_CLKFBOUT,
-        CLKOUT0             => EVENTR_CLK_OUT1,
-        CLKOUT1             => open,
-        CLKOUT2             => open,
-        CLKOUT3             => open,
-        CLKOUT4             => open,
-        CLKOUT5             => open,
-        -- Input clock control
-        CLKFBIN             => EVENTR_CLKFBOUT_BUF,
-        CLKIN1              => EVENTR_CLK_IN1,
-        CLKIN2              => '0',
-        -- Tied to always select the primary input clock
-        CLKINSEL            => '1',
-        -- Ports for dynamic reconfiguration
-        DADDR               => (others => '0'),
-        DCLK                => '0',
-        DEN                 => '0',
-        DI                  => (others => '0'),
-        DO                  => open,
-        DRDY                => open,
-        DWE                 => '0',
-        -- Other control and status signals
-        LOCKED              => eventr_pll_locked,
-        PWRDWN              => '0',
-        RST                 => eventr_pll_reset
-);
-  
-  
----------------------------------------------------------------------------
-  -- Output buffering
----------------------------------------------------------------------------
-
-eventr_clkf_buf : BUFG
-    port map
-        (O => EVENTR_CLKFBOUT_BUF,
-         I => EVENTR_CLKFBOUT
-);
-  
-
----------------------------------------------------------------------------
--- Panda  event receiver clock switching
----------------------------------------------------------------------------
-
-eventr_BUFGMUX_inst :BUFGMUX
-    port map (
-        O   => FCLK_CLK0,           -- 1-bit output: Clock output
-        I0  => SMA_FCLK,            -- 1-bit input: Clock input (S=0)
-        I1  => EVENTR_CLK_OUT1,     -- 1-bit input: Clock input (S=1) 
-        S   => enable_eventr_clock  -- 1-bit input: Clock select
-);
-  
----------------------------------------------------------------------------
-
-ps_eventr_clk: process(FCLK_CLK0_PS)
-begin
-    if rising_edge(FCLK_CLK0_PS)then
-        if ext_clock(1) = '1' and eventr_pll_locked = '1' then
-            enable_eventr_clock <= '1';
-        else
-            enable_eventr_clock <= '0';    
-        end if;    
-    end if;
-end process ps_eventr_clk;
- 
-
--- Changes to be considered remove second PLL/MMCM and use only one and 
--- instead use the second CLKIN2 and switch between the two using CLKINSEL 
---  ---------------------------------------
---  CLKINSEL |   1   |   0   |   CLKIN1 enabled   |
---  CLKINSEL |   0   |   1   |   CLKIN2 enabled   |  
---              
--- The only problem is that during clock switching the PLL has to be reset
--- this means switching over to the FCLK0 clock during this process 
--- 
-
----------------------------------------------------------------------------
--- Panda Processor System Block design instantiation
----------------------------------------------------------------------------  
---mmcm_cmux : entity work.mmcm_clkmux
---port map (
---    FCLK_CLK0_PS        => FCLK_CLK0_PS,     
---    EXTCLK_P            => EXTCLK_P,  
---    EXTCLK_N            => EXTCLK_N,
---    RXOUTCLK            => RXOUTCLK,
---    ext_clock           => ext_clock,  
---    FCLK_CLK0           => FCLK_CLK0
---);
-    
+         
 ---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
 ---------------------------------------------------------------------------
@@ -1423,8 +1125,6 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
         write_address_i     => write_address,
         write_data_i        => write_data,
         write_ack_o         => write_ack(FMC_CS),
-
-        EXTCLK              => sma_clk_in1,  
         
         FMC_PRSNT           => FMC_PRSNT,
         FMC_LA_P            => FMC_LA_P,
@@ -1453,6 +1153,11 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
     port map (
         clk_i               => FCLK_CLK0,
         reset_i             => FCLK_RESET0,
+        
+        FCLK_CLK0_PS        => FCLK_CLK0_PS,
+        EXTCLK_P            => EXTCLK_P,
+        EXTCLK_N            => EXTCLK_N,
+        FCLK_CLK0           => FCLK_CLK0,
 
         read_strobe_i       => read_strobe(SFP_CS),
         read_address_i      => read_address,
@@ -1464,12 +1169,17 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         write_data_i        => write_data,
         write_ack_o         => write_ack(SFP_CS),
 
+        -- sma PLL locked
+        sma_pll_locked_o    => sma_pll_locked,    
         -- Event Receiver PLL locked
-        eventr_pll_locked   => eventr_pll_locked,
-        -- Event Receiver recovered clock
-        rxoutclk_o          => RXOUTCLK,
-        -- PLL event receiver recovered clock
-        EVENTR_CLK_OUT1     => EVENTR_CLK_OUT1,
+        eventr_pll_locked_o => eventr_pll_locked,
+        -- sma and event receiver clock enables
+        ext_clock           => ext_clock,
+        
+        bit0_o              => sfp_bit0(0),
+        bit1_o              => sfp_bit1(0),
+        bit2_o              => sfp_bit2(0),
+        bit3_o              => sfp_bit3(0),
 
         GTREFCLK_N          => GTXCLK0_N,
         GTREFCLK_P          => GTXCLK0_P,
@@ -1553,6 +1263,11 @@ port map (
     POSITIONS_ZERO  => (others => (others => '0')),
     -- SLOW Block
     -- FMC Block
+    SFP_BIT0        => sfp_bit0,
+    SFP_BIT1        => sfp_bit1,
+    SFP_BIT2        => sfp_bit2,
+    SFP_BIT3        => sfp_bit3,    
+    
     fmc_inputs_i    => fmc_inputs,
     fmc_data_i      => fmc_data,
     sfp_inputs_i    => sfp_inputs,
