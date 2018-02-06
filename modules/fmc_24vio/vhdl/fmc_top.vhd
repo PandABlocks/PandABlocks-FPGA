@@ -44,8 +44,7 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
-    -- External Differential Clock (via front panel SMA)
-    EXTCLK              : in    std_logic;
+
     -- LA I/O
     FMC_PRSNT           : in    std_logic;
     FMC_LA_P            : inout std_logic_vector(33 downto 0);
