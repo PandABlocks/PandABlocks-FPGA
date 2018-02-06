@@ -1,4 +1,8 @@
 SRGATE[{{app_config["SRGATE"]}}]
+    WHEN_DISABLED   param       enum 3
+        0   Set output low
+        1   Set output high
+        2   Keep current output
     SET_EDGE        param       enum 3
         0   Rising
         1   Falling
@@ -9,6 +13,7 @@ SRGATE[{{app_config["SRGATE"]}}]
         2   Rising or Falling
     FORCE_SET       write       action
     FORCE_RST       write       action
+    ENABLE          bit_mux
     SET             bit_mux
     RST             bit_mux
     OUT             bit_out

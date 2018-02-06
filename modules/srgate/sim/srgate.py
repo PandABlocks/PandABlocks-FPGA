@@ -23,12 +23,20 @@ class Srgate(Block):
         for name, value in changes.items():
             setattr(self, name, value)
 
-        # Force regs take priority
-        if b.FORCE_RST in changes:
-            self.OUT = 0
-        elif b.FORCE_SET in changes:
-            self.OUT = 1
-        elif self.inp_matches_edge(changes.get(b.RST, None), self.RST_EDGE):
-            self.OUT = 0
-        elif self.inp_matches_edge(changes.get(b.SET, None), self.SET_EDGE):
-            self.OUT = 1
+        # If enabled listen to inputs
+        if self.ENABLE:
+            # Force regs take priority
+            if b.FORCE_RST in changes:
+                self.OUT = 0
+            elif b.FORCE_SET in changes:
+                self.OUT = 1
+            elif self.inp_matches_edge(changes.get(b.RST, None), self.RST_EDGE):
+                self.OUT = 0
+            elif self.inp_matches_edge(changes.get(b.SET, None), self.SET_EDGE):
+                self.OUT = 1
+        else:
+            # Set output to what has been requested when disabled
+            if self.WHEN_DISABLED == 0:
+                self.OUT = 0
+            elif self.WHEN_DISABLED == 1:
+                self.OUT = 1
