@@ -198,14 +198,6 @@ set_property IOSTANDARD LVDS_25 [get_ports EXTCLK_P]
 #set_property PULLTYPE PULLDOWN [get_ports TTLIN_PAD_I[*]]
 #set_property PULLTYPE PULLDOWN [get_ports LVDSIN_PAD_I[*]]
 
-# -------------------------------------------------------------------
-# BUFGCTRL placement problem, this uses is highly discouraged but 
-# there is no way around it
-# -------------------------------------------------------------------
-# BUFGMUX
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets I1]
-
-
 
 
 
