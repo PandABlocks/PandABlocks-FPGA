@@ -1,12 +1,13 @@
 SFP       {{newBlockNo("SFP")}}
-    LINKUP          {{newBlockReg()}}
-    EVENT_CODEHB    {{newBlockReg()}}
-    EVENT_CODERP    {{newBlockReg()}}
-    EVENT_CODEEC    {{newBlockReg()}}
-    EVENT_CODERE    {{newBlockReg()}}
-    EVENT_CODES0    {{newBlockReg()}}
-    EVENT_CODES1    {{newBlockReg()}}
-    EC_DATA         {{newBlockReg()}}
-    KCHAR_DATA      {{newBlockReg()}}
-    UTIME           {{newBlockReg()}}
-    EVENT_RESET     {{newBlockReg()}}
+    LINKUP      {{newBlockReg()}}
+    UTIME       {{newBlockReg()}}
+    EVENT_RESET {{newBlockReg()}}
+    EVENT0      {{newBlockReg()}}
+    EVENT1      {{newBlockReg()}}
+    EVENT2      {{newBlockReg()}}
+    EVENT3      {{newBlockReg()}}
+    BIT0        {{newBitBus()}}
+    BIT1        {{newBitBus()}}
+    BIT2        {{newBitBus()}}
+    BIT3        {{newBitBus()}}
+    

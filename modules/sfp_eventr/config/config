@@ -1,12 +1,13 @@
 SFP
     LINKUP          read
-    EVENT_CODEHB    read
-    EVENT_CODERP    read
-    EVENT_CODEEC    read
-    EVENT_CODERE    read
-    EVENT_CODES0    read
-    EVENT_CODES1    read
-    EC_DATA         read
-    KCHAR_DATA      read
     UTIME           read
     EVENT_RESET     write
+    EVENT0          param       uint
+    EVENT1          param       uint
+    EVENT2          param       uint
+    EVENT3          param       uint
+    BIT0            bit_out
+    BIT1            bit_out
+    BIT2            bit_out
+    BIT3            bit_out
+    
