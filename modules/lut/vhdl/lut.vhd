@@ -21,6 +21,11 @@ port (
     inpe_i              : in  std_logic;
     out_o               : out std_logic;
     -- Block Parameters
+    A                   : in  std_logic_vector(1 downto 0);
+    B                   : in  std_logic_vector(1 downto 0);
+    C                   : in  std_logic_vector(1 downto 0);
+    D                   : in  std_logic_vector(1 downto 0);
+    E                   : in  std_logic_vector(1 downto 0);
     FUNC                : in  std_logic_vector(31 downto 0)
 );
 end lut;
