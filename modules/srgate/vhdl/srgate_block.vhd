@@ -35,11 +35,13 @@ end srgate_block;
 
 architecture rtl of srgate_block is
 
+signal WHEN_DISABLED    : std_logic_vector(31 downto 0);
 signal SET_EDGE         : std_logic_vector(31 downto 0);
 signal RST_EDGE         : std_logic_vector(31 downto 0);
 signal FORCE_SET        : std_logic;
 signal FORCE_RST        : std_logic;
 
+signal enable           : std_logic;    
 signal set              : std_logic;
 signal rst              : std_logic;
 
@@ -54,6 +56,7 @@ port map (
     reset_i             => reset_i,
     sysbus_i            => sysbus_i,
     posbus_i            => (others => (others => '0')),
+    enable_o            => enable,
     set_o               => set,
     rst_o               => rst,
 
@@ -67,6 +70,8 @@ port map (
     write_data_i        => write_data_i,
     write_ack_o         => write_ack_o,
 
+    WHEN_DISABLED       => WHEN_DISABLED,
+    WHEN_DISABLED_WSTB  => open,
     SET_EDGE            => SET_EDGE,
     SET_EDGE_WSTB       => open,
     RST_EDGE            => RST_EDGE,
@@ -81,9 +86,11 @@ port map (
 srgate : entity work.srgate
 port map (
     clk_i           => clk_i,
+    enable_i        => enable, 
     set_i           => set,
     rst_i           => rst,
     out_o           => out_o,
+    WHEN_DISABLED   => WHEN_DISABLED(1 downto 0),    
     SET_EDGE        => SET_EDGE(1 downto 0),
     RST_EDGE        => RST_EDGE(1 downto 0),
     FORCE_SET       => FORCE_SET,
