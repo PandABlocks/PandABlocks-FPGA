@@ -10,18 +10,20 @@ entity sfp_event_receiver is
     port (GTREFCLK_P        : in  std_logic;
           GTREFCLK_N        : in  std_logic;    
           ER_RESET          : in  std_logic;
-          EVENTR_CLK        : in  std_logic;
+          eventr_clk        : in  std_logic;
           eventr_pll_locked : in  std_logic;
           rxp_i             : in  std_logic;
           rxn_i             : in  std_logic;
           txp_o             : out std_logic; 
           txn_o             : out std_logic; 
+          rxbyteisaligned_o : out std_logic;
+          rxbyterealign_o   : out std_logic;
+          rxcommadet_o      : out std_logic;
           rxdata_o          : out std_logic_vector(15 downto 0);
           rxoutclk_o        : out std_logic;
           rxcharisk_o       : out std_logic_vector(1 downto 0);
           rxdisperr_o       : out std_logic_vector(1 downto 0);
-          linkup_o          : out std_logic;
-          debug_data_o      : out std_logic_vector(3 downto 0);
+          mgt_ready_o       : out std_logic;
           rxnotintable_o    : out std_logic_vector(1 downto 0)     
           );
 
@@ -167,17 +169,16 @@ attribute syn_noclockbuf             : boolean;
 signal GTREFCLK                      : std_logic;
 attribute syn_noclockbuf of GTREFCLK : signal is true;
 
---ATTRIBUTE keep : string;
---ATTRIBUTE keep OF gt0_txdata_in  : SIGNAL IS "true";
---ATTRIBUTE keep OF gt0_rxdata_out : SIGNAL IS "true";
---ATTRIBUTE keep OF data_valid     : SIGNAL IS "true";
-
 
 begin
 
 rxcharisk_o <= gt0_rxcharisk_out;
 rxdisperr_o <= gt0_rxdisperr_out;
 
+-- Comma detection signals for debug
+rxbyteisaligned_o <= gt0_rxbyteisaligned_out;
+rxbyterealign_o <= gt0_rxbyterealign_out;
+rxcommadet_o <= gt0_rxcommadet_out;
 
 rxdata_o <= gt0_rxdata_out; 
 
@@ -205,26 +206,26 @@ begin
     if rising_edge(GTREFCLK) then
         if ( GT0_TX_FSM_RESET_DONE_OUT and GT0_RX_FSM_RESET_DONE_OUT and 
              gt0_rxresetdone_out and gt0_txresetdone_out and eventr_pll_locked) = '1' then
-            linkup_o <= '1';
+            mgt_ready_o <= '1';
         else
-            linkup_o <= '0';
+            mgt_ready_o <= '0';
         end if;
      end if;
  end process ps_linkup;               
- 
- 
--- Debug information 
-debug_data_o <=  GT0_TX_FSM_RESET_DONE_OUT & GT0_RX_FSM_RESET_DONE_OUT & gt0_rxresetdone_out & gt0_txresetdone_out;
   
--- Must go be set high 
+
+-- Must be set high 
 data_valid <= '1';
+
 
 -- TX data
 gt0_txdata_in <= (others => '0');
 
+
 -- If connected causes build to fail
 gt0_qplloutclk_in <= '0';
 gt0_qplloutrefclk_in <= '0';
+
 
 event_receiver_mgt_inst : event_receiver_mgt
     port map
@@ -264,8 +265,8 @@ event_receiver_mgt_inst : event_receiver_mgt
         gt0_eyescandataerror_out    => gt0_eyescandataerror_out,
         gt0_eyescantrigger_in       => '0',
         ------------------ Receive Ports - FPGA RX Interface Ports -----------------
-        gt0_rxusrclk_in             => EVENTR_CLK,
-        gt0_rxusrclk2_in            => EVENTR_CLK,
+        gt0_rxusrclk_in             => eventr_clk,
+        gt0_rxusrclk2_in            => eventr_clk,
         ------------------ Receive Ports - FPGA RX interface Ports -----------------
         gt0_rxdata_out              => gt0_rxdata_out,
         ----------------- Receiver Ports - RX 8B/10B Decoder Ports -----------------
@@ -300,8 +301,8 @@ event_receiver_mgt_inst : event_receiver_mgt
         gt0_gttxreset_in            => ER_RESET,
         gt0_txuserrdy_in            => eventr_pll_locked,
         ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
-        gt0_txusrclk_in             => EVENTR_CLK,
-        gt0_txusrclk2_in            => EVENTR_CLK,
+        gt0_txusrclk_in             => eventr_clk,
+        gt0_txusrclk2_in            => eventr_clk,
         ------------------ Transmit Ports - TX Data Path interface -----------------
         gt0_txdata_in               => gt0_txdata_in,
         ---------------- Transmit Ports - TX Driver and OOB signaling --------------
