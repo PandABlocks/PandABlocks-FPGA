@@ -176,7 +176,6 @@ begin
     if (~is_file_end) begin
         // If not equal, display an error.
         if (out_o != OUT) begin
-//            $display("OUT error detected at timestamp %d\n %d\n", timestamp,cnt);
             $display("OUT error detected at timestamp %d\n", timestamp, "Test %d\n", cnt);
             err = 1;
             test_result = 1;
