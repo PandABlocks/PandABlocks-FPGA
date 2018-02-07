@@ -47,15 +47,16 @@ read_ip $BUILD_DIR/ip_repo/pulse_queue/pulse_queue.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32/fifo_1K32.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32_ft/fifo_1K32_ft.xci
 read_ip $BUILD_DIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
+#read_ip $BUILD_DIR/ip_repo/event_receiver_mgt/event_receiver_mgt.xci
 if {$SFP_DESIGN == "sfp_loopback"} {
     read_ip $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
 } else {
     read_ip $BUILD_DIR/ip_repo/event_receiver_mgt/event_receiver_mgt.xci
+    read_ip $BUILD_DIR/ip_repo/ila_0/ila_0.xci
 }
 if {$FMC_DESIGN == "fmc_loopback"} {
     read_ip $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
 }
-#read_ip $BUILD_DIR/ip_repo/event_receiver_mgt/event_receiver_mgt.xci
 
 
 # Read Zynq block design
@@ -91,7 +92,7 @@ if {$SFP_DESIGN == "sfp_loopback"} {
     add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/gt_rom_init_tx.dat
 }
 add_files $TOP_DIR/modules/$FMC_DESIGN/vhdl/
-
+ 
 # Read constraint files
 read_xdc $TOP_DIR/modules/$FMC_DESIGN/const/fmc.xdc
 if {$SFP_DESIGN == "sfp_loopback"} {
@@ -100,9 +101,17 @@ if {$SFP_DESIGN == "sfp_loopback"} {
     read_xdc $TOP_DIR/modules/sfp_eventr/const/sfp_event_receiver.xdc
 }
 read_xdc $TARGET_DIR/const/panda-timing.xdc
-read_xdc $TARGET_DIR/const/panda-post_synth.xdc
+if {$SFP_DESIGN == "sfp_loopback"} {
+    read_xdc $TARGET_DIR/const/panda-post_synth.xdc
+} else {
+    read_xdc $TARGET_DIR/const/panda-post_synth_er.xdc
+}
 read_xdc $TARGET_DIR/const/panda-physical.xdc
-set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth.xdc]
+if {$SFP_DESIGN == "sfp_loopback"} { 
+    set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth.xdc]
+} else {
+    set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth_er.xdc]
+}
 set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical.xdc]
 
 #
