@@ -9,6 +9,8 @@ integer timestamp = 0;
 
 // Inputs
 reg         SIM_RESET;
+reg         SIM_RESET_DLY;
+reg [3:0]   cnt = 0;
 reg         INPA;
 reg         INPB;
 reg         INPC;
@@ -125,7 +127,7 @@ initial begin
         wait (timestamp == reg_in[12]) begin
             FUNC = reg_in[11];
             FUNC_WSTB = reg_in[10];
-            A = reg_in[9]
+            A = reg_in[9];
             A_WSTB = reg_in[8];
             B = reg_in[7];
             B_WSTB = reg_in[6];
@@ -172,6 +174,16 @@ initial begin
     is_file_end = 1;
 end
 
+
+always @(posedge clk_i)
+begin
+    SIM_RESET_DLY <= SIM_RESET;
+    if (SIM_RESET_DLY == 0 && SIM_RESET == 1) begin
+        cnt <= cnt + 1;
+    end
+end         
+
+
 //
 // ERROR DETECTION:
 // Compare Block Outputs and Expected Outputs.
@@ -181,7 +193,7 @@ begin
     if (~is_file_end) begin
         // If not equal, display an error.
         if (out_o != VAL) begin
-            $display("OUT error detected at timestamp %d\n", timestamp);
+            $display("OUT error detected at timestamp %d\n", timestamp, "TEST %d\n", cnt);
             //$finish(2);
             err = 1;    
             test_result = 1;        

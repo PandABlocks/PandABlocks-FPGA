@@ -35,6 +35,11 @@ end lut_block;
 
 architecture rtl of lut_block is
 
+signal A                : std_logic_vector(31 downto 0);
+signal B                : std_logic_vector(31 downto 0);
+signal C                : std_logic_vector(31 downto 0);
+signal D                : std_logic_vector(31 downto 0);
+signal E                : std_logic_vector(31 downto 0);
 signal FUNC             : std_logic_vector(31 downto 0);
 signal FUNC_WSTB        : std_logic;
 
@@ -72,8 +77,17 @@ port map (
     write_ack_o         => write_ack_o,
 
     FUNC                => FUNC,
-    FUNC_WSTB           => open
-
+    FUNC_WSTB           => open,
+    A                   => A,
+    A_WSTB              => open,
+    B                   => B,
+    B_WSTB              => open,
+    C                   => C,
+    C_WSTB              => open,
+    D                   => D,
+    D_WSTB              => open,
+    E                   => E,
+    E_WSTB              => open    
 );
 
 -- LUT Block Core Instantiation
@@ -88,6 +102,11 @@ port map (
     inpe_i      => inpe,
     out_o       => out_o,
 
+    A           => A(1 downto 0),
+    B           => B(1 downto 0),
+    C           => C(1 downto 0),
+    D           => D(1 downto 0),
+    E           => E(1 downto 0),
     FUNC        => FUNC
 );
 
