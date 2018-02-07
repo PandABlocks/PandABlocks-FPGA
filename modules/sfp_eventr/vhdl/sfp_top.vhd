@@ -223,8 +223,8 @@ port map(
 ps_er_en: process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if EVENT_RESET(0) = '1' or sim_reset = '1' then    
---        if EVENT_RESET(0) = '1' then    
+--        if EVENT_RESET(0) = '1' or sim_reset = '1' then    
+        if EVENT_RESET(0) = '1' then    
             ER_RESET <= '0';
         else
             ER_RESET <= '1';
@@ -233,13 +233,13 @@ begin
 end process ps_er_en;                
   
   
-ps_sim_reset: process
-begin
-    sim_reset <= '0';
-    wait for 132 ns;
-    sim_reset <= '1';
-    wait;
-end process ps_sim_reset;      
+--ps_sim_reset: process
+--begin
+--    sim_reset <= '0';
+--    wait for 132 ns;
+--    sim_reset <= '1';
+--    wait;
+--end process ps_sim_reset;      
  
  
 mgt_ready_slv(0) <= mgt_ready_o;
