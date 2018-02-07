@@ -2,6 +2,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library unisim;
+use unisim.vcomponents.all;
+
 library work;
 use work.support.all;
 use work.top_defines.all;
@@ -11,6 +14,12 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
+    
+    FCLK_CLK0_PS        : in  std_logic;
+    EXTCLK_P            : in  std_logic;
+    EXTCLK_N            : in  std_logic;
+    FCLK_CLK0           : out std_logic;        
+    
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -21,12 +30,19 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
+    
+    -- SMA PLL locked
+    sma_pll_locked_o    : out std_logic;    
     -- Event Receiver PLL locked
-    eventr_pll_locked   : in  std_logic;
-    -- Event Receiver recovered clock
-    rxoutclk_o          : out std_logic;  
-    -- Event Receiver PLL clock
-    EVENTR_CLK_OUT1     : in  std_logic;  
+    eventr_pll_locked_o : out std_logic;
+    -- sma and event receiver clock enables
+    ext_clock           : in std_logic_vector(1 downto 0);
+    
+    --                      
+    bit0_o              : out std_logic;
+    bit1_o              : out std_logic;
+    bit2_o              : out std_logic;
+    bit3_o              : out std_logic;
     -- GTX I/O
     GTREFCLK_N          : in  std_logic;
     GTREFCLK_P          : in  std_logic;
@@ -49,13 +65,36 @@ signal ERROR3_COUNT     : std_logic_vector(31 downto 0);
 signal FREQ_VAL         : std32_array(3 downto 0);
 signal GTREFCLK         : std_logic_vector(2 downto 0);
 signal SOFT_RESET       : std_logic;
+signal EXTCLK           : std_logic;
 
 begin
 
--- This is a hack for a problem there needs to be an 
--- active clock for rxoutclk if there isn't one then
--- the build will fail with a DRC error 
-rxoutclk_o <= GTREFCLK(0);
+
+FCLK_CLK0 <= FCLK_CLK0_PS;
+
+sma_pll_locked_o <= '0';
+eventr_pll_locked_o <= '0'; 
+
+-- The SFP event receiver has four outputs
+bit0_o <= '0';
+bit1_o <= '0';
+bit2_o <= '0';
+bit3_o <= '0';
+
+--------------------------------------------------------------------------
+-- External Clock interface (for testing)
+--------------------------------------------------------------------------
+IBUFGDS_EXT : IBUFGDS
+generic map (
+    DIFF_TERM   => FALSE,
+    IOSTANDARD  => "LVDS_25"
+)
+port map (
+    O           => EXTCLK,
+    I           => EXTCLK_P,
+    IB          => EXTCLK_N
+);
+
 
 -- Acknowledgement to AXI Lite interface
 write_ack_o <= '1';
