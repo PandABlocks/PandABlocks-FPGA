@@ -9,8 +9,12 @@ integer timestamp = 0;
 
 // Inputs
 reg       SIM_RESET;
+reg       ENABLE;
+reg       ENABLE_DLY;
 reg       SET;
-reg       RESET;
+reg       RST;
+reg [1:0] WHEN_DISABLED;
+reg       WHEN_DISABLED_WSTB;  
 reg [1:0] SET_EDGE;
 reg       SET_EDGE_WSTB;
 reg [1:0] RST_EDGE;
@@ -19,7 +23,8 @@ reg       FORCE_SET;
 reg       FORCE_SET_WSTB;
 reg       FORCE_RST;
 reg       FORCE_RST_WSTB;
-reg       VAL;
+reg       OUT;
+reg [3:0] cnt = 0;
 
 reg       err;
 reg       test_result;
@@ -27,8 +32,6 @@ reg       test_result;
 // Outputs
 wire out_o;
 
-//integer fid[3:0];
-//integer r[3:0];
 integer fid[2:0];
 integer r[2:0];
 
@@ -52,26 +55,28 @@ end
 //
 // READ BLOCK INPUTS VECTOR FILE
 //
-integer bus_in[3:0];     // TS SET RST
+integer bus_in[4:0];     // TS SET RST
 initial begin
     SIM_RESET = 0;
+    ENABLE = 0;
     SET = 0;
-    RESET = 0;
+    RST = 0;
 
     @(posedge clk_i);
     fid[0] = $fopen("srgate_bus_in.txt", "r");
 
     // Read and ignore description field
-    r[0] = $fscanf(fid[0], "%s %s %s %s\n", bus_in[3], bus_in[2], bus_in[1], bus_in[0]);
+    r[0] = $fscanf(fid[0], "%s %s %s %s %s\n", bus_in[4], bus_in[3], bus_in[2], bus_in[1], bus_in[0]);
 
     while (!$feof(fid[0])) begin
 
-        r[0] = $fscanf(fid[0], "%d %d %d %d\n", bus_in[3],  bus_in[2], bus_in[1], bus_in[0]);
+        r[0] = $fscanf(fid[0], "%d %d %d %d %d\n", bus_in[4], bus_in[3], bus_in[2], bus_in[1], bus_in[0]);
 
-        wait (timestamp == bus_in[3]) begin
-            SIM_RESET <= bus_in[2];
+        wait (timestamp == bus_in[4]) begin
+            SIM_RESET <= bus_in[3];
+            ENABLE <= bus_in[2];
             SET <= bus_in[1];
-            RESET <= bus_in[0];
+            RST <= bus_in[0];
         end
         @(posedge clk_i);
     end
@@ -80,9 +85,11 @@ end
 //
 // READ BLOCK REGISTERS VECTOR FILE
 //
-integer reg_in[8:0];     // TS, SET_EDGE, RST_EDGE, FORCE_SET, FORCE_RST
+integer reg_in[10:0];     // TS, SET_EDGE, RST_EDGE, FORCE_SET, FORCE_RST
 
 initial begin
+    WHEN_DISABLED = 0;
+    WHEN_DISABLED_WSTB = 0;
     SET_EDGE = 0;
     SET_EDGE_WSTB = 0;
     RST_EDGE = 0;
@@ -98,11 +105,13 @@ initial begin
     fid[1] = $fopen("srgate_reg_in.txt", "r");
 
     // Read and ignore description field
-    r[1] = $fscanf(fid[1], "%s %s %s %s %s %s %s %s %s\n", reg_in[8], reg_in[7], reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
+    r[1] = $fscanf(fid[1], "%s %s %s %s %s %s %s %s %s %s %s\n", reg_in[10], reg_in[9], reg_in[8], reg_in[7], reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
 
     while (!$feof(fid[1])) begin
-        r[1] = $fscanf(fid[1], "%d %d %d %d %d %d %d %d %d\n", reg_in[8], reg_in[7], reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
-        wait (timestamp == reg_in[8]) begin
+        r[1] = $fscanf(fid[1], "%d %d %d %d %d %d %d %d %d %d %d\n", reg_in[10], reg_in[9], reg_in[8], reg_in[7], reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
+        wait (timestamp == reg_in[10]) begin
+            WHEN_DISABLED = reg_in[9];
+            WHEN_DISABLED_WSTB = reg_in[8];
             SET_EDGE = reg_in[7];
             SET_EDGE_WSTB = reg_in[6];
             RST_EDGE = reg_in[5];
@@ -124,7 +133,7 @@ integer bus_out[1:0];
 reg     is_file_end;
 
 initial begin
-    VAL = 0;
+    OUT = 0;
     is_file_end = 0;
 
     @(posedge clk_i);
@@ -138,7 +147,7 @@ initial begin
     while (!$feof(fid[2])) begin
         r[2] = $fscanf(fid[2], "%d %d \n", bus_out[1], bus_out[0]);
         wait (timestamp == bus_out[1]) begin
-            VAL = bus_out[0];
+            OUT = bus_out[0];
         end
         @(posedge clk_i);
     end
@@ -148,6 +157,16 @@ initial begin
     is_file_end = 1;
 end
 
+
+always @(posedge clk_i)
+begin
+    ENABLE_DLY <= ENABLE;
+    if (ENABLE_DLY == 0 && ENABLE == 1) begin
+        cnt <= cnt + 1;
+    end     
+end
+
+
 //
 // ERROR DETECTION:
 // Compare Block Outputs and Expected Outputs.
@@ -156,8 +175,9 @@ always @(posedge clk_i)
 begin
     if (~is_file_end) begin
         // If not equal, display an error.
-        if (out_o != VAL) begin
-            $display("OUT error detected at timestamp %d\n", timestamp);
+        if (out_o != OUT) begin
+//            $display("OUT error detected at timestamp %d\n %d\n", timestamp,cnt);
+            $display("OUT error detected at timestamp %d\n", timestamp, "Test %d\n", cnt);
             err = 1;
             test_result = 1;
             //$finish(2);
@@ -178,9 +198,11 @@ always @ (posedge clk_i) //----------------------------------------- HERE
 //panda_srgate uut (
 srgate uut (
         .clk_i          ( clk_i             ),
+        .enable_i       ( ENABLE            ),
         .set_i          ( SET               ),
-        .rst_i          ( RESET             ),
+        .rst_i          ( RST               ),
         .out_o          ( out_o             ),
+        .WHEN_DISABLED  ( WHEN_DISABLED     ),
         .SET_EDGE       ( SET_EDGE          ),
         .RST_EDGE       ( RST_EDGE          ),
         .FORCE_SET      ( FORCE_SET         ),
