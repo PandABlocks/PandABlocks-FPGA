@@ -104,9 +104,11 @@ def make_block_plot(blockname, title):
                 # Add times for time registers
                 name = name[:-2]
                 pos_names.add(name)
+            else:
+                val = int(val, 0)
             if name not in in_names:
                 in_names.append(name)
-            values.setdefault(name, set()).add(int(val, 0))
+            values.setdefault(name, set()).add(val)
         for name, val in sequence.outputs[ts].items():
             if name != "TABLE_STROBES" and name not in out_names:
                 out_names.append(name)
@@ -169,11 +171,11 @@ def make_block_plot(blockname, title):
                 elif "WRITE" in inputs:
                     capture_count += 1
             elif name + "_L" in inputs:
-                lohi[name + "_L"] = inputs[name + "_L"]
+                lohi[name + "_L"] = int(inputs[name + "_L"], 0)
                 inputs[name] = lohi[name + "_L"] + \
                     (lohi.get(name + "_H", 0) << 32)
             elif name + "_H" in inputs:
-                lohi[name + "_H"] = inputs[name + "_H"]
+                lohi[name + "_H"] = int(inputs[name + "_H"], 0)
                 inputs[name] = lohi.get(name + "_L", 0) + \
                     (lohi[name + "_H"] << 32)
             if name in sequence.inputs[ts]:
