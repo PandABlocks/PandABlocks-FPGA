@@ -87,7 +87,11 @@ class ConfigBlock(object):
         if field.cls and field.cls.endswith("_out"):
             # No registers for out, just set attribute
             setattr(self, field.name, field.name)
-            indexes = [int(x) for x in field.reg[:self.num]]
+            try:
+                indexes = [int(x) for x in field.reg[:self.num]]
+            except ValueError:
+                raise ValueError("Expected [int], got %r in %s.%s" % (
+                    field.reg, self.name, field.name))
             self.outputs[field.name] = (indexes, field)
         elif field.cls == "table":
             if field.reg[0] == "short":

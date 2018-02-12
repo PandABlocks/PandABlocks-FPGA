@@ -7,49 +7,270 @@ from common.python.pandablocks.block import Block
 # off
 MAX_BUFFER = 1 << 16
 
+# Modes for CaptureEntry
+VALUE = 0
+DIFFERENCE = 1
+SUM_L = 2
+SUM_H = 3
+MIN = 4
+MAX = 5
+
+# Enums for HEALTH
+OK = 0
+TOO_CLOSE = 1
+SAMPLES_OVERFLOW = 2
+
+
+class CaptureEntry(object):
+    """Corresponds to a request to capture one part of the pos bus in a
+    particular mode, like INENC1.VAL MIN"""
+    def __init__(self, idx):
+        self.idx = idx
+
+    @property
+    def value(self):
+        return Block.pos_bus[self.idx]
+
+    def on_rising_gate(self, ts):
+        """Rising gate or if gate is high at enable"""
+        pass
+
+    def on_falling_gate(self, ts):
+        """Falling gate or if gate is low at disable"""
+        pass
+
+    def on_gated_value(self, ts):
+        """Called when value is changed with current gate"""
+        pass
+
+    def on_capture(self, ts, gate):
+        """Handle a rising edge of CAPTURE with ts relative to enable"""
+        if gate:
+            # Gate was high, so act as if we had a falling then rising edge
+            self.on_falling_gate(ts)
+        for y in self.yield_data():
+            yield y
+        if gate:
+            self.on_rising_gate(ts)
+
+    def yield_data(self):
+        """Called immediately after on_capture
+
+        Yields:
+            int: The 32-bit int to store
+        """
+        return iter(())
+
+    @classmethod
+    def find_existing(cls, l):
+        return [x for x in l if isinstance(x, cls)]
+
+    @classmethod
+    def create_if_not_existing(cls, l, *args):
+        existing = cls.find_existing(l)
+        if existing:
+            assert len(existing) == 1, "Expected one, got %s" % (l,)
+            return existing[0]
+        else:
+            return cls(*args)
+
+    @classmethod
+    def definitely_create(cls, l, *args):
+        assert not cls.find_existing(l), "%s already defined in %s" % (cls, l)
+        return cls(*args)
+
+
+class ValueCaptureEntry(CaptureEntry):
+    def on_capture(self, ts, gate):
+        # Just yield the current value
+        yield self.value
+
+
+class DifferenceCaptureEntry(CaptureEntry):
+    value_at_rising = None  # value when gate rising
+    data = 0  # sum of differences while gate high
+
+    def on_rising_gate(self, ts):
+        self.value_at_rising = self.value
+
+    def on_falling_gate(self, ts):
+        # add the difference during this gate
+        self.data += (self.value - self.value_at_rising)
+
+    def yield_data(self):
+        yield self.data
+        self.data = 0
+
+
+class SumCaptureEntry(CaptureEntry):
+    data = 0  # sum of all values while gate is high
+    prev_value = 0  # last value we latched
+    prev_ts = 0  # last ts we latched it at
+    lo = False
+    hi = False
+
+    def __init__(self, idx, shift):
+        super(SumCaptureEntry, self).__init__(idx)
+        self.shift = shift
+
+    def latch_value(self, ts):
+        self.prev_ts = ts
+        self.prev_value = self.value
+
+    def on_rising_gate(self, ts):
+        self.latch_value(ts)
+
+    def on_falling_gate(self, ts):
+        # Add in what we have
+        self.data += (ts - self.prev_ts) * self.prev_value
+
+    def on_gated_value(self, ts):
+        # Add all the entries into the sum
+        self.data += (ts - self.prev_ts) * self.prev_value
+        self.latch_value(ts)
+
+    def yield_data(self):
+        data = self.data >> self.shift
+        # Yield low then high
+        if self.lo:
+            yield data & (2**32 - 1)
+        if self.hi:
+            yield data >> 32
+        self.data = 0
+
+
+class MinCaptureEntry(CaptureEntry):
+    INT32_MAX = np.iinfo(np.int32).max
+    data = INT32_MAX
+
+    def on_rising_gate(self, ts):
+        self.data = min(self.data, self.value)
+
+    def on_gated_value(self, ts):
+        self.data = min(self.data, self.value)
+
+    def yield_data(self):
+        yield self.data
+        self.data = self.INT32_MAX
+
+
+class MaxCaptureEntry(CaptureEntry):
+    INT32_MIN = np.iinfo(np.int32).min
+    data = INT32_MIN
+
+    def on_rising_gate(self, ts):
+        self.data = max(self.data, self.value)
+
+    def on_gated_value(self, ts):
+        self.data = max(self.data, self.value)
+
+    def yield_data(self):
+        yield self.data
+        self.data = self.INT32_MIN
+
+
+class TsStartCaptureEntry(CaptureEntry):
+    data = -1
+    lo = False
+    hi = False
+
+    def on_rising_gate(self, ts):
+        if self.data == -1:
+            self.data = ts
+
+    def yield_data(self):
+        # Yield low then high
+        if self.lo:
+            yield self.data & (2**32 - 1)
+        if self.hi:
+            yield self.data >> 32
+        self.data = -1
+
+
+class TsEndCaptureEntry(CaptureEntry):
+    data = -1
+    lo = False
+    hi = False
+
+    def on_falling_gate(self, ts):
+        self.data = ts
+
+    def yield_data(self):
+        # Yield low then high
+        if self.lo:
+            yield self.data & (2**32 - 1)
+        if self.hi:
+            yield self.data >> 32
+        self.data = -1
+
+
+class TsCaptureCaptureEntry(CaptureEntry):
+    lo = False
+    hi = False
+
+    def on_capture(self, ts, gate):
+        # Yield low then high
+        if self.lo:
+            yield ts & (2**32 - 1)
+        if self.hi:
+            yield ts >> 32
+
+
+class SampleCaptureEntry(CaptureEntry):
+    data = 0
+    ts = 0
+
+    def __init__(self, idx, shift):
+        super(SampleCaptureEntry, self).__init__(idx)
+        self.shift = shift
+
+    def on_rising_gate(self, ts):
+        self.ts = ts
+
+    def on_falling_gate(self, ts):
+        self.data += ts - self.ts
+
+    def yield_data(self):
+        yield self.data >> self.shift
+        self.data = 0
+
+
+class BitsCaptureEntry(CaptureEntry):
+    def __init__(self, idx, quadrant):
+        super(BitsCaptureEntry, self).__init__(idx)
+        self.quadrant = quadrant
+
+    def on_capture(self, ts, gate):
+        bits = Block.bit_bus[self.quadrant*32:(self.quadrant+1)*32]
+        yield Block.bits_to_int(bits)
+
 
 class Pcap(Block):
     tick_data = True
 
     def __init__(self):
-        # This is the ext_bus values to copy
-        self.ext_bus = np.zeros(64, dtype=np.int32)
-        # These are the ext_bus indexes to capture and the generated masks
-        self.store_indices = []
-        self.capture_mask = np.zeros(32, dtype=np.bool_)
-        self.frame_mask = np.zeros(32, dtype=np.bool_)
-        self.alt_frame_mask = np.zeros(32, dtype=np.bool_)
-        self.ext_mask = np.zeros(64, dtype=np.bool_)
-        self.pos_bus_cache = np.zeros(32, dtype=np.int32)
         # This is the pending data to push
         self.buf = np.zeros(MAX_BUFFER, dtype=np.int32)
         self.buf_len = 0
         self.buf_produced = 0
         self.pend_data = None
-        # This is the last frame ts
-        self.ts_frame = 0
-        # This is when we raised ACTIVE
-        self.ts_start = 0
-        # This forward lookup of name to ext_bus
+        # The ts at enable
+        self.ts_enable = 0
+        # These are the capture entries in the order they should be produced
+        self.capture_entries = []
+        self.capture_lookup = {}  # {pos_bus index: [CaptureEntry]}
+        # This lets us find the name of the field from the index
         self.ext_names = {}
-        # Has there been a capture during this frame?
-        self.live_frame = False
         self.add_properties()
         for name, field in self.config_block.fields.items():
             if field.cls == "ext_out":
-                if len(field.reg) > 1:
-                    self.ext_names[name] = \
-                        [int(field.reg[0]), int(field.reg[2])]
+                if field.cls_args == ["timestamp"]:
+                    # something like 37 / 38
+                    self.ext_names[int(field.reg[0]) + 32] = name + "_L"
+                    self.ext_names[int(field.reg[2]) + 32] = name + "_H"
                 else:
-                    self.ext_names[name] = int(field.reg[0])
-        # Add some entries for encoder extended
-        enc = self.parser.blocks["INENC"]
-        for i, v in enumerate(enc.fields["VAL"].reg[5:]):
-            self.ext_names["ENC%d" % (i + 1)] = int(v)
-        # And for the ADC accumulator
-        #adc = self.parser.blocks["ADC"]
-        #for i, v in enumerate(adc.fields["OUT"].reg[9:]):
-        #    self.ext_names["OUT%d" % (i + 1)] = int(v)
+                    # one of the others
+                    self.ext_names[int(field.reg[0]) + 32] = name
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
@@ -62,39 +283,34 @@ class Pcap(Block):
 
         # ext_bus indexes are written here
         if b.START_WRITE in changes:
-            self.store_indices = []
+            self.capture_entries = []
+            self.capture_lookup = {}
         elif b.WRITE in changes:
-            self.store_indices.append(changes[b.WRITE])
+            self.add_capture_entry(changes[b.WRITE])
 
         # Arm control from *REG.PCAP_[DIS]ARM
         if b.DISARM in changes:
-            self.ACTIVE = 0
+            self.do_disarm()
         elif b.ARM in changes:
-            # Mark as active and reset error
-            self.ACTIVE = 1
-            self.ERROR = 0
-            self.HEALTH = 0
-            self.calculate_masks()
-            self.ts_frame = -1
-            self.ts_start = ts
-            self.live_frame = False
-            self.buf_len = 0
-            self.buf_produced = 0
-            self.pend_data = None
-
-        # Disarm from ENABLE falling edge
-        if changes.get(b.ENABLE, None) == 0:
-            self.ACTIVE = 0
+            self.do_arm(ts)
 
         # Handle input signals
         if self.ACTIVE:
-            # if framing signal then process FRAMING_MASK selected signals
-            if self.FRAMING_ENABLE and self.FRAMING_MASK and \
-                    changes.get(b.FRAME, None):
-                self.do_frame(ts)
-            # if capture signal then process captured signals
-            if changes.get(b.CAPTURE):
-                self.do_capture(ts)
+            if b.ENABLE in changes:
+                if changes[b.ENABLE]:
+                    self.do_enable(ts)
+                else:
+                    self.do_disarm()
+            if self.ENABLE:
+                if b.GATE in changes:
+                    self.do_gate(ts, self.GATE)
+                if self.GATE:
+                    self.do_gated_value(ts, changes.get("POS_BUS", []))
+                if b.CAPTURE in changes:
+                    if self.CAPTURE_EDGE == 0 and changes[b.CAPTURE] or \
+                            self.CAPTURE_EDGE == 1 and not changes[b.CAPTURE] \
+                            or self.CAPTURE_EDGE == 2:
+                        self.do_capture(ts)
 
         # If there was pending_data then write it here
         if self.tick_data and self.buf_len > self.buf_produced:
@@ -108,107 +324,117 @@ class Pcap(Block):
             else:
                 self.pend_data = None
 
-    def calculate_masks(self):
-        """Calculate the masks of for framed and captured data, and alternate
-        framing. The ext_mask tells us what we extract from the calculated
-        ext_bus"""
-        self.frame_mask.fill(0)
-        self.capture_mask.fill(0)
-        self.alt_frame_mask.fill(0)
-        for i in self.store_indices:
-            # is it pos_bus?
-            if i < 32:
-                # is it framed?
-                if (self.FRAMING_MASK >> i) & 1:
-                    # is it special?
-                    if (self.FRAMING_MODE >> i) & 1:
-                        self.alt_frame_mask[i] = 1
-                    else:
-                        self.frame_mask[i] = 1
+    def add_capture_entry(self, data):
+        # Bottom 4 bits are the mode
+        mode = data & 0xf
+        # Top 6 bits are the index
+        i = data >> 4
+        # The list we will store it in
+        entries = self.capture_lookup.setdefault(i, [])
+        if i < 32:
+            # This is an entry on the pos_bus
+            if mode == VALUE:
+                entry = ValueCaptureEntry(i)
+            elif mode == DIFFERENCE:
+                entry = DifferenceCaptureEntry(i)
+            elif mode == SUM_L:
+                entry = SumCaptureEntry.definitely_create(
+                    entries, i, self.SHIFT_SUM)
+                entry.lo = True
+            elif mode == SUM_H:
+                entry = SumCaptureEntry.create_if_not_existing(
+                    entries, i, self.SHIFT_SUM)
+                entry.hi = True
+            elif mode == MIN:
+                entry = MinCaptureEntry(i)
+            elif mode == MAX:
+                entry = MaxCaptureEntry(i)
+            else:
+                raise ValueError("Bad mode %d" % mode)
+        else:
+            # This is a special entry
+            name = self.ext_names[i]
+            if name.startswith("TS_"):
+                if name.startswith("TS_START"):
+                    cls = TsStartCaptureEntry
+                elif name.startswith("TS_END"):
+                    cls = TsEndCaptureEntry
+                elif name.startswith("TS_CAPTURE"):
+                    cls = TsCaptureCaptureEntry
                 else:
-                    self.capture_mask[i] = 1
-            self.ext_mask[i] = 1
-        self.store_indices = np.array(self.store_indices)
+                    raise ValueError("Bad name %s" % name)
+                if name.endswith("_L"):
+                    entry = cls.definitely_create(entries, i)
+                    entry.lo = True
+                else:
+                    entry = cls.create_if_not_existing(entries, i)
+                    entry.hi = True
+            elif name.startswith("BITS"):
+                entry = BitsCaptureEntry(i, int(name[-1]))
+            elif name == "SAMPLES":
+                entry = SampleCaptureEntry(i, self.SHIFT_SUM)
+            else:
+                raise ValueError("Bad name %s" % name)
+        if entry not in entries:
+            entries.append(entry)
+            self.capture_entries.append(entry)
 
-    def do_frame(self, ts):
-        """Handle a frame signal"""
-        if self.ts_frame > -1 and self.live_frame:
-            b = self.config_block
-            # Frame pos bus
-            diff = self.pos_bus - self.pos_bus_cache
-            self.ext_bus[:32][self.frame_mask] = diff[self.frame_mask]
-            # Alt mode is average
-            avg = (self.pos_bus + self.pos_bus_cache) / 2
-            self.ext_bus[:32][self.alt_frame_mask] = avg[self.alt_frame_mask]
-            # Ext bus
-            len_idx = self.ext_names[b.FRAME_LENGTH]
-            if self.ext_mask[len_idx]:
-                self.ext_bus[len_idx] = ts - self.ts_frame
-            # TODO: ADC Count, ext
-            self.push_data(ts)
-            self.live_frame = False
-        # Cache the pos bus and last ts_frame
-        self.pos_bus_cache[:] = self.pos_bus
-        self.ts_frame = ts
+    def do_arm(self, ts):
+        # Mark as active and reset error
+        self.ACTIVE = 1
+        self.HEALTH = OK
+        self.buf_len = 0
+        self.buf_produced = 0
+        self.pend_data = None
+        # If we are already enabled then start now
+        if self.ENABLE:
+            self.do_enable(ts)
+
+    def do_disarm(self):
+        if self.ACTIVE:
+            self.ACTIVE = 0
+
+    def do_enable(self, ts):
+        self.ts_enable = ts
+        if self.GATE:
+            for entry in self.capture_entries:
+                entry.on_rising_gate(0)
+
+    def do_gate(self, ts, gate):
+        # Make ts relative to ts at enable
+        ts -= self.ts_enable
+        for entry in self.capture_entries:
+            if gate:
+                entry.on_rising_gate(ts)
+            else:
+                entry.on_falling_gate(ts)
+
+    def do_gated_value(self, ts, indexes):
+        # Make ts relative to ts at enable
+        ts -= self.ts_enable
+        for index in indexes:
+            for entry in self.capture_lookup.get(index, []):
+                entry.on_gated_value(ts)
 
     def do_capture(self, ts):
-        """Handle a capture signal. This will have different behaviour in framed
-        and non-framed mode"""
-        b = self.config_block
-        if self.FRAMING_ENABLE:
-            if self.live_frame:
-                # more than one CAPTURE within a frame, error
-                self.HEALTH = 1
-                self.ERROR = 1
-                self.ACTIVE = 0
-                return
-            elif self.ts_frame == -1:
-                # capture signal before first frame signal
-                self.HEALTH = 3
-                self.ERROR = 1
-                self.ACTIVE = 0
-                return
-            self.live_frame = True
-        # Capture pos bus
-        self.ext_bus[:32][self.capture_mask] = self.pos_bus[self.capture_mask]
-        # Ext bus
-        ts_idx = self.ext_names[b.CAPTURE_TS]
-        if self.ext_mask[ts_idx[0]]:
-            self.ext_bus[ts_idx[0]] = (ts - self.ts_start + 1) & (2 ** 32 -1) #+1 here because in FPGA when ARM is set, the count/ts is reset to 1 not 0
-            self.ext_bus[ts_idx[1]] = (ts - self.ts_start + 1) >> 32 #+1 here because in FPGA when ARM is set, the count/ts is reset to 1 not 0
-        off_idx = self.ext_names[b.CAPTURE_OFFSET]
-        if self.ext_mask[off_idx]:
-            self.ext_bus[off_idx] = ts - self.ts_frame
-        # bit arrays
-        for i in range(4):
-            bit_idx = self.ext_names["BITS%d" % i]
-            if self.ext_mask[bit_idx]:
-                bits = self.bit_bus[i*32:(i+1)*32]
-                self.ext_bus[bit_idx] = Block.bits_to_int(bits)
-        # encoder extensions
-        for i in range(4):
-            enc_idx = self.ext_names["ENC%d" % (i + 1)]
-            if self.ext_mask[enc_idx]:
-                self.ext_bus[enc_idx] = self.enc_bus[i]
-        # if no framing, push out values now
-        if not self.FRAMING_ENABLE:
-            self.push_data(ts)
-        else:
-            # just mark as live frame
-            self.live_frame = True
+        new_data = []
+        # Make ts relative to ts at enable
+        ts -= self.ts_enable
+        for entry in self.capture_entries:
+            for nd in entry.on_capture(ts, self.GATE):
+                new_data.append(nd)
+        self.push_data(new_data)
 
-    def push_data(self, ts):
+    def push_data(self, new_data):
         """Push the data from our ext_bus into the output buffer. Note that
         in the FPGA this is clocked out one by one, but we push it all in one
         go and make sure we don't get another push until we've done all but one
         sample"""
         if self.tick_data and self.buf_len > self.buf_produced + 1:
             # Told to push more data when we hadn't finished the last capture
-            self.HEALTH = 2
-            self.ERROR = 1
+            self.HEALTH = TOO_CLOSE
             self.ACTIVE = 0
         else:
-            new_data = self.ext_bus[self.store_indices]
             new_size = len(new_data)
             self.buf[self.buf_len:self.buf_len+new_size] = new_data
             self.buf_len += len(new_data)

@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from common.python.pandablocks.sequenceparser import SequenceParser
-from common.python.pandablocks.configparser import ConfigParser
 
 
 TRANSITION_HEIGHT = 0.6
@@ -39,7 +38,7 @@ def legend_label(text, x, y, off):
 def plot_bit(trace_items, names, offset, crossdist):
     for name, (tracex, tracey) in trace_items.items():
         if name in names:
-            tracey = np.array(tracey)
+            tracey = np.array([int(y, 0) for y in tracey])
             offset -= PULSE_HEIGHT + PLOT_OFFSET
             plt.plot(tracex, tracey + offset, linewidth=2)
             # add label
@@ -72,7 +71,7 @@ def plot_pos(trace_items, names, offset, crossdist, ts):
             plt.fill_between(crossx, top, bottom, color=lines[0].get_color())
             for x, y in zip(tracex, tracey):
                 xy = (crossdist + x, TRANSITION_HEIGHT / 2. + offset)
-                plt.annotate(str(y), xy, color="white", horizontalalignment="left",
+                plt.annotate(y, xy, color="white", horizontalalignment="left",
                              verticalalignment="center")
 
             # add label
@@ -84,7 +83,7 @@ def make_block_plot(blockname, title):
     fname = blockname + ".seq"
     sequence_dir = os.path.join(MODULE_DIR, blockname, 'sim')
     sequence_file = os.path.join(sequence_dir, fname)
-    sparser = SequenceParser(sequence_file)
+    sparser = SequenceParser(sequence_file, convert_int=False)
     matches = [s for s in sparser.sequences if s.name == title]
     assert len(matches) == 1, 'Unknown title "%s" or multiple matches' % title
     sequence = matches[0]
@@ -93,6 +92,7 @@ def make_block_plot(blockname, title):
     in_names = []
     out_names = []
     pos_names = set()
+    values = {}
 
     for ts in sequence.inputs:
         for name, val in sequence.inputs[ts].items():
@@ -106,13 +106,21 @@ def make_block_plot(blockname, title):
                 pos_names.add(name)
             if name not in in_names:
                 in_names.append(name)
-            if val not in (0, 1):
-                pos_names.add(name)
+            values.setdefault(name, set()).add(int(val, 0))
         for name, val in sequence.outputs[ts].items():
             if name != "TABLE_STROBES" and name not in out_names:
                 out_names.append(name)
-            if val not in (0, 1):
-                pos_names.add(name)
+            values.setdefault(name, set()).add(int(val, 0))
+
+    # constant traces should be pos_names
+    for name, sval in values.items():
+        if len(sval) == 1:
+            pos_names.add(name)
+        else:
+            for val in sval:
+                if val not in (0, 1):
+                    pos_names.add(name)
+                    break
 
     # sort the traces into bit and pos traces
     bit_traces = OrderedDict()
@@ -127,7 +135,7 @@ def make_block_plot(blockname, title):
     # fill in first point
     for name, (tracex, tracey) in bit_traces.items():
         tracex.append(0)
-        tracey.append(0)
+        tracey.append('0')
 
     # now populate traces
     table_count = 0
@@ -169,15 +177,13 @@ def make_block_plot(blockname, title):
                 inputs[name] = lohi.get(name + "_L", 0) + \
                     (lohi[name + "_H"] << 32)
             if name in sequence.inputs[ts]:
-                if blockname.upper() == "LUT" and name == "FUNC":
-                    inputs[name] = hex(inputs[name])
                 if not tracey or tracey[-1] != inputs[name]:
                     tracex.append(ts)
                     tracey.append(inputs[name])
             elif name in sequence.outputs[ts]:
-                if blockname.upper() == "PCAP" and name == "OUT":
+                if blockname.upper() == "PCAP" and name == "DATA":
                     data_count += 1
-                    if data_count % capture_count == 1:
+                    if (data_count - 1) % capture_count == 0:
                         outputs[name] = "Row%d" % (data_count / capture_count)
                     else:
                         # This is a subsequent count, ignore it

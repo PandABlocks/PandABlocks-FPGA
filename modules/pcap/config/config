@@ -1,17 +1,21 @@
 PCAP
     ENABLE          bit_mux
-    FRAME           bit_mux
+    GATE            bit_mux
     CAPTURE         bit_mux
+    CAPTURE_EDGE    param       enum 3
+        0   Rising
+        1   Falling
+        2   Rising or Falling
+    SHIFT_SUM       param       uint 8
     HEALTH          read        enum 4
         0   Ok
-        1   Capture before frame
-        2   Multiple captures
-        3   Buffer overrun
+        1   Capture events too close together
+        2   Samples overflow
     ACTIVE          bit_out
-    CAPTURE_TS      ext_out     timestamp
-    FRAME_LENGTH    ext_out
-    CAPTURE_OFFSET  ext_out     offset
-    ADC_COUNT       ext_out     adc_count
+    TS_START        ext_out     timestamp
+    TS_END          ext_out     timestamp
+    TS_CAPTURE      ext_out     timestamp
+    SAMPLES         ext_out     samples
     BITS0           ext_out     bits 0
     BITS1           ext_out     bits 1
     BITS2           ext_out     bits 2

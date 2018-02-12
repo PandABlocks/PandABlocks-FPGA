@@ -61,19 +61,20 @@ class sequence_plot_directive(Directive):
             self.content_offset, plot_node)
 
         #if it is a sequencer plot, plot the table
-        if blockname in ["seq", "pcap", "pgen", "pcomp"]:
+        if blockname in ["seq", "pcap", "pgen"]:
             #get the correct sequence
             fname = blockname + ".seq"
             sequence_dir = os.path.join(MODULE_DIR, blockname, 'sim')
             sequence_file = os.path.join(sequence_dir, fname)
             sparser = SequenceParser(sequence_file)
             matches = [s for s in sparser.sequences if s.name == plotname]
+            assert matches, "No sequence for %r" % plotname
             sequence = matches[0]
             if blockname == "seq":
                 table_node = self.make_all_seq_tables(sequence)
                 node.append(table_node)
                 node.append(plot_node)
-            elif blockname in [ "pgen", "pcomp"]:
+            elif blockname == "pgen":
                 table_node = self.make_long_tables(sequence, sequence_dir)
                 node.append(table_node)
                 node.append(plot_node)
@@ -97,7 +98,7 @@ class sequence_plot_directive(Directive):
                 elif name == "START_WRITE":
                     data_header = []
                 elif name == "WRITE":
-                    hdr_name = "POSBUS[%d]" % inputs[name]
+                    hdr_name = "0x%X" % inputs[name]
                     data_header.append(hdr_name)
         if not data_header:
             return table_node

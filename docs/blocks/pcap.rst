@@ -1,7 +1,9 @@
 PCAP - Position Capture
 =======================
 
-<<description>>
+Position capture has the capability to capture anything that is happening
+on the pos_bus or bit_bus. It listens to ENABLE, GATE and CAPTURE signals, and
+can capture the value at capture, sum, min and max.
 
 
 Parameters
@@ -9,95 +11,221 @@ Parameters
 =============== === ======= ===================================================
 Name            Dir Type    Description
 =============== === ======= ===================================================
-ENABLE          In  Bit     Data capture enable
-FRAME           In  Bit     Data capture frame
-CAPTURE         In  Bit     Data capture event
-HEALTH          R   UInt32  Block error status
+ENABLE          In  Bit     After arm, when high start capture, when low disarm
+GATE            In  Bit     After enable, only process gated values if high
+CAPTURE         In  Bit     On selected edge capture current value and gated data
+CAPTURE_EDGE    R/W Enum    | Which edge of capture input signal triggers capture
+                            | 0 - Rising
+                            | 1 - Falling
+                            | 2 - Rising or Falling
+SHIFT_SUM       R/W Int     Shift sum data, use if > 2**32 samples required in sum/average
+HEALTH          R   Enum    | Was last capture successful?
+                            | 0 - OK
+                            | 1 - Capture events too close together
+                            | 2 - Samples overflow
 ACTIVE          Out Bit     Data capture in progress
-CAPTURE_TS                  Timestamp of captured data
-FRAME_LENGTH                Length of captured frame
-CAPTURE_OFFSET              Offset of capture into capture frame
-ADC_COUNT                   Number of ADC samples in captured frame
-BITS0                       Quadrant 0 of bit_bus
-BITS1                       Quadrant 1 of bit_bus
-BITS2                       Quadrant 2 of bit_bus
-BITS3                       Quadrant 3 of bit_bus
+TS_START        Out Extra   Timestamp of first gate high in current capture relative to enable
+TS_END          Out Extra   Timestamp of last gate high + 1 in current capture relative to enable
+TS_CAPTURE      Out Extra   Timestamp of capture event relative to enable
+SAMPLES         Out Extra   Number of gated samples in the current capture
+BITS0           Out Extra   Quadrant 0 of bit_bus
+BITS1           Out Extra   Quadrant 1 of bit_bus
+BITS2           Out Extra   Quadrant 2 of bit_bus
+BITS3           Out Extra   Quadrant 3 of bit_bus
 =============== === ======= ===================================================
 
 Arming
 ------
 
+To start off the block an arm signal is required with a write to `*PCAP.ARM=`.
+The active signal is raised immediately on ARM, and dropped either on
+`*PCAP.DISARM`:
+
 .. sequence_plot::
    :block: pcap
    :title: Arming and soft disarm
+
+Or on the falling edge of ENABLE:
 
 .. sequence_plot::
    :block: pcap
    :title: Arming and hard disarm
 
-Timestamp capture
+
+Capturing fields
+----------------
+
+Capturing fields is done by specifying a series of WRITE addresses. These are
+made up of a mode in the bottom 4 bits, and an index in the 6 bits above them.
+Indexes < 32 refer to entries on the pos_bus, while indexes >= 32 are extra
+entries specific to PCAP, like timestamps and number of gated samples. The
+values sent via the WRITE register are written from the TCP server, so will
+not be visible to end users.
+
+Data is ticked out one at a time from the DATA attribute, then sent to the TCP
+server over DMA, before being sent to the user. It is reconstructed into a
+table in each of the examples below for ease of reading.
+
+The following example shows PCAP being configured to capture the timestamp
+when CAPTURE goes high (0x24 is the bottom 32-bits of TS_CAPTURE).
+
+.. sequence_plot::
+   :block: pcap
+   :title: Capture timestamp
+
+
+Pos bus capture
+---------------
+
+As well as general fields like the timestamp, any pos_bus index can be captured.
+Pos bus fields have multiple modes that they can capture in.
+
+
+Mode 0 - Value
+~~~~~~~~~~~~~~
+
+This gives an instantaneous capture of value no matter what the state of GATE:
+
+.. sequence_plot::
+   :block: pcap
+   :title: Capture pos bus entry 5 Value
+
+Mode 1 - Difference
+~~~~~~~~~~~~~~~~~~~
+
+This is mainly used for something like an incrementing counter value.
+It will only count the differences while GATE was high:
+
+.. sequence_plot::
+   :block: pcap
+   :title: Capture pos bus entry 11 Difference
+
+Mode 2/3 - Sum Lo/Hi
+~~~~~~~~~~~~~~~~~~~~
+
+Mode 2 is the lower 32-bits of the sum of all samples while GATE was high:
+
+.. sequence_plot::
+   :block: pcap
+   :title: Capture pos bus entry 3 Sum
+
+Mode 2 and 3 together gives the full 64-bits of sum, needed for any sizeable
+values on the pos_bus:
+
+.. sequence_plot::
+   :block: pcap
+   :title: Capture pos bus entry 2 Sum large values
+
+Mode 4/5 - Min/Max
+~~~~~~~~~~~~~~~~~~
+
+Both of these modes calculate statistics on the value while GATE is high.
+
+Mode 4 produces the min of all values or zero if the gate was low for all of the
+current capture:
+
+.. sequence_plot::
+   :block: pcap
+   :title: Capture pos bus entry 8 Min
+
+Mode 5 produces the max of all values in a similar way:
+
+.. sequence_plot::
+   :block: pcap
+   :title: Capture pos bus entry 4 Max
+
+
+Number of samples
 -----------------
-.. sequence_plot::
-   :block: pcap
-   :title: capture timestamp
 
-If there are capture signals too close together, the HEALTH will be set to 2
-
-.. sequence_plot::
-   :block: pcap
-   :title: capture too close together
-
-Pos bus and bit bus capture
----------------------------
-
-Capturing from the TTLIN will capture from quadrant1, SEQ from quadrant 2,
-COUNTER from quadrant 3, and INEC from quadrant 4. The order these results are
-output from the block is Q1, Q2, Q3, Q4.
+There is a SAMPLES field that can be captured that will give the number of clock
+ticks that GATE was high during a single CAPTURE. This field allows the TCP
+server to offer "Mean" as a capture option, dividing "Sum" by SAMPLES to get
+the mean value of the field during the capture period. It can also be captured
+separately to give the gate length:
 
 .. sequence_plot::
    :block: pcap
-   :title: capture pos bus enc1
+   :title: Capture gate length
+
+
+Timestamps
+----------
+
+As well as the timestamp of the capture signal, timestamps can also be generated
+for the start of each capture period (first gate high signal) and end (the tick
+after the last gate high). These are again split into two 32-bit segments so
+only the lower bits need to be captured for short captures. In the following
+example we capture TS_START (0x20), TS_END (0x22) and TS_CAPTURE (0x24) lower
+bits:
 
 .. sequence_plot::
    :block: pcap
-   :title: capture bit bus TTLIN
+   :title: Capture more timestamps
+
+
+Bit bus capture
+---------------
+
+The state of the bit bus at capture can also be captured. It is split into 4
+quadrants of 32-bits each. For example, to capture signals 0..31 on the bit bus
+we would use BITS0 (0x27):
 
 .. sequence_plot::
    :block: pcap
-   :title: capture bit bus SEQ
+   :title: Capture bit bus quadrant 0
+
+By capturing all 4 quadrants (0x27..0x2A) we get the whole bit bus:
 
 .. sequence_plot::
    :block: pcap
-   :title: capture bit bus order
+   :title: Capture bit bus all quadrants
 
-Framing
--------
 
-The framing can be in two modes, difference mode or average mode.
-In difference mode, the output is the difference between the current capture
-point value and the last value in the previous frame. In average mode, the
-output is the mean value of the current capture point value and the last value
-in the previous frame.
+Triggering options
+------------------
 
-.. sequence_plot::
-   :block: pcap
-   :title: framing on counters
+ENABLE and GATE are level triggered, with ENABLE used for marking the start and
+end of the entire acquisition, and GATE used to accept or reject samples within
+a single capture from the acquisition. CAPTURE is edge triggered with an option
+to trigger on rising, falling or both edges.
 
-.. sequence_plot::
-   :block: pcap
-   :title: framing on counters average mode
+Triggering on rising is the default, explored in the preceding examples.
+Triggering on falling edge would be used if you have a gate signal that
+marks the capture boundaries and want sum or difference data within. For
+example, to capture the amount POS[1] changes in each capture gate we could
+connect GATE and CAPTURE to the same signal:
 
 .. sequence_plot::
    :block: pcap
-   :title: Capture offset
+   :title: Gate and capture signals the same
 
-An error will be encounted if there is a capture signal before the first frame,
-or if there are more than one capture signals per frame.
-
-.. sequence_plot::
-   :block: pcap
-   :title: Capture before first frame
+Another option would be a gap-less acquisition of sum while gate is high
+with capture boundaries marked with a toggle of CAPTURE:
 
 .. sequence_plot::
    :block: pcap
-   :title: More than one capture within a frame
+   :title: Gap-less sum
+
+
+Error conditions
+----------------
+
+The distance between capture signals must be at least the number of 32-bit
+capture fields. If 2 capture signals are too close together HEALTH will be
+set to 1 (Capture events too close together).
+
+In this example there are 3 fields captured (TS_CAPTURE_L, TS_CAPTURE_H,
+SAMPLES), but only 2 clock ticks between the 2nd and 3rd capture signals:
+
+.. sequence_plot::
+   :block: pcap
+   :title: Capture too close together
+
+
+
+
+
+
+
+

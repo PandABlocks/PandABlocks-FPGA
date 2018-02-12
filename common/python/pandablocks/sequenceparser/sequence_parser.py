@@ -7,9 +7,10 @@ from sequence import Sequence
 
 class SequenceParser(object):
 
-    def __init__(self, f):
+    def __init__(self, f, convert_int=True):
         lines = open(f).readlines()
         self.sequences = []
+        self.convert_int = convert_int
         for line in lines:
             if line.startswith("$"):
                 name = line[1:].strip()
@@ -50,7 +51,7 @@ class SequenceParser(object):
                 t = t.strip()
                 k, v = t.split("=")
                 # detect 0x prefix automatically
-                if k == "TABLE_ADDRESS":
+                if k == "TABLE_ADDRESS" or not self.convert_int:
                     d[k.strip()] = v.strip()
                 else:
                     d[k.strip()] = int(v.strip(), 0)

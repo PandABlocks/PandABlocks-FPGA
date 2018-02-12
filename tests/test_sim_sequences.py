@@ -63,12 +63,16 @@ def load_tests(loader=None, staqndard_tests=None, pattern=None):
 
                 # check that when _mux fields appear in changes that they actually
                 # have changes, as our blocks expect this
-                for name, val in changes.items():
+                for name, val in list(changes.items()):
                     # If there is a dot in the name, it's a bit or pos bus entry
                     if "[" in name:
                         idx = int(name.split("[")[1].split("]")[0])
                         if name.startswith("POS"):
                             Block.pos_bus[idx] = val
+                            assert idx in range(32), \
+                                "%s: Got %s, expected POS[i] with 0<=i<32" % (
+                                    ts, name)
+                            changes.setdefault("POS_BUS", []).append(idx)
                         elif name.startswith("BIT"):
                             Block.bit_bus[idx] = val
                         else:

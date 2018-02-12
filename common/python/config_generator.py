@@ -25,12 +25,13 @@ class ConfigGenerator(object):
         self.temp_env.globals['newBitBus'] = self.new_bit_bus
         self.temp_env.globals['newBlockNo'] = self.new_block_no
         self.temp_env.globals['newPosBus'] = self.new_pos_bus
+        self.temp_env.globals['newExtBus'] = self.new_ext_bus
         self.temp_env.globals['newBlockReg'] = self.new_block_reg
         self.app_config = collections.OrderedDict()
         self.module_dir = collections.OrderedDict()
-        self.curr_bitbus = 1#9
+        self.curr_bitbus = 0
         self.curr_posbus = 0
-        self.curr_posbus_upper = 32
+        self.curr_extbus = 0
         self.current_block = 2
         self.block_regs = {}
         self.panda_carrier_config = {"TTLIN": 6,
@@ -131,17 +132,18 @@ class ConfigGenerator(object):
             self.curr_bitbus)
         return bus_values
 
-    def new_pos_bus(self, location='lower'):
-        if location == 'lower':
-            bus_values, self.curr_posbus = self.new_bus(
-                32,
-                'pos_bus',
-                self.curr_posbus)
-        else:
-            bus_values, self.curr_posbus_upper = self.new_bus(
-                64,
-                'pos_bus',
-                self.curr_posbus_upper)
+    def new_pos_bus(self):
+        bus_values, self.curr_posbus = self.new_bus(
+            32,
+            'pos_bus',
+            self.curr_posbus)
+        return bus_values
+
+    def new_ext_bus(self):
+        bus_values, self.curr_extbus = self.new_bus(
+            32,
+            'ext_bus',
+            self.curr_extbus)
         return bus_values
 
     def new_bus(self, limit, type, current_val):
@@ -149,11 +151,11 @@ class ConfigGenerator(object):
         bus_values = []
         for values in range(int(self.app_config[block.upper()])):
             if int(current_val) < limit:
-                current_val += 1
                 bus_values.append(str(current_val))
+                current_val += 1
             else:
                 raise ValueError(
-                    'Max '+ type + ' value of ' + str(limit) + ' exceeded')
+                    'Max ' + type + ' value of ' + str(limit) + ' exceeded')
         return " ".join(bus_values), current_val
 
     def new_block_no(self, block):

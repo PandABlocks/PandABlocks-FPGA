@@ -1,10 +1,9 @@
-# THE REGISTER VALUES IN THIS SEQUENCE ARE TAKEN FROM THE CONFIG OF THE
-# fmc_lback-sfp_lback app
 ########################
 $ Arming and soft disarm
+2       : ENABLE=1
 3       : ARM=0             : ACTIVE=1
-5       : ENABLE=1
 8       : DISARM=0          : ACTIVE=0
+9       : ENABLE=0
 
 ########################
 $ Arming and hard disarm
@@ -13,59 +12,199 @@ $ Arming and hard disarm
 6       : ENABLE=0          : ACTIVE=0
 
 ########################
-$ capture timestamp
+$ Capture timestamp
+1       : ENABLE=1
 2       : START_WRITE=0
-4       : WRITE=37
-# config_d/registers/PCAP/CAPTURE_TS (1st element CAPTURE_TS)
-6       : WRITE=38
-# config_d/registers/PCAP/CAPTURE_TS (2nd element CAPTURE_TS_H)
+# TS_CAPTURE_L
+4       : WRITE=0x240
 10      : ARM=0             : ACTIVE=1
-11      : ENABLE=1
 12      : CAPTURE=1
-13      :                   : DATA=3
-14      : CAPTURE=0         : DATA=0
+13      :                   : DATA=2
+14      : CAPTURE=0
 16      : CAPTURE=1
-17      : CAPTURE=0         : DATA=7
-18      :                   : DATA=0
+17      : CAPTURE=0         : DATA=6
+18      :
 20      : ENABLE=0          : ACTIVE=0
 
-#########################
-$ capture too close together
-2       : START_WRITE=0
-4       : WRITE=37
-6       : WRITE=38
-8       : WRITE=0
-10      : ARM=0             : ACTIVE=1
-11      : ENABLE=1
-12      : CAPTURE=1
-13      : CAPTURE=0         : DATA=3
-14      :                   : DATA=0
-15      :                   : DATA=0
-16      : CAPTURE=1
-17      : CAPTURE=0         : DATA=7
-18      : CAPTURE=1         : DATA=0, ACTIVE=0, HEALTH=2, ERROR=1
-
 ######################
-$ capture pos bus enc1
+$ Capture pos bus entry 5 Value
 2       : START_WRITE=0
-4       : WRITE=1
-# Capture POS bus element 1 (POS[1])
+4       : WRITE=0x50
+6       : POS[5]=20
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
 13      : CAPTURE=1
-14      : CAPTURE=0, POS[1]=100         : DATA=0
+14      : CAPTURE=0, POS[5]=100         : DATA=20
 15      : CAPTURE=1 
-16      : CAPTURE=0, POS[1]=50          : DATA=100
-18      : CAPTURE=1
-19      :                               : DATA=50
+16      : CAPTURE=0                     : DATA=100
+18      : CAPTURE=1, POS[5]=6
+19      : POS[5]=2                      : DATA=6
 22      : ENABLE=0, CAPTURE=0           : ACTIVE=0
 
+#####################
+$ Capture pos bus entry 11 Difference
+2       : START_WRITE=0
+4       : WRITE=0xB1
+5       : ENABLE=1
+10      : ARM=0                         : ACTIVE=1
+11      : POS[11]=10
+12      : GATE=1
+13      : POS[11]=20
+14      : CAPTURE=1
+15      : CAPTURE=0                     : DATA=10
+16      : GATE=0, POS[11]=24
+18      : POS[11]=30
+20      : POS[11]=22
+21      : GATE=1
+22      : POS[11]=13
+23      : GATE=0, CAPTURE=1
+24      :                               : DATA=-5
+25      : CAPTURE=0, ENABLE=0           : ACTIVE=0
+
+#####################
+$ Capture pos bus entry 3 Sum
+1       : POS[3]=3
+2       : START_WRITE=0
+3       : WRITE=0x32
+7       : ENABLE=1
+10      : ARM=0                         : ACTIVE=1
+12      : GATE=1
+14      : CAPTURE=1
+15      : CAPTURE=0                     : DATA=6
+16      : GATE=0, POS[3]=4
+17      : POS[3]=5
+18      : GATE=1, POS[3]=6
+19      : POS[3]=9
+20      : POS[3]=103, CAPTURE=1
+21      : CAPTURE=0                     : DATA=21
+22      : GATE=0
+23      : POS[3]=102
+24      : CAPTURE=1
+25      :                               : DATA=206
+26      : CAPTURE=0, ENABLE=0           : ACTIVE=0
+
+#####################
+$ Capture pos bus entry 2 Sum large values
+1       : POS[2]=0x40000000
+2       : START_WRITE=0
+3       : WRITE=0x22
+7       : WRITE=0x23
+8       : ENABLE=1
+10      : ARM=0                         : ACTIVE=1
+12      : GATE=1
+13      : CAPTURE=1
+14      : CAPTURE=0                     : DATA=0x40000000
+15      :                               : DATA=0
+16      : CAPTURE=1
+17      : CAPTURE=0                     : DATA=-0x40000000
+18      :                               : DATA=0
+26      : CAPTURE=1
+27      : CAPTURE=0, POS[2]=-0x40000000 : DATA=-0x80000000
+28      :                               : DATA=2
+29      : CAPTURE=1
+30      : CAPTURE=0                     : DATA=-0x40000000
+31      :                               : DATA=-1
+34      : CAPTURE=1
+35      : CAPTURE=0                     : DATA=-0x40000000
+36      : ENABLE=0, GATE=0              : DATA=-2, ACTIVE=0
+
+#####################
+$ Capture pos bus entry 8 Min
+2       : START_WRITE=0
+3       : GATE=1
+4       : WRITE=0x84
+5       : POS[8]=35
+6       : ENABLE=1
+10      : ARM=0                         : ACTIVE=1
+11      : POS[8]=10
+13      : POS[8]=20
+14      : CAPTURE=1
+15      : CAPTURE=0                     : DATA=10
+16      : GATE=0, POS[8]=8
+18      : POS[8]=30
+19      : CAPTURE=1
+20      : POS[8]=22, CAPTURE=0          : DATA=20
+21      : GATE=1
+22      : POS[8]=21
+23      : GATE=0, CAPTURE=1
+24      : CAPTURE=0                     : DATA=21
+25      : CAPTURE=1
+26      :                               : DATA=0x7FFFFFFF
+27      : CAPTURE=0, ENABLE=0           : ACTIVE=0
+
+#####################
+$ Capture pos bus entry 4 Max
+2       : START_WRITE=0
+3       : GATE=1
+4       : WRITE=0x45
+5       : POS[4]=35
+6       : ENABLE=1
+10      : ARM=0, POS[4]=10              : ACTIVE=1
+13      : POS[4]=20
+14      : CAPTURE=1
+15      : CAPTURE=0                     : DATA=20
+16      : GATE=0, POS[4]=24
+18      : POS[4]=30
+19      : CAPTURE=1
+20      : POS[4]=22, CAPTURE=0          : DATA=20
+21      : GATE=1
+22      : POS[4]=21
+23      : GATE=0, CAPTURE=1
+24      : CAPTURE=0                     : DATA=22
+25      : CAPTURE=1
+26      :                               : DATA=-0x80000000
+27      : CAPTURE=0, ENABLE=0           : ACTIVE=0
+
+#####################
+$ Capture gate length
+2       : START_WRITE=0
+3       : GATE=1
+4       : WRITE=0x260
+6       : ENABLE=1
+10      : ARM=0                         : ACTIVE=1
+14      : CAPTURE=1
+15      : CAPTURE=0                     : DATA=4
+16      : GATE=0
+17      : GATE=1
+18      : GATE=0
+19      : CAPTURE=1
+20      : CAPTURE=0                     : DATA=3
+21      : GATE=1
+23      : GATE=0, CAPTURE=1
+24      : CAPTURE=0                     : DATA=2
+25      : CAPTURE=1
+26      :                               : DATA=0
+27      : CAPTURE=0, ENABLE=0           : ACTIVE=0
+
+#####################
+$ Capture more timestamps
+1       : START_WRITE=0
+2       : GATE=1, WRITE=0x200
+5       : WRITE=0x220
+8       : WRITE=0x240
+9       : ENABLE=1
+10      : ARM=0                         : ACTIVE=1
+14      : CAPTURE=1
+15      : CAPTURE=0                     : DATA=0
+16      : GATE=0                        : DATA=4
+17      : GATE=1                        : DATA=4
+18      : GATE=0
+19      : CAPTURE=1
+20      : CAPTURE=0                     : DATA=4
+21      : GATE=1                        : DATA=8
+22      :                               : DATA=9
+23      : GATE=0, CAPTURE=1
+24      : CAPTURE=0                     : DATA=11
+25      :                               : DATA=13
+26      : CAPTURE=1                     : DATA=13
+27      : ENABLE=0                      : ACTIVE=0, DATA=-1
+28      : CAPTURE=0                     : DATA=-1
+29      :                               : DATA=16
 
 #######################
-$ capture bit bus TTLIN
+$ Capture bit bus quadrant 0
 2       : START_WRITE=0
-4       : WRITE=42 
-# config_d/registers/PCAP/BITS0 for BIT[0]..BIT[31]
+4       : WRITE=0x270
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
 13      : CAPTURE=1
@@ -79,38 +218,15 @@ $ capture bit bus TTLIN
 21      : CAPTURE=1, BIT[2]=0
 22      : ENABLE=0, CAPTURE=0           : DATA=0x10, ACTIVE=0
 
-#######################
-$ capture bit bus SEQ
-2       : START_WRITE=0
-4       : WRITE=43
-# config_d/registers/PCAP/BITS1 for BIT[32]..BIT[63]
-10      : ARM=0                         : ACTIVE=1
-11      : ENABLE=1
-13      : CAPTURE=1
-14      : CAPTURE=0                     : DATA=0
-15      : CAPTURE=1, BIT[58]=1
-# BIT[58] appears as bit 26 (0x4000000) of BITS1
-16      : CAPTURE=0, BIT[60]=1          : DATA=0x4000000
-18      : CAPTURE=1
-# BIT[60] appears as bit 26 (0x10000000) of BITS1
-19      : CAPTURE=0                     : DATA=0x14000000
-21      : CAPTURE=1, BIT[58]=0
-22      :                               : DATA=0x10000000
-24      : ENABLE=0, CAPTURE=0           : ACTIVE=0
 
 #######################
-$ capture bit bus order
-2       : START_WRITE=0
-3       : WRITE=42
-# config_d/registers/PCAP/BITS0 for BIT[0]..BIT[31]
-4       : WRITE=43
-# config_d/registers/PCAP/BITS1 for BIT[32]..BIT[63]
-5       : WRITE=44
-# config_d/registers/PCAP/BITS2 for BIT[64]..BIT[95]
-6       : WRITE=45
-# config_d/registers/PCAP/BITS3 for BIT[96]..BIT[127]
-10      : ARM=0                         : ACTIVE=1
-11      : ENABLE=1
+$ Capture bit bus all quadrants
+1       : START_WRITE=0
+2       : WRITE=0x270
+5       : WRITE=0x280
+8       : WRITE=0x290
+11      : WRITE=0x2A0
+12      : ARM=0, ENABLE=1               : ACTIVE=1
 13      : CAPTURE=1, BIT[2]=1
 # BIT[2] appears as bit 2 (0x4) of BITS0
 14      : CAPTURE=0                     : DATA=0x4
@@ -130,119 +246,71 @@ $ capture bit bus order
 # BIT[10] appears as bit 10 (0x400) of BITS0
 26      : CAPTURE=0                     : DATA=0x404
 27      :                               : DATA=0x4000000
-28      :                               : DATA=0x0
+28      : ENABLE=0                      : DATA=0x0, ACTIVE=0
 29      :                               : DATA=0x20
 
 #####################
-$ framing on counters
+$ Gate and capture signals the same
 2       : START_WRITE=0
-# Capture POS bus element 11 (POS[11])
-4       : WRITE=11
-# Frame element 11 to get difference
-5       : FRAMING_MASK=0x1000
-6       : FRAMING_ENABLE=1
+4       : WRITE=0x11
+5       : ENABLE=1
+7       : CAPTURE_EDGE=1
 10      : ARM=0                         : ACTIVE=1
-11      : ENABLE=1, POS[11]=10
-# Live frame
-12      : FRAME=1
-13      : CAPTURE=1, FRAME=0
-14      : CAPTURE=0
-15      : POS[11]=20
-16      : FRAME=1
-17      : FRAME=0                       : DATA=10
-18      : POS[11]=30
-# Dead frame
-19      : FRAME=1
-20      : FRAME=0
-# Live frame
-21      : POS[11]=50
-22      : CAPTURE=1
-23      : POS[11]=35, CAPTURE=0
-25      : FRAME=1
-26      : FRAME=0, ENABLE=0             : DATA=50, ACTIVE=0
-
-#####################
-$ Capture before first frame
-2       : START_WRITE=0
-# Capture POS bus element 11 (POS[11])
-4       : WRITE=11
-# Frame element 11 to get difference
-5       : FRAMING_MASK=0x1000
-6       : FRAMING_ENABLE=1
-10      : ARM=0                         : ACTIVE=1
-11      : ENABLE=1, POS[11]=10
-# Live frame
-12      : CAPTURE=1                     : ACTIVE=0, HEALTH=3
-13      : FRAME=1
-14      : CAPTURE=0, FRAME=0
+11      : POS[1]=10
+12      : GATE=1, CAPTURE=1
+13      : POS[1]=20
+14      : GATE=0, CAPTURE=0
+15      :                               : DATA=10
+16      : POS[1]=24
+18      : POS[1]=30
+21      : POS[1]=22, GATE=1, CAPTURE=1
+23      : POS[1]=13, GATE=0, CAPTURE=0
+24      :                               : DATA=-9
+25      : ENABLE=0                      : ACTIVE=0
 
 
 #####################
-$ More than one capture within a frame
+$ Gap-less sum
 2       : START_WRITE=0
-# Capture POS bus element 11 (POS[11])
-4       : WRITE=11   
-5       : FRAMING_MASK=0x1000
-6       : FRAMING_ENABLE=1
+4       : WRITE=0x12
+5       : ENABLE=1
+7       : CAPTURE_EDGE=2
 10      : ARM=0                         : ACTIVE=1
-11      : ENABLE=1, POS[11]=10
-# Live frame
-12      : FRAME=1
-13      : CAPTURE=1, FRAME=0
-14      : CAPTURE=0
-15      : POS[11]=20
-16      : CAPTURE=1                     : ACTIVE=0, HEALTH=1
-17      : CAPTURE=0
+11      : POS[1]=10
+12      : GATE=1
+13      : POS[1]=20
+14      : CAPTURE=1
+15      :                               : DATA=30
+16      : POS[1]=24
+18      : POS[1]=30
+21      : POS[1]=22, GATE=0, CAPTURE=0
+22      :                               : DATA=178
+23      : POS[1]=13, GATE=1
+26      : GATE=0, CAPTURE=1
+27      :                               : DATA=39
+28      : ENABLE=0, CAPTURE=0           : ACTIVE=0
 
-#####################
-$ framing on counters average mode
-2       : START_WRITE=0
-# Capture POS bus element 11 (POS[11])
-4       : WRITE=11   
-5       : FRAMING_MASK=0x1000
-6       : FRAMING_ENABLE=1
-7       : FRAMING_MODE=0x1000
-10      : ARM=0                         : ACTIVE=1
-11      : ENABLE=1, POS[11]=10
-# Live frame
-12      : FRAME=1
-13      : CAPTURE=1, FRAME=0
-14      : CAPTURE=0
-15      : POS[11]=20
-16      : FRAME=1
-17      : FRAME=0                       : DATA=10
-18      : POS[11]=30
-# Dead frame
-19      : FRAME=1
-20      : FRAME=0
-# Live frame
-21      : POS[11]=50
-22      : CAPTURE=1
-23      : POS[11]=35, CAPTURE=0
-25      : FRAME=1
-26      : FRAME=0, ENABLE=0             : DATA=50, ACTIVE=0
 
-#####################
-$ Capture offset
+
+
+
+
+#########################
+$ Capture too close together
 2       : START_WRITE=0
-4       : WRITE=40
-# config_d/registers/PCAP/CAPTURE_OFFSET
-5       : FRAMING_MASK=0x1
-6       : FRAMING_ENABLE=1
-10      : ARM=0                         : ACTIVE=1
+4       : WRITE=0x240
+6       : WRITE=0x250
+8       : WRITE=0x260
+10      : ARM=0             : ACTIVE=1
 11      : ENABLE=1
-# Live frame
-12      : FRAME=1
-13      : CAPTURE=1, FRAME=0
-14      : CAPTURE=0
-16      : FRAME=1
-17      : FRAME=0                       : DATA=1
-# Dead frame
-19      : FRAME=1
-20      : FRAME=0
-# Live frame
-22      : CAPTURE=1
-23      : CAPTURE=0
-25      : FRAME=1
-26      : FRAME=0, ENABLE=0             : DATA=3, ACTIVE=0
+12      : CAPTURE=1
+13      : CAPTURE=0         : DATA=1
+14      :                   : DATA=0
+15      :                   : DATA=0
+16      : CAPTURE=1
+17      : CAPTURE=0         : DATA=5
+18      : CAPTURE=1         : DATA=0, ACTIVE=0, HEALTH=1
+19      :                   : DATA=0
+22      : ENABLE=0, CAPTURE=0
+
 

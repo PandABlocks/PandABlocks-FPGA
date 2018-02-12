@@ -13,7 +13,6 @@ POW_TWO = 2 ** np.arange(32, dtype=np.uint32)
 class Block(object):
     bit_bus = np.zeros(128, dtype=np.bool_)
     pos_bus = np.zeros(32, dtype=np.int32)
-    enc_bus = np.zeros(4, dtype=np.int32)
 
     @classmethod
     def bits_to_int(cls, bits):
@@ -26,7 +25,6 @@ class Block(object):
         cls.parser = ConfigParser(config_dir)
         cls.bit_bus.fill(0)
         cls.pos_bus.fill(0)
-        cls.enc_bus.fill(0)
         i = cls.parser.bit_bus["BITS.ONE"]
         cls.bit_bus[i] = 1
         for subclass in cls.__subclasses__():

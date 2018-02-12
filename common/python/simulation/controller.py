@@ -63,7 +63,7 @@ class Controller(object):
         """
         # check if we have a block of the right type
         try:
-            imp = __import__("zebra2.simulation." + name.lower())
+            imp = __import__("common.python.pandablocks.simulation." + name.lower())
             package = getattr(imp.simulation, name.lower())
             clsnames = [n for n in dir(package) if n.upper() == name]
             cls = getattr(package, clsnames[0])
@@ -214,6 +214,7 @@ class Controller(object):
     def process_blocks(self, ts, block_changes):
         # map block -> changes
         new_wakeups = {}
+        pos_changes = []
         for block, changes in block_changes.items():
             # Remove the old wakeup if we have one
             self.remove_wakeup(block)
@@ -226,6 +227,8 @@ class Controller(object):
                 if data is None:
                     continue
                 bus, bus_changes, idx = data
+                if bus is Block.pos_bus:
+                    pos_changes.append(idx)
                 bus[idx] = val
                 bus_changes[idx] = 1
                 # If someone's listening, tell them about it
@@ -240,6 +243,9 @@ class Controller(object):
             # If we are due to be woken up, add this one to the wakeup dict
             if next_ts is not None:
                 new_wakeups.setdefault((block, next_ts), {})
+        if pos_changes:
+            new_wakeups.setdefault((self.pcap, ts+1), {})["POS_BUS"] = \
+                pos_changes
         return new_wakeups
 
     def insert_wakeup(self, ts, block, changes):

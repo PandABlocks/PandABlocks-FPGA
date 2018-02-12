@@ -1,13 +1,15 @@
 PCAP        Position capture control
-    ENABLE          Data capture enable
-    FRAME           Data capture frame
-    CAPTURE         Data capture event
+    ENABLE          After arm, when high start capture, when low disarm
+    GATE            After enable, only process gated values if high
+    CAPTURE         On selected edge capture current value and gated data
+    CAPTURE_EDGE    Which edge of capture input signal triggers capture
+    SHIFT_SUM       Shift sum data, use if > 2**32 samples required in sum/average
     HEALTH          Was last capture successful?
     ACTIVE          Data capture in progress
-    CAPTURE_TS      Timestamp of captured data
-    FRAME_LENGTH    Length of captured frame
-    CAPTURE_OFFSET  Offset of capture into capture frame
-    ADC_COUNT       Number of ADC samples captured
+    TS_START        Timestamp of first gate high in current capture relative to enable
+    TS_END          Timestamp of last gate high + 1 in current capture relative to enable
+    TS_CAPTURE      Timestamp of capture event relative to enable
+    SAMPLES         Number of gated samples in the current capture
     BITS0           Quadrant 0 of bit_bus
     BITS1           Quadrant 1 of bit_bus
     BITS2           Quadrant 2 of bit_bus

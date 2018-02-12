@@ -45,7 +45,7 @@ INENC[4]
     DATA            bit_out
     CLK             bit_mux
     CONN            bit_out
-    VAL             pos_out     encoder
+    VAL             pos_out
 
 OUTENC[4]
     PROTOCOL        param       enum 4
