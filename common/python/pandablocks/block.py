@@ -25,8 +25,6 @@ class Block(object):
         cls.parser = ConfigParser(config_dir)
         cls.bit_bus.fill(0)
         cls.pos_bus.fill(0)
-        i = cls.parser.bit_bus["BITS.ONE"]
-        cls.bit_bus[i] = 1
         for subclass in cls.__subclasses__():
             subclass.add_properties()
 

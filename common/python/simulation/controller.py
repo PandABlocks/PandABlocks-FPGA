@@ -305,9 +305,17 @@ class Controller(object):
         # check old values
         old_bus_val = getattr(block, name)
         if field.cls == "bit_mux":
-            new_bus_val = Block.bit_bus[value]
+            if value == 128:
+                new_bus_val = 0
+            elif value == 129:
+                new_bus_val = 1
+            else:
+                new_bus_val = Block.bit_bus[value]
         else:
-            new_bus_val = Block.pos_bus[value]
+            if value == 32:
+                new_bus_val = 0
+            else:
+                new_bus_val = Block.pos_bus[value]
         lblock, lattr = self.bus_lookup[(field.cls[:3], value)]
         # Update listeners for this field
         self.listeners.setdefault((lblock, lattr), []).append((block, name))

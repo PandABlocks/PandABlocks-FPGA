@@ -7,7 +7,5 @@ BITS        Soft inputs and constant bits
     OUTB            The value of B on the bit bus
     OUTC            The value of C on the bit bus
     OUTD            The value of D on the bit bus
-    ZERO            The constant value 0 on the bit bus
-    ONE             The constant value 1 on the bit bus
 
 
