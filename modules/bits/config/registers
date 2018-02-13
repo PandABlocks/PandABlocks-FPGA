@@ -7,7 +7,6 @@ BITS        {{newBlockNo("BITS")}}
     OUTB            {{newBitBus()}}
     OUTC            {{newBitBus()}}
     OUTD            {{newBitBus()}}
-    ZERO            0
-    ONE             1
+
 
 

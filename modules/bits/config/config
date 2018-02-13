@@ -7,5 +7,4 @@ BITS
     OUTB            bit_out
     OUTC            bit_out
     OUTD            bit_out
-    ZERO            bit_out
-    ONE             bit_out
+

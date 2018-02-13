@@ -34,8 +34,6 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
     -- Block outputs
-    zero_o              : out std_logic;
-    one_o               : out std_logic;
     bits_a_o            : out std_logic;
     bits_b_o            : out std_logic;
     bits_c_o            : out std_logic;
@@ -89,8 +87,6 @@ bits_inst  : entity work.bits
 port map (
     clk_i               => clk_i,
 
-    zero_o              => zero_o,
-    one_o               => one_o,
     softa_o             => bits_a_o,
     softb_o             => bits_b_o,
     softc_o             => bits_c_o,
