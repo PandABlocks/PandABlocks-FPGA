@@ -276,8 +276,6 @@ signal clocks_outc          : std_logic_vector(0 downto 0);
 signal clocks_outd          : std_logic_vector(0 downto 0);
 
 -- BITS Block
-signal bits_zero            : std_logic_vector(0 downto 0);
-signal bits_one             : std_logic_vector(0 downto 0);
 signal bits_outa            : std_logic_vector(0 downto 0);
 signal bits_outb            : std_logic_vector(0 downto 0);
 signal bits_outc            : std_logic_vector(0 downto 0);
@@ -1015,8 +1013,6 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(BITS_CS),
 
-    zero_o              => bits_zero(0),
-    one_o               => bits_one(0),
     bits_a_o            => bits_outa(0),
     bits_b_o            => bits_outb(0),
     bits_c_o            => bits_outc(0),
@@ -1220,15 +1216,11 @@ port map (
     BITS_OUTB       => bits_outb,
     BITS_OUTC       => bits_outc,
     BITS_OUTD       => bits_outd,
-    BITS_ZERO       => bits_zero,
-    BITS_ONE        => bits_one,
     -- CLOCKS Block
     CLOCKS_OUTA     => clocks_outa,
     CLOCKS_OUTB     => clocks_outb,
     CLOCKS_OUTC     => clocks_outc,
     CLOCKS_OUTD     => clocks_outd,
-    -- POSITIONS Block
-    POSITIONS_ZERO  => (others => (others => '0')),
     -- SLOW Block
     -- FMC Block
     fmc_inputs_i    => fmc_inputs,
