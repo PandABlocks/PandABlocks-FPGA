@@ -18,11 +18,7 @@ reg     OUTA;
 reg     OUTB;
 reg     OUTC;
 reg     OUTD;
-reg     ONE;
-reg     ZERO;
 
-wire    one;
-wire    zero;
 wire    softa;
 wire    softb;
 wire    softc;
@@ -138,8 +134,6 @@ initial begin
     OUTB = 0;
     OUTC = 0;
     OUTD = 0;
-    ZERO = 0;
-    ONE = 0;
     is_file_end = 0;
 
     @(posedge clk_i);
@@ -148,19 +142,15 @@ initial begin
     fid[2] = $fopen("bits_bus_out.txt", "r"); // TS»¯¯¯¯¯OUTD»¯¯¯OUTN
 
     // Read and ignore description field
-    r[2] = $fscanf(fid[2], "%s %s %s %s %s %s %s\n", bus_out[6], bus_out[5], bus_out[4], 
-            bus_out[3], bus_out[2], bus_out[1], bus_out[0]);
+    r[2] = $fscanf(fid[2], "%s %s %s %s %s\n", bus_out[4], bus_out[3], bus_out[2], bus_out[1], bus_out[0]);
 
     while (!$feof(fid[2])) begin
-        r[2] = $fscanf(fid[2], "%d %d %d %d %d %d %d\n", bus_out[6], bus_out[5], bus_out[4], 
-            bus_out[3], bus_out[2], bus_out[1], bus_out[0]);
-        wait (timestamp == bus_out[6]) begin
-            OUTA = bus_out[5];
-            OUTB = bus_out[4];
-            OUTC = bus_out[3];
-            OUTD = bus_out[2];
-            ZERO = bus_out[1];
-            ONE = bus_out[0];
+        r[2] = $fscanf(fid[2], "%d %d %d %d %d\n", bus_out[4], bus_out[3], bus_out[2], bus_out[1], bus_out[0]);
+        wait (timestamp == bus_out[4]) begin
+            OUTA = bus_out[3];
+            OUTB = bus_out[2];
+            OUTC = bus_out[1];
+            OUTD = bus_out[0];
         end
         @(posedge clk_i);
     end
@@ -210,8 +200,6 @@ always @ (posedge clk_i)
 //panda_div uut (
 bits uut (
         .clk_i            ( clk_i             ),
-        .zero_o           ( zero              ),
-        .one_o            ( one               ),
         .softa_o          ( softa             ),
         .softb_o          ( softb             ),
         .softc_o          ( softc             ),
