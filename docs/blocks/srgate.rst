@@ -50,10 +50,6 @@ SET or RESET input.
    :block: srgate
    :title: Reset on falling Edge
 
-.. sequence_plot::
-   :block: srgate
-   :title: Reset on either Edge SET default
-
 Active edge configure conditions
 --------------------------------
 if the active edge is 'rising' then reset to 'falling' at the same time as a
