@@ -12,10 +12,10 @@ Name            Dir Type    Description
 =============== === ======= ===================================================
 FUNC            R/W UInt32  LUT logic function
 A               R/W Enum    | Source of the value of A for calculation
-                            | 0 - Value of INPA
-                            | 1 - Pulse on rising edge of INPA
-                            | 2 - Pulse on falling edge of INPA
-                            | 3 - Pulse on either edge of INPA
+                            | 0 - Input Value
+                            | 1 - Rising Edge
+                            | 2 - Falling Edge
+                            | 3 - Either Edge
 B               R/W Enum    Source of the value of B for calculation
 C               R/W Enum    Source of the value of C for calculation
 D               R/W Enum    Source of the value of D for calculation
