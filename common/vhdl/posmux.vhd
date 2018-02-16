@@ -44,7 +44,7 @@ signal posn             : std_logic_vector(31 downto 0);
 
 begin
 
-process(POSMUX_SEL, posbus_i)
+process(POSMUX_SEL)
 begin
     if POSMUX_SEL(PBUSBW) = '0' then
         -- Select position field from the position array
