@@ -1,5 +1,10 @@
 LUT         {{newBlockNo("LUT")}}
     FUNC            {{newBlockReg()}}
+    A               {{newBlockReg()}}
+    B               {{newBlockReg()}}
+    C               {{newBlockReg()}}
+    D               {{newBlockReg()}}
+    E               {{newBlockReg()}}
     INPA            {{newBlockReg(typ='bit_mux')}}
     INPB            {{newBlockReg(typ='bit_mux')}}
     INPC            {{newBlockReg(typ='bit_mux')}}

@@ -1,5 +1,30 @@
 LUT[{{app_config["LUT"]}}]
     FUNC            param       lut
+    A               param   enum    4
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
+    B               param   enum    4
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
+    C               param   enum    4
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
+    D               param   enum    4
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
+    E               param   enum    4
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
     INPA            bit_mux
     INPB            bit_mux
     INPC            bit_mux

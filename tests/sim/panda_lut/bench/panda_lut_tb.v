@@ -9,6 +9,8 @@ integer timestamp = 0;
 
 // Inputs
 reg         SIM_RESET;
+reg         SIM_RESET_DLY;
+reg [3:0]   cnt = 0;
 reg         INPA;
 reg         INPB;
 reg         INPC;
@@ -16,6 +18,16 @@ reg         INPD;
 reg         INPE;
 reg [31:0]  FUNC;
 reg         FUNC_WSTB;
+reg [1:0]   A;
+reg         A_WSTB;
+reg [1:0]   B;
+reg         B_WSTB;
+reg [1:0]   C;
+reg         C_WSTB;
+reg [1:0]   D;
+reg         D_WSTB;
+reg [1:0]   E;
+reg         E_WSTB;                    
 reg         VAL;
 
 reg         err;
@@ -84,10 +96,21 @@ end
 //
 
 // TS»¯¯¯¯¯FUNC
-integer reg_in[2:0];
+integer reg_in[12:0];
 
 initial begin
     FUNC = 0;
+    FUNC_WSTB = 0;
+    A = 0;
+    A_WSTB = 0;
+    B = 0;
+    B_WSTB = 0;
+    C = 0;
+    C_WSTB = 0;
+    D = 0;
+    D_WSTB = 0;
+    E = 0;
+    E_WSTB = 0; 
 
     @(posedge clk_i);
 
@@ -95,13 +118,25 @@ initial begin
     fid[1] = $fopen("lut_reg_in.txt", "r");
 
     // Read and ignore description field
-    r[1] = $fscanf(fid[1], "%s %s %s\n", reg_in[2], reg_in[1], reg_in[0]);
+    r[1] = $fscanf(fid[1], "%s %s %s %s %s %s %s %s %s %s %s %s %s\n", reg_in[12], reg_in[11], reg_in[10], reg_in[9], reg_in[8], reg_in[7], 
+                                                            reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
 
     while (!$feof(fid[1])) begin
-        r[1] = $fscanf(fid[1], "%d %d %d\n", reg_in[2], reg_in[1], reg_in[0]);
-        wait (timestamp == reg_in[2]) begin
-            FUNC = reg_in[1];
-            FUNC_WSTB = reg_in[0];
+        r[1] = $fscanf(fid[1], "%d %d %d %d %d %d %d %d %d %d %d %d %d\n", reg_in[12], reg_in[11], reg_in[10], reg_in[9], reg_in[8], reg_in[7], 
+                                                                reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
+        wait (timestamp == reg_in[12]) begin
+            FUNC = reg_in[11];
+            FUNC_WSTB = reg_in[10];
+            A = reg_in[9];
+            A_WSTB = reg_in[8];
+            B = reg_in[7];
+            B_WSTB = reg_in[6];
+            C = reg_in[5];
+            C_WSTB = reg_in[4];
+            D = reg_in[3];
+            D_WSTB = reg_in[2];
+            E = reg_in[1];
+            E_WSTB = reg_in[0];
         end
         @(posedge clk_i);
     end
@@ -139,6 +174,16 @@ initial begin
     is_file_end = 1;
 end
 
+
+always @(posedge clk_i)
+begin
+    SIM_RESET_DLY <= SIM_RESET;
+    if (SIM_RESET_DLY == 0 && SIM_RESET == 1) begin
+        cnt <= cnt + 1;
+    end
+end         
+
+
 //
 // ERROR DETECTION:
 // Compare Block Outputs and Expected Outputs.
@@ -148,7 +193,7 @@ begin
     if (~is_file_end) begin
         // If not equal, display an error.
         if (out_o != VAL) begin
-            $display("OUT error detected at timestamp %d\n", timestamp);
+            $display("OUT error detected at timestamp %d\n", timestamp, "TEST %d\n", cnt);
             //$finish(2);
             err = 1;    
             test_result = 1;        
@@ -170,6 +215,11 @@ lut uut (
         .clk_i          ( clk_i             ),
         //.reset_i        ( SIM_RESET         ),
         .FUNC           ( FUNC              ),
+        .A              ( A                 ),
+        .B              ( B                 ),
+        .C              ( C                 ),
+        .D              ( D                 ),
+        .E              ( E                 ),
         .inpa_i         ( INPA              ),
         .inpb_i         ( INPB              ),
         .inpc_i         ( INPC              ),
