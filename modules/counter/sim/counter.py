@@ -1,4 +1,13 @@
+import numpy as np
+
 from common.python.pandablocks.block import Block
+
+
+MIN = np.iinfo(np.int32).min
+MAX = np.iinfo(np.int32).max
+
+UP = 0
+DOWN = 1
 
 
 class Counter(Block):
@@ -12,8 +21,6 @@ class Counter(Block):
         # Set attributes
         for name, value in changes.items():
             setattr(self, name, value)
-            if name == b.START:
-                self.OUT = value
 
         if changes.get(b.ENABLE, None):
             self.OUT = self.START
@@ -21,11 +28,18 @@ class Counter(Block):
         # process trigger on rising edge
         if self.ENABLE and b.TRIG in changes:
             if changes[b.TRIG]:
-                if self.DIR == 0:
-                    self.OUT += self.STEP
+                if self.STEP == 0:
+                    step = 1
                 else:
-                    self.OUT -= self.STEP
-                if self.OUT > (2**32 - 1):
+                    step = self.STEP
+                if self.DIR == DOWN:
+                    step = -step
+                self.OUT += step
+                if self.OUT > MAX:
+                    self.OUT -= MAX - MIN + 1
+                    self.CARRY = 1
+                elif self.OUT < MIN:
+                    self.OUT += MAX - MIN + 1
                     self.CARRY = 1
             elif self.CARRY:
                 self.CARRY = 0
