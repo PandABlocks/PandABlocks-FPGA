@@ -14,10 +14,12 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     -- Block Input and Outputs
+    enable_i            : in  std_logic;
     set_i               : in  std_logic;
     rst_i               : in  std_logic;
     out_o               : out std_logic;
     -- Block Parameters
+    WHEN_DISABLED       : in  std_logic_vector(1 downto 0);
     SET_EDGE            : in  std_logic_vector(1 downto 0);
     RST_EDGE            : in  std_logic_vector(1 downto 0);
     FORCE_SET           : in  std_logic;
@@ -30,6 +32,10 @@ architecture rtl of srgate is
 constant c_trig_edge_neg        : std_logic_vector(1 downto 0) := "01";
 constant c_trig_edge_pos        : std_logic_vector(1 downto 0) := "00";
 constant c_trig_edge_pos_neg    : std_logic_vector(1 downto 0) := "10";     
+
+constant c_output_low           : std_logic_vector(1 downto 0) := "00";
+constant c_output_high          : std_logic_vector(1 downto 0) := "01";
+constant c_keep_current_output  : std_logic_vector(1 downto 0) := "10";
 
 signal set_prev         : std_logic;
 signal rst_prev         : std_logic;
@@ -74,19 +80,28 @@ rst <= rst_fall when (RST_EDGE = c_trig_edge_neg) else
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        -- Simple SRGate logic
-        if (FORCE_RST = '1') then
-            pulse <= '0';
-        elsif (FORCE_SET = '1') then
-            pulse <= '1';
-        elsif (rst = '1') then
-            pulse <= '0';
-        elsif (set = '1') then
-            pulse <= '1';
+        if enable_i = '1' then
+            -- Simple SRGate logic
+            if (FORCE_RST = '1') then
+                pulse <= '0';
+            elsif (FORCE_SET = '1') then
+                pulse <= '1';
+            elsif (rst = '1') then
+                pulse <= '0';
+            elsif (set = '1') then
+                pulse <= '1';
+            end if;
+        else
+            if WHEN_DISABLED = c_output_low then
+                pulse <= '0';
+            elsif WHEN_DISABLED = c_output_high then
+                pulse <= '1';    
+            end if;    
         end if;
     end if;
 end process;
 
+--out_o <= pulse when enable_i = '1' else '0';
 out_o <= pulse;
 
 end rtl;
