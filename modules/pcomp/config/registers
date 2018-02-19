@@ -1,15 +1,17 @@
 PCOMP       {{newBlockNo("PCOMP")}}
+    PRE_START       {{newBlockReg()}}
     START           {{newBlockReg()}}
-    STEP            {{newBlockReg()}}
     WIDTH           {{newBlockReg()}}
-    PNUM            {{newBlockReg()}}
+    STEP            {{newBlockReg()}}
+    PULSES          {{newBlockReg()}}
     RELATIVE        {{newBlockReg()}}
     DIR             {{newBlockReg()}}
-    DELTAP          {{newBlockReg()}}
     ENABLE          {{newBlockReg(typ='bit_mux')}}
     INP             {{newBlockReg()}}
     ACTIVE          {{newBitBus()}}
     OUT             {{newBitBus()}}
-    ERROR           {{newBlockReg()}}
+    HEALTH          {{newBlockReg()}}
+    PRODUCED        {{newBlockReg()}}
+    STATE           {{newBlockReg()}}
 
 

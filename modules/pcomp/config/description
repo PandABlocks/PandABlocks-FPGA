@@ -1,14 +1,16 @@
 PCOMP       Position compare
-    START           Pulse start position value
-    STEP            Pulse step value
-    WIDTH           Pulse width value
-    PNUM            Pulse number to be generated
-    RELATIVE        Relative position compare enable
-    DIR             Direction of crossing
-    DELTAP          Position offset before START condition can be met
-    ENABLE          Reset on falling edge, enable on rising
+    PRE_START       INP must be this far from START before waiting for START
+    START           Pulse absolute/relative start position value
+    WIDTH           The relative distance between a rising and falling edge
+    STEP            The relative distance between successive rising edges
+    PULSES          The number of pulses to produce, 0 means infinite
+    RELATIVE        If 1 then START is relative to the position of INP at enable
+    DIR             Direction to apply all relative offsets to
+    ENABLE          Stop on falling edge, reset and enable on rising edge
     INP             Position data from position-data bus
     ACTIVE          Active output is high while block is in operation
-    OUT             Output pulse
-    ERROR           Error indicator
+    OUT             Output pulse train
+    HEALTH          Error details if anything goes wrong
+    PRODUCED        The number of pulses produced
+    STATE           The internal statemachine state
 

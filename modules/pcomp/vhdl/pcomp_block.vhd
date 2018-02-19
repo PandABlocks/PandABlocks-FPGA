@@ -51,22 +51,22 @@ end pcomp_block;
 
 architecture rtl of pcomp_block is
 
-type state_t is (IDLE, POS, NEG);
 
-signal ENABLE_VAL           : std_logic_vector(31 downto 0);
-signal POSN_VAL             : std_logic_vector(31 downto 0);
+signal PRE_START            : std_logic_vector(31 downto 0);    
 signal START                : std_logic_vector(31 downto 0);
 signal STEP                 : std_logic_vector(31 downto 0);
 signal WIDTH                : std_logic_vector(31 downto 0);
-signal NUM                  : std_logic_vector(31 downto 0);
+signal PULSES               : std_logic_vector(31 downto 0);
 signal RELATIVE             : std_logic_vector(31 downto 0);
 signal DIR                  : std_logic_vector(31 downto 0);
-signal DELTAP               : std_logic_vector(31 downto 0);
-signal ERR                  : std_logic_vector(31 downto 0);
+signal health_o             : std_logic_vector(1 downto 0);
+signal state_o              : std_logic_vector(2 downto 0);
+signal health               : std_logic_vector(31 downto 0);
+signal state                : std_logic_vector(31 downto 0);    
+signal produced_o           : std_logic_vector(31 downto 0);               
 
 signal pcomp_act            : std_logic;
 signal pcomp_out            : std_logic;
-signal pcomp_error          : std_logic_vector(31 downto 0);
 
 signal enable               : std_logic;
 signal posn                 : std_logic_vector(31 downto 0);
@@ -95,22 +95,30 @@ port map (
     write_data_i        => write_data_i,
     write_ack_o         => write_ack_o,
 
+    PRE_START           => PRE_START,
+    PRE_START_WSTB      => open,
     START               => START,
     START_WSTB          => open,
     STEP                => STEP,
     STEP_WSTB           => open,
     WIDTH               => WIDTH,
     WIDTH_WSTB          => open,
-    PNUM                => NUM,
-    PNUM_WSTB           => open,
+    PULSES              => PULSES,
+    PULSES_WSTB         => open,
     RELATIVE            => RELATIVE,
     RELATIVE_WSTB       => open,
     DIR                 => DIR,
     DIR_WSTB            => open,
-    DELTAP              => DELTAP,
-    DELTAP_WSTB         => open,
-    ERROR               => pcomp_error
+    HEALTH              => health,
+    PRODUCED            => produced_o,
+    STATE               => state
 );
+
+health(31 downto 2) <= (others => '0');
+health(1 downto 0) <= health_o; 
+
+state(31 downto 3) <= (others => '0');
+state(2 downto 0) <= state_o;
 
 --
 -- Position Compare IP
@@ -122,21 +130,19 @@ port map (
 
     enable_i            => enable,
     posn_i              => posn,
-    table_posn_i        => (others => '0'),
-    table_read_o        => open,
-    table_end_i         => '0',
 
+    PRE_START           => PRE_START,
     START               => START,
     STEP                => STEP,
     WIDTH               => WIDTH,
-    NUM                 => NUM,
+    PULSES              => PULSES,
     RELATIVE            => RELATIVE(0),
-    DIR                 => DIR(0),
-    DELTAP              => DELTAP,
-    USE_TABLE           => '0',
+    DIR                 => DIR(1 downto 0),
+    health_o            => health_o,
+    produced_o          => produced_o,
+    state_o             => state_o,
 
     act_o               => pcomp_act,
-    err_o               => pcomp_error,
     out_o               => pcomp_out
 );
 
