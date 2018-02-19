@@ -116,6 +116,16 @@ values on the pos_bus:
    :block: pcap
    :title: Capture pos bus entry 2 Sum large values
 
+If long frame times (> 2**32 SAMPLES, > 30s), are to be used, then SHIFT_SUM
+can be used to shift both the sum and SAMPLES field by up to 8-bits to
+accomodate up to 125 hour frames. This example demonstrates the effect with
+smaller numbers:
+
+.. sequence_plot::
+   :block: pcap
+   :title: Capture pos bus entry 9 Sum shifted
+
+
 Mode 4/5 - Min/Max
 ~~~~~~~~~~~~~~~~~~
 

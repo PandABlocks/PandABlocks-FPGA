@@ -3,7 +3,7 @@ PCAP        Position capture control
     GATE            After enable, only process gated values if high
     CAPTURE         On selected edge capture current value and gated data
     CAPTURE_EDGE    Which edge of capture input signal triggers capture
-    SHIFT_SUM       Shift sum data, use if > 2**32 samples required in sum/average
+    SHIFT_SUM       Shift sum/samples data, use if > 2**32 samples required in sum/average
     HEALTH          Was last capture successful?
     ACTIVE          Data capture in progress
     TS_START        Timestamp of first gate high in current capture relative to enable

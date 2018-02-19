@@ -109,6 +109,30 @@ $ Capture pos bus entry 2 Sum large values
 36      : ENABLE=0, GATE=0              : DATA=-2, ACTIVE=0
 
 #####################
+$ Capture pos bus entry 9 Sum shifted
+1       : SHIFT_SUM=1
+2       : START_WRITE=0
+3       : GATE=1
+4       : WRITE=0x92
+6       : POS[9]=27
+8       : WRITE=0x260
+10      : ARM=0                         : ACTIVE=1
+11      : ENABLE=1
+14      : CAPTURE=1
+15      : CAPTURE=0                     : DATA=40
+16      : GATE=0, POS[9]=19             : DATA=1
+17      : GATE=1
+18      : GATE=0
+19      : CAPTURE=1, POS[9]=-13
+20      : CAPTURE=0                     : DATA=36
+21      : GATE=1                        : DATA=1
+23      : GATE=0, CAPTURE=1, POS[9]=-9
+24      : CAPTURE=0                     : DATA=-13
+25      : CAPTURE=1                     : DATA=1
+26      :                               : DATA=0
+27      : CAPTURE=0, ENABLE=0           : DATA=0, ACTIVE=0
+
+#####################
 $ Capture pos bus entry 8 Min
 2       : START_WRITE=0
 3       : GATE=1
