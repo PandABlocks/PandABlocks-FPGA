@@ -1,44 +1,57 @@
 SEQ[{{app_config["SEQ"]}}]
+    TABLE           table
+        15:0    REPEATS
+        19:16   TRIGGER     enum
+        -   0   Immediate
+        -   1   BITA=0
+        -   2   BITA=1
+        -   3   BITB=0
+        -   4   BITB=1
+        -   5   BITC=0
+        -   6   BITC=1
+        -   7   POSA>=POSITION
+        -   8   POSA<=POSITION
+        -   9   POSB>=POSITION
+        -   10  POSB<=POSITION
+        -   11  POSC>=POSITION
+        -   12  POSC<=POSITION
+        63:32   POSITION
+        95:64   TIME1
+        20:20   OUTA1
+        21:21   OUTB1
+        22:22   OUTC1
+        23:23   OUTD1
+        24:24   OUTE1
+        25:25   OUTF1
+        127:96  TIME2
+        26:26   OUTA2
+        27:27   OUTB2
+        28:28   OUTC2
+        29:29   OUTD2
+        30:30   OUTE2
+        31:31   OUTF2
     PRESCALE        param       time
-    TABLE_CYCLE     param
+    REPEATS         param
     ENABLE          bit_mux
-    INPA            bit_mux
-    INPB            bit_mux
-    INPC            bit_mux
-    INPD            bit_mux
+    BITA            bit_mux
+    BITB            bit_mux
+    BITC            bit_mux
+    POSA            pos_mux
+    POSB            pos_mux
+    POSC            pos_mux
+    ACTIVE          bit_out
     OUTA            bit_out
     OUTB            bit_out
     OUTC            bit_out
     OUTD            bit_out
     OUTE            bit_out
     OUTF            bit_out
-    ACTIVE          bit_out
-    CUR_FRAME       read
-    CUR_FCYCLE      read
-    CUR_TCYCLE      read
-    TABLE           table
-        31:0    REPEATS
-        60:60   USE_INPA
-        61:61   USE_INPB
-        62:62   USE_INPC
-        63:63   USE_INPD
-        56:56   INPA
-        57:57   INPB
-        58:58   INPC
-        59:59   INPD
-        95:64   PH1_TIME
-        48:48   PH1_OUTA
-        49:49   PH1_OUTB
-        50:50   PH1_OUTC
-        51:51   PH1_OUTD
-        52:52   PH1_OUTE
-        53:53   PH1_OUTF
-        127:96  PH2_TIME
-        40:40   PH2_OUTA
-        41:41   PH2_OUTB
-        42:42   PH2_OUTC
-        43:43   PH2_OUTD
-        44:44   PH2_OUTE
-        45:45   PH2_OUTF
-
-
+    TABLE_REPEAT    read
+    TABLE_LINE      read
+    LINE_REPEAT     read
+    STATE           read    enum 5
+        0   WAIT_ENABLE
+        1   LOAD_TABLE
+        2   WAIT_TRIGGER
+        3   PHASE1
+        4   PHASE2

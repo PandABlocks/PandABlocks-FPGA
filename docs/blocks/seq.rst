@@ -1,142 +1,213 @@
 SEQ - Sequencer
 ===============================
-The sequencer block performs automatic execution of sequenced frames to produce
-timing signals. Each frame is started internally or by external trigger and
-runs for the user-defined time frame (phase-1) and waits for dead time (phase-2)
-before moving to the next frame. Each frame sets the block outputs during
-phase-1 and phase-2 as defined by user-configured mask.
-
-The frame starts in a wait phase, where it waits until the configured inputs
-meet the configured input conditions. Once these input conditions are met,
-phase-1 begins and runs for its configured duration, after this, phase2 begins
-and runs for its configured duration. If a frame is set to repeat, the repeat
-cycle will set outputs immediately, provided the inputs meet the input
-conditions. A value of 0 for frame or table repeat means repeat indefinitely.
-
-The procedure for writing table data is to first write to TABLE_RESET, then
-sequentially write four 32 bit values to TABLE_DATA. After a complete
-table has been written, the TABLE_LENGTH must be provided. After a TABLE_RST, a
-whole table and table length must be provided; this means that you cannot
-partially overwrite a table. The TABLE_RST sets the ACTIVE state to 0 and
-once the TABLE_LENGTH is provided, if the ENABLE is high, the ACTIVE state is
-reset to 1 and the sequencer starts from the beginning of the table.
+The sequencer block performs automatic execution of sequenced lines to produce
+timing signals. Each line optionally waits for an external trigger condition and
+runs for an optional phase1, then a mandatory phase2 before moving to the next
+line. Each line sets the block outputs during phase1 and phase2 as defined by
+user-configured mask. Individual lines can be repeated, and the whole table
+can be repeated, with a value of 0 meaning repeat forever.
 
 Parameters
 ----------
 =============== === ======= ===================================================
 Name            Dir Type    Description
 =============== === ======= ===================================================
+TABLE           W   Table   Sequencer table of lines
 PRESCALE        W   UInt32  Prescalar for system clock
-TABLE_LENGTH    W   Uint16  Number of frames in the table
-TABLE_CYCLE     W   UInt32  Number of times the table will cycle
-TABLE_RST       W   UInt32  | Resets table write address to the beginning of the
-                            | table
-TABLE_DATA      W   UInt32  Table data to be pushed sequentially to the buffer
-TABLE_WSTB      W   UInt32  Number of times data has been written to the table
-ENABLE          In  Bit     | Gate input:
-                            | - Rising edge: Starts the sequencer state machine
-                            | - Falling edge: Stops the state machine and puts
-                            |   it into FINISHED state
-INPA            In  Bit     Trigger input A
-INPB            In  Bit     Trigger input B
-INPC            In  Bit     Trigger input C
-INPD            In  Bit     Trigger input D
-OUTA            Out Bit     Output A
-OUTB            Out Bit     Output B
-OUTC            Out Bit     Output C
-OUTD            Out Bit     Output D
-OUTE            Out Bit     Output E
-OUTF            Out Bit     Output F
+ENABLE          In  Bit     Stop on falling edge, reset and enable on rising edge
+INPA            In  Bit     BITA for optional trigger condition
+INPB            In  Bit     BITB for optional trigger condition
+INPC            In  Bit     BITC for optional trigger condition
+POSA            In  Pos     POSA for optional trigger condition
+POSB            In  Pos     POSB for optional trigger condition
+POSC            In  Pos     POSC for optional trigger condition
 ACTIVE          Out Bit     Sequencer Active Flag
-CUR_FRAME       R   UInt32  | Sequencer current frame number value. 0 in
-                            | INACTIVE state, 1 indexed in ACTIVE state.
-CUR_FCYCLE      R   UInt32  | Sequencer current frame cycle value. 0 in
-                            | INACTIVE state, 1 indexed in ACTIVE state.
-CUR_TCYCLE      R   UInt32  | Sequencer current table cycle value. 0 in
-                            | INACTIVE state, 1 indexed in ACTIVE state.
+OUTA            Out Bit     Output A for phase outputs
+OUTB            Out Bit     Output B for phase outputs
+OUTC            Out Bit     Output C for phase outputs
+OUTD            Out Bit     Output D for phase outputs
+OUTE            Out Bit     Output E for phase outputs
+OUTF            Out Bit     Output F for phase outputs
+TABLE_REPEAT    R   UInt32  Current iteration through the entire table
+TABLE_LINE      R   UInt32  Current line in the table that is active
+LINE_REPEAT     R   UInt32  Current iteration of the active table line
+STATE           R   Enum    | Internal statemachine state
+                            | 0: WAIT_ENABLE
+                            | 1: LOAD_TABLE
+                            | 2: WAIT_TRIGGER
+                            | 3: PHASE1
+                            | 4: PHASE2
 =============== === ======= ===================================================
 
-Sequencer Frame Composition
----------------------------
+Sequencer Table Line Composition
+--------------------------------
+========= ======== ============================================================
+Bit Field Name     Description
+========= ======== ============================================================
+[15:0]    REPEATS  Number of times the line will repeat
+[19:16]   TRIGGER  | The trigger condition to start the phases
+                   | 0: Immediate
+                   | 1: BITA=0
+                   | 2: BITA=1
+                   | 3: BITB=0
+                   | 4: BITB=1
+                   | 5: BITC=0
+                   | 6: BITC=1
+                   | 7: POSA>=POSITION
+                   | 8: POSA<=POSITION
+                   | 9: POSB>=POSITION
+                   | 10: POSB<=POSITION
+                   | 11: POSC>=POSITION
+                   | 12: POSC<=POSITION
+[63:32]   POSITION The position that can be used in trigger condition
+[95:64]   TIME1    The time the optional phase 1 should take
+[20:20]   OUTA1    Output A value during phase 1
+[21:21]   OUTB1    Output B value during phase 1
+[22:22]   OUTC1    Output C value during phase 1
+[23:23]   OUTD1    Output D value during phase 1
+[24:24]   OUTE1    Output E value during phase 1
+[25:25]   OUTF1    Output F value during phase 1
+[127:96]  TIME2    The time the mandatory phase 2 should take
+[26:26]   OUTA2    Output A value during phase 2
+[27:27]   OUTB2    Output B value during phase 2
+[28:28]   OUTC2    Output C value during phase 2
+[29:29]   OUTD2    Output D value during phase 2
+[30:30]   OUTE2    Output E value during phase 2
+[31:31]   OUTF2    Output F value during phase 2
+========= ======== ============================================================
 
-=============== ================ ==============================================
-Bit Field       Name             Description
-=============== ================ ==============================================
-[31:0]          REPEATS          Number of repeats(cycles) for the frame
-[32:32]         USE_INPA         Input A bit mask for triggering use
-[33:33]         USE_INPB         Input B bit mask for triggering use
-[34:34]         USE_INPC         Input C bit mask for triggering use
-[35:35]         USE_INPD         Input D bit mask for triggering use
-[36:36]         INPA             Input A conditions to trigger
-[37:37]         INPB             Input B conditions to trigger
-[38:38]         INPC             Input C conditions to trigger
-[39:39]         INPD             Input D conditions to trigger
-[95:64]         PH1_TIME         Phase 1 length in pre-scaled clock ticks
-[40:40]         PH1_OUTA         Output A value during phase 1
-[41:41]         PH1_OUTB         Output B value during phase 1
-[42:42]         PH1_OUTC         Output C value during phase 1
-[43:43]         PH1_OUTD         Output D value during phase 1
-[44:44]         PH1_OUTE         Output E value during phase 1
-[45:45]         PH1_OUTF         Output F value during phase 1
-[127:96]        PH2_TIME         Phase 2 length in pre-scaled clock ticks
-[46:46]         PH2_OUTA         Output A value during phase 2
-[47:47]         PH2_OUTB         Output B value during phase 2
-[48:48]         PH2_OUTC         Output C value during phase 2
-[49:49]         PH2_OUTD         Output D value during phase 2
-[50:50]         PH2_OUTE         Output E value during phase 2
-[51:51]         PH2_OUTF         Output F value during phase 2
-=============== ================ ==============================================
+Generating fixed pulse trains
+-----------------------------
 
-Normal operation
-----------------
-Once a table has been written, and the table length provided, the ENABLE input
-sets the sequencer in the ACTIVE state. The sequencer cycles through frames and
-waits for inputs to meet the pre-configured input requirements before setting
-outputs in phase-1 and phase2
-
-.. sequence_plot::
-   :block: seq
-   :title: Multiple frames, multiple frame and table cycles
-
-
-Inputs outside of active state
-------------------------------
-Table data must be written after a write to TABLE_RST, which sets the active
-state to 0. This means that any inputs that are received during a table write
-action are ignored. Similarly, when the sequencer finishes all frame and table
-cycles, it sets the active state to 0, thus any inputs after this will be
-ignored.
+The basic use case is for generating fixed pulse trains when enabled. For
+example we can ask for 3x 50% duty cycle pulses by writing a single line table
+that is repeated 3 times. When enabled it will become active and immediately
+start producing pulses, remaining active until the pulses have been produced:
 
 .. sequence_plot::
    :block: seq
-   :title: Writing inputs before a whole frame is written
+   :title: 3 evenly spaced pulses
+
+We can also use it to generate irregular streams of pulses on different outputs
+by adding more lines to the table. Note that OUTB which was high at the end
+of Phase2 of the first line remains high in Phase1 of the second line:
 
 .. sequence_plot::
    :block: seq
-   :title: Writing inputs after sequencer has finished
+   :title: Irregular pulses
 
-Sequencer and table reset
--------------------------
-If the sequencer is set to an inactive state, and then reset to active, the
-sequencer will start from the beginning of the table.
+And we can set repeats on the entire table too. Note that in the second line of
+this table we have suppressed phase1 by setting its time to 0:
 
 .. sequence_plot::
    :block: seq
-   :title: Setting inactive before finished and restarting
+   :title: Table repeats
 
-A table reset and data write must provide a whole table. If a table is currently
-written with multiple frames, and a table reset and write overwrites the table
-with less frames, only the new table will be executed. It is not possible to
-partially overwrite a table.
+There are 6 outputs which allow for complex patterns to be generated:
 
 .. sequence_plot::
    :block: seq
-   :title: Reset table and write more data
+   :title: Using all 6 outputs
+
+Statemachine
+------------
+
+There is an internal statemachine that controls which phase is currently being
+output. It has a number of transitions that allow it to skip PHASE1 if there is
+none, or skip WAIT_TRIGGER if there is no trigger condition.
+
+.. digraph:: pcomp_sm
+
+    WAIT_ENABLE [label="State 0\nWAIT_ENABLE"]
+    LOAD_TABLE [label="State 1\nLOAD_TABLE"]
+    WAIT_TRIGGER [label="State 2\nWAIT_TRIGGER"]
+    PHASE1 [label="State 3\nPHASE1"]
+    PHASE2 [label="State 4\nPHASE2"]
+
+    WAIT_ENABLE -> LOAD_TABLE [label=" TABLE load started "]
+    WAIT_ENABLE -> WAIT_TRIGGER [label=" rising ENABLE and trigger not met "]
+    WAIT_ENABLE -> PHASE1 [label=" rising ENABLE and trigger met "]
+    WAIT_ENABLE -> PHASE2 [label=" rising ENABLE and trigger met and no phase1 "]
+
+    LOAD_TABLE -> WAIT_ENABLE [label=" TABLE load complete "]
+
+    WAIT_TRIGGER -> LOAD_TABLE [label=" TABLE load started "]
+    WAIT_TRIGGER -> PHASE1 [label=" trigger met "]
+    WAIT_TRIGGER -> PHASE2 [label=" trigger met and no phase1 "]
+
+    PHASE1 -> LOAD_TABLE [label=" TABLE load started "]
+    PHASE1 -> PHASE2 [label=" time1 elapsed "]
+
+    PHASE2 -> LOAD_TABLE [label=" TABLE load started "]
+    PHASE2 -> WAIT_TRIGGER [label=" next trigger not met "]
+    PHASE2 -> PHASE1 [label=" next trigger met "]
+    PHASE2 -> PHASE2 [label=" next trigger met and no phase1 "]
 
 
-If the gate signal is re asserted to high after completion, the sequencer will
-restart.
+External trigger sources
+------------------------
+
+The trigger column in the table allows an optional trigger condition to be
+waited on before the phased times are started. The trigger condition is checked
+on each repeat of the line, but not checked during phase1 and phase2. You can
+see when the Block is waiting for a trigger signal as it will enter the
+WAIT_TRIGGER(2) state:
 
 .. sequence_plot::
    :block: seq
-   :title: Gate dropped on completion, re-raised for re-execution of same frame table
+   :title: Waiting on bit inputs
+
+You can also use a position field as a trigger condition in the same way, this
+is useful to do a table based position compare:
+
+.. sequence_plot::
+   :block: seq
+   :title: Table based position compare
+
+
+Prescaler
+---------
+
+Each row of the table gives a time value for the phases. This value can be
+scaled with a block wide prescaler to allow a frame to be longer than
+2**32 * 8e-9 = about 34 seconds. For example:
+
+.. sequence_plot::
+   :block: seq
+   :title: Prescaled pulses
+
+
+Interrupting a sequence
+-----------------------
+
+Setting the repeats on a table row to 0 will cause it to iterate until
+interrupted by a falling ENABLE signal:
+
+.. sequence_plot::
+   :block: seq
+   :title: Infinite repeats of a row interrupted
+
+In a similar way, REPEATS=0 on a table will cause the whole table to be
+iterated until interrupted by a falling ENABLE signal:
+
+.. sequence_plot::
+   :block: seq
+   :title: Infinite repeats of a table interrupted
+
+And a rising edge of the ENABLE will re-run the same table from the start:
+
+.. sequence_plot::
+   :block: seq
+   :title: Restarting the same table
+
+
+Table rewriting
+---------------
+
+If a table is written while enabled, the outputs and table state are reset and
+operation begins again from the first repeat of the first line of the table:
+
+.. sequence_plot::
+   :block: seq
+   :title: Rewriting a table
+

@@ -1,21 +1,24 @@
 SEQ         {{newBlockNo("SEQ")}}
+    TABLE           short   512    {{newBlockReg(typ='stable')}}
     PRESCALE        {{newBlockReg()}}
-    TABLE_CYCLE     {{newBlockReg()}}
+    REPEATS         {{newBlockReg()}}
     ENABLE          {{newBlockReg(typ='bit_mux')}}
-    INPA            {{newBlockReg(typ='bit_mux')}}
-    INPB            {{newBlockReg(typ='bit_mux')}}
-    INPC            {{newBlockReg(typ='bit_mux')}}
-    INPD            {{newBlockReg(typ='bit_mux')}}
+    BITA            {{newBlockReg(typ='bit_mux')}}
+    BITB            {{newBlockReg(typ='bit_mux')}}
+    BITC            {{newBlockReg(typ='bit_mux')}}
+    POSA            {{newBlockReg(typ='pos_mux')}}
+    POSB            {{newBlockReg(typ='pos_mux')}}
+    POSC            {{newBlockReg(typ='pos_mux')}}
+    ACTIVE          {{newBitBus()}}
     OUTA            {{newBitBus()}}
     OUTB            {{newBitBus()}}
     OUTC            {{newBitBus()}}
     OUTD            {{newBitBus()}}
     OUTE            {{newBitBus()}}
     OUTF            {{newBitBus()}}
-    ACTIVE          {{newBitBus()}}
-    CUR_FRAME       {{newBlockReg()}}
-    CUR_FCYCLE      {{newBlockReg()}}
-    CUR_TCYCLE      {{newBlockReg()}}
-    TABLE           short   512    {{newBlockReg(typ='stable')}}
+    TABLE_REPEAT    {{newBlockReg()}}
+    TABLE_LINE      {{newBlockReg()}}
+    LINE_REPEAT     {{newBlockReg()}}
+    STATE           {{newBlockReg()}}
 
 

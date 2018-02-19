@@ -234,7 +234,7 @@ class sequence_plot_directive(Directive):
         return table_node
 
     def make_seq_table(self, title, data):
-        hdr = 'Repeats A B C D A B C D Time A B C D E F Time A B C D E F'
+        hdr = 'Repeats Condition Position Time A B C D E F Time A B C D E F'
         hdr = hdr.split()
         col_widths = [len(x) for x in hdr]
         ncols = len(col_widths)
@@ -248,9 +248,9 @@ class sequence_plot_directive(Directive):
         thead = nodes.thead()
         tgroup += thead
         thead += self.make_row([title], [ncols-1])
-        h1_text = ["#", "Use Input", "Input Val", "Ph1", "Ph1 Outputs", "Ph2",
-                   "Ph2 Outputs"]
-        h1_more = [None, 3, 3, None, 5, None, 5]
+        h1_text = ["#", "Trigger", "Phase1", "Phase1 Outputs", "Phase2",
+                   "Phase2 Outputs"]
+        h1_more = [None, 1, None, 5, None, 5]
         thead += self.make_row(h1_text, h1_more)
         thead += self.make_row(hdr)
         tbody = nodes.tbody()
@@ -259,28 +259,43 @@ class sequence_plot_directive(Directive):
         for frame in range(len(data) / 4):
             row = []
             # First we get n repeats
-            rpt = data[0 + frame * 4]
+            rpt = data[0 + frame * 4] & 0xFFFF
             row.append(rpt)
-            # Then the input use
-            inMask = (data[1 + frame * 4] >> 28) & 0xF
-            for i in range(4):
-                row.append(inMask >> i & 1)
-            # Then the input values
-            inCond = (data[1 + frame * 4] >> 24) & 0xF
-            for i in range(4):
-                row.append(inCond >> i & 1)
+            # Then the trigger values
+            trigger = (data[0 + frame * 4] >> 16) & 0xF
+            strings = [
+                "Immediate",
+                "BITA=0",
+                "BITA=1",
+                "BITB=0",
+                "BITB=1",
+                "BITC=0",
+                "BITC=1",
+                "POSA>=POSITION",
+                "POSA<=POSITION",
+                "POSB>=POSITION",
+                "POSB<=POSITION",
+                "POSC>=POSITION",
+                "POSC<=POSITION",
+                "",
+                "",
+                ""]
+            row.append(strings[trigger])
+            # Then the position
+            position = data[1 + frame * 4]
+            row.append(position)
             # Then the phase 1 time
             p1Len = data[2 + frame * 4]
             row.append(p1Len)
             # Then the phase 1 outputs
-            p1Out = (data[1 + frame * 4] >> 16) & 0x3F
+            p1Out = (data[0 + frame * 4] >> 20) & 0x3F
             for i in range(6):
                 row.append(p1Out >> i & 1)
             # Then the phase 2 time
             p2Len = data[3 + frame * 4]
             row.append(p2Len)
             # Finally the phase 2 outputs
-            p2Out = (data[1 + frame * 4] >> 8) & 0x3F
+            p2Out = (data[0 + frame * 4] >> 26) & 0x3F
             for i in range(6):
                 row.append(p2Out >> i & 1)
             tbody += self.make_row(row)
