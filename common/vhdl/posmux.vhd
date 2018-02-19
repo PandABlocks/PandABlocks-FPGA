@@ -44,8 +44,16 @@ signal posn             : std_logic_vector(31 downto 0);
 
 begin
 
--- Select position field from the position array
-posn <= PFIELD(posbus_i, POSMUX_SEL(PBUSBW-1 downto 0));
+process(POSMUX_SEL)
+begin
+    if POSMUX_SEL(PBUSBW) = '0' then
+        -- Select position field from the position array
+        posn <= PFIELD(posbus_i, POSMUX_SEL(PBUSBW-1 downto 0));
+    else
+        posn <= (others => '0');
+    end if;
+end process;
+    
 
 -- Feed selected fiedd through the delay line
 delay_line_inst : entity work.delay_line

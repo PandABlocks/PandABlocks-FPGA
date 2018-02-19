@@ -81,7 +81,6 @@ Or left at its current value:
    :block: srgate
    :title: Output left at current while disabled
 
-
 Active edge configure conditions
 --------------------------------
 if the active edge is 'rising' then reset to 'falling' at the same time as a

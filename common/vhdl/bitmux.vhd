@@ -45,8 +45,15 @@ signal bit_out          : std_logic_vector(0 downto 0);
 
 begin
 
--- Select bit on the system bus
-bit_in(0) <= SBIT(sysbus_i, BITMUX_SEL(SBUSBW-1 downto 0));
+process(BITMUX_SEL)
+begin
+    if BITMUX_SEL(SBUSBW) = '0' then
+        -- Select bit on the system bus
+        bit_in(0) <= SBIT(sysbus_i, BITMUX_SEL(SBUSBW-1 downto 0));
+    else
+        bit_in(0) <= BITMUX_SEL(0); 
+    end if;
+end process;             
 
 -- Feed selected bit through the delay line
 delay_line_inst : entity work.delay_line

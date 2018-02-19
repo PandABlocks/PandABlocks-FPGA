@@ -20,8 +20,6 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     -- Block Input and Outputs
-    zero_o              : out std_logic;
-    one_o               : out std_logic;
     softa_o             : out std_logic;
     softb_o             : out std_logic;
     softc_o             : out std_logic;
@@ -38,9 +36,6 @@ architecture rtl of bits is
 
 begin
 
--- Assign block outputs
-zero_o <= '0';
-one_o <= '1';
 
 process(clk_i)
 begin

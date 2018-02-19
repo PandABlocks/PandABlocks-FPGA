@@ -34,8 +34,6 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
     -- Output pulses
-    zero_o              : out std_logic;
-    one_o               : out std_logic;
     bits_a_o            : out std_logic;
     bits_b_o            : out std_logic;
     bits_c_o            : out std_logic;
@@ -77,9 +75,6 @@ port map (
     write_address_i     => write_address_i(BLK_AW-1 downto 0),
     write_data_i        => write_data_i,
     write_ack_o         => open,
-
-    zero_o              => zero_o,
-    one_o               => one_o,
 
     bits_a_o            => bits_a_o,
     bits_b_o            => bits_b_o,
