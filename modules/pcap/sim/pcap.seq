@@ -53,8 +53,8 @@ $ capture pos bus enc1
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
 13      : CAPTURE=1
-14      : CAPTURE=0                     : DATA=0
-15      : CAPTURE=1, POS[1]=100
+14      : CAPTURE=0, POS[1]=100         : DATA=0
+15      : CAPTURE=1 
 16      : CAPTURE=0, POS[1]=50          : DATA=100
 18      : CAPTURE=1
 19      :                               : DATA=50

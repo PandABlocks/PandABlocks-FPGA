@@ -29,13 +29,14 @@ port (
     -- Block inputs
     sysbus_i            : in  sysbus_t;
     -- Output pulse
-    out_o               : out std_logic;
-    perr_o              : out std_logic
+    out_o               : out std_logic
 );
 end pulse_block;
 
 architecture rtl of pulse_block is
 
+signal TRIG_EDGE        : std_logic_vector(31 downto 0);
+signal TRIG_EDGE_WSTB   : std_logic;
 signal INP_VAL          : std_logic_vector(31 downto 0);
 signal ENABLE_VAL       : std_logic_vector(31 downto 0);
 signal DELAY            : std_logic_vector(63 downto 0);
@@ -71,6 +72,8 @@ port map (
     write_data_i        => write_data_i,
     write_ack_o         => write_ack_o,
 
+    TRIG_EDGE           => TRIG_EDGE,
+    TRIG_EDGE_WSTB      => TRIG_EDGE_WSTB,
     DELAY_L             => DELAY(31 downto 0),
     DELAY_H             => DELAY(63 downto 32),
     DELAY_H_WSTB        => DELAY_WSTB,
@@ -91,8 +94,9 @@ port map (
     inp_i               => inp,
     enable_i            => enable,
     out_o               => out_o,
-    perr_o              => perr_o,
 
+    TRIG_EDGE           => TRIG_EDGE(1 downto 0),
+    TRIG_EDGE_WSTB      => TRIG_EDGE_WSTB,
     DELAY               => DELAY(47 downto 0),
     DELAY_WSTB          => DELAY_WSTB,
     WIDTH               => WIDTH(47 downto 0),

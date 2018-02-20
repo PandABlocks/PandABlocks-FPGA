@@ -41,6 +41,7 @@ signal TRIG_VAL         : std_logic_vector(31 downto 0);
 signal DIR              : std_logic_vector(31 downto 0);
 signal START            : std_logic_vector(31 downto 0);
 signal START_WSTB       : std_logic;
+signal STEP_WSTB        : std_logic;
 signal STEP             : std_logic_vector(31 downto 0);
 
 signal enable           : std_logic;
@@ -75,7 +76,7 @@ port map (
     START               => START,
     START_WSTB          => START_WSTB,
     STEP                => STEP,
-    STEP_WSTB           => open
+    STEP_WSTB           => STEP_WSTB
 );
 
 -- LUT Block Core Instantiation
@@ -89,6 +90,7 @@ port map (
     DIR                 => DIR(0),
     START               => START,
     START_LOAD          => START_WSTB,
+    STEP_WSTB           => STEP_WSTB,
     STEP                => STEP,
 
     carry_o             => carry_o,

@@ -20,6 +20,7 @@ use unisim.vcomponents.all;
 library work;
 use work.top_defines.all;
 use work.support.all;
+use work.addr_defines.all;
 
 entity temp_sensors is
 port (

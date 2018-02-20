@@ -33,10 +33,14 @@ class Pulse(Block):
             self.queue.append((ts + delay, self.INP))
         elif self.INP and self.TRIG_EDGE==0:
             self.generate_queue(ts, delay, width)
-        elif not self.INP and self.TRIG_EDGE==1:
+        elif not self.INP and self.TRIG_EDGE==1 and delay == 0:
+            self.generate_queue(ts+1, delay, width)
+        elif not self.INP and self.TRIG_EDGE==1 and delay >= 0:
             self.generate_queue(ts, delay, width)
-        elif self.TRIG_EDGE==2:
+        elif self.INP and self.TRIG_EDGE==2:
             self.generate_queue(ts, delay, width)
+        elif not self.INP and self.TRIG_EDGE==2:
+            self.generate_queue(ts, delay+1, width)
 
 
     def generate_queue(self, ts, delay, width):

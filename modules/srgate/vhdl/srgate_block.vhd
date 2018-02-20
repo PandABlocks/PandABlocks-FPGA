@@ -84,8 +84,8 @@ port map (
     set_i           => set,
     rst_i           => rst,
     out_o           => out_o,
-    SET_EDGE        => SET_EDGE(0),
-    RST_EDGE        => RST_EDGE(0),
+    SET_EDGE        => SET_EDGE(1 downto 0),
+    RST_EDGE        => RST_EDGE(1 downto 0),
     FORCE_SET       => FORCE_SET,
     FORCE_RST       => FORCE_RST
 );

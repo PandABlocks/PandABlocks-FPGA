@@ -20,6 +20,7 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 use work.slow_defines.all;
+use work.addr_defines.all;
 
 entity led_management is
 port (

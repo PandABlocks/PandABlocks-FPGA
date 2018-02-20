@@ -28,6 +28,7 @@ port (
     START               : in  std_logic_vector(31 downto 0);
     START_LOAD          : in  std_logic;
     STEP                : in  std_logic_vector(31 downto 0);
+    STEP_WSTB           : in  std_logic;
     -- Block Status
     out_o               : out std_logic_vector(31 downto 0)
 );
@@ -35,11 +36,15 @@ end counter;
 
 architecture rtl of counter is
 
+constant c_step_size_one : std_logic_vector(31 downto 0) := x"00000001";
+
+signal step_enable      : std_logic;
 signal trigger_prev     : std_logic;
 signal trigger_rise     : std_logic;
 signal enable_prev      : std_logic;
 signal enable_rise      : std_logic;
 signal counter          : unsigned(32 downto 0) := (others => '0');
+signal STEP_default     : std_logic_vector(31 downto 0);
 
 begin
 
@@ -58,6 +63,20 @@ trigger_rise <= trigger_i and not trigger_prev;
 enable_rise <= enable_i and not enable_prev;
 
 --------------------------------------------------------------------------
+-- Default counter STEP to 1
+--------------------------------------------------------------------------
+process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if STEP_WSTB = '1' then
+            step_enable <= '1';
+        end if;    
+    end if;
+end process;
+
+STEP_default <= STEP when step_enable = '1' else c_step_size_one;
+
+--------------------------------------------------------------------------
 -- Up/Down Counter
 -- Counter keeps its last value when it is disabled and it is re-loaded
 -- on the rising edge of enable input.
@@ -74,9 +93,9 @@ begin
         -- Count up/down on trigger
         elsif (enable_i = '1' and trigger_rise = '1') then
             if (DIR = '0') then
-                counter <= counter + unsigned(STEP);
+                counter <= counter + unsigned(STEP_default);
             else
-                counter <= counter - unsigned(STEP);
+                counter <= counter - unsigned(STEP_default);
             end if;
         end if;
     end if;

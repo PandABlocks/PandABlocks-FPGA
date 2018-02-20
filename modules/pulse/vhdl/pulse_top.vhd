@@ -5,6 +5,7 @@ use ieee.numeric_std.all;
 library work;
 use work.support.all;
 use work.top_defines.all;
+use work.addr_defines.all;
 
 entity pulse_top is
 port (
@@ -24,8 +25,7 @@ port (
     -- Encoder I/O Pads
     sysbus_i            : in  sysbus_t;
     -- Output pulse
-    out_o               : out std_logic_vector(PULSE_NUM-1 downto 0);
-    perr_o              : out std_logic_vector(PULSE_NUM-1 downto 0)
+    out_o               : out std_logic_vector(PULSE_NUM-1 downto 0)
 );
 end pulse_top;
 
@@ -80,8 +80,7 @@ port map (
 
     sysbus_i            => sysbus_i,
 
-    out_o               => out_o(I),
-    perr_o              => perr_o(I)
+    out_o               => out_o(I)
 );
 
 END GENERATE;

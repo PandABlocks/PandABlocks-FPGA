@@ -27,34 +27,34 @@ subtype MOD_RANGE               is natural range 0 to MOD_COUNT-1;
 constant RD_ADDR2ACK            : std_logic_vector(4 downto 0) := "00010";
 
 -- Block instantiation numbers--------------------------------------------
-constant TTLIN_NUM          : natural := 6;
-constant TTLOUT_NUM         : natural := 10;
-constant LVDSIN_NUM         : natural := 2;
-constant LVDSOUT_NUM        : natural := 2;
-constant LUT_NUM            : natural := 8;
-constant SRGATE_NUM         : natural := 4;
-constant DIV_NUM            : natural := 4;
-constant PULSE_NUM          : natural := 4;
-constant QDEC_NUM           : natural := 4;
-constant ADDER_NUM          : natural := 2;
-constant COUNTER_NUM        : natural := 8;
-constant PGEN_NUM           : natural := 2;
-constant POSENC_NUM         : natural := 4;
+--constant TTLIN_NUM          : natural := 6;                               
+--constant TTLOUT_NUM         : natural := 10;                              
+--constant LVDSIN_NUM         : natural := 2;
+--constant LVDSOUT_NUM        : natural := 2;
+--constant LUT_NUM            : natural := 8;
+--constant SRGATE_NUM         : natural := 4;
+--constant DIV_NUM            : natural := 4;
+--constant PULSE_NUM          : natural := 4;
+--constant QDEC_NUM           : natural := 4;
+--constant ADDER_NUM          : natural := 2;
+--constant COUNTER_NUM        : natural := 8;
+--constant PGEN_NUM           : natural := 2;
+--constant POSENC_NUM         : natural := 4;
 constant ENC_NUM            : natural := 4;
-constant PCOMP_NUM          : natural := 4;
-constant SEQ_NUM            : natural := 4;
-constant BITS_NUM           : natural := 1;
-constant FILTER_NUM         : natural := 1;
+--constant PCOMP_NUM          : natural := 4;
+--constant SEQ_NUM            : natural := 4;
+--constant BITS_NUM           : natural := 1;
+--constant FILTER_NUM         : natural := 1;
 --------------------------------------------------------------------------
 
 -- Block instantiation numbers--------------------------------------------
-constant LUT_INST           : boolean := true;
-constant SRGATE_INST        : boolean := true;
-constant DIV_INST           : boolean := true;
-constant PULS_INST          : boolean := true;
-constant COUNTER_INST       : boolean := true;
-constant SEQ_INST           : boolean := true;
-constant PGEN_INST          : boolean := true;
+--constant LUT_INST           : boolean := true;
+--constant SRGATE_INST        : boolean := true;
+--constant DIV_INST           : boolean := true;
+--constant PULS_INST          : boolean := true;
+--constant COUNTER_INST       : boolean := true;
+--constant SEQ_INST           : boolean := true;
+--constant PGEN_INST          : boolean := true;
 
 -- Bit Bus Width, Multiplexer Select Width -------------------------------
 constant SBUSW              : natural := 128;

@@ -18,14 +18,18 @@ port (
     rst_i               : in  std_logic;
     out_o               : out std_logic;
     -- Block Parameters
-    SET_EDGE            : in  std_logic;
-    RST_EDGE            : in  std_logic;
+    SET_EDGE            : in  std_logic_vector(1 downto 0);
+    RST_EDGE            : in  std_logic_vector(1 downto 0);
     FORCE_SET           : in  std_logic;
     FORCE_RST           : in  std_logic
 );
 end srgate;
 
 architecture rtl of srgate is
+
+constant c_trig_edge_neg        : std_logic_vector(1 downto 0) := "01";
+constant c_trig_edge_pos        : std_logic_vector(1 downto 0) := "00";
+constant c_trig_edge_pos_neg    : std_logic_vector(1 downto 0) := "10";     
 
 signal set_prev         : std_logic;
 signal rst_prev         : std_logic;
@@ -55,8 +59,14 @@ rst_rise  <= rst_i and not rst_prev;
 set_fall  <= not set_i and set_prev;
 rst_fall  <= not rst_i and rst_prev;
 
-set <= set_fall when (SET_EDGE = '0') else set_rise;
-rst <= rst_fall when (RST_EDGE = '0') else rst_rise;
+set <= set_fall when (SET_EDGE = c_trig_edge_neg) else 
+       set_rise or set_fall when (SET_EDGE = c_trig_edge_pos_neg) else
+       set_rise;
+rst <= rst_fall when (RST_EDGE = c_trig_edge_neg) else
+       rst_rise or rst_fall when (RST_EDGE = c_trig_edge_pos_neg) else
+       rst_rise;
+
+
 
 --
 -- Special SRGate with support for forcing the output.

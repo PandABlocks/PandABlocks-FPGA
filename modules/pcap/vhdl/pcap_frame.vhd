@@ -36,7 +36,6 @@ port (
     capture_i           : in  std_logic;
     timestamp_i         : in  std_logic_vector(63 downto 0);
 
-    overflow_o          : out std_logic_vector(31 downto 0);
     capture_o           : out std_logic;
     posn_o              : out std32_array(63 downto 0);
     error_o             : out std_logic
@@ -178,7 +177,6 @@ port map (
     capture_i           => capture_rise,
     posn_o              => posbus(I),
     extn_o              => extbus(I),
-    overflow_o          => overflow_o(I),
 
     FRAMING_ENABLE      => FRAMING_ENABLE,
     FRAMING_MASK        => FRAMING_MASK(I),

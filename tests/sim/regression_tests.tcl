@@ -11,10 +11,11 @@
 
 # Tests
 # 1.  adder_tb          -- WORKS VHDL testbench self checks
-# 2.  panda_srgate_tb   -- WORKS     
-# 3.  panda_pulse_tb    -- WORKS
-# 4.  panda_pcomp_tb    -- NOT WORKING NEEDS ALOT OF WORK 
+# 2.  panda_srgate_tb   -- WORKS      
+# 3.  panda_pulse_tb    -- Problems negative edge a clock difference two edges doesn't work as I believe that the pulse is too short 
+# 4.  panda_pcomp_tb    -- NOT WORKING NEEDS ALOT OF WORK (pcomp_reg_in.txt has PCOMP_1000.txt, PCOMP_2000.txt, PCOMP_3000.txt in it)
 # 5.  pcap_core_tb      -- MULTIPLE TESTBENCHs NOT WORKING (pcap_core_tb.v is the only that uses textio files)
+#		pcap_core_tb	-- ERR_STATUS problem it looks like its a python problem
 # 6.  panda_lut_tb      -- WORKS
 # 7.  panda_div_tb      -- WORKS
 # 8.  panda_clock_tb    -- NOT WORKING (problem at the beginning of the test) counter reset so set to zero (32 bits register)
@@ -23,12 +24,15 @@
 # 9.  panda_filter      -- WORKS
 # 10. panda_sequnecer   -- NOT WORKING (Results not the same as expected ones LOTS OF ERRORS) offset at the start causes the 
 #                       -- expected results to offset by one clock from generated results  
-
+# 11. panda_bits_tb     -- WORKS
+# 12. panda_counter_tb  -- WORKS
+# 13. panda_pgen_tb     -- Index to a text file 
 #../../tests/sim/panda_pcomp/bench/file_io.v should this be remove is it used in the pcap and seq tests
 
-# Does the file_io.v work ?? 
+# Does the file_io.v work yes it does 
 
 
+# Create a vivado project called regression_tests
 create_project regression_tests ../../build/tests/regression_tests -force -part xc7z030sbg485-1 
 
 
@@ -40,7 +44,10 @@ set test_passed are;
 set test_failed are;
 
 
+# Test array (add test here)
 array set tests { 
+        panda_bits_tb 12
+        panda_counter_tb 11    
         panda_sequencer_2tb 10
         panda_filter_tb 9
         panda_clocks_tb 8
@@ -54,6 +61,7 @@ array set tests {
 }
 
 
+# Load the textio files into Vivado 
 source "../../tests/sim/update_textio.tcl"
 
 
@@ -62,7 +70,6 @@ add_files -norecurse {../../modules/filter/vhdl/divider.vhd
 ../../modules/filter/vhdl/filter.vhd
 ../../modules/clocks/vhdl/clocks.vhd
 ../../modules/clocks/vhdl/clocks.vhd
-../PandABox/ip_repo/pcomp_dma_fifo/pcomp_dma_fifo_funcsim.vhdl
 ../../modules/pcomp/vhdl/pcomp.vhd
 ../../common/vhdl/defines/support.vhd
 ../../modules/pulse/vhdl/pulse.vhd
@@ -80,13 +87,17 @@ add_files -norecurse {../../modules/filter/vhdl/divider.vhd
 ../../modules/pcap/vhdl/pcap_buffer.vhd
 ../../modules/pcap/vhdl/pcap_frame.vhd
 ../../common/vhdl/defines/operator.vhd
-../..//modules/pcap/vhdl/pcap_capture.vhd
+../../modules/pcap/vhdl/pcap_capture.vhd
 ../../modules/pcap/vhdl/pcap_core.vhd
 ../../modules/seq/vhdl/sequencer.vhd
+../../modules/bits/vhdl/bits.vhd
+../../modules/counter/vhdl/counter.vhd
+../../modules/pgen/vhdl/pgen.vhd
 ../../tests/sim/panda_pcomp/bench/file_io.v
 }
 
 
+# Load all simulation source files 
 set_property SOURCE_SET sources_1 [get_filesets sim_1]
 add_files -fileset sim_1 -norecurse {../../tests/sim/panda_pulse/bench/panda_pulse_tb.v
 ../../tests/sim/panda_pcomp/bench/panda_pcomp_tb.v
@@ -102,9 +113,12 @@ add_files -fileset sim_1 -norecurse {../../tests/sim/panda_pulse/bench/panda_pul
 ../../tests/sim/panda_pcap/bench/pcap_core_2tb.v
 ../../tests/sim/panda_sequencer/bench/panda_sequencer_tb.v
 ../../tests/sim/panda_sequencer/bench/panda_sequencer_2tb.v
+../../tests/sim/panda_counter/bench/panda_counter_tb.v
+../../tests/sim/panda_bits/bench/panda_bits_tb.v
 }
 
 
+# Loop through all the tests
 foreach test [array names tests] { 
 
     puts  "###############################################################################################"
@@ -117,13 +131,19 @@ foreach test [array names tests] {
     launch_simulation
 
     run -all
-    
+  
+    # All the testbenchs have a signal called test_result 
+    # this is used to indicate when the test fails i.e.
+    # test_result = 1 -- test has failed
+    # test_result = 0 -- test has passed  
     get_value test_result; 
     get_object test_result;
     set result_from_test [get_value test_result];
   
     puts "The test result is $test" 
   
+    # Check to see if the test has passed or failed increment 
+    # test_passed or test_failed variables and append result into variable   
     if {$result_from_test == 1} {
          incr test_failed_cnt +1;
          puts "##################################### $test has failed #####################################"
@@ -134,16 +154,12 @@ foreach test [array names tests] {
          puts "##################################### $test has passed #####################################"
          append test_passed ", " \n "$test_passed_cnt." $test 
     }     
-    
-    #puts "The test result is [get_object test_result]";    
-    #puts "The number of tests that have passed is $test_passed_cnt";
-    #puts "The number of tests that have failed is $test_failed_cnt";
       
     close_sim
 
 }
 
-
+# Print out the result of the regression run
 puts "################################### Tests that have passed ###################################"
 puts "                                                                                              "
 puts "Tests that have passed $test_passed";
@@ -152,7 +168,7 @@ puts "################################### Tests that have failed ###############
 puts "                                                                                              "  
 puts "Tests that have failed $test_failed";
 puts "                                                                                              "
-puts "################################## Test passed faile count ###################################"
+puts "################################# Test passed failed count ###################################"
 puts "Simulation has finished and the number of tests that have passed is $test_passed_cnt";
 puts "                                                                                              " 
 puts "Simulation has finished and the number of tests that have failed is $test_failed_cnt";

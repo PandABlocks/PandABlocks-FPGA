@@ -85,8 +85,10 @@ signal posn_error           : std_logic;
 
 begin
 
+
+
 -- Assign outputs.
-out_o <= pulse and enable_i;
+out_o <= pulse;
 
 ---------------------------------------------------------------------------
 -- Register inputs and detect rising/falling edges
@@ -197,7 +199,6 @@ begin
             pulse <= '0';
             puls_counter <= (others => '0');
             act_o <= '0';
-            err_o <= (others => '0');
             pcomp_fsm <= WAIT_ENABLE;
             current_crossing <= (others => '0');
             next_crossing <= (others => '0');
@@ -215,6 +216,7 @@ begin
                             current_crossing <= puls_start - puls_deltap;
                             next_crossing <= puls_start;
                         end if;
+                        err_o <= (others => '0');
                         act_o <= '1';
                         pcomp_fsm <= WAIT_INIT;
                     end if;

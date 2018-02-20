@@ -9,22 +9,12 @@ PCOMP[{{app_config["PCOMP"]}}]
     DIR             param       enum 2
         0   Positive
         1   Negative
-    DELTAP          param
-    USE_TABLE       param       enum 2
-        0   No
-        1   Yes
+    DELTAP          param       position
     ENABLE          bit_mux
     INP             pos_mux
     ACTIVE          bit_out
     OUT             bit_out
     ERROR           read        enum 2
         0   Ok
-        1   Pulse error
-    TABLE           table
-    TABLE_STATUS    read        enum 4
-        0   Ok
-        1   Table not ready
-        2   Table end reached
-        3   DMA overrun
-
+        1   Position jumped by more than STEP
 
