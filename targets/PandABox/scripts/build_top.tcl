@@ -52,6 +52,10 @@ if {$FMC_DESIGN == "fmc_acq430"} {
     read_ip $BUILD_DIR/ip_repo/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
     read_ip $BUILD_DIR/ip_repo/fmc_acq430_sample_ram/fmc_acq430_sample_ram.xci
 }
+if {$FMC_DESIGN == "fmc_acq427"} {
+    read_ip $BUILD_DIR/ip_repo/fmc_acq427_ch_fifo/fmc_acq427_ch_fifo.xci
+    read_ip $BUILD_DIR/ip_repo/fmc_acq427_dac_fifo/fmc_acq427_dac_fifo.xci
+}
 if {$FMC_DESIGN == "fmc_loopback"} {
     read_ip $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
 }
