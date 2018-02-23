@@ -1,10 +1,10 @@
 ---------------------------------------------------------------------------------
 --! @file
---! @brief I/O Interface to the AO420FMC Board for the ACQ400 System
+--! @brief I/O Interface to the ACQ427 DAC Module
 --! @author   John McLean
 --! @date     8th September 2013
 --! @details															\n
---! D-TACQ Solutions Ltd Copyright 2013			        		   		 		\n
+--! D-TACQ Solutions Ltd Copyright 2013-18		        		   		 		\n
 --!   																\n
 --!
 --! Important Design consideration - the incoming State Clock is assumed to be 62.5 MHz. This allows the DACs to be updated at close to their

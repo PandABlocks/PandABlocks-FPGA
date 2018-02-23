@@ -4,7 +4,7 @@
 --! @author   John McLean
 --! @date     14th June 2017
 --! @details															\n
---! D-TACQ Solutions Ltd Copyright 2014-2017							 		\n
+--! D-TACQ Solutions Ltd Copyright 2014-2018							 		\n
 --!   																\n
 
 --! Standard Libraries - numeric.std for all designs

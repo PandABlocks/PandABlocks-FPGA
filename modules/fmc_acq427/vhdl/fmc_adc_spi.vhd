@@ -1,10 +1,10 @@
 ---------------------------------------------------------------------------------
 --! @file
---! @brief I/O Interface to the ACQ42FMC Board for the ACQ400 System
+--! @brief I/O Interface to the ACQ427FMC ADC Module
 --! @author   John McLean
 --! @date     21st May 2015
 --! @details															\n
---! D-TACQ Solutions Ltd Copyright 2013-16							 		\n
+--! D-TACQ Solutions Ltd Copyright 2013-18							 		\n
 --!   																\n
 
 --! Standard Libraries - numeric.std for all designs

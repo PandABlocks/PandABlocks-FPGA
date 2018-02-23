@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------
 --! @file
---! @brief    AO420FMC Module Address Decode and Control - PandA
+--! @brief    ACQ427FMC Module Address Decode and Control - PandA
 --! @author   John McLean, Scott Robson
 --! @date     10th May 2016
 --! @details															\n
