@@ -25,7 +25,7 @@ INENC[4]
     CLK_PERIOD      param       time
     FRAME_PERIOD    param       time
     BITS            param       uint 63
-    SETP            write       position
+    SETP            write
     RST_ON_Z        param       bit
     STATUS          read        enum 4
         0   Link Down

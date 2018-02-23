@@ -1,8 +1,8 @@
 PCOMP[{{app_config["PCOMP"]}}]
-    PRE_START       param       position
-    START           param       position
-    WIDTH           param       position
-    STEP            param       position
+    PRE_START       param
+    START           param
+    WIDTH           param
+    STEP            param
     PULSES          param
     RELATIVE        param       enum 2
         0   Absolute
