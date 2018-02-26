@@ -69,7 +69,7 @@ class Controller(object):
             cls = getattr(package, clsnames[0])
             # print "Got %s sim" % cls.__name__
         except ImportError:
-            # print "No %s sim, using Block" % name.title()
+            print "No %s sim, using Block" % name.title()
 
             class cls(Block):
                 pass
