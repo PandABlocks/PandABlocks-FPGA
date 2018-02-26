@@ -1,5 +1,7 @@
 import time
 import bisect
+import imp
+import os
 from collections import deque
 
 import numpy as np
@@ -63,18 +65,21 @@ class Controller(object):
         """
         # check if we have a block of the right type
         try:
-            imp = __import__("common.python.pandablocks.simulation." + name.lower())
-            package = getattr(imp.simulation, name.lower())
+            module = os.path.join(
+                os.path.dirname(__file__), "..", "..", "..",
+                "modules", name.lower(), "sim")
+            f, pathname, description = imp.find_module(name.lower(), [module])
+            package = imp.load_module(name.lower(), f, pathname, description)
             clsnames = [n for n in dir(package) if n.upper() == name]
             cls = getattr(package, clsnames[0])
-            # print "Got %s sim" % cls.__name__
+            print "Got %s sim" % cls.__name__
         except ImportError:
             print "No %s sim, using Block" % name.title()
 
             class cls(Block):
                 pass
             cls.__name__ = name.title()
-            cls.add_properties()
+        cls.add_properties()
 
         # Make instances of it
         for i in range(config_block.num):

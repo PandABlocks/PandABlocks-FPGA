@@ -7,19 +7,19 @@ require("numpy")
 import unittest
 
 # add our python dir
-sys.path.append(os.path.join(os.path.dirname(__file__), "..",))
+root = os.path.join(os.path.dirname(__file__), "..")
+sys.path.append(root)
 
 from common.python.pandablocks.block import Block
 from common.python.pandablocks.sequenceparser import SequenceParser
 
 
-import modules
-module_dir = os.path.join(os.path.dirname(modules.__file__))
+module_dir = os.path.join(root, "modules")
 
-Block.load_config(os.path.join(os.path.dirname(__file__), '..', 'build', 'PandABox', 'config_d'))
+Block.load_config(os.path.join(root, 'build', 'PandABox', 'config_d'))
 
 
-def load_tests(loader=None, staqndard_tests=None, pattern=None):
+def load_tests(loader=None, standard_tests=None, pattern=None):
     class SequenceTest(unittest.TestCase):
 
         def __init__(self, block, sequence):

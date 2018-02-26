@@ -25,8 +25,6 @@ class Block(object):
         cls.parser = ConfigParser(config_dir)
         cls.bit_bus.fill(0)
         cls.pos_bus.fill(0)
-        for subclass in cls.__subclasses__():
-            subclass.add_properties()
 
     @classmethod
     def add_properties(cls):
