@@ -316,9 +316,12 @@ class Controller(object):
                 new_bus_val = 0
             else:
                 new_bus_val = Block.pos_bus[value]
-        lblock, lattr = self.bus_lookup[(field.cls[:3], value)]
-        # Update listeners for this field
-        self.listeners.setdefault((lblock, lattr), []).append((block, name))
+        lblock, lattr = self.bus_lookup.get(
+            (field.cls[:3], value), (None, None))
+        if lblock:
+            # This comes from a block rather than being a constant, so add
+            # ourself to the listeners for this field
+            self.listeners.setdefault((lblock, lattr), []).append((block, name))
         # Generate changes
         if old_bus_val != new_bus_val:
             return {block: {name: new_bus_val}}
