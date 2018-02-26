@@ -265,9 +265,9 @@ class Pcap(Block):
         for name, field in self.config_block.fields.items():
             if field.cls == "ext_out":
                 if field.cls_args == ["timestamp"]:
-                    # something like 37 / 38
+                    # something like 37 38
                     self.ext_names[int(field.reg[0]) + 32] = name + "_L"
-                    self.ext_names[int(field.reg[2]) + 32] = name + "_H"
+                    self.ext_names[int(field.reg[1]) + 32] = name + "_H"
                 else:
                     # one of the others
                     self.ext_names[int(field.reg[0]) + 32] = name

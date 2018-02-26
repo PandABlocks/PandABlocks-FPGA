@@ -6,9 +6,9 @@ PCAP        {{newBlockNo("PCAP")}}
     SHIFT_SUM       {{newBlockReg()}}
     HEALTH          {{newBlockReg()}}
     ACTIVE          {{newBitBus()}}
-    TS_START        {{newExtBus()}} / {{newExtBus()}}
-    TS_END          {{newExtBus()}} / {{newExtBus()}}
-    TS_CAPTURE      {{newExtBus()}} / {{newExtBus()}}
+    TS_START        {{newExtBus()}} {{newExtBus()}}
+    TS_END          {{newExtBus()}} {{newExtBus()}}
+    TS_CAPTURE      {{newExtBus()}} {{newExtBus()}}
     SAMPLES         {{newExtBus()}}
     BITS0           {{newExtBus()}}
     BITS1           {{newExtBus()}}
