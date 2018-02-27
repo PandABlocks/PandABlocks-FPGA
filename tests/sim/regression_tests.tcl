@@ -94,6 +94,7 @@ add_files -norecurse {../../modules/filter/vhdl/divider.vhd
 ../../modules/bits/vhdl/bits.vhd
 ../../modules/counter/vhdl/counter.vhd
 ../../modules/pgen/vhdl/pgen.vhd
+../../tests/sim/panda_pcap/bench/file_io.v
 ../../tests/sim/panda_pcomp/bench/file_io.v
 }
 

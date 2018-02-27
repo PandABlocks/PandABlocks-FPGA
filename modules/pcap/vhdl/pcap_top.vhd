@@ -109,7 +109,7 @@ signal pcap_active      : std_logic;
 signal pcap_done        : std_logic;
 
 signal enable           : std_logic;
-signal capture          : std_logic;
+signal gate             : std_logic;
 signal frame            : std_logic;
 signal sysbus_dly       : sysbus_t;
 signal posbus_dly       : posbus_t;
@@ -153,7 +153,7 @@ port map (
     sysbus_i            => sysbus_i,
     posbus_i            => (others => (others => '0')),
     enable_o            => enable,
-    capture_o           => capture,
+    gate_o              => gate,
     frame_o             => frame,
 
     HEALTH              => HEALTH,

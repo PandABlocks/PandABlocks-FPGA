@@ -32,14 +32,13 @@ port (
     START_WRITE         : in  std_logic;
     WRITE               : in  std_logic_vector(31 downto 0);
     WRITE_WSTB          : in  std_logic;
-    FRAMING_MASK        : in  std_logic_vector(31 downto 0);
-    FRAMING_ENABLE      : in  std_logic;
-    FRAMING_MODE        : in  std_logic_vector(31 downto 0);
+    CAPTURE_EDGE        : in  std_logic_vector(1 downto 0);
+    SHIFT_SUM           : in  std_logic_vector(5 downto 0);
     HEALTH              : out std_logic_vector(31 downto 0);
     -- Block inputs
     enable_i            : in  std_logic;
     capture_i           : in  std_logic;
-    frame_i             : in  std_logic;
+    gate_i              : in  std_logic;
     dma_error_i         : in  std_logic;
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
@@ -56,19 +55,19 @@ architecture rtl of pcap_core is
 
 signal pcap_reset       : std_logic;
 
-signal frame            : std_logic;
+signal gate_en          : std_logic;
 signal capture          : std_logic;
 
 signal timestamp        : std_logic_vector(63 downto 0);
 signal capture_pulse    : std_logic;
-signal capture_data     : std32_array(63 downto 0);
+signal mode_ts_bits     : t_mode_ts_bits;
 signal pcap_buffer_error: std_logic;
 signal pcap_frame_error : std_logic;
 signal pcap_error       : std_logic;
 signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_dat_valid   : std_logic;
 signal pcap_armed       : std_logic;
-signal pcap_start       : std_logic;
+--signal pcap_start       : std_logic;
 
 begin
 
@@ -96,15 +95,15 @@ port map (
     dma_error_i         => dma_error_i,
     ongoing_capture_i   => pcap_dat_valid,
     pcap_armed_o        => pcap_armed,
-    pcap_start_o        => open,
+--    pcap_start_o        => open,
     pcap_done_o         => pcap_done_o,
     timestamp_o         => timestamp,
     pcap_status_o       => pcap_status
 );
 
--- Mask capture and frame signals only when core is active (armed)
+-- Mask capture and gate signals only when core is active (armed)
 capture <= capture_i and enable_i and pcap_armed;
-frame <= frame_i and enable_i and pcap_armed;
+gate_en <= gate_i and enable_i and pcap_armed;
 
 -- Keep sub-block under reset when pcap is not armed
 pcap_reset <= reset_i or not pcap_armed;
@@ -117,18 +116,18 @@ port map (
     clk_i               => clk_i,
     reset_i             => pcap_reset,
 
-    FRAMING_MASK        => FRAMING_MASK,
-    FRAMING_ENABLE      => FRAMING_ENABLE,
-    FRAMING_MODE        => FRAMING_MODE,
-
+    CAPTURE_EDGE        => CAPTURE_EDGE,
+    SHIft_SUM           => SHIFT_SUM,    
+    
     posbus_i            => posbus_i,
     sysbus_i            => sysbus_i,
-    frame_i             => frame,
+    gate_i              => gate_en,
+    enable_i            => enable_i,
     capture_i           => capture,
     timestamp_i         => timestamp,
 
     capture_o           => capture_pulse,
-    posn_o              => capture_data,
+    mode_ts_bits        => mode_ts_bits,
     error_o             => pcap_frame_error
 );
 
@@ -144,7 +143,7 @@ port map (
     WRITE               => WRITE,
     WRITE_WSTB          => WRITE_WSTB,
     -- Block inputs
-    fatpipe_i           => capture_data,
+    mode_ts_bits        => mode_ts_bits,
     capture_i           => capture_pulse,
     -- Output pulses
     pcap_dat_o          => pcap_dat_o,
