@@ -45,6 +45,18 @@ constant EBUSW              : natural := 12;
 constant DCARD_NORMAL       : std_logic_vector(2 downto 0) := "000";
 constant DCARD_LOOPBACK     : std_logic_vector(2 downto 0) := "001";
 
+type t_mode_group is array (5 downto 0) of std_logic_vector(31 downto 0);
+type t_mode is array (31 downto 0) of t_mode_group;
+type t_ts is array (6 downto 0) of std_logic_vector(31 downto 0);
+type t_bits is array (3 downto 0) of std_logic_vector(31 downto 0); 
+
+type t_mode_ts_bits is 
+record
+    mode   : t_mode;
+    ts     : t_ts;
+    bits   : t_bits;
+end record;
+     
 --
 -- TYPEs :
 --
