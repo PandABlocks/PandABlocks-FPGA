@@ -3,19 +3,19 @@ ADDER[{{app_config["ADDER"]}}]
     INPB            pos_mux
     INPC            pos_mux
     INPD            pos_mux
-    INPA_INVERT     param       enum 2
+    INPA_INVERT     param       enum
         0   No
         1   Yes
-    INPB_INVERT     param       enum 2
+    INPB_INVERT     param       enum
         0   No
         1   Yes
-    INPC_INVERT     param       enum 2
+    INPC_INVERT     param       enum
         0   No
         1   Yes
-    INPD_INVERT     param       enum 2
+    INPD_INVERT     param       enum
         0   No
         1   Yes
-    SCALE           param       enum 4
+    SCALE           param       enum
         0   /1
         1   /2
         2   /4

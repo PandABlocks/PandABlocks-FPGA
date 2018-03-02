@@ -1,26 +1,26 @@
 LUT[{{app_config["LUT"]}}]
     FUNC            param       lut
-    A               param   enum    4
+    A               param   enum
         0   Input Value
         1   Rising Edge
         2   Falling Edge
         3   Either Edge
-    B               param   enum    4
+    B               param   enum
         0   Input Value
         1   Rising Edge
         2   Falling Edge
         3   Either Edge
-    C               param   enum    4
+    C               param   enum
         0   Input Value
         1   Rising Edge
         2   Falling Edge
         3   Either Edge
-    D               param   enum    4
+    D               param   enum
         0   Input Value
         1   Rising Edge
         2   Falling Edge
         3   Either Edge
-    E               param   enum    4
+    E               param   enum
         0   Input Value
         1   Rising Edge
         2   Falling Edge

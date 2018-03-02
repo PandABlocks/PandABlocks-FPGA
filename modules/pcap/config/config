@@ -2,12 +2,12 @@ PCAP
     ENABLE          bit_mux
     GATE            bit_mux
     CAPTURE         bit_mux
-    CAPTURE_EDGE    param       enum 3
+    CAPTURE_EDGE    param       enum
         0   Rising
         1   Falling
         2   Rising or Falling
     SHIFT_SUM       param       uint 8
-    HEALTH          read        enum 4
+    HEALTH          read        enum
         0   Ok
         1   Capture events too close together
         2   Samples overflow

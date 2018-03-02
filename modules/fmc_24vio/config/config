@@ -8,29 +8,29 @@ FMC
     OUT6            bit_mux
     OUT7            bit_mux
     OUT8            bit_mux
-    OUT_PWR_ON      param       enum 2
+    OUT_PWR_ON      param       enum
         0   Off
         1   On
-    IN_VTSEL        param       enum 2
+    IN_VTSEL        param       enum
         0   5V
         1   24V
-    IN_DB           param       enum 4
+    IN_DB           param       enum
         0   None
         1   0.025ms
         2   0.75ms
         3   3ms
     IN_FAULT        read
-    OUT_PUSHPL      param       enum 2
+    OUT_PUSHPL      param       enum
         0   High-side
         1   Push-pull
-    OUT_FLTR        param       enum 2
+    OUT_FLTR        param       enum
         0   Off
         1   On
-    OUT_SRIAL       param       enum 2
+    OUT_SRIAL       param       enum
         0   Parallel
         1   Serial
     OUT_FAULT       read
-    OUT_EN          param       enum 2
+    OUT_EN          param       enum
         0   Disable
         1   Enable
     OUT_CONFIG      param

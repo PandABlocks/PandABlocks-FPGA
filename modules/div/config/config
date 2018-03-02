@@ -1,6 +1,6 @@
 DIV[{{app_config["DIV"]}}]
     DIVISOR         param
-    FIRST_PULSE     param       enum 2
+    FIRST_PULSE     param       enum
         0   OutN
         1   OutD
     INP             bit_mux

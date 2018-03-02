@@ -1,5 +1,5 @@
 TTLIN[6]
-    TERM            param       enum 2
+    TERM            param       enum
         0   High-Z
         1   50-Ohm
     VAL             bit_out
@@ -14,12 +14,12 @@ LVDSOUT[2]
     VAL             bit_mux
 
 INENC[4]
-    PROTOCOL        param       enum 4
+    PROTOCOL        param       enum
         0   Quadrature
         1   SSI
         2   BISS
         3   enDat
-    BYPASS          param       enum 2
+    BYPASS          param       enum
         0   Off
         1   On
     CLK_PERIOD      param       time
@@ -27,10 +27,10 @@ INENC[4]
     BITS            param       uint 63
     SETP            write       int
     RST_ON_Z        param       bit
-    STATUS          read        enum 4
+    STATUS          read        enum
         0   Link Down
         1   Link Up
-    DCARD_ID        read        enum 8
+    DCARD_ID        read        enum
         0   DCARD id 0
         1   Encoder Monitor
         2   DCARD id 2
@@ -48,12 +48,12 @@ INENC[4]
     VAL             pos_out
 
 OUTENC[4]
-    PROTOCOL        param       enum 4
+    PROTOCOL        param       enum
         0   Quadrature
         1   SSI
         2   BISS
         3   enDat
-    BYPASS          param       enum 2
+    BYPASS          param       enum
         0   Off
         1   On
     BITS            param       uint 32
@@ -66,7 +66,7 @@ OUTENC[4]
     CLK             bit_out
     VAL             pos_mux
     CONN            bit_mux
-    QSTATE          read        enum 3
+    QSTATE          read        enum
         0   Disabled
         1   At position
         2   Slewing

@@ -1,5 +1,5 @@
 FILTER[{{app_config["FILTER"]}}]
-    MODE            param       enum 2
+    MODE            param       enum
         0   difference
         1   average
     TRIG            bit_mux
@@ -7,7 +7,7 @@ FILTER[{{app_config["FILTER"]}}]
     ENABLE          bit_mux
     OUT             pos_out
     READY           bit_out
-    ERR             read        enum 3
+    ERR             read        enum
         0   OK
         1   Accumulator overflow
         2   Divider retrigger

@@ -1,13 +1,13 @@
 SRGATE[{{app_config["SRGATE"]}}]
-    WHEN_DISABLED   param       enum 3
+    WHEN_DISABLED   param       enum
         0   Set output low
         1   Set output high
         2   Keep current output
-    SET_EDGE        param       enum 3
+    SET_EDGE        param       enum
         0   Rising
         1   Falling
         2   Rising or Falling
-    RST_EDGE        param       enum 3
+    RST_EDGE        param       enum
         0   Rising
         1   Falling
         2   Rising or Falling
