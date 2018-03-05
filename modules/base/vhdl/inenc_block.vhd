@@ -70,6 +70,8 @@ signal RST_ON_Z         : std_logic_vector(31 downto 0);
 signal STATUS           : std_logic_vector(31 downto 0);
 signal STATUS_RSTB      : std_logic;
 signal read_ack         : std_logic;
+signal LSB_DISCARD      : std_logic_vector(31 downto 0);
+signal MSB_DISCARD      : std_logic_vector(31 downto 0);
 
 signal reset            : std_logic;
 signal slow             : slow_packet;
@@ -120,6 +122,10 @@ port map (
     FRAME_PERIOD_WSTB   => FRAME_PERIOD_WSTB,
     BITS                => BITS,
     BITS_WSTB           => BITS_WSTB,
+    LSB_DISCARD         => LSB_DISCARD,
+    LSB_DISCARD_WSTB    => open,
+    MSB_DISCARD         => MSB_DISCARD,
+    MSB_DISCARD_WSTB    => open,        
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z,
@@ -167,6 +173,8 @@ port map (
     CLK_PERIOD          => CLK_PERIOD,
     FRAME_PERIOD        => FRAME_PERIOD,
     BITS                => BITS(7 downto 0),
+    LSB_DISCARD         => LSB_DISCARD(4 downto 0),
+    MSB_DISCARD         => MSB_DISCARD(4 downto 0),
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z(0),
