@@ -25,6 +25,8 @@ INENC[4]
     CLK_PERIOD      param       time
     FRAME_PERIOD    param       time
     BITS            param       uint 63
+    LSB_DISCARD     param       uint 31
+    MSB_DISCARD     param       uint 31
     SETP            write       position
     RST_ON_Z        param       bit
     STATUS          read        enum 4
