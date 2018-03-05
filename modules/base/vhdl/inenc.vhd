@@ -43,6 +43,8 @@ port (
     CLK_PERIOD          : in  std_logic_vector(31 downto 0);
     FRAME_PERIOD        : in  std_logic_vector(31 downto 0);
     BITS                : in  std_logic_vector(7 downto 0);
+    LSB_DISCARD         : in  std_logic_vector(4 downto 0);
+    MSB_DISCARD         : in  std_logic_vector(4 downto 0);    
     SETP                : in  std_logic_vector(31 downto 0);
     SETP_WSTB           : in  std_logic;
     RST_ON_Z            : in  std_logic;
@@ -72,7 +74,21 @@ begin
 --------------------------------------------------------------------------
 -- Assign outputs
 --------------------------------------------------------------------------
-posn_o <= posn;
+
+ps_select: process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        lp_test: for i in 31 downto 0 loop
+           -- Discard MSB and LSB and append zeros on to top bits 
+           if (i > 31 - to_integer(unsigned(MSB_DISCARD)) - to_integer(unsigned(LSB_DISCARD))) then
+               posn_o(i) <= '0';
+           -- Add the LSB_DISCARD on to posn index count and start there
+           else           
+               posn_o(i) <= posn(i + to_integer(unsigned(LSB_DISCARD)));
+           end if;
+        end loop lp_test;            
+    end if;
+end process ps_select;         
 
 -- Loopbacks
 CLK_OUT <=  clk_out_ext_i when (BYPASS = '1') else clk_out_encoder;
