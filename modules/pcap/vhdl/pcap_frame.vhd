@@ -50,18 +50,18 @@ signal ongoing_capture  : std_logic;
 
 signal capture_rise     : std_logic;
 signal capture_fall     : std_logic;
-signal first_frame      : std_logic;
+--signal first_frame      : std_logic;
 signal capture          : std_logic;
 signal gate_rise        : std_logic;
 signal gate_fall        : std_logic;
-signal start_i          : std_logic;
-signal end_i            : std_logic;
+--signal start_i          : std_logic;
+--signal end_i            : std_logic;
 
 signal timestamp        : unsigned(63 downto 0);
-signal capture_ts       : unsigned(63 downto 0) := (others => '0');
-signal frame_ts         : unsigned(63 downto 0) := (others => '0');
-signal frame_length     : unsigned(63 downto 0) := (others => '0');
-signal capture_offset   : unsigned(63 downto 0) := (others => '0');
+--signal capture_ts       : unsigned(63 downto 0) := (others => '0');
+--signal frame_ts         : unsigned(63 downto 0) := (others => '0');
+--signal frame_length     : unsigned(63 downto 0) := (others => '0');
+--signal capture_offset   : unsigned(63 downto 0) := (others => '0');
 
 signal ts_start         : std_logic_vector(63 downto 0);
 signal ts_end           : std_logic_vector(63 downto 0);
@@ -70,7 +70,7 @@ signal ts_capture       : std_logic_vector(63 downto 0);
 signal cnt_samples      : unsigned(39 downto 0);  -- 8 bit shift allow for 
 signal samples          : std_logic_vector(31 downto 0);
 
-signal extbus           : std32_array(31 downto 0);
+--signal extbus           : std32_array(31 downto 0);
 
 signal value_o          : std32_array(31 downto 0);
 signal diff_o           : std32_array(31 downto 0);
@@ -123,17 +123,17 @@ process(clk_i) begin
 --            first_frame <= '0';
             error_o <= '0';
         else
-            if capture_prev = '0' and capture_i = '1' then
-                start_i <= '1';
-            else
-                start_i <= '0';
-            end if;
+--            if capture_prev = '0' and capture_i = '1' then
+--                start_i <= '1';
+--            else
+--                start_i <= '0';
+--            end if;
             
-            if capture_prev = '1' and capture_i = '0' then
-                end_i <= '1';
-            else
-                end_i <= '0';
-            end if;
+--            if capture_prev = '1' and capture_i = '0' then
+--                end_i <= '1';
+--            else
+--                end_i <= '0';
+--            end if;
                              
             -- Data processing in capture module has a latency of 1 tick so
             -- capture signal must be aligned
@@ -182,26 +182,26 @@ timestamp <= unsigned(timestamp_i);
 process(clk_i) begin
     if rising_edge(clk_i) then
         -- Start of Frame timestamp and Frame Length in ticks
-        if (capture_rise = '1') then
-            frame_ts <= timestamp;
-            frame_length <= timestamp - frame_ts;
-            ts_start <= std_logic_vector(frame_ts);
+        if (gate_rise = '1') then
+--            frame_ts <= timestamp;
+--            frame_length <= timestamp - frame_ts;
+            ts_start <= std_logic_vector(timestamp);
         end if;
 
         -- End of frame timestamp 
-        if (capture_fall = '1') then
+        if (gate_fall = '1') then
             ts_end <= std_logic_vector(timestamp);
         end if;    
 
-        -- Capture TIMESTAMP and capture offset from frame start            ############### TIMESTAMP ###############
+--        -- Capture TIMESTAMP and capture offset from frame start            ############### TIMESTAMP ###############
         if (capture_rise = '1') then
-            capture_ts <= timestamp;
-            capture_offset <= timestamp - frame_ts;
-            ts_capture <= std_logic_vector(capture_ts);
+--            capture_ts <= timestamp;
+--            capture_offset <= timestamp - frame_ts;
+            ts_capture <= std_logic_vector(timestamp);
         end if;
         
         -- Count the number of samples 
-        if (capture_i = '1') then
+        if (capture_i = '1' and gate_i = '1') then
             cnt_samples <= cnt_samples +1;
         else
             cnt_samples <= (others => '0');
@@ -222,11 +222,11 @@ port map (
     gate_i       => gate_i,   
     enable_i     => enable_i,
     capture_i    => capture_i,
-    start_i      => start_i,
-    end_i        => end_i,    
+    start_i      => gate_rise,
+    end_i        => gate_fall,    
     value_i      => posbus_i(i),
     shift_i      => SHIFT_SUM,
-    capture_edge => CAPTURE_EDGE,
+--  capture_edge => capture_edge,    
     value_o      => value_o(i),   
     diff_o       => diff_o(i),   
     sum_l_o      => sum_l_o(i),
@@ -273,7 +273,7 @@ begin
         mode_ts_bits.ts(1) <= ts_start(63 downto 32);   
         mode_ts_bits.ts(2) <= ts_end(31 downto 0);
         mode_ts_bits.ts(3) <= ts_end(63 downto 32);
-        mode_ts_bits.ts(4) <= ts_capture(31 downto 0);
+        mode_ts_bits.ts(4) <= ts_capture(31 downto 0);    
         mode_ts_bits.ts(5) <= ts_capture(63 downto 32);
         mode_ts_bits.ts(6) <= samples;
         mode_ts_bits.bits(0) <= sysbus_i(31 downto 0);

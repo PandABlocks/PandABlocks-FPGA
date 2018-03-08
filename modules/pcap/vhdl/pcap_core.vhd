@@ -144,7 +144,11 @@ port map (
     WRITE_WSTB          => WRITE_WSTB,
     -- Block inputs
     mode_ts_bits        => mode_ts_bits,
-    capture_i           => capture_pulse,
+--    capture_i           => capture_pulse,
+    --
+    enable_i            => enable_i,
+    capture_i           => capture,
+    gate_i              => gate_i,
     -- Output pulses
     pcap_dat_o          => pcap_dat_o,
     pcap_dat_valid_o    => pcap_dat_valid,

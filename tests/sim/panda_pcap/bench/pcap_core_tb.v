@@ -351,16 +351,22 @@ begin
 end
 
 
+
 // ERROR DETECTION:
 // Compare Block Outputs and Expected Outputs.
 //
+
+reg [31:0] DATA_del1;
+reg [31:0] DATA_del2;
+reg        DATA_WSTB_del1;
+reg        DATA_WSTB_del2;
 
 reg err_health;
 reg err_act;
 
 always @(posedge clk_i) 
 begin
-    
+   
     // Regresion test result   
     if (err_data == 1 || err_health == 1 || err_act == 1) begin
     	test_result <= 1;
@@ -387,12 +393,18 @@ begin
     else begin
         err_act = 0;
     end         
+    
+    DATA_WSTB_del1 <= DATA_WSTB;
+    DATA_WSTB_del2 <= DATA_WSTB_del1;
+    
+    DATA_del1 <= DATA;
+    DATA_del2 <= DATA_del1;  
      
     // Output data compare 
-    if (DATA_WSTB == 1) begin
-   		if (pcap_dat_o != DATA) begin 
+    if (DATA_WSTB_del2 == 1) begin
+   		if (pcap_dat_o != DATA_del2) begin 
     		err_data = 1;    	
-		    $display("DATA error detected at timestamp, DATA, cap pcap data, test number,  %d %d %d %d\n", timestamp, DATA, pcap_dat_o, cnt);    		
+		    $display("DATA error detected at timestamp, DATA_del2, cap pcap data, test number,  %d %d %d %d\n", timestamp, DATA_del2, pcap_dat_o, cnt);    		
     	end 
     end 	
     else begin
