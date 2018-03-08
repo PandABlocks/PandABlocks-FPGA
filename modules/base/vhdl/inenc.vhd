@@ -64,6 +64,7 @@ signal posn_ssi_sniffer     : std_logic_vector(31 downto 0);
 signal posn_biss_sniffer    : std_logic_vector(31 downto 0);
 signal posn                 : std_logic_vector(31 downto 0);
 signal posn_prev            : std_logic_vector(31 downto 0);
+signal bits_not_used        : unsigned(4 downto 0); 
 
 signal linkup_incr          : std_logic;
 signal linkup_ssi           : std_logic;
@@ -78,9 +79,11 @@ begin
 ps_select: process(clk_i)
 begin
     if rising_edge(clk_i) then
+        -- BITS not begin used 
+        bits_not_used <= 31 - (unsigned(BITS(4 downto 0))-1);
         lp_test: for i in 31 downto 0 loop
-           -- Discard MSB and LSB and append zeros on to top bits 
-           if (i > 31 - to_integer(unsigned(MSB_DISCARD)) - to_integer(unsigned(LSB_DISCARD))) then
+           -- Discard bits not being used and MSB and LSB and append zeros on to top bits 
+           if (i > 31 - bits_not_used - unsigned(MSB_DISCARD) - unsigned(LSB_DISCARD)) then
                posn_o(i) <= '0';
            -- Add the LSB_DISCARD on to posn index count and start there
            else           
@@ -88,7 +91,7 @@ begin
            end if;
         end loop lp_test;            
     end if;
-end process ps_select;         
+end process ps_select;        
 
 -- Loopbacks
 CLK_OUT <=  clk_out_ext_i when (BYPASS = '1') else clk_out_encoder;
