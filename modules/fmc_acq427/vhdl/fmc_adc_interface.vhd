@@ -48,18 +48,19 @@ end ACQ427FMC_ADC_INTERFACE;
 
 architecture RTL of ACQ427FMC_ADC_INTERFACE is
 
-component fmc_acq427_ch_fifo is
-port (
-	clk : in STD_LOGIC;
-	rst : in STD_LOGIC;
-	din : in STD_LOGIC_VECTOR ( 31 downto 0 );
-	wr_en : in STD_LOGIC;
-	rd_en : in STD_LOGIC;
-	dout : out STD_LOGIC_VECTOR ( 255 downto 0 );
-	full : out STD_LOGIC;
-	empty : out STD_LOGIC;
-	rd_data_count : out STD_LOGIC_VECTOR ( 5 downto 0 )
-);
+component fmc_acq430_ch_fifo is
+  Port (
+    rst : in STD_LOGIC;
+    wr_clk : in STD_LOGIC;
+    rd_clk : in STD_LOGIC;
+    din : in STD_LOGIC_VECTOR ( 31 downto 0 );
+    wr_en : in STD_LOGIC;
+    rd_en : in STD_LOGIC;
+    dout : out STD_LOGIC_VECTOR ( 255 downto 0 );
+    full : out STD_LOGIC;
+    empty : out STD_LOGIC;
+    rd_data_count : out STD_LOGIC_VECTOR ( 4 downto 0 )
+  );
 end component;
 
 --*************************************************************************************************************************
@@ -82,7 +83,7 @@ signal 	ADC_CLK_CURRENT_d1				: std_logic					:= '0';						--! Current Value of 
 signal	ADC_CLK_RISING					: std_logic					:= '0';						--! Rising Edge of the ADC Convert Clock
 
 --Register Data
-signal ADC_FIFO_COUNT_DATA                   : std_logic_vector(5 downto 0)     := (others => '0');           --! ADC Sample Count Register Data
+signal ADC_FIFO_COUNT_DATA                   : std_logic_vector(4 downto 0)     := (others => '0');           --! ADC Sample Count Register Data
 signal ADC_GAINSEL_DATA					: std_logic_vector( 7 downto 0)	:= (others => '0');			--! ADC Gain Control Setting Register
 
 --*************************************************************************************************************************
@@ -169,10 +170,11 @@ ADC_ENABLE          <= ADC_ENABLE_REG(0);
 ADC_CLK_DIV         <= ADC_CLKDIV_REG(15 downto 0);
 
 --! ADC Buffer FIFO using Xilinx IP Module  to move between ADC Clock Domain and AXI Clock Domain
-FAST_ADC_MEMORY : fmc_acq427_ch_fifo
+FAST_ADC_MEMORY : fmc_acq430_ch_fifo
 port map (
-	clk			=> clk_PANDA,
 	rst			=> ADC_FIFO_RESET,
+	wr_clk		=> clk_PANDA,
+	rd_clk		=> clk_PANDA,
 	din			=> FIFO_DATAIN,
 	wr_en		=> FIFO_DATA_WRITE and ADC_FIFO_ENABLE,
 	rd_en		=> FIFO_RD_EN,
@@ -189,7 +191,7 @@ ADC_DATAOUT		<= ADC_DATAOUT_PCAP;
 PCAP_READ_FIFO : process(clk_PANDA)
 begin
 if rising_edge(clk_PANDA) then
-     if ADC_FIFO_COUNT_DATA >= "000001" then
+     if ADC_FIFO_COUNT_DATA >= "00001" then
           FIFO_RD_EN <= '1';
      else
           FIFO_RD_EN <= '0';
