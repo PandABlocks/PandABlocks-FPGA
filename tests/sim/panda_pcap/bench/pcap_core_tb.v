@@ -30,7 +30,7 @@ wire [31:0]      pcap_dat_o;
 wire             pcap_dat_valid_o;
 wire             pcap_done_o;
 wire             pcap_actv_o;
-wire [2:0]       pcap_status_o;
+wire [1:0]       pcap_status_o;
 
 wire [127:0]     sysbus;
 wire [32*32-1:0] posbus;
@@ -54,7 +54,7 @@ pcap_core_wrapper uut (
     .WRITE_WSTB         ( WRITE_WSTB        ),
     .CAPTURE_EDGE       ( CAPTURE_EDGE      ),
     .SHIFT_SUM          ( SHIFT_SUM         ),
-    .HEALTH             ( health            ),
+    .health             ( health            ),
     .enable_i           ( enable_i          ),
     .capture_i          ( capture_i         ),
     .gate_i             ( gate_i            ),
@@ -125,10 +125,10 @@ fork
     begin
         while (1) begin
             @(posedge clk_i);
-            reset_i  = vectors[1];
-            enable_i = vectors[2];
-            gate_i = vectors[3];
-            capture_i = vectors[4];
+            reset_i  <= vectors[1];
+            enable_i <= vectors[2];
+            gate_i <= vectors[3];
+            capture_i <= vectors[4];
         end
     end
 join
@@ -159,13 +159,13 @@ fork
     begin
         while (1) begin
             @(posedge clk_i);
-            CAPTURE_EDGE = vectors[1];
-            SHIFT_SUM = vectors[3];
-            START_WRITE = vectors[5];
-            WRITE = vectors[7];
-            WRITE_WSTB = vectors[8];
-            ARM = vectors[16]; //wstb
-            DISARM = vectors[18]; // wstb
+            CAPTURE_EDGE <= vectors[1];
+            SHIFT_SUM <= vectors[3];
+            START_WRITE = vectors[6];
+            WRITE <= vectors[7];
+            WRITE_WSTB <= vectors[8];
+            ARM <= vectors[16]; //wstb
+            DISARM <= vectors[18]; // wstb
         end
     end
 join
@@ -212,11 +212,13 @@ fork
     begin
         //`include "../../panda_pcomp/bench/file_io.v"
         `include "../../panda_pcap/bench/file_io.v"                 
+        
     end
 
     begin
         while (1) begin
             @(posedge clk_i);
+            //@(negedge clk_i);
             ACTIVE <= vectors[1];
             DATA   <= vectors[2];
             DATA_WSTB <= vectors[3];
@@ -250,7 +252,7 @@ fork
         while (1) begin
             @(posedge clk_i);
             for (i = 1; i < 33 ; i = i+1) begin
-                posbus_i[i-1] = vectors[i];
+                posbus_i[i-1] <= vectors[i];
             end
         end
     end
@@ -284,7 +286,7 @@ fork
         while (1) begin
             @(posedge clk_i);
             for (i = 1; i < 129 ; i = i+1) begin
-                sysbus_i[i-1] = vectors[i];
+                sysbus_i[i-1] <= vectors[i];
             end
 			
         end
@@ -325,7 +327,7 @@ fork
     begin
         while (1) begin
             @(posedge clk_i);
-            HEALTH = vectors[1];
+            HEALTH <= vectors[1];
         end
     end
 join
@@ -361,10 +363,12 @@ reg [31:0] DATA_del2;
 reg        DATA_WSTB_del1;
 reg        DATA_WSTB_del2;
 
+reg [31:0] HEALTH_del;
 reg err_health;
 reg err_act;
 
 always @(posedge clk_i) 
+//always @(negedge clk_i)
 begin
    
     // Regresion test result   
@@ -372,26 +376,28 @@ begin
     	test_result <= 1;
     end 	      
     
+    HEALTH_del <= HEALTH;
+    
     // Health
     // 0 = OK
     // 1 = Too Close
     // 2 = Sample Overflow 
-    if (HEALTH != health) begin
-    	err_health = 1;
+    if (HEALTH_del != health) begin
+    	err_health <= 1;
 		$display("HEALTH error detected at timestamp, test number, %d %d\n", timestamp, cnt);    		
     end 
     else begin
-    	err_health = 0;
+    	err_health <= 0;
     end		
             
     // PCAP Block active  
     if (pcap_actv_o != ACTIVE) begin 
     //if (pcap_actv_o != ACTIVE_dly) begin    
-        err_act = 1;
+        err_act <= 1;
         $display("ACTIVE error detected at timestamp, test_number,  %d %d\n", timestamp, cnt);    		
     end 
     else begin
-        err_act = 0;
+        err_act <= 0;
     end         
     
     DATA_WSTB_del1 <= DATA_WSTB;
@@ -401,14 +407,16 @@ begin
     DATA_del2 <= DATA_del1;  
      
     // Output data compare 
-    if (DATA_WSTB_del2 == 1) begin
+    //if (DATA_WSTB_del1 == 1) begin
+   	if (DATA_WSTB_del2 == 1) begin
+   	//if (pcap_dat_valid_o == 1) begin
    		if (pcap_dat_o != DATA_del2) begin 
-    		err_data = 1;    	
-		    $display("DATA error detected at timestamp, DATA_del2, cap pcap data, test number,  %d %d %d %d\n", timestamp, DATA_del2, pcap_dat_o, cnt);    		
+    		err_data <= 1;    	
+		    $display("DATA error detected at timestamp, DATA_del1, cap pcap data, test number,  %d %d %d %d\n", timestamp, DATA_del1, pcap_dat_o, cnt);    		
     	end 
     end 	
     else begin
-    	err_data = 0;
+    	err_data <= 0;
     end  	 	
 end 
 			   	
