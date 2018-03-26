@@ -26,16 +26,14 @@ entity pcap_buffer is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
+    reset_i             : in  std_logic;   
     -- Configuration Registers
     START_WRITE         : in  std_logic;
     WRITE               : in  std_logic_vector(31 downto 0);
     WRITE_WSTB          : in  std_logic;
     -- Block inputs
     mode_ts_bits        : in  t_mode_ts_bits;
---    capture_i           : in  std_logic;
     -- 
-    enable_i            : in  std_logic;
     capture_i           : in  std_logic;
     gate_i              : in  std_logic;
     -- Output pulses
@@ -64,39 +62,17 @@ signal mode_bus2        : std_logic_vector(31 downto 0);
 signal mode_bus3        : std_logic_vector(31 downto 0); 
 signal ext_bus          : std_logic_vector(31 downto 0);
 signal ongoing_capture  : std_logic;
---signal capture_data_lt  : t_mode_ts_bits;
 signal mask_length      : unsigned(5 downto 0) := "000000";
 signal mask_addra       : unsigned(5 downto 0) := "000000";
 signal mask_addrb       : unsigned(5 downto 0);
 signal mask_doutb       : std_logic_vector(31 downto 0);
+signal mask_doutb_del   : std_logic_vector(31 downto 0);
 signal capture          : std_logic;
-signal capture_dly      : std_logic;
-signal capture_dly2     : std_logic;
+signal capture_dly      : std_logic_vector(2 downto 0);
 
-signal capture_prev     : std_logic;
-signal gate_prev        : std_logic;
-signal capture_fall     : std_logic;
-signal gate_fall        : std_logic;
-
-signal test             : natural;
-signal test2            : natural;    
 
 begin
-
-
-ps_prev: process(clk_i)
-begin
-    if rising_edge(Clk_i) then
-        capture_prev <= capture_i;
-        gate_prev <= gate_i;
-    end if;
-end process ps_prev;         
-
-
-capture_fall <= capture_prev and not capture_i;
-gate_fall <= gate_prev and not gate_i;
     
-
 --------------------------------------------------------------------------
 -- Position Bus capture mask is implemented using a Block RAM to
 -- achieve minimum dead time between capture triggers.
@@ -140,7 +116,8 @@ end process;
 -- An ongoing_capture flag is produced to be used for graceful finish by
 -- the DMA engine.
 --------------------------------------------------------------------------
-capture <= capture_i or ongoing_capture;
+--capture <= capture_i or ongoing_capture;                                  -- HERE CODE CHANGED
+capture <= capture_i;
 
 process(clk_i) begin
     if rising_edge(clk_i) then
@@ -152,13 +129,8 @@ process(clk_i) begin
             mask_addrb <= (others => '0');
             error_o <= '0';
             pcap_dat_valid_o <= '0';
-            capture_dly  <= '0';
-            capture_dly2 <= '0';
+            capture_dly  <= (others => '0');
         else
-            -- Latch all capture fields on rising edge of capture
---            if (capture_i = '1' and mask_addrb = 0) then
---                capture_data_lt <= mode_ts_bits;                                   
---            end if;
 
             -- Ongoing flag runs while mask buffer is read through
             -- Do not produce ongoing pulse if len = 1
@@ -169,20 +141,24 @@ process(clk_i) begin
             end if;
 
             -- Counter is active follwing capture and rolls over
-            if (capture = '1') then
+----            if (capture = '1') then
+-----------------------------------------------------------------------------------------------
+            mask_doutb_del <= mask_doutb;
+----            if (capture_dly(2) = '1') then                                     --- HERE                         
+--            if (capture_dly(2) = '1' or (capture_dly(1) = '1' and ongoing_capture = '1')) then                                                              
+            if (capture_i = '1' or (capture_dly(0) = '1' and ongoing_capture = '1')) then                                                              
+-----------------------------------------------------------------------------------------------
                 if (mask_addrb = mask_length - 1) then
                     mask_addrb <= (others => '0');
                 else
                     mask_addrb <= mask_addrb + 1;
                 end if;
-            else
-                mask_addrb <= (others => '0');
+--            else
+--                mask_addrb <= (others => '0');
             end if;
 
---            pcap_dat_valid_o <= capture;
-            capture_dly <= capture;
-            capture_dly2 <= capture_dly;
-            pcap_dat_valid_o <= capture_dly2;
+            capture_dly <= capture_dly(1 downto 0) & capture;
+            pcap_dat_valid_o <= capture_dly(2);
 
             -- Flag an error on consecutive captures, it is latched until
             -- next pcap start (via reset port)
@@ -209,42 +185,48 @@ end process;
 --            -----------------------------------------                  
 --            | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 --            -----------------------------------------  
--- 0x240        1 | 0   0   1   0   0 | 0   0   0   0       -- TimeStamp            -- Capture going high (capture timestamp)               capture_fall
--- 0x50         0 | 0   0   1   0   1 | 0   0   0   0       -- Mode 0(Value)        -- Gate going high                                      gate_fall
--- 0xB1         0 | 0   1   0   1   1 | 0   0   0   1       -- Mode 1(Difference)   -- Gate going high                                      gate_fall    
--- 0x32         0 | 0   0   0   1   1 | 0   0   1   0       -- Mode 2(Sum Lo)       -- Gate going high                                      gate_fall    
--- 0x22         0 | 0   0   0   1   0 | 0   0   1   0       -- Mode 2(Sum Lo)       -- Gate going high                                      gate_fall
--- 0x23         0 | 0   0   0   1   0 | 0   0   1   1       -- Mode 3(Sum Hi)       -- Gate going high                                      gate_fall
--- 0x92         0 | 0   1   0   0   1 | 0   0   1   0       -- Mode 2  Shift        -- Gate going high                                      gate_fall
--- 0x260        1 | 0   0   1   1   0 | 0   0   0   0       -- Ext Bus              -- Capture going high                                       ??
--- 0x84         0 | 0   1   0   0   0 | 0   1   0   0       -- Mode 4(Min)          -- Gate going high                                      gate_fall
--- 0x45         0 | 0   0   1   0   0 | 0   1   0   1       -- Mode 5(Max)          -- Gate going high                                      gate_fall
--- 0x260        1 | 0   0   1   1   0 | 0   0   0   0       -- Number of Samples    -- Count when gate is high                              gate_fall
--- 0x200        1 | 0   0   0   0   0 | 0   0   0   0       -- TimeStamp Start      -- Capture going high(start), Capture going low(end)    capture_fall
--- 0x220        1 | 0   0   0   1   0 | 0   0   0   0       -- TimeStamp End        -- Capture going high(start), Capture going low(end)    capture_fall
--- 0x240        1 | 0   0   1   0   0 | 0   0   0   0       -- TimeStamp Start      -- Capture going high(start), Capture going low(end)    capture_fall
--- 0x270        1 | 0   0   1   1   1 | 0   0   0   0       -- Bits Bus             -- Capture going high                                   capture_fall
--- 0x280        1 | 0   1   0   0   0 | 0   0   0   0       -- Bits Bus             -- Capture going high                                   capture_fall    
--- 0x290        1 | 0   1   0   0   1 | 0   0   0   0       -- Bits Bus             -- Capture going high                                   capture_fall
--- 0x2A0        1 | 0   1   0   1   0 | 0   0   0   0       -- Bits Bus             -- Capture going high                                   capture_fall    
--- 0x110        0 | 1   0   0   0   1 | 0   0   0   0       -- Triggers             -- Trigger on rising, falling or both          
--- 0x120        0 | 1   0   0   1   0 | 0   0   0   0       -- Triggers             -- Trigger on rising, falling or both              
+-- 0x240        1 | 0   0   1   0   0 | 0   0   0   0       -- TimeStamp Capture            
+-- 0x50         0 | 0   0   1   0   1 | 0   0   0   0       -- Mode 0(Value)        
+-- 0xB1         0 | 0   1   0   1   1 | 0   0   0   1       -- Mode 1(Difference)       
+-- 0x32         0 | 0   0   0   1   1 | 0   0   1   0       -- Mode 2(Sum Lo)           
+-- 0x22         0 | 0   0   0   1   0 | 0   0   1   0       -- Mode 2(Sum Lo)       
+-- 0x23         0 | 0   0   0   1   0 | 0   0   1   1       -- Mode 3(Sum Hi)       
+-- 0x92         0 | 0   1   0   0   1 | 0   0   1   0       -- Mode 2  Shift                     
+-- 0x84         0 | 0   1   0   0   0 | 0   1   0   0       -- Mode 4(Min)          
+-- 0x45         0 | 0   0   1   0   0 | 0   1   0   1       -- Mode 5(Max)          
+-- 0x260        1 | 0   0   1   1   0 | 0   0   0   0       -- Number of Samples    
+-- 0x200        1 | 0   0   0   0   0 | 0   0   0   0       -- TimeStamp Start      
+-- 0x220        1 | 0   0   0   1   0 | 0   0   0   0       -- TimeStamp End        
+-- 0x240        1 | 0   0   1   0   0 | 0   0   0   0       -- TimeStamp Capture      
+-- 0x270        1 | 0   0   1   1   1 | 0   0   0   0       -- Bits Bus             
+-- 0x280        1 | 0   1   0   0   0 | 0   0   0   0       -- Bits Bus                 
+-- 0x290        1 | 0   1   0   0   1 | 0   0   0   0       -- Bits Bus             
+-- 0x2A0        1 | 0   1   0   1   0 | 0   0   0   0       -- Bits Bus                 
+
+--            -----------------------------------------     ----------------- 
+--            | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |     | 3 | 2 | 1 | 0 |
+--            -----------------------------------------     -----------------      
+--              0 | 0   0   0   0   0 | 0   0   0   0         0   1   0   1   -- POS 0  0x000 - 0x005
+--              0 | 0   0   0   0   1 | 0   0   0   0         0   1   0   1   -- POS 1  0x010 - 0x015
+--           
+--              0 | 1   1   1   1   0 | 0   0   0   0         0   1   0   1   -- POS 30 0x1E0 - 0x0F5
+--              0 | 1   1   1   1   1 | 0   0   0   0         0   1   0   1   -- POS 31 0x1F0 - 0x1F5 
 
 
--- TimeStamp Start      LSB  0X200 gate first one
--- TimeStamp Start      MSB  0X210 gate first one
--- TimeStamp End        LSB  0X220 gate last one
--- TimeStamp End        MSB  0X230 gate last one
--- Capture              LSB  0x240 Capture timestamp when capture goes high
--- Capture              MSB  0x250 Capture timestamp when capture goes high
+-- TimeStamp Start      LSB  0X200 
+-- TimeStamp Start      MSB  0X210 
+-- TimeStamp End        LSB  0X220 
+-- TimeStamp End        MSB  0X230 
+-- Capture Time         LSB  0x240 
+-- Capture Time         MSB  0x250 
 -- Number of Samples         0x260
 -- 
 
-   -------------------------------------------------------------
--- | 11 | 10 |  9 |  8 |  7 |  6 |  5 |  4 |  3 |  2 |  1 |  0 |
-   -------------------------------------------------------------
--- | 0| 0| 0 | ES |  0 |      EXT/POS      |       MODE        |
-   -------------------------------------------------------------
+   ----------------------------------------------------
+-- | 11 | 10 |  9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+   ----------------------------------------------------
+-- | 0  | 0  | ES |      EXT/POS      |     MODE      |
+   ----------------------------------------------------    
 -- Bit  9 = 1 EXTENSION BUS active, 7 - 4 = EXT(11 off)   
 -- Bit  9 = 0 POSITION BUS active,  7 - 4 = POS(32 off) and MODE(6 off)
  
@@ -254,27 +236,20 @@ end process;
 ps_ext_bus: process(clk_i)
 begin
     if rising_edge(clk_i) then
-        test <= 0;
         -- Extension Bus Selected 
         if mask_doutb(9) = '1' then
-            test <= 1;
             -- Ext Bus (BITS0, BITS1, BITS2 and BITS3)
             if mask_doutb(7 downto 4) = c_bits0 then                
-                test <= 2;
                 ext_bus <= mode_ts_bits.bits(0);
             elsif mask_doutb(7 downto 4) = c_bits1 then
-                test <= 3;
                 ext_bus <= mode_ts_bits.bits(1);
             elsif mask_doutb(7 downto 4) = c_bits2 then
-                test <= 4;
                 ext_bus <= mode_ts_bits.bits(2);
             elsif mask_doutb(7 downto 4) = c_bits3 then        
-                test <= 5;
                 ext_bus <= mode_ts_bits.bits(3);
             -- TS Start x2, TS End x2, TS Capture x2 and Samples    
             else
                 lp_ext_bus: for i in 6 downto 0 loop
-                    test <= 8;
                     if (to_integer(unsigned(mask_doutb(7 downto 4)))) = i then
                         ext_bus <= mode_ts_bits.ts(i);    
                     end if;
@@ -299,6 +274,7 @@ begin
                     if (to_integer(unsigned(mask_doutb(6 downto 4)))) = i then
                         lp_mode7 : for j in 5 downto 0 loop                
                             if (to_integer(unsigned(mask_doutb(3 downto 0)))) = j then
+                                -- 7 downto 0
                                 mode_bus0 <= mode_ts_bits.mode(i)(j); 
                             end if;
                         end loop lp_mode7;
@@ -312,7 +288,8 @@ begin
                     if (to_integer(unsigned(mask_doutb(6 downto 4)))) = k then
                         lp_mode14 : for l in 5 downto 0 loop
                             if (to_integer(unsigned(mask_doutb(3 downto 0)))) = l then
-                                mode_bus1 <= mode_ts_bits.mode(k)(l);
+                                -- 15 downto 8
+                                mode_bus1 <= mode_ts_bits.mode(8+k)(l);
                             end if;
                         end loop lp_mode14;    
                     end if;
@@ -325,7 +302,8 @@ begin
                     if (to_integer(unsigned(mask_doutb(6 downto 4)))) = n then
                         lp_mode21 : for m in 5 downto 0 loop
                             if (to_integer(unsigned(mask_doutb(3 downto 0)))) = m then
-                                mode_bus2 <= mode_ts_bits.mode(n)(m);
+                                -- 23 downto 16
+                                mode_bus2 <= mode_ts_bits.mode(16+n)(m);
                             end if;
                         end loop lp_mode21;
                     end if;
@@ -338,7 +316,8 @@ begin
                     if (to_integer(unsigned(mask_doutb(6 downto 4)))) = o then
                         lp_mode32 : for p in 5 downto 0 loop
                             if (to_integer(unsigned(mask_doutb(3 downto 0)))) = p then 
-                                mode_bus3 <= mode_ts_bits.mode(o)(p);
+                                -- 31 downto 24
+                                mode_bus3 <= mode_ts_bits.mode(24+o)(p);
                             end if;
                         end loop lp_mode32;
                     end if;
@@ -351,23 +330,23 @@ end process ps_mode_bus;
 
 -- Second mux to ease timing
 -- Ext Bus 
--- Input 0 MOde bus 0
--- Input 1 Mode bus 1
--- Input 2 Mode bus 2
--- Input 3 Mode bus 3     
+-- Input 0 MOde bus 0 mode bus (7 downto 0)
+-- Input 1 Mode bus 1 mode bus (15 downto 8)
+-- Input 2 Mode bus 2 mode bus (23 downto 16)
+-- Input 3 Mode bus 3 mode bus (31 downto 24)    
 ps_fatpipes: process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if mask_doutb(9) = '1' then
+        if mask_doutb_del(9) = '1' then
             pcap_dat_o <= ext_bus;
         else
-            if mask_doutb(8 downto 7) = "00" then
+            if mask_doutb_del(8 downto 7) = "00" then
                 pcap_dat_o <= mode_bus0;
-            elsif mask_doutb(8 downto 7) = "01" then
+            elsif mask_doutb_del(8 downto 7) = "01" then
                 pcap_dat_o <= mode_bus1;
-            elsif mask_doutb(8 downto 7) = "10" then
+            elsif mask_doutb_del(8 downto 7) = "10" then
                 pcap_dat_o <= mode_bus2;
-            elsif mask_doutb(8 downto 7) = "11" then
+            elsif mask_doutb_del(8 downto 7) = "11" then
                 pcap_dat_o <= mode_bus3;
             end if;
         end if;                         
