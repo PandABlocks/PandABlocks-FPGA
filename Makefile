@@ -35,8 +35,7 @@ export SHA := $(DIRTY_PRE)$(shell git rev-parse --short HEAD)
 # Documentation
 # -------------------------------------------------------------------------
 
-export FPGA_BUILD_DIR
-$(DOCS_BUILD_DIR)/index.html: $(wildcard docs/*.rst docs/*/*.rst docs/conf.py) config_d
+$(DOCS_BUILD_DIR)/index.html: $(wildcard docs/*.rst docs/*/*.rst docs/conf.py)
 	$(SPHINX_BUILD) -b html docs $(DOCS_BUILD_DIR)
 
 docs: $(DOCS_BUILD_DIR)/index.html

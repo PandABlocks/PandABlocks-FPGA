@@ -136,10 +136,10 @@ class Pcap(Block):
             b = self.config_block
             # Frame pos bus
             diff = self.pos_bus - self.pos_bus_cache
-            self.ext_bus[self.frame_mask] = diff[self.frame_mask]
+            self.ext_bus[:32][self.frame_mask] = diff[self.frame_mask]
             # Alt mode is average
             avg = (self.pos_bus + self.pos_bus_cache) / 2
-            self.ext_bus[self.alt_frame_mask] = avg[self.alt_frame_mask]
+            self.ext_bus[:32][self.alt_frame_mask] = avg[self.alt_frame_mask]
             # Ext bus
             len_idx = self.ext_names[b.FRAME_LENGTH]
             if self.ext_mask[len_idx]:
@@ -170,7 +170,7 @@ class Pcap(Block):
                 return
             self.live_frame = True
         # Capture pos bus
-        self.ext_bus[self.capture_mask] = self.pos_bus[self.capture_mask]
+        self.ext_bus[:32][self.capture_mask] = self.pos_bus[self.capture_mask]
         # Ext bus
         ts_idx = self.ext_names[b.CAPTURE_TS]
         if self.ext_mask[ts_idx[0]]:

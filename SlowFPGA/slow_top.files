@@ -9,3 +9,5 @@ common/vhdl/shifter_in.vhd
 common/vhdl/ssi_clock_gen.vhd
 common/vhdl/prescaler.vhd
 SlowFPGA/src/hdl/*.vhd
+SlowFPGA/src/hdl/zynq_interface.vhd
+SlowFPGA/src/hdl/slow_top.vhd
