@@ -32,6 +32,7 @@ port (
     CONN_OUT            : out std_logic;
     -- Position Field interface
     PROTOCOL            : out std_logic_vector(2 downto 0);
+    DCARD_MODE          : in  std_logic_vector(31 downto 0);
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t
 );
@@ -93,6 +94,7 @@ port map (
     -- Block Parameters
     PROTOCOL            => PROTOCOL_i,
     PROTOCOL_WSTB       => PROTOCOL_WSTB,
+    DCARD_ID            => '0' & DCARD_MODE(31 downto 1),
     BYPASS              => BYPASS,
     BITS                => BITS,
     BITS_WSTB           => BITS_WSTB,

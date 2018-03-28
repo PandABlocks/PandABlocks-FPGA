@@ -44,5 +44,6 @@ OUTENC      {{newBlockNo("OUTENC")}}
     CLK             {{newBitBus()}}
     VAL             {{newBlockReg()}}
     CONN            {{newBlockReg(typ='bit_mux')}}
+    DCARD_ID        {{newBlockReg()}}
     QSTATE          {{newBlockReg()}}
 

@@ -44,5 +44,6 @@ OUTENC      Output encoder
     CLK             Clock input from master encoder
     VAL             Input for position (all other protocols)
     CONN            Input for connected
+    DCARD_ID        Daughter card jumper mode
     QSTATE          Quadrature state
 

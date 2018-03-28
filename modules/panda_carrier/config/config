@@ -68,6 +68,7 @@ OUTENC[4]
     CLK             bit_out
     VAL             pos_mux
     CONN            bit_mux
+    DCARD_ID        read        enum 8
     QSTATE          read        enum 3
         0   Disabled
         1   At position
