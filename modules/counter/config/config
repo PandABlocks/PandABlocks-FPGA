@@ -1,5 +1,5 @@
 COUNTER[{{app_config["COUNTER"]}}]
-    START           param
+    START           param    int
     STEP            param
     ENABLE          bit_mux
     TRIG            bit_mux
