@@ -21,3 +21,6 @@ FMC   FMC ACQ427 ADC Module
     DAC_ENABLE                      DAC Enable
     CH01_DAC_DATA                   DAC Channel 1 Data
     CH02_DAC_DATA                   DAC Channel 2 Data
+   	CH03_DAC_DATA                   DAC Channel 3 Data
+    CH04_DAC_DATA                   DAC Channel 4 Data
+

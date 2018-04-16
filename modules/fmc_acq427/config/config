@@ -41,4 +41,6 @@ FMC
         1   Enable
     CH01_DAC_DATA       pos_mux
     CH02_DAC_DATA       pos_mux
+    CH03_DAC_DATA       pos_mux
+    CH04_DAC_DATA       pos_mux
 

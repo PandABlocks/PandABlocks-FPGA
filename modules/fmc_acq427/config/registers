@@ -19,5 +19,8 @@ FMC         {{newBlockNo("FMC")}}
     DAC_FIFO_ENABLE                 {{newBlockReg()}}
     DAC_RESET                       {{newBlockReg()}}
     DAC_ENABLE                      {{newBlockReg()}}
-    CH01_DAC_DATA                   {{newPosBus()}}
-    CH02_DAC_DATA                   {{newPosBus()}}
+    CH01_DAC_DATA                   {{newBlockReg(typ='pos_mux')}}
+    CH02_DAC_DATA                   {{newBlockReg(typ='pos_mux')}}
+    CH03_DAC_DATA                   {{newBlockReg(typ='pos_mux')}}
+    CH04_DAC_DATA                   {{newBlockReg(typ='pos_mux')}}
+

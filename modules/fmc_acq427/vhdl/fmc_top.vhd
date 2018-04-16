@@ -286,8 +286,8 @@ port map (
     DAC_ENABLE          => DAC_ENABLE,
     ch01_dac_data_o     => CH01_DAC_DATA,
     ch02_dac_data_o     => CH02_DAC_DATA,
-    --ch03_dac_data_o     => CH03_DAC_DATA,
-    --ch04_dac_data_o     => CH04_DAC_DATA,
+    ch03_dac_data_o     => CH03_DAC_DATA,
+    ch04_dac_data_o     => CH04_DAC_DATA,
     -- Memory Bus Interface
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
@@ -387,3 +387,4 @@ end if;
 end process IOB_FF_PUSH_DAC;
 
 end rtl;
+
