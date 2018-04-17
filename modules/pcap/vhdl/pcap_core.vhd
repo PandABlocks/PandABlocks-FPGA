@@ -34,7 +34,7 @@ port (
     WRITE_WSTB          : in  std_logic;
     CAPTURE_EDGE        : in  std_logic_vector(1 downto 0);
     SHIFT_SUM           : in  std_logic_vector(5 downto 0);
-    health              : out std_logic_vector(31 downto 0);
+    HEALTH              : out std_logic_vector(31 downto 0);
     -- Block inputs
     enable_i            : in  std_logic;
     capture_i           : in  std_logic;
@@ -47,30 +47,23 @@ port (
     pcap_dat_valid_o    : out std_logic;
     pcap_done_o         : out std_logic;
     pcap_actv_o         : out std_logic;
-    pcap_status_o       : out std_logic_vector(1 downto 0)
+    pcap_status_o       : out std_logic_vector(2 downto 0)
 );
 end pcap_core;
 
 architecture rtl of pcap_core is
 
 
-signal capture_prev     : std_logic;
 signal gate             : std_logic;
 signal pcap_reset       : std_logic;
-signal capture          : std_logic;
-signal capture_rise     : std_logic;
-signal capture_fall     : std_logic; 
-
 signal timestamp        : std_logic_vector(63 downto 0);
 signal capture_pulse    : std_logic;
 signal mode_ts_bits     : t_mode_ts_bits;
 signal pcap_buffer_error: std_logic;
---signal pcap_frame_error : std_logic;
 signal pcap_error       : std_logic;
-signal pcap_status      : std_logic_vector(1 downto 0);
+signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_dat_valid   : std_logic;
 signal pcap_armed       : std_logic;
---signal pcap_start       : std_logic;
 
 
 begin
@@ -83,7 +76,6 @@ pcap_actv_o <= pcap_armed;
 --------------------------------------------------------------------------
 -- These errors signals termination of PCAP operation
 --------------------------------------------------------------------------
---pcap_error <= pcap_buffer_error or pcap_frame_error;
 pcap_error <= pcap_buffer_error;
 
 --------------------------------------------------------------------------
@@ -106,24 +98,9 @@ port map (
 );
 
 
-ps_prev: process(clk_i)                                      
-begin                                                               
-    if rising_edge(clk_i) then                      
-        capture_prev <= capture_i;                  
-    end if;                                                         
-end process ps_prev;                                                
+-- Gate the gate with the pcap_armed and ARM signals
+gate <= (ARM or pcap_armed) and gate_i;
 
-
-capture_rise <= not capture_prev and capture_i;
-capture_fall <= capture_prev and not capture_i;
-
--- Handle the trigger 
-capture <= capture_rise when (capture_rise = '1' and (CAPTURE_EDGE = "00" or CAPTURE_EDGE = "10")) else
-           capture_fall when (capture_fall = '1' and (CAPTURE_EDGE = "01" or CAPTURE_EDGE = "10")) else
-           '0';  
-
-
-gate <= pcap_armed and gate_i;
 
 -- Keep sub-block under reset when pcap is not armed
 pcap_reset <= reset_i or not pcap_armed;
@@ -135,21 +112,20 @@ pcap_reset <= reset_i or not pcap_armed;
 pcap_frame : entity work.pcap_frame
 port map (
     clk_i               => clk_i,
---    reset_i             => pcap_reset,
     reset_i             => reset_i,    
-
+	-- Register control
     SHIft_SUM           => SHIFT_SUM,    
-    
+	CAPTURE_EDGE		=> CAPTURE_EDGE,
+    -- 
     posbus_i            => posbus_i,
     sysbus_i            => sysbus_i,
     enable_i            => enable_i,
     gate_i              => gate,
-    capture_i           => capture,
+    capture_i           => capture_i,
     timestamp_i         => timestamp,
-
+	--
     capture_o           => capture_pulse,
     mode_ts_bits        => mode_ts_bits
---    error_o             => pcap_frame_error
 );
 
 --------------------------------------------------------------------------
@@ -158,9 +134,7 @@ port map (
 pcap_buffer : entity work.pcap_buffer
 port map (
     clk_i               => clk_i,
---    reset_i             => pcap_reset,
     reset_i             => reset_i,
---    reset_mem           => reset_i,
     -- Configuration Registers
     START_WRITE         => START_WRITE,    
     WRITE               => WRITE,
@@ -168,7 +142,7 @@ port map (
     -- Block inputs
     mode_ts_bits        => mode_ts_bits,
     --
-    capture_i           => capture,
+    capture_i           => capture_pulse,
     gate_i              => gate_i,
     -- Output pulses
     pcap_dat_o          => pcap_dat_o,
@@ -176,7 +150,7 @@ port map (
     error_o             => pcap_buffer_error
 );
 
-health(31 downto 2) <= (others => '0');
-health(1 downto 0) <= pcap_status(1 downto 0);
+HEALTH(31 downto 2) <= (others => '0');
+HEALTH(1 downto 0) <= pcap_status(2 downto 1);
 
 end rtl;

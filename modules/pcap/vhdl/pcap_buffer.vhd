@@ -46,29 +46,23 @@ end pcap_buffer;
 architecture rtl of pcap_buffer is
 
 
-constant c_bits0        : std_logic_vector(3 downto 0) := "0111"; -- 7
-constant c_bits1        : std_logic_vector(3 downto 0) := "1000"; -- 8
-constant c_bits2        : std_logic_vector(3 downto 0) := "1001"; -- 9
-constant c_bits3        : std_logic_vector(3 downto 0) := "1010"; --10
+constant c_bits0           : std_logic_vector(3 downto 0) := "0111"; -- 7
+constant c_bits1           : std_logic_vector(3 downto 0) := "1000"; -- 8
+constant c_bits2           : std_logic_vector(3 downto 0) := "1001"; -- 9
+constant c_bits3           : std_logic_vector(3 downto 0) := "1010"; --10
 
-constant c_first_eight  : std_logic_vector(1 downto 0) := "00";
-constant c_second_eight : std_logic_vector(1 downto 0) := "01";
-constant c_third_eight  : std_logic_vector(1 downto 0) := "10";
-constant c_fourth_eight : std_logic_vector(1 downto 0) := "11";   
+constant c_first_eight     : std_logic_vector(1 downto 0) := "00";
+constant c_second_eight    : std_logic_vector(1 downto 0) := "01";
+constant c_third_eight     : std_logic_vector(1 downto 0) := "10";
+constant c_fourth_eight    : std_logic_vector(1 downto 0) := "11";   
 
-signal mode_bus0        : std_logic_vector(31 downto 0);
-signal mode_bus1        : std_logic_vector(31 downto 0);
-signal mode_bus2        : std_logic_vector(31 downto 0);
-signal mode_bus3        : std_logic_vector(31 downto 0); 
-signal ext_bus          : std_logic_vector(31 downto 0);
-signal ongoing_capture  : std_logic;
-signal mask_length      : unsigned(5 downto 0) := "000000";
-signal mask_addra       : unsigned(5 downto 0) := "000000";
-signal mask_addrb       : unsigned(5 downto 0);
-signal mask_doutb       : std_logic_vector(31 downto 0);
-signal mask_doutb_del   : std_logic_vector(31 downto 0);
-signal capture          : std_logic;
-signal capture_dly      : std_logic_vector(2 downto 0);
+signal ongoing_capture     : std_logic;
+signal mask_length         : unsigned(5 downto 0) := "000000";
+signal mask_addra          : unsigned(5 downto 0) := "000000";
+signal mask_addrb          : unsigned(5 downto 0);
+signal mask_doutb          : std_logic_vector(31 downto 0);
+signal capture_dly         : std_logic;
+signal ongoing_capture_dly : std_logic;
 
 
 begin
@@ -116,20 +110,16 @@ end process;
 -- An ongoing_capture flag is produced to be used for graceful finish by
 -- the DMA engine.
 --------------------------------------------------------------------------
---capture <= capture_i or ongoing_capture;                                  -- HERE CODE CHANGED
-capture <= capture_i;
 
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
---            capture_data_lt.mode <= (others => (others => (others => '0')));
---            capture_data_lt.ts <= (others => (others => '0'));
---            capture_data_lt.bits <= (others => (others => '0'));
             ongoing_capture <= '0';
             mask_addrb <= (others => '0');
             error_o <= '0';
             pcap_dat_valid_o <= '0';
-            capture_dly  <= (others => '0');
+            capture_dly  <= '0';
+            ongoing_capture_dly <= '0';
         else
 
             -- Ongoing flag runs while mask buffer is read through
@@ -140,25 +130,17 @@ process(clk_i) begin
                 ongoing_capture <= '1';
             end if;
 
-            -- Counter is active follwing capture and rolls over
-----            if (capture = '1') then
------------------------------------------------------------------------------------------------
-            mask_doutb_del <= mask_doutb;
-----            if (capture_dly(2) = '1') then                                     --- HERE                         
---            if (capture_dly(2) = '1' or (capture_dly(1) = '1' and ongoing_capture = '1')) then                                                              
-            if (capture_i = '1' or (capture_dly(0) = '1' and ongoing_capture = '1')) then                                                              
------------------------------------------------------------------------------------------------
+            if (capture_i = '1' or ongoing_capture = '1') then                                                              
                 if (mask_addrb = mask_length - 1) then
                     mask_addrb <= (others => '0');
                 else
                     mask_addrb <= mask_addrb + 1;
                 end if;
---            else
---                mask_addrb <= (others => '0');
             end if;
 
-            capture_dly <= capture_dly(1 downto 0) & capture;
-            pcap_dat_valid_o <= capture_dly(2);
+            capture_dly <= capture_i;
+            ongoing_capture_dly <= ongoing_capture;
+            pcap_dat_valid_o <= capture_dly or ongoing_capture_dly;
 
             -- Flag an error on consecutive captures, it is latched until
             -- next pcap start (via reset port)
@@ -198,10 +180,10 @@ end process;
 -- 0x200        1 | 0   0   0   0   0 | 0   0   0   0       -- TimeStamp Start      
 -- 0x220        1 | 0   0   0   1   0 | 0   0   0   0       -- TimeStamp End        
 -- 0x240        1 | 0   0   1   0   0 | 0   0   0   0       -- TimeStamp Capture      
--- 0x270        1 | 0   0   1   1   1 | 0   0   0   0       -- Bits Bus             
--- 0x280        1 | 0   1   0   0   0 | 0   0   0   0       -- Bits Bus                 
--- 0x290        1 | 0   1   0   0   1 | 0   0   0   0       -- Bits Bus             
--- 0x2A0        1 | 0   1   0   1   0 | 0   0   0   0       -- Bits Bus                 
+-- 0x270        1 | 0   0   1   1   1 | 0   0   0   0       -- Bits Bus 0             
+-- 0x280        1 | 0   1   0   0   0 | 0   0   0   0       -- Bits Bus 1                
+-- 0x290        1 | 0   1   0   0   1 | 0   0   0   0       -- Bits Bus 2            
+-- 0x2A0        1 | 0   1   0   1   0 | 0   0   0   0       -- Bits Bus 3                
 
 --            -----------------------------------------     ----------------- 
 --            | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |     | 3 | 2 | 1 | 0 |
@@ -231,37 +213,17 @@ end process;
 -- Bit  9 = 0 POSITION BUS active,  7 - 4 = POS(32 off) and MODE(6 off)
  
 
--- Ext bus
--- Bits0, Bits1, Bits2, Bits3, TS Start x2, TS End x2, TS Capture x2 and Samples
-ps_ext_bus: process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        -- Extension Bus Selected 
-        if mask_doutb(9) = '1' then
-            -- Ext Bus (BITS0, BITS1, BITS2 and BITS3)
-            if mask_doutb(7 downto 4) = c_bits0 then                
-                ext_bus <= mode_ts_bits.bits(0);
-            elsif mask_doutb(7 downto 4) = c_bits1 then
-                ext_bus <= mode_ts_bits.bits(1);
-            elsif mask_doutb(7 downto 4) = c_bits2 then
-                ext_bus <= mode_ts_bits.bits(2);
-            elsif mask_doutb(7 downto 4) = c_bits3 then        
-                ext_bus <= mode_ts_bits.bits(3);
-            -- TS Start x2, TS End x2, TS Capture x2 and Samples    
-            else
-                lp_ext_bus: for i in 6 downto 0 loop
-                    if (to_integer(unsigned(mask_doutb(7 downto 4)))) = i then
-                        ext_bus <= mode_ts_bits.ts(i);    
-                    end if;
-                end loop lp_ext_bus;
-            end if;
-        end if;    
-    end if;
-end process ps_ext_bus;
 
-
-
--- Modes0,1,2,3,4 and 5 * 32 
+-- Modes0,1,2,3,4 and 5 * 32 =  192
+-- TimeStamp Start				  2
+-- TimeStamp End				  2
+-- TimeStamp Capture			  2
+-- Sample Count					  1
+-- Bit Bus 0					  1
+-- Bit Bus 1					  1
+-- Bit Bus 2					  1
+-- Bit Bus 3					  1	
+-- Total						203							  
 ps_mode_bus: process(clk_i)
 begin
     if rising_edge(clk_i) then            
@@ -275,7 +237,7 @@ begin
                         lp_mode7 : for j in 5 downto 0 loop                
                             if (to_integer(unsigned(mask_doutb(3 downto 0)))) = j then
                                 -- 7 downto 0
-                                mode_bus0 <= mode_ts_bits.mode(i)(j); 
+                                pcap_dat_o <= mode_ts_bits.mode(i)(j); 
                             end if;
                         end loop lp_mode7;
                     end if;
@@ -289,7 +251,7 @@ begin
                         lp_mode14 : for l in 5 downto 0 loop
                             if (to_integer(unsigned(mask_doutb(3 downto 0)))) = l then
                                 -- 15 downto 8
-                                mode_bus1 <= mode_ts_bits.mode(8+k)(l);
+                                pcap_dat_o <= mode_ts_bits.mode(8+k)(l);
                             end if;
                         end loop lp_mode14;    
                     end if;
@@ -303,7 +265,7 @@ begin
                         lp_mode21 : for m in 5 downto 0 loop
                             if (to_integer(unsigned(mask_doutb(3 downto 0)))) = m then
                                 -- 23 downto 16
-                                mode_bus2 <= mode_ts_bits.mode(16+n)(m);
+                                pcap_dat_o <= mode_ts_bits.mode(16+n)(m);
                             end if;
                         end loop lp_mode21;
                     end if;
@@ -317,41 +279,36 @@ begin
                         lp_mode32 : for p in 5 downto 0 loop
                             if (to_integer(unsigned(mask_doutb(3 downto 0)))) = p then 
                                 -- 31 downto 24
-                                mode_bus3 <= mode_ts_bits.mode(24+o)(p);
+                                pcap_dat_o <= mode_ts_bits.mode(24+o)(p);
                             end if;
                         end loop lp_mode32;
                     end if;
                 end loop lp_fourth;                
             end if;                                    
-        end if;
+        -- Extension Bus Selected 
+        elsif mask_doutb(9) = '1' then
+            -- Ext Bus (BITS0, BITS1, BITS2 and BITS3)
+            if mask_doutb(7 downto 4) = c_bits0 then    
+                pcap_dat_o <= mode_ts_bits.bits(0);
+            elsif mask_doutb(7 downto 4) = c_bits1 then
+				pcap_dat_o <= mode_ts_bits.bits(1);
+            elsif mask_doutb(7 downto 4) = c_bits2 then
+				pcap_dat_o <= mode_ts_bits.bits(2);
+            elsif mask_doutb(7 downto 4) = c_bits3 then        
+				pcap_dat_o <= mode_ts_bits.bits(3);
+            -- TS Start x2, TS End x2, TS Capture x2 and Samples    
+            else
+                lp_ext_bus: for i in 6 downto 0 loop
+                    if (to_integer(unsigned(mask_doutb(7 downto 4)))) = i then
+                        pcap_dat_o <= mode_ts_bits.ts(i);    
+                    end if;
+                end loop lp_ext_bus;
+            end if;
+        end if;    
+
+
     end if;
 end process ps_mode_bus;        
-
-
--- Second mux to ease timing
--- Ext Bus 
--- Input 0 MOde bus 0 mode bus (7 downto 0)
--- Input 1 Mode bus 1 mode bus (15 downto 8)
--- Input 2 Mode bus 2 mode bus (23 downto 16)
--- Input 3 Mode bus 3 mode bus (31 downto 24)    
-ps_fatpipes: process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if mask_doutb_del(9) = '1' then
-            pcap_dat_o <= ext_bus;
-        else
-            if mask_doutb_del(8 downto 7) = "00" then
-                pcap_dat_o <= mode_bus0;
-            elsif mask_doutb_del(8 downto 7) = "01" then
-                pcap_dat_o <= mode_bus1;
-            elsif mask_doutb_del(8 downto 7) = "10" then
-                pcap_dat_o <= mode_bus2;
-            elsif mask_doutb_del(8 downto 7) = "11" then
-                pcap_dat_o <= mode_bus3;
-            end if;
-        end if;                         
-    end if;
-end process ps_fatpipes;
     
 
 

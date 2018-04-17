@@ -83,13 +83,9 @@ signal HEALTH           : std_logic_vector(31 downto 0);
 
 signal ARM              : std_logic;
 signal DISARM           : std_logic;
---signal START_WRITE      : std_logic;
+signal START_WRITE      : std_logic;
 signal WRITE            : std_logic_vector(31 downto 0);
 signal WRITE_WSTB       : std_logic;
---signal FRAMING_MASK     : std_logic_vector(31 downto 0);
---signal FRAMING_ENABLE   : std_logic;
---signal FRAMING_MODE     : std_logic_vector(31 downto 0);
---signal FRAME_COUNT      : std_logic_vector(31 downto 0);
 signal CAPTURE_EDGE     : std_logic_vector(31 downto 0);
 signal SHIFT_SUM        : std_logic_vector(31 downto 0);
 signal DMA_RESET        : std_logic;
@@ -113,7 +109,6 @@ signal pcap_done        : std_logic;
 signal enable           : std_logic;
 signal gate             : std_logic;
 signal capture          : std_logic;
---signal frame            : std_logic;
 signal sysbus_dly       : sysbus_t;
 signal posbus_dly       : posbus_t;
 
@@ -158,7 +153,6 @@ port map (
     enable_o            => enable,
     gate_o              => gate,
     capture_o           => capture,
---    frame_o             => frame,
 
     CAPTURE_EDGE        => CAPTURE_EDGE,
     CAPTURE_EDGE_WSTB   => open,
@@ -195,12 +189,9 @@ port map (
     write_data_i        => write_data_i,
     write_ack_o         => open,
 
---    START_WRITE         => START_WRITE,
+    START_WRITE         => START_WRITE,
     WRITE               => WRITE,
     WRITE_WSTB          => WRITE_WSTB,
---    FRAMING_MASK        => FRAMING_MASK,
---    FRAMING_ENABLE      => FRAMING_ENABLE,
---    FRAMING_MODE        => FRAMING_MODE,
     ARM                 => ARM,
     DISARM              => DISARM,
 
@@ -241,21 +232,17 @@ port map (
     clk_i                   => clk_i,
     reset_i                 => reset_i,
 
---    START_WRITE             => START_WRITE,
+    START_WRITE             => START_WRITE,
     WRITE                   => WRITE,
     WRITE_WSTB              => WRITE_WSTB,
     CAPTURE_EDGE            => CAPTURE_EDGE(1 downto 0),
     SHIFT_SUM               => SHIFT_SUM(5 downto 0),
---    FRAMING_MASK            => FRAMING_MASK,
---    FRAMING_ENABLE          => FRAMING_ENABLE,
---    FRAMING_MODE            => FRAMING_MODE,
     ARM                     => ARM,
     DISARM                  => DISARM,
     HEALTH                  => HEALTH,
 
     enable_i                => enable,
     capture_i               => capture,
---    frame_i                 => frame,
     gate_i                  => gate,    
     dma_error_i             => dma_error,
     sysbus_i                => sysbus_dly,
