@@ -25,17 +25,15 @@ reg [31:0]       posbus_i[31:0];
 wire [32*12-1:0] extbus_i = 0;
 
 // Outputs
-wire [31:0]      health;
+wire [31:0]      HEALTH_o;
 wire [31:0]      pcap_dat_o;
 wire             pcap_dat_valid_o;
 wire             pcap_done_o;
 wire             pcap_actv_o;
-wire [1:0]       pcap_status_o;
+wire [2:0]       pcap_status_o;
 
 wire [127:0]     sysbus;
 wire [32*32-1:0] posbus;
-//reg [127:0]     sysbus;
-//reg [32*32-1:0] posbus;
 
 reg              test_result = 0; 
 reg	             err_data;
@@ -54,7 +52,7 @@ pcap_core_wrapper uut (
     .WRITE_WSTB         ( WRITE_WSTB        ),
     .CAPTURE_EDGE       ( CAPTURE_EDGE      ),
     .SHIFT_SUM          ( SHIFT_SUM         ),
-    .health             ( health            ),
+    .HEALTH             ( HEALTH_o          ),
     .enable_i           ( enable_i          ),
     .capture_i          ( capture_i         ),
     .gate_i             ( gate_i            ),
@@ -68,17 +66,6 @@ pcap_core_wrapper uut (
     .pcap_actv_o        ( pcap_actv_o       ),
     .pcap_status_o      ( pcap_status_o     )
 );
-
-// EXT BUS
-// ts_start(63 downto 0)   - Timestamp of the first gate high in current capture relative to enable
-// ts_end(63 downto 0)     - Timestamp of the last gate high + 1 in current capture relative to enable   
-// ts_capture(63 downto 0) - Timestamp of capture event relative to enable   
-// samples(31 downto 0)    - Number of gated samples in the current capture
-// bits0(31 downto 0)      - Quadrant 0 of bit_bus
-// bits1(31 downto 0)      - Quadrant 1 of bit_bus
-// bits2(31 downto 0)      - Quadrant 2 of bit_bus
-// bits3(31 downto 0)      - Quadrant 3 of bit_bus
-
 
 
 // Testbench specific
@@ -117,7 +104,6 @@ begin : bus_inputs
 
 fork
     begin
-        //`include "../../panda_pcomp/bench/file_io.v"
         `include "../../panda_pcap/bench/file_io.v"         
         $finish;
     end
@@ -152,7 +138,6 @@ begin : reg_inputs
 
 fork
     begin
-        //`include "../../panda_pcomp/bench/file_io.v"
         `include "../../panda_pcap/bench/file_io.v"         
     end
 
@@ -172,22 +157,6 @@ join
 
 end
 
-// write index
-// (0-31)	posbus;
-//	32		(others => '0');
-// (36-33)	extbus(4 downto 1);
-//	37		capture_ts(31 downto 0);
-//	38		capture_ts(63 downto 32);
-//	39		frame_length(31 downto 0);
-//	40		capture_offset(31 downto 0);
-//	41		(others => '0');
-//	42		sysbus(31 downto 0);
-//	43		sysbus(63 downto 32);
-//	44		sysbus(95 downto 64);
-//	45		sysbus(127 downto 96);
-// (49-46)	extbus;
-// (63-50)	(others => '0');	
-
 
 
 //
@@ -196,6 +165,7 @@ end
 reg         ACTIVE = 0;
 reg [31:0]  DATA;
 reg         DATA_WSTB;
+reg 		ERROR;
 //reg [31:0]  ERROR;
 
 initial
@@ -210,7 +180,6 @@ begin : bus_outputs
 
 fork
     begin
-        //`include "../../panda_pcomp/bench/file_io.v"
         `include "../../panda_pcap/bench/file_io.v"                 
         
     end
@@ -218,16 +187,16 @@ fork
     begin
         while (1) begin
             @(posedge clk_i);
-            //@(negedge clk_i);
             ACTIVE <= vectors[1];
             DATA   <= vectors[2];
             DATA_WSTB <= vectors[3];
-            //ERROR = vectors[4];
+			ERROR <= vectors[4];
         end
     end
 join
 
 end
+
 
 //
 // Read Position Bus
@@ -244,7 +213,6 @@ begin : pos_inputs
 
 fork
     begin
-        //`include "../../panda_pcomp/bench/file_io.v"
         `include "../../panda_pcap/bench/file_io.v"        
     end
 
@@ -269,7 +237,6 @@ initial
 begin : bit_inputs
     localparam filename = "pcap_bit_bus.txt";
     localparam N        = 129;
-    //reg [31:0] vectors[N-1: 0];
     reg vectors[N-1: 0];
 
     reg     [8192*2*10:0] line;
@@ -278,7 +245,6 @@ begin : bit_inputs
 
 fork
     begin
-        //`include "../../panda_pcomp/bench/file_io.v"    
         `include "../../panda_pcap/bench/file_io.v"
     end
 
@@ -319,7 +285,6 @@ begin : reg_outputs
 
 fork
     begin
-        //`include "../../panda_pcomp/bench/file_io.v"
         `include "../../panda_pcap/bench/file_io.v"         
         $finish;
     end
@@ -358,31 +323,24 @@ end
 // Compare Block Outputs and Expected Outputs.
 //
 
-reg [31:0] DATA_del1;
-reg [31:0] DATA_del2;
-reg        DATA_WSTB_del1;
-reg        DATA_WSTB_del2;
 
-reg [31:0] HEALTH_del;
 reg err_health;
 reg err_act;
+reg err_dat_valid;
 
 always @(posedge clk_i) 
-//always @(negedge clk_i)
 begin
    
     // Regresion test result   
-    if (err_data == 1 || err_health == 1 || err_act == 1) begin
+    if (err_data == 1 || err_health == 1 || err_act == 1 || err_dat_valid == 1) begin
     	test_result <= 1;
     end 	      
-    
-    HEALTH_del <= HEALTH;
-    
+        
     // Health
     // 0 = OK
     // 1 = Too Close
     // 2 = Sample Overflow 
-    if (HEALTH_del != health) begin
+	if (HEALTH != HEALTH_o) begin
     	err_health <= 1;
 		$display("HEALTH error detected at timestamp, test number, %d %d\n", timestamp, cnt);    		
     end 
@@ -391,30 +349,33 @@ begin
     end		
             
     // PCAP Block active  
-    if (pcap_actv_o != ACTIVE) begin 
-    //if (pcap_actv_o != ACTIVE_dly) begin    
+    if (pcap_actv_o != ACTIVE) begin    
         err_act <= 1;
         $display("ACTIVE error detected at timestamp, test_number,  %d %d\n", timestamp, cnt);    		
     end 
     else begin
         err_act <= 0;
     end         
-    
-    DATA_WSTB_del1 <= DATA_WSTB;
-    DATA_WSTB_del2 <= DATA_WSTB_del1;
-    
-    DATA_del1 <= DATA;
-    DATA_del2 <= DATA_del1;  
+        
+    // Check the data valid signal
+    if (DATA_WSTB != pcap_dat_valid_o) begin
+        err_dat_valid <= 1;
+        $display("DATA VALID error detected at timestemp, test_number, %d %d\n", timestamp, cnt);     
+    end 
+    else begin
+        err_dat_valid <= 0;
+    end     
      
     // Output data compare 
-    //if (DATA_WSTB_del1 == 1) begin
-   	if (DATA_WSTB_del2 == 1) begin
-   	//if (pcap_dat_valid_o == 1) begin
-   		if (pcap_dat_o != DATA_del2) begin 
+   	if (DATA_WSTB == 1) begin
+   		if (pcap_dat_o != DATA) begin 
     		err_data <= 1;    	
-		    $display("DATA error detected at timestamp, DATA_del1, cap pcap data, test number,  %d %d %d %d\n", timestamp, DATA_del1, pcap_dat_o, cnt);    		
+		    $display("DATA error detected at timestamp, DATA, cap pcap data, test number,  %d %d %d %d\n", timestamp, DATA, pcap_dat_o, cnt);    		
     	end 
-    end 	
+		else begin
+			err_data <= 0;
+		end    
+	end 	
     else begin
     	err_data <= 0;
     end  	 	

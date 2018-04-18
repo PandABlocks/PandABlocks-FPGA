@@ -99,7 +99,8 @@ port map (
 
 
 -- Gate the gate with the pcap_armed and ARM signals
-gate <= (ARM or pcap_armed) and gate_i;
+----------------gate <= (ARM or pcap_armed) and gate_i ;
+gate <= (ARM or pcap_armed) and gate_i and enable_i;
 
 
 -- Keep sub-block under reset when pcap is not armed
@@ -125,7 +126,7 @@ port map (
     timestamp_i         => timestamp,
 	--
     capture_o           => capture_pulse,
-    mode_ts_bits        => mode_ts_bits
+    mode_ts_bits_o      => mode_ts_bits
 );
 
 --------------------------------------------------------------------------
@@ -140,10 +141,9 @@ port map (
     WRITE               => WRITE,
     WRITE_WSTB          => WRITE_WSTB,
     -- Block inputs
-    mode_ts_bits        => mode_ts_bits,
+    mode_ts_bits_i      => mode_ts_bits,
     --
     capture_i           => capture_pulse,
-    gate_i              => gate_i,
     -- Output pulses
     pcap_dat_o          => pcap_dat_o,
     pcap_dat_valid_o    => pcap_dat_valid,

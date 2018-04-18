@@ -32,10 +32,9 @@ port (
     WRITE               : in  std_logic_vector(31 downto 0);
     WRITE_WSTB          : in  std_logic;
     -- Block inputs
-    mode_ts_bits        : in  t_mode_ts_bits;
+    mode_ts_bits_i      : in  t_mode_ts_bits;
     -- 
     capture_i           : in  std_logic;
-    gate_i              : in  std_logic;
     -- Output pulses
     pcap_dat_o          : out std_logic_vector(31 downto 0);
     pcap_dat_valid_o    : out std_logic;
@@ -152,30 +151,19 @@ process(clk_i) begin
 end process;
 
 ------------------------------------------------------------------------------
--- TimeStamp            0x240                                     
--- Mode 0               0x50
--- Mode 1               0xB1
--- Mode 2               0x32
--- Mode 3               0x22 / 0x23 SHIFT 0x92 / 0x260
--- Mode 4               0x84
--- Mode 5               0x45
--- Number of Samples    0x260
--- TimeStamp Start      0x200 / 0x220 / 0x240
--- Bits bus             0x270 / 0x280 / 0x290 / 0x2A0
--- Trigers              0x11 / 0x12
 
 --            -----------------------------------------                  
 --            | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 --            -----------------------------------------  
 -- 0x240        1 | 0   0   1   0   0 | 0   0   0   0       -- TimeStamp Capture            
--- 0x50         0 | 0   0   1   0   1 | 0   0   0   0       -- Mode 0(Value)        
--- 0xB1         0 | 0   1   0   1   1 | 0   0   0   1       -- Mode 1(Difference)       
--- 0x32         0 | 0   0   0   1   1 | 0   0   1   0       -- Mode 2(Sum Lo)           
--- 0x22         0 | 0   0   0   1   0 | 0   0   1   0       -- Mode 2(Sum Lo)       
--- 0x23         0 | 0   0   0   1   0 | 0   0   1   1       -- Mode 3(Sum Hi)       
--- 0x92         0 | 0   1   0   0   1 | 0   0   1   0       -- Mode 2  Shift                     
--- 0x84         0 | 0   1   0   0   0 | 0   1   0   0       -- Mode 4(Min)          
--- 0x45         0 | 0   0   1   0   0 | 0   1   0   1       -- Mode 5(Max)          
+-- 0x50         0 | 0   0   1   0   1 | 0   0   0   0       --  5 Mode 0 (Value)        
+-- 0xB1         0 | 0   1   0   1   1 | 0   0   0   1       -- 11 Mode 1 (Difference)       
+-- 0x32         0 | 0   0   0   1   1 | 0   0   1   0       --  3 Mode 2 (Sum Lo)           
+-- 0x22         0 | 0   0   0   1   0 | 0   0   1   0       --  2 Mode 2 (Sum Lo)       
+-- 0x23         0 | 0   0   0   1   0 | 0   0   1   1       --  2 Mode 3 (Sum Hi)       
+-- 0x92         0 | 0   1   0   0   1 | 0   0   1   0       --  9 Mode 2 Shift                     
+-- 0x84         0 | 0   1   0   0   0 | 0   1   0   0       --  8 Mode 4 (Min)          
+-- 0x45         0 | 0   0   1   0   0 | 0   1   0   1       --  4 Mode 5 (Max)          
 -- 0x260        1 | 0   0   1   1   0 | 0   0   0   0       -- Number of Samples    
 -- 0x200        1 | 0   0   0   0   0 | 0   0   0   0       -- TimeStamp Start      
 -- 0x220        1 | 0   0   0   1   0 | 0   0   0   0       -- TimeStamp End        
@@ -183,7 +171,9 @@ end process;
 -- 0x270        1 | 0   0   1   1   1 | 0   0   0   0       -- Bits Bus 0             
 -- 0x280        1 | 0   1   0   0   0 | 0   0   0   0       -- Bits Bus 1                
 -- 0x290        1 | 0   1   0   0   1 | 0   0   0   0       -- Bits Bus 2            
--- 0x2A0        1 | 0   1   0   1   0 | 0   0   0   0       -- Bits Bus 3                
+-- 0x2A0        1 | 0   1   0   1   0 | 0   0   0   0       -- Bits Bus 3    
+-- 0x11    		0 \ 0   0   0   0   1 | 0   0   0   1       --  1 Mode 1 (Difference)
+-- 0x12			0 \ 0   0   0   0   1 \ 0   0   1   0       --  1 MOde 2 (Sum Lo) 
 
 --            -----------------------------------------     ----------------- 
 --            | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |     | 3 | 2 | 1 | 0 |
@@ -229,57 +219,56 @@ begin
     if rising_edge(clk_i) then            
         -- Position Bus
         if mask_doutb(9) = '0' then 
-            -- cap_frame 7 downto 0
-            if mask_doutb(8 downto 7) = c_first_eight then
-                -- 7 downto 0                
+            -- Capture the first_8 Mode buses 
+            if mask_doutb(8 downto 7) = c_first_eight then                  
                 lp_first : for i in 7 downto 0 loop
                     if (to_integer(unsigned(mask_doutb(6 downto 4)))) = i then
                         lp_mode7 : for j in 5 downto 0 loop                
                             if (to_integer(unsigned(mask_doutb(3 downto 0)))) = j then
-                                -- 7 downto 0
-                                pcap_dat_o <= mode_ts_bits.mode(i)(j); 
+                                -- Mode buses 7 downto 0 (Value, Difference, Sum Low, Sum High, Min Value and Max Value)
+                                pcap_dat_o <= mode_ts_bits_i.mode(i)(j); 
                             end if;
                         end loop lp_mode7;
                     end if;
                 end loop lp_first;                                    
             end if;
-            -- cap_frame 15 downto 8       
+            -- Capture the second 8 Mode buses       
             if mask_doutb(8 downto 7) = c_second_eight then
-                -- 15 downto 8
+				-- Capture the second 8 Mode buses
                 lp_second : for k in 7 downto 0 loop
                     if (to_integer(unsigned(mask_doutb(6 downto 4)))) = k then
                         lp_mode14 : for l in 5 downto 0 loop
                             if (to_integer(unsigned(mask_doutb(3 downto 0)))) = l then
-                                -- 15 downto 8
-                                pcap_dat_o <= mode_ts_bits.mode(8+k)(l);
+                                -- Mode buses 15 downto 8 (Value, Difference, Sum Low, Sum High, Min Value and Max Value)
+                                pcap_dat_o <= mode_ts_bits_i.mode(8+k)(l);
                             end if;
                         end loop lp_mode14;    
                     end if;
                 end loop lp_second;
             end if;
-            -- cap_frame 23 downto 16
+            -- Capture the third 8 Mode buses
             if mask_doutb(8 downto 7) = c_third_eight then 
-                -- 23 downto 16
+                -- Capture the third 8 Mode buses
                 lp_third : for n in 7 downto 0 loop
                     if (to_integer(unsigned(mask_doutb(6 downto 4)))) = n then
                         lp_mode21 : for m in 5 downto 0 loop
                             if (to_integer(unsigned(mask_doutb(3 downto 0)))) = m then
-                                -- 23 downto 16
-                                pcap_dat_o <= mode_ts_bits.mode(16+n)(m);
+                                -- Mode buses 23 downto 16 (Value, Difference, Sum Low, Sum High, Min Value and Max Value)
+                                pcap_dat_o <= mode_ts_bits_i.mode(16+n)(m);
                             end if;
                         end loop lp_mode21;
                     end if;
                 end loop lp_third;                
             end if;
-            -- cap_frame 31 downto 24
+            -- Capture the fourth 8 Mode buses
             if mask_doutb(8 downto 7) = c_fourth_eight then
-                -- 31 downto 24
+                -- Capture the fourth 8 Mode buses
                 lp_fourth : for o in 7 downto 0 loop
                     if (to_integer(unsigned(mask_doutb(6 downto 4)))) = o then
                         lp_mode32 : for p in 5 downto 0 loop
                             if (to_integer(unsigned(mask_doutb(3 downto 0)))) = p then 
-                                -- 31 downto 24
-                                pcap_dat_o <= mode_ts_bits.mode(24+o)(p);
+                                -- Mode buses 31 downto 24 (Value, Difference, Sum Low, Sum High, Min Value and Max Value)
+                                pcap_dat_o <= mode_ts_bits_i.mode(24+o)(p);
                             end if;
                         end loop lp_mode32;
                     end if;
@@ -288,19 +277,23 @@ begin
         -- Extension Bus Selected 
         elsif mask_doutb(9) = '1' then
             -- Ext Bus (BITS0, BITS1, BITS2 and BITS3)
+			-- Bit Bus 0
             if mask_doutb(7 downto 4) = c_bits0 then    
-                pcap_dat_o <= mode_ts_bits.bits(0);
-            elsif mask_doutb(7 downto 4) = c_bits1 then
-				pcap_dat_o <= mode_ts_bits.bits(1);
+                pcap_dat_o <= mode_ts_bits_i.bits(0);
+			-- Bit Bus 1            
+			elsif mask_doutb(7 downto 4) = c_bits1 then
+				pcap_dat_o <= mode_ts_bits_i.bits(1);
+			-- Bit Bus 2
             elsif mask_doutb(7 downto 4) = c_bits2 then
-				pcap_dat_o <= mode_ts_bits.bits(2);
+				pcap_dat_o <= mode_ts_bits_i.bits(2);
+			-- Bit Bus 3	
             elsif mask_doutb(7 downto 4) = c_bits3 then        
-				pcap_dat_o <= mode_ts_bits.bits(3);
+				pcap_dat_o <= mode_ts_bits_i.bits(3);
             -- TS Start x2, TS End x2, TS Capture x2 and Samples    
             else
                 lp_ext_bus: for i in 6 downto 0 loop
                     if (to_integer(unsigned(mask_doutb(7 downto 4)))) = i then
-                        pcap_dat_o <= mode_ts_bits.ts(i);    
+                        pcap_dat_o <= mode_ts_bits_i.ts(i);    
                     end if;
                 end loop lp_ext_bus;
             end if;
