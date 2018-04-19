@@ -246,7 +246,8 @@ begin
 		-- Capture the start timestamp 
 		ts_start_dly <= ts_start;
 		if capture_dly = '1' then         
-        	-- Cature mode data         
+        	-- Cature mode data     
+			-- 32 bits * 6 Num of = 192 Total    
         	lp_mode_data: for i in 31 downto 0 loop
             	mode_ts_bits_o.mode(i)(0) <= value_o(i);
             	mode_ts_bits_o.mode(i)(1) <= diff_o(i);
@@ -256,6 +257,7 @@ begin
             	mode_ts_bits_o.mode(i)(5) <= max_o(i);   
         	end loop lp_mode_data;
 			-- Capture TimeStamp data
+			-- 32 bits * 7 Num of = 7 Total
         	mode_ts_bits_o.ts(0) <= ts_start_dly(31 downto 0);
         	mode_ts_bits_o.ts(1) <= ts_start_dly(63 downto 32);   
         	mode_ts_bits_o.ts(2) <= ts_end(31 downto 0);
@@ -264,6 +266,7 @@ begin
         	mode_ts_bits_o.ts(5) <= ts_capture(63 downto 32);
         	mode_ts_bits_o.ts(6) <= samples;
 			-- Capture bit bus data
+			-- 32 bits * 4 Num of = 4 Total
         	mode_ts_bits_o.bits(0) <= bits0;
         	mode_ts_bits_o.bits(1) <= bits1;
         	mode_ts_bits_o.bits(2) <= bits2;

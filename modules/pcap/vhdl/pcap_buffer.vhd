@@ -50,11 +50,6 @@ constant c_bits1           : std_logic_vector(3 downto 0) := "1000"; -- 8
 constant c_bits2           : std_logic_vector(3 downto 0) := "1001"; -- 9
 constant c_bits3           : std_logic_vector(3 downto 0) := "1010"; --10
 
-constant c_first_eight     : std_logic_vector(1 downto 0) := "00";
-constant c_second_eight    : std_logic_vector(1 downto 0) := "01";
-constant c_third_eight     : std_logic_vector(1 downto 0) := "10";
-constant c_fourth_eight    : std_logic_vector(1 downto 0) := "11";   
-
 signal ongoing_capture     : std_logic;
 signal mask_length         : unsigned(5 downto 0) := "000000";
 signal mask_addra          : unsigned(5 downto 0) := "000000";
@@ -219,61 +214,17 @@ begin
     if rising_edge(clk_i) then            
         -- Position Bus
         if mask_doutb(9) = '0' then 
-            -- Capture the first_8 Mode buses 
-            if mask_doutb(8 downto 7) = c_first_eight then                  
-                lp_first : for i in 7 downto 0 loop
-                    if (to_integer(unsigned(mask_doutb(6 downto 4)))) = i then
-                        lp_mode7 : for j in 5 downto 0 loop                
-                            if (to_integer(unsigned(mask_doutb(3 downto 0)))) = j then
-                                -- Mode buses 7 downto 0 (Value, Difference, Sum Low, Sum High, Min Value and Max Value)
-                                pcap_dat_o <= mode_ts_bits_i.mode(i)(j); 
-                            end if;
-                        end loop lp_mode7;
-                    end if;
-                end loop lp_first;                                    
-            end if;
-            -- Capture the second 8 Mode buses       
-            if mask_doutb(8 downto 7) = c_second_eight then
-				-- Capture the second 8 Mode buses
-                lp_second : for k in 7 downto 0 loop
-                    if (to_integer(unsigned(mask_doutb(6 downto 4)))) = k then
-                        lp_mode14 : for l in 5 downto 0 loop
-                            if (to_integer(unsigned(mask_doutb(3 downto 0)))) = l then
-                                -- Mode buses 15 downto 8 (Value, Difference, Sum Low, Sum High, Min Value and Max Value)
-                                pcap_dat_o <= mode_ts_bits_i.mode(8+k)(l);
-                            end if;
-                        end loop lp_mode14;    
-                    end if;
-                end loop lp_second;
-            end if;
-            -- Capture the third 8 Mode buses
-            if mask_doutb(8 downto 7) = c_third_eight then 
-                -- Capture the third 8 Mode buses
-                lp_third : for n in 7 downto 0 loop
-                    if (to_integer(unsigned(mask_doutb(6 downto 4)))) = n then
-                        lp_mode21 : for m in 5 downto 0 loop
-                            if (to_integer(unsigned(mask_doutb(3 downto 0)))) = m then
-                                -- Mode buses 23 downto 16 (Value, Difference, Sum Low, Sum High, Min Value and Max Value)
-                                pcap_dat_o <= mode_ts_bits_i.mode(16+n)(m);
-                            end if;
-                        end loop lp_mode21;
-                    end if;
-                end loop lp_third;                
-            end if;
-            -- Capture the fourth 8 Mode buses
-            if mask_doutb(8 downto 7) = c_fourth_eight then
-                -- Capture the fourth 8 Mode buses
-                lp_fourth : for o in 7 downto 0 loop
-                    if (to_integer(unsigned(mask_doutb(6 downto 4)))) = o then
-                        lp_mode32 : for p in 5 downto 0 loop
-                            if (to_integer(unsigned(mask_doutb(3 downto 0)))) = p then 
-                                -- Mode buses 31 downto 24 (Value, Difference, Sum Low, Sum High, Min Value and Max Value)
-                                pcap_dat_o <= mode_ts_bits_i.mode(24+o)(p);
-                            end if;
-                        end loop lp_mode32;
-                    end if;
-                end loop lp_fourth;                
-            end if;                                    
+			-- 32 difference mode groups loop through all of them to see which one is active
+			lp: for i in 31 downto 0 loop
+				if (to_integer(unsigned(mask_doutb(8 downto 4)))) = i then
+					-- 6 modes loop through all of them to see which one is active						
+					lp_mode: for j in 5 downto 0 loop
+						if (to_integer(unsigned(mask_doutb(3 downto 0)))) = j then
+							pcap_dat_o <= mode_ts_bits_i.mode(i)(j);
+						end if;
+					end loop lp_mode;
+				end if;
+			end loop lp;
         -- Extension Bus Selected 
         elsif mask_doutb(9) = '1' then
             -- Ext Bus (BITS0, BITS1, BITS2 and BITS3)
@@ -298,8 +249,6 @@ begin
                 end loop lp_ext_bus;
             end if;
         end if;    
-
-
     end if;
 end process ps_mode_bus;        
     
