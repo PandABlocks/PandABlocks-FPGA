@@ -69,6 +69,14 @@ OUTENC[4]
     VAL             pos_mux
     CONN            bit_mux
     DCARD_ID        read        enum 8
+        0   DCARD id 0
+        1   Encoder Monitor
+        2   DCARD id 2
+        3   Encoder Control
+        4   DCARD id 3
+        5   DCARD id 4
+        6   DCARD id 5
+        7   Unplugged
     QSTATE          read        enum 3
         0   Disabled
         1   At position
