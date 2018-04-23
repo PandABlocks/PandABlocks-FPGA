@@ -346,9 +346,9 @@ $ Capture too close together
 15      :                   	: DATA=0
 16      : CAPTURE=1				: DATA=0
 17      : CAPTURE=0         	 
-18      : CAPTURE=1         	: ACTIVE=0, HEALTH=1, DATA=5
+18      : CAPTURE=1         	: DATA=5
 19      :                   	: DATA=0
-20		: ENABLE=0				: DATA=0
+20		: ENABLE=0				: DATA=0, ACTIVE=0, HEALTH=1
 22      : CAPTURE=0	
 
 
