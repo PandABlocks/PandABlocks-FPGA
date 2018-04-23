@@ -78,7 +78,6 @@ process(clk_i) begin
             pcap_armed <= '0';
             disable_armed <= '0';    
             pcap_done_o <= '0';
-            pcap_status_o <= "000";
         -- Stop capturing on error if armed.
         elsif (pcap_armed = '1' and abort_capture = '1') then
             arm_fsm <= IDLE;
