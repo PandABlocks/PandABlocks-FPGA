@@ -182,9 +182,9 @@ create_ip -name ila -vendor xilinx.com -library ip -version 5.1 \
 
 set_property -dict [list \
     CONFIG.C_DATA_DEPTH {2048}  \
-    CONFIG.C_PROBE12_WIDTH {8} 	\
+    CONFIG.C_PROBE12_WIDTH {16} \
     CONFIG.C_PROBE11_WIDTH {2}  \
-    CONFIG.C_PROBE10_WIDTH {4}  \
+    CONFIG.C_PROBE10_WIDTH {16} \
     CONFIG.C_PROBE6_WIDTH {16}  \
     CONFIG.C_PROBE5_WIDTH {2}   \
     CONFIG.C_PROBE4_WIDTH {2}   \
