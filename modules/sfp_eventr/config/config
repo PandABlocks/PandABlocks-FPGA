@@ -2,12 +2,12 @@ SFP
     LINKUP          read
     UTIME           read
     EVENT_RESET     write
-    EVENT0          param       uint
     EVENT1          param       uint
     EVENT2          param       uint
     EVENT3          param       uint
-    BIT0            bit_out
+    EVENT4          param       uint
     BIT1            bit_out
     BIT2            bit_out
     BIT3            bit_out
+    BIT4            bit_out
     

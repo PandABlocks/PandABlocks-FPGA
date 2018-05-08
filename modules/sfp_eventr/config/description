@@ -2,11 +2,11 @@ SFP    EVENT_RECEIVER Block Status
     LINKUP      GTX_ER link status
     UTIME       UNIX Time
     EVENT_RESET Resets the event receiver 
-    EVENT0      Event0 bit8 0 selects Event codes 1 selects DBus, bits7-0 event  
-    EVENT1      Event1 bit8 0 selects Event codes 1 selects DBus, bits7-0 event 
+    EVENT1      Event1 bit8 0 selects Event codes 1 selects DBus, bits7-0 event  
     EVENT2      Event2 bit8 0 selects Event codes 1 selects DBus, bits7-0 event 
     EVENT3      Event3 bit8 0 selects Event codes 1 selects DBus, bits7-0 event 
-    BIT0        SFP Bit 0 output
+    EVENT4      Event4 bit8 0 selects Event codes 1 selects DBus, bits7-0 event 
     BIT1        SFP Bit 1 output
     BIT2        SFP Bit 2 output
     BIT3        SFP Bit 3 output
+    BIT4        SFP Bit 4 output

@@ -2,12 +2,12 @@ SFP       {{newBlockNo("SFP")}}
     LINKUP      {{newBlockReg()}}
     UTIME       {{newBlockReg()}}
     EVENT_RESET {{newBlockReg()}}
-    EVENT0      {{newBlockReg()}}
     EVENT1      {{newBlockReg()}}
     EVENT2      {{newBlockReg()}}
     EVENT3      {{newBlockReg()}}
-    BIT0        {{newBitBus()}}
+    EVENT4      {{newBlockReg()}}
     BIT1        {{newBitBus()}}
     BIT2        {{newBitBus()}}
     BIT3        {{newBitBus()}}
+    BIT4        {{newBitBus()}}
     

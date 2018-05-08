@@ -85,11 +85,11 @@ component event_receiver_mgt
     ------------------------ Receive Ports - RX AFE Ports ----------------------
     gt0_gtxrxn_in                           : in   std_logic;
     -------------- Receive Ports - RX Byte and Word Alignment Ports ------------
-    gt0_rxbyteisaligned_out                 : out std_logic;                        -- new
-    gt0_rxbyterealign_out                   : out std_logic;                        -- new
+    gt0_rxbyteisaligned_out                 : out std_logic;                        
+    gt0_rxbyterealign_out                   : out std_logic;                        
     gt0_rxcommadet_out                      : out std_logic; 
-    gt0_rxmcommaalignen_in                  : in  std_logic;                        -- new    
-    gt0_rxpcommaalignen_in                  : in  std_logic;                        -- new
+    gt0_rxmcommaalignen_in                  : in  std_logic;                            
+    gt0_rxpcommaalignen_in                  : in  std_logic;                        
     --------------------- Receive Ports - RX Equalizer Ports -------------------
     gt0_rxdfelpmreset_in                    : in   std_logic;
     gt0_rxmonitorout_out                    : out  std_logic_vector(6 downto 0);
