@@ -205,7 +205,7 @@ port map (
 );
 
 --------------------------------------------------------------------------
--- Delay lines for System and Position Bus fields for capture
+-- Delay lines for Position Bus fields for capture
 --------------------------------------------------------------------------
 pcap_delay_inst : entity work.pcap_delay
 port map (
