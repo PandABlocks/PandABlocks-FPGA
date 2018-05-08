@@ -40,9 +40,6 @@ port (
     START_WRITE         : out std_logic;
     WRITE               : out std_logic_vector(31 downto 0);
     WRITE_WSTB          : out std_logic;
-    FRAMING_MASK        : out std_logic_vector(31 downto 0);
-    FRAMING_ENABLE      : out std_logic;
-    FRAMING_MODE        : out std_logic_vector(31 downto 0);
     ARM                 : out std_logic;
     DISARM              : out std_logic;
 
@@ -78,9 +75,6 @@ begin
             START_WRITE <= '0';
             WRITE <= (others => '0');
             WRITE_WSTB <= '0';
-            FRAMING_MASK <= (others => '0');
-            FRAMING_ENABLE <= '0';
-            FRAMING_MODE <= (others => '0');
             ARM <= '0';
             DISARM <= '0';
         else
@@ -100,21 +94,6 @@ begin
                 if (write_address = REG_PCAP_WRITE) then
                     WRITE <= write_data_i;
                     WRITE_WSTB <= '1';
-                end if;
-
-                -- Framing Mask.
-                if (write_address = REG_PCAP_FRAMING_MASK) then
-                    FRAMING_MASK <= write_data_i;
-                end if;
-
-                -- Global Framing Enable.
-                if (write_address = REG_PCAP_FRAMING_ENABLE) then
-                    FRAMING_ENABLE <= write_data_i(0);
-                end if;
-
-                -- Framing Mode
-                if (write_address = REG_PCAP_FRAMING_MODE) then
-                    FRAMING_MODE <= write_data_i;
                 end if;
 
                 -- DMA block Soft ARM
