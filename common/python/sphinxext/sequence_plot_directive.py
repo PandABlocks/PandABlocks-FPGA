@@ -8,10 +8,7 @@ from docutils import nodes, statemachine
 from common.python.pandablocks.sequenceparser import SequenceParser
 from common.python.pandablocks.configparser import ConfigParser
 
-import modules
-
-
-MODULE_DIR = os.path.join(os.path.dirname(modules.__file__))
+MODULE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "modules")
 
 
 class sequence_plot_node(nodes.Element):

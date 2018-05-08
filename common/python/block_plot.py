@@ -25,10 +25,9 @@ VERTICAL_STRETCH = 0.5
 parser_dir = os.path.join(
     os.path.dirname(__file__), "..", "tests", "sim_sequences")
 
-import modules
-MODULE_DIR = os.path.join(os.path.dirname(modules.__file__))
 PAR_DIR = os.path.join(__file__, os.pardir, os.pardir)
 ROOT_DIR = os.path.dirname(os.path.abspath(PAR_DIR))
+MODULE_DIR = os.path.join(ROOT_DIR, "modules")
 
 
 def legend_label(text, x, y, off):
