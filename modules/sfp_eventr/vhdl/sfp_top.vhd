@@ -39,10 +39,10 @@ port (
     ext_clock             : in  std_logic_vector(1 downto 0);
 
     -- Bits out
-    bit0_o              : out std_logic;
     bit1_o              : out std_logic;
     bit2_o              : out std_logic;
-    bit3_o              : out std_logic;        
+    bit3_o              : out std_logic;
+    bit4_o              : out std_logic;        
 
     -- GTX I/O
     GTREFCLK_N          : in  std_logic;
@@ -70,9 +70,9 @@ component ila_0
     	probe7  : in  std_logic_vector(0 downto 0); 
     	probe8  : in  std_logic_vector(0 downto 0); 
     	probe9  : in  std_logic_vector(0 downto 0); 
-    	probe10 : in  std_logic_vector(3 downto 0); 
+    	probe10 : in  std_logic_vector(15 downto 0); 
     	probe11 : in  std_logic_vector(1 downto 0); 
-    	probe12 : in  std_logic_vector(7 downto 0) 
+    	probe12 : in  std_logic_vector(15 downto 0) 
     );
     
 end component;
@@ -97,14 +97,10 @@ signal rxbyteisaligned_o     : std_logic;
 signal rxbyterealign_o       : std_logic;
 signal rxcommadet_o          : std_logic;    
 signal rxoutclk              : std_logic;
-signal EVENT0                : std_logic_vector(31 downto 0);   
-signal EVENT0_WSTB           : std_logic;   
-signal EVENT1                : std_logic_vector(31 downto 0);
-signal EVENT1_WSTB           : std_logic;       
-signal EVENT2                : std_logic_vector(31 downto 0);   
-signal EVENT2_WSTB           : std_logic;   
+signal EVENT1                : std_logic_vector(31 downto 0);   
+signal EVENT2                : std_logic_vector(31 downto 0);
 signal EVENT3                : std_logic_vector(31 downto 0);   
-signal EVENT3_WSTB           : std_logic;   
+signal EVENT4                : std_logic_vector(31 downto 0);   
 signal eventr_pll_locked     : std_logic;
 
 signal sim_reset             : std_logic;
@@ -116,9 +112,18 @@ signal eventr_pll_locked_slv : std_logic_vector(0 downto 0);
 signal rxbyteisaligned_slv   : std_logic_vector(0 downto 0);     
 signal rxbyterealign_slv     : std_logic_vector(0 downto 0);
 signal rxcommadet_slv        : std_logic_vector(0 downto 0);
-   
+signal probe10_slv           : std_logic_vector(15 downto 0);
+signal probe12_slv           : std_logic_vector(15 downto 0);   
+signal bit1,bit2,bit3,bit4   : std_logic;         
+signal error_cnt             : std_logic_vector(27 downto 0);
+
 
 begin
+
+bit1_o <= bit1;
+bit2_o <= bit2;
+bit3_o <= bit3;
+bit4_o <= bit4;
 
 -- Acknowledgement to AXI Lite interface
 write_ack_o <= '1';
@@ -172,26 +177,22 @@ port map(
 
 sfp_receiver_inst: entity work.sfp_receiver
 port map(
-    clk_i             => clk_i,
-    reset_i           => reset_i, 	
-    rxcharisk_i       => rxcharisk,
-    rxdisperr_i       => rxdisperr,
-    rxdata_i          => rxdata,
-    rxnotintable_i    => rxnotintable,  
-    EVENT0            => EVENT0,
-    EVENT0_WSTB       => EVENT0_WSTB,
-    EVENT1            => EVENT1,
-    EVENT1_WSTB       => EVENT1_WSTB,
-    EVENT2            => EVENT2,
-    EVENT2_WSTB       => EVENT2_WSTB,        
-    EVENT3            => EVENT3,
-    EVENT3_WSTB       => EVENT3_WSTB,
-    bit0_o            => bit0_o,
-    bit1_o            => bit1_o,
-    bit2_o            => bit2_o,
-    bit3_o            => bit3_o,    
-    rx_link_ok_o      => rx_link_ok_o,  
-    utime_o           => utime_o
+    clk_i           => clk_i,
+    reset_i         => reset_i, 	
+    rxdisperr_i     => rxdisperr,
+    rxdata_i        => rxdata,
+    rxnotintable_i  => rxnotintable,  
+    EVENT1          => EVENT1,
+    EVENT2          => EVENT2,
+    EVENT3          => EVENT3,
+    EVENT4          => EVENT4,
+    bit1_o          => bit1,
+    bit2_o          => bit2,
+    bit3_o          => bit3,
+    bit4_o          => bit4,    
+    rx_link_ok_o    => rx_link_ok_o,
+    error_cnt_o     => error_cnt,
+    utime_o         => utime_o
 );
  
 
@@ -249,6 +250,10 @@ rxbyteisaligned_slv(0) <= rxbyteisaligned_o;
 rxbyterealign_slv(0) <= rxbyterealign_o;
 rxcommadet_slv(0) <= rxcommadet_o;
 
+probe10_slv(3 downto 0) <= bit4 & bit3 & bit2 & bit1;
+probe10_slv(6 downto 4) <= (others => '0');
+probe10_slv(15 downto 7) <= EVENT1(8 downto 0);
+probe12_slv <= (others => '0');
 
 ila_inst : ila_0
 port map (
@@ -263,9 +268,9 @@ port map (
 	probe7  => rxbyteisaligned_slv, 
 	probe8  => rxbyterealign_slv, 
 	probe9  => rxcommadet_slv, 	
-	probe10 => (others => '0'), 
+	probe10 => probe10_slv, 
     probe11 => rxcharisk,
-	probe12 => (others => '0')
+	probe12 => probe12_slv
 );
   
 -- MGT ready and link is up  
@@ -274,7 +279,8 @@ LINKUP(0) <= mgt_ready_o and rx_link_ok_o;
 LINKUP(1) <= rx_link_ok_o;
 -- MGT ready 
 LINKUP(2) <= mgt_ready_o;
-LINKUP(31 downto 3) <= (others => '0');
+LINKUP(3) <= '0';
+LINKUP(31 downto 4) <= error_cnt;
 UTIME <= utime_o;
 
 ---------------------------------------------------------------------------
@@ -291,14 +297,14 @@ port map (
     LINKUP            => LINKUP,
     UTIME             => UTIME,
     EVENT_RESET       => EVENT_RESET,  
-    EVENT0            => EVENT0,
-    EVENT0_WSTB       => EVENT0_WSTB,
     EVENT1            => EVENT1,
-    EVENT1_WSTB       => EVENT1_WSTB,
+    EVENT1_WSTB       => open,
     EVENT2            => EVENT2,
-    EVENT2_WSTB       => EVENT2_WSTB,        
+    EVENT2_WSTB       => open,
     EVENT3            => EVENT3,
-    EVENT3_WSTB       => EVENT3_WSTB,
+    EVENT3_WSTB       => open,        
+    EVENT4            => EVENT4,
+    EVENT4_WSTB       => open,
 
     -- Memory Bus Interface
     read_strobe_i     => read_strobe_i,
