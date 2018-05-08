@@ -297,10 +297,10 @@ signal FILTER_OUT           : std32_array(FILTER_NUM-1 downto 0);
 signal FILTER_READY         : std_logic_vector(FILTER_NUM-1 downto 0);
 
 -- SFP Block
-signal sfp_bit0             : std_logic_vector(SFP_NUM-1 downto 0);    
 signal sfp_bit1             : std_logic_vector(SFP_NUM-1 downto 0);    
 signal sfp_bit2             : std_logic_vector(SFP_NUM-1 downto 0);    
 signal sfp_bit3             : std_logic_vector(SFP_NUM-1 downto 0);    
+signal sfp_bit4             : std_logic_vector(SFP_NUM-1 downto 0);    
 
 signal sma_pll_locked       : std_logic;
 signal eventr_pll_locked    : std_logic;
@@ -1176,10 +1176,10 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         -- sma and event receiver clock enables
         ext_clock           => ext_clock,
         
-        bit0_o              => sfp_bit0(0),
         bit1_o              => sfp_bit1(0),
         bit2_o              => sfp_bit2(0),
         bit3_o              => sfp_bit3(0),
+        bit4_o              => sfp_bit4(0),
 
         GTREFCLK_N          => GTXCLK0_N,
         GTREFCLK_P          => GTXCLK0_P,
@@ -1263,10 +1263,10 @@ port map (
     POSITIONS_ZERO  => (others => (others => '0')),
     -- SLOW Block
     -- FMC Block
-    SFP_BIT0        => sfp_bit0,
     SFP_BIT1        => sfp_bit1,
     SFP_BIT2        => sfp_bit2,
-    SFP_BIT3        => sfp_bit3,    
+    SFP_BIT3        => sfp_bit3,
+    SFP_BIT4        => sfp_bit4,    
     
     fmc_inputs_i    => fmc_inputs,
     fmc_data_i      => fmc_data,
