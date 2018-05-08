@@ -17,7 +17,6 @@ use ieee.numeric_std.all;
 library work;
 use work.addr_defines.all;
 use work.top_defines.all;
-use work.addr_defines.all;
 
 entity inenc_block is
 port (
@@ -53,6 +52,7 @@ end entity;
 
 architecture rtl of inenc_block is
 
+
 signal clk_ext          : std_logic;
 -- Block Configuration Registers
 signal PROTOCOL_i       : std_logic_vector(31 downto 0);
@@ -70,6 +70,9 @@ signal RST_ON_Z         : std_logic_vector(31 downto 0);
 signal STATUS           : std_logic_vector(31 downto 0);
 signal STATUS_RSTB      : std_logic;
 signal read_ack         : std_logic;
+signal LSB_DISCARD      : std_logic_vector(31 downto 0);
+signal MSB_DISCARD      : std_logic_vector(31 downto 0);
+signal DCARD_ID         : std_logic_vector(31 downto 0);
 
 signal reset            : std_logic;
 signal slow             : slow_packet;
@@ -120,13 +123,21 @@ port map (
     FRAME_PERIOD_WSTB   => FRAME_PERIOD_WSTB,
     BITS                => BITS,
     BITS_WSTB           => BITS_WSTB,
+    LSB_DISCARD         => LSB_DISCARD,
+    LSB_DISCARD_WSTB    => open,
+    MSB_DISCARD         => MSB_DISCARD,
+    MSB_DISCARD_WSTB    => open,        
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z,
     RST_ON_Z_WSTB       => open,
     STATUS              => STATUS,
-    DCARD_ID            => '0' & DCARD_MODE(31 downto 1)
+    DCARD_ID            => DCARD_ID
 );
+ 
+-- Only read back the DCARD MODE
+DCARD_ID <= x"0000000" & '0' & DCARD_MODE(3 downto 1);
+
 
 -- Generate read strobe to clear STATUS register on readback
 read_ack_delay : entity work.delay_line
@@ -167,6 +178,8 @@ port map (
     CLK_PERIOD          => CLK_PERIOD,
     FRAME_PERIOD        => FRAME_PERIOD,
     BITS                => BITS(7 downto 0),
+    LSB_DISCARD         => LSB_DISCARD(4 downto 0),
+    MSB_DISCARD         => MSB_DISCARD(4 downto 0),
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z(0),
