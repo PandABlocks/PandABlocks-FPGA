@@ -1,3 +1,5 @@
+from collections import deque
+
 import numpy as np
 
 from common.python.pandablocks.block import Block
@@ -254,6 +256,7 @@ class Pcap(Block):
         self.buf_len = 0
         self.buf_produced = 0
         self.pend_data = None
+        self.pend_error = None
         # The ts at enable
         self.ts_enable = 0
         # These are the capture entries in the order they should be produced
@@ -275,6 +278,7 @@ class Pcap(Block):
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
+        ret = None
         # This is a ConfigBlock object for use to get our strings from
         b = self.config_block
         # Set attributes, and flag clear queue
@@ -311,18 +315,28 @@ class Pcap(Block):
                             self.CAPTURE_EDGE == 1 and not changes[b.CAPTURE] \
                             or self.CAPTURE_EDGE == 2:
                         self.do_capture(ts)
-
+                        
+        # If there was an error then produce it
+        if ts == self.pend_error:
+            # The only error we can have is if captures are too close together
+            self.pend_error = None
+            self.ACTIVE = 0
+            self.HEALTH = TOO_CLOSE    
+        elif self.pend_error is not None:
+            ret = self.pend_error
+                        
         # If there was pending_data then write it here
-        if self.tick_data and self.buf_len > self.buf_produced:
-            if self.pend_data is not None:
-                # copy across pending data and increment
-                self.DATA = self.pend_data
-                self.buf_produced += 1
+        if self.tick_data and self.pend_data:
             if self.buf_len > self.buf_produced:
-                self.pend_data = self.buf[self.buf_produced]
-                return ts + 1
+                self.pend_data.append(self.buf[self.buf_produced])
+                self.buf_produced += 1
             else:
-                self.pend_data = None
+                self.pend_data.append(None)
+            data = self.pend_data.popleft()
+            if data is not None:
+                self.DATA = data
+            ret = ts + 1
+        return ret        
 
     def add_capture_entry(self, data):
         # Bottom 4 bits are the mode
@@ -385,7 +399,7 @@ class Pcap(Block):
         self.HEALTH = OK
         self.buf_len = 0
         self.buf_produced = 0
-        self.pend_data = None
+        self.pend_data = deque((None, None))
         # If we are already enabled then start now
         if self.ENABLE:
             self.do_enable(ts)
@@ -418,22 +432,20 @@ class Pcap(Block):
 
     def do_capture(self, ts):
         new_data = []
-        # Make ts relative to ts at enable
-        ts -= self.ts_enable
         for entry in self.capture_entries:
-            for nd in entry.on_capture(ts, self.GATE):
+            # Make ts relative to ts at enable
+            for nd in entry.on_capture(ts - self.ts_enable, self.GATE):
                 new_data.append(nd)
-        self.push_data(new_data)
+        self.push_data(ts, new_data)
 
-    def push_data(self, new_data):
+    def push_data(self, ts, new_data):
         """Push the data from our ext_bus into the output buffer. Note that
         in the FPGA this is clocked out one by one, but we push it all in one
         go and make sure we don't get another push until we've done all but one
         sample"""
-        if self.tick_data and self.buf_len > self.buf_produced + 1:
+        if self.tick_data and self.buf_len > self.buf_produced:
             # Told to push more data when we hadn't finished the last capture
-            self.HEALTH = TOO_CLOSE
-            self.ACTIVE = 0
+            self.pend_error = ts + 2
         else:
             new_size = len(new_data)
             self.buf[self.buf_len:self.buf_len+new_size] = new_data

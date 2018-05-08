@@ -23,14 +23,13 @@ port (
     START_WRITE         : in  std_logic;
     WRITE               : in  std_logic_vector(31 downto 0);
     WRITE_WSTB          : in  std_logic;
-    FRAMING_MASK        : in  std_logic_vector(31 downto 0);
-    FRAMING_ENABLE      : in  std_logic;
-    FRAMING_MODE        : in  std_logic_vector(31 downto 0);
+    CAPTURE_EDGE        : in  std_logic_vector(1 downto 0);
+    SHIFT_SUM           : in  std_logic_vector(5 downto 0);    
     HEALTH              : out std_logic_vector(31 downto 0);
     -- Block inputs
     enable_i            : in  std_logic;
     capture_i           : in  std_logic;
-    frame_i             : in  std_logic;
+    gate_i              : in  std_logic;
     dma_full_i          : in  std_logic;
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  std_logic_vector(32*32-1 downto 0);
@@ -66,35 +65,30 @@ end process;
 
 pcap_core_inst : entity work.pcap_core
 port map (
-    clk_i              =>  clk_i             ,
-    reset_i            =>  reset_i           ,
+    clk_i              =>  clk_i,
+    reset_i            =>  reset_i,
 
-    ARM                =>  ARM               ,
-    DISARM             =>  DISARM            ,
-    START_WRITE        =>  START_WRITE       ,
-    WRITE              =>  WRITE             ,
-    WRITE_WSTB         =>  WRITE_WSTB        ,
-    FRAMING_MASK       =>  FRAMING_MASK      ,
-    FRAMING_ENABLE     =>  FRAMING_ENABLE    ,
-    FRAMING_MODE       =>  FRAMING_MODE      ,
-    HEALTH             =>  HEALTH            ,
---    FRAME_NUM          => (others => '0'),
+    ARM                => ARM,
+    DISARM             => DISARM,
+    START_WRITE        => START_WRITE,
+    WRITE              => WRITE,
+    WRITE_WSTB         => WRITE_WSTB,
+    CAPTURE_EDGE       => CAPTURE_EDGE,   
+    SHIFT_SUM          => SHIFT_SUM,  
+    HEALTH             => HEALTH,
 
-    enable_i           =>  enable_i          ,
-    capture_i          =>  capture_i         ,
-    frame_i            =>  frame_i           ,
---    dma_full_i         =>  dma_full_i        ,
-    dma_error_i        => dma_full_i         ,
-    sysbus_i           =>  sysbus_i          ,
-    posbus_i           =>  posbus            ,
---    extbus_i           =>  extbus            ,
+    enable_i           => enable_i,
+    capture_i          => capture_i,
+    gate_i             => gate_i,
+    dma_error_i        => dma_full_i,
+    sysbus_i           => sysbus_i,
+    posbus_i           => posbus,
 
- --   dma_fifo_reset_o   =>  dma_fifo_reset_o  ,
-    pcap_dat_o         =>  pcap_dat_o        ,
-    pcap_dat_valid_o   =>  pcap_dat_valid_o  ,
-    pcap_done_o        =>  pcap_done_o       ,
-    pcap_actv_o        =>  pcap_actv_o       ,
-    pcap_status_o      =>  pcap_status_o
+    pcap_dat_o         => pcap_dat_o,
+    pcap_dat_valid_o   => pcap_dat_valid_o,
+    pcap_done_o        => pcap_done_o,
+    pcap_actv_o        => pcap_actv_o,
+    pcap_status_o      => pcap_status_o
 );
 
 end rtl;

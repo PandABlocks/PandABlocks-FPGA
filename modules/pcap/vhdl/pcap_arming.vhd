@@ -30,7 +30,6 @@ port (
     ongoing_capture_i   : in  std_logic;
     dma_error_i         : in  std_logic;
     pcap_armed_o        : out std_logic;
-    pcap_start_o        : out std_logic;
     pcap_done_o         : out std_logic;
     timestamp_o         : out std_logic_vector(63 downto 0);
     pcap_status_o       : out std_logic_vector(2 downto 0)
@@ -47,7 +46,7 @@ signal enable_prev              : std_logic;
 signal enable_fall              : std_logic;
 signal abort_capture            : std_logic;
 signal pcap_armed               : std_logic;
-signal enable                   : std_logic;
+signal disable_armed            : std_logic; 
 
 begin
 
@@ -59,12 +58,11 @@ pcap_armed_o <= pcap_armed;
 --------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
-        enable <= enable_i;
-        enable_prev <= enable;
-        -- Extra delay to align with frame and capture pulses
-        enable_fall <= not enable and enable_prev;
+    	enable_prev <= enable_i;
     end if;
 end process;
+
+enable_fall <= enable_prev and not enable_i;
 
 
 -- Blocks operation is aborted under following conditions.
@@ -78,14 +76,13 @@ process(clk_i) begin
         if (reset_i = '1') then
             arm_fsm <= IDLE;
             pcap_armed <= '0';
-            pcap_start_o <= '0';
+            disable_armed <= '0';    
             pcap_done_o <= '0';
-            pcap_status_o <= "000";
         -- Stop capturing on error if armed.
         elsif (pcap_armed = '1' and abort_capture = '1') then
             arm_fsm <= IDLE;
             pcap_armed <= '0';
-            pcap_start_o <= '0';
+            disable_armed <= '0';
             pcap_done_o <= '1';
             -- Set abort flags accordingly.
             -- User disarm;
@@ -93,12 +90,12 @@ process(clk_i) begin
                 pcap_status_o(0) <= '1';
             end if;
 
-            -- Pcap frame or buffer error;
+            -- Pcap frame or buffer error (capture too close together)
             if (pcap_error_i = '1') then
                 pcap_status_o(1) <= '1';
             end if;
 
-            -- DMA FIFO full;
+            -- DMA FIFO full (Sample Overflow)
             if (dma_error_i = '1') then
                 pcap_status_o(2) <= '1';
             end if;
@@ -108,24 +105,22 @@ process(clk_i) begin
                 when IDLE =>
                     pcap_done_o <= '0';
                     if (ARM = '1') then
+                        pcap_armed <= '1';    
                         arm_fsm <= ARMED;
-                        pcap_armed <= '1';
-                        pcap_start_o <= '1';
                         pcap_status_o <= "000";
                     end if;
 
                 -- Wait for enable pulse from the system bus.
                 when ARMED =>
-                    pcap_start_o <= '0';
-
-                    if (enable = '1') then
+                    if (enable_i = '1') then
                         arm_fsm <= ENABLED;
                     end if;
 
                 -- Enabled until capture is finished or user disarm or
                 -- block error.
                 when ENABLED =>
-                    if (enable_fall = '1') then
+                    disable_armed <= '0';
+                    if (enable_fall = '1' or DISARM = '1') then                     
                         -- Complete gracefully, and make sure that ongoing write
                         -- into the DMA fifo is completed.
                         if (ongoing_capture_i = '1') then
@@ -161,9 +156,11 @@ process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             timestamp <= (others => '0');
+		elsif (ARM = '0' and enable_i = '0') then
+			timestamp <= (others => '0');	
         elsif (ARM = '1') then
             timestamp <= to_unsigned(1, 64);
-        elsif (pcap_armed = '1') then
+		elsif (pcap_armed = '1' and enable_i = '1') then	
             timestamp <= timestamp + 1;
         end if;
     end if;

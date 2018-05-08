@@ -26,116 +26,108 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Block register
-    FRAMING_ENABLE      : in  std_logic;
-    FRAMING_MASK        : in  std_logic_vector(31 downto 0);
-    FRAMING_MODE        : in  std_logic_vector(31 downto 0);
+    SHIFT_SUM           : in  std_logic_vector(5 downto 0);
+	CAPTURE_EDGE		: in  std_logic_vector(1 downto 0);
     -- Block input and outputs.
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
-    frame_i             : in  std_logic;
+    enable_i            : in  std_logic;
+    gate_i              : in  std_logic;
     capture_i           : in  std_logic;
     timestamp_i         : in  std_logic_vector(63 downto 0);
-
+	-- Captured data 
     capture_o           : out std_logic;
-    posn_o              : out std32_array(63 downto 0);
-    error_o             : out std_logic
+    mode_ts_bits_o      : out t_mode_ts_bits
 );
 end pcap_frame;
 
 architecture rtl of pcap_frame is
 
-signal frame_prev       : std_logic;
-signal capture_prev     : std_logic;
-signal ongoing_capture  : std_logic;
-
-signal frame_rise       : std_logic;
-signal capture_rise     : std_logic;
-signal first_frame      : std_logic;
-signal capture          : std_logic;
-
+signal gate_prev        : std_logic;
+signal gate_rise        : std_logic;
+signal gate_fall        : std_logic;
+signal capture_dly      : std_logic;
 signal timestamp        : unsigned(63 downto 0);
-signal capture_ts       : unsigned(63 downto 0) := (others => '0');
-signal frame_ts         : unsigned(63 downto 0) := (others => '0');
-signal frame_length     : unsigned(63 downto 0) := (others => '0');
-signal capture_offset   : unsigned(63 downto 0) := (others => '0');
 
-signal posbus           : std32_array(31 downto 0);
-signal extbus           : std32_array(31 downto 0);
+signal ts_start         : std_logic_vector(63 downto 0);
+signal ts_start_dly		: std_logic_vector(63 downto 0);
+signal ts_end           : std_logic_vector(63 downto 0);
+signal ts_capture       : std_logic_vector(63 downto 0);
+
+signal cnt_samples      : unsigned(39 downto 0);   
+signal samples          : std_logic_vector(31 downto 0);
+
+signal value_o          : std32_array(31 downto 0);
+signal diff_o           : std32_array(31 downto 0);
+signal sum_l_o          : std32_array(31 downto 0);
+signal sum_h_o          : std32_array(31 downto 0);
+signal min_o            : std32_array(31 downto 0);
+signal max_o            : std32_array(31 downto 0);
+signal bits0            : std_logic_vector(31 downto 0);
+signal bits1            : std_logic_vector(31 downto 0);
+signal bits2            : std_logic_vector(31 downto 0);
+signal bits3            : std_logic_vector(31 downto 0);
+
+signal capture_prev		: std_logic;
+signal capture_rise		: std_logic;
+signal capture_fall		: std_logic;
+signal capture			: std_logic;
+signal ts_start_enable	: std_logic;
+signal ts_end_enable	: std_logic;
+
 
 begin
 
+-- Enable_i and Gate_i are level triggered 
+-- Enable marks the start and end of entire acquisition
+-- Gate used to accept or reject samples within a single capture from the acquistion
+-- Capture is edge triggered with an option to trigger on rising, falling or both
+
+ps_prev: process(clk_i)                                      
+begin                                                               
+    if rising_edge(clk_i) then                      
+        capture_prev <= capture_i;                  
+    end if;                                                         
+end process ps_prev;                                                
+
+
+capture_rise <= not capture_prev and capture_i;
+capture_fall <= capture_prev and not capture_i;
+
+-- Handle the trigger 
+capture <= capture_rise when (capture_rise = '1' and (CAPTURE_EDGE = "00" or CAPTURE_EDGE = "10")) else
+           capture_fall when (capture_fall = '1' and (CAPTURE_EDGE = "01" or CAPTURE_EDGE = "10")) else
+           '0';  
+
+
 --------------------------------------------------------------------------
--- Input registers, and
 -- Detect rise/falling edge of internal signals.
 --------------------------------------------------------------------------
-process(clk_i) begin
+process(clk_i)
+begin
     if rising_edge(clk_i) then
-        frame_prev <= frame_i;
-        capture_prev <= capture_i;
+        gate_prev <= gate_i;
     end if;
-end process;
+end process;   
 
-frame_rise <= frame_i and not frame_prev;
-capture_rise <= capture_i and not capture_prev;
+
+gate_rise <= not gate_prev and gate_i;
+gate_fall <= gate_prev and not gate_i;
 
 --------------------------------------------------------------------------
--- Capture and Frame managements:
---
--- A capture between two Frame inputs indicates a live frame
--- where data is captured at the end when in FRAMING mode.
---
--- When FRAMING_ENABLE = 1:
---
--- FRAME:    |     |     |     |      |      |      |      |
--- CAPTURE:     x           x            x             x
--- Output          |           |             |             |
---
+-- Delay the capture pulse for one clock because the record uses a 
+-- register process. 
 --------------------------------------------------------------------------
-capture <= capture_rise when (FRAMING_ENABLE = '0') else
-                frame_rise and ongoing_capture;
-
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            ongoing_capture <= '0';
+            capture_dly <= '0';
             capture_o <= '0';
-            first_frame <= '0';
-            error_o <= '0';
-        else
-            -- Data processing in capture module has a latency of 1 tick so
-            -- capture signal must be aligned
-            capture_o <= capture;
-
-            -- First frame arrived flag which is used to detect 'capture
-            -- before frame pulse' error condition
-            -- Resets on arming.
-            if (frame_rise = '1') then
-                first_frame <= '1';
-            end if;
-
-            -- If happens on the same clock, capture belongs the
-            -- immediate frame.
-            if (frame_rise = '1' and capture_rise = '1') then
-                ongoing_capture <= '1';
-            -- Otherwise start a clear frame.
-            elsif (frame_rise = '1') then
-                ongoing_capture <= '0';
-            -- Flag that capture pulse received.
-            elsif (capture_rise = '1') then
-                ongoing_capture <= '1';
-            end if;
-
-            -- When Framing is enabled, there are two error conditions
-            -- (1) Capture pulse arrives before frame, and
-            -- (2) More than 1 capture pulses in a frame
-            -- Error is latched until next pcap start (via reset port)
-
-            -- Make sure that frame and capture are not on the same clock
-            if (first_frame = '0' and frame_rise = '0') then
-                error_o <= FRAMING_ENABLE and capture_rise;
-            elsif (ongoing_capture = '1' and frame_rise = '0') then
-                error_o <= FRAMING_ENABLE and capture_rise;
-            end if;
+        -- Handle the delay in here as its is the delay of registering the 
+        -- results pass out on the mode_ts_bits record     
+        else                 
+            capture_dly <= capture;   
+	    	capture_o <= capture;	
         end if;
     end if;
 end process;
@@ -148,61 +140,141 @@ timestamp <= unsigned(timestamp_i);
 
 process(clk_i) begin
     if rising_edge(clk_i) then
-        -- Start of Frame timestamp and Frame Length in ticks
-        if (frame_rise = '1') then
-            frame_ts <= timestamp;
-            frame_length <= timestamp - frame_ts;
-        end if;
+        -- Capture the timestamp at the start of a capture frame
+        if (enable_i = '0') then
+			ts_start_enable <= '0';
+		-- Capture the timestamp this is the start of a frame		
+		elsif (ts_start_enable = '0' and gate_rise = '1') then
+			ts_start_enable <= '1';
+			ts_start <= std_logic_vector(timestamp); 
+		-- Capture the timestamp this is the start of a frame
+		elsif (gate_i = '1' and capture = '1') then		
+			ts_start_enable <= '1';			
+			ts_start <= std_logic_vector(timestamp);
+		-- This isn't a valid capture frame	
+		elsif (capture = '1' and gate_i = '0') then			
+			ts_start_enable <= '0';
+			ts_start <= std_logic_vector(to_signed(-1,ts_start'length));
+		end if;	
+									
+        -- Capture the timestamp at the end of a capture frame 
+        if (enable_i = '0') then
+			ts_end_enable <= '0';
+		-- Capture the timestamp at the end of the frame
+		elsif (gate_fall = '1') then
+			if (capture = '0') then
+				ts_end_enable <= '1';
+			end if;			
+			ts_end <= std_logic_vector(timestamp);
+		-- Capture the timestamp at the end of the frame	
+		elsif (capture = '1' and gate_i = '1') then
+			ts_end_enable <= '0';
+			ts_end	<= std_logic_vector(timestamp);
+		-- This isn't a valid capture_frame
+		elsif (capture = '1' and gate_i = '0') then
+			ts_end_enable <= '0';			
+			if (ts_end_enable = '0') then
+				ts_end <= std_logic_vector(to_signed(-1,ts_end'length));
+			end if;		
+		end if;       
 
-        -- Capture timestamps and capture offset from frame start
-        if (capture_rise = '1') then
-            capture_ts <= timestamp;
-            capture_offset <= timestamp - frame_ts;
+        -- Capture TIMESTAMP             
+        if (capture = '1') then
+            ts_capture <= std_logic_vector(timestamp);
+        end if;
+        
+        -- Count the number of samples 			
+        if (capture = '1' or enable_i = '0') then
+			if (gate_i = '1') then            
+				cnt_samples <= to_unsigned(1,cnt_samples'length);	
+			else
+				cnt_samples <= (others => '0');
+			end if;
+            samples <= std_logic_vector(cnt_samples(31+(to_integer(unsigned(SHIFT_SUM))) downto (to_integer(unsigned(SHIFT_SUM)))));
+        elsif (gate_i = '1') then
+            cnt_samples <= cnt_samples +1;
+        end if;    
+         
+        if (capture = '1') then
+            bits0 <= sysbus_i(31 downto 0);
+            bits1 <= sysbus_i(63 downto 32);
+            bits2 <= sysbus_i(95 downto 64);
+            bits3 <= sysbus_i(127 downto 96);                   
         end if;
     end if;
 end process;
 
---------------------------------------------------------------------------
--- Instantiate Position Processing Blocks
---------------------------------------------------------------------------
-PROC_OTHERS : FOR I IN 1 TO 31 GENERATE
 
-pcap_capture_inst : entity work.pcap_capture
+-------------------------------------------------------------------------- 
+-- Instantiate pcap_frame_mode block
+--------------------------------------------------------------------------
+CAP_FRAME_GEN : for i in 31 downto 0 generate
+
+pcap_frame_mode_inst : entity work.pcap_frame_mode
 port map (
-    clk_i               => clk_i,
-    reset_i             => reset_i,
-
-    posn_i              => posbus_i(I),
-    frame_i             => frame_rise,
-    capture_i           => capture_rise,
-    posn_o              => posbus(I),
-    extn_o              => extbus(I),
-
-    FRAMING_ENABLE      => FRAMING_ENABLE,
-    FRAMING_MASK        => FRAMING_MASK(I),
-    FRAMING_MODE        => FRAMING_MODE(I)
-);
-END GENERATE;
-
+    clk_i        => clk_i,
+    enable_i     => enable_i,   
+    gate_i       => gate_i,   
+    capture_i    => capture,
+    value_i      => posbus_i(i),
+    shift_i      => SHIFT_SUM,
+    value_o      => value_o(i),   
+    diff_o       => diff_o(i),   
+    sum_l_o      => sum_l_o(i),
+    sum_h_o      => sum_h_o(i),
+    min_o        => min_o(i),
+    max_o        => max_o(i)
+    );
+end generate;
+    
 --------------------------------------------------------------------------
--- Assign 64x32-bits position fields for data capture
+-- Assign 32x6 = 192 mode bus (Mode 0, Mode 1, Mode 2, Mode 3, Mode 4 and Mode 5 
+-- TimeStamp lsb Start 
+-- TimeStamp msb Start
+-- TimeStamp lsb End 
+-- TimeStamp msb End
+-- TimeStamp lsb
+-- TimeStamp msb
+-- Number of Samples
+-- posbus (Bits0, Bits1, Bits3 and Bits 4)
 --------------------------------------------------------------------------
-posn_o(0)  <= posbus_i(0);
-posn_o(31 downto 1)  <= posbus(31 downto 1);
 
-posn_o(32) <= (others => '0');
-posn_o(36 downto 33) <= extbus(4 downto 1);
-posn_o(37) <= std_logic_vector(capture_ts(31 downto  0));
-posn_o(38) <= std_logic_vector(capture_ts(63 downto 32));
-posn_o(39) <= std_logic_vector(frame_length(31 downto 0));
-posn_o(40) <= std_logic_vector(capture_offset(31 downto 0));
-posn_o(41) <= (others => '0');
-posn_o(42) <= sysbus_i(31 downto 0);
-posn_o(43) <= sysbus_i(63 downto 32);
-posn_o(44) <= sysbus_i(95 downto 64);
-posn_o(45) <= sysbus_i(127 downto 96);
-posn_o(49 downto 46) <= extbus(24 downto 21);
-posn_o(63 downto 50) <= (others => (others => '0'));
+--Register the mode_ts_bits buses  
+ps_mode_ts_bits: process(clk_i)
+begin
+    if rising_edge(Clk_i) then       
+		-- Capture the start timestamp 
+		ts_start_dly <= ts_start;
+		if capture_dly = '1' then         
+        	-- Cature mode data     
+			-- 32 bits * 6 Num of = 192 Total    
+        	lp_mode_data: for i in 31 downto 0 loop
+            	mode_ts_bits_o.mode(i)(0) <= value_o(i);
+            	mode_ts_bits_o.mode(i)(1) <= diff_o(i);
+            	mode_ts_bits_o.mode(i)(2) <= sum_l_o(i);
+            	mode_ts_bits_o.mode(i)(3) <= sum_h_o(i);
+            	mode_ts_bits_o.mode(i)(4) <= min_o(i);
+            	mode_ts_bits_o.mode(i)(5) <= max_o(i);   
+        	end loop lp_mode_data;
+			-- Capture TimeStamp data
+			-- 32 bits * 7 Num of = 7 Total
+        	mode_ts_bits_o.ts(0) <= ts_start_dly(31 downto 0);
+        	mode_ts_bits_o.ts(1) <= ts_start_dly(63 downto 32);   
+        	mode_ts_bits_o.ts(2) <= ts_end(31 downto 0);
+        	mode_ts_bits_o.ts(3) <= ts_end(63 downto 32);
+        	mode_ts_bits_o.ts(4) <= ts_capture(31 downto 0);    
+        	mode_ts_bits_o.ts(5) <= ts_capture(63 downto 32);
+        	mode_ts_bits_o.ts(6) <= samples;
+			-- Capture bit bus data
+			-- 32 bits * 4 Num of = 4 Total
+        	mode_ts_bits_o.bits(0) <= bits0;
+        	mode_ts_bits_o.bits(1) <= bits1;
+        	mode_ts_bits_o.bits(2) <= bits2;
+        	mode_ts_bits_o.bits(3) <= bits3;                   
+		end if;    
+	end if;
+end process ps_mode_ts_bits;                
+
 
 end rtl;
 

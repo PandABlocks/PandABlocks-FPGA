@@ -11,22 +11,22 @@ $ Arming and hard disarm
 5       : ENABLE=1
 6       : ENABLE=0          : ACTIVE=0
 
-########################
-$ Capture timestamp
+######################## 3 DONE
+$ Capture timestamp			
 1       : ENABLE=1
 2       : START_WRITE=0
 # TS_CAPTURE_L
 4       : WRITE=0x240
 10      : ARM=0             : ACTIVE=1
 12      : CAPTURE=1
-13      :                   : DATA=2
-14      : CAPTURE=0
+13      :                    
+14      : CAPTURE=0			: DATA=2
 16      : CAPTURE=1
-17      : CAPTURE=0         : DATA=6
-18      :
+17      : CAPTURE=0         
+18      :					: DATA=6
 20      : ENABLE=0          : ACTIVE=0
 
-######################
+###################### 4 DONE
 $ Capture pos bus entry 5 Value
 2       : START_WRITE=0
 4       : WRITE=0x50
@@ -34,14 +34,16 @@ $ Capture pos bus entry 5 Value
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
 13      : CAPTURE=1
-14      : CAPTURE=0, POS[5]=100         : DATA=20
-15      : CAPTURE=1 
-16      : CAPTURE=0                     : DATA=100
+14      : CAPTURE=0, POS[5]=100         
+15      : CAPTURE=1 					: DATA=20
+16      : CAPTURE=0                     
+17		:								: DATA=100
 18      : CAPTURE=1, POS[5]=6
-19      : POS[5]=2                      : DATA=6
+19      : POS[5]=2                      
+20		:								: DATA=6
 22      : ENABLE=0, CAPTURE=0           : ACTIVE=0
 
-#####################
+##################### 5 DONE
 $ Capture pos bus entry 11 Difference
 2       : START_WRITE=0
 4       : WRITE=0xB1
@@ -51,17 +53,17 @@ $ Capture pos bus entry 11 Difference
 12      : GATE=1
 13      : POS[11]=20
 14      : CAPTURE=1
-15      : CAPTURE=0                     : DATA=10
-16      : GATE=0, POS[11]=24
+15      : CAPTURE=0                     
+16      : GATE=0, POS[11]=24			: DATA=10     	
 18      : POS[11]=30
 20      : POS[11]=22
 21      : GATE=1
 22      : POS[11]=13
 23      : GATE=0, CAPTURE=1
-24      :                               : DATA=-5
-25      : CAPTURE=0, ENABLE=0           : ACTIVE=0
+24      :                               
+25      : CAPTURE=0, ENABLE=0           : ACTIVE=0, DATA=-5 
 
-#####################
+##################### 6 DONE
 $ Capture pos bus entry 3 Sum
 1       : POS[3]=3
 2       : START_WRITE=0
@@ -70,20 +72,20 @@ $ Capture pos bus entry 3 Sum
 10      : ARM=0                         : ACTIVE=1
 12      : GATE=1
 14      : CAPTURE=1
-15      : CAPTURE=0                     : DATA=6
-16      : GATE=0, POS[3]=4
+15      : CAPTURE=0                     
+16      : GATE=0, POS[3]=4				: DATA=6	
 17      : POS[3]=5
 18      : GATE=1, POS[3]=6
 19      : POS[3]=9
 20      : POS[3]=103, CAPTURE=1
-21      : CAPTURE=0                     : DATA=21
-22      : GATE=0
+21      : CAPTURE=0                     
+22      : GATE=0						: DATA=21
 23      : POS[3]=102
 24      : CAPTURE=1
-25      :                               : DATA=206
-26      : CAPTURE=0, ENABLE=0           : ACTIVE=0
+25      :                               
+26      : CAPTURE=0, ENABLE=0           : ACTIVE=0, DATA=206
 
-#####################
+##################### 7 DONE
 $ Capture pos bus entry 2 Sum large values
 1       : POS[2]=0x40000000
 2       : START_WRITE=0
@@ -93,22 +95,26 @@ $ Capture pos bus entry 2 Sum large values
 10      : ARM=0                         : ACTIVE=1
 12      : GATE=1
 13      : CAPTURE=1
-14      : CAPTURE=0                     : DATA=0x40000000
-15      :                               : DATA=0
-16      : CAPTURE=1
-17      : CAPTURE=0                     : DATA=-0x40000000
-18      :                               : DATA=0
+14      : CAPTURE=0                      
+15      :                               : DATA=0x40000000 
+16      : CAPTURE=1						: DATA=0
+17      : CAPTURE=0                      
+18      :                               : DATA=-0x40000000
+19		:								: DATA=0 
 26      : CAPTURE=1
-27      : CAPTURE=0, POS[2]=-0x40000000 : DATA=-0x80000000
-28      :                               : DATA=2
-29      : CAPTURE=1
-30      : CAPTURE=0                     : DATA=-0x40000000
-31      :                               : DATA=-1
+27      : CAPTURE=0, POS[2]=-0x40000000  
+28      :                               : DATA=-0x80000000 
+29      : CAPTURE=1						: DATA=2
+30      : CAPTURE=0                      
+31      :                               : DATA=-0x40000000
+32		: 								: DATA=-1
 34      : CAPTURE=1
-35      : CAPTURE=0                     : DATA=-0x40000000
-36      : ENABLE=0, GATE=0              : DATA=-2, ACTIVE=0
+35      : CAPTURE=0                      
+36      : GATE=0 		             	: DATA=-0x40000000 
+37		: 								: DATA=-2
+39		: ENABLE=0						: ACTIVE=0	
 
-#####################
+##################### 8 DONE
 $ Capture pos bus entry 9 Sum shifted
 1       : SHIFT_SUM=1
 2       : START_WRITE=0
@@ -119,20 +125,23 @@ $ Capture pos bus entry 9 Sum shifted
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
 14      : CAPTURE=1
-15      : CAPTURE=0                     : DATA=40
-16      : GATE=0, POS[9]=19             : DATA=1
-17      : GATE=1
+15      : CAPTURE=0                      
+16      : GATE=0, POS[9]=19             : DATA=40
+17      : GATE=1						: DATA=1
 18      : GATE=0
 19      : CAPTURE=1, POS[9]=-13
-20      : CAPTURE=0                     : DATA=36
-21      : GATE=1                        : DATA=1
+20      : CAPTURE=0                      
+21      : GATE=1                        : DATA=36 
+22		: 								: DATA=1
 23      : GATE=0, CAPTURE=1, POS[9]=-9
-24      : CAPTURE=0                     : DATA=-13
-25      : CAPTURE=1                     : DATA=1
-26      :                               : DATA=0
-27      : CAPTURE=0, ENABLE=0           : DATA=0, ACTIVE=0
+24      : CAPTURE=0                      
+25      : CAPTURE=1                     : DATA=-13
+26      :                               : DATA=1
+27      : CAPTURE=0						: DATA=0
+28		: 								: DATA=0
+30		: ENABLE=0						: ACTIVE=0
 
-#####################
+##################### 9 DONE
 $ Capture pos bus entry 8 Min
 2       : START_WRITE=0
 3       : GATE=1
@@ -143,20 +152,20 @@ $ Capture pos bus entry 8 Min
 11      : POS[8]=10
 13      : POS[8]=20
 14      : CAPTURE=1
-15      : CAPTURE=0                     : DATA=10
-16      : GATE=0, POS[8]=8
+15      : CAPTURE=0                      
+16      : GATE=0, POS[8]=8				: DATA=10
 18      : POS[8]=30
 19      : CAPTURE=1
-20      : POS[8]=22, CAPTURE=0          : DATA=20
-21      : GATE=1
+20      : POS[8]=22, CAPTURE=0           
+21      : GATE=1						: DATA=20
 22      : POS[8]=21
 23      : GATE=0, CAPTURE=1
-24      : CAPTURE=0                     : DATA=21
-25      : CAPTURE=1
-26      :                               : DATA=0x7FFFFFFF
-27      : CAPTURE=0, ENABLE=0           : ACTIVE=0
+24      : CAPTURE=0                      
+25      : CAPTURE=1						: DATA=21
+26      :                                
+27      : CAPTURE=0, ENABLE=0           : ACTIVE=0, DATA=0x7FFFFFFF
 
-#####################
+##################### 10 DONE
 $ Capture pos bus entry 4 Max
 2       : START_WRITE=0
 3       : GATE=1
@@ -166,20 +175,20 @@ $ Capture pos bus entry 4 Max
 10      : ARM=0, POS[4]=10              : ACTIVE=1
 13      : POS[4]=20
 14      : CAPTURE=1
-15      : CAPTURE=0                     : DATA=20
-16      : GATE=0, POS[4]=24
+15      : CAPTURE=0                      
+16      : GATE=0, POS[4]=24				: DATA=20
 18      : POS[4]=30
 19      : CAPTURE=1
-20      : POS[4]=22, CAPTURE=0          : DATA=20
-21      : GATE=1
+20      : POS[4]=22, CAPTURE=0           
+21      : GATE=1						: DATA=20
 22      : POS[4]=21
 23      : GATE=0, CAPTURE=1
-24      : CAPTURE=0                     : DATA=22
-25      : CAPTURE=1
-26      :                               : DATA=-0x80000000
-27      : CAPTURE=0, ENABLE=0           : ACTIVE=0
+24      : CAPTURE=0                      
+25      : CAPTURE=1						: DATA=22
+26      :                                
+27      : CAPTURE=0, ENABLE=0           : ACTIVE=0, DATA=-0x80000000
 
-#####################
+##################### 11 DONE
 $ Capture gate length
 2       : START_WRITE=0
 3       : GATE=1
@@ -187,20 +196,20 @@ $ Capture gate length
 6       : ENABLE=1
 10      : ARM=0                         : ACTIVE=1
 14      : CAPTURE=1
-15      : CAPTURE=0                     : DATA=4
-16      : GATE=0
+15      : CAPTURE=0                      
+16      : GATE=0						: DATA=4
 17      : GATE=1
 18      : GATE=0
 19      : CAPTURE=1
-20      : CAPTURE=0                     : DATA=3
-21      : GATE=1
+20      : CAPTURE=0                      
+21      : GATE=1						: DATA=3
 23      : GATE=0, CAPTURE=1
-24      : CAPTURE=0                     : DATA=2
-25      : CAPTURE=1
-26      :                               : DATA=0
-27      : CAPTURE=0, ENABLE=0           : ACTIVE=0
+24      : CAPTURE=0                      
+25      : CAPTURE=1						: DATA=2
+26      :                                
+27      : CAPTURE=0, ENABLE=0           : ACTIVE=0, DATA=0
 
-#####################
+##################### 12 DONE
 $ Capture more timestamps
 1       : START_WRITE=0
 2       : GATE=1, WRITE=0x200
@@ -209,41 +218,47 @@ $ Capture more timestamps
 9       : ENABLE=1
 10      : ARM=0                         : ACTIVE=1
 14      : CAPTURE=1
-15      : CAPTURE=0                     : DATA=0
-16      : GATE=0                        : DATA=4
+15      : CAPTURE=0                     : 
+16      : GATE=0                        : DATA=0
 17      : GATE=1                        : DATA=4
-18      : GATE=0
+18      : GATE=0						: DATA=4
 19      : CAPTURE=1
-20      : CAPTURE=0                     : DATA=4
-21      : GATE=1                        : DATA=8
-22      :                               : DATA=9
-23      : GATE=0, CAPTURE=1
-24      : CAPTURE=0                     : DATA=11
-25      :                               : DATA=13
+20      : CAPTURE=0                     : 
+21      : GATE=1                        : DATA=4
+22      :                               : DATA=8
+23      : GATE=0, CAPTURE=1				: DATA=9
+24      : CAPTURE=0                     : 
+25      :                               : DATA=11
 26      : CAPTURE=1                     : DATA=13
-27      : ENABLE=0                      : ACTIVE=0, DATA=-1
+27      :								: DATA=13
 28      : CAPTURE=0                     : DATA=-1
-29      :                               : DATA=16
+29      :                               : DATA=-1
+30		: 								: DATA=16
+32		: ENABLE=0						: ACTIVE=0
 
-#######################
+####################### 13 DONE
 $ Capture bit bus quadrant 0
 2       : START_WRITE=0
 4       : WRITE=0x270
 10      : ARM=0                         : ACTIVE=1
 11      : ENABLE=1
 13      : CAPTURE=1
-14      : CAPTURE=0                     : DATA=0
-15      : CAPTURE=1, BIT[2]=1
+14      : CAPTURE=0                      
+15      : CAPTURE=1, BIT[2]=1			: DATA=0
 # BIT[2] appears as bit 2 (0x4) of BITS0
-16      : CAPTURE=0, BIT[4]=1           : DATA=0x4
+16      : CAPTURE=0, BIT[4]=1            
+17		:								: DATA=0x4	
 18      : CAPTURE=1
 # BIT[4] appears as bit 4 (0x10) of BITS0
-19      : CAPTURE=0                     : DATA=0x14
+19      : CAPTURE=0                      
+20		: 								: DATA=0x14
 21      : CAPTURE=1, BIT[2]=0
-22      : ENABLE=0, CAPTURE=0           : DATA=0x10, ACTIVE=0
+22      : CAPTURE=0           			 
+23		: 								: DATA=0x10
+26		: ENABLE=0						: ACTIVE=0
 
 
-#######################
+####################### 14 DONE
 $ Capture bit bus all quadrants
 1       : START_WRITE=0
 2       : WRITE=0x270
@@ -253,27 +268,28 @@ $ Capture bit bus all quadrants
 12      : ARM=0, ENABLE=1               : ACTIVE=1
 13      : CAPTURE=1, BIT[2]=1
 # BIT[2] appears as bit 2 (0x4) of BITS0
-14      : CAPTURE=0                     : DATA=0x4
-15      :                               : DATA=0
+14      : CAPTURE=0                     : 
+15      :                               : DATA=0x4
 16      :                               : DATA=0
 17      : CAPTURE=1, BIT[58]=1          : DATA=0
-18      : CAPTURE=0                     : DATA=0x4
+18      : CAPTURE=0                     : DATA=0
 # BIT[58] appears as bit 26 (0x4000000) of BITS1
-19      :                               : DATA=0x4000000
-20      :                               : DATA=0
+19      :                               : DATA=0x4
+20      :                               : DATA=0x4000000
 21      : CAPTURE=1, BIT[101]=1         : DATA=0
-22      : CAPTURE=0                     : DATA=0x4
-23      :                               : DATA=0x4000000
-24      :                               : DATA=0
+22      : CAPTURE=0                     : DATA=0
+23      :                               : DATA=0x4
+24      :                               : DATA=0x4000000
 # BIT[101] appears as bit 5 (0x20) of BITS3
-25      : CAPTURE=1, BIT[10]=1          : DATA=0x20
+25      : CAPTURE=1, BIT[10]=1          : DATA=0
 # BIT[10] appears as bit 10 (0x400) of BITS0
-26      : CAPTURE=0                     : DATA=0x404
-27      :                               : DATA=0x4000000
-28      : ENABLE=0                      : DATA=0x0, ACTIVE=0
-29      :                               : DATA=0x20
-
-#####################
+26      : CAPTURE=0                     : DATA=0x20
+27      :                               : DATA=0x404
+28      :								: DATA=0x4000000
+29      :                               : DATA=0x0
+30		: 								: DATA=0x20
+32		: ENABLE=0						: ACTIVE=0
+##################### 15 DONE
 $ Gate and capture signals the same
 2       : START_WRITE=0
 4       : WRITE=0x11
@@ -283,17 +299,16 @@ $ Gate and capture signals the same
 11      : POS[1]=10
 12      : GATE=1, CAPTURE=1
 13      : POS[1]=20
-14      : GATE=0, CAPTURE=0
-15      :                               : DATA=10
-16      : POS[1]=24
+14      : GATE=0, CAPTURE=0                                
+16      : POS[1]=24						: DATA=10
 18      : POS[1]=30
 21      : POS[1]=22, GATE=1, CAPTURE=1
 23      : POS[1]=13, GATE=0, CAPTURE=0
-24      :                               : DATA=-9
-25      : ENABLE=0                      : ACTIVE=0
+24      :                                
+25      : ENABLE=0                      : ACTIVE=0, DATA=-9
 
 
-#####################
+##################### 16 DONE
 $ Gap-less sum
 2       : START_WRITE=0
 4       : WRITE=0x12
@@ -303,38 +318,37 @@ $ Gap-less sum
 11      : POS[1]=10
 12      : GATE=1
 13      : POS[1]=20
-14      : CAPTURE=1
-15      :                               : DATA=30
-16      : POS[1]=24
+14      : CAPTURE=1 
+16      : POS[1]=24						: DATA=30
 18      : POS[1]=30
-21      : POS[1]=22, GATE=0, CAPTURE=0
-22      :                               : DATA=178
-23      : POS[1]=13, GATE=1
+21      : POS[1]=22, GATE=0, CAPTURE=0                                
+23      : POS[1]=13, GATE=1				: DATA=178
 26      : GATE=0, CAPTURE=1
-27      :                               : DATA=39
-28      : ENABLE=0, CAPTURE=0           : ACTIVE=0
+27      :                                
+28      : ENABLE=0, CAPTURE=0           : ACTIVE=0, DATA=39
 
 
 
 
 
 
-#########################
+######################### 17 DONE
 $ Capture too close together
 2       : START_WRITE=0
 4       : WRITE=0x240
 6       : WRITE=0x250
 8       : WRITE=0x260
-10      : ARM=0             : ACTIVE=1
+9       : ARM=0             	: ACTIVE=1
 11      : ENABLE=1
 12      : CAPTURE=1
-13      : CAPTURE=0         : DATA=1
-14      :                   : DATA=0
-15      :                   : DATA=0
-16      : CAPTURE=1
-17      : CAPTURE=0         : DATA=5
-18      : CAPTURE=1         : DATA=0, ACTIVE=0, HEALTH=1
-19      :                   : DATA=0
-22      : ENABLE=0, CAPTURE=0
+13      : CAPTURE=0         	 
+14      :                   	: DATA=1
+15      :                   	: DATA=0
+16      : CAPTURE=1				: DATA=0
+17      : CAPTURE=0         	 
+18      : CAPTURE=1         	: DATA=5
+19      :                   	: DATA=0
+20		: ENABLE=0				: DATA=0, ACTIVE=0, HEALTH=1
+22      : CAPTURE=0	
 
 

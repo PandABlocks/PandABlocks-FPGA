@@ -110,8 +110,8 @@ class FpgaSequence(object):
             lpos_bus = [str(current.get(name, 0)) for name in self.pos_bus]
             lbit_bus = [str(current.get(name, 1)) if name == 'BITS.ONE'
                         else str(current.get(name, 0))for name in self.bit_bus]
-            lpos_bus[0] = str(ts+1)
-            lbit_bus[0] = str(ts+1)
+            lpos_bus[0] = str(ts)
+            lbit_bus[0] = str(ts)
             self.pos_bus_lines.append(lpos_bus)
             self.bit_bus_lines.append(lbit_bus)
 
