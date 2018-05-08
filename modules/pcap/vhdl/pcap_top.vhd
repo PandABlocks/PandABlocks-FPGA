@@ -109,7 +109,6 @@ signal pcap_done        : std_logic;
 signal enable           : std_logic;
 signal gate             : std_logic;
 signal capture          : std_logic;
-signal sysbus_dly       : sysbus_t;
 signal posbus_dly       : posbus_t;
 
 begin
@@ -213,10 +212,7 @@ port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
 
-    sysbus_i            => sysbus_i,
     posbus_i            => posbus_i,
-
-    sysbus_o            => sysbus_dly,
     posbus_o            => posbus_dly,
 
     write_strobe_i      => write_strobe_i(REG_CS),
@@ -245,7 +241,7 @@ port map (
     capture_i               => capture,
     gate_i                  => gate,    
     dma_error_i             => dma_error,
-    sysbus_i                => sysbus_dly,
+    sysbus_i                => sysbus_i,
     posbus_i                => posbus_dly,
 
     pcap_dat_o              => pcap_dat,
