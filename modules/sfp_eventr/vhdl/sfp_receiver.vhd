@@ -8,23 +8,19 @@ entity sfp_receiver is
 
     port (clk_i              : in  std_logic;
           reset_i            : in  std_logic;
-          rxcharisk_i        : in  std_logic_vector(1 downto 0);
           rxdisperr_i        : in  std_logic_vector(1 downto 0);
           rxdata_i           : in  std_logic_vector(15 downto 0);
           rxnotintable_i     : in  std_logic_vector(1 downto 0);
-          EVENT0             : in  std_logic_vector(31 downto 0);
-          EVENT0_WSTB        : in  std_logic;   
           EVENT1             : in  std_logic_vector(31 downto 0);
-          EVENT1_WSTB        : in  std_logic;   
           EVENT2             : in  std_logic_vector(31 downto 0);
-          EVENT2_WSTB        : in  std_logic;   
           EVENT3             : in  std_logic_vector(31 downto 0);
-          EVENT3_WSTB        : in  std_logic;
+          EVENT4             : in  std_logic_vector(31 downto 0);
           rx_link_ok_o       : out std_logic;
-          bit0_o             : out std_logic;
           bit1_o             : out std_logic;
           bit2_o             : out std_logic;
           bit3_o             : out std_logic;
+          bit4_o             : out std_logic;
+          error_cnt_o        : out std_logic_vector(27 downto 0);
           utime_o            : out std_logic_vector(31 downto 0)
           );
 
@@ -44,25 +40,24 @@ constant c_code_seconds_1   : std_logic_vector(7 downto 0) := X"71";
 
 constant c_zeros : std_logic_vector(1 downto 0) := "00";    
 
-constant c_MGT_RX_LOCK_ACQ  : unsigned(9 downto 0) := to_unsigned(1023,10); 
 constant c_MGT_RX_PRESCALE  : unsigned(9 downto 0) := to_unsigned(1023,10);
 
 
-type t_event_dbus is array(events-1 downto 0) of std_logic_vector(8 downto 0);    
+type t_event is array(events-1 downto 0) of std_logic_vector(8 downto 0);    
+type t_dbus_comp is array(events-1 downto 0) of std_logic_vector(7 downto 0);
 
 
-signal event_dbus       : t_event_dbus;
+signal event            : t_event;
+signal dbus_comp        : t_dbus_comp;
 signal rx_error         : std_logic;
 signal loss_lock        : std_logic;
 signal rx_link_ok       : std_logic; 
 signal rx_error_count   : unsigned(5 downto 0);
 signal prescaler        : unsigned(9 downto 0);
-signal count            : unsigned(9 downto 0);
 signal event_bits       : std_logic_vector(events-1 downto 0);    
---signal event_bits_reset : std_logic_vector(events-1 downto 0);
---signal rxdata           : std_logic_vector(15 downto 0);
 signal utime_shift_reg  : std_logic_vector(31 downto 0);
-
+signal disable_link     : std_logic;
+signal error_cnt        : unsigned(27 downto 0);
 
 begin
 
@@ -102,11 +97,13 @@ begin
 --  |	     DBUS DATA	    | KCHAR And EVENT CODES  |
 --  --------------------------------------------------	        
 
-
-
 rx_link_ok_o <= rx_link_ok;
 
 
+error_cnt_o <= std_logic_vector(error_cnt);
+
+
+-- Unix time 
 ps_shift_reg: process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -129,97 +126,124 @@ begin
     end if;
 end process ps_shift_reg;    
  	 
-   
+
+-- Assign the array outputs individual bits
+bit1_o <= event_bits(0);
+bit2_o <= event_bits(1);
+bit3_o <= event_bits(2);
+bit4_o <= event_bits(3);
+
+-- Assign the registers to an array      
+event(0) <= EVENT1(8 downto 0);
+event(1) <= EVENT2(8 downto 0);
+event(2) <= EVENT3(8 downto 0);
+event(3) <= EVENT4(8 downto 0);            
+
+-- AND the EVENTs with the data coming in and do a bit comparison 
+dbus_comp(0) <= EVENT1(7 downto 0) and rxdata_i(15 downto 8);
+dbus_comp(1) <= EVENT2(7 downto 0) and rxdata_i(15 downto 8);
+dbus_comp(2) <= EVENT3(7 downto 0) and rxdata_i(15 downto 8);
+dbus_comp(3) <= EVENT4(7 downto 0) and rxdata_i(15 downto 8);
 
 ps_event_dbus: process(clk_i)
 begin
     if rising_edge(clk_i) then
---        rxdata <= rxdata_i;
---        event_bits_reset <= EVENT3_WSTB & EVENT2_WSTB & EVENT1_WSTB & EVENT0_WSTB;
-        event_dbus(0) <= EVENT0(8 downto 0); 
-        event_dbus(1) <= EVENT1(8 downto 0); 
-        event_dbus(2) <= EVENT2(8 downto 0);
-        event_dbus(3) <= EVENT3(8 downto 0);
         if rx_link_ok = '1' then 
-            lp_events: for i in events-1 downto 0 loop    
+            lp_events: for i in events-1 downto 0 loop            
+                -- DBUS         bit comparison
+                -- Event Codes  value comparison    
                 -- Top bit indicates which bus to use
                 -- event_dbus(8) = '1' - RXDATA(15 downto 8)
                 -- event_dbus(8) = '0' - RXDATA(7 downto 0) 
-                -- DBUS         RXDATA(15 downto 8)     1 = DBUS
+                -- DBUS         RXDATA(15 downto 8)    1 = DBUS
                 -- EVENT_CODES  RXDATA(7 downto 0)     0 = EVENT_CODES
-                if ((event_dbus(i)(8) = '1' and event_dbus(i)(7 downto 0) = rxdata_i(15 downto 8) and rxdata_i(15 downto 8) /= x"00") or
-                    (event_dbus(i)(8) = '0' and event_dbus(i)(7 downto 0) = rxdata_i(7 downto 0) and rxdata_i(7 downto 0) /= x"00")) then
-                    event_bits(i) <= '1';                                
+                -- DBus these are bit comparisons
+                if (event(i)(8) = '1' and dbus_comp(i) /= x"00") or
+                   (event(i)(8) = '0' and (event(i)(7 downto 0) = rxdata_i(7 downto 0) and rxdata_i(7 downto 0) /= x"00")) then
+                   if rxnotintable_i /= "00" and rxdisperr_i /= "00" then
+                        error_cnt <= error_cnt +1;
+                   end if;     
+                     event_bits(i) <= '1';                                
                 else
                     event_bits(i) <= '0';    
                 end if;
             end loop lp_events;
+        else
+            error_cnt <= (others => '0');
         end if;
-        bit0_o <= event_bits(0);
-        bit1_o <= event_bits(1);
-        bit2_o <= event_bits(2);
-        bit3_o <= event_bits(3);
     end if;                                                    
 end process ps_event_dbus;
 
-    
 
 
-
+-- This is a modified copy of the code used in the original event receiver 
+-- It is hard to know when the link is up as the only way of doing this is to use
+-- rxnotintable and rxdisperr signals.
+-- rxnotintable and rxdisperr errors do occur when the link is up, I run the the event 
+-- receiver for four days counting the number of times these two errors happened the 
+-- error rate was days 4 error count 12272 
 ps_link_lost:process(clk_i)
 begin
     if rising_edge(clk_i) then
         if reset_i = '1' then
             prescaler <= (others => '0');
-            count <= c_MGT_RX_PRESCALE;
+            disable_link <= '1';           
         else
-            -- 
+            -- Check the status of the link every 1023 clocks 
             if prescaler = 0 then
                 -- 0.008441037ms
-                if count = 0 then
+                -- The link has gone down or is up
+                if disable_link = '0' then          
                     rx_link_ok <= '1';
                 else
                     rx_link_ok <= '0';  
                 end if;
             
-                if count /= 0 then
-                    count <= count +1;
-                end if;        
+                if disable_link = '1' then
+                    disable_link <= '0';
+                end if;    
+                
             end if;
             
-            if count < c_MGT_RX_LOCK_ACQ then
+            -- Check the link status loss_lock if 
+            -- not set then set the signal disable_link
+            if disable_link = '0' then
                 if loss_lock = '1' then
-                    count <= c_MGT_RX_LOCK_ACQ;
+                    disable_link <= '1';
                 end if;
             end if;
-            
+            -- Link is down 
             if rx_link_ok = '0' then
                 loss_lock <= rx_error;
             else
                 loss_lock <= rx_error_count(5);
             end if;
-            
+            -- Error has occured 
+            -- Check the link for errors
             if rx_link_ok = '1' then
                 if rx_error = '1' then
+                    -- Subtract one from error count (count down error count)
                     if rx_error_count(5) = '0' then
                         rx_error_count <= rx_error_count -1;
                     end if;
                 else
+                    -- Add one to the error count to handle occasional errors happening   
                     if prescaler = 0 and (rx_error_count(5) = '1' or rx_error_count(4) = '0') then
                         rx_error_count <= rx_error_count +1;
                     end if;
                 end if;
+            -- Link up set the count down error count to 31
             else
                 rx_error_count <= "011111";                                
             end if;          
-        
+            -- RXNOTINTABLE :- The received data value is not a valid 10b/8b value
+            -- RXDISPERR    :- Indicates data corruption or tranmission of a invalid control character 
             if (rxnotintable_i /= c_zeros or rxdisperr_i /= c_zeros) then 
                 rx_error <= '1';   
             else
                 rx_error <= '0';
             end if;
-        
-            -- 1023 clock count down
+            -- 1023 clock count up
             if prescaler = c_MGT_RX_PRESCALE -1 then
                 prescaler <= (others => '0');
             else
