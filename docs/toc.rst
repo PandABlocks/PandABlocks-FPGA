@@ -8,5 +8,6 @@ Contents:
 
     index
     blocks/index.rst
+    triggering.rst
     fpga_testing.rst
     configparser.rst
