@@ -9,6 +9,9 @@ Fixed exposure gate and trigger
 
 .. image:: fixed_exposure_gate_trigger.png
 
+(Edit the diagram with `draw.io <https://www.draw.io/?mode=device>`_,
+opening the png file from the docs directory).
+
 In this scheme triggers are expected to be a fixed distance apart. The live and
 dead signals are used in an SRGate to give a gapless gate signal while the
 detector is active. The LUT relies on the extra clock ticks it takes for the
