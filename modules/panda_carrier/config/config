@@ -68,7 +68,7 @@ OUTENC[4]
     CLK             bit_out
     VAL             pos_mux
     CONN            bit_mux
-    DCARD_ID        read        enum 8
+    DCARD_ID        read        enum
         0   DCARD id 0
         1   Encoder Monitor
         2   DCARD id 2
