@@ -15,10 +15,10 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
 
-    FCLK_CLK0_PS        : in  std_logic;
+    fclk_clk0_ps_i      : in  std_logic;
     EXTCLK_P            : in  std_logic;
     EXTCLK_N            : in  std_logic;
-    FCLK_CLK0           : out std_logic; 
+    FCLK_CLK0_o         : out std_logic; 
   
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
@@ -33,10 +33,8 @@ port (
 
     -- SMA PLL locked
     sma_pll_locked_o    : out std_logic;    
-    -- Event Receiver PLL locked
-    eventr_pll_locked_o : out std_logic;
     -- sma and event receiver clock enables
-    ext_clock             : in  std_logic_vector(1 downto 0);
+    ext_clock_i         : in  std_logic_vector(1 downto 0);
 
     -- Bits out
     bit1_o              : out std_logic;
@@ -82,8 +80,10 @@ signal rxp_i                 : std_logic;
 signal txn_o                 : std_logic;
 signal txp_o                 : std_logic;
 signal mgt_ready_o           : std_logic;
-signal eventr_clk            : std_logic;
+signal event_clk             : std_logic;
 signal rx_link_ok_o          : std_logic;   
+signal loss_lock_o           : std_logic;     
+signal rx_error_o            : std_logic;
 signal rxcharisk             : std_logic_vector(1 downto 0);   
 signal rxdisperr             : std_logic_vector(1 downto 0); 
 signal rxdata                : std_logic_vector(15 downto 0); 
@@ -91,8 +91,7 @@ signal LINKUP                : std_logic_vector(31 downto 0);
 signal UTIME                 : std_logic_vector(31 downto 0);   
 signal rxnotintable          : std_logic_vector(1 downto 0);
 signal utime_o               : std_logic_vector(31 downto 0);
-signal ER_RESET              : std_logic;   
-signal EVENT_RESET           : std_logic_vector(31 downto 0);   
+signal event_reset           : std_logic;   
 signal rxbyteisaligned_o     : std_logic;
 signal rxbyterealign_o       : std_logic;
 signal rxcommadet_o          : std_logic;    
@@ -101,22 +100,20 @@ signal EVENT1                : std_logic_vector(31 downto 0);
 signal EVENT2                : std_logic_vector(31 downto 0);
 signal EVENT3                : std_logic_vector(31 downto 0);   
 signal EVENT4                : std_logic_vector(31 downto 0);   
-signal eventr_pll_locked     : std_logic;
-
-signal sim_reset             : std_logic;
+signal txdata_i              : std_logic_vector(15 downto 0);
+signal txcharisk_i           : std_logic_vector(1 downto 0);  
 
 -- ILA stuff
 signal mgt_ready_slv         : std_logic_vector(0 downto 0);
 signal rx_link_ok_slv        : std_logic_vector(0 downto 0);
-signal eventr_pll_locked_slv : std_logic_vector(0 downto 0);
 signal rxbyteisaligned_slv   : std_logic_vector(0 downto 0);     
 signal rxbyterealign_slv     : std_logic_vector(0 downto 0);
 signal rxcommadet_slv        : std_logic_vector(0 downto 0);
 signal probe10_slv           : std_logic_vector(15 downto 0);
 signal probe12_slv           : std_logic_vector(15 downto 0);   
 signal bit1,bit2,bit3,bit4   : std_logic;         
-signal error_cnt             : std_logic_vector(27 downto 0);
 
+signal err_cnt               : std_logic_vector(15 downto 0);
 
 begin
 
@@ -150,12 +147,10 @@ TXP_OUT(0) <= txp_o;
 TXN_OUT(1 downto 2) <= (others => '0');
 TXP_OUT(1 downto 2) <= (others => '0');
 
-eventr_pll_locked_o <= eventr_pll_locked;
-
 -- Event Receiver clock buffer
 rxoutclk_bufg : BUFG
 port map(
-    O => eventr_clk,
+    O => event_clk,
     I => rxoutclk
 );         
 
@@ -164,15 +159,29 @@ sfp_mmcm_clkmux_inst: entity work.sfp_mmcm_clkmux
 generic map (no_ibufg    => 0)
          
 port map(
-    FCLK_CLK0_PS        => FCLK_CLK0_PS,
+    fclk_clk0_ps_i      => fclk_clk0_ps_i,
     EXTCLK_P            => EXTCLK_P, 
     EXTCLK_N            => EXTCLK_N,
-    RXOUTCLK            => eventr_clk,
-    ext_clock           => ext_clock,
+    rxoutclk_i          => rxoutclk,
+    ext_clock_i         => ext_clock_i,
     sma_pll_locked_o    => sma_pll_locked_o,    
-    eventr_pll_locked_o => eventr_pll_locked,
-    FCLK_CLK0           => FCLK_CLK0   
+    fclk_clk0_o         => fclk_clk0_o   
 );
+
+
+sfp_transmitter_inst: entity work.sfp_transmitter
+port map(
+     clk_i          => clk_i,
+     reset_i        => reset_i,
+     rx_link_ok_i   => rx_link_ok_o,
+     loss_lock_i    => loss_lock_o,     
+     rx_error_i     => rx_error_o,     
+     mgt_ready_i    => mgt_ready_o,
+     rxdata_i       => rxdata,
+     err_cnt_o      => err_cnt,   
+     txdata_o       => txdata_i,
+     txcharisk_o    => txcharisk_i
+);     
 
 
 sfp_receiver_inst: entity work.sfp_receiver
@@ -180,6 +189,7 @@ port map(
     clk_i           => clk_i,
     reset_i         => reset_i, 	
     rxdisperr_i     => rxdisperr,
+    rxcharisk_i     => rxcharisk,
     rxdata_i        => rxdata,
     rxnotintable_i  => rxnotintable,  
     EVENT1          => EVENT1,
@@ -191,7 +201,8 @@ port map(
     bit3_o          => bit3,
     bit4_o          => bit4,    
     rx_link_ok_o    => rx_link_ok_o,
-    error_cnt_o     => error_cnt,
+    loss_lock_o     => loss_lock_o,
+    rx_error_o      => rx_error_o,    
     utime_o         => utime_o
 );
  
@@ -200,14 +211,13 @@ sfpgtx_event_receiver_inst: entity work.sfp_event_receiver
 port map(
     GTREFCLK_P         => GTREFCLK_P,
     GTREFCLK_N         => GTREFCLK_N, 
-    ER_RESET           => ER_RESET,
-    eventr_clk         => eventr_clk,
-    eventr_pll_locked  => eventr_pll_locked,
+    event_reset_i      => EVENT_RESET,
+    event_clk_i        => event_clk,
     rxp_i              => rxp_i,
     rxn_i              => rxn_i,
     txp_o              => txp_o, 
     txn_o              => txn_o,    
-    
+    rx_link_ok_i       => rx_link_ok_o, 
     rxbyteisaligned_o  => rxbyteisaligned_o,
     rxbyterealign_o    => rxbyterealign_o,
     rxcommadet_o       => rxcommadet_o, 
@@ -216,36 +226,14 @@ port map(
     rxcharisk_o        => rxcharisk, 
     rxdisperr_o        => rxdisperr, 
     mgt_ready_o        => mgt_ready_o,
-    rxnotintable_o     => rxnotintable  
+    rxnotintable_o     => rxnotintable,
+    txdata_i           => txdata_i,
+    txcharisk_i        => txcharisk_i   
 ); 
-
-
--- Do it this way for simulation purpose
-ps_er_en: process(clk_i)
-begin
-    if rising_edge(clk_i) then
---        if EVENT_RESET(0) = '1' or sim_reset = '1' then    
-        if EVENT_RESET(0) = '1' then    
-            ER_RESET <= '0';
-        else
-            ER_RESET <= '1';
-        end if;    
-    end if;
-end process ps_er_en;                
-  
-  
---ps_sim_reset: process
---begin
---    sim_reset <= '0';
---    wait for 132 ns;
---    sim_reset <= '1';
---    wait;
---end process ps_sim_reset;      
- 
+   
  
 mgt_ready_slv(0) <= mgt_ready_o;
 rx_link_ok_slv(0) <= rx_link_ok_o;
-eventr_pll_locked_slv(0) <= eventr_pll_locked;
 rxbyteisaligned_slv(0) <= rxbyteisaligned_o;     
 rxbyterealign_slv(0) <= rxbyterealign_o;
 rxcommadet_slv(0) <= rxcommadet_o;
@@ -261,7 +249,7 @@ port map (
    	probe0  => mgt_ready_slv and rx_link_ok_slv, 
 	probe1  => rx_link_ok_slv, 
 	probe2  => mgt_ready_slv, 
-	probe3  => eventr_pll_locked_slv, 
+	probe3  => "0", 
 	probe4  => rxdisperr, 
 	probe5  => rxnotintable, 
 	probe6  => rxdata, 
@@ -280,7 +268,8 @@ LINKUP(1) <= rx_link_ok_o;
 -- MGT ready 
 LINKUP(2) <= mgt_ready_o;
 LINKUP(3) <= '0';
-LINKUP(31 downto 4) <= error_cnt;
+LINKUP(31 downto 20) <=(others => '0');
+LINKUP(19 downto 4) <= err_cnt;
 UTIME <= utime_o;
 
 ---------------------------------------------------------------------------
@@ -296,7 +285,8 @@ port map (
 
     LINKUP            => LINKUP,
     UTIME             => UTIME,
-    EVENT_RESET       => EVENT_RESET,  
+    EVENT_RESET       => open,
+    EVENT_RESET_WSTB  => EVENT_RESET,    
     EVENT1            => EVENT1,
     EVENT1_WSTB       => open,
     EVENT2            => EVENT2,
