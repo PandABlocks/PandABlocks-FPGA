@@ -52,9 +52,8 @@ port (
     spi_sclk_i          : in  std_logic;
     spi_dat_i           : in  std_logic;
     -- External Clock
-    sma_pll_locked      : in  std_logic;
-    eventr_pll_locked   : in  std_logic;
-    ext_clock           : out std_logic_vector(1 downto 0)
+    sma_pll_locked_i    : in  std_logic;
+    ext_clock_o         : out std_logic_vector(1 downto 0)
         
 );
 end slowcont_top;
@@ -146,9 +145,8 @@ port map (
 ---------------------------------------------------------------------------
 -- External Clock registers 
 ---------------------------------------------------------------------------
-VEC_PLL_LOCKED(1) <= eventr_pll_locked;
-VEC_PLL_LOCKED(0) <= sma_pll_locked;
-ext_clock <= VEC_EXT_CLOCK(1 downto 0);
+VEC_PLL_LOCKED(0) <= sma_pll_locked_i;
+ext_clock_o <= VEC_EXT_CLOCK(1 downto 0);
 
 
 -- Noticed that the write ack in the slow_ctrl isnt connected but the SMA 
