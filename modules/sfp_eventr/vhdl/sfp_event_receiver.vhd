@@ -9,8 +9,8 @@ use unisim.vcomponents.all;
 entity sfp_event_receiver is
     port (GTREFCLK_P        : in  std_logic;
           GTREFCLK_N        : in  std_logic;    
-          EVENT_RESET       : in  std_logic;
-          eventr_clk        : in  std_logic;
+          event_reset_i     : in  std_logic;
+          event_clk_i       : in  std_logic;
           rxp_i             : in  std_logic;
           rxn_i             : in  std_logic;
           txp_o             : out std_logic; 
@@ -224,8 +224,8 @@ event_receiver_mgt_inst : event_receiver_mgt
     port map
         (
         SYSCLK_IN                   => GTREFCLK,
-        SOFT_RESET_TX_IN            => EVENT_RESET,
-        SOFT_RESET_RX_IN            => EVENT_RESET,
+        SOFT_RESET_TX_IN            => event_reset_i,
+        SOFT_RESET_RX_IN            => event_reset_i,
         DONT_RESET_ON_DATA_ERROR_IN => '0',
         GT0_TX_FSM_RESET_DONE_OUT   => GT0_TX_FSM_RESET_DONE_OUT,
         GT0_RX_FSM_RESET_DONE_OUT   => GT0_RX_FSM_RESET_DONE_OUT,
@@ -237,7 +237,7 @@ event_receiver_mgt_inst : event_receiver_mgt
         gt0_cpllfbclklost_out       => gt0_cpllfbclklost_out,
         gt0_cplllock_out            => gt0_cplllock_out,
         gt0_cplllockdetclk_in       => '0',
-        gt0_cpllreset_in            => EVENT_RESET,                                         
+        gt0_cpllreset_in            => event_reset_i,                                         
         -------------------------- Channel - Clocking Ports ------------------------
         gt0_gtrefclk0_in            => '0',
         gt0_gtrefclk1_in            => GTREFCLK,
@@ -258,8 +258,8 @@ event_receiver_mgt_inst : event_receiver_mgt
         gt0_eyescandataerror_out    => gt0_eyescandataerror_out,
         gt0_eyescantrigger_in       => '0',
         ------------------ Receive Ports - FPGA RX Interface Ports -----------------
-        gt0_rxusrclk_in             => eventr_clk,
-        gt0_rxusrclk2_in            => eventr_clk,
+        gt0_rxusrclk_in             => event_clk_i,
+        gt0_rxusrclk2_in            => event_clk_i,
         ------------------ Receive Ports - FPGA RX interface Ports -----------------
         gt0_rxdata_out              => gt0_rxdata_out,
         ----------------- Receiver Ports - RX 8B/10B Decoder Ports -----------------
@@ -282,7 +282,7 @@ event_receiver_mgt_inst : event_receiver_mgt
         --------------- Receive Ports - RX Fabric Output Control Ports -------------
         gt0_rxoutclk_out            => rxoutclk_o,
         ------------- Receive Ports - RX Initialization and Reset Ports ------------
-        gt0_gtrxreset_in            => EVENT_RESET,
+        gt0_gtrxreset_in            => event_reset_i,
         gt0_rxpmareset_in           => '0',
         ---------------------- Receive Ports - RX gearbox ports --------------------
 --        gt0_rxslide_in              => '0',
@@ -291,11 +291,11 @@ event_receiver_mgt_inst : event_receiver_mgt
         -------------- Receive Ports -RX Initialization and Reset Ports ------------
         gt0_rxresetdone_out         => gt0_rxresetdone_out,
         --------------------- TX Initialization and Reset Ports --------------------
-        gt0_gttxreset_in            => EVENT_RESET,
+        gt0_gttxreset_in            => event_reset_i,
         gt0_txuserrdy_in            => rx_link_ok_i,
         ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
-        gt0_txusrclk_in             => eventr_clk,
-        gt0_txusrclk2_in            => eventr_clk,
+        gt0_txusrclk_in             => event_clk_i,
+        gt0_txusrclk2_in            => event_clk_i,
         ------------------ Transmit Ports - TX Data Path interface -----------------
         gt0_txdata_in               => txdata_i,
         ---------------- Transmit Ports - TX Driver and OOB signaling --------------
