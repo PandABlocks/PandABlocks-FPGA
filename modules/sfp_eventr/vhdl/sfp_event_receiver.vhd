@@ -9,13 +9,13 @@ use unisim.vcomponents.all;
 entity sfp_event_receiver is
     port (GTREFCLK_P        : in  std_logic;
           GTREFCLK_N        : in  std_logic;    
-          ER_RESET          : in  std_logic;
+          EVENT_RESET       : in  std_logic;
           eventr_clk        : in  std_logic;
-          eventr_pll_locked : in  std_logic;
           rxp_i             : in  std_logic;
           rxn_i             : in  std_logic;
           txp_o             : out std_logic; 
-          txn_o             : out std_logic; 
+          txn_o             : out std_logic;
+          rx_link_ok_i      : in  std_logic; 
           rxbyteisaligned_o : out std_logic;
           rxbyterealign_o   : out std_logic;
           rxcommadet_o      : out std_logic;
@@ -24,7 +24,9 @@ entity sfp_event_receiver is
           rxcharisk_o       : out std_logic_vector(1 downto 0);
           rxdisperr_o       : out std_logic_vector(1 downto 0);
           mgt_ready_o       : out std_logic;
-          rxnotintable_o    : out std_logic_vector(1 downto 0)     
+          rxnotintable_o    : out std_logic_vector(1 downto 0);
+          txdata_i          : in  std_logic_vector(15 downto 0);
+          txcharisk_i       : in  std_logic_vector(1 downto 0)     
           );
 
 end sfp_event_receiver;
@@ -152,7 +154,6 @@ signal gt0_rxnotintable_out          : std_logic_vector(1 downto 0);
 signal gt0_rxmonitorout_out          : std_logic_vector(6 downto 0);
 signal gt0_rxcharisk_out             : std_logic_vector(1 downto 0);
 signal gt0_rxresetdone_out           : std_logic;
-signal gt0_txdata_in                 : std_logic_vector(15 downto 0);
 signal gt0_txoutclk_out              : std_logic;
 signal gt0_txoutclkfabric_out        : std_logic;
 signal gt0_txoutclkpcs_out           : std_logic;
@@ -162,7 +163,6 @@ signal gt0_rxbyterealign_out         : std_logic;
 signal gt0_rxcommadet_out            : std_logic;
 signal gt0_qplloutclk_in             : std_logic;
 signal gt0_qplloutrefclk_in          : std_logic;
-signal txcharisk_i                   : std_logic_vector(1 downto 0);   
 signal tied_to_ground_i              : std_logic;
 
 attribute syn_noclockbuf             : boolean;
@@ -184,9 +184,6 @@ rxdata_o <= gt0_rxdata_out;
 
 rxnotintable_o <= gt0_rxnotintable_out;
 
-
-txcharisk_i <= (others => '0');
-
 tied_to_ground_i <= '0';
 
 -- IBUFDS_GTE2  MGT differential clock
@@ -205,7 +202,7 @@ ps_linkup: process(GTREFCLK)
 begin
     if rising_edge(GTREFCLK) then
         if ( GT0_TX_FSM_RESET_DONE_OUT and GT0_RX_FSM_RESET_DONE_OUT and 
-             gt0_rxresetdone_out and gt0_txresetdone_out and eventr_pll_locked) = '1' then
+             gt0_rxresetdone_out and gt0_txresetdone_out) = '1' then
             mgt_ready_o <= '1';
         else
             mgt_ready_o <= '0';
@@ -218,10 +215,6 @@ begin
 data_valid <= '1';
 
 
--- TX data
-gt0_txdata_in <= (others => '0');
-
-
 -- If connected causes build to fail
 gt0_qplloutclk_in <= '0';
 gt0_qplloutrefclk_in <= '0';
@@ -231,8 +224,8 @@ event_receiver_mgt_inst : event_receiver_mgt
     port map
         (
         SYSCLK_IN                   => GTREFCLK,
-        SOFT_RESET_TX_IN            => ER_RESET,
-        SOFT_RESET_RX_IN            => ER_RESET,
+        SOFT_RESET_TX_IN            => EVENT_RESET,
+        SOFT_RESET_RX_IN            => EVENT_RESET,
         DONT_RESET_ON_DATA_ERROR_IN => '0',
         GT0_TX_FSM_RESET_DONE_OUT   => GT0_TX_FSM_RESET_DONE_OUT,
         GT0_RX_FSM_RESET_DONE_OUT   => GT0_RX_FSM_RESET_DONE_OUT,
@@ -244,7 +237,7 @@ event_receiver_mgt_inst : event_receiver_mgt
         gt0_cpllfbclklost_out       => gt0_cpllfbclklost_out,
         gt0_cplllock_out            => gt0_cplllock_out,
         gt0_cplllockdetclk_in       => '0',
-        gt0_cpllreset_in            => ER_RESET,                                         
+        gt0_cpllreset_in            => EVENT_RESET,                                         
         -------------------------- Channel - Clocking Ports ------------------------
         gt0_gtrefclk0_in            => '0',
         gt0_gtrefclk1_in            => GTREFCLK,
@@ -260,7 +253,7 @@ event_receiver_mgt_inst : event_receiver_mgt
         gt0_dmonitorout_out         => gt0_dmonitorout_out,
         --------------------- RX Initialization and Reset Ports --------------------
         gt0_eyescanreset_in         => '0',
-        gt0_rxuserrdy_in            => eventr_pll_locked,  
+        gt0_rxuserrdy_in            => rx_link_ok_i,  
         -------------------------- RX Margin Analysis Ports ------------------------
         gt0_eyescandataerror_out    => gt0_eyescandataerror_out,
         gt0_eyescantrigger_in       => '0',
@@ -289,7 +282,7 @@ event_receiver_mgt_inst : event_receiver_mgt
         --------------- Receive Ports - RX Fabric Output Control Ports -------------
         gt0_rxoutclk_out            => rxoutclk_o,
         ------------- Receive Ports - RX Initialization and Reset Ports ------------
-        gt0_gtrxreset_in            => ER_RESET,
+        gt0_gtrxreset_in            => EVENT_RESET,
         gt0_rxpmareset_in           => '0',
         ---------------------- Receive Ports - RX gearbox ports --------------------
 --        gt0_rxslide_in              => '0',
@@ -298,13 +291,13 @@ event_receiver_mgt_inst : event_receiver_mgt
         -------------- Receive Ports -RX Initialization and Reset Ports ------------
         gt0_rxresetdone_out         => gt0_rxresetdone_out,
         --------------------- TX Initialization and Reset Ports --------------------
-        gt0_gttxreset_in            => ER_RESET,
-        gt0_txuserrdy_in            => eventr_pll_locked,
+        gt0_gttxreset_in            => EVENT_RESET,
+        gt0_txuserrdy_in            => rx_link_ok_i,
         ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
         gt0_txusrclk_in             => eventr_clk,
         gt0_txusrclk2_in            => eventr_clk,
         ------------------ Transmit Ports - TX Data Path interface -----------------
-        gt0_txdata_in               => gt0_txdata_in,
+        gt0_txdata_in               => txdata_i,
         ---------------- Transmit Ports - TX Driver and OOB signaling --------------
         gt0_gtxtxn_out              => txn_o,
         gt0_gtxtxp_out              => txp_o,
