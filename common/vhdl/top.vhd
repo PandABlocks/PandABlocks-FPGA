@@ -303,7 +303,6 @@ signal sfp_bit3             : std_logic_vector(SFP_NUM-1 downto 0);
 signal sfp_bit4             : std_logic_vector(SFP_NUM-1 downto 0);    
 
 signal sma_pll_locked       : std_logic;
-signal eventr_pll_locked    : std_logic;
 signal ext_clock            : std_logic_vector(1 downto 0);
 
 -- Make schematics a bit more clear for analysis
@@ -1067,7 +1066,6 @@ port map (
     spi_dat_i           => SPI_DAT_I,
     -- External clock
     sma_pll_locked      => sma_pll_locked,
-    eventr_pll_locked   => eventr_pll_locked,
     ext_clock           => ext_clock
     
 );
@@ -1171,8 +1169,6 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
 
         -- sma PLL locked
         sma_pll_locked_o    => sma_pll_locked,    
-        -- Event Receiver PLL locked
-        eventr_pll_locked_o => eventr_pll_locked,
         -- sma and event receiver clock enables
         ext_clock           => ext_clock,
         
