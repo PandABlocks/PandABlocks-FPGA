@@ -196,6 +196,22 @@ set_property -dict [list \
 generate_target all [get_files $BUILD_DIR/ila_0/ila_0.xci]
 synth_ip [get_ips ila_0]
 
+#
+# Create Memory
+create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.2 \
+-module_name sfp_transmit_mem -dir $BUILD_DIR/
+
+set_property -dict [list                                                            \
+    CONFIG.Write_Depth_A {4096}                                                     \
+    CONFIG.Operating_Mode_A {READ_FIRST}                                            \
+    CONFIG.Load_Init_File {true}                                                    \
+    CONFIG.Coe_File {../../../../tests/sim/sfp_receiver/mem/event_receiver_mem.coe} \
+    CONFIG.Use_RSTA_Pin {false}                                                     \
+] [get_ips sfp_transmit_mem]
+
+generate_target all [get_files $BUILD_DIR/sfp_transmit_mem/sfp_transmit_mem.xci]
+synth_ip [get_ips sfp_transmit_mem]
+
 
 # Close project
 close_project
