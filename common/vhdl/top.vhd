@@ -1065,8 +1065,8 @@ port map (
     spi_sclk_i          => SPI_SCLK_I,
     spi_dat_i           => SPI_DAT_I,
     -- External clock
-    sma_pll_locked      => sma_pll_locked,
-    ext_clock           => ext_clock
+    sma_pll_locked_i    => sma_pll_locked,
+    ext_clock_o         => ext_clock
     
 );
 
@@ -1152,10 +1152,10 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         clk_i               => FCLK_CLK0,
         reset_i             => FCLK_RESET0,
         
-        FCLK_CLK0_PS        => FCLK_CLK0_PS,
+        fclk_clk0_ps_i      => FCLK_CLK0_PS,
         EXTCLK_P            => EXTCLK_P,
         EXTCLK_N            => EXTCLK_N,
-        FCLK_CLK0           => FCLK_CLK0,
+        fclk_clk0_o         => FCLK_CLK0,
 
         read_strobe_i       => read_strobe(SFP_CS),
         read_address_i      => read_address,
@@ -1170,7 +1170,7 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         -- sma PLL locked
         sma_pll_locked_o    => sma_pll_locked,    
         -- sma and event receiver clock enables
-        ext_clock           => ext_clock,
+        ext_clock_i         => ext_clock,
         
         bit1_o              => sfp_bit1(0),
         bit2_o              => sfp_bit2(0),
