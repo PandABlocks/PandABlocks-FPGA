@@ -12,5 +12,5 @@ SLOW        Slow control FPGA
     FMC_15VP        On-board voltage sensor values
     ENC_24V         On-board voltage sensor values
     FMC_12V         On-board voltage sensor values
-    PLL_LOCKED      PLL locked for SMA external and event receiver clocks
+    PLL_LOCKED      PLL locked for SMA external clock
     EXT_CLOCK       External sma and event receiver clock enables
