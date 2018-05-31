@@ -9,6 +9,7 @@ entity sfp_receiver is
     port (clk_i              : in  std_logic;
           reset_i            : in  std_logic;
           rxdisperr_i        : in  std_logic_vector(1 downto 0);
+          rxcharisk_i        : in  std_logic_vector(1 downto 0);   
           rxdata_i           : in  std_logic_vector(15 downto 0);
           rxnotintable_i     : in  std_logic_vector(1 downto 0);
           EVENT1             : in  std_logic_vector(31 downto 0);
@@ -16,11 +17,12 @@ entity sfp_receiver is
           EVENT3             : in  std_logic_vector(31 downto 0);
           EVENT4             : in  std_logic_vector(31 downto 0);
           rx_link_ok_o       : out std_logic;
+          loss_lock_o        : out std_logic;     
+          rx_error_o         : out std_logic;
           bit1_o             : out std_logic;
           bit2_o             : out std_logic;
           bit3_o             : out std_logic;
           bit4_o             : out std_logic;
-          error_cnt_o        : out std_logic_vector(27 downto 0);
           utime_o            : out std_logic_vector(31 downto 0)
           );
 
@@ -51,13 +53,12 @@ signal event            : t_event;
 signal dbus_comp        : t_dbus_comp;
 signal rx_error         : std_logic;
 signal loss_lock        : std_logic;
-signal rx_link_ok       : std_logic; 
+signal rx_link_ok       : std_logic;
 signal rx_error_count   : unsigned(5 downto 0);
 signal prescaler        : unsigned(9 downto 0);
 signal event_bits       : std_logic_vector(events-1 downto 0);    
 signal utime_shift_reg  : std_logic_vector(31 downto 0);
 signal disable_link     : std_logic;
-signal error_cnt        : unsigned(27 downto 0);
 
 begin
 
@@ -98,9 +99,8 @@ begin
 --  --------------------------------------------------	        
 
 rx_link_ok_o <= rx_link_ok;
-
-
-error_cnt_o <= std_logic_vector(error_cnt);
+loss_lock_o <= loss_lock;
+rx_error_o <= rx_error; 
 
 
 -- Unix time 
@@ -158,18 +158,13 @@ begin
                 -- DBUS         RXDATA(15 downto 8)    1 = DBUS
                 -- EVENT_CODES  RXDATA(7 downto 0)     0 = EVENT_CODES
                 -- DBus these are bit comparisons
-                if (event(i)(8) = '1' and dbus_comp(i) /= x"00") or
-                   (event(i)(8) = '0' and (event(i)(7 downto 0) = rxdata_i(7 downto 0) and rxdata_i(7 downto 0) /= x"00")) then
-                   if rxnotintable_i /= "00" and rxdisperr_i /= "00" then
-                        error_cnt <= error_cnt +1;
-                   end if;     
-                     event_bits(i) <= '1';                                
+                if (event(i)(8) = '1' and dbus_comp(i) /= x"00" and rxcharisk_i(1) = '0') or
+                   (event(i)(8) = '0' and event(i)(7 downto 0) = rxdata_i(7 downto 0) and rxdata_i(7 downto 0) /= x"00" and rxcharisk_i(0) = '0') then
+                    event_bits(i) <= '1';                                
                 else
                     event_bits(i) <= '0';    
                 end if;
             end loop lp_events;
-        else
-            error_cnt <= (others => '0');
         end if;
     end if;                                                    
 end process ps_event_dbus;
