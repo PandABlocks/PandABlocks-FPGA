@@ -17,6 +17,8 @@ INENC       Input encoder
     CLK_PERIOD      Clock rate
     FRAME_PERIOD    Frame rate
     BITS            Number of bits
+    LSB_DISCARD     Number of LSB bits to discard
+    MSB_DISCARD     Number of MSB bits to discard
     SETP            Set point
     RST_ON_Z        Zero position on Z rising edge
     STATUS          Encoder status read from device
@@ -42,5 +44,6 @@ OUTENC      Output encoder
     CLK             Clock input from master encoder
     VAL             Input for position (all other protocols)
     CONN            Input for connected
+    DCARD_ID        Daughter card jumper mode
     QSTATE          Quadrature state
 

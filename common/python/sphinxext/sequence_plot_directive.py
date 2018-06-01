@@ -304,9 +304,14 @@ def setup(app):
 
     app.add_directive('sequence_plot', sequence_plot_directive)
 
-    app.add_node(table_plot_node, html=(visit_table_plot, depart_table_plot))
-    app.add_node(sequence_plot_node, html=(visit_sequence_plot,
-                                           depart_sequence_plot))
+    app.add_node(table_plot_node,
+            html=(visit_table_plot, depart_table_plot),
+            latex=(visit_table_plot, depart_table_plot),
+            text=(visit_table_plot, depart_table_plot))
+    app.add_node(sequence_plot_node,
+            html=(visit_sequence_plot, depart_sequence_plot),
+            latex=(visit_sequence_plot, depart_sequence_plot),
+            text=(visit_sequence_plot, depart_sequence_plot))
 
 def visit_sequence_plot(self, node):
     pass

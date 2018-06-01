@@ -22,6 +22,7 @@ parser.add_argument('config_dir', help='Path to configuration directory')
 args = parser.parse_args()
 
 sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from simulation.server import Server
 from simulation.controller import Controller

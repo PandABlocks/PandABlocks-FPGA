@@ -40,6 +40,12 @@ wire [31:0] posn_1;
 wire [31:0] STATUS_0;
 wire [31:0] STATUS_1;
 
+wire link_up_o1;
+wire link_up_o2;
+wire error_o1;
+wire error_o2;
+
+
 integer fid_0, fid_1, r;
 
 always #4 clk_i = ~clk_i;
@@ -55,10 +61,8 @@ biss_sniffer uut_0 (
     .clk_i      ( clk_i         ),
     .reset_i    ( reset_i       ),
     .BITS       ( BITS          ),
-    //.STATUS     ( STATUS_0      ),
-    //.STATUS_RSTB( STATUS_RSTB   ),
-    .link_up_o  ( link_up_o     ),
-    .error_o    ( error_o       ), 
+    .link_up_o  ( link_up_o1    ),
+    .error_o    ( error_o1      ), 
     .ssi_sck_i  ( ssi_sck_0     ),
     .ssi_dat_i  ( ssi_dat_0     ),
     .posn_o     ( posn_0        )
@@ -69,10 +73,8 @@ biss_sniffer uut_1 (
     .clk_i      ( clk_i         ),
     .reset_i    ( reset_i       ),
     .BITS       ( BITS          ),
-    //.STATUS     ( STATUS_1      ),
-    //.STATUS_RSTB( STATUS_RSTB   ),
-    .link_up_o  ( link_up_o     ),
-    .error_o    ( error_o       ), 
+    .link_up_o  ( link_up_o2    ),
+    .error_o    ( error_o2      ), 
     .ssi_sck_i  ( ssi_sck_1     ),
     .ssi_dat_i  ( ssi_dat_1     ),
     .posn_o     ( posn_1        )

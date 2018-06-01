@@ -735,6 +735,7 @@ port map (
     --
     sysbus_i            => sysbus,
     posbus_i            => posbus,
+    DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => OUTPROT
 );
 

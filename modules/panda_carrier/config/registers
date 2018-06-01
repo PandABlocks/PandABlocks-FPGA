@@ -17,6 +17,8 @@ INENC       {{newBlockNo("INENC")}}
     CLK_PERIOD      {{newBlockReg()}}
     FRAME_PERIOD    {{newBlockReg()}}
     BITS            {{newBlockReg()}}
+    LSB_DISCARD     {{newBlockReg()}}
+    MSB_DISCARD     {{newBlockReg()}}
     SETP            {{newBlockReg()}}
     RST_ON_Z        {{newBlockReg()}}
     STATUS          {{newBlockReg()}}
@@ -42,5 +44,6 @@ OUTENC      {{newBlockNo("OUTENC")}}
     CLK             {{newBitBus()}}
     VAL             {{newBlockReg()}}
     CONN            {{newBlockReg(typ='bit_mux')}}
+    DCARD_ID        {{newBlockReg()}}
     QSTATE          {{newBlockReg()}}
 

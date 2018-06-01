@@ -16,7 +16,6 @@ DEVTREE_VER = $(VIVADO_VER)
 
 VIVADO = /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh
 ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
-TAR_REPO = /dls_sw/FPGA/Xilinx/OSLinux/tar-balls
 
 PANDA_ROOTFS = /home/tmc43/common/PandABlocks-rootfs
 
