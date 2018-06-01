@@ -184,6 +184,9 @@ attribute IOB       of DAC_SYNC_n       : signal is "true";
 
 begin
 
+-- Acknowledgement to AXI Lite interface
+write_ack_o <= '1';
+
 ---------------------------------------------------------------------------------------
 -- Translate the FMC pin names into ACQ427FMC names
 ---------------------------------------------------------------------------------------
@@ -297,7 +300,7 @@ port map (
     write_strobe_i      => write_strobe_i,
     write_address_i     => write_address_i(BLK_AW-1 downto 0),
     write_data_i        => write_data_i,
-    write_ack_o         => write_ack_o
+    write_ack_o         => open
 );
 
 FMC_MODULE_ENABLE_n <= not MODULE_ENABLE(0);
