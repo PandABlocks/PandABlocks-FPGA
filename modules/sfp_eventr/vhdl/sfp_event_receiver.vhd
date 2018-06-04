@@ -198,9 +198,9 @@ gtrefclk_ibufgds : IBUFDS_GTE2
 
 
 -- Indicates when the link is up when the rx and tx reset have finished 
-ps_linkup: process(GTREFCLK)
+ps_linkup: process(event_clk_i)
 begin
-    if rising_edge(GTREFCLK) then
+    if rising_edge(event_clk_i) then
         if ( GT0_TX_FSM_RESET_DONE_OUT and GT0_RX_FSM_RESET_DONE_OUT and 
              gt0_rxresetdone_out and gt0_txresetdone_out) = '1' then
             mgt_ready_o <= '1';
