@@ -9,9 +9,9 @@ ARCHITECTURE behavior OF panda_ssi_tb IS
 
 signal clk_i : std_logic := '1';
 signal reset_i : std_logic := '1';
-signal enc_bits_i : std_logic_vector(7 downto 0) := (others => '0');
-signal sclk_presc_i : std_logic_vector(31 downto 0) := (others => '0');
-signal enc_rate_i : std_logic_vector(31 downto 0) := (others => '0');
+signal BITS : std_logic_vector(7 downto 0) := (others => '0');
+signal CLK_PERIOD : std_logic_vector(31 downto 0) := (others => '0');
+signal FRAME_PERIOD : std_logic_vector(31 downto 0) := (others => '0');
 signal posn_o : std_logic_vector(31 downto 0);
 signal posn_valid_o : std_logic;
 
@@ -28,28 +28,28 @@ BEGIN
 clk_i <= not clk_i after 4 ns;
 reset_i <= '0' after 1000 ns;
 
-enc_bits_i   <= std_logic_vector(to_unsigned(24, 8));
-sclk_presc_i <= std_logic_vector(to_unsigned(125, 32));
-enc_rate_i   <= std_logic_vector(to_unsigned(12500, 32));
+BITS   <= std_logic_vector(to_unsigned(24, 8));
+CLK_PERIOD <= std_logic_vector(to_unsigned(125, 32));
+FRAME_PERIOD   <= std_logic_vector(to_unsigned(12500, 32));
 
-master : entity work.panda_ssimstr
+master : entity work.ssi_master
 PORT MAP (
     clk_i           => clk_i,
     reset_i         => reset_i,
-    enc_bits_i      => enc_bits_i,
-    sclk_presc_i    => sclk_presc_i,
-    enc_rate_i      => enc_rate_i,
+    BITS            => BITS,
+    CLK_PERIOD      => CLK_PERIOD,
+    FRAME_PERIOD    => FRAME_PERIOD,
     ssi_sck_o       => master_scko,
     ssi_dat_i       => master_dati,
     posn_o          => posn_o,
     posn_valid_o    => posn_valid_o
 );
 
-slave : entity work.panda_ssislv
+slave : entity work.ssi_slave
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
-    enc_bits_i      => enc_bits_i,
+    BITS            => BITS,
     ssi_sck_i       => slave_scki,
     ssi_dat_o       => slave_dato,
     posn_i          => position
