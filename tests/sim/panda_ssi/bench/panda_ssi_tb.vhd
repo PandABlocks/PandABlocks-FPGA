@@ -23,6 +23,10 @@ signal master_scko      : std_logic;
 signal slave_dato       : std_logic;
 signal slave_scki       : std_logic;
 signal cable_connected  : std_logic;
+signal posn_valid_dly   : std_logic;
+signal result_valid     : std_logic_vector(1 downto 0);
+signal err              : std_logic;
+
 BEGIN
 
 clk_i <= not clk_i after 4 ns;
@@ -65,6 +69,27 @@ process(clk_i) begin
     end if;
 end process;
 
+process(clk_i) begin
+    if rising_edge(clk_i) then
+        posn_valid_dly <= posn_valid_o;
+        if (cable_connected = '1') then 
+            if (posn_valid_o = '1') then
+                result_valid <= result_valid(0) & '1';
+            end if;
+        else
+            result_valid <= (others => '0');
+        end if;            
+            
+        if (posn_valid_dly = '1') then
+            if (position /= posn_o and result_valid(1) = '1' and posn_valid_dly = '1') then        
+                report " Received data isn't the same as expected data " severity error;
+                err <= '1';
+            else
+                err <= '0';    
+            end if;
+        end if;        
+    end if;
+end process;            
 
 -- Data is always connected since its is tied to clock.
 master_dati <= slave_dato;

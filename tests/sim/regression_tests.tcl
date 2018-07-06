@@ -8,20 +8,31 @@
 
   
 # Tests
-# 1.  adder_tb          -- There is a one or two clock difference betweemn vhd and python modules
+# 1.  adder_tb          -- There is a one or two clock difference between vhd and python modules
+#                       -- the testbench that runs here is a vhdl one    
 # 2.  panda_srgate_tb   -- Works      
 # 3.  panda_pulse_tb    -- Works 
 # 4.  panda_pcomp_tb    -- Works
 # 5.  pcap_core_tb      -- Works
-# 6.  panda_lut_tb      -- WORKS
-# 7.  panda_div_tb      -- WORKS
+# 6.  panda_lut_tb      -- Works
+# 7.  panda_div_tb      -- Works
 # 8.  panda_clock_tb    -- Works  
 # 9.  panda_filter      -- Works
 # 10. panda_sequnecer   -- Works  
 # 11. panda_bits_tb     -- Works
 # 12. panda_counter_tb  -- Works
-# 13. panda_pgen_tb     -- Index to a text file 
+# 13. panda_pgen_tb     -- Index to a text file in pgen_reg_in.txt (PGEN_1000.txt)
 
+
+# Additional tests 
+# 1. panda_biss         -- There are two tests in here 
+#                       -- Test 1 verilog textio two biss sniffers
+#                       -- Test 2 vhdl Master and Slave connected together random input data and BITS
+# 2. panda_inenc        -- Inenc module level test contains a biss_sniffer it compiles, run and checks results tcl script    
+# 3. panda_outenc       -- 
+# 4. panda_slowctrl     -- ERROR: formal port inenc_protocol of mode out cannot be associated with actual port inenc_protocol of mode buffer [/home/zhz92437/code_panda/PandaFPGA/SlowFPGA/src/hdl/zynq_interface.vhd:119]
+#                       -- ERROR: formal port outenc_protocol of mode out cannot be associated with actual port outenc_protocol of mode buffer [/home/zhz92437/code_panda/PandaFPGA/SlowFPGA/src/hdl/zynq_interface.vhd:120] 
+# 5. panda_status       -- Don't know what this was testing                                      
 
 # Create a vivado project called regression_tests
 create_project regression_tests ../../build/tests/regression_tests -force -part xc7z030sbg485-1 

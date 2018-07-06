@@ -32,7 +32,8 @@ reg ssi_sck_0;
 reg ssi_dat_0;
 reg ssi_sck_1;
 reg ssi_dat_1;
-reg STATUS_RSTB = 0;
+reg STATUS_RSTB_0 = 0;
+reg STATUS_RSTB_1 = 0; 
 
 // Outputs
 wire [31:0] posn_0;
@@ -45,6 +46,17 @@ wire link_up_o2;
 wire error_o1;
 wire error_o2;
 
+wire result_ready_0;
+wire result_ready_1;
+wire [31:0] data_result_0;
+wire [31:0] data_result_1;
+wire [5:0]  CRC_data_0;
+wire [5:0]  CRC_data_1;
+
+reg err_0;
+reg err_1;
+
+reg test_result = 0;
 
 integer fid_0, fid_1, r;
 
@@ -87,7 +99,7 @@ initial begin
 
     // Clear STATUS first thing
     repeat (10) @(posedge clk_i);
-    STATUS_RSTB <= 1'b1;@(posedge clk_i);STATUS_RSTB <= 1'b0;
+    STATUS_RSTB_0 <= 1'b1;@(posedge clk_i);STATUS_RSTB_0 <= 1'b0;
 
     repeat (50) @(posedge clk_i);
     fid_0 = $fopen("biss0.prn", "r");
@@ -98,16 +110,22 @@ initial begin
         @(posedge clk_i);
     end
 
-    repeat (1250) @(posedge clk_i);
-    STATUS_RSTB <= 1'b1;@(posedge clk_i);STATUS_RSTB <= 1'b0;
-    repeat (12500) @(posedge clk_i);
-    $finish;
+//    repeat (1250) @(posedge clk_i);
+    repeat (1000) @(posedge clk_i);
+    STATUS_RSTB_0 <= 1'b1;@(posedge clk_i);STATUS_RSTB_0 <= 1'b0;
+//    repeat (12500) @(posedge clk_i);
+    repeat (10000) @(posedge clk_i);   
+//    $finish;
 end
 
 // Channel 1
 initial begin
     ssi_sck_1 = 1;
     ssi_dat_1 = 1;
+
+    // Clear STATUS first thing
+    repeat (10) @(posedge clk_i);
+    STATUS_RSTB_1 <= 1'b1;@(posedge clk_i);STATUS_RSTB_1 <= 1'b0;   
 
     repeat (50) @(posedge clk_i);
     fid_1 = $fopen("biss2.prn", "r");
@@ -118,11 +136,59 @@ initial begin
         @(posedge clk_i);
     end
 
-    repeat (1250) @(posedge clk_i);
-    STATUS_RSTB <= 1'b1;@(posedge clk_i);STATUS_RSTB <= 1'b0;
-    repeat (12500) @(posedge clk_i);
+//    repeat (1250) @(posedge clk_i);
+    repeat (1000) @(posedge clk_i);    
+    STATUS_RSTB_1 <= 1'b1;@(posedge clk_i);STATUS_RSTB_1 <= 1'b0;
+//    repeat (12500) @(posedge clk_i);
+    repeat (10000) @(posedge clk_i);
     $finish;
 end
 
-endmodule
+//  Instantiate BiSS result generator 1
+biss_result uut2 (
+    .clk_i          ( clk_i          ),
+    .reset_i        ( reset_i        ),
+    .ssi_sck_i      ( ssi_sck_0      ),
+    .ssi_dat_i      ( ssi_dat_0      ),
+    .BITS           ( BITS           ),
+    .result_ready   ( result_ready_0 ),
+    .data_result    ( data_result_0  ),          
+    .CRC_data       ( CRC_data_0     )   
+);
 
+//  Instantiate BiSS result generator 2 
+biss_result uut3 (
+    .clk_i          ( clk_i          ),
+    .reset_i        ( reset_i        ),
+    .ssi_sck_i      ( ssi_sck_1      ),
+    .ssi_dat_i      ( ssi_dat_1      ),
+    .BITS           ( BITS           ),   
+    .result_ready   ( result_ready_1 ),
+    .data_result    ( data_result_1  ),
+    .CRC_data       ( CRC_data_1     )          
+);
+
+
+always @(posedge clk_i)
+begin
+    if (result_ready_0 == 1) begin
+        if (data_result_0 != posn_0) begin
+            err_0 <= 1;
+            test_result <= 1;
+            $display("BiSS Sniffer 0 result different from expected result %d,%d\n", data_result_1,posn_0);    
+        end else begin
+            err_0 <= 0;
+        end     
+    end
+    if (result_ready_1 == 1) begin    
+        if (data_result_1 != posn_1) begin
+            err_1 <= 1;
+            test_result <= 1;
+            $display("BiSS Sniffer 1 result different from expected result %d, %d\n", data_result_1, posn_1);
+        end else begin
+            err_1 <= 0;
+        end    
+    end
+end                         
+
+endmodule
