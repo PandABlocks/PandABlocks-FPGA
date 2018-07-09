@@ -47,7 +47,9 @@ set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 read_ip $BUILD_DIR/ip_repo/pulse_queue/pulse_queue.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32/fifo_1K32.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32_ft/fifo_1K32_ft.xci
-add_files -norecurse $BUILD_DIR/ip_repo/ila_32x8K/ila_32x8K.xci
+if {$SFP_DESIGN == "sfp_udpontrig"} {
+   read_ip $BUILD_DIR/ip_repo/ila_32x8K/ila_32x8K.xci
+}
 read_ip $BUILD_DIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
 if {$SFP_DESIGN == "sfp_loopback"} {
     read_ip $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
