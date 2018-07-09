@@ -79,11 +79,17 @@ record
 end record;
 type slow_packet_array is array(natural range <>) of slow_packet;
 
+subtype std2_t is std_logic_vector(1 downto 0);
+type std2_array is array(natural range <>) of std2_t;
+
 subtype std3_t is std_logic_vector(2 downto 0);
 type std3_array is array(natural range <>) of std3_t;
 
 subtype std4_t is std_logic_vector(3 downto 0);
 type std4_array is array(natural range <>) of std4_t;
+
+subtype unsigned4_t is unsigned(3 downto 0);
+type unsigned4_array is array(natural range <>) of unsigned4_t;
 
 subtype std8_t is std_logic_vector(7 downto 0);
 type std8_array is array(natural range <>) of std8_t;
@@ -93,6 +99,12 @@ type std16_array is array(natural range <>) of std16_t;
 
 subtype std32_t is std_logic_vector(31 downto 0);
 type std32_array is array(natural range <>) of std32_t;
+
+subtype unsigned32_t is unsigned(31 downto 0);
+type unsigned32_array is array(natural range <>) of unsigned32_t;
+
+subtype std48_t is std_logic_vector(47 downto 0);
+type std48_array is array(natural range <>) of std48_t;
 
 subtype page_t is std_logic_vector(PAGE_AW-1 downto 0);
 type page_array is array(natural range <>) of page_t;

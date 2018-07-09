@@ -107,6 +107,65 @@ set_property -dict [list \
 
 generate_target all [get_files $BUILD_DIR/sfpgtx/sfpgtx.xci]
 synth_ip [get_ips sfpgtx]
+#
+# Create Eth Phy for sfp
+#
+create_ip -name gig_ethernet_pcs_pma -vendor xilinx.com -library ip -version 15.0 \
+-module_name eth_phy -dir $BUILD_DIR/
+
+set_property -dict [list \
+    CONFIG.SupportLevel {Include_Shared_Logic_in_Example_Design} \
+    CONFIG.Management_Interface {false} \
+    CONFIG.Auto_Negotiation {false} \
+    CONFIG.EMAC_IF_TEMAC {TEMAC} \
+] [get_ips eth_phy]
+
+report_compile_order -constraints
+
+generate_target all [get_files $BUILD_DIR/eth_phy/eth_phy.xci]
+
+report_property [get_ips eth_phy]  
+get_property KNOWN_TARGETS [get_ips eth_phy] 
+
+#To capture the XDC file names of the IP in a Tcl variable 
+set eth_phy_xdc [get_files -of_objects [get_files $BUILD_DIR/eth_phy/eth_phy.xci] -filter {FILE_TYPE == XDC}] 
+#To disable the XDC files
+set_property is_enabled false [get_files $eth_phy_xdc]
+synth_ip [get_ips eth_phy]
+report_compile_order -constraints
+
+#
+# Create Eth Mac for sfp
+#
+
+create_ip -name tri_mode_ethernet_mac -vendor xilinx.com -library ip -version 9.0 \
+-module_name eth_mac -dir $BUILD_DIR/
+
+
+#shared logic inside of core
+# CONFIG.Physical_Interface {GMII} \ phy_eth is internal (no IOB or idelay in pad) CONFIG.Physical_Interface {Internal} 
+
+set_property -dict [list \
+    CONFIG.Physical_Interface {Internal} \
+    CONFIG.MAC_Speed {1000_Mbps}         \
+    CONFIG.Management_Interface {false}  \
+    CONFIG.Management_Frequency {125.00} \
+    CONFIG.Enable_Priority_Flow_Control {false} \
+    CONFIG.Frame_Filter {false}          \
+    CONFIG.Number_of_Table_Entries {0}   \
+    CONFIG.Enable_MDIO {false}           \
+    CONFIG.SupportLevel {1}              \
+    CONFIG.Make_MDIO_External {false}    \
+    CONFIG.Statistics_Counters {false}   \
+] [get_ips eth_mac]
+
+
+report_property [get_ips eth_mac]
+
+generate_target all [get_files $BUILD_DIR/eth_mac/eth_mac.xci]
+
+synth_ip [get_ips eth_mac]
+
 
 #
 # Create SlowFPGA Command FIFO
@@ -122,6 +181,20 @@ set_property -dict [list \
 
 generate_target all [get_files $BUILD_DIR/slow_cmd_fifo/slow_cmd_fifo.xci]
 synth_ip [get_ips slow_cmd_fifo]
+
+#
+# Create ILA IP (32-bit wide with 8K Depth)
+#
+create_ip -name ila -vendor xilinx.com -library ip -version 5.1 \
+-module_name ila_32x8K -dir $BUILD_DIR/
+
+set_property -dict [list \
+    CONFIG.C_PROBE0_WIDTH {32}  \
+    CONFIG.C_DATA_DEPTH {8192}  \
+] [get_ips ila_32x8K]
+
+generate_target all [get_files $BUILD_DIR/ila_32x8K/ila_32x8K.xci]
+synth_ip [get_ips ila_32x8K]
 
 # Close project
 close_project

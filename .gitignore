@@ -1,7 +1,14 @@
 /CONFIG
 /build
+/build*
 *.pyc
 *~
+# Xilinx working files
+*.log
+/.Xil
+*.xreport
+*.jou
+*.str
 tests/fpga_sequences
 /CarrierFPGA/output/
 /CarrierFPGA/sim/panda_top/bench/zynq_model/
