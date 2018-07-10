@@ -9,7 +9,8 @@
   
 # Tests
 # 1.  adder_tb          -- There is a one or two clock difference between vhd and python modules
-#                       -- the testbench that runs here is a vhdl one    
+#                       -- the testbench that runs here is a vhdl one. The veriolg one does match 
+#                       -- the python reference module.     
 # 2.  panda_srgate_tb   -- Works      
 # 3.  panda_pulse_tb    -- Works 
 # 4.  panda_pcomp_tb    -- Works
