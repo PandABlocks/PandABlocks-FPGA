@@ -42,11 +42,6 @@ set val1 0;
 set val2 0;
 set val3 0;
 
-set bits_val0 32;
-set bits_val1 24;
-set bits_val2 16;
-set bits_val3 8;
-
 
 # Count from 0 to 7
 while {$loop_cnt < 8} {
@@ -96,21 +91,21 @@ while {$loop_cnt < 8} {
     # Check the BITS for component 3
     set val3 [get_value bits3];
     
-    puts " $val0 ";
-    puts " $val1 ";
-    puts " $val2 ";
-    puts " $val3 ";
+    puts " $val0 BITS ";
+    puts " $val1 BITS ";
+    puts " $val2 BITS ";
+    puts " $val3 BITS ";
     
 
     # Check the error signal  
     # If it has failed increment passed variable
     if {$result_from_test == 1} {
         incr test_passed +1;
-        puts " Test has passed ";               
+        puts " Test has passed using $val0, $val1, $val2, $val3 BITS ";               
     # Else it has passed increment failed variable
     } else {
         incr test_failed +1;
-        puts " Test has failed ";
+        puts " Test has failed  using $val0, $val1, $val2, $val3 BITS ";
     }
     
     close_sim
@@ -120,6 +115,10 @@ while {$loop_cnt < 8} {
 }
 
 # Print the number of tests passed or failed
-puts "Test passed $test_passed";
-puts "Test failed $test_failed";
+if {$test_passed != 0} {
+    puts "Test passed $test_passed";
+}
+if {$test_failed != 0} {
+    puts "Test failed $test_failed";
+}
 
