@@ -64,9 +64,6 @@ signal test_result : std_logic := '0';
 
 BEGIN
 
---clk_i <= not clk_i after 4 ns;
---reset_i <= '0' after 100 us;
-
 
 process
 begin
