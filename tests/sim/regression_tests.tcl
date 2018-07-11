@@ -49,9 +49,11 @@ set test_failed are;
 
 # Test array (add test here)
 array set tests { 
+        biss_master_slave_tb 14
+        biss_sniffer_tb 13  
         panda_bits_tb 12
         panda_counter_tb 11    
-        panda_sequencer_2tb 10
+        panda_sequencer_tb 10
         panda_filter_tb 9
         panda_clocks_tb 8
         panda_div_tb 7
@@ -70,14 +72,22 @@ source "../../tests/sim/update_textio.tcl"
 
 # Load all the source files
 add_files -norecurse {../../modules/filter/vhdl/divider.vhd
+../../common/vhdl/prescaler.vhd
+../../common/vhdl/shifter_in.vhd
+../../common/vhdl/serial_link_detect.vhd
+../../common/vhdl/biss_crc.vhd
+../../common/vhdl/biss_clock_gen.vhd
+../../common/vhdl/biss_master.vhd
+../../common/vhdl/biss_slave.vhd
+../../common/vhdl/biss_sniffer.vhd
+../../tests/sim/panda_biss/bench/biss_result.v
 ../../modules/filter/vhdl/filter.vhd
-../../modules/clocks/vhdl/clocks.vhd
 ../../modules/clocks/vhdl/clocks.vhd
 ../../modules/pcomp/vhdl/pcomp.vhd
 ../../common/vhdl/defines/support.vhd
 ../../modules/pulse/vhdl/pulse.vhd
 ../PandABox/ip_repo/pulse_queue/pulse_queue_funcsim.vhdl
-../../modules/div/vhdl/div.vhd 
+../../modules/div/vhdl/div.vhd
 ../../modules/lut/vhdl/lut.vhd
 ../../modules/pcomp/vhdl/pcomp_table.vhd
 ../../modules/srgate/vhdl/srgate.vhd
@@ -110,14 +120,13 @@ add_files -fileset sim_1 -norecurse {../../tests/sim/panda_pulse/bench/panda_pul
 ../../tests/sim/panda_lut/bench/panda_lut_tb.v
 ../../tests/sim/panda_srgate/bench/panda_srgate_tb.v
 ../../tests/sim/panda_adder/bench/adder_tb.vhd
-../../tests/sim/panda_pulse/bench/panda_pulse_tb.v
 ../../tests/sim/panda_pcap/bench/pcap_core_wrapper.vhd
 ../../tests/sim/panda_pcap/bench/pcap_core_tb.v
-../../tests/sim/panda_pcap/bench/pcap_core_2tb.v
 ../../tests/sim/panda_sequencer/bench/panda_sequencer_tb.v
-../../tests/sim/panda_sequencer/bench/panda_sequencer_2tb.v
 ../../tests/sim/panda_counter/bench/panda_counter_tb.v
 ../../tests/sim/panda_bits/bench/panda_bits_tb.v
+../../tests/sim/panda_biss/bench/biss_sniffer_tb.v
+../../tests/sim/panda_biss/bench/biss_master_slave_tb.vhd
 }
 
 

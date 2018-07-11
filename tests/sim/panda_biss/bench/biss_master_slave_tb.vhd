@@ -33,11 +33,25 @@ signal biss_sck_rising_edge : std_logic;
 signal test_cnt             : natural := 0;
 signal test_result          : std_logic;
 
+signal stop                 : std_logic := '0';
 
 begin
  
 
-clk_i <= not clk_i after 4ns; 
+process
+begin
+    -- Stop the clock after 100 tests have run
+    -- doing this allows the tcl script to run 
+    -- and stop and not run forever      
+    while stop = '0' loop
+        clk_i <= not clk_i;
+        wait for 4 ns;
+        clk_i <= not clk_i;
+        wait for 4 ns;
+    end loop;
+    wait;
+end process;
+    
 
 
 ps_reset: process
@@ -137,7 +151,13 @@ begin
             else
                 report " Test " & integer'image(test_cnt) & " has passed using " & integer'image(to_integer(unsigned(test_bits))) & " number of bits" severity note; 
                 err <= '0';    
-            end if;    
+            end if;
+        end if;        
+        -- Kill the sim after 100 tests have run    
+        if test_cnt = 100 then
+            stop <= '1';
+        else
+            stop <= '0';
         end if;        
     end if;
 end process ps_check_data;

@@ -70,7 +70,7 @@ launch_simulation
 
 
 # Run for 5 milliseconds
-run 5ms
+run -all
 
 # Capture the result of the test and how many tests that where run 
 set test_result [get_value test_result];
