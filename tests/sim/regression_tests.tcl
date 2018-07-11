@@ -8,21 +8,23 @@
 
   
 # Tests
-# 1.  adder_tb          -- There is a one or two clock difference between vhd and python modules
-#                       -- the testbench that runs here is a vhdl one. The veriolg one does match 
-#                       -- the python reference module.     
-# 2.  panda_srgate_tb   -- Works      
-# 3.  panda_pulse_tb    -- Works 
-# 4.  panda_pcomp_tb    -- Works
-# 5.  pcap_core_tb      -- Works
-# 6.  panda_lut_tb      -- Works
-# 7.  panda_div_tb      -- Works
-# 8.  panda_clock_tb    -- Works  
-# 9.  panda_filter      -- Works
-# 10. panda_sequnecer   -- Works  
-# 11. panda_bits_tb     -- Works
-# 12. panda_counter_tb  -- Works
-# 13. panda_pgen_tb     -- Index to a text file in pgen_reg_in.txt (PGEN_1000.txt)
+# 1.  adder_tb              -- There is a one or two clock difference between vhd and python modules
+#                           -- the testbench that runs here is a vhdl one. The veriolg one does match 
+#                           -- the python reference module as there are three clocks before output changes.     
+# 2.  panda_srgate_tb       -- Works      
+# 3.  panda_pulse_tb        -- Works 
+# 4.  panda_pcomp_tb        -- Works
+# 5.  pcap_core_tb          -- Works
+# 6.  panda_lut_tb          -- Works
+# 7.  panda_div_tb          -- Works
+# 8.  panda_clock_tb        -- Works  
+# 9.  panda_filter          -- Works
+# 10. panda_sequnecer       -- Works  
+# 11. panda_bits_tb         -- Works
+# 12. panda_counter_tb      -- Works
+#     panda_pgen_tb         -- Index to a text file in pgen_reg_in.txt (PGEN_1000.txt)
+# 13  biss_sniffer_tb       -- Works textio files but no python model
+# 15  biss_master_slave_tb  -- Works BiSS master connected to BiSS slave vhd 
 
 
 # Additional tests 
@@ -87,9 +89,9 @@ add_files -norecurse {../../modules/filter/vhdl/divider.vhd
 ../../common/vhdl/defines/support.vhd
 ../../modules/pulse/vhdl/pulse.vhd
 ../PandABox/ip_repo/pulse_queue/pulse_queue_funcsim.vhdl
+../PandABox/ip_repo/fifo_1K32/fifo_1K32_funcsim.vhdl
 ../../modules/div/vhdl/div.vhd
 ../../modules/lut/vhdl/lut.vhd
-../../modules/pcomp/vhdl/pcomp_table.vhd
 ../../modules/srgate/vhdl/srgate.vhd
 ../../modules/adder/vhdl/adder.vhd
 ../../common/vhdl/defines/top_defines.vhd
@@ -148,8 +150,6 @@ foreach test [array names tests] {
     # this is used to indicate when the test fails i.e.
     # test_result = 1 -- test has failed
     # test_result = 0 -- test has passed  
-    get_value test_result; 
-    get_object test_result;
     set result_from_test [get_value test_result];
   
     puts "The test result is $test" 
