@@ -76,6 +76,7 @@ add_files -norecurse {../../modules/filter/vhdl/divider.vhd
 ../../SlowFPGA/src/hdl/prescaler.vhd
 ../../modules/pcap/vhdl/pcap_arming.vhd
 ../../modules/pcap/vhdl/pcap_buffer.vhd
+../../modules/pcap/vhdl/pcap_frame_mode.vhd
 ../../modules/pcap/vhdl/pcap_frame.vhd
 ../../common/vhdl/defines/operator.vhd
 ../../modules/pcap/vhdl/pcap_capture.vhd
