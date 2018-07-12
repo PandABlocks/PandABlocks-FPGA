@@ -1,0 +1,26 @@
+FMC   FMC ACQ427 ADC Module
+    MODULE_EN                       This bit sets the overall module enable all outputs will be tri-state until this bit is set
+    ADC_CLK_SELECT                  This bit controls the Sample Clock Source, 0 = Internal Clock, 1 = External FMC Clock
+    ADC_CLKDIV                      Integer Divide that will be applied to the system clock
+    ADC_FIFO_RESET                  ADC FIFO Reset
+    ADC_FIFO_ENABLE                 ADC FIFO Enable
+    ADC_RESET                       ADC Reset
+    ADC_ENABLE                      ADC Enable
+    CH01_ADC_DATA                   ADC Channel 1 Data
+    CH02_ADC_DATA                   ADC Channel 2 Data
+    CH03_ADC_DATA                   ADC Channel 3 Data
+    CH04_ADC_DATA                   ADC Channel 4 Data
+    CH05_ADC_DATA                   ADC Channel 5 Data
+    CH06_ADC_DATA                   ADC Channel 6 Data
+    CH07_ADC_DATA                   ADC Channel 7 Data
+    CH08_ADC_DATA                   ADC Channel 8 Data
+    DAC_CLKDIV                      Integer Divide that will be applied to the system clock
+    DAC_FIFO_RESET                  DAC FIFO Reset
+    DAC_FIFO_ENABLE                 DAC FIFO Enable
+    DAC_RESET                       DAC Reset
+    DAC_ENABLE                      DAC Enable
+    CH01_DAC_DATA                   DAC Channel 1 Data
+    CH02_DAC_DATA                   DAC Channel 2 Data
+   	CH03_DAC_DATA                   DAC Channel 3 Data
+    CH04_DAC_DATA                   DAC Channel 4 Data
+
