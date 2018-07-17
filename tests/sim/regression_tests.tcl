@@ -104,7 +104,6 @@ add_files -fileset sim_1 -norecurse {../../tests/sim/panda_pulse/bench/panda_pul
 ../../tests/sim/panda_pulse/bench/panda_pulse_tb.v
 ../../tests/sim/panda_pcap/bench/pcap_core_wrapper.vhd
 ../../tests/sim/panda_pcap/bench/pcap_core_tb.v
-../../tests/sim/panda_pcap/bench/pcap_core_2tb.v
 ../../tests/sim/panda_sequencer/bench/panda_sequencer_tb.v
 ../../tests/sim/panda_sequencer/bench/panda_sequencer_2tb.v
 ../../tests/sim/panda_counter/bench/panda_counter_tb.v

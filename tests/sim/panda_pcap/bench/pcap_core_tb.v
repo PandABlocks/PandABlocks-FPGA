@@ -129,7 +129,7 @@ end
 initial
 begin : reg_inputs
     localparam filename = "pcap_reg_in.txt";
-	localparam N		= 91;	
+	localparam N		= 77;	
     reg [31:0] vectors[31: 0];
 
     reg     [8192*2*10:0] line;
@@ -146,11 +146,11 @@ fork
             @(posedge clk_i);
             CAPTURE_EDGE <= vectors[1];
             SHIFT_SUM <= vectors[3];
-            START_WRITE = vectors[6];
+            START_WRITE <= vectors[6];
             WRITE <= vectors[7];
             WRITE_WSTB <= vectors[8];
-            ARM <= vectors[16]; //wstb
-            DISARM <= vectors[18]; // wstb
+            ARM <= vectors[10]; //wstb
+            DISARM <= vectors[12]; // wstb
         end
     end
 join
