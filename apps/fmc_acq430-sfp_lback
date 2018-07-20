@@ -12,7 +12,6 @@ PCOMP           4
 PCAP            1
 BITS            1
 CLOCKS          1
-POSITIONS       1
 SLOW            1
 SFP_LOOPBACK    1
 FMC_ACQ430      1
