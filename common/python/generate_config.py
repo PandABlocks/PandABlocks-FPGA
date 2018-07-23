@@ -6,25 +6,24 @@ import os
 import shutil
 from argparse import ArgumentParser
 
-from .compat import TYPE_CHECKING, SafeConfigParser
+from .compat import TYPE_CHECKING, configparser
 
 if TYPE_CHECKING:
     from typing import Iterator
 
-
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 CONFIG_D = os.path.join(os.path.abspath(ROOT), "build", "config_d")
+TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 
 
 def read_ini(path):
-    # type: (str) -> SafeConfigParser
-    app_ini = SafeConfigParser()
+    # type: (str) -> configparser.SafeConfigParser
+    app_ini = configparser.SafeConfigParser()
     assert app_ini.read(path), "Can't read ini file %s" % path
     return app_ini
 
 
 class BlockConfig(object):
-
     # Max number of FPGA registers in a block
     MAX_REG = 64
 
@@ -71,31 +70,40 @@ class BlockConfig(object):
                         if k.isdigit():
                             yield "\t\t%s\t%s" % (k, v)
 
-    def register_lines(self):
+    def register_lines(self, busses):
         # type: () -> Iterator[str]
-        """Produce the lines that will go in the registers file"""
+        """Produce the lines that will go in the registers file, adding
+        _out entries to the relevant busses"""
         # First line is the block name and number
         yield "%s\t%s" % (self.block_name, self.base)
         next_reg = 0
         for section in self.block_ini.sections():
             if section != ".":
                 section_type = self.block_ini.get(section, "type")
-                if section_type == "bit_mux":
-                    nreg = 2
+                if section_type in ("bit_out", "pos_out", "ext_out"):
+                    regs = []
+                    for i in range(self.number):
+                        if self.number == 1:
+                            # Squash suffix for only one block
+                            name = "%s.%s" % (self.block_name, section)
+                        else:
+                            name = "%s%s.%s" % (self.block_name, i+1, section)
+                        bus = busses[section_type[:3] + "_bus"]
+                        regs.append(len(bus))
+                        bus.append(name)
                 else:
-                    nreg = 1
-                assert next_reg + nreg <= self.MAX_REG, \
-                    "Block %s field %s exceeded %s registers" % (
-                        self.block_name, section, self.MAX_REG)
-                # Use some register numbers, incrementing self.next_reg so
-                # we don't use them again
-                regs = " ".join(str(next_reg + i) for i in range(nreg))
-                next_reg += nreg
-                yield "\t%s\t%s" % (section, regs)
-
-    def bus_entries(self):
-        """Produce the bit_bus and pos_bus entries"""
-        pass
+                    if section_type == "bit_mux":
+                        nreg = 2
+                    else:
+                        nreg = 1
+                    assert next_reg + nreg <= self.MAX_REG, \
+                        "Block %s field %s exceeded %s registers" % (
+                            self.block_name, section, self.MAX_REG)
+                    # Use some register numbers, incrementing self.next_reg so
+                    # we don't use them again
+                    regs = [next_reg + i for i in range(nreg)]
+                    next_reg += nreg
+                yield "\t%s\t%s" % (section, " ".join(str(r) for r in regs))
 
 
 def generate_config_dir(app, config_dir):
@@ -107,30 +115,60 @@ def generate_config_dir(app, config_dir):
     # Parse the ini files
     app_ini = read_ini(app)
     blocks = []
+    busses = dict(bit_bus=[], pos_bus=[], ext_bus=[])
     # Load all the block definitions
+    # Start from base register 2 to allow for *REG and *DRV spaces
+    base = 2
     for section in app_ini.sections():
         if section != ".":
             try:
                 module_name = app_ini.get(section, "module")
-            except KeyError:
+            except configparser.NoOptionError:
                 module_name = section.lower()
             try:
                 ini_name = app_ini.get(section, "ini")
-            except KeyError:
+            except configparser.NoOptionError:
                 ini_name = section.lower() + "_block.ini"
             try:
                 number = app_ini.getint(section, "number")
-            except KeyError:
+            except configparser.NoOptionError:
                 number = 1
-            blocks.append(BlockConfig(section, module_name, ini_name, number))
-    # Create the files
-    for fname in ("config", "registers", "description"):
-        with open(os.path.join(config_dir, fname), "w") as f:
-            for block in blocks:
-                generator_func = getattr(block, "%s_lines" % fname)
-                for line in generator_func():
-                    f.write(line + "\n")
-                f.write("\n")
+            blocks.append(BlockConfig(
+                section, module_name, ini_name, base, number))
+            base += 1
+    # Create the config file
+    with open(os.path.join(config_dir, "config"), "w") as f:
+        # Write the header
+        with open(os.path.join(TEMPLATES, "config_header")) as src:
+            f.write(src.read())
+        for block in blocks:
+            for line in block.config_lines():
+                f.write(line + "\n")
+            f.write("\n")
+    # Create the registers file
+    with open(os.path.join(config_dir, "registers"), "w") as f:
+        # Write the header
+        with open(os.path.join(TEMPLATES, "registers_header")) as src:
+            f.write(src.read())
+        for block in blocks:
+            for line in block.register_lines(busses):
+                f.write(line + "\n")
+            f.write("\n")
+    # Create the descriptions file
+    with open(os.path.join(config_dir, "descriptions"), "w") as f:
+        for block in blocks:
+            for line in block.description_lines():
+                f.write(line + "\n")
+            f.write("\n")
+    # Create the busses file
+    bus_ini = configparser.SafeConfigParser()
+    for name in ("bit_bus", "pos_bus", "ext_bus"):
+        if busses[name]:
+            bus_ini.add_section(name)
+        for i, entry in enumerate(busses[name]):
+            bus_ini.set(name, str(i), entry)
+    with open(os.path.join(config_dir, "busses.ini"), "w") as f:
+        bus_ini.write(f)
 
 
 def main():

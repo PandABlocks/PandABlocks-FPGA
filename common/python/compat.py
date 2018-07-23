@@ -1,9 +1,9 @@
 try:
     # Python2
-    from ConfigParser import SafeConfigParser
+    import ConfigParser as configparser
 except ImportError:
     # Python3
-    from configparser import SafeConfigParser
+    import configparser
 
 try:
     # For type checking only
