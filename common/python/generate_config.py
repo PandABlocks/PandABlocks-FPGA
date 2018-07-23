@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     from typing import Iterator
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
-CONFIG_D = os.path.join(os.path.abspath(ROOT), "build", "config_d")
 TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 
 
@@ -174,8 +173,7 @@ def generate_config_dir(app, config_dir):
 def main():
     parser = ArgumentParser(description=__doc__)
     parser.add_argument("app", help="Path to app ini file")
-    parser.add_argument("--config_dir", help="Path to build/config_d",
-                        default=CONFIG_D)
+    parser.add_argument("config_dir", help="Path to created config_d")
     args = parser.parse_args()
     app = args.app
     config_dir = args.config_dir
