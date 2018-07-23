@@ -30,15 +30,10 @@ DIRTY_PRE = $(shell python -c "print 8 if '$(GIT_VERSION)'.endswith('dirty') els
 # Something like 85539563
 export SHA := $(DIRTY_PRE)$(shell git rev-parse --short HEAD)
 
-
-# Create the config_d directory from the app file
-$(BUILD_DIR)/%_tmp/config_d: $(TOP)/apps/%.ini
-	$(PYTHON) -m common.python.generate_config $< $@
-
-# Make the actual build directory from the temporary one
-$(BUILD_DIR)/%: $(BUILD_DIR)/%_tmp/config_d
+# Make the built app from the ini file
+$(BUILD_DIR)/%: $(TOP)/apps/%.ini
 	rm -rf $@_tmp $@
-	mkdir -p $@_tmp
+	$(PYTHON) -m common.python.generate_app $< $@_tmp
 	mv $@_tmp $@
 
 clean:

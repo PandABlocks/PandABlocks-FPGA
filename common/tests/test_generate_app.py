@@ -1,7 +1,7 @@
 import os
 import shutil
 import unittest
-from common.python.generate_config import generate_config_dir
+from common.python.generate_app import generate_app
 
 expected_description = """LUT\tLookup table
 \tFUNC\tInput func
@@ -145,19 +145,18 @@ expected_busses = """[bit_bus]
 """
 
 
-
-
-class TestBlockConfig(unittest.TestCase):
-    maxDiff=None
+class TestGenerateApp(unittest.TestCase):
+    maxDiff = None
 
     def setUp(self):
         app = os.path.join(os.path.dirname(__file__), "only-lut.ini")
-        self.config_dir = "/tmp/test_config_d"
-        generate_config_dir(app, self.config_dir)
+        self.app_build_dir = "/tmp/test_app_build_dir"
+        self.config_dir = os.path.join(self.app_build_dir, "config_d")
+        generate_app(app, self.app_build_dir)
 
     def tearDown(self):
-        if os.path.exists(self.config_dir):
-            shutil.rmtree(self.config_dir)
+        if os.path.exists(self.app_build_dir):
+            shutil.rmtree(self.app_build_dir)
 
     def test_lut_description(self):
         with open(os.path.join(self.config_dir, "descriptions")) as f:

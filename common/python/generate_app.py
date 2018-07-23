@@ -105,11 +105,12 @@ class BlockConfig(object):
                 yield "\t%s\t%s" % (section, " ".join(str(r) for r in regs))
 
 
-def generate_config_dir(app, config_dir):
+def generate_app(app, app_build_dir):
     # type: (str, str) -> None
     # Remove the dir and make a new empty one
-    if os.path.exists(config_dir):
-        shutil.rmtree(config_dir)
+    if os.path.exists(app_build_dir):
+        shutil.rmtree(app_build_dir)
+    config_dir = os.path.join(app_build_dir, "config_d")
     os.makedirs(config_dir)
     # Parse the ini files
     app_ini = read_ini(app)
@@ -173,11 +174,11 @@ def generate_config_dir(app, config_dir):
 def main():
     parser = ArgumentParser(description=__doc__)
     parser.add_argument("app", help="Path to app ini file")
-    parser.add_argument("config_dir", help="Path to created config_d")
+    parser.add_argument("app_build_dir", help="Path to created app dir")
     args = parser.parse_args()
     app = args.app
-    config_dir = args.config_dir
-    generate_config_dir(app, config_dir)
+    app_build_dir = args.app_build_dir
+    generate_app(app, app_build_dir)
 
 
 if __name__ == "__main__":
