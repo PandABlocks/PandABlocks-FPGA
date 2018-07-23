@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 from .compat import TYPE_CHECKING, configparser
 
 if TYPE_CHECKING:
-    from typing import Iterator
+    from typing import Iterator, List, Dict
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
@@ -105,70 +105,81 @@ class BlockConfig(object):
                 yield "\t%s\t%s" % (section, " ".join(str(r) for r in regs))
 
 
-def generate_app(app, app_build_dir):
-    # type: (str, str) -> None
-    # Remove the dir and make a new empty one
-    if os.path.exists(app_build_dir):
-        shutil.rmtree(app_build_dir)
-    config_dir = os.path.join(app_build_dir, "config_d")
-    os.makedirs(config_dir)
-    # Parse the ini files
-    app_ini = read_ini(app)
-    blocks = []
-    busses = dict(bit_bus=[], pos_bus=[], ext_bus=[])
-    # Load all the block definitions
-    # Start from base register 2 to allow for *REG and *DRV spaces
-    base = 2
-    for section in app_ini.sections():
-        if section != ".":
-            try:
-                module_name = app_ini.get(section, "module")
-            except configparser.NoOptionError:
-                module_name = section.lower()
-            try:
-                ini_name = app_ini.get(section, "ini")
-            except configparser.NoOptionError:
-                ini_name = section.lower() + "_block.ini"
-            try:
-                number = app_ini.getint(section, "number")
-            except configparser.NoOptionError:
-                number = 1
-            blocks.append(BlockConfig(
-                section, module_name, ini_name, base, number))
-            base += 1
-    # Create the config file
-    with open(os.path.join(config_dir, "config"), "w") as f:
-        # Write the header
-        with open(os.path.join(TEMPLATES, "config_header")) as src:
-            f.write(src.read())
-        for block in blocks:
-            for line in block.config_lines():
-                f.write(line + "\n")
-            f.write("\n")
-    # Create the registers file
-    with open(os.path.join(config_dir, "registers"), "w") as f:
-        # Write the header
-        with open(os.path.join(TEMPLATES, "registers_header")) as src:
-            f.write(src.read())
-        for block in blocks:
-            for line in block.register_lines(busses):
-                f.write(line + "\n")
-            f.write("\n")
-    # Create the descriptions file
-    with open(os.path.join(config_dir, "descriptions"), "w") as f:
-        for block in blocks:
-            for line in block.description_lines():
-                f.write(line + "\n")
-            f.write("\n")
-    # Create the busses file
-    bus_ini = configparser.SafeConfigParser()
-    for name in ("bit_bus", "pos_bus", "ext_bus"):
-        if busses[name]:
-            bus_ini.add_section(name)
-        for i, entry in enumerate(busses[name]):
-            bus_ini.set(name, str(i), entry)
-    with open(os.path.join(config_dir, "busses.ini"), "w") as f:
-        bus_ini.write(f)
+class AppGenerator(object):
+    def __init__(self, app, app_build_dir):
+        # type: (str, str) -> None
+        # Remove the dir and make a new empty one
+        if os.path.exists(app_build_dir):
+            shutil.rmtree(app_build_dir)
+        self.app_build_dir = app_build_dir
+        # These will be created when we parse the ini files
+        self.blocks = []  # type: List[BlockConfig]
+        self.parse_ini_files(app)
+        # These will be filled in when the register lines are generated
+        self.busses = dict(
+            bit_bus=[], pos_bus=[], ext_bus=[])  # type: Dict[str, List[str]]
+        self.generate_config_dir()
+
+    def parse_ini_files(self, app):
+        # type: (str) -> None
+        """Parse the app and all the block ini files it refers to, creating
+        busses
+
+        Args:
+            app: Path to the top level app ini file
+
+        Returns:
+            The names of the signals on the bit, pos, and ext_out busses
+        """
+        app_ini = read_ini(app)
+        # Load all the block definitions
+        # Start from base register 2 to allow for *REG and *DRV spaces
+        base = 2
+        for section in app_ini.sections():
+            if section != ".":
+                try:
+                    module_name = app_ini.get(section, "module")
+                except configparser.NoOptionError:
+                    module_name = section.lower()
+                try:
+                    ini_name = app_ini.get(section, "ini")
+                except configparser.NoOptionError:
+                    ini_name = section.lower() + "_block.ini"
+                try:
+                    number = app_ini.getint(section, "number")
+                except configparser.NoOptionError:
+                    number = 1
+                self.blocks.append(BlockConfig(
+                    section, module_name, ini_name, base, number))
+                base += 1
+
+    def generate_config_dir(self):
+        config_dir = os.path.join(self.app_build_dir, "config_d")
+        os.makedirs(config_dir)
+        # Create the config file
+        with open(os.path.join(config_dir, "config"), "w") as f:
+            # Write the header
+            with open(os.path.join(TEMPLATES, "config_header")) as src:
+                f.write(src.read())
+            for block in self.blocks:
+                for line in block.config_lines():
+                    f.write(line + "\n")
+                f.write("\n")
+        # Create the registers file
+        with open(os.path.join(config_dir, "registers"), "w") as f:
+            # Write the header
+            with open(os.path.join(TEMPLATES, "registers_header")) as src:
+                f.write(src.read())
+            for block in self.blocks:
+                for line in block.register_lines(self.busses):
+                    f.write(line + "\n")
+                f.write("\n")
+        # Create the descriptions file
+        with open(os.path.join(config_dir, "descriptions"), "w") as f:
+            for block in self.blocks:
+                for line in block.description_lines():
+                    f.write(line + "\n")
+                f.write("\n")
 
 
 def main():
@@ -178,7 +189,7 @@ def main():
     args = parser.parse_args()
     app = args.app
     app_build_dir = args.app_build_dir
-    generate_app(app, app_build_dir)
+    AppGenerator(app, app_build_dir)
 
 
 if __name__ == "__main__":

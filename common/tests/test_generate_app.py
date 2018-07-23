@@ -1,7 +1,7 @@
 import os
 import shutil
 import unittest
-from common.python.generate_app import generate_app
+from common.python.generate_app import AppGenerator
 
 expected_description = """LUT\tLookup table
 \tFUNC\tInput func
@@ -132,18 +132,6 @@ LUT\t2
 
 """
 
-expected_busses = """[bit_bus]
-0 = LUT1.OUT
-1 = LUT2.OUT
-2 = LUT3.OUT
-3 = LUT4.OUT
-4 = LUT5.OUT
-5 = LUT6.OUT
-6 = LUT7.OUT
-7 = LUT8.OUT
-
-"""
-
 
 class TestGenerateApp(unittest.TestCase):
     maxDiff = None
@@ -152,7 +140,7 @@ class TestGenerateApp(unittest.TestCase):
         app = os.path.join(os.path.dirname(__file__), "only-lut.ini")
         self.app_build_dir = "/tmp/test_app_build_dir"
         self.config_dir = os.path.join(self.app_build_dir, "config_d")
-        generate_app(app, self.app_build_dir)
+        AppGenerator(app, self.app_build_dir)
 
     def tearDown(self):
         if os.path.exists(self.app_build_dir):
@@ -172,11 +160,6 @@ class TestGenerateApp(unittest.TestCase):
         with open(os.path.join(self.config_dir, "registers")) as f:
             actual = f.read()
         self.assertMultiLineEqual(actual, expected_registers)
-
-    def test_lut_busses(self):
-        with open(os.path.join(self.config_dir, "busses.ini")) as f:
-            actual = f.read()
-        self.assertMultiLineEqual(actual, expected_busses)
 
 
 if __name__ == '__main__':
