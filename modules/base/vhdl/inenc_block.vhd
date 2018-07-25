@@ -57,7 +57,7 @@ signal clk_ext          : std_logic;
 -- Block Configuration Registers
 signal PROTOCOL_i       : std_logic_vector(31 downto 0);
 signal PROTOCOL_WSTB    : std_logic;
-signal BYPASS           : std_logic_vector(31 downto 0);
+signal CLK_SRC          : std_logic_vector(31 downto 0);
 signal CLK_PERIOD       : std_logic_vector(31 downto 0);
 signal CLK_PERIOD_WSTB  : std_logic;
 signal FRAME_PERIOD     : std_logic_vector(31 downto 0);
@@ -68,11 +68,10 @@ signal SETP             : std_logic_vector(31 downto 0);
 signal SETP_WSTB        : std_logic;
 signal RST_ON_Z         : std_logic_vector(31 downto 0);
 signal STATUS           : std_logic_vector(31 downto 0);
-signal STATUS_RSTB      : std_logic;
 signal read_ack         : std_logic;
 signal LSB_DISCARD      : std_logic_vector(31 downto 0);
 signal MSB_DISCARD      : std_logic_vector(31 downto 0);
-signal DCARD_ID         : std_logic_vector(31 downto 0);
+signal DCARD_TYPE       : std_logic_vector(31 downto 0);
 
 signal reset            : std_logic;
 signal slow             : slow_packet;
@@ -116,7 +115,8 @@ port map (
 
     PROTOCOL            => PROTOCOL_i,
     PROTOCOL_WSTB       => PROTOCOL_WSTB,
-    BYPASS              => BYPASS,
+    CLK_SRC             => CLK_SRC,
+    CLK_SRC_WSTB        => open,
     CLK_PERIOD          => CLK_PERIOD,
     CLK_PERIOD_WSTB     => CLK_PERIOD_WSTB,
     FRAME_PERIOD        => FRAME_PERIOD,
@@ -131,12 +131,11 @@ port map (
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z,
     RST_ON_Z_WSTB       => open,
-    STATUS              => STATUS,
-    DCARD_ID            => DCARD_ID
+    DCARD_TYPE          => DCARD_TYPE
 );
  
 -- Only read back the DCARD MODE
-DCARD_ID <= x"0000000" & '0' & DCARD_MODE(3 downto 1);
+DCARD_TYPE <= x"0000000" & '0' & DCARD_MODE(3 downto 1);
 
 
 -- Generate read strobe to clear STATUS register on readback
@@ -150,9 +149,6 @@ port map (
 );
 
 read_addr <= to_integer(unsigned(read_address_i));
-
-STATUS_RSTB <= '1' when (read_ack = '1' and read_addr = INENC_STATUS)
-                    else '0';
 
 --------------------------------------------------------------------------
 -- INENC block instantiation
@@ -174,7 +170,7 @@ port map (
     --
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => PROTOCOL_i(2 downto 0),
-    BYPASS              => BYPASS(0),
+    CLK_SRC             => CLK_SRC(0),
     CLK_PERIOD          => CLK_PERIOD,
     FRAME_PERIOD        => FRAME_PERIOD,
     BITS                => BITS(7 downto 0),
@@ -184,8 +180,7 @@ port map (
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z(0),
     STATUS              => STATUS,
-    STATUS_RSTB         => STATUS_RSTB,
-
+    --
     posn_o              => posn_o
 );
 

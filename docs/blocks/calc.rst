@@ -1,6 +1,6 @@
-ADDER - Position Adder [x2]
+CALC - Position Calc [x2]
 ===============================
-The position adder block has an output which is the sum of the position inputs
+The position calc block has an output which is the sum of the position inputs
 
 Parameters
 ----------
@@ -11,10 +11,10 @@ INPA            In          Position input A
 INPB            In          Position input B
 INPC            In          Position input C
 INPD            In          Position input D
-SCALE           W   UInt32  | Scale divisor after add
-                            | 0 = /1
-                            | 1 = /2
-                            | 2 = /4
+FUNC            W   UInt32  | Scale divisor after add
+                            | 0 = A+B+C+D
+                            | 1 = (A+B+C+D)/2
+                            | 2 = (A+B+C+D)/4
 OUT             Out         Position output
 =============== === ======= ===================================================
 
@@ -25,7 +25,7 @@ Adding inputs
 The output is the sum of the inputs
 
 .. sequence_plot::
-   :block: adder
+   :block: calc
    :title: Adding inputs
 
 Scaling
@@ -33,5 +33,5 @@ Scaling
 The scale factor is a bit shift and is applied after the sum.
 
 .. sequence_plot::
-   :block: adder
+   :block: calc
    :title: Scaling

@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module panda_adder_tb;
+module panda_calc_tb;
 
 // Inputs
 reg clk_i = 0;
@@ -11,9 +11,9 @@ reg [31:0] inpb_i;
 reg [31:0] inpc_i;
 reg [31:0] inpd_i;       
 
-wire    INPA_INVERT;
-wire    INPB_INVERT;
-wire    INPC_INVERT;
+wire    A;
+wire    B;
+wire    C;
 wire    INPD_INVERT;
 
 reg     erra;
@@ -52,7 +52,7 @@ initial begin
     SIM_RESET = 0;
 
     @(posedge clk_i);
-    fid[0] = $fopen("bits_bus_in.txt", "r");
+    fid[0] = $fopen("calc_bus_in.txt", "r");
 
     // Read and ignore description field
     r[0] = $fscanf(fid[0], "%s %s \n", bus_in[1], bus_in[0]);
@@ -71,7 +71,7 @@ end
 //
 // READ BLOCK REGISTERS VECTOR FILE
 //
-// TS»¯¯¯¯¯DIVISOR»FIRST_PULSE»¯¯¯¯FORCE_RESET
+// TS»¯¯¯¯¯A»¯¯¯¯¯B»¯¯¯¯¯C»¯¯¯¯¯D»¯¯¯¯FORCE_RESET
 //integer reg_in[3:0];
 integer reg_in[8:0];
 
@@ -88,7 +88,7 @@ initial begin
     @(posedge clk_i);
 
     // Open "reg_in" file
-    fid[1] = $fopen("adder_reg_in.txt", "r");
+    fid[1] = $fopen("calc_reg_in.txt", "r");
 
     // Read and ignore description field
     r[1] = $fscanf(fid[1], "%s %s %s %s %s %s %s %s %s %s %s\n", reg_in[10], reg_in[9], reg_in[8], reg_in[7], reg_in[6], 
@@ -130,7 +130,7 @@ initial begin
     @(posedge clk_i);
 
     // Open "bus_out" file
-    fid[2] = $fopen("bits_bus_out.txt", "r"); // TS»¯¯¯¯¯OUTD»¯¯¯OUTN
+    fid[2] = $fopen("calc_bus_out.txt", "r"); // TS»¯¯¯¯¯OUTD»¯¯¯OUTN
 
     // Read and ignore description field
     r[2] = $fscanf(fid[2], "%s %s %s %s %s %s %s\n", bus_out[6], bus_out[5], bus_out[4], 
@@ -162,24 +162,10 @@ end
 //
 always @(posedge clk_i)
 begin
-    if (OUTA != softa) begin
+    if (OUT != out_o) begin
         erra = 1;
         test_result = 1;    
     end 
-    if (OUTB != softb) begin
-        errb = 1;
-        test_result = 1;    
-    end  
-    
-    if (OUTC != softc) begin
-        errc = 1;
-        test_result = 1;    
-    end
-    
-    if (OUTD != softd) begin
-        errd = 1;
-        test_result = 1;        
-    end
 end
 
 
@@ -192,18 +178,18 @@ always @ (posedge clk_i)
 
 
 // Instantiate the Unit Under Test (UUT)
-adder uut(
-        .clk_i           ( clk_i              ),
-        .inpa_i          ( inpa_i             ),
-        .inpb_i          ( inpb_i             ),
-        .inpc_i          ( inpc_i             ),
-        .inpd_i          ( inpd_i             ),
-        .out_o           ( out_o              ),
-        .INPA_INVERT     ( INPA_INVERT        ),
-        .INPB_INVERT     ( INPB_INVERT        ),
-        .INPC_INVERT     ( INPC_INVERT        ),
-        .INPD_INVERT     ( INPD_INVERT        ),
-        .SCALE           ( SCALE              )
+calc uut(
+        .clk_i     ( clk_i    ),
+        .inpa_i    ( inpa_i   ),
+        .inpb_i    ( inpb_i   ),
+        .inpc_i    ( inpc_i   ),
+        .inpd_i    ( inpd_i   ),
+        .out_o     ( out_o    ),
+        .A         ( A        ),
+        .B         ( B        ),
+        .C         ( C        ),
+        .D         ( D        ),
+        .FUNC      ( FUNC     )
 );
 
 

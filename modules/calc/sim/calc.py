@@ -2,7 +2,7 @@ from common.python.pandablocks.block import Block
 import os
 import csv
 
-class Adder(Block):
+class Calc(Block):
     def __init__(self):
         self.scale = {0:0, 1:1, 2:2}
 

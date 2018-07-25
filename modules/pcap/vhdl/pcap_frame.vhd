@@ -27,16 +27,16 @@ port (
     reset_i             : in  std_logic;
     -- Block register
     SHIFT_SUM           : in  std_logic_vector(5 downto 0);
-	CAPTURE_EDGE		: in  std_logic_vector(1 downto 0);
+	TRIG_EDGE		    : in  std_logic_vector(1 downto 0);
     -- Block input and outputs.
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
     enable_i            : in  std_logic;
     gate_i              : in  std_logic;
-    capture_i           : in  std_logic;
+    trig_i              : in  std_logic;
     timestamp_i         : in  std_logic_vector(63 downto 0);
 	-- Captured data 
-    capture_o           : out std_logic;
+    trig_o              : out std_logic;
     mode_ts_bits_o      : out t_mode_ts_bits
 );
 end pcap_frame;
@@ -46,13 +46,13 @@ architecture rtl of pcap_frame is
 signal gate_prev        : std_logic;
 signal gate_rise        : std_logic;
 signal gate_fall        : std_logic;
-signal capture_dly      : std_logic;
+signal trig_dly         : std_logic;
 signal timestamp        : unsigned(63 downto 0);
 
 signal ts_start         : std_logic_vector(63 downto 0);
 signal ts_start_dly		: std_logic_vector(63 downto 0);
 signal ts_end           : std_logic_vector(63 downto 0);
-signal ts_capture       : std_logic_vector(63 downto 0);
+signal ts_trig          : std_logic_vector(63 downto 0);
 
 signal cnt_samples      : unsigned(39 downto 0);   
 signal samples          : std_logic_vector(31 downto 0);
@@ -68,10 +68,10 @@ signal bits1            : std_logic_vector(31 downto 0);
 signal bits2            : std_logic_vector(31 downto 0);
 signal bits3            : std_logic_vector(31 downto 0);
 
-signal capture_prev		: std_logic;
-signal capture_rise		: std_logic;
-signal capture_fall		: std_logic;
-signal capture			: std_logic;
+signal trig_prev		: std_logic;
+signal trig_rise		: std_logic;
+signal trig_fall		: std_logic;
+signal trig			    : std_logic;
 signal ts_start_enable	: std_logic;
 signal ts_end_enable	: std_logic;
 
@@ -86,17 +86,17 @@ begin
 ps_prev: process(clk_i)                                      
 begin                                                               
     if rising_edge(clk_i) then                      
-        capture_prev <= capture_i;                  
+        trig_prev <= trig_i;                  
     end if;                                                         
 end process ps_prev;                                                
 
 
-capture_rise <= not capture_prev and capture_i;
-capture_fall <= capture_prev and not capture_i;
+trig_rise <= not trig_prev and trig_i;
+trig_fall <= trig_prev and not trig_i;
 
 -- Handle the trigger 
-capture <= capture_rise when (capture_rise = '1' and (CAPTURE_EDGE = "00" or CAPTURE_EDGE = "10")) else
-           capture_fall when (capture_fall = '1' and (CAPTURE_EDGE = "01" or CAPTURE_EDGE = "10")) else
+trig <= trig_rise when (trig_rise = '1' and (TRIG_EDGE = "00" or TRIG_EDGE = "10")) else
+           trig_fall when (trig_fall = '1' and (TRIG_EDGE = "01" or TRIG_EDGE = "10")) else
            '0';  
 
 
@@ -121,13 +121,13 @@ gate_fall <= gate_prev and not gate_i;
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            capture_dly <= '0';
-            capture_o <= '0';
+            trig_dly <= '0';
+            trig_o <= '0';
         -- Handle the delay in here as its is the delay of registering the 
         -- results pass out on the mode_ts_bits record     
         else                 
-            capture_dly <= capture;   
-	    	capture_o <= capture;	
+            trig_dly <= trig;   
+	    	trig_o <= trig;	
         end if;
     end if;
 end process;
@@ -143,16 +143,16 @@ process(clk_i) begin
         -- Capture the timestamp at the start of a capture frame
         if (enable_i = '0') then
 			ts_start_enable <= '0';
-		-- Capture the timestamp this is the start of a frame		
+		-- trig the timestamp this is the start of a frame		
 		elsif (ts_start_enable = '0' and gate_rise = '1') then
 			ts_start_enable <= '1';
 			ts_start <= std_logic_vector(timestamp); 
 		-- Capture the timestamp this is the start of a frame
-		elsif (gate_i = '1' and capture = '1') then		
+		elsif (gate_i = '1' and trig = '1') then		
 			ts_start_enable <= '1';			
 			ts_start <= std_logic_vector(timestamp);
 		-- This isn't a valid capture frame	
-		elsif (capture = '1' and gate_i = '0') then			
+		elsif (trig = '1' and gate_i = '0') then			
 			ts_start_enable <= '0';
 			ts_start <= std_logic_vector(to_signed(-1,ts_start'length));
 		end if;	
@@ -162,16 +162,16 @@ process(clk_i) begin
 			ts_end_enable <= '0';
 		-- Capture the timestamp at the end of the frame
 		elsif (gate_fall = '1') then
-			if (capture = '0') then
+			if (trig = '0') then
 				ts_end_enable <= '1';
 			end if;			
 			ts_end <= std_logic_vector(timestamp);
 		-- Capture the timestamp at the end of the frame	
-		elsif (capture = '1' and gate_i = '1') then
+		elsif (trig = '1' and gate_i = '1') then
 			ts_end_enable <= '0';
 			ts_end	<= std_logic_vector(timestamp);
 		-- This isn't a valid capture_frame
-		elsif (capture = '1' and gate_i = '0') then
+		elsif (trig = '1' and gate_i = '0') then
 			ts_end_enable <= '0';			
 			if (ts_end_enable = '0') then
 				ts_end <= std_logic_vector(to_signed(-1,ts_end'length));
@@ -179,12 +179,12 @@ process(clk_i) begin
 		end if;       
 
         -- Capture TIMESTAMP             
-        if (capture = '1') then
-            ts_capture <= std_logic_vector(timestamp);
+        if (trig = '1') then
+            ts_trig <= std_logic_vector(timestamp);
         end if;
         
         -- Count the number of samples 			
-        if (capture = '1' or enable_i = '0') then
+        if (trig = '1' or enable_i = '0') then
 			if (gate_i = '1') then            
 				cnt_samples <= to_unsigned(1,cnt_samples'length);	
 			else
@@ -195,7 +195,7 @@ process(clk_i) begin
             cnt_samples <= cnt_samples +1;
         end if;    
          
-        if (capture = '1') then
+        if (trig = '1') then
             bits0 <= sysbus_i(31 downto 0);
             bits1 <= sysbus_i(63 downto 32);
             bits2 <= sysbus_i(95 downto 64);
@@ -215,7 +215,7 @@ port map (
     clk_i        => clk_i,
     enable_i     => enable_i,   
     gate_i       => gate_i,   
-    capture_i    => capture,
+    trig_i       => trig,
     value_i      => posbus_i(i),
     shift_i      => SHIFT_SUM,
     value_o      => value_o(i),   
@@ -245,7 +245,7 @@ begin
     if rising_edge(Clk_i) then       
 		-- Capture the start timestamp 
 		ts_start_dly <= ts_start;
-		if capture_dly = '1' then         
+		if trig_dly = '1' then         
         	-- Cature mode data     
 			-- 32 bits * 6 Num of = 192 Total    
         	lp_mode_data: for i in 31 downto 0 loop
@@ -262,8 +262,8 @@ begin
         	mode_ts_bits_o.ts(1) <= ts_start_dly(63 downto 32);   
         	mode_ts_bits_o.ts(2) <= ts_end(31 downto 0);
         	mode_ts_bits_o.ts(3) <= ts_end(63 downto 32);
-        	mode_ts_bits_o.ts(4) <= ts_capture(31 downto 0);    
-        	mode_ts_bits_o.ts(5) <= ts_capture(63 downto 32);
+        	mode_ts_bits_o.ts(4) <= ts_trig(31 downto 0);    
+        	mode_ts_bits_o.ts(5) <= ts_trig(63 downto 32);
         	mode_ts_bits_o.ts(6) <= samples;
 			-- Capture bit bus data
 			-- 32 bits * 4 Num of = 4 Total

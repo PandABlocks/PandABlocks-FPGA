@@ -7,7 +7,7 @@ use work.support.all;
 use work.top_defines.all;
 use work.addr_defines.all;
 
-entity adder_top is
+entity calc_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -25,15 +25,15 @@ port (
     -- Encoder I/O Pads
     posbus_i            : in  posbus_t;
     -- Output pulse
-    out_o               : out std32_array(ADDER_NUM-1 downto 0)
+    out_o               : out std32_array(CALC_NUM-1 downto 0)
 );
-end adder_top;
+end calc_top;
 
-architecture rtl of adder_top is
+architecture rtl of calc_top is
 
-signal read_strobe      : std_logic_vector(ADDER_NUM-1 downto 0);
-signal read_data        : std32_array(ADDER_NUM-1 downto 0);
-signal write_strobe     : std_logic_vector(ADDER_NUM-1 downto 0);
+signal read_strobe      : std_logic_vector(CALC_NUM-1 downto 0);
+signal read_data        : std32_array(CALC_NUM-1 downto 0);
+signal write_strobe     : std_logic_vector(CALC_NUM-1 downto 0);
 
 begin
 
@@ -51,15 +51,15 @@ port map (
 
 --
 -- Instantiate DIVUENCER Blocks :
---  There are ADDER_NUM amount of encoders on the board
+--  There are calc_NUM amount of encoders on the board
 --
-ADDER_GEN : FOR I IN 0 TO ADDER_NUM-1 GENERATE
+calc_GEN : FOR I IN 0 TO CALC_NUM-1 GENERATE
 
 -- Sub-module address decoding
 read_strobe(I) <= compute_block_strobe(read_address_i, I) and read_strobe_i;
 write_strobe(I) <= compute_block_strobe(write_address_i, I) and write_strobe_i;
 
-adder_block : entity work.adder_block
+calc_block : entity work.calc_block
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

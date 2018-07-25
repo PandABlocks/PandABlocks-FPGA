@@ -26,7 +26,7 @@ entity pcap_frame_mode is
     port (clk_i         : in  std_logic;
           enable_i      : in  std_logic;
           gate_i        : in  std_logic; 
-          capture_i     : in  std_logic;
+          trig_i     : in  std_logic;
           value_i       : in  std_logic_vector(31 downto 0); 
           shift_i       : in  std_logic_vector(5 downto 0);
           value_o       : out std_logic_vector(31 downto 0);  
@@ -67,7 +67,7 @@ begin
  ps_output: process(clk_i)
  begin   
     if rising_edge(clk_i) then
-        if (capture_i = '1') then
+        if (trig_i = '1') then
             -- Mode 0 value
         	value_o <= value_i;    
         end if;
@@ -82,18 +82,18 @@ begin
     if rising_edge(clk_i) then    
         gate_prev <= gate_i;
 		-- Latch the current value to start_val on rising gate or on capture
-        if (gate_prev = '0' and gate_i = '1') or (capture_i = '1' and gate_i = '1') then  		
+        if (gate_prev = '0' and gate_i = '1') or (trig_i = '1' and gate_i = '1') then  		
             start_val <= signed(value_i);  	       
 		end if;
 		-- Zero diff_sum on capture
-        if (capture_i = '1') then
+        if (trig_i = '1') then
 			diff_sum <= (others => '0');		
 		-- Add in current diff to diff_sum if falling gate
         elsif (gate_prev = '1' and gate_i = '0') then
             diff_sum <= diff_sum + signed(value_i) - start_val;
 		end if;
 		-- Set diff output on capture
-		if (capture_i = '1') then
+		if (trig_i = '1') then
 			if (gate_i = '1' or gate_prev = '1') then
 				-- Diff output is current diff + diff_sum if capture and (falling or high gate)
 	    		diff_o <= std_logic_vector(diff_sum + signed(value_i) - start_val);
@@ -111,7 +111,7 @@ begin
  begin
     if rising_edge(clk_i) then
 		-- Output the result
-        if capture_i = '1' then
+        if trig_i = '1' then
 		    -- Mode 2 Sum low data 
             sum_l_o <= std_logic_vector(sum_data(c_thirty_one+(to_integer(unsigned(shift_i))) downto (to_integer(unsigned(shift_i))))); 
             -- Mode 3 Sum High data
@@ -120,9 +120,9 @@ begin
         -- Clear sum 
         if (enable_i = '0') then 
             sum_data <= (others => '0');
-        elsif (capture_i = '1' and gate_i = '0') then
+        elsif (trig_i = '1' and gate_i = '0') then
             sum_data <= (others => '0');    
-        elsif (capture_i = '1' and gate_i = '1') then
+        elsif (trig_i = '1' and gate_i = '1') then
             sum_data <= resize(signed(value_i),sum_data'length);
         -- Sum the received data whilst gate high 
         elsif (gate_i = '1') then
@@ -139,7 +139,7 @@ begin
  begin
     if rising_edge(clk_i) then
 		-- Outpput th result
-	    if capture_i = '1' then
+	    if trig_i = '1' then
 			min_o <= std_logic_vector(min_val);
 			max_o <= std_logic_vector(max_val);
 		end if;
@@ -150,10 +150,10 @@ begin
             -- Minimum value
             max_val <= (max_val'high => '1', others => '0');
         -- At the start capture the first value
-      	elsif (capture_i = '1' and gate_i = '1') then
+      	elsif (trig_i = '1' and gate_i = '1') then
             min_val <= signed(value_i);
             max_val <= signed(value_i);    
-        elsif (capture_i = '1' and gate_i = '0') then
+        elsif (trig_i = '1' and gate_i = '0') then
             min_val <= (min_val'high => '0', others => '1');
             max_val <= (max_val'high => '1', others => '0');
         elsif (gate_i = '1') then  

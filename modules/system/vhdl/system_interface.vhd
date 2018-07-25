@@ -19,7 +19,7 @@ library work;
 use work.top_defines.all;
 use work.slow_defines.all;
 
-entity slow_interface is
+entity system_interface is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -38,11 +38,11 @@ port (
     TEMP_MON            : out std32_array(4 downto 0);
     VOLT_MON            : out std32_array(7 downto 0)
 );
-end slow_interface;
+end system_interface;
 
-architecture rtl of slow_interface is
+architecture rtl of system_interface is
 
-component slow_cmd_fifo
+component system_cmd_fifo
 port (
     clk                 : in std_logic;
     rst                 : in std_logic;
@@ -107,7 +107,7 @@ port map (
 
 cmd_din <= registers_tlp_i.address & registers_tlp_i.data;
 
-slow_cmd_fifo_inst : slow_cmd_fifo
+system_cmd_fifo_inst : system_cmd_fifo
 port map (
     clk             => clk_i,
     rst             => reset_i,

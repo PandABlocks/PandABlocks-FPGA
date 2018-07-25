@@ -6,7 +6,7 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : 4-Channel adder block with sign inversion option and output
+--  Description : 4-Channel calc block with sign inversion option and output
 --                scaling
 --------------------------------------------------------------------------------
 
@@ -14,7 +14,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity adder is
+entity calc is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -25,15 +25,15 @@ port (
     inpd_i              : in  std_logic_vector(31 downto 0);
     out_o               : out std_logic_vector(31 downto 0);
     -- Block Parameters and Status
-    INPA_INVERT         : in  std_logic;
-    INPB_INVERT         : in  std_logic;
-    INPC_INVERT         : in  std_logic;
-    INPD_INVERT         : in  std_logic;
-    SCALE               : in  std_logic_vector(1 downto 0)
+    A                   : in  std_logic;
+    B                   : in  std_logic;
+    C                   : in  std_logic;
+    D                   : in  std_logic;
+    FUNC                : in  std_logic_vector(1 downto 0)
 );
-end adder;
+end calc;
 
-architecture rtl of adder is
+architecture rtl of calc is
 
 -- Resize and sign-invert to required with based on flag
 function posn_data(data : std_logic_vector; flag : std_logic; width : natural)
@@ -57,15 +57,15 @@ signal acc_abcd         : signed(33 downto 0) := (others => '0');
 
 begin
 
--- Synchronised adder tree
+-- Synchronised calc tree
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        acc_ab <= posn_data(inpa_i, INPA_INVERT, acc_abcd'length) +
-                    posn_data(inpb_i, INPB_INVERT, acc_abcd'length);
+        acc_ab <= posn_data(inpa_i, A, acc_abcd'length) +
+                    posn_data(inpb_i, B, acc_abcd'length);
 
-        acc_cd <= posn_data(inpc_i, INPC_INVERT, acc_abcd'length) +
-                    posn_data(inpd_i, INPD_INVERT, acc_abcd'length);
+        acc_cd <= posn_data(inpc_i, C, acc_abcd'length) +
+                    posn_data(inpd_i, D, acc_abcd'length);
 
         acc_abcd <= acc_ab + acc_cd;
     end if;
@@ -74,7 +74,7 @@ end process;
 -- Scaled output (take care of sign bit)
 process(clk_i) begin
     if rising_edge(clk_i) then
-        case SCALE is
+        case FUNC is
             when "00" =>
                 out_o <= std_logic_vector(resize(acc_abcd, 32));
             when "01" => 

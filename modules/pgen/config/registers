@@ -4,6 +4,6 @@ PGEN        {{newBlockNo("PGEN")}}
     TRIG            {{newBlockReg(typ='bit_mux')}}
     OUT             {{newPosBus()}}
     TABLE           long    2^8    {{newBlockReg(typ='ltable')}}
-    TABLE_STATUS    {{newBlockReg()}}
+    HEALTH          {{newBlockReg()}}
 
 

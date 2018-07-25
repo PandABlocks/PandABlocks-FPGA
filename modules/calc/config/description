@@ -1,4 +1,4 @@
-ADDER       Position adder
+CALC       Position calc
     INPA            Position input A
     INPB            Position input B
     INPC            Position input C
@@ -9,3 +9,5 @@ ADDER       Position adder
     D               Sign invert input D
     FUNC            Scale divisor after add
     OUT             Position output
+    
+    

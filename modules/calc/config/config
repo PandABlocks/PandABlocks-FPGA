@@ -1,4 +1,4 @@
-ADDER[{{app_config["ADDER"]}}]
+CALC[{{app_config["CALC"]}}]
     INPA            pos_mux
     INPB            pos_mux
     INPC            pos_mux
@@ -20,3 +20,5 @@ ADDER[{{app_config["ADDER"]}}]
         1   (A+B+C+D)/2
         2   (A+B+C+D)/4
     OUT             pos_out
+    
+    

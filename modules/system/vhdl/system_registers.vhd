@@ -23,7 +23,7 @@ use work.top_defines.all;
 use work.addr_defines.all;
 use work.slow_defines.all;
 
-entity slow_registers is
+entity system_registers is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -35,9 +35,9 @@ port (
     -- Block Outputs
     slow_tlp_o          : out slow_packet
 );
-end slow_registers;
+end system_registers;
 
-architecture rtl of slow_registers is
+architecture rtl of system_registers is
 
 signal write_address : natural range 0 to (2**BLK_AW - 1);
 signal blk_addr : natural range 0 to (2**(PAGE_AW-BLK_AW)-1);

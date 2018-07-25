@@ -19,9 +19,9 @@ INENC[4]
         1   SSI
         2   BISS
         3   enDat
-    BYPASS          param       enum
-        0   Off
-        1   On
+    CLK_SRC          param       enum
+        0   Internally generated
+        1   From CLK
     CLK_PERIOD      param       time
     FRAME_PERIOD    param       time
     BITS            param       uint 63
@@ -29,10 +29,7 @@ INENC[4]
     MSB_DISCARD     param       uint 31
     SETP            write       int
     RST_ON_Z        param       bit
-    STATUS          read        enum
-        0   Link Down
-        1   Link Up
-    DCARD_ID        read        enum
+    DCARD_TYPE      read        enum
         0   DCARD id 0
         1   Encoder Monitor
         2   DCARD id 2
@@ -55,9 +52,8 @@ OUTENC[4]
         1   SSI
         2   BISS
         3   enDat
-    BYPASS          param       enum
-        0   Off
-        1   On
+        4   ABZ Passthrough
+        5   DATA Passthrough
     BITS            param       uint 32
     QPERIOD         param       time
     ENABLE          bit_mux
@@ -68,7 +64,7 @@ OUTENC[4]
     CLK             bit_out
     VAL             pos_mux
     CONN            bit_mux
-    DCARD_ID        read        enum 8
+    DCARD_TYPE      read        enum
         0   DCARD id 0
         1   Encoder Monitor
         2   DCARD id 2

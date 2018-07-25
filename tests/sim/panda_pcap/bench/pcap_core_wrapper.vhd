@@ -23,12 +23,12 @@ port (
     START_WRITE         : in  std_logic;
     WRITE               : in  std_logic_vector(31 downto 0);
     WRITE_WSTB          : in  std_logic;
-    CAPTURE_EDGE        : in  std_logic_vector(1 downto 0);
+    TRIG_EDGE           : in  std_logic_vector(1 downto 0);
     SHIFT_SUM           : in  std_logic_vector(5 downto 0);    
     HEALTH              : out std_logic_vector(31 downto 0);
     -- Block inputs
     enable_i            : in  std_logic;
-    capture_i           : in  std_logic;
+    trig_i              : in  std_logic;
     gate_i              : in  std_logic;
     dma_full_i          : in  std_logic;
     sysbus_i            : in  sysbus_t;
@@ -73,12 +73,12 @@ port map (
     START_WRITE        => START_WRITE,
     WRITE              => WRITE,
     WRITE_WSTB         => WRITE_WSTB,
-    CAPTURE_EDGE       => CAPTURE_EDGE,   
+    TRIG_EDGE          => TRIG_EDGE,   
     SHIFT_SUM          => SHIFT_SUM,  
     HEALTH             => HEALTH,
 
     enable_i           => enable_i,
-    capture_i          => capture_i,
+    trig_i             => trig_i,
     gate_i             => gate_i,
     dma_error_i        => dma_full_i,
     sysbus_i           => sysbus_i,

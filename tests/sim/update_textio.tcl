@@ -1,5 +1,9 @@
 # Filter block textio files removal
-remove_files -fileset sim_1 {../PandABox/fpga_sequences/clocks_bus_in.txt
+remove_files -fileset sim_1 {../PandABox/fpga_sequences/calc_bus_in.txt
+../PandABox/fpga_sequences/calc_bus_out.txt
+../PandABox/fpga_sequences/calc_reg_in.txt
+../PandABox/fpga_sequences/calc_reg_out.txt
+../PandABox/fpga_sequences/clocks_bus_in.txt
 ../PandABox/fpga_sequences/clocks_bus_out.txt
 ../PandABox/fpga_sequences/clocks_reg_in.txt
 ../PandABox/fpga_sequences/clocks_reg_out.txt
@@ -37,6 +41,10 @@ remove_files -fileset sim_1 {../PandABox/fpga_sequences/clocks_bus_in.txt
 ../PandABox/fpga_sequences/pcomp_bus_out.txt
 ../PandABox/fpga_sequences/pcomp_reg_in.txt
 ../PandABox/fpga_sequences/pcomp_reg_out.txt
+../PandABox/fpga_sequences/pgen_bus_in.txt
+../PandABox/fpga_sequences/pgen_bus_out.txt
+../PandABox/fpga_sequences/pgen_reg_in.txt
+../PandABox/fpga_sequences/pgen_reg_out.txt
 ../PandABox/fpga_sequences/pulse_bus_in.txt
 ../PandABox/fpga_sequences/pulse_bus_out.txt
 ../PandABox/fpga_sequences/pulse_reg_in.txt
@@ -52,7 +60,11 @@ remove_files -fileset sim_1 {../PandABox/fpga_sequences/clocks_bus_in.txt
 }
 
 set_property SOURCE_SET sources_1 [get_filesets sim_1]
-add_files -fileset sim_1 -norecurse {../PandABox/fpga_sequences/clocks_reg_in.txt
+add_files -fileset sim_1 -norecurse {../PandABox/fpga_sequences/calc_bus_in.txt
+../PandABox/fpga_sequences/calc_bus_out.txt
+../PandABox/fpga_sequences/calc_reg_in.txt
+../PandABox/fpga_sequences/calc_reg_out.txt
+../PandABox/fpga_sequences/clocks_reg_in.txt
 ../PandABox/fpga_sequences/clocks_bus_in.txt
 ../PandABox/fpga_sequences/clocks_reg_out.txt
 ../PandABox/fpga_sequences/clocks_bus_out.txt
@@ -90,6 +102,10 @@ add_files -fileset sim_1 -norecurse {../PandABox/fpga_sequences/clocks_reg_in.tx
 ../PandABox/fpga_sequences/pcomp_bus_out.txt
 ../PandABox/fpga_sequences/pcomp_reg_in.txt
 ../PandABox/fpga_sequences/pcomp_reg_out.txt
+../PandABox/fpga_sequences/pgen_bus_in.txt
+../PandABox/fpga_sequences/pgen_bus_out.txt
+../PandABox/fpga_sequences/pgen_reg_in.txt
+../PandABox/fpga_sequences/pgen_reg_out.txt
 ../PandABox/fpga_sequences/pulse_reg_in.txt
 ../PandABox/fpga_sequences/pulse_bus_in.txt
 ../PandABox/fpga_sequences/pulse_reg_out.txt

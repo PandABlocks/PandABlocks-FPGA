@@ -32,7 +32,6 @@ reg ssi_sck_0;
 reg ssi_dat_0;
 reg ssi_sck_1;
 reg ssi_dat_1;
-reg STATUS_RSTB = 0;
 
 // Outputs
 wire [31:0] posn_0;
@@ -87,7 +86,6 @@ initial begin
 
     // Clear STATUS first thing
     repeat (10) @(posedge clk_i);
-    STATUS_RSTB <= 1'b1;@(posedge clk_i);STATUS_RSTB <= 1'b0;
 
     repeat (50) @(posedge clk_i);
     fid_0 = $fopen("biss0.prn", "r");
@@ -99,7 +97,6 @@ initial begin
     end
 
     repeat (1250) @(posedge clk_i);
-    STATUS_RSTB <= 1'b1;@(posedge clk_i);STATUS_RSTB <= 1'b0;
     repeat (12500) @(posedge clk_i);
     $finish;
 end
@@ -119,7 +116,6 @@ initial begin
     end
 
     repeat (1250) @(posedge clk_i);
-    STATUS_RSTB <= 1'b1;@(posedge clk_i);STATUS_RSTB <= 1'b0;
     repeat (12500) @(posedge clk_i);
     $finish;
 end

@@ -13,7 +13,7 @@ LVDSOUT     LVDS output
 
 INENC       Input encoder
     PROTOCOL        Type of absolute/incremental protocol
-    BYPASS          Bypass/Pass Through encoder signals
+    CLK_SRC         Bypass/Pass Through encoder signals
     CLK_PERIOD      Clock rate
     FRAME_PERIOD    Frame rate
     BITS            Number of bits
@@ -21,8 +21,7 @@ INENC       Input encoder
     MSB_DISCARD     Number of MSB bits to discard
     SETP            Set point
     RST_ON_Z        Zero position on Z rising edge
-    STATUS          Encoder status read from device
-    DCARD_ID        Daughter card jumper mode
+    DCARD_TYPE      Daughter card jumper mode
     A               Quadrature A if in incremental mode
     B               Quadrature B if in incremental mode
     Z               Z index channel if in incremental mode
@@ -33,7 +32,6 @@ INENC       Input encoder
 
 OUTENC      Output encoder
     PROTOCOL        Type of absolute/incremental protocol
-    BYPASS          Bypass/Pass Through encoder signals
     BITS            Number of bits
     QPERIOD         Quadrature prescalar
     ENABLE          Halt on falling edge, reset and enable on rising
@@ -44,6 +42,6 @@ OUTENC      Output encoder
     CLK             Clock input from master encoder
     VAL             Input for position (all other protocols)
     CONN            Input for connected
-    DCARD_ID        Daughter card jumper mode
+    DCARD_TYPE      Daughter card jumper mode
     QSTATE          Quadrature state
 

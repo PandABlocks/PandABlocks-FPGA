@@ -46,7 +46,7 @@ set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 read_ip $BUILD_DIR/ip_repo/pulse_queue/pulse_queue.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32/fifo_1K32.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32_ft/fifo_1K32_ft.xci
-read_ip $BUILD_DIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
+read_ip $BUILD_DIR/ip_repo/system_cmd_fifo/system_cmd_fifo.xci
 read_ip $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
 if {$FMC_DESIGN == "fmc_loopback"} {
     read_ip $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
@@ -61,7 +61,7 @@ read_vhdl [glob $BUILD_DIR/autogen/*.vhd]
 # Read design files
 read_vhdl [glob $TOP_DIR/common/vhdl/defines/*.vhd]
 read_vhdl [glob $TOP_DIR/common/vhdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/adder/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/calc/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/base/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/bits/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/clocks/vhdl/*.vhd]
@@ -75,7 +75,7 @@ read_vhdl [glob $TOP_DIR/modules/posenc/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/pulse/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/qdec/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/seq/vhdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/slow/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/system/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/srgate/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/filter/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/$FMC_DESIGN/vhdl/*.vhd]

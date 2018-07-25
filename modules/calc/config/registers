@@ -1,4 +1,4 @@
-ADDER       {{newBlockNo("ADDER")}}
+CALC       {{newBlockNo("CALC")}}
     INPA            {{newBlockReg()}}
     INPB            {{newBlockReg()}}
     INPC            {{newBlockReg()}}
@@ -9,5 +9,5 @@ ADDER       {{newBlockNo("ADDER")}}
     D               {{newBlockReg()}}
     FUNC            {{newBlockReg()}}
     OUT             {{newPosBus()}}
-
-
+    
+    

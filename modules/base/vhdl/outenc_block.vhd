@@ -51,7 +51,7 @@ signal BITS_WSTB        : std_logic;
 signal QPERIOD          : std_logic_vector(31 downto 0);
 signal QPERIOD_WSTB     : std_logic;
 signal QSTATE           : std_logic_vector(31 downto 0);
-signal DCARD_ID         : std_logic_vector(31 downto 0);
+signal DCARD_TYPE       : std_logic_vector(31 downto 0);
 
 signal a_ext, b_ext, z_ext, data_ext    : std_logic;
 signal posn             : std_logic_vector(31 downto 0);
@@ -95,8 +95,7 @@ port map (
     -- Block Parameters
     PROTOCOL            => PROTOCOL_i,
     PROTOCOL_WSTB       => PROTOCOL_WSTB,
-    DCARD_ID            => DCARD_ID,
-    BYPASS              => BYPASS,
+    DCARD_TYPE          => DCARD_TYPE,
     BITS                => BITS,
     BITS_WSTB           => BITS_WSTB,
     QPERIOD             => QPERIOD,
@@ -104,7 +103,7 @@ port map (
     QSTATE              => QSTATE
 );
 
-DCARD_ID <= x"0000000" & '0' & DCARD_MODE(3 downto 1);
+DCARD_TYPE <= x"0000000" & '0' & DCARD_MODE(3 downto 1);
 
 --
 -- Core instantiation
@@ -129,7 +128,6 @@ port map (
     DATA_OUT            => DATA_OUT,
     -- Block Parameters
     PROTOCOL            => PROTOCOL_i(2 downto 0),
-    BYPASS              => BYPASS(0),
     BITS                => BITS(7 downto 0),
     QPERIOD             => QPERIOD,
     QPERIOD_WSTB        => QPERIOD_WSTB,
