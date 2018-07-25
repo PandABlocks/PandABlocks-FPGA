@@ -67,13 +67,19 @@ begin
         acc_cd <= posn_data(inpc_i, C, acc_abcd'length) +
                     posn_data(inpd_i, D, acc_abcd'length);
 
-        acc_abcd <= acc_ab + acc_cd;
+--        acc_abcd <= acc_ab + acc_cd;
     end if;
 end process;
 
+
+acc_abcd <= acc_ab + acc_cd;
+
+
+
 -- Scaled output (take care of sign bit)
-process(clk_i) begin
-    if rising_edge(clk_i) then
+--process(clk_i) begin
+--    if rising_edge(clk_i) then
+process(FUNC, acc_abcd) begin
         case FUNC is
             when "00" =>
                 out_o <= std_logic_vector(resize(acc_abcd, 32));
@@ -86,7 +92,7 @@ process(clk_i) begin
             when others =>
                 out_o <= std_logic_vector(resize(acc_abcd, 32));
         end case;
-    end if;
+--    end if;
 end process;
 
 end rtl;
