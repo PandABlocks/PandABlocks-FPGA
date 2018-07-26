@@ -48,7 +48,7 @@ array set tests {
         panda_pcomp_tb 4
         panda_pulse_tb 3
         panda_srgate_tb 2
-        calc_tb 1
+        panda_calc_tb 1
 }
 
 
@@ -100,7 +100,7 @@ add_files -fileset sim_1 -norecurse {../../tests/sim/panda_pulse/bench/panda_pul
 ../../tests/sim/panda_filter/bench/panda_filter_tb.v
 ../../tests/sim/panda_lut/bench/panda_lut_tb.v
 ../../tests/sim/panda_srgate/bench/panda_srgate_tb.v
-../../tests/sim/panda_calc/bench/calc_tb.vhd
+../../tests/sim/panda_calc/bench/panda_calc_tb.v
 ../../tests/sim/panda_pulse/bench/panda_pulse_tb.v
 ../../tests/sim/panda_pcap/bench/pcap_core_wrapper.vhd
 ../../tests/sim/panda_pcap/bench/pcap_core_tb.v
