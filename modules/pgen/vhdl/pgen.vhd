@@ -35,7 +35,7 @@ port (
     TABLE_ADDR          : in  std_logic_vector(31 downto 0);
     TABLE_LENGTH        : in  std_logic_vector(31 downto 0);
     TABLE_LENGTH_WSTB   : in  std_logic;
-    HEALTH              : out std_logic_vector(31 downto 0);
+    health_o            : out std_logic_vector(31 downto 0);
     -- DMA Engine Interface
     dma_req_o           : out std_logic;
     dma_ack_i           : in  std_logic;
@@ -243,7 +243,7 @@ process(clk_i) begin
         if (reset = '1') then
             dma_underrun <= '0';
             table_end <= '0';
-            HEALTH <= (others => '0');
+            health_o <= (others => '0');
         else
             -- Detect Table End reached once in operation.
             if (pgen_fsm = FINISHED and fifo_empty = '1' and trig_pulse = '1') then
@@ -257,13 +257,13 @@ process(clk_i) begin
 
             -- Assign HEALTH output as Enum.
             if (table_ready = '0') then
-                HEALTH <= TO_SVECTOR(1,32);
+                health_o <= TO_SVECTOR(1,32);
             elsif (table_end = '1') then
-                HEALTH <= TO_SVECTOR(2,32);
+                health_o <= TO_SVECTOR(2,32);
             elsif (dma_underrun = '1') then
-                HEALTH <= TO_SVECTOR(3,32);
+                health_o <= TO_SVECTOR(3,32);
             else
-                HEALTH <= (others => '0');
+                health_o <= (others => '0');
             end if;
 
         end if;
