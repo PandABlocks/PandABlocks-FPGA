@@ -1,0 +1,173 @@
+--------------------------------------------------------------------------------
+-- Top-level VHDL wrapper for a block
+-- This is responsible for creating {{ number }} instances of a {{ name }} Block
+--------------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library work;
+use work.top_defines.all;
+
+
+entity {{ entity }}_wrapper is
+generic (
+    NUM : integer := {{ number }}
+);
+port (
+    -- Clocks and Resets
+    clk_i               : in  std_logic;
+    reset_i             : in  std_logic;
+
+    -- Bus inputs
+    -- TODO: rename to bit_bus_i
+    sysbus_i            : in  sysbus_t;
+    pos_bus_i           : in  posbus_t;
+
+    -- Bus outputs
+{% for field in filter_fields("bit_out") %}
+    {{ field.name }}_o  : out std_logic_vector(NUM-1 downto 0);
+{% endfor %}
+{% for field in filter_fields("pos_out") %}
+    {{ field.name }}_o  : out std32_array(NUM-1 downto 0);
+{% endfor %}
+
+    -- Memory Interface
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic
+);
+end {{ entity }}_wrapper;
+
+architecture rtl of {{ entity }}_wrapper is
+
+
+-- Register addresses, current values and strobes, an array of these for NUM
+-- Blocks
+
+{% for field in fields %}
+    {% for register in field.registers %}
+constant {{ register.name }}_ADDR : natural := {{ register.number }};
+signal {{ register.name }}        : std32_array(NUM-1 downto 0);
+signal {{ register.name }}_WSTB   : std_logic_vector(NUM-1 downto 0);
+
+    {% endfor %}
+{% endfor %}
+
+-- Current values for bit muxes
+
+{% for field in filter_fields("bit_mux") %}
+signal {{ field.name }}_FROM_BUS : std_logic_vector(NUM-1 downto 0);  
+{% endfor %}
+
+
+-- Register interface common
+
+signal read_strobe      : std_logic_vector(NUM-1 downto 0);
+signal read_data        : std32_array(NUM-1 downto 0);
+signal write_strobe     : std_logic_vector(NUM-1 downto 0);
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
+signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
+
+
+begin
+
+    -- Acknowledgement to AXI Lite interface
+    write_ack_o <= '1';
+
+    read_ack_delay : entity work.delay_line
+    generic map (DW => 1)
+    port map (
+        clk_i       => clk_i,
+        data_i(0)   => read_strobe_i,
+        data_o(0)   => read_ack_o,
+        DELAY       => RD_ADDR2ACK
+    );
+
+    -- Generate NUM instances of the blocks
+    GEN : FOR I IN 0 TO (NUM-1) GENERATE
+
+        -- Sub-module address decoding
+        read_strobe(I) <= compute_block_strobe(read_address_i, I) and read_strobe_i;
+        write_strobe(I) <= compute_block_strobe(write_address_i, I) and write_strobe_i;
+        read_addr <= to_integer(unsigned(read_address_i(BLK_AW-1 downto 0)));
+        write_addr <= to_integer(unsigned(write_address_i(BLK_AW-1 downto 0)));
+
+        -- Control System Register Interface
+        REG_WRITE : process(clk_i)
+        begin
+            if rising_edge(clk_i) then
+                -- Zero all the write strobe arrays, we set them below
+{% for field in fields %}
+    {% for register in field.registers %}
+                {{ register.name }}_WSTB(I) <= "0";
+    {% endfor %}
+{% endfor %}
+                if (write_strobe(I) = "1") then
+                    -- Set the specific write strobe that has come in
+                    case write_addr is
+{% for field in fields %}
+    {% for register in field.registers %}
+                        when {{ register.name }}_ADDR =>
+                            {{ register.name }}(I) <= write_data_i;
+                            {{ register.name }}_WSTB(I) <= "1";
+    {% endfor %}
+{% endfor %}
+                    end case;
+                end if;
+            end if;
+        end process;
+
+        --
+        -- Status Register Read     // NOT dealt with yet!      -- Need MUX for read_data(I)
+                                                                -- find examples that actually have register reads...
+        --
+        REG_READ : process(clk_i)
+        begin
+            if rising_edge(clk_i) then
+                case (read_addr) is
+                    when others =>
+                        read_data(I) <= (others => '0');
+                end case;
+            end if;
+        end process;
+
+        -- Instantiate Delay Blocks for Bit and Position Bus Fields
+{% for field in filter_fields("bit_mux") %}
+        bitmux_{{ field.name }} : entity work.bitmux
+        port map (
+            clk_i       => clk_i,
+            sysbus_i    => sysbus_i,
+            bit_o       => {{ field.name }}_FROM_BUS(I),
+            BITMUX_SEL  => {{ field.name }}(I),
+            BIT_DLY     => {{ field.name }}_DLY(I)
+        );
+
+{% endfor %}
+
+        -- Connect to the actual logic entity
+        {{ entity }} : entity work.{{ entity }}
+        port map (
+{% for field in filter_fields("*_mux") %}
+            {{ field.name.lower() }}_i => {{ field.name }}_FROM_BUS(I),
+{% endfor %}
+{% for field in filter_fields("param*") %}
+            {{ field.name }} => {{ field.name }}(I),
+{% endfor %}
+{% for field in filter_fields("*_out") %}
+            {{ field.name.lower() }}_o => {{ field.name }}_o(I),
+{% endfor %}
+            clk_i => clk_i
+        );
+
+    END GENERATE;
+
+end rtl;
+

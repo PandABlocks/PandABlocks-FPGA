@@ -1,10 +1,14 @@
-#!/bin/env python
+#!/bin/env dls-python
 """
 Generate build/<app>/config_d from <app>.ini
 """
 import os
 import shutil
 from argparse import ArgumentParser
+
+from pkg_resources import require
+require("jinja2")
+from jinja2 import Environment, FileSystemLoader
 
 from .compat import TYPE_CHECKING, configparser
 from .configs import BlockConfig
@@ -44,6 +48,7 @@ class AppGenerator(object):
         self.blocks = []  # type: List[BlockConfig]
         self.parse_ini_files(app)
         self.generate_config_dir()
+        self.generate_wrappers()
 
     def parse_ini_files(self, app):
         # type: (str) -> None
@@ -96,6 +101,7 @@ class AppGenerator(object):
                 self.blocks.append(block)
 
     def generate_config_dir(self):
+        """Generate config, registers, descriptions in config_d"""
         config_dir = os.path.join(self.app_build_dir, "config_d")
         os.makedirs(config_dir)
         # Create the config file
@@ -122,6 +128,27 @@ class AppGenerator(object):
                 for line in block.descriptions_lines():
                     f.write(line + "\n")
                 f.write("\n")
+
+    def generate_wrappers(self):
+        """Generate wrappers in hdl"""
+        hdl_dir = os.path.join(self.app_build_dir, "hdl")
+        os.makedirs(hdl_dir)
+        # Create a Jinja2 environment with the block wrapper template
+        env = Environment(
+            autoescape=False,
+            loader=FileSystemLoader(TEMPLATES),
+            trim_blocks=True,
+            lstrip_blocks=True
+        )
+        template = env.get_template("block_wrapper.vhd.jinja2")
+        # Create a wrapper for every block
+        for block in self.blocks:
+            fname = "%s_wrapper.vhd" % block.entity
+            with open(os.path.join(hdl_dir, fname), "w") as f:
+                # Expose a context of all attributes and methods of BlockConfig
+                # like name, number, entity, filter_fields(), etc.
+                context = {k: getattr(block, k) for k in dir(block)}
+                f.write(template.render(context))
 
 
 def main():
