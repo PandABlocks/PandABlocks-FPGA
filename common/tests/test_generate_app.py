@@ -3,60 +3,60 @@ import shutil
 import unittest
 from common.python.generate_app import AppGenerator
 
-expected_description = """LUT\tLookup table
-\tFUNC\tInput func
-\tA\tSource of the value of A for calculation
-\tB\tSource of the value of B for calculation
-\tC\tSource of the value of C for calculation
-\tD\tSource of the value of D for calculation
-\tE\tSource of the value of E for calculation
-\tINPA\tInput A
-\tINPB\tInput B
-\tINPC\tInput C
-\tINPD\tInput D
-\tINPE\tInput E
-\tOUT\tLookup table output
+expected_description = """LUT             Lookup table
+    FUNC            Input func
+    A               Source of the value of A for calculation
+    B               Source of the value of B for calculation
+    C               Source of the value of C for calculation
+    D               Source of the value of D for calculation
+    E               Source of the value of E for calculation
+    INPA            Input A
+    INPB            Input B
+    INPC            Input C
+    INPD            Input D
+    INPE            Input E
+    OUT             Lookup table output
 
 """
 
 expected_config = """*METADATA
-    DESIGN      string
-    LAYOUT      multiline
-    EXPORTS     multiline
+    DESIGN          string
+    LAYOUT          multiline
+    EXPORTS         multiline
 
 LUT[8]
-\tFUNC\tparam\tlut
-\tA\tparam\tenum
-\t\t0\tInput Value
-\t\t1\tRising Edge
-\t\t2\tFalling Edge
-\t\t3\tEither Edge
-\tB\tparam\tenum
-\t\t0\tInput Value
-\t\t1\tRising Edge
-\t\t2\tFalling Edge
-\t\t3\tEither Edge
-\tC\tparam\tenum
-\t\t0\tInput Value
-\t\t1\tRising Edge
-\t\t2\tFalling Edge
-\t\t3\tEither Edge
-\tD\tparam\tenum
-\t\t0\tInput Value
-\t\t1\tRising Edge
-\t\t2\tFalling Edge
-\t\t3\tEither Edge
-\tE\tparam\tenum
-\t\t0\tInput Value
-\t\t1\tRising Edge
-\t\t2\tFalling Edge
-\t\t3\tEither Edge
-\tINPA\tbit_mux
-\tINPB\tbit_mux
-\tINPC\tbit_mux
-\tINPD\tbit_mux
-\tINPE\tbit_mux
-\tOUT\tbit_out
+    FUNC            param lut
+    A               param enum
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
+    B               param enum
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
+    C               param enum
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
+    D               param enum
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
+    E               param enum
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
+    INPA            bit_mux
+    INPB            bit_mux
+    INPC            bit_mux
+    INPD            bit_mux
+    INPE            bit_mux
+    OUT             bit_out
 
 """
 
@@ -116,19 +116,19 @@ expected_registers = """# This special register block is not present in the conf
     # DMA block size in bytes
     PCAP_BLOCK_SIZE         6
 
-LUT\t2
-\tFUNC\t0
-\tA\t1
-\tB\t2
-\tC\t3
-\tD\t4
-\tE\t5
-\tINPA\t6 7
-\tINPB\t8 9
-\tINPC\t10 11
-\tINPD\t12 13
-\tINPE\t14 15
-\tOUT\t0 1 2 3 4 5 6 7
+LUT             2
+    FUNC            0
+    A               1
+    B               2
+    C               3
+    D               4
+    E               5
+    INPA            6 7
+    INPB            8 9
+    INPC            10 11
+    INPD            12 13
+    INPE            14 15
+    OUT             0 1 2 3 4 5 6 7
 
 """
 
