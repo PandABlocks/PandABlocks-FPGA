@@ -7,7 +7,7 @@
 # BUILD_DIR = $(TOP)/build
 
 # Python interpreter for running scripts
-PYTHON = python2
+PYTHON = dls-python
 
 # Sphinx build for documentation.
 SPHINX_BUILD = sphinx-build
