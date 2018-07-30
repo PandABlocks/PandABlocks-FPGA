@@ -35,7 +35,7 @@ port (
     TABLE_ADDR          : in  std_logic_vector(31 downto 0);
     TABLE_LENGTH        : in  std_logic_vector(31 downto 0);
     TABLE_LENGTH_WSTB   : in  std_logic;
-    health_o            : out std_logic_vector(31 downto 0);
+    health_o            : out std_logic_vector(31 downto 0) := (others => '0');
     -- DMA Engine Interface
     dma_req_o           : out std_logic;
     dma_ack_i           : in  std_logic;

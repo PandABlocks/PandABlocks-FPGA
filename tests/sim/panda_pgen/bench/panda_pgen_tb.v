@@ -335,7 +335,7 @@ begin
             err_health <= 1;
         end else begin
             err_health <= 0;
-        end         
+        end 
     end 
 end
 
