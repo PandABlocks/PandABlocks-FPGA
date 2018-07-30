@@ -29,51 +29,24 @@ INPE            In  Bit     Input E
 OUT             Out Bit     Output port from the block
 =============== === ======= ===================================================
 
-Testing Function Output
-----------------------------
-This set of tests sets the function value and checks whether the output is as
-expected
+Normal Operation
+----------------
 
-A&B&C&D&E (FUNC= 0x80000000). Setting all inputs to 1
-results in an output of 1, and changing any inputs produces an output of 0
+The value of FUNC is a 32-bit unsigned int representing the truth table output
+of the 5 inputs. The mapping of the string to an integer is done by the
+:ref:`PandABlocks TCP server <server:fields>`. The examples below show the
+results of some FUNC values.
 
-.. sequence_plot::
-   :block: lut
-   :title: A&B&C&D&E Output
+.. timing_plot:: modules/lut/timing/normal_operation_timing.ini
 
-~A&~B&~C&~D&~E (FUNC= 0x00000001). Setting all inputs to 0 results
-in an output of 1, and changing any inputs produces an output of 0
-
-.. sequence_plot::
-   :block: lut
-   :title: ~A&~B&~C&~D&~E Output
-
-A (FUNC= 0xffff0000). The output should only be 1 if A is
-1 irrespective of any other input.
-
-.. sequence_plot::
-   :block: lut
-   :title: A output
-
-A&B|C&~D (FUNC= 0xff303030)
-
-.. sequence_plot::
-   :block: lut
-   :title: A&B|C&~D output
-
-A?(B):D&E (FUNC= 0xff008888)
-
-.. sequence_plot::
-   :block: lut
-   :title: A?(B):D&E output
 
 Changing the function in a test
 -------------------------------
+
 If a function is changed, the output will take effect on the next clock tick
 
-.. sequence_plot::
-   :block: lut
-   :title: Changing function
+.. timing_plot:: modules/lut/timing/changing_function_timing.ini
+
 
 Edge triggered inputs
 ---------------------
@@ -84,15 +57,11 @@ INPA..INPE.
 
 If we wanted to produce a pulse only if INPA had a rising edge on the same clock
 tick as INPB had a falling edge we could set FUNC=0xff000000 (A&B) and A=1
-(rising edge of INPA) and B=1 (falling edge of INPB):
+(rising edge of INPA) and B=2 (falling edge of INPB):
 
-.. sequence_plot::
-   :block: lut
-   :title: Rising A & Falling B
+.. timing_plot:: modules/lut/timing/a_b_edge_timing.ini
 
 We could also use this for generating pulses on every transition of A:
 
-.. sequence_plot::
-   :block: lut
-   :title: Either edge A
+.. timing_plot:: modules/lut/timing/either_edge_timing.ini
 

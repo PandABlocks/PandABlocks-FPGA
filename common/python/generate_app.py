@@ -5,13 +5,14 @@ Generate build/<app>/config_d from <app>.ini
 import os
 import shutil
 from argparse import ArgumentParser
-
 from pkg_resources import require
+
 require("jinja2")
 from jinja2 import Environment, FileSystemLoader
 
 from .compat import TYPE_CHECKING, configparser
 from .configs import BlockConfig, pad
+from .ini_util import read_ini
 
 if TYPE_CHECKING:
     from typing import List
@@ -28,13 +29,6 @@ MAX_BLOCKS = 64
 MAX_BIT = 128
 MAX_POS = 32
 MAX_EXT = 32
-
-
-def read_ini(path):
-    # type: (str) -> configparser.SafeConfigParser
-    app_ini = configparser.SafeConfigParser()
-    assert app_ini.read(path), "Can't read ini file %s" % path
-    return app_ini
 
 
 class AppGenerator(object):

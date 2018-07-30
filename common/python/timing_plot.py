@@ -1,17 +1,14 @@
 #!/bin/env dls-python
 from pkg_resources import require
 require("matplotlib")
-require("numpy")
 
 import sys
-import os
 from collections import OrderedDict
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from common.python.pandablocks.sequenceparser import SequenceParser
-
+from .ini_util import read_ini, timing_entries
 
 TRANSITION_HEIGHT = 0.6
 PULSE_HEIGHT = 1.0
@@ -21,18 +18,11 @@ TOP_HEIGHT = 0.6
 BOTTOM_HEIGHT = 1.0
 VERTICAL_STRETCH = 0.5
 
-# add our parser and config dirs
-parser_dir = os.path.join(
-    os.path.dirname(__file__), "..", "tests", "sim_sequences")
-
-PAR_DIR = os.path.join(__file__, os.pardir, os.pardir)
-ROOT_DIR = os.path.dirname(os.path.abspath(PAR_DIR))
-MODULE_DIR = os.path.join(ROOT_DIR, "modules")
-
 
 def legend_label(text, x, y, off):
     plt.annotate(text, xy=(x, y), xytext=(x-off, y),
                  horizontalalignment="right", verticalalignment="center")
+
 
 def plot_bit(trace_items, names, offset, crossdist):
     for name, (tracex, tracey) in trace_items.items():
@@ -43,6 +33,7 @@ def plot_bit(trace_items, names, offset, crossdist):
             # add label
             legend_label(name, 0, tracey[0] + offset + PULSE_HEIGHT / 2., crossdist)
     return offset
+
 
 def plot_pos(trace_items, names, offset, crossdist, ts):
     for name, (tracex, tracey) in trace_items.items():
@@ -77,24 +68,16 @@ def plot_pos(trace_items, names, offset, crossdist, ts):
             legend_label(name, 0, TRANSITION_HEIGHT / 2. + offset, crossdist)
     return offset
 
-def make_block_plot(blockname, title):
-    # Load the correct sequence file
-    fname = blockname + ".seq"
-    sequence_dir = os.path.join(MODULE_DIR, blockname, 'sim')
-    sequence_file = os.path.join(sequence_dir, fname)
-    sparser = SequenceParser(sequence_file, convert_int=False)
-    matches = [s for s in sparser.sequences if s.name == title]
-    assert len(matches) == 1, 'Unknown title "%s" or multiple matches' % title
-    sequence = matches[0]
 
+def make_block_plot(ini, section):
     # walk the inputs and outputs and add the names we're interested in
     in_names = []
     out_names = []
     pos_names = set()
     values = {}
 
-    for ts in sequence.inputs:
-        for name, val in sequence.inputs[ts].items():
+    for ts, inputs, outputs in timing_entries(ini, section):
+        for name, val in inputs.items():
             if name.startswith("TABLE_"):
                 # Add table special
                 name = "TABLE"
@@ -108,7 +91,7 @@ def make_block_plot(blockname, title):
             if name not in in_names:
                 in_names.append(name)
             values.setdefault(name, set()).add(val)
-        for name, val in sequence.outputs[ts].items():
+        for name, val in outputs.items():
             if name != "TABLE_STROBES" and name not in out_names:
                 out_names.append(name)
             values.setdefault(name, set()).add(int(val, 0))
@@ -143,16 +126,14 @@ def make_block_plot(blockname, title):
     capture_count = 0
     data_count = 0
     lohi = {}
-    for ts in sequence.inputs:
-        inputs = sequence.inputs[ts]
-        outputs = sequence.outputs[ts]
+    for ts, inputs, outputs in timing_entries(ini, section):
         for name, (tracex, tracey) in bit_traces.items():
-            if name in sequence.inputs[ts]:
+            if name in inputs:
                 tracex.append(ts)
                 tracex.append(ts)
                 tracey.append(tracey[-1])
                 tracey.append(inputs[name])
-            elif name in sequence.outputs[ts]:
+            elif name in outputs:
                 tracex.append(ts+1)
                 tracex.append(ts+1)
                 tracey.append(tracey[-1])
@@ -177,12 +158,12 @@ def make_block_plot(blockname, title):
                 lohi[name + "_H"] = int(inputs[name + "_H"], 0)
                 inputs[name] = lohi.get(name + "_L", 0) + \
                     (lohi[name + "_H"] << 32)
-            if name in sequence.inputs[ts]:
+            if name in inputs:
                 if not tracey or tracey[-1] != inputs[name]:
                     tracex.append(ts)
                     tracey.append(inputs[name])
-            elif name in sequence.outputs[ts]:
-                if blockname.upper() == "PCAP" and name == "DATA":
+            elif name in outputs:
+                if name == "DATA":
                     data_count += 1
                     if (data_count - 1) % capture_count == 0:
                         outputs[name] = "Row%d" % (data_count / capture_count)
@@ -229,7 +210,7 @@ def make_block_plot(blockname, title):
 
     plt.ylim(offset - PLOT_OFFSET, 0)
     # add a grid, title, legend, and axis label
-    plt.title(title)
+    plt.title(section)
     plt.grid(axis="x")
     plt.xlabel("Timestamp (125MHz FPGA clock ticks)")
     # turn off ticks and labels for y
@@ -247,6 +228,8 @@ def make_block_plot(blockname, title):
 
     plt.show()
 
+
 if __name__ == "__main__":
     # test
-    make_block_plot(sys.argv[1], sys.argv[2])
+    ini = read_ini(sys.argv[1])
+    make_block_plot(ini, ini.sections()[0])
