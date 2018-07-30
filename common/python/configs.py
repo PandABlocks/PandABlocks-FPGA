@@ -227,7 +227,7 @@ class BitMuxFieldConfig(FieldConfig):
         # One register for the mux value, one for a delay line
         self.registers.append(RegisterConfig(self.name, field_address))
         field_address += 1
-        self.registers.append(RegisterConfig(self.name + "_DLY", field_address))
+        self.registers.append(RegisterConfig(self.name + "_dly", field_address))
         field_address += 1
         return field_address, bit_i, pos_i, ext_i
 

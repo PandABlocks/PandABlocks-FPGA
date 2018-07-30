@@ -54,9 +54,9 @@ architecture rtl of {{ entity }}_wrapper is
 
 {% for field in fields %}
     {% for register in field.registers %}
-constant {{ register.name }}_ADDR : natural := {{ register.number }};
+constant {{ register.name }}_addr : natural := {{ register.number }};
 signal {{ register.name }}        : std32_array(NUM-1 downto 0);
-signal {{ register.name }}_WSTB   : std_logic_vector(NUM-1 downto 0);
+signal {{ register.name }}_wstb   : std_logic_vector(NUM-1 downto 0);
 
     {% endfor %}
 {% endfor %}
@@ -64,7 +64,7 @@ signal {{ register.name }}_WSTB   : std_logic_vector(NUM-1 downto 0);
 -- Current values for bit muxes
 
 {% for field in filter_fields("bit_mux") %}
-signal {{ field.name }}_FROM_BUS : std_logic_vector(NUM-1 downto 0);  
+signal {{ field.name }}_from_bus : std_logic_vector(NUM-1 downto 0);
 {% endfor %}
 
 
@@ -107,7 +107,7 @@ begin
                 -- Zero all the write strobe arrays, we set them below
 {% for field in fields %}
     {% for register in field.registers %}
-                {{ register.name }}_WSTB(I) <= "0";
+                {{ register.name }}_wstb(I) <= "0";
     {% endfor %}
 {% endfor %}
                 if (write_strobe(I) = "1") then
@@ -115,9 +115,9 @@ begin
                     case write_addr is
 {% for field in fields %}
     {% for register in field.registers %}
-                        when {{ register.name }}_ADDR =>
+                        when {{ register.name }}_addr =>
                             {{ register.name }}(I) <= write_data_i;
-                            {{ register.name }}_WSTB(I) <= "1";
+                            {{ register.name }}_wstb(I) <= "1";
     {% endfor %}
 {% endfor %}
                     end case;
@@ -145,9 +145,9 @@ begin
         port map (
             clk_i       => clk_i,
             sysbus_i    => sysbus_i,
-            bit_o       => {{ field.name }}_FROM_BUS(I),
-            BITMUX_SEL  => {{ field.name }}(I),
-            BIT_DLY     => {{ field.name }}_DLY(I)
+            bit_o       => {{ field.name }}_from_bus(I),
+            bitmux_sel  => {{ field.name }}(I),
+            bit_dly     => {{ field.name }}_DLY(I)
         );
 
 {% endfor %}
@@ -156,13 +156,13 @@ begin
         {{ entity }} : entity work.{{ entity }}
         port map (
 {% for field in filter_fields("*_mux") %}
-            {{ field.name.lower() }}_i => {{ field.name }}_FROM_BUS(I),
+            {{ field.name }}_i => {{ field.name }}_from_bus(I),
 {% endfor %}
 {% for field in filter_fields("param*") %}
             {{ field.name }} => {{ field.name }}(I),
 {% endfor %}
 {% for field in filter_fields("*_out") %}
-            {{ field.name.lower() }}_o => {{ field.name }}_o(I),
+            {{ field.name }}_o => {{ field.name }}_o(I),
 {% endfor %}
             clk_i => clk_i
         );
