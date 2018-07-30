@@ -37,6 +37,7 @@ set test_failed are;
 
 # Test array (add test here)
 array set tests { 
+        panda_pgen_tb 13
         panda_bits_tb 12
         panda_counter_tb 11    
         panda_sequencer_2tb 10
@@ -65,6 +66,7 @@ add_files -norecurse {../../modules/filter/vhdl/divider.vhd
 ../../common/vhdl/defines/support.vhd
 ../../modules/pulse/vhdl/pulse.vhd
 ../PandABox/ip_repo/pulse_queue/pulse_queue_funcsim.vhdl
+../PandABox/ip_repo/fifo_1K32/fifo_1K32_funcsim.vhdl
 ../../modules/div/vhdl/div.vhd 
 ../../modules/lut/vhdl/lut.vhd
 ../../modules/pcomp/vhdl/pcomp_table.vhd
@@ -108,6 +110,7 @@ add_files -fileset sim_1 -norecurse {../../tests/sim/panda_pulse/bench/panda_pul
 ../../tests/sim/panda_sequencer/bench/panda_sequencer_2tb.v
 ../../tests/sim/panda_counter/bench/panda_counter_tb.v
 ../../tests/sim/panda_bits/bench/panda_bits_tb.v
+../../tests/sim/panda_pgen/bench/panda_pgen_tb.v
 }
 
 
