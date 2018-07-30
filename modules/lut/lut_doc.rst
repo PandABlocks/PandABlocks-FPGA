@@ -1,5 +1,6 @@
-LUT - 5 Input lookup table [x8]
-===============================
+LUT - 5 Input lookup table
+==========================
+
 An LUT block produces an output that is determined by a user-programmable
 5-input logic function, set with the FUNC register.
 

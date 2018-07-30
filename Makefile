@@ -18,7 +18,10 @@ include CONFIG
 # For every APP in APPS, make build/APP
 APP_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/%,$(APPS))
 
-default: $(APP_BUILD_DIRS)
+# The docs are built into this dir
+DOCS_BUILD_DIR = $(BUILD_DIR)/html
+
+default: apps docs
 .PHONY: default
 
 # Something like 0.1-1-g5539563-dirty
@@ -30,15 +33,34 @@ DIRTY_PRE = $(shell python -c "print 8 if '$(GIT_VERSION)'.endswith('dirty') els
 # Something like 85539563
 export SHA := $(DIRTY_PRE)$(shell git rev-parse --short HEAD)
 
+# ------------------------------------------------------------------------------
+# App source autogeneration
+
 # Make the built app from the ini file
 $(BUILD_DIR)/%: $(TOP)/apps/%.ini
 	rm -rf $@_tmp $@
 	$(PYTHON) -m common.python.generate_app $< $@_tmp
 	mv $@_tmp $@
 
+apps: $(APP_BUILD_DIRS)
+
+.PHONY: apps
+
+# ------------------------------------------------------------------------------
+# Documentation
+
+$(DOCS_BUILD_DIR)/index.html: $(wildcard docs/*.rst docs/*/*.rst docs/conf.py)
+	$(SPHINX_BUILD) -b html docs $(DOCS_BUILD_DIR)
+
+docs: $(DOCS_BUILD_DIR)/index.html
+
+.PHONY: docs
+
+# ------------------------------------------------------------------------------
+# Clean
+
 clean:
 	rm -rf $(BUILD_DIR)
 	find -name '*.pyc' -delete
 
 .PHONY: clean
-
