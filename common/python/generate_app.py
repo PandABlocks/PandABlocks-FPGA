@@ -11,7 +11,7 @@ require("jinja2")
 from jinja2 import Environment, FileSystemLoader
 
 from .compat import TYPE_CHECKING, configparser
-from .configs import BlockConfig
+from .configs import BlockConfig, pad
 
 if TYPE_CHECKING:
     from typing import List
@@ -44,6 +44,13 @@ class AppGenerator(object):
         if os.path.exists(app_build_dir):
             shutil.rmtree(app_build_dir)
         self.app_build_dir = app_build_dir
+        # Create a Jinja2 environment in the templates dir
+        self.env = Environment(
+            autoescape=False,
+            loader=FileSystemLoader(TEMPLATES),
+            trim_blocks=True,
+            lstrip_blocks=True
+        )
         # These will be created when we parse the ini files
         self.blocks = []  # type: List[BlockConfig]
         self.parse_ini_files(app)
@@ -104,43 +111,25 @@ class AppGenerator(object):
         """Generate config, registers, descriptions in config_d"""
         config_dir = os.path.join(self.app_build_dir, "config_d")
         os.makedirs(config_dir)
+        context = dict(blocks=self.blocks, pad=pad)
         # Create the config file
         with open(os.path.join(config_dir, "config"), "w") as f:
-            # Write the header
-            with open(os.path.join(TEMPLATES, "config_header")) as src:
-                f.write(src.read())
-            for block in self.blocks:
-                for line in block.config_lines():
-                    f.write(line + "\n")
-                f.write("\n")
+            template = self.env.get_template("config.jinja2")
+            f.write(template.render(context))
         # Create the registers file
         with open(os.path.join(config_dir, "registers"), "w") as f:
-            # Write the header
-            with open(os.path.join(TEMPLATES, "registers_header")) as src:
-                f.write(src.read())
-            for block in self.blocks:
-                for line in block.registers_lines():
-                    f.write(line + "\n")
-                f.write("\n")
+            template = self.env.get_template("registers.jinja2")
+            f.write(template.render(context))
         # Create the descriptions file
         with open(os.path.join(config_dir, "descriptions"), "w") as f:
-            for block in self.blocks:
-                for line in block.descriptions_lines():
-                    f.write(line + "\n")
-                f.write("\n")
+            template = self.env.get_template("descriptions.jinja2")
+            f.write(template.render(context))
 
     def generate_wrappers(self):
         """Generate wrappers in hdl"""
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
         os.makedirs(hdl_dir)
-        # Create a Jinja2 environment with the block wrapper template
-        env = Environment(
-            autoescape=False,
-            loader=FileSystemLoader(TEMPLATES),
-            trim_blocks=True,
-            lstrip_blocks=True
-        )
-        template = env.get_template("block_wrapper.vhd.jinja2")
+        template = self.env.get_template("block_wrapper.vhd.jinja2")
         # Create a wrapper for every block
         for block in self.blocks:
             fname = "%s_wrapper.vhd" % block.entity

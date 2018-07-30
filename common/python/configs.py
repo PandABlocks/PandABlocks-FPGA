@@ -72,31 +72,6 @@ class BlockConfig(object):
             if regex.match(field.type):
                 yield field
 
-    def config_lines(self):
-        # type: () -> Iterable[str]
-        """Produce the lines that should go in the config file, not newline
-        terminated"""
-        yield "%s[%s]" % (self.name, self.number)
-        for field in self.fields:
-            for line in field.config_lines():
-                yield "    %s" % line
-
-    def registers_lines(self):
-        """Produce the lines that should go in the registers file, not newline
-        terminated"""
-        yield "%s %s" % (pad(self.name), self.block_address)
-        for field in self.fields:
-            for line in field.registers_lines():
-                yield "    %s" % line
-
-    def descriptions_lines(self):
-        """Produce the lines that should go in the descriptions file, not
-        newline terminated"""
-        yield "%s %s" % (pad(self.name), self.description)
-        for field in self.fields:
-            for line in field.descriptions_lines():
-                yield "    %s" % line
-
 
 class RegisterConfig(object):
     """A low level register name and number backing this field"""
@@ -123,7 +98,7 @@ class FieldConfig(object):
     #: Regex for matching a type string to this field
     type_regex = None
 
-    def __init__(self, name, number, type, description, **kwargs):
+    def __init__(self, name, number, type, description, **extra_config):
         # type: (str, int, str, str) -> None
         #: The name of the field relative to it's Block, like INPA
         self.name = name
@@ -137,8 +112,8 @@ class FieldConfig(object):
         self.registers = []  # type: List[RegisterConfig]
         #: The list of bus entries this field has
         self.bus_entries = []  # type: List[BusEntryConfig]
-        # All the other kwargs
-        self.kwargs = kwargs
+        # All the other extra config items
+        self.extra_config = extra_config
 
     def register_addresses(self, field_address, bit_i, pos_i, ext_i):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
@@ -146,15 +121,16 @@ class FieldConfig(object):
         unused address"""
         raise NotImplementedError()
 
-    def config_lines(self):
+    def extra_config_lines(self):
         # type: () -> Iterable[str]
-        """Produce the lines that should go in the config file, not indented
-        or newline terminated"""
-        yield "%s %s" % (pad(self.name), self.type)
+        """Produce any extra config lines from self.kwargs"""
+        assert not self.extra_config, \
+            "Can't handle extra config items %s" % self.extra_config
+        return iter(())
 
-    def registers_lines(self):
-        """Produce the lines that should go in the registers file, not indented
-        or newline terminated"""
+    def address_line(self):
+        # type: () -> str
+        """Produce the line that should go in the registers file after name"""
         if self.registers:
             assert not self.bus_entries, \
                 "Field %s type %s has both registers and bus entries" % (
@@ -162,12 +138,7 @@ class FieldConfig(object):
             registers_str = " ".join(str(r.number) for r in self.registers)
         else:
             registers_str = " ".join(str(e.index) for e in self.bus_entries)
-        yield "%s %s" % (pad(self.name), registers_str)
-
-    def descriptions_lines(self):
-        """Produce the lines that should go in the descriptions file, not
-        indented or newline terminated"""
-        yield "%s %s" % (pad(self.name), self.description)
+        return registers_str
 
     @classmethod
     def from_dict(cls, name, number, d):
@@ -209,13 +180,12 @@ class ParamEnumFieldConfig(ParamFieldConfig):
     register"""
     type_regex = "param enum"
 
-    def config_lines(self):
-        for line in super(ParamEnumFieldConfig, self).config_lines():
-            yield line
-        for k, v in sorted(self.kwargs.items()):
+    def extra_config_lines(self):
+        # type: () -> Iterable[str]
+        for k, v in sorted(self.extra_config.items()):
             assert k.isdigit(), "Only expecting integer enum entries in %s" % (
-                self.kwargs,)
-            yield "    %s %s" % (pad(k, spaces=3), v)
+                self.extra_config,)
+            yield "%s %s" % (pad(k, spaces=3), v)
 
 
 class BitMuxFieldConfig(FieldConfig):

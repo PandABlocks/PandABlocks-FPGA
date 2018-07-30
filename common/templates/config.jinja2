@@ -1,0 +1,15 @@
+*METADATA
+    DESIGN          string
+    LAYOUT          multiline
+    EXPORTS         multiline
+
+{% for block in blocks %}
+{{ block.name }}[{{ block.number }}]
+    {% for field in block.fields %}
+    {{ pad(field.name) }} {{ field.type }}
+        {% for line in field.extra_config_lines() %}
+        {{ line }}
+        {% endfor %}
+    {% endfor %}
+
+{% endfor %}

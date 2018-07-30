@@ -54,3 +54,10 @@
     # DMA block size in bytes
     PCAP_BLOCK_SIZE         6
 
+{% for block in blocks %}
+{{ pad(block.name) }} {{ block.block_address }}
+    {% for field in block.fields %}
+    {{ pad(field.name) }} {{ field.address_line() }}
+    {% endfor %}
+
+{% endfor %}

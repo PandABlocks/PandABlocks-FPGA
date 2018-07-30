@@ -1,0 +1,7 @@
+{% for block in blocks %}
+{{ pad(block.name) }} {{ block.description }}
+    {% for field in block.fields %}
+    {{ pad(field.name) }} {{ field.description }}
+    {% endfor %}
+
+{% endfor %}
