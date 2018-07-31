@@ -69,7 +69,12 @@ def plot_pos(trace_items, names, offset, crossdist, ts):
     return offset
 
 
-def make_block_plot(ini, section):
+def make_timing_plot(path, section=None):
+    # Read the ini file and section
+    ini = read_ini(path)
+    if not section:
+        section = ini.sections()[0]
+
     # walk the inputs and outputs and add the names we're interested in
     in_names = []
     out_names = []
@@ -163,6 +168,7 @@ def make_block_plot(ini, section):
                     tracex.append(ts)
                     tracey.append(inputs[name])
             elif name in outputs:
+                # TODO: change to PCAP_DATA
                 if name == "DATA":
                     data_count += 1
                     if (data_count - 1) % capture_count == 0:
@@ -231,5 +237,4 @@ def make_block_plot(ini, section):
 
 if __name__ == "__main__":
     # test
-    ini = read_ini(sys.argv[1])
-    make_block_plot(ini, ini.sections()[0])
+    make_timing_plot(*sys.argv[1:])

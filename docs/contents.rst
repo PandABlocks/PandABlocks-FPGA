@@ -16,13 +16,6 @@ Contents
     tutorials/position_compare
     tutorials/snake_scan
 
-.. _blocks_doc:
-
-.. toctree::
-    :caption: Blocks
-
-    modules/lut/lut_doc
-
 .. _reference_doc:
 
 .. toctree::
@@ -33,8 +26,8 @@ Contents
     reference/block_ini
     reference/templates
     reference/vhdl_guidelines
-
-.. toctree::
-    :caption: API
-
     api/configs_api
+
+.. _blocks_doc:
+
+.. include:: build/blocks.txt

@@ -1,15 +1,9 @@
 import os, csv
 
 from matplotlib.sphinxext import plot_directive
-from docutils.parsers.rst.directives import images
-from docutils.parsers.rst import Directive, states
+from docutils.parsers.rst import Directive
 from docutils import nodes, statemachine
-
-from common.python.pandablocks.sequenceparser import SequenceParser
-from common.python.pandablocks.configparser import ConfigParser
-
-MODULE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "modules")
-
+from .ini_util import read_ini, timing_entries
 
 class sequence_plot_node(nodes.Element):
     pass
@@ -19,25 +13,41 @@ class table_plot_node(nodes.Element):
     pass
 
 
-class sequence_plot_directive(Directive):
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+
+class timing_plot_directive(Directive):
 
     has_content = False
     required_arguments = 0
     optional_arguments = 0
-    option_spec = {'block': str, 'title': str, 'table': bool, 'nofigs': bool}
+    option_spec = {'path': str, 'section': str, 'table': bool, 'nofigs': bool}
 
     def catch_insert_input(self, total_lines, source=None):
         self.total_lines = total_lines
 
     def run(self):
+        # fill the content code with the options from the directive
+        path = os.path.join(ROOT, self.options['path'])
+        section = self.options['section']
 
-        #fill the content code with the options from the directive
-        blockname = self.options['block']
-        plotname = self.options['title']
+        # Parse the ini file and make any special tables
+        ini = read_ini(path)
+        tables = []
+        for ts, inputs, outputs in timing_entries(ini, section):
+            for name, val in inputs.items():
+                if name == "TABLE_ADDRESS":
+                    tables += self.make_long_tables(ini, section)
+                elif name == "TABLE_DATA":
+                    tables += self.make_seq_tables(ini, section)
+            for name, val in outputs.items():
+                # TODO: PCAP_DATA
+                if name == "DATA":
+                    tables += self.make_pcap_table(ini, section)
 
         plot_content = [
-            "from common.python.block_plot import make_block_plot",
-            "make_block_plot('%s', '%s')" % (blockname, plotname)]
+            "from common.python.timing_plot import make_timing_plot",
+            "make_timing_plot('%s', '%s')" % (path, section)]
 
         # override include_input so we get the result
         old_insert_input = self.state_machine.insert_input
@@ -57,30 +67,10 @@ class sequence_plot_directive(Directive):
             statemachine.ViewList(initlist=self.total_lines),
             self.content_offset, plot_node)
 
-        #if it is a sequencer plot, plot the table
-        if blockname in ["seq", "pcap", "pgen"]:
-            #get the correct sequence
-            fname = blockname + ".seq"
-            sequence_dir = os.path.join(MODULE_DIR, blockname, 'sim')
-            sequence_file = os.path.join(sequence_dir, fname)
-            sparser = SequenceParser(sequence_file)
-            matches = [s for s in sparser.sequences if s.name == plotname]
-            assert matches, "No sequence for %r" % plotname
-            sequence = matches[0]
-            if blockname == "seq":
-                table_node = self.make_all_seq_tables(sequence)
-                node.append(table_node)
-                node.append(plot_node)
-            elif blockname == "pgen":
-                table_node = self.make_long_tables(sequence, sequence_dir)
-                node.append(table_node)
-                node.append(plot_node)
-            else:
-                table_node = self.make_pcap_table(sequence)
-                node.append(plot_node)
-                node.append(table_node)
-        else:
-            node.append(plot_node)
+        # add the directives
+        node.append(plot_node)
+        for table_node in tables:
+            node.append(table_node)
         return [node]
 
     def make_pcap_table(self, sequence):
@@ -315,7 +305,7 @@ class sequence_plot_directive(Directive):
 
 def setup(app):
 
-    app.add_directive('sequence_plot', sequence_plot_directive)
+    app.add_directive('timing_plot', timing_plot_directive)
 
     app.add_node(table_plot_node,
             html=(visit_table_plot, depart_table_plot),

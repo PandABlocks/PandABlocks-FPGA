@@ -1,18 +1,45 @@
 # -*- coding: utf-8 -*-
-#
+# This is needed for docs build, it's here so we can use docs in modules
 import os
 import sys
+import shutil
+import subprocess
 from pkg_resources import require
 
 require("sphinx_rtd_theme")
-
+require("matplotlib")
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath(
-    os.path.join(os.path.dirname(__file__), '..')))
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, ROOT)
 
+# Get the git version
+git_version = subprocess.check_output(
+    "git describe --abbrev=7 --dirty --always --tags".split())
+
+# Copy across the module rst files into the build dir
+def setup(app):
+    build_dir = os.path.join(ROOT, "docs", "build")
+    if os.path.isdir(build_dir):
+        shutil.rmtree(build_dir)
+    os.mkdir(build_dir)
+    files = []
+    modules_root = os.path.join(ROOT, "modules")
+    for module_name in sorted(os.listdir(modules_root)):
+        module_root = os.path.join(modules_root, module_name)
+        for f in sorted(os.listdir(module_root)):
+            if f.endswith("_doc.rst"):
+                shutil.copy(os.path.join(module_root, f), build_dir)
+                files.append(os.path.join("build", f[:-4]))
+    with open(os.path.join(build_dir, "blocks.txt"), "w") as f:
+        f.write("""
+.. toctree::
+    :caption: Blocks
+    
+    %s
+""" % ("\n   ".join(files),))
 
 # -- General configuration ------------------------------------------------
 
@@ -21,7 +48,8 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
-    'sphinx.ext.graphviz',
+    'matplotlib.sphinxext.plot_directive',
+    'common.python.sphinx_timing_directive',
 ]
 
 autoclass_content = "both"
@@ -52,7 +80,7 @@ copyright = u'2015, Diamond Light Source'
 author = u'Tom Cobb'
 
 # The full version, including alpha/beta/rc tags.
-release = os.environ["GIT_VERSION"]
+release = git_version
 # The short X.Y version.
 version = release.split("-")[0]
 

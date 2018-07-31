@@ -1,3 +1,4 @@
+import os
 from collections import OrderedDict
 
 from .compat import configparser, TYPE_CHECKING
@@ -9,7 +10,7 @@ if TYPE_CHECKING:
 def read_ini(path):
     # type: (str) -> configparser.SafeConfigParser
     app_ini = configparser.SafeConfigParser()
-    assert app_ini.read(path), "Can't read ini file %s" % path
+    assert app_ini.read(path), "Can't read ini file %s" % os.path.abspath(path)
     return app_ini
 
 

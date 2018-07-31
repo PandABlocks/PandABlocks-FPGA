@@ -15,26 +15,14 @@ APPS = $(patsubst apps/%.ini,%,$(wildcard apps/*.ini))
 # and editing as appropriate.
 include CONFIG
 
-# For every APP in APPS, make build/APP
-APP_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/%,$(APPS))
-
-# The docs are built into this dir
-DOCS_BUILD_DIR = $(BUILD_DIR)/html
-
 default: apps docs
 .PHONY: default
 
-# Something like 0.1-1-g5539563-dirty
-export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
-# Split and append .0 to get 0.1.0, then turn into hex to get 00000100
-export VERSION := $(shell ./common/python/parse_git_version.py "$(GIT_VERSION)")
-# 8 if dirty, 0 if clean
-DIRTY_PRE = $(shell python -c "print 8 if '$(GIT_VERSION)'.endswith('dirty') else 0")
-# Something like 85539563
-export SHA := $(DIRTY_PRE)$(shell git rev-parse --short HEAD)
-
 # ------------------------------------------------------------------------------
 # App source autogeneration
+
+# For every APP in APPS, make build/APP
+APP_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/%,$(APPS))
 
 # Make the built app from the ini file
 $(BUILD_DIR)/%: $(TOP)/apps/%.ini
@@ -47,20 +35,46 @@ apps: $(APP_BUILD_DIRS)
 .PHONY: apps
 
 # ------------------------------------------------------------------------------
+# FPGA bitstream generation
+
+# Something like 0.1-1-g5539563-dirty
+export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
+# Split and append .0 to get 0.1.0, then turn into hex to get 00000100
+export VERSION := $(shell ./common/python/parse_git_version.py "$(GIT_VERSION)")
+# 8 if dirty, 0 if clean
+DIRTY_PRE = $(shell python -c "print 8 if '$(GIT_VERSION)'.endswith('dirty') else 0")
+# Something like 85539563
+export SHA := $(DIRTY_PRE)$(shell git rev-parse --short HEAD)
+
+# ------------------------------------------------------------------------------
 # Documentation
 
-$(DOCS_BUILD_DIR)/index.html: $(wildcard docs/*.rst docs/*/*.rst docs/conf.py)
-	$(SPHINX_BUILD) -b html docs $(DOCS_BUILD_DIR)
+# Generated rst sources from modules are put here, unfortunately it has to be in
+# the docs dir otherwise matplotlib plot_directive screws up
+DOCS_BUILD_DIR = $(TOP)/docs/build
 
-docs: $(DOCS_BUILD_DIR)/index.html
+# The html docs are built into this dir
+DOCS_HTML_DIR = $(BUILD_DIR)/html
+ALL_RST_FILES = $(shell find docs modules -name *.rst)
+BUILD_RST_FILES = $(wildcard docs/build/*.rst)
+SRC_RST_FILES = $(filter-out $(BUILD_RST_FILES),$(ALL_RST_FILES))
+
+$(DOCS_HTML_DIR): docs/conf.py $(SRC_RST_FILES)
+	echo $^
+	$(SPHINX_BUILD) -b html docs $(DOCS_HTML_DIR)
+
+docs: $(DOCS_HTML_DIR)
 
 .PHONY: docs
+
+# ------------------------------------------------------------------------------
+# ZPKG generation
 
 # ------------------------------------------------------------------------------
 # Clean
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR) $(DOCS_BUILD_DIR)
 	find -name '*.pyc' -delete
 
 .PHONY: clean
