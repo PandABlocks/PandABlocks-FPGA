@@ -74,7 +74,7 @@ always #4 clk_i = !clk_i;
 //
 // READ BLOCK INPUTS VECTOR FILE
 //
-integer bus_in[3:0];     // TS SET RST
+integer bus_in[3:0];     
 
 initial begin
     SIM_RESET = 0;
@@ -82,7 +82,7 @@ initial begin
     TRIG = 0;
 
     @(posedge clk_i);
-    fid[0] = $fopen("pgen_bus_in.txt", "r");
+    fid[0] = $fopen("pgen_bus_in.txt", "r"); // TS, VAL
 
     // Read and ignore description field
     r[0] = $fscanf(fid[0], "%s %s %s %s\n", bus_in[3], bus_in[2], bus_in[1], bus_in[0]);
@@ -102,7 +102,7 @@ end
 
 
 // pgen_bus_out.txt
-// TS ###### ACTIVE ###### OUT
+// TS ###### OUT
 
 //
 // READ BLOCK EXPECTED OUTPUTS FILE TO COMPARE AGAINTS BLOCK
@@ -139,7 +139,7 @@ end
 
 
 // pgen_reg_out.txt
-// TS ###### HEALTH ###### PRODUCED ###### STATE  
+// TS ###### HEALTH  
 
 integer reg_out[1:0];
 reg     is_2file_end;
@@ -180,9 +180,8 @@ always @ (posedge clk_i) //
 
 
 //pgen_reg_in.txt
-// TS ###### PRE_START ###### CYCLE ###### TABLE_ADDRESS ###### TABLE_LENGTH 
+// TS ###### CYCLE ###### CYCLE_WSTB ###### TABLE_ADDRESS ###### TABLE_ADDRESS_WSTB ###### TABLE_LENGTH ###### TABLE_LENGTH_WSTB  
 integer reg_in[6:0];
-
 
 initial begin
     CYCLES = 0;
@@ -194,7 +193,7 @@ initial begin
     @(posedge clk_i);
 
     // Open "reg_in" file
-    fid[1] = $fopen("pgen_reg_in.txt", "r");
+    fid[1] = $fopen("pgen_reg_in.txt", "r"); // TS, VAL
 
     // Read and ignore description field
     r[1] = $fscanf(fid[1], "%s %s %s %s %s %s %s\n", reg_in[6], reg_in[5], 
@@ -202,7 +201,6 @@ initial begin
 
     while (!$feof(fid[1])) begin
         r[1] = $fscanf(fid[1], "%d %d %d %s %d %d %d\n", reg_in[6], reg_in[5], 
-//        r[1] = $fscanf(fid[1], "%d %d %d %d %d %d %d\n", reg_in[6], reg_in[5], 
             reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
             
         wait (timestamp == reg_in[6]) begin
@@ -217,7 +215,8 @@ initial begin
 end
 
 
-
+// PGEN_1000.txt 
+// data_mem
 integer     pfid;
 integer     pr;
 integer     preg_in;
@@ -231,7 +230,7 @@ initial begin
     @(posedge clk_i);
     
     // Open "PGEN_1000" file
-    pfid = $fopen("PGEN_1000.txt", "r");
+    pfid = $fopen("PGEN_1000.txt", "r"); // VAL
     // Read and ignore description field
     pr = $fscanf(pfid, "%s\n", preg_in);
     
