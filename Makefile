@@ -9,7 +9,7 @@ PYTHON = python2
 SPHINX_BUILD = sphinx-build
 PANDA_ROOTFS = $(error Define PANDA_ROOTFS in CONFIG file)
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
-APPS = $(patsubst apps/%.ini,%,$(wildcard apps/*.ini))
+APPS = $(patsubst apps/%.app.ini,%,$(wildcard apps/*.app.ini))
 
 # The CONFIG file is required.  If not present, create by copying CONFIG.example
 # and editing as appropriate.
@@ -25,7 +25,7 @@ default: apps docs
 APP_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/%,$(APPS))
 
 # Make the built app from the ini file
-$(BUILD_DIR)/%: $(TOP)/apps/%.ini
+$(BUILD_DIR)/%: $(TOP)/apps/%.app.ini
 	rm -rf $@_tmp $@
 	$(PYTHON) -m common.python.generate_app $< $@_tmp
 	mv $@_tmp $@
@@ -68,7 +68,20 @@ docs: $(DOCS_HTML_DIR)
 .PHONY: docs
 
 # ------------------------------------------------------------------------------
-# ZPKG generation
+# Test just the python framework
+
+test_python:
+	$(PYTHON) -m unittest discover -v tests.python
+
+.PHONY: test_python
+
+# ------------------------------------------------------------------------------
+# Test just the timing for simulations
+
+sim_timing:
+	$(PYTHON) -m unittest -v tests.test_sim_timing
+
+.PHONY: sim_timing
 
 # ------------------------------------------------------------------------------
 # Clean

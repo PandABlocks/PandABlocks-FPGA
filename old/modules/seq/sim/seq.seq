@@ -194,7 +194,7 @@ $ Table based position compare
 # TRIGGER = 0 (Immediate)
 # REPEATS = 0x0003
 9   : TABLE_DATA=0x8300003
-10  : TABLE_DATA=0
+10  : TABLE_DATA=
 11  : TABLE_DATA=1
 12  : TABLE_DATA=3
 

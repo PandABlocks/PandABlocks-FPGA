@@ -19,6 +19,7 @@ sys.path.insert(0, ROOT)
 git_version = subprocess.check_output(
     "git describe --abbrev=7 --dirty --always --tags".split())
 
+
 # Copy across the module rst files into the build dir
 def setup(app):
     build_dir = os.path.join(ROOT, "docs", "build")
@@ -41,8 +42,8 @@ def setup(app):
     %s
 """ % ("\n   ".join(files),))
 
-# -- General configuration ------------------------------------------------
 
+# -- General configuration ------------------------------------------------
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',

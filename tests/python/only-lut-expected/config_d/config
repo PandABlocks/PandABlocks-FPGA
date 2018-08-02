@@ -1,0 +1,39 @@
+*METADATA
+    DESIGN          string
+    LAYOUT          multiline
+    EXPORTS         multiline
+
+LUT[8]
+    INPA            bit_mux
+    INPB            bit_mux
+    INPC            bit_mux
+    INPD            bit_mux
+    INPE            bit_mux
+    A               param enum
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
+    B               param enum
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
+    C               param enum
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
+    D               param enum
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
+    E               param enum
+        0   Input Value
+        1   Rising Edge
+        2   Falling Edge
+        3   Either Edge
+    FUNC            param lut
+    OUT             bit_out
+

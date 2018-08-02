@@ -39,16 +39,7 @@ class BlockConfig(object):
         #: The description, like "Lookup table"
         self.description = ini.get(".", "description")
         #: All the child fields
-        self.fields = []  # type: List[FieldConfig]
-        for section in ini.sections():
-            if section != ".":
-                d = dict(ini.items(section))
-                try:
-                    field = FieldConfig.from_dict(section, number, d)
-                except TypeError as e:
-                    raise TypeError("Cannot create FieldConfig from %s: %s" % (
-                        d, e))
-                self.fields.append(field)
+        self.fields = FieldConfig.from_ini(ini, number)
 
     def register_addresses(self, block_address, bit_i, pos_i, ext_i):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
@@ -112,8 +103,10 @@ class FieldConfig(object):
         self.registers = []  # type: List[RegisterConfig]
         #: The list of bus entries this field has
         self.bus_entries = []  # type: List[BusEntryConfig]
-        # All the other extra config items
+        #: All the other extra config items
         self.extra_config = extra_config
+        #: The current value of this field for simulation
+        self.value = 0
 
     def register_addresses(self, field_address, bit_i, pos_i, ext_i):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
@@ -141,14 +134,42 @@ class FieldConfig(object):
         return registers_str
 
     @classmethod
-    def from_dict(cls, name, number, d):
-        # type: (str, int, Dict[str, str]) -> FieldConfig
-        type = d["type"]
-        # Reverse these so we get ParamEnumFieldConfig (specific) before its
-        # superclass ParamFieldConfig (catchall regex)
-        for subclass in reversed(all_subclasses(FieldConfig)):
+    def lookup_subclass(cls, type):
+        # Reverse these so we get ParamEnumFieldConfig (specific) before
+        # its superclass ParamFieldConfig (catchall regex)
+        for subclass in reversed(all_subclasses(cls)):
             if re.match(subclass.type_regex, type):
-                return subclass(name, number, **d)
+                return subclass
+
+    @classmethod
+    def from_ini(cls, ini, number):
+        # type: (configparser.SafeConfigParser, int) -> List[FieldConfig]
+        ret = []
+        for section in ini.sections():
+            if section != ".":
+                d = dict(ini.items(section))
+                subclass = FieldConfig.lookup_subclass(d["type"])
+                assert subclass, "No FieldConfig for %r" % d["type"]
+                try:
+                    ret.append(subclass(section, number, **d))
+                except TypeError as e:
+                    raise TypeError(
+                        "Cannot create FieldConfig from %s: %s" % (d, e))
+        return ret
+
+    def setter(self, block_simulation, v):
+        if self.value != v:
+            self.value = v
+            if block_simulation.changes is None:
+                block_simulation.changes = {}
+            block_simulation.changes[self.name] = v
+
+    def getter(self, block_simulation):
+        return self.value
+
+    def notify_changed(self, v):
+        """Will be overwritten by simulation"""
+        pass
 
 
 class BitOutFieldConfig(FieldConfig):

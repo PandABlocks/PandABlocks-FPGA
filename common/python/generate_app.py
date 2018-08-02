@@ -1,6 +1,6 @@
 #!/bin/env dls-python
 """
-Generate build/<app>/config_d from <app>.ini
+Generate build/<app> from <app>.app.ini
 """
 import os
 import shutil
@@ -77,7 +77,7 @@ class AppGenerator(object):
                 try:
                     ini_name = app_ini.get(section, "ini")
                 except configparser.NoOptionError:
-                    ini_name = section.lower() + "_block.ini"
+                    ini_name = section.lower() + ".block.ini"
                 try:
                     number = app_ini.getint(section, "number")
                 except configparser.NoOptionError:
@@ -87,51 +87,46 @@ class AppGenerator(object):
                 block = BlockConfig(section, number, block_ini)
                 block_address, bit_i, pos_i, ext_i = block.register_addresses(
                     block_address, bit_i, pos_i, ext_i)
-                assert block_address < MAX_BLOCKS, \
-                    "Block %s overflowed %s Block types" % (
-                        block.name, MAX_BLOCKS)
-                assert bit_i < MAX_BIT, \
-                    "Block %s overflowed %s bit bus entries" % (
-                        block.name, MAX_BIT)
-                assert pos_i < MAX_POS, \
-                    "Block %s overflowed %s pos bus entries" % (
-                        block.name, MAX_POS)
-                assert ext_i < MAX_EXT, \
-                    "Block %s overflowed %s ext bus entries" % (
-                        block.name, MAX_EXT)
                 self.blocks.append(block)
+        print("####################################")
+        print("# Resource usage")
+        print("#  Block addresses: %d/%d" % (block_address, MAX_BLOCKS))
+        print("#  Bit bus: %d/%d" % (bit_i, MAX_BIT))
+        print("#  Pos bus: %d/%d" % (pos_i, MAX_POS))
+        print("#  Ext bus: %d/%d" % (ext_i, MAX_EXT))
+        print("####################################")
+        assert block_address < MAX_BLOCKS, "Overflowed block addresses"
+        assert bit_i < MAX_BIT, "Overflowed bit bus entries"
+        assert pos_i < MAX_POS, "Overflowed pos bus entries"
+        assert ext_i < MAX_EXT, "Overflowed ext bus entries"
+
+    def expand_template(self, template_name, context, out_dir, out_fname):
+        with open(os.path.join(out_dir, out_fname), "w") as f:
+            template = self.env.get_template(template_name)
+            f.write(template.render(context))
 
     def generate_config_dir(self):
         """Generate config, registers, descriptions in config_d"""
         config_dir = os.path.join(self.app_build_dir, "config_d")
         os.makedirs(config_dir)
         context = dict(blocks=self.blocks, pad=pad)
-        # Create the config file
-        with open(os.path.join(config_dir, "config"), "w") as f:
-            template = self.env.get_template("config.jinja2")
-            f.write(template.render(context))
-        # Create the registers file
-        with open(os.path.join(config_dir, "registers"), "w") as f:
-            template = self.env.get_template("registers.jinja2")
-            f.write(template.render(context))
-        # Create the descriptions file
-        with open(os.path.join(config_dir, "descriptions"), "w") as f:
-            template = self.env.get_template("descriptions.jinja2")
-            f.write(template.render(context))
+        # Create the config, registers and descriptions files
+        self.expand_template(
+            "config.jinja2", context, config_dir, "config")
+        self.expand_template(
+            "registers.jinja2", context, config_dir, "registers")
+        self.expand_template(
+            "descriptions.jinja2", context, config_dir, "descriptions")
 
     def generate_wrappers(self):
         """Generate wrappers in hdl"""
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
         os.makedirs(hdl_dir)
-        template = self.env.get_template("block_wrapper.vhd.jinja2")
         # Create a wrapper for every block
         for block in self.blocks:
-            fname = "%s_wrapper.vhd" % block.entity
-            with open(os.path.join(hdl_dir, fname), "w") as f:
-                # Expose a context of all attributes and methods of BlockConfig
-                # like name, number, entity, filter_fields(), etc.
-                context = {k: getattr(block, k) for k in dir(block)}
-                f.write(template.render(context))
+            context = {k: getattr(block, k) for k in dir(block)}
+            self.expand_template("block_wrapper.vhd.jinja2", context, hdl_dir,
+                                 "%s_wrapper.vhd" % block.entity)
 
 
 def main():

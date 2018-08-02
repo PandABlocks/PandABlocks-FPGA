@@ -1,4 +1,4 @@
-SEQ[{{app_config["SEQ"]}}]
+BITSEQ[{{app_config["SEQ"]}}]
     TABLE           table   4
         15:0    REPEATS
         19:16   TRIGGER     enum
