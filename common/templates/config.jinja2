@@ -4,12 +4,18 @@
     EXPORTS         multiline
 
 {% for block in blocks %}
+{# block is a BlockConfig object #}
+{# insert its name and the number of block instances in this app #}
 {{ block.name }}[{{ block.number }}]
     {% for field in block.fields %}
+    {# field is a FieldConfig object #}
+    {# insert its name and type (including subtype and options) #}
     {{ pad(field.name) }} {{ field.type }}
         {% for line in field.extra_config_lines() %}
+        {# some fields line enum and table have extra lines, insert them here #}
         {{ line }}
         {% endfor %}
     {% endfor %}
+    {# insert a blank line between blocks for readability #}
 
 {% endfor %}

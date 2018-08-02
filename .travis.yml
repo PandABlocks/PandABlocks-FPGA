@@ -1,0 +1,27 @@
+sudo: false
+language: python
+python:
+  - "2.7"
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - ${VIRTUAL_ENV}/lib/python${TRAVIS_PYTHON_VERSION}/site-packages
+    - ${VIRTUAL_ENV}/bin
+
+install:
+  - env
+  - ls -al ${VIRTUAL_ENV}/lib/python${TRAVIS_PYTHON_VERSION}/site-packages
+  - ls -al ${VIRTUAL_ENV}/bin
+  - pwd
+  - ls
+  - pip install -r tests/requirements.txt
+  - ls -al ${VIRTUAL_ENV}/lib/python${TRAVIS_PYTHON_VERSION}/site-packages
+  - ls -al ${VIRTUAL_ENV}/bin
+  - git clone https://github.com/PandABlocks/PandABlocks-rootfs.git $HOME/PandABlocks/PandABlocks-rootfs
+  - echo PANDA_ROOTFS = $HOME/PandABlocks/PandABlocks-rootfs > CONFIG
+
+# command to run tests
+script:
+  - make test_python
+  - make sim_timing

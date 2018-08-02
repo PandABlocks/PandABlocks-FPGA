@@ -1,4 +1,9 @@
-from common.python.pandablocks.block import Block
+from common.python.simulations import BlockSimulation, properties_from_ini, \
+    TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Dict, Optional
+
 
 VALUE = 0
 RISING = 1
@@ -6,7 +11,10 @@ FALLING = 2
 EITHER = 3
 
 
-class Lut(Block):
+class LutSimulation(BlockSimulation):
+    INPA, INPB, INPC, INPD, INPE, A, B, C, D, E, FUNC, OUT = \
+        properties_from_ini(__file__, "lut.block.ini")
+
     def calc_value(self, letter, changes):
         source = getattr(self, letter)
         inp = "INP%s" % letter
@@ -20,11 +28,11 @@ class Lut(Block):
             return int(inp in changes)
 
     def on_changes(self, ts, changes):
+        # type: (int, Dict[str, int]) -> Optional[int]
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
         # Set attributes
-        for name, value in changes.items():
-            setattr(self, name, value)
+        super(LutSimulation, self).on_changes(ts, changes)
 
         # Calculate the values from inputs
         a = self.calc_value("A", changes)
@@ -44,3 +52,5 @@ class Lut(Block):
         # back next clock tick just in case
         if changes:
             return ts + 1
+        else:
+            return None
