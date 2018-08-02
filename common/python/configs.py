@@ -55,10 +55,10 @@ class BlockConfig(object):
         block_address += 1
         return block_address, bit_i, pos_i, ext_i
 
-    def filter_fields(self, wildcard_type):
+    def filter_fields(self, regex):
         # type: (str) -> Iterable[FieldConfig]
         """Filter our child fields by typ"""
-        regex = re.compile(wildcard_type.replace("*", ".*"))
+        regex = re.compile(regex)
         for field in self.fields:
             if regex.match(field.type):
                 yield field
@@ -187,7 +187,7 @@ class BitOutFieldConfig(FieldConfig):
 class ParamFieldConfig(FieldConfig):
     """These fields represent all other set/get parameters backed with a single
     register"""
-    type_regex = "param.*"
+    type_regex = "(param|read|write).*"
 
     def register_addresses(self, field_address, bit_i, pos_i, ext_i):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]

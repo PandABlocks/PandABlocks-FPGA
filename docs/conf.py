@@ -40,7 +40,7 @@ def setup(app):
     :caption: Blocks
     
     %s
-""" % ("\n   ".join(files),))
+""" % ("\n    ".join(files),))
 
 
 # -- General configuration ------------------------------------------------

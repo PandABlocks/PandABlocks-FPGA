@@ -155,13 +155,13 @@ begin
         -- Connect to the actual logic entity
         {{ entity }} : entity work.{{ entity }}
         port map (
-{% for field in filter_fields("*_mux") %}
+{% for field in filter_fields(".*_mux") %}
             {{ field.name }}_i => {{ field.name }}_from_bus(I),
 {% endfor %}
-{% for field in filter_fields("param*") %}
+{% for field in filter_fields("(param|read|write).*") %}
             {{ field.name }} => {{ field.name }}(I),
 {% endfor %}
-{% for field in filter_fields("*_out") %}
+{% for field in filter_fields(".*_out") %}
             {{ field.name }}_o => {{ field.name }}_o(I),
 {% endfor %}
             clk_i => clk_i
