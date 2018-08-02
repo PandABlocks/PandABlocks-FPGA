@@ -1,7 +1,12 @@
 {% for block in blocks %}
+{# block is a BlockConfig object #}
+{# insert its name and description #}
 {{ pad(block.name) }} {{ block.description }}
     {% for field in block.fields %}
+    {# field is a FieldConfig object #}
+    {# insert its name and description #}
     {{ pad(field.name) }} {{ field.description }}
     {% endfor %}
+    {# insert a blank line between blocks for readability #}
 
 {% endfor %}
