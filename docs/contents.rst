@@ -26,6 +26,8 @@ Contents
     reference/block_ini
     reference/templates
     reference/vhdl_guidelines
+    reference/contributing
+    reference/changelog
     api/configs_api
 
 .. _blocks_doc:
