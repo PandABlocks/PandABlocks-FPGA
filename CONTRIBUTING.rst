@@ -48,7 +48,7 @@ Please arrange imports with the following style
     from mock import patch
 
     # Local package imports
-    from malcolm.version import __version__
+    from common.python.configs import BlockConfig
 
 Please follow `Google's python style`_ guide wherever possible.
 
