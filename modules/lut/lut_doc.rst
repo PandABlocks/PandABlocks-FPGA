@@ -42,27 +42,27 @@ A&B&C&D&E (FUNC= 0x80000000). Setting all inputs to 1
 results in an output of 1, and changing any inputs produces an output of 0
 
 .. timing_plot:: 
-   :path: modules/lut/lut_timing.ini
+   :path: modules/lut/lut.timing.ini
    :section: A&B&C&D&E Output
 
 ~A&~B&~C&~D&~E (FUNC= 0x00000001). Setting all inputs to 0 results
 in an output of 1, and changing any inputs produces an output of 0
 
 .. timing_plot:: 
-   :path: modules/lut/lut_timing.ini
+   :path: modules/lut/lut.timing.ini
    :section: ~A&~B&~C&~D&~E Output
 
 A (FUNC= 0xffff0000). The output should only be 1 if A is
 1 irrespective of any other input.
 
 .. timing_plot:: 
-   :path: modules/lut/lut_timing.ini
+   :path: modules/lut/lut.timing.ini
    :section: A output
 
 A&B|C&~D (FUNC= 0xff303030)
 
 .. timing_plot:: 
-   :path: modules/lut/lut_timing.ini
+   :path: modules/lut/lut.timing.ini
    :section: A&B|C&~D output
 
 Changing the function in a test
@@ -71,7 +71,7 @@ Changing the function in a test
 If a function is changed, the output will take effect on the next clock tick
 
 .. timing_plot:: 
-   :path: modules/lut/lut_timing.ini
+   :path: modules/lut/lut.timing.ini
    :section: Changing function from A&B&C&D&E to ~A&~B&~C&~D&~E
 
 Edge triggered inputs
@@ -86,12 +86,12 @@ tick as INPB had a falling edge we could set FUNC=0xff000000 (A&B) and A=1
 (rising edge of INPA) and B=2 (falling edge of INPB):
 
 .. timing_plot:: 
-   :path: modules/lut/lut_timing.ini
+   :path: modules/lut/lut.timing.ini
    :section: Rising A & Falling B
 
 We could also use this for generating pulses on every transition of A:
 
 .. timing_plot:: 
-   :path: modules/lut/lut_timing.ini
+   :path: modules/lut/lut.timing.ini
    :section: Either edge A
 

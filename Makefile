@@ -55,7 +55,7 @@ DOCS_BUILD_DIR = $(TOP)/docs/build
 
 # The html docs are built into this dir
 DOCS_HTML_DIR = $(BUILD_DIR)/html
-ALL_RST_FILES = $(shell find docs modules -name *.rst)
+ALL_RST_FILES = $(shell find docs modules -name '*.rst')
 BUILD_RST_FILES = $(wildcard docs/build/*.rst)
 SRC_RST_FILES = $(filter-out $(BUILD_RST_FILES),$(ALL_RST_FILES))
 
