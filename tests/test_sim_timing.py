@@ -21,7 +21,12 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
             self.timing_ini = timing_ini
             self.timing_section = timing_section
             # The scope of this timing test should be a block ini
-            block_ini_name = timing_ini.get(".", "scope")
+            try:
+                block_ini_name = timing_ini.get(".", "scope")
+            except Exception as e:
+                raise ValueError(
+                    "Can't find section '.' with entry 'scope' in module %s" % (
+                        module_path))
             assert block_ini_name.endswith(".block.ini"), \
                 "Can only test timing with scope <block>.block.ini, not %s" % (
                     block_ini_name)

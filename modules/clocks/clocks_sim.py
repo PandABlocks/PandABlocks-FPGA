@@ -1,13 +1,24 @@
-from common.python.pandablocks.block import Block
+from common.python.simulations import BlockSimulation, properties_from_ini, \
+    TYPE_CHECKING
 
 
-class Clocks(Block):
+if TYPE_CHECKING:
+    from typing import Dict, Optional
+
+
+class ClocksSimulation(BlockSimulation):
+
+    A_PERIOD, B_PERIOD, C_PERIOD, D_PERIOD, OUT_A, OUT_B, OUT_C, OUT_D = \
+        properties_from_ini(__file__, "clocks.block.ini")
+
     def __init__(self):
         self.start_ts = 0
 
     def on_changes(self, ts, changes):
+        # type: (int, Dict[str, int]) -> Optional[int]
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
+        super(ClocksSimulation, self).on_changes(ts, changes)
         if changes:
             for name, value in changes.items():
                 setattr(self, name, value)
@@ -31,6 +42,12 @@ class Clocks(Block):
                 elif off == half:
                     setattr(self, 'OUT' + out, 1)
                     next_ts.append(ts - half + period)
+
         # now work out when next to make a pulse
         if next_ts:
             return min(next_ts)
+
+        if changes:
+            return ts + 1
+        else:
+            return None
