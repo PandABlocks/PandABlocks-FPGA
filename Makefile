@@ -22,12 +22,12 @@ default: apps docs
 # App source autogeneration
 
 # For every APP in APPS, make build/APP
-APP_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/%,$(APPS))
+APP_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/apps/%,$(APPS))
 
 # Make the built app from the ini file
-$(BUILD_DIR)/%: $(TOP)/apps/%.app.ini
+$(BUILD_DIR)/apps/%: $(TOP)/apps/%.app.ini
 	rm -rf $@_tmp $@
-	$(PYTHON) -m common.python.generate_app $< $@_tmp
+	$(PYTHON) -m common.python.generate_app $@_tmp $^
 	mv $@_tmp $@
 
 apps: $(APP_BUILD_DIRS)
@@ -60,8 +60,7 @@ BUILD_RST_FILES = $(wildcard docs/build/*.rst)
 SRC_RST_FILES = $(filter-out $(BUILD_RST_FILES),$(ALL_RST_FILES))
 
 $(DOCS_HTML_DIR): docs/conf.py $(SRC_RST_FILES)
-	echo $^
-	$(SPHINX_BUILD) -b html docs $(DOCS_HTML_DIR)
+	$(SPHINX_BUILD) -b html docs $@
 
 docs: $(DOCS_HTML_DIR)
 
@@ -70,18 +69,40 @@ docs: $(DOCS_HTML_DIR)
 # ------------------------------------------------------------------------------
 # Test just the python framework
 
-test_python:
+python_tests:
 	$(PYTHON) -m unittest discover -v tests.python
 
-.PHONY: test_python
+.PHONY: python_tests
 
 # ------------------------------------------------------------------------------
 # Test just the timing for simulations
 
-sim_timing:
-	$(PYTHON) -m unittest -v tests.test_sim_timing
+python_timing:
+	$(PYTHON) -m unittest -v tests.test_python_sim_timing
 
-.PHONY: sim_timing
+.PHONY: python_timing
+
+# ------------------------------------------------------------------------------
+# Timing test benches using vivado to run FPGA simulations
+
+# every modules/MODULE/BLOCK.timing.ini
+TIMINGS = $(wildcard modules/*/*.timing.ini)
+
+# MODULE for every modules/MODULE/BLOCK.timing.ini
+MODULES = $(sort $(dir $(patsubst modules/%,%,$(TIMINGS))))
+
+# build/hdl_timing/MODULE for every MODULE
+TIMING_BUILD_DIRS = $(patsubst %/,$(BUILD_DIR)/hdl_timing/%,$(MODULES))
+
+# Make the built app from the ini file
+$(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
+	rm -rf $@_tmp $@
+	$(PYTHON) -m common.python.generate_hdl_timing $@_tmp $^
+	mv $@_tmp $@
+
+hdl_timing: $(TIMING_BUILD_DIRS)
+
+.PHONY: hdl_timing
 
 # ------------------------------------------------------------------------------
 # Clean

@@ -1,0 +1,7 @@
+--------------------------------------------------------------------------------
+-- Timing testbench: {{ section }}
+--------------------------------------------------------------------------------
+
+{% for field in block.filter_fields("bit_out") %}
+    I have a bit_out field called {{ field.name }}
+{% endfor %}

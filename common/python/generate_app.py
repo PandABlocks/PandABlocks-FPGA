@@ -34,9 +34,9 @@ MAX_EXT = 32
 class AppGenerator(object):
     def __init__(self, app, app_build_dir):
         # type: (str, str) -> None
-        # Remove the dir and make a new empty one
-        if os.path.exists(app_build_dir):
-            shutil.rmtree(app_build_dir)
+        # Make sure the outputs directory doesn't already exist
+        assert not os.path.exists(app_build_dir), \
+            "Output dir %r already exists" % app_build_dir
         self.app_build_dir = app_build_dir
         # Create a Jinja2 environment in the templates dir
         self.env = Environment(
@@ -131,12 +131,12 @@ class AppGenerator(object):
 
 def main():
     parser = ArgumentParser(description=__doc__)
+    parser.add_argument("build_dir", help="Path to created app dir")
     parser.add_argument("app", help="Path to app ini file")
-    parser.add_argument("app_build_dir", help="Path to created app dir")
     args = parser.parse_args()
     app = args.app
-    app_build_dir = args.app_build_dir
-    AppGenerator(app, app_build_dir)
+    build_dir = args.build_dir
+    AppGenerator(app, build_dir)
 
 
 if __name__ == "__main__":

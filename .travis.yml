@@ -25,3 +25,5 @@ install:
 script:
   - make test_python
   - make sim_timing
+  - make hdl_timing
+  - make apps
