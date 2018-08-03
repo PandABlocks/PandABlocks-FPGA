@@ -19,11 +19,11 @@ To get the source source code and run the unit tests, run::
     $ cd PandABlocks-FPGA
     $ virtualenv venv
     $ source venv/bin/activate
+    $ pip install --upgrade pip
     $ pip install -r tests/requirements.txt
     $ cp CONFIG.example CONFIG
     $ make test_python
     $ make sim_timing
-
 
 Code Styling
 ------------

@@ -1,12 +1,18 @@
-from common.python.pandablocks.block import Block
+from common.python.simulations import BlockSimulation, properties_from_ini, \
+    TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Dict, Optional
 
 
-class Div(Block):
+class DivSimulation(BlockSimulation):
+
+    DIVISOR, FIRST_PULSE, INP, ENABLE, OUTD, OUTN, COUNT = \
+        properties_from_ini(__file__, "div.block.ini")
 
     def __init__(self):
         self.first_pulse_d = 1
         self.first_pulse_n = 0
-
 
     def do_pulse(self, inp):
         """We've received a bit event on INP, on a rising edge send it out of
@@ -33,20 +39,26 @@ class Div(Block):
             self.COUNT = self.DIVISOR - 1
 
     def on_changes(self, ts, changes):
+        # type: (int, Dict[str, int]) -> Optional[int]
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
-        # This is a ConfigBlock object for use to get our strings from
-        b = self.config_block
+        # Set attributes
+        super(DivSimulation, self).on_changes(ts, changes)
 
         # Set attributes, and flag clear queue
         for name, value in changes.items():
-            setattr(self, name, value)
-            if name not in (b.INP, b.ENABLE):
+
+            if name not in ('INP', 'ENABLE'):
                 self.do_reset()
 
-        #Reset on the falling edge of ENABLE or other register write
-        if changes.get(b.ENABLE, None) == 0:
+        # Reset on the falling edge of ENABLE or other register write
+        if changes.get('ENABLE', None) == 0:
             self.do_reset()
 
-        elif b.INP in changes:
-            self.do_pulse(changes[b.INP])
+        elif 'INP' in changes:
+            self.do_pulse(changes['INP'])
+
+        if changes:
+            return ts + 1
+        else:
+            return None
