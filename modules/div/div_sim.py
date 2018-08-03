@@ -5,10 +5,12 @@ if TYPE_CHECKING:
     from typing import Dict, Optional
 
 
+NAMES, PROPERTIES = properties_from_ini(__file__, "div.block.ini")
+
+
 class DivSimulation(BlockSimulation):
 
-    DIVISOR, FIRST_PULSE, INP, ENABLE, OUTD, OUTN, COUNT = \
-        properties_from_ini(__file__, "div.block.ini")
+    DIVISOR, FIRST_PULSE, INP, ENABLE, OUTD, OUTN, COUNT = PROPERTIES
 
     def __init__(self):
         self.first_pulse_d = 1
@@ -47,18 +49,13 @@ class DivSimulation(BlockSimulation):
 
         # Set attributes, and flag clear queue
         for name, value in changes.items():
-
-            if name not in ('INP', 'ENABLE'):
+            if name in (NAMES.DIVISOR, NAMES.FIRST_PULSE):
                 self.do_reset()
 
         # Reset on the falling edge of ENABLE or other register write
-        if changes.get('ENABLE', None) == 0:
+        if changes.get(NAMES.ENABLE, None) == 0:
             self.do_reset()
+        elif NAMES.INP in changes:
+            self.do_pulse(changes[NAMES.INP])
 
-        elif 'INP' in changes:
-            self.do_pulse(changes['INP'])
-
-        if changes:
-            return ts + 1
-        else:
-            return None
+        return None

@@ -1,4 +1,5 @@
 import os
+from collections import namedtuple
 
 import numpy as np
 
@@ -7,21 +8,28 @@ from .configs import FieldConfig
 from .compat import TYPE_CHECKING, add_metaclass
 
 if TYPE_CHECKING:
-    from typing import List, Optional, Dict
+    from typing import List, Optional, Dict, Tuple, Any
 
 # These are the powers of two in an array
 POW_TWO = 2 ** np.arange(32, dtype=np.uint32)
 
 
 def properties_from_ini(src_path, ini_name):
-    # type: (str, str) -> List[property]
+    # type: (str, str) -> Tuple[Any, List[property]]
+    assert ini_name.endswith(".block.ini"), \
+        "Expected <block>.block.ini, got %s" % ini_name
+    block_name = ini_name[:-len(".block.ini")]
     ini_path = os.path.join(os.path.dirname(src_path), ini_name)
     ini = read_ini(ini_path)
     properties = []
+    names = []
     for field in FieldConfig.from_ini(ini, number=1):
+        names.append(field.name)
         prop = property(field.getter, field.setter)
         properties.append(prop)
-    return properties
+    # Create an object BlockNames with attributes FIELD1="FIELD1", F2="F2", ...
+    names = namedtuple("%sNames" % block_name.title(), names)(*names)
+    return names, properties
 
 
 class BlockSimulationMeta(type):

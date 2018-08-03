@@ -5,15 +5,18 @@ require("numpy")
 from common.python.simulations import BlockSimulation, properties_from_ini
 
 
-class MySim(BlockSimulation):
-    FUNC, A, INPA, OUT = properties_from_ini(__file__, "block_simulation.ini")
+NAMES, PROPERTIES = properties_from_ini(__file__, "test.block.ini")
+
+
+class MyTest(BlockSimulation):
+    FUNC, A, INPA, OUT = PROPERTIES
 
 
 class TestBlockSimulation(unittest.TestCase):
     maxDiff = None
 
     def setUp(self):
-        self.o = MySim()
+        self.o = MyTest()
 
     def test_setter(self):
         assert self.o.changes is None
@@ -29,8 +32,8 @@ class TestBlockSimulation(unittest.TestCase):
     def test_bad_fields(self):
         with self.assertRaises(AssertionError) as cm:
             class MyBad(BlockSimulation):
-                BAD, A, INPA, OUT = properties_from_ini(
-                    __file__, "block_simulation.ini")
+                BAD, A, INPA, OUT = PROPERTIES
+
         assert str(cm.exception) == \
                "Property BAD mismatch with FieldConfig name FUNC"
 

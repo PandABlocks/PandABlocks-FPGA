@@ -11,9 +11,11 @@ FALLING = 2
 EITHER = 3
 
 
+NAMES, PROPERTIES = properties_from_ini(__file__, "lut.block.ini")
+
+
 class LutSimulation(BlockSimulation):
-    INPA, INPB, INPC, INPD, INPE, A, B, C, D, E, FUNC, OUT = \
-        properties_from_ini(__file__, "lut.block.ini")
+    INPA, INPB, INPC, INPD, INPE, A, B, C, D, E, FUNC, OUT = PROPERTIES
 
     def calc_value(self, letter, changes):
         source = getattr(self, letter)

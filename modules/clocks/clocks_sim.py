@@ -6,10 +6,12 @@ if TYPE_CHECKING:
     from typing import Dict, Optional
 
 
-class ClocksSimulation(BlockSimulation):
+NAMES, PROPERTIES = properties_from_ini(__file__, "clocks.block.ini")
 
+
+class ClocksSimulation(BlockSimulation):
     A_PERIOD, B_PERIOD, C_PERIOD, D_PERIOD, OUT_A, OUT_B, OUT_C, OUT_D = \
-        properties_from_ini(__file__, "clocks.block.ini")
+        PROPERTIES
 
     def __init__(self):
         self.start_ts = 0
@@ -20,8 +22,6 @@ class ClocksSimulation(BlockSimulation):
         when we next need to be called"""
         super(ClocksSimulation, self).on_changes(ts, changes)
         if changes:
-            for name, value in changes.items():
-                setattr(self, name, value)
             # reset all clocks
             self.start_ts = ts
             for out in "ABCD":
@@ -46,8 +46,5 @@ class ClocksSimulation(BlockSimulation):
         # now work out when next to make a pulse
         if next_ts:
             return min(next_ts)
-
-        if changes:
-            return ts + 1
         else:
             return None
