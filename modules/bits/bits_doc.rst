@@ -4,21 +4,10 @@ BITS - Soft inputs and constant bits
 The BITS block contains 4 soft values A..D. Each of these soft values can be set
 to 0 or 1 by using the SET_A..SET_D parameters.
 
-Parameters
-----------
+Fields
+------
 
-=============== === ======= ===================================================
-Name            Dir Type    Description
-=============== === ======= ===================================================
-A               R/W Bit     The value that output A should take
-B               R/W Bit     The value that output B should take
-C               R/W Bit     The value that output C should take
-D               R/W Bit     The value that output D should take
-OUTA            Out Bit     The value of A on the bit bus
-OUTB            Out Bit     The value of B on the bit bus
-OUTC            Out Bit     The value of C on the bit bus
-OUTD            Out Bit     The value of D on the bit bus
-=============== === ======= ===================================================
+.. block_fields:: modules/bits/bits.block.ini
 
 Outputs follow parameters
 -------------------------

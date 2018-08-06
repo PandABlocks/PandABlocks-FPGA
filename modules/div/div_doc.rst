@@ -7,22 +7,10 @@ rising edge of INP, if counter = DIVISOR-1, then it is set to 0 and the pulse is
 sent to OUTD, otherwise it is sent to OUTN. Change in any parameter causes the
 block to be reset.
 
-Parameters
-----------
+Fields
+------
 
-=============== === ======= ===================================================
-Name            Dir Type    Description
-=============== === ======= ===================================================
-DIVISOR         R/W UInt32  Divisor value
-FIRST_PULSE     R/W Enum    | 0 - OutN: Send first pulse to OUTN
-                            | 1 - OutD: Send first pulse to OUTD
-FORCE_RESET     W   Action  Reset internal counter state machine
-INP             In  Bit     Input pulse train
-RESET           In  Bit     On rising edge, reset counter state machine
-OUTD            Out Bit     Divided pulse output
-OUTN            Out Bit     Non-divided pulse output
-OUT             R   UInt32  Internal counter value in range [0..DIVISOR-1)
-=============== === ======= ===================================================
+.. block_fields:: modules/div/div.block.ini
 
 Which output do pulses go to
 ----------------------------

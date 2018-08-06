@@ -51,6 +51,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'matplotlib.sphinxext.plot_directive',
     'common.python.sphinx_timing_directive',
+    'common.python.sphinx_block_fields_directive',
 ]
 
 autoclass_content = "both"

@@ -4,30 +4,10 @@ LUT - 5 Input lookup table
 An LUT block produces an output that is determined by a user-programmable
 5-input logic function, set with the FUNC register.
 
+Fields
+------
 
-Parameters
-----------
-
-=============== === ======= ===================================================
-Name            Dir Type    Description
-=============== === ======= ===================================================
-FUNC            R/W UInt32  LUT logic function
-A               R/W Enum    | Source of the value of A for calculation
-                            | 0 - Input Value
-                            | 1 - Rising Edge
-                            | 2 - Falling Edge
-                            | 3 - Either Edge
-B               R/W Enum    Source of the value of B for calculation
-C               R/W Enum    Source of the value of C for calculation
-D               R/W Enum    Source of the value of D for calculation
-E               R/W Enum    Source of the value of E for calculation
-INPA            In  Bit     Input A
-INPB            In  Bit     Input B
-INPC            In  Bit     Input C
-INPD            In  Bit     Input D
-INPE            In  Bit     Input E
-OUT             Out Bit     Output port from the block
-=============== === ======= ===================================================
+.. block_fields:: modules/lut/lut.block.ini
 
 Testing Function Output
 ----------------------------
