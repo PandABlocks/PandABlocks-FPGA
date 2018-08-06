@@ -10,7 +10,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "clocks.block.ini")
 
 
 class ClocksSimulation(BlockSimulation):
-    A_PERIOD, B_PERIOD, C_PERIOD, D_PERIOD, OUT_A, OUT_B, OUT_C, OUT_D = \
+    A_PERIOD, B_PERIOD, C_PERIOD, D_PERIOD, OUTA, OUTB, OUTC, OUTD = \
         PROPERTIES
 
     def __init__(self):

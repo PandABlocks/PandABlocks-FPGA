@@ -9,8 +9,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "div.block.ini")
 
 
 class DivSimulation(BlockSimulation):
-
-    DIVISOR, FIRST_PULSE, INP, ENABLE, OUTD, OUTN, COUNT = PROPERTIES
+    ENABLE, INP, DIVISOR, FIRST_PULSE, OUTD, OUTN, COUNT = PROPERTIES
 
     def __init__(self):
         self.first_pulse_d = 1

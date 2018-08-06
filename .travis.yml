@@ -23,7 +23,7 @@ install:
 
 # command to run tests
 script:
-  - make test_python
-  - make sim_timing
+  - make python_tests
+  - make python_timing
   - make hdl_timing
   - make apps
