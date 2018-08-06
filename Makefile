@@ -101,6 +101,7 @@ $(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
 	mv $@_tmp $@
 
 hdl_timing: $(TIMING_BUILD_DIRS)
+	# TODO: add running of tests under vivado here
 
 .PHONY: hdl_timing
 

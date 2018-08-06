@@ -11,10 +11,9 @@ class TestGenerateApp(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         here = os.path.dirname(__file__)
-        app = os.path.join(here, "only-lut.app.ini")
+        app = os.path.join(here, "test_data", "test.app.ini")
         cls.app_build_dir = "/tmp/test_app_build_dir"
-        cls.expected_dir = os.path.join(here, "only-lut-expected")
-        cls.config_dir = os.path.join(cls.app_build_dir, "config_d")
+        cls.expected_dir = os.path.join(here, "test_data", "app-expected")
         AppGenerator(app, cls.app_build_dir)
 
     @classmethod

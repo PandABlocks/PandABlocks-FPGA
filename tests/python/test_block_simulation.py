@@ -5,7 +5,9 @@ require("numpy")
 from common.python.simulations import BlockSimulation, properties_from_ini
 
 
-NAMES, PROPERTIES = properties_from_ini(__file__, "test.block.ini")
+# Finding relative to a file, give it something in the test_data dir
+NAMES, PROPERTIES = properties_from_ini(__file__.replace(
+    "/test_block_simulation.py", "/test_data/anything.py"), "test.block.ini")
 
 
 class MyTest(BlockSimulation):

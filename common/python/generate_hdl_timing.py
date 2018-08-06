@@ -10,7 +10,7 @@ require("jinja2")
 from jinja2 import Environment, FileSystemLoader
 
 from .compat import TYPE_CHECKING, configparser
-from .configs import BlockConfig
+from .configs import BlockConfig, pad
 from .ini_util import read_ini, timing_entries
 
 if TYPE_CHECKING:
@@ -19,6 +19,32 @@ if TYPE_CHECKING:
 # Some paths
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
+
+
+class TimingCsv(object):
+    def __init__(self, header):
+        self.header = header
+        # String because inputs and outputs from timing_entries are strings
+        self.values = {k: "0" for k in header}
+        self.lengths = {k: len(k) for k in header}
+        self.lines = [header]
+
+    def add_line(self, values):
+        for k, v in values.items():
+            assert k in self.header, \
+                "Field %r is not %s" % (k, self.header)
+            v = str(v)
+            self.lengths[k] = max(self.lengths[k], len(v))
+            self.values[k] = v
+        self.lines.append([self.values[k] for k in self.header])
+
+    def write(self, f):
+        for line in self.lines:
+            padded = []
+            for i, k in enumerate(self.header):
+                padded.append(pad(line[i], self.lengths[k]))
+            padded_str = " ".join(padded)
+            f.write(padded_str.rstrip() + "\n")
 
 
 class HdlTimingGenerator(object):
@@ -64,27 +90,33 @@ class HdlTimingGenerator(object):
         os.makedirs(timing_dir)
         # Write the sequence values
         header = ["TS"]
-        values = dict(TS=0)
         for field in block.fields:
             header.append(field.name)
-            # String becuase inputs and outputs from timing_entries are strings
-            values[field.name] = "0"
+        csv = TimingCsv(header)
+        for_next_ts = {}
+        for ts, inputs, outputs in timing_entries(timing_ini, section):
+            # If we jumped by more than one clock tick, put in another line
+            # for the outputs
+            if for_next_ts:
+                csv.add_line(for_next_ts)
+            # For each timing entry provide the inputs
+            if inputs:
+                inputs["TS"] = str(ts)
+                csv.add_line(inputs)
+            # Now update the values to be the outputs to output next clock
+            # tick
+            if outputs:
+                for_next_ts = {"TS": ts + 1}
+                for_next_ts.update(outputs)
+            else:
+                for_next_ts = {}
+        # Last line for outputs
+        if for_next_ts:
+            csv.add_line(for_next_ts)
+
         with open(os.path.join(timing_dir, "expected.csv"), "w") as f:
-            # Write the header
-            f.write("\t".join(header) + "\n")
-            for ts, inputs, outputs in timing_entries(timing_ini, section):
-                # If we jumped by more than one clock tick, put in another line
-                # for the outputs
-                if ts != values["TS"] + 1:
-                    values["TS"] += 1
-                    f.write("\t".join(str(values[k]) for k in header) + "\n")
-                # For each timing entry provide the inputs
-                values["TS"] = ts
-                values.update(inputs)
-                f.write("\t".join(str(values[k]) for k in header) + "\n")
-                # Now update the values to be the outputs to output next clock
-                # tick
-                values.update(outputs)
+            csv.write(f)
+
         context = dict(section=section, block=block)
         self.expand_template("hdl_timing.v.jinja2", context, timing_dir,
                              "hdl_timing.v")
