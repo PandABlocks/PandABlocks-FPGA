@@ -22,3 +22,8 @@
 .rst-content table.docutils th, .rst-content table.docutils td {
   padding: 4px 6px;
 }
+
+/* override top left pane to be black */
+.wy-side-nav-search {
+  background-color: black;
+}

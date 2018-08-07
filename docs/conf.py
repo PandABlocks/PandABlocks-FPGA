@@ -138,7 +138,7 @@ html_show_copyright = True
 htmlhelp_basename = 'PandABlocks-FPGAdoc'
 
 # Logo
-html_logo = 'PandA-logo.svg'
+html_logo = 'PandA-logo-for-black-background.svg'
 html_favicon = 'PandA-logo.ico'
 
 
