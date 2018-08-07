@@ -11,6 +11,11 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
+    -- System Bus
+    sysbus_i            : in  std_logic_vector(SBUSW-1 downto 0);
+    sfp_inputs_o        : out std_logic_vector(15 downto 0);
+    sfp_data_o          : out std32_array(15 downto 0);
+    
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -21,6 +26,9 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
+    
+    -- SFP Loss of signal
+    SFP_LOS             : in   std_logic_vector(1 downto 0);
     -- GTX I/O
     GTREFCLK_N          : in  std_logic;
     GTREFCLK_P          : in  std_logic;
@@ -34,6 +42,8 @@ end sfp_top;
 architecture rtl of sfp_top is
 
 signal test_clocks      : std_logic_vector(3 downto 0);
+signal SFP2_LOS         : std_logic_vector(31 downto 0);
+signal SFP1_LOS         : std_logic_vector(31 downto 0);
 signal LINK1_UP         : std_logic_vector(31 downto 0);
 signal ERROR1_COUNT     : std_logic_vector(31 downto 0);
 signal LINK2_UP         : std_logic_vector(31 downto 0);
@@ -45,6 +55,10 @@ signal GTREFCLK         : std_logic_vector(2 downto 0);
 signal SOFT_RESET       : std_logic;
 
 begin
+
+--unused signals
+sfp_inputs_o<=(others=>'0');
+sfp_data_o <=(others=>(others=>'0')); 
 
 -- Acknowledgement to AXI Lite interface
 write_ack_o <= '1';
@@ -97,6 +111,11 @@ port map (
     freq_out        => FREQ_VAL
 );
 
+SFP2_LOS(31 downto 1)<= (others=>'0');
+SFP1_LOS(31 downto 1)<= (others=>'0');
+SFP2_LOS(0)<= SFP_LOS(1);
+SFP1_LOS(0)<= SFP_LOS(0);
+
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
@@ -108,8 +127,10 @@ port map (
     sysbus_i                    => (others => '0'),
     posbus_i                    => (others => (others => '0')),
     -- Block Parameters
+    SFP1_LOS                    => SFP1_LOS,
     LINK1_UP                    => LINK1_UP,
     ERROR1_COUNT                => ERROR1_COUNT,
+    SFP2_LOS                    => SFP2_LOS,
     LINK2_UP                    => LINK2_UP,
     ERROR2_COUNT                => ERROR2_COUNT,
     LINK3_UP                    => LINK3_UP,

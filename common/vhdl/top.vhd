@@ -78,6 +78,7 @@ port (
     SFP_RX_P            : in    std_logic_vector(2 downto 0);
     SFP_RX_N            : in    std_logic_vector(2 downto 0);
     SFP_TxDis           : out   std_logic_vector(1 downto 0);
+    SFP_LOS             : in    std_logic_vector(1 downto 0);
 
     -- FMC Differential IO and GTX
     FMC_DP0_C2M_P       : out   std_logic;
@@ -1135,7 +1136,11 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
     port map (
         clk_i               => FCLK_CLK0,
         reset_i             => FCLK_RESET0,
-
+        
+        sysbus_i            => sysbus,
+        sfp_inputs_o        => sfp_inputs,
+        sfp_data_o          => sfp_data,
+        
         read_strobe_i       => read_strobe(SFP_CS),
         read_address_i      => read_address,
         read_data_o         => read_data(SFP_CS),
@@ -1145,7 +1150,9 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         write_address_i     => write_address,
         write_data_i        => write_data,
         write_ack_o         => write_ack(SFP_CS),
-
+        
+        SFP_LOS             => SFP_LOS,
+        
         GTREFCLK_N          => GTXCLK0_N,
         GTREFCLK_P          => GTXCLK0_P,
         RXN_IN              => SFP_RX_N,
