@@ -49,6 +49,8 @@ remove_files -fileset sim_1 {../PandABox/fpga_sequences/clocks_bus_in.txt
 ../PandABox/fpga_sequences/srgate_bus_out.txt
 ../PandABox/fpga_sequences/srgate_reg_in.txt
 ../PandABox/fpga_sequences/srgate_reg_out.txt
+../../tests/sim/panda_biss/do/biss2.prn
+../../tests/sim/panda_biss/do/biss0.prn
 }
 
 set_property SOURCE_SET sources_1 [get_filesets sim_1]
@@ -102,4 +104,6 @@ add_files -fileset sim_1 -norecurse {../PandABox/fpga_sequences/clocks_reg_in.tx
 ../PandABox/fpga_sequences/srgate_bus_out.txt
 ../PandABox/fpga_sequences/srgate_reg_in.txt
 ../PandABox/fpga_sequences/srgate_reg_out.txt
+../../tests/sim/panda_biss/do/biss2.prn
+../../tests/sim/panda_biss/do/biss0.prn
 }
