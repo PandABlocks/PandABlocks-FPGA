@@ -120,5 +120,6 @@ class ConfigBlock(object):
 
         # Create registers entries
         for name, reg in attrs:
-            setattr(self, name, name)
-            self.registers[name] = (int(reg), field)
+            if reg.isdigit():
+                setattr(self, name, name)
+                self.registers[name] = (int(reg), field)
