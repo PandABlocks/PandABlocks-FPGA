@@ -4,8 +4,8 @@ PGEN[{{app_config["PGEN"]}}]
     TRIG            bit_mux
     OUT             pos_out
     TABLE           table
-    TABLE_STATUS    read        enum
-        0   Ok
+    HEALTH          read        enum
+        0   OK
         1   Table not ready
         2   Table end reached
         3   DMA overrun

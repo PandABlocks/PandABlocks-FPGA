@@ -219,6 +219,7 @@ next_inp_val <= ("000") xnor ("00" & bita_i) when next_frame.trigger = c_bita_0 
                 ("100") xnor (bitc_i & "00") when next_frame.trigger = c_bitc_1 else
                 ("000");
 
+-- Next triggers equal or greater than or less than   
 next_pos_en(0) <= '1' when (next_frame.trigger = c_posa_gt_position and signed(posa_i) >= next_frame.position) or
                            (next_frame.trigger = c_posa_lt_position and signed(posa_i) <= next_frame.position) else '0';
 next_pos_en(1) <= '1' when (next_frame.trigger = c_posb_gt_position and signed(posb_i) >= next_frame.position) or                            
@@ -226,11 +227,13 @@ next_pos_en(1) <= '1' when (next_frame.trigger = c_posb_gt_position and signed(p
 next_pos_en(2) <= '1' when (next_frame.trigger = c_posc_gt_position and signed(posc_i) >= next_frame.position) or
                            (next_frame.trigger = c_posc_lt_position and signed(posc_i) <= next_frame.position) else '0';                            
 
+-- Two next triggers 1 XNOR and 2 equal to or greater than or less than   
 next_pos_inp <= '1' when (next_inp_val = "111") or (next_pos_en /= "000") else '0';
 
+-- Three next triggers 1 2 and 3 next trigger immediately  
 next_trig_valid <= '1' when ((next_frame.trigger = c_immediately) or (next_pos_inp = '1')) else '0';
 
-
+-- Current xnor triggers
 current_inp_val <= ("000") xnor ("00" & bita_i) when current_frame.trigger = c_bita_0 else
                    ("001") xnor ("00" & bita_i) when current_frame.trigger = c_bita_1 else
                    ("000") xnor ('0' & bitb_i & '0') when current_frame.trigger = c_bitb_0 else
@@ -239,6 +242,7 @@ current_inp_val <= ("000") xnor ("00" & bita_i) when current_frame.trigger = c_b
                    ("100") xnor (bitc_i & "00") when current_frame.trigger = c_bitc_1 else
                    ("000");
 
+-- current triggers equal or greater than or less than
 current_pos_en(0) <= '1' when (current_frame.trigger = c_posa_gt_position and signed(posa_i) >= current_frame.position) or
                               (current_frame.trigger = c_posa_lt_position and signed(posa_i) <= current_frame.position) else '0'; 
 current_pos_en(1) <= '1' when (current_frame.trigger = c_posb_gt_position and signed(posb_i) >= current_frame.position) or
@@ -246,8 +250,10 @@ current_pos_en(1) <= '1' when (current_frame.trigger = c_posb_gt_position and si
 current_pos_en(2) <= '1' when (current_frame.trigger = c_posc_gt_position and signed(posc_i) >= current_frame.position) or
                               (current_frame.trigger = c_posc_lt_position and signed(posc_i) <= current_frame.position) else '0';                                  
 
+-- Two current triggers 1 XNOR and 2 equal to or greater than or less than
 current_pos_inp <= '1' when (current_inp_val = "111") or (current_pos_en /= "000") else '0';
 
+-- Three current triggers 1 2 and current trigger immediately
 current_trig_valid <= '1' when ((current_frame.trigger = c_immediately) or (current_pos_inp = '1')) else '0';  
 
 
@@ -377,13 +383,15 @@ if rising_edge(clk_i) then
                         else
                             TABLE_LINE <= TABLE_LINE + 1;     
                         end if;
-                        --
+                        -- No trigger ready so go to the wait state
                         if next_trig_valid = '0' then
                             seq_sm <= WAIT_TRIGGER;
+                        -- Trigger ready for PHASE 1     
                         elsif (next_frame.time1 /= to_unsigned(0,32)) then
                             next_ts <= next_frame.time1;
                             out_val <= next_frame.out1;
                             seq_sm <= PHASE_1;    
+                        -- Stay in PHASE 2 state    
                         else
                             next_ts <= next_frame.time2;
                             out_val <= next_frame.out2;
@@ -394,12 +402,15 @@ if rising_edge(clk_i) then
                         load_next <= '1';
                     else
                         LINE_REPEAT <= LINE_REPEAT + 1;
+                        -- No trigger active so go and wait
                         if (current_trig_valid = '0') then
                             seq_sm <= WAIT_TRIGGER;
+                        -- Trigger ready for PHASE 1     
                         elsif (current_frame.time1 /= to_unsigned(0,32)) then
                             next_ts <= current_frame.time1;
                             out_val <= current_frame.out1;
                             seq_sm <= PHASE_1;
+                        -- Stay in PHASE 2 state    
                         else
                             next_ts <= current_frame.time2;
                             out_val <= current_frame.out2;

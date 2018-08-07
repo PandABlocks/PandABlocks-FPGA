@@ -53,7 +53,7 @@ signal sysbus_i          : std_logic_vector(SBUSW-1 downto 0);
 signal posbus_i          : posbus_t;                                 
 signal out_o             : std32_array(FILTER_NUM-1 downto 0);  
 signal ready_o           : std_logic_vector(FILTER_NUM-1 downto 0);
-signal err_o             : std_logic_vector(FILTER_NUM-1 downto 0);              
+signal health_o          : std_logic_vector(FILTER_NUM-1 downto 0);              
 
 signal enable            : std_logic; 
 signal data_cnt1         : unsigned(31 downto 0) := (others => '0');
@@ -242,7 +242,7 @@ port map(clk_i               => clk_i,
          posbus_i            => posbus_i,
          out_o               => out_o, 
          ready_o             => ready_o,
-         err_o               => err_o            
+         health_o            => health_o            
  );
  
  

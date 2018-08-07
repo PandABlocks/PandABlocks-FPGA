@@ -43,12 +43,10 @@ signal DELAY            : std_logic_vector(63 downto 0);
 signal DELAY_WSTB       : std_logic;
 signal WIDTH            : std_logic_vector(63 downto 0);
 signal WIDTH_WSTB       : std_logic;
-signal MISSED_CNT       : std_logic_vector(31 downto 0);
-signal ERR_OVERFLOW     : std_logic_vector(31 downto 0);
-signal ERR_PERIOD       : std_logic_vector(31 downto 0);
-signal QUEUE            : std_logic_vector(31 downto 0);
+signal DROPPED          : std_logic_vector(31 downto 0);
+signal QUEUED           : std_logic_vector(31 downto 0);
 
-signal inp              : std_logic;
+signal trig             : std_logic;
 signal enable           : std_logic;
 
 begin
@@ -59,7 +57,7 @@ port map (
     reset_i             => reset_i,
     sysbus_i            => sysbus_i,
     posbus_i            => (others => (others => '0')),
-    inp_o               => inp,
+    trig_o              => trig,
     enable_o            => enable,
 
     read_strobe_i       => read_strobe_i,
@@ -80,10 +78,8 @@ port map (
     WIDTH_L             => WIDTH(31 downto 0),
     WIDTH_H             => WIDTH(63 downto 32),
     WIDTH_H_WSTB        => WIDTH_WSTB,
-    ERR_OVERFLOW        => ERR_OVERFLOW,
-    ERR_PERIOD          => ERR_PERIOD,
-    QUEUE               => QUEUE,
-    MISSED_CNT          => MISSED_CNT
+    QUEUED              => QUEUED,
+    DROPPED             => DROPPED
 );
 
 -- LUT Block Core Instantiation
@@ -91,7 +87,7 @@ pulse : entity work.pulse
 port map (
     clk_i               => clk_i,
 
-    inp_i               => inp,
+    trig_i              => trig,
     enable_i            => enable,
     out_o               => out_o,
 
@@ -101,10 +97,8 @@ port map (
     DELAY_WSTB          => DELAY_WSTB,
     WIDTH               => WIDTH(47 downto 0),
     WIDTH_WSTB          => WIDTH_WSTB,
-    ERR_OVERFLOW        => ERR_OVERFLOW,
-    ERR_PERIOD          => ERR_PERIOD,
-    QUEUE               => QUEUE,
-    MISSED_CNT          => MISSED_CNT
+    QUEUED              => QUEUED,
+    DROPPED             => DROPPED
 );
 
 end rtl;

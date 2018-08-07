@@ -2,10 +2,10 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 use ieee.numeric_std.all;
 
-ENTITY adder_tb IS
-END adder_tb;
+ENTITY calc_tb IS
+END calc_tb;
 
-ARCHITECTURE behavior OF adder_tb IS
+ARCHITECTURE behavior OF calc_tb IS
 
 -- Resize and sign-invert to required with based on flag
 function posn_data(data : std_logic_vector; flag : std_logic; width : natural)
@@ -23,11 +23,9 @@ begin
     end if;
 end;
 
---constant num_cycles : integer := 2000;
 
 --Inputs
 signal clk_i           : std_logic := '0';
---signal reset_i         : std_logic := '1';
 signal inpa_i          : std_logic_vector(31 downto 0) := (others => '0');
 signal inpb_i          : std_logic_vector(31 downto 0) := (others => '0');
 signal inpc_i          : std_logic_vector(31 downto 0) := (others => '0');
@@ -44,23 +42,24 @@ signal INPA_INVERT_TB  : std_logic := '0';
 signal INPB_INVERT_TB  : std_logic := '0';
 signal INPC_INVERT_TB  : std_logic := '0';
 signal INPD_INVERT_TB  : std_logic := '0';
-signal SCALE           : std_logic_vector(1 downto 0) := (others => '0');
-signal SCALE_TB        : std_logic_vector(1 downto 0) := (others => '0');   
+signal FUNC            : std_logic_vector(1 downto 0) := (others => '0');
+signal FUNC_TB         : std_logic_vector(1 downto 0) := (others => '0');   
 
 signal acc_ab_tb       : signed(33 downto 0) := (others => '0');
 signal acc_cd_tb       : signed(33 downto 0) := (others => '0');
 signal acc_abcd_tb     : signed(33 downto 0) := (others => '0');
 
-signal a,b,c,d         : integer;
+signal inpa, inpb      : integer; 
+signal inpc, inpd      : integer; 
 
 --Outputs
 signal out_o  : std_logic_vector(31 downto 0);
 signal out_tb : std_logic_vector(31 downto 0);
 
-signal stop   : std_logic;
+signal stop   : std_logic := '0';
 signal err    : std_logic;
 
-signal test_result : std_logic := '0';
+signal test_result : std_logic;
 
 BEGIN
 
@@ -77,15 +76,15 @@ begin
 end process;        
 
 
-inpa_i <= std_logic_vector(to_signed(a,32));
-inpb_i <= std_logic_vector(to_signed(b,32));
-inpc_i <= std_logic_vector(to_signed(c,32));
-inpd_i <= std_logic_vector(to_signed(d,32));
+inpa_i <= std_logic_vector(to_signed(inpa,32));
+inpb_i <= std_logic_vector(to_signed(inpb,32));
+inpc_i <= std_logic_vector(to_signed(inpc,32));
+inpd_i <= std_logic_vector(to_signed(inpd,32));
 
-inpa_tb <= std_logic_vector(to_signed(a,32));
-inpb_tb <= std_logic_vector(to_signed(b,32));
-inpc_tb <= std_logic_vector(to_signed(c,32));
-inpd_tb <= std_logic_vector(to_signed(d,32));
+inpa_tb <= std_logic_vector(to_signed(inpa,32));
+inpb_tb <= std_logic_vector(to_signed(inpb,32));
+inpc_tb <= std_logic_vector(to_signed(inpc,32));
+inpd_tb <= std_logic_vector(to_signed(inpd,32));
 
 
 -- Testbench checker
@@ -100,7 +99,7 @@ begin
 
     acc_abcd_tb <= acc_ab_tb + acc_cd_tb; 
 
-    case SCALE_TB is
+    case FUNC_TB is
       when "00" =>
         out_tb <= std_logic_vector(resize(acc_abcd_tb, 32));
       when "01" => 
@@ -130,57 +129,56 @@ begin
 end process ps_cap_err;   
 
 
-uut: entity work.adder
+uut: entity work.calc
 PORT MAP (
-    clk_i           => clk_i,
-    --reset_i         => reset_i,
-    inpa_i          => inpa_i,
-    inpb_i          => inpb_i,
-    inpc_i          => inpc_i,
-    inpd_i          => inpd_i,
-    out_o           => out_o,
-    INPA_INVERT     => INPA_INVERT,
-    INPB_INVERT     => INPB_INVERT,
-    INPC_INVERT     => INPC_INVERT,
-    INPD_INVERT     => INPD_INVERT,
-    SCALE           => SCALE
+    clk_i   => clk_i,
+    inpa_i  => inpa_i,
+    inpb_i  => inpb_i,
+    inpc_i  => inpc_i,
+    inpd_i  => inpd_i,
+    out_o   => out_o,
+    A       => INPA_INVERT,
+    B       => INPB_INVERT,
+    C       => INPC_INVERT,
+    D       => INPD_INVERT,
+    FUNC    => FUNC
 );
 
 -- Stimulus process
 stim_proc: process
 begin
     stop <= '0';
-    SCALE <= "00";
-    a <= 0; b <= 0; c <= 0; d <= 0;
+    FUNC <= "00";
+    inpa <= 0; inpb <= 0; inpc <= 0; inpd <= 0;
     -- hold reset state for 100 ns.
     wait for 1000 ns;
-    a <= 100; b <= 100; c <= 100; d <= 0;
+    inpa <= 100; inpb <= 100; inpc <= 100; inpd <= 0;
     wait for 1000 ns;
-    a <= 100; b <= 100; c <= 100; d <= -300;
+    inpa <= 100; inpb <= 100; inpc <= 100; inpd <= -300;
     wait for 1000 ns;
-    a <= -1000; b <= 100; c <= 100; d <= -300;
+    inpa <= -1000; inpb <= 100; inpc <= 100; inpd <= -300;
     wait for 1000 ns;
-    SCALE <= "01";
-    SCALE_TB <= "01";
+    FUNC <= "01";
+    FUNC_TB <= "01";
     wait for 1000 ns;
-    SCALE <= "10";
-    SCALE_TB <= "10";
+    FUNC <= "10";
+    FUNC_TB <= "10";
     wait for 1000 ns;
-    SCALE <= "11";
-    SCALE_TB <= "11";
+    FUNC <= "11";
+    FUNC_TB <= "11";
     wait for 1000 ns;
-    a <= 1000; b <= 200; c <= 0; d <= 0;
+    inpa <= 1000; inpb <= 200; inpc <= 0; inpd <= 0;
     INPB_INVERT <= '1';
     INPB_INVERT_TB <= '1';
     wait for 10000 ns;
-    SCALE <= "01";
-    SCALE_TB <= "01";
+    FUNC <= "01";
+    FUNC_TB <= "01";
     wait for 1000 ns;
-    SCALE <= "10";
-    SCALE_TB <= "10";
+    FUNC <= "10";
+    FUNC_TB <= "10";
     wait for 1000 ns;
-    SCALE <= "11";
-    SCALE_TB <= "11";
+    FUNC <= "11";
+    FUNC_TB <= "11";
     wait for 1000 ns;
     stop <= '1';
     wait;

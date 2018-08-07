@@ -23,7 +23,7 @@ library work;
 use work.top_defines.all;
 use work.addr_defines.all;
 
-entity slowcont_top is
+entity system_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -52,9 +52,9 @@ port (
     spi_sclk_i          : in  std_logic;
     spi_dat_i           : in  std_logic
 );
-end slowcont_top;
+end system_top;
 
-architecture rtl of slowcont_top is
+architecture rtl of system_top is
 
 -- Gather various Temperature and Voltage readouts from Slow FPGA into
 -- arrays.
@@ -84,7 +84,7 @@ port map (
 ---------------------------------------------------------------------------
 -- Slow register access interface
 ---------------------------------------------------------------------------
-slow_registers_inst : entity work.slow_registers
+system_registers_inst : entity work.system_registers
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
@@ -115,7 +115,7 @@ port map (
 ---------------------------------------------------------------------------
 -- Slow controller physical serial interface
 ---------------------------------------------------------------------------
-slow_interface : entity work.slow_interface
+system_interface : entity work.system_interface
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
@@ -137,7 +137,7 @@ port map (
 ---------------------------------------------------------------------------
 -- Status Read process from Slow Controller
 ---------------------------------------------------------------------------
-slow_ctrl_inst : entity work.slow_ctrl
+system_ctrl_inst : entity work.system_ctrl
 port map (
     -- Clock and Reset
     clk_i               => clk_i,
@@ -164,7 +164,7 @@ port map (
     read_data_o         => read_data_o,
     read_ack_o          => open,
 
-    write_strobe_i      => write_strobe_i(SLOW_CS),
+    write_strobe_i      => write_strobe_i(SYSTEM_CS),
     write_address_i     => write_address_i(BLK_AW-1 downto 0),
     write_data_i        => write_data_i,
     write_ack_o         => open

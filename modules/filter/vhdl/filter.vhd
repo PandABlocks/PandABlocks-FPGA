@@ -10,7 +10,7 @@ entity filter is
         enable_i : in  std_logic;
         out_o    : out std_logic_vector(31 downto 0);
         ready_o  : out std_logic;
-        err_o    : out std_logic_vector(1 downto 0));
+        health_o : out std_logic_vector(1 downto 0));
  
 end filter;
 
@@ -141,11 +141,11 @@ begin
     accum_of_err <= (sum_i(63) xor sum_i(62));
     if enable_i = '1' and  enable_i_dly = '0' then
       stop <= '0'; 
-      err_o <= (others => '0');
+      health_o <= (others => '0');
     elsif (accum_of_err or div_enabled_err) = '1' then
       stop <= '1';
-      err_o(0) <= (sum_i(63) xor sum_i(62));
-      err_o(1) <= div_enabled_err;
+      health_o(0) <= (sum_i(63) xor sum_i(62));
+      health_o(1) <= div_enabled_err;
     end if;
   end if;
 end process ps_err;

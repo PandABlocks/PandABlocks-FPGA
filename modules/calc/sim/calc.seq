@@ -8,11 +8,11 @@ $ Adding inputs
 
 #######################
 $ Scaling
-3       : SCALE = 0
+3       : FUNC = 0
 5       : INPA = 1      : OUT = 1
 6       : INPB = 1      : OUT = 2
-8       : SCALE = 1     : OUT = 1
+8       : FUNC = 1      : OUT = 1
 10      : INPC = 10     : OUT = 6
-12      : SCALE = 2     : OUT = 3
+12      : FUNC = 2      : OUT = 3
 15      : INPD = 10     : OUT = 5
 16      : INPC = 0      : OUT = 3

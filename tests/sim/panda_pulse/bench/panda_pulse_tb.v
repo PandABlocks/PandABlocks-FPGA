@@ -29,7 +29,7 @@ always #4 clk_i = ~clk_i;
 
 // Test vector input and outputs.
 reg          SIM_RESET;
-reg          INP;
+reg          TRIG;
 wire [47: 0] DELAY;
 reg          DELAY_WSTB;
 wire [47: 0] WIDTH;
@@ -45,27 +45,22 @@ reg          WIDTH_H_WSTB;
 reg [1:  0]	 TRIG_EDGE;
 reg 		 TRIG_EDGE_WSTB;
 reg          ENABLE;
-reg          VAL;
-reg          ERR_OVERFLOW;
-reg          ERR_PERIOD;
-reg [10: 0]  QUEUE;
-reg [31: 0]  MISSED_CNT;    
+reg          OUT;
+reg [10: 0]  QUEUED;
+reg [31: 0]  DROPPED;    
 reg          err_out_o;
-reg          test_result = 0;
+reg          test_result;
 
 // Block outputs and status registers.
 wire         out_o;
 
-wire [31: 0] missed_cnt_o;
-wire [31: 0] queue_o;
-wire [31: 0] err_period_o;
-wire [31: 0] err_overflow_o;
-
+wire [31: 0] DROPPED_o;
+wire [31: 0] QUEUED_o;
 
 // Instantiate Unit Under Test
 pulse uut (
     .clk_i          ( clk_i          ),
-    .inp_i          ( INP            ),
+    .TRIG_i         ( TRIG           ),
     .enable_i       ( ENABLE         ),  
     .out_o          ( out_o          ),
     .TRIG_EDGE		( TRIG_EDGE		 ),
@@ -74,10 +69,8 @@ pulse uut (
     .DELAY_WSTB     ( DELAY_WSTB     ), 
     .WIDTH          ( WIDTH          ),
     .WIDTH_WSTB     ( WIDTH_WSTB     ),
-    .ERR_OVERFLOW   ( err_overflow_o ),
-    .ERR_PERIOD     ( err_period_o   ),
-    .QUEUE          ( queue_o        ),
-    .MISSED_CNT     ( missed_cnt_o   )
+    .QUEUED         ( QUEUED_o       ),
+    .DROPPED        ( DROPPED_o      )
 );
 
 integer fid[3:0];
@@ -109,13 +102,12 @@ end
 //
 // READ BLOCK INPUTS VECTOR FILE
 //
-// TS»¯¯¯¯¯SIM_RESET»¯¯¯¯¯¯INP»¯¯¯¯RESET
+// TS»¯¯¯¯¯SIM_RESET»¯¯¯¯¯¯TRIG»¯¯¯¯RESET
 integer bus_in[3:0];
 
 initial begin
     SIM_RESET = 0;
-    INP = 0;
-    //RESET = 0;
+    TRIG = 0;
     ENABLE = 0;
 
     @(posedge clk_i);
@@ -130,8 +122,7 @@ initial begin
 
         wait (timestamp == bus_in[3]) begin
             SIM_RESET <= bus_in[2];
-            INP <= bus_in[1];
-            //RESET <= bus_in[0];
+            TRIG <= bus_in[1];
             ENABLE <= bus_in[0];
         end
         @(posedge clk_i);
@@ -205,13 +196,13 @@ integer bus_out[1:0];
 reg     is_file_end;
 
 initial begin
-    VAL = 0;
+    OUT = 0;
     is_file_end = 0;
 
     @(posedge clk_i);
 
     // Open "bus_out" file
-    fid[2] = $fopen("pulse_bus_out.txt", "r"); // TS, VAL
+    fid[2] = $fopen("pulse_bus_out.txt", "r"); // TS, OUT
 
     // Read and ignore description field
     r[2] = $fscanf(fid[2], "%s %s\n", bus_out[1], bus_out[0]);
@@ -219,7 +210,7 @@ initial begin
     while (!$feof(fid[2])) begin
         r[2] = $fscanf(fid[2], "%d %d\n", bus_out[1], bus_out[0]);
         wait (timestamp == bus_out[1]) begin
-            VAL = bus_out[0];
+            OUT = bus_out[0];
         end
         @(posedge clk_i);
     end
@@ -235,14 +226,12 @@ end
 // OUTPUTS
 //
 
-//TS»¯¯¯¯¯ERR_OVERFLOW»¯¯¯ERR_PERIOD»¯¯¯¯¯QUEUE»¯¯MISSED_CNT
-integer reg_out[4:0];
+//TS»¯¯¯¯¯QUEUED»¯¯DROPPED
+integer reg_out[2:0];
 
 initial begin
-    ERR_OVERFLOW = 0;
-    ERR_PERIOD = 0;
-    QUEUE = 0;
-    MISSED_CNT = 0;
+    QUEUED = 0;
+    DROPPED = 0;
 
     @(posedge clk_i);
 
@@ -250,15 +239,13 @@ initial begin
     fid[3] = $fopen("pulse_reg_out.txt", "r");
 
     // Read and ignore description field
-    r[3] = $fscanf(fid[3], "%s %s %s %s %s\n", reg_out[4], reg_out[3], reg_out[2], reg_out[1], reg_out[0]);
+    r[3] = $fscanf(fid[3], "%s %s %s\n", reg_out[2], reg_out[1], reg_out[0]);
 
     while (!$feof(fid[3])) begin
-        r[3] = $fscanf(fid[3], "%d %d %d %d %d\n", reg_out[4], reg_out[3], reg_out[2], reg_out[1], reg_out[0]);
-        wait (timestamp == reg_out[4]) begin
-            ERR_OVERFLOW <= reg_out[3];
-            ERR_PERIOD <= reg_out[2];
-            QUEUE <= reg_out[1];
-            MISSED_CNT <= reg_out[0];
+        r[3] = $fscanf(fid[3], "%d %d %d\n", reg_out[2], reg_out[1], reg_out[0]);
+        wait (timestamp == reg_out[2]) begin
+            QUEUED <= reg_out[1];
+            DROPPED <= reg_out[0];
         end
         @(posedge clk_i);
     end
@@ -275,9 +262,9 @@ begin
         if (err_out_o == 1) begin
           test_result = 1;
         end   
-    
+        // Should compare QUEUED and DROPPED
         // If not equal, display an error.
-        if (out_o != VAL) begin
+        if (out_o != OUT) begin
             err_out_o = 1;
             $display("OUT error detected at timestamp %d\n", timestamp);
         end

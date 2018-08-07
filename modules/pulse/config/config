@@ -1,16 +1,14 @@
 PULSE[{{app_config["PULSE"]}}]
     DELAY           time
     WIDTH           time
-    INP             bit_mux
+    TRIG            bit_mux
     ENABLE          bit_mux
     OUT             bit_out
-    ERR_OVERFLOW    read        bit
-    ERR_PERIOD      read        bit
-    QUEUE           read        uint 1023
-    MISSED_CNT      read
-    TRIG_EDGE        param       enum
+    QUEUED          read        uint 1023
+    DROPPED         read
+    TRIG_EDGE       param       enum
         0   Rising
         1   Falling
-        2   Rising or Falling
+        2   Either
 
 
