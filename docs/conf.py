@@ -184,7 +184,4 @@ texinfo_documents = [
 ]
 
 # Common links that should be available on every page
-rst_epilog = """
-.. _Diamond Light Source:
-    http://www.diamond.ac.uk
-"""
+rst_epilog = """"""

@@ -29,13 +29,13 @@ Code Styling
 ------------
 
 VHDL
-====
+~~~~
 
 Code styling here...
 
 
 Python
-======
+~~~~~~
 
 Please arrange imports with the following style
 
@@ -54,10 +54,16 @@ Please follow `Google's python style`_ guide wherever possible.
 
 .. _Google's python style: https://google.github.io/styleguide/pyguide.html
 
-Building the docs
------------------
 
-When in the project directory::
+Documentation
+-------------
+
+There are some conventions:
+
+* First usage of a term in a page should link to an entry in the `glossary`
+* Glossary entries should define a reference with a trailing underscore
+
+You can build the docs When in the project directory::
 
     $ source venv/bin/activate
     $ pip install -r docs/requirements.txt

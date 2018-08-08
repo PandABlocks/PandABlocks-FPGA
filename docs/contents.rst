@@ -16,20 +16,19 @@ Contents
     tutorials/position_compare
     tutorials/snake_scan
 
+.. _blocks_doc:
+
+.. include:: build/blocks.txt
+
 .. _reference_doc:
 
 .. toctree::
     :caption: Reference
 
-    reference/glossary
-    reference/apps
-    reference/block_ini
-    reference/templates
-    reference/vhdl_guidelines
     reference/contributing
+    reference/app
+    reference/block
+    reference/framework
     reference/changelog
-    api/configs_api
+    reference/glossary
 
-.. _blocks_doc:
-
-.. include:: build/blocks.txt
