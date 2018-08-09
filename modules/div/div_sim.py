@@ -2,7 +2,7 @@ from common.python.simulations import BlockSimulation, properties_from_ini, \
     TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Dict, Optional
+    from typing import Dict
 
 
 NAMES, PROPERTIES = properties_from_ini(__file__, "div.block.ini")
@@ -40,9 +40,17 @@ class DivSimulation(BlockSimulation):
             self.COUNT = self.DIVISOR - 1
 
     def on_changes(self, ts, changes):
-        # type: (int, Dict[str, int]) -> Optional[int]
-        """Handle changes at a particular timestamp, then return the timestamp
-        when we next need to be called"""
+        """Handle field changes at a particular timestamp
+
+        Args:
+            ts (int): The timestamp the changes occurred at
+            changes (Dict[str, int]): Fields that changed with their value
+
+        Returns:
+             If the Block needs to be called back at a particular ts then return
+             that int, otherwise return None and it will be called when a field
+             next changes
+        """
         # Set attributes
         super(DivSimulation, self).on_changes(ts, changes)
 
@@ -56,5 +64,3 @@ class DivSimulation(BlockSimulation):
             self.do_reset()
         elif NAMES.INP in changes:
             self.do_pulse(changes[NAMES.INP])
-
-        return None

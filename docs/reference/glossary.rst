@@ -34,7 +34,7 @@ Module
 
 A directory containing `block_` definitions, logic, simulations and timing.
 Modules will typically contain a single soft Block definition, or a number of
-hardware Blocks tied to a particular `target_paltform_`, `SFP`_ or `FMC`_ card.
+hardware Blocks tied to a particular `target_platform_`, `SFP`_ or `FMC`_ card.
 
 .. _pandabox_:
 

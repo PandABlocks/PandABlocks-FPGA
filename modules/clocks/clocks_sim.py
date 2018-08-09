@@ -3,7 +3,7 @@ from common.python.simulations import BlockSimulation, properties_from_ini, \
 
 
 if TYPE_CHECKING:
-    from typing import Dict, Optional
+    from typing import Dict
 
 
 NAMES, PROPERTIES = properties_from_ini(__file__, "clocks.block.ini")
@@ -17,9 +17,17 @@ class ClocksSimulation(BlockSimulation):
         self.start_ts = 0
 
     def on_changes(self, ts, changes):
-        # type: (int, Dict[str, int]) -> Optional[int]
-        """Handle changes at a particular timestamp, then return the timestamp
-        when we next need to be called"""
+        """Handle field changes at a particular timestamp
+
+        Args:
+            ts (int): The timestamp the changes occurred at
+            changes (Dict[str, int]): Fields that changed with their value
+
+        Returns:
+             If the Block needs to be called back at a particular ts then return
+             that int, otherwise return None and it will be called when a field
+             next changes
+        """
         super(ClocksSimulation, self).on_changes(ts, changes)
         if changes:
             # reset all clocks
@@ -28,7 +36,7 @@ class ClocksSimulation(BlockSimulation):
                 setattr(self, 'OUT' + out, 0)
 
         # decide if we need to produce any clocks
-        next_ts = []
+        next_tss = []
         for out in "ABCD":
             period = getattr(self, out + "_PERIOD")
             if period > 1:
@@ -37,14 +45,13 @@ class ClocksSimulation(BlockSimulation):
                 # produce clock low level at start of period
                 if off == 0:
                     setattr(self, 'OUT' + out, 0)
-                    next_ts.append(ts + half)
+                    next_tss.append(ts + half)
                 # produce clock low level at half period
                 elif off == half:
                     setattr(self, 'OUT' + out, 1)
-                    next_ts.append(ts - half + period)
+                    next_tss.append(ts - half + period)
 
         # now work out when next to make a pulse
-        if next_ts:
-            return min(next_ts)
-        else:
-            return None
+        if next_tss:
+            return min(next_tss)
+

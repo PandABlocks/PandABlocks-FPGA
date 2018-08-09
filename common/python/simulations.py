@@ -8,7 +8,7 @@ from .configs import FieldConfig
 from .compat import TYPE_CHECKING, add_metaclass
 
 if TYPE_CHECKING:
-    from typing import List, Optional, Dict, Tuple, Any
+    from typing import List, Dict, Tuple, Any
 
 # These are the powers of two in an array
 POW_TWO = 2 ** np.arange(32, dtype=np.uint32)
@@ -60,12 +60,19 @@ class BlockSimulation(object):
         return np.dot(bits, POW_TWO)
 
     def on_changes(self, ts, changes):
-        # type: (int, Dict[str, int]) -> Optional[int]
-        """Handle changes at a particular timestamp, then return the timestamp
-        when we next need to be called"""
+        """Handle field changes at a particular timestamp
+
+        Args:
+            ts (int): The timestamp the changes occurred at
+            changes (Dict[str, int]): Fields that changed with their value
+
+        Returns:
+             If the Block needs to be called back at a particular ts then return
+             that int, otherwise return None and it will be called when a field
+             next changes
+        """
         # Set attributes
         for name, value in changes.items():
             assert hasattr(self, name), "%s has no attribute %s" % (self, name)
             setattr(self, name, value)
-        return None
 

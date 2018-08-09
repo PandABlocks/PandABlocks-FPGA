@@ -2,7 +2,7 @@ from common.python.simulations import BlockSimulation, properties_from_ini, \
     TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Dict, Optional
+    from typing import Dict
 
 
 VALUE = 0
@@ -30,9 +30,17 @@ class LutSimulation(BlockSimulation):
             return int(inp in changes)
 
     def on_changes(self, ts, changes):
-        # type: (int, Dict[str, int]) -> Optional[int]
-        """Handle changes at a particular timestamp, then return the timestamp
-        when we next need to be called"""
+        """Handle field changes at a particular timestamp
+
+        Args:
+            ts (int): The timestamp the changes occurred at
+            changes (Dict[str, int]): Fields that changed with their value
+
+        Returns:
+             If the Block needs to be called back at a particular ts then return
+             that int, otherwise return None and it will be called when a field
+             next changes
+        """
         # Set attributes
         super(LutSimulation, self).on_changes(ts, changes)
 
@@ -54,5 +62,3 @@ class LutSimulation(BlockSimulation):
         # back next clock tick just in case
         if changes:
             return ts + 1
-        else:
-            return None

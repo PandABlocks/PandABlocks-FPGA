@@ -123,7 +123,7 @@ The first step in making a Block Simulation is to define the imports:
         TYPE_CHECKING
 
     if TYPE_CHECKING:
-        from typing import Dict, Optional
+        from typing import Dict
 
 The ``typing`` imports allow IDEs like PyCharm to infer the types of the
 variables, increasing the chance of finding bugs at edit time.
@@ -141,8 +141,8 @@ Next we read the block ini file:
 
 This generates two objects:
 
-* ``NAMES``: A `NamedTuple` with a string attribute for every field, for
-  comparing field names with.
+* ``NAMES``: A `collections.namedtuple` with a string attribute for every field,
+  for comparing field names with.
 * ``PROPERTIES``: A `property` for each Field of the Block that can be attached
   to the `BlockSimulation` class
 
@@ -154,9 +154,17 @@ Now we are ready to create our simulation class:
         INP, ANOTHER_FIELD, OUT = PROPERTIES
 
         def on_changes(self, ts, changes):
-            # type: (int, Dict[str, int]) -> Optional[int]
-            """Handle changes at a particular timestamp, then return the timestamp
-            when we next need to be called"""
+            """Handle field changes at a particular timestamp
+
+            Args:
+                ts (int): The timestamp the changes occurred at
+                changes (Dict[str, int]): Fields that changed with their value
+
+            Returns:
+                 If the Block needs to be called back at a particular ts then return
+                 that int, otherwise return None and it will be called when a field
+                 next changes
+            """
             # Set attributes
             super(MyBlockSimulation, self).on_changes(ts, changes)
 
@@ -164,14 +172,10 @@ Now we are ready to create our simulation class:
                 # If our input changed then set our output high
                 self.OUT = 1
                 # Need to be called back next clock tick to set it back
-                next_ts = ts + 1
+                return ts + 1
             else:
                 # The next clock tick set it back low
                 self.OUT = 0
-                # Don't need to be called back until something changes
-                next_ts = None
-
-            return next_ts
 
 This is a very simple Block, when ``INP`` changes, it outputs a 1 clock tick
 pulse on ``OUT``. It checks the changes dict to see if ``INP`` is in it, and
@@ -186,7 +190,7 @@ changes.
 .. note::
 
     If you need to use a field name in code, use an attribute of ``NAMES``. This
-    avoids mistakes due to types like::
+    avoids mistakes due to typos like::
 
         if "INPP" in changes:
             code_that_will_never_execute
