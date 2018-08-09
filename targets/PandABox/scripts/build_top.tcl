@@ -48,7 +48,6 @@ read_ip $BUILD_DIR/ip_repo/pulse_queue/pulse_queue.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32/fifo_1K32.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32_ft/fifo_1K32_ft.xci
 read_ip $BUILD_DIR/ip_repo/system_cmd_fifo/system_cmd_fifo.xci
-read_ip $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
 if {$FMC_DESIGN == "fmc_acq430"} {
     read_ip $BUILD_DIR/ip_repo/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
     read_ip $BUILD_DIR/ip_repo/fmc_acq430_sample_ram/fmc_acq430_sample_ram.xci
@@ -56,14 +55,15 @@ if {$FMC_DESIGN == "fmc_acq430"} {
 if {$FMC_DESIGN == "fmc_acq427"} {
     read_ip $BUILD_DIR/ip_repo/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
     read_ip $BUILD_DIR/ip_repo/fmc_acq427_dac_fifo/fmc_acq427_dac_fifo.xci
-if {$SFP_DESIGN == "sfp_udpontrig"} {
-   read_ip $BUILD_DIR/ip_repo/ila_32x8K/ila_32x8K.xci
 }
-read_ip $BUILD_DIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
+if {$FMC_DESIGN == "fmc_loopback"} {
+    read_ip $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
+}
 if {$SFP_DESIGN == "sfp_loopback"} {
     read_ip $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
 }
 if {$SFP_DESIGN == "sfp_udpontrig"} {
+    read_ip $BUILD_DIR/ip_repo/ila_32x8K/ila_32x8K.xci
     read_ip -verbose $BUILD_DIR/ip_repo/eth_phy/eth_phy.xci
     # Disable DCP and XDC 
     set_property generate_synth_checkpoint false [get_files $BUILD_DIR/ip_repo/eth_phy/eth_phy.xci] 
@@ -71,16 +71,12 @@ if {$SFP_DESIGN == "sfp_udpontrig"} {
     set eth_phy_xdc [get_files -of_objects [get_files $BUILD_DIR/ip_repo/eth_phy/eth_phy.xci] -filter {FILE_TYPE == XDC}]  
     set_property is_enabled false [get_files $eth_phy_xdc]
     report_compile_order -constraints
-    
     read_ip -verbose $BUILD_DIR/ip_repo/eth_mac/eth_mac.xci
     # Disable DCP and XDC 
     set_property generate_synth_checkpoint false [get_files $BUILD_DIR/ip_repo/eth_mac/eth_mac.xci] 
     generate_target all [get_ips eth_mac]
     set eth_mac_xdc [get_files -of_objects [get_files $BUILD_DIR/ip_repo/eth_mac/eth_mac.xci] -filter {FILE_TYPE == XDC}]  
     set_property is_enabled false [get_files $eth_mac_xdc]
-}
-if {$FMC_DESIGN == "fmc_loopback"} {
-    read_ip $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
 }
 
 # Read Zynq block design

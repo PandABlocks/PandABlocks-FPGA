@@ -120,6 +120,10 @@ class ConfigBlock(object):
 
         # Create registers entries
         for name, reg in attrs:
-            if reg.isdigit():
-                setattr(self, name, name)
-                self.registers[name] = (int(reg), field)
+            try:
+                reg = int(reg)
+            except ValueError:
+                # Allow strings and other things silently
+                continue
+            setattr(self, name, name)
+            self.registers[name] = (reg, field)
