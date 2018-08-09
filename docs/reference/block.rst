@@ -3,48 +3,197 @@
 Writing a Block
 ===============
 
-Rationale behind making a new block
+If you have checked the list of `blocks_doc` and need a feature that is not
+there you can extend an existing `block_` or create a new one. If the feature
+fits with the behaviour of an existing Block and can be added without breaking
+backwards compatibility it is preferable to add it there. If there is a new
+type of behaviour it may be better to make a new one.
+
+This page lists all of the framework features that are involved in making a
+Block, finding a `module_` for it, defining the interface, writing the
+simulation, writing the timing tests, documenting the behaviour, and finally
+writing the logic.
+
+Modules
+-------
+
+Modules are subdirectories in ``modules/`` that contain Block definitions. If
+you are writing a soft Block then you will typically create a new Module for it.
+If you are writing a Block with hardware connections it will live in a Module
+for that hardware (e.g. for the FMC card, or for that `target_platform_`).
+
+To create a new module, simply create a new directory in ``modules/``
 
 .. _block_ini_reference:
 
 Block ini
 ---------
 
-How lut_block.ini should be created
+The first thing that should be defined when creating a new Block is the
+interface to the rest of the framework. This consists of an ini file that
+contains all the information that the framework needs to integrate some VHDL
+logic into the system. It lives in the Module directory and has the extension
+``.block.ini``. It consists of a top level section with information
+about the Block, then a section for every `field_` in the Block.
 
-The lut_block.ini file can be created with knowledge of the different signals
-used within the block.
+The [.] section
+~~~~~~~~~~~~~~~
 
-The first entry to the ini file describes the block as a whole. Under a section:
-[.] there should be keys named description and entity with values describing
-the purpose of the block and the name of the VHDL entity. The standard notation
-is for value to be separated from the key with a colon. For the example of the
-LUT block it should appear as follows::
+The first entry to the ini file describes the block as a whole. It looks like
+this:
+
+.. code-block:: ini
 
     [.]
-    description: Lookup table
-    entity: lut
+    description: Short description of the Block
+    entity: vhdl_entity
 
+The ``description`` should be a short (a few words) description that will be
+visible as a Block label to users of the `pandablocks_device_` when it runs.
 
-Each signal requires a different section in the ini file. The section name
-should be the signal name. There should be keys for type and description with
-values describing the type_ and describing the purpose of the signal. If
-the data type is an enum the different labels for the different values should be
-given. An example for signal A in the LUT
-block is given::
+The ``entity`` should be the name of the VHDL entity that will be created to
+hold the logic. It is typically the lowercase version of the Block name.
 
-    [A]
-    type: param enum
-    description: Source of the value of A for calculation
-    0: Input Value
-    1: Rising Edge
-    2: Falling Edge
-    3: Either Edge
+[FIELD] sections
+~~~~~~~~~~~~~~~~
 
-Block VHDL entity
------------------
+All other sections specify the Field that will be present in the Block. They
+look like this:
 
-How to structure the VHDL entity
+.. code-block:: ini
+
+    [MYFIELD]
+    type: type subtype options
+    description: Short description of the Field
+
+The section name is used to determine the name of the Field in the resulting
+Block. It should be made of upper case letters, numbers and underscores.
+
+The ``type`` value gives information about the type_ which specifies the
+purpose and connections of the Field to the system. It is passed straight
+through to the field specific line in the config file for the TCP server so
+should be written according to type_ documentation. Subsequent indented lines
+in the config file are supplied according to the ``type`` value and are
+documented in `extra_field_keys`.
+
+The ``description`` value gives a short (single sentence) description about
+what the Field does, visible as a tooltip to users.
+
+.. _extra_field_keys:
+
+Extra Field Keys
+~~~~~~~~~~~~~~~~
+
+Some field types accept extra numeric keys in the Field section to allow extra
+information to be passed to the TCP server via its config file.
+
+Enum fields would contain numeric keys to translate specific numbers into
+user readable strings. Strings should be lowercase letters and numbers with
+underscores and no spaces. A typical field might look like this:
+
+.. code-block:: ini
+
+    [ENUM_FIELD]
+    type: param enum  # or read enum or write enum
+    description: Short description of the Field
+    0: first_value
+    1: next_value
+    2: another_value
+    8: gappy_value
+
+Tables will be defined here too
+
+.. _block_simulation_reference:
+
+Block Simulation
+----------------
+
+The Block simulation framework allows the behaviour to be specified in Python
+and timing tests to be written against it without writing any VHDL. This is
+beneficial as it allows the behaviour of the Block to be tied down and
+documented while the logic is relatively easy to change. It also gives an
+accurate simulation of the Block that can be used to simulate an entire
+`pandablocks_device_`.
+
+The first step in making a Block Simulation is to define the imports:
+
+.. code-block:: python
+
+    from common.python.simulations import BlockSimulation, properties_from_ini, \
+        TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from typing import Dict, Optional
+
+The ``typing`` imports allow IDEs like PyCharm to infer the types of the
+variables, increasing the chance of finding bugs at edit time.
+
+The BlockSimulation is a baseclass that our simulation should inherit from:
+
+.. autoclass:: common.python.simulations.BlockSimulation
+    :members:
+
+Next we read the block ini file:
+
+.. code-block:: python
+
+    NAMES, PROPERTIES = properties_from_ini(__file__, "myblock.block.ini")
+
+This generates two objects:
+
+* ``NAMES``: A `NamedTuple` with a string attribute for every field, for
+  comparing field names with.
+* ``PROPERTIES``: A `property` for each Field of the Block that can be attached
+  to the `BlockSimulation` class
+
+Now we are ready to create our simulation class:
+
+.. code-block:: python
+
+    class MyBlockSimulation(BlockSimulation):
+        INP, ANOTHER_FIELD, OUT = PROPERTIES
+
+        def on_changes(self, ts, changes):
+            # type: (int, Dict[str, int]) -> Optional[int]
+            """Handle changes at a particular timestamp, then return the timestamp
+            when we next need to be called"""
+            # Set attributes
+            super(MyBlockSimulation, self).on_changes(ts, changes)
+
+            if NAMES.INP in changes:
+                # If our input changed then set our output high
+                self.OUT = 1
+                # Need to be called back next clock tick to set it back
+                next_ts = ts + 1
+            else:
+                # The next clock tick set it back low
+                self.OUT = 0
+                # Don't need to be called back until something changes
+                next_ts = None
+
+            return next_ts
+
+This is a very simple Block, when ``INP`` changes, it outputs a 1 clock tick
+pulse on ``OUT``. It checks the changes dict to see if ``INP`` is in it, and
+if it is then sets ``OUT`` to 1. The framework only calls ``on_changes()``
+when there are changes unless informed when the Block needs to be called next.
+In this case we need to be called back the next clock tick to set ``OUT`` back
+to zero, so we do this by returning ``ts + 1``. When we are called back next
+clock tick then there is nothing in the changes dict, so ``OUT`` is set back
+to 0 and return None so the framework won't call us back until something
+changes.
+
+.. note::
+
+    If you need to use a field name in code, use an attribute of ``NAMES``. This
+    avoids mistakes due to types like::
+
+        if "INPP" in changes:
+            code_that_will_never_execute
+
+    While if we use ``NAMES``::
+
+        if NAMES.INPP in changes:  # Fails with AttributeError
 
 Timing ini
 ----------
@@ -56,6 +205,11 @@ Writing docs
 
 Two RST directives, how to structure
 
+Block VHDL entity
+-----------------
+
+How to structure the VHDL entity
 
 .. _type: :ref:`Field Type <server:fields>`
 
+.. _TCP server: :ref:`TCP server <server:fields>`

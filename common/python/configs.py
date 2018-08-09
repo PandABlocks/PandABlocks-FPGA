@@ -28,6 +28,9 @@ class BlockConfig(object):
     """The config for a single Block"""
     def __init__(self, name, number, ini):
         # type: (str, int, configparser.SafeConfigParser) -> None
+        # Block names should be UPPER_CASE_NO_NUMBERS
+        assert re.match("[A-Z][A-Z_]*$", name), \
+            "Expected BLOCK_NAME with no numbers, got %r" % name
         #: The name of the Block, like LUT
         self.name = name
         #: The number of instances Blocks that will be created, like 8
@@ -91,6 +94,9 @@ class FieldConfig(object):
 
     def __init__(self, name, number, type, description, **extra_config):
         # type: (str, int, str, str) -> None
+        # Field names should be UPPER_CASE_OR_NUMBERS
+        assert re.match("[A-Z][0-9A-Z_]*$", name), \
+            "Expected FIELD_NAME, got %r" % name
         #: The name of the field relative to it's Block, like INPA
         self.name = name
         #: The number of instances Blocks that will be created, like 8
@@ -206,6 +212,11 @@ class ParamEnumFieldConfig(ParamFieldConfig):
         for k, v in sorted(self.extra_config.items()):
             assert k.isdigit(), "Only expecting integer enum entries in %s" % (
                 self.extra_config,)
+            if self.type.split()[0] != "read":
+                # Read enums can be anything, but write and params should
+                # be lower_case_or_numbers
+                assert re.match("[a-z][0-9a-z_]*$", v), \
+                    "Expected enum_value, got %r" % v
             yield "%s %s" % (pad(k, spaces=3), v)
 
 

@@ -10,30 +10,30 @@ LUT[8]
     INPD            bit_mux
     INPE            bit_mux
     A               param enum
-        0   Input Value
-        1   Rising Edge
-        2   Falling Edge
-        3   Either Edge
+        0   input_level
+        1   input_rising
+        2   input_falling
+        3   input_edge
     B               param enum
-        0   Input Value
-        1   Rising Edge
-        2   Falling Edge
-        3   Either Edge
+        0   input_level
+        1   input_rising
+        2   input_falling
+        3   input_edge
     C               param enum
-        0   Input Value
-        1   Rising Edge
-        2   Falling Edge
-        3   Either Edge
+        0   input_level
+        1   input_rising
+        2   input_falling
+        3   input_edge
     D               param enum
-        0   Input Value
-        1   Rising Edge
-        2   Falling Edge
-        3   Either Edge
+        0   input_level
+        1   input_rising
+        2   input_falling
+        3   input_edge
     E               param enum
-        0   Input Value
-        1   Rising Edge
-        2   Falling Edge
-        3   Either Edge
+        0   input_level
+        1   input_rising
+        2   input_falling
+        3   input_edge
     FUNC            param lut
     OUT             bit_out
 

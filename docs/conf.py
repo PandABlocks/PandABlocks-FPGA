@@ -37,7 +37,7 @@ def setup(app):
     with open(os.path.join(build_dir, "blocks.txt"), "w") as f:
         f.write("""
 .. toctree::
-    :caption: Blocks
+    :caption: Available Blocks
     
     %s
 """ % ("\n    ".join(files),))
@@ -92,6 +92,8 @@ exclude_patterns = ['_build']
 pygments_style = 'sphinx'
 
 intersphinx_mapping = {
+    "python": (
+        'https://docs.python.org/2.7/', None),
     "server": (
         'http://PandABlocks-server.readthedocs.io/en/latest/', None)
 }

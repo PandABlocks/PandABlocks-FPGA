@@ -25,17 +25,14 @@ To get the source source code and run the unit tests, run::
     $ make test_python
     $ make sim_timing
 
-Code Styling
+Writing VHDL
 ------------
-
-VHDL
-~~~~
 
 Code styling here...
 
 
-Python
-~~~~~~
+Writing Python
+--------------
 
 Please arrange imports with the following style
 
