@@ -1,0 +1,64 @@
+[12P0V]
+min i: 0.0
+max v: 12.6
+nominal v: 12.0
+pp noise: 0.05
+max i: 2.0
+min v: 11.4
+[VADJ]
+min i: 0.0
+max v: 3.5
+nominal v: 2.5
+pp noise: 0.05
+max i: 2.0
+min v: 1.1
+[3P3V]
+min i: 0.0
+max v: 3.5
+nominal v: 3.3
+pp noise: 0.05
+max i: 2.0
+min v: 3.15
+[VIO_B_M2C]
+min i: 0.0
+max v: 3.5
+nominal v: 2.5
+pp noise: 0.05
+standby: False
+max i: 1.15
+min v: 1.1
+[VREF_A_M2C]
+min i: 0.0
+max v: 0.0
+nominal v: 0.0
+pp noise: 0.0
+standby: False
+max i: 0.0
+min v: 0.0
+[Board]
+part number: WHZ XM107     
+extra 1: Rev 1
+fru file id: 
+serial number: 36622945
+product name: XM107
+manufacturer: Whizz  Inc
+[FMC IO]
+p2 gbt: 0
+clkx bidir: False
+max tck: 128
+p1 a: 116
+p2 size: 3
+p1 b: 44
+p2 b: 0
+p2 a: 0
+module size: 0
+p1 size: 1
+p1 gbt: 10
+[VREF_B_M2C]
+min i: 0.0
+max v: 0.0
+nominal v: 0.0
+pp noise: 0.0
+standby: False
+max i: 0.0
+min v: 0.0

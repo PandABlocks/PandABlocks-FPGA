@@ -1,0 +1,63 @@
+[12P0V]
+min i: 0.0
+max v: 12.6
+nominal v: 12.0
+pp noise: 0.0
+max i: 0.05
+min v: 11.4
+[VADJ]
+min i: 0.0
+max v: 1.9
+nominal v: 1.8
+pp noise: 0.0
+max i: 0.15
+min v: 1.7
+[3P3V]
+min i: 0.0
+max v: 3.46
+nominal v: 3.3
+pp noise: 0.0
+max i: 0.12
+min v: 3.13
+[VIO_B_M2C]
+min i: 0.0
+max v: 0.0
+nominal v: 0.0
+pp noise: 0.0
+standby: False
+max i: 0.0
+min v: 0.0
+[VREF_A_M2C]
+min i: 0.0
+max v: 0.0
+nominal v: 0.0
+pp noise: 0.0
+standby: False
+max i: 0.0
+min v: 0.0
+[Board]
+part number: ACQ430FMC-8-LFP N=8 M=03
+serial number: F43110001
+fru file id: 2015-07-03 15:07:22.797989
+product name: ACQ430FMC
+manufacturer: D-TACQ Solutions
+[FMC IO]
+p2 gbt: 0
+clkx bidir: False
+max tck: 0
+p1 a: 24
+p2 size: 3
+p1 b: 0
+p2 b: 0
+p2 a: 0
+module size: 0
+p1 size: 0
+p1 gbt: 0
+[VREF_B_M2C]
+min i: 0.0
+max v: 0.0
+nominal v: 0.0
+pp noise: 0.0
+standby: False
+max i: 0.0
+min v: 0.0
