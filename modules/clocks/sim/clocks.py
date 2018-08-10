@@ -30,7 +30,13 @@ class Clocks(Block):
                 # produce clock low level at half period
                 elif off == half:
                     setattr(self, 'OUT' + out, 1)
-                    next_ts.append(ts - half + period)
+                # Work out when we next need to be called
+                if off < half:
+                    # Called at half period
+                    next_ts.append(ts - off + half)
+                else:
+                    # Called at full period
+                    next_ts.append(ts - off + period)
         # now work out when next to make a pulse
         if next_ts:
             return min(next_ts)
