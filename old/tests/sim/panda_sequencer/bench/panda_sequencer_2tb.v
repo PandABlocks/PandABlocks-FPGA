@@ -63,7 +63,7 @@ reg         err_table_repeat;
 reg  [2: 0] STATE;
 wire [2: 0] state_o;
 reg         err_state=0;
-reg         test_result=0;
+reg         test_result;
 reg [31: 0] count_tests=0;
 reg         enable_dly;
 

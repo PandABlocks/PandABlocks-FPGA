@@ -3,3 +3,9 @@
 /docs/build
 *.pyc
 *~
+# Xilinx working files
+*.log
+/.Xil
+*.xreport
+*.jou
+*.str

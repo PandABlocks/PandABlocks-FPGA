@@ -19,15 +19,14 @@ reg        STEP_WSTB;
 reg        CARRY;
 reg [31:0] OUT;   
 reg        enable_dly;
-reg        out_err=0;
-reg        test_result=0;
+reg        out_err;
+reg        test_result;
 
 // Outputs
 wire [31:0] out;
 wire        carry;
 
-//integer fid[3:0];
-//integer r[3:0];
+
 integer fid[2:0];
 integer r[2:0];
 

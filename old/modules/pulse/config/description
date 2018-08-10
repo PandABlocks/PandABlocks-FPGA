@@ -1,11 +1,9 @@
 PULSE       One-shot pulse delay and stretch
     DELAY           Output pulse delay (0 for no delay)
     WIDTH           Output pulse width (0 for input pulse width)
-    INP             Input pulse train
+    TRIG            Input pulse train
     ENABLE          Reset on falling edge, enable on rising
     OUT             Output pulse train
-    ERR_OVERFLOW    Missed pulse was due to overflow of internal queue
-    ERR_PERIOD      Producing a pulse would cause it to overlap with previous
-    QUEUE           Length of the delay queue
-    MISSED_CNT      Number of pulses not produced because of an ERR condition
-    TRIG_EDGE       INP trigger edge (0 = rising edge, 1 = falling edge, 2 = Rising or Falling)
+    QUEUED          Length of the delay queue
+    DROPPED         Number of pulses not produced because of an ERR condition
+    TRIG_EDGE       INP trigger edge (0 = rising edge, 1 = falling edge, 2 = Either)

@@ -29,6 +29,7 @@ set_property "board_part" "em.avnet.com:picozed_7030:part0:1.0" $obj
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj
+set_property part "xc7z030sbg485-1" [current_project]
 
 #
 # Warning supression
@@ -46,8 +47,7 @@ set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 read_ip $BUILD_DIR/ip_repo/pulse_queue/pulse_queue.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32/fifo_1K32.xci
 read_ip $BUILD_DIR/ip_repo/fifo_1K32_ft/fifo_1K32_ft.xci
-read_ip $BUILD_DIR/ip_repo/slow_cmd_fifo/slow_cmd_fifo.xci
-read_ip $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
+read_ip $BUILD_DIR/ip_repo/system_cmd_fifo/system_cmd_fifo.xci
 if {$FMC_DESIGN == "fmc_acq430"} {
     read_ip $BUILD_DIR/ip_repo/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
     read_ip $BUILD_DIR/ip_repo/fmc_acq430_sample_ram/fmc_acq430_sample_ram.xci
@@ -59,6 +59,25 @@ if {$FMC_DESIGN == "fmc_acq427"} {
 if {$FMC_DESIGN == "fmc_loopback"} {
     read_ip $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
 }
+if {$SFP_DESIGN == "sfp_loopback"} {
+    read_ip $BUILD_DIR/ip_repo/sfpgtx/sfpgtx.xci
+}
+if {$SFP_DESIGN == "sfp_udpontrig"} {
+    read_ip $BUILD_DIR/ip_repo/ila_32x8K/ila_32x8K.xci
+    read_ip -verbose $BUILD_DIR/ip_repo/eth_phy/eth_phy.xci
+    # Disable DCP and XDC 
+    set_property generate_synth_checkpoint false [get_files $BUILD_DIR/ip_repo/eth_phy/eth_phy.xci] 
+    generate_target all [get_ips eth_phy]
+    set eth_phy_xdc [get_files -of_objects [get_files $BUILD_DIR/ip_repo/eth_phy/eth_phy.xci] -filter {FILE_TYPE == XDC}]  
+    set_property is_enabled false [get_files $eth_phy_xdc]
+    report_compile_order -constraints
+    read_ip -verbose $BUILD_DIR/ip_repo/eth_mac/eth_mac.xci
+    # Disable DCP and XDC 
+    set_property generate_synth_checkpoint false [get_files $BUILD_DIR/ip_repo/eth_mac/eth_mac.xci] 
+    generate_target all [get_ips eth_mac]
+    set eth_mac_xdc [get_files -of_objects [get_files $BUILD_DIR/ip_repo/eth_mac/eth_mac.xci] -filter {FILE_TYPE == XDC}]  
+    set_property is_enabled false [get_files $eth_mac_xdc]
+}
 
 # Read Zynq block design
 read_bd   $BUILD_DIR/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
@@ -69,7 +88,7 @@ read_vhdl [glob $BUILD_DIR/autogen/*.vhd]
 # Read design files
 read_vhdl [glob $TOP_DIR/common/vhdl/defines/*.vhd]
 read_vhdl [glob $TOP_DIR/common/vhdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/adder/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/calc/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/base/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/bits/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/clocks/vhdl/*.vhd]
@@ -83,13 +102,25 @@ read_vhdl [glob $TOP_DIR/modules/posenc/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/pulse/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/qdec/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/seq/vhdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/slow/vhdl/*.vhd]
+read_vhdl [glob $TOP_DIR/modules/system/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/srgate/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/filter/vhdl/*.vhd]
+
+if {$SFP_DESIGN == "sfp_udpontrig"} {
+    read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/example_design_eth_phy/support/*.vhd]
+    read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/example_design_eth_phy/*.vhd]
+    read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/trimac_fifo_bloc/common/*.vhd]
+    read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/trimac_fifo_bloc/control/*.vhd]
+    read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/trimac_fifo_bloc/fifo/*.vhd]
+    read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/trimac_fifo_bloc/pat_gen/*.vhd]
+    read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/trimac_fifo_bloc/*.vhd]
+}
 read_vhdl [glob $TOP_DIR/modules/$FMC_DESIGN/vhdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/$SFP_DESIGN/vhdl/*.vhd]
-add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/gt_rom_init_rx.dat
-add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/gt_rom_init_tx.dat
+if {$SFP_DESIGN == "sfp_loopback"} {
+    add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/gt_rom_init_rx.dat
+    add_files -norecurse $TOP_DIR/modules/$SFP_DESIGN/vhdl/gt_rom_init_tx.dat
+}
 add_files $TOP_DIR/modules/$FMC_DESIGN/vhdl/
 
 # Read constraint files
@@ -112,6 +143,7 @@ if {$FMC_DESIGN == "fmc_acq430"} {
     set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical.xdc]
     set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth.xdc]
 }   
+
 
 #
 # STEP#2: run synthesis, report utilization and timing estimates, write

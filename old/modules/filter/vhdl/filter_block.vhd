@@ -41,7 +41,7 @@ end filter_block;
 architecture rtl of filter_block is
 
 signal MODE     : std_logic_vector(31 downto 0);
-signal ERR      : std_logic_vector(31 downto 0); 
+signal HEALTH   : std_logic_vector(31 downto 0); 
 signal trig     : std_logic; 
 signal enable   : std_logic;
 signal inp      : std_logic_vector(31 downto 0);
@@ -70,7 +70,7 @@ port map (
 
     MODE                => MODE,
     MODE_WSTB           => open,
-    ERR                 => ERR,
+    HEALTH              => HEALTH,
     trig_o              => trig,
     enable_o            => enable,
     inp_o               => inp
@@ -89,7 +89,7 @@ port map (
     enable_i        => enable,
     out_o           => out_o,
     ready_o         => ready_o,
-    err_o           => ERR(1 downto 0)  
+    health_o        => HEALTH(1 downto 0)  
 );
 
 

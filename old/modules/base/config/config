@@ -1,5 +1,6 @@
 *METADATA
-    MODEL           string
-    YAML            multiline
+    DESIGN          string
+    LAYOUT          multiline
+    EXPORTS         multiline
 
 

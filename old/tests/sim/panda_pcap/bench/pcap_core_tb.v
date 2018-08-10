@@ -9,7 +9,7 @@ module pcap_core_tb;
 // Inputs
 reg              clk_i = 0;
 reg              reset_i;
-reg [1:0]        CAPTURE_EDGE;
+reg [1:0]        TRIG_EDGE;
 reg [5:0]        SHIFT_SUM;
 reg              ARM;
 reg              DISARM;
@@ -17,7 +17,7 @@ reg              START_WRITE;
 reg [31:0]       WRITE;
 reg              WRITE_WSTB;
 reg              enable_i;
-reg              capture_i;
+reg              trig_i;
 reg              gate_i;
 reg              dma_full_i = 0; 
 reg [31:0]       sysbus_i[127:0]; 
@@ -35,7 +35,7 @@ wire [2:0]       pcap_status_o;
 wire [127:0]     sysbus;
 wire [32*32-1:0] posbus;
 
-reg              test_result = 0; 
+reg              test_result; 
 reg	             err_data;
 
 
@@ -43,23 +43,24 @@ reg	             err_data;
 pcap_core_wrapper uut (
     .clk_i              ( clk_i             ),
     .reset_i            ( reset_i           ),
-    .CAPTURE_EDGE       ( CAPTURE_EDGE      ),
-    .SHIFT_SUM          ( SHIFT_SUM         ),
+
     .ARM                ( ARM               ),
     .DISARM             ( DISARM            ),
     .START_WRITE        ( START_WRITE       ),
     .WRITE              ( WRITE             ),
     .WRITE_WSTB         ( WRITE_WSTB        ),
-    .CAPTURE_EDGE       ( CAPTURE_EDGE      ),
+    .TRIG_EDGE          ( TRIG_EDGE         ),
     .SHIFT_SUM          ( SHIFT_SUM         ),
     .HEALTH             ( HEALTH_o          ),
+    
     .enable_i           ( enable_i          ),
-    .capture_i          ( capture_i         ),
+    .trig_i             ( trig_i            ),
     .gate_i             ( gate_i            ),
     .dma_full_i         ( 1'b0              ),
     .sysbus_i           ( sysbus 			),
     .posbus_i           ( posbus            ),
     .extbus_i           ( extbus_i          ),
+    
     .pcap_dat_o         ( pcap_dat_o        ),
     .pcap_dat_valid_o   ( pcap_dat_valid_o  ),
     .pcap_done_o        ( pcap_done_o       ),
@@ -114,7 +115,7 @@ fork
             reset_i  <= vectors[1];
             enable_i <= vectors[2];
             gate_i <= vectors[3];
-            capture_i <= vectors[4];
+            trig_i <= vectors[4];
         end
     end
 join
@@ -129,7 +130,7 @@ end
 initial
 begin : reg_inputs
     localparam filename = "pcap_reg_in.txt";
-	localparam N		= 91;	
+	localparam N		= 77;	
     reg [31:0] vectors[31: 0];
 
     reg     [8192*2*10:0] line;
@@ -144,13 +145,13 @@ fork
     begin
         while (1) begin
             @(posedge clk_i);
-            CAPTURE_EDGE <= vectors[1];
+            TRIG_EDGE <= vectors[1];
             SHIFT_SUM <= vectors[3];
-            START_WRITE = vectors[6];
+            START_WRITE <= vectors[6];
             WRITE <= vectors[7];
             WRITE_WSTB <= vectors[8];
-            ARM <= vectors[16]; //wstb
-            DISARM <= vectors[18]; // wstb
+            ARM <= vectors[10]; //wstb
+            DISARM <= vectors[12]; // wstb
         end
     end
 join
@@ -332,7 +333,7 @@ always @(posedge clk_i)
 begin
    
     // Regresion test result   
-    if (err_data == 1 || err_health == 1 || err_act == 1 || err_dat_valid == 1) begin
+    if (err_data == 1 | err_health == 1 | err_act == 1 | err_dat_valid == 1) begin
     	test_result <= 1;
     end 	      
         

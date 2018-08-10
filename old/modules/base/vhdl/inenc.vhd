@@ -39,7 +39,7 @@ port (
     -- Block Parameters
     DCARD_MODE          : in  std_logic_vector(31 downto 0);
     PROTOCOL            : in  std_logic_vector(2 downto 0);
-    BYPASS              : in  std_logic;
+    CLK_SRC             : in  std_logic;
     CLK_PERIOD          : in  std_logic_vector(31 downto 0);
     FRAME_PERIOD        : in  std_logic_vector(31 downto 0);
     BITS                : in  std_logic_vector(7 downto 0);
@@ -49,7 +49,6 @@ port (
     SETP_WSTB           : in  std_logic;
     RST_ON_Z            : in  std_logic;
     STATUS              : out std_logic_vector(31 downto 0);
-    STATUS_RSTB         : in  std_logic;
     -- Block Outputs
     posn_o              : out std_logic_vector(31 downto 0)
 );
@@ -94,7 +93,7 @@ begin
 end process ps_select;        
 
 -- Loopbacks
-CLK_OUT <=  clk_out_ext_i when (BYPASS = '1') else clk_out_encoder;
+CLK_OUT <=  clk_out_ext_i when (CLK_SRC = '1') else clk_out_encoder;
 
 --------------------------------------------------------------------------
 -- Incremental Encoder Instantiation :

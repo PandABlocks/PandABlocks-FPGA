@@ -24,11 +24,11 @@ wire    softb;
 wire    softc;
 wire    softd;
 
-reg     erra;
-reg     errb;
-reg     errc;
-reg     errd;
-reg test_result = 0; 
+reg     err_a;
+reg     err_b;
+reg     err_c;
+reg     err_d;
+reg test_result; 
 
 always #4 clk_i = ~clk_i;
 
@@ -167,23 +167,25 @@ end
 //
 always @(posedge clk_i)
 begin
+    // Capture an error
+    if (err_a == 1 | err_b == 1 | err_c == 1 | err_d == 1) begin
+        test_result <= 1;
+    end     
+    // Out a error
     if (OUTA != softa) begin
-        erra = 1;
-        test_result = 1;    
+        err_a = 1;
     end 
+    // Out b error    
     if (OUTB != softb) begin
-        errb = 1;
-        test_result = 1;    
+        err_b = 1;
     end  
-    
+    // Out c error
     if (OUTC != softc) begin
-        errc = 1;
-        test_result = 1;    
+        err_c = 1;
     end
-    
+    // Out d error
     if (OUTD != softd) begin
-        errd = 1;
-        test_result = 1;        
+        err_d = 1;
     end
 end
 

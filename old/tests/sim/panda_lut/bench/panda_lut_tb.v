@@ -28,10 +28,10 @@ reg [1:0]   D;
 reg         D_WSTB;
 reg [1:0]   E;
 reg         E_WSTB;                    
-reg         VAL;
+reg         OUT;
 
 reg         err;
-reg         test_result = 0;
+reg         test_result;
 
 // Outputs
 wire        out_o;
@@ -150,13 +150,13 @@ integer bus_out[1:0];
 reg     is_file_end;
 
 initial begin
-    VAL = 0;
+    OUT = 0;
     is_file_end = 0;
 
     @(posedge clk_i);
 
     // Open "bus_out" file
-    fid[2] = $fopen("lut_bus_out.txt", "r"); // TS, VAL
+    fid[2] = $fopen("lut_bus_out.txt", "r"); // TS, OUT
 
     // Read and ignore description field
     r[2] = $fscanf(fid[2], "%s %s\n", bus_out[1], bus_out[0]);
@@ -164,7 +164,7 @@ initial begin
     while (!$feof(fid[2])) begin
         r[2] = $fscanf(fid[2], "%d %d \n", bus_out[1], bus_out[0]);
         wait (timestamp == bus_out[1]) begin
-            VAL = bus_out[0];
+            OUT = bus_out[0];
         end
         @(posedge clk_i);
     end
@@ -192,7 +192,7 @@ always @(posedge clk_i)
 begin
     if (~is_file_end) begin
         // If not equal, display an error.
-        if (out_o != VAL) begin
+        if (out_o != OUT) begin
             $display("OUT error detected at timestamp %d\n", timestamp, "TEST %d\n", cnt);
             //$finish(2);
             err = 1;    
@@ -213,7 +213,6 @@ always @ (posedge clk_i) //----------------------------------------- HERE
 //panda_lut uut (
 lut uut (
         .clk_i          ( clk_i             ),
-        //.reset_i        ( SIM_RESET         ),
         .FUNC           ( FUNC              ),
         .A              ( A                 ),
         .B              ( B                 ),

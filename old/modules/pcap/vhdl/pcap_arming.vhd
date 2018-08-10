@@ -27,7 +27,7 @@ port (
     -- Block Inputs and Outputs
     enable_i            : in  std_logic;
     pcap_error_i        : in  std_logic;
-    ongoing_capture_i   : in  std_logic;
+    ongoing_trig_i      : in  std_logic;
     dma_error_i         : in  std_logic;
     pcap_armed_o        : out std_logic;
     pcap_done_o         : out std_logic;
@@ -44,7 +44,7 @@ signal arm_fsm                  : pcap_arm_t;
 signal timestamp                : unsigned(63 downto 0);
 signal enable_prev              : std_logic;
 signal enable_fall              : std_logic;
-signal abort_capture            : std_logic;
+signal abort_trig               : std_logic;
 signal pcap_armed               : std_logic;
 signal disable_armed            : std_logic; 
 
@@ -66,7 +66,7 @@ enable_fall <= enable_prev and not enable_i;
 
 
 -- Blocks operation is aborted under following conditions.
-abort_capture <= DISARM or pcap_error_i or dma_error_i;
+abort_trig <= DISARM or pcap_error_i or dma_error_i;
 
 --------------------------------------------------------------------------
 -- Arm/Enable/Disarm State Machine
@@ -79,7 +79,7 @@ process(clk_i) begin
             disable_armed <= '0';    
             pcap_done_o <= '0';
         -- Stop capturing on error if armed.
-        elsif (pcap_armed = '1' and abort_capture = '1') then
+        elsif (pcap_armed = '1' and abort_trig = '1') then
             arm_fsm <= IDLE;
             pcap_armed <= '0';
             disable_armed <= '0';
@@ -123,7 +123,7 @@ process(clk_i) begin
                     if (enable_fall = '1' or DISARM = '1') then                     
                         -- Complete gracefully, and make sure that ongoing write
                         -- into the DMA fifo is completed.
-                        if (ongoing_capture_i = '1') then
+                        if (ongoing_trig_i = '1') then
                             arm_fsm <= WAIT_ONGOING_WRITE;
                         else
                             arm_fsm <= IDLE;
@@ -134,7 +134,7 @@ process(clk_i) begin
 
                 -- Wait for ongoing capture capture finish.
                 when WAIT_ONGOING_WRITE =>
-                    if (ongoing_capture_i = '0') then
+                    if (ongoing_trig_i = '0') then
                         arm_fsm <= IDLE;
                         pcap_armed <= '0';
                         pcap_done_o <= '1';

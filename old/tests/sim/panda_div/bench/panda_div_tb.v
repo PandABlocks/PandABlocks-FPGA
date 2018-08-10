@@ -28,7 +28,7 @@ reg errn;
 reg errd;
 reg err_count;
 
-reg test_result = 0; 
+reg test_result; 
 
 always #4 clk_i = ~clk_i;
 

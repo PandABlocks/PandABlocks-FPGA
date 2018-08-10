@@ -1,0 +1,13 @@
+CALC       {{newBlockNo("CALC")}}
+    INPA            {{newBlockReg()}}
+    INPB            {{newBlockReg()}}
+    INPC            {{newBlockReg()}}
+    INPD            {{newBlockReg()}}
+    A               {{newBlockReg()}}
+    B               {{newBlockReg()}}
+    C               {{newBlockReg()}}
+    D               {{newBlockReg()}}
+    FUNC            {{newBlockReg()}}
+    OUT             {{newPosBus()}}
+    
+    

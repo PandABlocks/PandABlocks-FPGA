@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---  File:       adder_block.vhd
+--  File:       calc_block.vhd
 --  Desc:       Position compare output pulse generator
 --
 --------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ use ieee.numeric_std.all;
 library work;
 use work.top_defines.all;
 
-entity adder_block is
+entity calc_block is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -31,27 +31,27 @@ port (
     -- Output pulse
     out_o               : out std_logic_vector(31 downto 0)
 );
-end adder_block;
+end calc_block;
 
-architecture rtl of adder_block is
+architecture rtl of calc_block is
 
-signal inpa             : std_logic_vector(31 downto 0);
-signal inpb             : std_logic_vector(31 downto 0);
-signal inpc             : std_logic_vector(31 downto 0);
-signal inpd             : std_logic_vector(31 downto 0);
+signal inpa   : std_logic_vector(31 downto 0);
+signal inpb   : std_logic_vector(31 downto 0);
+signal inpc   : std_logic_vector(31 downto 0);
+signal inpd   : std_logic_vector(31 downto 0);
 
-signal INPA_INVERT      : std_logic_vector(31 downto 0);
-signal INPB_INVERT      : std_logic_vector(31 downto 0);
-signal INPC_INVERT      : std_logic_vector(31 downto 0);
-signal INPD_INVERT      : std_logic_vector(31 downto 0);
-signal SCALE            : std_logic_vector(31 downto 0);
+signal A      : std_logic_vector(31 downto 0);
+signal B      : std_logic_vector(31 downto 0);
+signal C      : std_logic_vector(31 downto 0);
+signal D      : std_logic_vector(31 downto 0);
+signal FUNC   : std_logic_vector(31 downto 0);
 
 begin
 
 --
 -- Control System Interface
 --
-adder_ctrl : entity work.adder_ctrl
+calc_ctrl : entity work.calc_ctrl
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
@@ -72,34 +72,34 @@ port map (
     write_data_i        => write_data_i,
     write_ack_o         => write_ack_o,
 
-    INPA_INVERT         => INPA_INVERT,
-    INPA_INVERT_WSTB    => open,
-    INPB_INVERT         => INPB_INVERT,
-    INPB_INVERT_WSTB    => open,
-    INPC_INVERT         => INPC_INVERT,
-    INPC_INVERT_WSTB    => open,
-    INPD_INVERT         => INPD_INVERT,
-    INPD_INVERT_WSTB    => open,
-    SCALE               => SCALE,
-    SCALE_WSTB          => open
+    A                   => A,
+    A_WSTB              => open,
+    B                   => B,
+    B_WSTB              => open,
+    C                   => C,
+    C_WSTB              => open,
+    D                   => D,
+    D_WSTB              => open,
+    FUNC                => FUNC,
+    FUNC_WSTB           => open
 );
 
 -- LUT Block Core Instantiation
-adder : entity work.adder
+calc : entity work.calc
 port map (
-    clk_i               => clk_i,
+    clk_i   => clk_i,
 
-    inpa_i              => inpa,
-    inpb_i              => inpb,
-    inpc_i              => inpc,
-    inpd_i              => inpd,
-    out_o               => out_o,
+    inpa_i  => inpa,
+    inpb_i  => inpb,
+    inpc_i  => inpc,
+    inpd_i  => inpd,
+    out_o   => out_o,
 
-    INPA_INVERT         => INPA_INVERT(0),
-    INPB_INVERT         => INPB_INVERT(0),
-    INPC_INVERT         => INPC_INVERT(0),
-    INPD_INVERT         => INPD_INVERT(0),
-    SCALE               => SCALE(1 downto 0)
+    A       => A(0),
+    B       => B(0),
+    C       => C(0),
+    D       => D(0),
+    FUNC    => FUNC(1 downto 0)
 );
 
 end rtl;

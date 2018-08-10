@@ -9,7 +9,7 @@
 --  Description : Read requested fields from position bus and feed them serially
 --                to the dma engine
 --
---                Capture mask for requested fields are stored in a BRAM that is
+--                trig mask for requested fields are stored in a BRAM that is
 --                read sequentially, and output value is used as select to the
 --                multiplexer for position field array
 --------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ port (
     -- Block inputs
     mode_ts_bits_i      : in  t_mode_ts_bits;
     -- 
-    capture_i           : in  std_logic;
+    trig_i           : in  std_logic;
     -- Output pulses
     pcap_dat_o          : out std_logic_vector(31 downto 0);
     pcap_dat_valid_o    : out std_logic;
@@ -50,13 +50,13 @@ constant c_bits1           : std_logic_vector(3 downto 0) := "1000"; -- 8
 constant c_bits2           : std_logic_vector(3 downto 0) := "1001"; -- 9
 constant c_bits3           : std_logic_vector(3 downto 0) := "1010"; --10
 
-signal ongoing_capture     : std_logic;
+signal ongoing_trig     : std_logic;
 signal mask_length         : unsigned(5 downto 0) := "000000";
 signal mask_addra          : unsigned(5 downto 0) := "000000";
 signal mask_addrb          : unsigned(5 downto 0);
 signal mask_doutb          : std_logic_vector(31 downto 0);
-signal capture_dly         : std_logic;
-signal ongoing_capture_dly : std_logic;
+signal trig_dly         : std_logic;
+signal ongoing_trig_dly : std_logic;
 
 
 begin
@@ -108,23 +108,23 @@ end process;
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
-            ongoing_capture <= '0';
+            ongoing_trig <= '0';
             mask_addrb <= (others => '0');
             error_o <= '0';
             pcap_dat_valid_o <= '0';
-            capture_dly  <= '0';
-            ongoing_capture_dly <= '0';
+            trig_dly  <= '0';
+            ongoing_trig_dly <= '0';
         else
 
             -- Ongoing flag runs while mask buffer is read through
             -- Do not produce ongoing pulse if len = 1
             if (mask_addrb = mask_length - 1) then
-                ongoing_capture <= '0';
-            elsif (capture_i = '1' and mask_addrb = 0) then
-                ongoing_capture <= '1';
+                ongoing_trig <= '0';
+            elsif (trig_i = '1' and mask_addrb = 0) then
+                ongoing_trig <= '1';
             end if;
 
-            if (capture_i = '1' or ongoing_capture = '1') then                                                              
+            if (trig_i = '1' or ongoing_trig = '1') then                                                              
                 if (mask_addrb = mask_length - 1) then
                     mask_addrb <= (others => '0');
                 else
@@ -132,14 +132,14 @@ process(clk_i) begin
                 end if;
             end if;
 
-            capture_dly <= capture_i;
-            ongoing_capture_dly <= ongoing_capture;
-            pcap_dat_valid_o <= capture_dly or ongoing_capture_dly;
+            trig_dly <= trig_i;
+            ongoing_trig_dly <= ongoing_trig;
+            pcap_dat_valid_o <= trig_dly or ongoing_trig_dly;
 
             -- Flag an error on consecutive captures, it is latched until
             -- next pcap start (via reset port)
-            if (ongoing_capture = '1' and mask_addrb <= mask_length - 1) then
-                error_o <= capture_i;
+            if (ongoing_trig = '1' and mask_addrb <= mask_length - 1) then
+                error_o <= trig_i;
             end if;
         end if;
     end if;

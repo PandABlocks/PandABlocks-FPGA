@@ -78,6 +78,7 @@ port (
     SFP_RX_P            : in    std_logic_vector(2 downto 0);
     SFP_RX_N            : in    std_logic_vector(2 downto 0);
     SFP_TxDis           : out   std_logic_vector(1 downto 0);
+    SFP_LOS             : in    std_logic_vector(1 downto 0);
 
     -- FMC Differential IO and GTX
     FMC_DP0_C2M_P       : out   std_logic;
@@ -225,7 +226,7 @@ signal seq_outf             : std_logic_vector(SEQ_NUM-1 downto 0);
 signal seq_active           : std_logic_vector(SEQ_NUM-1 downto 0);
 
 signal counter_carry        : std_logic_vector(COUNTER_NUM-1 downto 0);
-signal adder_out            : std32_array(ADDER_NUM-1 downto 0);
+signal calc_out             : std32_array(CALC_NUM-1 downto 0);
 
 signal pcomp_active         : std_logic_vector(PCOMP_NUM-1 downto 0);
 signal pcomp_out            : std_logic_vector(PCOMP_NUM-1 downto 0);
@@ -785,25 +786,25 @@ port map (
 );
 
 ---------------------------------------------------------------------------
--- ADDER
+-- CALC
 ---------------------------------------------------------------------------
-adder_inst : entity work.adder_top
+calc_inst : entity work.calc_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
 
-    read_strobe_i       => read_strobe(ADDER_CS),
+    read_strobe_i       => read_strobe(CALC_CS),
     read_address_i      => read_address,
-    read_data_o         => read_data(ADDER_CS),
-    read_ack_o          => read_ack(ADDER_CS),
+    read_data_o         => read_data(CALC_CS),
+    read_ack_o          => read_ack(CALC_CS),
 
-    write_strobe_i      => write_strobe(ADDER_CS),
+    write_strobe_i      => write_strobe(CALC_CS),
     write_address_i     => write_address,
     write_data_i        => write_data,
-    write_ack_o         => write_ack(ADDER_CS),
+    write_ack_o         => write_ack(CALC_CS),
 
     posbus_i            => posbus,
-    out_o               => adder_out
+    out_o               => calc_out
 );
 
 ---------------------------------------------------------------------------
@@ -1021,21 +1022,21 @@ port map (
 );
 
 ---------------------------------------------------------------------------
--- SLOW CONTROLLER FPGA
+-- SYSTEM FPGA
 ---------------------------------------------------------------------------
-slowcont_inst : entity work.slowcont_top
+system_inst : entity work.system_top
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,
     -- Memory Bus Interface
-    read_strobe_i       => read_strobe(SLOW_CS),
+    read_strobe_i       => read_strobe(SYSTEM_CS),
     read_address_i      => read_address,
-    read_data_o         => read_data(SLOW_CS),
-    read_ack_o          => read_ack(SLOW_CS),
+    read_data_o         => read_data(SYSTEM_CS),
+    read_ack_o          => read_ack(SYSTEM_CS),
     write_strobe_i      => write_strobe,
     write_address_i     => write_address,
     write_data_i        => write_data,
-    write_ack_o         => write_ack(SLOW_CS),
+    write_ack_o         => write_ack(SYSTEM_CS),
     -- Digital I/O Interface
     ttlin_i             => ttlin_val,
     ttlout_i            => ttlout_val,
@@ -1135,7 +1136,11 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
     port map (
         clk_i               => FCLK_CLK0,
         reset_i             => FCLK_RESET0,
-
+        
+        sysbus_i            => sysbus,
+        sfp_inputs_o        => sfp_inputs,
+        sfp_data_o          => sfp_data,
+        
         read_strobe_i       => read_strobe(SFP_CS),
         read_address_i      => read_address,
         read_data_o         => read_data(SFP_CS),
@@ -1145,7 +1150,9 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         write_address_i     => write_address,
         write_data_i        => write_data,
         write_ack_o         => write_ack(SFP_CS),
-
+        
+        SFP_LOS             => SFP_LOS,
+        
         GTREFCLK_N          => GTXCLK0_N,
         GTREFCLK_P          => GTXCLK0_P,
         RXN_IN              => SFP_RX_N,
@@ -1200,8 +1207,8 @@ port map (
     -- POSENC Block
     POSENC_A        => posenc_a,
     POSENC_B        => posenc_b,
-    -- ADDER Block
-    ADDER_OUT       => adder_out,
+    -- CALC Block
+    CALC_OUT       => calc_out,
     -- COUNTER Block
     COUNTER_CARRY   => counter_carry,
     COUNTER_OUT     => counter_out,

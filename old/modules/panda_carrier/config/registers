@@ -13,7 +13,7 @@ LVDSOUT     {{newBlockNo("LVDSOUT")}}
 
 INENC       {{newBlockNo("INENC")}}
     PROTOCOL        {{newBlockReg()}}
-    BYPASS          {{newBlockReg()}}
+    CLK_SRC         {{newBlockReg()}}
     CLK_PERIOD      {{newBlockReg()}}
     FRAME_PERIOD    {{newBlockReg()}}
     BITS            {{newBlockReg()}}
@@ -21,8 +21,7 @@ INENC       {{newBlockNo("INENC")}}
     MSB_DISCARD     {{newBlockReg()}}
     SETP            {{newBlockReg()}}
     RST_ON_Z        {{newBlockReg()}}
-    STATUS          {{newBlockReg()}}
-    DCARD_ID        {{newBlockReg()}}
+    DCARD_TYPE      {{newBlockReg()}}
     A               {{newBitBus()}}
     B               {{newBitBus()}}
     Z               {{newBitBus()}}
@@ -33,7 +32,6 @@ INENC       {{newBlockNo("INENC")}}
 
 OUTENC      {{newBlockNo("OUTENC")}}
     PROTOCOL        {{newBlockReg()}}
-    BYPASS          {{newBlockReg()}}
     BITS            {{newBlockReg()}}
     QPERIOD         {{newBlockReg()}}
     ENABLE          {{newBlockReg(typ='bit_mux')}}
@@ -44,6 +42,6 @@ OUTENC      {{newBlockNo("OUTENC")}}
     CLK             {{newBitBus()}}
     VAL             {{newBlockReg()}}
     CONN            {{newBlockReg(typ='bit_mux')}}
-    DCARD_ID        {{newBlockReg()}}
+    DCARD_TYPE      {{newBlockReg()}}
     QSTATE          {{newBlockReg()}}
 
