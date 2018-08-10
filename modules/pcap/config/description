@@ -1,8 +1,8 @@
 PCAP        Position capture control
     ENABLE          After arm, when high start capture, when low disarm
     GATE            After enable, only process gated values if high
-    CAPTURE         On selected edge capture current value and gated data
-    CAPTURE_EDGE    Which edge of capture input signal triggers capture
+    TRIG            On selected edge capture current value and gated data
+    TRIG_EDGE       Which edge of capture input signal triggers capture
     SHIFT_SUM       Shift sum/samples data, use if > 2**32 samples required in sum/average
     HEALTH          Was last capture successful?
     ACTIVE          Data capture in progress

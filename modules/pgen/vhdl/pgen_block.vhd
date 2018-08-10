@@ -51,7 +51,7 @@ signal CYCLES               : std_logic_vector(31 downto 0);
 signal TABLE_ADDR           : std_logic_vector(31 downto 0);
 signal TABLE_LENGTH         : std_logic_vector(31 downto 0);
 signal TABLE_LENGTH_WSTB    : std_logic;
-signal TABLE_STATUS         : std_logic_vector(31 downto 0);
+signal health               : std_logic_vector(31 downto 0);
 
 signal enable               : std_logic;
 signal trig                 : std_logic;
@@ -85,7 +85,7 @@ port map (
     TABLE_ADDRESS       => TABLE_ADDR,
     TABLE_LENGTH        => TABLE_LENGTH,
     TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB,
-    TABLE_STATUS        => TABLE_STATUS
+    HEALTH              => health
 );
 
 -- LUT Block Core Instantiation
@@ -101,7 +101,7 @@ port map (
     TABLE_ADDR          => TABLE_ADDR,
     TABLE_LENGTH        => TABLE_LENGTH,
     TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB,
-    STATUS              => TABLE_STATUS,
+    health_o            => health,
 
     dma_req_o           => dma_req_o,
     dma_ack_i           => dma_ack_i,

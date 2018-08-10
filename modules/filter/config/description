@@ -5,4 +5,4 @@ FILTER       Filter block modes are Difference and Divider
     ENABLE          Enable event
     OUT             Output data
     READY           Output Ready
-    ERR             Error
+    HEALTH          Error

@@ -86,7 +86,7 @@ signal DISARM           : std_logic;
 signal START_WRITE      : std_logic;
 signal WRITE            : std_logic_vector(31 downto 0);
 signal WRITE_WSTB       : std_logic;
-signal CAPTURE_EDGE     : std_logic_vector(31 downto 0);
+signal TRIG_EDGE        : std_logic_vector(31 downto 0);
 signal SHIFT_SUM        : std_logic_vector(31 downto 0);
 signal DMA_RESET        : std_logic;
 signal DMA_START        : std_logic;
@@ -97,7 +97,7 @@ signal TIMEOUT          : std_logic_vector(31 downto 0);
 signal TIMEOUT_WSTB     : std_logic;
 signal IRQ_STATUS       : std_logic_vector(31 downto 0);
 
-signal capture_data     : std32_array(63 downto 0);
+--signal capture_data     : std32_array(63 downto 0);
 signal pcap_dat         : std_logic_vector(31 downto 0);
 signal pcap_dat_valid   : std_logic;
 
@@ -108,7 +108,7 @@ signal pcap_done        : std_logic;
 
 signal enable           : std_logic;
 signal gate             : std_logic;
-signal capture          : std_logic;
+signal trig             : std_logic;
 signal posbus_dly       : posbus_t;
 
 begin
@@ -151,10 +151,10 @@ port map (
     posbus_i            => (others => (others => '0')),
     enable_o            => enable,
     gate_o              => gate,
-    capture_o           => capture,
+    trig_o              => trig,
 
-    CAPTURE_EDGE        => CAPTURE_EDGE,
-    CAPTURE_EDGE_WSTB   => open,
+    TRIG_EDGE           => TRIG_EDGE,
+    TRIG_EDGE_WSTB      => open,
     SHIFT_SUM           => SHIFT_SUM,
     SHIFT_SUM_WSTB      => open,    
     HEALTH              => HEALTH,
@@ -231,14 +231,14 @@ port map (
     START_WRITE             => START_WRITE,
     WRITE                   => WRITE,
     WRITE_WSTB              => WRITE_WSTB,
-    CAPTURE_EDGE            => CAPTURE_EDGE(1 downto 0),
+    TRIG_EDGE               => TRIG_EDGE(1 downto 0),
     SHIFT_SUM               => SHIFT_SUM(5 downto 0),
     ARM                     => ARM,
     DISARM                  => DISARM,
     HEALTH                  => HEALTH,
 
     enable_i                => enable,
-    capture_i               => capture,
+    trig_i                  => trig,
     gate_i                  => gate,    
     dma_error_i             => dma_error,
     sysbus_i                => sysbus_i,

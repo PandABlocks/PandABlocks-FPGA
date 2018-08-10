@@ -25,7 +25,6 @@ port (
     CLK_IN              : in  std_logic;
     -- Block parameters
     PROTOCOL            : in  std_logic_vector(2 downto 0);
-    BYPASS              : in  std_logic;
     BITS                : in  std_logic_vector(7 downto 0);
     QPERIOD             : in  std_logic_vector(31 downto 0);
     QPERIOD_WSTB        : in  std_logic;
@@ -35,6 +34,8 @@ end entity;
 
 architecture rtl of outenc is
 
+constant c_ABZ_PASSTHROUGH : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(4,3));
+
 signal quad_a           : std_logic;
 signal quad_b           : std_logic;
 signal sdat             : std_logic;
@@ -42,10 +43,11 @@ signal sdat             : std_logic;
 begin
 
 -- Assign outputs
-A_OUT <= a_ext_i when (BYPASS = '1') else quad_a;
-B_OUT <= b_ext_i when (BYPASS = '1') else quad_b;
-Z_OUT <= z_ext_i when (BYPASS = '1') else '0';
-DATA_OUT <= data_ext_i when (BYPASS = '1') else sdat;
+A_OUT <= a_ext_i when (PROTOCOL = c_ABZ_PASSTHROUGH) else quad_a;
+B_OUT <= b_ext_i when (PROTOCOL = c_ABZ_PASSTHROUGH) else quad_b;
+Z_OUT <= z_ext_i when (PROTOCOL = c_ABZ_PASSTHROUGH) else '0';
+DATA_OUT <= data_ext_i when (PROTOCOL = c_ABZ_PASSTHROUGH) else sdat;
+
 
 --
 -- INCREMENTAL OUT

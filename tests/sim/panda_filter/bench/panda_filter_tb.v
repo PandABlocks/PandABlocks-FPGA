@@ -13,18 +13,22 @@ reg [31:0] INP;
 
 reg [1:0] MODE;
 reg MODE_WSTB;
-reg [1:0] ERR;
+reg [1:0] HEALTH;
 
 wire [31:0] out_o;
 reg READY;
 wire ready_o;
 
-wire [1:0] err_o;
+wire [1:0] health_o;
 reg [31:0] OUT;
 
-reg [1:0] err_o_dly;
+reg [1:0] health_o_dly;
 
 reg test_result;
+
+reg     err_health0;
+reg     err_health1;
+reg     err_out;
 
 
 always #4 clk_i = ~clk_i;
@@ -161,16 +165,16 @@ end
 // READ BLOCK EXPECTED ERROR OUTPUTS FILE TO COMPARE AGAINTS ERROR
 // OUTPUTS
 //
-// TS»¯¯¯¯¯ERR»
+// TS»¯¯¯¯¯HEALTH»
 integer reg_out[1:0];
 
 initial begin
-    ERR = 0;
+    HEALTH = 0;
 
     @(posedge clk_i);
 
     // Open "reg_out" file
-    fid[3] = $fopen("filter_reg_out.txt", "r"); // TS»¯¯¯¯¯ERR
+    fid[3] = $fopen("filter_reg_out.txt", "r"); // TS»¯¯¯¯¯HEALTH
 
     // Read and ignore description field
     r[3] = $fscanf(fid[3], "%s %s\n", reg_out[1], reg_out[0]);
@@ -178,7 +182,7 @@ initial begin
     while (!$feof(fid[3])) begin
         r[3] = $fscanf(fid[3], "%d %d\n", reg_out[1], reg_out[0]);
         wait (timestamp == reg_out[1]) begin
-            ERR = reg_out[0];
+            HEALTH = reg_out[0];
         end
         @(posedge clk_i);
     end
@@ -191,26 +195,30 @@ end
 //
 always @(posedge clk_i)
 begin
-    err_o_dly <= err_o; 
+    health_o_dly <= health_o; 
     
-    
-    if (err_o[0] == 1 | err_o[1] == 1) begin
+    if (err_out == 1) begin
       test_result = 1;
-    end 
-    else begin
-      test_result = 0;
     end     
             
     if (~is_file_end) begin
         if (OUT != out_o & ready_o) begin
-            //$display("OUTN error detected at timestamp %d\n", timestamp);
+            err_out <= 1;
             $display("OUTN error detected at 1.timestamp the expected value is 2.OUT and result is 3.out_o %d, %d, %d\n", timestamp, OUT, out_o);   
+        end else begin
+            err_out <= 0;
         end
-        if (err_o[0] == 1 & err_o_dly[0] == 0) begin
-           $display("ERROR Accumulator overflow the number of results output are %d\n", timestamp); 
+        if (health_o[0] == 1 & health_o_dly[0] == 0) begin
+            err_health0 <= 1;
+            $display("ERROR Accumulator overflow the number of results output are %d\n", timestamp); 
+        end else begin 
+            err_health0 <= 0;
         end  
-        if (err_o[1] == 1 & err_o_dly[1] == 0) begin
-          $display("ERROR Divider has been doubled triggered before result ready the number of results output are %d\n", timestamp);
+        if (health_o[1] == 1 & health_o_dly[1] == 0) begin
+            err_health1 <= 1;
+            $display("ERROR Divider has been doubled triggered before result ready the number of results output are %d\n", timestamp);
+        end else begin
+            err_health1 <= 0;  
         end   
     end
 end
@@ -225,7 +233,7 @@ filter uut (
         .enable_i       ( ENABLE            ),
         .out_o          ( out_o             ),
         .ready_o        ( ready_o           ),
-        .err_o          ( err_o             )
+        .health_o       ( health_o          )
 );                
 
 

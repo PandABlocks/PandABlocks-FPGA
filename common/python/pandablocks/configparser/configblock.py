@@ -120,5 +120,10 @@ class ConfigBlock(object):
 
         # Create registers entries
         for name, reg in attrs:
+            try:
+                reg = int(reg)
+            except ValueError:
+                # Allow strings and other things silently
+                continue
             setattr(self, name, name)
-            self.registers[name] = (int(reg), field)
+            self.registers[name] = (reg, field)

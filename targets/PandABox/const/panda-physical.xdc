@@ -163,6 +163,9 @@ set_property PACKAGE_PIN V5 [get_ports GTXCLK1_N]
 # -------------------------------------------------------------------
 set_property PACKAGE_PIN AB21   [get_ports {SFP_TxDis[0]  }];   #SFP1_IO1
 set_property PACKAGE_PIN AB22   [get_ports {SFP_TxDis[1]  }];   #SFP2_IO1
+set_property PACKAGE_PIN AB18   [get_ports {SFP_LOS[0]  }];   #SFP1_IO2
+set_property PACKAGE_PIN AB19   [get_ports {SFP_LOS[1]  }];   #SFP2_IO2
+
 
 # -------------------------------------------------------------------
 # IOSTANDARD VCCOIO Constraints

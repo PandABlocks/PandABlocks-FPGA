@@ -1,0 +1,13 @@
+CALC       Position calc
+    INPA            Position input A
+    INPB            Position input B
+    INPC            Position input C
+    INPD            Position input D
+    A               Sign invert input A
+    B               Sign invert input B
+    C               Sign invert input C
+    D               Sign invert input D
+    FUNC            Scale divisor after add
+    OUT             Position output
+    
+    

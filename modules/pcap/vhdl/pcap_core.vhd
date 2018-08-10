@@ -32,12 +32,12 @@ port (
     START_WRITE         : in  std_logic;
     WRITE               : in  std_logic_vector(31 downto 0);
     WRITE_WSTB          : in  std_logic;
-    CAPTURE_EDGE        : in  std_logic_vector(1 downto 0);
+    TRIG_EDGE           : in  std_logic_vector(1 downto 0);
     SHIFT_SUM           : in  std_logic_vector(5 downto 0);
     HEALTH              : out std_logic_vector(31 downto 0);
     -- Block inputs
     enable_i            : in  std_logic;
-    capture_i           : in  std_logic;
+    trig_i              : in  std_logic;
     gate_i              : in  std_logic;
     dma_error_i         : in  std_logic;
     sysbus_i            : in  sysbus_t;
@@ -61,7 +61,7 @@ constant c_health_ok	: std_logic_vector(1 downto 0) := "00";
 signal gate             : std_logic;
 signal pcap_reset       : std_logic;
 signal timestamp        : std_logic_vector(63 downto 0);
-signal capture_pulse    : std_logic;
+signal trig_pulse    : std_logic;
 signal mode_ts_bits     : t_mode_ts_bits;
 signal pcap_buffer_error: std_logic;
 signal pcap_error       : std_logic;
@@ -94,7 +94,7 @@ port map (
     enable_i            => enable_i,
     pcap_error_i        => pcap_error,
     dma_error_i         => dma_error_i,
-    ongoing_capture_i   => pcap_dat_valid,
+    ongoing_trig_i      => pcap_dat_valid,
     pcap_armed_o        => pcap_armed,
     pcap_done_o         => pcap_done_o,
     timestamp_o         => timestamp,
@@ -119,16 +119,16 @@ port map (
     reset_i             => reset_i,    
 	-- Register control
     SHIft_SUM           => SHIFT_SUM,    
-	CAPTURE_EDGE		=> CAPTURE_EDGE,
+	TRIG_EDGE		    => TRIG_EDGE,
     -- 
     posbus_i            => posbus_i,
     sysbus_i            => sysbus_i,
     enable_i            => enable_i,
     gate_i              => gate,
-    capture_i           => capture_i,
+    trig_i              => trig_i,
     timestamp_i         => timestamp,
 	--
-    capture_o           => capture_pulse,
+    trig_o              => trig_pulse,
     mode_ts_bits_o      => mode_ts_bits
 );
 
@@ -146,7 +146,7 @@ port map (
     -- Block inputs
     mode_ts_bits_i      => mode_ts_bits,
     --
-    capture_i           => capture_pulse,
+    trig_i              => trig_pulse,
     -- Output pulses
     pcap_dat_o          => pcap_dat_o,
     pcap_dat_valid_o    => pcap_dat_valid,

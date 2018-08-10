@@ -1,0 +1,59 @@
+SFP         SFP UDPonTrig Block Status
+    SFP1_TRIG                 SFP 1 Rising edge to send UDP user-defined frame
+    SFP1_START_COUNT          SFP 1 Start counting Rising edge from zero and send UDP user-defined frame
+    SFP1_STOP_COUNT           SFP 1 Stop counting Rising edge and stop sending UDP user-defined frame
+    SFP1_TRIG_RISE_COUNT      SFP 1 Rising edge count
+    SFP1_COUNT_UDPTX_ERR      SFP 1 UDP TX ERROR count
+    SFP1_STATUS_COUNT         SFP 1 count status ('0' => not started, '1' => count enabled)
+    SFP1_LOS              SFP 1 Loss Of Signal (from SFP module)
+    SFP1_MAC_LO           SFP 1 MAC low in integer value bit 23:0 
+    SFP1_MAC_HI           SFP 1 MAC high in integer value bit 47:24 
+    SFP1_DEST_UDP_PORT    SFP 1 Destination UDP Port (16 bits integer value)
+    SFP1_OUR_UDP_PORT     SFP 1 Source UDP Port (16 bits integer value)
+    SFP1_DEST_IP_AD_BYTE1 SFP 1 Destination ip address byte 1 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP1_DEST_IP_AD_BYTE2 SFP 1 Destination ip address byte 2 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP1_DEST_IP_AD_BYTE3 SFP 1 Destination ip address byte 3 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP1_DEST_IP_AD_BYTE4 SFP 1 Destination ip address byte 4 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP1_OUR_IP_AD_BYTE1 Our SFP 1 source ip address byte 1 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP1_OUR_IP_AD_BYTE2 Our SFP 1 source ip address byte 2 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP1_OUR_IP_AD_BYTE3 Our SFP 1 source ip address byte 3 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP1_OUR_IP_AD_BYTE4 Our SFP 1 source ip address byte 4 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP2_TRIG                 SFP 2 Rising edge to send UDP user-defined frame
+    SFP2_START_COUNT          SFP 2 Start counting Rising edge from zero and send UDP user-defined frame
+    SFP2_STOP_COUNT           SFP 2 Stop counting Rising edge and stop sending UDP user-defined frame
+    SFP2_TRIG_RISE_COUNT      SFP 2 Rising edge count
+    SFP2_COUNT_UDPTX_ERR      SFP 2 UDP TX ERROR count
+    SFP2_STATUS_COUNT         SFP 2 count status ('0' => not started, '1' => count enabled)
+    SFP2_LOS              SFP 2 Loss Of Signal (from SFP module)
+    SFP2_MAC_LO           SFP 2 MAC low in integer value bit 23:0 
+    SFP2_MAC_HI           SFP 2 MAC high in integer value bit 47:24
+    SFP2_DEST_UDP_PORT    SFP 2 Destination UDP Port (16 bits integer value)
+    SFP2_OUR_UDP_PORT     SFP 2 Source UDP Port (16 bits integer value)
+    SFP2_DEST_IP_AD_BYTE1 SFP 2 Destination ip address byte 1 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP2_DEST_IP_AD_BYTE2 SFP 2 Destination ip address byte 2 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP2_DEST_IP_AD_BYTE3 SFP 2 Destination ip address byte 3 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP2_DEST_IP_AD_BYTE4 SFP 2 Destination ip address byte 4 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP2_OUR_IP_AD_BYTE1 Our SFP 2 source ip address byte 1 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP2_OUR_IP_AD_BYTE2 Our SFP 2 source ip address byte 2 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP2_OUR_IP_AD_BYTE3 Our SFP 2 source ip address byte 3 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP2_OUR_IP_AD_BYTE4 Our SFP 2 source ip address byte 4 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP3_TRIG                 SFP 3 Rising edge to send UDP user-defined frame
+    SFP3_START_COUNT          SFP 3 Start counting Rising edge from zero and send UDP user-defined frame
+    SFP3_STOP_COUNT           SFP 3 Stop counting Rising edge and stop sending UDP user-defined frame
+    SFP3_TRIG_RISE_COUNT      SFP 3 Rising edge count
+    SFP3_COUNT_UDPTX_ERR      SFP 3 UDP TX ERROR count
+    SFP3_STATUS_COUNT         SFP 3 count status ('0' => not started, '1' => count enabled)
+    SFP3_MAC_LO           SFP 3 MAC low in integer value bit 23:0     
+    SFP3_MAC_HI           SFP 3 MAC high in integer value bit 47:24    
+    SFP3_DEST_UDP_PORT    SFP 3 Destination UDP Port (16 bits integer value)
+    SFP3_OUR_UDP_PORT     SFP 3 Source UDP Port (16 bits integer value)
+    SFP3_DEST_IP_AD_BYTE1 SFP 3 Destination ip address byte 1 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP3_DEST_IP_AD_BYTE2 SFP 3 Destination ip address byte 2 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP3_DEST_IP_AD_BYTE3 SFP 3 Destination ip address byte 3 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP3_DEST_IP_AD_BYTE4 SFP 3 Destination ip address byte 4 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP3_OUR_IP_AD_BYTE1 Our SFP 3 source ip address byte 1 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP3_OUR_IP_AD_BYTE2 Our SFP 3 source ip address byte 2 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP3_OUR_IP_AD_BYTE3 Our SFP 3 source ip address byte 3 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SFP3_OUR_IP_AD_BYTE4 Our SFP 3 source ip address byte 4 (byte integer value) ip=BYTE1.BYTE2.BYTE3.BYTE4
+    SOFT_RESET      GTX Soft Reset
+

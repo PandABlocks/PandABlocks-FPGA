@@ -2,103 +2,167 @@
 
 module outenc_tb;
 
+parameter C_MODE = 1;
+
 // Inputs
-reg clk_i = 0;
-reg reset_i;
-reg a_i;
-reg b_i;
-reg z_i;
-reg conn_i;
-reg [31:0] posn_i;
-reg enable_i;
-reg sclk_i;
-reg sdat_i;
-reg [2:0] PROTOCOL;
-reg [7:0] BITS;
-reg [31:0] QPERIOD;
+reg         clk_i = 0;
+reg         reset_i;
+reg         a_ext_i;
+reg         b_ext_i;
+reg         z_ext_i;
+reg         data_ext_i;
+reg [31:0]  posn_i = 32'hFFFFFFFF;
+reg         enable_i;
+reg [2:0]   PROTOCOL;
+//reg         BYPASS = 0;
+reg [1:0]   MODE = C_MODE;
+reg [7:0]   BITS = 32;
+reg [31:0]  QPERIOD;
+
+reg  [31:0] CLK_PERIOD = 100;
+reg  [31:0] FRAME_PERIOD = 50;
+reg         ssi_dat_i;
 
 // Outputs
-wire a_o;
-wire b_o;
-wire z_o;
-wire conn_o;
-wire sdat_o;
-wire sdat_dir_o;
-wire [31:0] QSTATE;
-wire [2:0] enc_mode_o;
-wire [2:0] iobuf_ctrl_o;
+wire        A_OUT;
+wire        B_OUT;
+wire        Z_OUT;
+wire        DATA_OUT;
+reg         CLK_IN;
+wire [31:0] QSTATE; 
+
+wire        ssi_sck_o;
+wire [31:0] ssi_posn_o;
+wire        ssi_posn_valid_o;        
+
+
+wire        biss_sck_o;
+reg         biss_dat_i;
+wire [31:0] biss_posn_o;
+wire        biss_posn_valid_o;
+
+reg         biss_not_ssi = C_MODE[0];
+  
 
 always #4 clk_i = !clk_i;
 
 // Instantiate the Unit Under Test (UUT)
 outenc uut (
-        .clk_i(clk_i), 
-        .reset_i(reset_i), 
-        .a_i(a_i), 
-        .b_i(b_i), 
-        .z_i(z_i), 
-        .conn_i(conn_i), 
-        .posn_i(posn_i), 
-        .enable_i(enable_i), 
-        .a_o(a_o), 
-        .b_o(b_o), 
-        .z_o(z_o), 
-        .conn_o(conn_o), 
-        .sclk_i(sclk_i), 
-        .sdat_i(sdat_i), 
-        .sdat_o(sdat_o), 
-        .sdat_dir_o(sdat_dir_o), 
-        .PROTOCOL(PROTOCOL), 
-        .BITS(BITS), 
-        .QPERIOD(QPERIOD), 
-        .QSTATE(QSTATE), 
-        .enc_mode_o(enc_mode_o), 
-        .iobuf_ctrl_o(iobuf_ctrl_o)
+        .clk_i          ( clk_i         ), 
+        .reset_i        ( reset_i       ), 
+        .a_ext_i        ( a_ext_i       ), 
+        .b_ext_i        ( b_ext_i       ), 
+        .z_ext_i        ( z_ext_i       ), 
+        .data_ext_i     ( data_ext_i    ), 
+        .posn_i         ( posn_i        ), 
+        .enable_i       ( enable_i      ), 
+
+        .A_OUT          ( A_OUT         ), 
+        .B_OUT          ( B_OUT         ), 
+        .Z_OUT          ( Z_OUT         ), 
+        .DATA_OUT       ( DATA_OUT      ), 
+        .CLK_IN         ( CLK_IN        ),        
+
+        .PROTOCOL       ( PROTOCOL      ), 
+//        .BYPASS         ( BYPASS        ),   
+        .MODE           ( MODE          ),
+        .BITS           ( BITS          ), 
+        .QPERIOD        ( QPERIOD       ),
+        .QPERIOD_WSTB   ( QPERIOD_WSTB  ),
+        .QSTATE         ( QSTATE        )
 );
 
 
-//
-//QUAD RECEIVER
-//
-wire [31: 0]    quadin_posn;
 
-quadin quadin (
-    .clk_i        ( clk_i               ),
-    .reset_i      ( reset_i             ),
-    .a_i          ( a_o                 ),
-    .b_i          ( b_o                 ),
-    .z_i          ( 1'b0                ),
-    .rst_z_i      ( 1'b0                ),
-    .setp_val_i   ( 0                   ),
-    .setp_wstb_i  ( 1'b0                ),
-    .posn_o       ( quadin_posn         )
-);
+//assign CLK_IN = ssi_sck_o;
+//assign ssi_dat_i = DATA_OUT;
+
+always @(biss_not_ssi, DATA_OUT, ssi_sck_o, biss_sck_o)
+begin
+    if (biss_not_ssi == 0) begin
+        CLK_IN = ssi_sck_o;
+        ssi_dat_i = DATA_OUT;
+    end else begin
+        CLK_IN = biss_sck_o;
+        biss_dat_i = DATA_OUT;
+   end
+end            
+
+
+always @(biss_not_ssi, ssi_posn_valid_o, biss_posn_valid_o)
+begin
+    if (biss_not_ssi == 0) begin
+        if (ssi_posn_valid_o == 1) begin
+            posn_i = posn_i + 32'ha5a5a5a5;        
+        end
+    end else begin
+        if (biss_posn_valid_o == 1) begin
+            posn_i = posn_i + 32'ha5a5a5a5;
+        end 
+    end
+end             
+    
+
+
+ssi_master ssi_master_uut(
+        .clk_i          ( clk_i             ),
+        .reset_i        ( reset_i           ),
+        .BITS           ( BITS              ),
+        .CLK_PERIOD     ( CLK_PERIOD        ),
+        .FRAME_PERIOD   ( FRAME_PERIOD      ),
+        .ssi_sck_o      ( ssi_sck_o         ),
+        .ssi_dat_i      ( ssi_dat_i         ),
+        .posn_o         ( ssi_posn_o        ),
+        .posn_valid_o   ( ssi_posn_valid_o  )
+);                 
+
+
+biss_master biss_master_uut(
+        .clk_i          ( clk_i             ),
+        .reset_i        ( reset_i           ),
+        .BITS           ( BITS              ),
+        .CLK_PERIOD     ( CLK_PERIOD        ),
+        .FRAME_PERIOD   ( FRAME_PERIOD      ),
+        .biss_sck_o     ( biss_sck_o        ),
+        .biss_dat_i     ( biss_dat_i        ),
+        .posn_o         ( biss_posn_o       ),
+        .posn_valid_o   ( biss_posn_valid_o )
+);         
 
 
 initial begin
     reset_i = 1;
-    a_i = 0;
-    b_i = 0;
-    z_i = 0;
-    conn_i = 0;
+    a_ext_i = 0;
+    b_ext_i = 0;
+    z_ext_i = 0;
+    data_ext_i = 0;
     posn_i = 0;
     enable_i = 0;
-    sclk_i = 0;
-    sdat_i = 0;
     PROTOCOL = 0;
-    BITS = 0;
     QPERIOD = 125;
 
     repeat(100) @(posedge clk_i);
     reset_i = 0;
+        
     repeat(1250) @(posedge clk_i);
 
     repeat(125) @(posedge clk_i);
     enable_i = 1;
     repeat(125) @(posedge clk_i);
-    posn_i = 1000;
+//    posn_i = 1000;
     repeat(1250) @(posedge clk_i);
-    posn_i = 7;
+//    posn_i = 7;
+    //
+    repeat(1250) @(posedge clk_i);
+//    posn_i = 21;
+
+    repeat(1250) @(posedge clk_i);
+//    posn_i = 200;
+
+    repeat(1250) @(posedge clk_i);
+//    posn_i = 9;
+
+    
     repeat(12500) @(posedge clk_i);
     $finish;
 end

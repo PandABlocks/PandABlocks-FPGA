@@ -1,13 +1,11 @@
 PULSE       {{newBlockNo("PULSE")}}
     DELAY           {{newBlockReg(typ='time')}}     >3
     WIDTH           {{newBlockReg(typ='time')}}     >3
-    INP             {{newBlockReg(typ='bit_mux')}}
+    TRIG            {{newBlockReg(typ='bit_mux')}}
     ENABLE          {{newBlockReg(typ='bit_mux')}}
     OUT             {{newBitBus()}}
-    ERR_OVERFLOW    {{newBlockReg()}}
-    ERR_PERIOD      {{newBlockReg()}}
-    QUEUE           {{newBlockReg()}}
-    MISSED_CNT      {{newBlockReg()}}
+    QUEUED          {{newBlockReg()}}
+    DROPPED         {{newBlockReg()}}
     TRIG_EDGE       {{newBlockReg()}}
 
 

@@ -33,7 +33,7 @@ signal inp_i          : std_logic_vector(31 downto 0);
 signal enable_i       : std_logic;
 signal out_o          : std_logic_vector(31 downto 0);
 signal ready_o        : std_logic;
-signal err_o          : std_logic_vector(1 downto 0);  
+signal health_o       : std_logic_vector(1 downto 0);  
 
 signal enable_tb      : std_logic;
 signal enable_tb_dly  : std_logic;
@@ -159,7 +159,7 @@ begin
         elsif accum_num_tb = num_to_accum then
           filter_state <= state_final_trig_div;
         -- ERROR case 1. accumulator overlfow 2. divider triggered twice  
-        elsif err_o(0) = '1' or err_o(1) = '1' then
+        elsif health_o(0) = '1' or health_o(1) = '1' then
           filter_state <= state_idle;           
         end if;   
       
@@ -322,10 +322,10 @@ begin
         difference_error <= '0';  
       end if;
     end if;
-    if err_o(0) = '1' then
+    if health_o(0) = '1' then
       report " ERROR accumulator overflow has occured " severity note; 
     end if;
-    if err_o(1) = '1' then
+    if health_o(1) = '1' then
       report " ERROR divider has been enabled and has not finished its current operation " severity note;   
     end if;
   end if;
@@ -341,7 +341,7 @@ inst_filter: entity work.filter
            enable_i  => enable_i,
            out_o     => out_o,
            ready_o   => ready_o,
-           err_o     => err_o);
+           health_o  => health_o);
  
  
 end rtl; 

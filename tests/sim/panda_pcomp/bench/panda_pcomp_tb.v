@@ -35,11 +35,11 @@ reg  [2: 0]     STATE;
 reg             ACTIVE;
 reg             OUT;
 
-reg             active_failed;
-reg             out_failed;
-reg             health_failed;
-reg             produced_failed;
-reg             state_failed =0;
+reg             err_active;
+reg             err_out;
+reg             err_health;
+reg             err_produced;
+reg             err_state =0;
 
 reg             ACTIVE_DLY;
 reg  [7: 0]     COUNT_TESTS = 0;
@@ -52,7 +52,7 @@ wire            act;
 wire            out;
 
 
-reg             test_result = 0;
+reg             test_result;
  
 integer fid[3:0];
 integer r[3:0];
@@ -267,51 +267,49 @@ end
 always @(posedge clk_i)
 begin
     if (~is_file_end) begin
+        if (err_active == 1 | err_out == 1 | err_health == 1 | err_produced == 1 | err_state == 1) begin
+            test_result <= 1;
+        end     
         // Active strobes  
         if (ACTIVE != act) begin
-            active_failed = 1;
-            test_result = 1;
+            err_active = 1;
             $display("ERROR active strobes different %d\n", timestamp);
         end     
         else begin
-            active_failed = 0;
+            err_active = 0;
         end     
         // Output active
         if (out != OUT) begin
-            out_failed = 1;
-            test_result = 1;
+            err_out = 1;
             $display("ERROR outputs are different %d\n", timestamp);       
         end
         else begin
-            out_failed = 0;
+            err_out = 0;
         end        
         // Health 
         if (HEALTH != health) begin
-            health_failed = 1;
-            test_result = 1;
+            err_health = 1;
             $display("ERROR health outputs are different %d\n", timestamp);
         end
         else begin
-            health_failed = 0;
+            err_health = 0;
         end 
         // Produced
         if (PRODUCED != produced) begin
-            produced_failed = 1;
-            test_result = 1;
+            err_produced = 1;
             $display("ERROR produced outputs are different %d\n", timestamp);
         end 
         else begin
-            produced_failed = 0;
+            err_produced = 0;
         end     
         // State
         if (STATE != 0) begin
             if (STATE != state) begin
-                state_failed = 1;
-                test_result = 1;
+                err_state = 1;
                 $display("ERROR state outputs are different %d\n", timestamp);
             end 
             else begin
-                state_failed = 0;
+                err_state = 0;
             end    
         end                
     end
