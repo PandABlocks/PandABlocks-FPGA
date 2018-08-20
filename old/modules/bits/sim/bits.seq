@@ -1,7 +1,0 @@
-#######################
-$ Outputs follow inputs
-3       : A=1           : OUTA=1
-5       : A=0, B=1      : OUTA=0, OUTB=1
-8       : A=1           : OUTA=1
-9       : B=0           : OUTB=0
-13      : A=0           : OUTA=0

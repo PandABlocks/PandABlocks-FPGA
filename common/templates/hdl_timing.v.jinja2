@@ -1,7 +1,190 @@
---------------------------------------------------------------------------------
--- Timing testbench: {{ section }}
---------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+// Timing testbench: {{block.entity}} - {{ section }}
+// {{block.description}}
+////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
-{% for field in block.filter_fields("bit_out") %}
-    I have a bit_out field called {{ field.name }}
+module {{block.entity}}_tb;
+
+reg clk_i = 0;
+always #4 clk_i = ~clk_i;
+
+// Inputs from initialisation file
+{% for field in block.filter_fields("bit_mux") %}
+reg  		{{ field.name }};
 {% endfor %}
+{% for field in block.filter_fields("pos_mux") %}
+reg  [31:0] {{ field.name }};
+{% endfor %}
+{% for field in block.filter_fields("param") %}
+reg  [31:0] {{ field.name }};
+{% endfor %}
+{% for field in block.filter_fields("param enum") %}
+reg  [1:0]  {{ field.name }};
+{% endfor %}
+{% for field in block.filter_fields("param bit") %}
+reg         {{ field.name }};
+{% endfor %}
+{% for field in block.filter_fields("param lut") %}
+reg  [31:0] {{ field.name }};
+{% endfor %}
+{% for field in block.filter_fields("param time") %}
+reg  [31:0] {{ field.name }};
+{% endfor %}
+{% for field in block.filter_fields("param int") %}
+reg  [31:0] {{ field.name}};
+{% endfor %}
+{% for field in block.filter_fields("time") %}
+reg  [47:0] {{ field.name}};
+{% endfor %}
+{% for field in block.filter_fields("write action") %}
+reg			{{ field.name}};
+{% endfor %}
+{% for field in block.filter_fields("write int") %}
+reg			{{ field.name}};
+{% endfor %}
+
+//Outputs
+{% for field in block.filter_fields("bit_out") %}
+reg         {{ field.name }};		//Output from ini file
+wire        {{ field.name }}_uut;	//Output from UUT
+reg         {{ field.name }}_err;	//Error signal
+
+{% endfor %}
+{% for field in block.filter_fields("pos_out") %}
+reg  [31:0] {{ field.name }};		//Output from ini file
+wire [31:0] {{ field.name }}_uut;	//Output from UUT
+reg         {{ field.name }}_err;	//Error signal
+
+{% endfor %}
+{% for field in block.filter_fields("read") %}
+reg  [31:0] {{ field.name }};		//Output from ini file
+wire [31:0] {{ field.name }}_uut;	//Output from UUT
+reg         {{ field.name }}_err;	//Error Signal
+
+{% endfor %}
+{% for field in block.filter_fields("read enum") %}
+reg   [1:0] {{ field.name }};		//Output from ini file
+wire  [1:0] {{ field.name }}_uut;	//Output from UUT
+reg			{{ field.name }}_err;	//Error signal
+
+{% endfor %}
+{% for field in block.filter_fields("read uint 1023") %}
+reg  [31:0] {{ field.name }};		//Output from ini file
+wire [31:0] {{ field.name }}_uut;	//Output from UUT
+reg         {{ field.name }}_err;	//Error Signal
+
+{% endfor %}
+//Signals used within test
+reg         test_result = 0;
+integer     fid;
+integer     r;
+integer     timestamp = 0;
+
+//
+// Values in the test files are arranged on FPGA clock ticks on the
+// first column. This way all files are read synchronously.
+//
+// To achieve that a free running global Timestamp Counter below
+// is used.
+//
+
+initial begin
+    repeat (5) @(posedge clk_i);
+    while (1) begin
+        timestamp <= timestamp + 1;
+        @(posedge clk_i);
+    end
+end
+
+//
+// Read expected values file
+//
+
+integer data_in[{{ (block.fields)|length() }}:0];
+reg is_file_end;
+
+initial begin
+{% for field in block.fields %}
+    {{ field.name }} = 0;
+{% endfor %}
+
+    @(posedge clk_i);
+    fid=$fopen("expected.csv","r");
+
+    // Read and ignore description field
+    r=$fscanf(fid,"%s{{ " %s" * (block.fields)|length() }}\n",
+{% for i in (range((block.fields)|length()))|reverse()%}
+              data_in[{{ i+1 }}],
+{% endfor %}
+              data_in[0]
+    );
+    while (!$feof(fid)) begin
+        r=$fscanf(fid,"%d{{ " %d" * (block.fields)|length() }}\n",
+{% for i in (range((block.fields)|length()))|reverse()%}
+                data_in[{{ i+1 }}],
+{% endfor %}            	data_in[0]
+        );
+        wait (timestamp == data_in[{{(block.fields)|length()}}]) begin
+{% for field in block.fields %}
+            	{{ field.name }} <= data_in[{{loop.revindex0}}];
+{% endfor %}
+            //The above ''<=' assignments may need to be '='
+        end
+        @(posedge clk_i);
+    end    
+    repeat(100) @(posedge clk_i);
+    is_file_end = 1;
+end
+
+//
+// ERROR DETECTION:
+// Compare Block Outputs and Expected Outputs.
+//
+always @(posedge clk_i)
+begin
+    if (~is_file_end) begin
+        // If not equal, display an error.
+{% for field in block.fields%}
+	{% if field in block.filter_fields("bit_out") or field in 
+       		block.filter_fields("read") or field in 
+       		block.filter_fields("pos_out") or field in 
+       		block.filter_fields("read enum") or field in
+       		block.filter_fields("read uint 1023") %}
+        if ({{ field.name }} != {{field.name}}_uut) begin
+            $display("{{
+            field.name}} error detected at timestamp %d\n", timestamp);
+            {{field.name}}_err = 1;
+            test_result = 1;
+        end
+	{% endif %}
+{% endfor %}
+    end
+end
+
+// $stop Halts a simulation and enters an interactive debug mode
+// $finish Finishes a simulation and exits the simulation process
+always @ (posedge clk_i)
+begin
+    if (is_file_end) begin
+        $display("Simulation has finished");
+        $finish(2);
+    end
+end
+// Instantiate the Unit Under Test (UUT)
+{{block.entity}} uut (
+		
+{% for field in block.fields %}
+	{% if  (field in block.filter_fields("bit_out") or field in
+	 block.filter_fields("read") or field in block.filter_fields("pos_out") or
+	 field in block.filter_fields("read enum") or 
+	 field in block.filter_fields("read uint 1023")) %}
+		.{{ field.name }}  		({{field.name}}_uut	 		),
+	{% else %}
+		.{{field.name}}  		({{field.name}}	),
+	{% endif %}
+{% endfor %}
+    	.clk_i		(clk_i		)
+);
+
+endmodule

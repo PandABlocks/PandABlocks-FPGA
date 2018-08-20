@@ -49,6 +49,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
+    'sphinx.ext.graphviz',  # Required for digraph in pcomp doc
     'matplotlib.sphinxext.plot_directive',
     'common.python.sphinx_timing_directive',
     'common.python.sphinx_block_fields_directive',
