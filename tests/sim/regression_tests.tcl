@@ -53,7 +53,6 @@ set test_failed are;
 # Test array (add test here)
 array set tests { 
         biss_master_slave_tb 14
-        biss_sniffer_tb 13
         panda_pgen_tb 13
         panda_bits_tb 12
         panda_counter_tb 11    
@@ -132,7 +131,6 @@ add_files -fileset sim_1 -norecurse {../../tests/sim/panda_pulse/bench/panda_pul
 ../../tests/sim/panda_pcap/bench/pcap_core_tb.v
 ../../tests/sim/panda_pcap/bench/pcap_core_2tb.v
 ../../tests/sim/panda_sequencer/bench/panda_sequencer_tb.v
-../../tests/sim/panda_sequencer/bench/panda_sequencer_2tb.v
 ../../tests/sim/panda_counter/bench/panda_counter_tb.v
 ../../tests/sim/panda_bits/bench/panda_bits_tb.v
 ../../tests/sim/panda_pgen/bench/panda_pgen_tb.v
