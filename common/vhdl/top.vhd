@@ -89,8 +89,8 @@ port (
     FMC_PRSNT           : in    std_logic;
     FMC_LA_P            : inout std_logic_vector(33 downto 0);
     FMC_LA_N            : inout std_logic_vector(33 downto 0);
-    FMC_CLK0_M2C_P      : inout    std_logic;
-    FMC_CLK0_M2C_N      : in    std_logic;
+    FMC_CLK0_M2C_P      : inout std_logic;
+    FMC_CLK0_M2C_N      : inout std_logic;
     FMC_CLK1_M2C_P      : in    std_logic;
     FMC_CLK1_M2C_N      : in    std_logic;
 
