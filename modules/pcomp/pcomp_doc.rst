@@ -1,5 +1,5 @@
-PCOMP - Position Compare [x4]
-=============================
+PCOMP - Position Compare
+========================
 
 The position compare block takes a position input and allows a regular number
 of threshold comparisons to take place on a position input. The normal order

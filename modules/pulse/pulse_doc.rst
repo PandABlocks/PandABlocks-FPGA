@@ -1,5 +1,5 @@
-PULSE - One-shot pulse delay and stretch [x4]
-=============================================
+PULSE - One-shot pulse delay and stretch
+========================================
 
 A PULSE block produces configurable width output pulses with an optional delay
 based on its parameters. If WIDTH is non-zero, the output pulse width will be
@@ -18,7 +18,7 @@ Fields
 Zero Delay
 ----------
 
-If DELAY=0, then the INP pulse will be stretched with only the propogation delay
+If DELAY=0, then the INP pulse will be stretched with only the propagation delay
 of the block (1 clock tick). WIDTH may take any value, as long as input pulses
 are spaced enough to allow stretched pulses to be produced.
 

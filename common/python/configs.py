@@ -218,18 +218,18 @@ class ParamFieldConfig(FieldConfig):
 class ParamEnumFieldConfig(ParamFieldConfig):
     """A special These fields represent all other set/get parameters backed with
      a single register"""
-    type_regex = "(param enum|read enum)"
+    type_regex = "(param|read) enum"
 
     def extra_config_lines(self):
         # type: () -> Iterable[str]
         for k, v in sorted(self.extra_config.items()):
             assert k.isdigit(), "Only expecting integer enum entries in %s" % (
                 self.extra_config,)
-            if self.type.split()[0] != "read":
+            # if self.type.split()[0] != "read":
                 # Read enums can be anything, but write and params should
                 # be lower_case_or_numbers
-                assert re.match("[a-z][0-9a-z_]*$", v), \
-                    "Expected enum_value, got %r" % v
+                # assert re.match("[a-z][0-9a-z_]*$", v), \
+                    # "Expected enum_value, got %r" % v
             yield "%s %s" % (pad(k, spaces=3), v)
 
 
@@ -264,6 +264,9 @@ class TimeFieldConfig(FieldConfig):
 
     def register_addresses(self, field_address, bit_i, pos_i, ext_i):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
-        self.registers.append(RegisterConfig(self.name, field_address))
+        # One register for the _L value and one for the _H value
+        self.registers.append(RegisterConfig(self.name + "_L", field_address))
+        field_address += 1
+        self.registers.append(RegisterConfig(self.name + "_H", field_address))
         field_address += 1
         return field_address, bit_i, pos_i, ext_i

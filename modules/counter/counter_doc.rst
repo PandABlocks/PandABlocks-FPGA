@@ -1,5 +1,5 @@
-COUNTER  [x8]
-=============
+COUNTER
+=======
 Each counter block, when enabled, can count up/down with user-defined step value
 on the rising edge on input trigger. The counters can also be initialised to a
 user-defined START value.

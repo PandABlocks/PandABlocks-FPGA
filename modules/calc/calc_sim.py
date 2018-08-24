@@ -19,7 +19,6 @@ class CalcSimulation(BlockSimulation):
         when we next need to be called"""
         super(CalcSimulation, self).on_changes(ts, changes)
         # This is a ConfigBlock object
-        # b = self.config_block
 
         self.OUT = (self.INPA + self.INPB + self.INPC + self.INPD)\
             >> self.scale[self.FUNC]  # self.SCALE renamed to self.FUNC

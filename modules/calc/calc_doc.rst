@@ -1,5 +1,5 @@
-CALC - Position Calc [x2]
-===============================
+CALC - Position Calc
+====================
 The position calc block has an output which is the sum of the position inputs
 
 Fields

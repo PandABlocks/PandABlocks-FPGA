@@ -21,7 +21,6 @@ class CounterSimulation(BlockSimulation):
         when we next need to be called"""
         super(CounterSimulation, self).on_changes(ts, changes)
         # This is a ConfigBlock object for us to get our strings from
-        # b = self.config_block
         # Set attributes
         for name, value in changes.items():
             setattr(self, name, value)

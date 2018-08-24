@@ -102,7 +102,7 @@ end
 //
 
 integer data_in[{{ (block.fields)|length() }}:0];
-reg is_file_end;
+reg is_file_end=0;
 
 initial begin
 {% for field in block.fields %}
@@ -120,7 +120,11 @@ initial begin
               data_in[0]
     );
     while (!$feof(fid)) begin
+{% if block.entity == "lut" %}
+		r=$fscanf(fid,"%d %d %d %d %d %d %d %d %d %d %d %h %d\n",
+{% else %}
         r=$fscanf(fid,"%d{{ " %d" * (block.fields)|length() }}\n",
+{% endif %}
 {% for i in (range((block.fields)|length()))|reverse()%}
                 data_in[{{ i+1 }}],
 {% endfor %}            	data_in[0]
@@ -143,23 +147,33 @@ end
 //
 always @(posedge clk_i)
 begin
-    if (~is_file_end) begin
+{% for field in block.filter_fields("bit_mux") %}
+	{% if field.name == "ENABLE" %}
+	if (ENABLE) begin
+	{% endif %}
+{% endfor %}
+    	if (~is_file_end) begin
         // If not equal, display an error.
 {% for field in block.fields%}
 	{% if field in block.filter_fields("bit_out") or field in 
-       		block.filter_fields("read") or field in 
-       		block.filter_fields("pos_out") or field in 
-       		block.filter_fields("read enum") or field in
-       		block.filter_fields("read uint 1023") %}
-        if ({{ field.name }} != {{field.name}}_uut) begin
-            $display("{{
-            field.name}} error detected at timestamp %d\n", timestamp);
-            {{field.name}}_err = 1;
-            test_result = 1;
-        end
+       			block.filter_fields("read") or field in 
+       			block.filter_fields("pos_out") or field in 
+    	   		block.filter_fields("read enum") or field in
+    	   		block.filter_fields("read uint 1023") %}
+    	    if ({{ field.name }} != {{field.name}}_uut) begin
+    	        $display("{{
+    	        field.name}} error detected at timestamp %d\n", timestamp);
+    	        {{field.name}}_err = 1;
+    	        test_result = 1;
+    	    end
 	{% endif %}
 {% endfor %}
+    	end
+{% for field in block.filter_fields("bit_mux") %}
+	{% if field.name == "ENABLE" %}    	
     end
+	{% endif %}
+{% endfor %}
 end
 
 // $stop Halts a simulation and enters an interactive debug mode
@@ -171,6 +185,32 @@ begin
         $finish(2);
     end
 end
+
+{% if block.entity == "clocks" %}
+//WSTB signals have not yet been included. This should mimic the behaviour
+reg 	reset_i;
+	{% for field in block.filter_fields("param time") %}
+reg [31:0] {{field.name}}_latch;
+	{% endfor %}
+always @ (posedge clk_i)
+begin
+	{% for field in block.filter_fields("param time") %}
+	if	({{field.name}}_latch != {{field.name}}) begin
+		reset_i = 1;
+		{{field.name}}_latch = {{field.name}};
+	end
+	else{% endfor %}
+	begin
+		reset_i=0;
+	end
+	{% for field in block.filter_fields("param time") %}
+	{{field.name}}_latch = {{field.name}};
+	{% endfor %}
+end
+{% endif %}
+		
+
+
 // Instantiate the Unit Under Test (UUT)
 {{block.entity}} uut (
 		
@@ -184,6 +224,9 @@ end
 		.{{field.name}}  		({{field.name}}	),
 	{% endif %}
 {% endfor %}
+{% if block.entity == "clocks" %}
+		.reset_i	(reset_i	),
+{% endif %}
     	.clk_i		(clk_i		)
 );
 

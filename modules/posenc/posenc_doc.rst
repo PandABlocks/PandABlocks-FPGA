@@ -6,3 +6,11 @@ Fields
 ------
 
 .. block_fields:: modules/posenc/posenc.block.ini
+
+
+Tests
+-----
+
+.. timing_plot::
+	:path: modules/posenc/posenc.timing.ini
+	:section: Quadrature rising and falling

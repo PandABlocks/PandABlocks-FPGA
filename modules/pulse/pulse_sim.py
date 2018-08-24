@@ -19,7 +19,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "pulse.block.ini")
 
 
 class PulseSimulation(BlockSimulation):
-    DELAY, WIDTH, TRIG, ENABLE, OUT, QUEUED, DROPPED, TRIG_EDGE = PROPERTIES
+    DELAY, WIDTH, ENABLE, TRIG, OUT, QUEUED, DROPPED, TRIG_EDGE = PROPERTIES
 
     def __init__(self):
         self.queue = deque()

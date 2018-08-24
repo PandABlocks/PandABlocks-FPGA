@@ -94,13 +94,18 @@ class HdlTimingGenerator(object):
             header.append(field.name)
         csv = TimingCsv(header)
         for_next_ts = {}
+        timestamp = str(0)
         for ts, inputs, outputs in timing_entries(timing_ini, section):
             # If we jumped by more than one clock tick, put in another line
             # for the outputs
             if for_next_ts:
+                if inputs and timestamp == str(ts):
+                    # Fixed an error where two lines would be generated at the
+                    # next timestamp: one with input changes, one with output
+                    for_next_ts.update(inputs)
                 csv.add_line(for_next_ts)
             # For each timing entry provide the inputs
-            if inputs:
+            if inputs and timestamp != str(ts):
                 inputs["TS"] = str(ts)
                 csv.add_line(inputs)
             # Now update the values to be the outputs to output next clock
@@ -108,6 +113,7 @@ class HdlTimingGenerator(object):
             if outputs:
                 for_next_ts = {"TS": ts + 1}
                 for_next_ts.update(outputs)
+                timestamp = str(ts+1)
             else:
                 for_next_ts = {}
         # Last line for outputs
