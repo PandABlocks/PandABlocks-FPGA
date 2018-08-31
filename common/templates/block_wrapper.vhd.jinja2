@@ -13,17 +13,17 @@ use work.top_defines.all;
 
 entity {{ entity }}_wrapper is
 generic (
-    NUM : integer := {{ number }}
+    NUM : natural := {{ number }}
 );
 port (
     -- Clocks and Resets
-    clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
+    clk_i               : in  std_logic := '0';
+    reset_i             : in  std_logic := '0';
 
     -- Bus inputs
     -- TODO: rename to bit_bus_i
-    sysbus_i            : in  sysbus_t;
-    pos_bus_i           : in  posbus_t;
+    sysbus_i            : in  sysbus_t := (others => '0');
+    pos_bus_i           : in  posbus_t := (others => (others => '0'));
 
     -- Bus outputs
 {% for field in filter_fields("bit_out") %}
@@ -34,14 +34,14 @@ port (
 {% endfor %}
 
     -- Memory Interface
-    read_strobe_i       : in  std_logic;
-    read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
+    read_strobe_i       : in  std_logic := '0';
+    read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0) := (others => '0');
     read_data_o         : out std_logic_vector(31 downto 0);
     read_ack_o          : out std_logic;
 
-    write_strobe_i      : in  std_logic;
-    write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
-    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_strobe_i      : in  std_logic := '0';
+    write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0) := (others => '0');
+    write_data_i        : in  std_logic_vector(31 downto 0) := (others => '0');
     write_ack_o         : out std_logic
 );
 end {{ entity }}_wrapper;
@@ -107,19 +107,21 @@ begin
                 -- Zero all the write strobe arrays, we set them below
 {% for field in fields %}
     {% for register in field.registers %}
-                {{ register.name }}_wstb(I) <= "0";
+                {{ register.name }}_wstb(I) <= '0';
     {% endfor %}
 {% endfor %}
-                if (write_strobe(I) = "1") then
+                if (write_strobe(I) = '1') then
                     -- Set the specific write strobe that has come in
                     case write_addr is
 {% for field in fields %}
     {% for register in field.registers %}
                         when {{ register.name }}_addr =>
                             {{ register.name }}(I) <= write_data_i;
-                            {{ register.name }}_wstb(I) <= "1";
+                            {{ register.name }}_wstb(I) <= '1';
     {% endfor %}
 {% endfor %}
+                        when others =>
+                            null;
                     end case;
                 end if;
             end if;
