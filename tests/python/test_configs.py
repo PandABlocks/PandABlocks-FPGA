@@ -16,12 +16,12 @@ class TestConfigs(unittest.TestCase):
         self.assertEqual("Expected FIELD_NAME, got 'bad_field'",
                          str(cm.exception))
 
-    def test_bad_enum(self):
-        extras = {
-            "0": "Bad Value"
-        }
-        f = ParamEnumFieldConfig("BADENUM", 1, "param enum", "", **extras)
-        with self.assertRaises(AssertionError) as cm:
-            list(f.extra_config_lines())
-        self.assertEqual("Expected enum_value, got 'Bad Value'",
-                         str(cm.exception))
+#    def test_bad_enum(self):
+#        extras = {
+#            "0": "Bad Value"
+#        }
+#        f = ParamEnumFieldConfig("BADENUM", 1, "param enum", "", **extras)
+#        with self.assertRaises(AssertionError) as cm:
+#            list(f.extra_config_lines())
+#        self.assertEqual("Expected enum_value, got 'Bad Value'",
+#                         str(cm.exception))

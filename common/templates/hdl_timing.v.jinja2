@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Timing testbench: {{block.entity}} - {{ section }}
-// {{block.description}} {{module_path}}
+// {{block.description}}
 ////////////////////////////////////////////////////////////////////////////////
 `timescale 1ns / 1ps
 
@@ -107,10 +107,10 @@ initial begin
 
     @(posedge clk_i);
     fid=$fopen("{{number}}{{block.entity}}expected.csv","r");
-    // Read and ignore description field    
-    
+    // Read and ignore description field
+
     r=$fgets(ignore, fid);
-    //r=$fscanf(fid,"{{ " ".join(("%s",)*header|length)}}\n",    
+    //r=$fscanf(fid,"{{ " ".join(("%s",)*header|length)}}\n",
 {% set datalist=[] %}
 {% for i in range(header|length)|reverse %}
     {%do datalist.append("        data_in[" + i|string + "]") %}
@@ -118,7 +118,7 @@ initial begin
 {# {{",\n".join(datalist)}} #}
 //    );
     while (!$feof(fid)) begin
-    	r=$fscanf(fid,"{{ " ".join(("%d",)*header|length)}}\n", 
+        r=$fscanf(fid,"{{ " ".join(("%d",)*header|length)}}\n",
     {{",\n    ".join(datalist)}}
         );
 {% for field in header %}
@@ -130,7 +130,7 @@ initial begin
 {% endfor %}
         end
         @(posedge clk_i);
-    end    
+    end
     repeat(100) @(posedge clk_i);
     is_file_end = 1;
 end
@@ -185,7 +185,6 @@ begin
 end
 {% endif %}
 
-
 {% if block.entity == "calc" %}
 //Unique case for calc, function needs a delay
 reg [1:0]  FUNC_DLY;
@@ -193,11 +192,11 @@ always @ (posedge clk_i)
 begin
     FUNC_DLY <= FUNC;
 end
-{% endif %} 
+{% endif %}
 
 // Instantiate the Unit Under Test (UUT)
 {{block.entity}} uut (
-		
+
 {% for field in block.fields %}
 	{% if field in block.filter_fields("bit_out|pos_out|read enum")%}
 	 	.{{ field.name }}_o  		({{field.name}}_uut		),
