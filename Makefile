@@ -10,6 +10,7 @@ SPHINX_BUILD = sphinx-build
 PANDA_ROOTFS = $(error Define PANDA_ROOTFS in CONFIG file)
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 APPS = $(patsubst apps/%.app.ini,%,$(wildcard apps/*.app.ini))
+TEST_DIR = $(BUILD_DIR)/tests
 
 # The CONFIG file is required.  If not present, create by copying CONFIG.example
 # and editing as appropriate.
@@ -102,10 +103,21 @@ $(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
 
 hdl_timing: $(TIMING_BUILD_DIRS)
 	# TODO: add running of tests under vivado here
+hdl_test: $(TIMING_BUILD_DIRS)
+	rm -rf $(TEST_DIR)/regression_tests
+	rm -rf $(TEST_DIR)/*.jou
+	rm -rf $(TEST_DIR)/*.log
+	mkdir -p $(TEST_DIR)
+
+	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace -source ../../regression_tests.tcl
 
 .PHONY: hdl_timing
 
 # ------------------------------------------------------------------------------
+
+$(BUILD_DIR)/%:
+	mkdir -p $@
+
 # Clean
 
 clean:

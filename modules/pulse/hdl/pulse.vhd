@@ -17,7 +17,7 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     -- Block Input and Outputs
-    trig_i               : in  std_logic;
+    trig_i              : in  std_logic;
     enable_i            : in  std_logic;
     out_o               : out std_logic;
     -- Block Parameters

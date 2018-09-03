@@ -4,7 +4,7 @@ use ieee.std_logic_1164.all;
 
 entity filter is
   port (clk_i    : in  std_logic;
-        mode_i   : in  std_logic_vector(1 downto 0);
+        mode     : in  std_logic_vector(1 downto 0);
         trig_i   : in  std_logic;
         inp_i    : in  std_logic_vector(31 downto 0);
         enable_i : in  std_logic;
@@ -49,7 +49,7 @@ begin
     trig_dly <= trig_i;
     
     -- Difference mode enabled 
-    if mode_i = difference then
+    if mode = difference then
       -- Capture the data
       if enable_i = '1' and enable_i_dly = '0' then
         latch <= signed(inp_i);   
@@ -66,7 +66,7 @@ begin
       end if;
               
     -- Average mode enabled 
-    elsif mode_i = average then
+    elsif mode = average then
         -- Output the divider result if we aren't in error
         if stop = '0' then
           ready_o <= quot_rdy_o;

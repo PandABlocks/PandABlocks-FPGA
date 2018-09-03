@@ -1,47 +1,32 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Timing testbench: {{block.entity}} - {{ section }}
-// {{block.description}}
+// {{block.description}} {{module_path}}
 ////////////////////////////////////////////////////////////////////////////////
 `timescale 1ns / 1ps
 
-module {{block.entity}}_tb;
+module {{block.entity}}_{{number}}_tb;
 
 reg clk_i = 0;
 always #4 clk_i = ~clk_i;
 
 // Inputs from initialisation file
-{% for field in block.filter_fields("bit_mux") %}
-reg  		{{ field.name }};
+{% for field in block.filter_fields(
+    "bit_mux|param bit|write action") %}
+reg         {{ field.name }};
 {% endfor %}
-{% for field in block.filter_fields("pos_mux") %}
+{% for field in block.filter_fields("param enum")%}
+reg  [1:0]  {{ field.name }};
+{% endfor %}
+{% for field in block.filter_fields(
+	"pos_mux|param lut|param time|param int|write int") %}
 reg  [31:0] {{ field.name }};
 {% endfor %}
 {% for field in block.filter_fields("param") %}
+{# When | with other 32 bit register fields, param enums are declared twice.. #}
 reg  [31:0] {{ field.name }};
-{% endfor %}
-{% for field in block.filter_fields("param enum") %}
-reg  [1:0]  {{ field.name }};
-{% endfor %}
-{% for field in block.filter_fields("param bit") %}
-reg         {{ field.name }};
-{% endfor %}
-{% for field in block.filter_fields("param lut") %}
-reg  [31:0] {{ field.name }};
-{% endfor %}
-{% for field in block.filter_fields("param time") %}
-reg  [31:0] {{ field.name }};
-{% endfor %}
-{% for field in block.filter_fields("param int") %}
-reg  [31:0] {{ field.name}};
 {% endfor %}
 {% for field in block.filter_fields("time") %}
 reg  [47:0] {{ field.name}};
-{% endfor %}
-{% for field in block.filter_fields("write action") %}
-reg			{{ field.name}};
-{% endfor %}
-{% for field in block.filter_fields("write int") %}
-reg			{{ field.name}};
 {% endfor %}
 
 //Outputs
@@ -51,30 +36,39 @@ wire        {{ field.name }}_uut;	//Output from UUT
 reg         {{ field.name }}_err;	//Error signal
 
 {% endfor %}
-{% for field in block.filter_fields("pos_out") %}
+{% for field in block.filter_fields("pos_out|read uint 1023") %}
 reg  [31:0] {{ field.name }};		//Output from ini file
 wire [31:0] {{ field.name }}_uut;	//Output from UUT
 reg         {{ field.name }}_err;	//Error signal
 
 {% endfor %}
 {% for field in block.filter_fields("read") %}
-reg  [31:0] {{ field.name }};		//Output from ini file
-wire [31:0] {{ field.name }}_uut;	//Output from UUT
-reg         {{ field.name }}_err;	//Error Signal
+{# When | with other 32 bit register fields, read enums are declared twice #}
+reg  [31:0] {{ field.name }};       //Output from ini file
+wire [31:0] {{ field.name }}_uut;   //Output from UUT
+reg         {{ field.name }}_err;   //Error signal
 
 {% endfor %}
 {% for field in block.filter_fields("read enum") %}
+	{% if block.entity == "pcomp" and field.name == "STATE" %}
+reg   [2:0] {{ field.name }};		//Output from ini file
+wire  [2:0] {{ field.name }}_uut;	//Output from UUT
+reg			{{ field.name }}_err;	//Error signal	
+
+	{% else %}
 reg   [1:0] {{ field.name }};		//Output from ini file
 wire  [1:0] {{ field.name }}_uut;	//Output from UUT
 reg			{{ field.name }}_err;	//Error signal
 
+	{% endif %}
 {% endfor %}
-{% for field in block.filter_fields("read uint 1023") %}
-reg  [31:0] {{ field.name }};		//Output from ini file
-wire [31:0] {{ field.name }}_uut;	//Output from UUT
-reg         {{ field.name }}_err;	//Error Signal
+// Write Strobes
+{% for field in block.fields %}
+	{% if field.wstb %}
+reg         {{field.name}}_wstb;
+	{% endif %}
+{% endfor %}
 
-{% endfor %}
 //Signals used within test
 reg         test_result = 0;
 integer     fid;
@@ -100,40 +94,40 @@ end
 //
 // Read expected values file
 //
-
-integer data_in[{{ (block.fields)|length() }}:0];
+integer ignore[{{ header|length*3 }}:0];
+integer data_in[{{ header|length-1 }}:0];
 reg is_file_end=0;
 
 initial begin
-{% for field in block.fields %}
-    {{ field.name }} = 0;
+{% for field in header %}
+    {% if not loop.first %}
+    {{ field }} = 0;
+    {% endif %}
 {% endfor %}
 
     @(posedge clk_i);
-    fid=$fopen("expected.csv","r");
-
-    // Read and ignore description field
-    r=$fscanf(fid,"%s{{ " %s" * (block.fields)|length() }}\n",
-{% for i in (range((block.fields)|length()))|reverse()%}
-              data_in[{{ i+1 }}],
+    fid=$fopen("{{number}}{{block.entity}}expected.csv","r");
+    // Read and ignore description field    
+    
+    r=$fgets(ignore, fid);
+    //r=$fscanf(fid,"{{ " ".join(("%s",)*header|length)}}\n",    
+{% set datalist=[] %}
+{% for i in range(header|length)|reverse %}
+    {%do datalist.append("        data_in[" + i|string + "]") %}
 {% endfor %}
-              data_in[0]
-    );
+{# {{",\n".join(datalist)}} #}
+//    );
     while (!$feof(fid)) begin
-{% if block.entity == "lut" %}
-		r=$fscanf(fid,"%d %d %d %d %d %d %d %d %d %d %d %h %d\n",
-{% else %}
-        r=$fscanf(fid,"%d{{ " %d" * (block.fields)|length() }}\n",
-{% endif %}
-{% for i in (range((block.fields)|length()))|reverse()%}
-                data_in[{{ i+1 }}],
-{% endfor %}            	data_in[0]
+    	r=$fscanf(fid,"{{ " ".join(("%d",)*header|length)}}\n", 
+    {{",\n    ".join(datalist)}}
         );
-        wait (timestamp == data_in[{{(block.fields)|length()}}]) begin
-{% for field in block.fields %}
-            	{{ field.name }} <= data_in[{{loop.revindex0}}];
+{% for field in header %}
+	{% if loop.first %}
+        wait (timestamp == data_in[{{loop.revindex0}}]) begin
+	{% else %}
+            	{{ field }} <= data_in[{{loop.revindex0}}];
+    {% endif %}
 {% endfor %}
-            //The above ''<=' assignments may need to be '='
         end
         @(posedge clk_i);
     end    
@@ -147,33 +141,23 @@ end
 //
 always @(posedge clk_i)
 begin
-{% for field in block.filter_fields("bit_mux") %}
-	{% if field.name == "ENABLE" %}
-	if (ENABLE) begin
-	{% endif %}
-{% endfor %}
-    	if (~is_file_end) begin
-        // If not equal, display an error.
+    if (~is_file_end) begin
+    // If not equal, display an error.
 {% for field in block.fields%}
 	{% if field in block.filter_fields("bit_out") or field in 
-       			block.filter_fields("read") or field in 
-       			block.filter_fields("pos_out") or field in 
-    	   		block.filter_fields("read enum") or field in
-    	   		block.filter_fields("read uint 1023") %}
-    	    if ({{ field.name }} != {{field.name}}_uut) begin
-    	        $display("{{
-    	        field.name}} error detected at timestamp %d\n", timestamp);
-    	        {{field.name}}_err = 1;
-    	        test_result = 1;
-    	    end
+     		block.filter_fields("read") or field in 
+       		block.filter_fields("pos_out") or field in 
+    	   	block.filter_fields("read enum") or field in
+    	   	block.filter_fields("read uint 1023") %}
+    	if ({{ field.name }} != {{field.name}}_uut) begin
+    	    $display("{{
+    	    field.name}} error detected at timestamp %d\n", timestamp);
+    	    {{field.name}}_err = 1;
+    	    test_result = 1;
+        end
 	{% endif %}
 {% endfor %}
-    	end
-{% for field in block.filter_fields("bit_mux") %}
-	{% if field.name == "ENABLE" %}    	
     end
-	{% endif %}
-{% endfor %}
 end
 
 // $stop Halts a simulation and enters an interactive debug mode
@@ -187,41 +171,53 @@ begin
 end
 
 {% if block.entity == "clocks" %}
-//WSTB signals have not yet been included. This should mimic the behaviour
+// Clocks.vhd expected a reset input, true if a write strobe is 1
+{% set wstblist=[] %}
+    {% for field in block.fields %}
+        {% if field.wstb %}
+            {%do wstblist.append(field.name+"_wstb") %}
+        {% endif %}
+    {% endfor %}
 reg 	reset_i;
-	{% for field in block.filter_fields("param time") %}
-reg [31:0] {{field.name}}_latch;
-	{% endfor %}
-always @ (posedge clk_i)
+always @( {{ " or ".join(wstblist) }} )
 begin
-	{% for field in block.filter_fields("param time") %}
-	if	({{field.name}}_latch != {{field.name}}) begin
-		reset_i = 1;
-		{{field.name}}_latch = {{field.name}};
-	end
-	else{% endfor %}
-	begin
-		reset_i=0;
-	end
-	{% for field in block.filter_fields("param time") %}
-	{{field.name}}_latch = {{field.name}};
-	{% endfor %}
+	reset_i = {{" | ".join(wstblist) }} ;
 end
 {% endif %}
-		
 
+
+{% if block.entity == "calc" %}
+//Unique case for calc, function needs a delay
+reg [1:0]  FUNC_DLY;
+always @ (posedge clk_i)
+begin
+    FUNC_DLY <= FUNC;
+end
+{% endif %} 
 
 // Instantiate the Unit Under Test (UUT)
 {{block.entity}} uut (
 		
 {% for field in block.fields %}
-	{% if  (field in block.filter_fields("bit_out") or field in
-	 block.filter_fields("read") or field in block.filter_fields("pos_out") or
-	 field in block.filter_fields("read enum") or 
-	 field in block.filter_fields("read uint 1023")) %}
+	{% if field in block.filter_fields("bit_out|pos_out|read enum")%}
+	 	.{{ field.name }}_o  		({{field.name}}_uut		),
+	{% elif  (field in	 block.filter_fields("read") 
+	 or field in block.filter_fields("read uint 1023")) %}
 		.{{ field.name }}  		({{field.name}}_uut	 		),
+	{% elif field in block.filter_fields("bit_mux|pos_mux") %}
+		.{{field.name}}_i   	({{field.name}} ),
+		{% if field.wstb %}
+		.{{ field.name}}_wstb	({{field.name}}_wstb),
+		{% endif %}
 	{% else %}
-		.{{field.name}}  		({{field.name}}	),
+	    {% if field.name == "FUNC" and block.entity == "calc" %}
+	    .FUNC           (FUNC_DLY),
+	    {%else%}
+		.{{field.name}}  		({{field.name}}     ),
+		{% endif %}
+		{% if field.wstb and block.entity != "clocks" %}
+		.{{ field.name}}_wstb	({{field.name}}_wstb),
+		{% endif %}
 	{% endif %}
 {% endfor %}
 {% if block.entity == "clocks" %}

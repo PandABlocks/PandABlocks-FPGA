@@ -20,15 +20,15 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     -- Block Input and Outputs
-    softa_o             : out std_logic;
-    softb_o             : out std_logic;
-    softc_o             : out std_logic;
-    softd_o             : out std_logic;
+    OUTA_o              : out std_logic;
+    OUTB_o              : out std_logic;
+    OUTC_o              : out std_logic;
+    OUTD_o              : out std_logic;
     -- Block Parameters
-    SOFTA_SET           : in  std_logic;
-    SOFTB_SET           : in  std_logic;
-    SOFTC_SET           : in  std_logic;
-    SOFTD_SET           : in  std_logic
+    A                   : in  std_logic;
+    B                   : in  std_logic;
+    C                   : in  std_logic;
+    D                   : in  std_logic
 );
 end bits;
 
@@ -40,10 +40,10 @@ begin
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        softa_o <= SOFTA_SET;
-        softb_o <= SOFTB_SET;
-        softc_o <= SOFTC_SET;
-        softd_o <= SOFTD_SET;
+        OUTA_o <= A;
+        OUTb_o <= B;
+        OUTc_o <= C;
+        OUTd_o <= D;
     end if;
 end process;
 

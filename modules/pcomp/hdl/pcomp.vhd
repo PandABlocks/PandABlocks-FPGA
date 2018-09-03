@@ -25,7 +25,7 @@ port (
     reset_i             : in  std_logic;
     -- Block inputs
     enable_i            : in  std_logic;
-    posn_i              : in  std_logic_vector(31 downto 0); --INP
+    inp_i              : in  std_logic_vector(31 downto 0); --INP
     -- Block inputs
     --
     PRE_START           : in  std_logic_vector(31 downto 0);
@@ -33,13 +33,13 @@ port (
     WIDTH               : in  std_logic_vector(31 downto 0);
     STEP                : in  std_logic_vector(31 downto 0);
     PULSES              : in  std_logic_vector(31 downto 0);
-    RELATIVE            : in  std_logic;
+    RELATIVE            : in  std_logic_vector(1 downto 0);
     DIR                 : in  std_logic_vector(1 downto 0);
     health_o            : out std_logic_vector(1 downto 0);  
-    produced_o          : out std_logic_vector(31 downto 0);
+    produced            : out std_logic_vector(31 downto 0);
     state_o             : out std_logic_vector(2 downto 0);
     -- Output pulse
-    act_o               : out std_logic;
+    active_o               : out std_logic;
     out_o               : out std_logic
 );
 end pcomp;
@@ -142,7 +142,7 @@ enable_fall <= not enable_i and enable_prev;
 
 pulse_start_pos <= signed(START);
 pulse_start_neg <= signed(not unsigned(START) + 1);
-pulse_start <= pulse_start_pos when (RELATIVE = '0' or dir_pos = '1') else pulse_start_neg;
+pulse_start <= pulse_start_pos when (RELATIVE(0) = '0' or dir_pos = '1') else pulse_start_neg;
 
 pulse_width_pos <= signed(WIDTH);
 pulse_width_neg <= signed(not unsigned(WIDTH) + 1);
@@ -159,13 +159,13 @@ pulse_step <= pulse_step_pos when (dir_pos = '1') else pulse_step_neg;
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (enable_rise = '1') then
-            posn_latched <= signed(posn_i);
+            posn_latched <= signed(inp_i);
         end if;
     end if;
 end process;
 
-posn_relative <= signed(posn_i) - posn_latched;
-posn <= signed(posn_i) when (RELATIVE = '0') else posn_relative;
+posn_relative <= signed(inp_i) - posn_latched;
+posn <= signed(inp_i) when (RELATIVE(0) = '0') else posn_relative;
 
 ---------------------------------------------------------------------------
 -- Generate prestart and position compare crossing pulses to be used in FSM
@@ -218,7 +218,7 @@ state_o <= c_state1 when pcomp_fsm = WAIT_DIR else
            c_state0; 
 
 
-produced_o <= std_logic_vector(pulse_counter);
+produced <= std_logic_vector(pulse_counter);
             
 
 guess_dir_thresh <= signed(START) + signed(PRE_START);
@@ -231,7 +231,7 @@ begin
         if (reset_i = '1') then
             -- reset to starting conditions
             out_o <= '0';
-            act_o <= '0';
+            active_o <= '0';
             dir_pos <= '0';
             pcomp_fsm <= WAIT_ENABLE;
             last_crossing <= (others => '0');            
@@ -240,7 +240,7 @@ begin
             pulse_counter <= (others => '0');
         elsif (enable_fall = '1') then
             out_o <= '0';
-            act_o <= '0';
+            active_o <= '0';
             pcomp_fsm <= WAIT_ENABLE;
         else
             
@@ -249,7 +249,7 @@ begin
                 -- State 0
                 when WAIT_ENABLE => 
                     if enable_rise = '1' then
-                        act_o <= '1';
+                        active_o <= '1';
                         health_o <= (others => '0');
                         pulse_counter <= (others => '0');
                         if DIR = c_either then    
@@ -267,7 +267,7 @@ begin
                 -- State 1 DIR        
                 when WAIT_DIR =>                 
                     -- Relative DIR calculated (RELATIVE = 1 - Then START is relative to the position of INP when enabled)
-                    if RELATIVE = '1' then  
+                    if RELATIVE(0) = '1' then  
                         -- guess_dir_thresh = START + PRE_START
                         if guess_dir_thresh > 0 then
                             -- abs posn   - latched(posn)  
@@ -291,14 +291,14 @@ begin
                                         next_crossing <= pulse_start_neg + pulse_width_neg;
                                     end if;                                                                      
                                     out_o <= '1';
-                                    act_o <= '1';
+                                    active_o <= '1';
                                     pulse_counter <= pulse_counter + 1;
                                     pcomp_fsm <= WAIT_FALLING;
                                 end if;     
                             end if;
                         -- Can't guess DIR    
                         else
-                            act_o <= '0';
+                            active_o <= '0';
                             health_o <= c_err_guess;
                             pcomp_fsm <= WAIT_ENABLE;
                         end if;    
@@ -335,7 +335,7 @@ begin
                         -- jump > WIDTH + STEP
                         -- reached the next cross but missed the current crossing
                         if jumped_more_than_step = '1' then
-                            act_o <= '0';
+                            active_o <= '0';
                             health_o <= c_err_pjump;
                             pcomp_fsm <= WAIT_ENABLE;
                         else
@@ -353,11 +353,11 @@ begin
                         out_o <= '0';
                         if (pulse_counter = unsigned(PULSES)) then
                             -- Finished  
-                            act_o <= '0';
+                            active_o <= '0';
                             pcomp_fsm <= WAIT_ENABLE;
                         elsif jumped_more_than_step = '1' then                                            
                             -- Jump > WIDTH + STEP 
-                            act_o <= '0';
+                            active_o <= '0';
                             health_o <= c_err_pjump;                             
                             pcomp_fsm <= WAIT_ENABLE;
                         else

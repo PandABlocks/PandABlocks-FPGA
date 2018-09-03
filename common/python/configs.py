@@ -92,7 +92,7 @@ class FieldConfig(object):
     #: Regex for matching a type string to this field
     type_regex = None
 
-    def __init__(self, name, number, type, description, **extra_config):
+    def __init__(self, name, number, type, description, wstb=False, **extra_config):
         # type: (str, int, str, str) -> None
         # Field names should be UPPER_CASE_OR_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*$", name), \
@@ -111,6 +111,8 @@ class FieldConfig(object):
         self.bus_entries = []  # type: List[BusEntryConfig]
         #: All the other extra config items
         self.extra_config = extra_config
+        #: If a write strobe is required, set wstb to 1
+        self.wstb = wstb
         #: The current value of this field for simulation
         self.value = 0
 

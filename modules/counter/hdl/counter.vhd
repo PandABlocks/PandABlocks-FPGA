@@ -21,7 +21,7 @@ port (
     clk_i               : in  std_logic;
     -- Block Input and Outputs
     enable_i            : in  std_logic;
-    trigger_i           : in  std_logic;
+    trig_i           : in  std_logic;
     dir_i               : in  std_logic;
     carry_o             : out std_logic;
     -- Block Parameters
@@ -55,12 +55,12 @@ begin
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        trigger_prev <= trigger_i;
+        trigger_prev <= trig_i;
         enable_prev <= enable_i;
     end if;
 end process;
 
-trigger_rise <= trigger_i and not trigger_prev;
+trigger_rise <= trig_i and not trigger_prev;
 enable_rise <= enable_i and not enable_prev;
 enable_fall <= not enable_i and enable_prev;
 

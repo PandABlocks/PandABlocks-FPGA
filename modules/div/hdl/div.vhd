@@ -19,7 +19,7 @@ port (
     outd_o              : out std_logic;
     outn_o              : out std_logic;
     -- Block Parameters
-    FIRST_PULSE         : in  std_logic;
+    FIRST_PULSE         : in  std_logic_vector(1 downto 0);
     FIRST_PULSE_WSTB    : in  std_logic;
     DIVISOR             : in  std_logic_vector(31 downto 0);
     DIVISOR_WSTB        : in  std_logic;
@@ -56,7 +56,7 @@ begin
             is_first_pulse <= '0';
             -- First pulse is generated on outn_o when '0',
             -- else on outd_o
-            if (FIRST_PULSE = '0') then
+            if (FIRST_PULSE(0) = '0') then
                 counter <= (others => '0');
             else
                 counter <= unsigned(DIVISOR) - 1;
