@@ -14,3 +14,15 @@ Tests
 .. timing_plot::
 	:path: modules/posenc/posenc.timing.ini
 	:section: Quadrature rising and falling
+
+.. timing_plot::
+	:path: modules/posenc/posenc.timing.ini
+	:section: Step/Direction
+
+.. timing_plot::
+	:path: modules/posenc/posenc.timing.ini
+	:section: Longer Period Quadrature
+
+.. timing_plot::
+	:path: modules/posenc/posenc.timing.ini
+	:section: Longer Period Step Direction

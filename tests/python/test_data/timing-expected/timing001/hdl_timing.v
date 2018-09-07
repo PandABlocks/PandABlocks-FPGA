@@ -49,6 +49,8 @@ end
 integer ignore[15:0];
 integer data_in[4:0];
 reg is_file_end=0;
+integer i;
+initial for (i=0; i<=15; i=i+1) ignore[i]=0;
 
 initial begin
     FUNC = 0;
@@ -59,10 +61,8 @@ initial begin
     @(posedge clk_i);
     fid=$fopen("1testblockexpected.csv","r");
     // Read and ignore description field
-
     r=$fgets(ignore, fid);
-    //r=$fscanf(fid,"%s %s %s %s %s\n",
-//    );
+	// Read and store the expected data from the csv file
     while (!$feof(fid)) begin
         r=$fscanf(fid,"%d %d %d %d %d\n",
             data_in[4],
@@ -114,11 +114,11 @@ end
 // Instantiate the Unit Under Test (UUT)
 testblock uut (
 
-		.FUNC  		(FUNC     ),
-		.A  		(A     ),
-		.INPA_i   	(INPA ),
-	 	.OUT_o  		(OUT_uut		),
-    	.clk_i		(clk_i		)
+		.FUNC          (FUNC),
+		.A          (A),
+		.INPA_i        (INPA),
+	 	.OUT_o        (OUT_uut),
+    	.clk_i      (clk_i)
 );
 
 endmodule

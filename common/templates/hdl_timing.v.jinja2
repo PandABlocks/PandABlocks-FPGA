@@ -97,6 +97,8 @@ end
 integer ignore[{{ header|length*3 }}:0];
 integer data_in[{{ header|length-1 }}:0];
 reg is_file_end=0;
+integer i;
+initial for (i=0; i<={{header|length*3}}; i=i+1) ignore[i]=0;
 
 initial begin
 {% for field in header %}
@@ -108,15 +110,13 @@ initial begin
     @(posedge clk_i);
     fid=$fopen("{{number}}{{block.entity}}expected.csv","r");
     // Read and ignore description field
-
     r=$fgets(ignore, fid);
-    //r=$fscanf(fid,"{{ " ".join(("%s",)*header|length)}}\n",
+{# Creates a list of strings of "data_in[i]" #}
 {% set datalist=[] %}
 {% for i in range(header|length)|reverse %}
     {%do datalist.append("        data_in[" + i|string + "]") %}
 {% endfor %}
-{# {{",\n".join(datalist)}} #}
-//    );
+	// Read and store the expected data from the csv file
     while (!$feof(fid)) begin
         r=$fscanf(fid,"{{ " ".join(("%d",)*header|length)}}\n",
     {{",\n    ".join(datalist)}}
@@ -172,21 +172,22 @@ end
 
 {% if block.entity == "clocks" %}
 // Clocks.vhd expected a reset input, true if a write strobe is 1
-{% set wstblist=[] %}
+	{# creates a list of the write strobe signals #}
+	{% set wstblist=[] %}
     {% for field in block.fields %}
         {% if field.wstb %}
             {%do wstblist.append(field.name+"_wstb") %}
         {% endif %}
     {% endfor %}
 reg 	reset_i;
-always @( {{ " or ".join(wstblist) }} )
+always @({{ " or ".join(wstblist) }})
 begin
-	reset_i = {{" | ".join(wstblist) }} ;
+	reset_i = {{" | ".join(wstblist) }};
 end
 {% endif %}
 
 {% if block.entity == "calc" %}
-//Unique case for calc, function needs a delay
+//Unique case for calc, FUNC needs a delay
 reg [1:0]  FUNC_DLY;
 always @ (posedge clk_i)
 begin
@@ -199,30 +200,30 @@ end
 
 {% for field in block.fields %}
 	{% if field in block.filter_fields("bit_out|pos_out|read enum")%}
-	 	.{{ field.name }}_o  		({{field.name}}_uut		),
+	 	.{{ field.name }}_o        ({{field.name}}_uut),
 	{% elif  (field in	 block.filter_fields("read") 
 	 or field in block.filter_fields("read uint 1023")) %}
-		.{{ field.name }}  		({{field.name}}_uut	 		),
+		.{{ field.name }}          ({{field.name}}_uut),
 	{% elif field in block.filter_fields("bit_mux|pos_mux") %}
-		.{{field.name}}_i   	({{field.name}} ),
+		.{{field.name}}_i        ({{field.name}}),
 		{% if field.wstb %}
-		.{{ field.name}}_wstb	({{field.name}}_wstb),
+		.{{ field.name}}_wstb     ({{field.name}}_wstb),
 		{% endif %}
 	{% else %}
 	    {% if field.name == "FUNC" and block.entity == "calc" %}
-	    .FUNC           (FUNC_DLY),
+	    .FUNC          (FUNC_DLY),
 	    {%else%}
-		.{{field.name}}  		({{field.name}}     ),
+		.{{field.name}}          ({{field.name}}),
 		{% endif %}
 		{% if field.wstb and block.entity != "clocks" %}
-		.{{ field.name}}_wstb	({{field.name}}_wstb),
+		.{{ field.name}}_wstb     ({{field.name}}_wstb),
 		{% endif %}
 	{% endif %}
 {% endfor %}
 {% if block.entity == "clocks" %}
-		.reset_i	(reset_i	),
+		.reset_i    (reset_i),
 {% endif %}
-    	.clk_i		(clk_i		)
+    	.clk_i      (clk_i)
 );
 
 endmodule

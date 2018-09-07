@@ -147,7 +147,7 @@ port map (
 --  1   At position
 --  2   Slewing
 QSTATE(31 downto 2) <= (others => '0');
-QSTATE(1 downto 0) <= "00" when (enable = '0') else
-                      "01" when (posn_tracking = '0') else
-                      "10";
+QSTATE(1 downto 0) <= "01" when (posn_tracking = '0' and enable = '1') else
+                      "10" when (enable = '1') else
+                      "00";
 end rtl;

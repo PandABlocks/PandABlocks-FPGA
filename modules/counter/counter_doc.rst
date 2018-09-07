@@ -1,5 +1,5 @@
-COUNTER
-=======
+COUNTER - Up/Down pulse counter
+===============================
 Each counter block, when enabled, can count up/down with user-defined step value
 on the rising edge on input trigger. The counters can also be initialised to a
 user-defined START value.
@@ -19,7 +19,7 @@ number of rising edges received while enabled:
    :path: modules/counter/counter.timing.ini
    :section: Count Up only when enabled
 
-You can also set the start value to be loaded on enable, and step up by a
+You can also set the start value to be loaded on enable, and stepmake hdl_ up by a
 number other than one:
 
 .. timing_plot::

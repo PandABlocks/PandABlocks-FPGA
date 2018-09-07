@@ -44,7 +44,7 @@ signal trigger_rise     : std_logic;
 signal enable_prev      : std_logic;
 signal enable_rise      : std_logic;
 signal enable_fall      : std_logic;
-signal counter          : unsigned(32 downto 0) := (others => '0');
+signal counter          : signed(32 downto 0) := (others => '0');
 signal STEP_default     : std_logic_vector(31 downto 0);
 
 begin
@@ -90,22 +90,25 @@ begin
     if rising_edge(clk_i) then
         -- Load the counter
         if (START_WSTB = '1' and enable_i = '1') then
-            counter <= unsigned('0' & START);
+                counter <= resize(signed(START), counter'length);
         -- Re-load on enable rising edge
         elsif (enable_rise = '1') then
-            counter <= unsigned('0' & START);
+                counter <= resize(signed(START), counter'length);
         -- Count up/down on trigger
         elsif (enable_i = '1' and trigger_rise = '1') then
             if (dir_i = '0') then
-                counter <= counter + unsigned(STEP_default);
+                counter <= counter + signed(STEP_default);
             else
-                counter <= counter - unsigned(STEP_default);
+                counter <= counter - signed(STEP_default);
             end if;
         end if;
     end if;
 end process;
 
 out_o <= std_logic_vector(counter(31 downto 0));
-carry_o <= counter(32);
+
+carry_o <= counter(32) xor counter (31) when trigger_prev = '1' else
+           '0';
+
 
 end rtl;

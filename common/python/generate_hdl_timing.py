@@ -84,6 +84,7 @@ class HdlTimingGenerator(object):
                 if section != ".":
                     self.generate_timing_test(block, timing_ini, section, i)
                     i += 1
+            self.generate_module_script(block, i-1)
 
     def expand_template(self, template_name, context, out_dir, out_fname):
         with open(os.path.join(out_dir, out_fname), "w") as f:
@@ -147,6 +148,16 @@ class HdlTimingGenerator(object):
         )
         self.expand_template("hdl_timing.v.jinja2", context, timing_dir,
                              "hdl_timing.v")
+
+    def generate_module_script(self, block, i):
+        # type: (BlockConfig, int) -> None
+        path = self.build_dir
+        name = "%s.tcl" % block.entity
+        context = dict(
+            block=block,
+            number=i,
+        )
+        self.expand_template("module.tcl.jinja2", context, path, name)
 
 
 def main():

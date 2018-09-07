@@ -28,15 +28,18 @@ architecture rtl of posenc is
 
 signal a, b, step, dir  : std_logic;
 signal STATE_FULL		: std_logic_vector(31 downto 0);
-
+signal reset            : std_logic;
 begin
 --	
 -- INCREMENTAL OUT
 --
+
+reset <= not enable_i;
+
 qenc : entity work.qenc
 port map (
     clk_i           => clk_i,
-    reset_i         => reset_i,
+    reset_i         => reset,
     enable_i        => enable_i,
     posn_i          => inp_i,
     QPERIOD         => PERIOD,

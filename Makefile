@@ -109,8 +109,13 @@ hdl_test: $(TIMING_BUILD_DIRS)
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
 
-	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace -source ../../regression_tests.tcl
+	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace -source ../../regression_tests.tcl -tclargs $(MODULE)
 
+single_hdl_test:
+	rm -rf $(TEST_DIR)/single_test
+	rm -rf $(TEST_DIR)/*.jou
+	rm -rf $(TEST_DIR)/*.log
+	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace -source ../../single_test.tcl -tclargs $(TEST)
 .PHONY: hdl_timing
 
 # ------------------------------------------------------------------------------
