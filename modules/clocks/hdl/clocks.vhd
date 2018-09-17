@@ -18,22 +18,28 @@ use ieee.numeric_std.all;
 entity clocks is
 port (
     -- Clock and Reset
-    clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
+    clk_i             : in  std_logic;
+    reset_i           : in  std_logic;
     -- Block Input and Outputs
     outa_o            : out std_logic;
     outb_o            : out std_logic;
     outc_o            : out std_logic;
     outd_o            : out std_logic;
     -- Block Parameters
-    A_PERIOD       : in  std_logic_vector(31 downto 0);
-    B_PERIOD       : in  std_logic_vector(31 downto 0);
-    C_PERIOD       : in  std_logic_vector(31 downto 0);
-    D_PERIOD       : in  std_logic_vector(31 downto 0)
+    A_PERIOD          : in  std_logic_vector(31 downto 0);
+    A_PERIOD_wstb     : in std_logic;
+    B_PERIOD          : in  std_logic_vector(31 downto 0);
+    B_PERIOD_wstb     : in std_logic;
+    C_PERIOD          : in  std_logic_vector(31 downto 0);
+    C_PERIOD_wstb     : in std_logic;
+    D_PERIOD          : in  std_logic_vector(31 downto 0);
+    D_PERIOD_wstb     : in std_logic
 );
 end clocks;
 
 architecture rtl of clocks is
+
+signal reset		: std_logic;
 
 component clockgen is
 port (
@@ -45,12 +51,12 @@ port (
 end component;
 
 begin
-
+reset <= A_PERIOD_wstb or B_PERIOD_wstb or C_PERIOD_wstb or D_PERIOD_wstb;
 -- Clock generator instantiations
 clockgen_A : clockgen
 port map (
     clk_i           => clk_i,
-    reset_i         => reset_i,
+    reset_i         => reset,
     clock_o         => outa_o,
     DIV             => A_PERIOD
 );
@@ -58,7 +64,7 @@ port map (
 clockgen_B : clockgen
 port map (
     clk_i           => clk_i,
-    reset_i         => reset_i,
+    reset_i         => reset,
     clock_o         => outb_o,
     DIV             => B_PERIOD
 );
@@ -66,7 +72,7 @@ port map (
 clockgen_C : clockgen
 port map (
     clk_i           => clk_i,
-    reset_i         => reset_i,
+    reset_i         => reset,
     clock_o         => outc_o,
     DIV             => C_PERIOD
 );
@@ -74,7 +80,7 @@ port map (
 clockgen_D : clockgen
 port map (
     clk_i           => clk_i,
-    reset_i         => reset_i,
+    reset_i         => reset,
     clock_o         => outd_o,
     DIV             => D_PERIOD
 );

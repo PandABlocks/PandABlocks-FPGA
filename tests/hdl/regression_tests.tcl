@@ -3,20 +3,20 @@
 #   make hdl_test
 # Alternatively run tests for a specific module
 #   make hdl_test MODULE="module"
-# Where module is the lowercase name of the module, lut for example
+# Where module is the lowercase name of the module, lut for example. Multiple
+# modules can be added by separating their names by a space(MODULES="bits lut")
 
 # Tests
 # 1.  bits_n_tb         --Works
 # 2.  calc_n_tb         --Works Added delay to the FUNC input
-# 3.  clocks_n_tb       --Works Added rest input based off wstb signals
+# 3.  clocks_n_tb       --Works
 # 4.  counter_n_tb      --Works
 # 5.  div_n_tb          --Works
-# 6.  filter_n_tb       --delay in HEALTH output on test 8
+# 6.  filter_n_tb       --Works
 # 7.  lut_n_tb          --Works
 # 8.  pcomp_n_tb        --Works
 # 9.  posenc_n_tb       --Works
-# 10. pulse_n_tb        --Delay in QUEUED output and values not as expected
-#                       --DROPPED resets on enable going low
+# 10. pulse_n_tb        --Works
 # 11. qdec_n_tb         --Works
 # 12. srgate_n_tb       --Works
 
@@ -38,30 +38,20 @@ if {$argc > 0} {
 		source "../hdl_timing/$module/$module.tcl"
 	}
 } else {
+	# Find all the tcl scripts in the hdl_timing directory and source them
+	set mydir ../hdl_timing
+	set subs [ glob -nocomplain -directory $mydir -type d *]
 	# Load the modules files into Vivado
-	source "../hdl_timing/bits/bits.tcl"
-	source "../hdl_timing/calc/calc.tcl"
-	source "../hdl_timing/clocks/clocks.tcl"
-	source "../hdl_timing/counter/counter.tcl"
-	source "../hdl_timing/div/div.tcl"
-	source "../hdl_timing/filter/filter.tcl"
-	source "../hdl_timing/lut/lut.tcl"
-	source "../hdl_timing/pcomp/pcomp.tcl"
-	source "../hdl_timing/posenc/posenc.tcl"
-	source "../hdl_timing/pulse/pulse.tcl"
-	source "../hdl_timing/qdec/qdec.tcl"
-	source "../hdl_timing/srgate/srgate.tcl"
+	foreach folder $subs {
+		set path [split $folder /]
+		source $folder/[lindex $path 2].tcl
+	}
 }
-
 # Load all the common source files
 add_files -norecurse {
-../../common/hdl/prescaler_pos.vhd
-../../common/hdl/defines/support.vhd
+../../common/hdl
+../../common/hdl/defines
 ../../common/ip_repo/pulse_queue/pulse_queue_funcsim.vhdl
-../../common/hdl/qdecoder.vhd
-../../common/hdl/qencoder.vhd
-../../common/hdl/qenc.vhd
-../../modules/filter/hdl/divider.vhd
 }
 
 # Loop through all the tests
@@ -76,6 +66,7 @@ foreach test [array names tests] {
 
     launch_simulation
 
+	restart
     run -all
 
     # All the testbenchs have a signal called test_result

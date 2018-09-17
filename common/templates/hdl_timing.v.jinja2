@@ -121,6 +121,12 @@ initial begin
         r=$fscanf(fid,"{{ " ".join(("%d",)*header|length)}}\n",
     {{",\n    ".join(datalist)}}
         );
+        if (r != {{ header|length}}) begin
+            $display("\n    error reading file \n");
+            test_result <= 1;
+            @(negedge clk_i);
+            $finish(2);
+        end
 {% for field in header %}
 	{% if loop.first %}
         wait (timestamp == data_in[{{loop.revindex0}}]) begin
@@ -143,13 +149,16 @@ always @(posedge clk_i)
 begin
     if (~is_file_end) begin
     // If not equal, display an error.
+    // If the io file signal contains an 0 when the UUT signal is zero, the
+    // test should not error, but for other io signal values display an error
 {% for field in block.fields%}
-	{% if field in block.filter_fields("bit_out") or field in 
-     		block.filter_fields("read") or field in 
+	{% if field in block.filter_fields("bit_out") or field in
+     		block.filter_fields("read") or field in
        		block.filter_fields("pos_out") or field in 
     	   	block.filter_fields("read enum") or field in
     	   	block.filter_fields("read uint 1023") %}
-    	if ({{ field.name }} != {{field.name}}_uut) begin
+    	if ({{ field.name }} != {{field.name}}_uut || ({{ field.name
+    	}} > 0 && ^{{ field.name }}_uut === 1'bx)) begin
     	    $display("{{
     	    field.name}} error detected at timestamp %d\n", timestamp);
     	    {{field.name}}_err = 1;
@@ -169,22 +178,6 @@ begin
         $finish(2);
     end
 end
-
-{% if block.entity == "clocks" %}
-// Clocks.vhd expected a reset input, true if a write strobe is 1
-	{# creates a list of the write strobe signals #}
-	{% set wstblist=[] %}
-    {% for field in block.fields %}
-        {% if field.wstb %}
-            {%do wstblist.append(field.name+"_wstb") %}
-        {% endif %}
-    {% endfor %}
-reg 	reset_i;
-always @({{ " or ".join(wstblist) }})
-begin
-	reset_i = {{" | ".join(wstblist) }};
-end
-{% endif %}
 
 {% if block.entity == "calc" %}
 //Unique case for calc, FUNC needs a delay
@@ -215,14 +208,11 @@ end
 	    {%else%}
 		.{{field.name}}          ({{field.name}}),
 		{% endif %}
-		{% if field.wstb and block.entity != "clocks" %}
+		{% if field.wstb%}
 		.{{ field.name}}_wstb     ({{field.name}}_wstb),
 		{% endif %}
 	{% endif %}
 {% endfor %}
-{% if block.entity == "clocks" %}
-		.reset_i    (reset_i),
-{% endif %}
     	.clk_i      (clk_i)
 );
 

@@ -29,29 +29,37 @@ class QdecSimulation(BlockSimulation):
             self.update = 0
             return
         else:
+            # Reset when Z is '1' provided that RST_ON_Z is also '1'
             if self.RST_ON_Z == 1 and self.Z == 1:
                 self.count = 0
                 self.OUT = 0
 
             elif self.update == 1:
+                # From the current and next state, find the direction
                 if self.state == 3 and self.newstate == 0:
                     self.dir = 0
                 elif self.state == 0 and self.newstate == 3:
                     self.dir = 1
-                elif self.newstate > self.state:
+                elif self.newstate == self.state + 1:
                     self.dir = 0
-                elif self.newstate < self.state:
+                elif self.newstate == self.state - 1:
                     self.dir = 1
+                else:
+                    # Error Direction
+                    self.dir = 2
+                # update state
                 self.state = self.newstate
+                # The output updates after 2 clock pulses
+                # The counter is then updated, depending on the direction
                 if ts >= self.lastts + 2:
                     if self.dir == 1:
                         self.count -= 1
-                    else:
+                    elif self. dir == 0:
                         self.count += 1
                     self.OUT = self.count
                     self.update = 0
                     self.lastts = 0
-
+            # Find the next state, updating the state occurs on the next cycle
             if self.A == 0 and self.B == 0:
                 self.newstate = 0
             elif self.A == 1 and self.B == 0:

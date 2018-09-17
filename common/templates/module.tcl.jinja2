@@ -9,7 +9,7 @@ array set tests {
 {% endfor %}
 }
 
-# remove any simulation files from the projec
+# remove any simulation files from the project
 remove_files -fileset sim_1 {
 {% for i in range(number) %}
 	../hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/hdl_timing.v
@@ -20,7 +20,7 @@ remove_files -fileset sim_1 {
 
 # add the module vhd code
 add_files -norecurse {
-	../../modules/{{block.entity}}/hdl/{{block.entity}}.vhd
+	../../modules/{{block.entity}}/hdl
 }
 
 add_files -fileset sim_1 -norecurse {

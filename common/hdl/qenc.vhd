@@ -87,6 +87,8 @@ begin
             if (enable_rise = '1') then
                 posn_tracker <= posn;
             -- On every transition, update internal counter
+            -- This updates on the next timestamp to the posn equality checking.
+            -- Therefore, the PERIOD has to be greater than 1
             elsif (qenc_trans = '1') then
                 if (qenc_dir = '0') then
                     posn_tracker <= posn_tracker + 1;
@@ -112,6 +114,8 @@ begin
         else
             -- Compare current position with tracking value, and
             -- enable/disable tracking based on user flag.
+            -- posn_tracker is updated on the next timestamp, therefore the
+            -- PERIOD has to be greater than 1
             if (enable = '1' and posn /= posn_tracker) then
                 posn_tracking <= '1';
             else

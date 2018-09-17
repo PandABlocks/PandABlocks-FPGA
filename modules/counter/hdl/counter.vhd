@@ -21,7 +21,7 @@ port (
     clk_i               : in  std_logic;
     -- Block Input and Outputs
     enable_i            : in  std_logic;
-    trig_i           : in  std_logic;
+    trig_i              : in  std_logic;
     dir_i               : in  std_logic;
     carry_o             : out std_logic;
     -- Block Parameters
@@ -107,6 +107,7 @@ end process;
 
 out_o <= std_logic_vector(counter(31 downto 0));
 
+-- For a signed number, the overflow is xor of top two bits
 carry_o <= counter(32) xor counter (31) when trigger_prev = '1' else
            '0';
 

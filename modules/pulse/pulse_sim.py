@@ -24,14 +24,25 @@ class PulseSimulation(BlockSimulation):
     def __init__(self):
         self.queue = deque()
         self.valid_ts = 0
+        self.trigtime = 0
+        self.enqueue = 0
+        self.dequeue = 0
+        self.delaypulse = 0
+        self.delayqueue = 1
+        self.doqueue = 0
+        self.missedsignal = 0
+        self.width = 0
+        self.delay = 0
 
     def do_pulse(self, ts, changes):
         """We've received a bit event on INP, so queue some output values
         based on DELAY and WIDTH"""
         # If the queue isn't valid at the moment then error
         # If there isn't room for 2 on the queue then error
-        width = self.WIDTH
-        delay = self.DELAY
+        # If WIDTH is zero DELAY should be >3, or if DELAY is zero WIDTH
+        # should be >3 for the FIFO to iterate fully
+        width = self.width
+        delay = self.delay
         if ts < self.valid_ts or len(self.queue) + 2 > MAX_QUEUE:
             self.DROPPED += 1
         # If there is no specified width then use the width of input pulse
@@ -54,9 +65,11 @@ class PulseSimulation(BlockSimulation):
         # make sure that start is after any pulse on queue
         if self.queue and start < self.queue[-1][0] + MIN_QUEUE_DELTA:
             self.DROPPED += 1
+            self.missedsignal += 1
         else:
             self.queue.append((start, 1))
             self.queue.append((start + width, 0))
+
 
     def do_reset(self):
         """Reset the block, called on rising edge of ENABLE"""
@@ -74,7 +87,49 @@ class PulseSimulation(BlockSimulation):
         # This is a ConfigBlock object for use to get our strings from
         super(PulseSimulation, self).on_changes(ts, changes)
         # This is the next time we need to be called
-        next_ts = None
+        next_ts = ts+1
+        # If the DELAY and WIDTH inputs are out of bounds, set them to 4
+        if 0 < self.DELAY < 4:
+            self.delay = 4
+        else:
+            self.delay = self.DELAY
+        if (0 < self.WIDTH < 4) and self.DELAY == 0:
+            self.width = 4
+        else:
+            self.width = self.WIDTH
+
+        # Append queue if the start of the queue is delayed
+        if self.delaypulse == 1:
+            if self.WIDTH > 0 or self.doqueue == 1:
+                self.QUEUED += 1
+                self.delaypulse = 0
+                self.doqueue = 0
+            elif changes.get(NAMES.TRIG, None) == 0:
+                self.doqueue = 1
+
+        # Increment the queue
+        if self.enqueue == 1 and ts == self.trigtime+1:
+            if self.missedsignal > 0:
+                self.missedsignal -= 1
+            else:
+                self.QUEUED += 1
+            # Is a pulse of zero required before next pulse?
+                if self.DELAY > 0:
+                    self.delaypulse = 1
+                self.enqueue = 0
+
+        # On the trigger edge set the writestrobe to the queue
+        # If both DELAY and WIDTH are equal to 0, the module bypasses the queue
+        if self.width == 0 and self.delay == 0:
+            self.enqueue = 0
+        elif changes.get(NAMES.TRIG) == 1 and self.TRIG_EDGE in (0, 2):
+            # Positive edge
+            self.trigtime = ts
+            self.enqueue = 1
+        elif changes.get(NAMES.TRIG) == 0 and self.TRIG_EDGE in (1, 2):
+            # Negative edge
+            self.trigtime = ts + 1
+            self.enqueue = 1
 
         # Set attributes, and flag clear queue
         for name, value in changes.items():
@@ -95,12 +150,27 @@ class PulseSimulation(BlockSimulation):
 
         # if we have anything else on the queue return when it's due
         if self.queue:
-            next_ts = self.queue[0][0]
+            # next_ts = self.queue[0][0]
             # if the pulse on our queue is ready to be produced then produce
             if self.queue[0][0] == ts:
-                self.OUT = self.queue.popleft()[1]
+                if self.queue.popleft()[1] == 1:
+                    self.OUT = 1
+                    self.dequeue = 1
+                else:
+                    self.OUT = 0
             assert next_ts >= ts, "Going back in time %s >= %s" % (next_ts, ts)
 
-        # Event list changed, update status word
-        self.QUEUED = len(self.queue)
+        # At the end of the pulse, the queue count has decreased
+        if self.OUT == 0 and self.dequeue == 1:
+            if self.QUEUED > 0:
+                self.QUEUED -= 1
+            self.dequeue = 0
+            self.delayqueue = 1
+
+        # Decrease the queue count for the zero pulse
+        if self.OUT == 1 and self.delayqueue == 1:
+            if self.QUEUED > 0:
+                self.QUEUED -= 1
+            self.delayqueue = 0
+
         return next_ts

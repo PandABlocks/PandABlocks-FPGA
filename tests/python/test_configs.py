@@ -16,6 +16,8 @@ class TestConfigs(unittest.TestCase):
         self.assertEqual("Expected FIELD_NAME, got 'bad_field'",
                          str(cm.exception))
 
+    # The restrictions on the param enum descriptions are no longer in place
+
 #    def test_bad_enum(self):
 #        extras = {
 #            "0": "Bad Value"

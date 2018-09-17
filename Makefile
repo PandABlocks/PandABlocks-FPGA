@@ -101,21 +101,26 @@ $(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
 	$(PYTHON) -m common.python.generate_hdl_timing $@_tmp $^
 	mv $@_tmp $@
 
+# Make the hdl_timing folders without running tests
 hdl_timing: $(TIMING_BUILD_DIRS)
-	# TODO: add running of tests under vivado here
+
+# Make the hdl_timing folders and run all tests, or specific module by setting
+# the MODULE argument
 hdl_test: $(TIMING_BUILD_DIRS)
 	rm -rf $(TEST_DIR)/regression_tests
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
 
-	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace -source ../../regression_tests.tcl -tclargs $(MODULE)
+	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace -source ../../tests/hdl/regression_tests.tcl -tclargs $(MODULE)
 
-single_hdl_test:
+# Make the hdl_timing folders and run a single test, set TEST argument
+single_hdl_test: $(TIMING_BUILD_DIRS)
 	rm -rf $(TEST_DIR)/single_test
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
-	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace -source ../../single_test.tcl -tclargs $(TEST)
+	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace -source ../../tests/hdl/single_test.tcl -tclargs $(TEST)
+
 .PHONY: hdl_timing
 
 # ------------------------------------------------------------------------------

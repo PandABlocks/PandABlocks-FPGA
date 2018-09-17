@@ -19,12 +19,20 @@ class PosencSimulation(BlockSimulation):
         self.newstate = 0
         self.nexttime = 0
         self.setb = 0
+        self.period = 0
 
     def on_changes(self, ts, changes):
         super(PosencSimulation, self).on_changes(ts, changes)
         # set attributes
         for name, value in changes.items():
             setattr(self, name, value)
+
+        # Do not allow PERIOD value of 1
+        if self.PERIOD == 1:
+            self.period = 2
+        else:
+            self.period = self.PERIOD
+
         if changes.get(NAMES.ENABLE, None) is 0:
             self.A = 0
             self.STATE = 0
@@ -33,6 +41,13 @@ class PosencSimulation(BlockSimulation):
 
         else:
             if self.ENABLE == 1:
+                # If the input changes the system requires a clock tick to
+                # process so if the next clock is the current time, the module
+                # will next function on the next clock
+                if changes.get(NAMES.INP):
+                    if self.nexttime < ts + 1:
+                        self.nexttime = self.nexttime + self.period
+
                 # Set the direction
                 self.equal = 0
                 if self.INP > self.tracker:
@@ -62,7 +77,7 @@ class PosencSimulation(BlockSimulation):
                 else:
                     self.STATE = 2
 
-                # Set A and B output
+                # Set A and B output for Quadrature mode
                 if self.PROTOCOL == 0 and ts >= self.nexttime:
                     self.state = self.newstate
                     if self.state == 0:
@@ -80,15 +95,15 @@ class PosencSimulation(BlockSimulation):
                     else:
                         self.A = 0
                         self.B = 1
-
+                # Set A and B output for Step/Direction Mode
                 elif self.PROTOCOL == 1:
-                    if self.setb == 0:
-                        self.setb = 1
+                    # Set B on the next clock cycle
+                    if self.setb == 1:
+                        self.setb = 0
                     else:
                         self.B = self.dir
 
-                    if self.equal == 0\
-                            and ts == self.nexttime-1:
+                    if self.equal == 0 and ts == self.nexttime:
                         self.state = self.newstate
                         self.A = 1
                     else:
@@ -96,8 +111,15 @@ class PosencSimulation(BlockSimulation):
 
             else:
                     self.tracker = self.INP
-                    self.setb = 0
-
+                    # If the input is set at the start, the initial direction
+                    # takes an extra clock to set. This affects the B output
+                    # for PROTOCOL=1
+                    if self.PROTOCOL == 1 and self.INP > 0:
+                        self.setb = 1
+                    else:
+                        self.setb = 0
+        # The module uses a prescaler which generates a pulse each time it
+        # counts to the inputted PERIOD value
         if ts == self.nexttime or changes.get(NAMES.PERIOD):
-            self.nexttime = ts + self.PERIOD
+            self.nexttime = ts + self.period
         return ts + 1

@@ -40,6 +40,9 @@ class TestGenerateTiming(unittest.TestCase):
     def test_second_bench(self):
         self.assertGeneratedEqual("timing002", "hdl_timing.v")
 
+    def test_module_script(self):
+        self.assertGeneratedEqual("testblock.tcl")
+
 
 if __name__ == '__main__':
     unittest.main()

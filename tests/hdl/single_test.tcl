@@ -1,8 +1,8 @@
 
 # TCL script to run a single test.
-#   make single_hdl_test TEST="module number"
+#      make single_hdl_test TEST="module, number"
 # where module is the name of the module in lower case eg lut and number is the
-# test number eg 4
+# test number eg 4 (make single_hdl_test TEST= "lut 4")
 
 create_project single_test ../../build/tests/single_test -force -part xc7z030sbg485-1
 
@@ -12,6 +12,7 @@ if {$argc > 0} {
 		source "../hdl_timing/$module/$module.tcl"
 
 } else {
+	puts "No argument given, please set TEST input. lut_1_tb running as default"
 	source "../hdl_timing/lut/lut.tcl"
 	set test lut_1_tb
 }
@@ -19,13 +20,9 @@ if {$argc > 0} {
 
 # Load all the common source files
 add_files -norecurse {
-../../common/hdl/prescaler_pos.vhd
-../../common/hdl/defines/support.vhd
+../../common/hdl
+../../common/hdl/defines
 ../../common/ip_repo/pulse_queue/pulse_queue_funcsim.vhdl
-../../common/hdl/qdecoder.vhd
-../../common/hdl/qencoder.vhd
-../../common/hdl/qenc.vhd
-../../modules/filter/hdl/divider.vhd
 }
 
 
@@ -39,6 +36,7 @@ set_property top_lib xil_defaultlib [get_filesets sim_1]
 
 launch_simulation
 
+restart
 run -all
 
 # All the testbenchs have a signal called test_result

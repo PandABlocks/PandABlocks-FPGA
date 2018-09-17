@@ -71,10 +71,15 @@ signal trig_rise                : std_logic;
 signal trig_fall                : std_logic;
 signal ongoing_pulse            : std_logic;
 
+signal enable                   : std_logic;
+signal enable_rise              : std_logic;
+
 signal reset                    : std_logic;
 signal reset_err                : std_logic;
 signal pulse                    : std_logic;
 
+signal delay_i                  : std_logic_vector(47 downto 0);
+signal width_i                  : std_logic_vector(47 downto 0);
 signal DELAY_prev               : std_logic_vector(47 downto 0);
 signal WIDTH_prev               : std_logic_vector(47 downto 0);
 
@@ -120,6 +125,25 @@ begin
 --  Set         0           Not Valid       Bypass              DELAY                           DELAY
 --  Set         Set         Valid                               DELAY                           DELAY
 
+-- If DELAY and WIDTH are set too low, the FIFO does not have time to process the data and queue it
+
+-- If 0 < DELAY < 4, it should be set to 4
+delay_i <= DELAY when (unsigned(DELAY) > 4 or unsigned(DELAY) = 0) else (2 => '1',
+																 others => '0');
+-- If Delay is zero and WIDTH is between 0 and 4 WIDTH should be 4
+width_i <= WIDTH when (not(unsigned(DELAY) = 0 and (unsigned(WIDTH) < 4 and unsigned(WIDTH) > 0))) else (2 => '1',
+																									others => '0');
+
+
+
+-- Added enable_rise signal
+process(clk_i) begin
+    if rising_edge(clk_i) then
+        enable <= enable_i;
+    end if;
+end process;
+
+enable_rise <= enable_i and not enable;
 
 process(clk_i)
 begin
@@ -128,12 +152,12 @@ begin
             wait_cnt <= (others => '0');
        else         
             -- Indicate when a negative edge pulse is to happen     
-            if (unsigned(WIDTH) /= 0 and (TRIG_EDGE = c_trig_edge_neg or TRIG_EDGE = c_trig_edge_pos_neg)) then
+            if (unsigned(width_i) /= 0 and (TRIG_EDGE = c_trig_edge_neg or TRIG_EDGE = c_trig_edge_pos_neg)) then
                 neg_pulse <= trig_i;
             end if;
             
             -- Negative edge pulse
-            if (neg_pulse = '1' and trig_i = '0' and unsigned(WIDTH) /= 0 and 
+            if (neg_pulse = '1' and trig_i = '0' and unsigned(WIDTH) /= 0 and
                     (TRIG_EDGE = c_trig_edge_neg or TRIG_EDGE = c_trig_edge_pos_neg)) then
                 trig_i_neg <= '1';
                 enable_cnt <= '1';
@@ -160,7 +184,7 @@ process(clk_i)
 begin
     if rising_edge(clk_i) then
         -- Indicate bypass mode for TRIG_EDGE = negative and WIDTH = 0 or pass the pulse in if its a positive or both positive and negative pulse
-        if (unsigned(WIDTH) = 0 or (unsigned(WIDTH) /= 0 and (TRIG_EDGE = c_trig_edge_pos or TRIG_EDGE = c_trig_edge_pos_neg))) then
+        if (unsigned(width_i) = 0 or (unsigned(width_i) /= 0 and (TRIG_EDGE = c_trig_edge_pos or TRIG_EDGE = c_trig_edge_pos_neg))) then
             bypass_en <= '1';
         else
             bypass_en <= '0';    
@@ -181,13 +205,14 @@ begin
     if rising_edge(clk_i) then
         enable_i_dly <= enable_i;
         trig_prev <= trig_i_int;
-        DELAY_prev <= DELAY;
-        WIDTH_prev <= WIDTH;
+        DELAY_prev <= delay_i;
+        WIDTH_prev <= width_i;
     end if;
 end process;
 
 -- Initial/Bitbus/Config Reset combined
-reset <= DELAY_WSTB or WIDTH_WSTB or not enable_i;
+-- Changed reset to occur on enable rise
+reset <= DELAY_WSTB or WIDTH_WSTB or enable_rise;
 
 reset_err <= not enable_i_dly and enable_i;
 
@@ -244,11 +269,11 @@ pulse_ts <= unsigned(pulse_queued_dout(47 downto 0));
 delta_T <= timestamp - timestamp_prev;
 
 -- Ignore period error for the first pulse in the train.
-period_error <= not is_first_pulse when (delta_T < unsigned(WIDTH)+4) else '0'; 
+period_error <= not is_first_pulse when (delta_T < unsigned(width_i)+4) else '0';
 
 -- DELAY=0 is a special case where outp is immediately asserted while
 -- falling edge timestamp is written into the queue.
-is_DELAY_zero <= '1' when (unsigned(DELAY) = 0) else '0';
+is_DELAY_zero <= '1' when (unsigned(delay_i) = 0) else '0';
 
 
 -- Detect rising edge input pulse for time stamp registering.
@@ -285,7 +310,7 @@ begin
             -- incoming pulse is stored in the queue along with pulse value.
             -- (DELAY=0 is special again).
 
-            -- Queue full confition flags an error, and ticks missing pulse
+            -- Queue full condition flags an error, and ticks missing pulse
             -- counter.
             if (trig_rise = '1' and pulse_queued_full = '1') then
                 missed_pulses <= missed_pulses + 1;
@@ -302,26 +327,29 @@ begin
             if (trig_rise = '1' and period_error = '0') then
                 timestamp_prev <= timestamp;
                 is_first_pulse <= '0';
-                pulse_queued_wstb <= '1';
+                -- If WIDTH and DELAY are zero the queue is bypassed
+                if (unsigned(width_i) /= 0 or unsigned(delay) /= 0) then
+                    pulse_queued_wstb <= '1';
+                end if;
                 if (is_DELAY_zero = '1') then                                                           
-                    queued_din <= timestamp + unsigned(WIDTH) + 1;                               
+                    queued_din <= timestamp + unsigned(width_i) + 1;
                 else                                                    
-                    queued_din <= timestamp + unsigned(DELAY) + DELAY_NEG;                                                   
+                    queued_din <= timestamp + unsigned(delay_i) + DELAY_NEG;
                 end if;               
                 value <= not is_DELAY_zero;
             -- Capturing falling edge is split into two conditions.
             -- 1./ When WIDTH is not 0, capture timestamp, add WIDTH and
             -- write immediately into the queue.
-            elsif (trig_rise_prev = '1' and period_error_prev = '0' and unsigned(WIDTH) /= 0) then       
+            elsif (trig_rise_prev = '1' and period_error_prev = '0' and unsigned(width_i) /= 0) then
                 pulse_queued_wstb <= not is_DELAY_zero;
-                queued_din <= queued_din + unsigned(WIDTH);
+                queued_din <= queued_din + unsigned(width_i);
             -- 2./ When WIDTH=0, we need maintain incoming pulse witdth and
             -- apply DELAY.
             -- So, wait until actual falling edge of the pulse for capturing
             -- the timestamp.
-            elsif (trig_fall = '1' and ongoing_pulse = '1' and unsigned(WIDTH) = 0) then                     
+            elsif (trig_fall = '1' and ongoing_pulse = '1' and unsigned(width_i) = 0) then
                 pulse_queued_wstb <= not is_DELAY_zero;
-                queued_din <= timestamp + unsigned(DELAY) + 1;                                                       
+                queued_din <= timestamp + unsigned(delay_i) + 1;
             end if;
         end if;
     end if;
@@ -339,10 +367,10 @@ begin
             pulse <= '0';
         else
             -- Both Delay and Width are set to 0, pass-through input pulse.
-            if (unsigned(DELAY) = 0 and unsigned(WIDTH) = 0) then                                       
+            if (unsigned(delay_i) = 0 and unsigned(width_i) = 0) then
                 pulse <= trig_i_int;
             -- Delay set to 0: assert pulse immediately
-            elsif (unsigned(DELAY) = 0 and unsigned(WIDTH) /= 0 
+            elsif (unsigned(delay_i) = 0 and unsigned(width_i) /= 0
                 and trig_rise = '1' and period_error = '0') then     
                 pulse <= '1';
             -- Consume pulse queue to assert and de-assert outp pulse.

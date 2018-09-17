@@ -21,6 +21,8 @@ class FilterSimulation(BlockSimulation):
         self.ts_sum_start = 0
         self.ts_sum = 0
         self.inp_prev = 0
+        self.healthset = 0
+        self.healthts = 0
 
     def set_values(self, ts):
         self.OUT = 0
@@ -80,6 +82,10 @@ class FilterSimulation(BlockSimulation):
         if changes.get(NAMES.ENABLE) == 1:
             self.set_values(ts)
 
+        # Health value updates after 2 clock cycles
+        if ts == self.healthts:
+            self.HEALTH = self.healthset
+
         if not self.HEALTH:
             if NAMES.INP in changes:
                 self.do_sum(ts)
@@ -90,9 +96,11 @@ class FilterSimulation(BlockSimulation):
                     if not self.avgqueue:
                         self.handle_trig(ts)
                     else:
-                        self.HEALTH = 2
+                        # Health value updates after 2 clock cycles
+                        self.healthset = 2
                         self.queue.clear()
                         self.avgqueue.clear()
+                        self.healthts = ts + 2
             # End the 1 cycle pulse on ready
             if self.queue and self.queue[0][0] == ts:
                 self.queue.popleft()

@@ -26,6 +26,10 @@ are spaced enough to allow stretched pulses to be produced.
    :path: modules/pulse/pulse.timing.ini
    :section: Pulse stretching with no delay activate on rising edge
 
+.. timing_plot::
+   :path: modules/pulse/pulse.timing.ini
+   :section: No delay means a WIDTH >3 is required
+
 Zero Width
 ----------
 
@@ -34,6 +38,10 @@ If WIDTH=0, then the INP pulse width will be used. DELAY must be >4 clock ticks.
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
    :section: Pulse delay with no stretch
+
+.. timing_plot::
+   :path: modules/pulse/pulse.timing.ini
+   :section: No WIDTH means a delay >3 is required
 
 Width and Delay
 ---------------
@@ -57,6 +65,10 @@ restrictions apply:
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
    :section: No delay or stretch
+
+.. timing_plot::
+   :path: modules/pulse/pulse.timing.ini
+   :section: small delay width combination
 
 Different Edge Activation
 -------------------------
