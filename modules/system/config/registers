@@ -13,5 +13,5 @@ SYSTEM        {{newBlockNo("SYSTEM")}}
     FMC_15VP        {{newBlockReg()}}
     ENC_24V         {{newBlockReg()}}
     FMC_12V         {{newBlockReg()}}
-    VCCINT          /sys/devices/soc0/amba/f8007100.adc/iio:device0/in_voltage0_vccint    
+    VCCINT          /sys/devices/soc0/amba/f8007100.adc/iio:device0/in_voltage0_vccint
 
