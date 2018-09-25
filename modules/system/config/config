@@ -4,7 +4,7 @@ SYSTEM
     TEMP_ENC_L      read        int
     TEMP_PICO       read        int
     TEMP_ENC_R      read        int
-    TEMP_ZYNQ       xadc        
+    TEMP_ZYNQ       xadc
     ALIM_12V0       read
     PICO_5V0        read
     IO_5V0          read
@@ -13,5 +13,4 @@ SYSTEM
     FMC_15VP        read
     ENC_24V         read
     FMC_12V         read
-    VCCINT          xadc        
-    
+    VCCINT          xadc
