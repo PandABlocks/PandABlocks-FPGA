@@ -27,13 +27,13 @@ port (
     outd_o            : out std_logic;
     -- Block Parameters
     A_PERIOD          : in  std_logic_vector(31 downto 0);
-    A_PERIOD_wstb     : in std_logic;
+    A_PERIOD_wstb     : in  std_logic;
     B_PERIOD          : in  std_logic_vector(31 downto 0);
-    B_PERIOD_wstb     : in std_logic;
+    B_PERIOD_wstb     : in  std_logic;
     C_PERIOD          : in  std_logic_vector(31 downto 0);
-    C_PERIOD_wstb     : in std_logic;
+    C_PERIOD_wstb     : in  std_logic;
     D_PERIOD          : in  std_logic_vector(31 downto 0);
-    D_PERIOD_wstb     : in std_logic
+    D_PERIOD_wstb     : in  std_logic
 );
 end clocks;
 

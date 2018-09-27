@@ -55,7 +55,17 @@ signal acc_ab           : signed(33 downto 0) := (others => '0');
 signal acc_cd           : signed(33 downto 0) := (others => '0');
 signal acc_abcd         : signed(33 downto 0) := (others => '0');
 
+signal func_i           : std_logic_vector(1 downto 0);
+
 begin
+
+-- Input Registers
+-- A 1 clock cycle delay is required for the FUNC input
+process(clk_i) begin
+    if rising_edge(clk_i) then
+        func_i <= FUNC;
+    end if;
+end process;
 
 -- Synchronised calc tree
 process(clk_i)
@@ -79,8 +89,8 @@ acc_abcd <= acc_ab + acc_cd;
 -- Scaled output (take care of sign bit)
 --process(clk_i) begin
 --    if rising_edge(clk_i) then
-process(FUNC, acc_abcd) begin
-        case FUNC is
+process(func_i, acc_abcd) begin
+        case func_i is
             when "00" =>
                 out_o <= std_logic_vector(resize(acc_abcd, 32));
             when "01" => 

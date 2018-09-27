@@ -35,6 +35,11 @@ signal on the INP line and '2' while it is counting towards the INP value.
 Step/Direction
 --------------
 
+In the Step/Direction mode the A output becomes a step output. This goes high on
+every period for one clock cycle and is low for the remainder of the period. The
+B output becomes the direction output, it is '0' when the internal counter is
+lower than the inputted target value (it is counting up), and '1' when it is
+greater or equal to.
 
 .. timing_plot::
 	:path: modules/posenc/posenc.timing.ini

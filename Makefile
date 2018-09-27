@@ -11,6 +11,8 @@ PANDA_ROOTFS = $(error Define PANDA_ROOTFS in CONFIG file)
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 APPS = $(patsubst apps/%.app.ini,%,$(wildcard apps/*.app.ini))
 TEST_DIR = $(BUILD_DIR)/tests
+IP_DIR = $(TOP)/common/ip_repo
+
 
 # The CONFIG file is required.  If not present, create by copying CONFIG.example
 # and editing as appropriate.
@@ -84,6 +86,19 @@ python_timing:
 .PHONY: python_timing
 
 # ------------------------------------------------------------------------------
+# Build the Xilinx Ip
+# Moved out of build directory to common/ir_repo
+ip_build: ip_clean
+	source $(VIVADO) && vivado -mode batch -source common/build_ips.tcl \
+	 -tclargs $(IP_DIR)
+	rm -rf *.os *.log *.jou
+	rm -rf /.Xil
+
+#-------------------------------------------------------------------------------
+# Remove the Xilinx IP
+ip_clean:
+	rm -rf $(IP_DIR)
+# ------------------------------------------------------------------------------
 # Timing test benches using vivado to run FPGA simulations
 
 # every modules/MODULE/BLOCK.timing.ini
@@ -112,14 +127,17 @@ hdl_test: $(TIMING_BUILD_DIRS)
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
 
-	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace -source ../../tests/hdl/regression_tests.tcl -tclargs $(MODULE)
+	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace \
+	 -source ../../tests/hdl/regression_tests.tcl -tclargs $(MODULE)
 
 # Make the hdl_timing folders and run a single test, set TEST argument
 single_hdl_test: $(TIMING_BUILD_DIRS)
 	rm -rf $(TEST_DIR)/single_test
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
-	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace -source ../../tests/hdl/single_test.tcl -tclargs $(TEST)
+	mkdir -p $(TEST_DIR)
+	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace \
+	 -source ../../tests/hdl/single_test.tcl -tclargs $(TEST)
 
 .PHONY: hdl_timing
 

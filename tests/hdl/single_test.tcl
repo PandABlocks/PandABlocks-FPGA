@@ -7,22 +7,22 @@
 create_project single_test ../../build/tests/single_test -force -part xc7z030sbg485-1
 
 if {$argc > 0} {
-	set module [lindex $argv 0]
-	set test   [lindex $argv 0]_[lindex $argv 1]_tb
-		source "../hdl_timing/$module/$module.tcl"
+    set module [lindex $argv 0]
+    set test   [lindex $argv 0]_[lindex $argv 1]_tb
+    source "../hdl_timing/$module/$module.tcl"
 
 } else {
-	puts "No argument given, please set TEST input. lut_1_tb running as default"
-	source "../hdl_timing/lut/lut.tcl"
-	set test lut_1_tb
+    puts "No argument given, please set TEST input. lut_1_tb running as default"
+    source "../hdl_timing/lut/lut.tcl"
+    set test lut_1_tb
 }
 
 
 # Load all the common source files
 add_files -norecurse {
-../../common/hdl
-../../common/hdl/defines
-../../common/ip_repo/pulse_queue/pulse_queue_funcsim.vhdl
+    ../../common/hdl
+    ../../common/hdl/defines
+    ../../common/ip_repo/pulse_queue/pulse_queue_funcsim.vhdl
 }
 
 

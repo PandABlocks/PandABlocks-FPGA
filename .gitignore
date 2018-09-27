@@ -9,3 +9,8 @@
 *.xreport
 *.jou
 *.str
+# virtual environment folder
+/venv
+.idea
+# Xilinx IP (built with make ip_build)
+/common/ip_repo

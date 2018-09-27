@@ -40,6 +40,9 @@ class TestGenerateApp(unittest.TestCase):
     def test_lut_wrapper(self):
         self.assertGeneratedEqual("hdl", "lut_wrapper.vhd")
 
+    def test_soft_blocks(self):
+        self.assertGeneratedEqual("hdl", "soft_blocks.vhd")
+
 
 if __name__ == '__main__':
     unittest.main()

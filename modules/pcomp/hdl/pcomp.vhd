@@ -25,7 +25,7 @@ port (
     reset_i             : in  std_logic;
     -- Block inputs
     enable_i            : in  std_logic;
-    inp_i              : in  std_logic_vector(31 downto 0); --INP
+    inp_i               : in  std_logic_vector(31 downto 0); --INP
     -- Block inputs
     --
     PRE_START           : in  std_logic_vector(31 downto 0);
@@ -35,11 +35,11 @@ port (
     PULSES              : in  std_logic_vector(31 downto 0);
     RELATIVE            : in  std_logic_vector(1 downto 0);
     DIR                 : in  std_logic_vector(1 downto 0);
-    health_o            : out std_logic_vector(1 downto 0);  
+    health              : out std_logic_vector(1 downto 0);
     produced            : out std_logic_vector(31 downto 0);
-    state_o             : out std_logic_vector(2 downto 0);
+    state               : out std_logic_vector(2 downto 0);
     -- Output pulse
-    active_o               : out std_logic;
+    active_o            : out std_logic;
     out_o               : out std_logic
 );
 end pcomp;
@@ -211,7 +211,7 @@ jumped_more_than_step <= too_far_pos or too_far_neg;
 ---------------------------------------------------------------------------
 
 
-state_o <= c_state1 when pcomp_fsm = WAIT_DIR else
+state <= c_state1 when pcomp_fsm = WAIT_DIR else
            c_state2 when pcomp_fsm = WAIT_PRE_START else
            c_state3 when pcomp_fsm = WAIT_RISING else
            c_state4 when pcomp_fsm = WAIT_FALLING else
@@ -236,7 +236,7 @@ begin
             pcomp_fsm <= WAIT_ENABLE;
             last_crossing <= (others => '0');            
             next_crossing <= (others => '0'); 
-            health_o <= (others => '0');
+            health <= (others => '0');
             pulse_counter <= (others => '0');
         elsif (enable_fall = '1') then
             out_o <= '0';
@@ -250,7 +250,7 @@ begin
                 when WAIT_ENABLE => 
                     if enable_rise = '1' then
                         active_o <= '1';
-                        health_o <= (others => '0');
+                        health <= (others => '0');
                         pulse_counter <= (others => '0');
                         if DIR = c_either then    
                             pcomp_fsm <= WAIT_DIR;
@@ -299,7 +299,7 @@ begin
                         -- Can't guess DIR    
                         else
                             active_o <= '0';
-                            health_o <= c_err_guess;
+                            health <= c_err_guess;
                             pcomp_fsm <= WAIT_ENABLE;
                         end if;    
                     -- RELATIVE = 0 (DIR calculate)
@@ -336,7 +336,7 @@ begin
                         -- reached the next cross but missed the current crossing
                         if jumped_more_than_step = '1' then
                             active_o <= '0';
-                            health_o <= c_err_pjump;
+                            health <= c_err_pjump;
                             pcomp_fsm <= WAIT_ENABLE;
                         else
                             out_o <= '1';
@@ -358,7 +358,7 @@ begin
                         elsif jumped_more_than_step = '1' then                                            
                             -- Jump > WIDTH + STEP 
                             active_o <= '0';
-                            health_o <= c_err_pjump;                             
+                            health <= c_err_pjump;
                             pcomp_fsm <= WAIT_ENABLE;
                         else
                             -- >= pulse + WIDTH                                     

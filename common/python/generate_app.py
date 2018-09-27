@@ -43,13 +43,14 @@ class AppGenerator(object):
             autoescape=False,
             loader=FileSystemLoader(TEMPLATES),
             trim_blocks=True,
-            lstrip_blocks=True
+            lstrip_blocks=True,
         )
         # These will be created when we parse the ini files
         self.blocks = []  # type: List[BlockConfig]
         self.parse_ini_files(app)
         self.generate_config_dir()
         self.generate_wrappers()
+        self.generate_top()
 
     def parse_ini_files(self, app):
         # type: (str) -> None
@@ -127,6 +128,12 @@ class AppGenerator(object):
             context = {k: getattr(block, k) for k in dir(block)}
             self.expand_template("block_wrapper.vhd.jinja2", context, hdl_dir,
                                  "%s_wrapper.vhd" % block.entity)
+
+    def generate_top(self):
+        """Generate top in hdl"""
+        hdl_dir = os.path.join(self.app_build_dir, "hdl")
+        context = dict(blocks=self.blocks,)
+        self.expand_template("soft_blocks.vhd.jinja2", context, hdl_dir, "soft_blocks.vhd")
 
 
 def main():

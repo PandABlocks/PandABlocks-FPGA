@@ -14,15 +14,15 @@ reg         INPA;
 reg  [1:0]  A;
 reg  [31:0] FUNC;
 
-//Outputs
-reg         OUT;		//Output from ini file
-wire        OUT_uut;	//Output from UUT
-reg         OUT_err;	//Error signal
+// Outputs
+reg         OUT;       //Output from ini file
+wire        OUT_uut;   //Output from UUT
+reg         OUT_err;   //Error signal
 
 // Write Strobes
 reg         FUNC_wstb;
 
-//Signals used within test
+// Signals used within test
 reg         test_result = 0;
 integer     fid;
 integer     r;
@@ -47,11 +47,13 @@ end
 //
 // Read expected values file
 //
-integer ignore[18:0];
+
+// Array to hold each of the 28 characters in header line
+reg [7:0] ignore[27:0];
 integer data_in[5:0];
-reg is_file_end=0;
+reg is_file_end = 0;
 integer i;
-initial for (i=0; i<=18; i=i+1) ignore[i]=0;
+initial for (i = 0; i <= 27; i = i + 1) ignore[i] = 0;
 
 initial begin
     FUNC = 0;
@@ -64,7 +66,7 @@ initial begin
     fid=$fopen("2testblockexpected.csv","r");
     // Read and ignore description field
     r=$fgets(ignore, fid);
-	// Read and store the expected data from the csv file
+    // Read and store the expected data from the csv file
     while (!$feof(fid)) begin
         r=$fscanf(fid,"%d %d %d %d %d %d\n",
             data_in[5],
@@ -81,11 +83,11 @@ initial begin
             $finish(2);
         end
         wait (timestamp == data_in[5]) begin
-            	FUNC <= data_in[4];
-            	FUNC_wstb <= data_in[3];
-            	A <= data_in[2];
-            	INPA <= data_in[1];
-            	OUT <= data_in[0];
+                FUNC <= data_in[4];
+                FUNC_wstb <= data_in[3];
+                A <= data_in[2];
+                INPA <= data_in[1];
+                OUT <= data_in[0];
         end
         @(posedge clk_i);
     end
@@ -103,10 +105,10 @@ begin
     // If not equal, display an error.
     // If the io file signal contains an 0 when the UUT signal is zero, the
     // test should not error, but for other io signal values display an error
-    	if (OUT != OUT_uut || (OUT > 0 && ^OUT_uut === 1'bx)) begin
-    	    $display("OUT error detected at timestamp %d\n", timestamp);
-    	    OUT_err = 1;
-    	    test_result = 1;
+        if (OUT != OUT_uut || (OUT > 0 && ^OUT_uut === 1'bx)) begin
+            $display("OUT error detected at timestamp %d\n", timestamp);
+            OUT_err <= 1;
+            test_result <= 1;
         end
     end
 end
@@ -121,16 +123,15 @@ begin
     end
 end
 
-
 // Instantiate the Unit Under Test (UUT)
 testblock uut (
 
-		.FUNC          (FUNC),
-		.FUNC_wstb     (FUNC_wstb),
-		.A          (A),
-		.INPA_i        (INPA),
-	 	.OUT_o        (OUT_uut),
-    	.clk_i      (clk_i)
+        .FUNC          (FUNC),
+        .FUNC_wstb     (FUNC_wstb),
+        .A          (A),
+        .INPA_i        (INPA),
+        .OUT_o        (OUT_uut),
+        .clk_i        (clk_i)
 );
 
 endmodule

@@ -20,7 +20,7 @@ port (
     PROTOCOL            : in  std_logic_vector(1 downto 0);
     PERIOD              : in  std_logic_vector(31 downto 0);
     PERIOD_WSTB         : in  std_logic;
-    STATE_o             : out std_logic_vector(1 downto 0)
+    STATE               : out std_logic_vector(1 downto 0)
 );
 end entity;
 
@@ -62,6 +62,6 @@ period_i <= PERIOD when (unsigned(PERIOD) /= 1) else  (0 => '0',
 a_o <= a    when (PROTOCOL(0) = '0') else
        step when (rising_edge(clk_i));
 b_o <= b    when (PROTOCOL(0) = '0') else dir;
-STATE_o <= STATE_FULL(1 downto 0);
+STATE <= STATE_FULL(1 downto 0);
 end rtl;
 

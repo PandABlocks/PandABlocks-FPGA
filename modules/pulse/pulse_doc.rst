@@ -19,8 +19,8 @@ Zero Delay
 ----------
 
 If DELAY=0, then the INP pulse will be stretched with only the propagation delay
-of the block (1 clock tick). WIDTH may take any value, as long as input pulses
-are spaced enough to allow stretched pulses to be produced.
+of the block (1 clock tick). WIDTH must be at least 4, and any value given below
+is defaulted to four.
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
@@ -33,7 +33,8 @@ are spaced enough to allow stretched pulses to be produced.
 Zero Width
 ----------
 
-If WIDTH=0, then the INP pulse width will be used. DELAY must be >4 clock ticks.
+If WIDTH=0, then the INP pulse width will be used. DELAY must be >3 clock ticks,
+any lower inputted values will be defaulted to four.
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
@@ -65,10 +66,6 @@ restrictions apply:
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
    :section: No delay or stretch
-
-.. timing_plot::
-   :path: modules/pulse/pulse.timing.ini
-   :section: small delay width combination
 
 Different Edge Activation
 -------------------------

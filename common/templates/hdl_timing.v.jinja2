@@ -18,58 +18,49 @@ reg         {{ field.name }};
 reg  [1:0]  {{ field.name }};
 {% endfor %}
 {% for field in block.filter_fields(
-	"pos_mux|param lut|param time|param int|write int") %}
-reg  [31:0] {{ field.name }};
-{% endfor %}
-{% for field in block.filter_fields("param") %}
-{# When | with other 32 bit register fields, param enums are declared twice.. #}
+    "pos_mux|param lut|param time|param int|write int|param") %}
 reg  [31:0] {{ field.name }};
 {% endfor %}
 {% for field in block.filter_fields("time") %}
-reg  [47:0] {{ field.name}};
+reg  [47:0] {{ field.name }};
+reg  [31:0] {{ field.name }}_L;
+reg  [15:0] {{ field.name }}_H;
 {% endfor %}
 
-//Outputs
+// Outputs
 {% for field in block.filter_fields("bit_out") %}
-reg         {{ field.name }};		//Output from ini file
-wire        {{ field.name }}_uut;	//Output from UUT
-reg         {{ field.name }}_err;	//Error signal
+reg         {{ field.name }};       //Output from ini file
+wire        {{ field.name }}_uut;   //Output from UUT
+reg         {{ field.name }}_err;   //Error signal
 
 {% endfor %}
-{% for field in block.filter_fields("pos_out|read uint 1023") %}
-reg  [31:0] {{ field.name }};		//Output from ini file
-wire [31:0] {{ field.name }}_uut;	//Output from UUT
-reg         {{ field.name }}_err;	//Error signal
-
-{% endfor %}
-{% for field in block.filter_fields("read") %}
-{# When | with other 32 bit register fields, read enums are declared twice #}
+{% for field in block.filter_fields("pos_out|read uint 1023|read") %}
 reg  [31:0] {{ field.name }};       //Output from ini file
 wire [31:0] {{ field.name }}_uut;   //Output from UUT
 reg         {{ field.name }}_err;   //Error signal
 
 {% endfor %}
 {% for field in block.filter_fields("read enum") %}
-	{% if block.entity == "pcomp" and field.name == "STATE" %}
-reg   [2:0] {{ field.name }};		//Output from ini file
-wire  [2:0] {{ field.name }}_uut;	//Output from UUT
-reg			{{ field.name }}_err;	//Error signal	
+    {% if block.entity == "pcomp" and field.name == "STATE" %}
+reg   [2:0] {{ field.name }};       //Output from ini file
+wire  [2:0] {{ field.name }}_uut;   //Output from UUT
+reg         {{ field.name }}_err;   //Error signal	
 
-	{% else %}
-reg   [1:0] {{ field.name }};		//Output from ini file
-wire  [1:0] {{ field.name }}_uut;	//Output from UUT
-reg			{{ field.name }}_err;	//Error signal
+    {% else %}
+reg   [1:0] {{ field.name }};       //Output from ini file
+wire  [1:0] {{ field.name }}_uut;   //Output from UUT
+reg         {{ field.name }}_err;   //Error signal
 
-	{% endif %}
+    {% endif %}
 {% endfor %}
 // Write Strobes
 {% for field in block.fields %}
-	{% if field.wstb %}
+    {% if field.wstb %}
 reg         {{field.name}}_wstb;
-	{% endif %}
+    {% endif %}
 {% endfor %}
 
-//Signals used within test
+// Signals used within test
 reg         test_result = 0;
 integer     fid;
 integer     r;
@@ -94,11 +85,13 @@ end
 //
 // Read expected values file
 //
-integer ignore[{{ header|length*3 }}:0];
+
+// Array to hold each of the {{headerslength}} characters in header line
+reg [7:0] ignore[{{(headerslength)-1}}:0];
 integer data_in[{{ header|length-1 }}:0];
-reg is_file_end=0;
+reg is_file_end = 0;
 integer i;
-initial for (i=0; i<={{header|length*3}}; i=i+1) ignore[i]=0;
+initial for (i = 0; i <= {{headerslength-1}}; i = i + 1) ignore[i] = 0;
 
 initial begin
 {% for field in header %}
@@ -114,9 +107,9 @@ initial begin
 {# Creates a list of strings of "data_in[i]" #}
 {% set datalist=[] %}
 {% for i in range(header|length)|reverse %}
-    {%do datalist.append("        data_in[" + i|string + "]") %}
+    {% if datalist.append("        data_in[" + i|string + "]") %}{% endif %}
 {% endfor %}
-	// Read and store the expected data from the csv file
+    // Read and store the expected data from the csv file
     while (!$feof(fid)) begin
         r=$fscanf(fid,"{{ " ".join(("%d",)*header|length)}}\n",
     {{",\n    ".join(datalist)}}
@@ -128,10 +121,10 @@ initial begin
             $finish(2);
         end
 {% for field in header %}
-	{% if loop.first %}
+    {% if loop.first %}
         wait (timestamp == data_in[{{loop.revindex0}}]) begin
-	{% else %}
-            	{{ field }} <= data_in[{{loop.revindex0}}];
+    {% else %}
+                {{ field }} <= data_in[{{loop.revindex0}}];
     {% endif %}
 {% endfor %}
         end
@@ -152,19 +145,19 @@ begin
     // If the io file signal contains an 0 when the UUT signal is zero, the
     // test should not error, but for other io signal values display an error
 {% for field in block.fields%}
-	{% if field in block.filter_fields("bit_out") or field in
-     		block.filter_fields("read") or field in
-       		block.filter_fields("pos_out") or field in 
-    	   	block.filter_fields("read enum") or field in
-    	   	block.filter_fields("read uint 1023") %}
-    	if ({{ field.name }} != {{field.name}}_uut || ({{ field.name
-    	}} > 0 && ^{{ field.name }}_uut === 1'bx)) begin
-    	    $display("{{
-    	    field.name}} error detected at timestamp %d\n", timestamp);
-    	    {{field.name}}_err = 1;
-    	    test_result = 1;
+    {% if field in block.filter_fields("bit_out") or field in
+            block.filter_fields("read") or field in
+            block.filter_fields("pos_out") or field in 
+            block.filter_fields("read enum") or field in
+            block.filter_fields("read uint 1023") %}
+        if ({{ field.name }} != {{field.name}}_uut || ({{ field.name
+        }} > 0 && ^{{ field.name }}_uut === 1'bx)) begin
+            $display("{{
+            field.name}} error detected at timestamp %d\n", timestamp);
+            {{field.name}}_err <= 1;
+            test_result <= 1;
         end
-	{% endif %}
+    {% endif %}
 {% endfor %}
     end
 end
@@ -179,41 +172,27 @@ begin
     end
 end
 
-{% if block.entity == "calc" %}
-//Unique case for calc, FUNC needs a delay
-reg [1:0]  FUNC_DLY;
-always @ (posedge clk_i)
-begin
-    FUNC_DLY <= FUNC;
-end
-{% endif %}
-
 // Instantiate the Unit Under Test (UUT)
 {{block.entity}} uut (
 
 {% for field in block.fields %}
-	{% if field in block.filter_fields("bit_out|pos_out|read enum")%}
-	 	.{{ field.name }}_o        ({{field.name}}_uut),
-	{% elif  (field in	 block.filter_fields("read") 
-	 or field in block.filter_fields("read uint 1023")) %}
-		.{{ field.name }}          ({{field.name}}_uut),
-	{% elif field in block.filter_fields("bit_mux|pos_mux") %}
-		.{{field.name}}_i        ({{field.name}}),
+	{% if field in block.filter_fields(".*out")%}
+        .{{ field.name }}_o        ({{ field.name }}_uut),
+	{% elif field in block.filter_fields("read.*") %}
+        .{{ field.name }}          ({{ field.name }}_uut),
+	{% elif field in block.filter_fields(".*mux") %}
+        .{{ field.name }}_i        ({{ field.name }}),
 		{% if field.wstb %}
-		.{{ field.name}}_wstb     ({{field.name}}_wstb),
+        .{{ field.name }}_wstb     ({{ field.name }}_wstb),
 		{% endif %}
 	{% else %}
-	    {% if field.name == "FUNC" and block.entity == "calc" %}
-	    .FUNC          (FUNC_DLY),
-	    {%else%}
-		.{{field.name}}          ({{field.name}}),
-		{% endif %}
+        .{{ field.name }}          ({{ field.name }}),
 		{% if field.wstb%}
-		.{{ field.name}}_wstb     ({{field.name}}_wstb),
+        .{{ field.name }}_wstb     ({{ field.name }}_wstb),
 		{% endif %}
 	{% endif %}
 {% endfor %}
-    	.clk_i      (clk_i)
+        .clk_i        (clk_i)
 );
 
 endmodule

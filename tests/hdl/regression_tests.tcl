@@ -8,13 +8,13 @@
 
 # Tests
 # 1.  bits_n_tb         --Works
-# 2.  calc_n_tb         --Works Added delay to the FUNC input
+# 2.  calc_n_tb         --Works
 # 3.  clocks_n_tb       --Works
 # 4.  counter_n_tb      --Works
 # 5.  div_n_tb          --Works
 # 6.  filter_n_tb       --Works
 # 7.  lut_n_tb          --Works
-# 8.  pcomp_n_tb        --Works
+# 8.  pcomp_n_tb        --Works Changed STATE output to be 3 bits rather than 2
 # 9.  posenc_n_tb       --Works
 # 10. pulse_n_tb        --Works
 # 11. qdec_n_tb         --Works
@@ -23,7 +23,8 @@
 
 
 # Create a vivado project called regression_tests
-create_project regression_tests ../../build/tests/regression_tests -force -part xc7z030sbg485-1
+create_project regression_tests ../../build/tests/regression_tests \
+ -force -part xc7z030sbg485-1
 
 
 set result_from_test 0;
@@ -34,24 +35,26 @@ set test_passed are;
 set test_failed are;
 
 if {$argc > 0} {
-	foreach module $argv {
-		source "../hdl_timing/$module/$module.tcl"
-	}
+    foreach module $argv {
+	    source "../hdl_timing/$module/$module.tcl"
+    }
 } else {
-	# Find all the tcl scripts in the hdl_timing directory and source them
-	set mydir ../hdl_timing
-	set subs [ glob -nocomplain -directory $mydir -type d *]
-	# Load the modules files into Vivado
-	foreach folder $subs {
-		set path [split $folder /]
-		source $folder/[lindex $path 2].tcl
-	}
+    # Find all the tcl scripts in the hdl_timing directory and source them
+    set mydir ../hdl_timing
+    set subs [ glob -nocomplain -directory $mydir -type d *]
+    # Load the modules files into Vivado
+    foreach folder $subs {
+        set path [split $folder /]
+        source $folder/[lindex $path 2].tcl
+    }
 }
 # Load all the common source files
+# Currently only the pulse queue ip is being used, as more modules are added it
+# is expected that more common source files will be added
 add_files -norecurse {
-../../common/hdl
-../../common/hdl/defines
-../../common/ip_repo/pulse_queue/pulse_queue_funcsim.vhdl
+    ../../common/hdl
+    ../../common/hdl/defines
+    ../../common/ip_repo/pulse_queue/pulse_queue_funcsim.vhdl
 }
 
 # Loop through all the tests

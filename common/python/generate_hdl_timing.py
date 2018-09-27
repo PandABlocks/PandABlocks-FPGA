@@ -37,6 +37,8 @@ class TimingCsv(object):
         for k, v in values.items():
             assert k in self.header, \
                 "Field %r is not %s" % (k, self.header)
+            # Lut Function values were given in hex, they need to be converted
+            # to an int, for the testbench to pass
             v = str(int(v, 0))
             self.lengths[k] = max(self.lengths[k], len(v))
             self.values[k] = v
@@ -67,7 +69,6 @@ class HdlTimingGenerator(object):
             loader=FileSystemLoader(TEMPLATES),
             trim_blocks=True,
             lstrip_blocks=True,
-            extensions=['jinja2.ext.do']
         )
         # Start making the timing templates
         i = 1
@@ -153,13 +154,19 @@ class HdlTimingGenerator(object):
         expected_csv = "%d%sexpected.csv" % (i, block.entity)
         with open(os.path.join(timing_dir, expected_csv), "w") as f:
             csv.write(f)
-
+        # A temporary array for reading the header line is used in testbench
+        # The length of header line is passed into the template
+        with open(os.path.join(timing_dir, expected_csv)) as f:
+            first_line = f.readline()
+        headerslength = len(first_line) - 1
         context = dict(
             section=section,
             block=block,
             number=i,
             header=header,
+            headerslength=headerslength,
         )
+
         self.expand_template("hdl_timing.v.jinja2", context, timing_dir,
                              "hdl_timing.v")
 

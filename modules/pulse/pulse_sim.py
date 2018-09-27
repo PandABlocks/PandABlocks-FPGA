@@ -70,7 +70,6 @@ class PulseSimulation(BlockSimulation):
             self.queue.append((start, 1))
             self.queue.append((start + width, 0))
 
-
     def do_reset(self):
         """Reset the block, called on rising edge of ENABLE"""
         self.DROPPED = 0
