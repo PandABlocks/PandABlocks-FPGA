@@ -47,8 +47,8 @@ port (
     EXTCLK_N            : in    std_logic;
     -- LA I/O
     FMC_PRSNT           : in    std_logic;
-    FMC_LA_P            : inout std_logic_vector(33 downto 0);
-    FMC_LA_N            : inout std_logic_vector(33 downto 0);
+    FMC_LA_P            : inout std_logic_vector(33 downto 0) := (others => 'Z');
+    FMC_LA_N            : inout std_logic_vector(33 downto 0) := (others => 'Z');
     FMC_CLK0_M2C_P      : in    std_logic;
     FMC_CLK0_M2C_N      : in    std_logic;
     FMC_CLK1_M2C_P      : in    std_logic;
@@ -142,6 +142,7 @@ p_EXT_TRIGGER   <=  FMC_LA_P(13);
 p_EXT_CLOCK     <=  FMC_CLK0_M2C_P;
 
 -- On the ACQ430_TOPDECK only the CLOCK input is present. Make this switchable from Digital FMC IO Control Reg
+--EXT_LEMO_SWITCH: process(FMC_IO_BUS,EXT_CLOCK,EXT_TRIGGER,EXT_CLOCK)
 EXT_LEMO_SWITCH: process(FMC_IO_BUS)
 begin
     if FMC_IO_BUS(4) = '1' then
@@ -199,14 +200,7 @@ port map (
     sysbus_i            => bitbus_i,
     posbus_i            => (others => (others => '0')),
 
-    MODULE_EN           => MODULE_ENABLE,
-    ADC_MODE            => ADC_MODE,
-    CLK_SELECT          => CLK_SELECT,
-    ADC_CLKDIV          => ADC_CLKDIV,
-    FIFO_RESET          => FIFO_RESET,
-    FIFO_ENABLE         => FIFO_ENABLE,
-    ADC_RESET           => ADC_RESET,
-    ADC_ENABLE          => ADC_ENABLE,
+    MODULE_EN           => MODULE_ENABLE, 
     -- Memory Bus Interface
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
@@ -218,6 +212,22 @@ port map (
     write_data_i        => write_data_i,
     write_ack_o         => open
 );
+
+
+fmc_adc430_start_inst: entity work.fmc_adc430_start
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+    MODULE_ENABLE       => MODULE_ENABLE,
+    ADC_MODE            => ADC_MODE,
+    CLK_SELECT          => CLK_SELECT,
+    ADC_CLKDIV          => ADC_CLKDIV,
+    FIFO_RESET          => FIFO_RESET,
+    FIFO_ENABLE         => FIFO_ENABLE,
+    ADC_RESET           => ADC_RESET,
+    ADC_ENABLE          => ADC_ENABLE
+);    
+
 
 FMC_MODULE_ENABLE_n <= not MODULE_ENABLE(0);
 ADC_MODE_0 <= ADC_MODE(0);
@@ -259,11 +269,11 @@ fmc_data_o(0) <= ADC_DATAOUT(255 downto 224);
 -- Push onto IOB FFs
 process(clk_SPI_OUT )
 begin
-if Falling_Edge(clk_SPI_OUT) then
-    ADC_FSYNC   <= s_ADC_FSYNC;
-    ADC_SYNC_n  <= s_ADC_SYNC_n;
-    s_ADC_SDO   <= ADC_SDO;
-end if;
+    if Falling_Edge(clk_SPI_OUT) then
+        ADC_FSYNC   <= s_ADC_FSYNC;
+        ADC_SYNC_n  <= s_ADC_SYNC_n;
+        s_ADC_SDO   <= ADC_SDO;
+    end if;
 end process;
 
 -- Signals to the physical ADCs
