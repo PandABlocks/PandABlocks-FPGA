@@ -1,12 +1,5 @@
 FMC   FMC ACQ430 ADC Module
     MODULE_EN                       This bit sets the overall module enable all outputs will be tri-state until this bit is set
-    ADC_MODE                        ADC Mode, 0 = High Speed, 1 = High Performance - See ADS1278 Datasheet for details
-    CLK_SELECT                      This bit controls the Sample Clock Source, 0 = Internal Clock, 1 = External FMC Clock
-    ADC_CLKDIV                      Integer Divide that will be applied to the system clock
-    FIFO_RESET                      ADC FIFO Reset
-    FIFO_ENABLE                     ADC FIFO Enable
-    ADC_RESET                       ADC Reset
-    ADC_ENABLE                      ADC Enable
     CH01_DATA                       ADC Channel 1 Data
     CH02_DATA                       ADC Channel 2 Data
     CH03_DATA                       ADC Channel 3 Data
@@ -15,3 +8,4 @@ FMC   FMC ACQ430 ADC Module
     CH06_DATA                       ADC Channel 6 Data
     CH07_DATA                       ADC Channel 7 Data
     CH08_DATA                       ADC Channel 8 Data
+    

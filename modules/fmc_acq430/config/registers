@@ -1,12 +1,5 @@
 FMC         {{newBlockNo("FMC")}}
     MODULE_EN                       {{newBlockReg()}}
-    ADC_MODE                        {{newBlockReg()}}
-    CLK_SELECT                      {{newBlockReg()}}
-    ADC_CLKDIV                      {{newBlockReg()}}
-    FIFO_RESET                      {{newBlockReg()}}
-    FIFO_ENABLE                     {{newBlockReg()}}
-    ADC_RESET                       {{newBlockReg()}}
-    ADC_ENABLE                      {{newBlockReg()}}
     CH01_DATA                       {{newPosBus()}}
     CH02_DATA                       {{newPosBus()}}
     CH03_DATA                       {{newPosBus()}}

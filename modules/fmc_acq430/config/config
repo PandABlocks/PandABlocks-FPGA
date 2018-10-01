@@ -1,27 +1,7 @@
 FMC
-    MODULE_EN       param       enum 2
+    MODULE_EN       param       enum
         0   Disable
-        1   Enable
-    ADC_MODE        param       enum 2
-        0   Hi-Speed Mode
-        1   Hi-Res Mode
-    CLK_SELECT      param       enum 2
-        0   Internal Clock
-        1   FMC Clock
-    ADC_CLKDIV      param       uint
-    FIFO_RESET      param       enum 2
-        0   Deassert
-        1   Assert Reset
-    FIFO_ENABLE     param       enum 2
-        0   Disable
-        1   Enable
-    ADC_RESET       param       enum 2
-        0   Deassert
-        1   Assert Reset
-    ADC_ENABLE      param       enum 2
-        0   Disable
-        1   Enable
-    CH01_DATA       pos_out
+        1   Enable    CH01_DATA       pos_out
     CH02_DATA       pos_out
     CH03_DATA       pos_out
     CH04_DATA       pos_out
