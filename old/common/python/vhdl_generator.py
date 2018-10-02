@@ -74,9 +74,9 @@ def main(argv):
 
     variables = {"blocks": blocks}
     vhdl_gen.generateOutput('addr_defines_template', "addr_defines.vhd", variables)
-    vhdl_gen.generateOutput('addr_defines_template_verilog', "addr_defines.v", variables)
+    #vhdl_gen.generateOutput('addr_defines_template_verilog', "addr_defines.v", variables)
     vhdl_gen.generateOutput('panda_buses_template', "panda_busses.vhd", variables)
-    vhdl_gen.generateOutput('panda_bitbus_template', "panda_bitbus.v", variables)
+    #vhdl_gen.generateOutput('panda_bitbus_template', "panda_bitbus.v", variables)
 
     for blockname, block in vhdl_gen.cfgParser.blocks.items():
         if not blockname.startswith('*'):

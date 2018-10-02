@@ -1,14 +1,7 @@
 SFP         SFP Block Status
-    SFP1_LOS        SFP 1 Loss Of Signal (from SFP module)
-    LINK1_UP        GTX-1 link status
-    ERROR1_COUNT    GTX-1 loopback
-    SFP2_LOS        SFP 2 Loss Of Signal (from SFP module)
-    LINK2_UP        GTX-2 link status
-    ERROR2_COUNT    GTX-2 loopback
-    LINK3_UP        GTX-3 link status
-    ERROR3_COUNT    GTX-3 loopback
-    SFP_CLK1        SFP1 CLK clock freq
-    SFP_CLK2        SFP2 CLK clock freq
-    SFP_CLK3        SFP3 CLK clock freq
+    SFP_LOS        SFP 1 Loss Of Signal (from SFP module)
+    LINK_UP        GTX-1 link status
+    ERROR_COUNT    GTX-1 loopback
+    SFP_CLK        SFP1 CLK clock freq
     SOFT_RESET      GTX Soft Reset
 

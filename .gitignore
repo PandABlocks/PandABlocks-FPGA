@@ -9,3 +9,5 @@
 *.xreport
 *.jou
 *.str
+/tools/virtexHex2Bin
+

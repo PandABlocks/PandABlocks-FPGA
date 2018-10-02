@@ -90,15 +90,10 @@ synth_ip [get_ips fmcgtx]
 create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \
 -module_name sfpgtx -dir $BUILD_DIR/
 
-
 set_property -dict [list \
     CONFIG.identical_protocol_file {aurora_8b10b_single_lane_2byte} \
     CONFIG.gt0_val_tx_refclk {REFCLK0_Q0}                           \
     CONFIG.gt0_val {true}                                           \
-    CONFIG.gt1_val_tx_refclk {REFCLK0_Q0}                           \
-    CONFIG.gt1_val {true}                                           \
-    CONFIG.gt2_val_tx_refclk {REFCLK0_Q0}                           \
-    CONFIG.gt2_val {true}                                           \
     CONFIG.identical_val_tx_line_rate {1}                           \
     CONFIG.identical_val_tx_reference_clock {125.000}               \
     CONFIG.identical_val_rx_line_rate {1}                           \

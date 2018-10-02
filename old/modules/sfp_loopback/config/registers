@@ -1,14 +1,7 @@
 SFP         {{newBlockNo("SFP")}}
-    SFP1_LOS        {{newBlockReg()}}
-    LINK1_UP        {{newBlockReg()}}
-    ERROR1_COUNT    {{newBlockReg()}}
-    SFP2_LOS        {{newBlockReg()}}
-    LINK2_UP        {{newBlockReg()}}
-    ERROR2_COUNT    {{newBlockReg()}}
-    LINK3_UP        {{newBlockReg()}}
-    ERROR3_COUNT    {{newBlockReg()}}
-    SFP_CLK1        {{newBlockReg()}}
-    SFP_CLK2        {{newBlockReg()}}
-    SFP_CLK3        {{newBlockReg()}}
+    SFP_LOS        {{newBlockReg()}}
+    LINK_UP        {{newBlockReg()}}
+    ERROR_COUNT    {{newBlockReg()}}
+    SFP_CLK        {{newBlockReg()}}
     SOFT_RESET      {{newBlockReg()}}
 
