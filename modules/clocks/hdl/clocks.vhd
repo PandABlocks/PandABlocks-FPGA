@@ -19,7 +19,6 @@ entity clocks is
 port (
     -- Clock and Reset
     clk_i             : in  std_logic;
-    reset_i           : in  std_logic;
     -- Block Input and Outputs
     outa_o            : out std_logic;
     outb_o            : out std_logic;

@@ -302,12 +302,12 @@ begin
             INPC_i => INPC_from_bus(I),
             INPD_i => INPD_from_bus(I),
             INPE_i => INPE_from_bus(I),
-            A => A(I),
-            B => B(I),
-            C => C(I),
-            D => D(I),
-            E => E(I),
             FUNC => FUNC(I),
+            A => A(I)(1 downto 0),
+            B => B(I)(1 downto 0),
+            C => C(I)(1 downto 0),
+            D => D(I)(1 downto 0),
+            E => E(I)(1 downto 0),
             OUT_o => OUT_o(I),
             clk_i => clk_i
         );

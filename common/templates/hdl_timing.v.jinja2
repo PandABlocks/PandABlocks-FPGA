@@ -22,7 +22,7 @@ reg  [1:0]  {{ field.name }};
 reg  [31:0] {{ field.name }};
 {% endfor %}
 {% for field in block.filter_fields("time") %}
-reg  [47:0] {{ field.name }};
+wire  [47:0] {{ field.name }};
 reg  [31:0] {{ field.name }}_L;
 reg  [15:0] {{ field.name }}_H;
 {% endfor %}
@@ -172,6 +172,11 @@ begin
     end
 end
 
+{% for field in block.fields %}
+    {% if field.type == "time" %}    
+assign {{field.name}} = { {{field.name}}_H, {{field.name}}_L};
+    {% endif %}
+{% endfor %}
 // Instantiate the Unit Under Test (UUT)
 {{block.entity}} uut (
 

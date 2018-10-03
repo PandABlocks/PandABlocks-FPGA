@@ -212,7 +212,7 @@ signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
 => '1');
 
 -- Top Level Signals
-signal sysbus               : sysbus_t := (others => '0');
+signal bit_bus              : sysbus_t := (others => '0');
 signal posbus               : posbus_t := (others => (others => '0'));
 
 --signal sysbus_o             : sysbus_t;
@@ -273,7 +273,7 @@ signal SFP : SFP_record;
 --attribute keep of sysbus    : signal is "true";
 --attribute keep of posbus    : signal is "true";
 
-constant SYSBUS_SIZE : natural :=   ttlin_val'length + lvdsin_val'length + inenc_a'length 
+constant BIT_BUS_SIZE : natural :=   ttlin_val'length + lvdsin_val'length + inenc_a'length 
                                     + inenc_b'length + inenc_z'length + inenc_data'length 
                                     + inenc_conn'length + outenc_clk'length 
                                     + pcap_active'length;
@@ -451,7 +451,7 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(TTLOUT_CS),
 
-    sysbus_i            => sysbus,
+    sysbus_i            => bit_bus,
     val_o               => ttlout_val,
     pad_o               => TTLOUT_PAD_O
 );
@@ -481,7 +481,7 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(LVDSOUT_CS),
 
-    sysbus_i            => sysbus,
+    sysbus_i            => bit_bus,
     pad_o               => LVDSOUT_PAD_O
 );
 
@@ -517,7 +517,7 @@ port map (
     z_int_o             => inenc_z,
     data_int_o          => inenc_data,
     -- Block Outputs
-    sysbus_i            => sysbus,
+    sysbus_i            => bit_bus,
     posbus_i            => posbus,
     CONN_OUT            => inenc_conn,
     DCARD_MODE          => DCARD_MODE,
@@ -553,7 +553,7 @@ port map (
     -- Signals passed to internal bus
     clk_int_o           => outenc_clk,
     --
-    sysbus_i            => sysbus,
+    sysbus_i            => bit_bus,
     posbus_i            => posbus,
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => OUTPROT
@@ -602,7 +602,7 @@ port map (
     write_ack_0_o       => write_ack(PCAP_CS),
     write_ack_1_o       => write_ack(DRV_CS),
 
-    sysbus_i            => sysbus,
+    sysbus_i            => bit_bus,
     posbus_i            => posbus,
     pcap_actv_o         => pcap_active(0),
     pcap_irq_o          => IRQ_F2P(0)
@@ -663,7 +663,7 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(REG_CS),
 
-    sysbus_i            => sysbus,
+    sysbus_i            => bit_bus,
     posbus_i            => posbus,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION
 );
@@ -731,7 +731,7 @@ port map (
 
 -- Bus assembly ----
 
-sysbus(SYSBUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn & 
+bit_bus(BITBUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn & 
                                    inenc_data & inenc_z & inenc_b &
                                    lvdsin_val & ttlin_val;
 
@@ -785,7 +785,7 @@ port map(
     --sysbus_i => sysbus,
     --posbus_o => posbus_o,
     --posbus_i => posbus,
-    bit_bus         => sysbus,
+    bit_bus         => bit_bus,
     posbus          => posbus,
 	rdma_req        => rdma_req,
 	rdma_ack        => rdma_ack,

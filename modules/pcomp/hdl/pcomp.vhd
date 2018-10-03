@@ -26,8 +26,7 @@ port (
     -- Block inputs
     enable_i            : in  std_logic;
     inp_i               : in  std_logic_vector(31 downto 0); --INP
-    -- Block inputs
-    --
+    -- Block Parameters
     PRE_START           : in  std_logic_vector(31 downto 0);
     START               : in  std_logic_vector(31 downto 0);
     WIDTH               : in  std_logic_vector(31 downto 0);

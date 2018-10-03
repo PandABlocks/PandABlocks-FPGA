@@ -19,7 +19,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "pulse.block.ini")
 
 
 class PulseSimulation(BlockSimulation):
-    DELAY, WIDTH, ENABLE, TRIG, OUT, QUEUED, DROPPED, TRIG_EDGE = PROPERTIES
+    DELAY_L, WIDTH_L, ENABLE, TRIG, OUT, QUEUED, DROPPED, TRIG_EDGE = PROPERTIES
 
     def __init__(self):
         self.queue = deque()
@@ -88,18 +88,19 @@ class PulseSimulation(BlockSimulation):
         # This is the next time we need to be called
         next_ts = ts+1
         # If the DELAY and WIDTH inputs are out of bounds, set them to 4
-        if 0 < self.DELAY < 4:
+
+        if 0 < self.DELAY_L < 4:
             self.delay = 4
         else:
-            self.delay = self.DELAY
-        if (0 < self.WIDTH < 4) and self.DELAY == 0:
+            self.delay = self.DELAY_L
+        if (0 < self.WIDTH_L < 4) and self.DELAY_L == 0:
             self.width = 4
         else:
-            self.width = self.WIDTH
+            self.width = self.WIDTH_L
 
         # Append queue if the start of the queue is delayed
         if self.delaypulse == 1:
-            if self.WIDTH > 0 or self.doqueue == 1:
+            if self.WIDTH_L > 0 or self.doqueue == 1:
                 self.QUEUED += 1
                 self.delaypulse = 0
                 self.doqueue = 0
@@ -113,7 +114,7 @@ class PulseSimulation(BlockSimulation):
             else:
                 self.QUEUED += 1
             # Is a pulse of zero required before next pulse?
-                if self.DELAY > 0:
+                if self.DELAY_L > 0:
                     self.delaypulse = 1
                 self.enqueue = 0
 
@@ -133,7 +134,7 @@ class PulseSimulation(BlockSimulation):
         # Set attributes, and flag clear queue
         for name, value in changes.items():
             setattr(self, name, value)
-            if name in (NAMES.DELAY, NAMES.DELAY, NAMES.WIDTH, NAMES.WIDTH):
+            if name in (NAMES.DELAY_L, NAMES.DELAY_L, NAMES.WIDTH_L, NAMES.WIDTH_L):
                 self.do_clear_queue(ts)
 
         # On rising edge of enable clear errors

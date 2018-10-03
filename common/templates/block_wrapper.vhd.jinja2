@@ -53,8 +53,8 @@ architecture rtl of {{ entity }}_wrapper is
 -- Blocks
 
 {% for field in fields %}
-    {% if field.type in "time" %}    
-signal {{ field.name }}           : std48_array(NUM-1 downto 0);
+    {% if field.type in "time" %}
+signal {{ field.name }}          : std48_array(NUM-1 downto 0);
 
     {% endif %}
     {% for register in field.registers %}
@@ -171,11 +171,11 @@ begin
 
 {% for field in filter_fields("time") %}
     {% if loop.first %}
-            -- Time signals are made up of _L and _H parts
+        -- Time signals are made up of _L and _H parts
     {% endif %}
-        {{ field.name }}(I) <= (47 downto 32 => {{field.name}}_H(15 downto 0),
-                     31 downto 0 => {{field.name}}_L);
-                            
+        {{ field.name }}(I) <= (47 downto 32 => {{field.name}}_H(I)(15 downto 0),
+                     31 downto 0 => {{field.name}}_L(I));
+
 {% endfor %}
 
         -- Connect to the actual logic entity
@@ -184,8 +184,17 @@ begin
 {% for field in filter_fields(".*_mux") %}
             {{ field.name }}_i => {{ field.name }}_from_bus(I),
 {% endfor %}
-{% for field in filter_fields("time|(param|read|write).*") %}
+{% for field in filter_fields("time|param lut|param int|param time|param") %}
             {{ field.name }} => {{ field.name }}(I),
+{% endfor %}
+{% for field in filter_fields("write int|read uint 1023|read") %}
+            {{ field.name }} => {{ field.name }}(I),
+{% endfor %}
+{% for field in filter_fields("param bit|write action" )%}
+            {{ field.name }} => {{ field.name }}(I)(0),
+{% endfor %}
+{% for field in filter_fields("param enum|read enum") %}
+            {{ field.name }} => {{ field.name }}(I)(1 downto 0),
 {% endfor %}
 {% for field in filter_fields(".*_out") %}
             {{ field.name }}_o => {{ field.name }}_o(I),

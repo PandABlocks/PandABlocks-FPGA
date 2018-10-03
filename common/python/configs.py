@@ -172,6 +172,14 @@ class FieldConfig(object):
                 block_simulation.changes = {}
             block_simulation.changes[self.name] = v
 
+    def settertimeL(self, block_simulation, v):
+        self.name = self.name + "_L"
+        if self.value != v:
+            self.value = v
+            if block_simulation.changes is None:
+                block_simulation.changes = {}
+            block_simulation.changes[self.name] = v
+
     def getter(self, block_simulation):
         return self.value
 

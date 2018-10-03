@@ -14,7 +14,7 @@ package top_defines is
 constant PAGE_NUM               : natural := 5;
 -- Number of DWORDs per page = 2**PAGE_AW
 constant PAGE_AW                : natural := 10;
--- Number of DWORS per block = 2**BLK_AW
+-- Number of DWORDs per block = 2**BLK_AW
 constant BLK_AW                 : natural := 6;
 -- Number of total block's bit width
 constant BLK_NUM                : natural := PAGE_AW - BLK_AW;
@@ -56,7 +56,7 @@ record
     ts     : t_ts;
     bits   : t_bits;
 end record;
-     
+
 --
 -- TYPEs :
 --

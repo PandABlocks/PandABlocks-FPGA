@@ -31,7 +31,7 @@ architecture rtl of srgate is
 
 constant c_trig_edge_neg        : std_logic_vector(1 downto 0) := "01";
 constant c_trig_edge_pos        : std_logic_vector(1 downto 0) := "00";
-constant c_trig_edge_either    : std_logic_vector(1 downto 0) := "10";     
+constant c_trig_edge_either     : std_logic_vector(1 downto 0) := "10";     
 
 constant c_output_low           : std_logic_vector(1 downto 0) := "00";
 constant c_output_high          : std_logic_vector(1 downto 0) := "01";

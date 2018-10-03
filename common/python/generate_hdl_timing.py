@@ -101,7 +101,11 @@ class HdlTimingGenerator(object):
         # Write the sequence values
         header = ["TS"]
         for field in block.fields:
-            header.append(field.name)
+            if field.type == "time":
+                header.append(field.name+"_L")
+                header.append(field.name + "_H")
+            else:
+                header.append(field.name)
             # If field has wstb config, ass header for a wstb signal
             if field.wstb:
                 header.append(field.name + "_wstb")

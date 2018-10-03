@@ -24,8 +24,12 @@ def properties_from_ini(src_path, ini_name):
     properties = []
     names = []
     for field in FieldConfig.from_ini(ini, number=1):
-        names.append(field.name)
-        prop = property(field.getter, field.setter)
+        if field.type == "time":
+            names.append(field.name+"_L")
+            prop = property(field.getter, field.settertimeL)
+        else:
+            names.append(field.name)
+            prop = property(field.getter, field.setter)
         properties.append(prop)
     # Create an object BlockNames with attributes FIELD1="FIELD1", F2="F2", ...
     names = namedtuple("%sNames" % block_name.title(), names)(*names)
@@ -39,9 +43,14 @@ class BlockSimulationMeta(type):
         for name, val in dct.items():
             if isinstance(val, property) and \
                     isinstance(val.fget.im_self, FieldConfig):
-                assert name == val.fget.im_self.name, \
-                    "Property %s mismatch with FieldConfig name %s" % (
-                        name, val.fget.im_self.name)
+                if val.fget.im_self.type == "time":
+                    assert name == val.fget.im_self.name + "_L", \
+                        "Property %s mismatch with FieldConfig name %s" % (
+                            name, val.fget.im_self.name)
+                else:
+                    assert name == val.fget.im_self.name, \
+                        "Property %s mismatch with FieldConfig name %s" % (
+                            name, val.fget.im_self.name)
         return super(BlockSimulationMeta, cls).__new__(cls, clsname, bases, dct)
 
 
