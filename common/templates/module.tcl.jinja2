@@ -1,0 +1,32 @@
+# This is a script to add all of the tests and required hdl code for the
+# {{block.entity}} module to the vivado project
+
+set_property SOURCE_SET sources_1 [get_filesets sim_1]
+
+array set tests {
+{% for i in range(number) %}
+    {{block.entity}}_{{loop.index}}_tb 1
+{% endfor %}
+}
+
+# remove any simulation files from the project
+remove_files -fileset sim_1 {
+{% for i in range(number) %}
+    ../hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/hdl_timing.v
+    ../hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/{{
+    loop.index}}{{block.entity}}expected.csv
+{% endfor %}
+}
+
+# add the module vhd code
+add_files -norecurse {
+    ../../modules/{{block.entity}}/hdl
+}
+
+add_files -fileset sim_1 -norecurse {
+{% for i in range(number) %}
+    ../hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/hdl_timing.v
+    ../hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/{{
+    loop.index}}{{block.entity}}expected.csv
+{% endfor %}
+}

@@ -1,5 +1,5 @@
-DIV - Pulse divider [x4]
-========================
+DIV - Pulse divider
+===================
 
 A DIV block is a 32-bit pulse divider that can divide a pulse train between two
 outputs. It has an internal counter that counts from 0 to DIVISOR-1. On each

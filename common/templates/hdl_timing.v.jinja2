@@ -1,7 +1,203 @@
---------------------------------------------------------------------------------
--- Timing testbench: {{ section }}
---------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+// Timing testbench: {{block.entity}} - {{ section }}
+// {{block.description}}
+////////////////////////////////////////////////////////////////////////////////
+`timescale 1ns / 1ps
 
-{% for field in block.filter_fields("bit_out") %}
-    I have a bit_out field called {{ field.name }}
+module {{block.entity}}_{{number}}_tb;
+
+reg clk_i = 0;
+always #4 clk_i = ~clk_i;
+
+// Inputs from initialisation file
+{% for field in block.filter_fields(
+    "bit_mux|param bit|write action") %}
+reg         {{ field.name }};
 {% endfor %}
+{% for field in block.filter_fields("param enum")%}
+reg  [1:0]  {{ field.name }};
+{% endfor %}
+{% for field in block.filter_fields(
+    "pos_mux|param lut|param time|param int|write int|param") %}
+reg  [31:0] {{ field.name }};
+{% endfor %}
+{% for field in block.filter_fields("time") %}
+wire  [47:0] {{ field.name }};
+reg  [31:0] {{ field.name }}_L;
+reg  [15:0] {{ field.name }}_H;
+{% endfor %}
+
+// Outputs
+{% for field in block.filter_fields("bit_out") %}
+reg         {{ field.name }};       //Output from ini file
+wire        {{ field.name }}_uut;   //Output from UUT
+reg         {{ field.name }}_err;   //Error signal
+
+{% endfor %}
+{% for field in block.filter_fields("pos_out|read uint 1023|read") %}
+reg  [31:0] {{ field.name }};       //Output from ini file
+wire [31:0] {{ field.name }}_uut;   //Output from UUT
+reg         {{ field.name }}_err;   //Error signal
+
+{% endfor %}
+{% for field in block.filter_fields("read enum") %}
+    {% if block.entity == "pcomp" and field.name == "STATE" %}
+reg   [2:0] {{ field.name }};       //Output from ini file
+wire  [2:0] {{ field.name }}_uut;   //Output from UUT
+reg         {{ field.name }}_err;   //Error signal	
+
+    {% else %}
+reg   [1:0] {{ field.name }};       //Output from ini file
+wire  [1:0] {{ field.name }}_uut;   //Output from UUT
+reg         {{ field.name }}_err;   //Error signal
+
+    {% endif %}
+{% endfor %}
+// Write Strobes
+{% for field in block.fields %}
+    {% if field.wstb %}
+reg         {{field.name}}_wstb;
+    {% endif %}
+{% endfor %}
+
+// Signals used within test
+reg         test_result = 0;
+integer     fid;
+integer     r;
+integer     timestamp = 0;
+
+//
+// Values in the test files are arranged on FPGA clock ticks on the
+// first column. This way all files are read synchronously.
+//
+// To achieve that a free running global Timestamp Counter below
+// is used.
+//
+
+initial begin
+    repeat (5) @(posedge clk_i);
+    while (1) begin
+        timestamp <= timestamp + 1;
+        @(posedge clk_i);
+    end
+end
+
+//
+// Read expected values file
+//
+
+// Array to hold each of the {{headerslength}} characters in header line
+reg [7:0] ignore[{{(headerslength)-1}}:0];
+integer data_in[{{ header|length-1 }}:0];
+reg is_file_end = 0;
+integer i;
+initial for (i = 0; i <= {{headerslength-1}}; i = i + 1) ignore[i] = 0;
+
+initial begin
+{% for field in header %}
+    {% if not loop.first %}
+    {{ field }} = 0;
+    {% endif %}
+{% endfor %}
+
+    @(posedge clk_i);
+    fid=$fopen("{{number}}{{block.entity}}expected.csv","r");
+    // Read and ignore description field
+    r=$fgets(ignore, fid);
+{# Creates a list of strings of "data_in[i]" #}
+{% set datalist=[] %}
+{% for i in range(header|length)|reverse %}
+    {% if datalist.append("        data_in[" + i|string + "]") %}{% endif %}
+{% endfor %}
+    // Read and store the expected data from the csv file
+    while (!$feof(fid)) begin
+        r=$fscanf(fid,"{{ " ".join(("%d",)*header|length)}}\n",
+    {{",\n    ".join(datalist)}}
+        );
+        if (r != {{ header|length}}) begin
+            $display("\n    error reading file \n");
+            test_result <= 1;
+            @(negedge clk_i);
+            $finish(2);
+        end
+{% for field in header %}
+    {% if loop.first %}
+        wait (timestamp == data_in[{{loop.revindex0}}]) begin
+    {% else %}
+                {{ field }} <= data_in[{{loop.revindex0}}];
+    {% endif %}
+{% endfor %}
+        end
+        @(posedge clk_i);
+    end
+    repeat(100) @(posedge clk_i);
+    is_file_end = 1;
+end
+
+//
+// ERROR DETECTION:
+// Compare Block Outputs and Expected Outputs.
+//
+always @(posedge clk_i)
+begin
+    if (~is_file_end) begin
+    // If not equal, display an error.
+    // If the io file signal contains an 0 when the UUT signal is zero, the
+    // test should not error, but for other io signal values display an error
+{% for field in block.fields%}
+    {% if field in block.filter_fields("bit_out") or field in
+            block.filter_fields("read") or field in
+            block.filter_fields("pos_out") or field in 
+            block.filter_fields("read enum") or field in
+            block.filter_fields("read uint 1023") %}
+        if ({{ field.name }} != {{field.name}}_uut || ({{ field.name
+        }} > 0 && ^{{ field.name }}_uut === 1'bx)) begin
+            $display("{{
+            field.name}} error detected at timestamp %d\n", timestamp);
+            {{field.name}}_err <= 1;
+            test_result <= 1;
+        end
+    {% endif %}
+{% endfor %}
+    end
+end
+
+// $stop Halts a simulation and enters an interactive debug mode
+// $finish Finishes a simulation and exits the simulation process
+always @ (posedge clk_i)
+begin
+    if (is_file_end) begin
+        $display("Simulation has finished");
+        $finish(2);
+    end
+end
+
+{% for field in block.fields %}
+    {% if field.type == "time" %}    
+assign {{field.name}} = { {{field.name}}_H, {{field.name}}_L};
+    {% endif %}
+{% endfor %}
+// Instantiate the Unit Under Test (UUT)
+{{block.entity}} uut (
+
+{% for field in block.fields %}
+	{% if field in block.filter_fields(".*out")%}
+        .{{ field.name }}_o        ({{ field.name }}_uut),
+	{% elif field in block.filter_fields("read.*") %}
+        .{{ field.name }}          ({{ field.name }}_uut),
+	{% elif field in block.filter_fields(".*mux") %}
+        .{{ field.name }}_i        ({{ field.name }}),
+		{% if field.wstb %}
+        .{{ field.name }}_wstb     ({{ field.name }}_wstb),
+		{% endif %}
+	{% else %}
+        .{{ field.name }}          ({{ field.name }}),
+		{% if field.wstb%}
+        .{{ field.name }}_wstb     ({{ field.name }}_wstb),
+		{% endif %}
+	{% endif %}
+{% endfor %}
+        .clk_i        (clk_i)
+);
+
+endmodule

@@ -202,7 +202,35 @@ changes.
 Timing ini
 ----------
 
-Add timing tests
+The purpose of the .timing.ini file is to provide expected data for comparison
+in the testing of the modules. Data should be calculated as to how and when the
+module will behave with a range of inputs.
+
+The [.] section
+~~~~~~~~~~~~~~~
+
+The first entry to the ini file describes the timing tests as a whole. It looks
+like this::
+
+    [.]
+    description: Timing tests for Block
+    scope: block.ini file
+
+[TEST] sections
+~~~~~~~~~~~~~~~
+
+The other sections will display the tests inputs and outputs. It looks like
+this::
+
+    [NAME_OF_TEST]
+    1:  inputA=1, inputB=2          -> output=3
+    5:  inputC=4                    -> output=7
+    6:  inputD=-10                  -> output=0, Error=1
+
+The numbers at the left indicate the timestamp at which a change occurs,
+followed by a colon. Any assignments before the -> symbol indicate a change in
+an input and assignments after the -> symbol indicate a change in an output.
+
 
 Writing docs
 ------------

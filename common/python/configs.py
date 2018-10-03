@@ -61,7 +61,7 @@ class BlockConfig(object):
     def filter_fields(self, regex):
         # type: (str) -> Iterable[FieldConfig]
         """Filter our child fields by typ"""
-        regex = re.compile(regex)
+        regex = re.compile(regex + '$')
         for field in self.fields:
             if regex.match(field.type):
                 yield field
@@ -92,7 +92,7 @@ class FieldConfig(object):
     #: Regex for matching a type string to this field
     type_regex = None
 
-    def __init__(self, name, number, type, description, **extra_config):
+    def __init__(self, name, number, type, description, wstb=False, **extra_config):
         # type: (str, int, str, str) -> None
         # Field names should be UPPER_CASE_OR_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*$", name), \
@@ -111,6 +111,8 @@ class FieldConfig(object):
         self.bus_entries = []  # type: List[BusEntryConfig]
         #: All the other extra config items
         self.extra_config = extra_config
+        #: If a write strobe is required, set wstb to 1
+        self.wstb = wstb
         #: The current value of this field for simulation
         self.value = 0
 
@@ -170,6 +172,14 @@ class FieldConfig(object):
                 block_simulation.changes = {}
             block_simulation.changes[self.name] = v
 
+    def settertimeL(self, block_simulation, v):
+        self.name = self.name + "_L"
+        if self.value != v:
+            self.value = v
+            if block_simulation.changes is None:
+                block_simulation.changes = {}
+            block_simulation.changes[self.name] = v
+
     def getter(self, block_simulation):
         return self.value
 
@@ -190,6 +200,19 @@ class BitOutFieldConfig(FieldConfig):
         return field_address, bit_i, pos_i, ext_i
 
 
+class PosOutFieldConfig(FieldConfig):
+    """These fields represent a position output"""
+    type_regex = "pos_out"
+
+    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+        # type: (int, int, int, int) -> Tuple[int, int, int, int]
+        for _ in range(self.number):
+            self.bus_entries.append(BusEntryConfig("pos", pos_i))
+            pos_i += 1
+
+        return field_address, bit_i, pos_i, ext_i
+
+
 class ParamFieldConfig(FieldConfig):
     """These fields represent all other set/get parameters backed with a single
     register"""
@@ -203,20 +226,20 @@ class ParamFieldConfig(FieldConfig):
 
 
 class ParamEnumFieldConfig(ParamFieldConfig):
-    """A special These fields represent all other set/get parameters backed with a single
-    register"""
-    type_regex = "param enum"
+    """A special These fields represent all other set/get parameters backed with
+     a single register"""
+    type_regex = "(param|read) enum"
 
     def extra_config_lines(self):
         # type: () -> Iterable[str]
         for k, v in sorted(self.extra_config.items()):
             assert k.isdigit(), "Only expecting integer enum entries in %s" % (
                 self.extra_config,)
-            if self.type.split()[0] != "read":
+            # if self.type.split()[0] != "read":
                 # Read enums can be anything, but write and params should
                 # be lower_case_or_numbers
-                assert re.match("[a-z][0-9a-z_]*$", v), \
-                    "Expected enum_value, got %r" % v
+                # assert re.match("[a-z][0-9a-z_]*$", v), \
+                    # "Expected enum_value, got %r" % v
             yield "%s %s" % (pad(k, spaces=3), v)
 
 
@@ -233,3 +256,27 @@ class BitMuxFieldConfig(FieldConfig):
         field_address += 1
         return field_address, bit_i, pos_i, ext_i
 
+
+class PosMuxFieldConfig(FieldConfig):
+    """The fields represent a position input multiplexer selection"""
+    type_regex = "pos_mux"
+
+    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+        # type: (int, int, int, int) -> Tuple[int, int, int, int]
+        self.registers.append(RegisterConfig(self.name, field_address))
+        field_address += 1
+        return field_address, bit_i, pos_i, ext_i
+
+
+class TimeFieldConfig(FieldConfig):
+    """The fields represent a configurable timer parameter """
+    type_regex = "time"
+
+    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+        # type: (int, int, int, int) -> Tuple[int, int, int, int]
+        # One register for the _L value and one for the _H value
+        self.registers.append(RegisterConfig(self.name + "_L", field_address))
+        field_address += 1
+        self.registers.append(RegisterConfig(self.name + "_H", field_address))
+        field_address += 1
+        return field_address, bit_i, pos_i, ext_i

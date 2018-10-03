@@ -22,7 +22,7 @@ port (
 
     -- Bus inputs
     -- TODO: rename to bit_bus_i
-    sysbus_i            : in  sysbus_t := (others => '0');
+    bit_bus_i           : in  sysbus_t := (others => '0');
     pos_bus_i           : in  posbus_t := (others => (others => '0'));
 
     -- Bus outputs
@@ -53,6 +53,10 @@ architecture rtl of {{ entity }}_wrapper is
 -- Blocks
 
 {% for field in fields %}
+    {% if field.type in "time" %}
+signal {{ field.name }}          : std48_array(NUM-1 downto 0);
+
+    {% endif %}
     {% for register in field.registers %}
 constant {{ register.name }}_addr : natural := {{ register.number }};
 signal {{ register.name }}        : std32_array(NUM-1 downto 0);
@@ -146,11 +150,31 @@ begin
         bitmux_{{ field.name }} : entity work.bitmux
         port map (
             clk_i       => clk_i,
-            sysbus_i    => sysbus_i,
+            sysbus_i    => bit_bus_i,
             bit_o       => {{ field.name }}_from_bus(I),
             bitmux_sel  => {{ field.name }}(I),
             bit_dly     => {{ field.name }}_DLY(I)
         );
+
+{% endfor %}
+{% for field in filter_fields("pos_mux") %}
+        posmux_{{ field.name }} : entity work.posmux
+        port map (
+            clk_i       => clk_i,
+            posbus_i    => pos_bus_i,
+            posn_o      => {{ field.name }}_from_bus(I),
+            posmux_sel  => {{ field.name }}(I),
+            pos_dly     => {{ field.name }}_DLY(I)
+        );
+
+{% endfor %}
+
+{% for field in filter_fields("time") %}
+    {% if loop.first %}
+        -- Time signals are made up of _L and _H parts
+    {% endif %}
+        {{ field.name }}(I) <= (47 downto 32 => {{field.name}}_H(I)(15 downto 0),
+                     31 downto 0 => {{field.name}}_L(I));
 
 {% endfor %}
 
@@ -160,11 +184,25 @@ begin
 {% for field in filter_fields(".*_mux") %}
             {{ field.name }}_i => {{ field.name }}_from_bus(I),
 {% endfor %}
-{% for field in filter_fields("(param|read|write).*") %}
+{% for field in filter_fields("time|param lut|param int|param time|param") %}
             {{ field.name }} => {{ field.name }}(I),
+{% endfor %}
+{% for field in filter_fields("write int|read uint 1023|read") %}
+            {{ field.name }} => {{ field.name }}(I),
+{% endfor %}
+{% for field in filter_fields("param bit|write action" )%}
+            {{ field.name }} => {{ field.name }}(I)(0),
+{% endfor %}
+{% for field in filter_fields("param enum|read enum") %}
+            {{ field.name }} => {{ field.name }}(I)(1 downto 0),
 {% endfor %}
 {% for field in filter_fields(".*_out") %}
             {{ field.name }}_o => {{ field.name }}_o(I),
+{% endfor %}
+{% for field in fields %}
+    {% if field.wstb %}
+            {{ field.name }}_wstb => {{ field.name }}_wstb(I),
+    {% endif %}
 {% endfor %}
             clk_i => clk_i
         );

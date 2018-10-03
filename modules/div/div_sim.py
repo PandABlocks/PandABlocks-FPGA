@@ -14,6 +14,7 @@ class DivSimulation(BlockSimulation):
     def __init__(self):
         self.first_pulse_d = 1
         self.first_pulse_n = 0
+        self.divisor = 0
 
     def do_pulse(self, inp):
         """We've received a bit event on INP, on a rising edge send it out of
@@ -21,7 +22,11 @@ class DivSimulation(BlockSimulation):
         if self.ENABLE:
             if inp:
                 self.COUNT += 1
-                if self.COUNT >= self.DIVISOR:
+                if self.divisor == 0 and self.COUNT > 0:
+                    self.OUTN = 1
+                elif self.divisor == 0:
+                    self.OUTD = 1
+                elif self.COUNT >= self.divisor:
                     self.COUNT = 0
                     self.OUTD = 1
                 else:
@@ -37,7 +42,7 @@ class DivSimulation(BlockSimulation):
         if self.FIRST_PULSE == self.first_pulse_n:
             self.COUNT = 0
         else:
-            self.COUNT = self.DIVISOR - 1
+            self.COUNT = self.divisor - 1
 
     def on_changes(self, ts, changes):
         """Handle field changes at a particular timestamp
@@ -53,6 +58,12 @@ class DivSimulation(BlockSimulation):
         """
         # Set attributes
         super(DivSimulation, self).on_changes(ts, changes)
+
+        # Divisor cannot equal zero, so set to 1
+        if self.DIVISOR == 0:
+            self.divisor = 1
+        else:
+            self.divisor = self.DIVISOR
 
         # Set attributes, and flag clear queue
         for name, value in changes.items():

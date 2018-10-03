@@ -29,16 +29,19 @@ class TestGenerateTiming(unittest.TestCase):
         self.assertMultiLineEqual(expected, actual)
 
     def test_first_timings(self):
-        self.assertGeneratedEqual("timing001", "expected.csv")
+        self.assertGeneratedEqual("timing001", "1testblockexpected.csv")
 
     def test_first_bench(self):
         self.assertGeneratedEqual("timing001", "hdl_timing.v")
 
     def test_second_timings(self):
-        self.assertGeneratedEqual("timing002", "expected.csv")
+        self.assertGeneratedEqual("timing002", "2testblockexpected.csv")
 
     def test_second_bench(self):
         self.assertGeneratedEqual("timing002", "hdl_timing.v")
+
+    def test_module_script(self):
+        self.assertGeneratedEqual("testblock.tcl")
 
 
 if __name__ == '__main__':
