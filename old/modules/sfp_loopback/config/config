@@ -1,14 +1,7 @@
 SFP
-    SFP1_LOS        read
-    LINK1_UP        read
-    ERROR1_COUNT    read
-    SFP2_LOS        read
-    LINK2_UP        read
-    ERROR2_COUNT    read
-    LINK3_UP        read
-    ERROR3_COUNT    read
-    SFP_CLK1        read
-    SFP_CLK2        read
-    SFP_CLK3        read
+    SFP_LOS        read
+    LINK_UP        read
+    ERROR_COUNT    read
+    SFP_CLK        read
     SOFT_RESET      write       action
 

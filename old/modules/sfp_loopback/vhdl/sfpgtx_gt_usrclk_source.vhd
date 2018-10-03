@@ -79,17 +79,6 @@ port
     GT0_RXUSRCLK_OUT             : out std_logic;
     GT0_RXUSRCLK2_OUT            : out std_logic;
  
-    GT1_TXUSRCLK_OUT             : out std_logic;
-    GT1_TXUSRCLK2_OUT            : out std_logic;
-    GT1_TXOUTCLK_IN              : in  std_logic;
-    GT1_RXUSRCLK_OUT             : out std_logic;
-    GT1_RXUSRCLK2_OUT            : out std_logic;
- 
-    GT2_TXUSRCLK_OUT             : out std_logic;
-    GT2_TXUSRCLK2_OUT            : out std_logic;
-    GT2_TXOUTCLK_IN              : in  std_logic;
-    GT2_RXUSRCLK_OUT             : out std_logic;
-    GT2_RXUSRCLK2_OUT            : out std_logic;
     Q0_CLK0_GTREFCLK_PAD_N_IN               : in   std_logic;
     Q0_CLK0_GTREFCLK_PAD_P_IN               : in   std_logic;
     Q0_CLK0_GTREFCLK_OUT                    : out  std_logic
@@ -132,10 +121,6 @@ end component;
  
     signal   gt0_txoutclk_i :   std_logic;
  
-    signal   gt1_txoutclk_i :   std_logic;
- 
-    signal   gt2_txoutclk_i :   std_logic;
-
     attribute syn_noclockbuf : boolean;
     signal   q0_clk0_gtrefclk :   std_logic;
     attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
@@ -151,8 +136,6 @@ begin
     tied_to_ground_i         <= '0';
     tied_to_vcc_i            <= '1';
     gt0_txoutclk_i                               <= GT0_TXOUTCLK_IN;
-    gt1_txoutclk_i                               <= GT1_TXOUTCLK_IN;
-    gt2_txoutclk_i                               <= GT2_TXOUTCLK_IN;
 
     Q0_CLK0_GTREFCLK_OUT                         <= q0_clk0_gtrefclk;
 
@@ -186,14 +169,5 @@ GT0_TXUSRCLK2_OUT                            <= gt0_txusrclk_i;
 GT0_RXUSRCLK_OUT                             <= gt0_txusrclk_i;
 GT0_RXUSRCLK2_OUT                            <= gt0_txusrclk_i;
  
-GT1_TXUSRCLK_OUT                             <= gt0_txusrclk_i;
-GT1_TXUSRCLK2_OUT                            <= gt0_txusrclk_i;
-GT1_RXUSRCLK_OUT                             <= gt0_txusrclk_i;
-GT1_RXUSRCLK2_OUT                            <= gt0_txusrclk_i;
- 
-GT2_TXUSRCLK_OUT                             <= gt0_txusrclk_i;
-GT2_TXUSRCLK2_OUT                            <= gt0_txusrclk_i;
-GT2_RXUSRCLK_OUT                             <= gt0_txusrclk_i;
-GT2_RXUSRCLK2_OUT                            <= gt0_txusrclk_i;
 end RTL;
 

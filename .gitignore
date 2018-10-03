@@ -14,3 +14,5 @@
 .idea
 # Xilinx IP (built with make ip_build)
 /common/ip_repo
+/tools/virtexHex2Bin
+

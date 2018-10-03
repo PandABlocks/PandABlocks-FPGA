@@ -56,14 +56,14 @@ record
     ts     : t_ts;
     bits   : t_bits;
 end record;
-
+     
 --
 -- TYPEs :
 --
 
 -- FMC Block Record declaration
 
-type FMC_record is
+type FMC_interface is
   record
     EXTCLK_P        : std_logic; -- move to standard port interface?
     EXTCLK_N        : std_logic; -- ditto
@@ -84,15 +84,15 @@ type FMC_record is
 
 -- SFP Block Record declaration
 
-type SFP_record is
+type SFP_interface is
   record
-    SFP_LOS     : std_logic_vector(1 downto 0);
+    SFP_LOS     : std_logic;
     GTREFCLK_N  : std_logic;  -- move to standard port interface?
     GTREFCLK_P  : std_logic;  -- ditto
-    RXN_IN      : std_logic_vector(2 downto 0);
-    RXP_IN      : std_logic_vector(2 downto 0);
-    TXN_OUT      : std_logic_vector(2 downto 0);
-    TXP_OUT      : std_logic_vector(2 downto 0);
+    RXN_IN      : std_logic;
+    RXP_IN      : std_logic;
+    TXN_OUT      : std_logic;
+    TXP_OUT      : std_logic;
   end record SFP_record;
 
 type seq_t is
