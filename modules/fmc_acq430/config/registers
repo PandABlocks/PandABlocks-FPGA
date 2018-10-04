@@ -1,5 +1,4 @@
 FMC         {{newBlockNo("FMC")}}
-    MODULE_EN                       {{newBlockReg()}}
     CH01_DATA                       {{newPosBus()}}
     CH02_DATA                       {{newPosBus()}}
     CH03_DATA                       {{newPosBus()}}

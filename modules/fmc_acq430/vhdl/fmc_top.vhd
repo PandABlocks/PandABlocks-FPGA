@@ -69,64 +69,64 @@ architecture rtl of fmc_top is
 -- FMC pin name translation signals.
 ---------------------------------------------------------------------------------------
 
-signal  p_TRIGGER_DIR   : std_logic := '0';     --! External Trigger Direction Pin
-signal  s_TRIG_DATA     : std_logic := '0';     --! External Trigger Data
-signal  p_CLOCK_DIR     : std_logic := '0';     --! External Clock Direction Pin
-signal  s_CLOCK_DATA    : std_logic := '0';     --! External Clock Data
-signal  p_EXT_TRIGGER   : std_logic := '0';     --! External Trigger Pin
-signal  p_EXT_CLOCK     : std_logic := '0';     --! External Clock Pin
-signal  EXT_TRIGGER     : std_logic := '0';     --! External Trigger
-signal  EXT_TRIGGER_MOD : std_logic := '0';     --! External Trigger Mod
-signal  EXT_CLOCK       : std_logic := '0';     --! External Clock
-signal  EXT_CLOCK_MOD   : std_logic := '0';     --! External Clock Mod
-signal  FMC_IO_BUS      : std_logic_vector(4 downto 0) := (others => '0');  --! FMC IO Controls (FMC_LEMO_ROLE,CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR)
+signal  p_TRIGGER_DIR       : std_logic := '0';     --! External Trigger Direction Pin
+signal  s_TRIG_DATA         : std_logic := '0';     --! External Trigger Data
+signal  p_CLOCK_DIR         : std_logic := '0';     --! External Clock Direction Pin
+signal  s_CLOCK_DATA        : std_logic := '0';     --! External Clock Data
+signal  p_EXT_TRIGGER       : std_logic := '0';     --! External Trigger Pin
+signal  p_EXT_CLOCK         : std_logic := '0';     --! External Clock Pin
+signal  EXT_TRIGGER         : std_logic := '0';     --! External Trigger
+signal  EXT_TRIGGER_MOD     : std_logic := '0';     --! External Trigger Mod
+signal  EXT_CLOCK           : std_logic := '0';     --! External Clock
+signal  EXT_CLOCK_MOD       : std_logic := '0';     --! External Clock Mod
+signal  FMC_IO_BUS          : std_logic_vector(4 downto 0) := (others => '0');  --! FMC IO Controls (FMC_LEMO_ROLE,CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR)
 
 
-signal  p_ADC_MODE_0    : std_logic := '0';     --! ADC mode 0 = High Speed, 1 = High Performance
-signal  p_ADC_SPI_CLK   : std_logic := '0';     --! ADC SPI Clock
-signal  p_ADC_SDO       : std_logic := '0';     --! ADC SPI Data
-signal  p_ADC_SYNC_n    : std_logic := '0';     --! ADC Inter-Device Synchronisation
-signal  p_ADC_FSYNC     : std_logic := '0';     --! ADC Frame Sync for start of Sample
+signal  p_ADC_MODE_0        : std_logic := '0';     --! ADC mode 0 = High Speed, 1 = High Performance
+signal  p_ADC_SPI_CLK       : std_logic := '0';     --! ADC SPI Clock
+signal  p_ADC_SDO           : std_logic := '0';     --! ADC SPI Data
+signal  p_ADC_SYNC_n        : std_logic := '0';     --! ADC Inter-Device Synchronisation
+signal  p_ADC_FSYNC         : std_logic := '0';     --! ADC Frame Sync for start of Sample
 
 
 -- Internal Names
-signal ADC_MODE_0       : std_logic := '0';     --! ADC mode 0 = High Speed, 1 = High Performance
-signal ADC_SPI_CLK      : std_logic := '0';     --! ADC SPI Clock
-signal ADC_SDO          : std_logic := '0';     --! ADC SPI Data
-signal ADC_SYNC_n       : std_logic := '0';     --! ADC Inter-Device Synchronisation
-signal ADC_FSYNC        : std_logic := '0';     --! ADC Frame Sync for start of Sample
+signal ADC_MODE_0           : std_logic := '0';     --! ADC mode 0 = High Speed, 1 = High Performance
+signal ADC_SPI_CLK          : std_logic := '0';     --! ADC SPI Clock
+signal ADC_SDO              : std_logic := '0';     --! ADC SPI Data
+signal ADC_SYNC_n           : std_logic := '0';     --! ADC Inter-Device Synchronisation
+signal ADC_FSYNC            : std_logic := '0';     --! ADC Frame Sync for start of Sample
 
-signal FMC_MODULE_ENABLE_n      : std_logic;            --! FPGA Enable Outputs
-signal MODULE_ENABLE            : std_logic_vector(31 downto 0);            --! FPGA Enable Outputs
-signal ADC_MODE                 : std_logic_vector(31 downto 0);
-signal CLK_SELECT               : std_logic_vector(31 downto 0);
-signal ADC_CLKDIV               : std_logic_vector(31 downto 0);
-signal FIFO_RESET               : std_logic_vector(31 downto 0);
-signal FIFO_ENABLE              : std_logic_vector(31 downto 0);
-signal ADC_RESET                : std_logic_vector(31 downto 0);
-signal ADC_ENABLE               : std_logic_vector(31 downto 0);
+signal FMC_MODULE_ENABLE_n  : std_logic;            --! FPGA Enable Outputs
+signal MODULE_ENABLE        : std_logic_vector(31 downto 0); --! FPGA Enable Outputs
+signal ADC_MODE             : std_logic_vector(31 downto 0);
+signal CLK_SELECT           : std_logic_vector(31 downto 0);
+signal ADC_CLKDIV           : std_logic_vector(31 downto 0);
+signal FIFO_RESET           : std_logic_vector(31 downto 0);
+signal FIFO_ENABLE          : std_logic_vector(31 downto 0);
+signal ADC_RESET            : std_logic_vector(31 downto 0);
+signal ADC_ENABLE           : std_logic_vector(31 downto 0);
 
-signal clk_SPI_OUT             : std_logic;             --! ADC SPI Clk for IOBs
-signal SPI_CLOCK_ENABLE        : std_logic;             --! ADC SPI Clock Enable
-signal s_ADC_SYNC_n            : std_logic;             --! ADC Inter-Device Synchronisation
-signal s_ADC_FSYNC             : std_logic;             --! ADC Frame Sync for start of Sample
-signal s_ADC_SDO               : std_logic;             --! ADC SPI Data
+signal clk_SPI_OUT          : std_logic;            --! ADC SPI Clk for IOBs
+signal SPI_CLOCK_ENABLE     : std_logic;            --! ADC SPI Clock Enable
+signal s_ADC_SYNC_n         : std_logic;            --! ADC Inter-Device Synchronisation
+signal s_ADC_FSYNC          : std_logic;            --! ADC Frame Sync for start of Sample
+signal s_ADC_SDO            : std_logic;            --! ADC SPI Data
 
-signal ADC_DATAOUT             : std_logic_vector(255 downto 0) := (others => '0');
+signal ADC_DATAOUT          : std_logic_vector(255 downto 0) := (others => '0');
 
 
 attribute mark_debug : string;
 attribute keep : string;
 attribute IOB : string;
 
-attribute keep      of s_ADC_SYNC_n     : signal is "true";
-attribute IOB       of ADC_SYNC_n       : signal is "true";
+attribute keep of s_ADC_SYNC_n : signal is "true";
+attribute IOB of ADC_SYNC_n    : signal is "true";
 
-attribute keep      of s_ADC_FSYNC      : signal is "true";
-attribute IOB       of ADC_FSYNC        : signal is "true";
+attribute keep of s_ADC_FSYNC  : signal is "true";
+attribute IOB  of ADC_FSYNC    : signal is "true";
 
-attribute keep      of ADC_SDO          : signal is "true";
-attribute IOB       of s_ADC_SDO        : signal is "true";
+attribute keep of ADC_SDO      : signal is "true";
+attribute IOB  of s_ADC_SDO    : signal is "true";
 
 begin
 
@@ -159,10 +159,10 @@ s_CLOCK_DATA    <=  FMC_IO_BUS(3);
 
 
 -- Fix Trigger and Clock as an Input only present
-cmp_TRIGGER_DIR:    IOBUF port map(IO => p_TRIGGER_DIR, I => FMC_IO_BUS(0), T => FMC_MODULE_ENABLE_n    );
-cmp_CLOCK_DIR:      IOBUF port map(IO => p_CLOCK_DIR,       I => FMC_IO_BUS(2), T => FMC_MODULE_ENABLE_n    );
+cmp_TRIGGER_DIR:    IOBUF port map(IO => p_TRIGGER_DIR, I => FMC_IO_BUS(0), T => FMC_MODULE_ENABLE_n);
+cmp_CLOCK_DIR:      IOBUF port map(IO => p_CLOCK_DIR,   I => FMC_IO_BUS(2), T => FMC_MODULE_ENABLE_n);
 
-cmp_EXT_TRIGGER:    IOBUF port map(IO => p_EXT_TRIGGER, I => s_TRIG_DATA    , O => EXT_TRIGGER, T => not FMC_IO_BUS(0));
+cmp_EXT_TRIGGER:    IOBUF port map(IO => p_EXT_TRIGGER, I => s_TRIG_DATA  , O => EXT_TRIGGER, T => not FMC_IO_BUS(0));
 cmp_EXT_CLOCK:      IBUF port map(I => p_EXT_CLOCK,     O => EXT_CLOCK);
 
 -- Input Pins
@@ -191,27 +191,6 @@ FMC_LA_P(7 downto 5)    <= (others => 'Z');
 FMC_LA_P(3 downto 1)    <= (others => 'Z');
 FMC_LA_N(33 downto 0)   <= (others => 'Z');
 
-
-fmc_ctrl : entity work.fmc_ctrl
-port map (
-    -- Clock and Reset
-    clk_i               => clk_i,
-    reset_i             => reset_i,
-    sysbus_i            => bitbus_i,
-    posbus_i            => (others => (others => '0')),
-
-    MODULE_EN           => MODULE_ENABLE, 
-    -- Memory Bus Interface
-    read_strobe_i       => read_strobe_i,
-    read_address_i      => read_address_i(BLK_AW-1 downto 0),
-    read_data_o         => read_data_o,
-    read_ack_o          => open,
-
-    write_strobe_i      => write_strobe_i,
-    write_address_i     => write_address_i(BLK_AW-1 downto 0),
-    write_data_i        => write_data_i,
-    write_ack_o         => open
-);
 
 
 fmc_adc430_start_inst: entity work.fmc_adc430_start

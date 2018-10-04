@@ -1,7 +1,5 @@
 FMC
-    MODULE_EN       param       enum
-        0   Disable
-        1   Enable    CH01_DATA       pos_out
+    CH01_DATA       pos_out
     CH02_DATA       pos_out
     CH03_DATA       pos_out
     CH04_DATA       pos_out
