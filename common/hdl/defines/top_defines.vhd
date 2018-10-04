@@ -80,7 +80,7 @@ type FMC_interface is
     TXN_OUT         : std_logic;
     RXP_IN          : std_logic;
     RXN_IN          : std_logic;
-  end record FMC_record;
+  end record FMC_interface;
 
 -- SFP Block Record declaration
 
@@ -93,7 +93,7 @@ type SFP_interface is
     RXP_IN      : std_logic;
     TXN_OUT      : std_logic;
     TXP_OUT      : std_logic;
-  end record SFP_record;
+  end record SFP_interface;
 
 type seq_t is
 record

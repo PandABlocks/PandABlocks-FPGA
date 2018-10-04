@@ -65,8 +65,8 @@ port map (
     GTREFCLK                    => GTREFCLK,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
-    LINK1_UP                    => LINK_UP,
-    ERROR1_COUNT                => ERROR_COUNT,
+    LINK_UP                    => LINK_UP,
+    ERROR_COUNT                => ERROR_COUNT,
     RXN_IN                      => SFP_interface.RXN_IN,
     RXP_IN                      => SFP_interface.RXP_IN,
     TXN_OUT                     => SFP_interface.TXN_OUT,
@@ -77,7 +77,7 @@ port map (
 -- FMC Clocks Frequency Counter
 ---------------------------------------------------------------------------
 
-test_clocks <= (0 => GTREFCLK(0), others => '0');
+test_clocks <= (0 => GTREFCLK, others => '0');
 
 freq_counter_inst : entity work.freq_counter
 port map (

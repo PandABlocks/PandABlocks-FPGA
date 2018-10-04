@@ -89,13 +89,13 @@ port
     drpclk_in_i                         : in   std_logic;
     SOFT_RESET                          : in   std_logic;
 
-    LINK1_UP                            : out  std_logic_vector(31 downto 0);
-    ERROR1_COUNT                        : out  std_logic_vector(31 downto 0);
+    LINK_UP                            : out  std_logic_vector(31 downto 0);
+    ERROR_COUNT                        : out  std_logic_vector(31 downto 0);
 
-    RXN_IN                              : in   std_logic_vector(2 downto 0);
-    RXP_IN                              : in   std_logic_vector(2 downto 0);
-    TXN_OUT                             : out  std_logic_vector(2 downto 0);
-    TXP_OUT                             : out  std_logic_vector(2 downto 0)
+    RXN_IN                              : in   std_logic;
+    RXP_IN                              : in   std_logic;
+    TXN_OUT                             : out  std_logic;
+    TXP_OUT                             : out  std_logic
 );
 
 
@@ -704,9 +704,9 @@ q0_clk0_refclk_i                             <= '0';
         gt0_rxdisperr_out               =>      gt0_rxdisperr_i,
         gt0_rxnotintable_out            =>      gt0_rxnotintable_i,
         --------------------------- Receive Ports - RX AFE -------------------------
-        gt0_gtxrxp_in                   =>      RXP_IN(0),
+        gt0_gtxrxp_in                   =>      RXP_IN,
         ------------------------ Receive Ports - RX AFE Ports ----------------------
-        gt0_gtxrxn_in                   =>      RXN_IN(0),
+        gt0_gtxrxn_in                   =>      RXN_IN,
         ------------------- Receive Ports - RX Buffer Bypass Ports -----------------
         gt0_rxbufreset_in               =>      gt0_rxbufreset_i,
         gt0_rxbufstatus_out             =>      gt0_rxbufstatus_i,
@@ -752,8 +752,8 @@ q0_clk0_refclk_i                             <= '0';
         ------------------ Transmit Ports - TX Data Path interface -----------------
         gt0_txdata_in                   =>      gt0_txdata_i,
         ---------------- Transmit Ports - TX Driver and OOB signaling --------------
-        gt0_gtxtxn_out                  =>      TXN_OUT(0),
-        gt0_gtxtxp_out                  =>      TXP_OUT(0),
+        gt0_gtxtxn_out                  =>      TXN_OUT,
+        gt0_gtxtxp_out                  =>      TXP_OUT,
         ----------- Transmit Ports - TX Fabric Clock Output Control Ports ----------
         gt0_txoutclkfabric_out          =>      gt0_txoutclkfabric_i,
         gt0_txoutclkpcs_out             =>      gt0_txoutclkpcs_i,
@@ -886,10 +886,12 @@ gt0_inc_in_i                                 <= '0';
     );
 
 
-LINK1_UP(31 downto 1) <= (others => '0');
-LINK1_UP(0) <= gt0_track_data_i;
-ERROR1_COUNT(31 downto 8) <= (others => '0');
-ERROR1_COUNT(7 downto 0) <= gt0_error_count_i;
+--LINK_UP(31 downto 1) <= (others => '0');
+--LINK_UP(0) <= gt0_track_data_i;
+LINK_UP <= (0 => gt0_track_data_i, others => '0');
+ERROR_COUNT(31 downto 8) <= (others => '0');
+ERROR_COUNT(7 downto 0) <= gt0_error_count_i;
+--ERROR_COUNT <= (7 downto 0 => gt0_error_count_i, others => '0');
 
 
 -------------------------------------------------------------------------------
