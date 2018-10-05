@@ -258,7 +258,7 @@ end process;
 -- Signals to the physical ADCs
 cmp_ADC_SPI_CLK_ODDR : ODDR
 generic map(
-    DDR_CLK_EDGE    => "OPPOSITE_EDGE", -- "OPPOSITE_EDGE" or "SAME_EDGE"
+    DDR_CLK_EDGE => "OPPOSITE_EDGE", -- "OPPOSITE_EDGE" or "SAME_EDGE"
     INIT         => '0', -- Initial value for Q port ('1' or '0')
     SRTYPE       => "SYNC") -- Reset Type ("ASYNC" or "SYNC")
 port map (
