@@ -1,0 +1,6 @@
+DAC         {{newBlockNo("DAC")}}
+    CH01_DAC_DATA                   {{newBlockReg(typ='pos_mux')}}
+    CH02_DAC_DATA                   {{newBlockReg(typ='pos_mux')}}
+    CH03_DAC_DATA                   {{newBlockReg(typ='pos_mux')}}
+    CH04_DAC_DATA                   {{newBlockReg(typ='pos_mux')}}
+

@@ -1,0 +1,10 @@
+ADC
+    CH01_ADC_DATA       pos_out
+    CH02_ADC_DATA       pos_out
+    CH03_ADC_DATA       pos_out
+    CH04_ADC_DATA       pos_out
+    CH05_ADC_DATA       pos_out
+    CH06_ADC_DATA       pos_out
+    CH07_ADC_DATA       pos_out
+    CH08_ADC_DATA       pos_out
+
