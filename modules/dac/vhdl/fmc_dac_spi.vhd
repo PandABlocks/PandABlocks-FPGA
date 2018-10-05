@@ -28,7 +28,7 @@
 --! SDODIS  | 0      | SDO enabled
 --! Bin/2sC | 0      | 2's Complement Data
 --! DACTRI  | 0      | DAC Tri-State off DAC operating Normally
---! OPGND     | 0    | Output Ground Clamp Removed
+--! OPGND   | 0      | Output Ground Clamp Removed
 --! RBUF    | 0      | Gain of 2 config for Bi-polar operation
 
 
