@@ -48,8 +48,6 @@ architecture rtl of fmc_dac_start is
 -- I know why on earth have i put such a long wait here but i tried smaller ones
 -- and the block didn't work it did in simulation but not on the hardware there must be some
 -- issue with the hardware that requires a long time period. 
---constant c_dac_reset_wait  : unsigned(26 downto 0) := to_unsigned(125000000,27);
---constant c_dac_enable_wait : unsigned(26 downto 0) := to_unsigned(125000000,27); 
 constant c_dac_reset_wait  : unsigned(26 downto 0) := to_unsigned(10,27);
 constant c_dac_enable_wait : unsigned(26 downto 0) := to_unsigned(125000000,27); 
 
