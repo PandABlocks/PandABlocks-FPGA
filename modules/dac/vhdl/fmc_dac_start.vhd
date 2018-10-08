@@ -45,11 +45,14 @@ end fmc_dac_start;
 
 architecture rtl of fmc_dac_start is
 
--- I know why on earth have i put such a long wait and reset here put i tried smaller ones
+-- I know why on earth have i put such a long wait here but i tried smaller ones
 -- and the block didn't work it did in simulation but not on the hardware there must be some
 -- issue with the hardware that requires a long time period. 
-constant c_dac_reset_wait  : unsigned(26 downto 0) := to_unsigned(125000000,27);
+--constant c_dac_reset_wait  : unsigned(26 downto 0) := to_unsigned(125000000,27);
+--constant c_dac_enable_wait : unsigned(26 downto 0) := to_unsigned(125000000,27); 
+constant c_dac_reset_wait  : unsigned(26 downto 0) := to_unsigned(10,27);
 constant c_dac_enable_wait : unsigned(26 downto 0) := to_unsigned(125000000,27); 
+
 
 type t_sm_dac_start is (state_dac_start, state_dac_module_enable ,state_dac_clkdiv, state_dac_reset_en, state_dac_reset_dis, state_dac_enable, state_dac_fifo_enable);
 

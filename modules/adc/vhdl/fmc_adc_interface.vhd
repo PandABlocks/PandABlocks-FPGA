@@ -3,9 +3,9 @@
 --! @brief    ACQ427FMC Module Address Decode and Control - PandA
 --! @author   John McLean
 --! @date     14th June 2017
---! @details                                                        \n
---! D-TACQ Solutions Ltd Copyright 2014-2018                        \n
---!                                                                 \n
+--! @details                                                        
+--! D-TACQ Solutions Ltd Copyright 2014-2018                        
+--!                                                                 
 
 --! Standard Libraries - numeric.std for all designs
 library ieee;
