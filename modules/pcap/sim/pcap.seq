@@ -43,6 +43,23 @@ $ Capture pos bus entry 5 Value
 20		:								: DATA=6
 22      : ENABLE=0, TRIG=0           : ACTIVE=0
 
+###################### 4 low enable
+$ Capture pos bus entry 5 Value
+2       : START_WRITE=0
+4       : WRITE=0x50
+6       : POS[5]=20
+10      : ARM=0                         : ACTIVE=0
+11      : ENABLE=0
+13      : TRIG=1
+14      : TRIG=0, POS[5]=100
+15      : TRIG=1 					: DATA=0
+16      : TRIG=0
+17		:								: DATA=0
+18      : TRIG=1, POS[5]=6
+19      : POS[5]=2
+20		:								: DATA=0
+22      : ENABLE=0, TRIG=0           : ACTIVE=0
+
 ##################### 5 DONE
 $ Capture pos bus entry 11 Difference
 2       : START_WRITE=0
@@ -289,6 +306,39 @@ $ Capture bit bus all quadrants
 29      :                               : DATA=0x0
 30		: 								: DATA=0x20
 32		: ENABLE=0						: ACTIVE=0
+
+####################### 14 Low enable 
+$ Capture bit bus all quadrants
+1       : START_WRITE=0
+2       : WRITE=0x270
+5       : WRITE=0x280
+8       : WRITE=0x290
+11      : WRITE=0x2A0
+12      : ARM=0, ENABLE=0               : ACTIVE=0
+13      : TRIG=1, BIT[2]=1
+# BIT[2] appears as bit 2 (0x4) of BITS0
+14      : TRIG=0                     :
+15      :                               : DATA=0
+16      :                               : DATA=0
+17      : TRIG=1, BIT[58]=1          : DATA=0
+18      : TRIG=0                     : DATA=0
+# BIT[58] appears as bit 26 (0x4000000) of BITS1
+19      :                               : DATA=0
+20      :                               : DATA=0
+21      : TRIG=1, BIT[101]=1         : DATA=0
+22      : TRIG=0                     : DATA=0
+23      :                               : DATA=0
+24      :                               : DATA=0
+# BIT[101] appears as bit 5 (0x20) of BITS3
+25      : TRIG=1, BIT[10]=1          : DATA=0
+# BIT[10] appears as bit 10 (0x400) of BITS0
+26      : TRIG=0                     : DATA=0
+27      :                               : DATA=0
+28      :								: DATA=0
+29      :                               : DATA=0
+30		: 								: DATA=0
+32		: ENABLE=0						: ACTIVE=0
+
 ##################### 15 DONE
 $ Gate and capture signals the same
 2       : START_WRITE=0
