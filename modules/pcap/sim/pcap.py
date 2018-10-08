@@ -310,10 +310,10 @@ class Pcap(Block):
                     self.do_gate(ts, self.GATE)
                 if self.GATE:
                     self.do_gated_value(ts, changes.get("POS_BUS", []))
-                if b.CAPTURE in changes:
-                    if self.CAPTURE_EDGE == 0 and changes[b.CAPTURE] or \
-                            self.CAPTURE_EDGE == 1 and not changes[b.CAPTURE] \
-                            or self.CAPTURE_EDGE == 2:
+                if b.TRIG in changes:
+                    if self.TRIG_EDGE == 0 and changes[b.TRIG] or \
+                            self.TRIG_EDGE == 1 and not changes[b.TRIG] \
+                            or self.TRIG_EDGE == 2:
                         self.do_capture(ts)
                         
         # If there was an error then produce it
