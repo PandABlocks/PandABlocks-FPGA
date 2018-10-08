@@ -14,4 +14,3 @@ SYSTEM
     ENC_24V         read
     FMC_12V         read
     VCCINT          xadc
-    
