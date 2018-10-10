@@ -1,0 +1,151 @@
+{#  Template for the control wrapper of the block, this is seperated from the
+	_wrapper as it's functionality is useful for the carrier blocks aswell as
+	the soft blocks, whereas the remainder of the functionality of the wrapper
+	is only useful for the soft blocks                                        #}
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library work;
+use work.addr_defines.all;
+use work.top_defines.all;
+
+entity {{ entity }}_ctrl is
+port (
+    -- Clock and Reset
+    clk_i               : in  std_logic;
+    reset_i             : in  std_logic;
+    bit_bus_i           : in  sysbus_t;
+    pos_bus_i           : in  posbus_t;
+    -- Block Parameters
+{% for field in fields %}
+    {% if field in filter_fields("time|(param|write).*") %}
+        {% for register in field.registers %}
+    {{ "%-20s"| format(register.name) }}: out std_logic_vector(31 downto 0);
+    {{ "%-20s"| format(register.name + "_wstb") }}: out std_logic;
+        {% endfor %}
+    {% elif field in filter_fields("read.*") %}
+    {{ "%-20s"| format(field.name) }}: in  std_logic_vector(31 downto 0);
+    {% elif field.type in "bit_mux" %}
+    {{ "%-20s"| format(field.name + "_from_bus") }}: out std_logic;
+    {% elif field.type in "pos_mux" %}
+    {{ "%-20s"| format(field.name + "_from_bus") }}: out std_logic_vector(31 downto 0);
+    {% endif %}
+{% endfor %}
+    -- Memory Bus Interface
+    read_strobe_i       : in  std_logic;
+    read_address_i      : in  std_logic_vector(BLK_AW-1 downto 0);
+    read_data_o         : out std_logic_vector(31 downto 0);
+    read_ack_o          : out std_logic;
+
+    write_strobe_i      : in  std_logic;
+    write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    write_ack_o         : out std_logic
+);
+end {{ entity }}_ctrl;
+
+architecture rtl of {{ entity }}_ctrl is
+
+{% for field in fields %}
+    {% if field.type in "bit_mux|pos_mux" %}
+        {% for register in field.registers %}
+signal {{ register.name }}      : std_logic_vector(31 downto 0);
+signal {{ register.name }}_wstb : std_logic;
+
+        {% endfor %}
+    {% endif %}
+{% endfor %}
+
+-- Register interface common
+
+signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
+signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
+
+begin
+
+    -- Sub-module address decoding
+    read_addr <= to_integer(unsigned(read_address_i(BLK_AW-1 downto 0)));
+    write_addr <= to_integer(unsigned(write_address_i(BLK_AW-1 downto 0)));
+
+    -- Control System Register Interface
+    REG_WRITE : process(clk_i)
+    begin
+        if rising_edge(clk_i) then
+            -- Zero all the write strobe arrays, we set them below
+{% for field in fields %}
+    {% if field not in filter_fields("read.*") %}
+        {% for register in field.registers %}
+            {{ register.name }}_wstb <= '0';
+        {% endfor %}
+    {% endif %}
+{% endfor %}
+            if (write_strobe_i = '1') then
+                -- Set the specific write strobe that has come in
+                case write_addr is
+{% for field in fields %}
+    {% if field not in filter_fields("read.*") %}
+        {% for register in field.registers %}
+                    when {{ entity|upper }}_{{ register.name }}_addr =>
+                        {{ register.name }} <= write_data_i;
+                        {{ register.name }}_wstb <= '1';
+        {% endfor %}
+    {% endif %}
+{% endfor %}
+                    when others =>
+                        null;
+                end case;
+            end if;
+        end if;
+    end process;
+
+    --
+    -- Status Register Read     // NOT dealt with yet!      -- Need MUX for read_data(I)
+                                                            -- find examples that actually have register reads...
+                                                            -- Current implementation taken from old panda_block_ctrl_template
+    --
+    REG_READ : process(clk_i)
+    begin
+        if rising_edge(clk_i) then
+            case (read_addr) is
+{% for field in fields %}
+    {% if field in filter_fields("read.*") %}
+        {% for register in field.registers %}
+                when {{ entity|upper }}_{{ register.name }}_addr =>
+                    read_data_o <= {{ register.name }};
+        {% endfor %}
+    {% endif %}
+{% endfor %}
+                when others =>
+                    read_data_o <= (others => '0');
+            end case;
+        end if;
+    end process;
+
+    --
+    -- Instantiate Delay Blocks for Bit and Position Bus Fields
+    --
+{% for field in filter_fields("bit_mux") %}
+    bitmux_{{ field.name }} : entity work.bitmux
+    port map (
+        clk_i       => clk_i,
+        sysbus_i    => bit_bus_i,
+        bit_o       => {{ field.name }}_from_bus,
+        bitmux_sel  => {{ field.name }},
+        bit_dly     => {{ field.name }}_DLY
+    );
+
+{% endfor %}
+{% for field in filter_fields("pos_mux") %}
+    posmux_{{ field.name }} : entity work.posmux
+    port map (
+        clk_i       => clk_i,
+        posbus_i    => pos_bus_i,
+        posn_o      => {{ field.name }}_from_bus,
+        posmux_sel  => {{ field.name }},
+        pos_dly     => (others => '0')
+    );
+
+{% endfor %}
+
+end rtl;

@@ -8,6 +8,7 @@ library unisim;
 use unisim.vcomponents.all;
 
 library work;
+use work.addr_defines.all;
 use work.top_defines.all;
 
 entity soft_blocks is
@@ -39,26 +40,15 @@ port (
     rdma_data       : in    std_logic_vector(31 downto 0);
     rdma_valid      : in    std_logic_vector(5 downto 0);
     --
-    FMC             : inout FMC_record;
-    SFP1            : inout SFP_record;
-    SFP2            : inout SFP_record;
-    SFP3            : inout SFP_record
+    FMC             : inout FMC_interface;
+    SFP1            : inout SFP_interface;
+    SFP2            : inout SFP_interface;
+    SFP3            : inout SFP_interface
 );
 end soft_blocks;
 
 architecture rtl of soft_blocks is
-
--- Definitions below need to be automatically populated by Jinja
--- Only for soft blocks though!
--- "NUM" paramters resolved here and inherited in blocks by generics
-
--- Functional Address Space Chip Selects
-
-constant lut_CS : natural := 10;
-
--- Block instantiation
-
-constant lut_NUM : natural := 8;
+-- Chip selects and Block Num constants are declared in addr_defines
 
 begin
 
@@ -69,7 +59,7 @@ lut_inst : entity work.lut_wrapper
 generic map (NUM => lut_NUM)
 port map (
 
-    reset_i             => FCLK_REST0,
+    reset_i             => FCLK_RESET0,
     
     read_strobe_i       => read_strobe(lut_CS),
     read_address_i      => read_address,
@@ -83,10 +73,9 @@ port map (
     
     bit_bus_i           => bit_bus,
     
-    OUT_o           => bit_bus (39 downto 32),
+    OUT_o               => bit_bus (39 downto 32),
     
     clk_i               => FCLK_CLK0
 );
-
 
 end rtl;

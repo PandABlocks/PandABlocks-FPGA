@@ -27,10 +27,10 @@ port (
 
     -- Bus outputs
 {% for field in filter_fields("bit_out") %}
-    {{ field.name }}_o  : out std_logic_vector(NUM-1 downto 0);
+    {{ "%-20s"| format(field.name + "_o") }}: out std_logic_vector(NUM-1 downto 0);
 {% endfor %}
 {% for field in filter_fields("pos_out") %}
-    {{ field.name }}_o  : out std32_array(NUM-1 downto 0);
+    {{ "%-20s"| format(field.name + "_o") }}: out std32_array(NUM-1 downto 0);
 {% endfor %}
 
     -- Memory Interface
@@ -54,23 +54,19 @@ architecture rtl of {{ entity }}_wrapper is
 
 {% for field in fields %}
     {% if field.type in "time" %}
-signal {{ field.name }}          : std48_array(NUM-1 downto 0);
+signal {{ field.name }}            : std64_array(NUM-1 downto 0);
+signal {{ field.name }}_wstb       : std_logic_vector(NUM-1 downto 0);
+signal {{ field.name }}_L_wstb     : std_logic_vector(NUM-1 downto 0);
+signal {{ field.name }}_H_wstb     : std_logic_vector(NUM-1 downto 0);
 
-    {% endif %}
-    {% for register in field.registers %}
-constant {{ register.name }}_addr : natural := {{ register.number }};
+    {% else %}
+        {% for register in field.registers %}
 signal {{ register.name }}        : std32_array(NUM-1 downto 0);
 signal {{ register.name }}_wstb   : std_logic_vector(NUM-1 downto 0);
 
-    {% endfor %}
+        {% endfor %}
+    {% endif %}
 {% endfor %}
-
--- Current values for bit muxes
-
-{% for field in filter_fields("bit_mux") %}
-signal {{ field.name }}_from_bus : std_logic_vector(NUM-1 downto 0);
-{% endfor %}
-
 
 -- Register interface common
 
@@ -95,116 +91,93 @@ begin
         DELAY       => RD_ADDR2ACK
     );
 
+    read_data_o <= read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW))));
+
     -- Generate NUM instances of the blocks
     GEN : FOR I IN 0 TO (NUM-1) GENERATE
 
         -- Sub-module address decoding
         read_strobe(I) <= compute_block_strobe(read_address_i, I) and read_strobe_i;
         write_strobe(I) <= compute_block_strobe(write_address_i, I) and write_strobe_i;
-        read_addr <= to_integer(unsigned(read_address_i(BLK_AW-1 downto 0)));
-        write_addr <= to_integer(unsigned(write_address_i(BLK_AW-1 downto 0)));
 
-        -- Control System Register Interface
-        REG_WRITE : process(clk_i)
-        begin
-            if rising_edge(clk_i) then
-                -- Zero all the write strobe arrays, we set them below
-{% for field in fields %}
-    {% for register in field.registers %}
-                {{ register.name }}_wstb(I) <= '0';
-    {% endfor %}
-{% endfor %}
-                if (write_strobe(I) = '1') then
-                    -- Set the specific write strobe that has come in
-                    case write_addr is
-{% for field in fields %}
-    {% for register in field.registers %}
-                        when {{ register.name }}_addr =>
-                            {{ register.name }}(I) <= write_data_i;
-                            {{ register.name }}_wstb(I) <= '1';
-    {% endfor %}
-{% endfor %}
-                        when others =>
-                            null;
-                    end case;
-                end if;
-            end if;
-        end process;
-
-        --
-        -- Status Register Read     // NOT dealt with yet!      -- Need MUX for read_data(I)
-                                                                -- find examples that actually have register reads...
-        --
-        REG_READ : process(clk_i)
-        begin
-            if rising_edge(clk_i) then
-                case (read_addr) is
-                    when others =>
-                        read_data(I) <= (others => '0');
-                end case;
-            end if;
-        end process;
-
-        -- Instantiate Delay Blocks for Bit and Position Bus Fields
-{% for field in filter_fields("bit_mux") %}
-        bitmux_{{ field.name }} : entity work.bitmux
+        {{ entity }}_ctrl : entity work.{{ entity }}_ctrl
         port map (
-            clk_i       => clk_i,
-            sysbus_i    => bit_bus_i,
-            bit_o       => {{ field.name }}_from_bus(I),
-            bitmux_sel  => {{ field.name }}(I),
-            bit_dly     => {{ field.name }}_DLY(I)
-        );
+            clk_i               => clk_i,
+            reset_i             => reset_i,
+            bit_bus_i           => bit_bus_i,
+            pos_bus_i           => pos_bus_i,
 
+{% for field in fields %}
+    {% if field in filter_fields("(param|write).*") %}
+        {% for register in field.registers %}
+            {{ "%-20s"|format(register.name) }}=> {{ register.name }}(I),
+            {{ "%-20s"|format(register.name + "_wstb") }}=> {{ register.name }}_wstb(I),
+        {% endfor %}
+    {% elif field in filter_fields("time") %}
+            {{ "%-20s"|format(field.name + "_L") }}=> {{ field.name }}(I)(31 downto 0),
+            {{ "%-20s"|format(field.name + "_H") }}=> {{ field.name }}(I)(63 downto 32),
+            {{ "%-20s"|format(field.name + "_L_wstb") }}=> {{ field.name }}_L_wstb(I),
+            {{ "%-20s"|format(field.name + "_H_wstb") }}=> {{ field.name }}_H_wstb(I),
+    {% elif field in filter_fields("read.*") %}
+            {{ "%-20s"|format(field.name) }}=> {{field.name }}(I),
+    {% elif field in filter_fields("bit_mux") %}
+            {{ "%-20s"|format(field.name+"_from_bus") }}=> {{ field.name }}(I)(0),
+    {% elif field in filter_fields("pos_mux") %}
+            {{ "%-20s"|format(field.name+"_from_bus") }}=> {{ field.name }}(I),
+    {% endif %}
 {% endfor %}
-{% for field in filter_fields("pos_mux") %}
-        posmux_{{ field.name }} : entity work.posmux
-        port map (
-            clk_i       => clk_i,
-            posbus_i    => pos_bus_i,
-            posn_o      => {{ field.name }}_from_bus(I),
-            posmux_sel  => {{ field.name }}(I),
-            pos_dly     => {{ field.name }}_DLY(I)
-        );
 
-{% endfor %}
+            read_strobe_i       => read_strobe(I),
+            read_address_i      => read_address_i,
+            read_data_o         => read_data(I),
+            read_ack_o          => open,
+
+            write_strobe_i      => write_strobe(I),
+            write_address_i     => write_address_i,
+            write_data_i        => write_data_i,
+            write_ack_o         => open
+        );
 
 {% for field in filter_fields("time") %}
     {% if loop.first %}
         -- Time signals are made up of _L and _H parts
     {% endif %}
-        {{ field.name }}(I) <= (47 downto 32 => {{field.name}}_H(I)(15 downto 0),
-                     31 downto 0 => {{field.name}}_L(I));
+        {{ field.name }}_wstb(I) <= {{ field.name }}_L_wstb(I) or {{ field.name }}_H_wstb(I);
 
 {% endfor %}
-
         -- Connect to the actual logic entity
         {{ entity }} : entity work.{{ entity }}
         port map (
-{% for field in filter_fields(".*_mux") %}
-            {{ field.name }}_i => {{ field.name }}_from_bus(I),
+{% for field in filter_fields("bit_mux") %}
+            {{ "%-20s"|format(field.name +"_i") }}=> {{ field.name }}(I)(0),
 {% endfor %}
-{% for field in filter_fields("time|param lut|param int|param time|param") %}
-            {{ field.name }} => {{ field.name }}(I),
+{% for field in filter_fields("pos_mux") %}
+            {{ "%-20s"|format(field.name +"_i") }}=> {{ field.name }}(I),
+{% endfor %}
+{% for field in filter_fields("param lut|param int|param time|param") %}
+            {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I),
+{% endfor %}
+{% for field in filter_fields("time") %}
+            {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I)(47 downto 0),
 {% endfor %}
 {% for field in filter_fields("write int|read uint 1023|read") %}
-            {{ field.name }} => {{ field.name }}(I),
+            {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I),
 {% endfor %}
 {% for field in filter_fields("param bit|write action" )%}
-            {{ field.name }} => {{ field.name }}(I)(0),
+            {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I)(0),
 {% endfor %}
 {% for field in filter_fields("param enum|read enum") %}
-            {{ field.name }} => {{ field.name }}(I)(1 downto 0),
+            {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I)(1 downto 0),
 {% endfor %}
 {% for field in filter_fields(".*_out") %}
-            {{ field.name }}_o => {{ field.name }}_o(I),
+            {{ "%-20s"|format(field.name + "_o") }}=> {{ field.name }}_o(I),
 {% endfor %}
 {% for field in fields %}
     {% if field.wstb %}
-            {{ field.name }}_wstb => {{ field.name }}_wstb(I),
+            {{ "%-20s"|format(field.name + "_wstb") }}=> {{ field.name }}_wstb(I),
     {% endif %}
 {% endfor %}
-            clk_i => clk_i
+            clk_i               => clk_i
         );
 
     END GENERATE;

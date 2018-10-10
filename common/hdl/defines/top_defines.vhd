@@ -141,6 +141,9 @@ type unsigned32_array is array(natural range <>) of unsigned32_t;
 subtype std48_t is std_logic_vector(47 downto 0);
 type std48_array is array(natural range <>) of std48_t;
 
+subtype std64_t is std_logic_vector(63 downto 0);
+type std64_array is array(natural range <>) of std64_t;
+
 subtype page_t is std_logic_vector(PAGE_AW-1 downto 0);
 type page_array is array(natural range <>) of page_t;
 

@@ -22,7 +22,7 @@ reg  [1:0]  {{ field.name }};
 reg  [31:0] {{ field.name }};
 {% endfor %}
 {% for field in block.filter_fields("time") %}
-wire  [47:0] {{ field.name }};
+wire [47:0] {{ field.name }};
 reg  [31:0] {{ field.name }}_L;
 reg  [15:0] {{ field.name }}_H;
 {% endfor %}
@@ -56,7 +56,13 @@ reg         {{ field.name }}_err;   //Error signal
 // Write Strobes
 {% for field in block.fields %}
     {% if field.wstb %}
+        {% if field.type == "time" %}
+reg         {{field.name}}_L_wstb;
+reg         {{field.name}}_H_wstb;
+wire        {{field.name}}_wstb;
+        {% else %}
 reg         {{field.name}}_wstb;
+        {% endif %}
     {% endif %}
 {% endfor %}
 
@@ -175,6 +181,7 @@ end
 {% for field in block.fields %}
     {% if field.type == "time" %}    
 assign {{field.name}} = { {{field.name}}_H, {{field.name}}_L};
+assign {{field.name}}_wstb = {{field.name}}_H_wstb || {{field.name}}_L_wstb;
     {% endif %}
 {% endfor %}
 // Instantiate the Unit Under Test (UUT)
@@ -182,22 +189,22 @@ assign {{field.name}} = { {{field.name}}_H, {{field.name}}_L};
 
 {% for field in block.fields %}
 	{% if field in block.filter_fields(".*out")%}
-        .{{ field.name }}_o        ({{ field.name }}_uut),
+        .{{ "%-20s"| format(field.name + "_o") }}  ({{ field.name }}_uut),
 	{% elif field in block.filter_fields("read.*") %}
-        .{{ field.name }}          ({{ field.name }}_uut),
+        .{{ "%-20s"| format(field.name) }}  ({{ field.name }}_uut),
 	{% elif field in block.filter_fields(".*mux") %}
-        .{{ field.name }}_i        ({{ field.name }}),
+        .{{ "%-20s"| format(field.name + "_i") }}  ({{ field.name }}),
 		{% if field.wstb %}
-        .{{ field.name }}_wstb     ({{ field.name }}_wstb),
+        .{{ "%-20s"| format(field.name + "_wstb")}}  ({{ field.name }}_wstb),
 		{% endif %}
 	{% else %}
-        .{{ field.name }}          ({{ field.name }}),
+        .{{ "%-20s"| format(field.name) }}  ({{ field.name }}),
 		{% if field.wstb%}
-        .{{ field.name }}_wstb     ({{ field.name }}_wstb),
+        .{{ "%-20s"| format(field.name + "_wstb") }}  ({{ field.name }}_wstb),
 		{% endif %}
 	{% endif %}
 {% endfor %}
-        .clk_i        (clk_i)
+        .clk_i                 (clk_i)
 );
 
 endmodule

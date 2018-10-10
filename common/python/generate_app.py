@@ -25,7 +25,7 @@ TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 # TODO: is this right?
 MAX_BLOCKS = 64
 
-# Max size of busses
+# Max size of buses
 MAX_BIT = 128
 MAX_POS = 32
 MAX_EXT = 32
@@ -50,7 +50,7 @@ class AppGenerator(object):
         self.parse_ini_files(app)
         self.generate_config_dir()
         self.generate_wrappers()
-        self.generate_top()
+        self.generate_soft_blocks()
 
     def parse_ini_files(self, app):
         # type: (str) -> None
@@ -69,6 +69,34 @@ class AppGenerator(object):
         block_address = 2
         # The various busses
         bit_i, pos_i, ext_i = 0, 0, 0
+        # The following code reads the target ini file for the specified target
+        # The ini file declares the carrier blocks
+        target = app_ini.get(".", "target")
+        if target:
+            target_path = os.path.join(ROOT, "targets", target)
+            target_ini = read_ini(os.path.join(target_path, (target + ".ini")))
+            for section in target_ini.sections():
+                if section != ".":
+                    try:
+                        module_name = target_ini.get(section, "module")
+                    except configparser.NoOptionError:
+                        module_name = section.lower()
+                    try:
+                        ini_name = target_ini.get(section, "ini")
+                    except configparser.NoOptionError:
+                        ini_name = section.lower() + ".block.ini"
+                    try:
+                        number = target_ini.getint(section, "number")
+                    except configparser.NoOptionError:
+                        number = 1
+                    ini_path = os.path.join(target_path, "blocks", module_name,
+                                            ini_name)
+                    block_ini = read_ini(ini_path)
+                    # The blocks are not softblocks so softblock config is False
+                    block = BlockConfig(section, False, number, block_ini)
+                    block_address, bit_i, pos_i, ext_i = \
+                        block.register_addresses(block_address, bit_i, pos_i, ext_i)
+                    self.blocks.append(block)
         for section in app_ini.sections():
             if section != ".":
                 try:
@@ -85,7 +113,7 @@ class AppGenerator(object):
                     number = 1
                 ini_path = os.path.join(ROOT, "modules", module_name, ini_name)
                 block_ini = read_ini(ini_path)
-                block = BlockConfig(section, number, block_ini)
+                block = BlockConfig(section, True, number, block_ini)
                 block_address, bit_i, pos_i, ext_i = block.register_addresses(
                     block_address, bit_i, pos_i, ext_i)
                 self.blocks.append(block)
@@ -126,14 +154,20 @@ class AppGenerator(object):
         # Create a wrapper for every block
         for block in self.blocks:
             context = {k: getattr(block, k) for k in dir(block)}
-            self.expand_template("block_wrapper.vhd.jinja2", context, hdl_dir,
-                                 "%s_wrapper.vhd" % block.entity)
+            if block.softblock:
+                self.expand_template("block_wrapper.vhd.jinja2", context,
+                                     hdl_dir, "%s_wrapper.vhd" % block.entity)
+            self.expand_template("block_ctrl.vhd.jinja2", context, hdl_dir,
+                                 "%s_ctrl.vhd" % block.entity)
 
-    def generate_top(self):
+    def generate_soft_blocks(self):
         """Generate top in hdl"""
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
         context = dict(blocks=self.blocks,)
-        self.expand_template("soft_blocks.vhd.jinja2", context, hdl_dir, "soft_blocks.vhd")
+        self.expand_template("soft_blocks.vhd.jinja2", context, hdl_dir,
+                             "soft_blocks.vhd")
+        self.expand_template("addr_defines.vhd.jinja2", context, hdl_dir,
+                             "addr_defines.vhd")
 
 
 def main():

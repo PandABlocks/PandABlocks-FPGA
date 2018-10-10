@@ -8,6 +8,7 @@ library unisim;
 use unisim.vcomponents.all;
 
 library work;
+use work.addr_defines.all;
 use work.top_defines.all;
 
 entity soft_blocks is
@@ -39,31 +40,38 @@ port (
     rdma_data       : in    std_logic_vector(31 downto 0);
     rdma_valid      : in    std_logic_vector(5 downto 0);
     --
-    FMC             : inout FMC_record;
-    SFP1            : inout SFP_record;
-    SFP2            : inout SFP_record;
-    SFP3            : inout SFP_record
+    FMC             : inout FMC_interface;
+    SFP1            : inout SFP_interface;
+    SFP2            : inout SFP_interface;
+    SFP3            : inout SFP_interface
 );
 end soft_blocks;
 
 architecture rtl of soft_blocks is
 
--- Definitions below need to be automatically populated by Jinja
+{#-- Definitions below need to be automatically populated by Jinja
 -- Only for soft blocks though!
 -- "NUM" paramters resolved here and inherited in blocks by generics
+#}
 
+-- Chip selects and Block Num constants are declared in addr_defines
+{#
 -- Functional Address Space Chip Selects
 
 {% for block in blocks %}
+    {% if block.softblock %} #}
 {# 10 used as next available slot from panda_carrier_top #}
-constant {{ block.entity }}_CS : natural := {{10 + loop.index0}};
+{# constant {{ block.entity }}_CS : natural := {{10 + loop.index0}};
+    {% endif %}
 {% endfor %}
 
 -- Block instantiation
 
 {% for block in blocks %}
+    {% if block.softblock %}
 constant {{ block.entity }}_NUM : natural := {{ block.number }};
-{% endfor %}
+    {% endif %}
+{% endfor %} #}
 
 begin
 
@@ -72,6 +80,7 @@ begin
 {% set pos = [4] %}
 {% set dma = [0] %}
 {% for block in blocks %}
+    {% if block.softblock %}
 --------------------------------------------------------------------------------
 -- {{block.entity}} - {{block.description}}
 --------------------------------------------------------------------------------
@@ -79,7 +88,7 @@ begin
 generic map (NUM => {{ block.entity }}_NUM)
 port map (
 
-    reset_i             => FCLK_REST0,
+    reset_i             => FCLK_RESET0,
     
     read_strobe_i       => read_strobe({{ block.entity }}_CS),
     read_address_i      => read_address,
@@ -91,7 +100,7 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack({{ block.entity }}_CS),
     
-    {% if block.entity in ("pgen") %}
+        {% if block.entity in ("pgen") %}
     dma_req_o           => rdma_req({{ dma[0] + block.number - 1 }} downto {{ dma[0] }}),
     dma_ack_i           => rdma_ack({{ dma[0] + block.number - 1 }} downto {{ dma[0] }}),
     dma_done_i          => rdma_done,
@@ -99,36 +108,36 @@ port map (
     dma_len_o           => rdma_len({{ dma[0] + block.number - 1 }} downto {{ dma[0] }}),
     dma_data_i          => rdma_data,
     dma_valid_i         => rdma_valid({{ dma[0] + block.number - 1 }} downto {{ dma[0] }}),
-    {% if dma.append(dma.pop() + 1) %}{% endif %}
+        {% if dma.append(dma.pop() + 1) %}{% endif %}
     
-    {% endif %}
-    {% for field in block.filter_fields("bit_mux") %}
-        {% if loop.first %}
+        {% endif %}
+        {% for field in block.filter_fields("bit_mux") %}
+            {% if loop.first %}
     bit_bus_i           => bit_bus,
-        {% endif %}
-    {% endfor %}
-    {% for field in block.filter_fields("pos_mux") %}
-        {% if loop.first %}
+            {% endif %}
+        {% endfor %}
+        {% for field in block.filter_fields("pos_mux") %}
+            {% if loop.first %}
     pos_bus_i           => posbus,
-        {% endif %}
-    {% endfor %}
+            {% endif %}
+        {% endfor %}
     
-    {% for field in block.filter_fields("bit_out") %}
-    {{ field.name }}_o           => bit_bus ({{ bit[0] + block.number - 1 }} downto {{ bit[0] }}),
-        {% for i in range(block.number) %}
-            {% if bit.append(bit.pop() + 1) %}{% endif %}
+        {% for field in block.filter_fields("bit_out") %}
+    {{ "%-20s" |format(field.name + "_o") }}=> bit_bus ({{ bit[0] + block.number - 1 }} downto {{ bit[0] }}),
+            {% for i in range(block.number) %}
+                {% if bit.append(bit.pop() + 1) %}{% endif %}
+            {% endfor %}
         {% endfor %}
-    {% endfor %}
-    {% for field in block.filter_fields("pos_out") %}
-    {{ field.name }}_o           => posbus ({{ pos[0] + block.number -1 }} downto {{ pos[0] }}),
-        {% for i in range(block.number) %}
-            {% if pos.append(pos.pop() + 1) %}{% endif %}
+        {% for field in block.filter_fields("pos_out") %}
+    {{ "%-20s" | format(field.name + "_o") }}=> posbus ({{ pos[0] + block.number -1 }} downto {{ pos[0] }}),
+            {% for i in range(block.number) %}
+                {% if pos.append(pos.pop() + 1) %}{% endif %}
+            {% endfor %}
         {% endfor %}
-    {% endfor %}
     
     clk_i               => FCLK_CLK0
 );
-
+    {% endif %}
 {% endfor %}
 
 end rtl;

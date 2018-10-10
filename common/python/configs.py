@@ -26,8 +26,8 @@ def all_subclasses(cls):
 
 class BlockConfig(object):
     """The config for a single Block"""
-    def __init__(self, name, number, ini):
-        # type: (str, int, configparser.SafeConfigParser) -> None
+    def __init__(self, name, softblock, number, ini):
+        # type: (str, bool, int, configparser.SafeConfigParser) -> None
         # Block names should be UPPER_CASE_NO_NUMBERS
         assert re.match("[A-Z][A-Z_]*$", name), \
             "Expected BLOCK_NAME with no numbers, got %r" % name
@@ -35,6 +35,8 @@ class BlockConfig(object):
         self.name = name
         #: The number of instances Blocks that will be created, like 8
         self.number = number
+        #: Is the block a softblock?
+        self.softblock = softblock
         #: The Block section of the register address space
         self.block_address = None
         #: The VHDL entity name, like lut
@@ -209,7 +211,18 @@ class PosOutFieldConfig(FieldConfig):
         for _ in range(self.number):
             self.bus_entries.append(BusEntryConfig("pos", pos_i))
             pos_i += 1
+        return field_address, bit_i, pos_i, ext_i
 
+
+class ExtOutFieldConfig(FieldConfig):
+    """These fields represent a ext output"""
+    type_regex = "ext_out"
+
+    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+        # type: (int, int, int, int) -> Tuple[int, int, int, int]
+        for _ in range(self.number):
+            self.bus_entries.append(BusEntryConfig("ext", ext_i))
+            ext_i += 1
         return field_address, bit_i, pos_i, ext_i
 
 

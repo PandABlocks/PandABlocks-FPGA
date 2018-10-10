@@ -82,7 +82,7 @@ class HdlTimingGenerator(object):
                         timing))
             module_path = os.path.dirname(timing)
             block_ini = read_ini(os.path.join(module_path, block_ini_name))
-            block = BlockConfig("BLOCK", 1, block_ini)
+            block = BlockConfig("BLOCK", True, 1, block_ini)
             for section in timing_ini.sections():
                 if section != ".":
                     self.generate_timing_test(block, timing_ini, section, i)
@@ -108,7 +108,11 @@ class HdlTimingGenerator(object):
                 header.append(field.name)
             # If field has wstb config, ass header for a wstb signal
             if field.wstb:
-                header.append(field.name + "_wstb")
+                if field.type == "time":
+                    header.append(field.name + "_L" + "_wstb")
+                    header.append(field.name + "_H" + "_wstb")
+                else:
+                    header.append(field.name + "_wstb")
         csv = TimingCsv(header)
         for_next_ts = {}  # type: Dict[str, str]
         for ts, inputs, outputs in timing_entries(timing_ini, section):

@@ -43,6 +43,11 @@ class TestGenerateApp(unittest.TestCase):
     def test_soft_blocks(self):
         self.assertGeneratedEqual("hdl", "soft_blocks.vhd")
 
+    def test_lut_ctrl(self):
+        self.assertGeneratedEqual("hdl", "lut_ctrl.vhd")
+
+    def test_addr_defines(self):
+        self.assertGeneratedEqual("hdl", "addr_defines.vhd")
 
 if __name__ == '__main__':
     unittest.main()

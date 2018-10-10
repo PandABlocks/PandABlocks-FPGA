@@ -16,10 +16,11 @@ use ieee.std_logic_1164.all;
 library unisim;
 use unisim.vcomponents.all; -- NEEDED?
 
---library work;
+library work;
 --use work.support.all;
---use work.addr_defines.all; -- NEEDED?
+use work.addr_defines.all; -- NEEDED?
 use work.top_defines.all;  -- NEEDED?
+use work.reg_defines.all;
 
 entity panda_carrier_top is
 generic (
@@ -108,26 +109,26 @@ architecture rtl of panda_carrier_top is
 
 -- Functional Address Space Chip Selects
 -- Remove these definitions and re-instate addr_defines.vhd!!
-constant REG_CS : natural := 0;
-constant DRV_CS : natural := 1;
-constant TTLIN_CS : natural := 3;
-constant TTLOUT_CS : natural := 4;
-constant LVDSIN_CS : natural := 5;
-constant LVDSOUT_CS : natural := 6;
-constant INENC_CS : natural := 7;
-constant OUTENC_CS : natural := 8;
-constant PCAP_CS : natural := 20; ----- make this #2! Add PCAP and SYSTEM to panda_carrier definition.
-constant SYSTEM_CS : natural := 23; -------make this #9? ditto
+--constant REG_CS : natural := 0;
+--constant DRV_CS : natural := 1;
+--constant TTLIN_CS : natural := 3;
+--constant TTLOUT_CS : natural := 4;
+--constant LVDSIN_CS : natural := 5;
+--constant LVDSOUT_CS : natural := 6;
+--constant INENC_CS : natural := 7;
+--constant OUTENC_CS : natural := 8;
+--constant PCAP_CS : natural := 20; ----- make this #2! Add PCAP and SYSTEM to panda_carrier definition.
+--constant SYSTEM_CS : natural := 23; -------make this #9? ditto
 
 
 -- Block instantiation 
 
-constant TTLIN_NUM : natural := 6;
-constant TTLOUT_NUM : natural := 10;
-constant LVDSIN_NUM : natural := 2;
-constant LVDSOUT_NUM : natural := 2;
-constant INENC_NUM : natural := 4; ------????????????  NB used! ENC_NUM from top_defines used instead!
-constant OUTENC_NUM : natural := 4; --------????????????? ditto
+--constant TTLIN_NUM : natural := 6;
+--constant TTLOUT_NUM : natural := 10;
+--constant LVDSIN_NUM : natural := 2;
+--constant LVDSOUT_NUM : natural := 2;
+--constant INENC_NUM : natural := 4; ------????????????  NB used! ENC_NUM from top_defines used instead!
+--constant OUTENC_NUM : natural := 4; --------????????????? ditto
 
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
@@ -558,50 +559,50 @@ port map (
 ---------------------------------------------------------------------------
 -- POSITION CAPTURE
 ---------------------------------------------------------------------------
-pcap_inst : entity work.pcap_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-    m_axi_awaddr        => S_AXI_HP0_awaddr,
-    m_axi_awburst       => S_AXI_HP0_awburst,
-    m_axi_awcache       => S_AXI_HP0_awcache,
-    m_axi_awid          => S_AXI_HP0_awid,
-    m_axi_awlen         => S_AXI_HP0_awlen,
-    m_axi_awlock        => S_AXI_HP0_awlock,
-    m_axi_awprot        => S_AXI_HP0_awprot,
-    m_axi_awqos         => S_AXI_HP0_awqos,
-    m_axi_awready       => S_AXI_HP0_awready,
-    m_axi_awregion      => S_AXI_HP0_awregion,
-    m_axi_awsize        => S_AXI_HP0_awsize,
-    m_axi_awvalid       => S_AXI_HP0_awvalid,
-    m_axi_bid           => S_AXI_HP0_bid,
-    m_axi_bready        => S_AXI_HP0_bready,
-    m_axi_bresp         => S_AXI_HP0_bresp,
-    m_axi_bvalid        => S_AXI_HP0_bvalid,
-    m_axi_wdata         => S_AXI_HP0_wdata,
-    m_axi_wlast         => S_AXI_HP0_wlast,
-    m_axi_wready        => S_AXI_HP0_wready,
-    m_axi_wstrb         => S_AXI_HP0_wstrb,
-    m_axi_wvalid        => S_AXI_HP0_wvalid,
+--pcap_inst : entity work.pcap_top
+--port map (
+--    clk_i               => FCLK_CLK0,
+--    reset_i             => FCLK_RESET0,
+--    m_axi_awaddr        => S_AXI_HP0_awaddr,
+--    m_axi_awburst       => S_AXI_HP0_awburst,
+--    m_axi_awcache       => S_AXI_HP0_awcache,
+--    m_axi_awid          => S_AXI_HP0_awid,
+--    m_axi_awlen         => S_AXI_HP0_awlen,
+--    m_axi_awlock        => S_AXI_HP0_awlock,
+--    m_axi_awprot        => S_AXI_HP0_awprot,
+--    m_axi_awqos         => S_AXI_HP0_awqos,
+--    m_axi_awready       => S_AXI_HP0_awready,
+--    m_axi_awregion      => S_AXI_HP0_awregion,
+--    m_axi_awsize        => S_AXI_HP0_awsize,
+--    m_axi_awvalid       => S_AXI_HP0_awvalid,
+--    m_axi_bid           => S_AXI_HP0_bid,
+--    m_axi_bready        => S_AXI_HP0_bready,
+--    m_axi_bresp         => S_AXI_HP0_bresp,
+--    m_axi_bvalid        => S_AXI_HP0_bvalid,
+--    m_axi_wdata         => S_AXI_HP0_wdata,
+--    m_axi_wlast         => S_AXI_HP0_wlast,
+--    m_axi_wready        => S_AXI_HP0_wready,
+--    m_axi_wstrb         => S_AXI_HP0_wstrb,
+--    m_axi_wvalid        => S_AXI_HP0_wvalid,
 
-    read_address_i      => read_address,
-    read_strobe_i       => read_strobe,
-    read_data_0_o       => read_data(PCAP_CS),
-    read_ack_0_o        => read_ack(PCAP_CS),
-    read_data_1_o       => read_data(DRV_CS),
-    read_ack_1_o        => read_ack(DRV_CS),
+--    read_address_i      => read_address,
+--    read_strobe_i       => read_strobe,
+--    read_data_0_o       => read_data(PCAP_CS),
+--    read_ack_0_o        => read_ack(PCAP_CS),
+--    read_data_1_o       => read_data(DRV_CS),
+--    read_ack_1_o        => read_ack(DRV_CS),
 
-    write_strobe_i      => write_strobe,
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_0_o       => write_ack(PCAP_CS),
-    write_ack_1_o       => write_ack(DRV_CS),
+--    write_strobe_i      => write_strobe,
+--    write_address_i     => write_address,
+--    write_data_i        => write_data,
+--    write_ack_0_o       => write_ack(PCAP_CS),
+--    write_ack_1_o       => write_ack(DRV_CS),
 
-    sysbus_i            => bit_bus,
-    posbus_i            => posbus,
-    pcap_actv_o         => pcap_active(0),
-    pcap_irq_o          => IRQ_F2P(0)
-);
+--    sysbus_i            => bit_bus,
+--    posbus_i            => posbus,
+--    pcap_actv_o         => pcap_active(0),
+--    pcap_irq_o          => IRQ_F2P(0)
+--);
 
 
 
@@ -666,33 +667,33 @@ port map (
 ---------------------------------------------------------------------------
 -- SYSTEM FPGA
 ---------------------------------------------------------------------------
-system_inst : entity work.system_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-    -- Memory Bus Interface
-    read_strobe_i       => read_strobe(SYSTEM_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(SYSTEM_CS),
-    read_ack_o          => read_ack(SYSTEM_CS),
-    write_strobe_i      => write_strobe,
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(SYSTEM_CS),
-    -- Digital I/O Interface
-    ttlin_i             => ttlin_val,
-    ttlout_i            => ttlout_val,
-    inenc_conn_i        => inenc_conn,
-    outenc_conn_i       => outenc_conn,
-    -- Block Input and Outputs
-    SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
-    DCARD_MODE          => DCARD_MODE,
-    -- Serial Physical interface
-    spi_sclk_o          => SPI_SCLK_O,
-    spi_dat_o           => SPI_DAT_O,
-    spi_sclk_i          => SPI_SCLK_I,
-    spi_dat_i           => SPI_DAT_I
-);
+--system_inst : entity work.system_top
+--port map (
+--    clk_i               => FCLK_CLK0,
+--    reset_i             => FCLK_RESET0,
+--    -- Memory Bus Interface
+--    read_strobe_i       => read_strobe(SYSTEM_CS),
+--    read_address_i      => read_address,
+--    read_data_o         => read_data(SYSTEM_CS),
+--    read_ack_o          => read_ack(SYSTEM_CS),
+--    write_strobe_i      => write_strobe,
+--    write_address_i     => write_address,
+--    write_data_i        => write_data,
+--    write_ack_o         => write_ack(SYSTEM_CS),
+--    -- Digital I/O Interface
+--    ttlin_i             => ttlin_val,
+--    ttlout_i            => ttlout_val,
+--    inenc_conn_i        => inenc_conn,
+--    outenc_conn_i       => outenc_conn,
+--    -- Block Input and Outputs
+--    SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
+--    DCARD_MODE          => DCARD_MODE,
+--    -- Serial Physical interface
+--    spi_sclk_o          => SPI_SCLK_O,
+--    spi_dat_o           => SPI_DAT_O,
+--    spi_sclk_i          => SPI_SCLK_I,
+--    spi_dat_i           => SPI_DAT_I
+--);
 
 ---------------------------------------------------------------------------
 -- On-Chip IOBUF Control for Daughter Card Interfacing
@@ -726,53 +727,53 @@ port map (
 
 -- Bus assembly ----
 
-bit_bus(BITBUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn & 
-                                   inenc_data & inenc_z & inenc_b &
+bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn & 
+                                   inenc_data & inenc_z & inenc_b & inenc_a &
                                    lvdsin_val & ttlin_val;
 
 posbus(inenc_val(1)'length-1 downto 0) <= inenc_val;
 
 -- FMC record
-FMC.EXTCLK_P <= EXTCLK_P;
-FMC.EXTCLK_N <= EXTCLK_N;
-FMC.FMC_PRSNT <= FMC_PRSNT;
-FMC.FMC_LA_P <= FMC_LA_P;
-FMC.FMC_LA_N <= FMC_LA_N;
-FMC.FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P;
-FMC.FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N;
-FMC.FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P;
-FMC.FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N;
-FMC.GTREFCLK_N <= GTXCLK1_N;
-FMC.GTREFCLK_P <= GTXCLK1_P;
-FMC_DP0_C2M_P <= FMC.TXP_OUT;
-FMC_DP0_C2M_N <= FMC.TXN_OUT;
-FMC.RXP_IN <= FMC_DP0_M2C_P;
-FMC.RXN_IN <= FMC_DP0_M2C_N;
+--FMC.EXTCLK_P <= EXTCLK_P;
+--FMC.EXTCLK_N <= EXTCLK_N;
+--FMC.FMC_PRSNT <= FMC_PRSNT;
+--FMC.FMC_LA_P <= FMC_LA_P;
+--FMC.FMC_LA_N <= FMC_LA_N;
+--FMC.FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P;
+--FMC.FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N;
+--FMC.FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P;
+--FMC.FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N;
+--FMC.GTREFCLK_N <= GTXCLK1_N;
+--FMC.GTREFCLK_P <= GTXCLK1_P;
+--FMC_DP0_C2M_P <= FMC.TXP_OUT;
+--FMC_DP0_C2M_N <= FMC.TXN_OUT;
+--FMC.RXP_IN <= FMC_DP0_M2C_P;
+--FMC.RXN_IN <= FMC_DP0_M2C_N;
 
 -- SFP records
-SFP1.SFP_LOS <= SFP_LOS(0);
-SFP1.GTREFCLK_N <= GTXCLK0_N;
-SFP1.GTREFCLK_P <= GTXCLK0_P;
-SFP1.RXN_IN <= SFP_RX_N(0);
-SFP1.RXP_IN <= SFP_RX_P(0);
-SFP_TX_N(0) <= SFP1.TXN_OUT;
-SFP_TX_P(0) <= SFP1.TXP_OUT;
+--SFP1.SFP_LOS <= SFP_LOS(0);
+--SFP1.GTREFCLK_N <= GTXCLK0_N;
+--SFP1.GTREFCLK_P <= GTXCLK0_P;
+--SFP1.RXN_IN <= SFP_RX_N(0);
+--SFP1.RXP_IN <= SFP_RX_P(0);
+--SFP_TX_N(0) <= SFP1.TXN_OUT;
+--SFP_TX_P(0) <= SFP1.TXP_OUT;
 
-SFP2.SFP_LOS <= SFP_LOS(1);
-SFP2.GTREFCLK_N <= GTXCLK0_N;
-SFP2.GTREFCLK_P <= GTXCLK0_P;
-SFP2.RXN_IN <= SFP_RX_N(1);
-SFP2.RXP_IN <= SFP_RX_P(1);
-SFP_TX_N(1) <= SFP2.TXN_OUT;
-SFP_TX_P(1) <= SFP2.TXP_OUT;
+--SFP2.SFP_LOS <= SFP_LOS(1);
+--SFP2.GTREFCLK_N <= GTXCLK0_N;
+--SFP2.GTREFCLK_P <= GTXCLK0_P;
+--SFP2.RXN_IN <= SFP_RX_N(1);
+--SFP2.RXP_IN <= SFP_RX_P(1);
+--SFP_TX_N(1) <= SFP2.TXN_OUT;
+--SFP_TX_P(1) <= SFP2.TXP_OUT;
 
-SFP3.SFP_LOS <= '0';  -- NB: Hard-coded to '0' as not brought out onto pin!
-SFP3.GTREFCLK_N <= GTXCLK0_N;
-SFP3.GTREFCLK_P <= GTXCLK0_P;
-SFP3.RXN_IN <= SFP_RX_N(2);
-SFP3.RXP_IN <= SFP_RX_P(2);
-SFP_TX_N(2) <= SFP3.TXN_OUT;
-SFP_TX_P(2) <= SFP3.TXP_OUT;
+--SFP3.SFP_LOS <= '0';  -- NB: Hard-coded to '0' as not brought out onto pin!
+--SFP3.GTREFCLK_N <= GTXCLK0_N;
+--SFP3.GTREFCLK_P <= GTXCLK0_P;
+--SFP3.RXN_IN <= SFP_RX_N(2);
+--SFP3.RXP_IN <= SFP_RX_P(2);
+--SFP_TX_N(2) <= SFP3.TXN_OUT;
+--SFP_TX_P(2) <= SFP3.TXP_OUT;
 
 ---------------------------------------------------------------------------
 -- PandABlocks_top Instantiation (autogenerated!!)
@@ -791,7 +792,7 @@ port map(
     write_address => write_address,
     write_data => write_data,
     write_ack => write_ack,
-    sysbus => sysbus,
+    bit_bus => bit_bus,
     posbus => posbus,
     rdma_req => rdma_req,
     rdma_ack => rdma_ack,
@@ -800,10 +801,10 @@ port map(
     rdma_len => rdma_len,
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
-    FMC => FMC,
-    SFP1 => SFP1,
-    SFP2 => SFP2,
-    SFP3 => SFP3
+    FMC => open, --FMC,
+    SFP1 => open,--SFP1,
+    SFP2 => open,--SFP2,
+    SFP3 => open--SFP3
 );
 
 end rtl;
