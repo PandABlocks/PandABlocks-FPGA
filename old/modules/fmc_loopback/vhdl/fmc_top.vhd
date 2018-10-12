@@ -235,6 +235,7 @@ test_clocks(2) <= FMC_CLK1_M2C;
 test_clocks(3) <= EXTCLK;
 
 freq_counter_inst : entity work.freq_counter
+generic map ( NUM => 4)
 port map (
     refclk          => clk_i,
     reset           => reset_i,

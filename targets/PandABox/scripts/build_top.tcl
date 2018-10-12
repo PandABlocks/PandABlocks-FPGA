@@ -133,8 +133,12 @@ if {$SFP_DESIGN == "sfp_loopback"} {
 #add_files $TOP_DIR/modules/$FMC_DESIGN/vhdl/
 
 # Read constraint files
-#read_xdc $TOP_DIR/modules/$FMC_DESIGN/const/fmc.xdc
-#read_xdc $TOP_DIR/modules/$SFP_DESIGN/const/sfp.xdc
+if {$FMC_DESIGN ne ""} {
+	read_xdc $TOP_DIR/modules/$FMC_DESIGN/const/fmc.xdc
+}
+if {$SFP_DESIGN ne ""} {
+	read_xdc $TARGET_DIR/const/SFP_L.xdc
+}
 read_xdc $TARGET_DIR/const/panda-timing.xdc
 if {$FMC_DESIGN == "fmc_acq430"} {
     read_xdc $TARGET_DIR/const/panda-physical430.xdc

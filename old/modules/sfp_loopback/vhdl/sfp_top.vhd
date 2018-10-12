@@ -34,10 +34,10 @@ end sfp_top;
 
 architecture rtl of sfp_top is
 
-signal test_clocks      : std_logic_vector(3 downto 0);
+signal test_clocks      : std_logic_vector(0 downto 0);
 signal LINK_UP         : std_logic_vector(31 downto 0);
 signal ERROR_COUNT     : std_logic_vector(31 downto 0);
-signal FREQ_VAL         : std32_array(3 downto 0);
+signal FREQ_VAL         : std32_array(0 downto 0);
 signal GTREFCLK         : std_logic;
 signal SOFT_RESET       : std_logic;
 
@@ -77,9 +77,11 @@ port map (
 -- FMC Clocks Frequency Counter
 ---------------------------------------------------------------------------
 
-test_clocks <= (0 => GTREFCLK, others => '0');
+--test_clocks <= (0 => GTREFCLK, others => '0');
+test_clocks(0) <= GTREFCLK;
 
 freq_counter_inst : entity work.freq_counter
+generic map( NUM => 1)
 port map (
     refclk          => clk_i,
     reset           => reset_i,

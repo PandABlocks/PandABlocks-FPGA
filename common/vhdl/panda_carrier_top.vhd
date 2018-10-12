@@ -65,23 +65,23 @@ port (
     LVDSIN_PAD_I        : in    std_logic_vector(1 downto 0);
     LVDSOUT_PAD_O       : out   std_logic_vector(1 downto 0);
 
-    -- On-baord GTX Clock Resources
+    -- On-board GTX Clock Resources
     GTXCLK0_P           : in    std_logic;
     GTXCLK0_N           : in    std_logic;
     GTXCLK1_P           : in    std_logic;
     GTXCLK1_N           : in    std_logic;
 
     -- SFPT GTX I/O and GTX
-    SFP_TX_P            : out   std_logic_vector(2 downto 0) := (others => 'Z');
-    SFP_TX_N            : out   std_logic_vector(2 downto 0) := (others => 'Z');
+    SFP_TX_P            : out   std_logic_vector(2 downto 0);
+    SFP_TX_N            : out   std_logic_vector(2 downto 0);
     SFP_RX_P            : in    std_logic_vector(2 downto 0);
     SFP_RX_N            : in    std_logic_vector(2 downto 0);
-    SFP_TxDis           : out   std_logic_vector(1 downto 0) := (others => 'Z');
+    SFP_TxDis           : out   std_logic_vector(1 downto 0) := "00";
     SFP_LOS             : in    std_logic_vector(1 downto 0);
 
     -- FMC Differential IO and GTX
-    FMC_DP0_C2M_P       : out   std_logic := 'Z';
-    FMC_DP0_C2M_N       : out   std_logic := 'Z';
+    FMC_DP0_C2M_P       : out   std_logic;
+    FMC_DP0_C2M_N       : out   std_logic;
     FMC_DP0_M2C_P       : in    std_logic;
     FMC_DP0_M2C_N       : in    std_logic;
 
@@ -278,9 +278,6 @@ constant BIT_BUS_SIZE : natural :=   ttlin_val'length + lvdsin_val'length + inen
 
 
 begin
-
--- Enable SFP_1 and SFP_2
-SFP_TxDis <= "00"; ------------------------?????????????????????????????????
 
 -- Internal clocks and resets
 FCLK_RESET0 <= not FCLK_RESET0_N(0);

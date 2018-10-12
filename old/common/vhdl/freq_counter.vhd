@@ -11,16 +11,15 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-
-library work;
 use work.top_defines.all;
 
 entity freq_counter is
+generic (NUM : positive := 1);
 port (
     reset           : in  std_logic;
     refclk          : in  std_logic;
-    test_clocks     : in  std_logic_vector(3 downto 0);
-    freq_out        : out std32_array(3 downto 0)
+    test_clocks     : in  std_logic_vector(NUM-1 downto 0);
+    freq_out        : out std32_array(NUM-1 downto 0)
 );
 end freq_counter;
 
@@ -31,9 +30,9 @@ type uint32_array is array(natural range <>) of uint32_t;
 
 signal ref_cntr        : integer range 2**13-1 downto 0;
 signal ref_trigger     : std_logic;
-signal trigger         : std_logic_vector(3 downto 0);
-signal clk_cntr        : uint32_array(3 downto 0);
-signal clk_cnt_reg     : uint32_array(3 downto 0);
+signal trigger         : std_logic_vector(NUM-1 downto 0);
+signal clk_cntr        : uint32_array(NUM-1 downto 0);
+signal clk_cnt_reg     : uint32_array(NUM-1 downto 0);
 
 begin
 
@@ -62,7 +61,7 @@ end process;
 -- Clock counters
 -- Counts number of ticks between reference trigger
 --------------------------------------------------------------------------
-CNTR_GEN : FOR I IN 0 TO 3 GENERATE
+CNTR_GEN : FOR I IN 0 TO NUM-1 GENERATE
 
 p2p_trigger_inst : entity work.pulse2pulse
 port map (
