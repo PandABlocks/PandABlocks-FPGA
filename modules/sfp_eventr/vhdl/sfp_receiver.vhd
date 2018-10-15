@@ -22,8 +22,7 @@ entity sfp_receiver is
           bit1_o             : out std_logic;
           bit2_o             : out std_logic;
           bit3_o             : out std_logic;
-          bit4_o             : out std_logic;
-          utime_o            : out std_logic_vector(31 downto 0)
+          bit4_o             : out std_logic
           );
 
 end sfp_receiver;
@@ -57,7 +56,6 @@ signal rx_link_ok       : std_logic;
 signal rx_error_count   : unsigned(5 downto 0);
 signal prescaler        : unsigned(9 downto 0);
 signal event_bits       : std_logic_vector(events-1 downto 0);    
-signal utime_shift_reg  : std_logic_vector(31 downto 0);
 signal disable_link     : std_logic;
 
 begin
@@ -101,30 +99,6 @@ begin
 rx_link_ok_o <= rx_link_ok;
 loss_lock_o <= loss_lock;
 rx_error_o <= rx_error; 
-
-
--- Unix time 
-ps_shift_reg: process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if reset_i = '1' then
-            utime_shift_reg <= (others => '0');
-            utime_o <= (others => '0');
-        else
-            -- Shift a '0' into the shift register		
-            if rxdata_i(7 downto 0) = c_code_seconds_0 then
-                utime_shift_reg <= utime_shift_reg(30 downto 0) & '0';
-            -- Shift a '1' into the shift register
-            elsif rxdata_i(7 downto 0) = c_code_seconds_1 then
-                utime_shift_reg <= utime_shift_reg(30 downto 0) & '1';
-            -- Shift the unix time out 
-            elsif rxdata_i(7 downto 0) = c_code_reset_event then
-                utime_shift_reg <= (others => '0');
-                utime_o <= utime_shift_reg;
-            end if;
-        end if;            
-    end if;
-end process ps_shift_reg;    
  	 
 
 -- Assign the array outputs individual bits

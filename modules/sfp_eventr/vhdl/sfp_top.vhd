@@ -87,10 +87,8 @@ signal rx_error_o            : std_logic;
 signal rxcharisk             : std_logic_vector(1 downto 0);   
 signal rxdisperr             : std_logic_vector(1 downto 0); 
 signal rxdata                : std_logic_vector(15 downto 0); 
-signal LINKUP                : std_logic_vector(31 downto 0);
-signal UTIME                 : std_logic_vector(31 downto 0);   
+signal LINKUP                : std_logic_vector(31 downto 0);   
 signal rxnotintable          : std_logic_vector(1 downto 0);
-signal utime_o               : std_logic_vector(31 downto 0);
 signal event_reset           : std_logic;   
 signal rxbyteisaligned_o     : std_logic;
 signal rxbyterealign_o       : std_logic;
@@ -202,8 +200,7 @@ port map(
     bit4_o          => bit4,    
     rx_link_ok_o    => rx_link_ok_o,
     loss_lock_o     => loss_lock_o,
-    rx_error_o      => rx_error_o,    
-    utime_o         => utime_o
+    rx_error_o      => rx_error_o    
 );
  
 
@@ -267,10 +264,8 @@ LINKUP(0) <= mgt_ready_o and rx_link_ok_o;
 LINKUP(1) <= rx_link_ok_o;
 -- MGT ready 
 LINKUP(2) <= mgt_ready_o;
-LINKUP(3) <= '0';
-LINKUP(31 downto 20) <=(others => '0');
-LINKUP(19 downto 4) <= err_cnt;
-UTIME <= utime_o;
+-- Unused bits
+LINKUP(31 downto 3) <= (others => '0');
 
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
@@ -284,7 +279,6 @@ port map (
     posbus_i          => (others => (others => '0')),
 
     LINKUP            => LINKUP,
-    UTIME             => UTIME,
     EVENT_RESET       => open,
     EVENT_RESET_WSTB  => EVENT_RESET,    
     EVENT1            => EVENT1,

@@ -1,6 +1,5 @@
 SFP
     LINKUP          read
-    UTIME           read
     EVENT_RESET     write       action
     EVENT1          param       uint
     EVENT2          param       uint

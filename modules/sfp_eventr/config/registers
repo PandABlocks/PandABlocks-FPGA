@@ -1,6 +1,5 @@
 SFP       {{newBlockNo("SFP")}}
     LINKUP      {{newBlockReg()}}
-    UTIME       {{newBlockReg()}}
     EVENT_RESET {{newBlockReg()}}
     EVENT1      {{newBlockReg()}}
     EVENT2      {{newBlockReg()}}
