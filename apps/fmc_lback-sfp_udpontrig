@@ -5,14 +5,14 @@ PULSE           4
 SEQ             4
 QDEC            4
 POSENC          4
-ADDER           2
+CALC            2
 COUNTER         8
 PGEN            2
 PCOMP           4
 PCAP            1
 BITS            1
 CLOCKS          1
-SLOW            1
+SYSTEM          1
 FILTER          1
 SFP_UDPONTRIG   1
 FMC_LOOPBACK    1
