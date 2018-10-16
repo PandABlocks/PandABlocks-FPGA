@@ -263,7 +263,18 @@ signal DCARD_MODE           : std32_array(ENC_NUM-1 downto 0);
 -- FMC Block
 signal FMC_if : FMC_interface;
 -- SFP Block
-signal SFP_if : SFP_interface;
+
+signal SFP1 : SFP_interface;
+signal SFP2 : SFP_interface;
+signal SFP3 : SFP_interface;
+
+signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
+attribute syn_noclockbuf : boolean;
+attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
+attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
+
+
+
 -- Make schematics a bit more clear for analysis
 --attribute keep              : string; -- GBC removed following three lines 14/09/18 
 --attribute keep of sysbus    : signal is "true";
@@ -281,6 +292,69 @@ begin
 
 -- Internal clocks and resets
 FCLK_RESET0 <= not FCLK_RESET0_N(0);
+
+---------------------------------------------------------------------------
+-- FMC Mezzanine Clocks
+---------------------------------------------------------------------------
+IBUFGDS_CLK0 : IBUFGDS
+generic map (
+    DIFF_TERM   => TRUE,
+    IOSTANDARD  => "LVDS"
+)
+port map (
+    O           => FMC.FMC_CLK0_M2C,
+    I           => FMC_CLK0_M2C_P,
+    IB          => FMC_CLK0_M2C_N
+);
+
+IBUFGDS_CLK1 : IBUFGDS
+generic map (
+    DIFF_TERM   => TRUE,
+    IOSTANDARD  => "LVDS"
+)
+port map (
+    O           => FMC.FMC_CLK1_M2C,
+    I           => FMC_CLK1_M2C_P,
+    IB          => FMC_CLK1_M2C_N
+);
+
+--------------------------------------------------------------------------
+-- External Clock interface (for testing)
+--------------------------------------------------------------------------
+IBUFGDS_EXT : IBUFGDS
+generic map (
+    DIFF_TERM   => FALSE,
+    IOSTANDARD  => "LVDS_25"
+)
+port map (
+    O           => FMC.EXTCLK,
+    I           => EXTCLK_P,
+    IB          => EXTCLK_N
+);
+
+
+--IBUFDS_GTE2
+    ibufds_instq0_clk0 : IBUFDS_GTE2  
+    port map
+    (
+        O               => 	q0_clk0_gtrefclk,
+        ODIV2           =>    open,
+        CEB             => 	'0',
+        I               => 	GTXCLK0_P,
+        IB              => 	GTXCLK0_N
+    );
+
+--IBUFDS_GTE2
+    ibufds_instq0_clk1 : IBUFDS_GTE2  
+    port map
+    (
+        O               => 	q0_clk1_gtrefclk,
+        ODIV2           =>  open,
+        CEB             => 	'0',
+        I               => 	GTXCLK1_P,
+        IB              => 	GTXCLK1_N
+    );
+
 
 ---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
@@ -731,44 +805,35 @@ bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
 posbus(inenc_val(1)'length-1 downto 0) <= inenc_val;
 
 -- FMC record
---FMC.EXTCLK_P <= EXTCLK_P;
---FMC.EXTCLK_N <= EXTCLK_N;
---FMC.FMC_PRSNT <= FMC_PRSNT;
---FMC.FMC_LA_P <= FMC_LA_P;
---FMC.FMC_LA_N <= FMC_LA_N;
---FMC.FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P;
---FMC.FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N;
---FMC.FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P;
---FMC.FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N;
---FMC.GTREFCLK_N <= GTXCLK1_N;
---FMC.GTREFCLK_P <= GTXCLK1_P;
---FMC_DP0_C2M_P <= FMC.TXP_OUT;
---FMC_DP0_C2M_N <= FMC.TXN_OUT;
---FMC.RXP_IN <= FMC_DP0_M2C_P;
---FMC.RXN_IN <= FMC_DP0_M2C_N;
+
+FMC.FMC_PRSNT <= FMC_PRSNT;
+FMC.FMC_LA_P <= FMC_LA_P;
+FMC.FMC_LA_N <= FMC_LA_N;
+FMC.GTREFCLK <= q0_clk1_gtrefclk;
+FMC_DP0_C2M_P <= FMC.TXP_OUT;
+FMC_DP0_C2M_N <= FMC.TXN_OUT;
+FMC.RXP_IN <= FMC_DP0_M2C_P;
+FMC.RXN_IN <= FMC_DP0_M2C_N;
 
 -- SFP records
 
 -- NB: SFPs 1 and 3 are switched around to mirror front panel connections
 SFP1.SFP_LOS <= '0';  -- NB: Hard-coded to '0' as not brought out onto pin!
-SFP1.GTREFCLK_N <= GTXCLK0_N;
-SFP1.GTREFCLK_P <= GTXCLK0_P;
+SFP1.GTREFCLK <= q0_clk0_gtrefclk;
 SFP1.RXN_IN <= SFP_RX_N(2);
 SFP1.RXP_IN <= SFP_RX_P(2);
 SFP_TX_N(2) <= SFP1.TXN_OUT;
 SFP_TX_P(2) <= SFP1.TXP_OUT;
 
 SFP2.SFP_LOS <= SFP_LOS(1);
-SFP2.GTREFCLK_N <= GTXCLK0_N;
-SFP2.GTREFCLK_P <= GTXCLK0_P;
+SFP2.GTREFCLK <= q0_clk0_gtrefclk;
 SFP2.RXN_IN <= SFP_RX_N(1);
 SFP2.RXP_IN <= SFP_RX_P(1);
 SFP_TX_N(1) <= SFP2.TXN_OUT;
 SFP_TX_P(1) <= SFP2.TXP_OUT;
 
 SFP3.SFP_LOS <= SFP_LOS(0);
-SFP3.GTREFCLK_N <= GTXCLK0_N;
-SFP3.GTREFCLK_P <= GTXCLK0_P;
+SFP3.GTREFCLK <= q0_clk0_gtrefclk;
 SFP3.RXN_IN <= SFP_RX_N(0);
 SFP3.RXP_IN <= SFP_RX_P(0);
 SFP_TX_N(0) <= SFP3.TXN_OUT;

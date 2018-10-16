@@ -40,6 +40,7 @@ signal ERROR_COUNT     : std_logic_vector(31 downto 0);
 signal FREQ_VAL         : std32_array(0 downto 0);
 signal GTREFCLK         : std_logic;
 signal SOFT_RESET       : std_logic;
+signal SFP_LOS_VEC      : std_logic_vector(31 downto 0) := (others => '0');
 
 begin
 
@@ -60,8 +61,7 @@ port map (
 --
 sfpgtx_exdes_i : entity work.sfpgtx_exdes
 port map (
-    Q0_CLK0_GTREFCLK_PAD_N_IN   => SFP_interface.GTREFCLK_N,
-    Q0_CLK0_GTREFCLK_PAD_P_IN   => SFP_interface.GTREFCLK_P,
+    Q0_CLK0_GTREFCLK_PAD_IN       => SFP_interface.GTREFCLK,
     GTREFCLK                    => GTREFCLK,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
@@ -77,7 +77,6 @@ port map (
 -- FMC Clocks Frequency Counter
 ---------------------------------------------------------------------------
 
---test_clocks <= (0 => GTREFCLK, others => '0');
 test_clocks(0) <= GTREFCLK;
 
 freq_counter_inst : entity work.freq_counter
@@ -89,6 +88,7 @@ port map (
     freq_out        => FREQ_VAL
 );
 
+SFP_LOS_VEC <= (0 => SFP_interface.SFP_LOS, others => '0');
 
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
@@ -101,7 +101,7 @@ port map (
     sysbus_i                    => (others => '0'),
     posbus_i                    => (others => (others => '0')),
     -- Block Parameters
-    SFP_LOS                    => (0 => SFP_interface.SFP_LOS, others => '0'),
+    SFP_LOS                    => SFP_LOS_VEC,
     LINK_UP                    => LINK_UP,
     ERROR_COUNT                => ERROR_COUNT,
     SFP_CLK                   => FREQ_VAL(0),

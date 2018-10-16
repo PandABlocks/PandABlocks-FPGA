@@ -77,11 +77,11 @@ port
     GT0_TXUSRCLK2_OUT            : out std_logic;
     GT0_TXOUTCLK_IN              : in  std_logic;
     GT0_RXUSRCLK_OUT             : out std_logic;
-    GT0_RXUSRCLK2_OUT            : out std_logic;
+    GT0_RXUSRCLK2_OUT            : out std_logic
  
-    Q0_CLK0_GTREFCLK_PAD_N_IN               : in   std_logic;
-    Q0_CLK0_GTREFCLK_PAD_P_IN               : in   std_logic;
-    Q0_CLK0_GTREFCLK_OUT                    : out  std_logic
+--    Q0_CLK0_GTREFCLK_PAD_N_IN               : in   std_logic;
+--    Q0_CLK0_GTREFCLK_PAD_P_IN               : in   std_logic;
+--    Q0_CLK0_GTREFCLK_OUT                    : out  std_logic
 );
 
 
@@ -116,14 +116,14 @@ end component;
 
 --*********************************Wire Declarations**********************************
 
-    signal   tied_to_ground_i     :   std_logic;
-    signal   tied_to_vcc_i        :   std_logic;
+--    signal   tied_to_ground_i     :   std_logic;
+--    signal   tied_to_vcc_i        :   std_logic;
  
     signal   gt0_txoutclk_i :   std_logic;
  
-    attribute syn_noclockbuf : boolean;
-    signal   q0_clk0_gtrefclk :   std_logic;
-    attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
+--    attribute syn_noclockbuf : boolean;
+--    signal   q0_clk0_gtrefclk :   std_logic;
+--    attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
 
     signal  gt0_txusrclk_i                  : std_logic;
 
@@ -133,22 +133,22 @@ begin
 --*********************************** Beginning of Code *******************************
 
     --  Static signal Assigments    
-    tied_to_ground_i         <= '0';
-    tied_to_vcc_i            <= '1';
+--    tied_to_ground_i         <= '0';
+--    tied_to_vcc_i            <= '1';
     gt0_txoutclk_i                               <= GT0_TXOUTCLK_IN;
 
-    Q0_CLK0_GTREFCLK_OUT                         <= q0_clk0_gtrefclk;
+--    Q0_CLK0_GTREFCLK_OUT                         <= q0_clk0_gtrefclk;
 
     --IBUFDS_GTE2
-    ibufds_instq0_clk0 : IBUFDS_GTE2  
-    port map
-    (
-        O               => 	q0_clk0_gtrefclk,
-        ODIV2           =>    open,
-        CEB             => 	tied_to_ground_i,
-        I               => 	Q0_CLK0_GTREFCLK_PAD_P_IN,
-        IB              => 	Q0_CLK0_GTREFCLK_PAD_N_IN
-    );
+    --ibufds_instq0_clk0 : IBUFDS_GTE2  
+    --port map
+    --(
+    --    O               => 	q0_clk0_gtrefclk,
+    --    ODIV2           =>    open,
+    --    CEB             => 	tied_to_ground_i,
+    --    I               => 	Q0_CLK0_GTREFCLK_PAD_P_IN,
+    --    IB              => 	Q0_CLK0_GTREFCLK_PAD_N_IN
+    --);
 
 
     

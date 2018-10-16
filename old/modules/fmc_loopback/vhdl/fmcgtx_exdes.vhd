@@ -81,8 +81,9 @@ generic (
     EXAMPLE_USE_CHIPSCOPE               : integer   := 0
 );
 port (
-    Q0_CLK1_GTREFCLK_PAD_N_IN           : in   std_logic;
-    Q0_CLK1_GTREFCLK_PAD_P_IN           : in   std_logic;
+    --Q0_CLK1_GTREFCLK_PAD_N_IN           : in   std_logic;
+    --Q0_CLK1_GTREFCLK_PAD_P_IN           : in   std_logic;
+    Q0_CLK1_GTREFCLK_PAD_IN           : in   std_logic;
     GTREFCLK                            : out  std_logic;
     drpclk_in_i                         : in   std_logic;
     SOFT_RESET                          : in   std_logic;
@@ -120,8 +121,9 @@ port
     SOFT_RESET_TX_IN                        : in   std_logic;
     SOFT_RESET_RX_IN                        : in   std_logic;
     DONT_RESET_ON_DATA_ERROR_IN             : in   std_logic;
-    Q0_CLK1_GTREFCLK_PAD_N_IN               : in   std_logic;
-    Q0_CLK1_GTREFCLK_PAD_P_IN               : in   std_logic;
+    --Q0_CLK1_GTREFCLK_PAD_N_IN               : in   std_logic;
+    --Q0_CLK1_GTREFCLK_PAD_P_IN               : in   std_logic;
+    Q0_CLK1_GTREFCLK_PAD_IN           : in   std_logic;
 
     GT0_TX_FSM_RESET_DONE_OUT               : out  std_logic;
     GT0_RX_FSM_RESET_DONE_OUT               : out  std_logic;
@@ -650,8 +652,9 @@ port map
     SOFT_RESET_TX_IN                =>      soft_reset_i,
     SOFT_RESET_RX_IN                =>      soft_reset_i,
     DONT_RESET_ON_DATA_ERROR_IN     =>      tied_to_ground_i,
-    Q0_CLK1_GTREFCLK_PAD_N_IN => Q0_CLK1_GTREFCLK_PAD_N_IN,
-    Q0_CLK1_GTREFCLK_PAD_P_IN => Q0_CLK1_GTREFCLK_PAD_P_IN,
+    --Q0_CLK1_GTREFCLK_PAD_N_IN => Q0_CLK1_GTREFCLK_PAD_N_IN,
+    --Q0_CLK1_GTREFCLK_PAD_P_IN => Q0_CLK1_GTREFCLK_PAD_P_IN,
+    Q0_CLK1_GTREFCLK_PAD_IN => Q0_CLK1_GTREFCLK_PAD_IN,
     GT0_TX_FSM_RESET_DONE_OUT       =>      gt0_txfsmresetdone_i,
     GT0_RX_FSM_RESET_DONE_OUT       =>      gt0_rxfsmresetdone_i,
     GT0_DATA_VALID_IN               =>      gt0_track_data_i,

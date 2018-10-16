@@ -137,6 +137,7 @@ if {$FMC_DESIGN ne ""} {
 	read_xdc $TOP_DIR/modules/$FMC_DESIGN/const/fmc.xdc
 }
 if {$SFP_DESIGN ne ""} {
+    read_xdc $TOP_DIR/modules/$SFP_DESIGN/const/sfp.xdc
 	read_xdc $TARGET_DIR/const/SFP_L.xdc
 }
 read_xdc $TARGET_DIR/const/panda-timing.xdc

@@ -65,17 +65,13 @@ end record;
 
 type FMC_interface is
   record
-    EXTCLK_P        : std_logic; -- move to standard port interface?
-    EXTCLK_N        : std_logic; -- ditto
+    EXTCLK        : std_logic;
     FMC_PRSNT       : std_logic;
     FMC_LA_P        : std_logic_vector(33 downto 0);
     FMC_LA_N        : std_logic_vector(33 downto 0);
-    FMC_CLK0_M2C_P  : std_logic;
-    FMC_CLK0_M2C_N  : std_logic;
-    FMC_CLK1_M2C_P  : std_logic;
-    FMC_CLK1_M2C_N  : std_logic;
-    GTREFCLK_N      : std_logic;-- move to standard port interface?
-    GTREFCLK_P      : std_logic;--ditto
+    FMC_CLK0_M2C  : std_logic;
+    FMC_CLK1_M2C  : std_logic;
+    GTREFCLK        : std_logic;
     TXP_OUT         : std_logic;
     TXN_OUT         : std_logic;
     RXP_IN          : std_logic;
@@ -87,8 +83,7 @@ type FMC_interface is
 type SFP_interface is
   record
     SFP_LOS     : std_logic;
-    GTREFCLK_N  : std_logic;  -- move to standard port interface?
-    GTREFCLK_P  : std_logic;  -- ditto
+    GTREFCLK    : std_logic;
     RXN_IN      : std_logic;
     RXP_IN      : std_logic;
     TXN_OUT      : std_logic;

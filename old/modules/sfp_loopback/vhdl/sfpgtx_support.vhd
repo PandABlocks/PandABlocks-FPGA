@@ -83,8 +83,9 @@ port
     SOFT_RESET_TX_IN                        : in   std_logic;
     SOFT_RESET_RX_IN                        : in   std_logic;
     DONT_RESET_ON_DATA_ERROR_IN             : in   std_logic;
-    Q0_CLK0_GTREFCLK_PAD_N_IN               : in   std_logic;
-    Q0_CLK0_GTREFCLK_PAD_P_IN               : in   std_logic;
+    --Q0_CLK0_GTREFCLK_PAD_N_IN               : in   std_logic;
+    --Q0_CLK0_GTREFCLK_PAD_P_IN               : in   std_logic;
+    Q0_CLK0_GTREFCLK_PAD_IN               : in   std_logic;
 
     GT0_TX_FSM_RESET_DONE_OUT               : out  std_logic;
     GT0_RX_FSM_RESET_DONE_OUT               : out  std_logic;
@@ -401,11 +402,11 @@ port
     GT0_TXUSRCLK2_OUT            : out std_logic;
     GT0_TXOUTCLK_IN              : in  std_logic;
     GT0_RXUSRCLK_OUT             : out std_logic;
-    GT0_RXUSRCLK2_OUT            : out std_logic;
+    GT0_RXUSRCLK2_OUT            : out std_logic
  
-    Q0_CLK0_GTREFCLK_PAD_N_IN               : in   std_logic;
-    Q0_CLK0_GTREFCLK_PAD_P_IN               : in   std_logic;
-    Q0_CLK0_GTREFCLK_OUT                    : out  std_logic
+    --Q0_CLK0_GTREFCLK_PAD_N_IN               : in   std_logic;
+    --Q0_CLK0_GTREFCLK_PAD_P_IN               : in   std_logic;
+    --Q0_CLK0_GTREFCLK_OUT                    : out  std_logic
 );
 end component;
 
@@ -589,6 +590,8 @@ tied_to_ground_vec_i                         <= x"0000000000000000";
 tied_to_vcc_i                                <= '1';
 tied_to_vcc_vec_i                            <= "11111111";
 
+q0_clk0_refclk_i <= Q0_CLK0_GTREFCLK_PAD_IN;
+
  
      gt0_qpllreset_t <= tied_to_vcc_i;
      gt0_qplloutclk_out <= gt0_qplloutclk_i;
@@ -610,11 +613,11 @@ tied_to_vcc_vec_i                            <= "11111111";
         GT0_TXUSRCLK2_OUT               =>      gt0_txusrclk2_i,
         GT0_TXOUTCLK_IN                 =>      gt0_txoutclk_i,
         GT0_RXUSRCLK_OUT                =>      gt0_rxusrclk_i,
-        GT0_RXUSRCLK2_OUT               =>      gt0_rxusrclk2_i,
+        GT0_RXUSRCLK2_OUT               =>      gt0_rxusrclk2_i
  
-        Q0_CLK0_GTREFCLK_PAD_N_IN       =>      Q0_CLK0_GTREFCLK_PAD_N_IN,
-        Q0_CLK0_GTREFCLK_PAD_P_IN       =>      Q0_CLK0_GTREFCLK_PAD_P_IN,
-        Q0_CLK0_GTREFCLK_OUT            =>      q0_clk0_refclk_i
+        --Q0_CLK0_GTREFCLK_PAD_N_IN       =>      Q0_CLK0_GTREFCLK_PAD_N_IN,
+        --Q0_CLK0_GTREFCLK_PAD_P_IN       =>      Q0_CLK0_GTREFCLK_PAD_P_IN,
+        --Q0_CLK0_GTREFCLK_OUT            =>      q0_clk0_refclk_i
 
     );
 

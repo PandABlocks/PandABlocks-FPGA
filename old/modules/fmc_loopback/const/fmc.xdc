@@ -4,6 +4,17 @@
 create_clock -period 6.400  [get_ports GTXCLK1_P]
 create_clock -period 6.400  [get_ports FMC_CLK0_M2C_P]
 create_clock -period 6.400  [get_ports FMC_CLK1_M2C_P]
+# External SMA clock
+create_clock -period 8.000 [get_ports EXTCLK_P]
+
+# -------------------------------------------------------------------
+# Define asynchronous clocks
+# -------------------------------------------------------------------
+set_clock_groups -asynchronous -group FMC_CLK0_M2C_P
+set_clock_groups -asynchronous -group FMC_CLK1_M2C_P
+set_clock_groups -asynchronous -group [get_clocks -filter {NAME =~ *TXOUTCLK}]
+set_clock_groups -asynchronous -group EXTCLK_P
+
 
 # -------------------------------------------------------------------
 # FMC MGTs - Bank 112

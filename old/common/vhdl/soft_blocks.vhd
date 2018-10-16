@@ -477,23 +477,7 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
         write_data_i        => write_data,
         write_ack_o         => write_ack(FMC_CS),
 
-        EXTCLK_P            => FMC.EXTCLK_P,
-        EXTCLK_N            => FMC.EXTCLK_N,
-
-        FMC_PRSNT           => FMC.FMC_PRSNT,
-        FMC_LA_P            => FMC.FMC_LA_P,
-        FMC_LA_N            => FMC.FMC_LA_N,
-        FMC_CLK0_M2C_P      => FMC.FMC_CLK0_M2C_P,
-        FMC_CLK0_M2C_N      => FMC.FMC_CLK0_M2C_N,
-        FMC_CLK1_M2C_P      => FMC.FMC_CLK1_M2C_P,
-        FMC_CLK1_M2C_N      => FMC.FMC_CLK1_M2C_N,
-
-        GTREFCLK_N          => FMC.GTREFCLK_N,
-        GTREFCLK_P          => FMC.GTREFCLK_P,
-        TXP_OUT             => FMC.TXP_OUT,
-        TXN_OUT             => FMC.TXN_OUT,
-        RXP_IN              => FMC.RXP_IN,
-        RXN_IN              => FMC.RXN_IN
+        FMC_interface         => FMC
     );
 END GENERATE;
 
@@ -521,7 +505,7 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         write_data_i        => write_data,
         write_ack_o         => write_ack(SFP1_CS),
 
-        SFP_interface              => SFP1
+        SFP_interface       => SFP1
     );
 
     sfp2_inst : entity work.sfp_top

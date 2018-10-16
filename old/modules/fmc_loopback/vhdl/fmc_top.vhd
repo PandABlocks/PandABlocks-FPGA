@@ -48,24 +48,7 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
-    -- External Differential Clock (via front panel SMA)
-    EXTCLK_P            : in    std_logic;
-    EXTCLK_N            : in    std_logic;
-    -- LA I/O
-    FMC_PRSNT           : in    std_logic;
-    FMC_LA_P            : inout std_logic_vector(33 downto 0);
-    FMC_LA_N            : inout std_logic_vector(33 downto 0);
-    FMC_CLK0_M2C_P      : in    std_logic;
-    FMC_CLK0_M2C_N      : in    std_logic;
-    FMC_CLK1_M2C_P      : in    std_logic;
-    FMC_CLK1_M2C_N      : in    std_logic;
-    -- GTX I/O
-    TXP_OUT             : out   std_logic;
-    TXN_OUT             : out   std_logic;
-    RXP_IN              : in    std_logic;
-    RXN_IN              : in    std_logic;
-    GTREFCLK_P          : in    std_logic;
-    GTREFCLK_N          : in    std_logic
+    FMC_interface       : inout fmc_interface
 );
 end fmc_top;
 
@@ -84,11 +67,8 @@ signal LINK_UP              : std_logic_vector(31 downto 0);
 signal ERROR_COUNT          : std_logic_vector(31 downto 0);
 signal LA_P_ERROR           : std_logic_vector(31 downto 0);
 signal LA_N_ERROR           : std_logic_vector(31 downto 0);
-signal FMC_CLK0_M2C         : std_logic;
-signal FMC_CLK1_M2C         : std_logic;
 signal FREQ_VAL             : std32_array(3 downto 0);
 signal GTREFCLK             : std_logic;
-signal EXTCLK               : std_logic;
 signal FMC_PRSNT_DW         : std_logic_vector(31 downto 0);
 signal SOFT_RESET           : std_logic;
 signal LOOP_PERIOD_WSTB     : std_logic;
@@ -131,14 +111,14 @@ port map (
 );
 
 -- Bottom half is output
-FMC_LA_P(16 downto 0) <= pbrs_data;
-FMC_LA_N(16 downto 0) <= pbrs_data;
+FMC_interface.FMC_LA_P(16 downto 0) <= pbrs_data;
+FMC_interface.FMC_LA_N(16 downto 0) <= pbrs_data;
 
 -- Upper half is input
-FMC_LA_P(33 downto 17) <= (others => 'Z');
-FMC_LA_N(33 downto 17) <= (others => 'Z');
-fmc_din_p_pad <= FMC_LA_P(33 downto 17);
-fmc_din_n_pad <= FMC_LA_N(33 downto 17);
+FMC_interface.FMC_LA_P(33 downto 17) <= (others => 'Z');
+FMC_interface.FMC_LA_N(33 downto 17) <= (others => 'Z');
+fmc_din_p_pad <= FMC_interface.FMC_LA_P(33 downto 17);
+fmc_din_n_pad <= FMC_interface.FMC_LA_N(33 downto 17);
 
 
 ---------------------------------------------------------------------------
@@ -173,56 +153,16 @@ LA_N_ERROR <= ZEROS(15) & la_n_compare;
 ---------------------------------------------------------------------------
 fmcgtx_exdes_i : entity work.fmcgtx_exdes
 port map (
-    Q0_CLK1_GTREFCLK_PAD_N_IN   => GTREFCLK_N,
-    Q0_CLK1_GTREFCLK_PAD_P_IN   => GTREFCLK_P,
+    Q0_CLK1_GTREFCLK_PAD_IN   => FMC_interface.GTREFCLK,
     GTREFCLK                    => GTREFCLK,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
     TRACK_DATA_OUT              => LINK_UP,
     ERROR_COUNT                 => ERROR_COUNT,
-    RXN_IN                      => RXN_IN,
-    RXP_IN                      => RXP_IN,
-    TXN_OUT                     => TXN_OUT,
-    TXP_OUT                     => TXP_OUT
-);
-
----------------------------------------------------------------------------
--- FMC Mezzanine Clocks
----------------------------------------------------------------------------
-IBUFGDS_CLK0 : IBUFGDS
-generic map (
-    DIFF_TERM   => TRUE,
-    IOSTANDARD  => "LVDS"
-)
-port map (
-    O           => FMC_CLK0_M2C,
-    I           => FMC_CLK0_M2C_P,
-    IB          => FMC_CLK0_M2C_N
-);
-
-IBUFGDS_CLK1 : IBUFGDS
-generic map (
-    DIFF_TERM   => TRUE,
-    IOSTANDARD  => "LVDS"
-)
-port map (
-    O           => FMC_CLK1_M2C,
-    I           => FMC_CLK1_M2C_P,
-    IB          => FMC_CLK1_M2C_N
-);
-
---------------------------------------------------------------------------
--- External Clock interface (for testing)
---------------------------------------------------------------------------
-IBUFGDS_EXT : IBUFGDS
-generic map (
-    DIFF_TERM   => FALSE,
-    IOSTANDARD  => "LVDS_25"
-)
-port map (
-    O           => EXTCLK,
-    I           => EXTCLK_P,
-    IB          => EXTCLK_N
+    RXN_IN                      => FMC_interface.RXN_IN,
+    RXP_IN                      => FMC_interface.RXP_IN,
+    TXN_OUT                     => FMC_interface.TXN_OUT,
+    TXP_OUT                     => FMC_interface.TXP_OUT
 );
 
 ---------------------------------------------------------------------------
@@ -230,9 +170,9 @@ port map (
 ---------------------------------------------------------------------------
 
 test_clocks(0) <= GTREFCLK;
-test_clocks(1) <= FMC_CLK0_M2C;
-test_clocks(2) <= FMC_CLK1_M2C;
-test_clocks(3) <= EXTCLK;
+test_clocks(1) <= FMC_interface.FMC_CLK0_M2C;
+test_clocks(2) <= FMC_interface.FMC_CLK1_M2C;
+test_clocks(3) <= FMC_interface.EXTCLK;
 
 freq_counter_inst : entity work.freq_counter
 generic map ( NUM => 4)
@@ -246,7 +186,7 @@ port map (
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
-FMC_PRSNT_DW <= ZEROS(31) & FMC_PRSNT;
+FMC_PRSNT_DW <= ZEROS(31) & FMC_interface.FMC_PRSNT;
 
 fmc_ctrl : entity work.fmc_ctrl
 port map (
