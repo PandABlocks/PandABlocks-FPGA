@@ -59,6 +59,7 @@ architecture rtl of inenc is
 signal clk_out_encoder      : std_logic;
 signal posn_incr            : std_logic_vector(31 downto 0);
 signal posn_ssi             : std_logic_vector(31 downto 0);
+signal posn_biss            : std_logic_vector(31 downto 0);
 signal posn_ssi_sniffer     : std_logic_vector(31 downto 0);
 signal posn_biss_sniffer    : std_logic_vector(31 downto 0);
 signal posn                 : std_logic_vector(31 downto 0);
@@ -148,6 +149,20 @@ port map (
 -- BiSS Instantiations
 --------------------------------------------------------------------------
 
+biss_master_inst : entity work.biss_master
+port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i, 
+    BITS            => BITS,
+    CLK_PERIOD      => CLK_PERIOD,
+    FRAME_PERIOD    => FRAME_PERIOD,
+    biss_sck_o      => clk_out_encoder,
+    biss_dat_i      => DATA_IN, 
+    posn_o          => posn_biss,        
+    posn_valid_o    => open
+);    
+
+
 -- BiSS Sniffer
 biss_sniffer_inst : entity work.biss_sniffer
 port map (
@@ -188,7 +203,7 @@ begin
                     posn <= posn_biss_sniffer;
                     STATUS(0) <= linkup_biss;
                 else  -- DCARD_CONTROL
-                    posn <= (others => '0');
+                    posn <= posn_biss;
                     STATUS <= (others => '0');
                 end if;
 
