@@ -127,16 +127,18 @@ add_files $TOP_DIR/modules/$FMC_DESIGN/vhdl/
 read_xdc $TOP_DIR/modules/$FMC_DESIGN/const/fmc.xdc
 read_xdc $TOP_DIR/modules/$SFP_DESIGN/const/sfp.xdc
 read_xdc $TARGET_DIR/const/panda-timing.xdc
-if {$FMC_DESIGN == "fmc_acq430"} {
-    read_xdc $TARGET_DIR/const/panda-physical430.xdc
-    read_xdc $TARGET_DIR/const/panda-post_synth430.xdc
-    set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical430.xdc]
-    set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth430.xdc]
-} elseif {$FMC_DESIGN == "fmc_acq427"} {
-    read_xdc $TARGET_DIR/const/panda-physical430.xdc
-    read_xdc $TARGET_DIR/const/panda-post_synth430.xdc
-    set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical430.xdc]
-    set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth430.xdc]
+if {$FMC_DESIGN == "fmc_acq430" || $FMC_DESIGN == "fmc_acq427"} {
+    if {$SFP_DESIGN == "sfp_udpontrig"} {
+      read_xdc $TARGET_DIR/const/panda-physical430.xdc
+      read_xdc $TARGET_DIR/const/panda-post_synth430_udpontrig.xdc
+      set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical430.xdc]
+      set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth430_udpontrig.xdc]
+    } else {
+      read_xdc $TARGET_DIR/const/panda-physical430.xdc
+      read_xdc $TARGET_DIR/const/panda-post_synth430.xdc
+      set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical430.xdc]
+      set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth430.xdc]
+    }
 } else {
     read_xdc $TARGET_DIR/const/panda-physical.xdc
     read_xdc $TARGET_DIR/const/panda-post_synth.xdc
