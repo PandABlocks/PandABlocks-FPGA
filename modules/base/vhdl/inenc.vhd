@@ -56,7 +56,8 @@ end entity;
 
 architecture rtl of inenc is
 
-signal clk_out_encoder      : std_logic;
+signal clk_out_encoder_ssi  : std_logic;
+signal clk_out_encoder_biss : std_logic;
 signal posn_incr            : std_logic_vector(31 downto 0);
 signal posn_ssi             : std_logic_vector(31 downto 0);
 signal posn_biss            : std_logic_vector(31 downto 0);
@@ -94,7 +95,9 @@ begin
 end process ps_select;        
 
 -- Loopbacks
-CLK_OUT <=  clk_out_ext_i when (CLK_SRC = '1') else clk_out_encoder;
+CLK_OUT <=  clk_out_ext_i when (CLK_SRC = '1') else 
+            clk_out_encoder_biss when (CLK_SRC = '0' and PROTOCOL = "010") else
+            clk_out_encoder_ssi;
 
 --------------------------------------------------------------------------
 -- Incremental Encoder Instantiation :
@@ -126,7 +129,7 @@ port map (
     BITS            => BITS,
     CLK_PERIOD      => CLK_PERIOD,
     FRAME_PERIOD    => FRAME_PERIOD,
-    ssi_sck_o       => clk_out_encoder,
+    ssi_sck_o       => clk_out_encoder_ssi,
     ssi_dat_i       => DATA_IN,
     posn_o          => posn_ssi,
     posn_valid_o    => open
@@ -156,7 +159,7 @@ port map (
     BITS            => BITS,
     CLK_PERIOD      => CLK_PERIOD,
     FRAME_PERIOD    => FRAME_PERIOD,
-    biss_sck_o      => clk_out_encoder,
+    biss_sck_o      => clk_out_encoder_biss,
     biss_dat_i      => DATA_IN, 
     posn_o          => posn_biss,        
     posn_valid_o    => open
