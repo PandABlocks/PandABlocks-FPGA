@@ -175,19 +175,19 @@ begin
                 STATUS(0) <= linkup_incr;
 
             when "001"  =>              -- SSI & Loopback
-                if (DCARD_MODE(3 downto 1) = DCARD_LOOPBACK) then
+                if (DCARD_MODE(3 downto 1) = DCARD_MONITOR) then
                     posn <= posn_ssi_sniffer;
                     STATUS(0) <= linkup_ssi;
-                else
+                else  -- DCARD_CONTROL
                     posn <= posn_ssi;
                     STATUS <= (others => '0');
                 end if;
 
             when "010"  =>              -- BISS & Loopback
-                if (DCARD_MODE(3 downto 1) = DCARD_LOOPBACK) then
+                if (DCARD_MODE(3 downto 1) = DCARD_MONITOR) then
                     posn <= posn_biss_sniffer;
                     STATUS(0) <= linkup_biss;
-                else
+                else  -- DCARD_CONTROL
                     posn <= (others => '0');
                     STATUS <= (others => '0');
                 end if;
