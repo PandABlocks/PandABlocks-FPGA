@@ -53,7 +53,7 @@ if {$SFP_DESIGN == "sfp_loopback"} {
 } else {
     read_ip $BUILD_DIR/ip_repo/event_receiver_mgt/event_receiver_mgt.xci
     read_ip $BUILD_DIR/ip_repo/sfp_transmit_mem/sfp_transmit_mem.xci
-    read_ip $BUILD_DIR/ip_repo/ila_0/ila_0.xci
+#    read_ip $BUILD_DIR/ip_repo/ila_0/ila_0.xci
 }
 if {$FMC_DESIGN == "fmc_loopback"} {
     read_ip $BUILD_DIR/ip_repo/fmcgtx/fmcgtx.xci
