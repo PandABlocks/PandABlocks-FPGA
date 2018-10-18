@@ -30,17 +30,8 @@ end sfp_receiver;
 
 architecture rtl of sfp_receiver is          
 
--- Event Receiver codes  
-constant c_code_heartbeat   : std_logic_vector(7 downto 0) := X"7A";
-constant c_code_reset_presc : std_logic_vector(7 downto 0) := X"7B";
-constant c_code_event_code  : std_logic_vector(7 downto 0) := X"7C";
-constant c_code_reset_event : std_logic_vector(7 downto 0) := X"7D";
-constant c_code_seconds_0   : std_logic_vector(7 downto 0) := X"70";
-constant c_code_seconds_1   : std_logic_vector(7 downto 0) := X"71";  
-
 
 constant c_zeros : std_logic_vector(1 downto 0) := "00";    
-
 constant c_MGT_RX_PRESCALE  : unsigned(9 downto 0) := to_unsigned(1023,10);
 
 
@@ -145,7 +136,7 @@ end process ps_event_dbus;
 
 
 
--- This is a modified copy of the code used in the original event receiver 
+-- This is a modified version of the code used in the open source event receiver 
 -- It is hard to know when the link is up as the only way of doing this is to use
 -- rxnotintable and rxdisperr signals.
 -- rxnotintable and rxdisperr errors do occur when the link is up, I run the the event 

@@ -54,26 +54,26 @@ end sfp_top;
 
 architecture rtl of sfp_top is
 
-component ila_0
-
-    port (
-    	clk     : in  std_logic;
-    	probe0  : in  std_logic_vector(0 downto 0); 
-    	probe1  : in  std_logic_vector(0 downto 0); 
-    	probe2  : in  std_logic_vector(0 downto 0); 
-    	probe3  : in  std_logic_vector(0 downto 0); 
-    	probe4  : in  std_logic_vector(1 downto 0); 
-    	probe5  : in  std_logic_vector(1 downto 0); 
-    	probe6  : in  std_logic_vector(15 downto 0); 
-    	probe7  : in  std_logic_vector(0 downto 0); 
-    	probe8  : in  std_logic_vector(0 downto 0); 
-    	probe9  : in  std_logic_vector(0 downto 0); 
-    	probe10 : in  std_logic_vector(15 downto 0); 
-    	probe11 : in  std_logic_vector(1 downto 0); 
-    	probe12 : in  std_logic_vector(15 downto 0) 
-    );
-    
-end component;
+--component ila_0
+--
+--    port (
+--    	clk     : in  std_logic;
+--    	probe0  : in  std_logic_vector(0 downto 0); 
+--    	probe1  : in  std_logic_vector(0 downto 0); 
+--    	probe2  : in  std_logic_vector(0 downto 0); 
+--    	probe3  : in  std_logic_vector(0 downto 0); 
+--    	probe4  : in  std_logic_vector(1 downto 0); 
+--    	probe5  : in  std_logic_vector(1 downto 0); 
+--    	probe6  : in  std_logic_vector(15 downto 0); 
+--    	probe7  : in  std_logic_vector(0 downto 0); 
+--    	probe8  : in  std_logic_vector(0 downto 0); 
+--    	probe9  : in  std_logic_vector(0 downto 0); 
+--    	probe10 : in  std_logic_vector(15 downto 0); 
+--    	probe11 : in  std_logic_vector(1 downto 0); 
+--    	probe12 : in  std_logic_vector(15 downto 0) 
+--    );
+--    
+--end component;
 
 signal rxn_i                 : std_logic;
 signal rxp_i                 : std_logic;
@@ -100,16 +100,16 @@ signal EVENT3                : std_logic_vector(31 downto 0);
 signal EVENT4                : std_logic_vector(31 downto 0);   
 signal txdata_i              : std_logic_vector(15 downto 0);
 signal txcharisk_i           : std_logic_vector(1 downto 0);  
+signal bit1,bit2,bit3,bit4   : std_logic;         
 
 -- ILA stuff
-signal mgt_ready_slv         : std_logic_vector(0 downto 0);
-signal rx_link_ok_slv        : std_logic_vector(0 downto 0);
-signal rxbyteisaligned_slv   : std_logic_vector(0 downto 0);     
-signal rxbyterealign_slv     : std_logic_vector(0 downto 0);
-signal rxcommadet_slv        : std_logic_vector(0 downto 0);
-signal probe10_slv           : std_logic_vector(15 downto 0);
-signal probe12_slv           : std_logic_vector(15 downto 0);   
-signal bit1,bit2,bit3,bit4   : std_logic;         
+---signal mgt_ready_slv         : std_logic_vector(0 downto 0);
+--signal rx_link_ok_slv        : std_logic_vector(0 downto 0);
+--signal rxbyteisaligned_slv   : std_logic_vector(0 downto 0);     
+--signal rxbyterealign_slv     : std_logic_vector(0 downto 0);
+--signal rxcommadet_slv        : std_logic_vector(0 downto 0);
+--signal probe10_slv           : std_logic_vector(15 downto 0);
+--signal probe12_slv           : std_logic_vector(15 downto 0);   
 
 signal err_cnt               : std_logic_vector(15 downto 0);
 
@@ -229,43 +229,43 @@ port map(
 ); 
    
  
-mgt_ready_slv(0) <= mgt_ready_o;
-rx_link_ok_slv(0) <= rx_link_ok_o;
-rxbyteisaligned_slv(0) <= rxbyteisaligned_o;     
-rxbyterealign_slv(0) <= rxbyterealign_o;
-rxcommadet_slv(0) <= rxcommadet_o;
+--mgt_ready_slv(0) <= mgt_ready_o;
+--rx_link_ok_slv(0) <= rx_link_ok_o;
+--rxbyteisaligned_slv(0) <= rxbyteisaligned_o;     
+--rxbyterealign_slv(0) <= rxbyterealign_o;
+--rxcommadet_slv(0) <= rxcommadet_o;
 
-probe10_slv(3 downto 0) <= bit4 & bit3 & bit2 & bit1;
-probe10_slv(6 downto 4) <= (others => '0');
-probe10_slv(15 downto 7) <= EVENT1(8 downto 0);
-probe12_slv <= (others => '0');
+--probe10_slv(3 downto 0) <= bit4 & bit3 & bit2 & bit1;
+--probe10_slv(6 downto 4) <= (others => '0');
+--probe10_slv(15 downto 7) <= EVENT1(8 downto 0);
+--probe12_slv <= (others => '0');
 
-ila_inst : ila_0
-port map (
-	clk     => clk_i,
-   	probe0  => mgt_ready_slv and rx_link_ok_slv, 
-	probe1  => rx_link_ok_slv, 
-	probe2  => mgt_ready_slv, 
-	probe3  => "0", 
-	probe4  => rxdisperr, 
-	probe5  => rxnotintable, 
-	probe6  => rxdata, 
-	probe7  => rxbyteisaligned_slv, 
-	probe8  => rxbyterealign_slv, 
-	probe9  => rxcommadet_slv, 	
-	probe10 => probe10_slv, 
-    probe11 => rxcharisk,
-	probe12 => probe12_slv
-);
+--ila_inst : ila_0
+--port map (
+--	clk     => clk_i,
+--   	probe0  => mgt_ready_slv and rx_link_ok_slv, 
+--	probe1  => rx_link_ok_slv, 
+--	probe2  => mgt_ready_slv, 
+--	probe3  => "0", 
+--	probe4  => rxdisperr, 
+--	probe5  => rxnotintable, 
+--	probe6  => rxdata, 
+--	probe7  => rxbyteisaligned_slv, 
+--	probe8  => rxbyterealign_slv, 
+--	probe9  => rxcommadet_slv, 	
+--	probe10 => probe10_slv, 
+--    probe11 => rxcharisk,
+--	probe12 => probe12_slv
+--);
   
 -- MGT ready and link is up  
 LINKUP(0) <= mgt_ready_o and rx_link_ok_o;
--- Link is up
-LINKUP(1) <= rx_link_ok_o;
--- MGT ready 
-LINKUP(2) <= mgt_ready_o;
+---- Link is up
+--LINKUP(1) <= rx_link_ok_o;
+---- MGT ready 
+--LINKUP(2) <= mgt_ready_o;
 -- Unused bits
-LINKUP(31 downto 3) <= (others => '0');
+LINKUP(31 downto 1 ) <= (others => '0');
 
 ---------------------------------------------------------------------------
 -- FMC CSR Interface

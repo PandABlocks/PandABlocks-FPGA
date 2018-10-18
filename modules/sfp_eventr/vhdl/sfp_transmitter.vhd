@@ -63,7 +63,9 @@ txdata_o <= mem_dout;
 ps_txcharisk: process(mem_dout)
 begin
     -- Event Code bus contains the K cahracters so 
-    -- check for k characters being transmitted  
+    -- check for k characters being transmitted you
+    -- need to indicate to the MGT core that this is
+    -- a special K character 
     if mem_dout(7 downto 0) = c_k28_5 then
         txcharisk_o <= "01";
     else
