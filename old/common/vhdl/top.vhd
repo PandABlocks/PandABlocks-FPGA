@@ -12,20 +12,18 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
 
 library unisim;
-use unisim.vcomponents.all;
+use unisim.vcomponents.all; -- NEEDED?
 
 library work;
-use work.support.all;
-use work.addr_defines.all;
-use work.top_defines.all;
+--use work.support.all;
+use work.addr_defines.all; -- NEEDED?
+use work.top_defines.all;  -- NEEDED?
 
-entity panda_top is
+entity panda_carrier_top is
 generic (
-    SIM                 : string  := "FALSE";
-    AXI_BURST_LEN       : integer := 16;
+    SIM                 : string  := "TRUE";
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32
 );
@@ -66,7 +64,7 @@ port (
     LVDSIN_PAD_I        : in    std_logic_vector(1 downto 0);
     LVDSOUT_PAD_O       : out   std_logic_vector(1 downto 0);
 
-    -- On-baord GTX Clock Resources
+    -- On-board GTX Clock Resources
     GTXCLK0_P           : in    std_logic;
     GTXCLK0_N           : in    std_logic;
     GTXCLK1_P           : in    std_logic;
@@ -77,7 +75,7 @@ port (
     SFP_TX_N            : out   std_logic_vector(2 downto 0);
     SFP_RX_P            : in    std_logic_vector(2 downto 0);
     SFP_RX_N            : in    std_logic_vector(2 downto 0);
-    SFP_TxDis           : out   std_logic_vector(1 downto 0);
+    SFP_TxDis           : out   std_logic_vector(1 downto 0) := "00";
     SFP_LOS             : in    std_logic_vector(1 downto 0);
 
     -- FMC Differential IO and GTX
@@ -87,10 +85,10 @@ port (
     FMC_DP0_M2C_N       : in    std_logic;
 
     FMC_PRSNT           : in    std_logic;
-    FMC_LA_P            : inout std_logic_vector(33 downto 0);
-    FMC_LA_N            : inout std_logic_vector(33 downto 0);
-    FMC_CLK0_M2C_P      : inout    std_logic;
-    FMC_CLK0_M2C_N      : in    std_logic;
+    FMC_LA_P            : inout std_logic_vector(33 downto 0) := (others => 'Z');
+    FMC_LA_N            : inout std_logic_vector(33 downto 0) := (others => 'Z');
+    FMC_CLK0_M2C_P      : inout std_logic := 'Z';
+    FMC_CLK0_M2C_N      : inout std_logic := 'Z';
     FMC_CLK1_M2C_P      : in    std_logic;
     FMC_CLK1_M2C_N      : in    std_logic;
 
@@ -104,9 +102,34 @@ port (
     SPI_SCLK_I          : in  std_logic;
     SPI_DAT_I           : in  std_logic
 );
-end panda_top;
+end panda_carrier_top;
 
-architecture rtl of panda_top is
+architecture rtl of panda_carrier_top is
+
+-- Functional Address Space Chip Selects
+constant REG_CS : natural := 0;
+constant DRV_CS : natural := 1;
+constant TTLIN_CS : natural := 3;
+constant TTLOUT_CS : natural := 4;
+constant LVDSIN_CS : natural := 5;
+constant LVDSOUT_CS : natural := 6;
+constant INENC_CS : natural := 7;
+constant OUTENC_CS : natural := 8;
+constant PCAP_CS : natural := 20;
+constant SYSTEM_CS : natural := 23;
+
+
+-- Block instantiation 
+constant REG_NUM : natural := 1;
+constant DRV_NUM : natural := 1;
+constant TTLIN_NUM : natural := 6;
+constant TTLOUT_NUM : natural := 10;
+constant LVDSIN_NUM : natural := 2;
+constant LVDSOUT_NUM : natural := 2;
+constant INENC_NUM : natural := 4;
+constant OUTENC_NUM : natural := 4;
+constant PCAP_NUM : natural := 1;
+constant SYSTEM_NUM : natural := 1;
 
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
@@ -192,9 +215,10 @@ signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
 signal sysbus               : sysbus_t := (others => '0');
 signal posbus               : posbus_t := (others => (others => '0'));
 
+--signal sysbus_o             : sysbus_t;
+--signal posbus_o             : posbus_t;
+
 -- Daughter card control signals
-signal inenc_buf_ctrl       : std_logic_vector(5 downto 0);
-signal outenc_buf_ctrl      : std_logic_vector(5 downto 0);
 
 -- Input Encoder
 signal inenc_val            : std32_array(ENC_NUM-1 downto 0);
@@ -212,39 +236,8 @@ signal outenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
 signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
 signal ttlout_val           : std_logic_vector(TTLOUT_NUM-1 downto 0);
 signal lvdsin_val           : std_logic_vector(LVDSIN_NUM-1 downto 0);
-signal lut_val              : std_logic_vector(LUT_NUM-1 downto 0);
-signal srgate_out           : std_logic_vector(SRGATE_NUM-1 downto 0);
-signal div_outd             : std_logic_vector(DIV_NUM-1 downto 0);
-signal div_outn             : std_logic_vector(DIV_NUM-1 downto 0);
-signal pulse_out            : std_logic_vector(PULSE_NUM-1 downto 0);
-signal seq_outa             : std_logic_vector(SEQ_NUM-1 downto 0);
-signal seq_outb             : std_logic_vector(SEQ_NUM-1 downto 0);
-signal seq_outc             : std_logic_vector(SEQ_NUM-1 downto 0);
-signal seq_outd             : std_logic_vector(SEQ_NUM-1 downto 0);
-signal seq_oute             : std_logic_vector(SEQ_NUM-1 downto 0);
-signal seq_outf             : std_logic_vector(SEQ_NUM-1 downto 0);
-signal seq_active           : std_logic_vector(SEQ_NUM-1 downto 0);
 
-signal counter_carry        : std_logic_vector(COUNTER_NUM-1 downto 0);
-signal calc_out             : std32_array(CALC_NUM-1 downto 0);
-
-signal pcomp_active         : std_logic_vector(PCOMP_NUM-1 downto 0);
-signal pcomp_out            : std_logic_vector(PCOMP_NUM-1 downto 0);
-
-signal panda_spbram_wea     : std_logic := '0';
-
-signal pcap_act             : std_logic_vector(0 downto 0);
-
-signal qdec_out             : std32_array(QDEC_NUM-1 downto 0);
-signal counter_out          : std32_array(COUNTER_NUM-1 downto 0);
-signal posenc_a             : std_logic_vector(POSENC_NUM-1 downto 0);
-signal posenc_b             : std_logic_vector(POSENC_NUM-1 downto 0);
-
-signal adc_out              : std32_array(7 downto 0) := (others => (others => '0'));
-
-signal pgen_out             : std32_array(PGEN_NUM-1 downto 0);
-
-signal enc0_ctrl_pad        : std_logic_vector(11 downto 0);
+signal pcap_active             : std_logic_vector(0 downto 0);
 
 signal rdma_req             : std_logic_vector(5 downto 0);
 signal rdma_ack             : std_logic_vector(5 downto 0);
@@ -270,42 +263,101 @@ signal INPROT               : std3_array(ENC_NUM-1 downto 0);
 signal SLOW_FPGA_VERSION    : std_logic_vector(31 downto 0);
 signal DCARD_MODE           : std32_array(ENC_NUM-1 downto 0);
 
--- Clocks Block
-signal clocks_outa          : std_logic_vector(0 downto 0);
-signal clocks_outb          : std_logic_vector(0 downto 0);
-signal clocks_outc          : std_logic_vector(0 downto 0);
-signal clocks_outd          : std_logic_vector(0 downto 0);
-
--- BITS Block
-signal bits_outa            : std_logic_vector(0 downto 0);
-signal bits_outb            : std_logic_vector(0 downto 0);
-signal bits_outc            : std_logic_vector(0 downto 0);
-signal bits_outd            : std_logic_vector(0 downto 0);
 
 -- FMC Block
-signal fmc_inputs           : std_logic_vector(15 downto 0);
-signal fmc_data             : std32_array(15 downto 0);
-
+signal FMC : FMC_interface;
 -- SFP Block
-signal sfp_inputs           : std_logic_vector(15 downto 0);
-signal sfp_data             : std32_array(15 downto 0);
+signal SFP1 : SFP_interface;
+signal SFP2 : SFP_interface;
+signal SFP3 : SFP_interface;
 
--- FILTER Block
-signal FILTER_OUT           : std32_array(FILTER_NUM-1 downto 0);   
-signal FILTER_READY         : std_logic_vector(FILTER_NUM-1 downto 0);
+signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
+attribute syn_noclockbuf : boolean;
+attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
+attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
+
+
 
 -- Make schematics a bit more clear for analysis
-attribute keep              : string;
-attribute keep of sysbus    : signal is "true";
-attribute keep of posbus    : signal is "true";
+--attribute keep              : string; -- GBC removed following three lines 14/09/18 
+--attribute keep of sysbus    : signal is "true";
+--attribute keep of posbus    : signal is "true";
+
+constant SYSBUS_SIZE : natural :=   ttlin_val'length + lvdsin_val'length + inenc_a'length 
+                                    + inenc_b'length + inenc_z'length + inenc_data'length 
+                                    + inenc_conn'length + outenc_clk'length 
+                                    + pcap_active'length;
+
+--constant POSBUS_SIZE : natural := inenc_val(1)'length;
+
 
 begin
 
--- Enable SFP_1 and SFP_2
-SFP_TxDis <= "00";
-
 -- Internal clocks and resets
 FCLK_RESET0 <= not FCLK_RESET0_N(0);
+
+---------------------------------------------------------------------------
+-- FMC Mezzanine Clocks
+---------------------------------------------------------------------------
+IBUFGDS_CLK0 : IBUFGDS
+generic map (
+    DIFF_TERM   => TRUE,
+    IOSTANDARD  => "LVDS"
+)
+port map (
+    O           => FMC.FMC_CLK0_M2C,
+    I           => FMC_CLK0_M2C_P,
+    IB          => FMC_CLK0_M2C_N
+);
+
+IBUFGDS_CLK1 : IBUFGDS
+generic map (
+    DIFF_TERM   => TRUE,
+    IOSTANDARD  => "LVDS"
+)
+port map (
+    O           => FMC.FMC_CLK1_M2C,
+    I           => FMC_CLK1_M2C_P,
+    IB          => FMC_CLK1_M2C_N
+);
+
+--------------------------------------------------------------------------
+-- External Clock interface (for testing)
+--------------------------------------------------------------------------
+IBUFGDS_EXT : IBUFGDS
+generic map (
+    DIFF_TERM   => FALSE,
+    IOSTANDARD  => "LVDS_25"
+)
+port map (
+    O           => FMC.EXTCLK,
+    I           => EXTCLK_P,
+    IB          => EXTCLK_N
+);
+
+
+--IBUFDS_GTE2
+    ibufds_instq0_clk0 : IBUFDS_GTE2  
+    port map
+    (
+        O               => 	q0_clk0_gtrefclk,
+        ODIV2           =>    open,
+        CEB             => 	'0',
+        I               => 	GTXCLK0_P,
+        IB              => 	GTXCLK0_N
+    );
+
+--IBUFDS_GTE2
+    ibufds_instq0_clk1 : IBUFDS_GTE2  
+    port map
+    (
+        O               => 	q0_clk1_gtrefclk,
+        ODIV2           =>  open,
+        CEB             => 	'0',
+        I               => 	GTXCLK1_P,
+        IB              => 	GTXCLK1_N
+    );
+
 
 ---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
@@ -503,147 +555,7 @@ port map (
     pad_o               => LVDSOUT_PAD_O
 );
 
----------------------------------------------------------------------------
--- 5-Input LUT
----------------------------------------------------------------------------
-lut_inst : entity work.lut_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
 
-    read_strobe_i       => read_strobe(LUT_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(LUT_CS),
-    read_ack_o          => read_ack(LUT_CS),
-
-    write_strobe_i      => write_strobe(LUT_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(LUT_CS),
-
-    sysbus_i            => sysbus,
-    out_o               => lut_val
-);
-
----------------------------------------------------------------------------
--- SRGATE
----------------------------------------------------------------------------
-srgate_inst : entity work.srgate_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(SRGATE_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(SRGATE_CS),
-    read_ack_o          => read_ack(SRGATE_CS),
-
-    write_strobe_i      => write_strobe(SRGATE_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(SRGATE_CS),
-
-    sysbus_i            => sysbus,
-    out_o               => srgate_out
-);
-
-
----------------------------------------------------------------------------
--- FILTER
----------------------------------------------------------------------------
-inst_filter_top : entity work.filter_top
-port map(
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(FILTER_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(FILTER_CS),
-    read_ack_o          => read_ack(FILTER_CS),
-
-    write_strobe_i      => write_strobe(FILTER_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(FILTER_CS),
-    sysbus_i            => sysbus,
-    posbus_i            => posbus,
-    out_o               => FILTER_OUT, 
-    ready_o             => FILTER_READY            
- );
-
-
----------------------------------------------------------------------------
--- DIVIDER
----------------------------------------------------------------------------
-div_inst : entity work.div_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(DIV_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(DIV_CS),
-    read_ack_o          => read_ack(DIV_CS),
-
-    write_strobe_i      => write_strobe(DIV_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(DIV_CS),
-
-    sysbus_i            => sysbus,
-    outd_o              => div_outd,
-    outn_o              => div_outn
-);
-
----------------------------------------------------------------------------
--- PULSE GENERATOR
----------------------------------------------------------------------------
-pulse_inst : entity work.pulse_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(PULSE_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(PULSE_CS),
-    read_ack_o          => read_ack(PULSE_CS),
-
-    write_strobe_i      => write_strobe(PULSE_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(PULSE_CS),
-
-    sysbus_i            => sysbus,
-    out_o               => pulse_out
-);
-
----------------------------------------------------------------------------
--- SEQEUENCER
----------------------------------------------------------------------------
-seq_inst : entity work.sequencer_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(SEQ_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(SEQ_CS),
-    read_ack_o          => read_ack(SEQ_CS),
-
-    write_strobe_i      => write_strobe(SEQ_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(SEQ_CS),
-
-    sysbus_i            => sysbus,
-    outa_o              => seq_outa,
-    outb_o              => seq_outb,
-    outc_o              => seq_outc,
-    outd_o              => seq_outd,
-    oute_o              => seq_oute,
-    outf_o              => seq_outf,
-    active_o            => seq_active
-);
 
 ---------------------------------------------------------------------------
 -- INENC (Encoder Inputs)
@@ -683,27 +595,6 @@ port map (
     posn_o              => inenc_val
 );
 
----------------------------------------------------------------------------
--- QDEC
----------------------------------------------------------------------------
-qdec_inst : entity work.qdec_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(QDEC_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(QDEC_CS),
-    read_ack_o          => read_ack(QDEC_CS),
-
-    write_strobe_i      => write_strobe(QDEC_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(QDEC_CS),
-
-    sysbus_i            => sysbus,
-    out_o               => qdec_out
-);
 
 ---------------------------------------------------------------------------
 -- OUTENC (Encoder Inputs)
@@ -738,105 +629,6 @@ port map (
     PROTOCOL            => OUTPROT
 );
 
----------------------------------------------------------------------------
--- OUTENC (Encoder Inputs)
----------------------------------------------------------------------------
-posenc_inst : entity work.posenc_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(POSENC_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(POSENC_CS),
-    read_ack_o          => read_ack(POSENC_CS),
-
-    write_strobe_i      => write_strobe(POSENC_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(POSENC_CS),
-
-    a_o                 => posenc_a,
-    b_o                 => posenc_b,
-    sysbus_i            => sysbus,
-    posbus_i            => posbus
-);
-
----------------------------------------------------------------------------
--- COUNTER/TIMER
----------------------------------------------------------------------------
-counter_inst : entity work.counter_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(COUNTER_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(COUNTER_CS),
-    read_ack_o          => read_ack(COUNTER_CS),
-
-    write_strobe_i      => write_strobe(COUNTER_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(COUNTER_CS),
-
-    sysbus_i            => sysbus,
-    carry_o             => counter_carry,
-    out_o               => counter_out
-);
-
----------------------------------------------------------------------------
--- CALC
----------------------------------------------------------------------------
-calc_inst : entity work.calc_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(CALC_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(CALC_CS),
-    read_ack_o          => read_ack(CALC_CS),
-
-    write_strobe_i      => write_strobe(CALC_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(CALC_CS),
-
-    posbus_i            => posbus,
-    out_o               => calc_out
-);
-
----------------------------------------------------------------------------
--- POSITION COMPARE
----------------------------------------------------------------------------
-pcomp_inst : entity work.pcomp_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(PCOMP_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(PCOMP_CS),
-    read_ack_o          => read_ack(PCOMP_CS),
-
-    write_strobe_i      => write_strobe(PCOMP_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(PCOMP_CS),
-
-    dma_req_o           => rdma_req(5 downto 2),
-    dma_ack_i           => rdma_ack(5 downto 2),
-    dma_done_i          => rdma_done,
-    dma_addr_o          => rdma_addr(5 downto 2),
-    dma_len_o           => rdma_len(5 downto 2),
-    dma_data_i          => rdma_data,
-    dma_valid_i         => rdma_valid(5 downto 2),
-    sysbus_i            => sysbus,
-    posbus_i            => posbus,
-    act_o               => pcomp_active,
-    out_o               => pcomp_out
-);
 
 ---------------------------------------------------------------------------
 -- POSITION CAPTURE
@@ -882,38 +674,11 @@ port map (
 
     sysbus_i            => sysbus,
     posbus_i            => posbus,
-    pcap_actv_o         => pcap_act(0),
+    pcap_actv_o         => pcap_active(0),
     pcap_irq_o          => IRQ_F2P(0)
 );
 
----------------------------------------------------------------------------
--- POSITION GENERATION
----------------------------------------------------------------------------
-pgen_inst : entity work.pgen_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
 
-    read_strobe_i       => read_strobe(PGEN_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(PGEN_CS),
-    read_ack_o          => read_ack(PGEN_CS),
-
-    write_strobe_i      => write_strobe(PGEN_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(PGEN_CS),
-
-    dma_req_o           => rdma_req(1 downto 0),
-    dma_ack_i           => rdma_ack(1 downto 0),
-    dma_done_i          => rdma_done,
-    dma_addr_o          => rdma_addr(1 downto 0),
-    dma_len_o           => rdma_len(1 downto 0),
-    dma_data_i          => rdma_data,
-    dma_valid_i         => rdma_valid(1 downto 0),
-    sysbus_i            => sysbus,
-    out_o               => pgen_out
-);
 
 ---------------------------------------------------------------------------
 -- TABLE DMA ENGINE
@@ -971,54 +736,6 @@ port map (
     sysbus_i            => sysbus,
     posbus_i            => posbus,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION
-);
-
----------------------------------------------------------------------------
--- CLOCKS
----------------------------------------------------------------------------
-clocks_inst : entity work.clocks_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(CLOCKS_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(CLOCKS_CS),
-    read_ack_o          => read_ack(CLOCKS_CS),
-
-    write_strobe_i      => write_strobe(CLOCKS_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(CLOCKS_CS),
-
-    clocks_a_o          => clocks_outa(0),
-    clocks_b_o          => clocks_outb(0),
-    clocks_c_o          => clocks_outc(0),
-    clocks_d_o          => clocks_outd(0)
-);
-
----------------------------------------------------------------------------
--- BITS
----------------------------------------------------------------------------
-bits_inst : entity work.bits_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(BITS_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(BITS_CS),
-    read_ack_o          => read_ack(BITS_CS),
-
-    write_strobe_i      => write_strobe(BITS_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(BITS_CS),
-
-    bits_a_o            => bits_outa(0),
-    bits_b_o            => bits_outb(0),
-    bits_c_o            => bits_outc(0),
-    bits_d_o            => bits_outd(0)
 );
 
 ---------------------------------------------------------------------------
@@ -1082,165 +799,138 @@ port map (
     DATA_OUT            => DATA_OUT
 );
 
+-- Bus assembly ----
+--TEMPORARY HACK FOR OLD BUILD SYSTEM
+sysbus(5 downto 0) <= ttlin_val;
+sysbus(7 downto 6) <= lvdsin_val;
+sysbus(11 downto 8) <= inenc_a;
+sysbus(15 downto 12) <= inenc_b;
+sysbus(19 downto 16) <= inenc_z;
+sysbus(23 downto 20) <= inenc_data;
+sysbus(27 downto 24) <= inenc_conn;
+sysbus(31 downto 28) <= outenc_clk;
+sysbus(108 downto 108) <= pcap_active;
+
+--sysbus(SYSBUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn & 
+--                                   inenc_data & inenc_z & inenc_b & ; &
+--                                   lvdsin_val & ttlin_val;
+
+--posbus(inenc_val(1)'length-1 downto 0) <= inenc_val;
+
+
+
+--posbus(0) <= (others => '0');
+posbus(3 downto 0) <= inenc_val;
+
+-- HACKY CODE BELOW --
+-- --sysbus(1 downto 0) <= sysbus_o(1 downto 0);
+--sysbus(107 downto 32) <= sysbus_o(107 downto 32);
+--sysbus(127 downto 109) <= sysbus_o(127 downto 109);
+--posbus(31 downto 4) <= posbus_o(31 downto 4);
+--HACKY CODE END --
+
+
+-- FMC record
+FMC.FMC_PRSNT <= FMC_PRSNT;
+FMC.FMC_LA_P <= FMC_LA_P;
+FMC.FMC_LA_N <= FMC_LA_N;
+FMC.GTREFCLK <= q0_clk1_gtrefclk;
+FMC_DP0_C2M_P <= FMC.TXP_OUT;
+FMC_DP0_C2M_N <= FMC.TXN_OUT;
+FMC.RXP_IN <= FMC_DP0_M2C_P;
+FMC.RXN_IN <= FMC_DP0_M2C_N;
+
+-- SFP records
+-- NB: SFPs 1 and 3 are switched around to mirror front panel connections
+SFP1.SFP_LOS <= '0';  -- NB: Hard-coded to '0' as not brought out onto pin!
+SFP1.GTREFCLK <= q0_clk0_gtrefclk;
+SFP1.RXN_IN <= SFP_RX_N(2);
+SFP1.RXP_IN <= SFP_RX_P(2);
+SFP_TX_N(2) <= SFP1.TXN_OUT;
+SFP_TX_P(2) <= SFP1.TXP_OUT;
+
+SFP2.SFP_LOS <= SFP_LOS(1);
+SFP2.GTREFCLK <= q0_clk0_gtrefclk;
+SFP2.RXN_IN <= SFP_RX_N(1);
+SFP2.RXP_IN <= SFP_RX_P(1);
+SFP_TX_N(1) <= SFP2.TXN_OUT;
+SFP_TX_P(1) <= SFP2.TXP_OUT;
+
+SFP3.SFP_LOS <= SFP_LOS(0);
+SFP3.GTREFCLK <= q0_clk0_gtrefclk;
+SFP3.RXN_IN <= SFP_RX_N(0);
+SFP3.RXP_IN <= SFP_RX_P(0);
+SFP_TX_N(0) <= SFP3.TXN_OUT;
+SFP_TX_P(0) <= SFP3.TXP_OUT;
+
 ---------------------------------------------------------------------------
--- FMC Loopback design
+-- PandABlocks_top Instantiation (autogenerated!!)
 ---------------------------------------------------------------------------
-FMC_GEN : IF (SIM = "FALSE") GENERATE
-    fmc_inst : entity work.fmc_top
-    port map (
-        clk_i               => FCLK_CLK0,
-        reset_i             => FCLK_RESET0,
 
-        bitbus_i            => sysbus,
-        posbus_i            => posbus,
-        fmc_inputs_o        => fmc_inputs,
-        fmc_data_o          => fmc_data,
-
-        read_strobe_i       => read_strobe(FMC_CS),
-        read_address_i      => read_address,
-        read_data_o         => read_data(FMC_CS),
-        read_ack_o          => read_ack(FMC_CS),
-
-        write_strobe_i      => write_strobe(FMC_CS),
-        write_address_i     => write_address,
-        write_data_i        => write_data,
-        write_ack_o         => write_ack(FMC_CS),
-
-        EXTCLK_P            => EXTCLK_P,
-        EXTCLK_N            => EXTCLK_N,
-
-        FMC_PRSNT           => FMC_PRSNT,
-        FMC_LA_P            => FMC_LA_P,
-        FMC_LA_N            => FMC_LA_N,
-        FMC_CLK0_M2C_P      => FMC_CLK0_M2C_P,
-        FMC_CLK0_M2C_N      => FMC_CLK0_M2C_N,
-        FMC_CLK1_M2C_P      => FMC_CLK1_M2C_P,
-        FMC_CLK1_M2C_N      => FMC_CLK1_M2C_N,
-
-        GTREFCLK_N          => GTXCLK1_N,
-        GTREFCLK_P          => GTXCLK1_P,
-        TXP_OUT             => FMC_DP0_C2M_P,
-        TXN_OUT             => FMC_DP0_C2M_N,
-        RXP_IN              => FMC_DP0_M2C_P,
-        RXN_IN              => FMC_DP0_M2C_N
-        -- DO NOT EDIT ABOVE THIS LINE ---------------------
-    );
-END GENERATE;
-
----------------------------------------------------------------------------
--- SFP Loopback design
----------------------------------------------------------------------------
-SFP_GEN : IF (SIM = "FALSE") GENERATE
-
-    sfp_inst : entity work.sfp_top
-    port map (
-        clk_i               => FCLK_CLK0,
-        reset_i             => FCLK_RESET0,
-        
-        sysbus_i            => sysbus,
-        sfp_inputs_o        => sfp_inputs,
-        sfp_data_o          => sfp_data,
-        
-        read_strobe_i       => read_strobe(SFP_CS),
-        read_address_i      => read_address,
-        read_data_o         => read_data(SFP_CS),
-        read_ack_o          => read_ack(SFP_CS),
-
-        write_strobe_i      => write_strobe(SFP_CS),
-        write_address_i     => write_address,
-        write_data_i        => write_data,
-        write_ack_o         => write_ack(SFP_CS),
-        
-        SFP_LOS             => SFP_LOS,
-        
-        GTREFCLK_N          => GTXCLK0_N,
-        GTREFCLK_P          => GTXCLK0_P,
-        RXN_IN              => SFP_RX_N,
-        RXP_IN              => SFP_RX_P,
-        TXN_OUT             => SFP_TX_N,
-        TXP_OUT             => SFP_TX_P
-    );
-
-END GENERATE;
-
--- EDIT BELOW THIS LINE ---------------------------------------------------
--- Add and connect System and Position Bus signals from all Blocks
----------------------------------------------------------------------------
-busses_inst : entity work.panda_busses
-port map (
-    -- REG Block
-    -- DRV Block
-    -- TTLIN Block
-    TTLIN_VAL       => ttlin_val,
-    -- TTLOUT Block
-    -- LVDSIN Block
-    LVDSIN_VAL      => lvdsin_val,
-    -- LVDSOUT Block
-    -- LUT Block
-    LUT_OUT         => lut_val,
-    -- SRGATE Block
-    SRGATE_OUT      => srgate_out,
-    -- DIV Block
-    DIV_OUTD        => div_outd,
-    DIV_OUTN        => div_outn,
-    -- PULSE Block
-    PULSE_OUT       => pulse_out,
-    -- SEQ Block
-    SEQ_OUTA        => seq_outa,
-    SEQ_OUTB        => seq_outb,
-    SEQ_OUTC        => seq_outc,
-    SEQ_OUTD        => seq_outd,
-    SEQ_OUTE        => seq_oute,
-    SEQ_OUTF        => seq_outf,
-    SEQ_ACTIVE      => seq_active,
-    -- INENC Block
-    INENC_A         => inenc_a,
-    INENC_B         => inenc_b,
-    INENC_Z         => inenc_z,
-    INENC_DATA      => inenc_data,
-    INENC_CONN      => inenc_conn,
-    INENC_VAL       => inenc_val,
-    -- QDEC Block
-    QDEC_OUT        => qdec_out,
-    -- OUTENC Block
-    OUTENC_CLK      => outenc_clk,
-    -- POSENC Block
-    POSENC_A        => posenc_a,
-    POSENC_B        => posenc_b,
-    -- CALC Block
-    CALC_OUT       => calc_out,
-    -- COUNTER Block
-    COUNTER_CARRY   => counter_carry,
-    COUNTER_OUT     => counter_out,
-    -- PGEN Block
-    PGEN_OUT        => pgen_out,
-    -- PCOMP Block
-    PCOMP_ACTIVE    => pcomp_active,
-    PCOMP_OUT       => pcomp_out,
-    -- PCAP Block
-    PCAP_ACTIVE     => pcap_act,
-    -- BITS Block
-    BITS_OUTA       => bits_outa,
-    BITS_OUTB       => bits_outb,
-    BITS_OUTC       => bits_outc,
-    BITS_OUTD       => bits_outd,
-    -- CLOCKS Block
-    CLOCKS_OUTA     => clocks_outa,
-    CLOCKS_OUTB     => clocks_outb,
-    CLOCKS_OUTC     => clocks_outc,
-    CLOCKS_OUTD     => clocks_outd,
-    -- SLOW Block
-    -- FMC Block
-    fmc_inputs_i    => fmc_inputs,
-    fmc_data_i      => fmc_data,
-    sfp_inputs_i    => sfp_inputs,
-    sfp_data_i      => sfp_data,
-    FILTER_OUT      => FILTER_OUT,
-    FILTER_READY    => FILTER_READY,
-    -- SFP Block
-    -- Bus Outputs
-    bitbus_o        => sysbus,
-    posbus_o        => posbus
+softblocks_inst : entity work.soft_blocks
+generic map( SIM => SIM)
+port map(
+	FCLK_CLK0 => FCLK_CLK0,
+	FCLK_RESET0 => FCLK_RESET0,
+    read_strobe => read_strobe,
+    read_address => read_address,
+	read_data => read_data,
+    read_ack => read_ack,
+    write_strobe => write_strobe,
+    write_address => write_address,
+    write_data => write_data,
+    write_ack => write_ack,
+    --sysbus_o => sysbus_o,
+    --sysbus_i => sysbus,
+    --posbus_o => posbus_o,
+    --posbus_i => posbus,
+    sysbus => sysbus,
+    posbus => posbus,
+	--ttlin_val => ttlin_val,
+	--lvdsin_val => lvdsin_val,
+	--inenc_val => inenc_val,
+	--inenc_conn => inenc_conn,
+	--inenc_a => inenc_a,
+	--inenc_b => inenc_b,
+	--inenc_z => inenc_z,
+	--inenc_data => inenc_data,
+ 	--outenc_clk => outenc_clk,
+	rdma_req => rdma_req,
+	rdma_ack => rdma_ack,
+	rdma_done => rdma_done,
+	rdma_addr => rdma_addr,
+	rdma_len => rdma_len,
+	rdma_data => rdma_data,
+	rdma_valid => rdma_valid,
+    FMC => FMC,
+    SFP1 => SFP1,
+    SFP2 => SFP2,
+    SFP3 => SFP3
 );
 
+	--pcap_active => pcap_act,
+    --GTXCLK0_P => GTXCLK0_P,
+    --GTXCLK0_N => GTXCLK0_N,
+    --GTXCLK1_P => GTXCLK1_P,
+    --GTXCLK1_N => GTXCLK1_N,
+    --SFP_TX_P => SFP_TX_P,
+    --SFP_TX_N => SFP_TX_N,
+    --SFP_RX_P => SFP_RX_P,
+    --SFP_RX_N => SFP_RX_N,
+    --FMC_DP0_C2M_P => FMC_DP0_C2M_P,
+    --FMC_DP0_C2M_N => FMC_DP0_C2M_N,
+    --FMC_DP0_M2C_P => FMC_DP0_M2C_P,
+    --FMC_DP0_M2C_N => FMC_DP0_M2C_N,
+    --FMC_PRSNT => FMC_PRSNT,
+    --FMC_LA_P => FMC_LA_P,
+    --FMC_LA_N => FMC_LA_N,
+    --FMC_CLK0_M2C_P => FMC_CLK0_M2C_P,
+    --FMC_CLK0_M2C_N => FMC_CLK0_M2C_N,
+    --FMC_CLK1_M2C_P => FMC_CLK1_M2C_P,
+    --FMC_CLK1_M2C_N => FMC_CLK1_M2C_N,
+    --EXTCLK_P => EXTCLK_P,
+    --EXTCLK_N => EXTCLK_N
+--);
+
 end rtl;
+
