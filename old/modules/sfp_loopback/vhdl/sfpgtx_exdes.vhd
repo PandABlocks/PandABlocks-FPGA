@@ -532,6 +532,16 @@ signal    gt0_unscrambled_data_i          : std_logic_vector(15 downto 0);
 
 signal    reset_on_data_error_i           : std_logic;
 
+signal    gt0_error_count_synca           : std_logic_vector(7 downto 0);
+signal    gt0_error_count_syncb           : std_logic_vector(7 downto 0);
+signal    gt0_track_data_synca            : std_logic;
+signal    gt0_track_data_syncb            : std_logic; 
+
+attribute ASYNC_REG of gt0_error_count_synca : signal is "TRUE";
+attribute ASYNC_REG of gt0_error_count_syncb : signal is "TRUE";
+attribute ASYNC_REG of gt0_track_data_synca : signal is "TRUE";
+attribute ASYNC_REG of gt0_track_data_syncb : signal is "TRUE";
+
     ----------------------- Debug Signals ---------------------------------
 
     signal  tx_data_vio_control_i           : std_logic_vector(35 downto 0);
@@ -889,13 +899,20 @@ gt0_inc_in_i                                 <= '0';
     );
 
 
---LINK_UP(31 downto 1) <= (others => '0');
---LINK_UP(0) <= gt0_track_data_i;
-LINK_UP <= (0 => gt0_track_data_i, others => '0');
+LINK_UP <= (0 => gt0_track_data_syncb, others => '0');
 ERROR_COUNT(31 downto 8) <= (others => '0');
-ERROR_COUNT(7 downto 0) <= gt0_error_count_i;
---ERROR_COUNT <= (7 downto 0 => gt0_error_count_i, others => '0');
+ERROR_COUNT(7 downto 0) <= gt0_error_count_syncb;
 
+-- synchronise the LINK_UP and ERROR_COUNT signals
+ctrl_sync: process(drpclk_in_i)
+begin
+    if Rising_edge(drpclk_in_i) then
+        gt0_track_data_synca <= gt0_track_data_i;
+        gt0_track_data_syncb <= gt0_track_data_synca;
+        gt0_error_count_synca <= gt0_error_count_i;
+        gt0_error_count_syncb <= gt0_error_count_synca;
+    end if;
+end process;
 
 -------------------------------------------------------------------------------
 ----------------------------- Debug Signals assignment -----------------------

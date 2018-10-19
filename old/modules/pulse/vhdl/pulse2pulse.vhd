@@ -23,13 +23,19 @@ signal in_reset         :std_logic := '0';
 signal in_reset_prev    :std_logic := '0';
 signal in_reset_prev2   :std_logic := '0';
 
+attribute ASYNC_REG : string;
+attribute ASYNC_REG of in_reset : signal is "TRUE";
+attribute ASYNC_REG of in_reset_prev : signal is "TRUE";
+attribute ASYNC_REG of out_set : signal is "TRUE";
+attribute ASYNC_REG of out_set_prev : signal is "TRUE";
+
 begin
 
 in_proc : process(in_clk)
 begin
     if rising_edge(in_clk) then
-        --regitser a pulse on the pulse in port
-        --reset the signal when the ouput has registerred the pulse
+        --register a pulse on the pulse in port
+        --reset the signal when the ouput has registered the pulse
         if (in_reset_prev = '1' and in_reset_prev2 = '1') then
            in_set <= '0';
         elsif (pulsein = '1') then
@@ -49,7 +55,7 @@ out_proc : process(out_clk)
 begin
     if rising_edge(out_clk) then
         --generate a pulse on the outpput when the
-        --set signal has travelled through the synchronising fip flops
+        --set signal has travelled through the synchronising flip flops
         if (out_set_prev = '1' and out_set_prev2 = '0') then
            pulseout <= '1';
         else

@@ -33,6 +33,11 @@ signal ref_trigger     : std_logic;
 signal trigger         : std_logic_vector(NUM-1 downto 0);
 signal clk_cntr        : uint32_array(NUM-1 downto 0);
 signal clk_cnt_reg     : uint32_array(NUM-1 downto 0);
+signal clk_cnt_reg_synca, clk_cnt_reg_syncb : std32_array(NUM-1 downto 0);
+
+attribute ASYNC_REG : string;
+attribute ASYNC_REG of clk_cnt_reg_synca : signal is "TRUE";
+attribute ASYNC_REG of clk_cnt_reg_syncb : signal is "TRUE";
 
 begin
 
@@ -76,22 +81,25 @@ port map (
 process(test_clocks(I))
 begin
     if rising_edge(test_clocks(I)) then
-        if (reset = '1') then
+        if (trigger(I) = '1') then
             clk_cntr(I)    <= (others=>'0');
-            clk_cnt_reg(I) <= (others=>'0');
+            clk_cnt_reg(I) <= clk_cntr(I);
         else
-            if (trigger(I) = '1') then
-                clk_cntr(I)    <= (others=>'0');
-                clk_cnt_reg(I) <= clk_cntr(I);
-            else
-                clk_cntr(I)    <= clk_cntr(I) + 1;
-                clk_cnt_reg(I) <= clk_cnt_reg(I);
-            end if;
+            clk_cntr(I)    <= clk_cntr(I) + 1;
+            clk_cnt_reg(I) <= clk_cnt_reg(I);
         end if;
     end if;
 end process;
 
-freq_out(I) <= std_logic_vector(clk_cnt_reg(I));
+output_resync: process(refclk)
+begin
+    if rising_edge(refclk) then
+        clk_cnt_reg_synca(I) <= std_logic_vector(clk_cnt_reg(I));
+        clk_cnt_reg_syncb(I) <= clk_cnt_reg_synca(I);
+    end if;
+end process;
+
+freq_out(I) <= clk_cnt_reg_syncb(I);
 
 END GENERATE;
 

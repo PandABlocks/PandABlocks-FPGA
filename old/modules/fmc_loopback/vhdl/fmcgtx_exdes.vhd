@@ -539,9 +539,16 @@ signal    gt0_inc_out_i                   : std_logic;
 signal    gt0_unscrambled_data_i          : std_logic_vector(15 downto 0);
 
 signal    reset_on_data_error_i           : std_logic;
-signal    track_data_out_i                : std_logic;
-signal    track_data_out_ila_i : std_logic_vector(0 downto 0);
-  
+
+signal    gt0_error_count_synca           : std_logic_vector(7 downto 0);
+signal    gt0_error_count_syncb           : std_logic_vector(7 downto 0);
+signal    gt0_track_data_synca            : std_logic;
+signal    gt0_track_data_syncb            : std_logic; 
+
+attribute ASYNC_REG of gt0_error_count_synca : signal is "TRUE";
+attribute ASYNC_REG of gt0_error_count_syncb : signal is "TRUE";
+attribute ASYNC_REG of gt0_track_data_synca : signal is "TRUE";
+attribute ASYNC_REG of gt0_track_data_syncb : signal is "TRUE";
 
     ----------------------- Debug Signals ---------------------------------
 
@@ -888,12 +895,21 @@ port map
 
 
 TRACK_DATA_OUT(31 downto 1) <= (others => '0');
-TRACK_DATA_OUT(0) <= track_data_out_i;
+TRACK_DATA_OUT(0) <= gt0_track_data_syncb;
 
 ERROR_COUNT(31 downto 8) <= (others => '0');
-ERROR_COUNT(7 downto 0) <= gt0_error_count_i;
+ERROR_COUNT(7 downto 0) <= gt0_error_count_syncb;
 
-track_data_out_i <= gt0_track_data_i;
+-- synchronise the LINK_UP and ERROR_COUNT signals
+ctrl_sync: process(drpclk_in_i)
+begin
+    if Rising_edge(drpclk_in_i) then
+        gt0_track_data_synca <= gt0_track_data_i;
+        gt0_track_data_syncb <= gt0_track_data_synca;
+        gt0_error_count_synca <= gt0_error_count_i;
+        gt0_error_count_syncb <= gt0_error_count_synca;
+    end if;
+end process;
 
 ------------ optional Ports assignments --------------
 gt0_rxprbscntreset_i                         <= tied_to_ground_i;
