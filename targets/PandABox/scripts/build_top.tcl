@@ -138,7 +138,7 @@ if {$FMC_DESIGN ne ""} {
 }
 if {$SFP_DESIGN ne ""} {
     read_xdc $TOP_DIR/modules/$SFP_DESIGN/const/sfp.xdc
-	read_xdc $TARGET_DIR/const/SFP_X0Y3.xdc
+	read_xdc $TARGET_DIR/const/SFP1.xdc
 }
 read_xdc $TARGET_DIR/const/panda-timing.xdc
 if {$FMC_DESIGN == "fmc_acq430"} {
