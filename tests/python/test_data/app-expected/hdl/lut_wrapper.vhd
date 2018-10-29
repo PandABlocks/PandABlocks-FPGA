@@ -154,12 +154,12 @@ begin
             FUNC_wstb           => FUNC_wstb(I),
 
             read_strobe_i       => read_strobe(I),
-            read_address_i      => read_address_i,
+            read_address_i      => read_address_i(BLK_AW-1 downto 0),
             read_data_o         => read_data(I),
             read_ack_o          => open,
 
             write_strobe_i      => write_strobe(I),
-            write_address_i     => write_address_i,
+            write_address_i     => write_address_i(BLK_AW-1 downto 0),
             write_data_i        => write_data_i,
             write_ack_o         => open
         );

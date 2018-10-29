@@ -20,7 +20,6 @@ library work;
 --use work.support.all;
 use work.addr_defines.all; -- NEEDED?
 use work.top_defines.all;  -- NEEDED?
-use work.reg_defines.all;
 
 entity panda_carrier_top is
 generic (
@@ -106,29 +105,6 @@ port (
 end panda_carrier_top;
 
 architecture rtl of panda_carrier_top is
-
--- Functional Address Space Chip Selects
--- Remove these definitions and re-instate addr_defines.vhd!!
---constant REG_CS : natural := 0;
---constant DRV_CS : natural := 1;
---constant TTLIN_CS : natural := 3;
---constant TTLOUT_CS : natural := 4;
---constant LVDSIN_CS : natural := 5;
---constant LVDSOUT_CS : natural := 6;
---constant INENC_CS : natural := 7;
---constant OUTENC_CS : natural := 8;
---constant PCAP_CS : natural := 20; ----- make this #2! Add PCAP and SYSTEM to panda_carrier definition.
---constant SYSTEM_CS : natural := 23; -------make this #9? ditto
-
-
--- Block instantiation 
-
---constant TTLIN_NUM : natural := 6;
---constant TTLOUT_NUM : natural := 10;
---constant LVDSIN_NUM : natural := 2;
---constant LVDSOUT_NUM : natural := 2;
---constant INENC_NUM : natural := 4; ------????????????  NB used! ENC_NUM from top_defines used instead!
---constant OUTENC_NUM : natural := 4; --------????????????? ditto
 
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
@@ -278,14 +254,6 @@ attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
 --attribute keep              : string; -- GBC removed following three lines 14/09/18 
 --attribute keep of sysbus    : signal is "true";
 --attribute keep of posbus    : signal is "true";
-
-constant BIT_BUS_SIZE : natural :=   ttlin_val'length + lvdsin_val'length + inenc_a'length 
-                                    + inenc_b'length + inenc_z'length + inenc_data'length 
-                                    + inenc_conn'length + outenc_clk'length 
-                                    + pcap_active'length;
-
---constant POSBUS_SIZE : natural := inenc_val(1)'length;
-
 
 begin
 
@@ -629,50 +597,50 @@ port map (
 ---------------------------------------------------------------------------
 -- POSITION CAPTURE
 ---------------------------------------------------------------------------
---pcap_inst : entity work.pcap_top
---port map (
---    clk_i               => FCLK_CLK0,
---    reset_i             => FCLK_RESET0,
---    m_axi_awaddr        => S_AXI_HP0_awaddr,
---    m_axi_awburst       => S_AXI_HP0_awburst,
---    m_axi_awcache       => S_AXI_HP0_awcache,
---    m_axi_awid          => S_AXI_HP0_awid,
---    m_axi_awlen         => S_AXI_HP0_awlen,
---    m_axi_awlock        => S_AXI_HP0_awlock,
---    m_axi_awprot        => S_AXI_HP0_awprot,
---    m_axi_awqos         => S_AXI_HP0_awqos,
---    m_axi_awready       => S_AXI_HP0_awready,
---    m_axi_awregion      => S_AXI_HP0_awregion,
---    m_axi_awsize        => S_AXI_HP0_awsize,
---    m_axi_awvalid       => S_AXI_HP0_awvalid,
---    m_axi_bid           => S_AXI_HP0_bid,
---    m_axi_bready        => S_AXI_HP0_bready,
---    m_axi_bresp         => S_AXI_HP0_bresp,
---    m_axi_bvalid        => S_AXI_HP0_bvalid,
---    m_axi_wdata         => S_AXI_HP0_wdata,
---    m_axi_wlast         => S_AXI_HP0_wlast,
---    m_axi_wready        => S_AXI_HP0_wready,
---    m_axi_wstrb         => S_AXI_HP0_wstrb,
---    m_axi_wvalid        => S_AXI_HP0_wvalid,
+pcap_inst : entity work.pcap_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+    m_axi_awaddr        => S_AXI_HP0_awaddr,
+    m_axi_awburst       => S_AXI_HP0_awburst,
+    m_axi_awcache       => S_AXI_HP0_awcache,
+    m_axi_awid          => S_AXI_HP0_awid,
+    m_axi_awlen         => S_AXI_HP0_awlen,
+    m_axi_awlock        => S_AXI_HP0_awlock,
+    m_axi_awprot        => S_AXI_HP0_awprot,
+    m_axi_awqos         => S_AXI_HP0_awqos,
+    m_axi_awready       => S_AXI_HP0_awready,
+    m_axi_awregion      => S_AXI_HP0_awregion,
+    m_axi_awsize        => S_AXI_HP0_awsize,
+    m_axi_awvalid       => S_AXI_HP0_awvalid,
+    m_axi_bid           => S_AXI_HP0_bid,
+    m_axi_bready        => S_AXI_HP0_bready,
+    m_axi_bresp         => S_AXI_HP0_bresp,
+    m_axi_bvalid        => S_AXI_HP0_bvalid,
+    m_axi_wdata         => S_AXI_HP0_wdata,
+    m_axi_wlast         => S_AXI_HP0_wlast,
+    m_axi_wready        => S_AXI_HP0_wready,
+    m_axi_wstrb         => S_AXI_HP0_wstrb,
+    m_axi_wvalid        => S_AXI_HP0_wvalid,
 
---    read_address_i      => read_address,
---    read_strobe_i       => read_strobe,
---    read_data_0_o       => read_data(PCAP_CS),
---    read_ack_0_o        => read_ack(PCAP_CS),
---    read_data_1_o       => read_data(DRV_CS),
---    read_ack_1_o        => read_ack(DRV_CS),
+    read_address_i      => read_address,
+    read_strobe_i       => read_strobe,
+    read_data_0_o       => read_data(PCAP_CS),
+    read_ack_0_o        => read_ack(PCAP_CS),
+    read_data_1_o       => read_data(DRV_CS),
+    read_ack_1_o        => read_ack(DRV_CS),
 
---    write_strobe_i      => write_strobe,
---    write_address_i     => write_address,
---    write_data_i        => write_data,
---    write_ack_0_o       => write_ack(PCAP_CS),
---    write_ack_1_o       => write_ack(DRV_CS),
+    write_strobe_i      => write_strobe,
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_0_o       => write_ack(PCAP_CS),
+    write_ack_1_o       => write_ack(DRV_CS),
 
---    sysbus_i            => bit_bus,
---    posbus_i            => posbus,
---    pcap_actv_o         => pcap_active(0),
---    pcap_irq_o          => IRQ_F2P(0)
---);
+    sysbus_i            => bit_bus,
+    posbus_i            => posbus,
+    pcap_actv_o         => pcap_active(0),
+    pcap_irq_o          => IRQ_F2P(0)
+);
 
 
 
@@ -797,11 +765,13 @@ port map (
 
 -- Bus assembly ----
 
+-- BIT_BUS_SIZE and POS_BUS_SIZE declared in addr_defines.vhd
+
 bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn & 
                                    inenc_data & inenc_z & inenc_b & inenc_a &
                                    lvdsin_val & ttlin_val;
 
-posbus(inenc_val(1)'length-1 downto 0) <= inenc_val;
+posbus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
 
 -- FMC record
 FMC.FMC_PRSNT <= FMC_PRSNT;

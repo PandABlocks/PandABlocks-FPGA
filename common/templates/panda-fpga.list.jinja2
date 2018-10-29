@@ -1,0 +1,8 @@
+# Configuration files
+d share/panda/config_d
+t share/panda/config_d apps/{{ app }}/config_d/config
+t share/panda/config_d apps/{{ app }}/config_d/registers
+t share/panda/config_d apps/{{ app }}/config_d/descriptions
+# Firmware
+b share/panda apps/{{ app }}/panda_top.bit
+b share/panda apps/{{ app }}/SlowFPGA/slow_top.bin

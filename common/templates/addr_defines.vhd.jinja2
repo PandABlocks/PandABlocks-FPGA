@@ -8,16 +8,25 @@ use ieee.numeric_std.all;
 package addr_defines is
 
 -- Functional Address Space Chip Selects
+{# REG and DRV are hard coded as they do not act as blocks in the same way but 
+still need to be given Chip Select values. #}
     constant REG_CS : natural := 0;
     constant DRV_CS : natural := 1;
 {% for block in blocks %}
     constant {{ block.entity|upper }}_CS : natural := {{ loop.index + 1 }};
+{# This is +1 to account for chipselects 0 and 1 assigned to reg and drv #}
 {% endfor %}
 
 -- Block instantiation
 {% for block in blocks %}
     constant {{ block.entity|upper }}_NUM : natural := {{ block.number }};
 {% endfor %}
+
+-- Constant equal to the sum of block nums for each bit out signal
+    constant BIT_BUS_SIZE : natural := {{ bit_bus_length }};
+
+-- Constant equal to the sum of block_num for each pos out signal
+    constant POS_BUS_SIZE : natural := {{ pos_bus_length }};
 
 -- Block Register Address Space
 

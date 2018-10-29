@@ -15,8 +15,10 @@ always #4 clk_i = ~clk_i;
 reg         {{ field.name }};
 {% endfor %}
 {% for field in block.filter_fields("param enum")%}
-reg  [1:0]  {{ field.name }};
+reg  [{{field.enumlength}}:0]  {{ field.name }};
 {% endfor %}
+{# param has to be last in series of or'd filter fields otherwise it will 
+include field types which start with param, param enum for exampe #}
 {% for field in block.filter_fields(
     "pos_mux|param lut|param time|param int|write int|param") %}
 reg  [31:0] {{ field.name }};
@@ -34,6 +36,7 @@ wire        {{ field.name }}_uut;   //Output from UUT
 reg         {{ field.name }}_err;   //Error signal
 
 {% endfor %}
+{# read also needs to be last in list of filter_fields #}
 {% for field in block.filter_fields("pos_out|read uint 1023|read") %}
 reg  [31:0] {{ field.name }};       //Output from ini file
 wire [31:0] {{ field.name }}_uut;   //Output from UUT
@@ -41,17 +44,10 @@ reg         {{ field.name }}_err;   //Error signal
 
 {% endfor %}
 {% for field in block.filter_fields("read enum") %}
-    {% if block.entity == "pcomp" and field.name == "STATE" %}
-reg   [2:0] {{ field.name }};       //Output from ini file
-wire  [2:0] {{ field.name }}_uut;   //Output from UUT
+reg   [{{field.enumlength}}:0] {{ field.name }};       //Output from ini file
+wire  [{{field.enumlength}}:0] {{ field.name }}_uut;   //Output from UUT
 reg         {{ field.name }}_err;   //Error signal	
 
-    {% else %}
-reg   [1:0] {{ field.name }};       //Output from ini file
-wire  [1:0] {{ field.name }}_uut;   //Output from UUT
-reg         {{ field.name }}_err;   //Error signal
-
-    {% endif %}
 {% endfor %}
 // Write Strobes
 {% for field in block.fields %}

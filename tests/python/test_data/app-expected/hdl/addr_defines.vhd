@@ -12,6 +12,12 @@ package addr_defines is
 -- Block instantiation
     constant LUT_NUM : natural := 8;
 
+-- Constant equal to the sum of block nums for each bit out signal
+    constant BIT_BUS_SIZE : natural := 0;
+
+-- Constant equal to the sum of block_num for each pos out signal
+    constant POS_BUS_SIZE : natural := 0;
+
 -- Block Register Address Space
 
 

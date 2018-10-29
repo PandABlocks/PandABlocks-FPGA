@@ -15,7 +15,7 @@ IP_CORES = $(IP_DIR)
 PS_CORE  = $(PS_DIR)/sources_1/bd/panda_ps/hdl/panda_ps.vhd
 FPGA_BIT = $(BUILD_DIR)/panda_top.bit
 
-VERSION_FILE = $(TOP_BUILD_DIR)/apps/$(APP_NAME)/hdl/panda_version.vhd
+VERSION_FILE = $(BUILD_DIR)/hdl/panda_version.vhd
 
 #####################################################################
 # BUILD TARGETS includes HW and SW
@@ -54,8 +54,6 @@ panda_top.bit : VERSION $(IP_CORES) $(PS_CORE)
 	    -tclargs $(TOP) \
 	    -tclargs $(TARGET_DIR) \
 	    -tclargs $(BUILD_DIR) \
-	    -tclargs $(IP_DIR) \
-	    -tclargs $(APP_NAME) \
-	    -tclargs $(TOP_BUILD_DIR)
+	    -tclargs $(IP_DIR)
 #	    -tclargs $(FMC_DESIGN) \
 #	    -tclargs $(SFP_DESIGN) \

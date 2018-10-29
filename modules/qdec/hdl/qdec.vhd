@@ -20,7 +20,7 @@ entity qdec is
 port (
     -- Clock and reset signals
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
+--    reset_i             : in  std_logic;
     --Quadrature A,B and Z input
     a_i                 : in  std_logic;
     b_i                 : in  std_logic;
@@ -35,6 +35,7 @@ end qdec;
 
 architecture rtl of qdec is
 
+signal reset            : std_logic := '0';
 signal quad_trans       : std_logic;
 signal quad_dir         : std_logic;
 signal quad_reset       : std_logic;
@@ -47,7 +48,7 @@ begin
 qdecoder_inst : entity work.qdecoder
 port map (
     clk                 => clk_i,
-    reset               => reset_i,
+    reset               => reset,
     a_i                 => a_i,
     b_i                 => b_i,
     quad_reset_o        => quad_reset,
@@ -60,7 +61,7 @@ port map (
 -- Index can be used to reset the counter
 process(clk_i) begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
+        if (reset = '1') then
         else
             if (RST_ON_Z = '1' and z_i = '1') then
                 quad_count <= (others => '0');

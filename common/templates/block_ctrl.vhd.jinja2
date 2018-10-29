@@ -65,8 +65,8 @@ signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
 begin
 
     -- Sub-module address decoding
-    read_addr <= to_integer(unsigned(read_address_i(BLK_AW-1 downto 0)));
-    write_addr <= to_integer(unsigned(write_address_i(BLK_AW-1 downto 0)));
+    read_addr <= to_integer(unsigned(read_address_i));
+    write_addr <= to_integer(unsigned(write_address_i));
 
     -- Control System Register Interface
     REG_WRITE : process(clk_i)

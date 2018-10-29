@@ -9,7 +9,7 @@ entity posenc is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
+--    reset_i             : in  std_logic;
     -- Block Inputs and Outputs
     inp_i               : in  std_logic_vector(31 downto 0);
     enable_i            : in  std_logic;
@@ -17,7 +17,7 @@ port (
     a_o                 : out std_logic;
     b_o                 : out std_logic;
     -- Block parameters
-    PROTOCOL            : in  std_logic_vector(1 downto 0);
+    PROTOCOL            : in  std_logic_vector(0 downto 0);
     PERIOD              : in  std_logic_vector(31 downto 0);
     PERIOD_WSTB         : in  std_logic;
     STATE               : out std_logic_vector(1 downto 0)

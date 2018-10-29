@@ -54,6 +54,7 @@ architecture rtl of {{ entity }}_wrapper is
 
 {% for field in fields %}
     {% if field.type in "time" %}
+{# Time signals are 48 bits so require two registers for reading their data. #}
 signal {{ field.name }}            : std64_array(NUM-1 downto 0);
 signal {{ field.name }}_wstb       : std_logic_vector(NUM-1 downto 0);
 signal {{ field.name }}_L_wstb     : std_logic_vector(NUM-1 downto 0);
@@ -128,19 +129,20 @@ begin
 {% endfor %}
 
             read_strobe_i       => read_strobe(I),
-            read_address_i      => read_address_i,
+            read_address_i      => read_address_i(BLK_AW-1 downto 0),
             read_data_o         => read_data(I),
             read_ack_o          => open,
 
             write_strobe_i      => write_strobe(I),
-            write_address_i     => write_address_i,
+            write_address_i     => write_address_i(BLK_AW-1 downto 0),
             write_data_i        => write_data_i,
             write_ack_o         => open
         );
 
 {% for field in filter_fields("time") %}
     {% if loop.first %}
-        -- Time signals are made up of _L and _H parts
+        -- Time signals are made up of _L and _H parts and the overall 
+        -- signal wstb is the or output of the two
     {% endif %}
         {{ field.name }}_wstb(I) <= {{ field.name }}_L_wstb(I) or {{ field.name }}_H_wstb(I);
 
@@ -154,12 +156,14 @@ begin
 {% for field in filter_fields("pos_mux") %}
             {{ "%-20s"|format(field.name +"_i") }}=> {{ field.name }}(I),
 {% endfor %}
+{# Filter_fields requires both param and read to be the last type in the list #}
 {% for field in filter_fields("param lut|param int|param time|param") %}
             {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I),
 {% endfor %}
 {% for field in filter_fields("time") %}
             {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I)(47 downto 0),
 {% endfor %}
+{# Filter_fields requires both param and read to be the last type in the list #}
 {% for field in filter_fields("write int|read uint 1023|read") %}
             {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I),
 {% endfor %}
@@ -167,7 +171,7 @@ begin
             {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I)(0),
 {% endfor %}
 {% for field in filter_fields("param enum|read enum") %}
-            {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I)(1 downto 0),
+            {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I)({{field.enumlength}} downto 0),
 {% endfor %}
 {% for field in filter_fields(".*_out") %}
             {{ "%-20s"|format(field.name + "_o") }}=> {{ field.name }}_o(I),

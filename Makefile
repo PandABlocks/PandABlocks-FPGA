@@ -12,13 +12,16 @@ MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 APPS = $(patsubst apps/%.app.ini,%,$(wildcard apps/*.app.ini))
 TEST_DIR = $(BUILD_DIR)/tests
 IP_DIR = $(TOP)/common/ip_repo
-
+FPGA_BUILD_DIR = $(BUILD_DIR)/apps/$(APPS)
+TARGET_DIR = $(TOP)/targets/$(TARGET)
+SLOW_FPGA_BUILD_DIR = $(BUILD_DIR)/apps/$(APPS)/SlowFPGA
 
 # The CONFIG file is required.  If not present, create by copying CONFIG.example
 # and editing as appropriate.
 include CONFIG
 
-default: apps docs
+#default: apps docs
+default: $(DEFAULT_TARGETS)
 .PHONY: default
 
 # ------------------------------------------------------------------------------
@@ -26,7 +29,6 @@ default: apps docs
 
 # For every APP in APPS, make build/APP
 APP_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/apps/%,$(APPS))
-
 # Make the built app from the ini file
 $(BUILD_DIR)/apps/%: $(TOP)/apps/%.app.ini
 	rm -rf $@_tmp $@
@@ -88,7 +90,7 @@ python_timing:
 # ------------------------------------------------------------------------------
 # Build the Xilinx Ip
 # Moved out of build directory to common/ir_repo
-ip_build: ip_clean
+ip_build:
 	source $(VIVADO) && vivado -mode batch -source common/build_ips.tcl \
 	 -tclargs $(IP_DIR)
 	rm -rf *.os *.log *.jou
@@ -140,6 +142,41 @@ single_hdl_test: $(TIMING_BUILD_DIRS)
 	 -source ../../tests/hdl/single_test.tcl -tclargs $(TEST)
 
 .PHONY: hdl_timing
+
+# ------------------------------------------------------------------------------
+# --- FPGA build
+# ------------------------------------------------------------------------------
+APP_FILE = $(TOP)/apps/$(APP_NAME)
+BUILD_DIR = $(TOP)/build
+
+CARRIER_FPGA_TARGETS = carrier-fpga carrier-ip
+
+$(CARRIER_FPGA_TARGETS) $(IP_DIR): $(FPGA_BUILD_DIR) apps
+	$(MAKE) -C $< -f $(TARGET_DIR)/Makefile VIVADO=$(VIVADO) \
+	    TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(FPGA_BUILD_DIR) \
+	    IP_DIR=$(IP_DIR) \
+	    $@
+
+slow-fpga: $(SLOW_FPGA_BUILD_DIR) tools/virtexHex2Bin
+	source $(ISE)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
+            TOP=$(TOP) SRC_DIR=$(TOP)/SlowFPGA BOARD=$(BOARD) mcs \
+            BUILD_DIR=$(FPGA_BUILD_DIR)
+
+tools/virtexHex2Bin : tools/virtexHex2Bin.c
+	gcc -o $@ $<
+
+.PHONY: carrier-fpga slow-fpga run-tests
+
+# ------------------------------------------------------------------------------
+# Build installation package
+# ------------------------------------------------------------------------------
+
+zpkg: build/etc/panda-fpga.list $(FIRMWARE_BUILD)
+	rm -f $(BUILD_DIR)/*.zpg
+	$(MAKE_ZPKG) -t $(BUILD_DIR) -b $(BUILD_DIR) -d $(BUILD_DIR) \
+            $< $(APP_NAME)-$(GIT_VERSION)
+
+.PHONY: zpkg
 
 # ------------------------------------------------------------------------------
 

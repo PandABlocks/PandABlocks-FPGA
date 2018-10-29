@@ -48,36 +48,13 @@ port (
 end soft_blocks;
 
 architecture rtl of soft_blocks is
-
-{#-- Definitions below need to be automatically populated by Jinja
--- Only for soft blocks though!
--- "NUM" paramters resolved here and inherited in blocks by generics
-#}
-
 -- Chip selects and Block Num constants are declared in addr_defines
-{#
--- Functional Address Space Chip Selects
-
-{% for block in blocks %}
-    {% if block.softblock %} #}
-{# 10 used as next available slot from panda_carrier_top #}
-{# constant {{ block.entity }}_CS : natural := {{10 + loop.index0}};
-    {% endif %}
-{% endfor %}
-
--- Block instantiation
-
-{% for block in blocks %}
-    {% if block.softblock %}
-constant {{ block.entity }}_NUM : natural := {{ block.number }};
-    {% endif %}
-{% endfor %} #}
 
 begin
 
 {# Using a namespace jinja2 object may make iterating simpler #}
-{% set bit = [32] %}
-{% set pos = [4] %}
+{% set bit = [bit_bus_length] %}
+{% set pos = [pos_bus_length] %}
 {% set dma = [0] %}
 {% for block in blocks %}
     {% if block.softblock %}

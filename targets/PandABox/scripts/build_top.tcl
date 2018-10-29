@@ -14,16 +14,9 @@ set BUILD_DIR [lindex $argv 2]
 
 set IP_DIR [lindex $argv 3]
 
-set APP_NAME [lindex $argv 4]
-
-set TOP_BUILD_DIR [lindex $argv 5]
-
-
 # FMC and SFP Application Names are passed as arguments
-#set FMC_DESIGN [lindex $argv 5]
-#set SFP_DESIGN [lindex $argv 6]
-set FMC_DESIGN 0
-set SFP_DESIGN 0
+set FMC_DESIGN [lindex $argv 4]
+set SFP_DESIGN [lindex $argv 5]
 
 # Create project
 #create_project -force panda_top $BUILD_DIR/panda_top -part xc7z030sbg485-1
@@ -41,7 +34,7 @@ set_property "target_language" "VHDL" $obj
 set_property part "xc7z030sbg485-1" [current_project]
 
 #
-# Warning supression
+# Warning suppression
 #
 # Suppress Verilog file related warnings
 set_msg_config -id {[Synth 8-2644]} -suppress
@@ -54,9 +47,9 @@ set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 #
 # Import IPs
 read_ip $IP_DIR/pulse_queue/pulse_queue.xci
-read_ip $IP_DIR/fifo_1K32/fifo_1K32.xci
+#read_ip $IP_DIR/fifo_1K32/fifo_1K32.xci
 read_ip $IP_DIR/fifo_1K32_ft/fifo_1K32_ft.xci
-read_ip $IP_DIR/system_cmd_fifo/system_cmd_fifo.xci
+#read_ip $IP_DIR/system_cmd_fifo/system_cmd_fifo.xci
 if {$FMC_DESIGN == "fmc_acq430"} {
     read_ip $IP_DIR/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
     read_ip $IP_DIR/fmc_acq430_sample_ram/fmc_acq430_sample_ram.xci
@@ -92,10 +85,11 @@ if {$SFP_DESIGN == "sfp_udpontrig"} {
 read_bd   $BUILD_DIR/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 
 # Read auto generated files
-read_vhdl [glob $TOP_BUILD_DIR/apps/$APP_NAME/hdl/*.vhd]
+read_vhdl [glob $BUILD_DIR/hdl/*.vhd]
 
 # Read design files
 read_vhdl [glob $TOP_DIR/common/hdl/defines/*.vhd]
+read_vhdl [glob $TOP_DIR/common/hdl/target/*.vhd]
 read_vhdl [glob $TOP_DIR/common/hdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/calc/hdl/*.vhd]
 #read_vhdl [glob $TOP_DIR/modules/base/vhdl/*.vhd]
@@ -201,12 +195,12 @@ report_io -verbose -file post_route_report_io.rpt
 #
 # STEP#5: generate a bitstream
 #
-write_bitstream -force panda_carrier_top.bit
+write_bitstream -force panda_top.bit
 
 #
 # Export HW for SDK
 #
-write_hwdef -file $BUILD_DIR/panda_carrier_top_wrapper.hdf -force
+write_hwdef -file $BUILD_DIR/panda_top_wrapper.hdf -force
 
 close_project
 exit

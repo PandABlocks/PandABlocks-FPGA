@@ -1,0 +1,32 @@
+# Top-level design name
+SYSTEM = slow_top
+
+# Design dependant IP diretories
+TOP_DIR = ../../src/
+IP_DIR = $(TOP_DIR)/ip_repo
+
+# Coregen IP netlist files
+NETLIST_DIR = ../implementation
+COREGEN_NGC_FILES = $(NETLIST_DIR)/ila.ngc \
+                    $(NETLIST_DIR)/icon.ngc
+
+# ISE tools outputs
+LIST_FILE = $(SYSTEM).lst
+SCR_FILE = $(SYSTEM).scr
+XCF_FILE = $(SYSTEM).xcf
+UCF_FILE = $(SYSTEM).ucf
+
+POSTSYN_NETLIST = $(SYSTEM).ngc
+NGD_FILE = $(SYSTEM).ngd
+MAPPED_NCD_FILE = $(SYSTEM)_map.ncd
+ROUTED_NCD_FILE = $(SYSTEM).ncd
+PCF_FILE = $(SYSTEM).pcf
+TWR_FILE = $(SYSTEM).twr
+TWX_FILE = $(SYSTEM).twx
+BIT_FILE = $(SYSTEM).bit
+PROM_FILE = $(SYSTEM).mcs
+BMM_FILE = $(SYSTEM).bmm
+
+# Custom Project dependant defines
+VERSION_FILE = $(TOP_DIR)/hdl/slow_version.vhd
+

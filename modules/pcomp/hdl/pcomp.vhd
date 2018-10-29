@@ -22,7 +22,7 @@ entity pcomp is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
+--    reset_i             : in  std_logic;
     -- Block inputs
     enable_i            : in  std_logic;
     inp_i               : in  std_logic_vector(31 downto 0); --INP
@@ -32,7 +32,7 @@ port (
     WIDTH               : in  std_logic_vector(31 downto 0);
     STEP                : in  std_logic_vector(31 downto 0);
     PULSES              : in  std_logic_vector(31 downto 0);
-    RELATIVE            : in  std_logic_vector(1 downto 0);
+    RELATIVE            : in  std_logic_vector(0 downto 0);
     DIR                 : in  std_logic_vector(1 downto 0);
     health              : out std_logic_vector(1 downto 0);
     produced            : out std_logic_vector(31 downto 0);
@@ -94,6 +94,8 @@ signal guess_dir_thresh        : signed(31 downto 0);
 signal too_far_pos             : std_logic;
 signal too_far_neg             : std_logic;
 signal jumped_more_than_step   : std_logic;
+
+signal reset_i                   : std_logic := '0';
 
 begin
 

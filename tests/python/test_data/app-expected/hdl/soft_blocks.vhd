@@ -73,7 +73,7 @@ port map (
     
     bit_bus_i           => bit_bus,
     
-    OUT_o               => bit_bus (39 downto 32),
+    OUT_o               => bit_bus (7 downto 0),
     
     clk_i               => FCLK_CLK0
 );

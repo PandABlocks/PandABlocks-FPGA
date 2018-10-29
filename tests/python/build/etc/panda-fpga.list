@@ -1,0 +1,8 @@
+# Configuration files
+d share/panda/config_d
+t share/panda/config_d apps/test/config_d/config
+t share/panda/config_d apps/test/config_d/registers
+t share/panda/config_d apps/test/config_d/descriptions
+# Firmware
+b share/panda apps/test/panda_carrier_top.bit
+b share/panda apps/test/SlowFPGA/slow_top.bin

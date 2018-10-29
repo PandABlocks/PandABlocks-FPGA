@@ -1,0 +1,6 @@
+run
+-ifn slow_top.lst
+-ofn slow_top
+-ofmt NGC
+-p xc6slx45-csg324
+-top slow_top

@@ -25,10 +25,10 @@ port (
     inpd_i              : in  std_logic_vector(31 downto 0);
     out_o               : out std_logic_vector(31 downto 0);
     -- Block Parameters and Status
-    A                   : in  std_logic_vector(1 downto 0);
-    B                   : in  std_logic_vector(1 downto 0);
-    C                   : in  std_logic_vector(1 downto 0);
-    D                   : in  std_logic_vector(1 downto 0);
+    A                   : in  std_logic_vector(0 downto 0);
+    B                   : in  std_logic_vector(0 downto 0);
+    C                   : in  std_logic_vector(0 downto 0);
+    D                   : in  std_logic_vector(0 downto 0);
     FUNC                : in  std_logic_vector(1 downto 0)
 );
 end calc;

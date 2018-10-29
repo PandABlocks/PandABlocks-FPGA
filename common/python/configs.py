@@ -1,5 +1,7 @@
 import re
 
+import math
+
 from .compat import TYPE_CHECKING, configparser
 
 if TYPE_CHECKING:
@@ -94,8 +96,9 @@ class FieldConfig(object):
     #: Regex for matching a type string to this field
     type_regex = None
 
-    def __init__(self, name, number, type, description, wstb=False, **extra_config):
-        # type: (str, int, str, str) -> None
+    def __init__(self, name, number, type,
+                 description, wstb=False, **extra_config):
+        # type: (str, int, str, bool, str) -> None
         # Field names should be UPPER_CASE_OR_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*$", name), \
             "Expected FIELD_NAME, got %r" % name
@@ -113,6 +116,9 @@ class FieldConfig(object):
         self.bus_entries = []  # type: List[BusEntryConfig]
         #: All the other extra config items
         self.extra_config = extra_config
+        #: If there is an enum, how long is it?
+        if extra_config:
+            self.enumlength = int(math.ceil(math.log(len(extra_config), 2)) - 1)
         #: If a write strobe is required, set wstb to 1
         self.wstb = wstb
         #: The current value of this field for simulation

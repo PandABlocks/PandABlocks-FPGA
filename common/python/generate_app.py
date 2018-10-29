@@ -38,6 +38,7 @@ class AppGenerator(object):
         assert not os.path.exists(app_build_dir), \
             "Output dir %r already exists" % app_build_dir
         self.app_build_dir = app_build_dir
+        self.app_name = app.split('/')[-1].split('.')[0]
         # Create a Jinja2 environment in the templates dir
         self.env = Environment(
             autoescape=False,
@@ -73,50 +74,15 @@ class AppGenerator(object):
         # The ini file declares the carrier blocks
         target = app_ini.get(".", "target")
         if target:
+            # Implement the blocks for the target blocks
             target_path = os.path.join(ROOT, "targets", target)
             target_ini = read_ini(os.path.join(target_path, (target + ".ini")))
-            for section in target_ini.sections():
-                if section != ".":
-                    try:
-                        module_name = target_ini.get(section, "module")
-                    except configparser.NoOptionError:
-                        module_name = section.lower()
-                    try:
-                        ini_name = target_ini.get(section, "ini")
-                    except configparser.NoOptionError:
-                        ini_name = section.lower() + ".block.ini"
-                    try:
-                        number = target_ini.getint(section, "number")
-                    except configparser.NoOptionError:
-                        number = 1
-                    ini_path = os.path.join(target_path, "blocks", module_name,
-                                            ini_name)
-                    block_ini = read_ini(ini_path)
-                    # The blocks are not softblocks so softblock config is False
-                    block = BlockConfig(section, False, number, block_ini)
-                    block_address, bit_i, pos_i, ext_i = \
-                        block.register_addresses(block_address, bit_i, pos_i, ext_i)
-                    self.blocks.append(block)
-        for section in app_ini.sections():
-            if section != ".":
-                try:
-                    module_name = app_ini.get(section, "module")
-                except configparser.NoOptionError:
-                    module_name = section.lower()
-                try:
-                    ini_name = app_ini.get(section, "ini")
-                except configparser.NoOptionError:
-                    ini_name = section.lower() + ".block.ini"
-                try:
-                    number = app_ini.getint(section, "number")
-                except configparser.NoOptionError:
-                    number = 1
-                ini_path = os.path.join(ROOT, "modules", module_name, ini_name)
-                block_ini = read_ini(ini_path)
-                block = BlockConfig(section, True, number, block_ini)
-                block_address, bit_i, pos_i, ext_i = block.register_addresses(
-                    block_address, bit_i, pos_i, ext_i)
-                self.blocks.append(block)
+            block_address, bit_i, pos_i, ext_i = self.implement_blocks(
+                target_ini, target_path, False, "blocks",
+                block_address, bit_i, pos_i, ext_i)
+        # Implement the blocks for the soft blocks
+        block_address, bit_i, pos_i, ext_i = self.implement_blocks(
+            app_ini, ROOT, True, "modules", block_address, bit_i, pos_i, ext_i)
         print("####################################")
         print("# Resource usage")
         print("#  Block addresses: %d/%d" % (block_address, MAX_BLOCKS))
@@ -129,6 +95,32 @@ class AppGenerator(object):
         assert pos_i < MAX_POS, "Overflowed pos bus entries"
         assert ext_i < MAX_EXT, "Overflowed ext bus entries"
 
+    def implement_blocks(self, ini, path, softblock, subdir,
+                         block_address, bit_i, pos_i, ext_i):
+        """Read the ini file and for each section create a new block"""
+        for section in ini.sections():
+            if section != ".":
+                try:
+                    module_name = ini.get(section, "module")
+                except configparser.NoOptionError:
+                    module_name = section.lower()
+                try:
+                    ini_name = ini.get(section, "ini")
+                except configparser.NoOptionError:
+                    ini_name = section.lower() + ".block.ini"
+                try:
+                    number = ini.getint(section, "number")
+                except configparser.NoOptionError:
+                    number = 1
+                ini_path = os.path.join(path, subdir, module_name, ini_name)
+                block_ini = read_ini(ini_path)
+                # Soft block is True if the block is a softblock
+                block = BlockConfig(section, softblock, number, block_ini)
+                block_address, bit_i, pos_i, ext_i = block.register_addresses(
+                        block_address, bit_i, pos_i, ext_i)
+                self.blocks.append(block)
+        return block_address, bit_i, pos_i, ext_i
+
     def expand_template(self, template_name, context, out_dir, out_fname):
         with open(os.path.join(out_dir, out_fname), "w") as f:
             template = self.env.get_template(template_name)
@@ -137,7 +129,10 @@ class AppGenerator(object):
     def generate_config_dir(self):
         """Generate config, registers, descriptions in config_d"""
         config_dir = os.path.join(self.app_build_dir, "config_d")
+        etc_dir = "build/etc"
         os.makedirs(config_dir)
+        if not os.path.isdir(etc_dir):
+            os.makedirs(etc_dir)
         context = dict(blocks=self.blocks, pad=pad)
         # Create the config, registers and descriptions files
         self.expand_template(
@@ -146,6 +141,9 @@ class AppGenerator(object):
             "registers.jinja2", context, config_dir, "registers")
         self.expand_template(
             "descriptions.jinja2", context, config_dir, "descriptions")
+        context = dict(app=self.app_name)
+        self.expand_template(
+            "panda-fpga.list.jinja2", context, etc_dir, "panda-fpga.list")
 
     def generate_wrappers(self):
         """Generate wrappers in hdl"""
@@ -161,9 +159,20 @@ class AppGenerator(object):
                                  "%s_ctrl.vhd" % block.entity)
 
     def generate_soft_blocks(self):
-        """Generate top in hdl"""
+        """Generate top hdl as well as the address defines"""
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
-        context = dict(blocks=self.blocks,)
+        bit_bus_length = 0
+        pos_bus_length = 0
+        for block in self.blocks:
+            if not block.softblock:
+                for field in block.fields:
+                    if field.type == "bit_out":
+                        bit_bus_length = bit_bus_length + block.number
+                    if field.type == "pos_out":
+                        pos_bus_length = pos_bus_length + block.number
+        context = dict(blocks=self.blocks,
+                       bit_bus_length=bit_bus_length,
+                       pos_bus_length=pos_bus_length,)
         self.expand_template("soft_blocks.vhd.jinja2", context, hdl_dir,
                              "soft_blocks.vhd")
         self.expand_template("addr_defines.vhd.jinja2", context, hdl_dir,

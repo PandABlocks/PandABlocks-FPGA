@@ -4,7 +4,7 @@ use ieee.std_logic_1164.all;
 
 entity filter is
   port (clk_i    : in  std_logic;
-        mode     : in  std_logic_vector(1 downto 0);
+        mode     : in  std_logic_vector(0 downto 0);
         trig_i   : in  std_logic;
         inp_i    : in  std_logic_vector(31 downto 0);
         enable_i : in  std_logic;
@@ -18,8 +18,8 @@ end filter;
 architecture rtl of filter is
 
 
-constant difference    : std_logic_vector(1 downto 0) := "00";
-constant average       : std_logic_vector(1 downto 0) := "01";   
+constant difference    : std_logic_vector(0 downto 0) := "0";
+constant average       : std_logic_vector(0 downto 0) := "1";   
 
 signal stop            : std_logic := '0';
 signal trig_dly        : std_logic;
