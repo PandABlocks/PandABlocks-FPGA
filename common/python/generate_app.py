@@ -140,7 +140,7 @@ class AppGenerator(object):
         self.expand_template(
             "registers.jinja2", context, config_dir, "registers")
         self.expand_template(
-            "descriptions.jinja2", context, config_dir, "descriptions")
+            "descriptions.jinja2", context, config_dir, "description")
         context = dict(app=self.app_name)
         self.expand_template(
             "panda-fpga.list.jinja2", context, etc_dir, "panda-fpga.list")

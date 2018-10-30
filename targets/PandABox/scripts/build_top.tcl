@@ -162,7 +162,7 @@ write_checkpoint -force post_synth
 report_timing_summary -file post_synth_timing_summary.rpt
 
 #
-# STEP#3: run placement and logic optimzation, report utilization and timing
+# STEP#3: run placement and logic optimisation, report utilization and timing
 # estimates, write checkpoint design
 #
 opt_design

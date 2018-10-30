@@ -29,7 +29,7 @@ class TestGenerateApp(unittest.TestCase):
         self.assertMultiLineEqual(expected, actual)
 
     def test_lut_description(self):
-        self.assertGeneratedEqual("config_d", "descriptions")
+        self.assertGeneratedEqual("config_d", "description")
 
     def test_lut_config(self):
         self.assertGeneratedEqual("config_d", "config")
@@ -48,6 +48,7 @@ class TestGenerateApp(unittest.TestCase):
 
     def test_addr_defines(self):
         self.assertGeneratedEqual("hdl", "addr_defines.vhd")
+
 
 if __name__ == '__main__':
     unittest.main()

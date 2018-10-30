@@ -232,6 +232,21 @@ class ExtOutFieldConfig(FieldConfig):
         return field_address, bit_i, pos_i, ext_i
 
 
+class ExtOutTimeFieldConfig(ExtOutFieldConfig):
+    """These fields represent a ext output timestamp, which requires two
+    registers"""
+    type_regex = "ext_out timestamp"
+
+    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+        # type: (int, int, int, int) -> Tuple[int, int, int, int]
+        for _ in range(self.number):
+            self.bus_entries.append(BusEntryConfig("ext", ext_i))
+            ext_i += 1
+            self.bus_entries.append(BusEntryConfig("ext", ext_i))
+            ext_i += 1
+        return field_address, bit_i, pos_i, ext_i
+
+
 class ParamFieldConfig(FieldConfig):
     """These fields represent all other set/get parameters backed with a single
     register"""
