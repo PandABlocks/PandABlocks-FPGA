@@ -34,8 +34,9 @@ end entity;
 
 architecture rtl of outenc is
 
-constant c_ABZ_PASSTHROUGH : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(4,3));
-constant c_BISS            : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(2,3));
+constant c_ABZ_PASSTHROUGH  : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(4,3));
+constant c_DATA_PASSTHROUGH : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(5,3)); 
+constant c_BISS             : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(2,3));
 
 signal quad_a           : std_logic;
 signal quad_b           : std_logic;
@@ -48,7 +49,7 @@ begin
 A_OUT <= a_ext_i when (PROTOCOL = c_ABZ_PASSTHROUGH) else quad_a;
 B_OUT <= b_ext_i when (PROTOCOL = c_ABZ_PASSTHROUGH) else quad_b;
 Z_OUT <= z_ext_i when (PROTOCOL = c_ABZ_PASSTHROUGH) else '0';
-DATA_OUT <= data_ext_i when (PROTOCOL = c_ABZ_PASSTHROUGH) else 
+DATA_OUT <= data_ext_i when (PROTOCOL = c_DATA_PASSTHROUGH) else 
             bdat when (PROTOCOL = c_BISS) else sdat;
 
 
