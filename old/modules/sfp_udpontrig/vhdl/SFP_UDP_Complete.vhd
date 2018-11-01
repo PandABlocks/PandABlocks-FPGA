@@ -30,6 +30,7 @@ use work.top_defines.all;
 
 entity SFP_UDP_Complete is
     generic (
+    DEBUG               : string  := "FALSE";
     CLOCK_FREQ			: integer := 125000000;	-- freq of data_in_clk needed to timout cntr
     ARP_TIMEOUT			: integer := 60;		-- ARP response timeout (s)
     ARP_MAX_PKT_TMO		: integer := 5;			-- wrong nwk pkts received before set error
@@ -41,27 +42,25 @@ entity SFP_UDP_Complete is
     reset_i             : in  std_logic;
     SOFT_RESET          : in  std_logic;
     -- Block inpout
-    trig_i                     : in std_logic_vector(2 downto 0);
-    SFP_START_COUNT            : in std_logic_vector(2 downto 0);
-    SFP_STOP_COUNT             : in std_logic_vector(2 downto 0);
+    trig_i                     : in std_logic;
+    SFP_START_COUNT            : in std_logic;
+    SFP_STOP_COUNT             : in std_logic;
     -- Block register readouts 
-    udp_txi_trigger_rise_count : out std32_array(2 downto 0);
-    count_udp_tx_RESULT_ERR    : out unsigned32_array(2 downto 0);
-    SFP_STATUS_COUNT           : out std32_array(2 downto 0);
+    udp_txi_trigger_rise_count : out std_logic_vector(31 downto 0);
+    count_udp_tx_RESULT_ERR    : out unsigned(31 downto 0);
+    SFP_STATUS_COUNT           : out std_logic_vector(31 downto 0);
     -- Block Parameters
-    OUR_MAC_ADDRESS : in std48_array(2 downto 0);
-    dest_udp_port : in std16_array(2 downto 0);
-    our_udp_port  : in std16_array(2 downto 0); 
-    dest_ip_address : in std32_array(2 downto 0);
-    our_ip_address  : in std32_array(2 downto 0);
+    OUR_MAC_ADDRESS : in std_logic_vector(47 downto 0);
+    dest_udp_port : in std_logic_vector(15 downto 0);
+    our_udp_port  : in std_logic_vector(15 downto 0); 
+    dest_ip_address : in std_logic_vector(31 downto 0);
+    our_ip_address  : in std_logic_vector(31 downto 0);
     -- GTX I/O
-    gtrefclk_n          : in  std_logic;
-    gtrefclk_p          : in  std_logic;
-    
-    RXN_IN              : in  std_logic_vector(2 downto 0);
-    RXP_IN              : in  std_logic_vector(2 downto 0);
-    TXN_OUT             : out std_logic_vector(2 downto 0);
-    TXP_OUT             : out std_logic_vector(2 downto 0)
+    gtrefclk            : in  std_logic;
+    RXN_IN              : in  std_logic;
+    RXP_IN              : in  std_logic;
+    TXN_OUT             : out std_logic;
+    TXP_OUT             : out std_logic
     );
 end SFP_UDP_Complete;
 
@@ -237,12 +236,10 @@ end COMPONENT;
 
 component gig_ethernet_pcs_pma_0_clocking
    port (
-      gtrefclk_p              : in  std_logic;                -- Differential +ve of reference clock for MGT
-      gtrefclk_n              : in  std_logic;                -- Differential -ve of reference clock for MGT
+      gtrefclk                : in  std_logic;                -- Reference clock for MGT
       txoutclk                : in  std_logic;                -- txoutclk from GT transceiver.
       rxoutclk                : in  std_logic;                -- txoutclk from GT transceiver.
       mmcm_reset              : in  std_logic;                -- MMCM Reset
-      gtrefclk                : out std_logic;                -- gtrefclk routed through an IBUFDS.
       gtrefclk_bufg           : out std_logic;
       mmcm_locked             : out std_logic;                -- MMCM locked
       userclk                 : out std_logic;                -- for GT PMA reference clock
@@ -341,74 +338,74 @@ constant  C_CONFIGURATION_VECTOR  : std_logic_vector(4 downto 0):='0'&    -- (4)
 ---------------------------
 
 -- MAC RX bus
-signal rx_axis_mac_tdata  : std8_array(2 downto 0);
-signal rx_axis_mac_tvalid : std_logic_vector(2 DOWNTO 0);
-signal rx_axis_mac_tready : std_logic_vector(2 DOWNTO 0);
-signal rx_axis_mac_tlast  : std_logic_vector(2 DOWNTO 0);
-signal rx_mac_aclk        : std_logic_vector(2 DOWNTO 0);
+signal rx_axis_mac_tdata  : std_logic_vector(7 downto 0);
+signal rx_axis_mac_tvalid : std_logic;
+signal rx_axis_mac_tready : std_logic;
+signal rx_axis_mac_tlast  : std_logic;
+signal rx_mac_aclk        : std_logic;
 
 
 -- MAC TX bus
-signal tx_axis_mac_tready_i : std_logic_vector(2 DOWNTO 0);
-signal tx_axis_mac_tvalid   : std_logic_vector(2 DOWNTO 0);
-signal tx_axis_mac_tfirst   : std_logic_vector(2 DOWNTO 0);
-signal tx_axis_mac_tlast    : std_logic_vector(2 DOWNTO 0);
-signal tx_axis_mac_tdata    : std8_array(2 downto 0);
-signal tx_mac_aclk          : std_logic_vector(2 DOWNTO 0);
-signal tx_fifo_overflow     : std_logic_vector(2 downto 0);
-signal tx_fifo_status       : std4_array(2 downto 0);
+signal tx_axis_mac_tready_i : std_logic;
+signal tx_axis_mac_tvalid   : std_logic;
+signal tx_axis_mac_tfirst   : std_logic;
+signal tx_axis_mac_tlast    : std_logic;
+signal tx_axis_mac_tdata    : std_logic_vector(7 downto 0);
+signal tx_mac_aclk          : std_logic;
+signal tx_fifo_overflow     : std_logic;
+signal tx_fifo_status       : std_logic_vector(3 downto 0);
 
 
 -- GMII Interface MAC <> ETH
-signal gmii_txd     : std8_array(2 downto 0);        -- Transmit data from client MAC.
-signal gmii_tx_en   : std_logic_vector(2 downto 0);  -- Transmit control signal from client MAC.
-signal gmii_tx_er   : std_logic_vector(2 downto 0);  -- Transmit control signal from client MAC.
-signal gmii_rxd     : std8_array(2 downto 0);        -- Received Data to client MAC.
-signal gmii_rx_dv   : std_logic_vector(2 downto 0);  -- Received control signal to client MAC.
-signal gmii_rx_er   : std_logic_vector(2 downto 0);  -- Received control signal to client MAC.
-signal gmii_isolate : std_logic_vector(2 downto 0);  -- Tristate control to electrically isolate GMII.
-signal gmii_tx_clk  : std_logic_vector(2 downto 0);
-signal gmii_rx_clk  : std_logic_vector(2 downto 0);
+signal gmii_txd     : std_logic_vector(7 downto 0);        -- Transmit data from client MAC.
+signal gmii_tx_en   : std_logic;  -- Transmit control signal from client MAC.
+signal gmii_tx_er   : std_logic;  -- Transmit control signal from client MAC.
+signal gmii_rxd     : std_logic_vector(7 downto 0);        -- Received Data to client MAC.
+signal gmii_rx_dv   : std_logic;  -- Received control signal to client MAC.
+signal gmii_rx_er   : std_logic;  -- Received control signal to client MAC.
+--signal gmii_isolate : std_logic_vector(2 downto 0);  -- Tristate control to electrically isolate GMII.
+signal gmii_tx_clk  : std_logic;
+signal gmii_rx_clk  : std_logic;
 
 -- control signals
-type udp_control_type_array is array(natural range <>) of udp_control_type;
-signal control                   : udp_control_type_array(2 downto 0);
+--type udp_control_type_array is array(natural range <>) of udp_control_type;
+signal control                   : udp_control_type;
 
-signal udp_tx_result_i           : std2_array(2 downto 0);-- tx status (changes during transmission)
-signal udp_tx_data_out_ready_i   : std_logic_vector(2 downto 0);-- indicates udp_tx is ready to take data
-signal udp_txi_data_data_out     : std8_array(2 downto 0);
-signal udp_txi_data_data_out_last: std_logic_vector(2 downto 0);
+signal udp_tx_result_i           : std_logic_vector(1 downto 0);-- tx status (changes during transmission)
+signal udp_tx_data_out_ready_i   : std_logic;-- indicates udp_tx is ready to take data
+signal udp_txi_data_data_out     : std_logic_vector(7 downto 0);
+signal udp_txi_data_data_out_last: std_logic;
 
-type udp_tx_type_array is array(natural range <>) of udp_tx_type;
-signal udp_txi                   : udp_tx_type_array(2 downto 0);-- UDP tx cxns
+--type udp_tx_type_array is array(natural range <>) of udp_tx_type;
+signal udp_txi                   : udp_tx_type;-- UDP tx cxns
 
-signal count_udp_txi_data_byte    : unsigned4_array(2 downto 0);--count data byte number to be sent
-signal count_udp_txi_trigger_rise : unsigned32_array(2 downto 0);-- count number of trigger 
+signal count_udp_txi_data_byte    : unsigned(3 downto 0);--count data byte number to be sent
+signal count_udp_txi_trigger_rise : unsigned(31 downto 0);-- count number of trigger 
 
-signal enable_count : std_logic_vector(2 downto 0); -- enable counting trigger and UDP send
+signal enable_count : std_logic; -- enable counting trigger and UDP send
 
-signal udp_tx_start : std_logic_vector(2 downto 0); -- indicates receipt of udp header
-signal trig_prev    : std_logic_vector(2 downto 0); -- indicates receipt of udp header registered
-signal trigger_rise : std_logic_vector(2 downto 0);
+signal udp_tx_start : std_logic; -- indicates receipt of udp header
+signal trig_prev    : std_logic; -- indicates receipt of udp header registered
+signal trigger_rise : std_logic;
 
-signal count_udp_tx_RESULT_ERR_i : unsigned32_array(2 downto 0);
+signal count_udp_tx_RESULT_ERR_i : unsigned(31 downto 0);
 
 -- UDP RX signals
-signal udp_rx_start			: std_logic_vector(2 downto 0); -- indicates receipt of udp header
+signal udp_rx_start			: std_logic; -- indicates receipt of udp header
 
-type udp_rx_type_array is array(natural range <>) of udp_rx_type;
-signal udp_rxo					: udp_rx_type_array(2 downto 0);
+--type udp_rx_type_array is array(natural range <>) of udp_rx_type;
+signal udp_rxo					: udp_rx_type;
 
 -- IP RX signals
-type ipv4_rx_header_type_array is array(natural range <>) of ipv4_rx_header_type;
-signal ip_rx_hdr				: ipv4_rx_header_type_array(2 downto 0);  
+--type ipv4_rx_header_type_array is array(natural range <>) of ipv4_rx_header_type;
+--signal ip_rx_hdr				: ipv4_rx_header_type;  
 
 signal glbl_rstn    : std_logic;
 signal rx_axi_rstn  : std_logic;
 signal tx_axi_rstn  : std_logic;
-signal rx_reset     : std_logic_vector(2 downto 0);
+signal rx_reset     : std_logic;
 signal tx_ifg_delay : std_logic_vector(7 DOWNTO 0);--iter frame gap delay
-signal tx_reset     : std_logic_vector(2 downto 0);
+signal tx_reset     : std_logic;
 signal pause_req    : std_logic;
 signal pause_val    : std_logic_vector(15 DOWNTO 0);
 
@@ -416,23 +413,22 @@ signal pause_val    : std_logic_vector(15 DOWNTO 0);
 -- Transceiver Interface
 ------------------------
 
-signal txp   : std_logic_vector(2 downto 0);  -- Differential +ve of serial transmission from PMA to PMD.
-signal txn   : std_logic_vector(2 downto 0);  -- Differential -ve of serial transmission from PMA to PMD.
-signal rxp   : std_logic_vector(2 downto 0);  -- Differential +ve for serial reception from PMD to PMA.
-signal rxn   : std_logic_vector(2 downto 0);  -- Differential -ve for serial reception from PMD to PMA.
+signal txp   : std_logic;  -- Differential +ve of serial transmission from PMA to PMD.
+signal txn   : std_logic;  -- Differential -ve of serial transmission from PMA to PMD.
+signal rxp   : std_logic;  -- Differential +ve for serial reception from PMD to PMA.
+signal rxn   : std_logic;  -- Differential -ve for serial reception from PMD to PMA.
 
-signal gtx_clk_bufg         : std_logic_vector(2 downto 0);
-signal rxuserclk2_out       : std_logic_vector(2 downto 0);
-signal userclk2_out         : std_logic_vector(2 downto 0);
+signal gtx_clk_bufg         : std_logic;
+--signal rxuserclk2_out       : std_logic_vector(2 downto 0);
+signal userclk2_out         : std_logic;
 signal independent_clock_bufg : std_logic;
-signal gtrefclk            : std_logic;
 signal gtrefclk_bufg       : std_logic;
-signal txoutclk            : std_logic_vector(2 downto 0);
-signal rxoutclk            : std_logic_vector(2 downto 0);
-signal resetdone           : std_logic_vector(2 downto 0);-- The GT transceiver has completed its reset cycle
-signal cplllock            : std_logic_vector(2 downto 0);
-signal mmcm_reset          : std_logic_vector(2 downto 0);
-signal mmcm_reset0         : std_logic;
+signal txoutclk            : std_logic;
+signal rxoutclk            : std_logic;
+signal resetdone           : std_logic;-- The GT transceiver has completed its reset cycle
+signal cplllock            : std_logic;
+signal mmcm_reset          : std_logic;
+--signal mmcm_reset0         : std_logic;
 signal mmcm_locked         : std_logic;-- Locked indication from MMCM
 signal userclk             : std_logic;
 signal userclk2            : std_logic;
@@ -444,7 +440,7 @@ signal gt0_qplloutrefclk   : std_logic;
 
 -- General IO's
 ---------------
-signal status_vector :  std16_array(2 downto 0); -- Core status.
+signal status_vector :  std_logic_vector(15 downto 0); -- Core status.
     
 signal signal_detect : std_logic; -- Input from PMD to indicate presence of optical input.
     
@@ -495,35 +491,35 @@ tx_ifg_delay<=(others=>'0');
 signal_detect<='1';
 
 
-SFP_gen: for I in 0 to 2 generate
+--SFP_gen: for I in 0 to 2 generate
 
-   begin
-   SFP_STATUS_COUNT(I)(0)<=enable_count(I); --sfp status
-   SFP_STATUS_COUNT(I)(31 downto 1)<=(others=>'0');
+--   begin
+   SFP_STATUS_COUNT(0)<=enable_count; --sfp status
+   SFP_STATUS_COUNT(31 downto 1)<=(others=>'0');
    
-   TXN_OUT(I) <= txn(I);
-   TXP_OUT(I) <= txp(I);
-   rxn(I) <= RXN_IN(I);
-   rxp(I) <= RXP_IN(I);
+   TXN_OUT <= txn;
+   TXP_OUT <= txp;
+   rxn <= RXN_IN;
+   rxp <= RXP_IN;
    
-   control(I).ip_controls.arp_controls.clear_cache <= SOFT_RESET;
+   control.ip_controls.arp_controls.clear_cache <= SOFT_RESET;
    
-   udp_txi(I).hdr.dst_ip_addr <=dest_ip_address(I);--destination ip
-   udp_txi(I).hdr.dst_port<=dest_udp_port(I);--udp destination port
-   udp_txi(I).hdr.src_port<=our_udp_port(I);--udp source port
-   udp_txi(I).hdr.data_length<=x"0004";	-- user data size, bytes
-   udp_txi(I).hdr.checksum<=x"0000";
+   udp_txi.hdr.dst_ip_addr <=dest_ip_address;--destination ip
+   udp_txi.hdr.dst_port<=dest_udp_port;--udp destination port
+   udp_txi.hdr.src_port<=our_udp_port;--udp source port
+   udp_txi.hdr.data_length<=x"0004";	-- user data size, bytes
+   udp_txi.hdr.checksum<=x"0000";
    
    process(clk_i)
    begin
        if rising_edge(clk_i) then
            if (SOFT_RESET= '1') then --reset_i = '1') then
-              enable_count(I)<='0';
+              enable_count<='0';
            else
-              if SFP_STOP_COUNT(I)='1' then
-                enable_count(I)<='0';
-              elsif SFP_START_COUNT(I)='1' then
-                enable_count(I)<='1';
+              if SFP_STOP_COUNT='1' then
+                enable_count<='0';
+              elsif SFP_START_COUNT='1' then
+                enable_count<='1';
               end if;
            end if;
        end if;
@@ -534,76 +530,76 @@ SFP_gen: for I in 0 to 2 generate
    begin
        if rising_edge(clk_i) then
            if (SOFT_RESET= '1') then
-              trig_prev(I) <= trig_i(I);
-              udp_tx_start(I)<='0';
+              trig_prev <= trig_i;
+              udp_tx_start<='0';
            else
-              trig_prev(I) <= trig_i(I);
-              if enable_count(I)='1' then
-                 if (trigger_rise(I) = '1') then
-                     udp_tx_start(I)<='1';
-                 elsif udp_tx_result_i(I) = UDPTX_RESULT_NONE or udp_tx_result_i(I) = UDPTX_RESULT_SENDING then--blocage udp_tx_result_i=UDPTX_RESULT_ERR faire traitement
-                     udp_tx_start(I)<='0';
+              trig_prev <= trig_i;
+              if enable_count='1' then
+                 if (trigger_rise = '1') then
+                     udp_tx_start<='1';
+                 elsif udp_tx_result_i = UDPTX_RESULT_NONE or udp_tx_result_i = UDPTX_RESULT_SENDING then--blocage udp_tx_result_i=UDPTX_RESULT_ERR faire traitement
+                     udp_tx_start<='0';
                  else
-                     udp_tx_start(I)<=udp_tx_start(I);
+                     udp_tx_start<=udp_tx_start;
                  end if;
               else
-                  udp_tx_start(I)<='0';
+                  udp_tx_start<='0';
               end if;
            end if;
        end if;
    end process;
    
-   trigger_rise(I) <= trig_i(I) and not(trig_prev(I));
+   trigger_rise <= trig_i and not(trig_prev);
    UDP_little_endian: if C_LITTLE_ENDIAN=TRUE generate-- Little endian
    begin
       process (clk_i)
       begin
       if (rising_edge(clk_i)) then 
           if (SOFT_RESET = '1') then 
-               udp_txi_data_data_out_last(I)<='0';
-               udp_txi_data_data_out(I)<=(others=>'0');
-               count_udp_txi_data_byte(I)<=(others=>'0');
-               count_udp_txi_trigger_rise(I)<=(others=>'0');
-               count_udp_tx_RESULT_ERR_i(I)<=(others=>'0');
+               udp_txi_data_data_out_last<='0';
+               udp_txi_data_data_out<=(others=>'0');
+               count_udp_txi_data_byte<=(others=>'0');
+               count_udp_txi_trigger_rise<=(others=>'0');
+               count_udp_tx_RESULT_ERR_i<=(others=>'0');
           else
-               if SFP_START_COUNT(I)='1' then
-                  count_udp_txi_trigger_rise(I)<=(others=>'0');
-               elsif trigger_rise(I)='1' and enable_count(I)='1' then 
-                      count_udp_txi_trigger_rise(I)<=count_udp_txi_trigger_rise(I)+1;
+               if SFP_START_COUNT='1' then
+                  count_udp_txi_trigger_rise<=(others=>'0');
+               elsif trigger_rise='1' and enable_count='1' then 
+                      count_udp_txi_trigger_rise<=count_udp_txi_trigger_rise+1;
                end if;
                
-               if enable_count(I)='1' then
-                  if udp_tx_data_out_ready_i(I)='1' then
-                      count_udp_txi_data_byte(I)<=count_udp_txi_data_byte(I)+1;
-                      case count_udp_txi_data_byte(I) is
-                          when x"0" =>udp_txi_data_data_out_last(I)<='0';
-                                   udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(15 downto 8));
-                          when x"1" =>udp_txi_data_data_out_last(I)<='0';
-                                   udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(23 downto 16));
-                          when x"2" =>udp_txi_data_data_out_last(I)<='1';
-                                   udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(31 downto 24));
-                          when x"3" =>udp_txi_data_data_out_last(I)<='1';
-                                   udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(7 downto 0));
-                          when others =>udp_txi_data_data_out_last(I)<='0';
-                                   udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(7 downto 0));
+               if enable_count='1' then
+                  if udp_tx_data_out_ready_i='1' then
+                      count_udp_txi_data_byte<=count_udp_txi_data_byte+1;
+                      case count_udp_txi_data_byte is
+                          when x"0" =>udp_txi_data_data_out_last<='0';
+                                   udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(15 downto 8));
+                          when x"1" =>udp_txi_data_data_out_last<='0';
+                                   udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(23 downto 16));
+                          when x"2" =>udp_txi_data_data_out_last<='1';
+                                   udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(31 downto 24));
+                          when x"3" =>udp_txi_data_data_out_last<='1';
+                                   udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(7 downto 0));
+                          when others =>udp_txi_data_data_out_last<='0';
+                                   udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(7 downto 0));
                       end case;
-                  elsif udp_tx_result_i(I)=UDPTX_RESULT_ERR then --traitement si blocage udp_tx_result_i=UDPTX_RESULT_ERR
-                      count_udp_txi_data_byte(I)<=(others=>'0');
-                      udp_txi_data_data_out_last(I)<='1';
-                      udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(7 downto 0));
-                      count_udp_tx_RESULT_ERR_i(I)<=count_udp_tx_RESULT_ERR_i(I)+1;
+                  elsif udp_tx_result_i=UDPTX_RESULT_ERR then --traitement si blocage udp_tx_result_i=UDPTX_RESULT_ERR
+                      count_udp_txi_data_byte<=(others=>'0');
+                      udp_txi_data_data_out_last<='1';
+                      udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(7 downto 0));
+                      count_udp_tx_RESULT_ERR_i<=count_udp_tx_RESULT_ERR_i+1;
                   else 
-                      count_udp_txi_data_byte(I)<=(others=>'0');
-                      udp_txi_data_data_out_last(I)<='0';
-                      udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(7 downto 0));
+                      count_udp_txi_data_byte<=(others=>'0');
+                      udp_txi_data_data_out_last<='0';
+                      udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(7 downto 0));
                   end if;
                else
-                  if SFP_START_COUNT(I)='1' then--reset error cpt on start_count
-                     count_udp_tx_RESULT_ERR_i(I)<=(others=>'0');
+                  if SFP_START_COUNT='1' then--reset error cpt on start_count
+                     count_udp_tx_RESULT_ERR_i<=(others=>'0');
                   end if;
-                  count_udp_txi_data_byte(I)<=(others=>'0');
-                  udp_txi_data_data_out_last(I)<='0';
-                  udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(7 downto 0));
+                  count_udp_txi_data_byte<=(others=>'0');
+                  udp_txi_data_data_out_last<='0';
+                  udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(7 downto 0));
                end if;
           end if;
       end if;   
@@ -616,61 +612,61 @@ SFP_gen: for I in 0 to 2 generate
       begin
       if (rising_edge(clk_i)) then 
           if (SOFT_RESET = '1') then 
-               udp_txi_data_data_out_last(I)<='0';
-               udp_txi_data_data_out(I)<=(others=>'0');
-               count_udp_txi_data_byte(I)<=(others=>'0');
-               count_udp_txi_trigger_rise(I)<=(others=>'0');
-               count_udp_tx_RESULT_ERR_i(I)<=(others=>'0');
+               udp_txi_data_data_out_last<='0';
+               udp_txi_data_data_out<=(others=>'0');
+               count_udp_txi_data_byte<=(others=>'0');
+               count_udp_txi_trigger_rise<=(others=>'0');
+               count_udp_tx_RESULT_ERR_i<=(others=>'0');
           else
-               if SFP_START_COUNT(I)='1' then
-                  count_udp_txi_trigger_rise(I)<=(others=>'0');
-               elsif trigger_rise(I)='1' and enable_count(I)='1' then 
-                      count_udp_txi_trigger_rise(I)<=count_udp_txi_trigger_rise(I)+1;
+               if SFP_START_COUNT='1' then
+                  count_udp_txi_trigger_rise<=(others=>'0');
+               elsif trigger_rise='1' and enable_count='1' then 
+                      count_udp_txi_trigger_rise<=count_udp_txi_trigger_rise+1;
                end if;
                
-               if enable_count(I)='1' then
-                  if udp_tx_data_out_ready_i(I)='1' then
-                      count_udp_txi_data_byte(I)<=count_udp_txi_data_byte(I)+1;
-                      case count_udp_txi_data_byte(I) is
-                          when x"0" =>udp_txi_data_data_out_last(I)<='0';
-                                   udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(23 downto 16));
-                          when x"1" =>udp_txi_data_data_out_last(I)<='0';
-                                   udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(15 downto 8));
-                          when x"2" =>udp_txi_data_data_out_last(I)<='1';
-                                   udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(7 downto 0));
-                          when x"3" =>udp_txi_data_data_out_last(I)<='1';
-                                   udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(31 downto 24));
-                          when others =>udp_txi_data_data_out_last(I)<='0';
-                                   udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(31 downto 24));
+               if enable_count='1' then
+                  if udp_tx_data_out_ready_i='1' then
+                      count_udp_txi_data_byte<=count_udp_txi_data_byte+1;
+                      case count_udp_txi_data_byte is
+                          when x"0" =>udp_txi_data_data_out_last<='0';
+                                   udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(23 downto 16));
+                          when x"1" =>udp_txi_data_data_out_last<='0';
+                                   udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(15 downto 8));
+                          when x"2" =>udp_txi_data_data_out_last<='1';
+                                   udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(7 downto 0));
+                          when x"3" =>udp_txi_data_data_out_last<='1';
+                                   udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(31 downto 24));
+                          when others =>udp_txi_data_data_out_last<='0';
+                                   udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(31 downto 24));
                       end case;
-                  elsif udp_tx_result_i(I)=UDPTX_RESULT_ERR then --traitement si blocage udp_tx_result_i=UDPTX_RESULT_ERR
-                      count_udp_txi_data_byte(I)<=(others=>'0');
-                      udp_txi_data_data_out_last(I)<='1';
-                      udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(31 downto 24));
-                      count_udp_tx_RESULT_ERR_i(I)<=count_udp_tx_RESULT_ERR_i(I)+1;
+                  elsif udp_tx_result_i=UDPTX_RESULT_ERR then --traitement si blocage udp_tx_result_i=UDPTX_RESULT_ERR
+                      count_udp_txi_data_byte<=(others=>'0');
+                      udp_txi_data_data_out_last<='1';
+                      udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(31 downto 24));
+                      count_udp_tx_RESULT_ERR_i<=count_udp_tx_RESULT_ERR_i+1;
                   else 
-                      count_udp_txi_data_byte(I)<=(others=>'0');
-                      udp_txi_data_data_out_last(I)<='0';
-                      udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(31 downto 24));
+                      count_udp_txi_data_byte<=(others=>'0');
+                      udp_txi_data_data_out_last<='0';
+                      udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(31 downto 24));
                   end if;
                else
-                  if SFP_START_COUNT(I)='1' then--reset error cpt on start_count
-                     count_udp_tx_RESULT_ERR_i(I)<=(others=>'0');
+                  if SFP_START_COUNT='1' then--reset error cpt on start_count
+                     count_udp_tx_RESULT_ERR_i<=(others=>'0');
                   end if;
-                  count_udp_txi_data_byte(I)<=(others=>'0');
-                  udp_txi_data_data_out_last(I)<='0';
-                  udp_txi_data_data_out(I)<=std_logic_vector(count_udp_txi_trigger_rise(I)(31 downto 24));
+                  count_udp_txi_data_byte<=(others=>'0');
+                  udp_txi_data_data_out_last<='0';
+                  udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(31 downto 24));
                end if;
           end if;
       end if;   
       end process;
    end generate;
    
-   udp_txi_trigger_rise_count(I)<=std_logic_vector(count_udp_txi_trigger_rise(I));
-   udp_txi(I).data.data_out_valid<=udp_tx_data_out_ready_i(I);
-   udp_txi(I).data.data_out_last<=udp_txi_data_data_out_last(I);
-   udp_txi(I).data.data_out<=udp_txi_data_data_out(I);
-   count_udp_tx_RESULT_ERR(I)<=count_udp_tx_RESULT_ERR_i(I);
+   udp_txi_trigger_rise_count<=std_logic_vector(count_udp_txi_trigger_rise);
+   udp_txi.data.data_out_valid<=udp_tx_data_out_ready_i;
+   udp_txi.data.data_out_last<=udp_txi_data_data_out_last;
+   udp_txi.data.data_out<=udp_txi_data_data_out;
+   count_udp_tx_RESULT_ERR<=count_udp_tx_RESULT_ERR_i;
      ------------------------------------------------------------------------------
      -- Instantiate the UDP layer
      ------------------------------------------------------------------------------
@@ -684,43 +680,43 @@ SFP_gen: for I in 0 to 2 generate
        )
      port map( 
        -- UDP TX signals
-       udp_tx_start 			=> udp_tx_start(I),
-       udp_txi 					=> udp_txi(I),
-       udp_tx_result			=> udp_tx_result_i(I),
-       udp_tx_data_out_ready	=> udp_tx_data_out_ready_i(I),
+       udp_tx_start 			=> udp_tx_start,
+       udp_txi 					=> udp_txi,
+       udp_tx_result			=> udp_tx_result_i,
+       udp_tx_data_out_ready	=> udp_tx_data_out_ready_i,
        -- UDP RX signals
-       udp_rx_start 			=> udp_rx_start(I),
-       udp_rxo 					=> udp_rxo(I),
+       udp_rx_start 			=> udp_rx_start,
+       udp_rxo 					=> udp_rxo,
        -- IP RX signals
-       ip_rx_hdr 				=> ip_rx_hdr(I),
+       ip_rx_hdr 				=> open,
        -- system signals
        rx_clk					=> clk_i,
        tx_clk					=> clk_i,
        reset 					=> SOFT_RESET,
-       our_ip_address 			=> our_ip_address(I),
-       our_mac_address 			=> OUR_MAC_ADDRESS(I),
+       our_ip_address 			=> our_ip_address,
+       our_mac_address 			=> OUR_MAC_ADDRESS,
        -- status signals
        arp_pkt_count 		=> open,
        ip_pkt_count 		=> open,
-       control				=> control(I),
+       control				=> control,
        -- MAC Transmitter
-       mac_tx_tready 		=> tx_axis_mac_tready_i(I),
-       mac_tx_tvalid 		=> tx_axis_mac_tvalid(I),
-       mac_tx_tfirst		=> tx_axis_mac_tfirst(I),
-       mac_tx_tlast 		=> tx_axis_mac_tlast(I),
-       mac_tx_tdata 		=> tx_axis_mac_tdata(I),
+       mac_tx_tready 		=> tx_axis_mac_tready_i,
+       mac_tx_tvalid 		=> tx_axis_mac_tvalid,
+       mac_tx_tfirst		=> tx_axis_mac_tfirst,
+       mac_tx_tlast 		=> tx_axis_mac_tlast,
+       mac_tx_tdata 		=> tx_axis_mac_tdata,
        -- MAC Receiver
-       mac_rx_tdata 			=> rx_axis_mac_tdata(I),
-       mac_rx_tvalid		 	=> rx_axis_mac_tvalid(I),
-       mac_rx_tready			=> rx_axis_mac_tready(I),
-       mac_rx_tlast 			=> rx_axis_mac_tlast(I)
+       mac_rx_tdata 			=> rx_axis_mac_tdata,
+       mac_rx_tvalid		 	=> rx_axis_mac_tvalid,
+       mac_rx_tready			=> rx_axis_mac_tready,
+       mac_rx_tlast 			=> rx_axis_mac_tlast
        );
      ------------------------------------------------------------------------------
      -- Instantiate the MAC layer
      ------------------------------------------------------------------------------
    eth_mac_fifo_i : tri_mode_ethernet_mac_0_fifo_block
      port map(
-       gtx_clk                    => gtx_clk_bufg(I),
+       gtx_clk                    => gtx_clk_bufg,
        -- asynchronous reset
        glbl_rstn                  => glbl_rstn,
        rx_axi_rstn                => rx_axi_rstn,
@@ -728,8 +724,8 @@ SFP_gen: for I in 0 to 2 generate
        
        -- Receiver Statistics Interface
        -----------------------------------------
-       rx_mac_aclk                => rx_mac_aclk(I),
-       rx_reset                   => rx_reset(I),
+       rx_mac_aclk                => rx_mac_aclk,
+       rx_reset                   => rx_reset,
        rx_statistics_vector       => open,
        rx_statistics_valid        => open,
        
@@ -737,15 +733,15 @@ SFP_gen: for I in 0 to 2 generate
        ------------------------------------------
        rx_fifo_clock              => clk_i,
        rx_fifo_resetn             => glbl_rstn,
-       rx_axis_fifo_tdata         => rx_axis_mac_tdata(I),
-       rx_axis_fifo_tvalid        => rx_axis_mac_tvalid(I),
-       rx_axis_fifo_tready        => rx_axis_mac_tready(I),
-       rx_axis_fifo_tlast         => rx_axis_mac_tlast(I),
+       rx_axis_fifo_tdata         => rx_axis_mac_tdata,
+       rx_axis_fifo_tvalid        => rx_axis_mac_tvalid,
+       rx_axis_fifo_tready        => rx_axis_mac_tready,
+       rx_axis_fifo_tlast         => rx_axis_mac_tlast,
        
        -- Transmitter Statistics Interface
        --------------------------------------------
-       tx_mac_aclk                => tx_mac_aclk(I),
-       tx_reset                   => tx_reset(I),
+       tx_mac_aclk                => tx_mac_aclk,
+       tx_reset                   => tx_reset,
        tx_ifg_delay               => tx_ifg_delay,
        tx_statistics_vector       => open,
        tx_statistics_valid        => open,
@@ -754,12 +750,12 @@ SFP_gen: for I in 0 to 2 generate
        ---------------------------------------------
        tx_fifo_clock              => clk_i,
        tx_fifo_resetn             => glbl_rstn,
-       tx_axis_fifo_tdata         => tx_axis_mac_tdata(I),
-       tx_axis_fifo_tvalid        => tx_axis_mac_tvalid(I),
-       tx_axis_fifo_tready        => tx_axis_mac_tready_i(I),
-       tx_axis_fifo_tlast         => tx_axis_mac_tlast(I),
-       tx_fifo_overflow           => tx_fifo_overflow(I),
-       tx_fifo_status             => tx_fifo_status(I),
+       tx_axis_fifo_tdata         => tx_axis_mac_tdata,
+       tx_axis_fifo_tvalid        => tx_axis_mac_tvalid,
+       tx_axis_fifo_tready        => tx_axis_mac_tready_i,
+       tx_axis_fifo_tlast         => tx_axis_mac_tlast,
+       tx_fifo_overflow           => tx_fifo_overflow,
+       tx_fifo_status             => tx_fifo_status,
        
        -- MAC Control Interface
        --------------------------
@@ -768,14 +764,14 @@ SFP_gen: for I in 0 to 2 generate
        
        -- GMII Interface
        -------------------
-       gmii_txd                  => gmii_txd(I),
-       gmii_tx_en                => gmii_tx_en(I),
-       gmii_tx_er                => gmii_tx_er(I),
-       gmii_tx_clk               => gmii_tx_clk(I),
-       gmii_rxd                  => gmii_rxd(I),
-       gmii_rx_dv                => gmii_rx_dv(I),
-       gmii_rx_er                => gmii_rx_er(I),
-       gmii_rx_clk               => gmii_rx_clk(I),
+       gmii_txd                  => gmii_txd,
+       gmii_tx_en                => gmii_tx_en,
+       gmii_tx_er                => gmii_tx_er,
+       gmii_tx_clk               => gmii_tx_clk,
+       gmii_rxd                  => gmii_rxd,
+       gmii_rx_dv                => gmii_rx_dv,
+       gmii_rx_er                => gmii_rx_er,
+       gmii_rx_clk               => gmii_rx_clk,
        
        -- Configuration Vector
        -------------------------
@@ -783,10 +779,10 @@ SFP_gen: for I in 0 to 2 generate
        tx_configuration_vector   => C_TX_CONFIGURATION_VECTOR
        );
    
-   userclk2_out(I)<=userclk2;      
-   gmii_tx_clk(I)<=userclk2_out(I);      
-   gmii_rx_clk(I)<=userclk2_out(I);
-   gtx_clk_bufg(I)<=gtrefclk_bufg;
+   userclk2_out<=userclk2;      
+   gmii_tx_clk<=userclk2_out;      
+   gmii_rx_clk<=userclk2_out;
+   gtx_clk_bufg<=gtrefclk_bufg;
    
      ------------------------------------------------------------------------------
      -- Instantiate the PHY layer
@@ -802,11 +798,11 @@ SFP_gen: for I in 0 to 2 generate
        gtrefclk       =>gtrefclk      ,                    
        gtrefclk_bufg  =>gtrefclk_bufg , 
        
-       txoutclk   =>txoutclk(I)    ,
-       rxoutclk   =>rxoutclk(I)    ,
-       resetdone  =>resetdone(I)   ,-- The GT transceiver has completed its reset cycle
-       cplllock   =>cplllock(I)    ,
-       mmcm_reset =>mmcm_reset(I)  ,
+       txoutclk   =>txoutclk    ,
+       rxoutclk   =>rxoutclk    ,
+       resetdone  =>resetdone   ,-- The GT transceiver has completed its reset cycle
+       cplllock   =>cplllock    ,
+       mmcm_reset =>mmcm_reset  ,
        mmcm_locked=>mmcm_locked ,-- Locked indication from MMCM
        userclk    =>userclk     ,
        userclk2   =>userclk2    ,
@@ -818,21 +814,21 @@ SFP_gen: for I in 0 to 2 generate
        
        -- Tranceiver Interface
        -----------------------
-       txp                  => txp(I),    -- Differential +ve of serial transmission from PMA to PMD.
-       txn                  => txn(I),    -- Differential -ve of serial transmission from PMA to PMD.
-       rxp                  => rxp(I),    -- Differential +ve for serial reception from PMD to PMA.
-       rxn                  => rxn(I),    -- Differential -ve for serial reception from PMD to PMA.
+       txp                  => txp,    -- Differential +ve of serial transmission from PMA to PMD.
+       txn                  => txn,    -- Differential -ve of serial transmission from PMA to PMD.
+       rxp                  => rxp,    -- Differential +ve for serial reception from PMD to PMA.
+       rxn                  => rxn,    -- Differential -ve for serial reception from PMD to PMA.
        
        -- GMII Interface (client MAC <=> PCS)
        --------------------------------------
-       gmii_tx_clk          => gmii_tx_clk(I),--: in  -- Transmit clock from client MAC.
+       gmii_tx_clk          => gmii_tx_clk,--: in  -- Transmit clock from client MAC.
        gmii_rx_clk          => open,          --: out -- Receive clock to client MAC.
-       gmii_txd             => gmii_txd(I),   --: in -- Transmit data from client MAC.
-       gmii_tx_en           => gmii_tx_en(I), --: in -- Transmit control signal from client MAC.
-       gmii_tx_er           => gmii_tx_er(I), --: in -- Transmit control signal from client MAC.
-       gmii_rxd             => gmii_rxd(I),   --: out -- Received Data to client MAC.
-       gmii_rx_dv           => gmii_rx_dv(I), --: out -- Received control signal to client MAC.
-       gmii_rx_er           => gmii_rx_er(I), --: out -- Received control signal to client MAC.
+       gmii_txd             => gmii_txd,   --: in -- Transmit data from client MAC.
+       gmii_tx_en           => gmii_tx_en, --: in -- Transmit control signal from client MAC.
+       gmii_tx_er           => gmii_tx_er, --: in -- Transmit control signal from client MAC.
+       gmii_rxd             => gmii_rxd,   --: out -- Received Data to client MAC.
+       gmii_rx_dv           => gmii_rx_dv, --: out -- Received control signal to client MAC.
+       gmii_rx_er           => gmii_rx_er, --: out -- Received control signal to client MAC.
        -- Management: Alternative to MDIO Interface
        --------------------------------------------
        
@@ -840,12 +836,12 @@ SFP_gen: for I in 0 to 2 generate
        
        -- General IO's
        ---------------
-       status_vector => status_vector(I), --: out -- Core status.
+       status_vector => status_vector, --: out -- Core status.
        reset => SOFT_RESET,               --: in -- Asynchronous reset for entire core.
        signal_detect=> signal_detect      --: in -- Input from PMD to indicate presence of optical input.
        );
        
-end generate;
+--end generate;
 
 ---------------------------------------------------------------------------
 -- PHY layer gt transceiver clock support
@@ -864,12 +860,10 @@ bufg_independent_clock : BUFG
 
 core_clocking_i : gig_ethernet_pcs_pma_0_clocking
   port map(
-    gtrefclk_p                => gtrefclk_p,
-    gtrefclk_n                => gtrefclk_n,
-    txoutclk                  => txoutclk(0),
-    rxoutclk                  => rxoutclk(0),
-    mmcm_reset                => mmcm_reset0,
-    gtrefclk                   =>  gtrefclk,
+    gtrefclk                => gtrefclk,
+    txoutclk                  => txoutclk,
+    rxoutclk                  => rxoutclk,
+    mmcm_reset                => mmcm_reset,
     gtrefclk_bufg              =>  gtrefclk_bufg,
     mmcm_locked                =>  mmcm_locked,
     userclk                    =>  userclk,
@@ -878,7 +872,7 @@ core_clocking_i : gig_ethernet_pcs_pma_0_clocking
     rxuserclk2                 =>  rxuserclk2
     );
  
-mmcm_reset0<=mmcm_reset(0);
+--mmcm_reset0<=mmcm_reset(0);
 
 core_resets_i : gig_ethernet_pcs_pma_0_resets
   port map (
@@ -905,23 +899,23 @@ core_gt_common_i : gig_ethernet_pcs_pma_0_gt_common
 ---------------------------------------------------------------------------
 -- Chipscope ILA Debug purpose
 ---------------------------------------------------------------------------
-ILA_GEN : IF True GENERATE--false GENERATE--
+ILA_GEN : IF (DEBUG= "TRUE") GENERATE--false GENERATE--
    My_chipscope_ila_probe_0 : entity work.ila_32x8K
      PORT MAP(
        clk => clk_i,
        probe0 => probe0
        );
     
-   probe0(26 downto 0)<=tx_axis_mac_tdata(1)&
-                        tx_axis_mac_tvalid(1)&
-                        tx_axis_mac_tfirst(1)&
-                        tx_axis_mac_tready_i(1)&
-                        tx_axis_mac_tlast(1)&
-                        tx_fifo_overflow(1)&
-                        tx_fifo_status(1)&  
-                        gmii_txd(1)&
-                        gmii_tx_en(1)&
-                        gmii_tx_er(1);
+   probe0(26 downto 0)<=tx_axis_mac_tdata&
+                        tx_axis_mac_tvalid&
+                        tx_axis_mac_tfirst&
+                        tx_axis_mac_tready_i&
+                        tx_axis_mac_tlast&
+                        tx_fifo_overflow&
+                        tx_fifo_status&  
+                        gmii_txd&
+                        gmii_tx_en&
+                        gmii_tx_er;
                         
    probe0(31 downto 27)<=(others=>'0');
    
@@ -930,7 +924,7 @@ ILA_GEN : IF True GENERATE--false GENERATE--
        clk => clk_i,
        probe0 => probe1
        );
-   probe1(31 downto 0)<=std_logic_vector(count_udp_txi_trigger_rise(1)(31 downto 0)); 
+   probe1(31 downto 0)<=std_logic_vector(count_udp_txi_trigger_rise(31 downto 0)); 
    
    My_chipscope_ila_probe_2 : entity work.ila_32x8K
      PORT MAP(
@@ -938,24 +932,24 @@ ILA_GEN : IF True GENERATE--false GENERATE--
        probe0 => probe2
        );
    
-   probe2(12 downto 8)<=udp_tx_start(1)&
-                        udp_tx_result_i(1)&
-                        udp_tx_data_out_ready_i(1)&
-                        udp_txi_data_data_out_last(1);
+   probe2(12 downto 8)<=udp_tx_start&
+                        udp_tx_result_i&
+                        udp_tx_data_out_ready_i&
+                        udp_txi_data_data_out_last;
                         
-   probe2(7 downto 0) <=udp_txi_data_data_out(1);
+   probe2(7 downto 0) <=udp_txi_data_data_out;
     
    probe2(31 downto 13)<=(others=>'0');
    
    My_chipscope_ila_probe_3 : entity work.ila_32x8K
      PORT MAP(
-       clk => gmii_rx_clk(1),
+       clk => gmii_rx_clk,
        probe0 => probe3
        );
    
-   probe3(9 downto 0)<=gmii_rxd(1)&
-                       gmii_rx_dv(1)&
-                       gmii_rx_er(1);
+   probe3(9 downto 0)<=gmii_rxd&
+                       gmii_rx_dv&
+                       gmii_rx_er;
                        
    probe3(31 downto 10)<=(others=>'0');
    
@@ -965,10 +959,10 @@ ILA_GEN : IF True GENERATE--false GENERATE--
        probe0 => probe4
        );
    
-   probe4(10 downto 0)<=rx_axis_mac_tdata(1)&
-                        rx_axis_mac_tvalid(1)&
-                        rx_axis_mac_tready(1)&
-                        rx_axis_mac_tlast(1);
+   probe4(10 downto 0)<=rx_axis_mac_tdata&
+                        rx_axis_mac_tvalid&
+                        rx_axis_mac_tready&
+                        rx_axis_mac_tlast;
                         
    probe4(31 downto 11)<=(others=>'0');
    

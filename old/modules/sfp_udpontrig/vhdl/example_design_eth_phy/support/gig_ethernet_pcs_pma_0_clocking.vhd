@@ -66,12 +66,10 @@ use ieee.std_logic_1164.all;
 
 entity gig_ethernet_pcs_pma_0_clocking is
    port (
-      gtrefclk_p              : in  std_logic;                -- Differential +ve of reference clock for MGT: 125MHz, very high quality.
-      gtrefclk_n              : in  std_logic;                -- Differential -ve of reference clock for MGT: 125MHz, very high quality.
+      gtrefclk                : in  std_logic;                -- Reference clock for MGT: 125MHz, very high quality.
       txoutclk                : in  std_logic;                -- txoutclk from GT transceiver.
       rxoutclk                : in  std_logic;                -- rxoutclk from GT transceiver.
       mmcm_reset              : in  std_logic;                -- MMCM Reset
-      gtrefclk                : out std_logic;                -- gtrefclk routed through an IBUFG.
       gtrefclk_bufg           : out std_logic;                -- gtrefclk routed through a BUFG for driving logic.     
       mmcm_locked             : out std_logic;                -- MMCM locked
       userclk                 : out std_logic;                -- for GT PMA reference clock
@@ -95,7 +93,7 @@ signal txoutclk_bufg  : std_logic;   -- txoutclk from GT transceiver routed onto
 
 signal userclk_i      : std_logic;
 signal rxoutclk_buf   : std_logic;
-signal gtrefclk_i     : std_logic;
+--signal gtrefclk_i     : std_logic;
 
 begin
 
@@ -106,21 +104,21 @@ begin
 
 -- Clock circuitry for the Transceiver uses a differential input clock.
 -- gtrefclk is routed to the tranceiver.
-ibufds_gtrefclk : IBUFDS_GTE2
-port map (
-   I     => gtrefclk_p,
-   IB    => gtrefclk_n,
-   CEB   => '0',
-   O     => gtrefclk_i,
-   ODIV2 => open
-   );
+--ibufds_gtrefclk : IBUFDS_GTE2
+--port map (
+--   I     => gtrefclk_p,
+--   IB    => gtrefclk_n,
+--   CEB   => '0',
+--   O     => gtrefclk_i,
+--   ODIV2 => open
+--   );
 
-gtrefclk <= gtrefclk_i;
+--gtrefclk <= gtrefclk_i;
 
 -- Route gtrefclk through a BUFG
 bufg_gtrefclk : BUFG
 port map (
-   I         => gtrefclk_i,
+   I         => gtrefclk,
    O         => gtrefclk_bufg
    );
 -- Route txoutclk input through a BUFG

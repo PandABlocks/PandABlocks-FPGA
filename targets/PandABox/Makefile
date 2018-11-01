@@ -55,5 +55,4 @@ panda_top.bit : VERSION $(IP_CORES) $(PS_CORE)
 	    -tclargs $(TARGET_DIR) \
 	    -tclargs $(BUILD_DIR) \
 	    -tclargs $(IP_DIR)
-#	    -tclargs $(FMC_DESIGN) \
-#	    -tclargs $(SFP_DESIGN) \
+

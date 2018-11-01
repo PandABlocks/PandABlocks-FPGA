@@ -149,6 +149,14 @@ single_hdl_test: $(TIMING_BUILD_DIRS)
 APP_FILE = $(TOP)/apps/$(APP_NAME)
 BUILD_DIR = $(TOP)/build
 
+# Extract FMC and SFP design names from config file
+
+export FMC_DESIGN := $(shell grep -o 'FMC_[^ ]*' $(APP_FILE) | cut -d_ -f2)
+#export FMC_DESIGN := $(if $(strip $(FMC_DESIGN)),$(FMC_DESIGN),"-")
+export SFP_DESIGN := $(shell grep -o 'SFP[^ ]*' $(APP_FILE) | cut -d_ -f2)
+export SFP_SOCKETS := $(shell grep -o 'SFP[^ ]*' $(APP_FILE) | cut -d_ -f1)
+#export SFP_DESIGN := $(if $(strip $(SFP_DESIGN)),$(SFP_DESIGN),"-")
+
 CARRIER_FPGA_TARGETS = carrier-fpga carrier-ip
 
 $(CARRIER_FPGA_TARGETS) $(IP_DIR): $(FPGA_BUILD_DIR) apps

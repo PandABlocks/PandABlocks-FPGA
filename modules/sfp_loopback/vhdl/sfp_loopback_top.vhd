@@ -6,7 +6,7 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity sfp_top is
+entity sfp_loopback_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -25,19 +25,19 @@ port (
     write_strobe_i      : in  std_logic;
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
-    write_ack_o         : out std_logic;
+    write_ack_o         : out std_logic := '1';
     
     -- SFP Interface
     SFP_interface       : inout SFP_interface
 );
-end sfp_top;
+end sfp_loopback_top;
 
-architecture rtl of sfp_top is
+architecture rtl of sfp_loopback_top is
 
-signal test_clocks      : std_logic_vector(0 downto 0);
+--signal test_clocks      : std_logic;
 signal LINK_UP         : std_logic_vector(31 downto 0);
 signal ERROR_COUNT     : std_logic_vector(31 downto 0);
-signal FREQ_VAL         : std32_array(0 downto 0);
+signal FREQ_VAL         : std_logic_vector(31 downto 0);
 signal GTREFCLK         : std_logic;
 signal SOFT_RESET       : std_logic;
 signal SFP_LOS_VEC      : std_logic_vector(31 downto 0) := (others => '0');
@@ -45,7 +45,7 @@ signal SFP_LOS_VEC      : std_logic_vector(31 downto 0) := (others => '0');
 begin
 
 -- Acknowledgement to AXI Lite interface
-write_ack_o <= '1';
+--write_ack_o <= '1';
 
 read_ack_delay : entity work.delay_line
 generic map (DW => 1)
@@ -77,14 +77,14 @@ port map (
 -- FMC Clocks Frequency Counter
 ---------------------------------------------------------------------------
 
-test_clocks(0) <= GTREFCLK;
+--test_clocks(0) <= GTREFCLK;
 
 freq_counter_inst : entity work.freq_counter
 generic map( NUM => 1)
 port map (
     refclk          => clk_i,
     reset           => reset_i,
-    test_clocks     => test_clocks,
+    test_clocks     => GTREFCLK,
     freq_out        => FREQ_VAL
 );
 
@@ -104,7 +104,7 @@ port map (
     SFP_LOS                    => SFP_LOS_VEC,
     LINK_UP                    => LINK_UP,
     ERROR_COUNT                => ERROR_COUNT,
-    SFP_CLK                   => FREQ_VAL(0),
+    SFP_CLK                   => FREQ_VAL,
     SOFT_RESET                  => open,
     SOFT_RESET_WSTB             => SOFT_RESET,
     -- Memory Bus Interface

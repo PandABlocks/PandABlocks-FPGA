@@ -1,59 +1,22 @@
 SFP
-    SFP1_TRIG                   bit_mux
-    SFP1_START_COUNT    write   action
-    SFP1_STOP_COUNT     write   action
-    SFP1_TRIG_RISE_COUNT        read
-    SFP1_COUNT_UDPTX_ERR        read
-    SFP1_STATUS_COUNT           read
-    SFP1_LOS                    read
-    SFP1_MAC_LO            param uint 16777215
-    SFP1_MAC_HI            param uint 16777215
-    SFP1_DEST_UDP_PORT     param uint 131071
-    SFP1_OUR_UDP_PORT      param uint 131071
-    SFP1_DEST_IP_AD_BYTE1  param uint 255
-    SFP1_DEST_IP_AD_BYTE2  param uint 255
-    SFP1_DEST_IP_AD_BYTE3  param uint 255
-    SFP1_DEST_IP_AD_BYTE4  param uint 255
-    SFP1_OUR_IP_AD_BYTE1   param uint 255
-    SFP1_OUR_IP_AD_BYTE2   param uint 255
-    SFP1_OUR_IP_AD_BYTE3   param uint 255
-    SFP1_OUR_IP_AD_BYTE4   param uint 255
-    SFP2_TRIG                   bit_mux
-    SFP2_START_COUNT    write   action
-    SFP2_STOP_COUNT     write   action
-    SFP2_TRIG_RISE_COUNT        read
-    SFP2_COUNT_UDPTX_ERR        read
-    SFP2_STATUS_COUNT           read
-    SFP2_LOS                    read
-    SFP2_MAC_LO            param uint 16777215
-    SFP2_MAC_HI            param uint 16777215
-    SFP2_DEST_UDP_PORT     param uint 131071
-    SFP2_OUR_UDP_PORT      param uint 131071
-    SFP2_DEST_IP_AD_BYTE1  param uint 255
-    SFP2_DEST_IP_AD_BYTE2  param uint 255
-    SFP2_DEST_IP_AD_BYTE3  param uint 255
-    SFP2_DEST_IP_AD_BYTE4  param uint 255
-    SFP2_OUR_IP_AD_BYTE1   param uint 255
-    SFP2_OUR_IP_AD_BYTE2   param uint 255
-    SFP2_OUR_IP_AD_BYTE3   param uint 255
-    SFP2_OUR_IP_AD_BYTE4   param uint 255
-    SFP3_TRIG                   bit_mux
-    SFP3_START_COUNT    write   action
-    SFP3_STOP_COUNT     write   action
-    SFP3_TRIG_RISE_COUNT        read
-    SFP3_COUNT_UDPTX_ERR        read
-    SFP3_STATUS_COUNT           read
-    SFP3_MAC_LO            param uint 16777215
-    SFP3_MAC_HI            param uint 16777215
-    SFP3_DEST_UDP_PORT     param uint 131071
-    SFP3_OUR_UDP_PORT      param uint 131071
-    SFP3_DEST_IP_AD_BYTE1  param uint 255
-    SFP3_DEST_IP_AD_BYTE2  param uint 255
-    SFP3_DEST_IP_AD_BYTE3  param uint 255
-    SFP3_DEST_IP_AD_BYTE4  param uint 255
-    SFP3_OUR_IP_AD_BYTE1   param uint 255
-    SFP3_OUR_IP_AD_BYTE2   param uint 255
-    SFP3_OUR_IP_AD_BYTE3   param uint 255
-    SFP3_OUR_IP_AD_BYTE4   param uint 255
+    SFP_TRIG                   bit_mux
+    SFP_START_COUNT    write   action
+    SFP_STOP_COUNT     write   action
+    SFP_TRIG_RISE_COUNT        read
+    SFP_COUNT_UDPTX_ERR        read
+    SFP_STATUS_COUNT           read
+    SFP_LOS                    read
+    SFP_MAC_LO            param uint 16777215
+    SFP_MAC_HI            param uint 16777215
+    SFP_DEST_UDP_PORT     param uint 131071
+    SFP_OUR_UDP_PORT      param uint 131071
+    SFP_DEST_IP_AD_BYTE1  param uint 255
+    SFP_DEST_IP_AD_BYTE2  param uint 255
+    SFP_DEST_IP_AD_BYTE3  param uint 255
+    SFP_DEST_IP_AD_BYTE4  param uint 255
+    SFP_OUR_IP_AD_BYTE1   param uint 255
+    SFP_OUR_IP_AD_BYTE2   param uint 255
+    SFP_OUR_IP_AD_BYTE3   param uint 255
+    SFP_OUR_IP_AD_BYTE4   param uint 255
     SOFT_RESET      write       action
 
