@@ -131,8 +131,8 @@ read_vhdl [glob $TOP_DIR/modules/qdec/hdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/srgate/hdl/*.vhd]
 read_vhdl [glob $TOP_DIR/modules/filter/hdl/*.vhd]
 if {$env(FMC_DESIGN) ne ""} {
-	read_vhdl [glob $TOP_DIR/modules/fmc_$FMC_DESIGN/vhdl/*.vhd]
-	add_files $TOP_DIR/modules/fmc_$FMC_DESIGN/vhdl/
+	read_vhdl [glob $TOP_DIR/modules/fmc_[string tolower $env(FMC_DESIGN)]/vhdl/*.vhd]
+	add_files $TOP_DIR/modules/fmc_[string tolower $env(FMC_DESIGN)]/vhdl/
 }
 if {$env(SFP_DESIGN) ne ""} {
     foreach SFP_TYPE $env(SFP_DESIGN) {
@@ -160,7 +160,7 @@ if {"loopback" in [string tolower $env(SFP_DESIGN)]} {
 
 # Read constraint files
 if {$env(FMC_DESIGN) ne ""} {
-	read_xdc $TOP_DIR/modules/fmc_$FMC_DESIGN/const/fmc.xdc
+	read_xdc $TOP_DIR/modules/fmc_[string tolower $env(FMC_DESIGN)]/const/fmc.xdc
 }
 if {$env(SFP_DESIGN) ne ""} {
     read_xdc $TARGET_DIR/const/SFP1.xdc
