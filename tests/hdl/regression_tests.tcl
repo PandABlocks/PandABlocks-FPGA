@@ -54,8 +54,8 @@ if {$argc > 0} {
 add_files -norecurse {
     ../../common/hdl
     ../../common/hdl/defines
-    ../../common/ip_repo/pulse_queue/pulse_queue_funcsim.vhdl
 }
+
 
 # Loop through all the tests
 foreach test [array names tests] {

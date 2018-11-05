@@ -28,8 +28,8 @@ def all_subclasses(cls):
 
 class BlockConfig(object):
     """The config for a single Block"""
-    def __init__(self, name, softblock, number, ini):
-        # type: (str, bool, int, configparser.SafeConfigParser) -> None
+    def __init__(self, name, type, number, ini):
+        # type: (str, str, int, configparser.SafeConfigParser) -> None
         # Block names should be UPPER_CASE_NO_NUMBERS
         assert re.match("[A-Z][A-Z_]*$", name), \
             "Expected BLOCK_NAME with no numbers, got %r" % name
@@ -37,12 +37,25 @@ class BlockConfig(object):
         self.name = name
         #: The number of instances Blocks that will be created, like 8
         self.number = number
-        #: Is the block a softblock?
-        self.softblock = softblock
         #: The Block section of the register address space
         self.block_address = None
         #: The VHDL entity name, like lut
         self.entity = ini.get(".", "entity")
+        #: Is the block soft, sfp, fmc or dma?
+        try:
+            self.type = ini.get(".", "type")
+        except configparser.NoOptionError:
+            self.type = type
+        #: Any constraints?
+        try:
+            self.constraints = ini.get(".", "constraints")
+        except configparser.NoOptionError:
+            self.constraints = ""
+        #: Does the block require IP?
+        try:
+            self.ip = ini.get(".", "ip")
+        except configparser.NoOptionError:
+            self.ip = ""
         #: The description, like "Lookup table"
         self.description = ini.get(".", "description")
         #: All the child fields
@@ -73,12 +86,14 @@ class BlockConfig(object):
 
 class RegisterConfig(object):
     """A low level register name and number backing this field"""
-    def __init__(self, name, number):
-        # type: (str, int) -> None
+    def __init__(self, name, number, reg=''):
+        # type: (str, int, str) -> None
         #: The name of the register, like INPA_DLY
         self.name = name
         #: The register number relative to Block, like 9
         self.number = number
+        #: For an XADC field, the register path
+        self.reg = reg
 
 
 class BusEntryConfig(object):
@@ -97,8 +112,8 @@ class FieldConfig(object):
     type_regex = None
 
     def __init__(self, name, number, type,
-                 description, wstb=False, **extra_config):
-        # type: (str, int, str, bool, str) -> None
+                 description, wstb=False, short=False, reg='', **extra_config):
+        # type: (str, int, str, str, bool, bool, str, str) -> None
         # Field names should be UPPER_CASE_OR_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*$", name), \
             "Expected FIELD_NAME, got %r" % name
@@ -121,6 +136,10 @@ class FieldConfig(object):
             self.enumlength = int(math.ceil(math.log(len(extra_config), 2)) - 1)
         #: If a write strobe is required, set wstb to 1
         self.wstb = wstb
+        #: If there's a table is it short?
+        self.short = short
+        #: Whats the register for an xadc field
+        self.reg = reg
         #: The current value of this field for simulation
         self.value = 0
 
@@ -144,7 +163,8 @@ class FieldConfig(object):
             assert not self.bus_entries, \
                 "Field %s type %s has both registers and bus entries" % (
                     self.name, self.type)
-            registers_str = " ".join(str(r.number) for r in self.registers)
+            registers_str = " ".join(str(r.number) if r.number >= 0 else r.reg
+                                     for r in self.registers)
         else:
             registers_str = " ".join(str(e.index) for e in self.bus_entries)
         return registers_str
@@ -173,20 +193,57 @@ class FieldConfig(object):
                         "Cannot create FieldConfig from %s: %s" % (d, e))
         return ret
 
-    def setter(self, block_simulation, v):
+    def setter(self, block_simulation=0, v=0, suffix=""):
         if self.value != v:
             self.value = v
             if block_simulation.changes is None:
                 block_simulation.changes = {}
-            block_simulation.changes[self.name] = v
+            block_simulation.changes[self.name + suffix] = v
 
     def settertimeL(self, block_simulation, v):
-        self.name = self.name + "_L"
+        # Setter function for time _L register
+        self.name = self.name
         if self.value != v:
             self.value = v
             if block_simulation.changes is None:
                 block_simulation.changes = {}
-            block_simulation.changes[self.name] = v
+            block_simulation.changes[self.name + "_L"] = v
+
+    def settertableA(self, block_simulation, v):
+        # Setter function for table_ADDRESS register
+        self.name = self.name
+        if self.value != v:
+            self.value = v
+            if block_simulation.changes is None:
+                block_simulation.changes = {}
+            block_simulation.changes[self.name + "_ADDRESS"] = v
+
+    def settertableL(self, block_simulation, v):
+        # Setter function for table_ADDRESS
+        self.name = self.name
+        if self.value != v:
+            self.value = v
+            if block_simulation.changes is None:
+                block_simulation.changes = {}
+            block_simulation.changes[self.name + "_LENGTH"] = v
+
+    def settertableS(self, block_simulation, v):
+        # Setter function for table_START
+        self.name = self.name
+        if self.value != v:
+            self.value = v
+            if block_simulation.changes is None:
+                block_simulation.changes = {}
+            block_simulation.changes[self.name + "_START"] = v
+
+    def settertableD(self, block_simulation, v):
+        # Setter function for table_DATA
+        self.name = self.name
+        if self.value != v:
+            self.value = v
+            if block_simulation.changes is None:
+                block_simulation.changes = {}
+            block_simulation.changes[self.name + "_DATA"] = v
 
     def getter(self, block_simulation):
         return self.value
@@ -244,6 +301,45 @@ class ExtOutTimeFieldConfig(ExtOutFieldConfig):
             ext_i += 1
             self.bus_entries.append(BusEntryConfig("ext", ext_i))
             ext_i += 1
+        return field_address, bit_i, pos_i, ext_i
+
+
+class TableFieldConfig(FieldConfig):
+    """These fields represent a table field"""
+    type_regex = "table"
+
+    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+        # type: (int, int, int, int) -> Tuple[int, int, int, int]
+        if self.short:
+            self.registers.append(
+                RegisterConfig(self.name, -1, 'short    512    '))
+            self.registers.append(
+                RegisterConfig(self.name + "_DATA", field_address))
+            field_address += 1
+            self.registers.append(
+                RegisterConfig(self.name + "_LENGTH", field_address))
+            field_address += 1
+            self.registers.append(
+                RegisterConfig(self.name + "_START", field_address))
+            field_address += 1
+        else:
+            self.registers.append(
+                RegisterConfig(self.name + "_ADDR", field_address))
+            field_address += 1
+            self.registers.append(
+                RegisterConfig(self.name + "_LENGTH", field_address))
+            field_address += 1
+        return field_address, bit_i, pos_i, ext_i
+
+
+class XadcFieldConfig(FieldConfig):
+    """These fields represent all other set/get parameters backed with a single
+    register"""
+    type_regex = "xadc"
+
+    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+        # type: (int, int, int, int) -> Tuple[int, int, int, int]
+        self.registers.append(RegisterConfig(self.name, -1, self.reg))
         return field_address, bit_i, pos_i, ext_i
 
 

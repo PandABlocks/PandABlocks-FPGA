@@ -39,7 +39,8 @@ class TimingCsv(object):
                 "Field %r is not %s" % (k, self.header)
             # Lut Function values were given in hex, they need to be converted
             # to an int, for the testbench to pass
-            v = str(int(v, 0))
+            if k != "TABLE_ADDRESS":
+                v = str(int(v, 0))
             self.lengths[k] = max(self.lengths[k], len(v))
             self.values[k] = v
             # If the changes signal has a wstb, set wstb to '1'
@@ -104,13 +105,26 @@ class HdlTimingGenerator(object):
             if field.type == "time":
                 header.append(field.name+"_L")
                 header.append(field.name + "_H")
+            elif field.type == "table" and field.short:
+                header.append(field.name + "_START")
+                header.append(field.name + "_DATA")
+                header.append(field.name + "_LENGTH")
+            elif field.type == "table":
+                header.append(field.name + "_ADDRESS")
+                header.append(field.name + "_LENGTH")
             else:
                 header.append(field.name)
             # If field has wstb config, ass header for a wstb signal
             if field.wstb:
                 if field.type == "time":
-                    header.append(field.name + "_L" + "_wstb")
-                    header.append(field.name + "_H" + "_wstb")
+                    header.append(field.name + "_L_wstb")
+                    header.append(field.name + "_H_wstb")
+                elif field.type == "table" and field.short:
+                    header.append(field.name + "_DATA_wstb")
+                    header.append(field.name + "_LENGTH_wstb")
+                elif field.type == "table":
+                    header.append(field.name + "_ADDRESS_wstb")
+                    header.append(field.name + "_LENGTH_wstb")
                 else:
                     header.append(field.name + "_wstb")
         csv = TimingCsv(header)

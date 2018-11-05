@@ -27,6 +27,21 @@ def properties_from_ini(src_path, ini_name):
         if field.type == "time":
             names.append(field.name+"_L")
             prop = property(field.getter, field.settertimeL)
+        elif field.type == "table" and field.short:
+            names.append(field.name+"_LENGTH")
+            prop = property(field.getter, field.settertableL)
+            properties.append(prop)
+            names.append(field.name+"_START")
+            prop = property(field.getter, field.settertableS)
+            properties.append(prop)
+            names.append(field.name+"_DATA")
+            prop = property(field.getter, field.settertableD)
+        elif field.type == "table":
+            names.append(field.name+"_ADDRESS")
+            prop = property(field.getter, field.settertableA)
+            properties.append(prop)
+            names.append(field.name+"_LENGTH")
+            prop = property(field.getter, field.settertableL)
         else:
             names.append(field.name)
             prop = property(field.getter, field.setter)
@@ -47,6 +62,11 @@ class BlockSimulationMeta(type):
                     assert name == val.fget.im_self.name + "_L", \
                         "Property %s mismatch with FieldConfig name %s" % (
                             name, val.fget.im_self.name)
+                elif val.fget.im_self.type == "table":
+                    #assert name == val.fget.im_self.name + "_ADDRESS", \
+                     #   "Property %s mismatch with FieldConfig name %s" % (
+                      #      name, val.fget.im_self.name)
+                    continue
                 else:
                     assert name == val.fget.im_self.name, \
                         "Property %s mismatch with FieldConfig name %s" % (

@@ -166,8 +166,8 @@ $(CARRIER_FPGA_TARGETS) $(IP_DIR): $(FPGA_BUILD_DIR) apps
 	    $@
 
 slow-fpga: $(SLOW_FPGA_BUILD_DIR) tools/virtexHex2Bin
-	source $(ISE)  &&  $(MAKE) -C $< -f $(TOP)/SlowFPGA/Makefile \
-            TOP=$(TOP) SRC_DIR=$(TOP)/SlowFPGA BOARD=$(BOARD) mcs \
+	source $(ISE)  &&  $(MAKE) -C $< -f $(TARGET_DIR)/SlowFPGA/Makefile \
+            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA BOARD=$(BOARD) mcs \
             BUILD_DIR=$(FPGA_BUILD_DIR)
 
 tools/virtexHex2Bin : tools/virtexHex2Bin.c

@@ -705,33 +705,33 @@ port map (
 ---------------------------------------------------------------------------
 -- SYSTEM FPGA
 ---------------------------------------------------------------------------
---system_inst : entity work.system_top
---port map (
---    clk_i               => FCLK_CLK0,
---    reset_i             => FCLK_RESET0,
---    -- Memory Bus Interface
---    read_strobe_i       => read_strobe(SYSTEM_CS),
---    read_address_i      => read_address,
---    read_data_o         => read_data(SYSTEM_CS),
---    read_ack_o          => read_ack(SYSTEM_CS),
---    write_strobe_i      => write_strobe,
---    write_address_i     => write_address,
---    write_data_i        => write_data,
---    write_ack_o         => write_ack(SYSTEM_CS),
---    -- Digital I/O Interface
---    ttlin_i             => ttlin_val,
---    ttlout_i            => ttlout_val,
---    inenc_conn_i        => inenc_conn,
---    outenc_conn_i       => outenc_conn,
---    -- Block Input and Outputs
---    SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
---    DCARD_MODE          => DCARD_MODE,
---    -- Serial Physical interface
---    spi_sclk_o          => SPI_SCLK_O,
---    spi_dat_o           => SPI_DAT_O,
---    spi_sclk_i          => SPI_SCLK_I,
---    spi_dat_i           => SPI_DAT_I
---);
+system_inst : entity work.system_top
+port map (
+    clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+    -- Memory Bus Interface
+    read_strobe_i       => read_strobe(SYSTEM_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(SYSTEM_CS),
+    read_ack_o          => read_ack(SYSTEM_CS),
+    write_strobe_i      => write_strobe,
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(SYSTEM_CS),
+    -- Digital I/O Interface
+    ttlin_i             => ttlin_val,
+    ttlout_i            => ttlout_val,
+    inenc_conn_i        => inenc_conn,
+    outenc_conn_i       => outenc_conn,
+    -- Block Input and Outputs
+    SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
+    DCARD_MODE          => DCARD_MODE,
+    -- Serial Physical interface
+    spi_sclk_o          => SPI_SCLK_O,
+    spi_dat_o           => SPI_DAT_O,
+    spi_sclk_i          => SPI_SCLK_I,
+    spi_dat_i           => SPI_DAT_I
+);
 
 ---------------------------------------------------------------------------
 -- On-Chip IOBUF Control for Daughter Card Interfacing
@@ -767,11 +767,11 @@ port map (
 
 -- BIT_BUS_SIZE and POS_BUS_SIZE declared in addr_defines.vhd
 
---bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
---                                   inenc_data & inenc_z & inenc_b & inenc_a &
---                                   lvdsin_val & ttlin_val;
+bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
+                                   inenc_data & inenc_z & inenc_b & inenc_a &
+                                   lvdsin_val & ttlin_val;
 
---posbus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
+posbus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
 
 -- FMC record
 FMC.FMC_PRSNT <= FMC_PRSNT;

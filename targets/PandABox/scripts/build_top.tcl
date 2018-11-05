@@ -67,10 +67,13 @@ set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 #
 # Import IPs
 
-read_ip $IP_DIR/pulse_queue/pulse_queue.xci
+#read_ip $IP_DIR/pulse_queue/pulse_queue.xci
 #read_ip $IP_DIR/fifo_1K32/fifo_1K32.xci
-read_ip $IP_DIR/fifo_1K32_ft/fifo_1K32_ft.xci
+#read_ip $IP_DIR/fifo_1K32_ft/fifo_1K32_ft.xci
 #read_ip $IP_DIR/system_cmd_fifo/system_cmd_fifo.xci
+
+source $BUILD_DIR/hdl/constraints.tcl
+
 if {"acq430" in [string tolower $env(FMC_DESIGN)]} {
     read_ip $IP_DIR/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
     read_ip $IP_DIR/fmc_acq430_sample_ram/fmc_acq430_sample_ram.xci
@@ -111,25 +114,9 @@ read_vhdl [glob $BUILD_DIR/hdl/*.vhd]
 # Read design files
 
 read_vhdl [glob $TOP_DIR/common/hdl/defines/*.vhd]
-read_vhdl [glob $TOP_DIR/common/hdl/target/*.vhd]
+read_vhdl [glob $TARGET_DIR/hdl/*.vhd]
 read_vhdl [glob $TOP_DIR/common/hdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/calc/hdl/*.vhd]
-#read_vhdl [glob $TOP_DIR/modules/base/vhdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/bits/hdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/clocks/hdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/counter/hdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/div/hdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/lut/hdl/*.vhd]
-#read_vhdl [glob $TOP_DIR/modules/pcap/hdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/pcomp/hdl/*.vhd]
-#read_vhdl [glob $TOP_DIR/modules/pgen/hdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/posenc/hdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/pulse/hdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/qdec/hdl/*.vhd]
-#read_vhdl [glob $TOP_DIR/modules/seq/hdl/*.vhd]
-#read_vhdl [glob $TOP_DIR/modules/system/hdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/srgate/hdl/*.vhd]
-read_vhdl [glob $TOP_DIR/modules/filter/hdl/*.vhd]
+
 if {$env(FMC_DESIGN) ne ""} {
 	read_vhdl [glob $TOP_DIR/modules/fmc_[string tolower $env(FMC_DESIGN)]/vhdl/*.vhd]
 	add_files $TOP_DIR/modules/fmc_[string tolower $env(FMC_DESIGN)]/vhdl/

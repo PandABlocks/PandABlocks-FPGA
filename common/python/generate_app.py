@@ -48,10 +48,14 @@ class AppGenerator(object):
         )
         # These will be created when we parse the ini files
         self.blocks = []  # type: List[BlockConfig]
+        self.ip = []
+        self.constraints = []
+        self.sfpsites = []
         self.parse_ini_files(app)
         self.generate_config_dir()
         self.generate_wrappers()
         self.generate_soft_blocks()
+        self.generate_constraints()
 
     def parse_ini_files(self, app):
         # type: (str) -> None
@@ -78,11 +82,19 @@ class AppGenerator(object):
             target_path = os.path.join(ROOT, "targets", target)
             target_ini = read_ini(os.path.join(target_path, (target + ".ini")))
             block_address, bit_i, pos_i, ext_i = self.implement_blocks(
-                target_ini, target_path, False, "blocks",
+                target_ini, target_path, "carrier", "blocks",
                 block_address, bit_i, pos_i, ext_i)
+            try:
+                self.constraints.append(target_ini.get(".", "constraints"))
+            except Exception:
+                pass
+            try:
+                self.sfpsites.append(target_ini.get(".", "sfp_sites"))
+            except Exception:
+                pass
         # Implement the blocks for the soft blocks
         block_address, bit_i, pos_i, ext_i = self.implement_blocks(
-            app_ini, ROOT, True, "modules", block_address, bit_i, pos_i, ext_i)
+            app_ini, ROOT, "soft", "modules", block_address, bit_i, pos_i, ext_i)
         print("####################################")
         print("# Resource usage")
         print("#  Block addresses: %d/%d" % (block_address, MAX_BLOCKS))
@@ -95,8 +107,8 @@ class AppGenerator(object):
         assert pos_i < MAX_POS, "Overflowed pos bus entries"
         assert ext_i < MAX_EXT, "Overflowed ext bus entries"
 
-    def implement_blocks(self, ini, path, softblock, subdir,
-                         block_address, bit_i, pos_i, ext_i):
+    def implement_blocks(self, ini, path, type, subdir,
+                         block_address,  bit_i, pos_i, ext_i):
         """Read the ini file and for each section create a new block"""
         for section in ini.sections():
             if section != ".":
@@ -112,10 +124,12 @@ class AppGenerator(object):
                     number = ini.getint(section, "number")
                 except configparser.NoOptionError:
                     number = 1
+
                 ini_path = os.path.join(path, subdir, module_name, ini_name)
                 block_ini = read_ini(ini_path)
-                # Soft block is True if the block is a softblock
-                block = BlockConfig(section, softblock, number, block_ini)
+                # Type is soft if the block is a softblock and carrier
+                # for carrier block
+                block = BlockConfig(section, type, number, block_ini)
                 block_address, bit_i, pos_i, ext_i = block.register_addresses(
                         block_address, bit_i, pos_i, ext_i)
                 self.blocks.append(block)
@@ -152,7 +166,7 @@ class AppGenerator(object):
         # Create a wrapper for every block
         for block in self.blocks:
             context = {k: getattr(block, k) for k in dir(block)}
-            if block.softblock:
+            if block.type == "soft":
                 self.expand_template("block_wrapper.vhd.jinja2", context,
                                      hdl_dir, "%s_wrapper.vhd" % block.entity)
             self.expand_template("block_ctrl.vhd.jinja2", context, hdl_dir,
@@ -164,7 +178,7 @@ class AppGenerator(object):
         bit_bus_length = 0
         pos_bus_length = 0
         for block in self.blocks:
-            if not block.softblock:
+            if block.type != "soft":
                 for field in block.fields:
                     if field.type == "bit_out":
                         bit_bus_length = bit_bus_length + block.number
@@ -177,6 +191,13 @@ class AppGenerator(object):
                              "soft_blocks.vhd")
         self.expand_template("addr_defines.vhd.jinja2", context, hdl_dir,
                              "addr_defines.vhd")
+
+    def generate_constraints(self):
+        """Generate constraints file for IPs, SFP and FMC constraints"""
+        hdl_dir = os.path.join(self.app_build_dir, "hdl")
+        context = dict(blocks=self.blocks)
+        self.expand_template("constraints.tcl.jinja2", context, hdl_dir,
+                             "constraints.tcl")
 
 
 def main():

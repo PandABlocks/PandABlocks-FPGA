@@ -5,6 +5,7 @@ from docutils.parsers.rst import Directive
 from docutils import nodes, statemachine
 from .ini_util import read_ini, timing_entries
 
+
 class sequence_plot_node(nodes.Element):
     pass
 
@@ -37,9 +38,9 @@ class timing_plot_directive(Directive):
         for ts, inputs, outputs in timing_entries(ini, section):
             for name, val in inputs.items():
                 if name == "TABLE_ADDRESS":
-                    tables += self.make_long_tables(ini, section)
+                    tables += self.make_long_tables(ini, section, path)
                 elif name == "TABLE_DATA":
-                    tables += self.make_seq_tables(ini, section)
+                    tables = self.make_all_seq_tables(ini, section)
             for name, val in outputs.items():
                 # TODO: PCAP_DATA
                 if name == "DATA":
@@ -157,16 +158,17 @@ class timing_plot_directive(Directive):
                     i = 0
         return table_node
 
-    def make_long_tables(self, sequence, sequence_dir):
+    def make_long_tables(self, sequence, sequence_dir, path):
         table_node = table_plot_node()
         alltables = []
         table_data = []
         table = nodes.table()
-        for ts in sequence.inputs:
-            if 'TABLE_ADDRESS' in sequence.inputs[ts]:
-                #open the table
+        path = path.replace('pgen.timing.ini', '')
+        for ts, inputs, outputs in timing_entries(sequence, sequence_dir):
+            if 'TABLE_ADDRESS' in inputs:
+                # open the table
                 file_dir = os.path.join(
-                    sequence_dir, sequence.inputs[ts]['TABLE_ADDRESS'])
+                    path, inputs["TABLE_ADDRESS"])
                 assert os.path.isfile(file_dir), "%s does not exist" %(file_dir)
                 with open(file_dir, "rb") as table:
                     reader = csv.DictReader(table, delimiter='\t')
@@ -195,21 +197,21 @@ class timing_plot_directive(Directive):
             table_node.append(table)
         return table_node
 
-    def make_all_seq_tables(self, sequence):
+    def make_all_seq_tables(self, sequence, sequence_dir):
         table_node = table_plot_node()
         alltables = []
         seqtable = []
         table_write = 0
         frame_count = 0
         table_count = 0
-        #get the table data from the sequence file and count the frames
-        for ts in sequence.inputs:
-            if 'TABLE_DATA' in sequence.inputs[ts]:
+        # get the table data from the sequence file and count the frames
+        for ts, inputs, outputs in timing_entries(sequence, sequence_dir):
+            if 'TABLE_DATA' in inputs:
                 table_write += 1
-                seqtable.append(sequence.inputs[ts]['TABLE_DATA'])
+                seqtable.append(inputs['TABLE_DATA'])
                 if table_write % 4 == 0:
                     frame_count += 1
-            if 'TABLE_LENGTH' in sequence.inputs[ts]:
+            if 'TABLE_LENGTH' in inputs:
                 alltables.append(seqtable)
                 seqtable = []
                 frame_count = 0
@@ -246,10 +248,10 @@ class timing_plot_directive(Directive):
         for frame in range(len(data) / 4):
             row = []
             # First we get n repeats
-            rpt = data[0 + frame * 4] & 0xFFFF
+            rpt = int(data[0 + frame * 4], 0) & 0xFFFF
             row.append(rpt)
             # Then the trigger values
-            trigger = (data[0 + frame * 4] >> 16) & 0xF
+            trigger = int(data[0 + frame * 4], 0) >> 16 & 0xF
             strings = [
                 "Immediate",
                 "BITA=0",
@@ -275,14 +277,14 @@ class timing_plot_directive(Directive):
             p1Len = data[2 + frame * 4]
             row.append(p1Len)
             # Then the phase 1 outputs
-            p1Out = (data[0 + frame * 4] >> 20) & 0x3F
+            p1Out = (int(data[0 + frame * 4], 0) >> 20) & 0x3F
             for i in range(6):
                 row.append(p1Out >> i & 1)
             # Then the phase 2 time
             p2Len = data[3 + frame * 4]
             row.append(p2Len)
             # Finally the phase 2 outputs
-            p2Out = (data[0 + frame * 4] >> 26) & 0x3F
+            p2Out = (int(data[0 + frame * 4], 0) >> 26) & 0x3F
             for i in range(6):
                 row.append(p2Out >> i & 1)
             tbody += self.make_row(row)
@@ -316,14 +318,18 @@ def setup(app):
             latex=(visit_sequence_plot, depart_sequence_plot),
             text=(visit_sequence_plot, depart_sequence_plot))
 
+
 def visit_sequence_plot(self, node):
     pass
+
 
 def depart_sequence_plot(self, node):
     pass
 
+
 def visit_table_plot(self, node):
     pass
+
 
 def depart_table_plot(self, node):
     pass
