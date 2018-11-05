@@ -2,7 +2,7 @@ from common.python.simulations import BlockSimulation, properties_from_ini, \
     TYPE_CHECKING
 import numpy
 
-NAMES, PROPERTIES = properties_from_ini(__file__, "sequencer.block.ini")
+NAMES, PROPERTIES = properties_from_ini(__file__, "seq.block.ini")
 
 
 class SeqLine(object):
@@ -94,7 +94,7 @@ PHASE1 = 3
 PHASE2 = 4
 
 
-class SequencerSimulation(BlockSimulation):
+class SeqSimulation(BlockSimulation):
     TABLE_LENGTH, TABLE_START, TABLE_DATA, PRESCALE, REPEATS, ENABLE, BITA, \
     BITB, BITC, POSA, POSB, POSC, ACTIVE, OUTA, OUTB, OUTC, OUTD, OUTE, OUTF, \
     TABLE_REPEAT, TABLE_LINE, LINE_REPEAT, STATE = PROPERTIES
@@ -172,7 +172,7 @@ class SequencerSimulation(BlockSimulation):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
         # This is a ConfigBlock object
-        super(SequencerSimulation, self).on_changes(ts, changes)
+        super(SeqSimulation, self).on_changes(ts, changes)
 
         # Set attributes
         for name, value in changes.items():

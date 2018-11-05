@@ -832,10 +832,10 @@ port map(
     rdma_len => rdma_len,
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
-    FMC => open, --FMC,
-    SFP1 => open,--SFP1,
-    SFP2 => open,--SFP2,
-    SFP3 => open--SFP3
+    FMC => FMC,
+    SFP1 => SFP1,
+    SFP2 => SFP2,
+    SFP3 => SFP3
 );
 
 end rtl;
