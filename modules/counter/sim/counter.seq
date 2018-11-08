@@ -81,3 +81,13 @@ $ Change step and trigger
 16      : TRIG=0
 18      : ENABLE=0
 
+###############
+$ Setting Max and Min values
+3       : START=5, STEP=4, MAX=10, MIN=-10
+6       : ENABLE=1          : OUT=5
+7       : TRIG=1            : OUT=9
+8       : TRIG=0
+9       : TRIG=1            : OUT=-8
+10      : TRIG=0
+11      : TRIG=1            : OUT=-4
+

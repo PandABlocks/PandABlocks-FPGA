@@ -1,6 +1,8 @@
 COUNTER     {{newBlockNo("COUNTER")}}
     START           {{newBlockReg()}}
     STEP            {{newBlockReg()}}
+    MAX             {{newBlockReg()}}
+    MIN             {{newBlockReg()}}
     ENABLE          {{newBlockReg(typ='bit_mux')}}
     TRIG            {{newBlockReg(typ='bit_mux')}}
     DIR             {{newBlockReg(typ='bit_mux')}}

@@ -2,10 +2,6 @@ import numpy as np
 
 from common.python.pandablocks.block import Block
 
-
-MIN = np.iinfo(np.int32).min
-MAX = np.iinfo(np.int32).max
-
 UP = 0
 DOWN = 1
 
@@ -17,7 +13,12 @@ class Counter(Block):
         when we next need to be called"""
         # This is a ConfigBlock object for us to get our strings from
         b = self.config_block
-
+        if self.MAX == 0 and self.MIN == 0:
+            MIN = np.iinfo(np.int32).min
+            MAX = np.iinfo(np.int32).max
+        else:
+            MIN = self.MIN
+            MAX = self.MAX
         # Set attributes
         for name, value in changes.items():
             setattr(self, name, value)

@@ -1,6 +1,8 @@
 COUNTER     Up/Down pulse counter
     START           Counter start value
     STEP            Up/Down step value
+    MAX             Rollover value
+    MIN             Value to which counter should rollover to
     ENABLE          Halt on falling edge, reset and enable on rising
     TRIG            Rising edge ticks the counter up/down by STEP
     DIR             Up/Down direction (0 = Up, 1 = Down)
