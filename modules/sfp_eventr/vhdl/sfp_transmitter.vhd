@@ -4,16 +4,16 @@ use ieee.std_logic_1164.all;
 
 entity sfp_transmitter is
     
-    port (clk_i          : in  std_logic;
-          reset_i        : in  std_logic;
-          rx_link_ok_i   : in  std_logic;
-          loss_lock_i    : in  std_logic;     
-          rx_error_i     : in  std_logic;          
-          mgt_ready_i    : in  std_logic;   
-          rxdata_i       : in  std_logic_vector(15 downto 0);            
-          err_cnt_o      : out std_logic_vector(15 downto 0);     
-          txdata_o       : out std_logic_vector(15 downto 0);
-          txcharisk_o    : out std_logic_vector(1 downto 0)
+    port (event_clk_i   : in  std_logic;
+          reset_i       : in  std_logic;
+          rx_link_ok_i  : in  std_logic;
+          loss_lock_i   : in  std_logic;     
+          rx_error_i    : in  std_logic;          
+          mgt_ready_i   : in  std_logic;   
+          rxdata_i      : in  std_logic_vector(15 downto 0);            
+          err_cnt_o     : out std_logic_vector(15 downto 0);     
+          txdata_o      : out std_logic_vector(15 downto 0);
+          txcharisk_o   : out std_logic_vector(1 downto 0)
           );
 
 end sfp_transmitter;
@@ -75,9 +75,9 @@ end process ps_txcharisk;
 
 
 
-ps_mgt_ready: process(clk_i)
+ps_mgt_ready: process(event_clk_i)
 begin
-    if rising_edge(clk_i) then
+    if rising_edge(event_clk_i) then
         -- The link is up so start transmitting data
         if mgt_ready_i = '1' then
             mem_en <= '1';
@@ -94,9 +94,9 @@ end process ps_mgt_ready;
 
 
  
-ps_compare: process(clk_i)
+ps_compare: process(event_clk_i)
 begin
-    if rising_edge(clk_i) then
+    if rising_edge(event_clk_i) then
         mem_comp_addr_en_dly <= mem_comp_addr_en_dly(1 downto 0) & mem_comp_addr_en;
         mem_comp_en <= '1';
         -- Start the compare memory 
@@ -136,7 +136,7 @@ mem_din <= (others => '0');
 -- Transmit memory
 sfp_transmit_mem_inst: sfp_transmit_mem
 port map (
-    clka  => clk_i,
+    clka  => event_clk_i,
     ena   => mem_en,
     wea   => mem_wr_en,
     addra => mem_addr,
@@ -153,7 +153,7 @@ mem_comp_din <= (others => '0');
 -- Compare memory
 sfp_compare_mem_inst: sfp_transmit_mem
 port map (
-    clka  => clk_i,
+    clka  => event_clk_i,
     ena   => mem_comp_en,
     wea   => mem_comp_wr_en,
     addra => mem_comp_addr,

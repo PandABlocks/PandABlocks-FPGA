@@ -12,13 +12,16 @@ use unisim.vcomponents.all;
 entity sfp_top is
 port (
     -- Clock and Reset
-    clk_i               : in  std_logic;
+    clk_i               : in  std_logic;   
     reset_i             : in  std_logic;
 
-    fclk_clk0_ps_i      : in  std_logic;
-    EXTCLK_P            : in  std_logic;
-    EXTCLK_N            : in  std_logic;
-    FCLK_CLK0_o         : out std_logic; 
+    -- From PS block
+    fclk_clk0_ps_i      : in  std_logic; 
+    -- External SMA clock
+    EXTCLK_P            : in  std_logic; 
+    EXTCLK_N            : in  std_logic;    
+    -- Clocked selected 
+    FCLK_CLK0_o         : out std_logic;  
   
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
@@ -94,6 +97,10 @@ signal rxbyteisaligned_o     : std_logic;
 signal rxbyterealign_o       : std_logic;
 signal rxcommadet_o          : std_logic;    
 signal rxoutclk              : std_logic;
+signal EVENT1_WSTB           : std_logic;
+signal EVENT2_WSTB           : std_logic;
+signal EVENT3_WSTB           : std_logic;
+signal EVENT4_WSTB           : std_logic;    
 signal EVENT1                : std_logic_vector(31 downto 0);   
 signal EVENT2                : std_logic_vector(31 downto 0);
 signal EVENT3                : std_logic_vector(31 downto 0);   
@@ -101,6 +108,7 @@ signal EVENT4                : std_logic_vector(31 downto 0);
 signal txdata_i              : std_logic_vector(15 downto 0);
 signal txcharisk_i           : std_logic_vector(1 downto 0);  
 signal bit1,bit2,bit3,bit4   : std_logic;         
+
 
 -- ILA stuff
 ---signal mgt_ready_slv         : std_logic_vector(0 downto 0);
@@ -169,7 +177,7 @@ port map(
 
 sfp_transmitter_inst: entity work.sfp_transmitter
 port map(
-     clk_i          => clk_i,
+     event_clk_i    => event_clk,
      reset_i        => reset_i,
      rx_link_ok_i   => rx_link_ok_o,
      loss_lock_i    => loss_lock_o,     
@@ -185,15 +193,20 @@ port map(
 sfp_receiver_inst: entity work.sfp_receiver
 port map(
     clk_i           => clk_i,
+    event_clk_i     => event_clk,
     reset_i         => reset_i, 	
     rxdisperr_i     => rxdisperr,
     rxcharisk_i     => rxcharisk,
     rxdata_i        => rxdata,
     rxnotintable_i  => rxnotintable,  
     EVENT1          => EVENT1,
-    EVENT2          => EVENT2,
-    EVENT3          => EVENT3,
-    EVENT4          => EVENT4,
+    EVENT1_WSTB     => EVENT1_WSTB,    
+    EVENT2          => EVENT2,    
+    EVENT2_WSTB     => EVENT2_WSTB,    
+    EVENT3          => EVENT3,    
+    EVENT3_WSTB     => EVENT3_WSTB,    
+    EVENT4          => EVENT4,    
+    EVENT4_WSTB     => EVENT4_WSTB,    
     bit1_o          => bit1,
     bit2_o          => bit2,
     bit3_o          => bit3,
@@ -282,13 +295,13 @@ port map (
     EVENT_RESET       => open,
     EVENT_RESET_WSTB  => EVENT_RESET,    
     EVENT1            => EVENT1,
-    EVENT1_WSTB       => open,
+    EVENT1_WSTB       => EVENT1_WSTB,
     EVENT2            => EVENT2,
-    EVENT2_WSTB       => open,
+    EVENT2_WSTB       => EVENT2_WSTB,
     EVENT3            => EVENT3,
-    EVENT3_WSTB       => open,        
+    EVENT3_WSTB       => EVENT3_WSTB,        
     EVENT4            => EVENT4,
-    EVENT4_WSTB       => open,
+    EVENT4_WSTB       => EVENT4_WSTB,
 
     -- Memory Bus Interface
     read_strobe_i     => read_strobe_i,
