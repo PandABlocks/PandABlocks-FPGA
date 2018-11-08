@@ -31,9 +31,9 @@ INENC[4]
     RST_ON_Z        param       bit
     DCARD_TYPE      read        enum
         0   DCARD id 0
-        1   Encoder Monitor
+        1   Encoder Control
         2   DCARD id 2
-        3   Encoder Control
+        3   Encoder Monitor
         4   DCARD id 3
         5   DCARD id 4
         6   DCARD id 5
@@ -66,9 +66,9 @@ OUTENC[4]
     CONN            bit_mux
     DCARD_TYPE      read        enum
         0   DCARD id 0
-        1   Encoder Monitor
+        1   Encoder Control
         2   DCARD id 2
-        3   Encoder Control
+        3   Encoder Monitor
         4   DCARD id 3
         5   DCARD id 4
         6   DCARD id 5

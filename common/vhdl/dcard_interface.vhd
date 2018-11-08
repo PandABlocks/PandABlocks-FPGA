@@ -216,6 +216,12 @@ IOBUF_Zs0 : entity work.iobuf_registered port map (
     IO      => Zs0_pad_io(I));
 
 -- A output is shared between incremental and absolute data lines.
+-- 000 - Quadrature         A_OUT    *
+-- 001 - SSI                DATA_OUT    
+-- 010 - BiSS               DATA_OUT
+-- 011 - enDat              DATA_OUT
+-- 100 - ABZ Passthrough    A_OUT    *
+-- 101 - DATA Passthrough   DATA_OUT
 As0_opad(I) <= A_OUT(I) when (OUTPROT(I)(1 downto 0) = "00") else DATA_OUT(I);
 Bs0_opad(I) <= B_OUT(I);
 Zs0_opad(I) <= Z_OUT(I);
