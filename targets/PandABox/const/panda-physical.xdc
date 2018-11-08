@@ -180,8 +180,7 @@ set_property IOSTANDARD LVCMOS33 [get_ports -of_objects [get_iobanks 13]];
 # -------------------------------------------------------------------
 # Override Differential Pairs' IOSTANDARD
 # -------------------------------------------------------------------
-set_property IOSTANDARD LVDS    [get_ports FMC_CLK0_M2C_P]
-set_property IOSTANDARD LVDS    [get_ports FMC_CLK1_M2C_P]
+
 set_property IOSTANDARD LVDS_25 [get_ports EXTCLK_P]
 
 # -------------------------------------------------------------------

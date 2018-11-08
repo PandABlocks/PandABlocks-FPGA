@@ -486,7 +486,7 @@ END GENERATE;
 ---------------------------------------------------------------------------
 SFP_GEN : IF (SIM = "FALSE") GENERATE
 
-    sfp1_inst : entity work.sfp_udpontrig_top
+    sfp1_inst : entity work.sfp_loopback_top
     port map (
         clk_i               => FCLK_CLK0,
         reset_i             => FCLK_RESET0,

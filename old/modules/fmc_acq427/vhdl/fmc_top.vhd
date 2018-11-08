@@ -43,23 +43,7 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
     -- External Differential Clock (via front panel SMA)
-    EXTCLK_P            : in    std_logic;
-    EXTCLK_N            : in    std_logic;
-    -- LA I/O
-    FMC_PRSNT           : in    std_logic;
-    FMC_LA_P            : inout std_logic_vector(33 downto 0);
-    FMC_LA_N            : inout std_logic_vector(33 downto 0);
-    FMC_CLK0_M2C_P      : inout std_logic;
-    FMC_CLK0_M2C_N      : in    std_logic;
-    FMC_CLK1_M2C_P      : in    std_logic;
-    FMC_CLK1_M2C_N      : in    std_logic;
-    -- GTX I/O
-    TXP_OUT             : out   std_logic;
-    TXN_OUT             : out   std_logic;
-    RXP_IN              : in    std_logic;
-    RXN_IN              : in    std_logic;
-    GTREFCLK_P          : in    std_logic;
-    GTREFCLK_N          : in    std_logic
+    FMC_interface       : inout fmc_interface
 );
 end fmc_top;
 
@@ -193,21 +177,21 @@ write_ack_o <= '1';
 -- ADC
 ---------------------------------------------------------------------------------------
 -- Input Pins
-p_FMC_EXT_CLK           <=  FMC_LA_P(0);
-p_FMC_EXT_TRIG          <=  FMC_LA_P(12);
-p_ADC_SDO(8)            <=  FMC_LA_P(20);
-p_ADC_SDO(7)            <=  FMC_LA_P(21);
-p_ADC_SDO(6)            <=  FMC_LA_P(22);
-p_ADC_SDO(5)            <=  FMC_LA_P(23);
-p_ADC_SDO(4)            <=  FMC_LA_P(16);
-p_ADC_SDO(3)            <=  FMC_LA_P(17);
-p_ADC_SDO(2)            <=  FMC_LA_P(18);
-p_ADC_SDO(1)            <=  FMC_LA_P(19);
+p_FMC_EXT_CLK           <=  FMC_interface.FMC_LA_P(0);
+p_FMC_EXT_TRIG          <=  FMC_interface.FMC_LA_P(12);
+p_ADC_SDO(8)            <=  FMC_interface.FMC_LA_P(20);
+p_ADC_SDO(7)            <=  FMC_interface.FMC_LA_P(21);
+p_ADC_SDO(6)            <=  FMC_interface.FMC_LA_P(22);
+p_ADC_SDO(5)            <=  FMC_interface.FMC_LA_P(23);
+p_ADC_SDO(4)            <=  FMC_interface.FMC_LA_P(16);
+p_ADC_SDO(3)            <=  FMC_interface.FMC_LA_P(17);
+p_ADC_SDO(2)            <=  FMC_interface.FMC_LA_P(18);
+p_ADC_SDO(1)            <=  FMC_interface.FMC_LA_P(19);
 
 -- Output Pins
-FMC_LA_P(14)            <=  p_ADC_CNV_A;
-FMC_LA_P(15)            <=  p_ADC_CNV_B;
-FMC_LA_P(13)            <=  p_ADC_SPI_CLK;
+FMC_interface.FMC_LA_P(14)            <=  p_ADC_CNV_A;
+FMC_interface.FMC_LA_P(15)            <=  p_ADC_CNV_B;
+FMC_interface.FMC_LA_P(13)            <=  p_ADC_SPI_CLK;
 
 s_TRIG_DATA             <=  FMC_IO_BUS(1);
 s_CLOCK_DATA            <=  FMC_IO_BUS(3);
@@ -215,21 +199,21 @@ s_CLOCK_DATA            <=  FMC_IO_BUS(3);
 -- DAC
 ---------------------------------------------------------------------------------------
 -- Input Pins
-p_DAC_SDO(1)        <= FMC_LA_P(8);
-p_DAC_SDO(2)        <= FMC_LA_P(9);
-p_DAC_SDO(3)        <= FMC_LA_P(10);
-p_DAC_SDO(4)        <= FMC_LA_P(11);
+p_DAC_SDO(1)        <= FMC_interface.FMC_LA_P(8);
+p_DAC_SDO(2)        <= FMC_interface.FMC_LA_P(9);
+p_DAC_SDO(3)        <= FMC_interface.FMC_LA_P(10);
+p_DAC_SDO(4)        <= FMC_interface.FMC_LA_P(11);
 
 -- Output Pins
-FMC_CLK0_M2C_P      <= p_DAC_SPI_CLK;
+FMC_interface.FMC_CLK0_M2C_P      <= p_DAC_SPI_CLK;
 
-FMC_LA_P(4)         <= p_DAC_SDI(1);
-FMC_LA_P(5)         <= p_DAC_SDI(2);
-FMC_LA_P(6)         <= p_DAC_SDI(3);
-FMC_LA_P(7)         <= p_DAC_SDI(4);
-FMC_LA_P(1)         <= p_DAC_SYNC_n;
-FMC_LA_P(2)         <= p_DAC_LD_n;
-FMC_LA_P(3)         <= p_DAC_RST_n;
+FMC_interface.FMC_LA_P(4)         <= p_DAC_SDI(1);
+FMC_interface.FMC_LA_P(5)         <= p_DAC_SDI(2);
+FMC_interface.FMC_LA_P(6)         <= p_DAC_SDI(3);
+FMC_interface.FMC_LA_P(7)         <= p_DAC_SDI(4);
+FMC_interface.FMC_LA_P(1)         <= p_DAC_SYNC_n;
+FMC_interface.FMC_LA_P(2)         <= p_DAC_LD_n;
+FMC_interface.FMC_LA_P(3)         <= p_DAC_RST_n;
 
 
 ---------------------------------------------------------------------------------------
@@ -264,8 +248,8 @@ end generate gen_DAC_BUFS ;
 
 
 -- Unused IO
-FMC_LA_P(33 downto 24)  <= (others => 'Z');
-FMC_LA_N(33 downto 0)   <= (others => 'Z');
+FMC_interface.FMC_LA_P(33 downto 24)  <= (others => 'Z');
+FMC_interface.FMC_LA_N(33 downto 0)   <= (others => 'Z');
 
 fmc_ctrl : entity work.fmc_ctrl
 port map (

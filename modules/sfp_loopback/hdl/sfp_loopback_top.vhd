@@ -84,8 +84,8 @@ generic map( NUM => 1)
 port map (
     refclk          => clk_i,
     reset           => reset_i,
-    test_clocks     => GTREFCLK,
-    freq_out        => FREQ_VAL
+    test_clocks(0)     => GTREFCLK,
+    freq_out(0)        => FREQ_VAL
 );
 
 SFP_LOS_VEC <= (0 => SFP_interface.SFP_LOS, others => '0');

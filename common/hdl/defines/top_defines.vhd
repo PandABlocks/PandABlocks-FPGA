@@ -65,17 +65,21 @@ end record;
 
 type FMC_interface is
   record
-    EXTCLK        : std_logic;
+    EXTCLK          : std_logic;
     FMC_PRSNT       : std_logic;
     FMC_LA_P        : std_logic_vector(33 downto 0);
     FMC_LA_N        : std_logic_vector(33 downto 0);
-    FMC_CLK0_M2C  : std_logic;
-    FMC_CLK1_M2C  : std_logic;
+    FMC_CLK0_M2C_P  : std_logic;
+    FMC_CLK0_M2C_N  : std_logic;
+    FMC_CLK1_M2C_P  : std_logic;
+    FMC_CLK1_M2C_N  : std_logic;
     GTREFCLK        : std_logic;
     TXP_OUT         : std_logic;
     TXN_OUT         : std_logic;
     RXP_IN          : std_logic;
     RXN_IN          : std_logic;
+    MAC_ADDR        : std_logic_vector(47 downto 0);
+    MAC_ADDR_WS     : std_logic;
   end record FMC_interface;
 
 -- SFP Block Record declaration
@@ -86,8 +90,10 @@ type SFP_interface is
     GTREFCLK    : std_logic;
     RXN_IN      : std_logic;
     RXP_IN      : std_logic;
-    TXN_OUT      : std_logic;
-    TXP_OUT      : std_logic;
+    TXN_OUT     : std_logic;
+    TXP_OUT     : std_logic;
+    MAC_ADDR    : std_logic_vector(47 downto 0);
+    MAC_ADDR_WS : std_logic;
   end record SFP_interface;
 
 type seq_t is

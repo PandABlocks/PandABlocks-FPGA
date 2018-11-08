@@ -93,8 +93,6 @@ read_xdc $TARGET_DIR/const/panda-post_synth.xdc
 set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical.xdc]
 set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth.xdc]
 
-
-
 #
 # STEP#2: run synthesis, report utilization and timing estimates, write
 # checkpoint design

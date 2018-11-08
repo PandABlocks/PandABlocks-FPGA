@@ -44,24 +44,7 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
-    -- External Differential Clock (via front panel SMA)
-    EXTCLK_P            : in    std_logic;
-    EXTCLK_N            : in    std_logic;
-    -- LA I/O
-    FMC_PRSNT           : in    std_logic;
-    FMC_LA_P            : inout std_logic_vector(33 downto 0);
-    FMC_LA_N            : inout std_logic_vector(33 downto 0);
-    FMC_CLK0_M2C_P      : in    std_logic;
-    FMC_CLK0_M2C_N      : in    std_logic;
-    FMC_CLK1_M2C_P      : in    std_logic;
-    FMC_CLK1_M2C_N      : in    std_logic;
-    -- GTX I/O
-    TXP_OUT             : out   std_logic;
-    TXN_OUT             : out   std_logic;
-    RXP_IN              : in    std_logic;
-    RXN_IN              : in    std_logic;
-    GTREFCLK_P          : in    std_logic;
-    GTREFCLK_N          : in    std_logic
+    FMC_interface       : inout fmc_interface
 );
 end fmc_top;
 
@@ -69,7 +52,6 @@ architecture rtl of fmc_top is
 
 signal FMC_CLK0_M2C     : std_logic;
 signal FMC_CLK1_M2C     : std_logic;
-signal EXTCLK           : std_logic;
 signal FMC_PRSNT_DW     : std_logic_vector(31 downto 0);
 signal OUT_PWR_ON       : std_logic_vector(31 downto 0);
 signal IN_DB            : std_logic_vector(31 downto 0);
@@ -100,8 +82,6 @@ port map (
     DELAY       => RD_ADDR2ACK
 );
 
--- Multiplex read data out from multiple instantiations
-
 ---------------------------------------------------------------------------
 -- FMC Mezzanine Clocks
 ---------------------------------------------------------------------------
@@ -112,8 +92,8 @@ generic map (
 )
 port map (
     O           => FMC_CLK0_M2C,
-    I           => FMC_CLK0_M2C_P,
-    IB          => FMC_CLK0_M2C_N
+    I           => FMC_interface.FMC_CLK0_M2C_P,
+    IB          => FMC_interface.FMC_CLK0_M2C_N
 );
 
 IBUFGDS_CLK1 : IBUFGDS
@@ -123,28 +103,15 @@ generic map (
 )
 port map (
     O           => FMC_CLK1_M2C,
-    I           => FMC_CLK1_M2C_P,
-    IB          => FMC_CLK1_M2C_N
+    I           => FMC_interface.FMC_CLK1_M2C_P,
+    IB          => FMC_interface.FMC_CLK1_M2C_N
 );
 
---------------------------------------------------------------------------
--- External Clock interface (for testing)
---------------------------------------------------------------------------
-IBUFGDS_EXT : IBUFGDS
-generic map (
-    DIFF_TERM   => FALSE,
-    IOSTANDARD  => "LVDS_25"
-)
-port map (
-    O           => EXTCLK,
-    I           => EXTCLK_P,
-    IB          => EXTCLK_N
-);
 
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
-FMC_PRSNT_DW <= ZEROS(31) & FMC_PRSNT;
+FMC_PRSNT_DW <= ZEROS(31) & FMC_interface.FMC_PRSNT;
 
 fmc_ctrl : entity work.fmc_ctrl
 port map (
@@ -193,8 +160,8 @@ fmc_24vio_inst : entity work.fmc_24vio
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
-    FMC_LA_P            => FMC_LA_P,
-    FMC_LA_N            => FMC_LA_N,
+    FMC_LA_P            => FMC_interface.FMC_LA_P,
+    FMC_LA_N            => FMC_interface.FMC_LA_N,
     OUT_PWR_ON          => OUT_PWR_ON(0),
     IN_VTSEL            => IN_VTSEL(0),
     IN_DB               => IN_DB(1 downto 0),
