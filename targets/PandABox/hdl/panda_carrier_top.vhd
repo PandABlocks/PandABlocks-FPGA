@@ -833,9 +833,9 @@ port map(
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
     FMC => FMC,
-    SFP1 => SFP1,
-    SFP2 => SFP2,
-    SFP3 => SFP3
+    SFPA => SFP1,
+    SFPB => SFP2,
+    SFPC => SFP3
 );
 
 end rtl;

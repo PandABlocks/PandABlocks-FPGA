@@ -37,8 +37,8 @@ architecture rtl of sfp_loopback_top is
 --signal test_clocks      : std_logic;
 signal LINK_UP         : std_logic_vector(31 downto 0);
 signal ERROR_COUNT     : std_logic_vector(31 downto 0);
-signal FREQ_VAL         : std_logic_vector(31 downto 0);
-signal GTREFCLK         : std_logic;
+signal FREQ_VAL         : std32_array(0 downto 0);
+signal GTREFCLK         : std_logic_vector(0 downto 0);
 signal SOFT_RESET       : std_logic;
 signal SFP_LOS_VEC      : std_logic_vector(31 downto 0) := (others => '0');
 
@@ -62,7 +62,7 @@ port map (
 sfpgtx_exdes_i : entity work.sfpgtx_exdes
 port map (
     Q0_CLK0_GTREFCLK_PAD_IN       => SFP_interface.GTREFCLK,
-    GTREFCLK                    => GTREFCLK,
+    GTREFCLK                    => GTREFCLK(0),
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
     LINK_UP                    => LINK_UP,
@@ -93,18 +93,18 @@ SFP_LOS_VEC <= (0 => SFP_interface.SFP_LOS, others => '0');
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
-sfp_ctrl : entity work.sfp_ctrl
+sfp_ctrl : entity work.sfp_loopback_ctrl
 port map (
     -- Clock and Reset
     clk_i                       => clk_i,
     reset_i                     => reset_i,
-    sysbus_i                    => (others => '0'),
-    posbus_i                    => (others => (others => '0')),
+    bit_bus_i                   => (others => '0'),
+    pos_bus_i                   => (others => (others => '0')),
     -- Block Parameters
     SFP_LOS                    => SFP_LOS_VEC,
     LINK_UP                    => LINK_UP,
     ERROR_COUNT                => ERROR_COUNT,
-    SFP_CLK                   => FREQ_VAL,
+    SFP_CLK                   => FREQ_VAL(0),
     SOFT_RESET                  => open,
     SOFT_RESET_WSTB             => SOFT_RESET,
     -- Memory Bus Interface

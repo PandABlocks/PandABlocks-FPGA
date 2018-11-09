@@ -47,6 +47,10 @@ this:
     [.]
     description: Short description of the Block
     entity: vhdl_entity
+    type:
+    constraints:
+    ip:
+    otherconst:
 
 The ``description`` should be a short (a few words) description that will be
 visible as a Block label to users of the `pandablocks_device_` when it runs.

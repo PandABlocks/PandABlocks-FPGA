@@ -41,9 +41,9 @@ VERSION :
 ###########################################################
 # Build FPGA
 
-#$(IP_CORES) :
-#	$(RUNVIVADO) -mode batch -source $(TARGET_DIR)/scripts/build_ips.tcl \
-#	    -tclargs $(TARGET_DIR) -tclargs $(BUILD_DIR)
+$(IP_CORES) :
+	$(RUNVIVADO) -mode batch -source $(TARGET_DIR)/scripts/build_ips.tcl \
+	    -tclargs $(TARGET_DIR) $(IP_DIR)
 
 $(PS_CORE) :
 	$(RUNVIVADO) -mode batch -source $(TARGET_DIR)/scripts/build_ps.tcl \

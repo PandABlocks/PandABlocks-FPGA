@@ -80,18 +80,19 @@ class AppGenerator(object):
         if target:
             # Implement the blocks for the target blocks
             target_path = os.path.join(ROOT, "targets", target)
-            target_ini = read_ini(os.path.join(target_path, (target + ".ini")))
+            target_ini = read_ini(os.path.join(target_path, (
+                    target + ".target.ini")))
             block_address, bit_i, pos_i, ext_i = self.implement_blocks(
                 target_ini, target_path, "carrier", "blocks",
                 block_address, bit_i, pos_i, ext_i)
             try:
-                self.constraints.append(target_ini.get(".", "constraints"))
-            except Exception:
-                pass
+                self.constraints = target_ini.get(".", "sfp_constraints").split()
+            except configparser.NoOptionError:
+                self.constraints = ""
             try:
-                self.sfpsites.append(target_ini.get(".", "sfp_sites"))
-            except Exception:
-                pass
+                self.sfpsites = target_ini.getint(".", "sfp_sites")
+            except configparser.NoOptionError:
+                self.sfpsites = 0
         # Implement the blocks for the soft blocks
         block_address, bit_i, pos_i, ext_i = self.implement_blocks(
             app_ini, ROOT, "soft", "modules", block_address, bit_i, pos_i, ext_i)
@@ -116,10 +117,14 @@ class AppGenerator(object):
                     module_name = ini.get(section, "module")
                 except configparser.NoOptionError:
                     module_name = section.lower()
+                if "sfp" in module_name:
+                    module_name = "sfp" + "_" + ini.get(section, "type")
+                elif "fmc" in module_name:
+                    module_name = "fmc" + "_" + ini.get(section, "type")
                 try:
                     ini_name = ini.get(section, "ini")
                 except configparser.NoOptionError:
-                    ini_name = section.lower() + ".block.ini"
+                    ini_name = module_name + ".block.ini"
                 try:
                     number = ini.getint(section, "number")
                 except configparser.NoOptionError:
@@ -178,15 +183,24 @@ class AppGenerator(object):
         bit_bus_length = 0
         pos_bus_length = 0
         for block in self.blocks:
-            if block.type != "soft":
+            if block.type == "carrier":
                 for field in block.fields:
                     if field.type == "bit_out":
                         bit_bus_length = bit_bus_length + block.number
                     if field.type == "pos_out":
                         pos_bus_length = pos_bus_length + block.number
+        block_names = []
+        register_blocks = []
+        # SFP blocks can have the same register definitions as they have
+        # the same entity
+        for block in self.blocks:
+            if block.entity not in block_names:
+                register_blocks.append(block)
+                block_names.append(block.entity)
         context = dict(blocks=self.blocks,
                        bit_bus_length=bit_bus_length,
-                       pos_bus_length=pos_bus_length,)
+                       pos_bus_length=pos_bus_length,
+                       register_blocks=register_blocks)
         self.expand_template("soft_blocks.vhd.jinja2", context, hdl_dir,
                              "soft_blocks.vhd")
         self.expand_template("addr_defines.vhd.jinja2", context, hdl_dir,
@@ -195,7 +209,15 @@ class AppGenerator(object):
     def generate_constraints(self):
         """Generate constraints file for IPs, SFP and FMC constraints"""
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
-        context = dict(blocks=self.blocks)
+        ips = []
+        for block in self.blocks:
+            for ip in block.ip:
+                if ip not in ips:
+                    ips.append(ip)
+        context = dict(blocks=self.blocks,
+                       sfpsites=self.sfpsites,
+                       const=self.constraints,
+                       ips=ips)
         self.expand_template("constraints.tcl.jinja2", context, hdl_dir,
                              "constraints.tcl")
 

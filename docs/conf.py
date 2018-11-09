@@ -34,6 +34,13 @@ def setup(app):
             if f.endswith("_doc.rst"):
                 shutil.copy(os.path.join(module_root, f), build_dir)
                 files.append(os.path.join("build", f[:-4]))
+    target_modules_root = os.path.join(ROOT, "targets", "PandABox", "blocks")
+    for module_name in sorted(os.listdir(target_modules_root)):
+        target_module_root = os.path.join(target_modules_root, module_name)
+        for f in sorted(os.listdir(target_module_root)):
+            if f.endswith("_doc.rst"):
+                shutil.copy(os.path.join(target_module_root, f), build_dir)
+                files.append(os.path.join("build", f[:-4]))
     with open(os.path.join(build_dir, "blocks.txt"), "w") as f:
         f.write("""
 .. toctree::

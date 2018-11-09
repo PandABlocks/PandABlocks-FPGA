@@ -220,15 +220,15 @@ SFP_LOS_VEC <= (0 => SFP_interface.SFP_LOS, others => '0');
 ---------------------------------------------------------------------------
 -- SFP Control Interface
 ---------------------------------------------------------------------------
-sfp_ctrl : entity work.sfp_ctrl
+sfp_ctrl : entity work.sfp_udpontrig_ctrl
 port map (
     -- Clock and Reset
     clk_i                       => clk_i,
     reset_i                     => reset_i,
-    sysbus_i                    => sysbus_i,
-    posbus_i                    => (others => (others => '0')),
+    bit_bus_i                   => sysbus_i,
+    pos_bus_i                   => (others => (others => '0')),
     -- Block inpout
-    sfp_trig_o                 => trig,
+    sfp_trig_from_bus          => trig,
     SFP_START_COUNT            => open,
     SFP_STOP_COUNT             => open,
     SFP_START_COUNT_WSTB       => SFP_START_COUNT,

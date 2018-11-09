@@ -14,13 +14,13 @@ still need to be given Chip Select values. #}
     constant REG_CS : natural := 0;
     constant DRV_CS : natural := 1;
 {% for block in blocks %}
-    constant {{ block.entity|upper }}_CS : natural := {{ loop.index + 1 }};
+    constant {{ block.name|upper }}_CS : natural := {{ loop.index + 1 }};
 {# This is +1 to account for chipselects 0 and 1 assigned to reg and drv #}
 {% endfor %}
 
 -- Block instantiation
 {% for block in blocks %}
-    constant {{ block.entity|upper }}_NUM : natural := {{ block.number }};
+    constant {{ block.name|upper }}_NUM : natural := {{ block.number }};
 {% endfor %}
 
 -- Constant equal to the sum of block nums for each bit out signal
@@ -32,12 +32,12 @@ still need to be given Chip Select values. #}
 -- Block Register Address Space
 
 
-{% for block in blocks %}
+{% for block in register_blocks %}
 -- {{ block.entity }} Block:
 	{% for field in block.fields %}
 		{% for register in field.registers %}
 		    {% if register.number >= 0 %}
-    constant {{block.entity|upper}}_{{ register.name }}_addr : natural := {{ register.number }};
+    constant {{ block.entity|upper }}_{{ register.name }}_addr : natural := {{ register.number }};
             {% endif %}
 		{% endfor %}
 	{% endfor %}

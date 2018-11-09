@@ -23,7 +23,9 @@ remove_files -fileset sim_1 {
 add_files -norecurse {
     ../../modules/{{block.entity}}/hdl
 	{% if block.ip %}
-	../../common/ip_repo/{{ block.ip }}/{{ block.ip }}_funcsim.vhdl
+		{% for ip in block.ip %}
+	../../common/ip_repo/{{ ip }}/{{ ip }}_funcsim.vhdl
+		{% endfor %}
 	{% endif %}
 }
 

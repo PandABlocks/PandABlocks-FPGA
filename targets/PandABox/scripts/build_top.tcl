@@ -34,10 +34,6 @@ set IP_DIR [lindex $argv 3]
 
 # FMC and SFP Application Names are passed as arguments
 
-#set FMC_DESIGN [lindex $argv 3]
-#set SFP_DESIGN [lindex $argv 4]
-
-
 # Create project
 #create_project -force panda_top $BUILD_DIR/panda_top -part xc7z030sbg485-1
 create_project -force -in_memory panda_carrier_top $BUILD_DIR/panda_carier_top -part xc7z030sbg485-1
@@ -67,43 +63,16 @@ set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 #
 # Import IPs
 
-#read_ip $IP_DIR/pulse_queue/pulse_queue.xci
-#read_ip $IP_DIR/fifo_1K32/fifo_1K32.xci
-#read_ip $IP_DIR/fifo_1K32_ft/fifo_1K32_ft.xci
-#read_ip $IP_DIR/system_cmd_fifo/system_cmd_fifo.xci
-
 source $BUILD_DIR/hdl/constraints.tcl
 
-if {"acq430" in [string tolower $env(FMC_DESIGN)]} {
-    read_ip $IP_DIR/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
-    read_ip $IP_DIR/fmc_acq430_sample_ram/fmc_acq430_sample_ram.xci
-}
-if {"acq427" in [string tolower $env(FMC_DESIGN)]} {
-    read_ip $IP_DIR/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
-    read_ip $IP_DIR/fmc_acq427_dac_fifo/fmc_acq427_dac_fifo.xci
-}
-if {"loopback" in [string tolower $env(FMC_DESIGN)]} {
-    read_ip $IP_DIR/fmcgtx/fmcgtx.xci
-}
-if {"loopback" in [string tolower $env(SFP_DESIGN)]} {
-    read_ip $IP_DIR/sfpgtx/sfpgtx.xci
-}
-if {"udpontrig" in [string tolower $env(SFP_DESIGN)]} {
-    read_ip $IP_DIR/ila_32x8K/ila_32x8K.xci
-    read_ip -verbose $IP_DIR/eth_phy/eth_phy.xci
-    # Disable DCP and XDC 
-    set_property generate_synth_checkpoint false [get_files $IP_DIR/eth_phy/eth_phy.xci]
-    generate_target all [get_ips eth_phy]
-    set eth_phy_xdc [get_files -of_objects [get_files $IP_DIR/eth_phy/eth_phy.xci] -filter {FILE_TYPE == XDC}]
-    set_property is_enabled false [get_files $eth_phy_xdc]
-    report_compile_order -constraints
-    read_ip -verbose $IP_DIR/eth_mac/eth_mac.xci
-    # Disable DCP and XDC 
-    set_property generate_synth_checkpoint false [get_files $IP_DIR/eth_mac/eth_mac.xci]
-    generate_target all [get_ips eth_mac]
-    set eth_mac_xdc [get_files -of_objects [get_files $IP_DIR/eth_mac/eth_mac.xci] -filter {FILE_TYPE == XDC}]
-    set_property is_enabled false [get_files $eth_mac_xdc]
-}
+#if {"acq430" in [string tolower $env(FMC_DESIGN)]} {
+#    read_ip $IP_DIR/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
+#    read_ip $IP_DIR/fmc_acq430_sample_ram/fmc_acq430_sample_ram.xci
+#}
+#if {"acq427" in [string tolower $env(FMC_DESIGN)]} {
+#    read_ip $IP_DIR/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
+#    read_ip $IP_DIR/fmc_acq427_dac_fifo/fmc_acq427_dac_fifo.xci
+#}
 
 # Read Zynq block design
 read_bd   $BUILD_DIR/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
@@ -117,63 +86,13 @@ read_vhdl [glob $TOP_DIR/common/hdl/defines/*.vhd]
 read_vhdl [glob $TARGET_DIR/hdl/*.vhd]
 read_vhdl [glob $TOP_DIR/common/hdl/*.vhd]
 
-if {$env(FMC_DESIGN) ne ""} {
-	read_vhdl [glob $TOP_DIR/modules/fmc_[string tolower $env(FMC_DESIGN)]/vhdl/*.vhd]
-	add_files $TOP_DIR/modules/fmc_[string tolower $env(FMC_DESIGN)]/vhdl/
-}
-if {$env(SFP_DESIGN) ne ""} {
-    foreach SFP_TYPE $env(SFP_DESIGN) {
-	    read_vhdl [glob $TOP_DIR/modules/sfp_[string tolower $SFP_TYPE]/vhdl/*.vhd]
-    }
-}
-
-
-if {"udpontrig" in [string tolower $env(SFP_DESIGN)]} {
-    read_vhdl [glob $TOP_DIR/modules/sfp_udpontrig/vhdl/example_design_eth_phy/support/*.vhd]
-    read_vhdl [glob $TOP_DIR/modules/sfp_udpontrig/vhdl/example_design_eth_phy/*.vhd]
-    read_vhdl [glob $TOP_DIR/modules/sfp_udpontrig/vhdl/trimac_fifo_bloc/common/*.vhd]
-    read_vhdl [glob $TOP_DIR/modules/sfp_udpontrig/vhdl/trimac_fifo_bloc/control/*.vhd]
-    read_vhdl [glob $TOP_DIR/modules/sfp_udpontrig/vhdl/trimac_fifo_bloc/fifo/*.vhd]
-    read_vhdl [glob $TOP_DIR/modules/sfp_udpontrig/vhdl/trimac_fifo_bloc/pat_gen/*.vhd]
-    read_vhdl [glob $TOP_DIR/modules/sfp_udpontrig/vhdl/trimac_fifo_bloc/*.vhd]
-}
-
-if {"loopback" in [string tolower $env(SFP_DESIGN)]} {
-    add_files -norecurse $TOP_DIR/modules/sfp_loopback/vhdl/gt_rom_init_rx.dat
-    add_files -norecurse $TOP_DIR/modules/sfp_loopback/vhdl/gt_rom_init_tx.dat
-
-}
-#add_files $TOP_DIR/modules/$FMC_DESIGN/vhdl/
-
-# Read constraint files
-if {$env(FMC_DESIGN) ne ""} {
-	read_xdc $TOP_DIR/modules/fmc_[string tolower $env(FMC_DESIGN)]/const/fmc.xdc
-}
-if {$env(SFP_DESIGN) ne ""} {
-    read_xdc $TARGET_DIR/const/SFP1.xdc
-    foreach SFP_TYPE $env(SFP_DESIGN) {
-        read_xdc $TOP_DIR/modules/sfp_[string tolower $SFP_TYPE]/const/sfp.xdc
-    }
-    #foreach SFP_SOCKET $env(SFP_SOCKETS) {
-	#    read_xdc $TARGET_DIR/const/[string toupper $SFP_SOCKET].xdc
-    #}
-}
-#if {"SFP" in [string toupper $env(SFP_SOCKETS)]} {
-#    read_xdc $TARGET_DIR/const/SFP1.xdc
-#}
 read_xdc $TARGET_DIR/const/panda-timing.xdc
 
-if {"fmc_acq4??" in [string tolower $env(FMC_DESIGN)]} {
-    read_xdc $TARGET_DIR/const/panda-physical430.xdc
-    read_xdc $TARGET_DIR/const/panda-post_synth430.xdc
-    set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical430.xdc]
-    set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth430.xdc]
-} else {
-    read_xdc $TARGET_DIR/const/panda-physical.xdc
-    read_xdc $TARGET_DIR/const/panda-post_synth.xdc
-    set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical.xdc]
-    set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth.xdc]
-}   
+read_xdc $TARGET_DIR/const/panda-physical.xdc
+read_xdc $TARGET_DIR/const/panda-post_synth.xdc
+set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical.xdc]
+set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth.xdc]
+
 
 
 #

@@ -7,10 +7,10 @@ set TARGET_DIR [lindex $argv 0]
 set_param board.repoPaths $TARGET_DIR/configs
 
 # Build directory
-set BUILD_DIR [lindex $argv 1]/ip_repo
+set BUILD_DIR [lindex $argv 1]
 
 # Create Managed IP Project
-create_project managed_ip_project $BUILD_DIR/managed_ip_project -part xc7z030sbg485-1 -ip
+create_project managed_ip_project $BUILD_DIR/managed_ip_project -force -part xc7z030sbg485-1 -ip
 
 set_property target_language VHDL [current_project]
 set_property target_simulator ModelSim [current_project]

@@ -87,15 +87,6 @@ python_timing:
 
 .PHONY: python_timing
 
-# ------------------------------------------------------------------------------
-# Build the Xilinx Ip
-# Moved out of build directory to common/ir_repo
-ip_build:
-	source $(VIVADO) && vivado -mode batch -source common/build_ips.tcl \
-	 -tclargs $(IP_DIR)
-	rm -rf *.os *.log *.jou
-	rm -rf /.Xil
-
 #-------------------------------------------------------------------------------
 # Remove the Xilinx IP
 ip_clean:
@@ -150,12 +141,6 @@ APP_FILE = $(TOP)/apps/$(APP_NAME)
 BUILD_DIR = $(TOP)/build
 
 # Extract FMC and SFP design names from config file
-
-export FMC_DESIGN := $(shell grep -o 'FMC_[^ ]*' $(APP_FILE) | cut -d_ -f2)
-#export FMC_DESIGN := $(if $(strip $(FMC_DESIGN)),$(FMC_DESIGN),"-")
-export SFP_DESIGN := $(shell grep -o 'SFP[^ ]*' $(APP_FILE) | cut -d_ -f2)
-export SFP_SOCKETS := $(shell grep -o 'SFP[^ ]*' $(APP_FILE) | cut -d_ -f1)
-#export SFP_DESIGN := $(if $(strip $(SFP_DESIGN)),$(SFP_DESIGN),"-")
 
 CARRIER_FPGA_TARGETS = carrier-fpga carrier-ip
 

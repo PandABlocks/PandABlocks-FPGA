@@ -48,14 +48,18 @@ class BlockConfig(object):
             self.type = type
         #: Any constraints?
         try:
-            self.constraints = ini.get(".", "constraints")
+            self.constraints = ini.get(".", "constraints").split()
         except configparser.NoOptionError:
             self.constraints = ""
         #: Does the block require IP?
         try:
-            self.ip = ini.get(".", "ip")
+            self.ip = ini.get(".", "ip").split()
         except configparser.NoOptionError:
             self.ip = ""
+        try:
+            self.otherconst = ini.get(".","otherconst")
+        except configparser.NoOptionError:
+            self.otherconst = ""
         #: The description, like "Lookup table"
         self.description = ini.get(".", "description")
         #: All the child fields
@@ -330,6 +334,17 @@ class TableFieldConfig(FieldConfig):
                 RegisterConfig(self.name + "_LENGTH", field_address))
             field_address += 1
         return field_address, bit_i, pos_i, ext_i
+
+    def extra_config_lines(self):
+        # type: () -> Iterable[str]
+        for k, v in self.extra_config.items():
+            if "t" in k:
+                yield "%s:%s" % (k.replace("t", ""), v)
+                if "enum" in v:
+                    for a, b in sorted(self.extra_config.items()):
+                        if a.isdigit():
+                            yield "    %s %s" % (pad(a, spaces=3), b)
+
 
 
 class XadcFieldConfig(FieldConfig):

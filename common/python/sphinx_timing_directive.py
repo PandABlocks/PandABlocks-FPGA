@@ -38,13 +38,13 @@ class timing_plot_directive(Directive):
         for ts, inputs, outputs in timing_entries(ini, section):
             for name, val in inputs.items():
                 if name == "TABLE_ADDRESS":
-                    tables += self.make_long_tables(ini, section, path)
+                    tables = self.make_long_tables(ini, section, path)
                 elif name == "TABLE_DATA":
                     tables = self.make_all_seq_tables(ini, section)
             for name, val in outputs.items():
                 # TODO: PCAP_DATA
                 if name == "DATA":
-                    tables += self.make_pcap_table(ini, section)
+                    tables = self.make_pcap_table(ini, section)
 
         plot_content = [
             "from common.python.timing_plot import make_timing_plot",
@@ -74,19 +74,22 @@ class timing_plot_directive(Directive):
             node.append(table_node)
         return [node]
 
-    def make_pcap_table(self, sequence):
+    def make_pcap_table(self, sequence, sequence_dir):
         table_node = table_plot_node()
         # find the inputs that change
         input_changes = []
         data_header = []
-        for inputs in sequence.inputs.values():
+        for ts, inputs, outputs in timing_entries(sequence, sequence_dir):
             for name in inputs:
                 if "." in name:
                     input_changes.append(name)
                 elif name == "START_WRITE":
                     data_header = []
                 elif name == "WRITE":
-                    hdr_name = "0x%X" % inputs[name]
+                    if "x" in inputs[name]:
+                        hdr_name = "0x%X" % int(inputs[name], 16)
+                    else:
+                        hdr_name = "0x%X" % int(inputs[name], 0)
                     data_header.append(hdr_name)
         if not data_header:
             return table_node
@@ -134,28 +137,33 @@ class timing_plot_directive(Directive):
         row = [r]
         high = {}
         i = 0
-        for outputs in sequence.outputs.values():
-            data = outputs.get("DATA", None)
-            if data is not None:
-                extract = bit_extracts[i]
-                if type(extract) == list:
-                    for shift in extract:
-                        row.append((data >> shift) & 1)
-                elif type(extract) == str:
-                    high[extract] = data
-                else:
-                    row.append(data)
-                i += 1
-                if i >= len(bit_extracts):
-                    for name, val in high.items():
-                        idx = [ix for ix, x in enumerate(table_hdr)
-                               if x == name][0]
-                        row[idx] += val << 32
-                    tbody += self.make_row(row)
-                    r += 1
-                    row = [r]
-                    high = {}
-                    i = 0
+        for ts, inputs, outputs in timing_entries(sequence, sequence_dir):
+            for names in outputs:
+                if names == "DATA":
+                    if "x" in outputs["DATA"]:
+                        data = int(outputs["DATA"], 16)
+                    else:
+                        data = int(outputs["DATA"], 0)
+                    if data is not None:
+                        extract = bit_extracts[i]
+                        if type(extract) == list:
+                            for shift in extract:
+                                row.append((data >> shift) & 1)
+                        elif type(extract) == str:
+                            high[extract] = data
+                        else:
+                            row.append(data)
+                        i += 1
+                        if i >= len(bit_extracts):
+                            for name, val in high.items():
+                                idx = [ix for ix, x in enumerate(table_hdr)
+                                       if x == name][0]
+                                row[idx] += val << 32
+                            tbody += self.make_row(row)
+                            r += 1
+                            row = [r]
+                            high = {}
+                            i = 0
         return table_node
 
     def make_long_tables(self, sequence, sequence_dir, path):

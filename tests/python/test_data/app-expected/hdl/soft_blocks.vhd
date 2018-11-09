@@ -32,7 +32,7 @@ port (
     -- Bus Outputs
     bit_bus         : inout sysbus_t;
     posbus          : inout posbus_t;
-    -- PCOMP and PGEN Block
+    -- DMA Blocks
     rdma_req        : out   std_logic_vector(5 downto 0);
     rdma_ack        : in    std_logic_vector(5 downto 0);
     rdma_done       : in    std_logic;
@@ -42,9 +42,9 @@ port (
     rdma_valid      : in    std_logic_vector(5 downto 0);
     --
     FMC             : inout FMC_interface;
-    SFP1            : inout SFP_interface;
-    SFP2            : inout SFP_interface;
-    SFP3            : inout SFP_interface
+    SFPA            : inout SFP_interface;
+    SFPB            : inout SFP_interface;
+    SFPC            : inout SFP_interface
 );
 end soft_blocks;
 
