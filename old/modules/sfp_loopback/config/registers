@@ -1,7 +1,0 @@
-SFP         {{newBlockNo("SFP")}}
-    SFP_LOS        {{newBlockReg()}}
-    LINK_UP        {{newBlockReg()}}
-    ERROR_COUNT    {{newBlockReg()}}
-    SFP_CLK        {{newBlockReg()}}
-    SOFT_RESET      {{newBlockReg()}}
-

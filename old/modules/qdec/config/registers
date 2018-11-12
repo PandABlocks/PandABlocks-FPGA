@@ -1,9 +1,0 @@
-QDEC        {{newBlockNo("QDEC")}}
-    RST_ON_Z        {{newBlockReg()}}
-    SETP            {{newBlockReg()}}
-    A               {{newBlockReg(typ='bit_mux')}}
-    B               {{newBlockReg(typ='bit_mux')}}
-    Z               {{newBlockReg(typ='bit_mux')}}
-    OUT             {{newPosBus()}}
-
-

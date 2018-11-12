@@ -343,7 +343,10 @@ class TableFieldConfig(FieldConfig):
                 if "enum" in v:
                     for a, b in sorted(self.extra_config.items()):
                         if a.isdigit():
-                            yield "    %s %s" % (pad(a, spaces=3), b)
+                            yield "    %s %s" % (pad(str(int(a)), spaces=3), b)
+                    v.replace("enum", "")
+                no_digits = "".join([i for i in v if not i.isdigit()])
+                self.description = self.description + "%s\n" % no_digits
 
 
 

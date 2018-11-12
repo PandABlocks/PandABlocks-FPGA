@@ -65,15 +65,6 @@ set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 
 source $BUILD_DIR/hdl/constraints.tcl
 
-#if {"acq430" in [string tolower $env(FMC_DESIGN)]} {
-#    read_ip $IP_DIR/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
-#    read_ip $IP_DIR/fmc_acq430_sample_ram/fmc_acq430_sample_ram.xci
-#}
-#if {"acq427" in [string tolower $env(FMC_DESIGN)]} {
-#    read_ip $IP_DIR/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci
-#    read_ip $IP_DIR/fmc_acq427_dac_fifo/fmc_acq427_dac_fifo.xci
-#}
-
 # Read Zynq block design
 read_bd   $BUILD_DIR/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 

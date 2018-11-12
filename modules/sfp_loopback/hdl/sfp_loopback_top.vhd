@@ -37,8 +37,8 @@ architecture rtl of sfp_loopback_top is
 --signal test_clocks      : std_logic;
 signal LINK_UP         : std_logic_vector(31 downto 0);
 signal ERROR_COUNT     : std_logic_vector(31 downto 0);
-signal FREQ_VAL         : std32_array(0 downto 0);
-signal GTREFCLK         : std_logic_vector(0 downto 0);
+signal FREQ_VAL         : std_logic_vector(31 downto 0);
+signal GTREFCLK         : std_logic;
 signal SOFT_RESET       : std_logic;
 signal SFP_LOS_VEC      : std_logic_vector(31 downto 0) := (others => '0');
 
@@ -62,7 +62,7 @@ port map (
 sfpgtx_exdes_i : entity work.sfpgtx_exdes
 port map (
     Q0_CLK0_GTREFCLK_PAD_IN       => SFP_interface.GTREFCLK,
-    GTREFCLK                    => GTREFCLK(0),
+    GTREFCLK                    => GTREFCLK,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
     LINK_UP                    => LINK_UP,
@@ -104,7 +104,7 @@ port map (
     SFP_LOS                    => SFP_LOS_VEC,
     LINK_UP                    => LINK_UP,
     ERROR_COUNT                => ERROR_COUNT,
-    SFP_CLK                   => FREQ_VAL(0),
+    SFP_CLK                   => FREQ_VAL,
     SOFT_RESET                  => open,
     SOFT_RESET_WSTB             => SOFT_RESET,
     -- Memory Bus Interface

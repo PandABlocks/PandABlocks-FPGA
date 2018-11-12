@@ -1,7 +1,0 @@
-SFP
-    SFP_LOS        read
-    LINK_UP        read
-    ERROR_COUNT    read
-    SFP_CLK        read
-    SOFT_RESET      write       action
-

@@ -67,6 +67,8 @@ signal LINK_UP              : std_logic_vector(31 downto 0);
 signal ERROR_COUNT          : std_logic_vector(31 downto 0);
 signal LA_P_ERROR           : std_logic_vector(31 downto 0);
 signal LA_N_ERROR           : std_logic_vector(31 downto 0);
+signal FMC_CLK0_M2C         : std_logic;
+signal FMC_CLK1_M2C         : std_logic;
 signal FREQ_VAL             : std32_array(3 downto 0);
 signal GTREFCLK             : std_logic;
 signal FMC_PRSNT_DW         : std_logic_vector(31 downto 0);
@@ -166,12 +168,37 @@ port map (
 );
 
 ---------------------------------------------------------------------------
+-- FMC Mezzanine Clocks
+---------------------------------------------------------------------------
+IBUFGDS_CLK0 : IBUFGDS
+generic map (
+    DIFF_TERM   => TRUE,
+    IOSTANDARD  => "LVDS"
+)
+port map (
+    O           => FMC_CLK0_M2C,
+    I           => FMC_interface.FMC_CLK0_M2C_P,
+    IB          => FMC_interface.FMC_CLK0_M2C_N
+);
+
+IBUFGDS_CLK1 : IBUFGDS
+generic map (
+    DIFF_TERM   => TRUE,
+    IOSTANDARD  => "LVDS"
+)
+port map (
+    O           => FMC_CLK1_M2C,
+    I           => FMC_interface.FMC_CLK1_M2C_P,
+    IB          => FMC_interface.FMC_CLK1_M2C_N
+);
+
+---------------------------------------------------------------------------
 -- FMC Clocks Frequency Counter
 ---------------------------------------------------------------------------
 
 test_clocks(0) <= GTREFCLK;
-test_clocks(1) <= FMC_interface.FMC_CLK0_M2C;
-test_clocks(2) <= FMC_interface.FMC_CLK1_M2C;
+test_clocks(1) <= FMC_CLK0_M2C;
+test_clocks(2) <= FMC_CLK1_M2C;
 test_clocks(3) <= FMC_interface.EXTCLK;
 
 freq_counter_inst : entity work.freq_counter
