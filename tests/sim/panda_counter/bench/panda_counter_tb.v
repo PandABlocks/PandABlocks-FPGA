@@ -16,10 +16,15 @@ reg [31:0] START;
 reg        START_WSTB;
 reg [31:0] STEP;
 reg        STEP_WSTB;
+reg [31:0] MAX;
+reg        MAX_WSTB;
+reg [31:0] MIN;
+reg        MIN_WSTB;         
 reg        CARRY;
 reg [31:0] OUT;   
 reg        enable_dly;
 reg        out_err;
+reg        carry_err;
 reg        test_result;
 
 // Outputs
@@ -80,13 +85,17 @@ end
 //
 // READ BLOCK REGISTERS VECTOR FILE
 //
-integer reg_in[4:0];     // TS, START, START_WSTB, STEP, STEP_WSTB 
+integer reg_in[8:0];     // TS, START, START_WSTB, STEP, STEP_WSTB 
 
 initial begin
     START = 0;
     START_WSTB = 0;
     STEP = 0;
     STEP_WSTB = 0;
+    MAX = 0;
+    MAX_WSTB = 0;
+    MIN = 0;
+    MIN_WSTB = 0;
 
     @(posedge clk_i);
 
@@ -94,15 +103,19 @@ initial begin
     fid[1] = $fopen("counter_reg_in.txt", "r");
 
     // Read and ignore description field
-    r[1] = $fscanf(fid[1], "%s %s %s %s %s\n", reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
+    r[1] = $fscanf(fid[1], "%s %s %s %s %s %s %s %s %s\n", reg_in[8], reg_in[7], reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
 
     while (!$feof(fid[1])) begin
-        r[1] = $fscanf(fid[1], "%d %d %d %d %d\n", reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
-        wait (timestamp == reg_in[4]) begin  
-            START = reg_in[3];
-            START_WSTB = reg_in[2];            
-            STEP = reg_in[1];
-            STEP_WSTB = reg_in[0];
+        r[1] = $fscanf(fid[1], "%d %d %d %d %d %d %d %d %d\n", reg_in[8], reg_in[7], reg_in[6], reg_in[5], reg_in[4], reg_in[3], reg_in[2], reg_in[1], reg_in[0]);
+        wait (timestamp == reg_in[8]) begin  
+            START = reg_in[7];
+            START_WSTB = reg_in[6];            
+            STEP = reg_in[5];
+            STEP_WSTB = reg_in[4];
+            MAX = reg_in[3];
+            MAX_WSTB = reg_in[2];
+            MIN = reg_in[1];
+            MIN_WSTB = reg_in[0];
         end
         @(posedge clk_i);
     end
@@ -150,16 +163,21 @@ always @(posedge clk_i)
 begin
     if (~is_file_end) begin
         enable_dly <= enable;
+        if (carry_err == 1 || out_err == 1) begin
+            test_result <= 1;
+        end     
         if (enable_dly == 1) begin
             // If not equal, display an error.
             if (out != OUT) begin
                 $display("OUT error detected at timestamp %d\n", timestamp);
-                out_err = 1;
-                test_result = 1;
+                out_err <= 1;
+                test_result <= 1;
             end 
-            else begin
-                out_err = 0;
-            end     
+            // Carry error 
+            if (carry != CARRY) begin
+                $display("CARRY error detected at timestamp %d\n", timestamp);
+                carry_err <= 1;
+            end
         end
     end
 end
@@ -171,6 +189,7 @@ always @ (posedge clk_i) //----------------------------------------- HERE
     if (is_file_end) begin
         $stop(2);
     end  
+    
 
 
 // Instantiate the Unit Under Test (UUT)
@@ -185,6 +204,10 @@ counter uut (
         .START_WSTB         ( START_WSTB        ),
         .STEP               ( STEP              ),
         .STEP_WSTB          ( STEP_WSTB         ),
+        .MAX                ( MAX               ),
+        .MAX_WSTB           ( MAX_WSTB          ),
+        .MIN                ( MIN               ),
+        .MIN_WSTB           ( MIN_WSTB          ),    
         .out_o              ( out               )
 );
 
