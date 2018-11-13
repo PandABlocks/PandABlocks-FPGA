@@ -87,7 +87,9 @@ $ Setting Max and Min values
 6       : ENABLE=1          : OUT=5
 7       : TRIG=1            : OUT=9
 8       : TRIG=0
-9       : TRIG=1            : OUT=-8
-10      : TRIG=0
+9       : TRIG=1            : OUT=-8, CARRY = 1
+10      : TRIG=0            : CARRY=0
 11      : TRIG=1            : OUT=-4
+12      : TRIG=0
+13      : ENABLE=0
 
