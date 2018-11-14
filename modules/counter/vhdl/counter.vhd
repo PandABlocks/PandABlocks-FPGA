@@ -120,11 +120,12 @@ begin
             counter <= unsigned(START);
         -- Count up/down on trigger
         elsif (enable_i = '1' and trigger_rise = '1') then
-           -- Crosssing from positive to negative with roll over when smaller than default value  
-           if ((signed(counter) + signed(STEP_default)) > signed(MAX_VAL)) then 
+           -- Crosssing from positive to negative with roll over when smaller than MAX default value  
+-----------           if ((signed(counter) + signed(STEP_default)) > signed(MAX_VAL)) then 
+            if ((counter + unsigned(STEP_default)) > MAX_VAL) and ((counter + unsigned(STEP_default)) < MIN_VAL) then 
                 counter_carry <= '1';    
                 counter <= counter + unsigned(STEP_default) - (MAX_VAL+1 - MIN_VAL);                
-            elsif (dir_i = '0') then 
+            elsif (dir_i = '0') then
                 -- Check to see if we are crossing from the positive to negative
                 -- boundary if we do set the carry bit
                 if (counter(31) = '0' and ((counter + unsigned(STEP_default) > MAX_VAL))) then
