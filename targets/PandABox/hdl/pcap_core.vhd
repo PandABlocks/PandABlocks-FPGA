@@ -61,13 +61,14 @@ constant c_health_ok	: std_logic_vector(1 downto 0) := "00";
 signal gate             : std_logic;
 signal pcap_reset       : std_logic;
 signal timestamp        : std_logic_vector(63 downto 0);
-signal trig_pulse    : std_logic;
+signal trig_pulse       : std_logic;
 signal mode_ts_bits     : t_mode_ts_bits;
 signal pcap_buffer_error: std_logic;
 signal pcap_error       : std_logic;
 signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_dat_valid   : std_logic;
 signal pcap_armed       : std_logic;
+signal trig_en          : std_logic;
 
 
 begin
@@ -105,10 +106,11 @@ port map (
 -- Gate the gate with the pcap_armed and ARM signals
 gate <= (ARM or pcap_armed) and gate_i and enable_i;
 
-
 -- Keep sub-block under reset when pcap is not armed
 pcap_reset <= reset_i or not pcap_armed;
 
+-- Enable the trigger only when the enable is set
+trig_en <= trig_i and enable_i;
 
 --------------------------------------------------------------------------
 -- Encoder and ADC Position Data Processing
@@ -125,7 +127,7 @@ port map (
     sysbus_i            => sysbus_i,
     enable_i            => enable_i,
     gate_i              => gate,
-    trig_i              => trig_i,
+    trig_i              => trig_en,
     timestamp_i         => timestamp,
 	--
     trig_o              => trig_pulse,

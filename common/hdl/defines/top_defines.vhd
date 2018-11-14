@@ -42,8 +42,7 @@ constant PBUSBW             : natural := 5;
 constant EBUSW              : natural := 12;
 --------------------------------------------------------------------------
 
-constant DCARD_NORMAL       : std_logic_vector(2 downto 0) := "000";
-constant DCARD_LOOPBACK     : std_logic_vector(2 downto 0) := "001";
+constant DCARD_MONITOR      : std_logic_vector(2 downto 0) := "011";
 
 type t_mode_group is array (5 downto 0) of std_logic_vector(31 downto 0);
 type t_mode is array (31 downto 0) of t_mode_group;

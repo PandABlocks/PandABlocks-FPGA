@@ -7,7 +7,7 @@ common/hdl/serial_engine.vhd
 common/hdl/serial_link_detect.vhd
 common/hdl/shifter_in.vhd
 common/hdl/ssi_clock_gen.vhd
-common/hdl/prescaler_pos.vhd
+common/hdl/prescaler.vhd
 targets/PandABox/SlowFPGA/src/hdl/*.vhd
 targets/PandABox/SlowFPGA/src/hdl/zynq_interface.vhd
 targets/PandABox/SlowFPGA/src/hdl/slow_top.vhd

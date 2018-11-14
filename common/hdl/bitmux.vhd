@@ -45,7 +45,7 @@ signal bit_out          : std_logic_vector(0 downto 0);
 
 begin
 
-process(BITMUX_SEL)
+process(BITMUX_SEL,sysbus_i)
 begin
     if BITMUX_SEL(SBUSBW) = '0' then
         -- Select bit on the system bus

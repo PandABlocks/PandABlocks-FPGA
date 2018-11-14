@@ -36,7 +36,7 @@ class ClocksSimulation(BlockSimulation):
                 setattr(self, 'OUT' + out, 0)
 
         # decide if we need to produce any clocks
-        next_tss = []
+        next_ts = []
         for out in "ABCD":
             period = getattr(self, out + "_PERIOD")
             if period > 1:
@@ -45,13 +45,19 @@ class ClocksSimulation(BlockSimulation):
                 # produce clock low level at start of period
                 if off == 0:
                     setattr(self, 'OUT' + out, 0)
-                    next_tss.append(ts + half)
+                    next_ts.append(ts + half)
                 # produce clock low level at half period
                 elif off == half:
                     setattr(self, 'OUT' + out, 1)
-                    next_tss.append(ts - half + period)
-
+                    next_ts.append(ts - half + period)
+                # Work out when we next need to be called
+                if off < half:
+                    # Called at half period
+                    next_ts.append(ts - off + half)
+                else:
+                    # Called at full period
+                    next_ts.append(ts - off + period)
         # now work out when next to make a pulse
-        if next_tss:
-            return min(next_tss)
+        if next_ts:
+            return min(next_ts)
 

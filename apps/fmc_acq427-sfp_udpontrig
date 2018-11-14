@@ -13,6 +13,6 @@ PCAP            1
 BITS            1
 CLOCKS          1
 SYSTEM          1
+SFP_UDPONTRIG   1
+FMC_ACQ427      1
 FILTER          1
-SFP_LOOPBACK    1
-FMC_LOOPBACK    1

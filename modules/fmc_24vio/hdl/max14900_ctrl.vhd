@@ -70,7 +70,7 @@ csn_o <= not shift_enable;
 sclk_o <= sclk;
 
 -- Update Configuration and Read Status every 100ms
-frame_presc : entity work.prescaler_pos
+frame_presc : entity work.prescaler
 port map (
     clk_i       => clk_i,
     reset_i     => reset_i,

@@ -32,7 +32,7 @@ signal DATA_BITS             : std_logic_vector(7 downto 0);
 signal intBITS               : natural range 0 to 2**BITS'length-1;
 signal data_cnt              : unsigned(7 downto 0);   
 signal timeout_cnt           : unsigned(11 downto 0);
-signal crc_reset             : std_logic;
+signal crc_reset             : std_logic := '0';
 signal reset                 : std_logic;
 
 signal frame_pulse           : std_logic;
@@ -97,6 +97,11 @@ begin
         
             -- SYNCH STATE
             when STATE_SYNCH =>
+                crc_reset <= '0';
+                crc_enable_i <= '0';
+                enable_cnt_i <= '0';
+                data_enable_i <= '0';
+                nEnW_enable_i <= '0';
                 if (biss_sck = '0' and biss_dat_i = '0') then
                     data_cnt <= (others => '0');
                     timeout_cnt <= (others => '0');
@@ -318,4 +323,4 @@ port map (
 );
 
 
-end rtl;     
+end rtl;

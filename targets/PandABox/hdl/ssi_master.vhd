@@ -63,7 +63,7 @@ begin
 ssi_sck_o <= serial_clock;
 
 -- Generate Internal SSI Frame from system clock
-frame_presc : entity work.prescaler_pos
+frame_presc : entity work.prescaler
 port map (
     clk_i       => clk_i,
     reset_i     => reset_i,

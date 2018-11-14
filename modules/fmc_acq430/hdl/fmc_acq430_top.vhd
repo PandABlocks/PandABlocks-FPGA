@@ -125,6 +125,7 @@ p_EXT_TRIGGER   <=  FMC_interface.FMC_LA_P(13);
 p_EXT_CLOCK     <=  FMC_interface.FMC_CLK0_M2C_P;
 
 -- On the ACQ430_TOPDECK only the CLOCK input is present. Make this switchable from Digital FMC IO Control Reg
+--EXT_LEMO_SWITCH: process(FMC_IO_BUS,EXT_CLOCK,EXT_TRIGGER,EXT_CLOCK)
 EXT_LEMO_SWITCH: process(FMC_IO_BUS)
 begin
     if FMC_IO_BUS(4) = '1' then
@@ -174,32 +175,19 @@ FMC_interface.FMC_LA_P(3 downto 1)    <= (others => 'Z');
 FMC_interface.FMC_LA_N(33 downto 0)   <= (others => 'Z');
 
 
-fmc_ctrl : entity work.fmc_acq430_ctrl
+
+fmc_adc430_start_inst: entity work.fmc_adc430_start
 port map (
-    -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
-    bit_bus_i            => bitbus_i,
-    pos_bus_i            => (others => (others => '0')),
-
-    MODULE_EN           => MODULE_ENABLE,
+    MODULE_ENABLE       => MODULE_ENABLE,
     ADC_MODE            => ADC_MODE,
     CLK_SELECT          => CLK_SELECT,
     ADC_CLKDIV          => ADC_CLKDIV,
     FIFO_RESET          => FIFO_RESET,
     FIFO_ENABLE         => FIFO_ENABLE,
     ADC_RESET           => ADC_RESET,
-    ADC_ENABLE          => ADC_ENABLE,
-    -- Memory Bus Interface
-    read_strobe_i       => read_strobe_i,
-    read_address_i      => read_address_i(BLK_AW-1 downto 0),
-    read_data_o         => read_data_o,
-    read_ack_o          => open,
-
-    write_strobe_i      => write_strobe_i,
-    write_address_i     => write_address_i(BLK_AW-1 downto 0),
-    write_data_i        => write_data_i,
-    write_ack_o         => open
+    ADC_ENABLE          => ADC_ENABLE
 );
 
 FMC_MODULE_ENABLE_n <= not MODULE_ENABLE(0);

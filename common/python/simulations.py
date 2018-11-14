@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 # These are the powers of two in an array
 POW_TWO = 2 ** np.arange(32, dtype=np.uint32)
+ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 
 
 def properties_from_ini(src_path, ini_name):
@@ -46,6 +47,14 @@ def properties_from_ini(src_path, ini_name):
             names.append(field.name)
             prop = property(field.getter, field.setter)
         properties.append(prop)
+    reg_path = os.path.join(src_path, ROOT, "targets", "PandABox", "blocks",
+                            "reg", "reg.block.ini")
+    if block_name == "pcap":
+        for field in FieldConfig.from_ini(reg_path, number=1):
+            if field.name.startswith("PCAP_"):
+                names.append(field.name[len("PCAP_"):])
+                prop = property(field.getter, field.setter)
+                properties.append(prop)
     # Create an object BlockNames with attributes FIELD1="FIELD1", F2="F2", ...
     names = namedtuple("%sNames" % block_name.title(), names)(*names)
     return names, properties

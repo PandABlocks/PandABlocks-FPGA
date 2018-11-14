@@ -260,17 +260,6 @@ port map (
     pos_bus_i            => posbus_i,
 
     MODULE_EN           => MODULE_ENABLE,
-    ADC_CLK_SELECT      => ADC_CLK_SELECT,
-    ADC_CLKDIV          => ADC_CLKDIV,
-    ADC_FIFO_RESET      => ADC_FIFO_RESET,
-    ADC_FIFO_ENABLE     => ADC_FIFO_ENABLE,
-    ADC_RESET           => ADC_RESET,
-    ADC_ENABLE          => ADC_ENABLE,
-    DAC_CLKDIV          => DAC_CLKDIV,
-    DAC_FIFO_RESET      => DAC_FIFO_RESET,
-    DAC_FIFO_ENABLE     => DAC_FIFO_ENABLE,
-    DAC_RESET           => DAC_RESET,
-    DAC_ENABLE          => DAC_ENABLE,
     ch01_dac_data_from_bus     => CH01_DAC_DATA,
     ch02_dac_data_from_bus     => CH02_DAC_DATA,
     ch03_dac_data_from_bus     => CH03_DAC_DATA,
@@ -287,29 +276,52 @@ port map (
     write_ack_o         => open
 );
 
+
+fmc_adc_start : entity work.fmc_adc_start
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+    MODULE_ENABLE       => MODULE_ENABLE,
+    ADC_CLK_SELECT      => ADC_CLK_SELECT,
+    ADC_CLKDIV          => ADC_CLKDIV,
+    ADC_FIFO_RESET      => ADC_FIFO_RESET,
+    ADC_FIFO_ENABLE     => ADC_FIFO_ENABLE,
+    ADC_RESET           => ADC_RESET,
+    ADC_ENABLE          => ADC_ENABLE
+);
+
+
+fmc_dac_start  : entity work.fmc_dac_start
+port map (
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+    MODULE_ENABLE       => MODULE_ENABLE,
+    DAC_CLKDIV          => DAC_CLKDIV,
+    DAC_FIFO_RESET      => DAC_FIFO_RESET,
+    DAC_FIFO_ENABLE     => DAC_FIFO_ENABLE,
+    DAC_RESET           => DAC_RESET,
+    DAC_ENABLE          => DAC_ENABLE
+);    
+            
+
 FMC_MODULE_ENABLE_n <= not MODULE_ENABLE(0);
 
 THE_ACQ427FMC_ADC_INTERFACE : entity work.ACQ427FMC_ADC_INTERFACE
 port map (
-    clk_PANDA               =>  clk_i,                 -- 100 MHz Clock from ARM for ADC Timing
-
+    clk_PANDA               =>  clk_i,                -- 100 MHz Clock from ARM for ADC Timing
     EXT_CLOCK               =>  FMC_EXT_CLK,          -- External Clock Source
-    FMC_IO_BUS              =>  FMC_IO_BUS,             -- FMC IO Controls (CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR)
-
+    FMC_IO_BUS              =>  FMC_IO_BUS,           -- FMC IO Controls (CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR)
     ADC_CLK_SELECT_REG      => ADC_CLK_SELECT,
     ADC_CLKDIV_REG          => ADC_CLKDIV,
     ADC_FIFO_RESET_REG      => ADC_FIFO_RESET,
     ADC_FIFO_ENABLE_REG     => ADC_FIFO_ENABLE,
     ADC_RESET_REG           => ADC_RESET,
     ADC_ENABLE_REG          => ADC_ENABLE,
-
-    clk_ADC_IOB             =>  clk_ADC_IOB,                -- ADC SPI Clock domain for IOBs
-    ADC_SDO                 =>  s_ADC_SDO,                  -- ADC SPI Data
-    ADC_CNV                 =>  ADC_CNV,                    -- ADC Convert Control
-    ADC_SPI_CLK             =>  s_ADC_SPI_CLK,              -- ADC SPI Clock
-    --ADC_A0                    =>  ADC_A0,                 -- AD8251 Gain Setting Address Bit 0
-    --ADC_A1                    =>  ADC_A1                  -- AD8251 Gain Setting Address Bit 1
-
+    clk_ADC_IOB             =>  clk_ADC_IOB,          -- ADC SPI Clock domain for IOBs
+    ADC_SDO                 =>  s_ADC_SDO,            -- ADC SPI Data
+    ADC_CNV                 =>  ADC_CNV,              -- ADC Convert Control
+    ADC_SPI_CLK             =>  s_ADC_SPI_CLK,        -- ADC SPI Clock
+    -- Panda Output
     ADC_DATAOUT             =>  ADC_DATAOUT
     );
 
@@ -327,7 +339,7 @@ IOB_FF_PUSH_ADC: process(clk_ADC_IOB)
 begin
 if Rising_Edge(clk_ADC_IOB) then
     ADC_SPI_CLK     <= s_ADC_SPI_CLK;
-    if s_ADC_SPI_CLK = '1' then                                             -- Only latch in on approaching rising edge
+    if s_ADC_SPI_CLK = '1' then                       -- Only latch in on approaching rising edge
         s_ADC_SDO       <= ADC_SDO;
     end if;
 end if;
@@ -336,22 +348,19 @@ end process IOB_FF_PUSH_ADC;
 
 THE_ACQ427FMC_DAC_INTERFACE : entity work.ACQ427FMC_DAC_INTERFACE
 port map (
-    clk_PANDA               =>  clk_i,                 -- 125 MHz PandA Clock
-
+    clk_PANDA               =>  clk_i,                -- 125 MHz PandA Clock
     DAC_CLKDIV_REG          => DAC_CLKDIV,
     DAC_FIFO_RESET_REG      => DAC_FIFO_RESET,
     DAC_FIFO_ENABLE_REG     => DAC_FIFO_ENABLE,
     DAC_RESET_REG           => DAC_RESET,
     DAC_ENABLE_REG          => DAC_ENABLE,
-
-    clk_DAC_IOB             =>  clk_DAC_IOB,            -- DAC SPI Clk for IOBs
-    DAC_SPI_CLK             =>  s_DAC_SPI_CLK,          -- DAC SPI Clock
-    DAC_SDI                 =>  s_DAC_SDI,              -- DAC SPI Data In
-    DAC_SDO                 =>  s_DAC_SDO,              -- DAC SPI Data Out
-    DAC_SYNC_n              =>  s_DAC_SYNC_n,           -- DAC SPI SYNC
-    DAC_LD_n                =>  s_DAC_LD_n,             -- DAC Load
-    DAC_RST_n               =>  DAC_RST_n,               -- DAC Reset
-
+    clk_DAC_IOB             =>  clk_DAC_IOB,          -- DAC SPI Clk for IOBs
+    DAC_SPI_CLK             =>  s_DAC_SPI_CLK,        -- DAC SPI Clock
+    DAC_SDI                 =>  s_DAC_SDI,            -- DAC SPI Data In
+    DAC_SDO                 =>  s_DAC_SDO,            -- DAC SPI Data Out
+    DAC_SYNC_n              =>  s_DAC_SYNC_n,         -- DAC SPI SYNC
+    DAC_LD_n                =>  s_DAC_LD_n,           -- DAC Load
+    DAC_RST_n               =>  DAC_RST_n,            -- DAC Reset
     DAC_DATAIN              =>  DAC_DATAIN
     );
 
@@ -367,7 +376,6 @@ if Rising_edge(clk_DAC_IOB) then
     DAC_SPI_CLK     <= s_DAC_SPI_CLK;
     DAC_SDI         <= s_DAC_SDI;
     DAC_SYNC_n      <= s_DAC_SYNC_n;
-
     s_DAC_SDO       <= DAC_SDO;
 
 end if;

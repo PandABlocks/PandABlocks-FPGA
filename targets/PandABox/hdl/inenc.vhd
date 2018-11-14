@@ -56,9 +56,11 @@ end entity;
 
 architecture rtl of inenc is
 
-signal clk_out_encoder      : std_logic;
+signal clk_out_encoder_ssi  : std_logic;
+signal clk_out_encoder_biss : std_logic;
 signal posn_incr            : std_logic_vector(31 downto 0);
 signal posn_ssi             : std_logic_vector(31 downto 0);
+signal posn_biss            : std_logic_vector(31 downto 0);
 signal posn_ssi_sniffer     : std_logic_vector(31 downto 0);
 signal posn_biss_sniffer    : std_logic_vector(31 downto 0);
 signal posn                 : std_logic_vector(31 downto 0);
@@ -93,7 +95,9 @@ begin
 end process ps_select;        
 
 -- Loopbacks
-CLK_OUT <=  clk_out_ext_i when (CLK_SRC = '1') else clk_out_encoder;
+CLK_OUT <=  clk_out_ext_i when (CLK_SRC = '1') else
+            clk_out_encoder_biss when (CLK_SRC = '0' and PROTOCOL = "010") else
+            clk_out_encoder_ssi;
 
 --------------------------------------------------------------------------
 -- Incremental Encoder Instantiation :
@@ -125,7 +129,7 @@ port map (
     BITS            => BITS,
     CLK_PERIOD      => CLK_PERIOD,
     FRAME_PERIOD    => FRAME_PERIOD,
-    ssi_sck_o       => clk_out_encoder,
+    ssi_sck_o       => clk_out_encoder_ssi,
     ssi_dat_i       => DATA_IN,
     posn_o          => posn_ssi,
     posn_valid_o    => open
@@ -147,6 +151,20 @@ port map (
 --------------------------------------------------------------------------
 -- BiSS Instantiations
 --------------------------------------------------------------------------
+-- Caused the soft modules to not respond. Commented out as untested at the moment
+--biss_master_inst : entity work.biss_master
+--port map (
+--    clk_i           => clk_i,
+--    reset_i         => reset_i,
+--    BITS            => BITS,
+--    CLK_PERIOD      => CLK_PERIOD,
+--    FRAME_PERIOD    => FRAME_PERIOD,
+--    biss_sck_o      => clk_out_encoder_biss,
+--    biss_dat_i      => DATA_IN,
+--    posn_o          => posn_biss,
+--    posn_valid_o    => open
+--);
+
 
 -- BiSS Sniffer
 biss_sniffer_inst : entity work.biss_sniffer
@@ -175,20 +193,20 @@ begin
                 STATUS(0) <= linkup_incr;
 
             when "001"  =>              -- SSI & Loopback
-                if (DCARD_MODE(3 downto 1) = DCARD_LOOPBACK) then
+                if (DCARD_MODE(3 downto 1) = DCARD_MONITOR) then
                     posn <= posn_ssi_sniffer;
                     STATUS(0) <= linkup_ssi;
-                else
+                else  -- DCARD_CONTROL
                     posn <= posn_ssi;
                     STATUS <= (others => '0');
                 end if;
 
             when "010"  =>              -- BISS & Loopback
-                if (DCARD_MODE(3 downto 1) = DCARD_LOOPBACK) then
+                if (DCARD_MODE(3 downto 1) = DCARD_MONITOR) then
                     posn <= posn_biss_sniffer;
                     STATUS(0) <= linkup_biss;
-                else
-                    posn <= (others => '0');
+                else  -- DCARD_CONTROL
+                    posn <= posn_biss;
                     STATUS <= (others => '0');
                 end if;
 

@@ -71,7 +71,7 @@ end process;
 --------------------------------------------------------------------------
 -- 50ms counter tick
 --------------------------------------------------------------------------
-frame_presc : entity work.prescaler_pos
+frame_presc : entity work.prescaler
 port map (
     clk_i       => clk_i,
     reset_i     => reset_i,

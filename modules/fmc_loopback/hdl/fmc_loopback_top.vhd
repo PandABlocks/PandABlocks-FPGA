@@ -104,7 +104,7 @@ port map (
 -- Multiplex read data out from multiple instantiations
 
 -- Generate prescaled clock for internal counter
-frame_presc : entity work.prescaler_pos
+frame_presc : entity work.prescaler
 port map (
     clk_i       => clk_i,
     reset_i     => LOOP_PERIOD_WSTB,

@@ -53,7 +53,7 @@ clock_pulse_o <= serial_clk when (fsm_state = GEN_MCLK) else '0';
 -- Generate Internal SSI Clock (@2x freq) from system clock
 CLK_PERIOD_2x <= '0' & CLK_PERIOD(31 downto 1);
 
-serial_clk_presc : entity work.prescaler_pos
+serial_clk_presc : entity work.prescaler
 port map (
     clk_i       => clk_i,
     reset_i     => reset_i,

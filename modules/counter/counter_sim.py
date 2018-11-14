@@ -4,8 +4,6 @@ import numpy
 if TYPE_CHECKING:
     from typing import Dict
 
-MIN = numpy.iinfo(numpy.int32).min
-MAX = numpy.iinfo(numpy.int32).max
 
 UP = 0
 DOWN = 1
@@ -14,13 +12,21 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "counter.block.ini")
 
 
 class CounterSimulation(BlockSimulation):
-    START, STEP, ENABLE, TRIG, DIR, CARRY, OUT = PROPERTIES
+    START, STEP, MAX, MIN, ENABLE, TRIG, DIR, CARRY, OUT = PROPERTIES
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
         super(CounterSimulation, self).on_changes(ts, changes)
         # This is a ConfigBlock object for us to get our strings from
+
+        if self.MAX == 0 and self.MIN == 0:
+            MIN = numpy.iinfo(numpy.int32).min
+            MAX = numpy.iinfo(numpy.int32).max
+        else:
+            MIN = self.MIN
+            MAX = self.MAX
+
         # Set attributes
         for name, value in changes.items():
             setattr(self, name, value)
