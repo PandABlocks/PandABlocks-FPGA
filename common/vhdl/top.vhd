@@ -636,6 +636,7 @@ port map (
     write_ack_o         => write_ack(SEQ_CS),
 
     sysbus_i            => sysbus,
+    posbus_i            => posbus,
     outa_o              => seq_outa,
     outb_o              => seq_outb,
     outc_o              => seq_outc,

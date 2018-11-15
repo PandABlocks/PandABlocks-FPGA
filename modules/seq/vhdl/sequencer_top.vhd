@@ -36,6 +36,7 @@ port (
     write_ack_o         : out std_logic;
     -- Encoder I/O Pads
     sysbus_i            : in  sysbus_t;
+    posbus_i            : in  posbus_t;
     -- Output sequencer
     outa_o              : out std_logic_vector(SEQ_NUM-1 downto 0);
     outb_o              : out std_logic_vector(SEQ_NUM-1 downto 0);
@@ -98,6 +99,7 @@ port map (
     write_ack_o         => open,
 
     sysbus_i            => sysbus_i,
+    posbus_i            => posbus_i,
 
     outa_o              => outa_o(I),
     outb_o              => outb_o(I),
