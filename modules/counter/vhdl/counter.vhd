@@ -126,9 +126,10 @@ begin
                 counter_carry <= '1';    
                 counter <= counter + unsigned(STEP_default) - (MAX_VAL+1 - MIN_VAL);                
             elsif (dir_i = '0') then
-                -- Check to see if we are crossing from the positive to negative
-                -- boundary if we do set the carry bit
-                if (counter(31) = '0' and ((counter + unsigned(STEP_default) > MAX_VAL))) then
+                -- Check to see if we are crossing from the positive to negative or
+                -- negative to positive boundaries if we do set the carry bit
+                if (counter(31) = '0' and ((counter + unsigned(STEP_default) > MAX_VAL))) or
+                   (counter(31) = '1' and ((counter + unsigned(STEP_default) < MIN_VAL))) then
                     counter_carry <= '1';
                 else
                     counter_carry <= '0';    
@@ -136,9 +137,10 @@ begin
                 -- Increment the counter
                 counter <= counter + unsigned(STEP_default);            
             else
-                -- Check to see if we are crossing from the negative to positive 
-                -- boundary if we do set the carry bit
-                if (counter(31) = '1' and ((counter - unsigned(STEP_default) < MIN_VAL))) then                    
+                -- Check to see if we are crossing from the negative to positive or
+                -- positive to negative boundaries if we do set the carry bit
+                if (counter(31) = '1' and ((counter - unsigned(STEP_default) < MIN_VAL))) or
+                   (counter(31) = '0' and ((counter - unsigned(STEP_default) > MAX_VAL))) then                    
                     counter_carry <= '1';
                 else 
                     counter_carry <= '0';
