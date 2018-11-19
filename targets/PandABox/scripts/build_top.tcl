@@ -58,6 +58,12 @@ set_msg_config -id {[Synth 8-2644]} -suppress
 # Elevate critical warnings
 set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 
+read_xdc $TARGET_DIR/const/panda-timing.xdc
+read_xdc $TARGET_DIR/const/panda-physical.xdc
+read_xdc $TARGET_DIR/const/panda-post_synth.xdc
+set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical.xdc]
+set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth.xdc]
+
 #
 # STEP#1: setup design sources and constraints
 #
@@ -76,13 +82,6 @@ read_vhdl [glob $BUILD_DIR/hdl/*.vhd]
 read_vhdl [glob $TOP_DIR/common/hdl/defines/*.vhd]
 read_vhdl [glob $TARGET_DIR/hdl/*.vhd]
 read_vhdl [glob $TOP_DIR/common/hdl/*.vhd]
-
-read_xdc $TARGET_DIR/const/panda-timing.xdc
-
-read_xdc $TARGET_DIR/const/panda-physical.xdc
-read_xdc $TARGET_DIR/const/panda-post_synth.xdc
-set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical.xdc]
-set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth.xdc]
 
 #
 # STEP#2: run synthesis, report utilization and timing estimates, write
