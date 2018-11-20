@@ -122,7 +122,11 @@ port map (
 ---------------------------------------------------------------------------
 -- FMC Loopback design
 ---------------------------------------------------------------------------
+    {% if loop.first %}
+
 FMC_GEN : IF (SIM = "FALSE") GENERATE
+	{% endif %}
+
     {{ block.name|lower }}_inst : entity work.{{block.entity}}_top
     port map (
         clk_i               => FCLK_CLK0,
@@ -143,9 +147,11 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
         write_data_i        => write_data,
         write_ack_o         => write_ack({{ block.name }}_CS),
 
-        FMC_interface       => {{ block.name }}
+        FMC_interface       => FMC
     );
+    {% if loop.last %}
 END GENERATE;
+    {% endif %}
 {% endfor %}
 {% for block in blocks if block.type == "sfp" %}
     {% if loop.first %}
