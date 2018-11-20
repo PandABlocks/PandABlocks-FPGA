@@ -362,7 +362,77 @@ $ Rewriting a table
 43  :                   : STATE=3, TABLE_REPEAT=2, OUTA=1
 46  : ENABLE=0          : STATE=0, ACTIVE=0, OUTA=0
 
+############### 
+$ Rewriting table whilst in wait for position trigger
+3   : TABLE_START=1     : STATE=1, LINE_REPEAT=0
+4   : TABLE_START=0, PRESCALE=3
 
+# OUT = 0x1 (OUT1=A)
+# TRIGGER = 0x8 (POSA<=POSITION)
+# REPEATS = 0x0001
+5   : TABLE_DATA=0x180001
+6   : TABLE_DATA=20
+7   : TABLE_DATA=1
+8   : TABLE_DATA=1
+# OUT = 0x1 (OUT1=A)
+# TRIGGER = 0x7 (POSA>=POSITION)
+# REPEATS = 0x0001
+9   : TABLE_DATA=0x170002
+10  : TABLE_DATA=20
+11  : TABLE_DATA=5
+12  : TABLE_DATA=5
+# OUT = 0x1 (OUT1=A)
+# TRIGGER = 0x8 (POSA<=POSITION)
+# REPEATS = 0x0002
+13   : TABLE_DATA=0x280003
+14   : TABLE_DATA=20
+15   : TABLE_DATA=3
+16   : TABLE_DATA=3
+
+17  : TABLE_LENGTH=12  
+18  :                   : STATE=0
+25  : ENABLE=1          : STATE=3, ACTIVE=1, TABLE_REPEAT=1, OUTA=1, LINE_REPEAT=1, TABLE_LINE=1
+28  :                   : STATE=4, OUTA=0
+31  :                   : STATE=2, TABLE_LINE=2
+34  : TABLE_START=1     : STATE=1, OUTA=0
+37  : TABLE_START=0
+# OUT = 0x1 (OUT1=A)
+# TRIGGER = 0x0 (Immediate)
+# REPEATS = 0x0001
+52  : TABLE_DATA=0x800001
+53  : TABLE_DATA=0
+54  : TABLE_DATA=1
+55  : TABLE_DATA=2
+
+
+# OUT = 0x1 (OUT1=A)
+# TRIGGER = 0x8 (POSA<=POSITION)
+# REPEATS = 0x0001
+56  : TABLE_DATA=0x480003
+57  : TABLE_DATA=20
+58  : TABLE_DATA=1
+59  : TABLE_DATA=1
+
+65  : TABLE_LENGTH=8
+66  :                   : STATE=0
+67  :                   : STATE=3, TABLE_REPEAT=1, OUTD=1, TABLE_LINE=1
+70  :                   : OUTD=0, STATE=4
+76  :                   : OUTC=1, STATE=3, TABLE_LINE=2
+79  :                   : OUTC=0, STATE=4
+82  :                   : OUTC=1, STATE=3, LINE_REPEAT=2
+85  :                   : OUTC=0, STATE=4
+88  :                   : OUTC=1, STATE=3, LINE_REPEAT=3
+91  :                   : OUTC=0, STATE=4
+94  :                   : OUTD=1, STATE=3, TABLE_REPEAT=2, LINE_REPEAT=1, TABLE_LINE=1
+97  :                   : OUTD=0, STATE=4
+103 :                   : OUTC=1, STATE=3, TABLE_LINE=2
+106 :                   : OUTC=0, STATE=4
+109 :                   : OUTC=1, STATE=3, LINE_REPEAT=2
+112 :                   : OUTC=0, STATE=4
+115 :                   : OUTC=1, STATE=3, LINE_REPEAT=3
+118 :                   : OUTC=0, STATE=4
+121 :                   : OUTD=1, STATE=3, TABLE_REPEAT=3, LINE_REPEAT=1, TABLE_LINE=1
+124 : ENABLE=0          : STATE=0, ACTIVE=0, OUTD=0
 
 
 
