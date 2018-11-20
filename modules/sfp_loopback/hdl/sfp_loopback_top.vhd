@@ -44,9 +44,6 @@ signal SFP_LOS_VEC      : std_logic_vector(31 downto 0) := (others => '0');
 
 begin
 
--- Acknowledgement to AXI Lite interface
---write_ack_o <= '1';
-
 read_ack_delay : entity work.delay_line
 generic map (DW => 1)
 port map (

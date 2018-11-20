@@ -30,8 +30,8 @@ port (
     bitbus_i            : in  std_logic_vector(127 downto 0);
     posbus_i            : in  std32_array(31 downto 0);
     -- Generic Inputs to BitBus and PosBus from FMC and SFP
-    --fmc_inputs_o        : out std_logic_vector(15 downto 0);
-    fmc_data_o          : out std32_array(15 downto 0); -- 8 channels of 32-bit data
+    fmc_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
+    fmc_data_o          : out std32_array(15 downto 0) := (others=>(others=>'0'));         -- 8 channels of 32-bit data
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -41,10 +41,8 @@ port (
     write_strobe_i      : in  std_logic;
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
-    write_ack_o         : out std_logic;
-    -- External Differential Clock (via front panel SMA)
-    FMC_LA_P            : inout std_logic_vector(33 downto 0) := (others => 'Z');
-    FMC_LA_N            : inout std_logic_vector(33 downto 0) := (others => 'Z')
+    write_ack_o         : out std_logic := '1';
+    FMC_interface       : inout fmc_interface
 );
 end fmc_adc427_top;
 
@@ -122,30 +120,27 @@ attribute IOB       of ADC_SPI_CLK      : signal is "true";
 
 begin
 
--- Acknowledgement to AXI Lite interface
-write_ack_o <= '1';
-
 ---------------------------------------------------------------------------------------
 -- Translate the FMC pin names into ACQ427FMC names
 ---------------------------------------------------------------------------------------
 -- ADC
 ---------------------------------------------------------------------------------------
 -- Input Pins
-p_FMC_EXT_CLK  <=  FMC_LA_P(0);
-p_FMC_EXT_TRIG <=  FMC_LA_P(12);
-p_ADC_SDO(8)   <=  FMC_LA_P(20);
-p_ADC_SDO(7)   <=  FMC_LA_P(21);
-p_ADC_SDO(6)   <=  FMC_LA_P(22);
-p_ADC_SDO(5)   <=  FMC_LA_P(23);
-p_ADC_SDO(4)   <=  FMC_LA_P(16);
-p_ADC_SDO(3)   <=  FMC_LA_P(17);
-p_ADC_SDO(2)   <=  FMC_LA_P(18);
-p_ADC_SDO(1)   <=  FMC_LA_P(19);
+p_FMC_EXT_CLK  <=  FMC_interface.FMC_LA_P(0);
+p_FMC_EXT_TRIG <=  FMC_interface.FMC_LA_P(12);
+p_ADC_SDO(8)   <=  FMC_interface.FMC_LA_P(20);
+p_ADC_SDO(7)   <=  FMC_interface.FMC_LA_P(21);
+p_ADC_SDO(6)   <=  FMC_interface.FMC_LA_P(22);
+p_ADC_SDO(5)   <=  FMC_interface.FMC_LA_P(23);
+p_ADC_SDO(4)   <=  FMC_interface.FMC_LA_P(16);
+p_ADC_SDO(3)   <=  FMC_interface.FMC_LA_P(17);
+p_ADC_SDO(2)   <=  FMC_interface.FMC_LA_P(18);
+p_ADC_SDO(1)   <=  FMC_interface.FMC_LA_P(19);
 
 -- Output Pins
-FMC_LA_P(14)   <=  p_ADC_CNV_A;
-FMC_LA_P(15)   <=  p_ADC_CNV_B;
-FMC_LA_P(13)   <=  p_ADC_SPI_CLK;
+FMC_interface.FMC_LA_P(14)   <=  p_ADC_CNV_A;
+FMC_interface.FMC_LA_P(15)   <=  p_ADC_CNV_B;
+FMC_interface.FMC_LA_P(13)   <=  p_ADC_SPI_CLK;
 
 
 s_TRIG_DATA    <=  FMC_IO_BUS(1);
@@ -169,19 +164,13 @@ gen_ADC_BUFS: for x in 1 to 8 generate
     cmp_ADC_SDO: IBUF port map(I => p_ADC_SDO(x), O => ADC_SDO(x));
 end generate gen_ADC_BUFS ;
 
-
-
--- Unused IO
-FMC_LA_P(33 downto 24)  <= (others => 'Z');
-FMC_LA_N(33 downto 0)   <= (others => 'Z');
-
-fmc_ctrl : entity work.adc_ctrl
+fmc_ctrl : entity work.fmc_adc427_ctrl
 port map (
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
-    sysbus_i            => bitbus_i,
-    posbus_i            => posbus_i,
+    bit_bus_i            => bitbus_i,
+    pos_bus_i            => posbus_i,
     -- Memory Bus Interface
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),

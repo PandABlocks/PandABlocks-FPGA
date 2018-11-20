@@ -123,12 +123,6 @@ signal soft_reset_cpt    : unsigned(31 downto 0);
 signal SOFT_RESET_holded : std_logic;
 
 begin
---unused signals
---sfp_inputs_o<=(others=>'0');
---sfp_data_o <=(others=>(others=>'0')); 
-
--- Acknowledgement to AXI Lite interface
---write_ack_o <= '1';
 
 read_ack_delay : entity work.delay_line
 generic map (DW => 1)

@@ -29,6 +29,9 @@ port (
     -- Bus Inputs
     bitbus_i            : in  std_logic_vector(127 downto 0);
     posbus_i            : in  std32_array(31 downto 0);
+	-- Generic Inputs to BitBus and PosBus from FMC and SFP
+    fmc_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
+    fmc_data_o          : out std32_array(15 downto 0) := (others=>(others=>'0')); -- 8 channels of 32-bit data
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -38,10 +41,8 @@ port (
     write_strobe_i      : in  std_logic;
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
-    write_ack_o         : out std_logic;
-    -- LA I/O
-    FMC_LA_P            : inout std_logic_vector(33 downto 0) := (others => 'Z');
-    FMC_CLK0_M2C_P      : inout std_logic
+    write_ack_o         : out std_logic := '1';
+    FMC_interface       : inout fmc_interface
 );
 end fmc_dac427_top;
 
@@ -120,31 +121,28 @@ attribute IOB       of DAC_SYNC_n       : signal is "true";
 
 begin
 
--- Acknowledgement to AXI Lite interface
-write_ack_o <= '1';
-
 ---------------------------------------------------------------------------------------
 -- Translate the FMC pin names into ACQ427FMC names
 ---------------------------------------------------------------------------------------
 -- DAC
 ---------------------------------------------------------------------------------------
 -- Input Pins
-p_DAC_SDO(1)        <= FMC_LA_P(8);
-p_DAC_SDO(2)        <= FMC_LA_P(9);
-p_DAC_SDO(3)        <= FMC_LA_P(10);
-p_DAC_SDO(4)        <= FMC_LA_P(11);
+p_DAC_SDO(1)        <= FMC_interface.FMC_LA_P(8);
+p_DAC_SDO(2)        <= FMC_interface.FMC_LA_P(9);
+p_DAC_SDO(3)        <= FMC_interface.FMC_LA_P(10);
+p_DAC_SDO(4)        <= FMC_interface.FMC_LA_P(11);
 
-FMC_LA_P(4)         <= p_DAC_SDI(1);
-FMC_LA_P(5)         <= p_DAC_SDI(2);
-FMC_LA_P(6)         <= p_DAC_SDI(3);
-FMC_LA_P(7)         <= p_DAC_SDI(4);
-FMC_LA_P(1)         <= p_DAC_SYNC_n;
-FMC_LA_P(2)         <= p_DAC_LD_n;
-FMC_LA_P(3)         <= p_DAC_RST_n;
+FMC_interface.FMC_LA_P(4)         <= p_DAC_SDI(1);
+FMC_interface.FMC_LA_P(5)         <= p_DAC_SDI(2);
+FMC_interface.FMC_LA_P(6)         <= p_DAC_SDI(3);
+FMC_interface.FMC_LA_P(7)         <= p_DAC_SDI(4);
+FMC_interface.FMC_LA_P(1)         <= p_DAC_SYNC_n;
+FMC_interface.FMC_LA_P(2)         <= p_DAC_LD_n;
+FMC_interface.FMC_LA_P(3)         <= p_DAC_RST_n;
 
 
 -- Output Pins
-FMC_CLK0_M2C_P      <= p_DAC_SPI_CLK;
+FMC_interface.FMC_CLK0_M2C_P      <= p_DAC_SPI_CLK;
 
 ---------------------------------------------------------------------------------------
 -- IO Buffer Instantiation
@@ -162,20 +160,18 @@ gen_DAC_BUFS: for x in 1 to 4 generate
     cmp_DAC_SDO:        IOBUF port map(IO => p_DAC_SDO(x),  I => '0',         T => '1', O => DAC_SDO(x));
 end generate gen_DAC_BUFS ;
 
-
-
-fmc_ctrl : entity work.dac_ctrl
+fmc_ctrl : entity work.fmc_dac427_ctrl
 port map (
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
-    sysbus_i            => bitbus_i,
-    posbus_i            => posbus_i,
+    bit_bus_i            => bitbus_i,
+    pos_bus_i            => posbus_i,
         
-    ch01_dac_data_o     => CH01_DAC_DATA,
-    ch02_dac_data_o     => CH02_DAC_DATA,
-    ch03_dac_data_o     => CH03_DAC_DATA,
-    ch04_dac_data_o     => CH04_DAC_DATA,
+    ch01_dac_data_from_bus     => CH01_DAC_DATA,
+    ch02_dac_data_from_bus     => CH02_DAC_DATA,
+    ch03_dac_data_from_bus     => CH03_DAC_DATA,
+    ch04_dac_data_from_bus     => CH04_DAC_DATA,
     -- Memory Bus Interface
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
