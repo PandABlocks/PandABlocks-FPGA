@@ -19,7 +19,7 @@ set_clock_groups -asynchronous -group EXTCLK_P
 # FMC MGTs - Bank 112
 # -------------------------------------------------------------------
 set_property LOC GTXE2_CHANNEL_X0Y0 \
-[get_cells softblocks_inst/FMC_GEN.fmc_inst/fmcgtx_exdes_i/fmcgtx_support_i/fmcgtx_init_i/U0/fmcgtx_i/gt0_fmcgtx_i/gtxe2_i]
+[get_cells softblocks_inst/FMC_GEN.fmc*_inst/fmcgtx_exdes_i/fmcgtx_support_i/fmcgtx_init_i/U0/fmcgtx_i/gt0_fmcgtx_i/gtxe2_i]
 
 # -------------------------------------------------------------------
 # Override Differential Pairs' IOSTANDARD
