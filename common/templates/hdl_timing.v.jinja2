@@ -29,15 +29,10 @@ wire [47:0] {{ field.name }};
 reg  [31:0] {{ field.name }}_L;
 reg  [15:0] {{ field.name }}_H;
 {% endfor %}
-{% for field in block.filter_fields("table") %}
-    {% if field.short %}
+{% for field in block.filter_fields("table short") %}
 reg  [31:0] {{ field.name }}_DATA;
 reg         {{ field.name }}_START;
 reg  [31:0] {{ field.name }}_LENGTH;
-    {% else %}
-reg  [31:0] {{ field.name }}_ADDRESS;
-reg  [31:0] {{ field.name }}_LENGTH;
-    {% endif %}
 {% endfor %}
 
 // Outputs
@@ -67,14 +62,9 @@ reg         {{ field.name }}_err;   //Error signal
 reg         {{ field.name }}_L_wstb;
 reg         {{ field.name }}_H_wstb;
 wire        {{ field.name }}_wstb;
-        {% elif field in block.filter_fields("table") %}
-            {% if field.short  %}
+        {% elif field in block.filter_fields("table short") %}
 reg         {{ field.name }}_DATA_wstb;
-reg         {{ field.name }}_LENGTH_wstb;
-            {% else %}
-reg         {{ field.name }}_ADDRESS_wstb;
-reg         {{ field.name }}_LENGTH_wstb;   
-            {% endif %}            
+reg         {{ field.name }}_LENGTH_wstb;          
         {% else %}
 reg         {{ field.name }}_wstb;
         {% endif %}
@@ -215,21 +205,13 @@ assign {{field.name}}_wstb = {{field.name}}_H_wstb || {{field.name}}_L_wstb;
         {% if field.wstb %}
         .{{ "%-20s"| format(field.name + "_wstb")}}  ({{ field.name }}_wstb),
     	{% endif %}
-    {% elif field in block.filter_fields("table") %}
-        {% if field.short %}
-.{{ "%-20s"| format(field.name + "_DATA") }}  ({{ field.name }}_DATA),
+    {% elif field in block.filter_fields("table short") %}
+        .{{ "%-20s"| format(field.name + "_DATA") }}  ({{ field.name }}_DATA),
         .{{ "%-20s"| format(field.name + "_LENGTH") }}  ({{ field.name }}_LENGTH),
         .{{ "%-20s"| format(field.name + "_START") }}  ({{ field.name }}_START),
-            {% if field.wstb %}
+        {% if field.wstb %}
         .{{ "%-20s"| format(field.name + "_LENGTH_wstb") }}  ({{ field.name }}_LENGTH_wstb),
-        .{{ "%-20s"| format(field.name + "_wstb") }}  ({{ field.name }}_DATA_wstb),
-        {% else %}
-        .{{ "%-20s"| format(field.name + "_ADDR") }}  ({{ field.name }}_ADDRESS),
-        .{{ "%-20s"| format(field.name + "_LENGTH") }}  ({{ field.name }}_LENGTH),
-            {% if field.wstb %}
-        .{{ "%-20s"| format(field.name + "_LENGTH_wstb") }}  ({{ field.name }}_LENGTH_wstb),	    
-            {% endif %}        
-	        {% endif %}
+        .{{ "%-20s"| format(field.name + "_wstb") }}  ({{ field.name }}_DATA_wstb),      
         {% endif %}
     {% else %}
         .{{ "%-20s"| format(field.name) }}  ({{ field.name }}),

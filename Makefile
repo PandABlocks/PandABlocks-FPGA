@@ -150,7 +150,7 @@ $(CARRIER_FPGA_TARGETS) $(IP_DIR): $(FPGA_BUILD_DIR) apps
 	    IP_DIR=$(IP_DIR) \
 	    $@
 
-slow-fpga: $(SLOW_FPGA_BUILD_DIR) tools/virtexHex2Bin
+slow-fpga: $(SLOW_FPGA_BUILD_DIR) tools/virtexHex2Bin apps
 	source $(ISE)  &&  $(MAKE) -C $< -f $(TARGET_DIR)/SlowFPGA/Makefile \
             TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA BOARD=$(BOARD) mcs \
             BUILD_DIR=$(FPGA_BUILD_DIR)
@@ -164,10 +164,10 @@ tools/virtexHex2Bin : tools/virtexHex2Bin.c
 # Build installation package
 # ------------------------------------------------------------------------------
 
-zpkg: build/etc/panda-fpga.list $(FIRMWARE_BUILD)
+zpkg: $(FPGA_BUILD_DIR)/etc/panda-fpga.list $(FIRMWARE_BUILD)
 	rm -f $(BUILD_DIR)/*.zpg
 	$(MAKE_ZPKG) -t $(BUILD_DIR) -b $(BUILD_DIR) -d $(BUILD_DIR) \
-            $< $(APP_NAME)-$(GIT_VERSION)
+            $< $(APPS)-$(GIT_VERSION)
 
 .PHONY: zpkg
 

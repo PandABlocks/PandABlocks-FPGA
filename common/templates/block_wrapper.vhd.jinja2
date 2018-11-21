@@ -36,13 +36,13 @@ port (
 
 {% if type == "dma" %}
     -- DMA signals
-    dma_req_o           : out std_logic_vector({{ number-1}} downto 0);
-    dma_ack_i           : in  std_logic_vector({{ number-1}} downto 0);
+    dma_req_o           : out std_logic_vector({{ number-1 }} downto 0);
+    dma_ack_i           : in  std_logic_vector({{ number-1 }} downto 0);
     dma_done_i          : in  std_logic;
-    dma_addr_o          : out std32_array({{ number-1}} downto 0);
-    dma_len_o           : out std8_array({{ number-1}} downto 0);
+    dma_addr_o          : out std32_array({{ number-1 }} downto 0);
+    dma_len_o           : out std8_array({{ number-1 }} downto 0);
     dma_data_i          : in  std_logic_vector(31 downto 0);
-    dma_valid_i         : in  std_logic_vector({{ number-1}} downto 0);
+    dma_valid_i         : in  std_logic_vector({{ number-1 }} downto 0);
 {% endif %}
     -- Memory Interface
     read_strobe_i       : in  std_logic := '0';
@@ -122,7 +122,7 @@ begin
             pos_bus_i           => pos_bus_i,
 
 {% for field in fields %}
-    {% if field in filter_fields("table|(param|write).*") %}
+    {% if field in filter_fields("(table|param|write).*") %}
         {% for register in field.registers %}
             {% if register.number >= 0 %}
             {{ "%-20s"|format(register.name) }}=> {{ register.name }}(I),
@@ -178,13 +178,9 @@ begin
 {% for field in filter_fields("time") %}
             {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I)(47 downto 0),
 {% endfor %}
-{% for field in filter_fields("table") %}
-    {% if field.short %}
+{% for field in filter_fields("table short") %}
             {{ "%-20s"|format(field.name + "_START") }}=> {{ field.name}}_START(I)(0),
             {{ "%-20s"|format(field.name + "_DATA") }}=> {{ field.name}}_DATA(I),
-    {% else %}
-            {{ "%-20s"|format(field.name + "_ADDR") }}=> {{ field.name}}_ADDR(I),
-    {% endif %}
             {{ "%-20s"|format(field.name + "_LENGTH") }}=> {{ field.name}}_LENGTH(I),
 {% endfor %}
 {# Filter_fields requires both param and read to be the last type in the list #}
@@ -202,9 +198,9 @@ begin
 {% endfor %}
 {% for field in fields %}
     {% if field.wstb %}
-        {% if field.type == "table" %}
+        {% if "table" in field.type %}
             {{ "%-20s"|format(field.name + "_LENGTH_wstb") }}=> {{ field.name }}_LENGTH_wstb(I),
-            {% if field.short %}
+            {% if "short" in field.type %}
             {{ "%-20s"|format(field.name + "_wstb") }}=> {{ field.name }}_DATA_wstb(I),
             {% endif %}
         {% else %}

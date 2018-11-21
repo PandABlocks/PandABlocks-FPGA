@@ -116,8 +116,8 @@ class FieldConfig(object):
     type_regex = None
 
     def __init__(self, name, number, type,
-                 description, wstb=False, short=False, reg='', **extra_config):
-        # type: (str, int, str, str, bool, bool, str, str) -> None
+                 description, wstb=False, short=False, words=0, reg='', **extra_config):
+        # type: (str, int, str, str, bool, bool, int, str, str) -> None
         # Field names should be UPPER_CASE_OR_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*$", name), \
             "Expected FIELD_NAME, got %r" % name
@@ -142,6 +142,8 @@ class FieldConfig(object):
         self.wstb = wstb
         #: If there's a table is it short?
         self.short = short
+        #: for a table, how many words?
+        self.words = words
         #: Whats the register for an xadc field
         self.reg = reg
         #: The current value of this field for simulation
@@ -206,7 +208,6 @@ class FieldConfig(object):
 
     def settertimeL(self, block_simulation, v):
         # Setter function for time _L register
-        self.name = self.name
         if self.value != v:
             self.value = v
             if block_simulation.changes is None:
@@ -215,7 +216,6 @@ class FieldConfig(object):
 
     def settertableA(self, block_simulation, v):
         # Setter function for table_ADDRESS register
-        self.name = self.name
         if self.value != v:
             self.value = v
             if block_simulation.changes is None:
@@ -224,7 +224,6 @@ class FieldConfig(object):
 
     def settertableL(self, block_simulation, v):
         # Setter function for table_ADDRESS
-        self.name = self.name
         if self.value != v:
             self.value = v
             if block_simulation.changes is None:
@@ -233,7 +232,6 @@ class FieldConfig(object):
 
     def settertableS(self, block_simulation, v):
         # Setter function for table_START
-        self.name = self.name
         if self.value != v:
             self.value = v
             if block_simulation.changes is None:
@@ -242,7 +240,6 @@ class FieldConfig(object):
 
     def settertableD(self, block_simulation, v):
         # Setter function for table_DATA
-        self.name = self.name
         if self.value != v:
             self.value = v
             if block_simulation.changes is None:
@@ -310,44 +307,43 @@ class ExtOutTimeFieldConfig(ExtOutFieldConfig):
 
 class TableFieldConfig(FieldConfig):
     """These fields represent a table field"""
-    type_regex = "table"
+    type_regex = "table short"
 
     def register_addresses(self, field_address, bit_i, pos_i, ext_i):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
-        if self.short:
-            self.registers.append(
-                RegisterConfig(self.name, -1, 'short    512    '))
-            self.registers.append(
-                RegisterConfig(self.name + "_DATA", field_address))
-            field_address += 1
-            self.registers.append(
-                RegisterConfig(self.name + "_LENGTH", field_address))
-            field_address += 1
-            self.registers.append(
-                RegisterConfig(self.name + "_START", field_address))
-            field_address += 1
-        else:
-            self.registers.append(
-                RegisterConfig(self.name + "_ADDR", field_address))
-            field_address += 1
-            self.registers.append(
-                RegisterConfig(self.name + "_LENGTH", field_address))
-            field_address += 1
+        self.registers.append(
+            RegisterConfig(self.name, -1, 'short    512    '))
+        self.registers.append(
+            RegisterConfig(self.name + "_DATA", field_address))
+        field_address += 1
+        self.registers.append(
+            RegisterConfig(self.name + "_LENGTH", field_address))
+        field_address += 1
+        self.registers.append(
+            RegisterConfig(self.name + "_START", field_address))
+        field_address += 1
         return field_address, bit_i, pos_i, ext_i
 
     def extra_config_lines(self):
         # type: () -> Iterable[str]
-        for k, v in self.extra_config.items():
-            if "t" in k:
-                yield "%s:%s" % (k.replace("t", ""), v)
-                if "enum" in v:
-                    for a, b in sorted(self.extra_config.items()):
-                        if a.isdigit():
-                            yield "    %s %s" % (pad(str(int(a)), spaces=3), b)
-                    v.replace("enum", "")
-                no_digits = "".join([i for i in v if not i.isdigit()])
-                self.description = self.description + "%s\n" % no_digits
-
+        for k, v in sorted(self.extra_config.items()):
+            if "enum" in v:
+                [name, desc, enums] = v.split("\n", 2)
+                yield "%s" % name
+                name = name.split(" ", 2)[1]
+                yield "    %s" % enums.replace("\n", "\n            ")
+            elif "int" in v:
+                [name, desc] = v.split("\n", 1)
+                yield "%s" % name
+                name = name.split(" ", 1)[1]
+            else:
+                v = v.replace("uint", "")
+                [name, desc] = v.split("\n", 1)
+                # For new server builds uncomment this line!
+                # yield "%s uint" % name
+                yield "%s" % name
+                name = name.split(" ", 1)[1]
+            self.description += "\n        %s     %s " % (name, desc)
 
 
 class XadcFieldConfig(FieldConfig):

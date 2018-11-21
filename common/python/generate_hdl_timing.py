@@ -105,7 +105,7 @@ class HdlTimingGenerator(object):
             if field.type == "time":
                 header.append(field.name+"_L")
                 header.append(field.name + "_H")
-            elif field.type == "table" and field.short:
+            elif field.type == "table short":
                 header.append(field.name + "_START")
                 header.append(field.name + "_DATA")
                 header.append(field.name + "_LENGTH")
@@ -119,7 +119,7 @@ class HdlTimingGenerator(object):
                 if field.type == "time":
                     header.append(field.name + "_L_wstb")
                     header.append(field.name + "_H_wstb")
-                elif field.type == "table" and field.short:
+                elif field.type == "table short":
                     header.append(field.name + "_DATA_wstb")
                     header.append(field.name + "_LENGTH_wstb")
                 elif field.type == "table":

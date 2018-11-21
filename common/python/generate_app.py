@@ -148,7 +148,7 @@ class AppGenerator(object):
     def generate_config_dir(self):
         """Generate config, registers, descriptions in config_d"""
         config_dir = os.path.join(self.app_build_dir, "config_d")
-        etc_dir = "build/etc"
+        etc_dir = os.path.join(self.app_build_dir, "etc")
         os.makedirs(config_dir)
         if not os.path.isdir(etc_dir):
             os.makedirs(etc_dir)
@@ -163,6 +163,8 @@ class AppGenerator(object):
         context = dict(app=self.app_name)
         self.expand_template(
             "panda-fpga.list.jinja2", context, etc_dir, "panda-fpga.list")
+        self.expand_template("slow_top.files.jinja2", context,
+                             self.app_build_dir, "slow_top.files")
 
     def generate_wrappers(self):
         """Generate wrappers in hdl"""
