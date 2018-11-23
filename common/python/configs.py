@@ -314,13 +314,13 @@ class TableFieldConfig(FieldConfig):
         self.registers.append(
             RegisterConfig(self.name, -1, 'short    512    '))
         self.registers.append(
+            RegisterConfig(self.name + "_START", field_address))
+        field_address += 1
+        self.registers.append(
             RegisterConfig(self.name + "_DATA", field_address))
         field_address += 1
         self.registers.append(
             RegisterConfig(self.name + "_LENGTH", field_address))
-        field_address += 1
-        self.registers.append(
-            RegisterConfig(self.name + "_START", field_address))
         field_address += 1
         return field_address, bit_i, pos_i, ext_i
 

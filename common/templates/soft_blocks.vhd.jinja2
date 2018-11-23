@@ -135,7 +135,14 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
         bitbus_i            => bit_bus,
         posbus_i            => posbus,
         fmc_inputs_o        => open,
-        fmc_data_o          => open,
+        {% for field in block.filter_fields("pos_out") %}
+            {% if loop.first %}
+        {{"%-20s" | format("fmc_data_o(" + loop.revindex0|string + " downto " + "0)")}}=> posbus ({{ pos[0] + loop.revindex0 }} downto {{ pos[0] }}),
+            {% endif %}
+            {% for i in range(block.number) %}
+                {% if pos.append(pos.pop() + 1) %}{% endif %}
+            {% endfor %}
+        {% endfor %}
 
         read_strobe_i       => read_strobe({{ block.name }}_CS),
         read_address_i      => read_address,
@@ -169,7 +176,15 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
 
         sysbus_i            => bit_bus,
         sfp_inputs_o        => open,
-        sfp_data_o          => open,
+         {% for field in block.filter_fields("pos_out") %}
+        sfp_data_o({{ loop.revindex0 }} downto {{ loop.revindex0 }})   => posbus ({{ pos[0] + block.number -1 }} downto {{ pos[0] }}),
+            {% for i in range(block.number) %}
+                {% if pos.append(pos.pop() + 1) %}{% endif %}
+            {% endfor %}
+            {% if loop.last %}
+        sfp_data_o(15 downto {{loop.index}})          => posholder(15 downto {{loop.index}}),
+            {% endif %}
+        {% endfor %}
 
         read_strobe_i       => read_strobe({{ block.name }}_CS),
         read_address_i      => read_address,
