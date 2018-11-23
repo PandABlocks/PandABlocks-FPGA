@@ -122,13 +122,20 @@ begin
             pos_bus_i           => pos_bus_i,
 
 {% for field in fields %}
-    {% if field in filter_fields("(table|param|write).*") %}
+    {% if field in filter_fields("(param|write).*") %}
         {% for register in field.registers %}
             {% if register.number >= 0 %}
             {{ "%-20s"|format(register.name) }}=> {{ register.name }}(I),
             {{ "%-20s"|format(register.name + "_wstb") }}=> {{ register.name }}_wstb(I),
             {% endif %}
         {% endfor %}
+    {% elif field in filter_fields("table short") %}
+            {{ "%-20s"|format(field.name + "_START") }}=> open,
+            {{ "%-20s"|format(field.name + "_DATA") }}=> {{ field.name }}_DATA(I),
+            {{ "%-20s"|format(field.name + "_LENGTH") }}=> {{ field.name }}_LENGTH(I),
+            {{ "%-20s"|format(field.name + "_START_wstb") }}=> {{ field.name }}_START(I)(0),
+            {{ "%-20s"|format(field.name + "_DATA_wstb") }}=> {{ field.name }}_DATA_wstb(I),
+            {{ "%-20s"|format(field.name + "_LENGTH_wstb") }}=> {{ field.name }}_LENGTH_wstb(I),
     {% elif field in filter_fields("time") %}
             {{ "%-20s"|format(field.name + "_L") }}=> {{ field.name }}(I)(31 downto 0),
             {{ "%-20s"|format(field.name + "_H") }}=> {{ field.name }}(I)(63 downto 32),
