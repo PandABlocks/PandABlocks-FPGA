@@ -39,6 +39,8 @@ signal LINK_UP         : std_logic_vector(31 downto 0);
 signal ERROR_COUNT     : std_logic_vector(31 downto 0);
 signal FREQ_VAL         : std_logic_vector(31 downto 0);
 signal GTREFCLK         : std_logic;
+signal MAC_LO           : std_logic_vector(31 downto 0);-- := (others => '0');
+signal MAC_HI           : std_logic_vector(31 downto 0);-- := (others => '0');
 signal SOFT_RESET       : std_logic;
 signal SFP_LOS_VEC      : std_logic_vector(31 downto 0) := (others => '0');
 
@@ -87,6 +89,12 @@ port map (
 
 SFP_LOS_VEC <= (0 => SFP_interface.SFP_LOS, others => '0');
 
+MAC_HI(23 downto 0) <= SFP_interface.MAC_ADDR(47 downto 24);
+MAC_LO(23 downto 0) <= SFP_interface.MAC_ADDR(23 downto 0);
+
+--MAC_HI <= (23 downto 0 => SFP_interface.MAC_ADDR(47 downto 24), others => '0');
+--MAC_LO <= (23 downto 0 => SFP_interface.MAC_ADDR(23 downto 0), others => '0');
+
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
@@ -102,6 +110,8 @@ port map (
     LINK_UP                    => LINK_UP,
     ERROR_COUNT                => ERROR_COUNT,
     SFP_CLK                   => FREQ_VAL,
+    SFP_MAC_LO                 => MAC_LO,
+    SFP_MAC_HI                 => MAC_HI,
     SOFT_RESET                  => open,
     SOFT_RESET_WSTB             => SOFT_RESET,
     -- Memory Bus Interface

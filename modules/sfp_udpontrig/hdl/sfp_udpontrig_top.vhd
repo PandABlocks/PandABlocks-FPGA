@@ -95,9 +95,8 @@ signal SFP_STATUS_COUNT           : std_logic_vector(31 downto 0);
 signal SFP_START_COUNT            : std_logic;
 signal SFP_STOP_COUNT             : std_logic;
 
-signal OUR_MAC_ADDRESS         : std_logic_vector(47 downto 0);
-signal MAC_LO                  : std_logic_vector(31 downto 0);
-signal MAC_HI                  : std_logic_vector(31 downto 0);
+signal MAC_LO                  : std_logic_vector(31 downto 0) := (others => '0');
+signal MAC_HI                  : std_logic_vector(31 downto 0) := (others => '0');
 
 signal dest_udp_port32         : std_logic_vector(31 downto 0);
 signal our_udp_port32          : std_logic_vector(31 downto 0);
@@ -162,7 +161,7 @@ SFP_UDP_Complete_i : SFP_UDP_Complete
     count_udp_tx_RESULT_ERR   => count_udp_tx_RESULT_ERR_i, 
     SFP_STATUS_COUNT          => SFP_STATUS_COUNT,
     -- Block Parameters
-    OUR_MAC_ADDRESS =>OUR_MAC_ADDRESS,
+    OUR_MAC_ADDRESS =>SFP_interface.MAC_ADDR,
     dest_udp_port  =>dest_udp_port,
     our_udp_port   =>our_udp_port,
     dest_ip_address=>dest_ip_address,
@@ -206,9 +205,8 @@ end process;
 
 SOFT_RESET_rise<=SOFT_RESET and not(SOFT_RESET_prev);
 
-
-OUR_MAC_ADDRESS(23 downto 0) <=MAC_LO(23 downto 0);
-OUR_MAC_ADDRESS(47 downto 24)<=MAC_HI(23 downto 0);
+MAC_HI(23 downto 0) <= SFP_interface.MAC_ADDR(47 downto 24);
+MAC_LO(23 downto 0) <= SFP_interface.MAC_ADDR(23 downto 0);
 
 SFP_LOS_VEC <= (0 => SFP_interface.SFP_LOS, others => '0');
 ---------------------------------------------------------------------------

@@ -28,6 +28,10 @@ use work.reg_defines.all; -- This includes the reg and DRV declarations as they
 use work.panda_version.all; -- are not treated as blocks and cannot be autogend
 
 entity reg_top is
+generic (
+    NUM_SFP            : natural := 0;
+    NUM_FMC            : natural := 0
+);
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -44,7 +48,12 @@ port (
     -- Readback signals
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
-    SLOW_FPGA_VERSION   : in  std_logic_vector(31 downto 0)
+    SLOW_FPGA_VERSION   : in  std_logic_vector(31 downto 0);
+    -- Output signals
+    SFP_MAC_ADDR        : out std32_array(2*NUM_SFP -1 downto 0) := (others => (others => '1'));
+    SFP_MAC_ADDR_WSTB   : out std_logic_vector(2*NUM_SFP downto 0) := (others => '0');
+    FMC_MAC_ADDR        : out std32_array(2*NUM_FMC -1 downto 0) := (others => (others => '1'));
+    FMC_MAC_ADDR_WSTB   : out std_logic_vector(2*NUM_FMC downto 0) := (others => '0')
 );
 end reg_top;
 
@@ -88,17 +97,72 @@ begin
     if rising_edge(clk_i) then
         BIT_READ_RST <= '0';
         POS_READ_RST <= '0';
-
+        if (NUM_SFP > 0 ) then
+            SFP_MAC_ADDR_WSTB(0) <= '0';
+            SFP_MAC_ADDR_WSTB(1) <= '0';
+        end if;
+        if (NUM_SFP > 1) then
+            SFP_MAC_ADDR_WSTB(2) <= '0';
+            SFP_MAC_ADDR_WSTB(3) <= '0';
+        end if;
+        if (NUM_SFP > 2 ) then 
+            SFP_MAC_ADDR_WSTB(4) <= '0';
+            SFP_MAC_ADDR_WSTB(5) <= '0';
+        end if;
+        if (NUM_FMC > 0 ) then
+            FMC_MAC_ADDR_WSTB(0) <= '0';
+            FMC_MAC_ADDR_WSTB(1) <= '0';
+        end if;
         if (write_strobe_i = '1') then
             -- System Bus Read Start
             if (write_address = REG_BIT_READ_RST) then
                 BIT_READ_RST <= '1';
             end if;
-
             -- Position Bus Read Start
             if (write_address = REG_POS_READ_RST) then
                 POS_READ_RST <= '1';
             end if;
+            -- Write MGT MAC addresses
+            if (NUM_SFP > 0) then
+                if (write_address = REG_SFP1_MAC_HI) then 
+                    SFP_MAC_ADDR(0) <= write_data_i;
+                    SFP_MAC_ADDR_WSTB(0) <= '1';
+                end if;
+                if (write_address = REG_SFP1_MAC_LO) then 
+                    SFP_MAC_ADDR(1) <= write_data_i;
+                    SFP_MAC_ADDR_WSTB(1) <= '1';
+                end if;
+            end if;
+            if (NUM_SFP > 1) then
+                if (write_address = REG_SFP2_MAC_HI) then 
+                    SFP_MAC_ADDR(2) <= write_data_i;
+                    SFP_MAC_ADDR_WSTB(2) <= '1';
+                end if;
+                if (write_address = REG_SFP2_MAC_LO) then 
+                    SFP_MAC_ADDR(3) <= write_data_i;
+                    SFP_MAC_ADDR_WSTB(3) <= '1';
+                end if;
+            end if;
+            if (NUM_SFP > 2) then
+                if (write_address = REG_SFP3_MAC_HI) then 
+                    SFP_MAC_ADDR(4) <= write_data_i;
+                    SFP_MAC_ADDR_WSTB(4) <= '1';
+                end if;
+                if (write_address = REG_SFP3_MAC_LO) then 
+                    SFP_MAC_ADDR(5) <= write_data_i;
+                    SFP_MAC_ADDR_WSTB(5) <= '1';
+                end if;
+            end if;
+            if (NUM_FMC > 0) then
+                if (write_address = REG_FMC_MAC_HI) then 
+                    FMC_MAC_ADDR(0) <= write_data_i;
+                    FMC_MAC_ADDR_WSTB(0) <= '1';
+                end if;
+                if (write_address = REG_FMC_MAC_LO) then 
+                    FMC_MAC_ADDR(1) <= write_data_i;
+                    FMC_MAC_ADDR_WSTB(1) <= '1';
+                end if; 
+           end if;               
         end if;
     end if;
 end process;
