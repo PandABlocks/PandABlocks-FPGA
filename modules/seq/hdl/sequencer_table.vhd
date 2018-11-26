@@ -149,7 +149,7 @@ begin
             seq_raddr <= (others => '0');
             next_frame_o <= (repeats => (others => '0'), trigger => (others => '0'), out1 => (others => '0'), out2 => (others => '0'), 
                              position => (others => '0'), time1 => (others => '0'), time2 => (others => '0'));
-        else
+        else    
             -- Increment read address for loading frames from the table.
             if (load_next_i = '1') then
                 if (seq_raddr = unsigned(TABLE_LENGTH)-1) then
@@ -157,6 +157,9 @@ begin
                 else
                     seq_raddr <= seq_raddr + 1;
                 end if;
+            -- Reset the read address index when new values written to the table
+            elsif (TABLE_START = '1') then
+                seq_raddr <= (others => '0');    
             end if;
 
             next_frame_o.repeats <= unsigned(seq_dout(0)(15 downto 0));  -- [0](15 downto 0)    Repeats
