@@ -118,14 +118,6 @@ begin
 write_ack_0_o <= '1';
 write_ack_1_o <= '1';
 
-read_ack_0 : entity work.delay_line
-generic map (DW => 1)
-port map (
-    clk_i       => clk_i,
-    data_i(0)   => read_strobe_i(PCAP_CS),
-    data_o(0)   => read_ack_0_o,
-    DELAY       => RD_ADDR2ACK
-);
 
 read_ack_1 : entity work.delay_line
 generic map (DW => 1)
@@ -162,7 +154,7 @@ port map (
     read_strobe_i       => read_strobe_i(PCAP_CS),
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
     read_data_o         => read_data_0_o,
-    read_ack_o          => open,
+    read_ack_o          => read_ack_0_o,
 
     write_strobe_i      => write_strobe_i(PCAP_CS),
     write_address_i     => write_address_i(BLK_AW-1 downto 0),

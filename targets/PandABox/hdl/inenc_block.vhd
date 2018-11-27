@@ -138,16 +138,6 @@ port map (
 DCARD_TYPE <= x"0000000" & '0' & DCARD_MODE(3 downto 1);
 
 
--- Generate read strobe to clear STATUS register on readback
-read_ack_delay : entity work.delay_line
-generic map (DW => 1)
-port map (
-    clk_i       => clk_i,
-    data_i(0)   => read_strobe_i,
-    data_o(0)   => read_ack,
-    DELAY       => RD_ADDR2ACK
-);
-
 read_addr <= to_integer(unsigned(read_address_i));
 
 --------------------------------------------------------------------------

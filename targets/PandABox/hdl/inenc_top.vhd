@@ -13,6 +13,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.std_logic_misc.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -64,20 +65,13 @@ signal read_strobe      : std_logic_vector(ENC_NUM-1 downto 0);
 signal read_data        : std32_array(ENC_NUM-1 downto 0);
 signal write_strobe     : std_logic_vector(ENC_NUM-1 downto 0);
 signal posn             : std32_array(ENC_NUM-1 downto 0);
+signal read_ack        : std_logic_vector(ENC_NUM-1 downto 0);
 
 begin
 
 -- Acknowledgement to AXI Lite interface
 write_ack_o <= '1';
-
-read_ack_delay : entity work.delay_line
-generic map (DW => 1)
-port map (
-    clk_i       => clk_i,
-    data_i(0)   => read_strobe_i,
-    data_o(0)   => read_ack_o,
-    DELAY       => RD_ADDR2ACK
-);
+read_ack_o <= or_reduce(read_ack);
 
 -- Multiplex read data out from multiple instantiations
 read_data_o <= read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW))));
@@ -110,7 +104,7 @@ port map (
     read_strobe_i       => read_strobe(I),
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
     read_data_o         => read_data(I),
-    read_ack_o          => open,
+    read_ack_o          => read_ack(I),
 
     write_strobe_i      => write_strobe(I),
     write_address_i     => write_address_i(BLK_AW-1 downto 0),

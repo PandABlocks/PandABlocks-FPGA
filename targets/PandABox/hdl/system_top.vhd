@@ -71,15 +71,6 @@ begin
 -- Accept write data if FIFO is available
 write_ack_o <= not cmd_ready_n;
 
--- Read acknowledgement to AXI Lite interface
-read_ack_delay : entity work.delay_line
-generic map (DW => 1)
-port map (
-    clk_i       => clk_i,
-    data_i(0)   => read_strobe_i,
-    data_o(0)   => read_ack_o,
-    DELAY       => RD_ADDR2ACK
-);
 
 ---------------------------------------------------------------------------
 -- Slow register access interface
@@ -162,7 +153,7 @@ port map (
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
     read_data_o         => read_data_o,
-    read_ack_o          => open,
+    read_ack_o          => read_ack_o,
 
     write_strobe_i      => write_strobe_i(SYSTEM_CS),
     write_address_i     => write_address_i(BLK_AW-1 downto 0),

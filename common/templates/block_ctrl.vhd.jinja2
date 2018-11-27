@@ -73,6 +73,15 @@ begin
     read_addr <= to_integer(unsigned(read_address_i));
     write_addr <= to_integer(unsigned(write_address_i));
 
+    read_ack_delay : entity work.delay_line
+    generic map (DW => 1)
+    port map (
+        clk_i       => clk_i,
+        data_i(0)   => read_strobe_i,
+        data_o(0)   => read_ack_o,
+        DELAY       => RD_ADDR2ACK
+    );
+
     -- Control System Register Interface
     REG_WRITE : process(clk_i)
     begin
