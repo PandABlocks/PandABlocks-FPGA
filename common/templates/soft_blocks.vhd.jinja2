@@ -52,10 +52,8 @@ architecture rtl of soft_blocks is
 -- Chip selects and Block Num constants are declared in addr_defines
 
 begin
-
 {# Using a namespace jinja2 object may make iterating simpler #}
-{% set bit = [bit_bus_length] %}
-{% set pos = [pos_bus_length] %}
+{% set bit = [bit_bus_length] %}{% set pos = [pos_bus_length] %}
 {% set dma = [0] %}
 {% for block in blocks %}
     {% if block.type == "soft" %}
@@ -165,7 +163,7 @@ END GENERATE;
 
 SFP_GEN : IF (SIM = "FALSE") GENERATE
 
-    {% endif %}    
+    {% endif %}
 --------------------------------------------------------------------------------
 -- {{ block.entity }} - {{ block.description }} 
 --------------------------------------------------------------------------------

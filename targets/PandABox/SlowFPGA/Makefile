@@ -22,7 +22,7 @@ TWX_FILE = $(SYSTEM).twx
 BIT_FILE = $(SYSTEM).bit
 PROM_FILE = $(SYSTEM).mcs
 
-VERSION_FILE = $(BUILD_DIR)/hdl/slow_version.vhd
+VERSION_FILE = $(BUILD_DIR)/../hdl/slow_version.vhd
 
 # Print the names of unlocked (unconstrainted) IOs
 export XIL_PAR_DESIGN_CHECK_VERBOSE=1
@@ -45,7 +45,7 @@ VERSION :
 
 # We have to take a bit of care when building the list file: it turns out that
 # xst can't cope with long file names.
-$(LIST_FILE): $(BUILD_DIR)/slow_top.files
+$(LIST_FILE): $(BUILD_DIR)/../slow_top.files
 	ln -sfn $(TOP) top
 	sed "s:^:vhdl work top/:" $< >$@
 

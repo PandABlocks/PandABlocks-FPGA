@@ -7,6 +7,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.std_logic_misc.all;
 
 library work;
 use work.top_defines.all;
@@ -104,22 +105,13 @@ signal read_data        : std32_array(NUM-1 downto 0);
 signal write_strobe     : std_logic_vector(NUM-1 downto 0);
 signal read_addr        : natural range 0 to (2**read_address_i'length - 1);
 signal write_addr       : natural range 0 to (2**write_address_i'length - 1);
-
+signal read_ack         : std_logic_vector(NUM-1 downto 0);
 
 begin
 
     -- Acknowledgement to AXI Lite interface
     write_ack_o <= '1';
-
-    read_ack_delay : entity work.delay_line
-    generic map (DW => 1)
-    port map (
-        clk_i       => clk_i,
-        data_i(0)   => read_strobe_i,
-        data_o(0)   => read_ack_o,
-        DELAY       => RD_ADDR2ACK
-    );
-
+    read_ack_o <= or_reduce(read_ack);
     read_data_o <= read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW))));
 
     -- Generate NUM instances of the blocks
@@ -128,6 +120,7 @@ begin
         -- Sub-module address decoding
         read_strobe(I) <= compute_block_strobe(read_address_i, I) and read_strobe_i;
         write_strobe(I) <= compute_block_strobe(write_address_i, I) and write_strobe_i;
+
 
         lut_ctrl : entity work.lut_ctrl
         port map (
@@ -157,7 +150,7 @@ begin
             read_strobe_i       => read_strobe(I),
             read_address_i      => read_address_i(BLK_AW-1 downto 0),
             read_data_o         => read_data(I),
-            read_ack_o          => open,
+            read_ack_o          => read_ack(I),
 
             write_strobe_i      => write_strobe(I),
             write_address_i     => write_address_i(BLK_AW-1 downto 0),

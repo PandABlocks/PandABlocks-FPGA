@@ -143,17 +143,26 @@ BUILD_DIR = $(TOP)/build
 # Extract FMC and SFP design names from config file
 
 CARRIER_FPGA_TARGETS = carrier-fpga carrier-ip
+FPGA_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/apps/%/FPGA,$(APPS))
 
-$(CARRIER_FPGA_TARGETS) $(IP_DIR): $(FPGA_BUILD_DIR) apps
-	$(MAKE) -C $< -f $(TARGET_DIR)/Makefile VIVADO=$(VIVADO) \
-	    TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(FPGA_BUILD_DIR) \
-	    IP_DIR=$(IP_DIR) \
-	    $@
+$(BUILD_DIR)/apps/%/FPGA: apps
+	mkdir -p $@ ; \
+	$(MAKE) -C $@ -f $(TARGET_DIR)/Makefile VIVADO=$(VIVADO) \
+	    TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$@ \
+	    IP_DIR=$(IP_DIR)
 
-slow-fpga: $(SLOW_FPGA_BUILD_DIR) tools/virtexHex2Bin apps
-	source $(ISE)  &&  $(MAKE) -C $< -f $(TARGET_DIR)/SlowFPGA/Makefile \
+$(CARRIER_FPGA_TARGETS) $(IP_DIR): $(FPGA_BUILD_DIRS)
+
+SLOW_FPGA_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/apps/%/SlowFPGA,$(APPS))
+
+$(BUILD_DIR)/apps/%/SlowFPGA: tools/virtexHex2Bin apps
+	mkdir -p $@ ; \
+	source $(ISE)  &&  $(MAKE) -C $@ -f $(TARGET_DIR)/SlowFPGA/Makefile \
             TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA BOARD=$(BOARD) mcs \
-            BUILD_DIR=$(FPGA_BUILD_DIR)
+            BUILD_DIR=$@
+
+slow-fpga: $(SLOW_FPGA_BUILD_DIRS)
+
 
 tools/virtexHex2Bin : tools/virtexHex2Bin.c
 	gcc -o $@ $<
@@ -164,10 +173,16 @@ tools/virtexHex2Bin : tools/virtexHex2Bin.c
 # Build installation package
 # ------------------------------------------------------------------------------
 
-zpkg: $(FPGA_BUILD_DIR)/etc/panda-fpga.list $(FIRMWARE_BUILD)
-	rm -f $(BUILD_DIR)/*.zpg
+FPGA_LISTS=$(patsubst %,$(BUILD_DIR)/apps/%/etc/panda-fpga.list,$(APPS))
+
+$(BUILD_DIR)/apps/%/etc/panda-fpga.list: apps
 	$(MAKE_ZPKG) -t $(BUILD_DIR) -b $(BUILD_DIR) -d $(BUILD_DIR) \
-            $< $(APPS)-$(GIT_VERSION)
+            $@ $(filter PandABox-%, "$(subst /, ,$@)")-$(GIT_VERSION)
+
+
+zpkg: $(FPGA_LISTS) $(FIRMWARE_BUILD)
+
+
 
 .PHONY: zpkg
 

@@ -52,7 +52,6 @@ architecture rtl of soft_blocks is
 -- Chip selects and Block Num constants are declared in addr_defines
 
 begin
-
 --------------------------------------------------------------------------------
 -- lut - Lookup table
 --------------------------------------------------------------------------------

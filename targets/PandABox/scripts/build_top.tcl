@@ -36,7 +36,7 @@ set IP_DIR [lindex $argv 3]
 
 # Create project
 #create_project -force panda_top $BUILD_DIR/panda_top -part xc7z030sbg485-1
-create_project -force -in_memory panda_carrier_top $BUILD_DIR/panda_carier_top -part xc7z030sbg485-1
+create_project -force -in_memory panda_carrier_top $BUILD_DIR/FPGA/panda_carier_top -part xc7z030sbg485-1
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -72,7 +72,7 @@ set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_syn
 source $BUILD_DIR/hdl/constraints.tcl
 
 # Read Zynq block design
-read_bd   $BUILD_DIR/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
+read_bd   $BUILD_DIR/FPGA/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 
 # Read auto generated files
 read_vhdl [glob $BUILD_DIR/hdl/*.vhd]
@@ -130,7 +130,7 @@ write_bitstream -force panda_top.bit
 #
 # Export HW for SDK
 #
-write_hwdef -file $BUILD_DIR/panda_top_wrapper.hdf -force
+write_hwdef -file $BUILD_DIR/FPGA/panda_top_wrapper.hdf -force
 
 close_project
 exit
