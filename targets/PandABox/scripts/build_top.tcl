@@ -80,8 +80,9 @@ read_vhdl [glob $BUILD_DIR/hdl/*.vhd]
 # Read design files
 
 read_vhdl [glob $TOP_DIR/common/hdl/defines/*.vhd]
-read_vhdl [glob $TARGET_DIR/hdl/*.vhd]
 read_vhdl [glob $TOP_DIR/common/hdl/*.vhd]
+read_vhdl [glob $TARGET_DIR/hdl/*.vhd]
+read_vhdl [glob $TARGET_DIR/hdl/defines/*.vhd]
 
 #
 # STEP#2: run synthesis, report utilization and timing estimates, write

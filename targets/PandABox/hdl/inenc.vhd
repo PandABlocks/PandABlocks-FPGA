@@ -152,18 +152,19 @@ port map (
 -- BiSS Instantiations
 --------------------------------------------------------------------------
 -- Caused the soft modules to not respond. Commented out as untested at the moment
-biss_master_inst : entity work.biss_master
-port map (
-    clk_i           => clk_i,
-    reset_i         => reset_i,
-    BITS            => BITS,
-    CLK_PERIOD      => CLK_PERIOD,
-    FRAME_PERIOD    => FRAME_PERIOD,
-    biss_sck_o      => clk_out_encoder_biss,
-    biss_dat_i      => DATA_IN,
-    posn_o          => posn_biss,
-    posn_valid_o    => open
-);
+-- BiSS Master
+--biss_master_inst : entity work.biss_master
+--port map (
+--    clk_i           => clk_i,
+--    reset_i         => reset_i,
+--    BITS            => BITS,
+--   CLK_PERIOD      => CLK_PERIOD,
+--    FRAME_PERIOD    => FRAME_PERIOD,
+--    biss_sck_o      => clk_out_encoder_biss,
+--    biss_dat_i      => DATA_IN,
+--    posn_o          => posn_biss,
+--    posn_valid_o    => open
+--);
 
 
 -- BiSS Sniffer

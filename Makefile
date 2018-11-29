@@ -177,7 +177,7 @@ FPGA_LISTS=$(patsubst %,$(BUILD_DIR)/apps/%/etc/panda-fpga.list,$(APPS))
 
 $(BUILD_DIR)/apps/%/etc/panda-fpga.list: apps
 	$(MAKE_ZPKG) -t $(BUILD_DIR) -b $(BUILD_DIR) -d $(BUILD_DIR) \
-            $@ $(filter PandABox-%, "$(subst /, ,$@)")-$(GIT_VERSION)
+            $@ $(filter $(TARGET)-%, "$(subst /, ,$@)")-$(GIT_VERSION)
 
 
 zpkg: $(FPGA_LISTS) $(FIRMWARE_BUILD)
