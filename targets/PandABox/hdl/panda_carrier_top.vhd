@@ -758,11 +758,11 @@ port map (
 
 -- BIT_BUS_SIZE and POS_BUS_SIZE declared in addr_defines.vhd
 
-bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
-                                   inenc_data & inenc_z & inenc_b & inenc_a &
-                                   lvdsin_val & ttlin_val;
+--bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
+--                                   inenc_data & inenc_z & inenc_b & inenc_a &
+--                                   lvdsin_val & ttlin_val;
 
-posbus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
+--posbus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
 
 -- Assemble FMC record
 FMC.FMC_PRSNT <= FMC_PRSNT;
