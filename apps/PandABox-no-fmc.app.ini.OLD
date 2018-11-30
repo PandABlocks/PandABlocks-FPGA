@@ -31,11 +31,8 @@ number:1
 
 [SEQ]
 
-[FMCA]
-type: dac427
-
-[FMCB]
-type: adc427
+[FMC]
+type: loopback
 
 [SFPA]
 type: loopback
