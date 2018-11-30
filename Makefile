@@ -11,7 +11,7 @@ PANDA_ROOTFS = $(error Define PANDA_ROOTFS in CONFIG file)
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 APPS = $(patsubst apps/%.app.ini,%,$(wildcard apps/*.app.ini))
 TEST_DIR = $(BUILD_DIR)/tests
-IP_DIR = $(TOP)/common/ip_repo
+IP_DIR = $(BUILD_DIR)/ip_repo
 FPGA_BUILD_DIR = $(BUILD_DIR)/apps/$(APPS)
 TARGET_DIR = $(TOP)/targets/$(TARGET)
 SLOW_FPGA_BUILD_DIR = $(BUILD_DIR)/apps/$(APPS)/SlowFPGA
@@ -87,10 +87,6 @@ python_timing:
 
 .PHONY: python_timing
 
-#-------------------------------------------------------------------------------
-# Remove the Xilinx IP
-ip_clean:
-	rm -rf $(IP_DIR)
 # ------------------------------------------------------------------------------
 # Timing test benches using vivado to run FPGA simulations
 
@@ -194,7 +190,11 @@ $(BUILD_DIR)/%:
 # Clean
 
 clean:
-	rm -rf $(BUILD_DIR) $(DOCS_BUILD_DIR)
+	rm -rf $(BUILD_DIR)/apps $(DOCS_BUILD_DIR) *.zpg
 	find -name '*.pyc' -delete
+
+# Remove the Xilinx IP
+ip_clean:
+	rm -rf $(IP_DIR)
 
 .PHONY: clean
