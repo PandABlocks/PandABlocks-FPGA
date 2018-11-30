@@ -136,8 +136,12 @@ class FieldConfig(object):
         #: All the other extra config items
         self.extra_config = extra_config
         #: If there is an enum, how long is it?
+        self.enumlength = 0
         if extra_config:
-            self.enumlength = int(math.ceil(math.log(len(extra_config), 2)) - 1)
+            for k, v in sorted(extra_config.items()):
+                if k > self.enumlength:
+                    self.enumlength = int(k)
+            self.enumlength = int(math.ceil(math.log(self.enumlength+1, 2)) - 1)
         #: If a write strobe is required, set wstb to 1
         self.wstb = wstb
         #: If there's a table is it short?

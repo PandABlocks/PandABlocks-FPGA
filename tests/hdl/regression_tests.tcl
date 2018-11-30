@@ -54,6 +54,7 @@ if {$argc > 0} {
 add_files -norecurse {
     ../../common/hdl
     ../../common/hdl/defines
+    ../../targets/PandABox/hdl/defines
 }
 
 

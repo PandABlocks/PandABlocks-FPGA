@@ -110,6 +110,7 @@ architecture rtl of panda_carrier_top is
 
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
+signal FCLK_CLK0_PS         : std_logic;
 signal FCLK_RESET0_N        : std_logic_vector(0 downto 0);
 signal FCLK_RESET0          : std_logic;
 
@@ -251,6 +252,10 @@ signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
 attribute syn_noclockbuf : boolean;
 attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
+
+
+signal sma_pll_locked       : std_logic;
+signal ext_clock            : std_logic_vector(1 downto 0);
 
 -- Make schematics a bit more clear for analysis
 --attribute keep              : string; -- GBC removed following three lines 14/09/18 
@@ -714,6 +719,9 @@ port map (
     spi_dat_o           => SPI_DAT_O,
     spi_sclk_i          => SPI_SCLK_I,
     spi_dat_i           => SPI_DAT_I
+    -- External clock
+--    sma_pll_locked_i    => sma_pll_locked,
+--    ext_clock_o         => ext_clock
 );
 
 ---------------------------------------------------------------------------
