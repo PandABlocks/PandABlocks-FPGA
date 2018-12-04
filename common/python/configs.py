@@ -340,9 +340,7 @@ class TableFieldConfig(FieldConfig):
             else:
                 v = v.replace("uint", "")
                 [name, desc] = v.split("\n", 1)
-                # For new server builds uncomment this line!
-                # yield "%s uint" % name
-                yield "%s" % name
+                yield "%s uint" % name
                 name = name.split(" ", 1)[1]
             self.description += "\n        %s     %s " % (name, desc)
 
