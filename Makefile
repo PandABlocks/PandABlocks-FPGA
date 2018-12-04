@@ -2,54 +2,75 @@
 
 TOP := $(CURDIR)
 
-# Build defaults that can be overwritten by the CONFIG file if present
 
-BUILD_DIR = $(TOP)/build
+# The following symbols MUST be defined in the CONFIG file before being used.
+PANDA_ROOTFS = $(error Define PANDA_ROOTFS in CONFIG file)
+ISE = $(error Define ISE in CONFIG file)
+VIVADO = $(error Define VIVADO in CONFIG file)
+APP_NAME = $(error Define APP_NAME in CONFIG file)
+
+# Build defaults that can be overwritten by the CONFIG file if required
 PYTHON = python2
 SPHINX_BUILD = sphinx-build
-PANDA_ROOTFS = $(error Define PANDA_ROOTFS in CONFIG file)
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
-APPS = $(patsubst apps/%.app.ini,%,$(wildcard apps/*.app.ini))
-TEST_DIR = $(BUILD_DIR)/tests
-IP_DIR = $(BUILD_DIR)/ip_repo
-FPGA_BUILD_DIR = $(BUILD_DIR)/apps/$(APPS)
-TARGET_DIR = $(TOP)/targets/$(TARGET)
-SLOW_FPGA_BUILD_DIR = $(BUILD_DIR)/apps/$(APPS)/SlowFPGA
+
+BUILD_DIR = $(TOP)/build
+DEFAULT_TARGETS = zpkg
+
 
 # The CONFIG file is required.  If not present, create by copying CONFIG.example
 # and editing as appropriate.
 include CONFIG
 
-#default: apps docs
+
+# Now we've loaded the CONFIG compute all the appropriate destinations
+TEST_DIR = $(BUILD_DIR)/tests
+IP_DIR = $(BUILD_DIR)/ip_repo
+APP_BUILD_DIR = $(BUILD_DIR)/apps/$(APP_NAME)
+AUTOGEN_BUILD_DIR = $(APP_BUILD_DIR)/autogen
+FPGA_BUILD_DIR = $(APP_BUILD_DIR)/FPGA
+SLOW_FPGA_BUILD_DIR = $(APP_BUILD_DIR)/SlowFPGA
+
+# The TARGET defines the class of application and is extracted from the first
+# part of the APP_NAME.
+TARGET = $(firstword $(subst -, ,$(APP_NAME)))
+TARGET_DIR = $(TOP)/targets/$(TARGET)
+
+
 default: $(DEFAULT_TARGETS)
 .PHONY: default
+
 
 # ------------------------------------------------------------------------------
 # App source autogeneration
 
-# For every APP in APPS, make build/APP
-APP_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/apps/%,$(APPS))
+APP_FILE = $(TOP)/apps/$(APP_NAME).app.ini
+
+APP_DEPENDS += common/python/generate_app.py
+APP_DEPENDS += $(wildcard common/templates/*)
+
 # Make the built app from the ini file
-$(BUILD_DIR)/apps/%: $(TOP)/apps/%.app.ini
-	rm -rf $@_tmp $@
-	$(PYTHON) -m common.python.generate_app $@_tmp $^
-	mv $@_tmp $@
+$(AUTOGEN_BUILD_DIR): $(APP_FILE) $(APP_DEPENDS)
+	rm -rf $@
+	$(PYTHON) -m common.python.generate_app $@ $<
 
-apps: $(APP_BUILD_DIRS)
-
+apps: $(AUTOGEN_BUILD_DIR)
 .PHONY: apps
 
+
 # ------------------------------------------------------------------------------
-# FPGA bitstream generation
+# Version symbols for FPGA bitstream generation etc
 
 # Something like 0.1-1-g5539563-dirty
 export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
 # Split and append .0 to get 0.1.0, then turn into hex to get 00000100
 export VERSION := $(shell ./common/python/parse_git_version.py "$(GIT_VERSION)")
 # 8 if dirty, 0 if clean
-DIRTY_PRE = $(shell python -c "print 8 if '$(GIT_VERSION)'.endswith('dirty') else 0")
+DIRTY_PRE = $(shell \
+    python -c "print 8 if '$(GIT_VERSION)'.endswith('dirty') else 0")
 # Something like 85539563
 export SHA := $(DIRTY_PRE)$(shell git rev-parse --short HEAD)
+
 
 # ------------------------------------------------------------------------------
 # Documentation
@@ -68,24 +89,22 @@ $(DOCS_HTML_DIR): docs/conf.py $(SRC_RST_FILES)
 	$(SPHINX_BUILD) -b html docs $@
 
 docs: $(DOCS_HTML_DIR)
-
 .PHONY: docs
 
-# ------------------------------------------------------------------------------
-# Test just the python framework
 
+# ------------------------------------------------------------------------------
+# Tests
+
+# Test just the python framework
 python_tests:
 	$(PYTHON) -m unittest discover -v tests.python
-
 .PHONY: python_tests
 
-# ------------------------------------------------------------------------------
 # Test just the timing for simulations
-
 python_timing:
 	$(PYTHON) -m unittest -v tests.test_python_sim_timing
-
 .PHONY: python_timing
+
 
 # ------------------------------------------------------------------------------
 # Timing test benches using vivado to run FPGA simulations
@@ -105,9 +124,6 @@ $(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
 	$(PYTHON) -m common.python.generate_hdl_timing $@_tmp $^
 	mv $@_tmp $@
 
-# Make the hdl_timing folders without running tests
-hdl_timing: $(TIMING_BUILD_DIRS)
-
 # Make the hdl_timing folders and run all tests, or specific module by setting
 # the MODULE argument
 hdl_test: $(TIMING_BUILD_DIRS)
@@ -115,7 +131,6 @@ hdl_test: $(TIMING_BUILD_DIRS)
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
-
 	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace \
 	 -source ../../tests/hdl/regression_tests.tcl -tclargs $(MODULE)
 
@@ -128,73 +143,88 @@ single_hdl_test: $(TIMING_BUILD_DIRS)
 	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace \
 	 -source ../../tests/hdl/single_test.tcl -tclargs $(TEST)
 
+# Make the hdl_timing folders without running tests
+hdl_timing: $(TIMING_BUILD_DIRS)
 .PHONY: hdl_timing
 
+
 # ------------------------------------------------------------------------------
-# --- FPGA build
-# ------------------------------------------------------------------------------
-APP_FILE = $(TOP)/apps/$(APP_NAME)
-BUILD_DIR = $(TOP)/build
+# FPGA build
 
-# Extract FMC and SFP design names from config file
+FPGA_FILE = $(FPGA_BUILD_DIR)/panda_top.bit
+SLOW_FPGA_FILE = $(SLOW_FPGA_BUILD_DIR)/slow_top.bin
 
-CARRIER_FPGA_TARGETS = carrier-fpga carrier-ip
-FPGA_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/apps/%/FPGA,$(APPS))
+FPGA_DEPENDS =
 
-$(BUILD_DIR)/apps/%/FPGA: apps
-	mkdir -p $@ ; \
-	$(MAKE) -C $@ -f $(TARGET_DIR)/Makefile VIVADO=$(VIVADO) \
-	    TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$@ \
-	    IP_DIR=$(IP_DIR)
+SLOW_FPGA_DEPENDS =
+SLOW_FPGA_DEPENDS += tools/virtexHex2Bin
 
-$(CARRIER_FPGA_TARGETS) $(IP_DIR): $(FPGA_BUILD_DIRS)
-
-SLOW_FPGA_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/apps/%/SlowFPGA,$(APPS))
-
-$(BUILD_DIR)/apps/%/SlowFPGA: tools/virtexHex2Bin apps
-	mkdir -p $@ ; \
-	source $(ISE)  &&  $(MAKE) -C $@ -f $(TARGET_DIR)/SlowFPGA/Makefile \
-            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA BOARD=$(BOARD) mcs \
-            BUILD_DIR=$@
-
-slow-fpga: $(SLOW_FPGA_BUILD_DIRS)
-
-
-tools/virtexHex2Bin : tools/virtexHex2Bin.c
+tools/virtexHex2Bin: tools/virtexHex2Bin.c
 	gcc -o $@ $<
 
-.PHONY: carrier-fpga slow-fpga run-tests
+
+$(FPGA_FILE): $(AUTOGEN_BUILD_DIR) $(FPGA_DEPENDS)
+	echo building FPGA
+	mkdir -p $(dir $@)
+ifdef SKIP_FPGA_BUILD
+	touch $@
+else
+	$(MAKE) -C $(dir $@) -f $(TARGET_DIR)/Makefile VIVADO=$(VIVADO) \
+            TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(dir $@) \
+            IP_DIR=$(IP_DIR)
+endif
+
+$(SLOW_FPGA_FILE): $(AUTOGEN_BUILD_DIR) $(SLOW_FPGA_DEPENDS)
+	echo building SlowFPGA
+	mkdir -p $(dir $@)
+ifdef SKIP_FPGA_BUILD
+	touch $@
+else
+	source $(ISE)  &&  \
+        $(MAKE) -C $(dir $@) -f $(TARGET_DIR)/SlowFPGA/Makefile \
+            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA BOARD=$(BOARD) mcs \
+            BUILD_DIR=$(dir $@)
+endif
+
+slow-fpga: $(SLOW_FPGA_BUILD_DIR)
+.PHONY: slow-fpga
+
+carrier-fpga: $(FPGA_BUILD_DIR)
+.PHONY: carrier-fpga
+
 
 # ------------------------------------------------------------------------------
 # Build installation package
-# ------------------------------------------------------------------------------
 
-FPGA_LISTS=$(patsubst %,$(BUILD_DIR)/apps/%/etc/panda-fpga.list,$(APPS))
+ZPKG_LIST = etc/panda-fpga.list
+ZPKG_VERSION = $(APP_NAME)-$(GIT_VERSION)
+ZPKG_FILE = $(BUILD_DIR)/panda-fpga@$(ZPKG_VERSION).zpg
 
-$(BUILD_DIR)/apps/%/etc/panda-fpga.list: apps
-	$(MAKE_ZPKG) -t $(BUILD_DIR) -b $(BUILD_DIR) -d $(BUILD_DIR) \
-            $@ $(filter $(TARGET)-%, "$(subst /, ,$@)")-$(GIT_VERSION)
+ZPKG_DEPENDS += $(FPGA_FILE)
+ZPKG_DEPENDS += $(SLOW_FPGA_FILE)
 
+$(ZPKG_FILE): $(ZPKG_LIST) $(ZPKG_DEPENDS)
+	$(MAKE_ZPKG) -t $(TOP) -b $(APP_BUILD_DIR) -d $(BUILD_DIR) \
+            $< $(ZPKG_VERSION)
 
-zpkg: $(FPGA_LISTS) $(FIRMWARE_BUILD)
-
-
-
+zpkg: $(ZPKG_FILE)
 .PHONY: zpkg
 
+
 # ------------------------------------------------------------------------------
-
-$(BUILD_DIR)/%:
-	mkdir -p $@
-
 # Clean
 
+# Removes the built stuff, but not the built FPGA IP
 clean:
-	rm -rf $(BUILD_DIR)/apps $(DOCS_BUILD_DIR) $(BUILD_DIR)/*.zpg
+	rm -rf $(BUILD_DIR)/apps
+.PHONY: clean
+
+clean-all:
+	rm -rf $(BUILD_DIR) $(DOCS_BUILD_DIR) *.zpg
 	find -name '*.pyc' -delete
+.PHONY: clean-all
 
 # Remove the Xilinx IP
 ip_clean:
 	rm -rf $(IP_DIR)
-
-.PHONY: clean
+.PHONY: ip_clean

@@ -1,56 +1,35 @@
 # Example configuration file for building PandA firmware, and for simulation
 #
-# Copy this file to a file named CONFIG and edit as appropriate.
+# Copy this file to a file named CONFIG and edit as appropriate.  Lines that are
+# commented out can be left as they are, the default value is show.  Uncommented
+# lines must be assigned values.
 
-# Build location.
-# Default is to build in build subdirectory.
+# Default build location.  Default is to build in build subdirectory.
 # BUILD_DIR = $(TOP)/build
 
-# Python interpreter for running scripts
-PYTHON = dls-python
-
-# Sphinx build for documentation.
-SPHINX_BUILD = sphinx-build
-
-# PandABlocks-rootfs directory for zpkg tools
-PANDA_ROOTFS = $(HOME)/common/PandABlocks-rootfs
-
-# A list of apps from the apps directory to make
-# Default is to make all of them
-# APPS = PandABox-no-fmc
-
-
-
-
-
-# Development Tool Versions
-VIVADO_VER = 2015.1
-DEVTREE_VER = $(VIVADO_VER)
-
-# User environment for development tools
-VIVADO = /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh
+# Definitions needed for FPGA build
+VIVADO = /dls_sw/FPGA/Xilinx/Vivado/2015.1/settings64.sh
 ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
-
-# License server for Vivado.
-#
 LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
 
+# Path to root filesystem
+PANDA_ROOTFS = /home/mga83/targetOS/PandABlocks-rootfs
+# MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 
-# List of default targets build when running make
+# Python interpreter for running scripts
 #
-MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
-DEFAULT_TARGETS = docs carrier-fpga slow-fpga zpkg
+# PYTHON = python2
 
-# Board Configuration
-#
+# Sphinx build for documentation.
+# SPHINX_BUILD = sphinx-build
+
+# List of default targets to build when running make
+# DEFAULT_TARGETS = zpkg
 
 # Carrier Board Version
 BOARD = v2
 
-TARGET = PandABox
-
 # FPGA Application Name
-APP_NAME = fmc_lback-sfp_lback
+APP_NAME = PandABox-no-fmc
 
 # vim: set filetype=make:
-#

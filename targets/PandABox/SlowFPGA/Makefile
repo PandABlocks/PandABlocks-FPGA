@@ -9,6 +9,7 @@ SYSTEM = slow_top
 
 LIST_FILE = $(SYSTEM).lst
 
+AUTOGEN  = $(BUILD_DIR)/../autogen
 SCR_FILE = $(SRC_DIR)/syn/xilinx/$(SYSTEM).scr
 NETLIST_DIR = $(SRC_DIR)/syn/implementation
 UCF_FILE = $(SRC_DIR)/syn/constr/$(SYSTEM)-$(BOARD).ucf
@@ -22,7 +23,7 @@ TWX_FILE = $(SYSTEM).twx
 BIT_FILE = $(SYSTEM).bit
 PROM_FILE = $(SYSTEM).mcs
 
-VERSION_FILE = $(BUILD_DIR)/../hdl/slow_version.vhd
+VERSION_FILE = $(AUTOGEN)/hdl/slow_version.vhd
 
 # Print the names of unlocked (unconstrainted) IOs
 export XIL_PAR_DESIGN_CHECK_VERBOSE=1
@@ -38,14 +39,15 @@ VERSION :
 	echo 'library ieee;' >> $(VERSION_FILE)
 	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
 	echo 'package slow_version is' >> $(VERSION_FILE)
-	echo -n 'constant SLOW_FPGA_VERSION: std_logic_vector(31 downto 0)' \ >> $(VERSION_FILE)
+	echo -n 'constant SLOW_FPGA_VERSION: std_logic_vector(31 downto 0)' \
+            >> $(VERSION_FILE)
 	echo ' := X"$(SHA)";' >> $(VERSION_FILE)
 	echo 'end slow_version;' >> $(VERSION_FILE)
 
 
 # We have to take a bit of care when building the list file: it turns out that
 # xst can't cope with long file names.
-$(LIST_FILE): $(BUILD_DIR)/../slow_top.files
+$(LIST_FILE): $(AUTOGEN)/slow_top.files
 	ln -sfn $(TOP) top
 	sed "s:^:vhdl work top/:" $< >$@
 

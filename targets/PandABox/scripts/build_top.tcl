@@ -2,41 +2,18 @@
 # Generate top-level firmware
 #
 
-#puts "NUMARGS = $argc" 
-#set m 0
-#foreach argValue $argv {
-#   incr m
-#   puts "ArgValue $m is $argValue"
-#}
-#puts "llength = [llength $argv]"
-#puts $env(SFP_DESIGN)
-#puts $env(SFP_SOCKETS)
-#puts $env(FMC_DESIGN)
-#if {$env(FMC_DESIGN) eq ""} { puts "FMC string empty" }
-
-#puts "You have these environment variables set:"
-#foreach index [array names env] {
-#    puts "$index: $env($index)"
-#}
-#exit
-
-# Source directory
-set TOP_DIR [lindex $argv 0]
-
-# Source directory
+set TOP_DIR    [lindex $argv 0]
 set TARGET_DIR [lindex $argv 1]
+set BUILD_DIR  [lindex $argv 2]
+set AUTOGEN    [lindex $argv 3]
+set IP_DIR     [lindex $argv 4]
+
 set_param board.repoPaths $TARGET_DIR/configs
 
-# Build directory
-set BUILD_DIR [lindex $argv 2]
-
-set IP_DIR [lindex $argv 3]
-
-# FMC and SFP Application Names are passed as arguments
 
 # Create project
-#create_project -force panda_top $BUILD_DIR/panda_top -part xc7z030sbg485-1
-create_project -force -in_memory panda_carrier_top $BUILD_DIR/FPGA/panda_carier_top -part xc7z030sbg485-1
+create_project -force -in_memory panda_carrier_top \
+    $BUILD_DIR/panda_carier_top -part xc7z030sbg485-1
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -61,21 +38,23 @@ set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 read_xdc $TARGET_DIR/const/panda-timing.xdc
 read_xdc $TARGET_DIR/const/panda-physical.xdc
 read_xdc $TARGET_DIR/const/panda-post_synth.xdc
-set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-physical.xdc]
-set_property used_in_synthesis false [get_files $TARGET_DIR/const/panda-post_synth.xdc]
+set_property used_in_synthesis false \
+    [get_files $TARGET_DIR/const/panda-physical.xdc]
+set_property used_in_synthesis false \
+    [get_files $TARGET_DIR/const/panda-post_synth.xdc]
 
 #
 # STEP#1: setup design sources and constraints
 #
 # Import IPs
 
-source $BUILD_DIR/hdl/constraints.tcl
+source $AUTOGEN/hdl/constraints.tcl
 
 # Read Zynq block design
-read_bd   $BUILD_DIR/FPGA/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
+read_bd   $BUILD_DIR/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 
 # Read auto generated files
-read_vhdl [glob $BUILD_DIR/hdl/*.vhd]
+read_vhdl [glob $AUTOGEN/hdl/*.vhd]
 
 # Read design files
 
@@ -113,7 +92,9 @@ route_design
 write_checkpoint -force post_route
 report_utilization -file post_route_utilization_summary.rpt
 
-set timingreport [report_timing_summary -no_header -no_detailed_paths -return_string -file post_route_timing_summary.rpt]
+set timingreport \
+    [report_timing_summary -no_header -no_detailed_paths -return_string \
+        -file post_route_timing_summary.rpt]
 
 if {! [string match -nocase {*timing constraints are met*} $timingreport]} {
     send_msg_id showstopper-0 error "Timing constraints weren't met."
@@ -131,7 +112,7 @@ write_bitstream -force panda_top.bit
 #
 # Export HW for SDK
 #
-write_hwdef -file $BUILD_DIR/FPGA/panda_top_wrapper.hdf -force
+write_hwdef -file $BUILD_DIR/panda_top_wrapper.hdf -force
 
 close_project
 exit

@@ -56,6 +56,7 @@
     PCAP_IRQ_STATUS         4
     # DMA block size in bytes
     PCAP_BLOCK_SIZE         6
+
 LUT             2
     INPA            0 1
     INPB            2 3

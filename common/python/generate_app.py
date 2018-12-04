@@ -45,6 +45,7 @@ class AppGenerator(object):
             loader=FileSystemLoader(TEMPLATES),
             trim_blocks=True,
             lstrip_blocks=True,
+            keep_trailing_newline=True,
         )
         # These will be created when we parse the ini files
         self.blocks = []  # type: List[BlockConfig]
@@ -87,7 +88,8 @@ class AppGenerator(object):
                 target_ini, target_path, "carrier", "blocks",
                 block_address, bit_i, pos_i, ext_i)
             try:
-                self.constraints = target_ini.get(".", "sfp_constraints").split()
+                self.constraints = target_ini.get(
+                    ".", "sfp_constraints").split()
             except configparser.NoOptionError:
                 self.constraints = ""
             try:
@@ -96,7 +98,8 @@ class AppGenerator(object):
                 self.sfpsites = 0
         # Implement the blocks for the soft blocks
         block_address, bit_i, pos_i, ext_i = self.implement_blocks(
-            app_ini, ROOT, "soft", "modules", block_address, bit_i, pos_i, ext_i)
+            app_ini, ROOT, "soft", "modules",
+            block_address, bit_i, pos_i, ext_i)
         print("####################################")
         print("# Resource usage")
         print("#  Block addresses: %d/%d" % (block_address, MAX_BLOCKS))
@@ -149,10 +152,7 @@ class AppGenerator(object):
     def generate_config_dir(self):
         """Generate config, registers, descriptions in config_d"""
         config_dir = os.path.join(self.app_build_dir, "config_d")
-        etc_dir = os.path.join(self.app_build_dir, "etc")
         os.makedirs(config_dir)
-        if not os.path.isdir(etc_dir):
-            os.makedirs(etc_dir)
         context = dict(blocks=self.blocks, pad=pad)
         # Create the config, registers and descriptions files
         self.expand_template(
@@ -163,9 +163,8 @@ class AppGenerator(object):
             "descriptions.jinja2", context, config_dir, "description")
         context = dict(app=self.app_name)
         self.expand_template(
-            "panda-fpga.list.jinja2", context, etc_dir, "panda-fpga.list")
-        self.expand_template("slow_top.files.jinja2", context,
-                             self.app_build_dir, "slow_top.files")
+            "slow_top.files.jinja2",
+            context, self.app_build_dir, "slow_top.files")
 
     def generate_wrappers(self):
         """Generate wrappers in hdl"""
