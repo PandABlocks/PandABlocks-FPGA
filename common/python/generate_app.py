@@ -45,6 +45,7 @@ class AppGenerator(object):
             loader=FileSystemLoader(TEMPLATES),
             trim_blocks=True,
             lstrip_blocks=True,
+            keep_trailing_newline=True,
         )
         # These will be created when we parse the ini files
         self.blocks = []  # type: List[BlockConfig]
