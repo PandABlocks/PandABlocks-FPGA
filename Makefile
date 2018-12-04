@@ -190,7 +190,7 @@ $(BUILD_DIR)/%:
 # Clean
 
 clean:
-	rm -rf $(BUILD_DIR)/apps $(DOCS_BUILD_DIR) *.zpg
+	rm -rf $(BUILD_DIR)/apps $(DOCS_BUILD_DIR) $(BUILD_DIR)/*.zpg
 	find -name '*.pyc' -delete
 
 # Remove the Xilinx IP

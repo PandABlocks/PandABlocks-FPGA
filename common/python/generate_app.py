@@ -56,6 +56,7 @@ class AppGenerator(object):
         self.generate_wrappers()
         self.generate_soft_blocks()
         self.generate_constraints()
+        self.generate_regdefs()
 
     def parse_ini_files(self, app):
         # type: (str) -> None
@@ -173,7 +174,7 @@ class AppGenerator(object):
         # Create a wrapper for every block
         for block in self.blocks:
             context = {k: getattr(block, k) for k in dir(block)}
-            if block.type == "soft":
+            if block.type in "soft|dma":
                 self.expand_template("block_wrapper.vhd.jinja2", context,
                                      hdl_dir, "%s_wrapper.vhd" % block.entity)
             self.expand_template("block_ctrl.vhd.jinja2", context, hdl_dir,
@@ -222,6 +223,57 @@ class AppGenerator(object):
                        ips=ips)
         self.expand_template("constraints.tcl.jinja2", context, hdl_dir,
                              "constraints.tcl")
+
+    def generate_regdefs(self):
+        """generate the registers define file from the registers server file"""
+        reg_server_dir = os.path.join(
+            ROOT, "common", "templates", "registers_server")
+        hdl_dir = os.path.join(self.app_build_dir, "hdl")
+        blocks = []
+        data = []
+        numbers = []
+        regs = []
+        with open(reg_server_dir, 'r') as fp:
+            for line in fp:
+                if "*" in line:
+                    # The prefix for the signals are either REG or DRV
+                    block = line.split(" ", 1)[0]
+                if "#" not in line:
+                    # Ignore any lines which are comments
+                    # Reg name is the string before the last space
+                    # Double space is used in case arrays are present
+                    name = line.rsplit("  ", 1)[0].replace(" ", "")
+                    # Number is string after last space
+                    number = line.rsplit("  ", 1)[-1]
+                    if ".." in number:
+                        # Some of the values are arrays
+                        [lownum, highnum] = number.split("..", 1)
+                        lownum = [int(s) for s in lownum.split()
+                                  if s.isdigit()][0]
+                        highnum = [int(s) for s in highnum.split()
+                                   if s.isdigit()][0]
+                        for i in range((highnum + 1) - lownum):
+                            array_name = name + "_" + str(i)
+                            regs.append(dict(name=array_name,
+                                             number=str(lownum + i),
+                                             block=block.replace("*", "")))
+                    else:
+                        if self.hasnumbers(number):
+                            # Avoids including blank lines
+                            data.append(name)
+                            numbers.append(number.replace("\n", ""))
+                            blocks.append(block.replace("*", ""))
+                            regs.append(dict(name=name,
+                                             number=number.replace("\n", ""),
+                                             block=block.replace("*", "")))
+        context = dict(regs=regs)
+        self.expand_template("reg_defines.vhd.jinja2", context, hdl_dir,
+                             "reg_defines.vhd")
+
+    def hasnumbers(self, inputstring):
+        # type: (str) -> bool
+        """Simple check if string contains a number"""
+        return any(char.isdigit() for char in inputstring)
 
 
 def main():

@@ -56,7 +56,7 @@ begin
 {% set bit = [bit_bus_length] %}{% set pos = [pos_bus_length] %}
 {% set dma = [0] %}
 {% for block in blocks %}
-    {% if block.type == "soft" %}
+    {% if block.type in "soft|dma" %}
 --------------------------------------------------------------------------------
 -- {{block.entity}} - {{block.description}}
 --------------------------------------------------------------------------------

@@ -124,41 +124,41 @@ begin
             end if;
             -- Write MGT MAC addresses
             if (NUM_SFP > 0) then
-                if (write_address = REG_SFP1_MAC_HI) then 
+                if (write_address = REG_MAC_ADDRESS_BASE_0) then
                     SFP_MAC_ADDR(0) <= write_data_i;
                     SFP_MAC_ADDR_WSTB(0) <= '1';
                 end if;
-                if (write_address = REG_SFP1_MAC_LO) then 
+                if (write_address = REG_MAC_ADDRESS_BASE_1) then
                     SFP_MAC_ADDR(1) <= write_data_i;
                     SFP_MAC_ADDR_WSTB(1) <= '1';
                 end if;
             end if;
             if (NUM_SFP > 1) then
-                if (write_address = REG_SFP2_MAC_HI) then 
+                if (write_address = REG_MAC_ADDRESS_BASE_2) then
                     SFP_MAC_ADDR(2) <= write_data_i;
                     SFP_MAC_ADDR_WSTB(2) <= '1';
                 end if;
-                if (write_address = REG_SFP2_MAC_LO) then 
+                if (write_address = REG_MAC_ADDRESS_BASE_3) then
                     SFP_MAC_ADDR(3) <= write_data_i;
                     SFP_MAC_ADDR_WSTB(3) <= '1';
                 end if;
             end if;
             if (NUM_SFP > 2) then
-                if (write_address = REG_SFP3_MAC_HI) then 
+                if (write_address = REG_MAC_ADDRESS_BASE_4) then
                     SFP_MAC_ADDR(4) <= write_data_i;
                     SFP_MAC_ADDR_WSTB(4) <= '1';
                 end if;
-                if (write_address = REG_SFP3_MAC_LO) then 
+                if (write_address = REG_MAC_ADDRESS_BASE_5) then
                     SFP_MAC_ADDR(5) <= write_data_i;
                     SFP_MAC_ADDR_WSTB(5) <= '1';
                 end if;
             end if;
             if (NUM_FMC > 0) then
-                if (write_address = REG_FMC_MAC_HI) then 
+                if (write_address = REG_MAC_ADDRESS_BASE_6) then
                     FMC_MAC_ADDR(0) <= write_data_i;
                     FMC_MAC_ADDR_WSTB(0) <= '1';
                 end if;
-                if (write_address = REG_FMC_MAC_LO) then 
+                if (write_address = REG_MAC_ADDRESS_BASE_7) then
                     FMC_MAC_ADDR(1) <= write_data_i;
                     FMC_MAC_ADDR_WSTB(1) <= '1';
                 end if; 

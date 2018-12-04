@@ -311,6 +311,44 @@ class ExtOutTimeFieldConfig(ExtOutFieldConfig):
 
 class TableFieldConfig(FieldConfig):
     """These fields represent a table field"""
+    type_regex = "table"
+
+    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+        # type: (int, int, int, int) -> Tuple[int, int, int, int]
+        self.registers.append(
+            RegisterConfig(self.name, -1, 'long    2^8    '))
+        self.registers.append(
+            RegisterConfig(self.name + "_ADDRESS", field_address))
+        field_address += 1
+        self.registers.append(
+            RegisterConfig(self.name + "_LENGTH", field_address))
+        field_address += 1
+        return field_address, bit_i, pos_i, ext_i
+
+    def extra_config_lines(self):
+        # type: () -> Iterable[str]
+        for k, v in sorted(self.extra_config.items()):
+            if "enum" in v:
+                [name, desc, enums] = v.split("\n", 2)
+                yield "%s" % name
+                name = name.split(" ", 2)[1]
+                yield "    %s" % enums.replace("\n", "\n            ")
+            elif "int" in v:
+                [name, desc] = v.split("\n", 1)
+                yield "%s" % name
+                name = name.split(" ", 1)[1]
+            else:
+                v = v.replace("uint", "")
+                [name, desc] = v.split("\n", 1)
+                # For new server builds uncomment this line!
+                # yield "%s uint" % name
+                yield "%s" % name
+                name = name.split(" ", 1)[1]
+            self.description += "\n        %s     %s " % (name, desc)
+
+
+class TableShortFieldConfig(FieldConfig):
+    """These fields represent a table field"""
     type_regex = "table short"
 
     def register_addresses(self, field_address, bit_i, pos_i, ext_i):

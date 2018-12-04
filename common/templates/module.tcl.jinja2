@@ -24,7 +24,7 @@ add_files -norecurse {
     ../../modules/{{block.entity}}/hdl
 	{% if block.ip %}
 		{% for ip in block.ip %}
-	../../common/ip_repo/{{ ip }}/{{ ip }}_funcsim.vhdl
+	../../build/ip_repo/{{ ip }}/{{ ip }}_funcsim.vhdl
 		{% endfor %}
 	{% endif %}
 }
@@ -35,4 +35,5 @@ add_files -fileset sim_1 -norecurse {
     ../hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/{{
     loop.index}}{{block.entity}}expected.csv
 {% endfor %}
+    ../../modules/{{block.entity}}/
 }

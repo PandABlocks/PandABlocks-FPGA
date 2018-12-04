@@ -27,4 +27,5 @@ add_files -fileset sim_1 -norecurse {
     ../hdl_timing/testblock/timing001/1testblockexpected.csv
     ../hdl_timing/testblock/timing002/hdl_timing.v
     ../hdl_timing/testblock/timing002/2testblockexpected.csv
+    ../../modules/testblock/
 }

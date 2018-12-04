@@ -235,6 +235,15 @@ The numbers at the left indicate the timestamp at which a change occurs,
 followed by a colon. Any assignments before the -> symbol indicate a change in
 an input and assignments after the -> symbol indicate a change in an output.
 
+Target ini
+----------
+
+The [.] section
+~~~~~~~~~~~~~~~
+
+[BLOCK] sections
+~~~~~~~~~~~~~~~~
+
 
 Writing docs
 ------------
