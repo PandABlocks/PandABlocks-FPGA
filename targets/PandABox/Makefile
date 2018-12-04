@@ -10,12 +10,13 @@ include $(TOP)/VERSION
 #####################################################################
 # Project related files (DON'T TOUCH)
 
+AUTOGEN  = $(BUILD_DIR)/../autogen
 PS_DIR   = $(BUILD_DIR)/panda_ps/panda_ps.srcs
 IP_CORES = $(IP_DIR)
 PS_CORE  = $(PS_DIR)/sources_1/bd/panda_ps/hdl/panda_ps.vhd
 FPGA_BIT = $(BUILD_DIR)/panda_top.bit
 
-VERSION_FILE = $(BUILD_DIR)/../hdl/panda_version.vhd
+VERSION_FILE = $(AUTOGEN)/hdl/panda_version.vhd
 
 #####################################################################
 # BUILD TARGETS includes HW and SW
@@ -53,6 +54,7 @@ panda_top.bit : VERSION $(IP_CORES) $(PS_CORE)
 	$(RUNVIVADO) -mode batch -source $(TARGET_DIR)/scripts/build_top.tcl \
 	    -tclargs $(TOP) \
 	    -tclargs $(TARGET_DIR) \
-	    -tclargs $(BUILD_DIR)/.. \
+	    -tclargs $(BUILD_DIR) \
+	    -tclargs $(AUTOGEN) \
 	    -tclargs $(IP_DIR)
 
