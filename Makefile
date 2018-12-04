@@ -196,11 +196,10 @@ carrier-fpga: $(FPGA_BUILD_DIR)
 # ------------------------------------------------------------------------------
 # Build installation package
 
-ZPKG_LIST = $(AUTOGEN_BUILD_DIR)/etc/panda-fpga.list
+ZPKG_LIST = etc/panda-fpga.list
 ZPKG_VERSION = $(APP_NAME)-$(GIT_VERSION)
 ZPKG_FILE = $(BUILD_DIR)/panda-fpga@$(ZPKG_VERSION).zpg
 
-$(ZPKG_LIST): $(AUTOGEN_BUILD_DIR)
 ZPKG_DEPENDS += $(FPGA_FILE)
 ZPKG_DEPENDS += $(SLOW_FPGA_FILE)
 

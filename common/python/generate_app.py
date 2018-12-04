@@ -87,7 +87,8 @@ class AppGenerator(object):
                 target_ini, target_path, "carrier", "blocks",
                 block_address, bit_i, pos_i, ext_i)
             try:
-                self.constraints = target_ini.get(".", "sfp_constraints").split()
+                self.constraints = target_ini.get(
+                    ".", "sfp_constraints").split()
             except configparser.NoOptionError:
                 self.constraints = ""
             try:
@@ -96,7 +97,8 @@ class AppGenerator(object):
                 self.sfpsites = 0
         # Implement the blocks for the soft blocks
         block_address, bit_i, pos_i, ext_i = self.implement_blocks(
-            app_ini, ROOT, "soft", "modules", block_address, bit_i, pos_i, ext_i)
+            app_ini, ROOT, "soft", "modules",
+            block_address, bit_i, pos_i, ext_i)
         print("####################################")
         print("# Resource usage")
         print("#  Block addresses: %d/%d" % (block_address, MAX_BLOCKS))
@@ -163,9 +165,8 @@ class AppGenerator(object):
             "descriptions.jinja2", context, config_dir, "description")
         context = dict(app=self.app_name)
         self.expand_template(
-            "panda-fpga.list.jinja2", context, etc_dir, "panda-fpga.list")
-        self.expand_template("slow_top.files.jinja2", context,
-                             self.app_build_dir, "slow_top.files")
+            "slow_top.files.jinja2",
+            context, self.app_build_dir, "slow_top.files")
 
     def generate_wrappers(self):
         """Generate wrappers in hdl"""
