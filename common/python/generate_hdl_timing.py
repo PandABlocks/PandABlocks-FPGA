@@ -83,7 +83,7 @@ class HdlTimingGenerator(object):
                         timing))
             module_path = os.path.dirname(timing)
             block_ini = read_ini(os.path.join(module_path, block_ini_name))
-            block = BlockConfig("BLOCK", True, 1, block_ini)
+            block = BlockConfig("BLOCK", "soft", 1, block_ini)
             for section in timing_ini.sections():
                 if section != ".":
                     self.generate_timing_test(block, timing_ini, section, i)

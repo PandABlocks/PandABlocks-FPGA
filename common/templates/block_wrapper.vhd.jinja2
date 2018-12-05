@@ -129,6 +129,11 @@ begin
             {{ "%-20s"|format(field.name + "_START_wstb") }}=> {{ field.name }}_START(I)(0),
             {{ "%-20s"|format(field.name + "_DATA_wstb") }}=> {{ field.name }}_DATA_wstb(I),
             {{ "%-20s"|format(field.name + "_LENGTH_wstb") }}=> {{ field.name }}_LENGTH_wstb(I),
+    {% elif field in filter_fields("table") %}
+            {{ "%-20s"|format(field.name + "_ADDRESS") }}=> {{ field.name }}_ADDRESS(I),
+            {{ "%-20s"|format(field.name + "_LENGTH") }}=> {{ field.name }}_LENGTH(I),
+            {{ "%-20s"|format(field.name + "_ADDRESS_wstb") }}=> {{ field.name }}_ADDRESS_wstb(I),
+            {{ "%-20s"|format(field.name + "_LENGTH_wstb") }}=> {{ field.name }}_LENGTH_wstb(I),
     {% elif field in filter_fields("time") %}
             {{ "%-20s"|format(field.name + "_L") }}=> {{ field.name }}(I)(31 downto 0),
             {{ "%-20s"|format(field.name + "_H") }}=> {{ field.name }}(I)(63 downto 32),
@@ -183,6 +188,10 @@ begin
             {{ "%-20s"|format(field.name + "_DATA") }}=> {{ field.name}}_DATA(I),
             {{ "%-20s"|format(field.name + "_LENGTH") }}=> {{ field.name}}_LENGTH(I),
 {% endfor %}
+{% for field in filter_fields("table") %}
+            {{ "%-20s"|format(field.name + "_ADDR") }}=> {{ field.name}}_ADDRESS(I),
+            {{ "%-20s"|format(field.name + "_LENGTH") }}=> {{ field.name}}_LENGTH(I),
+{% endfor %}
 {# Filter_fields requires both param and read to be the last type in the list #}
 {% for field in filter_fields("write int|read uint 1023|read") %}
             {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I),
@@ -223,4 +232,3 @@ begin
     END GENERATE;
 
 end rtl;
-

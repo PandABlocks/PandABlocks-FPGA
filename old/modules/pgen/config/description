@@ -1,9 +1,0 @@
-PGEN        Position generator
-    CYCLES          Number of cycles
-    ENABLE          Halt on falling edge, reset and enable on rising
-    TRIG            Trigger a sample to be produced
-    OUT             Current sample
-    TABLE           Table of positions to be output
-    HEALTH          Table status
-
-

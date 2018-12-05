@@ -21,6 +21,7 @@ class PgenSimulation(BlockSimulation):
         # This is a ConfigBlock object
         super(PgenSimulation, self).on_changes(ts, changes)
 
+
         # Set attributes
         for name, value in changes.items():
             setattr(self, name, value)
@@ -28,7 +29,7 @@ class PgenSimulation(BlockSimulation):
         if NAMES.TABLE_ADDRESS in changes:
             self.active = 1
             # open the table
-            file_dir = os.path.join(os.path.dirname(__file__), self.TABLE_ADDRESS)
+            file_dir = os.path.join(os.path.dirname(__file__), "PGEN_1000.txt")
 
             assert os.path.isfile(file_dir), "%s does not exist" % (file_dir)
             with open(file_dir, "rb") as table:

@@ -15,7 +15,7 @@ read_ip $IP_DIR/{{ ip }}/{{ ip }}.xci
 # Module code and constraints
 {% for block in blocks %}
 	{# Soft block module code #}
-	{% if block.type in "soft|sfp|fmc" %}
+	{% if block.type in "dma|soft|sfp|fmc" %}
 read_vhdl [glob $TOP_DIR/modules/{{ block.entity }}/hdl/*.vhd]
 add_files $TOP_DIR/modules/{{ block.entity }}/hdl/
 	{% endif %}
@@ -29,4 +29,3 @@ read_xdc $TOP_DIR/modules/{{ block.entity }}/{{ constraint }}
 source $TOP_DIR/modules/{{ block.entity }}/{{ block.otherconst }}
     {% endif %}
 {% endfor %}
-
