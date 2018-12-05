@@ -204,6 +204,22 @@ ZPKG_FILE = $(BUILD_DIR)/panda-fpga@$(ZPKG_VERSION).zpg
 
 ZPKG_DEPENDS += $(FPGA_FILE)
 ZPKG_DEPENDS += $(SLOW_FPGA_FILE)
+ZPKG_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini
+ZPKG_DEPENDS += $(APP_BUILD_DIR)/extensions
+
+$(APP_BUILD_DIR)/ipmi.ini: $(APP_FILE)
+	$(PYTHON) -m common.python.make_ipmi_ini $(TOP) $< $@
+
+$(APP_BUILD_DIR)/extensions: $(APP_FILE)
+	rm -rf $@
+	mkdir -p $@
+	cp $(TARGET_DIR)/extensions/*.py $@
+	$(PYTHON) -m common.python.make_extensions $(TOP) $< $@
+
+# Unconditionally rebuild the extensions and ipmi.ini files.  This is cheap and
+# the result is more predictable
+.PHONY: $(APP_BUILD_DIR)/ipmi.ini $(APP_BUILD_DIR)/extensions
+
 
 $(ZPKG_FILE): $(ZPKG_LIST) $(ZPKG_DEPENDS)
 	$(MAKE_ZPKG) -t $(TOP) -b $(APP_BUILD_DIR) -d $(BUILD_DIR) \
