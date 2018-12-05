@@ -1,7 +1,7 @@
+# Register interface definition
+
 # This special register block is not present in the config file and contains
 # fixed register definitions used in the hardware interface.
-# Alas, because hardware access occurs during the processing of this file, it
-# is necessary to place this section at the start!
 *REG        0
     #
     # FPGA Version and Build Identification Values
@@ -32,6 +32,9 @@
     PCAP_ARM                13
     PCAP_DISARM             14
 
+    # Range of MAC addresses
+    MAC_ADDRESS_BASE        16 .. 23
+
     # This array of registers is used to program data delays on the capture bus
     PCAP_DATA_DELAY         32 .. 63
 
@@ -53,4 +56,3 @@
     PCAP_IRQ_STATUS         4
     # DMA block size in bytes
     PCAP_BLOCK_SIZE         6
-
