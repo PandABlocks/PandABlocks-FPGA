@@ -90,14 +90,14 @@ class BlockConfig(object):
 
 class RegisterConfig(object):
     """A low level register name and number backing this field"""
-    def __init__(self, name, number, reg=''):
+    def __init__(self, name, number, extension=''):
         # type: (str, int, str) -> None
         #: The name of the register, like INPA_DLY
         self.name = name
         #: The register number relative to Block, like 9
         self.number = number
         #: For an XADC field, the register path
-        self.reg = reg
+        self.extension = extension
 
 
 class BusEntryConfig(object):
@@ -116,7 +116,9 @@ class FieldConfig(object):
     type_regex = None
 
     def __init__(self, name, number, type,
-                 description, wstb=False, short=False, words=0, reg='', **extra_config):
+                 description, wstb=False, short=False, words=0,
+                 extension = None, extension_reg = None,
+                 **extra_config):
         # type: (str, int, str, str, bool, bool, int, str, str) -> None
         # Field names should be UPPER_CASE_OR_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*$", name), \
@@ -148,8 +150,9 @@ class FieldConfig(object):
         self.short = short
         #: for a table, how many words?
         self.words = words
-        #: Whats the register for
-        self.reg = reg
+        #: Store the extension register info
+        self.extension = extension
+        self.extension_reg = extension_reg
         #: The current value of this field for simulation
         self.value = 0
 
@@ -169,12 +172,20 @@ class FieldConfig(object):
     def address_line(self):
         # type: () -> str
         """Produce the line that should go in the registers file after name"""
+        def make_reg_name(r):
+            if r.number < 0:
+                return 'X ' + r.extension
+            else:
+                if r.extension:
+                    return str(r.number) + ' X ' + r.extension
+                else:
+                    return str(r.number)
+
         if self.registers:
             assert not self.bus_entries, \
                 "Field %s type %s has both registers and bus entries" % (
                     self.name, self.type)
-            registers_str = " ".join(str(r.number) if r.number >= 0 else r.reg
-                                     for r in self.registers)
+            registers_str = " ".join(make_reg_name(r) for r in self.registers)
         else:
             registers_str = " ".join(str(e.index) for e in self.bus_entries)
         return registers_str
@@ -393,8 +404,18 @@ class ParamFieldConfig(FieldConfig):
 
     def register_addresses(self, field_address, bit_i, pos_i, ext_i):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
-        self.registers.append(RegisterConfig(self.name, field_address))
-        field_address += 1
+        if self.extension:
+            if self.extension_reg is None:
+                address = -1
+            else:
+                address = field_address
+                field_address += 1
+        else:
+            address = field_address
+            field_address += 1
+
+        self.registers.append(
+            RegisterConfig(self.name, address, self.extension))
         return field_address, bit_i, pos_i, ext_i
 
 
