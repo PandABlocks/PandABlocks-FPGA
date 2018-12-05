@@ -3,16 +3,9 @@
 /docs/build
 *.pyc
 *~
-# Xilinx working files
-*.log
-/.Xil
-*.xreport
-*.jou
-*.str
+
 # virtual environment folder
 /venv
 .idea
-# Xilinx IP (built with make ip_build)
-/common/ip_repo
-/tools/virtexHex2Bin
 
+/tools/virtexHex2Bin
