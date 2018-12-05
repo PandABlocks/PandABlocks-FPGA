@@ -164,25 +164,27 @@ tools/virtexHex2Bin: tools/virtexHex2Bin.c
 
 
 $(FPGA_FILE): $(AUTOGEN_BUILD_DIR) $(FPGA_DEPENDS)
-	echo building FPGA
 	mkdir -p $(dir $@)
 ifdef SKIP_FPGA_BUILD
+	echo Skipping FPGA build
 	touch $@
 else
+	echo building FPGA
 	$(MAKE) -C $(dir $@) -f $(TARGET_DIR)/Makefile VIVADO=$(VIVADO) \
             TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(dir $@) \
             IP_DIR=$(IP_DIR)
 endif
 
 $(SLOW_FPGA_FILE): $(AUTOGEN_BUILD_DIR) $(SLOW_FPGA_DEPENDS)
-	echo building SlowFPGA
 	mkdir -p $(dir $@)
 ifdef SKIP_FPGA_BUILD
+	echo Skipping Slow FPGA build
 	touch $@
 else
+	echo building SlowFPGA
 	source $(ISE)  &&  \
         $(MAKE) -C $(dir $@) -f $(TARGET_DIR)/SlowFPGA/Makefile \
-            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA BOARD=$(BOARD) mcs \
+            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA BOARD=v2 mcs \
             BUILD_DIR=$(dir $@)
 endif
 

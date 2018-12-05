@@ -26,9 +26,6 @@ PANDA_ROOTFS = /home/mga83/targetOS/PandABlocks-rootfs
 # List of default targets to build when running make
 # DEFAULT_TARGETS = zpkg
 
-# Carrier Board Version
-BOARD = v2
-
 # FPGA Application Name
 APP_NAME = PandABox-no-fmc
 

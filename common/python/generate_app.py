@@ -120,10 +120,7 @@ class AppGenerator(object):
                     module_name = ini.get(section, "module")
                 except configparser.NoOptionError:
                     module_name = section.lower()
-                if "sfp" in module_name:
-                    module_name = "sfp" + "_" + ini.get(section, "type")
-                elif "fmc" in module_name:
-                    module_name = "fmc" + "_" + ini.get(section, "type")
+
                 try:
                     ini_name = ini.get(section, "ini")
                 except configparser.NoOptionError:
