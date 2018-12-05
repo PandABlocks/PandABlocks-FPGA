@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+
+# Validates IPMI EEPROM against the expected configuration
+
+import sys
+import os.path
+from i2c import parse_ipmi, ini_file
+
+EEPROM = '/sys/bus/i2c/devices/0-0050/eeprom'
+IPMI_INI = '/opt/share/panda-fpga/ipmi.ini'
+
+
+ini = ini_file.load_ini_file(IPMI_INI)
+
+# Create a default eeprom section for the cases when we need to check it
+default = ini_file.Section('.')
+default.add_key('eeprom', 'required')
+dot = ini.get('.', default)
+
+if dot['eeprom'] == 'ignore':
+    print 'Ignoring IPMI EEPROM'
+elif os.path.isfile(EEPROM):
+    # If the IPMI EEPROM is present it must be readable and must match the INI
+    # file.
+    try:
+        try:
+            ipmi = parse_ipmi.parse_file(EEPROM)
+        except Exception:
+            # If the EEPROM is not readable or parseable then the ini file had
+            # better say this.
+            if dot['eeprom'] == 'invalid':
+                print 'Ignoring unreadable EEPROM'
+                sys.exit(0)
+            else:
+                # No good, re-raise the original exception
+                print 'Exception trying to read or parse EEPROM'
+                raise
+        else:
+            ini_file.compare_ini(ini, ipmi)
+            print 'IPMI EEPROM matches'
+            sys.exit(0)
+    except ini_file.CompareFail as e:
+        print 'IPMI EEPROM mismatch:', e
+        sys.exit(1)
+else:
+    # If the IPMI EEPROM is not present the INI file must say that this is ok
+    if dot['eeprom'] == 'no':
+        print 'No EEPROM expected'
+        sys.exit(0)
+    else:
+        print 'Unable to check IPMI EEPROM'
+        sys.exit(1)
