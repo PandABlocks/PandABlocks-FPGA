@@ -148,7 +148,7 @@ class FieldConfig(object):
         self.short = short
         #: for a table, how many words?
         self.words = words
-        #: Whats the register for an xadc field
+        #: Whats the register for
         self.reg = reg
         #: The current value of this field for simulation
         self.value = 0
@@ -348,17 +348,6 @@ class TableFieldConfig(FieldConfig):
                 yield "%s" % name
                 name = name.split(" ", 1)[1]
             self.description += "\n        %s     %s " % (name, desc)
-
-
-class XadcFieldConfig(FieldConfig):
-    """These fields represent all other set/get parameters backed with a single
-    register"""
-    type_regex = "xadc"
-
-    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
-        # type: (int, int, int, int) -> Tuple[int, int, int, int]
-        self.registers.append(RegisterConfig(self.name, -1, self.reg))
-        return field_address, bit_i, pos_i, ext_i
 
 
 class ParamFieldConfig(FieldConfig):
