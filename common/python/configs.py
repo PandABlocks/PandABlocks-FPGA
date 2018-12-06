@@ -90,13 +90,15 @@ class BlockConfig(object):
 
 class RegisterConfig(object):
     """A low level register name and number backing this field"""
-    def __init__(self, name, number, extension=''):
+    def __init__(self, name, number = -1, prefix = '', extension=''):
         # type: (str, int, str) -> None
         #: The name of the register, like INPA_DLY
         self.name = name
         #: The register number relative to Block, like 9
         self.number = number
-        #: For an XADC field, the register path
+        # String to be written before the register
+        self.prefix = prefix
+        #: For an extension field, the register path
         self.extension = extension
 
 
@@ -173,13 +175,14 @@ class FieldConfig(object):
         # type: () -> str
         """Produce the line that should go in the registers file after name"""
         def make_reg_name(r):
-            if r.number < 0:
-                return 'X ' + r.extension
-            else:
-                if r.extension:
-                    return str(r.number) + ' X ' + r.extension
-                else:
-                    return str(r.number)
+            result = []
+            if r.prefix:
+                result.append(r.prefix)
+            if r.number >= 0:
+                result.append(str(r.number))
+            if r.extension:
+                result.extend(['X', r.extension])
+            return ' '.join(result)
 
         if self.registers:
             assert not self.bus_entries, \
@@ -327,7 +330,7 @@ class TableFieldConfig(FieldConfig):
     def register_addresses(self, field_address, bit_i, pos_i, ext_i):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
         self.registers.append(
-            RegisterConfig(self.name, -1, 'long    2^8    '))
+            RegisterConfig(self.name, prefix = 'long 2^8'))
         self.registers.append(
             RegisterConfig(self.name + "_ADDRESS", field_address))
         field_address += 1
@@ -363,7 +366,7 @@ class TableShortFieldConfig(FieldConfig):
     def register_addresses(self, field_address, bit_i, pos_i, ext_i):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
         self.registers.append(
-            RegisterConfig(self.name, -1, 'short    512    '))
+            RegisterConfig(self.name, prefix = 'short 512'))
         self.registers.append(
             RegisterConfig(self.name + "_START", field_address))
         field_address += 1
@@ -415,7 +418,7 @@ class ParamFieldConfig(FieldConfig):
             field_address += 1
 
         self.registers.append(
-            RegisterConfig(self.name, address, self.extension))
+            RegisterConfig(self.name, address, extension = self.extension))
         return field_address, bit_i, pos_i, ext_i
 
 
