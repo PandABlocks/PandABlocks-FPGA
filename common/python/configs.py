@@ -3,6 +3,7 @@ import re
 import math
 
 from .compat import TYPE_CHECKING, configparser
+from .ini_util import ini_get
 
 if TYPE_CHECKING:
     from typing import List, Iterable, Tuple, Dict
@@ -42,26 +43,18 @@ class BlockConfig(object):
         #: The VHDL entity name, like lut
         self.entity = ini.get(".", "entity")
         #: Is the block soft, sfp, fmc or dma?
-        try:
-            self.type = ini.get(".", "type")
-        except configparser.NoOptionError:
-            self.type = type
+        self.type = ini_get(ini, '.', 'type', type)
         #: Any constraints?
-        try:
-            self.constraints = ini.get(".", "constraints").split()
-        except configparser.NoOptionError:
-            self.constraints = ""
+        self.constraints = ini_get(ini, '.', 'constraints', '').split()
         #: Does the block require IP?
-        try:
-            self.ip = ini.get(".", "ip").split()
-        except configparser.NoOptionError:
-            self.ip = ""
-        try:
-            self.otherconst = ini.get(".","otherconst")
-        except configparser.NoOptionError:
-            self.otherconst = ""
+        self.ip = ini_get(ini, '.', 'ip', '').split()
+        self.otherconst = ini_get(ini, '.', 'otherconst', '')
         #: The description, like "Lookup table"
         self.description = ini.get(".", "description")
+        # If extension required but not specified put entity name here
+        self.extension = ini_get(ini, '.', 'extension', None)
+        if self.extension == '':
+            self.extension = self.entity
         #: All the child fields
         self.fields = FieldConfig.from_ini(ini, number)
 

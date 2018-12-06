@@ -213,8 +213,7 @@ $(APP_BUILD_DIR)/ipmi.ini: $(APP_FILE)
 $(APP_BUILD_DIR)/extensions: $(APP_FILE)
 	rm -rf $@
 	mkdir -p $@
-	cp $(TARGET_DIR)/extensions/*.py $@
-	$(PYTHON) -m common.python.make_extensions $(TOP) $< $@
+	$(PYTHON) -m common.python.make_extensions $(TOP) $< $(TARGET) $@
 
 # Unconditionally rebuild the extensions and ipmi.ini files.  This is cheap and
 # the result is more predictable

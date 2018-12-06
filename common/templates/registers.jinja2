@@ -3,7 +3,9 @@
 {% for block in blocks %}
 {# block is a BlockConfig object #}
 {# insert its name and block base address #}
-{{ pad(block.name) }} {{ block.block_address }}
+{{ pad(block.name) }} {{ block.block_address }}{%
+        if block.extension %} {{ block.extension }}{% endif %}
+
     {% for field in block.fields %}
     {# field is a FieldConfig object #}
     {# ask it for its register addresses within the block base address #}

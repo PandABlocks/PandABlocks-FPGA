@@ -5,7 +5,7 @@ import os.path
 import shutil
 
 from .compat import configparser
-from .ini_util import read_ini
+from .ini_util import read_ini, ini_get
 
 
 fallback_ini = '''\
@@ -17,11 +17,8 @@ eeprom = no
 def get_modules(ini):
     for section in ini.sections():
         if section != '.':
-            try:
-                module_name = ini.get(section, "module")
-            except configparser.NoOptionError:
-                module_name = section.lower()
-            yield(module_name)
+            module_name = ini_get(ini, section, 'module', section.lower())
+            yield module_name
 
 def main():
     top = sys.argv[1]

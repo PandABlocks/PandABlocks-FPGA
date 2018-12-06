@@ -23,5 +23,9 @@ class XADC:
         return self.scale * (self.offset + self.read_node('raw'))
 
 
-def parse(rw, node):
-    return XADC(node)
+class Extension:
+    def __init__(self, count):
+        assert count == 1, 'Only one system block expected'
+
+    def parse(self, rw, node):
+        return XADC(node)
