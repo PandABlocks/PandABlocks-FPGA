@@ -27,5 +27,5 @@ class Extension:
     def __init__(self, count):
         assert count == 1, 'Only one system block expected'
 
-    def parse(self, rw, node):
+    def parse_read(self, node):
         return XADC(node)
