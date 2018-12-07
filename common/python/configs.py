@@ -206,8 +206,8 @@ class FieldConfig(object):
                 try:
                     ret.append(subclass(section, number, **d))
                 except TypeError as e:
-                    raise TypeError(
-                        "Cannot create FieldConfig from %s: %s" % (d, e))
+                    raise TypeError( "Cannot create %s from %s: %s" % (
+                        subclass.__name__, d, e))
         return ret
 
     def setter(self, block_simulation=0, v=0, suffix=""):
