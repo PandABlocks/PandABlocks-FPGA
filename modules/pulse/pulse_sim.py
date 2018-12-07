@@ -19,7 +19,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "pulse.block.ini")
 
 
 class PulseSimulation(BlockSimulation):
-    DELAY_L, WIDTH_L, ENABLE, TRIG, OUT, QUEUED, DROPPED, TRIG_EDGE = PROPERTIES
+    DELAY, WIDTH, ENABLE, TRIG, OUT, QUEUED, DROPPED, TRIG_EDGE = PROPERTIES
 
     def __init__(self):
         self.queue = deque()
@@ -33,6 +33,9 @@ class PulseSimulation(BlockSimulation):
         self.missedsignal = 0
         self.width = 0
         self.delay = 0
+        # _L Time registers:
+        self.DELAY_L = 0
+        self.WIDTH_L = 0
 
     def do_pulse(self, ts, changes):
         """We've received a bit event on INP, so queue some output values
@@ -134,7 +137,7 @@ class PulseSimulation(BlockSimulation):
         # Set attributes, and flag clear queue
         for name, value in changes.items():
             setattr(self, name, value)
-            if name in (NAMES.DELAY_L, NAMES.DELAY_L, NAMES.WIDTH_L, NAMES.WIDTH_L):
+            if name in ("DELAY_L", "DELAY_L", "WIDTH_L", "WIDTH_L"):
                 self.do_clear_queue(ts)
 
         # On rising edge of enable clear errors

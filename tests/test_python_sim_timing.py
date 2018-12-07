@@ -89,7 +89,7 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
 
                 # Check all outputs have correct field values
                 for name in outputs:
-                    expected = int(outputs[name])
+                    expected = int(outputs[name], 0)
                     actual = getattr(block, name)
                     assert actual == expected, \
                         "%d: Attr %s = %d != %d" % (
