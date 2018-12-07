@@ -210,52 +210,12 @@ class FieldConfig(object):
                         subclass.__name__, d, e))
         return ret
 
-    def setter(self, block_simulation=0, v=0, suffix=""):
+    def setter(self, block_simulation=0, v=0):
         if self.value != v:
             self.value = v
             if block_simulation.changes is None:
                 block_simulation.changes = {}
-            block_simulation.changes[self.name + suffix] = v
-
-    def settertimeL(self, block_simulation, v):
-        # Setter function for time _L register
-        if self.value != v:
-            self.value = v
-            if block_simulation.changes is None:
-                block_simulation.changes = {}
-            block_simulation.changes[self.name + "_L"] = v
-
-    def settertableA(self, block_simulation, v):
-        # Setter function for table_ADDRESS register
-        if self.value != v:
-            self.value = v
-            if block_simulation.changes is None:
-                block_simulation.changes = {}
-            block_simulation.changes[self.name + "_ADDRESS"] = v
-
-    def settertableL(self, block_simulation, v):
-        # Setter function for table_ADDRESS
-        if self.value != v:
-            self.value = v
-            if block_simulation.changes is None:
-                block_simulation.changes = {}
-            block_simulation.changes[self.name + "_LENGTH"] = v
-
-    def settertableS(self, block_simulation, v):
-        # Setter function for table_START
-        if self.value != v:
-            self.value = v
-            if block_simulation.changes is None:
-                block_simulation.changes = {}
-            block_simulation.changes[self.name + "_START"] = v
-
-    def settertableD(self, block_simulation, v):
-        # Setter function for table_DATA
-        if self.value != v:
-            self.value = v
-            if block_simulation.changes is None:
-                block_simulation.changes = {}
-            block_simulation.changes[self.name + "_DATA"] = v
+            block_simulation.changes[self.name] = v
 
     def getter(self, block_simulation):
         return self.value

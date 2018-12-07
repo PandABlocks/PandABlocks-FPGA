@@ -7,13 +7,15 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "pgen.block.ini")
 
 
 class PgenSimulation(BlockSimulation):
-    CYCLES, ENABLE, TRIG, OUT, TABLE_ADDRESS, TABLE_LENGTH, HEALTH = PROPERTIES
+    CYCLES, ENABLE, TRIG, OUT, TABLE, HEALTH = PROPERTIES
 
     def __init__(self):
         self.table_data = []
         self.current_line = 0
         self.current_cycle = 0
         self.active = 0
+        self.TABLE_ADDRESS = 0
+        self.TABLE_LENGTH = 0
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
@@ -26,7 +28,7 @@ class PgenSimulation(BlockSimulation):
         for name, value in changes.items():
             setattr(self, name, value)
 
-        if NAMES.TABLE_ADDRESS in changes:
+        if "TABLE_ADDRESS" in changes:
             self.active = 1
             # open the table
             file_dir = os.path.join(os.path.dirname(__file__), "PGEN_1000.txt")

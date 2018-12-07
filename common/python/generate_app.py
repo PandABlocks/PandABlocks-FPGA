@@ -196,12 +196,18 @@ class AppGenerator(object):
         """Generate constraints file for IPs, SFP and FMC constraints"""
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
         ips = []
+        sfps = 0
         for block in self.blocks:
             for ip in block.ip:
                 if ip not in ips:
                     ips.append(ip)
+            if block.type == "sfp":
+                sfps += 1
+        assert sfps <= self.sfpsites, \
+            "more SFP blocks in app: %d than constraints: %d" % (
+                sfps, self.sfpsites)
         context = dict(blocks=self.blocks,
-                       sfpsites=self.sfpsites,
+                       sfpsites=sfps,
                        const=self.constraints,
                        ips=ips)
         self.expand_template("constraints.tcl.jinja2", context, hdl_dir,

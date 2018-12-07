@@ -35,7 +35,7 @@ class CaptureEntry(object):
 
     @property
     def value(self):
-        return Block.pos_bus[self.idx]
+        return BlockSimulation.pos_bus[self.idx]
 
     def on_rising_gate(self, ts):
         """Rising gate or if gate is high at enable"""
@@ -247,12 +247,12 @@ class BitsCaptureEntry(CaptureEntry):
         self.quadrant = quadrant
 
     def on_capture(self, ts, gate):
-        bits = Block.bit_bus[self.quadrant * 32:(self.quadrant + 1) * 32]
-        yield Block.bits_to_int(bits)
+        bits = BlockSimulation.bit_bus[self.quadrant * 32:(self.quadrant + 1) * 32]
+        yield BlockSimulation.bits_to_int(bits)
 
 
 class PcapSimulation(BlockSimulation):
-    ENABLE, GATE, TRIG, TRIG_EDGE, SHIFT_SUM, HEALTH, ACTIVE, TS_START, TS_END, TS_CAPTURE, SAMPLES, BITS0, BITS1, BITS2, BITS3 = PROPERTIES
+    ENABLE, GATE, TRIG, TRIG_EDGE, SHIFT_SUM, HEALTH, ACTIVE, TS_START, TS_END, TS_TRIG, SAMPLES, BITS0, BITS1, BITS2, BITS3 = PROPERTIES
     tick_data = True
 
     def __init__(self):
@@ -269,15 +269,26 @@ class PcapSimulation(BlockSimulation):
         self.capture_lookup = {}  # {pos_bus index: [CaptureEntry]}
         # This lets us find the name of the field from the index
         self.ext_names = {}
-#        self.add_properties()
- #       for field in self.blocks:
- #           if field.type == "ext_out timestamp":
- #               # something like 37 38
- #               self.ext_names[int(field.reg[0]) + 32] = field.name + "_L"
- #               self.ext_names[int(field.reg[1]) + 32] = field.name + "_H"
- #           elif field.type in "ext_out.*":
- #               # one of the others
- #               self.ext_names[int(field.reg[0]) + 32] = field.name
+        # These fields are from REG* rather than the block_config
+        self.START_WRITE = 0
+        self.WRITE = 0
+        self.ARM = 0
+        self.DISARM = 0
+        self.DATA = 0
+        # self.add_properties()
+        i = 0
+        for NAME in PROPERTIES:
+
+            if NAME.fget.im_self.type == "ext_out timestamp":
+                # something like 37 38
+                self.ext_names[i + 32] = NAME.fget.im_self.name + "_L"
+                i += 1
+                self.ext_names[i + 32] = NAME.fget.im_self.name + "_H"
+                i += 1
+            elif "ext_out" in NAME.fget.im_self.type:
+                # one of the others
+                self.ext_names[i + 32] = NAME.fget.im_self.name
+                i += 1
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
@@ -291,16 +302,16 @@ class PcapSimulation(BlockSimulation):
             setattr(self, name, value)
 
         # ext_bus indexes are written here
-        if NAMES.START_WRITE in changes:
+        if "START_WRITE" in changes:
             self.capture_entries = []
             self.capture_lookup = {}
-        elif NAMES.WRITE in changes:
-            self.add_capture_entry(changes[NAMES.WRITE])
+        elif "WRITE" in changes:
+            self.add_capture_entry(changes["WRITE"])
 
         # Arm control from *REG.PCAP_[DIS]ARM
-        if NAMES.DISARM in changes:
+        if "DISARM" in changes:
             self.do_disarm()
-        elif b.ARM in changes:
+        elif "ARM" in changes:
             self.do_arm(ts)
 
         # Handle input signals
@@ -315,7 +326,7 @@ class PcapSimulation(BlockSimulation):
                     self.do_gate(ts, self.GATE)
                 if self.GATE:
                     self.do_gated_value(ts, changes.get("POS_BUS", []))
-                if NAMES.CAPTURE in changes:
+                if NAMES.TS_TRIG in changes:
                     if self.CAPTURE_EDGE == 0 and changes[NAMES.CAPTURE] or \
                             self.CAPTURE_EDGE == 1 and not changes[NAMES.CAPTURE] \
                             or self.CAPTURE_EDGE == 2:
@@ -338,6 +349,8 @@ class PcapSimulation(BlockSimulation):
             else:
                 self.pend_data.append(None)
             data = self.pend_data.popleft()
+            print "It GOES HERE AT SOME POINT"
+            print self.pend_data
             if data is not None:
                 self.DATA = data
             ret = ts + 1
@@ -378,7 +391,7 @@ class PcapSimulation(BlockSimulation):
                     cls = TsStartCaptureEntry
                 elif name.startswith("TS_END"):
                     cls = TsEndCaptureEntry
-                elif name.startswith("TS_CAPTURE"):
+                elif name.startswith("TS_TRIG"):
                     cls = TsCaptureCaptureEntry
                 else:
                     raise ValueError("Bad name %s" % name)

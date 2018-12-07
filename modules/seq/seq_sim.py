@@ -95,7 +95,7 @@ PHASE2 = 4
 
 
 class SeqSimulation(BlockSimulation):
-    TABLE_LENGTH, TABLE_START, TABLE_DATA, PRESCALE, REPEATS, ENABLE, BITA, \
+    TABLE, PRESCALE, REPEATS, ENABLE, BITA, \
     BITB, BITC, POSA, POSB, POSC, ACTIVE, OUTA, OUTB, OUTC, OUTD, OUTE, OUTF, \
     TABLE_REPEAT, TABLE_LINE, LINE_REPEAT, STATE = PROPERTIES
 
@@ -106,6 +106,10 @@ class SeqSimulation(BlockSimulation):
         self.table = SeqTable()
         # The current line
         self.current_line = None
+        # TABLE Registers
+        self.TABLE_LENGTH = 0
+        self.TABLE_DATA = 0
+        self.TABLE_START = 0
 
     def set_outputs(self, outputs):
         self.OUTA = outputs & 1
@@ -179,7 +183,7 @@ class SeqSimulation(BlockSimulation):
             setattr(self, name, value)
         state = self.STATE
 
-        if changes.get(NAMES.TABLE_START, None) == 1:
+        if changes.get("TABLE_START", None) == 1:
             # Loading a table stops everything
             self.table.table_start()
             self.set_outputs(0)
@@ -220,10 +224,10 @@ class SeqSimulation(BlockSimulation):
                 # table commands
                 if self.table.table_ready:
                     state = WAIT_ENABLE
-                elif NAMES.TABLE_DATA in changes:
-                    self.table.table_data(changes[NAMES.TABLE_DATA])
-                elif NAMES.TABLE_LENGTH in changes:
-                    self.table.table_lines(changes[NAMES.TABLE_LENGTH] / 4)
+                elif "TABLE_DATA" in changes:
+                    self.table.table_data(changes["TABLE_DATA"])
+                elif "TABLE_LENGTH" in changes:
+                    self.table.table_lines(changes["TABLE_LENGTH"] / 4)
                     self.table.reset()
                     return ts + 1
             elif self.STATE == WAIT_TRIGGER:
