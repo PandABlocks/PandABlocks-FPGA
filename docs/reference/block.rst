@@ -51,12 +51,16 @@ this:
     constraints:
     ip:
     otherconst:
+    extension:
 
 The ``description`` should be a short (a few words) description that will be
 visible as a Block label to users of the `pandablocks_device_` when it runs.
 
 The ``entity`` should be the name of the VHDL entity that will be created to
 hold the logic. It is typically the lowercase version of the Block name.
+
+If the ``extension`` field is present then the ``extensions`` directory in the
+module must exist and contain a python server extension file.
 
 [FIELD] sections
 ~~~~~~~~~~~~~~~~
@@ -69,6 +73,8 @@ look like this:
     [MYFIELD]
     type: type subtype options
     description: Short description of the Field
+    extension: extension-parameter
+    extension_reg:
 
 The section name is used to determine the name of the Field in the resulting
 Block. It should be made of upper case letters, numbers and underscores.
@@ -82,6 +88,10 @@ documented in `extra_field_keys`.
 
 The ``description`` value gives a short (single sentence) description about
 what the Field does, visible as a tooltip to users.
+
+If ``extension`` is specified then this field is configured as an extension
+field.  If the ``extension_reg`` field is also specified then this field is also
+a hardware register.
 
 .. _extra_field_keys:
 

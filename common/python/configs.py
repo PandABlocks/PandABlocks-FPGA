@@ -3,6 +3,7 @@ import re
 import math
 
 from .compat import TYPE_CHECKING, configparser
+from .ini_util import ini_get
 
 if TYPE_CHECKING:
     from typing import List, Iterable, Tuple, Dict
@@ -42,26 +43,18 @@ class BlockConfig(object):
         #: The VHDL entity name, like lut
         self.entity = ini.get(".", "entity")
         #: Is the block soft, sfp, fmc or dma?
-        try:
-            self.type = ini.get(".", "type")
-        except configparser.NoOptionError:
-            self.type = type
+        self.type = ini_get(ini, '.', 'type', type)
         #: Any constraints?
-        try:
-            self.constraints = ini.get(".", "constraints").split()
-        except configparser.NoOptionError:
-            self.constraints = ""
+        self.constraints = ini_get(ini, '.', 'constraints', '').split()
         #: Does the block require IP?
-        try:
-            self.ip = ini.get(".", "ip").split()
-        except configparser.NoOptionError:
-            self.ip = ""
-        try:
-            self.otherconst = ini.get(".","otherconst")
-        except configparser.NoOptionError:
-            self.otherconst = ""
+        self.ip = ini_get(ini, '.', 'ip', '').split()
+        self.otherconst = ini_get(ini, '.', 'otherconst', '')
         #: The description, like "Lookup table"
         self.description = ini.get(".", "description")
+        # If extension required but not specified put entity name here
+        self.extension = ini_get(ini, '.', 'extension', None)
+        if self.extension == '':
+            self.extension = self.entity
         #: All the child fields
         self.fields = FieldConfig.from_ini(ini, number)
 
@@ -90,14 +83,16 @@ class BlockConfig(object):
 
 class RegisterConfig(object):
     """A low level register name and number backing this field"""
-    def __init__(self, name, number, reg=''):
+    def __init__(self, name, number = -1, prefix = '', extension=''):
         # type: (str, int, str) -> None
         #: The name of the register, like INPA_DLY
         self.name = name
         #: The register number relative to Block, like 9
         self.number = number
-        #: For an XADC field, the register path
-        self.reg = reg
+        # String to be written before the register
+        self.prefix = prefix
+        #: For an extension field, the register path
+        self.extension = extension
 
 
 class BusEntryConfig(object):
@@ -116,7 +111,9 @@ class FieldConfig(object):
     type_regex = None
 
     def __init__(self, name, number, type,
-                 description, wstb=False, short=False, words=0, reg='', **extra_config):
+                 description, wstb=False, short=False, words=0,
+                 extension = None, extension_reg = None,
+                 **extra_config):
         # type: (str, int, str, str, bool, bool, int, str, str) -> None
         # Field names should be UPPER_CASE_OR_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*$", name), \
@@ -148,8 +145,9 @@ class FieldConfig(object):
         self.short = short
         #: for a table, how many words?
         self.words = words
-        #: Whats the register for an xadc field
-        self.reg = reg
+        #: Store the extension register info
+        self.extension = extension
+        self.extension_reg = extension_reg
         #: The current value of this field for simulation
         self.value = 0
 
@@ -169,12 +167,21 @@ class FieldConfig(object):
     def address_line(self):
         # type: () -> str
         """Produce the line that should go in the registers file after name"""
+        def make_reg_name(r):
+            result = []
+            if r.prefix:
+                result.append(r.prefix)
+            if r.number >= 0:
+                result.append(str(r.number))
+            if r.extension:
+                result.extend(['X', r.extension])
+            return ' '.join(result)
+
         if self.registers:
             assert not self.bus_entries, \
                 "Field %s type %s has both registers and bus entries" % (
                     self.name, self.type)
-            registers_str = " ".join(str(r.number) if r.number >= 0 else r.reg
-                                     for r in self.registers)
+            registers_str = " ".join(make_reg_name(r) for r in self.registers)
         else:
             registers_str = " ".join(str(e.index) for e in self.bus_entries)
         return registers_str
@@ -276,7 +283,7 @@ class TableFieldConfig(FieldConfig):
     def register_addresses(self, field_address, bit_i, pos_i, ext_i):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
         self.registers.append(
-            RegisterConfig(self.name, -1, 'long    2^8    '))
+            RegisterConfig(self.name, prefix = 'long 2^8'))
         self.registers.append(
             RegisterConfig(self.name + "_ADDRESS", field_address))
         field_address += 1
@@ -312,7 +319,7 @@ class TableShortFieldConfig(FieldConfig):
     def register_addresses(self, field_address, bit_i, pos_i, ext_i):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
         self.registers.append(
-            RegisterConfig(self.name, -1, 'short    512    '))
+            RegisterConfig(self.name, prefix = 'short 512'))
         self.registers.append(
             RegisterConfig(self.name + "_START", field_address))
         field_address += 1
@@ -346,17 +353,6 @@ class TableShortFieldConfig(FieldConfig):
             self.description += "\n        %s     %s " % (name, desc)
 
 
-class XadcFieldConfig(FieldConfig):
-    """These fields represent all other set/get parameters backed with a single
-    register"""
-    type_regex = "xadc"
-
-    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
-        # type: (int, int, int, int) -> Tuple[int, int, int, int]
-        self.registers.append(RegisterConfig(self.name, -1, self.reg))
-        return field_address, bit_i, pos_i, ext_i
-
-
 class ParamFieldConfig(FieldConfig):
     """These fields represent all other set/get parameters backed with a single
     register"""
@@ -364,8 +360,18 @@ class ParamFieldConfig(FieldConfig):
 
     def register_addresses(self, field_address, bit_i, pos_i, ext_i):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
-        self.registers.append(RegisterConfig(self.name, field_address))
-        field_address += 1
+        if self.extension:
+            if self.extension_reg is None:
+                address = -1
+            else:
+                address = field_address
+                field_address += 1
+        else:
+            address = field_address
+            field_address += 1
+
+        self.registers.append(
+            RegisterConfig(self.name, address, extension = self.extension))
         return field_address, bit_i, pos_i, ext_i
 
 

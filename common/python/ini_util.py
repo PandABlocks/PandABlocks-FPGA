@@ -14,6 +14,13 @@ def read_ini(path):
     return app_ini
 
 
+def ini_get(ini, section, field, default):
+    try:
+        return ini.get(section, field)
+    except configparser.NoOptionError:
+        return default
+
+
 def parse_assigments(line):
     # type: (str) -> Dict[str, str]
     """Parse name1=value1, name2=value2 into an OrderedDict"""

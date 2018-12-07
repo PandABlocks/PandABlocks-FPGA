@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+
+# Dumps IPMI EEPROM in readable format
+
+from i2c import parse_ipmi
+
+EEPROM = '/sys/bus/i2c/devices/0-0050/eeprom'
+
+parse_ipmi.parse_file(EEPROM).emit()

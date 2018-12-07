@@ -12,7 +12,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from .compat import TYPE_CHECKING, configparser
 from .configs import BlockConfig, pad
-from .ini_util import read_ini
+from .ini_util import read_ini, ini_get
 
 if TYPE_CHECKING:
     from typing import List
@@ -87,15 +87,11 @@ class AppGenerator(object):
             block_address, bit_i, pos_i, ext_i = self.implement_blocks(
                 target_ini, target_path, "carrier", "blocks",
                 block_address, bit_i, pos_i, ext_i)
-            try:
-                self.constraints = target_ini.get(
-                    ".", "sfp_constraints").split()
-            except configparser.NoOptionError:
-                self.constraints = ""
-            try:
-                self.sfpsites = target_ini.getint(".", "sfp_sites")
-            except configparser.NoOptionError:
-                self.sfpsites = 0
+
+            self.constraints = ini_get(
+                target_ini, '.', 'sfp_constraints', '').split()
+            self.sfpsites = int(ini_get(target_ini, '.', 'sfp_sites', 0))
+
         # Implement the blocks for the soft blocks
         block_address, bit_i, pos_i, ext_i = self.implement_blocks(
             app_ini, ROOT, "soft", "modules",
@@ -117,22 +113,10 @@ class AppGenerator(object):
         """Read the ini file and for each section create a new block"""
         for section in ini.sections():
             if section != ".":
-                try:
-                    module_name = ini.get(section, "module")
-                except configparser.NoOptionError:
-                    module_name = section.lower()
-                if "sfp" in module_name:
-                    module_name = "sfp" + "_" + ini.get(section, "type")
-                elif "fmc" in module_name:
-                    module_name = "fmc" + "_" + ini.get(section, "type")
-                try:
-                    ini_name = ini.get(section, "ini")
-                except configparser.NoOptionError:
-                    ini_name = module_name + ".block.ini"
-                try:
-                    number = ini.getint(section, "number")
-                except configparser.NoOptionError:
-                    number = 1
+                module_name = ini_get(ini, section, 'module', section.lower())
+                ini_name = ini_get(
+                    ini, section, 'ini', module_name + '.block.ini')
+                number = int(ini_get(ini, section, 'number', 1))
 
                 ini_path = os.path.join(path, subdir, module_name, ini_name)
                 block_ini = read_ini(ini_path)

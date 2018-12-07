@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# Script to load Panda FPGA image
+
+# This is called directly by the /opt/etc/init.d/panda-server script and relies
+# on panda-server being installed
+
+# File locations
+carrier_firmware=/opt/share/panda-fpga/panda_top.bit
+slow_firmware=/opt/share/panda-fpga/slow_top.bin
+slow_load=/opt/bin/slow_load
+check_ipmi=/opt/bin/check_ipmi
+
+
+fail()
+{
+    echo >&2 "$@"
+    exit 1
+}
+
+
+
+[ -e $carrier_firmware -a -e $slow_firmware ]  ||
+    fail "Firmware not installed"
+
+# Check whether the FMC IPMI configuration matches that expected by the FPGA
+$check_ipmi  &&
+
+# If FMC passes then load the carrier firmware
+cat $carrier_firmware >/dev/xdevcfg  &&
+# Finally load the slow FPGA
+$slow_load <$slow_firmware

@@ -164,25 +164,27 @@ tools/virtexHex2Bin: tools/virtexHex2Bin.c
 
 
 $(FPGA_FILE): $(AUTOGEN_BUILD_DIR) $(FPGA_DEPENDS)
-	echo building FPGA
 	mkdir -p $(dir $@)
 ifdef SKIP_FPGA_BUILD
+	echo Skipping FPGA build
 	touch $@
 else
+	echo building FPGA
 	$(MAKE) -C $(dir $@) -f $(TARGET_DIR)/Makefile VIVADO=$(VIVADO) \
             TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(dir $@) \
             IP_DIR=$(IP_DIR)
 endif
 
 $(SLOW_FPGA_FILE): $(AUTOGEN_BUILD_DIR) $(SLOW_FPGA_DEPENDS)
-	echo building SlowFPGA
 	mkdir -p $(dir $@)
 ifdef SKIP_FPGA_BUILD
+	echo Skipping Slow FPGA build
 	touch $@
 else
+	echo building SlowFPGA
 	source $(ISE)  &&  \
         $(MAKE) -C $(dir $@) -f $(TARGET_DIR)/SlowFPGA/Makefile \
-            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA BOARD=$(BOARD) mcs \
+            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA BOARD=v2 mcs \
             BUILD_DIR=$(dir $@)
 endif
 
@@ -202,6 +204,21 @@ ZPKG_FILE = $(BUILD_DIR)/panda-fpga@$(ZPKG_VERSION).zpg
 
 ZPKG_DEPENDS += $(FPGA_FILE)
 ZPKG_DEPENDS += $(SLOW_FPGA_FILE)
+ZPKG_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini
+ZPKG_DEPENDS += $(APP_BUILD_DIR)/extensions
+
+$(APP_BUILD_DIR)/ipmi.ini: $(APP_FILE)
+	$(PYTHON) -m common.python.make_ipmi_ini $(TOP) $< $@
+
+$(APP_BUILD_DIR)/extensions: $(APP_FILE)
+	rm -rf $@
+	mkdir -p $@
+	$(PYTHON) -m common.python.make_extensions $(TOP) $< $(TARGET) $@
+
+# Unconditionally rebuild the extensions and ipmi.ini files.  This is cheap and
+# the result is more predictable
+.PHONY: $(APP_BUILD_DIR)/ipmi.ini $(APP_BUILD_DIR)/extensions
+
 
 $(ZPKG_FILE): $(ZPKG_LIST) $(ZPKG_DEPENDS)
 	$(MAKE_ZPKG) -t $(TOP) -b $(APP_BUILD_DIR) -d $(BUILD_DIR) \
