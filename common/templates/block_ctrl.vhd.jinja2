@@ -28,7 +28,11 @@ port (
             {% endif %}
         {% endfor %}
     {% elif field in filter_fields("read.*") %}
+        {% for register in field.registers %}{# Should be only the one #}
+            {% if register.number >= 0 %}
     {{ "%-20s"| format(field.name) }}: in  std_logic_vector(31 downto 0);
+            {% endif %}
+        {% endfor %}
     {% elif field.type in "bit_mux" %}
     {{ "%-20s"| format(field.name + "_from_bus") }}: out std_logic;
     {% elif field.type in "pos_mux" %}
