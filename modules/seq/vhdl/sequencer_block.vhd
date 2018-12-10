@@ -35,6 +35,7 @@ port (
     write_ack_o         : out std_logic;
     -- Block inputs
     sysbus_i            : in  sysbus_t;
+    posbus_i            : in  posbus_t;
     -- Output sequencer
     outa_o              : out std_logic;
     outb_o              : out std_logic;
@@ -88,7 +89,7 @@ port map (
     clk_i               => clk_i,                           
     reset_i             => reset_i,                             
     sysbus_i            => sysbus_i,                        
-    posbus_i            => (others => (others => '0')),     
+    posbus_i            => posbus_i,     
     enable_o            => enable,                              
     bita_o              => bita,                            
     bitb_o              => bitb,                                
@@ -133,7 +134,7 @@ port map (
 
     enable_i            => enable,
     
-    bita_i              => bita,
+    bita_i              => bita, 
     bitb_i              => bitb,
     bitc_i              => bitc,
     

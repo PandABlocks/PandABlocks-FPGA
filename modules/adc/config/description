@@ -1,0 +1,10 @@
+ADC   ACQ427 ADC Module
+    CH01_ADC_DATA                   ADC Channel 1 Data
+    CH02_ADC_DATA                   ADC Channel 2 Data
+    CH03_ADC_DATA                   ADC Channel 3 Data
+    CH04_ADC_DATA                   ADC Channel 4 Data
+    CH05_ADC_DATA                   ADC Channel 5 Data
+    CH06_ADC_DATA                   ADC Channel 6 Data
+    CH07_ADC_DATA                   ADC Channel 7 Data
+    CH08_ADC_DATA                   ADC Channel 8 Data
+

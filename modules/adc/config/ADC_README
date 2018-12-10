@@ -1,0 +1,24 @@
+Scott Robson <scott.robson@d-tacq.co.uk>
+11:15:37 Thu 21 Dec 2017
+Order of operations to begin data capture on ACQ427 Module
+
+  Set a suitable clock divider.
+    PandA clk_0 is 125 MHz. Max sample rate of ADC is 1 MHz.
+    Set clock A period to 1e-6 and connect to PCAP block CAPTURE port
+    
+    Example of clock configuration
+    
+    Target sample rate of 1 MHz
+    Internal PandA clock = 125 MHz
+    Set ADC clock divide to 125, 125 / 125 = 1 MHz
+    
+  Set FMC Channel Data CAPTURE to "Triggered"
+    
+  Set configuration bits in the following order
+    Set MODULE_ENABLE
+    Set ADC_CLKDIV
+    Assert then Deassert ADC_FIFO_RESET
+    Set ADC_ENABLE
+    Set ADC_FIFO_ENABLE
+
+  Data should now be acquiring on the ACQ427. Available to view via the web interface or through standard PCAP acquisition.

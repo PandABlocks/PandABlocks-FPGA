@@ -39,9 +39,13 @@ architecture rtl of counter_block is
 signal ENABLE_VAL       : std_logic_vector(31 downto 0);
 signal TRIG_VAL         : std_logic_vector(31 downto 0);
 signal START            : std_logic_vector(31 downto 0);
+signal STEP             : std_logic_vector(31 downto 0);
+signal MAX              : std_logic_vector(31 downto 0);
+signal MIN              : std_logic_vector(31 downto 0);
 signal START_WSTB       : std_logic;
 signal STEP_WSTB        : std_logic;
-signal STEP             : std_logic_vector(31 downto 0);
+signal MAX_WSTB         : std_logic;
+signal MIN_WSTB         : std_logic;
 
 signal enable           : std_logic;
 signal trig             : std_logic;
@@ -75,7 +79,11 @@ port map (
     START               => START,
     START_WSTB          => START_WSTB,
     STEP                => STEP,
-    STEP_WSTB           => STEP_WSTB
+    STEP_WSTB           => STEP_WSTB,
+    MAX                 => MAX,
+    MAX_WSTB            => MAX_WSTB,
+    MIN                 => MIN,
+    MIN_WSTB            => MIN_WSTB
 );
 
 -- LUT Block Core Instantiation
@@ -91,6 +99,10 @@ port map (
     START_WSTB          => START_WSTB,
     STEP_WSTB           => STEP_WSTB,
     STEP                => STEP,
+    MAX                 => MAX,
+    MAX_WSTB            => MAX_WSTB,
+    MIN                 => MIN,
+    MIN_WSTB            => MIN_WSTB,
 
     carry_o             => carry_o,
     out_o               => out_o

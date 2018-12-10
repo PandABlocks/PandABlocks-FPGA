@@ -34,8 +34,8 @@ signal biss_sck_prev        : std_logic;
 signal biss_sck_rising_edge : std_logic;
 signal calc_enable_i        : std_logic;
 signal reset                : std_logic;
-signal crc_reset            : std_logic;
-signal biss_dat             : std_logic;
+signal crc_reset            : std_logic := '1';
+signal biss_dat             : std_logic := '1';
 signal crc_o                : std_logic_vector(5 downto 0);
 signal data_cnt             : unsigned(7 downto 0);
 signal timeout_cnt          : unsigned(11 downto 0);
@@ -86,6 +86,9 @@ begin
         
             -- SYNCH STATE 
             when STATE_SYNCH =>
+                biss_dat <= '1';
+                data_enable <= '0';
+                nEnW_enable <= '0';
                 if (biss_sck_rising_edge = '1') then
                     crc_reset <= '1';
                     -- BITS + c_nEnW(2) + c_CRC(6) 

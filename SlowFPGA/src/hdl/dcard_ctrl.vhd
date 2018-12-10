@@ -121,7 +121,7 @@ begin
         if (OUTENC_CONN(I) = '0') then
             outenc_ctrl(I) <= OUTENC_CONV(OUTENC_PROTOCOL(I));
         -- Daugther Card in LOOPBACK mode.
-        elsif (DCARD_MODE_i(I)(3 downto 1) = DCARD_LOOPBACK) then
+        elsif (DCARD_MODE_i(I)(3 downto 1) = DCARD_MONITOR) then
             outenc_ctrl(I) <= OUTENC_CONV(INENC_PROTOCOL(I));
         -- Daughter Card in NORMAL mode.
         else

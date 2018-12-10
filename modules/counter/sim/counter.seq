@@ -81,3 +81,38 @@ $ Change step and trigger
 16      : TRIG=0
 18      : ENABLE=0
 
+###############
+$ Setting Max and Min values
+3       : START=5, STEP=4, MAX=10, MIN=-10
+6       : ENABLE=1          : OUT=5
+7       : TRIG=1            : OUT=9
+8       : TRIG=0
+9       : TRIG=1            : OUT=-8, CARRY = 1
+10      : TRIG=0            : CARRY=0
+11      : TRIG=1            : OUT=-4
+12      : TRIG=0
+13      : ENABLE=0
+
+###############
+$ Positive Min Value
+3       : START=5, STEP=3, MAX=10, MIN=2
+6       : ENABLE=1          : OUT=5
+7       : TRIG=1            : OUT=8
+8       : TRIG=0
+9       : TRIG=1            : OUT=2, CARRY = 1
+10      : TRIG=0            : CARRY=0
+11      : TRIG=1            : OUT=5
+12      : TRIG=0
+13      : ENABLE=0
+
+###############
+$ Negative Max Value
+3       : START=-5, STEP=4, MAX=-1, MIN=-10
+6       : ENABLE=1          : OUT=-5
+7       : TRIG=1            : OUT=-1
+8       : TRIG=0
+9       : TRIG=1            : OUT=-7, CARRY = 1
+10      : TRIG=0            : CARRY=0
+11      : TRIG=1            : OUT=-3
+12      : TRIG=0
+13      : ENABLE=0

@@ -1,0 +1,10 @@
+ADC         {{newBlockNo("ADC")}}
+    CH01_ADC_DATA                   {{newPosBus()}}
+    CH02_ADC_DATA                   {{newPosBus()}}
+    CH03_ADC_DATA                   {{newPosBus()}}
+    CH04_ADC_DATA                   {{newPosBus()}}
+    CH05_ADC_DATA                   {{newPosBus()}}
+    CH06_ADC_DATA                   {{newPosBus()}}
+    CH07_ADC_DATA                   {{newPosBus()}}
+    CH08_ADC_DATA                   {{newPosBus()}}
+

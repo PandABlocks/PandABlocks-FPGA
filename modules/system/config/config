@@ -5,13 +5,13 @@ SYSTEM
     TEMP_PICO       read        int
     TEMP_ENC_R      read        int
     TEMP_ZYNQ       xadc
-    ALIM_12V0       read
-    PICO_5V0        read
-    IO_5V0          read
-    SFP_3V3         read
-    FMC_15VN        read
-    FMC_15VP        read
-    ENC_24V         read
-    FMC_12V         read
+    ALIM_12V0       read        scalar 0.001486252
+    PICO_5V0        read        scalar 0.000611546
+    IO_5V0          read        scalar 0.000609385
+    SFP_3V3         read        scalar 0.000384078
+    FMC_15VN        read        scalar 0.003533569
+    FMC_15VP        read        scalar 0.001847291
+    ENC_24V         read        scalar 0.002854764
+    FMC_12V         read        scalar 0.001494582
     VCCINT          xadc
     
