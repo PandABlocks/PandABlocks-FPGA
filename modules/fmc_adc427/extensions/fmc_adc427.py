@@ -1,5 +1,7 @@
 # Extension module to support FMC ADC427
 
+from i2c import smbus2
+
 # The mapping of GPIO bits is as follows:
 #   0.1:0   ADC A1 gain
 #   0.3:2   ADC A2 gain
@@ -17,8 +19,24 @@
 #   2.5     DAC 4 output range
 #   2.6     DAC 1 output range
 #   2.7     DAC 2 output range
-
-from i2c import smbus2
+lookup_bit_map = {
+    # All the write values are triple: (byte, offset, width)
+    'adc1_gain' : (0, 0, 2),
+    'adc2_gain' : (0, 2, 2),
+    'adc3_gain' : (0, 4, 2),
+    'adc4_gain' : (0, 6, 2),
+    'adc5_gain' : (1, 0, 2),
+    'adc6_gain' : (1, 2, 2),
+    'adc7_gain' : (1, 4, 2),
+    'adc8_gain' : (1, 6, 2),
+    'dac1_gain' : (2, 6, 1),
+    'dac2_gain' : (2, 7, 1),
+    'dac3_gain' : (2, 4, 1),
+    'dac4_gain' : (2, 5, 1),
+    # The two read values are a pair: (byte, offset)
+    'dac_ribbon' : (2, 2),
+    'adc_ribbon' : (2, 3),
+}
 
 
 class GPIO_Helper:
@@ -64,25 +82,12 @@ class BitsWriter:
         self.gpio.write_bits(self.offset, value)
 
 
-# Parses byte.bit into a pair of values.
-def parse_bit(s):
-    byte, offset = map(int, s.split('.'))
-    return (byte, offset)
-
-# Parses byte.left:right into a triple (byte, offset, length)
-def parse_bits(s):
-    byte, lr = s.split('.')
-    byte = int(byte)
-    left, right = map(int, lr.split(':'))
-    return (byte, right, left - right + 1)
-
-
 class Extension:
     def __init__(self, count):
         self.gpio = GPIO_Helper()
 
     def parse_read(self, request):
-        return BitReader(self.gpio, parse_bit(request))
+        return BitReader(self.gpio, lookup_bit_map[request])
 
     def parse_write(self, request):
-        return BitsWriter(self.gpio, parse_bits(request))
+        return BitsWriter(self.gpio, lookup_bit_map[request])
