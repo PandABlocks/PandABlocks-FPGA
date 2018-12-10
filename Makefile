@@ -41,14 +41,26 @@ default: $(DEFAULT_TARGETS)
 .PHONY: default
 
 
+# If ALL_APPS not specified in CONFIG, pick up all valid entries in the apps dir
+ifndef ALL_APPS
+ALL_APPS := $(notdir $(wildcard apps/*.app.ini))
+ALL_APPS := $(ALL_APPS:.app.ini=)
+endif
+
+
+# Helper for MAKE_ALL_APPS below.  This separate definition is needed so that
+# each generate makefile call is a separate command.
+define _MAKE_ONE_APP
+$(MAKE) APP_NAME=$(1) $(2)
+
+endef
+
 # Helper function for building all apps: invoke
 #
 #  $(call MAKE_ALL_APPS, target)
 #
 # to build target for all applications in the target directory
-ALL_APPS := $(notdir $(wildcard apps/*.app.ini))
-ALL_APPS := $(ALL_APPS:.app.ini=)
-MAKE_ALL_APPS = $(foreach app,$(ALL_APPS), $(MAKE) APP_NAME=$(app) $(1); )
+MAKE_ALL_APPS = $(foreach app,$(ALL_APPS), $(call _MAKE_ONE_APP,$(app),$(1)))
 
 
 # ------------------------------------------------------------------------------
