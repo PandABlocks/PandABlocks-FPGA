@@ -89,7 +89,10 @@ def generate_board_area(ini):
     board[0] = 1
     # Fill in length at end
     board[2] = 25       # English (latin1 encoding)
-    board[3:6] = compute_time(ini['manufacture date'])
+    try:
+        board[3:6] = compute_time(ini['manufacture date'])
+    except KeyError:
+        board[3:6] = 0
 
     # Output the strings
     board.add_string(ini['manufacturer'])
