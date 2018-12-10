@@ -60,7 +60,6 @@ signal MAX_VAL          : unsigned(31 downto 0) := c_max_val;
 signal MIN_VAL          : unsigned(31 downto 0) := c_min_val;    
 signal counter_carry    : std_logic;    
 
-
 begin
 
 
@@ -121,32 +120,35 @@ begin
         -- Count up/down on trigger
         elsif (enable_i = '1' and trigger_rise = '1') then
            -- Crosssing from positive to negative with roll over when smaller than MAX default value  
------------           if ((signed(counter) + signed(STEP_default)) > signed(MAX_VAL)) then 
             if ((counter + unsigned(STEP_default)) > MAX_VAL) and ((counter + unsigned(STEP_default)) < MIN_VAL) then 
                 counter_carry <= '1';    
-                counter <= counter + unsigned(STEP_default) - (MAX_VAL+1 - MIN_VAL);                
+                counter <= counter + unsigned(STEP_default) - (MAX_VAL+1 - MIN_VAL);     
             elsif (dir_i = '0') then
                 -- Check to see if we are crossing from the positive to negative or
                 -- negative to positive boundaries if we do set the carry bit
                 if (counter(31) = '0' and ((counter + unsigned(STEP_default) > MAX_VAL))) or
                    (counter(31) = '1' and ((counter + unsigned(STEP_default) < MIN_VAL))) then
                     counter_carry <= '1';
+                    -- Crossing boundary when going positive
+                    counter <= counter + unsigned(STEP_default) - (MAX_VAL+1 - MIN_VAL);                
                 else
                     counter_carry <= '0';    
+                    -- Increment the counter
+                    counter <= counter + unsigned(STEP_default);            
                 end if;
-                -- Increment the counter
-                counter <= counter + unsigned(STEP_default);            
             else
                 -- Check to see if we are crossing from the negative to positive or
                 -- positive to negative boundaries if we do set the carry bit
                 if (counter(31) = '1' and ((counter - unsigned(STEP_default) < MIN_VAL))) or
                    (counter(31) = '0' and ((counter - unsigned(STEP_default) > MAX_VAL))) then                    
                     counter_carry <= '1';
+                    -- Crossing boundary when going negative    
+                    counter <= counter - unsigned(STEP_default) - (MAX_VAL+1 - MIN_VAL);
                 else 
                     counter_carry <= '0';
+                    -- Decrement the counter    
+                    counter <= counter - unsigned(STEP_default);
                 end if;          
-                -- Decrement the counter    
-                counter <= counter - unsigned(STEP_default);
             end if;                
         else
             -- Need to stop the counter_carry when trigger_i is low
