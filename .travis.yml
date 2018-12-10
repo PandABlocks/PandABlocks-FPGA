@@ -20,10 +20,11 @@ install:
   - ls -al ${VIRTUAL_ENV}/bin
   - git clone https://github.com/PandABlocks/PandABlocks-rootfs.git $HOME/PandABlocks/PandABlocks-rootfs
   - echo PANDA_ROOTFS = $HOME/PandABlocks/PandABlocks-rootfs > CONFIG
+  - echo APP_NAME = >> CONFIG
 
 # command to run tests
 script:
   - make python_tests
   - make python_timing
   - make hdl_timing
-  - make apps
+  - make all_autogen

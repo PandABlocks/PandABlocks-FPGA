@@ -41,6 +41,16 @@ default: $(DEFAULT_TARGETS)
 .PHONY: default
 
 
+# Helper function for building all apps: invoke
+#
+#  $(call MAKE_ALL_APPS, target)
+#
+# to build target for all applications in the target directory
+ALL_APPS := $(notdir $(wildcard apps/*.app.ini))
+ALL_APPS := $(ALL_APPS:.app.ini=)
+MAKE_ALL_APPS = $(foreach app,$(ALL_APPS), $(MAKE) APP_NAME=$(app) $(1); )
+
+
 # ------------------------------------------------------------------------------
 # App source autogeneration
 
@@ -54,8 +64,12 @@ $(AUTOGEN_BUILD_DIR): $(APP_FILE) $(APP_DEPENDS)
 	rm -rf $@
 	$(PYTHON) -m common.python.generate_app $@ $<
 
-apps: $(AUTOGEN_BUILD_DIR)
-.PHONY: apps
+autogen: $(AUTOGEN_BUILD_DIR)
+.PHONY: autogen
+
+all_autogen:
+	$(call MAKE_ALL_APPS,autogen)
+.PHONY: all_autogen
 
 
 # ------------------------------------------------------------------------------
@@ -226,6 +240,11 @@ $(ZPKG_FILE): $(ZPKG_LIST) $(ZPKG_DEPENDS)
 
 zpkg: $(ZPKG_FILE)
 .PHONY: zpkg
+
+
+all-zpkg:
+	$(call MAKE_ALL_APPS, zpkg)
+.PHONY: all-zpkg
 
 
 # ------------------------------------------------------------------------------
