@@ -52,8 +52,6 @@ architecture rtl of soft_blocks is
 -- Chip selects and Block Num constants are declared in addr_defines
 
 begin
-{# Using a namespace jinja2 object may make iterating simpler #}
-{% set bit = [bit_bus_length] %}{% set pos = [pos_bus_length] %}
 {% set dma = [0] %}
 {% for block in blocks %}
     {% if block.type in "soft|dma" %}
@@ -99,26 +97,20 @@ port map (
         {% endfor %}
     
         {% for field in block.filter_fields("bit_out") %}
-    {{ "%-20s" |format(field.name + "_o") }}=> bit_bus ({{ bit[0] + block.number - 1 }} downto {{ bit[0] }}),
-            {% for i in range(block.number) %}
-                {% if bit.append(bit.pop() + 1) %}{% endif %}
-            {% endfor %}
+    {{ "%-20s" |format(field.name + "_o") }}=> bit_bus ({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
         {% endfor %}
         {% for field in block.filter_fields("pos_out") %}
-    {{ "%-20s" | format(field.name + "_o") }}=> posbus ({{ pos[0] + block.number -1 }} downto {{ pos[0] }}),
-            {% for i in range(block.number) %}
-                {% if pos.append(pos.pop() + 1) %}{% endif %}
-            {% endfor %}
+    {{ "%-20s" | format(field.name + "_o") }}=> posbus ({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
         {% endfor %}
     
     clk_i               => FCLK_CLK0
 );
-    {% endif %}
 
+    {% endif %}
 {% endfor %}
 {% for block in blocks if block.type == "fmc" %}
 ---------------------------------------------------------------------------
--- FMC Loopback design
+-- {{ block.entity }} design
 ---------------------------------------------------------------------------
     {% if loop.first %}
 
@@ -135,11 +127,8 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
         fmc_inputs_o        => open,
         {% for field in block.filter_fields("pos_out") %}
             {% if loop.first %}
-        {{"%-20s" | format("fmc_data_o(" + loop.revindex0|string + " downto " + "0)")}}=> posbus ({{ pos[0] + loop.revindex0 }} downto {{ pos[0] }}),
+        {{"%-20s" | format("fmc_data_o(" + loop.revindex0|string + " downto " + "0)")}}=> posbus ({{ field.bus_entries[0].index + loop.revindex0 }} downto {{field.bus_entries[0].index}}),
             {% endif %}
-            {% for i in range(block.number) %}
-                {% if pos.append(pos.pop() + 1) %}{% endif %}
-            {% endfor %}
         {% endfor %}
 
         read_strobe_i       => read_strobe({{ block.name }}_CS),
@@ -176,11 +165,8 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         sfp_inputs_o        => open,
          {% for field in block.filter_fields("pos_out") %}
             {% if loop.first %}
-        {{"%-20s" | format("fmc_data_o(" + loop.revindex0|string + " downto " + "0)")}}=> posbus ({{ pos[0] + loop.revindex0 }} downto {{ pos[0] }}),
+        {{"%-20s" | format("sfp_data_o(" + loop.revindex0|string + " downto " + "0)")}}=> posbus ({{ field.bus_entries[0].index + loop.revindex0 }} downto {{ field.bus_entries.index }}),
             {% endif %}
-            {% for i in range(block.number) %}
-                {% if pos.append(pos.pop() + 1) %}{% endif %}
-            {% endfor %}
         {% endfor %}
 
         read_strobe_i       => read_strobe({{ block.name }}_CS),
