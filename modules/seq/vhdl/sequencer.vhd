@@ -135,6 +135,8 @@ signal table_ready_dly      : std_logic;
 
 signal next_ts              : unsigned(31 downto 0);
 
+signal test_load_next       : std_logic;
+
 begin
 
 -- Block inputs.
@@ -272,13 +274,18 @@ state_o <= c_state_load_table when seq_sm = LOAD_TABLE else
 enable_mem_reset <= '1' when (current_frame.time1 = x"00000000") else '0'; 
 
 
+load_next <= '1' when (enable_rise = '1' and  seq_sm = WAIT_ENABLE) or ( seq_sm = PHASE_2  and presc_ce = '1' and 
+                      tframe_counter = next_ts -1 and last_table_repeat = '0' and last_line_repeat = '1') else '0';   
+ 
+
+
 SEQ_FSM : process(clk_i)
 begin
 if rising_edge(clk_i) then
     --
     -- Sequencer State Machine
     --
-    load_next <= '0';
+--    load_next <= '0';
 
     -- Reset all registers and state machine.
     if (reset_i = '1') then
@@ -325,7 +332,7 @@ if rising_edge(clk_i) then
                     TABLE_LINE <= to_unsigned(1,16);     
                     LINE_REPEAT <= to_unsigned(1,32);   
                     current_frame <= next_frame;
-                    load_next <= '1';
+--                    load_next <= '1';
                     active <= '1'; 
                 end if;    
                        
@@ -384,22 +391,22 @@ if rising_edge(clk_i) then
                             TABLE_LINE <= TABLE_LINE + 1;     
                         end if;
                         -- No trigger ready so go to the wait state
-                        if next_trig_valid = '0' then
-                            seq_sm <= WAIT_TRIGGER;
-                        -- Trigger ready for PHASE 1     
+                        if next_trig_valid = '0' then                           -- WAIT_TRIGGER 2 should going here, test 14 fails because next_trig_valid = '1' then
+                            seq_sm <= WAIT_TRIGGER;                             --              goes low one clock later, need to find another clock
+                        -- Trigger ready for PHASE 1                                 
                         elsif (next_frame.time1 /= to_unsigned(0,32)) then
                             next_ts <= next_frame.time1;
                             out_val <= next_frame.out1;
-                            seq_sm <= PHASE_1;    
+                            seq_sm <= PHASE_1;                                  -- PHASE1 3 goes to phase1 ERROR
                         -- Stay in PHASE 2 state    
                         else
                             next_ts <= next_frame.time2;
                             out_val <= next_frame.out2;
                             -- Don't need it but here it is any way
-                            seq_sm <= PHASE_2;
+                            seq_sm <= PHASE_2;                                  -- PHASE2 4     
                         end if;
                         current_frame <= next_frame;
-                        load_next <= '1';
+--                        load_next <= '1';
                     else
                         LINE_REPEAT <= LINE_REPEAT + 1;
                         -- No trigger active so go and wait
