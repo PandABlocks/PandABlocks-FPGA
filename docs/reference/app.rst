@@ -44,7 +44,6 @@ All other sections specify Block instance information. They look like this:
     number: 4
     module: mymodule
     ini: myblock.block.ini
-    type: sfp/fmc type
 
 The section name is used to determine the name of the Block in the resulting
 App. It should be made of upper case letters and underscores with no numbers.
@@ -59,8 +58,6 @@ version of the section name.
 The ``ini`` value gives the `block_ini_reference` filename relative to the
 module directory. If not specified it is the lowercase version of the section
 name + ``.block.ini``
-
-The ``type`` value is...
 
 App build process
 -----------------

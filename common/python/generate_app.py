@@ -22,8 +22,7 @@ ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 
 # Max number of Block types
-# TODO: is this right?
-MAX_BLOCKS = 64
+MAX_BLOCKS = 32
 
 # Max size of buses
 MAX_BIT = 128
@@ -114,15 +113,24 @@ class AppGenerator(object):
         for section in ini.sections():
             if section != ".":
                 module_name = ini_get(ini, section, 'module', section.lower())
-                ini_name = ini_get(
-                    ini, section, 'ini', module_name + '.block.ini')
+                block_type = ini_get(ini, section, 'block', None)
+                if block_type:
+                    ini_name = ini_get(
+                        ini, section, 'ini', block_type + '.block.ini')
+                else:
+                    ini_name = ini_get(
+                        ini, section, 'ini', module_name + '.block.ini')
                 number = int(ini_get(ini, section, 'number', 1))
 
-                ini_path = os.path.join(path, subdir, module_name, ini_name)
+                if block_type:
+                    ini_path = os.path.join(path, subdir, module_name,
+                                            block_type, ini_name)
+                else:
+                    ini_path = os.path.join(path, subdir, module_name, ini_name)
                 block_ini = read_ini(ini_path)
                 # Type is soft if the block is a softblock and carrier
                 # for carrier block
-                block = BlockConfig(section, type, number, block_ini)
+                block = BlockConfig(section, type, number, block_ini, module_name)
                 block_address, bit_i, pos_i, ext_i = block.register_addresses(
                         block_address, bit_i, pos_i, ext_i)
                 self.blocks.append(block)
@@ -168,6 +176,7 @@ class AppGenerator(object):
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
         bit_bus_length = 0
         pos_bus_length = 0
+        carrier_mod_count = 0
         for block in self.blocks:
             if block.type == "carrier":
                 for field in block.fields:
@@ -175,6 +184,7 @@ class AppGenerator(object):
                         bit_bus_length = bit_bus_length + block.number
                     if field.type == "pos_out":
                         pos_bus_length = pos_bus_length + block.number
+                carrier_mod_count = carrier_mod_count + 1
         block_names = []
         register_blocks = []
         # SFP blocks can have the same register definitions as they have
@@ -186,6 +196,7 @@ class AppGenerator(object):
         context = dict(blocks=self.blocks,
                        bit_bus_length=bit_bus_length,
                        pos_bus_length=pos_bus_length,
+                       carrier_mod_count=carrier_mod_count,
                        register_blocks=register_blocks)
         self.expand_template("soft_blocks.vhd.jinja2", context, hdl_dir,
                              "soft_blocks.vhd")

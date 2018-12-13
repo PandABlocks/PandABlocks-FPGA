@@ -31,9 +31,8 @@ class TimingCsv(object):
     def add_line(self, values):
         for i in self.header:
             # For any wstb signals set to '0'
-            if "_wstb" in i:
+            if "_wstb" in i or "ARM" in i or "DISARM" in i or "START_WRITE" in i:
                 self.values[i] = str(0)
-
         for k, v in values.items():
             assert k in self.header, \
                 "Field %r is not %s" % (k, self.header)
@@ -43,6 +42,8 @@ class TimingCsv(object):
                 v = str(int(v, 0))
             self.lengths[k] = max(self.lengths[k], len(v))
             self.values[k] = v
+            if "ARM" in k or "DISARM" in k or "START_WRITE" in k:
+                self.values[k] = str(1)
             # If the changes signal has a wstb, set wstb to '1'
             if k+"_wstb" in self.header:
                 self.values[k + "_wstb"] = str(1)
@@ -83,7 +84,7 @@ class HdlTimingGenerator(object):
                         timing))
             module_path = os.path.dirname(timing)
             block_ini = read_ini(os.path.join(module_path, block_ini_name))
-            block = BlockConfig("BLOCK", "soft", 1, block_ini)
+            block = BlockConfig("BLOCK", "soft", 1, block_ini, "BLOCK")
             for section in timing_ini.sections():
                 if section != ".":
                     self.generate_timing_test(block, timing_ini, section, i)
@@ -101,6 +102,19 @@ class HdlTimingGenerator(object):
         os.makedirs(timing_dir)
         # Write the sequence values
         header = ["TS"]
+        # PCAP is a special case
+        if block.entity == "pcap":
+            header.append("START_WRITE")
+            header.append("WRITE")
+            header.append("WRITE_wstb")
+            header.append("ARM")
+            header.append("DISARM")
+            header.append("DATA")
+            header.append("DATA_wstb")
+            for j in range(32):
+                header.append("POS[" + str(j) + "]")
+            for j in range(128):
+                header.append("BIT[" + str(j) + "]")
         for field in block.fields:
             if field.type == "time":
                 header.append(field.name+"_L")
@@ -112,7 +126,7 @@ class HdlTimingGenerator(object):
             elif field.type == "table":
                 header.append(field.name + "_ADDRESS")
                 header.append(field.name + "_LENGTH")
-            else:
+            elif "ext" not in field.type:
                 header.append(field.name)
             # If field has wstb config, ass header for a wstb signal
             if field.wstb:
@@ -172,6 +186,9 @@ class HdlTimingGenerator(object):
         # Last line for outputs
         if for_next_ts:
             csv.add_line(for_next_ts)
+            csv.add_line({"TS": str(ts + 2)})
+        else:
+            csv.add_line({"TS": str(ts + 1)})
         # File name needs to be unique to the test
         expected_csv = "%d%sexpected.csv" % (i, block.entity)
         with open(os.path.join(timing_dir, expected_csv), "w") as f:

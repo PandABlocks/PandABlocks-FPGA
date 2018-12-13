@@ -6,7 +6,7 @@ from common.python.configs import BlockConfig, FieldConfig, ParamEnumFieldConfig
 class TestConfigs(unittest.TestCase):
     def test_bad_block_name(self):
         with self.assertRaises(AssertionError) as cm:
-            BlockConfig("LUT3", 1, True, None)
+            BlockConfig("LUT3", 1, True, None, None)
         self.assertEqual("Expected BLOCK_NAME with no numbers, got 'LUT3'",
                          str(cm.exception))
 
