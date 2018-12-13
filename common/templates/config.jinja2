@@ -4,7 +4,9 @@
     EXPORTS         multiline
 {% for block in blocks %}
     {# Make a label for holding the block description #}
-    {{ pad("LABEL_%s" % block.name) }} string
+    {% for i in range(block.number) %}
+    {{ pad("LABEL_%s%d" % (block.name, i + 1)) }} string
+    {% endfor %}
 {% endfor %}
 
 {% for block in blocks %}
