@@ -32,6 +32,8 @@ class CaptureEntry(object):
 
     def __init__(self, idx):
         self.idx = idx
+        for i in range(128):
+            BlockSimulation.bit_bus[i] = 0
 
     @property
     def value(self):
@@ -325,11 +327,11 @@ class PcapSimulation(BlockSimulation):
                 if NAMES.GATE in changes:
                     self.do_gate(ts, self.GATE)
                 if self.GATE:
-                    self.do_gated_value(ts, changes.get("POS_BUS", []))
-                if NAMES.TS_TRIG in changes:
-                    if self.CAPTURE_EDGE == 0 and changes[NAMES.CAPTURE] or \
-                            self.CAPTURE_EDGE == 1 and not changes[NAMES.CAPTURE] \
-                            or self.CAPTURE_EDGE == 2:
+                    self.do_gated_value(ts, BlockSimulation.pos_change)
+                if NAMES.TRIG in changes:
+                    if self.TRIG_EDGE == 0 and changes[NAMES.TRIG] or \
+                            self.TRIG_EDGE == 1 and not changes[NAMES.TRIG] \
+                            or self.TRIG_EDGE == 2:
                         self.do_capture(ts)
 
         # If there was an error then produce it
@@ -349,8 +351,6 @@ class PcapSimulation(BlockSimulation):
             else:
                 self.pend_data.append(None)
             data = self.pend_data.popleft()
-            print "It GOES HERE AT SOME POINT"
-            print self.pend_data
             if data is not None:
                 self.DATA = data
             ret = ts + 1
@@ -382,7 +382,7 @@ class PcapSimulation(BlockSimulation):
             elif mode == MAX:
                 entry = MaxCaptureEntry(i)
             else:
-                raise ValueError("Bad mode %d" % mode)
+                raise ValueError(" Bad mode %d" % mode)
         else:
             # This is a special entry
             name = self.ext_names[i]

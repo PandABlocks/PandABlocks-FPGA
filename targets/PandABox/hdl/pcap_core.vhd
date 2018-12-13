@@ -34,7 +34,7 @@ port (
     WRITE_WSTB          : in  std_logic;
     TRIG_EDGE           : in  std_logic_vector(1 downto 0);
     SHIFT_SUM           : in  std_logic_vector(5 downto 0);
-    HEALTH              : out std_logic_vector(31 downto 0);
+    HEALTH              : out std_logic_vector(1 downto 0);
     -- Block inputs
     enable_i            : in  std_logic;
     trig_i              : in  std_logic;
@@ -155,7 +155,7 @@ port map (
     error_o             => pcap_buffer_error
 );
 
-HEALTH(31 downto 2) <= (others => '0');
+-- HEALTH(31 downto 2) <= (others => '0');
 HEALTH(1 downto 0) <= c_cap_to_close when pcap_status(1) = '1' else
 					  c_dma_full when pcap_status(2) = '1' else
 					  c_health_ok;	 

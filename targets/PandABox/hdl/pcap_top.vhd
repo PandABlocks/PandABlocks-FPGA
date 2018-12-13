@@ -227,7 +227,7 @@ port map (
     SHIFT_SUM               => SHIFT_SUM(5 downto 0),
     ARM                     => ARM,
     DISARM                  => DISARM,
-    HEALTH                  => HEALTH,
+    HEALTH                  => HEALTH(1 downto 0),
 
     enable_i                => enable,
     trig_i                  => trig,
