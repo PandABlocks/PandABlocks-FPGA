@@ -47,7 +47,7 @@ this:
     [.]
     description: Short description of the Block
     entity: vhdl_entity
-    type:
+    type: dma or sfp or fmc
     constraints:
     ip:
     otherconst:
@@ -58,6 +58,18 @@ visible as a Block label to users of the `pandablocks_device_` when it runs.
 
 The ``entity`` should be the name of the VHDL entity that will be created to
 hold the logic. It is typically the lowercase version of the Block name.
+
+The ``type`` field will identify if the block is an SFP, FMC or DMA. These are
+special cases and need to be handled differently. This field is automatically
+set to soft for soft blocks or carrier for carrier blocks.
+
+The ``constraints`` is used to identify the location of any xdc constraints
+files, relative to the module's directory.
+
+The ``ip`` field holds the name of any ip blocks used in the module's vhdl code.
+
+``otherconst`` is used to locate a tcl script if the block needs any further
+configuration.
 
 If the ``extension`` field is present then the ``extensions`` directory in the
 module must exist and contain a python server extension file.
@@ -75,6 +87,7 @@ look like this:
     description: Short description of the Field
     extension: extension-parameter
     extension_reg:
+    wstb:
 
 The section name is used to determine the name of the Field in the resulting
 Block. It should be made of upper case letters, numbers and underscores.
@@ -92,6 +105,8 @@ what the Field does, visible as a tooltip to users.
 If ``extension`` is specified then this field is configured as an extension
 field.  If the ``extension_reg`` field is also specified then this field is also
 a hardware register.
+
+If a signal uses a write strobe ``wstb`` should be set to True.
 
 .. _extra_field_keys:
 
@@ -247,13 +262,27 @@ an input and assignments after the -> symbol indicate a change in an output.
 
 Target ini
 ----------
+A target.ini is written for the blocks which are specific to the target. This
+ini file declares the blocks and their number similar to the app.ini file.
 
 The [.] section
 ~~~~~~~~~~~~~~~
+The first entry to the ini file defines information for the SFP sites for the
+target::
+
+    [.]
+    sfp_sites:
+    sfp_constraints:
+
+The ``sfp_sites`` type is the number of available SFP sites on the target, and
+the ``sfp_sites`` type is the name of the constraints file for each SFP site,
+located in the target/const directory.
 
 [BLOCK] sections
 ~~~~~~~~~~~~~~~~
-
+The block sections are handled in the same manner as those within the app.ini
+file, however the type, unless overwritten in the block.ini files for these
+blocks is set to carrier, rather than soft.
 
 Writing docs
 ------------

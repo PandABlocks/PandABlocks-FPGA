@@ -37,9 +37,12 @@ def add_extension(target_dir, source_dir, extension):
 
 
 def process_ini(extensions, blocks_dir, ini):
-    for module in get_modules(ini):
+    for module, block in get_modules(ini):
         base_dir = os.path.join(blocks_dir, module)
-        extension = get_extension(base_dir, module)
+        if block:
+            extension = get_extension(base_dir, block)
+        else:
+            extension = get_extension(base_dir, module)
         if extension:
             add_extension(extensions, base_dir, extension)
 
