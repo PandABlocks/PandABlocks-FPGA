@@ -2,8 +2,23 @@
 
 # Dumps IPMI EEPROM in readable format
 
-from i2c import parse_ipmi
+import sys
+import argparse
 
-EEPROM = '/sys/bus/i2c/devices/0-0050/eeprom'
+from i2c import eeprom, parse_ipmi
 
-parse_ipmi.parse_file(EEPROM).emit()
+parser = argparse.ArgumentParser(description = 'Dump FMC IPMI EEPROM')
+parser.add_argument(
+    '-b', '--binary', action = 'store_true', default = False,
+    help = 'Dump raw EEPROM image')
+parser.add_argument(
+    '-e', '--elf', action = 'store_true', default = False,
+    help = 'Enable extended EEPROM support for 16-bit addressable memory')
+args = parser.parse_args()
+
+
+image = eeprom.read_eeprom(args.elf)
+if args.binary:
+    image.tofile(sys.stdout)
+else:
+    parse_ipmi.parse(image).emit()

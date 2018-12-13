@@ -11,7 +11,7 @@ from .ini_util import read_ini, ini_get
 fallback_ini = '''\
 # No IPMI EEPROM expected
 [.]
-eeprom = no
+eeprom = ignore
 '''
 
 def get_modules(ini):

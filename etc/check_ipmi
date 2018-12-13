@@ -1,52 +1,49 @@
 #!/usr/bin/env python
 
-# Validates IPMI EEPROM against the expected configuration
+# Validates FMC IPMI EEPROM against the expected configuration
 
 import sys
-import os.path
-from i2c import parse_ipmi, ini_file
+from i2c import ini_file, eeprom, parse_ipmi
 
-EEPROM = '/sys/bus/i2c/devices/0-0050/eeprom'
 IPMI_INI = '/opt/share/panda-fpga/ipmi.ini'
 
 
 ini = ini_file.load_ini_file(IPMI_INI)
 
-# Create a default eeprom section for the cases when we need to check it
-default = ini_file.Section('.')
-default.add_key('eeprom', 'required')
-dot = ini.get('.', default)
+# Read the eeprom key from the [.] section, default to "required" if missing
+try:
+    eeprom_key = ini['.']['eeprom']
+except KeyError:
+    eeprom_key = 'required'
 
-if dot['eeprom'] == 'ignore':
+
+if eeprom_key == 'ignore':
+    # No FMC card fitted, or FMC has no EEPROM.  Just ignore the EEPROM
     print 'Ignoring IPMI EEPROM'
-elif os.path.isfile(EEPROM):
-    # If the IPMI EEPROM is present it must be readable and must match the INI
-    # file.
-    try:
-        try:
-            ipmi = parse_ipmi.parse_file(EEPROM)
-        except Exception:
-            # If the EEPROM is not readable or parseable then the ini file had
-            # better say this.
-            if dot['eeprom'] == 'invalid':
-                print 'Ignoring unreadable EEPROM'
-                sys.exit(0)
-            else:
-                # No good, re-raise the original exception
-                print 'Exception trying to read or parse EEPROM'
-                raise
-        else:
-            ini_file.compare_ini(ini, ipmi)
-            print 'IPMI EEPROM matches'
-            sys.exit(0)
-    except ini_file.CompareFail as e:
-        print 'IPMI EEPROM mismatch:', e
-        sys.exit(1)
-else:
-    # If the IPMI EEPROM is not present the INI file must say that this is ok
-    if dot['eeprom'] == 'no':
-        print 'No EEPROM expected'
-        sys.exit(0)
-    else:
-        print 'Unable to check IPMI EEPROM'
-        sys.exit(1)
+    sys.exit(0)
+
+# We expect the EEPROM to be present.  First try to read it.
+try:
+    allow_16bit = eeprom_key == '16-bit'
+    image = eeprom.read_eeprom(allow_16bit)
+except Exception as e:
+    print 'Unable to read FMC EEPROM:', e
+    sys.exit(1)
+
+# Now try to parse the image we've just read
+try:
+    ipmi = parse_ipmi.parse(image)
+except Exception as e:
+    print 'Error parsing FMC EEPROM:', e
+    sys.exit(1)
+
+# Finally check the parse against the ini file
+try:
+    ini_file.compare_ini(ini, ipmi, ignore = ['.'])
+except ini_file.CompareFail as e:
+    print 'FMC EEPROM mismatch:', e
+    sys.exit(1)
+
+# If we get this far then all is well!
+print 'FMC EEPROM matches'
+sys.exit(0)

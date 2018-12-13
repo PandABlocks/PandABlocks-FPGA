@@ -76,7 +76,9 @@ class CompareFail(Exception):
 
 # Checks that all sections and fields in other are present in base.  Raises a
 # CompareFail() exception if a mismatch is found.
-def compare_ini(match, other):
+def compare_ini(match, other, ignore = []):
+    # First filter out sections we're told to ignore
+    match = filter(lambda s: s.name not in ignore, match)
     for section in match:
         try:
             other_section = other[section.name]
