@@ -56,7 +56,6 @@ architecture rtl of soft_blocks is
 
 begin
 {# Using a namespace jinja2 object may make iterating simpler #}
-{% set bit = [bit_bus_length] %}{% set pos = [pos_bus_length] %}
 {% set dma = [0] %}
 {% for block in blocks %}
     {% if block.type in "soft|dma" %}
@@ -103,15 +102,9 @@ port map (
     
         {% for field in block.filter_fields("bit_out") %}
     {{ "%-20s" |format(field.name + "_o") }}=> bit_bus_o({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
-            {% for i in range(block.number) %}
-                {% if bit.append(bit.pop() + 1) %}{% endif %}
-            {% endfor %}
         {% endfor %}
         {% for field in block.filter_fields("pos_out") %}
     {{ "%-20s" | format(field.name + "_o") }}=> posbus_o({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
-            {% for i in range(block.number) %}
-                {% if pos.append(pos.pop() + 1) %}{% endif %}
-            {% endfor %}
         {% endfor %}
     
     clk_i               => FCLK_CLK0
@@ -139,9 +132,6 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
         {% for field in block.filter_fields("pos_out") %}
             {% if loop.first %}
         {{"%-20s" | format("fmc_data_o(" + loop.revindex0|string + " downto " + "0)")}}=> posbus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{field.bus_entries[0].index}}),
-                {% for i in range(block.number) %}
-                    {% if pos.append(pos.pop() + loop.revindex0) %}{% endif %}
-                {% endfor %}
             {% endif %}
         {% endfor %}
 
@@ -180,9 +170,6 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
          {% for field in block.filter_fields("pos_out") %}
             {% if loop.first %}
         {{"%-20s" | format("sfp_data_o(" + loop.revindex0|string + " downto " + "0)")}}=> posbus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{ field.bus_entries.index }}),
-                {% for i in range(block.number) %}
-                    {% if pos.append(pos.pop() + loop.revindex0) %}{% endif %}
-                {% endfor %}
             {% endif %}
         {% endfor %}
 
@@ -203,8 +190,8 @@ END GENERATE;
     {% endif %}
 
 {% endfor %}
-bit_bus_o(127 downto {{ bit[0] }}) <= (others => '0');
-posbus_o(31 downto {{ pos[0] }}) <= (others => (others => '0'));
+bit_bus_o(127 downto {{ total_bit_bus_length }}) <= (others => '0');
+posbus_o(31 downto {{ total_pos_bus_length }}) <= (others => (others => '0'));
 
 read_ack(31 downto USED_MOD_COUNT + 1) <= (others => '1');
 write_ack(31 downto USED_MOD_COUNT + 1) <= (others => '1');
