@@ -31,9 +31,9 @@ class BlockConfig(object):
     """The config for a single Block"""
     def __init__(self, name, type, number, ini, module_name):
         # type: (str, str, int, configparser.SafeConfigParser) -> None
-        # Block names should be UPPER_CASE_NO_NUMBERS
+        # Block names should be UPPER_CASE_NO_TRAILING_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*[A-Z]$", name), \
-            "Expected BLOCK_NAME with no numbers, got %r" % name
+            "Expected BLOCK_NAME with no trailing numbers, got %r" % name
         #: The name of the Block, like LUT
         self.name = name
         #: The number of instances Blocks that will be created, like 8
