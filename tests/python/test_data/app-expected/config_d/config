@@ -2,6 +2,14 @@
     DESIGN          string
     LAYOUT          multiline
     EXPORTS         multiline
+    LABEL_LUT1      string
+    LABEL_LUT2      string
+    LABEL_LUT3      string
+    LABEL_LUT4      string
+    LABEL_LUT5      string
+    LABEL_LUT6      string
+    LABEL_LUT7      string
+    LABEL_LUT8      string
 
 LUT[8]
     INPA            bit_mux

@@ -10,6 +10,9 @@ package addr_defines is
     constant DRV_CS : natural := 1;
     constant LUT_CS : natural := 2;
 
+-- Constant for the number of used modules
+    constant USED_MOD_COUNT : natural := 2;
+
 -- Block instantiation
     constant LUT_NUM : natural := 8;
 
@@ -18,6 +21,9 @@ package addr_defines is
 
 -- Constant equal to the sum of block_num for each pos out signal
     constant POS_BUS_SIZE : natural := 0;
+
+-- Constant equal to the number of carrier modules
+    constant carrier_mod_count : natural := 0;
 
 -- Block Register Address Space
 

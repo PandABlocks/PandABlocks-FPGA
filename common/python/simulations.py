@@ -51,7 +51,7 @@ class BlockSimulationMeta(type):
 class BlockSimulation(object):
     bit_bus = np.zeros(128, dtype=np.bool_)
     pos_bus = np.zeros(32, dtype=np.int32)
-
+    pos_change = []
     #: This will be dictionary with changes pushed by any properties created
     #: with properties_from_ini()
     changes = None
@@ -75,6 +75,15 @@ class BlockSimulation(object):
         """
         # Set attributes
         for name, value in changes.items():
-            assert hasattr(self, name), "%s has no attribute %s" % (self, name)
-            setattr(self, name, value)
+            if "POS[" not in name and "BIT[" not in name:
+                assert hasattr(self, name), "%s has no attribute %s" % (self, name)
+                setattr(self, name, value)
+            elif "POS[" in name:
+                idx = filter(str.isdigit, name)
+                self.pos_bus[int(idx)] = value
+                self.pos_change.append(int(idx))
+            elif "BIT[" in name:
+                idx = filter(str.isdigit, name)
+                self.bit_bus[int(idx)] = value
+
 

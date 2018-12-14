@@ -49,7 +49,7 @@ signal start_val    : signed(31 downto 0);
 signal min_val      : signed(31 downto 0);
 signal max_val      : signed(31 downto 0);
 signal sum_data     : signed(71 downto 0) := (others => '0');
-signal diff_sum		: signed(31 downto 0); 
+signal diff_sum		: signed(31 downto 0) := (others => '0'); 
 
 signal gate_prev    : std_logic;
 

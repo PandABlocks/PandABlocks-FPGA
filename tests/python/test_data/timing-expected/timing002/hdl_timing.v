@@ -136,5 +136,4 @@ testblock uut (
         .OUT_o                 (OUT_uut),
         .clk_i                 (clk_i)
 );
-
 endmodule

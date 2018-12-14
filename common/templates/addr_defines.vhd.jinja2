@@ -14,7 +14,12 @@ still need to be given Chip Select values. #}
     constant REG_CS : natural := 0;
     constant DRV_CS : natural := 1;
 {% for block in blocks %}
-    constant {{ block.name|upper }}_CS : natural := {{ loop.index + 1 }};
+    constant {{ block.name|upper }}_CS : natural := {{ block.block_address }};
+    {% if loop.last %}
+
+-- Constant for the number of used modules
+    constant USED_MOD_COUNT : natural := {{ loop.index + 1 }};
+    {% endif %}
 {# This is +1 to account for chipselects 0 and 1 assigned to reg and drv #}
 {% endfor %}
 
@@ -24,10 +29,13 @@ still need to be given Chip Select values. #}
 {% endfor %}
 
 -- Constant equal to the sum of block nums for each bit out signal
-    constant BIT_BUS_SIZE : natural := {{ bit_bus_length }};
+    constant BIT_BUS_SIZE : natural := {{ carrier_bit_bus_length }};
 
 -- Constant equal to the sum of block_num for each pos out signal
-    constant POS_BUS_SIZE : natural := {{ pos_bus_length }};
+    constant POS_BUS_SIZE : natural := {{ carrier_pos_bus_length }};
+
+-- Constant equal to the number of carrier modules
+    constant carrier_mod_count : natural := {{ carrier_mod_count }};
 
 -- Block Register Address Space
 

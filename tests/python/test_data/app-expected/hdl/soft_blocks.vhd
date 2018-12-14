@@ -24,14 +24,17 @@ port (
     read_strobe     : in    std_logic_vector(MOD_COUNT-1 downto 0);
     read_address    : in    std_logic_vector(PAGE_AW-1 downto 0);
     read_data       : out   std32_array(MOD_COUNT-1 downto 0);
-    read_ack        : out   std_logic_vector(MOD_COUNT-1 downto 0) := (others => '1');
+    read_ack        : out   std_logic_vector(MOD_COUNT-1 downto 0);
     write_strobe    : in    std_logic_vector(MOD_COUNT-1 downto 0);
     write_address   : in    std_logic_vector(PAGE_AW-1 downto 0);
     write_data      : in    std_logic_vector(31 downto 0);
-    write_ack       : out   std_logic_vector(MOD_COUNT-1 downto 0) := (others => '1');
+    write_ack       : out   std_logic_vector(MOD_COUNT-1 downto 0);
     -- Bus Outputs
-    bit_bus         : inout sysbus_t;
-    posbus          : inout posbus_t;
+    bit_bus_i       : in    sysbus_t;
+    bit_bus_o       : out   std_logic_vector(127 downto BIT_BUS_SIZE);
+
+    posbus_i        : in    posbus_t;
+    posbus_o        : out   std32_array(31 downto POS_BUS_SIZE);
     -- DMA Blocks
     rdma_req        : out   std_logic_vector(5 downto 0);
     rdma_ack        : in    std_logic_vector(5 downto 0);
@@ -42,9 +45,9 @@ port (
     rdma_valid      : in    std_logic_vector(5 downto 0);
     --
     FMC             : inout FMC_interface;
-    SFPA            : inout SFP_interface;
-    SFPB            : inout SFP_interface;
-    SFPC            : inout SFP_interface
+    SFP1            : inout SFP_interface;
+    SFP2            : inout SFP_interface;
+    SFP3            : inout SFP_interface
 );
 end soft_blocks;
 
@@ -71,11 +74,17 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(lut_CS),
     
-    bit_bus_i           => bit_bus,
+    bit_bus_i           => bit_bus_i,
     
-    OUT_o               => bit_bus (7 downto 0),
+    OUT_o               => bit_bus_o(7 downto 0),
     
     clk_i               => FCLK_CLK0
 );
 
+bit_bus_o(127 downto 8) <= (others => '0');
+posbus_o(31 downto 0) <= (others => (others => '0'));
+
+read_ack(31 downto USED_MOD_COUNT + 1) <= (others => '1');
+write_ack(31 downto USED_MOD_COUNT + 1) <= (others => '1');
+read_data(31 downto USED_MOD_COUNT + 1) <= (others => (others => '0'));
 end rtl;

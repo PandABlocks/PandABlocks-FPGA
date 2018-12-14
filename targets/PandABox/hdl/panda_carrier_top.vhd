@@ -192,7 +192,8 @@ signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
 -- Top Level Signals
 signal bit_bus              : sysbus_t := (others => '0');
 signal posbus               : posbus_t := (others => (others => '0'));
-
+signal bit_bus_o            : sysbus_t;
+signal posbus_o             : posbus_t;
 -- Daughter card control signals
 
 -- Input Encoder
@@ -758,11 +759,11 @@ port map (
 
 -- BIT_BUS_SIZE and POS_BUS_SIZE declared in addr_defines.vhd
 
-bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
+bit_bus_o(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
                                    inenc_data & inenc_z & inenc_b & inenc_a &
                                    lvdsin_val & ttlin_val;
 
-posbus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
+posbus_o(POS_BUS_SIZE-1 downto 0) <= inenc_val;
 
 -- Assemble FMC record
 FMC.FMC_PRSNT <= FMC_PRSNT;
@@ -824,14 +825,16 @@ port map(
     FCLK_RESET0 => FCLK_RESET0,
     read_strobe => read_strobe,
     read_address => read_address,
-    read_data => read_data,
-    read_ack => read_ack,
+    read_data => read_data(MOD_COUNT-1 downto 8),
+    read_ack => read_ack(MOD_COUNT-1 downto 8),
     write_strobe => write_strobe,
     write_address => write_address,
     write_data => write_data,
-    write_ack => write_ack,
-    bit_bus => bit_bus,
-    posbus => posbus,
+    write_ack => write_ack(MOD_COUNT-1 downto 8),
+    bit_bus_i => bit_bus,
+    bit_bus_o => bit_bus_o(127 downto BIT_BUS_SIZE),
+    posbus_i => posbus,
+    posbus_o => posbus_o(31 downto POS_BUS_SIZE),
     rdma_req => rdma_req,
     rdma_ack => rdma_ack,
     rdma_done => rdma_done,
@@ -840,9 +843,9 @@ port map(
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
     FMC => FMC,
-    SFPA => SFP1,
-    SFPB => SFP2,
-    SFPC => SFP3
+    SFP1 => SFP1,
+    SFP2 => SFP2,
+    SFP3 => SFP3
 );
 
 end rtl;

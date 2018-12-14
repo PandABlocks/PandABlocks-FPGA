@@ -29,17 +29,19 @@ def all_subclasses(cls):
 
 class BlockConfig(object):
     """The config for a single Block"""
-    def __init__(self, name, type, number, ini):
+    def __init__(self, name, type, number, ini, module_name):
         # type: (str, str, int, configparser.SafeConfigParser) -> None
-        # Block names should be UPPER_CASE_NO_NUMBERS
-        assert re.match("[A-Z][A-Z_]*$", name), \
-            "Expected BLOCK_NAME with no numbers, got %r" % name
+        # Block names should be UPPER_CASE_NO_TRAILING_NUMBERS
+        assert re.match("[A-Z][0-9A-Z_]*[A-Z]$", name), \
+            "Expected BLOCK_NAME with no trailing numbers, got %r" % name
         #: The name of the Block, like LUT
         self.name = name
         #: The number of instances Blocks that will be created, like 8
         self.number = number
         #: The Block section of the register address space
         self.block_address = None
+        #: The module name (can be different to block name)
+        self.module_name = module_name
         #: The VHDL entity name, like lut
         self.entity = ini.get(".", "entity")
         #: Is the block soft, sfp, fmc or dma?
@@ -134,7 +136,7 @@ class FieldConfig(object):
         self.extra_config = extra_config
         #: If there is an enum, how long is it?
         self.enumlength = 0
-        if extra_config:
+        if extra_config and "enum" in type:
             for k, v in sorted(extra_config.items()):
                 if k > self.enumlength:
                     self.enumlength = int(k)

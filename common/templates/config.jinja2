@@ -2,6 +2,12 @@
     DESIGN          string
     LAYOUT          multiline
     EXPORTS         multiline
+{% for block in blocks %}
+    {# Make a label for holding the block description #}
+    {% for i in range(block.number) %}
+    {{ pad("LABEL_%s%d" % (block.name, i + 1)) }} string
+    {% endfor %}
+{% endfor %}
 
 {% for block in blocks %}
 {# block is a BlockConfig object #}
