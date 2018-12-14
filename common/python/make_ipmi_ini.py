@@ -30,10 +30,14 @@ def main():
     for module in get_modules(ini):
         ipmi_ini = os.path.join(top, 'modules', module, 'ipmi.ini')
         if os.path.isfile(ipmi_ini):
-            assert not ini_found, \
-                'Found multiple ipmi.ini files: %s and %s' % (ini_found, module)
-            ini_found = module
-            shutil.copyfile(ipmi_ini, target)
+            if ini_found:
+                # We can end up visiting the same module more than once
+                assert ini_found == module, \
+                    'Found ipmi.ini files in multiple modules: %s and %s' % (
+                        ini_found, module)
+            else:
+                ini_found = module
+                shutil.copyfile(ipmi_ini, target)
 
     if not ini_found:
         # If we failed to find a file generate fallback instead
