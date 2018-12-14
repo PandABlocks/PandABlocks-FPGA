@@ -16,13 +16,13 @@ read_ip $IP_DIR/{{ ip }}/{{ ip }}.xci
 {% for block in blocks %}
 	{# Soft block module code #}
 	{% if block.type in "dma|soft|sfp|fmc" %}
-read_vhdl [glob $TOP_DIR/modules/{{ block.entity }}/hdl/*.vhd]
-add_files $TOP_DIR/modules/{{ block.entity }}/hdl/
+read_vhdl [glob $TOP_DIR/modules/{{ block.module_name }}/hdl/*.vhd]
+add_files $TOP_DIR/modules/{{ block.module_name }}/hdl/
 	{% endif %}
 	{# Constraints #}
 	{% if block.constraints %}
 		{% for constraint in block.constraints %}
-read_xdc $TOP_DIR/modules/{{ block.entity }}/{{ constraint }}
+read_xdc $TOP_DIR/modules/{{ block.module_name }}/{{ constraint }}
 		{% endfor %}
 	{% endif %}
 	{% if block.otherconst %}

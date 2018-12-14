@@ -30,7 +30,7 @@ use ieee.std_logic_1164.all;
 entity fmc_adc_start is
     port (clk_i             : in  std_logic;
           reset_i           : in  std_logic;
-          MODULE_ENABLE     : in  std_logic_vector(31 downto 0);
+          MODULE_ENABLE     : out std_logic_vector(31 downto 0);
           ADC_CLK_SELECT    : out std_logic_vector(31 downto 0);
           ADC_CLKDIV        : out std_logic_vector(31 downto 0);
           ADC_FIFO_RESET    : out std_logic_vector(31 downto 0);
@@ -45,11 +45,12 @@ architecture rtl of fmc_adc_start is
 
 constant c_adc_wait_reset : unsigned(3 downto 0) := to_unsigned(10,4);
 
-type t_sm_adc_start is (state_adc_start, state_adc_clk_select, state_adc_clkdiv, state_adc_fifo_reset_en, state_adc_fifo_reset_dis, 
-                        state_adc_reset_dis, state_adc_reset_en, state_adc_fifo_enable, state_adc_enable);
+type t_sm_adc_start is (state_adc_start, state_adc_module_enable, state_adc_clk_select, state_adc_clkdiv, state_adc_fifo_reset_en,  
+                        state_adc_fifo_reset_dis,  state_adc_reset_dis, state_adc_reset_en, state_adc_fifo_enable, state_adc_enable);
 
-signal sm_adc_start     : t_sm_adc_start;
-signal wait_cnt         : unsigned(3 downto 0);
+signal sm_adc_start  : t_sm_adc_start;
+signal wait_cnt      : unsigned(3 downto 0);
+signal enable        : std_logic_vector(9 downto 0) := (others => '0');
 
 begin
 
@@ -59,19 +60,25 @@ begin
     if rising_edge(clk_i) then
         case sm_adc_start is
         
-            -- Wait until the enable gets set
+            -- Start by reseting everything
             when state_adc_start => 
                 wait_cnt <= (others => '0');
+                MODULE_ENABLE   <= (others => '0');
                 ADC_CLK_SELECT  <= (others => '0');
                 ADC_CLKDIV      <= (others => '0');
                 ADC_FIFO_RESET  <= (others => '0');
                 ADC_FIFO_ENABLE <= (others => '0');
                 ADC_RESET       <= (others => '0');
                 ADC_ENABLE      <= (others => '0');
-                -- Stay in this state until the enable bit set
-                if (MODULE_ENABLE(0) = '1') then
-                    sm_adc_start <= state_adc_clk_select;
-                end if;  
+                enable <= enable(8 downto 0) & '1';
+                if enable(9) = '1' then
+                    sm_adc_start <= state_adc_module_enable;
+                end if;
+  
+            -- Enable the MODULE_ENABLE 
+            when state_adc_module_enable =>
+                MODULE_ENABLE <= std_logic_vector(to_unsigned(1,32));
+                sm_adc_start <= state_adc_clk_select;
             
             -- Select the panda clock
             when state_adc_clk_select => 
@@ -123,10 +130,6 @@ begin
             -- Enable the ADC_FIFO_ENABLE            
             when state_adc_fifo_enable => 
                 ADC_FIFO_ENABLE <= std_logic_vector(to_unsigned(1,32));
-                -- Wait here until enable deasserted
-                if (MODULE_ENABLE(0) = '0') then
-                    sm_adc_start <= state_adc_start;
-                end if;    
         
             when others => 
                 sm_adc_start <= state_adc_start;
