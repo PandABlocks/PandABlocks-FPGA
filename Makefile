@@ -68,7 +68,7 @@ MAKE_ALL_APPS = $(foreach app,$(ALL_APPS), $(call _MAKE_ONE_APP,$(app),$(1)))
 
 APP_FILE = $(TOP)/apps/$(APP_NAME).app.ini
 
-APP_DEPENDS += common/python/generate_app.py
+APP_DEPENDS += $(wildcard common/python/*.py)
 APP_DEPENDS += $(wildcard common/templates/*)
 
 # Make the built app from the ini file
