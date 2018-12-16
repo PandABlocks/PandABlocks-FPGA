@@ -9,10 +9,6 @@ if TYPE_CHECKING:
     from typing import List, Iterable, Tuple, Dict
 
 
-# Max number of FPGA registers in a block
-MAX_REG = 64
-
-
 def pad(name, spaces=15):
     """Pad the right of a name with spaces until it is at least spaces long"""
     return name.ljust(spaces)
@@ -25,6 +21,29 @@ def all_subclasses(cls):
         ret += [x for x in [subclass] + all_subclasses(subclass)
                 if x not in ret]
     return ret
+
+
+# This class wraps a generate_app.RegisterCounter instance, hides the
+# .new_block() method replacing it with a new_field() method.
+class FieldCounter:
+    MAX_FIELDS = 64
+
+    def __init__(self, counters, block_name):
+        self.counters = counters
+        self.block_name = block_name
+        self.field_count = 0
+
+        # Expose the relevant counters methods
+        self.new_bit = counters.new_bit
+        self.new_pos = counters.new_pos
+        self.new_ext = counters.new_ext
+
+    def new_field(self):
+        result = self.field_count
+        assert result < self.MAX_FIELDS, \
+            "Block %s overflowed number of fields"
+        self.field_count += 1
+        return result
 
 
 class BlockConfig(object):
@@ -60,19 +79,13 @@ class BlockConfig(object):
         #: All the child fields
         self.fields = FieldConfig.from_ini(ini, number)
 
-    def register_addresses(self, block_address, bit_i, pos_i, ext_i):
+    def register_addresses(self, block_counters):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
         """Register this block in the address space"""
-        field_address = 0
+        self.block_address = block_counters.new_block()
+        counters = FieldCounter(block_counters, self.name)
         for field in self.fields:
-            field_address, bit_i, pos_i, ext_i = field.register_addresses(
-                field_address, bit_i, pos_i, ext_i)
-            assert field_address < MAX_REG, \
-                "Block %s field %s overflowed %s registers" % (
-                    self.name, field.name, MAX_REG)
-        self.block_address = block_address
-        block_address += 1
-        return block_address, bit_i, pos_i, ext_i
+            field.register_addresses(counters)
 
     def filter_fields(self, regex):
         # type: (str) -> Iterable[FieldConfig]
@@ -153,7 +166,7 @@ class FieldConfig(object):
         #: The current value of this field for simulation
         self.value = 0
 
-    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+    def register_addresses(self, counters):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
         """Create registers from the given base address, returning the next
         unused address"""
@@ -231,36 +244,33 @@ class BitOutFieldConfig(FieldConfig):
     """These fields represent a single entry on the bit bus"""
     type_regex = "bit_out"
 
-    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+    def register_addresses(self, counters):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
         for _ in range(self.number):
-            self.bus_entries.append(BusEntryConfig("bit", bit_i))
-            bit_i += 1
-        return field_address, bit_i, pos_i, ext_i
+            self.bus_entries.append(
+                BusEntryConfig("bit", counters.new_bit()))
 
 
 class PosOutFieldConfig(FieldConfig):
     """These fields represent a position output"""
     type_regex = "pos_out"
 
-    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+    def register_addresses(self, counters):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
         for _ in range(self.number):
-            self.bus_entries.append(BusEntryConfig("pos", pos_i))
-            pos_i += 1
-        return field_address, bit_i, pos_i, ext_i
+            self.bus_entries.append(
+                BusEntryConfig("pos", counters.new_pos()))
 
 
 class ExtOutFieldConfig(FieldConfig):
     """These fields represent a ext output"""
     type_regex = "ext_out"
 
-    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+    def register_addresses(self, counters):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
         for _ in range(self.number):
-            self.bus_entries.append(BusEntryConfig("ext", ext_i))
-            ext_i += 1
-        return field_address, bit_i, pos_i, ext_i
+            self.bus_entries.append(
+                BusEntryConfig("ext", counters.new_ext()))
 
 
 class ExtOutTimeFieldConfig(ExtOutFieldConfig):
@@ -268,31 +278,24 @@ class ExtOutTimeFieldConfig(ExtOutFieldConfig):
     registers"""
     type_regex = "ext_out timestamp"
 
-    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+    def register_addresses(self, counters):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
         for _ in range(self.number):
-            self.bus_entries.append(BusEntryConfig("ext", ext_i))
-            ext_i += 1
-            self.bus_entries.append(BusEntryConfig("ext", ext_i))
-            ext_i += 1
-        return field_address, bit_i, pos_i, ext_i
+            self.bus_entries.extend([
+                BusEntryConfig("ext", counters.new_ext()),
+                BusEntryConfig("ext", counters.new_ext())])
 
 
 class TableFieldConfig(FieldConfig):
     """These fields represent a table field"""
     type_regex = "table"
 
-    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+    def register_addresses(self, counters):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
-        self.registers.append(
-            RegisterConfig(self.name, prefix = 'long 2^8'))
-        self.registers.append(
-            RegisterConfig(self.name + "_ADDRESS", field_address))
-        field_address += 1
-        self.registers.append(
-            RegisterConfig(self.name + "_LENGTH", field_address))
-        field_address += 1
-        return field_address, bit_i, pos_i, ext_i
+        self.registers.extend([
+            RegisterConfig(self.name, prefix = 'long 2^8'),
+            RegisterConfig(self.name + "_ADDRESS", counters.new_field()),
+            RegisterConfig(self.name + "_LENGTH", counters.new_field())])
 
     def extra_config_lines(self):
         # type: () -> Iterable[str]
@@ -318,20 +321,13 @@ class TableShortFieldConfig(FieldConfig):
     """These fields represent a table field"""
     type_regex = "table short"
 
-    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+    def register_addresses(self, counters):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
-        self.registers.append(
-            RegisterConfig(self.name, prefix = 'short 512'))
-        self.registers.append(
-            RegisterConfig(self.name + "_START", field_address))
-        field_address += 1
-        self.registers.append(
-            RegisterConfig(self.name + "_DATA", field_address))
-        field_address += 1
-        self.registers.append(
-            RegisterConfig(self.name + "_LENGTH", field_address))
-        field_address += 1
-        return field_address, bit_i, pos_i, ext_i
+        self.registers.extend([
+            RegisterConfig(self.name, prefix = 'short 512'),
+            RegisterConfig(self.name + "_START", counters.new_field()),
+            RegisterConfig(self.name + "_DATA", counters.new_field()),
+            RegisterConfig(self.name + "_LENGTH", counters.new_field())])
 
     def extra_config_lines(self):
         # type: () -> Iterable[str]
@@ -360,21 +356,18 @@ class ParamFieldConfig(FieldConfig):
     register"""
     type_regex = "(param|read|write).*"
 
-    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+    def register_addresses(self, counters):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
         if self.extension:
             if self.extension_reg is None:
                 address = -1
             else:
-                address = field_address
-                field_address += 1
+                address = counters.new_field()
         else:
-            address = field_address
-            field_address += 1
+            address = counters.new_field()
 
         self.registers.append(
             RegisterConfig(self.name, address, extension = self.extension))
-        return field_address, bit_i, pos_i, ext_i
 
 
 class ParamEnumFieldConfig(ParamFieldConfig):
@@ -399,36 +392,31 @@ class BitMuxFieldConfig(FieldConfig):
     """These fields represent a single entry on the pos bus"""
     type_regex = "bit_mux"
 
-    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+    def register_addresses(self, counters):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
         # One register for the mux value, one for a delay line
-        self.registers.append(RegisterConfig(self.name, field_address))
-        field_address += 1
-        self.registers.append(RegisterConfig(self.name + "_dly", field_address))
-        field_address += 1
-        return field_address, bit_i, pos_i, ext_i
+        self.registers.extend([
+            RegisterConfig(self.name, counters.new_field()),
+            RegisterConfig(self.name + "_dly", counters.new_field())])
 
 
 class PosMuxFieldConfig(FieldConfig):
     """The fields represent a position input multiplexer selection"""
     type_regex = "pos_mux"
 
-    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+    def register_addresses(self, counters):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
-        self.registers.append(RegisterConfig(self.name, field_address))
-        field_address += 1
-        return field_address, bit_i, pos_i, ext_i
+        self.registers.append(
+            RegisterConfig(self.name, counters.new_field()))
 
 
 class TimeFieldConfig(FieldConfig):
     """The fields represent a configurable timer parameter """
     type_regex = "time"
 
-    def register_addresses(self, field_address, bit_i, pos_i, ext_i):
+    def register_addresses(self, counters):
         # type: (int, int, int, int) -> Tuple[int, int, int, int]
         # One register for the _L value and one for the _H value
-        self.registers.append(RegisterConfig(self.name + "_L", field_address))
-        field_address += 1
-        self.registers.append(RegisterConfig(self.name + "_H", field_address))
-        field_address += 1
-        return field_address, bit_i, pos_i, ext_i
+        self.registers.extend([
+            RegisterConfig(self.name + "_L", counters.new_field()),
+            RegisterConfig(self.name + "_H", counters.new_field())])

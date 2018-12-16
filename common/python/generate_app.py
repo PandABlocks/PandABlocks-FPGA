@@ -21,13 +21,40 @@ if TYPE_CHECKING:
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 
-# Max number of Block types
-MAX_BLOCKS = 32
 
-# Max size of buses
-MAX_BIT = 128
-MAX_POS = 32
-MAX_EXT = 32
+# This class generates unique register numbers.  It is designed to be passed to
+# the implement_blocks() and register_addresses() functions.  Methods are
+# provided for generating new block, bit, pos, ext addresses.
+class RegisterCounter:
+    # Max number of Block types
+    MAX_BLOCKS = 32
+
+    # Max size of buses
+    MAX_BIT = 128
+    MAX_POS = 32
+    MAX_EXT = 32
+
+    def __init__(self,
+            block_count = 0, bit_count = 0, pos_count = 0, ext_count = 0):
+        self.block_count = block_count
+        self.bit_count = bit_count
+        self.pos_count = pos_count
+        self.ext_count = ext_count
+
+    # Helper function for generating allocator.
+    def __allocator(counter, limit, name):
+        def allocate(self):
+            result = getattr(self, counter)
+            assert result < limit, "Overflowed %s" % name
+            setattr(self, counter, result + 1)
+            return result
+        return allocate
+
+    new_block = __allocator('block_count', MAX_BLOCKS, 'block addresses')
+    new_bit   = __allocator('bit_count', MAX_BIT, 'bit bus entries')
+    new_pos   = __allocator('pos_count', MAX_POS, 'pos bus entries')
+    new_ext   = __allocator('ext_count', MAX_EXT, 'ext bus entries')
+
 
 
 class AppGenerator(object):
@@ -46,6 +73,8 @@ class AppGenerator(object):
             lstrip_blocks=True,
             keep_trailing_newline=True,
         )
+        # Start from base register 2 to allow for *REG and *DRV spaces
+        self.counters = RegisterCounter(block_count = 2)
         # These will be created when we parse the ini files
         self.blocks = []  # type: List[BlockConfig]
         self.ip = []
@@ -71,10 +100,7 @@ class AppGenerator(object):
         """
         app_ini = read_ini(app)
         # Load all the block definitions
-        # Start from base register 2 to allow for *REG and *DRV spaces
-        block_address = 2
-        # The various busses
-        bit_i, pos_i, ext_i = 0, 0, 0
+
         # The following code reads the target ini file for the specified target
         # The ini file declares the carrier blocks
         target = app_ini.get(".", "target")
@@ -83,32 +109,27 @@ class AppGenerator(object):
             target_path = os.path.join(ROOT, "targets", target)
             target_ini = read_ini(os.path.join(target_path, (
                     target + ".target.ini")))
-            block_address, bit_i, pos_i, ext_i = self.implement_blocks(
-                target_ini, target_path, "carrier", "blocks",
-                block_address, bit_i, pos_i, ext_i)
+            self.implement_blocks(target_ini, target_path, "carrier", "blocks")
 
             self.constraints = ini_get(
                 target_ini, '.', 'sfp_constraints', '').split()
             self.sfpsites = int(ini_get(target_ini, '.', 'sfp_sites', 0))
 
         # Implement the blocks for the soft blocks
-        block_address, bit_i, pos_i, ext_i = self.implement_blocks(
-            app_ini, ROOT, "soft", "modules",
-            block_address, bit_i, pos_i, ext_i)
+        self.implement_blocks(app_ini, ROOT, "soft", "modules")
         print("####################################")
         print("# Resource usage")
-        print("#  Block addresses: %d/%d" % (block_address, MAX_BLOCKS))
-        print("#  Bit bus: %d/%d" % (bit_i, MAX_BIT))
-        print("#  Pos bus: %d/%d" % (pos_i, MAX_POS))
-        print("#  Ext bus: %d/%d" % (ext_i, MAX_EXT))
+        print("#  Block addresses: %d/%d" % (
+            self.counters.block_count, self.counters.MAX_BLOCKS))
+        print("#  Bit bus: %d/%d" % (
+            self.counters.bit_count, self.counters.MAX_BIT))
+        print("#  Pos bus: %d/%d" % (
+            self.counters.pos_count, self.counters.MAX_POS))
+        print("#  Ext bus: %d/%d" % (
+            self.counters.ext_count, self.counters.MAX_EXT))
         print("####################################")
-        assert block_address < MAX_BLOCKS, "Overflowed block addresses"
-        assert bit_i < MAX_BIT, "Overflowed bit bus entries"
-        assert pos_i < MAX_POS, "Overflowed pos bus entries"
-        assert ext_i < MAX_EXT, "Overflowed ext bus entries"
 
-    def implement_blocks(self, ini, path, type, subdir,
-                         block_address,  bit_i, pos_i, ext_i):
+    def implement_blocks(self, ini, path, type, subdir):
         """Read the ini file and for each section create a new block"""
         for section in ini.sections():
             if section != ".":
@@ -127,10 +148,8 @@ class AppGenerator(object):
                 # Type is soft if the block is a softblock and carrier
                 # for carrier block
                 block = BlockConfig(section, type, number, block_ini, module_name)
-                block_address, bit_i, pos_i, ext_i = block.register_addresses(
-                        block_address, bit_i, pos_i, ext_i)
+                block.register_addresses(self.counters)
                 self.blocks.append(block)
-        return block_address, bit_i, pos_i, ext_i
 
     def expand_template(self, template_name, context, out_dir, out_fname):
         with open(os.path.join(out_dir, out_fname), "w") as f:
