@@ -130,12 +130,12 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
         posbus_i            => posbus_i,
         {% for field in block.filter_fields("pos_out") %}
             {% if loop.first %}
-        {{"%-20s" | format("fmc_data_o(" + loop.revindex0|string + " downto " + "0)")}} => posbus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{field.bus_entries[0].index}}),
+        {{"%-20s" | format("fmc_data_o")}} => posbus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{field.bus_entries[0].index}}),
             {% endif %}
         {% endfor %}
         {% for field in block.filter_fields("bit_out") %}
             {% if loop.first %}
-        {{"%-20s" | format("fmc_inputs_o(" + loop.revindex0|string + " downto " + "0)")}} => bit_bus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{field.bus_entries[0].index}}),
+        {{"%-20s" | format("fmc_inputs_o")}} => bit_bus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{field.bus_entries[0].index}}),
             {% endif %}
         {% endfor %}
 
@@ -170,10 +170,14 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         reset_i             => FCLK_RESET0,
 
         sysbus_i            => bit_bus_i,
-        sfp_inputs_o        => open,
-         {% for field in block.filter_fields("pos_out") %}
+        {% for field in block.filter_fields("pos_out") %}
             {% if loop.first %}
-        {{"%-20s" | format("sfp_data_o(" + loop.revindex0|string + " downto " + "0)")}}=> posbus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{ field.bus_entries.index }}),
+        {{"%-20s" | format("sfp_data_o")}}=> posbus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{ field.bus_entries.index[0] }}),
+            {% endif %}
+        {% endfor %}
+        {% for field in block.filter_fields("bit_out") %}
+            {% if loop.first %}
+        {{"%-20s" | format("sfp_inputs_o")}}=> bit_bus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{ field.bus_entries.index[0] }}),
             {% endif %}
         {% endfor %}
 

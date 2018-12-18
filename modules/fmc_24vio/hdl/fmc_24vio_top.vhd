@@ -32,8 +32,8 @@ port (
     bitbus_i            : in  std_logic_vector(127 downto 0);
     posbus_i            : in  std32_array(31 downto 0);
     -- Generic Inputs to BitBus and PosBus from FMC and SFP
-    fmc_inputs_o        : out std_logic_vector(15 downto 0);
-    fmc_data_o          : out std32_array(15 downto 0);
+    fmc_inputs_o        : out std_logic_vector(7 downto 0) := (others=>'0');
+    fmc_data_o          : out std32_array(15 downto 0) := (others => (others => '0'));
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -180,17 +180,7 @@ port map (
 ---------------------------------------------------------------------------
 -- Assign outputs
 ---------------------------------------------------------------------------
-fmc_inputs_o(0) <= fmc_in(0);
-fmc_inputs_o(1) <= fmc_in(1);
-fmc_inputs_o(2) <= fmc_in(2);
-fmc_inputs_o(3) <= fmc_in(3);
-fmc_inputs_o(4) <= fmc_in(4);
-fmc_inputs_o(5) <= fmc_in(5);
-fmc_inputs_o(6) <= fmc_in(6);
-fmc_inputs_o(7) <= fmc_in(7);
-fmc_inputs_o(15 downto 8) <= (others => '0');
-
-fmc_data_o <= (others => (others => '0'));
+fmc_inputs_o <= fmc_in;
 
 end rtl;
 
