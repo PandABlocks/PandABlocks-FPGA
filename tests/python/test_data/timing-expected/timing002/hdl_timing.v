@@ -129,11 +129,11 @@ end
 // Instantiate the Unit Under Test (UUT)
 testblock uut (
 
-        .FUNC                  (FUNC),
-        .FUNC_wstb             (FUNC_wstb),
-        .A                     (A),
-        .INPA_i                (INPA),
-        .OUT_o                 (OUT_uut),
-        .clk_i                 (clk_i)
+        .FUNC                 (FUNC),
+        .FUNC_wstb            (FUNC_wstb),
+        .A                    (A),
+        .INPA_i               (INPA),
+        .OUT_o                (OUT_uut),
+        .clk_i                (clk_i)
 );
 endmodule

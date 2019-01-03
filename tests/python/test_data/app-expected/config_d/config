@@ -1,47 +1,47 @@
 *METADATA
-    DESIGN          string
-    LAYOUT          multiline
-    EXPORTS         multiline
-    LABEL_LUT1      string
-    LABEL_LUT2      string
-    LABEL_LUT3      string
-    LABEL_LUT4      string
-    LABEL_LUT5      string
-    LABEL_LUT6      string
-    LABEL_LUT7      string
-    LABEL_LUT8      string
+    DESIGN              string
+    LAYOUT              multiline
+    EXPORTS             multiline
+    LABEL_LUT1          string
+    LABEL_LUT2          string
+    LABEL_LUT3          string
+    LABEL_LUT4          string
+    LABEL_LUT5          string
+    LABEL_LUT6          string
+    LABEL_LUT7          string
+    LABEL_LUT8          string
 
 LUT[8]
-    INPA            bit_mux
-    INPB            bit_mux
-    INPC            bit_mux
-    INPD            bit_mux
-    INPE            bit_mux
-    A               param enum
+    INPA                bit_mux
+    INPB                bit_mux
+    INPC                bit_mux
+    INPD                bit_mux
+    INPE                bit_mux
+    A                   param enum
         0   input_level
         1   input_rising
         2   input_falling
         3   input_edge
-    B               param enum
+    B                   param enum
         0   input_level
         1   input_rising
         2   input_falling
         3   input_edge
-    C               param enum
+    C                   param enum
         0   input_level
         1   input_rising
         2   input_falling
         3   input_edge
-    D               param enum
+    D                   param enum
         0   input_level
         1   input_rising
         2   input_falling
         3   input_edge
-    E               param enum
+    E                   param enum
         0   input_level
         1   input_rising
         2   input_falling
         3   input_edge
-    FUNC            param lut
-    OUT             bit_out
+    FUNC                param lut
+    OUT                 bit_out
 

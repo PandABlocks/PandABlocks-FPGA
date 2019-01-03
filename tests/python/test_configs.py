@@ -1,6 +1,6 @@
 import unittest
 
-from common.python.configs import BlockConfig, FieldConfig, ParamEnumFieldConfig
+from common.python.configs import BlockConfig, FieldConfig
 
 
 class TestConfigs(unittest.TestCase):
@@ -15,15 +15,3 @@ class TestConfigs(unittest.TestCase):
             FieldConfig("bad_field", 1, "param", "")
         self.assertEqual("Expected FIELD_NAME, got 'bad_field'",
                          str(cm.exception))
-
-    # The restrictions on the param enum descriptions are no longer in place
-
-#    def test_bad_enum(self):
-#        extras = {
-#            "0": "Bad Value"
-#        }
-#        f = ParamEnumFieldConfig("BADENUM", 1, "param enum", "", **extras)
-#        with self.assertRaises(AssertionError) as cm:
-#            list(f.extra_config_lines())
-#        self.assertEqual("Expected enum_value, got 'Bad Value'",
-#                         str(cm.exception))

@@ -57,17 +57,17 @@
     # DMA block size in bytes
     PCAP_BLOCK_SIZE         6
 
-LUT             2
-    INPA            0 1
-    INPB            2 3
-    INPC            4 5
-    INPD            6 7
-    INPE            8 9
-    A               10
-    B               11
-    C               12
-    D               13
-    E               14
-    FUNC            15
-    OUT             0 1 2 3 4 5 6 7
+LUT                 2
+    INPA                0 1
+    INPB                2 3
+    INPC                4 5
+    INPD                6 7
+    INPE                8 9
+    A                   10
+    B                   11
+    C                   12
+    D                   13
+    E                   14
+    FUNC                15
+    OUT                 0 1 2 3 4 5 6 7
 

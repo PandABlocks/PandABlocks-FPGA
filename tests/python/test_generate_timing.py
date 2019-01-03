@@ -13,6 +13,8 @@ class TestGenerateTiming(unittest.TestCase):
         here = os.path.dirname(__file__)
         timing = os.path.join(here, "test_data", "test.timing.ini")
         cls.build_dir = "/tmp/test_timing_build_dir"
+        if os.path.exists(cls.build_dir):
+            shutil.rmtree(cls.build_dir)
         cls.expected_dir = os.path.join(here, "test_data", "timing-expected")
         HdlTimingGenerator(cls.build_dir, [timing])
 

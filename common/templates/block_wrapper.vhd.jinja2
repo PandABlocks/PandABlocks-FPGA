@@ -29,10 +29,10 @@ port (
 
     -- Bus outputs
 {% for field in filter_fields("bit_out") %}
-    {{ pad(field.name + "_o") }}: out std_logic_vector(NUM-1 downto 0);
+    {{ pad(field.name + "_o") }} : out std_logic_vector(NUM-1 downto 0);
 {% endfor %}
 {% for field in filter_fields("pos_out") %}
-    {{ pad(field.name + "_o") }}: out std32_array(NUM-1 downto 0);
+    {{ pad(field.name + "_o") }} : out std32_array(NUM-1 downto 0);
 {% endfor %}
 
 {% if type == "dma" %}

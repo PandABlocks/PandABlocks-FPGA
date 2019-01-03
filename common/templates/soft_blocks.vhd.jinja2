@@ -101,10 +101,10 @@ port map (
         {% endfor %}
     
         {% for field in block.filter_fields("bit_out") %}
-    {{ pad(field.name + "_o") }}=> bit_bus_o({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
+    {{ pad(field.name + "_o") }} => bit_bus_o({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
         {% endfor %}
         {% for field in block.filter_fields("pos_out") %}
-    {{ pad(field.name + "_o") }}=> posbus_o({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
+    {{ pad(field.name + "_o") }} => posbus_o({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
         {% endfor %}
     
     clk_i               => FCLK_CLK0
@@ -172,12 +172,12 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         sysbus_i            => bit_bus_i,
         {% for field in block.filter_fields("pos_out") %}
             {% if loop.first %}
-        {{pad("sfp_data_o")}}=> posbus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{ field.bus_entries.index[0] }}),
+        {{pad("sfp_data_o")}} => posbus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{ field.bus_entries.index[0] }}),
             {% endif %}
         {% endfor %}
         {% for field in block.filter_fields("bit_out") %}
             {% if loop.first %}
-        {{pad("sfp_inputs_o")}}=> bit_bus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{ field.bus_entries.index[0] }}),
+        {{pad("sfp_inputs_o")}} => bit_bus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{ field.bus_entries.index[0] }}),
             {% endif %}
         {% endfor %}
 
