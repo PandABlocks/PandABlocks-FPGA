@@ -340,10 +340,10 @@ end component;
 attribute ASYNC_REG                        : string;
     signal   gt_txfsmresetdone_i             : std_logic;
 signal   gt_rxfsmresetdone_i             : std_logic;
-    signal   gt_txfsmresetdone_r             : std_logic;
-    signal   gt_txfsmresetdone_r2            : std_logic;
-attribute ASYNC_REG of gt_txfsmresetdone_r     : signal is "TRUE";
-attribute ASYNC_REG of gt_txfsmresetdone_r2     : signal is "TRUE";
+--    signal   gt_txfsmresetdone_r             : std_logic;
+--    signal   gt_txfsmresetdone_r2            : std_logic;
+--attribute ASYNC_REG of gt_txfsmresetdone_r     : signal is "TRUE";
+--attribute ASYNC_REG of gt_txfsmresetdone_r2     : signal is "TRUE";
 
     signal   gt0_txfsmresetdone_i            : std_logic;
 signal   gt0_rxfsmresetdone_i            : std_logic;
