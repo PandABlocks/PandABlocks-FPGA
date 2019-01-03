@@ -16,12 +16,8 @@
     {% for field in block.fields %}
     {# field is a FieldConfig object #}
     {# insert its name and type (including subtype and options) #}
-        {% if field.type == "table short" %}
-    {{ pad(field.name) }} table  {{ field.words }}
-        {% else %}
-    {{ pad(field.name) }} {{ field.type }}
-        {% endif %}
-        {% for line in field.extra_config_lines() %}
+    {{ pad(field.name) }} {{ field.config_line() }}
+        {% for line in field.extra_config_lines %}
         {# some fields line enum and table have extra lines, insert them here #}
         {{ line }}
         {% endfor %}
