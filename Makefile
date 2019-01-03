@@ -232,6 +232,7 @@ ZPKG_DEPENDS += $(FPGA_FILE)
 ZPKG_DEPENDS += $(SLOW_FPGA_FILE)
 ZPKG_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini
 ZPKG_DEPENDS += $(APP_BUILD_DIR)/extensions
+ZPKG_DEPENDS += $(DOCS_HTML_DIR)
 
 $(APP_BUILD_DIR)/ipmi.ini: $(APP_FILE)
 	$(PYTHON) -m common.python.make_ipmi_ini $(TOP) $< $@
