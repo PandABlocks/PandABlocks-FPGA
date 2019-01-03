@@ -3,14 +3,13 @@
 Generate build/<app> from <app>.app.ini
 """
 import os
-import shutil
 from argparse import ArgumentParser
 from pkg_resources import require
 
 require("jinja2")
 from jinja2 import Environment, FileSystemLoader
 
-from .compat import TYPE_CHECKING, configparser
+from .compat import TYPE_CHECKING
 from .configs import BlockConfig, pad
 from .ini_util import read_ini, ini_get
 
@@ -56,6 +55,11 @@ class RegisterCounter:
     new_ext   = __allocator('ext_count', MAX_EXT, 'ext bus entries')
 
 
+def jinja_context(**kwargs):
+    context = dict(pad=pad)
+    context.update(kwargs)
+    return context
+
 
 class AppGenerator(object):
     def __init__(self, app, app_build_dir):
@@ -79,7 +83,7 @@ class AppGenerator(object):
         self.blocks = []  # type: List[BlockConfig]
         self.ip = []
         self.constraints = []
-        self.sfpsites = []
+        self.sfpsites = 0
         self.parse_ini_files(app)
         self.generate_config_dir()
         self.generate_wrappers()
@@ -160,7 +164,7 @@ class AppGenerator(object):
         """Generate config, registers, descriptions in config_d"""
         config_dir = os.path.join(self.app_build_dir, "config_d")
         os.makedirs(config_dir)
-        context = dict(blocks=self.blocks, pad=pad)
+        context = jinja_context(blocks=self.blocks)
         # Create the config, registers and descriptions files
         self.expand_template(
             "config.jinja2", context, config_dir, "config")
@@ -168,7 +172,7 @@ class AppGenerator(object):
             "registers.jinja2", context, config_dir, "registers")
         self.expand_template(
             "descriptions.jinja2", context, config_dir, "description")
-        context = dict(app=self.app_name)
+        context = jinja_context(app=self.app_name)
         self.expand_template(
             "slow_top.files.jinja2",
             context, self.app_build_dir, "slow_top.files")
@@ -179,7 +183,9 @@ class AppGenerator(object):
         os.makedirs(hdl_dir)
         # Create a wrapper for every block
         for block in self.blocks:
-            context = {k: getattr(block, k) for k in dir(block)}
+            context = jinja_context()
+            for k in dir(block):
+                context[k] = getattr(block, k)
             if block.type in "soft|dma":
                 self.expand_template("block_wrapper.vhd.jinja2", context,
                                      hdl_dir, "%s_wrapper.vhd" % block.entity)
@@ -215,13 +221,14 @@ class AppGenerator(object):
             if block.entity not in block_names:
                 register_blocks.append(block)
                 block_names.append(block.entity)
-        context = dict(blocks=self.blocks,
-                       carrier_bit_bus_length=carrier_bit_bus_length,
-                       carrier_pos_bus_length=carrier_pos_bus_length,
-                       total_bit_bus_length=total_bit_bus_length,
-                       total_pos_bus_length=total_pos_bus_length,
-                       carrier_mod_count=carrier_mod_count,
-                       register_blocks=register_blocks)
+        context = jinja_context(
+            blocks=self.blocks,
+            carrier_bit_bus_length=carrier_bit_bus_length,
+            carrier_pos_bus_length=carrier_pos_bus_length,
+            total_bit_bus_length=total_bit_bus_length,
+            total_pos_bus_length=total_pos_bus_length,
+            carrier_mod_count=carrier_mod_count,
+            register_blocks=register_blocks)
         self.expand_template("soft_blocks.vhd.jinja2", context, hdl_dir,
                              "soft_blocks.vhd")
         self.expand_template("addr_defines.vhd.jinja2", context, hdl_dir,
@@ -241,10 +248,11 @@ class AppGenerator(object):
         assert sfps <= self.sfpsites, \
             "more SFP blocks in app: %d than constraints: %d" % (
                 sfps, self.sfpsites)
-        context = dict(blocks=self.blocks,
-                       sfpsites=sfps,
-                       const=self.constraints,
-                       ips=ips)
+        context = jinja_context(
+            blocks=self.blocks,
+            sfpsites=sfps,
+            const=self.constraints,
+            ips=ips)
         self.expand_template("constraints.tcl.jinja2", context, hdl_dir,
                              "constraints.tcl")
 
@@ -290,7 +298,7 @@ class AppGenerator(object):
                             regs.append(dict(name=name,
                                              number=number.replace("\n", ""),
                                              block=block.replace("*", "")))
-        context = dict(regs=regs)
+        context = jinja_context(regs=regs)
         self.expand_template("reg_defines.vhd.jinja2", context, hdl_dir,
                              "reg_defines.vhd")
 

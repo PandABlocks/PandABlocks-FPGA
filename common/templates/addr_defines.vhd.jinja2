@@ -43,10 +43,8 @@ still need to be given Chip Select values. #}
 {% for block in register_blocks %}
 -- {{ block.entity }} Block:
 	{% for field in block.fields %}
-		{% for register in field.registers %}
-		    {% if register.number >= 0 %}
+		{% for register in field.numbered_registers() %}
     constant {{ block.entity|upper }}_{{ register.name }}_addr : natural := {{ register.number }};
-            {% endif %}
 		{% endfor %}
 	{% endfor %}
 

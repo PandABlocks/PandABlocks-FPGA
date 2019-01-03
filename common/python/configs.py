@@ -6,10 +6,10 @@ from .compat import TYPE_CHECKING, configparser
 from .ini_util import ini_get
 
 if TYPE_CHECKING:
-    from typing import List, Iterable, Tuple, Dict
+    from typing import List, Iterable, Any, Dict
 
 
-def pad(name, spaces=15):
+def pad(name, spaces=19):
     """Pad the right of a name with spaces until it is at least spaces long"""
     return name.ljust(spaces)
 
@@ -87,18 +87,22 @@ class BlockConfig(object):
         for field in self.fields:
             field.register_addresses(counters)
 
-    def filter_fields(self, regex):
-        # type: (str) -> Iterable[FieldConfig]
-        """Filter our child fields by typ"""
+    def filter_fields(self, regex, matching=True):
+        # type: (str, bool) -> Iterable[FieldConfig]
+        """Filter our child fields by typ. If not matching return those
+        that don't match"""
         regex = re.compile(regex + '$')
         for field in self.fields:
-            if regex.match(field.type):
+            is_a_match = bool(regex.match(field.type))
+            # If matching and is_a_match or not matching and isnt_a_match
+            # return the field
+            if matching == is_a_match:
                 yield field
 
 
 class RegisterConfig(object):
     """A low level register name and number backing this field"""
-    def __init__(self, name, number = -1, prefix = '', extension=''):
+    def __init__(self, name, number=-1, prefix='', extension=''):
         # type: (str, int, str) -> None
         #: The name of the register, like INPA_DLY
         self.name = name
@@ -191,6 +195,13 @@ class FieldConfig(object):
         # type: () -> str
         """Produce the line that should go in the config file after name"""
         return self.type
+
+    def numbered_registers(self):
+        # type: () -> List[RegisterConfig]
+        """Filter self.registers, only producing registers with a number
+        (not those that are purely extension registers)"""
+        return [r for r in self.registers if r.number != -1]
+
     @classmethod
     def lookup_subclass(cls, type):
         # Reverse these so we get ParamEnumFieldConfig (specific) before

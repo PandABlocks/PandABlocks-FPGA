@@ -21,22 +21,18 @@ port (
     -- Block Parameters
 {% for field in fields %}
     {% if field in filter_fields("table|time|(param|write).*") %}
-        {% for register in field.registers %}
-            {% if register.number >= 0 %}
-    {{ "%-20s"| format(register.name) }}: out std_logic_vector(31 downto 0);
-    {{ "%-20s"| format(register.name + "_wstb") }}: out std_logic;
-            {% endif %}
+        {% for register in field.numbered_registers() %}
+    {{ pad(register.name) }} : out std_logic_vector(31 downto 0);
+    {{ pad(register.name + "_wstb") }} : out std_logic;
         {% endfor %}
     {% elif field in filter_fields("read.*") %}
-        {% for register in field.registers %}{# Should be only the one #}
-            {% if register.number >= 0 %}
-    {{ "%-20s"| format(field.name) }}: in  std_logic_vector(31 downto 0);
-            {% endif %}
+        {% for register in field.numbered_registers() %}{# Should be only the one #}
+    {{ pad(field.name) }} : in  std_logic_vector(31 downto 0);
         {% endfor %}
     {% elif field.type in "bit_mux" %}
-    {{ "%-20s"| format(field.name + "_from_bus") }}: out std_logic;
+    {{ pad(field.name + "_from_bus") }} : out std_logic;
     {% elif field.type in "pos_mux" %}
-    {{ "%-20s"| format(field.name + "_from_bus") }}: out std_logic_vector(31 downto 0);
+    {{ pad(field.name + "_from_bus") }} : out std_logic_vector(31 downto 0);
     {% endif %}
 {% endfor %}
     -- Memory Bus Interface
@@ -54,16 +50,12 @@ end {{ entity }}_ctrl;
 
 architecture rtl of {{ entity }}_ctrl is
 
-{% for field in fields %}
-    {% if field.type in "bit_mux|pos_mux" %}
-        {% for register in field.registers %}
-            {% if register.number >= 0 %}
+{% for field in filter_fields("bit_mux|pos_mux") %}
+    {% for register in field.numbered_registers() %}
 signal {{ register.name }}      : std_logic_vector(31 downto 0);
 signal {{ register.name }}_wstb : std_logic;
 
-            {% endif %}
-        {% endfor %}
-    {% endif %}
+    {% endfor %}
 {% endfor %}
 
 -- Register interface common
@@ -91,28 +83,20 @@ begin
     begin
         if rising_edge(clk_i) then
             -- Zero all the write strobe arrays, we set them below
-{% for field in fields %}
-    {% if field not in filter_fields("read.*") %}
-        {% for register in field.registers %}
-            {% if register.number >= 0 %}
+{% for field in filter_fields("read.*", matching=False) %}
+    {% for register in field.numbered_registers() %}
             {{ register.name }}_wstb <= '0';
-            {% endif %}
-        {% endfor %}
-    {% endif %}
+    {% endfor %}
 {% endfor %}
             if (write_strobe_i = '1') then
                 -- Set the specific write strobe that has come in
                 case write_addr is
-{% for field in fields %}
-    {% if field not in filter_fields("read.*") %}
-        {% for register in field.registers %}
-            {% if register.number >= 0 %}
+{% for field in filter_fields("read.*", matching=False) %}
+    {% for register in field.numbered_registers() %}
                     when {{ entity|upper }}_{{ register.name }}_addr =>
                         {{ register.name }} <= write_data_i;
                         {{ register.name }}_wstb <= '1';
-            {% endif %}
-        {% endfor %}
-    {% endif %}
+    {% endfor %}
 {% endfor %}
                     when others =>
                         null;
@@ -130,15 +114,11 @@ begin
     begin
         if rising_edge(clk_i) then
             case (read_addr) is
-{% for field in fields %}
-    {% if field in filter_fields("read.*") %}
-        {% for register in field.registers %}
-            {% if register.number >= 0 %}
+{% for field in filter_fields("read.*") %}
+    {% for register in field.numbered_registers() %}
                 when {{ entity|upper }}_{{ register.name }}_addr =>
                     read_data_o <= {{ register.name }};
-            {% endif %}
-        {% endfor %}
-    {% endif %}
+    {% endfor %}
 {% endfor %}
                 when others =>
                     read_data_o <= (others => '0');

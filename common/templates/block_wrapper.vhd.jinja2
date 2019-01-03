@@ -29,10 +29,10 @@ port (
 
     -- Bus outputs
 {% for field in filter_fields("bit_out") %}
-    {{ "%-20s"| format(field.name + "_o") }}: out std_logic_vector(NUM-1 downto 0);
+    {{ pad(field.name + "_o") }}: out std_logic_vector(NUM-1 downto 0);
 {% endfor %}
 {% for field in filter_fields("pos_out") %}
-    {{ "%-20s"| format(field.name + "_o") }}: out std32_array(NUM-1 downto 0);
+    {{ pad(field.name + "_o") }}: out std32_array(NUM-1 downto 0);
 {% endfor %}
 
 {% if type == "dma" %}
@@ -73,12 +73,10 @@ signal {{ field.name }}_L_wstb     : std_logic_vector(NUM-1 downto 0);
 signal {{ field.name }}_H_wstb     : std_logic_vector(NUM-1 downto 0);
 
     {% else %}
-        {% for register in field.registers %}
-            {% if register.number >= 0 %}
+        {% for register in field.numbered_registers() %}
 signal {{ register.name }}        : std32_array(NUM-1 downto 0);
 signal {{ register.name }}_wstb   : std_logic_vector(NUM-1 downto 0);
 
-            {% endif %}
         {% endfor %}
     {% endif %}
 {% endfor %}
@@ -116,35 +114,33 @@ begin
 
 {% for field in fields %}
     {% if field in filter_fields("(param|write).*") %}
-        {% for register in field.registers %}
-            {% if register.number >= 0 %}
-            {{ "%-20s"|format(register.name) }}=> {{ register.name }}(I),
-            {{ "%-20s"|format(register.name + "_wstb") }}=> {{ register.name }}_wstb(I),
-            {% endif %}
+        {% for register in field.numbered_registers() %}
+            {{ pad(register.name) }} => {{ register.name }}(I),
+            {{ pad(register.name + "_wstb") }} => {{ register.name }}_wstb(I),
         {% endfor %}
     {% elif field in filter_fields("table short") %}
-            {{ "%-20s"|format(field.name + "_START") }}=> open,
-            {{ "%-20s"|format(field.name + "_DATA") }}=> {{ field.name }}_DATA(I),
-            {{ "%-20s"|format(field.name + "_LENGTH") }}=> {{ field.name }}_LENGTH(I),
-            {{ "%-20s"|format(field.name + "_START_wstb") }}=> {{ field.name }}_START(I)(0),
-            {{ "%-20s"|format(field.name + "_DATA_wstb") }}=> {{ field.name }}_DATA_wstb(I),
-            {{ "%-20s"|format(field.name + "_LENGTH_wstb") }}=> {{ field.name }}_LENGTH_wstb(I),
+            {{ pad(field.name + "_START") }} => open,
+            {{ pad(field.name + "_DATA") }} => {{ field.name }}_DATA(I),
+            {{ pad(field.name + "_LENGTH") }} => {{ field.name }}_LENGTH(I),
+            {{ pad(field.name + "_START_wstb") }} => {{ field.name }}_START(I)(0),
+            {{ pad(field.name + "_DATA_wstb") }} => {{ field.name }}_DATA_wstb(I),
+            {{ pad(field.name + "_LENGTH_wstb") }} => {{ field.name }}_LENGTH_wstb(I),
     {% elif field in filter_fields("table") %}
-            {{ "%-20s"|format(field.name + "_ADDRESS") }}=> {{ field.name }}_ADDRESS(I),
-            {{ "%-20s"|format(field.name + "_LENGTH") }}=> {{ field.name }}_LENGTH(I),
-            {{ "%-20s"|format(field.name + "_ADDRESS_wstb") }}=> {{ field.name }}_ADDRESS_wstb(I),
-            {{ "%-20s"|format(field.name + "_LENGTH_wstb") }}=> {{ field.name }}_LENGTH_wstb(I),
+            {{ pad(field.name + "_ADDRESS") }} => {{ field.name }}_ADDRESS(I),
+            {{ pad(field.name + "_LENGTH") }} => {{ field.name }}_LENGTH(I),
+            {{ pad(field.name + "_ADDRESS_wstb") }} => {{ field.name }}_ADDRESS_wstb(I),
+            {{ pad(field.name + "_LENGTH_wstb") }} => {{ field.name }}_LENGTH_wstb(I),
     {% elif field in filter_fields("time") %}
-            {{ "%-20s"|format(field.name + "_L") }}=> {{ field.name }}(I)(31 downto 0),
-            {{ "%-20s"|format(field.name + "_H") }}=> {{ field.name }}(I)(63 downto 32),
-            {{ "%-20s"|format(field.name + "_L_wstb") }}=> {{ field.name }}_L_wstb(I),
-            {{ "%-20s"|format(field.name + "_H_wstb") }}=> {{ field.name }}_H_wstb(I),
+            {{ pad(field.name + "_L") }} => {{ field.name }}(I)(31 downto 0),
+            {{ pad(field.name + "_H") }} => {{ field.name }}(I)(63 downto 32),
+            {{ pad(field.name + "_L_wstb") }} => {{ field.name }}_L_wstb(I),
+            {{ pad(field.name + "_H_wstb") }} => {{ field.name }}_H_wstb(I),
     {% elif field in filter_fields("read.*") %}
-            {{ "%-20s"|format(field.name) }}=> {{field.name }}(I),
+            {{ pad(field.name) }} => {{field.name }}(I),
     {% elif field in filter_fields("bit_mux") %}
-            {{ "%-20s"|format(field.name+"_from_bus") }}=> {{ field.name }}(I)(0),
+            {{ pad(field.name+"_from_bus") }} => {{ field.name }}(I)(0),
     {% elif field in filter_fields("pos_mux") %}
-            {{ "%-20s"|format(field.name+"_from_bus") }}=> {{ field.name }}(I),
+            {{ pad(field.name+"_from_bus") }} => {{ field.name }}(I),
     {% endif %}
 {% endfor %}
 
@@ -171,49 +167,49 @@ begin
         {{ entity }} : entity work.{{ entity }}
         port map (
 {% for field in filter_fields("bit_mux") %}
-            {{ "%-20s"|format(field.name +"_i") }}=> {{ field.name }}(I)(0),
+            {{ pad(field.name +"_i") }} => {{ field.name }}(I)(0),
 {% endfor %}
 {% for field in filter_fields("pos_mux") %}
-            {{ "%-20s"|format(field.name +"_i") }}=> {{ field.name }}(I),
+            {{ pad(field.name +"_i") }} => {{ field.name }}(I),
 {% endfor %}
 {# Filter_fields requires both param and read to be the last type in the list #}
 {% for field in filter_fields("param lut|param int|param time|param") %}
-            {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I),
+            {{ pad(field.name) }} => {{ field.name }}(I),
 {% endfor %}
 {% for field in filter_fields("time") %}
-            {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I)(47 downto 0),
+            {{ pad(field.name) }} => {{ field.name }}(I)(47 downto 0),
 {% endfor %}
 {% for field in filter_fields("table short") %}
-            {{ "%-20s"|format(field.name + "_START") }}=> {{ field.name}}_START(I)(0),
-            {{ "%-20s"|format(field.name + "_DATA") }}=> {{ field.name}}_DATA(I),
-            {{ "%-20s"|format(field.name + "_LENGTH") }}=> {{ field.name}}_LENGTH(I),
+            {{ pad(field.name + "_START") }} => {{ field.name}}_START(I)(0),
+            {{ pad(field.name + "_DATA") }} => {{ field.name}}_DATA(I),
+            {{ pad(field.name + "_LENGTH") }} => {{ field.name}}_LENGTH(I),
 {% endfor %}
 {% for field in filter_fields("table") %}
-            {{ "%-20s"|format(field.name + "_ADDR") }}=> {{ field.name}}_ADDRESS(I),
-            {{ "%-20s"|format(field.name + "_LENGTH") }}=> {{ field.name}}_LENGTH(I),
+            {{ pad(field.name + "_ADDR") }} => {{ field.name}}_ADDRESS(I),
+            {{ pad(field.name + "_LENGTH") }} => {{ field.name}}_LENGTH(I),
 {% endfor %}
 {# Filter_fields requires both param and read to be the last type in the list #}
 {% for field in filter_fields("write int|read uint 1023|read") %}
-            {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I),
+            {{ pad(field.name) }} => {{ field.name }}(I),
 {% endfor %}
 {% for field in filter_fields("param bit|write action" )%}
-            {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I)(0),
+            {{ pad(field.name) }} => {{ field.name }}(I)(0),
 {% endfor %}
 {% for field in filter_fields("param enum|read enum") %}
-            {{ "%-20s"|format(field.name) }}=> {{ field.name }}(I)({{field.enumlength}} downto 0),
+            {{ pad(field.name) }} => {{ field.name }}(I)({{field.enumlength}} downto 0),
 {% endfor %}
 {% for field in filter_fields(".*_out") %}
-            {{ "%-20s"|format(field.name + "_o") }}=> {{ field.name }}_o(I),
+            {{ pad(field.name + "_o") }} => {{ field.name }}_o(I),
 {% endfor %}
 {% for field in fields %}
     {% if field.wstb %}
         {% if "table" in field.type %}
-            {{ "%-20s"|format(field.name + "_LENGTH_wstb") }}=> {{ field.name }}_LENGTH_wstb(I),
+            {{ pad(field.name + "_LENGTH_wstb") }} => {{ field.name }}_LENGTH_wstb(I),
             {% if "short" in field.type %}
-            {{ "%-20s"|format(field.name + "_wstb") }}=> {{ field.name }}_DATA_wstb(I),
+            {{ pad(field.name + "_wstb") }} => {{ field.name }}_DATA_wstb(I),
             {% endif %}
         {% else %}
-            {{ "%-20s"|format(field.name + "_wstb") }}=> {{ field.name }}_wstb(I),
+            {{ pad(field.name + "_wstb") }} => {{ field.name }}_wstb(I),
         {% endif %}
     {% endif %}
 {% endfor %}

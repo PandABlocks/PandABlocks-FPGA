@@ -5,7 +5,6 @@ import os.path
 import shutil
 import fnmatch
 
-from .compat import configparser
 from .ini_util import read_ini, ini_get
 
 
