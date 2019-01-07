@@ -9,7 +9,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "calc.block.ini")
 
 
 class CalcSimulation(BlockSimulation):
-    INPA, INPB, INPC, INPD, A, B, C, D, FUNC, OUT = PROPERTIES
+    INPA, INPB, INPC, INPD, TYPEA, TYPEB, TYPEC, TYPED, FUNC, OUT = PROPERTIES
 
     def __init__(self):
         self.scale = {0: 0, 1: 1, 2: 2}

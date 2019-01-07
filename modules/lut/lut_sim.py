@@ -15,10 +15,10 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "lut.block.ini")
 
 
 class LutSimulation(BlockSimulation):
-    INPA, INPB, INPC, INPD, INPE, A, B, C, D, E, FUNC, OUT = PROPERTIES
+    INPA, INPB, INPC, INPD, INPE, TYPEA, TYPEB, TYPEC, TYPED, TYPEE, FUNC, OUT = PROPERTIES
 
     def calc_value(self, letter, changes):
-        source = getattr(self, letter)
+        source = getattr(self, "TYPE" + letter)
         inp = "INP%s" % letter
         if source == VALUE:
             return getattr(self, inp)

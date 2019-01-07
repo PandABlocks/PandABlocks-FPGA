@@ -17,31 +17,31 @@ LUT[8]
     INPC                bit_mux
     INPD                bit_mux
     INPE                bit_mux
-    A                   param enum
-        0   input_level
-        1   input_rising
-        2   input_falling
-        3   input_edge
-    B                   param enum
-        0   input_level
-        1   input_rising
-        2   input_falling
-        3   input_edge
-    C                   param enum
-        0   input_level
-        1   input_rising
-        2   input_falling
-        3   input_edge
-    D                   param enum
-        0   input_level
-        1   input_rising
-        2   input_falling
-        3   input_edge
-    E                   param enum
-        0   input_level
-        1   input_rising
-        2   input_falling
-        3   input_edge
+    TYPEA               param enum
+        0   Input-Level
+        1   Pulse-On-Rising-Edge
+        2   Pulse-On-Falling-Edge
+        3   Pulse-On-Either-Edge
+    TYPEB               param enum
+        0   Input-Level
+        1   Pulse-On-Rising-Edge
+        2   Pulse-On-Falling-Edge
+        3   Pulse-On-Either-Edge
+    TYPEC               param enum
+        0   Input-Level
+        1   Pulse-On-Rising-Edge
+        2   Pulse-On-Falling-Edge
+        3   Pulse-On-Either-Edge
+    TYPED               param enum
+        0   Input-Level
+        1   Pulse-On-Rising-Edge
+        2   Pulse-On-Falling-Edge
+        3   Pulse-On-Either-Edge
+    TYPEE               param enum
+        0   Input-Level
+        1   Pulse-On-Rising-Edge
+        2   Pulse-On-Falling-Edge
+        3   Pulse-On-Either-Edge
     FUNC                param lut
     OUT                 bit_out
 

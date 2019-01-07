@@ -79,20 +79,20 @@ signal INPE_wstb   : std_logic_vector(NUM-1 downto 0);
 signal INPE_dly        : std32_array(NUM-1 downto 0);
 signal INPE_dly_wstb   : std_logic_vector(NUM-1 downto 0);
 
-signal A        : std32_array(NUM-1 downto 0);
-signal A_wstb   : std_logic_vector(NUM-1 downto 0);
+signal TYPEA        : std32_array(NUM-1 downto 0);
+signal TYPEA_wstb   : std_logic_vector(NUM-1 downto 0);
 
-signal B        : std32_array(NUM-1 downto 0);
-signal B_wstb   : std_logic_vector(NUM-1 downto 0);
+signal TYPEB        : std32_array(NUM-1 downto 0);
+signal TYPEB_wstb   : std_logic_vector(NUM-1 downto 0);
 
-signal C        : std32_array(NUM-1 downto 0);
-signal C_wstb   : std_logic_vector(NUM-1 downto 0);
+signal TYPEC        : std32_array(NUM-1 downto 0);
+signal TYPEC_wstb   : std_logic_vector(NUM-1 downto 0);
 
-signal D        : std32_array(NUM-1 downto 0);
-signal D_wstb   : std_logic_vector(NUM-1 downto 0);
+signal TYPED        : std32_array(NUM-1 downto 0);
+signal TYPED_wstb   : std_logic_vector(NUM-1 downto 0);
 
-signal E        : std32_array(NUM-1 downto 0);
-signal E_wstb   : std_logic_vector(NUM-1 downto 0);
+signal TYPEE        : std32_array(NUM-1 downto 0);
+signal TYPEE_wstb   : std_logic_vector(NUM-1 downto 0);
 
 signal FUNC        : std32_array(NUM-1 downto 0);
 signal FUNC_wstb   : std_logic_vector(NUM-1 downto 0);
@@ -134,16 +134,16 @@ begin
             INPC_from_bus       => INPC(I)(0),
             INPD_from_bus       => INPD(I)(0),
             INPE_from_bus       => INPE(I)(0),
-            A                   => A(I),
-            A_wstb              => A_wstb(I),
-            B                   => B(I),
-            B_wstb              => B_wstb(I),
-            C                   => C(I),
-            C_wstb              => C_wstb(I),
-            D                   => D(I),
-            D_wstb              => D_wstb(I),
-            E                   => E(I),
-            E_wstb              => E_wstb(I),
+            TYPEA               => TYPEA(I),
+            TYPEA_wstb          => TYPEA_wstb(I),
+            TYPEB               => TYPEB(I),
+            TYPEB_wstb          => TYPEB_wstb(I),
+            TYPEC               => TYPEC(I),
+            TYPEC_wstb          => TYPEC_wstb(I),
+            TYPED               => TYPED(I),
+            TYPED_wstb          => TYPED_wstb(I),
+            TYPEE               => TYPEE(I),
+            TYPEE_wstb          => TYPEE_wstb(I),
             FUNC                => FUNC(I),
             FUNC_wstb           => FUNC_wstb(I),
 
@@ -167,11 +167,11 @@ begin
             INPD_i              => INPD(I)(0),
             INPE_i              => INPE(I)(0),
             FUNC                => FUNC(I),
-            A                   => A(I)(1 downto 0),
-            B                   => B(I)(1 downto 0),
-            C                   => C(I)(1 downto 0),
-            D                   => D(I)(1 downto 0),
-            E                   => E(I)(1 downto 0),
+            TYPEA               => TYPEA(I)(1 downto 0),
+            TYPEB               => TYPEB(I)(1 downto 0),
+            TYPEC               => TYPEC(I)(1 downto 0),
+            TYPED               => TYPED(I)(1 downto 0),
+            TYPEE               => TYPEE(I)(1 downto 0),
             OUT_o               => OUT_o(I),
             clk_i               => clk_i
         );

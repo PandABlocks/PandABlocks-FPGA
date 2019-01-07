@@ -20,16 +20,16 @@ port (
     INPC_from_bus       : out std_logic;
     INPD_from_bus       : out std_logic;
     INPE_from_bus       : out std_logic;
-    A                   : out std_logic_vector(31 downto 0);
-    A_wstb              : out std_logic;
-    B                   : out std_logic_vector(31 downto 0);
-    B_wstb              : out std_logic;
-    C                   : out std_logic_vector(31 downto 0);
-    C_wstb              : out std_logic;
-    D                   : out std_logic_vector(31 downto 0);
-    D_wstb              : out std_logic;
-    E                   : out std_logic_vector(31 downto 0);
-    E_wstb              : out std_logic;
+    TYPEA               : out std_logic_vector(31 downto 0);
+    TYPEA_wstb          : out std_logic;
+    TYPEB               : out std_logic_vector(31 downto 0);
+    TYPEB_wstb          : out std_logic;
+    TYPEC               : out std_logic_vector(31 downto 0);
+    TYPEC_wstb          : out std_logic;
+    TYPED               : out std_logic_vector(31 downto 0);
+    TYPED_wstb          : out std_logic;
+    TYPEE               : out std_logic_vector(31 downto 0);
+    TYPEE_wstb          : out std_logic;
     FUNC                : out std_logic_vector(31 downto 0);
     FUNC_wstb           : out std_logic;
     -- Memory Bus Interface
@@ -113,11 +113,11 @@ begin
             INPD_dly_wstb <= '0';
             INPE_wstb <= '0';
             INPE_dly_wstb <= '0';
-            A_wstb <= '0';
-            B_wstb <= '0';
-            C_wstb <= '0';
-            D_wstb <= '0';
-            E_wstb <= '0';
+            TYPEA_wstb <= '0';
+            TYPEB_wstb <= '0';
+            TYPEC_wstb <= '0';
+            TYPED_wstb <= '0';
+            TYPEE_wstb <= '0';
             FUNC_wstb <= '0';
             if (write_strobe_i = '1') then
                 -- Set the specific write strobe that has come in
@@ -152,21 +152,21 @@ begin
                     when LUT_INPE_dly_addr =>
                         INPE_dly <= write_data_i;
                         INPE_dly_wstb <= '1';
-                    when LUT_A_addr =>
-                        A <= write_data_i;
-                        A_wstb <= '1';
-                    when LUT_B_addr =>
-                        B <= write_data_i;
-                        B_wstb <= '1';
-                    when LUT_C_addr =>
-                        C <= write_data_i;
-                        C_wstb <= '1';
-                    when LUT_D_addr =>
-                        D <= write_data_i;
-                        D_wstb <= '1';
-                    when LUT_E_addr =>
-                        E <= write_data_i;
-                        E_wstb <= '1';
+                    when LUT_TYPEA_addr =>
+                        TYPEA <= write_data_i;
+                        TYPEA_wstb <= '1';
+                    when LUT_TYPEB_addr =>
+                        TYPEB <= write_data_i;
+                        TYPEB_wstb <= '1';
+                    when LUT_TYPEC_addr =>
+                        TYPEC <= write_data_i;
+                        TYPEC_wstb <= '1';
+                    when LUT_TYPED_addr =>
+                        TYPED <= write_data_i;
+                        TYPED_wstb <= '1';
+                    when LUT_TYPEE_addr =>
+                        TYPEE <= write_data_i;
+                        TYPEE_wstb <= '1';
                     when LUT_FUNC_addr =>
                         FUNC <= write_data_i;
                         FUNC_wstb <= '1';

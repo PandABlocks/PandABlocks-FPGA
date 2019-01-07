@@ -63,11 +63,11 @@ LUT                 2
     INPC                4 5
     INPD                6 7
     INPE                8 9
-    A                   10
-    B                   11
-    C                   12
-    D                   13
-    E                   14
+    TYPEA               10
+    TYPEB               11
+    TYPEC               12
+    TYPED               13
+    TYPEE               14
     FUNC                15
     OUT                 0 1 2 3 4 5 6 7
 

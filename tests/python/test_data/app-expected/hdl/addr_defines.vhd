@@ -39,11 +39,11 @@ package addr_defines is
     constant LUT_INPD_dly_addr : natural := 7;
     constant LUT_INPE_addr : natural := 8;
     constant LUT_INPE_dly_addr : natural := 9;
-    constant LUT_A_addr : natural := 10;
-    constant LUT_B_addr : natural := 11;
-    constant LUT_C_addr : natural := 12;
-    constant LUT_D_addr : natural := 13;
-    constant LUT_E_addr : natural := 14;
+    constant LUT_TYPEA_addr : natural := 10;
+    constant LUT_TYPEB_addr : natural := 11;
+    constant LUT_TYPEC_addr : natural := 12;
+    constant LUT_TYPED_addr : natural := 13;
+    constant LUT_TYPEE_addr : natural := 14;
     constant LUT_FUNC_addr : natural := 15;
 
 end addr_defines;
