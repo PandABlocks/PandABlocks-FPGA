@@ -119,7 +119,7 @@ port map (
     {% if loop.first %}
 
 FMC_GEN : IF (SIM = "FALSE") GENERATE
-	{% endif %}
+        {% endif %}
 
     {{ block.name|lower }}_inst : entity work.{{block.entity}}_top
     port map (

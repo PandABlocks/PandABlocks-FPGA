@@ -24,7 +24,7 @@ reg [31:0]       POS[31:0];
 wire [32*12-1:0] extbus_i = 0;
 wire [31:0]      pcap_dat_o;
 reg  [31:0]      DATA;
-reg	             DATA_err;
+reg                  DATA_err;
 reg              DATA_wstb;
 wire             pcap_dat_valid_o;
 reg              data_valid_err;
@@ -79,7 +79,7 @@ reg         {{ field.name }}_err;   //Error signal
 {% for field in block.filter_fields("read enum") %}
 reg   [{{field.enumlength}}:0] {{ field.name }};       //Output from ini file
 wire  [{{field.enumlength}}:0] {{ field.name }}_uut;   //Output from UUT
-reg         {{ field.name }}_err;   //Error signal	
+reg         {{ field.name }}_err;   //Error signal      
 
 {% endfor %}
 // Write Strobes
@@ -360,7 +360,7 @@ pcap_core_wrapper uut (
     .TRIG_EDGE          ( TRIG_EDGE         ),
     .SHIFT_SUM          ( SHIFT_SUM         ),
     .dma_full_i         ( 1'b0              ),
-    .sysbus_i           ( bit_bus 			),
+    .sysbus_i           ( bit_bus                       ),
     .posbus_i           ( pos_bus           ),
     .extbus_i           ( extbus_i          ),
     .HEALTH             ( HEALTH_uut        ),
@@ -387,7 +387,7 @@ pcap_core_wrapper uut (
         .{{ pad(field.name + "_i") }}  ({{ field.name }}),
         {% if field.wstb %}
         .{{ pad(field.name + "_wstb")}}  ({{ field.name }}_wstb),
-    	{% endif %}
+        {% endif %}
     {% elif field in block.filter_fields("table short") %}
         .{{ pad(field.name + "_DATA") }}  ({{ field.name }}_DATA),
         .{{ pad(field.name + "_LENGTH") }}  ({{ field.name }}_LENGTH),

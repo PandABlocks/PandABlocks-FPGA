@@ -620,12 +620,12 @@ signal    cpllreset_i                     : std_logic;
   signal rxresetdone_vio_s : std_logic_vector(0 downto 0);
   signal rxresetdone_vio_i : std_logic;
    function and_reduce(arg: std_logic_vector) return std_logic is
-	variable result: std_logic;
+        variable result: std_logic;
     begin
-	result := '1';
-	for i in arg'range loop
-	    result := result and arg(i);
-	end loop;
+        result := '1';
+        for i in arg'range loop
+            result := result and arg(i);
+        end loop;
         return result;
     end;
 

@@ -72,11 +72,11 @@ architecture Behavioral of arp_STORE_br is
   signal req_entry       : arp_entry_t;  -- entry latched from req
 
   -- busses
-  signal next_st_state 		: st_state_t;
-  signal arp_entry_val 		: arp_entry_t;
-  signal mode_val      		: mode_t;
-  signal write_addr    		: addr_t;        -- actual write address to use
-  signal read_result_int 	: arp_store_result_t;
+  signal next_st_state          : st_state_t;
+  signal arp_entry_val          : arp_entry_t;
+  signal mode_val               : mode_t;
+  signal write_addr             : addr_t;        -- actual write address to use
+  signal read_result_int        : arp_store_result_t;
 
   -- control signals
   signal set_st_state        : std_logic;

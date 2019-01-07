@@ -84,7 +84,7 @@ end tri_mode_ethernet_mac_0_clk_wiz;
 
 architecture xilinx of tri_mode_ethernet_mac_0_clk_wiz is
   -- Input clock buffering / unused connectors
-  signal clkin1      	  : std_logic;
+  signal clkin1           : std_logic;
   -- Output clock buffering / unused connectors
   signal clkfbout         : std_logic;
   signal clkfboutb_unused : std_logic;

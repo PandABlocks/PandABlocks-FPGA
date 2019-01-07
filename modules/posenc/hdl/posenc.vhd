@@ -31,7 +31,7 @@ signal STATE_FULL       : std_logic_vector(31 downto 0);
 signal reset            : std_logic;
 signal period_i         : std_logic_vector(31 downto 0);
 begin
---	
+--      
 -- INCREMENTAL OUT
 --
 

@@ -60,20 +60,20 @@ architecture rtl of sfp_dls_eventr_top is
 --component ila_0
 --
 --    port (
---    	clk     : in  std_logic;
---    	probe0  : in  std_logic_vector(0 downto 0); 
---    	probe1  : in  std_logic_vector(0 downto 0); 
---    	probe2  : in  std_logic_vector(0 downto 0); 
---    	probe3  : in  std_logic_vector(0 downto 0); 
---    	probe4  : in  std_logic_vector(1 downto 0); 
---    	probe5  : in  std_logic_vector(1 downto 0); 
---    	probe6  : in  std_logic_vector(15 downto 0); 
---    	probe7  : in  std_logic_vector(0 downto 0); 
---    	probe8  : in  std_logic_vector(0 downto 0); 
---    	probe9  : in  std_logic_vector(0 downto 0); 
---    	probe10 : in  std_logic_vector(15 downto 0); 
---    	probe11 : in  std_logic_vector(1 downto 0); 
---    	probe12 : in  std_logic_vector(15 downto 0) 
+--      clk     : in  std_logic;
+--      probe0  : in  std_logic_vector(0 downto 0); 
+--      probe1  : in  std_logic_vector(0 downto 0); 
+--      probe2  : in  std_logic_vector(0 downto 0); 
+--      probe3  : in  std_logic_vector(0 downto 0); 
+--      probe4  : in  std_logic_vector(1 downto 0); 
+--      probe5  : in  std_logic_vector(1 downto 0); 
+--      probe6  : in  std_logic_vector(15 downto 0); 
+--      probe7  : in  std_logic_vector(0 downto 0); 
+--      probe8  : in  std_logic_vector(0 downto 0); 
+--      probe9  : in  std_logic_vector(0 downto 0); 
+--      probe10 : in  std_logic_vector(15 downto 0); 
+--      probe11 : in  std_logic_vector(1 downto 0); 
+--      probe12 : in  std_logic_vector(15 downto 0) 
 --    );
 --    
 --end component;
@@ -194,7 +194,7 @@ sfp_receiver_inst: entity work.sfp_receiver
 port map(
     clk_i           => clk_i,
     event_clk_i     => event_clk,
-    reset_i         => reset_i, 	
+    reset_i         => reset_i,         
     rxdisperr_i     => rxdisperr,
     rxcharisk_i     => rxcharisk,
     rxdata_i        => rxdata,
@@ -255,20 +255,20 @@ port map(
 
 --ila_inst : ila_0
 --port map (
---	clk     => clk_i,
---   	probe0  => mgt_ready_slv and rx_link_ok_slv, 
---	probe1  => rx_link_ok_slv, 
---	probe2  => mgt_ready_slv, 
---	probe3  => "0", 
---	probe4  => rxdisperr, 
---	probe5  => rxnotintable, 
---	probe6  => rxdata, 
---	probe7  => rxbyteisaligned_slv, 
---	probe8  => rxbyterealign_slv, 
---	probe9  => rxcommadet_slv, 	
---	probe10 => probe10_slv, 
+--      clk     => clk_i,
+--      probe0  => mgt_ready_slv and rx_link_ok_slv, 
+--      probe1  => rx_link_ok_slv, 
+--      probe2  => mgt_ready_slv, 
+--      probe3  => "0", 
+--      probe4  => rxdisperr, 
+--      probe5  => rxnotintable, 
+--      probe6  => rxdata, 
+--      probe7  => rxbyteisaligned_slv, 
+--      probe8  => rxbyterealign_slv, 
+--      probe9  => rxcommadet_slv,      
+--      probe10 => probe10_slv, 
 --    probe11 => rxcharisk,
---	probe12 => probe12_slv
+--      probe12 => probe12_slv
 --);
   
 -- MGT ready and link is up  

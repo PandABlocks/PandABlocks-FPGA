@@ -142,11 +142,11 @@ begin
     --ibufds_instq0_clk1 : IBUFDS_GTE2  
     --port map
     --(
-    --    O               => 	q0_clk1_gtrefclk,
+    --    O               =>    q0_clk1_gtrefclk,
     --    ODIV2           =>    open,
-    --    CEB             => 	tied_to_ground_i,
-    --    I               => 	Q0_CLK1_GTREFCLK_PAD_P_IN,
-    --    IB              => 	Q0_CLK1_GTREFCLK_PAD_N_IN
+    --    CEB             =>    tied_to_ground_i,
+    --    I               =>    Q0_CLK1_GTREFCLK_PAD_P_IN,
+    --    IB              =>    Q0_CLK1_GTREFCLK_PAD_N_IN
     --);
 
     

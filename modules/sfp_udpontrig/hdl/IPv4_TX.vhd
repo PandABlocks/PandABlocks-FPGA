@@ -160,12 +160,12 @@ architecture Behavioral of IPv4_TX is
 -- * - in 32 bit words 
 -- CHIPSCOPE ILA probes
 
-	signal probe6               : std_logic_vector(31 downto 0);
-	
-	attribute keep : string;--keep name for ila probes
-	attribute keep of tx_state       : signal is "true";
-	attribute keep of tx_count       : signal is "true";
-	  
+        signal probe6               : std_logic_vector(31 downto 0);
+        
+        attribute keep : string;--keep name for ila probes
+        attribute keep of tx_state       : signal is "true";
+        attribute keep of tx_count       : signal is "true";
+          
 begin
   -----------------------------------------------------------------------
   -- combinatorial process to implement FSM and determine control signals

@@ -129,10 +129,10 @@ begin
 
 -- If 0 < DELAY < 4, it should be set to 4
 delay_i <= DELAY when (unsigned(DELAY) > 4 or unsigned(DELAY) = 0) else (2 => '1',
-																 others => '0');
+                                                                                                                                 others => '0');
 -- If Delay is zero and WIDTH is between 0 and 4 WIDTH should be 4
 width_i <= WIDTH when (not(unsigned(DELAY) = 0 and (unsigned(WIDTH) < 4 and unsigned(WIDTH) > 0))) else (2 => '1',
-																									others => '0');
+                                                                                                                                                                                                        others => '0');
 
 
 

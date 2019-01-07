@@ -212,12 +212,12 @@ architecture RTL of sfpgtx_GT_FRAME_CHECK is
 
 
    function or_reduce(arg: std_logic_vector) return std_logic is
-	variable result: std_logic;
+        variable result: std_logic;
     begin
-	result := '0';
-	for i in arg'range loop
-	    result := result or arg(i);
-	end loop;
+        result := '0';
+        for i in arg'range loop
+            result := result or arg(i);
+        end loop;
         return result;
     end;
 

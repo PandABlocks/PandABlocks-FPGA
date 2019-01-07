@@ -117,11 +117,11 @@ begin
                 --                -- off for a period of time before setting the DAC_ENABLE = '1' thats what the dac_en_wait_cnt 
                 --                -- is for  
                 --
-                --if  DAC_ENABLE = '0' and CONTROL_WRITE = '1' then		-- Start the Sequence when software writes to the register
-			    --    NEXT_CONTROL_STATE <= INIT_CNRL_WRITE;
-		        --elsif  DAC_ENABLE = '0' and CONTROL_READ = '1' then	-- Start the Sequence when software writes to the register
-			    --    NEXT_CONTROL_STATE <= INIT_CNRL_READ;
-		        --end if;                
+                --if  DAC_ENABLE = '0' and CONTROL_WRITE = '1' then             -- Start the Sequence when software writes to the register
+                            --    NEXT_CONTROL_STATE <= INIT_CNRL_WRITE;
+                        --elsif  DAC_ENABLE = '0' and CONTROL_READ = '1' then   -- Start the Sequence when software writes to the register
+                            --    NEXT_CONTROL_STATE <= INIT_CNRL_READ;
+                        --end if;                
                 if wait_cnt = c_dac_enable_wait then
                     DAC_ENABLE <= std_logic_vector(to_unsigned(1,32));
                     sm_dac_start <= state_dac_fifo_enable; 

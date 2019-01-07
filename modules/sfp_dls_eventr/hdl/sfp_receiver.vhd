@@ -130,13 +130,13 @@ begin
       
 -- 15                      8 7                       0 
 --  --------------------------------------------------
---  |	     DBUS DATA	    | KCHAR And EVENT CODES  |
---  --------------------------------------------------	        
+--  |        DBUS DATA      | KCHAR And EVENT CODES  |
+--  --------------------------------------------------          
 
 rx_link_ok_o <= rx_link_ok;
 loss_lock_o <= loss_lock;
 rx_error_o <= rx_error; 
- 	 
+         
 
 -- Assign the array outputs to individual bits
 -- Done this to stop the outputs being high for 2 clocks instead of one

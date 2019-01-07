@@ -118,7 +118,7 @@ begin
     C    => clk,
     D    => data_in,
     Q    => data_sync0,
-	CE   => '1',
+        CE   => '1',
     R    => '0'
   );
 
@@ -131,7 +131,7 @@ begin
     C    => clk,
     D    => data_sync0,
     Q    => data_sync1,
-	CE   => '1',
+        CE   => '1',
     R    => '0'
   );
 
@@ -143,7 +143,7 @@ begin
     C    => clk,
     D    => data_sync1,
     Q    => data_sync2,
-	CE   => '1',
+        CE   => '1',
     R    => '0'
   );
 
@@ -155,7 +155,7 @@ begin
     C    => clk,
     D    => data_sync2,
     Q    => data_sync3,
-	CE   => '1',
+        CE   => '1',
     R    => '0'
   );
 
@@ -167,7 +167,7 @@ begin
     C    => clk,
     D    => data_sync3,
     Q    => data_sync4,
-	CE   => '1',
+        CE   => '1',
     R    => '0'
   );
 

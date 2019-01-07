@@ -184,19 +184,19 @@ create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
 -module_name fmc_acq430_ch_fifo -dir $BUILD_DIR/
 
 set_property -dict [list \
-	CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
-	CONFIG.Input_Data_Width {32} \
-	CONFIG.Input_Depth {256} \
-	CONFIG.Output_Data_Width {256} \
-	CONFIG.Read_Data_Count {true} \
-	CONFIG.Output_Depth {32} \
-	CONFIG.Reset_Type {Asynchronous_Reset} \
-	CONFIG.Full_Flags_Reset_Value {1} \
-	CONFIG.Data_Count_Width {8} \
-	CONFIG.Write_Data_Count_Width {8} \
-	CONFIG.Read_Data_Count_Width {5} \
-	CONFIG.Full_Threshold_Assert_Value {253} \
-	CONFIG.Full_Threshold_Negate_Value {252}
+        CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
+        CONFIG.Input_Data_Width {32} \
+        CONFIG.Input_Depth {256} \
+        CONFIG.Output_Data_Width {256} \
+        CONFIG.Read_Data_Count {true} \
+        CONFIG.Output_Depth {32} \
+        CONFIG.Reset_Type {Asynchronous_Reset} \
+        CONFIG.Full_Flags_Reset_Value {1} \
+        CONFIG.Data_Count_Width {8} \
+        CONFIG.Write_Data_Count_Width {8} \
+        CONFIG.Read_Data_Count_Width {5} \
+        CONFIG.Full_Threshold_Assert_Value {253} \
+        CONFIG.Full_Threshold_Negate_Value {252}
 ] [get_ips fmc_acq430_ch_fifo]
 
 generate_target all [get_files $BUILD_DIR/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci]
@@ -209,11 +209,11 @@ create_ip -name dist_mem_gen -vendor xilinx.com -library ip -version 8.0 \
 -module_name fmc_acq430_sample_ram -dir $BUILD_DIR/
 
 set_property -dict [list \
-	CONFIG.depth {32} \
-	CONFIG.data_width {24} \
-	CONFIG.memory_type {dual_port_ram} \
-	CONFIG.output_options {registered} \
-	CONFIG.common_output_clk {true}
+        CONFIG.depth {32} \
+        CONFIG.data_width {24} \
+        CONFIG.memory_type {dual_port_ram} \
+        CONFIG.output_options {registered} \
+        CONFIG.common_output_clk {true}
 ] [get_ips fmc_acq430_sample_ram]
 
 generate_target all [get_files $BUILD_DIR/fmc_acq430_sample_ram/fmc_acq430_sample_ram.xci]
@@ -226,20 +226,20 @@ create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
 -module_name fmc_acq427_dac_fifo -dir $BUILD_DIR/
 
 set_property -dict [list \
-	CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
-	CONFIG.Input_Data_Width {128} \
-	CONFIG.Input_Depth {16} \
-	CONFIG.Output_Data_Width {32} \
-	CONFIG.Write_Data_Count {true} \
-	CONFIG.Read_Data_Count {true} \
-	CONFIG.Output_Depth {64} \
-	CONFIG.Reset_Type {Asynchronous_Reset} \
-	CONFIG.Full_Flags_Reset_Value {1} \
-	CONFIG.Data_Count_Width {4} \
-	CONFIG.Write_Data_Count_Width {4} \
-	CONFIG.Read_Data_Count_Width {6} \
-	CONFIG.Full_Threshold_Assert_Value {13} \
-	CONFIG.Full_Threshold_Negate_Value {12}
+        CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
+        CONFIG.Input_Data_Width {128} \
+        CONFIG.Input_Depth {16} \
+        CONFIG.Output_Data_Width {32} \
+        CONFIG.Write_Data_Count {true} \
+        CONFIG.Read_Data_Count {true} \
+        CONFIG.Output_Depth {64} \
+        CONFIG.Reset_Type {Asynchronous_Reset} \
+        CONFIG.Full_Flags_Reset_Value {1} \
+        CONFIG.Data_Count_Width {4} \
+        CONFIG.Write_Data_Count_Width {4} \
+        CONFIG.Read_Data_Count_Width {6} \
+        CONFIG.Full_Threshold_Assert_Value {13} \
+        CONFIG.Full_Threshold_Negate_Value {12}
 ] [get_ips fmc_acq427_dac_fifo]
 
 generate_target all [get_files $BUILD_DIR/fmc_acq427_dac_fifo/fmc_acq427_dac_fifo.xci]
@@ -265,47 +265,47 @@ create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \
 -module_name event_receiver_mgt -dir $BUILD_DIR/
 
 set_property -dict [list \
-    CONFIG.gt0_val {false}                              	\
-    CONFIG.gt1_val {true}                               	\
-    CONFIG.gt0_val_dec_valid_comma_only {true}			\
-    CONFIG.identical_val_tx_reference_clock {125.000}   	\
-    CONFIG.gt0_val_tx_data_width {16}                   	\
-    CONFIG.gt0_val_encoding {8B/10B}                    	\
-    CONFIG.gt0_val_decoding {8B/10B}                   	 	\
-    CONFIG.gt0_val_rxusrclk {RXOUTCLK}                 	 	\
-    CONFIG.gt0_val_comma_preset {K28.5}                 	\
-    CONFIG.gt0_val_port_rxcommadet {true}               	\
-    CONFIG.gt0_val_port_rxbyteisaligned {true}          	\
-    CONFIG.gt0_val_port_rxbyterealign {true}            	\
-    CONFIG.gt0_val_port_rxpcommaalignen {true}          	\
-    CONFIG.gt0_val_port_rxmcommaalignen {true}          	\
-    CONFIG.gt0_val_port_rxslide {false}                 	\
-    CONFIG.gt0_val_rxslide_mode {OFF}                   	\
-    CONFIG.gt1_val_tx_refclk {REFCLK1_Q0}               	\
-    CONFIG.gt1_val_rx_refclk {REFCLK1_Q0}               	\
-    CONFIG.identical_val_rx_reference_clock {125.000}   	\
-    CONFIG.gt0_val_tx_line_rate {2.5}                   	\
-    CONFIG.gt0_val_tx_int_datawidth {20}                	\
-    CONFIG.gt0_val_tx_reference_clock {125.000}         	\
-    CONFIG.gt0_val_rx_line_rate {2.5}                   	\
-    CONFIG.gt0_val_rx_data_width {16}                   	\
-    CONFIG.gt0_val_rx_int_datawidth {20}                	\
-    CONFIG.gt0_val_rx_reference_clock {125.000}         	\
-    CONFIG.gt0_val_cpll_fbdiv {4}                       	\
-    CONFIG.gt0_val_port_rxcharisk {true}                	\
-    CONFIG.gt0_val_tx_buffer_bypass_mode {Auto}         	\
-    CONFIG.gt0_val_rx_buffer_bypass_mode {Auto}           	\
-    CONFIG.gt0_val_align_comma_word {Two_Byte_Boundaries} 	\
-    CONFIG.gt0_val_dfe_mode {LPM-Auto}                  	\
-    CONFIG.gt0_val_rx_cm_trim {800}                     	\
-    CONFIG.gt0_val_clk_cor_seq_1_1 {00000000}           	\
-    CONFIG.gt0_val_clk_cor_seq_1_2 {00000000}           	\
-    CONFIG.gt0_val_clk_cor_seq_1_3 {00000000}           	\
-    CONFIG.gt0_val_clk_cor_seq_1_4 {00000000}           	\
-    CONFIG.gt0_val_clk_cor_seq_2_1 {00000000}           	\
-    CONFIG.gt0_val_clk_cor_seq_2_2 {00000000}           	\
-    CONFIG.gt0_val_clk_cor_seq_2_3 {00000000}           	\
-    CONFIG.gt0_val_clk_cor_seq_2_4 {00000000}           	\
+    CONFIG.gt0_val {false}                                      \
+    CONFIG.gt1_val {true}                                       \
+    CONFIG.gt0_val_dec_valid_comma_only {true}                  \
+    CONFIG.identical_val_tx_reference_clock {125.000}           \
+    CONFIG.gt0_val_tx_data_width {16}                           \
+    CONFIG.gt0_val_encoding {8B/10B}                            \
+    CONFIG.gt0_val_decoding {8B/10B}                            \
+    CONFIG.gt0_val_rxusrclk {RXOUTCLK}                          \
+    CONFIG.gt0_val_comma_preset {K28.5}                         \
+    CONFIG.gt0_val_port_rxcommadet {true}                       \
+    CONFIG.gt0_val_port_rxbyteisaligned {true}                  \
+    CONFIG.gt0_val_port_rxbyterealign {true}                    \
+    CONFIG.gt0_val_port_rxpcommaalignen {true}                  \
+    CONFIG.gt0_val_port_rxmcommaalignen {true}                  \
+    CONFIG.gt0_val_port_rxslide {false}                         \
+    CONFIG.gt0_val_rxslide_mode {OFF}                           \
+    CONFIG.gt1_val_tx_refclk {REFCLK1_Q0}                       \
+    CONFIG.gt1_val_rx_refclk {REFCLK1_Q0}                       \
+    CONFIG.identical_val_rx_reference_clock {125.000}           \
+    CONFIG.gt0_val_tx_line_rate {2.5}                           \
+    CONFIG.gt0_val_tx_int_datawidth {20}                        \
+    CONFIG.gt0_val_tx_reference_clock {125.000}                 \
+    CONFIG.gt0_val_rx_line_rate {2.5}                           \
+    CONFIG.gt0_val_rx_data_width {16}                           \
+    CONFIG.gt0_val_rx_int_datawidth {20}                        \
+    CONFIG.gt0_val_rx_reference_clock {125.000}                 \
+    CONFIG.gt0_val_cpll_fbdiv {4}                               \
+    CONFIG.gt0_val_port_rxcharisk {true}                        \
+    CONFIG.gt0_val_tx_buffer_bypass_mode {Auto}                 \
+    CONFIG.gt0_val_rx_buffer_bypass_mode {Auto}                 \
+    CONFIG.gt0_val_align_comma_word {Two_Byte_Boundaries}       \
+    CONFIG.gt0_val_dfe_mode {LPM-Auto}                          \
+    CONFIG.gt0_val_rx_cm_trim {800}                             \
+    CONFIG.gt0_val_clk_cor_seq_1_1 {00000000}                   \
+    CONFIG.gt0_val_clk_cor_seq_1_2 {00000000}                   \
+    CONFIG.gt0_val_clk_cor_seq_1_3 {00000000}                   \
+    CONFIG.gt0_val_clk_cor_seq_1_4 {00000000}                   \
+    CONFIG.gt0_val_clk_cor_seq_2_1 {00000000}                   \
+    CONFIG.gt0_val_clk_cor_seq_2_2 {00000000}                   \
+    CONFIG.gt0_val_clk_cor_seq_2_3 {00000000}                   \
+    CONFIG.gt0_val_clk_cor_seq_2_4 {00000000}                   \
 ] [get_ips event_receiver_mgt]
 
 generate_target all [get_files  $BUILD_DIR/event_receiver_mgt/event_receiver_mgt.xci]

@@ -24,12 +24,12 @@ The state output is '0' while ENABLE is low, '1' when the count is equal to the
 signal on the INP line and '2' while it is counting towards the INP value.
 
 .. timing_plot::
-	:path: modules/posenc/posenc.timing.ini
-	:section: Quadrature rising and falling
+        :path: modules/posenc/posenc.timing.ini
+        :section: Quadrature rising and falling
 
 .. timing_plot::
-	:path: modules/posenc/posenc.timing.ini
-	:section: Longer Period Quadrature
+        :path: modules/posenc/posenc.timing.ini
+        :section: Longer Period Quadrature
 
 
 Step/Direction
@@ -42,9 +42,9 @@ lower than the inputted target value (it is counting up), and '1' when it is
 greater or equal to.
 
 .. timing_plot::
-	:path: modules/posenc/posenc.timing.ini
-	:section: Step/Direction
+        :path: modules/posenc/posenc.timing.ini
+        :section: Step/Direction
 
 .. timing_plot::
-	:path: modules/posenc/posenc.timing.ini
-	:section: Longer Period Step/Direction
+        :path: modules/posenc/posenc.timing.ini
+        :section: Longer Period Step/Direction

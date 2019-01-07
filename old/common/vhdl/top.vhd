@@ -340,22 +340,22 @@ port map (
     ibufds_instq0_clk0 : IBUFDS_GTE2  
     port map
     (
-        O               => 	q0_clk0_gtrefclk,
+        O               =>      q0_clk0_gtrefclk,
         ODIV2           =>    open,
-        CEB             => 	'0',
-        I               => 	GTXCLK0_P,
-        IB              => 	GTXCLK0_N
+        CEB             =>      '0',
+        I               =>      GTXCLK0_P,
+        IB              =>      GTXCLK0_N
     );
 
 --IBUFDS_GTE2
     ibufds_instq0_clk1 : IBUFDS_GTE2  
     port map
     (
-        O               => 	q0_clk1_gtrefclk,
+        O               =>      q0_clk1_gtrefclk,
         ODIV2           =>  open,
-        CEB             => 	'0',
-        I               => 	GTXCLK1_P,
-        IB              => 	GTXCLK1_N
+        CEB             =>      '0',
+        I               =>      GTXCLK1_P,
+        IB              =>      GTXCLK1_N
     );
 
 
@@ -870,11 +870,11 @@ SFP_TX_P(0) <= SFP3.TXP_OUT;
 softblocks_inst : entity work.soft_blocks
 generic map( SIM => SIM)
 port map(
-	FCLK_CLK0 => FCLK_CLK0,
-	FCLK_RESET0 => FCLK_RESET0,
+        FCLK_CLK0 => FCLK_CLK0,
+        FCLK_RESET0 => FCLK_RESET0,
     read_strobe => read_strobe,
     read_address => read_address,
-	read_data => read_data,
+        read_data => read_data,
     read_ack => read_ack,
     write_strobe => write_strobe,
     write_address => write_address,
@@ -886,29 +886,29 @@ port map(
     --posbus_i => posbus,
     sysbus => sysbus,
     posbus => posbus,
-	--ttlin_val => ttlin_val,
-	--lvdsin_val => lvdsin_val,
-	--inenc_val => inenc_val,
-	--inenc_conn => inenc_conn,
-	--inenc_a => inenc_a,
-	--inenc_b => inenc_b,
-	--inenc_z => inenc_z,
-	--inenc_data => inenc_data,
- 	--outenc_clk => outenc_clk,
-	rdma_req => rdma_req,
-	rdma_ack => rdma_ack,
-	rdma_done => rdma_done,
-	rdma_addr => rdma_addr,
-	rdma_len => rdma_len,
-	rdma_data => rdma_data,
-	rdma_valid => rdma_valid,
+        --ttlin_val => ttlin_val,
+        --lvdsin_val => lvdsin_val,
+        --inenc_val => inenc_val,
+        --inenc_conn => inenc_conn,
+        --inenc_a => inenc_a,
+        --inenc_b => inenc_b,
+        --inenc_z => inenc_z,
+        --inenc_data => inenc_data,
+        --outenc_clk => outenc_clk,
+        rdma_req => rdma_req,
+        rdma_ack => rdma_ack,
+        rdma_done => rdma_done,
+        rdma_addr => rdma_addr,
+        rdma_len => rdma_len,
+        rdma_data => rdma_data,
+        rdma_valid => rdma_valid,
     FMC => FMC,
     SFP1 => SFP1,
     SFP2 => SFP2,
     SFP3 => SFP3
 );
 
-	--pcap_active => pcap_act,
+        --pcap_active => pcap_act,
     --GTXCLK0_P => GTXCLK0_P,
     --GTXCLK0_N => GTXCLK0_N,
     --GTXCLK1_P => GTXCLK1_P,

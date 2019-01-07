@@ -284,22 +284,22 @@ port map (
     ibufds_instq0_clk0 : IBUFDS_GTE2  
     port map
     (
-        O               => 	q0_clk0_gtrefclk,
+        O               =>      q0_clk0_gtrefclk,
         ODIV2           =>    open,
-        CEB             => 	'0',
-        I               => 	GTXCLK0_P,
-        IB              => 	GTXCLK0_N
+        CEB             =>      '0',
+        I               =>      GTXCLK0_P,
+        IB              =>      GTXCLK0_N
     );
 
 --IBUFDS_GTE2
     ibufds_instq0_clk1 : IBUFDS_GTE2  
     port map
     (
-        O               => 	q0_clk1_gtrefclk,
+        O               =>      q0_clk1_gtrefclk,
         ODIV2           =>  open,
-        CEB             => 	'0',
-        I               => 	GTXCLK1_P,
-        IB              => 	GTXCLK1_N
+        CEB             =>      '0',
+        I               =>      GTXCLK1_P,
+        IB              =>      GTXCLK1_N
     );
 
 

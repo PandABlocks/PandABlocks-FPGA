@@ -27,7 +27,7 @@ port (
     reset_i             : in  std_logic;
     -- Block register
     SHIFT_SUM           : in  std_logic_vector(5 downto 0);
-	TRIG_EDGE		    : in  std_logic_vector(1 downto 0);
+        TRIG_EDGE                   : in  std_logic_vector(1 downto 0);
     -- Block input and outputs.
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
@@ -35,7 +35,7 @@ port (
     gate_i              : in  std_logic;
     trig_i              : in  std_logic;
     timestamp_i         : in  std_logic_vector(63 downto 0);
-	-- Captured data 
+        -- Captured data 
     trig_o              : out std_logic;
     mode_ts_bits_o      : out t_mode_ts_bits
 );
@@ -50,7 +50,7 @@ signal trig_dly         : std_logic;
 signal timestamp        : unsigned(63 downto 0);
 
 signal ts_start         : std_logic_vector(63 downto 0);
-signal ts_start_dly		: std_logic_vector(63 downto 0);
+signal ts_start_dly             : std_logic_vector(63 downto 0);
 signal ts_end           : std_logic_vector(63 downto 0);
 signal ts_trig          : std_logic_vector(63 downto 0);
 
@@ -68,12 +68,12 @@ signal bits1            : std_logic_vector(31 downto 0);
 signal bits2            : std_logic_vector(31 downto 0);
 signal bits3            : std_logic_vector(31 downto 0);
 
-signal trig_prev		: std_logic;
-signal trig_rise		: std_logic;
-signal trig_fall		: std_logic;
-signal trig			    : std_logic;
-signal ts_start_enable	: std_logic;
-signal ts_end_enable	: std_logic;
+signal trig_prev                : std_logic;
+signal trig_rise                : std_logic;
+signal trig_fall                : std_logic;
+signal trig                         : std_logic;
+signal ts_start_enable  : std_logic;
+signal ts_end_enable    : std_logic;
 
 
 begin
@@ -127,7 +127,7 @@ process(clk_i) begin
         -- results pass out on the mode_ts_bits record     
         else                 
             trig_dly <= trig;   
-	    	trig_o <= trig;	
+                trig_o <= trig; 
         end if;
     end if;
 end process;
@@ -142,54 +142,54 @@ process(clk_i) begin
     if rising_edge(clk_i) then
         -- Capture the timestamp at the start of a capture frame
         if (enable_i = '0') then
-			ts_start_enable <= '0';
-		-- trig the timestamp this is the start of a frame		
-		elsif (ts_start_enable = '0' and gate_rise = '1') then
-			ts_start_enable <= '1';
-			ts_start <= std_logic_vector(timestamp); 
-		-- Capture the timestamp this is the start of a frame
-		elsif (gate_i = '1' and trig = '1') then		
-			ts_start_enable <= '1';			
-			ts_start <= std_logic_vector(timestamp);
-		-- This isn't a valid capture frame	
-		elsif (trig = '1' and gate_i = '0') then			
-			ts_start_enable <= '0';
-			ts_start <= std_logic_vector(to_signed(-1,ts_start'length));
-		end if;	
-									
+                        ts_start_enable <= '0';
+                -- trig the timestamp this is the start of a frame              
+                elsif (ts_start_enable = '0' and gate_rise = '1') then
+                        ts_start_enable <= '1';
+                        ts_start <= std_logic_vector(timestamp); 
+                -- Capture the timestamp this is the start of a frame
+                elsif (gate_i = '1' and trig = '1') then                
+                        ts_start_enable <= '1';                 
+                        ts_start <= std_logic_vector(timestamp);
+                -- This isn't a valid capture frame     
+                elsif (trig = '1' and gate_i = '0') then                        
+                        ts_start_enable <= '0';
+                        ts_start <= std_logic_vector(to_signed(-1,ts_start'length));
+                end if; 
+                                                                        
         -- Capture the timestamp at the end of a capture frame 
         if (enable_i = '0') then
-			ts_end_enable <= '0';
-		-- Capture the timestamp at the end of the frame
-		elsif (gate_fall = '1') then
-			if (trig = '0') then
-				ts_end_enable <= '1';
-			end if;			
-			ts_end <= std_logic_vector(timestamp);
-		-- Capture the timestamp at the end of the frame	
-		elsif (trig = '1' and gate_i = '1') then
-			ts_end_enable <= '0';
-			ts_end	<= std_logic_vector(timestamp);
-		-- This isn't a valid capture_frame
-		elsif (trig = '1' and gate_i = '0') then
-			ts_end_enable <= '0';			
-			if (ts_end_enable = '0') then
-				ts_end <= std_logic_vector(to_signed(-1,ts_end'length));
-			end if;		
-		end if;       
+                        ts_end_enable <= '0';
+                -- Capture the timestamp at the end of the frame
+                elsif (gate_fall = '1') then
+                        if (trig = '0') then
+                                ts_end_enable <= '1';
+                        end if;                 
+                        ts_end <= std_logic_vector(timestamp);
+                -- Capture the timestamp at the end of the frame        
+                elsif (trig = '1' and gate_i = '1') then
+                        ts_end_enable <= '0';
+                        ts_end  <= std_logic_vector(timestamp);
+                -- This isn't a valid capture_frame
+                elsif (trig = '1' and gate_i = '0') then
+                        ts_end_enable <= '0';                   
+                        if (ts_end_enable = '0') then
+                                ts_end <= std_logic_vector(to_signed(-1,ts_end'length));
+                        end if;         
+                end if;       
 
         -- Capture TIMESTAMP             
         if (trig = '1') then
             ts_trig <= std_logic_vector(timestamp);
         end if;
         
-        -- Count the number of samples 			
+        -- Count the number of samples                  
         if (trig = '1' or enable_i = '0') then
-			if (gate_i = '1') then            
-				cnt_samples <= to_unsigned(1,cnt_samples'length);	
-			else
-				cnt_samples <= (others => '0');
-			end if;
+                        if (gate_i = '1') then            
+                                cnt_samples <= to_unsigned(1,cnt_samples'length);       
+                        else
+                                cnt_samples <= (others => '0');
+                        end if;
             samples <= std_logic_vector(cnt_samples(31+(to_integer(unsigned(SHIFT_SUM))) downto (to_integer(unsigned(SHIFT_SUM)))));
         elsif (gate_i = '1') then
             cnt_samples <= cnt_samples +1;
@@ -243,36 +243,36 @@ end generate;
 ps_mode_ts_bits: process(clk_i)
 begin
     if rising_edge(Clk_i) then       
-		-- Capture the start timestamp 
-		ts_start_dly <= ts_start;
-		if trig_dly = '1' then         
-        	-- Cature mode data     
-			-- 32 bits * 6 Num of = 192 Total    
-        	lp_mode_data: for i in 31 downto 0 loop
-            	mode_ts_bits_o.mode(i)(0) <= value_o(i);
-            	mode_ts_bits_o.mode(i)(1) <= diff_o(i);
-            	mode_ts_bits_o.mode(i)(2) <= sum_l_o(i);
-            	mode_ts_bits_o.mode(i)(3) <= sum_h_o(i);
-            	mode_ts_bits_o.mode(i)(4) <= min_o(i);
-            	mode_ts_bits_o.mode(i)(5) <= max_o(i);   
-        	end loop lp_mode_data;
-			-- Capture TimeStamp data
-			-- 32 bits * 7 Num of = 7 Total
-        	mode_ts_bits_o.ts(0) <= ts_start_dly(31 downto 0);
-        	mode_ts_bits_o.ts(1) <= ts_start_dly(63 downto 32);   
-        	mode_ts_bits_o.ts(2) <= ts_end(31 downto 0);
-        	mode_ts_bits_o.ts(3) <= ts_end(63 downto 32);
-        	mode_ts_bits_o.ts(4) <= ts_trig(31 downto 0);    
-        	mode_ts_bits_o.ts(5) <= ts_trig(63 downto 32);
-        	mode_ts_bits_o.ts(6) <= samples;
-			-- Capture bit bus data
-			-- 32 bits * 4 Num of = 4 Total
-        	mode_ts_bits_o.bits(0) <= bits0;
-        	mode_ts_bits_o.bits(1) <= bits1;
-        	mode_ts_bits_o.bits(2) <= bits2;
-        	mode_ts_bits_o.bits(3) <= bits3;                   
-		end if;    
-	end if;
+                -- Capture the start timestamp 
+                ts_start_dly <= ts_start;
+                if trig_dly = '1' then         
+                -- Cature mode data     
+                        -- 32 bits * 6 Num of = 192 Total    
+                lp_mode_data: for i in 31 downto 0 loop
+                mode_ts_bits_o.mode(i)(0) <= value_o(i);
+                mode_ts_bits_o.mode(i)(1) <= diff_o(i);
+                mode_ts_bits_o.mode(i)(2) <= sum_l_o(i);
+                mode_ts_bits_o.mode(i)(3) <= sum_h_o(i);
+                mode_ts_bits_o.mode(i)(4) <= min_o(i);
+                mode_ts_bits_o.mode(i)(5) <= max_o(i);   
+                end loop lp_mode_data;
+                        -- Capture TimeStamp data
+                        -- 32 bits * 7 Num of = 7 Total
+                mode_ts_bits_o.ts(0) <= ts_start_dly(31 downto 0);
+                mode_ts_bits_o.ts(1) <= ts_start_dly(63 downto 32);   
+                mode_ts_bits_o.ts(2) <= ts_end(31 downto 0);
+                mode_ts_bits_o.ts(3) <= ts_end(63 downto 32);
+                mode_ts_bits_o.ts(4) <= ts_trig(31 downto 0);    
+                mode_ts_bits_o.ts(5) <= ts_trig(63 downto 32);
+                mode_ts_bits_o.ts(6) <= samples;
+                        -- Capture bit bus data
+                        -- 32 bits * 4 Num of = 4 Total
+                mode_ts_bits_o.bits(0) <= bits0;
+                mode_ts_bits_o.bits(1) <= bits1;
+                mode_ts_bits_o.bits(2) <= bits2;
+                mode_ts_bits_o.bits(3) <= bits3;                   
+                end if;    
+        end if;
 end process ps_mode_ts_bits;                
 
 

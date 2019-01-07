@@ -146,11 +146,11 @@ begin
                 wait_cnt <= wait_cnt +1;
                 -- Delay the adc enable otherwise the folowing signals dont get reset 
                 -- if ADC_ENABLE = '0' or s_SAMPLING_STALLED = '1'  then
-	    	    --      s_SAMPLING_CHANGE_COUNT <= (others => '0');
-	    	    --      s_SAMPLING_GOING_ON <= '0';
-	    	    --      s_SAMPLING_GOING_OFF <= '0';
-	    	    --      s_SAMPLING_ON_DELAYED <= '0';
-	    	    -- In the FMC_FUNC.vhd line 276  
+                    --      s_SAMPLING_CHANGE_COUNT <= (others => '0');
+                    --      s_SAMPLING_GOING_ON <= '0';
+                    --      s_SAMPLING_GOING_OFF <= '0';
+                    --      s_SAMPLING_ON_DELAYED <= '0';
+                    -- In the FMC_FUNC.vhd line 276  
                 if (wait_cnt = 23) then 
                     sm_adc_start <= state_adc_enable;    
                 end if;

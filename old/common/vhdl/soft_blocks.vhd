@@ -19,29 +19,29 @@ generic (
     SIM                 : string  := "FALSE"
 );
 port (
-	-- Global clock and reset from panda_ps
-	FCLK_CLK0 			: in  std_logic;
-	FCLK_RESET0			: in  std_logic;
-	-- Configuration and Status Interface Block
-    read_strobe    	   	: in  std_logic_vector(MOD_COUNT-1 downto 0);
-    read_address     	: in  std_logic_vector(PAGE_AW-1 downto 0);
-	read_data			: out std32_array(MOD_COUNT-1 downto 0);
-    read_ack        	: out std_logic_vector(MOD_COUNT-1 downto 0) := (others => '1');
-    write_strobe    	: in  std_logic_vector(MOD_COUNT-1 downto 0);
-    write_address    	: in  std_logic_vector(PAGE_AW-1 downto 0);
-    write_data     		: in  std_logic_vector(31 downto 0);
-    write_ack     		: out std_logic_vector(MOD_COUNT-1 downto 0) := (others => '1');
+        -- Global clock and reset from panda_ps
+        FCLK_CLK0                       : in  std_logic;
+        FCLK_RESET0                     : in  std_logic;
+        -- Configuration and Status Interface Block
+    read_strobe                 : in  std_logic_vector(MOD_COUNT-1 downto 0);
+    read_address        : in  std_logic_vector(PAGE_AW-1 downto 0);
+        read_data                       : out std32_array(MOD_COUNT-1 downto 0);
+    read_ack            : out std_logic_vector(MOD_COUNT-1 downto 0) := (others => '1');
+    write_strobe        : in  std_logic_vector(MOD_COUNT-1 downto 0);
+    write_address       : in  std_logic_vector(PAGE_AW-1 downto 0);
+    write_data                  : in  std_logic_vector(31 downto 0);
+    write_ack                   : out std_logic_vector(MOD_COUNT-1 downto 0) := (others => '1');
     -- Bus Outputs
-	sysbus             : inout sysbus_t;
-	posbus             : inout posbus_t;
+        sysbus             : inout sysbus_t;
+        posbus             : inout posbus_t;
     -- PCOMP & PGEN Block
-	rdma_req            : out std_logic_vector(5 downto 0);
-	rdma_ack            : in  std_logic_vector(5 downto 0);
-	rdma_done           : in  std_logic;
-	rdma_addr           : out std32_array(5 downto 0);
-	rdma_len            : out std8_array(5 downto 0);
-	rdma_data           : in  std_logic_vector(31 downto 0);
-	rdma_valid          : in  std_logic_vector(5 downto 0);
+        rdma_req            : out std_logic_vector(5 downto 0);
+        rdma_ack            : in  std_logic_vector(5 downto 0);
+        rdma_done           : in  std_logic;
+        rdma_addr           : out std32_array(5 downto 0);
+        rdma_len            : out std8_array(5 downto 0);
+        rdma_data           : in  std_logic_vector(31 downto 0);
+        rdma_valid          : in  std_logic_vector(5 downto 0);
     --   
     FMC                 : inout FMC_interface;
     SFP1                : inout SFP_interface;

@@ -31,10 +31,10 @@ use work.top_defines.all;
 entity SFP_UDP_Complete is
     generic (
     DEBUG               : string  := "FALSE";
-    CLOCK_FREQ			: integer := 125000000;	-- freq of data_in_clk needed to timout cntr
-    ARP_TIMEOUT			: integer := 60;		-- ARP response timeout (s)
-    ARP_MAX_PKT_TMO		: integer := 5;			-- wrong nwk pkts received before set error
-    MAX_ARP_ENTRIES 	: integer := 255		-- max entries in the ARP store
+    CLOCK_FREQ                  : integer := 125000000; -- freq of data_in_clk needed to timout cntr
+    ARP_TIMEOUT                 : integer := 60;                -- ARP response timeout (s)
+    ARP_MAX_PKT_TMO             : integer := 5;                 -- wrong nwk pkts received before set error
+    MAX_ARP_ENTRIES     : integer := 255                -- max entries in the ARP store
     );
     Port (
     -- Clock and Reset
@@ -72,43 +72,43 @@ architecture structural of SFP_UDP_Complete is
 
 COMPONENT UDP_Complete_nomac
   generic (
-    CLOCK_FREQ			: integer := 125000000;	-- freq of data_in_clk -- needed to timout cntr
-    ARP_TIMEOUT			: integer := 60;		-- ARP response timeout (s)
-    ARP_MAX_PKT_TMO		: integer := 5;			-- # wrong nwk pkts received before set error
-    MAX_ARP_ENTRIES 	: integer := 255		-- max entries in the ARP store
+    CLOCK_FREQ                  : integer := 125000000; -- freq of data_in_clk -- needed to timout cntr
+    ARP_TIMEOUT                 : integer := 60;                -- ARP response timeout (s)
+    ARP_MAX_PKT_TMO             : integer := 5;                 -- # wrong nwk pkts received before set error
+    MAX_ARP_ENTRIES     : integer := 255                -- max entries in the ARP store
     );
   Port (
     -- UDP TX signals
-    udp_tx_start			: in std_logic;						-- indicates req to tx UDP
-    udp_txi					: in udp_tx_type;					-- UDP tx cxns
-    udp_tx_result			: out std_logic_vector (1 downto 0);-- tx status (changes during transmission)
-    udp_tx_data_out_ready	: out std_logic;					-- indicates udp_tx is ready to take data
+    udp_tx_start                        : in std_logic;                                         -- indicates req to tx UDP
+    udp_txi                                     : in udp_tx_type;                                       -- UDP tx cxns
+    udp_tx_result                       : out std_logic_vector (1 downto 0);-- tx status (changes during transmission)
+    udp_tx_data_out_ready       : out std_logic;                                        -- indicates udp_tx is ready to take data
     -- UDP RX signals
-    udp_rx_start			: out std_logic;					-- indicates receipt of udp header
-    udp_rxo					: out udp_rx_type;
+    udp_rx_start                        : out std_logic;                                        -- indicates receipt of udp header
+    udp_rxo                                     : out udp_rx_type;
     -- IP RX signals
-    ip_rx_hdr				: out ipv4_rx_header_type;
+    ip_rx_hdr                           : out ipv4_rx_header_type;
     -- system signals
-    rx_clk					: in  STD_LOGIC;
-    tx_clk					: in  STD_LOGIC;
-    reset 					: in  STD_LOGIC;
-    our_ip_address 			: in STD_LOGIC_VECTOR (31 downto 0);
-    our_mac_address 		: in std_logic_vector (47 downto 0);
-    control					: in udp_control_type;
+    rx_clk                                      : in  STD_LOGIC;
+    tx_clk                                      : in  STD_LOGIC;
+    reset                                       : in  STD_LOGIC;
+    our_ip_address                      : in STD_LOGIC_VECTOR (31 downto 0);
+    our_mac_address             : in std_logic_vector (47 downto 0);
+    control                                     : in udp_control_type;
     -- status signals
-    arp_pkt_count			: out STD_LOGIC_VECTOR(7 downto 0);		-- count of arp pkts received
-    ip_pkt_count			: out STD_LOGIC_VECTOR(7 downto 0);		-- number of IP pkts received for us
+    arp_pkt_count                       : out STD_LOGIC_VECTOR(7 downto 0);             -- count of arp pkts received
+    ip_pkt_count                        : out STD_LOGIC_VECTOR(7 downto 0);             -- number of IP pkts received for us
     -- MAC Transmitter
-    mac_tx_tdata         : out  std_logic_vector(7 downto 0);	-- data byte to tx
-    mac_tx_tvalid        : out  std_logic;						-- tdata is valid
-    mac_tx_tready        : in std_logic;						-- mac is ready to accept data
-    mac_tx_tfirst        : out  std_logic;						-- indicates first byte of frame
-    mac_tx_tlast         : out  std_logic;						-- indicates last byte of frame
+    mac_tx_tdata         : out  std_logic_vector(7 downto 0);   -- data byte to tx
+    mac_tx_tvalid        : out  std_logic;                                              -- tdata is valid
+    mac_tx_tready        : in std_logic;                                                -- mac is ready to accept data
+    mac_tx_tfirst        : out  std_logic;                                              -- indicates first byte of frame
+    mac_tx_tlast         : out  std_logic;                                              -- indicates last byte of frame
     -- MAC Receiver
-    mac_rx_tdata         : in std_logic_vector(7 downto 0);	-- data byte received
-    mac_rx_tvalid        : in std_logic;					-- indicates tdata is valid
-    mac_rx_tready        : out std_logic;					-- tells mac that we are ready to take data
-    mac_rx_tlast         : in std_logic						-- indicates last byte of the trame
+    mac_rx_tdata         : in std_logic_vector(7 downto 0);     -- data byte received
+    mac_rx_tvalid        : in std_logic;                                        -- indicates tdata is valid
+    mac_rx_tready        : out std_logic;                                       -- tells mac that we are ready to take data
+    mac_rx_tlast         : in std_logic                                         -- indicates last byte of the trame
   );
 END COMPONENT;
 
@@ -391,14 +391,14 @@ signal trigger_rise : std_logic;
 signal count_udp_tx_RESULT_ERR_i : unsigned(31 downto 0);
 
 -- UDP RX signals
-signal udp_rx_start			: std_logic; -- indicates receipt of udp header
+signal udp_rx_start                     : std_logic; -- indicates receipt of udp header
 
 --type udp_rx_type_array is array(natural range <>) of udp_rx_type;
-signal udp_rxo					: udp_rx_type;
+signal udp_rxo                                  : udp_rx_type;
 
 -- IP RX signals
 --type ipv4_rx_header_type_array is array(natural range <>) of ipv4_rx_header_type;
---signal ip_rx_hdr				: ipv4_rx_header_type;  
+--signal ip_rx_hdr                              : ipv4_rx_header_type;  
 
 signal glbl_rstn    : std_logic;
 signal rx_axi_rstn  : std_logic;
@@ -507,7 +507,7 @@ signal_detect<='1';
    udp_txi.hdr.dst_ip_addr <=dest_ip_address;--destination ip
    udp_txi.hdr.dst_port<=dest_udp_port;--udp destination port
    udp_txi.hdr.src_port<=our_udp_port;--udp source port
-   udp_txi.hdr.data_length<=x"0004";	-- user data size, bytes
+   udp_txi.hdr.data_length<=x"0004";    -- user data size, bytes
    udp_txi.hdr.checksum<=x"0000";
    
    process(clk_i)
@@ -673,43 +673,43 @@ signal_detect<='1';
    
    udp_block: UDP_Complete_nomac 
      generic map (
-       CLOCK_FREQ		=> CLOCK_FREQ,
-       ARP_TIMEOUT		=> ARP_TIMEOUT,
-       ARP_MAX_PKT_TMO	=> ARP_MAX_PKT_TMO,
-       MAX_ARP_ENTRIES	=> MAX_ARP_ENTRIES
+       CLOCK_FREQ               => CLOCK_FREQ,
+       ARP_TIMEOUT              => ARP_TIMEOUT,
+       ARP_MAX_PKT_TMO  => ARP_MAX_PKT_TMO,
+       MAX_ARP_ENTRIES  => MAX_ARP_ENTRIES
        )
      port map( 
        -- UDP TX signals
-       udp_tx_start 			=> udp_tx_start,
-       udp_txi 					=> udp_txi,
-       udp_tx_result			=> udp_tx_result_i,
-       udp_tx_data_out_ready	=> udp_tx_data_out_ready_i,
+       udp_tx_start                     => udp_tx_start,
+       udp_txi                                  => udp_txi,
+       udp_tx_result                    => udp_tx_result_i,
+       udp_tx_data_out_ready    => udp_tx_data_out_ready_i,
        -- UDP RX signals
-       udp_rx_start 			=> udp_rx_start,
-       udp_rxo 					=> udp_rxo,
+       udp_rx_start                     => udp_rx_start,
+       udp_rxo                                  => udp_rxo,
        -- IP RX signals
-       ip_rx_hdr 				=> open,
+       ip_rx_hdr                                => open,
        -- system signals
-       rx_clk					=> clk_i,
-       tx_clk					=> clk_i,
-       reset 					=> SOFT_RESET,
-       our_ip_address 			=> our_ip_address,
-       our_mac_address 			=> OUR_MAC_ADDRESS,
+       rx_clk                                   => clk_i,
+       tx_clk                                   => clk_i,
+       reset                                    => SOFT_RESET,
+       our_ip_address                   => our_ip_address,
+       our_mac_address                  => OUR_MAC_ADDRESS,
        -- status signals
-       arp_pkt_count 		=> open,
-       ip_pkt_count 		=> open,
-       control				=> control,
+       arp_pkt_count            => open,
+       ip_pkt_count             => open,
+       control                          => control,
        -- MAC Transmitter
-       mac_tx_tready 		=> tx_axis_mac_tready_i,
-       mac_tx_tvalid 		=> tx_axis_mac_tvalid,
-       mac_tx_tfirst		=> tx_axis_mac_tfirst,
-       mac_tx_tlast 		=> tx_axis_mac_tlast,
-       mac_tx_tdata 		=> tx_axis_mac_tdata,
+       mac_tx_tready            => tx_axis_mac_tready_i,
+       mac_tx_tvalid            => tx_axis_mac_tvalid,
+       mac_tx_tfirst            => tx_axis_mac_tfirst,
+       mac_tx_tlast             => tx_axis_mac_tlast,
+       mac_tx_tdata             => tx_axis_mac_tdata,
        -- MAC Receiver
-       mac_rx_tdata 			=> rx_axis_mac_tdata,
-       mac_rx_tvalid		 	=> rx_axis_mac_tvalid,
-       mac_rx_tready			=> rx_axis_mac_tready,
-       mac_rx_tlast 			=> rx_axis_mac_tlast
+       mac_rx_tdata                     => rx_axis_mac_tdata,
+       mac_rx_tvalid                    => rx_axis_mac_tvalid,
+       mac_rx_tready                    => rx_axis_mac_tready,
+       mac_rx_tlast                     => rx_axis_mac_tlast
        );
      ------------------------------------------------------------------------------
      -- Instantiate the MAC layer

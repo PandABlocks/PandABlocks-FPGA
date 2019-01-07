@@ -167,8 +167,8 @@ end process;
 -- 0x280        1 | 0   1   0   0   0 | 0   0   0   0       -- Bits Bus 1                
 -- 0x290        1 | 0   1   0   0   1 | 0   0   0   0       -- Bits Bus 2            
 -- 0x2A0        1 | 0   1   0   1   0 | 0   0   0   0       -- Bits Bus 3    
--- 0x11    		0 \ 0   0   0   0   1 | 0   0   0   1       --  1 Mode 1 (Difference)
--- 0x12			0 \ 0   0   0   0   1 \ 0   0   1   0       --  1 MOde 2 (Sum Lo) 
+-- 0x11                 0 \ 0   0   0   0   1 | 0   0   0   1       --  1 Mode 1 (Difference)
+-- 0x12                 0 \ 0   0   0   0   1 \ 0   0   1   0       --  1 MOde 2 (Sum Lo) 
 
 --            -----------------------------------------     ----------------- 
 --            | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |     | 3 | 2 | 1 | 0 |
@@ -200,46 +200,46 @@ end process;
 
 
 -- Modes0,1,2,3,4 and 5 * 32 =  192
--- TimeStamp Start				  2
--- TimeStamp End				  2
--- TimeStamp Capture			  2
--- Sample Count					  1
--- Bit Bus 0					  1
--- Bit Bus 1					  1
--- Bit Bus 2					  1
--- Bit Bus 3					  1	
--- Total						203							  
+-- TimeStamp Start                                2
+-- TimeStamp End                                  2
+-- TimeStamp Capture                      2
+-- Sample Count                                   1
+-- Bit Bus 0                                      1
+-- Bit Bus 1                                      1
+-- Bit Bus 2                                      1
+-- Bit Bus 3                                      1     
+-- Total                                                203                                                       
 ps_mode_bus: process(clk_i)
 begin
     if rising_edge(clk_i) then            
         -- Position Bus
         if mask_doutb(9) = '0' then 
-			-- 32 difference mode groups loop through all of them to see which one is active
-			lp: for i in 31 downto 0 loop
-				if (to_integer(unsigned(mask_doutb(8 downto 4)))) = i then
-					-- 6 modes loop through all of them to see which one is active						
-					lp_mode: for j in 5 downto 0 loop
-						if (to_integer(unsigned(mask_doutb(3 downto 0)))) = j then
-							pcap_dat_o <= mode_ts_bits_i.mode(i)(j);
-						end if;
-					end loop lp_mode;
-				end if;
-			end loop lp;
+                        -- 32 difference mode groups loop through all of them to see which one is active
+                        lp: for i in 31 downto 0 loop
+                                if (to_integer(unsigned(mask_doutb(8 downto 4)))) = i then
+                                        -- 6 modes loop through all of them to see which one is active                                          
+                                        lp_mode: for j in 5 downto 0 loop
+                                                if (to_integer(unsigned(mask_doutb(3 downto 0)))) = j then
+                                                        pcap_dat_o <= mode_ts_bits_i.mode(i)(j);
+                                                end if;
+                                        end loop lp_mode;
+                                end if;
+                        end loop lp;
         -- Extension Bus Selected 
         elsif mask_doutb(9) = '1' then
             -- Ext Bus (BITS0, BITS1, BITS2 and BITS3)
-			-- Bit Bus 0
+                        -- Bit Bus 0
             if mask_doutb(7 downto 4) = c_bits0 then    
                 pcap_dat_o <= mode_ts_bits_i.bits(0);
-			-- Bit Bus 1            
-			elsif mask_doutb(7 downto 4) = c_bits1 then
-				pcap_dat_o <= mode_ts_bits_i.bits(1);
-			-- Bit Bus 2
+                        -- Bit Bus 1            
+                        elsif mask_doutb(7 downto 4) = c_bits1 then
+                                pcap_dat_o <= mode_ts_bits_i.bits(1);
+                        -- Bit Bus 2
             elsif mask_doutb(7 downto 4) = c_bits2 then
-				pcap_dat_o <= mode_ts_bits_i.bits(2);
-			-- Bit Bus 3	
+                                pcap_dat_o <= mode_ts_bits_i.bits(2);
+                        -- Bit Bus 3    
             elsif mask_doutb(7 downto 4) = c_bits3 then        
-				pcap_dat_o <= mode_ts_bits_i.bits(3);
+                                pcap_dat_o <= mode_ts_bits_i.bits(3);
             -- TS Start x2, TS End x2, TS Capture x2 and Samples    
             else
                 lp_ext_bus: for i in 6 downto 0 loop
