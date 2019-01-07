@@ -22,11 +22,11 @@ port (
     out_o               : out std_logic;
     -- 0 = Value of inp, 1 = Pulse on rising edge of inp
     -- 2 = Pulse on falling edge of inp, 3 = Pulse on either edge
-    A                   : in  std_logic_vector(1 downto 0);
-    B                   : in  std_logic_vector(1 downto 0);
-    C                   : in  std_logic_vector(1 downto 0);
-    D                   : in  std_logic_vector(1 downto 0);
-    E                   : in  std_logic_vector(1 downto 0);
+    TYPEA                   : in  std_logic_vector(1 downto 0);
+    TYPEB                   : in  std_logic_vector(1 downto 0);
+    TYPEC                   : in  std_logic_vector(1 downto 0);
+    TYPED                   : in  std_logic_vector(1 downto 0);
+    TYPEE                   : in  std_logic_vector(1 downto 0);
     -- Block Parameters
     FUNC                : in  std_logic_vector(31 downto 0)
 );
@@ -83,11 +83,11 @@ end process ps_rising_falling;
 
 
 -- Get A, B, C, D, E into an array
-ABCDE(4) <= A;
-ABCDE(3) <= B;
-ABCDE(2) <= C;
-ABCDE(1) <= D;
-ABCDE(0) <= E;
+ABCDE(4) <= TYPEA;
+ABCDE(3) <= TYPEB;
+ABCDE(2) <= TYPEC;
+ABCDE(1) <= TYPED;
+ABCDE(0) <= TYPEE;
 
 
 -- Assembe index to function

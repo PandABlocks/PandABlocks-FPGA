@@ -25,10 +25,10 @@ port (
     inpd_i              : in  std_logic_vector(31 downto 0);
     out_o               : out std_logic_vector(31 downto 0);
     -- Block Parameters and Status
-    A                   : in  std_logic_vector(0 downto 0);
-    B                   : in  std_logic_vector(0 downto 0);
-    C                   : in  std_logic_vector(0 downto 0);
-    D                   : in  std_logic_vector(0 downto 0);
+    TYPEA                   : in  std_logic_vector(0 downto 0);
+    TYPEB                   : in  std_logic_vector(0 downto 0);
+    TYPEC                   : in  std_logic_vector(0 downto 0);
+    TYPED                   : in  std_logic_vector(0 downto 0);
     FUNC                : in  std_logic_vector(1 downto 0)
 );
 end calc;
@@ -71,11 +71,11 @@ end process;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        acc_ab <= posn_data(inpa_i, A(0), acc_abcd'length) +
-                    posn_data(inpb_i, B(0), acc_abcd'length);
+        acc_ab <= posn_data(inpa_i, TYPEA(0), acc_abcd'length) +
+                    posn_data(inpb_i, TYPEB(0), acc_abcd'length);
 
-        acc_cd <= posn_data(inpc_i, C(0), acc_abcd'length) +
-                    posn_data(inpd_i, D(0), acc_abcd'length);
+        acc_cd <= posn_data(inpc_i, TYPEC(0), acc_abcd'length) +
+                    posn_data(inpd_i, TYPED(0), acc_abcd'length);
 
 --        acc_abcd <= acc_ab + acc_cd;
     end if;
