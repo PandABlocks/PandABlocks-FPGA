@@ -51,9 +51,9 @@ begin
         -- Select bit on the system bus
         bit_in(0) <= SBIT(sysbus_i, BITMUX_SEL(SBUSBW-1 downto 0));
     else
-        bit_in(0) <= BITMUX_SEL(0); 
+        bit_in(0) <= BITMUX_SEL(0);
     end if;
-end process;             
+end process;
 
 -- Feed selected bit through the delay line
 delay_line_inst : entity work.delay_line

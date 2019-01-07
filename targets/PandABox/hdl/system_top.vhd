@@ -54,7 +54,7 @@ port (
     -- External Clock
 --    sma_pll_locked_i    : in  std_logic;
 --    ext_clock_o         : out std_logic_vector(1 downto 0)
-        
+
 );
 end system_top;
 
@@ -134,7 +134,7 @@ port map (
 );
 
 ---------------------------------------------------------------------------
--- External Clock registers 
+-- External Clock registers
 ---------------------------------------------------------------------------
 --VEC_PLL_LOCKED(0) <= sma_pll_locked_i;
 --ext_clock_o <= VEC_EXT_CLOCK(1 downto 0);

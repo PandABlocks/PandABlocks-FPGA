@@ -19,7 +19,7 @@ reg              DISARM;
 reg              START_WRITE;
 reg [31:0]       WRITE;
 reg              WRITE_wstb;
-reg [31:0]       BIT[127:0]; 
+reg [31:0]       BIT[127:0];
 reg [31:0]       POS[31:0];
 wire [32*12-1:0] extbus_i = 0;
 wire [31:0]      pcap_dat_o;
@@ -41,7 +41,7 @@ reg         {{ field.name }};
 {% for field in block.filter_fields("param enum")%}
 reg  [{{field.enumlength}}:0]  {{ field.name }};
 {% endfor %}
-{# param has to be last in series of or'd filter fields otherwise it will 
+{# param has to be last in series of or'd filter fields otherwise it will
 include field types which start with param, param enum for example #}
 {% for field in block.filter_fields(
     "pos_mux|param lut|param time|param int|write int|param") %}
@@ -79,7 +79,7 @@ reg         {{ field.name }}_err;   //Error signal
 {% for field in block.filter_fields("read enum") %}
 reg   [{{field.enumlength}}:0] {{ field.name }};       //Output from ini file
 wire  [{{field.enumlength}}:0] {{ field.name }}_uut;   //Output from UUT
-reg         {{ field.name }}_err;   //Error signal      
+reg         {{ field.name }}_err;   //Error signal
 
 {% endfor %}
 // Write Strobes
@@ -201,7 +201,7 @@ begin
 {% for field in block.fields%}
     {% if field in block.filter_fields("bit_out") or field in
             block.filter_fields("read") or field in
-            block.filter_fields("pos_out") or field in 
+            block.filter_fields("pos_out") or field in
             block.filter_fields("read enum") or field in
             block.filter_fields("read uint 1023") %}
         if ({{ field.name }} != {{field.name}}_uut || ({{ field.name
@@ -215,7 +215,7 @@ begin
 {% endfor %}
 {% if block.entity == "pcap" %}
         if (DATA_wstb != pcap_dat_valid_o || (DATA_wstb > 0 && pcap_dat_valid_o === 1'bx)) begin
-            $display("DATA_valid error detected at timestamp %d\n", timestamp); 
+            $display("DATA_valid error detected at timestamp %d\n", timestamp);
             data_valid_err <= 1;
             test_result <= 1;
         end
@@ -231,7 +231,7 @@ begin
 end
 
 {% if block.type in "dma" %}
-// PGEN_1000.txt 
+// PGEN_1000.txt
 // data_mem
 parameter STATE_IDLE = 0;
 parameter STATE_TABLE_ADDR = 1;
@@ -248,23 +248,23 @@ reg [31:0]  data_mem [31:0];
 
 initial begin
     cnt = 0;
-    
+
     @(posedge clk_i);
-    
+
     // Open "PGEN_1000" file
     pfid = $fopen("PGEN_1000.txt", "r"); // VAL
     // Read and ignore description field
     pr = $fscanf(pfid, "%s\n", preg_in);
-    
+
     while (!$feof(pfid)) begin
-        pr = $fscanf(pfid, "%d\n", preg_in); 
+        pr = $fscanf(pfid, "%d\n", preg_in);
         data_mem[cnt] <= preg_in;
         cnt <= cnt +1;
-    
+
         @(posedge clk_i);
-        
+
     end
-end        
+end
 
 
 
@@ -286,11 +286,11 @@ always @(posedge clk_i) begin
 
         STATE_IDLE:
         begin
-            // Wait until the TABLE_ADDRESS_WSTB is active 
+            // Wait until the TABLE_ADDRESS_WSTB is active
             if (TABLE_ADDRESS_wstb == 1) begin
                 STATE <= STATE_TABLE_ADDR;
             end
-        end        
+        end
 
         STATE_TABLE_ADDR:
         begin
@@ -298,7 +298,7 @@ always @(posedge clk_i) begin
             dma_done_i <= 1;
             TABLE_ADDRESS <= 32'h00000000;
             dma_valid_i <= 1;
-            // This is the last read out of the memory increment the loop counter 
+            // This is the last read out of the memory increment the loop counter
             if (mem_cnt == cnt-1) begin
                 mem_loop <= mem_loop +1;
                 mem_cnt <= 0;
@@ -306,13 +306,13 @@ always @(posedge clk_i) begin
                 // The mem_loop equals the number of CYCLES to be done
                 if (mem_loop == CYCLES-1) begin
                    STATE <= STATE_FINISHED;
-                end    
-            // Read the values out of the memory    
+                end
+            // Read the values out of the memory
             end else begin
                 mem_cnt <= mem_cnt +1;
                 dma_data_i <= data_mem[mem_cnt];
-            end    
-         end        
+            end
+         end
 
         STATE_FINISHED:
         begin
@@ -323,13 +323,13 @@ always @(posedge clk_i) begin
             mem_loop <= 0;
             mem_cnt  <= 0;
             STATE <= STATE_IDLE;
-        end      
+        end
 
         default:
             STATE <= STATE_IDLE;
 
     endcase
-end 
+end
 
 {% endif %}
 
@@ -344,7 +344,7 @@ begin
 end
 
 {% for field in block.fields %}
-    {% if field.type == "time" %}    
+    {% if field.type == "time" %}
 assign {{field.name}} = { {{field.name}}_H, {{field.name}}_L};
 assign {{field.name}}_wstb = {{field.name}}_H_wstb || {{field.name}}_L_wstb;
     {% endif %}
@@ -423,11 +423,11 @@ pcap_core_wrapper uut (
 {% endif %}
 {% if block.entity == "pcap" %}
 genvar  j, k;
-for (k=0; k<128; k=k+1) assign bit_bus[k] = BIT[k][0]; 
+for (k=0; k<128; k=k+1) assign bit_bus[k] = BIT[k][0];
 for (j=0; j<32; j=j+1) assign pos_bus[j*32+31 : 32*j] = POS[j];
 integer count = 0;
 always @ (posedge clk_i)
-begin 
+begin
     if (pcap_done_o == 1) begin
         reset <= 1;
     end else if (clk_i == 1 && count >3 ) begin

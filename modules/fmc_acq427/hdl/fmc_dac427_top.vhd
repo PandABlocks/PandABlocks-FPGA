@@ -167,7 +167,7 @@ port map (
     reset_i             => reset_i,
     bit_bus_i            => bitbus_i,
     pos_bus_i            => posbus_i,
-        
+
     ch01_dac_data_from_bus     => CH01_DAC_DATA,
     ch02_dac_data_from_bus     => CH02_DAC_DATA,
     ch03_dac_data_from_bus     => CH03_DAC_DATA,
@@ -195,8 +195,8 @@ port map (
     DAC_FIFO_ENABLE     => DAC_FIFO_ENABLE,
     DAC_RESET           => DAC_RESET,
     DAC_ENABLE          => DAC_ENABLE
-);    
-            
+);
+
 
 FMC_MODULE_ENABLE_n <= not MODULE_ENABLE(0);
 

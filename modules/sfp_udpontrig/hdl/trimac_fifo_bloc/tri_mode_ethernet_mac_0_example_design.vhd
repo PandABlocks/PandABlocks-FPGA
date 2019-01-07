@@ -46,7 +46,7 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
+-- PART OF THIS FILE AT ALL TIMES.
 -- -----------------------------------------------------------------------------
 -- Description:  This is the Verilog example design for the Tri-Mode
 --               Ethernet MAC core. It is intended that this example design
@@ -372,9 +372,9 @@ architecture wrapper of tri_mode_ethernet_mac_0_example_design is
      dcm_locked                 : in std_logic;
 
      -- synchronous reset outputs
-  
+
      glbl_rst_intn              : out std_logic;
-   
+
      gtx_resetn                 : out std_logic := '0';
      vector_resetn              : out std_logic := '0';
      phy_resetn                 : out std_logic;
@@ -505,7 +505,7 @@ begin
 
    -- Pass the GTX clock to the Test Bench
    gtx_clk_bufg_out <= gtx_clk_bufg;
-   
+
 
    -- generate the user side clocks for the axi fifos
    tx_fifo_clock <= gtx_clk_bufg;
@@ -531,9 +531,9 @@ begin
       dcm_locked       => dcm_locked,
 
       -- synchronous reset outputs
-  
+
       glbl_rst_intn    => glbl_rst_intn,
-   
+
       gtx_resetn       => gtx_resetn,
       vector_resetn    => vector_resetn,
       phy_resetn       => phy_resetn,
@@ -686,7 +686,7 @@ begin
    trimac_fifo_block : tri_mode_ethernet_mac_0_fifo_block
     port map (
        gtx_clk                      => gtx_clk_bufg,
-       
+
        -- asynchronous reset
         glbl_rstn                   => glbl_rst_intn,
         rx_axi_rstn                 => '1',

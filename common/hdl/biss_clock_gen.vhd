@@ -105,7 +105,7 @@ begin
 
                     -- Keep track of number of BITS received
                     if (serial_clk_2x = '1' and serial_clk = '0') then
-                        if (enable_cnt_i = '1') then 
+                        if (enable_cnt_i = '1') then
                             clock_counter <= clock_counter + 1;
                         end if;
                         if (clock_counter = to_integer(unsigned(N)))then

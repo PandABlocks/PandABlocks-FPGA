@@ -295,7 +295,7 @@ if rising_edge(clk_i) then
             -- (AXI_BURST_LEN beats).
             when ACTV =>
                 dma_irq <= '0';
-                -- An unrecoverable error occured, no need to continue 
+                -- An unrecoverable error occured, no need to continue
                 -- finishing off the buffer
                 if (pcap_completed = '1' and pcap_error = '1') then
                     last_tlp <= '1';

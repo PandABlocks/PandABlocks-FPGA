@@ -30,7 +30,7 @@ port (
     sysbus_i            : in  std_logic_vector(SBUSW-1 downto 0);
     sfp_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
     sfp_data_o          : out std32_array(15 downto 0) := (others=>(others=>'0'));
-    
+
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -49,7 +49,7 @@ end sfp_udpontrig_top;
 
 architecture rtl of sfp_udpontrig_top is
 
-component SFP_UDP_Complete 
+component SFP_UDP_Complete
     generic (
     DEBUG               : string  := "FALSE";
     CLOCK_FREQ                  : integer := 125000000;  -- freq of data_in_clk -- needed to timout cntr
@@ -66,7 +66,7 @@ component SFP_UDP_Complete
     trig_i                     : in std_logic;
     SFP_START_COUNT            : in std_logic;
     SFP_STOP_COUNT             : in std_logic;
-    -- Block register readouts 
+    -- Block register readouts
     udp_txi_trigger_rise_count : out std_logic_vector(31 downto 0);
     count_udp_tx_RESULT_ERR    : out unsigned(31 downto 0);
     SFP_STATUS_COUNT           : out std_logic_vector(31 downto 0);
@@ -113,7 +113,7 @@ signal our_ip_address_byte1  : std_logic_vector(31 downto 0);
 signal our_ip_address_byte2  : std_logic_vector(31 downto 0);
 signal our_ip_address_byte3  : std_logic_vector(31 downto 0);
 signal our_ip_address_byte4  : std_logic_vector(31 downto 0);
-signal our_ip_address        : std_logic_vector(31 downto 0); 
+signal our_ip_address        : std_logic_vector(31 downto 0);
 
 signal SOFT_RESET        : std_logic;
 signal SOFT_RESET_prev   : std_logic;
@@ -139,7 +139,7 @@ dest_udp_port<=dest_udp_port32(15 downto 0);
 
 
 
-SFP_UDP_Complete_i : SFP_UDP_Complete 
+SFP_UDP_Complete_i : SFP_UDP_Complete
     generic map (
     DEBUG           => DEBUG,
     CLOCK_FREQ          => 125000000,   -- freq of data_in_clk -- needed to timout cntr
@@ -155,10 +155,10 @@ SFP_UDP_Complete_i : SFP_UDP_Complete
     -- Block inpout
     trig_i              => trig,--Rising edge to send UDP user-defined frame
     SFP_START_COUNT     => SFP_START_COUNT,
-    SFP_STOP_COUNT      => SFP_STOP_COUNT, 
-    -- Block register readouts 
+    SFP_STOP_COUNT      => SFP_STOP_COUNT,
+    -- Block register readouts
     udp_txi_trigger_rise_count=> udp_txi_trigger_rise_count,
-    count_udp_tx_RESULT_ERR   => count_udp_tx_RESULT_ERR_i, 
+    count_udp_tx_RESULT_ERR   => count_udp_tx_RESULT_ERR_i,
     SFP_STATUS_COUNT          => SFP_STATUS_COUNT,
     -- Block Parameters
     OUR_MAC_ADDRESS =>SFP_interface.MAC_ADDR,
@@ -171,7 +171,7 @@ SFP_UDP_Complete_i : SFP_UDP_Complete
     RXN_IN         => SFP_interface.RXN_IN,
     RXP_IN         => SFP_interface.RXP_IN,
     TXN_OUT        => SFP_interface.TXN_OUT,
-    TXP_OUT        => SFP_interface.TXP_OUT   
+    TXP_OUT        => SFP_interface.TXP_OUT
     );
 
 ---------------------------------------------------------------------------
@@ -190,12 +190,12 @@ if (falling_edge(clk_i)) then
       SOFT_RESET_holded<='1';
    else
      SOFT_RESET_prev<=SOFT_RESET;
-     if soft_reset_cpt=to_unsigned(0,soft_reset_cpt'length) then 
+     if soft_reset_cpt=to_unsigned(0,soft_reset_cpt'length) then
         SOFT_RESET_holded<='0';
         if SOFT_RESET_rise='1' then
            soft_reset_cpt<=SOFT_RESET_HOLDED_CLK_NUMBER;
         end if;
-     else 
+     else
         SOFT_RESET_holded<='1';
         soft_reset_cpt<=soft_reset_cpt-1;
      end if;
@@ -225,14 +225,14 @@ port map (
     SFP_STOP_COUNT             => open,
     SFP_START_COUNT_WSTB       => SFP_START_COUNT,
     SFP_STOP_COUNT_WSTB        => SFP_STOP_COUNT,
-    -- Block register readouts 
+    -- Block register readouts
     sfp_trig_rise_count        => udp_txi_trigger_rise_count,
-    SFP_COUNT_UDPTX_ERR        => std_logic_vector(count_udp_tx_RESULT_ERR_i), 
+    SFP_COUNT_UDPTX_ERR        => std_logic_vector(count_udp_tx_RESULT_ERR_i),
     sfp_status_count           => SFP_STATUS_COUNT,
-    -- Block Parameters  
+    -- Block Parameters
     SFP_LOS                    =>  SFP_LOS_VEC,
     SFP_MAC_LO                 => MAC_LO,
-    SFP_MAC_HI                 => MAC_HI,      
+    SFP_MAC_HI                 => MAC_HI,
     SFP_DEST_UDP_PORT          => dest_udp_port32,
     SFP_OUR_UDP_PORT           => our_udp_port32,
     SFP_DEST_IP_AD_BYTE1       => dest_ip_address_byte1,

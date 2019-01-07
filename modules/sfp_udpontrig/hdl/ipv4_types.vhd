@@ -28,7 +28,7 @@ package ipv4_types is
                 data_length                     : STD_LOGIC_VECTOR (15 downto 0);               -- user data size, bytes
                 dst_ip_addr             : STD_LOGIC_VECTOR (31 downto 0);
         end record;
-        
+
         type ipv4_tx_type is record
                 hdr                             : ipv4_tx_header_type;                                          -- header to tx
                 data                            : axi_out_type;                                                         -- tx axi bus
@@ -59,7 +59,7 @@ package ipv4_types is
                 hdr                             : ipv4_rx_header_type;                                          -- header received
                 data                            : axi_in_type;                                                                  -- rx axi bus
         end record;
-        
+
         type ip_control_type is record
                 arp_controls    : arp_control_type;
         end record;
@@ -87,8 +87,8 @@ package ipv4_types is
                 hdr                             : udp_tx_header_type;                                           -- header received
                 data                            : axi_out_type;                                                         -- tx axi bus
         end record;
-        
-        
+
+
         ------------
         -- UDP RX --
         ------------
@@ -106,15 +106,15 @@ package ipv4_types is
                 hdr                             : udp_rx_header_type;                                           -- header received
                 data                            : axi_in_type;                                                                  -- rx axi bus
         end record;
-        
+
         type udp_addr_type is record
                 ip_addr                         : STD_LOGIC_VECTOR (31 downto 0);
                 port_num                        : STD_LOGIC_VECTOR (15 downto 0);
         end record;
-        
+
         type udp_control_type is record
                 ip_controls     : ip_control_type;
         end record;
 
-        
+
 end ipv4_types;

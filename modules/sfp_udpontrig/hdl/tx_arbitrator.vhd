@@ -1,23 +1,23 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    08:03:30 06/04/2011 
--- Design Name: 
--- Module Name:    tx_arbitrator - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
+-- Company:
+-- Engineer:
+--
+-- Create Date:    08:03:30 06/04/2011
+-- Design Name:
+-- Module Name:    tx_arbitrator - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
 -- Description:         arbitrate between two sources that want to transmit onto a bus
 --                                              handles arbitration and multiplexing
 --
--- Dependencies: 
+-- Dependencies:
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01 - File Created
 -- Revision 0.02 - Made sticky on port M1 to optimise access on this port and allow immediate grant
 -- Revision 0.03 - Added first
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library IEEE;
@@ -28,7 +28,7 @@ entity tx_arbitrator is
     port (
                 clk                             : in std_logic;
                 reset                           : in std_logic;
-                
+
                 req_1                           : in  std_logic;
                 grant_1                 : out std_logic;
       data_1         : in  std_logic_vector(7 downto 0);        -- data byte to tx
@@ -42,7 +42,7 @@ entity tx_arbitrator is
       valid_2        : in  std_logic;                                                   -- tdata is valid
       first_2        : in  std_logic;                                                   -- indicates first byte of frame
       last_2         : in  std_logic;                                                   -- indicates last byte of frame
-                
+
       data              : out  std_logic_vector(7 downto 0);    -- data byte to tx
       valid             : out  std_logic;                                                       -- tdata is valid
       first             : out  std_logic;                                                       -- indicates first byte of frame
@@ -55,7 +55,7 @@ architecture Behavioral of tx_arbitrator is
         type grant_type is (M1,M2);
 
         signal grant :  grant_type;
-        
+
 begin
         combinatorial : process (
                 grant,
@@ -72,7 +72,7 @@ begin
                                 grant_1 <= '0';
                                 grant_2 <= '1';
                 end case;
-                
+
                 -- multiplexer
                 if grant = M1 then
                         data <= data_1;
@@ -86,7 +86,7 @@ begin
                         last <= last_2;
                 end if;
         end process;
-        
+
         sequential : process (clk, reset, req_1, req_2, grant)
         begin
                 if rising_edge(clk) then

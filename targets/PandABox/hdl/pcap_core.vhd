@@ -55,8 +55,8 @@ architecture rtl of pcap_core is
 
 
 constant c_cap_to_close : std_logic_vector(1 downto 0) := "01";
-constant c_dma_full             : std_logic_vector(1 downto 0) := "10"; 
-constant c_health_ok    : std_logic_vector(1 downto 0) := "00"; 
+constant c_dma_full             : std_logic_vector(1 downto 0) := "10";
+constant c_health_ok    : std_logic_vector(1 downto 0) := "00";
 
 signal gate             : std_logic;
 signal pcap_reset       : std_logic;
@@ -118,11 +118,11 @@ trig_en <= trig_i and enable_i;
 pcap_frame : entity work.pcap_frame
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,    
+    reset_i             => reset_i,
         -- Register control
-    SHIft_SUM           => SHIFT_SUM,    
+    SHIft_SUM           => SHIFT_SUM,
         TRIG_EDGE                   => TRIG_EDGE,
-    -- 
+    --
     posbus_i            => posbus_i,
     sysbus_i            => sysbus_i,
     enable_i            => enable_i,
@@ -142,7 +142,7 @@ port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
     -- Configuration Registers
-    START_WRITE         => START_WRITE,    
+    START_WRITE         => START_WRITE,
     WRITE               => WRITE,
     WRITE_WSTB          => WRITE_WSTB,
     -- Block inputs
@@ -158,7 +158,7 @@ port map (
 -- HEALTH(31 downto 2) <= (others => '0');
 HEALTH(1 downto 0) <= c_cap_to_close when pcap_status(1) = '1' else
                                           c_dma_full when pcap_status(2) = '1' else
-                                          c_health_ok;   
+                                          c_health_ok;
 
 
 end rtl;

@@ -5,20 +5,20 @@
 #  / \===\   \==/
 # /___\===\___\/  AVNET ELECTRONICS MARKETING
 #      \======/         www.picozed.org
-#       \====/    
+#       \====/
 # ----------------------------------------------------------------------------
-# 
-#  Created With Avnet Constraints Generator V0.8.0 
-#     Date: Thursday, April 2, 2015 
-#     Time: 5:29:46 PM 
-# 
+#
+#  Created With Avnet Constraints Generator V0.8.0
+#     Date: Thursday, April 2, 2015
+#     Time: 5:29:46 PM
+#
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
-#  
+#
 #  Please direct any questions to:
 #     Avnet Technical Community Forums
 #     http://picozed.org/forum
-# 
+#
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
 #     This code is provided  "As Is". Avnet, Inc assumes no responsibility for
@@ -27,14 +27,14 @@
 #     disclaims any implied warranties of fitness for a particular purpose.
 #                      Copyright(c) 2015 Avnet, Inc.
 #                              All rights reserved.
-# 
+#
 # ----------------------------------------------------------------------------
-# 
-#  Notes: 
+#
+#  Notes:
 #
 #  Thursday, April 16, 2015
 #
-#     IO standards based upon Bank 34, Bank 35 Vcco supply 
+#     IO standards based upon Bank 34, Bank 35 Vcco supply
 #     of 1.8V requires bank VCCO voltage to be set to 1.8V.  Bank 13 Vcco
 #     supply is set at 3.3V
 #
@@ -43,23 +43,23 @@
 #     and Bank 35 to 1.8V signals can damage the Zynq 7030!
 #
 #     Net names are not allowed to contain hyphen characters '-' since this
-#     is not a legal VHDL87 or Verilog character within an identifier.  
-#     HDL net names are adjusted to contain no hyphen characters '-' but 
-#     rather use underscore '_' characters.  Comment net name with the hyphen 
-#     characters will remain in place since these are intended to match the 
+#     is not a legal VHDL87 or Verilog character within an identifier.
+#     HDL net names are adjusted to contain no hyphen characters '-' but
+#     rather use underscore '_' characters.  Comment net name with the hyphen
+#     characters will remain in place since these are intended to match the
 #     schematic net names in order to better enable schematic search.
 #
-#     The string provided in the comment field provides the Zynq device pin 
+#     The string provided in the comment field provides the Zynq device pin
 #     mapping through the expansion connector to the carrier card net name
 #     according to the following format:
 #
 #     "<Zynq Pin>.<SOM Net>.<Connector Ref>.<Connector Pin>.<Carrier Net>"
-# 
+#
 # ----------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------
 # FMC Expansion Connector - Bank 35
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 
 set_property PACKAGE_PIN B3   [get_ports {CLK0_C2M_N      }];  # "B3.JX1_LVDS_12_N.JX1.49.CLK0_C2M_N"
 set_property PACKAGE_PIN B4   [get_ports {CLK0_C2M_P      }];  # "B4.JX1_LVDS_12_P.JX1.47.CLK0_C2M_P"
@@ -111,10 +111,10 @@ set_property PACKAGE_PIN B8   [get_ports {LA32_N          }];  # "B8.JX1_LVDS_23
 set_property PACKAGE_PIN C8   [get_ports {LA32_P          }];  # "C8.JX1_LVDS_23_P.JX1.82.LA32_P"
 set_property PACKAGE_PIN B6   [get_ports {LA33_N          }];  # "B6.JX1_LVDS_22_N.JX1.83.LA33_N"
 set_property PACKAGE_PIN B7   [get_ports {LA33_P          }];  # "B7.JX1_LVDS_22_P.JX1.81.LA33_P"
-  
+
 # ----------------------------------------------------------------------------
 # FMC Expansion Connector - Bank 34
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN T1   [get_ports {CLK0_M2C_N      }];  # "T1.JX2_LVDS_12_N.JX2.55.CLK0_M2C_N"
 set_property PACKAGE_PIN T2   [get_ports {CLK0_M2C_P      }];  # "T2.JX2_LVDS_12_P.JX2.53.CLK0_M2C_P"
 set_property PACKAGE_PIN R8   [get_ports {FMC_PRSNT       }];  # "R8.JX2_SE_1.JX2.14.FMC_PRSNT"
@@ -143,7 +143,7 @@ set_property PACKAGE_PIN N6   [get_ports {LA27_P          }];  # "N6.JX2_LVDS_21
 
 # ----------------------------------------------------------------------------
 # ADV7511 HDMI Output - Bank 35
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN P7   [get_ports {ADV7511_D20     }];  # "P7.JX2_LVDS_4_P.JX2.29.ADV7511_D20"
 set_property PACKAGE_PIN R7   [get_ports {ADV7511_D21     }];  # "R7.JX2_LVDS_4_N.JX2.31.ADV7511_D21"
 set_property PACKAGE_PIN N4   [get_ports {ADV7511_D22     }];  # "N4.JX2_LVDS_6_P.JX2.35.ADV7511_D22"
@@ -173,7 +173,7 @@ set_property PACKAGE_PIN P8   [get_ports {HDMI_VSYNC      }];  # "P8.JX2_LVDS_23
 
 # ----------------------------------------------------------------------------
 # Ethernet - Bank 13
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 
 set_property PACKAGE_PIN Y14  [get_ports {ETH_MDC         }];  # "Y14.BANK13_LVDS_1_P.JX1.88.ETH_MDC"
 set_property PACKAGE_PIN Y15  [get_ports {ETH_MDIO        }];  # "Y15.BANK13_LVDS_1_N.JX1.90.ETH_MDIO"
@@ -192,7 +192,7 @@ set_property PACKAGE_PIN AA20 [get_ports {ETH_RXD3        }];  # "AA20.BANK13_LV
 
 # ----------------------------------------------------------------------------
 # SPF / PMOD2 Multiplexer - Bank 13
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 
 set_property PACKAGE_PIN T17  [get_ports {MUX_D0_N        }];  # "T17.BANK13_LVDS_14_N.JX3.94.MUX_D0_N"
 set_property PACKAGE_PIN R17  [get_ports {MUX_D0_P        }];  # "R17.BANK13_LVDS_14_P.JX3.92.MUX_D0_P"
@@ -205,12 +205,12 @@ set_property PACKAGE_PIN V15  [get_ports {MUX_D3_P        }];  # "V15.BANK13_LVD
 
 # ----------------------------------------------------------------------------
 # PCIe Reset - Bank 13
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN V13  [get_ports {PCIE_RST_N      }];  # "V13.BANK13_LVDS_12_P.JX3.86.PCIE_RST_N"
 
 # ----------------------------------------------------------------------------
 # FMC MGTs - Bank 112
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN Y6   [get_ports {FMC_MGT_RX_N    }];  # "Y6.MGTRX3_N.JX3.28.FMC_MGT_RX_N"
 set_property PACKAGE_PIN W6   [get_ports {FMC_MGT_RX_P    }];  # "W6.MGTRX3_P.JX3.26.FMC_MGT_RX_P"
 set_property PACKAGE_PIN Y2   [get_ports {FMC_MGT_TX_N    }];  # "Y2.MGTTX3_N.JX3.33.FMC_MGT_TX_N"
@@ -219,7 +219,7 @@ set_property PACKAGE_PIN W2   [get_ports {FMC_MGT_TX_P    }];  # "W2.MGTTX3_P.JX
 
 # ----------------------------------------------------------------------------
 # PCIe MGTs - Bank 112
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN AB7  [get_ports {PCIE_RX0_N      }];  # "AB7.MGTRX0_N.JX3.10.PCIE-RX0_N"
 set_property PACKAGE_PIN AA7  [get_ports {PCIE_RX0_P      }];  # "AA7.MGTRX0_P.JX3.8.PCIE-RX0_P"
 set_property PACKAGE_PIN AB3  [get_ports {PCIE_TX0_N      }];  # "AB3.MGTTX0_N.JX3.15.PCIE-TX0_N"
@@ -227,7 +227,7 @@ set_property PACKAGE_PIN AA3  [get_ports {PCIE_TX0_P      }];  # "AA3.MGTTX0_P.J
 
 # ----------------------------------------------------------------------------
 # SMA MGTs - Bank 112
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN Y8   [get_ports {MGTRX1_N        }];  # "Y8.MGTRX1_N.JX3.16.MGTRX1_N"
 set_property PACKAGE_PIN W8   [get_ports {MGTRX1_P        }];  # "W8.MGTRX1_P.JX3.14.MGTRX1_P"
 set_property PACKAGE_PIN Y4   [get_ports {MGTTX1_N        }];  # "Y4.MGTTX1_N.JX3.21.MGTTX1_N"
@@ -235,7 +235,7 @@ set_property PACKAGE_PIN W4   [get_ports {MGTTX1_P        }];  # "W4.MGTTX1_P.JX
 
 # ----------------------------------------------------------------------------
 # SFP MGTs - Bank 112
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN AB9  [get_ports {MGTRX2_N        }];  # "AB9.MGTRX2_N.JX3.22.MGTRX2_N"
 set_property PACKAGE_PIN AA9  [get_ports {MGTRX2_P        }];  # "AA9.MGTRX2_P.JX3.20.MGTRX2_P"
 set_property PACKAGE_PIN AB5  [get_ports {MGTTX2_N        }];  # "AB5.MGTTX2_N.JX3.27.MGTTX2_N"
@@ -252,7 +252,7 @@ set_property PACKAGE_PIN U5   [get_ports {MGTREFCLKC1_P   }];  # "U5.MGTREFCLKC1
 # ----------------------------------------------------------------------------
 # PS MIO - PS Push Button - SD interface - USB-UART RX/TX - PS Ethernet Reset
 # For reference only - these should be assigned automatically
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 #set_property PACKAGE_PIN D11  [get_ports {SD_CD           }];  # "D11.PS_MIO46.JX3.41.SD_CD"
 #set_property PACKAGE_PIN E9   [get_ports {SD_CLK          }];  # "E9.PS_MIO40.JX3.43.SD_CLK"
 #set_property PACKAGE_PIN C15  [get_ports {SD_CMD          }];  # "C15.PS_MIO41.JX3.34.SD_CMD"
@@ -266,19 +266,19 @@ set_property PACKAGE_PIN U5   [get_ports {MGTREFCLKC1_P   }];  # "U5.MGTREFCLKC1
 
 # ----------------------------------------------------------------------------
 # PL User Push Buttons - Bank 13
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN T16  [get_ports {PL_PB1          }];  # "T16.BANK13_SE_0.JX2.100.PL_PB1"
 set_property PACKAGE_PIN V14  [get_ports {PL_PB2          }];  # "V14.BANK13_LVDS_12_N.JX3.88.PL_PB2"
 
 # ----------------------------------------------------------------------------
 # PL User LEDs - Bank 13
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN Y18  [get_ports {PL_LED1         }];  # "Y18.BANK13_LVDS_7_P.JX3.73.PL_LED1"
 set_property PACKAGE_PIN Y19  [get_ports {PL_LED2         }];  # "Y19.BANK13_LVDS_7_N.JX3.75.PL_LED2"
 
 # ----------------------------------------------------------------------------
 # PL PMOD 1 - Bank 13
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN AA17 [get_ports {PMOD1_D0_N      }];  # "AA17.BANK13_LVDS_8_N.JX3.76.PMOD1_D0_N"
 set_property PACKAGE_PIN AA16 [get_ports {PMOD1_D0_P      }];  # "AA16.BANK13_LVDS_8_P.JX3.74.PMOD1_D0_P"
 set_property PACKAGE_PIN AB11 [get_ports {PMOD1_D1_N      }];  # "AB11.BANK13_LVDS_9_N.JX3.81.PMOD1_D1_N"
@@ -292,16 +292,16 @@ set_property PACKAGE_PIN V11  [get_ports {PMOD1_D3_P      }];  # "V11.BANK13_LVD
 # IOSTANDARD Constraints
 #
 # Note that these IOSTANDARD constraints are applied to all IOs currently
-# assigned within an I/O bank.  If these IOSTANDARD constraints are 
-# evaluated prior to other PACKAGE_PIN constraints being applied, then 
-# the IOSTANDARD specified will likely not be applied properly to those 
-# pins.  Therefore, bank wide IOSTANDARD constraints should be placed 
-# within the XDC file in a location that is evaluated AFTER all 
+# assigned within an I/O bank.  If these IOSTANDARD constraints are
+# evaluated prior to other PACKAGE_PIN constraints being applied, then
+# the IOSTANDARD specified will likely not be applied properly to those
+# pins.  Therefore, bank wide IOSTANDARD constraints should be placed
+# within the XDC file in a location that is evaluated AFTER all
 # PACKAGE_PIN constraints within the target bank have been evaluated.
 #
 # Un-comment one or more of the following IOSTANDARD constraints according to
 # the bank pin assignments that are required within a design.
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 #
 #     WARNING!! Bank 34 and Bank 35 on the 7030 device are High Performance
 #     banks and will only accept 1.8V level signals. Failure to limit Bank 34
@@ -318,6 +318,6 @@ set_property IOSTANDARD LVCMOS18 [get_ports -of_objects [get_iobanks 34]];
 # set_property IOSTANDARD LVCMOS25 [get_ports -of_objects [get_iobanks 35]];
 set_property IOSTANDARD LVCMOS18 [get_ports -of_objects [get_iobanks 35]];
 
-# Note that the bank voltage for IO Bank 13 is fixed to 3.3V on the PZCC board. 
+# Note that the bank voltage for IO Bank 13 is fixed to 3.3V on the PZCC board.
 set_property IOSTANDARD LVCMOS33 [get_ports -of_objects [get_iobanks 13]];
 

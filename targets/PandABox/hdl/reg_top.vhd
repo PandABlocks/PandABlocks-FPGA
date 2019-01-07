@@ -105,7 +105,7 @@ begin
             SFP_MAC_ADDR_WSTB(2) <= '0';
             SFP_MAC_ADDR_WSTB(3) <= '0';
         end if;
-        if (NUM_SFP > 2 ) then 
+        if (NUM_SFP > 2 ) then
             SFP_MAC_ADDR_WSTB(4) <= '0';
             SFP_MAC_ADDR_WSTB(5) <= '0';
         end if;
@@ -161,8 +161,8 @@ begin
                 if (write_address = REG_MAC_ADDRESS_BASE_7) then
                     FMC_MAC_ADDR(1) <= write_data_i;
                     FMC_MAC_ADDR_WSTB(1) <= '1';
-                end if; 
-           end if;               
+                end if;
+           end if;
         end if;
     end if;
 end process;

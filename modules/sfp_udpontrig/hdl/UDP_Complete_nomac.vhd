@@ -1,22 +1,22 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    09:38:49 06/13/2011 
--- Design Name: 
--- Module Name:    UDP_Complete_nomac - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+-- Company:
+-- Engineer:
 --
--- Dependencies: 
+-- Create Date:    09:38:49 06/13/2011
+-- Design Name:
+-- Module Name:    UDP_Complete_nomac - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --
--- Revision: 
+-- Dependencies:
+--
+-- Revision:
 -- Revision 0.01 - File Created
 -- Revision 0.02 - separated RX and TX clocks
 -- Revision 0.03 - Added mac_tx_tfirst
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library IEEE;
@@ -111,7 +111,7 @@ architecture structural of UDP_Complete_nomac is
                         -- IP layer RX signals
                         ip_rx_start                             : in std_logic;                                                 -- indicates receipt of ip header
                         ip_rx                                           : in ipv4_rx_type
-                        );                      
+                        );
     END COMPONENT;
 
   ------------------------------------------------------------------------------

@@ -45,7 +45,7 @@ end pcomp;
 
 architecture rtl of pcomp is
 
-constant c_positive     : std_logic_vector(1 downto 0) := "00"; 
+constant c_positive     : std_logic_vector(1 downto 0) := "00";
 constant c_negative     : std_logic_vector(1 downto 0) := "01";
 constant c_either       : std_logic_vector(1 downto 0) := "10";
 
@@ -107,7 +107,7 @@ begin
 -- RELATIVE  - If 1 then START is relative to the positive of INP at enable
 --           - 0 Absolute
 --           - 1 Relative
--- DIR       - Direction to apply all relative offsets to 
+-- DIR       - Direction to apply all relative offsets to
 --           - 0 Positive
 --           - 1 Negative
 --           - 2 Either
@@ -115,15 +115,15 @@ begin
 -- INP       - Positive data from positive-data bus
 -- ACTIVE    - Active output is high while block is in operation
 -- OUT       - Output pulse train
--- HEALTH    - 0 - OK, 1 - Error Position jumped by more than STEP     
+-- HEALTH    - 0 - OK, 1 - Error Position jumped by more than STEP
 -- PRODUCED  - The number of pulses produced
 -- STATE     - The internal statemachine state
 --           - 0 - WAIT_ENABLE
---           - 1 - WAIT_DIR   
+--           - 1 - WAIT_DIR
 --           - 2 - WAIT_PRE_START
 --           - 3 - WAIT_RISING
---           - 4 - WAIT_FALLING 
- 
+--           - 4 - WAIT_FALLING
+
 ---------------------------------------------------------------------------
 -- Register inputs and detect rising/falling edges
 ---------------------------------------------------------------------------
@@ -174,19 +174,19 @@ posn <= signed(inp_i) when (RELATIVE(0) = '0') else posn_relative;
 -- Positive start trigger event (less then)
 exceeded_prestart_pos <= '1' when (dir_pos = '1'
                              and posn < pulse_start - signed(PRE_START)) else '0';
--- Negative start trigger event (greater than)  
-exceeded_prestart_neg <= '1' when (dir_pos = '0' 
+-- Negative start trigger event (greater than)
+exceeded_prestart_neg <= '1' when (dir_pos = '0'
                              and posn > pulse_start + signed(PRE_START)) else '0';
 
 exceeded_prestart <= exceeded_prestart_pos or exceeded_prestart_neg;
 
-  
--- INP date is positive direction 
+
+-- INP date is positive direction
 reached_last_pos <= '1' when (next_crossing >= last_crossing
-                        and posn >= next_crossing) else '0';                              
+                        and posn >= next_crossing) else '0';
 -- INP data is negative direction
 reached_last_neg <= '1' when (next_crossing < last_crossing
-                        and posn <= next_crossing) else '0';                
+                        and posn <= next_crossing) else '0';
 
 reached_last_crossing <= reached_last_pos or reached_last_neg;
 
@@ -197,14 +197,14 @@ too_far_crossing <= last_crossing + pulse_step;
 too_far_pos <= '1' when (last_crossing <= next_crossing
                    and next_crossing <= too_far_crossing
                    and too_far_crossing <= posn) else '0';
-                     
--- INP data is less than or equal to next crossing                     
+
+-- INP data is less than or equal to next crossing
 too_far_neg <= '1' when (last_crossing >= next_crossing
                    and next_crossing >= too_far_crossing
                    and too_far_crossing >= posn) else '0';
 
-jumped_more_than_step <= too_far_pos or too_far_neg;                                                            
-                             
+jumped_more_than_step <= too_far_pos or too_far_neg;
+
 ---------------------------------------------------------------------------
 -- Pulse generator state machine
 -- A window by DELTAP parameter is defined around the start position. The
@@ -216,11 +216,11 @@ state <= c_state1 when pcomp_fsm = WAIT_DIR else
            c_state2 when pcomp_fsm = WAIT_PRE_START else
            c_state3 when pcomp_fsm = WAIT_RISING else
            c_state4 when pcomp_fsm = WAIT_FALLING else
-           c_state0; 
+           c_state0;
 
 
 produced <= std_logic_vector(pulse_counter);
-            
+
 
 guess_dir_thresh <= signed(START) + signed(PRE_START);
 
@@ -235,8 +235,8 @@ begin
             active_o <= '0';
             dir_pos <= '0';
             pcomp_fsm <= WAIT_ENABLE;
-            last_crossing <= (others => '0');            
-            next_crossing <= (others => '0'); 
+            last_crossing <= (others => '0');
+            next_crossing <= (others => '0');
             health <= (others => '0');
             pulse_counter <= (others => '0');
         elsif (enable_fall = '1') then
@@ -244,91 +244,91 @@ begin
             active_o <= '0';
             pcomp_fsm <= WAIT_ENABLE;
         else
-            
+
             case pcomp_fsm is
-            
+
                 -- State 0
-                when WAIT_ENABLE => 
+                when WAIT_ENABLE =>
                     if enable_rise = '1' then
                         active_o <= '1';
                         health <= (others => '0');
                         pulse_counter <= (others => '0');
-                        if DIR = c_either then    
+                        if DIR = c_either then
                             pcomp_fsm <= WAIT_DIR;
                         else
                             if DIR = c_positive then
                                 dir_pos <= '1';
                             else
                                 dir_pos <= '0';
-                            end if;          
+                            end if;
                             pcomp_fsm <= WAIT_PRE_START;
-                        end if;    
+                        end if;
                     end if;
-                        
-                -- State 1 DIR        
-                when WAIT_DIR =>                 
+
+                -- State 1 DIR
+                when WAIT_DIR =>
                     -- Relative DIR calculated (RELATIVE = 1 - Then START is relative to the position of INP when enabled)
-                    if RELATIVE(0) = '1' then  
+                    if RELATIVE(0) = '1' then
                         -- guess_dir_thresh = START + PRE_START
                         if guess_dir_thresh > 0 then
-                            -- abs posn   - latched(posn)  
+                            -- abs posn   - latched(posn)
                             if abs(posn) >= guess_dir_thresh then
-                                if signed(PRE_START) > 0 then    
+                                if signed(PRE_START) > 0 then
                                     if posn > 0 then
                                         dir_pos <= '0';
                                     else
                                         dir_pos <= '1';
-                                    end if;                                            
-                                    pcomp_fsm <= WAIT_PRE_START;                        
+                                    end if;
+                                    pcomp_fsm <= WAIT_PRE_START;
                                 -- Relative DIR calculated no PRE_START
-                                else 
+                                else
                                     if posn > 0 then
-                                        dir_pos <= '1';                                           
+                                        dir_pos <= '1';
                                         last_crossing <= pulse_start_pos;
-                                        next_crossing <= pulse_start_pos + pulse_width_pos;        
-                                    else               
-                                        dir_pos <= '0';                                             
+                                        next_crossing <= pulse_start_pos + pulse_width_pos;
+                                    else
+                                        dir_pos <= '0';
                                         last_crossing <= pulse_start_neg;
                                         next_crossing <= pulse_start_neg + pulse_width_neg;
-                                    end if;                                                                      
+                                    end if;
                                     out_o <= '1';
                                     active_o <= '1';
                                     pulse_counter <= pulse_counter + 1;
                                     pcomp_fsm <= WAIT_FALLING;
-                                end if;     
+                                end if;
                             end if;
-                        -- Can't guess DIR    
+                        -- Can't guess DIR
                         else
                             active_o <= '0';
                             health <= c_err_guess;
                             pcomp_fsm <= WAIT_ENABLE;
-                        end if;    
+                        end if;
                     -- RELATIVE = 0 (DIR calculate)
-                    elsif pulse_start_pos /= posn then        
+                    elsif pulse_start_pos /= posn then
                         if posn > pulse_start_pos then
                             dir_pos <= '0';
                         else
-                            dir_pos <= '1';    
-                        end if;    
+                            dir_pos <= '1';
+                        end if;
                         pcomp_fsm <= WAIT_PRE_START;
-                    end if;    
-                    
-                -- State 2 PRE START    
-                when WAIT_PRE_START => 
+                    end if;
+
+                -- State 2 PRE START
+                when WAIT_PRE_START =>
                     -- < PRE_START
                     if (exceeded_prestart = '1') then
                         if dir_pos = '1' then
                             last_crossing <= pulse_start - 1;
                         else
                             last_crossing <= pulse_start + 1;
-                        end if;                                     
+                        end if;
                         next_crossing <= pulse_start;
-                        -- Jittering at the start  
+                        -- Jittering at the start
                         pcomp_fsm <= WAIT_RISING;
-                    end if;                        
-                    
-                -- State 3 RISING   
-                when WAIT_RISING => 
+                    end if;
+
+                -- State 3 RISING
+                when WAIT_RISING =>
                     -- >= pulse
                     -- Need to know the direction of the data so we don't false trigger
                     if reached_last_crossing = '1' then
@@ -347,33 +347,33 @@ begin
                             pcomp_fsm <= WAIT_FALLING;
                         end if;
                     end if;
-                
-                -- State 4 FALLING   
-                when WAIT_FALLING => 
+
+                -- State 4 FALLING
+                when WAIT_FALLING =>
                     if reached_last_crossing = '1' then
                         out_o <= '0';
                         if (pulse_counter = unsigned(PULSES)) then
-                            -- Finished  
+                            -- Finished
                             active_o <= '0';
                             pcomp_fsm <= WAIT_ENABLE;
-                        elsif jumped_more_than_step = '1' then                                            
-                            -- Jump > WIDTH + STEP 
+                        elsif jumped_more_than_step = '1' then
+                            -- Jump > WIDTH + STEP
                             active_o <= '0';
                             health <= c_err_pjump;
                             pcomp_fsm <= WAIT_ENABLE;
                         else
-                            -- >= pulse + WIDTH                                     
+                            -- >= pulse + WIDTH
                             last_crossing <= next_crossing;
                             next_crossing <= last_crossing + pulse_step;
                             pcomp_fsm <= WAIT_RISING;
                         end if;
-                    end if;    
-                                        
-                -- OTHERS     
+                    end if;
+
+                -- OTHERS
                 when others =>
-                    pcomp_fsm <= WAIT_ENABLE;            
-                
-            end case;  
+                    pcomp_fsm <= WAIT_ENABLE;
+
+            end case;
         end if;
     end if;
 end process;

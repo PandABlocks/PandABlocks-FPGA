@@ -1,12 +1,12 @@
 
 # outenc entity and tb component different also no component called quardin_posn
-# panda_pcap 
+# panda_pcap
 #       1. apis_tb.v can't find where it is used
 #       2. panda_pcap_dsp_tb.v can't find a component called pcap_dsp
-#       3. panda_pcap_arming_tb.v   can't find a textio file arming_in.txt  
+#       3. panda_pcap_arming_tb.v   can't find a textio file arming_in.txt
 # panda_ssi_tb.v can't find the components ssimstr and ssislv
 
-  
+
 # Tests
 # 1.  calc_tb           -- There is a one or two clock difference between vhd and python modules
 #                       -- the testbench that runs here is a vhdl one. The veriolg one does match
@@ -39,7 +39,7 @@
 # 5. panda_status       -- Don't know what this was testing
 
 # Create a vivado project called regression_tests
-create_project regression_tests ../../build/tests/regression_tests -force -part xc7z030sbg485-1 
+create_project regression_tests ../../build/tests/regression_tests -force -part xc7z030sbg485-1
 
 
 set result_from_test 0;
@@ -51,11 +51,11 @@ set test_failed are;
 
 
 # Test array (add test here)
-array set tests { 
+array set tests {
         biss_master_slave_tb 14
         panda_pgen_tb 13
         panda_bits_tb 12
-        panda_counter_tb 11    
+        panda_counter_tb 11
         panda_sequencer_tb 10
         panda_filter_tb 9
         panda_clocks_tb 8
@@ -69,7 +69,7 @@ array set tests {
 }
 
 
-# Load the textio files into Vivado 
+# Load the textio files into Vivado
 source "../../tests/sim/update_textio.tcl"
 
 
@@ -116,7 +116,7 @@ add_files -norecurse {../../modules/filter/vhdl/divider.vhd
 }
 
 
-# Load all simulation source files 
+# Load all simulation source files
 set_property SOURCE_SET sources_1 [get_filesets sim_1]
 add_files -fileset sim_1 -norecurse {../../tests/sim/panda_pulse/bench/panda_pulse_tb.v
 ../../tests/sim/panda_pcomp/bench/panda_pcomp_tb.v
@@ -140,40 +140,40 @@ add_files -fileset sim_1 -norecurse {../../tests/sim/panda_pulse/bench/panda_pul
 
 
 # Loop through all the tests
-foreach test [array names tests] { 
+foreach test [array names tests] {
 
     puts  "###############################################################################################";
     puts  "                                           $test"                                               ;
     puts  "###############################################################################################";
-    
+
     set_property top $test [get_filesets sim_1]
     set_property top_lib xil_defaultlib [get_filesets sim_1]
 
     launch_simulation
 
     run -all
-  
-    # All the testbenchs have a signal called test_result 
+
+    # All the testbenchs have a signal called test_result
     # this is used to indicate when the test fails i.e.
     # test_result = 1 -- test has failed
     # test_result = 0 -- test has passed
     set result_from_test [get_value test_result];
-  
+
     puts "The test result is $test";
-  
-    # Check to see if the test has passed or failed increment 
-    # test_passed or test_failed variables and append result into variable   
+
+    # Check to see if the test has passed or failed increment
+    # test_passed or test_failed variables and append result into variable
     if {$result_from_test == 1} {
          incr test_failed_cnt +1;
          puts "##################################### $test has failed #####################################";
          append test_failed ", " \n "$test_failed_cnt." $test;
-         
+
     } else {
          incr test_passed_cnt +1;
          puts "##################################### $test has passed #####################################";
          append test_passed ", " \n "$test_passed_cnt." $test;
-    }     
-      
+    }
+
     close_sim
 
 }

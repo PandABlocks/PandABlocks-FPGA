@@ -5,15 +5,15 @@
 --  Set a suitable clock divider.
 --    PandA clk_0 is 125 MHz. Max sample rate of ADC is 1 MHz.
 --    Set clock A period to 1e-6 and connect to PCAP block CAPTURE port
---    
+--
 --    Example of clock configuration
---    
+--
 --    Target sample rate of 1 MHz
 --    Internal PandA clock = 125 MHz
 --    Set ADC clock divide to 125, 125 / 125 = 1 MHz
---    
+--
 --  Set FMC Channel Data CAPTURE to "Triggered"
---    
+--
 --  Set configuration bits in the following order
 --    Set MODULE_ENABLE
 --    Set ADC_CLKDIV
@@ -41,11 +41,11 @@ entity fmc_adc_start is
 end fmc_adc_start;
 
 
-architecture rtl of fmc_adc_start is 
+architecture rtl of fmc_adc_start is
 
 constant c_adc_wait_reset : unsigned(3 downto 0) := to_unsigned(10,4);
 
-type t_sm_adc_start is (state_adc_start, state_adc_module_enable, state_adc_clk_select, state_adc_clkdiv, state_adc_fifo_reset_en,  
+type t_sm_adc_start is (state_adc_start, state_adc_module_enable, state_adc_clk_select, state_adc_clkdiv, state_adc_fifo_reset_en,
                         state_adc_fifo_reset_dis,  state_adc_reset_dis, state_adc_reset_en, state_adc_fifo_enable, state_adc_enable);
 
 signal sm_adc_start  : t_sm_adc_start;
@@ -59,9 +59,9 @@ ps_start: process(clk_i)
 begin
     if rising_edge(clk_i) then
         case sm_adc_start is
-        
+
             -- Start by reseting everything
-            when state_adc_start => 
+            when state_adc_start =>
                 wait_cnt <= (others => '0');
                 MODULE_ENABLE   <= (others => '0');
                 ADC_CLK_SELECT  <= (others => '0');
@@ -74,69 +74,69 @@ begin
                 if enable(9) = '1' then
                     sm_adc_start <= state_adc_module_enable;
                 end if;
-  
-            -- Enable the MODULE_ENABLE 
+
+            -- Enable the MODULE_ENABLE
             when state_adc_module_enable =>
                 MODULE_ENABLE <= std_logic_vector(to_unsigned(1,32));
                 sm_adc_start <= state_adc_clk_select;
-            
+
             -- Select the panda clock
-            when state_adc_clk_select => 
+            when state_adc_clk_select =>
                 ADC_CLK_SELECT <= (others => '0');
                 sm_adc_start <= state_adc_clkdiv;
-        
+
             -- Target sample rate of 1 MHz
             -- Internal PandA clock = 125 MHz
             -- Set ADC clock divide to 125, 125 / 125 = 1 MHz
-            when state_adc_clkdiv => 
+            when state_adc_clkdiv =>
                 ADC_CLKDIV <= std_logic_vector(to_unsigned(125,32));
                 sm_adc_start <= state_adc_fifo_reset_en;
-        
+
             -- Enable the ADC_FIFO_RESET
-            when state_adc_fifo_reset_en => 
+            when state_adc_fifo_reset_en =>
                 ADC_FIFO_RESET  <= std_logic_vector(to_unsigned(1,32));
                 wait_cnt <= wait_cnt +1;
                 -- Allow the reset to be high for several clocks
                 if (wait_cnt = c_adc_wait_reset) then
                     sm_adc_start <= state_adc_fifo_reset_dis;
-                end if;    
-        
+                end if;
+
             -- Disable the ADC_FIFO_RESET
             when state_adc_fifo_reset_dis =>
                 wait_cnt <= (others => '0');
                 ADC_FIFO_RESET <= (others => '0');
                 sm_adc_start <= state_adc_reset_en;
-        
-            -- Enable the ADC_RESET 
-            when state_adc_reset_en => 
+
+            -- Enable the ADC_RESET
+            when state_adc_reset_en =>
                 ADC_RESET <= std_logic_vector(to_unsigned(1,32));
                 wait_cnt <= wait_cnt +1;
                 -- Allow the reset to be high for several clocks
                 if (wait_cnt = c_adc_wait_reset) then
                     sm_adc_start <= state_adc_reset_dis;
                 end if;
-                
-            -- Disable the ADC_RESET   
-            when state_adc_reset_dis => 
+
+            -- Disable the ADC_RESET
+            when state_adc_reset_dis =>
                 wait_cnt <= (others => '0');
                 ADC_RESET <= (others => '0');
-                sm_adc_start <= state_adc_enable;    
-        
+                sm_adc_start <= state_adc_enable;
+
             -- Enable the ADC_ENABLE
-            when state_adc_enable => 
+            when state_adc_enable =>
                 ADC_ENABLE <= std_logic_vector(to_unsigned(1,32));
                 sm_adc_start <= state_adc_fifo_enable;
-                        
-            -- Enable the ADC_FIFO_ENABLE            
-            when state_adc_fifo_enable => 
+
+            -- Enable the ADC_FIFO_ENABLE
+            when state_adc_fifo_enable =>
                 ADC_FIFO_ENABLE <= std_logic_vector(to_unsigned(1,32));
-        
-            when others => 
+
+            when others =>
                 sm_adc_start <= state_adc_start;
         end case;
-    end if;        
-end process ps_start;                    
+    end if;
+end process ps_start;
 
 
- 
-end rtl;          
+
+end rtl;

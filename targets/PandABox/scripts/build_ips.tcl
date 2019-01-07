@@ -119,11 +119,11 @@ report_compile_order -constraints
 
 generate_target all [get_files $BUILD_DIR/eth_phy/eth_phy.xci]
 
-report_property [get_ips eth_phy]  
-get_property KNOWN_TARGETS [get_ips eth_phy] 
+report_property [get_ips eth_phy]
+get_property KNOWN_TARGETS [get_ips eth_phy]
 
-#To capture the XDC file names of the IP in a Tcl variable 
-set eth_phy_xdc [get_files -of_objects [get_files $BUILD_DIR/eth_phy/eth_phy.xci] -filter {FILE_TYPE == XDC}] 
+#To capture the XDC file names of the IP in a Tcl variable
+set eth_phy_xdc [get_files -of_objects [get_files $BUILD_DIR/eth_phy/eth_phy.xci] -filter {FILE_TYPE == XDC}]
 #To disable the XDC files
 set_property is_enabled false [get_files $eth_phy_xdc]
 synth_ip [get_ips eth_phy]
@@ -138,7 +138,7 @@ create_ip -name tri_mode_ethernet_mac -vendor xilinx.com -library ip -version 9.
 
 
 #shared logic inside of core
-# CONFIG.Physical_Interface {GMII} \ phy_eth is internal (no IOB or idelay in pad) CONFIG.Physical_Interface {Internal} 
+# CONFIG.Physical_Interface {GMII} \ phy_eth is internal (no IOB or idelay in pad) CONFIG.Physical_Interface {Internal}
 
 set_property -dict [list \
     CONFIG.Physical_Interface {Internal} \

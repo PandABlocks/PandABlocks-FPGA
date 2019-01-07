@@ -148,7 +148,7 @@ port map (
     TRIG_EDGE           => TRIG_EDGE,
     TRIG_EDGE_WSTB      => open,
     SHIFT_SUM           => SHIFT_SUM,
-    SHIFT_SUM_WSTB      => open,    
+    SHIFT_SUM_WSTB      => open,
     HEALTH              => HEALTH,
 
     read_strobe_i       => read_strobe_i(PCAP_CS),
@@ -231,7 +231,7 @@ port map (
 
     enable_i                => enable,
     trig_i                  => trig,
-    gate_i                  => gate,    
+    gate_i                  => gate,
     dma_error_i             => dma_error,
     sysbus_i                => sysbus_i,
     posbus_i                => posbus_dly,

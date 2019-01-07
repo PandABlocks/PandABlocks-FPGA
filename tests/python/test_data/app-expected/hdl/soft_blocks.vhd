@@ -63,7 +63,7 @@ generic map (NUM => lut_NUM)
 port map (
 
     reset_i             => FCLK_RESET0,
-    
+
     read_strobe_i       => read_strobe(lut_CS),
     read_address_i      => read_address,
     read_data_o         => read_data(lut_CS),
@@ -73,11 +73,11 @@ port map (
     write_address_i     => write_address,
     write_data_i        => write_data,
     write_ack_o         => write_ack(lut_CS),
-    
+
     bit_bus_i           => bit_bus_i,
-    
+
     OUT_o               => bit_bus_o(7 downto 0),
-    
+
     clk_i               => FCLK_CLK0
 );
 

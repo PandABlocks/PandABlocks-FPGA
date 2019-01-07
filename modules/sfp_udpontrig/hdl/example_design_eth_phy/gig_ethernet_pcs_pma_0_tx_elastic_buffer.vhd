@@ -46,9 +46,9 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
--- 
--- 
+-- PART OF THIS FILE AT ALL TIMES.
+--
+--
 --------------------------------------------------------------------------------
 -- Description: This is the Transmitter Elastic Buffer for the design
 --              example of the 1G/2.5G Ethernet PCS/PMA or SGMII
@@ -433,7 +433,7 @@ begin
             txd_fifo_reg2      <= txd_fifo_reg1;
             tx_en_fifo_reg2    <= tx_en_fifo_reg1;
             tx_er_fifo_reg2    <= tx_er_fifo_reg1;
-       end if;                              
+       end if;
     end if;
    end process drive_new_gmii;
 
@@ -534,9 +534,9 @@ begin
    -- code, the worst case senario is that the reclocked value is only
    -- in error by -1, since only 1 bit at a time changes between gray
    -- code increment.
-   reclock_rd_addrgray:    
+   reclock_rd_addrgray:
    for j in 3 downto 0 generate
-   
+
       sync_rd_addrgray: gig_ethernet_pcs_pma_0_sync_block_ex
       port map (
          clk       => gmii_tx_clk_wr,
@@ -616,9 +616,9 @@ begin
    -- code, the worst case senario is that the reclocked value is only
    -- in error by -1, since only 1 bit at a time changes between gray
    -- code increment.
-   reclock_wr_addrgray:    
+   reclock_wr_addrgray:
    for k in 3 downto 0 generate
-   
+
       sync_wr_addrgray: gig_ethernet_pcs_pma_0_sync_block_ex
       port map (
          clk       => gmii_tx_clk_rd,

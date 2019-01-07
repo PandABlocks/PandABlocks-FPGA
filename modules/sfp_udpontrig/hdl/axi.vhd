@@ -14,12 +14,12 @@ package axi is
                 data_in_valid           : STD_LOGIC;                                                            -- indicates data_in valid on clock
                 data_in_last            : STD_LOGIC;                                                            -- indicates last data in frame
         end record;
-        
-        
+
+
         type axi_out_type is record
                 data_out_valid          : std_logic;                                                            -- indicates data out is valid
                 data_out_last           : std_logic;                                                            -- with data out valid indicates the last byte of a frame
-                data_out                                : std_logic_vector (7 downto 0);                -- ethernet frame (from dst mac addr through to last byte of frame)      
+                data_out                                : std_logic_vector (7 downto 0);                -- ethernet frame (from dst mac addr through to last byte of frame)
         end record;
 
 end axi;

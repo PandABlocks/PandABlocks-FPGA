@@ -53,7 +53,7 @@ begin
 
   -- Clocking primitive
   --------------------------------------
-  
+
   -- Instantiation of the DCM primitive
   --    * Unused inputs are tied off
   --    * Unused outputs are labeled unused

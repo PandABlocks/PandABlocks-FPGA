@@ -46,11 +46,11 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
--- 
--- 
+-- PART OF THIS FILE AT ALL TIMES.
+--
+--
 --------------------------------------------------------------------------------
--- Description: This module holds the Clocking logic for pcs/pma core. 
+-- Description: This module holds the Clocking logic for pcs/pma core.
 
 
 library unisim;
@@ -70,7 +70,7 @@ entity gig_ethernet_pcs_pma_0_clocking is
       txoutclk                : in  std_logic;                -- txoutclk from GT transceiver.
       rxoutclk                : in  std_logic;                -- rxoutclk from GT transceiver.
       mmcm_reset              : in  std_logic;                -- MMCM Reset
-      gtrefclk_bufg           : out std_logic;                -- gtrefclk routed through a BUFG for driving logic.     
+      gtrefclk_bufg           : out std_logic;                -- gtrefclk routed through a BUFG for driving logic.
       mmcm_locked             : out std_logic;                -- MMCM locked
       userclk                 : out std_logic;                -- for GT PMA reference clock
       userclk2                : out std_logic;                 -- 125MHz clock for core reference clock.
@@ -129,7 +129,7 @@ port map (
    );
 
 
--- The GT transceiver provides a 62.5MHz clock to the FPGA fabrix.  This is 
+-- The GT transceiver provides a 62.5MHz clock to the FPGA fabrix.  This is
 -- routed to an MMCM module where it is used to create phase and frequency
 -- related 62.5MHz and 125MHz clock sources
 mmcm_adv_inst : MMCME2_ADV
@@ -199,7 +199,7 @@ bufg_userclk: BUFG
 port map (
     I     => clkout1,
     O     => userclk_i
-    );    
+    );
 
 
  -- This 125MHz clock is placed onto global clock routing and is then used
@@ -208,7 +208,7 @@ bufg_userclk2: BUFG
 port map (
     I     => clkout0,
     O     => userclk2
-    );    
+    );
 
 
 userclk <= userclk_i;
@@ -216,7 +216,7 @@ userclk <= userclk_i;
 
 -- Place the Rx recovered clock on a Global Clock Buffer (it may be possible
 -- to switch this for a BUFHCE/BUR and BUFMR combination)
-rxrecclkbufg : BUFG 
+rxrecclkbufg : BUFG
 port map (
   I   => rxoutclk,
   O   => rxoutclk_buf
@@ -224,5 +224,5 @@ port map (
 
 rxuserclk2 <= rxoutclk_buf;
 rxuserclk  <= rxoutclk_buf;
-   
+
 end top_level;

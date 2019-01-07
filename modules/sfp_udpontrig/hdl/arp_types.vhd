@@ -1,8 +1,8 @@
 --
 --      Package File Template
 --
---      Purpose: This package defines supplemental types, subtypes, 
---               constants, and functions 
+--      Purpose: This package defines supplemental types, subtypes,
+--               constants, and functions
 --
 --   To use any of the example code shown below, uncomment the lines and modify as necessary
 --
@@ -15,7 +15,7 @@ package arp_types is
 
 
         -- arp lookup types
-                
+
         type arp_req_req_type is
                 record
                                 lookup_req      : std_logic;                                                                    -- set high when wanting mac adr for the requested IP
@@ -38,11 +38,11 @@ package arp_types is
                 record
                                 clear_cache     : std_logic;
                 end record;
-        
+
         -- arp store types
-        
+
         type arp_store_rslt_t is (IDLE,BUSY,SEARCHING,FOUND,NOT_FOUND);
-        
+
         type arp_store_rdrequest_t is
                 record
                         req                             : std_logic;                                                            -- request to lookup
@@ -54,7 +54,7 @@ package arp_types is
                         req                             : std_logic;                                                            -- request to store
                         entry                           : arp_entry_t;                                                          -- ip,mac to store
                 end record;
-        
+
         type arp_store_result_t is
                 record
                         status                  : arp_store_rslt_t;                                             -- status of the request
@@ -64,7 +64,7 @@ package arp_types is
         -- arp network types
 
         type arp_nwk_rslt_t is (IDLE,REQUESTING,RECEIVED,ERROR);
-        
+
         type arp_nwk_request_t is
                 record
                         req                             : std_logic;                                                            -- request to resolve IP addr
@@ -76,6 +76,6 @@ package arp_types is
                         status                  : arp_nwk_rslt_t;                                                       -- status of request
                         entry                           : arp_entry_t;                                                          -- the result
                 end record;
-                
-        
+
+
 end arp_types;

@@ -46,11 +46,11 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
+-- PART OF THIS FILE AT ALL TIMES.
 -- -----------------------------------------------------------------------------
--- Description:  This is a very simple pattern generator which will generate packets 
--- with the supplied dest_addr and src_addr and incrementing data.  The packet size 
--- increments between the min and max size (which can be set to the same value if a 
+-- Description:  This is a very simple pattern generator which will generate packets
+-- with the supplied dest_addr and src_addr and incrementing data.  The packet size
+-- increments between the min and max size (which can be set to the same value if a
 -- specific size is required
 --
 --------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ entity tri_mode_ethernet_mac_0_axi_pat_gen is
       tdata                : out std_logic_vector(7 downto 0);
       tvalid               : out std_logic;
       tlast                : out std_logic;
-      tready               : in  std_logic                   
+      tready               : in  std_logic
    );
 end tri_mode_ethernet_mac_0_axi_pat_gen;
 
@@ -98,7 +98,7 @@ architecture rtl of tri_mode_ethernet_mac_0_axi_pat_gen is
 
    function Sel (Cond : boolean; A,B : integer) return integer is
      begin
-         if Cond then 
+         if Cond then
             return A;
          else
             return B;
@@ -106,7 +106,7 @@ architecture rtl of tri_mode_ethernet_mac_0_axi_pat_gen is
    end function Sel;
 
 
-   -- work out the adjustment required to get the right packet size.               
+   -- work out the adjustment required to get the right packet size.
    constant PKT_ADJUST        : integer := Sel(ENABLE_VLAN,22,18);
 
    -- generate the vlan fields
@@ -116,7 +116,7 @@ architecture rtl of tri_mode_ethernet_mac_0_axi_pat_gen is
    constant HEADER_LENGTH     : integer := Sel(ENABLE_VLAN,15,11);
 
    -- generate the required bandwidth controls based on speed
-   -- we want to use less than 100% bandwidth to avoid loopback overflow 
+   -- we want to use less than 100% bandwidth to avoid loopback overflow
    constant BW_1G             : integer := 230;
    constant BW_100M           : integer := 23;
    constant BW_10M            : integer := 2;
@@ -131,17 +131,17 @@ architecture rtl of tri_mode_ethernet_mac_0_axi_pat_gen is
    signal lut_data            : std_logic_vector(7 downto 0);
    signal tvalid_int          : std_logic;
    signal byte_count_eq_1     : std_logic := '0';
-   
+
    -- rate control signals
    signal basic_rc_counter    : unsigned(7 downto 0);
    signal add_credit          : std_logic;
    signal credit_count        : unsigned(12 downto 0);
 
    signal axi_treset          : std_logic;
-   
+
    constant dummy             : bit_vector(47 downto 0) := (others => '0');
-   
-   
+
+
 
 begin
 
@@ -226,32 +226,32 @@ begin
    begin
       LUT6_inst : LUT6
       generic map (
-         INIT           => dummy & 
+         INIT           => dummy &
                            VLAN_HEADER(I) &
                            VLAN_HEADER(I+8) &
                            VLAN_HEADER(I+16) &
                            VLAN_HEADER(I+24) &
-                           SRC_ADDR(I) & 
-                           SRC_ADDR(I+8) & 
-                           SRC_ADDR(I+16) & 
-                           SRC_ADDR(I+24) & 
-                           SRC_ADDR(I+32) & 
+                           SRC_ADDR(I) &
+                           SRC_ADDR(I+8) &
+                           SRC_ADDR(I+16) &
+                           SRC_ADDR(I+24) &
+                           SRC_ADDR(I+32) &
                            SRC_ADDR(I+40) &
-                           DEST_ADDR(I) & 
-                           DEST_ADDR(I+8) & 
-                           DEST_ADDR(I+16) & 
-                           DEST_ADDR(I+24) & 
-                           DEST_ADDR(I+32) & 
-                           DEST_ADDR(I+40)                            
+                           DEST_ADDR(I) &
+                           DEST_ADDR(I+8) &
+                           DEST_ADDR(I+16) &
+                           DEST_ADDR(I+24) &
+                           DEST_ADDR(I+32) &
+                           DEST_ADDR(I+40)
       )
       port map (
-        O    => lut_data(I), 
+        O    => lut_data(I),
         I0   => header_count(0),
         I1   => header_count(1),
         I2   => header_count(2),
         I3   => header_count(3),
         I4   => '0',
-        I5   => '0' 
+        I5   => '0'
       );
    end generate;
 
@@ -302,16 +302,16 @@ begin
       if axi_tclk'event and axi_tclk = '1' then
          if axi_treset = '1' then
             credit_count         <= (others => '0');
-         else 
+         else
             -- if we are in frame
             if gen_state /= IDLE then
                if add_credit = '0' and credit_count(12 downto 10) /= "110" then  -- stop decrementing at -2048
                   credit_count   <= credit_count - "0000000000001";
-               end if;            
-            else 
+               end if;
+            else
                if add_credit = '1' and credit_count(12 downto 11) /= "01" then   -- stop incrementing at 2048
-                  credit_count <= credit_count + 1;         
-               end if;            
+                  credit_count <= credit_count + 1;
+               end if;
             end if;
          end if;
       end if;
@@ -340,7 +340,7 @@ begin
                next_gen_state <= OVERHEAD;
             end if;
          when OVERHEAD =>
-            if overhead_count = "00001" and tready = '1' then  
+            if overhead_count = "00001" and tready = '1' then
                next_gen_state <= IDLE;
             end if;
       end case;
@@ -351,7 +351,7 @@ begin
       if axi_tclk'event and axi_tclk = '1' then
          if axi_treset = '1' then
             gen_state <= IDLE;
-         else 
+         else
             gen_state <= next_gen_state;
          end if;
       end if;

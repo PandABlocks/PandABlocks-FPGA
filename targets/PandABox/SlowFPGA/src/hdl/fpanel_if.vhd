@@ -133,7 +133,7 @@ process(clk_i) begin
                         shift_fsm <= IDLE;
                     end if;
 
-                    -- Enable shift register output permanently after the 
+                    -- Enable shift register output permanently after the
                     --first write;
                     shift_reg_oe_n_o <= '0';
 

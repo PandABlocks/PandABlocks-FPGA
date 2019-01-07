@@ -45,7 +45,7 @@ def setup(app):
         f.write("""
 .. toctree::
     :maxdepth: 1
-    
+
     %s
 """ % ("\n    ".join(files),))
 

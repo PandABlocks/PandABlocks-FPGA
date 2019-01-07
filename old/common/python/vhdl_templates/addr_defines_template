@@ -9,7 +9,7 @@ package addr_defines is
 constant {{name}}_CS : natural := {{block.base}};
 {%  endfor %}
 
--- Block instantiation 
+-- Block instantiation
 {%  for name, block in blocks.iteritems() %}
 constant {{name}}_NUM : natural := {{block.num}};
 {%  endfor %}

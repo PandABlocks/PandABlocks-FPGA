@@ -42,7 +42,7 @@ port (
         rdma_len            : out std8_array(5 downto 0);
         rdma_data           : in  std_logic_vector(31 downto 0);
         rdma_valid          : in  std_logic_vector(5 downto 0);
-    --   
+    --
     FMC                 : inout FMC_interface;
     SFP1                : inout SFP_interface;
     SFP2                : inout SFP_interface;
@@ -75,7 +75,7 @@ constant FILTER_CS : natural := 24;
 constant SFP_CS : natural := 25;
 constant FMC_CS : natural := 26;
 
--- Block instantiation 
+-- Block instantiation
 
 constant LUT_NUM : natural := 8;
 constant SRGATE_NUM : natural := 4;

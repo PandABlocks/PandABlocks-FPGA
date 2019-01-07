@@ -50,12 +50,12 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
+-- PART OF THIS FILE AT ALL TIMES.
 -- -----------------------------------------------------------------------------
 -- Description: This is a transmitter side FIFO for the design example
 --              of the Tri-Mode Ethernet MAC core. AxiStream interfaces are used.
 --
---              The FIFO is built around an Inferred Dual Port RAM, 
+--              The FIFO is built around an Inferred Dual Port RAM,
 --              giving a total memory capacity of 4096 bytes.
 --
 --              Valid frame data received from the user interface is written
@@ -326,7 +326,7 @@ architecture RTL of tri_mode_ethernet_mac_0_tx_client_fifo is
   attribute ASYNC_REG of wr_rd_addr            : signal is "TRUE";
   attribute ASYNC_REG of wr_col_window_pipe    : signal is "TRUE";
 
-  
+
 
 
   ------------------------------------------------------------------------------
@@ -1380,7 +1380,7 @@ end generate gen_hd_addr;
   -- Data pipelines
   ------------------------------------------------------------------------------
 
-  
+
   -- Register data inputs to BRAM.
   -- No resets to allow for SRL16 target.
   reg_din_p : process(tx_fifo_aclk)

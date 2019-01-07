@@ -46,10 +46,10 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
+-- PART OF THIS FILE AT ALL TIMES.
 -- -----------------------------------------------------------------------------
 -- Description:  This address swap block will accept the first 12 byte of a packet before
--- starting to loop it out.  At this point both the source and destination fields have 
+-- starting to loop it out.  At this point both the source and destination fields have
 -- been completely captured and can therefore be swapped.
 --
 --------------------------------------------------------------------------------
@@ -66,10 +66,10 @@ entity tri_mode_ethernet_mac_0_address_swap is
    port (
     axi_tclk                        : in  std_logic;
     axi_tresetn                     : in  std_logic;
-    
+
     -- address swap enable control
     enable_address_swap             : in  std_logic;
-    
+
     -- data from the RX FIFO
     rx_axis_fifo_tdata              : in  std_logic_vector(7 downto 0);
     rx_axis_fifo_tvalid             : in  std_logic;
@@ -79,28 +79,28 @@ entity tri_mode_ethernet_mac_0_address_swap is
     tx_axis_fifo_tdata              : out std_logic_vector(7 downto 0) := (others => '0');
     tx_axis_fifo_tvalid             : out std_logic;
     tx_axis_fifo_tlast              : out std_logic;
-    tx_axis_fifo_tready             : in std_logic                                
-    
+    tx_axis_fifo_tready             : in std_logic
+
   );
 end tri_mode_ethernet_mac_0_address_swap;
- 
+
 architecture rtl of tri_mode_ethernet_mac_0_address_swap is
- 
+
    -- State machine
-   type rd_state_typ is    (IDLE,      
-                            WAIT_S,      
-                            READ_DEST, 
-                            READ_SRC,  
+   type rd_state_typ is    (IDLE,
+                            WAIT_S,
+                            READ_DEST,
+                            READ_SRC,
                             READ_DEST2,
-                            READ_SRC2, 
-                            READ);      
+                            READ_SRC2,
+                            READ);
 
 
-   type wr_state_typ is    (IDLE_W,      
+   type wr_state_typ is    (IDLE_W,
                             WRITE_SLOT1,
                             WRITE_SLOT2,
                             WRITE);
-                                       
+
    signal next_rd_state             : rd_state_typ;
    signal rd_state                  : rd_state_typ;
    signal next_wr_state             : wr_state_typ;
@@ -128,7 +128,7 @@ architecture rtl of tri_mode_ethernet_mac_0_address_swap is
    signal rx_axis_fifo_tready_int   : std_logic;
 
    signal axi_treset                : std_logic;
-   
+
    signal new_packet_start          : std_logic;
    signal rd_count_6                : std_logic;
    signal rd_count_12               : std_logic;
@@ -148,7 +148,7 @@ begin
       if axi_tclk'event and axi_tclk = '1' then
          if axi_treset = '1' then
             new_packet_start <= '0';
-         elsif wr_state = IDLE_W and packet_waiting = '0' and rx_axis_fifo_tvalid = '1' and 
+         elsif wr_state = IDLE_W and packet_waiting = '0' and rx_axis_fifo_tvalid = '1' and
                (rx_axis_fifo_tvalid_reg = '0' or rx_axis_fifo_tlast_reg = '1') then
             new_packet_start <= '1';
          elsif  wr_state /= IDLE_W then
@@ -171,7 +171,7 @@ begin
    end process reg_axi_p;
 
    -- simple write state machine
-   next_wr_s : process(wr_state, rx_axis_fifo_tvalid,  wr_count, rx_axis_fifo_tlast, 
+   next_wr_s : process(wr_state, rx_axis_fifo_tvalid,  wr_count, rx_axis_fifo_tlast,
                         new_packet_start, rd_state)
    begin
       next_wr_state <= wr_state;
@@ -231,7 +231,7 @@ begin
       if axi_tclk'event and axi_tclk = '1' then
          if axi_treset = '1' then
             wr_count <= (others => '0');
-         else 
+         else
             if wr_state = IDLE_W and next_wr_state = WRITE_SLOT1 then
                wr_count <= X"1";
             elsif wr_state /= IDLE_W and rx_axis_fifo_tvalid = '1' and fifo_full = '0' and wr_count /= x"f" then
@@ -241,25 +241,25 @@ begin
       end if;
    end process wr_count_p;
 
-   -- we have a 64 deep lut - to simplify storing/fetching of data this is split into 8 address slots.  When 
-   -- a new packet starts the first byte of the address is stored in the next available address slot, with the next address being 
-   -- stored in the next slot (i.e after a gap of two locations).  Once the addresses have been stored the data starts 
+   -- we have a 64 deep lut - to simplify storing/fetching of data this is split into 8 address slots.  When
+   -- a new packet starts the first byte of the address is stored in the next available address slot, with the next address being
+   -- stored in the next slot (i.e after a gap of two locations).  Once the addresses have been stored the data starts
    -- at the next slot and then continues until completion.
    wr_slot_p : process (axi_tclk)
    begin
       if axi_tclk'event and axi_tclk = '1' then
          if axi_treset = '1' then
             wr_slot <= (others => '0');
-            wr_addr <= (others => '0'); 
+            wr_addr <= (others => '0');
          elsif wr_state = IDLE_W and next_wr_state = WRITE_SLOT1 then
             wr_slot <= "000";
-            wr_addr <= (others => '0'); 
+            wr_addr <= (others => '0');
          elsif wr_state = WRITE_SLOT1 and next_wr_state = WRITE_SLOT2 then
             wr_slot <= "001";
-            wr_addr <= (others => '0'); 
+            wr_addr <= (others => '0');
          elsif wr_state = WRITE_SLOT2 and next_wr_state = WRITE then
             wr_slot <= "010";
-            wr_addr <= (others => '0'); 
+            wr_addr <= (others => '0');
          elsif rx_axis_fifo_tready_int = '1' and rx_axis_fifo_tvalid = '1' and fifo_full = '0' then
             wr_addr <= wr_addr + "001";
             if wr_addr = "111" then
@@ -295,15 +295,15 @@ begin
    begin
       RAM64X1D_inst : RAM64X1D
       port map (
-         DPO        => dob(I), 
-         SPO        => doa(I), 
+         DPO        => dob(I),
+         SPO        => doa(I),
          A0         => wr_addr(0),
          A1         => wr_addr(1),
          A2         => wr_addr(2),
          A3         => wr_slot(0),
          A4         => wr_slot(1),
          A5         => wr_slot(2),
-         D          => dia(I), 
+         D          => dia(I),
          DPRA0      => rd_addr(0),
          DPRA1      => rd_addr(1),
          DPRA2      => rd_addr(2),
@@ -320,7 +320,7 @@ begin
    -- can then choose if we wish to addess swap or not - if a small packet is rxd which is less than the required 12 bytes
    -- the read logic will revert to non address swap and just output what is there..
 
-   next_rd_s : process(rd_state, enable_address_swap, rd_count_6, rd_count_12, tx_axis_fifo_tready, dob, 
+   next_rd_s : process(rd_state, enable_address_swap, rd_count_6, rd_count_12, tx_axis_fifo_tready, dob,
                        wr_state, tx_axis_fifo_tvalid_int)
    begin
       next_rd_state <= rd_state;
@@ -383,10 +383,10 @@ begin
             rd_count <= (others => '0');
             rd_count_6 <= '0';
             rd_count_12 <= '0';
-         else 
+         else
             if rd_state = WAIT_S then
                rd_count <= X"1";
-            elsif rd_state /= IDLE and tx_axis_fifo_tvalid_int = '1' and 
+            elsif rd_state /= IDLE and tx_axis_fifo_tvalid_int = '1' and
                   tx_axis_fifo_tready = '1' and rd_count /= X"f" then
                rd_count <= rd_count + X"1";
                if rd_count = X"5" then
@@ -414,9 +414,9 @@ begin
       end if;
    end process active_swap_p;
 
-   -- we have a 64 deep lut - to simplify storing/fetching of data this is split into 8 address slots.  When 
-   -- a new packet starts the first byte of the address is stored in the next available address slot, with the next address being 
-   -- stored in the next slot (i.e after a gap of two locations).  Once the addresses have been stored the data starts 
+   -- we have a 64 deep lut - to simplify storing/fetching of data this is split into 8 address slots.  When
+   -- a new packet starts the first byte of the address is stored in the next available address slot, with the next address being
+   -- stored in the next slot (i.e after a gap of two locations).  Once the addresses have been stored the data starts
    -- at the next slot and then continues until completion.
    rd_slot_p : process (axi_tclk)
    begin
@@ -432,7 +432,7 @@ begin
          elsif rd_count_6 = '1' and tx_axis_fifo_tready = '1' and tx_axis_fifo_tvalid_int = '1' and address_swap = '1' then
             rd_slot <= "000";
          elsif rd_count_12 = '1' and tx_axis_fifo_tready = '1' and tx_axis_fifo_tvalid_int = '1' then
-            rd_slot <= "010";  
+            rd_slot <= "010";
          elsif tx_axis_fifo_tvalid_int = '1' and tx_axis_fifo_tready = '1' then
             if rd_addr = "111" then
                rd_slot <= rd_slot + "001";
@@ -445,12 +445,12 @@ begin
    begin
       if axi_tclk'event and axi_tclk = '1' then
          if axi_treset = '1' then
-            rd_addr <= (others => '0'); 
+            rd_addr <= (others => '0');
          elsif rd_state = WAIT_S then
-            rd_addr <= (others => '0'); 
+            rd_addr <= (others => '0');
          elsif tx_axis_fifo_tvalid_int = '1' and tx_axis_fifo_tready = '1' then
             if rd_count_6 = '1' or rd_count_12 = '1' then
-               rd_addr <= (others => '0'); 
+               rd_addr <= (others => '0');
             else
                rd_addr <= rd_addr + "001";
             end if;
@@ -458,7 +458,7 @@ begin
       end if;
    end process rd_addr_p;
 
-   -- need to generate empty to generate the tvalid for the tx_fifo interface - the empty is purely a compare of the 
+   -- need to generate empty to generate the tvalid for the tx_fifo interface - the empty is purely a compare of the
    -- rd/wr access point - if the same and TLAST (dob[8]) is low then must still be in packet so drop tvalid - and stall read
    empty_p : process (wr_slot, wr_addr, rd_slot, rd_addr)
    begin
@@ -469,7 +469,7 @@ begin
       end if;
    end process;
 
-   -- generate the tvalid 
+   -- generate the tvalid
    valid_p : process (rd_state, fifo_empty, tx_axis_fifo_tready, dob)
    begin
       if rd_state = IDLE then
@@ -500,7 +500,7 @@ begin
    end process rd_data_p;
 
    tx_axis_fifo_tlast <= tx_axis_fifo_tlast_int;
-   
+
 end rtl;
 
 

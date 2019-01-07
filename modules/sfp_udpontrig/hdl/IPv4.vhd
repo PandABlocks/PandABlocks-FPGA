@@ -1,14 +1,14 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company:
 -- Engineer:            Peter Fall
--- 
--- Create Date:    16:20:42 06/01/2011 
--- Design Name: 
--- Module Name:    IPv4 - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+--
+-- Create Date:    16:20:42 06/01/2011
+-- Design Name:
+-- Module Name:    IPv4 - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --              handle simple IP RX and TX
 --              doesnt handle seg & reass
 --              dest MAC addr resolution through ARP layer
@@ -16,13 +16,13 @@
 --              Respond to ARP requests and replies
 --              Ignore pkts that are not IP
 --              Ignore pkts that are not addressed to us--
--- Dependencies: 
+-- Dependencies:
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01 - File Created
 -- Revision 0.02 - separated RX and TX clocks
 -- Revision 0.03 - Added mac_data_out_first
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 LIBRARY ieee;
@@ -58,12 +58,12 @@ entity IPv4 is
                         mac_data_in_last                : in  STD_LOGIC;                                                                        -- indicates last data in frame
                         -- MAC layer TX signals
                         mac_tx_req                              : out std_logic;                                                                        -- indicates that ip wants access to channel (stays up for as long as tx)
-                        mac_tx_granted                  : in std_logic;                                                                 -- indicates that access to channel has been granted            
+                        mac_tx_granted                  : in std_logic;                                                                 -- indicates that access to channel has been granted
                         mac_data_out_ready      : in std_logic;                                                                 -- indicates system ready to consume data
                         mac_data_out_valid      : out std_logic;                                                                        -- indicates data out is valid
                         mac_data_out_first      : out std_logic;                                                                        -- with data out valid indicates the first byte of a frame
                         mac_data_out_last               : out std_logic;                                                                        -- with data out valid indicates the last byte of a frame
-                        mac_data_out                    : out std_logic_vector (7 downto 0)                     -- ethernet frame (from dst mac addr through to last byte of frame)      
+                        mac_data_out                    : out std_logic_vector (7 downto 0)                     -- ethernet frame (from dst mac addr through to last byte of frame)
                         );
 end IPv4;
 
@@ -87,12 +87,12 @@ architecture structural of IPv4 is
                         arp_req_rslt                    : in arp_req_rslt_type;
                         -- MAC layer TX signals
                         mac_tx_req                              : out std_logic;                                                                        -- indicates that ip wants access to channel (stays up for as long as tx)
-                        mac_tx_granted                  : in std_logic;                                                                 -- indicates that access to channel has been granted            
+                        mac_tx_granted                  : in std_logic;                                                                 -- indicates that access to channel has been granted
                         mac_data_out_ready      : in std_logic;                                                                 -- indicates system ready to consume data
                         mac_data_out_valid      : out std_logic;                                                                -- indicates data out is valid
                         mac_data_out_first      : out std_logic;                                                                        -- with data out valid indicates the first byte of a frame
                         mac_data_out_last               : out std_logic;                                                                        -- with data out valid indicates the last byte of a frame
-                        mac_data_out                    : out std_logic_vector (7 downto 0)             -- ethernet frame (from dst mac addr through to last byte of frame)      
+                        mac_data_out                    : out std_logic_vector (7 downto 0)             -- ethernet frame (from dst mac addr through to last byte of frame)
         );
     END COMPONENT;
 

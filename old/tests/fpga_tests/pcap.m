@@ -1,9 +1,9 @@
 function [ts x xref y yref]=pcap(filename)
 
 fields=6;
-f = fopen(filename); x = fread(f,'6*uint32=>uint32'); fclose(f); 
+f = fopen(filename); x = fread(f,'6*uint32=>uint32'); fclose(f);
 raw = reshape(x, fields, []);
-x1 = raw(1,:); 
+x1 = raw(1,:);
 x2 = raw(2,:);
 ts = double(x1) + double(x2)*2^32;
 

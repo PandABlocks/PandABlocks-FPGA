@@ -4,7 +4,7 @@
 --  Purpose      : FOFB Fast Acquisition PciE sniffer
 --  Author       : Dr. Isa S. Uzun
 -----------------------------------------------------------------------------
---  Description  : Frequency counter for 4 clocks against reference clock 
+--  Description  : Frequency counter for 4 clocks against reference clock
 --                 input
 -----------------------------------------------------------------------------
 

@@ -9,10 +9,10 @@
 create_generated_clock -name clk1mux -divide_by 1 -add -master_clock clk_fpga_0 -source [get_pins SFP_GEN.sfp_inst/sfp_mmcm_clkmux_inst/BUFGMUX_inst/I0] [get_pins SFP_GEN.sfp_inst/sfp_mmcm_clkmux_inst/BUFGMUX_inst/O]
 create_generated_clock -name clk2mux -divide_by 1 -add -master_clock EXTCLK_P -source [get_pins SFP_GEN.sfp_inst/sfp_mmcm_clkmux_inst/BUFGMUX_inst/I1] [get_pins SFP_GEN.sfp_inst/sfp_mmcm_clkmux_inst/BUFGMUX_inst/O]
 set_clock_groups -physically_exclusive -group clk1mux -group clk2mux
- 
+
 create_generated_clock -name clk1mux_cas -divide_by 1 -add -master_clock clk1mux -source [get_pins SFP_GEN.sfp_inst/sfp_mmcm_clkmux_inst/eventr_BUFGMUX_inst/I0] [get_pins SFP_GEN.sfp_inst/sfp_mmcm_clkmux_inst/eventr_BUFGMUX_inst/O]
 create_generated_clock -name clk2mux_cas -divide_by 1 -add -master_clock clk2mux -source [get_pins SFP_GEN.sfp_inst/sfp_mmcm_clkmux_inst/eventr_BUFGMUX_inst/I0] [get_pins SFP_GEN.sfp_inst/sfp_mmcm_clkmux_inst/eventr_BUFGMUX_inst/O]
-create_generated_clock -name clk3mux -divide_by 1 -add -master_clock SFP_GEN.sfp_inst/sfpgtx_event_receiver_inst/event_receiver_mgt_inst/U0/event_receiver_mgt_i/gt0_event_receiver_mgt_i/gtxe2_i/RXOUTCLK -source [get_pins SFP_GEN.sfp_inst/sfp_mmcm_clkmux_inst/eventr_BUFGMUX_inst/I1] [get_pins SFP_GEN.sfp_inst/sfp_mmcm_clkmux_inst/eventr_BUFGMUX_inst/O] 
+create_generated_clock -name clk3mux -divide_by 1 -add -master_clock SFP_GEN.sfp_inst/sfpgtx_event_receiver_inst/event_receiver_mgt_inst/U0/event_receiver_mgt_i/gt0_event_receiver_mgt_i/gtxe2_i/RXOUTCLK -source [get_pins SFP_GEN.sfp_inst/sfp_mmcm_clkmux_inst/eventr_BUFGMUX_inst/I1] [get_pins SFP_GEN.sfp_inst/sfp_mmcm_clkmux_inst/eventr_BUFGMUX_inst/O]
 set_clock_groups -physically_exclusive -group clk1mux_cas -group clk2mux_cas -group clk3mux
 
 
@@ -59,11 +59,11 @@ set_clock_groups -asynchronous \
 
 set_clock_groups -asynchronous \
 -group [get_clocks clk1mux_cas] \
--group [get_clocks clk2mux] \ 
+-group [get_clocks clk2mux] \
 
 
 # -------------------------------------------------------------------
-# BUFGCTRL placement problem, this uses is highly discouraged but 
+# BUFGCTRL placement problem, this uses is highly discouraged but
 # there is no way around it.
 # -------------------------------------------------------------------
 # BUFGMUX

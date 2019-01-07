@@ -42,7 +42,7 @@ begin
 quad_reset_o <= '0';
 
 --------------------------------------------------------------------------
--- Read filtered values a_i, b_i and assert the quad_trans and quad_dir 
+-- Read filtered values a_i, b_i and assert the quad_trans and quad_dir
 -- signals
 --------------------------------------------------------------------------
 quad_state_proc: process(clk) begin

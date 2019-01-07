@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    17:51:18 15/06/2017 
--- Design Name: 
--- Module Name:    UDP_Complete - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+-- Company:
+-- Engineer:
 --
--- Dependencies: 
+-- Create Date:    17:51:18 15/06/2017
+-- Design Name:
+-- Module Name:    UDP_Complete - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --
--- Revision: 
+-- Dependencies:
+--
+-- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library unisim;
@@ -45,14 +45,14 @@ entity SFP_UDP_Complete is
     trig_i                     : in std_logic;
     SFP_START_COUNT            : in std_logic;
     SFP_STOP_COUNT             : in std_logic;
-    -- Block register readouts 
+    -- Block register readouts
     udp_txi_trigger_rise_count : out std_logic_vector(31 downto 0);
     count_udp_tx_RESULT_ERR    : out unsigned(31 downto 0);
     SFP_STATUS_COUNT           : out std_logic_vector(31 downto 0);
     -- Block Parameters
     OUR_MAC_ADDRESS : in std_logic_vector(47 downto 0);
     dest_udp_port : in std_logic_vector(15 downto 0);
-    our_udp_port  : in std_logic_vector(15 downto 0); 
+    our_udp_port  : in std_logic_vector(15 downto 0);
     dest_ip_address : in std_logic_vector(31 downto 0);
     our_ip_address  : in std_logic_vector(31 downto 0);
     -- GTX I/O
@@ -178,31 +178,31 @@ component tri_mode_ethernet_mac_0_fifo_block
       tx_configuration_vector    : in  std_logic_vector(79 downto 0)
    );
    end component;
-   
+
 
 
 COMPONENT gig_ethernet_pcs_pma_0_example_design
       port(
      -- Tranceiver Interface
       -----------------------
-      gtrefclk             : in std_logic;                    
-      gtrefclk_bufg        : in std_logic; 
+      gtrefclk             : in std_logic;
+      gtrefclk_bufg        : in std_logic;
 
-      txoutclk             : out std_logic;                   
-      rxoutclk             : out std_logic;                   
+      txoutclk             : out std_logic;
+      rxoutclk             : out std_logic;
       resetdone            : out std_logic;                    -- The GT transceiver has completed its reset cycle
-      cplllock             : out std_logic;                    
-      mmcm_reset           : out std_logic;                    
+      cplllock             : out std_logic;
+      mmcm_reset           : out std_logic;
       mmcm_locked          : in std_logic;                     -- Locked indication from MMCM
-      userclk              : in std_logic;                    
-      userclk2             : in std_logic;                    
-      rxuserclk              : in std_logic;                  
-      rxuserclk2             : in std_logic;                  
-      independent_clock_bufg : in std_logic;                  
+      userclk              : in std_logic;
+      userclk2             : in std_logic;
+      rxuserclk              : in std_logic;
+      rxuserclk2             : in std_logic;
+      independent_clock_bufg : in std_logic;
       pma_reset            : in std_logic;                     -- transceiver PMA reset signal
       -- Tranceiver Interface
       -----------------------
- 
+
       txp                  : out std_logic;                    -- Differential +ve of serial transmission from PMA to PMD.
       txn                  : out std_logic;                    -- Differential -ve of serial transmission from PMA to PMD.
       rxp                  : in std_logic;                     -- Differential +ve for serial reception from PMD to PMA.
@@ -230,7 +230,7 @@ COMPONENT gig_ethernet_pcs_pma_0_example_design
       signal_detect        : in std_logic;                      -- Input from PMD to indicate presence of optical input.
       gt0_qplloutclk        : in   std_logic;
       gt0_qplloutrefclk     : in   std_logic
-      
+
       );
 end COMPONENT;
 
@@ -243,16 +243,16 @@ component gig_ethernet_pcs_pma_0_clocking
       gtrefclk_bufg           : out std_logic;
       mmcm_locked             : out std_logic;                -- MMCM locked
       userclk                 : out std_logic;                -- for GT PMA reference clock
-      userclk2                : out std_logic;                 
+      userclk2                : out std_logic;
       rxuserclk               : out std_logic;                -- for GT PMA reference clock
-      rxuserclk2              : out std_logic                 
+      rxuserclk2              : out std_logic
    );
 end component;
 
 component gig_ethernet_pcs_pma_0_resets
    port (
     reset                    : in  std_logic;                -- Asynchronous reset for entire core.
-    independent_clock_bufg   : in  std_logic;                -- System clock 
+    independent_clock_bufg   : in  std_logic;                -- System clock
     pma_reset                : out std_logic                 -- Synchronous transcevier PMA reset
    );
 end component;
@@ -264,13 +264,13 @@ component gig_ethernet_pcs_pma_0_gt_common
     QPLLLOCKDETCLK_IN    : in std_logic;
     QPLLOUTCLK_OUT       : out std_logic;
     QPLLOUTREFCLK_OUT    : out std_logic;
-    QPLLREFCLKLOST_OUT   : out std_logic;    
+    QPLLREFCLKLOST_OUT   : out std_logic;
     QPLLRESET_IN         : in std_logic
   );
 end component;
 constant C_LITTLE_ENDIAN    : boolean := True;
 
---eth MAC configuration_vector 
+--eth MAC configuration_vector
 constant C_TX_RESET                   : std_logic:='0';
 constant C_TX_ENABLE                  : std_logic:='1';
 constant C_TX_VLAN_ENABLE             : std_logic:='0';
@@ -298,8 +298,8 @@ constant C_RX_SPEED                   : std_logic_vector(1 downto 0):="10";--'10
 constant C_RX_MAX_FRAME_ENABLE        : std_logic:='0';
 constant C_RX_MAX_FRAME_LENGTH        : std_logic_vector(14 downto 0):=(others => '0');
 constant C_RX_PAUSE_ADDR              : std_logic_vector(47 downto 0):=X"000000000000";--receiver pause frame source address
-           
-constant C_RX_CONFIGURATION_VECTOR : std_logic_vector(79 DOWNTO 0):=C_RX_PAUSE_ADDR & 
+
+constant C_RX_CONFIGURATION_VECTOR : std_logic_vector(79 DOWNTO 0):=C_RX_PAUSE_ADDR &
                                                                     '0' & C_RX_MAX_FRAME_LENGTH &
                                                                     '0' & C_RX_MAX_FRAME_ENABLE &
                                                                     C_RX_SPEED &
@@ -313,7 +313,7 @@ constant C_RX_CONFIGURATION_VECTOR : std_logic_vector(79 DOWNTO 0):=C_RX_PAUSE_A
                                                                     C_RX_VLAN_ENABLE &
                                                                     C_RX_ENABLE &
                                                                     C_RX_RESET;
-                                                                    
+
 constant C_TX_CONFIGURATION_VECTOR : std_logic_vector(79 DOWNTO 0):=C_TX_PAUSE_ADDR &
                                                                     '0' & C_TX_MAX_FRAME_LENGTH &
                                                                     '0' & C_TX_MAX_FRAME_ENABLE &
@@ -326,7 +326,7 @@ constant C_TX_CONFIGURATION_VECTOR : std_logic_vector(79 DOWNTO 0):=C_TX_PAUSE_A
                                                                     C_TX_VLAN_ENABLE &
                                                                     C_TX_ENABLE &
                                                                     C_TX_RESET;
-                               
+
 --eth PHY configuration_vector -- Alternative to MDIO interface.
 constant  C_CONFIGURATION_VECTOR  : std_logic_vector(4 downto 0):='0'&    -- (4) Enable AN
                                                                   '0'&    -- (3) Disable ISOLATE
@@ -380,7 +380,7 @@ signal udp_txi_data_data_out_last: std_logic;
 signal udp_txi                   : udp_tx_type;-- UDP tx cxns
 
 signal count_udp_txi_data_byte    : unsigned(3 downto 0);--count data byte number to be sent
-signal count_udp_txi_trigger_rise : unsigned(31 downto 0);-- count number of trigger 
+signal count_udp_txi_trigger_rise : unsigned(31 downto 0);-- count number of trigger
 
 signal enable_count : std_logic; -- enable counting trigger and UDP send
 
@@ -398,7 +398,7 @@ signal udp_rxo                                  : udp_rx_type;
 
 -- IP RX signals
 --type ipv4_rx_header_type_array is array(natural range <>) of ipv4_rx_header_type;
---signal ip_rx_hdr                              : ipv4_rx_header_type;  
+--signal ip_rx_hdr                              : ipv4_rx_header_type;
 
 signal glbl_rstn    : std_logic;
 signal rx_axi_rstn  : std_logic;
@@ -441,9 +441,9 @@ signal gt0_qplloutrefclk   : std_logic;
 -- General IO's
 ---------------
 signal status_vector :  std_logic_vector(15 downto 0); -- Core status.
-    
+
 signal signal_detect : std_logic; -- Input from PMD to indicate presence of optical input.
-    
+
 -- CHIPSCOPE ILA probes
 signal probe0               : std_logic_vector(31 downto 0);
 signal probe1               : std_logic_vector(31 downto 0);
@@ -496,20 +496,20 @@ signal_detect<='1';
 --   begin
    SFP_STATUS_COUNT(0)<=enable_count; --sfp status
    SFP_STATUS_COUNT(31 downto 1)<=(others=>'0');
-   
+
    TXN_OUT <= txn;
    TXP_OUT <= txp;
    rxn <= RXN_IN;
    rxp <= RXP_IN;
-   
+
    control.ip_controls.arp_controls.clear_cache <= SOFT_RESET;
-   
+
    udp_txi.hdr.dst_ip_addr <=dest_ip_address;--destination ip
    udp_txi.hdr.dst_port<=dest_udp_port;--udp destination port
    udp_txi.hdr.src_port<=our_udp_port;--udp source port
    udp_txi.hdr.data_length<=x"0004";    -- user data size, bytes
    udp_txi.hdr.checksum<=x"0000";
-   
+
    process(clk_i)
    begin
        if rising_edge(clk_i) then
@@ -524,8 +524,8 @@ signal_detect<='1';
            end if;
        end if;
    end process;
-   
-   
+
+
    process(clk_i)
    begin
        if rising_edge(clk_i) then
@@ -548,14 +548,14 @@ signal_detect<='1';
            end if;
        end if;
    end process;
-   
+
    trigger_rise <= trig_i and not(trig_prev);
    UDP_little_endian: if C_LITTLE_ENDIAN=TRUE generate-- Little endian
    begin
       process (clk_i)
       begin
-      if (rising_edge(clk_i)) then 
-          if (SOFT_RESET = '1') then 
+      if (rising_edge(clk_i)) then
+          if (SOFT_RESET = '1') then
                udp_txi_data_data_out_last<='0';
                udp_txi_data_data_out<=(others=>'0');
                count_udp_txi_data_byte<=(others=>'0');
@@ -564,10 +564,10 @@ signal_detect<='1';
           else
                if SFP_START_COUNT='1' then
                   count_udp_txi_trigger_rise<=(others=>'0');
-               elsif trigger_rise='1' and enable_count='1' then 
+               elsif trigger_rise='1' and enable_count='1' then
                       count_udp_txi_trigger_rise<=count_udp_txi_trigger_rise+1;
                end if;
-               
+
                if enable_count='1' then
                   if udp_tx_data_out_ready_i='1' then
                       count_udp_txi_data_byte<=count_udp_txi_data_byte+1;
@@ -588,7 +588,7 @@ signal_detect<='1';
                       udp_txi_data_data_out_last<='1';
                       udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(7 downto 0));
                       count_udp_tx_RESULT_ERR_i<=count_udp_tx_RESULT_ERR_i+1;
-                  else 
+                  else
                       count_udp_txi_data_byte<=(others=>'0');
                       udp_txi_data_data_out_last<='0';
                       udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(7 downto 0));
@@ -602,16 +602,16 @@ signal_detect<='1';
                   udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(7 downto 0));
                end if;
           end if;
-      end if;   
+      end if;
       end process;
    end generate;
-   
+
    UDP_big_endian: if C_LITTLE_ENDIAN=False generate-- Big endian
    begin
       process (clk_i)
       begin
-      if (rising_edge(clk_i)) then 
-          if (SOFT_RESET = '1') then 
+      if (rising_edge(clk_i)) then
+          if (SOFT_RESET = '1') then
                udp_txi_data_data_out_last<='0';
                udp_txi_data_data_out<=(others=>'0');
                count_udp_txi_data_byte<=(others=>'0');
@@ -620,10 +620,10 @@ signal_detect<='1';
           else
                if SFP_START_COUNT='1' then
                   count_udp_txi_trigger_rise<=(others=>'0');
-               elsif trigger_rise='1' and enable_count='1' then 
+               elsif trigger_rise='1' and enable_count='1' then
                       count_udp_txi_trigger_rise<=count_udp_txi_trigger_rise+1;
                end if;
-               
+
                if enable_count='1' then
                   if udp_tx_data_out_ready_i='1' then
                       count_udp_txi_data_byte<=count_udp_txi_data_byte+1;
@@ -644,7 +644,7 @@ signal_detect<='1';
                       udp_txi_data_data_out_last<='1';
                       udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(31 downto 24));
                       count_udp_tx_RESULT_ERR_i<=count_udp_tx_RESULT_ERR_i+1;
-                  else 
+                  else
                       count_udp_txi_data_byte<=(others=>'0');
                       udp_txi_data_data_out_last<='0';
                       udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(31 downto 24));
@@ -658,10 +658,10 @@ signal_detect<='1';
                   udp_txi_data_data_out<=std_logic_vector(count_udp_txi_trigger_rise(31 downto 24));
                end if;
           end if;
-      end if;   
+      end if;
       end process;
    end generate;
-   
+
    udp_txi_trigger_rise_count<=std_logic_vector(count_udp_txi_trigger_rise);
    udp_txi.data.data_out_valid<=udp_tx_data_out_ready_i;
    udp_txi.data.data_out_last<=udp_txi_data_data_out_last;
@@ -670,15 +670,15 @@ signal_detect<='1';
      ------------------------------------------------------------------------------
      -- Instantiate the UDP layer
      ------------------------------------------------------------------------------
-   
-   udp_block: UDP_Complete_nomac 
+
+   udp_block: UDP_Complete_nomac
      generic map (
        CLOCK_FREQ               => CLOCK_FREQ,
        ARP_TIMEOUT              => ARP_TIMEOUT,
        ARP_MAX_PKT_TMO  => ARP_MAX_PKT_TMO,
        MAX_ARP_ENTRIES  => MAX_ARP_ENTRIES
        )
-     port map( 
+     port map(
        -- UDP TX signals
        udp_tx_start                     => udp_tx_start,
        udp_txi                                  => udp_txi,
@@ -721,14 +721,14 @@ signal_detect<='1';
        glbl_rstn                  => glbl_rstn,
        rx_axi_rstn                => rx_axi_rstn,
        tx_axi_rstn                => tx_axi_rstn,
-       
+
        -- Receiver Statistics Interface
        -----------------------------------------
        rx_mac_aclk                => rx_mac_aclk,
        rx_reset                   => rx_reset,
        rx_statistics_vector       => open,
        rx_statistics_valid        => open,
-       
+
        -- Receiver (AXI-S) Interface
        ------------------------------------------
        rx_fifo_clock              => clk_i,
@@ -737,7 +737,7 @@ signal_detect<='1';
        rx_axis_fifo_tvalid        => rx_axis_mac_tvalid,
        rx_axis_fifo_tready        => rx_axis_mac_tready,
        rx_axis_fifo_tlast         => rx_axis_mac_tlast,
-       
+
        -- Transmitter Statistics Interface
        --------------------------------------------
        tx_mac_aclk                => tx_mac_aclk,
@@ -745,7 +745,7 @@ signal_detect<='1';
        tx_ifg_delay               => tx_ifg_delay,
        tx_statistics_vector       => open,
        tx_statistics_valid        => open,
-       
+
        -- Transmitter (AXI-S) Interface
        ---------------------------------------------
        tx_fifo_clock              => clk_i,
@@ -756,12 +756,12 @@ signal_detect<='1';
        tx_axis_fifo_tlast         => tx_axis_mac_tlast,
        tx_fifo_overflow           => tx_fifo_overflow,
        tx_fifo_status             => tx_fifo_status,
-       
+
        -- MAC Control Interface
        --------------------------
        pause_req                  => pause_req,
        pause_val                  => pause_val,
-       
+
        -- GMII Interface
        -------------------
        gmii_txd                  => gmii_txd,
@@ -772,32 +772,32 @@ signal_detect<='1';
        gmii_rx_dv                => gmii_rx_dv,
        gmii_rx_er                => gmii_rx_er,
        gmii_rx_clk               => gmii_rx_clk,
-       
+
        -- Configuration Vector
        -------------------------
        rx_configuration_vector   => C_RX_CONFIGURATION_VECTOR,
        tx_configuration_vector   => C_TX_CONFIGURATION_VECTOR
        );
-   
-   userclk2_out<=userclk2;      
-   gmii_tx_clk<=userclk2_out;      
+
+   userclk2_out<=userclk2;
+   gmii_tx_clk<=userclk2_out;
    gmii_rx_clk<=userclk2_out;
    gtx_clk_bufg<=gtrefclk_bufg;
-   
+
      ------------------------------------------------------------------------------
      -- Instantiate the PHY layer
      ------------------------------------------------------------------------------
-   
+
    eth_phy_i : gig_ethernet_pcs_pma_0_example_design
      port map(
        --An independent clock source used as the reference clock for an
        --IDELAYCTRL (if present) and for the main GT transceiver reset logic.
        --This example design assumes that this is of frequency 200MHz.
        independent_clock_bufg    => independent_clock_bufg,
-       
-       gtrefclk       =>gtrefclk      ,                    
-       gtrefclk_bufg  =>gtrefclk_bufg , 
-       
+
+       gtrefclk       =>gtrefclk      ,
+       gtrefclk_bufg  =>gtrefclk_bufg ,
+
        txoutclk   =>txoutclk    ,
        rxoutclk   =>rxoutclk    ,
        resetdone  =>resetdone   ,-- The GT transceiver has completed its reset cycle
@@ -811,14 +811,14 @@ signal_detect<='1';
        pma_reset  =>pma_reset   ,-- transceiver PMA reset signal
        gt0_qplloutclk   =>gt0_qplloutclk     ,
        gt0_qplloutrefclk=>gt0_qplloutrefclk  ,
-       
+
        -- Tranceiver Interface
        -----------------------
        txp                  => txp,    -- Differential +ve of serial transmission from PMA to PMD.
        txn                  => txn,    -- Differential -ve of serial transmission from PMA to PMD.
        rxp                  => rxp,    -- Differential +ve for serial reception from PMD to PMA.
        rxn                  => rxn,    -- Differential -ve for serial reception from PMD to PMA.
-       
+
        -- GMII Interface (client MAC <=> PCS)
        --------------------------------------
        gmii_tx_clk          => gmii_tx_clk,--: in  -- Transmit clock from client MAC.
@@ -831,16 +831,16 @@ signal_detect<='1';
        gmii_rx_er           => gmii_rx_er, --: out -- Received control signal to client MAC.
        -- Management: Alternative to MDIO Interface
        --------------------------------------------
-       
+
        configuration_vector => C_CONFIGURATION_VECTOR,--: in  -- Alternative to MDIO interface.
-       
+
        -- General IO's
        ---------------
        status_vector => status_vector, --: out -- Core status.
        reset => SOFT_RESET,               --: in -- Asynchronous reset for entire core.
        signal_detect=> signal_detect      --: in -- Input from PMD to indicate presence of optical input.
        );
-       
+
 --end generate;
 
 ---------------------------------------------------------------------------
@@ -871,12 +871,12 @@ core_clocking_i : gig_ethernet_pcs_pma_0_clocking
     rxuserclk                  =>  rxuserclk,
     rxuserclk2                 =>  rxuserclk2
     );
- 
+
 --mmcm_reset0<=mmcm_reset(0);
 
 core_resets_i : gig_ethernet_pcs_pma_0_resets
   port map (
-    reset                     => SOFT_RESET, 
+    reset                     => SOFT_RESET,
     independent_clock_bufg    => independent_clock_bufg,
     pma_reset                 => pma_reset
     );
@@ -889,8 +889,8 @@ core_gt_common_i : gig_ethernet_pcs_pma_0_gt_common
     QPLLLOCKDETCLK_IN           => independent_clock_bufg,
     QPLLOUTCLK_OUT              => gt0_qplloutclk,
     QPLLOUTREFCLK_OUT           => gt0_qplloutrefclk,
-    QPLLREFCLKLOST_OUT          => open,    
-    QPLLRESET_IN                => pma_reset 
+    QPLLREFCLKLOST_OUT          => open,
+    QPLLRESET_IN                => pma_reset
     );
 
 
@@ -905,67 +905,67 @@ ILA_GEN : IF (DEBUG= "TRUE") GENERATE--false GENERATE--
        clk => clk_i,
        probe0 => probe0
        );
-    
+
    probe0(26 downto 0)<=tx_axis_mac_tdata&
                         tx_axis_mac_tvalid&
                         tx_axis_mac_tfirst&
                         tx_axis_mac_tready_i&
                         tx_axis_mac_tlast&
                         tx_fifo_overflow&
-                        tx_fifo_status&  
+                        tx_fifo_status&
                         gmii_txd&
                         gmii_tx_en&
                         gmii_tx_er;
-                        
+
    probe0(31 downto 27)<=(others=>'0');
-   
+
    My_chipscope_ila_probe_1 : entity work.ila_32x8K
      PORT MAP(
        clk => clk_i,
        probe0 => probe1
        );
-   probe1(31 downto 0)<=std_logic_vector(count_udp_txi_trigger_rise(31 downto 0)); 
-   
+   probe1(31 downto 0)<=std_logic_vector(count_udp_txi_trigger_rise(31 downto 0));
+
    My_chipscope_ila_probe_2 : entity work.ila_32x8K
      PORT MAP(
        clk => clk_i,
        probe0 => probe2
        );
-   
+
    probe2(12 downto 8)<=udp_tx_start&
                         udp_tx_result_i&
                         udp_tx_data_out_ready_i&
                         udp_txi_data_data_out_last;
-                        
+
    probe2(7 downto 0) <=udp_txi_data_data_out;
-    
+
    probe2(31 downto 13)<=(others=>'0');
-   
+
    My_chipscope_ila_probe_3 : entity work.ila_32x8K
      PORT MAP(
        clk => gmii_rx_clk,
        probe0 => probe3
        );
-   
+
    probe3(9 downto 0)<=gmii_rxd&
                        gmii_rx_dv&
                        gmii_rx_er;
-                       
+
    probe3(31 downto 10)<=(others=>'0');
-   
+
    My_chipscope_ila_probe_4 : entity work.ila_32x8K
      PORT MAP(
        clk => clk_i,
        probe0 => probe4
        );
-   
+
    probe4(10 downto 0)<=rx_axis_mac_tdata&
                         rx_axis_mac_tvalid&
                         rx_axis_mac_tready&
                         rx_axis_mac_tlast;
-                        
+
    probe4(31 downto 11)<=(others=>'0');
-   
+
 
 END GENERATE;
 

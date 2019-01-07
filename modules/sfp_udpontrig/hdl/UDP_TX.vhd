@@ -1,22 +1,22 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company:
 -- Engineer:            Peter Fall
--- 
--- Create Date:    5 June 2011 
--- Design Name: 
--- Module Name:    UDP_TX - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+--
+-- Create Date:    5 June 2011
+-- Design Name:
+-- Module Name:    UDP_TX - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --              handle simple UDP TX
 --              doesnt generate the checksum(supposedly optional)
--- Dependencies: 
+-- Dependencies:
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01 - File Created
 -- Revision 0.02 - Added abort of tx when receive last from upstream
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library IEEE;
@@ -45,7 +45,7 @@ end UDP_TX;
 
 architecture Behavioral of UDP_TX is
         type tx_state_type is (IDLE, PAUSE, SEND_UDP_HDR, SEND_USER_DATA);
-                        
+
         type count_mode_type is (RST, INCR, HOLD);
         type settable_cnt_type is (RST, SET, INCR, HOLD);
         type set_clr_type is (SET, CLR, HOLD);
@@ -58,7 +58,7 @@ architecture Behavioral of UDP_TX is
         attribute fsm_safe_state of udp_tx_state : signal is "auto";
         attribute mark_debug : string;
         attribute mark_debug of udp_tx_state : signal is "true";
-        
+
         signal tx_count                         : unsigned (15 downto 0);
         signal tx_result_reg            : std_logic_vector (1 downto 0);
         signal ip_tx_start_reg  : std_logic;
@@ -74,10 +74,10 @@ architecture Behavioral of UDP_TX is
         signal set_last                 : std_logic;
         signal set_ip_tx_start  : set_clr_type;
         signal tx_data_valid            : std_logic;                    -- indicates whether data is valid to tx or not
-        
+
         -- tx temp signals
         signal total_length             : std_logic_vector (15 downto 0);       -- computed combinatorially from header size
-        
+
         -- CHIPSCOPE ILA probes
         signal udp_tx_start_s                   :  std_logic;                                           --in    -- indicates req to tx UDP
         signal udp_txi_s                                :  udp_tx_type;                                         --in    -- UDP tx cxns
@@ -88,11 +88,11 @@ architecture Behavioral of UDP_TX is
         signal ip_tx_start_s                :  std_logic;                       --out
         signal ip_tx_s                                  :  ipv4_tx_type;                                        --out   -- IP tx cxns
         signal ip_tx_result_s                   :  std_logic_vector (1 downto 0);       --in    -- tx status (changes during transmission)
-        signal ip_tx_data_out_ready_s   :  std_logic;                       --in 
-        signal ip_tx_s_data_data_out_last:  std_logic;  
-        
+        signal ip_tx_data_out_ready_s   :  std_logic;                       --in
+        signal ip_tx_s_data_data_out_last:  std_logic;
+
         signal probe5               : std_logic_vector(31 downto 0);
-        
+
         attribute keep : string;--keep name for ila probes
         attribute keep of udp_tx_state   : signal is "true";
         attribute keep of tx_count       : signal is "true";
@@ -122,7 +122,7 @@ architecture Behavioral of UDP_TX is
 --      |                                          ....                                            |
 --      |                                                                                          |
 --      --------------------------------------------------------------------------------------------
-                
+
 begin
         -----------------------------------------------------------------------
         -- combinatorial process to implement FSM and determine control signals
@@ -130,14 +130,14 @@ begin
 
         tx_combinatorial : process(
                 -- input signals
-                udp_tx_start, udp_txi, clk, ip_tx_result, ip_tx_data_out_ready, 
+                udp_tx_start, udp_txi, clk, ip_tx_result, ip_tx_data_out_ready,
                 -- state variables
                 udp_tx_state, tx_count, tx_result_reg, ip_tx_start_reg,
                 -- control signals
-                next_tx_state, set_tx_state, next_tx_result, set_tx_result, tx_count_mode, tx_count_val, 
-                tx_data, set_last, total_length, set_ip_tx_start, tx_data_valid 
+                next_tx_state, set_tx_state, next_tx_result, set_tx_result, tx_count_mode, tx_count_val,
+                tx_data, set_last, total_length, set_ip_tx_start, tx_data_valid
                 )
-                
+
         begin
                 -- set output followers
                 ip_tx_start <= ip_tx_start_reg;
@@ -149,26 +149,26 @@ begin
                 else
                         udp_tx_result_s <= tx_result_reg;
                 end if;
-                
+
                 case udp_tx_state is
                         when SEND_USER_DATA =>
                                 ip_tx_s.data.data_out <= udp_txi.data.data_out;
                                 tx_data_valid <= udp_txi.data.data_out_valid;
                                 ip_tx_s.data.data_out_last <= udp_txi.data.data_out_last;
-                                
+
                         when SEND_UDP_HDR =>
                                 ip_tx_s.data.data_out <= tx_data;
                                 tx_data_valid <= ip_tx_data_out_ready;
                                 ip_tx_s.data.data_out_last <= set_last;
-                        
+
                         when others =>
                                 ip_tx_s.data.data_out <= (others => '0');
                                 tx_data_valid <= '0';
                                 ip_tx_s.data.data_out_last <= set_last;
                 end case;
-                
+
                 ip_tx_s.data.data_out_valid <= tx_data_valid and ip_tx_data_out_ready;
-                        
+
                 -- set signal defaults
                 next_tx_state <= IDLE;
                 set_tx_state <= '0';
@@ -180,10 +180,10 @@ begin
                 set_ip_tx_start <= HOLD;
                 tx_count_val <= (others => '0');
                 udp_tx_data_out_ready_s <= '0';
-                
+
                 -- set temp signals
                 total_length <= std_logic_vector(unsigned(udp_txi.hdr.data_length) + 8); -- total length = user data length + header length (bytes)
-                
+
                 -- TX FSM
                 case udp_tx_state is
                         when IDLE =>
@@ -209,7 +209,7 @@ begin
                                 -- delay one clock for IP layer to respond to ip_tx_start and remove any tx error result
                                 next_tx_state <= SEND_UDP_HDR;
                                 set_tx_state <= '1';
-                                
+
                         when SEND_UDP_HDR =>
                                 udp_tx_data_out_ready_s <= '0'; -- in this state, we are unable to accept user data for tx
                                 if ip_tx_result = IPTX_RESULT_ERR then
@@ -242,13 +242,13 @@ begin
                                                         set_tx_result <= '1';
                                         end case;
                                 end if;
-                                
+
                         when SEND_USER_DATA =>
                                 udp_tx_data_out_ready_s <= ip_tx_data_out_ready; -- in this state, we can accept user data if IP TX rdy
                                 if ip_tx_data_out_ready = '1' then
                                         if udp_txi.data.data_out_valid = '1' or tx_count = x"000" then
                                                 -- only increment if ready and valid has been subsequently established, otherwise data count moves on too fast
-                                                if unsigned(tx_count) = unsigned(udp_txi.hdr.data_length) then                                          
+                                                if unsigned(tx_count) = unsigned(udp_txi.hdr.data_length) then
                                                         -- TX terminated due to count - end normally
                                                         set_last <= '1';
                                                         tx_data <= udp_txi.data.data_out;
@@ -265,7 +265,7 @@ begin
                                                         set_ip_tx_start <= CLR;
                                                         set_tx_result <= '1';
                                                         next_tx_state <= IDLE;
-                                                        set_tx_state <= '1';                                            
+                                                        set_tx_state <= '1';
                                                 else
                                                         -- TX continues
                                                         tx_count_mode <= INCR;
@@ -297,7 +297,7 @@ begin
                                 else
                                         udp_tx_state <= udp_tx_state;
                                 end if;
-                                
+
                                 -- ip_tx_start_reg processing
                                 case set_ip_tx_start is
                                         when SET  => ip_tx_start_reg <= '1';
@@ -311,7 +311,7 @@ begin
                                 else
                                         tx_result_reg <= tx_result_reg;
                                 end if;
-                                                                
+
                                 -- tx_count processing
                                 case tx_count_mode is
                                         when RST  =>    tx_count <= x"0000";
@@ -319,7 +319,7 @@ begin
                                         when INCR =>    tx_count <= tx_count + 1;
                                         when HOLD =>    tx_count <= tx_count;
                                 end case;
-                                
+
                         end if;
                 end if;
         end process;
@@ -335,7 +335,7 @@ udp_txi_s_data_data_out_last<=udp_txi_s.data.data_out_last;
 ip_tx_start_s<=ip_tx_start_reg;
 ip_tx<=ip_tx_s;                  -- IP tx cxns
 ip_tx_result_s<=ip_tx_result;    -- tx status (changes during transmission)
-ip_tx_data_out_ready_s<=ip_tx_data_out_ready;-- :  std_logic;                       --in 
+ip_tx_data_out_ready_s<=ip_tx_data_out_ready;-- :  std_logic;                       --in
 ip_tx_s_data_data_out_last<=ip_tx_s.data.data_out_last;
 
 ILA_GEN : IF false GENERATE--True GENERATE--
@@ -344,18 +344,18 @@ ILA_GEN : IF false GENERATE--True GENERATE--
           clk => clk,
           probe0 => probe5
     );
-    
-    probe5(25 downto 0)<=udp_tx_start_s&                
+
+    probe5(25 downto 0)<=udp_tx_start_s&
                          udp_txi_s_data_data_out_last&
                          udp_tx_result_s&
                          udp_tx_data_out_ready_s&
-                         ip_tx_start_s&                 
-                         ip_tx_s_data_data_out_last&                            
-                         ip_tx_result_s&                
+                         ip_tx_start_s&
+                         ip_tx_s_data_data_out_last&
+                         ip_tx_result_s&
                          ip_tx_data_out_ready_s&
                          std_logic_vector(tx_count);
     probe5(31 downto 26)<=(others=>'0');
-    
+
 
 END GENERATE;
 

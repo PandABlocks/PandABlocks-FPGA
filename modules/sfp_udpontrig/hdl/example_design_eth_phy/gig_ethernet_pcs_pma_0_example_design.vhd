@@ -42,9 +42,9 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
--- 
--- 
+-- PART OF THIS FILE AT ALL TIMES.
+--
+--
 --------------------------------------------------------------------------------
 -- Description: This is the top level VHDL example design for the
 --              Ethernet SGMII core.  The block level wrapper for the
@@ -73,20 +73,20 @@ entity gig_ethernet_pcs_pma_0_example_design is
       port(
       -- Tranceiver Interface
       -----------------------
-      gtrefclk             : in std_logic;                    
-      gtrefclk_bufg        : in std_logic; 
+      gtrefclk             : in std_logic;
+      gtrefclk_bufg        : in std_logic;
 
-      txoutclk             : out std_logic;                   
-      rxoutclk             : out std_logic;                   
+      txoutclk             : out std_logic;
+      rxoutclk             : out std_logic;
       resetdone            : out std_logic;                    -- The GT transceiver has completed its reset cycle
-      cplllock             : out std_logic;                    
-      mmcm_reset           : out std_logic;                    
+      cplllock             : out std_logic;
+      mmcm_reset           : out std_logic;
       mmcm_locked          : in std_logic;                     -- Locked indication from MMCM
-      userclk              : in std_logic;                    
-      userclk2             : in std_logic;                    
-      rxuserclk              : in std_logic;                  
-      rxuserclk2             : in std_logic;                  
-      independent_clock_bufg : in std_logic;                  
+      userclk              : in std_logic;
+      userclk2             : in std_logic;
+      rxuserclk              : in std_logic;
+      rxuserclk2             : in std_logic;
+      independent_clock_bufg : in std_logic;
       pma_reset            : in std_logic;                     -- transceiver PMA reset signal
 
       txp                  : out std_logic;                    -- Differential +ve of serial transmission from PMA to PMD.
@@ -168,33 +168,33 @@ architecture top_level of gig_ethernet_pcs_pma_0_example_design is
   ------------------------------------------------------------------------------
   -- Component Declaration for the Core Block (core wrapper).
   ------------------------------------------------------------------------------
-   
+
    component gig_ethernet_pcs_pma_0_support
 
       port(
       -- Transceiver Interface
       ------------------------
-      gtrefclk             : in std_logic;                    
-      gtrefclk_bufg        : in std_logic; 
+      gtrefclk             : in std_logic;
+      gtrefclk_bufg        : in std_logic;
 
-      txoutclk             : out std_logic;                   
-      rxoutclk             : out std_logic;                   
+      txoutclk             : out std_logic;
+      rxoutclk             : out std_logic;
       resetdone            : out std_logic;                    -- The GT transceiver has completed its reset cycle
-      cplllock             : out std_logic;                    
-      mmcm_reset           : out std_logic;                    
+      cplllock             : out std_logic;
+      mmcm_reset           : out std_logic;
       mmcm_locked          : in std_logic;                     -- Locked indication from MMCM
-      userclk              : in std_logic;                    
-      userclk2             : in std_logic;                    
-      rxuserclk              : in std_logic;                  
-      rxuserclk2             : in std_logic;                  
-      independent_clock_bufg : in std_logic;                  
+      userclk              : in std_logic;
+      userclk2             : in std_logic;
+      rxuserclk              : in std_logic;
+      rxuserclk2             : in std_logic;
+      independent_clock_bufg : in std_logic;
       pma_reset            : in std_logic;                     -- transceiver PMA reset signal
 
       txp                      : out std_logic;                    -- Differential +ve of serial transmission from PMA to PMD.
       txn                      : out std_logic;                    -- Differential -ve of serial transmission from PMA to PMD.
       rxp                      : in std_logic;                     -- Differential +ve for serial reception from PMD to PMA.
       rxn                      : in std_logic;                     -- Differential -ve for serial reception from PMD to PMA.
-    
+
       -- GMII Interface
       -----------------
       gmii_txd                 : in std_logic_vector(7 downto 0);  -- Transmit data from client MAC.
@@ -258,7 +258,7 @@ architecture top_level of gig_ethernet_pcs_pma_0_example_design is
   -- Extra registers to ease IOB placement
   signal status_vector_int : std_logic_vector(15 downto 0);
 
- 
+
 
 
 begin
@@ -283,21 +283,21 @@ begin
       userclk=>userclk,
       userclk2=>userclk2,
       rxuserclk=>rxuserclk,
-      rxuserclk2=>rxuserclk2,                  
+      rxuserclk2=>rxuserclk2,
       independent_clock_bufg=>independent_clock_bufg,
       pma_reset=>pma_reset,                          -- transceiver PMA reset signal
 
       gt0_qplloutclk   =>gt0_qplloutclk   ,
       gt0_qplloutrefclk=>gt0_qplloutrefclk,
-      
 
-      
+
+
       txp                  => txp,
       txn                  => txn,
       rxp                  => rxp,
       rxn                  => rxn,
 
-      
+
       gmii_txd             => gmii_txd_fifo,
       gmii_tx_en           => gmii_tx_en_fifo,
       gmii_tx_er           => gmii_tx_er_fifo,
@@ -309,7 +309,7 @@ begin
 
       status_vector        => status_vector_int,
       reset                => reset,
-   
+
 
       signal_detect        => signal_detect
       );
@@ -365,7 +365,7 @@ begin
    --port map(
    --   RDY       => open,
    --   REFCLK    => independent_clock_bufg,
-   --   RST       => idelayctrl_reset 
+   --   RST       => idelayctrl_reset
    --);
 
    -----------------------------------------------------------------------------
@@ -541,7 +541,7 @@ gmii_tx_er_delay<=gmii_tx_er;
    --   R  => '0',
    --   S  => '0'
    --);
-   
+
 gmii_rx_clk_obuf<=userclk2;
 
    -- Finally the clock is driven onto the PAD from an Output Buffer.
@@ -551,7 +551,7 @@ gmii_rx_clk_obuf<=userclk2;
    --   O  => gmii_rx_clk,
    --   T  => gmii_isolate
    --);
-gmii_rx_clk<=gmii_rx_clk_obuf; 
+gmii_rx_clk<=gmii_rx_clk_obuf;
 
 
    -----------------------------------------------------------------------------

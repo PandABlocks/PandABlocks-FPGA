@@ -1,22 +1,22 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    12:43:16 06/04/2011 
--- Design Name: 
--- Module Name:    IP_complete_nomac - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
+-- Company:
+-- Engineer:
+--
+-- Create Date:    12:43:16 06/04/2011
+-- Design Name:
+-- Module Name:    IP_complete_nomac - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
 -- Description: Implements complete IP stack with ARP (but no MAC)
 --
--- Dependencies: 
+-- Dependencies:
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01 - File Created
 -- Revision 0.02 - separated RX and TX clocks
 -- Revision 0.03 - Added mac_tx_tfirst
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library ieee;
@@ -100,12 +100,12 @@ architecture structural of IP_complete_nomac is
       mac_data_in_last     : in  std_logic;  -- indicates last data in frame
       -- MAC layer TX signals
       mac_tx_req           : out std_logic;  -- indicates that ip wants access to channel (stays up for as long as tx)
-      mac_tx_granted       : in  std_logic;  -- indicates that access to channel has been granted            
+      mac_tx_granted       : in  std_logic;  -- indicates that access to channel has been granted
       mac_data_out_ready   : in  std_logic;  -- indicates system ready to consume data
       mac_data_out_valid   : out std_logic;  -- indicates data out is valid
       mac_data_out_first   : out std_logic;  -- with data out valid indicates the first byte of a frame
       mac_data_out_last    : out std_logic;  -- with data out valid indicates the last byte of a frame
-      mac_data_out         : out std_logic_vector (7 downto 0)  -- ethernet frame (from dst mac addr through to last byte of frame)      
+      mac_data_out         : out std_logic_vector (7 downto 0)  -- ethernet frame (from dst mac addr through to last byte of frame)
       );
   end component;
 
@@ -128,7 +128,7 @@ architecture structural of IP_complete_nomac is
       data_in_last    : in  std_logic;  -- indicates last data in frame
       -- MAC layer TX signals
       mac_tx_req      : out std_logic;  -- indicates that ip wants access to channel (stays up for as long as tx)
-      mac_tx_granted  : in  std_logic;  -- indicates that access to channel has been granted            
+      mac_tx_granted  : in  std_logic;  -- indicates that access to channel has been granted
       data_out_clk    : in  std_logic;
       data_out_ready  : in  std_logic;  -- indicates system ready to consume data
       data_out_valid  : out std_logic;  -- indicates data out is valid
@@ -166,7 +166,7 @@ architecture structural of IP_complete_nomac is
       valid : out std_logic;                     -- tdata is valid
       first : out std_logic;                     -- indicates first byte of frame
       last  : out std_logic                      -- indicates last byte of frame
-      );         
+      );
   end component;
 
 
@@ -292,7 +292,7 @@ begin
         our_ip_address  => our_ip_address,
         control         => control.arp_controls,
         req_count       => arp_pkt_count
-        );    
+        );
   end generate signle_entry_arp;
 
   multi_entry_arp: if (use_arpv2) generate
@@ -328,11 +328,11 @@ begin
         our_ip_address  => our_ip_address,
         control         => control.arp_controls,
         req_count       => arp_pkt_count
-        );    
+        );
   end generate multi_entry_arp;
 
   ------------------------------------------------------------------------------
-  -- Instantiate the TX Arbitrator 
+  -- Instantiate the TX Arbitrator
   ------------------------------------------------------------------------------
   mac_tx_arb : tx_arbitrator
     port map(

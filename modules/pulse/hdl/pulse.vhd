@@ -52,12 +52,12 @@ end component;
 
 constant c_trig_edge_pos        : std_logic_vector(1 downto 0) := "00";
 constant c_trig_edge_neg        : std_logic_vector(1 downto 0) := "01";
-constant c_trig_edge_pos_neg    : std_logic_vector(1 downto 0) := "10"; 
+constant c_trig_edge_pos_neg    : std_logic_vector(1 downto 0) := "10";
 
 constant c_sec_pulse            : unsigned(2 downto 0) := "100";
 
 constant c_delay_one            : unsigned(1 downto 0) := "01";
-constant c_delay_zero           : unsigned(1 downto 0) := "00";                
+constant c_delay_zero           : unsigned(1 downto 0) := "00";
 
 signal pulse_queued_wstb        : std_logic;
 signal pulse_queued_rstb        : std_logic;
@@ -101,12 +101,12 @@ signal value                    : std_logic := '0';
 
 signal is_DELAY_zero            : std_logic := '0';
 signal queued_din               : unsigned(47 downto 0);
-signal pulse_value              : std_logic;                     
+signal pulse_value              : std_logic;
 
 signal enable_i_dly             : std_logic;
-signal wait_cnt                 : unsigned(2 downto 0); 
+signal wait_cnt                 : unsigned(2 downto 0);
 
-signal neg_pulse                : std_logic;    
+signal neg_pulse                : std_logic;
 signal trig_i_neg                : std_logic;
 signal trig_i_int                : std_logic;
 signal enable_cnt               : std_logic;
@@ -119,7 +119,7 @@ signal pos_neg_act_err          : std_logic;
 begin
 
 
--- DELAY        WDITH       Condtion        Action      trig to start of positive pulse   trig to start of negative pulse       
+-- DELAY        WDITH       Condtion        Action      trig to start of positive pulse   trig to start of negative pulse
 --  0            0          Not Valid       Bypass              2 clocks                        3 clocks
 --  0           Set         Valid                               2 clocks                        3 clocks
 --  Set         0           Not Valid       Bypass              DELAY                           DELAY
@@ -150,35 +150,35 @@ begin
     if rising_edge(clk_i) then
        if reset = '1' then
             wait_cnt <= (others => '0');
-       else         
-            -- Indicate when a negative edge pulse is to happen     
+       else
+            -- Indicate when a negative edge pulse is to happen
             if (unsigned(width_i) /= 0 and (TRIG_EDGE = c_trig_edge_neg or TRIG_EDGE = c_trig_edge_pos_neg)) then
                 neg_pulse <= trig_i;
             end if;
-            
+
             -- Negative edge pulse
             if (neg_pulse = '1' and trig_i = '0' and unsigned(WIDTH) /= 0 and
                     (TRIG_EDGE = c_trig_edge_neg or TRIG_EDGE = c_trig_edge_pos_neg)) then
                 trig_i_neg <= '1';
                 enable_cnt <= '1';
                 DELAY_NEG <= c_delay_zero;
-            -- Pulse has to be move than 4 clocks long    
+            -- Pulse has to be move than 4 clocks long
             elsif enable_cnt = '1' and wait_cnt /= c_sec_pulse then
                 trig_i_neg <= '1';
                 wait_cnt <= wait_cnt + 1;
-            -- Turn pulse off    
+            -- Turn pulse off
             elsif wait_cnt = c_sec_pulse then
                 wait_cnt <= (others => '0');
-                enable_cnt <= '0';    
+                enable_cnt <= '0';
             else
                 wait_cnt <= (others => '0');
                 trig_i_neg <= '0';
                 DELAY_NEG <= c_delay_one;
             end if;
-            
+
        end if;
     end if;
-end process;                                         
+end process;
 
 process(clk_i)
 begin
@@ -187,18 +187,18 @@ begin
         if (unsigned(width_i) = 0 or (unsigned(width_i) /= 0 and (TRIG_EDGE = c_trig_edge_pos or TRIG_EDGE = c_trig_edge_pos_neg))) then
             bypass_en <= '1';
         else
-            bypass_en <= '0';    
+            bypass_en <= '0';
         end if;
     end if;
-end process;    
+end process;
 
 
 -- Error if both trig_i and trig_i_neg active at the same time
 trig_i_int <= (trig_i and bypass_en) or trig_i_neg;
-            
-pos_neg_act_err <= ((trig_i and bypass_en) and trig_i_neg);            
-            
-            
+
+pos_neg_act_err <= ((trig_i and bypass_en) and trig_i_neg);
+
+
 -- Input registering
 process(clk_i)
 begin
@@ -293,7 +293,7 @@ begin
             is_first_pulse <= '1';
             period_error_prev <= '0';
         else
-            period_error_prev <= period_error; 
+            period_error_prev <= period_error;
             pulse_queued_wstb <= '0';
             trig_rise_prev <= trig_rise;
             value <= '0';
@@ -331,11 +331,11 @@ begin
                 if (unsigned(width_i) /= 0 or unsigned(delay) /= 0) then
                     pulse_queued_wstb <= '1';
                 end if;
-                if (is_DELAY_zero = '1') then                                                           
+                if (is_DELAY_zero = '1') then
                     queued_din <= timestamp + unsigned(width_i) + 1;
-                else                                                    
+                else
                     queued_din <= timestamp + unsigned(delay_i) + DELAY_NEG;
-                end if;               
+                end if;
                 value <= not is_DELAY_zero;
             -- Capturing falling edge is split into two conditions.
             -- 1./ When WIDTH is not 0, capture timestamp, add WIDTH and
@@ -371,12 +371,12 @@ begin
                 pulse <= trig_i_int;
             -- Delay set to 0: assert pulse immediately
             elsif (unsigned(delay_i) = 0 and unsigned(width_i) /= 0
-                and trig_rise = '1' and period_error = '0') then     
+                and trig_rise = '1' and period_error = '0') then
                 pulse <= '1';
             -- Consume pulse queue to assert and de-assert outp pulse.
             else
-                if (pulse_queued_empty = '0' and 
-                        timestamp = unsigned(pulse_ts) - 1) then                                        
+                if (pulse_queued_empty = '0' and
+                        timestamp = unsigned(pulse_ts) - 1) then
                     pulse <= pulse_value;
                 end if;
             end if;

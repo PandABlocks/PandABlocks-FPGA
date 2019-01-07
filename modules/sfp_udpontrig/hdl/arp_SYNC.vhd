@@ -1,20 +1,20 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    14:09:01 02/20/2012 
--- Design Name: 
+-- Company:
+-- Engineer:
+--
+-- Create Date:    14:09:01 02/20/2012
+-- Design Name:
 -- Module Name:    arp_SYNC - Behavioral - synchronises between rx and tx clock domains
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --
--- Dependencies: 
+-- Dependencies:
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library IEEE;
@@ -53,12 +53,12 @@ architecture Behavioral of arp_SYNC is
   signal ip_entry_reg    : std_logic_vector (31 downto 0);
   signal arp_entry_reg   : arp_entry_t;
 
-  -- synchronisation registers  
+  -- synchronisation registers
   signal send_who_has_r1 : std_logic;
   signal send_who_has_r2 : std_logic;
   signal send_I_have_r1  : std_logic;
   signal send_I_have_r2  : std_logic;
-  
+
 begin
 
   combinatorial : process (
@@ -148,7 +148,7 @@ begin
         send_I_have_r2  <= '0';
       else
         -- normal (non reset) processing
-        
+
         send_who_has_r1 <= arp_nwk_req.req;
         send_who_has_r2 <= send_who_has_r1;
 

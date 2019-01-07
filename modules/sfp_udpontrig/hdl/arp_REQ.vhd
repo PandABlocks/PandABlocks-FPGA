@@ -1,22 +1,22 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company:
 -- Engineer:            Peter Fall
--- 
--- Create Date:    12:00:04 05/31/2011 
--- Design Name: 
--- Module Name:    arp_REQ - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
+--
+-- Create Date:    12:00:04 05/31/2011
+-- Design Name:
+-- Module Name:    arp_REQ - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
 -- Description:
 --              handle requests for ARP resolution
 --              responds from single entry cache or searches external arp store, or asks to send a request
 --
--- Dependencies: 
+-- Dependencies:
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01 - File Created from arp.vhd 0.2
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library IEEE;
@@ -98,7 +98,7 @@ begin
       end if;
     end process default_gw_comb_p;
   end generate default_GW;
-  
+
   no_default_GW: if (no_default_gateway) generate
     no_default_gw_comb_p: process (arp_req_req.ip) is
     begin  -- process no_default_gw_comb_p
@@ -193,7 +193,7 @@ begin
             arp_req_rslt.mac     <= arp_store_result.entry.mac;
             next_req_state       <= IDLE;
             set_req_state        <= '1';
-            
+
           when NOT_FOUND =>
                                         -- need to request from the network
             set_timer       <= CLR;
@@ -202,11 +202,11 @@ begin
             arp_nwk_req.ip  <= req_ip_addr;
             next_req_state  <= WAIT_REPLY;
             set_req_state   <= '1';
-            
+
           when others =>
                                         -- just keep waiting - no timeout (assumes lookup with either succeed or fail)
         end case;
-        
+
       when WAIT_REPLY =>
         case arp_nwk_result.status is
           when RECEIVED =>
@@ -251,7 +251,7 @@ begin
       when PAUSE3 =>
         next_req_state <= IDLE;
         set_req_state  <= '1';
-        
+
     end case;
   end process;
 

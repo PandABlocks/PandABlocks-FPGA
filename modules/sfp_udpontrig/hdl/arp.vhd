@@ -1,13 +1,13 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company:
 -- Engineer:            Peter Fall
--- 
--- Create Date:    12:00:04 05/31/2011 
--- Design Name: 
--- Module Name:    arp - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
+--
+-- Create Date:    12:00:04 05/31/2011
+-- Design Name:
+-- Module Name:    arp - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
 -- Description:
 --              handle simple IP lookup in cache
 --              request cache fill through ARP protocol if required
@@ -17,15 +17,15 @@
 --              Ignore pkts that are not ARP
 --              Ignore pkts that are not addressed to us
 --
--- Dependencies: 
+-- Dependencies:
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01 - File Created
 -- Revision 0.02 - Added req for mac tx and wait for grant
 -- Revision 0.03 - Added data_out_first
 -- Revision 0.04 - Added arp response timeout
 -- Revision 0.05 - Added arp cache reset control
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library IEEE;
@@ -52,7 +52,7 @@ entity arp is
                         data_in_last            : in  STD_LOGIC;                                                                        -- indicates last data in frame
                         -- MAC layer TX signals
                         mac_tx_req                      : out std_logic;                                                                        -- indicates that ip wants access to channel (stays up for as long as tx)
-                        mac_tx_granted          : in std_logic;                                                                 -- indicates that access to channel has been granted            
+                        mac_tx_granted          : in std_logic;                                                                 -- indicates that access to channel has been granted
                         data_out_clk            : in std_logic;
                         data_out_ready          : in std_logic;                                                                 -- indicates system ready to consume data
                         data_out_valid          : out std_logic;                                                                        -- indicates data out is valid
@@ -77,15 +77,15 @@ architecture Behavioral of arp is
         type set_clr_type is (SET, CLR, HOLD);
 
         type tx_state_type is (IDLE,WAIT_MAC,SEND);
-        
-        
+
+
         type arp_entry_type is record
                 ip                              : std_logic_vector (31 downto 0);
                 mac                             : std_logic_vector (47 downto 0);
                 is_valid                        : std_logic;
                 reply_required  : std_logic;
         end record;
-        
+
         -- state variables
         signal req_state                        : req_state_type;
         signal req_ip_addr              : std_logic_vector (31 downto 0);               -- IP address to lookup
@@ -96,7 +96,7 @@ architecture Behavioral of arp is
         signal freq_scaler              : unsigned (31 downto 0);               -- scales data_in_clk downto 1Hz
         signal timer                            : unsigned (7 downto 0);                -- counts seconds timeout
         signal timeout_reg              : std_logic;
-        
+
         signal rx_state                         : rx_state_type;
         signal rx_count                         : unsigned (7 downto 0);
         signal arp_operation            : arp_oper_type;
@@ -109,7 +109,7 @@ architecture Behavioral of arp is
 -- FIXME        - remove these debug state signals
         signal arp_err_data             : std_logic_vector (7 downto 0);
         signal set_err_data             : std_logic;
-        
+
   attribute keep : string;
   attribute keep of arp_err_data             : signal is "true";
 
@@ -124,8 +124,8 @@ architecture Behavioral of arp is
         signal set_timer                        : count_mode_type;              -- timer reset, count, hold control
         signal timer_enable             : std_logic;                            -- enable the timer counting
         signal set_timeout              : set_clr_type;                 -- control the timeout register
-        
-        
+
+
         -- rx control signals
         signal next_rx_state    : rx_state_type;
         signal set_rx_state             : std_logic;
@@ -135,14 +135,14 @@ architecture Behavioral of arp is
         signal arp_oper_set_val : arp_oper_type;
         signal dataval                  : std_logic_vector (7 downto 0);
         signal set_arp_entry_request            : std_logic;
-        
+
         signal set_mac5                         : std_logic;
         signal set_mac4                         : std_logic;
         signal set_mac3                         : std_logic;
         signal set_mac2                         : std_logic;
         signal set_mac1                         : std_logic;
         signal set_mac0                         : std_logic;
-        
+
         signal set_ip3                  : std_logic;
         signal set_ip2                  : std_logic;
         signal set_ip1                  : std_logic;
@@ -155,7 +155,7 @@ architecture Behavioral of arp is
         signal clear_reply_req  : std_logic;
         signal set_chn_reqd             : set_clr_type;
         signal kill_data_out_valid      : std_logic;
-        
+
 
         -- function to determine whether the rx pkt is an arp pkt and whether we want to process it
         -- Returns 1 if we should discard
@@ -170,7 +170,7 @@ architecture Behavioral of arp is
         --
         function not_our_arp(data : STD_LOGIC_VECTOR; count : unsigned; our_ip : std_logic_vector) return std_logic is
         begin
-                if 
+                if
                         (count = 12 and data /= x"08") or                                               -- PDU type 0806 : ARP
                         (count = 13 and data /= x"06") or
                         (count = 14 and data /= x"00") or                                               -- HW type 1 : eth
@@ -184,7 +184,7 @@ architecture Behavioral of arp is
                         (count = 38 and data /= our_ip(31 downto 24)) or        -- target IP is ours
                         (count = 39 and data /= our_ip(23 downto 16)) or
                         (count = 40 and data /= our_ip(15 downto 8)) or
-                        (count = 41 and data /= our_ip(7 downto 0))     
+                        (count = 41 and data /= our_ip(7 downto 0))
                 then
                         return '1';
                 else
@@ -198,9 +198,9 @@ begin
                 arp_req_req,
                 -- state variables
                 req_state, req_ip_addr, mac_addr_found, mac_addr_valid_reg, send_request_needed, arp_entry,
-                freq_scaler, timer, timeout_reg, 
+                freq_scaler, timer, timeout_reg,
                 -- control signals
-                next_req_state, set_req_state, set_req_ip, set_mac_addr, control, 
+                next_req_state, set_req_state, set_req_ip, set_mac_addr, control,
                 set_mac_addr_invalid,set_send_req, clear_send_req, set_timer, timer_enable, set_timeout
                 )
         begin
@@ -221,7 +221,7 @@ begin
                         arp_req_rslt.got_mac <= mac_addr_valid_reg;
                         arp_req_rslt.mac <= mac_addr_found;
                 end if;
-                
+
                 -- set signal defaults
                 next_req_state <= IDLE;
                 set_req_state <= '0';
@@ -233,12 +233,12 @@ begin
                 set_timer <= INCR;                      -- default is timer running, unless we hold or reset it
                 set_timeout <= HOLD;
                 timer_enable <= '0';
-                
+
                 -- combinatorial logic
                 if freq_scaler = x"00000000" then
                                 timer_enable <= '1';
                 end if;
-                                
+
                 -- REQ FSM
                 case req_state is
                         when IDLE =>
@@ -251,7 +251,7 @@ begin
                                         else
                                                 set_timeout <= CLR;
                                                 next_req_state <= LOOKUP;
-                                                set_req_state <= '1'; 
+                                                set_req_state <= '1';
                                                 set_req_ip <= '1';
                                                 set_mac_addr_invalid <= '1';
                                         end if;
@@ -261,46 +261,46 @@ begin
                                 if arp_entry.ip = req_ip_addr and arp_entry.is_valid = '1' then
                                         -- already have this IP
                                         next_req_state <= IDLE;
-                                        set_req_state <= '1'; 
+                                        set_req_state <= '1';
                                         set_mac_addr <= '1';
                                 else
                                         -- need to request mac for this IP
                                         set_send_req <= '1';
                                         set_timer <= RST;
                                         next_req_state <= REQUEST;
-                                        set_req_state <= '1'; 
+                                        set_req_state <= '1';
                                 end if;
-                                        
+
                         when REQUEST =>
                                         clear_send_req <= '1';
                                         next_req_state <= WAIT_REPLY;
-                                        set_req_state <= '1';                           
-                                
+                                        set_req_state <= '1';
+
                         when WAIT_REPLY =>
                                         if arp_entry.is_valid = '1' then
                                                 -- have reply, go back to LOOKUP state to see if it is the right one
                                                 next_req_state <= LOOKUP;
-                                                set_req_state <= '1'; 
+                                                set_req_state <= '1';
                                         end if;
                                         if timer >= ARP_TIMEOUT then
                                                 set_timeout <= SET;
                                                 next_req_state <= PAUSE1;
-                                                set_req_state <= '1'; 
+                                                set_req_state <= '1';
                                         end if;
 
                         when PAUSE1 =>
                                         next_req_state <= PAUSE2;
-                                        set_req_state <= '1';                           
+                                        set_req_state <= '1';
 
                         when PAUSE2 =>
                                         next_req_state <= PAUSE3;
-                                        set_req_state <= '1';                           
+                                        set_req_state <= '1';
 
                         when PAUSE3 =>
                                         next_req_state <= IDLE;
-                                        set_req_state <= '1';                           
+                                        set_req_state <= '1';
 
-                end case;               
+                end case;
         end process;
 
         req_sequential : process (data_in_clk,reset)
@@ -330,7 +330,7 @@ begin
                                 else
                                         req_ip_addr <= req_ip_addr;
                                 end if;
-                                
+
                                 -- send request to TX&RX FSMs to send an ARP request
                                 if set_send_req = '1' then
                                         send_request_needed <= '1';
@@ -339,7 +339,7 @@ begin
                                 else
                                         send_request_needed <= send_request_needed;
                                 end if;
-                                
+
                                 -- Set the found mac address
                                 if set_mac_addr = '1' then
                                         mac_addr_found <= arp_entry.mac;
@@ -351,14 +351,14 @@ begin
                                         mac_addr_found <= mac_addr_found;
                                         mac_addr_valid_reg <= mac_addr_valid_reg;
                                 end if;
-                                
+
                                 -- freq scaling and 1-sec timer
                                 if freq_scaler = x"00000000" then
                                         freq_scaler <= to_unsigned(CLOCK_FREQ,32);
                                 else
                                         freq_scaler <= freq_scaler - 1;
                                 end if;
-                                
+
                                 -- timer processing
                                 case set_timer is
                                         when RST =>
@@ -372,14 +372,14 @@ begin
                                         when HOLD =>
                                                 timer <= timer;
                                 end case;
-                                
+
                                 -- timeout latching
                                 case set_timeout is
                                         when CLR  => timeout_reg <= '0';
                                         when SET  => timeout_reg <= '1';
                                         when HOLD => timeout_reg <= timeout_reg;
                                 end case;
-                                
+
                         end if;
                 end if;
         end process;
@@ -392,12 +392,12 @@ begin
                 rx_state, rx_count, arp_operation, arp_req_count, arp_err_data,
                 -- control signals
                 next_rx_state, set_rx_state, rx_event, rx_count_mode, set_arp_oper, arp_oper_set_val,
-                dataval,set_mac5,set_mac4,set_mac3,set_mac2,set_mac1,set_mac0,set_ip3,set_ip2,set_ip1,set_ip0, set_err_data, 
+                dataval,set_mac5,set_mac4,set_mac3,set_mac2,set_mac1,set_mac0,set_ip3,set_ip2,set_ip1,set_ip0, set_err_data,
                 set_arp_entry_request)
         begin
                 -- set output followers
                 req_count <= STD_LOGIC_VECTOR(arp_req_count);
-                
+
                 -- set signal defaults
                 next_rx_state <= IDLE;
                 set_rx_state <= '0';
@@ -418,12 +418,12 @@ begin
                 set_ip0 <= '0';
                 set_arp_entry_request <= '0';
                 set_err_data <= '0';
-                
+
                 -- determine event (if any)
                 if data_in_valid = '1' then
                         rx_event <= DATA;
                 end if;
-                
+
                 -- RX FSM
                 case rx_state is
                         when IDLE =>
@@ -432,7 +432,7 @@ begin
                                         when NO_EVENT => -- (nothing to do)
                                         when DATA =>
                                                 next_rx_state <= PARSE;
-                                                set_rx_state <= '1'; 
+                                                set_rx_state <= '1';
                                                 rx_count_mode <= INCR;
                                 end case;
 
@@ -444,12 +444,12 @@ begin
                                                 -- handle early frame termination
                                                 if data_in_last = '1' then
                                                         next_rx_state <= IDLE;
-                                                        set_rx_state <= '1'; 
+                                                        set_rx_state <= '1';
                                                 else
                                                         -- check for end of frame. Also, detect and discard if not our frame
                                                         if rx_count = 42 then
                                                                 next_rx_state <= PROCESS_ARP;
-                                                                set_rx_state <= '1';                                                            
+                                                                set_rx_state <= '1';
                                                         elsif not_our_arp(data_in,rx_count,our_ip_address) = '1' then
                                                                 dataval <= data_in;
                                                                 set_err_data <= '1';
@@ -498,13 +498,13 @@ begin
                                                         elsif rx_count = 31 then
                                                                 set_ip0 <= '1';
                                                                 dataval <= data_in;
-                                                        end if;                                                 
-                                                end if;                                                 
+                                                        end if;
+                                                end if;
                                 end case;
 
                         when PROCESS_ARP =>
                                 next_rx_state <= WAIT_END;
-                                set_rx_state <= '1'; 
+                                set_rx_state <= '1';
                                 case arp_operation is
                                         when NOP => -- (nothing to do)
                                         when REQUEST =>
@@ -523,12 +523,12 @@ begin
                                         when DATA =>
                                                 if data_in_last = '1' then
                                                         next_rx_state <= IDLE;
-                                                        set_rx_state <= '1'; 
+                                                        set_rx_state <= '1';
                                                 end if;
                                 end case;
-                                
+
                 end case;
-                
+
         end process;
 
         rx_sequential : process (data_in_clk)
@@ -553,7 +553,7 @@ begin
                                 else
                                         rx_state <= rx_state;
                                 end if;
-                                
+
                                 -- rx_count processing
                                 case rx_count_mode is
                                         when RST =>
@@ -563,21 +563,21 @@ begin
                                         when HOLD =>
                                                 rx_count <= rx_count;
                                 end case;
-                                
+
                                 -- err data
                                 if set_err_data = '1' then
                                         arp_err_data <= data_in;
                                 else
                                         arp_err_data <= arp_err_data;
                                 end if;
-                                
+
                                 -- arp operation processing
                                 if set_arp_oper = '1' then
                                         arp_operation <= arp_oper_set_val;
                                 else
                                         arp_operation <= arp_operation;
                                 end if;
-                                
+
                                 -- source mac capture
                                 if (set_mac5 = '1') then new_arp_entry.mac(47 downto 40) <= dataval; end if;
                                 if (set_mac4 = '1') then new_arp_entry.mac(39 downto 32) <= dataval; end if;
@@ -591,7 +591,7 @@ begin
                                 if (set_ip2 = '1') then new_arp_entry.ip(23 downto 16) <= dataval; end if;
                                 if (set_ip1 = '1') then new_arp_entry.ip(15 downto 8) <= dataval; end if;
                                 if (set_ip0 = '1') then new_arp_entry.ip(7 downto 0) <= dataval; end if;
-                                
+
                                 -- set arp entry request
                                 if control.clear_cache = '1' then
                                         arp_entry.ip <= x"00000000";
@@ -628,7 +628,7 @@ begin
                                         arp_entry <= arp_entry;
                                         arp_req_count <= arp_req_count;
                                 end if;
-                                
+
                         end if;
                 end if;
         end process;
@@ -639,15 +639,15 @@ begin
                 -- state variables
                 tx_state, tx_count, tx_mac_chn_reqd, arp_entry,
                 -- control signals
-                next_rx_state, set_rx_state, tx_count_mode, kill_data_out_valid, 
+                next_rx_state, set_rx_state, tx_count_mode, kill_data_out_valid,
                 set_chn_reqd, clear_reply_req)
         begin
                 -- set output followers
-                mac_tx_req <= tx_mac_chn_reqd;  
-                
+                mac_tx_req <= tx_mac_chn_reqd;
+
                 -- set initial values for combinatorial outputs
                 data_out_first <= '0';
-                
+
                 case tx_state is
                         when SEND   =>
                                 if data_out_ready = '1' and kill_data_out_valid = '0' then
@@ -655,9 +655,9 @@ begin
                                 else
                                         data_out_valid <= '0';
                                 end if;
-                        when OTHERS =>  data_out_valid <= '0';                          
+                        when OTHERS =>  data_out_valid <= '0';
                 end case;
-                                
+
                 -- set signal defaults
                 next_tx_state <= IDLE;
                 set_tx_state <= '0';
@@ -667,7 +667,7 @@ begin
                 clear_reply_req <= '0';
                 set_chn_reqd <= HOLD;
                 kill_data_out_valid <= '0';
-                                
+
                 -- TX FSM
                 case tx_state is
                         when IDLE =>
@@ -691,77 +691,77 @@ begin
                                         set_tx_state <= '1';
                                 end if;
                                 -- TODO - should handle timeout here
-                                        
+
                         when SEND =>
                                 if data_out_ready = '1' then
                                                 tx_count_mode <= INCR;
                                 end if;
                                 case tx_count is
-                                        when x"00"  => 
+                                        when x"00"  =>
                                                 data_out_first <= data_out_ready;
                                                 data_out <= x"ff";                                                              -- dst = broadcast
-                                                
+
                                         when x"01"  => data_out <= x"ff";
                                         when x"02"  => data_out <= x"ff";
                                         when x"03"  => data_out <= x"ff";
-                                        when x"04"  => data_out <= x"ff"; 
-                                        when x"05"  => data_out <= x"ff"; 
+                                        when x"04"  => data_out <= x"ff";
+                                        when x"05"  => data_out <= x"ff";
                                         when x"06"  => data_out <= our_mac_address (47 downto 40);      -- src = our mac
-                                        when x"07"  => data_out <= our_mac_address (39 downto 32); 
-                                        when x"08"  => data_out <= our_mac_address (31 downto 24); 
-                                        when x"09"  => data_out <= our_mac_address (23 downto 16); 
-                                        when x"0a"  => data_out <= our_mac_address (15 downto 8); 
-                                        when x"0b"  => data_out <= our_mac_address (7 downto 0); 
+                                        when x"07"  => data_out <= our_mac_address (39 downto 32);
+                                        when x"08"  => data_out <= our_mac_address (31 downto 24);
+                                        when x"09"  => data_out <= our_mac_address (23 downto 16);
+                                        when x"0a"  => data_out <= our_mac_address (15 downto 8);
+                                        when x"0b"  => data_out <= our_mac_address (7 downto 0);
                                         when x"0c"  => data_out <= x"08";                                                                       -- pkt type = 0806 : ARP
-                                        when x"0d"  => data_out <= x"06"; 
+                                        when x"0d"  => data_out <= x"06";
                                         when x"0e"  => data_out <= x"00";                                                                       -- HW type = 0001 : eth
-                                        when x"0f"  => data_out <= x"01"; 
+                                        when x"0f"  => data_out <= x"01";
                                         when x"10"  => data_out <= x"08";                                                                       -- protocol = 0800 : ip
-                                        when x"11"  => data_out <= x"00"; 
+                                        when x"11"  => data_out <= x"00";
                                         when x"12"  => data_out <= x"06";                                                                       -- HW size = 06
                                         when x"13"  => data_out <= x"04";                                                                       -- prot size = 04
-                                        
-                                        when x"14"  =>  data_out <= x"00";                                                                      -- opcode =             
+
+                                        when x"14"  =>  data_out <= x"00";                                                                      -- opcode =
                                         when x"15"  =>
                                                 if arp_entry.is_valid = '1' then
                                                         data_out <= x"02";                                                                                                                                                      -- 02 : REPLY if arp_entry valid
                                                 else
                                                         data_out <= x"01";                                                                                                                                                      -- 01 : REQ if arp_entry invalid
                                                 end if;
-                                                
+
                                         when x"16" => data_out <= our_mac_address (47 downto 40);       -- sender mac
-                                        when x"17" => data_out <= our_mac_address (39 downto 32); 
-                                        when x"18" => data_out <= our_mac_address (31 downto 24); 
-                                        when x"19" => data_out <= our_mac_address (23 downto 16); 
-                                        when x"1a" => data_out <= our_mac_address (15 downto 8); 
-                                        when x"1b" => data_out <= our_mac_address (7 downto 0); 
+                                        when x"17" => data_out <= our_mac_address (39 downto 32);
+                                        when x"18" => data_out <= our_mac_address (31 downto 24);
+                                        when x"19" => data_out <= our_mac_address (23 downto 16);
+                                        when x"1a" => data_out <= our_mac_address (15 downto 8);
+                                        when x"1b" => data_out <= our_mac_address (7 downto 0);
                                         when x"1c" => data_out <= our_ip_address (31 downto 24);        -- sender ip
-                                        when x"1d" => data_out <= our_ip_address (23 downto 16); 
-                                        when x"1e" => data_out <= our_ip_address (15 downto 8); 
-                                        when x"1f" => data_out <= our_ip_address (7 downto 0); 
+                                        when x"1d" => data_out <= our_ip_address (23 downto 16);
+                                        when x"1e" => data_out <= our_ip_address (15 downto 8);
+                                        when x"1f" => data_out <= our_ip_address (7 downto 0);
                                         when x"20" => data_out <= arp_entry.mac (47 downto 40);         -- target mac
-                                        when x"21" => data_out <= arp_entry.mac (39 downto 32); 
-                                        when x"22" => data_out <= arp_entry.mac (31 downto 24); 
-                                        when x"23" => data_out <= arp_entry.mac (23 downto 16); 
-                                        when x"24" => data_out <= arp_entry.mac (15 downto 8); 
-                                        when x"25" => data_out <= arp_entry.mac (7 downto 0); 
+                                        when x"21" => data_out <= arp_entry.mac (39 downto 32);
+                                        when x"22" => data_out <= arp_entry.mac (31 downto 24);
+                                        when x"23" => data_out <= arp_entry.mac (23 downto 16);
+                                        when x"24" => data_out <= arp_entry.mac (15 downto 8);
+                                        when x"25" => data_out <= arp_entry.mac (7 downto 0);
                                         when x"26" => data_out <= arp_entry.ip  (31 downto 24);         -- target ip
-                                        when x"27" => data_out <= arp_entry.ip   (23 downto 16); 
+                                        when x"27" => data_out <= arp_entry.ip   (23 downto 16);
                                         when x"28" => data_out <= arp_entry.ip   (15 downto 8);
-                                        
+
                                         when x"29" =>
-                                                data_out <= arp_entry.ip(7 downto 0); 
+                                                data_out <= arp_entry.ip(7 downto 0);
                                                 data_out_last <= '1';
-                                        
+
                                         when x"2a" =>
                                                 clear_reply_req <= '1';                 -- reset the reply request (done in the rx clk process domain)
                                                 kill_data_out_valid <= '1';     -- data is no longer valid
                                                 next_tx_state <= IDLE;
-                                                set_tx_state <= '1';    
+                                                set_tx_state <= '1';
 
                                         when others =>
                                                 next_tx_state <= IDLE;
-                                                set_tx_state <= '1';    
+                                                set_tx_state <= '1';
                                 end case;
                 end case;
         end process;
@@ -780,7 +780,7 @@ begin
                                 else
                                         tx_state <= tx_state;
                                 end if;
-                                
+
                                 -- tx_count processing
                                 case tx_count_mode is
                                         when RST =>
@@ -797,7 +797,7 @@ begin
                                         when CLR => tx_mac_chn_reqd <= '0';
                                         when HOLD => tx_mac_chn_reqd <= tx_mac_chn_reqd;
                                 end case;
-                                
+
                         end if;
                 end if;
         end process;

@@ -6,7 +6,7 @@
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : Implement delay line with NO reset so that it can be mapped 
+--  Description : Implement delay line with NO reset so that it can be mapped
 --                onto a Slice LUT.
 --
 --------------------------------------------------------------------------------

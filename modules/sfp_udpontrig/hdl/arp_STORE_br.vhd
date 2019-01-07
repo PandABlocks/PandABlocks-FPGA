@@ -1,13 +1,13 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company:
 -- Engineer:            Peter Fall
--- 
--- Create Date:    12:00:04 05/31/2011 
--- Design Name: 
--- Module Name:    arp_STORE_br - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
+--
+-- Create Date:    12:00:04 05/31/2011
+-- Design Name:
+-- Module Name:    arp_STORE_br - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
 -- Description:
 --              ARP storage table using block ram with lookup based on IP address
 --              implements upto 255 entries with sequential search
@@ -16,11 +16,11 @@
 --              store may take a number of cycles and the request is latched
 --              lookup may take a number of cycles. Assumes that request signals remain valid during lookup
 --
--- Dependencies: 
+-- Dependencies:
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library IEEE;
@@ -62,7 +62,7 @@ architecture Behavioral of arp_STORE_br is
   constant MULTICAST_MAC_HIGH :std_logic_vector (23 downto 0):=x"01005E";
   -- state variables
   signal ip_ram          : ip_ram_t;     -- will be implemented as block ram
-  signal mac_ram         : mac_ram_t;    -- will be implemented as block ram     
+  signal mac_ram         : mac_ram_t;    -- will be implemented as block ram
   signal st_state        : st_state_t;
   signal next_write_addr : addr_t;       -- where to make the next write
   signal num_entries     : addr_t;       -- number of entries in the store
@@ -112,7 +112,7 @@ begin
     ip_ram, mac_ram, st_state, next_write_addr, num_entries,
     next_read_addr, entry_found, mode, req_entry,
     -- busses
-    next_st_state, arp_entry_val, mode_val, write_addr, read_result_int, 
+    next_st_state, arp_entry_val, mode_val, write_addr, read_result_int,
     -- control signals
     set_st_state, set_next_write_addr, set_num_entries, set_next_read_addr, set_entry_found,set_entry_multicast_found,
     write_ram, set_mode
@@ -162,7 +162,7 @@ begin
         set_next_read_addr <= INCR;
         next_st_state      <= SEARCH;
         set_st_state       <= '1';
-        
+
       when SEARCH =>
         read_result_int.status                                    <= read_status(SEARCHING, mode);
         -- check if req_entry is multicast adresse from 224.0.0.0 to 239.255.255.255
@@ -171,8 +171,8 @@ begin
           set_entry_multicast_found <= '1';
           next_st_state   <= FOUND;
           set_st_state    <= '1';
-          
-        -- check if have a match at this entry 
+
+        -- check if have a match at this entry
         elsif req_entry.ip = arp_entry_val.ip and next_read_addr <= num_entries then
                                         -- found it
           set_entry_found <= '1';
@@ -217,7 +217,7 @@ begin
           next_st_state <= IDLE;
           set_st_state  <= '1';
         end if;
-        
+
     end case;
   end process;
 
@@ -276,7 +276,7 @@ begin
         -- latch entry found
          -- latch multicast entry found
         if set_entry_multicast_found = '1' then
-          
+
           entry_found.ip  <= req_entry.ip;
           entry_found.mac <= MULTICAST_MAC_HIGH&'0'&req_entry.ip(22 downto 0);
         elsif set_entry_found = '1' then
@@ -284,7 +284,7 @@ begin
         else
           entry_found <= entry_found;
         end if;
-         
+
         -- next_write_addr counts and wraps
         case set_next_write_addr is
           when HOLD => next_write_addr                                             <= next_write_addr;
@@ -305,7 +305,7 @@ begin
           when RST  => next_read_addr                                          <= 0;
           when INCR => if next_read_addr < MAX_ARP_ENTRIES then next_read_addr <= next_read_addr + 1; else next_read_addr <= 0; end if;
         end case;
-        
+
       end if;
     end if;
   end process;
