@@ -38,7 +38,7 @@ end clocks;
 
 architecture rtl of clocks is
 
-signal reset		: std_logic;
+signal reset            : std_logic;
 
 component clockgen is
 port (

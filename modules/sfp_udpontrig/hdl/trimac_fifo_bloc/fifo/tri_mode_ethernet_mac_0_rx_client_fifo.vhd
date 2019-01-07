@@ -50,12 +50,12 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
+-- PART OF THIS FILE AT ALL TIMES.
 -- -----------------------------------------------------------------------------
 -- Description: This is the receiver side FIFO for the design example
 --              of the Tri-Mode Ethernet MAC core. AxiStream interfaces are used.
 --
---              The FIFO is built around an Inferred Dual Port RAM, 
+--              The FIFO is built around an Inferred Dual Port RAM,
 --              giving a total memory capacity of 4096 bytes.
 --
 --              Frame data received from the MAC receiver is written into the
@@ -268,7 +268,7 @@ architecture RTL of tri_mode_ethernet_mac_0_rx_client_fifo is
   signal rx_fifo_reset       : std_logic;
   signal rx_mac_reset        : std_logic;
 
-  
+
 
 --------------------------------------------------------------------------------
 -- Begin FIFO architecture

@@ -26,14 +26,14 @@ entity pcap_buffer is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;   
+    reset_i             : in  std_logic;
     -- Configuration Registers
     START_WRITE         : in  std_logic;
     WRITE               : in  std_logic_vector(31 downto 0);
     WRITE_WSTB          : in  std_logic;
     -- Block inputs
     mode_ts_bits_i      : in  t_mode_ts_bits;
-    -- 
+    --
     trig_i           : in  std_logic;
     -- Output pulses
     pcap_dat_o          : out std_logic_vector(31 downto 0);
@@ -60,7 +60,7 @@ signal ongoing_trig_dly : std_logic;
 
 
 begin
-    
+
 --------------------------------------------------------------------------
 -- Position Bus capture mask is implemented using a Block RAM to
 -- achieve minimum dead time between capture triggers.
@@ -124,7 +124,7 @@ process(clk_i) begin
                 ongoing_trig <= '1';
             end if;
 
-            if (trig_i = '1' or ongoing_trig = '1') then                                                              
+            if (trig_i = '1' or ongoing_trig = '1') then
                 if (mask_addrb = mask_length - 1) then
                     mask_addrb <= (others => '0');
                 else
@@ -147,111 +147,111 @@ end process;
 
 ------------------------------------------------------------------------------
 
---            -----------------------------------------                  
+--            -----------------------------------------
 --            | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
---            -----------------------------------------  
--- 0x240        1 | 0   0   1   0   0 | 0   0   0   0       -- TimeStamp Capture            
--- 0x50         0 | 0   0   1   0   1 | 0   0   0   0       --  5 Mode 0 (Value)        
--- 0xB1         0 | 0   1   0   1   1 | 0   0   0   1       -- 11 Mode 1 (Difference)       
--- 0x32         0 | 0   0   0   1   1 | 0   0   1   0       --  3 Mode 2 (Sum Lo)           
--- 0x22         0 | 0   0   0   1   0 | 0   0   1   0       --  2 Mode 2 (Sum Lo)       
--- 0x23         0 | 0   0   0   1   0 | 0   0   1   1       --  2 Mode 3 (Sum Hi)       
--- 0x92         0 | 0   1   0   0   1 | 0   0   1   0       --  9 Mode 2 Shift                     
--- 0x84         0 | 0   1   0   0   0 | 0   1   0   0       --  8 Mode 4 (Min)          
--- 0x45         0 | 0   0   1   0   0 | 0   1   0   1       --  4 Mode 5 (Max)          
--- 0x260        1 | 0   0   1   1   0 | 0   0   0   0       -- Number of Samples    
--- 0x200        1 | 0   0   0   0   0 | 0   0   0   0       -- TimeStamp Start      
--- 0x220        1 | 0   0   0   1   0 | 0   0   0   0       -- TimeStamp End        
--- 0x240        1 | 0   0   1   0   0 | 0   0   0   0       -- TimeStamp Capture      
--- 0x270        1 | 0   0   1   1   1 | 0   0   0   0       -- Bits Bus 0             
--- 0x280        1 | 0   1   0   0   0 | 0   0   0   0       -- Bits Bus 1                
--- 0x290        1 | 0   1   0   0   1 | 0   0   0   0       -- Bits Bus 2            
--- 0x2A0        1 | 0   1   0   1   0 | 0   0   0   0       -- Bits Bus 3    
--- 0x11    		0 \ 0   0   0   0   1 | 0   0   0   1       --  1 Mode 1 (Difference)
--- 0x12			0 \ 0   0   0   0   1 \ 0   0   1   0       --  1 MOde 2 (Sum Lo) 
+--            -----------------------------------------
+-- 0x240        1 | 0   0   1   0   0 | 0   0   0   0       -- TimeStamp Capture
+-- 0x50         0 | 0   0   1   0   1 | 0   0   0   0       --  5 Mode 0 (Value)
+-- 0xB1         0 | 0   1   0   1   1 | 0   0   0   1       -- 11 Mode 1 (Difference)
+-- 0x32         0 | 0   0   0   1   1 | 0   0   1   0       --  3 Mode 2 (Sum Lo)
+-- 0x22         0 | 0   0   0   1   0 | 0   0   1   0       --  2 Mode 2 (Sum Lo)
+-- 0x23         0 | 0   0   0   1   0 | 0   0   1   1       --  2 Mode 3 (Sum Hi)
+-- 0x92         0 | 0   1   0   0   1 | 0   0   1   0       --  9 Mode 2 Shift
+-- 0x84         0 | 0   1   0   0   0 | 0   1   0   0       --  8 Mode 4 (Min)
+-- 0x45         0 | 0   0   1   0   0 | 0   1   0   1       --  4 Mode 5 (Max)
+-- 0x260        1 | 0   0   1   1   0 | 0   0   0   0       -- Number of Samples
+-- 0x200        1 | 0   0   0   0   0 | 0   0   0   0       -- TimeStamp Start
+-- 0x220        1 | 0   0   0   1   0 | 0   0   0   0       -- TimeStamp End
+-- 0x240        1 | 0   0   1   0   0 | 0   0   0   0       -- TimeStamp Capture
+-- 0x270        1 | 0   0   1   1   1 | 0   0   0   0       -- Bits Bus 0
+-- 0x280        1 | 0   1   0   0   0 | 0   0   0   0       -- Bits Bus 1
+-- 0x290        1 | 0   1   0   0   1 | 0   0   0   0       -- Bits Bus 2
+-- 0x2A0        1 | 0   1   0   1   0 | 0   0   0   0       -- Bits Bus 3
+-- 0x11                 0 \ 0   0   0   0   1 | 0   0   0   1       --  1 Mode 1 (Difference)
+-- 0x12                 0 \ 0   0   0   0   1 \ 0   0   1   0       --  1 MOde 2 (Sum Lo)
 
---            -----------------------------------------     ----------------- 
+--            -----------------------------------------     -----------------
 --            | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |     | 3 | 2 | 1 | 0 |
---            -----------------------------------------     -----------------      
+--            -----------------------------------------     -----------------
 --              0 | 0   0   0   0   0 | 0   0   0   0         0   1   0   1   -- POS 0  0x000 - 0x005
 --              0 | 0   0   0   0   1 | 0   0   0   0         0   1   0   1   -- POS 1  0x010 - 0x015
---           
+--
 --              0 | 1   1   1   1   0 | 0   0   0   0         0   1   0   1   -- POS 30 0x1E0 - 0x0F5
---              0 | 1   1   1   1   1 | 0   0   0   0         0   1   0   1   -- POS 31 0x1F0 - 0x1F5 
+--              0 | 1   1   1   1   1 | 0   0   0   0         0   1   0   1   -- POS 31 0x1F0 - 0x1F5
 
 
--- TimeStamp Start      LSB  0X200 
--- TimeStamp Start      MSB  0X210 
--- TimeStamp End        LSB  0X220 
--- TimeStamp End        MSB  0X230 
--- Capture Time         LSB  0x240 
--- Capture Time         MSB  0x250 
+-- TimeStamp Start      LSB  0X200
+-- TimeStamp Start      MSB  0X210
+-- TimeStamp End        LSB  0X220
+-- TimeStamp End        MSB  0X230
+-- Capture Time         LSB  0x240
+-- Capture Time         MSB  0x250
 -- Number of Samples         0x260
--- 
+--
 
    ----------------------------------------------------
 -- | 11 | 10 |  9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
    ----------------------------------------------------
 -- | 0  | 0  | ES |      EXT/POS      |     MODE      |
-   ----------------------------------------------------    
--- Bit  9 = 1 EXTENSION BUS active, 7 - 4 = EXT(11 off)   
+   ----------------------------------------------------
+-- Bit  9 = 1 EXTENSION BUS active, 7 - 4 = EXT(11 off)
 -- Bit  9 = 0 POSITION BUS active,  7 - 4 = POS(32 off) and MODE(6 off)
- 
+
 
 
 -- Modes0,1,2,3,4 and 5 * 32 =  192
--- TimeStamp Start				  2
--- TimeStamp End				  2
--- TimeStamp Capture			  2
--- Sample Count					  1
--- Bit Bus 0					  1
--- Bit Bus 1					  1
--- Bit Bus 2					  1
--- Bit Bus 3					  1	
--- Total						203							  
+-- TimeStamp Start                                2
+-- TimeStamp End                                  2
+-- TimeStamp Capture                      2
+-- Sample Count                                   1
+-- Bit Bus 0                                      1
+-- Bit Bus 1                                      1
+-- Bit Bus 2                                      1
+-- Bit Bus 3                                      1
+-- Total                                                203
 ps_mode_bus: process(clk_i)
 begin
-    if rising_edge(clk_i) then            
+    if rising_edge(clk_i) then
         -- Position Bus
-        if mask_doutb(9) = '0' then 
-			-- 32 difference mode groups loop through all of them to see which one is active
-			lp: for i in 31 downto 0 loop
-				if (to_integer(unsigned(mask_doutb(8 downto 4)))) = i then
-					-- 6 modes loop through all of them to see which one is active						
-					lp_mode: for j in 5 downto 0 loop
-						if (to_integer(unsigned(mask_doutb(3 downto 0)))) = j then
-							pcap_dat_o <= mode_ts_bits_i.mode(i)(j);
-						end if;
-					end loop lp_mode;
-				end if;
-			end loop lp;
-        -- Extension Bus Selected 
+        if mask_doutb(9) = '0' then
+                        -- 32 difference mode groups loop through all of them to see which one is active
+                        lp: for i in 31 downto 0 loop
+                                if (to_integer(unsigned(mask_doutb(8 downto 4)))) = i then
+                                        -- 6 modes loop through all of them to see which one is active
+                                        lp_mode: for j in 5 downto 0 loop
+                                                if (to_integer(unsigned(mask_doutb(3 downto 0)))) = j then
+                                                        pcap_dat_o <= mode_ts_bits_i.mode(i)(j);
+                                                end if;
+                                        end loop lp_mode;
+                                end if;
+                        end loop lp;
+        -- Extension Bus Selected
         elsif mask_doutb(9) = '1' then
             -- Ext Bus (BITS0, BITS1, BITS2 and BITS3)
-			-- Bit Bus 0
-            if mask_doutb(7 downto 4) = c_bits0 then    
+                        -- Bit Bus 0
+            if mask_doutb(7 downto 4) = c_bits0 then
                 pcap_dat_o <= mode_ts_bits_i.bits(0);
-			-- Bit Bus 1            
-			elsif mask_doutb(7 downto 4) = c_bits1 then
-				pcap_dat_o <= mode_ts_bits_i.bits(1);
-			-- Bit Bus 2
+                        -- Bit Bus 1
+                        elsif mask_doutb(7 downto 4) = c_bits1 then
+                                pcap_dat_o <= mode_ts_bits_i.bits(1);
+                        -- Bit Bus 2
             elsif mask_doutb(7 downto 4) = c_bits2 then
-				pcap_dat_o <= mode_ts_bits_i.bits(2);
-			-- Bit Bus 3	
-            elsif mask_doutb(7 downto 4) = c_bits3 then        
-				pcap_dat_o <= mode_ts_bits_i.bits(3);
-            -- TS Start x2, TS End x2, TS Capture x2 and Samples    
+                                pcap_dat_o <= mode_ts_bits_i.bits(2);
+                        -- Bit Bus 3
+            elsif mask_doutb(7 downto 4) = c_bits3 then
+                                pcap_dat_o <= mode_ts_bits_i.bits(3);
+            -- TS Start x2, TS End x2, TS Capture x2 and Samples
             else
                 lp_ext_bus: for i in 6 downto 0 loop
                     if (to_integer(unsigned(mask_doutb(7 downto 4)))) = i then
-                        pcap_dat_o <= mode_ts_bits_i.ts(i);    
+                        pcap_dat_o <= mode_ts_bits_i.ts(i);
                     end if;
                 end loop lp_ext_bus;
             end if;
-        end if;    
+        end if;
     end if;
-end process ps_mode_bus;        
-    
+end process ps_mode_bus;
+
 
 
 end rtl;

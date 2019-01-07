@@ -126,14 +126,14 @@ port map (
     LSB_DISCARD         => LSB_DISCARD,
     LSB_DISCARD_WSTB    => open,
     MSB_DISCARD         => MSB_DISCARD,
-    MSB_DISCARD_WSTB    => open,        
+    MSB_DISCARD_WSTB    => open,
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z,
     RST_ON_Z_WSTB       => open,
     DCARD_TYPE          => DCARD_TYPE
 );
- 
+
 -- Only read back the DCARD MODE
 DCARD_TYPE <= x"0000000" & '0' & DCARD_MODE(3 downto 1);
 

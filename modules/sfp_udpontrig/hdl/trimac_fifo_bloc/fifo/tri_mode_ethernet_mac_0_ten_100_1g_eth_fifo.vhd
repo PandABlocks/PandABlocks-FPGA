@@ -50,7 +50,7 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
+-- PART OF THIS FILE AT ALL TIMES.
 -- -----------------------------------------------------------------------------
 -- Description: This is the top level wrapper for the 10/100/1G Ethernet FIFO.
 --              The top level wrapper consists of individual FIFOs on the

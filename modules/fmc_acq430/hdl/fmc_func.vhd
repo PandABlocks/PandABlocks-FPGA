@@ -236,23 +236,23 @@ STATE_MACHINE: process (STATE,s_ADC_FSYNC,SHIFT_IN_PROGRESS,STARTUP_COUNTER,ADC_
 begin
     NEXT_STATE <= STATE;
     case STATE is
-    
+
         when IDLE =>
             NEXT_STATE <= START;
-    
+
         when START =>
             if s_ADC_FSYNC = '1' then
                 NEXT_STATE <= SYNC_THEM;
             end if;
-    
+
         when SYNC_THEM =>
             NEXT_STATE <= WAIT_TIMEOUT;
-    
+
         when WAIT_TIMEOUT =>
             if s_STARTUP_COMPLETE = '1' then
                 NEXT_STATE <= WAIT_FSYNC;
             end if;
-    
+
         when WAIT_FSYNC =>
             if s_ADC_FSYNC = '1' and s_SAMPLING_STALLED = '0'  then
                 NEXT_STATE <= LATCH_DATA;
@@ -262,7 +262,7 @@ begin
             if ADC_DATA_COMPLETE_ACCUM = '1' then
                 NEXT_STATE <= RE_SYNC;
             end if;
-    
+
         when RE_SYNC =>
             NEXT_STATE <= WAIT_FSYNC;
     end case;

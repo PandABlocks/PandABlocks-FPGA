@@ -6,13 +6,13 @@ use ieee.numeric_std.all;
 package reg_defines is
 
 {% for reg in regs %}
-	{% if "*" in reg.name %}
+        {% if "*" in reg.name %}
 
 --{{ reg.name }} block:
 
-	{% else %}
+        {% else %}
 constant {{reg.block}}_{{reg.name}} : natural := {{reg.number}};
-	{% endif %}
+        {% endif %}
 {% endfor %}
 
 end reg_defines;

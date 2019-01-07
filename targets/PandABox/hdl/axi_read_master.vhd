@@ -82,7 +82,7 @@ M_AXI_ARID <= "000000";
 
 -- Read Address Channel
 -- The Read Address Channel (AW) provides a similar function to the
--- Write Address channel- to provide the tranfer qualifiers for the 
+-- Write Address channel- to provide the tranfer qualifiers for the
 -- burst.
 process(clk_i) begin
     if rising_edge(clk_i) then

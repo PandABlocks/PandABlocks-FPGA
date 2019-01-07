@@ -157,7 +157,7 @@ begin
 
 {% for field in filter_fields("time") %}
     {% if loop.first %}
-        -- Time signals are made up of _L and _H parts and the overall 
+        -- Time signals are made up of _L and _H parts and the overall
         -- signal wstb is the or output of the two
     {% endif %}
         {{ field.name }}_wstb(I) <= {{ field.name }}_L_wstb(I) or {{ field.name }}_H_wstb(I);

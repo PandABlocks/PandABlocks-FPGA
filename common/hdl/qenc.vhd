@@ -7,7 +7,7 @@
 --------------------------------------------------------------------------------
 --
 --  Description : HDL implementation of a Incremental Encoder Output module.
---                The module follows position input and 4x quadrature encodes 
+--                The module follows position input and 4x quadrature encodes
 --                when enabled.
 --
 --------------------------------------------------------------------------------

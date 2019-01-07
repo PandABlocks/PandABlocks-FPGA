@@ -7,7 +7,7 @@
 --------------------------------------------------------------------------------
 --
 --  Description : Incremental Encoder Input interface module.
---                Implements an up/down counter around a 4x Quadrature decoder 
+--                Implements an up/down counter around a 4x Quadrature decoder
 --                block.
 --
 --------------------------------------------------------------------------------

@@ -52,9 +52,9 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
--- 
--- 
+-- PART OF THIS FILE AT ALL TIMES.
+--
+--
 --------------------------------------------------------------------------------
 
 
@@ -107,7 +107,7 @@ architecture structural of gig_ethernet_pcs_pma_0_sync_block_ex is
   attribute shreg_extract of data_sync_reg5 : label is "no";
   attribute shreg_extract of data_sync_reg6 : label is "no";
 
-  
+
 begin
 
   data_sync_reg1 : FD
@@ -158,7 +158,7 @@ begin
     C    => clk,
     D    => data_sync4,
     Q    => data_sync5
-  );  
+  );
 
   data_sync_reg6 : FD
   generic map (

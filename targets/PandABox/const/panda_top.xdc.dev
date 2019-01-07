@@ -55,7 +55,7 @@ set_property PACKAGE_PIN H4 [get_ports {LVDSOUT_PAD_O[1]}]
 
 # ----------------------------------------------------------------------------
 # ADV7511 HDMI Output - Bank 35
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 set_property PACKAGE_PIN P7 [get_ports {AM0_PAD_IO[1]}] ;  # "P7.JX2_LVDS_4_P.JX2.29.ADV7511_D20"
 set_property PACKAGE_PIN R7 [get_ports {BM0_PAD_IO[1]}] ;  # "R7.JX2_LVDS_4_N.JX2.31.ADV7511_D21"
 set_property PACKAGE_PIN N4 [get_ports {ZM0_PAD_IO[1]}] ;  # "N4.JX2_LVDS_6_P.JX2.35.ADV7511_D22"

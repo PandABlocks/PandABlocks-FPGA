@@ -9,7 +9,7 @@
 --  Description : Sequencer table keeps frame configuration data in a flat RAM
 --                Each frame configuration is 128-bits composed of 4x DWORDs
 --                It is written sequentially in DWORDs, and read in 128-bits
---                      W[0] = repeats              W[0](15 downto 0)   = repeats  
+--                      W[0] = repeats              W[0](15 downto 0)   = repeats
 --                                                  W[0](19 downto 16)  = triggers
 --                                                  W[0](20)            = OUTA1 (was PH1_OUTA)
 --                                                  W[0](21)            = OUTB1 (was PH1_OUTB)
@@ -23,10 +23,10 @@
 --                                                  W[0](29)            = OUTD2 (was PH2_OUTD)
 --                                                  W[0](30)            = OUTE2 (was PH2_OUTE)
 --                                                  W[0](31)            = OUTF2 (was PH2_OUTF)
---                                              
-                                                                 
+--
+
 --                      W[1][31:28] = trig_mask     W[1]                = POSITION
---                      W[1][27:24] = trig_cond 
+--                      W[1][27:24] = trig_cond
 --                      W[1][21:16] = outp_ph1
 --                      W[1][13: 8] = outp_ph2
 --                      W[2]        = ph1_time      W[2]                = TIME1 (was PH1_TIME)
@@ -135,23 +135,23 @@ port map (
     wea         => seq_wren(I)
 );
 
-END GENERATE; 
+END GENERATE;
 
 
 -- [0](15 downto 0)    Repeats
-next_frame_o.repeats <= unsigned(seq_dout(0)(15 downto 0));  
+next_frame_o.repeats <= unsigned(seq_dout(0)(15 downto 0));
 -- [0](19 downto 16)   Trigger
-next_frame_o.trigger <= unsigned(seq_dout(0)(19 downto 16)); 
+next_frame_o.trigger <= unsigned(seq_dout(0)(19 downto 16));
 -- [0](25 downto 2)    Output 1
-next_frame_o.out1 <= seq_dout(0)(25 downto 20);              
--- [0](26 downto 31)   Output 2 
-next_frame_o.out2 <= seq_dout(0)(31 downto 26);              
--- [1](31 downto 0)    Position (63 downto 32)                                                                            
-next_frame_o.position <= signed(seq_dout(1));                
--- [2](31 downto 0)    Time1 (95 downto 64)                                                               
-next_frame_o.time1 <= unsigned(seq_dout(2));                 
--- [3](31 downto 0)    Time2 (127 downto 64)   
-next_frame_o.time2 <= unsigned(seq_dout(3));                    
+next_frame_o.out1 <= seq_dout(0)(25 downto 20);
+-- [0](26 downto 31)   Output 2
+next_frame_o.out2 <= seq_dout(0)(31 downto 26);
+-- [1](31 downto 0)    Position (63 downto 32)
+next_frame_o.position <= signed(seq_dout(1));
+-- [2](31 downto 0)    Time1 (95 downto 64)
+next_frame_o.time1 <= unsigned(seq_dout(2));
+-- [3](31 downto 0)    Time2 (127 downto 64)
+next_frame_o.time2 <= unsigned(seq_dout(3));
 
 
 
@@ -164,9 +164,9 @@ begin
         --
         if (reset_i = '1') then
             seq_raddr <= (others => '0');
---            next_frame_o <= (repeats => (others => '0'), trigger => (others => '0'), out1 => (others => '0'), out2 => (others => '0'), 
+--            next_frame_o <= (repeats => (others => '0'), trigger => (others => '0'), out1 => (others => '0'), out2 => (others => '0'),
 --                             position => (others => '0'), time1 => (others => '0'), time2 => (others => '0'));
-        else    
+        else
             -- Increment read address for loading frames from the table.
             if (load_next_i = '1') then
                 if (seq_raddr = unsigned(TABLE_LENGTH)-1) then
@@ -176,21 +176,21 @@ begin
                 end if;
             -- Reset the read address index when new values written to the table
             elsif (TABLE_START = '1') then
-                seq_raddr <= (others => '0');    
+                seq_raddr <= (others => '0');
             end if;
 
 --            next_frame_o.repeats <= unsigned(seq_dout(0)(15 downto 0));  -- [0](15 downto 0)    Repeats
 --            next_frame_o.trigger <= unsigned(seq_dout(0)(19 downto 16)); -- [0](19 downto 16)   Trigger
---            
---            next_frame_o.out1 <= seq_dout(0)(25 downto 20);              -- [0](25 downto 2)    Output 1 
+--
+--            next_frame_o.out1 <= seq_dout(0)(25 downto 20);              -- [0](25 downto 2)    Output 1
 --            next_frame_o.out2 <= seq_dout(0)(31 downto 26);              -- [0](26 downto 31)   Output 2
---            
+--
 --            next_frame_o.position <= signed(seq_dout(1));                -- [1](31 downto 0)    Position
---                                                                         --    (63 downto 32)   
---            next_frame_o.time1 <= unsigned(seq_dout(2));                 -- [2](31 downto 0)    Time1    
---                                                                         --    (95 downto 64)   
+--                                                                         --    (63 downto 32)
+--            next_frame_o.time1 <= unsigned(seq_dout(2));                 -- [2](31 downto 0)    Time1
+--                                                                         --    (95 downto 64)
 --            next_frame_o.time2 <= unsigned(seq_dout(3));                 -- [3](31 downto 0)    Time2
---                                                                         --    (127 downto 64)   
+--                                                                         --    (127 downto 64)
         end if;
     end if;
 end process;

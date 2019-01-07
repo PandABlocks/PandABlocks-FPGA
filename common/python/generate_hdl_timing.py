@@ -48,7 +48,7 @@ class TimingCsv(object):
             if k+"_wstb" in self.header:
                 self.values[k + "_wstb"] = str(1)
         self.lines.append([self.values[k]for k in self.header])
-        
+
     def write(self, f):
         for line in self.lines:
             padded = []

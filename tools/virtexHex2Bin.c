@@ -1,19 +1,19 @@
 /*
- virtexHex2Bin - filter program for converting the  FPGA Virtex  XCVP20 
+ virtexHex2Bin - filter program for converting the  FPGA Virtex  XCVP20
  prom file in HEX format  into the binary format.
- 
- The HEX format is the only format, which provides the non-reversal 
- bits-byte orientation, what is necessary for the CEP direct download. 
+
+ The HEX format is the only format, which provides the non-reversal
+ bits-byte orientation, what is necessary for the CEP direct download.
 
  procedure on the ISE:
   Generate Programing File
   Genetrate PROM, ACE, or JTAG File (run)
   Prepare configuration File
-  Prom File 
+  Prom File
   Xilinx Serial Prom,HEX, Swap Bits
   Auto Select PROM
   Add file *.bit
-  Finish 
+  Finish
 */
 
 #include <stdio.h>

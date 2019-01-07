@@ -1,22 +1,22 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company:
 -- Engineer:            Peter Fall
--- 
--- Create Date:    5 June 2011 
--- Design Name: 
--- Module Name:    UDP_RX - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+--
+-- Create Date:    5 June 2011
+-- Design Name:
+-- Module Name:    UDP_RX - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --              handle simple UDP RX
 --              doesnt check the checsum
--- Dependencies: 
+-- Dependencies:
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01 - File Created
 -- Revision 0.02 - Improved error handling
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library IEEE;
@@ -36,7 +36,7 @@ entity UDP_RX is
     -- IP layer RX signals
     ip_rx_start  : in  std_logic;       -- indicates receipt of ip header
     ip_rx        : in  ipv4_rx_type
-    );                  
+    );
 end UDP_RX;
 
 architecture Behavioral of UDP_RX is
@@ -209,11 +209,11 @@ begin
                 when x"0007" => set_udp_rx_start <= SET;  -- indicate frame received
 
 
-                when others =>  -- ignore other bytes in udp header                                                                              
+                when others =>  -- ignore other bytes in udp header
               end case;
             end if;
         end case;
-        
+
       when USER_DATA =>
         case rx_event is
           when NO_EVENT =>              -- (nothing to do)
@@ -250,7 +250,7 @@ begin
           next_rx_state <= IDLE;
           set_rx_state  <= '1';
         end if;
-        
+
 
       when WAIT_END =>
         case rx_event is
@@ -261,9 +261,9 @@ begin
               set_rx_state  <= '1';
             end if;
         end case;
-        
+
     end case;
-    
+
   end process;
 
 
@@ -334,7 +334,7 @@ begin
           when CLR  => hdr_valid_reg <= '0';
           when HOLD => hdr_valid_reg <= hdr_valid_reg;
         end case;
-        
+
       end if;
     end if;
   end process;

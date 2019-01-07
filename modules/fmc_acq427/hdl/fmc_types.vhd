@@ -3,9 +3,9 @@
 --! @brief    Local Types for the ACQ427FMC
 --! @author   John McLean
 --! @date     14th June 2017
---! @details                                                            
---! D-TACQ Solutions Ltd Copyright 2013-2018                                    
---!                                                                 
+--! @details
+--! D-TACQ Solutions Ltd Copyright 2013-2018
+--!
 
 --! Standard Libraries - numeric.std for all designs
 library ieee;

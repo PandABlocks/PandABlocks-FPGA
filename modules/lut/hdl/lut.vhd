@@ -37,7 +37,7 @@ architecture rtl of lut is
 constant c_value_of_inp : std_logic_vector(1 downto 0) := "00";
 constant c_rising_inp   : std_logic_vector(1 downto 0) := "01";
 constant c_falling_inp  : std_logic_vector(1 downto 0) := "10";
-constant c_either_inp   : std_logic_vector(1 downto 0) := "11";            
+constant c_either_inp   : std_logic_vector(1 downto 0) := "11";
 
 type t_ABCDE is array(4 downto 0) of std_logic_vector(1 downto 0);
 
@@ -52,7 +52,7 @@ signal falling_inp     : std_logic_vector(4 downto 0);
 begin
 
 -- Get the inp into an array
-inp <= inpa_i & inpb_i & inpc_i & inpd_i & inpe_i; 
+inp <= inpa_i & inpb_i & inpc_i & inpd_i & inpe_i;
 
 -- Register the inpa_i & inpb_i & inpc_i & inpd_i & inpe_i
 process(clk_i)
@@ -60,7 +60,7 @@ begin
     if rising_edge(clk_i) then
         inp_dly <= inp;
     end if;
-end process;        
+end process;
 
 -- Generate rising edge and falling edge
 ps_rising_falling: process(inp_dly, inp)
@@ -79,8 +79,8 @@ begin
             falling_inp(i) <= '0';
         end if;
     end loop lp_inp;
-end process ps_rising_falling;                                  
-        
+end process ps_rising_falling;
+
 
 -- Get A, B, C, D, E into an array
 ABCDE(4) <= A;
@@ -96,12 +96,12 @@ ABCDE(0) <= E;
 -- 3. index-falling inp
 -- 4. index-rising or falling inps
 gen_index: for i in 4 downto 0 generate
-    index(i) <= inp(i) when ABCDE(i) = c_value_of_inp else 
+    index(i) <= inp(i) when ABCDE(i) = c_value_of_inp else
             rising_inp(i) when ABCDE(i) = c_rising_inp else
             falling_inp(i) when ABCDE(i) = c_falling_inp else
             rising_inp(i) or falling_inp(i) when ABCDE(i) = c_either_inp else
-            '0';         
-end generate gen_index;              
+            '0';
+end generate gen_index;
 
 
 -- Assign output

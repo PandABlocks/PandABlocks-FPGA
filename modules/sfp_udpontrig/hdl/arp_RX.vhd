@@ -1,13 +1,13 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company:
 -- Engineer:            Peter Fall
--- 
--- Create Date:    12:00:04 05/31/2011 
--- Design Name: 
--- Module Name:    arp_rx - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
+--
+-- Create Date:    12:00:04 05/31/2011
+-- Design Name:
+-- Module Name:    arp_rx - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
 -- Description:
 --              handle receipt of arp pkt
 --              ignores other types of pkt
@@ -19,11 +19,11 @@
 --              Note that if recv who_has and we have it, then we also assert I_have so that we can cache the rev lookup
 --              on the expectation that we will want to reply to this host.
 --
--- Dependencies: 
+-- Dependencies:
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01 - File Created - refactored from arp v0.02 module
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library IEEE;
@@ -209,7 +209,7 @@ begin
             if data_in_last = '1' then
               next_rx_state <= IDLE;
               rx_count_mode <= RST;
-              set_rx_state  <= '1';              
+              set_rx_state  <= '1';
             --else
             end if;
                                         -- check for end of frame. Also, detect and discard if not our frame
@@ -219,14 +219,14 @@ begin
               next_rx_state <= WAIT_END;
               set_rx_state  <= '1';
 
-            else 
+            else
               case (to_integer(rx_count)) is
                 when 41 =>
                   next_rx_state <= PROCESS_ARP;
-                  set_rx_state  <= '1';   
+                  set_rx_state  <= '1';
                 when 21 =>       -- capture ARP operation
                   case (data_in) is
-                    when x"01" =>         
+                    when x"01" =>
                       arp_oper_set_val <= REQUEST;
                       set_arp_oper     <= '1';
                     when x"02" =>
@@ -301,9 +301,9 @@ begin
               set_rx_state  <= '1';
             end if;
         end case;
-        
+
     end case;
-    
+
   end process;
 
   rx_sequential : process (rx_clk)
@@ -369,7 +369,7 @@ begin
         else
           arp_req_count <= arp_req_count;
         end if;
-        
+
       end if;
     end if;
   end process;

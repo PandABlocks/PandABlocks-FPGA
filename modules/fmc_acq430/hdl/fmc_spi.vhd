@@ -223,24 +223,24 @@ WRITE_STATE_MACHINE: process (WRITE_STATE,SHIFT_COMPL,RUN_SHIFT)
 begin
     NEXT_WRITE_STATE <= WRITE_STATE;
     case WRITE_STATE is
-    
+
         when WRITE_IDLE =>
             if RUN_SHIFT = '1' then -- start on first of 8 block
                 NEXT_WRITE_STATE <= WRITE_STARTING;
             end if;
-    
+
         when WRITE_STARTING =>
             if SHIFT_COMPL = '1' then -- Dependant on SHIFT_COMPL only
                 NEXT_WRITE_STATE <= LATCH_A;
             end if;
-    
+
         when LATCH_A =>
             if RUN_SHIFT = '0' then -- is this the 8th ADC
                 NEXT_WRITE_STATE <= WRITE_FINISHING;
             else
                 NEXT_WRITE_STATE <= WRITE_STARTING;
             end if;
-    
+
         when WRITE_FINISHING =>
             NEXT_WRITE_STATE <= WRITE_IDLE;
     end case;
@@ -287,17 +287,17 @@ READ_STATE_MACHINE: process (READ_STATE,WRITE_STATE,CHANNEL_RAM_RD_COUNT)
 begin
     NEXT_READ_STATE <= READ_STATE;
     case READ_STATE is
-    
+
         when READ_IDLE =>
             if WRITE_STATE = WRITE_FINISHING then               -- start on first of 8 block
                 NEXT_READ_STATE <= READ_RAM;
             end if;
-    
+
         when READ_RAM =>
             if CHANNEL_RAM_RD_COUNT = "00111" then              -- 8 channels read
                 NEXT_READ_STATE <= READ_FINISHING;
             end if;
-    
+
         when READ_FINISHING =>
             NEXT_READ_STATE <= READ_IDLE;
     end case;

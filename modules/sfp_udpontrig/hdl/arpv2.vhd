@@ -1,13 +1,13 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company:
 -- Engineer:            Peter Fall
--- 
--- Create Date:    12:00:04 05/31/2011 
--- Design Name: 
--- Module Name:    arpv2 - Structural 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
+--
+-- Create Date:    12:00:04 05/31/2011
+-- Design Name:
+-- Module Name:    arpv2 - Structural
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
 -- Description:
 --              handle simple IP lookup in 1-deep cache and arp store
 --              request cache fill through ARP protocol if required
@@ -23,11 +23,11 @@
 --                      arp STORE block - storing address resolution entries (indexed by IP addr)
 --                      arp sync block          - sync between master RX clock and TX clock domains
 --
--- Dependencies: 
+-- Dependencies:
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library IEEE;
@@ -56,7 +56,7 @@ entity arpv2 is
     data_in_last    : in  std_logic;    -- indicates last data in frame
     -- MAC layer TX signals
     mac_tx_req      : out std_logic;  -- indicates that ip wants access to channel (stays up for as long as tx)
-    mac_tx_granted  : in  std_logic;  -- indicates that access to channel has been granted            
+    mac_tx_granted  : in  std_logic;  -- indicates that access to channel has been granted
     data_out_clk    : in  std_logic;
     data_out_ready  : in  std_logic;    -- indicates system ready to consume data
     data_out_valid  : out std_logic;    -- indicates data out is valid
@@ -110,7 +110,7 @@ architecture structural of arpv2 is
       ip_entry        : in  std_logic_vector (31 downto 0);  -- ip target for who_has req (will be latched)
       -- MAC layer TX signals
       mac_tx_req      : out std_logic;  -- indicates that ip wants access to channel (stays up for as long as tx)
-      mac_tx_granted  : in  std_logic;  -- indicates that access to channel has been granted            
+      mac_tx_granted  : in  std_logic;  -- indicates that access to channel has been granted
       data_out_ready  : in  std_logic;  -- indicates system ready to consume data
       data_out_valid  : out std_logic;  -- indicates data out is valid
       data_out_first  : out std_logic;  -- with data out valid indicates the first byte of a frame
@@ -208,7 +208,7 @@ architecture structural of arpv2 is
   -- interconnect ARP_RX -> ARP_TX
   signal recv_who_has_int          : std_logic;    -- path for reply when we can anser
   signal arp_entry_for_who_has_int : arp_entry_t;  -- target for who_has msg (ie, who to reply to)
-  
+
 
 begin
 

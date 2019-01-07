@@ -46,7 +46,7 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
+-- PART OF THIS FILE AT ALL TIMES.
 -- -----------------------------------------------------------------------------
 -- Description:  This module allows either a user side loopback, with address swapping,
 -- OR the generation of simple packets.  The selection being controlled by a top level input
@@ -86,9 +86,9 @@ entity tri_mode_ethernet_mac_0_basic_pat_gen is
 
     enable_pat_gen               : in  std_logic;
     enable_pat_chk               : in  std_logic;
-    
+
     enable_address_swap          : in  std_logic;
-    
+
     speed                        : in  std_logic_vector(1 downto 0);
 
     -- data from the RX data path
@@ -246,9 +246,9 @@ architecture rtl of tri_mode_ethernet_mac_0_basic_pat_gen is
    signal rx_axis_fifo_tvalid_int : std_logic;
    signal rx_axis_fifo_tlast_int  : std_logic;
    signal rx_axis_fifo_tready_int : std_logic;
-   
+
    signal rx_axis_tready_lcl      : std_logic;
-   
+
 
    signal pat_gen_tdata          : std_logic_vector(7 downto 0);
    signal pat_gen_tvalid         : std_logic;
@@ -269,9 +269,9 @@ architecture rtl of tri_mode_ethernet_mac_0_basic_pat_gen is
 
 begin
 
-   
+
    rx_axis_tready <= rx_axis_tready_lcl;
-   
+
 
 
    tx_axis_tdata  <= tx_axis_as_tdata;
@@ -328,9 +328,9 @@ begin
       tdata                     => rx_axis_tdata,
       tvalid                    => rx_axis_tvalid,
       tlast                     => rx_axis_tlast,
-   
+
       tready                    => rx_axis_tready_lcl,
-      
+
       tuser                     => rx_axis_tuser,
 
       frame_error               => frame_error,
@@ -338,7 +338,7 @@ begin
    );
 
 
-   
+
    -- simple mux between the rx_fifo AXI interface and the pat gen output
    -- this is not registered as it is passed through a pipeline stage to limit the impact
    axi_mux_inst : tri_mode_ethernet_mac_0_axi_mux

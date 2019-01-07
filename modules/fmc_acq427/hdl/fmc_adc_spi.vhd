@@ -3,9 +3,9 @@
 --! @brief I/O Interface to the ACQ427FMC ADC Module
 --! @author   John McLean
 --! @date     21st May 2015
---! @details                                                                   
---! D-TACQ Solutions Ltd Copyright 2013-18                                     
---!                                                                            
+--! @details
+--! D-TACQ Solutions Ltd Copyright 2013-18
+--!
 
 --! Standard Libraries - numeric.std for all designs
 library ieee;
@@ -193,19 +193,19 @@ begin
         for i in 8 downto 1 loop
             if CONV_COMPLETE_d0 = '1' and SHIFT_COMPL_d2 = '0' and s_ADC_SPI_CLK = '0' then         -- On rising edge of clock when running
                 case ADC_RESOLUTION is
-    
+
                     when "00" =>        -- 16 bit ADCs
                         SHIFT_REGISTERS(i) <=  SHIFT_REGISTERS(i)(22 downto 8) & ADC_SDO(i) & "00000000";   -- Shift left the array of shift registers
-        
+
                     when "01" =>        -- 18 bit ADCs
                         SHIFT_REGISTERS(i) <=  SHIFT_REGISTERS(i)(22 downto 6) & ADC_SDO(i) & "000000";     -- Shift left the array of shift registers
-    
+
                     when "10" =>        -- 20 bit
                         SHIFT_REGISTERS(i) <=  SHIFT_REGISTERS(i)(22 downto 4) & ADC_SDO(i) & "0000";       -- Shift left the array of shift registers
-    
+
                     when "11" =>        -- 24 bit
                         SHIFT_REGISTERS(i) <=  SHIFT_REGISTERS(i)(22 downto 0) & ADC_SDO(i) ;               -- Shift left the array of shift registers
-    
+
                     when others =>      -- 16 bit
                         SHIFT_REGISTERS(i) <=  SHIFT_REGISTERS(i)(22 downto 8) & ADC_SDO(i) & "00000000";   -- Shift left the array of shift registers
                 end case;
@@ -248,7 +248,7 @@ STATE_MACHINE: process (STATE,SHIFT_COMPL_d2,SHIFT_COMPL_d3,DATA_SIZE,CONV_ACTIV
 begin
     NEXT_STATE <= STATE;
     case STATE is
-        
+
         when IDLE =>
             if  SHIFT_COMPL_d2 = '1' and SHIFT_COMPL_d3 = '0' and CONV_ACTIVE = '1'  then
                 NEXT_STATE <= PIPE_MUX1;
@@ -258,40 +258,40 @@ begin
 
         when PIPE_MUX1 =>
             NEXT_STATE <= LATCH_A;
-    
+
         when LATCH_A =>
             NEXT_STATE <= LATCH_B;
-    
+
         when LATCH_B =>
             NEXT_STATE <= LATCH_C;
-    
+
         when LATCH_C =>
             NEXT_STATE <= LATCH_D;
-    
+
         when LATCH_D =>
             if DATA_SIZE = '0' then -- finish packing when in packed mode
                 NEXT_STATE <= WAIT_RESTART;
             else
                 NEXT_STATE <= LATCH_E;
             end if;
-            
+
         when LATCH_E =>
             NEXT_STATE <= LATCH_F;
-    
+
         when LATCH_F =>
             NEXT_STATE <= LATCH_G;
-    
+
         when LATCH_G =>
             NEXT_STATE <= LATCH_H;
-    
+
         when LATCH_H =>
             NEXT_STATE <= WAIT_RESTART;
-        
+
         when WAIT_RESTART =>
             if SHIFT_COMPL_d2 = '0' then
                 NEXT_STATE <= IDLE;
             end if;
-            
+
     end case;
 end process STATE_MACHINE;
 
@@ -302,47 +302,47 @@ begin
         when IDLE =>
             s_ADC_DATA_VALID <= '0';
             s_ADC_DATAOUT <= ADC_DATA_MUX(1);
-    
+
         when PIPE_MUX1 =>
             s_ADC_DATA_VALID <= '0';
             s_ADC_DATAOUT <= ADC_DATA_MUX(1);
-    
+
         when LATCH_A =>
             s_ADC_DATA_VALID <= '1';
             s_ADC_DATAOUT <=  ADC_DATA_MUX(1);
-    
+
         when LATCH_B =>
             s_ADC_DATA_VALID <= '1';
             s_ADC_DATAOUT <=  ADC_DATA_MUX(2);
-    
+
         when LATCH_C =>
             s_ADC_DATA_VALID <= '1';
             s_ADC_DATAOUT <=  ADC_DATA_MUX(3);
-    
+
         when LATCH_D =>
             s_ADC_DATA_VALID <= '1';
             s_ADC_DATAOUT <=  ADC_DATA_MUX(4);
-    
+
         when LATCH_E =>
             s_ADC_DATA_VALID <= '1';
             s_ADC_DATAOUT <=  ADC_DATA_MUX(5);
-    
+
         when LATCH_F =>
             s_ADC_DATA_VALID <= '1';
             s_ADC_DATAOUT <=  ADC_DATA_MUX(6);
-    
+
         when LATCH_G =>
             s_ADC_DATA_VALID <= '1';
             s_ADC_DATAOUT <=  ADC_DATA_MUX(7);
-    
+
         when LATCH_H =>
             s_ADC_DATA_VALID <= '1';
             s_ADC_DATAOUT <=  ADC_DATA_MUX(8);
-    
+
         when WAIT_RESTART =>
             s_ADC_DATA_VALID <= '0';
             s_ADC_DATAOUT <=  ADC_DATA_MUX(1);
-    
+
     end case;
 end process STATE_DECODE;
 

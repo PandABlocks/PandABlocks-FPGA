@@ -40,10 +40,10 @@ end counter;
 
 architecture rtl of counter is
 
--- Maximum value = 17FFFFFFF ( 2**31-1 =  2147483647 dec, 7FFFFFFF) 
+-- Maximum value = 17FFFFFFF ( 2**31-1 =  2147483647 dec, 7FFFFFFF)
 constant c_max_val       : unsigned(31 downto 0) := x"7fffffff";
 -- Minimum value = 080000000 (-2**31   = -2147483648 dec, 80000000)
-constant c_min_val       : unsigned(31 downto 0) := x"80000000";      
+constant c_min_val       : unsigned(31 downto 0) := x"80000000";
 
 
 constant c_step_size_one : std_logic_vector(31 downto 0) := x"00000001";
@@ -57,8 +57,8 @@ signal enable_fall      : std_logic;
 signal counter          : unsigned(31 downto 0) := (others => '0');
 signal STEP_default     : std_logic_vector(31 downto 0);
 signal MAX_VAL          : unsigned(31 downto 0) := c_max_val;
-signal MIN_VAL          : unsigned(31 downto 0) := c_min_val;    
-signal counter_carry    : std_logic;    
+signal MIN_VAL          : unsigned(31 downto 0) := c_min_val;
+signal counter_carry    : std_logic;
 
 begin
 
@@ -88,7 +88,7 @@ begin
             step_enable <= '1';
         elsif (enable_fall = '1') then
             step_enable <= '0';
-        end if;    
+        end if;
     end if;
 end process;
 
@@ -105,11 +105,11 @@ begin
         -- The default value is used until Maximum value is written to
         if (MAX_WSTB = '1') then
             MAX_VAL <= unsigned(MAX);
-        end if;    
+        end if;
         -- The default value is used until Minimum value is written to
         if (MIN_WSTB = '1') then
             MIN_VAL <= unsigned(MIN);
-        end if;    
+        end if;
 
         -- Load the counter
         if (START_WSTB = '1' and enable_i = '1') then
@@ -127,29 +127,29 @@ begin
                    (counter(31) = '1' and ((counter + unsigned(STEP_default) < MIN_VAL))) then
                     counter_carry <= '1';
                     -- Crossing boundary when going positive
-                    counter <= counter + unsigned(STEP_default) - (MAX_VAL+1 - MIN_VAL);                
+                    counter <= counter + unsigned(STEP_default) - (MAX_VAL+1 - MIN_VAL);
                 else
-                    counter_carry <= '0';    
+                    counter_carry <= '0';
                     -- Increment the counter
-                    counter <= counter + unsigned(STEP_default);            
+                    counter <= counter + unsigned(STEP_default);
                 end if;
             else
                 -- Check to see if we are crossing from the negative to positive or
                 -- positive to negative boundaries if we do set the carry bit
                 if (counter(31) = '1' and ((counter - unsigned(STEP_default) < MIN_VAL))) or
-                   (counter(31) = '0' and ((counter - unsigned(STEP_default) > MAX_VAL))) then                    
+                   (counter(31) = '0' and ((counter - unsigned(STEP_default) > MAX_VAL))) then
                     counter_carry <= '1';
-                    -- Crossing boundary when going negative    
+                    -- Crossing boundary when going negative
                     counter <= counter - unsigned(STEP_default) - (MAX_VAL+1 - MIN_VAL);
-                else 
+                else
                     counter_carry <= '0';
-                    -- Decrement the counter    
+                    -- Decrement the counter
                     counter <= counter - unsigned(STEP_default);
-                end if;          
-            end if;                
+                end if;
+            end if;
         else
             -- Need to stop the counter_carry when trig_i is low
-            -- this is what the python model does  
+            -- this is what the python model does
             if (trig_i = '0') then
                 counter_carry <= '0';
             end if;

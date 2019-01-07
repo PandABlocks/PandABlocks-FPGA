@@ -46,9 +46,9 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
+-- PART OF THIS FILE AT ALL TIMES.
 -- -----------------------------------------------------------------------------
--- Description:  This module is reponsible for bringing up the MAC 
+-- Description:  This module is reponsible for bringing up the MAC
 -- to enable basic packet transfer in both directions.
 -- Due to the lack of a management interface the PHy cannot be
 -- accessed and therefore this solution will not work when
@@ -72,10 +72,10 @@ entity tri_mode_ethernet_mac_0_config_vector_sm is
    port(
       gtx_clk                 : in  std_logic;
       gtx_resetn              : in  std_logic;
-      
+
       mac_speed               : in  std_logic_vector(1 downto 0);
       update_speed            : in  std_logic;
-      
+
       rx_configuration_vector : out std_logic_vector(79 downto 0);
       tx_configuration_vector : out std_logic_vector(79 downto 0)
 );
@@ -86,19 +86,19 @@ architecture rtl of tri_mode_ethernet_mac_0_config_vector_sm is
 
 
 
-   constant RUN_HALF_DUPLEX      : std_logic := '0';     
+   constant RUN_HALF_DUPLEX      : std_logic := '0';
 
    ------------------------------------------------------------------------------
    -- Component declaration for the synchroniser
    ------------------------------------------------------------------------------
    component tri_mode_ethernet_mac_0_sync_block
    port (
-      clk                        : in  std_logic; 
+      clk                        : in  std_logic;
       data_in                    : in  std_logic;
       data_out                   : out std_logic
    );
    end component;
-  
+
    -- main state machine
 
    type state_typ is     (STARTUP,
@@ -108,7 +108,7 @@ architecture rtl of tri_mode_ethernet_mac_0_config_vector_sm is
    -- Signal declarations
    signal control_status             : state_typ;
    signal update_speed_reg           : std_logic;
-   signal update_speed_reg2          : std_logic; 
+   signal update_speed_reg2          : std_logic;
    signal update_speed_sync          : std_logic;
 
    signal count_shift                : std_logic_vector(20 downto 0) := (others => '0');
@@ -143,13 +143,13 @@ architecture rtl of tri_mode_ethernet_mac_0_config_vector_sm is
 
    signal gtx_reset                  : std_logic;
 
-   
+
 
 begin
 
    gtx_reset <= not gtx_resetn;
 
-   rx_configuration_vector <= rx_pause_addr & 
+   rx_configuration_vector <= rx_pause_addr &
                                '0' & rx_max_frame_length &
                                '0' & rx_max_frame_enable &
                                rx_speed &
@@ -186,7 +186,7 @@ begin
       end if;
    end process gen_count;
 
-   upspeed_sync : tri_mode_ethernet_mac_0_sync_block  
+   upspeed_sync : tri_mode_ethernet_mac_0_sync_block
    port map (
       clk              => gtx_clk,
       data_in          => update_speed,
@@ -243,10 +243,10 @@ begin
             rx_max_frame_length     <= (others => '0');
             rx_pause_addr           <= X"0605040302DA";
             control_status          <= STARTUP;
-         
-         -- main state machine is kicking off multi cycle accesses in each state so has to 
+
+         -- main state machine is kicking off multi cycle accesses in each state so has to
          -- stall while they take place
-         else 
+         else
             case control_status is
                when STARTUP =>
                   -- this state will be ran after reset to wait for count_shift
@@ -265,7 +265,7 @@ begin
                when CHECK_SPEED =>
                   -- hold the local resets for 20 gtx cycles to ensure
                   -- the tx is captured by the mac
-                  if count_shift(20) = '1' then               
+                  if count_shift(20) = '1' then
                      tx_reset       <= '0';
                      rx_reset       <= '0';
                   end if;
@@ -280,4 +280,4 @@ begin
    end process gen_state;
 
 
-end rtl;  
+end rtl;

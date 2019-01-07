@@ -3,9 +3,9 @@
 --! @brief    ACQ427FMC Module Address Decode and Control - PandA
 --! @author   John McLean
 --! @date     14th June 2017
---! @details                                                        
---! D-TACQ Solutions Ltd Copyright 2014-2018                        
---!                                                                 
+--! @details
+--! D-TACQ Solutions Ltd Copyright 2014-2018
+--!
 
 --! Standard Libraries - numeric.std for all designs
 library ieee;
@@ -40,7 +40,7 @@ port(
     ADC_SPI_CLK             : out std_logic;                      --! ADC SPI Clock
     ADC_A0                  : out std_logic_vector(4 downto 1);   --! AD8251 Gain Setting Address Bit 0
     ADC_A1                  : out std_logic_vector(4 downto 1);   --! AD8251 Gain Setting Address Bit 1
-    -- 
+    --
     ADC_DATAOUT             : out std_logic_vector(255 downto 0)  --! 8 Channels of ADC Dataout for connection to Position Bus
     );
 end ACQ427FMC_ADC_INTERFACE;

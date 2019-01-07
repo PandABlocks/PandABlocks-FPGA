@@ -183,7 +183,7 @@ CONTROL_STATE_MACHINE: process (CONTROL_STATE,DAC_ENABLE,CONTROL_WRITE,CONTROL_R
 begin
     NEXT_CONTROL_STATE <= CONTROL_STATE;
     case CONTROL_STATE is
-    
+
         when CONTROL_IDLE =>
             if  DAC_ENABLE = '0' and CONTROL_WRITE = '1' then                   -- Start the Sequence when software writes to the register
                 NEXT_CONTROL_STATE <= INIT_CNRL_WRITE;
@@ -193,20 +193,20 @@ begin
 
         when INIT_CNRL_READ =>
             NEXT_CONTROL_STATE <= WAIT_READ_CMD;
-    
+
         when WAIT_READ_CMD =>
             if RUN_SHIFTING = '0' then
                 NEXT_CONTROL_STATE <= INIT_CNRL_DATA;
             end if;
-    
+
         when INIT_CNRL_DATA =>
             NEXT_CONTROL_STATE <= WAIT_CNTRL_READ;
-    
+
         when WAIT_CNTRL_READ =>
             if RUN_SHIFTING = '0' then
                 NEXT_CONTROL_STATE <= WAIT_READ_END;
             end if;
-    
+
         when WAIT_READ_END =>
             if CONTROL_READ = '0' then
                 NEXT_CONTROL_STATE <= CONTROL_IDLE;
@@ -214,12 +214,12 @@ begin
 
         when INIT_CNRL_WRITE =>
             NEXT_CONTROL_STATE <= WAIT_CNTRL_WRITE;
-        
+
         when WAIT_CNTRL_WRITE =>
             if RUN_SHIFTING = '0' then
                 NEXT_CONTROL_STATE <= WAIT_WRITE_END;
             end if;
-    
+
         when WAIT_WRITE_END =>
             if  CONTROL_WRITE = '0' then
                 NEXT_CONTROL_STATE <= CONTROL_IDLE;
@@ -249,40 +249,40 @@ FIFO_FETCH_STATE_MACHINE: process (FIFO_FETCH_STATE,READY_FOR_DATA,DAC_ENABLE,FI
 begin
     NEXT_FIFO_FETCH_STATE <= FIFO_FETCH_STATE;
     case FIFO_FETCH_STATE is
-        
+
         when FETCH_IDLE =>
             if  DAC_ENABLE = '1' and READY_FOR_DATA = '1'  and FIFO_AVAIL = '1'   then -- Start the Sequence when the sub-system is enabled and the control register has been written
                 NEXT_FIFO_FETCH_STATE <= LOAD_A; --  and either there is data in the FIFO or ignore in waveform mode since under runs need to be detected
             end if;
-    
+
         when LOAD_A =>
             NEXT_FIFO_FETCH_STATE <= LOAD_B;
-    
+
         when LOAD_B =>
             if DATA_SIZE = '0'  then --  0 =   packed complete after 2 loads
                 NEXT_FIFO_FETCH_STATE <= WAIT_SHIFT_START;
             else
                 NEXT_FIFO_FETCH_STATE <= LOAD_C;
             end if;
-    
+
         when LOAD_C =>
             NEXT_FIFO_FETCH_STATE <= LOAD_D;
-    
+
         when LOAD_D =>
             NEXT_FIFO_FETCH_STATE <= WAIT_SHIFT_START;
-    
+
         when WAIT_SHIFT_START => -- Wait for the Shift Registers to Start or halt if disabled
             if DAC_ENABLE = '0'  then
                 NEXT_FIFO_FETCH_STATE <= FETCH_IDLE;
             elsif RUN_SHIFTING = '1' then
                 NEXT_FIFO_FETCH_STATE <= WAIT_SHIFT_END;
             end if;
-    
+
         when WAIT_SHIFT_END =>
             if DAC_ENABLE = '0' or RUN_SHIFTING = '0' then -- Wait for them to end then loop or halt if disabled
                 NEXT_FIFO_FETCH_STATE <= FETCH_IDLE;
             end if;
-    
+
     end case;
 end process FIFO_FETCH_STATE_MACHINE;
 
@@ -341,12 +341,12 @@ DAC_LOAD_STATE_MACHINE: process (DAC_LOAD_STATE,FIFO_FETCH_STATE,RUN_SHIFTING,LO
 begin
     NEXT_DAC_LOAD_STATE <= DAC_LOAD_STATE;
     case DAC_LOAD_STATE is
-    
+
         when LOAD_IDLE =>
             if  FIFO_FETCH_STATE = WAIT_SHIFT_START then -- Start the Sequence after the FIFO has been read
                 NEXT_DAC_LOAD_STATE <= LOAD_DACS;
             end if;
-    
+
         when LOAD_DACS =>
             if LOW_LATENCY = '1' then -- If low latency move to update as soon as complete
                 if RUN_SHIFTING = '0'  then
@@ -357,31 +357,31 @@ begin
             elsif RUN_SHIFTING = '0' then -- Wait for Clock if Clock was in the wrong phase
                 NEXT_DAC_LOAD_STATE <= WAIT_CLOCK_PHASE;
             end if;
-        
+
         when WAIT_CLOCK_PHASE =>
             if (CNV_CLK = "0000" or LOW_LATENCY = '1') and CONV_ACTIVE = '1'  then -- move to update if clock in the correct phase or in Low Latency  and the module is triggered
                 NEXT_DAC_LOAD_STATE <= WAIT_PIPE;
             end if;
-    
+
         when WAIT_PIPE =>
             NEXT_DAC_LOAD_STATE <= WAIT_UPDATE;
-    
+
         when WAIT_UPDATE =>
             if LOW_LATENCY = '1' then
                 NEXT_DAC_LOAD_STATE <= UPDATE_COMPLETE;
             elsif CNV_CLK(2) = '1' and CNV_CLK(3) = '0' then -- Wait for Rising edge of Sample Clock
                 NEXT_DAC_LOAD_STATE <= UPDATE_COMPLETE;
             end if;
-    
+
         when UPDATE_COMPLETE =>
             NEXT_DAC_LOAD_STATE <= WAIT_SETTLE_1;
-    
+
         when WAIT_SETTLE_1 =>
             NEXT_DAC_LOAD_STATE <= WAIT_SETTLE_2;
-    
+
         when WAIT_SETTLE_2 =>
             NEXT_DAC_LOAD_STATE <= LOAD_IDLE;
-    
+
     end case;
 end process DAC_LOAD_STATE_MACHINE;
 

@@ -46,7 +46,7 @@ signal enable_prev              : std_logic;
 signal enable_fall              : std_logic;
 signal abort_trig               : std_logic;
 signal pcap_armed               : std_logic;
-signal disable_armed            : std_logic; 
+signal disable_armed            : std_logic;
 
 begin
 
@@ -58,7 +58,7 @@ pcap_armed_o <= pcap_armed;
 --------------------------------------------------------------------------
 process(clk_i) begin
     if rising_edge(clk_i) then
-    	enable_prev <= enable_i;
+        enable_prev <= enable_i;
     end if;
 end process;
 
@@ -76,7 +76,7 @@ process(clk_i) begin
         if (reset_i = '1') then
             arm_fsm <= IDLE;
             pcap_armed <= '0';
-            disable_armed <= '0';    
+            disable_armed <= '0';
             pcap_done_o <= '0';
         -- Stop capturing on error if armed.
         elsif (pcap_armed = '1' and abort_trig = '1') then
@@ -105,7 +105,7 @@ process(clk_i) begin
                 when IDLE =>
                     pcap_done_o <= '0';
                     if (ARM = '1') then
-                        pcap_armed <= '1';    
+                        pcap_armed <= '1';
                         arm_fsm <= ARMED;
                         pcap_status_o <= "000";
                     end if;
@@ -120,7 +120,7 @@ process(clk_i) begin
                 -- block error.
                 when ENABLED =>
                     disable_armed <= '0';
-                    if (enable_fall = '1' or DISARM = '1') then                     
+                    if (enable_fall = '1' or DISARM = '1') then
                         -- Complete gracefully, and make sure that ongoing write
                         -- into the DMA fifo is completed.
                         if (ongoing_trig_i = '1') then
@@ -156,11 +156,11 @@ process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             timestamp <= (others => '0');
-		elsif (ARM = '0' and enable_i = '0') then
-			timestamp <= (others => '0');	
+                elsif (ARM = '0' and enable_i = '0') then
+                        timestamp <= (others => '0');
         elsif (ARM = '1') then
             timestamp <= to_unsigned(1, 64);
-		elsif (pcap_armed = '1' and enable_i = '1') then	
+                elsif (pcap_armed = '1' and enable_i = '1') then
             timestamp <= timestamp + 1;
         end if;
     end if;

@@ -46,7 +46,7 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
+-- PART OF THIS FILE AT ALL TIMES.
 -- -----------------------------------------------------------------------------
 -- Description:  A simple AXI-Streaming MUX
 --
@@ -78,7 +78,7 @@ entity tri_mode_ethernet_mac_0_axi_mux is
       tdata                      : out std_logic_vector(7 downto 0);
       tvalid                     : out std_logic;
       tlast                      : out std_logic;
-      tready                     : in  std_logic                   
+      tready                     : in  std_logic
    );
 
 end tri_mode_ethernet_mac_0_axi_mux;
@@ -87,7 +87,7 @@ architecture rtl of tri_mode_ethernet_mac_0_axi_mux is
 
 begin
 
-   main_mux : process(mux_select, tdata0, tvalid0, tlast0, tdata1, 
+   main_mux : process(mux_select, tdata0, tvalid0, tlast0, tdata1,
                       tvalid1, tlast1)
    begin
       if mux_select = '1' then

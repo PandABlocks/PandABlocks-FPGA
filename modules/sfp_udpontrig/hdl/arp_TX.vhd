@@ -1,21 +1,21 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company:
 -- Engineer:            Peter Fall
--- 
--- Create Date:    12:00:04 05/31/2011 
--- Design Name: 
--- Module Name:    arp_tx - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
+--
+-- Create Date:    12:00:04 05/31/2011
+-- Design Name:
+-- Module Name:    arp_tx - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
 -- Description:
 --              handle transmission of an ARP packet.
 --
--- Dependencies: 
+-- Dependencies:
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01 - File Created - refactored this arp_tx module from the complete arp v0.02 module
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
   library IEEE;
@@ -32,7 +32,7 @@ entity arp_tx is
     ip_entry        : in  std_logic_vector (31 downto 0);  -- IP target for who_has req (will be latched)
     -- MAC layer TX signals
     mac_tx_req      : out std_logic;  -- indicates that ip wants access to channel (stays up for as long as tx)
-    mac_tx_granted  : in  std_logic;  -- indicates that access to channel has been granted            
+    mac_tx_granted  : in  std_logic;  -- indicates that access to channel has been granted
     data_out_ready  : in  std_logic;    -- indicates system ready to consume data
     data_out_valid  : out std_logic;    -- indicates data out is valid
     data_out_first  : out std_logic;  -- with data out valid indicates the first byte of a frame
@@ -78,7 +78,7 @@ architecture Behavioral of arp_tx is
   signal set_send_who_has    : set_clr_t;
   signal set_tx_mode         : std_logic;
   signal set_target          : std_logic;
-  
+
 begin
 
   tx_combinatorial : process (
@@ -171,14 +171,14 @@ begin
           set_tx_state  <= '1';
         end if;
         -- TODO - should handle timeout here
-        
+
       when SEND =>
         if data_out_ready = '1' then
           tx_count_mode <= INCR;
         end if;
         case tx_count is
           when x"00" => data_out_first <= data_out_ready;
-                        data_out <= target.mac (47 downto 40);       -- target mac--data_out       <= x"ff";    -- dst = broadcast            
+                        data_out <= target.mac (47 downto 40);       -- target mac--data_out       <= x"ff";    -- dst = broadcast
           when x"01" => data_out <= target.mac (39 downto 32);                    --data_out <= x"ff";
           when x"02" => data_out <= target.mac (31 downto 24);                    --data_out <= x"ff";
           when x"03" => data_out <= target.mac (23 downto 16);                    --data_out <= x"ff";
@@ -199,14 +199,14 @@ begin
           when x"12" => data_out <= x"06";                           -- HW size = 06
           when x"13" => data_out <= x"04";                           -- prot size = 04
 
-          when x"14" => data_out <= x"00";  -- opcode =             
+          when x"14" => data_out <= x"00";  -- opcode =
           when x"15" =>
             if tx_mode = REPLY then
               data_out <= x"02";            -- 02 : REPLY
             else
               data_out <= x"01";            -- 01 : REQ
             end if;
-            
+
           when x"16" => data_out <= our_mac_address (47 downto 40);  -- sender mac
           when x"17" => data_out <= our_mac_address (39 downto 32);
           when x"18" => data_out <= our_mac_address (31 downto 24);
@@ -218,11 +218,11 @@ begin
           when x"1e" => data_out <= our_ip_address (15 downto 8);
           when x"1f" => data_out <= our_ip_address (7 downto 0);
           when x"20" => data_out <= target.mac (47 downto 40);       -- target mac
-          when x"21" => data_out <= target.mac (39 downto 32);                    
-          when x"22" => data_out <= target.mac (31 downto 24);                    
-          when x"23" => data_out <= target.mac (23 downto 16);                    
-          when x"24" => data_out <= target.mac (15 downto 8);                     
-          when x"25" => data_out <= target.mac (7 downto 0);                      
+          when x"21" => data_out <= target.mac (39 downto 32);
+          when x"22" => data_out <= target.mac (31 downto 24);
+          when x"23" => data_out <= target.mac (23 downto 16);
+          when x"24" => data_out <= target.mac (15 downto 8);
+          when x"25" => data_out <= target.mac (7 downto 0);
           when x"26" => data_out <= target.ip (31 downto 24);        -- target ip
           when x"27" => data_out <= target.ip (23 downto 16);
           when x"28" => data_out <= target.ip (15 downto 8);
@@ -230,7 +230,7 @@ begin
           when x"29" =>
             data_out      <= target.ip(7 downto 0);
             data_out_last <= '1';
-            
+
           when x"2a" =>
             kill_data_out_valid <= '1';  -- data is no longer valid
             next_tx_state       <= IDLE;
@@ -258,7 +258,7 @@ begin
         I_have_target.mac <= (others => '0');
         target.ip         <= (others => '0');
         target.mac        <= (others => '1');
-        
+
       else
         -- normal (non reset) processing
 
@@ -324,7 +324,7 @@ begin
           when CLR  => tx_mac_chn_reqd <= '0';
           when HOLD => tx_mac_chn_reqd <= tx_mac_chn_reqd;
         end case;
-        
+
       end if;
     end if;
   end process;

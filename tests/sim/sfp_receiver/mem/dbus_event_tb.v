@@ -8,7 +8,7 @@ parameter c_code_reset_presc = 8'h7B;
 parameter c_code_event_code  = 8'h7C;
 parameter c_code_reset_event = 8'h7D;
 parameter c_code_seconds_0   = 8'h70;
-parameter c_code_seconds_1   = 8'h71;  
+parameter c_code_seconds_1   = 8'h71;
 
 
 reg          clk=0;
@@ -19,14 +19,14 @@ reg          bclk=0;
 reg          mclk=0;
 
 reg  [7:0]   event_codes;
-reg  [11:0]  event_cnt=0; // 4096 
+reg  [11:0]  event_cnt=0; // 4096
 
 
 reg          reset_i;
-reg  [1:0]   rxdisperr_i=0; 
+reg  [1:0]   rxdisperr_i=0;
 reg  [1:0]   rxnotintable_i=0;
 reg  [1:0]   rxcharisk_i;
-//reg  [31:0]  EVENT1=32'h00000110; 
+//reg  [31:0]  EVENT1=32'h00000110;
 //reg  [31:0]  EVENT2=32'h00000120;
 //reg  [31:0]  EVENT3=32'h00000140;
 reg  [31:0]  EVENT1=32'h0000007C;
@@ -43,8 +43,8 @@ wire         bit2_o;
 wire         bit3_o;
 wire         bit4_o;
 wire         loss_lock;
-wire         rx_error_o;        
-reg  [3:0]   write_cnt=0;    
+wire         rx_error_o;
+reg  [3:0]   write_cnt=0;
 
 //wire [7:0]  dbus;
 reg [15:0] txdata;
@@ -63,7 +63,7 @@ initial begin
     reset_i = 1;
     #128
     reset_i = 0;
-end     
+end
 
 
 always@(posedge clk)begin
@@ -76,34 +76,34 @@ always@(posedge clk)begin
             EVENT1_WSTB <= 1;
             EVENT2_WSTB <= 0;
             EVENT3_WSTB <= 0;
-            EVENT4_WSTB <= 0;            
+            EVENT4_WSTB <= 0;
         // Generate the write strobe for the EVENT2 reg update
         end else if (write_cnt == 1) begin
             EVENT1_WSTB <= 0;
             EVENT2_WSTB <= 1;
             EVENT3_WSTB <= 0;
-            EVENT4_WSTB <= 0;            
-        // Generate the write strobe for the EVENT3 reg update            
+            EVENT4_WSTB <= 0;
+        // Generate the write strobe for the EVENT3 reg update
         end else if (write_cnt == 2) begin
             EVENT1_WSTB <= 0;
             EVENT2_WSTB <= 0;
             EVENT3_WSTB <= 1;
-            EVENT4_WSTB <= 0;            
-        // Generate the write strobe for the EVENT4 reg update            
+            EVENT4_WSTB <= 0;
+        // Generate the write strobe for the EVENT4 reg update
         end else if (write_cnt == 3) begin
             EVENT1_WSTB <= 0;
             EVENT2_WSTB <= 0;
             EVENT3_WSTB <= 0;
             EVENT4_WSTB <= 1;
-        // Disable all write strtobes             
+        // Disable all write strtobes
         end else if (write_cnt == 4) begin
             EVENT1_WSTB <= 0;
             EVENT2_WSTB <= 0;
             EVENT3_WSTB <= 0;
-            EVENT4_WSTB <= 0;            
+            EVENT4_WSTB <= 0;
         end
     end
-end                    
+end
 
 
 // Event code generator
@@ -113,7 +113,7 @@ always@(posedge event_clk_i)begin
     if (event_cnt == 12'b000001111111) begin
         rxcharisk_i <= 0;
         event_codes <= c_code_heartbeat;
-    // Reset_presc event 
+    // Reset_presc event
     end else if (event_cnt == 12'b000001000000) begin
         rxcharisk_i <= 0;
         event_codes <= c_code_reset_presc;
@@ -253,31 +253,31 @@ always@(posedge event_clk_i)begin
     end else if (event_cnt == 4094) begin
         rxcharisk_i <= 0;
         event_codes <= c_code_reset_event;
-    // BC synch K character 
+    // BC synch K character
     end else if (event_cnt[0] == 1) begin
         rxcharisk_i <= 0;
-        event_codes <= k28_5;    
-    // Empty 
+        event_codes <= k28_5;
+    // Empty
     end else begin
         rxcharisk_i <= 0;
         event_codes <= 0;
-    end 
-end         
+    end
+end
 
 
 // Package the data
-// Name           bit     
+// Name           bit
 // cclk         - 15
 // sclk         - 14
 // bclk         - 13
 // mclk         - 12
 // empty        - 11 - 8
-// event_codes  -  7 - 0   
+// event_codes  -  7 - 0
 always@(posedge event_clk_i) begin
-    txdata = {cclk, sclk, bclk, mclk, 4'h0, event_codes}; 
+    txdata = {cclk, sclk, bclk, mclk, 4'h0, event_codes};
 end
-     
-     
+
+
 // And the EVENT registers with the data being sent
 // If the result of the ANDing is not then there is
 // a match
@@ -285,9 +285,9 @@ assign dbus_comp[0] = EVENT1[7:0] & txdata[15:8];
 assign dbus_comp[1] = EVENT2[7:0] & txdata[15:8];
 assign dbus_comp[2] = EVENT3[7:0] & txdata[15:8];
 assign dbus_comp[3] = EVENT4[7:0] & txdata[15:8];
-     
-     
-     
+
+
+
 integer i;
 reg [8:0] EVENTS [3:0];
 reg [3:0] EVENT_STROBES;
@@ -299,22 +299,22 @@ always@(posedge event_clk_i) begin
     EVENTS[2] <= EVENT3[8:0];
     EVENTS[3] <= EVENT4[8:0];
     for (i=0; i<4; i=i+1) begin
-        // Check for events or clocks passed out on the dbus event 
+        // Check for events or clocks passed out on the dbus event
         if ((EVENTS[i][8] == 0 && EVENTS[i][7:0] == txdata[7:0] && rxcharisk_i[0] == 0) ||
            (EVENTS[i][8] == 1 && dbus_comp[i] !== 8'h00 && rxcharisk_i[1] == 0)) begin
            EVENT_STROBES[i] <= 1;
         end else begin
             EVENT_STROBES[i] <= 0;
         end
-        // 
+        //
         EVENT_STROBES1 <= EVENT_STROBES;
         EVENT_STROBES2 <= EVENT_STROBES1;
-    end           
-end          
-     
+    end
+end
+
 
 // Write out to a file
-//integer file;     
+//integer file;
 //initial begin
 //    file = $fopen("output.txt", "w");
 //    #100000;
@@ -326,33 +326,33 @@ end
 //begin
 //    $fwrite(file, "%h\n", txdata);
 //end
-        
 
-sfp_receiver #(.events(4)) 
+
+sfp_receiver #(.events(4))
          uut(
           .clk_i              ( clk            ),
-          .event_clk_i        ( event_clk_i    ),   
+          .event_clk_i        ( event_clk_i    ),
           .reset_i            ( reset_i        ),
           .rxdisperr_i        ( rxdisperr_i    ),
-          .rxcharisk_i        ( rxcharisk_i    ),    
+          .rxcharisk_i        ( rxcharisk_i    ),
           .rxdata_i           ( txdata         ),
           .rxnotintable_i     ( rxnotintable_i ),
           .EVENT1             ( EVENT1         ),
-          .EVENT1_WSTB        ( EVENT1_WSTB    ),         
+          .EVENT1_WSTB        ( EVENT1_WSTB    ),
           .EVENT2             ( EVENT2         ),
-          .EVENT2_WSTB        ( EVENT2_WSTB    ),         
+          .EVENT2_WSTB        ( EVENT2_WSTB    ),
           .EVENT3             ( EVENT3         ),
-          .EVENT3_WSTB        ( EVENT3_WSTB    ),         
+          .EVENT3_WSTB        ( EVENT3_WSTB    ),
           .EVENT4             ( EVENT4         ),
-          .EVENT4_WSTB        ( EVENT4_WSTB    ),         
+          .EVENT4_WSTB        ( EVENT4_WSTB    ),
           .rx_link_ok_o       ( rx_link_ok_o   ),
-          .loss_lock_o        ( loss_lock      ),   
-          .rx_error_o         ( rx_error_o     ),           
+          .loss_lock_o        ( loss_lock      ),
+          .rx_error_o         ( rx_error_o     ),
           .bit1_o             ( bit1_o         ),
           .bit2_o             ( bit2_o         ),
           .bit3_o             ( bit3_o         ),
           .bit4_o             ( bit4_o         )
           );
 
-                     
-endmodule    
+
+endmodule

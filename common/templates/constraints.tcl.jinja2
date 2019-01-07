@@ -14,18 +14,18 @@ read_ip $IP_DIR/{{ ip }}/{{ ip }}.xci
 
 # Module code and constraints
 {% for block in blocks %}
-	{# Soft block module code #}
-	{% if block.type in "dma|soft|sfp|fmc" %}
+        {# Soft block module code #}
+        {% if block.type in "dma|soft|sfp|fmc" %}
 read_vhdl [glob $TOP_DIR/modules/{{ block.module_name }}/hdl/*.vhd]
 add_files $TOP_DIR/modules/{{ block.module_name }}/hdl/
-	{% endif %}
-	{# Constraints #}
-	{% if block.constraints %}
-		{% for constraint in block.constraints %}
+        {% endif %}
+        {# Constraints #}
+        {% if block.constraints %}
+                {% for constraint in block.constraints %}
 read_xdc $TOP_DIR/modules/{{ block.module_name }}/{{ constraint }}
-		{% endfor %}
-	{% endif %}
-	{% if block.otherconst %}
+                {% endfor %}
+        {% endif %}
+        {% if block.otherconst %}
 source $TOP_DIR/modules/{{ block.entity }}/{{ block.otherconst }}
     {% endif %}
 {% endfor %}

@@ -1,26 +1,26 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company:
 -- Engineer:            Peter Fall
--- 
--- Create Date:    16:20:42 06/01/2011 
--- Design Name: 
--- Module Name:    IPv4_RX - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+--
+-- Create Date:    16:20:42 06/01/2011
+-- Design Name:
+-- Module Name:    IPv4_RX - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --              handle simple IP RX
 --              doesnt handle reassembly
 --              checks and filters for IP protocol
 --              checks and filters for IP addr
 --              Handle IPv4 protocol
--- Dependencies: 
+-- Dependencies:
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01 - File Created
 -- Revision 0.02 - Improved error handling
 -- Revision 0.03 - Added handling of broadcast address
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library IEEE;
@@ -44,7 +44,7 @@ entity IPv4_RX is
     mac_data_in       : in  std_logic_vector (7 downto 0);  -- ethernet frame (from dst mac addr through to last byte of frame)
     mac_data_in_valid : in  std_logic;  -- indicates data_in valid on clock
     mac_data_in_last  : in  std_logic   -- indicates last data in frame
-    );                  
+    );
 end IPv4_RX;
 
 architecture Behavioral of IPv4_RX is
@@ -128,8 +128,8 @@ architecture Behavioral of IPv4_RX is
 --      |                                                                                          |
 --      --------------------------------------------------------------------------------------------
 --
--- * - in 32 bit words 
-  
+-- * - in 32 bit words
+
 begin
 
   -----------------------------------------------------------------------
@@ -237,7 +237,7 @@ begin
               set_ip_rx_start   <= CLR;
               set_data_last     <= '1';
               next_rx_state     <= IDLE;
-              rx_count_mode     <= RST;    
+              rx_count_mode     <= RST;
               set_rx_state      <= '1';
             else
               case rx_count is
@@ -246,13 +246,13 @@ begin
                     next_rx_state <= WAIT_END;
                     set_rx_state  <= '1';
                   end if;
-                  
+
                 when x"000d" =>
                   if mac_data_in /= x"00" then  -- ignore pkts that are not type=IP
                     next_rx_state <= WAIT_END;
                     set_rx_state  <= '1';
                   end if;
-                  
+
                 when others =>          -- ignore other bytes in eth header
               end case;
             end if;
@@ -285,7 +285,7 @@ begin
                     next_rx_state <= WAIT_END;
                     set_rx_state  <= '1';
                   end if;
-                  
+
                 when x"0002" => set_len_H <= '1';
                 when x"0003" => set_len_L <= '1';
 
@@ -295,7 +295,7 @@ begin
                     next_rx_state <= WAIT_END;
                     set_rx_state  <= '1';
                   end if;
-                  
+
                 when x"0007" =>
                   if mac_data_in /= x"00" then  -- ignore pkts that require reassembly (frag offst /= 0)
                     next_rx_state <= WAIT_END;
@@ -347,7 +347,7 @@ begin
                   else
                     set_is_broadcast <= CLR;
                   end if;
-                  set_hdr_valid <= SET;  -- header values are now valid, although the pkt may not be for us                                                                      
+                  set_hdr_valid <= SET;  -- header values are now valid, although the pkt may not be for us
 
                   --if dst_ip_rx = our_ip_address or dst_ip_rx = IP_BC_ADDR then
                   --  next_rx_state   <= USER_DATA;
@@ -358,12 +358,12 @@ begin
                   --  next_rx_state <= WAIT_END;
                   --  set_rx_state  <= '1';
                   --end if;
-                  
-                when others =>  -- ignore other bytes in ip header                                                                               
+
+                when others =>  -- ignore other bytes in ip header
               end case;
             end if;
         end case;
-        
+
       when USER_DATA =>
         case rx_event is
           when NO_EVENT =>              -- (nothing to do)
@@ -375,7 +375,7 @@ begin
               set_data_last   <= '1';
               if mac_data_in_last = '1' then
                 next_rx_state   <= IDLE;
-                rx_count_mode   <= RST;       
+                rx_count_mode   <= RST;
                 set_ip_rx_start <= CLR;
               else
                 next_rx_state <= WAIT_END;
@@ -408,7 +408,7 @@ begin
           rx_count_mode <= RST;
           set_rx_state  <= '1';
         end if;
-        
+
 
       when WAIT_END =>
         case rx_event is
@@ -417,14 +417,14 @@ begin
             if mac_data_in_last = '1' then
               set_data_last   <= '1';
               next_rx_state   <= IDLE;
-              rx_count_mode   <= RST; 
+              rx_count_mode   <= RST;
               set_rx_state    <= '1';
               set_ip_rx_start <= CLR;
             end if;
         end case;
-        
+
     end case;
-    
+
   end process;
 
 

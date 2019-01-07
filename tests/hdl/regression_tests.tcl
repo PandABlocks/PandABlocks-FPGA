@@ -36,7 +36,7 @@ set test_failed are;
 
 if {$argc > 0} {
     foreach module $argv {
-	    source "../hdl_timing/$module/$module.tcl"
+            source "../hdl_timing/$module/$module.tcl"
     }
 } else {
     # Find all the tcl scripts in the hdl_timing directory and source them
@@ -70,7 +70,7 @@ foreach test [array names tests] {
 
     launch_simulation
 
-	restart
+        restart
     run -all
 
     # All the testbenchs have a signal called test_result

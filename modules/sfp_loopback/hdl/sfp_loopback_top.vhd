@@ -15,7 +15,7 @@ port (
     sysbus_i            : in  std_logic_vector(SBUSW-1 downto 0);
     sfp_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
     sfp_data_o          : out std32_array(15 downto 0) := (others=>(others=>'0'));
-    
+
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -26,7 +26,7 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic := '1';
-    
+
     -- SFP Interface
     SFP_interface       : inout SFP_interface
 );

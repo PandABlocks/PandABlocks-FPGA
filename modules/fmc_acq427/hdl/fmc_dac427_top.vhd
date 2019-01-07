@@ -29,7 +29,7 @@ port (
     -- Bus Inputs
     bitbus_i            : in  std_logic_vector(127 downto 0);
     posbus_i            : in  std32_array(31 downto 0);
-	-- Generic Inputs to BitBus and PosBus from FMC and SFP
+        -- Generic Inputs to BitBus and PosBus from FMC and SFP
     fmc_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
     fmc_data_o          : out std32_array(15 downto 0) := (others=>(others=>'0')); -- 8 channels of 32-bit data
     -- Memory Bus Interface
@@ -167,7 +167,7 @@ port map (
     reset_i             => reset_i,
     bit_bus_i            => bitbus_i,
     pos_bus_i            => posbus_i,
-        
+
     ch01_dac_data_from_bus     => CH01_DAC_DATA,
     ch02_dac_data_from_bus     => CH02_DAC_DATA,
     ch03_dac_data_from_bus     => CH03_DAC_DATA,
@@ -195,8 +195,8 @@ port map (
     DAC_FIFO_ENABLE     => DAC_FIFO_ENABLE,
     DAC_RESET           => DAC_RESET,
     DAC_ENABLE          => DAC_ENABLE
-);    
-            
+);
+
 
 FMC_MODULE_ENABLE_n <= not MODULE_ENABLE(0);
 

@@ -37,7 +37,7 @@ port (
     -- Block Input and Outputs
     sysbus_i            : in  sysbus_t;
     posbus_i            : in  posbus_t;
-    DCARD_MODE          : in  std32_array(ENC_NUM-1 downto 0);  
+    DCARD_MODE          : in  std32_array(ENC_NUM-1 downto 0);
     PROTOCOL            : out std3_array(ENC_NUM-1 downto 0)
 );
 end outenc_top;

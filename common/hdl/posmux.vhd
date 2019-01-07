@@ -53,7 +53,7 @@ begin
         posn <= (others => '0');
     end if;
 end process;
-    
+
 
 -- Feed selected fiedd through the delay line
 delay_line_inst : entity work.delay_line

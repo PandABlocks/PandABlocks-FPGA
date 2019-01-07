@@ -22,11 +22,11 @@ remove_files -fileset sim_1 {
 # add the module vhd code
 add_files -norecurse {
     ../../modules/{{block.entity}}/hdl
-	{% if block.ip %}
-		{% for ip in block.ip %}
-	../../build/ip_repo/{{ ip }}/{{ ip }}_funcsim.vhdl
-		{% endfor %}
-	{% endif %}
+        {% if block.ip %}
+                {% for ip in block.ip %}
+        ../../build/ip_repo/{{ ip }}/{{ ip }}_funcsim.vhdl
+                {% endfor %}
+        {% endif %}
 }
 
 add_files -fileset sim_1 -norecurse {

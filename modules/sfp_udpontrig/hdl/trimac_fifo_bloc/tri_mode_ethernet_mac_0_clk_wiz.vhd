@@ -45,7 +45,7 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
+-- PART OF THIS FILE AT ALL TIMES.
 -- -----------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 -- Output     Output      Phase    Duty Cycle   Pk-to-Pk     Phase
@@ -53,9 +53,9 @@
 ------------------------------------------------------------------------------
 -- CLK_OUT1   125.000      0.000      50.0       91.364     85.928
 -- CLK_OUT2   100.000      0.000      50.0       70.716     85.928
-  
--- CLK_OUT2   200.000      0.000      50.0            
-  
+
+-- CLK_OUT2   200.000      0.000      50.0
+
 --
 ------------------------------------------------------------------------------
 -- Input Clock   Input Freq (MHz)   Input Jitter (UI)
@@ -84,7 +84,7 @@ end tri_mode_ethernet_mac_0_clk_wiz;
 
 architecture xilinx of tri_mode_ethernet_mac_0_clk_wiz is
   -- Input clock buffering / unused connectors
-  signal clkin1      	  : std_logic;
+  signal clkin1           : std_logic;
   -- Output clock buffering / unused connectors
   signal clkfbout         : std_logic;
   signal clkfboutb_unused : std_logic;
@@ -107,7 +107,7 @@ architecture xilinx of tri_mode_ethernet_mac_0_clk_wiz is
   -- Unused status signals
   signal clkfbstopped_unused : std_logic;
   signal clkinstopped_unused : std_logic;
-  
+
 begin
 
 
@@ -116,15 +116,15 @@ begin
   -- Instantiation of the MMCM primitive
   --    * Unused inputs are tied off
   --    * Unused outputs are labeled unused
-  
-  
+
+
   mmcm_adv_inst : MMCME2_ADV
-  
+
   generic map
    (BANDWIDTH            => "OPTIMIZED",
-    
+
     COMPENSATION         => "ZHOLD",
-    
+
     DIVCLK_DIVIDE        => 1,
     CLKFBOUT_MULT_F      => 5.000,
     CLKFBOUT_PHASE       => 0.000,
@@ -134,9 +134,9 @@ begin
     CLKOUT1_DIVIDE       => 10,
     CLKOUT1_PHASE        => 0.000,
     CLKOUT1_DUTY_CYCLE   => 0.500,
-  
+
     CLKOUT2_DIVIDE       => 5,
-  
+
     CLKOUT2_PHASE        => 0.000,
     CLKOUT2_DUTY_CYCLE   => 0.500,
     CLKIN1_PERIOD        => 5.000,
@@ -175,10 +175,10 @@ begin
     PSEN                => '0',
     PSINCDEC            => '0',
     PSDONE              => psdone_unused,
- 
+
     -- Other control and status signals
     LOCKED              => LOCKED,
- 
+
     CLKINSTOPPED        => clkinstopped_unused,
     CLKFBSTOPPED        => clkfbstopped_unused,
     PWRDWN              => '0',

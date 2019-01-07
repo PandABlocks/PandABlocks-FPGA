@@ -46,7 +46,7 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
+-- PART OF THIS FILE AT ALL TIMES.
 -- -----------------------------------------------------------------------------
 -- Description:  This block generates fully synchronous resets for each clock domain
 
@@ -69,9 +69,9 @@ entity tri_mode_ethernet_mac_0_example_design_resets is
    dcm_locked                 : in std_logic;
 
    -- synchronous reset outputs
- 
+
    glbl_rst_intn              : out std_logic;
-   
+
    gtx_resetn                 : out std_logic := '0';
    vector_resetn              : out std_logic := '0';
    phy_resetn                 : out std_logic;

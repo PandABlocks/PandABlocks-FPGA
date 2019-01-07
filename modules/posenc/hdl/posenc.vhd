@@ -31,7 +31,7 @@ signal STATE_FULL       : std_logic_vector(31 downto 0);
 signal reset            : std_logic;
 signal period_i         : std_logic_vector(31 downto 0);
 begin
---	
+--
 -- INCREMENTAL OUT
 --
 
@@ -56,7 +56,7 @@ port map (
 period_i <= PERIOD when (unsigned(PERIOD) /= 1) else  (0 => '0',
                                                       1 => '1',
                                                  others => '0');
- 
+
 -- Added clock to Protocol 1 Assignment so that the positive edge of the step
 -- output lines up with the positive edge of the quadrature output
 a_o <= a    when (PROTOCOL(0) = '0') else

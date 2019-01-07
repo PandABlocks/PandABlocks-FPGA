@@ -46,9 +46,9 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
--- 
--- 
+-- PART OF THIS FILE AT ALL TIMES.
+--
+--
 --------------------------------------------------------------------------------
 -- Description: This module holds the support level for the pcs/pma core
 --              This can be used as-is in a single core design, or adapted
@@ -70,27 +70,27 @@ use ieee.numeric_std.all;
 
 entity gig_ethernet_pcs_pma_0_support is
    port (
-      gtrefclk             : in std_logic;                    
-      gtrefclk_bufg        : in std_logic; 
+      gtrefclk             : in std_logic;
+      gtrefclk_bufg        : in std_logic;
 
-      txoutclk             : out std_logic;                   
-      rxoutclk             : out std_logic;                   
+      txoutclk             : out std_logic;
+      rxoutclk             : out std_logic;
       resetdone            : out std_logic;                    -- The GT transceiver has completed its reset cycle
-      cplllock             : out std_logic;                    
-      mmcm_reset           : out std_logic;                    
+      cplllock             : out std_logic;
+      mmcm_reset           : out std_logic;
       mmcm_locked          : in std_logic;                     -- Locked indication from MMCM
-      userclk              : in std_logic;                    
-      userclk2             : in std_logic;                    
-      rxuserclk              : in std_logic;                  
-      rxuserclk2             : in std_logic;                  
-      independent_clock_bufg : in std_logic;                  
+      userclk              : in std_logic;
+      userclk2             : in std_logic;
+      rxuserclk              : in std_logic;
+      rxuserclk2             : in std_logic;
+      independent_clock_bufg : in std_logic;
       pma_reset            : in std_logic;                     -- transceiver PMA reset signal
 
       txp                      : out std_logic;                    -- Differential +ve of serial transmission from PMA to PMD.
       txn                      : out std_logic;                    -- Differential -ve of serial transmission from PMA to PMD.
       rxp                      : in std_logic;                     -- Differential +ve for serial reception from PMD to PMA.
       rxn                      : in std_logic;                     -- Differential -ve for serial reception from PMD to PMA.
-              
+
       -- GMII Interface
       -----------------
       gmii_txd                 : in std_logic_vector(7 downto 0);  -- Transmit data from client MAC.
@@ -110,7 +110,7 @@ entity gig_ethernet_pcs_pma_0_support is
       ---------------
       status_vector            : out std_logic_vector(15 downto 0); -- Core status.
       reset                    : in std_logic;                     -- Asynchronous reset for entire core.
-      
+
       signal_detect            : in std_logic;                      -- Input from PMD to indicate presence of optical input.
       gt0_qplloutclk        : in   std_logic;
       gt0_qplloutrefclk     : in   std_logic
@@ -128,26 +128,26 @@ architecture wrapper of gig_ethernet_pcs_pma_0_support is
    port (
       -- Transceiver Interface
       ---------------------
-      gtrefclk             : in std_logic;                    
-      gtrefclk_bufg        : in std_logic; 
+      gtrefclk             : in std_logic;
+      gtrefclk_bufg        : in std_logic;
       txp                  : out std_logic;                    -- Differential +ve of serial transmission from PMA to PMD.
       txn                  : out std_logic;                    -- Differential -ve of serial transmission from PMA to PMD.
       rxp                  : in std_logic;                     -- Differential +ve for serial reception from PMD to PMA.
       rxn                  : in std_logic;                     -- Differential -ve for serial reception from PMD to PMA.
 
-      txoutclk             : out std_logic;                   
-      rxoutclk             : out std_logic;                   
+      txoutclk             : out std_logic;
+      rxoutclk             : out std_logic;
       resetdone            : out std_logic;                    -- The GT transceiver has completed its reset cycle
-      cplllock             : out std_logic;                    
-      mmcm_reset           : out std_logic;                    
+      cplllock             : out std_logic;
+      mmcm_reset           : out std_logic;
       mmcm_locked          : in std_logic;                     -- Locked indication from MMCM
-      userclk              : in std_logic;                    
-      userclk2             : in std_logic;                    
-      rxuserclk              : in std_logic;                  
-      rxuserclk2             : in std_logic;                  
-      independent_clock_bufg : in std_logic;                  
+      userclk              : in std_logic;
+      userclk2             : in std_logic;
+      rxuserclk              : in std_logic;
+      rxuserclk2             : in std_logic;
+      independent_clock_bufg : in std_logic;
       pma_reset            : in std_logic;                     -- transceiver PMA reset signal
-      
+
       -- GMII Interface
       -----------------
       gmii_txd             : in std_logic_vector(7 downto 0);  -- Transmit data from client MAC.
@@ -185,16 +185,16 @@ end component;
 --      gtrefclk_bufg           : out std_logic;
 --      mmcm_locked             : out std_logic;                -- MMCM locked
 --      userclk                 : out std_logic;                -- for GT PMA reference clock
---      userclk2                : out std_logic;                 
+--      userclk2                : out std_logic;
 --      rxuserclk               : out std_logic;                -- for GT PMA reference clock
---      rxuserclk2              : out std_logic                 
+--      rxuserclk2              : out std_logic
 --   );
 --end component;
 --
 --component gig_ethernet_pcs_pma_0_resets
 --   port (
 --    reset                    : in  std_logic;                -- Asynchronous reset for entire core.
---    independent_clock_bufg   : in  std_logic;                -- System clock 
+--    independent_clock_bufg   : in  std_logic;                -- System clock
 --    pma_reset                : out std_logic                 -- Synchronous transcevier PMA reset
 --   );
 --end component;
@@ -206,7 +206,7 @@ end component;
 --    QPLLLOCKDETCLK_IN    : in std_logic;
 --    QPLLOUTCLK_OUT       : out std_logic;
 --    QPLLOUTREFCLK_OUT    : out std_logic;
---    QPLLREFCLKLOST_OUT   : out std_logic;    
+--    QPLLREFCLKLOST_OUT   : out std_logic;
 --    QPLLRESET_IN         : in std_logic
 --  );
 --end component;
@@ -242,7 +242,7 @@ begin
       ---------------------
       gtrefclk        => gtrefclk,
       gtrefclk_bufg   => gtrefclk_bufg,
-      
+
       txp             => txp,
       txn             => txn,
       rxp             => rxp,
@@ -260,7 +260,7 @@ begin
       rxuserclk2          =>  rxuserclk2  ,
       independent_clock_bufg => independent_clock_bufg,
       pma_reset           =>    pma_reset ,
-      
+
       -- GMII Interface
       -----------------
       gmii_txd           =>  gmii_txd    ,
@@ -281,7 +281,7 @@ begin
       ---------------
       status_vector          =>  status_vector,
       reset                  =>  pma_reset    ,
-      
+
       signal_detect       =>  signal_detect,
 
       gt0_qplloutclk_in     => gt0_qplloutclk,
@@ -314,10 +314,10 @@ begin
 --   rxuserclk_out       <= rxuserclk;
 --   rxuserclk2_out      <= rxuserclk2;
 --   pma_reset_out       <= pma_reset;
---   
+--
 --   core_resets_i : gig_ethernet_pcs_pma_0_resets
 --   port map (
---      reset                     => reset, 
+--      reset                     => reset,
 --      independent_clock_bufg    => independent_clock_bufg,
 --      pma_reset                 => pma_reset
 --   );
@@ -330,8 +330,8 @@ begin
 --    QPLLLOCKDETCLK_IN           => independent_clock_bufg,
 --    QPLLOUTCLK_OUT              => gt0_qplloutclk,
 --    QPLLOUTREFCLK_OUT           => gt0_qplloutrefclk,
---    QPLLREFCLKLOST_OUT          => open,    
---    QPLLRESET_IN                => pma_reset 
+--    QPLLREFCLKLOST_OUT          => open,
+--    QPLLRESET_IN                => pma_reset
 --  );
 --
 --   gt0_qplloutclk_out        <=  gt0_qplloutclk;

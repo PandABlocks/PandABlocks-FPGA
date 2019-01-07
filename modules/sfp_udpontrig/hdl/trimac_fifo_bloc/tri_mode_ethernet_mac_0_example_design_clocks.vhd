@@ -46,7 +46,7 @@
 -- regulations governing limitations on product liability.
 --
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
--- PART OF THIS FILE AT ALL TIMES. 
+-- PART OF THIS FILE AT ALL TIMES.
 -- -----------------------------------------------------------------------------
 -- Description:  This block generates the clocking logic required for the
 --               example design.
@@ -126,7 +126,7 @@ architecture RTL of tri_mode_ethernet_mac_0_example_design_clocks is
   signal mmcm_reset_in     : std_logic;
 
 
-  
+
 
 begin
 
@@ -190,6 +190,6 @@ begin
 
    dcm_locked <= dcm_locked_int;
 
-  
+
 
 end RTL;

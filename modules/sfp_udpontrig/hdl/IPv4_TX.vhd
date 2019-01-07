@@ -1,27 +1,27 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company:
 -- Engineer:            Peter Fall
--- 
--- Create Date:    16:20:42 06/01/2011 
--- Design Name: 
--- Module Name:    IPv4_TX - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+--
+-- Create Date:    16:20:42 06/01/2011
+-- Design Name:
+-- Module Name:    IPv4_TX - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --              handle simple IP TX
 --              doesnt handle segmentation
 --              dest MAC addr resolution through ARP layer
 --              Handle IPv4 protocol
--- Dependencies: 
+-- Dependencies:
 --
--- Revision: 
+-- Revision:
 -- Revision 0.01 - File Created
 -- Revision 0.02 - fixed up setting of tx_result control defaults
 -- Revision 0.03 - Added data_out_first
 -- Revision 0.04 - Added handling of broadcast address
 -- Revision 0.05 - Fix cks calc when add of high bits causes another ovf
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library IEEE;
@@ -49,12 +49,12 @@ entity IPv4_TX is
     arp_req_rslt       : in  arp_req_rslt_type;
     -- MAC layer TX signals
     mac_tx_req         : out std_logic;  -- indicates that ip wants access to channel (stays up for as long as tx)
-    mac_tx_granted     : in  std_logic;  -- indicates that access to channel has been granted            
+    mac_tx_granted     : in  std_logic;  -- indicates that access to channel has been granted
     mac_data_out_ready : in  std_logic;  -- indicates system ready to consume data
     mac_data_out_valid : out std_logic;  -- indicates data out is valid
     mac_data_out_first : out std_logic;  -- with data out valid indicates the first byte of a frame
     mac_data_out_last  : out std_logic;  -- with data out valid indicates the last byte of a frame
-    mac_data_out       : out std_logic_vector (7 downto 0)  -- ethernet frame (from dst mac addr through to last byte of frame)      
+    mac_data_out       : out std_logic_vector (7 downto 0)  -- ethernet frame (from dst mac addr through to last byte of frame)
     );
 end IPv4_TX;
 
@@ -157,23 +157,23 @@ architecture Behavioral of IPv4_TX is
 --      |                                                                                          |
 --      --------------------------------------------------------------------------------------------
 --
--- * - in 32 bit words 
+-- * - in 32 bit words
 -- CHIPSCOPE ILA probes
 
-	signal probe6               : std_logic_vector(31 downto 0);
-	
-	attribute keep : string;--keep name for ila probes
-	attribute keep of tx_state       : signal is "true";
-	attribute keep of tx_count       : signal is "true";
-	  
+        signal probe6               : std_logic_vector(31 downto 0);
+
+        attribute keep : string;--keep name for ila probes
+        attribute keep of tx_state       : signal is "true";
+        attribute keep of tx_count       : signal is "true";
+
 begin
   -----------------------------------------------------------------------
   -- combinatorial process to implement FSM and determine control signals
   -----------------------------------------------------------------------
-  
+
   tx_combinatorial : process(
     -- input signals
-    ip_tx_start, ip_tx, our_ip_address, our_mac_address, arp_req_rslt,  --clk, 
+    ip_tx_start, ip_tx, our_ip_address, our_mac_address, arp_req_rslt,  --clk,
     mac_tx_granted, mac_data_out_ready,
     -- state variables
     tx_state, tx_count, tx_result_reg, tx_mac, tx_mac_chn_reqd,
@@ -198,7 +198,7 @@ begin
         mac_data_out      <= tx_data;
         tx_data_valid     <= mac_data_out_ready;  -- generated internally
         mac_data_out_last <= set_last;
-        
+
       when SEND_USER_DATA =>
         mac_data_out      <= ip_tx.data.data_out;
         tx_data_valid     <= ip_tx.data.data_out_valid;
@@ -287,7 +287,7 @@ begin
           next_tx_state   <= IDLE;
           set_tx_state    <= '1';
         end if;
-        
+
       when WAIT_CHN =>
         ip_tx_data_out_ready <= '0';  -- in this state, we are unable to accept user data for tx
         if mac_tx_granted = '1' then
@@ -296,7 +296,7 @@ begin
           set_tx_state  <= '1';
         end if;
         -- probably should handle a timeout here
-        
+
       when SEND_ETH_HDR =>
         ip_tx_data_out_ready <= '0';  -- in this state, we are unable to accept user data for tx
         if mac_data_out_ready = '1' then
@@ -310,8 +310,8 @@ begin
           case tx_count is
             when x"000" =>
               mac_data_out_first <= mac_data_out_ready;
-              tx_data            <= tx_mac (47 downto 40);  -- trg = mac from ARP lookup                                            
-              
+              tx_data            <= tx_mac (47 downto 40);  -- trg = mac from ARP lookup
+
             when x"001" => tx_data <= tx_mac (39 downto 32);
             when x"002" => tx_data <= tx_mac (31 downto 24);
             when x"003" => tx_data <= tx_mac (23 downto 16);
@@ -323,7 +323,7 @@ begin
             when x"009" => tx_data <= our_mac_address (23 downto 16);
             when x"00a" => tx_data <= our_mac_address (15 downto 8);
             when x"00b" => tx_data <= our_mac_address (7 downto 0);
-            when x"00c" => tx_data <= x"08";  -- pkt type = 0800 : IP                                         
+            when x"00c" => tx_data <= x"08";  -- pkt type = 0800 : IP
             when x"00d" => tx_data <= x"00";
             when others =>
                                         -- shouldnt get here - handle as error
@@ -333,7 +333,7 @@ begin
               set_tx_state   <= '1';
           end case;
         end if;
-        
+
       when SEND_IP_HDR =>
         ip_tx_data_out_ready <= '0';  -- in this state, we are unable to accept user data for tx
         if mac_data_out_ready = '1' then
@@ -374,7 +374,7 @@ begin
               set_tx_state   <= '1';
           end case;
         end if;
-        
+
       when SEND_USER_DATA =>
         ip_tx_data_out_ready <= mac_data_out_ready;-- and mac_data_out_ready_reg;  -- in this state, we are always ready to accept user data for tx
         if mac_data_out_ready = '1' then
@@ -391,7 +391,7 @@ begin
               set_tx_state   <= '1';
               if ip_tx.data.data_out_last = '0' then
                 next_tx_result <= IPTX_RESULT_ERR;
-              end if;                
+              end if;
             elsif ip_tx.data.data_out_last = '1' then
                                                                                 -- TX terminated due to receiving last indication from upstream - end with error
               set_last       <= '1';
@@ -433,7 +433,7 @@ begin
         tx_mac          <= (others => '0');
         tx_mac_chn_reqd <= '0';
         mac_lookup_req  <= '0';
-        
+
       else
         -- Next tx_state processing
         if set_tx_state = '1' then
@@ -458,7 +458,7 @@ begin
           when CLR =>
             mac_lookup_req <= '0';
             arp_req_ip_reg <= arp_req_ip_reg;
-            
+
           when HOLD =>
             mac_lookup_req <= mac_lookup_req;
             arp_req_ip_reg <= arp_req_ip_reg;
@@ -485,7 +485,7 @@ begin
           when INCR => tx_count <= tx_count + 1;
           when HOLD => tx_count <= tx_count;
         end case;
-        
+
       end if;
     end if;
   end process;
@@ -504,39 +504,39 @@ begin
             tx_hdr_cks <= x"004500";    -- vers & hdr len & service
             crc_state  <= TOT_LEN;
           end if;
-          
+
         when TOT_LEN =>
           tx_hdr_cks <= std_logic_vector (unsigned(tx_hdr_cks) + unsigned(total_length));
           crc_state  <= ID;
-          
+
         when ID =>
           tx_hdr_cks <= tx_hdr_cks;
           crc_state  <= FLAGS;
-          
+
         when FLAGS =>
           tx_hdr_cks <= tx_hdr_cks;
           crc_state  <= TTL;
-          
+
         when TTL =>
           tx_hdr_cks <= std_logic_vector (unsigned(tx_hdr_cks) + unsigned(IP_TTL & ip_tx.hdr.protocol));
           crc_state  <= CKS;
-          
+
         when CKS =>
           tx_hdr_cks <= tx_hdr_cks;
           crc_state  <= SAH;
-          
+
         when SAH =>
           tx_hdr_cks <= std_logic_vector (unsigned(tx_hdr_cks) + unsigned(our_ip_address(31 downto 16)));
           crc_state  <= SAL;
-          
+
         when SAL =>
           tx_hdr_cks <= std_logic_vector (unsigned(tx_hdr_cks) + unsigned(our_ip_address(15 downto 0)));
           crc_state  <= DAH;
-          
+
         when DAH =>
           tx_hdr_cks <= std_logic_vector (unsigned(tx_hdr_cks) + unsigned(ip_tx.hdr.dst_ip_addr(31 downto 16)));
           crc_state  <= DAL;
-          
+
         when DAL =>
           tx_hdr_cks <= std_logic_vector (unsigned(tx_hdr_cks) + unsigned(ip_tx.hdr.dst_ip_addr(15 downto 0)));
           crc_state  <= ADDOVF;
@@ -548,7 +548,7 @@ begin
         when FINAL =>
           tx_hdr_cks <= inv_if_one(std_logic_vector (unsigned(tx_hdr_cks) + unsigned(tx_hdr_cks(23 downto 16))), '1');
           crc_state  <= WAIT_END;
-          
+
         when WAIT_END =>
           tx_hdr_cks <= tx_hdr_cks;
           if ip_tx_start = '0' then
@@ -556,12 +556,12 @@ begin
           else
             crc_state <= WAIT_END;
           end if;
-          
+
 
       end case;
     end if;
   end process;
-  
+
 ---------------------------------------------------------------------------
 -- Chipscope ILA Debug purpose
 ---------------------------------------------------------------------------
@@ -571,12 +571,12 @@ ILA_GEN : IF True GENERATE--false GENERATE
           clk => clk,
           probe0 => probe6
     );
-    
+
     probe6(11 downto 0)<=--tx_state&
                          std_logic_vector(tx_count);
     probe6(31 downto 12)<=(others=>'0');
-    
-    
+
+
 
 END GENERATE;
 

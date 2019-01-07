@@ -218,7 +218,7 @@ port map (
     ADC_ENABLE          => ADC_ENABLE
 );
 
-            
+
 
 FMC_MODULE_ENABLE_n <= not MODULE_ENABLE(0);
 

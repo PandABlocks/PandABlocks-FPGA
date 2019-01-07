@@ -93,7 +93,7 @@ process(func_i, acc_abcd) begin
         case func_i is
             when "00" =>
                 out_o <= std_logic_vector(resize(acc_abcd, 32));
-            when "01" => 
+            when "01" =>
                 out_o <= std_logic_vector(resize(shift_right(acc_abcd,1), 32));
             when "10" =>
                 out_o <= std_logic_vector(resize(shift_right(acc_abcd,2), 32));

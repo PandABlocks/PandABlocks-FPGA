@@ -10,7 +10,7 @@
 --                connector.
 --
 --                This module must be used with Whizz Systems FMC Loopback card
---                where LA[16:0] are outputs, and loopbacked to LA[33:17] as 
+--                where LA[16:0] are outputs, and loopbacked to LA[33:17] as
 --                inputs.
 --
 --------------------------------------------------------------------------------

@@ -31,7 +31,7 @@ architecture rtl of srgate is
 
 constant c_trig_edge_neg        : std_logic_vector(1 downto 0) := "01";
 constant c_trig_edge_pos        : std_logic_vector(1 downto 0) := "00";
-constant c_trig_edge_either     : std_logic_vector(1 downto 0) := "10";     
+constant c_trig_edge_either     : std_logic_vector(1 downto 0) := "10";
 
 constant c_output_low           : std_logic_vector(1 downto 0) := "00";
 constant c_output_high          : std_logic_vector(1 downto 0) := "01";
@@ -64,7 +64,7 @@ rst_rise  <= rst_i and not rst_prev;
 set_fall  <= not set_i and set_prev;
 rst_fall  <= not rst_i and rst_prev;
 
-set <= set_fall when (SET_EDGE = c_trig_edge_neg) else 
+set <= set_fall when (SET_EDGE = c_trig_edge_neg) else
        set_rise or set_fall when (SET_EDGE = c_trig_edge_either) else
        set_rise;
 rst <= rst_fall when (RST_EDGE = c_trig_edge_neg) else
@@ -94,8 +94,8 @@ begin
             if WHEN_DISABLED = c_output_low then
                 pulse <= '0';
             elsif WHEN_DISABLED = c_output_high then
-                pulse <= '1';    
-            end if;    
+                pulse <= '1';
+            end if;
         end if;
     end if;
 end process;
