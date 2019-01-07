@@ -32,6 +32,7 @@ port (
     ttlout_i            : in  std_logic_vector(TTLOUT_NUM-1 downto 0);
     inenc_conn_i        : in  std_logic_vector(ENC_NUM-1 downto 0);
     outenc_conn_i       : in  std_logic_vector(ENC_NUM-1 downto 0);
+    pcap_act_i          : in  std_logic;
     slow_tlp_o          : out slow_packet
 );
 end led_management;
@@ -46,9 +47,10 @@ signal val              : std_logic_vector(LED_COUNT-1 downto 0);
 signal val_prev         : std_logic_vector(LED_COUNT-1 downto 0);
 signal changed          : std_logic_vector(LED_COUNT-1 downto 0);
 signal ttlio_leds       : std_logic_vector(LED_COUNT-1 downto 0);
-signal status_leds      : std_logic_vector(3 downto 0);
+signal status_leds      : std_logic_vector(3 downto 0)  := (others => '0');
 signal data             : std_logic_vector(31 downto 0) := (others => '0');
 signal data_prev        : std_logic_vector(31 downto 0);
+signal pcap_act_reg     : std_logic;
 
 begin
 
@@ -59,12 +61,14 @@ process(clk_i)
     variable counter : integer range 0 to 62500000;
 begin
     if rising_edge(clk_i) then
+        pcap_act_reg <= pcap_act_i;
         if (counter = 62499999) then
             status_leds(0) <= not status_leds(0);
             counter := 0;
         else
             counter := counter + 1;
         end if;
+        status_leds(3) <= pcap_act_reg;
     end if;
 end process;
 

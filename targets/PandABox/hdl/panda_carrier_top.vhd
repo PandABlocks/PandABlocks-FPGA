@@ -710,6 +710,7 @@ port map (
     ttlout_i            => ttlout_val,
     inenc_conn_i        => inenc_conn,
     outenc_conn_i       => outenc_conn,
+    pcap_act_i          => pcap_active(0),
     -- Block Input and Outputs
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
     DCARD_MODE          => DCARD_MODE,
