@@ -75,6 +75,9 @@ signal ADC_FIFO_ENABLE      : std_logic_vector(31 downto 0);
 signal ADC_RESET            : std_logic_vector(31 downto 0);
 signal ADC_ENABLE           : std_logic_vector(31 downto 0);
 
+signal gains            : std32_array(7 downto 0);
+
+
 ---------------------------------------------------------------------------------------
 -- ADC I/O Logic
 ---------------------------------------------------------------------------------------
@@ -96,6 +99,7 @@ signal s_TRIG_DATA          : std_logic := '0';                                 
 signal s_CLOCK_DATA         : std_logic := '0';                                 --! External Clock Data
 
 signal ADC_DATAOUT          : std_logic_vector(255 downto 0) := (others => '0');
+signal fmc_data             : std32_array(7 downto 0);
 
 
 ---------------------------------------------------------------------------------------
@@ -171,6 +175,23 @@ port map (
     reset_i             => reset_i,
     bit_bus_i            => bitbus_i,
     pos_bus_i            => posbus_i,
+    -- Block Parameters
+    CH01_ADC_GAIN => gains(0),
+    CH01_ADC_GAIN_wstb  => open,
+    CH02_ADC_GAIN => gains(1),
+    CH02_ADC_GAIN_wstb  => open,
+    CH03_ADC_GAIN => gains(2),
+    CH03_ADC_GAIN_wstb  => open,
+    CH04_ADC_GAIN => gains(3),
+    CH04_ADC_GAIN_wstb  => open,
+    CH05_ADC_GAIN => gains(4),
+    CH05_ADC_GAIN_wstb  => open,
+    CH06_ADC_GAIN => gains(5),
+    CH06_ADC_GAIN_wstb  => open,
+    CH07_ADC_GAIN => gains(6),
+    CH07_ADC_GAIN_wstb  => open,
+    CH08_ADC_GAIN => gains(7),
+    CH08_ADC_GAIN_wstb  => open,
     -- Memory Bus Interface
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
@@ -220,14 +241,26 @@ port map (
     ADC_DATAOUT             =>  ADC_DATAOUT
     );
 
-fmc_data_o(7) <= ADC_DATAOUT(31 downto 0);
-fmc_data_o(6) <= ADC_DATAOUT(63 downto 32);
-fmc_data_o(5) <= ADC_DATAOUT(95 downto 64);
-fmc_data_o(4) <= ADC_DATAOUT(127 downto 96);
-fmc_data_o(3) <= ADC_DATAOUT(159 downto 128);
-fmc_data_o(2) <= ADC_DATAOUT(191 downto 160);
-fmc_data_o(1) <= ADC_DATAOUT(223 downto 192);
-fmc_data_o(0) <= ADC_DATAOUT(255 downto 224);
+fmc_data(7) <= ADC_DATAOUT(31 downto 0);
+fmc_data(6) <= ADC_DATAOUT(63 downto 32);
+fmc_data(5) <= ADC_DATAOUT(95 downto 64);
+fmc_data(4) <= ADC_DATAOUT(127 downto 96);
+fmc_data(3) <= ADC_DATAOUT(159 downto 128);
+fmc_data(2) <= ADC_DATAOUT(191 downto 160);
+fmc_data(1) <= ADC_DATAOUT(223 downto 192);
+fmc_data(0) <= ADC_DATAOUT(255 downto 224);
+
+-- Extract the FMC data and apply gain control to it.
+gen_channel : for i in 0 to 7 generate
+    process (clk_i)
+        variable shift : natural := to_integer(unsigned(gains(i)(1 downto 0)));
+    begin
+        if rising_edge(clk_i) then
+            fmc_data_o(i) <= std_logic_vector(
+                shift_right(signed(fmc_data(i)), shift));
+        end if;
+    end process;
+end generate;
 
 
 IOB_FF_PUSH_ADC: process(clk_ADC_IOB)

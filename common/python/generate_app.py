@@ -3,14 +3,13 @@
 Generate build/<app> from <app>.app.ini
 """
 import os
-import shutil
 from argparse import ArgumentParser
 from pkg_resources import require
 
 require("jinja2")
 from jinja2 import Environment, FileSystemLoader
 
-from .compat import TYPE_CHECKING, configparser
+from .compat import TYPE_CHECKING
 from .configs import BlockConfig, pad
 from .ini_util import read_ini, ini_get
 
@@ -21,13 +20,45 @@ if TYPE_CHECKING:
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 
-# Max number of Block types
-MAX_BLOCKS = 32
 
-# Max size of buses
-MAX_BIT = 128
-MAX_POS = 32
-MAX_EXT = 32
+# This class generates unique register numbers.  It is designed to be passed to
+# the implement_blocks() and register_addresses() functions.  Methods are
+# provided for generating new block, bit, pos, ext addresses.
+class RegisterCounter:
+    # Max number of Block types
+    MAX_BLOCKS = 32
+
+    # Max size of buses
+    MAX_BIT = 128
+    MAX_POS = 32
+    MAX_EXT = 32
+
+    def __init__(self,
+            block_count = 0, bit_count = 0, pos_count = 0, ext_count = 0):
+        self.block_count = block_count
+        self.bit_count = bit_count
+        self.pos_count = pos_count
+        self.ext_count = ext_count
+
+    # Helper function for generating allocator.
+    def __allocator(counter, limit, name):
+        def allocate(self):
+            result = getattr(self, counter)
+            assert result < limit, "Overflowed %s" % name
+            setattr(self, counter, result + 1)
+            return result
+        return allocate
+
+    new_block = __allocator('block_count', MAX_BLOCKS, 'block addresses')
+    new_bit   = __allocator('bit_count', MAX_BIT, 'bit bus entries')
+    new_pos   = __allocator('pos_count', MAX_POS, 'pos bus entries')
+    new_ext   = __allocator('ext_count', MAX_EXT, 'ext bus entries')
+
+
+def jinja_context(**kwargs):
+    context = dict(pad=pad)
+    context.update(kwargs)
+    return context
 
 
 class AppGenerator(object):
@@ -46,11 +77,13 @@ class AppGenerator(object):
             lstrip_blocks=True,
             keep_trailing_newline=True,
         )
+        # Start from base register 2 to allow for *REG and *DRV spaces
+        self.counters = RegisterCounter(block_count = 2)
         # These will be created when we parse the ini files
         self.blocks = []  # type: List[BlockConfig]
         self.ip = []
         self.constraints = []
-        self.sfpsites = []
+        self.sfpsites = 0
         self.parse_ini_files(app)
         self.generate_config_dir()
         self.generate_wrappers()
@@ -71,10 +104,7 @@ class AppGenerator(object):
         """
         app_ini = read_ini(app)
         # Load all the block definitions
-        # Start from base register 2 to allow for *REG and *DRV spaces
-        block_address = 2
-        # The various busses
-        bit_i, pos_i, ext_i = 0, 0, 0
+
         # The following code reads the target ini file for the specified target
         # The ini file declares the carrier blocks
         target = app_ini.get(".", "target")
@@ -83,32 +113,27 @@ class AppGenerator(object):
             target_path = os.path.join(ROOT, "targets", target)
             target_ini = read_ini(os.path.join(target_path, (
                     target + ".target.ini")))
-            block_address, bit_i, pos_i, ext_i = self.implement_blocks(
-                target_ini, target_path, "carrier", "blocks",
-                block_address, bit_i, pos_i, ext_i)
+            self.implement_blocks(target_ini, target_path, "carrier", "blocks")
 
             self.constraints = ini_get(
                 target_ini, '.', 'sfp_constraints', '').split()
             self.sfpsites = int(ini_get(target_ini, '.', 'sfp_sites', 0))
 
         # Implement the blocks for the soft blocks
-        block_address, bit_i, pos_i, ext_i = self.implement_blocks(
-            app_ini, ROOT, "soft", "modules",
-            block_address, bit_i, pos_i, ext_i)
+        self.implement_blocks(app_ini, ROOT, "soft", "modules")
         print("####################################")
         print("# Resource usage")
-        print("#  Block addresses: %d/%d" % (block_address, MAX_BLOCKS))
-        print("#  Bit bus: %d/%d" % (bit_i, MAX_BIT))
-        print("#  Pos bus: %d/%d" % (pos_i, MAX_POS))
-        print("#  Ext bus: %d/%d" % (ext_i, MAX_EXT))
+        print("#  Block addresses: %d/%d" % (
+            self.counters.block_count, self.counters.MAX_BLOCKS))
+        print("#  Bit bus: %d/%d" % (
+            self.counters.bit_count, self.counters.MAX_BIT))
+        print("#  Pos bus: %d/%d" % (
+            self.counters.pos_count, self.counters.MAX_POS))
+        print("#  Ext bus: %d/%d" % (
+            self.counters.ext_count, self.counters.MAX_EXT))
         print("####################################")
-        assert block_address < MAX_BLOCKS, "Overflowed block addresses"
-        assert bit_i < MAX_BIT, "Overflowed bit bus entries"
-        assert pos_i < MAX_POS, "Overflowed pos bus entries"
-        assert ext_i < MAX_EXT, "Overflowed ext bus entries"
 
-    def implement_blocks(self, ini, path, type, subdir,
-                         block_address,  bit_i, pos_i, ext_i):
+    def implement_blocks(self, ini, path, type, subdir):
         """Read the ini file and for each section create a new block"""
         for section in ini.sections():
             if section != ".":
@@ -127,10 +152,8 @@ class AppGenerator(object):
                 # Type is soft if the block is a softblock and carrier
                 # for carrier block
                 block = BlockConfig(section, type, number, block_ini, module_name)
-                block_address, bit_i, pos_i, ext_i = block.register_addresses(
-                        block_address, bit_i, pos_i, ext_i)
+                block.register_addresses(self.counters)
                 self.blocks.append(block)
-        return block_address, bit_i, pos_i, ext_i
 
     def expand_template(self, template_name, context, out_dir, out_fname):
         with open(os.path.join(out_dir, out_fname), "w") as f:
@@ -141,7 +164,7 @@ class AppGenerator(object):
         """Generate config, registers, descriptions in config_d"""
         config_dir = os.path.join(self.app_build_dir, "config_d")
         os.makedirs(config_dir)
-        context = dict(blocks=self.blocks, pad=pad)
+        context = jinja_context(blocks=self.blocks)
         # Create the config, registers and descriptions files
         self.expand_template(
             "config.jinja2", context, config_dir, "config")
@@ -149,7 +172,7 @@ class AppGenerator(object):
             "registers.jinja2", context, config_dir, "registers")
         self.expand_template(
             "descriptions.jinja2", context, config_dir, "description")
-        context = dict(app=self.app_name)
+        context = jinja_context(app=self.app_name)
         self.expand_template(
             "slow_top.files.jinja2",
             context, self.app_build_dir, "slow_top.files")
@@ -160,7 +183,9 @@ class AppGenerator(object):
         os.makedirs(hdl_dir)
         # Create a wrapper for every block
         for block in self.blocks:
-            context = {k: getattr(block, k) for k in dir(block)}
+            context = jinja_context()
+            for k in dir(block):
+                context[k] = getattr(block, k)
             if block.type in "soft|dma":
                 self.expand_template("block_wrapper.vhd.jinja2", context,
                                      hdl_dir, "%s_wrapper.vhd" % block.entity)
@@ -196,13 +221,14 @@ class AppGenerator(object):
             if block.entity not in block_names:
                 register_blocks.append(block)
                 block_names.append(block.entity)
-        context = dict(blocks=self.blocks,
-                       carrier_bit_bus_length=carrier_bit_bus_length,
-                       carrier_pos_bus_length=carrier_pos_bus_length,
-                       total_bit_bus_length=total_bit_bus_length,
-                       total_pos_bus_length=total_pos_bus_length,
-                       carrier_mod_count=carrier_mod_count,
-                       register_blocks=register_blocks)
+        context = jinja_context(
+            blocks=self.blocks,
+            carrier_bit_bus_length=carrier_bit_bus_length,
+            carrier_pos_bus_length=carrier_pos_bus_length,
+            total_bit_bus_length=total_bit_bus_length,
+            total_pos_bus_length=total_pos_bus_length,
+            carrier_mod_count=carrier_mod_count,
+            register_blocks=register_blocks)
         self.expand_template("soft_blocks.vhd.jinja2", context, hdl_dir,
                              "soft_blocks.vhd")
         self.expand_template("addr_defines.vhd.jinja2", context, hdl_dir,
@@ -222,10 +248,11 @@ class AppGenerator(object):
         assert sfps <= self.sfpsites, \
             "more SFP blocks in app: %d than constraints: %d" % (
                 sfps, self.sfpsites)
-        context = dict(blocks=self.blocks,
-                       sfpsites=sfps,
-                       const=self.constraints,
-                       ips=ips)
+        context = jinja_context(
+            blocks=self.blocks,
+            sfpsites=sfps,
+            const=self.constraints,
+            ips=ips)
         self.expand_template("constraints.tcl.jinja2", context, hdl_dir,
                              "constraints.tcl")
 
@@ -271,7 +298,7 @@ class AppGenerator(object):
                             regs.append(dict(name=name,
                                              number=number.replace("\n", ""),
                                              block=block.replace("*", "")))
-        context = dict(regs=regs)
+        context = jinja_context(regs=regs)
         self.expand_template("reg_defines.vhd.jinja2", context, hdl_dir,
                              "reg_defines.vhd")
 

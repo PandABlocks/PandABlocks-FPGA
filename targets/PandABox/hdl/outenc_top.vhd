@@ -81,7 +81,7 @@ port map (
     read_strobe_i       => read_strobe(I),
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
     read_data_o         => read_data(I),
-    read_ack_o          => open,
+    read_ack_o          => read_ack(I),
 
     write_strobe_i      => write_strobe(I),
     write_address_i     => write_address_i(BLK_AW-1 downto 0),

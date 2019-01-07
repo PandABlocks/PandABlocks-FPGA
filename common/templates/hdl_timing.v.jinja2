@@ -380,45 +380,45 @@ pcap_core_wrapper uut (
 
 {% for field in block.fields %}
     {% if field in block.filter_fields(".*out")%}
-        .{{ "%-20s"| format(field.name + "_o") }}  ({{ field.name }}_uut),
+        .{{ pad(field.name + "_o") }}  ({{ field.name }}_uut),
     {% elif field in block.filter_fields("read.*") %}
-        .{{ "%-20s"| format(field.name) }}  ({{ field.name }}_uut),
+        .{{ pad(field.name) }}  ({{ field.name }}_uut),
     {% elif field in block.filter_fields(".*mux") %}
-        .{{ "%-20s"| format(field.name + "_i") }}  ({{ field.name }}),
+        .{{ pad(field.name + "_i") }}  ({{ field.name }}),
         {% if field.wstb %}
-        .{{ "%-20s"| format(field.name + "_wstb")}}  ({{ field.name }}_wstb),
+        .{{ pad(field.name + "_wstb")}}  ({{ field.name }}_wstb),
     	{% endif %}
     {% elif field in block.filter_fields("table short") %}
-        .{{ "%-20s"| format(field.name + "_DATA") }}  ({{ field.name }}_DATA),
-        .{{ "%-20s"| format(field.name + "_LENGTH") }}  ({{ field.name }}_LENGTH),
-        .{{ "%-20s"| format(field.name + "_START") }}  ({{ field.name }}_START),
+        .{{ pad(field.name + "_DATA") }}  ({{ field.name }}_DATA),
+        .{{ pad(field.name + "_LENGTH") }}  ({{ field.name }}_LENGTH),
+        .{{ pad(field.name + "_START") }}  ({{ field.name }}_START),
         {% if field.wstb %}
-        .{{ "%-20s"| format(field.name + "_LENGTH_wstb") }}  ({{ field.name }}_LENGTH_wstb),
-        .{{ "%-20s"| format(field.name + "_wstb") }}  ({{ field.name }}_DATA_wstb),      
+        .{{ pad(field.name + "_LENGTH_wstb") }}  ({{ field.name }}_LENGTH_wstb),
+        .{{ pad(field.name + "_wstb") }}  ({{ field.name }}_DATA_wstb),
         {% endif %}
     {% elif field in block.filter_fields("table") %}
-        .{{ "%-20s"| format(field.name + "_ADDR") }}  ({{ field.name }}_ADDRESS),
-        .{{ "%-20s"| format(field.name + "_LENGTH") }}  ({{ field.name }}_LENGTH),
+        .{{ pad(field.name + "_ADDR") }}  ({{ field.name }}_ADDRESS),
+        .{{ pad(field.name + "_LENGTH") }}  ({{ field.name }}_LENGTH),
         {% if field.wstb %}
-        .{{ "%-20s"| format(field.name + "_LENGTH_wstb") }}  ({{ field.name }}_LENGTH_wstb),      
+        .{{ pad(field.name + "_LENGTH_wstb") }}  ({{ field.name }}_LENGTH_wstb),
         {% endif %}
     {% else %}
-        .{{ "%-20s"| format(field.name) }}  ({{ field.name }}),
+        .{{ pad(field.name) }}  ({{ field.name }}),
         {% if field.wstb%}
-        .{{ "%-20s"| format(field.name + "_wstb") }}  ({{ field.name }}_wstb),
+        .{{ pad(field.name + "_wstb") }}  ({{ field.name }}_wstb),
         {% endif %}
     {% endif %}
 {% endfor %}
 {% if block.type in "dma" %}{# change to new dma selector in block.ini #}
-        .dma_req_o             (dma_req_o),
-        .dma_ack_i             (dma_ack_i),
-        .dma_done_i            (dma_done_i),
-        .dma_addr_o            (dma_addr_o),
-        .dma_len_o             (dma_len_o),
-        .dma_data_i            (dma_data_i),
-        .dma_valid_i           (dma_valid_i),
+        .dma_req_o            (dma_req_o),
+        .dma_ack_i            (dma_ack_i),
+        .dma_done_i           (dma_done_i),
+        .dma_addr_o           (dma_addr_o),
+        .dma_len_o            (dma_len_o),
+        .dma_data_i           (dma_data_i),
+        .dma_valid_i          (dma_valid_i),
 {% endif %}
-        .clk_i                 (clk_i)
+        .clk_i                (clk_i)
 );
 {% endif %}
 {% if block.entity == "pcap" %}

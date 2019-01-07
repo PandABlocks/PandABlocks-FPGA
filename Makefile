@@ -68,7 +68,7 @@ MAKE_ALL_APPS = $(foreach app,$(ALL_APPS), $(call _MAKE_ONE_APP,$(app),$(1)))
 
 APP_FILE = $(TOP)/apps/$(APP_NAME).app.ini
 
-APP_DEPENDS += common/python/generate_app.py
+APP_DEPENDS += $(wildcard common/python/*.py)
 APP_DEPENDS += $(wildcard common/templates/*)
 
 # Make the built app from the ini file
@@ -232,6 +232,7 @@ ZPKG_DEPENDS += $(FPGA_FILE)
 ZPKG_DEPENDS += $(SLOW_FPGA_FILE)
 ZPKG_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini
 ZPKG_DEPENDS += $(APP_BUILD_DIR)/extensions
+ZPKG_DEPENDS += $(DOCS_HTML_DIR)
 
 $(APP_BUILD_DIR)/ipmi.ini: $(APP_FILE)
 	$(PYTHON) -m common.python.make_ipmi_ini $(TOP) $< $@

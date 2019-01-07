@@ -101,10 +101,10 @@ port map (
         {% endfor %}
     
         {% for field in block.filter_fields("bit_out") %}
-    {{ "%-20s" |format(field.name + "_o") }}=> bit_bus_o({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
+    {{ pad(field.name + "_o") }} => bit_bus_o({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
         {% endfor %}
         {% for field in block.filter_fields("pos_out") %}
-    {{ "%-20s" | format(field.name + "_o") }}=> posbus_o({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
+    {{ pad(field.name + "_o") }} => posbus_o({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
         {% endfor %}
     
     clk_i               => FCLK_CLK0
@@ -128,10 +128,14 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
 
         bitbus_i            => bit_bus_i,
         posbus_i            => posbus_i,
-        fmc_inputs_o        => open,
         {% for field in block.filter_fields("pos_out") %}
             {% if loop.first %}
-        {{"%-20s" | format("fmc_data_o(" + loop.revindex0|string + " downto " + "0)")}}=> posbus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{field.bus_entries[0].index}}),
+        {{pad("fmc_data_o")}} => posbus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{field.bus_entries[0].index}}),
+            {% endif %}
+        {% endfor %}
+        {% for field in block.filter_fields("bit_out") %}
+            {% if loop.first %}
+        {{pad("fmc_inputs_o")}} => bit_bus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{field.bus_entries[0].index}}),
             {% endif %}
         {% endfor %}
 
@@ -166,10 +170,14 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         reset_i             => FCLK_RESET0,
 
         sysbus_i            => bit_bus_i,
-        sfp_inputs_o        => open,
-         {% for field in block.filter_fields("pos_out") %}
+        {% for field in block.filter_fields("pos_out") %}
             {% if loop.first %}
-        {{"%-20s" | format("sfp_data_o(" + loop.revindex0|string + " downto " + "0)")}}=> posbus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{ field.bus_entries.index }}),
+        {{pad("sfp_data_o")}} => posbus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{ field.bus_entries.index[0] }}),
+            {% endif %}
+        {% endfor %}
+        {% for field in block.filter_fields("bit_out") %}
+            {% if loop.first %}
+        {{pad("sfp_inputs_o")}} => bit_bus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{ field.bus_entries.index[0] }}),
             {% endif %}
         {% endfor %}
 

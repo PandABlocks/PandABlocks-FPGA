@@ -199,6 +199,7 @@ class HdlTimingGenerator(object):
             first_line = f.readline()
         headerslength = len(first_line) - 1
         context = dict(
+            pad=pad,
             section=section,
             block=block,
             number=i,
@@ -218,6 +219,7 @@ class HdlTimingGenerator(object):
         path = self.build_dir
         name = "%s.tcl" % block.entity
         context = dict(
+            pad=pad,
             block=block,
             number=i,
         )

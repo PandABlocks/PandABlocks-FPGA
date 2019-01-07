@@ -44,7 +44,7 @@ def setup(app):
     with open(os.path.join(build_dir, "blocks.txt"), "w") as f:
         f.write("""
 .. toctree::
-    :caption: Available Blocks
+    :maxdepth: 1
     
     %s
 """ % ("\n    ".join(files),))
@@ -92,7 +92,7 @@ author = u'Tom Cobb'
 # The full version, including alpha/beta/rc tags.
 release = git_version
 # The short X.Y version.
-version = release.split("-")[0]
+version = ".".join(release.split(".")[:2])
 
 exclude_patterns = ['_build']
 
@@ -118,7 +118,6 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 if not on_rtd:  # only import and set the theme if we're building docs locally
     import sphinx_rtd_theme
-    html_context = dict(css_files=[])
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 

@@ -1,7 +1,13 @@
 *METADATA
-    DESIGN          string
-    LAYOUT          multiline
-    EXPORTS         multiline
+    DESIGN              string
+    LAYOUT              multiline
+    EXPORTS             multiline
+{% for block in blocks %}
+    {# Make a label for holding the block description #}
+    {% for i in range(block.number) %}
+    {{ pad("LABEL_%s%d" % (block.name, i + 1)) }} string
+    {% endfor %}
+{% endfor %}
 
 {% for block in blocks %}
 {# block is a BlockConfig object #}
@@ -10,12 +16,8 @@
     {% for field in block.fields %}
     {# field is a FieldConfig object #}
     {# insert its name and type (including subtype and options) #}
-        {% if field.type == "table short" %}
-    {{ pad(field.name) }} table  {{ field.words }}
-        {% else %}
-    {{ pad(field.name) }} {{ field.type }}
-        {% endif %}
-        {% for line in field.extra_config_lines() %}
+    {{ pad(field.name) }} {{ field.config_line() }}
+        {% for line in field.extra_config_lines %}
         {# some fields line enum and table have extra lines, insert them here #}
         {{ line }}
         {% endfor %}

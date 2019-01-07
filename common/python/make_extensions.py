@@ -5,7 +5,6 @@ import os.path
 import shutil
 import fnmatch
 
-from .compat import configparser
 from .ini_util import read_ini, ini_get
 
 
@@ -13,7 +12,8 @@ def get_modules(ini):
     for section in ini.sections():
         if section != '.':
             module_name = ini_get(ini, section, 'module', section.lower())
-            yield module_name
+            block_name = ini_get(ini, section, 'block', module_name)
+            yield module_name, block_name
 
 
 def get_extension(base_dir, module):
@@ -37,9 +37,9 @@ def add_extension(target_dir, source_dir, extension):
 
 
 def process_ini(extensions, blocks_dir, ini):
-    for module in get_modules(ini):
+    for module, block in get_modules(ini):
         base_dir = os.path.join(blocks_dir, module)
-        extension = get_extension(base_dir, module)
+        extension = get_extension(base_dir, block)
         if extension:
             add_extension(extensions, base_dir, extension)
 

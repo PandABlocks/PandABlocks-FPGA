@@ -64,7 +64,7 @@ class BlockFieldsDirective(Directive):
         # Make field rows, adding to the group
         for field in FieldConfig.from_ini(ini, number=1):
             description = field.description
-            extra = list(field.extra_config_lines())
+            extra = field.extra_config_lines
             if extra:
                 description = [description] + extra
             data = [field.name, field.type, description]

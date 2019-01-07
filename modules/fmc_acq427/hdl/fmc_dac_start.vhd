@@ -34,7 +34,7 @@ use ieee.std_logic_1164.all;
 entity fmc_dac_start is
     port (clk_i             : in  std_logic;
           reset_i           : in  std_logic;
-          MODULE_ENABLE     : in  std_logic_vector(31 downto 0);
+          MODULE_ENABLE     : out std_logic_vector(31 downto 0);
           DAC_CLKDIV        : out std_logic_vector(31 downto 0);
           DAC_FIFO_RESET    : out std_logic_vector(31 downto 0);
           DAC_FIFO_ENABLE   : out std_logic_vector(31 downto 0);
@@ -45,13 +45,18 @@ end fmc_dac_start;
 
 architecture rtl of fmc_dac_start is
 
-constant c_dac_reset_wait  : unsigned(12 downto 0) := to_unsigned(10,13);
-constant c_dac_enable_wait : unsigned(12 downto 0) := to_unsigned(4100,13);
+-- I know why on earth have i put such a long wait here but i tried smaller ones
+-- and the block didn't work it did in simulation but not on the hardware there must be some
+-- issue with the hardware that requires a long time period. 
+constant c_dac_reset_wait  : unsigned(26 downto 0) := to_unsigned(10,27);
+constant c_dac_enable_wait : unsigned(26 downto 0) := to_unsigned(125000000,27); 
 
-type t_sm_dac_start is (state_dac_start, state_dac_clkdiv, state_dac_reset_en, state_dac_reset_dis, state_dac_enable, state_dac_fifo_enable);
+
+type t_sm_dac_start is (state_dac_start, state_dac_module_enable ,state_dac_clkdiv, state_dac_reset_en, state_dac_reset_dis, state_dac_enable, state_dac_fifo_enable);
 
 signal sm_dac_start : t_sm_dac_start;
-signal wait_cnt     : unsigned(12 downto 0);
+signal wait_cnt     : unsigned(26 downto 0);
+signal enable       : std_logic_vector(9 downto 0) := (others => '0');
 
 
 begin
@@ -63,18 +68,24 @@ begin
         
         case sm_dac_start is
         
-            -- Wait until the enable gets set
+            -- Start by reseting everything 
             when state_dac_start => 
                 wait_cnt <= (others => '0');
+                MODULE_ENABLE <= (others => '0'); 
                 DAC_CLKDIV <= (others => '0');
                 DAC_FIFO_RESET <= (others => '0');
                 DAC_FIFO_ENABLE <= (others => '0');
                 DAC_RESET <= (others => '0');
-                DAC_ENABLE  <= (others => '0');
-                -- Stay in this state until enable bit set
-                if (MODULE_ENABLE(0) = '1') then
-                    sm_dac_start <= state_dac_clkdiv;
-                end if;    
+                DAC_ENABLE  <= (others => '0'); 
+                enable <= enable(8 downto 0) & '1';
+                if enable(9) = '1' then
+                    sm_dac_start <= state_dac_module_enable;
+                end if;
+                
+            -- Enable the MODULE_ENABLE
+            when state_dac_module_enable => 
+                MODULE_ENABLE <= std_logic_vector(to_unsigned(1,32));
+                sm_dac_start <= state_dac_clkdiv;                  
             
             -- Target update rate of 1 MHz
             -- Internal ACQ427 DAC clock = 62.5 MHz
@@ -101,17 +112,17 @@ begin
             -- Enable the DAC_ENABLE
             when state_dac_enable =>
                 wait_cnt <= wait_cnt +1;
-                -- Copied DTAC instruction but found i had to put a delay into the writting into the DAC_ENABLE register of the 4100us
+                -- Copied DTAC instruction but found i had to add in a delay before writting into the DAC_ENABLE register for a period of time
                 --fmc_dac_spi.vhd -- lines 189, 190, 191, 192 and 193 below shows that the DAC_ENABLE = '0' needs to be held 
                 --                -- off for a period of time before setting the DAC_ENABLE = '1' thats what the dac_en_wait_cnt 
                 --                -- is for  
                 --
-                --if  DAC_ENABLE = '0' and CONTROL_WRITE = '1' then						-- Start the Sequence when software writes to the register
+                --if  DAC_ENABLE = '0' and CONTROL_WRITE = '1' then		-- Start the Sequence when software writes to the register
 			    --    NEXT_CONTROL_STATE <= INIT_CNRL_WRITE;
-		        --elsif  DAC_ENABLE = '0' and CONTROL_READ = '1' then					-- Start the Sequence when software writes to the register
+		        --elsif  DAC_ENABLE = '0' and CONTROL_READ = '1' then	-- Start the Sequence when software writes to the register
 			    --    NEXT_CONTROL_STATE <= INIT_CNRL_READ;
 		        --end if;                
-                if wait_cnt = c_dac_enable_wait then 
+                if wait_cnt = c_dac_enable_wait then
                     DAC_ENABLE <= std_logic_vector(to_unsigned(1,32));
                     sm_dac_start <= state_dac_fifo_enable; 
                 end if;
@@ -119,10 +130,6 @@ begin
             -- Enable the DAC_FIFO_ENABLE
             when state_dac_fifo_enable =>
                 DAC_FIFO_ENABLE <= std_logic_vector(to_unsigned(1,32));
-                -- Wait here until enable deasserted
-                if (MODULE_ENABLE(0) = '0') then                
-                    sm_dac_start <= state_dac_start;
-                end if;     
             
             -- Default condition
             when others => 
