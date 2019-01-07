@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Simple script to check for files with bad whitespace.  Checks for trailing
+# whitespace and unexpected hard tab characters.
+
+cd "$(dirname "$0")"
+
+# Search for files with trailing whitespace
+grep --exclude-dir=build --exclude-dir=.git -rIl ' $' .
+
+# Search for files with tab characters
+# We exclude Makefiles because they need tab characters
+# We also exclude the .dts files because that seems to be the convention
+grep --exclude-dir=build --exclude-dir=.git \
+    --exclude=Makefile --exclude=\*.dts -rIl $'\t' .
