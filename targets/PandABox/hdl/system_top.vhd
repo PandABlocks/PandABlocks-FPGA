@@ -43,6 +43,7 @@ port (
     ttlout_i            : in  std_logic_vector(TTLOUT_NUM-1 downto 0);
     inenc_conn_i        : in  std_logic_vector(ENC_NUM-1 downto 0);
     outenc_conn_i       : in  std_logic_vector(ENC_NUM-1 downto 0);
+    pcap_act_i          : in  std_logic;
     -- Block Input and Outputs
     SLOW_FPGA_VERSION   : out std_logic_vector(31 downto 0);
     DCARD_MODE          : out std32_array(ENC_NUM-1 downto 0);
@@ -107,6 +108,7 @@ port map (
     ttlout_i            => ttlout_i,
     inenc_conn_i        => inenc_conn_i,
     outenc_conn_i       => outenc_conn_i,
+    pcap_act_i          => pcap_act_i,
 
     slow_tlp_o          => slow_leds_tlp
 );
