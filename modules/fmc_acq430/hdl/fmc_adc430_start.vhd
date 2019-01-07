@@ -93,7 +93,7 @@ begin
             -- ADC_MODE could be either a 0 or 1
             -- Better performance when set to a 1
             when state_adc_mode =>
-                ADC_MODE <= std_logic_vector(to_unsigned(1,32));
+                ADC_MODE <= std_logic_vector(to_unsigned(0,32));
                 sm_adc_start <= state_adc_clk_select;
 
             -- Selects the Panda clock
@@ -106,10 +106,9 @@ begin
 
             -- Target sample rate of 122 kHz
             -- Internal PandA clock = 125 MHz
-            -- Set clock divide to 4, 125 / 4 = 31.25 MHz
-            -- Set ADC mode to High Speed, 31.35 / 256 = 122 kHz
-            when state_adc_clkdiv =>
-                ADC_CLKDIV <= std_logic_vector(to_unsigned(4,32));
+            -- Set clock divide to 5, 125 / 5 = 25 MHz
+            -- Set ADC mode to High Speed, 25 / 512 = 48.828125 kHz
+                ADC_CLKDIV <= std_logic_vector(to_unsigned(5,32));
                 sm_adc_start <= state_adc_fifo_en;
 
             -- Enable the ADC FIFO reset

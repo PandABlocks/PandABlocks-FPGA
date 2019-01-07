@@ -21,7 +21,7 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity fmc_dac427_top is
+entity fmc_acq427_out_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -44,9 +44,9 @@ port (
     write_ack_o         : out std_logic := '1';
     FMC_interface       : inout fmc_interface
 );
-end fmc_dac427_top;
+end fmc_acq427_out_top;
 
-architecture rtl of fmc_dac427_top is
+architecture rtl of fmc_acq427_out_top is
 
 ---------------------------------------------------------------------------------------
 -- FMC pin name translation signals.
@@ -160,7 +160,7 @@ gen_DAC_BUFS: for x in 1 to 4 generate
     cmp_DAC_SDO:        IOBUF port map(IO => p_DAC_SDO(x),  I => '0',         T => '1', O => DAC_SDO(x));
 end generate gen_DAC_BUFS ;
 
-fmc_ctrl : entity work.fmc_dac427_ctrl
+fmc_ctrl : entity work.fmc_acq427_out_ctrl
 port map (
     -- Clock and Reset
     clk_i               => clk_i,
@@ -168,10 +168,11 @@ port map (
     bit_bus_i            => bitbus_i,
     pos_bus_i            => posbus_i,
 
-    ch01_dac_data_from_bus     => CH01_DAC_DATA,
-    ch02_dac_data_from_bus     => CH02_DAC_DATA,
-    ch03_dac_data_from_bus     => CH03_DAC_DATA,
-    ch04_dac_data_from_bus     => CH04_DAC_DATA,
+    VAL1_from_bus     => CH01_DAC_DATA,
+    VAL2_from_bus     => CH02_DAC_DATA,
+    VAL3_from_bus     => CH03_DAC_DATA,
+    VAL4_from_bus     => CH04_DAC_DATA,
+
     -- Memory Bus Interface
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),

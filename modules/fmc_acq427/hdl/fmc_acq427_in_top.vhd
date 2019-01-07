@@ -21,7 +21,7 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity fmc_adc427_top is
+entity fmc_acq427_in_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -44,9 +44,9 @@ port (
     write_ack_o         : out std_logic := '1';
     FMC_interface       : inout fmc_interface
 );
-end fmc_adc427_top;
+end fmc_acq427_in_top;
 
-architecture rtl of fmc_adc427_top is
+architecture rtl of fmc_acq427_in_top is
 
 ---------------------------------------------------------------------------------------
 -- FMC pin name translation signals.
@@ -168,7 +168,7 @@ gen_ADC_BUFS: for x in 1 to 8 generate
     cmp_ADC_SDO: IBUF port map(I => p_ADC_SDO(x), O => ADC_SDO(x));
 end generate gen_ADC_BUFS ;
 
-fmc_ctrl : entity work.fmc_adc427_ctrl
+fmc_ctrl : entity work.fmc_acq427_in_ctrl
 port map (
     -- Clock and Reset
     clk_i               => clk_i,
@@ -176,22 +176,22 @@ port map (
     bit_bus_i            => bitbus_i,
     pos_bus_i            => posbus_i,
     -- Block Parameters
-    CH01_ADC_GAIN => gains(0),
-    CH01_ADC_GAIN_wstb  => open,
-    CH02_ADC_GAIN => gains(1),
-    CH02_ADC_GAIN_wstb  => open,
-    CH03_ADC_GAIN => gains(2),
-    CH03_ADC_GAIN_wstb  => open,
-    CH04_ADC_GAIN => gains(3),
-    CH04_ADC_GAIN_wstb  => open,
-    CH05_ADC_GAIN => gains(4),
-    CH05_ADC_GAIN_wstb  => open,
-    CH06_ADC_GAIN => gains(5),
-    CH06_ADC_GAIN_wstb  => open,
-    CH07_ADC_GAIN => gains(6),
-    CH07_ADC_GAIN_wstb  => open,
-    CH08_ADC_GAIN => gains(7),
-    CH08_ADC_GAIN_wstb  => open,
+    GAIN1 => gains(0),
+    GAIN1_wstb  => open,
+    GAIN2 => gains(1),
+    GAIN2_wstb  => open,
+    GAIN3 => gains(2),
+    GAIN3_wstb  => open,
+    GAIN4 => gains(3),
+    GAIN4_wstb  => open,
+    GAIN5 => gains(4),
+    GAIN5_wstb  => open,
+    GAIN6 => gains(5),
+    GAIN6_wstb  => open,
+    GAIN7 => gains(6),
+    GAIN7_wstb  => open,
+    GAIN8 => gains(7),
+    GAIN8_wstb  => open,
     -- Memory Bus Interface
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
