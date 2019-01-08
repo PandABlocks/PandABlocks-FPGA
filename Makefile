@@ -210,7 +210,7 @@ else
 	echo building SlowFPGA
 	source $(ISE)  &&  \
         $(MAKE) -C $(dir $@) -f $(TARGET_DIR)/SlowFPGA/Makefile \
-            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA BOARD=$(BOARD) mcs \
+            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA mcs \
             BUILD_DIR=$(dir $@)
 endif
 

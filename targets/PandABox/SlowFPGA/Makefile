@@ -12,7 +12,7 @@ LIST_FILE = $(SYSTEM).lst
 AUTOGEN  = $(BUILD_DIR)/../autogen
 SCR_FILE = $(SRC_DIR)/syn/xilinx/$(SYSTEM).scr
 NETLIST_DIR = $(SRC_DIR)/syn/implementation
-UCF_FILE = $(SRC_DIR)/syn/constr/$(SYSTEM)-$(BOARD).ucf
+UCF_FILE = $(SRC_DIR)/syn/constr/$(SYSTEM).ucf
 
 POSTSYN_NETLIST = $(SYSTEM).ngc
 NGD_FILE = $(SYSTEM).ngd
