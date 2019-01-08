@@ -150,9 +150,15 @@ $(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
 	$(PYTHON) -m common.python.generate_hdl_timing $@_tmp $^
 	mv $@_tmp $@
 
+# Pcap timing ini is in the targets directory
+$(BUILD_DIR)/hdl_timing/pcap: targets/$(TARGET)/blocks/pcap/pcap.timing.ini
+	rm -rf $@_tmp $@
+	$(PYTHON) -m common.python.generate_hdl_timing $@_tmp $^
+	mv $@_tmp $@
+
 # Make the hdl_timing folders and run all tests, or specific module by setting
 # the MODULE argument
-hdl_test: $(TIMING_BUILD_DIRS)
+hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
 	rm -rf $(TEST_DIR)/regression_tests
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log

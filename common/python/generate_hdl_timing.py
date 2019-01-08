@@ -103,7 +103,7 @@ class HdlTimingGenerator(object):
         # Write the sequence values
         header = ["TS"]
         # PCAP is a special case
-        if block.entity == "pcap":
+        if block.type == "pcap":
             header.append("START_WRITE")
             header.append("WRITE")
             header.append("WRITE_wstb")

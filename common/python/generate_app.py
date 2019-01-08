@@ -201,10 +201,10 @@ class AppGenerator(object):
         total_pos_bus_length = 0
         carrier_mod_count = 0
         for block in self.blocks:
-            if block.type == "carrier":
+            if block.type in "carrier|pcap":
                 carrier_mod_count = carrier_mod_count + 1
             for field in block.fields:
-                if block.type == "carrier":
+                if block.type in "carrier|pcap":
                     if field.type == "bit_out":
                         carrier_bit_bus_length = carrier_bit_bus_length + block.number
                     if field.type == "pos_out":

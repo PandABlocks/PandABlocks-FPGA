@@ -108,6 +108,15 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
                     if section != ".":
                         sections.append((module, ini, section))
 
+    # Also run the PCAP test
+    module = os.path.join(ROOT, "targets/PandABox/blocks/pcap")
+    for f in os.listdir(module):
+        if f.endswith(".timing.ini"):
+            ini = read_ini(os.path.join(module, f))
+            for section in ini.sections():
+                if section != ".":
+                    sections.append((module, ini, section))
+
     # These are the tests that start with !
     marks = [(f, i, s) for (f, i, s) in sections if s.startswith("!")]
     if marks:

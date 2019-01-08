@@ -11,7 +11,7 @@ reg clk_i = 0;
 always #4 clk_i = ~clk_i;
 
 // Inputs from initialisation file
-{% if block.entity == "pcap" %}
+{% if block.type == "pcap" %}
 //PCAP signals:
 reg [5:0]        SHIFT_SUM;
 reg              ARM;
@@ -213,7 +213,7 @@ begin
         end
     {% endif %}
 {% endfor %}
-{% if block.entity == "pcap" %}
+{% if block.type == "pcap" %}
         if (DATA_wstb != pcap_dat_valid_o || (DATA_wstb > 0 && pcap_dat_valid_o === 1'bx)) begin
             $display("DATA_valid error detected at timestamp %d\n", timestamp);
             data_valid_err <= 1;
@@ -350,7 +350,7 @@ assign {{field.name}}_wstb = {{field.name}}_H_wstb || {{field.name}}_L_wstb;
     {% endif %}
 {% endfor %}
 // Instantiate the Unit Under Test (UUT)
-{% if block.entity == "pcap" %}
+{% if block.type == "pcap" %}
 pcap_core_wrapper uut (
     .ARM                ( ARM               ),
     .DISARM             ( DISARM            ),
@@ -421,7 +421,7 @@ pcap_core_wrapper uut (
         .clk_i                (clk_i)
 );
 {% endif %}
-{% if block.entity == "pcap" %}
+{% if block.type == "pcap" %}
 genvar  j, k;
 for (k=0; k<128; k=k+1) assign bit_bus[k] = BIT[k][0];
 for (j=0; j<32; j=j+1) assign pos_bus[j*32+31 : 32*j] = POS[j];
