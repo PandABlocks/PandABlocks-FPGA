@@ -95,7 +95,7 @@ export VERSION := $(shell ./common/python/parse_git_version.py "$(GIT_VERSION)")
 DIRTY_PRE = $(shell \
     python -c "print 8 if '$(GIT_VERSION)'.endswith('dirty') else 0")
 # Something like 85539563
-export SHA := $(DIRTY_PRE)$(shell git rev-parse --short HEAD)
+export SHA := $(DIRTY_PRE)$(shell git rev-parse --short=7 HEAD)
 
 
 # ------------------------------------------------------------------------------
