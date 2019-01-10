@@ -13,8 +13,8 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "srgate.block.ini")
 
 
 class SrgateSimulation(BlockSimulation):
-    WHEN_DISABLED, SET_EDGE, RST_EDGE, FORCE_SET, FORCE_RST, ENABLE, SET, \
-        RST, OUT = PROPERTIES
+    ENABLE, SET, RST, WHEN_DISABLED, SET_EDGE, RST_EDGE, FORCE_SET, \
+        FORCE_RST,  OUT = PROPERTIES
 
     def inp_matches_edge(self, inp, edge):
         if edge == RISING and inp == 1 or edge == FALLING and inp == 0 \

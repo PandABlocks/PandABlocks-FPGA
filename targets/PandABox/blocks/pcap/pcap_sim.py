@@ -254,7 +254,7 @@ class BitsCaptureEntry(CaptureEntry):
 
 
 class PcapSimulation(BlockSimulation):
-    ENABLE, GATE, TRIG, TRIG_EDGE, SHIFT_SUM, HEALTH, ACTIVE, TS_START, TS_END, TS_TRIG, SAMPLES, BITS0, BITS1, BITS2, BITS3 = PROPERTIES
+    ENABLE, GATE, TRIG, TRIG_EDGE, SHIFT_SUM, ACTIVE, TS_START, TS_END, TS_TRIG, SAMPLES, BITS0, BITS1, BITS2, BITS3, HEALTH = PROPERTIES
     tick_data = True
 
     def __init__(self):

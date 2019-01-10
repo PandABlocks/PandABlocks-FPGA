@@ -12,7 +12,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "counter.block.ini")
 
 
 class CounterSimulation(BlockSimulation):
-    START, STEP, MAX, MIN, ENABLE, TRIG, DIR, CARRY, OUT = PROPERTIES
+    ENABLE, TRIG, DIR, START, STEP, MAX, MIN, CARRY, OUT = PROPERTIES
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp

@@ -10,7 +10,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "filter.block.ini")
 
 
 class FilterSimulation(BlockSimulation):
-    MODE, ENABLE, TRIG, INP, OUT, READY, HEALTH = PROPERTIES
+    ENABLE, TRIG, INP, MODE, READY, OUT, HEALTH = PROPERTIES
 
     def __init__(self):
         self.latch = 0

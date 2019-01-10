@@ -9,7 +9,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "posenc.block.ini")
 
 
 class PosencSimulation(BlockSimulation):
-    INP, PERIOD, ENABLE, PROTOCOL, A, B, STATE = PROPERTIES
+    ENABLE, INP, PERIOD, PROTOCOL, A, B, STATE = PROPERTIES
 
     def __init__(self):
         self.dir = 0

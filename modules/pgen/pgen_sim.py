@@ -7,7 +7,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "pgen.block.ini")
 
 
 class PgenSimulation(BlockSimulation):
-    CYCLES, ENABLE, TRIG, OUT, TABLE, HEALTH = PROPERTIES
+    ENABLE, TRIG, TABLE, CYCLES, OUT, HEALTH = PROPERTIES
 
     def __init__(self):
         self.table_data = []

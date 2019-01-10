@@ -25,9 +25,8 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "pcomp.block.ini")
 
 
 class PcompSimulation(BlockSimulation):
-
-    PRE_START, START, WIDTH, STEP, PULSES, RELATIVE, DIR, ENABLE, \
-        INP, ACTIVE, OUT, HEALTH, PRODUCED, STATE = PROPERTIES
+    ENABLE, INP, PRE_START, START, WIDTH, STEP, PULSES, RELATIVE, \
+        DIR, ACTIVE, OUT, HEALTH, PRODUCED, STATE = PROPERTIES
 
     def __init__(self):
         # The direction of the position compare

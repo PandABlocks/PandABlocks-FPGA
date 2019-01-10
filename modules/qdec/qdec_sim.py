@@ -9,7 +9,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "qdec.block.ini")
 
 
 class QdecSimulation(BlockSimulation):
-    RST_ON_Z, SETP, A, B, Z, OUT = PROPERTIES
+    A, B, Z, RST_ON_Z, SETP, OUT = PROPERTIES
 
     def __init__(self):
         self.state = 0
