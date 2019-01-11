@@ -255,12 +255,31 @@ class BitOutFieldConfig(FieldConfig):
 class PosOutFieldConfig(FieldConfig):
     """These fields represent a position output"""
     type_regex = "pos_out"
+    scale = None
+    offset = None
+    units = None
 
     def register_addresses(self, counters):
         # type: (FieldCounter) -> None
         for _ in range(self.number):
             self.bus_entries.append(
                 BusEntryConfig("pos", counters.new_pos()))
+
+    def parse_extra_config(self, extra_config):
+        # type: (Dict[str, Any]) -> iter[str]
+        self.scale = extra_config.pop("scale", 1)
+        self.offset = extra_config.pop("offset", 0)
+        self.units = extra_config.pop("units", "")
+        return iter(())
+
+    def config_line(self):
+        # type: () -> str
+        """Produce the line that should go in the config file after name"""
+        if self.units:
+            return "pos_out %s %s %s" % (self.scale, self.offset, self.units)
+        else:
+            # In case no units are declared, this removes trailing whitspace
+            return "pos_out %s %s" % (self.scale, self.offset)
 
 
 class ExtOutFieldConfig(FieldConfig):
@@ -379,6 +398,31 @@ class EnumParamFieldConfig(ParamFieldConfig):
             # Work out biggest enum value
             self.enumlength = max(self.enumlength, int(k))
         self.enumlength = int(math.ceil(math.log(self.enumlength + 1, 2)) - 1)
+
+
+class ScalarReadFieldConfig(ParamFieldConfig):
+    """ A special Read config for reading the different config of a
+    read scalar"""
+    type_regex = "read scalar"
+    scale = None
+    offset = None
+    units = None
+
+    def parse_extra_config(self, extra_config):
+        # type: (Dict[str, Any]) -> iter[str]
+        self.scale = extra_config.pop("scale", 1)
+        self.offset = extra_config.pop("offset", 0)
+        self.units = extra_config.pop("units", "")
+        return iter(())
+
+    def config_line(self):
+        # type: () -> str
+        """Produce the line that should go in the config file after name"""
+        if self.units:
+            return "read scalar %s %s %s" % (self.scale, self.offset, self.units)
+        else:
+            # In case no units are declared, this removes trailing whitspace
+            return "read scalar %s %s" % (self.scale, self.offset)
 
 
 class BitMuxFieldConfig(FieldConfig):
