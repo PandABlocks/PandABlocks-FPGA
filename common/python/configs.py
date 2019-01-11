@@ -1,6 +1,7 @@
 import re
 
 import math
+from collections import OrderedDict
 
 from .compat import TYPE_CHECKING, configparser
 from .ini_util import ini_get
@@ -129,9 +130,8 @@ class FieldConfig(object):
     #: Regex for matching a type string to this field
     type_regex = None
 
-    def __init__(self, name, number, type, description, wstb=False,
-                 extension=None, extension_reg=None, **extra_config):
-        # type: (str, int, str, str, bool, str, str) -> None
+    def __init__(self, name, number, type, description, extra_config):
+        # type: (str, int, str, str, Dict[str, str]) -> None
         # Field names should be UPPER_CASE_OR_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*$", name), \
             "Expected FIELD_NAME, got %r" % name
@@ -148,10 +148,10 @@ class FieldConfig(object):
         #: The list of bus entries this field has
         self.bus_entries = []  # type: List[BusEntryConfig]
         #: If a write strobe is required, set wstb to 1
-        self.wstb = wstb
+        self.wstb = extra_config.pop("wstb", False)
         #: Store the extension register info
-        self.extension = extension
-        self.extension_reg = extension_reg
+        self.extension = extra_config.pop("extension", None)
+        self.extension_reg = extra_config.pop("extension_reg", None)
         #: The current value of this field for simulation
         self.value = 0
         #: All the other extra config items
@@ -204,7 +204,7 @@ class FieldConfig(object):
 
     @classmethod
     def lookup_subclass(cls, type):
-        # Reverse these so we get ParamEnumFieldConfig (specific) before
+        # Reverse these so we get EnumParamFieldConfig (specific) before
         # its superclass ParamFieldConfig (catchall regex)
         for subclass in reversed(all_subclasses(cls)):
             if re.match(subclass.type_regex, type):
@@ -216,13 +216,15 @@ class FieldConfig(object):
         ret = []
         for section in ini.sections():
             if section != ".":
-                d = dict(ini.items(section))
-                subclass = FieldConfig.lookup_subclass(d["type"])
-                assert subclass, "No FieldConfig for %r" % d["type"]
+                d = OrderedDict(ini.items(section))
+                typ = d.pop("type")
+                desc = d.pop("description")
+                subclass = FieldConfig.lookup_subclass(typ)
+                assert subclass, "No FieldConfig for %r" % typ
                 try:
-                    ret.append(subclass(section, number, **d))
+                    ret.append(subclass(section, number, typ, desc, d))
                 except TypeError as e:
-                    raise TypeError( "Cannot create %s from %s: %s" % (
+                    raise TypeError("Cannot create %s from %s: %s" % (
                         subclass.__name__, d, e))
         return ret
 
@@ -327,7 +329,7 @@ class TableFieldConfig(FieldConfig):
     def parse_extra_config(self, extra_config):
         # type: (Dict[str, Any]) -> Iterable[str]
         self.words = extra_config.pop("words", 1)
-        for hibit, v in sorted(extra_config.items()):
+        for hibit, v in extra_config.items():
             # Format is:
             # hibit:[lobit] name [type]
             #     desc
@@ -391,7 +393,7 @@ class EnumParamFieldConfig(ParamFieldConfig):
 
     def parse_extra_config(self, extra_config):
         # type: (Dict[str, Any]) -> Iterable[str]
-        for k, v in sorted(extra_config.items()):
+        for k, v in extra_config.items():
             assert k.isdigit(), "Only expecting integer enum entries in %s" % (
                 extra_config,)
             yield "%s %s" % (pad(k, spaces=3), v)

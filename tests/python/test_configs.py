@@ -12,6 +12,6 @@ class TestConfigs(unittest.TestCase):
 
     def test_bad_field_name(self):
         with self.assertRaises(AssertionError) as cm:
-            FieldConfig("bad_field", 1, "param", "")
+            FieldConfig("bad_field", 1, "param", "", {})
         self.assertEqual("Expected FIELD_NAME, got 'bad_field'",
                          str(cm.exception))
