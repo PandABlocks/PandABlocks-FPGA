@@ -185,6 +185,8 @@ begin
                     outenc_ctrl(I) <= outenc_dir(I) & "10";
 --                when "100"  =>                        -- Pass-Through
 --                    outenc_ctrl(I) <= "000";
+				when "101" =>
+                    outenc_ctrl(I) <= "011";          -- DATA PassThrough
                 when others =>
                     outenc_ctrl(I) <= "000";
             end case;
