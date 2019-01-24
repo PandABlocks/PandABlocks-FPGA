@@ -102,12 +102,13 @@ STEP_default <= STEP when step_enable = '1' else c_step_size_one;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        -- The default value is used until Maximum value is written to
-        if (MAX_WSTB = '1') then
+        if ((MAX_WSTB = '1' or MIN_WSTB = '1') and unsigned(MAX) = to_unsigned(0,32) and unsigned(MIN) = to_unsigned(0,32)) then
+            MAX_VAL <= c_max_val;
+            MIN_VAL <= c_min_val;
+        elsif (MAX_WSTB = '1' or MIN_WSTB = '1') then
+         -- The default value is used until Maximum or Minimum value is written
+         -- to and either one does not equal 0
             MAX_VAL <= unsigned(MAX);
-        end if;
-        -- The default value is used until Minimum value is written to
-        if (MIN_WSTB = '1') then
             MIN_VAL <= unsigned(MIN);
         end if;
 
@@ -123,11 +124,12 @@ begin
             if (dir_i = '0') then
                 -- Check to see if we are crossing from the positive to negative or
                 -- negative to positive boundaries if we do set the carry bit
-                if (counter(31) = '0' and ((counter + unsigned(STEP_default) > MAX_VAL))) or
-                   (counter(31) = '1' and ((counter + unsigned(STEP_default) < MIN_VAL))) then
+                if (signed(counter) + signed(STEP_default) > signed(MAX_VAL)) or
+                   (signed(counter) + signed(STEP_default) < signed(MIN_VAL)) or
+                   ((signed(counter) + signed(STEP_default) < signed(counter)))then
                     counter_carry <= '1';
                     -- Crossing boundary when going positive
-                    counter <= counter + unsigned(STEP_default) - (MAX_VAL+1 - MIN_VAL);
+                    counter <= counter + (unsigned(STEP_default) - (MAX_VAL+1 - MIN_VAL));
                 else
                     counter_carry <= '0';
                     -- Increment the counter
@@ -136,11 +138,12 @@ begin
             else
                 -- Check to see if we are crossing from the negative to positive or
                 -- positive to negative boundaries if we do set the carry bit
-                if (counter(31) = '1' and ((counter - unsigned(STEP_default) < MIN_VAL))) or
-                   (counter(31) = '0' and ((counter - unsigned(STEP_default) > MAX_VAL))) then
+                if (signed(counter) - signed(STEP_default) < signed(MIN_VAL)) or
+                   (signed(counter) - signed(STEP_default) > signed(MAX_VAL)) or
+                   ((signed(counter) - signed(STEP_default) > signed(counter)))then
                     counter_carry <= '1';
                     -- Crossing boundary when going negative
-                    counter <= counter - unsigned(STEP_default) - (MAX_VAL+1 - MIN_VAL);
+                    counter <= counter - (unsigned(STEP_default) - (MAX_VAL+1 - MIN_VAL));
                 else
                     counter_carry <= '0';
                     -- Decrement the counter
