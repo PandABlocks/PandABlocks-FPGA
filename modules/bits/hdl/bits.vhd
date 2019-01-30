@@ -25,10 +25,10 @@ port (
     OUTC_o              : out std_logic;
     OUTD_o              : out std_logic;
     -- Block Parameters
-    A                   : in  std_logic;
-    B                   : in  std_logic;
-    C                   : in  std_logic;
-    D                   : in  std_logic
+    A                   : in  std_logic_vector(31 downto 0);
+    B                   : in  std_logic_vector(31 downto 0);
+    C                   : in  std_logic_vector(31 downto 0);
+    D                   : in  std_logic_vector(31 downto 0)
 );
 end bits;
 
@@ -40,10 +40,10 @@ begin
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        OUTA_o <= A;
-        OUTb_o <= B;
-        OUTc_o <= C;
-        OUTd_o <= D;
+        OUTA_o <= A(0);
+        OUTb_o <= B(0);
+        OUTc_o <= C(0);
+        OUTd_o <= D(0);
     end if;
 end process;
 

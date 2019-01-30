@@ -47,7 +47,7 @@ port (
     MSB_DISCARD         : in  std_logic_vector(4 downto 0);
     SETP                : in  std_logic_vector(31 downto 0);
     SETP_WSTB           : in  std_logic;
-    RST_ON_Z            : in  std_logic;
+    RST_ON_Z            : in  std_logic_vector(31 downto 0);
     STATUS              : out std_logic_vector(31 downto 0);
     -- Block Outputs
     posn_o              : out std_logic_vector(31 downto 0)

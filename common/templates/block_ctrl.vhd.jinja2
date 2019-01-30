@@ -20,16 +20,15 @@ port (
     pos_bus_i           : in  posbus_t;
     -- Block Parameters
 {% for field in fields %}
-    {% if field in filter_fields("table|time|(param|write).*") %}
-        {% for register in field.numbered_registers() %}
+    {% for register in field.numbered_registers() %}
+        {% if field in filter_fields("read.*") %}
+    {{ pad(register.name) }} : in std_logic_vector(31 downto 0);
+        {% elif field in filter_fields ("table|time|(param|write).*")%}
     {{ pad(register.name) }} : out std_logic_vector(31 downto 0);
     {{ pad(register.name + "_wstb") }} : out std_logic;
-        {% endfor %}
-    {% elif field in filter_fields("read.*") %}
-        {% for register in field.numbered_registers() %}{# Should be only the one #}
-    {{ pad(field.name) }} : in  std_logic_vector(31 downto 0);
-        {% endfor %}
-    {% elif field.type in "bit_mux" %}
+        {% endif %}
+    {% endfor %}
+    {% if field.type in "bit_mux" %}
     {{ pad(field.name + "_from_bus") }} : out std_logic;
     {% elif field.type in "pos_mux" %}
     {{ pad(field.name + "_from_bus") }} : out std_logic_vector(31 downto 0);

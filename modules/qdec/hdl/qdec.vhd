@@ -26,7 +26,7 @@ port (
     b_i                 : in  std_logic;
     z_i                 : in  std_logic;
     --Position data
-    RST_ON_Z            : in  std_logic;
+    RST_ON_Z            : in  std_logic_vector(31 downto 0);
     SETP                : in  std_logic_vector(31 downto 0);
     SETP_WSTB           : in  std_logic;
     out_o               : out std_logic_vector(31 downto 0)
@@ -63,7 +63,7 @@ process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset = '1') then
         else
-            if (RST_ON_Z = '1' and z_i = '1') then
+            if (RST_ON_Z(0) = '1' and z_i = '1') then
                 quad_count <= (others => '0');
             elsif (SETP_WSTB = '1') then
                 quad_count <= SETP;

@@ -49,9 +49,10 @@ port (
     active_o            : out std_logic;
     -- Block Parameters
     PRESCALE            : in  std_logic_vector(31 downto 0);
-    TABLE_START         : in  std_logic;
+    TABLE_START         : in  std_logic_vector(31 downto 0);
+    TABLE_START_WSTB    : in  std_logic;
     TABLE_DATA          : in  std_logic_vector(31 downto 0);
-    TABLE_WSTB          : in  std_logic;
+    TABLE_DATA_WSTB     : in  std_logic;
     REPEATS             : in  std_logic_vector(31 downto 0);
     TABLE_LENGTH        : in  std_logic_vector(31 downto 0);
     TABLE_LENGTH_WSTB   : in  std_logic;
@@ -59,7 +60,7 @@ port (
     table_line          : out std_logic_vector(31 downto 0);
     line_repeat         : out std_logic_vector(31 downto 0);
     table_repeat        : out std_logic_vector(31 downto 0);
-    state               : out std_logic_vector(2 downto 0)
+    state               : out std_logic_vector(31 downto 0) := (others=>'0')
 );
 end seq;
 
@@ -180,9 +181,9 @@ port map (
     table_ready_o       => table_ready,
     next_frame_o        => next_frame,
 
-    TABLE_START         => TABLE_START,
+    TABLE_START         => TABLE_START(0),
     TABLE_DATA          => TABLE_DATA,
-    TABLE_WSTB          => TABLE_WSTB,
+    TABLE_WSTB          => TABLE_DATA_WSTB,
     TABLE_LENGTH        => TABLE_FRAMES,
     TABLE_LENGTH_WSTB   => TABLE_LENGTH_WSTB
 );
@@ -264,20 +265,21 @@ current_trig_valid <= '1' when ((current_frame.trigger = c_immediately) or (curr
 -------------------------------------------------------------------------
 
 
-state   <= c_state_load_table when seq_sm = LOAD_TABLE else
-           c_state_wait_trigger when seq_sm = WAIT_TRIGGER else
-           c_state_phase1 when seq_sm = PHASE_1 else
-           c_state_phase2 when seq_sm = phase_2 else
-           c_state_wait_enable;
+state(2 downto 0)   <= c_state_load_table when seq_sm = LOAD_TABLE else
+                       c_state_wait_trigger when seq_sm = WAIT_TRIGGER else
+                       c_state_phase1 when seq_sm = PHASE_1 else
+                       c_state_phase2 when seq_sm = phase_2 else
+                       c_state_wait_enable;
 
 
 enable_mem_reset <= '1' when (current_frame.time1 = x"00000000") else '0';
 
 
 load_next <= '1' when (enable_rise = '1' and  seq_sm = WAIT_ENABLE) or ( seq_sm = PHASE_2  and presc_ce = '1' and
-                      tframe_counter = next_ts -1 and last_table_repeat = '0' and last_line_repeat = '1') else '0';
-
-
+                      tframe_counter = next_ts -1 and last_table_repeat = '0' and last_line_repeat = '1') or 
+                      (current_frame = next_frame and seq_sm = PHASE_1 and unsigned(PRESCALE) < to_unsigned(2,32)
+                      and (current_frame.time2 = to_unsigned(0,32) or current_frame.time2 = to_unsigned(1,32)))
+                      else '0';
 
 SEQ_FSM : process(clk_i)
 begin
@@ -295,7 +297,7 @@ if rising_edge(clk_i) then
         LINE_REPEAT_o <= (others => '0');
         TABLE_LINE_o <= (others => '0');
         TABLE_REPEAT_o <= (others => '0');
-    elsif (TABLE_START = '1') then
+    elsif (TABLE_START(0) = '1') then
         out_val <= (others => '0');
         seq_sm <= LOAD_TABLE;
     elsif (enable_fall = '1' and enable_i = '0') then
@@ -324,7 +326,11 @@ if rising_edge(clk_i) then
                         seq_sm <= PHASE_1;
                     -- rising ENABLE and trigger met and no phase 1
                     else
-                        next_ts <= next_frame.time2;
+                        if (next_frame.time2 /= to_unsigned(0,32)) then
+                            next_ts <= next_frame.time2;
+                        else
+                            next_ts <= to_unsigned(1,32);
+                        end if;
                         out_val <= next_frame.out2;
                         seq_sm <= PHASE_2;
                     end if;
@@ -355,7 +361,11 @@ if rising_edge(clk_i) then
                         seq_sm <= PHASE_1;
                     -- trigger met and no phase 1
                     else
-                        next_ts <= current_frame.time2;
+                        if (current_frame.time2 /= to_unsigned(0,32)) then
+                            next_ts <= current_frame.time2;
+                        else
+                            next_ts <= to_unsigned(1,32);
+                        end if;
                         active <= '1';
                         out_val <= current_frame.out2;
                         seq_sm <= PHASE_2;
@@ -366,7 +376,11 @@ if rising_edge(clk_i) then
             when PHASE_1 =>
                 --time 1 elapsed
                 if (presc_ce = '1' and tframe_counter = next_ts -1) then
-                    next_ts <= current_frame.time2;
+                    if (current_frame.time2 /= to_unsigned(0,32)) then
+                        next_ts <= current_frame.time2;
+                    else
+                        next_ts <= to_unsigned(1,32);
+                    end if;
                     out_val <= current_frame.out2;
                     seq_sm <= PHASE_2;
                 end if;
@@ -400,7 +414,11 @@ if rising_edge(clk_i) then
                             seq_sm <= PHASE_1;                                  -- PHASE1 3 goes to phase1 ERROR
                         -- Stay in PHASE 2 state
                         else
-                            next_ts <= next_frame.time2;
+                            if (next_frame.time2 /= to_unsigned(0,32)) then
+                                next_ts <= next_frame.time2;
+                            else
+                                next_ts <= to_unsigned(1,32);
+                            end if;
                             out_val <= next_frame.out2;
                             -- Don't need it but here it is any way
                             seq_sm <= PHASE_2;                                  -- PHASE2 4
@@ -419,7 +437,11 @@ if rising_edge(clk_i) then
                             seq_sm <= PHASE_1;
                         -- Stay in PHASE 2 state
                         else
-                            next_ts <= current_frame.time2;
+                            if (current_frame.time2 /= to_unsigned(0,32)) then
+                                next_ts <= current_frame.time2;
+                            else
+                                next_ts <= to_unsigned(1,32);
+                            end if;
                             out_val <= current_frame.out2;
                             -- Don't need it but here it is any way
                             seq_sm <= PHASE_2;

@@ -65,6 +65,17 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
 
                 # Tell the block what changed (as ints, parsing 0x correctly)
                 changes = {k: int(v, 0) for k, v in inputs.items()}
+                for name, value in changes.items():
+                    if "POS[" in name:
+                        idx = filter(str.isdigit, name)
+                        block.pos_bus[int(idx)] = value
+                        block.pos_change.append(int(idx))
+                        setattr(self, name, value)
+                    elif "BIT[" in name:
+                        idx = filter(str.isdigit, name)
+                        block.bit_bus[int(idx)] = value
+                        setattr(self, name, value)
+
                 next_ts = block.on_changes(ts, changes)
                 if block.changes is None:
                     block.changes = {}

@@ -10,13 +10,37 @@ module {{block.entity}}_{{number}}_tb;
 reg clk_i = 0;
 always #4 clk_i = ~clk_i;
 
+
+//PCAP signals:
+reg              ARM;
+reg              DISARM;
+reg              START_WRITE;
+reg  [31:0]      WRITE;
+reg              WRITE_wstb;
+reg  [31:0]      BIT[127:0];
+reg  [31:0]      POS[31:0];
+wire [32*12-1:0] extbus_i = 0;
+wire [31:0]      pcap_dat_o;
+reg  [31:0]      DATA;
+reg              DATA_err;
+reg              DATA_wstb;
+wire             pcap_dat_valid_o;
+reg              data_valid_err;
+wire             pcap_done_o;
+wire [2:0]       pcap_status_o;
+wire [127:0]     bit_bus;
+wire [32*32-1:0] pos_bus;
+reg              reset = 1;
+
 // Inputs from initialisation file
 {% for field in block.fields %}
     {% if field.type == "bit_mux" %}
 reg         {{ field.name }};
     {% else %}
-	    {% for register in field.numbered_registers() %}
+	    {% for register in field.registers %}
+	        {% if register.number >= 0 %}
 reg  [31:0] {{ register.name }};
+			{% endif %}
 	    {% endfor %}
 	    {% if field.type == "time" %}
 wire [47:0] {{ field.name }};
@@ -46,8 +70,10 @@ reg         {{ field.name }}_err;   //Error signal
 // Write Strobes
 {% for field in block.fields %}
     {% if field.wstb %}
-        {% for register in field.numbered_registers() %}
+        {% for register in field.registers %}
+            {% if register.number >= 0 %}
 reg         {{ register.name }}_wstb;
+			{% endif %}
         {% endfor %}
         {% if field.type == "time" %}
 wire        {{ field.name }}_wstb;
@@ -163,6 +189,20 @@ begin
         end
     {% endif %}
 {% endfor %}
+{% if block.type == "pcap" %}
+        if (DATA_wstb != pcap_dat_valid_o || (DATA_wstb > 0 && pcap_dat_valid_o === 1'bx)) begin
+            $display("DATA_valid error detected at timestamp %d\n", timestamp);
+            data_valid_err <= 1;
+            test_result <= 1;
+        end
+        if (DATA_wstb == 1) begin
+            if (DATA != pcap_dat_o || (DATA > 0 && ^pcap_dat_o === 1'bx)) begin
+                $display("DATA error detected at timestamp %d\n", timestamp);
+                DATA_err <= 1;
+                test_result <= 1;
+            end
+        end
+{% endif %}
     end
 end
 
@@ -187,6 +227,32 @@ assign {{field.name}}_wstb = {{field.name}}_H_wstb || {{field.name}}_L_wstb;
     {% endif %}
 {% endfor %}
 // Instantiate the Unit Under Test (UUT)
+{% if block.type == "pcap" %}
+pcap_core_wrapper uut (
+    .ARM                ( ARM               ),
+    .DISARM             ( DISARM            ),
+    .START_WRITE        ( START_WRITE       ),
+    .WRITE              ( WRITE             ),
+    .WRITE_WSTB         ( WRITE_wstb        ),
+    .TRIG_EDGE          ( TRIG_EDGE         ),
+    .SHIFT_SUM          ( SHIFT_SUM         ),
+    .dma_full_i         ( 1'b0              ),
+    .sysbus_i           ( bit_bus                       ),
+    .posbus_i           ( pos_bus           ),
+    .extbus_i           ( extbus_i          ),
+    .HEALTH             ( HEALTH_uut        ),
+    .enable_i           ( ENABLE          ),
+    .trig_i             ( TRIG            ),
+    .gate_i             ( GATE            ),
+    .pcap_dat_o         ( pcap_dat_o        ),
+    .pcap_dat_valid_o   ( pcap_dat_valid_o  ),
+    .pcap_done_o        ( pcap_done_o       ),
+    .pcap_actv_o        ( ACTIVE_uut       ),
+    .pcap_status_o      ( pcap_status_o     ),
+    .reset_i            ( reset             ),
+    .clk_i              (clk_i)
+);
+{% else %}
 {{block.entity}} uut (
 
 {% for field in block.fields %}
@@ -199,14 +265,11 @@ assign {{field.name}}_wstb = {{field.name}}_H_wstb || {{field.name}}_L_wstb;
         {% if field.wstb %}
         .{{ pad(field.name + "_wstb")}}  ({{ field.name }}_wstb),
         {% endif %}
-    {% elif field.type == "time" %}
-        .{{ pad(field.name) }}  ({{ field.name }}),
-        {% if field.wstb %}
-        .{{ pad(field.name + "_wstb") }}  ({{ field.name }}_wstb),
-        {% endif %}
+    {% elif field == "time" %}
+        .{{ field.name }}  {{ field.name }}
     {% else %}
-        {% for register in field.numbered_registers() %}
-        .{{ pad(register.name) }}  ({{ register.name }}),
+        {% for register in field.registers %}
+        .{{ pad(register.name) }}  {{ register.name }},
             {% if field.wstb %}
         .{{ pad(register.name + "_wstb") }}  ({{ register.name }}_wstb),
             {% endif %}
@@ -224,4 +287,22 @@ assign {{field.name}}_wstb = {{field.name}}_H_wstb || {{field.name}}_L_wstb;
 {% endif %}
         .clk_i                (clk_i)
 );
+{% endif %}
+{% if block.type == "pcap" %}
+genvar  j, k;
+for (k=0; k<128; k=k+1) assign bit_bus[k] = BIT[k][0];
+for (j=0; j<32; j=j+1) assign pos_bus[j*32+31 : 32*j] = POS[j];
+integer count = 0;
+always @ (posedge clk_i)
+begin
+    if (pcap_done_o == 1) begin
+        reset <= 1;
+    end else if (clk_i == 1 && count >3 ) begin
+        reset <= 0
+        ;
+    end else if (clk_i == 1) begin
+        count <= count + 1;
+    end
+end
+{% endif %}
 endmodule

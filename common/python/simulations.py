@@ -78,12 +78,6 @@ class BlockSimulation(object):
             if "POS[" not in name and "BIT[" not in name:
                 assert hasattr(self, name), "%s has no attribute %s" % (self, name)
                 setattr(self, name, value)
-            elif "POS[" in name:
-                idx = filter(str.isdigit, name)
-                self.pos_bus[int(idx)] = value
-                self.pos_change.append(int(idx))
-            elif "BIT[" in name:
-                idx = filter(str.isdigit, name)
-                self.bit_bus[int(idx)] = value
+
 
 

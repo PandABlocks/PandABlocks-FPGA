@@ -397,9 +397,6 @@ class EnumParamFieldConfig(ParamFieldConfig):
             assert k.isdigit(), "Only expecting integer enum entries in %s" % (
                 extra_config,)
             yield "%s %s" % (pad(k, spaces=3), v)
-            # Work out biggest enum value
-            self.enumlength = max(self.enumlength, int(k))
-        self.enumlength = int(math.ceil(math.log(self.enumlength + 1, 2)) - 1)
 
 
 class ScalarReadFieldConfig(ParamFieldConfig):
