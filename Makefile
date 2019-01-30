@@ -13,6 +13,7 @@ APP_NAME = $(error Define APP_NAME in CONFIG file)
 PYTHON = python2
 SPHINX_BUILD = sphinx-build
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
+MAKE_GITHUB_RELEASE = $(PANDA_ROOTFS)/make-github-release.py
 
 BUILD_DIR = $(TOP)/build
 DEFAULT_TARGETS = zpkg
@@ -260,10 +261,17 @@ $(ZPKG_FILE): $(ZPKG_LIST) $(ZPKG_DEPENDS)
 zpkg: $(ZPKG_FILE)
 .PHONY: zpkg
 
-
 all-zpkg:
 	$(call MAKE_ALL_APPS, zpkg)
 .PHONY: all-zpkg
+
+
+# Push a github release
+github-release: $(ZPKG)
+	$(MAKE_GITHUB_RELEASE) PandABlocks-FPGA $(GIT_VERSION) \
+	    $(BUILD_DIR)/*.zpg
+
+.PHONY: github-release
 
 
 # ------------------------------------------------------------------------------
