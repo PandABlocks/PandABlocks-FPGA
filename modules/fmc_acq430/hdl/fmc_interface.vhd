@@ -161,13 +161,17 @@ attribute keep of clk_SEL                               : signal is "true";
 begin
 
 
--- Decode of Register Control bits
-ADC_RESET        <= ADC_RESET_REG(0);
-ADC_FIFO_ENABLE  <= FIFO_ENABLE_REG(0);
-ADC_FIFO_RESET   <= FIFO_RESET_REG(0);
-ADC_ENABLE       <= ADC_ENABLE_REG(0);
-ADC_MODE_DATA(4) <= ADC_MODE_REG(0);
-ADC_CLK_DIV      <= ADC_CLKDIV_REG(15 downto 0);
+process (clk_PANDA) begin
+    if rising_edge(clk_PANDA) then
+        -- Decode of Register Control bits
+        ADC_RESET        <= ADC_RESET_REG(0);
+        ADC_FIFO_ENABLE  <= FIFO_ENABLE_REG(0);
+        ADC_FIFO_RESET   <= FIFO_RESET_REG(0);
+        ADC_ENABLE       <= ADC_ENABLE_REG(0);
+        ADC_MODE_DATA(4) <= ADC_MODE_REG(0);
+        ADC_CLK_DIV      <= ADC_CLKDIV_REG(15 downto 0);
+    end if;
+end process;
 
 
 -- In the ACQ430 the Sample Size is fixed
