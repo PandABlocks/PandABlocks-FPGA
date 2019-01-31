@@ -1,3 +1,6 @@
+// This template works for pgen. It may not be generic enough to work for any
+// other blocks with a DMA interface.
+
 // {{ block.entity|upper }}_1000.txt
 // data_mem
 parameter STATE_IDLE = 0;

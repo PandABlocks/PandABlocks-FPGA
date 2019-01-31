@@ -74,7 +74,7 @@ begin
         clk_i       => clk_i,
         data_i(0)   => read_strobe_i,
         data_o(0)   => read_ack_o,
-        DELAY       => RD_ADDR2ACK
+        DELAY_i       => RD_ADDR2ACK
     );
 
     -- Control System Register Interface
@@ -131,22 +131,22 @@ begin
 {% for field in filter_fields("bit_mux") %}
     bitmux_{{ field.name }} : entity work.bitmux
     port map (
-        clk_i       => clk_i,
-        sysbus_i    => bit_bus_i,
-        bit_o       => {{ field.name }}_from_bus,
-        bitmux_sel  => {{ field.name }},
-        bit_dly     => {{ field.name }}_DLY
+        clk_i         => clk_i,
+        sysbus_i      => bit_bus_i,
+        bit_o         => {{ field.name }}_from_bus,
+        bitmux_sel_i  => {{ field.name }},
+        bit_dly_i     => {{ field.name }}_DLY
     );
 
 {% endfor %}
 {% for field in filter_fields("pos_mux") %}
     posmux_{{ field.name }} : entity work.posmux
     port map (
-        clk_i       => clk_i,
-        posbus_i    => pos_bus_i,
-        posn_o      => {{ field.name }}_from_bus,
-        posmux_sel  => {{ field.name }},
-        pos_dly     => (others => '0')
+        clk_i        => clk_i,
+        posbus_i     => pos_bus_i,
+        posn_o       => {{ field.name }}_from_bus,
+        posmux_sel_i => {{ field.name }},
+        pos_dly_i    => (others => '0')
     );
 
 {% endfor %}

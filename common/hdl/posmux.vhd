@@ -29,8 +29,8 @@ port (
     posbus_i            : in  posbus_t;
     posn_o              : out std_logic_vector(31 downto 0);
     -- Block Parameters
-    POSMUX_SEL          : in  std_logic_vector(31 downto 0);
-    POS_DLY             : in  std_logic_vector(31 downto 0)
+    POSMUX_SEL_i        : in  std_logic_vector(31 downto 0);
+    POS_DLY_i           : in  std_logic_vector(31 downto 0)
 );
 
   attribute keep_hierarchy            : string;
@@ -44,11 +44,11 @@ signal posn             : std_logic_vector(31 downto 0);
 
 begin
 
-process(POSMUX_SEL,posbus_i)
+process(POSMUX_SEL_i,posbus_i)
 begin
-    if POSMUX_SEL(PBUSBW) = '0' then
+    if POSMUX_SEL_i(PBUSBW) = '0' then
         -- Select position field from the position array
-        posn <= PFIELD(posbus_i, POSMUX_SEL(PBUSBW-1 downto 0));
+        posn <= PFIELD(posbus_i, POSMUX_SEL_i(PBUSBW-1 downto 0));
     else
         posn <= (others => '0');
     end if;
@@ -61,7 +61,7 @@ port map (
     clk_i       => clk_i,
     data_i      => posn,
     data_o      => posn_o,
-    DELAY       => POS_DLY(4 downto 0)
+    DELAY_i     => POS_DLY_i(4 downto 0)
 );
 
 end rtl;
