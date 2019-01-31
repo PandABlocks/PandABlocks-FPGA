@@ -173,8 +173,8 @@ port map (
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
-    bit_bus_i            => bitbus_i,
-    pos_bus_i            => posbus_i,
+    bit_bus_i           => bitbus_i,
+    pos_bus_i           => posbus_i,
     -- Block Parameters
     GAIN1 => gains(0),
     GAIN1_wstb  => open,
