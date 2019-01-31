@@ -51,7 +51,9 @@ port (
     spi_sclk_o          : out std_logic;
     spi_dat_o           : out std_logic;
     spi_sclk_i          : in  std_logic;
-    spi_dat_i           : in  std_logic
+    spi_dat_i           : in  std_logic;
+    -- Slow input
+    slow_tlp_i          : in  slow_packet
     -- External Clock
 --    sma_pll_locked_i    : in  std_logic;
 --    ext_clock_o         : out std_logic_vector(1 downto 0)
@@ -79,22 +81,6 @@ begin
 
 -- Accept write data if FIFO is available
 write_ack_o <= not cmd_ready_n; -- or write_ack;
-
-
----------------------------------------------------------------------------
--- Slow register access interface
----------------------------------------------------------------------------
-system_registers_inst : entity work.system_registers
-port map (
-    clk_i               => clk_i,
-    reset_i             => reset_i,
-
-    write_strobe_i      => write_strobe_i,
-    write_address_i     => write_address_i,
-    write_data_i        => write_data_i,
-
-    slow_tlp_o          => slow_reg_tlp
-);
 
 ---------------------------------------------------------------------------
 -- LED information for Digital IO goes through SlowFPGA
@@ -126,7 +112,7 @@ port map (
     spi_sclk_i          => spi_sclk_i,
     spi_dat_i           => spi_dat_i,
 
-    registers_tlp_i     => slow_reg_tlp,
+    registers_tlp_i     => slow_tlp_i,
     leds_tlp_i          => slow_leds_tlp,
     cmd_ready_n_o       => cmd_ready_n,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
