@@ -23,8 +23,6 @@ TWX_FILE = $(SYSTEM).twx
 BIT_FILE = $(SYSTEM).bit
 PROM_FILE = $(SYSTEM).mcs
 
-VERSION_FILE = $(AUTOGEN)/hdl/slow_version.vhd
-
 # Print the names of unlocked (unconstrainted) IOs
 export XIL_PAR_DESIGN_CHECK_VERBOSE=1
 
@@ -32,18 +30,7 @@ bits : $(BIT_FILE)
 
 mcs: $(PROM_FILE)
 
-.PHONY: mcs bits netlist
-
-VERSION :
-	rm -f $(VERSION_FILE)
-	echo 'library ieee;' >> $(VERSION_FILE)
-	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
-	echo 'package slow_version is' >> $(VERSION_FILE)
-	echo -n 'constant SLOW_FPGA_VERSION: std_logic_vector(31 downto 0)' \
-            >> $(VERSION_FILE)
-	echo ' := X"$(SHA)";' >> $(VERSION_FILE)
-	echo 'end slow_version;' >> $(VERSION_FILE)
-
+.PHONY: mcs bits
 
 # We have to take a bit of care when building the list file: it turns out that
 # xst can't cope with long file names.
@@ -55,7 +42,7 @@ MAP_FLAGS = -detail -w -ol high -pr b
 PAR_FLAGS = -w -ol high
 TRCE_FLAGS = -e 3 -l 3
 
-$(BIT_FILE): VERSION $(LIST_FILE)
+$(BIT_FILE): $(LIST_FILE)
 	xst -ifn $(SCR_FILE)
 	ngdbuild -sd $(NETLIST_DIR) -uc $(UCF_FILE) $(POSTSYN_NETLIST)
 	map $(MAP_FLAGS) $(NGD_FILE) -o $(MAPPED_NCD_FILE) $(PCF_FILE)

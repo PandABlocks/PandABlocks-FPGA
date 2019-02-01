@@ -25,7 +25,7 @@ use work.support.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 use work.reg_defines.all; -- This includes the reg and DRV declarations as they
-use work.panda_version.all; -- are not treated as blocks and cannot be autogend
+use work.version.all; -- are not treated as blocks and cannot be autogend
 
 entity reg_top is
 generic (

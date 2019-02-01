@@ -9,8 +9,11 @@ set_param board.repoPaths $TARGET_DIR/configs
 # Build directory
 set BUILD_DIR [lindex $argv 1]
 
+# Vivado run mode - gui or batch mode
+set MODE [lindex $argv 2]
+
 # Create Managed IP Project
-create_project managed_ip_project $BUILD_DIR/managed_ip_project -force -part xc7z030sbg485-1 -ip
+create_project -part xc7z030sbg485-1 -force -ip managed_ip_project $BUILD_DIR/managed_ip_project
 
 set_property target_language VHDL [current_project]
 set_property target_simulator ModelSim [current_project]
@@ -349,6 +352,7 @@ generate_target all [get_files $BUILD_DIR/sfp_transmit_mem/sfp_transmit_mem.xci]
 synth_ip [get_ips sfp_transmit_mem]
 
 
-# Close project
+# Close project if not gui mode
+if {[string match "gui" [string tolower $MODE]]} { return }
 close_project
 exit

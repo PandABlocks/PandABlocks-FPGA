@@ -7,24 +7,32 @@ set TARGET_DIR [lindex $argv 1]
 set BUILD_DIR  [lindex $argv 2]
 set AUTOGEN    [lindex $argv 3]
 set IP_DIR     [lindex $argv 4]
+# Vivado run mode - gui or batch mode
+set MODE       [lindex $argv 5] 
+
 
 set_param board.repoPaths $TARGET_DIR/configs
 
 
-# Create project
-create_project -force -in_memory panda_carrier_top \
-    $BUILD_DIR/panda_carier_top -part xc7z030sbg485-1
+# Create project (in-memory if not in gui mode)
+
+if {[string match "gui" [string tolower $MODE]]} {
+    create_project -part xc7z030sbg485-1 -force \
+      carrier_fpga_top $BUILD_DIR/carrier_fpga_top 
+} else {
+    create_project -part xc7z030sbg485-1 -force -in_memory \
+      carrier_fpga_top $BUILD_DIR/carrier_fpga_top
+}
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
 
 # Set project properties
-set obj [get_projects panda_carrier_top]
+set obj [get_projects carrier_fpga_top]
 set_property "board_part" "em.avnet.com:picozed_7030:part0:1.0" $obj
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj
-set_property part "xc7z030sbg485-1" [current_project]
 
 #
 # Warning suppression
@@ -63,6 +71,9 @@ read_vhdl [glob $TOP_DIR/common/hdl/*.vhd]
 read_vhdl [glob $TARGET_DIR/hdl/*.vhd]
 read_vhdl [glob $TARGET_DIR/hdl/defines/*.vhd]
 
+# Exit script here if gui mode - i.e. if running 'make carrier_fpga_gui'
+if {[string match "gui" [string tolower $MODE]]} { return }
+
 #
 # STEP#2: run synthesis, report utilization and timing estimates, write
 # checkpoint design
@@ -72,7 +83,7 @@ write_checkpoint -force post_synth
 report_timing_summary -file post_synth_timing_summary.rpt
 
 #
-# STEP#3: run placement and logic optimisation, report utilization and timing
+# STEP#3: run placement and logic optimisation, report utilisation and timing
 # estimates, write checkpoint design
 #
 opt_design
@@ -81,7 +92,7 @@ place_design
 phys_opt_design
 write_checkpoint -force post_place
 report_timing_summary -file post_place_timing_summary.rpt
-write_debug_probes -force panda_carrier_top.ltx
+write_debug_probes -force carrier_fpga_top.ltx
 
 #
 # STEP#4: run router, report actual utilization and timing, write checkpoint
@@ -108,11 +119,6 @@ report_io -verbose -file post_route_report_io.rpt
 # STEP#5: generate a bitstream
 #
 write_bitstream -force panda_top.bit
-
-#
-# Export HW for SDK
-#
-write_hwdef -file $BUILD_DIR/panda_top_wrapper.hdf -force
 
 close_project
 exit

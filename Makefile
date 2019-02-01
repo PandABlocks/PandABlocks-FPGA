@@ -15,6 +15,7 @@ SPHINX_BUILD = sphinx-build
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 
 BUILD_DIR = $(TOP)/build
+VIVADO_VER = 2015.1
 DEFAULT_TARGETS = zpkg
 
 
@@ -29,12 +30,18 @@ IP_DIR = $(BUILD_DIR)/ip_repo
 APP_BUILD_DIR = $(BUILD_DIR)/apps/$(APP_NAME)
 AUTOGEN_BUILD_DIR = $(APP_BUILD_DIR)/autogen
 FPGA_BUILD_DIR = $(APP_BUILD_DIR)/FPGA
-SLOW_FPGA_BUILD_DIR = $(APP_BUILD_DIR)/SlowFPGA
 
 # The TARGET defines the class of application and is extracted from the first
 # part of the APP_NAME.
 TARGET = $(firstword $(subst -, ,$(APP_NAME)))
 TARGET_DIR = $(TOP)/targets/$(TARGET)
+
+# Location of Vivado project files and default run-modes
+PS_PROJ = $(FPGA_BUILD_DIR)/panda_ps/panda_ps.xpr
+IP_PROJ = $(IP_DIR)/managed_ip_project/managed_ip_project.xpr
+TOP_PROJ = $(FPGA_BUILD_DIR)/panda_top/carrier_fpga_top.xpr
+TOP_MODE ?= batch
+DEP_MODE ?= batch
 
 
 default: $(DEFAULT_TARGETS)
@@ -183,48 +190,55 @@ hdl_timing: $(TIMING_BUILD_DIRS)
 # ------------------------------------------------------------------------------
 # FPGA build
 
-FPGA_FILE = $(FPGA_BUILD_DIR)/panda_top.bit
-SLOW_FPGA_FILE = $(SLOW_FPGA_BUILD_DIR)/slow_top.bin
+# The following phony targets are passed straight to the FPGA sub-make programme
+FPGA_TARGETS = fpga-all fpga-bits carrier_fpga slow_fpga carrier_ip ps_core ps_boot \
+               fsbl devicetree dts sw_clean
 
-FPGA_DEPENDS =
-
-SLOW_FPGA_DEPENDS =
-SLOW_FPGA_DEPENDS += tools/virtexHex2Bin
-
-tools/virtexHex2Bin: tools/virtexHex2Bin.c
-	gcc -o $@ $<
-
-
-$(FPGA_FILE): $(AUTOGEN_BUILD_DIR) $(FPGA_DEPENDS)
-	mkdir -p $(dir $@)
+$(FPGA_TARGETS): $(TARGET_DIR)/fpga.make $(AUTOGEN_BUILD_DIR)
+	mkdir -p $(FPGA_BUILD_DIR)
 ifdef SKIP_FPGA_BUILD
-	echo Skipping FPGA build
-	touch $@
+	@echo Skipping FPGA build
 else
-	echo building FPGA
-	$(MAKE) -C $(dir $@) -f $(TARGET_DIR)/Makefile VIVADO=$(VIVADO) \
-            TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(dir $@) \
-            IP_DIR=$(IP_DIR)
+	@echo building FPGA
+	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
+        TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(FPGA_BUILD_DIR) \
+        IP_DIR=$(IP_DIR) TOP_MODE=$(TOP_MODE) DEP_MODE=$(DEP_MODE) \
+		$@
 endif
 
-$(SLOW_FPGA_FILE): $(AUTOGEN_BUILD_DIR) $(SLOW_FPGA_DEPENDS)
-	mkdir -p $(dir $@)
-ifdef SKIP_FPGA_BUILD
-	echo Skipping Slow FPGA build
-	touch $@
+.PHONY: $(FPGA_TARGETS)
+
+# Targets to launch and edit vivado projects in interactive mode
+# Targets : edit_ps_bd ; edit_ips ; carrier-fpga_gui
+
+edit_ps_bd: DEP_MODE=gui 
+ifeq ($(wildcard $(PS_PROJ)), )
+  edit_ps_bd: ps_core
 else
-	echo building SlowFPGA
-	source $(ISE)  &&  \
-        $(MAKE) -C $(dir $@) -f $(TARGET_DIR)/SlowFPGA/Makefile \
-            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA mcs \
-            BUILD_DIR=$(dir $@)
+  edit_ps_bd : 
+	cd $(FPGA_BUILD_DIR); \
+	source $(VIVADO) && vivado -mode $(DEP_MODE) $(PS_PROJ)
 endif
 
-slow-fpga: $(SLOW_FPGA_BUILD_DIR)
-.PHONY: slow-fpga
+edit_ips: DEP_MODE=gui
+ifeq ($(wildcard $(IP_PROJ)), )
+  edit_ips: carrier_ip
+else
+  edit_ips:
+	cd $(IP_DIR); \
+	source $(VIVADO) && vivado -mode $(DEP_MODE) $(IP_PROJ)
+endif
 
-carrier-fpga: $(FPGA_BUILD_DIR)
-.PHONY: carrier-fpga
+carrier-fpga_gui: TOP_MODE=gui 
+ifeq ($(wildcard $(TOP_PROJ)), )
+  carrier-fpga_gui: carrier_fpga
+else
+  carrier-fpga_gui : 
+	cd $(FPGA_BUILD_DIR); \
+	source $(VIVADO) && vivado -mode $(TOP_MODE) $(TOP_PROJ)
+endif
+
+.PHONY: edit_ps_bd edit_ips carrier-fpga_gui
 
 
 # ------------------------------------------------------------------------------
@@ -234,8 +248,7 @@ ZPKG_LIST = etc/panda-fpga.list
 ZPKG_VERSION = $(APP_NAME)-$(GIT_VERSION)
 ZPKG_FILE = $(BUILD_DIR)/panda-fpga@$(ZPKG_VERSION).zpg
 
-ZPKG_DEPENDS += $(FPGA_FILE)
-ZPKG_DEPENDS += $(SLOW_FPGA_FILE)
+ZPKG_DEPENDS += fpga-bits
 ZPKG_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini
 ZPKG_DEPENDS += $(APP_BUILD_DIR)/extensions
 ZPKG_DEPENDS += $(DOCS_HTML_DIR)
