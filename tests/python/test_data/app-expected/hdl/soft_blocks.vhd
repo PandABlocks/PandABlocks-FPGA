@@ -75,7 +75,7 @@ port map (
     write_ack_o         => write_ack(lut_CS),
 
     bit_bus_i           => bit_bus_i,
-
+    pos_bus_i           => posbus_i,
     OUT_o               => bit_bus_o(7 downto 0),
 
     clk_i               => FCLK_CLK0

@@ -11,14 +11,15 @@ reg clk_i = 0;
 always #4 clk_i = ~clk_i;
 
 // Inputs from initialisation file
-reg         INPA;
-reg  [1:0]  A;
 reg  [31:0] FUNC;
+reg  [31:0] A;
+reg         INPA;
 
 // Outputs
 reg         OUT;       //Output from ini file
 wire        OUT_uut;   //Output from UUT
 reg         OUT_err;   //Error signal
+
 
 // Write Strobes
 reg         FUNC_wstb;
