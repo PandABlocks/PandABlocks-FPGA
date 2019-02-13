@@ -8,15 +8,15 @@
 # BUILD_DIR = $(TOP)/build
 
 # Development Tool Version
-# VIVADO_VER = 2015.1
+# VIVADO_VER = 2015.2
 
 # Definitions needed for FPGA build
-VIVADO = /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh
-ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
-LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
+export VIVADO = /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh
+export ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
+export LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
 
 # Path to devicetree files needed by Xilinx SDK
-TAR_REPO = /dls_sw/FPGA/Xilinx/OSLinux/tar-balls
+export TAR_REPO = /dls_sw/FPGA/Xilinx/OSLinux/tar-balls
 
 # Path to root filesystem
 PANDA_ROOTFS = /home/mga83/targetOS/PandABlocks-rootfs

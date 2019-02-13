@@ -11,12 +11,14 @@ RUNVIVADO = source $(VIVADO) && vivado
 AUTOGEN  = $(BUILD_DIR)/../autogen
 SLOW_FPGA_BUILD_DIR = $(BUILD_DIR)/../SlowFPGA
 IP_CORES = $(IP_DIR)
-PS_CORE  = $(BUILD_DIR)/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/hdl/panda_ps.vhd
+PS_DIR = $(BUILD_DIR)/panda_ps
+PS_CORE  = $(PS_DIR)/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 
 VERSION_FILE = $(AUTOGEN)/hdl/version.vhd
 
-SDK_EXPORT = $(BUILD_DIR)/panda_ps/panda_ps.sdk
-HWDEF = $(BUILD_DIR)/panda_ps/panda_ps_wrapper.hdf
+SDK_EXPORT = $(PS_DIR)/panda_ps.sdk
+#HWDEF = $(PS_DIR)/panda_ps_wrapper.hdf
+HWDEF = $(PS_DIR)/panda_ps.srcs/sources_1/bd/panda_ps/hdl/panda_ps.hdf
 
 IP_BUILD_SCR = $(TARGET_DIR)/scripts/build_ip.tcl
 PS_BUILD_SCR = $(TARGET_DIR)/scripts/build_ps.tcl
@@ -24,9 +26,13 @@ PS_CONFIG_SCR = $(TARGET_DIR)/bd/panda_ps.tcl
 TOP_BUILD_SCR = $(TARGET_DIR)/scripts/build_top.tcl
 XSDK_BUILD_SCR = $(TARGET_DIR)/scripts/build_xsdk.tcl
 
-DEVTREE_TAG = xilinx-v$(VIVADO_VER)
-DEVTREE_NAME = device-tree-xlnx-$(DEVTREE_TAG)
+# Manually set the device tree sources verison to v2015.1 to match the
+# Kernel and uboot version in rootfs repo
+#DEVTREE_TAG = xilinx-v$(VIVADO_VER)
+#DEVTREE_NAME = device-tree-xlnx-$(DEVTREE_TAG)
+DEVTREE_NAME = device-tree-xlnx-xilinx-v2015.1
 DEVTREE_BSP = $(BUILD_DIR)/bsp/
+DEVTREE_SRC = $(DEVTREE_BSP)/$(DEVTREE_NAME)
 DEVTREE_DTB = $(IMAGE_DIR)/devicetree.dtb
 FSBL = $(IMAGE_DIR)/fsbl.elf
 
@@ -66,7 +72,7 @@ $(IP_CORES) : $(IP_BUILD_SCR)
 
 $(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR)
 	$(RUNVIVADO) -mode $(DEP_MODE) -source $< \
-	    -tclargs $(TARGET_DIR) $(BUILD_DIR) $(DEP_MODE)
+	    -tclargs $(TARGET_DIR) $(PS_DIR) $@ $(DEP_MODE)
 
 carrier_fpga : $(TOP_BUILD_SCR) VERSION $(IP_CORES) $(PS_CORE)
 	$(RUNVIVADO) -mode $(TOP_MODE) -source $< \
@@ -97,7 +103,7 @@ $(TOP)/tools/virtexHex2Bin: $(TOP)/tools/virtexHex2Bin.c
 # Build PS Boot targets
 
 $(DEVTREE_DTB): $(SDK_EXPORT)
-	cp $(TARGET_DIR)/configs/device-tree/$(DEVTREE_TAG)/pzed-z7030/system-top.dts \
+	cp $(TARGET_DIR)/configs/device-tree/xilinx-v2015.1/pzed-z7030/system-top.dts \
 	  $</device_tree_bsp_0/
 	sed -i '/dts-v1/d' $</device_tree_bsp_0/system.dts
 	@echo "Building DEVICE TREE blob ..."
@@ -107,13 +113,16 @@ $(DEVTREE_DTB): $(SDK_EXPORT)
 $(FSBL): $(SDK_EXPORT)
 	cp $</fsbl/Release/fsbl.elf $@
 
-$(SDK_EXPORT): $(XSDK_BUILD_SCR) $(HWDEF) $(DEVTREE_BSP)/$(DEVTREE_NAME) | $(IMAGE_DIR)
+$(SDK_EXPORT): $(XSDK_BUILD_SCR) $(HWDEF) $(DEVTREE_SRC) | $(IMAGE_DIR)
+#$(SDK_EXPORT): $(XSDK_BUILD_SCR) $(HWDEF) | $(IMAGE_DIR)
 	rm -rf $@
-	source $(VIVADO) && xsdk -batch -source $<
+	source $(VIVADO) && xsdk -batch -source $< \
+	    $(SDK_EXPORT) $(HWDEF) $(DEVTREE_SRC)
 
 $(HWDEF): $(PS_CORE)
+	cp $(basename $@).hwdef $@
 
-$(DEVTREE_BSP)/$(DEVTREE_NAME) : 
+$(DEVTREE_SRC) : 
 	unzip $(TAR_REPO)/$(DEVTREE_NAME).zip -d $(DEVTREE_BSP)
 
 $(IMAGE_DIR) : 

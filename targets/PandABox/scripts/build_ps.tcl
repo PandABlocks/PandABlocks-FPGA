@@ -7,10 +7,13 @@ set TARGET_DIR [lindex $argv 0]
 set_param board.repoPaths $TARGET_DIR/configs
 
 # Build directory
-set BUILD_DIR [lindex $argv 1]/panda_ps
+set BUILD_DIR [lindex $argv 1]
+
+# Output file
+set OUTPUT_FILE [lindex $argv 2]
 
 # Vivado run mode - gui or batch mode
-set MODE [lindex $argv 2]
+set MODE [lindex $argv 3]
 
 # Create project
 create_project -part xc7z030sbg485-1 -force panda_ps $BUILD_DIR
@@ -46,14 +49,14 @@ set obj [get_filesets sources_1]
 set_property "top" "panda_ps_wrapper" $obj
 
 # Generate Output Files
-generate_target all [get_files $BUILD_DIR/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd]
-open_bd_design $BUILD_DIR/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
+generate_target all [get_files $OUTPUT_FILE]
+#open_bd_design $OUTPUT_FILE
 
 # Export to SDK
-file mkdir $BUILD_DIR/panda_ps.sdk
-write_hwdef -force -file $BUILD_DIR/panda_ps_wrapper.hdf
+#file mkdir $BUILD_DIR/panda_ps.sdk
+#write_hwdef -force -file $BUILD_DIR/panda_ps_wrapper.hdf
 
 # Close block design and project
-close_bd_design panda_ps
+#close_bd_design panda_ps
 close_project
 exit

@@ -15,7 +15,7 @@ SPHINX_BUILD = sphinx-build
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 
 BUILD_DIR = $(TOP)/build
-VIVADO_VER = 2015.1
+VIVADO_VER = 2015.2
 DEFAULT_TARGETS = zpkg
 
 
