@@ -23,8 +23,8 @@ PandA. Selecting an item from this list will load the saved design over the
 current Block settings. You can use the Save method to save your current
 design if you wish to keep it.
 
-Select "tutorial1_blinking_leds" from the box and you will be greeted with
-a layout of Blocks:
+Select "tutorial1_blinking_leds" from the box and the settings and wiring of
+the Blocks in the PandA will be changed to the following:
 
 .. image:: tutorial1_layout.png
 

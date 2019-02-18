@@ -11,10 +11,10 @@ Contents
 .. toctree::
     :caption: Tutorials
 
-    tutorials/blinking_leds
-    tutorials/position_capture
-    tutorials/position_compare
-    tutorials/snake_scan
+    tutorials/tutorial1_blinking_leds
+    tutorials/tutorial2_position_capture
+    tutorials/tutorial3_position_compare
+    tutorials/tutorial4_snake_scan
 
 .. _reference_doc:
 
