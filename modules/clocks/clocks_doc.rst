@@ -25,8 +25,16 @@ All clocks have the same starting point
 
 When any period parameter is set, all clocks restart from that point.
 
-
-
 .. timing_plot::
    :path: modules/clocks/clocks.timing.ini
    :section: Clocks restart whenever parameter set
+
+Clock settings while disabled
+-----------------------------
+
+To start all clocks synchronously you can set then while the Blocks is disabled.
+They will all start on rising edge of ENABLE and be zeroed on the falling edge.
+
+.. timing_plot::
+   :path: modules/clocks/clocks.timing.ini
+   :section: Enable low does not run clocks

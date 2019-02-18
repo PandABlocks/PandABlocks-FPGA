@@ -10,7 +10,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "clocks.block.ini")
 
 
 class ClocksSimulation(BlockSimulation):
-    A_PERIOD, B_PERIOD, C_PERIOD, D_PERIOD, OUTA, OUTB, OUTC, OUTD = \
+    ENABLE, A_PERIOD, B_PERIOD, C_PERIOD, D_PERIOD, OUTA, OUTB, OUTC, OUTD = \
         PROPERTIES
 
     def __init__(self):
@@ -29,35 +29,43 @@ class ClocksSimulation(BlockSimulation):
              next changes
         """
         super(ClocksSimulation, self).on_changes(ts, changes)
-        if changes:
-            # reset all clocks
-            self.start_ts = ts
-            for out in "ABCD":
-                setattr(self, 'OUT' + out, 0)
 
-        # decide if we need to produce any clocks
-        next_ts = []
-        for out in "ABCD":
-            period = getattr(self, out + "_PERIOD")
-            if period > 1:
-                off = (ts - self.start_ts) % period
-                half = period / 2
-                # produce clock low level at start of period
-                if off == 0:
+        # If not enabled, stop the clocks
+        if not self.ENABLE:
+            self.OUTA = 0
+            self.OUTB = 0
+            self.OUTC = 0
+            self.OUTD = 0
+        else:
+            if changes:
+                # reset all clocks
+                self.start_ts = ts
+                for out in "ABCD":
                     setattr(self, 'OUT' + out, 0)
-                    next_ts.append(ts + half)
-                # produce clock low level at half period
-                elif off == half:
-                    setattr(self, 'OUT' + out, 1)
-                    next_ts.append(ts - half + period)
-                # Work out when we next need to be called
-                if off < half:
-                    # Called at half period
-                    next_ts.append(ts - off + half)
-                else:
-                    # Called at full period
-                    next_ts.append(ts - off + period)
-        # now work out when next to make a pulse
-        if next_ts:
-            return min(next_ts)
+
+            # decide if we need to produce any clocks
+            next_ts = []
+            for out in "ABCD":
+                period = getattr(self, out + "_PERIOD")
+                if period > 1:
+                    off = (ts - self.start_ts) % period
+                    half = period / 2
+                    # produce clock low level at start of period
+                    if off == 0:
+                        setattr(self, 'OUT' + out, 0)
+                        next_ts.append(ts + half)
+                    # produce clock low level at half period
+                    elif off == half:
+                        setattr(self, 'OUT' + out, 1)
+                        next_ts.append(ts - half + period)
+                    # Work out when we next need to be called
+                    if off < half:
+                        # Called at half period
+                        next_ts.append(ts - off + half)
+                    else:
+                        # Called at full period
+                        next_ts.append(ts - off + period)
+            # now work out when next to make a pulse
+            if next_ts:
+                return min(next_ts)
 
