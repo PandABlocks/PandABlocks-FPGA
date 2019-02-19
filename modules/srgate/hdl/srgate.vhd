@@ -19,11 +19,11 @@ port (
     rst_i               : in  std_logic;
     out_o               : out std_logic;
     -- Block Parameters
-    WHEN_DISABLED       : in  std_logic_vector(1 downto 0);
-    SET_EDGE            : in  std_logic_vector(1 downto 0);
-    RST_EDGE            : in  std_logic_vector(1 downto 0);
-    FORCE_SET           : in  std_logic;
-    FORCE_RST           : in  std_logic
+    WHEN_DISABLED       : in  std_logic_vector(31 downto 0);
+    SET_EDGE            : in  std_logic_vector(31 downto 0);
+    RST_EDGE            : in  std_logic_vector(31 downto 0);
+    FORCE_SET           : in  std_logic_vector(31 downto 0);
+    FORCE_RST           : in  std_logic_vector(31 downto 0)
 );
 end srgate;
 
@@ -64,11 +64,11 @@ rst_rise  <= rst_i and not rst_prev;
 set_fall  <= not set_i and set_prev;
 rst_fall  <= not rst_i and rst_prev;
 
-set <= set_fall when (SET_EDGE = c_trig_edge_neg) else
-       set_rise or set_fall when (SET_EDGE = c_trig_edge_either) else
+set <= set_fall when (SET_EDGE(1 downto 0) = c_trig_edge_neg) else
+       set_rise or set_fall when (SET_EDGE(1 downto 0) = c_trig_edge_either) else
        set_rise;
-rst <= rst_fall when (RST_EDGE = c_trig_edge_neg) else
-       rst_rise or rst_fall when (RST_EDGE = c_trig_edge_either) else
+rst <= rst_fall when (RST_EDGE(1 downto 0) = c_trig_edge_neg) else
+       rst_rise or rst_fall when (RST_EDGE(1 downto 0) = c_trig_edge_either) else
        rst_rise;
 
 
@@ -81,9 +81,9 @@ begin
     if rising_edge(clk_i) then
         if enable_i = '1' then
             -- Simple SRGate logic
-            if (FORCE_RST = '1') then
+            if (FORCE_RST(0) = '1') then
                 pulse <= '0';
-            elsif (FORCE_SET = '1') then
+            elsif (FORCE_SET(0) = '1') then
                 pulse <= '1';
             elsif (rst = '1') then
                 pulse <= '0';
@@ -91,9 +91,9 @@ begin
                 pulse <= '1';
             end if;
         else
-            if WHEN_DISABLED = c_output_low then
+            if WHEN_DISABLED(1 downto 0) = c_output_low then
                 pulse <= '0';
-            elsif WHEN_DISABLED = c_output_high then
+            elsif WHEN_DISABLED(1 downto 0) = c_output_high then
                 pulse <= '1';
             end if;
         end if;

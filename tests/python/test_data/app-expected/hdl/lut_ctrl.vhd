@@ -95,7 +95,7 @@ begin
         clk_i       => clk_i,
         data_i(0)   => read_strobe_i,
         data_o(0)   => read_ack_o,
-        DELAY       => RD_ADDR2ACK
+        DELAY_i       => RD_ADDR2ACK
     );
 
     -- Control System Register Interface
@@ -197,47 +197,47 @@ begin
     --
     bitmux_INPA : entity work.bitmux
     port map (
-        clk_i       => clk_i,
-        sysbus_i    => bit_bus_i,
-        bit_o       => INPA_from_bus,
-        bitmux_sel  => INPA,
-        bit_dly     => INPA_DLY
+        clk_i         => clk_i,
+        sysbus_i      => bit_bus_i,
+        bit_o         => INPA_from_bus,
+        bitmux_sel_i  => INPA,
+        bit_dly_i     => INPA_DLY
     );
 
     bitmux_INPB : entity work.bitmux
     port map (
-        clk_i       => clk_i,
-        sysbus_i    => bit_bus_i,
-        bit_o       => INPB_from_bus,
-        bitmux_sel  => INPB,
-        bit_dly     => INPB_DLY
+        clk_i         => clk_i,
+        sysbus_i      => bit_bus_i,
+        bit_o         => INPB_from_bus,
+        bitmux_sel_i  => INPB,
+        bit_dly_i     => INPB_DLY
     );
 
     bitmux_INPC : entity work.bitmux
     port map (
-        clk_i       => clk_i,
-        sysbus_i    => bit_bus_i,
-        bit_o       => INPC_from_bus,
-        bitmux_sel  => INPC,
-        bit_dly     => INPC_DLY
+        clk_i         => clk_i,
+        sysbus_i      => bit_bus_i,
+        bit_o         => INPC_from_bus,
+        bitmux_sel_i  => INPC,
+        bit_dly_i     => INPC_DLY
     );
 
     bitmux_INPD : entity work.bitmux
     port map (
-        clk_i       => clk_i,
-        sysbus_i    => bit_bus_i,
-        bit_o       => INPD_from_bus,
-        bitmux_sel  => INPD,
-        bit_dly     => INPD_DLY
+        clk_i         => clk_i,
+        sysbus_i      => bit_bus_i,
+        bit_o         => INPD_from_bus,
+        bitmux_sel_i  => INPD,
+        bit_dly_i     => INPD_DLY
     );
 
     bitmux_INPE : entity work.bitmux
     port map (
-        clk_i       => clk_i,
-        sysbus_i    => bit_bus_i,
-        bit_o       => INPE_from_bus,
-        bitmux_sel  => INPE,
-        bit_dly     => INPE_DLY
+        clk_i         => clk_i,
+        sysbus_i      => bit_bus_i,
+        bit_o         => INPE_from_bus,
+        bitmux_sel_i  => INPE,
+        bit_dly_i     => INPE_DLY
     );
 
 

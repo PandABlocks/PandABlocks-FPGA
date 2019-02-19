@@ -23,9 +23,9 @@ port (
     START_WRITE         : in  std_logic;
     WRITE               : in  std_logic_vector(31 downto 0);
     WRITE_WSTB          : in  std_logic;
-    TRIG_EDGE           : in  std_logic_vector(1 downto 0);
-    SHIFT_SUM           : in  std_logic_vector(5 downto 0);
-    HEALTH              : out std_logic_vector(1 downto 0);
+    TRIG_EDGE           : in  std_logic_vector(31 downto 0);
+    SHIFT_SUM           : in  std_logic_vector(31 downto 0);
+    HEALTH              : out std_logic_vector(31 downto 0) := (others => '0');
     -- Block inputs
     enable_i            : in  std_logic;
     trig_i              : in  std_logic;
@@ -74,9 +74,9 @@ port map (
     START_WRITE        => START_WRITE,
     WRITE              => WRITE,
     WRITE_WSTB         => WRITE_WSTB,
-    TRIG_EDGE          => TRIG_EDGE,
-    SHIFT_SUM          => SHIFT_SUM,
-    HEALTH             => HEALTH,
+    TRIG_EDGE          => TRIG_EDGE(1 downto 0),
+    SHIFT_SUM          => SHIFT_SUM(5 downto 0),
+    HEALTH             => HEALTH(1 downto 0),
 
     enable_i           => enable_i,
     trig_i             => trig_i,

@@ -29,8 +29,8 @@ port (
     sysbus_i            : in  sysbus_t;
     bit_o               : out std_logic;
     -- Block Parameters
-    BITMUX_SEL          : in  std_logic_vector(31 downto 0);
-    BIT_DLY             : in  std_logic_vector(31 downto 0)
+    BITMUX_SEL_i        : in  std_logic_vector(31 downto 0);
+    BIT_DLY_i           : in  std_logic_vector(31 downto 0)
 );
 
   attribute keep_hierarchy            : string;
@@ -45,13 +45,13 @@ signal bit_out          : std_logic_vector(0 downto 0);
 
 begin
 
-process(BITMUX_SEL,sysbus_i)
+process(BITMUX_SEL_i,sysbus_i)
 begin
-    if BITMUX_SEL(SBUSBW) = '0' then
+    if BITMUX_SEL_i(SBUSBW) = '0' then
         -- Select bit on the system bus
-        bit_in(0) <= SBIT(sysbus_i, BITMUX_SEL(SBUSBW-1 downto 0));
+        bit_in(0) <= SBIT(sysbus_i, BITMUX_SEL_i(SBUSBW-1 downto 0));
     else
-        bit_in(0) <= BITMUX_SEL(0);
+        bit_in(0) <= BITMUX_SEL_i(0);
     end if;
 end process;
 
@@ -64,7 +64,7 @@ port map (
     clk_i       => clk_i,
     data_i      => bit_in,
     data_o      => bit_out,
-    DELAY       => BIT_DLY(4 downto 0)
+    DELAY_i     => BIT_DLY_i(4 downto 0)
 );
 
 bit_o <= bit_out(0);

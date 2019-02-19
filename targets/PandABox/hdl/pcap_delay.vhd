@@ -79,7 +79,7 @@ POS_DELAY_GEN : FOR I IN 0 TO 31 GENERATE
         clk_i       => clk_i,
         data_i      => posbus_i(I),
         data_o      => posbus_o(I),
-        DELAY       => data_delay_array(I)(4 downto 0)
+        DELAY_i     => data_delay_array(I)(4 downto 0)
     );
 
 END GENERATE;

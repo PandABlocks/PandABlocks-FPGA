@@ -15,17 +15,17 @@ use work.top_defines.all;
 
 entity lut_wrapper is
 generic (
-    NUM : natural := 8
+    NUM : natural
 );
 port (
     -- Clocks and Resets
-    clk_i               : in  std_logic := '0';
-    reset_i             : in  std_logic := '0';
+    clk_i               : in  std_logic;
+    reset_i             : in  std_logic;
 
     -- Bus inputs
     -- TODO: rename to bit_bus_i
-    bit_bus_i           : in  sysbus_t := (others => '0');
-    pos_bus_i           : in  posbus_t := (others => (others => '0'));
+    bit_bus_i           : in  sysbus_t;
+    pos_bus_i           : in  posbus_t;
 
     -- Bus outputs
     OUT_o               : out std_logic_vector(NUM-1 downto 0);
@@ -51,52 +51,36 @@ architecture rtl of lut_wrapper is
 
 signal INPA        : std32_array(NUM-1 downto 0);
 signal INPA_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal INPA_dly        : std32_array(NUM-1 downto 0);
 signal INPA_dly_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal INPB        : std32_array(NUM-1 downto 0);
 signal INPB_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal INPB_dly        : std32_array(NUM-1 downto 0);
 signal INPB_dly_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal INPC        : std32_array(NUM-1 downto 0);
 signal INPC_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal INPC_dly        : std32_array(NUM-1 downto 0);
 signal INPC_dly_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal INPD        : std32_array(NUM-1 downto 0);
 signal INPD_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal INPD_dly        : std32_array(NUM-1 downto 0);
 signal INPD_dly_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal INPE        : std32_array(NUM-1 downto 0);
 signal INPE_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal INPE_dly        : std32_array(NUM-1 downto 0);
 signal INPE_dly_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal TYPEA        : std32_array(NUM-1 downto 0);
 signal TYPEA_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal TYPEB        : std32_array(NUM-1 downto 0);
 signal TYPEB_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal TYPEC        : std32_array(NUM-1 downto 0);
 signal TYPEC_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal TYPED        : std32_array(NUM-1 downto 0);
 signal TYPED_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal TYPEE        : std32_array(NUM-1 downto 0);
 signal TYPEE_wstb   : std_logic_vector(NUM-1 downto 0);
-
 signal FUNC        : std32_array(NUM-1 downto 0);
 signal FUNC_wstb   : std_logic_vector(NUM-1 downto 0);
-
 
 -- Register interface common
 
@@ -166,12 +150,12 @@ begin
             INPC_i              => INPC(I)(0),
             INPD_i              => INPD(I)(0),
             INPE_i              => INPE(I)(0),
-            FUNC                => FUNC(I),
-            TYPEA               => TYPEA(I)(1 downto 0),
-            TYPEB               => TYPEB(I)(1 downto 0),
-            TYPEC               => TYPEC(I)(1 downto 0),
-            TYPED               => TYPED(I)(1 downto 0),
-            TYPEE               => TYPEE(I)(1 downto 0),
+             TYPEA               => TYPEA(I),
+             TYPEB               => TYPEB(I),
+             TYPEC               => TYPEC(I),
+             TYPED               => TYPED(I),
+             TYPEE               => TYPEE(I),
+             FUNC                => FUNC(I),
             OUT_o               => OUT_o(I),
             clk_i               => clk_i
         );

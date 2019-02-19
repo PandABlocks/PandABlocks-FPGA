@@ -25,11 +25,11 @@ port (
     inpd_i              : in  std_logic_vector(31 downto 0);
     out_o               : out std_logic_vector(31 downto 0);
     -- Block Parameters and Status
-    TYPEA                   : in  std_logic_vector(0 downto 0);
-    TYPEB                   : in  std_logic_vector(0 downto 0);
-    TYPEC                   : in  std_logic_vector(0 downto 0);
-    TYPED                   : in  std_logic_vector(0 downto 0);
-    FUNC                : in  std_logic_vector(1 downto 0)
+    TYPEA               : in  std_logic_vector(31 downto 0);
+    TYPEB               : in  std_logic_vector(31 downto 0);
+    TYPEC               : in  std_logic_vector(31 downto 0);
+    TYPED               : in  std_logic_vector(31 downto 0);
+    FUNC                : in  std_logic_vector(31 downto 0)
 );
 end calc;
 
@@ -63,7 +63,7 @@ begin
 -- A 1 clock cycle delay is required for the FUNC input
 process(clk_i) begin
     if rising_edge(clk_i) then
-        func_i <= FUNC;
+        func_i <= FUNC(1 downto 0);
     end if;
 end process;
 

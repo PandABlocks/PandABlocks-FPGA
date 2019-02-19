@@ -125,7 +125,7 @@ port map (
     clk_i       => clk_i,
     data_i(0)   => read_strobe_i(DRV_CS),
     data_o(0)   => read_ack_1_o,
-    DELAY       => RD_ADDR2ACK
+    DELAY_i     => RD_ADDR2ACK
 );
 
 -- Multiplex read data out from multiple instantiations

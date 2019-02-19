@@ -21,6 +21,8 @@ use unisim.vcomponents.all;
 library work;
 use work.support.all;
 use work.top_defines.all;
+use work.addr_defines.all;
+use work.slow_defines.all;
 
 entity inenc_top is
 port (
@@ -55,7 +57,8 @@ port (
     posbus_i            : in  posbus_t;
     DCARD_MODE          : in  std32_array(ENC_NUM-1 downto 0);
     PROTOCOL            : out std3_array(ENC_NUM-1 downto 0);
-    posn_o              : out std32_array(ENC_NUM-1 downto 0)
+    posn_o              : out std32_array(ENC_NUM-1 downto 0);
+    slow_tlp_o          : out slow_packet
 );
 end inenc_top;
 
@@ -65,7 +68,9 @@ signal read_strobe      : std_logic_vector(ENC_NUM-1 downto 0);
 signal read_data        : std32_array(ENC_NUM-1 downto 0);
 signal write_strobe     : std_logic_vector(ENC_NUM-1 downto 0);
 signal posn             : std32_array(ENC_NUM-1 downto 0);
-signal read_ack        : std_logic_vector(ENC_NUM-1 downto 0);
+signal read_ack         : std_logic_vector(ENC_NUM-1 downto 0);
+signal blk_addr         : natural range 0 to (2**(PAGE_AW-BLK_AW)-1);
+signal write_address    : natural range 0 to (2**BLK_AW - 1);
 
 begin
 
@@ -76,6 +81,10 @@ read_ack_o <= or_reduce(read_ack);
 -- Multiplex read data out from multiple instantiations
 read_data_o <= read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW))));
 
+-- Used for Slow output signal
+write_address <= to_integer(unsigned(write_address_i(BLK_AW-1 downto 0)));
+blk_addr <= to_integer(unsigned(write_address_i(PAGE_AW-1 downto BLK_AW)));
+
 -- Outputs
 posn_o <= posn;
 
@@ -84,6 +93,34 @@ a_int_o <= A_IN;
 b_int_o <= B_IN;
 z_int_o <= Z_IN;
 data_int_o <= DATA_IN;
+
+-- Slow Registers
+
+process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if (reset_i = '1') then
+            slow_tlp_o.strobe <= 'Z';
+            slow_tlp_o.address <= (others => 'Z');
+            slow_tlp_o.data <= (others => 'Z');
+        else
+            -- Single clock cycle strobe
+            slow_tlp_o.strobe <= 'Z';
+            -- INENC PROTOCOL Slow Registers
+            if (write_strobe_i = '1') then
+                if (write_address = INENC_PROTOCOL_addr) then
+                    slow_tlp_o.strobe <= '1';
+                    slow_tlp_o.data <= write_data_i;
+                    slow_tlp_o.address <= INPROT_ADDR_LIST(blk_addr);
+                end if;
+            else
+                slow_tlp_o.strobe <= 'Z';
+                slow_tlp_o.address <= (others => 'Z');
+                slow_tlp_o.data <= (others => 'Z');
+            end if;
+        end if;
+    end if;
+end process;
 
 --
 -- Instantiate INENC Blocks :

@@ -89,17 +89,8 @@ port map (
         {% if dma.append(dma.pop() + 1) %}{% endif %}
 
         {% endif %}
-        {% for field in block.filter_fields("bit_mux") %}
-            {% if loop.first %}
     bit_bus_i           => bit_bus_i,
-            {% endif %}
-        {% endfor %}
-        {% for field in block.filter_fields("pos_mux") %}
-            {% if loop.first %}
     pos_bus_i           => posbus_i,
-            {% endif %}
-        {% endfor %}
-
         {% for field in block.filter_fields("bit_out") %}
     {{ pad(field.name + "_o") }} => bit_bus_o({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
         {% endfor %}

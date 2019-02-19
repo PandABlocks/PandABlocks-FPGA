@@ -19,7 +19,7 @@ port (
     outd_o              : out std_logic;
     outn_o              : out std_logic;
     -- Block Parameters
-    FIRST_PULSE         : in  std_logic_vector(0 downto 0);
+    FIRST_PULSE         : in  std_logic_vector(31 downto 0);
     FIRST_PULSE_WSTB    : in  std_logic;
     DIVISOR             : in  std_logic_vector(31 downto 0);
     DIVISOR_WSTB        : in  std_logic;

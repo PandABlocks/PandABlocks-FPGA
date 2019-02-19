@@ -21,7 +21,7 @@ port (
     enable_i            : in  std_logic;
     out_o               : out std_logic;
     -- Block Parameters
-    TRIG_EDGE           : in  std_logic_vector(1 downto 0);
+    TRIG_EDGE           : in  std_logic_vector(31 downto 0) := (others => '0');
     TRIG_EDGE_WSTB      : in  std_logic;
     DELAY               : in  std_logic_vector(47 downto 0);
     DELAY_WSTB          : in  std_logic;
@@ -152,13 +152,13 @@ begin
             wait_cnt <= (others => '0');
        else
             -- Indicate when a negative edge pulse is to happen
-            if (unsigned(width_i) /= 0 and (TRIG_EDGE = c_trig_edge_neg or TRIG_EDGE = c_trig_edge_pos_neg)) then
+            if (unsigned(width_i) /= 0 and (TRIG_EDGE(1 downto 0) = c_trig_edge_neg or TRIG_EDGE(1 downto 0) = c_trig_edge_pos_neg)) then
                 neg_pulse <= trig_i;
             end if;
 
             -- Negative edge pulse
             if (neg_pulse = '1' and trig_i = '0' and unsigned(WIDTH) /= 0 and
-                    (TRIG_EDGE = c_trig_edge_neg or TRIG_EDGE = c_trig_edge_pos_neg)) then
+                    (TRIG_EDGE(1 downto 0) = c_trig_edge_neg or TRIG_EDGE(1 downto 0) = c_trig_edge_pos_neg)) then
                 trig_i_neg <= '1';
                 enable_cnt <= '1';
                 DELAY_NEG <= c_delay_zero;
@@ -184,7 +184,7 @@ process(clk_i)
 begin
     if rising_edge(clk_i) then
         -- Indicate bypass mode for TRIG_EDGE = negative and WIDTH = 0 or pass the pulse in if its a positive or both positive and negative pulse
-        if (unsigned(width_i) = 0 or (unsigned(width_i) /= 0 and (TRIG_EDGE = c_trig_edge_pos or TRIG_EDGE = c_trig_edge_pos_neg))) then
+        if (unsigned(width_i) = 0 or (unsigned(width_i) /= 0 and (TRIG_EDGE(1 downto 0) = c_trig_edge_pos or TRIG_EDGE(1 downto 0) = c_trig_edge_pos_neg))) then
             bypass_en <= '1';
         else
             bypass_en <= '0';

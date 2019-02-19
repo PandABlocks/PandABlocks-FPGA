@@ -256,6 +256,8 @@ attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
 signal sma_pll_locked       : std_logic;
 signal ext_clock            : std_logic_vector(1 downto 0);
 
+signal slow_tlp   : slow_packet;
+
 -- Make schematics a bit more clear for analysis
 --attribute keep              : string; -- GBC removed following three lines 14/09/18
 --attribute keep of sysbus    : signal is "true";
@@ -446,8 +448,16 @@ port map (
 ttlin_inst : entity work.ttlin_top
 port map (
     clk_i               => FCLK_CLK0,
+    reset_i             => FCLK_RESET0,
+
     pad_i               => TTLIN_PAD_I,
-    val_o               => ttlin_val
+    val_o               => ttlin_val,
+
+    write_strobe_i      => write_strobe(TTLIN_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+
+    slow_tlp_o          => slow_tlp
 );
 
 ttlout_inst : entity work.ttlout_top
@@ -536,7 +546,8 @@ port map (
     CONN_OUT            => inenc_conn,
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => INPROT,
-    posn_o              => inenc_val
+    posn_o              => inenc_val,
+    slow_tlp_o          => slow_tlp
 );
 
 
@@ -570,7 +581,8 @@ port map (
     sysbus_i            => bit_bus,
     posbus_i            => posbus,
     DCARD_MODE          => DCARD_MODE,
-    PROTOCOL            => OUTPROT
+    PROTOCOL            => OUTPROT,
+    slow_tlp_o          => slow_tlp
 );
 
 
@@ -718,7 +730,8 @@ port map (
     spi_sclk_o          => SPI_SCLK_O,
     spi_dat_o           => SPI_DAT_O,
     spi_sclk_i          => SPI_SCLK_I,
-    spi_dat_i           => SPI_DAT_I
+    spi_dat_i           => SPI_DAT_I,
+    slow_tlp_i          => slow_tlp
     -- External clock
 --    sma_pll_locked_i    => sma_pll_locked,
 --    ext_clock_o         => ext_clock

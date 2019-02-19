@@ -15,17 +15,17 @@ use work.top_defines.all;
 
 entity {{ entity }}_wrapper is
 generic (
-    NUM : natural := {{ number }}
+    NUM : natural
 );
 port (
     -- Clocks and Resets
-    clk_i               : in  std_logic := '0';
-    reset_i             : in  std_logic := '0';
+    clk_i               : in  std_logic;
+    reset_i             : in  std_logic;
 
     -- Bus inputs
     -- TODO: rename to bit_bus_i
-    bit_bus_i           : in  sysbus_t := (others => '0');
-    pos_bus_i           : in  posbus_t := (others => (others => '0'));
+    bit_bus_i           : in  sysbus_t;
+    pos_bus_i           : in  posbus_t;
 
     -- Bus outputs
 {% for field in filter_fields("bit_out") %}
@@ -37,13 +37,13 @@ port (
 
 {% if type == "dma" %}
     -- DMA signals
-    dma_req_o           : out std_logic_vector({{ number-1 }} downto 0);
-    dma_ack_i           : in  std_logic_vector({{ number-1 }} downto 0);
+    dma_req_o           : out std_logic_vector(NUM-1 downto 0);
+    dma_ack_i           : in  std_logic_vector(NUM-1 downto 0);
     dma_done_i          : in  std_logic;
-    dma_addr_o          : out std32_array({{ number-1 }} downto 0);
-    dma_len_o           : out std8_array({{ number-1 }} downto 0);
+    dma_addr_o          : out std32_array(NUM-1 downto 0);
+    dma_len_o           : out std8_array(NUM-1 downto 0);
     dma_data_i          : in  std_logic_vector(31 downto 0);
-    dma_valid_i         : in  std_logic_vector({{ number-1 }} downto 0);
+    dma_valid_i         : in  std_logic_vector(NUM-1 downto 0);
 {% endif %}
     -- Memory Interface
     read_strobe_i       : in  std_logic := '0';
@@ -75,8 +75,9 @@ signal {{ field.name }}_H_wstb     : std_logic_vector(NUM-1 downto 0);
     {% else %}
         {% for register in field.numbered_registers() %}
 signal {{ register.name }}        : std32_array(NUM-1 downto 0);
+			{% if "read" not in field.type %}
 signal {{ register.name }}_wstb   : std_logic_vector(NUM-1 downto 0);
-
+			{% endif %}
         {% endfor %}
     {% endif %}
 {% endfor %}
@@ -113,34 +114,22 @@ begin
             pos_bus_i           => pos_bus_i,
 
 {% for field in fields %}
-    {% if field in filter_fields("(param|write).*") %}
-        {% for register in field.numbered_registers() %}
-            {{ pad(register.name) }} => {{ register.name }}(I),
-            {{ pad(register.name + "_wstb") }} => {{ register.name }}_wstb(I),
-        {% endfor %}
-    {% elif field in filter_fields("table short") %}
-            {{ pad(field.name + "_START") }} => open,
-            {{ pad(field.name + "_DATA") }} => {{ field.name }}_DATA(I),
-            {{ pad(field.name + "_LENGTH") }} => {{ field.name }}_LENGTH(I),
-            {{ pad(field.name + "_START_wstb") }} => {{ field.name }}_START(I)(0),
-            {{ pad(field.name + "_DATA_wstb") }} => {{ field.name }}_DATA_wstb(I),
-            {{ pad(field.name + "_LENGTH_wstb") }} => {{ field.name }}_LENGTH_wstb(I),
-    {% elif field in filter_fields("table") %}
-            {{ pad(field.name + "_ADDRESS") }} => {{ field.name }}_ADDRESS(I),
-            {{ pad(field.name + "_LENGTH") }} => {{ field.name }}_LENGTH(I),
-            {{ pad(field.name + "_ADDRESS_wstb") }} => {{ field.name }}_ADDRESS_wstb(I),
-            {{ pad(field.name + "_LENGTH_wstb") }} => {{ field.name }}_LENGTH_wstb(I),
-    {% elif field in filter_fields("time") %}
+    {% if field in filter_fields("time") %}
             {{ pad(field.name + "_L") }} => {{ field.name }}(I)(31 downto 0),
             {{ pad(field.name + "_H") }} => {{ field.name }}(I)(63 downto 32),
             {{ pad(field.name + "_L_wstb") }} => {{ field.name }}_L_wstb(I),
             {{ pad(field.name + "_H_wstb") }} => {{ field.name }}_H_wstb(I),
-    {% elif field in filter_fields("read.*") %}
-            {{ pad(field.name) }} => {{field.name }}(I),
     {% elif field in filter_fields("bit_mux") %}
             {{ pad(field.name+"_from_bus") }} => {{ field.name }}(I)(0),
     {% elif field in filter_fields("pos_mux") %}
             {{ pad(field.name+"_from_bus") }} => {{ field.name }}(I),
+    {% else %}
+		{% for register in field.numbered_registers() %}
+            {{ pad(register.name) }} => {{ register.name }}(I),
+            {% if "read" not in field.type %}
+            {{ pad(register.name + "_wstb") }} => {{ register.name }}_wstb(I),
+            {% endif %}
+        {% endfor %}
     {% endif %}
 {% endfor %}
 
@@ -166,50 +155,27 @@ begin
         -- Connect to the actual logic entity
         {{ entity }} : entity work.{{ entity }}
         port map (
-{% for field in filter_fields("bit_mux") %}
-            {{ pad(field.name +"_i") }} => {{ field.name }}(I)(0),
-{% endfor %}
-{% for field in filter_fields("pos_mux") %}
-            {{ pad(field.name +"_i") }} => {{ field.name }}(I),
-{% endfor %}
-{# Filter_fields requires both param and read to be the last type in the list #}
-{% for field in filter_fields("param lut|param int|param time|param") %}
-            {{ pad(field.name) }} => {{ field.name }}(I),
-{% endfor %}
-{% for field in filter_fields("time") %}
-            {{ pad(field.name) }} => {{ field.name }}(I)(47 downto 0),
-{% endfor %}
-{% for field in filter_fields("table short") %}
-            {{ pad(field.name + "_START") }} => {{ field.name}}_START(I)(0),
-            {{ pad(field.name + "_DATA") }} => {{ field.name}}_DATA(I),
-            {{ pad(field.name + "_LENGTH") }} => {{ field.name}}_LENGTH(I),
-{% endfor %}
-{% for field in filter_fields("table") %}
-            {{ pad(field.name + "_ADDR") }} => {{ field.name}}_ADDRESS(I),
-            {{ pad(field.name + "_LENGTH") }} => {{ field.name}}_LENGTH(I),
-{% endfor %}
-{# Filter_fields requires both param and read to be the last type in the list #}
-{% for field in filter_fields("write int|read uint 1023|read") %}
-            {{ pad(field.name) }} => {{ field.name }}(I),
-{% endfor %}
-{% for field in filter_fields("param bit|write action" )%}
-            {{ pad(field.name) }} => {{ field.name }}(I)(0),
-{% endfor %}
-{% for field in filter_fields("param enum|read enum") %}
-            {{ pad(field.name) }} => {{ field.name }}(I)({{field.enumlength}} downto 0),
-{% endfor %}
-{% for field in filter_fields(".*_out") %}
-            {{ pad(field.name + "_o") }} => {{ field.name }}_o(I),
-{% endfor %}
 {% for field in fields %}
+	{% if field in filter_fields("bit_mux") %}
+            {{ pad(field.name +"_i") }} => {{ field.name }}(I)(0),
+	{% elif field in filter_fields("pos_mux") %}
+            {{ pad(field.name +"_i") }} => {{ field.name }}(I),
+	{% elif field in filter_fields("time") %}
+		{{ pad(field.name) }} => {{ field.name }}(I)(47 downto 0),
+	{% elif field in filter_fields(".*_out") %}
+            {{ pad(field.name + "_o") }} => {{ field.name }}_o(I),
+    {% else %}
+        {% for register in field.numbered_registers() %}
+             {{ pad(register.name) }} => {{ register.name }}(I),
+        {% endfor %}
+    {% endif %}
     {% if field.wstb %}
-        {% if "table" in field.type %}
-            {{ pad(field.name + "_LENGTH_wstb") }} => {{ field.name }}_LENGTH_wstb(I),
-            {% if "short" in field.type %}
-            {{ pad(field.name + "_wstb") }} => {{ field.name }}_DATA_wstb(I),
-            {% endif %}
-        {% else %}
-            {{ pad(field.name + "_wstb") }} => {{ field.name }}_wstb(I),
+        {% if field.type == "time" %}
+			{{ pad(field.name + "_wstb") }} => {{ field.name }}_wstb(I),
+		{% else %}
+            {% for register in field.numbered_registers() %}
+            {{ pad(register.name + "_wstb") }} => {{ register.name }}_wstb(I),
+            {% endfor %}
         {% endif %}
     {% endif %}
 {% endfor %}

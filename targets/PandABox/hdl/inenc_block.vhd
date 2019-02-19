@@ -168,7 +168,7 @@ port map (
     MSB_DISCARD         => MSB_DISCARD(4 downto 0),
     SETP                => SETP,
     SETP_WSTB           => SETP_WSTB,
-    RST_ON_Z            => RST_ON_Z(0),
+    RST_ON_Z            => RST_ON_Z,
     STATUS              => STATUS,
     --
     posn_o              => posn_o

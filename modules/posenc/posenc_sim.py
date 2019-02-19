@@ -122,4 +122,9 @@ class PosencSimulation(BlockSimulation):
         # counts to the inputted PERIOD value
         if ts == self.nexttime or changes.get(NAMES.PERIOD):
             self.nexttime = ts + self.period
-        return ts + 1
+            if self.PROTOCOL == 1:
+                return ts + self.period/2
+            else:
+                return self.nexttime
+        else:
+            return self.nexttime
