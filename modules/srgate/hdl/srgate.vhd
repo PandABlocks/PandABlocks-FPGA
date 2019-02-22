@@ -23,7 +23,9 @@ port (
     SET_EDGE            : in  std_logic_vector(31 downto 0);
     RST_EDGE            : in  std_logic_vector(31 downto 0);
     FORCE_SET           : in  std_logic_vector(31 downto 0);
-    FORCE_RST           : in  std_logic_vector(31 downto 0)
+    FORCE_SET_WSTB      : in  std_logic;
+    FORCE_RST           : in  std_logic_vector(31 downto 0);
+    FORCE_RST_WSTB      : in  std_logic
 );
 end srgate;
 
@@ -81,9 +83,9 @@ begin
     if rising_edge(clk_i) then
         if enable_i = '1' then
             -- Simple SRGate logic
-            if (FORCE_RST(0) = '1') then
+            if (FORCE_RST_WSTB = '1') then
                 pulse <= '0';
-            elsif (FORCE_SET(0) = '1') then
+            elsif (FORCE_SET_WSTB = '1') then
                 pulse <= '1';
             elsif (rst = '1') then
                 pulse <= '0';
