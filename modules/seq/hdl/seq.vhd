@@ -60,7 +60,7 @@ port (
     table_line          : out std_logic_vector(31 downto 0);
     line_repeat         : out std_logic_vector(31 downto 0);
     table_repeat        : out std_logic_vector(31 downto 0);
-    state               : out std_logic_vector(31 downto 0) := (others=>'0')
+    state               : out std_logic_vector(31 downto 0)
 );
 end seq;
 
@@ -181,7 +181,7 @@ port map (
     table_ready_o       => table_ready,
     next_frame_o        => next_frame,
 
-    TABLE_START         => TABLE_START(0),
+    TABLE_START         => TABLE_START_WSTB,
     TABLE_DATA          => TABLE_DATA,
     TABLE_WSTB          => TABLE_DATA_WSTB,
     TABLE_LENGTH        => TABLE_FRAMES,
@@ -270,7 +270,7 @@ state(2 downto 0)   <= c_state_load_table when seq_sm = LOAD_TABLE else
                        c_state_phase1 when seq_sm = PHASE_1 else
                        c_state_phase2 when seq_sm = phase_2 else
                        c_state_wait_enable;
-
+state(31 downto 3) <= (others => '0');
 
 enable_mem_reset <= '1' when (current_frame.time1 = x"00000000") else '0';
 
@@ -297,7 +297,7 @@ if rising_edge(clk_i) then
         LINE_REPEAT_o <= (others => '0');
         TABLE_LINE_o <= (others => '0');
         TABLE_REPEAT_o <= (others => '0');
-    elsif (TABLE_START(0) = '1') then
+    elsif (TABLE_START_WSTB = '1') then
         out_val <= (others => '0');
         seq_sm <= LOAD_TABLE;
     elsif (enable_fall = '1' and enable_i = '0') then
