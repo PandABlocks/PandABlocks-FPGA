@@ -316,6 +316,8 @@ class TableFieldConfig(FieldConfig):
 
     def register_addresses(self, counters):
         # type: (FieldCounter) -> None
+        # Hardcode to 2^8 = 256 pages
+        # Each page is 1024 words = 4096 bytes
         self.registers.extend([
             RegisterConfig(self.name, prefix='long 2^8'),
             RegisterConfig(self.name + "_ADDRESS", counters.new_field()),
@@ -355,10 +357,20 @@ class TableShortFieldConfig(TableFieldConfig):
     """These fields represent a table field"""
     type_regex = "table short"
 
+    #: How many lines in the table?
+    lines = None
+
+    def parse_extra_config(self, extra_config):
+        self.lines = extra_config.pop("lines")
+        for x in super(TableShortFieldConfig, self).parse_extra_config(
+                extra_config):
+            yield x
+
     def register_addresses(self, counters):
         # type: (FieldCounter) -> None
+        length = int(self.words) * int(self.lines)
         self.registers.extend([
-            RegisterConfig(self.name, prefix='short 512'),
+            RegisterConfig(self.name, prefix='short %s' % length),
             RegisterConfig(self.name + "_START", counters.new_field()),
             RegisterConfig(self.name + "_DATA", counters.new_field()),
             RegisterConfig(self.name + "_LENGTH", counters.new_field())])
