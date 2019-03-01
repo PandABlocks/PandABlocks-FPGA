@@ -14,7 +14,7 @@ class table_plot_node(nodes.Element):
     pass
 
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
 
 
 class timing_plot_directive(Directive):
@@ -29,7 +29,7 @@ class timing_plot_directive(Directive):
 
     def run(self):
         # fill the content code with the options from the directive
-        path = os.path.join(ROOT, self.options['path'])
+        path = self.options['path']
         section = self.options['section']
 
         # Parse the ini file and make any special tables
