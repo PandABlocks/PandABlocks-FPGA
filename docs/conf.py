@@ -53,7 +53,6 @@ def setup(app):
 # -- General configuration ------------------------------------------------
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
     'sphinx.ext.graphviz',  # Required for digraph in pcomp doc
@@ -61,6 +60,13 @@ extensions = [
     'common.python.sphinx_timing_directive',
     'common.python.sphinx_block_fields_directive',
 ]
+
+try:
+    import sphinxcontrib.napoleon
+except ImportError:
+    extensions.append('sphinx.ext.napoleon')
+else:
+    extensions.append('sphinxcontrib.napoleon')
 
 autoclass_content = "both"
 

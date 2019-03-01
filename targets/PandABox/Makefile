@@ -23,7 +23,7 @@ VERSION_FILE = $(AUTOGEN)/hdl/panda_version.vhd
 default : carrier-fpga
 carrier-fpga : panda_top.bit
 carrier-ip: $(IP_CORES)
-.PHONY: default carrier-fpga carrier_ip VERSION
+.PHONY: default carrier-fpga carrier-ip VERSION
 
 #####################################################################
 # HW Projects Build
@@ -44,7 +44,7 @@ VERSION :
 
 $(IP_CORES) :
 	$(RUNVIVADO) -mode batch -source $(TARGET_DIR)/scripts/build_ips.tcl \
-	    -tclargs $(TARGET_DIR) $(IP_DIR)
+	    -tclargs $(TARGET_DIR) -tclargs $(IP_DIR)
 
 $(PS_CORE) :
 	$(RUNVIVADO) -mode batch -source $(TARGET_DIR)/scripts/build_ps.tcl \

@@ -75,10 +75,10 @@ report_timing_summary -file post_synth_timing_summary.rpt
 # STEP#3: run placement and logic optimisation, report utilization and timing
 # estimates, write checkpoint design
 #
-opt_design
+opt_design -directive Explore
 
-place_design
-phys_opt_design
+place_design -directive Explore
+phys_opt_design -directive Explore
 write_checkpoint -force post_place
 report_timing_summary -file post_place_timing_summary.rpt
 write_debug_probes -force panda_carrier_top.ltx
@@ -87,7 +87,7 @@ write_debug_probes -force panda_carrier_top.ltx
 # STEP#4: run router, report actual utilization and timing, write checkpoint
 # design, run drc, write verilog and xdc out
 #
-route_design
+route_design -directive Explore
 
 write_checkpoint -force post_route
 report_utilization -file post_route_utilization_summary.rpt
