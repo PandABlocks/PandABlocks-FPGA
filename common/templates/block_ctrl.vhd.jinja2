@@ -145,8 +145,7 @@ begin
         clk_i        => clk_i,
         posbus_i     => pos_bus_i,
         posn_o       => {{ field.name }}_from_bus,
-        posmux_sel_i => {{ field.name }},
-        pos_dly_i    => (others => '0')
+        posmux_sel_i => {{ field.name }}
     );
 
 {% endfor %}
