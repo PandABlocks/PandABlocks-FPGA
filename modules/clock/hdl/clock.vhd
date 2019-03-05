@@ -15,7 +15,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity clocks is
+entity clock is
 port (
     -- Clock and Reset
     clk_i             : in  std_logic;
@@ -35,9 +35,9 @@ port (
     D_PERIOD          : in  std_logic_vector(31 downto 0);
     D_PERIOD_wstb     : in  std_logic
 );
-end clocks;
+end clock;
 
-architecture rtl of clocks is
+architecture rtl of clock is
 
 signal reset            : std_logic;
 

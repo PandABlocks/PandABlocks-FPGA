@@ -6,10 +6,10 @@ if TYPE_CHECKING:
     from typing import Dict
 
 
-NAMES, PROPERTIES = properties_from_ini(__file__, "clocks.block.ini")
+NAMES, PROPERTIES = properties_from_ini(__file__, "clock.block.ini")
 
 
-class ClocksSimulation(BlockSimulation):
+class ClockSimulation(BlockSimulation):
     ENABLE, PERIOD, OUT = PROPERTIES
 
     def __init__(self):
@@ -27,7 +27,7 @@ class ClocksSimulation(BlockSimulation):
              that int, otherwise return None and it will be called when a field
              next changes
         """
-        super(ClocksSimulation, self).on_changes(ts, changes)
+        super(ClockSimulation, self).on_changes(ts, changes)
 
         # If not enabled, stop the clocks
         if not self.ENABLE:
