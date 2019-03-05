@@ -1,9 +1,7 @@
-CLOCKS - Configurable clocks
-============================
+CLOCK - Configurable clock
+==========================
 
-The CLOCKS block contains 4 user-settable 50% duty cycle clocks. The period can
-be set for each clock separately. When any clock period is set, all clocks
-restart from a common synchronous point.
+The CLOCK block contains a user-settable 50% duty cycle clock.
 
 Fields
 ------
@@ -20,20 +18,11 @@ the new period value.
    :path: modules/clocks/clocks.timing.ini
    :section: Setting a parameter starts clock
 
-All clocks have the same starting point
----------------------------------------
-
-When any period parameter is set, all clocks restart from that point.
-
-.. timing_plot::
-   :path: modules/clocks/clocks.timing.ini
-   :section: Clocks restart whenever parameter set
-
 Clock settings while disabled
 -----------------------------
 
-To start all clocks synchronously you can set then while the Blocks is disabled.
-They will all start on rising edge of ENABLE and be zeroed on the falling edge.
+To start the clock synchronously you can set them while the Block is disabled.
+It will start on rising edge of ENABLE and be zeroed on the falling edge.
 
 .. timing_plot::
    :path: modules/clocks/clocks.timing.ini
