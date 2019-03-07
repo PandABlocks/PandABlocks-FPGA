@@ -64,15 +64,15 @@ port map (
 
     reset_i             => FCLK_RESET0,
 
-    read_strobe_i       => read_strobe(lut_CS),
+    read_strobe_i       => read_strobe(LUT_CS),
     read_address_i      => read_address,
-    read_data_o         => read_data(lut_CS),
-    read_ack_o          => read_ack(lut_CS),
+    read_data_o         => read_data(LUT_CS),
+    read_ack_o          => read_ack(LUT_CS),
 
-    write_strobe_i      => write_strobe(lut_CS),
+    write_strobe_i      => write_strobe(LUT_CS),
     write_address_i     => write_address,
     write_data_i        => write_data,
-    write_ack_o         => write_ack(lut_CS),
+    write_ack_o         => write_ack(LUT_CS),
 
     bit_bus_i           => bit_bus_i,
     pos_bus_i           => pos_bus_i,

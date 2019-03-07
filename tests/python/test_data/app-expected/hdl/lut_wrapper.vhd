@@ -15,7 +15,7 @@ use work.top_defines.all;
 
 entity lut_wrapper is
 generic (
-    NUM : natural
+    NUM : natural := 1
 );
 port (
     -- Clocks and Resets
@@ -23,7 +23,6 @@ port (
     reset_i             : in  std_logic;
 
     -- Bus inputs
-    -- TODO: rename to bit_bus_i
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
 

@@ -58,27 +58,28 @@ begin
 {# Using a namespace jinja2 object may make iterating simpler #}
 {% set dma = [0] %}
 {% for block in blocks %}
-    {% if block.type in "soft|dma" %}
 --------------------------------------------------------------------------------
 -- {{block.entity}} - {{block.description}}
 --------------------------------------------------------------------------------
 {{ block.entity }}_inst : entity work.{{ block.entity }}_wrapper
+{% if block.number > 1 %}
 generic map (NUM => {{ block.entity }}_NUM)
+{% endif %}
 port map (
 
     reset_i             => FCLK_RESET0,
 
-    read_strobe_i       => read_strobe({{ block.entity }}_CS),
+    read_strobe_i       => read_strobe({{ block.name }}_CS),
     read_address_i      => read_address,
-    read_data_o         => read_data({{ block.entity }}_CS),
-    read_ack_o          => read_ack({{ block.entity }}_CS),
+    read_data_o         => read_data({{ block.name }}_CS),
+    read_ack_o          => read_ack({{ block.name }}_CS),
 
-    write_strobe_i      => write_strobe({{ block.entity }}_CS),
+    write_strobe_i      => write_strobe({{ block.name }}_CS),
     write_address_i     => write_address,
     write_data_i        => write_data,
-    write_ack_o         => write_ack({{ block.entity }}_CS),
+    write_ack_o         => write_ack({{ block.name }}_CS),
+    {% if block.type == "dma" %}
 
-        {% if block.type in ("dma") %}
     dma_req_o           => rdma_req({{ dma[0] + block.number - 1 }} downto {{ dma[0] }}),
     dma_ack_i           => rdma_ack({{ dma[0] + block.number - 1 }} downto {{ dma[0] }}),
     dma_done_i          => rdma_done,
@@ -87,106 +88,25 @@ port map (
     dma_data_i          => rdma_data,
     dma_valid_i         => rdma_valid({{ dma[0] + block.number - 1 }} downto {{ dma[0] }}),
         {% if dma.append(dma.pop() + 1) %}{% endif %}
+    {% elif block.type == "sfp" %}
 
-        {% endif %}
+    SFP_interface       => sfp{{ block.sfp_site }}
+    {% elif block.type == "fmc" %}
+
+    FMC_interface       => FMC
+    {% endif %}
+
     bit_bus_i           => bit_bus_i,
     pos_bus_i           => pos_bus_i,
-        {% for field in block.filter_fields("bit_out") %}
+    {% for field in block.filter_fields("bit_out") %}
     {{ pad(field.name + "_o") }} => bit_bus_o({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
-        {% endfor %}
-        {% for field in block.filter_fields("pos_out") %}
+    {% endfor %}
+    {% for field in block.filter_fields("pos_out") %}
     {{ pad(field.name + "_o") }} => pos_bus_o({{ field.bus_entries[-1].index }} downto {{ field.bus_entries[0].index }}),
-        {% endfor %}
+    {% endfor %}
 
     clk_i               => FCLK_CLK0
 );
-
-    {% endif %}
-{% endfor %}
-{% for block in blocks if block.type == "fmc" %}
----------------------------------------------------------------------------
--- {{ block.entity }} design
----------------------------------------------------------------------------
-    {% if loop.first %}
-
-FMC_GEN : IF (SIM = "FALSE") GENERATE
-        {% endif %}
-
-    {{ block.name|lower }}_inst : entity work.{{block.entity}}_top
-    port map (
-        clk_i               => FCLK_CLK0,
-        reset_i             => FCLK_RESET0,
-
-        bit_bus_i            => bit_bus_i,
-        pos_bus_i            => pos_bus_i,
-        {% for field in block.filter_fields("pos_out") %}
-            {% if loop.first %}
-        {{pad("fmc_data_o")}} => pos_bus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{field.bus_entries[0].index}}),
-            {% endif %}
-        {% endfor %}
-        {% for field in block.filter_fields("bit_out") %}
-            {% if loop.first %}
-        {{pad("fmc_inputs_o")}} => bit_bus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{field.bus_entries[0].index}}),
-            {% endif %}
-        {% endfor %}
-
-        read_strobe_i       => read_strobe({{ block.name }}_CS),
-        read_address_i      => read_address,
-        read_data_o         => read_data({{ block.name }}_CS),
-        read_ack_o          => read_ack({{ block.name }}_CS),
-
-        write_strobe_i      => write_strobe({{ block.name }}_CS),
-        write_address_i     => write_address,
-        write_data_i        => write_data,
-        write_ack_o         => write_ack({{ block.name }}_CS),
-
-        FMC_interface       => FMC
-    );
-    {% if loop.last %}
-END GENERATE;
-    {% endif %}
-{% endfor %}
-{% for block in blocks if block.type == "sfp" %}
-    {% if loop.first %}
-
-SFP_GEN : IF (SIM = "FALSE") GENERATE
-
-    {% endif %}
---------------------------------------------------------------------------------
--- {{ block.entity }} - {{ block.description }}
---------------------------------------------------------------------------------
-    sfp{{loop.index}}_inst : entity work.{{block.entity}}_top
-    port map (
-        clk_i               => FCLK_CLK0,
-        reset_i             => FCLK_RESET0,
-
-        bit_bus_i            => bit_bus_i,
-        {% for field in block.filter_fields("pos_out") %}
-            {% if loop.first %}
-        {{pad("sfp_data_o")}} => pos_bus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{ field.bus_entries.index[0] }}),
-            {% endif %}
-        {% endfor %}
-        {% for field in block.filter_fields("bit_out") %}
-            {% if loop.first %}
-        {{pad("sfp_inputs_o")}} => bit_bus_o({{ field.bus_entries[0].index + loop.revindex0 }} downto {{ field.bus_entries.index[0] }}),
-            {% endif %}
-        {% endfor %}
-
-        read_strobe_i       => read_strobe({{ block.name }}_CS),
-        read_address_i      => read_address,
-        read_data_o         => read_data({{ block.name }}_CS),
-        read_ack_o          => read_ack({{ block.name }}_CS),
-
-        write_strobe_i      => write_strobe({{ block.name }}_CS),
-        write_address_i     => write_address,
-        write_data_i        => write_data,
-        write_ack_o         => write_ack({{ block.name }}_CS),
-
-        SFP_interface       => sfp{{loop.index}}
-    );
-    {% if loop.last %}
-END GENERATE;
-    {% endif %}
 
 {% endfor %}
 bit_bus_o(127 downto {{ total_bit_bus_length }}) <= (others => '0');
