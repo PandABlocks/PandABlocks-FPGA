@@ -34,7 +34,7 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
     -- Block inputs
-    sysbus_i            : in  sysbus_t;
+    bit_bus_i           : in  bit_bus_t;
     -- Output pulse
     val_o               : out std_logic;
     pad_o               : out std_logic
@@ -55,7 +55,7 @@ ttlout_ctrl_inst : entity work.ttlout_ctrl
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
-    bit_bus_i           => sysbus_i,
+    bit_bus_i           => bit_bus_i,
     pos_bus_i           => (others => (others => '0')),
     VAL_from_bus        => val,
 

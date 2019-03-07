@@ -40,8 +40,8 @@ port (
     trig_i              : in  std_logic;
     gate_i              : in  std_logic;
     dma_error_i         : in  std_logic;
-    sysbus_i            : in  sysbus_t;
-    posbus_i            : in  posbus_t;
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
     -- Block outputs
     pcap_dat_o          : out std_logic_vector(31 downto 0);
     pcap_dat_valid_o    : out std_logic;
@@ -123,8 +123,8 @@ port map (
     SHIft_SUM           => SHIFT_SUM,
         TRIG_EDGE                   => TRIG_EDGE,
     --
-    posbus_i            => posbus_i,
-    sysbus_i            => sysbus_i,
+    pos_bus_i           => pos_bus_i,
+    bit_bus_i           => bit_bus_i,
     enable_i            => enable_i,
     gate_i              => gate,
     trig_i              => trig_en,

@@ -29,8 +29,8 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Bus Inputs
-    bitbus_i            : in  std_logic_vector(127 downto 0);
-    posbus_i            : in  std32_array(31 downto 0);
+    bit_bus_i           : in  std_logic_vector(127 downto 0);
+    pos_bus_i           : in  std32_array(31 downto 0);
     -- Generic Inputs to BitBus and PosBus from FMC and SFP
     fmc_inputs_o        : out std_logic_vector(7 downto 0) := (others=>'0');
     fmc_data_o          : out std32_array(15 downto 0) := (others => (others => '0'));
@@ -111,7 +111,7 @@ port map (
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
-    bit_bus_i           => bitbus_i,
+    bit_bus_i           => bit_bus_i,
     pos_bus_i           => (others => (others => '0')),
     -- Block Parameters
     FMC_PRSNT           => FMC_PRSNT_DW,

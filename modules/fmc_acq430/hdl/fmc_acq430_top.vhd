@@ -27,8 +27,8 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Bus Inputs
-    bitbus_i            : in  std_logic_vector(127 downto 0);
-    posbus_i            : in  std32_array(31 downto 0);
+    bit_bus_i           : in  std_logic_vector(127 downto 0);
+    pos_bus_i           : in  std32_array(31 downto 0);
     -- Generic Inputs to BitBus and PosBus from FMC and SFP
     fmc_inputs_o        : out std_logic_vector(15 downto 0);
     fmc_data_o          : out std32_array(7 downto 0);         -- 8 channels of 32-bit data

@@ -46,8 +46,8 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
     -- Readback signals
-    sysbus_i            : in  sysbus_t;
-    posbus_i            : in  posbus_t;
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
     SLOW_FPGA_VERSION   : in  std_logic_vector(31 downto 0);
     -- Output signals
     SFP_MAC_ADDR        : out std32_array(2*NUM_SFP -1 downto 0) := (others => (others => '1'));
@@ -215,8 +215,8 @@ port map (
     POS_READ_VALUE      => POS_READ_VALUE,
     POS_READ_CHANGES    => POS_READ_CHANGES,
 
-    sysbus_i            => sysbus_i,
-    posbus_i            => posbus_i
+    bit_bus_i           => bit_bus_i,
+    pos_bus_i           => pos_bus_i
 );
 
 end rtl;

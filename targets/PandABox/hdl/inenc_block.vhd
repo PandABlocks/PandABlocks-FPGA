@@ -42,8 +42,8 @@ port (
     CLK_IN              : in  std_logic;
     CONN_OUT            : out std_logic;
     -- Block Outputs.
-    sysbus_i            : in  sysbus_t;
-    posbus_i            : in  posbus_t;
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
     DCARD_MODE          : in  std_logic_vector(31 downto 0);
     PROTOCOL            : out std_logic_vector(2 downto 0);
     posn_o              : out std_logic_vector(31 downto 0)
@@ -99,8 +99,8 @@ inenc_ctrl : entity work.inenc_ctrl
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
-    bit_bus_i           => sysbus_i,
-    pos_bus_i           => posbus_i,
+    bit_bus_i           => bit_bus_i,
+    pos_bus_i           => pos_bus_i,
     clk_from_bus        => clk_ext,
 
     read_strobe_i       => read_strobe_i,

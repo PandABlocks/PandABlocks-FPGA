@@ -32,8 +32,8 @@ port (
     write_data                  : in  std_logic_vector(31 downto 0);
     write_ack                   : out std_logic_vector(MOD_COUNT-1 downto 0) := (others => '1');
     -- Bus Outputs
-        sysbus             : inout sysbus_t;
-        posbus             : inout posbus_t;
+        bit_bus             : inout bit_bus_t;
+        pos_bus             : inout pos_bus_t;
     -- PCOMP & PGEN Block
         rdma_req            : out std_logic_vector(5 downto 0);
         rdma_ack            : in  std_logic_vector(5 downto 0);
@@ -115,8 +115,8 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(LUT_CS),
 
-    sysbus_i            => sysbus,
-    out_o               => sysbus(39 downto 32)   --AUTOGEN
+    bit_bus_i            => bit_bus,
+    out_o               => bit_bus(39 downto 32)   --AUTOGEN
 );
 
 ---------------------------------------------------------------------------
@@ -138,8 +138,8 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(SRGATE_CS),
 
-    sysbus_i            => sysbus,
-    out_o               => sysbus(43 downto 40)   --AUTOGEN
+    bit_bus_i            => bit_bus,
+    out_o               => bit_bus(43 downto 40)   --AUTOGEN
 );
 
 
@@ -161,10 +161,10 @@ port map(
     write_address_i     => write_address,
     write_data_i        => write_data,
     write_ack_o         => write_ack(FILTER_CS),
-    sysbus_i            => sysbus,
-    posbus_i            => posbus,
-    out_o               => posbus(20 downto 20),   --AUTOGEN
-    ready_o             => sysbus(117 downto 117)    --AUTOGEN
+    bit_bus_i            => bit_bus,
+    pos_bus_i            => pos_bus,
+    out_o               => pos_bus(20 downto 20),   --AUTOGEN
+    ready_o             => bit_bus(117 downto 117)    --AUTOGEN
  );
 
 
@@ -187,9 +187,9 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(DIV_CS),
 
-    sysbus_i            => sysbus,
-    outd_o              => sysbus(47 downto 44),  --AUTOGEN
-    outn_o              => sysbus(51 downto 48)    --AUTOGEN
+    bit_bus_i            => bit_bus,
+    outd_o              => bit_bus(47 downto 44),  --AUTOGEN
+    outn_o              => bit_bus(51 downto 48)    --AUTOGEN
 );
 
 ---------------------------------------------------------------------------
@@ -211,8 +211,8 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(PULSE_CS),
 
-    sysbus_i            => sysbus,
-    out_o               => sysbus(55 downto 52)  --AUTOGEN
+    bit_bus_i            => bit_bus,
+    out_o               => bit_bus(55 downto 52)  --AUTOGEN
 );
 
 ---------------------------------------------------------------------------
@@ -234,15 +234,15 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(SEQ_CS),
 
-    sysbus_i            => sysbus,
+    bit_bus_i            => bit_bus,
 
-    outa_o              => sysbus(59 downto 56),  --AUTOGEN
-    outb_o              => sysbus(63 downto 60),  --AUTOGEN
-    outc_o              => sysbus(67 downto 64),  --AUTOGEN
-    outd_o              => sysbus(71 downto 68),  --AUTOGEN
-    oute_o              => sysbus(75 downto 72),  --AUTOGEN
-    outf_o              => sysbus(79 downto 76),  --AUTOGEN
-    active_o            => sysbus(83 downto 80)  --AUTOGEN
+    outa_o              => bit_bus(59 downto 56),  --AUTOGEN
+    outb_o              => bit_bus(63 downto 60),  --AUTOGEN
+    outc_o              => bit_bus(67 downto 64),  --AUTOGEN
+    outd_o              => bit_bus(71 downto 68),  --AUTOGEN
+    oute_o              => bit_bus(75 downto 72),  --AUTOGEN
+    outf_o              => bit_bus(79 downto 76),  --AUTOGEN
+    active_o            => bit_bus(83 downto 80)  --AUTOGEN
 );
 
 ---------------------------------------------------------------------------
@@ -264,8 +264,8 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(QDEC_CS),
 
-    sysbus_i            => sysbus,
-    out_o               => posbus(7 downto 4)  --AUTOGEN
+    bit_bus_i            => bit_bus,
+    out_o               => pos_bus(7 downto 4)  --AUTOGEN
 );
 
 ---------------------------------------------------------------------------
@@ -287,10 +287,10 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(POSENC_CS),
 
-    a_o                 => sysbus(87 downto 84),  --AUTOGEN
-    b_o                 => sysbus(91 downto 88),  --AUTOGEN
-    sysbus_i            => sysbus,
-    posbus_i            => posbus
+    a_o                 => bit_bus(87 downto 84),  --AUTOGEN
+    b_o                 => bit_bus(91 downto 88),  --AUTOGEN
+    bit_bus_i            => bit_bus,
+    pos_bus_i            => pos_bus
 );
 
 ---------------------------------------------------------------------------
@@ -312,9 +312,9 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(COUNTER_CS),
 
-    sysbus_i            => sysbus,
-    carry_o             => sysbus(99 downto 92),  --AUTOGEN
-    out_o               => posbus(17 downto 10)  --AUTOGEN
+    bit_bus_i            => bit_bus,
+    carry_o             => bit_bus(99 downto 92),  --AUTOGEN
+    out_o               => pos_bus(17 downto 10)  --AUTOGEN
 );
 
 ---------------------------------------------------------------------------
@@ -336,8 +336,8 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(CALC_CS),
 
-    posbus_i            => posbus,
-    out_o               => posbus(9 downto 8)  --AUTOGEN
+    pos_bus_i            => pos_bus,
+    out_o               => pos_bus(9 downto 8)  --AUTOGEN
 );
 
 ---------------------------------------------------------------------------
@@ -366,10 +366,10 @@ port map (
     dma_len_o           => rdma_len(5 downto 2),
     dma_data_i          => rdma_data,
     dma_valid_i         => rdma_valid(5 downto 2),
-    sysbus_i            => sysbus,
-    posbus_i            => posbus,
-    act_o               => sysbus(103 downto 100),  --AUTOGEN
-    out_o               => sysbus(107 downto 104)  --AUTOGEN
+    bit_bus_i            => bit_bus,
+    pos_bus_i            => pos_bus,
+    act_o               => bit_bus(103 downto 100),  --AUTOGEN
+    out_o               => bit_bus(107 downto 104)  --AUTOGEN
 );
 
 ---------------------------------------------------------------------------
@@ -398,8 +398,8 @@ port map (
     dma_len_o           => rdma_len(1 downto 0),
     dma_data_i          => rdma_data,
     dma_valid_i         => rdma_valid(1 downto 0),
-    sysbus_i            => sysbus,
-    out_o               => posbus(19 downto 18)  --AUTOGEN
+    bit_bus_i            => bit_bus,
+    out_o               => pos_bus(19 downto 18)  --AUTOGEN
 );
 
 ---------------------------------------------------------------------------
@@ -421,10 +421,10 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(CLOCKS_CS),
 
-    clocks_a_o          => sysbus(113),  --AUTOGEN
-    clocks_b_o          => sysbus(114),  --AUTOGEN
-    clocks_c_o          => sysbus(115),  --AUTOGEN
-    clocks_d_o          => sysbus(116)  --AUTOGEN
+    clocks_a_o          => bit_bus(113),  --AUTOGEN
+    clocks_b_o          => bit_bus(114),  --AUTOGEN
+    clocks_c_o          => bit_bus(115),  --AUTOGEN
+    clocks_d_o          => bit_bus(116)  --AUTOGEN
 );
 
 ---------------------------------------------------------------------------
@@ -447,10 +447,10 @@ port map (
     write_ack_o         => write_ack(BITS_CS),
 
 
-    bits_a_o            => sysbus(109),  --AUTOGEN
-    bits_b_o            => sysbus(110),  --AUTOGEN
-    bits_c_o            => sysbus(111),  --AUTOGEN
-    bits_d_o            => sysbus(112)  --AUTOGEN
+    bits_a_o            => bit_bus(109),  --AUTOGEN
+    bits_b_o            => bit_bus(110),  --AUTOGEN
+    bits_c_o            => bit_bus(111),  --AUTOGEN
+    bits_d_o            => bit_bus(112)  --AUTOGEN
 );
 
 ---------------------------------------------------------------------------
@@ -462,8 +462,8 @@ FMC_GEN : IF (SIM = "FALSE") GENERATE
         clk_i               => FCLK_CLK0,
         reset_i             => FCLK_RESET0,
 
-        bitbus_i            => sysbus,
-        posbus_i            => posbus,
+        bit_bus_i            => bit_bus,
+        pos_bus_i            => pos_bus,
         fmc_inputs_o        => open,
         fmc_data_o          => open,
 
@@ -491,7 +491,7 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         clk_i               => FCLK_CLK0,
         reset_i             => FCLK_RESET0,
 
-        sysbus_i            => sysbus,
+        bit_bus_i            => bit_bus,
         sfp_inputs_o        => open,
         sfp_data_o          => open,
 
@@ -513,7 +513,7 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         clk_i               => FCLK_CLK0,
         reset_i             => FCLK_RESET0,
 
-        sysbus_i            => sysbus,
+        bit_bus_i            => bit_bus,
         sfp_inputs_o        => open,
         sfp_data_o          => open,
 
@@ -535,7 +535,7 @@ SFP_GEN : IF (SIM = "FALSE") GENERATE
         clk_i               => FCLK_CLK0,
         reset_i             => FCLK_RESET0,
 
-        sysbus_i            => sysbus,
+        bit_bus_i            => bit_bus,
         sfp_inputs_o        => open,
         sfp_data_o          => open,
 

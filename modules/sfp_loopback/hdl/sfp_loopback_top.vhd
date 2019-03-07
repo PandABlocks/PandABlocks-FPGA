@@ -12,7 +12,7 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- System Bus
-    sysbus_i            : in  std_logic_vector(SBUSW-1 downto 0);
+    bit_bus_i           : in  std_logic_vector(BBUSW-1 downto 0);
     sfp_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
     sfp_data_o          : out std32_array(15 downto 0) := (others=>(others=>'0'));
 

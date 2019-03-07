@@ -27,7 +27,7 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- System Bus
-    sysbus_i            : in  std_logic_vector(SBUSW-1 downto 0);
+    bit_bus_i           : in  std_logic_vector(BBUSW-1 downto 0);
     sfp_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
     sfp_data_o          : out std32_array(15 downto 0) := (others=>(others=>'0'));
 
@@ -217,7 +217,7 @@ port map (
     -- Clock and Reset
     clk_i                       => clk_i,
     reset_i                     => reset_i,
-    bit_bus_i                   => sysbus_i,
+    bit_bus_i                   => bit_bus_i,
     pos_bus_i                   => (others => (others => '0')),
     -- Block inpout
     sfp_trig_from_bus          => trig,
