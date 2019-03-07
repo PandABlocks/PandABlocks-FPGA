@@ -5,12 +5,11 @@ Generate build/<app> from <app>.app.ini
 import os
 from argparse import ArgumentParser
 from pkg_resources import require
-from generate_app import RegisterCounter
 
 require("jinja2")
 from jinja2 import Environment, FileSystemLoader
 from .compat import TYPE_CHECKING, configparser
-from .configs import BlockConfig, pad
+from .configs import BlockConfig, pad, RegisterCounter
 from .ini_util import read_ini, timing_entries
 
 if TYPE_CHECKING:

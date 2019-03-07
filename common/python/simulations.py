@@ -4,7 +4,8 @@ from collections import namedtuple
 import numpy as np
 
 from .ini_util import read_ini
-from .configs import FieldConfig
+from .configs import BlockConfig, RegisterCounter, RegisterConfig, \
+    make_getter_setter
 from .compat import TYPE_CHECKING, add_metaclass
 
 if TYPE_CHECKING:
@@ -24,10 +25,15 @@ def properties_from_ini(src_path, ini_name):
     ini = read_ini(ini_path)
     properties = []
     names = []
-    for field in FieldConfig.from_ini(ini, number=1):
-        names.append(field.name)
-        prop = property(field.getter, field.setter)
-        properties.append(prop)
+    block_config = BlockConfig(block_name.upper(), "soft", 1, ini, block_name)
+    block_config.register_addresses(RegisterCounter())
+    for field in block_config.fields:
+        for config in field.registers + field.bus_entries:
+            # Delay register swallowed by wrapper, so don't expose to simulation
+            if not config.name.endswith("_DLY"):
+                names.append(config.name)
+                prop = property(*make_getter_setter(config))
+                properties.append(prop)
 
     # Create an object BlockNames with attributes FIELD1="FIELD1", F2="F2", ...
     names = namedtuple("%sNames" % block_name.title(), names)(*names)
@@ -39,11 +45,12 @@ class BlockSimulationMeta(type):
     instance attribute names"""
     def __new__(cls, clsname, bases, dct):
         for name, val in dct.items():
-            if isinstance(val, property) and \
-                    isinstance(val.fget.im_self, FieldConfig):
-                assert name == val.fget.im_self.name, \
-                    "Property %s mismatch with FieldConfig name %s" % (
-                        name, val.fget.im_self.name)
+            if isinstance(val, property):
+                config = getattr(val.fget, "config")
+                if config:
+                    assert name == config.name, \
+                        "Property %s mismatch with RegisterConfig name %s" % (
+                            name, config.name)
         return super(BlockSimulationMeta, cls).__new__(cls, clsname, bases, dct)
 
 
@@ -75,9 +82,7 @@ class BlockSimulation(object):
         """
         # Set attributes
         for name, value in changes.items():
-            if "POS[" not in name and "BIT[" not in name:
-                assert hasattr(self, name), "%s has no attribute %s" % (self, name)
-                setattr(self, name, value)
+            setattr(self, name, value)
 
 
 

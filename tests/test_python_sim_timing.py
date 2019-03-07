@@ -64,17 +64,26 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
                     "Expected ts %d, got ts %d" % (ts, next_ts)
 
                 # Tell the block what changed (as ints, parsing 0x correctly)
-                changes = {k: int(v, 0) for k, v in inputs.items()}
-                for name, value in changes.items():
-                    if "POS[" in name:
-                        idx = filter(str.isdigit, name)
-                        block.pos_bus[int(idx)] = value
-                        block.pos_change.append(int(idx))
-                        setattr(self, name, value)
-                    elif "BIT[" in name:
-                        idx = filter(str.isdigit, name)
-                        block.bit_bus[int(idx)] = value
-                        setattr(self, name, value)
+                changes = {}
+                for name, value in inputs.items():
+                    # Table address is a path, so keep as a string, otherwise
+                    # conver to int parsing 0x correctly
+                    if name != "TABLE_ADDRESS":
+                        value = int(value, 0)
+
+                    # If there is a [ in the name, it's a bit or pos bus entry
+                    if "[" in name:
+                        idx = int(name.split("[")[1].split("]")[0])
+                        if name.startswith("POS"):
+                            block.pos_bus[idx] = value
+                            block.pos_change.append(idx)
+                        elif name.startswith("BIT"):
+                            block.bit_bus[idx] = value
+                        else:
+                            raise ValueError(
+                                "Expected POS[n] or BIT[n], got %s" % name)
+                    else:
+                        changes[name] = value
 
                 next_ts = block.on_changes(ts, changes)
                 if block.changes is None:

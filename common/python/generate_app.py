@@ -21,40 +21,6 @@ ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 
 
-# This class generates unique register numbers.  It is designed to be passed to
-# the implement_blocks() and register_addresses() functions.  Methods are
-# provided for generating new block, bit, pos, ext addresses.
-class RegisterCounter:
-    # Max number of Block types
-    MAX_BLOCKS = 32
-
-    # Max size of buses
-    MAX_BIT = 128
-    MAX_POS = 32
-    MAX_EXT = 32
-
-    def __init__(self,
-            block_count = 0, bit_count = 0, pos_count = 0, ext_count = 0):
-        self.block_count = block_count
-        self.bit_count = bit_count
-        self.pos_count = pos_count
-        self.ext_count = ext_count
-
-    # Helper function for generating allocator.
-    def __allocator(counter, limit, name):
-        def allocate(self):
-            result = getattr(self, counter)
-            assert result < limit, "Overflowed %s" % name
-            setattr(self, counter, result + 1)
-            return result
-        return allocate
-
-    new_block = __allocator('block_count', MAX_BLOCKS, 'block addresses')
-    new_bit   = __allocator('bit_count', MAX_BIT, 'bit bus entries')
-    new_pos   = __allocator('pos_count', MAX_POS, 'pos bus entries')
-    new_ext   = __allocator('ext_count', MAX_EXT, 'ext bus entries')
-
-
 def jinja_context(**kwargs):
     context = dict(pad=pad)
     context.update(kwargs)

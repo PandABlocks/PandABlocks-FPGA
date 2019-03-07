@@ -1,6 +1,4 @@
 import re
-
-import math
 from collections import OrderedDict
 
 from .compat import TYPE_CHECKING, configparser
@@ -24,6 +22,44 @@ def all_subclasses(cls):
     return ret
 
 
+def allocate(self, counter, limit, name):
+    result = getattr(self, counter)
+    assert result < limit, "Overflowed %s" % name
+    setattr(self, counter, result + 1)
+    return result
+
+
+# This class generates unique register numbers.  It is designed to be passed to
+# the implement_blocks() and register_addresses() functions.  Methods are
+# provided for generating new block, bit, pos, ext addresses.
+class RegisterCounter:
+    # Max number of Block types
+    MAX_BLOCKS = 32
+
+    # Max size of buses
+    MAX_BIT = 128
+    MAX_POS = 32
+    MAX_EXT = 32
+
+    def __init__(self, block_count=0, bit_count=0, pos_count=0, ext_count=0):
+        self.block_count = block_count
+        self.bit_count = bit_count
+        self.pos_count = pos_count
+        self.ext_count = ext_count
+
+    def new_block(self):
+        return allocate(self, 'block_count', self.MAX_BLOCKS, 'block addresses')
+
+    def new_bit(self):
+        return allocate(self, 'bit_count', self.MAX_BIT, 'bit bus entries')
+
+    def new_pos(self):
+        return allocate(self, 'pos_count', self.MAX_POS, 'pos bus entries')
+
+    def new_ext(self):
+        return allocate(self, 'ext_count', self.MAX_EXT, 'ext bus entries')
+
+
 # This class wraps a generate_app.RegisterCounter instance, hides the
 # .new_block() method replacing it with a new_field() method.
 class FieldCounter:
@@ -40,11 +76,7 @@ class FieldCounter:
         self.new_ext = counters.new_ext
 
     def new_field(self):
-        result = self.field_count
-        assert result < self.MAX_FIELDS, \
-            "Block %s overflowed number of fields"
-        self.field_count += 1
-        return result
+        return allocate(self, "field_count", self.MAX_FIELDS, 'number of fields')
 
 
 class BlockConfig(object):
@@ -101,6 +133,22 @@ class BlockConfig(object):
                 yield field
 
 
+def make_getter_setter(config):
+    def setter(self, v):
+        if config.value != v:
+            config.value = v
+            if self.changes is None:
+                self.changes = {}
+            self.changes[config.name] = v
+
+    def getter(self):
+        return config.value
+
+    # Add the reference to config so we can get it in BlockSimulationMeta
+    getter.config = config
+    return getter, setter
+
+
 class RegisterConfig(object):
     """A low level register name and number backing this field"""
     def __init__(self, name, number=-1, prefix='', extension=''):
@@ -113,16 +161,22 @@ class RegisterConfig(object):
         self.prefix = prefix
         #: For an extension field, the register path
         self.extension = extension
+        #: The current value of this field for simulation
+        self.value = 0
 
 
 class BusEntryConfig(object):
     """A bus entry belonging to a field"""
-    def __init__(self, bus, index):
-        # type: (str, int) -> None
-        #: The name of the register, like bit
+    def __init__(self, name, bus, index):
+        # type: (str, str, int) -> None
+        #: The name of the register, like INPA_DLY
+        self.name = name
+        #: The bus the output is on, like bit
         self.bus = bus
         #: The bus index, like 5
         self.index = index
+        #: The current value of this field for simulation
+        self.value = 0
 
 
 class FieldConfig(object):
@@ -152,8 +206,6 @@ class FieldConfig(object):
         #: Store the extension register info
         self.extension = extra_config.pop("extension", None)
         self.extension_reg = extra_config.pop("extension_reg", None)
-        #: The current value of this field for simulation
-        self.value = 0
         #: All the other extra config items
         self.extra_config_lines = list(self.parse_extra_config(extra_config))
 
@@ -228,20 +280,6 @@ class FieldConfig(object):
                         subclass.__name__, d, e))
         return ret
 
-    def setter(self, block_simulation=0, v=0):
-        if self.value != v:
-            self.value = v
-            if block_simulation.changes is None:
-                block_simulation.changes = {}
-            block_simulation.changes[self.name] = v
-
-    def getter(self, block_simulation):
-        return self.value
-
-    def notify_changed(self, v):
-        """Will be overwritten by simulation"""
-        pass
-
 
 class BitOutFieldConfig(FieldConfig):
     """These fields represent a single entry on the bit bus"""
@@ -251,7 +289,7 @@ class BitOutFieldConfig(FieldConfig):
         # type: (FieldCounter) -> None
         for _ in range(self.number):
             self.bus_entries.append(
-                BusEntryConfig("bit", counters.new_bit()))
+                BusEntryConfig(self.name, "bit", counters.new_bit()))
 
 
 class PosOutFieldConfig(FieldConfig):
@@ -265,7 +303,7 @@ class PosOutFieldConfig(FieldConfig):
         # type: (FieldCounter) -> None
         for _ in range(self.number):
             self.bus_entries.append(
-                BusEntryConfig("pos", counters.new_pos()))
+                BusEntryConfig(self.name, "pos", counters.new_pos()))
 
     def parse_extra_config(self, extra_config):
         # type: (Dict[str, Any]) -> iter[str]
@@ -280,7 +318,7 @@ class PosOutFieldConfig(FieldConfig):
         if self.units:
             return "pos_out %s %s %s" % (self.scale, self.offset, self.units)
         else:
-            # In case no units are declared, this removes trailing whitspace
+            # In case no units are declared, this removes trailing whitespace
             return "pos_out %s %s" % (self.scale, self.offset)
 
 
@@ -292,7 +330,7 @@ class ExtOutFieldConfig(FieldConfig):
         # type: (FieldCounter) -> None
         for _ in range(self.number):
             self.bus_entries.append(
-                BusEntryConfig("ext", counters.new_ext()))
+                BusEntryConfig(self.name, "ext", counters.new_ext()))
 
 
 class ExtOutTimeFieldConfig(ExtOutFieldConfig):
@@ -304,8 +342,8 @@ class ExtOutTimeFieldConfig(ExtOutFieldConfig):
         # type: (FieldCounter) -> None
         for _ in range(self.number):
             self.bus_entries.extend([
-                BusEntryConfig("ext", counters.new_ext()),
-                BusEntryConfig("ext", counters.new_ext())])
+                BusEntryConfig(self.name + "_L", "ext", counters.new_ext()),
+                BusEntryConfig(self.name + "_H", "ext", counters.new_ext())])
 
 
 class TableFieldConfig(FieldConfig):
@@ -445,7 +483,7 @@ class BitMuxFieldConfig(FieldConfig):
         # One register for the mux value, one for a delay line
         self.registers.extend([
             RegisterConfig(self.name, counters.new_field()),
-            RegisterConfig(self.name + "_dly", counters.new_field())])
+            RegisterConfig(self.name + "_DLY", counters.new_field())])
 
 
 class PosMuxFieldConfig(FieldConfig):
