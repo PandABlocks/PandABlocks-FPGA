@@ -171,12 +171,11 @@ class timing_plot_directive(Directive):
         alltables = []
         table_data = []
         table = nodes.table()
-        path = path.replace('pgen.timing.ini', '')
+        path = os.path.dirname(os.path.abspath(path))
         for ts, inputs, outputs in timing_entries(sequence, sequence_dir):
             if 'TABLE_ADDRESS' in inputs:
                 # open the table
-                file_dir = os.path.join(
-                    path, "PGEN_1000.txt")
+                file_dir = os.path.join(path, inputs["TABLE_ADDRESS"])
                 assert os.path.isfile(file_dir), "%s does not exist" %(file_dir)
                 with open(file_dir, "rb") as table:
                     reader = csv.DictReader(table, delimiter='\t')
