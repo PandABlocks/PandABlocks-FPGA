@@ -61,7 +61,7 @@ begin
 --------------------------------------------------------------------------------
 -- {{block.entity}} - {{block.description}}
 --------------------------------------------------------------------------------
-{{ block.entity }}_inst : entity work.{{ block.entity }}_wrapper
+{{ block.name }}_inst : entity work.{{ block.entity }}_wrapper
 {% if block.number > 1 %}
 generic map (NUM => {{ block.entity }}_NUM)
 {% endif %}

@@ -27,11 +27,17 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Bus Inputs
-    bit_bus_i           : in  std_logic_vector(127 downto 0);
-    pos_bus_i           : in  std32_array(31 downto 0);
-    -- Generic Inputs to BitBus and PosBus from FMC and SFP
-    fmc_inputs_o        : out std_logic_vector(15 downto 0);
-    fmc_data_o          : out std32_array(7 downto 0);         -- 8 channels of 32-bit data
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
+    -- Outputs to PosBus from FMC
+    val1_o              : out std_logic_vector(31 downto 0);
+    val2_o              : out std_logic_vector(31 downto 0);
+    val3_o              : out std_logic_vector(31 downto 0);
+    val4_o              : out std_logic_vector(31 downto 0);
+    val5_o              : out std_logic_vector(31 downto 0);
+    val6_o              : out std_logic_vector(31 downto 0);
+    val7_o              : out std_logic_vector(31 downto 0);
+    val8_o              : out std_logic_vector(31 downto 0);
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -218,14 +224,14 @@ port map (
     );
 
 
-fmc_data_o(7) <= ADC_DATAOUT(31 downto 0);
-fmc_data_o(6) <= ADC_DATAOUT(63 downto 32);
-fmc_data_o(5) <= ADC_DATAOUT(95 downto 64);
-fmc_data_o(4) <= ADC_DATAOUT(127 downto 96);
-fmc_data_o(3) <= ADC_DATAOUT(159 downto 128);
-fmc_data_o(2) <= ADC_DATAOUT(191 downto 160);
-fmc_data_o(1) <= ADC_DATAOUT(223 downto 192);
-fmc_data_o(0) <= ADC_DATAOUT(255 downto 224);
+val8_o <= ADC_DATAOUT(31 downto 0);
+val7_o <= ADC_DATAOUT(63 downto 32);
+val6_o <= ADC_DATAOUT(95 downto 64);
+val5_o <= ADC_DATAOUT(127 downto 96);
+val4_o <= ADC_DATAOUT(159 downto 128);
+val3_o <= ADC_DATAOUT(191 downto 160);
+val2_o <= ADC_DATAOUT(223 downto 192);
+val1_o <= ADC_DATAOUT(255 downto 224);
 
 -- Push onto IOB FFs
 process(clk_SPI_OUT )

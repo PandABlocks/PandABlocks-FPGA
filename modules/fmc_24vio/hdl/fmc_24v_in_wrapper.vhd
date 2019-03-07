@@ -29,11 +29,17 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Bus Inputs
-    bit_bus_i           : in  std_logic_vector(127 downto 0);
-    pos_bus_i           : in  std32_array(31 downto 0);
-    -- Generic Inputs to BitBus and PosBus from FMC and SFP
-    fmc_inputs_o        : out std_logic_vector(7 downto 0) := (others=>'0');
-    fmc_data_o          : out std32_array(15 downto 0) := (others => (others => '0'));
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_i;
+    -- Outputs to BitBus from FMC
+    val1_o              : out std_logic;
+    val2_o              : out std_logic;
+    val3_o              : out std_logic;
+    val4_o              : out std_logic;
+    val5_o              : out std_logic;
+    val6_o              : out std_logic;
+    val7_o              : out std_logic;
+    val8_o              : out std_logic;
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -112,7 +118,7 @@ port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
     bit_bus_i           => bit_bus_i,
-    pos_bus_i           => (others => (others => '0')),
+    pos_bus_i           => pos_bus_i,
     -- Block Parameters
     FMC_PRSNT           => FMC_PRSNT_DW,
     IN_DB               => IN_DB,
@@ -148,7 +154,14 @@ port map (
 ---------------------------------------------------------------------------
 -- Assign outputs
 ---------------------------------------------------------------------------
-fmc_inputs_o <= fmc_in;
+val1_o <= fmc_in(0);
+val2_o <= fmc_in(1);
+val3_o <= fmc_in(2);
+val4_o <= fmc_in(3);
+val5_o <= fmc_in(4);
+val6_o <= fmc_in(5);
+val7_o <= fmc_in(6);
+val8_o <= fmc_in(7);
 
 end rtl;
 
