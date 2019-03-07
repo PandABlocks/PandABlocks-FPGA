@@ -52,7 +52,7 @@ signal count            : integer := 0;
 begin
 
 process(pos_bus_i) begin
-    pos_bus: for i in 0 to 31 loop
+    posbus: for i in 0 to 31 loop
         pos_bus(i) <= pos_bus_i(i*32+31 downto i*32);
     end loop;
 end process;

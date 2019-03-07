@@ -57,7 +57,7 @@ architecture rtl of soft_blocks is
 begin
 {# Using a namespace jinja2 object may make iterating simpler #}
 {% set dma = [0] %}
-{% for block in blocks %}
+{% for block in blocks if block.type in "soft|dma|fmc|sfp"%}
 --------------------------------------------------------------------------------
 -- {{block.entity}} - {{block.description}}
 --------------------------------------------------------------------------------
