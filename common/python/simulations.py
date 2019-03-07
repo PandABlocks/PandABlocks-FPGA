@@ -49,7 +49,7 @@ class BlockSimulationMeta(type):
                 config = getattr(val.fget, "config")
                 if config:
                     assert name == config.name, \
-                        "Property %s mismatch with RegisterConfig name %s" % (
+                        "Property %s mismatch with Config name %s" % (
                             name, config.name)
         return super(BlockSimulationMeta, cls).__new__(cls, clsname, bases, dct)
 

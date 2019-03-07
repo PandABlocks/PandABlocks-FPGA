@@ -37,7 +37,7 @@ class TestBlockSimulation(unittest.TestCase):
                 BAD, A, INPA, OUT = PROPERTIES
 
         assert str(cm.exception) == \
-               "Property BAD mismatch with FieldConfig name FUNC"
+               "Property BAD mismatch with Config name FUNC"
 
 
 if __name__ == '__main__':

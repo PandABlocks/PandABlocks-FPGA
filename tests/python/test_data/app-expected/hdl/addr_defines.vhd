@@ -30,15 +30,15 @@ package addr_defines is
 
 -- lut Block:
     constant LUT_INPA_addr : natural := 0;
-    constant LUT_INPA_dly_addr : natural := 1;
+    constant LUT_INPA_DLY_addr : natural := 1;
     constant LUT_INPB_addr : natural := 2;
-    constant LUT_INPB_dly_addr : natural := 3;
+    constant LUT_INPB_DLY_addr : natural := 3;
     constant LUT_INPC_addr : natural := 4;
-    constant LUT_INPC_dly_addr : natural := 5;
+    constant LUT_INPC_DLY_addr : natural := 5;
     constant LUT_INPD_addr : natural := 6;
-    constant LUT_INPD_dly_addr : natural := 7;
+    constant LUT_INPD_DLY_addr : natural := 7;
     constant LUT_INPE_addr : natural := 8;
-    constant LUT_INPE_dly_addr : natural := 9;
+    constant LUT_INPE_DLY_addr : natural := 9;
     constant LUT_TYPEA_addr : natural := 10;
     constant LUT_TYPEB_addr : natural := 11;
     constant LUT_TYPEC_addr : natural := 12;

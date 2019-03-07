@@ -50,32 +50,32 @@ architecture rtl of lut_ctrl is
 signal INPA      : std_logic_vector(31 downto 0);
 signal INPA_wstb : std_logic;
 
-signal INPA_dly      : std_logic_vector(31 downto 0);
-signal INPA_dly_wstb : std_logic;
+signal INPA_DLY      : std_logic_vector(31 downto 0);
+signal INPA_DLY_wstb : std_logic;
 
 signal INPB      : std_logic_vector(31 downto 0);
 signal INPB_wstb : std_logic;
 
-signal INPB_dly      : std_logic_vector(31 downto 0);
-signal INPB_dly_wstb : std_logic;
+signal INPB_DLY      : std_logic_vector(31 downto 0);
+signal INPB_DLY_wstb : std_logic;
 
 signal INPC      : std_logic_vector(31 downto 0);
 signal INPC_wstb : std_logic;
 
-signal INPC_dly      : std_logic_vector(31 downto 0);
-signal INPC_dly_wstb : std_logic;
+signal INPC_DLY      : std_logic_vector(31 downto 0);
+signal INPC_DLY_wstb : std_logic;
 
 signal INPD      : std_logic_vector(31 downto 0);
 signal INPD_wstb : std_logic;
 
-signal INPD_dly      : std_logic_vector(31 downto 0);
-signal INPD_dly_wstb : std_logic;
+signal INPD_DLY      : std_logic_vector(31 downto 0);
+signal INPD_DLY_wstb : std_logic;
 
 signal INPE      : std_logic_vector(31 downto 0);
 signal INPE_wstb : std_logic;
 
-signal INPE_dly      : std_logic_vector(31 downto 0);
-signal INPE_dly_wstb : std_logic;
+signal INPE_DLY      : std_logic_vector(31 downto 0);
+signal INPE_DLY_wstb : std_logic;
 
 
 -- Register interface common
@@ -104,15 +104,15 @@ begin
         if rising_edge(clk_i) then
             -- Zero all the write strobe arrays, we set them below
             INPA_wstb <= '0';
-            INPA_dly_wstb <= '0';
+            INPA_DLY_wstb <= '0';
             INPB_wstb <= '0';
-            INPB_dly_wstb <= '0';
+            INPB_DLY_wstb <= '0';
             INPC_wstb <= '0';
-            INPC_dly_wstb <= '0';
+            INPC_DLY_wstb <= '0';
             INPD_wstb <= '0';
-            INPD_dly_wstb <= '0';
+            INPD_DLY_wstb <= '0';
             INPE_wstb <= '0';
-            INPE_dly_wstb <= '0';
+            INPE_DLY_wstb <= '0';
             TYPEA_wstb <= '0';
             TYPEB_wstb <= '0';
             TYPEC_wstb <= '0';
@@ -125,33 +125,33 @@ begin
                     when LUT_INPA_addr =>
                         INPA <= write_data_i;
                         INPA_wstb <= '1';
-                    when LUT_INPA_dly_addr =>
-                        INPA_dly <= write_data_i;
-                        INPA_dly_wstb <= '1';
+                    when LUT_INPA_DLY_addr =>
+                        INPA_DLY <= write_data_i;
+                        INPA_DLY_wstb <= '1';
                     when LUT_INPB_addr =>
                         INPB <= write_data_i;
                         INPB_wstb <= '1';
-                    when LUT_INPB_dly_addr =>
-                        INPB_dly <= write_data_i;
-                        INPB_dly_wstb <= '1';
+                    when LUT_INPB_DLY_addr =>
+                        INPB_DLY <= write_data_i;
+                        INPB_DLY_wstb <= '1';
                     when LUT_INPC_addr =>
                         INPC <= write_data_i;
                         INPC_wstb <= '1';
-                    when LUT_INPC_dly_addr =>
-                        INPC_dly <= write_data_i;
-                        INPC_dly_wstb <= '1';
+                    when LUT_INPC_DLY_addr =>
+                        INPC_DLY <= write_data_i;
+                        INPC_DLY_wstb <= '1';
                     when LUT_INPD_addr =>
                         INPD <= write_data_i;
                         INPD_wstb <= '1';
-                    when LUT_INPD_dly_addr =>
-                        INPD_dly <= write_data_i;
-                        INPD_dly_wstb <= '1';
+                    when LUT_INPD_DLY_addr =>
+                        INPD_DLY <= write_data_i;
+                        INPD_DLY_wstb <= '1';
                     when LUT_INPE_addr =>
                         INPE <= write_data_i;
                         INPE_wstb <= '1';
-                    when LUT_INPE_dly_addr =>
-                        INPE_dly <= write_data_i;
-                        INPE_dly_wstb <= '1';
+                    when LUT_INPE_DLY_addr =>
+                        INPE_DLY <= write_data_i;
+                        INPE_DLY_wstb <= '1';
                     when LUT_TYPEA_addr =>
                         TYPEA <= write_data_i;
                         TYPEA_wstb <= '1';

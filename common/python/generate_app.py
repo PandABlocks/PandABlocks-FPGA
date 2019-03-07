@@ -10,7 +10,7 @@ require("jinja2")
 from jinja2 import Environment, FileSystemLoader
 
 from .compat import TYPE_CHECKING
-from .configs import BlockConfig, pad
+from .configs import BlockConfig, pad, RegisterCounter
 from .ini_util import read_ini, ini_get
 
 if TYPE_CHECKING:
