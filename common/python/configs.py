@@ -98,6 +98,12 @@ class BlockConfig(object):
         self.entity = ini.get(".", "entity")
         #: Is the block soft, sfp, fmc or dma?
         self.type = ini_get(ini, '.', 'type', type)
+        #: If the type == sfp, which site number
+        self.sfp_site = ini_get(ini, ".", "sfp_site", None)
+        if self.sfp_site:
+            assert self.type == "sfp", \
+                "Block %s has type %s != sfp but defined sfp_site" % (
+                    self.name, self.type)
         #: Any constraints?
         self.constraints = ini_get(ini, '.', 'constraints', '').split()
         #: Does the block require IP?
