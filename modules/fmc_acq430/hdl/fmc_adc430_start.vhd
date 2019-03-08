@@ -90,10 +90,10 @@ begin
                 MODULE_ENABLE <= std_logic_vector(to_unsigned(1,32));
                 sm_adc_start <= state_adc_mode;
 
-            -- ADC_MODE could be either a 0 or 1
-            -- Better performance when set to a 1
+            -- ADC Mode = 0 (High Speed Mode) introduces a sigma-delta divide of 256. This mode should be employed when desired sample rate is > 48 kHz
+            -- ADC Mode = 1 (High Resolution Mode) introduces a sigma-delta divide of 512. This mode should be employed when desired sampe rate is < 48 kHz
             when state_adc_mode =>
-                ADC_MODE <= std_logic_vector(to_unsigned(0,32));
+                ADC_MODE <= std_logic_vector(to_unsigned(1,32));
                 sm_adc_start <= state_adc_clk_select;
 
             -- Selects the Panda clock

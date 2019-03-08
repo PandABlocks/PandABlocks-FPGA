@@ -190,8 +190,8 @@ signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
                                                                        => '1');
 
 -- Top Level Signals
-signal bit_bus              : sysbus_t := (others => '0');
-signal posbus               : posbus_t := (others => (others => '0'));
+signal bit_bus              : bit_bus_t := (others => '0');
+signal pos_bus              : pos_bus_t := (others => (others => '0'));
 -- Daughter card control signals
 
 -- Input Encoder
@@ -261,8 +261,8 @@ signal slow_tlp   : slow_packet;
 
 -- Make schematics a bit more clear for analysis
 --attribute keep              : string; -- GBC removed following three lines 14/09/18
---attribute keep of sysbus    : signal is "true";
---attribute keep of posbus    : signal is "true";
+--attribute keep of bit_bus    : signal is "true";
+--attribute keep of pos_bus    : signal is "true";
 
 begin
 
@@ -476,7 +476,7 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(TTLOUT_CS),
 
-    sysbus_i            => bit_bus,
+    bit_bus_i           => bit_bus,
     val_o               => ttlout_val,
     pad_o               => TTLOUT_PAD_O
 );
@@ -506,7 +506,7 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(LVDSOUT_CS),
 
-    sysbus_i            => bit_bus,
+    bit_bus_i           => bit_bus,
     pad_o               => LVDSOUT_PAD_O
 );
 
@@ -542,8 +542,8 @@ port map (
     z_int_o             => inenc_z,
     data_int_o          => inenc_data,
     -- Block Outputs
-    sysbus_i            => bit_bus,
-    posbus_i            => posbus,
+    bit_bus_i           => bit_bus,
+    pos_bus_i           => pos_bus,
     CONN_OUT            => inenc_conn,
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => INPROT,
@@ -579,8 +579,8 @@ port map (
     -- Signals passed to internal bus
     clk_int_o           => outenc_clk,
     --
-    sysbus_i            => bit_bus,
-    posbus_i            => posbus,
+    bit_bus_i           => bit_bus,
+    pos_bus_i           => pos_bus,
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => OUTPROT,
     slow_tlp_o          => slow_tlp
@@ -629,8 +629,8 @@ port map (
     write_ack_0_o       => write_ack(PCAP_CS),
     write_ack_1_o       => write_ack(DRV_CS),
 
-    sysbus_i            => bit_bus,
-    posbus_i            => posbus,
+    bit_bus_i           => bit_bus,
+    pos_bus_i           => pos_bus,
     pcap_actv_o         => pcap_active(0),
     pcap_irq_o          => IRQ_F2P(0)
 );
@@ -693,8 +693,8 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(REG_CS),
 
-    sysbus_i            => bit_bus,
-    posbus_i            => posbus,
+    bit_bus_i           => bit_bus,
+    pos_bus_i           => pos_bus,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
     SFP_MAC_ADDR        => SFP_MAC_ADDR_ARR,
     SFP_MAC_ADDR_WSTB   => open,
@@ -776,7 +776,7 @@ bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
                                    inenc_data & inenc_z & inenc_b & inenc_a &
                                    lvdsin_val & ttlin_val;
 
-posbus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
+pos_bus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
 
 -- Assemble FMC record
 FMC.EXTCLK <= EXTCLK;
@@ -793,7 +793,7 @@ FMC_DP0_C2M_N <= FMC.TXN_OUT;
 FMC.RXP_IN <= FMC_DP0_M2C_P;
 FMC.RXN_IN <= FMC_DP0_M2C_N;
 --Commenting Below Line fixes non-responsive/system issue
-FMC.MAC_ADDR <= FMC_MAC_ADDR_ARR(0)(23 downto 0) & FMC_MAC_ADDR_ARR(1)(23 downto 0);
+FMC.MAC_ADDR <= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
 FMC.MAC_ADDR_WS <= '0';
 
 -- Assemble SFP records
@@ -806,7 +806,7 @@ SFP1.RXP_IN <= SFP_RX_P(2);
 SFP_TX_N(2) <= SFP1.TXN_OUT;
 SFP_TX_P(2) <= SFP1.TXP_OUT;
 --Commenting Below Line fixes non-responsive/system issue
-SFP1.MAC_ADDR <= SFP_MAC_ADDR_ARR(0)(23 downto 0) & SFP_MAC_ADDR_ARR(1)(23 downto 0);
+SFP1.MAC_ADDR <= SFP_MAC_ADDR_ARR(1)(23 downto 0) & SFP_MAC_ADDR_ARR(0)(23 downto 0);
 SFP1.MAC_ADDR_WS <= '0';
 
 SFP2.EXTCLK <= EXTCLK;
@@ -817,7 +817,7 @@ SFP2.RXP_IN <= SFP_RX_P(1);
 SFP_TX_N(1) <= SFP2.TXN_OUT;
 SFP_TX_P(1) <= SFP2.TXP_OUT;
 --Commenting Below Line fixes non-responsive/system issue
-SFP2.MAC_ADDR <= SFP_MAC_ADDR_ARR(2)(23 downto 0) & SFP_MAC_ADDR_ARR(3)(23 downto 0);
+SFP2.MAC_ADDR <= SFP_MAC_ADDR_ARR(3)(23 downto 0) & SFP_MAC_ADDR_ARR(2)(23 downto 0);
 SFP2.MAC_ADDR_WS <= '0';
 
 SFP3.EXTCLK <= EXTCLK;
@@ -828,7 +828,7 @@ SFP3.RXP_IN <= SFP_RX_P(0);
 SFP_TX_N(0) <= SFP3.TXN_OUT;
 SFP_TX_P(0) <= SFP3.TXP_OUT;
 --Commenting Below Line fixes non-responsive/system issue
-SFP3.MAC_ADDR <= SFP_MAC_ADDR_ARR(4)(23 downto 0) & SFP_MAC_ADDR_ARR(5)(23 downto 0);
+SFP3.MAC_ADDR <= SFP_MAC_ADDR_ARR(5)(23 downto 0) & SFP_MAC_ADDR_ARR(4)(23 downto 0);
 SFP3.MAC_ADDR_WS <= '0';
 
 ---------------------------------------------------------------------------
@@ -850,8 +850,8 @@ port map(
     write_ack => write_ack(MOD_COUNT-1 downto 8),
     bit_bus_i => bit_bus,
     bit_bus_o => bit_bus(127 downto BIT_BUS_SIZE),
-    posbus_i => posbus,
-    posbus_o => posbus(31 downto POS_BUS_SIZE),
+    pos_bus_i => pos_bus,
+    pos_bus_o => pos_bus(31 downto POS_BUS_SIZE),
     rdma_req => rdma_req,
     rdma_ack => rdma_ack,
     rdma_done => rdma_done,

@@ -17,8 +17,8 @@
         "visible": false
       }, 
       "CLOCKS": {
-        "x": -325.982905982906, 
-        "y": -64.055957818098705, 
+        "x": -279.33333333333331, 
+        "y": 30.51333821614584, 
         "visible": true
       }, 
       "COUNTER1": {
@@ -187,9 +187,9 @@
         "visible": false
       }, 
       "PCAP": {
-        "x": 0.0, 
-        "y": 0.0, 
-        "visible": false
+        "x": 32.666666666666686, 
+        "y": -37.956669871012366, 
+        "visible": true
       }, 
       "PCOMP1": {
         "x": 0.0, 
@@ -202,9 +202,9 @@
         "visible": false
       }, 
       "PGEN1": {
-        "x": 0.0, 
-        "y": 0.0, 
-        "visible": false
+        "x": 254.66666666666669, 
+        "y": 43.44333165486654, 
+        "visible": true
       }, 
       "PGEN2": {
         "x": 0.0, 
@@ -232,24 +232,24 @@
         "visible": false
       }, 
       "PULSE1": {
-        "x": -60.0, 
-        "y": -320.0, 
-        "visible": true
+        "x": 0.0, 
+        "y": 0.0, 
+        "visible": false
       }, 
       "PULSE2": {
-        "x": -60.0, 
-        "y": -160.0, 
-        "visible": true
+        "x": 0.0, 
+        "y": 0.0, 
+        "visible": false
       }, 
       "PULSE3": {
-        "x": -60.0, 
+        "x": 0.0, 
         "y": 0.0, 
-        "visible": true
+        "visible": false
       }, 
       "PULSE4": {
-        "x": -60.0, 
-        "y": 160.0, 
-        "visible": true
+        "x": 0.0, 
+        "y": 0.0, 
+        "visible": false
       }, 
       "QDEC1": {
         "x": 0.0, 
@@ -347,24 +347,24 @@
         "visible": false
       }, 
       "TTLOUT1": {
-        "x": 150.0, 
-        "y": -320.0, 
-        "visible": true
+        "x": 0.0, 
+        "y": 0.0, 
+        "visible": false
       }, 
       "TTLOUT2": {
-        "x": 150.0, 
-        "y": -160.0, 
-        "visible": true
+        "x": 0.0, 
+        "y": 0.0, 
+        "visible": false
       }, 
       "TTLOUT3": {
-        "x": 150.0, 
+        "x": 0.0, 
         "y": 0.0, 
-        "visible": true
+        "visible": false
       }, 
       "TTLOUT4": {
-        "x": 150.0, 
-        "y": 160.0, 
-        "visible": true
+        "x": 0.0, 
+        "y": 0.0, 
+        "visible": false
       }, 
       "TTLOUT5": {
         "x": 0.0, 
@@ -452,7 +452,7 @@
       "parameters": "expanded", 
       "aPeriod": 0.5, 
       "aPeriodUnits": "s", 
-      "bPeriod": 0.0, 
+      "bPeriod": 0.10000000000000001, 
       "bPeriodUnits": "s", 
       "cPeriod": 0.0, 
       "cPeriodUnits": "s", 
@@ -1082,12 +1082,12 @@
       "inputs": "expanded", 
       "enable": "ONE", 
       "enableDelay": 0, 
-      "gate": "ZERO", 
+      "gate": "ONE", 
       "gateDelay": 0, 
-      "trig": "ZERO", 
+      "trig": "CLOCKS.OUTA", 
       "trigDelay": 0, 
       "parameters": "expanded", 
-      "trigEdge": "Rising", 
+      "trigEdge": "Falling", 
       "shiftSum": 0, 
       "outputs": "expanded", 
       "tsStartCapture": "No", 
@@ -1137,21 +1137,102 @@
     "PGEN1": {
       "label": "Position generator 1", 
       "inputs": "expanded", 
-      "enable": "ZERO", 
+      "enable": "PCAP.ACTIVE", 
       "enableDelay": 0, 
-      "trig": "ZERO", 
+      "trig": "CLOCKS.OUTB", 
       "trigDelay": 0, 
       "parameters": "expanded", 
       "table": {
         "typeid": "malcolm:core/Table:1.0", 
-        "value": []
+        "value": [
+          5, 
+          20, 
+          45, 
+          80, 
+          125, 
+          180, 
+          245, 
+          320, 
+          405, 
+          500, 
+          600, 
+          700, 
+          800, 
+          900, 
+          1000, 
+          1100, 
+          1200, 
+          1300, 
+          1400, 
+          1500, 
+          1600, 
+          1700, 
+          1800, 
+          1900, 
+          2000, 
+          2100, 
+          2200, 
+          2300, 
+          2400, 
+          2500, 
+          2595, 
+          2680, 
+          2755, 
+          2820, 
+          2875, 
+          2920, 
+          2955, 
+          2980, 
+          2995, 
+          3000, 
+          2995, 
+          2980, 
+          2955, 
+          2920, 
+          2875, 
+          2820, 
+          2755, 
+          2680, 
+          2595, 
+          2500, 
+          2400, 
+          2300, 
+          2200, 
+          2100, 
+          2000, 
+          1900, 
+          1800, 
+          1700, 
+          1600, 
+          1500, 
+          1400, 
+          1300, 
+          1200, 
+          1100, 
+          1000, 
+          900, 
+          800, 
+          700, 
+          600, 
+          500, 
+          405, 
+          320, 
+          245, 
+          180, 
+          125, 
+          80, 
+          45, 
+          20, 
+          5, 
+          0
+        ]
       }, 
       "cycles": 0, 
       "outputs": "expanded", 
       "outUnits": "", 
       "outScale": 1.0, 
       "outOffset": 0.0, 
-      "outCapture": "No", 
+      "outCapture": "Min Max Mean", 
       "readbacks": "expanded"
     }, 
     "PGEN2": {
@@ -1229,9 +1310,9 @@
     "PULSE1": {
       "label": "One-shot pulse delay and stretch 1", 
       "inputs": "expanded", 
-      "enable": "ONE", 
+      "enable": "ZERO", 
       "enableDelay": 0, 
-      "trig": "CLOCKS.OUTA", 
+      "trig": "ZERO", 
       "trigDelay": 0, 
       "parameters": "expanded", 
       "delay": 0.10000000000000001, 
@@ -1245,9 +1326,9 @@
     "PULSE2": {
       "label": "One-shot pulse delay and stretch 2", 
       "inputs": "expanded", 
-      "enable": "ONE", 
+      "enable": "ZERO", 
       "enableDelay": 0, 
-      "trig": "CLOCKS.OUTA", 
+      "trig": "ZERO", 
       "trigDelay": 0, 
       "parameters": "expanded", 
       "delay": 0.20000000000000001, 
@@ -1261,9 +1342,9 @@
     "PULSE3": {
       "label": "One-shot pulse delay and stretch 3", 
       "inputs": "expanded", 
-      "enable": "ONE", 
+      "enable": "ZERO", 
       "enableDelay": 0, 
-      "trig": "CLOCKS.OUTA", 
+      "trig": "ZERO", 
       "trigDelay": 0, 
       "parameters": "expanded", 
       "delay": 0.29999999999999999, 
@@ -1277,9 +1358,9 @@
     "PULSE4": {
       "label": "One-shot pulse delay and stretch 4", 
       "inputs": "expanded", 
-      "enable": "ONE", 
+      "enable": "ZERO", 
       "enableDelay": 0, 
-      "trig": "CLOCKS.OUTA", 
+      "trig": "ZERO", 
       "trigDelay": 0, 
       "parameters": "expanded", 
       "delay": 0.40000000000000002, 
@@ -1629,25 +1710,25 @@
     "TTLOUT1": {
       "label": "TTL output 1", 
       "inputs": "expanded", 
-      "val": "PULSE1.OUT", 
+      "val": "ZERO", 
       "valDelay": 0
     }, 
     "TTLOUT2": {
       "label": "TTL output 2", 
       "inputs": "expanded", 
-      "val": "PULSE2.OUT", 
+      "val": "ZERO", 
       "valDelay": 0
     }, 
     "TTLOUT3": {
       "label": "TTL output 3", 
       "inputs": "expanded", 
-      "val": "PULSE3.OUT", 
+      "val": "ZERO", 
       "valDelay": 0
     }, 
     "TTLOUT4": {
       "label": "TTL output 4", 
       "inputs": "expanded", 
-      "val": "PULSE4.OUT", 
+      "val": "ZERO", 
       "valDelay": 0
     }, 
     "TTLOUT5": {

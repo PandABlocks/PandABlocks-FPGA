@@ -3,12 +3,15 @@ from pkg_resources import require
 require("matplotlib")
 
 import sys
+import os
 from collections import OrderedDict
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 from .ini_util import read_ini, timing_entries
+
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 TRANSITION_HEIGHT = 0.6
 PULSE_HEIGHT = 1.0
@@ -71,7 +74,7 @@ def plot_pos(trace_items, names, offset, crossdist, ts):
 
 def make_timing_plot(path, section=None):
     # Read the ini file and section
-    ini = read_ini(path)
+    ini = read_ini(os.path.join(ROOT, path))
     if not section:
         section = ini.sections()[0]
 

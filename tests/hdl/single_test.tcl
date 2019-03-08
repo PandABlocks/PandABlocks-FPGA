@@ -1,6 +1,6 @@
 
 # TCL script to run a single test.
-#      make single_hdl_test TEST="module, number"
+#      make single_hdl_test TEST="module number"
 # where module is the name of the module in lower case eg lut and number is the
 # test number eg 4 (make single_hdl_test TEST= "lut 4")
 

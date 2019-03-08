@@ -15,7 +15,7 @@ use work.top_defines.all;
 
 entity lut_wrapper is
 generic (
-    NUM : natural
+    NUM : natural := 1
 );
 port (
     -- Clocks and Resets
@@ -23,9 +23,8 @@ port (
     reset_i             : in  std_logic;
 
     -- Bus inputs
-    -- TODO: rename to bit_bus_i
-    bit_bus_i           : in  sysbus_t;
-    pos_bus_i           : in  posbus_t;
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
 
     -- Bus outputs
     OUT_o               : out std_logic_vector(NUM-1 downto 0);
@@ -51,24 +50,24 @@ architecture rtl of lut_wrapper is
 
 signal INPA        : std32_array(NUM-1 downto 0);
 signal INPA_wstb   : std_logic_vector(NUM-1 downto 0);
-signal INPA_dly        : std32_array(NUM-1 downto 0);
-signal INPA_dly_wstb   : std_logic_vector(NUM-1 downto 0);
+signal INPA_DLY        : std32_array(NUM-1 downto 0);
+signal INPA_DLY_wstb   : std_logic_vector(NUM-1 downto 0);
 signal INPB        : std32_array(NUM-1 downto 0);
 signal INPB_wstb   : std_logic_vector(NUM-1 downto 0);
-signal INPB_dly        : std32_array(NUM-1 downto 0);
-signal INPB_dly_wstb   : std_logic_vector(NUM-1 downto 0);
+signal INPB_DLY        : std32_array(NUM-1 downto 0);
+signal INPB_DLY_wstb   : std_logic_vector(NUM-1 downto 0);
 signal INPC        : std32_array(NUM-1 downto 0);
 signal INPC_wstb   : std_logic_vector(NUM-1 downto 0);
-signal INPC_dly        : std32_array(NUM-1 downto 0);
-signal INPC_dly_wstb   : std_logic_vector(NUM-1 downto 0);
+signal INPC_DLY        : std32_array(NUM-1 downto 0);
+signal INPC_DLY_wstb   : std_logic_vector(NUM-1 downto 0);
 signal INPD        : std32_array(NUM-1 downto 0);
 signal INPD_wstb   : std_logic_vector(NUM-1 downto 0);
-signal INPD_dly        : std32_array(NUM-1 downto 0);
-signal INPD_dly_wstb   : std_logic_vector(NUM-1 downto 0);
+signal INPD_DLY        : std32_array(NUM-1 downto 0);
+signal INPD_DLY_wstb   : std_logic_vector(NUM-1 downto 0);
 signal INPE        : std32_array(NUM-1 downto 0);
 signal INPE_wstb   : std_logic_vector(NUM-1 downto 0);
-signal INPE_dly        : std32_array(NUM-1 downto 0);
-signal INPE_dly_wstb   : std_logic_vector(NUM-1 downto 0);
+signal INPE_DLY        : std32_array(NUM-1 downto 0);
+signal INPE_DLY_wstb   : std_logic_vector(NUM-1 downto 0);
 signal TYPEA        : std32_array(NUM-1 downto 0);
 signal TYPEA_wstb   : std_logic_vector(NUM-1 downto 0);
 signal TYPEB        : std32_array(NUM-1 downto 0);

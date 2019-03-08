@@ -31,8 +31,8 @@ constant ENC_NUM            : natural := 4;
 --------------------------------------------------------------------------
 
 -- Bit Bus Width, Multiplexer Select Width -------------------------------
-constant SBUSW              : natural := 128;
-constant SBUSBW             : natural := 7;
+constant BBUSW              : natural := 128;
+constant BBUSBW             : natural := 7;
 
 -- Position Bus Width, Multiplexer Select Width.
 constant PBUSW              : natural := 32;
@@ -152,8 +152,8 @@ type page_array is array(natural range <>) of page_t;
 subtype seq_out_t is std_logic_vector(5 downto 0);
 type seq_out_array is array(natural range <>) of seq_out_t;
 
-subtype sysbus_t is std_logic_vector(SBUSW-1 downto 0);
-subtype posbus_t is std32_array(PBUSW-1 downto 0);
+subtype bit_bus_t is std_logic_vector(BBUSW-1 downto 0);
+subtype pos_bus_t is std32_array(PBUSW-1 downto 0);
 subtype extbus_t is std32_array(EBUSW-1 downto 0);
 
 --

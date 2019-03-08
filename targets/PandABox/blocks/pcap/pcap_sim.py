@@ -254,7 +254,9 @@ class BitsCaptureEntry(CaptureEntry):
 
 
 class PcapSimulation(BlockSimulation):
-    ENABLE, GATE, TRIG, TRIG_EDGE, SHIFT_SUM, ACTIVE, TS_START, TS_END, TS_TRIG, SAMPLES, BITS0, BITS1, BITS2, BITS3, HEALTH = PROPERTIES
+    ENABLE, GATE, TRIG, TRIG_EDGE, SHIFT_SUM, ACTIVE, TS_START_L, TS_START_H, \
+        TS_END_L, TS_END_H, TS_TRIG_L, TS_TRIG_H, SAMPLES, \
+        BITS0, BITS1, BITS2, BITS3, HEALTH = PROPERTIES
     tick_data = True
 
     def __init__(self):
@@ -269,27 +271,19 @@ class PcapSimulation(BlockSimulation):
         # These are the capture entries in the order they should be produced
         self.capture_entries = []
         self.capture_lookup = {}  # {pos_bus index: [CaptureEntry]}
-        # This lets us find the name of the field from the index
-        self.ext_names = {}
-        # These fields are from REG* rather than the block_config
+        # These fields are from *REG rather than the block_config
         self.START_WRITE = 0
         self.WRITE = 0
         self.ARM = 0
         self.DISARM = 0
         self.DATA = 0
-        # self.add_properties()
-        i = 0
-        for NAME in PROPERTIES:
-
-            if NAME.fget.im_self.type == "ext_out timestamp":
-                # something like 37 38
-                self.ext_names[i + 32] = NAME.fget.im_self.name + "_L"
-                i += 1
-                self.ext_names[i + 32] = NAME.fget.im_self.name + "_H"
-                i += 1
-            elif "ext_out" in NAME.fget.im_self.type:
-                # one of the others
-                self.ext_names[i + 32] = NAME.fget.im_self.name
+        # This lets us find the name of the field from the index
+        self.ext_names = {}
+        i = 32
+        for p in PROPERTIES:
+            config = p.fget.config
+            if getattr(config, "bus", None) == "ext":
+                self.ext_names[i] = config.name
                 i += 1
 
     def on_changes(self, ts, changes):

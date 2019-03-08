@@ -14,7 +14,7 @@ class table_plot_node(nodes.Element):
     pass
 
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
 
 
 class timing_plot_directive(Directive):
@@ -29,7 +29,7 @@ class timing_plot_directive(Directive):
 
     def run(self):
         # fill the content code with the options from the directive
-        path = os.path.join(ROOT, self.options['path'])
+        path = self.options['path']
         section = self.options['section']
 
         # Parse the ini file and make any special tables
@@ -171,12 +171,11 @@ class timing_plot_directive(Directive):
         alltables = []
         table_data = []
         table = nodes.table()
-        path = path.replace('pgen.timing.ini', '')
+        path = os.path.dirname(os.path.abspath(path))
         for ts, inputs, outputs in timing_entries(sequence, sequence_dir):
             if 'TABLE_ADDRESS' in inputs:
                 # open the table
-                file_dir = os.path.join(
-                    path, "PGEN_1000.txt")
+                file_dir = os.path.join(path, inputs["TABLE_ADDRESS"])
                 assert os.path.isfile(file_dir), "%s does not exist" %(file_dir)
                 with open(file_dir, "rb") as table:
                     reader = csv.DictReader(table, delimiter='\t')

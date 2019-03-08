@@ -1,13 +1,9 @@
-from common.python.simulations import BlockSimulation, properties_from_ini, \
-    TYPE_CHECKING
+from common.python.simulations import BlockSimulation, properties_from_ini
 
 from collections import deque
+
 # max queue size
 MAX_QUEUE = 1023
-
-if TYPE_CHECKING:
-    from typing import Dict
-
 
 # min FPGA deadtime between queued pulses
 MIN_QUEUE_DELTA = 4
@@ -19,7 +15,8 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "pulse.block.ini")
 
 
 class PulseSimulation(BlockSimulation):
-    ENABLE, TRIG, DELAY, WIDTH, TRIG_EDGE, OUT, QUEUED, DROPPED = PROPERTIES
+    ENABLE, TRIG, DELAY_L, DELAY_H, WIDTH_L, WIDTH_H, TRIG_EDGE, OUT, QUEUED, \
+        DROPPED = PROPERTIES
 
     def __init__(self):
         self.queue = deque()
@@ -33,9 +30,6 @@ class PulseSimulation(BlockSimulation):
         self.missedsignal = 0
         self.width = 0
         self.delay = 0
-        # _L Time registers:
-        self.DELAY_L = 0
-        self.WIDTH_L = 0
 
     def do_pulse(self, ts, changes):
         """We've received a bit event on INP, so queue some output values

@@ -10,7 +10,7 @@ require("jinja2")
 from jinja2 import Environment, FileSystemLoader
 
 from .compat import TYPE_CHECKING
-from .configs import BlockConfig, pad
+from .configs import BlockConfig, pad, RegisterCounter
 from .ini_util import read_ini, ini_get
 
 if TYPE_CHECKING:
@@ -21,45 +21,20 @@ ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 
 
-# This class generates unique register numbers.  It is designed to be passed to
-# the implement_blocks() and register_addresses() functions.  Methods are
-# provided for generating new block, bit, pos, ext addresses.
-class RegisterCounter:
-    # Max number of Block types
-    MAX_BLOCKS = 32
-
-    # Max size of buses
-    MAX_BIT = 128
-    MAX_POS = 32
-    MAX_EXT = 32
-
-    def __init__(self,
-            block_count = 0, bit_count = 0, pos_count = 0, ext_count = 0):
-        self.block_count = block_count
-        self.bit_count = bit_count
-        self.pos_count = pos_count
-        self.ext_count = ext_count
-
-    # Helper function for generating allocator.
-    def __allocator(counter, limit, name):
-        def allocate(self):
-            result = getattr(self, counter)
-            assert result < limit, "Overflowed %s" % name
-            setattr(self, counter, result + 1)
-            return result
-        return allocate
-
-    new_block = __allocator('block_count', MAX_BLOCKS, 'block addresses')
-    new_bit   = __allocator('bit_count', MAX_BIT, 'bit bus entries')
-    new_pos   = __allocator('pos_count', MAX_POS, 'pos bus entries')
-    new_ext   = __allocator('ext_count', MAX_EXT, 'ext bus entries')
-
-
 def jinja_context(**kwargs):
     context = dict(pad=pad)
     context.update(kwargs)
     return context
 
+def jinja_env(path):
+    env = Environment(
+        autoescape=False,
+        loader=FileSystemLoader(path),
+        trim_blocks=True,
+        lstrip_blocks=True,
+        keep_trailing_newline=True,
+    )
+    return env
 
 class AppGenerator(object):
     def __init__(self, app, app_build_dir):
@@ -70,19 +45,11 @@ class AppGenerator(object):
         self.app_build_dir = app_build_dir
         self.app_name = app.split('/')[-1].split('.')[0]
         # Create a Jinja2 environment in the templates dir
-        self.env = Environment(
-            autoescape=False,
-            loader=FileSystemLoader(TEMPLATES),
-            trim_blocks=True,
-            lstrip_blocks=True,
-            keep_trailing_newline=True,
-        )
+        self.env = jinja_env(TEMPLATES)
         # Start from base register 2 to allow for *REG and *DRV spaces
         self.counters = RegisterCounter(block_count = 2)
         # These will be created when we parse the ini files
         self.blocks = []  # type: List[BlockConfig]
-        self.ip = []
-        self.constraints = []
         self.sfpsites = 0
         self.parse_ini_files(app)
         self.generate_config_dir()
@@ -114,9 +81,6 @@ class AppGenerator(object):
             target_ini = read_ini(os.path.join(target_path, (
                     target + ".target.ini")))
             self.implement_blocks(target_ini, target_path, "carrier", "blocks")
-
-            self.constraints = ini_get(
-                target_ini, '.', 'sfp_constraints', '').split()
             self.sfpsites = int(ini_get(target_ini, '.', 'sfp_sites', 0))
 
         # Implement the blocks for the soft blocks
@@ -140,6 +104,10 @@ class AppGenerator(object):
                 module_name = ini_get(ini, section, 'module', section.lower())
                 block_type = ini_get(ini, section, 'block', None)
                 sfp_site = ini_get(ini, section, 'sfp_site', None)
+                assert sfp_site is None or sfp_site in range(
+                    1, self.sfpsites + 1), \
+                    "Block %s in sfp_site %s. Target only has %d sites" % (
+                        section, sfp_site, self.sfpsites)
                 if block_type:
                     ini_name = ini_get(
                         ini, section, 'ini', block_type + '.block.ini')
@@ -152,13 +120,19 @@ class AppGenerator(object):
                 block_ini = read_ini(ini_path)
                 # Type is soft if the block is a softblock and carrier
                 # for carrier block
-                block = BlockConfig(section, type, number, block_ini, module_name, sfp_site)
+                block = BlockConfig(
+                    section, type, number, block_ini, module_name, sfp_site)
                 block.register_addresses(self.counters)
                 self.blocks.append(block)
 
-    def expand_template(self, template_name, context, out_dir, out_fname):
+    def expand_template(self, template_name, context, out_dir, out_fname,
+                        template_dir=None):
+        if template_dir:
+            env = jinja_env(template_dir)
+        else:
+            env = self.env
         with open(os.path.join(out_dir, out_fname), "w") as f:
-            template = self.env.get_template(template_name)
+            template = env.get_template(template_name)
             f.write(template.render(context))
 
     def generate_config_dir(self):
@@ -238,21 +212,24 @@ class AppGenerator(object):
     def generate_constraints(self):
         """Generate constraints file for IPs, SFP and FMC constraints"""
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
+        const_dir = os.path.join(self.app_build_dir, "const")
+        os.makedirs(const_dir)
         ips = []
-        sfps = 0
         for block in self.blocks:
             for ip in block.ip:
                 if ip not in ips:
                     ips.append(ip)
-            if block.type == "sfp":
-                sfps += 1
-        assert sfps <= self.sfpsites, \
-            "more SFP blocks in app: %d than constraints: %d" % (
-                sfps, self.sfpsites)
+            for const in block.constraints:
+                # Expand the constraints file
+                context = jinja_context(block=block)
+                out_fname = "%s_%s" % (block.name, os.path.basename(const))
+                self.expand_template(
+                    const, context, const_dir, out_fname,
+                    os.path.join(ROOT, "modules", block.module_name)
+                )
         context = jinja_context(
             blocks=self.blocks,
-            sfpsites=sfps,
-            const=self.constraints,
+            os=os,
             ips=ips)
         self.expand_template("constraints.tcl.jinja2", context, hdl_dir,
                              "constraints.tcl")

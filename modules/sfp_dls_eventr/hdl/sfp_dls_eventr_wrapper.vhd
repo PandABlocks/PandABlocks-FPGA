@@ -20,6 +20,9 @@ port (
     -- External SMA clock
     -- Clocked selected
     FCLK_CLK0_o         : out std_logic;
+    -- System Bus
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
 
 	-- System Bus
     sysbus_i            : in  std_logic_vector(SBUSW-1 downto 0);
@@ -257,8 +260,8 @@ port map (
     -- Clock and Reset
     clk_i             => clk_i,
     reset_i           => reset_i,
-    bit_bus_i         => (others => '0'),
-    pos_bus_i         => (others => (others => '0')),
+    bit_bus_i         => bit_bus_i,
+    pos_bus_i         => pos_bus_i,
 
     LINKUP            => LINKUP,
     EVENT_RESET       => open,
