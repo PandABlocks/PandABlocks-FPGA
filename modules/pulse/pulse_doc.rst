@@ -65,7 +65,21 @@ restrictions apply:
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
+   :section: Small delay width combination
+
+No Delay or Width
+-----------------
+
+With no delay or stretch, pulses are passed straight through, but still obey
+the Edge activation:
+
+.. timing_plot::
+   :path: modules/pulse/pulse.timing.ini
    :section: No delay or stretch
+
+.. timing_plot::
+   :path: modules/pulse/pulse.timing.ini
+   :section: No delay or stretch activate on falling edge
 
 Different Edge Activation
 -------------------------
@@ -81,6 +95,7 @@ the input pulse activates the output.
    :path: modules/pulse/pulse.timing.ini
    :section: Pulse stretching with no delay activate on both edges
 
+
 Pulse period error
 ------------------
 
@@ -90,4 +105,14 @@ short.
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
    :section: Stretched and delayed pulses too close together
+
+Enabling the Block
+------------------
+
+There is an Enable signal that stops the Block from producing signals. Edges
+must occur while Enable is high to trigger a pulse creation
+
+.. timing_plot::
+   :path: modules/pulse/pulse.timing.ini
+   :section: No pulses if disabled
 
