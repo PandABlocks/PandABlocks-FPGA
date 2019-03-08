@@ -251,6 +251,7 @@ signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
 attribute syn_noclockbuf : boolean;
 attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
+signal EXTCLK : std_logic;
 
 
 signal sma_pll_locked       : std_logic;
@@ -277,7 +278,7 @@ generic map (
     IOSTANDARD  => "LVDS_25"
 )
 port map (
-    O           => FMC.EXTCLK,
+    O           => EXTCLK,
     I           => EXTCLK_P,
     IB          => EXTCLK_N
 );
@@ -778,6 +779,7 @@ bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
 posbus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
 
 -- Assemble FMC record
+FMC.EXTCLK <= EXTCLK;
 FMC.FMC_PRSNT <= FMC_PRSNT;
 FMC.FMC_LA_P <= FMC_LA_P;
 FMC.FMC_LA_N <= FMC_LA_N;
@@ -796,6 +798,7 @@ FMC.MAC_ADDR_WS <= '0';
 
 -- Assemble SFP records
 -- NB: SFPs 1 and 3 are switched around to mirror front panel connections
+SFP1.EXTCLK <= EXTCLK;
 SFP1.SFP_LOS <= '0';  -- NB: Hard-coded to '0' as not brought out onto pin!
 SFP1.GTREFCLK <= q0_clk0_gtrefclk;
 SFP1.RXN_IN <= SFP_RX_N(2);
@@ -806,6 +809,7 @@ SFP_TX_P(2) <= SFP1.TXP_OUT;
 SFP1.MAC_ADDR <= SFP_MAC_ADDR_ARR(0)(23 downto 0) & SFP_MAC_ADDR_ARR(1)(23 downto 0);
 SFP1.MAC_ADDR_WS <= '0';
 
+SFP2.EXTCLK <= EXTCLK;
 SFP2.SFP_LOS <= SFP_LOS(1);
 SFP2.GTREFCLK <= q0_clk0_gtrefclk;
 SFP2.RXN_IN <= SFP_RX_N(1);
@@ -816,6 +820,7 @@ SFP_TX_P(1) <= SFP2.TXP_OUT;
 SFP2.MAC_ADDR <= SFP_MAC_ADDR_ARR(2)(23 downto 0) & SFP_MAC_ADDR_ARR(3)(23 downto 0);
 SFP2.MAC_ADDR_WS <= '0';
 
+SFP3.EXTCLK <= EXTCLK;
 SFP3.SFP_LOS <= SFP_LOS(0);
 SFP3.GTREFCLK <= q0_clk0_gtrefclk;
 SFP3.RXN_IN <= SFP_RX_N(0);

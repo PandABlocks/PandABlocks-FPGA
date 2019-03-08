@@ -10,8 +10,7 @@ entity sfp_mmcm_clkmux is
     generic (no_ibufg    : integer := 0);
 
     port (fclk_clk0_ps_i      : in  std_logic;
-          EXTCLK_P            : in  std_logic;
-          EXTCLK_N            : in  std_logic;
+          sma_clk_in1            : in  std_logic;
           rxoutclk_i          : in  std_logic;
           ext_clock_i         : in  std_logic_vector(1 downto 0);
           sma_pll_locked_o    : out std_logic;
@@ -29,7 +28,6 @@ constant c_wait_reset       : natural := 1000;
 signal sma_pll_reset_cnt    : unsigned(9 downto 0) := (others => '0');
 signal sma_pll_reset        : std_logic;
 signal sma_pll_locked       : std_logic;
-signal sma_clk_in1          : std_logic;
 signal sma_clkfbout         : std_logic;
 signal sma_clkfbout_buf     : std_logic;
 signal sma_clk_out1         : std_logic;
@@ -71,18 +69,6 @@ begin
     end if;
 end process ps_sma_reset_pll;
 
-
---clkin1_ibufgds : IBUFDS
-clkin1_ibufgds : IBUFGDS
-generic map (
-    DIFF_TERM  => FALSE,
-    IOSTANDARD => "LVDS_25"
-)
-    port map
-        (O  => sma_clk_in1,
-         I  => EXTCLK_P,
-         IB => EXTCLK_N
-);
 
 -- PLL Clocking PRIMITIVE
 --------------------------------------

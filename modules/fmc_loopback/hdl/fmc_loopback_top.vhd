@@ -72,6 +72,8 @@ signal FMC_CLK1_M2C         : std_logic;
 signal FREQ_VAL             : std32_array(3 downto 0);
 signal GTREFCLK             : std_logic;
 signal FMC_PRSNT_DW         : std_logic_vector(31 downto 0);
+signal MAC_LO           : std_logic_vector(31 downto 0);
+signal MAC_HI           : std_logic_vector(31 downto 0);
 signal SOFT_RESET           : std_logic;
 signal LOOP_PERIOD_WSTB     : std_logic;
 signal LOOP_PERIOD          : std_logic_vector(31 downto 0);
@@ -98,7 +100,7 @@ port map (
     clk_i       => clk_i,
     data_i(0)   => read_strobe_i,
     data_o(0)   => read_ack_o,
-    DELAY       => RD_ADDR2ACK
+    DELAY_i     => RD_ADDR2ACK
 );
 
 -- Multiplex read data out from multiple instantiations
@@ -215,6 +217,9 @@ port map (
 ---------------------------------------------------------------------------
 FMC_PRSNT_DW <= ZEROS(31) & FMC_interface.FMC_PRSNT;
 
+MAC_HI(23 downto 0) <= FMC_interface.MAC_ADDR(47 downto 24);
+MAC_LO(23 downto 0) <= FMC_interface.MAC_ADDR(23 downto 0);
+
 fmc_ctrl : entity work.fmc_loopback_ctrl
 port map (
     -- Clock and Reset
@@ -232,6 +237,8 @@ port map (
     FMC_CLK0            => FREQ_VAL(1),
     FMC_CLK1            => FREQ_VAL(2),
     EXT_CLK             => FREQ_VAL(3),
+	FMC_MAC_LO          => MAC_LO,
+    FMC_MAC_HI          => MAC_HI,
     SOFT_RESET          => open,
     SOFT_RESET_WSTB     => SOFT_RESET,
     LOOP_PERIOD         => LOOP_PERIOD,

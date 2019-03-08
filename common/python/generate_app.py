@@ -139,6 +139,7 @@ class AppGenerator(object):
             if section != ".":
                 module_name = ini_get(ini, section, 'module', section.lower())
                 block_type = ini_get(ini, section, 'block', None)
+                sfp_site = ini_get(ini, section, 'sfp_site', None)
                 if block_type:
                     ini_name = ini_get(
                         ini, section, 'ini', block_type + '.block.ini')
@@ -151,7 +152,7 @@ class AppGenerator(object):
                 block_ini = read_ini(ini_path)
                 # Type is soft if the block is a softblock and carrier
                 # for carrier block
-                block = BlockConfig(section, type, number, block_ini, module_name)
+                block = BlockConfig(section, type, number, block_ini, module_name, sfp_site)
                 block.register_addresses(self.counters)
                 self.blocks.append(block)
 

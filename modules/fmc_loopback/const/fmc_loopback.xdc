@@ -1,25 +1,25 @@
 # -------------------------------------------------------------------
 # FMC Clock Timing Constraints
 # -------------------------------------------------------------------
-create_clock -period 6.400  [get_ports GTXCLK1_P]
+#create_clock -period 6.400  [get_ports GTXCLK1_P]
 create_clock -period 6.400  [get_ports FMC_CLK0_M2C_P]
 create_clock -period 6.400  [get_ports FMC_CLK1_M2C_P]
 # External SMA clock
-create_clock -period 8.000 [get_ports EXTCLK_P]
+#create_clock -period 8.000 [get_ports EXTCLK_P]
 
 # -------------------------------------------------------------------
 # Define asynchronous clocks
 # -------------------------------------------------------------------
 set_clock_groups -asynchronous -group FMC_CLK0_M2C_P
 set_clock_groups -asynchronous -group FMC_CLK1_M2C_P
-set_clock_groups -asynchronous -group [get_clocks -filter {NAME =~ *TXOUTCLK}]
-set_clock_groups -asynchronous -group EXTCLK_P
+set_clock_groups -asynchronous -group [get_clocks -filter {NAME =~ softblocks_inst/FMC_GEN.fmc_lback_inst/*TXOUTCLK}]
+#set_clock_groups -asynchronous -group EXTCLK_P
 
 # -------------------------------------------------------------------
 # FMC MGTs - Bank 112
 # -------------------------------------------------------------------
-set_property LOC GTXE2_CHANNEL_X0Y0 \
-[get_cells softblocks_inst/FMC_GEN.fmc*_inst/fmcgtx_exdes_i/fmcgtx_support_i/fmcgtx_init_i/U0/fmcgtx_i/gt0_fmcgtx_i/gtxe2_i]
+set_property LOC $FMC_GTX_LOC \
+[get_cells softblocks_inst/FMC_GEN.fmc_lback_inst/fmcgtx_exdes_i/fmcgtx_support_i/fmcgtx_init_i/U0/fmcgtx_i/gt0_fmcgtx_i/gtxe2_i]
 
 # -------------------------------------------------------------------
 # Override Differential Pairs' IOSTANDARD

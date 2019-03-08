@@ -16,12 +16,15 @@ port (
     reset_i             : in  std_logic;
 
     -- From PS block
-    fclk_clk0_ps_i      : in  std_logic;
+    fclk_clk0_ps_i      : in  std_logic := '0';
     -- External SMA clock
-    EXTCLK_P            : in  std_logic;
-    EXTCLK_N            : in  std_logic;
     -- Clocked selected
     FCLK_CLK0_o         : out std_logic;
+
+	-- System Bus
+    sysbus_i            : in  std_logic_vector(SBUSW-1 downto 0);
+    sfp_inputs_o        : out std_logic_vector(3 downto 0) := (others=>'0');
+    sfp_data_o          : out std32_array(15 downto 0) := (others=>(others=>'0'));
 
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
@@ -32,26 +35,13 @@ port (
     write_strobe_i      : in  std_logic;
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
-    write_ack_o         : out std_logic;
+    write_ack_o         : out std_logic := '1';
 
     -- SMA PLL locked
     sma_pll_locked_o    : out std_logic;
     -- sma and event receiver clock enables
-    ext_clock_i         : in  std_logic_vector(1 downto 0);
-
-    -- Bits out
-    bit1_o              : out std_logic;
-    bit2_o              : out std_logic;
-    bit3_o              : out std_logic;
-    bit4_o              : out std_logic;
-
-    -- GTX I/O
-    GTREFCLK_N          : in  std_logic;
-    GTREFCLK_P          : in  std_logic;
-    RXN_IN              : in  std_logic_vector(2 downto 0);
-    RXP_IN              : in  std_logic_vector(2 downto 0);
-    TXN_OUT             : out std_logic_vector(2 downto 0);
-    TXP_OUT             : out std_logic_vector(2 downto 0)
+    ext_clock_i         : in  std_logic_vector(1 downto 0) := "00";
+    SFP_interface       : inout SFP_interface
 );
 end sfp_dls_eventr_top;
 
@@ -78,10 +68,6 @@ architecture rtl of sfp_dls_eventr_top is
 --
 --end component;
 
-signal rxn_i                 : std_logic;
-signal rxp_i                 : std_logic;
-signal txn_o                 : std_logic;
-signal txp_o                 : std_logic;
 signal mgt_ready_o           : std_logic;
 signal event_clk             : std_logic;
 signal rx_link_ok_o          : std_logic;
@@ -123,13 +109,11 @@ signal err_cnt               : std_logic_vector(15 downto 0);
 
 begin
 
-bit1_o <= bit1;
-bit2_o <= bit2;
-bit3_o <= bit3;
-bit4_o <= bit4;
+sfp_inputs_o(0) <= bit1;
+sfp_inputs_o(1) <= bit2;
+sfp_inputs_o(2) <= bit3;
+sfp_inputs_o(3) <= bit4;
 
--- Acknowledgement to AXI Lite interface
-write_ack_o <= '1';
 
 read_ack_delay : entity work.delay_line
 generic map (DW => 1)
@@ -137,21 +121,8 @@ port map (
     clk_i       => clk_i,
     data_i(0)   => read_strobe_i,
     data_o(0)   => read_ack_o,
-    DELAY       => RD_ADDR2ACK
+    DELAY_i     => RD_ADDR2ACK
 );
-
-
--- MGT RX
-rxn_i <= RXN_IN(0);
-rxp_i <= RXP_IN(0);
-
--- MGT TX
-TXN_OUT(0) <= txn_o;
-TXP_OUT(0) <= txp_o;
-
--- Unused MGT TX's
-TXN_OUT(1 downto 2) <= (others => '0');
-TXP_OUT(1 downto 2) <= (others => '0');
 
 -- Event Receiver clock buffer
 rxoutclk_bufg : BUFG
@@ -166,8 +137,7 @@ generic map (no_ibufg    => 0)
 
 port map(
     fclk_clk0_ps_i      => fclk_clk0_ps_i,
-    EXTCLK_P            => EXTCLK_P,
-    EXTCLK_N            => EXTCLK_N,
+    sma_clk_in1            => SFP_interface.EXTCLK,
     rxoutclk_i          => rxoutclk,
     ext_clock_i         => ext_clock_i,
     sma_pll_locked_o    => sma_pll_locked_o,
@@ -219,14 +189,13 @@ port map(
 
 sfpgtx_event_receiver_inst: entity work.sfp_event_receiver
 port map(
-    GTREFCLK_P         => GTREFCLK_P,
-    GTREFCLK_N         => GTREFCLK_N,
+    GTREFCLK         => SFP_interface.GTREFCLK,
     event_reset_i      => EVENT_RESET,
     event_clk_i        => event_clk,
-    rxp_i              => rxp_i,
-    rxn_i              => rxn_i,
-    txp_o              => txp_o,
-    txn_o              => txn_o,
+    rxp_i              => SFP_interface.RXP_IN,
+    rxn_i              => SFP_interface.RXN_IN,
+    txp_o              => SFP_interface.TXP_OUT,
+    txn_o              => SFP_interface.TXN_OUT,
     rx_link_ok_i       => rx_link_ok_o,
     rxbyteisaligned_o  => rxbyteisaligned_o,
     rxbyterealign_o    => rxbyterealign_o,
