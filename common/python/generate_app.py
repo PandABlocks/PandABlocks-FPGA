@@ -121,7 +121,7 @@ class AppGenerator(object):
                 # Type is soft if the block is a softblock and carrier
                 # for carrier block
                 block = BlockConfig(
-                    section, type, number, block_ini, module_name)
+                    section, type, number, block_ini, module_name, sfp_site)
                 block.register_addresses(self.counters)
                 self.blocks.append(block)
 
