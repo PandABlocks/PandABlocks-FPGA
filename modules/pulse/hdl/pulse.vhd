@@ -23,10 +23,20 @@ port (
     -- Block Parameters
     TRIG_EDGE           : in  std_logic_vector(31 downto 0) := (others => '0');
     TRIG_EDGE_WSTB      : in  std_logic;
-    DELAY               : in  std_logic_vector(47 downto 0);
-    DELAY_WSTB          : in  std_logic;
-    WIDTH               : in  std_logic_vector(47 downto 0);
-    WIDTH_WSTB          : in  std_logic;
+    DELAY_L             : in  std_logic_vector(31 downto 0);
+    DELAY_L_WSTB        : in  std_logic;
+    DELAY_H             : in  std_logic_vector(31 downto 0);
+    DELAY_H_WSTB        : in  std_logic;
+    WIDTH_L             : in  std_logic_vector(31 downto 0);
+    WIDTH_L_WSTB        : in  std_logic;
+    WIDTH_H             : in  std_logic_vector(31 downto 0);
+    WIDTH_H_WSTB        : in  std_logic;
+    PULSES              : in  std_logic_vector(31 downto 0) := (others => '0');
+    PULSES_WSTB         : in  std_logic;
+    STEP_L              : in  std_logic_vector(31 downto 0);
+    STEP_L_WSTB         : in  std_logic;
+    STEP_H              : in  std_logic_vector(31 downto 0);
+    STEP_H_WSTB         : in  std_logic;
     -- Block Status
     QUEUED              : out std_logic_vector(31 downto 0);
     DROPPED             : out std_logic_vector(31 downto 0)
@@ -58,6 +68,13 @@ constant c_sec_pulse            : unsigned(2 downto 0) := "100";
 
 constant c_delay_one            : unsigned(1 downto 0) := "01";
 constant c_delay_zero           : unsigned(1 downto 0) := "00";
+
+signal DELAY            : std_logic_vector(47 downto 0);
+signal DELAY_wstb       : std_logic;
+signal WIDTH            : std_logic_vector(47 downto 0);
+signal WIDTH_wstb       : std_logic;
+signal STEP             : std_logic_vector(47 downto 0);
+signal STEP_wstb        : std_logic;
 
 signal pulse_queued_wstb        : std_logic;
 signal pulse_queued_rstb        : std_logic;
@@ -117,6 +134,17 @@ signal pos_neg_act_err          : std_logic;
 
 
 begin
+
+-- Take 48-bit time as combination of two
+DELAY_WSTB <= DELAY_L_WSTB or DELAY_H_WSTB;
+DELAY(31 downto 0) <= DELAY_L;
+DELAY(47 downto 32) <= DELAY_H(15 downto 0);
+WIDTH_WSTB <= WIDTH_L_WSTB or WIDTH_H_WSTB;
+WIDTH(31 downto 0) <= WIDTH_L;
+WIDTH(47 downto 32) <= WIDTH_H(15 downto 0);
+STEP_WSTB <= STEP_L_WSTB or STEP_H_WSTB;
+STEP(31 downto 0) <= STEP_L;
+STEP(47 downto 32) <= STEP_H(15 downto 0);
 
 
 -- DELAY        WDITH       Condtion        Action      trig to start of positive pulse   trig to start of negative pulse

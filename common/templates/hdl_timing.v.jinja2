@@ -18,9 +18,6 @@ reg         {{ field.name }};
 	    {% for register in field.numbered_registers() %}
 reg  [31:0] {{ register.name }};
 	    {% endfor %}
-	    {% if field.type == "time" %}
-wire [47:0] {{ field.name }};
-	    {% endif %}
 	{% endif %}
 {% endfor %}
 
@@ -49,9 +46,6 @@ reg         {{ field.name }}_err;   //Error signal
         {% for register in field.numbered_registers() %}
 reg         {{ register.name }}_wstb;
         {% endfor %}
-        {% if field.type == "time" %}
-wire        {{ field.name }}_wstb;
-        {% endif %}
     {% endif %}
 {% endfor %}
 
@@ -180,12 +174,6 @@ begin
     end
 end
 
-{% for field in block.fields %}
-    {% if field.type == "time" %}
-assign {{field.name}} = { {{field.name}}_H, {{field.name}}_L};
-assign {{field.name}}_wstb = {{field.name}}_H_wstb || {{field.name}}_L_wstb;
-    {% endif %}
-{% endfor %}
 // Instantiate the Unit Under Test (UUT)
 {{block.entity}} uut (
 
@@ -198,11 +186,6 @@ assign {{field.name}}_wstb = {{field.name}}_H_wstb || {{field.name}}_L_wstb;
         .{{ pad(field.name + "_i") }}  ({{ field.name }}),
         {% if field.wstb %}
         .{{ pad(field.name + "_wstb")}}  ({{ field.name }}_wstb),
-        {% endif %}
-    {% elif field.type == "time" %}
-        .{{ pad(field.name) }}  ({{ field.name }}),
-        {% if field.wstb %}
-        .{{ pad(field.name + "_wstb") }}  ({{ field.name }}_wstb),
         {% endif %}
     {% else %}
         {% for register in field.numbered_registers() %}

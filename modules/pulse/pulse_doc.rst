@@ -116,3 +116,20 @@ must occur while Enable is high to trigger a pulse creation
    :path: modules/pulse/pulse.timing.ini
    :section: No pulses if disabled
 
+Multiple pulses
+---------------
+
+The block can also produce multiple pulses for each trigger. If Pulses > 1 then
+it produces the first pulse in the same manner as before, then goes on to queue
+subsequent pulses using the Step parameter to determine the period of the
+pulse train. If the period between triggers is less than the total time it
+takes to output the pulse train, the pulse is dropped.
+
+.. timing_plot::
+   :path: modules/pulse/pulse.timing.ini
+   :section: Multiple pulses with no delay
+
+.. timing_plot::
+   :path: modules/pulse/pulse.timing.ini
+   :section: Multiple pulses with no width
+
