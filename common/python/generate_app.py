@@ -104,7 +104,7 @@ class AppGenerator(object):
                 module_name = ini_get(ini, section, 'module', section.lower())
                 block_type = ini_get(ini, section, 'block', None)
                 sfp_site = ini_get(ini, section, 'sfp_site', None)
-                assert sfp_site is None or sfp_site in range(
+                assert sfp_site is None or int(sfp_site) in range(
                     1, self.sfpsites + 1), \
                     "Block %s in sfp_site %s. Target only has %d sites" % (
                         section, sfp_site, self.sfpsites)

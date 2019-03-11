@@ -22,7 +22,7 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity fmc_24v_in_top is
+entity fmc_24v_in_wrapper is
 port (
     -- DO NOT EDIT BELOW THIS LINE ---------------------
     -- Standard FMC Block ports, do not add to or delete
@@ -32,14 +32,14 @@ port (
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_i;
     -- Outputs to BitBus from FMC
-    val1_o              : out std_logic;
-    val2_o              : out std_logic;
-    val3_o              : out std_logic;
-    val4_o              : out std_logic;
-    val5_o              : out std_logic;
-    val6_o              : out std_logic;
-    val7_o              : out std_logic;
-    val8_o              : out std_logic;
+    val1_o              : out std_logic_vector(0 downto 0);
+    val2_o              : out std_logic_vector(0 downto 0);
+    val3_o              : out std_logic_vector(0 downto 0);
+    val4_o              : out std_logic_vector(0 downto 0);
+    val5_o              : out std_logic_vector(0 downto 0);
+    val6_o              : out std_logic_vector(0 downto 0);
+    val7_o              : out std_logic_vector(0 downto 0);
+    val8_o              : out std_logic_vector(0 downto 0);
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -52,12 +52,12 @@ port (
     write_ack_o         : out std_logic;
     FMC_interface       : inout fmc_interface
 );
-end fmc_24v_in_top;
+end fmc_24v_in_wrapper;
 
-architecture rtl of fmc_24v_in_top is
+architecture rtl of fmc_24v_in_wrapper is
 
-signal FMC_CLK0_M2C     : std_logic;
-signal FMC_CLK1_M2C     : std_logic;
+--signal FMC_CLK0_M2C     : std_logic;
+--signal FMC_CLK1_M2C     : std_logic;
 signal FMC_PRSNT_DW     : std_logic_vector(31 downto 0);
 signal IN_DB            : std_logic_vector(31 downto 0);
 signal IN_FAULT         : std_logic_vector(31 downto 0);
@@ -154,14 +154,14 @@ port map (
 ---------------------------------------------------------------------------
 -- Assign outputs
 ---------------------------------------------------------------------------
-val1_o <= fmc_in(0);
-val2_o <= fmc_in(1);
-val3_o <= fmc_in(2);
-val4_o <= fmc_in(3);
-val5_o <= fmc_in(4);
-val6_o <= fmc_in(5);
-val7_o <= fmc_in(6);
-val8_o <= fmc_in(7);
+val1_o(0) <= fmc_in(0);
+val2_o(0) <= fmc_in(1);
+val3_o(0) <= fmc_in(2);
+val4_o(0) <= fmc_in(3);
+val5_o(0) <= fmc_in(4);
+val6_o(0) <= fmc_in(5);
+val7_o(0) <= fmc_in(6);
+val8_o(0) <= fmc_in(7);
 
 end rtl;
 

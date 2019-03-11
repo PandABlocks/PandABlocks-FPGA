@@ -9,7 +9,7 @@ use work.top_defines.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity sfp_dls_eventr_top is
+entity sfp_dls_eventr_wrapper is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -17,18 +17,16 @@ port (
 
     -- From PS block
     fclk_clk0_ps_i      : in  std_logic := '0';
-    -- External SMA clock
     -- Clocked selected
     FCLK_CLK0_o         : out std_logic;
     -- System Bus
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
-
-	-- System Bus
-    sysbus_i            : in  std_logic_vector(SBUSW-1 downto 0);
-    sfp_inputs_o        : out std_logic_vector(3 downto 0) := (others=>'0');
-    sfp_data_o          : out std32_array(15 downto 0) := (others=>(others=>'0'));
-
+	-- Outputs to BitBus from FMC
+    bit1_o              : out std_logic_vector(0 downto 0);
+    bit2_o              : out std_logic_vector(0 downto 0);
+    bit3_o              : out std_logic_vector(0 downto 0);
+    bit4_o              : out std_logic_vector(0 downto 0);
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -39,16 +37,15 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic := '1';
-
     -- SMA PLL locked
     sma_pll_locked_o    : out std_logic;
     -- sma and event receiver clock enables
     ext_clock_i         : in  std_logic_vector(1 downto 0) := "00";
     SFP_interface       : inout SFP_interface
 );
-end sfp_dls_eventr_top;
+end sfp_dls_eventr_wrapper;
 
-architecture rtl of sfp_dls_eventr_top is
+architecture rtl of sfp_dls_eventr_wrapper is
 
 --component ila_0
 --
@@ -112,10 +109,10 @@ signal err_cnt               : std_logic_vector(15 downto 0);
 
 begin
 
-sfp_inputs_o(0) <= bit1;
-sfp_inputs_o(1) <= bit2;
-sfp_inputs_o(2) <= bit3;
-sfp_inputs_o(3) <= bit4;
+bit1_o(0) <= bit1;
+bit2_o(0) <= bit2;
+bit3_o(0) <= bit3;
+bit4_o(0) <= bit4;
 
 
 read_ack_delay : entity work.delay_line

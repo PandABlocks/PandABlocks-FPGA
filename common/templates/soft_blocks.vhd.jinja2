@@ -90,10 +90,10 @@ port map (
         {% if dma.append(dma.pop() + 1) %}{% endif %}
     {% elif block.type == "sfp" %}
 
-    SFP_interface       => sfp{{ block.sfp_site }}
+    SFP_interface       => sfp{{ block.sfp_site }},
     {% elif block.type == "fmc" %}
 
-    FMC_interface       => FMC
+    FMC_interface       => FMC,
     {% endif %}
 
     bit_bus_i           => bit_bus_i,

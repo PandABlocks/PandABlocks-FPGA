@@ -1,15 +1,14 @@
 # -------------------------------------------------------------------
-# SFP MGTs - Bank 112
+# SFP Loopback MGT constraints
 # -------------------------------------------------------------------
 
-set_property LOC $SFP1_GTX_LOC \
-[get_cells softblocks_inst/SFP_GEN.sfp1_inst/sfpgtx_exdes_i/sfpgtx_support_i/sfpgtx_init_i/U0/sfpgtx_i/gt0_sfpgtx_i/gtxe2_i]
+set_property LOC $SFP{{ block.sfp_site }}_GTX_LOC \
+[get_cells softblocks_inst/{{ block.name }}_inst/sfpgtx_exdes_i/sfpgtx_support_i/sfpgtx_init_i/U0/sfpgtx_i/gt0_sfpgtx_i/gtxe2_i]
 
-
-# Site: {{ block.sfp_site }}
 
 # -------------------------------------------------------------------
 # Define asynchronous clocks
 # -------------------------------------------------------------------
-set_clock_groups -asynchronous -group [get_clocks -filter {NAME =~ softblocks_inst/SFP_GEN.sfp1_inst/*TXOUTCLK}]
+set_clock_groups -asynchronous -group [get_clocks \ 
+{softblocks_inst/{{ block.name }}_inst/sfpgtx_exdes_i/sfpgtx_support_i/sfpgtx_init_i/U0/sfpgtx_i/gt0_sfpgtx_i/gtxe2_i/TXOUTCLK}]
 

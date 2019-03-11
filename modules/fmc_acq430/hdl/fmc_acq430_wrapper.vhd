@@ -21,7 +21,7 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity fmc_acq430_top is
+entity fmc_acq430_wrapper is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -50,9 +50,9 @@ port (
     write_ack_o         : out std_logic;
     FMC_interface       : inout fmc_interface
 );
-end fmc_acq430_top;
+end fmc_acq430_wrapper;
 
-architecture rtl of fmc_acq430_top is
+architecture rtl of fmc_acq430_wrapper is
 
 ---------------------------------------------------------------------------------------
 -- FMC pin name translation signals.

@@ -26,7 +26,7 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity fmc_loopback_top is
+entity fmc_loopback_wrapper is
 port (
     -- DO NOT EDIT BELOW THIS LINE ---------------------
     -- Standard FMC Block ports, do not add to or delete
@@ -47,9 +47,9 @@ port (
     write_ack_o         : out std_logic;
     FMC_interface       : inout fmc_interface
 );
-end fmc_loopback_top;
+end fmc_loopback_wrapper;
 
-architecture rtl of fmc_loopback_top is
+architecture rtl of fmc_loopback_wrapper is
 
 signal probe0               : std_logic_vector(31 downto 0);
 signal clock_en             : std_logic;

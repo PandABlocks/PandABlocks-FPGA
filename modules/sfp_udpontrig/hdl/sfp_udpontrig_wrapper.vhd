@@ -20,7 +20,7 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity sfp_udpontrig_top is
+entity sfp_udpontrig_wrapper is
 generic ( DEBUG : string := "FALSE" );
 port (
     -- Clock and Reset
@@ -44,9 +44,9 @@ port (
     -- SFP Interface
     SFP_interface       : inout SFP_interface
 );
-end sfp_udpontrig_top;
+end sfp_udpontrig_wrapper;
 
-architecture rtl of sfp_udpontrig_top is
+architecture rtl of sfp_udpontrig_wrapper is
 
 component SFP_UDP_Complete
     generic (

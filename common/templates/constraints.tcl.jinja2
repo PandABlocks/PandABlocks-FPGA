@@ -19,7 +19,4 @@ read_xdc $AUTOGEN/const/{{ block.name }}_{{ os.path.basename(const) }}
     {% if block.otherconst %}
 source $TOP_DIR/modules/{{ block.entity }}/{{ block.otherconst }}
     {% endif %}
-    {% if block.sfp_site %}
-unset SFP_SITE
-    {% endif %}
 {% endfor %}

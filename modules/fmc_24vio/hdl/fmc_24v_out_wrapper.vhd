@@ -22,7 +22,7 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity fmc_24v_out_top is
+entity fmc_24v_out_wrapper is
 port (
     -- DO NOT EDIT BELOW THIS LINE ---------------------
     -- Standard FMC Block ports, do not add to or delete
@@ -43,12 +43,12 @@ port (
     write_ack_o         : out std_logic;
     FMC_interface       : inout fmc_interface
 );
-end fmc_24v_out_top;
+end fmc_24v_out_wrapper;
 
-architecture rtl of fmc_24v_out_top is
+architecture rtl of fmc_24v_out_wrapper is
 
-signal FMC_CLK0_M2C     : std_logic;
-signal FMC_CLK1_M2C     : std_logic;
+--signal FMC_CLK0_M2C     : std_logic;
+--signal FMC_CLK1_M2C     : std_logic;
 signal FMC_PRSNT_DW     : std_logic_vector(31 downto 0);
 signal OUT_PWR_ON       : std_logic_vector(31 downto 0);
 signal OUT_PUSHPL       : std_logic_vector(31 downto 0);
