@@ -143,7 +143,7 @@ BITIN1_o <= BITIN(0);
 BUFGMUX_RX_inst :BUFGMUX
     port map (
         O   => rxoutclk_i,
-        I0  => rxoutclk,
+        I0  => rxoutclk_o,
         I1  => clk_i,
         S   => ext_clock_i(1) 
 );
@@ -152,25 +152,25 @@ BUFGMUX_RX_inst :BUFGMUX
 BUFGMUX_TX_inst :BUFGMUX
     port map (
         O   => txoutclk_i,
-        I0  => txoutclk,
+        I0  => txoutclk_o,
         I1  => clk_i,
         S   => ext_clock_i(1)
 );
 
 
 -- Receiver clock
-rxoutclk_bufg : BUFG
-port map(
-    O => rxoutclk,
-    I => rxoutclk_o
-);
+--rxoutclk_bufg : BUFG
+--port map(
+--    O => rxoutclk,
+--    I => rxoutclk_o
+--);
 
 -- Transmitter clock
-txoutclk_bufg : BUFG
-port map(
-    O => txoutclk,
-    I => rxoutclk_o
-);
+--txoutclk_bufg : BUFG
+--port map(
+--    O => txoutclk,
+--    I => txoutclk_o
+--)-;
 
 
 -- Must be driven high when the txusrclk and rxusrclk are valid
