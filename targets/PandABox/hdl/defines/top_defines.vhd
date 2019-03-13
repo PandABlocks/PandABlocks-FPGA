@@ -85,7 +85,6 @@ type FMC_interface is
 
 type SFP_interface is
   record
-	EXTCLK		: std_logic;
     SFP_LOS     : std_logic;
     GTREFCLK    : std_logic;
     RXN_IN      : std_logic;
@@ -95,6 +94,7 @@ type SFP_interface is
     MAC_ADDR    : std_logic_vector(47 downto 0);
     MAC_ADDR_WS : std_logic;
 	EVR_REC_CLK : std_logic;
+    LINK_UP     : std_logic;
   end record SFP_interface;
 
 type seq_t is

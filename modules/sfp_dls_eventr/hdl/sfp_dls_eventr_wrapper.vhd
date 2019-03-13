@@ -14,11 +14,6 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
-
-    -- From PS block
-    fclk_clk0_ps_i      : in  std_logic := '0';
-    -- Clocked selected
-    FCLK_CLK0_o         : out std_logic;
     -- System Bus
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
@@ -37,10 +32,7 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic := '1';
-    -- SMA PLL locked
-    sma_pll_locked_o    : out std_logic;
-    -- sma and event receiver clock enables
-    ext_clock_i         : in  std_logic_vector(1 downto 0) := "00";
+
     SFP_interface       : inout SFP_interface
 );
 end sfp_dls_eventr_wrapper;
@@ -109,6 +101,11 @@ signal err_cnt               : std_logic_vector(15 downto 0);
 
 begin
 
+-- Assign outputs
+
+SFP_interface.EVR_REC_CLK <= rxoutclk;
+SFP_interface.LINK_UP <= LINKUP(0);
+
 bit1_o(0) <= bit1;
 bit2_o(0) <= bit2;
 bit3_o(0) <= bit3;
@@ -130,20 +127,6 @@ port map(
     O => event_clk,
     I => rxoutclk
 );
-
-
-sfp_mmcm_clkmux_inst: entity work.sfp_mmcm_clkmux
-generic map (no_ibufg    => 0)
-
-port map(
-    fclk_clk0_ps_i      => fclk_clk0_ps_i,
-    sma_clk_in1            => SFP_interface.EXTCLK,
-    rxoutclk_i          => rxoutclk,
-    ext_clock_i         => ext_clock_i,
-    sma_pll_locked_o    => sma_pll_locked_o,
-    fclk_clk0_o         => fclk_clk0_o
-);
-
 
 sfp_transmitter_inst: entity work.sfp_transmitter
 port map(

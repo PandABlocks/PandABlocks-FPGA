@@ -243,7 +243,8 @@ signal FMC_MAC_ADDR_ARR     : std32_array(2*NUM_FMC-1 downto 0);
 -- FMC Block
 signal FMC : FMC_interface;
 -- SFP Block
-signal SFP1 : SFP_interface;
+signal SFP1 : SFP_interface := ( SFP_LOS => '0', GTREFCLK => '0', RXN_IN => '0', RXP_IN => '0', TXN_OUT => '0',
+    TXP_OUT => '0', MAC_ADDR => (others => '0'), MAC_ADDR_WS => '0',EVR_REC_CLK => '0', LINK_UP => '0');
 signal SFP2 : SFP_interface;
 signal SFP3 : SFP_interface;
 
@@ -255,7 +256,8 @@ signal EXTCLK : std_logic;
 
 
 signal sma_pll_locked       : std_logic;
-signal ext_clock            : std_logic_vector(1 downto 0);
+signal clk_src_sel          : std_logic_vector(1 downto 0);
+signal clk_sel_stat         : std_logic_vector(1 downto 0);
 
 signal slow_tlp   : slow_packet;
 
@@ -288,7 +290,7 @@ port map (
     port map
     (
         O               =>      q0_clk0_gtrefclk,
-        ODIV2           =>    open,
+        ODIV2           =>      open,
         CEB             =>      '0',
         I               =>      GTXCLK0_P,
         IB              =>      GTXCLK0_N
@@ -299,11 +301,23 @@ port map (
     port map
     (
         O               =>      q0_clk1_gtrefclk,
-        ODIV2           =>  open,
+        ODIV2           =>      open,
         CEB             =>      '0',
         I               =>      GTXCLK1_P,
         IB              =>      GTXCLK1_N
     );
+
+mmcm_clkmux_inst: entity work.mmcm_clkmux
+port map(
+    fclk_clk0_ps_i      => FCLK_CLK0_PS,
+    sma_clk_in1         => EXTCLK,
+    rxoutclk_i          => SFP1.EVR_REC_CLK,
+    ext_clock_i         => clk_src_sel,
+    linkup_i             => SFP1.LINK_UP,
+    sma_pll_locked_o    => sma_pll_locked,
+    clk_sel_stat_o        => clk_sel_stat,
+    fclk_clk0_o         => FCLK_CLK0
+);
 
 
 ---------------------------------------------------------------------------
@@ -311,7 +325,8 @@ port map (
 ---------------------------------------------------------------------------
 ps : entity work.panda_ps
 port map (
-    FCLK_CLK0                   => FCLK_CLK0,
+    FCLK_CLK0                   => FCLK_CLK0_PS,
+    PL_CLK                      => FCLK_CLK0,
     FCLK_RESET0_N               => FCLK_RESET0_N,
 
     DDR_addr(14 downto 0)       => DDR_addr(14 downto 0),
@@ -732,10 +747,11 @@ port map (
     spi_dat_o           => SPI_DAT_O,
     spi_sclk_i          => SPI_SCLK_I,
     spi_dat_i           => SPI_DAT_I,
-    slow_tlp_i          => slow_tlp
+    slow_tlp_i          => slow_tlp,
     -- External clock
---    sma_pll_locked_i    => sma_pll_locked,
---    ext_clock_o         => ext_clock
+    sma_pll_locked_i    => sma_pll_locked,
+    ext_clock_o         => clk_src_sel,
+    clk_sel_stat_i        => clk_sel_stat
 );
 
 ---------------------------------------------------------------------------
@@ -798,7 +814,6 @@ FMC.MAC_ADDR_WS <= '0';
 
 -- Assemble SFP records
 -- NB: SFPs 1 and 3 are switched around to mirror front panel connections
-SFP1.EXTCLK <= EXTCLK;
 SFP1.SFP_LOS <= '0';  -- NB: Hard-coded to '0' as not brought out onto pin!
 SFP1.GTREFCLK <= q0_clk0_gtrefclk;
 SFP1.RXN_IN <= SFP_RX_N(2);
@@ -809,7 +824,6 @@ SFP_TX_P(2) <= SFP1.TXP_OUT;
 SFP1.MAC_ADDR <= SFP_MAC_ADDR_ARR(1)(23 downto 0) & SFP_MAC_ADDR_ARR(0)(23 downto 0);
 SFP1.MAC_ADDR_WS <= '0';
 
-SFP2.EXTCLK <= EXTCLK;
 SFP2.SFP_LOS <= SFP_LOS(1);
 SFP2.GTREFCLK <= q0_clk0_gtrefclk;
 SFP2.RXN_IN <= SFP_RX_N(1);
@@ -820,7 +834,6 @@ SFP_TX_P(1) <= SFP2.TXP_OUT;
 SFP2.MAC_ADDR <= SFP_MAC_ADDR_ARR(3)(23 downto 0) & SFP_MAC_ADDR_ARR(2)(23 downto 0);
 SFP2.MAC_ADDR_WS <= '0';
 
-SFP3.EXTCLK <= EXTCLK;
 SFP3.SFP_LOS <= SFP_LOS(0);
 SFP3.GTREFCLK <= q0_clk0_gtrefclk;
 SFP3.RXN_IN <= SFP_RX_N(0);
