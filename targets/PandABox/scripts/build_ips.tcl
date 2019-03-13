@@ -317,6 +317,11 @@ create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \
 -module_name sfp_panda_sync -dir $BUILD_DIR/
 
 set_property -dict [list \
+CONFIG.identical_val_tx_line_rate {5}                   \
+CONFIG.gt0_val_txoutclk_source {false}                  \
+CONFIG.identical_val_rx_line_rate {5}                   \
+CONFIG.gt0_val_cpll_rxout_div {1}                       \
+CONFIG.gt0_val_cpll_txout_div {1}                       \
 CONFIG.gt0_val {false}                                  \
 CONFIG.gt1_val {true}                                   \
 CONFIG.gt0_val_dec_valid_comma_only {true}              \
