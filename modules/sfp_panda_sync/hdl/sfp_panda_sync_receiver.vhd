@@ -32,7 +32,7 @@ type t_STATE_DATA is (STATE_BITS_DATA, STATE_POSOUT1, STATE_POSOUT2, STATE_POSOU
 type t_rxdata_pos is array(0 to 3) of std_logic_vector(31 downto 0);
 type t_rxdata_bit is array(0 to 3) of std_logic_vector(15 downto 0);
 
-constant c_kchar_byte_en    : std_logic_vector(3 downto 0) := "0001"
+constant c_kchar_byte_en    : std_logic_vector(3 downto 0) := "0001";
 constant c_zeros            : std_logic_vector(3 downto 0) := "0000";
 constant c_k28_0            : std_logic_vector(7 downto 0) := x"1C";
 constant c_MGT_RX_PRESCALE  : unsigned(9 downto 0) := to_unsigned(1023,10);
