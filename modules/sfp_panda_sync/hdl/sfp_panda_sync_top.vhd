@@ -158,21 +158,6 @@ BUFGMUX_TX_inst :BUFGMUX
 );
 
 
--- Receiver clock
---rxoutclk_bufg : BUFG
---port map(
---    O => rxoutclk,
---    I => rxoutclk_o
---);
-
--- Transmitter clock
---txoutclk_bufg : BUFG
---port map(
---    O => txoutclk,
---    I => txoutclk_o
---)-;
-
-
 -- Must be driven high when the txusrclk and rxusrclk are valid
 --rxuserrdy_i <= not SYNC_RESET;
 --txuserrdy_i <= not SYNC_RESET; 
