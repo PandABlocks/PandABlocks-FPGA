@@ -8,8 +8,7 @@ use unisim.vcomponents.all;
 
 entity sfp_panda_sync_mgt_interface is
 
-    port (GTREFCLK_P        : in  std_logic;
-          GTREFCLK_N        : in  std_logic;
+    port (GTREFCLK          : in  std_logic;
           SYNC_RESET_i      : in  std_logic;
           clk_i             : in  std_logic;
           rxoutclk_i        : in  std_logic;
@@ -157,28 +156,8 @@ signal gt0_rxresetdone_out           : std_logic;
 signal gt0_txoutclkfabric_out        : std_logic;
 signal gt0_txoutclkpcs_out           : std_logic;
 signal gt0_txresetdone_out           : std_logic;
-signal tied_to_ground_i              : std_logic;
-
-attribute syn_noclockbuf             : boolean;
-signal GTREFCLK                      : std_logic;
-attribute syn_noclockbuf of GTREFCLK : signal is true;
-
 
 begin
-
-
-tied_to_ground_i <= '0';
-
--- IBUFDS_GTE2  MGT differential clock
-gtrefclk_ibufgds : IBUFDS_GTE2
-    port map
-        (O     => GTREFCLK,
-         ODIV2 => open,
-         CEB   => tied_to_ground_i,
-         I     => GTREFCLK_P,
-         IB    => GTREFCLK_N
-);
-
 
 -- Indicates when the link is up when the rx and tx reset have finished
 ps_linkup: process(clk_i)

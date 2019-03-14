@@ -9,42 +9,33 @@ library unisim;
 use unisim.vcomponents.all;
 
 
-entity sfp_panda_sync_top is
+entity sfp_panda_sync_wrapper is
     port (        
         clk_i            : in  std_logic;
         reset_i          : in  std_logic;
-        bit_bus_i        : in  sysbus_t;
-        pos_bus_i        : in  posbus_t;
-        GTREFCLK_P       : in  std_logic;
-        GTREFCLK_N       : in  std_logic;
-        -- MGT Rx Tx
-        rxp_i            : in  std_logic;
-        rxn_i            : in  std_logic;
-        txp_o            : out std_logic;
-        txn_o            : out std_logic;
-        --
-        ext_clock_i      : in  std_logic_vector(1 downto 0);
+        bit_bus_i        : in  bit_bus_t;
+        pos_bus_i        : in  pos_bus_t;
         -- Data Out
-        BITIN1_o         : out std_logic;
-        BITIN2_o         : out std_logic;
-        BITIN3_o         : out std_logic;
-        BITIN4_o         : out std_logic;
-        BITIN5_o         : out std_logic;
-        BITIN6_o         : out std_logic;
-        BITIN7_o         : out std_logic;
-        BITIN8_o         : out std_logic;
-        BITIN9_o         : out std_logic;
-        BITIN10_o        : out std_logic;
-        BITIN11_o        : out std_logic;
-        BITIN12_o        : out std_logic;
-        BITIN13_o        : out std_logic;
-        BITIN14_o        : out std_logic;
-        BITIN15_o        : out std_logic;
-        BITIN16_o        : out std_logic;
-        POSIN1_o         : out std_logic_vector(31 downto 0);
-        POSIN2_o         : out std_logic_vector(31 downto 0);
-        POSIN3_o         : out std_logic_vector(31 downto 0);
-        POSIN4_o         : out std_logic_vector(31 downto 0);
+        BITIN1_o         : out std_logic_vector(0 downto 0);
+        BITIN2_o         : out std_logic_vector(0 downto 0);
+        BITIN3_o         : out std_logic_vector(0 downto 0);
+        BITIN4_o         : out std_logic_vector(0 downto 0);
+        BITIN5_o         : out std_logic_vector(0 downto 0);
+        BITIN6_o         : out std_logic_vector(0 downto 0);
+        BITIN7_o         : out std_logic_vector(0 downto 0);
+        BITIN8_o         : out std_logic_vector(0 downto 0);
+        BITIN9_o         : out std_logic_vector(0 downto 0);
+        BITIN10_o        : out std_logic_vector(0 downto 0);
+        BITIN11_o        : out std_logic_vector(0 downto 0);
+        BITIN12_o        : out std_logic_vector(0 downto 0);
+        BITIN13_o        : out std_logic_vector(0 downto 0);
+        BITIN14_o        : out std_logic_vector(0 downto 0);
+        BITIN15_o        : out std_logic_vector(0 downto 0);
+        BITIN16_o        : out std_logic_vector(0 downto 0);
+        POSIN1_o         : out std32_array(0 downto 0);
+        POSIN2_o         : out std32_array(0 downto 0);
+        POSIN3_o         : out std32_array(0 downto 0);
+        POSIN4_o         : out std32_array(0 downto 0);
         -- Memory Bus Interface
         -- Read 
         read_strobe_i    : in  std_logic;
@@ -55,13 +46,15 @@ entity sfp_panda_sync_top is
         write_strobe_i   : in  std_logic;
         write_address_i  : in  std_logic_vector(PAGE_AW-1 downto 0);
         write_data_i     : in  std_logic_vector(31 downto 0);
-        write_ack_o      : out std_logic
+        write_ack_o      : out std_logic;
+
+        SFP_interface       : inout SFP_interface
 
         );
-end sfp_panda_sync_top;
+end sfp_panda_sync_wrapper;
 
 
-architecture rtl of sfp_panda_sync_top is
+architecture rtl of sfp_panda_sync_wrapper is
 
 signal rxuserrdy_i        : std_logic;
 signal txuserrdy_i        : std_logic;    
@@ -112,8 +105,7 @@ signal POSOUT3            : std_logic_vector(31 downto 0);
 signal POSOUT4            : std_logic_vector(31 downto 0);
 signal BITOUT             : std_logic_vector(15 downto 0);  
 signal LINKUP             : std_logic_vector(31 downto 0);   
-signal SYNC_RESET         : std_logic;        
-  
+signal SYNC_RESET         : std_logic;  
 
 begin
 
@@ -121,42 +113,53 @@ read_ack_o <= '1';
 write_ack_o <= '1';
 
 
-BITIN16_o <= BITIN(15);
-BITIN15_o <= BITIN(14);
-BITIN14_o <= BITIN(13);
-BITIN13_o <= BITIN(12);
-BITIN12_o <= BITIN(11);
-BITIN11_o <= BITIN(10);
-BITIN10_o <= BITIN(9);
-BITIN9_o <= BITIN(8);
-BITIN8_o <= BITIN(7);
-BITIN7_o <= BITIN(6);
-BITIN6_o <= BITIN(5);
-BITIN5_o <= BITIN(4);
-BITIN4_o <= BITIN(3);
-BITIN3_o <= BITIN(2);
-BITIN2_o <= BITIN(1);
-BITIN1_o <= BITIN(0);
+BITIN16_o(0) <= BITIN(15);
+BITIN15_o(0) <= BITIN(14);
+BITIN14_o(0) <= BITIN(13);
+BITIN13_o(0) <= BITIN(12);
+BITIN12_o(0) <= BITIN(11);
+BITIN11_o(0) <= BITIN(10);
+BITIN10_o(0) <= BITIN(9);
+BITIN9_o(0) <= BITIN(8);
+BITIN8_o(0) <= BITIN(7);
+BITIN7_o(0) <= BITIN(6);
+BITIN6_o(0) <= BITIN(5);
+BITIN5_o(0) <= BITIN(4);
+BITIN4_o(0) <= BITIN(3);
+BITIN3_o(0) <= BITIN(2);
+BITIN2_o(0) <= BITIN(1);
+BITIN1_o(0) <= BITIN(0);
   
 
 
-BUFGMUX_RX_inst :BUFGMUX
-    port map (
-        O   => rxoutclk_i,
-        I0  => rxoutclk_o,
-        I1  => clk_i,
-        S   => ext_clock_i(1) 
+--BUFGMUX_RX_inst :BUFGMUX
+--    port map (
+--        O   => rxoutclk_i,
+--        I0  => rxoutclk_o,
+--        I1  => clk_i,
+--        S   => SFP_interface.MGT_CLK_SEL
+--);
+
+
+--BUFGMUX_TX_inst :BUFGMUX
+--    port map (
+--        O   => txoutclk_i,
+--        I0  => txoutclk_o,
+--        I1  => clk_i,
+--        S   => SFP_interface.MGT_CLK_SEL
+--);
+
+rxoutclk_bufg : BUFG
+port map(
+    O => rxoutclk_i,
+    I => rxoutclk_o
 );
 
-
-BUFGMUX_TX_inst :BUFGMUX
-    port map (
-        O   => txoutclk_i,
-        I0  => txoutclk_o,
-        I1  => clk_i,
-        S   => ext_clock_i(1)
+txoutclk_bufg : BUFG
+port map(
+    O => txoutclk_i,
+    I => txoutclk_o
 );
-
 
 -- Must be driven high when the txusrclk and rxusrclk are valid
 --rxuserrdy_i <= not SYNC_RESET;
@@ -202,10 +205,10 @@ sfp_panda_sync_receiver_inst : entity work.sfp_panda_sync_receiver
         loss_lock_o       => loss_lock_o,
         rx_error_o        => rx_error_o,
         BITIN_o           => BITIN,   
-        POSIN1_o          => POSIN1_o,
-        POSIN2_o          => POSIN2_o,
-        POSIN3_o          => POSIN3_o,
-        POSIN4_o          => POSIN4_o
+        POSIN1_o          => POSIN1_o(0),
+        POSIN2_o          => POSIN2_o(0),
+        POSIN3_o          => POSIN3_o(0),
+        POSIN4_o          => POSIN4_o(0)
         );
 
 
@@ -214,16 +217,15 @@ sfp_panda_sync_receiver_inst : entity work.sfp_panda_sync_receiver
 sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface 
 
     port map(
-        GTREFCLK_P        => GTREFCLK_P,        
-        GTREFCLK_N        => GTREFCLK_N,        
+        GTREFCLK          => SFP_interface.GTREFCLK,        
         SYNC_RESET_i      => SYNC_RESET,       
         clk_i             => clk_i, 
         rxoutclk_i        => rxoutclk_i,
         txoutclk_i        => txoutclk_i,          
-        rxp_i             => rxp_i,             
-        rxn_i             => rxn_i,             
-        txp_o             => txp_o,             
-        txn_o             => txn_o,             
+        rxp_i             => SFP_interface.RXP_IN,             
+        rxn_i             => SFP_interface.RXN_IN,             
+        txp_o             => SFP_interface.TXP_OUT,             
+        txn_o             => SFP_interface.TXN_OUT,             
         rxuserrdy_i       => rxuserrdy_i,
         txuserrdy_i       => txuserrdy_i,        
         rxbyteisaligned_o => rxbyteisaligned_o, 

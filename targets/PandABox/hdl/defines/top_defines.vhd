@@ -95,6 +95,7 @@ type SFP_interface is
     MAC_ADDR_WS : std_logic;
 	EVR_REC_CLK : std_logic;
     LINK_UP     : std_logic;
+    MGT_CLK_SEL : std_logic;
   end record SFP_interface;
 
 type seq_t is
