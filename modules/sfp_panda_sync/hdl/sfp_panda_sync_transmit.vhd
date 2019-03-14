@@ -44,11 +44,6 @@ signal input_done          : std_logic;
 signal output_ready        : std_logic;  
 signal buf_to_use          : std_logic;
 signal buf                 : std_logic;  
-
-signal bit1                : std_logic_vector(31 downto 0);
-signal bit2                : std_logic_vector(31 downto 0);
-signal BIT_BUF1            : std_logic_vector(31 downto 0);
-signal BIT_BUF2            : std_logic_vector(31 downto 0); 
 signal data_stored         : std_logic_vector(15 downto 0); 
 
 -- Metastable signals
@@ -61,7 +56,6 @@ signal rx_link_ok1_meta2   : std_logic;
 signal rx_link_ok2_meta1   : std_logic;
 signal rx_link_ok2_meta2   : std_logic;
 
-
 attribute ASYNC_REG : string;
 attribute ASYNC_REG of output_ready_meta1 : signal is "TRUE";
 attribute ASYNC_REG of output_ready_meta2 : signal is "TRUE";
@@ -71,7 +65,6 @@ attribute ASYNC_REG of rx_link_ok1_meta1  : signal is "TRUE";
 attribute ASYNC_REG of rx_link_ok1_meta2  : signal is "TRUE";
 attribute ASYNC_REG of rx_link_ok2_meta1  : signal is "TRUE";
 attribute ASYNC_REG of rx_link_ok2_meta2  : signal is "TRUE";
-  
 
 
 begin
