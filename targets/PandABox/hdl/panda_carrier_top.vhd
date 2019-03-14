@@ -190,8 +190,8 @@ signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
                                                                        => '1');
 
 -- Top Level Signals
-signal bit_bus              : sysbus_t := (others => '0');
-signal posbus               : posbus_t := (others => (others => '0'));
+signal bit_bus              : bit_bus_t := (others => '0');
+signal pos_bus              : pos_bus_t := (others => (others => '0'));
 -- Daughter card control signals
 
 -- Input Encoder
@@ -243,7 +243,8 @@ signal FMC_MAC_ADDR_ARR     : std32_array(2*NUM_FMC-1 downto 0);
 -- FMC Block
 signal FMC : FMC_interface;
 -- SFP Block
-signal SFP1 : SFP_interface;
+signal SFP1 : SFP_interface := ( SFP_LOS => '0', GTREFCLK => '0', RXN_IN => '0', RXP_IN => '0', TXN_OUT => '0',
+    TXP_OUT => '0', MAC_ADDR => (others => '0'), MAC_ADDR_WS => '0',EVR_REC_CLK => '0', LINK_UP => '0', MGT_CLK_SEL => '0');
 signal SFP2 : SFP_interface;
 signal SFP3 : SFP_interface;
 
@@ -251,17 +252,19 @@ signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
 attribute syn_noclockbuf : boolean;
 attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
+signal EXTCLK : std_logic;
 
 
 signal sma_pll_locked       : std_logic;
-signal ext_clock            : std_logic_vector(1 downto 0);
+signal clk_src_sel          : std_logic_vector(1 downto 0);
+signal clk_sel_stat         : std_logic_vector(1 downto 0);
 
 signal slow_tlp   : slow_packet;
 
 -- Make schematics a bit more clear for analysis
 --attribute keep              : string; -- GBC removed following three lines 14/09/18
---attribute keep of sysbus    : signal is "true";
---attribute keep of posbus    : signal is "true";
+--attribute keep of bit_bus    : signal is "true";
+--attribute keep of pos_bus    : signal is "true";
 
 begin
 
@@ -277,7 +280,7 @@ generic map (
     IOSTANDARD  => "LVDS_25"
 )
 port map (
-    O           => FMC.EXTCLK,
+    O           => EXTCLK,
     I           => EXTCLK_P,
     IB          => EXTCLK_N
 );
@@ -287,7 +290,7 @@ port map (
     port map
     (
         O               =>      q0_clk0_gtrefclk,
-        ODIV2           =>    open,
+        ODIV2           =>      open,
         CEB             =>      '0',
         I               =>      GTXCLK0_P,
         IB              =>      GTXCLK0_N
@@ -298,11 +301,23 @@ port map (
     port map
     (
         O               =>      q0_clk1_gtrefclk,
-        ODIV2           =>  open,
+        ODIV2           =>      open,
         CEB             =>      '0',
         I               =>      GTXCLK1_P,
         IB              =>      GTXCLK1_N
     );
+
+mmcm_clkmux_inst: entity work.mmcm_clkmux
+port map(
+    fclk_clk0_ps_i      => FCLK_CLK0_PS,
+    sma_clk_in1         => EXTCLK,
+    rxoutclk_i          => SFP1.EVR_REC_CLK,
+    ext_clock_i         => clk_src_sel,
+    linkup_i             => SFP1.LINK_UP,
+    sma_pll_locked_o    => sma_pll_locked,
+    clk_sel_stat_o        => clk_sel_stat,
+    fclk_clk0_o         => FCLK_CLK0
+);
 
 
 ---------------------------------------------------------------------------
@@ -310,7 +325,8 @@ port map (
 ---------------------------------------------------------------------------
 ps : entity work.panda_ps
 port map (
-    FCLK_CLK0                   => FCLK_CLK0,
+    FCLK_CLK0                   => FCLK_CLK0_PS,
+    PL_CLK                      => FCLK_CLK0,
     FCLK_RESET0_N               => FCLK_RESET0_N,
 
     DDR_addr(14 downto 0)       => DDR_addr(14 downto 0),
@@ -475,7 +491,7 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(TTLOUT_CS),
 
-    sysbus_i            => bit_bus,
+    bit_bus_i           => bit_bus,
     val_o               => ttlout_val,
     pad_o               => TTLOUT_PAD_O
 );
@@ -505,7 +521,7 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(LVDSOUT_CS),
 
-    sysbus_i            => bit_bus,
+    bit_bus_i           => bit_bus,
     pad_o               => LVDSOUT_PAD_O
 );
 
@@ -541,8 +557,8 @@ port map (
     z_int_o             => inenc_z,
     data_int_o          => inenc_data,
     -- Block Outputs
-    sysbus_i            => bit_bus,
-    posbus_i            => posbus,
+    bit_bus_i           => bit_bus,
+    pos_bus_i           => pos_bus,
     CONN_OUT            => inenc_conn,
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => INPROT,
@@ -578,8 +594,8 @@ port map (
     -- Signals passed to internal bus
     clk_int_o           => outenc_clk,
     --
-    sysbus_i            => bit_bus,
-    posbus_i            => posbus,
+    bit_bus_i           => bit_bus,
+    pos_bus_i           => pos_bus,
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => OUTPROT,
     slow_tlp_o          => slow_tlp
@@ -628,8 +644,8 @@ port map (
     write_ack_0_o       => write_ack(PCAP_CS),
     write_ack_1_o       => write_ack(DRV_CS),
 
-    sysbus_i            => bit_bus,
-    posbus_i            => posbus,
+    bit_bus_i           => bit_bus,
+    pos_bus_i           => pos_bus,
     pcap_actv_o         => pcap_active(0),
     pcap_irq_o          => IRQ_F2P(0)
 );
@@ -692,8 +708,8 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(REG_CS),
 
-    sysbus_i            => bit_bus,
-    posbus_i            => posbus,
+    bit_bus_i           => bit_bus,
+    pos_bus_i           => pos_bus,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
     SFP_MAC_ADDR        => SFP_MAC_ADDR_ARR,
     SFP_MAC_ADDR_WSTB   => open,
@@ -731,10 +747,11 @@ port map (
     spi_dat_o           => SPI_DAT_O,
     spi_sclk_i          => SPI_SCLK_I,
     spi_dat_i           => SPI_DAT_I,
-    slow_tlp_i          => slow_tlp
+    slow_tlp_i          => slow_tlp,
     -- External clock
---    sma_pll_locked_i    => sma_pll_locked,
---    ext_clock_o         => ext_clock
+    sma_pll_locked_i    => sma_pll_locked,
+    ext_clock_o         => clk_src_sel,
+    clk_sel_stat_i        => clk_sel_stat
 );
 
 ---------------------------------------------------------------------------
@@ -775,9 +792,10 @@ bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
                                    inenc_data & inenc_z & inenc_b & inenc_a &
                                    lvdsin_val & ttlin_val;
 
-posbus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
+pos_bus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
 
 -- Assemble FMC record
+FMC.EXTCLK <= EXTCLK;
 FMC.FMC_PRSNT <= FMC_PRSNT;
 FMC.FMC_LA_P <= FMC_LA_P;
 FMC.FMC_LA_N <= FMC_LA_N;
@@ -805,6 +823,7 @@ SFP_TX_P(2) <= SFP1.TXP_OUT;
 --Commenting Below Line fixes non-responsive/system issue
 SFP1.MAC_ADDR <= SFP_MAC_ADDR_ARR(1)(23 downto 0) & SFP_MAC_ADDR_ARR(0)(23 downto 0);
 SFP1.MAC_ADDR_WS <= '0';
+SFP1.MGT_CLK_SEL <= clk_src_sel(1);
 
 SFP2.SFP_LOS <= SFP_LOS(1);
 SFP2.GTREFCLK <= q0_clk0_gtrefclk;
@@ -815,6 +834,7 @@ SFP_TX_P(1) <= SFP2.TXP_OUT;
 --Commenting Below Line fixes non-responsive/system issue
 SFP2.MAC_ADDR <= SFP_MAC_ADDR_ARR(3)(23 downto 0) & SFP_MAC_ADDR_ARR(2)(23 downto 0);
 SFP2.MAC_ADDR_WS <= '0';
+SFP2.MGT_CLK_SEL <= clk_src_sel(1);
 
 SFP3.SFP_LOS <= SFP_LOS(0);
 SFP3.GTREFCLK <= q0_clk0_gtrefclk;
@@ -825,6 +845,7 @@ SFP_TX_P(0) <= SFP3.TXP_OUT;
 --Commenting Below Line fixes non-responsive/system issue
 SFP3.MAC_ADDR <= SFP_MAC_ADDR_ARR(5)(23 downto 0) & SFP_MAC_ADDR_ARR(4)(23 downto 0);
 SFP3.MAC_ADDR_WS <= '0';
+SFP3.MGT_CLK_SEL <= clk_src_sel(1);
 
 ---------------------------------------------------------------------------
 -- PandABlocks_top Instantiation (autogenerated!!)
@@ -845,8 +866,8 @@ port map(
     write_ack => write_ack(MOD_COUNT-1 downto 8),
     bit_bus_i => bit_bus,
     bit_bus_o => bit_bus(127 downto BIT_BUS_SIZE),
-    posbus_i => posbus,
-    posbus_o => posbus(31 downto POS_BUS_SIZE),
+    pos_bus_i => pos_bus,
+    pos_bus_o => pos_bus(31 downto POS_BUS_SIZE),
     rdma_req => rdma_req,
     rdma_ack => rdma_ack,
     rdma_done => rdma_done,

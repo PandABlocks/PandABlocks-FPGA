@@ -20,16 +20,15 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity sfp_udpontrig_top is
+entity sfp_udpontrig_wrapper is
 generic ( DEBUG : string := "FALSE" );
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- System Bus
-    sysbus_i            : in  std_logic_vector(SBUSW-1 downto 0);
-    sfp_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
-    sfp_data_o          : out std32_array(15 downto 0) := (others=>(others=>'0'));
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
 
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
@@ -45,9 +44,9 @@ port (
     -- SFP Interface
     SFP_interface       : inout SFP_interface
 );
-end sfp_udpontrig_top;
+end sfp_udpontrig_wrapper;
 
-architecture rtl of sfp_udpontrig_top is
+architecture rtl of sfp_udpontrig_wrapper is
 
 component SFP_UDP_Complete
     generic (
@@ -129,7 +128,7 @@ port map (
     clk_i       => clk_i,
     data_i(0)   => read_strobe_i,
     data_o(0)   => read_ack_o,
-    DELAY       => RD_ADDR2ACK
+    DELAY_i     => RD_ADDR2ACK
     );
 
 our_ip_address<=our_ip_address_byte1(7 downto 0)&our_ip_address_byte2(7 downto 0)&our_ip_address_byte3(7 downto 0)&our_ip_address_byte4(7 downto 0);
@@ -217,8 +216,8 @@ port map (
     -- Clock and Reset
     clk_i                       => clk_i,
     reset_i                     => reset_i,
-    bit_bus_i                   => sysbus_i,
-    pos_bus_i                   => (others => (others => '0')),
+    bit_bus_i                   => bit_bus_i,
+    pos_bus_i                   => pos_bus_i,
     -- Block inpout
     sfp_trig_from_bus          => trig,
     SFP_START_COUNT            => open,

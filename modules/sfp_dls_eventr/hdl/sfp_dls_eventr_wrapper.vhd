@@ -9,20 +9,19 @@ use work.top_defines.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity sfp_dls_eventr_top is
+entity sfp_dls_eventr_wrapper is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
-
-    -- From PS block
-    fclk_clk0_ps_i      : in  std_logic;
-    -- External SMA clock
-    EXTCLK_P            : in  std_logic;
-    EXTCLK_N            : in  std_logic;
-    -- Clocked selected
-    FCLK_CLK0_o         : out std_logic;
-
+    -- System Bus
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
+	-- Outputs to BitBus from FMC
+    bit1_o              : out std_logic_vector(0 downto 0);
+    bit2_o              : out std_logic_vector(0 downto 0);
+    bit3_o              : out std_logic_vector(0 downto 0);
+    bit4_o              : out std_logic_vector(0 downto 0);
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -32,30 +31,13 @@ port (
     write_strobe_i      : in  std_logic;
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
-    write_ack_o         : out std_logic;
+    write_ack_o         : out std_logic := '1';
 
-    -- SMA PLL locked
-    sma_pll_locked_o    : out std_logic;
-    -- sma and event receiver clock enables
-    ext_clock_i         : in  std_logic_vector(1 downto 0);
-
-    -- Bits out
-    bit1_o              : out std_logic;
-    bit2_o              : out std_logic;
-    bit3_o              : out std_logic;
-    bit4_o              : out std_logic;
-
-    -- GTX I/O
-    GTREFCLK_N          : in  std_logic;
-    GTREFCLK_P          : in  std_logic;
-    RXN_IN              : in  std_logic_vector(2 downto 0);
-    RXP_IN              : in  std_logic_vector(2 downto 0);
-    TXN_OUT             : out std_logic_vector(2 downto 0);
-    TXP_OUT             : out std_logic_vector(2 downto 0)
+    SFP_interface       : inout SFP_interface
 );
-end sfp_dls_eventr_top;
+end sfp_dls_eventr_wrapper;
 
-architecture rtl of sfp_dls_eventr_top is
+architecture rtl of sfp_dls_eventr_wrapper is
 
 --component ila_0
 --
@@ -78,10 +60,6 @@ architecture rtl of sfp_dls_eventr_top is
 --
 --end component;
 
-signal rxn_i                 : std_logic;
-signal rxp_i                 : std_logic;
-signal txn_o                 : std_logic;
-signal txp_o                 : std_logic;
 signal mgt_ready_o           : std_logic;
 signal event_clk             : std_logic;
 signal rx_link_ok_o          : std_logic;
@@ -123,13 +101,16 @@ signal err_cnt               : std_logic_vector(15 downto 0);
 
 begin
 
-bit1_o <= bit1;
-bit2_o <= bit2;
-bit3_o <= bit3;
-bit4_o <= bit4;
+-- Assign outputs
 
--- Acknowledgement to AXI Lite interface
-write_ack_o <= '1';
+SFP_interface.EVR_REC_CLK <= rxoutclk;
+SFP_interface.LINK_UP <= LINKUP(0);
+
+bit1_o(0) <= bit1;
+bit2_o(0) <= bit2;
+bit3_o(0) <= bit3;
+bit4_o(0) <= bit4;
+
 
 read_ack_delay : entity work.delay_line
 generic map (DW => 1)
@@ -137,21 +118,8 @@ port map (
     clk_i       => clk_i,
     data_i(0)   => read_strobe_i,
     data_o(0)   => read_ack_o,
-    DELAY       => RD_ADDR2ACK
+    DELAY_i     => RD_ADDR2ACK
 );
-
-
--- MGT RX
-rxn_i <= RXN_IN(0);
-rxp_i <= RXP_IN(0);
-
--- MGT TX
-TXN_OUT(0) <= txn_o;
-TXP_OUT(0) <= txp_o;
-
--- Unused MGT TX's
-TXN_OUT(1 downto 2) <= (others => '0');
-TXP_OUT(1 downto 2) <= (others => '0');
 
 -- Event Receiver clock buffer
 rxoutclk_bufg : BUFG
@@ -159,21 +127,6 @@ port map(
     O => event_clk,
     I => rxoutclk
 );
-
-
-sfp_mmcm_clkmux_inst: entity work.sfp_mmcm_clkmux
-generic map (no_ibufg    => 0)
-
-port map(
-    fclk_clk0_ps_i      => fclk_clk0_ps_i,
-    EXTCLK_P            => EXTCLK_P,
-    EXTCLK_N            => EXTCLK_N,
-    rxoutclk_i          => rxoutclk,
-    ext_clock_i         => ext_clock_i,
-    sma_pll_locked_o    => sma_pll_locked_o,
-    fclk_clk0_o         => fclk_clk0_o
-);
-
 
 sfp_transmitter_inst: entity work.sfp_transmitter
 port map(
@@ -219,14 +172,13 @@ port map(
 
 sfpgtx_event_receiver_inst: entity work.sfp_event_receiver
 port map(
-    GTREFCLK_P         => GTREFCLK_P,
-    GTREFCLK_N         => GTREFCLK_N,
+    GTREFCLK         => SFP_interface.GTREFCLK,
     event_reset_i      => EVENT_RESET,
     event_clk_i        => event_clk,
-    rxp_i              => rxp_i,
-    rxn_i              => rxn_i,
-    txp_o              => txp_o,
-    txn_o              => txn_o,
+    rxp_i              => SFP_interface.RXP_IN,
+    rxn_i              => SFP_interface.RXN_IN,
+    txp_o              => SFP_interface.TXP_OUT,
+    txn_o              => SFP_interface.TXN_OUT,
     rx_link_ok_i       => rx_link_ok_o,
     rxbyteisaligned_o  => rxbyteisaligned_o,
     rxbyterealign_o    => rxbyterealign_o,
@@ -288,8 +240,8 @@ port map (
     -- Clock and Reset
     clk_i             => clk_i,
     reset_i           => reset_i,
-    bit_bus_i         => (others => '0'),
-    pos_bus_i         => (others => (others => '0')),
+    bit_bus_i         => bit_bus_i,
+    pos_bus_i         => pos_bus_i,
 
     LINKUP            => LINKUP,
     EVENT_RESET       => open,

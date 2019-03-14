@@ -12,8 +12,8 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
-    bit_bus_i           : in  sysbus_t;
-    pos_bus_i           : in  posbus_t;
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
     -- Block Parameters
     INPA_from_bus       : out std_logic;
     INPB_from_bus       : out std_logic;
@@ -198,7 +198,7 @@ begin
     bitmux_INPA : entity work.bitmux
     port map (
         clk_i         => clk_i,
-        sysbus_i      => bit_bus_i,
+        bit_bus_i     => bit_bus_i,
         bit_o         => INPA_from_bus,
         bitmux_sel_i  => INPA,
         bit_dly_i     => INPA_DLY
@@ -207,7 +207,7 @@ begin
     bitmux_INPB : entity work.bitmux
     port map (
         clk_i         => clk_i,
-        sysbus_i      => bit_bus_i,
+        bit_bus_i     => bit_bus_i,
         bit_o         => INPB_from_bus,
         bitmux_sel_i  => INPB,
         bit_dly_i     => INPB_DLY
@@ -216,7 +216,7 @@ begin
     bitmux_INPC : entity work.bitmux
     port map (
         clk_i         => clk_i,
-        sysbus_i      => bit_bus_i,
+        bit_bus_i     => bit_bus_i,
         bit_o         => INPC_from_bus,
         bitmux_sel_i  => INPC,
         bit_dly_i     => INPC_DLY
@@ -225,7 +225,7 @@ begin
     bitmux_INPD : entity work.bitmux
     port map (
         clk_i         => clk_i,
-        sysbus_i      => bit_bus_i,
+        bit_bus_i     => bit_bus_i,
         bit_o         => INPD_from_bus,
         bitmux_sel_i  => INPD,
         bit_dly_i     => INPD_DLY
@@ -234,7 +234,7 @@ begin
     bitmux_INPE : entity work.bitmux
     port map (
         clk_i         => clk_i,
-        sysbus_i      => bit_bus_i,
+        bit_bus_i     => bit_bus_i,
         bit_o         => INPE_from_bus,
         bitmux_sel_i  => INPE,
         bit_dly_i     => INPE_DLY

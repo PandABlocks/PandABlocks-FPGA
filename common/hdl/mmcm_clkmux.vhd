@@ -5,35 +5,33 @@ use ieee.std_logic_1164.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity sfp_mmcm_clkmux is
+entity mmcm_clkmux is
+port (fclk_clk0_ps_i      : in  std_logic;
+      sma_clk_in1         : in  std_logic;
+      rxoutclk_i          : in  std_logic;
+      ext_clock_i         : in  std_logic_vector(1 downto 0);
+      linkup_i            : in  std_logic;
+      sma_pll_locked_o    : out std_logic;
+      clk_sel_stat_o      : out std_logic_vector(1 downto 0);
+      fclk_clk0_o         : out std_logic
+      );
 
-    generic (no_ibufg    : integer := 0);
-
-    port (fclk_clk0_ps_i      : in  std_logic;
-          EXTCLK_P            : in  std_logic;
-          EXTCLK_N            : in  std_logic;
-          rxoutclk_i          : in  std_logic;
-          ext_clock_i         : in  std_logic_vector(1 downto 0);
-          sma_pll_locked_o    : out std_logic;
-          fclk_clk0_o         : out std_logic
-          );
-
-end sfp_mmcm_clkmux;
+end mmcm_clkmux;
 
 
 
-architecture rtl of sfp_mmcm_clkmux is
+architecture rtl of mmcm_clkmux is
 
 constant c_wait_reset       : natural := 1000;
 
 signal sma_pll_reset_cnt    : unsigned(9 downto 0) := (others => '0');
 signal sma_pll_reset        : std_logic;
 signal sma_pll_locked       : std_logic;
-signal sma_clk_in1          : std_logic;
 signal sma_clkfbout         : std_logic;
 signal sma_clkfbout_buf     : std_logic;
 signal sma_clk_out1         : std_logic;
 signal enable_sma_clock     : std_logic;
+signal enable_mgt_clock     : std_logic;
 signal sma_fclk             : std_logic;
 signal fclk_clk             : std_logic;
 
@@ -71,18 +69,6 @@ begin
     end if;
 end process ps_sma_reset_pll;
 
-
---clkin1_ibufgds : IBUFDS
-clkin1_ibufgds : IBUFGDS
-generic map (
-    DIFF_TERM  => FALSE,
-    IOSTANDARD => "LVDS_25"
-)
-    port map
-        (O  => sma_clk_in1,
-         I  => EXTCLK_P,
-         IB => EXTCLK_N
-);
 
 -- PLL Clocking PRIMITIVE
 --------------------------------------
@@ -153,28 +139,31 @@ BUFGMUX_inst :BUFGMUX
         S   => enable_sma_clock
 );
 
-
+enable_sma_clock <= sma_pll_locked and ext_clock_i(0);
 ---------------------------------------------------------------------------
 
 -- Enable the selection of the external clock only if the PLL
 -- is locked on to the external clock
 -- ext_clock and sma_pll_locked crossing clock domains but they
 -- aren't dynamically changing so didn't bother with double registering
-ps_sma_clk: process(fclk_clk0_ps_i)
-begin
-    if rising_edge(fclk_clk0_ps_i)then
-        if ext_clock_i(0) = '1' and sma_pll_locked = '1' then
-            enable_sma_clock <= '1';
-        else
-            enable_sma_clock <= '0';
-        end if;
-    end if;
-end process ps_sma_clk;
+--ps_sma_clk: process(fclk_clk0_ps_i)
+--begin
+--    if rising_edge(fclk_clk0_ps_i)then
+--        if ext_clock_i(0) = '1' and sma_pll_locked = '1' then
+--           enable_sma_clock <= '1';
+--        else
+--            enable_sma_clock <= '0';
+--        end if;
+--    end if;
+--end process ps_sma_clk;
+
 
 
 ---------------------------------------------------------------------------
 -- Panda  event receiver clock switching
 ---------------------------------------------------------------------------
+
+enable_mgt_clock <= linkup_i and ext_clock_i(1);
 
 -- ext_clock(1) = 0 sma_fclk (either sma or ps 125MHz clocks)
 -- ext_clock(1) = 1 rxoutclk (mgt data recovered clock)
@@ -183,8 +172,10 @@ eventr_BUFGMUX_inst :BUFGMUX
         O   => fclk_clk,
         I0  => sma_fclk,
         I1  => rxoutclk_i,
-        S   => ext_clock_i(1)
+        S   => enable_mgt_clock
 );
+
+clk_sel_stat_o <= enable_mgt_clock & enable_sma_clock;
 
 
 end architecture rtl;

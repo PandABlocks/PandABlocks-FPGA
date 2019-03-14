@@ -14,7 +14,7 @@ signal mem_cs_i         : std_logic := '0';
 signal mem_wstb_i       : std_logic := '0';
 signal mem_rstb_i       : std_logic := '0';
 signal mem_dat_i        : std_logic_vector(31 downto 0);
-signal sysbus_i         : std_logic_vector(127 downto 0);
+signal bit_bus_i        : std_logic_vector(127 downto 0);
 
 signal mem_dat_o        : std_logic_vector(31 downto 0);
 
@@ -32,19 +32,19 @@ PORT MAP (
     mem_rstb_i      => mem_rstb_i,
     mem_dat_i       => mem_dat_i,
     mem_dat_o       => mem_dat_o,
-    sysbus_i        => sysbus_i
+    bit_bus_i       => bit_bus_i
 );
 
 proc: process
     variable counter    : unsigned(15 downto 0);
 begin
-    sysbus_i <= (others => '0');
+    bit_bus_i <= (others => '0');
     counter := (others => '0');
     wait until rising_edge(clk_i);
     wait for 80 ns;
 
     L : loop
-        sysbus_i(15 downto 0) <= std_logic_vector(counter);
+        bit_bus_i(15 downto 0) <= std_logic_vector(counter);
         counter := counter + 1;
         wait for 8 ns;
     end loop;

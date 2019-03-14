@@ -7,11 +7,11 @@
 --------------------------------------------------------------------------------
 --
 --  Description : This module handles mode function i.e.
---                              : 1. Capture value captures the value of the posbus
---                              : 2. The lower 32 bits of the sum values of the posbus samples
---                              : 3. The upper 32 bits of the sum values of the posbus samples
---                              : 4. The minimum value on the posbus
---                              : 5. The maximum value on the posbus
+--                              : 1. Capture value captures the value of the pos_bus
+--                              : 2. The lower 32 bits of the sum values of the pos_bus samples
+--                              : 3. The upper 32 bits of the sum values of the pos_bus samples
+--                              : 4. The minimum value on the pos_bus
+--                              : 5. The maximum value on the pos_bus
 --
 --                Output from this block is fed to Buffer block for capture.
 --

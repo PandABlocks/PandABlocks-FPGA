@@ -21,17 +21,14 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity fmc_acq427_out_top is
+entity fmc_acq427_out_wrapper is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Bus Inputs
-    bitbus_i            : in  std_logic_vector(127 downto 0);
-    posbus_i            : in  std32_array(31 downto 0);
-        -- Generic Inputs to BitBus and PosBus from FMC and SFP
-    fmc_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
-    fmc_data_o          : out std32_array(15 downto 0) := (others=>(others=>'0')); -- 8 channels of 32-bit data
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -44,9 +41,9 @@ port (
     write_ack_o         : out std_logic := '1';
     FMC_interface       : inout fmc_interface
 );
-end fmc_acq427_out_top;
+end fmc_acq427_out_wrapper;
 
-architecture rtl of fmc_acq427_out_top is
+architecture rtl of fmc_acq427_out_wrapper is
 
 ---------------------------------------------------------------------------------------
 -- FMC pin name translation signals.
@@ -165,8 +162,8 @@ port map (
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
-    bit_bus_i            => bitbus_i,
-    pos_bus_i            => posbus_i,
+    bit_bus_i           => bit_bus_i,
+    pos_bus_i           => pos_bus_i,
 
     VAL1_from_bus     => CH01_DAC_DATA,
     VAL2_from_bus     => CH02_DAC_DATA,

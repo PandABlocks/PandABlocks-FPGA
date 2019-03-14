@@ -31,8 +31,8 @@ constant ENC_NUM            : natural := 4;
 --------------------------------------------------------------------------
 
 -- Bit Bus Width, Multiplexer Select Width -------------------------------
-constant SBUSW              : natural := 128;
-constant SBUSBW             : natural := 7;
+constant BBUSW              : natural := 128;
+constant BBUSBW             : natural := 7;
 
 -- Position Bus Width, Multiplexer Select Width.
 constant PBUSW              : natural := 32;
@@ -93,6 +93,9 @@ type SFP_interface is
     TXP_OUT     : std_logic;
     MAC_ADDR    : std_logic_vector(47 downto 0);
     MAC_ADDR_WS : std_logic;
+	EVR_REC_CLK : std_logic;
+    LINK_UP     : std_logic;
+    MGT_CLK_SEL : std_logic;
   end record SFP_interface;
 
 type seq_t is
@@ -150,8 +153,8 @@ type page_array is array(natural range <>) of page_t;
 subtype seq_out_t is std_logic_vector(5 downto 0);
 type seq_out_array is array(natural range <>) of seq_out_t;
 
-subtype sysbus_t is std_logic_vector(SBUSW-1 downto 0);
-subtype posbus_t is std32_array(PBUSW-1 downto 0);
+subtype bit_bus_t is std_logic_vector(BBUSW-1 downto 0);
+subtype pos_bus_t is std32_array(PBUSW-1 downto 0);
 subtype extbus_t is std32_array(EBUSW-1 downto 0);
 
 --

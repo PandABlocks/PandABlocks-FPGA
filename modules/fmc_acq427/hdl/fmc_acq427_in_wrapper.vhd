@@ -21,17 +21,23 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity fmc_acq427_in_top is
+entity fmc_acq427_in_wrapper is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Bus Inputs
-    bitbus_i            : in  std_logic_vector(127 downto 0);
-    posbus_i            : in  std32_array(31 downto 0);
-    -- Generic Inputs to BitBus and PosBus from FMC and SFP
-    fmc_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
-    fmc_data_o          : out std32_array(7 downto 0) := (others=>(others=>'0'));         -- 8 channels of 32-bit data
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
+    -- Outputs to PosBus from FMC
+	val1_o				: out std_logic_vector(31 downto 0);
+	val2_o				: out std_logic_vector(31 downto 0);
+	val3_o				: out std_logic_vector(31 downto 0);
+	val4_o				: out std_logic_vector(31 downto 0);
+	val5_o				: out std_logic_vector(31 downto 0);
+	val6_o				: out std_logic_vector(31 downto 0);
+	val7_o				: out std_logic_vector(31 downto 0);
+	val8_o				: out std_logic_vector(31 downto 0);
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -44,9 +50,9 @@ port (
     write_ack_o         : out std_logic := '1';
     FMC_interface       : inout fmc_interface
 );
-end fmc_acq427_in_top;
+end fmc_acq427_in_wrapper;
 
-architecture rtl of fmc_acq427_in_top is
+architecture rtl of fmc_acq427_in_wrapper is
 
 ---------------------------------------------------------------------------------------
 -- FMC pin name translation signals.
@@ -99,8 +105,6 @@ signal s_TRIG_DATA          : std_logic := '0';                                 
 signal s_CLOCK_DATA         : std_logic := '0';                                 --! External Clock Data
 
 signal ADC_DATAOUT          : std_logic_vector(255 downto 0) := (others => '0');
-signal fmc_data             : std32_array(7 downto 0);
-
 
 ---------------------------------------------------------------------------------------
 -- Signal Attributes
@@ -173,8 +177,8 @@ port map (
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
-    bit_bus_i           => bitbus_i,
-    pos_bus_i           => posbus_i,
+    bit_bus_i           => bit_bus_i,
+    pos_bus_i           => pos_bus_i,
     -- Block Parameters
     GAIN1 => gains(0),
     GAIN1_wstb  => open,
@@ -241,26 +245,28 @@ port map (
     ADC_DATAOUT             =>  ADC_DATAOUT
     );
 
-fmc_data(7) <= ADC_DATAOUT(31 downto 0);
-fmc_data(6) <= ADC_DATAOUT(63 downto 32);
-fmc_data(5) <= ADC_DATAOUT(95 downto 64);
-fmc_data(4) <= ADC_DATAOUT(127 downto 96);
-fmc_data(3) <= ADC_DATAOUT(159 downto 128);
-fmc_data(2) <= ADC_DATAOUT(191 downto 160);
-fmc_data(1) <= ADC_DATAOUT(223 downto 192);
-fmc_data(0) <= ADC_DATAOUT(255 downto 224);
-
 -- Extract the FMC data and apply gain control to it.
-gen_channel : for i in 0 to 7 generate
-    process (clk_i)
-        variable shift : natural := to_integer(unsigned(gains(i)(1 downto 0)));
-    begin
-        if rising_edge(clk_i) then
-            fmc_data_o(i) <= std_logic_vector(
-                shift_right(signed(fmc_data(i)), shift));
-        end if;
-    end process;
-end generate;
+process (clk_i)
+begin
+    if rising_edge(clk_i) then
+        val1_o <= std_logic_vector(shift_right(signed(ADC_DATAOUT(255 downto 224)), 
+            to_integer(unsigned(gains(0)(1 downto 0)))));
+        val2_o <= std_logic_vector(shift_right(signed(ADC_DATAOUT(223 downto 192)), 
+            to_integer(unsigned(gains(1)(1 downto 0)))));
+        val3_o <= std_logic_vector(shift_right(signed(ADC_DATAOUT(191 downto 160)), 
+            to_integer(unsigned(gains(2)(1 downto 0)))));
+        val4_o <= std_logic_vector(shift_right(signed(ADC_DATAOUT(159 downto 128)), 
+            to_integer(unsigned(gains(3)(1 downto 0)))));
+        val5_o <= std_logic_vector(shift_right(signed(ADC_DATAOUT(127 downto 96)), 
+            to_integer(unsigned(gains(4)(1 downto 0)))));
+        val6_o <= std_logic_vector(shift_right(signed(ADC_DATAOUT(95 downto 64)), 
+            to_integer(unsigned(gains(5)(1 downto 0)))));
+        val7_o <= std_logic_vector(shift_right(signed(ADC_DATAOUT(63 downto 32)), 
+            to_integer(unsigned(gains(6)(1 downto 0)))));
+        val8_o <= std_logic_vector(shift_right(signed(ADC_DATAOUT(31 downto 0)), 
+            to_integer(unsigned(gains(7)(1 downto 0)))));
+    end if;
+end process;
 
 
 IOB_FF_PUSH_ADC: process(clk_ADC_IOB)

@@ -81,7 +81,7 @@ class FieldCounter:
 
 class BlockConfig(object):
     """The config for a single Block"""
-    def __init__(self, name, type, number, ini, module_name):
+    def __init__(self, name, type, number, ini, module_name, sfp_site=None):
         # type: (str, str, int, configparser.SafeConfigParser) -> None
         # Block names should be UPPER_CASE_NO_TRAILING_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*[A-Z]$", name), \
@@ -94,10 +94,18 @@ class BlockConfig(object):
         self.block_address = None
         #: The module name (can be different to block name)
         self.module_name = module_name
+        #: If the type == sfp, which site number
+        self.sfp_site = sfp_site        
         #: The VHDL entity name, like lut
         self.entity = ini.get(".", "entity")
         #: Is the block soft, sfp, fmc or dma?
         self.type = ini_get(ini, '.', 'type', type)
+        #: If the type == sfp, which site number
+        self.sfp_site = sfp_site
+        if self.sfp_site:
+            assert self.type == "sfp", \
+                "Block %s has type %s != sfp but defined sfp_site" % (
+                    self.name, self.type)
         #: Any constraints?
         self.constraints = ini_get(ini, '.', 'constraints', '').split()
         #: Does the block require IP?

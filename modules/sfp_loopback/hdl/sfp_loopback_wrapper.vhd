@@ -6,15 +6,14 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity sfp_loopback_top is
+entity sfp_loopback_wrapper is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- System Bus
-    sysbus_i            : in  std_logic_vector(SBUSW-1 downto 0);
-    sfp_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
-    sfp_data_o          : out std32_array(15 downto 0) := (others=>(others=>'0'));
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
 
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
@@ -30,9 +29,9 @@ port (
     -- SFP Interface
     SFP_interface       : inout SFP_interface
 );
-end sfp_loopback_top;
+end sfp_loopback_wrapper;
 
-architecture rtl of sfp_loopback_top is
+architecture rtl of sfp_loopback_wrapper is
 
 --signal test_clocks      : std_logic;
 signal LINK_UP         : std_logic_vector(31 downto 0);
@@ -52,7 +51,7 @@ port map (
     clk_i       => clk_i,
     data_i(0)   => read_strobe_i,
     data_o(0)   => read_ack_o,
-    DELAY       => RD_ADDR2ACK
+    DELAY_i     => RD_ADDR2ACK
 );
 
 --
@@ -103,8 +102,8 @@ port map (
     -- Clock and Reset
     clk_i                       => clk_i,
     reset_i                     => reset_i,
-    bit_bus_i                   => (others => '0'),
-    pos_bus_i                   => (others => (others => '0')),
+    bit_bus_i                   => bit_bus_i,
+    pos_bus_i                   => pos_bus_i,
     -- Block Parameters
     SFP_LOS                    => SFP_LOS_VEC,
     LINK_UP                    => LINK_UP,

@@ -6,8 +6,8 @@ port (
     clk_aux_i           : in  std_logic;
     reset_i             : in  std_logic;
     -- System Bus Inputs
-    bitbus_i            : in  std_logic_vector(127 downto 0);
-    posbus_i            : in  std32_array(31 downto 0);
+    bit_bus_i            : in  std_logic_vector(127 downto 0);
+    pos_bus_i            : in  std32_array(31 downto 0);
     -- Generic Inputs to BitBus and PosBus from FMC and SFP
     sfp_inputs_o        : out std_logic_vector(15 downto 0);
     sfp_data_o          : out std32_array(15 downto 0);

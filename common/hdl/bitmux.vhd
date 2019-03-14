@@ -26,7 +26,7 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     -- Block Input and Outputs
-    sysbus_i            : in  sysbus_t;
+    bit_bus_i           : in  bit_bus_t;
     bit_o               : out std_logic;
     -- Block Parameters
     BITMUX_SEL_i        : in  std_logic_vector(31 downto 0);
@@ -45,11 +45,11 @@ signal bit_out          : std_logic_vector(0 downto 0);
 
 begin
 
-process(BITMUX_SEL_i,sysbus_i)
+process(BITMUX_SEL_i,bit_bus_i)
 begin
-    if BITMUX_SEL_i(SBUSBW) = '0' then
+    if BITMUX_SEL_i(BBUSBW) = '0' then
         -- Select bit on the system bus
-        bit_in(0) <= SBIT(sysbus_i, BITMUX_SEL_i(SBUSBW-1 downto 0));
+        bit_in(0) <= SBIT(bit_bus_i, BITMUX_SEL_i(BBUSBW-1 downto 0));
     else
         bit_in(0) <= BITMUX_SEL_i(0);
     end if;

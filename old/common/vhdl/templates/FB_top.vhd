@@ -13,8 +13,8 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- System Bus Inputs
-    bitbus_i            : in  std_logic_vector(127 downto 0);
-    posbus_i            : in  std32_array(31 downto 0);
+    bit_bus_i            : in  std_logic_vector(127 downto 0);
+    pos_bus_i            : in  std32_array(31 downto 0);
     -- PandABlocks Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -76,8 +76,8 @@ port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
 
-    sysbus_i            => sysbus_i,
-    posbus_i            => posbus_i,
+    bit_bus_i            => bit_bus_i,
+    pos_bus_i            => pos_bus_i,
 
     read_strobe_i       => read_strobe(I),
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
