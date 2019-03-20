@@ -48,7 +48,9 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
-    FMC_interface       : inout fmc_interface
+    FMC_i               : in  fmc_input_interface;
+    FMC_io              : inout fmc_inout_interface;
+    FMC_o               : out fmc_output_interface
 );
 end fmc_acq430_wrapper;
 
@@ -124,11 +126,11 @@ write_ack_o <= '1';
 
 -- Translate the FMC pin names into ACQ430FMC names
 
-FMC_interface.FMC_LA_P(14)    <=  p_TRIGGER_DIR;
-FMC_interface.FMC_LA_P(10)    <=  p_CLOCK_DIR;
+FMC_io.FMC_LA_P(14)    <=  p_TRIGGER_DIR;
+FMC_io.FMC_LA_P(10)    <=  p_CLOCK_DIR;
 
-p_EXT_TRIGGER   <=  FMC_interface.FMC_LA_P(13);
-p_EXT_CLOCK     <=  FMC_interface.FMC_CLK0_M2C_P;
+p_EXT_TRIGGER   <=  FMC_io.FMC_LA_P(13);
+p_EXT_CLOCK     <=  FMC_io.FMC_CLK0_M2C_P;
 
 -- On the ACQ430_TOPDECK only the CLOCK input is present. Make this switchable from Digital FMC IO Control Reg
 --EXT_LEMO_SWITCH: process(FMC_IO_BUS,EXT_CLOCK,EXT_TRIGGER,EXT_CLOCK)
@@ -155,14 +157,14 @@ cmp_EXT_TRIGGER:    IOBUF port map(IO => p_EXT_TRIGGER, I => s_TRIG_DATA    , O 
 cmp_EXT_CLOCK:      IBUF port map(I => p_EXT_CLOCK,     O => EXT_CLOCK);
 
 -- Input Pins
-p_ADC_SDO           <= FMC_interface.FMC_LA_P(12);
+p_ADC_SDO           <= FMC_io.FMC_LA_P(12);
 
 
 -- Output Pins
-FMC_interface.FMC_LA_P(0)         <= p_ADC_MODE_0;
-FMC_interface.FMC_LA_P(4)         <= p_ADC_FSYNC;
-FMC_interface.FMC_LA_P(8)         <= p_ADC_SPI_CLK;
-FMC_interface.FMC_LA_P(16)        <= p_ADC_SYNC_n;
+FMC_io.FMC_LA_P(0)         <= p_ADC_MODE_0;
+FMC_io.FMC_LA_P(4)         <= p_ADC_FSYNC;
+FMC_io.FMC_LA_P(8)         <= p_ADC_SPI_CLK;
+FMC_io.FMC_LA_P(16)        <= p_ADC_SYNC_n;
 
 -- Tie off pins - this may change
 
@@ -173,12 +175,12 @@ cmp_ADC_SPI_CLK:    IOBUF port map(IO => p_ADC_SPI_CLK, I => ADC_SPI_CLK,   T =>
 cmp_ADC_SYNC_n:     IOBUF port map(IO => p_ADC_SYNC_n,  I => ADC_SYNC_n,    T => FMC_MODULE_ENABLE_n);
 
 -- Unused IO
-FMC_interface.FMC_LA_P(33 downto 17)  <= (others => 'Z');
-FMC_interface.FMC_LA_P(15)            <= 'Z';
-FMC_interface.FMC_LA_P(9)             <= 'Z';
-FMC_interface.FMC_LA_P(7 downto 5)    <= (others => 'Z');
-FMC_interface.FMC_LA_P(3 downto 1)    <= (others => 'Z');
-FMC_interface.FMC_LA_N(33 downto 0)   <= (others => 'Z');
+FMC_io.FMC_LA_P(33 downto 17)  <= (others => 'Z');
+FMC_io.FMC_LA_P(15)            <= 'Z';
+FMC_io.FMC_LA_P(9)             <= 'Z';
+FMC_io.FMC_LA_P(7 downto 5)    <= (others => 'Z');
+FMC_io.FMC_LA_P(3 downto 1)    <= (others => 'Z');
+FMC_io.FMC_LA_N(33 downto 0)   <= (others => 'Z');
 
 
 

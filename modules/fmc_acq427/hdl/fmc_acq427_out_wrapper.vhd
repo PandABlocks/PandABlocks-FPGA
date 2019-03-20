@@ -39,7 +39,9 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic := '1';
-    FMC_interface       : inout fmc_interface
+    FMC_i               : in  fmc_input_interface;
+    FMC_io              : inout fmc_inout_interface;
+    FMC_o               : out fmc_output_interface
 );
 end fmc_acq427_out_wrapper;
 
@@ -124,22 +126,22 @@ begin
 -- DAC
 ---------------------------------------------------------------------------------------
 -- Input Pins
-p_DAC_SDO(1)        <= FMC_interface.FMC_LA_P(8);
-p_DAC_SDO(2)        <= FMC_interface.FMC_LA_P(9);
-p_DAC_SDO(3)        <= FMC_interface.FMC_LA_P(10);
-p_DAC_SDO(4)        <= FMC_interface.FMC_LA_P(11);
+p_DAC_SDO(1)        <= FMC_io.FMC_LA_P(8);
+p_DAC_SDO(2)        <= FMC_io.FMC_LA_P(9);
+p_DAC_SDO(3)        <= FMC_io.FMC_LA_P(10);
+p_DAC_SDO(4)        <= FMC_io.FMC_LA_P(11);
 
-FMC_interface.FMC_LA_P(4)         <= p_DAC_SDI(1);
-FMC_interface.FMC_LA_P(5)         <= p_DAC_SDI(2);
-FMC_interface.FMC_LA_P(6)         <= p_DAC_SDI(3);
-FMC_interface.FMC_LA_P(7)         <= p_DAC_SDI(4);
-FMC_interface.FMC_LA_P(1)         <= p_DAC_SYNC_n;
-FMC_interface.FMC_LA_P(2)         <= p_DAC_LD_n;
-FMC_interface.FMC_LA_P(3)         <= p_DAC_RST_n;
+FMC_io.FMC_LA_P(4)         <= p_DAC_SDI(1);
+FMC_io.FMC_LA_P(5)         <= p_DAC_SDI(2);
+FMC_io.FMC_LA_P(6)         <= p_DAC_SDI(3);
+FMC_io.FMC_LA_P(7)         <= p_DAC_SDI(4);
+FMC_io.FMC_LA_P(1)         <= p_DAC_SYNC_n;
+FMC_io.FMC_LA_P(2)         <= p_DAC_LD_n;
+FMC_io.FMC_LA_P(3)         <= p_DAC_RST_n;
 
 
 -- Output Pins
-FMC_interface.FMC_CLK0_M2C_P      <= p_DAC_SPI_CLK;
+FMC_io.FMC_CLK0_M2C_P      <= p_DAC_SPI_CLK;
 
 ---------------------------------------------------------------------------------------
 -- IO Buffer Instantiation

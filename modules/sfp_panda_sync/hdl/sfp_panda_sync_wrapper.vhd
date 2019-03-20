@@ -48,7 +48,8 @@ entity sfp_panda_sync_wrapper is
         write_data_i     : in  std_logic_vector(31 downto 0);
         write_ack_o      : out std_logic;
 
-        SFP_interface       : inout SFP_interface
+        SFP_i            : in SFP_input_interface;
+        SFP_o            : out SFP_output_interface
 
         );
 end sfp_panda_sync_wrapper;
@@ -137,7 +138,7 @@ BITIN1_o(0) <= BITIN(0);
 --        O   => rxoutclk_i,
 --        I0  => rxoutclk_o,
 --        I1  => clk_i,
---        S   => SFP_interface.MGT_CLK_SEL
+--        S   => SFP_i.MGT_CLK_SEL
 --);
 
 
@@ -146,7 +147,7 @@ BITIN1_o(0) <= BITIN(0);
 --        O   => txoutclk_i,
 --        I0  => txoutclk_o,
 --        I1  => clk_i,
---        S   => SFP_interface.MGT_CLK_SEL
+--        S   => SFP_i.MGT_CLK_SEL
 --);
 
 rxoutclk_bufg : BUFG
@@ -217,15 +218,15 @@ sfp_panda_sync_receiver_inst : entity work.sfp_panda_sync_receiver
 sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface 
 
     port map(
-        GTREFCLK          => SFP_interface.GTREFCLK,        
+        GTREFCLK          => SFP_i.GTREFCLK,        
         SYNC_RESET_i      => SYNC_RESET,       
         clk_i             => clk_i, 
         rxoutclk_i        => rxoutclk_i,
         txoutclk_i        => txoutclk_i,          
-        rxp_i             => SFP_interface.RXP_IN,             
-        rxn_i             => SFP_interface.RXN_IN,             
-        txp_o             => SFP_interface.TXP_OUT,             
-        txn_o             => SFP_interface.TXN_OUT,             
+        rxp_i             => SFP_i.RXP_IN,             
+        rxn_i             => SFP_i.RXN_IN,             
+        txp_o             => SFP_o.TXP_OUT,             
+        txn_o             => SFP_o.TXN_OUT,             
         rxuserrdy_i       => rxuserrdy_i,
         txuserrdy_i       => txuserrdy_i,        
         rxbyteisaligned_o => rxbyteisaligned_o, 

@@ -60,43 +60,56 @@ end record;
 -- TYPEs :
 --
 
--- FMC Block Record declaration
+-- FMC Block Record declarations
 
-type FMC_interface is
+type FMC_input_interface is
   record
     EXTCLK          : std_logic;
     FMC_PRSNT       : std_logic;
-    FMC_LA_P        : std_logic_vector(33 downto 0);
-    FMC_LA_N        : std_logic_vector(33 downto 0);
-    FMC_CLK0_M2C_P  : std_logic;
-    FMC_CLK0_M2C_N  : std_logic;
     FMC_CLK1_M2C_P  : std_logic;
     FMC_CLK1_M2C_N  : std_logic;
     GTREFCLK        : std_logic;
-    TXP_OUT         : std_logic;
-    TXN_OUT         : std_logic;
     RXP_IN          : std_logic;
     RXN_IN          : std_logic;
     MAC_ADDR        : std_logic_vector(47 downto 0);
     MAC_ADDR_WS     : std_logic;
-  end record FMC_interface;
+  end record FMC_input_interface;
 
--- SFP Block Record declaration
+type FMC_inout_interface is
+  record
+    FMC_LA_P        : std_logic_vector(33 downto 0);
+    FMC_LA_N        : std_logic_vector(33 downto 0);
+    FMC_CLK0_M2C_P  : std_logic;
+    FMC_CLK0_M2C_N  : std_logic;
+  end record FMC_inout_interface;
 
-type SFP_interface is
+type FMC_output_interface is
+  record
+    TXP_OUT         : std_logic;
+    TXN_OUT         : std_logic;
+  end record FMC_output_interface;
+
+-- SFP Block Record declarations
+
+type SFP_input_interface is
   record
     SFP_LOS     : std_logic;
     GTREFCLK    : std_logic;
     RXN_IN      : std_logic;
     RXP_IN      : std_logic;
-    TXN_OUT     : std_logic;
-    TXP_OUT     : std_logic;
     MAC_ADDR    : std_logic_vector(47 downto 0);
     MAC_ADDR_WS : std_logic;
+    MGT_CLK_SEL : std_logic;
+  end record SFP_input_interface;
+
+type SFP_output_interface is
+  record
+    TXN_OUT     : std_logic;
+    TXP_OUT     : std_logic;
 	EVR_REC_CLK : std_logic;
     LINK_UP     : std_logic;
-    MGT_CLK_SEL : std_logic;
-  end record SFP_interface;
+  end record SFP_output_interface;
+
 
 type seq_t is
 record

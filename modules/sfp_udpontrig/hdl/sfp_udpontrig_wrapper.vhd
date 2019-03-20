@@ -42,7 +42,8 @@ port (
     write_ack_o         : out std_logic := '1';
 
     -- SFP Interface
-    SFP_interface       : inout SFP_interface
+    SFP_i               : in SFP_input_interface;
+    SFP_o               : out SFP_output_interface
 );
 end sfp_udpontrig_wrapper;
 
@@ -160,17 +161,17 @@ SFP_UDP_Complete_i : SFP_UDP_Complete
     count_udp_tx_RESULT_ERR   => count_udp_tx_RESULT_ERR_i,
     SFP_STATUS_COUNT          => SFP_STATUS_COUNT,
     -- Block Parameters
-    OUR_MAC_ADDRESS =>SFP_interface.MAC_ADDR,
+    OUR_MAC_ADDRESS =>SFP_i.MAC_ADDR,
     dest_udp_port  =>dest_udp_port,
     our_udp_port   =>our_udp_port,
     dest_ip_address=>dest_ip_address,
     our_ip_address =>our_ip_address,
     -- GTX I/O
-    gtrefclk       => SFP_interface.GTREFCLK,
-    RXN_IN         => SFP_interface.RXN_IN,
-    RXP_IN         => SFP_interface.RXP_IN,
-    TXN_OUT        => SFP_interface.TXN_OUT,
-    TXP_OUT        => SFP_interface.TXP_OUT
+    gtrefclk       => SFP_i.GTREFCLK,
+    RXN_IN         => SFP_i.RXN_IN,
+    RXP_IN         => SFP_i.RXP_IN,
+    TXN_OUT        => SFP_o.TXN_OUT,
+    TXP_OUT        => SFP_o.TXP_OUT
     );
 
 ---------------------------------------------------------------------------
@@ -204,10 +205,10 @@ end process;
 
 SOFT_RESET_rise<=SOFT_RESET and not(SOFT_RESET_prev);
 
-MAC_HI(23 downto 0) <= SFP_interface.MAC_ADDR(47 downto 24);
-MAC_LO(23 downto 0) <= SFP_interface.MAC_ADDR(23 downto 0);
+MAC_HI(23 downto 0) <= SFP_i.MAC_ADDR(47 downto 24);
+MAC_LO(23 downto 0) <= SFP_i.MAC_ADDR(23 downto 0);
 
-SFP_LOS_VEC <= (0 => SFP_interface.SFP_LOS, others => '0');
+SFP_LOS_VEC <= (0 => SFP_i.SFP_LOS, others => '0');
 ---------------------------------------------------------------------------
 -- SFP Control Interface
 ---------------------------------------------------------------------------

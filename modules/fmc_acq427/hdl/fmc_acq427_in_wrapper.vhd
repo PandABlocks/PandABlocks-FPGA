@@ -48,7 +48,9 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic := '1';
-    FMC_interface       : inout fmc_interface
+    FMC_i               : in  fmc_input_interface;
+    FMC_io              : inout fmc_inout_interface;
+    FMC_o               : out fmc_output_interface
 );
 end fmc_acq427_in_wrapper;
 
@@ -134,21 +136,21 @@ begin
 -- ADC
 ---------------------------------------------------------------------------------------
 -- Input Pins
-p_FMC_EXT_CLK  <=  FMC_interface.FMC_LA_P(0);
-p_FMC_EXT_TRIG <=  FMC_interface.FMC_LA_P(12);
-p_ADC_SDO(8)   <=  FMC_interface.FMC_LA_P(20);
-p_ADC_SDO(7)   <=  FMC_interface.FMC_LA_P(21);
-p_ADC_SDO(6)   <=  FMC_interface.FMC_LA_P(22);
-p_ADC_SDO(5)   <=  FMC_interface.FMC_LA_P(23);
-p_ADC_SDO(4)   <=  FMC_interface.FMC_LA_P(16);
-p_ADC_SDO(3)   <=  FMC_interface.FMC_LA_P(17);
-p_ADC_SDO(2)   <=  FMC_interface.FMC_LA_P(18);
-p_ADC_SDO(1)   <=  FMC_interface.FMC_LA_P(19);
+p_FMC_EXT_CLK  <=  FMC_io.FMC_LA_P(0);
+p_FMC_EXT_TRIG <=  FMC_io.FMC_LA_P(12);
+p_ADC_SDO(8)   <=  FMC_io.FMC_LA_P(20);
+p_ADC_SDO(7)   <=  FMC_io.FMC_LA_P(21);
+p_ADC_SDO(6)   <=  FMC_io.FMC_LA_P(22);
+p_ADC_SDO(5)   <=  FMC_io.FMC_LA_P(23);
+p_ADC_SDO(4)   <=  FMC_io.FMC_LA_P(16);
+p_ADC_SDO(3)   <=  FMC_io.FMC_LA_P(17);
+p_ADC_SDO(2)   <=  FMC_io.FMC_LA_P(18);
+p_ADC_SDO(1)   <=  FMC_io.FMC_LA_P(19);
 
 -- Output Pins
-FMC_interface.FMC_LA_P(14)   <=  p_ADC_CNV_A;
-FMC_interface.FMC_LA_P(15)   <=  p_ADC_CNV_B;
-FMC_interface.FMC_LA_P(13)   <=  p_ADC_SPI_CLK;
+FMC_io.FMC_LA_P(14)   <=  p_ADC_CNV_A;
+FMC_io.FMC_LA_P(15)   <=  p_ADC_CNV_B;
+FMC_io.FMC_LA_P(13)   <=  p_ADC_SPI_CLK;
 
 
 s_TRIG_DATA    <=  FMC_IO_BUS(1);
