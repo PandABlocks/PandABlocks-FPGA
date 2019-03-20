@@ -48,7 +48,7 @@ entity sfp_panda_sync_wrapper is
         write_data_i     : in  std_logic_vector(31 downto 0);
         write_ack_o      : out std_logic;
 
-        SFP_interface       : inout SFP_interface
+        SFP_interface    : inout SFP_interface
 
         );
 end sfp_panda_sync_wrapper;
@@ -132,6 +132,8 @@ BITIN1_o(0) <= BITIN(0);
   
 
 
+
+
 --BUFGMUX_RX_inst :BUFGMUX
 --    port map (
 --        O   => rxoutclk_i,
@@ -141,25 +143,31 @@ BITIN1_o(0) <= BITIN(0);
 --);
 
 
---BUFGMUX_TX_inst :BUFGMUX
---    port map (
---        O   => txoutclk_i,
---        I0  => txoutclk_o,
---        I1  => clk_i,
---        S   => SFP_interface.MGT_CLK_SEL
+BUFGMUX_TX_inst :BUFGMUX
+    port map (
+        O   => txoutclk,
+        I0  => txoutclk_o,
+        I1  => clk_i,
+        S   => SFP_interface.MGT_CLK_SEL
+);
+
+
+rxoutclk_i <= txoutclk;
+txoutclk_i <= txoutclk;
+
+
+
+--rxoutclk_bufg : BUFG
+--port map(
+--    O => rxoutclk_i,
+--    I => rxoutclk_o
 --);
 
-rxoutclk_bufg : BUFG
-port map(
-    O => rxoutclk_i,
-    I => rxoutclk_o
-);
-
-txoutclk_bufg : BUFG
-port map(
-    O => txoutclk_i,
-    I => txoutclk_o
-);
+--txoutclk_bufg : BUFG
+--port map(
+--    O => txoutclk_i,
+--    I => txoutclk_o
+--);
 
 -- Must be driven high when the txusrclk and rxusrclk are valid
 --rxuserrdy_i <= not SYNC_RESET;
