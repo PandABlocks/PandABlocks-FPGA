@@ -27,7 +27,7 @@ end sfp_panda_sync_receiver;
 architecture rtl of sfp_panda_sync_receiver is
 
 
-type t_STATE_DATA is (STATE_BITS_START, STATE_POSOUT1, STATE_BITS1 STATE_POSOUT2, STATE_BITS2, STATE_POSOUT3, STATE_BITS_ALIGN, STATE_POSOUT4);
+type t_STATE_DATA is (STATE_BITS_START, STATE_POSOUT1, STATE_BITS1, STATE_POSOUT2, STATE_BITS2, STATE_POSOUT3, STATE_BITS_ALIGN, STATE_POSOUT4);
 
 type t_rxdata_posbit is array(0 to 1) of std_logic_vector(31 downto 0);
 
@@ -39,8 +39,8 @@ constant c_MGT_RX_PRESCALE  : unsigned(9 downto 0) := to_unsigned(1023,10);
 
 
 signal STATE_DATA            : t_STATE_DATA;   
-signal rxdata_posbit         : t_rxdata_posbit;
-signal rxdata_posbit         : t_rxdata_posbit;   
+signal rxdata_bit            : t_rxdata_posbit;
+signal rxdata_pos            : t_rxdata_posbit;   
 signal rx_error              : std_logic;
 signal loss_lock             : std_logic;
 signal rx_link_ok            : std_logic := '0';
@@ -210,7 +210,7 @@ begin
                when STATE_BITS2 => 
                     data_num <= to_unsigned(1,4);
                     pktstart <= '0';
-                    rxdata_posbit(0) <= rxdata_i(31 downto 16);
+                    rxdata_bit(0) <= rxdata_i(31 downto 16);
                     STATE_DATA <= STATE_POSOUT3; 
                
                -- POSOUT3
@@ -285,7 +285,7 @@ begin
             if data_stretched_meta2(0) = '1' then
                 BITIN <= rxdata_bit(0);
             elsif data_stretched_meta2(2) = '1' then     
-                BITIN <= rxdata_bits(1);
+                BITIN <= rxdata_bit(1);
             end if;    
             
             -- Pass out the POS 1 data
