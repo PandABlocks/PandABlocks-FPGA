@@ -27,10 +27,10 @@ end sfp_panda_sync_receiver;
 architecture rtl of sfp_panda_sync_receiver is
 
 
-type t_STATE_DATA is (STATE_BITS_START, STATE_POSOUT1, STATE_BITS1, STATE_POSOUT2, STATE_BITS2, STATE_POSOUT3, STATE_BITS_ALIGN, STATE_POSOUT4);
+type t_STATE_DATA is (STATE_BITS_START, STATE_POSOUT1, STATE_POSOUT2, STATE_BITS_ALIGN, STATE_POSOUT3, STATE_POSOUT4);
 
 type t_rxdata_pos is array(0 to 1) of std_logic_vector(31 downto 0);
-type t_rxdata_bit is array(0 to 1) of std_logic_vector(15 downto 0); 
+--type t_rxdata_bit is array(0 to 1) of std_logic_vector(15 downto 0); 
 
 constant c_kchar_byte_en    : std_logic_vector(3 downto 0) := "0001";
 constant c_zeros            : std_logic_vector(3 downto 0) := "0000";
@@ -42,8 +42,8 @@ constant c_MGT_RX_PRESCALE  : unsigned(9 downto 0) := to_unsigned(1023,10);
 
 
 signal STATE_DATA            : t_STATE_DATA;   
-signal rxdata_bit            : t_rxdata_bit;
 signal rxdata_pos            : t_rxdata_pos;   
+signal rxdata_bit            : std_logic_vector(31 downto 0);
 signal rx_error              : std_logic;
 signal loss_lock             : std_logic;
 signal rx_link_ok            : std_logic := '0';
@@ -51,9 +51,9 @@ signal pktstart              : std_logic;
 signal rx_error_count        : unsigned(5 downto 0);
 signal prescaler             : unsigned(9 downto 0) := (others => '0');
 signal disable_link          : std_logic := '1';
-signal data_num              : unsigned(7 downto 0);
-signal data_num_dly          : unsigned(7 downto 0);
-signal data_stretched        : std_logic_vector(7 downto 0);             
+signal data_num              : unsigned(5 downto 0);
+signal data_num_dly          : unsigned(5 downto 0);
+signal data_stretched        : std_logic_vector(5 downto 0);             
 signal BITIN                 : std_logic_vector(15 downto 0);
 signal POSIN1                : std_logic_vector(31 downto 0);
 signal POSIN2                : std_logic_vector(31 downto 0);
@@ -62,8 +62,8 @@ signal POSIN4                : std_logic_vector(31 downto 0);
 -- Metastable signals
 signal rx_link_ok_meta1      : std_logic;
 signal rx_link_ok_meta2      : std_logic; 
-signal data_stretched_meta1  : std_logic_vector(7 downto 0);
-signal data_stretched_meta2  : std_logic_vector(7 downto 0);  
+signal data_stretched_meta1  : std_logic_vector(5 downto 0);
+signal data_stretched_meta2  : std_logic_vector(5 downto 0);  
 
 attribute ASYNC_REG : string;
 attribute ASYNC_REG of data_stretched_meta1 : signal is "TRUE";
@@ -184,57 +184,44 @@ begin
                     -- Packet start 16 bits                    
                     if (rxcharisk_i = c_kchar_byte_en and rxdata_i(7 downto 0) = c_k28_0) then
                         pktstart <= '1';    
-                        data_num <= to_unsigned(1,8);
-                        rxdata_bit(0) <= rxdata_i(31 downto 16);
+                        data_num <= to_unsigned(1,6);
+                        rxdata_bit <= rxdata_i(31 downto 16);
                         STATE_DATA <= STATE_POSOUT1;
                     end if;
                     
                 -- POSOUT1    
                 when STATE_POSOUT1 => 
-                    data_num <= to_unsigned(2,8);
+                    data_num <= to_unsigned(2,6);
                     pktstart <= '0';
                     rxdata_pos(0) <= rxdata_i;
-                    STATE_DATA <= STATE_BITS1;
-                
-                -- BITs
-                when STATE_BITS1 => 
-                    data_num <= to_unsigned(4,8);
-                    rxdata_bit(1) <= rxdata_i(31 downto 16);
                     STATE_DATA <= STATE_POSOUT2;
                                     
                 -- POSOUT2
                 when STATE_POSOUT2 => 
-                    data_num <= to_unsigned(8,8);                
+                    data_num <= to_unsigned(4,6);                
                     pktstart <= '0';
                     rxdata_pos(1) <= rxdata_i;
-                    STATE_DATA <= STATE_BITS2;
+                    STATE_DATA <= STATE_BITS_ALIGN;
              
                -- BITs
-               when STATE_BITS2 => 
-                    if (rxcharisk_i = c_kchar_byte_en and rxdata_i(7 downto 0) = c_k28_0) then
-                        data_num <= to_unsigned(16,8);
+               when STATE_BITS_ALIGN => 
+                    if (rxcharisk_i = c_kchar_byte_en and rxdata_i(7 downto 0) = c_k28_5) then
+                        data_num <= to_unsigned(8,6);
                         pktstart <= '0';
-                        rxdata_bit(0) <= rxdata_i(31 downto 16);
+                        rxdata_bit <= rxdata_i(31 downto 16);
                         STATE_DATA <= STATE_POSOUT3; 
                     end if;
                
                -- POSOUT3
                when STATE_POSOUT3 => 
-                    data_num <= to_unsigned(32,8);
+                    data_num <= to_unsigned(16,6);
                     pktstart <= '0';
                     rxdata_pos(0) <= rxdata_i;
-                    STATE_DATA <= STATE_BITS_ALIGN;
-
-                -- BITS and alignment  
-                when STATE_BITS_ALIGN => 
-                    data_num <= to_unsigned(64,8);  
-                    pktstart <= '0';
-                    rxdata_bit(1) <= rxdata_i(31 downto 16);
                     STATE_DATA <= STATE_POSOUT4;
                
                -- POSOUT4
                when STATE_POSOUT4 => 
-                    data_num <= to_unsigned(128,8);
+                    data_num <= to_unsigned(32,6);
                     pktstart <= '0';
                     rxdata_pos(1) <= rxdata_i;
                     STATE_DATA <= STATE_BITS_START;          
@@ -266,15 +253,13 @@ POSIN4_o <= POSIN4;
 
 -- BITIN(start packet k character), POSIN1, BITIN, POSIN2, BITIN, POSIN3, BITIN(alignment k character), POSIN4
 
--- RXDATA  data_stretched_meta2    0   1   2   3   4   5   6   7   
--- BITIN1                          1   0   0   0   0   0   0   0
--- POSIN1                          0   1   0   0   0   0   0   0                      
--- BITIN2                          0   0   1   0   0   0   0   0 
--- POSIN2                          0   0   0   1   0   0   0   0 
--- BITIN3                          0   0   0   0   1   0   0   0
--- POSOUT3                         0   0   0   0   0   1   0   0
--- BITIN4                          0   0   0   0   0   0   1   0          
--- POSOUT4                         0   0   0   0   0   0   0   1  
+-- RXDATA  data_stretched_meta2    0   1   2   3   4   5   
+-- BITIN                           1   0   0   0   0   0
+-- POSIN1                          0   1   0   0   0   0                      
+-- POSIN2                          0   0   1   0   0   0 
+-- BITIN                           0   0   0   1   0   0         
+-- POSOUT3                         0   0   0   0   1   0
+-- POSOUT4                         0   0   0   0   0   1  
 
 ps_meta_data: process(clk_i)
 begin
@@ -287,11 +272,10 @@ begin
             data_stretched_meta1 <= data_stretched;    
             data_stretched_meta2 <= data_stretched_meta1;
             -- Pass out the BITIN 16 bits data
-            if data_stretched_meta2(0) = '1' or data_stretched_meta2(4) = '1' then
-                BITIN <= rxdata_bit(0);
-            elsif data_stretched_meta2(2) = '1' or data_stretched_meta2(6) = '1' then     
-                BITIN <= rxdata_bit(1);
-    
+            if data_stretched_meta2(0) = '1' then
+                BITIN <= rxdata_bit;
+            elsif data_stretched_meta2(3) = '1' then     
+                BITIN <= rxdata_bit;
             end if;    
             
             -- Pass out the POS 1 data
@@ -302,21 +286,21 @@ begin
             end if;        
             
             -- Pass out the POS 2 data
-            if data_stretched_meta2(3) = '1' then
+            if data_stretched_meta2(2) = '1' then
                 POSIN2 <= rxdata_pos(1);
             else
                 POSIN2 <= POSIN2;
             end if;    
             
             -- Pass out the POS 3 data
-            if data_stretched_meta2(5) = '1' then
+            if data_stretched_meta2(4) = '1' then
                 POSIN3 <= rxdata_pos(0);
             else
                 POSIN3 <= POSIN3;
             end if;
             
             -- Pass out the POS 4 data
-            if data_stretched_meta2(7) = '1' then
+            if data_stretched_meta2(5) = '1' then
                 POSIN4 <= rxdata_pos(1);
             else
                 POSIN4 <= POSIN4;
