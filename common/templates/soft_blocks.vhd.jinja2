@@ -44,10 +44,15 @@ port (
     rdma_data       : in    std_logic_vector(31 downto 0);
     rdma_valid      : in    std_logic_vector(5 downto 0);
     --
-    FMC             : inout FMC_interface;
-    SFP1            : inout SFP_interface;
-    SFP2            : inout SFP_interface;
-    SFP3            : inout SFP_interface
+    FMC_i           : in    FMC_input_interface;    
+    FMC_io          : inout FMC_inout_interface;
+    FMC_o           : out   FMC_output_interface;
+    SFP1_i          : in    SFP_input_interface; 
+    SFP1_o          : out   SFP_output_interface;
+    SFP2_i          : in    SFP_input_interface; 
+    SFP2_o          : out   SFP_output_interface;
+    SFP3_i          : in    SFP_input_interface; 
+    SFP3_o          : out   SFP_output_interface
 );
 end soft_blocks;
 
@@ -90,10 +95,13 @@ port map (
         {% if dma.append(dma.pop() + 1) %}{% endif %}
     {% elif block.type == "sfp" %}
 
-    SFP_interface       => sfp{{ block.sfp_site }},
+    SFP_i               => SFP{{ block.sfp_site }}_i,
+    SFP_o               => SFP{{ block.sfp_site }}_o,
     {% elif block.type == "fmc" %}
 
-    FMC_interface       => FMC,
+    FMC_i               => FMC_i,
+    FMC_io              => FMC_io,
+    FMC_o               => FMC_o,
     {% endif %}
 
     bit_bus_i           => bit_bus_i,
