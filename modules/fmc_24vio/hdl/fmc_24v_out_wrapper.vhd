@@ -41,7 +41,9 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
-    FMC_interface       : inout fmc_interface
+    FMC_i               : in  fmc_input_interface;
+    FMC_io              : inout fmc_inout_interface;
+    FMC_o               : out fmc_output_interface
 );
 end fmc_24v_out_wrapper;
 
@@ -86,8 +88,8 @@ port map (
 --)
 --port map (
 --    O           => FMC_CLK0_M2C,
---    I           => FMC_interface.FMC_CLK0_M2C_P,
---    IB          => FMC_interface.FMC_CLK0_M2C_N
+--    I           => FMC_io.FMC_CLK0_M2C_P,
+--    IB          => FMC_io.FMC_CLK0_M2C_N
 --);
 
 --IBUFGDS_CLK1 : IBUFGDS
@@ -97,15 +99,15 @@ port map (
 --)
 --port map (
 --    O           => FMC_CLK1_M2C,
---    I           => FMC_interface.FMC_CLK1_M2C_P,
---    IB          => FMC_interface.FMC_CLK1_M2C_N
+--    I           => FMC_i.FMC_CLK1_M2C_P,
+--    IB          => FMC_i.FMC_CLK1_M2C_N
 --);
 
 
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
-FMC_PRSNT_DW <= ZEROS(31) & FMC_interface.FMC_PRSNT;
+FMC_PRSNT_DW <= ZEROS(31) & FMC_i.FMC_PRSNT;
 
 fmc_ctrl : entity work.fmc_24v_out_ctrl
 port map (
@@ -151,8 +153,8 @@ fmc_24v_out_inst : entity work.fmc_24v_out
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
-    FMC_LA_P            => FMC_interface.FMC_LA_P,
-    FMC_LA_N            => FMC_interface.FMC_LA_N,
+    FMC_LA_P            => FMC_io.FMC_LA_P,
+    FMC_LA_N            => FMC_io.FMC_LA_N,
     OUT_PWR_ON          => OUT_PWR_ON(0),
     OUT_PUSHPL          => OUT_PUSHPL(0),
     OUT_FLTR            => OUT_FLTR(0),

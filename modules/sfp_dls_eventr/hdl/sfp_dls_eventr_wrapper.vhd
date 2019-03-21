@@ -33,7 +33,8 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic := '1';
 
-    SFP_interface       : inout SFP_interface
+    SFP_i               : in SFP_input_interface;
+    SFP_o               : out SFP_output_interface
 );
 end sfp_dls_eventr_wrapper;
 
@@ -103,8 +104,8 @@ begin
 
 -- Assign outputs
 
-SFP_interface.EVR_REC_CLK <= rxoutclk;
-SFP_interface.LINK_UP <= LINKUP(0);
+SFP_o.EVR_REC_CLK <= rxoutclk;
+SFP_o.LINK_UP <= LINKUP(0);
 
 bit1_o(0) <= bit1;
 bit2_o(0) <= bit2;
@@ -172,13 +173,13 @@ port map(
 
 sfpgtx_event_receiver_inst: entity work.sfp_event_receiver
 port map(
-    GTREFCLK         => SFP_interface.GTREFCLK,
+    GTREFCLK         => SFP_i.GTREFCLK,
     event_reset_i      => EVENT_RESET,
     event_clk_i        => event_clk,
-    rxp_i              => SFP_interface.RXP_IN,
-    rxn_i              => SFP_interface.RXN_IN,
-    txp_o              => SFP_interface.TXP_OUT,
-    txn_o              => SFP_interface.TXN_OUT,
+    rxp_i              => SFP_i.RXP_IN,
+    rxn_i              => SFP_i.RXN_IN,
+    txp_o              => SFP_o.TXP_OUT,
+    txn_o              => SFP_o.TXN_OUT,
     rx_link_ok_i       => rx_link_ok_o,
     rxbyteisaligned_o  => rxbyteisaligned_o,
     rxbyterealign_o    => rxbyterealign_o,

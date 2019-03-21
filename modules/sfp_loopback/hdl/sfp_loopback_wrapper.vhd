@@ -27,7 +27,8 @@ port (
     write_ack_o         : out std_logic := '1';
 
     -- SFP Interface
-    SFP_interface       : inout SFP_interface
+    SFP_i               : in SFP_input_interface;
+    SFP_o               : out SFP_output_interface
 );
 end sfp_loopback_wrapper;
 
@@ -59,16 +60,16 @@ port map (
 --
 sfpgtx_exdes_i : entity work.sfpgtx_exdes
 port map (
-    Q0_CLK0_GTREFCLK_PAD_IN       => SFP_interface.GTREFCLK,
+    Q0_CLK0_GTREFCLK_PAD_IN       => SFP_i.GTREFCLK,
     GTREFCLK                    => GTREFCLK,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
     LINK_UP                    => LINK_UP,
     ERROR_COUNT                => ERROR_COUNT,
-    RXN_IN                      => SFP_interface.RXN_IN,
-    RXP_IN                      => SFP_interface.RXP_IN,
-    TXN_OUT                     => SFP_interface.TXN_OUT,
-    TXP_OUT                     => SFP_interface.TXP_OUT
+    RXN_IN                      => SFP_i.RXN_IN,
+    RXP_IN                      => SFP_i.RXP_IN,
+    TXN_OUT                     => SFP_o.TXN_OUT,
+    TXP_OUT                     => SFP_o.TXP_OUT
 );
 
 ---------------------------------------------------------------------------
@@ -86,13 +87,10 @@ port map (
     freq_out(0)        => FREQ_VAL
 );
 
-SFP_LOS_VEC <= (0 => SFP_interface.SFP_LOS, others => '0');
+SFP_LOS_VEC <= (0 => SFP_i.SFP_LOS, others => '0');
 
-MAC_HI(23 downto 0) <= SFP_interface.MAC_ADDR(47 downto 24);
-MAC_LO(23 downto 0) <= SFP_interface.MAC_ADDR(23 downto 0);
-
---MAC_HI <= (23 downto 0 => SFP_interface.MAC_ADDR(47 downto 24), others => '0');
---MAC_LO <= (23 downto 0 => SFP_interface.MAC_ADDR(23 downto 0), others => '0');
+MAC_HI(23 downto 0) <= SFP_i.MAC_ADDR(47 downto 24);
+MAC_LO(23 downto 0) <= SFP_i.MAC_ADDR(23 downto 0);
 
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
