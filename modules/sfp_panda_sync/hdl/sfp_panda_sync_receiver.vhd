@@ -43,7 +43,7 @@ constant c_MGT_RX_PRESCALE  : unsigned(9 downto 0) := to_unsigned(1023,10);
 
 signal STATE_DATA            : t_STATE_DATA;   
 signal rxdata_pos            : t_rxdata_pos;   
-signal rxdata_bit            : std_logic_vector(31 downto 0);
+signal rxdata_bit            : std_logic_vector(15 downto 0);
 signal rx_error              : std_logic;
 signal loss_lock             : std_logic;
 signal rx_link_ok            : std_logic := '0';
@@ -157,18 +157,16 @@ end process ps_link_lost;
 
 
 
--- Received data          Packet Start          Alignment           data_num(7 downto 0) 
--- BITIN1 and K28              1                   0                   1      0   
--- POSIN1                      0                   0                  16      4
--- BITIN2 and zero             0                   0                   2      1
--- POSIN2                      0                   0                  32      5
--- BITIN3 and zero             0                   0                   4      2
--- POSIN3                      0                   0                  64      6
--- BITIN4 and K28.5            0                   1                   8      3
--- POSIN4                      0                   0                 128      7
--- BITIN1 and K28              1                   0                   1      0  
--- POSIN1                      0                   0                  16      4
--- BITIN2 and zero             0                   0                   2      1
+-- Received data          Packet Start          Alignment           data_num(5 downto 0) 
+-- BITIN1 and K28_0            1                   0                   0      1   
+-- POSIN1                      0                   0                   1      2  
+-- POSIN2                      0                   0                   2      4  
+-- BITIN3 and K28_5            0                   1                   4      8  
+-- POSIN3                      0                   0                   4     16    
+-- POSIN4                      0                   0                   5     32    
+-- BITIN1 and K28_o            1                   0                   0      1
+-- POSIN1                      0                   0                   1      2  
+-- POSIN2                      0                   0                   2      4  
 
 
 -- Capture the data
