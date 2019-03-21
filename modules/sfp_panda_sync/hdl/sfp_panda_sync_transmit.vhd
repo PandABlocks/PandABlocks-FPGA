@@ -42,14 +42,8 @@ signal data_buf1                     : t_data := (others => (others => '0'));
 signal data_buf2                     : t_data := (others => (others => '0'));  
 signal buf_to_use                    : std_logic;
 signal buf                           : std_logic;  
-signal bitout_ored                   : std_logic_vector(15 downto 0); 
+signal bitout_ored                   : std_logic_vector(15 downto 0) := (others => '0'); 
 
-signal reg1_meta1                    : std_logic := '0';
-signal reg2_meta2                    : std_logic := '0';
-signal reg3_meta3                    : std_logic := '0';
-signal reg4_meta1                    : std_logic := '0';
-signal reg5_meta2                    : std_logic := '0';
-signal reg6_meta3                    : std_logic := '0';
 signal not_reg6                      : std_logic := '0';
 signal xored_clk                     : std_logic;
 signal start_clk                     : std_logic;
@@ -62,13 +56,24 @@ signal rx_link_ok1_meta1             : std_logic;
 signal rx_link_ok1_meta2             : std_logic;
 signal rx_link_ok2_meta1             : std_logic;
 signal rx_link_ok2_meta2             : std_logic;
-
+signal reg1_meta1                    : std_logic := '0';
+signal reg2_meta2                    : std_logic := '0';
+signal reg3_meta3                    : std_logic := '0';
+signal reg4_meta1                    : std_logic := '0';
+signal reg5_meta2                    : std_logic := '0';
+signal reg6_meta3                    : std_logic := '0';
 
 attribute ASYNC_REG : string;
 attribute ASYNC_REG of rx_link_ok1_meta1    : signal is "TRUE";
 attribute ASYNC_REG of rx_link_ok1_meta2    : signal is "TRUE";
 attribute ASYNC_REG of rx_link_ok2_meta1    : signal is "TRUE";
 attribute ASYNC_REG of rx_link_ok2_meta2    : signal is "TRUE";
+attribute ASYNC_REG of reg1_meta1           : signal is "TRUE";
+attribute ASYNC_REG of reg2_meta2           : signal is "TRUE";
+attribute ASYNC_REG of reg3_meta3           : signal is "TRUE";
+attribute ASYNC_REG of reg4_meta1           : signal is "TRUE";
+attribute ASYNC_REG of reg5_meta2           : signal is "TRUE";
+attribute ASYNC_REG of reg6_meta3           : signal is "TRUE";
 
 
 
@@ -118,8 +123,8 @@ begin
                         data_buf1(0)(31 downto 16) <= bitout_ored or BITOUT_i;
                         data_buf1(0)(15 downto 0)  <=  x"00" & c_k28_0;
                     else
-                        data_buf2(0)(31 downto 16) <= bitout_ored;
-                        data_buf2(0)(15 downto 0)  <= x"0000";
+                        data_buf2(0)(31 downto 16) <= bitout_ored or BITOUT_i;
+                        data_buf2(0)(15 downto 0)  <= x"00" & c_k28_0;
                     end if;
                             SM_DATA_IN <= STATE_POSOUT13;
 --                    end if;
@@ -139,9 +144,9 @@ begin
                     bitout_ored <= (others => '0');
                     if buf = '0' then
                         data_buf1(2)(31 downto 16) <= bitout_ored or BITOUT_i;
-                        data_buf1(2)(15 downto 0)  <=  x"0000";
+                        data_buf1(2)(15 downto 0)  <=  x"00" & c_k28_5;
                     else
-                        data_buf2(2)(31 downto 16) <= bitout_ored;
+                        data_buf2(2)(31 downto 16) <= bitout_ored or BITOUT_i;
                         data_buf2(2)(15 downto 0)  <= x"00" & c_k28_5;
                     end if;
                     SM_DATA_IN <= STATE_POSOUT24;  
@@ -154,7 +159,6 @@ begin
                     else
                         data_buf2(3) <= POSOUT4_i;
                     end if;        
-                    bitout_ored <= bitout_ored or BITOUT_i;
                     if start_clk = '1' then
                         if buf = '0' then
                             buf <= '1';
@@ -170,6 +174,7 @@ begin
             
             end case;
         else
+            buf <= '0';
             SM_DATA_IN <= STATE_IDLE;
         end if;                    
     end if;
@@ -191,12 +196,11 @@ begin
                 -- 16 bits plus the k character or just zeros
                 when STATE_BITIN1 =>
                     if start_txoutclk = '1' then
+                        txcharisk_o <= c_kchar;
                         -- Packet start bit
                         if buf_to_use = '0' then
-                            txcharisk_o <= c_kchar;
                             txdata_o <= data_buf1(0);
                         else
-                            txcharisk_o <= (others => '0');
                             txdata_o <= data_buf2(0);
                         end if;    
                         SM_DATA <= STATE_POSIN13;
@@ -213,12 +217,11 @@ begin
                     SM_DATA <= STATE_BITIN2;
                     
                 when STATE_BITIN2 =>    
+                    txcharisk_o <= c_kchar;
                     -- Packet start bit
                     if buf_to_use = '0' then
-                        txcharisk_o <= (others => '0');
                         txdata_o <= data_buf1(2);
                     else
-                        txcharisk_o <= c_kchar;
                         txdata_o <= data_buf2(2);
                     end if;    
                     SM_DATA <= STATE_POSIN24;
@@ -251,6 +254,7 @@ end process ps_data_out;
 xored_clk <= reg_clk_dly xor reg3_meta3; 
 
 
+-- Ring buffer reg1, reg2 and reg3
 ps_ring_buf1: process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -259,6 +263,7 @@ begin
             reg2_meta2 <= reg1_meta1; 
             reg3_meta3 <= reg2_meta2;
             reg_clk_dly <= reg3_meta3;
+            -- Xor the edge for edge detection
             if xored_clk = '1' then
                 start_clk <= '1';
             else
@@ -273,6 +278,7 @@ not_reg6 <= not reg6_meta3;
 
 xored_txoutclk <= reg_txoutclk_dly xor reg6_meta3;
 
+-- Ringer buffer reg4, reg5 and reg6
 ps_ring_buf2: process(txoutclk_i) 
 begin
     if rising_edge(txoutclk_i) then
@@ -281,6 +287,7 @@ begin
             reg5_meta2 <= reg4_meta1;
             reg6_meta3 <= reg5_meta2;
             reg_txoutclk_dly <= reg6_meta3;
+            -- Xor the for edge detection
             if xored_txoutclk = '1' then
                 start_txoutclk <= '1';
             else

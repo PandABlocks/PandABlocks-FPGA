@@ -48,8 +48,8 @@ entity sfp_panda_sync_wrapper is
         write_data_i     : in  std_logic_vector(31 downto 0);
         write_ack_o      : out std_logic;
 
-        SFP_interface    : inout SFP_interface
-
+        SFP_i            : in  SFP_input_interface;
+        SFP_o            : out SFP_output_interface
         );
 end sfp_panda_sync_wrapper;
 
@@ -68,8 +68,6 @@ signal rxoutclk_o         : std_logic;
 signal txoutclk_o         : std_logic;
 signal rxoutclk_i         : std_logic;
 signal txoutclk_i         : std_logic;   
-signal rxoutclk           : std_logic;
-signal txoutclk           : std_logic;      
 signal rxdata_o           : std_logic_vector(31 downto 0); 
 signal rxcharisk_o        : std_logic_vector(3 downto 0); 
 signal rxdisperr_o        : std_logic_vector(3 downto 0); 
@@ -82,7 +80,6 @@ signal POSIN2             : std_logic_vector(31 downto 0);
 signal POSIN3             : std_logic_vector(31 downto 0);  
 signal POSIN4             : std_logic_vector(31 downto 0);  
 signal BITIN              : std_logic_vector(15 downto 0);  
---
 signal BITOUT1            : std_logic;  
 signal BITOUT2            : std_logic;  
 signal BITOUT3            : std_logic;  
@@ -132,46 +129,21 @@ BITIN1_o(0) <= BITIN(0);
   
 
 
-
-
---BUFGMUX_RX_inst :BUFGMUX
---    port map (
---        O   => rxoutclk_i,
---        I0  => rxoutclk_o,
---        I1  => clk_i,
---        S   => SFP_interface.MGT_CLK_SEL
---);
-
-
-BUFGMUX_TX_inst :BUFGMUX
-    port map (
-        O   => txoutclk,
-        I0  => txoutclk_o,
-        I1  => clk_i,
-        S   => SFP_interface.MGT_CLK_SEL
+rxoutclk_bufg : BUFG
+port map(
+    O => rxoutclk_i,
+    I => rxoutclk_o
 );
 
 
-rxoutclk_i <= txoutclk;
-txoutclk_i <= txoutclk;
+txoutclk_bufg : BUFG
+port map(
+    O => txoutclk_i,
+    I => txoutclk_o
+);
 
-
-
---rxoutclk_bufg : BUFG
---port map(
---    O => rxoutclk_i,
---    I => rxoutclk_o
---);
-
---txoutclk_bufg : BUFG
---port map(
---    O => txoutclk_i,
---    I => txoutclk_o
---);
 
 -- Must be driven high when the txusrclk and rxusrclk are valid
---rxuserrdy_i <= not SYNC_RESET;
---txuserrdy_i <= not SYNC_RESET; 
 rxuserrdy_i <= rx_link_ok;
 txuserrdy_i <= rx_link_ok; 
 
@@ -220,20 +192,19 @@ sfp_panda_sync_receiver_inst : entity work.sfp_panda_sync_receiver
         );
 
 
-
 -- txouttclk is the recomended clock for the FPGA frabric 
 sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface 
 
     port map(
-        GTREFCLK          => SFP_interface.GTREFCLK,        
+        GTREFCLK          => SFP_i.GTREFCLK,        
         SYNC_RESET_i      => SYNC_RESET,       
         clk_i             => clk_i, 
         rxoutclk_i        => rxoutclk_i,
         txoutclk_i        => txoutclk_i,          
-        rxp_i             => SFP_interface.RXP_IN,             
-        rxn_i             => SFP_interface.RXN_IN,             
-        txp_o             => SFP_interface.TXP_OUT,             
-        txn_o             => SFP_interface.TXN_OUT,             
+        rxp_i             => SFP_i.RXP_IN,             
+        rxn_i             => SFP_i.RXN_IN,             
+        txp_o             => SFP_o.TXP_OUT,             
+        txn_o             => SFP_o.TXN_OUT,             
         rxuserrdy_i       => rxuserrdy_i,
         txuserrdy_i       => txuserrdy_i,        
         rxbyteisaligned_o => rxbyteisaligned_o, 
