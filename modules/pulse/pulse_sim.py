@@ -37,10 +37,6 @@ class PulseSimulation(BlockSimulation):
     def do_queue(self, ts, level):
         self.queue.append((ts, level))
 
-    def do_reset(self):
-        """Reset the block, called on rising edge of ENABLE"""
-        self.DROPPED = 0
-
     def do_clear_queue(self, ts):
         """Clear the queue, but not any errors"""
         self.valid_ts = ts + QUEUE_CLEAR_TIME
@@ -62,12 +58,13 @@ class PulseSimulation(BlockSimulation):
         # flag clear queue if settings change or on falling ENABLE
         clear_if = {NAMES.DELAY_L, NAMES.DELAY_H, NAMES.WIDTH_L, NAMES.WIDTH_H,
                     NAMES.STEP_L, NAMES.STEP_H, NAMES.PULSES, NAMES.TRIG_EDGE}
-        if (clear_if.intersection(changes) and self.ENABLE) \
-                or changes.get(NAMES.ENABLE, None) == 0:
+        has_reset = (clear_if.intersection(changes) and self.ENABLE) \
+            or changes.get(NAMES.ENABLE, None) == 0
+        if has_reset:
             self.do_clear_queue(ts)
         # On rising edge of enable clear errors
         elif changes.get(NAMES.ENABLE, None) == 1:
-            self.do_reset()
+            self.DROPPED = 0
 
         if self.ENABLE:
             # This is the value self.OUT will be set to at the end
@@ -91,7 +88,7 @@ class PulseSimulation(BlockSimulation):
             if self.queue and self.queue[0][0] == ts:
                 # generate output value
                 out = self.queue.popleft()[1]
-            elif self.edges_remaining:
+            elif not has_reset and self.edges_remaining:
                 # falling edge if we have an even number of pulses left to make
                 is_falling = self.edges_remaining % 2
                 # Produce the next edge if the right time
