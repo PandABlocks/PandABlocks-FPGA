@@ -73,30 +73,6 @@ class PulseSimulation(BlockSimulation):
             # This is the value self.OUT will be set to at the end
             out = self.OUT
 
-            # if we have an pulse on our queue that is due, produce it
-            if self.queue and self.queue[0][0] == ts:
-                # generate output value
-                out = self.queue.popleft()[1]
-
-            # if we have anything else on the queue, return when it's due
-            if self.queue:
-                next_ts = self.queue[0][0]
-                assert next_ts >= ts, "Going back in time %s >= %s" % (
-                    next_ts, ts)
-
-            # Event list size is registered one clock tick later
-            self.QUEUED = len(self.queue)
-
-            # Work out if we need to produce a rising edge or falling edge
-            if NAMES.TRIG in changes:
-                trig_rise = (self.TRIG_EDGE == 0 and self.TRIG) or \
-                            (self.TRIG_EDGE == 1 and not self.TRIG) or \
-                            self.TRIG_EDGE == 2
-                trig_fall = not trig_rise
-            else:
-                trig_rise = False
-                trig_fall = False
-
             # If the queue isn't valid at the moment then error
             # If there isn't room for 2 on the queue then error
             # If WIDTH is zero DELAY should be >3, or if DELAY is zero WIDTH
@@ -110,74 +86,99 @@ class PulseSimulation(BlockSimulation):
             pulses = max(1, self.PULSES)
             step = max(self.STEP_L + (self.STEP_H << 32),
                        width + MIN_QUEUE_DELTA)
-            queue_full = len(self.queue) + 2 > MAX_QUEUE
 
-            if self.produced_width and self.edges_remaining:
-                # Queue any pulses that are still pending
+            # if we have an pulse on our queue that is due, produce it
+            if self.queue and self.queue[0][0] == ts:
+                # generate output value
+                out = self.queue.popleft()[1]
+            elif self.edges_remaining:
+                # falling edge if we have an even number of pulses left to make
+                is_falling = self.edges_remaining % 2
+                # Produce the next edge if the right time
                 pulse_index = pulses - (self.edges_remaining + 1) // 2
                 pulse_start = self.rising_ts + delay + pulse_index * step
-                if self.edges_remaining % 2:
-                    # Produce low level
-                    self.do_queue(pulse_start + self.produced_width, 0)
+                if is_falling:
+                    check_ts = pulse_start + self.produced_width
+                    next_ts = pulse_start + step
                 else:
-                    # Produce high level
-                    self.do_queue(pulse_start, 1)
-                self.edges_remaining -= 1
-                # If we needed to produce a rising edge, drop it
-                if trig_rise:
-                    self.DROPPED += 1
+                    check_ts = pulse_start
+                    next_ts = pulse_start + self.produced_width
+                if ts == check_ts:
+                    # Produce the pulse now
+                    out = not is_falling
+                    self.edges_remaining -= 1
+
+            # if we have anything else on the queue, return when it's due
+            if self.queue:
+                next_queued = self.queue[0][0]
+                if next_ts is None or next_ts > next_queued:
+                    next_ts = next_queued
+
+            # Event list size is registered one clock tick later
+            self.QUEUED = len(self.queue)
+
+            # Work out if we need to produce a rising edge or falling edge
+            if NAMES.TRIG in changes:
+                trig_rise = (self.TRIG_EDGE == 0 and self.TRIG) or \
+                            (self.TRIG_EDGE == 1 and not self.TRIG) or \
+                            self.TRIG_EDGE == 2
+                trig_fall = not trig_rise
+            else:
+                trig_rise = False
+                trig_fall = False
+            queue_full = len(self.queue) + 2 > MAX_QUEUE
+
             # If we got a pulse that won't fit, error
-            elif trig_rise and (ts < self.valid_ts or queue_full):
+            if trig_rise and (ts < self.valid_ts or queue_full):
                 self.DROPPED += 1
             elif trig_rise:
                 if delay == 0:
                     # Produce pulse now
                     out = 1
-                    if width != 0:
-                        # Queue falling edge
-                        self.do_queue(ts + delay + width, 0)
-                        # We already made the first rising and falling edges
-                        # the rest are still needed
-                        self.edges_remaining = 2 * pulses - 2
                 else:
-                    # Queue rising edge
+                    # Queue the rising edge
                     self.do_queue(ts + delay, 1)
-                    # We already made the rising edge, the rest are still needed
-                    self.edges_remaining = 2 * pulses - 1
                 # Store that we are currently outputting a pulse and when it
                 # started
                 self.ongoing_pulse = 1
-                self.produced_width = width
                 self.rising_ts = ts
+                # We will need to be called next clock tick to queue the
+                # falling edge
                 if width != 0:
-                    # Can't get another pulse until we produced the falling edge
-                    self.valid_ts = self.rising_ts + (pulses - 1) * step \
-                        + width + MIN_QUEUE_DELTA
-            elif trig_fall and self.ongoing_pulse and width == 0:
-                if delay == 0:
+                    next_ts = ts + 1
+            elif (width == 0 and trig_fall and self.ongoing_pulse) or \
+                    (width != 0 and self.ongoing_pulse):
+                # This is when we need to do something with the falling edge
+                if width == 0:
+                    self.produced_width = ts - self.rising_ts
+                else:
+                    self.produced_width = width
+                if delay == 0 and width == 0:
                     # Bypass the queue, produce it straight away
                     out = 0
                 else:
-                    # Queue the falling edge now
-                    self.do_queue(ts + delay + width, 0)
+                    # Queue the falling edge
+                    self.do_queue(
+                        self.rising_ts + delay + self.produced_width, 0)
                 # We have made the first rising and falling edge, so queue the
                 # rest
                 self.edges_remaining = 2 * pulses - 2
                 # Say that we have stopped outputting a pulse
                 self.ongoing_pulse = 0
-                self.produced_width = ts - self.rising_ts
                 # Can't get another pulse until we produced the falling edge
                 self.valid_ts = self.rising_ts + (pulses - 1) * step \
-                    + width + MIN_QUEUE_DELTA
+                    + self.produced_width + MIN_QUEUE_DELTA
 
             # If we now have edges_remaining, or if we didn't update the queue
             # yet then we need to process then next clock tick
-            if len(self.queue) != self.QUEUED or (
-                    self.edges_remaining and self.produced_width):
+            if len(self.queue) != self.QUEUED:
                 next_ts = ts + 1
 
             # Set the output, which might have been set from the queue, or
             # might be produced straight through
             self.OUT = out
 
-        return next_ts
+        if next_ts:
+            assert next_ts >= ts, "Going back in time %s >= %s" % (
+                next_ts, ts)
+            return next_ts
