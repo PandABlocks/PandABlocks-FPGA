@@ -95,10 +95,14 @@ signal reset                    : std_logic;
 signal reset_err                : std_logic;
 signal pulse                    : std_logic;
 
+signal gap_i                    : unsigned(47 downto 0);
 signal delay_i                  : std_logic_vector(47 downto 0);
 signal width_i                  : std_logic_vector(47 downto 0);
+signal step_i                   : std_logic_vector(47 downto 0);
+signal pulses_i                 : std_logic_vector(31 downto 0);
 signal DELAY_prev               : std_logic_vector(47 downto 0);
 signal WIDTH_prev               : std_logic_vector(47 downto 0);
+signal STEP_prev                : std_logic_vector(47 downto 0);
 
 ----signal config_reset             : std_logic;
 signal trig_prev                 : std_logic;
@@ -106,10 +110,12 @@ signal trig_rise_prev            : std_logic;
 
 signal timestamp                : unsigned(47 downto 0);
 signal timestamp_prev           : unsigned(47 downto 0);
-signal pulse_ts                 : unsigned(47 downto 0);
+signal pulse_ts                 : unsigned(47 downto 0) := (others => '0');
+signal queue_pulse_ts           : unsigned(47 downto 0) := (others => '0');
+signal edges_remaining          : unsigned(31 downto 0) := (others => '0');
 
 signal delta_T                  : unsigned(47 downto 0);
-signal missed_pulses            : unsigned(31 downto 0);
+signal missed_pulses            : unsigned(31 downto 0) := (others => '0');
 
 signal is_first_pulse           : std_logic := '1';
 signal period_error             : std_logic := '0';
@@ -118,14 +124,15 @@ signal value                    : std_logic := '0';
 
 signal is_DELAY_zero            : std_logic := '0';
 signal queued_din               : unsigned(47 downto 0);
-signal pulse_value              : std_logic;
+signal pulse_value              : std_logic := '0';
+signal queue_pulse_value        : std_logic := '0';
 
 signal enable_i_dly             : std_logic;
 signal wait_cnt                 : unsigned(2 downto 0);
 
 signal neg_pulse                : std_logic;
-signal trig_i_neg                : std_logic;
-signal trig_i_int                : std_logic;
+signal trig_i_neg               : std_logic;
+signal trig_i_int               : std_logic;
 signal enable_cnt               : std_logic;
 signal bypass_en                : std_logic;
 signal DELAY_NEG                : unsigned(1 downto 0);
@@ -156,12 +163,23 @@ STEP(47 downto 32) <= STEP_H(15 downto 0);
 -- If DELAY and WIDTH are set too low, the FIFO does not have time to process the data and queue it
 
 -- If 0 < DELAY < 4, it should be set to 4
-delay_i <= DELAY when (unsigned(DELAY) > 4 or unsigned(DELAY) = 0) else (2 => '1',
-                                                                                                                                 others => '0');
--- If Delay is zero and WIDTH is between 0 and 4 WIDTH should be 4
-width_i <= WIDTH when (not(unsigned(DELAY) = 0 and (unsigned(WIDTH) < 4 and unsigned(WIDTH) > 0))) else (2 => '1',
-                                                                                                                                                                                                        others => '0');
+delay_i <=  DELAY when (unsigned(DELAY) > 4 or unsigned(DELAY) = 0) else 
+            (2 => '1', others => '0');
 
+-- If Delay is zero and WIDTH is between 0 and 4 WIDTH should be 4
+width_i <=  WIDTH when (not(unsigned(DELAY) = 0 and (unsigned(WIDTH) < 4 and unsigned(WIDTH) > 0))) else 
+            (2 => '1', others => '0');
+
+-- If step is less than width, make step equal to width; this facilitates continuous pulse and use of the delay line
+step_i <=   STEP when (unsigned(STEP) >= unsigned(width_i)) else 
+            (width_i);
+
+-- Work out the gap between pulses
+gap_i <= unsigned(step_i) - unsigned(width_i);
+
+-- Make sure that if we recieve a pulse and the PULSE counter is accidentally set to zero we don't punish a hapless user
+pulses_i <= PULSES when (unsigned(PULSES) /= 0) else
+            (0 => '1', others => '0');
 
 
 -- Added enable_rise signal
@@ -240,7 +258,7 @@ end process;
 
 -- Initial/Bitbus/Config Reset combined
 -- Changed reset to occur on enable rise
-reset <= DELAY_WSTB or WIDTH_WSTB or enable_rise;
+reset <= DELAY_WSTB or WIDTH_WSTB or STEP_WSTB or PULSES_WSTB or enable_rise;
 
 reset_err <= not enable_i_dly and enable_i;
 
@@ -283,9 +301,36 @@ port map (
 -- timestamp & outp_value @ the timestamp
 pulse_queued_din <= value & std_logic_vector(queued_din);
 
--- Queue output is decomposed into timestamp & outp_value @ the timestamp
-pulse_value <= pulse_queued_dout(48);
-pulse_ts <= unsigned(pulse_queued_dout(47 downto 0));
+queue_pulse_value <= pulse_queued_dout(48);
+queue_pulse_ts <= unsigned(pulse_queued_dout(47 downto 0));
+
+process(clk_i)
+begin
+    if (reset = '1') then
+        edges_remaining <= (others => '0');
+    end if;
+
+    if (edges_remaining = 0) then
+        if (pulse_queued_empty = '0') then
+            -- Queue output is decomposed into timestamp & outp_value @ the timestamp
+            pulse_value <= queue_pulse_value;
+            pulse_ts <= queue_pulse_ts;
+            edges_remaining <= unsigned(pulses_i) + unsigned(pulses_i) - 1;
+        end if;
+    else
+        if (timestamp = pulse_ts) then
+            if (unsigned(edges_remaining mod 2) = 0) then
+                pulse_ts <= timestamp + unsigned(width_i);
+                pulse_value <= not pulse_value; --pulse_queued_dout(48);
+                edges_remaining <= edges_remaining - 1;
+            else
+                pulse_ts <= timestamp + unsigned(gap_i);
+                pulse_value <= not pulse_value; --not pulse_queued_dout(48);
+                edges_remaining <= edges_remaining - 1;
+            end if;
+        end if;
+    end if;
+end process;
 
 --
 -- Main state machine
@@ -346,13 +391,16 @@ begin
             -- pulse.
             elsif (trig_rise = '1' and period_error = '1') then
                 missed_pulses <= missed_pulses + 1;
+            -- Can't have any edges remaining to put out either
+            elsif (trig_rise = '1' and edges_remaining /= 0) then
+                missed_pulses <= missed_pulses + 1;
             end if;
 
             -- Capture timestamp for rising edge of the ongoing pulse, and add
             -- DELAY before writing into the queue.
             -- Ignore if DELAY is set to 0, timestamp for falling edge is
             -- inserted since outp start can not afford queue latency.
-            if (trig_rise = '1' and period_error = '0') then
+            if (trig_rise = '1' and period_error = '0' and edges_remaining = 0) then
                 timestamp_prev <= timestamp;
                 is_first_pulse <= '0';
                 -- If WIDTH and DELAY are zero the queue is bypassed
@@ -368,14 +416,14 @@ begin
             -- Capturing falling edge is split into two conditions.
             -- 1./ When WIDTH is not 0, capture timestamp, add WIDTH and
             -- write immediately into the queue.
-            elsif (trig_rise_prev = '1' and period_error_prev = '0' and unsigned(width_i) /= 0) then
+            elsif (trig_rise_prev = '1' and period_error_prev = '0' and unsigned(width_i) /= 0 and edges_remaining = 0) then
                 pulse_queued_wstb <= not is_DELAY_zero;
                 queued_din <= queued_din + unsigned(width_i);
             -- 2./ When WIDTH=0, we need maintain incoming pulse witdth and
             -- apply DELAY.
             -- So, wait until actual falling edge of the pulse for capturing
             -- the timestamp.
-            elsif (trig_fall = '1' and ongoing_pulse = '1' and unsigned(width_i) = 0) then
+            elsif (trig_fall = '1' and ongoing_pulse = '1' and unsigned(width_i) = 0 and edges_remaining = 0) then
                 pulse_queued_wstb <= not is_DELAY_zero;
                 queued_din <= timestamp + unsigned(delay_i) + 1;
             end if;
@@ -386,7 +434,8 @@ end process;
 --
 -- Process pulse output.
 --
-pulse_queued_rstb <= '1' when (pulse_queued_empty = '0' and timestamp = unsigned(pulse_ts) - 1) else '0';
+pulse_queued_rstb <= '1' when (pulse_queued_empty = '0' and timestamp = pulse_ts - 1) else '0';
+--pulse_queued_rstb <= '1' when (pulse_queued_empty = '0' and timestamp = pulse_ts - 1 and edges_remaining = 0) else '0';
 
 process(clk_i)
 begin
@@ -398,13 +447,11 @@ begin
             if (unsigned(delay_i) = 0 and unsigned(width_i) = 0) then
                 pulse <= trig_i_int;
             -- Delay set to 0: assert pulse immediately
-            elsif (unsigned(delay_i) = 0 and unsigned(width_i) /= 0
-                and trig_rise = '1' and period_error = '0') then
+            elsif (unsigned(delay_i) = 0 and unsigned(width_i) /= 0 and trig_rise = '1' and period_error = '0') then
                 pulse <= '1';
             -- Consume pulse queue to assert and de-assert outp pulse.
             else
-                if (pulse_queued_empty = '0' and
-                        timestamp = unsigned(pulse_ts) - 1) then
+                if ((pulse_queued_empty = '0' or edges_remaining /=0) and timestamp = pulse_ts - 1) then
                     pulse <= pulse_value;
                 end if;
             end if;
