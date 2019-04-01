@@ -296,7 +296,7 @@ CLKOUTPUT: process (clk_SEL)
     variable DIVIDE2 : std_logic_vector(15 downto 0);
 begin
     if Rising_edge(clk_SEL) then
-        DIVIDE2 <=  std_logic_vector(unsigned('0' & ADC_CLK_DIV(15 downto 1)) + 1);
+        DIVIDE2 :=  std_logic_vector(unsigned('0' & ADC_CLK_DIV(15 downto 1)) + 1);
             if CLKDIV_COUNTER_RESET = '1' then
                     s_CLK_GEN_CLK <= '0';
             elsif CLKDIV_COUNTER = DIVIDE2   then
