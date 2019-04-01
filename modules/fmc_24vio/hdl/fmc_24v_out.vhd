@@ -74,7 +74,7 @@ FMC_LA_N(13) <= OUT_PUSHPL;     -- Global Push-Pull/High-Side Select
 FMC_LA_P(14) <= OUT_SRIAL;      -- Serial/Parallel Select
 OUT_FAULT(0) <= FMC_LA_N(14);   -- Global Fault
 FMC_LA_P(15) <= OUT_FLTR;       -- Glitch Filter Enable
-FMC_LA_N(15) <= 'Z';            -- Not used
+--FMC_LA_N(15) <= 'Z';            -- Not used
 
 -- 16-bit SPI Configuration and Status Interface
 max14900_ctrl_inst : entity work.max14900_ctrl
@@ -90,8 +90,8 @@ port map (
 );
 
 -- Unused IO
-FMC_LA_P(33 downto 16) <= (others => 'Z');
-FMC_LA_N(33 downto 16) <= (others => 'Z');
+--FMC_LA_P(33 downto 16) <= (others => 'Z');
+--FMC_LA_N(33 downto 16) <= (others => 'Z');
 
 OUT_FAULT(31 downto 1) <= (others => '0');
 OUT_STATUS(31 downto 16) <= (others => '0');

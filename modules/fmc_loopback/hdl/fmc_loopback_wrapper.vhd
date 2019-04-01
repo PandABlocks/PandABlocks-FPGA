@@ -118,8 +118,8 @@ FMC_io.FMC_LA_P(16 downto 0) <= pbrs_data;
 FMC_io.FMC_LA_N(16 downto 0) <= pbrs_data;
 
 -- Upper half is input
-FMC_io.FMC_LA_P(33 downto 17) <= (others => 'Z');
-FMC_io.FMC_LA_N(33 downto 17) <= (others => 'Z');
+--FMC_io.FMC_LA_P(33 downto 17) <= (others => 'Z');
+--FMC_io.FMC_LA_N(33 downto 17) <= (others => 'Z');
 fmc_din_p_pad <= FMC_io.FMC_LA_P(33 downto 17);
 fmc_din_n_pad <= FMC_io.FMC_LA_N(33 downto 17);
 

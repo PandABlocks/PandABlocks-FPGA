@@ -99,7 +99,7 @@ signal DAC_DATAIN           : std_logic_vector(127 downto 0) := (others => '0');
 ---------------------------------------------------------------------------------------
 -- Signal Attributes
 ---------------------------------------------------------------------------------------
-attribute mark_debug    : string;
+--attribute mark_debug    : string; --GBC:20190321
 attribute keep          : string;
 attribute IOB           : string;
 

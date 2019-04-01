@@ -30,14 +30,14 @@ port (
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
     -- Outputs to PosBus from FMC
-    val1_o              : out std_logic_vector(31 downto 0);
-    val2_o              : out std_logic_vector(31 downto 0);
-    val3_o              : out std_logic_vector(31 downto 0);
-    val4_o              : out std_logic_vector(31 downto 0);
-    val5_o              : out std_logic_vector(31 downto 0);
-    val6_o              : out std_logic_vector(31 downto 0);
-    val7_o              : out std_logic_vector(31 downto 0);
-    val8_o              : out std_logic_vector(31 downto 0);
+    val1_o              : out std32_array(0 downto 0);
+    val2_o              : out std32_array(0 downto 0);
+    val3_o              : out std32_array(0 downto 0);
+    val4_o              : out std32_array(0 downto 0);
+    val5_o              : out std32_array(0 downto 0);
+    val6_o              : out std32_array(0 downto 0);
+    val7_o              : out std32_array(0 downto 0);
+    val8_o              : out std32_array(0 downto 0);
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -106,7 +106,7 @@ signal s_ADC_SDO               : std_logic;             --! ADC SPI Data
 signal ADC_DATAOUT             : std_logic_vector(255 downto 0) := (others => '0');
 
 
-attribute mark_debug : string;
+-- attribute mark_debug : string; --GBC:20190321
 attribute keep : string;
 attribute IOB : string;
 
@@ -175,12 +175,12 @@ cmp_ADC_SPI_CLK:    IOBUF port map(IO => p_ADC_SPI_CLK, I => ADC_SPI_CLK,   T =>
 cmp_ADC_SYNC_n:     IOBUF port map(IO => p_ADC_SYNC_n,  I => ADC_SYNC_n,    T => FMC_MODULE_ENABLE_n);
 
 -- Unused IO
-FMC_io.FMC_LA_P(33 downto 17)  <= (others => 'Z');
-FMC_io.FMC_LA_P(15)            <= 'Z';
-FMC_io.FMC_LA_P(9)             <= 'Z';
-FMC_io.FMC_LA_P(7 downto 5)    <= (others => 'Z');
-FMC_io.FMC_LA_P(3 downto 1)    <= (others => 'Z');
-FMC_io.FMC_LA_N(33 downto 0)   <= (others => 'Z');
+--FMC_io.FMC_LA_P(33 downto 17)  <= (others => 'Z');
+--FMC_io.FMC_LA_P(15)            <= 'Z';
+--FMC_io.FMC_LA_P(9)             <= 'Z';
+--FMC_io.FMC_LA_P(7 downto 5)    <= (others => 'Z');
+--FMC_io.FMC_LA_P(3 downto 1)    <= (others => 'Z');
+--FMC_io.FMC_LA_N(33 downto 0)   <= (others => 'Z');
 
 
 
@@ -205,11 +205,11 @@ THE_ACQ430FMC_INTERFACE : entity work.ACQ430FMC_INTERFACE
 port map (
     clk_PANDA                =>  clk_i,                 -- 100 MHz Clock from ARM for ADC Timing
 
-    EXT_CLOCK               =>  EXT_CLOCK_MOD,          -- External Clock Source
+    --EXT_CLOCK               =>  EXT_CLOCK_MOD,          -- External Clock Source
     FMC_IO_BUS              =>  FMC_IO_BUS,             -- FMC IO Controls (CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR)
 
     ADC_MODE_REG            => ADC_MODE,
-    CLK_SELECT_REG          => CLK_SELECT,
+    --CLK_SELECT_REG          => CLK_SELECT,
     ADC_CLKDIV_REG          => ADC_CLKDIV,
     FIFO_RESET_REG          => FIFO_RESET,
     FIFO_ENABLE_REG         => FIFO_ENABLE,
@@ -226,14 +226,14 @@ port map (
     );
 
 
-val8_o <= ADC_DATAOUT(31 downto 0);
-val7_o <= ADC_DATAOUT(63 downto 32);
-val6_o <= ADC_DATAOUT(95 downto 64);
-val5_o <= ADC_DATAOUT(127 downto 96);
-val4_o <= ADC_DATAOUT(159 downto 128);
-val3_o <= ADC_DATAOUT(191 downto 160);
-val2_o <= ADC_DATAOUT(223 downto 192);
-val1_o <= ADC_DATAOUT(255 downto 224);
+val8_o(0) <= ADC_DATAOUT(31 downto 0);
+val7_o(0) <= ADC_DATAOUT(63 downto 32);
+val6_o(0) <= ADC_DATAOUT(95 downto 64);
+val5_o(0) <= ADC_DATAOUT(127 downto 96);
+val4_o(0) <= ADC_DATAOUT(159 downto 128);
+val3_o(0) <= ADC_DATAOUT(191 downto 160);
+val2_o(0) <= ADC_DATAOUT(223 downto 192);
+val1_o(0) <= ADC_DATAOUT(255 downto 224);
 
 -- Push onto IOB FFs
 process(clk_SPI_OUT )
