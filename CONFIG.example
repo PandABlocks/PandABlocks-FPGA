@@ -6,7 +6,6 @@
 
 # Default build location.  Default is to build in build subdirectory.
 # BUILD_DIR = $(TOP)/build
-# IP_DIR = $(BUILD_DIR)/ip_repo
 
 # Definitions needed for FPGA build
 VIVADO = /dls_sw/FPGA/Xilinx/Vivado/2015.1/settings64.sh
