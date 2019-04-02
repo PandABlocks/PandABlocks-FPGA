@@ -26,7 +26,7 @@ include CONFIG
 
 # Now we've loaded the CONFIG compute all the appropriate destinations
 TEST_DIR = $(BUILD_DIR)/tests
-IP_DIR = $(BUILD_DIR)/ip_repo
+IP_DIR = $(IP_DIR)
 APP_BUILD_DIR = $(BUILD_DIR)/apps/$(APP_NAME)
 AUTOGEN_BUILD_DIR = $(APP_BUILD_DIR)/autogen
 FPGA_BUILD_DIR = $(APP_BUILD_DIR)/FPGA
