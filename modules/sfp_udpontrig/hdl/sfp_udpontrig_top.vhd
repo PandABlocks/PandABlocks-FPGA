@@ -129,7 +129,7 @@ port map (
     clk_i       => clk_i,
     data_i(0)   => read_strobe_i,
     data_o(0)   => read_ack_o,
-    DELAY       => RD_ADDR2ACK
+    DELAY_i     => RD_ADDR2ACK
     );
 
 our_ip_address<=our_ip_address_byte1(7 downto 0)&our_ip_address_byte2(7 downto 0)&our_ip_address_byte3(7 downto 0)&our_ip_address_byte4(7 downto 0);
