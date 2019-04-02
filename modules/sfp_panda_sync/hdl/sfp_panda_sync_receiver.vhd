@@ -43,9 +43,9 @@ component ila_0
 end component;
 
 
-type t_STATE_DATA is (STATE_BITS_START, STATE_POSOUT1, STATE_POSOUT2, STATE_BITS_ALIGN, STATE_POSOUT3, STATE_POSOUT4);
+type t_STATE_DATA is (STATE_BITS_START_ALIGN, STATE_POSOUT13, STATE_POSOUT24);
 
-type t_rxdata_bitpos is array(0 to 5) of std_logic_vector(31 downto 0);
+type t_rxdata_bitpos is array(0 to 4) of std_logic_vector(31 downto 0);
 --type t_rxdata_bit is array(0 to 1) of std_logic_vector(15 downto 0); 
 
 constant c_kchar_byte_en    : std_logic_vector(3 downto 0) := "0001";
@@ -58,7 +58,7 @@ constant c_MGT_RX_PRESCALE  : unsigned(9 downto 0) := to_unsigned(1023,10);
 
 
 signal STATE_DATA            : t_STATE_DATA;   
-signal rxdata_bitpos         : t_rxdata_bitpos;   
+signal rxdata_bitpos         : t_rxdata_bitpos := (others => (others => '0'));   
 signal rx_error              : std_logic;
 signal loss_lock             : std_logic;
 signal rx_link_ok            : std_logic := '0';
@@ -70,11 +70,15 @@ signal POSIN1                : std_logic_vector(31 downto 0);
 signal POSIN2                : std_logic_vector(31 downto 0);
 signal POSIN3                : std_logic_vector(31 downto 0);   
 signal POSIN4                : std_logic_vector(31 downto 0);   
+signal startpkt              : std_logic;
+signal start_nalignment      : std_logic;   
 -- Metastable signals
 signal rx_link_ok_meta1      : std_logic;
 signal rx_link_ok_meta2      : std_logic; 
 signal pktstart              : std_logic;
 signal pktstart_xored        : std_logic;
+signal pktstart_xored_pos12  : std_logic;
+signal pktstart_xored_pos34  : std_logic; 
 signal pktstart_meta1        : std_logic;
 signal pktstart_meta2        : std_logic;  
 signal pktstart_dly          : std_logic;
@@ -87,12 +91,6 @@ attribute ASYNC_REG of rx_link_ok_meta1 : signal is "TRUE";
 attribute ASYNC_REG of rx_link_ok_meta2 : signal is "TRUE"; 
 
 signal probe1                : std_logic_vector(31 downto 0);
-signal probe2                : std_logic_vector(31 downto 0);
-signal probe3                : std_logic_vector(31 downto 0);
-signal probe4                : std_logic_vector(31 downto 0);
-signal probe5                : std_logic_vector(31 downto 0);
-signal probe6                : std_logic_vector(5 downto 0);   
-signal probe7                : std_logic_vector(31 downto 0);
 
 begin
 
@@ -179,42 +177,39 @@ begin
 end process ps_link_lost;
 
 
+probe1(3 downto 0) <= rxdisperr_i;
+probe1(7 downto 4) <= rxnotintable_i;
+probe1(8) <= rx_link_ok;
+probe1(9) <= rx_error;
+probe1(10) <= loss_lock; 
+probe1(31 downto 11) <= (others => '0');
 
-probe1 <= (others => '0');
-probe2 <= (others => '0');
-probe3 <= (others => '0');
-probe4 <= (others => '0');
-probe5 <= (others => '0');
-probe6 <= (others => '0');
-probe7 <= (others => '0');
-
-
-ila_inst : ila_0
+-- Chipscope
+ila_rx_inst : ila_0
 port map (
       clk     => rxoutclk_i,
       probe0  => rxdata_i,
       probe1  => probe1,
-      probe2  => probe2,
-      probe3  => probe3,
-      probe4  => probe4,
-      probe5  => probe5,
-      probe6  => probe6,
-      probe7  => probe7
+      probe2  => rxdata_bitpos(0),
+      probe3  => rxdata_bitpos(1),
+      probe4  => rxdata_bitpos(2),
+      probe5  => rxdata_bitpos(3),
+      probe6  => (others => '0'),
+      probe7  => rxdata_bitpos(4)
 );
 
 
 
--- Received data          Packet Start          Alignment           data_num(5 downto 0) 
--- BITIN1 and K28_0            1                   0                   0      1   
--- POSIN1                      0                   0                   1      2  
--- POSIN2                      0                   0                   2      4  
--- BITIN3 and K28_5            0                   1                   3      8  
--- POSIN3                      0                   0                   4     16    
--- POSIN4                      0                   0                   5     32    
--- BITIN1 and K28_o            1                   0                   0      1
--- POSIN1                      0                   0                   1      2  
--- POSIN2                      0                   0                   2      4  
-
+-- Received data          start_nalignment       pktstart 
+-- BITIN1 and K28_0             x                   0         
+-- POSIN1                       1                   0        
+-- POSIN2                       1                   0        
+-- BITIN3 and K28_5             x                   1        
+-- POSIN3                       0                   1         
+-- POSIN4                       0                   1         
+-- BITIN1 and K28_o             x                   0      
+-- POSIN1                       1                   0        
+-- POSIN2                       1                   0        
 
 -- Capture the data
 ps_data: process(rxoutclk_i)
@@ -225,45 +220,44 @@ begin
             case STATE_DATA is
             
                 -- Packet Start
-                when STATE_BITS_START => 
-                    -- Packet start 16 bits                    
-                    if (rxcharisk_i = c_kchar_byte_en and rxdata_i(7 downto 0) = c_k28_0) then 
-                        rxdata_bitpos(0) <= rxdata_i(31 downto 16);
-                        STATE_DATA <= STATE_POSOUT1;
+                when STATE_BITS_START_ALIGN => 
+                    -- Packet start 16 bits         
+                    -- K28 0 - Packet Start 
+                    -- K28 5 - Packet Alignment          
+                    if (rxcharisk_i = c_kchar_byte_en and rxdata_i(7 downto 0) = c_k28_0) then
+                        start_nalignment <= '1';
+                        rxdata_bitpos(0) <= rxdata_i;
+                        STATE_DATA <= STATE_POSOUT13;                    
+                    elsif                                         
+                       (rxcharisk_i = c_kchar_byte_en and rxdata_i(7 downto 0) = c_k28_5) then 
+                        start_nalignment <= '0';
+                        rxdata_bitpos(0) <= rxdata_i;
+                        STATE_DATA <= STATE_POSOUT13;
                     end if;
                     
-                -- POSOUT1    
-                when STATE_POSOUT1 => 
-                    rxdata_bitpos(1) <= rxdata_i;
-                    STATE_DATA <= STATE_POSOUT2;
+                -- POSOUT1 or POSOUT3   
+                when STATE_POSOUT13 =>
+                    if (start_nalignment = '1') then                     
+                        rxdata_bitpos(1) <= rxdata_i;
+                    else
+                        rxdata_bitpos(3) <= rxdata_i;
+                    end if;    
+                    STATE_DATA <= STATE_POSOUT24;
                                     
-                -- POSOUT2
-                when STATE_POSOUT2 => 
-                    rxdata_bitpos(2) <= rxdata_i;
+                -- POSOUT2 or POSOUT4
+                when STATE_POSOUT24 =>
+                    if (start_nalignment = '1') then 
+                        rxdata_bitpos(2) <= rxdata_i;
+                    else
+                        rxdata_bitpos(4) <= rxdata_i;
+                    end if;    
                     pktstart <= not pktstart;                    
-                    STATE_DATA <= STATE_BITS_ALIGN;
-
-                -- Packet alignment
-                when STATE_BITS_ALIGN => 
-                    if (rxcharisk_i = c_kchar_byte_en and rxdata_i(7 downto 0) = c_k28_5) then
-                        rxdata_bitpos(3) <= rxdata_i(31 downto 16);
-                        STATE_DATA <= STATE_POSOUT3;
-                    end if;
-                                   
-                -- POSOUT3                     
-                when STATE_POSOUT3 =>
-                    rxdata_bitpos(4) <= rxdata_i;
-                    STATE_DATA <= STATE_POSOUT4;
-                
-                when STATE_POSOUT4 => 
-                    rxdata_bitpos(5) <= rxdata_i;
-                    pktstart <= not pktstart;                            
-                    STATE_DATA <= STATE_BITS_START;     
+                    STATE_DATA <= STATE_BITS_START_ALIGN;     
                                      
             end case;                         
         else
             pktstart <= '0';
-            STATE_DATA <= STATE_BITS_START;
+            STATE_DATA <= STATE_BITS_START_ALIGN;
         end if;
     end if;
 end process ps_data;    
@@ -279,16 +273,16 @@ POSIN4_o <= POSIN4;
 
 
 -- BITIN(start packet k character), POSIN1, BITIN, POSIN2, BITIN, POSIN3, BITIN(alignment k character), POSIN4
-   
--- BITIN                           1   0   0   0   0   0
--- POSIN1                          0   1   0   0   0   0                      
--- POSIN2                          0   0   1   0   0   0 
--- BITIN                           0   0   0   1   0   0         
--- POSOUT3                         0   0   0   0   1   0
--- POSOUT4                         0   0   0   0   0   1  
+
+-- BITIN                           1   0   0   0   0   
+-- POSIN1                          0   1   0   0   0                         
+-- POSIN2                          0   0   1   0   0    
+-- BITIN                           1   0   0   0   0            
+-- POSOUT3                         0   0   0   1   0   
+-- POSOUT4                         0   0   0   0   1     
 
 
-pktstart_xored <= pktstart_dly xor pktstart_meta2;
+--pktstart_xored <= pktstart_dly xor pktstart_meta2;
 
 
 ps_meta_data: process(clk_i)
@@ -300,19 +294,42 @@ begin
         pktstart_meta1 <= pktstart;    
         pktstart_meta2 <= pktstart_meta1;
         pktstart_dly <= pktstart_meta2;
-
+        pktstart_xored <= pktstart_dly xor pktstart_meta2;
+        pktstart_xored_pos12 <= pktstart_xored;
+        pktstart_xored_pos34 <= pktstart_xored_pos12;
+        -- Link up 
         if (rx_link_ok_meta2 = '1') then
             -- Pass out the BITIN 16 bits data
-            if pktstart_xored = '1' and pktstart_meta2 = '1' then
-                BITIN <= rxdata_bitpos(0);
+            if pktstart_xored = '1' then
+                -- Need to know if POS1 and POS2 or POS3 and POS4 are ready
+                -- POS1 and POS2 
+                if pktstart_meta2 = '1' then
+                    startpkt <= '1';
+                -- POS3 and POS4
+                else
+                    startpkt <= '0';
+                end if;         
+                BITIN <= rxdata_bitpos(0)(31 downto 16);
+            end if;
+            -- Pass out the POSIN1
+            if pktstart_xored_pos12 = '1' and startpkt = '1' then    
                 POSIN1 <= rxdata_bitpos(1);
+            end if;
+            -- Pass out the POSIN2
+            if pktstart_xored_pos34 = '1' and startpkt = '1' then    
                 POSIN2 <= rxdata_bitpos(2);
-
-            elsif pktstart_xored = '1' and pktstart_meta2 = '0' then
-                BITIN <= rxdata_bitpos(3);
-                POSIN3 <= rxdata_bitpos(4);
-                POSIN4 <= rxdata_bitpos(5);
+                
+            end if;    
+            -- Pass out the POSIN3
+            if pktstart_xored_pos12 = '1' and startpkt = '0' then                
+                POSIN3 <= rxdata_bitpos(3);
+            end if;
+            -- Pass out the POSIN4
+            if pktstart_xored_pos34 = '1' and startpkt = '0' then    
+                POSIN4 <= rxdata_bitpos(4);
             end if;                        
+        else
+            startpkt <= '0';
         end if;
     end if;
 end process ps_meta_data;    

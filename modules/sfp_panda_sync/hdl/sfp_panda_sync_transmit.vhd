@@ -138,12 +138,12 @@ probe2 <= (others => '0');
 probe3 <= (others => '0');
 probe4 <= (others => '0');
 probe5 <= (others => '0'); 
---probe6 <= SM_DATA;
 probe6 <= (others => '0');
 probe7 <= (others => '0');
 
 
-ila_inst : ila_0
+-- Chipscope
+ila_tx_inst : ila_0
 port map (
       clk     => txoutclk_i,
       probe0  => txdata,
