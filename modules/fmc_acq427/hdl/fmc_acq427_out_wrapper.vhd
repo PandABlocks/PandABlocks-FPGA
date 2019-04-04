@@ -50,8 +50,8 @@ architecture rtl of fmc_acq427_out_wrapper is
 ---------------------------------------------------------------------------------------
 -- FMC pin name translation signals.
 ---------------------------------------------------------------------------------------
-signal p_FMC_EXT_CLK        : std_logic;                                        --! Sample Clock from ACQ420FMC
-signal p_FMC_EXT_TRIG       : std_logic;                                        --! Trigger from ACQ420FMC
+--signal p_FMC_EXT_CLK        : std_logic;                                        --! Sample Clock from ACQ420FMC -- (unused) GBC:20190321
+--signal p_FMC_EXT_TRIG       : std_logic;                                        --! Trigger from ACQ420FMC -- (unused) GBC:20190321
 signal p_DAC_SPI_CLK        : std_logic                     := '0';             --! DAC SPI Clock
 signal p_DAC_SDI            : std_logic_vector( 4 downto 1) := (others => '0'); --! DAC SPI Data In
 signal p_DAC_SDO            : std_logic_vector( 4 downto 1) := (others => '0'); --! DAC SPI Data Out
@@ -66,9 +66,9 @@ signal DAC_SDO              : std_logic_vector( 4 downto 1) := (others => '0'); 
 signal DAC_SYNC_n           : std_logic                     := '0';             --! DAC SPI SYNC
 signal DAC_LD_n             : std_logic                     := '0';             --! DAC Load
 signal DAC_RST_n            : std_logic;                                        --! DAC Reset
-signal FMC_EXT_CLK          : std_logic;                                        --! Sample Clock from ACQ420FMC
-signal FMC_EXT_TRIG         : std_logic;                                        --! Trigger from ACQ420FMC
-signal FMC_IO_BUS           : std_logic_vector(3 downto 0)  := (others => '0'); --! FMC IO Controls (CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR)
+--signal FMC_EXT_CLK          : std_logic;                                        --! Sample Clock from ACQ420FMC -- (unused) GBC:20190321
+--signal FMC_EXT_TRIG         : std_logic;                                        --! Trigger from ACQ420FMC -- (unused) GBC:20190321
+--signal FMC_IO_BUS           : std_logic_vector(3 downto 0)  := (others => '0'); --! FMC IO Controls (CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR) -- (unused) GBC:20190321
 
 signal FMC_MODULE_ENABLE_n  : std_logic;                                        --! FPGA Enable Outputs
 signal MODULE_ENABLE        : std_logic_vector(31 downto 0);                    --! FPGA Enable Outputs

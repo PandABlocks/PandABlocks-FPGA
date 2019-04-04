@@ -38,6 +38,8 @@ port (
     val6_o              : out std32_array(0 downto 0);
     val7_o              : out std32_array(0 downto 0);
     val8_o              : out std32_array(0 downto 0);
+    -- Outputs to BitBus from FMC
+    ttl_o               : out std_logic_vector(0 downto 0);
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -61,16 +63,16 @@ architecture rtl of fmc_acq430_wrapper is
 ---------------------------------------------------------------------------------------
 
 signal  p_TRIGGER_DIR   : std_logic := '0';     --! External Trigger Direction Pin
-signal  s_TRIG_DATA     : std_logic := '0';     --! External Trigger Data
+--signal  s_TRIG_DATA     : std_logic := '0';     --! External Trigger Data -- (unused) GBC:20190321
 signal  p_CLOCK_DIR     : std_logic := '0';     --! External Clock Direction Pin
-signal  s_CLOCK_DATA    : std_logic := '0';     --! External Clock Data
-signal  p_EXT_TRIGGER   : std_logic := '0';     --! External Trigger Pin
-signal  p_EXT_CLOCK     : std_logic := '0';     --! External Clock Pin
-signal  EXT_TRIGGER     : std_logic := '0';     --! External Trigger
-signal  EXT_TRIGGER_MOD : std_logic := '0';     --! External Trigger Mod
-signal  EXT_CLOCK       : std_logic := '0';     --! External Clock
-signal  EXT_CLOCK_MOD   : std_logic := '0';     --! External Clock Mod
-signal  FMC_IO_BUS      : std_logic_vector(4 downto 0) := (others => '0');  --! FMC IO Controls (FMC_LEMO_ROLE,CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR)
+--signal  s_CLOCK_DATA    : std_logic := '0';     --! External Clock Data -- (unused) GBC:20190321
+--signal  p_EXT_TRIGGER   : std_logic := '0';     --! External Trigger Pin -- (unused) GBC:20190321
+--signal  p_EXT_CLOCK     : std_logic := '0';     --! External Clock Pin -- (unused) GBC:20190321
+--signal  EXT_TRIGGER     : std_logic := '0';     --! External Trigger -- (unused) GBC:20190321
+--signal  EXT_TRIGGER_MOD : std_logic := '0';     --! External Trigger Mod -- (unused) GBC:20190321
+--signal  EXT_CLOCK       : std_logic := '0';     --! External Clock -- (unused) GBC:20190321
+--signal  EXT_CLOCK_MOD   : std_logic := '0';     --! External Clock Mod -- (unused) GBC:20190321
+--signal  FMC_IO_BUS      : std_logic_vector(4 downto 0) := (others => '0');  --! FMC IO Controls (FMC_LEMO_ROLE,CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR) -- (unused) GBC:20190321
 
 
 signal  p_ADC_MODE_0    : std_logic := '0';     --! ADC mode 0 = High Speed, 1 = High Performance
@@ -129,32 +131,37 @@ write_ack_o <= '1';
 FMC_io.FMC_LA_P(14)    <=  p_TRIGGER_DIR;
 FMC_io.FMC_LA_P(10)    <=  p_CLOCK_DIR;
 
-p_EXT_TRIGGER   <=  FMC_io.FMC_LA_P(13);
-p_EXT_CLOCK     <=  FMC_io.FMC_CLK0_M2C_P;
+--p_EXT_TRIGGER   <=  FMC_io.FMC_LA_P(13); -- (unused) GBC:20190321
+--p_EXT_CLOCK     <=  FMC_io.FMC_CLK0_M2C_P; -- (unused) GBC:20190321
+ttl_o(0) <= FMC_io.FMC_CLK0_M2C_P;
 
 -- On the ACQ430_TOPDECK only the CLOCK input is present. Make this switchable from Digital FMC IO Control Reg
+-- Commented GBC:20190403
 --EXT_LEMO_SWITCH: process(FMC_IO_BUS,EXT_CLOCK,EXT_TRIGGER,EXT_CLOCK)
-EXT_LEMO_SWITCH: process(FMC_IO_BUS)
-begin
-    if FMC_IO_BUS(4) = '1' then
-        EXT_TRIGGER_MOD <=  EXT_CLOCK;
-        EXT_CLOCK_MOD       <=  '0';
-    else    -- Default configuration. Make initial value 0 in signal instantiation.
-        EXT_TRIGGER_MOD     <=  EXT_TRIGGER;
-        EXT_CLOCK_MOD       <=  EXT_CLOCK;
-    end if;
-end process EXT_LEMO_SWITCH;
+--EXT_LEMO_SWITCH: process(FMC_IO_BUS)
+--begin
+--    if FMC_IO_BUS(4) = '1' then
+--        EXT_TRIGGER_MOD <=  EXT_CLOCK;
+--        EXT_CLOCK_MOD       <=  '0';
+--    else    -- Default configuration. Make initial value 0 in signal instantiation.
+--        EXT_TRIGGER_MOD     <=  EXT_TRIGGER;
+--        EXT_CLOCK_MOD       <=  EXT_CLOCK;
+--    end if;
+--end process EXT_LEMO_SWITCH;
 
-s_TRIG_DATA     <=  FMC_IO_BUS(1);
-s_CLOCK_DATA    <=  FMC_IO_BUS(3);
+--s_TRIG_DATA     <=  FMC_IO_BUS(1); -- (unused) GBC:20190321
+--s_CLOCK_DATA    <=  FMC_IO_BUS(3); -- (unused) GBC:20190321
 
 
 -- Fix Trigger and Clock as an Input only present
-cmp_TRIGGER_DIR:    IOBUF port map(IO => p_TRIGGER_DIR, I => FMC_IO_BUS(0), T => FMC_MODULE_ENABLE_n    );
-cmp_CLOCK_DIR:      IOBUF port map(IO => p_CLOCK_DIR,       I => FMC_IO_BUS(2), T => FMC_MODULE_ENABLE_n    );
+--cmp_TRIGGER_DIR:    IOBUF port map(IO => p_TRIGGER_DIR, I => FMC_IO_BUS(0), T => FMC_MODULE_ENABLE_n    ); -- GBC:20190321
+--cmp_CLOCK_DIR:      IOBUF port map(IO => p_CLOCK_DIR,       I => FMC_IO_BUS(2), T => FMC_MODULE_ENABLE_n    ); -- GBC:20190321
+cmp_TRIGGER_DIR:    IOBUF port map(IO => p_TRIGGER_DIR, I => '0', T => FMC_MODULE_ENABLE_n    );
+cmp_CLOCK_DIR:      IOBUF port map(IO => p_CLOCK_DIR,       I => '0', T => FMC_MODULE_ENABLE_n    );
 
-cmp_EXT_TRIGGER:    IOBUF port map(IO => p_EXT_TRIGGER, I => s_TRIG_DATA    , O => EXT_TRIGGER, T => not FMC_IO_BUS(0));
-cmp_EXT_CLOCK:      IBUF port map(I => p_EXT_CLOCK,     O => EXT_CLOCK);
+--cmp_EXT_TRIGGER:    IOBUF port map(IO => p_EXT_TRIGGER, I => s_TRIG_DATA    , O => EXT_TRIGGER, T => not FMC_IO_BUS(0)); -- (unused) GBC:20190321
+
+--cmp_EXT_CLOCK:      IBUF port map(I => p_EXT_CLOCK,     O => EXT_CLOCK); -- (unused) GBC:20190321
 
 -- Input Pins
 p_ADC_SDO           <= FMC_io.FMC_LA_P(12);
@@ -205,8 +212,8 @@ THE_ACQ430FMC_INTERFACE : entity work.ACQ430FMC_INTERFACE
 port map (
     clk_PANDA                =>  clk_i,                 -- 100 MHz Clock from ARM for ADC Timing
 
-    --EXT_CLOCK               =>  EXT_CLOCK_MOD,          -- External Clock Source
-    FMC_IO_BUS              =>  FMC_IO_BUS,             -- FMC IO Controls (CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR)
+    --EXT_CLOCK               =>  EXT_CLOCK_MOD,          -- External Clock Source -- (unused) GBC:20190321
+    --FMC_IO_BUS              =>  FMC_IO_BUS,             -- FMC IO Controls (CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR) -- (unused) GBC:20190321
 
     ADC_MODE_REG            => ADC_MODE,
     --CLK_SELECT_REG          => CLK_SELECT,

@@ -25,7 +25,7 @@ port(
      clk_PANDA                  : in  std_logic;                                         --! ADC Clock for ADC Timing from the Zynq Core
 
      --EXT_CLOCK                  : in  std_logic;                                         --! External Clock - Tied Off --GBC:20190321
-     FMC_IO_BUS                 : out std_logic_vector(4 downto 0);      --! FMC IO Controls (FMC_LEMO_ROLE,CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR)
+     --FMC_IO_BUS                 : out std_logic_vector(4 downto 0);      --! FMC IO Controls (FMC_LEMO_ROLE,CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR) -- (unused)GBC:20190321
 -- Connections to PandA registers
      ADC_MODE_REG               : in std_logic_vector(31 downto 0);
      --CLK_SELECT_REG             : in std_logic_vector(31 downto 0); --GBC:20190321

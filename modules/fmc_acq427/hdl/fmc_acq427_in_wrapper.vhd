@@ -38,6 +38,8 @@ port (
 	val6_o				: out std32_array(0 downto 0);
 	val7_o				: out std32_array(0 downto 0);
 	val8_o				: out std32_array(0 downto 0);
+    -- Outputs to BitBus from FMC
+    ttl_o               : out std_logic_vector(0 downto 0);
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -63,8 +65,8 @@ signal p_ADC_CNV_A          : std_logic                     := '0';             
 signal p_ADC_CNV_B          : std_logic                     := '0';             --! ADC Convert Control B
 signal p_ADC_SPI_CLK        : std_logic                     := '0';             --! ADC SPI Clock
 signal p_ADC_SDO            : std_logic_vector( 8 downto 1) := (others => '0'); --! ADC SPI Data
-signal p_FMC_EXT_CLK        : std_logic                     := 'Z';             --! Sample Clock from ACQ420FMC
-signal p_FMC_EXT_TRIG       : std_logic                     := 'Z';             --! Trigger from ACQ420FMC
+--signal p_FMC_EXT_CLK        : std_logic                     := 'Z';             --! Sample Clock from ACQ420FMC -- (unused) GBC:20190321
+--signal p_FMC_EXT_TRIG       : std_logic                     := 'Z';             --! Trigger from ACQ420FMC -- (unused) GBC:20190321
 
 -- Internal Names
 signal ADC_CNV              : std_logic                     := '0';             --! ADC Convert Control
@@ -141,8 +143,9 @@ begin
 -- ADC
 ---------------------------------------------------------------------------------------
 -- Input Pins
-p_FMC_EXT_CLK  <=  FMC_io.FMC_LA_P(0);
-p_FMC_EXT_TRIG <=  FMC_io.FMC_LA_P(12);
+--p_FMC_EXT_CLK  <=  FMC_io.FMC_LA_P(0); -- (unused) GBC:20190321
+--p_FMC_EXT_TRIG <=  FMC_io.FMC_LA_P(12); -- (unused) GBC:20190321
+ttl_o(0) <= FMC_io.FMC_LA_P(0);
 p_ADC_SDO(8)   <=  FMC_io.FMC_LA_P(20);
 p_ADC_SDO(7)   <=  FMC_io.FMC_LA_P(21);
 p_ADC_SDO(6)   <=  FMC_io.FMC_LA_P(22);
