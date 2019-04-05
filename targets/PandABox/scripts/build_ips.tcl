@@ -105,6 +105,7 @@ synth_ip [get_ips sfpgtx]
 #
 # Create Eth Phy for sfp
 #
+
 create_ip -name gig_ethernet_pcs_pma -vendor xilinx.com -library ip -version 15.0 \
 -module_name eth_phy -dir $BUILD_DIR/
 
@@ -115,19 +116,20 @@ set_property -dict [list \
     CONFIG.EMAC_IF_TEMAC {TEMAC} \
 ] [get_ips eth_phy]
 
-report_compile_order -constraints
-
+#report_compile_order -constraints
+#set_property generate_synth_checkpoint false [get_files $IP_DIR/eth_phy/eth_phy.xci]
 generate_target all [get_files $BUILD_DIR/eth_phy/eth_phy.xci]
+#generate_target all [get_ips eth_phy]
 
-report_property [get_ips eth_phy]
-get_property KNOWN_TARGETS [get_ips eth_phy]
+#report_property [get_ips eth_phy]
+#get_property KNOWN_TARGETS [get_ips eth_phy]
 
 #To capture the XDC file names of the IP in a Tcl variable
-set eth_phy_xdc [get_files -of_objects [get_files $BUILD_DIR/eth_phy/eth_phy.xci] -filter {FILE_TYPE == XDC}]
+#set eth_phy_xdc [get_files -of_objects [get_files $BUILD_DIR/eth_phy/eth_phy.xci] -filter {FILE_TYPE == XDC}]
 #To disable the XDC files
-set_property is_enabled false [get_files $eth_phy_xdc]
+#set_property is_enabled false [get_files $eth_phy_xdc]
 synth_ip [get_ips eth_phy]
-report_compile_order -constraints
+#report_compile_order -constraints
 
 #
 # Create Eth Mac for sfp
@@ -135,7 +137,6 @@ report_compile_order -constraints
 
 create_ip -name tri_mode_ethernet_mac -vendor xilinx.com -library ip -version 9.0 \
 -module_name eth_mac -dir $BUILD_DIR/
-
 
 #shared logic inside of core
 # CONFIG.Physical_Interface {GMII} \ phy_eth is internal (no IOB or idelay in pad) CONFIG.Physical_Interface {Internal}
@@ -154,8 +155,12 @@ set_property -dict [list \
     CONFIG.Statistics_Counters {false}   \
 ] [get_ips eth_mac]
 
+#set_property generate_synth_checkpoint false [get_files $BUILD_DIR/eth_mac/eth_mac.xci]
+#generate_target all [get_ips eth_mac]
+#set eth_mac_xdc [get_files -of_objects [get_files $BUILD_DIR/eth_mac/eth_mac.xci] -filter {FILE_TYPE == XDC}]
+#set_property is_enabled false [get_files $eth_mac_xdc]
 
-report_property [get_ips eth_mac]
+#report_property [get_ips eth_mac]
 
 generate_target all [get_files $BUILD_DIR/eth_mac/eth_mac.xci]
 

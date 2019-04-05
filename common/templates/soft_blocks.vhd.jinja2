@@ -18,7 +18,6 @@ generic (
 );
 port (
     -- Global clock and reset from panda_ps
-    FCLK_CLK0       : in    std_logic;
     FCLK_RESET0     : in    std_logic;
     -- Configuration and Status Interface Block
     read_strobe     : in    std_logic_vector(MOD_COUNT-1 downto 0);
@@ -47,12 +46,11 @@ port (
     FMC_i           : in    FMC_input_interface;    
     FMC_io          : inout FMC_inout_interface;
     FMC_o           : out   FMC_output_interface;
-    SFP1_i          : in    SFP_input_interface; 
-    SFP1_o          : out   SFP_output_interface;
-    SFP2_i          : in    SFP_input_interface; 
-    SFP2_o          : out   SFP_output_interface;
-    SFP3_i          : in    SFP_input_interface; 
-    SFP3_o          : out   SFP_output_interface
+    {% for i in range(sfpsites) %}
+    SFP{{const[i]}}_i          : in    SFP_input_interface; 
+    SFP{{const[i]}}_o          : out   SFP_output_interface;
+    {% endfor %}
+    FCLK_CLK0       : in    std_logic
 );
 end soft_blocks;
 
