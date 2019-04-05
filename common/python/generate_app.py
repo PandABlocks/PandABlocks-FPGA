@@ -50,7 +50,7 @@ class AppGenerator(object):
         self.counters = RegisterCounter(block_count = 2)
         # These will be created when we parse the ini files
         self.blocks = []  # type: List[BlockConfig]
-        self.sfpsites = 0
+        self.sfp_sites = 0
         self.parse_ini_files(app)
         self.generate_config_dir()
         self.generate_wrappers()
@@ -81,7 +81,7 @@ class AppGenerator(object):
             target_ini = read_ini(os.path.join(target_path, (
                     target + ".target.ini")))
             self.implement_blocks(target_ini, target_path, "carrier", "blocks")
-            self.sfpsites = int(ini_get(target_ini, '.', 'sfp_sites', 0))
+            self.sfp_sites = int(ini_get(target_ini, '.', 'sfp_sites', 0))
 
         # Implement the blocks for the soft blocks
         self.implement_blocks(app_ini, ROOT, "soft", "modules")
@@ -105,9 +105,9 @@ class AppGenerator(object):
                 block_type = ini_get(ini, section, 'block', None)
                 sfp_site = ini_get(ini, section, 'sfp_site', None)
                 assert sfp_site is None or int(sfp_site) in range(
-                    1, self.sfpsites + 1), \
+                    1, self.sfp_sites + 1), \
                     "Block %s in sfp_site %s. Target only has %d sites" % (
-                        section, sfp_site, self.sfpsites)
+                        section, sfp_site, self.sfp_sites)
                 if block_type:
                     ini_name = ini_get(
                         ini, section, 'ini', block_type + '.block.ini')
@@ -198,6 +198,7 @@ class AppGenerator(object):
                 block_names.append(block.entity)
         context = jinja_context(
             blocks=self.blocks,
+            sfp_sites=self.sfp_sites,
             carrier_bit_bus_length=carrier_bit_bus_length,
             carrier_pos_bus_length=carrier_pos_bus_length,
             total_bit_bus_length=total_bit_bus_length,
