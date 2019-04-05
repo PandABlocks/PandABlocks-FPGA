@@ -106,6 +106,9 @@ class BlockConfig(object):
             assert self.type == "sfp", \
                 "Block %s has type %s != sfp but defined sfp_site" % (
                     self.name, self.type)
+        if self.type == "sfp":
+            assert self.sfp_site, \
+                "Block %s has type sfp but no sfp_site defined" % self.name
         #: Any constraints?
         self.constraints = ini_get(ini, '.', 'constraints', '').split()
         #: Does the block require IP?
