@@ -813,7 +813,6 @@ FMC_DP0_C2M_P <= FMC_o.TXP_OUT;
 FMC_DP0_C2M_N <= FMC_o.TXN_OUT;
 FMC_i.RXP_IN <= FMC_DP0_M2C_P;
 FMC_i.RXN_IN <= FMC_DP0_M2C_N;
---Commenting Below Line fixes non-responsive/system issue
 FMC_i.MAC_ADDR <= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
 FMC_i.MAC_ADDR_WS <= '0';
 
@@ -825,7 +824,6 @@ SFP1_i.RXN_IN <= SFP_RX_N(2);
 SFP1_i.RXP_IN <= SFP_RX_P(2);
 SFP_TX_N(2) <= SFP1_o.TXN_OUT;
 SFP_TX_P(2) <= SFP1_o.TXP_OUT;
---Commenting Below Line fixes non-responsive/system issue
 SFP1_i.MAC_ADDR <= SFP_MAC_ADDR_ARR(1)(23 downto 0) & SFP_MAC_ADDR_ARR(0)(23 downto 0);
 SFP1_i.MAC_ADDR_WS <= '0';
 SFP1_i.MGT_CLK_SEL <= clk_src_sel(1);
@@ -836,7 +834,6 @@ SFP2_i.RXN_IN <= SFP_RX_N(1);
 SFP2_i.RXP_IN <= SFP_RX_P(1);
 SFP_TX_N(1) <= SFP2_o.TXN_OUT;
 SFP_TX_P(1) <= SFP2_o.TXP_OUT;
---Commenting Below Line fixes non-responsive/system issue
 SFP2_i.MAC_ADDR <= SFP_MAC_ADDR_ARR(3)(23 downto 0) & SFP_MAC_ADDR_ARR(2)(23 downto 0);
 SFP2_i.MAC_ADDR_WS <= '0';
 SFP2_i.MGT_CLK_SEL <= clk_src_sel(1);
@@ -847,7 +844,6 @@ SFP3_i.RXN_IN <= SFP_RX_N(0);
 SFP3_I.RXP_IN <= SFP_RX_P(0);
 SFP_TX_N(0) <= SFP3_o.TXN_OUT;
 SFP_TX_P(0) <= SFP3_o.TXP_OUT;
---Commenting Below Line fixes non-responsive/system issue
 SFP3_i.MAC_ADDR <= SFP_MAC_ADDR_ARR(5)(23 downto 0) & SFP_MAC_ADDR_ARR(4)(23 downto 0);
 SFP3_i.MAC_ADDR_WS <= '0';
 SFP3_i.MGT_CLK_SEL <= clk_src_sel(1);
