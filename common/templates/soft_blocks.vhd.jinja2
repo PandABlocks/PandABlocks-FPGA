@@ -43,12 +43,14 @@ port (
     rdma_data       : in    std_logic_vector(31 downto 0);
     rdma_valid      : in    std_logic_vector(5 downto 0);
     --
+    {% if fmc_sites %}
     FMC_i           : in    FMC_input_interface;    
     FMC_io          : inout FMC_inout_interface;
     FMC_o           : out   FMC_output_interface;
-    {% for i in range(sfpsites) %}
-    SFP{{const[i]}}_i          : in    SFP_input_interface; 
-    SFP{{const[i]}}_o          : out   SFP_output_interface;
+    {% endif %}
+    {% for i in range(sfp_sites) %}
+    SFP{{ i+1 }}_i          : in    SFP_input_interface; 
+    SFP{{ i+1 }}_o          : out   SFP_output_interface;
     {% endfor %}
     FCLK_CLK0       : in    std_logic
 );

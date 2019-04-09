@@ -117,7 +117,7 @@ set_property -dict [list \
 ] [get_ips eth_phy]
 
 #report_compile_order -constraints
-#set_property generate_synth_checkpoint false [get_files $IP_DIR/eth_phy/eth_phy.xci]
+#set_property generate_synth_checkpoint false [get_files $BUILD_DIR/eth_phy/eth_phy.xci]
 generate_target all [get_files $BUILD_DIR/eth_phy/eth_phy.xci]
 #generate_target all [get_ips eth_phy]
 

@@ -51,6 +51,7 @@ class AppGenerator(object):
         # These will be created when we parse the ini files
         self.blocks = []  # type: List[BlockConfig]
         self.sfp_sites = 0
+        self.fmc_sites = 0
         self.parse_ini_files(app)
         self.generate_config_dir()
         self.generate_wrappers()
@@ -82,6 +83,7 @@ class AppGenerator(object):
                     target + ".target.ini")))
             self.implement_blocks(target_ini, target_path, "carrier", "blocks")
             self.sfp_sites = int(ini_get(target_ini, '.', 'sfp_sites', 0))
+            self.fmc_sites = int(ini_get(target_ini, '.', 'fmc_sites', 0))
 
         # Implement the blocks for the soft blocks
         self.implement_blocks(app_ini, ROOT, "soft", "modules")
@@ -176,6 +178,8 @@ class AppGenerator(object):
         total_pos_bus_length = 0
         carrier_mod_count = 0
         for block in self.blocks:
+            if block.type == "fmc":
+                assert self.fmc_sites > 0, "No FMC on Carrier"
             if block.type in "carrier|pcap":
                 carrier_mod_count = carrier_mod_count + 1
             for field in block.fields:
@@ -199,6 +203,7 @@ class AppGenerator(object):
         context = jinja_context(
             blocks=self.blocks,
             sfp_sites=self.sfp_sites,
+            fmc_sites=self.fmc_sites,
             carrier_bit_bus_length=carrier_bit_bus_length,
             carrier_pos_bus_length=carrier_pos_bus_length,
             total_bit_bus_length=total_bit_bus_length,
@@ -232,7 +237,7 @@ class AppGenerator(object):
             blocks=self.blocks,
             os=os,
             ips=ips)
-        self.expand_template("constraints.tcl.jinja2", context, hdl_dir,
+        self.expand_template("constraints.tcl.jinja2", context, const_dir,
                              "constraints.tcl")
 
     def generate_regdefs(self):
