@@ -24,11 +24,11 @@ entity ACQ430FMC_INTERFACE is
 port(
      clk_PANDA                  : in  std_logic;                                         --! ADC Clock for ADC Timing from the Zynq Core
 
-     EXT_CLOCK                  : in  std_logic;                                         --! External Clock - Tied Off
-     FMC_IO_BUS                 : out std_logic_vector(4 downto 0);      --! FMC IO Controls (FMC_LEMO_ROLE,CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR)
+     --EXT_CLOCK                  : in  std_logic;                                         --! External Clock - Tied Off --GBC:20190321
+     --FMC_IO_BUS                 : out std_logic_vector(4 downto 0);      --! FMC IO Controls (FMC_LEMO_ROLE,CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR) -- (unused)GBC:20190321
 -- Connections to PandA registers
      ADC_MODE_REG               : in std_logic_vector(31 downto 0);
-     CLK_SELECT_REG             : in std_logic_vector(31 downto 0);
+     --CLK_SELECT_REG             : in std_logic_vector(31 downto 0); --GBC:20190321
      ADC_CLKDIV_REG             : in std_logic_vector(31 downto 0);
      FIFO_RESET_REG             : in std_logic_vector(31 downto 0);
      FIFO_ENABLE_REG    : in std_logic_vector(31 downto 0);
@@ -94,7 +94,7 @@ signal FIFO_DATA_WRITE              : std_logic                     := '0';
 signal ADCCLK_FIFO_FULL             : std_logic                     := '0';             --! FIFO FULL       signal on the IP is in the Write Clock Domain
 
 signal clk_SEL                      : std_logic;                                        --! Clock Selected from Either EXT_SEL or the 100M Zynq Clock
-signal DIV_CLK                      : std_logic;                                        --! Divided Down Clock for Asynchronous Logic
+--signal DIV_CLK                      : std_logic;                                        --! Divided Down Clock for Asynchronous Logic --GBC:20190321
 signal DIV_CLK_SEL                  : std_logic;                                        --! Select between Divided Down Clock and input clock for the special case of divide by 1
 signal clk_DIV                      : std_logic;                                        --! Divided Down Clock for Synchronous Logic - If no divide this is clk_SEL
 
@@ -115,23 +115,23 @@ signal CONV_ACTIVE                  : std_logic;                                
 signal ADC_DOUT                                         : std_logic_vector(31 downto 0) := (others => '0');     --! ADC Data converted to parallel format
 signal ADC_FIFOWRITE                            : std_logic                                         := '0';                             --! Data valid for the 4 ADC devices
 
-signal CLOCK_EST_COUNTER                        : unsigned(27 downto 0)                 := (others => '0');     --! Clock Speed Estimator Counter
-signal CLOCK_EST_COUNTER_LATCH          : std_logic_vector(27 downto 0) := (others => '0');     --! Clock Speed Estimator Counter
-signal CLOCK_EST_THECLK_IN                      : std_logic;                                                                            --! Clock Speed Estimator Clock
-signal CLOCK_EST_d0                                     : std_logic;                                                                            --! Clock Speed Estimator Clock debounced against the 100M Clock
-signal CLOCK_EST_d1                                     : std_logic;                                                                            --! Clock Speed Estimator Clock debounced against the 100M Clock
+--signal CLOCK_EST_COUNTER          : unsigned(27 downto 0)         := (others => '0');     --! Clock Speed Estimator Counter --GBC:20190321
+--signal CLOCK_EST_COUNTER_LATCH    : std_logic_vector(27 downto 0) := (others => '0');     --! Clock Speed Estimator Counter --GBC:20190321
+--signal CLOCK_EST_THECLK_IN        : std_logic;                                            --! Clock Speed Estimator Clock --GBC:20190321
+--signal CLOCK_EST_d0               : std_logic;                                            --! Clock Speed Estimator Clock debounced against the 100M Clock --GBC:20190321
+--signal CLOCK_EST_d1               : std_logic;                                            --! Clock Speed Estimator Clock debounced against the 100M Clock --GBC:20190321
 
-signal SAMPLE_CLOCK_COUNTER                     : unsigned(31 downto 0)                 := (others => '0');     --! Time Count in Sample Clocks since Initial Trigger
-signal SAMPLE_COUNTER                           : unsigned(31 downto 0)                 := (others => '0');     --! Sample Count since Initial Trigger
-signal SAMPLE_CLOCK_COUNTER_LATCH       : std_logic_vector(31 downto 0) := (others => '0');     --! Time Count in Sample Clocks since Initial Trigger
-signal SAMPLE_COUNTER_LATCH                     : std_logic_vector(31 downto 0) := (others => '0');     --! Sample Count since Initial Trigger
+--signal SAMPLE_CLOCK_COUNTER       : unsigned(31 downto 0)         := (others => '0');     --! Time Count in Sample Clocks since Initial Trigger --GBC:20190321
+--signal SAMPLE_COUNTER             : unsigned(31 downto 0)         := (others => '0');     --! Sample Count since Initial Trigger --GBC:20190321
+--signal SAMPLE_CLOCK_COUNTER_LATCH : std_logic_vector(31 downto 0) := (others => '0');     --! Time Count in Sample Clocks since Initial Trigger --GBC:20190321
+--signal SAMPLE_COUNTER_LATCH       : std_logic_vector(31 downto 0) := (others => '0');     --! Sample Count since Initial Trigger --GBC:20190321
 
 signal ADC_FSYNC_INT                            : std_logic;                                                                            --! local copy ADC Frame Sync for start of Sample
 
 signal s_CLK_GEN_CLK                    : std_logic;                                                            --! Generated Clock for the ADCs
 signal CLKDIV_COUNTER                   : std_logic_vector  (15 downto 0);                          --! Divide the Selected Clock for use as the Internal Sample Clock
 signal CLKDIV_COUNTER_RESET             : std_logic;                                                            --! Reset the Counter
-signal DIVIDE2                                  : std_logic_vector  (15 downto 0);                          --! Divide by 2 calculation to get close to 50/50 duty cycle
+--signal DIVIDE2                                  : std_logic_vector  (15 downto 0);                          --! Divide by 2 calculation to get close to 50/50 duty cycle --GBC:20190321
 
 
 --clk_SEL Clock Domain
@@ -152,7 +152,7 @@ signal ADC_DATAOUT_PCAP         : std_logic_vector(255 downto 0) := (others => '
 --------------------------------------------------------------------------------------
 -- debug test using mark_debug
 ---------------------------------------------------------------------------------------
-attribute mark_debug : string;
+--attribute mark_debug : string;
 attribute keep : string;
 
 -- For signals that are constrained need keep attribute as the synthesiser can change the name on us .....
@@ -223,12 +223,14 @@ end process Cross_Clock_Buffer_ADC;
 
 --############################################################
 --################## Begin Clocking Section ##################
+-- commented GBC:20190321
+--SEL_CLK_SEL : BUFGMUX
+--        port map (O     => clk_SEL,
+--                          I0    => clk_PANDA,
+--                          I1    => EXT_CLOCK,
+--                          S     => CLK_SELECT_REG(0));
 
-SEL_CLK_SEL : BUFGMUX
-        port map (O     => clk_SEL,
-                          I0    => clk_PANDA,
-                          I1    => EXT_CLOCK,
-                          S     => CLK_SELECT_REG(0));
+clk_SEL <= clk_PANDA;
 
 
 --! Update the States
@@ -238,13 +240,14 @@ begin
             if ADC_RESET = '1' then     -- put the main control state here for ease of coding
                 DIV_STATE <= DIV_IDLE;
             else
-                    DIV_STATE <= NEXT_DIV_STATE;
+                DIV_STATE <= NEXT_DIV_STATE;
             end if;
     end if;
 end process DIV_STATE_UPDATE;
 
 --! State Machine to produce a since clock wide reset pulse on start-up or if in external sync from the first external sync pulse
-DIV_STATE_TRANSITION: process(DIV_STATE,NEXT_DIV_STATE,ADC_ENABLE,HW_SYNC,HW_SYNC_EN)
+--DIV_STATE_TRANSITION: process(DIV_STATE,NEXT_DIV_STATE,ADC_ENABLE,HW_SYNC,HW_SYNC_EN) --GBC:20190321
+DIV_STATE_TRANSITION: process(DIV_STATE,HW_SYNC,HW_SYNC_EN)
 begin
 NEXT_DIV_STATE <= DIV_STATE;
     case DIV_STATE is
@@ -273,9 +276,10 @@ end process DIV_STATE_TRANSITION;
 HW_SYNC_EN_MOD <= HW_SYNC_EN;
 
 --! This Process Described the Main Divider
-MAINDIV: process (clk_SEL,CLKDIV_COUNTER_RESET,ADC_CLK_DIV,CLKDIV_COUNTER,DIVIDE2)
+--MAINDIV: process (clk_SEL,CLKDIV_COUNTER_RESET,ADC_CLK_DIV,CLKDIV_COUNTER,DIVIDE2) --GBC:20190321
+MAINDIV: process (clk_SEL)
 begin
-    DIVIDE2 <=  std_logic_vector(unsigned('0' & ADC_CLK_DIV(15 downto 1)) + 1);
+--    DIVIDE2 <=  std_logic_vector(unsigned('0' & ADC_CLK_DIV(15 downto 1)) + 1); --GBC:20190321
         if Rising_edge(clk_SEL) then
                 if CLKDIV_COUNTER_RESET = '1' then
                         CLKDIV_COUNTER <= ADC_CLK_DIV;
@@ -289,8 +293,10 @@ end process MAINDIV;
 
 --! This Process describes the clock output
 CLKOUTPUT: process (clk_SEL)
+    variable DIVIDE2 : std_logic_vector(15 downto 0);
 begin
     if Rising_edge(clk_SEL) then
+        DIVIDE2 :=  std_logic_vector(unsigned('0' & ADC_CLK_DIV(15 downto 1)) + 1);
             if CLKDIV_COUNTER_RESET = '1' then
                     s_CLK_GEN_CLK <= '0';
             elsif CLKDIV_COUNTER = DIVIDE2   then
@@ -303,13 +309,14 @@ end process CLKOUTPUT;
 
 
 --! This process controls the bypass should the divider be set to 1
-BYPASS_DIVIDER: process(ADC_CLK_DIV,clk_SEL,s_CLK_GEN_CLK)
+-- BYPASS_DIVIDER: process(ADC_CLK_DIV,clk_SEL,s_CLK_GEN_CLK) --GBC:20190321
+BYPASS_DIVIDER: process(ADC_CLK_DIV)
 begin
     if ADC_CLK_DIV = x"0001" then
-            DIV_CLK <= clk_SEL;
+--            DIV_CLK <= clk_SEL; --GBC:20190321
             DIV_CLK_SEL <= '0';
     else
-            DIV_CLK <= s_CLK_GEN_CLK;
+--            DIV_CLK <= s_CLK_GEN_CLK; --GBC:20190321
             DIV_CLK_SEL <= '1';
     end if;
 end process BYPASS_DIVIDER;
@@ -364,7 +371,7 @@ SEL_CLK_DIV : BUFGMUX
                           S     => DIV_CLK_SEL);
 
 
-CLOCK_EST_THECLK_IN <= DIV_CLK;
+--CLOCK_EST_THECLK_IN <= DIV_CLK; --GBC:20190321
 
 
 --################## End Clocking Section ##################
@@ -385,47 +392,47 @@ begin
             end if;
     end if;
 end process SET_CON_ACTIVE;
-
+--GBC:20190321
 --! Simple Counter that allows the software to Estimate a Clock Frequency
-THE_CLOCK_ESTIMATOR: process(clk_PANDA)
-begin
-    if Rising_edge(clk_PANDA) then
-            CLOCK_EST_d1 <=  CLOCK_EST_d0;
-            CLOCK_EST_d0 <=  CLOCK_EST_THECLK_IN;
-            if CLOCK_EST_D0 = '1' and CLOCK_EST_D1 = '0' then
-                CLOCK_EST_COUNTER <= CLOCK_EST_COUNTER + 1;
-            end if;
-    end if;
-end process THE_CLOCK_ESTIMATOR;
+--THE_CLOCK_ESTIMATOR: process(clk_PANDA)
+--begin
+--    if Rising_edge(clk_PANDA) then
+--            CLOCK_EST_d1 <=  CLOCK_EST_d0;
+--            CLOCK_EST_d0 <=  CLOCK_EST_THECLK_IN;
+--            if CLOCK_EST_D0 = '1' and CLOCK_EST_D1 = '0' then
+--                CLOCK_EST_COUNTER <= CLOCK_EST_COUNTER + 1;
+--            end if;
+--    end if;
+--end process THE_CLOCK_ESTIMATOR;
 
 
 --! Simple Counter that counts the number of Samples acquired since CON_ACTIVE
-THE_SAMPLE_CLOCK_COUNTERS: process(clk_DIV)
-begin
-    if Rising_edge(clk_DIV) then
-            if CONV_ACTIVE = '0'  then
-                    SAMPLE_CLOCK_COUNTER <= (others => '0');
-                    SAMPLE_COUNTER <= (others => '0');
-            elsif ADC_FSYNC_INT /= '0' then
-                    SAMPLE_CLOCK_COUNTER <= SAMPLE_CLOCK_COUNTER + 1;
-                    SAMPLE_COUNTER <= SAMPLE_COUNTER + 1;
-            end if;
-    end if;
-end process THE_SAMPLE_CLOCK_COUNTERS;
+--THE_SAMPLE_CLOCK_COUNTERS: process(clk_DIV)
+--begin
+--    if Rising_edge(clk_DIV) then
+--            if CONV_ACTIVE = '0'  then
+--                    SAMPLE_CLOCK_COUNTER <= (others => '0');
+--                    SAMPLE_COUNTER <= (others => '0');
+--            elsif ADC_FSYNC_INT /= '0' then
+--                    SAMPLE_CLOCK_COUNTER <= SAMPLE_CLOCK_COUNTER + 1;
+--                    SAMPLE_COUNTER <= SAMPLE_COUNTER + 1;
+--            end if;
+--    end if;
+--end process THE_SAMPLE_CLOCK_COUNTERS;
 
 
 
 --************************************************************************************************************************
 -- Clock Domain Crossing  back to clk_PANDA
 --*************************************************************************************************************************
-DEBOUNCE_THE_COUNTER: process(clk_PANDA,CLOCK_EST_COUNTER,SAMPLE_CLOCK_COUNTER)
-begin
-    if Rising_edge(clk_PANDA) then
-            CLOCK_EST_COUNTER_LATCH <= std_logic_vector(CLOCK_EST_COUNTER);
-            SAMPLE_CLOCK_COUNTER_LATCH <= std_logic_vector(SAMPLE_CLOCK_COUNTER);
-            SAMPLE_COUNTER_LATCH <= std_logic_vector(SAMPLE_COUNTER);
-    end if;
-end process DEBOUNCE_THE_COUNTER;
+--DEBOUNCE_THE_COUNTER: process(clk_PANDA,CLOCK_EST_COUNTER,SAMPLE_CLOCK_COUNTER)
+--begin
+--    if Rising_edge(clk_PANDA) then
+--            CLOCK_EST_COUNTER_LATCH <= std_logic_vector(CLOCK_EST_COUNTER);
+--            SAMPLE_CLOCK_COUNTER_LATCH <= std_logic_vector(SAMPLE_CLOCK_COUNTER);
+--            SAMPLE_COUNTER_LATCH <= std_logic_vector(SAMPLE_COUNTER);
+--    end if;
+--end process DEBOUNCE_THE_COUNTER;
 
 
 clk_SPI_OUT <= clk_DIV;

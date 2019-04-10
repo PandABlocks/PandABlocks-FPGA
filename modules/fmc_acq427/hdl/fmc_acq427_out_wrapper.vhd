@@ -21,17 +21,14 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity fmc_acq427_out_top is
+entity fmc_acq427_out_wrapper is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Bus Inputs
-    bitbus_i            : in  std_logic_vector(127 downto 0);
-    posbus_i            : in  std32_array(31 downto 0);
-        -- Generic Inputs to BitBus and PosBus from FMC and SFP
-    fmc_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
-    fmc_data_o          : out std32_array(15 downto 0) := (others=>(others=>'0')); -- 8 channels of 32-bit data
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -42,17 +39,19 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic := '1';
-    FMC_interface       : inout fmc_interface
+    FMC_i               : in  fmc_input_interface;
+    FMC_io              : inout fmc_inout_interface;
+    FMC_o               : out fmc_output_interface
 );
-end fmc_acq427_out_top;
+end fmc_acq427_out_wrapper;
 
-architecture rtl of fmc_acq427_out_top is
+architecture rtl of fmc_acq427_out_wrapper is
 
 ---------------------------------------------------------------------------------------
 -- FMC pin name translation signals.
 ---------------------------------------------------------------------------------------
-signal p_FMC_EXT_CLK        : std_logic;                                        --! Sample Clock from ACQ420FMC
-signal p_FMC_EXT_TRIG       : std_logic;                                        --! Trigger from ACQ420FMC
+--signal p_FMC_EXT_CLK        : std_logic;                                        --! Sample Clock from ACQ420FMC -- (unused) GBC:20190321
+--signal p_FMC_EXT_TRIG       : std_logic;                                        --! Trigger from ACQ420FMC -- (unused) GBC:20190321
 signal p_DAC_SPI_CLK        : std_logic                     := '0';             --! DAC SPI Clock
 signal p_DAC_SDI            : std_logic_vector( 4 downto 1) := (others => '0'); --! DAC SPI Data In
 signal p_DAC_SDO            : std_logic_vector( 4 downto 1) := (others => '0'); --! DAC SPI Data Out
@@ -67,9 +66,9 @@ signal DAC_SDO              : std_logic_vector( 4 downto 1) := (others => '0'); 
 signal DAC_SYNC_n           : std_logic                     := '0';             --! DAC SPI SYNC
 signal DAC_LD_n             : std_logic                     := '0';             --! DAC Load
 signal DAC_RST_n            : std_logic;                                        --! DAC Reset
-signal FMC_EXT_CLK          : std_logic;                                        --! Sample Clock from ACQ420FMC
-signal FMC_EXT_TRIG         : std_logic;                                        --! Trigger from ACQ420FMC
-signal FMC_IO_BUS           : std_logic_vector(3 downto 0)  := (others => '0'); --! FMC IO Controls (CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR)
+--signal FMC_EXT_CLK          : std_logic;                                        --! Sample Clock from ACQ420FMC -- (unused) GBC:20190321
+--signal FMC_EXT_TRIG         : std_logic;                                        --! Trigger from ACQ420FMC -- (unused) GBC:20190321
+--signal FMC_IO_BUS           : std_logic_vector(3 downto 0)  := (others => '0'); --! FMC IO Controls (CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR) -- (unused) GBC:20190321
 
 signal FMC_MODULE_ENABLE_n  : std_logic;                                        --! FPGA Enable Outputs
 signal MODULE_ENABLE        : std_logic_vector(31 downto 0);                    --! FPGA Enable Outputs
@@ -100,7 +99,7 @@ signal DAC_DATAIN           : std_logic_vector(127 downto 0) := (others => '0');
 ---------------------------------------------------------------------------------------
 -- Signal Attributes
 ---------------------------------------------------------------------------------------
-attribute mark_debug    : string;
+--attribute mark_debug    : string; --GBC:20190321
 attribute keep          : string;
 attribute IOB           : string;
 
@@ -127,22 +126,22 @@ begin
 -- DAC
 ---------------------------------------------------------------------------------------
 -- Input Pins
-p_DAC_SDO(1)        <= FMC_interface.FMC_LA_P(8);
-p_DAC_SDO(2)        <= FMC_interface.FMC_LA_P(9);
-p_DAC_SDO(3)        <= FMC_interface.FMC_LA_P(10);
-p_DAC_SDO(4)        <= FMC_interface.FMC_LA_P(11);
+p_DAC_SDO(1)        <= FMC_io.FMC_LA_P(8);
+p_DAC_SDO(2)        <= FMC_io.FMC_LA_P(9);
+p_DAC_SDO(3)        <= FMC_io.FMC_LA_P(10);
+p_DAC_SDO(4)        <= FMC_io.FMC_LA_P(11);
 
-FMC_interface.FMC_LA_P(4)         <= p_DAC_SDI(1);
-FMC_interface.FMC_LA_P(5)         <= p_DAC_SDI(2);
-FMC_interface.FMC_LA_P(6)         <= p_DAC_SDI(3);
-FMC_interface.FMC_LA_P(7)         <= p_DAC_SDI(4);
-FMC_interface.FMC_LA_P(1)         <= p_DAC_SYNC_n;
-FMC_interface.FMC_LA_P(2)         <= p_DAC_LD_n;
-FMC_interface.FMC_LA_P(3)         <= p_DAC_RST_n;
+FMC_io.FMC_LA_P(4)         <= p_DAC_SDI(1);
+FMC_io.FMC_LA_P(5)         <= p_DAC_SDI(2);
+FMC_io.FMC_LA_P(6)         <= p_DAC_SDI(3);
+FMC_io.FMC_LA_P(7)         <= p_DAC_SDI(4);
+FMC_io.FMC_LA_P(1)         <= p_DAC_SYNC_n;
+FMC_io.FMC_LA_P(2)         <= p_DAC_LD_n;
+FMC_io.FMC_LA_P(3)         <= p_DAC_RST_n;
 
 
 -- Output Pins
-FMC_interface.FMC_CLK0_M2C_P      <= p_DAC_SPI_CLK;
+FMC_io.FMC_CLK0_M2C_P      <= p_DAC_SPI_CLK;
 
 ---------------------------------------------------------------------------------------
 -- IO Buffer Instantiation
@@ -165,8 +164,8 @@ port map (
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
-    bit_bus_i            => bitbus_i,
-    pos_bus_i            => posbus_i,
+    bit_bus_i           => bit_bus_i,
+    pos_bus_i           => pos_bus_i,
 
     VAL1_from_bus     => CH01_DAC_DATA,
     VAL2_from_bus     => CH02_DAC_DATA,

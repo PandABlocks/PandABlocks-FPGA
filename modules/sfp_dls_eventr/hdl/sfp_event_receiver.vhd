@@ -7,8 +7,7 @@ use unisim.vcomponents.all;
 
 
 entity sfp_event_receiver is
-    port (GTREFCLK_P        : in  std_logic;
-          GTREFCLK_N        : in  std_logic;
+    port (GTREFCLK        : in  std_logic;
           event_reset_i     : in  std_logic;
           event_clk_i       : in  std_logic;
           rxp_i             : in  std_logic;
@@ -163,12 +162,6 @@ signal gt0_rxbyterealign_out         : std_logic;
 signal gt0_rxcommadet_out            : std_logic;
 signal gt0_qplloutclk_in             : std_logic;
 signal gt0_qplloutrefclk_in          : std_logic;
-signal tied_to_ground_i              : std_logic;
-
-attribute syn_noclockbuf             : boolean;
-signal GTREFCLK                      : std_logic;
-attribute syn_noclockbuf of GTREFCLK : signal is true;
-
 
 begin
 
@@ -183,19 +176,6 @@ rxcommadet_o <= gt0_rxcommadet_out;
 rxdata_o <= gt0_rxdata_out;
 
 rxnotintable_o <= gt0_rxnotintable_out;
-
-tied_to_ground_i <= '0';
-
--- IBUFDS_GTE2  MGT differential clock
-gtrefclk_ibufgds : IBUFDS_GTE2
-    port map
-        (O     => GTREFCLK,
-         ODIV2 => open,
-         CEB   => tied_to_ground_i,
-         I     => GTREFCLK_P,
-         IB    => GTREFCLK_N
-);
-
 
 -- Indicates when the link is up when the rx and tx reset have finished
 ps_linkup: process(event_clk_i)

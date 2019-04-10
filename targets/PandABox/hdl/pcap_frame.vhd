@@ -29,8 +29,8 @@ port (
     SHIFT_SUM           : in  std_logic_vector(5 downto 0);
         TRIG_EDGE                   : in  std_logic_vector(1 downto 0);
     -- Block input and outputs.
-    sysbus_i            : in  sysbus_t;
-    posbus_i            : in  posbus_t;
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
     enable_i            : in  std_logic;
     gate_i              : in  std_logic;
     trig_i              : in  std_logic;
@@ -196,10 +196,10 @@ process(clk_i) begin
         end if;
 
         if (trig = '1') then
-            bits0 <= sysbus_i(31 downto 0);
-            bits1 <= sysbus_i(63 downto 32);
-            bits2 <= sysbus_i(95 downto 64);
-            bits3 <= sysbus_i(127 downto 96);
+            bits0 <= bit_bus_i(31 downto 0);
+            bits1 <= bit_bus_i(63 downto 32);
+            bits2 <= bit_bus_i(95 downto 64);
+            bits3 <= bit_bus_i(127 downto 96);
         end if;
     end if;
 end process;
@@ -216,7 +216,7 @@ port map (
     enable_i     => enable_i,
     gate_i       => gate_i,
     trig_i       => trig,
-    value_i      => posbus_i(i),
+    value_i      => pos_bus_i(i),
     shift_i      => SHIFT_SUM,
     value_o      => value_o(i),
     diff_o       => diff_o(i),
@@ -236,7 +236,7 @@ end generate;
 -- TimeStamp lsb
 -- TimeStamp msb
 -- Number of Samples
--- posbus (Bits0, Bits1, Bits3 and Bits 4)
+-- pos_bus (Bits0, Bits1, Bits3 and Bits 4)
 --------------------------------------------------------------------------
 
 --Register the mode_ts_bits buses

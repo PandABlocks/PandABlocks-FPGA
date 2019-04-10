@@ -33,8 +33,8 @@ port (
     -- Position Field interface
     PROTOCOL            : out std_logic_vector(2 downto 0);
     DCARD_MODE          : in  std_logic_vector(31 downto 0);
-    sysbus_i            : in  sysbus_t;
-    posbus_i            : in  posbus_t
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t
 );
 end entity;
 
@@ -72,8 +72,8 @@ outenc_ctrl : entity work.outenc_ctrl
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
-    bit_bus_i           => sysbus_i,
-    pos_bus_i           => posbus_i,
+    bit_bus_i           => bit_bus_i,
+    pos_bus_i           => pos_bus_i,
     a_from_bus          => a_ext,
     b_from_bus          => b_ext,
     z_from_bus          => z_ext,

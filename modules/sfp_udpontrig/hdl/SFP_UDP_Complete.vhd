@@ -851,12 +851,16 @@ signal_detect<='1';
  -- IDELAYCTRL (if present) and for the main GT transceiver reset logic.
  -----------------------------------------------------------------------------
 
+-- BUFG bypassed as build would fail with new clocking scheme
+-- GBC:20190405
+
  -- Route independent_clock input through a BUFG
-bufg_independent_clock : BUFG
-  port map (
-    I         => clk_i,--independent_clock,
-    O         => independent_clock_bufg
-    );
+--bufg_independent_clock : BUFG
+--  port map (
+--    I         => clk_i,--independent_clock,
+--    O         => independent_clock_bufg
+--    );
+independent_clock_bufg <= clk_i; 
 
 core_clocking_i : gig_ethernet_pcs_pma_0_clocking
   port map(

@@ -212,11 +212,11 @@ signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
 => '1');
 
 -- Top Level Signals
-signal sysbus               : sysbus_t := (others => '0');
-signal posbus               : posbus_t := (others => (others => '0'));
+signal bit_bus               : bit_bus_t := (others => '0');
+signal pos_bus               : pos_bus_t := (others => (others => '0'));
 
---signal sysbus_o             : sysbus_t;
---signal posbus_o             : posbus_t;
+--signal bit_bus_o             : bit_bus_t;
+--signal pos_bus_o             : pos_bus_t;
 
 -- Daughter card control signals
 
@@ -280,8 +280,8 @@ attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
 
 -- Make schematics a bit more clear for analysis
 --attribute keep              : string; -- GBC removed following three lines 14/09/18
---attribute keep of sysbus    : signal is "true";
---attribute keep of posbus    : signal is "true";
+--attribute keep of bit_bus    : signal is "true";
+--attribute keep of pos_bus    : signal is "true";
 
 constant SYSBUS_SIZE : natural :=   ttlin_val'length + lvdsin_val'length + inenc_a'length
                                     + inenc_b'length + inenc_z'length + inenc_data'length
@@ -521,7 +521,7 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(TTLOUT_CS),
 
-    sysbus_i            => sysbus,
+    bit_bus_i            => bit_bus,
     val_o               => ttlout_val,
     pad_o               => TTLOUT_PAD_O
 );
@@ -551,7 +551,7 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(LVDSOUT_CS),
 
-    sysbus_i            => sysbus,
+    bit_bus_i            => bit_bus,
     pad_o               => LVDSOUT_PAD_O
 );
 
@@ -587,8 +587,8 @@ port map (
     z_int_o             => inenc_z,
     data_int_o          => inenc_data,
     -- Block Outputs
-    sysbus_i            => sysbus,
-    posbus_i            => posbus,
+    bit_bus_i            => bit_bus,
+    pos_bus_i            => pos_bus,
     CONN_OUT            => inenc_conn,
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => INPROT,
@@ -623,8 +623,8 @@ port map (
     -- Signals passed to internal bus
     clk_int_o           => outenc_clk,
     --
-    sysbus_i            => sysbus,
-    posbus_i            => posbus,
+    bit_bus_i            => bit_bus,
+    pos_bus_i            => pos_bus,
     DCARD_MODE          => DCARD_MODE,
     PROTOCOL            => OUTPROT
 );
@@ -672,8 +672,8 @@ port map (
     write_ack_0_o       => write_ack(PCAP_CS),
     write_ack_1_o       => write_ack(DRV_CS),
 
-    sysbus_i            => sysbus,
-    posbus_i            => posbus,
+    bit_bus_i            => bit_bus,
+    pos_bus_i            => pos_bus,
     pcap_actv_o         => pcap_active(0),
     pcap_irq_o          => IRQ_F2P(0)
 );
@@ -733,8 +733,8 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(REG_CS),
 
-    sysbus_i            => sysbus,
-    posbus_i            => posbus,
+    bit_bus_i            => bit_bus,
+    pos_bus_i            => pos_bus,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION
 );
 
@@ -801,32 +801,32 @@ port map (
 
 -- Bus assembly ----
 --TEMPORARY HACK FOR OLD BUILD SYSTEM
-sysbus(5 downto 0) <= ttlin_val;
-sysbus(7 downto 6) <= lvdsin_val;
-sysbus(11 downto 8) <= inenc_a;
-sysbus(15 downto 12) <= inenc_b;
-sysbus(19 downto 16) <= inenc_z;
-sysbus(23 downto 20) <= inenc_data;
-sysbus(27 downto 24) <= inenc_conn;
-sysbus(31 downto 28) <= outenc_clk;
-sysbus(108 downto 108) <= pcap_active;
+bit_bus(5 downto 0) <= ttlin_val;
+bit_bus(7 downto 6) <= lvdsin_val;
+bit_bus(11 downto 8) <= inenc_a;
+bit_bus(15 downto 12) <= inenc_b;
+bit_bus(19 downto 16) <= inenc_z;
+bit_bus(23 downto 20) <= inenc_data;
+bit_bus(27 downto 24) <= inenc_conn;
+bit_bus(31 downto 28) <= outenc_clk;
+bit_bus(108 downto 108) <= pcap_active;
 
---sysbus(SYSBUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
+--bit_bus(SYSBUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
 --                                   inenc_data & inenc_z & inenc_b & ; &
 --                                   lvdsin_val & ttlin_val;
 
---posbus(inenc_val(1)'length-1 downto 0) <= inenc_val;
+--pos_bus(inenc_val(1)'length-1 downto 0) <= inenc_val;
 
 
 
---posbus(0) <= (others => '0');
-posbus(3 downto 0) <= inenc_val;
+--pos_bus(0) <= (others => '0');
+pos_bus(3 downto 0) <= inenc_val;
 
 -- HACKY CODE BELOW --
--- --sysbus(1 downto 0) <= sysbus_o(1 downto 0);
---sysbus(107 downto 32) <= sysbus_o(107 downto 32);
---sysbus(127 downto 109) <= sysbus_o(127 downto 109);
---posbus(31 downto 4) <= posbus_o(31 downto 4);
+-- --bit_bus(1 downto 0) <= bit_bus_o(1 downto 0);
+--bit_bus(107 downto 32) <= bit_bus_o(107 downto 32);
+--bit_bus(127 downto 109) <= bit_bus_o(127 downto 109);
+--pos_bus(31 downto 4) <= pos_bus_o(31 downto 4);
 --HACKY CODE END --
 
 
@@ -880,12 +880,12 @@ port map(
     write_address => write_address,
     write_data => write_data,
     write_ack => write_ack,
-    --sysbus_o => sysbus_o,
-    --sysbus_i => sysbus,
-    --posbus_o => posbus_o,
-    --posbus_i => posbus,
-    sysbus => sysbus,
-    posbus => posbus,
+    --bit_bus_o => bit_bus_o,
+    --bit_bus_i => bit_bus,
+    --pos_bus_o => pos_bus_o,
+    --pos_bus_i => pos_bus,
+    bit_bus => bit_bus,
+    pos_bus => pos_bus,
         --ttlin_val => ttlin_val,
         --lvdsin_val => lvdsin_val,
         --inenc_val => inenc_val,

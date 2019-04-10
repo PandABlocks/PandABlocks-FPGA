@@ -26,18 +26,15 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity fmc_loopback_top is
+entity fmc_loopback_wrapper is
 port (
     -- DO NOT EDIT BELOW THIS LINE ---------------------
     -- Standard FMC Block ports, do not add to or delete
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Bus Inputs
-    bitbus_i            : in  std_logic_vector(127 downto 0);
-    posbus_i            : in  std32_array(31 downto 0);
-    -- Generic Inputs to BitBus and PosBus from FMC and SFP
-    fmc_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
-    fmc_data_o          : out std32_array(15 downto 0) := (others => (others => '0'));
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -48,11 +45,13 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
-    FMC_interface       : inout fmc_interface
+    FMC_i               : in  fmc_input_interface;
+    FMC_io              : inout fmc_inout_interface;
+    FMC_o               : out fmc_output_interface
 );
-end fmc_loopback_top;
+end fmc_loopback_wrapper;
 
-architecture rtl of fmc_loopback_top is
+architecture rtl of fmc_loopback_wrapper is
 
 signal probe0               : std_logic_vector(31 downto 0);
 signal clock_en             : std_logic;
@@ -72,6 +71,8 @@ signal FMC_CLK1_M2C         : std_logic;
 signal FREQ_VAL             : std32_array(3 downto 0);
 signal GTREFCLK             : std_logic;
 signal FMC_PRSNT_DW         : std_logic_vector(31 downto 0);
+signal MAC_LO           : std_logic_vector(31 downto 0);
+signal MAC_HI           : std_logic_vector(31 downto 0);
 signal SOFT_RESET           : std_logic;
 signal LOOP_PERIOD_WSTB     : std_logic;
 signal LOOP_PERIOD          : std_logic_vector(31 downto 0);
@@ -113,14 +114,14 @@ port map (
 );
 
 -- Bottom half is output
-FMC_interface.FMC_LA_P(16 downto 0) <= pbrs_data;
-FMC_interface.FMC_LA_N(16 downto 0) <= pbrs_data;
+FMC_io.FMC_LA_P(16 downto 0) <= pbrs_data;
+FMC_io.FMC_LA_N(16 downto 0) <= pbrs_data;
 
 -- Upper half is input
-FMC_interface.FMC_LA_P(33 downto 17) <= (others => 'Z');
-FMC_interface.FMC_LA_N(33 downto 17) <= (others => 'Z');
-fmc_din_p_pad <= FMC_interface.FMC_LA_P(33 downto 17);
-fmc_din_n_pad <= FMC_interface.FMC_LA_N(33 downto 17);
+--FMC_io.FMC_LA_P(33 downto 17) <= (others => 'Z');
+--FMC_io.FMC_LA_N(33 downto 17) <= (others => 'Z');
+fmc_din_p_pad <= FMC_io.FMC_LA_P(33 downto 17);
+fmc_din_n_pad <= FMC_io.FMC_LA_N(33 downto 17);
 
 
 ---------------------------------------------------------------------------
@@ -155,16 +156,16 @@ LA_N_ERROR <= ZEROS(15) & la_n_compare;
 ---------------------------------------------------------------------------
 fmcgtx_exdes_i : entity work.fmcgtx_exdes
 port map (
-    Q0_CLK1_GTREFCLK_PAD_IN   => FMC_interface.GTREFCLK,
+    Q0_CLK1_GTREFCLK_PAD_IN   => FMC_i.GTREFCLK,
     GTREFCLK                    => GTREFCLK,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
     TRACK_DATA_OUT              => LINK_UP,
     ERROR_COUNT                 => ERROR_COUNT,
-    RXN_IN                      => FMC_interface.RXN_IN,
-    RXP_IN                      => FMC_interface.RXP_IN,
-    TXN_OUT                     => FMC_interface.TXN_OUT,
-    TXP_OUT                     => FMC_interface.TXP_OUT
+    RXN_IN                      => FMC_i.RXN_IN,
+    RXP_IN                      => FMC_i.RXP_IN,
+    TXN_OUT                     => FMC_o.TXN_OUT,
+    TXP_OUT                     => FMC_o.TXP_OUT
 );
 
 ---------------------------------------------------------------------------
@@ -177,8 +178,8 @@ generic map (
 )
 port map (
     O           => FMC_CLK0_M2C,
-    I           => FMC_interface.FMC_CLK0_M2C_P,
-    IB          => FMC_interface.FMC_CLK0_M2C_N
+    I           => FMC_io.FMC_CLK0_M2C_P,
+    IB          => FMC_io.FMC_CLK0_M2C_N
 );
 
 IBUFGDS_CLK1 : IBUFGDS
@@ -188,8 +189,8 @@ generic map (
 )
 port map (
     O           => FMC_CLK1_M2C,
-    I           => FMC_interface.FMC_CLK1_M2C_P,
-    IB          => FMC_interface.FMC_CLK1_M2C_N
+    I           => FMC_i.FMC_CLK1_M2C_P,
+    IB          => FMC_i.FMC_CLK1_M2C_N
 );
 
 ---------------------------------------------------------------------------
@@ -199,7 +200,7 @@ port map (
 test_clocks(0) <= GTREFCLK;
 test_clocks(1) <= FMC_CLK0_M2C;
 test_clocks(2) <= FMC_CLK1_M2C;
-test_clocks(3) <= FMC_interface.EXTCLK;
+test_clocks(3) <= FMC_i.EXTCLK;
 
 freq_counter_inst : entity work.freq_counter
 generic map ( NUM => 4)
@@ -213,15 +214,18 @@ port map (
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
-FMC_PRSNT_DW <= ZEROS(31) & FMC_interface.FMC_PRSNT;
+FMC_PRSNT_DW <= ZEROS(31) & FMC_i.FMC_PRSNT;
+
+MAC_HI(23 downto 0) <= FMC_i.MAC_ADDR(47 downto 24);
+MAC_LO(23 downto 0) <= FMC_i.MAC_ADDR(23 downto 0);
 
 fmc_ctrl : entity work.fmc_loopback_ctrl
 port map (
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
-    bit_bus_i            => (others => '0'),
-    pos_bus_i            => (others => (others => '0')),
+    bit_bus_i            => bit_bus_i,
+    pos_bus_i            => pos_bus_i,
     -- Block Parameters
     FMC_PRSNT           => FMC_PRSNT_DW,
     LINK_UP             => LINK_UP,
@@ -232,6 +236,8 @@ port map (
     FMC_CLK0            => FREQ_VAL(1),
     FMC_CLK1            => FREQ_VAL(2),
     EXT_CLK             => FREQ_VAL(3),
+	FMC_MAC_LO          => MAC_LO,
+    FMC_MAC_HI          => MAC_HI,
     SOFT_RESET          => open,
     SOFT_RESET_WSTB     => SOFT_RESET,
     LOOP_PERIOD         => LOOP_PERIOD,

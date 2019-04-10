@@ -151,7 +151,6 @@ port map (
 --------------------------------------------------------------------------
 -- BiSS Instantiations
 --------------------------------------------------------------------------
--- Caused the soft modules to not respond. Commented out as untested at the moment
 -- BiSS Master
 biss_master_inst : entity work.biss_master
 port map (

@@ -21,17 +21,25 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity fmc_acq427_in_top is
+entity fmc_acq427_in_wrapper is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Bus Inputs
-    bitbus_i            : in  std_logic_vector(127 downto 0);
-    posbus_i            : in  std32_array(31 downto 0);
-    -- Generic Inputs to BitBus and PosBus from FMC and SFP
-    fmc_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
-    fmc_data_o          : out std32_array(7 downto 0) := (others=>(others=>'0'));         -- 8 channels of 32-bit data
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
+    -- Outputs to PosBus from FMC
+	val1_o				: out std32_array(0 downto 0);
+	val2_o				: out std32_array(0 downto 0);
+	val3_o				: out std32_array(0 downto 0);
+	val4_o				: out std32_array(0 downto 0);
+	val5_o				: out std32_array(0 downto 0);
+	val6_o				: out std32_array(0 downto 0);
+	val7_o				: out std32_array(0 downto 0);
+	val8_o				: out std32_array(0 downto 0);
+    -- Outputs to BitBus from FMC
+    ttl_o               : out std_logic_vector(0 downto 0);
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -42,11 +50,13 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic := '1';
-    FMC_interface       : inout fmc_interface
+    FMC_i               : in  fmc_input_interface;
+    FMC_io              : inout fmc_inout_interface;
+    FMC_o               : out fmc_output_interface
 );
-end fmc_acq427_in_top;
+end fmc_acq427_in_wrapper;
 
-architecture rtl of fmc_acq427_in_top is
+architecture rtl of fmc_acq427_in_wrapper is
 
 ---------------------------------------------------------------------------------------
 -- FMC pin name translation signals.
@@ -55,16 +65,16 @@ signal p_ADC_CNV_A          : std_logic                     := '0';             
 signal p_ADC_CNV_B          : std_logic                     := '0';             --! ADC Convert Control B
 signal p_ADC_SPI_CLK        : std_logic                     := '0';             --! ADC SPI Clock
 signal p_ADC_SDO            : std_logic_vector( 8 downto 1) := (others => '0'); --! ADC SPI Data
-signal p_FMC_EXT_CLK        : std_logic;                                        --! Sample Clock from ACQ420FMC
-signal p_FMC_EXT_TRIG       : std_logic;                                        --! Trigger from ACQ420FMC
+--signal p_FMC_EXT_CLK        : std_logic                     := 'Z';             --! Sample Clock from ACQ420FMC -- (unused) GBC:20190321
+--signal p_FMC_EXT_TRIG       : std_logic                     := 'Z';             --! Trigger from ACQ420FMC -- (unused) GBC:20190321
 
 -- Internal Names
 signal ADC_CNV              : std_logic                     := '0';             --! ADC Convert Control
 signal ADC_SPI_CLK          : std_logic                     := '0';             --! ADC SPI Clock
 signal ADC_SDO              : std_logic_vector( 8 downto 1) := (others => '0'); --! ADC SPI Data
-signal FMC_EXT_CLK          : std_logic;                                        --! Sample Clock from ACQ420FMC
-signal FMC_EXT_TRIG         : std_logic;                                        --! Trigger from ACQ420FMC
-signal FMC_IO_BUS           : std_logic_vector(3 downto 0)  := (others => '0'); --! FMC IO Controls (CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR)
+--signal FMC_EXT_CLK          : std_logic;                                        --! Sample Clock from ACQ420FMC -- (unused) GBC:20190321
+--signal FMC_EXT_TRIG         : std_logic;                                        --! Trigger from ACQ420FMC -- (unused) GBC:20190321
+--signal FMC_IO_BUS           : std_logic_vector(3 downto 0)  := (others => '0'); --! FMC IO Controls (CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR) -- (unused) GBC:20190321
 
 signal FMC_MODULE_ENABLE_n  : std_logic;                                        --! FPGA Enable Outputs
 signal MODULE_ENABLE        : std_logic_vector(31 downto 0);                    --! FPGA Enable Outputs
@@ -95,17 +105,20 @@ signal s_ADC_SPI_CLK_STOP   : std_logic;                                        
 signal SPI_IDELAY_DATA      : std_logic_vector(4 downto 0);                     --! IDELAY Tap Delay Value
 signal SPI_IDELAY_LD        : std_logic;                                        --! IDELAY Load Tap Delay Value
 
-signal s_TRIG_DATA          : std_logic := '0';                                 --! External Trigger Data
-signal s_CLOCK_DATA         : std_logic := '0';                                 --! External Clock Data
+--signal s_TRIG_DATA          : std_logic := '0';                                 --! External Trigger Data -- (unused) GBC:20190321
+--signal s_CLOCK_DATA         : std_logic := '0';                                 --! External Clock Data -- (unused) GBC:20190321
 
 signal ADC_DATAOUT          : std_logic_vector(255 downto 0) := (others => '0');
 signal fmc_data             : std32_array(7 downto 0);
+signal fmc_data_o           : std32_array(7 downto 0);
 
+--signal FMC_ADC_TRIG_TRI_EN  : std_logic; -- (unused) GBC:20190321
+--signal FMC_ADC_CLK_TRI_EN   : std_logic; -- (unused) GBC:20190321
 
 ---------------------------------------------------------------------------------------
 -- Signal Attributes
 ---------------------------------------------------------------------------------------
-attribute mark_debug    : string;
+-- attribute mark_debug    : string; -- (unused) GBC:20190321
 attribute keep          : string;
 attribute IOB           : string;
 
@@ -120,7 +133,7 @@ attribute IOB       of ADC_SPI_CLK      : signal is "true";
 --------------------------------------------------------------------------------------
 -- debug test using mark_debug
 ---------------------------------------------------------------------------------------
---attribute mark_debug of s_ADC_SDO       : signal is "true";
+--attribute mark_debug of s_ADC_SDO       : signal is "true"; -- (unused) GBC:20190321
 
 begin
 
@@ -130,25 +143,26 @@ begin
 -- ADC
 ---------------------------------------------------------------------------------------
 -- Input Pins
-p_FMC_EXT_CLK  <=  FMC_interface.FMC_LA_P(0);
-p_FMC_EXT_TRIG <=  FMC_interface.FMC_LA_P(12);
-p_ADC_SDO(8)   <=  FMC_interface.FMC_LA_P(20);
-p_ADC_SDO(7)   <=  FMC_interface.FMC_LA_P(21);
-p_ADC_SDO(6)   <=  FMC_interface.FMC_LA_P(22);
-p_ADC_SDO(5)   <=  FMC_interface.FMC_LA_P(23);
-p_ADC_SDO(4)   <=  FMC_interface.FMC_LA_P(16);
-p_ADC_SDO(3)   <=  FMC_interface.FMC_LA_P(17);
-p_ADC_SDO(2)   <=  FMC_interface.FMC_LA_P(18);
-p_ADC_SDO(1)   <=  FMC_interface.FMC_LA_P(19);
+--p_FMC_EXT_CLK  <=  FMC_io.FMC_LA_P(0); -- (unused) GBC:20190321
+--p_FMC_EXT_TRIG <=  FMC_io.FMC_LA_P(12); -- (unused) GBC:20190321
+ttl_o(0) <= FMC_io.FMC_LA_P(0);
+p_ADC_SDO(8)   <=  FMC_io.FMC_LA_P(20);
+p_ADC_SDO(7)   <=  FMC_io.FMC_LA_P(21);
+p_ADC_SDO(6)   <=  FMC_io.FMC_LA_P(22);
+p_ADC_SDO(5)   <=  FMC_io.FMC_LA_P(23);
+p_ADC_SDO(4)   <=  FMC_io.FMC_LA_P(16);
+p_ADC_SDO(3)   <=  FMC_io.FMC_LA_P(17);
+p_ADC_SDO(2)   <=  FMC_io.FMC_LA_P(18);
+p_ADC_SDO(1)   <=  FMC_io.FMC_LA_P(19);
 
 -- Output Pins
-FMC_interface.FMC_LA_P(14)   <=  p_ADC_CNV_A;
-FMC_interface.FMC_LA_P(15)   <=  p_ADC_CNV_B;
-FMC_interface.FMC_LA_P(13)   <=  p_ADC_SPI_CLK;
+FMC_io.FMC_LA_P(14)   <=  p_ADC_CNV_A;
+FMC_io.FMC_LA_P(15)   <=  p_ADC_CNV_B;
+FMC_io.FMC_LA_P(13)   <=  p_ADC_SPI_CLK;
 
 
-s_TRIG_DATA    <=  FMC_IO_BUS(1);
-s_CLOCK_DATA   <=  FMC_IO_BUS(3);
+--s_TRIG_DATA    <=  FMC_IO_BUS(1); -- (unused) GBC:20190321
+--s_CLOCK_DATA   <=  FMC_IO_BUS(3); -- (unused) GBC:20190321
 
 
 ---------------------------------------------------------------------------------------
@@ -156,8 +170,12 @@ s_CLOCK_DATA   <=  FMC_IO_BUS(3);
 ---------------------------------------------------------------------------------------
 -- ADC
 ---------------------------------------------------------------------------------------
-cmp_FMC_ADC_TRIG:       IOBUF port map(IO => p_FMC_EXT_TRIG,I => s_TRIG_DATA,  O => FMC_EXT_TRIG, T => not FMC_IO_BUS(0));
-cmp_FMC_ADC_CLK:        IOBUF port map(IO => p_FMC_EXT_CLK, I => s_CLOCK_DATA, O => FMC_EXT_CLK,  T => not FMC_IO_BUS(2));
+
+--FMC_ADC_TRIG_TRI_EN <= not FMC_IO_BUS(0); -- (unused) GBC:20190321
+--FMC_ADC_CLK_TRI_EN  <= not FMC_IO_BUS(2); -- (unused) GBC:20190321
+
+--cmp_FMC_ADC_TRIG:       IOBUF port map(IO => p_FMC_EXT_TRIG,I => s_TRIG_DATA,  O => FMC_EXT_TRIG, T => FMC_ADC_TRIG_TRI_EN); -- (unused) GBC:20190321
+--cmp_FMC_ADC_CLK:        IOBUF port map(IO => p_FMC_EXT_CLK, I => s_CLOCK_DATA, O => FMC_EXT_CLK,  T => FMC_ADC_CLK_TRI_EN); -- (unused) GBC:20190321
 
 cmp_ADC_CNV_A:          IOBUF port map(IO => p_ADC_CNV_A, I => ADC_CNV, T => FMC_MODULE_ENABLE_n);
 cmp_ADC_CNV_B:          IOBUF port map(IO => p_ADC_CNV_B, I => ADC_CNV, T => FMC_MODULE_ENABLE_n);
@@ -173,8 +191,8 @@ port map (
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
-    bit_bus_i           => bitbus_i,
-    pos_bus_i           => posbus_i,
+    bit_bus_i           => bit_bus_i,
+    pos_bus_i           => pos_bus_i,
     -- Block Parameters
     GAIN1 => gains(0),
     GAIN1_wstb  => open,
@@ -225,9 +243,9 @@ FMC_MODULE_ENABLE_n <= not MODULE_ENABLE(0);
 THE_ACQ427FMC_ADC_INTERFACE : entity work.ACQ427FMC_ADC_INTERFACE
 port map (
     clk_PANDA               => clk_i,           -- 100 MHz Clock from ARM for ADC Timing
-    EXT_CLOCK               => FMC_EXT_CLK,     -- External Clock Source
-    FMC_IO_BUS              => FMC_IO_BUS,      -- FMC IO Controls (CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR)
-    ADC_CLK_SELECT_REG      => ADC_CLK_SELECT,
+    --EXT_CLOCK               => FMC_EXT_CLK,     -- External Clock Source  -- (unused) GBC:20190321
+    --FMC_IO_BUS              => FMC_IO_BUS,      -- FMC IO Controls (CLOCK_DAT,CLOCK_DIR,TRIG_DAT,TRIG_DIR) -- (unused) GBC:20190321
+    --ADC_CLK_SELECT_REG      => ADC_CLK_SELECT,        -- (unused) GBC:20190321
     ADC_CLKDIV_REG          => ADC_CLKDIV,
     ADC_FIFO_RESET_REG      => ADC_FIFO_RESET,
     ADC_FIFO_ENABLE_REG     => ADC_FIFO_ENABLE,
@@ -253,14 +271,26 @@ fmc_data(0) <= ADC_DATAOUT(255 downto 224);
 -- Extract the FMC data and apply gain control to it.
 gen_channel : for i in 0 to 7 generate
     process (clk_i)
-        variable shift : natural := to_integer(unsigned(gains(i)(1 downto 0)));
+        variable shift : natural;
     begin
         if rising_edge(clk_i) then
+            shift := to_integer(unsigned(gains(i)(1 downto 0)));
             fmc_data_o(i) <= std_logic_vector(
                 shift_right(signed(fmc_data(i)), shift));
         end if;
     end process;
 end generate;
+
+val1_o(0) <= fmc_data_o(0);
+val2_o(0) <= fmc_data_o(1);
+val3_o(0) <= fmc_data_o(2);
+val4_o(0) <= fmc_data_o(3);
+val5_o(0) <= fmc_data_o(4);
+val6_o(0) <= fmc_data_o(5);
+val7_o(0) <= fmc_data_o(6);
+val8_o(0) <= fmc_data_o(7);
+
+
 
 
 IOB_FF_PUSH_ADC: process(clk_ADC_IOB)

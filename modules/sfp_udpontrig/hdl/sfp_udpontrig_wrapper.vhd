@@ -20,16 +20,15 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-entity sfp_udpontrig_top is
+entity sfp_udpontrig_wrapper is
 generic ( DEBUG : string := "FALSE" );
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- System Bus
-    sysbus_i            : in  std_logic_vector(SBUSW-1 downto 0);
-    sfp_inputs_o        : out std_logic_vector(15 downto 0) := (others=>'0');
-    sfp_data_o          : out std32_array(15 downto 0) := (others=>(others=>'0'));
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
 
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
@@ -43,11 +42,12 @@ port (
     write_ack_o         : out std_logic := '1';
 
     -- SFP Interface
-    SFP_interface       : inout SFP_interface
+    SFP_i               : in SFP_input_interface;
+    SFP_o               : out SFP_output_interface
 );
-end sfp_udpontrig_top;
+end sfp_udpontrig_wrapper;
 
-architecture rtl of sfp_udpontrig_top is
+architecture rtl of sfp_udpontrig_wrapper is
 
 component SFP_UDP_Complete
     generic (
@@ -161,17 +161,17 @@ SFP_UDP_Complete_i : SFP_UDP_Complete
     count_udp_tx_RESULT_ERR   => count_udp_tx_RESULT_ERR_i,
     SFP_STATUS_COUNT          => SFP_STATUS_COUNT,
     -- Block Parameters
-    OUR_MAC_ADDRESS =>SFP_interface.MAC_ADDR,
+    OUR_MAC_ADDRESS =>SFP_i.MAC_ADDR,
     dest_udp_port  =>dest_udp_port,
     our_udp_port   =>our_udp_port,
     dest_ip_address=>dest_ip_address,
     our_ip_address =>our_ip_address,
     -- GTX I/O
-    gtrefclk       => SFP_interface.GTREFCLK,
-    RXN_IN         => SFP_interface.RXN_IN,
-    RXP_IN         => SFP_interface.RXP_IN,
-    TXN_OUT        => SFP_interface.TXN_OUT,
-    TXP_OUT        => SFP_interface.TXP_OUT
+    gtrefclk       => SFP_i.GTREFCLK,
+    RXN_IN         => SFP_i.RXN_IN,
+    RXP_IN         => SFP_i.RXP_IN,
+    TXN_OUT        => SFP_o.TXN_OUT,
+    TXP_OUT        => SFP_o.TXP_OUT
     );
 
 ---------------------------------------------------------------------------
@@ -205,10 +205,10 @@ end process;
 
 SOFT_RESET_rise<=SOFT_RESET and not(SOFT_RESET_prev);
 
-MAC_HI(23 downto 0) <= SFP_interface.MAC_ADDR(47 downto 24);
-MAC_LO(23 downto 0) <= SFP_interface.MAC_ADDR(23 downto 0);
+MAC_HI(23 downto 0) <= SFP_i.MAC_ADDR(47 downto 24);
+MAC_LO(23 downto 0) <= SFP_i.MAC_ADDR(23 downto 0);
 
-SFP_LOS_VEC <= (0 => SFP_interface.SFP_LOS, others => '0');
+SFP_LOS_VEC <= (0 => SFP_i.SFP_LOS, others => '0');
 ---------------------------------------------------------------------------
 -- SFP Control Interface
 ---------------------------------------------------------------------------
@@ -217,8 +217,8 @@ port map (
     -- Clock and Reset
     clk_i                       => clk_i,
     reset_i                     => reset_i,
-    bit_bus_i                   => sysbus_i,
-    pos_bus_i                   => (others => (others => '0')),
+    bit_bus_i                   => bit_bus_i,
+    pos_bus_i                   => pos_bus_i,
     -- Block inpout
     sfp_trig_from_bus          => trig,
     SFP_START_COUNT            => open,

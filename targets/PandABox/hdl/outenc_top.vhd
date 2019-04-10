@@ -37,8 +37,8 @@ port (
     -- Signals passed to internal bus
     clk_int_o           : out std_logic_vector(ENC_NUM-1 downto 0);
     -- Block Input and Outputs
-    sysbus_i            : in  sysbus_t;
-    posbus_i            : in  posbus_t;
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
     DCARD_MODE          : in  std32_array(ENC_NUM-1 downto 0);
     PROTOCOL            : out std3_array(ENC_NUM-1 downto 0);
     slow_tlp_o          : out slow_packet
@@ -136,8 +136,8 @@ port map (
     -- Position Bus Input
     PROTOCOL            => PROTOCOL(I),
     DCARD_MODE          => DCARD_MODE(I),
-    sysbus_i            => sysbus_i,
-    posbus_i            => posbus_i
+    bit_bus_i           => bit_bus_i,
+    pos_bus_i           => pos_bus_i
 );
 
 END GENERATE;
