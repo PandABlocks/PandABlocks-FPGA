@@ -81,22 +81,17 @@ attribute ASYNC_REG of start_in_dly    : signal is "TRUE";
 begin
 
     
--- DATA                     Store          TX                                       
--- BITOUT(PKT START)                    
--- POSOUT1                  BITOUT         
--- BITOUT                   POSOUT1     
--- POSOUT2                  POSOUT2     BITOUT(PKT START)
--- BITOUT                   BITOUT      POSOUT1          
--- POSOUT3                  POSOUT3     POSOUT2                     
--- BITOUT                   POSOUT4     BITOUT(ALIGNMENT)
--- POSOUT4                  BITOUT      POSOUT3
--- BITOUT(PKT_START)        POSOUT1     POSOUT4           
--- POSOUT1                  POSOUT2     BITOUT(PKT START)
--- BITOUT                   BITOUT      POSOUT1
--- POSOUT2                  POSOUT3     POSOUT2
--- BITOUT                   POSOUT4     BITOUT(PKT START)
-
-
+-- Store              start_in    meta1   meta2   dly   xor   xor12   xor34     TX                                    
+--                       0          0       0      0     0      0       0      POSOUT3 
+--                       1          0       0      0     0      0       0      POSOUT4 
+--                       1          1       0      0     0      0       0      BITOUT(PKT ALIGN)  
+-- BITOUT(PKT START)     1          1       1      0     1      0       0      POSOUT1                       
+-- POSOUT1               0          1       1      1     0      1       0      POSOUT2
+-- POSOUT2               0          0       1      1     0      0       1      BITOUT(PKT START)
+-- BITOUT(PKT ALIGN)     0          0       0      1     1      0       0      POSOUT3
+-- POSOUT3               1          0       0      0     0      1       0      POSOUT4     
+-- POSOUT4               1          1       0      0     0      0       1      BITOUT(PKT SLIGN) 
+-- BITOUT(PKT START)     1          1       1      0     1      0       0      POSOUT1                                   
 
 -- XOR for edge detection find both edges 
 start_in_xored <= start_in_dly xor start_in_meta2;
@@ -155,6 +150,7 @@ port map (
       probe6  => probe6,
       probe7  => probe7
 );
+
 
 
 txdata_o <= txdata;

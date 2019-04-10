@@ -149,10 +149,10 @@ txuserrdy_i <= rx_link_ok;
 
 
 -- Transmitter 
--- 1. BITOUT1 and pkt_start indicator 2. POSOUT1 
--- 3. BITOUT2 and zero                4. POSOUT2
--- 5. BITOUT3 and zero                6. POSOUT3
--- 7. BITOUT4 and pkt sync            8. POSOUT4
+-- The transmit side transmits regardless of the state of the receiver rx_link_ok signal 
+-- txoutclk is the clock used for the TX side
+-- 1. BITOUT and pkt_start K character  2. POSOUT1  3. POSOUT2   
+-- 1. BITOUT and alignment K character  2. POSOUT3  3. POSOUT4
 sfp_panda_sync_transmitter_inst : entity work.sfp_panda_sync_transmit
 
     port map (
@@ -169,8 +169,10 @@ sfp_panda_sync_transmitter_inst : entity work.sfp_panda_sync_transmit
         BITOUT_i          => BITOUT
         );  
          
+         
 -- Receiver
 -- Will not start until the data has been aligned and first packet has been received
+-- rxoutclk is the clock used for the RX side  
 sfp_panda_sync_receiver_inst : entity work.sfp_panda_sync_receiver
 
     port map (
@@ -192,7 +194,7 @@ sfp_panda_sync_receiver_inst : entity work.sfp_panda_sync_receiver
         );
 
 
--- txouttclk is the recomended clock for the FPGA frabric 
+-- MGT interface
 sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface 
 
     port map(
@@ -211,23 +213,23 @@ sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface
         rxbyterealign_o   => rxbyterealign_o,   
         rxcommadet_o      => rxcommadet_o,      
         rxdata_o          => rxdata_o,           
-        rxoutclk_o        => rxoutclk_o,            -- RX Recovered clock        
+        rxoutclk_o        => rxoutclk_o,            -- RX recovered clock        
         rxcharisk_o       => rxcharisk_o,        
         rxdisperr_o       => rxdisperr_o,        
         mgt_ready_o       => mgt_ready_o,       
         rxnotintable_o    => rxnotintable_o, 
-        txoutclk_o        => txoutclk_o,            -- TX GTREFCLK0_PN 
+        txoutclk_o        => txoutclk_o,            -- TX reference clock 
         txdata_i          => txdata_i,           
         txcharisk_i       => txcharisk_i        
         );
 
 
-
+-- Make a vector out of all the bits from the bit bus
 BITOUT <= BITOUT16 & BITOUT15 & BITOUT14 & BITOUT13 & BITOUT12 & BITOUT11 & BITOUT10 & BITOUT9 & 
           BITOUT8  & BITOUT7  & BITOUT6  & BITOUT5  & BITOUT4  & BITOUT3  & BITOUT2  & BITOUT1; 
 
 
-
+-- Link up and MGT ready
 LINKUP(0) <= mgt_ready_o and rx_link_ok;
 LINKUP(31 downto 1) <= (others => '0');  
 
