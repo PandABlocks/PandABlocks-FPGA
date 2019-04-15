@@ -49,7 +49,7 @@ set_property used_in_synthesis false \
 # Import IPs
 
 source $AUTOGEN/const/constraints.tcl
-set_property used_in_synthesis false [get_files *_impl.xdc]
+set_property used_in_synthesis false -quiet [get_files *_impl.xdc]
 
 # Read Zynq block design
 read_bd   $BUILD_DIR/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd

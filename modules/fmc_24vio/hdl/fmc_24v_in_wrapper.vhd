@@ -30,7 +30,7 @@ port (
     reset_i             : in  std_logic;
     -- Bus Inputs
     bit_bus_i           : in  bit_bus_t;
-    pos_bus_i           : in  pos_bus_i;
+    pos_bus_i           : in  pos_bus_t;
     -- Outputs to BitBus from FMC
     val1_o              : out std_logic_vector(0 downto 0);
     val2_o              : out std_logic_vector(0 downto 0);
