@@ -31,7 +31,8 @@ port (
     trig_i              : in  std_logic;
     out_o               : out std_logic_vector(DW-1 downto 0);
     -- Block Parameters
-    CYCLES              : in  std_logic_vector(31 downto 0);
+    REPEATS             : in  std_logic_vector(31 downto 0);
+    ACTIVE_o            : out std_logic;
     TABLE_ADDRESS       : in  std_logic_vector(31 downto 0);
     TABLE_ADDRESS_WSTB  : in  std_logic;
     TABLE_LENGTH        : in  std_logic_vector(31 downto 0);
@@ -178,6 +179,7 @@ process(clk_i) begin
                         table_cycle <= table_cycle + 1;
                         count <= TABLE_WORDS;
                         dma_addr <= unsigned(TABLE_ADDRESS);
+                        ACTIVE_o <= '1';
                         pgen_fsm <= WAIT_FIFO;
                     end if;
 
@@ -212,8 +214,8 @@ process(clk_i) begin
                 when IS_FINISHED =>
                     -- Is table finished?
                     if (count = 0) then
-                        -- Are there more table cycles?
-                        if (table_cycle = unsigned(CYCLES)) then
+                        -- Are there more table REPEATS?
+                        if (table_cycle = unsigned(REPEATS)) then
                             pgen_fsm <= FINISHED;
                         else
                             count <= TABLE_WORDS;
@@ -231,6 +233,9 @@ process(clk_i) begin
                     count <= (others => '0');
                     dma_addr <= (others => '0');
                     dma_len <= (others => '0');
+                    if (fifo_empty = '1') then
+                        ACTIVE_o <= '0';
+                    end if;         
             end case;
         end if;
     end if;
@@ -259,8 +264,6 @@ process(clk_i) begin
             -- Assign HEALTH output as Enum.
             if (table_ready = '0') then
                 health(1 downto 0) <= TO_SVECTOR(1,2);
-            elsif (table_end = '1') then
-                health(1 downto 0) <= TO_SVECTOR(2,2);
             elsif (dma_underrun = '1') then
                 health(1 downto 0) <= TO_SVECTOR(3,2);
             else
