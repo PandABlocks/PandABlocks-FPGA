@@ -9,7 +9,7 @@ from pkg_resources import require
 require("jinja2")
 from jinja2 import Environment, FileSystemLoader
 from .compat import TYPE_CHECKING, configparser
-from .configs import BlockConfig, pad
+from .configs import BlockConfig, pad, RegisterCounter
 from .ini_util import read_ini, timing_entries
 
 if TYPE_CHECKING:
@@ -36,10 +36,15 @@ class TimingCsv(object):
         for k, v in values.items():
             assert k in self.header, \
                 "Field %r is not %s" % (k, self.header)
-            # Lut Function values were given in hex, they need to be converted
-            # to an int, for the testbench to pass
-            if k != "TABLE_ADDRESS":
+            if k == "TABLE_ADDRESS":
+                # TABLE_ADDRESS for long table should be set to an integer.
+                # TODO: how to pass filename down to testbench?
+                v = "0"
+            else:
+                # Lut Function values were given in hex, they need to be
+                # converted to an int, for the testbench to pass
                 v = str(int(v, 0))
+
             self.lengths[k] = max(self.lengths[k], len(v))
             self.values[k] = v
             if "ARM" in k or "DISARM" in k or "START_WRITE" in k:
@@ -85,6 +90,7 @@ class HdlTimingGenerator(object):
             module_path = os.path.dirname(timing)
             block_ini = read_ini(os.path.join(module_path, block_ini_name))
             block = BlockConfig("BLOCK", "soft", 1, block_ini, "BLOCK")
+            block.register_addresses(RegisterCounter(block_count = 0))
             for section in timing_ini.sections():
                 if section != ".":
                     self.generate_timing_test(block, timing_ini, section, i)
@@ -116,31 +122,22 @@ class HdlTimingGenerator(object):
             for j in range(128):
                 header.append("BIT[" + str(j) + "]")
         for field in block.fields:
-            if field.type == "time":
-                header.append(field.name+"_L")
-                header.append(field.name + "_H")
-            elif field.type == "table short":
-                header.append(field.name + "_START")
-                header.append(field.name + "_DATA")
-                header.append(field.name + "_LENGTH")
-            elif field.type == "table":
-                header.append(field.name + "_ADDRESS")
-                header.append(field.name + "_LENGTH")
-            elif "ext" not in field.type:
+            if "bit_mux" in field.type:
                 header.append(field.name)
+            else:
+                for register in field.registers:
+                    if register.number >= 0:
+                        header.append(register.name)
+                if field in block.filter_fields("bit.*|pos.*"):
+                    for bus in field.bus_entries:
+                        header.append(field.name)
             # If field has wstb config, ass header for a wstb signal
             if field.wstb:
-                if field.type == "time":
-                    header.append(field.name + "_L_wstb")
-                    header.append(field.name + "_H_wstb")
-                elif field.type == "table short":
-                    header.append(field.name + "_DATA_wstb")
-                    header.append(field.name + "_LENGTH_wstb")
-                elif field.type == "table":
-                    header.append(field.name + "_ADDRESS_wstb")
-                    header.append(field.name + "_LENGTH_wstb")
-                else:
-                    header.append(field.name + "_wstb")
+                for register in field.registers:
+                    if register.number >= 0:
+                        header.append(register.name + "_wstb")
+                for bus in field.bus_entries:
+                    header.append(field.name)
         csv = TimingCsv(header)
         for_next_ts = {}  # type: Dict[str, str]
         for ts, inputs, outputs in timing_entries(timing_ini, section):
@@ -206,9 +203,12 @@ class HdlTimingGenerator(object):
             header=header,
             headerslength=headerslength,
         )
-
-        self.expand_template("hdl_timing.v.jinja2", context, timing_dir,
-                             "hdl_timing.v")
+        if block.type == "pcap":
+            self.expand_template("pcap_hdl_timing.v.jinja2", context,
+                                 timing_dir, "hdl_timing.v")
+        else:
+            self.expand_template("hdl_timing.v.jinja2", context, timing_dir,
+                                 "hdl_timing.v")
 
     # A script should be generated for each module for running the tests in
     # vivado. regression_tests.tcl searches through hdl_timing and finds every

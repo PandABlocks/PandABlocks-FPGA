@@ -72,8 +72,8 @@ IN_FAULT(0) <= FMC_LA_N(9);     -- UVFAULT
 IN_FAULT(1) <= FMC_LA_P(10);     -- FAULT
 
 -- Unused IO
-FMC_LA_P(33 downto 16) <= (others => 'Z');
-FMC_LA_N(33 downto 16) <= (others => 'Z');
+--FMC_LA_P(33 downto 16) <= (others => 'Z');
+--FMC_LA_N(33 downto 16) <= (others => 'Z');
 
 IN_FAULT(31 downto 2) <= (others => '0');
 

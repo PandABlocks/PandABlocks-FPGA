@@ -13,6 +13,7 @@ APP_NAME = $(error Define APP_NAME in CONFIG file)
 PYTHON = python2
 SPHINX_BUILD = sphinx-build
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
+MAKE_GITHUB_RELEASE = $(PANDA_ROOTFS)/make-github-release.py
 
 BUILD_DIR = $(TOP)/build
 VIVADO_VER = 2015.2
@@ -77,6 +78,8 @@ APP_FILE = $(TOP)/apps/$(APP_NAME).app.ini
 
 APP_DEPENDS += $(wildcard common/python/*.py)
 APP_DEPENDS += $(wildcard common/templates/*)
+APP_DEPENDS += $(wildcard targets/*/*.ini)
+APP_DEPENDS += $(wildcard modules/*/const/*.xdc)
 
 # Make the built app from the ini file
 $(AUTOGEN_BUILD_DIR): $(APP_FILE) $(APP_DEPENDS)
@@ -273,10 +276,17 @@ $(ZPKG_FILE): $(ZPKG_LIST) $(ZPKG_DEPENDS)
 zpkg: $(ZPKG_FILE)
 .PHONY: zpkg
 
-
 all-zpkg:
 	$(call MAKE_ALL_APPS, zpkg)
 .PHONY: all-zpkg
+
+
+# Push a github release
+github-release: $(ZPKG)
+	$(MAKE_GITHUB_RELEASE) PandABlocks-FPGA $(GIT_VERSION) \
+	    $(BUILD_DIR)/*.zpg
+
+.PHONY: github-release
 
 
 # ------------------------------------------------------------------------------

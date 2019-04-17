@@ -95,7 +95,8 @@ PHASE2 = 4
 
 
 class SeqSimulation(BlockSimulation):
-    ENABLE, BITA, BITB, BITC, POSA, POSB, POSC, TABLE, PRESCALE, REPEATS, \
+    ENABLE, BITA, BITB, BITC, POSA, POSB, POSC, TABLE, TABLE_START, \
+        TABLE_DATA, TABLE_LENGTH, PRESCALE, REPEATS, \
         ACTIVE, OUTA, OUTB, OUTC, OUTD, OUTE, OUTF, \
         TABLE_REPEAT, TABLE_LINE, LINE_REPEAT, STATE = PROPERTIES
 
@@ -106,10 +107,6 @@ class SeqSimulation(BlockSimulation):
         self.table = SeqTable()
         # The current line
         self.current_line = None
-        # TABLE Registers
-        self.TABLE_LENGTH = 0
-        self.TABLE_DATA = 0
-        self.TABLE_START = 0
 
     def set_outputs(self, outputs):
         self.OUTA = outputs & 1
@@ -164,41 +161,45 @@ class SeqSimulation(BlockSimulation):
         return self.prescale() * self.current_line.time1
 
     def current_time2(self):
-        return self.prescale() * self.current_line.time2
+        if self.current_line.time2 == 0:
+            return self.prescale()
+        else:
+            return self.prescale() * self.current_line.time2
 
     def next_time1(self):
         return self.prescale() * self.next_line().time1
 
     def next_time2(self):
-        return self.prescale() * self.next_line().time2
+        if self.next_line().time2 == 0:
+            return self.prescale()
+        else:
+            return self.prescale() * self.next_line().time2
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
         # This is a ConfigBlock object
         super(SeqSimulation, self).on_changes(ts, changes)
-
-        # Set attributes
-        for name, value in changes.items():
-            setattr(self, name, value)
         state = self.STATE
 
-        if changes.get("TABLE_START", None) == 1:
+        if changes.get(NAMES.TABLE_START, None) == 1:
             # Loading a table stops everything
             self.table.table_start()
             self.set_outputs(0)
             state = LOAD_TABLE
-        elif changes.get(NAMES.ENABLE, None) == False:
+        elif changes.get(NAMES.ENABLE, None) == 0:
             # If we are disabled at any point stop and wait for enable
             self.ACTIVE = 0
             self.set_outputs(0)
             if self.STATE != LOAD_TABLE:
-                # Not currently loading a table, so reset it and drop back to WAIT_ENABLE
+                # Not currently loading a table, so reset it and drop back to
+                # WAIT_ENABLE
                 self.table.reset()
                 state = WAIT_ENABLE
         else:
             if self.STATE == WAIT_ENABLE:
-                # If we get an enable or we are still active after a table rewrite
+                # If we get an enable or we are still active after a table
+                # rewrite
                 if changes.get(NAMES.ENABLE, None) == 1 or self.ACTIVE:
                     if self.table.table_ready:
                         if not self.next_triggers_met():
@@ -224,10 +225,10 @@ class SeqSimulation(BlockSimulation):
                 # table commands
                 if self.table.table_ready:
                     state = WAIT_ENABLE
-                elif "TABLE_DATA" in changes:
-                    self.table.table_data(changes["TABLE_DATA"])
-                elif "TABLE_LENGTH" in changes:
-                    self.table.table_lines(changes["TABLE_LENGTH"] / 4)
+                elif NAMES.TABLE_DATA in changes:
+                    self.table.table_data(self.TABLE_DATA)
+                elif NAMES.TABLE_LENGTH in changes:
+                    self.table.table_lines(self.TABLE_LENGTH / 4)
                     self.table.reset()
                     return ts + 1
             elif self.STATE == WAIT_TRIGGER:

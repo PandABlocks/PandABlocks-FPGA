@@ -43,9 +43,9 @@ set_msg_config -id {[Synth 8-2644]} -suppress
 # Elevate critical warnings
 set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 
-read_xdc $TARGET_DIR/const/panda-timing.xdc
-read_xdc $TARGET_DIR/const/panda-physical.xdc
-read_xdc $TARGET_DIR/const/panda-post_synth.xdc
+add_files $TARGET_DIR/const/panda-timing.xdc
+add_files $TARGET_DIR/const/panda-physical.xdc
+add_files $TARGET_DIR/const/panda-post_synth.xdc
 set_property used_in_synthesis false \
     [get_files $TARGET_DIR/const/panda-physical.xdc]
 set_property used_in_synthesis false \
@@ -56,20 +56,21 @@ set_property used_in_synthesis false \
 #
 # Import IPs
 
-source $AUTOGEN/hdl/constraints.tcl
+source $AUTOGEN/const/constraints.tcl
+set_property used_in_synthesis false -quiet [get_files *_impl.xdc]
 
 # Read Zynq block design
 read_bd   $BUILD_DIR/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 
 # Read auto generated files
-read_vhdl [glob $AUTOGEN/hdl/*.vhd]
+add_files [glob $AUTOGEN/hdl/*.vhd]
 
 # Read design files
 
-read_vhdl [glob $TOP_DIR/common/hdl/defines/*.vhd]
-read_vhdl [glob $TOP_DIR/common/hdl/*.vhd]
-read_vhdl [glob $TARGET_DIR/hdl/*.vhd]
-read_vhdl [glob $TARGET_DIR/hdl/defines/*.vhd]
+add_files [glob $TOP_DIR/common/hdl/defines/*.vhd]
+add_files [glob $TOP_DIR/common/hdl/*.vhd]
+add_files [glob $TARGET_DIR/hdl/*.vhd]
+add_files [glob $TARGET_DIR/hdl/defines/*.vhd]
 
 # Exit script here if gui mode - i.e. if running 'make carrier_fpga_gui'
 if {[string match "gui" [string tolower $MODE]]} { return }
@@ -86,10 +87,10 @@ report_timing_summary -file post_synth_timing_summary.rpt
 # STEP#3: run placement and logic optimisation, report utilisation and timing
 # estimates, write checkpoint design
 #
-opt_design
+opt_design -directive Explore
 
-place_design
-phys_opt_design
+place_design -directive Explore
+phys_opt_design -directive Explore
 write_checkpoint -force post_place
 report_timing_summary -file post_place_timing_summary.rpt
 write_debug_probes -force carrier_fpga_top.ltx
@@ -98,7 +99,7 @@ write_debug_probes -force carrier_fpga_top.ltx
 # STEP#4: run router, report actual utilization and timing, write checkpoint
 # design, run drc, write verilog and xdc out
 #
-route_design
+route_design -directive Explore
 
 write_checkpoint -force post_route
 report_utilization -file post_route_utilization_summary.rpt

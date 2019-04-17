@@ -88,7 +88,7 @@ signal DAC_FIFO_RD_COUNT                : std_logic_vector(5 downto 0)  := (othe
 signal DACCLK_FIFO_AVAIL                : std_logic;                                        --! There is a sample of data in the FIFO
 
 signal DIV_CLK                          : std_logic;                                        --! Divided Down Clock for Asynchronous Logic
-signal DIV_CLK_SEL                      : std_logic;                                        --! Select between Divided Down Clock and input clock for the special case of divide by 1
+--signal DIV_CLK_SEL                      : std_logic;                                        --! Select between Divided Down Clock and input clock for the special case of divide by 1 --GBC:20190321 (unused)
 
 signal CONV_ACTIVE                      : std_logic;                                        --! Conversion Active - Enabled
 
@@ -101,18 +101,18 @@ signal DAC_RESET_FALLING_d1             : std_logic                     := '0'; 
 signal DAC_RESET_FALLING_d2             : std_logic                     := '0';             --!
 signal DAC_RESET_FALLING_STRETCH        : std_logic                     := '0';             --!
 signal CLK_SEL_DAC_RESET                : std_logic                     := '0';             --! Reset the DAC logic
-signal DAC_ENABLE                       : std_logic                     := '0';             --! Combination of ALG Enable and ICS_OE_CLK_s
+signal DAC_ENABLE, DAC_ENABLE_a         : std_logic                     := '0';             --! Combination of ALG Enable and ICS_OE_CLK_s
 signal DATA_SIZE                        : std_logic;                                        --! Pack data in 32/16 bits
 signal DAC_CLK_DIV                      : std_logic_vector(15 downto 0) := (others => '0'); --! Clock Divider to generate DAC Sample Clock
 
-signal CLOCK_EST_COUNTER                : unsigned(27 downto 0)         := (others => '0'); --! Clock Speed Counter Counter
-signal CLOCK_EST_COUNTER_LATCH          : std_logic_vector(27 downto 0) := (others => '0'); --! Clock Speed Counter Counter Latched
-signal CLOCK_EST_THECLK_IN              : std_logic;                                        --! Clock Speed Counter Clock
-signal CLOCK_EST_d0                     : std_logic;                                        --! Clock Speed Estimator Clock debounced against the 100M Clock
-signal CLOCK_EST_d1                     : std_logic;                                        --! Clock Speed Estimator Clock debounced against the 100M Clock
+--signal CLOCK_EST_COUNTER                : unsigned(27 downto 0)         := (others => '0'); --! Clock Speed Counter Counter --GBC:20190321
+--signal CLOCK_EST_COUNTER_LATCH          : std_logic_vector(27 downto 0) := (others => '0'); --! Clock Speed Counter Counter Latched --GBC:20190321
+--signal CLOCK_EST_THECLK_IN              : std_logic;                                        --! Clock Speed Counter Clock --GBC:20190321
+--signal CLOCK_EST_d0                     : std_logic;                                        --! Clock Speed Estimator Clock debounced against the 100M Clock --GBC:20190321
+--signal CLOCK_EST_d1                     : std_logic;                                        --! Clock Speed Estimator Clock debounced against the 100M Clock --GBC:20190321
 
-signal SAMPLE_COUNTER                   : unsigned(31 downto 0)         := (others => '0'); --! Samples since Trigger Counter
-signal SAMPLE_COUNTER_LATCH             : std_logic_vector(31 downto 0) := (others => '0'); --! Samples since Trigger Counter
+--signal SAMPLE_COUNTER                   : unsigned(31 downto 0)         := (others => '0'); --! Samples since Trigger Counter --GBC:20190321
+--signal SAMPLE_COUNTER_LATCH             : std_logic_vector(31 downto 0) := (others => '0'); --! Samples since Trigger Counter --GBC:20190321
 
 signal clk_SPI                          : std_logic;                                        --! SPI Clock to shifting logic
 
@@ -127,13 +127,17 @@ signal CONTROL_READBACK                 : std_logic_vector(23 downto 0);        
 signal s_CLK_GEN_CLK                    : std_logic;                                        --! Generated Clock for the DACs
 signal CLKDIV_COUNTER                   : std_logic_vector  (15 downto 0);                  --! Divide the Selected Clock for use as the Internal Sample Clock
 signal CLKDIV_COUNTER_RESET             : std_logic;                                        --! Reset the Counter
-signal DIVIDE2                          : std_logic_vector  (15 downto 0);                  --! Divide by 2 calculation to get close to 50/50 duty cycle
+--signal DIVIDE2                          : std_logic_vector  (15 downto 0);                  --! Divide by 2 calculation to get close to 50/50 duty cycle --GBC:20190321
 
 signal clk_62_5M                        : std_logic;
 signal clk_62_5M_raw                    : std_logic                     := '0';
 
 signal DAC_INIT_COUNTER                 : unsigned(10 downto 0);                            --! Counter to space SPI DAC Init writes in time
 
+signal FAST_DAC_RD_EN                   : std_logic;
+
+attribute ASYNC_REG : string;
+attribute ASYNC_REG of DAC_ENABLE, DAC_ENABLE_a : signal is "TRUE";
 
 type DAC_SPI_INIT_STATE_V is (
                 IDLE,       -- Idle State
@@ -151,8 +155,8 @@ signal CONTROL_STATE,NEXT_CONTROL_STATE : DAC_SPI_INIT_STATE_V; --! DAC SPI Init
 --------------------------------------------------------------------------------------
 -- debug test using mark_debug
 ---------------------------------------------------------------------------------------
-attribute mark_debug : string;
-attribute keep : string;
+--attribute mark_debug : string; --GBC:20190321
+--attribute keep : string; --GBC:20190321
 
 begin
 
@@ -166,6 +170,8 @@ begin
     end if;
 end process Cross_Clock_Buffer_AXI;
 
+FAST_DAC_RD_EN <= DAC_DATA_RD  and DAC_FIFO_ENABLE;
+
 --! DAC Buffer FIFO using Xilinx IP Module  to move between DAC Clock Domain and PandA Clock Domain     generate this based on the ADC one
 --FAST_DAC_MEMORY : entity work.DAC_FIFO
 FAST_DAC_MEMORY :  fmc_acq427_dac_fifo
@@ -177,7 +183,7 @@ FAST_DAC_MEMORY :  fmc_acq427_dac_fifo
     din             =>  FIFO_WR_DATA,
     wr_en           =>  FIFO_WR_EN,
     rd_clk          =>  clk_62_5M,
-    rd_en           =>  DAC_DATA_RD  and DAC_FIFO_ENABLE,
+    rd_en           =>  FAST_DAC_RD_EN,
     dout            =>  FIFO_DATAOUT,
     rd_data_count   =>  DAC_FIFO_RD_COUNT,
     wr_data_count   =>  DAC_FIFO_WR_COUNT
@@ -220,8 +226,9 @@ end process SAMPLE_IN_DATA_FIFO;
 Cross_Clock_Buffer : Process(clk_62_5M)
 begin
     if Rising_Edge(clk_62_5M) then
-        DAC_CLK_DIV <= DAC_CLKDIV_REG(15 downto 0);
-        DAC_ENABLE  <= DAC_ENABLE_REG(0);
+        DAC_CLK_DIV  <= DAC_CLKDIV_REG(15 downto 0);
+        DAC_ENABLE_a <= DAC_ENABLE_REG(0);
+        DAC_ENABLE   <= DAC_ENABLE_A;
     end if;
 end process;
 
@@ -342,7 +349,8 @@ end process DAC_SPI_INIT_OUTPUTS;
 --*************************************************************************************************************************
 
 --! Sync the DAC_RESET to the selected Clock
-DAC_RESET_RESYNC: process(clk_62_5M,DAC_RESET)
+--DAC_RESET_RESYNC: process(clk_62_5M,DAC_RESET) --GBC:20190321
+DAC_RESET_RESYNC: process(clk_62_5M)
 begin
     if Rising_edge(clk_62_5M) then
         CLK_SEL_DAC_RESET   <= DAC_RESET;
@@ -354,9 +362,10 @@ CLKDIV_COUNTER_RESET <= '1' when CLK_SEL_DAC_RESET = '1' else '0';
 
 
 --! This Process Described the Main Divider
-MAINDIV: process (clk_62_5M, DAC_CLK_DIV)
+--MAINDIV: process (clk_62_5M, DAC_CLK_DIV) --GBC:20190321
+MAINDIV: process (clk_62_5M)
 begin
-    DIVIDE2 <=  std_logic_vector(unsigned('0' & DAC_CLK_DIV(15 downto 1)) + 1);
+    --DIVIDE2 <=  std_logic_vector(unsigned('0' & DAC_CLK_DIV(15 downto 1)) + 1); --GBC:20190321
     if Rising_edge(clk_62_5M) then
         if CLKDIV_COUNTER_RESET = '1' then
             CLKDIV_COUNTER <= DAC_CLK_DIV;
@@ -370,8 +379,10 @@ end process MAINDIV;
 
 --! This Process describes the clock output
 CLKOUTPUT: process (clk_62_5M)
+    variable DIVIDE2 : std_logic_vector(15 downto 0);
 begin
     if Rising_edge(clk_62_5M) then
+        DIVIDE2 := std_logic_vector(unsigned('0' & DAC_CLK_DIV(15 downto 1)) + 1);
         if CLKDIV_COUNTER_RESET = '1' then
             s_CLK_GEN_CLK <= '0';
         elsif CLKDIV_COUNTER = DIVIDE2   then
@@ -388,15 +399,15 @@ BYPASS_DIVIDER: process(DAC_CLK_DIV,clk_62_5M,s_CLK_GEN_CLK)
 begin
     if DAC_CLK_DIV = x"0001" then
         DIV_CLK <= clk_62_5M;
-        DIV_CLK_SEL <= '0';
+--        DIV_CLK_SEL <= '0';
     else
         DIV_CLK <= s_CLK_GEN_CLK;
-        DIV_CLK_SEL <= '1';
+--        DIV_CLK_SEL <= '1';
 
     end if;
 end process BYPASS_DIVIDER;
 
-CLOCK_EST_THECLK_IN <= DIV_CLK;
+--CLOCK_EST_THECLK_IN <= DIV_CLK; --GBC:20190321
 
 
 -- Detect the rising edge of the Sample Clock to synchronise all counters too
@@ -427,32 +438,33 @@ begin
     end if;
 end process SET_CON_ACTIVE;
 
+--GBC:20190321
 --! Simple Counter that allows the software to Estimate a Clock Frequency
-THE_CLOCK_ESTIMATOR: process(clk_62_5M)
-begin
-    if Rising_edge(clk_62_5M) then
-        CLOCK_EST_d1 <=  CLOCK_EST_d0;
-        CLOCK_EST_d0 <=  CLOCK_EST_THECLK_IN;
-        if CLOCK_EST_D0 = '1' and CLOCK_EST_D1 = '0' then
-            CLOCK_EST_COUNTER <= CLOCK_EST_COUNTER + 1;
-        end if;
-    end if;
-end process THE_CLOCK_ESTIMATOR;
+--THE_CLOCK_ESTIMATOR: process(clk_62_5M)
+--begin
+--    if Rising_edge(clk_62_5M) then
+--        CLOCK_EST_d1 <=  CLOCK_EST_d0;
+--        CLOCK_EST_d0 <=  CLOCK_EST_THECLK_IN;
+--        if CLOCK_EST_D0 = '1' and CLOCK_EST_D1 = '0' then
+--            CLOCK_EST_COUNTER <= CLOCK_EST_COUNTER + 1;
+--        end if;
+--    end if;
+--end process THE_CLOCK_ESTIMATOR;
 
 
 --! Simple Counter that counts the number of Samples acquired since CONV_ACTIVE
-THE_SAMPLE_COUNTER: process(clk_62_5M)
-begin
-    if Rising_edge(clk_62_5M) then
-        if DIV_CLK_RISING = '1' then
-            if CONV_ACTIVE = '0'  then
-                SAMPLE_COUNTER <= (others => '0');
-            else
-                SAMPLE_COUNTER <= SAMPLE_COUNTER + 1;
-            end if;
-        end if;
-    end if;
-end process THE_SAMPLE_COUNTER;
+--THE_SAMPLE_COUNTER: process(clk_62_5M)
+--begin
+--    if Rising_edge(clk_62_5M) then
+--        if DIV_CLK_RISING = '1' then
+--            if CONV_ACTIVE = '0'  then
+--                SAMPLE_COUNTER <= (others => '0');
+--            else
+--                SAMPLE_COUNTER <= SAMPLE_COUNTER + 1;
+--            end if;
+--        end if;
+--    end if;
+--end process THE_SAMPLE_COUNTER;
 
 
 --************************************************************************************************************************
@@ -460,13 +472,14 @@ end process THE_SAMPLE_COUNTER;
 --*************************************************************************************************************************
 
 --! De-bounce the counters against the PandA clock to ensure no meta-stable bits in the software read
-DEBOUNCE_THE_COUNTER: process(clk_PANDA)
-begin
-    if Rising_edge(clk_PANDA) then
-        CLOCK_EST_COUNTER_LATCH <= std_logic_vector(CLOCK_EST_COUNTER);
-        SAMPLE_COUNTER_LATCH <= std_logic_vector(SAMPLE_COUNTER);
-    end if;
-end process DEBOUNCE_THE_COUNTER;
+--DEBOUNCE_THE_COUNTER: process(clk_PANDA)
+--begin
+--    if Rising_edge(clk_PANDA) then
+--        CLOCK_EST_COUNTER_LATCH <= std_logic_vector(CLOCK_EST_COUNTER);
+--        SAMPLE_COUNTER_LATCH <= std_logic_vector(SAMPLE_COUNTER);
+--    end if;
+--end process DEBOUNCE_THE_COUNTER;
+--GBC:20190321
 
 -- Half PandA clock to derive D-TACQ standard comparable logic clock rate. This is then halfed again at the SPI level to produce DAC SPI Clock
 HALFPANDA_CLK : process (clk_PANDA)

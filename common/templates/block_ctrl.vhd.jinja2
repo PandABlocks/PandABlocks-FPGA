@@ -16,20 +16,19 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
-    bit_bus_i           : in  sysbus_t;
-    pos_bus_i           : in  posbus_t;
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
     -- Block Parameters
 {% for field in fields %}
-    {% if field in filter_fields("table|time|(param|write).*") %}
-        {% for register in field.numbered_registers() %}
+    {% for register in field.numbered_registers() %}
+        {% if field in filter_fields("read.*") %}
+    {{ pad(register.name) }} : in std_logic_vector(31 downto 0);
+        {% elif field in filter_fields ("table|time|(param|write).*")%}
     {{ pad(register.name) }} : out std_logic_vector(31 downto 0);
     {{ pad(register.name + "_wstb") }} : out std_logic;
-        {% endfor %}
-    {% elif field in filter_fields("read.*") %}
-        {% for register in field.numbered_registers() %}{# Should be only the one #}
-    {{ pad(field.name) }} : in  std_logic_vector(31 downto 0);
-        {% endfor %}
-    {% elif field.type in "bit_mux" %}
+        {% endif %}
+    {% endfor %}
+    {% if field.type in "bit_mux" %}
     {{ pad(field.name + "_from_bus") }} : out std_logic;
     {% elif field.type in "pos_mux" %}
     {{ pad(field.name + "_from_bus") }} : out std_logic_vector(31 downto 0);
@@ -75,7 +74,7 @@ begin
         clk_i       => clk_i,
         data_i(0)   => read_strobe_i,
         data_o(0)   => read_ack_o,
-        DELAY       => RD_ADDR2ACK
+        DELAY_i       => RD_ADDR2ACK
     );
 
     -- Control System Register Interface
@@ -132,22 +131,21 @@ begin
 {% for field in filter_fields("bit_mux") %}
     bitmux_{{ field.name }} : entity work.bitmux
     port map (
-        clk_i       => clk_i,
-        sysbus_i    => bit_bus_i,
-        bit_o       => {{ field.name }}_from_bus,
-        bitmux_sel  => {{ field.name }},
-        bit_dly     => {{ field.name }}_DLY
+        clk_i         => clk_i,
+        bit_bus_i     => bit_bus_i,
+        bit_o         => {{ field.name }}_from_bus,
+        bitmux_sel_i  => {{ field.name }},
+        bit_dly_i     => {{ field.name }}_DLY
     );
 
 {% endfor %}
 {% for field in filter_fields("pos_mux") %}
     posmux_{{ field.name }} : entity work.posmux
     port map (
-        clk_i       => clk_i,
-        posbus_i    => pos_bus_i,
-        posn_o      => {{ field.name }}_from_bus,
-        posmux_sel  => {{ field.name }},
-        pos_dly     => (others => '0')
+        clk_i        => clk_i,
+        pos_bus_i    => pos_bus_i,
+        posn_o       => {{ field.name }}_from_bus,
+        posmux_sel_i => {{ field.name }}
     );
 
 {% endfor %}

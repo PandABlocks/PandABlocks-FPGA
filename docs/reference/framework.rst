@@ -3,6 +3,9 @@
 Autogeneration framework architecture
 =====================================
 
+Softblocks
+----------
+
 Wrappers
 --------
 
@@ -57,9 +60,8 @@ the corresponding registers in the testbench. The data in the file is ordered in
 the same way as the .block.ini file so iterating through the signals in order,
 will assign the data to the correct registers.
 
-**set the input values of the VHDL entity to that from the file, and read the
-outputs**
-
+Assign signals
+~~~~~~~~~~~~~~
 The inputs to the entity for the block will have the same name as for those used
 in the testbench. It is therefore straightforward to connect the signals. The
 registers with the same name as the outputs are being used for holding the

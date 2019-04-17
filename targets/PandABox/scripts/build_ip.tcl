@@ -108,6 +108,7 @@ synth_ip [get_ips sfpgtx]
 #
 # Create Eth Phy for sfp
 #
+
 create_ip -name gig_ethernet_pcs_pma -vendor xilinx.com -library ip -version 15.0 \
 -module_name eth_phy -dir $BUILD_DIR/
 
@@ -118,19 +119,20 @@ set_property -dict [list \
     CONFIG.EMAC_IF_TEMAC {TEMAC} \
 ] [get_ips eth_phy]
 
-report_compile_order -constraints
-
+#report_compile_order -constraints
+#set_property generate_synth_checkpoint false [get_files $BUILD_DIR/eth_phy/eth_phy.xci]
 generate_target all [get_files $BUILD_DIR/eth_phy/eth_phy.xci]
+#generate_target all [get_ips eth_phy]
 
-report_property [get_ips eth_phy]
-get_property KNOWN_TARGETS [get_ips eth_phy]
+#report_property [get_ips eth_phy]
+#get_property KNOWN_TARGETS [get_ips eth_phy]
 
 #To capture the XDC file names of the IP in a Tcl variable
-set eth_phy_xdc [get_files -of_objects [get_files $BUILD_DIR/eth_phy/eth_phy.xci] -filter {FILE_TYPE == XDC}]
+#set eth_phy_xdc [get_files -of_objects [get_files $BUILD_DIR/eth_phy/eth_phy.xci] -filter {FILE_TYPE == XDC}]
 #To disable the XDC files
-set_property is_enabled false [get_files $eth_phy_xdc]
+#set_property is_enabled false [get_files $eth_phy_xdc]
 synth_ip [get_ips eth_phy]
-report_compile_order -constraints
+#report_compile_order -constraints
 
 #
 # Create Eth Mac for sfp
@@ -138,7 +140,6 @@ report_compile_order -constraints
 
 create_ip -name tri_mode_ethernet_mac -vendor xilinx.com -library ip -version 9.0 \
 -module_name eth_mac -dir $BUILD_DIR/
-
 
 #shared logic inside of core
 # CONFIG.Physical_Interface {GMII} \ phy_eth is internal (no IOB or idelay in pad) CONFIG.Physical_Interface {Internal}
@@ -157,8 +158,12 @@ set_property -dict [list \
     CONFIG.Statistics_Counters {false}   \
 ] [get_ips eth_mac]
 
+#set_property generate_synth_checkpoint false [get_files $BUILD_DIR/eth_mac/eth_mac.xci]
+#generate_target all [get_ips eth_mac]
+#set eth_mac_xdc [get_files -of_objects [get_files $BUILD_DIR/eth_mac/eth_mac.xci] -filter {FILE_TYPE == XDC}]
+#set_property is_enabled false [get_files $eth_mac_xdc]
 
-report_property [get_ips eth_mac]
+#report_property [get_ips eth_mac]
 
 generate_target all [get_files $BUILD_DIR/eth_mac/eth_mac.xci]
 
@@ -313,6 +318,63 @@ set_property -dict [list \
 
 generate_target all [get_files  $BUILD_DIR/event_receiver_mgt/event_receiver_mgt.xci]
 synth_ip [get_ips event_receiver_mgt]
+
+#
+# Create SFP event receiver mgt
+create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \
+-module_name sfp_panda_sync -dir $BUILD_DIR/
+
+set_property -dict [list \
+CONFIG.identical_val_tx_line_rate {5}                   \
+CONFIG.gt0_val_txoutclk_source {false}                  \
+CONFIG.identical_val_rx_line_rate {5}                   \
+CONFIG.gt0_val_cpll_rxout_div {1}                       \
+CONFIG.gt0_val_cpll_txout_div {1}                       \
+CONFIG.gt0_val {false}                                  \
+CONFIG.gt1_val {true}                                   \
+CONFIG.gt0_val_dec_valid_comma_only {true}              \
+CONFIG.identical_val_tx_reference_clock {125.000}       \
+CONFIG.gt0_val_tx_data_width {32}                       \
+CONFIG.gt0_val_encoding {8B/10B}                        \
+CONFIG.gt0_val_decoding {8B/10B}                        \
+CONFIG.gt0_val_rxusrclk {RXOUTCLK}                      \
+CONFIG.gt0_val_comma_preset {K28.5}                     \
+CONFIG.gt0_val_port_rxcommadet {true}                   \
+CONFIG.gt0_val_port_rxbyteisaligned {true}              \
+CONFIG.gt0_val_port_rxbyterealign {true}                \
+CONFIG.gt0_val_port_rxpcommaalignen {true}              \
+CONFIG.gt0_val_port_rxmcommaalignen {true}              \
+CONFIG.gt0_val_port_rxslide {false}                     \
+CONFIG.gt0_val_rxslide_mode {OFF}                       \
+CONFIG.gt1_val_tx_refclk {REFCLK1_Q0}                   \
+CONFIG.gt1_val_rx_refclk {REFCLK1_Q0}                   \
+CONFIG.gt0_val_tx_reference_clock {125.000}             \
+CONFIG.gt0_val_tx_line_rate {5}                         \
+CONFIG.gt0_val_rx_int_datawidth {40}                    \
+CONFIG.identical_val_rx_reference_clock {125.000}       \
+CONFIG.gt0_val_rx_line_rate {5}                         \
+CONFIG.gt0_val_rx_data_width {32}                       \
+CONFIG.gt0_val_tx_int_datawidth {40}                    \
+CONFIG.gt0_val_rx_reference_clock {125.000}             \
+CONFIG.gt0_val_cpll_fbdiv {4}                           \
+CONFIG.gt0_val_port_rxcharisk {true}                    \
+CONFIG.gt0_val_tx_buffer_bypass_mode {Auto}             \
+CONFIG.gt0_val_rx_buffer_bypass_mode {Auto}             \
+CONFIG.gt0_val_align_comma_word {Four_Byte_Boundaries}  \
+CONFIG.gt0_val_dfe_mode {LPM-Auto}                      \
+CONFIG.gt0_val_rx_cm_trim {800}                         \
+CONFIG.gt0_val_clk_cor_seq_1_1 {00000000}               \
+CONFIG.gt0_val_clk_cor_seq_1_2 {00000000}               \
+CONFIG.gt0_val_clk_cor_seq_1_3 {00000000}               \
+CONFIG.gt0_val_clk_cor_seq_1_4 {00000000}               \
+CONFIG.gt0_val_clk_cor_seq_2_1 {00000000}               \
+CONFIG.gt0_val_clk_cor_seq_2_2 {00000000}               \
+CONFIG.gt0_val_clk_cor_seq_2_3 {00000000}               \
+CONFIG.gt0_val_clk_cor_seq_2_4 {00000000}               \
+] [get_ips sfp_panda_sync]
+
+generate_target all [get_files  $BUILD_DIR/sfp_panda_sync/sfp_panda_sync.xci]
+synth_ip [get_ips sfp_panda_sync]
 
 #
 # Create ILA chipscope

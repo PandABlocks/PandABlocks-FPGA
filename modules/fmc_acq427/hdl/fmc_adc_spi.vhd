@@ -27,7 +27,7 @@ entity ACQ427FMC_ADC_SPI is
     DATA_SIZE               : in  std_logic;                    --! Pack data in 32/16 bits
     CONV_TIME               : in  std_logic_vector(7 downto 0); --! Number of clock ticks between convert and read back this is 540nS at 100MHz
     CONV_ACTIVE             : in  std_logic;                    --! Allow the Logic to store the converted data
-    SAMPLE_COUNTER          : in  unsigned(31 downto 0);        --! Sample Count since Initial Trigger
+--    SAMPLE_COUNTER          : in  unsigned(31 downto 0);        --! Sample Count since Initial Trigger --GBC:20190321 (unused)
     START_CONVERT           : in  std_logic;                    --! Clock Edge Detected
     CONVERSION_IN_PROGRESS  : out std_logic;                    --! Conversion In progress disable clock reception
     ADC_SPI_CLK             : out std_logic;                    --! ADC SPI Clock

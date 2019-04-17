@@ -37,7 +37,7 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
     -- System Bus
-    sysbus_i            : in  std_logic_vector(SBUSW-1 downto 0);
+    bit_bus_i           : in  std_logic_vector(BBUSW-1 downto 0);
     -- LVDS I/O
     pad_o               : out std_logic_vector(LVDSOUT_NUM-1 downto 0)
 );
@@ -80,7 +80,7 @@ port map (
     write_data_i        => write_data_i,
     write_ack_o         => open,
     -- Block inputs
-    sysbus_i            => sysbus_i,
+    bit_bus_i           => bit_bus_i,
     -- Block outputs
     pad_o               => pad_o(I)
 );

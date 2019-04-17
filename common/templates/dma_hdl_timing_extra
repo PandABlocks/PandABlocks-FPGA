@@ -1,0 +1,102 @@
+// This template works for pgen. It may not be generic enough to work for any
+// other blocks with a DMA interface.
+
+// {{ block.entity|upper }}_1000.txt
+// data_mem
+parameter STATE_IDLE = 0;
+parameter STATE_TABLE_ADDR = 1;
+parameter STATE_FINISHED = 2;
+
+reg [1:0] STATE;
+
+integer     pfid;
+integer     pr;
+integer     preg_in;
+
+reg [5:0]   cnt;
+reg [31:0]  data_mem [31:0];
+
+initial begin
+    cnt = 0;
+
+    @(posedge clk_i);
+
+    // Open "{{ block.entity|upper }}_1000" file
+    pfid = $fopen("{{ block.entity|upper }}_1000.txt", "r"); // VAL
+    // Read and ignore description field
+    pr = $fscanf(pfid, "%s\n", preg_in);
+
+    while (!$feof(pfid)) begin
+        pr = $fscanf(pfid, "%d\n", preg_in);
+        data_mem[cnt] <= preg_in;
+        cnt <= cnt +1;
+
+        @(posedge clk_i);
+
+    end
+end
+
+
+
+reg [5:0]   mem_loop = 0;
+reg [5:0]   mem_cnt = 0;
+
+initial begin
+    STATE = STATE_IDLE;
+    dma_valid_i = 0;
+    mem_loop = 0;
+    mem_cnt = 0;
+    dma_ack_i = 0;
+    dma_done_i = 0;
+end
+
+always @(posedge clk_i) begin
+
+    case (STATE)
+
+        STATE_IDLE:
+        begin
+            // Wait until the TABLE_ADDRESS_WSTB is active
+            if (TABLE_ADDRESS_wstb == 1) begin
+                STATE <= STATE_TABLE_ADDR;
+            end
+        end
+
+        STATE_TABLE_ADDR:
+        begin
+            dma_ack_i <= 1;
+            dma_done_i <= 1;
+            TABLE_ADDRESS <= 32'h00000000;
+            dma_valid_i <= 1;
+            // This is the last read out of the memory increment the loop counter
+            if (mem_cnt == cnt-1) begin
+                mem_loop <= mem_loop +1;
+                mem_cnt <= 0;
+                dma_data_i <= data_mem[mem_cnt];
+                // The mem_loop equals the number of CYCLES to be done
+                if (mem_loop == CYCLES-1) begin
+                   STATE <= STATE_FINISHED;
+                end
+            // Read the values out of the memory
+            end else begin
+                mem_cnt <= mem_cnt +1;
+                dma_data_i <= data_mem[mem_cnt];
+            end
+         end
+
+        STATE_FINISHED:
+        begin
+            // Finished reset everything
+            dma_ack_i = 0;
+            dma_done_i = 0;
+            dma_valid_i <= 0;
+            mem_loop <= 0;
+            mem_cnt  <= 0;
+            STATE <= STATE_IDLE;
+        end
+
+        default:
+            STATE <= STATE_IDLE;
+
+    endcase
+end

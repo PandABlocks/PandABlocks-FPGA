@@ -68,20 +68,23 @@ VERSION :
 
 $(IP_CORES) : $(IP_BUILD_SCR)
 	$(RUNVIVADO) -mode $(DEP_MODE) -source $< \
-	  -tclargs $(TARGET_DIR) $(IP_DIR) $(DEP_MODE)
+	  -tclargs $(TARGET_DIR) $(IP_DIR) $(DEP_MODE) \
+	  -log build_ips.log -nojournal
 
 $(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR)
 	$(RUNVIVADO) -mode $(DEP_MODE) -source $< \
-	    -tclargs $(TARGET_DIR) $(PS_DIR) $@ $(DEP_MODE)
+	  -tclargs $(TARGET_DIR) $(PS_DIR) $@ $(DEP_MODE)
+	  -log build_ps.log -nojournal
 
 carrier_fpga : $(TOP_BUILD_SCR) VERSION $(IP_CORES) $(PS_CORE)
 	$(RUNVIVADO) -mode $(TOP_MODE) -source $< \
-	    -tclargs $(TOP) \
-	    -tclargs $(TARGET_DIR) \
-	    -tclargs $(BUILD_DIR) \
-	    -tclargs $(AUTOGEN) \
-	    -tclargs $(IP_DIR) \
-	    -tclargs $(TOP_MODE)
+	  -log build_top.log -nojournal \
+	  -tclargs $(TOP) \
+	  -tclargs $(TARGET_DIR) \
+	  -tclargs $(BUILD_DIR) \
+	  -tclargs $(AUTOGEN) \
+	  -tclargs $(IP_DIR) \
+	  -tclargs $(TOP_MODE)
 .PHONY: carrier_fpga
 
 ###########################################################

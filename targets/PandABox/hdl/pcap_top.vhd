@@ -68,8 +68,8 @@ port (
     write_ack_0_o       : out std_logic;
     write_ack_1_o       : out std_logic;
     -- Block inputs
-    sysbus_i            : in  sysbus_t;
-    posbus_i            : in  posbus_t;
+    bit_bus_i           : in  bit_bus_t;
+    pos_bus_i           : in  pos_bus_t;
     -- Output pulses
     pcap_actv_o         : out std_logic;
     pcap_irq_o          : out std_logic
@@ -109,7 +109,7 @@ signal pcap_done        : std_logic;
 signal enable           : std_logic;
 signal gate             : std_logic;
 signal trig             : std_logic;
-signal posbus_dly       : posbus_t;
+signal pos_bus_dly       : pos_bus_t;
 
 begin
 
@@ -125,7 +125,7 @@ port map (
     clk_i       => clk_i,
     data_i(0)   => read_strobe_i(DRV_CS),
     data_o(0)   => read_ack_1_o,
-    DELAY       => RD_ADDR2ACK
+    DELAY_i     => RD_ADDR2ACK
 );
 
 -- Multiplex read data out from multiple instantiations
@@ -139,7 +139,7 @@ pcap_ctrl_inst : entity work.pcap_ctrl
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
-    bit_bus_i           => sysbus_i,
+    bit_bus_i           => bit_bus_i,
     pos_bus_i           => (others => (others => '0')),
     enable_from_bus     => enable,
     gate_from_bus       => gate,
@@ -204,8 +204,8 @@ port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
 
-    posbus_i            => posbus_i,
-    posbus_o            => posbus_dly,
+    pos_bus_i           => pos_bus_i,
+    pos_bus_o           => pos_bus_dly,
 
     write_strobe_i      => write_strobe_i(REG_CS),
     write_address_i     => write_address_i(BLK_AW-1 downto 0),
@@ -233,8 +233,8 @@ port map (
     trig_i                  => trig,
     gate_i                  => gate,
     dma_error_i             => dma_error,
-    sysbus_i                => sysbus_i,
-    posbus_i                => posbus_dly,
+    bit_bus_i               => bit_bus_i,
+    pos_bus_i               => pos_bus_dly,
 
     pcap_dat_o              => pcap_dat,
     pcap_dat_valid_o        => pcap_dat_valid,
