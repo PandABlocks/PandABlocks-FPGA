@@ -8,7 +8,7 @@ Fields
 .. block_fields:: modules/calc/calc.block.ini
 
 Adding inputs
------------------
+-------------
 The output is the sum of the inputs
 
 .. timing_plot::
@@ -16,9 +16,17 @@ The output is the sum of the inputs
    :section: Adding inputs
 
 Scaling
------------------
+-------
 The scale factor is a bit shift and is applied after the sum.
 
 .. timing_plot::
    :path: modules/calc/calc.timing.ini
    :section: Scaling
+
+Inverting
+---------
+Each input can be individually inverted before they are added together
+
+.. timing_plot::
+   :path: modules/calc/calc.timing.ini
+   :section: Inverting

@@ -445,12 +445,8 @@ class ParamFieldConfig(FieldConfig):
 
 
 class EnumParamFieldConfig(ParamFieldConfig):
-    """A special These fields represent all other set/get parameters backed with
-     a single register"""
-    type_regex = "(param|read) enum"
-
-    #: If there is an enum, how long is it?
-    enumlength = 0
+    """An enum field with its integer entries and string values"""
+    type_regex = "(param|read|write) enum"
 
     def parse_extra_config(self, extra_config):
         # type: (Dict[str, Any]) -> Iterable[str]
@@ -460,10 +456,33 @@ class EnumParamFieldConfig(ParamFieldConfig):
             yield "%s %s" % (pad(k, spaces=3), v)
 
 
-class ScalarReadFieldConfig(ParamFieldConfig):
+class UintParamFieldConfig(ParamFieldConfig):
+    """A special These fields represent all other set/get parameters backed with
+     a single register"""
+    type_regex = "(param|read|write) uint"
+
+    max_value = None
+
+    def parse_extra_config(self, extra_config):
+        # type: (Dict[str, Any]) -> iter[str]
+        self.max_value = extra_config.pop("max_value", None)
+        return super(UintParamFieldConfig, self).parse_extra_config(
+            extra_config)
+
+    def config_line(self):
+        # type: () -> str
+        """Produce the line that should go in the config file after name"""
+        if self.max_value:
+            return "%s %s" % (self.type, self.max_value)
+        else:
+            return super(UintParamFieldConfig, self).config_line()
+
+
+class ScalarParamFieldConfig(ParamFieldConfig):
     """ A special Read config for reading the different config of a
     read scalar"""
-    type_regex = "read scalar"
+    type_regex = "(param|read|write) scalar"
+
     scale = None
     offset = None
     units = None
@@ -473,16 +492,18 @@ class ScalarReadFieldConfig(ParamFieldConfig):
         self.scale = extra_config.pop("scale", 1)
         self.offset = extra_config.pop("offset", 0)
         self.units = extra_config.pop("units", "")
-        return iter(())
+        return super(ScalarParamFieldConfig, self).parse_extra_config(
+            extra_config)
 
     def config_line(self):
         # type: () -> str
         """Produce the line that should go in the config file after name"""
         if self.units:
-            return "read scalar %s %s %s" % (self.scale, self.offset, self.units)
+            return "%s %s %s %s" % (
+                self.type, self.scale, self.offset, self.units)
         else:
-            # In case no units are declared, this removes trailing whitspace
-            return "read scalar %s %s" % (self.scale, self.offset)
+            # In case no units are declared, this removes trailing whitespace
+            return "%s %s %s" % (self.type, self.scale, self.offset)
 
 
 class BitMuxFieldConfig(FieldConfig):
