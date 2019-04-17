@@ -18,7 +18,6 @@ generic (
 );
 port (
     -- Global clock and reset from panda_ps
-    FCLK_CLK0       : in    std_logic;
     FCLK_RESET0     : in    std_logic;
     -- Configuration and Status Interface Block
     read_strobe     : in    std_logic_vector(MOD_COUNT-1 downto 0);
@@ -44,10 +43,7 @@ port (
     rdma_data       : in    std_logic_vector(31 downto 0);
     rdma_valid      : in    std_logic_vector(5 downto 0);
     --
-    FMC             : inout FMC_interface;
-    SFP1            : inout SFP_interface;
-    SFP2            : inout SFP_interface;
-    SFP3            : inout SFP_interface
+    FCLK_CLK0       : in    std_logic
 );
 end soft_blocks;
 
@@ -58,7 +54,7 @@ begin
 --------------------------------------------------------------------------------
 -- lut - Lookup table
 --------------------------------------------------------------------------------
-lut_inst : entity work.lut_wrapper
+LUT_inst : entity work.lut_wrapper
 generic map (NUM => lut_NUM)
 port map (
 
@@ -80,7 +76,6 @@ port map (
 
     clk_i               => FCLK_CLK0
 );
-
 bit_bus_o(127 downto 8) <= (others => '0');
 pos_bus_o(31 downto 0) <= (others => (others => '0'));
 
