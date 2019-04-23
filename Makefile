@@ -44,7 +44,10 @@ default: $(DEFAULT_TARGETS)
 
 # If ALL_APPS not specified in CONFIG, pick up all valid entries in the apps dir
 ifndef ALL_APPS
-ALL_APPS := $(notdir $(wildcard apps/*.app.ini))
+ALL_APPS := $(wildcard apps/*.app.ini)
+# Exclude udpontrig apps as they can't currently be built with our license
+ALL_APPS := $(filter-out $(wildcard apps/*udpontrig*),$(ALL_APPS))
+ALL_APPS := $(notdir $(ALL_APPS))
 ALL_APPS := $(ALL_APPS:.app.ini=)
 endif
 

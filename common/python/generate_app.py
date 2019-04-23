@@ -70,8 +70,15 @@ class AppGenerator(object):
         Returns:
             The names of the signals on the bit, pos, and ext_out busses
         """
-        app_ini = read_ini(app)
+        # First grab any includes
+        initial_ini = read_ini(app)
+
+        filenames = [app]
+        for include in ini_get(initial_ini, ".", "includes", "").split():
+            filenames.append(os.path.join(ROOT, "includes", include))
+
         # Load all the block definitions
+        app_ini = read_ini(filenames)
 
         # The following code reads the target ini file for the specified target
         # The ini file declares the carrier blocks
