@@ -73,9 +73,10 @@ class AppGenerator(object):
         # First grab any includes
         initial_ini = read_ini(app)
 
-        filenames = [app]
+        filenames = []
         for include in ini_get(initial_ini, ".", "includes", "").split():
             filenames.append(os.path.join(ROOT, "includes", include))
+        filenames.append(app)
 
         # Load all the block definitions
         app_ini = read_ini(filenames)
