@@ -9,6 +9,7 @@ Fields
 Clock note
 ----------
 
-The clock divider should be set to 5:
+The ADC runs in High Res mode using a divisor of 5 from the main clock
+frequency.
 
-125 Mhz/5/512 gives 48.828125 kHz
+125 Mhz/5/512 gives and ADC sample rate of 48.828125 kHz

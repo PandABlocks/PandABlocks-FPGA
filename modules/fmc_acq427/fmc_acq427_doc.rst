@@ -14,3 +14,8 @@ Input fields
 Output fields
 ~~~~~~~~~~~~~
 .. block_fields:: modules/fmc_acq427/fmc_acq427_out.block.ini
+
+Clock note
+----------
+
+The ADC runs at 1MHz
