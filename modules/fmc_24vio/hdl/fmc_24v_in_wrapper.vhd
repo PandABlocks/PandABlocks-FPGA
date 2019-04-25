@@ -67,7 +67,11 @@ signal IN_VTSEL         : std_logic_vector(31 downto 0);
 
 
 signal fmc_in           : std_logic_vector(7 downto 0);
-signal fmc_out          : std_logic_vector(7 downto 0);
+
+
+--attribute io_buffer_type : string;
+--attribute io_buffer_type of FMC_o.TXP_OUT, FMC_o.TXN_OUT, FMC_i.RXP_IN, FMC_i.RXN_IN: signal is "none";
+
 
 begin
 
@@ -108,6 +112,22 @@ port map (
 --    IB          => FMC_i.FMC_CLK1_M2C_N
 --);
 
+---------------------------------------------------------------------------
+-- GTX Loopback Test
+---------------------------------------------------------------------------
+fmcgtx_exdes_i : entity work.fmcgtx_exdes
+port map (
+    Q0_CLK1_GTREFCLK_PAD_IN     => FMC_i.GTREFCLK,
+    GTREFCLK                    => open,
+    drpclk_in_i                 => clk_i,
+    SOFT_RESET                  => '0',
+    TRACK_DATA_OUT              => open,
+    ERROR_COUNT                 => open,
+    RXN_IN                      => FMC_i.RXN_IN,
+    RXP_IN                      => FMC_i.RXP_IN,
+    TXN_OUT                     => FMC_o.TXN_OUT,
+    TXP_OUT                     => FMC_o.TXP_OUT
+);
 
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
