@@ -243,6 +243,7 @@ signal FMC_MAC_ADDR_ARR     : std32_array(2*NUM_FMC-1 downto 0);
 -- FMC Block
 signal FMC_i  : FMC_input_interface;
 signal FMC_o  : FMC_output_interface;
+--signal FMC_o  : FMC_output_interface := ( TXN_OUT => 'Z', TXP_OUT => 'Z');
 signal FMC_io : FMC_inout_interface;
 
 -- SFP Block

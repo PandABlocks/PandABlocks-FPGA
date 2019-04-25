@@ -61,7 +61,6 @@ signal OUT_EN           : std_logic_vector(31 downto 0);
 signal OUT_CONFIG       : std_logic_vector(31 downto 0);
 signal OUT_STATUS       : std_logic_vector(31 downto 0);
 
-signal fmc_in           : std_logic_vector(7 downto 0);
 signal fmc_out          : std_logic_vector(7 downto 0);
 
 begin

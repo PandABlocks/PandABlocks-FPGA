@@ -44,18 +44,20 @@ VERSION :
 
 $(IP_CORES) :
 	$(RUNVIVADO) -mode batch -source $(TARGET_DIR)/scripts/build_ips.tcl \
-	    -tclargs $(TARGET_DIR) -tclargs $(IP_DIR) -log build_ips.log -nojournal
+	  -log build_ips.log -nojournal \
+	  -tclargs $(TARGET_DIR) -tclargs $(IP_DIR)
 
 $(PS_CORE) :
 	$(RUNVIVADO) -mode batch -source $(TARGET_DIR)/scripts/build_ps.tcl \
-	    -tclargs $(TARGET_DIR) -tclargs $(BUILD_DIR) -log build_ps.log -nojournal
+	  -log build_ps.log -nojournal \
+	  -tclargs $(TARGET_DIR) -tclargs $(BUILD_DIR)
 
 panda_top.bit : VERSION $(IP_CORES) $(PS_CORE)
 	$(RUNVIVADO) -mode batch -source $(TARGET_DIR)/scripts/build_top.tcl \
-        -log build_top.log -nojournal \
-	    -tclargs $(TOP) \
-	    -tclargs $(TARGET_DIR) \
-	    -tclargs $(BUILD_DIR) \
-	    -tclargs $(AUTOGEN) \
-	    -tclargs $(IP_DIR)
+	  -log build_top.log -nojournal \
+	  -tclargs $(TOP) \
+	  -tclargs $(TARGET_DIR) \
+	  -tclargs $(BUILD_DIR) \
+	  -tclargs $(AUTOGEN) \
+	  -tclargs $(IP_DIR)
 
