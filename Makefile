@@ -74,6 +74,7 @@ APP_FILE = $(TOP)/apps/$(APP_NAME).app.ini
 
 APP_DEPENDS += $(wildcard common/python/*.py)
 APP_DEPENDS += $(wildcard common/templates/*)
+APP_DEPENDS += $(wildcard includes/*)
 APP_DEPENDS += $(wildcard targets/*/*.ini)
 APP_DEPENDS += $(wildcard modules/*/const/*.xdc)
 
