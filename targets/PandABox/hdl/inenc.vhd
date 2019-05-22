@@ -70,6 +70,7 @@ signal bits_not_used        : unsigned(4 downto 0);
 signal linkup_incr          : std_logic;
 signal linkup_ssi           : std_logic;
 signal linkup_biss          : std_logic;
+signal linkup_biss_master   : std_logic;
 
 begin
 
@@ -157,6 +158,7 @@ port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     BITS            => BITS,
+    link_up_o       => linkup_biss_master,
     CLK_PERIOD      => CLK_PERIOD,
     FRAME_PERIOD    => FRAME_PERIOD,
     biss_sck_o      => clk_out_encoder_biss,
@@ -207,7 +209,7 @@ begin
                     STATUS(0) <= linkup_biss;
                 else  -- DCARD_CONTROL
                     posn <= posn_biss;
-                    STATUS <= (others => '0');
+                    STATUS(0) <= linkup_biss_master;
                 end if;
 
             when others =>
