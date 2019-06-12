@@ -3,12 +3,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.support.all;
+
 entity biss_master is
 port(
     clk_i        : in  std_logic;
     reset_i      : in  std_logic;
     BITS         : in  std_logic_vector(7 downto 0);
     link_up_o    : out std_logic;
+    health_o     : out  std_logic_vector(31 downto 0);
     CLK_PERIOD   : in  std_logic_vector(31 downto 0);
     FRAME_PERIOD : in  std_logic_vector(31 downto 0);
     biss_sck_o   : out std_logic;
@@ -71,9 +75,11 @@ signal crc_valid_o           : std_logic;
 
 signal link_up              : std_logic;
 signal link_up_crc          : std_logic;
+signal health_biss_master   : std_logic_vector(31 downto 0);
 
 begin
 link_up_o <= link_up and link_up_crc;
+health_o <= health_biss_master;
 biss_sck_o <= biss_sck;
 
 uSTART_ZERO  <= X"01";
@@ -275,9 +281,37 @@ begin
         if reset_i='1' then
             posn_valid_o <= '0';
             link_up_crc<='0';
+            health_biss_master<=TO_SVECTOR(1,32);--default linkup error
         else
-            if (crc_valid_o = '1') then
+            if link_up = '0' then--linkup error
+               posn_valid_o <= '0';
+               health_biss_master<=TO_SVECTOR(1,32);
+            elsif (crc_valid_o = '1') then--crc calc strobe
+               if (crc_o /= crc_calc_o) then--crc error
+                  health_biss_master<=TO_SVECTOR(2,32);
+                  posn_valid_o <= '0';
+                  link_up_crc<='0';
+               elsif nEnW_o(1) = '0' then--Error received nEnW error bit
+                  health_biss_master<=TO_SVECTOR(3,32);
+                  posn_valid_o <= '0';
+               else--OK
+                  posn_valid_o <= '1';
+                  FOR I IN data_o'range LOOP
+                      -- Sign bit or not depending on BITS parameter.
+                      if (I < intBITS) then
+                          posn_o(I) <= data_o(I);
+                      else
+                          posn_o(I) <= data_o(intBITS-1);
+                      end if;
+                  END LOOP;
+                  link_up_crc<='1';
+                  health_biss_master<=(others=>'0');
+               end if;
+            else--no crc check update crc_valid_o = '0'
+                posn_valid_o <= '0';
+            end if;
 -- synthesis translate_off
+            if (crc_valid_o = '1') then
                 if (crc_o /= crc_calc_o) then
                     report " CRC received is " & integer'image(to_integer(unsigned(crc_o))) & " CRC calculated is " & integer'image(to_integer(unsigned(crc_calc_o))) severity error;
                 end if;
@@ -291,24 +325,8 @@ begin
                 elsif (nEnW_o = "00") then
                     report " Error and Warning received nEnW = 00 " severity note;
                 end if;
--- synthesis translate_on
-                posn_valid_o <= '1';
-                if (nEnW_o(1) = '1' and crc_o = crc_calc_o) then
-                    FOR I IN data_o'range LOOP
-                        -- Sign bit or not depending on BITS parameter.
-                        if (I < intBITS) then
-                            posn_o(I) <= data_o(I);
-                        else
-                            posn_o(I) <= data_o(intBITS-1);
-                        end if;
-                    END LOOP;
-                    link_up_crc<='1';
-                else-- bad crc or Error bit in biss frame
-                    link_up_crc<='0';
-                end if;
-            else--no crc check update crc_valid_o = '0'
-                posn_valid_o <= '0';
             end if;
+-- synthesis translate_on
         end if;
     end if;
 end process;

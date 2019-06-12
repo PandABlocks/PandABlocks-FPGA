@@ -28,6 +28,7 @@ port (
     BITS                : in  std_logic_vector(7 downto 0);
     QPERIOD             : in  std_logic_vector(31 downto 0);
     QPERIOD_WSTB        : in  std_logic;
+    HEALTH              : out std_logic_vector(31 downto 0);
     QSTATE              : out std_logic_vector(31 downto 0)
 );
 end entity;
@@ -38,10 +39,11 @@ constant c_ABZ_PASSTHROUGH  : std_logic_vector(2 downto 0) := std_logic_vector(t
 constant c_DATA_PASSTHROUGH : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(5,3));
 constant c_BISS             : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(2,3));
 
-signal quad_a           : std_logic;
-signal quad_b           : std_logic;
-signal sdat             : std_logic;
-signal bdat             : std_logic;
+signal quad_a            : std_logic;
+signal quad_b            : std_logic;
+signal sdat              : std_logic;
+signal bdat              : std_logic;
+signal health_biss_slave : std_logic_vector(31 downto 0);
 
 begin
 
@@ -87,13 +89,37 @@ port map (
 --
 biss_slave_inst : entity work.biss_slave
 port map (
-    clk_i           => clk_i,
-    reset_i         => reset_i,
-    BITS            => BITS,
-    posn_i          => posn_i,
-    biss_sck_i      => CLK_IN,
-    biss_dat_o      => bdat
+    clk_i             => clk_i,
+    reset_i           => reset_i,
+    BITS              => BITS,
+    health_o          => health_biss_slave,
+    posn_i            => posn_i,
+    biss_sck_i        => CLK_IN,
+    biss_dat_o        => bdat
 );
 
+--------------------------------------------------------------------------
+-- Position Data and STATUS readback multiplexer
+--
+--  Link status information is valid only for loopback configuration
+--------------------------------------------------------------------------
+process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        case (PROTOCOL) is
+            when "000"  =>              -- INC
+                HEALTH <= (others=>'0');
 
+            when "001"  =>              -- SSI & Loopback
+                HEALTH <= (others=>'0');
+
+            when "010"  =>              -- BISS & Loopback
+                HEALTH <= health_biss_slave;
+                
+            when others =>
+                HEALTH <= (others=>'0');
+                
+        end case;
+    end if;
+end process;
 end rtl;

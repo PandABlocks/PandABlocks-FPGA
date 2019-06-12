@@ -52,7 +52,7 @@ signal QPERIOD          : std_logic_vector(31 downto 0);
 signal QPERIOD_WSTB     : std_logic;
 signal QSTATE           : std_logic_vector(31 downto 0);
 signal DCARD_TYPE       : std_logic_vector(31 downto 0);
-
+signal HEALTH           : std_logic_vector(31 downto 0);
 signal a_ext, b_ext, z_ext, data_ext    : std_logic;
 signal posn             : std_logic_vector(31 downto 0);
 signal enable           : std_logic;
@@ -100,6 +100,7 @@ port map (
     BITS_WSTB           => BITS_WSTB,
     QPERIOD             => QPERIOD,
     QPERIOD_WSTB        => QPERIOD_WSTB,
+    HEALTH              => HEALTH,
     QSTATE              => QSTATE
 );
 
@@ -131,6 +132,7 @@ port map (
     BITS                => BITS(7 downto 0),
     QPERIOD             => QPERIOD,
     QPERIOD_WSTB        => QPERIOD_WSTB,
+    HEALTH              => HEALTH,
     QSTATE              => QSTATE
 );
 

@@ -49,6 +49,7 @@ port (
     SETP_WSTB           : in  std_logic;
     RST_ON_Z            : in  std_logic_vector(31 downto 0);
     STATUS              : out std_logic_vector(31 downto 0);
+    HEALTH              : out std_logic_vector(31 downto 0);
     -- Block Outputs
     posn_o              : out std_logic_vector(31 downto 0)
 );
@@ -71,6 +72,7 @@ signal linkup_incr          : std_logic;
 signal linkup_ssi           : std_logic;
 signal linkup_biss          : std_logic;
 signal linkup_biss_master   : std_logic;
+signal health_biss_master   : std_logic_vector(31 downto 0);
 
 begin
 
@@ -159,6 +161,7 @@ port map (
     reset_i         => reset_i,
     BITS            => BITS,
     link_up_o       => linkup_biss_master,
+    health_o        => health_biss_master,
     CLK_PERIOD      => CLK_PERIOD,
     FRAME_PERIOD    => FRAME_PERIOD,
     biss_sck_o      => clk_out_encoder_biss,
@@ -193,23 +196,31 @@ begin
             when "000"  =>              -- INC
                 posn <= posn_incr;
                 STATUS(0) <= linkup_incr;
+                HEALTH(0) <= not(linkup_incr);
+                HEALTH(31 downto 1)<= (others=>'0');
 
             when "001"  =>              -- SSI & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_MONITOR) then
                     posn <= posn_ssi_sniffer;
                     STATUS(0) <= linkup_ssi;
+                    HEALTH(0) <= not(linkup_ssi);
+                    HEALTH(31 downto 1)<= (others=>'0');
                 else  -- DCARD_CONTROL
                     posn <= posn_ssi;
                     STATUS <= (others => '0');
+                    HEALTH <= (others=>'0');
                 end if;
 
             when "010"  =>              -- BISS & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_MONITOR) then
                     posn <= posn_biss_sniffer;
                     STATUS(0) <= linkup_biss;
+                    HEALTH(0) <= not(linkup_biss);
+                    HEALTH(31 downto 1)<= (others=>'0');
                 else  -- DCARD_CONTROL
                     posn <= posn_biss;
                     STATUS(0) <= linkup_biss_master;
+                    HEALTH<=health_biss_master;
                 end if;
 
             when others =>

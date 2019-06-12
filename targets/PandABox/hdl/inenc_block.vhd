@@ -71,6 +71,7 @@ signal STATUS           : std_logic_vector(31 downto 0);
 signal read_ack         : std_logic;
 signal LSB_DISCARD      : std_logic_vector(31 downto 0);
 signal MSB_DISCARD      : std_logic_vector(31 downto 0);
+signal HEALTH           : std_logic_vector(31 downto 0);
 signal DCARD_TYPE       : std_logic_vector(31 downto 0);
 
 signal reset            : std_logic;
@@ -131,6 +132,8 @@ port map (
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z,
     RST_ON_Z_WSTB       => open,
+    HEALTH              => HEALTH,
+    
     DCARD_TYPE          => DCARD_TYPE
 );
 
@@ -170,6 +173,7 @@ port map (
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z,
     STATUS              => STATUS,
+    HEALTH              => HEALTH,
     --
     posn_o              => posn_o
 );
