@@ -30,7 +30,7 @@ constant c_MAX_TIMEOUT   : unsigned(12 downto 0) := to_unsigned(5000,13);--40us 
                                                                         --(aka "processing time" Tbusy_s in biss interface protocol description)
 constant c_nEnW          : std_logic_vector(1 downto 0) := "11";
 
-type t_SM_DATA is (STATE_SYNCH, STATE_ACK, STATE_START, STATE_ZERO, STATE_DATA, STATE_nEnW, STATE_CRC, STATE_STOP);
+type t_SM_DATA is (STATE_SYNCH, STATE_ACK, STATE_START, STATE_ZERO, STATE_DATA, STATE_nEnW, STATE_CRC, STATE_STOP, STATE_TIMEOUT);
 
 signal SM_DATA              : t_SM_DATA;
 signal data_enable          : std_logic;
@@ -70,7 +70,7 @@ begin
         if (SM_DATA = STATE_SYNCH) then
             timeout_cnt <= (others => '0');
         -- Start timeout count
-        elsif (SM_DATA = STATE_STOP) then
+        elsif (SM_DATA = STATE_TIMEOUT) then
             -- Stop timeout count once terminal count reached
             if (timeout_cnt /= c_timeout) then
                 timeout_cnt <= timeout_cnt +1;
@@ -105,10 +105,7 @@ begin
 		   
                -- SYNCH STATE
                when STATE_SYNCH =>
-                   biss_dat <= '1';
-                   data_enable <= '0';
-                   nEnW_enable <= '0';
-                   sck_timeout_cnt<=sck_timeout_cnt-1;
+                   
                    if (biss_sck_rising_edge = '1') then
                        crc_reset <= '1';
                        -- BITS + c_nEnW(2) + c_CRC(6)
@@ -116,6 +113,7 @@ begin
                        biss_dat <= '1';
                        SM_DATA <= STATE_ACK;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
+                       health_biss_slave<=(others => '0');--OK
                    elsif sck_timeout_cnt=0 then
                        biss_dat <= '1';
                        crc_reset <= '1';
@@ -124,18 +122,23 @@ begin
                        data_cnt <= unsigned(BITS) + c_nEnW_size + c_CRC_size;
                        SM_DATA <= STATE_SYNCH;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
-                       health_biss_slave<=TO_SVECTOR(1,32);--biss_sck_rising_edge receive timeout error
+                       --Dont report error until synched
+                   else
+                       biss_dat <= '1';
+                       data_enable <= '0';
+                       nEnW_enable <= '0';
+                       sck_timeout_cnt<=sck_timeout_cnt-1;
                    end if;
 		   
                -- ACK STATE
                when STATE_ACK =>
                    -- ACK = 0
-                   sck_timeout_cnt<=sck_timeout_cnt-1;
                    if (biss_sck_rising_edge = '1') then
                        crc_reset <= '0';
                        biss_dat <= '0';
                        SM_DATA <= STATE_START;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
+                       health_biss_slave<=(others => '0');--OK
                    elsif sck_timeout_cnt=0 then
                        biss_dat <= '1';
                        crc_reset <= '1';
@@ -145,15 +148,17 @@ begin
                        SM_DATA <= STATE_SYNCH;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
                        health_biss_slave<=TO_SVECTOR(1,32);--biss_sck_rising_edge receive timeout error
+                   else
+                       sck_timeout_cnt<=sck_timeout_cnt-1;
                    end if;
                -- START STATE
                when STATE_START =>
                    -- START = 1
-                   sck_timeout_cnt<=sck_timeout_cnt-1;
                    if (biss_sck_rising_edge = '1') then
                        biss_dat <= '1';
                        SM_DATA <= STATE_ZERO;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
+                       health_biss_slave<=(others => '0');--OK
                    elsif sck_timeout_cnt=0 then
                        biss_dat <= '1';
                        crc_reset <= '1';
@@ -163,17 +168,19 @@ begin
                        SM_DATA <= STATE_SYNCH;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
                        health_biss_slave<=TO_SVECTOR(1,32);--biss_sck_rising_edge receive timeout error
+                   else
+                       sck_timeout_cnt<=sck_timeout_cnt-1;
                    end if;
 		   
                -- ZERO STATE
                when STATE_ZERO =>
                    -- ZERO = 0
-                   sck_timeout_cnt<=sck_timeout_cnt-1;
                    if (biss_sck_rising_edge = '1') then
                        biss_dat <= '0';
                        data_enable <= '1';
                        SM_DATA <= STATE_DATA;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
+                       health_biss_slave<=(others => '0');--OK
                    elsif sck_timeout_cnt=0 then
                        biss_dat <= '1';
                        crc_reset <= '1';
@@ -183,12 +190,13 @@ begin
                        SM_DATA <= STATE_SYNCH;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
                        health_biss_slave<=TO_SVECTOR(1,32);--biss_sck_rising_edge receive timeout error
+                   else
+                       sck_timeout_cnt<=sck_timeout_cnt-1;
                    end if;
 		   
                -- DATA STATE
                when STATE_DATA =>
                    -- Transmit data
-                   sck_timeout_cnt<=sck_timeout_cnt-1;
                    if (biss_sck_rising_edge = '1') then
                        data_cnt <= data_cnt -1;
                        biss_dat <= posn_i(to_integer(data_cnt-9));
@@ -198,6 +206,7 @@ begin
                            SM_DATA <= STATE_nEnW;
                        end if;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
+                       health_biss_slave<=(others => '0');--OK
                    elsif sck_timeout_cnt=0 then
                        biss_dat <= '1';
                        crc_reset <= '1';
@@ -207,12 +216,13 @@ begin
                        SM_DATA <= STATE_SYNCH;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
                        health_biss_slave<=TO_SVECTOR(1,32);--biss_sck_rising_edge receive timeout error
+                   else
+                       sck_timeout_cnt<=sck_timeout_cnt-1;
                    end if;
 		   
                -- nE(error flag) nW(warning flag) STATE
                when STATE_nEnW =>
                    -- Transmit the error and warning bits
-                   sck_timeout_cnt<=sck_timeout_cnt-1;
                    if (biss_sck_rising_edge = '1') then
                        data_cnt <= data_cnt -1;
                        biss_dat <= c_nEnW(to_integer(data_cnt-7));
@@ -221,6 +231,7 @@ begin
                            SM_DATA <= STATE_CRC;
                        end if;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
+                       health_biss_slave<=(others => '0');--OK
                    elsif sck_timeout_cnt=0 then
                        biss_dat <= '1';
                        crc_reset <= '1';
@@ -230,11 +241,12 @@ begin
                        SM_DATA <= STATE_SYNCH;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
                        health_biss_slave<=TO_SVECTOR(1,32);--biss_sck_rising_edge receive timeout error
+                   else
+                       sck_timeout_cnt<=sck_timeout_cnt-1;
                    end if;
 		   
                -- CRC STATE
                when STATE_CRC =>
-                   sck_timeout_cnt<=sck_timeout_cnt-1;
                    -- Transmit the calculated CRC value
                    if (biss_sck_rising_edge = '1') then
                        data_cnt <= data_cnt -1;
@@ -243,6 +255,7 @@ begin
                            SM_DATA <= STATE_STOP;
                        end if;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
+                       health_biss_slave<=(others => '0');--OK
                    elsif sck_timeout_cnt=0 then
                        biss_dat <= '1';
                        crc_reset <= '1';
@@ -252,15 +265,18 @@ begin
                        SM_DATA <= STATE_SYNCH;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
                        health_biss_slave<=TO_SVECTOR(1,32);--biss_sck_rising_edge receive timeout error
+                   else
+                       sck_timeout_cnt<=sck_timeout_cnt-1;
                    end if;
 		   
                -- STOP STATE
                when STATE_STOP =>
                    -- STOP = 0 during timeout
-                   sck_timeout_cnt<=sck_timeout_cnt-1;
                    if (biss_sck_rising_edge = '1') then
                        biss_dat <= '0';
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
+                       health_biss_slave<=(others => '0');--OK
+                       SM_DATA <= STATE_TIMEOUT;
                    elsif sck_timeout_cnt=0 then
                        biss_dat <= '1';
                        crc_reset <= '1';
@@ -270,18 +286,22 @@ begin
                        SM_DATA <= STATE_SYNCH;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
                        health_biss_slave<=TO_SVECTOR(1,32);--biss_sck_rising_edge receive timeout error
+                   else
+                       sck_timeout_cnt<=sck_timeout_cnt-1;
                    end if;
+		   
+               -- TIMEOUT STATE
+               when STATE_TIMEOUT =>
+                   -- STOP = 0 during timeout
+                   biss_dat <= '0';
+                   sck_timeout_cnt<=c_MAX_TIMEOUT;
+                   health_biss_slave<=(others => '0');--OK
                    -- Timeout counter
                    -- After timeout output gets set to a one
                    if (timeout_cnt = c_timeout) then
                        biss_dat <= '1';
                        SM_DATA <= STATE_SYNCH;
-                       health_biss_slave<=(others => '0');--OK
-                   end if;
-		   
-               when others =>
-                   SM_DATA <= STATE_SYNCH;
-		   
+                   end if;   
            end case;
         end if;
     end if;
