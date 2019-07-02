@@ -74,11 +74,11 @@ signal data_valid_o          : std_logic;
 signal crc_valid_o           : std_logic;
 
 signal link_up              : std_logic;
-signal link_up_crc          : std_logic;
+signal link_up_crc_nEbit          : std_logic;
 signal health_biss_master   : std_logic_vector(31 downto 0);
 
 begin
-link_up_o <= link_up and link_up_crc;
+link_up_o <= link_up and link_up_crc_nEbit;
 health_o <= health_biss_master;
 biss_sck_o <= biss_sck;
 
@@ -280,20 +280,21 @@ begin
     if rising_edge(clk_i) then
         if reset_i='1' then
             posn_valid_o <= '0';
-            link_up_crc<='0';
-            health_biss_master<=TO_SVECTOR(1,32);--default linkup error
+            link_up_crc_nEbit<='0';
+            health_biss_master<=TO_SVECTOR(2,32);--default timeout error
         else
-            if link_up = '0' then--linkup error
+            if link_up = '0' then--timeout error
                posn_valid_o <= '0';
-               health_biss_master<=TO_SVECTOR(1,32);
+               health_biss_master<=TO_SVECTOR(2,32);
             elsif (crc_valid_o = '1') then--crc calc strobe
                if (crc_o /= crc_calc_o) then--crc error
-                  health_biss_master<=TO_SVECTOR(2,32);
-                  posn_valid_o <= '0';
-                  link_up_crc<='0';
-               elsif nEnW_o(1) = '0' then--Error received nEnW error bit
                   health_biss_master<=TO_SVECTOR(3,32);
                   posn_valid_o <= '0';
+                  link_up_crc_nEbit<='0';
+               elsif nEnW_o(1) = '0' then--Error received nEnW error bit
+                  health_biss_master<=TO_SVECTOR(4,32);
+                  posn_valid_o <= '0';
+                  link_up_crc_nEbit<='0';
                else--OK
                   posn_valid_o <= '1';
                   FOR I IN data_o'range LOOP
@@ -304,7 +305,7 @@ begin
                           posn_o(I) <= data_o(intBITS-1);
                       end if;
                   END LOOP;
-                  link_up_crc<='1';
+                  link_up_crc_nEbit<='1';
                   health_biss_master<=(others=>'0');
                end if;
             else--no crc check update crc_valid_o = '0'

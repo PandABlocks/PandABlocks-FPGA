@@ -17,6 +17,7 @@ port (
     data_ext_i          : in  std_logic;
     posn_i              : in  std_logic_vector(31 downto 0);
     enable_i            : in  std_logic;
+    CONN                : in  std_logic;
     -- Encoder I/O Pads
     A_OUT               : out std_logic;
     B_OUT               : out std_logic;
@@ -53,7 +54,6 @@ B_OUT <= b_ext_i when (PROTOCOL = c_ABZ_PASSTHROUGH) else quad_b;
 Z_OUT <= z_ext_i when (PROTOCOL = c_ABZ_PASSTHROUGH) else '0';
 DATA_OUT <= data_ext_i when (PROTOCOL = c_DATA_PASSTHROUGH) else
             bdat when (PROTOCOL = c_BISS) else sdat;
-
 
 --
 -- INCREMENTAL OUT
@@ -92,6 +92,7 @@ port map (
     clk_i             => clk_i,
     reset_i           => reset_i,
     BITS              => BITS,
+    CONN              => CONN,
     health_o          => health_biss_slave,
     posn_i            => posn_i,
     biss_sck_i        => CLK_IN,

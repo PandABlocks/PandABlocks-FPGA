@@ -56,12 +56,13 @@ signal HEALTH           : std_logic_vector(31 downto 0);
 signal a_ext, b_ext, z_ext, data_ext    : std_logic;
 signal posn             : std_logic_vector(31 downto 0);
 signal enable           : std_logic;
+signal CONN_i           : std_logic;
 
 begin
 
 -- Assign outputs
 PROTOCOL <= PROTOCOL_i(2 downto 0);
-
+CONN_OUT <= CONN_i;
 -- Certain parameter changes must initiate a block reset.
 reset <= reset_i or PROTOCOL_WSTB or BITS_WSTB;
 
@@ -78,7 +79,7 @@ port map (
     b_from_bus          => b_ext,
     z_from_bus          => z_ext,
     data_from_bus       => data_ext,
-    conn_from_bus       => CONN_OUT,
+    conn_from_bus       => CONN_i,
     enable_from_bus     => enable,
     val_from_bus        => posn,
 
@@ -121,6 +122,7 @@ port map (
     data_ext_i          => data_ext,
     posn_i              => posn,
     enable_i            => enable,
+    CONN                => CONN_i,
     -- Encoder I/O Pads
     A_OUT               => A_OUT,
     B_OUT               => B_OUT,

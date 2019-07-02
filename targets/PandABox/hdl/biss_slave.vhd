@@ -12,6 +12,7 @@ port (
     reset_i             : in  std_logic;
     -- Configuration interface.
     BITS                : in  std_logic_vector(7 downto 0);
+    CONN                : in  std_logic;
     health_o            : out std_logic_vector(31 downto 0);
     -- Block Input and Outputs.
     posn_i              : in  std_logic_vector(31 downto 0);
@@ -35,6 +36,7 @@ type t_SM_DATA is (STATE_SYNCH, STATE_ACK, STATE_START, STATE_ZERO, STATE_DATA, 
 signal SM_DATA              : t_SM_DATA;
 signal data_enable          : std_logic;
 signal nEnW_enable          : std_logic;
+signal nEnW_i               : std_logic_vector(1 downto 0);
 signal biss_sck_prev        : std_logic;
 signal biss_sck_rising_edge : std_logic;
 signal calc_enable_i        : std_logic;
@@ -47,10 +49,18 @@ signal timeout_cnt          : unsigned(11 downto 0);
 signal sck_timeout_cnt      : unsigned(12 downto 0);
 signal health_biss_slave   : std_logic_vector(31 downto 0);
 
+
 begin
 
 biss_dat_o <= biss_dat;
 health_o <= health_biss_slave;
+
+ps_nEnW: process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        nEnW_i <= CONN & c_nEnW(0);
+    end if;
+end process ps_nEnW;
 
 ps_prev: process(clk_i)
 begin
@@ -225,7 +235,7 @@ begin
                    -- Transmit the error and warning bits
                    if (biss_sck_rising_edge = '1') then
                        data_cnt <= data_cnt -1;
-                       biss_dat <= c_nEnW(to_integer(data_cnt-7));
+                       biss_dat <= nEnW_i(to_integer(data_cnt-7));
                        if (data_cnt = 7) then
                            nEnW_enable <= '0';
                            SM_DATA <= STATE_CRC;

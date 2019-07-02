@@ -21,6 +21,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.top_defines.all;
+use work.support.all;
 
 entity inenc is
 port (
@@ -70,7 +71,7 @@ signal bits_not_used        : unsigned(4 downto 0);
 
 signal linkup_incr          : std_logic;
 signal linkup_ssi           : std_logic;
-signal linkup_biss          : std_logic;
+signal linkup_biss_sniffer          : std_logic;
 signal linkup_biss_master   : std_logic;
 signal health_biss_master   : std_logic_vector(31 downto 0);
 
@@ -177,7 +178,7 @@ port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     BITS            => BITS,
-    link_up_o       => linkup_biss,
+    link_up_o       => linkup_biss_sniffer,
     error_o         => open,
     ssi_sck_i       => CLK_IN,
     ssi_dat_i       => DATA_IN,
@@ -203,8 +204,11 @@ begin
                 if (DCARD_MODE(3 downto 1) = DCARD_MONITOR) then
                     posn <= posn_ssi_sniffer;
                     STATUS(0) <= linkup_ssi;
-                    HEALTH(0) <= not(linkup_ssi);
-                    HEALTH(31 downto 1)<= (others=>'0');
+                    if (linkup_ssi = '0') then
+                        HEALTH <= TO_SVECTOR(2,32);
+                    else
+                        HEALTH <= (others => '0');
+                    end if;
                 else  -- DCARD_CONTROL
                     posn <= posn_ssi;
                     STATUS <= (others => '0');
@@ -214,9 +218,12 @@ begin
             when "010"  =>              -- BISS & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_MONITOR) then
                     posn <= posn_biss_sniffer;
-                    STATUS(0) <= linkup_biss;
-                    HEALTH(0) <= not(linkup_biss);
-                    HEALTH(31 downto 1)<= (others=>'0');
+                    STATUS(0) <= linkup_biss_sniffer;
+                    if (linkup_biss_sniffer = '0') then
+                        HEALTH <= TO_SVECTOR(2,32);
+                    else
+                        HEALTH <= (others => '0');
+                    end if;
                 else  -- DCARD_CONTROL
                     posn <= posn_biss;
                     STATUS(0) <= linkup_biss_master;
@@ -224,6 +231,7 @@ begin
                 end if;
 
             when others =>
+                HEALTH <= TO_SVECTOR(5,32);
                 posn <= (others => '0');
                 STATUS <= (others => '0');
         end case;
