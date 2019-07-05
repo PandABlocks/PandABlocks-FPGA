@@ -39,6 +39,7 @@ architecture rtl of outenc is
 constant c_ABZ_PASSTHROUGH  : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(4,3));
 constant c_DATA_PASSTHROUGH : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(5,3));
 constant c_BISS             : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(2,3));
+constant c_enDat            : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(3,3));
 
 signal quad_a            : std_logic;
 signal quad_b            : std_logic;
@@ -116,6 +117,9 @@ begin
 
             when "010"  =>              -- BISS & Loopback
                 HEALTH <= health_biss_slave;
+                
+            when c_enDat =>             -- enDat 
+                HEALTH <= std_logic_vector(to_unsigned(2,32));
                 
             when others =>
                 HEALTH <= (others=>'0');
