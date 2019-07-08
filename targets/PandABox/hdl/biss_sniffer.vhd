@@ -24,6 +24,7 @@ port (
     -- Configuration interface
     BITS            : in  std_logic_vector(7 downto 0);
     link_up_o       : out std_logic;
+    health_o        : out  std_logic_vector(31 downto 0);
     error_o         : out std_logic;
     -- Physical SSI interface
     ssi_sck_i       : in  std_logic;
@@ -69,6 +70,7 @@ signal link_up              : std_logic;
 signal crc_reset            : std_logic;
 signal crc_bitstrb          : std_logic;
 signal crc_calc             : std_logic_vector(5 downto 0);
+signal health_biss_sniffer  : std_logic_vector(31 downto 0);
 
 begin
 
@@ -285,17 +287,28 @@ intBITS <= to_integer(uBITS);
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (crc_strobe = '1') then
-            if (nError(1) = '1' and crc = crc_calc) then
-            FOR I IN data'range LOOP
-                -- Sign bit or not depending on BITS parameter.
-                if (I < intBITS) then
-                    posn_o(I) <= data(I);
-                else
-                    posn_o(I) <= data(intBITS-1);
-                end if;
-            END LOOP;
-            end if;
+        if reset_i='1' then
+            health_biss_sniffer<=TO_SVECTOR(2,32);--default timeout error
+        else
+            if link_up = '0' then--timeout error
+               health_biss_sniffer<=TO_SVECTOR(2,32);
+            elsif (crc_strobe = '1') then--crc calc strobe
+               if (crc /= crc_calc) then--crc error
+                  health_biss_sniffer<=TO_SVECTOR(3,32);
+               elsif nError(1) = '0' then--Error received nEnW error bit
+                  health_biss_sniffer<=TO_SVECTOR(4,32);
+               else--OK
+                  FOR I IN data'range LOOP
+                      -- Sign bit or not depending on BITS parameter.
+                      if (I < intBITS) then
+                          posn_o(I) <= data(I);
+                      else
+                          posn_o(I) <= data(intBITS-1);
+                      end if;
+                  END LOOP;
+                  health_biss_sniffer<=(others=>'0');
+               end if;
+           end if;
         end if;
     end if;
 end process;
@@ -306,6 +319,7 @@ end process;
 --   Encoder CRC error
 --------------------------------------------------------------------------
 link_up_o <= link_up;
+health_o <= health_biss_sniffer;
 error_o <= crc_strobe when (crc /= crc_calc or nError(1) = '0') else '0';
 
 end rtl;

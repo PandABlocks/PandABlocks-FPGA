@@ -71,7 +71,8 @@ signal bits_not_used        : unsigned(4 downto 0);
 
 signal linkup_incr          : std_logic;
 signal linkup_ssi           : std_logic;
-signal linkup_biss_sniffer          : std_logic;
+signal linkup_biss_sniffer  : std_logic;
+signal health_biss_sniffer  : std_logic_vector(31 downto 0);
 signal linkup_biss_master   : std_logic;
 signal health_biss_master   : std_logic_vector(31 downto 0);
 
@@ -179,6 +180,7 @@ port map (
     reset_i         => reset_i,
     BITS            => BITS,
     link_up_o       => linkup_biss_sniffer,
+    health_o        => health_biss_sniffer,
     error_o         => open,
     ssi_sck_i       => CLK_IN,
     ssi_dat_i       => DATA_IN,
@@ -219,11 +221,7 @@ begin
                 if (DCARD_MODE(3 downto 1) = DCARD_MONITOR) then
                     posn <= posn_biss_sniffer;
                     STATUS(0) <= linkup_biss_sniffer;
-                    if (linkup_biss_sniffer = '0') then
-                        HEALTH <= TO_SVECTOR(2,32);
-                    else
-                        HEALTH <= (others => '0');
-                    end if;
+                    HEALTH <= health_biss_sniffer;
                 else  -- DCARD_CONTROL
                     posn <= posn_biss;
                     STATUS(0) <= linkup_biss_master;
