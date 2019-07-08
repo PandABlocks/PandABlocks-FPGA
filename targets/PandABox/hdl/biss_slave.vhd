@@ -12,7 +12,8 @@ port (
     reset_i             : in  std_logic;
     -- Configuration interface.
     BITS                : in  std_logic_vector(7 downto 0);
-    CONN                : in  std_logic;
+    enable_i            : in  std_logic;
+    GENERATOR_ERROR     : in  std_logic;
     health_o            : out std_logic_vector(31 downto 0);
     -- Block Input and Outputs.
     posn_i              : in  std_logic_vector(31 downto 0);
@@ -58,7 +59,7 @@ health_o <= health_biss_slave;
 ps_nEnW: process(clk_i)
 begin
     if rising_edge(clk_i) then
-        nEnW_i <= CONN & c_nEnW(0);
+        nEnW_i <= GENERATOR_ERROR & c_nEnW(0);
     end if;
 end process ps_nEnW;
 
@@ -115,29 +116,39 @@ begin
 		   
                -- SYNCH STATE
                when STATE_SYNCH =>
-                   
-                   if (biss_sck_rising_edge = '1') then
-                       crc_reset <= '1';
-                       -- BITS + c_nEnW(2) + c_CRC(6)
-                       data_cnt <= unsigned(BITS) + c_nEnW_size + c_CRC_size;
-                       biss_dat <= '1';
-                       SM_DATA <= STATE_ACK;
-                       sck_timeout_cnt<=c_MAX_TIMEOUT;
-                       health_biss_slave<=(others => '0');--OK
-                   elsif sck_timeout_cnt=0 then
-                       biss_dat <= '1';
-                       crc_reset <= '1';
-                       data_enable <= '0';
-                       nEnW_enable <= '0';
-                       data_cnt <= unsigned(BITS) + c_nEnW_size + c_CRC_size;
-                       SM_DATA <= STATE_SYNCH;
-                       sck_timeout_cnt<=c_MAX_TIMEOUT;
-                       --Dont report error until synched
-                   else
-                       biss_dat <= '1';
-                       data_enable <= '0';
-                       nEnW_enable <= '0';
-                       sck_timeout_cnt<=sck_timeout_cnt-1;
+                   if (enable_i = '1') then
+                       if (biss_sck_rising_edge = '1') then
+                           crc_reset <= '1';
+                           -- BITS + c_nEnW(2) + c_CRC(6)
+                           data_cnt <= unsigned(BITS) + c_nEnW_size + c_CRC_size;
+                           biss_dat <= '1';
+                           SM_DATA <= STATE_ACK;
+                           sck_timeout_cnt<=c_MAX_TIMEOUT;
+                           health_biss_slave<=(others => '0');--OK
+                       elsif sck_timeout_cnt=0 then
+                           biss_dat <= '1';
+                           crc_reset <= '1';
+                           data_enable <= '0';
+                           nEnW_enable <= '0';
+                           data_cnt <= unsigned(BITS) + c_nEnW_size + c_CRC_size;
+                           SM_DATA <= STATE_SYNCH;
+                           sck_timeout_cnt<=c_MAX_TIMEOUT;
+                           --Dont report error until synched
+                       else
+                           biss_dat <= '1';
+                           data_enable <= '0';
+                           nEnW_enable <= '0';
+                           sck_timeout_cnt<=sck_timeout_cnt-1;
+                       end if;
+                   else--enable_i = '0'
+                      biss_dat <= '1';
+                      data_enable <= '0';
+                      nEnW_enable <= '0';
+                      crc_reset <= '1';
+                          -- BITS + c_nEnW(2) + c_CRC(6)
+                      data_cnt <= unsigned(BITS) + c_nEnW_size + c_CRC_size;
+                      SM_DATA <= STATE_SYNCH;
+                      sck_timeout_cnt<=c_MAX_TIMEOUT;
                    end if;
 		   
                -- ACK STATE

@@ -17,7 +17,6 @@ port (
     data_ext_i          : in  std_logic;
     posn_i              : in  std_logic_vector(31 downto 0);
     enable_i            : in  std_logic;
-    CONN                : in  std_logic;
     -- Encoder I/O Pads
     A_OUT               : out std_logic;
     B_OUT               : out std_logic;
@@ -25,6 +24,7 @@ port (
     DATA_OUT            : out std_logic;
     CLK_IN              : in  std_logic;
     -- Block parameters
+    GENERATOR_ERROR     : in  std_logic;
     PROTOCOL            : in  std_logic_vector(2 downto 0);
     BITS                : in  std_logic_vector(7 downto 0);
     QPERIOD             : in  std_logic_vector(31 downto 0);
@@ -93,7 +93,8 @@ port map (
     clk_i             => clk_i,
     reset_i           => reset_i,
     BITS              => BITS,
-    CONN              => CONN,
+    enable_i          => enable_i,
+    GENERATOR_ERROR   => GENERATOR_ERROR,
     health_o          => health_biss_slave,
     posn_i            => posn_i,
     biss_sck_i        => CLK_IN,
@@ -119,7 +120,7 @@ begin
                 HEALTH <= health_biss_slave;
                 
             when c_enDat =>             -- enDat 
-                HEALTH <= std_logic_vector(to_unsigned(2,32));
+                HEALTH <= std_logic_vector(to_unsigned(2,32)); --ENDAT not implemented
                 
             when others =>
                 HEALTH <= (others=>'0');
