@@ -59,7 +59,7 @@ health_o <= health_biss_slave;
 ps_nEnW: process(clk_i)
 begin
     if rising_edge(clk_i) then
-        nEnW_i <= GENERATOR_ERROR & c_nEnW(0);
+        nEnW_i <= not(GENERATOR_ERROR) & c_nEnW(0);
     end if;
 end process ps_nEnW;
 
