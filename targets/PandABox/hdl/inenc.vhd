@@ -51,6 +51,7 @@ port (
     RST_ON_Z            : in  std_logic_vector(31 downto 0);
     STATUS              : out std_logic_vector(31 downto 0);
     HEALTH              : out std_logic_vector(31 downto 0);
+    HOMED               : out std_logic_vector(31 downto 0);
     -- Block Outputs
     posn_o              : out std_logic_vector(31 downto 0)
 );
@@ -69,7 +70,9 @@ signal posn                 : std_logic_vector(31 downto 0);
 signal posn_prev            : std_logic_vector(31 downto 0);
 signal bits_not_used        : unsigned(4 downto 0);
 
+signal homed_qdec           : std_logic_vector(31 downto 0);
 signal linkup_incr          : std_logic;
+signal linkup_incr_std32    : std_logic_vector(31 downto 0);
 signal linkup_ssi           : std_logic;
 signal linkup_biss_sniffer  : std_logic;
 signal health_biss_sniffer  : std_logic_vector(31 downto 0);
@@ -111,16 +114,19 @@ qdec : entity work.qdec
 port map (
     clk_i           => clk_i,
 --  reset_i         => reset_i,
+    LINKUP_INCR     => linkup_incr_std32,
     a_i             => A_IN,
     b_i             => B_IN,
     z_i             => Z_IN,
     SETP            => SETP,
     SETP_WSTB       => SETP_WSTB,
     RST_ON_Z        => RST_ON_Z,
+    HOMED           => homed_qdec,
     out_o           => posn_incr
 );
 
 linkup_incr <= not DCARD_MODE(0);
+linkup_incr_std32 <= x"0000000"&"000"&linkup_incr;
 
 --------------------------------------------------------------------------
 -- SSI Instantiations
@@ -201,6 +207,7 @@ begin
                 STATUS(0) <= linkup_incr;
                 HEALTH(0) <= not(linkup_incr);
                 HEALTH(31 downto 1)<= (others=>'0');
+                HOMED <= homed_qdec;
 
             when "001"  =>              -- SSI & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_MONITOR) then
@@ -216,6 +223,7 @@ begin
                     STATUS <= (others => '0');
                     HEALTH <= (others=>'0');
                 end if;
+                HOMED <= TO_SVECTOR(1,32);
 
             when "010"  =>              -- BISS & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_MONITOR) then
@@ -227,11 +235,13 @@ begin
                     STATUS(0) <= linkup_biss_master;
                     HEALTH<=health_biss_master;
                 end if;
+                HOMED <= TO_SVECTOR(1,32);
 
             when others =>
                 HEALTH <= TO_SVECTOR(5,32);
                 posn <= (others => '0');
                 STATUS <= (others => '0');
+                HOMED <= TO_SVECTOR(1,32);
         end case;
     end if;
 end process;

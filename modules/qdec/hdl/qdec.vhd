@@ -21,6 +21,7 @@ port (
     -- Clock and reset signals
     clk_i               : in  std_logic;
 --    reset_i             : in  std_logic;
+    LINKUP_INCR         : in  std_logic_vector(31 downto 0);
     --Quadrature A,B and Z input
     a_i                 : in  std_logic;
     b_i                 : in  std_logic;
@@ -29,6 +30,7 @@ port (
     RST_ON_Z            : in  std_logic_vector(31 downto 0);
     SETP                : in  std_logic_vector(31 downto 0);
     SETP_WSTB           : in  std_logic;
+    HOMED               : out std_logic_vector(31 downto 0);
     out_o               : out std_logic_vector(31 downto 0)
 );
 end qdec;
@@ -62,11 +64,16 @@ port map (
 process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset = '1') then
+            HOMED(0) <= '0';
         else
-            if (RST_ON_Z(0) = '1' and z_i = '1') then
+            if (LINKUP_INCR(0) = '0') then
+                HOMED(0) <= '0';
+            elsif (RST_ON_Z(0) = '1' and z_i = '1') then
                 quad_count <= (others => '0');
+                HOMED(0) <= '1';
             elsif (SETP_WSTB = '1') then
                 quad_count <= SETP;
+                HOMED(0) <= '1';
             elsif (quad_trans = '1') then
                 if (quad_reset = '1') then
                     -- Reset is aligned to quad_trans, and reset value
