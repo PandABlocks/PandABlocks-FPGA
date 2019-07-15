@@ -9,7 +9,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "qdec.block.ini")
 
 
 class QdecSimulation(BlockSimulation):
-    A, B, Z, RST_ON_Z, SETP, OUT = PROPERTIES
+    LINKUP_INCR, A, B, Z, RST_ON_Z, SETP, HOMED, OUT = PROPERTIES
 
     def __init__(self):
         self.state = 0
@@ -21,19 +21,23 @@ class QdecSimulation(BlockSimulation):
 
     def on_changes(self, ts, changes):
         super(QdecSimulation, self).on_changes(ts, changes)
-
+        
         if changes.get(NAMES.SETP, None):
             self.count = self.SETP
             self.OUT = self.count
             self.state = self.newstate
             self.update = 0
+            self.HOMED = 1
             return
         else:
-            # Reset when Z is '1' provided that RST_ON_Z is also '1'
-            if self.RST_ON_Z == 1 and self.Z == 1:
+            # If coder loss reset HOMED
+            if self.LINKUP_INCR == 0:
+                self.HOMED = 0
+            # Reset when Z is '1' provided that RST_ON_Z is also '1'    
+            elif self.RST_ON_Z == 1 and self.Z == 1:
                 self.count = 0
                 self.OUT = 0
-
+                self.HOMED = 1
             elif self.update == 1:
                 # From the current and next state, find the direction
                 if self.state == 3 and self.newstate == 0:
