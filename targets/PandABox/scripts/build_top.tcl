@@ -7,8 +7,9 @@ set TARGET_DIR [lindex $argv 1]
 set BUILD_DIR  [lindex $argv 2]
 set AUTOGEN    [lindex $argv 3]
 set IP_DIR     [lindex $argv 4]
+set PS_CORE    [lindex $argv 5]
 # Vivado run mode - gui or batch mode
-set MODE       [lindex $argv 5] 
+set MODE       [lindex $argv 6] 
 
 
 set_param board.repoPaths $TARGET_DIR/configs
@@ -60,7 +61,7 @@ source $AUTOGEN/const/constraints.tcl
 set_property used_in_synthesis false -quiet [get_files *_impl.xdc]
 
 # Read Zynq block design
-read_bd   $BUILD_DIR/panda_ps/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
+read_bd   $PS_CORE
 
 # Read auto generated files
 add_files [glob $AUTOGEN/hdl/*.vhd]

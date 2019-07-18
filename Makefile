@@ -27,7 +27,8 @@ include CONFIG
 
 # Now we've loaded the CONFIG compute all the appropriate destinations
 TEST_DIR = $(BUILD_DIR)/tests
-IP_DIR = $(BUILD_DIR)/ip_repo
+TGT_BUILD_DIR = $(BUILD_DIR)/targets/$(TARGET)
+#IP_DIR = $(TGT_BUILD_DIR)/ip_repo
 APP_BUILD_DIR = $(BUILD_DIR)/apps/$(APP_NAME)
 AUTOGEN_BUILD_DIR = $(APP_BUILD_DIR)/autogen
 FPGA_BUILD_DIR = $(APP_BUILD_DIR)/FPGA
@@ -38,8 +39,9 @@ TARGET = $(firstword $(subst -, ,$(APP_NAME)))
 TARGET_DIR = $(TOP)/targets/$(TARGET)
 
 # Location of Vivado project files and default run-modes
-PS_PROJ = $(FPGA_BUILD_DIR)/panda_ps/panda_ps.xpr
-IP_PROJ = $(IP_DIR)/managed_ip_project/managed_ip_project.xpr
+# Need different MODE variables for TOP and PS/IP as PS/IP are prerequisites of TOP 
+PS_PROJ = $(TGT_BUILD_DIR)/panda_ps/panda_ps.xpr
+IP_PROJ = $(TGT_BUILD_DIR)/ip_repo/managed_ip_project/managed_ip_project.xpr
 TOP_PROJ = $(FPGA_BUILD_DIR)/panda_top/carrier_fpga_top.xpr
 TOP_MODE ?= batch
 DEP_MODE ?= batch
@@ -199,13 +201,14 @@ FPGA_TARGETS = fpga-all fpga-bits carrier_fpga slow_fpga carrier_ip ps_core ps_b
 
 $(FPGA_TARGETS): $(TARGET_DIR)/fpga.make $(AUTOGEN_BUILD_DIR)
 	mkdir -p $(FPGA_BUILD_DIR)
+	mkdir -p $(TGT_BUILD_DIR)
 ifdef SKIP_FPGA_BUILD
 	@echo Skipping FPGA build
 else
 	@echo building FPGA
 	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
-        TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(FPGA_BUILD_DIR) \
-        IP_DIR=$(IP_DIR) TOP_MODE=$(TOP_MODE) DEP_MODE=$(DEP_MODE) \
+        TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
+        TGT_BUILD_DIR=$(TGT_BUILD_DIR) TOP_MODE=$(TOP_MODE) DEP_MODE=$(DEP_MODE) \
 		$@
 endif
 
@@ -219,7 +222,7 @@ ifeq ($(wildcard $(PS_PROJ)), )
   edit_ps_bd: ps_core
 else
   edit_ps_bd : 
-	cd $(FPGA_BUILD_DIR); \
+	cd $(TGT_BUILD_DIR)/panda_ps; \
 	source $(VIVADO) && vivado -mode $(DEP_MODE) $(PS_PROJ)
 endif
 
@@ -228,7 +231,7 @@ ifeq ($(wildcard $(IP_PROJ)), )
   edit_ips: carrier_ip
 else
   edit_ips:
-	cd $(IP_DIR); \
+	cd $(TGT_BUILD_DIR)/ip_repo; \
 	source $(VIVADO) && vivado -mode $(DEP_MODE) $(IP_PROJ)
 endif
 
@@ -247,7 +250,7 @@ endif
 # ------------------------------------------------------------------------------
 # Build installation package
 
-ZPKG_LIST = etc/panda-fpga.list
+ZPKG_LIST = etc/targets/$(TARGET)/panda-fpga.list
 ZPKG_VERSION = $(APP_NAME)-$(GIT_VERSION)
 ZPKG_FILE = $(BUILD_DIR)/panda-fpga@$(ZPKG_VERSION).zpg
 
@@ -280,6 +283,24 @@ all-zpkg:
 	$(call MAKE_ALL_APPS, zpkg)
 .PHONY: all-zpkg
 
+#-------------------------------------------------------------------------------
+# Rootfs boot targets
+
+#PANDA_ROOT=/scratch/clm61942/ZedBoard
+
+boot: ps_boot
+	$(MAKE) -C $(PANDA_ROOTFS) PANDA_ROOT=$(TGT_BUILD_DIR)/rootfs \
+	FSBL_ELF=$(TGT_BUILD_DIR)/boot_images/fsbl.elf \
+	DEVICE_TREE_DTB=$(TGT_BUILD_DIR)/boot_images/devicetree.dtb
+
+boot-clean: 
+	$(MAKE) -C $(PANDA_ROOTFS) PANDA_ROOT=$(PANDA_ROOT) clean
+
+boot-clean-all:
+	$(MAKE) -C $(PANDA_ROOTFS) PANDA_ROOT=$(PANDA_ROOT) clean-all
+
+.PHONY: boot boot-clean boot-clean-all
+
 
 # Push a github release
 github-release: $(ZPKG)
@@ -304,5 +325,5 @@ clean-all:
 
 # Remove the Xilinx IP
 ip_clean:
-	rm -rf $(IP_DIR)
+	rm -rf $(TGT_BUILD_DIR)
 .PHONY: ip_clean

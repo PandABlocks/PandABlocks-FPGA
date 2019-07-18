@@ -149,10 +149,10 @@ class AppGenerator(object):
             "registers.jinja2", context, config_dir, "registers")
         self.expand_template(
             "descriptions.jinja2", context, config_dir, "description")
-        context = jinja_context(app=self.app_name)
-        self.expand_template(
-            "slow_top.files.jinja2",
-            context, self.app_build_dir, "slow_top.files")
+        #context = jinja_context(app=self.app_name)
+        #self.expand_template(
+        #    "slow_top.files.jinja2",
+        #    context, self.app_build_dir, "slow_top.files")
 
     def generate_wrappers(self):
         """Generate wrappers in hdl"""

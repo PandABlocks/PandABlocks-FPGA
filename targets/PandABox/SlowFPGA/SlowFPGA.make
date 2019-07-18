@@ -9,7 +9,7 @@ SYSTEM = slow_top
 
 LIST_FILE = $(SYSTEM).lst
 
-AUTOGEN  = $(BUILD_DIR)/../autogen
+#AUTOGEN  = $(BUILD_DIR)/../autogen
 SCR_FILE = $(SRC_DIR)/syn/xilinx/$(SYSTEM).scr
 NETLIST_DIR = $(SRC_DIR)/syn/implementation
 UCF_FILE = $(SRC_DIR)/syn/constr/$(SYSTEM).ucf
@@ -34,9 +34,12 @@ mcs: $(PROM_FILE)
 
 # We have to take a bit of care when building the list file: it turns out that
 # xst can't cope with long file names.
-$(LIST_FILE): $(AUTOGEN)/slow_top.files
-	ln -sfn $(TOP) top
-	sed "s:^:vhdl work top/:" $< >$@
+$(LIST_FILE): $(SRC_DIR)/syn/xilinx/slow_top.files
+	ln -sfn $(SRC_DIR)/.. target_dir
+	ln -sfn $(TOP)/common/hdl/ common_hdl
+	ln -sfn $(AUTOGEN)/hdl autogen_hdl
+	#sed "s:^:vhdl work :" $< >$@
+	cp $< $@
 
 MAP_FLAGS = -detail -w -ol high -pr b
 PAR_FLAGS = -w -ol high

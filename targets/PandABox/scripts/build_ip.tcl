@@ -406,7 +406,7 @@ set_property -dict [list                                                        
     CONFIG.Write_Depth_A {4096}                                                     \
     CONFIG.Operating_Mode_A {READ_FIRST}                                            \
     CONFIG.Load_Init_File {true}                                                    \
-    CONFIG.Coe_File {../../../tests/sim/sfp_receiver/mem/event_receiver_mem.coe} \
+    CONFIG.Coe_File $TARGET_DIR/../../tests/sim/sfp_receiver/mem/event_receiver_mem.coe \
     CONFIG.Use_RSTA_Pin {false}                                                     \
 ] [get_ips sfp_transmit_mem]
 

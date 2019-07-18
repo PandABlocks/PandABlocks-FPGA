@@ -8,10 +8,11 @@ RUNVIVADO = source $(VIVADO) && vivado
 #####################################################################
 # Project related files and directories
 
-AUTOGEN  = $(BUILD_DIR)/../autogen
-SLOW_FPGA_BUILD_DIR = $(BUILD_DIR)/../SlowFPGA
-IP_CORES = $(IP_DIR)
-PS_DIR = $(BUILD_DIR)/panda_ps
+BUILD_DIR = $(APP_BUILD_DIR)/FPGA
+AUTOGEN  = $(APP_BUILD_DIR)/autogen
+SLOW_FPGA_BUILD_DIR = $(TGT_BUILD_DIR)/SlowFPGA
+IP_DIR = $(TGT_BUILD_DIR)/ip_repo
+PS_DIR = $(TGT_BUILD_DIR)/panda_ps
 PS_CORE  = $(PS_DIR)/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 
 VERSION_FILE = $(AUTOGEN)/hdl/version.vhd
@@ -25,24 +26,25 @@ PS_BUILD_SCR = $(TARGET_DIR)/scripts/build_ps.tcl
 PS_CONFIG_SCR = $(TARGET_DIR)/bd/panda_ps.tcl
 TOP_BUILD_SCR = $(TARGET_DIR)/scripts/build_top.tcl
 XSDK_BUILD_SCR = $(TARGET_DIR)/scripts/build_xsdk.tcl
+#UBOOT_BUILD_SCR = $(TOP)/common/uboot/uboot.make
 
 # Manually set the device tree sources verison to v2015.1 to match the
 # Kernel and uboot version in rootfs repo
 #DEVTREE_TAG = xilinx-v$(VIVADO_VER)
 #DEVTREE_NAME = device-tree-xlnx-$(DEVTREE_TAG)
 DEVTREE_NAME = device-tree-xlnx-xilinx-v2015.1
-DEVTREE_BSP = $(BUILD_DIR)/bsp/
+DEVTREE_BSP = $(TGT_BUILD_DIR)/bsp/
 DEVTREE_SRC = $(DEVTREE_BSP)/$(DEVTREE_NAME)
 DEVTREE_DTB = $(IMAGE_DIR)/devicetree.dtb
 FSBL = $(IMAGE_DIR)/fsbl.elf
 
-IMAGE_DIR=$(BUILD_DIR)/boot_images
+IMAGE_DIR=$(TGT_BUILD_DIR)/boot_images
 
 #####################################################################
 # BUILD TARGETS includes HW and SW
 fpga-all: fpga-bits ps_boot
 fpga-bits: slow_fpga carrier_fpga
-carrier_ip: $(IP_CORES)
+carrier_ip: $(IP_DIR)
 ps_core: $(PS_CORE)
 ps_boot: devicetree fsbl
 devicetree : $(DEVTREE_DTB)
@@ -66,24 +68,26 @@ VERSION :
 ###########################################################
 # Build Zynq Firmware targets
 
-$(IP_CORES) : $(IP_BUILD_SCR)
+$(IP_DIR) : $(IP_BUILD_SCR)
 	$(RUNVIVADO) -mode $(DEP_MODE) -source $< \
-	  -tclargs $(TARGET_DIR) $(IP_DIR) $(DEP_MODE) \
-	  -log build_ips.log -nojournal
+	  -log $(TGT_BUILD_DIR)/build_ip.log -nojournal \
+	  -tclargs $(TARGET_DIR) $(IP_DIR) $(DEP_MODE)
+
 
 $(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR)
 	$(RUNVIVADO) -mode $(DEP_MODE) -source $< \
+	  -log $(TGT_BUILD_DIR)/build_ps.log -nojournal \
 	  -tclargs $(TARGET_DIR) $(PS_DIR) $@ $(DEP_MODE)
-	  -log build_ps.log -nojournal
 
-carrier_fpga : $(TOP_BUILD_SCR) VERSION $(IP_CORES) $(PS_CORE)
+carrier_fpga : $(TOP_BUILD_SCR) VERSION $(IP_DIR) $(PS_CORE)
 	$(RUNVIVADO) -mode $(TOP_MODE) -source $< \
-	  -log build_top.log -nojournal \
+	  -log $(BUILD_DIR)/build_top.log -nojournal \
 	  -tclargs $(TOP) \
 	  -tclargs $(TARGET_DIR) \
 	  -tclargs $(BUILD_DIR) \
 	  -tclargs $(AUTOGEN) \
 	  -tclargs $(IP_DIR) \
+	  -tclargs $(PS_CORE) \
 	  -tclargs $(TOP_MODE)
 .PHONY: carrier_fpga
 
@@ -95,8 +99,8 @@ slow_fpga: $(TARGET_DIR)/SlowFPGA/SlowFPGA.make VERSION $(TOP)/tools/virtexHex2B
 	echo building SlowFPGA
 	source $(ISE)  &&  \
 	  $(MAKE) -C $(SLOW_FPGA_BUILD_DIR) -f $< \
-	  TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA \
-	  BUILD_DIR=$(SLOW_FPGA_BUILD_DIR) mcs
+	  TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA AUTOGEN=$(AUTOGEN) \
+	  mcs
 .PHONY: slow_fpga
 
 $(TOP)/tools/virtexHex2Bin: $(TOP)/tools/virtexHex2Bin.c
@@ -104,6 +108,9 @@ $(TOP)/tools/virtexHex2Bin: $(TOP)/tools/virtexHex2Bin.c
 
 ################################################################
 # Build PS Boot targets
+
+#$(U_BOOT): $(UBOOT_BUILD_SCR) $(DEVTREE_DTB)
+#	$(MAKE) -f $<  DEVICE_TREE_DTB=$(DEVTREE_DTB)
 
 $(DEVTREE_DTB): $(SDK_EXPORT)
 	cp $(TARGET_DIR)/configs/device-tree/xilinx-v2015.1/pzed-z7030/system-top.dts \
@@ -131,12 +138,12 @@ $(DEVTREE_SRC) :
 $(IMAGE_DIR) : 
 	mkdir $(IMAGE_DIR)
 
+dts: $(DEVTREE_DTB)
+	$(TARGET_DIR)/configs/linux-xlnx/scripts/dtc -f -I dtb -O dts -o $(IMAGE_DIR)/devicetree.dts $<
+
 sw_clean:
 	rm -rf $(SDK_EXPORT)
 	rm -rf $(IMAGE_DIR)/*
 
-dts: $(DEVTREE_DTB)
-	$(TARGET_DIR)/configs/linux-xlnx/scripts/dtc -f -I dtb -O dts -o $(IMAGE_DIR)/devicetree.dts $<
-
-.PHONY: sw_clean dts
+.PHONY: dts sw_clean
 

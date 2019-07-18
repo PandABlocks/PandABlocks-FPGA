@@ -33,7 +33,7 @@ port (
     bit_bus_o       : out   std_logic_vector(127 downto BIT_BUS_SIZE);
 
     pos_bus_i       : in    pos_bus_t;
-    pos_bus_o       : out   std32_array(31 downto POS_BUS_SIZE);
+    pos_bus_o       : out   std32_array(PBUSW-1 downto POS_BUS_SIZE);
     -- DMA Blocks
     rdma_req        : out   std_logic_vector(5 downto 0);
     rdma_ack        : in    std_logic_vector(5 downto 0);
@@ -117,7 +117,7 @@ port map (
 );
 {% endfor %}
 bit_bus_o(127 downto {{ total_bit_bus_length }}) <= (others => '0');
-pos_bus_o(31 downto {{ total_pos_bus_length }}) <= (others => (others => '0'));
+pos_bus_o(PBUSW-1 downto {{ total_pos_bus_length }}) <= (others => (others => '0'));
 
 read_ack(31 downto USED_MOD_COUNT + 1) <= (others => '1');
 write_ack(31 downto USED_MOD_COUNT + 1) <= (others => '1');
