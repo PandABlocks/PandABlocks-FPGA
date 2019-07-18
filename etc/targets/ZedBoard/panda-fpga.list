@@ -1,0 +1,30 @@
+# Directory structure
+d share/panda-fpga/config_d
+d share/designs/PANDA
+d share/www
+d lib/python2.7/site-packages/i2c
+d etc/www
+d bin
+
+# Configuration files
+b share/panda-fpga/config_d autogen/config_d/config
+b share/panda-fpga/config_d autogen/config_d/registers
+b share/panda-fpga/config_d autogen/config_d/description
+b share/panda-fpga ipmi.ini
+
+# Server startup and helper code
+B share/panda-fpga extensions
+t share/panda-fpga etc/targets/ZedBoard/load-panda-firmware
+
+# IPMI python support
+T lib/python2.7/site-packages/i2c etc/i2c/*.py
+t bin etc/check_ipmi
+t bin etc/show_ipmi
+
+# Firmware
+b share/panda-fpga FPGA/panda_top.bit
+
+# Docs (built once for all zpkgs)
+t etc/www etc/panda-fpga.docs.html
+T share/designs/PANDA docs/tutorials/*.json
+B share/www/panda-fpga ../../html

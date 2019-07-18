@@ -1,0 +1,9 @@
+run
+-ifn slow_top.lst
+-ofn slow_top
+-ofmt NGC
+-p xc6slx9-3tqg144
+-top slow_top
+-opt_mode area
+-opt_level 2
+-keep_hierarchy Soft
