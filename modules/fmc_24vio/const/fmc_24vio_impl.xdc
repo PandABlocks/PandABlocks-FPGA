@@ -20,11 +20,11 @@ set_property PULLTYPE PULLDOWN [get_ports FMC_LA_N[*]]
 ##set_property IO_BUFFER_TYPE none [get_ports FMC_DP0_C2M_N]
 
 set_clock_groups -asynchronous -group [get_clocks \ 
-{softblocks_inst/FMC_24V_IN_inst/fmcgtx_exdes_i/fmcgtx_support_i/fmcgtx_init_i/U0/fmcgtx_i/gt0_fmcgtx_i/gtxe2_i/TXOUTCLK}]
+{softblocks_inst/FMC_24V_inst/fmcgtx_exdes_i/fmcgtx_support_i/fmcgtx_init_i/U0/fmcgtx_i/gt0_fmcgtx_i/gtxe2_i/TXOUTCLK}]
 
 # -------------------------------------------------------------------
 # FMC MGTs - Bank 112
 # -------------------------------------------------------------------
 set_property LOC $FMC_GTX_LOC \
-[get_cells softblocks_inst/FMC_24V_IN_inst/fmcgtx_exdes_i/fmcgtx_support_i/fmcgtx_init_i/U0/fmcgtx_i/gt0_fmcgtx_i/gtxe2_i]
+[get_cells softblocks_inst/FMC_24V_inst/fmcgtx_exdes_i/fmcgtx_support_i/fmcgtx_init_i/U0/fmcgtx_i/gt0_fmcgtx_i/gtxe2_i]
 
