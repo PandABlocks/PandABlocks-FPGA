@@ -1,5 +1,4 @@
 *METADATA
-    APPNAME             constant ={{ app }}
     DESIGN              string
     LAYOUT              multiline
     EXPORTS             multiline
@@ -15,7 +14,7 @@
 {# insert its name and the number of block instances in this app #}
     {% if block.block_suffixes %}
         {% for suffix in block.block_suffixes %}
-{{suffix}}_{{ block.name }}[{{ block.number }}]
+{{ block.name }}_{{ suffix }}[{{ block.number }}]
             {% for field in block.fields %}
     {# field is a FieldConfig object #}
     {# insert its name and type (including subtype and options) #}
