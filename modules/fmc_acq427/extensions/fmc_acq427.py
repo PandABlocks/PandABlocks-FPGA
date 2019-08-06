@@ -1,5 +1,5 @@
 # Extension module to support FMC ADC427
-
+from .fmc_acq427 import Extension
 from i2c import smbus2
 
 # The mapping of GPIO bits is as follows:
