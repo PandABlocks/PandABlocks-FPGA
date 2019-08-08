@@ -145,7 +145,7 @@ port map (
     bit_bus_i           => bit_bus_i,
     pos_bus_i           => pos_bus_i,
     -- Block Parameters
-    FMC_PRSNT           => FMC_PRSNT_DW,
+    IN_FMC_PRSNT           => FMC_PRSNT_DW,
     IN_DB               => IN_DB,
     IN_FAULT            => IN_FAULT,
     IN_VTSEL            => IN_VTSEL,

@@ -261,9 +261,9 @@ sfp_panda_sync_ctrl_inst : entity work.sfp_panda_sync_ctrl
         bit_bus_i         => bit_bus_i,
         pos_bus_i         => pos_bus_i,
         -- Block Parameters
-        LINKUP            => LINKUP,
-        SYNC_RESET        => open,
-        SYNC_RESET_wstb   => SYNC_RESET,
+        IN_LINKUP            => LINKUP,
+        IN_SYNC_RESET        => open,
+        IN_SYNC_RESET_wstb   => SYNC_RESET,
         OUT_BIT1_from_bus  => BITOUT1,
         OUT_BIT2_from_bus  => BITOUT2,
         OUT_BIT3_from_bus  => BITOUT3,

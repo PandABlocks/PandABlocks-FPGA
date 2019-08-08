@@ -12,7 +12,7 @@
             {# field is a FieldConfig object #}
             {# ask it for its register addresses within the block base address #}
                 {% if "." in field.name and suffix in field.name %}
-    {{ pad(suffix_split(field.name)[1]) }} {{ field.address_line() }}
+    {{ pad(suffix_split(field.name)[1]) }} S{{ field.address_line() }}
                 {% elif "." not in field.name %}
     {{ pad(field.name) }} {{ field.address_line() }}
                 {% endif %}
