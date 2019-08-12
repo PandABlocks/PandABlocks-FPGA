@@ -867,7 +867,7 @@ port map(
     write_data => write_data,
     write_ack => write_ack(MOD_COUNT-1 downto CARRIER_MOD_COUNT),
     bit_bus_i => bit_bus,
-    bit_bus_o => bit_bus(127 downto BIT_BUS_SIZE),
+    bit_bus_o => bit_bus(BBUSW-1 downto BIT_BUS_SIZE),
     pos_bus_i => pos_bus,
     pos_bus_o => pos_bus(PBUSW-1 downto POS_BUS_SIZE),
     rdma_req => rdma_req,
