@@ -83,11 +83,19 @@ type FMC_inout_interface is
     FMC_CLK0_M2C_N  : std_logic;
   end record FMC_inout_interface;
 
+constant FMC_io_init : FMC_inout_interface := (FMC_LA_P => (others => 'Z'),
+                                               FMC_LA_N => (others => 'Z'),
+                                               FMC_CLK0_M2C_P => 'Z',
+                                               FMC_CLK0_M2C_N => 'Z');
+
 type FMC_output_interface is
   record
     TXP_OUT         : std_logic;
     TXN_OUT         : std_logic;
   end record FMC_output_interface;
+
+constant FMC_o_init : FMC_output_interface := (TXP_OUT => 'Z',
+                                               TXN_OUT => 'Z');
 
 -- SFP Block Record declarations
 
@@ -109,6 +117,11 @@ type SFP_output_interface is
 	EVR_REC_CLK : std_logic;
     LINK_UP     : std_logic;
   end record SFP_output_interface;
+
+constant SFP_o_init : SFP_output_interface := (TXN_OUT => 'Z',
+                                               TXP_OUT => 'Z',
+                                               EVR_REC_CLK => '0',
+                                               LINK_UP => '0');
 
 
 type seq_t is

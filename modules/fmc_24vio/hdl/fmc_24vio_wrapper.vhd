@@ -49,17 +49,14 @@ port (
     write_strobe_i      : in  std_logic;
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
-    write_ack_o         : out std_logic;
+    write_ack_o         : out std_logic := '1';
     FMC_i               : in  fmc_input_interface;
-    FMC_io              : inout fmc_inout_interface;
-    FMC_o               : out fmc_output_interface
+    FMC_io              : inout fmc_inout_interface := FMC_io_init
 );
 end fmc_24vio_wrapper;
 
 architecture rtl of fmc_24vio_wrapper is
 
---signal FMC_CLK0_M2C     : std_logic;
---signal FMC_CLK1_M2C     : std_logic;
 signal IN_DB            : std_logic_vector(31 downto 0);
 signal IN_FAULT         : std_logic_vector(31 downto 0);
 signal IN_VTSEL         : std_logic_vector(31 downto 0);
@@ -88,48 +85,6 @@ port map (
     data_i(0)   => read_strobe_i,
     data_o(0)   => read_ack_o,
     DELAY_i     => RD_ADDR2ACK
-);
-
----------------------------------------------------------------------------
--- FMC Mezzanine Clocks (unused within this block)
----------------------------------------------------------------------------
---IBUFGDS_CLK0 : IBUFGDS
---generic map (
---    DIFF_TERM   => TRUE,
---    IOSTANDARD  => "LVDS"
---)
---port map (
---    O           => FMC_CLK0_M2C,
---    I           => FMC_io.FMC_CLK0_M2C_P,
---    IB          => FMC_io.FMC_CLK0_M2C_N
---);
-
---IBUFGDS_CLK1 : IBUFGDS
---generic map (
---    DIFF_TERM   => TRUE,
---    IOSTANDARD  => "LVDS"
---)
---port map (
---    O           => FMC_CLK1_M2C,
---    I           => FMC_i.FMC_CLK1_M2C_P,
---    IB          => FMC_i.FMC_CLK1_M2C_N
---);
-
----------------------------------------------------------------------------
--- GTX Loopback Test
----------------------------------------------------------------------------
-fmcgtx_exdes_i : entity work.fmcgtx_exdes
-port map (
-    Q0_CLK1_GTREFCLK_PAD_IN     => FMC_i.GTREFCLK,
-    GTREFCLK                    => open,
-    drpclk_in_i                 => clk_i,
-    SOFT_RESET                  => '0',
-    TRACK_DATA_OUT              => open,
-    ERROR_COUNT                 => open,
-    RXN_IN                      => FMC_i.RXN_IN,
-    RXP_IN                      => FMC_i.RXP_IN,
-    TXN_OUT                     => FMC_o.TXN_OUT,
-    TXP_OUT                     => FMC_o.TXP_OUT
 );
 
 ---------------------------------------------------------------------------

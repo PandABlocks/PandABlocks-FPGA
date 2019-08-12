@@ -50,9 +50,7 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic := '1';
-    FMC_i               : in  fmc_input_interface;
-    FMC_io              : inout fmc_inout_interface;
-    FMC_o               : out fmc_output_interface
+    FMC_io              : inout fmc_inout_interface
 );
 end fmc_acq427_wrapper;
 
