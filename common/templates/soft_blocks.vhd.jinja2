@@ -22,18 +22,18 @@ port (
     -- Configuration and Status Interface Block
     read_strobe     : in    std_logic_vector(MOD_COUNT-1 downto 0);
     read_address    : in    std_logic_vector(PAGE_AW-1 downto 0);
-    read_data       : out   std32_array(MOD_COUNT-1 downto {{carrier_mod_count}});
-    read_ack        : out   std_logic_vector(MOD_COUNT-1 downto {{carrier_mod_count}});
+    read_data       : out   std32_array(MOD_COUNT-1 downto {{carrier_mod_count + 2}});
+    read_ack        : out   std_logic_vector(MOD_COUNT-1 downto {{carrier_mod_count + 2}});
     write_strobe    : in    std_logic_vector(MOD_COUNT-1 downto 0);
     write_address   : in    std_logic_vector(PAGE_AW-1 downto 0);
     write_data      : in    std_logic_vector(31 downto 0);
-    write_ack       : out   std_logic_vector(MOD_COUNT-1 downto {{carrier_mod_count}});
+    write_ack       : out   std_logic_vector(MOD_COUNT-1 downto {{carrier_mod_count + 2}});
     -- Bus Outputs
     bit_bus_i       : in    bit_bus_t;
     bit_bus_o       : out   std_logic_vector(127 downto BIT_BUS_SIZE);
 
     pos_bus_i       : in    pos_bus_t;
-    pos_bus_o       : out   std32_array(31 downto POS_BUS_SIZE);
+    pos_bus_o       : out   std32_array(PBUSW-1 downto POS_BUS_SIZE);
     -- DMA Blocks
     rdma_req        : out   std_logic_vector(5 downto 0);
     rdma_ack        : in    std_logic_vector(5 downto 0);

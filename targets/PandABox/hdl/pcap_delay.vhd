@@ -72,7 +72,7 @@ end process;
 --------------------------------------------------------------------------
 -- Apply Delays To Position Fields, including extended bus
 --------------------------------------------------------------------------
-POS_DELAY_GEN : FOR I IN 0 TO 31 GENERATE
+POS_DELAY_GEN : FOR I IN 0 TO PBUSW-1 GENERATE
 
     data_delay_inst : entity work.delay_line
     port map (
