@@ -94,22 +94,16 @@ port map (
     dma_valid_i         => rdma_valid({{ dma[0] + block.number - 1 }} downto {{ dma[0] }}),
         {% if dma.append(dma.pop() + 1) %}{% endif %}
     {% elif block.type == "sfp" %}
-        {% if sfp_i in interfaces %}
+        {% if "sfp_i" in block.interfaces %}
     SFP_i               => SFP{{ block.sfp_site }}_i,
         {% endif %}
-        {% if sfp_o in interfaces %}
+        {% if "sfp_o" in block.interfaces %}
     SFP_o               => SFP{{ block.sfp_site }}_o,
         {% endif %}
     {% elif block.type == "fmc" %}
-        {% if fmc_i in interfaces %}
-    FMC_i               => FMC_i,
-        {% endif %}
-        {% if fmc_io in interfaces %}
-    FMC_io              => FMC_io,
-        {% endif %}
-        {% if fmc_o in interfaces %}
-    FMC_o               => FMC_o,
-        {% endif %}
+        {% for interface in block.interfaces %}
+    {{ pad(interface) }} => {{ interface }},
+        {% endfor %}
     {% endif %}
 
     bit_bus_i           => bit_bus_i,

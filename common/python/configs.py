@@ -105,6 +105,8 @@ class BlockConfig(object):
         self.entity = ini.get(".", "entity")
         #: Is the block soft, sfp, fmc or dma?
         self.type = ini_get(ini, '.', 'type', type)
+        #: What type is the sfp/fmc interface?
+        self.interfaces = ini_get(ini, '.', 'interfaces', '').split()
         #: If the type == sfp, which site number
         self.sfp_site = sfp_site
         if self.sfp_site:
