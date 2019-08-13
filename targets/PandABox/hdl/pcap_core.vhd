@@ -118,14 +118,14 @@ trig_en <= trig_i and enable_i;
 pcap_frame : entity work.pcap_frame
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
+    reset_i             => pcap_reset,
         -- Register control
     SHIft_SUM           => SHIFT_SUM,
-        TRIG_EDGE                   => TRIG_EDGE,
+    TRIG_EDGE           => TRIG_EDGE,
     --
     pos_bus_i           => pos_bus_i,
     bit_bus_i           => bit_bus_i,
-    enable_i            => enable_i,
+    enable_i            => pcap_armed or ARM,
     gate_i              => gate,
     trig_i              => trig_en,
     timestamp_i         => timestamp,
@@ -140,7 +140,7 @@ port map (
 pcap_buffer : entity work.pcap_buffer
 port map (
     clk_i               => clk_i,
-    reset_i             => reset_i,
+    reset_i             => pcap_reset,
     -- Configuration Registers
     START_WRITE         => START_WRITE,
     WRITE               => WRITE,
