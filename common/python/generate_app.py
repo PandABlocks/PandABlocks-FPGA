@@ -184,7 +184,8 @@ class AppGenerator(object):
         carrier_pos_bus_length = 0
         total_bit_bus_length = 0
         total_pos_bus_length = 0
-        carrier_mod_count = 0
+        # Start carrier_mod_count at 1 for REG and DRV blocks.
+        carrier_mod_count = 2
         for block in self.blocks:
             if block.type == "fmc":
                 assert self.fmc_sites > 0, "No FMC on Carrier"
@@ -222,6 +223,8 @@ class AppGenerator(object):
                              "soft_blocks.vhd")
         self.expand_template("addr_defines.vhd.jinja2", context, hdl_dir,
                              "addr_defines.vhd")
+        self.expand_template("top_defines.vhd.jinja2", context, hdl_dir,
+                             "top_defines.vhd")
 
     def generate_constraints(self):
         """Generate constraints file for IPs, SFP and FMC constraints"""
