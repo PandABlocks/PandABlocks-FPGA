@@ -9,6 +9,9 @@ if TYPE_CHECKING:
     from typing import List, Iterable, Any, Dict, Optional
 
 
+ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
+
+
 def pad(name, spaces=19):
     """Pad the right of a name with spaces until it is at least spaces long"""
     return name.ljust(spaces)
@@ -87,14 +90,14 @@ class BlockConfig(object):
         # Block names should be UPPER_CASE_NO_TRAILING_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*[A-Z]$", name), \
             "Expected BLOCK_NAME with no trailing numbers, got %r" % name
-        ini = read_ini(ini_path)
+        ini = read_ini(os.path.join(ROOT, ini_path))
         #: The name of the Block, like LUT
         self.name = name
         #: The number of instances Blocks that will be created, like 8
         self.number = number
         #: The path to the module that holds this block ini
         self.module_path = os.path.dirname(ini_path)
-        #: The path to the ini file for this Block, relative to TOP
+        #: The path to the ini file for this Block, relative to ROOT
         self.ini_path = ini_path
         #: The Block section of the register address space
         self.block_address = None
@@ -125,7 +128,8 @@ class BlockConfig(object):
         if self.extension == '':
             self.extension = self.entity
         #: All the child fields
-        self.fields = FieldConfig.from_ini(ini, number)
+        self.fields = FieldConfig.from_ini(
+            ini, number)  # type: List[FieldConfig]
 
     def register_addresses(self, block_counters):
         # type: (RegisterCounter) -> None
@@ -149,15 +153,15 @@ class BlockConfig(object):
 
 
 def make_getter_setter(config):
+    def getter(self):
+        return getattr(self, "_" + config.name, 0)
+
     def setter(self, v):
-        if config.value != v:
-            config.value = v
+        if getter(self) != v:
             if self.changes is None:
                 self.changes = {}
             self.changes[config.name] = v
-
-    def getter(self):
-        return config.value
+            setattr(self, "_" + config.name, v)
 
     # Add the reference to config so we can get it in BlockSimulationMeta
     getter.config = config
@@ -167,7 +171,7 @@ def make_getter_setter(config):
 class RegisterConfig(object):
     """A low level register name and number backing this field"""
     def __init__(self, name, number=-1, prefix='', extension=''):
-        # type: (str, int, str) -> None
+        # type: (str, int, str, str) -> None
         #: The name of the register, like INPA_DLY
         self.name = name
         #: The register number relative to Block, like 9
@@ -176,8 +180,6 @@ class RegisterConfig(object):
         self.prefix = prefix
         #: For an extension field, the register path
         self.extension = extension
-        #: The current value of this field for simulation
-        self.value = 0
 
 
 class BusEntryConfig(object):
@@ -190,8 +192,6 @@ class BusEntryConfig(object):
         self.bus = bus
         #: The bus index, like 5
         self.index = index
-        #: The current value of this field for simulation
-        self.value = 0
 
 
 class FieldConfig(object):
@@ -209,7 +209,7 @@ class FieldConfig(object):
         #: The number of instances Blocks that will be created, like 8
         self.number = number
         #: The complete type string, like param lut
-        self.type = type
+        self.type = type  # type: str
         #: The long description of the field
         self.description = description
         #: The list of registers this field uses

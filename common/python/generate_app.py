@@ -26,6 +26,7 @@ def jinja_context(**kwargs):
     context.update(kwargs)
     return context
 
+
 def jinja_env(path):
     env = Environment(
         autoescape=False,
@@ -35,6 +36,7 @@ def jinja_env(path):
         keep_trailing_newline=True,
     )
     return env
+
 
 class AppGenerator(object):
     def __init__(self, app, app_build_dir):
@@ -86,28 +88,17 @@ class AppGenerator(object):
         target = app_ini.get(".", "target")
         if target:
             # Implement the blocks for the target blocks
-            target_path = os.path.join(ROOT, "targets", target)
-            target_ini = read_ini(os.path.join(target_path, (
+            target_path = os.path.join("targets", target, "blocks")
+            target_ini = read_ini(os.path.join(ROOT, "targets", target, (
                     target + ".target.ini")))
-            self.implement_blocks(target_ini, target_path, "carrier", "blocks")
+            self.implement_blocks(target_ini, target_path, "carrier")
             self.sfp_sites = int(ini_get(target_ini, '.', 'sfp_sites', 0))
             self.fmc_sites = int(ini_get(target_ini, '.', 'fmc_sites', 0))
 
         # Implement the blocks for the soft blocks
-        self.implement_blocks(app_ini, ROOT, "soft", "modules")
-        print("####################################")
-        print("# Resource usage")
-        print("#  Block addresses: %d/%d" % (
-            self.counters.block_count, self.counters.MAX_BLOCKS))
-        print("#  Bit bus: %d/%d" % (
-            self.counters.bit_count, self.counters.MAX_BIT))
-        print("#  Pos bus: %d/%d" % (
-            self.counters.pos_count, self.counters.MAX_POS))
-        print("#  Ext bus: %d/%d" % (
-            self.counters.ext_count, self.counters.MAX_EXT))
-        print("####################################")
+        self.implement_blocks(app_ini, "modules", "soft")
 
-    def implement_blocks(self, ini, path, type, subdir):
+    def implement_blocks(self, ini, path, type):
         """Read the ini file and for each section create a new block"""
         for section in ini.sections():
             if section != ".":
@@ -126,7 +117,7 @@ class AppGenerator(object):
                         ini, section, 'ini', module_name + '.block.ini')
                 number = int(ini_get(ini, section, 'number', 1))
 
-                ini_path = os.path.join(path, subdir, module_name, ini_name)
+                ini_path = os.path.join(path, module_name, ini_name)
                 # Type is soft if the block is a softblock and carrier
                 # for carrier block
                 block = BlockConfig(section, type, number, ini_path, sfp_site)
@@ -148,6 +139,20 @@ class AppGenerator(object):
         config_dir = os.path.join(self.app_build_dir, "config_d")
         os.makedirs(config_dir)
         context = jinja_context(blocks=self.blocks)
+        # Create usage file
+        vars = RegisterCounter.__dict__.copy()
+        vars.update(self.counters.__dict__)
+        usage = """####################################
+# Resource usage
+#  Block addresses: %(block_count)d/%(MAX_BLOCKS)d
+#  Bit bus: %(bit_count)d/%(MAX_BIT)d
+#  Pos bus: %(pos_count)d/%(MAX_POS)d
+#  Ext bus: %(ext_count)d/%(MAX_EXT)d
+####################################
+""" % vars
+        print(usage)
+        with open(os.path.join(self.app_build_dir, "usage.txt"), "w") as f:
+            f.write(usage)
         # Create the config, registers and descriptions files
         self.expand_template(
             "config.jinja2", context, config_dir, "config")
@@ -155,6 +160,8 @@ class AppGenerator(object):
             "registers.jinja2", context, config_dir, "registers")
         self.expand_template(
             "descriptions.jinja2", context, config_dir, "description")
+        self.expand_template(
+            "sim_server.jinja2", context, self.app_build_dir, "sim_server")
         context = jinja_context(app=self.app_name)
         self.expand_template(
             "slow_top.files.jinja2",
