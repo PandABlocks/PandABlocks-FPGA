@@ -67,7 +67,7 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
                 changes = {}
                 for name, value in inputs.items():
                     # Table address is a path, so keep as a string, otherwise
-                    # conver to int parsing 0x correctly
+                    # convert to int parsing 0x correctly
                     if name != "TABLE_ADDRESS":
                         value = int(value, 0)
 

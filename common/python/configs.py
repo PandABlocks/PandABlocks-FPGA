@@ -1,11 +1,12 @@
+import os
 import re
 from collections import OrderedDict
 
 from .compat import TYPE_CHECKING, configparser
-from .ini_util import ini_get
+from .ini_util import ini_get, read_ini
 
 if TYPE_CHECKING:
-    from typing import List, Iterable, Any, Dict
+    from typing import List, Iterable, Any, Dict, Optional
 
 
 def pad(name, spaces=19):
@@ -81,19 +82,22 @@ class FieldCounter:
 
 class BlockConfig(object):
     """The config for a single Block"""
-    def __init__(self, name, type, number, ini, module_name, sfp_site=None):
-        # type: (str, str, int, configparser.SafeConfigParser) -> None
+    def __init__(self, name, type, number, ini_path, sfp_site=None):
+        # type: (str, str, int, str, Optional[int]) -> None
         # Block names should be UPPER_CASE_NO_TRAILING_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*[A-Z]$", name), \
             "Expected BLOCK_NAME with no trailing numbers, got %r" % name
+        ini = read_ini(ini_path)
         #: The name of the Block, like LUT
         self.name = name
         #: The number of instances Blocks that will be created, like 8
         self.number = number
+        #: The path to the module that holds this block ini
+        self.module_path = os.path.dirname(ini_path)
+        #: The path to the ini file for this Block, relative to TOP
+        self.ini_path = ini_path
         #: The Block section of the register address space
         self.block_address = None
-        #: The module name (can be different to block name)
-        self.module_name = module_name
         #: If the type == sfp, which site number
         self.sfp_site = sfp_site        
         #: The VHDL entity name, like lut

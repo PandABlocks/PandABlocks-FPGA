@@ -4,8 +4,7 @@ from collections import namedtuple
 import numpy as np
 
 from .ini_util import read_ini
-from .configs import BlockConfig, RegisterCounter, RegisterConfig, \
-    make_getter_setter
+from .configs import BlockConfig, RegisterCounter, make_getter_setter
 from .compat import TYPE_CHECKING, add_metaclass
 
 if TYPE_CHECKING:
@@ -22,10 +21,9 @@ def properties_from_ini(src_path, ini_name):
         "Expected <block>.block.ini, got %s" % ini_name
     block_name = ini_name[:-len(".block.ini")]
     ini_path = os.path.join(os.path.dirname(src_path), ini_name)
-    ini = read_ini(ini_path)
     properties = []
     names = []
-    block_config = BlockConfig(block_name.upper(), "soft", 1, ini, block_name)
+    block_config = BlockConfig(block_name.upper(), "soft", 1, ini_path)
     block_config.register_addresses(RegisterCounter())
     for field in block_config.fields:
         for config in field.registers + field.bus_entries:

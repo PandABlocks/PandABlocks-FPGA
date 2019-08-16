@@ -127,11 +127,9 @@ class AppGenerator(object):
                 number = int(ini_get(ini, section, 'number', 1))
 
                 ini_path = os.path.join(path, subdir, module_name, ini_name)
-                block_ini = read_ini(ini_path)
                 # Type is soft if the block is a softblock and carrier
                 # for carrier block
-                block = BlockConfig(
-                    section, type, number, block_ini, module_name, sfp_site)
+                block = BlockConfig(section, type, number, ini_path, sfp_site)
                 block.register_addresses(self.counters)
                 self.blocks.append(block)
 
@@ -238,9 +236,7 @@ class AppGenerator(object):
                 context = jinja_context(block=block)
                 out_fname = "%s_%s" % (block.name, os.path.basename(const))
                 self.expand_template(
-                    const, context, const_dir, out_fname,
-                    os.path.join(ROOT, "modules", block.module_name)
-                )
+                    const, context, const_dir, out_fname, block.module_path)
         context = jinja_context(
             blocks=self.blocks,
             os=os,

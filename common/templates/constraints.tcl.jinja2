@@ -9,7 +9,7 @@ read_ip $IP_DIR/{{ ip }}/{{ ip }}.xci
 {% for block in blocks %}
     {# Soft block module code #}
     {% if block.type in "dma|soft|sfp|fmc" %}
-add_files $TOP_DIR/modules/{{ block.module_name }}/hdl/
+add_files $TOP_DIR/{{ block.module_path }}/hdl/
     {% endif %}
     {# MGT pin constraints #}
     {% if block.otherconst == "mgt_pins" %}
