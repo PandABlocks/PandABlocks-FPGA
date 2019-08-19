@@ -185,7 +185,7 @@ STEP(47 downto 32) <= STEP_H(15 downto 0);
 
 
 -- If 0 < DELAY < 4, it should be set to 4
-delay_i <=  unsigned(DELAY) when (unsigned(DELAY) > 4 or unsigned(DELAY) = 0) else
+delay_i <=  (unsigned(DELAY) - 1) when (unsigned(DELAY) > 5) else
             (2 => '1', others => '0');
 
 -- If Delay is zero and WIDTH is between 0 and 4 WIDTH should be 4
