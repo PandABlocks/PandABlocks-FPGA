@@ -226,7 +226,7 @@ begin
                 end if;
             end if;
         elsif (full_ts_calculations = '1') then
-            gap_i <= timestamp - timestamp_diff_prev - 1;
+            gap_i <= timestamp - (timestamp_trig_prev + timestamp_diff_prev) - 1;
         elsif (partial_ts_calculations = '1') then
             if ((signed(STEP) - signed(timestamp_diff_prev)) > 4) then
                 gap_i <= unsigned(STEP) - timestamp_diff_prev;
@@ -333,7 +333,7 @@ begin
             delay_i_prev      <= delay_i;
             enable_i_prev     <= enable_i;
             fifo_error_prev   <= fifo_error;
-            step_i_prev       <= width_i;
+            step_i_prev       <= step_i;
             timestamp_prev    <= timestamp;
             trig_fall_prev    <= trig_fall;
             trig_i_prev       <= trig_i;
