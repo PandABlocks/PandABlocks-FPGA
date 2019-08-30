@@ -22,18 +22,18 @@ port (
     -- Configuration and Status Interface Block
     read_strobe     : in    std_logic_vector(MOD_COUNT-1 downto 0);
     read_address    : in    std_logic_vector(PAGE_AW-1 downto 0);
-    read_data       : out   std32_array(MOD_COUNT-1 downto 0);
-    read_ack        : out   std_logic_vector(MOD_COUNT-1 downto 0);
+    read_data       : out   std32_array(MOD_COUNT-1 downto 2);
+    read_ack        : out   std_logic_vector(MOD_COUNT-1 downto 2);
     write_strobe    : in    std_logic_vector(MOD_COUNT-1 downto 0);
     write_address   : in    std_logic_vector(PAGE_AW-1 downto 0);
     write_data      : in    std_logic_vector(31 downto 0);
-    write_ack       : out   std_logic_vector(MOD_COUNT-1 downto 0);
+    write_ack       : out   std_logic_vector(MOD_COUNT-1 downto 2);
     -- Bus Outputs
     bit_bus_i       : in    bit_bus_t;
-    bit_bus_o       : out   std_logic_vector(127 downto BIT_BUS_SIZE);
+    bit_bus_o       : out   std_logic_vector(BBUSW-1 downto BIT_BUS_SIZE);
 
     pos_bus_i       : in    pos_bus_t;
-    pos_bus_o       : out   std32_array(31 downto POS_BUS_SIZE);
+    pos_bus_o       : out   std32_array(PBUSW-1 downto POS_BUS_SIZE);
     -- DMA Blocks
     rdma_req        : out   std_logic_vector(5 downto 0);
     rdma_ack        : in    std_logic_vector(5 downto 0);
@@ -76,8 +76,8 @@ port map (
 
     clk_i               => FCLK_CLK0
 );
-bit_bus_o(127 downto 8) <= (others => '0');
-pos_bus_o(31 downto 0) <= (others => (others => '0'));
+bit_bus_o(BBUSW-1 downto 8) <= (others => '0');
+pos_bus_o(PBUSW-1 downto 0) <= (others => (others => '0'));
 
 read_ack(31 downto USED_MOD_COUNT + 1) <= (others => '1');
 write_ack(31 downto USED_MOD_COUNT + 1) <= (others => '1');
