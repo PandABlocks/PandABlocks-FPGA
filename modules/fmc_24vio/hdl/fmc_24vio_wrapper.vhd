@@ -100,7 +100,7 @@ port map (
     bit_bus_i           => bit_bus_i,
     pos_bus_i           => pos_bus_i,
     -- Block Parameters
-    IN_FMC_PRSNT           => FMC_PRSNT_DW,
+    IN_FMC_PRSNT        => FMC_PRSNT_DW,
     IN_DB               => IN_DB,
     IN_FAULT            => IN_FAULT,
     IN_VTSEL            => IN_VTSEL,
@@ -112,6 +112,7 @@ port map (
     OUT_val6_from_bus   => fmc_out(5),
     OUT_val7_from_bus   => fmc_out(6),
     OUT_val8_from_bus   => fmc_out(7),
+    OUT_FMC_PRSNT       => FMC_PRSNT_DW,
     OUT_PWR_ON          => OUT_PWR_ON,
     OUT_PUSHPL          => OUT_PUSHPL,
     OUT_FLTR            => OUT_FLTR,
