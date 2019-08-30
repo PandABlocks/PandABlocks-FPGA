@@ -13,6 +13,11 @@ def pad(name, spaces=19):
     return name.ljust(spaces)
 
 
+def suffix_split(name):
+    """From a suffixed field name, get the name"""
+    return name.split(".", 1)
+
+
 def all_subclasses(cls):
     """Recursively find all the subclasses of cls"""
     ret = []
@@ -100,6 +105,8 @@ class BlockConfig(object):
         self.entity = ini.get(".", "entity")
         #: Is the block soft, sfp, fmc or dma?
         self.type = ini_get(ini, '.', 'type', type)
+        #: What type is the sfp/fmc interface?
+        self.interfaces = ini_get(ini, '.', 'interfaces', '').split()
         #: If the type == sfp, which site number
         self.sfp_site = sfp_site
         if self.sfp_site:
@@ -122,6 +129,8 @@ class BlockConfig(object):
             self.extension = self.entity
         #: All the child fields
         self.fields = FieldConfig.from_ini(ini, number)
+        #: Are there any suffixes?
+        self.block_suffixes = ini_get(ini, '.', 'block_suffixes', '').split()
 
     def register_addresses(self, block_counters):
         # type: (RegisterCounter) -> None
@@ -198,7 +207,7 @@ class FieldConfig(object):
     def __init__(self, name, number, type, description, extra_config):
         # type: (str, int, str, str, Dict[str, str]) -> None
         # Field names should be UPPER_CASE_OR_NUMBERS
-        assert re.match("[A-Z][0-9A-Z_]*$", name), \
+        assert re.match("[A-Z][0-9A-Z_\.]*$", name), \
             "Expected FIELD_NAME, got %r" % name
         #: The name of the field relative to it's Block, like INPA
         self.name = name

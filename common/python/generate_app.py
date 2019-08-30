@@ -10,7 +10,7 @@ require("jinja2")
 from jinja2 import Environment, FileSystemLoader
 
 from .compat import TYPE_CHECKING
-from .configs import BlockConfig, pad, RegisterCounter
+from .configs import BlockConfig, pad, suffix_split, RegisterCounter
 from .ini_util import read_ini, ini_get
 
 if TYPE_CHECKING:
@@ -22,9 +22,11 @@ TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 
 
 def jinja_context(**kwargs):
-    context = dict(pad=pad)
+    context = dict(pad=pad,
+                   suffix_split=suffix_split)
     context.update(kwargs)
     return context
+
 
 def jinja_env(path):
     env = Environment(
@@ -35,6 +37,7 @@ def jinja_env(path):
         keep_trailing_newline=True,
     )
     return env
+
 
 class AppGenerator(object):
     def __init__(self, app, app_build_dir):
@@ -149,7 +152,7 @@ class AppGenerator(object):
         """Generate config, registers, descriptions in config_d"""
         config_dir = os.path.join(self.app_build_dir, "config_d")
         os.makedirs(config_dir)
-        context = jinja_context(blocks=self.blocks)
+        context = jinja_context(blocks=self.blocks, app=self.app_name)
         # Create the config, registers and descriptions files
         self.expand_template(
             "config.jinja2", context, config_dir, "config")
@@ -167,8 +170,19 @@ class AppGenerator(object):
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
         os.makedirs(hdl_dir)
         # Create a wrapper for every block
-        for block in self.blocks:
-            context = jinja_context()
+        blocks = self.blocks
+        for block in blocks:
+            if block.block_suffixes:
+                for field in block.fields:
+                    if "." in field.name:
+                        field.name = suffix_split(field.name)[0] + "_" + \
+                                     suffix_split(field.name)[1]
+            for field in block.fields:
+                for register in field.numbered_registers():
+                    if "." in register.name:
+                        register.name = suffix_split(register.name)[0] + "_" + \
+                                        suffix_split(register.name)[1]
+            context = jinja_context(blocks=blocks)
             for k in dir(block):
                 context[k] = getattr(block, k)
             if block.type in "soft|dma":
@@ -205,12 +219,18 @@ class AppGenerator(object):
         register_blocks = []
         # SFP blocks can have the same register definitions as they have
         # the same entity
-        for block in self.blocks:
+        blocks = self.blocks
+        for block in blocks:
             if block.entity not in block_names:
                 register_blocks.append(block)
                 block_names.append(block.entity)
+            for field in block.fields:
+                for register in field.numbered_registers():
+                    if "." in register.name:
+                        register.name = suffix_split(register.name)[0] + "_" + \
+                                        suffix_split(register.name)[1]
         context = jinja_context(
-            blocks=self.blocks,
+            blocks=blocks,
             sfp_sites=self.sfp_sites,
             fmc_sites=self.fmc_sites,
             carrier_bit_bus_length=carrier_bit_bus_length,

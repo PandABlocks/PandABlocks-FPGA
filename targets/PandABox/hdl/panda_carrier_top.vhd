@@ -73,16 +73,16 @@ port (
     GTXCLK1_N           : in    std_logic;
 
     -- SFPT GTX I/O and GTX
-    SFP_TX_P            : out   std_logic_vector(2 downto 0);
-    SFP_TX_N            : out   std_logic_vector(2 downto 0);
+    SFP_TX_P            : out   std_logic_vector(2 downto 0) := "ZZZ";
+    SFP_TX_N            : out   std_logic_vector(2 downto 0) := "ZZZ";
     SFP_RX_P            : in    std_logic_vector(2 downto 0);
     SFP_RX_N            : in    std_logic_vector(2 downto 0);
     SFP_TxDis           : out   std_logic_vector(1 downto 0) := "00";
     SFP_LOS             : in    std_logic_vector(1 downto 0);
 
     -- FMC Differential IO and GTX
-    FMC_DP0_C2M_P       : out   std_logic;
-    FMC_DP0_C2M_N       : out   std_logic;
+    FMC_DP0_C2M_P       : out   std_logic := 'Z';
+    FMC_DP0_C2M_N       : out   std_logic := 'Z';
     FMC_DP0_M2C_P       : in    std_logic;
     FMC_DP0_M2C_N       : in    std_logic;
 
@@ -242,17 +242,16 @@ signal FMC_MAC_ADDR_ARR     : std32_array(2*NUM_FMC-1 downto 0);
 
 -- FMC Block
 signal FMC_i  : FMC_input_interface;
-signal FMC_o  : FMC_output_interface;
---signal FMC_o  : FMC_output_interface := ( TXN_OUT => 'Z', TXP_OUT => 'Z');
-signal FMC_io : FMC_inout_interface;
+signal FMC_o  : FMC_output_interface := FMC_o_init;
+signal FMC_io : FMC_inout_interface  := FMC_io_init;
 
 -- SFP Block
 signal SFP1_i : SFP_input_interface;
-signal SFP1_o : SFP_output_interface := ( TXN_OUT => '0', TXP_OUT => '0',EVR_REC_CLK => '0', LINK_UP => '0');
+signal SFP1_o : SFP_output_interface := SFP_o_init;
 signal SFP2_i : SFP_input_interface;
-signal SFP2_o : SFP_output_interface;
+signal SFP2_o : SFP_output_interface := SFP_o_init;
 signal SFP3_i : SFP_input_interface;
-signal SFP3_o : SFP_output_interface;
+signal SFP3_o : SFP_output_interface := SFP_o_init;
 
 signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
 attribute syn_noclockbuf : boolean;
