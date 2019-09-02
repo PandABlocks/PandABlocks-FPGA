@@ -487,37 +487,24 @@ begin
         else
             if (delay_remaining = 1) then
                 waiting_for_delay <= '0';
+            elsif (delay_remaining = 2) then
+                pulse_ts <= queue_pulse_ts;
+                pulse_value <= queue_pulse_value;
             end if;
         end if;
 
         --- If we're running as a fancy delay line
         if ((width_i = 0) and (unsigned(STEP) = 0)) then
-            if (waiting_for_delay = '0' and timestamp = queue_pulse_ts) then
-                out_o <= queue_pulse_value;
-                pulse_queued_rstb <= '1';
+            if (waiting_for_delay = '0' and timestamp = pulse_ts) then
+                out_o <= pulse_value;
             end if;
 
-            --if (first_pulse = '0') then
-                if (timestamp = (queue_pulse_ts - 1)) then
-                    pulse_queued_rstb <= '1';
-                end if;
-            --else
-
-                --if (pulse_queued_empty = '1') then
-                --    --pulse_queued_rstb <= '1';
-                --    queue_has_been_empty <= '0';
-                --else
-                --    if (timestamp = (queue_pulse_ts - 1)) then
-                --        --pulse_queued_rstb <= '1';
-                --    end if;
-                --end if;
-
-                --if (pulse_queued_empty = '1') then
-                --    queue_has_been_empty <= '1';
-                --end if;
-
-            
-
+            if (timestamp = (queue_pulse_ts - 2)) then
+                pulse_queued_rstb <= '1';
+                pulse_ts <= queue_pulse_ts;
+                pulse_value <= queue_pulse_value;
+            end if;
+           
         --- Otherwise let's process some pulses
         else
             if (edges_remaining = 0) then
