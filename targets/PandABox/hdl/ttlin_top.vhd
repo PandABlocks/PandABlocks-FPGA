@@ -39,7 +39,6 @@ end ttlin_top;
 
 architecture rtl of ttlin_top is
 
-signal pad_iob          : std_logic_vector(pad_i'length-1 downto 0);
 signal blk_addr         : natural range 0 to (2**(PAGE_AW-BLK_AW)-1);
 signal write_address    : natural range 0 to (2**BLK_AW - 1);
 
@@ -77,18 +76,10 @@ begin
     end if;
 end process;
 
--- Place into IOB
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        pad_iob <= pad_i;
-    end if;
-end process;
-
 -- Syncroniser for each input
 SYNC : FOR I IN 0 TO TTLIN_NUM-1 GENERATE
 
-    syncer : entity work.sync_bit
+    syncer : entity work.IDDR_sync_bit
     port map (
         clk_i   => clk_i,
         bit_i   => pad_iob(I),
