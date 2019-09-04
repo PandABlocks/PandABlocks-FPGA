@@ -77,13 +77,14 @@ constant c_timestamp_min        : unsigned(47 downto 0) := (others => '0');
 
 -- Standard logic signals
 
+signal dropped_flag             : std_logic := '0';
+
 signal enable_i_prev            : std_logic := '0';
 
 signal fancy_delay_line_started : std_logic := '0';
 signal first_pulse              : std_logic := '0';
 
-signal got_first_pulse          : std_logic := '0';
-signal got_pulse_program        : std_logic := '0';
+signal got_pulse                : std_logic := '0';
 
 signal had_falling_trigger      : std_logic := '0';
 signal had_rising_trigger       : std_logic := '0';
@@ -92,14 +93,13 @@ signal had_trigger              : std_logic := '0';
 signal pulse                    : std_logic := '0';
 signal pulse_queued_empty       : std_logic := '0';
 signal pulse_queued_full        : std_logic := '0';
+signal pulse_queued_reset       : std_logic := '0';
 signal pulse_queued_rstb        : std_logic := '0';
 signal pulse_queued_wstb        : std_logic := '0';
 signal pulse_value              : std_logic := '0';
 
 signal queue_has_been_empty     : std_logic := '0';
 signal queue_pulse_value        : std_logic := '0';
-
-signal reset                    : std_logic := '0';
 
 signal start_delay_countdown    : std_logic := '0';
 signal signal_val               : std_logic := '0';
@@ -165,7 +165,7 @@ begin
 pulse_queue_inst : pulse_queue
 port map (
     clk         => clk_i,
-    srst        => reset,
+    srst        => pulse_queued_reset,
     din         => pulse_queued_din,
     wr_en       => pulse_queued_wstb,
     rd_en       => pulse_queued_rstb,
@@ -209,9 +209,9 @@ STEP(47 downto 32) <= STEP_H(15 downto 0);
 
 -- For those not requiring mathematics
 
--- If 0 < DELAY < 5, it should be set to 5
-delay_i <=  (unsigned(DELAY) - 1) when (unsigned(DELAY) > 5) else
-            (2 => '1', others => '0');
+-- If 0 < DELAY < 6, it should be set to 6
+delay_i <=  (unsigned(DELAY)) when (unsigned(DELAY) > 5) else
+            (2 => '1', 1 => '1', others => '0');
 
 -- Make sure that if we recieve a pulse and the PULSE variable is accidentally set to zero we don't punish a hapless user
 pulses_i <= unsigned(PULSES) when (unsigned(PULSES) /= 0) else
@@ -226,7 +226,7 @@ width_i <=  unsigned(WIDTH);
 -- Calculate the minimum gap given all the other parameters
 process(clk_i, enable_i)
 begin
-    if (rising_edge(enable_i) or reset = '1') then
+    if (rising_edge(enable_i)) then
         gap_i <= (others => '0');
         gap_i_prev <= (others => '1');
     elsif (rising_edge(clk_i) and enable_i = '1') then
@@ -246,7 +246,7 @@ end process;
 -- Calculate the minimum step given all the other parameters
 process(clk_i, enable_i)
 begin
-    if (rising_edge(enable_i) or reset = '1') then
+    if (rising_edge(enable_i)) then
         step_i <= (others => '0');
         step_i_prev <= (others => '1');
     elsif (rising_edge(clk_i) and enable_i = '1') then
@@ -268,7 +268,7 @@ end process;
 -- Free running global timestamp counter
 process(clk_i, enable_i)
 begin
-    if (rising_edge(enable_i) or reset = '1') then
+    if (rising_edge(enable_i)) then
         timestamp <= (others => '0');
     elsif (rising_edge(clk_i) and enable_i = '1') then
         timestamp <= timestamp + 1;
@@ -296,13 +296,21 @@ end process;
 -- Free running delay countdown block
 process(clk_i, enable_i)
 begin
-    if (rising_edge(enable_i) or reset = '1') then
+    if (rising_edge(enable_i)) then
         delay_remaining <= (others => '0');
     elsif (rising_edge(clk_i) and enable_i = '1') then
         if (delay_remaining /= 0) then
             delay_remaining <= delay_remaining - 1;
         elsif ((start_delay_countdown = '1') and (pulse_queued_empty = '1')) then
-            delay_remaining <= delay_i - 2;
+            if (fancy_delay_line_started = '0') then
+                delay_remaining <= delay_i - 3;
+            else
+                if (delay_remaining = 6) then
+                    delay_remaining <= delay_i - 4;
+                else
+                    delay_remaining <= delay_i - 3;
+                end if;
+            end if;
         end if;
     end if;
 end process;
@@ -311,7 +319,7 @@ end process;
 -- Variable storage for comparison next clock cycle
 process(clk_i, enable_i)
 begin
-    if (rising_edge(enable_i) or reset = '1') then
+    if (rising_edge(enable_i)) then
         delay_i_prev      <= (others => '1');
         enable_i_prev     <= '0';
         step_i_prev       <= (others => '1');
@@ -338,11 +346,9 @@ end process;
 -- Filling the queue
 process(clk_i, enable_i)
 begin
-    if (rising_edge(enable_i) or reset = '1') then
+    if (rising_edge(enable_i)) then
         -- In case of a reset we'll need to reset these values from this process
         fancy_delay_line_started <= '0';
-
-        got_first_pulse <= '0';
 
         had_rising_trigger <= '0';
         had_falling_trigger <= '0';
@@ -350,6 +356,7 @@ begin
         missed_pulses <= (others => '0');
         
         pulse_queued_din <= (others => '0');
+        pulse_queued_reset <= '1';
         pulse_queued_wstb <= '0';
         
         start_delay_countdown <= '0';
@@ -361,21 +368,24 @@ begin
 
     elsif (rising_edge(clk_i) and enable_i = '1') then
         -- Bits that need resetting every clock cycle
+        pulse_queued_reset <= '0';
         pulse_queued_wstb <= '0';
         value <= '0';
         start_delay_countdown <= '0';
 
         if (trig_rise = '1') then
             timestamp_rise <= timestamp;
-
         elsif (trig_fall = '1') then
             timestamp_fall <= timestamp;
-
         end if;
 
         if (waiting_for_delay = '0') then
             had_falling_trigger <= '0';
             had_rising_trigger <= '0';
+        end if;
+
+        if (dropped_flag = '1') then
+            missed_pulses <= missed_pulses + 1;
         end if;
 
         -- If check to make sure that we should be storing this event at all
@@ -461,18 +471,23 @@ end process;
 -- Process to pass edges
 process(clk_i, enable_i)
 begin
-    if (rising_edge(enable_i) or reset = '1') then
-            edges_remaining <= (others => '0');
-            
-            pulse <= '0';
-            pulse_queued_rstb <= '0';
-            pulse_ts <= (others => '0');
-            pulse_width <= (others => '0');
-            pulse_value <= '0';
+    if (rising_edge(enable_i)) then
+        dropped_flag <= '0';
 
-            waiting_for_delay <= '1';
+        edges_remaining <= (others => '0');
+        
+        got_pulse <= '0';
+
+        pulse <= '0';
+        pulse_queued_rstb <= '0';
+        pulse_ts <= (others => '0');
+        pulse_width <= (others => '0');
+        pulse_value <= '0';
+
+        waiting_for_delay <= '1';
 
     elsif (rising_edge(clk_i) and enable_i = '1') then
+        dropped_flag <= '0';
         pulse_queued_rstb <= '0';
 
         if (fancy_delay_line_started = '0') then
@@ -487,24 +502,39 @@ begin
         else
             if (delay_remaining = 1) then
                 waiting_for_delay <= '0';
-            elsif (delay_remaining = 2) then
                 pulse_ts <= queue_pulse_ts;
                 pulse_value <= queue_pulse_value;
+                got_pulse <= '1';
             end if;
         end if;
 
         --- If we're running as a fancy delay line
         if ((width_i = 0) and (unsigned(STEP) = 0)) then
-            if (waiting_for_delay = '0' and timestamp = pulse_ts) then
-                out_o <= pulse_value;
+            if (waiting_for_delay = '0') then
+                if (timestamp = (queue_pulse_ts - 2)) then
+                    if (pulse_queued_empty = '0') then
+                        pulse_queued_rstb <= '1';
+                    end if;
+                    
+                    if (queue_pulse_ts >= (timestamp + 2)) then
+                        pulse_ts <= queue_pulse_ts;
+                        pulse_value <= queue_pulse_value;
+                        got_pulse <= '1';
+                    end if;
+                elsif (timestamp = (queue_pulse_ts - 1)) then
+                    if (pulse_queued_empty = '0') then
+                        pulse_queued_rstb <= '1';
+                    end if;
+                    out_o <= pulse_value;
+
+                    if (got_pulse = '1') then
+                        got_pulse <= '0';
+                    else
+                        dropped_flag <= '1';
+                    end if;
+                end if;
             end if;
 
-            if (timestamp = (queue_pulse_ts - 2)) then
-                pulse_queued_rstb <= '1';
-                pulse_ts <= queue_pulse_ts;
-                pulse_value <= queue_pulse_value;
-            end if;
-           
         --- Otherwise let's process some pulses
         else
             if (edges_remaining = 0) then
@@ -532,13 +562,13 @@ begin
                     if (unsigned(edges_remaining mod 2) = 0) then
                         edges_remaining <= edges_remaining - 1;
                         pulse_ts <= timestamp + pulse_width;
+                        out_o <= not pulse;
                         pulse <= not pulse;
-                        out_o <= pulse;
                     else
                         edges_remaining <= edges_remaining - 1;
                         pulse_ts <= timestamp + pulse_gap;
+                        out_o <= not pulse;
                         pulse <= not pulse;
-                        out_o <= pulse;
                     end if;
 
                     if (edges_remaining = 1) then
