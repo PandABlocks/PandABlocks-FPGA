@@ -315,9 +315,9 @@ port map (
 mmcm_clkmux_inst: entity work.mmcm_clkmux
 port map(
     fclk_clk0_ps_i      => FCLK_CLK0_PS,
-    sma_clk_in1         => EXTCLK,
+    sma_clk_i         => EXTCLK,
     rxoutclk_i          => SFP1_o.EVR_REC_CLK,
-    ext_clock_i         => clk_src_sel,
+    clk_sel_i         => clk_src_sel,
     linkup_i             => SFP1_o.LINK_UP,
     sma_pll_locked_o    => sma_pll_locked,
     clk_sel_stat_o        => clk_sel_stat,
