@@ -70,25 +70,18 @@ signal WIDTH_wstb       : std_logic;
 constant c_number_zero          : std_logic_vector(1 downto 0) := "00";
 constant c_number_one           : std_logic_vector(1 downto 0) := "01";
 constant c_number_two           : std_logic_vector(1 downto 0) := "10";
-
-constant c_timestamp_max        : unsigned(47 downto 0) := (others => '1');
-constant c_timestamp_min        : unsigned(47 downto 0) := (others => '0');
-
+constant c_two_ticks            : std_logic_vector(47 downto 0) := (1 => '1', others => '0');
 
 -- Standard logic signals
 
 signal dropped_flag             : std_logic := '0';
 
-signal enable_i_prev            : std_logic := '0';
-
 signal fancy_delay_line_started : std_logic := '0';
-signal first_pulse              : std_logic := '0';
 
 signal got_pulse                : std_logic := '0';
 
 signal had_falling_trigger      : std_logic := '0';
 signal had_rising_trigger       : std_logic := '0';
-signal had_trigger              : std_logic := '0';
 
 signal pulse                    : std_logic := '0';
 signal pulse_queued_empty       : std_logic := '0';
@@ -98,15 +91,9 @@ signal pulse_queued_rstb        : std_logic := '0';
 signal pulse_queued_wstb        : std_logic := '0';
 signal pulse_value              : std_logic := '0';
 
-signal queue_has_been_empty     : std_logic := '0';
 signal queue_pulse_value        : std_logic := '0';
 
 signal start_delay_countdown    : std_logic := '0';
-signal signal_val               : std_logic := '0';
-signal trig_fall_prev           : std_logic := '0';
-signal trig_i_prev              : std_logic := '0';
-signal trig_rise_prev           : std_logic := '0';
-signal trig_same_prev           : std_logic := '0';
 
 signal trig_fall                : std_logic := '0';
 signal trig_rise                : std_logic := '0';
@@ -119,8 +106,6 @@ signal waiting_for_delay        : std_logic := '1';
 
 -- Standard logic vector signals
 
-signal program_progress         : std_logic_vector(1 downto 0) := (others => '0');
-
 signal pulse_queued_din         : std_logic_vector(48 downto 0);
 signal pulse_queued_dout        : std_logic_vector(48 downto 0);
 signal pulse_queued_data_count  : std_logic_vector(10 downto 0);
@@ -129,13 +114,11 @@ signal pulse_queued_data_count  : std_logic_vector(10 downto 0);
 -- Unsigned integer signals
 
 signal delay_i                  : unsigned(47 downto 0) := (others => '0');
-signal delay_i_prev             : unsigned(47 downto 0) := (others => '1');
 signal delay_remaining          : unsigned(47 downto 0) := (others => '0');
 
 signal edges_remaining          : unsigned(31 downto 0) := (others => '0');
 
 signal gap_i                    : unsigned(47 downto 0) := (others => '0');
-signal gap_i_prev               : unsigned(47 downto 0) := (others => '1');
 
 signal missed_pulses            : unsigned(31 downto 0) := (others => '0');
 
@@ -153,7 +136,6 @@ signal signal_ts                : unsigned(47 downto 0) := (others => '0');
 
 signal timestamp                : unsigned(47 downto 0) := (others => '0');
 signal timestamp_fall           : unsigned(47 downto 0) := (others => '0');
-signal timestamp_prev           : unsigned(47 downto 0) := (others => '1');
 signal timestamp_rise           : unsigned(47 downto 0) := (others => '0');
 
 signal width_i                  : unsigned(47 downto 0) := (others => '0');
@@ -223,14 +205,15 @@ width_i <=  unsigned(WIDTH);
 
 -- For those requiring mathematics
 
+
 -- Calculate the minimum gap given all the other parameters
 process(clk_i, enable_i)
 begin
     if (rising_edge(enable_i)) then
         gap_i <= (others => '0');
-        gap_i_prev <= (others => '1');
+        width_i_prev <= (others => '1');
     elsif (rising_edge(clk_i) and enable_i = '1') then
-        gap_i_prev <= gap_i;
+        width_i_prev <= width_i;
 
         if (width_i /= width_i_prev or step_i /= step_i_prev) then
             if ((signed(step_i) - signed(width_i)) > 1) then
@@ -316,33 +299,6 @@ begin
 end process;
 
 
--- Variable storage for comparison next clock cycle
-process(clk_i, enable_i)
-begin
-    if (rising_edge(enable_i)) then
-        delay_i_prev      <= (others => '1');
-        enable_i_prev     <= '0';
-        step_i_prev       <= (others => '1');
-        timestamp_prev    <= (others => '1');
-        trig_i_prev       <= trig_i;
-        trig_fall_prev    <= '0';
-        trig_rise_prev    <= '0';
-        trig_same_prev    <= '0';
-        width_i_prev      <= (others => '1');
-    elsif (rising_edge(clk_i) and enable_i = '1') then
-        delay_i_prev      <= delay_i;
-        enable_i_prev     <= enable_i;
-        step_i_prev       <= step_i;
-        timestamp_prev    <= timestamp;
-        trig_fall_prev    <= trig_fall;
-        trig_i_prev       <= trig_i;
-        trig_rise_prev    <= trig_rise;
-        trig_same_prev    <= trig_same;
-        width_i_prev      <= width_i;
-    end if;
-end process;
-
-
 -- Filling the queue
 process(clk_i, enable_i)
 begin
@@ -423,7 +379,7 @@ begin
                         if (timestamp_fall - timestamp_rise > 2) then
                             pulse_queued_din <= '0' & std_logic_vector(timestamp - timestamp_rise);
                         else
-                            pulse_queued_din <= '0' & std_logic_vector((timestamp_prev - timestamp) + 1);
+                            pulse_queued_din <= '0' & std_logic_vector(c_two_ticks);
                         end if;
 
                         pulse_queued_wstb <= '1';
@@ -440,7 +396,7 @@ begin
                         if (timestamp_rise - timestamp_fall > 2) then
                             pulse_queued_din <= '0' & std_logic_vector(timestamp - timestamp_fall);
                         else
-                            pulse_queued_din <= '0' & std_logic_vector((timestamp_prev - timestamp) + 1);
+                            pulse_queued_din <= '0' & std_logic_vector(c_two_ticks);
                         end if;
 
                         pulse_queued_wstb <= '1';
