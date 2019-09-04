@@ -39,7 +39,7 @@ SYNC : FOR I IN 0 TO LVDSIN_NUM-1 GENERATE
     syncer : entity work.IDDR_sync_bit
     port map (
         clk_i   => clk_i,
-        bit_i   => pad_iob(I),
+        bit_i   => pad_i(I),
         bit_o   => val_o(I)
     );
 

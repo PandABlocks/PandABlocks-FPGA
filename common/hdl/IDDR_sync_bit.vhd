@@ -12,7 +12,7 @@ port (
 );
 end entity;
 
-architecture rtl of sync_bit is
+architecture rtl of IDDR_sync_bit is
 
 signal tied_to_ground : std_logic := '0';
 signal tied_to_vcc    : std_logic := '1';
