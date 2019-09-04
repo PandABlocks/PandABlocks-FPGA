@@ -55,14 +55,27 @@ signal out_mosi         : std_logic;
 begin
 
 -- Inputs coming from FMC connector
-fmc_in_o(0) <= FMC_LA_P(0);
-fmc_in_o(1) <= FMC_LA_N(0);
-fmc_in_o(2) <= FMC_LA_P(1);
-fmc_in_o(3) <= FMC_LA_N(1);
-fmc_in_o(4) <= FMC_LA_P(2);
-fmc_in_o(5) <= FMC_LA_N(2);
-fmc_in_o(6) <= FMC_LA_P(3);
-fmc_in_o(7) <= FMC_LA_N(3);
+fmc_in(0) <= FMC_LA_P(0);
+fmc_in(1) <= FMC_LA_N(0);
+fmc_in(2) <= FMC_LA_P(1);
+fmc_in(3) <= FMC_LA_N(1);
+fmc_in(4) <= FMC_LA_P(2);
+fmc_in(5) <= FMC_LA_N(2);
+fmc_in(6) <= FMC_LA_P(3);
+fmc_in(7) <= FMC_LA_N(3);
+
+-- Synchronise async inputs from FMC using IDDR registers
+SYNC : FOR I IN 0 TO 7 GENERATE
+
+    syncer : entity work.IDDR_sync_bit
+    port map (
+        clk_i   => clk_i,
+        bit_i   => fmc_in(I),
+        bit_o   => fmc_in_o(I)
+    );
+
+END GENERATE;
+
 
 -- Outputs towards FMC connector
 FMC_LA_P(4) <= fmc_out_i(0);
