@@ -137,7 +137,7 @@ begin
         end if;
 
         pbus_prev <= pbus;
-        for I in 0 to 31 loop
+        for I in 0 to PBUSW-1 loop
             -- Reset/Clear to current change status rather than 0.
             if (POS_READ_RST = '1') then
                 pbus_change(I) <= COMP(pbus(I), pbus_prev(I));

@@ -47,6 +47,7 @@ ifndef ALL_APPS
 ALL_APPS := $(wildcard apps/*.app.ini)
 # Exclude udpontrig apps as they can't currently be built with our license
 ALL_APPS := $(filter-out $(wildcard apps/*udpontrig*),$(ALL_APPS))
+ALL_APPS := $(filter-out $(wildcard apps/*eventr*),$(ALL_APPS))
 ALL_APPS := $(notdir $(ALL_APPS))
 ALL_APPS := $(ALL_APPS:.app.ini=)
 endif

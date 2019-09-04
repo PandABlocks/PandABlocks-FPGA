@@ -10,7 +10,7 @@ require("jinja2")
 from jinja2 import Environment, FileSystemLoader
 
 from .compat import TYPE_CHECKING
-from .configs import BlockConfig, pad, RegisterCounter
+from .configs import BlockConfig, pad, suffix_split, RegisterCounter
 from .ini_util import read_ini, ini_get
 
 if TYPE_CHECKING:
@@ -22,7 +22,8 @@ TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 
 
 def jinja_context(**kwargs):
-    context = dict(pad=pad)
+    context = dict(pad=pad,
+                   suffix_split=suffix_split)
     context.update(kwargs)
     return context
 
@@ -138,7 +139,7 @@ class AppGenerator(object):
         """Generate config, registers, descriptions in config_d"""
         config_dir = os.path.join(self.app_build_dir, "config_d")
         os.makedirs(config_dir)
-        context = jinja_context(blocks=self.blocks)
+        context = jinja_context(blocks=self.blocks, app=self.app_name)
         # Create usage file
         vars = RegisterCounter.__dict__.copy()
         vars.update(self.counters.__dict__)
@@ -172,8 +173,19 @@ class AppGenerator(object):
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
         os.makedirs(hdl_dir)
         # Create a wrapper for every block
-        for block in self.blocks:
-            context = jinja_context()
+        blocks = self.blocks
+        for block in blocks:
+            if block.block_suffixes:
+                for field in block.fields:
+                    if "." in field.name:
+                        field.name = suffix_split(field.name)[0] + "_" + \
+                                     suffix_split(field.name)[1]
+            for field in block.fields:
+                for register in field.numbered_registers():
+                    if "." in register.name:
+                        register.name = suffix_split(register.name)[0] + "_" + \
+                                        suffix_split(register.name)[1]
+            context = jinja_context(blocks=blocks)
             for k in dir(block):
                 context[k] = getattr(block, k)
             if block.type in "soft|dma":
@@ -189,7 +201,8 @@ class AppGenerator(object):
         carrier_pos_bus_length = 0
         total_bit_bus_length = 0
         total_pos_bus_length = 0
-        carrier_mod_count = 0
+        # Start carrier_mod_count at 1 for REG and DRV blocks.
+        carrier_mod_count = 2
         for block in self.blocks:
             if block.type == "fmc":
                 assert self.fmc_sites > 0, "No FMC on Carrier"
@@ -209,12 +222,18 @@ class AppGenerator(object):
         register_blocks = []
         # SFP blocks can have the same register definitions as they have
         # the same entity
-        for block in self.blocks:
+        blocks = self.blocks
+        for block in blocks:
             if block.entity not in block_names:
                 register_blocks.append(block)
                 block_names.append(block.entity)
+            for field in block.fields:
+                for register in field.numbered_registers():
+                    if "." in register.name:
+                        register.name = suffix_split(register.name)[0] + "_" + \
+                                        suffix_split(register.name)[1]
         context = jinja_context(
-            blocks=self.blocks,
+            blocks=blocks,
             sfp_sites=self.sfp_sites,
             fmc_sites=self.fmc_sites,
             carrier_bit_bus_length=carrier_bit_bus_length,
@@ -227,6 +246,8 @@ class AppGenerator(object):
                              "soft_blocks.vhd")
         self.expand_template("addr_defines.vhd.jinja2", context, hdl_dir,
                              "addr_defines.vhd")
+        self.expand_template("top_defines.vhd.jinja2", context, hdl_dir,
+                             "top_defines.vhd")
 
     def generate_constraints(self):
         """Generate constraints file for IPs, SFP and FMC constraints"""

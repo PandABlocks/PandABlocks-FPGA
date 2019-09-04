@@ -208,7 +208,7 @@ end process;
 --------------------------------------------------------------------------
 -- Instantiate pcap_frame_mode block
 --------------------------------------------------------------------------
-CAP_FRAME_GEN : for i in 31 downto 0 generate
+CAP_FRAME_GEN : for i in PBUSW-1 downto 0 generate
 
 pcap_frame_mode_inst : entity work.pcap_frame_mode
 port map (
