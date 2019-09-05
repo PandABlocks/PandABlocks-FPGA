@@ -3,6 +3,9 @@
 #
 #####################################################################
 
+# Need bash for the source command in Xilinx settings64.sh
+SHELL = /bin/bash
+
 RUNVIVADO = . $(VIVADO) && vivado
 
 include $(TOP)/VERSION

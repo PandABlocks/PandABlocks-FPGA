@@ -2,6 +2,8 @@
 
 TOP := $(CURDIR)
 
+# Need bash for the source command in Xilinx settings64.sh
+SHELL = /bin/bash
 
 # The following symbols MUST be defined in the CONFIG file before being used.
 PANDA_ROOTFS = $(error Define PANDA_ROOTFS in CONFIG file)
