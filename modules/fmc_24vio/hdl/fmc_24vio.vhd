@@ -51,6 +51,7 @@ signal out_csn          : std_logic;
 signal out_sclk         : std_logic;
 signal out_miso         : std_logic;
 signal out_mosi         : std_logic;
+signal fmc_in           : std_logic_vector(7 downto 0);
 
 begin
 
