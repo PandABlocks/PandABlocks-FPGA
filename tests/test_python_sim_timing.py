@@ -1,10 +1,16 @@
-#!/bin/env dls-python
+#!/usr/bin/env python
+
+try:
+    from pkg_resources import require
+except ImportError:
+    pass
+else:
+    require("numpy")
 
 import sys
 import os
 import imp
 
-from pkg_resources import require
 import unittest
 
 from common.python.ini_util import read_ini, timing_entries
@@ -39,7 +45,6 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
 
         def runTest(self):
             # Load <block>_sim.py into common.python.<block>_sim
-            require("numpy")
             file, pathname, description = imp.find_module(
                 self.block_name + "_sim", [self.module_path])
             mod = imp.load_module(

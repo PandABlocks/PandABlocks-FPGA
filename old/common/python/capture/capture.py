@@ -1,4 +1,4 @@
-#!/bin/env dls-python
+#!/usr/bin/env python
 import sys, os, re
 import socket
 from xml.parsers.expat import errors, ErrorString
