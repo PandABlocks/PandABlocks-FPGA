@@ -1,0 +1,294 @@
+[.]
+description: Timing diagrams for PULSE block
+scope: pulse.block.ini
+
+
+[1 Pulse stretching with no delay activate on rising edge]
+1       : WIDTH_L=5
+2       : DELAY_L=0
+3       : TRIG_EDGE=0
+5       : ENABLE=1
+7       : TRIG=1
+8       :				-> QUEUED=1
+10      : TRIG=0
+12      :               -> QUEUED=0, OUT=1
+17      :               -> OUT=0
+
+
+[2 No delay means a WIDTH of 1 or more is required]
+1       : WIDTH_L=1, DELAY_L=0
+5       : ENABLE=1
+10      : TRIG=1
+11      :               -> QUEUED=1
+15      : TRIG=0        -> QUEUED=0, OUT=1
+16      :               -> OUT=0
+19      :               -> 
+20      : TRIG=1        -> 
+21      : TRIG=0        -> QUEUED=1
+25      :               -> QUEUED=0, OUT=1
+26      :               -> OUT=0
+30      : TRIG=1        ->
+31      :               -> QUEUED=1
+33      : TRIG=0        ->
+35      :               -> QUEUED=0, OUT=1
+36      :               -> OUT=0
+
+
+[3 Pulse delay with no stretch]
+1       : WIDTH_L=0
+2       : DELAY_L=10
+5       : ENABLE=1
+7       : TRIG=1
+8       :               -> QUEUED=1
+10      : TRIG=0
+11      :               -> QUEUED=2
+16      :               -> OUT=1
+17      :               -> QUEUED=1
+19      :               -> QUEUED=0, OUT=0
+
+
+[4 No WIDTH means a delay >6 is required]
+1       : DELAY_L=1, WIDTH_L=0
+5       : ENABLE=1
+10      : TRIG=1        ->
+11      :               -> QUEUED=1
+15      : TRIG=0        -> OUT=1
+16      :               -> QUEUED=1
+20      :               -> QUEUED=0, OUT=0
+30      : TRIG=1        ->
+31      :               -> QUEUED=1
+35      : TRIG=0        -> QUEUED=0, OUT=1
+36      :               -> QUEUED=1
+40      :               -> QUEUED=0, OUT=0
+50      : TRIG=1        ->
+51      :               -> QUEUED=1
+55      : TRIG=0        -> QUEUED=0, OUT=1
+56      :               -> QUEUED=1
+60      :               -> QUEUED=0, OUT=0
+70      : TRIG=1        ->
+71      :               -> QUEUED=1
+75      : TRIG=0        -> QUEUED=0, OUT=1
+76      :               -> QUEUED=1
+80      :               -> QUEUED=0, OUT=0
+
+
+[5 Pulse delay and stretch]
+1       : WIDTH_L=10
+2       : DELAY_L=10
+5       : ENABLE=1
+7       : TRIG=1
+8       :               -> QUEUED=1
+13      : TRIG=0
+16      :               -> QUEUED=0, OUT=1
+26      :               -> OUT=0
+
+
+[6 Pulse train stretched and delayed]
+1       : WIDTH_L=5
+2       : DELAY_L=8
+5       : ENABLE=1
+14      : TRIG=1
+15      :               -> QUEUED=1
+16      : TRIG=0
+21      :               -> QUEUED=0, OUT=1
+26      :               -> OUT=0
+30      : TRIG=1
+31      :               -> QUEUED=1
+32      : TRIG=0
+37      :               -> QUEUED=0, OUT=1
+42      :               -> OUT=0
+
+
+[7 Small delay width combination]
+1       : WIDTH_L=5, DELAY_L=3, STEP_L=8
+5       : ENABLE=1
+10      : TRIG=1
+11      :               -> QUEUED=1
+14      : TRIG=0
+15      :               -> QUEUED=0, OUT=1
+20      :               -> OUT=0
+21      : TRIG=1
+22      :               -> QUEUED=1
+25      : TRIG=0
+26      :               -> QUEUED=0, OUT=1
+31      :               -> OUT=0
+32      : TRIG=1
+33      :               -> QUEUED=1
+36      : TRIG=0
+37      :               -> QUEUED=0, OUT=1
+42      :               -> OUT=0
+43      : TRIG=1
+44      :               -> QUEUED=1
+47      : TRIG=0
+48      :               -> QUEUED=0, OUT=1
+53      :               -> OUT=0
+
+
+[8 No delay or stretch]
+5       : ENABLE=1
+10      : TRIG=1
+11      :                -> QUEUED=1
+15      : TRIG=0         -> OUT=1
+16      :                -> QUEUED=1
+20      : TRIG=1         -> QUEUED=0, OUT=0
+21      :                -> QUEUED=1
+25      : TRIG=0         -> QUEUED=0, OUT=1
+26      :                -> QUEUED=1
+30      : TRIG=1         -> QUEUED=0, OUT=0
+31      :                -> QUEUED=1
+35      : TRIG=0         -> QUEUED=0, OUT=1
+36      :                -> QUEUED=1
+40      : TRIG=1         -> QUEUED=0, OUT=0
+41      :                -> QUEUED=1
+45      : TRIG=0         -> QUEUED=0, OUT=1
+46      :                -> QUEUED=1
+50      :                -> QUEUED=0, OUT=0
+
+
+[9 No delay or stretch]
+1       : TRIG_EDGE=1
+5       : ENABLE=1
+10      : TRIG=1
+11      :                -> QUEUED=1
+15      : TRIG=0         -> OUT=1
+16      :                -> QUEUED=1
+20      : TRIG=1         -> QUEUED=0, OUT=0
+21      :                -> QUEUED=1
+25      : TRIG=0         -> QUEUED=0, OUT=1
+26      :                -> QUEUED=1
+30      : TRIG=1         -> QUEUED=0, OUT=0
+31      :                -> QUEUED=1
+35      : TRIG=0         -> QUEUED=0, OUT=1
+36      :                -> QUEUED=1
+40      : TRIG=1         -> QUEUED=0, OUT=0
+41      :                -> QUEUED=1
+45      : TRIG=0         -> QUEUED=0, OUT=1
+46      :                -> QUEUED=1
+50      : TRIG=0         -> QUEUED=0, OUT=0
+
+
+[10 Pulse stretching with no delay activate on falling edge]
+1       : WIDTH_L=5
+2       : DELAY_L=0
+3       : TRIG_EDGE=1
+5       : ENABLE=1
+7       : TRIG=1
+9       : TRIG=0
+10      :               -> QUEUED=1
+14      :               -> QUEUED=0, OUT=1
+19      :               -> OUT=0
+
+
+[11 Pulse stretching with no delay activate on both edges]
+1       : WIDTH_L=5
+2       : DELAY_L=0
+3       : TRIG_EDGE=2
+5       : ENABLE=1
+7       : TRIG=1        ->
+8       :               -> QUEUED=1
+12      :               -> QUEUED=0, OUT=1
+17      :               -> OUT=0
+21      : TRIG=0        ->
+22      :               -> QUEUED=1
+26      :               -> QUEUED=0, OUT=1
+31      :               -> OUT=0
+
+
+[12 Stretched and delayed pulses too close together]
+1       : WIDTH_L=5
+2       : DELAY_L=12
+5       : ENABLE=1
+14      : TRIG=1
+15      :               -> QUEUED=1
+16      : TRIG=0
+18      : TRIG=1
+19      :               -> QUEUED=2
+21      : TRIG=0
+25      :               -> QUEUED=1, OUT=1
+27      : TRIG=1        -> DROPPED=1
+30      :               -> OUT=0
+31      :               -> QUEUED=0, OUT=1
+33      : TRIG=0
+36      :               -> OUT=0
+46      : ENABLE=0
+
+
+[13 No pulses if disabled]
+1       : DELAY_L=8
+4       : TRIG=1
+8       : ENABLE=1
+9       : TRIG=0
+10      :               -> QUEUED=1
+12      : TRIG=1
+13      :               -> QUEUED=2
+14      : TRIG=0
+15      :               -> QUEUED=3
+17      :               -> QUEUED=2, OUT=0
+18      : TRIG=1
+19      :               -> QUEUED=2, OUT=1
+20      : TRIG=0        -> QUEUED=1
+21      :               -> QUEUED=2, OUT=0
+24      :               -> 
+25      :               -> QUEUED=1, OUT=1
+26      :               -> QUEUED=0
+27      :               -> OUT=0
+30      : TRIG=1
+31      :               -> QUEUED=1
+32      : TRIG=0
+33      :               -> QUEUED=2
+37      :               -> QUEUED=1, OUT=1
+38      :               -> QUEUED=0
+39      :               -> OUT=0
+
+
+[14 Multiple pulses with no delay]
+1       : WIDTH_L=5
+2       : DELAY_L=0
+3       : STEP_L=9
+4       : PULSES=3
+5       : ENABLE=1
+7       : TRIG=1        ->
+8       : TRIG=0        -> QUEUED=1
+9       : TRIG=1
+10      : TRIG=0        -> QUEUED=2
+12      :               -> QUEUED=1, OUT=1
+17      :               -> OUT=0
+21      :               -> OUT=1
+26      :               -> OUT=0
+29      : TRIG=1        -> DROPPED=1
+30      :               -> OUT=1
+35      :               -> OUT=0
+36      : TRIG=0        -> QUEUED=0, ENABLE=0
+
+
+[15 Multiple pulses with no width]
+1       : WIDTH_L=0
+2       : DELAY_L=5
+3       : STEP_L=9
+4       : PULSES=3
+5       : ENABLE=1
+7       : TRIG=1
+10      : TRIG=0
+11      :               -> QUEUED=1
+15      :               -> QUEUED=0, OUT=1
+18      :               -> OUT=0
+24      :               -> OUT=1
+27      :               -> OUT=0
+33      :               -> OUT=1
+36      :               -> OUT=0
+
+
+[16 Multiple pulses interrupted]
+1       : WIDTH_L=0
+2       : DELAY_L=5
+3       : STEP_L=9
+4       : PULSES=3
+5       : ENABLE=1
+7       : TRIG=1
+10      : TRIG=0
+11      :               -> QUEUED=1
+15      :               -> QUEUED=0, OUT=1
+18      :               -> OUT=0
+22      : ENABLE=0
+25      : TRIG=1
+27      : TRIG=0

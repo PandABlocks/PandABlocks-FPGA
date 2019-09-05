@@ -389,7 +389,7 @@ begin
 
                 if (TRIG_EDGE(1 downto 0) = c_number_one) then
                     if (trig_fall = '1' and had_falling_trigger = '0') then
-                        had_rising_trigger <= '1';
+                        had_falling_trigger <= '1';
                     elsif (trig_rise = '1' and had_falling_trigger = '1') then
                         had_falling_trigger <= '0';
 
