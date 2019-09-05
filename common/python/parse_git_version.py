@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 """
 Generate FPGA version like 0.1.0c9 from git describe like 0.1-9-g5539563-dirty
 """

@@ -3,7 +3,7 @@
 #
 #####################################################################
 
-RUNVIVADO = source $(VIVADO) && vivado
+RUNVIVADO = . $(VIVADO) && vivado
 
 include $(TOP)/VERSION
 
