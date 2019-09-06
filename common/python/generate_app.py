@@ -132,7 +132,7 @@ class AppGenerator(object):
                 block.register_addresses(self.counters)
                 self.fpga_blocks.append(block)
         suffixblocks = []
-        self.server_blocks = self.fpga_blocks
+        self.server_blocks = copy.deepcopy(self.fpga_blocks)
         for block in self.server_blocks:
             if block.block_suffixes:
                 for suffix in block.block_suffixes:
@@ -140,6 +140,7 @@ class AppGenerator(object):
                     suffixblock = copy.deepcopy(block)
                     suffixblock.name = name
                     suffixblock.block_suffixes = []
+                    suffixblock.block_address = 'S' + str(block.block_address)
                     othersuffixfield = []
                     for field in suffixblock.fields:
                         if suffix in field.name:
