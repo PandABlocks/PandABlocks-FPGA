@@ -3,33 +3,14 @@
 {% for block in blocks %}
 {# block is a BlockConfig object #}
 {# insert its name and block base address #}
-    {% if block.block_suffixes %}
-        {% for suffix in block.block_suffixes %}
-{{ pad(block.name + "_" + suffix) }} S{{ block.block_address }}{%
-        if block.extension %} {{ block.extension }}{% endif %}
-
-            {% for field in block.fields %}
-            {# field is a FieldConfig object #}
-            {# ask it for its register addresses within the block base address #}
-                {% if "." in field.name and suffix in field.name %}
-    {{ pad(suffix_split(field.name)[1]) }} {{ field.address_line() }}
-                {% elif "." not in field.name %}
-    {{ pad(field.name) }} {{ field.address_line() }}
-                {% endif %}
-            {% endfor %}
-            {# insert a blank line between blocks for readability #}
-
-        {% endfor %}
-    {% else %}
 {{ pad(block.name) }} {{ block.block_address }}{%
         if block.extension %} {{ block.extension }}{% endif %}
 
-        {% for field in block.fields %}
-        {# field is a FieldConfig object #}
-        {# ask it for its register addresses within the block base address #}
+    {% for field in block.fields %}
+    {# field is a FieldConfig object #}
+    {# ask it for its register addresses within the block base address #}
     {{ pad(field.name) }} {{ field.address_line() }}
-        {% endfor %}
-        {# insert a blank line between blocks for readability #}
+    {% endfor %}
+    {# insert a blank line between blocks for readability #}
 
-    {% endif %}
 {% endfor %}

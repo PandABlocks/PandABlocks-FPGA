@@ -1,29 +1,12 @@
 {% for block in blocks %}
 {# block is a BlockConfig object #}
 {# insert its name and description #}
-    {% if block.block_suffixes %}
-        {% for suffix in block.block_suffixes %}
-{{ pad(block.name + "_" + suffix) }} {{ block.description }}
-            {% for field in block.fields %}
-    {# field is a FieldConfig object #}
-    {# insert its name and description #}
-                {% if "." in field.name and suffix in field.name %}
-    {{ pad(suffix_split(field.name)[1]) }} {{ field.description }}
-                {% elif "." not in field.name %}
-    {{ pad(field.name) }} {{ field.description }}
-                {% endif %}
-            {% endfor %}
-    {# insert a blank line between blocks for readability #}
-
-        {% endfor %}
-    {% else %}
 {{ pad(block.name) }} {{ block.description }}
-        {% for field in block.fields %}
+    {% for field in block.fields %}
     {# field is a FieldConfig object #}
     {# insert its name and description #}
     {{ pad(field.name) }} {{ field.description }}
-        {% endfor %}
+    {% endfor %}
     {# insert a blank line between blocks for readability #}
 
-    {% endif %}
 {% endfor %}
