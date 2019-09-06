@@ -26,7 +26,7 @@
 # there is no way around it.
 # -------------------------------------------------------------------
 # BUFGMUX
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets ps/processing_system7_0/inst/FCLK_CLK0]
+#set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets ps/processing_system7_0/inst/FCLK_CLK0]
 
 #set_property LOC BUFGCTRL_X0Y16 [get_cells mmcm_clkmux_inst/BUFGMUX_inst]
 #set_property LOC BUFGCTRL_X0Y15 [get_cells mmcm_clkmux_inst/eventr_BUFGMUX_inst]

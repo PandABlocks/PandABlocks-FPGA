@@ -166,51 +166,6 @@ port map (
     IRQ_STATUS          => IRQ_STATUS
 );
 
---------------------------------------------------------------------------
--- Position Capture DMA Engine
---------------------------------------------------------------------------
-pcap_dma_inst : entity work.pcap_dma
-port map (
-    clk_i                   => clk_i,
-
-    DMA_RESET               => DMA_RESET,
-    DMA_INIT                => DMA_START,
-    DMA_ADDR                => DMA_ADDR,
-    DMA_ADDR_WSTB           => DMA_ADDR_WSTB,
-    TIMEOUT                 => TIMEOUT,
-    TIMEOUT_WSTB            => TIMEOUT_WSTB,
-    IRQ_STATUS              => IRQ_STATUS,
-    BLOCK_SIZE              => BLOCK_SIZE,
-
-    pcap_done_i             => pcap_done,
-    pcap_status_i           => pcap_status,
-    dma_error_o             => dma_error,
-    pcap_dat_i              => pcap_dat,
-    pcap_wstb_i             => pcap_dat_valid,
-    irq_o                   => pcap_irq_o,
-
-    m_axi_awready           => m_axi_awready,
-    m_axi_awregion          => m_axi_awregion,
-    m_axi_awaddr            => m_axi_awaddr,
-    m_axi_awvalid           => m_axi_awvalid,
-    m_axi_awburst           => m_axi_awburst,
-    m_axi_awcache           => m_axi_awcache,
-    m_axi_awid              => m_axi_awid,
-    m_axi_awlen             => m_axi_awlen,
-    m_axi_awlock            => m_axi_awlock,
-    m_axi_awprot            => m_axi_awprot,
-    m_axi_awqos             => m_axi_awqos,
-    m_axi_awsize            => m_axi_awsize,
-    m_axi_bid               => m_axi_bid,
-    m_axi_bready            => m_axi_bready,
-    m_axi_bresp             => m_axi_bresp,
-    m_axi_bvalid            => m_axi_bvalid,
-    m_axi_wready            => m_axi_wready,
-    m_axi_wdata             => m_axi_wdata,
-    m_axi_wvalid            => m_axi_wvalid,
-    m_axi_wlast             => m_axi_wlast,
-    m_axi_wstrb             => m_axi_wstrb
-);
 
 end rtl;
 

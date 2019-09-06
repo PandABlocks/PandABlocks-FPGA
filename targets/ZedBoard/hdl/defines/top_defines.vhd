@@ -35,8 +35,8 @@ constant BBUSW              : natural := 128;
 constant BBUSBW             : natural := 7;
 
 -- Position Bus Width, Multiplexer Select Width.
-constant PBUSW              : natural := 1;
-constant PBUSBW             : natural := 0;
+constant PBUSW              : natural := 32;
+constant PBUSBW             : natural := 5;
 
 -- Extended Position Bus Width.
 constant EBUSW              : natural := 12;

@@ -10,7 +10,6 @@ RUNVIVADO = source $(VIVADO) && vivado
 
 BUILD_DIR = $(APP_BUILD_DIR)/FPGA
 AUTOGEN  = $(APP_BUILD_DIR)/autogen
-SLOW_FPGA_BUILD_DIR = $(TGT_BUILD_DIR)/SlowFPGA
 IP_DIR = $(TGT_BUILD_DIR)/ip_repo
 PS_DIR = $(TGT_BUILD_DIR)/panda_ps
 PS_CORE  = $(PS_DIR)/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
@@ -43,7 +42,7 @@ IMAGE_DIR=$(TGT_BUILD_DIR)/boot_images
 #####################################################################
 # BUILD TARGETS includes HW and SW
 fpga-all: fpga-bits ps_boot
-fpga-bits: slow_fpga carrier_fpga
+fpga-bits: carrier_fpga
 carrier_ip: $(IP_DIR)
 ps_core: $(PS_CORE)
 ps_boot: devicetree fsbl
@@ -90,21 +89,6 @@ carrier_fpga : $(TOP_BUILD_SCR) VERSION $(IP_DIR) $(PS_CORE)
 	  -tclargs $(PS_CORE) \
 	  -tclargs $(TOP_MODE)
 .PHONY: carrier_fpga
-
-###########################################################
-# Build SlowFPGA Firmware target
-
-slow_fpga: $(TARGET_DIR)/SlowFPGA/SlowFPGA.make VERSION $(TOP)/tools/virtexHex2Bin
-	mkdir -p $(SLOW_FPGA_BUILD_DIR)
-	echo building SlowFPGA
-	source $(ISE)  &&  \
-	  $(MAKE) -C $(SLOW_FPGA_BUILD_DIR) -f $< \
-	  TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA AUTOGEN=$(AUTOGEN) \
-	  mcs
-.PHONY: slow_fpga
-
-$(TOP)/tools/virtexHex2Bin: $(TOP)/tools/virtexHex2Bin.c
-	gcc -o $@ $<
 
 ################################################################
 # Build PS Boot targets
