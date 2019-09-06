@@ -1,12 +1,17 @@
-#!/bin/env dls-python
+#!/usr/bin/env python
 """
 Generate build/<app> from <app>.app.ini
 """
+try:
+    from pkg_resources import require
+except ImportError:
+    pass
+else:
+    require("jinja2")
+
 import os
 from argparse import ArgumentParser
-from pkg_resources import require
 
-require("jinja2")
 from jinja2 import Environment, FileSystemLoader
 
 from .compat import TYPE_CHECKING

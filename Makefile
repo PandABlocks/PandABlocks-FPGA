@@ -2,6 +2,8 @@
 
 TOP := $(CURDIR)
 
+# Need bash for the source command in Xilinx settings64.sh
+SHELL = /bin/bash
 
 # The following symbols MUST be defined in the CONFIG file before being used.
 PANDA_ROOTFS = $(error Define PANDA_ROOTFS in CONFIG file)
@@ -171,7 +173,7 @@ hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
-	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace \
+	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
 	 -source ../../tests/hdl/regression_tests.tcl -tclargs $(MODULE)
 
 # Make the hdl_timing folders and run a single test, set TEST argument
@@ -181,7 +183,7 @@ single_hdl_test: $(TIMING_BUILD_DIRS)
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
-	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace \
+	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
 	 -source ../../tests/hdl/single_test.tcl -tclargs $(TEST)
 
 # Make the hdl_timing folders without running tests
@@ -223,7 +225,7 @@ ifdef SKIP_FPGA_BUILD
 	touch $@
 else
 	echo building SlowFPGA
-	source $(ISE)  &&  \
+	. $(ISE)  &&  \
         $(MAKE) -C $(dir $@) -f $(TARGET_DIR)/SlowFPGA/Makefile \
             TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA mcs \
             BUILD_DIR=$(dir $@)

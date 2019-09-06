@@ -380,13 +380,15 @@ create_ip -name ila -vendor xilinx.com -library ip -version 5.1 \
 
 set_property -dict [list \
     CONFIG.C_DATA_DEPTH {2048}  \
-    CONFIG.C_PROBE12_WIDTH {16} \
-    CONFIG.C_PROBE11_WIDTH {2}  \
-    CONFIG.C_PROBE10_WIDTH {16} \
-    CONFIG.C_PROBE6_WIDTH {16}  \
-    CONFIG.C_PROBE5_WIDTH {2}   \
-    CONFIG.C_PROBE4_WIDTH {2}   \
-    CONFIG.C_NUM_OF_PROBES {13} \
+    CONFIG.C_PROBE7_WIDTH {32}  \
+    CONFIG.C_PROBE6_WIDTH {6}   \
+    CONFIG.C_PROBE5_WIDTH {32}  \
+    CONFIG.C_PROBE4_WIDTH {32}  \
+    CONFIG.C_PROBE3_WIDTH {32}  \
+    CONFIG.C_PROBE2_WIDTH {32}  \
+    CONFIG.C_PROBE1_WIDTH {32}  \
+    CONFIG.C_PROBE0_WIDTH {32}  \
+    CONFIG.C_NUM_OF_PROBES {8}  \
     CONFIG.C_TRIGOUT_EN {false} \
     CONFIG.C_TRIGIN_EN {false}  \
 ] [get_ips ila_0]

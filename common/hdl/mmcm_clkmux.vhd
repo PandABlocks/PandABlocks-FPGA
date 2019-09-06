@@ -7,9 +7,9 @@ use unisim.vcomponents.all;
 
 entity mmcm_clkmux is
 port (fclk_clk0_ps_i      : in  std_logic;
-      sma_clk_in1         : in  std_logic;
+      sma_clk_i           : in  std_logic;
       rxoutclk_i          : in  std_logic;
-      ext_clock_i         : in  std_logic_vector(1 downto 0);
+      clk_sel_i           : in  std_logic_vector(1 downto 0);
       linkup_i            : in  std_logic;
       sma_pll_locked_o    : out std_logic;
       clk_sel_stat_o      : out std_logic_vector(1 downto 0);
@@ -30,19 +30,14 @@ signal sma_pll_locked       : std_logic;
 signal sma_clkfbout         : std_logic;
 signal sma_clkfbout_buf     : std_logic;
 signal sma_clk_out1         : std_logic;
-signal enable_sma_clock     : std_logic;
-signal enable_mgt_clock     : std_logic;
-signal sma_fclk             : std_logic;
+signal enable_sma_clk     : std_logic;
+signal enable_mgt_clk     : std_logic;
 signal fclk_clk             : std_logic;
+signal secondary_mux_out    : std_logic;
+signal primary_mux_sel      : std_logic;
 
 
 begin
-
-
-fclk_clk0_o <= fclk_clk;
-
-sma_pll_locked_o <= sma_pll_locked;
-
 
 ---------------------------------------------------------------------------
 -- SMA (external clock) PLL reset
@@ -96,7 +91,7 @@ plle2_adv_inst : PLLE2_ADV
         CLKOUT5             => open,
         -- Input clock control
         CLKFBIN             => sma_clkfbout_buf,
-        CLKIN1              => sma_clk_in1,
+        CLKIN1              => sma_clk_i,
         CLKIN2              => '0',
         -- Tied to always select the primary input clock
         CLKINSEL            => '1',
@@ -129,53 +124,38 @@ clkf_buf : BUFG
 -- Panda clock switching
 ---------------------------------------------------------------------------
 
--- enable_sma_clock (ext_clock(0)) = 0 fclk_clk0_ps_i (PS 125MHz clock)
--- enable_sma_clock (ext_clock(0)) = 1 sma_clk (external clock)
-BUFGMUX_inst :BUFGMUX
+
+-- Primary mux switches between primary clock (PS FCLK 125 MHz) and 
+-- output form the secondary clock mux
+-- MUX sel checks for PLL lock and MGT link-up
+
+enable_sma_clk <= sma_pll_locked and clk_sel_i(0);
+enable_mgt_clk <= linkup_i and clk_sel_i(1);
+primary_mux_sel <= enable_sma_clk or enable_mgt_clk;
+
+primary_clkmux: BUFGMUX
     port map (
-        O   => sma_fclk,
-        I0  => fclk_clk0_ps_i,
-        I1  => sma_clk_out1,
-        S   => enable_sma_clock
+        O => fclk_clk,
+        I0 => fclk_clk0_ps_i,
+        I1 => secondary_mux_out,
+        S => primary_mux_sel
 );
 
-enable_sma_clock <= sma_pll_locked and ext_clock_i(0);
----------------------------------------------------------------------------
+-- Secondary mux switches between external sma clock and mgt recovered clock.
+-- Secondary MUX select checks for MGT link-up.
 
--- Enable the selection of the external clock only if the PLL
--- is locked on to the external clock
--- ext_clock and sma_pll_locked crossing clock domains but they
--- aren't dynamically changing so didn't bother with double registering
---ps_sma_clk: process(fclk_clk0_ps_i)
---begin
---    if rising_edge(fclk_clk0_ps_i)then
---        if ext_clock_i(0) = '1' and sma_pll_locked = '1' then
---           enable_sma_clock <= '1';
---        else
---            enable_sma_clock <= '0';
---        end if;
---    end if;
---end process ps_sma_clk;
-
-
-
----------------------------------------------------------------------------
--- Panda  event receiver clock switching
----------------------------------------------------------------------------
-
-enable_mgt_clock <= linkup_i and ext_clock_i(1);
-
--- ext_clock(1) = 0 sma_fclk (either sma or ps 125MHz clocks)
--- ext_clock(1) = 1 rxoutclk (mgt data recovered clock)
-eventr_BUFGMUX_inst :BUFGMUX
+secondary_clkmux : BUFGMUX
     port map (
-        O   => fclk_clk,
-        I0  => sma_fclk,
-        I1  => rxoutclk_i,
-        S   => enable_mgt_clock
+        O => secondary_mux_out,
+        I0 => sma_clk_out1,
+        I1 => rxoutclk_i,
+        S => enable_mgt_clk
 );
 
-clk_sel_stat_o <= enable_mgt_clock & enable_sma_clock;
+-- Assign outputs
 
+clk_sel_stat_o <= enable_mgt_clk & enable_sma_clk;
+fclk_clk0_o <= fclk_clk;
+sma_pll_locked_o <= sma_pll_locked;
 
 end architecture rtl;
