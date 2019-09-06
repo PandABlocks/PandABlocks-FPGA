@@ -200,11 +200,6 @@ SLOW_FPGA_FILE = $(SLOW_FPGA_BUILD_DIR)/slow_top.bin
 FPGA_DEPENDS =
 
 SLOW_FPGA_DEPENDS =
-SLOW_FPGA_DEPENDS += tools/virtexHex2Bin
-
-tools/virtexHex2Bin: tools/virtexHex2Bin.c
-	gcc -o $@ $<
-
 
 $(FPGA_FILE): $(AUTOGEN_BUILD_DIR) $(FPGA_DEPENDS)
 	mkdir -p $(dir $@)
@@ -227,7 +222,7 @@ else
 	echo building SlowFPGA
 	. $(ISE)  &&  \
         $(MAKE) -C $(dir $@) -f $(TARGET_DIR)/SlowFPGA/Makefile \
-            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA mcs \
+            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA bin \
             BUILD_DIR=$(dir $@)
 endif
 
