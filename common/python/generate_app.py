@@ -179,7 +179,8 @@ class AppGenerator(object):
         """Generate config, registers, descriptions in config_d"""
         config_dir = os.path.join(self.app_build_dir, "config_d")
         os.makedirs(config_dir)
-        context = jinja_context(blocks=self.server_blocks, app=self.app_name)        # Create usage file
+        context = jinja_context(server_blocks=self.server_blocks,
+                                app=self.app_name)        # Create usage file
         vars = RegisterCounter.__dict__.copy()
         vars.update(self.counters.__dict__)
         usage = """####################################
@@ -212,9 +213,8 @@ class AppGenerator(object):
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
         os.makedirs(hdl_dir)
         # Create a wrapper for every block
-        blocks = self.fpga_blocks
-        for block in blocks:
-            context = jinja_context(blocks=blocks)
+        for block in self.fpga_blocks:
+            context = jinja_context(fgpa_blocks=self.fpga_blocks)
             for k in dir(block):
                 context[k] = getattr(block, k)
             if block.type in "soft|dma":
@@ -251,13 +251,12 @@ class AppGenerator(object):
         register_blocks = []
         # SFP blocks can have the same register definitions as they have
         # the same entity
-        blocks = self.fpga_blocks
-        for block in blocks:
+        for block in self.fpga_blocks:
             if block.entity not in block_names:
                 register_blocks.append(block)
                 block_names.append(block.entity)
         context = jinja_context(
-            blocks=blocks,
+            fpga_blocks=self.fpga_blocks,
             sfp_sites=self.sfp_sites,
             fmc_sites=self.fmc_sites,
             carrier_bit_bus_length=carrier_bit_bus_length,
@@ -290,7 +289,7 @@ class AppGenerator(object):
                 self.expand_template(
                     const, context, const_dir, out_fname, block.module_path)
         context = jinja_context(
-            blocks=self.fpga_blocks,
+            fpga_blocks=self.fpga_blocks,
             os=os,
             ips=ips)
         self.expand_template("constraints.tcl.jinja2", context, const_dir,
