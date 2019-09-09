@@ -132,25 +132,36 @@ class AppGenerator(object):
                 block.register_addresses(self.counters)
                 self.fpga_blocks.append(block)
         suffixblocks = []
+        # Copy the fpga_blocks to the server blocks. Most blocks will be the
+        # same between the two, however the block suffixes blocks
+        # (they share a block address) need some differences.
+        # fpga_blocks will be used in fpga templates and server_blocks will be
+        # used within the config blocks.
         self.server_blocks = copy.deepcopy(self.fpga_blocks)
         for block in self.server_blocks:
             if block.block_suffixes:
+                # A new block is created for each of the block suffixes
                 for suffix in block.block_suffixes:
-                    name = block.name + "_" + suffix
                     suffixblock = copy.deepcopy(block)
-                    suffixblock.name = name
+                    suffixblock.name = block.name + "_" + suffix
+                    # There are no block_suffixes on the new server blocks
                     suffixblock.block_suffixes = []
+                    # The block address is preceded with 'S' as it is shared
                     suffixblock.block_address = 'S' + str(block.block_address)
                     othersuffixfield = []
                     for field in suffixblock.fields:
+                        # If the suffix is in this field name, the suffix is
+                        # removed. Otherwise this field is for the other suffix.
                         if suffix in field.name:
                             field.name = suffix_split(field.name)[1]
                         else:
                             othersuffixfield.append(field)
+                    # Remove the fields for the other suffix
                     for field in othersuffixfield:
                         suffixblock.fields.remove(field)
                     self.server_blocks.append(suffixblock)
                 suffixblocks.append(block)
+        # Remove the original blocks from the server_blocks list
         for block in suffixblocks:
             self.server_blocks.remove(block)
 
@@ -203,16 +214,14 @@ class AppGenerator(object):
         # Create a wrapper for every block
         blocks = self.fpga_blocks
         for block in blocks:
-            if block.block_suffixes:
-                for field in block.fields:
-                    if "." in field.name:
-                        field.name = suffix_split(field.name)[0] + "_" + \
-                                     suffix_split(field.name)[1]
             for field in block.fields:
+                # Change field names to remove "." and add "_". This is used to
+                # remove any block_suffix.
+                if "." in field.name:
+                    field.name = field.name.replace(".", "_")
                 for register in field.numbered_registers():
                     if "." in register.name:
-                        register.name = suffix_split(register.name)[0] + "_" + \
-                                        suffix_split(register.name)[1]
+                        register.name = register.name.replace(".", "_")
             context = jinja_context(blocks=blocks)
             for k in dir(block):
                 context[k] = getattr(block, k)
