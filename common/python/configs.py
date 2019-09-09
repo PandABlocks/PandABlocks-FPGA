@@ -17,11 +17,6 @@ def pad(name, spaces=19):
     return name.ljust(spaces)
 
 
-def suffix_split(name):
-    """From a suffixed field name, get the name"""
-    return name.split(".", 1)
-
-
 def all_subclasses(cls):
     """Recursively find all the subclasses of cls"""
     ret = []
@@ -182,7 +177,7 @@ class RegisterConfig(object):
     def __init__(self, name, number=-1, prefix='', extension=''):
         # type: (str, int, str, str) -> None
         #: The name of the register, like INPA_DLY
-        self.name = name
+        self.name = name.replace('.', '_')
         #: The register number relative to Block, like 9
         self.number = number
         # String to be written before the register
@@ -196,7 +191,7 @@ class BusEntryConfig(object):
     def __init__(self, name, bus, index):
         # type: (str, str, int) -> None
         #: The name of the register, like INPA_DLY
-        self.name = name
+        self.name = name.replace('.', '_')
         #: The bus the output is on, like bit
         self.bus = bus
         #: The bus index, like 5
