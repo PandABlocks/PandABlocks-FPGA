@@ -16,6 +16,7 @@ install:
   - pwd
   - ls
   - pip install -r tests/requirements.txt
+  - pip install -r docs/requirements.txt
   - ls -al ${VIRTUAL_ENV}/lib/python${TRAVIS_PYTHON_VERSION}/site-packages
   - ls -al ${VIRTUAL_ENV}/bin
   - git clone https://github.com/PandABlocks/PandABlocks-rootfs.git $HOME/PandABlocks/PandABlocks-rootfs
