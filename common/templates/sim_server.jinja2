@@ -29,7 +29,7 @@ from common.python.simulations import \
 # Create as much of the controller before we daemonise so that errors can be
 # caught if possible at this stage.
 controller = SimulationController(args.verbose)
-{% for block in server_blocks %}
+{% for block in fpga_blocks %}
 controller.create_block("{{ block.ini_path }}", {{ block.number }}, {{ block.block_address }})
 {% endfor %}
 server = SimulationServer(controller)
