@@ -421,10 +421,10 @@ class PcapSimulation(BlockSimulation):
             self.ACTIVE = 0
         # Added the below for reseting the stored data when pcap is disarmed
         for entry in self.capture_entries:
-            if 0xf & self.WRITE:
-                entry.data = 0
-            else:
+            if 0xf & self.WRITE == VALUE:
                 entry.data = -1
+            else:
+                entry.data = 0
 
     def do_enable(self, ts):
         self.ts_enable = ts
