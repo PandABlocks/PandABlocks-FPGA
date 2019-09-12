@@ -256,9 +256,9 @@ scope: pulse.block.ini
 21      :               -> OUT=1
 26      :               -> OUT=0
 29      : TRIG=1        -> DROPPED=1
-30      :               -> OUT=1
+30      : TRIG=0        -> OUT=1
 35      :               -> OUT=0
-36      : TRIG=0        -> QUEUED=0, ENABLE=0
+36      : ENABLE=0      -> QUEUED=0
 
 
 [15 Multiple pulses with no width]
