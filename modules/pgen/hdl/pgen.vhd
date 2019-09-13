@@ -67,7 +67,6 @@ end component;
 
 type state_t is (IDLE, WAIT_FIFO, DMA_REQ, DMA_READ, IS_FINISHED, FINISHED);
 signal pgen_fsm         : state_t;
-
 signal reset            : std_logic;
 signal TABLE_WORDS      : unsigned(31 downto 0);
 
@@ -94,6 +93,9 @@ signal dma_addr         : unsigned(31 downto 0);
 
 signal dma_underrun     : std_logic;
 signal table_end        : std_logic;
+
+signal active           : std_logic := '0';
+
 
 begin
 
@@ -141,7 +143,7 @@ end process;
 
 -- Trigger pulse pops data from fifo and tick data counter when block
 -- is enabled and table is ready.
-trig_pulse <= (trig_i and not trig) and enable_i and table_ready;
+trig_pulse <= (trig_i and not trig) and active and table_ready;
 enable_fall <= not enable_i and enable;
 
 --
@@ -179,7 +181,6 @@ process(clk_i) begin
                         table_cycle <= table_cycle + 1;
                         count <= TABLE_WORDS;
                         dma_addr <= unsigned(TABLE_ADDRESS);
-                        ACTIVE_o <= '1';
                         pgen_fsm <= WAIT_FIFO;
                     end if;
 
@@ -233,9 +234,6 @@ process(clk_i) begin
                     count <= (others => '0');
                     dma_addr <= (others => '0');
                     dma_len <= (others => '0');
-                    if (fifo_empty = '1') then
-                        ACTIVE_o <= '0';
-                    end if;         
             end case;
         end if;
     end if;
@@ -273,6 +271,10 @@ process(clk_i) begin
         end if;
     end if;
 end process;
+
+active <= enable and not fifo_empty;
+
+ACTIVE_o <= active;
 
 end rtl;
 
