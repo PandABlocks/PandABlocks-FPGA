@@ -55,7 +55,7 @@ architecture rtl of pcap_core is
 
 
 constant c_cap_to_close : std_logic_vector(1 downto 0) := "01";
-constant c_dma_full             : std_logic_vector(1 downto 0) := "10";
+constant c_dma_full     : std_logic_vector(1 downto 0) := "10";
 constant c_health_ok    : std_logic_vector(1 downto 0) := "00";
 
 signal gate             : std_logic;
@@ -157,8 +157,8 @@ port map (
 
 -- HEALTH(31 downto 2) <= (others => '0');
 HEALTH(1 downto 0) <= c_cap_to_close when pcap_status(1) = '1' else
-                                          c_dma_full when pcap_status(2) = '1' else
-                                          c_health_ok;
+                      c_dma_full when pcap_status(2) = '1' else
+                      c_health_ok;
 
 
 end rtl;
