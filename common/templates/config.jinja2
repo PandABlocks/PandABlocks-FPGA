@@ -3,51 +3,26 @@
     DESIGN              string
     LAYOUT              multiline
     EXPORTS             multiline
-{% for block in blocks %}
+{% for block in server_blocks %}
     {# Make a label for holding the block description #}
     {% for i in range(block.number) %}
     {{ pad("LABEL_%s%d" % (block.name, i + 1)) }} string
     {% endfor %}
 {% endfor %}
 
-{% for block in blocks %}
+{% for block in server_blocks %}
 {# block is a BlockConfig object #}
 {# insert its name and the number of block instances in this app #}
-    {% if block.block_suffixes %}
-        {% for suffix in block.block_suffixes %}
-{{ block.name }}_{{ suffix }}[{{ block.number }}]
-            {% for field in block.fields %}
-    {# field is a FieldConfig object #}
-    {# insert its name and type (including subtype and options) #}
-                {% if "." not in field.name%}
-    {{ pad(field.name) }} {{ field.config_line() }}
-                    {% for line in field.extra_config_lines %}
-        {# some fields line enum and table have extra lines, insert them here #}
-        {{ line }}
-                    {% endfor %}
-                {% elif suffix in field.name %}
-    {{ pad(suffix_split(field.name)[1]) }} {{ field.config_line() }}
-                 {% for line in field.extra_config_lines %}
-        {# some fields line enum and table have extra lines, insert them here #}
-        {{ line }}
-                    {% endfor %}
-                {% endif %}
-            {% endfor %}
-    {# insert a blank line between blocks for readability #}
-
-        {% endfor %}
-    {% else %}
 {{ block.name }}[{{ block.number }}]
-        {% for field in block.fields %}
+    {% for field in block.fields %}
     {# field is a FieldConfig object #}
     {# insert its name and type (including subtype and options) #}
     {{ pad(field.name) }} {{ field.config_line() }}
-            {% for line in field.extra_config_lines %}
+        {% for line in field.extra_config_lines %}
         {# some fields line enum and table have extra lines, insert them here #}
         {{ line }}
-            {% endfor %}
-    {# insert a blank line between blocks for readability #}
         {% endfor %}
+    {% endfor %}
+    {# insert a blank line between blocks for readability #}
 
-    {% endif %}
 {% endfor %}

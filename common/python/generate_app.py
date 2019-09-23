@@ -15,8 +15,9 @@ from argparse import ArgumentParser
 from jinja2 import Environment, FileSystemLoader
 
 from .compat import TYPE_CHECKING
-from .configs import BlockConfig, pad, suffix_split, RegisterCounter
+from .configs import BlockConfig, pad, RegisterCounter
 from .ini_util import read_ini, ini_get
+import copy
 
 if TYPE_CHECKING:
     from typing import List
@@ -27,8 +28,7 @@ TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 
 
 def jinja_context(**kwargs):
-    context = dict(pad=pad,
-                   suffix_split=suffix_split)
+    context = dict(pad=pad)
     context.update(kwargs)
     return context
 
@@ -57,7 +57,8 @@ class AppGenerator(object):
         # Start from base register 2 to allow for *REG and *DRV spaces
         self.counters = RegisterCounter(block_count = 2)
         # These will be created when we parse the ini files
-        self.blocks = []  # type: List[BlockConfig]
+        self.fpga_blocks = []  # type: List[BlockConfig]
+        self.server_blocks = []  # type: List[BlockConfig]
         self.sfp_sites = 0
         self.fmc_sites = 0
         self.parse_ini_files(app)
@@ -128,7 +129,41 @@ class AppGenerator(object):
                 # for carrier block
                 block = BlockConfig(section, type, number, ini_path, sfp_site)
                 block.register_addresses(self.counters)
-                self.blocks.append(block)
+                self.fpga_blocks.append(block)
+                # Copy the fpga_blocks to the server blocks. Most blocks will
+                # be the same between the two, however the block suffixes blocks
+                # (they share a block address) need some differences.
+                # Fpga_blocks will be used in fpga templates and server_blocks
+                # will be used within the config blocks.
+                if block.block_suffixes:
+                    for field in block.fields:
+                        # Change field names to remove "." and add "_". This is
+                        # used to remove any block_suffix.
+                        if "." in field.name:
+                            field.name = field.name.replace(".", "_")
+                    # A new block is created for each of the block suffixes
+                    for suffix in block.block_suffixes:
+                        suffixblock = copy.deepcopy(block)
+                        suffixblock.name = block.name + "_" + suffix
+                        # There are no block_suffixes on the new server blocks
+                        # suffixblock.block_suffixes = []
+                        # The block address is preceded with 'S' as it is shared
+                        suffixblock.block_address = 'S' + \
+                                                    str(block.block_address)
+                        othersuffixfield = []
+                        for field in suffixblock.fields:
+                            # If the suffix is in this field name, the suffix is
+                            # removed. Otherwise this field is for other suffix.
+                            if suffix in field.name:
+                                field.name = field.name.split('_')[1]
+                            else:
+                                othersuffixfield.append(field)
+                        # Remove the fields for the other suffix
+                        for field in othersuffixfield:
+                            suffixblock.fields.remove(field)
+                        self.server_blocks.append(suffixblock)
+                else:
+                    self.server_blocks.append(block)
 
     def expand_template(self, template_name, context, out_dir, out_fname,
                         template_dir=None):
@@ -144,8 +179,9 @@ class AppGenerator(object):
         """Generate config, registers, descriptions in config_d"""
         config_dir = os.path.join(self.app_build_dir, "config_d")
         os.makedirs(config_dir)
-        context = jinja_context(blocks=self.blocks, app=self.app_name)
-        # Create usage file
+        context = jinja_context(server_blocks=self.server_blocks,
+                                app=self.app_name,
+                                fpga_blocks=self.fpga_blocks)  # Create usage file
         vars = RegisterCounter.__dict__.copy()
         vars.update(self.counters.__dict__)
         usage = """####################################
@@ -178,19 +214,8 @@ class AppGenerator(object):
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
         os.makedirs(hdl_dir)
         # Create a wrapper for every block
-        blocks = self.blocks
-        for block in blocks:
-            if block.block_suffixes:
-                for field in block.fields:
-                    if "." in field.name:
-                        field.name = suffix_split(field.name)[0] + "_" + \
-                                     suffix_split(field.name)[1]
-            for field in block.fields:
-                for register in field.numbered_registers():
-                    if "." in register.name:
-                        register.name = suffix_split(register.name)[0] + "_" + \
-                                        suffix_split(register.name)[1]
-            context = jinja_context(blocks=blocks)
+        for block in self.fpga_blocks:
+            context = jinja_context(fgpa_blocks=self.fpga_blocks)
             for k in dir(block):
                 context[k] = getattr(block, k)
             if block.type in "soft|dma":
@@ -208,7 +233,7 @@ class AppGenerator(object):
         total_pos_bus_length = 0
         # Start carrier_mod_count at 1 for REG and DRV blocks.
         carrier_mod_count = 2
-        for block in self.blocks:
+        for block in self.fpga_blocks:
             if block.type == "fmc":
                 assert self.fmc_sites > 0, "No FMC on Carrier"
             if block.type in "carrier|pcap":
@@ -227,18 +252,12 @@ class AppGenerator(object):
         register_blocks = []
         # SFP blocks can have the same register definitions as they have
         # the same entity
-        blocks = self.blocks
-        for block in blocks:
+        for block in self.fpga_blocks:
             if block.entity not in block_names:
                 register_blocks.append(block)
                 block_names.append(block.entity)
-            for field in block.fields:
-                for register in field.numbered_registers():
-                    if "." in register.name:
-                        register.name = suffix_split(register.name)[0] + "_" + \
-                                        suffix_split(register.name)[1]
         context = jinja_context(
-            blocks=blocks,
+            fpga_blocks=self.fpga_blocks,
             sfp_sites=self.sfp_sites,
             fmc_sites=self.fmc_sites,
             carrier_bit_bus_length=carrier_bit_bus_length,
@@ -260,7 +279,7 @@ class AppGenerator(object):
         const_dir = os.path.join(self.app_build_dir, "const")
         os.makedirs(const_dir)
         ips = []
-        for block in self.blocks:
+        for block in self.fpga_blocks:
             for ip in block.ip:
                 if ip not in ips:
                     ips.append(ip)
@@ -270,10 +289,7 @@ class AppGenerator(object):
                 out_fname = "%s_%s" % (block.name, os.path.basename(const))
                 self.expand_template(
                     const, context, const_dir, out_fname, block.module_path)
-        context = jinja_context(
-            blocks=self.blocks,
-            os=os,
-            ips=ips)
+        context = jinja_context(fpga_blocks=self.fpga_blocks, os=os, ips=ips)
         self.expand_template("constraints.tcl.jinja2", context, const_dir,
                              "constraints.tcl")
 

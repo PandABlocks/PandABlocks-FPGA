@@ -13,7 +13,7 @@ package addr_defines is
 still need to be given Chip Select values. #}
     constant REG_CS : natural := 0;
     constant DRV_CS : natural := 1;
-{% for block in blocks %}
+{% for block in fpga_blocks %}
     constant {{ block.name|upper }}_CS : natural := {{ block.block_address }};
     {% if loop.last %}
 
@@ -24,7 +24,7 @@ still need to be given Chip Select values. #}
 {% endfor %}
 
 -- Block instantiation
-{% for block in blocks %}
+{% for block in fpga_blocks %}
     constant {{ block.name|upper }}_NUM : natural := {{ block.number }};
 {% endfor %}
 
