@@ -35,6 +35,7 @@ class TimingCsv(object):
         self.lines = [header]
 
     def add_line(self, values):
+        for_next_ts = {}
         for i in self.header:
             # For any wstb signals set to '0'
             if "_wstb" in i or "ARM" in i or "DISARM" in i or "START_WRITE" in i:
@@ -58,7 +59,11 @@ class TimingCsv(object):
             # If the changes signal has a wstb, set wstb to '1'
             if k+"_wstb" in self.header:
                 self.values[k + "_wstb"] = str(1)
+                for_next_ts["TS"] = str(int(self.values["TS"]) + 1)
         self.lines.append([self.values[k]for k in self.header])
+        if for_next_ts:
+            for_next_ts["TS"] = str(int(self.values["TS"]) + 1)
+        return for_next_ts
 
     def write(self, f):
         for line in self.lines:
@@ -152,45 +157,39 @@ class HdlTimingGenerator(object):
             # which will reset any wstb signals to '0'. If there are no wstb
             # signals there will still be a new line but with no differences,
             # unless there are other changes to the input
-            if for_next_ts and str(ts) == for_next_ts["TS"]:
-                # Merge this with the inputs
-                for_next_ts.update(inputs)
-                csv.add_line(for_next_ts)
-                # Add line in case of wstb signals
-                for_next_ts = {"TS": str(ts + 1)}
-
-            elif for_next_ts and inputs:
-                # If input change at other TS, update outputs then inputs
-                csv.add_line(for_next_ts)
-                inputs["TS"] = str(ts)
-                csv.add_line(inputs)
-                # Add line in case of wstb signals
-                for_next_ts = {"TS": str(ts + 1)}
-
-            elif for_next_ts:
-                # If no input change update outputs
-                csv.add_line(for_next_ts)
-
-            elif inputs:
+            if for_next_ts:
+                # First handle outputs from last ts, then any changing wstbs
+                for _ in range(2):
+                    # Check if we can insert this before the next ts
+                    if for_next_ts and for_next_ts["TS"] != str(ts):
+                        # If there were write strobes that need resetting before
+                        # this line then do so
+                        for_next_ts = csv.add_line(for_next_ts)
+            # Now we should either have something with the same ts, or
+            # it should be blank
+            if for_next_ts:
+                assert str(ts) == for_next_ts["TS"], \
+                    "Expected %s to have ts %s" % (for_next_ts, ts)
+                inputs.update(for_next_ts)
+                for_next_ts = {}
+            # Handle inputs
+            if inputs:
                 # For each timing entry provide the inputs
                 inputs["TS"] = str(ts)
-                csv.add_line(inputs)
-                # In case of wstb signals, make a line for the next ts
-                for_next_ts = {"TS": str(ts + 1)}
-
+                for_next_ts = csv.add_line(inputs)
             # Now update the values to be the outputs to output next clock
             # tick
             if outputs:
-                for_next_ts = {"TS": str(ts + 1)}
+                for_next_ts["TS"] = str(ts + 1)
                 for_next_ts.update(outputs)
-            elif not inputs:
-                for_next_ts = {}
-        # Last line for outputs
-        if for_next_ts:
-            csv.add_line(for_next_ts)
-            csv.add_line({"TS": str(ts + 2)})
-        else:
-            csv.add_line({"TS": str(ts + 1)})
+        # First handle outputs from last ts, then any changing wstbs
+        for _ in range(2):
+            # Check if we can insert this before the next ts
+            if for_next_ts:
+                # If there were write strobes that need resetting before
+                # this line then do so
+                for_next_ts = csv.add_line(for_next_ts)
+        assert not for_next_ts, "Why do we still have %s?" % str(for_next_ts)
         # File name needs to be unique to the test
         expected_csv = "%d%sexpected.csv" % (i, block.entity)
         with open(os.path.join(timing_dir, expected_csv), "w") as f:
