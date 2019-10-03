@@ -80,6 +80,7 @@ signal fancy_delay_line_started : std_logic := '0';
 
 signal got_pulse                : std_logic := '0';
 
+signal had_enable_trigger       : std_logic := '0';
 signal had_falling_trigger      : std_logic := '0';
 signal had_rising_trigger       : std_logic := '0';
 
@@ -98,6 +99,7 @@ signal start_delay_countdown    : std_logic := '0';
 signal trig_fall                : std_logic := '0';
 signal trig_rise                : std_logic := '0';
 signal trig_same                : std_logic := '0';
+signal trig_i_prev              : std_logic := '0';
 
 signal value                    : std_logic := '0';
 
@@ -207,12 +209,9 @@ width_i <=  unsigned(WIDTH);
 
 
 -- Calculate the minimum gap given all the other parameters
-process(clk_i, enable_i)
+process(clk_i)
 begin
-    if (rising_edge(enable_i)) then
-        gap_i <= (others => '0');
-        width_i_prev <= (others => '1');
-    elsif (rising_edge(clk_i) and enable_i = '1') then
+    if (rising_edge(clk_i)) then
         width_i_prev <= width_i;
 
         if (width_i /= width_i_prev or step_i /= step_i_prev) then
@@ -227,15 +226,12 @@ end process;
 
 
 -- Calculate the minimum step given all the other parameters
-process(clk_i, enable_i)
+process(clk_i)
 begin
-    if (rising_edge(enable_i)) then
-        step_i <= (others => '0');
-        step_i_prev <= (others => '1');
-    elsif (rising_edge(clk_i) and enable_i = '1') then
+    if (rising_edge(clk_i)) then
         step_i_prev <= step_i;
 
-        if (width_i /= width_i_prev) then
+        if (width_i /= width_i_prev or step_i /= step_i_prev) then
             if (unsigned(STEP) > width_i) then
                 step_i <= unsigned(STEP);
             else
@@ -253,25 +249,47 @@ process(clk_i, enable_i)
 begin
     if (rising_edge(enable_i)) then
         timestamp <= (others => '0');
-    elsif (rising_edge(clk_i) and enable_i = '1') then
+    end if;
+
+    if (rising_edge(clk_i) and enable_i = '1') then
         timestamp <= timestamp + 1;
     end if;
 end process;
 
 
 -- Free running edge watcher
-process(clk_i, trig_i)
+
+-- Nested, clocked, statements not supported - will have to revert to previous methodology
+-- Comparing the status of the previous clock cycle!
+process(clk_i)
 begin
     if (rising_edge(clk_i)) then
         trig_fall <= '0';
         trig_rise <= '0';
-        trig_same <= '1';
-    elsif (falling_edge(trig_i)) then
-        trig_fall <= '1';
         trig_same <= '0';
-    elsif (rising_edge(trig_i)) then
-        trig_rise <= '1';
-        trig_same <= '0';
+
+        -- Detect the current edge state, if differrent
+        if ((trig_i = '0') and (trig_i /= trig_i_prev)) then
+            trig_fall <= '1';
+        elsif ((trig_i = '1') and (trig_i /= trig_i_prev)) then
+            trig_rise <= '1';
+        elsif (trig_i = trig_i_prev) then
+            trig_same <= '1';
+        end if;
+
+        trig_i_prev <= trig_i;        
+    end if;
+end process;
+
+
+process(enable_i)
+begin
+    if (rising_edge(enable_i)) then
+        had_enable_trigger <= '1';
+    end if;
+
+    if (not rising_edge(enable_i)) then
+        had_enable_trigger <= '0';
     end if;
 end process;
 
@@ -281,7 +299,9 @@ process(clk_i, enable_i)
 begin
     if (rising_edge(enable_i)) then
         delay_remaining <= (others => '0');
-    elsif (rising_edge(clk_i) and enable_i = '1') then
+    end if;
+
+    if (rising_edge(clk_i) and enable_i = '1') then
         if (delay_remaining /= 0) then
             delay_remaining <= delay_remaining - 1;
         elsif ((start_delay_countdown = '1') and (pulse_queued_empty = '1')) then
@@ -302,121 +322,124 @@ end process;
 -- Filling the queue
 process(clk_i, enable_i)
 begin
-    if (rising_edge(enable_i)) then
-        -- In case of a reset we'll need to reset these values from this process
-        fancy_delay_line_started <= '0';
+    if(rising_edge(clk_i)) then
+        if (had_enable_trigger = '1') then
+            -- In case of a reset we'll need to reset these values from this process
+            fancy_delay_line_started <= '0';
 
-        had_rising_trigger <= '0';
-        had_falling_trigger <= '0';
-
-        missed_pulses <= (others => '0');
-        
-        pulse_queued_din <= (others => '0');
-        pulse_queued_reset <= '1';
-        pulse_queued_wstb <= '0';
-        
-        start_delay_countdown <= '0';
-
-        timestamp_rise <= (others => '0');
-        timestamp_fall <= (others => '0');
-
-        value <= '0';
-
-    elsif (rising_edge(clk_i) and enable_i = '1') then
-        -- Bits that need resetting every clock cycle
-        pulse_queued_reset <= '0';
-        pulse_queued_wstb <= '0';
-        value <= '0';
-        start_delay_countdown <= '0';
-
-        if (trig_rise = '1') then
-            timestamp_rise <= timestamp;
-        elsif (trig_fall = '1') then
-            timestamp_fall <= timestamp;
-        end if;
-
-        if (waiting_for_delay = '0') then
-            had_falling_trigger <= '0';
             had_rising_trigger <= '0';
+            had_falling_trigger <= '0';
+
+            missed_pulses <= (others => '0');
+            
+            pulse_queued_din <= (others => '0');
+            pulse_queued_reset <= '1';
+            pulse_queued_wstb <= '0';
+            
+            start_delay_countdown <= '0';
+
+            timestamp_rise <= (others => '0');
+            timestamp_fall <= (others => '0');
+
+            value <= '0';
         end if;
 
-        if (dropped_flag = '1') then
-            missed_pulses <= missed_pulses + 1;
-        end if;
+        if (enable_i = '1') then
+            -- Bits that need resetting every clock cycle
+            pulse_queued_reset <= '0';
+            pulse_queued_wstb <= '0';
+            value <= '0';
+            start_delay_countdown <= '0';
 
-        -- If check to make sure that we should be storing this event at all
-        if (trig_same /= '1') then
-            -- First up, event rejection criteria:
-            -- 1)   Queue full condition flags an error, and ticks missing pulse counter
-            -- 2)   Pulse period must obey Xilinx FIFO IP latency following the first pulse
-            -- 3)   Can't accept more pulses if we're processing them already
-            if (fancy_delay_line_started = '0' and (pulse_queued_full = '1' or waiting_for_delay = '0' or edges_remaining /= 0)) then
-                if(((TRIG_EDGE(1 downto 0) = c_number_zero) and (trig_rise = '1')) or
-                   ((TRIG_EDGE(1 downto 0) = c_number_one) and (trig_fall = '1')) or
-                    (TRIG_EDGE(1 downto 0) = c_number_two)) then
-                        missed_pulses <= missed_pulses + 1;
-                end if;
+            if (trig_rise = '1') then
+                timestamp_rise <= timestamp;
+            elsif (trig_fall = '1') then
+                timestamp_fall <= timestamp;
+            end if;
 
-            -- Next, if we have a width (i.e. no timestamp maths required)
-            elsif (width_i /= 0) then
-                if(((TRIG_EDGE(1 downto 0) = c_number_zero) and (trig_rise = '1')) or
-                   ((TRIG_EDGE(1 downto 0) = c_number_one) and (trig_fall = '1')) or
-                    (TRIG_EDGE(1 downto 0) = c_number_two)) then
-                        pulse_queued_din <= '1' & std_logic_vector(width_i);
-                        pulse_queued_wstb <= '1';
+            if (waiting_for_delay = '0') then
+                had_falling_trigger <= '0';
+                had_rising_trigger <= '0';
+            end if;
 
-                        start_delay_countdown <= '1';
-                end if;
+            if (dropped_flag = '1') then
+                missed_pulses <= missed_pulses + 1;
+            end if;
 
-            -- If we have a step but no width
-            elsif (width_i = 0 and unsigned(STEP) /= 0) then
-                if (TRIG_EDGE(1 downto 0) = c_number_zero) then
-                    if (trig_rise = '1' and had_rising_trigger = '0') then
-                        had_rising_trigger <= '1';
-                    elsif (trig_fall = '1' and had_rising_trigger = '1') then
-                        had_rising_trigger <= '0';
-
-                        if (timestamp_fall - timestamp_rise > 2) then
-                            pulse_queued_din <= '0' & std_logic_vector(timestamp - timestamp_rise);
-                        else
-                            pulse_queued_din <= '0' & std_logic_vector(c_two_ticks);
-                        end if;
-
-                        pulse_queued_wstb <= '1';
-                        start_delay_countdown <= '1';
+            -- If check to make sure that we should be storing this event at all
+            if (trig_same /= '1') then
+                -- First up, event rejection criteria:
+                -- 1)   Queue full condition flags an error, and ticks missing pulse counter
+                -- 2)   Pulse period must obey Xilinx FIFO IP latency following the first pulse
+                -- 3)   Can't accept more pulses if we're processing them already
+                if (fancy_delay_line_started = '0' and (pulse_queued_full = '1' or waiting_for_delay = '0' or edges_remaining /= 0)) then
+                    if(((TRIG_EDGE(1 downto 0) = c_number_zero) and (trig_rise = '1')) or
+                       ((TRIG_EDGE(1 downto 0) = c_number_one) and (trig_fall = '1')) or
+                        (TRIG_EDGE(1 downto 0) = c_number_two)) then
+                            missed_pulses <= missed_pulses + 1;
                     end if;
-                end if;
 
-                if (TRIG_EDGE(1 downto 0) = c_number_one) then
-                    if (trig_fall = '1' and had_falling_trigger = '0') then
-                        had_falling_trigger <= '1';
-                    elsif (trig_rise = '1' and had_falling_trigger = '1') then
-                        had_falling_trigger <= '0';
+                -- Next, if we have a width (i.e. no timestamp maths required)
+                elsif (width_i /= 0) then
+                    if(((TRIG_EDGE(1 downto 0) = c_number_zero) and (trig_rise = '1')) or
+                       ((TRIG_EDGE(1 downto 0) = c_number_one) and (trig_fall = '1')) or
+                        (TRIG_EDGE(1 downto 0) = c_number_two)) then
+                            pulse_queued_din <= '1' & std_logic_vector(width_i);
+                            pulse_queued_wstb <= '1';
 
-                        if (timestamp_rise - timestamp_fall > 2) then
-                            pulse_queued_din <= '0' & std_logic_vector(timestamp - timestamp_fall);
-                        else
-                            pulse_queued_din <= '0' & std_logic_vector(c_two_ticks);
-                        end if;
-
-                        pulse_queued_wstb <= '1';
-                        start_delay_countdown <= '1';
+                            start_delay_countdown <= '1';
                     end if;
-                end if;
 
-            -- If we have no step and no width
-            elsif ((width_i = 0) and (unsigned(STEP) = 0)) then
-                if (fancy_delay_line_started = '0') then
-                    start_delay_countdown <= '1';
-                    fancy_delay_line_started <= '1';
-                end if;
+                -- If we have a step but no width
+                elsif (width_i = 0 and unsigned(STEP) /= 0) then
+                    if (TRIG_EDGE(1 downto 0) = c_number_zero) then
+                        if (trig_rise = '1' and had_rising_trigger = '0') then
+                            had_rising_trigger <= '1';
+                        elsif (trig_fall = '1' and had_rising_trigger = '1') then
+                            had_rising_trigger <= '0';
 
-                if (trig_rise = '1') then
-                    pulse_queued_din <= '1' & std_logic_vector(timestamp + delay_i);
-                    pulse_queued_wstb <= '1';
-                elsif (trig_fall = '1') then
-                    pulse_queued_din <= '0' & std_logic_vector(timestamp + delay_i);
-                    pulse_queued_wstb <= '1';
+                            if (timestamp_fall - timestamp_rise > 2) then
+                                pulse_queued_din <= '0' & std_logic_vector(timestamp - timestamp_rise);
+                            else
+                                pulse_queued_din <= '0' & std_logic_vector(c_two_ticks);
+                            end if;
+
+                            pulse_queued_wstb <= '1';
+                            start_delay_countdown <= '1';
+                        end if;
+                    end if;
+
+                    if (TRIG_EDGE(1 downto 0) = c_number_one) then
+                        if (trig_fall = '1' and had_falling_trigger = '0') then
+                            had_falling_trigger <= '1';
+                        elsif (trig_rise = '1' and had_falling_trigger = '1') then
+                            had_falling_trigger <= '0';
+
+                            if (timestamp_rise - timestamp_fall > 2) then
+                                pulse_queued_din <= '0' & std_logic_vector(timestamp - timestamp_fall);
+                            else
+                                pulse_queued_din <= '0' & std_logic_vector(c_two_ticks);
+                            end if;
+
+                            pulse_queued_wstb <= '1';
+                            start_delay_countdown <= '1';
+                        end if;
+                    end if;
+
+                -- If we have no step and no width
+                elsif ((width_i = 0) and (unsigned(STEP) = 0)) then
+                    if (fancy_delay_line_started = '0') then
+                        start_delay_countdown <= '1';
+                        fancy_delay_line_started <= '1';
+                    end if;
+
+                    if (trig_rise = '1') then
+                        pulse_queued_din <= '1' & std_logic_vector(timestamp + delay_i);
+                        pulse_queued_wstb <= '1';
+                    elsif (trig_fall = '1') then
+                        pulse_queued_din <= '0' & std_logic_vector(timestamp + delay_i);
+                        pulse_queued_wstb <= '1';
+                    end if;
                 end if;
             end if;
         end if;
@@ -427,114 +450,117 @@ end process;
 -- Process to pass edges
 process(clk_i, enable_i)
 begin
-    if (rising_edge(enable_i)) then
-        dropped_flag <= '0';
+    if(rising_edge(clk_i)) then
+        if (had_enable_trigger = '1') then
+            dropped_flag <= '0';
 
-        edges_remaining <= (others => '0');
-        
-        got_pulse <= '0';
+            edges_remaining <= (others => '0');
+            
+            got_pulse <= '0';
 
-        pulse <= '0';
-        pulse_queued_rstb <= '0';
-        pulse_ts <= (others => '0');
-        pulse_width <= (others => '0');
-        pulse_value <= '0';
+            pulse <= '0';
+            pulse_queued_rstb <= '0';
+            pulse_ts <= (others => '0');
+            pulse_width <= (others => '0');
+            pulse_value <= '0';
 
-        waiting_for_delay <= '1';
-
-    elsif (rising_edge(clk_i) and enable_i = '1') then
-        dropped_flag <= '0';
-        pulse_queued_rstb <= '0';
-
-        if (fancy_delay_line_started = '0') then
-            if (delay_remaining = 1) then
-                waiting_for_delay <= '0';
-                pulse_queued_rstb <= '1';
-            else
-                if (pulse_queued_empty = '1' and (timestamp >= pulse_ts)) then
-                    waiting_for_delay <= '1';
-                end if;
-            end if;
-        else
-            if (delay_remaining = 1) then
-                waiting_for_delay <= '0';
-                pulse_ts <= queue_pulse_ts;
-                pulse_value <= queue_pulse_value;
-                got_pulse <= '1';
-            end if;
+            waiting_for_delay <= '1';
         end if;
 
-        --- If we're running as a fancy delay line
-        if ((width_i = 0) and (unsigned(STEP) = 0)) then
-            if (waiting_for_delay = '0') then
-                if (timestamp = (queue_pulse_ts - 2)) then
-                    if (pulse_queued_empty = '0') then
-                        pulse_queued_rstb <= '1';
-                    end if;
-                    
-                    if (queue_pulse_ts >= (timestamp + 2)) then
-                        pulse_ts <= queue_pulse_ts;
-                        pulse_value <= queue_pulse_value;
-                        got_pulse <= '1';
-                    end if;
-                elsif (timestamp = (queue_pulse_ts - 1)) then
-                    if (pulse_queued_empty = '0') then
-                        pulse_queued_rstb <= '1';
-                    end if;
-                    out_o <= pulse_value;
+        if (enable_i = '1') then
+            dropped_flag <= '0';
+            pulse_queued_rstb <= '0';
 
-                    if (got_pulse = '1') then
-                        got_pulse <= '0';
-                    else
-                        dropped_flag <= '1';
+            if (fancy_delay_line_started = '0') then
+                if (delay_remaining = 1) then
+                    waiting_for_delay <= '0';
+                    pulse_queued_rstb <= '1';
+                else
+                    if (pulse_queued_empty = '1' and (timestamp >= pulse_ts)) then
+                        waiting_for_delay <= '1';
                     end if;
+                end if;
+            else
+                if (delay_remaining = 1) then
+                    waiting_for_delay <= '0';
+                    pulse_ts <= queue_pulse_ts;
+                    pulse_value <= queue_pulse_value;
+                    got_pulse <= '1';
                 end if;
             end if;
 
-        --- Otherwise let's process some pulses
-        else
-            if (edges_remaining = 0) then
-                if (waiting_for_delay = '0' and (timestamp >= pulse_ts)) then
-                    if (width_i = 0 and unsigned(STEP) /= 0) then
-                        if ((signed(step_i) - signed(queue_pulse_ts)) > 1) then
-                            pulse_gap <= step_i - queue_pulse_ts;
+            --- If we're running as a fancy delay line
+            if ((width_i = 0) and (unsigned(STEP) = 0)) then
+                if (waiting_for_delay = '0') then
+                    if (timestamp = (queue_pulse_ts - 2)) then
+                        if (pulse_queued_empty = '0') then
+                            pulse_queued_rstb <= '1';
+                        end if;
+                        
+                        if (queue_pulse_ts >= (timestamp + 2)) then
+                            pulse_ts <= queue_pulse_ts;
+                            pulse_value <= queue_pulse_value;
+                            got_pulse <= '1';
+                        end if;
+                    elsif (timestamp = (queue_pulse_ts - 1)) then
+                        if (pulse_queued_empty = '0') then
+                            pulse_queued_rstb <= '1';
+                        end if;
+                        out_o <= pulse_value;
+
+                        if (got_pulse = '1') then
+                            got_pulse <= '0';
                         else
-                            pulse_gap <= (1 => '1', others => '0');
+                            dropped_flag <= '1';
+                        end if;
+                    end if;
+                end if;
+
+            --- Otherwise let's process some pulses
+            else
+                if (edges_remaining = 0) then
+                    if (waiting_for_delay = '0' and (timestamp >= pulse_ts)) then
+                        if (width_i = 0 and unsigned(STEP) /= 0) then
+                            if ((signed(step_i) - signed(queue_pulse_ts)) > 1) then
+                                pulse_gap <= step_i - queue_pulse_ts;
+                            else
+                                pulse_gap <= (1 => '1', others => '0');
+                            end if;
+
+                            pulse_width <= queue_pulse_ts;
+                        else
+                            pulse_gap <= gap_i;
+                            pulse_width <= queue_pulse_ts;
                         end if;
 
-                        pulse_width <= queue_pulse_ts;
-                    else
-                        pulse_gap <= gap_i;
-                        pulse_width <= queue_pulse_ts;
+                        edges_remaining <= unsigned(pulses_i) + unsigned(pulses_i) - 1;
+                        pulse_ts <= timestamp + queue_pulse_ts;
+                        pulse <= '1';
+                        out_o <= '1';
                     end if;
+                else
+                    if (timestamp = pulse_ts) then
+                        if (unsigned(edges_remaining mod 2) = 0) then
+                            edges_remaining <= edges_remaining - 1;
+                            pulse_ts <= timestamp + pulse_width;
+                            out_o <= not pulse;
+                            pulse <= not pulse;
+                        else
+                            edges_remaining <= edges_remaining - 1;
+                            pulse_ts <= timestamp + pulse_gap;
+                            out_o <= not pulse;
+                            pulse <= not pulse;
+                        end if;
 
-                    edges_remaining <= unsigned(pulses_i) + unsigned(pulses_i) - 1;
-                    pulse_ts <= timestamp + queue_pulse_ts;
-                    pulse <= '1';
-                    out_o <= '1';
-                end if;
-            else
-                if (timestamp = pulse_ts) then
-                    if (unsigned(edges_remaining mod 2) = 0) then
-                        edges_remaining <= edges_remaining - 1;
-                        pulse_ts <= timestamp + pulse_width;
-                        out_o <= not pulse;
-                        pulse <= not pulse;
-                    else
-                        edges_remaining <= edges_remaining - 1;
-                        pulse_ts <= timestamp + pulse_gap;
-                        out_o <= not pulse;
-                        pulse <= not pulse;
-                    end if;
-
-                    if (edges_remaining = 1) then
-                        pulse_queued_rstb <= '1';
+                        if (edges_remaining = 1) then
+                            pulse_queued_rstb <= '1';
+                        end if;
                     end if;
                 end if;
             end if;
+        elsif (enable_i = '0') then
+            out_o <= '0';
         end if;
-    elsif (rising_edge(clk_i) and enable_i = '0') then
-        out_o <= '0';
     end if;
 end process;
 

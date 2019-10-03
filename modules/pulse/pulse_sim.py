@@ -64,6 +64,7 @@ class PulseSimulation(BlockSimulation):
 	def start_delay(self, ts, delay):
 		if (self.delay_timestamp == 0):
 			self.delay_timestamp = ts + delay
+			self.first_word_dropthrough = 1
 
 
 	def programmed_step_to_queue(self, pulses, ts, delay, gap, step, width):
@@ -90,7 +91,7 @@ class PulseSimulation(BlockSimulation):
 	def ts_to_queue(self, changes, ts, delay):
 		self.internal_queue_length += 1
 
-		if (len(self.queue) != 0):
+		if (len(self.queue) == 0):
 			ts -= 1
 
 		self.do_queue(ts + delay, 2)
