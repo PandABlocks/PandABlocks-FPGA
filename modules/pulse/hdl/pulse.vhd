@@ -492,25 +492,22 @@ begin
             --- If we're running as a fancy delay line
             if ((width_i = 0) and (unsigned(STEP) = 0)) then
                 if (waiting_for_delay = '0') then
-                    if (timestamp = (queue_pulse_ts - 2)) then
-                        if (pulse_queued_empty = '0') then
-                            pulse_queued_rstb <= '1';
-                        end if;
-                        
-                        if (queue_pulse_ts >= (timestamp + 2)) then
-                            pulse_ts <= queue_pulse_ts;
-                            pulse_value <= queue_pulse_value;
-                            got_pulse <= '1';
-                        end if;
-                    elsif (timestamp = (queue_pulse_ts - 1)) then
-                        if (pulse_queued_empty = '0') then
-                            pulse_queued_rstb <= '1';
-                        end if;
+                    if (got_pulse = '1') then
                         out_o <= pulse_value;
+                        got_pulse <= '0';
 
-                        if (got_pulse = '1') then
-                            got_pulse <= '0';
-                        else
+                    elsif (timestamp = (queue_pulse_ts - 2)) then
+                        pulse_ts <= queue_pulse_ts;
+                        pulse_value <= queue_pulse_value;
+                        got_pulse <= '1';
+
+                        if (pulse_queued_empty = '0') then
+                            pulse_queued_rstb <= '1';
+                        end if;
+
+                    elsif (timestamp > queue_pulse_ts) then 
+                        if (pulse_queued_empty = '0') then
+                            pulse_queued_rstb <= '1';
                             dropped_flag <= '1';
                         end if;
                     end if;
