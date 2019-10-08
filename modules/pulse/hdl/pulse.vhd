@@ -76,15 +76,17 @@ constant c_two_ticks            : std_logic_vector(47 downto 0) := (1 => '1', ot
 
 signal dropped_flag             : std_logic := '0';
 
+signal enable_i_prev            : std_logic := '0';
+
 signal fancy_delay_line_started : std_logic := '0';
 
 signal got_pulse                : std_logic := '0';
 
-signal had_enable_trigger       : std_logic := '0';
 signal had_falling_trigger      : std_logic := '0';
 signal had_rising_trigger       : std_logic := '0';
 
 signal pulse                    : std_logic := '0';
+signal pulse_assertion_override : std_logic := '0';
 signal pulse_queued_empty       : std_logic := '0';
 signal pulse_queued_full        : std_logic := '0';
 signal pulse_queued_reset       : std_logic := '0';
@@ -197,41 +199,37 @@ STEP(47 downto 32) <= STEP_H(15 downto 0);
 delay_i <=  (unsigned(DELAY)) when (unsigned(DELAY) > 5) else
             (2 => '1', 1 => '1', others => '0');
 
+gap_i <=    step_i - width_i when ((signed(step_i) - signed(width_i)) > 1) else
+            (0 => '1', others => '0');
+
+
 -- Make sure that if we recieve a pulse and the PULSE variable is accidentally set to zero we don't punish a hapless user
 pulses_i <= unsigned(PULSES) when (unsigned(PULSES) /= 0) else
             (0 => '1', others => '0');
 
+
+step_i <=   unsigned(STEP) when (unsigned(STEP) > unsigned(WIDTH)) else
+            unsigned(STEP) + width_i + 1;
+
+
 -- Set an internal width value
 width_i <=  unsigned(WIDTH);
-
-
--- For those requiring mathematics
-
+          
 
 -- Calculate the minimum gap given all the other parameters
 process(clk_i)
 begin
     if (rising_edge(clk_i)) then
         width_i_prev <= width_i;
+        step_i_prev <= unsigned(STEP);
 
-        if (width_i /= width_i_prev or step_i /= step_i_prev) then
+        if ((width_i /= width_i_prev) or (unsigned(STEP) /= step_i_prev)) then
             if ((signed(step_i) - signed(width_i)) > 1) then
                 gap_i <= step_i - width_i;
             else
                 gap_i <= (0 => '1', others => '0');
             end if;
-        end if;
-    end if;
-end process;
 
-
--- Calculate the minimum step given all the other parameters
-process(clk_i)
-begin
-    if (rising_edge(clk_i)) then
-        step_i_prev <= step_i;
-
-        if (width_i /= width_i_prev or step_i /= step_i_prev) then
             if (unsigned(STEP) > width_i) then
                 step_i <= unsigned(STEP);
             else
@@ -244,15 +242,16 @@ end process;
 
 -- Code that runs inside process structures (i.e. code that runs in sequence with the blocks running in parallel)
 
+
 -- Free running global timestamp counter
 process(clk_i, enable_i)
 begin
-    if (rising_edge(enable_i)) then
-        timestamp <= (others => '0');
-    end if;
-
-    if (rising_edge(clk_i) and enable_i = '1') then
-        timestamp <= timestamp + 1;
+    if (rising_edge(clk_i)) then
+        if (enable_i = '1') then
+            timestamp <= timestamp + 1;
+        elsif ((enable_i_prev = '1') and (enable_i = '0')) then
+            timestamp <= (others => '0');
+        end if;
     end if;
 end process;
 
@@ -277,19 +276,8 @@ begin
             trig_same <= '1';
         end if;
 
-        trig_i_prev <= trig_i;        
-    end if;
-end process;
-
-
-process(enable_i)
-begin
-    if (rising_edge(enable_i)) then
-        had_enable_trigger <= '1';
-    end if;
-
-    if (not rising_edge(enable_i)) then
-        had_enable_trigger <= '0';
+        trig_i_prev <= trig_i;
+        enable_i_prev <= enable_i;
     end if;
 end process;
 
@@ -323,7 +311,7 @@ end process;
 process(clk_i, enable_i)
 begin
     if(rising_edge(clk_i)) then
-        if (had_enable_trigger = '1') then
+        if ((enable_i_prev = '0') and (enable_i = '1')) then
             -- In case of a reset we'll need to reset these values from this process
             fancy_delay_line_started <= '0';
 
@@ -451,7 +439,7 @@ end process;
 process(clk_i, enable_i)
 begin
     if(rising_edge(clk_i)) then
-        if (had_enable_trigger = '1') then
+        if ((enable_i_prev = '0') and (enable_i = '1')) then
             dropped_flag <= '0';
 
             edges_remaining <= (others => '0');
@@ -493,7 +481,7 @@ begin
             if ((width_i = 0) and (unsigned(STEP) = 0)) then
                 if (waiting_for_delay = '0') then
                     if (got_pulse = '1') then
-                        out_o <= pulse_value;
+                        pulse <= pulse_value;
                         got_pulse <= '0';
 
                     elsif (timestamp = (queue_pulse_ts - 2)) then
@@ -533,19 +521,16 @@ begin
                         edges_remaining <= unsigned(pulses_i) + unsigned(pulses_i) - 1;
                         pulse_ts <= timestamp + queue_pulse_ts;
                         pulse <= '1';
-                        out_o <= '1';
                     end if;
                 else
                     if (timestamp = pulse_ts) then
                         if (unsigned(edges_remaining mod 2) = 0) then
                             edges_remaining <= edges_remaining - 1;
                             pulse_ts <= timestamp + pulse_width;
-                            out_o <= not pulse;
                             pulse <= not pulse;
                         else
                             edges_remaining <= edges_remaining - 1;
                             pulse_ts <= timestamp + pulse_gap;
-                            out_o <= not pulse;
                             pulse <= not pulse;
                         end if;
 
@@ -556,9 +541,11 @@ begin
                 end if;
             end if;
         elsif (enable_i = '0') then
-            out_o <= '0';
+            pulse <= '0';
         end if;
     end if;
 end process;
+
+out_o <= pulse_assertion_override or pulse;
 
 end rtl;
