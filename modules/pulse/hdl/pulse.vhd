@@ -121,6 +121,7 @@ signal delay_i                  : unsigned(47 downto 0) := (others => '0');
 signal delay_remaining          : unsigned(47 downto 0) := (others => '0');
 
 signal edges_remaining          : unsigned(31 downto 0) := (others => '0');
+signal end_pulse_assertion_ts   : unsigned(47 downto 0) := (others => '0');
 
 signal gap_i                    : unsigned(47 downto 0) := (others => '0');
 
@@ -199,6 +200,7 @@ STEP(47 downto 32) <= STEP_H(15 downto 0);
 delay_i <=  (unsigned(DELAY)) when (unsigned(DELAY) > 5) else
             (2 => '1', 1 => '1', others => '0');
 
+
 gap_i <=    step_i - width_i when ((signed(step_i) - signed(width_i)) > 1) else
             (0 => '1', others => '0');
 
@@ -213,7 +215,8 @@ step_i <=   unsigned(STEP) when (unsigned(STEP) > unsigned(WIDTH)) else
 
 
 -- Set an internal width value
-width_i <=  unsigned(WIDTH);
+width_i <=  (unsigned(WIDTH)) when (unsigned(WIDTH) > 5) else
+            (2 => '1', 1 => '1', others => '0');
           
 
 -- Calculate the minimum gap given all the other parameters
@@ -270,10 +273,31 @@ begin
         -- Detect the current edge state, if differrent
         if ((trig_i = '0') and (trig_i /= trig_i_prev)) then
             trig_fall <= '1';
+
+            if(((TRIG_EDGE(1 downto 0) = c_number_one) or
+                (TRIG_EDGE(1 downto 0) = c_number_two)) and
+                (unsigned(DELAY) = 0)) then
+
+                pulse_assertion_override <= '1';
+            end if;
+
         elsif ((trig_i = '1') and (trig_i /= trig_i_prev)) then
             trig_rise <= '1';
+
+            if(((TRIG_EDGE(1 downto 0) = c_number_zero) or
+                (TRIG_EDGE(1 downto 0) = c_number_two)) and
+                (unsigned(DELAY) = 0)) then
+
+                pulse_assertion_override <= '1';
+                end_pulse_assertion_ts <= timestamp + 6;
+            end if;
+
         elsif (trig_i = trig_i_prev) then
             trig_same <= '1';
+        end if;
+
+        if (timestamp = end_pulse_assertion_ts) then
+            pulse_assertion_override <= '0';
         end if;
 
         trig_i_prev <= trig_i;
@@ -294,7 +318,7 @@ begin
             delay_remaining <= delay_remaining - 1;
         elsif ((start_delay_countdown = '1') and (pulse_queued_empty = '1')) then
             if (fancy_delay_line_started = '0') then
-                delay_remaining <= delay_i - 3;
+                delay_remaining <= delay_i - 4;
             else
                 if (delay_remaining = 6) then
                     delay_remaining <= delay_i - 4;
@@ -518,9 +542,21 @@ begin
                             pulse_width <= queue_pulse_ts;
                         end if;
 
-                        edges_remaining <= unsigned(pulses_i) + unsigned(pulses_i) - 1;
-                        pulse_ts <= timestamp + queue_pulse_ts;
-                        pulse <= '1';
+                        if (unsigned(DELAY) = 0) then
+                            pulse_ts <= timestamp + queue_pulse_ts - 5;
+                            
+                            if (timestamp >= (timestamp + queue_pulse_ts - 5)) then
+                                pulse <= '0';
+                                edges_remaining <= unsigned(pulses_i) + unsigned(pulses_i) - 2;
+                            else
+                                pulse <= '1';
+                                edges_remaining <= unsigned(pulses_i) + unsigned(pulses_i) - 1;
+                            end if;
+                        else
+                            edges_remaining <= unsigned(pulses_i) + unsigned(pulses_i) - 1;
+                            pulse_ts <= timestamp + queue_pulse_ts;
+                            pulse <= '1';
+                        end if;
                     end if;
                 else
                     if (timestamp = pulse_ts) then
