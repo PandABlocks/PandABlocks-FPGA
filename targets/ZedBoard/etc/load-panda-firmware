@@ -7,8 +7,6 @@
 
 # File locations
 carrier_firmware=/opt/share/panda-fpga/panda_top.bit
-slow_firmware=/opt/share/panda-fpga/slow_top.bin
-slow_load=/opt/bin/slow_load
 check_ipmi=/opt/bin/check_ipmi
 
 # This GPIO is used by PicoZed revision C to multiplex pins PS_MIO[15:9] between
@@ -34,7 +32,7 @@ configure_gpio_m0()
 }
 
 
-[ -e $carrier_firmware -a -e $slow_firmware ]  ||
+[ -e $carrier_firmware ]  ||
     fail "Firmware not installed"
 
 # Ensure I2C is accessible
@@ -45,4 +43,3 @@ $check_ipmi  &&
 
 # If FMC passes then load the carrier firmware
 cat $carrier_firmware >/dev/xdevcfg
-# Finally load the slow FPGA

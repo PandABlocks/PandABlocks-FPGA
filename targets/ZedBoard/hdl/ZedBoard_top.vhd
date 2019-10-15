@@ -52,6 +52,23 @@ port (
     FIXED_IO_ps_porb    : inout std_logic;
     FIXED_IO_ps_srstb   : inout std_logic;
 
+	
+	--Zedboard I/Os
+	btnR : in std_logic;
+	btnC : in std_logic;
+	btnD : in std_logic;
+	btnU : in std_logic;
+	oled_sdin : out std_logic := '0';
+	oled_sclk : out std_logic := '0';
+	oled_dc : out std_logic := '0';
+	oled_res : out std_logic := '0';
+	oled_vbat : out std_logic := '0';
+	oled_vdd : out std_logic := '0';
+	led : out std_logic_vector(7 downto 0) := X"aa";
+	SW : in std_logic_vector(7 downto 0);
+	
+
+	
     -- RS485 Channel 0 Encoder I/O
     --AM0_PAD_IO          : inout std_logic_vector(3 downto 0);
     --BM0_PAD_IO          : inout std_logic_vector(3 downto 0);
@@ -613,6 +630,37 @@ port map(
     --SFP3_i => SFP3_i,
     --SFP3_o => SFP3_o
 );
+
+
+zed_demo_inst : entity work.zedboard_demo_top
+port map(
+    clk_i => FCLK_CLK0,
+
+    read_strobe_i       => read_strobe(ZEDBOARD_DEMO_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(ZEDBOARD_DEMO_CS),
+    read_ack_o          => read_ack(ZEDBOARD_DEMO_CS),
+
+    write_strobe_i      => write_strobe(ZEDBOARD_DEMO_CS),
+    write_address_i     => write_address,
+    write_data_i        => write_data,
+    write_ack_o         => write_ack(ZEDBOARD_DEMO_CS),
+
+	btnR => btnR,
+	btnC => btnC,
+	btnD => btnD,
+	btnU => btnU,
+	oled_sdin => oled_sdin,
+	oled_sclk => oled_sclk,
+	oled_dc => oled_dc,
+	oled_res => oled_res,
+	oled_vbat => oled_vbat,
+	oled_vdd => oled_vdd,
+	led => led,
+	SW => SW
+);
+	
+	
 
 end rtl;
 

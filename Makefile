@@ -250,7 +250,7 @@ endif
 # ------------------------------------------------------------------------------
 # Build installation package
 
-ZPKG_LIST = etc/targets/$(TARGET)/panda-fpga.list
+ZPKG_LIST = targets/$(TARGET)/etc/panda-fpga.list
 ZPKG_VERSION = $(APP_NAME)-$(GIT_VERSION)
 ZPKG_FILE = $(BUILD_DIR)/panda-fpga@$(ZPKG_VERSION).zpg
 

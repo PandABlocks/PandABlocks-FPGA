@@ -69,25 +69,6 @@ generate_target all [get_files $BUILD_DIR/fifo_1K32_ft/fifo_1K32_ft.xci]
 synth_ip [get_ips fifo_1K32_ft]
 
 
-
-
-
-
-#
-# Create System FPGA Command FIFO
-#
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
--module_name system_cmd_fifo -dir $BUILD_DIR/
-
-set_property -dict [list \
-    CONFIG.Performance_Options {First_Word_Fall_Through} \
-    CONFIG.Input_Data_Width {42}    \
-    CONFIG.Output_Data_Width {42}   \
-] [get_ips system_cmd_fifo]
-
-generate_target all [get_files $BUILD_DIR/system_cmd_fifo/system_cmd_fifo.xci]
-synth_ip [get_ips system_cmd_fifo]
-
 #
 # Create Standard Asymmetric 1K, 32-bit(WR), 256-bit(RD) FIFO IP for ACQ430 FMC
 #
@@ -156,23 +137,6 @@ set_property -dict [list \
 generate_target all [get_files $BUILD_DIR/fmc_acq427_dac_fifo/fmc_acq427_dac_fifo.xci]
 synth_ip [get_ips fmc_acq427_dac_fifo]
 
-#
-# Create ILA IP (32-bit wide with 8K Depth)
-#
-create_ip -name ila -vendor xilinx.com -library ip -version 5.1 \
--module_name ila_32x8K -dir $BUILD_DIR/
-
-set_property -dict [list \
-    CONFIG.C_PROBE0_WIDTH {32}  \
-    CONFIG.C_DATA_DEPTH {8192}  \
-] [get_ips ila_32x8K]
-
-generate_target all [get_files $BUILD_DIR/ila_32x8K/ila_32x8K.xci]
-synth_ip [get_ips ila_32x8K]
-
-
-
-
 
 #
 # Create ILA chipscope
@@ -195,22 +159,72 @@ set_property -dict [list \
 generate_target all [get_files $BUILD_DIR/ila_0/ila_0.xci]
 synth_ip [get_ips ila_0]
 
+
 #
-# Create Memory
+# OLED display on ZedBoard
+# 
+
 create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.2 \
--module_name sfp_transmit_mem -dir $BUILD_DIR/
+-module_name charLib -dir $BUILD_DIR/
 
-set_property -dict [list                                                            \
-    CONFIG.Write_Depth_A {4096}                                                     \
-    CONFIG.Operating_Mode_A {READ_FIRST}                                            \
-    CONFIG.Load_Init_File {true}                                                    \
-    CONFIG.Coe_File $TARGET_DIR/../../tests/sim/sfp_receiver/mem/event_receiver_mem.coe \
-    CONFIG.Use_RSTA_Pin {false}                                                     \
-] [get_ips sfp_transmit_mem]
+set_property -dict [list \
+    CONFIG.Memory_Type {Single_Port_ROM} \
+    CONFIG.Write_Width_A {8} \
+    CONFIG.Write_Depth_A {1024} \
+    CONFIG.Enable_A {Always_Enabled} \
+    CONFIG.Load_Init_File {true} \
+    CONFIG.Coe_File $TARGET_DIR/etc/characterLib.coe \
+    CONFIG.Read_Width_A {8} \
+    CONFIG.Write_Width_B {8} \
+    CONFIG.Read_Width_B {8} \
+    CONFIG.Enable_B {Always_Enabled} \
+    CONFIG.Register_PortB_Output_of_Memory_Primitives {false} \
+    CONFIG.Port_A_Write_Rate {0} \
+    CONFIG.Port_B_Clock {0}\
+    CONFIG.Port_B_Enable_Rate {0} \
+] [get_ips charLib]
 
-generate_target all [get_files $BUILD_DIR/sfp_transmit_mem/sfp_transmit_mem.xci]
-synth_ip [get_ips sfp_transmit_mem]
+generate_target all [get_files $BUILD_DIR/charLib/charLib.xci]
+synth_ip [get_ips charLib]
 
+create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.2 \
+-module_name pixel_buffer -dir $BUILD_DIR/
+
+set_property -dict [list \
+    CONFIG.Memory_Type {Simple_Dual_Port_RAM} \
+    CONFIG.Assume_Synchronous_Clk {true} \
+    CONFIG.Write_Width_A {8} \
+    CONFIG.Write_Depth_A {512} \
+    CONFIG.Enable_A {Always_Enabled} \
+    CONFIG.Enable_B {Always_Enabled} \
+    CONFIG.Register_PortB_Output_of_Memory_Primitives {false} \
+    CONFIG.Read_Width_A {8} \
+    CONFIG.Operating_Mode_A {NO_CHANGE} \
+    CONFIG.Write_Width_B {8} \
+    CONFIG.Read_Width_B {8} \
+    CONFIG.Operating_Mode_B {READ_FIRST} \
+    CONFIG.Register_PortA_Output_of_Memory_Primitives {false} \
+    CONFIG.Port_B_Clock {100} \
+    CONFIG.Port_B_Enable_Rate {100} \
+] [get_ips pixel_buffer]
+
+generate_target all [get_files  $BUILD_DIR/pixel_buffer/pixel_buffer.xci]
+synth_ip [get_ips pixel_buffer]
+
+create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.2 \
+-module_name init_sequence_rom -dir $BUILD_DIR/
+
+set_property -dict [list \
+    CONFIG.Memory_Type {Single_Port_ROM} \
+    CONFIG.Enable_A {Always_Enabled} \
+    CONFIG.Register_PortA_Output_of_Memory_Primitives {false} \
+    CONFIG.Load_Init_File {true} \
+    CONFIG.Coe_File $TARGET_DIR/etc/init_sequence.coe \
+    CONFIG.Port_A_Write_Rate {0} \
+] [get_ips init_sequence_rom]
+
+generate_target all [get_files  $BUILD_DIR/init_sequence_rom/init_sequence_rom.xci]
+synth_ip [get_ips init_sequence_rom]
 
 # Close project if not gui mode
 if {[string match "gui" [string tolower $MODE]]} { return }
