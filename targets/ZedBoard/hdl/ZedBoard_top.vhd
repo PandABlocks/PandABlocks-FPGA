@@ -292,13 +292,7 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
 --    fclk_clk0_o         => FCLK_CLK0
 --);
 
---FCLK_CLK0 <= FCLK_CLK0_PS;
-
-gclkf_buf : BUFG
-    port map
-        (O => FCLK_CLK0,
-         I => FCLK_CLK0_PS
-); 
+FCLK_CLK0 <= FCLK_CLK0_PS;
 
 
 ---------------------------------------------------------------------------
@@ -471,18 +465,18 @@ port map (
 
     read_address_i      => read_address,
     read_strobe_i       => read_strobe,
-    --read_data_0_o       => read_data(PCAP_CS),
-    --read_ack_0_o        => read_ack(PCAP_CS),
-    read_data_0_o       => open,
-    read_ack_0_o        => open,
+    read_data_0_o       => read_data(PCAP_CS),
+    read_ack_0_o        => read_ack(PCAP_CS),
+    --read_data_0_o       => open,
+    --read_ack_0_o        => open,
     read_data_1_o       => read_data(DRV_CS),
     read_ack_1_o        => read_ack(DRV_CS),
 
     write_strobe_i      => write_strobe,
     write_address_i     => write_address,
     write_data_i        => write_data,
-    --write_ack_0_o       => write_ack(PCAP_CS),
-    write_ack_0_o       => open,
+    write_ack_0_o       => write_ack(PCAP_CS),
+    --write_ack_0_o       => open,
     write_ack_1_o       => write_ack(DRV_CS),
 
     bit_bus_i           => bit_bus,
@@ -570,7 +564,7 @@ port map (
 --                                   inenc_data & inenc_z & inenc_b & inenc_a &
 --                                   lvdsin_val & ttlin_val;
 
---bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active;
+bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active;
 
 --pos_bus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
 
@@ -603,12 +597,12 @@ port map(
     FCLK_RESET0 => FCLK_RESET0,
     read_strobe => read_strobe,
     read_address => read_address,
-    read_data => read_data(MOD_COUNT-1 downto 2),
-    read_ack => read_ack(MOD_COUNT-1 downto 2),
+    read_data => read_data(MOD_COUNT-1 downto CARRIER_MOD_COUNT+2),
+    read_ack => read_ack(MOD_COUNT-1 downto CARRIER_MOD_COUNT+2),
     write_strobe => write_strobe,
     write_address => write_address,
     write_data => write_data,
-    write_ack => write_ack(MOD_COUNT-1 downto 2),
+    write_ack => write_ack(MOD_COUNT-1 downto CARRIER_MOD_COUNT+2),
     bit_bus_i => bit_bus,
     bit_bus_o => bit_bus(127 downto BIT_BUS_SIZE),
     pos_bus_i => pos_bus,
