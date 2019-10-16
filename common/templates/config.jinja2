@@ -1,15 +1,16 @@
 *METADATA
+    APPNAME             constant ={{ app }}
     DESIGN              string
     LAYOUT              multiline
     EXPORTS             multiline
-{% for block in blocks %}
+{% for block in server_blocks %}
     {# Make a label for holding the block description #}
     {% for i in range(block.number) %}
     {{ pad("LABEL_%s%d" % (block.name, i + 1)) }} string
     {% endfor %}
 {% endfor %}
 
-{% for block in blocks %}
+{% for block in server_blocks %}
 {# block is a BlockConfig object #}
 {# insert its name and the number of block instances in this app #}
 {{ block.name }}[{{ block.number }}]

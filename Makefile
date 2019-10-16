@@ -2,6 +2,8 @@
 
 TOP := $(CURDIR)
 
+# Need bash for the source command in Xilinx settings64.sh
+SHELL = /bin/bash
 
 # The following symbols MUST be defined in the CONFIG file before being used.
 PANDA_ROOTFS = $(error Define PANDA_ROOTFS in CONFIG file)
@@ -53,7 +55,11 @@ default: $(DEFAULT_TARGETS)
 
 # If ALL_APPS not specified in CONFIG, pick up all valid entries in the apps dir
 ifndef ALL_APPS
-ALL_APPS := $(notdir $(wildcard apps/*.app.ini))
+ALL_APPS := $(wildcard apps/*.app.ini)
+# Exclude udpontrig apps as they can't currently be built with our license
+ALL_APPS := $(filter-out $(wildcard apps/*udpontrig*),$(ALL_APPS))
+ALL_APPS := $(filter-out $(wildcard apps/*eventr*),$(ALL_APPS))
+ALL_APPS := $(notdir $(ALL_APPS))
 ALL_APPS := $(ALL_APPS:.app.ini=)
 endif
 
@@ -80,6 +86,7 @@ APP_FILE = $(TOP)/apps/$(APP_NAME).app.ini
 
 APP_DEPENDS += $(wildcard common/python/*.py)
 APP_DEPENDS += $(wildcard common/templates/*)
+APP_DEPENDS += $(wildcard includes/*)
 APP_DEPENDS += $(wildcard targets/*/*.ini)
 APP_DEPENDS += $(wildcard modules/*/const/*.xdc)
 
@@ -175,16 +182,17 @@ hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
-	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace \
+	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
 	 -source ../../tests/hdl/regression_tests.tcl -tclargs $(MODULE)
 
 # Make the hdl_timing folders and run a single test, set TEST argument
+# E.g. make TEST="clock 1" single_hdl_test
 single_hdl_test: $(TIMING_BUILD_DIRS)
 	rm -rf $(TEST_DIR)/single_test
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
-	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace \
+	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
 	 -source ../../tests/hdl/single_test.tcl -tclargs $(TEST)
 
 # Make the hdl_timing folders without running tests

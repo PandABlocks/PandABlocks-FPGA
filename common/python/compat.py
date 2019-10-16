@@ -11,6 +11,12 @@ try:
 except ImportError:
     TYPE_CHECKING = False
 
+try:
+    # Python2
+    str_ = basestring
+except NameError:
+    # Python3
+    str_ = str
 
 # Taken from six
 def add_metaclass(metaclass):

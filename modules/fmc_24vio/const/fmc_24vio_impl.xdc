@@ -15,3 +15,4 @@
 # -------------------------------------------------------------------
 set_property PULLTYPE PULLDOWN [get_ports FMC_LA_P[*]]
 set_property PULLTYPE PULLDOWN [get_ports FMC_LA_N[*]]
+

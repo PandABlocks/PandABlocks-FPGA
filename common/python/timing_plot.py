@@ -1,6 +1,10 @@
-#!/bin/env dls-python
-from pkg_resources import require
-require("matplotlib")
+#!/usr/bin/env python
+try:
+    from pkg_resources import require
+except ImportError:
+    pass
+else:
+    require("matplotlib")
 
 import sys
 import os

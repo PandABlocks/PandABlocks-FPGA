@@ -1,11 +1,17 @@
-from common.python.simulations import BlockSimulation, properties_from_ini, \
-    TYPE_CHECKING
+from collections import deque
 
-if TYPE_CHECKING:
-    from typing import Dict
+from common.python.simulations import BlockSimulation, properties_from_ini
 
 
 NAMES, PROPERTIES = properties_from_ini(__file__, "qdec.block.ini")
+
+# Map (A, B) to quadrature state
+STATE = {
+    (0, 0): 0,
+    (1, 0): 1,
+    (1, 1): 2,
+    (0, 1): 3
+}
 
 
 class QdecSimulation(BlockSimulation):
@@ -13,63 +19,38 @@ class QdecSimulation(BlockSimulation):
 
     def __init__(self):
         self.state = 0
-        self.newstate = 0
-        self.dir = 0
-        self.count = 0
-        self.update = 0
-        self.lastts = 0
+        # Queue of delta values, 2 long when a change is queued to match
+        # qdecoder delay
+        self.queue = deque()
 
     def on_changes(self, ts, changes):
         super(QdecSimulation, self).on_changes(ts, changes)
 
-        if changes.get(NAMES.SETP, None):
-            self.count = self.SETP
-            self.OUT = self.count
-            self.state = self.newstate
-            self.update = 0
-            return
-        else:
-            # Reset when Z is '1' provided that RST_ON_Z is also '1'
-            if self.RST_ON_Z == 1 and self.Z == 1:
-                self.count = 0
-                self.OUT = 0
+        if self.queue:
+            self.OUT += self.queue.popleft()
 
-            elif self.update == 1:
-                # From the current and next state, find the direction
-                if self.state == 3 and self.newstate == 0:
-                    self.dir = 0
-                elif self.state == 0 and self.newstate == 3:
-                    self.dir = 1
-                elif self.newstate == self.state + 1:
-                    self.dir = 0
-                elif self.newstate == self.state - 1:
-                    self.dir = 1
-                else:
-                    # Error Direction
-                    self.dir = 2
-                # update state
-                self.state = self.newstate
-                # The output updates after 2 clock pulses
-                # The counter is then updated, depending on the direction
-                if ts >= self.lastts + 2:
-                    if self.dir == 1:
-                        self.count -= 1
-                    elif self. dir == 0:
-                        self.count += 1
-                    self.OUT = self.count
-                    self.update = 0
-                    self.lastts = 0
-            # Find the next state, updating the state occurs on the next cycle
-            if self.A == 0 and self.B == 0:
-                self.newstate = 0
-            elif self.A == 1 and self.B == 0:
-                self.newstate = 1
-            elif self.A == 1 and self.B == 1:
-                self.newstate = 2
-            elif self.A == 0 and self.B == 1:
-                self.newstate = 3
-            if self.newstate != self.state:
-                self.update = 1
-                if self.lastts == 0:
-                    self.lastts = ts
-            return ts + 2
+        if changes.get(NAMES.SETP, None):
+            self.OUT = self.SETP
+        elif self.RST_ON_Z == 1 and self.Z == 1:
+            # Reset when Z is '1' provided that RST_ON_Z is also '1'
+            self.OUT = 0
+
+        # New quadrature state (0..3)
+        new_state = STATE[(self.A, self.B)]
+        # Difference between last state and new state
+        transition = (new_state - self.state) % 4
+        self.state = new_state
+        delta = 0
+        if transition == 1:
+            # Step forwards
+            delta = 1
+        elif transition == 3:
+            # Step backwards
+            delta = -1
+        if delta and not self.queue:
+            # add it to the queue
+            self.queue.append(0)
+            self.queue.append(delta)
+
+        if self.queue:
+            return ts + 1

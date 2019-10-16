@@ -72,7 +72,6 @@ add_files [glob $TOP_DIR/common/hdl/defines/*.vhd]
 add_files [glob $TOP_DIR/common/hdl/*.vhd]
 add_files [glob $TARGET_DIR/hdl/*.vhd]
 add_files [glob $TARGET_DIR/hdl/*.v]
-add_files [glob $TARGET_DIR/hdl/defines/*.vhd]
 
 # Exit script here if gui mode - i.e. if running 'make carrier_fpga_gui'
 if {[string match "gui" [string tolower $MODE]]} { return }

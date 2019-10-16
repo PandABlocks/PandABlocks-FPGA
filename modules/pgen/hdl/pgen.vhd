@@ -31,7 +31,8 @@ port (
     trig_i              : in  std_logic;
     out_o               : out std_logic_vector(DW-1 downto 0);
     -- Block Parameters
-    CYCLES              : in  std_logic_vector(31 downto 0);
+    REPEATS             : in  std_logic_vector(31 downto 0);
+    ACTIVE_o            : out std_logic;
     TABLE_ADDRESS       : in  std_logic_vector(31 downto 0);
     TABLE_ADDRESS_WSTB  : in  std_logic;
     TABLE_LENGTH        : in  std_logic_vector(31 downto 0);
@@ -66,7 +67,6 @@ end component;
 
 type state_t is (IDLE, WAIT_FIFO, DMA_REQ, DMA_READ, IS_FINISHED, FINISHED);
 signal pgen_fsm         : state_t;
-
 signal reset            : std_logic;
 signal TABLE_WORDS      : unsigned(31 downto 0);
 
@@ -93,6 +93,9 @@ signal dma_addr         : unsigned(31 downto 0);
 
 signal dma_underrun     : std_logic;
 signal table_end        : std_logic;
+
+signal active           : std_logic := '0';
+
 
 begin
 
@@ -140,7 +143,7 @@ end process;
 
 -- Trigger pulse pops data from fifo and tick data counter when block
 -- is enabled and table is ready.
-trig_pulse <= (trig_i and not trig) and enable_i and table_ready;
+trig_pulse <= (trig_i and not trig) and active and table_ready;
 enable_fall <= not enable_i and enable;
 
 --
@@ -212,8 +215,8 @@ process(clk_i) begin
                 when IS_FINISHED =>
                     -- Is table finished?
                     if (count = 0) then
-                        -- Are there more table cycles?
-                        if (table_cycle = unsigned(CYCLES)) then
+                        -- Are there more table REPEATS?
+                        if (table_cycle = unsigned(REPEATS)) then
                             pgen_fsm <= FINISHED;
                         else
                             count <= TABLE_WORDS;
@@ -259,8 +262,6 @@ process(clk_i) begin
             -- Assign HEALTH output as Enum.
             if (table_ready = '0') then
                 health(1 downto 0) <= TO_SVECTOR(1,2);
-            elsif (table_end = '1') then
-                health(1 downto 0) <= TO_SVECTOR(2,2);
             elsif (dma_underrun = '1') then
                 health(1 downto 0) <= TO_SVECTOR(3,2);
             else
@@ -270,6 +271,10 @@ process(clk_i) begin
         end if;
     end if;
 end process;
+
+active <= enable and not fifo_empty;
+
+ACTIVE_o <= active;
 
 end rtl;
 

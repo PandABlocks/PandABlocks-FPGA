@@ -1,4 +1,4 @@
-#!/bin/env dls-python
+#!/usr/bin/env python
 
 from pkg_resources import require
 require("numpy")

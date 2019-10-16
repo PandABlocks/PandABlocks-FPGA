@@ -74,7 +74,7 @@ always @(posedge clk_i) begin
                 mem_cnt <= 0;
                 dma_data_i <= data_mem[mem_cnt];
                 // The mem_loop equals the number of CYCLES to be done
-                if (mem_loop == CYCLES-1) begin
+                if (mem_loop == REPEATS-1) begin
                    STATE <= STATE_FINISHED;
                 end
             // Read the values out of the memory

@@ -39,8 +39,6 @@ end posmux;
 
 architecture rtl of posmux is
 
-signal posn             : std_logic_vector(31 downto 0);
-
 begin
 
 -- process(POSMUX_SEL_i,pos_bus_i)

@@ -3,7 +3,10 @@
 #
 #####################################################################
 
-RUNVIVADO = source $(VIVADO) && vivado
+# Need bash for the source command in Xilinx settings64.sh
+SHELL = /bin/bash
+
+RUNVIVADO = . $(VIVADO) && vivado
 
 #####################################################################
 # Project related files and directories
@@ -94,17 +97,14 @@ carrier_fpga : $(TOP_BUILD_SCR) VERSION $(IP_DIR) $(PS_CORE)
 ###########################################################
 # Build SlowFPGA Firmware target
 
-slow_fpga: $(TARGET_DIR)/SlowFPGA/SlowFPGA.make VERSION $(TOP)/tools/virtexHex2Bin
+slow_fpga: $(TARGET_DIR)/SlowFPGA/SlowFPGA.make VERSION
 	mkdir -p $(SLOW_FPGA_BUILD_DIR)
 	echo building SlowFPGA
 	source $(ISE)  &&  \
 	  $(MAKE) -C $(SLOW_FPGA_BUILD_DIR) -f $< \
 	  TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA AUTOGEN=$(AUTOGEN) \
-	  mcs
+	  bin
 .PHONY: slow_fpga
-
-$(TOP)/tools/virtexHex2Bin: $(TOP)/tools/virtexHex2Bin.c
-	gcc -o $@ $<
 
 ################################################################
 # Build PS Boot targets

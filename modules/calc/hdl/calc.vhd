@@ -29,80 +29,47 @@ port (
     TYPEB               : in  std_logic_vector(31 downto 0);
     TYPEC               : in  std_logic_vector(31 downto 0);
     TYPED               : in  std_logic_vector(31 downto 0);
-    FUNC                : in  std_logic_vector(31 downto 0)
+    FUNC                : in  std_logic_vector(31 downto 0);
+    SHIFT               : in  std_logic_vector(31 downto 0)
 );
 end calc;
 
 architecture rtl of calc is
+    -- Resize and sign-invert as required with based on flag
+    function convert(data : std_logic_vector; negate : std_logic) return signed
+    is
+        variable resized : signed(33 downto 0);
+    begin
+        resized := resize(signed(data), 34);
+        if negate = '1' then
+            resized := -resized;
+        end if;
+        return resized;
+    end;
 
--- Resize and sign-invert to required with based on flag
-function posn_data(data : std_logic_vector; flag : std_logic; width : natural)
-    return signed
-is
-    variable resized    : unsigned(width-1 downto 0);
-    variable converted  : signed(width-1 downto 0);
+    signal inpa_in : signed(33 downto 0) := (others => '0');
+    signal inpb_in : signed(33 downto 0) := (others => '0');
+    signal inpc_in : signed(33 downto 0) := (others => '0');
+    signal inpd_in : signed(33 downto 0) := (others => '0');
+    signal calculation : signed(33 downto 0) := (others => '0');
+    signal output : signed(33 downto 0) := (others => '0');
+
 begin
-    resized := unsigned(resize(signed(data), width));
-    converted := signed(not(resized) + 1);
-    if (flag = '0') then
-        return signed(resized);
-    else
-        return converted;
-    end if;
+    -- Add 2 extra bits to each input to allow for growth during addition and
+    -- take account of sign flag.
+    inpa_in <= convert(inpa_i, TYPEA(0));
+    inpb_in <= convert(inpb_i, TYPEB(0));
+    inpc_in <= convert(inpc_i, TYPEC(0));
+    inpd_in <= convert(inpd_i, TYPED(0));
+    calculation <= inpa_in + inpb_in + inpc_in + inpd_in;
+
+    -- Shift result as required
+    output <= shift_right(calculation, to_integer(unsigned(SHIFT(4 downto 0))));
+
+    -- Finally register the output
+    process (clk_i) begin
+        if rising_edge(clk_i) then
+            out_o <= std_logic_vector(output(31 downto 0));
+        end if;
+    end process;
 end;
-
-signal acc_ab           : signed(33 downto 0) := (others => '0');
-signal acc_cd           : signed(33 downto 0) := (others => '0');
-signal acc_abcd         : signed(33 downto 0) := (others => '0');
-
-signal func_i           : std_logic_vector(1 downto 0);
-
-begin
-
--- Input Registers
--- A 1 clock cycle delay is required for the FUNC input
-process(clk_i) begin
-    if rising_edge(clk_i) then
-        func_i <= FUNC(1 downto 0);
-    end if;
-end process;
-
--- Synchronised calc tree
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        acc_ab <= posn_data(inpa_i, TYPEA(0), acc_abcd'length) +
-                    posn_data(inpb_i, TYPEB(0), acc_abcd'length);
-
-        acc_cd <= posn_data(inpc_i, TYPEC(0), acc_abcd'length) +
-                    posn_data(inpd_i, TYPED(0), acc_abcd'length);
-
---        acc_abcd <= acc_ab + acc_cd;
-    end if;
-end process;
-
-
-acc_abcd <= acc_ab + acc_cd;
-
-
-
--- Scaled output (take care of sign bit)
---process(clk_i) begin
---    if rising_edge(clk_i) then
-process(func_i, acc_abcd) begin
-        case func_i is
-            when "00" =>
-                out_o <= std_logic_vector(resize(acc_abcd, 32));
-            when "01" =>
-                out_o <= std_logic_vector(resize(shift_right(acc_abcd,1), 32));
-            when "10" =>
-                out_o <= std_logic_vector(resize(shift_right(acc_abcd,2), 32));
-            when "11" =>
-                out_o <= std_logic_vector(resize(shift_right(acc_abcd,3), 32));
-            when others =>
-                out_o <= std_logic_vector(resize(acc_abcd, 32));
-        end case;
---    end if;
-end process;
-
-end rtl;
