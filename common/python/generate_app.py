@@ -248,6 +248,9 @@ class AppGenerator(object):
                     total_bit_bus_length = total_bit_bus_length + block.number
                 if field.type == "pos_out":
                     total_pos_bus_length = total_pos_bus_length + block.number
+        # total_pos_bus_length is zero the build will fail.
+        if total_pos_bus_length == 0:
+            total_pos_bus_length = 1
         block_names = []
         register_blocks = []
         # SFP blocks can have the same register definitions as they have
