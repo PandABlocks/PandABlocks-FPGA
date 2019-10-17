@@ -77,7 +77,7 @@ port map (
     clk_i               => FCLK_CLK0
 );
 bit_bus_o(BBUSW-1 downto 8) <= (others => '0');
-pos_bus_o(PBUSW-1 downto 0) <= (others => (others => '0'));
+pos_bus_o(PBUSW-1 downto 1) <= (others => (others => '0'));
 
 read_ack(31 downto USED_MOD_COUNT + 1) <= (others => '1');
 write_ack(31 downto USED_MOD_COUNT + 1) <= (others => '1');
