@@ -21,6 +21,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.top_defines.all;
+use work.support.all;
 
 entity inenc is
 port (
@@ -49,6 +50,8 @@ port (
     SETP_WSTB           : in  std_logic;
     RST_ON_Z            : in  std_logic_vector(31 downto 0);
     STATUS              : out std_logic_vector(31 downto 0);
+    HEALTH              : out std_logic_vector(31 downto 0);
+    HOMED               : out std_logic_vector(31 downto 0);
     -- Block Outputs
     posn_o              : out std_logic_vector(31 downto 0)
 );
@@ -67,9 +70,14 @@ signal posn                 : std_logic_vector(31 downto 0);
 signal posn_prev            : std_logic_vector(31 downto 0);
 signal bits_not_used        : unsigned(4 downto 0);
 
+signal homed_qdec           : std_logic_vector(31 downto 0);
 signal linkup_incr          : std_logic;
+signal linkup_incr_std32    : std_logic_vector(31 downto 0);
 signal linkup_ssi           : std_logic;
-signal linkup_biss          : std_logic;
+signal linkup_biss_sniffer  : std_logic;
+signal health_biss_sniffer  : std_logic_vector(31 downto 0);
+signal linkup_biss_master   : std_logic;
+signal health_biss_master   : std_logic_vector(31 downto 0);
 
 begin
 
@@ -106,16 +114,19 @@ qdec : entity work.qdec
 port map (
     clk_i           => clk_i,
 --  reset_i         => reset_i,
+    LINKUP_INCR     => linkup_incr_std32,
     a_i             => A_IN,
     b_i             => B_IN,
     z_i             => Z_IN,
     SETP            => SETP,
     SETP_WSTB       => SETP_WSTB,
     RST_ON_Z        => RST_ON_Z,
+    HOMED           => homed_qdec,
     out_o           => posn_incr
 );
 
 linkup_incr <= not DCARD_MODE(0);
+linkup_incr_std32 <= x"0000000"&"000"&linkup_incr;
 
 --------------------------------------------------------------------------
 -- SSI Instantiations
@@ -157,6 +168,8 @@ port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     BITS            => BITS,
+    link_up_o       => linkup_biss_master,
+    health_o        => health_biss_master,
     CLK_PERIOD      => CLK_PERIOD,
     FRAME_PERIOD    => FRAME_PERIOD,
     biss_sck_o      => clk_out_encoder_biss,
@@ -172,7 +185,8 @@ port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     BITS            => BITS,
-    link_up_o       => linkup_biss,
+    link_up_o       => linkup_biss_sniffer,
+    health_o        => health_biss_sniffer,
     error_o         => open,
     ssi_sck_i       => CLK_IN,
     ssi_dat_i       => DATA_IN,
@@ -191,28 +205,43 @@ begin
             when "000"  =>              -- INC
                 posn <= posn_incr;
                 STATUS(0) <= linkup_incr;
+                HEALTH(0) <= not(linkup_incr);
+                HEALTH(31 downto 1)<= (others=>'0');
+                HOMED <= homed_qdec;
 
             when "001"  =>              -- SSI & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_MONITOR) then
                     posn <= posn_ssi_sniffer;
                     STATUS(0) <= linkup_ssi;
+                    if (linkup_ssi = '0') then
+                        HEALTH <= TO_SVECTOR(2,32);
+                    else
+                        HEALTH <= (others => '0');
+                    end if;
                 else  -- DCARD_CONTROL
                     posn <= posn_ssi;
                     STATUS <= (others => '0');
+                    HEALTH <= (others=>'0');
                 end if;
+                HOMED <= TO_SVECTOR(1,32);
 
             when "010"  =>              -- BISS & Loopback
                 if (DCARD_MODE(3 downto 1) = DCARD_MONITOR) then
                     posn <= posn_biss_sniffer;
-                    STATUS(0) <= linkup_biss;
+                    STATUS(0) <= linkup_biss_sniffer;
+                    HEALTH <= health_biss_sniffer;
                 else  -- DCARD_CONTROL
                     posn <= posn_biss;
-                    STATUS <= (others => '0');
+                    STATUS(0) <= linkup_biss_master;
+                    HEALTH<=health_biss_master;
                 end if;
+                HOMED <= TO_SVECTOR(1,32);
 
             when others =>
+                HEALTH <= TO_SVECTOR(5,32);
                 posn <= (others => '0');
                 STATUS <= (others => '0');
+                HOMED <= TO_SVECTOR(1,32);
         end case;
     end if;
 end process;
