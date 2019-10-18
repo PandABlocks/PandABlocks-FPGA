@@ -46,6 +46,8 @@ signal z_old            : std_logic;
 
 begin
 
+HOMED(31 downto 1)<=(others =>'0');
+
 -- Quadrature Decoder instantiation
 qdecoder_inst : entity work.qdecoder
 port map (
