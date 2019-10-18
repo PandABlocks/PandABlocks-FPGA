@@ -1,130 +1,108 @@
-from common.python.simulations import BlockSimulation, properties_from_ini, \
-    TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing import Dict
+from common.python.simulations import BlockSimulation, properties_from_ini
 
 
 NAMES, PROPERTIES = properties_from_ini(__file__, "posenc.block.ini")
+
+DISABLED = 0
+AT_POSITION = 1
+SLEWING = 2
+
+QUADRATURE = 0
+STEP_DIRECTION = 1
+
+# What is the next A,B position if going positive
+QUAD_POSITIVE = {
+    (0, 0): (1, 0),
+    (1, 0): (1, 1),
+    (1, 1): (0, 1),
+    (0, 1): (0, 0)
+}
+
+# What is the next A,B position if going negative
+QUAD_NEGATIVE = {v: k for k, v in QUAD_POSITIVE.items()}
 
 
 class PosencSimulation(BlockSimulation):
     ENABLE, INP, PERIOD, PROTOCOL, A, B, STATE = PROPERTIES
 
     def __init__(self):
-        self.dir = 0
+        # The last output value
         self.tracker = self.INP
-        self.state = 0
-        self.equal = 0
-        self.newstate = 0
-        self.nexttime = 0
-        self.setb = 0
-        self.period = 0
+        # The period clock start time
+        self.clock_start = 0
+
+    def next_ts(self, ts):
+        # Do not allow PERIOD value of 1
+        period = max(self.PERIOD, 2)
+        # Clock is a free running prescaler, so wait for the next multiple of it
+        clock_delta = (ts + 1) - self.clock_start
+        mod = clock_delta % period
+        next_ts = (ts + 1) - mod + period
+        return next_ts
 
     def on_changes(self, ts, changes):
         super(PosencSimulation, self).on_changes(ts, changes)
-        # set attributes
-        for name, value in changes.items():
-            setattr(self, name, value)
+        next_ts = None
 
-        # Do not allow PERIOD value of 1
-        if self.PERIOD == 1:
-            self.period = 2
-        else:
-            self.period = self.PERIOD
+        if changes.get(NAMES.PERIOD, None) is not None:
+            # Period changes, change free running clock start
+            self.clock_start = ts
 
-        if changes.get(NAMES.ENABLE, None) is 0:
-            self.A = 0
-            self.STATE = 0
+        if changes.get(NAMES.ENABLE, None) is 1:
+            # Reset on rising edge of enable
             self.tracker = self.INP
+            self.A = 0
             self.B = 0
-
-        else:
-            if self.ENABLE == 1:
-                # If the input changes the system requires a clock tick to
-                # process so if the next clock is the current time, the module
-                # will next function on the next clock
-                if changes.get(NAMES.INP):
-                    if self.nexttime < ts + 1:
-                        self.nexttime = self.nexttime + self.period
-
-                # Set the direction
-                self.equal = 0
-                if self.INP > self.tracker:
-                    self.dir = 0
-                elif self.INP < self.tracker:
-                    self.dir = 1
+            self.STATE = AT_POSITION
+        elif changes.get(NAMES.ENABLE, None) is 0:
+            # Halt on falling edge of enable
+            self.A = 0
+            self.B = 0
+            self.STATE = DISABLED
+        elif self.ENABLE and self.PROTOCOL == QUADRATURE:
+            # Enabled, so check based on state
+            if self.STATE == AT_POSITION:
+                if self.tracker != self.INP:
+                    # Have moved, change state
+                    self.STATE = SLEWING
+                    next_ts = self.next_ts(ts)
+            elif self.STATE == SLEWING:
+                if self.tracker == self.INP:
+                    # Have reached the right place
+                    self.STATE = AT_POSITION
+                    next_ts = ts + 1
                 else:
-                    self.equal = 1
-                    self.dir = 1
-
-                # Change the internal state and increment tracker
-                if self.dir == 0 and ts == self.nexttime and self.equal == 0:
-                    if self.state < 3:
-                        self.newstate += 1
+                    # Move one place in the right direction
+                    if self.INP > self.tracker:
+                        self.A, self.B = QUAD_POSITIVE[(self.A, self.B)]
+                        self.tracker += 1
                     else:
-                        self.newstate = 0
-                    self.tracker += 1
-                elif ts >= self.nexttime and self.equal == 0:
-                    if self.state > 0:
-                        self.newstate -= 1
+                        self.A, self.B = QUAD_NEGATIVE[(self.A, self.B)]
+                        self.tracker -= 1
+                    if self.tracker == self.INP:
+                        next_ts = ts + 1
                     else:
-                        self.newstate = 3
-                    self.tracker -= 1
-                # Set STATE output
-                if self.equal == 1:
-                    self.STATE = 1
+                        next_ts = self.next_ts(ts)
+        elif self.ENABLE and self.PROTOCOL == STEP_DIRECTION:
+            if self.STATE == AT_POSITION:
+                if self.B != 1:
+                    # Direction is set one clock after initially entering state
+                    self.B = 1
+                    next_ts = ts + 1
+                elif self.tracker != self.INP:
+                    # Have moved, change state
+                    self.STATE = SLEWING
+                    self.B = self.INP < self.tracker
+                    next_ts = self.next_ts(ts)
+            elif self.STATE == SLEWING:
+                if self.A:
+                    self.A = 0
+                    self.tracker += -1 if self.B else 1
+                    if self.tracker == self.INP:
+                        self.STATE = AT_POSITION
+                        self.B = 1
+                    next_ts = self.next_ts(ts)
                 else:
-                    self.STATE = 2
-
-                # Set A and B output for Quadrature mode
-                if self.PROTOCOL == 0 and ts >= self.nexttime:
-                    self.state = self.newstate
-                    if self.state == 0:
-                        self.A = 0
-                        self.B = 0
-
-                    elif self.state == 1:
-                        self.A = 1
-                        self.B = 0
-
-                    elif self.state == 2:
-                        self.A = 1
-                        self.B = 1
-
-                    else:
-                        self.A = 0
-                        self.B = 1
-                # Set A and B output for Step/Direction Mode
-                elif self.PROTOCOL == 1:
-                    # Set B on the next clock cycle
-                    if self.setb == 1:
-                        self.setb = 0
-                    else:
-                        self.B = self.dir
-
-                    if self.equal == 0 and ts == self.nexttime:
-                        self.state = self.newstate
-                        self.A = 1
-                    else:
-                        self.A = 0
-
-            else:
-                    self.tracker = self.INP
-                    # If the input is set at the start, the initial direction
-                    # takes an extra clock to set. This affects the B output
-                    # for PROTOCOL=1
-                    if self.PROTOCOL == 1 and self.INP > 0:
-                        self.setb = 1
-                    else:
-                        self.setb = 0
-        # The module uses a prescaler which generates a pulse each time it
-        # counts to the inputted PERIOD value
-        if ts == self.nexttime or changes.get(NAMES.PERIOD):
-            self.nexttime = ts + self.period
-            if self.PROTOCOL == 1:
-                return ts + self.period/2
-            else:
-                return self.nexttime
-        else:
-            return self.nexttime
+                    self.A = 1
+                    next_ts = ts + 1
+        return next_ts

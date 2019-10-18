@@ -1,6 +1,6 @@
 {% include 'registers_server' %}
 
-{% for block in blocks %}
+{% for block in server_blocks %}
 {# block is a BlockConfig object #}
 {# insert its name and block base address #}
 {{ pad(block.name) }} {{ block.block_address }}{%

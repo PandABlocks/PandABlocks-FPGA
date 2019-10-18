@@ -2,6 +2,8 @@
 
 TOP := $(CURDIR)
 
+# Need bash for the source command in Xilinx settings64.sh
+SHELL = /bin/bash
 
 # The following symbols MUST be defined in the CONFIG file before being used.
 PANDA_ROOTFS = $(error Define PANDA_ROOTFS in CONFIG file)
@@ -47,6 +49,7 @@ ifndef ALL_APPS
 ALL_APPS := $(wildcard apps/*.app.ini)
 # Exclude udpontrig apps as they can't currently be built with our license
 ALL_APPS := $(filter-out $(wildcard apps/*udpontrig*),$(ALL_APPS))
+ALL_APPS := $(filter-out $(wildcard apps/*eventr*),$(ALL_APPS))
 ALL_APPS := $(notdir $(ALL_APPS))
 ALL_APPS := $(ALL_APPS:.app.ini=)
 endif
@@ -170,7 +173,7 @@ hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
-	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace \
+	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
 	 -source ../../tests/hdl/regression_tests.tcl -tclargs $(MODULE)
 
 # Make the hdl_timing folders and run a single test, set TEST argument
@@ -180,7 +183,7 @@ single_hdl_test: $(TIMING_BUILD_DIRS)
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
-	cd $(TEST_DIR) && source $(VIVADO) && vivado -mode batch -notrace \
+	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
 	 -source ../../tests/hdl/single_test.tcl -tclargs $(TEST)
 
 # Make the hdl_timing folders without running tests
@@ -197,11 +200,6 @@ SLOW_FPGA_FILE = $(SLOW_FPGA_BUILD_DIR)/slow_top.bin
 FPGA_DEPENDS =
 
 SLOW_FPGA_DEPENDS =
-SLOW_FPGA_DEPENDS += tools/virtexHex2Bin
-
-tools/virtexHex2Bin: tools/virtexHex2Bin.c
-	gcc -o $@ $<
-
 
 $(FPGA_FILE): $(AUTOGEN_BUILD_DIR) $(FPGA_DEPENDS)
 	mkdir -p $(dir $@)
@@ -222,9 +220,9 @@ ifdef SKIP_FPGA_BUILD
 	touch $@
 else
 	echo building SlowFPGA
-	source $(ISE)  &&  \
+	. $(ISE)  &&  \
         $(MAKE) -C $(dir $@) -f $(TARGET_DIR)/SlowFPGA/Makefile \
-            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA mcs \
+            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA bin \
             BUILD_DIR=$(dir $@)
 endif
 

@@ -1,4 +1,4 @@
-#!/bin/env dls-python
+#!/usr/bin/env python
 import unittest
 import sys
 import os

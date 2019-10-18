@@ -193,7 +193,6 @@ sfp_panda_sync_i : sfp_panda_sync
         DONT_RESET_ON_DATA_ERROR_IN     => '0',
         GT0_TX_FSM_RESET_DONE_OUT       => GT0_TX_FSM_RESET_DONE_OUT,
         GT0_RX_FSM_RESET_DONE_OUT       => GT0_RX_FSM_RESET_DONE_OUT,
---------        GT0_DATA_VALID_IN               => txdata_valid_i,
         GT0_DATA_VALID_IN               => '1', -- The data valid has to be high for the receiver to come out of it reset startup 
         --_________________________________________________________________________
         --GT0  (X0Y1)
@@ -225,8 +224,6 @@ sfp_panda_sync_i : sfp_panda_sync
         ------------------ Receive Ports - FPGA RX Interface Ports -----------------
         gt0_rxusrclk_in                 => rxoutclk_i,                           
         gt0_rxusrclk2_in                => rxoutclk_i,                           
---        gt0_rxusrclk_in                 => clk_i,                                                                          
---        gt0_rxusrclk2_in                => clk_i,                                   
         ------------------ Receive Ports - FPGA RX interface Ports -----------------
         gt0_rxdata_out                  => rxdata_o,
         ------------------ Receive Ports - RX 8B/10B Decoder Ports -----------------
@@ -262,8 +259,6 @@ sfp_panda_sync_i : sfp_panda_sync
         gt0_txusrclk_in                 => txoutclk_i,                           -- transmit clk This port is used to provide a clock for the internal TX PCS datapath
         gt0_txusrclk2_in                => txoutclk_i,                           -- transmit clk This port is used to synchronzie the FPGA logic with the TX interface. 
                                                                                  -- This clock must be positive edge aligned to TXUSRCLK when TXUSRCLK is provided by the user
---        gt0_txusrclk_in                 => clk_i,                                   
---        gt0_txusrclk2_in                => clk_i,                                               
         ------------------ Transmit Ports - TX Data Path interface -----------------
         gt0_txdata_in                   => txdata_i,
         ---------------- Transmit Ports - TX Driver and OOB signaling --------------

@@ -1,11 +1,15 @@
+import os
 import re
 from collections import OrderedDict
 
 from .compat import TYPE_CHECKING, configparser
-from .ini_util import ini_get
+from .ini_util import ini_get, read_ini
 
 if TYPE_CHECKING:
-    from typing import List, Iterable, Any, Dict
+    from typing import List, Iterable, Any, Dict, Optional
+
+
+ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 
 
 def pad(name, spaces=19):
@@ -81,25 +85,30 @@ class FieldCounter:
 
 class BlockConfig(object):
     """The config for a single Block"""
-    def __init__(self, name, type, number, ini, module_name, sfp_site=None):
-        # type: (str, str, int, configparser.SafeConfigParser) -> None
+    def __init__(self, name, type, number, ini_path, sfp_site=None):
+        # type: (str, str, int, str, Optional[int]) -> None
         # Block names should be UPPER_CASE_NO_TRAILING_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*[A-Z]$", name), \
             "Expected BLOCK_NAME with no trailing numbers, got %r" % name
+        ini = read_ini(os.path.join(ROOT, ini_path))
         #: The name of the Block, like LUT
         self.name = name
         #: The number of instances Blocks that will be created, like 8
         self.number = number
+        #: The path to the module that holds this block ini
+        self.module_path = os.path.dirname(ini_path)
+        #: The path to the ini file for this Block, relative to ROOT
+        self.ini_path = ini_path
         #: The Block section of the register address space
         self.block_address = None
-        #: The module name (can be different to block name)
-        self.module_name = module_name
         #: If the type == sfp, which site number
         self.sfp_site = sfp_site        
         #: The VHDL entity name, like lut
         self.entity = ini.get(".", "entity")
         #: Is the block soft, sfp, fmc or dma?
         self.type = ini_get(ini, '.', 'type', type)
+        #: What type is the sfp/fmc interface?
+        self.interfaces = ini_get(ini, '.', 'interfaces', '').split()
         #: If the type == sfp, which site number
         self.sfp_site = sfp_site
         if self.sfp_site:
@@ -121,7 +130,10 @@ class BlockConfig(object):
         if self.extension == '':
             self.extension = self.entity
         #: All the child fields
-        self.fields = FieldConfig.from_ini(ini, number)
+        self.fields = FieldConfig.from_ini(
+            ini, number)  # type: List[FieldConfig]
+        #: Are there any suffixes?
+        self.block_suffixes = ini_get(ini, '.', 'block_suffixes', '').split()
 
     def register_addresses(self, block_counters):
         # type: (RegisterCounter) -> None
@@ -145,15 +157,15 @@ class BlockConfig(object):
 
 
 def make_getter_setter(config):
+    def getter(self):
+        return getattr(self, "_" + config.name, 0)
+
     def setter(self, v):
-        if config.value != v:
-            config.value = v
+        if getter(self) != v:
             if self.changes is None:
                 self.changes = {}
             self.changes[config.name] = v
-
-    def getter(self):
-        return config.value
+            setattr(self, "_" + config.name, v)
 
     # Add the reference to config so we can get it in BlockSimulationMeta
     getter.config = config
@@ -163,17 +175,15 @@ def make_getter_setter(config):
 class RegisterConfig(object):
     """A low level register name and number backing this field"""
     def __init__(self, name, number=-1, prefix='', extension=''):
-        # type: (str, int, str) -> None
+        # type: (str, int, str, str) -> None
         #: The name of the register, like INPA_DLY
-        self.name = name
+        self.name = name.replace('.', '_')
         #: The register number relative to Block, like 9
         self.number = number
         # String to be written before the register
         self.prefix = prefix
         #: For an extension field, the register path
         self.extension = extension
-        #: The current value of this field for simulation
-        self.value = 0
 
 
 class BusEntryConfig(object):
@@ -181,13 +191,11 @@ class BusEntryConfig(object):
     def __init__(self, name, bus, index):
         # type: (str, str, int) -> None
         #: The name of the register, like INPA_DLY
-        self.name = name
+        self.name = name.replace('.', '_')
         #: The bus the output is on, like bit
         self.bus = bus
         #: The bus index, like 5
         self.index = index
-        #: The current value of this field for simulation
-        self.value = 0
 
 
 class FieldConfig(object):
@@ -198,14 +206,14 @@ class FieldConfig(object):
     def __init__(self, name, number, type, description, extra_config):
         # type: (str, int, str, str, Dict[str, str]) -> None
         # Field names should be UPPER_CASE_OR_NUMBERS
-        assert re.match("[A-Z][0-9A-Z_]*$", name), \
+        assert re.match("[A-Z][0-9A-Z_\.]*$", name), \
             "Expected FIELD_NAME, got %r" % name
         #: The name of the field relative to it's Block, like INPA
         self.name = name
         #: The number of instances Blocks that will be created, like 8
         self.number = number
         #: The complete type string, like param lut
-        self.type = type
+        self.type = type  # type: str
         #: The long description of the field
         self.description = description
         #: The list of registers this field uses

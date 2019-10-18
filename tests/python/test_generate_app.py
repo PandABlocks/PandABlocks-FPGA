@@ -49,6 +49,9 @@ class TestGenerateApp(unittest.TestCase):
     def test_addr_defines(self):
         self.assertGeneratedEqual("hdl", "addr_defines.vhd")
 
+    def test_usage(self):
+        self.assertGeneratedEqual("usage.txt")
+
 
 if __name__ == '__main__':
     unittest.main()
