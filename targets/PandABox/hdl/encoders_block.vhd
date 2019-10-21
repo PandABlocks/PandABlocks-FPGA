@@ -64,7 +64,6 @@ signal reset            : std_logic;
 -- Block Configuration Registers
 signal GENERATOR_ERROR          : std_logic_vector(31 downto 0);
 signal OUTENC_PROTOCOL          : std_logic_vector(31 downto 0);
-signal BYPASS                   : std_logic_vector(31 downto 0);
 signal OUTENC_PROTOCOL_WSTB     : std_logic;
 signal OUTENC_BITS              : std_logic_vector(31 downto 0);
 signal OUTENC_BITS_WSTB         : std_logic;
@@ -99,8 +98,6 @@ signal MSB_DISCARD              : std_logic_vector(31 downto 0);
 signal INENC_HEALTH             : std_logic_vector(31 downto 0);
 signal HOMED                    : std_logic_vector(31 downto 0);
 
-signal slow                     : slow_packet;
-
 signal read_addr                : natural range 0 to (2**read_address_i'length - 1);
 
 begin
@@ -108,13 +105,22 @@ begin
 -- Assign outputs
 OUTENC_PROTOCOL_o <= OUTENC_PROTOCOL(2 downto 0);
 OUTENC_CONN_OUT_o <= enable;
+
+INENC_PROTOCOL_o <= INENC_PROTOCOL(2 downto 0);
+-- Input encoder connection status comes from either
+--  * Dcard pin [12] for incremental, or
+--  * link_up status for absolute in loopback mode
+INENC_CONN_OUT_o <= STATUS(0);
+
 -- Certain parameter changes must initiate a block reset.
 reset <= reset_i or OUTENC_PROTOCOL_WSTB or OUTENC_BITS_WSTB or INENC_PROTOCOL_WSTB
          or CLK_PERIOD_WSTB or FRAME_PERIOD_WSTB or INENC_BITS_WSTB;
 
---
+DCARD_TYPE <= x"0000000" & '0' & DCARD_MODE_i(3 downto 1);
+
+--------------------------------------------------------------------------
 -- Control System Interface
---
+--------------------------------------------------------------------------
 outenc_ctrl : entity work.outenc_ctrl
 port map (
     clk_i               => clk_i,
@@ -151,50 +157,6 @@ port map (
     QSTATE              => QSTATE
 );
 
-DCARD_TYPE <= x"0000000" & '0' & DCARD_MODE_i(3 downto 1);
-
---
--- Core instantiation
---
-outenc_inst : entity work.outenc
-port map (
-    -- Clock and Reset
-    clk_i               => clk_i,
-    reset_i             => reset,
-    --
-    a_ext_i             => a_ext,
-    b_ext_i             => b_ext,
-    z_ext_i             => z_ext,
-    data_ext_i          => data_ext,
-    posn_i              => posn,
-    enable_i            => enable,
-    -- Encoder I/O Pads
-    A_OUT               => A_OUT_o,
-    B_OUT               => B_OUT_o,
-    Z_OUT               => Z_OUT_o,
-    CLK_IN              => CLK_IN_i,
-    DATA_OUT            => DATA_OUT_o,
-    -- Block Parameters
-    GENERATOR_ERROR     => GENERATOR_ERROR(0),
-    PROTOCOL            => OUTENC_PROTOCOL(2 downto 0),
-    BITS                => OUTENC_BITS(7 downto 0),
-    QPERIOD             => QPERIOD,
-    QPERIOD_WSTB        => QPERIOD_WSTB,
-    HEALTH              => OUTENC_HEALTH,
-    QSTATE              => QSTATE
-);
-
--- Assign outputs
-INENC_PROTOCOL_o <= INENC_PROTOCOL(2 downto 0);
-
--- Input encoder connection status comes from either
---  * Dcard pin [12] for incremental, or
---  * link_up status for absolute in loopback mode
-INENC_CONN_OUT_o <= STATUS(0);
-
---------------------------------------------------------------------------
--- Control System Interface
---------------------------------------------------------------------------
 inenc_ctrl : entity work.inenc_ctrl
 port map (
     clk_i               => clk_i,
@@ -238,39 +200,61 @@ port map (
 
 read_addr <= to_integer(unsigned(read_address_i));
 
---------------------------------------------------------------------------
--- INENC block instantiation
---------------------------------------------------------------------------
-inenc_inst : entity work.inenc
-port map (
+--
+-- Core instantiation
+--
+
+encoders_inst : entity work.encoders
+port map(
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset,
-    --
-    A_IN                => A_IN_i,
-    B_IN                => B_IN_i,
-    Z_IN                => Z_IN_i,
-    CLK_OUT             => CLK_OUT_o,
-    DATA_IN             => DATA_IN_i,
-    CLK_IN              => CLK_IN_i,
+    -- Encoder inputs from Bitbus
+    a_ext_i             => a_ext,
+    b_ext_i             => b_ext,
+    z_ext_i             => z_ext,
+    data_ext_i          => data_ext,
+    posn_i              => posn,
+    enable_i            => enable,
+    -- Encoder I/O Pads
+    A_OUT_o             => A_OUT_o,
+    B_OUT_o             => B_OUT_o,
+    Z_OUT_o             => Z_OUT_o,
+    DATA_OUT_o          => DATA_OUT_o,
+    CLK_IN_i            => CLK_IN_i,
+
+    A_IN_i              => A_IN_i,
+    B_IN_i              => B_IN_i,
+    Z_IN_i              => Z_IN_i,
+    CLK_OUT_o           => CLK_OUT_o,
+    DATA_IN_i           => DATA_IN_i,
     --
     clk_out_ext_i       => clk_ext,
+    -- Block parameters
+    GENERATOR_ERROR_i   => GENERATOR_ERROR(0),
+    OUTENC_PROTOCOL_i   => OUTENC_PROTOCOL(2 downto 0),
+    OUTENC_BITS_i       => OUTENC_BITS(7 downto 0),
+    QPERIOD_i           => QPERIOD,
+    QPERIOD_WSTB_i      => QPERIOD_WSTB,
+    OUTENC_HEALTH_o     => OUTENC_HEALTH,
+    QSTATE_o            => QSTATE,
+
+    DCARD_MODE_i        => DCARD_MODE_i,
+    INENC_PROTOCOL_i    => INENC_PROTOCOL(2 downto 0),
+    CLK_SRC_i           => CLK_SRC(0),
+    CLK_PERIOD_i        => CLK_PERIOD,
+    FRAME_PERIOD_i      => FRAME_PERIOD,
+    INENC_BITS_i        => INENC_BITS(7 downto 0),
+    LSB_DISCARD_i       => LSB_DISCARD(4 downto 0),
+    MSB_DISCARD_i       => MSB_DISCARD(4 downto 0),
+    SETP_i              => SETP,
+    SETP_WSTB_i         => SETP_WSTB,
+    RST_ON_Z_i          => RST_ON_Z,
+    STATUS_o            => STATUS,
+    INENC_HEALTH_o      => INENC_HEALTH,
+    HOMED_o             => HOMED,
     --
-    DCARD_MODE          => DCARD_MODE_i,
-    PROTOCOL            => INENC_PROTOCOL(2 downto 0),
-    CLK_SRC             => CLK_SRC(0),
-    CLK_PERIOD          => CLK_PERIOD,
-    FRAME_PERIOD        => FRAME_PERIOD,
-    BITS                => INENC_BITS(7 downto 0),
-    LSB_DISCARD         => LSB_DISCARD(4 downto 0),
-    MSB_DISCARD         => MSB_DISCARD(4 downto 0),
-    SETP                => SETP,
-    SETP_WSTB           => SETP_WSTB,
-    RST_ON_Z            => RST_ON_Z,
-    STATUS              => STATUS,
-    HEALTH              => INENC_HEALTH,
-    HOMED               => HOMED,
-    --
+    -- Block Outputs
     posn_o              => posn_o
 );
 
