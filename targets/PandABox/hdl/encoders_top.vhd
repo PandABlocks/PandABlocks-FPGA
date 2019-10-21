@@ -168,69 +168,55 @@ ENC_GEN : FOR I IN 0 TO ENC_NUM-1 GENERATE
 OUTENC_read_strobe(I) <= compute_block_strobe(read_address_i, I) and OUTENC_read_strobe_i;
 OUTENC_write_strobe(I) <= compute_block_strobe(write_address_i, I) and OUTENC_write_strobe_i;
 
-outenc_block_inst : entity work.outenc_block
-port map (
-    -- Clock and Reset
-    clk_i               => clk_i,
-    reset_i             => reset_i,
-    -- Memory Bus Interface
-    read_strobe_i       => OUTENC_read_strobe(I),
-    read_address_i      => read_address_i(BLK_AW-1 downto 0),
-    read_data_o         => OUTENC_read_data(I),
-    read_ack_o          => OUTENC_read_ack(I),
-
-    write_strobe_i      => OUTENC_write_strobe(I),
-    write_address_i     => write_address_i(BLK_AW-1 downto 0),
-    write_data_i        => write_data_i,
-    write_ack_o         => open,
-    -- Encoder I/O Pads
-    A_OUT               => A_OUT_o(I),
-    B_OUT               => B_OUT_o(I),
-    Z_OUT               => Z_OUT_o(I),
-    CLK_IN              => CLK_IN_i(I),
-    DATA_OUT            => DATA_OUT_o(I),
-    CONN_OUT            => OUTENC_CONN_OUT_o(I),
-    -- Position Bus Input
-    PROTOCOL            => OUTENC_PROTOCOL_o(I),
-    DCARD_MODE          => DCARD_MODE_i(I),
-    bit_bus_i           => bit_bus_i,
-    pos_bus_i           => pos_bus_i
-);
-
--- Sub-module address decoding
 INENC_read_strobe(I) <= compute_block_strobe(read_address_i, I) and INENC_read_strobe_i;
 INENC_write_strobe(I) <= compute_block_strobe(write_address_i, I) and INENC_write_strobe_i;
 
-inenc_block_inst : entity work.inenc_block
+encoders_block_inst : entity work.encoders_block
 port map (
+    -- Clock and Reset
+    clk_i                   => clk_i,
+    reset_i                 => reset_i,
+    -- Memory Bus Interface
+    OUTENC_read_strobe_i    => OUTENC_read_strobe(I),
+    OUTENC_read_data_o      => OUTENC_read_data(I),
+    OUTENC_read_ack_o       => open,
 
-    clk_i               => clk_i,
-    reset_i             => reset_i,
+    OUTENC_write_strobe_i   => OUTENC_write_strobe(I),
+    OUTENC_write_ack_o      => OUTENC_read_ack(I),
 
-    read_strobe_i       => INENC_read_strobe(I),
-    read_address_i      => read_address_i(BLK_AW-1 downto 0),
-    read_data_o         => INENC_read_data(I),
-    read_ack_o          => INENC_read_ack(I),
+    INENC_read_strobe_i     => INENC_read_strobe(I),
+    INENC_read_data_o       => INENC_read_data(I),
+    INENC_read_ack_o        => INENC_read_ack(I),
 
-    write_strobe_i      => INENC_write_strobe(I),
-    write_address_i     => write_address_i(BLK_AW-1 downto 0),
-    write_data_i        => write_data_i,
-    write_ack_o         => open,
+    INENC_write_strobe_i    => INENC_write_strobe(I),
+    INENC_write_ack_o       => open,
 
-    A_IN                => A_IN_i(I),
-    B_IN                => B_IN_i(I),
-    Z_IN                => Z_IN_i(I),
-    CLK_OUT             => CLK_OUT_o(I),
-    DATA_IN             => DATA_IN_i(I),
-    CLK_IN              => CLK_IN_i(I),
-    CONN_OUT            => INENC_CONN_OUT_o(I),
+    read_address_i          => read_address_i(BLK_AW-1 downto 0),
 
-    bit_bus_i           => bit_bus_i,
-    pos_bus_i           => pos_bus_i,
-    DCARD_MODE          => DCARD_MODE_i(I),
-    PROTOCOL            => INENC_PROTOCOL_o(I),
-    posn_o              => posn(I)
-);
+    write_address_i         => write_address_i(BLK_AW-1 downto 0),
+    write_data_i            => write_data_i,
+    -- Encoder I/O Pads
+    A_OUT_o                 => A_OUT_o(I),
+    B_OUT_o                 => B_OUT_o(I),
+    Z_OUT_o                 => Z_OUT_o(I),
+    CLK_IN_i                => CLK_IN_i(I),
+    DATA_OUT_o              => DATA_OUT_o(I),
+    OUTENC_CONN_OUT_o       => OUTENC_CONN_OUT_o(I),
+
+    A_IN_i                  => A_IN_i(I),
+    B_IN_i                  => B_IN_i(I),
+    Z_IN_i                  => Z_IN_i(I),
+    CLK_OUT_o               => CLK_OUT_o(I),
+    DATA_IN_i               => DATA_IN_i(I),
+    INENC_CONN_OUT_o        => INENC_CONN_OUT_o(I),
+    -- Position Field interface
+    OUTENC_PROTOCOL_o       => OUTENC_PROTOCOL_o(I),
+    DCARD_MODE_i            => DCARD_MODE_i(I),
+    bit_bus_i               => bit_bus_i,
+    pos_bus_i               => pos_bus_i,
+    INENC_PROTOCOL_o        => INENC_PROTOCOL_o(I),
+    posn_o                  => posn(I)
+    );
 
 
 END GENERATE;
