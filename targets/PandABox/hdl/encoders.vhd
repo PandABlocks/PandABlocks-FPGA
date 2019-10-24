@@ -18,6 +18,7 @@ port (
     a_ext_i             : in  std_logic;
     b_ext_i             : in  std_logic;
     z_ext_i             : in  std_logic;
+
     data_ext_i          : in  std_logic;
     posn_i              : in  std_logic_vector(31 downto 0);
     enable_i            : in  std_logic;
@@ -104,8 +105,8 @@ begin
 A_OUT_o <= a_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_a;
 B_OUT_o <= b_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_b;
 Z_OUT_o <= z_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else '0';
-DATA_OUT_o <= data_ext_i when (OUTENC_PROTOCOL_i = c_DATA_PASSTHROUGH) else
-            bdat when (OUTENC_PROTOCOL_i = c_BISS) else sdat;
+DATA_OUT_o <= bdat when (DCARD_MODE_i = DCARD_MONITOR or OUTENC_PROTOCOL_i = c_BISS) else 
+              data_ext_i when (OUTENC_PROTOCOL_i = c_DATA_PASSTHROUGH) else sdat;
 
 --
 -- INCREMENTAL OUT
@@ -277,7 +278,6 @@ port map (
     posn_o          => posn_biss,
     posn_valid_o    => open
 );
-
 
 -- BiSS Sniffer
 biss_sniffer_inst : entity work.biss_sniffer
