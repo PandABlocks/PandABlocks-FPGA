@@ -219,33 +219,6 @@ width_i <=  (unsigned(WIDTH)) when (unsigned(WIDTH) > 5) else
             (2 => '1', 1 => '1', others => '0');
           
 
--- Calculate the minimum gap given all the other parameters
-process(clk_i)
-begin
-    if (rising_edge(clk_i)) then
-        width_i_prev <= width_i;
-        step_i_prev <= unsigned(STEP);
-
-        if ((width_i /= width_i_prev) or (unsigned(STEP) /= step_i_prev)) then
-            if ((signed(step_i) - signed(width_i)) > 1) then
-                gap_i <= step_i - width_i;
-            else
-                gap_i <= (0 => '1', others => '0');
-            end if;
-
-            if (unsigned(STEP) > width_i) then
-                step_i <= unsigned(STEP);
-            else
-                step_i <= unsigned(STEP) + width_i + 1;
-            end if;
-        end if;
-    end if;
-end process;
-
-
--- Code that runs inside process structures (i.e. code that runs in sequence with the blocks running in parallel)
-
-
 -- Free running global timestamp counter
 process(clk_i, enable_i)
 begin
