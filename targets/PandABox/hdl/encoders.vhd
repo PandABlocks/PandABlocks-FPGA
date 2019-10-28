@@ -23,19 +23,21 @@ port (
     posn_i              : in  std_logic_vector(31 downto 0);
     enable_i            : in  std_logic;
     -- Encoder I/O Pads
-    A_OUT_o             : out std_logic;
-    B_OUT_o             : out std_logic;
-    Z_OUT_o             : out std_logic;
-    DATA_OUT_o          : out std_logic;
-    CLK_IN_i            : in  std_logic;
-
-    A_IN_i              : in  std_logic;
-    B_IN_i              : in  std_logic;
-    Z_IN_i              : in  std_logic;
-    CLK_OUT_o           : out std_logic;
-    DATA_IN_i           : in  std_logic;
+    INENC_A_o          : out std_logic;
+    INENC_B_o          : out std_logic;
+    INENC_Z_o          : out std_logic;
+    INENC_DATA_o       : out std_logic;
     --
     clk_out_ext_i       : in  std_logic;
+    clk_int_o           : out std_logic;
+    --
+    Am0_pad_io          : inout std_logic;
+    Bm0_pad_io          : inout std_logic;
+    Zm0_pad_io          : inout std_logic;
+    As0_pad_io          : inout std_logic;
+    Bs0_pad_io          : inout std_logic;
+    Zs0_pad_io          : inout std_logic;
+
     -- Block parameters
     GENERATOR_ERROR_i   : in  std_logic;
     OUTENC_PROTOCOL_i   : in  std_logic_vector(2 downto 0);
@@ -98,15 +100,49 @@ signal health_biss_sniffer  : std_logic_vector(31 downto 0);
 signal linkup_biss_master   : std_logic;
 signal health_biss_master   : std_logic_vector(31 downto 0);
 
+signal inenc_dir            : std_logic;
+signal outenc_dir           : std_logic;
+signal inenc_ctrl           : std_logic_vector(2 downto 0);
+signal outenc_ctrl          : std_logic_vector(2 downto 0);
+
+signal Am0_ipad, Am0_opad   : std_logic;
+signal Bm0_ipad, Bm0_opad   : std_logic;
+signal Zm0_ipad, Zm0_opad   : std_logic;
+
+signal As0_ipad, As0_opad   : std_logic;
+signal Bs0_ipad, Bs0_opad   : std_logic;
+signal Zs0_ipad, Zs0_opad   : std_logic;
+
+signal A_IN                 : std_logic;
+signal B_IN                 : std_logic;
+signal Z_IN                 : std_logic;
+signal DATA_IN              : std_logic;
+
+signal A_OUT                : std_logic;
+signal B_OUT                : std_logic;
+signal Z_OUT                : std_logic;
+signal DATA_OUT             : std_logic;
+
+signal CLK_OUT              : std_logic;
+
+signal CLK_IN               : std_logic;
+
 begin
+
+-- Unused Nets.
+inenc_dir <= '0';
+outenc_dir <= '0';
+Am0_opad <= '0';
+Zm0_opad <= '0';
+
 -----------------------------OUTENC---------------------------------------------
 
 -- Assign outputs
-A_OUT_o <= a_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_a;
-B_OUT_o <= b_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_b;
-Z_OUT_o <= z_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else '0';
-DATA_OUT_o <= bdat when (DCARD_MODE_i = DCARD_MONITOR or OUTENC_PROTOCOL_i = c_BISS) else 
-              data_ext_i when (OUTENC_PROTOCOL_i = c_DATA_PASSTHROUGH) else sdat;
+A_OUT <= a_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_a;
+B_OUT <= b_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_b;
+Z_OUT <= z_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else '0';
+DATA_OUT <= bdat when (DCARD_MODE_i = DCARD_MONITOR or OUTENC_PROTOCOL_i = c_BISS) else 
+            data_ext_i when (OUTENC_PROTOCOL_i = c_DATA_PASSTHROUGH) else sdat;
 
 --
 -- INCREMENTAL OUT
@@ -133,7 +169,7 @@ port map (
     reset_i         => reset_i,
     BITS            => OUTENC_BITS_i,
     posn_i          => posn_i,
-    ssi_sck_i       => CLK_IN_i,
+    ssi_sck_i       => CLK_IN,
     ssi_dat_o       => sdat
 );
 
@@ -149,7 +185,7 @@ port map (
     GENERATOR_ERROR   => GENERATOR_ERROR_i,
     health_o          => health_biss_slave,
     posn_i            => posn_i,
-    biss_sck_i        => CLK_IN_i,
+    biss_sck_i        => CLK_IN,
     biss_dat_o        => bdat
 );
 
@@ -204,9 +240,11 @@ begin
 end process ps_select;
 
 -- Loopbacks
-CLK_OUT_o <=  clk_out_ext_i when (CLK_SRC_i = '1') else
+CLK_OUT <=    clk_out_ext_i when (CLK_SRC_i = '1') else
               clk_out_encoder_biss when (CLK_SRC_i = '0' and INENC_PROTOCOL_i = "010") else
               clk_out_encoder_ssi;
+
+
 
 --------------------------------------------------------------------------
 -- Incremental Encoder Instantiation :
@@ -216,9 +254,9 @@ port map (
     clk_i           => clk_i,
 --  reset_i         => reset_i,
     LINKUP_INCR     => linkup_incr_std32,
-    a_i             => A_IN_i,
-    b_i             => B_IN_i,
-    z_i             => Z_IN_i,
+    a_i             => A_IN,
+    b_i             => B_IN,
+    z_i             => Z_IN,
     SETP            => SETP_i,
     SETP_WSTB       => SETP_WSTB_i,
     RST_ON_Z        => RST_ON_Z_i,
@@ -242,7 +280,7 @@ port map (
     CLK_PERIOD      => CLK_PERIOD_i,
     FRAME_PERIOD    => FRAME_PERIOD_i,
     ssi_sck_o       => clk_out_encoder_ssi,
-    ssi_dat_i       => DATA_IN_i,
+    ssi_dat_i       => DATA_IN,
     posn_o          => posn_ssi,
     posn_valid_o    => open
 );
@@ -255,8 +293,8 @@ port map (
     BITS            => INENC_BITS_i,
     link_up_o       => linkup_ssi,
     error_o         => open,
-    ssi_sck_i       => CLK_IN_i,
-    ssi_dat_i       => DATA_IN_i,
+    ssi_sck_i       => CLK_IN,
+    ssi_dat_i       => DATA_IN,
     posn_o          => posn_ssi_sniffer
 );
 
@@ -274,7 +312,7 @@ port map (
     CLK_PERIOD      => CLK_PERIOD_i,
     FRAME_PERIOD    => FRAME_PERIOD_i,
     biss_sck_o      => clk_out_encoder_biss,
-    biss_dat_i      => DATA_IN_i,
+    biss_dat_i      => DATA_IN,
     posn_o          => posn_biss,
     posn_valid_o    => open
 );
@@ -288,8 +326,8 @@ port map (
     link_up_o       => linkup_biss_sniffer,
     health_o        => health_biss_sniffer,
     error_o         => open,
-    ssi_sck_i       => CLK_IN_i,
-    ssi_dat_i       => DATA_IN_i,
+    ssi_sck_i       => CLK_IN,
+    ssi_dat_i       => DATA_IN,
     posn_o          => posn_biss_sniffer
 );
 
@@ -345,4 +383,155 @@ begin
         end case;
     end if;
 end process;
+
+-------------------dcard_interface----------------------------------------------
+-------------------inenc--------------------------------------------------------
+INENC_IOBUF_CTRL : process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if (reset_i = '1') then
+            inenc_ctrl <= "111";
+        else
+            case (INENC_PROTOCOL_i) is
+                when "000"  =>                              -- INC
+                    inenc_ctrl <= "111";
+                when "001"  =>                              -- SSI
+                    inenc_ctrl <= "101";
+                when "010"  =>                              -- BiSS-C
+                    inenc_ctrl <= "101";
+                when "011"  =>                              -- EnDat
+                    inenc_ctrl <= inenc_dir & "00";
+                when others =>
+                    inenc_ctrl <= "111";
+            end case;
+        end if;
+    end if;
+end process;
+
+-- Physical IOBUF instantiations controlled with PROTOCOL
+IOBUF_Am0 : entity work.iobuf_registered port map (
+    clock   => clk_i,
+    I       => Am0_opad,
+    O       => Am0_ipad,
+    T       => inenc_ctrl(2),
+    IO      => Am0_pad_io
+);
+
+IOBUF_Bm0 : entity work.iobuf_registered port map (
+    clock   => clk_i,
+    I       => Bm0_opad,
+    O       => Bm0_ipad,
+    T       => inenc_ctrl(1),
+    IO      => Bm0_pad_io
+);
+
+IOBUF_Zm0 : entity work.iobuf_registered port map (
+    clock   => clk_i,
+    I       => Zm0_opad,
+    O       => Zm0_ipad,
+    T       => inenc_ctrl(0),
+    IO      => Zm0_pad_io
+);
+
+Bm0_opad <= CLK_OUT;
+
+a_filt : entity work.delay_filter port map(
+    clk_i   => clk_i,
+    reset_i => reset_i,
+    pulse_i => Am0_ipad,
+    filt_o  => A_IN
+);
+
+b_filt : entity work.delay_filter port map(
+    clk_i   => clk_i,
+    reset_i => reset_i,
+    pulse_i => Bm0_ipad,
+    filt_o  => B_IN
+);
+
+z_filt : entity work.delay_filter port map(
+    clk_i   => clk_i,
+    reset_i => reset_i,
+    pulse_i => Zm0_ipad,
+    filt_o  => Z_IN
+);
+
+datain_filt : entity work.delay_filter port map(
+    clk_i   => clk_i,
+    reset_i => reset_i,
+    pulse_i => Am0_ipad,
+    filt_o  => DATA_IN
+);
+
+--------------------------------------------------------------------------
+--  On-chip IOBUF controls based on protocol for OUTENC Blocks
+--------------------------------------------------------------------------
+OUTENC_IOBUF_CTRL : process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if (reset_i = '1') then
+            outenc_ctrl <= "000";
+        else
+            case (OUTENC_PROTOCOL_i) is
+                when "000"  =>                        -- INC
+                    outenc_ctrl <= "000";
+                when "001"  =>                        -- SSI
+                    outenc_ctrl <= "011";
+                when "010"  =>                        -- EnDat
+                    outenc_ctrl <= outenc_dir & "10";
+                when "011"  =>                        -- BiSS
+                    outenc_ctrl <= outenc_dir & "10";
+--                when "100"  =>                        -- Pass-Through
+--                    outenc_ctrl <= "000";
+                when "101" =>
+                    outenc_ctrl <= "011";          -- DATA PassThrough
+                when others =>
+                    outenc_ctrl <= "000";
+            end case;
+        end if;
+    end if;
+end process;
+
+IOBUF_As0 : entity work.iobuf_registered port map (
+    clock   => clk_i,
+    I       => As0_opad,
+    O       => As0_ipad,
+    T       => outenc_ctrl(2),
+    IO      => As0_pad_io
+);
+
+IOBUF_Bs0 : entity work.iobuf_registered port map (
+    clock   => clk_i,
+    I       => Bs0_opad,
+    O       => Bs0_ipad,
+    T       => outenc_ctrl(1),
+    IO      => Bs0_pad_io
+);
+
+IOBUF_Zs0 : entity work.iobuf_registered port map (
+    clock   => clk_i,
+    I       => Zs0_opad,
+    O       => Zs0_ipad,
+    T       => outenc_ctrl(0),
+    IO      => Zs0_pad_io
+);
+
+-- A output is shared between incremental and absolute data lines.
+As0_opad <= A_OUT when (OUTENC_PROTOCOL_i(1 downto 0) = "00") else DATA_OUT;
+Bs0_opad <= B_OUT;
+Zs0_opad <= Z_OUT;
+
+INENC_A_o <= A_OUT;
+INENC_B_o <= B_OUT;
+INENC_Z_o <= Z_OUT;
+INENC_DATA_o <= DATA_OUT;
+
+clkin_filt : entity work.delay_filter port map (
+    clk_i   => clk_i,
+    reset_i => reset_i,
+    pulse_i => Bs0_ipad,
+    filt_o  => clk_int_o
+);
 end rtl;
+
+

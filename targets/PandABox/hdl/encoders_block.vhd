@@ -29,30 +29,31 @@ port (
     INENC_write_strobe_i    : in  std_logic;
     INENC_write_ack_o       : out std_logic;
 
-    read_address_i          : in  std_logic_vector(PAGE_AW-1 downto 0);
+    read_address_i          : in  std_logic_vector(BLK_AW-1 downto 0);
 
-    write_address_i         : in  std_logic_vector(PAGE_AW-1 downto 0);
+    write_address_i         : in  std_logic_vector(BLK_AW-1 downto 0);
     write_data_i            : in  std_logic_vector(31 downto 0);
     -- Encoder I/O Pads
-    A_OUT_o                 : out std_logic;
-    B_OUT_o                 : out std_logic;
-    Z_OUT_o                 : out std_logic;
-    CLK_IN_i                : in  std_logic;
-    DATA_OUT_o              : out std_logic;
-    OUTENC_CONN_OUT_o       : out std_logic;
+    INENC_A_o               : out std_logic;
+    INENC_B_o               : out std_logic;
+    INENC_Z_o               : out std_logic;
+    INENC_DATA_o            : out std_logic;
 
-    A_IN_i                  : in  std_logic;
-    B_IN_i                  : in  std_logic;
-    Z_IN_i                  : in  std_logic;
-    CLK_OUT_o               : out std_logic;
-    DATA_IN_i               : in  std_logic;
+    OUTENC_CONN_OUT_o       : out std_logic;
     INENC_CONN_OUT_o        : out std_logic;
+
+    clk_int_o               : out std_logic;
+
+    Am0_pad_io              : inout std_logic;
+    Bm0_pad_io              : inout std_logic;
+    Zm0_pad_io              : inout std_logic;
+    As0_pad_io              : inout std_logic;
+    Bs0_pad_io              : inout std_logic;
+    Zs0_pad_io              : inout std_logic;
     -- Position Field interface
-    OUTENC_PROTOCOL_o       : out std_logic_vector(2 downto 0);
     DCARD_MODE_i            : in  std_logic_vector(31 downto 0);
     bit_bus_i               : in  bit_bus_t;
     pos_bus_i               : in  pos_bus_t;
-    INENC_PROTOCOL_o        : out std_logic_vector(2 downto 0);
     posn_o                  : out std_logic_vector(31 downto 0)
 );
 end entity;
@@ -103,10 +104,8 @@ signal read_addr                : natural range 0 to (2**read_address_i'length -
 begin
 
 -- Assign outputs
-OUTENC_PROTOCOL_o <= OUTENC_PROTOCOL(2 downto 0);
 OUTENC_CONN_OUT_o <= enable;
 
-INENC_PROTOCOL_o <= INENC_PROTOCOL(2 downto 0);
 -- Input encoder connection status comes from either
 --  * Dcard pin [12] for incremental, or
 --  * link_up status for absolute in loopback mode
@@ -217,19 +216,20 @@ port map(
     posn_i              => posn,
     enable_i            => enable,
     -- Encoder I/O Pads
-    A_OUT_o             => A_OUT_o,
-    B_OUT_o             => B_OUT_o,
-    Z_OUT_o             => Z_OUT_o,
-    DATA_OUT_o          => DATA_OUT_o,
-    CLK_IN_i            => CLK_IN_i,
-
-    A_IN_i              => A_IN_i,
-    B_IN_i              => B_IN_i,
-    Z_IN_i              => Z_IN_i,
-    CLK_OUT_o           => CLK_OUT_o,
-    DATA_IN_i           => DATA_IN_i,
+    INENC_A_o           => INENC_A_o,
+    INENC_B_o           => INENC_B_o,
+    INENC_Z_o           => INENC_Z_o,
+    INENC_DATA_o        => INENC_DATA_o,
     --
     clk_out_ext_i       => clk_ext,
+    clk_int_o           => clk_int_o,
+    --
+    Am0_pad_io          => Am0_pad_io, 
+    Bm0_pad_io          => Bm0_pad_io,
+    Zm0_pad_io          => Zm0_pad_io,
+    As0_pad_io          => As0_pad_io,
+    Bs0_pad_io          => Bs0_pad_io,
+    Zs0_pad_io          => Zs0_pad_io, 
     -- Block parameters
     GENERATOR_ERROR_i   => GENERATOR_ERROR(0),
     OUTENC_PROTOCOL_i   => OUTENC_PROTOCOL(2 downto 0),

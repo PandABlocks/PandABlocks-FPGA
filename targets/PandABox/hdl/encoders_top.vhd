@@ -37,32 +37,27 @@ port (
     write_address_i         : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i            : in  std_logic_vector(31 downto 0);
     -- Encoder I/O Pads
-    A_OUT_o                 : out std_logic_vector(ENC_NUM-1 downto 0);
-    B_OUT_o                 : out std_logic_vector(ENC_NUM-1 downto 0);
-    Z_OUT_o                 : out std_logic_vector(ENC_NUM-1 downto 0);
-    CLK_IN_i                : in  std_logic_vector(ENC_NUM-1 downto 0);
-    DATA_OUT_o              : out std_logic_vector(ENC_NUM-1 downto 0);
     OUTENC_CONN_OUT_o       : out std_logic_vector(ENC_NUM-1 downto 0);
 
-    A_IN_i                  : in  std_logic_vector(ENC_NUM-1 downto 0);
-    B_IN_i                  : in  std_logic_vector(ENC_NUM-1 downto 0);
-    Z_IN_i                  : in  std_logic_vector(ENC_NUM-1 downto 0);
-    CLK_OUT_o               : out std_logic_vector(ENC_NUM-1 downto 0);
-    DATA_IN_i               : in  std_logic_vector(ENC_NUM-1 downto 0);
     INENC_CONN_OUT_o        : out std_logic_vector(ENC_NUM-1 downto 0);
+
+    Am0_pad_io              : inout std_logic_vector(ENC_NUM-1 downto 0);
+    Bm0_pad_io              : inout std_logic_vector(ENC_NUM-1 downto 0);
+    Zm0_pad_io              : inout std_logic_vector(ENC_NUM-1 downto 0);
+    As0_pad_io              : inout std_logic_vector(ENC_NUM-1 downto 0);
+    Bs0_pad_io              : inout std_logic_vector(ENC_NUM-1 downto 0);
+    Zs0_pad_io              : inout std_logic_vector(ENC_NUM-1 downto 0);
 
     -- Signals passed to internal bus
     clk_int_o               : out std_logic_vector(ENC_NUM-1 downto 0);
-    a_int_o                 : out std_logic_vector(ENC_NUM-1 downto 0);
-    b_int_o                 : out std_logic_vector(ENC_NUM-1 downto 0);
-    z_int_o                 : out std_logic_vector(ENC_NUM-1 downto 0);
-    data_int_o              : out std_logic_vector(ENC_NUM-1 downto 0);
+    inenc_a_o               : out std_logic_vector(ENC_NUM-1 downto 0);
+    inenc_b_o               : out std_logic_vector(ENC_NUM-1 downto 0);
+    inenc_z_o               : out std_logic_vector(ENC_NUM-1 downto 0);
+    inenc_data_o            : out std_logic_vector(ENC_NUM-1 downto 0);
     -- Block Input and Outputs
     bit_bus_i               : in  bit_bus_t;
     pos_bus_i               : in  pos_bus_t;
     DCARD_MODE_i            : in  std32_array(ENC_NUM-1 downto 0);
-    OUTENC_PROTOCOL_o       : out std3_array(ENC_NUM-1 downto 0);
-    INENC_PROTOCOL_o        : out std3_array(ENC_NUM-1 downto 0);
     posn_o                  : out std32_array(ENC_NUM-1 downto 0);
 
     slow_tlp_o              : out slow_packet
@@ -97,9 +92,6 @@ OUTENC_read_ack_o <= or_reduce(OUTENC_read_ack);
 -- Multiplex read data out from multiple instantiations
 OUTENC_read_data_o <= OUTENC_read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW))));
 
--- Loopbacks onto system bus
-clk_int_o <= CLK_IN_i;
-
 -- Used for Slow output signal
 OUTENC_write_address <= to_integer(unsigned(write_address_i(BLK_AW-1 downto 0)));
 OUTENC_blk_addr <= to_integer(unsigned(write_address_i(PAGE_AW-1 downto BLK_AW)));
@@ -117,12 +109,6 @@ INENC_blk_addr <= to_integer(unsigned(write_address_i(PAGE_AW-1 downto BLK_AW)))
 
 -- Outputs
 posn_o <= posn;
-
--- Loopbacks onto system bus
-a_int_o <= A_IN_i;
-b_int_o <= B_IN_i;
-z_int_o <= Z_IN_i;
-data_int_o <= DATA_IN_i;
 
 -- slow registers
 
@@ -196,25 +182,25 @@ port map (
     write_address_i         => write_address_i(BLK_AW-1 downto 0),
     write_data_i            => write_data_i,
     -- Encoder I/O Pads
-    A_OUT_o                 => A_OUT_o(I),
-    B_OUT_o                 => B_OUT_o(I),
-    Z_OUT_o                 => Z_OUT_o(I),
-    CLK_IN_i                => CLK_IN_i(I),
-    DATA_OUT_o              => DATA_OUT_o(I),
     OUTENC_CONN_OUT_o       => OUTENC_CONN_OUT_o(I),
-
-    A_IN_i                  => A_IN_i(I),
-    B_IN_i                  => B_IN_i(I),
-    Z_IN_i                  => Z_IN_i(I),
-    CLK_OUT_o               => CLK_OUT_o(I),
-    DATA_IN_i               => DATA_IN_i(I),
     INENC_CONN_OUT_o        => INENC_CONN_OUT_o(I),
+
+    clk_int_o               => clk_int_o(I),
+    inenc_a_o               => inenc_a_o(I),
+    inenc_b_o               => inenc_b_o(I),
+    inenc_z_o               => inenc_z_o(I),
+    inenc_data_o            => inenc_data_o(I),
+
+    Am0_pad_io              => Am0_pad_io(I), 
+    Bm0_pad_io              => Bm0_pad_io(I),
+    Zm0_pad_io              => Zm0_pad_io(I),
+    As0_pad_io              => As0_pad_io(I),
+    Bs0_pad_io              => Bs0_pad_io(I),
+    Zs0_pad_io              => Zs0_pad_io(I), 
     -- Position Field interface
-    OUTENC_PROTOCOL_o       => OUTENC_PROTOCOL_o(I),
     DCARD_MODE_i            => DCARD_MODE_i(I),
     bit_bus_i               => bit_bus_i,
     pos_bus_i               => pos_bus_i,
-    INENC_PROTOCOL_o        => INENC_PROTOCOL_o(I),
     posn_o                  => posn(I)
     );
 
