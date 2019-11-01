@@ -165,10 +165,10 @@ port map (
     -- Memory Bus Interface
     OUTENC_read_strobe_i    => OUTENC_read_strobe(I),
     OUTENC_read_data_o      => OUTENC_read_data(I),
-    OUTENC_read_ack_o       => open,
+    OUTENC_read_ack_o       => OUTENC_read_ack(I),
 
     OUTENC_write_strobe_i   => OUTENC_write_strobe(I),
-    OUTENC_write_ack_o      => OUTENC_read_ack(I),
+    OUTENC_write_ack_o      => open,
 
     INENC_read_strobe_i     => INENC_read_strobe(I),
     INENC_read_data_o       => INENC_read_data(I),
