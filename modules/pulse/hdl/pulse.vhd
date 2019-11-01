@@ -238,7 +238,7 @@ end process;
 -- Comparing the status of the previous clock cycle!
 process(clk_i)
 begin
-    if (rising_edge(clk_i)) then
+    if (rising_edge(clk_i) and enable_i = '1') then
         trig_fall <= '0';
         trig_rise <= '0';
         trig_same <= '0';
@@ -252,6 +252,7 @@ begin
                 (unsigned(DELAY) = 0)) then
 
                 pulse_assertion_override <= '1';
+                end_pulse_assertion_ts <= timestamp + 6;
             end if;
 
         elsif ((trig_i = '1') and (trig_i /= trig_i_prev)) then
