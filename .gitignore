@@ -9,3 +9,6 @@
 .idea
 
 /tools/virtexHex2Bin
+
+# For mac
+*.DS_Store

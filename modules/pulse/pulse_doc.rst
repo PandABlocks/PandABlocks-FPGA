@@ -24,11 +24,11 @@ is defaulted to four.
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: Pulse stretching with no delay activate on rising edge
+   :section: 1 Pulse stretching with no delay activate on rising edge
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: No delay means a WIDTH >3 is required
+   :section: 2 No delay means a WIDTH of 6 or more is required
 
 Zero Width
 ----------
@@ -38,11 +38,11 @@ any lower inputted values will be defaulted to four.
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: Pulse delay with no stretch
+   :section: 3 Pulse delay with no stretch
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: No WIDTH means a delay >3 is required
+   :section: 4 No WIDTH means a delay of 6 or more is required
 
 Width and Delay
 ---------------
@@ -57,15 +57,15 @@ restrictions apply:
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: Pulse delay and stretch
+   :section: 5 Pulse delay and stretch
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: Pulse train stretched and delayed
+   :section: 6 Pulse train stretched and delayed
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: Small delay width combination
+   :section: 7 Small delay width combination
 
 No Delay or Width
 -----------------
@@ -75,11 +75,11 @@ the Edge activation:
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: No delay or stretch
+   :section: 8 No delay or stretch
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: No delay or stretch activate on falling edge
+   :section: 9 No delay or stretch activate on falling edge
 
 Different Edge Activation
 -------------------------
@@ -89,11 +89,11 @@ the input pulse activates the output.
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: Pulse stretching with no delay activate on falling edge
+   :section: 10 Pulse stretching with no delay activate on falling edge
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: Pulse stretching with no delay activate on both edges
+   :section: 11 Pulse stretching with no delay activate on both edges
 
 
 Pulse period error
@@ -104,7 +104,7 @@ short.
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: Stretched and delayed pulses too close together
+   :section: 12 Stretched and delayed pulses too close together
 
 Enabling the Block
 ------------------
@@ -114,7 +114,7 @@ must occur while Enable is high to trigger a pulse creation
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: No pulses if disabled
+   :section: 13 No pulses if disabled
 
 Multiple pulses
 ---------------
@@ -127,12 +127,12 @@ takes to output the pulse train, the pulse is dropped.
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: Multiple pulses with no delay
+   :section: 14 Multiple pulses with no delay
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: Multiple pulses with no width
+   :section: 15 Multiple pulses with no width
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: Multiple pulses interrupted
+   :section: 16 Multiple pulses interrupted
