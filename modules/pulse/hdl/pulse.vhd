@@ -239,46 +239,48 @@ begin
         enable_i_prev <= enable_i;
     end if;
 
-    if (rising_edge(clk_i) and enable_i = '1') then
-        trig_fall <= '0';
-        trig_rise <= '0';
-        trig_same <= '0';
+    if (rising_edge(clk_i)) then
+        if (enable_i = '1') then
+            trig_fall <= '0';
+            trig_rise <= '0';
+            trig_same <= '0';
 
-        -- Detect the current edge state, if differrent
-        if ((trig_i = '0') and (trig_i /= trig_i_prev)) then
-            trig_fall <= '1';
+            -- Detect the current edge state, if differrent
+            if ((trig_i = '0') and (trig_i /= trig_i_prev)) then
+                trig_fall <= '1';
 
-            if( (unsigned(DELAY) = 0) and
-                (pulse_assertion_override = '0') and
-                (waiting_for_delay = '1') and
-                ((TRIG_EDGE(1 downto 0) = c_number_one) or
-                (TRIG_EDGE(1 downto 0) = c_number_two))
-              ) then
+                if( (unsigned(DELAY) = 0) and
+                    (pulse_assertion_override = '0') and
+                    (waiting_for_delay = '1') and
+                    ((TRIG_EDGE(1 downto 0) = c_number_one) or
+                    (TRIG_EDGE(1 downto 0) = c_number_two))
+                  ) then
 
-                pulse_assertion_override <= '1';
-                end_pulse_assertion_ts <= timestamp + 6;
+                    pulse_assertion_override <= '1';
+                    end_pulse_assertion_ts <= timestamp + 6;
+                end if;
+
+            elsif ((trig_i = '1') and (trig_i /= trig_i_prev)) then
+                trig_rise <= '1';
+
+                if( (unsigned(DELAY) = 0) and
+                    (pulse_assertion_override = '0') and
+                    (waiting_for_delay = '1') and
+                    ((TRIG_EDGE(1 downto 0) = c_number_zero) or
+                    (TRIG_EDGE(1 downto 0) = c_number_two))
+                  ) then
+
+                    pulse_assertion_override <= '1';
+                    end_pulse_assertion_ts <= timestamp + 6;
+                end if;
+
+            elsif (trig_i = trig_i_prev) then
+                trig_same <= '1';
             end if;
 
-        elsif ((trig_i = '1') and (trig_i /= trig_i_prev)) then
-            trig_rise <= '1';
-
-            if( (unsigned(DELAY) = 0) and
-                (pulse_assertion_override = '0') and
-                (waiting_for_delay = '1') and
-                ((TRIG_EDGE(1 downto 0) = c_number_zero) or
-                (TRIG_EDGE(1 downto 0) = c_number_two))
-              ) then
-
-                pulse_assertion_override <= '1';
-                end_pulse_assertion_ts <= timestamp + 6;
+            if (timestamp = end_pulse_assertion_ts) then
+                pulse_assertion_override <= '0';
             end if;
-
-        elsif (trig_i = trig_i_prev) then
-            trig_same <= '1';
-        end if;
-
-        if (timestamp = end_pulse_assertion_ts) then
-            pulse_assertion_override <= '0';
         end if;
     end if;
 end process;
@@ -287,23 +289,23 @@ end process;
 -- Free running delay countdown block
 process(clk_i)
 begin
-    if (rising_edge(enable_i)) then
-        delay_remaining <= (others => '0');
-    end if;
-
-    if (rising_edge(clk_i) and enable_i = '1') then
-        if (delay_remaining /= 0) then
-            delay_remaining <= delay_remaining - 1;
-        elsif ((start_delay_countdown = '1') and (pulse_queued_empty = '1')) then
-            if (fancy_delay_line_started = '0') then
-                delay_remaining <= delay_i - 4;
-            else
-                if (delay_remaining = 6) then
+    if (rising_edge(clk_i)) then
+        if (enable_i = '1') then
+            if (delay_remaining /= 0) then
+                delay_remaining <= delay_remaining - 1;
+            elsif ((start_delay_countdown = '1') and (pulse_queued_empty = '1')) then
+                if (fancy_delay_line_started = '0') then
                     delay_remaining <= delay_i - 4;
                 else
-                    delay_remaining <= delay_i - 3;
+                    if (delay_remaining = 6) then
+                        delay_remaining <= delay_i - 4;
+                    else
+                        delay_remaining <= delay_i - 3;
+                    end if;
                 end if;
             end if;
+        elsif (enable_i = 0) then
+            delay_remaining <= (others => '0');
         end if;
     end if;
 end process;
