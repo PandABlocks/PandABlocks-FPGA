@@ -197,17 +197,14 @@ STEP(47 downto 32) <= STEP_H(15 downto 0);
 -- For those not requiring mathematics
 
 -- If 0 < DELAY < 6, it should be set to 6
-delay_i <=  (unsigned(DELAY)) when (unsigned(DELAY) > 5) else
-            (2 => '1', 1 => '1', others => '0');
+delay_i <=  (unsigned(DELAY)) when (unsigned(DELAY) > 5) else to_unsigned(6, 48);
 
 
-gap_i <=    step_i - width_i when ((signed(step_i) - signed(width_i)) > 2) else
-            (1 => '1', others => '0');
+gap_i <=    step_i - width_i when ((signed(step_i) - signed(width_i)) > 2) else to_unsigned(2, 48);
 
 
 -- Make sure that if we recieve a pulse and the PULSE variable is accidentally set to zero we don't punish a hapless user
-pulses_i <= unsigned(PULSES) when (unsigned(PULSES) /= 0) else
-            (0 => '1', others => '0');
+pulses_i <= unsigned(PULSES) when (unsigned(PULSES) /= 0) else to_unsigned(1, 48);
 
 
 step_i <=   unsigned(STEP) when (unsigned(STEP) > unsigned(WIDTH) or unsigned(STEP) = 0) else
@@ -215,12 +212,11 @@ step_i <=   unsigned(STEP) when (unsigned(STEP) > unsigned(WIDTH) or unsigned(ST
 
 
 -- Set an internal width value
-width_i <=  (unsigned(WIDTH)) when (unsigned(WIDTH) > 5 or unsigned(WIDTH) = 0) else
-            (2 => '1', 1 => '1', others => '0');
+width_i <=  (unsigned(WIDTH)) when (unsigned(WIDTH) > 5 or unsigned(WIDTH) = 0) else to_unsigned(6, 48);
           
 
 -- Free running global timestamp counter
-process(clk_i, enable_i)
+process(clk_i)
 begin
     if (rising_edge(clk_i)) then
         if (enable_i = '1') then
@@ -289,7 +285,7 @@ end process;
 
 
 -- Free running delay countdown block
-process(clk_i, enable_i)
+process(clk_i)
 begin
     if (rising_edge(enable_i)) then
         delay_remaining <= (others => '0');
@@ -314,7 +310,7 @@ end process;
 
 
 -- Filling the queue
-process(clk_i, enable_i)
+process(clk_i)
 begin
     if(rising_edge(clk_i)) then
         if ((enable_i_prev = '0') and (enable_i = '1')) then
@@ -443,7 +439,7 @@ end process;
 
 
 -- Process to pass edges
-process(clk_i, enable_i)
+process(clk_i)
 begin
     if(rising_edge(clk_i)) then
         if ((enable_i_prev = '0') and (enable_i = '1')) then
@@ -495,7 +491,7 @@ begin
                             if ((signed(step_i) - signed(queue_pulse_ts)) > 1) then
                                 pulse_gap <= step_i - queue_pulse_ts;
                             else
-                                pulse_gap <= (1 => '1', others => '0');
+                                pulse_gap <= to_unsigned(2, 48);
                             end if;
 
                             pulse_width <= queue_pulse_ts;
