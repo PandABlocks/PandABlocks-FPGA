@@ -141,8 +141,8 @@ Zm0_opad <= '0';
 A_OUT <= a_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_a;
 B_OUT <= b_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_b;
 Z_OUT <= z_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else '0';
-DATA_OUT <= bdat when (DCARD_MODE_i = DCARD_MONITOR or OUTENC_PROTOCOL_i = c_BISS) else 
-            data_ext_i when (OUTENC_PROTOCOL_i = c_DATA_PASSTHROUGH) else sdat;
+DATA_OUT <= data_ext_i when (OUTENC_PROTOCOL_i = c_DATA_PASSTHROUGH) else 
+            bdat when (OUTENC_PROTOCOL_i = c_BISS) else sdat;
 
 --
 -- INCREMENTAL OUT
@@ -385,7 +385,7 @@ begin
 end process;
 
 -------------------dcard_interface----------------------------------------------
--------------------inenc--------------------------------------------------------
+--------------------------------------------------------------------------------
 INENC_IOBUF_CTRL : process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -521,16 +521,18 @@ As0_opad <= A_OUT when (OUTENC_PROTOCOL_i(1 downto 0) = "00") else DATA_OUT;
 Bs0_opad <= B_OUT;
 Zs0_opad <= Z_OUT;
 
-INENC_A_o <= A_OUT;
-INENC_B_o <= B_OUT;
-INENC_Z_o <= Z_OUT;
-INENC_DATA_o <= DATA_OUT;
+INENC_A_o <= A_IN;
+INENC_B_o <= B_IN;
+INENC_Z_o <= Z_IN;
+INENC_DATA_o <= DATA_IN;
+
+clk_int_o <= CLK_IN;
 
 clkin_filt : entity work.delay_filter port map (
     clk_i   => clk_i,
     reset_i => reset_i,
     pulse_i => Bs0_ipad,
-    filt_o  => clk_int_o
+    filt_o  => CLK_IN
 );
 end rtl;
 
