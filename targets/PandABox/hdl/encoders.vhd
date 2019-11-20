@@ -127,6 +127,8 @@ signal CLK_OUT              : std_logic;
 
 signal CLK_IN               : std_logic;
 
+signal Bs0_t                : std_logic;
+
 begin
 
 -- Unused Nets.
@@ -136,6 +138,9 @@ Am0_opad <= '0';
 Zm0_opad <= '0';
 
 -----------------------------OUTENC---------------------------------------------
+--------------------------------------------------------------------------------
+-- When using the monitor control card, only the B signal is used as this is 
+-- used to generate the Clock inputted to the Inenc.
 
 -- Assign outputs
 A_OUT <= a_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_a;
@@ -477,9 +482,9 @@ begin
                     outenc_ctrl <= "000";
                 when "001"  =>                        -- SSI
                     outenc_ctrl <= "011";
-                when "010"  =>                        -- EnDat
+                when "010"  =>                        -- BiSS
                     outenc_ctrl <= outenc_dir & "10";
-                when "011"  =>                        -- BiSS
+                when "011"  =>                        -- EnDat
                     outenc_ctrl <= outenc_dir & "10";
 --                when "100"  =>                        -- Pass-Through
 --                    outenc_ctrl <= "000";
@@ -500,11 +505,15 @@ IOBUF_As0 : entity work.iobuf_registered port map (
     IO      => As0_pad_io
 );
 
+-- When using a Monitor card the B signal will need to be enabled, for using the CLK
+-- regardless of the protocol.
+Bs0_T <= '1' when (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) else outenc_ctrl(1); 
+
 IOBUF_Bs0 : entity work.iobuf_registered port map (
     clock   => clk_i,
     I       => Bs0_opad,
     O       => Bs0_ipad,
-    T       => outenc_ctrl(1),
+    T       => Bs0_T,
     IO      => Bs0_pad_io
 );
 

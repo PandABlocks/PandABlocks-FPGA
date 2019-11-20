@@ -38,7 +38,6 @@ port (
     write_data_i            : in  std_logic_vector(31 downto 0);
     -- Encoder I/O Pads
     OUTENC_CONN_OUT_o       : out std_logic_vector(ENC_NUM-1 downto 0);
-
     INENC_CONN_OUT_o        : out std_logic_vector(ENC_NUM-1 downto 0);
 
     Am0_pad_io              : inout std_logic_vector(ENC_NUM-1 downto 0);
@@ -126,8 +125,13 @@ begin
             if (OUTENC_write_strobe_i = '1') then
                 if (OUTENC_write_address = OUTENC_PROTOCOL_addr) then
                     slow_tlp_o.strobe <= '1';
-                    slow_tlp_o.data <= write_data_i;
                     slow_tlp_o.address <= OUTPROT_ADDR_LIST(OUTENC_blk_addr);
+                    -- When using a monitor card, the protocol needs to make sure the CLK is enabled.
+                    if (DCARD_MODE_i(OUTENC_blk_addr)(3 downto 1) = DCARD_MONITOR) then
+                        slow_tlp_o.data <= x"0000000" & '0' & write_data_i(2) & '1' & write_data_i(0);
+                    else
+                        slow_tlp_o.data <= write_data_i;
+                    end if;
                 end if;
             elsif (INENC_write_strobe_i = '1') then
                 if (INENC_write_address = INENC_PROTOCOL_addr) then
