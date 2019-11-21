@@ -77,7 +77,6 @@ signal a_ext, b_ext, z_ext, data_ext    : std_logic;
 signal posn                     : std_logic_vector(31 downto 0);
 signal enable                   : std_logic;
 
-
 signal clk_ext                  : std_logic;
 -- Block Configuration Registers
 signal INENC_PROTOCOL           : std_logic_vector(31 downto 0);
