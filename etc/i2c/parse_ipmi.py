@@ -9,6 +9,8 @@
 # This script only supports IPMI fields required by the FMC standard, all other
 # fields are ignored.
 
+from __future__ import print_function
+
 import sys
 import numpy
 import codecs
@@ -22,7 +24,7 @@ import ini_file
 # Helper functions
 
 def warn(message):
-    print >>sys.stderr, message
+    print(message, file = sys.stderr)
 
 # Gathers given array of bytes into a single integer.  Works for up to 4 bytes
 # in little endian format.
@@ -372,8 +374,8 @@ if __name__ == '__main__':
         match = ini_file.load_ini_file(sys.argv[2])
         try:
             ini_file.compare_ini(match, ipmi)
-        except ini_file.CompareFail, fail:
-            print 'Compare failed:', fail
+        except ini_file.CompareFail as fail:
+            print('Compare failed:', fail)
             sys.exit(1)
         else:
-            print 'Match ok'
+            print('Match ok')

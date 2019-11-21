@@ -1,5 +1,7 @@
 # Classes for representing an INI file where keys and sections are unique
 
+from __future__ import print_function
+
 import sys
 import ConfigParser
 import collections
@@ -32,7 +34,7 @@ class IniFile:
     def emit(self, outfile = sys.stdout):
         for section in self:
             section.emit(outfile)
-            print >>outfile
+            print(file = outfile)
 
 
 class Section:
@@ -54,9 +56,9 @@ class Section:
         return self.__keys.iteritems()
 
     def emit(self, outfile = sys.stdout):
-        print >>outfile, '[%s]' % self.name
+        print('[%s]' % self.name, file = outfile)
         for key, value in self:
-            print >>outfile, '%s: %s' % (key, value)
+            print('%s: %s' % (key, value), file = outfile)
 
 
 def load_ini_file(filename):
@@ -105,4 +107,4 @@ if __name__ == '__main__':
     else:
         match = load_ini_file(sys.argv[2])
         compare_ini(match, ini)
-        print 'Match ok'
+        print('Match ok')

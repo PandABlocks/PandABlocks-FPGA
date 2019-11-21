@@ -6,6 +6,8 @@
 #   [ISD] IPMI Platform Management FRU Information Storage Definition v1.0,
 #   Document Revision 1.3, March 24, 2015
 
+from __future__ import print_function
+
 import sys
 import numpy
 import codecs
@@ -209,6 +211,6 @@ if __name__ == '__main__':
     ini = ini_file.load_ini_file(sys.argv[1])
     ipmi = generate_ipmi(ini)
     if len(sys.argv) == 2:
-        print ipmi
+        print(ipmi)
     else:
         ipmi.tofile(sys.argv[2])
