@@ -44,6 +44,7 @@ signal calc_enable_i        : std_logic;
 signal reset                : std_logic;
 signal crc_reset            : std_logic := '1';
 signal biss_dat             : std_logic := '1';
+signal posn_latched         : std_logic_vector(31 downto 0);
 signal crc_o                : std_logic_vector(5 downto 0);
 signal data_cnt             : unsigned(7 downto 0);
 signal timeout_cnt          : unsigned(11 downto 0);
@@ -106,6 +107,7 @@ begin
             data_enable <= '0';
             nEnW_enable <= '0';
             crc_reset <= '1';
+            posn_latched <= posn_i;
                 -- BITS + c_nEnW(2) + c_CRC(6)
             data_cnt <= unsigned(BITS) + c_nEnW_size + c_CRC_size;
             SM_DATA <= STATE_SYNCH;
@@ -200,6 +202,7 @@ begin
                        biss_dat <= '0';
                        data_enable <= '1';
                        SM_DATA <= STATE_DATA;
+                       posn_latched<= posn_i;
                        sck_timeout_cnt<=c_MAX_TIMEOUT;
                        health_biss_slave<=(others => '0');--OK
                    elsif sck_timeout_cnt=0 then
@@ -220,7 +223,7 @@ begin
                    -- Transmit data
                    if (biss_sck_rising_edge = '1') then
                        data_cnt <= data_cnt -1;
-                       biss_dat <= posn_i(to_integer(data_cnt-9));
+                       biss_dat <= posn_latched(to_integer(data_cnt-9));
                        if (data_cnt = 9) then
                            data_enable <= '0';
                            nEnW_enable <= '1';
