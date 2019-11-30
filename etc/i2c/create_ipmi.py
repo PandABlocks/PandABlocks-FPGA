@@ -207,7 +207,7 @@ def generate_ipmi(ini):
 
 
 if __name__ == '__main__':
-    import ini_file
+    from . import ini_file
     ini = ini_file.load_ini_file(sys.argv[1])
     ipmi = generate_ipmi(ini)
     if len(sys.argv) == 2:

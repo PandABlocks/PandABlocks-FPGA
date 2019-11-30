@@ -2,7 +2,7 @@
 d share/panda-fpga/config_d
 d share/designs/PANDA
 d share/www
-d lib/python2.7/site-packages/i2c
+d lib/python/site-packages/i2c
 d etc/www
 d bin
 
@@ -17,7 +17,7 @@ B share/panda-fpga extensions
 t share/panda-fpga etc/load-panda-firmware
 
 # IPMI python support
-T lib/python2.7/site-packages/i2c etc/i2c/*.py
+T lib/python/site-packages/i2c etc/i2c/*.py
 t bin etc/check_ipmi
 t bin etc/show_ipmi
 

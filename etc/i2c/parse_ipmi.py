@@ -17,7 +17,7 @@ import codecs
 import string
 import datetime
 
-import ini_file
+from . import ini_file
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
