@@ -3,7 +3,12 @@
 from __future__ import print_function
 
 import sys
-from configparser import ConfigParser
+try:
+    # Python3
+    from configparser import RawConfigParser
+except ImportError:
+    # Python2
+    from ConfigParser import RawConfigParser
 import collections
 
 
@@ -62,7 +67,7 @@ class Section:
 
 
 def load_ini_file(filename):
-    parser = ConfigParser()
+    parser = RawConfigParser()
     parser.readfp(open(filename))
     ini = IniFile()
     for section_name in parser.sections():
