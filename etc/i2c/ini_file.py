@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 import sys
-import ConfigParser
+from configparser import ConfigParser
 import collections
 
 
@@ -62,7 +62,7 @@ class Section:
 
 
 def load_ini_file(filename):
-    parser = ConfigParser.RawConfigParser()
+    parser = ConfigParser()
     parser.readfp(open(filename))
     ini = IniFile()
     for section_name in parser.sections():
