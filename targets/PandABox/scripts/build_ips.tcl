@@ -24,8 +24,10 @@ create_ip -vlnv [get_ipdefs -filter {NAME == fifo_generator}]\
 set_property -dict [list \
     CONFIG.Performance_Options {First_Word_Fall_Through} \
     CONFIG.Input_Data_Width {49}    \
+    CONFIG.Input_Depth {256}        \
     CONFIG.Data_Count {true}        \
     CONFIG.Output_Data_Width {49}   \
+    CONFIG.Output_Depth {256}       \
     CONFIG.Reset_Type {Synchronous_Reset} \
 ] [get_ips pulse_queue]
 
