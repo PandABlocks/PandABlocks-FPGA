@@ -28,8 +28,8 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Inputs and Outputs
-    posbus_i            : in  posbus_t;
-    posbus_o            : out posbus_t;
+    pos_bus_i           : in  pos_bus_t;
+    pos_bus_o           : out pos_bus_t;
     -- Memory Bus Interface
     write_strobe_i      : in  std_logic;
     write_address_i     : in  std_logic_vector(BLK_AW-1 downto 0);
@@ -72,13 +72,13 @@ end process;
 --------------------------------------------------------------------------
 -- Apply Delays To Position Fields, including extended bus
 --------------------------------------------------------------------------
-POS_DELAY_GEN : FOR I IN 0 TO 31 GENERATE
+POS_DELAY_GEN : FOR I IN 0 TO PBUSW-1 GENERATE
 
     data_delay_inst : entity work.delay_line
     port map (
         clk_i       => clk_i,
-        data_i      => posbus_i(I),
-        data_o      => posbus_o(I),
+        data_i      => pos_bus_i(I),
+        data_o      => pos_bus_o(I),
         DELAY_i     => data_delay_array(I)(4 downto 0)
     );
 

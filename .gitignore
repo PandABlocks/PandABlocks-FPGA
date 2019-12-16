@@ -3,12 +3,14 @@
 /docs/build
 *.pyc
 *~
+/build_*
+*.jou
+*.log
+.Xil
 
 # virtual environment folder
 /venv
 .idea
-
-/tools/virtexHex2Bin
 
 # For mac
 *.DS_Store

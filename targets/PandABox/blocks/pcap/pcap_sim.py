@@ -51,6 +51,10 @@ class CaptureEntry(object):
         """Called when value is changed with current gate"""
         pass
 
+    def on_disable(self):
+        """Called on disable"""
+        pass
+
     def on_capture(self, ts, gate):
         """Handle a rising edge of CAPTURE with ts relative to enable"""
         if gate:
@@ -98,6 +102,9 @@ class DifferenceCaptureEntry(CaptureEntry):
     value_at_rising = None  # value when gate rising
     data = 0  # sum of differences while gate high
 
+    def on_disable(self):
+        self.data = 0
+
     def on_rising_gate(self, ts):
         self.value_at_rising = self.value
 
@@ -125,6 +132,9 @@ class SumCaptureEntry(CaptureEntry):
         self.prev_ts = ts
         self.prev_value = self.value
 
+    def on_disable(self):
+        self.data = 0
+
     def on_rising_gate(self, ts):
         self.latch_value(ts)
 
@@ -151,6 +161,9 @@ class MinCaptureEntry(CaptureEntry):
     INT32_MAX = np.iinfo(np.int32).max
     data = INT32_MAX
 
+    def on_disable(self):
+        self.data = self.INT32_MAX
+
     def on_rising_gate(self, ts):
         self.data = min(self.data, self.value)
 
@@ -165,6 +178,9 @@ class MinCaptureEntry(CaptureEntry):
 class MaxCaptureEntry(CaptureEntry):
     INT32_MIN = np.iinfo(np.int32).min
     data = INT32_MIN
+
+    def on_disable(self):
+        self.data = self.INT32_MIN
 
     def on_rising_gate(self, ts):
         self.data = max(self.data, self.value)
@@ -181,6 +197,9 @@ class TsStartCaptureEntry(CaptureEntry):
     data = -1
     lo = False
     hi = False
+
+    def on_disable(self):
+        self.data = -1
 
     def on_rising_gate(self, ts):
         if self.data == -1:
@@ -199,6 +218,9 @@ class TsEndCaptureEntry(CaptureEntry):
     data = -1
     lo = False
     hi = False
+
+    def on_disable(self):
+        self.data = -1
 
     def on_falling_gate(self, ts):
         self.data = ts
@@ -231,6 +253,9 @@ class SampleCaptureEntry(CaptureEntry):
     def __init__(self, idx, shift):
         super(SampleCaptureEntry, self).__init__(idx)
         self.shift = shift
+
+    def on_disable(self):
+        self.data = 0
 
     def on_rising_gate(self, ts):
         self.ts = ts
@@ -419,6 +444,9 @@ class PcapSimulation(BlockSimulation):
     def do_disarm(self):
         if self.ACTIVE:
             self.ACTIVE = 0
+        # Added the below for reseting the stored data when pcap is disarmed
+        for entry in self.capture_entries:
+            entry.on_disable()
 
     def do_enable(self, ts):
         self.ts_enable = ts

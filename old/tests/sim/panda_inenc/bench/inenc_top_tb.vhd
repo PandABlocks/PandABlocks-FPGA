@@ -23,7 +23,7 @@ constant c_num_addr      : positive := 16;                                      
 
 type t_data_array is array(0 to c_num_addr-1) of natural;
 type t_addr_array is array(0 to c_num_addr-1) of natural;
-type t_sysbus_clk is array(0 to ENC_NUM-1) of natural;
+type t_bit_bus_clk is array(0 to ENC_NUM-1) of natural;
 type t_data_length is array(0 to ENC_NUM-1) of natural;
 type t_test_data is array(ENC_NUM-1 downto 0) of std_logic_vector(31 downto 0);
 type t_enc is array(ENC_NUM-1 downto 0) of natural;
@@ -59,8 +59,8 @@ constant c_BiSS_addr_array  : t_addr_array  := (INENC_BITS,     INENC_PROTOCOL, 
                                                 INENC_BITS+128, INENC_PROTOCOL+128, INENC_CLK+128, INENC_BYPASS+128, 
                                                 INENC_BITS+192, INENC_PROTOCOL+192, INENC_CLK+192, INENC_BYPASS+192);  -- Add address here
 
--- sysbus clocks programmed (Addr-9,Data-25|Addr-73,Data-26|Addr-137,Data-27|Addr-201,Data-28)
-constant c_sysbus_clk  : t_sysbus_clk  := (25,26,27,28);  
+-- bit_bus clocks programmed (Addr-9,Data-25|Addr-73,Data-26|Addr-137,Data-27|Addr-201,Data-28)
+constant c_bit_bus_clk  : t_bit_bus_clk  := (25,26,27,28);  
 
 type t_SM_WR is (STATE_READY, STATE_BiSS_WR_DATA);
 
@@ -94,8 +94,8 @@ signal b_int_o            : std_logic_vector(ENC_NUM-1 downto 0);
 signal z_int_o            : std_logic_vector(ENC_NUM-1 downto 0);
 signal data_int_o         : std_logic_vector(ENC_NUM-1 downto 0);
 
-signal sysbus_i           : sysbus_t;
-signal posbus_i           : posbus_t;
+signal bit_bus_i          : bit_bus_t;
+signal pos_bus_i          : pos_bus_t;
 signal DCARD_MODE         : std32_array(ENC_NUM-1 downto 0);
 signal PROTOCOL           : std3_array(ENC_NUM-1 downto 0);
 signal posn_o             : std32_array(ENC_NUM-1 downto 0);
@@ -179,14 +179,14 @@ end process ps_strobe;
             
 
 -- Posbus 
-ps_posbus: process(clk_i)
+ps_pos_bus: process(clk_i)
 begin
     if rising_edge(clk_i) then
-        for i in 0 to (posbus_i'length)-1 loop
-            posbus_i(i) <= std_logic_vector(to_unsigned(i,32));
+        for i in 0 to (pos_bus_i'length)-1 loop
+            pos_bus_i(i) <= std_logic_vector(to_unsigned(i,32));
         end loop;
    end if;         
-end process ps_posbus;
+end process ps_pos_bus;
 
 
 -- DCARD MODE 
@@ -274,8 +274,8 @@ end process ps_check_result;
 gen: for i in 0  to ENC_NUM-1 generate
     
     -- Sysbus clocks
---    sysbus_i(c_sysbus_clk(i)) <= clk_o(i);
-    sysbus_i(c_sysbus_clk(i)) <= biss_clk;
+--    bit_bus_i(c_bit_bus_clk(i)) <= clk_o(i);
+    bit_bus_i(c_bit_bus_clk(i)) <= biss_clk;
     
     bits_slv(i) <= std_logic_vector(to_unsigned(enc_bits(i),8));
     
@@ -324,8 +324,8 @@ port map(
     z_int_o         => z_int_o,
     data_int_o      => data_int_o,
     -- Block Input and Outputs
-    sysbus_i        => sysbus_i,
-    posbus_i        => posbus_i,
+    bit_bus_i       => bit_bus_i,
+    pos_bus_i       => pos_bus_i,
     DCARD_MODE      => DCARD_MODE,
     PROTOCOL        => PROTOCOL,
     posn_o          => posn_o

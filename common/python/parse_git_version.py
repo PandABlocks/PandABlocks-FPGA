@@ -1,7 +1,8 @@
-#!/bin/env python
+#!/usr/bin/env python
 """
 Generate FPGA version like 0.1.0c9 from git describe like 0.1-9-g5539563-dirty
 """
+from __future__ import print_function
 import logging
 import re
 from argparse import ArgumentParser
@@ -31,7 +32,7 @@ def main():
         logging.exception(e)
         # Something went wrong, just print 0.0.0c0
         hex_str = "00000000"
-    print hex_str
+    print(hex_str)
 
 
 if __name__ == "__main__":

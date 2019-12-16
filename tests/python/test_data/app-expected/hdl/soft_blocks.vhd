@@ -18,23 +18,22 @@ generic (
 );
 port (
     -- Global clock and reset from panda_ps
-    FCLK_CLK0       : in    std_logic;
     FCLK_RESET0     : in    std_logic;
     -- Configuration and Status Interface Block
     read_strobe     : in    std_logic_vector(MOD_COUNT-1 downto 0);
     read_address    : in    std_logic_vector(PAGE_AW-1 downto 0);
-    read_data       : out   std32_array(MOD_COUNT-1 downto 0);
-    read_ack        : out   std_logic_vector(MOD_COUNT-1 downto 0);
+    read_data       : out   std32_array(MOD_COUNT-1 downto 2);
+    read_ack        : out   std_logic_vector(MOD_COUNT-1 downto 2);
     write_strobe    : in    std_logic_vector(MOD_COUNT-1 downto 0);
     write_address   : in    std_logic_vector(PAGE_AW-1 downto 0);
     write_data      : in    std_logic_vector(31 downto 0);
-    write_ack       : out   std_logic_vector(MOD_COUNT-1 downto 0);
+    write_ack       : out   std_logic_vector(MOD_COUNT-1 downto 2);
     -- Bus Outputs
-    bit_bus_i       : in    sysbus_t;
-    bit_bus_o       : out   std_logic_vector(127 downto BIT_BUS_SIZE);
+    bit_bus_i       : in    bit_bus_t;
+    bit_bus_o       : out   std_logic_vector(BBUSW-1 downto BIT_BUS_SIZE);
 
-    posbus_i        : in    posbus_t;
-    posbus_o        : out   std32_array(31 downto POS_BUS_SIZE);
+    pos_bus_i       : in    pos_bus_t;
+    pos_bus_o       : out   std32_array(PBUSW-1 downto POS_BUS_SIZE);
     -- DMA Blocks
     rdma_req        : out   std_logic_vector(5 downto 0);
     rdma_ack        : in    std_logic_vector(5 downto 0);
@@ -44,10 +43,7 @@ port (
     rdma_data       : in    std_logic_vector(31 downto 0);
     rdma_valid      : in    std_logic_vector(5 downto 0);
     --
-    FMC             : inout FMC_interface;
-    SFP1            : inout SFP_interface;
-    SFP2            : inout SFP_interface;
-    SFP3            : inout SFP_interface
+    FCLK_CLK0       : in    std_logic
 );
 end soft_blocks;
 
@@ -58,31 +54,30 @@ begin
 --------------------------------------------------------------------------------
 -- lut - Lookup table
 --------------------------------------------------------------------------------
-lut_inst : entity work.lut_wrapper
+LUT_inst : entity work.lut_wrapper
 generic map (NUM => lut_NUM)
 port map (
 
     reset_i             => FCLK_RESET0,
 
-    read_strobe_i       => read_strobe(lut_CS),
+    read_strobe_i       => read_strobe(LUT_CS),
     read_address_i      => read_address,
-    read_data_o         => read_data(lut_CS),
-    read_ack_o          => read_ack(lut_CS),
+    read_data_o         => read_data(LUT_CS),
+    read_ack_o          => read_ack(LUT_CS),
 
-    write_strobe_i      => write_strobe(lut_CS),
+    write_strobe_i      => write_strobe(LUT_CS),
     write_address_i     => write_address,
     write_data_i        => write_data,
-    write_ack_o         => write_ack(lut_CS),
+    write_ack_o         => write_ack(LUT_CS),
 
     bit_bus_i           => bit_bus_i,
-    pos_bus_i           => posbus_i,
+    pos_bus_i           => pos_bus_i,
     OUT_o               => bit_bus_o(7 downto 0),
 
     clk_i               => FCLK_CLK0
 );
-
-bit_bus_o(127 downto 8) <= (others => '0');
-posbus_o(31 downto 0) <= (others => (others => '0'));
+bit_bus_o(BBUSW-1 downto 8) <= (others => '0');
+pos_bus_o(PBUSW-1 downto 1) <= (others => (others => '0'));
 
 read_ack(31 downto USED_MOD_COUNT + 1) <= (others => '1');
 write_ack(31 downto USED_MOD_COUNT + 1) <= (others => '1');

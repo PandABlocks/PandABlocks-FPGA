@@ -18,7 +18,7 @@ set_property target_simulator ModelSim [current_project]
 #
 # Create PULSE_QUEUE IP
 #
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == fifo_generator}]\
 -module_name pulse_queue -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -35,7 +35,7 @@ synth_ip [get_ips pulse_queue]
 #
 # Create Standard 1Kx32-bit FIFO IP
 #
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == fifo_generator}] \
 -module_name fifo_1K32 -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -51,7 +51,7 @@ synth_ip [get_ips fifo_1K32]
 #
 # Create Standard 1Kx32-bit first word fall through FIFO IP
 #
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == fifo_generator}] \
 -module_name fifo_1K32_ft -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -68,7 +68,7 @@ synth_ip [get_ips fifo_1K32_ft]
 #
 # Create FMC GTX Aurora IP
 #
-create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \
+create_ip -vlnv [get_ipdefs -filter {NAME == gtwizard}] \
 -module_name fmcgtx -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -87,7 +87,7 @@ synth_ip [get_ips fmcgtx]
 #
 # Create SFP GTX Aurora IP
 #
-create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \
+create_ip -vlnv [get_ipdefs -filter {NAME == gtwizard}] \
 -module_name sfpgtx -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -105,7 +105,7 @@ synth_ip [get_ips sfpgtx]
 #
 # Create Eth Phy for sfp
 #
-create_ip -name gig_ethernet_pcs_pma -vendor xilinx.com -library ip -version 15.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == gig_ethernet_pcs_pma}] \
 -module_name eth_phy -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -115,25 +115,14 @@ set_property -dict [list \
     CONFIG.EMAC_IF_TEMAC {TEMAC} \
 ] [get_ips eth_phy]
 
-report_compile_order -constraints
-
 generate_target all [get_files $BUILD_DIR/eth_phy/eth_phy.xci]
-
-report_property [get_ips eth_phy]
-get_property KNOWN_TARGETS [get_ips eth_phy]
-
-#To capture the XDC file names of the IP in a Tcl variable
-set eth_phy_xdc [get_files -of_objects [get_files $BUILD_DIR/eth_phy/eth_phy.xci] -filter {FILE_TYPE == XDC}]
-#To disable the XDC files
-set_property is_enabled false [get_files $eth_phy_xdc]
 synth_ip [get_ips eth_phy]
-report_compile_order -constraints
 
 #
 # Create Eth Mac for sfp
 #
 
-create_ip -name tri_mode_ethernet_mac -vendor xilinx.com -library ip -version 9.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == tri_mode_ethernet_mac}] \
 -module_name eth_mac -dir $BUILD_DIR/
 
 
@@ -154,18 +143,14 @@ set_property -dict [list \
     CONFIG.Statistics_Counters {false}   \
 ] [get_ips eth_mac]
 
-
-report_property [get_ips eth_mac]
-
 generate_target all [get_files $BUILD_DIR/eth_mac/eth_mac.xci]
-
 synth_ip [get_ips eth_mac]
 
 
 #
 # Create System FPGA Command FIFO
 #
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == fifo_generator}] \
 -module_name system_cmd_fifo -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -180,7 +165,7 @@ synth_ip [get_ips system_cmd_fifo]
 #
 # Create Standard Asymmetric 1K, 32-bit(WR), 256-bit(RD) FIFO IP for ACQ430 FMC
 #
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == fifo_generator}] \
 -module_name fmc_acq430_ch_fifo -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -205,7 +190,7 @@ synth_ip [get_ips fmc_acq430_ch_fifo]
 #
 # Create low level ACQ430 FMC Sample RAM
 #
-create_ip -name dist_mem_gen -vendor xilinx.com -library ip -version 8.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == dist_mem_gen}] \
 -module_name fmc_acq430_sample_ram -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -222,7 +207,7 @@ synth_ip [get_ips fmc_acq430_sample_ram]
 #
 # Create Standard Asymmetric 1K, 128-bit(WR), 32-bit(RD) FIFO IP for ACQ427 DAC FMC
 #
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == fifo_generator}] \
 -module_name fmc_acq427_dac_fifo -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -248,7 +233,7 @@ synth_ip [get_ips fmc_acq427_dac_fifo]
 #
 # Create ILA IP (32-bit wide with 8K Depth)
 #
-create_ip -name ila -vendor xilinx.com -library ip -version 5.1 \
+create_ip -vlnv [get_ipdefs -filter {NAME == ila}] \
 -module_name ila_32x8K -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -261,7 +246,7 @@ synth_ip [get_ips ila_32x8K]
 
 #
 # Create SFP event receiver mgt
-create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \
+create_ip -vlnv [get_ipdefs -filter {NAME == gtwizard}] \
 -module_name event_receiver_mgt -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -312,19 +297,78 @@ generate_target all [get_files  $BUILD_DIR/event_receiver_mgt/event_receiver_mgt
 synth_ip [get_ips event_receiver_mgt]
 
 #
+# Create SFP event receiver mgt
+create_ip -vlnv [get_ipdefs -filter {NAME == gtwizard}] \
+-module_name sfp_panda_sync -dir $BUILD_DIR/
+
+set_property -dict [list \
+CONFIG.identical_val_tx_line_rate {5}                   \
+CONFIG.gt0_val_txoutclk_source {false}                  \
+CONFIG.identical_val_rx_line_rate {5}                   \
+CONFIG.gt0_val_cpll_rxout_div {1}                       \
+CONFIG.gt0_val_cpll_txout_div {1}                       \
+CONFIG.gt0_val {false}                                  \
+CONFIG.gt1_val {true}                                   \
+CONFIG.gt0_val_dec_valid_comma_only {true}              \
+CONFIG.identical_val_tx_reference_clock {125.000}       \
+CONFIG.gt0_val_tx_data_width {32}                       \
+CONFIG.gt0_val_encoding {8B/10B}                        \
+CONFIG.gt0_val_decoding {8B/10B}                        \
+CONFIG.gt0_val_rxusrclk {RXOUTCLK}                      \
+CONFIG.gt0_val_comma_preset {K28.5}                     \
+CONFIG.gt0_val_port_rxcommadet {true}                   \
+CONFIG.gt0_val_port_rxbyteisaligned {true}              \
+CONFIG.gt0_val_port_rxbyterealign {true}                \
+CONFIG.gt0_val_port_rxpcommaalignen {true}              \
+CONFIG.gt0_val_port_rxmcommaalignen {true}              \
+CONFIG.gt0_val_port_rxslide {false}                     \
+CONFIG.gt0_val_rxslide_mode {OFF}                       \
+CONFIG.gt1_val_tx_refclk {REFCLK1_Q0}                   \
+CONFIG.gt1_val_rx_refclk {REFCLK1_Q0}                   \
+CONFIG.gt0_val_tx_reference_clock {125.000}             \
+CONFIG.gt0_val_tx_line_rate {5}                         \
+CONFIG.gt0_val_rx_int_datawidth {40}                    \
+CONFIG.identical_val_rx_reference_clock {125.000}       \
+CONFIG.gt0_val_rx_line_rate {5}                         \
+CONFIG.gt0_val_rx_data_width {32}                       \
+CONFIG.gt0_val_tx_int_datawidth {40}                    \
+CONFIG.gt0_val_rx_reference_clock {125.000}             \
+CONFIG.gt0_val_cpll_fbdiv {4}                           \
+CONFIG.gt0_val_port_rxcharisk {true}                    \
+CONFIG.gt0_val_tx_buffer_bypass_mode {Auto}             \
+CONFIG.gt0_val_rx_buffer_bypass_mode {Auto}             \
+CONFIG.gt0_val_align_comma_word {Four_Byte_Boundaries}  \
+CONFIG.gt0_val_dfe_mode {LPM-Auto}                      \
+CONFIG.gt0_val_rx_cm_trim {800}                         \
+CONFIG.gt0_val_clk_cor_seq_1_1 {00000000}               \
+CONFIG.gt0_val_clk_cor_seq_1_2 {00000000}               \
+CONFIG.gt0_val_clk_cor_seq_1_3 {00000000}               \
+CONFIG.gt0_val_clk_cor_seq_1_4 {00000000}               \
+CONFIG.gt0_val_clk_cor_seq_2_1 {00000000}               \
+CONFIG.gt0_val_clk_cor_seq_2_2 {00000000}               \
+CONFIG.gt0_val_clk_cor_seq_2_3 {00000000}               \
+CONFIG.gt0_val_clk_cor_seq_2_4 {00000000}               \
+] [get_ips sfp_panda_sync]
+
+generate_target all [get_files  $BUILD_DIR/sfp_panda_sync/sfp_panda_sync.xci]
+synth_ip [get_ips sfp_panda_sync]
+
+#
 # Create ILA chipscope
-create_ip -name ila -vendor xilinx.com -library ip -version 5.1 \
+create_ip -vlnv [get_ipdefs -filter {NAME == ila}] \
 -module_name ila_0 -dir $BUILD_DIR/
 
 set_property -dict [list \
     CONFIG.C_DATA_DEPTH {2048}  \
-    CONFIG.C_PROBE12_WIDTH {16} \
-    CONFIG.C_PROBE11_WIDTH {2}  \
-    CONFIG.C_PROBE10_WIDTH {16} \
-    CONFIG.C_PROBE6_WIDTH {16}  \
-    CONFIG.C_PROBE5_WIDTH {2}   \
-    CONFIG.C_PROBE4_WIDTH {2}   \
-    CONFIG.C_NUM_OF_PROBES {13} \
+    CONFIG.C_PROBE7_WIDTH {32}  \
+    CONFIG.C_PROBE6_WIDTH {6}   \
+    CONFIG.C_PROBE5_WIDTH {32}  \
+    CONFIG.C_PROBE4_WIDTH {32}  \
+    CONFIG.C_PROBE3_WIDTH {32}  \
+    CONFIG.C_PROBE2_WIDTH {32}  \
+    CONFIG.C_PROBE1_WIDTH {32}  \
+    CONFIG.C_PROBE0_WIDTH {32}  \
+    CONFIG.C_NUM_OF_PROBES {8}  \
     CONFIG.C_TRIGOUT_EN {false} \
     CONFIG.C_TRIGIN_EN {false}  \
 ] [get_ips ila_0]
@@ -334,7 +378,7 @@ synth_ip [get_ips ila_0]
 
 #
 # Create Memory
-create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.2 \
+create_ip -vlnv [get_ipdefs -filter {NAME == blk_mem_gen}] \
 -module_name sfp_transmit_mem -dir $BUILD_DIR/
 
 set_property -dict [list                                                            \

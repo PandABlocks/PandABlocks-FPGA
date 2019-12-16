@@ -17,7 +17,7 @@ class XADC:
 
     def read_node(self, part):
         filename = os.path.join(XADC_PATH, '%s_%s' % (self.node, part))
-        return float(file(filename).read())
+        return float(open(filename).read())
 
     def read(self, number):
         return self.scale * (self.offset + self.read_node('raw'))

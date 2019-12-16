@@ -1,6 +1,11 @@
+try:
+    from pkg_resources import require
+except ImportError:
+    pass
+else:
+    require("numpy")
+
 import unittest
-from pkg_resources import require
-require("numpy")
 
 from common.python.simulations import BlockSimulation, properties_from_ini
 

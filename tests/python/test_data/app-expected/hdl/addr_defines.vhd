@@ -23,7 +23,7 @@ package addr_defines is
     constant POS_BUS_SIZE : natural := 0;
 
 -- Constant equal to the number of carrier modules
-    constant carrier_mod_count : natural := 0;
+    constant CARRIER_MOD_COUNT : natural := 2;
 
 -- Block Register Address Space
 

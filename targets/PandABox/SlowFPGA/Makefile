@@ -21,7 +21,7 @@ ROUTED_NCD_FILE = $(SYSTEM).ncd
 PCF_FILE = $(SYSTEM).pcf
 TWX_FILE = $(SYSTEM).twx
 BIT_FILE = $(SYSTEM).bit
-PROM_FILE = $(SYSTEM).mcs
+BIN_FILE = $(SYSTEM).bin
 
 VERSION_FILE = $(AUTOGEN)/hdl/slow_version.vhd
 
@@ -30,7 +30,7 @@ export XIL_PAR_DESIGN_CHECK_VERBOSE=1
 
 bits : $(BIT_FILE)
 
-mcs: $(PROM_FILE)
+bin: $(BIN_FILE)
 
 .PHONY: mcs bits netlist
 
@@ -64,7 +64,5 @@ $(BIT_FILE): VERSION $(LIST_FILE)
 	bitgen -w $(ROUTED_NCD_FILE)
 
 
-$(PROM_FILE): $(BIT_FILE)
-	promgen -w -p hex -o slow_top.hex -u 0 $<
-	$(TOP)/tools/virtexHex2Bin < slow_top.hex > slow_top.bin
-	promgen -w -p mcs -o $@ -u 0 $<
+$(BIN_FILE): $(BIT_FILE)
+	promgen -w -p bin -u 0 $<

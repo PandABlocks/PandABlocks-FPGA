@@ -18,8 +18,8 @@ port (
     -- Clock and Reset
     clk_i               : in std_logic;
     reset_i             : in std_logic;
-    sysbus_i            : in sysbus_t;
-    posbus_i            : in posbus_t;
+    bit_bus_i            : in bit_bus_t;
+    pos_bus_i            : in pos_bus_t;
     -- Block Parameters
 {%  for regname, reg in block.registers.iteritems() %}
 {%      if reg[1].cls in ['param', 'write', 'table', 'time'] %}
@@ -127,7 +127,7 @@ end process;
 bitmux_{{fieldname}} : entity work.bitmux
 port map (
     clk_i       => clk_i,
-    sysbus_i    => sysbus_i,
+    bit_bus_i    => bit_bus_i,
     bit_o       => {{fieldname|lower}}_o,
     BITMUX_SEL  => {{fieldname}},
     BIT_DLY     => {{fieldname}}_DLY
@@ -142,7 +142,7 @@ port map (
 posmux_{{fieldname}} : entity work.posmux
 port map (
     clk_i       => clk_i,
-    posbus_i    => posbus_i,
+    pos_bus_i    => pos_bus_i,
     posn_o      => {{fieldname|lower}}_o,
     POSMUX_SEL  => {{fieldname}},
     POS_DLY     => (others => '0') --{{fieldname}}_DLY

@@ -1,17 +1,23 @@
-#!/bin/env dls-python
+#!/usr/bin/env python
 """
 Generate build/<app> from <app>.app.ini
 """
+try:
+    from pkg_resources import require
+except ImportError:
+    pass
+else:
+    require("jinja2")
+
 import os
 from argparse import ArgumentParser
-from pkg_resources import require
 
-require("jinja2")
 from jinja2 import Environment, FileSystemLoader
 
 from .compat import TYPE_CHECKING
 from .configs import BlockConfig, pad, RegisterCounter
 from .ini_util import read_ini, ini_get
+import copy
 
 if TYPE_CHECKING:
     from typing import List
@@ -27,6 +33,17 @@ def jinja_context(**kwargs):
     return context
 
 
+def jinja_env(path):
+    env = Environment(
+        autoescape=False,
+        loader=FileSystemLoader(path),
+        trim_blocks=True,
+        lstrip_blocks=True,
+        keep_trailing_newline=True,
+    )
+    return env
+
+
 class AppGenerator(object):
     def __init__(self, app, app_build_dir):
         # type: (str, str) -> None
@@ -36,20 +53,14 @@ class AppGenerator(object):
         self.app_build_dir = app_build_dir
         self.app_name = app.split('/')[-1].split('.')[0]
         # Create a Jinja2 environment in the templates dir
-        self.env = Environment(
-            autoescape=False,
-            loader=FileSystemLoader(TEMPLATES),
-            trim_blocks=True,
-            lstrip_blocks=True,
-            keep_trailing_newline=True,
-        )
+        self.env = jinja_env(TEMPLATES)
         # Start from base register 2 to allow for *REG and *DRV spaces
         self.counters = RegisterCounter(block_count = 2)
         # These will be created when we parse the ini files
-        self.blocks = []  # type: List[BlockConfig]
-        self.ip = []
-        self.constraints = []
-        self.sfpsites = 0
+        self.fpga_blocks = []  # type: List[BlockConfig]
+        self.server_blocks = []  # type: List[BlockConfig]
+        self.sfp_sites = 0
+        self.fmc_sites = 0
         self.parse_ini_files(app)
         self.generate_config_dir()
         self.generate_wrappers()
@@ -68,43 +79,43 @@ class AppGenerator(object):
         Returns:
             The names of the signals on the bit, pos, and ext_out busses
         """
-        app_ini = read_ini(app)
+        # First grab any includes
+        initial_ini = read_ini(app)
+
+        filenames = []
+        for include in ini_get(initial_ini, ".", "includes", "").split():
+            filenames.append(os.path.join(ROOT, "includes", include))
+        filenames.append(app)
+
         # Load all the block definitions
+        app_ini = read_ini(filenames)
 
         # The following code reads the target ini file for the specified target
         # The ini file declares the carrier blocks
         target = app_ini.get(".", "target")
         if target:
             # Implement the blocks for the target blocks
-            target_path = os.path.join(ROOT, "targets", target)
-            target_ini = read_ini(os.path.join(target_path, (
+            target_path = os.path.join("targets", target, "blocks")
+            target_ini = read_ini(os.path.join(ROOT, "targets", target, (
                     target + ".target.ini")))
-            self.implement_blocks(target_ini, target_path, "carrier", "blocks")
-
-            self.constraints = ini_get(
-                target_ini, '.', 'sfp_constraints', '').split()
-            self.sfpsites = int(ini_get(target_ini, '.', 'sfp_sites', 0))
+            self.implement_blocks(target_ini, target_path, "carrier")
+            self.sfp_sites = int(ini_get(target_ini, '.', 'sfp_sites', 0))
+            self.fmc_sites = int(ini_get(target_ini, '.', 'fmc_sites', 0))
 
         # Implement the blocks for the soft blocks
-        self.implement_blocks(app_ini, ROOT, "soft", "modules")
-        print("####################################")
-        print("# Resource usage")
-        print("#  Block addresses: %d/%d" % (
-            self.counters.block_count, self.counters.MAX_BLOCKS))
-        print("#  Bit bus: %d/%d" % (
-            self.counters.bit_count, self.counters.MAX_BIT))
-        print("#  Pos bus: %d/%d" % (
-            self.counters.pos_count, self.counters.MAX_POS))
-        print("#  Ext bus: %d/%d" % (
-            self.counters.ext_count, self.counters.MAX_EXT))
-        print("####################################")
+        self.implement_blocks(app_ini, "modules", "soft")
 
-    def implement_blocks(self, ini, path, type, subdir):
+    def implement_blocks(self, ini, path, type):
         """Read the ini file and for each section create a new block"""
         for section in ini.sections():
             if section != ".":
                 module_name = ini_get(ini, section, 'module', section.lower())
                 block_type = ini_get(ini, section, 'block', None)
+                sfp_site = ini_get(ini, section, 'sfp_site', None)
+                assert sfp_site is None or int(sfp_site) in range(
+                    1, self.sfp_sites + 1), \
+                    "Block %s in sfp_site %s. Target only has %d sites" % (
+                        section, sfp_site, self.sfp_sites)
                 if block_type:
                     ini_name = ini_get(
                         ini, section, 'ini', block_type + '.block.ini')
@@ -113,24 +124,77 @@ class AppGenerator(object):
                         ini, section, 'ini', module_name + '.block.ini')
                 number = int(ini_get(ini, section, 'number', 1))
 
-                ini_path = os.path.join(path, subdir, module_name, ini_name)
-                block_ini = read_ini(ini_path)
+                ini_path = os.path.join(path, module_name, ini_name)
                 # Type is soft if the block is a softblock and carrier
                 # for carrier block
-                block = BlockConfig(section, type, number, block_ini, module_name)
+                block = BlockConfig(section, type, number, ini_path, sfp_site)
                 block.register_addresses(self.counters)
-                self.blocks.append(block)
+                self.fpga_blocks.append(block)
+                # Copy the fpga_blocks to the server blocks. Most blocks will
+                # be the same between the two, however the block suffixes blocks
+                # (they share a block address) need some differences.
+                # Fpga_blocks will be used in fpga templates and server_blocks
+                # will be used within the config blocks.
+                if block.block_suffixes:
+                    for field in block.fields:
+                        # Change field names to remove "." and add "_". This is
+                        # used to remove any block_suffix.
+                        if "." in field.name:
+                            field.name = field.name.replace(".", "_")
+                    # A new block is created for each of the block suffixes
+                    for suffix in block.block_suffixes:
+                        suffixblock = copy.deepcopy(block)
+                        suffixblock.name = block.name + "_" + suffix
+                        # There are no block_suffixes on the new server blocks
+                        # suffixblock.block_suffixes = []
+                        # The block address is preceded with 'S' as it is shared
+                        suffixblock.block_address = 'S' + \
+                                                    str(block.block_address)
+                        othersuffixfield = []
+                        for field in suffixblock.fields:
+                            # If the suffix is in this field name, the suffix is
+                            # removed. Otherwise this field is for other suffix.
+                            if suffix in field.name:
+                                field.name = field.name.split('_')[1]
+                            else:
+                                othersuffixfield.append(field)
+                        # Remove the fields for the other suffix
+                        for field in othersuffixfield:
+                            suffixblock.fields.remove(field)
+                        self.server_blocks.append(suffixblock)
+                else:
+                    self.server_blocks.append(block)
 
-    def expand_template(self, template_name, context, out_dir, out_fname):
+    def expand_template(self, template_name, context, out_dir, out_fname,
+                        template_dir=None):
+        if template_dir:
+            env = jinja_env(template_dir)
+        else:
+            env = self.env
         with open(os.path.join(out_dir, out_fname), "w") as f:
-            template = self.env.get_template(template_name)
+            template = env.get_template(template_name)
             f.write(template.render(context))
 
     def generate_config_dir(self):
         """Generate config, registers, descriptions in config_d"""
         config_dir = os.path.join(self.app_build_dir, "config_d")
         os.makedirs(config_dir)
-        context = jinja_context(blocks=self.blocks)
+        context = jinja_context(server_blocks=self.server_blocks,
+                                app=self.app_name,
+                                fpga_blocks=self.fpga_blocks)  # Create usage file
+        vars = RegisterCounter.__dict__.copy()
+        vars.update(self.counters.__dict__)
+        usage = """####################################
+# Resource usage
+#  Block addresses: %(block_count)d/%(MAX_BLOCKS)d
+#  Bit bus: %(bit_count)d/%(MAX_BIT)d
+#  Pos bus: %(pos_count)d/%(MAX_POS)d
+#  Ext bus: %(ext_count)d/%(MAX_EXT)d
+####################################
+""" % vars
+        print(usage)
+        with open(os.path.join(self.app_build_dir, "usage.txt"), "w") as f:
+            f.write(usage)
         # Create the config, registers and descriptions files
         self.expand_template(
             "config.jinja2", context, config_dir, "config")
@@ -138,6 +202,8 @@ class AppGenerator(object):
             "registers.jinja2", context, config_dir, "registers")
         self.expand_template(
             "descriptions.jinja2", context, config_dir, "description")
+        self.expand_template(
+            "sim_server.jinja2", context, self.app_build_dir, "sim_server")
         context = jinja_context(app=self.app_name)
         self.expand_template(
             "slow_top.files.jinja2",
@@ -148,8 +214,8 @@ class AppGenerator(object):
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
         os.makedirs(hdl_dir)
         # Create a wrapper for every block
-        for block in self.blocks:
-            context = jinja_context()
+        for block in self.fpga_blocks:
+            context = jinja_context(fgpa_blocks=self.fpga_blocks)
             for k in dir(block):
                 context[k] = getattr(block, k)
             if block.type in "soft|dma":
@@ -165,8 +231,11 @@ class AppGenerator(object):
         carrier_pos_bus_length = 0
         total_bit_bus_length = 0
         total_pos_bus_length = 0
-        carrier_mod_count = 0
-        for block in self.blocks:
+        # Start carrier_mod_count at 1 for REG and DRV blocks.
+        carrier_mod_count = 2
+        for block in self.fpga_blocks:
+            if block.type == "fmc":
+                assert self.fmc_sites > 0, "No FMC on Carrier"
             if block.type in "carrier|pcap":
                 carrier_mod_count = carrier_mod_count + 1
             for field in block.fields:
@@ -179,16 +248,21 @@ class AppGenerator(object):
                     total_bit_bus_length = total_bit_bus_length + block.number
                 if field.type == "pos_out":
                     total_pos_bus_length = total_pos_bus_length + block.number
+        # total_pos_bus_length is zero the build will fail.
+        if total_pos_bus_length == 0:
+            total_pos_bus_length = 1
         block_names = []
         register_blocks = []
         # SFP blocks can have the same register definitions as they have
         # the same entity
-        for block in self.blocks:
+        for block in self.fpga_blocks:
             if block.entity not in block_names:
                 register_blocks.append(block)
                 block_names.append(block.entity)
         context = jinja_context(
-            blocks=self.blocks,
+            fpga_blocks=self.fpga_blocks,
+            sfp_sites=self.sfp_sites,
+            fmc_sites=self.fmc_sites,
             carrier_bit_bus_length=carrier_bit_bus_length,
             carrier_pos_bus_length=carrier_pos_bus_length,
             total_bit_bus_length=total_bit_bus_length,
@@ -199,27 +273,27 @@ class AppGenerator(object):
                              "soft_blocks.vhd")
         self.expand_template("addr_defines.vhd.jinja2", context, hdl_dir,
                              "addr_defines.vhd")
+        self.expand_template("top_defines.vhd.jinja2", context, hdl_dir,
+                             "top_defines.vhd")
 
     def generate_constraints(self):
         """Generate constraints file for IPs, SFP and FMC constraints"""
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
+        const_dir = os.path.join(self.app_build_dir, "const")
+        os.makedirs(const_dir)
         ips = []
-        sfps = 0
-        for block in self.blocks:
+        for block in self.fpga_blocks:
             for ip in block.ip:
                 if ip not in ips:
                     ips.append(ip)
-            if block.type == "sfp":
-                sfps += 1
-        assert sfps <= self.sfpsites, \
-            "more SFP blocks in app: %d than constraints: %d" % (
-                sfps, self.sfpsites)
-        context = jinja_context(
-            blocks=self.blocks,
-            sfpsites=sfps,
-            const=self.constraints,
-            ips=ips)
-        self.expand_template("constraints.tcl.jinja2", context, hdl_dir,
+            for const in block.constraints:
+                # Expand the constraints file
+                context = jinja_context(block=block)
+                out_fname = "%s_%s" % (block.name, os.path.basename(const))
+                self.expand_template(
+                    const, context, const_dir, out_fname, block.module_path)
+        context = jinja_context(fpga_blocks=self.fpga_blocks, os=os, ips=ips)
+        self.expand_template("constraints.tcl.jinja2", context, const_dir,
                              "constraints.tcl")
 
     def generate_regdefs(self):

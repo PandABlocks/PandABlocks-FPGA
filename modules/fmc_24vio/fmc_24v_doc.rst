@@ -6,10 +6,5 @@ Fields
 
 The module has bee splits into two blocks: The inputs and the outputs.
 
-Input fields
-~~~~~~~~~~~~
-.. block_fields:: modules/fmc_24vio/fmc_24v_in.block.ini
+.. block_fields:: modules/fmc_24vio/fmc_24vio.block.ini
 
-Output fields
-~~~~~~~~~~~~~
-.. block_fields:: modules/fmc_24vio/fmc_24v_out.block.ini

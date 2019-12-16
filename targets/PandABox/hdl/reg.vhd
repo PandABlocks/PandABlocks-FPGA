@@ -31,8 +31,8 @@ port (
     POS_READ_VALUE          : out std_logic_vector(31 downto 0);
     POS_READ_CHANGES        : out std_logic_vector(31 downto 0);
     -- Encoder I/O Pads
-    sysbus_i                : in  sysbus_t;
-    posbus_i                : in  posbus_t
+    bit_bus_i               : in  bit_bus_t;
+    pos_bus_i               : in  pos_bus_t
 );
 end reg;
 
@@ -47,9 +47,9 @@ signal index                : unsigned(2 downto 0);
 signal sbus_change          : bit16_array(7 downto 0);
 signal sbus_change_latched  : bit16_array(7 downto 0);
 
-signal pbus                 : posbus_t;
-signal pbus_prev            : posbus_t;
-signal pbus_latched         : posbus_t;
+signal pbus                 : pos_bus_t;
+signal pbus_prev            : pos_bus_t;
+signal pbus_latched         : pos_bus_t;
 signal p_index              : unsigned(4 downto 0);
 signal pbus_change          : std_logic_vector(31 downto 0);
 signal pbus_change_latched  : std_logic_vector(31 downto 0);
@@ -67,10 +67,10 @@ begin
 -- mem_dat_o[31:16] = N*SysBus[15:0]
 -- mem_dat_o[15: 0] = N*Changed[15:0]
 --
-process(sysbus_i)
+process(bit_bus_i)
 begin
     for I in 0 to 7 loop
-        sbus(I) <= sysbus_i(I*16+15 downto I*16);
+        sbus(I) <= bit_bus_i(I*16+15 downto I*16);
     end loop;
 end process;
 
@@ -118,14 +118,14 @@ BIT_READ_VALUE <= sbus_latched(to_integer(index)) & sbus_change_latched(to_integ
 POS_READ_VALUE <= pbus_latched(to_integer(p_index));
 POS_READ_CHANGES <= pbus_change_latched;
 
-pbus <= posbus_i;
+pbus <= pos_bus_i;
 
 process(clk_i)
 begin
     if rising_edge(clk_i) then
         -- Latch Position Bus and Change Registers
         if (POS_READ_RST = '1') then
-            pbus_latched <= posbus_i;
+            pbus_latched <= pos_bus_i;
             pbus_change_latched <= pbus_change;
         end if;
 
@@ -137,7 +137,7 @@ begin
         end if;
 
         pbus_prev <= pbus;
-        for I in 0 to 31 loop
+        for I in 0 to PBUSW-1 loop
             -- Reset/Clear to current change status rather than 0.
             if (POS_READ_RST = '1') then
                 pbus_change(I) <= COMP(pbus(I), pbus_prev(I));
