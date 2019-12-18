@@ -26,21 +26,21 @@ end sfp_panda_sync_receiver;
 
 architecture rtl of sfp_panda_sync_receiver is
 
-component ila_0
-
-    port (
-          clk     : std_logic;
-          probe0  : std_logic_vector(31 downto 0);
-          probe1  : std_logic_vector(31 downto 0);
-          probe2  : std_logic_vector(31 downto 0);
-          probe3  : std_logic_vector(31 downto 0);
-          probe4  : std_logic_vector(31 downto 0);
-          probe5  : std_logic_vector(31 downto 0);
-          probe6  : std_logic_vector(5 downto 0);
-          probe7  : std_logic_vector(31 downto 0)
-);
-
-end component;
+-- component ila_0
+-- 
+--     port (
+--           clk     : std_logic;
+--           probe0  : std_logic_vector(31 downto 0);
+--           probe1  : std_logic_vector(31 downto 0);
+--           probe2  : std_logic_vector(31 downto 0);
+--           probe3  : std_logic_vector(31 downto 0);
+--           probe4  : std_logic_vector(31 downto 0);
+--           probe5  : std_logic_vector(31 downto 0);
+--           probe6  : std_logic_vector(5 downto 0);
+--           probe7  : std_logic_vector(31 downto 0)
+-- );
+-- 
+-- end component;
 
 
 type t_STATE_DATA is (STATE_BITS_START_ALIGN, STATE_POSOUT13, STATE_POSOUT24);
@@ -177,27 +177,27 @@ begin
 end process ps_link_lost;
 
 
-probe1(3 downto 0) <= rxdisperr_i;
-probe1(7 downto 4) <= rxnotintable_i;
-probe1(8) <= rx_link_ok;
-probe1(9) <= rx_error;
-probe1(10) <= loss_lock; 
-probe1(31 downto 11) <= (others => '0');
-
--- Chipscope
-ila_rx_inst : ila_0
-port map (
-      clk     => rxoutclk_i,
-      probe0  => rxdata_i,
-      probe1  => probe1,
-      probe2  => rxdata_bitpos(0),
-      probe3  => rxdata_bitpos(1),
-      probe4  => rxdata_bitpos(2),
-      probe5  => rxdata_bitpos(3),
-      probe6  => (others => '0'),
-      probe7  => rxdata_bitpos(4)
-);
-
+-- probe1(3 downto 0) <= rxdisperr_i;
+-- probe1(7 downto 4) <= rxnotintable_i;
+-- probe1(8) <= rx_link_ok;
+-- probe1(9) <= rx_error;
+-- probe1(10) <= loss_lock; 
+-- probe1(31 downto 11) <= (others => '0');
+-- 
+-- -- Chipscope
+-- ila_rx_inst : ila_0
+-- port map (
+--       clk     => rxoutclk_i,
+--       probe0  => rxdata_i,
+--       probe1  => probe1,
+--       probe2  => rxdata_bitpos(0),
+--       probe3  => rxdata_bitpos(1),
+--       probe4  => rxdata_bitpos(2),
+--       probe5  => rxdata_bitpos(3),
+--       probe6  => (others => '0'),
+--       probe7  => rxdata_bitpos(4)
+-- );
+-- 
 
 
 -- Received data          start_nalignment       pktstart 
