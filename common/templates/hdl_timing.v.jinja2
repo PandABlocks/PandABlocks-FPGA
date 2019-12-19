@@ -157,7 +157,7 @@ begin
         if ({{ field.name }} != {{field.name}}_uut || ({{ field.name
         }} > 0 && ^{{ field.name }}_uut === 1'bx)) begin
             $display("{{
-            field.name}} error detected at timestamp %d\n", timestamp);
+            field.name}} error detected at timestamp %d (%d not %d)\n", timestamp, {{field.name}}_uut, {{ field.name }});
             {{field.name}}_err <= 1;
             test_result <= 1;
         end
