@@ -44,7 +44,6 @@ architecture rtl of pcap_frame_mode is
 constant c_thirty_one : natural := 31;
 constant c_thirty_two : natural := 32;
 
-signal start          : std_logic := '0';
 signal start_val      : signed(31 downto 0);
 signal min_val        : signed(31 downto 0);
 signal max_val        : signed(31 downto 0);
@@ -85,14 +84,7 @@ begin
         if (gate_prev = '0' and gate_i = '1') or (trig_i = '1' and gate_i = '1') then
             start_val <= signed(value_i);
         end if;
-        -- Zero diff_sum on capture
-        if (trig_i = '1') then
-            diff_sum <= (others => '0');
-        -- Add in current diff to diff_sum if falling gate
-        elsif (gate_prev = '1' and gate_i = '0') then
-            diff_sum <= diff_sum + signed(value_i) - start_val;
-        end if;
-        -- Set diff output on capture
+        -- Zero diff_sum and set diff output on capture
         if (trig_i = '1') then
             if (gate_i = '1' or gate_prev = '1') then
                 -- Diff output is current diff + diff_sum if capture and (falling or high gate)
@@ -100,6 +92,10 @@ begin
             else
                 diff_o <= std_logic_vector(diff_sum);
             end if;
+            diff_sum <= (others => '0');
+        -- Add in current diff to diff_sum if falling gate
+        elsif (gate_prev = '1' and gate_i = '0') then
+            diff_sum <= diff_sum + signed(value_i) - start_val;
         end if;
     end if;
  end process ps_diff;
