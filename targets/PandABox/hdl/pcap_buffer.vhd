@@ -215,7 +215,7 @@ begin
         -- Position Bus
         if mask_doutb(9) = '0' then
             -- 32 difference mode groups loop through all of them to see which one is active
-            lp: for i in 31 downto 0 loop
+            lp: for i in PBUSW-1 downto 0 loop
                 if (to_integer(unsigned(mask_doutb(8 downto 4)))) = i then
                     -- 6 modes loop through all of them to see which one is active
                     lp_mode: for j in 5 downto 0 loop

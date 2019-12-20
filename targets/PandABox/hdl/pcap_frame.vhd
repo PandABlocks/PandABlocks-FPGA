@@ -27,7 +27,7 @@ port (
     reset_i             : in  std_logic;
     -- Block register
     SHIFT_SUM           : in  std_logic_vector(5 downto 0);
-        TRIG_EDGE       : in  std_logic_vector(1 downto 0);
+    TRIG_EDGE           : in  std_logic_vector(1 downto 0);
     -- Block input and outputs.
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
@@ -35,7 +35,7 @@ port (
     gate_i              : in  std_logic;
     trig_i              : in  std_logic;
     timestamp_i         : in  std_logic_vector(63 downto 0);
-        -- Captured data
+    -- Captured data
     trig_o              : out std_logic;
     mode_ts_bits_o      : out t_mode_ts_bits
 );
@@ -248,7 +248,7 @@ begin
         if trig_dly = '1' then
             -- Cature mode data
             -- 32 bits * 6 Num of = 192 Total
-            lp_mode_data: for i in 31 downto 0 loop
+            lp_mode_data: for i in PBUSW-1 downto 0 loop
                 mode_ts_bits_o.mode(i)(0) <= value_o(i);
                 mode_ts_bits_o.mode(i)(1) <= diff_o(i);
                 mode_ts_bits_o.mode(i)(2) <= sum_l_o(i);
