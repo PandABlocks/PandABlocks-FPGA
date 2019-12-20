@@ -113,7 +113,7 @@ begin
         -- Count up/down on trigger
         elsif (enable_i = '1' and trigger_rise = '1') then
             -- Initialise next_counter with current value
-            next_counter := to_signed(0,33) + signed(counter);
+            next_counter := resize(signed(counter),next_counter'length);
             -- Direction
             if (dir_i = '0') then
                 next_counter := next_counter + signed(STEP_default);
@@ -132,6 +132,8 @@ begin
                 next_counter := next_counter + signed(MAX_VAL - MIN_VAL + 1);
             end if;
             -- Increment the counter
+            -- This might overflow if MAX - MIN < STEP, but we don't care
+            -- about that use case
             counter <= unsigned(next_counter(31 downto 0));
         elsif (trig_i = '0') then
             -- Need to stop the counter_carry when trig_i is low
