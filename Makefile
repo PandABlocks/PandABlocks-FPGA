@@ -204,8 +204,9 @@ hdl_timing: $(TIMING_BUILD_DIRS)
 # FPGA build
 
 # The following phony targets are passed straight to the FPGA sub-make programme
-FPGA_TARGETS = fpga-all fpga-bits carrier_fpga slow_fpga carrier_ip ps_core ps_boot \
-               fsbl devicetree dts sw_clean
+# slow_fpga is not comprised in FPGA_TARGETS for NAMC target
+FPGA_TARGETS = fpga-all fpga-bits carrier_fpga carrier_ip ps_core ps_boot \
+               fsbl devicetree dts sw_clean ps_clean
 
 $(FPGA_TARGETS): $(TARGET_DIR)/fpga.make $(AUTOGEN_BUILD_DIR)
 	mkdir -p $(FPGA_BUILD_DIR)
@@ -295,8 +296,10 @@ all-zpkg:
 # Rootfs boot targets
 
 #PANDA_ROOT=/scratch/clm61942/ZedBoard
+PANDA_ROOT=$(TGT_BUILD_DIR)/rootfs
 
-boot: ps_boot
+boot: ps_boot dts
+	cp -f $(TGT_BUILD_DIR)/boot_images/* $(PANDA_ROOTFS)/boot
 	$(MAKE) -C $(PANDA_ROOTFS) PANDA_ROOT=$(TGT_BUILD_DIR)/rootfs \
 	FSBL_ELF=$(TGT_BUILD_DIR)/boot_images/fsbl.elf \
 	DEVICE_TREE_DTB=$(TGT_BUILD_DIR)/boot_images/devicetree.dtb
@@ -325,6 +328,19 @@ github-release: $(ZPKG)
 clean:
 	rm -rf $(BUILD_DIR)/apps
 .PHONY: clean
+
+clean-target:
+	rm -rf $(TARGET_DIR)
+.PHONY: clean-target
+
+clean-zpkg:
+	rm -f $(ZPKG_FILE) 
+.PHONY: clean-zpkg
+
+# Remove the current app built, but not the built FPGA IP
+clean-app:
+	rm -rf $(APP_BUILD_DIR) 
+.PHONY: clean-app
 
 clean-all:
 	rm -rf $(BUILD_DIR) $(DOCS_BUILD_DIR) *.zpg
