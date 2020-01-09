@@ -87,6 +87,7 @@ signal had_rising_trigger       : std_logic := '0';
 
 signal pulse                    : std_logic := '0';
 signal pulse_assertion_override : std_logic := '0';
+signal prev_pulse_ass           : std_logic := '0';
 signal pulse_queued_empty       : std_logic := '0';
 signal pulse_queued_full        : std_logic := '0';
 signal pulse_queued_reset       : std_logic := '0';
@@ -242,6 +243,7 @@ begin
             trig_fall <= '0';
             trig_rise <= '0';
             trig_same <= '0';
+            prev_pulse_ass <= pulse_assertion_override;
 
             -- Detect the current edge state, if differrent
             if ((trig_i = '0') and (trig_i /= trig_i_prev)) then
@@ -361,8 +363,9 @@ begin
                     -- 1)   Queue full condition flags an error, and ticks missing pulse counter
                     -- 2)   Pulse period must obey Xilinx FIFO IP latency following the first pulse
                     -- 3)   Can't accept more pulses if we're processing them already
-                    if ((pulse_assertion_override = '0' and fancy_delay_line_started = '0' and (pulse_queued_full = '1' or waiting_for_delay = '0' or edges_remaining /= 0)) or
-                        (pulse_assertion_override = '1' and timestamp /= end_pulse_assertion_ts - 5)) then
+                    if ((pulse_queued_full = '1') or
+                        (pulses_i /= 1 and fancy_delay_line_started = '0' and (prev_pulse_ass = '1' or waiting_for_delay = '0' or edges_remaining /= 0))
+                       ) then
                         if(((TRIG_EDGE(1 downto 0) = c_rising_edge_trigger) and (trig_rise = '1')) or
                            ((TRIG_EDGE(1 downto 0) = c_falling_edge_trigger) and (trig_fall = '1')) or
                             (TRIG_EDGE(1 downto 0) = c_both_edge_trigger)) then
@@ -385,6 +388,7 @@ begin
                         if (TRIG_EDGE(1 downto 0) = c_rising_edge_trigger) then
                             if (trig_rise = '1' and had_rising_trigger = '0') then
                                 had_rising_trigger <= '1';
+                                start_delay_countdown <= '1';
                             elsif (trig_fall = '1' and had_rising_trigger = '1') then
                                 had_rising_trigger <= '0';
 
@@ -395,13 +399,13 @@ begin
                                 end if;
 
                                 pulse_queued_wstb <= '1';
-                                start_delay_countdown <= '1';
                             end if;
                         end if;
 
                         if (TRIG_EDGE(1 downto 0) = c_falling_edge_trigger) then
                             if (trig_fall = '1' and had_falling_trigger = '0') then
                                 had_falling_trigger <= '1';
+                                start_delay_countdown <= '1';
                             elsif (trig_rise = '1' and had_falling_trigger = '1') then
                                 had_falling_trigger <= '0';
 
@@ -412,7 +416,6 @@ begin
                                 end if;
 
                                 pulse_queued_wstb <= '1';
-                                start_delay_countdown <= '1';
                             end if;
                         end if;
 
