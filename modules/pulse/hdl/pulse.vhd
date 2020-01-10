@@ -87,16 +87,18 @@ procedure delay_and_blocking_validation (delay_i                  : in unsigned(
 variable steps : integer;
 
 begin
-    if ((delay_i = 0) and edge_validation(rise_value, fall_value, edge_value)) then
-        pulse_override <= '1';
-        override_ends_ts := timestamp + width_i;
-    end if;
+    if (edge_validation(rise_value, fall_value, edge_value)) then
+        if ((delay_i = 0) ) then
+            pulse_override <= '1';
+            override_ends_ts := timestamp + width_i;
+        end if;
 
-    if (pulses_i = 1) then
-        next_acceptable_pulse_ts := timestamp + width_i;
-    else
-        steps := to_integer(step_i) * to_integer(pulses_i);
-        next_acceptable_pulse_ts := timestamp + to_unsigned(steps, 48) - gap_i;
+        if (pulses_i = 1) then
+            next_acceptable_pulse_ts := timestamp + width_i;
+        else
+            steps := to_integer(step_i) * to_integer(pulses_i);
+            next_acceptable_pulse_ts := timestamp + to_unsigned(steps, 48) - gap_i;
+        end if;
     end if;
 end delay_and_blocking_validation;
 
@@ -214,7 +216,7 @@ STEP(47 downto 32) <= STEP_H(15 downto 0);
 
 -- Now we have the 48 bit value, we can convert these to unsigned integers performing some checking along the way
 
-delay_i <=  (unsigned(DELAY)) when ((unsigned(DELAY) > 5 or unsigned(DELAY) = 0) and width_i /= 0) else to_unsigned(6, 48);
+delay_i <=  (unsigned(DELAY)) when ((unsigned(DELAY) > 5 or unsigned(DELAY) = 0) or (width_i = 0 and unsigned(DELAY) > 5)) else to_unsigned(6, 48);
 
 gap_i <=    step_i - width_i when ((signed(step_i) - signed(width_i)) > 1) else to_unsigned(1, 48);
 
@@ -421,13 +423,16 @@ begin
                             end if;
 
                         else
-                            if ((delay_i /= 0) and (timestamp = queue_pulse_ts)) then
-                                pulse <= '1';
-                                pulse_ts := timestamp + width_i;
-                                edges_remaining := pulses_i + pulses_i - 1;
-                            elsif ((delay_i = 0) and (timestamp = queue_pulse_ts)) then
-                                pulse_ts := timestamp + step_i;
-                                edges_remaining := pulses_i + pulses_i - 2;
+                            if (queue_pulse_ts /= 0) then
+                                if (delay_i = 0)  and ((timestamp - 5) = queue_pulse_ts) then
+                                    pulse_ts := timestamp + step_i - 3;
+                                    edges_remaining := pulses_i + pulses_i - 2;
+
+                                elsif ((delay_i /= 0) and (timestamp = queue_pulse_ts)) then
+                                    pulse <= '1';
+                                    pulse_ts := timestamp + width_i;
+                                    edges_remaining := pulses_i + pulses_i - 1;
+                                end if;
                             end if;
                         end if;
                     end if;
