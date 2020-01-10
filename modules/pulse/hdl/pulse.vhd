@@ -83,16 +83,20 @@ procedure delay_and_blocking_validation (delay_i                  : in unsigned(
                                          override_ends_ts         : out unsigned(47 downto 0);
                                          signal pulse_override    : out std_logic
                                         ) is
+
+variable steps : integer;
+
 begin
     if ((delay_i = 0) and edge_validation(rise_value, fall_value, edge_value)) then
         pulse_override <= '1';
-        override_ends_ts := width_i;
+        override_ends_ts := timestamp + width_i;
     end if;
 
     if (pulses_i = 1) then
         next_acceptable_pulse_ts := timestamp + width_i;
     else
-        next_acceptable_pulse_ts := timestamp + (step_i * pulses_i) - gap_i;
+        steps := to_integer(step_i) * to_integer(pulses_i);
+        next_acceptable_pulse_ts := timestamp + to_unsigned(steps, 48) - gap_i;
     end if;
 end delay_and_blocking_validation;
 
@@ -386,7 +390,10 @@ begin
                 --- Otherwise let's process some pulses
                 else
                     if (pulses_i = 1) then
-                        if ((delay_i /= 0) and (timestamp = queue_pulse_ts) and (queue_pulse_ts /= 0)) then
+                        if (delay_i = 0) then
+                            pulse_queued_rstb <= '1';
+
+                        elsif ((delay_i /= 0) and (timestamp = queue_pulse_ts) and (queue_pulse_ts /= 0)) then
                             pulse <= '1';
                             pulse_queued_rstb <= '1';
                             pulse_ts := timestamp + width_i;
@@ -417,10 +424,10 @@ begin
                             if ((delay_i /= 0) and (timestamp = queue_pulse_ts)) then
                                 pulse <= '1';
                                 pulse_ts := timestamp + width_i;
-                                edges_remaining := (pulses_i * 2) - 1;
+                                edges_remaining := pulses_i + pulses_i - 1;
                             elsif ((delay_i = 0) and (timestamp = queue_pulse_ts)) then
                                 pulse_ts := timestamp + step_i;
-                                edges_remaining := (pulses_i - 1) * 2;
+                                edges_remaining := pulses_i + pulses_i - 2;
                             end if;
                         end if;
                     end if;
