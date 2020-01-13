@@ -71,10 +71,8 @@ end;
 
 
 procedure delay_and_blocking_validation (delay_i                  : in unsigned(47 downto 0);
-                                         gap_i                    : in unsigned(47 downto 0);
+                                         pulses_i                 : in unsigned(47 downto 0);
                                          overall_time             : in unsigned(47 downto 0);
-                                         pulses_i                 : in unsigned(31 downto 0);
-                                         step_i                   : in unsigned(47 downto 0);
                                          width_i                  : in unsigned(47 downto 0);
                                          timestamp                : in unsigned(47 downto 0);
                                          rise_value               : in std_logic;
@@ -234,11 +232,11 @@ begin
 
         if ((signed(step_integer) - signed(width_integer)) > 1) then
             gap_i <= step_integer - width_integer;
-            overall_time <= to_unsigned((to_integer(step_integer) * to_integer(unsigned(PULSES))), 48) - (step_integer - width_integer);
         else
             gap_i <= to_unsigned(1, 48);
         end if;
 
+        overall_time <= to_unsigned((to_integer(step_integer) * to_integer(unsigned(PULSES))), 48) - (step_integer - width_integer);
         step_i <= step_integer;
         width_i <= width_integer;
     end if;
@@ -301,7 +299,7 @@ begin
                         dropped_flag <= '1';
                     end if;
                 else
-                    delay_and_blocking_validation(delay_i, gap_i, overall_time, pulses_i, step_i, width_i, timestamp,
+                    delay_and_blocking_validation(delay_i, pulses_i, overall_time, width_i, timestamp,
                                                   rise_trig, fall_trig, TRIG_EDGE(1 downto 0),
                                                   next_acceptable_pulse_ts, override_ends_ts, pulse_override);
                 end if;

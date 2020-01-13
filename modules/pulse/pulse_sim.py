@@ -63,7 +63,7 @@ class PulseSimulation(BlockSimulation):
         
 
     def self.outgoing_changes(self, changes):
-        self.TRIG_EDGE = changes.get(NAMES.TRIG_EDGE)
+        
 
         return changes
 
@@ -81,14 +81,13 @@ class PulseSimulation(BlockSimulation):
     def delay_and_blocking_validation(self, delay_i, gap_i, pulses_i, step_i, width_i, timestamp rise_value, fall_value, edge_value):
         if (self.edge_validation(rise_value, fall_value, edge_value)):
             if (delay_i = 0):
-                pulse_override = True
-                override_ends_ts = timestamp + width_i
+                self.pulse_override = True
+                self.override_ends_ts = timestamp + width_i
 
             if (pulses_i = 1):
-                next_acceptable_pulse_ts = timestamp + width_i
+                self.next_acceptable_pulse_ts = timestamp + width_i
             else
-                steps = step_i * pulses_i
-                next_acceptable_pulse_ts = timestamp + steps
+                self.next_acceptable_pulse_ts = timestamp + overall_time
 
 
     def external_variable_internal_configuration(self):
@@ -97,7 +96,7 @@ class PulseSimulation(BlockSimulation):
         step = self.STEP_L + (self.STEP_H << 32)
         width = self.WIDTH_L + (self.WIDTH_H << 32)
 
-        pulses = max(1, self.PULSES)
+        self.pulses_i = max(1, self.PULSES)
 
         if ((width > 5) or (width = 0)):
             self.width_i = width
@@ -119,6 +118,8 @@ class PulseSimulation(BlockSimulation):
         else
             self.gap_i = 1
 
+        self.overall_time = (self.pulses_i * self.step_i) - gap_i
+
 
     def edge_detection(self, incoming_trigger):
         fall_trig = False
@@ -137,7 +138,7 @@ class PulseSimulation(BlockSimulation):
                 if (self.edge_validation(rise_trig, fall_trig, self.TRIG_EDGE)):
                     self.dropped_flag = True
             else
-                self.delay_and_blocking_validation(self, self.delay_i, self.gap_i, self.pulses_i, self.step_i, self.width_i, self.timestamp rise_trig, fall_trig, self.TRIG_EDGE)
+                self.delay_and_blocking_validation(self, self.delay_i, self.gap_i, self.overall_time, self.pulses_i, self.step_i, self.width_i, self.timestamp rise_trig, fall_trig, self.TRIG_EDGE)
 
         if (self.timestamp == override_ends_ts):
             self.pulse_override = False
@@ -268,3 +269,10 @@ class PulseSimulation(BlockSimulation):
 
         self.process_queue()
 
+
+        ############################################
+        #          Final output parameters         #
+        ############################################
+
+        self.DROPPED = self.missed_pulses
+        self.QUEUED = len(self.queue)
