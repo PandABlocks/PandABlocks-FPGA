@@ -211,11 +211,6 @@
         "y": 0.0,
         "visible": false
       },
-      "POSENC": {
-        "x": 0.0,
-        "y": 0.0,
-        "visible": false
-      },
       "PULSE1": {
         "x": 114.44444444444446,
         "y": -361.52407300030745,
@@ -235,11 +230,6 @@
         "x": 116.44444444444446,
         "y": 259.77593005145036,
         "visible": true
-      },
-      "QDEC": {
-        "x": 0.0,
-        "y": 0.0,
-        "visible": false
       },
       "SEQ1": {
         "x": 0.0,
@@ -1049,19 +1039,6 @@
       "repeats": 0,
       "outputs": "expanded"
     },
-    "POSENC": {
-      "label": "Quadrature and step/direction encoder",
-      "inputs": "expanded",
-      "enable": "ZERO",
-      "enableDelay": 0,
-      "inp": "ZERO",
-      "parameters": "expanded",
-      "period": 0.0,
-      "periodUnits": "s",
-      "protocol": "Quadrature",
-      "outputs": "expanded",
-      "readbacks": "expanded"
-    },
     "PULSE1": {
       "label": "One-shot pulse delay and stretch 1",
       "inputs": "expanded",
@@ -1125,22 +1102,6 @@
       "trigEdge": "Rising",
       "outputs": "expanded",
       "readbacks": "expanded"
-    },
-    "QDEC": {
-      "label": "Quadrature decoder",
-      "parameters": "expanded",
-      "linkupIncr": false,
-      "inputs": "expanded",
-      "a": "ZERO",
-      "aDelay": 0,
-      "b": "ZERO",
-      "bDelay": 0,
-      "z": "ZERO",
-      "zDelay": 0,
-      "rstOnZ": false,
-      "setp": 0,
-      "readbacks": "expanded",
-      "outputs": "expanded"
     },
     "SEQ1": {
       "label": "Sequencer 1",
