@@ -216,28 +216,74 @@ STEP(47 downto 32) <= STEP_H(15 downto 0);
 
 -- Now we have the 48 bit value, we can convert these to unsigned integers performing some checking along the way
 
-delay_i <=  (unsigned(DELAY)) when ((unsigned(DELAY) > 5 or unsigned(DELAY) = 0) or (width_i = 0 and unsigned(DELAY) > 5)) else to_unsigned(6, 48);
+delay_i <=  unsigned(DELAY) when (
+                                  ((unsigned(DELAY) > 5) or ((width_i /= 0) and (unsigned(DELAY) = 0))) or 
+                                  ((width_i = 0) and (unsigned(DELAY) > 5))
+                                 ) else to_unsigned(6, 48);
 
 gap_i <=    step_i - width_i when ((signed(step_i) - signed(width_i)) > 1) else to_unsigned(1, 48);
 
 pulses_i <= unsigned(PULSES) when (unsigned(PULSES) /= 0) else to_unsigned(1, 32);
 
-step_i <=   unsigned(STEP) when (unsigned(STEP) > unsigned(WIDTH) or unsigned(STEP) = 0) else
+step_i <=   unsigned(STEP) when ((unsigned(STEP) > unsigned(WIDTH)) or unsigned(STEP) = 0) else
             unsigned(STEP) + width_i + 1;
 
-width_i <=  (unsigned(WIDTH)) when (unsigned(WIDTH) > 5 or unsigned(WIDTH) = 0) else to_unsigned(6, 48);
+width_i <=  (unsigned(WIDTH)) when ((unsigned(WIDTH) > 5) or (unsigned(WIDTH) = 0)) else to_unsigned(6, 48);
           
+
+--process(clk_i)
+
+--variable step_variable   : unsigned(47 downto 0) := (others => '0');
+--variable width_variable  : unsigned(47 downto 0) := (others => '0');
+
+--begin
+
+--    if  (unsigned(PULSES) /= 0) then
+--        pulses_i <= unsigned(PULSES);
+--    else
+--        pulses_i <= to_unsigned(1, 32);
+--    end if;
+
+--    if ((unsigned(WIDTH) > 5) or (unsigned(WIDTH) = 0)) then
+--        width_variable := unsigned(WIDTH);
+--    else
+--        width_variable := to_unsigned(6, 48);
+--    end if;
+
+--    if (((unsigned(DELAY) > 5) or (width_variable /=0 and unsigned(DELAY) = 0)) or ((width_variable = 0) and (unsigned(DELAY) > 5))) then
+--        delay_i <= unsigned(DELAY);
+--    else
+--        delay_i <= to_unsigned(6, 48);
+--    end if;
+
+--    if ((unsigned(STEP) > unsigned(WIDTH)) or (unsigned(STEP) = 0)) then
+--        step_variable := width_variable + 1;
+--    else
+--        step_variable := unsigned(STEP);
+--    end if;
+
+--    if ((step_variable - width_variable) > 1) then
+--        gap_i <= step_variable - width_variable;
+--    else
+--        gap_i <= to_unsigned(1, 48);
+--    end if;
+
+--    step_i <= step_variable;
+--    width_i <= width_variable;
+
+--end process;
+
+
+
 
 -- Free running global timestamp counter
 process(clk_i)
 begin
     if (rising_edge(clk_i)) then
-        if (enable_i = '1') then
-            if (enable_i_prev = '0') then
-                timestamp <= (others => '0');
-            else
-                timestamp <= timestamp + 1;
-            end if;            
+        if (enable_i = '0') then
+            timestamp <= (others => '0');
+        elsif (enable_i = '1') then
+            timestamp <= timestamp + 1;
         end if;
     end if;
 end process;
@@ -424,8 +470,8 @@ begin
 
                         else
                             if (queue_pulse_ts /= 0) then
-                                if (delay_i = 0)  and ((timestamp - 5) = queue_pulse_ts) then
-                                    pulse_ts := timestamp + step_i - 3;
+                                if ((delay_i = 0)  and ((timestamp - 6) = queue_pulse_ts)) then
+                                    pulse_ts := timestamp + step_i - 5;
                                     edges_remaining := pulses_i + pulses_i - 2;
 
                                 elsif ((delay_i /= 0) and (timestamp = queue_pulse_ts)) then
