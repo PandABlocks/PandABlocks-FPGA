@@ -72,6 +72,7 @@ end;
 
 procedure delay_and_blocking_validation (delay_i                  : in unsigned(47 downto 0);
                                          gap_i                    : in unsigned(47 downto 0);
+                                         overall_time             : in unsigned(47 downto 0);
                                          pulses_i                 : in unsigned(31 downto 0);
                                          step_i                   : in unsigned(47 downto 0);
                                          width_i                  : in unsigned(47 downto 0);
@@ -84,8 +85,6 @@ procedure delay_and_blocking_validation (delay_i                  : in unsigned(
                                          signal pulse_override    : out std_logic
                                         ) is
 
-variable steps : integer;
-
 begin
     if (edge_validation(rise_value, fall_value, edge_value)) then
         if (delay_i = 0) then
@@ -96,8 +95,7 @@ begin
         if (pulses_i = 1) then
             next_acceptable_pulse_ts := timestamp + width_i;
         else
-            steps := to_integer(step_i) * to_integer(pulses_i);
-            next_acceptable_pulse_ts := timestamp + to_unsigned(steps, 48) - gap_i;
+            next_acceptable_pulse_ts := timestamp + overall_time;
         end if;
     end if;
 end delay_and_blocking_validation;
@@ -141,6 +139,8 @@ signal gap_i                    : unsigned(47 downto 0) := (others => '0');
 
 signal missed_pulses            : unsigned(31 downto 0) := (others => '0');
 
+signal overall_time             : unsigned(47 downto 0) := (others => '0');
+
 signal pulses_i                 : unsigned(31 downto 0) := (others => '0');
 signal pulse_gap                : unsigned(47 downto 0) := (others => '0');
 
@@ -148,7 +148,6 @@ signal queued_din               : unsigned(47 downto 0) := (others => '0');
 signal queue_pulse_ts           : unsigned(47 downto 0) := (others => '0');
 
 signal step_i                   : unsigned(47 downto 0) := (others => '0');
-
 signal timestamp                : unsigned(47 downto 0) := (others => '0');
 
 signal width_i                  : unsigned(47 downto 0) := (others => '0');
@@ -235,6 +234,7 @@ begin
 
         if ((signed(step_integer) - signed(width_integer)) > 1) then
             gap_i <= step_integer - width_integer;
+            overall_time <= to_unsigned((to_integer(step_integer) * to_integer(unsigned(PULSES))), 48) - (step_integer - width_integer);
         else
             gap_i <= to_unsigned(1, 48);
         end if;
@@ -301,7 +301,7 @@ begin
                         dropped_flag <= '1';
                     end if;
                 else
-                    delay_and_blocking_validation(delay_i, gap_i, pulses_i, step_i, width_i, timestamp,
+                    delay_and_blocking_validation(delay_i, gap_i, overall_time, pulses_i, step_i, width_i, timestamp,
                                                   rise_trig, fall_trig, TRIG_EDGE(1 downto 0),
                                                   next_acceptable_pulse_ts, override_ends_ts, pulse_override);
                 end if;
@@ -312,12 +312,12 @@ begin
             end if;
         end if;
 
-    trig_i_prev := trig_i;
-    enable_i_prev <= enable_i;
+        trig_i_prev := trig_i;
+        enable_i_prev <= enable_i;
 
-    trig_fall <= fall_trig;
-    trig_rise <= rise_trig;
-    trig_same <= same_trig;
+        trig_fall <= fall_trig;
+        trig_rise <= rise_trig;
+        trig_same <= same_trig;
     end if;
 end process;
 
