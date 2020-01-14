@@ -129,10 +129,10 @@ takes to output the pulse train, the pulse is dropped.
    :path: modules/pulse/pulse.timing.ini
    :section: 14 Multiple pulses with no delay
 
-.. timing_plot::
-   :path: modules/pulse/pulse.timing.ini
-   :section: 15 Multiple pulses with no width
+# .. timing_plot::
+#    :path: modules/pulse/pulse.timing.ini
+#    :section: 15 Multiple pulses with no width
 
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
-   :section: 16 Multiple pulses interrupted
+   :section: 15 Multiple pulses interrupted

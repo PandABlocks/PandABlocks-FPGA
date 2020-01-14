@@ -70,35 +70,6 @@ begin
 end;
 
 
-procedure delay_and_blocking_validation (delay_i                  : in unsigned(47 downto 0);
-                                         pulses_i                 : in unsigned(47 downto 0);
-                                         overall_time             : in unsigned(47 downto 0);
-                                         width_i                  : in unsigned(47 downto 0);
-                                         timestamp                : in unsigned(47 downto 0);
-                                         rise_value               : in std_logic;
-                                         fall_value               : in std_logic;
-                                         edge_value               : in std_logic_vector(1 downto 0);
-                                         next_acceptable_pulse_ts : out unsigned(47 downto 0);
-                                         override_ends_ts         : out unsigned(47 downto 0);
-                                         signal pulse_override    : out std_logic
-                                        ) is
-
-begin
-    if (edge_validation(rise_value, fall_value, edge_value)) then
-        if (delay_i = 0) then
-            pulse_override <= '1';
-            override_ends_ts := timestamp + width_i;
-        end if;
-
-        if (pulses_i = 1) then
-            next_acceptable_pulse_ts := timestamp + width_i;
-        else
-            next_acceptable_pulse_ts := timestamp + overall_time;
-        end if;
-    end if;
-end delay_and_blocking_validation;
-
-
 -- Variable declarations
 
 -- Standard logic signals
@@ -137,15 +108,13 @@ signal gap_i                    : unsigned(47 downto 0) := (others => '0');
 
 signal missed_pulses            : unsigned(31 downto 0) := (others => '0');
 
-signal overall_time             : unsigned(47 downto 0) := (others => '0');
-
 signal pulses_i                 : unsigned(31 downto 0) := (others => '0');
-signal pulse_gap                : unsigned(47 downto 0) := (others => '0');
 
 signal queued_din               : unsigned(47 downto 0) := (others => '0');
 signal queue_pulse_ts           : unsigned(47 downto 0) := (others => '0');
 
 signal step_i                   : unsigned(47 downto 0) := (others => '0');
+signal min_input_spacing        : unsigned(47 downto 0) := (others => '0');
 signal timestamp                : unsigned(47 downto 0) := (others => '0');
 
 signal width_i                  : unsigned(47 downto 0) := (others => '0');
@@ -195,6 +164,9 @@ variable width_integer : unsigned(47 downto 0) := (others => '0');
 
 begin
     if (rising_edge(clk_i)) then
+        -- Second clock tick, calc the minimum distance between rising edges
+        min_input_spacing <= resize(step_i * pulses_i, 48) - gap_i;
+
         -- Take 48-bit time as combination of two for:
         delay_vector(31 downto 0) := DELAY_L;
         delay_vector(47 downto 32) := DELAY_H(15 downto 0);
@@ -236,7 +208,6 @@ begin
             gap_i <= to_unsigned(1, 48);
         end if;
 
-        overall_time <= to_unsigned((to_integer(step_integer) * to_integer(unsigned(PULSES))), 48) - (step_integer - width_integer);
         step_i <= step_integer;
         width_i <= width_integer;
     end if;
@@ -294,14 +265,16 @@ begin
             end if;
             
             if (same_trig /= '1') then
-                if (timestamp < next_acceptable_pulse_ts) then
-                    if (edge_validation(rise_trig, fall_trig, TRIG_EDGE(1 downto 0))) then
+                if (edge_validation(rise_trig, fall_trig, TRIG_EDGE(1 downto 0))) then
+                    if (timestamp < next_acceptable_pulse_ts) then
                         dropped_flag <= '1';
+                    else
+                        if (delay_i = 0) then
+                            pulse_override <= '1';
+                            override_ends_ts := timestamp + width_i;
+                        end if;
+                        next_acceptable_pulse_ts := timestamp + min_input_spacing;
                     end if;
-                else
-                    delay_and_blocking_validation(delay_i, pulses_i, overall_time, width_i, timestamp,
-                                                  rise_trig, fall_trig, TRIG_EDGE(1 downto 0),
-                                                  next_acceptable_pulse_ts, override_ends_ts, pulse_override);
                 end if;
             end if;
 
