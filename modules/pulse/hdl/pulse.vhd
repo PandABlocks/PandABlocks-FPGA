@@ -165,7 +165,7 @@ variable width_integer : unsigned(47 downto 0) := (others => '0');
 begin
     if (rising_edge(clk_i)) then
         -- Second clock tick, calc the minimum distance between rising edges
-        min_input_spacing <= resize(step_i * pulses_i, 48) - gap_i;
+        min_input_spacing <= resize(step_i * (pulses_i - to_unsigned(1, 32)), 48) + width_i;
 
         -- Take 48-bit time as combination of two for:
         delay_vector(31 downto 0) := DELAY_L;
