@@ -114,7 +114,7 @@ signal queued_din               : unsigned(47 downto 0) := (others => '0');
 signal queue_pulse_ts           : unsigned(47 downto 0) := (others => '0');
 
 signal step_i                   : unsigned(47 downto 0) := (others => '0');
-signal min_input_spacing        : unsigned(47 downto 0) := (others => '0');
+signal step_times_pulses        : unsigned(47 downto 0) := (others => '0');
 signal timestamp                : unsigned(47 downto 0) := (others => '0');
 
 signal width_i                  : unsigned(47 downto 0) := (others => '0');
@@ -165,7 +165,7 @@ variable width_integer : unsigned(47 downto 0) := (others => '0');
 begin
     if (rising_edge(clk_i)) then
         -- Second clock tick, calc the minimum distance between rising edges
-        min_input_spacing <= resize(step_i * (pulses_i - to_unsigned(1, 32)), 48) + width_i;
+        step_times_pulses <= resize(step_i * pulses_i, 48);
 
         -- Take 48-bit time as combination of two for:
         delay_vector(31 downto 0) := DELAY_L;
@@ -196,7 +196,7 @@ begin
             delay_i <= to_unsigned(6, 48);
         end if;
 
-        if ((unsigned(step_vector) > unsigned(width_vector)) or (unsigned(step_vector) = 0)) then
+        if (unsigned(step_vector) > unsigned(width_vector)) then
             step_integer := unsigned(step_vector);
         else
             step_integer := width_integer + 1;
@@ -273,7 +273,7 @@ begin
                             pulse_override <= '1';
                             override_ends_ts := timestamp + width_i;
                         end if;
-                        next_acceptable_pulse_ts := timestamp + min_input_spacing;
+                        next_acceptable_pulse_ts := timestamp + step_times_pulses - gap_i;
                     end if;
                 end if;
             end if;
