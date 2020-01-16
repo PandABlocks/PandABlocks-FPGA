@@ -21,11 +21,11 @@ How the design works
 --------------------
 
 This design has two CLOCK Blocks, which are enabled as soon as the PCAP Block
-becomes active. The first CLOCK triggers PCAP on its falling edge, while the
-second triggers a COUNTER to increment by one on its rising edge. We start off
-with both CLOCK Blocks set to a period of 1s, so each second the COUNTER will
-increment by one, followed by a PCAP trigger half a second later. This is best
-viewed as a timing diagram:
+becomes active. The first CLOCK triggers PCAP on its falling edge (as
+PCAP.TRIG_EDGE="Falling"), while the second triggers a COUNTER to increment by
+one on its rising edge. We start off with both CLOCK Blocks set to a period of
+1s, so each second the COUNTER will increment by one, followed by a PCAP trigger
+half a second later. This is best viewed as a timing diagram:
 
 .. timing_plot::
    :path: docs/tutorials/tutorial2.timing.ini
@@ -51,11 +51,11 @@ Min Max        Capture both Min and Max
 Min Max Mean   Capture Min Max and Mean
 ============== =======================
 
-There are also a handlful of other fields like the start of frame, end of frame
+There are also a handful of other fields like the start of frame, end of frame
 and trigger time that can be captured by setting fields on the PCAP Block.
 
-We can set COUNTER1 to capture the Value at trigger by modifying the Positions
-table and pressing Submit:
+We can set COUNTER1.OUT to capture the Value at trigger by modifying the
+Positions table and pressing Submit:
 
 .. image:: tutorial2_positions.png
 
@@ -86,10 +86,34 @@ terminal window until Disarm is pressed::
     2
     3
     4
-    5
-   END 5 Disarmed
+   END 4 Disarmed
 
-This tallies with the timing diagram we saw above, the instantaneous value of
-COUNTER1.OUT when PCAP.TRIG went high was as captured.
+This tallies with the timing diagram we saw above, the captured value matches
+the instantaneous value of COUNTER1.OUT when PCAP.TRIG went high.
 
-We can 
+We will now make the COUNTER1.OUT increment 5 times faster. Set CLOCK2.PERIOD
+to 0.2s, and click PCAP.ARM and you will see the captured value change::
+
+   missed: 0
+   process: Scaled
+   format: ASCII
+   fields:
+    COUNTER1.OUT double Value scale: 1 offset: 0 units:
+
+    3
+    8
+    13
+    18
+   END 4 Disarmed
+
+If we look at the timing plot, we can see this also matched what we expect:
+
+.. timing_plot::
+   :path: docs/tutorials/tutorial2.timing.ini
+   :section: Trigger Counter 5x faster
+   :xlabel: Milliseconds
+
+Now let's investigate the other options. If we change the Positions table
+so COUNTER1.OUT captures the Diff instead of Value then we will see it captures
+the difference between the value at the start, and the value at trigger:
+
