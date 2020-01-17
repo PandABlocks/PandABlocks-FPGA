@@ -53,8 +53,8 @@ class PulseSimulation(BlockSimulation):
         self.pulse_override = False
         self.dropped_flag = False
 
-        self.queue_decrements_left = 0
         self.queue_increment_timestamps = deque()
+        self.queue_decrement_timestamps = deque()
 
     def incoming_changes(self, changes):
         for name, value in changes.items():
@@ -257,7 +257,7 @@ class PulseSimulation(BlockSimulation):
 
     def fetch_from_queue(self):
         self.queue.popleft()
-        self.queue_decrements_left += 1
+        self.queue_decrement_timestamps.append(self.timestamp + 1)
 
         if (len(self.queue) != 0):
             self.queue_output, self.queue_timestamp = self.queue[0]
@@ -288,9 +288,10 @@ class PulseSimulation(BlockSimulation):
         if (self.previous_enable == False):
             queued = 0
 
-        if (self.queue_decrements_left != 0):
-            queued -= 1
-            self.queue_decrements_left -= 1
+        if (len(self.queue_decrement_timestamps) != 0):
+            if (self.queue_decrement_timestamps[0] == self.timestamp):
+                self.queue_decrement_timestamps.popleft()
+                queued -= 1
 
 
         ############################################
@@ -347,6 +348,29 @@ class PulseSimulation(BlockSimulation):
 
         self.QUEUED = queued
 
-        next_ts = self.timestamp + 1
+        next_ts = 0
+
+        if (len(self.queue_decrement_timestamps) != 0):
+            next_ts = min(next_ts, self.queue_decrement_timestamps[0])
+
+        if (len(self.queue_increment_timestamps) != 0):
+            next_ts = min(next_ts, self.queue_increment_timestamps[0])
+
+        if (len(self.queue) != 0):
+            next_ts = min(next_ts, self.queue[0][1])
+
+        if (self.queue_timestamp != 0):
+            next_ts = min(next_ts, self.queue_timestamp)
+
+        if ((self.queue_timestamp != 0) and (self.timestamp == self.queue_timestamp + 5)):
+            next_ts = min(next_ts, self.queue_timestamp + 5)
+
+        if ((self.queue_timestamp != 0) and (self.timestamp == self.queue_timestamp + 6)):
+            next_ts = min(next_ts, self.queue_timestamp + 6)
+
+        if (next_ts == 0):
+            next_ts = self.timestamp + 1
+
+        # next_ts = self.timestamp + 1
 
         return next_ts
