@@ -48,8 +48,6 @@ signal start_val      : signed(31 downto 0);
 signal min_val        : signed(31 downto 0);
 signal max_val        : signed(31 downto 0);
 signal sum_data       : signed(71 downto 0) := (others => '0');
-signal diff_sum       : signed(31 downto 0) := (others => '0');
-
 signal gate_prev      : std_logic;
 
 begin
@@ -77,28 +75,30 @@ begin
 
  -- Mode 1 Difference
  ps_diff: process(clk_i)
+
+ variable diff_sum       : signed(31 downto 0) := (others => '0');
+
  begin
     if rising_edge(clk_i) then
+        -- Clear diff sum on disable
+        if (enable_i = '0') then
+            diff_sum := (others => '0');
+        -- Add to the sum on falling gate or trigger with gate_prev
+        elsif gate_prev = '1' and (gate_i = '0' or trig_i = '1') then
+            diff_sum := diff_sum + signed(value_i) - start_val;
+        end if;
+
         -- Output the result
         if (trig_i = '1') then
-            if (gate_i = '1' or gate_prev = '1') then
-                -- Diff output is current diff + diff_sum if capture and (falling or high gate)
-                diff_o <= std_logic_vector(diff_sum + signed(value_i) - start_val);
-            else
-                diff_o <= std_logic_vector(diff_sum);
-            end if;
+            diff_o <= std_logic_vector(diff_sum);
+            diff_sum := (others => '0');
         end if;
-        -- Clear diff on disable or trigger with no gate high
-        if (enable_i = '0') or (trig_i = '1') then
-            diff_sum <= (others => '0');
-        -- Add in current diff to diff_sum if falling gate
-        elsif (gate_prev = '1' and gate_i = '0') then
-            diff_sum <= diff_sum + signed(value_i) - start_val;
-        end if;
+
         -- Latch the current value to start_val on rising gate or on capture
         if (gate_prev = '0' and gate_i = '1') or (trig_i = '1' and gate_i = '1') then
             start_val <= signed(value_i);
         end if;
+
         gate_prev <= gate_i;
     end if;
  end process ps_diff;
@@ -116,6 +116,7 @@ begin
             -- Mode 3 Sum High data
             sum_h_o <= std_logic_vector(sum_data(c_thirty_one+c_thirty_two+(to_integer(unsigned(shift_i))) downto c_thirty_two+(to_integer(unsigned(shift_i)))));
         end if;
+        
         -- Clear sum on disable or trigger with no gate high
         if (enable_i = '0') or (trig_i = '1' and gate_i = '0') then
             sum_data <= (others => '0');
@@ -141,6 +142,7 @@ begin
             min_o <= std_logic_vector(min_val);
             max_o <= std_logic_vector(max_val);
         end if;
+
         -- Clear min and max values on disable or trigger with no gate high
         if (enable_i = '0') or (trig_i = '1' and gate_i = '0') then
             min_val <= (min_val'high => '0', others => '1');
