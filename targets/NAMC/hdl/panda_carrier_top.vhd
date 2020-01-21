@@ -81,14 +81,30 @@ port (
     --SFP_LOS             : in    std_logic_vector(1 downto 0);
 
     -- FMC Differential IO and GTX
-    --FMC_DP0_C2M_P       : out   std_logic := 'Z';
-    --FMC_DP0_C2M_N       : out   std_logic := 'Z';
-    --FMC_DP0_M2C_P       : in    std_logic;
-    --FMC_DP0_M2C_N       : in    std_logic;
+    FMC_DP0_C2M_P       : out   std_logic := 'Z';
+    FMC_DP0_C2M_N       : out   std_logic := 'Z';
+    FMC_DP0_M2C_P       : in    std_logic;
+    FMC_DP0_M2C_N       : in    std_logic;
+    FMC_DP1_C2M_P       : out   std_logic := 'Z';
+    FMC_DP1_C2M_N       : out   std_logic := 'Z';
+    FMC_DP1_M2C_P       : in    std_logic;
+    FMC_DP1_M2C_N       : in    std_logic;
+    FMC_DP2_C2M_P       : out   std_logic := 'Z';
+    FMC_DP2_C2M_N       : out   std_logic := 'Z';
+    FMC_DP2_M2C_P       : in    std_logic;
+    FMC_DP2_M2C_N       : in    std_logic;
+    FMC_DP3_C2M_P       : out   std_logic := 'Z';
+    FMC_DP3_C2M_N       : out   std_logic := 'Z';
+    FMC_DP3_M2C_P       : in    std_logic;
+    FMC_DP3_M2C_N       : in    std_logic;
 
-    --FMC_PRSNT           : in    std_logic;
+    FMC_PRSNT           : in    std_logic;
     FMC_LA_P            : inout std_logic_vector(33 downto 0) := (others => 'Z');
     FMC_LA_N            : inout std_logic_vector(33 downto 0) := (others => 'Z');
+    FMC_HA_P            : inout std_logic_vector(21 downto 0) := (others => 'Z');
+    FMC_HA_N            : inout std_logic_vector(21 downto 0) := (others => 'Z');
+    FMC_HB_P            : inout std_logic_vector(21 downto 0) := (others => 'Z');
+    FMC_HB_N            : inout std_logic_vector(21 downto 0) := (others => 'Z');
     FMC_CLK0_M2C_P      : inout std_logic := 'Z';
     FMC_CLK0_M2C_N      : inout std_logic := 'Z';
     FMC_CLK1_M2C_P      : in    std_logic;
@@ -253,11 +269,11 @@ signal FMC_io : FMC_inout_interface  := FMC_io_init;
 --signal SFP3_i : SFP_input_interface;
 --signal SFP3_o : SFP_output_interface;
 
---signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
---attribute syn_noclockbuf : boolean;
---attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
---attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
---signal EXTCLK : std_logic;
+signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
+attribute syn_noclockbuf : boolean;
+attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
+attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
+signal EXTCLK : std_logic;
 
 
 --signal sma_pll_locked       : std_logic;
@@ -277,26 +293,48 @@ begin
 FCLK_RESET0 <= not FCLK_RESET0_N(0);
 
 --IBUFDS_GTE2
---    ibufds_instq0_clk0 : IBUFDS_GTE2
---    port map
---    (
---        O               =>      q0_clk0_gtrefclk,
---        ODIV2           =>      open,
---        CEB             =>      '0',
---        I               =>      GTXCLK0_P,
---        IB              =>      GTXCLK0_N
---    );
+    --ibufds_instq0_clk0 : IBUFDS_GTE2
+    --port map
+    --(
+        --O               =>      q0_clk0_gtrefclk,
+        --ODIV2           =>      open,
+        --CEB             =>      '0',
+        --I               =>      GTXCLK0_P,
+        --IB              =>      GTXCLK0_N
+    --);
 
 --IBUFDS_GTE2
---    ibufds_instq0_clk1 : IBUFDS_GTE2
---    port map
---    (
---        O               =>      q0_clk1_gtrefclk,
---        ODIV2           =>      open,
---        CEB             =>      '0',
---        I               =>      GTXCLK1_P,
---        IB              =>      GTXCLK1_N
---    );
+    --ibufds_instq0_clk1 : IBUFDS_GTE2
+    --port map
+    --(
+        --O               =>      q0_clk1_gtrefclk,
+        --ODIV2           =>      open,
+        --CEB             =>      '0',
+        --I               =>      GTXCLK1_P,
+        --IB              =>      GTXCLK1_N
+    --);
+--IBUFDS_GTE2
+    ibufds_instq0_clk0 : IBUFDS_GTE2
+    port map
+    (
+        O               =>      q0_clk0_gtrefclk,
+        ODIV2           =>      open,
+        CEB             =>      '0',
+        I               =>      FMC_CLK0_M2C_P,
+        IB              =>      FMC_CLK0_M2C_N
+    );
+
+--IBUFDS_GTE2
+    ibufds_instq0_clk1 : IBUFDS_GTE2
+    port map
+    (
+        O               =>      q0_clk1_gtrefclk,
+        ODIV2           =>      open,
+        CEB             =>      '0',
+        I               =>      FMC_CLK1_M2C_P,
+        IB              =>      FMC_CLK1_M2C_N
+    );
+
 
 --mmcm_clkmux_inst: entity work.mmcm_clkmux
 --port map(
@@ -311,7 +349,7 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
 --);
 
 FCLK_CLK0 <= FCLK_CLK0_PS;
-
+EXTCLK    <= '0';
 
 ---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
@@ -579,6 +617,41 @@ bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active;
 
 --pos_bus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
 
+
+-- Assemble FMC records
+FMC_i.EXTCLK 			<= EXTCLK;
+FMC_i.FMC_PRSNT 		<= FMC_PRSNT;
+FMC_io.FMC_LA_P 		<= FMC_LA_P;
+FMC_io.FMC_LA_N 		<= FMC_LA_N;
+FMC_io.FMC_HA_P 		<= FMC_HA_P;
+FMC_io.FMC_HA_N 		<= FMC_HA_N;
+FMC_io.FMC_HB_P 		<= FMC_HB_P;
+FMC_io.FMC_HB_N 		<= FMC_HB_N;
+FMC_DP0_C2M_P 			<= FMC_o.TXP_OUT;
+FMC_DP0_C2M_N 			<= FMC_o.TXN_OUT;
+FMC_i.RXP_IN 			<= FMC_DP0_M2C_P;
+FMC_i.RXN_IN 			<= FMC_DP0_M2C_N;
+FMC_DP1_C2M_P 			<= FMC_o.TXP2_OUT;
+FMC_DP1_C2M_N 			<= FMC_o.TXN2_OUT;
+FMC_i.RXP2_IN 			<= FMC_DP1_M2C_P;
+FMC_i.RXN2_IN 			<= FMC_DP1_M2C_N;
+FMC_DP2_C2M_P 			<= FMC_o.TXP3_OUT;
+FMC_DP2_C2M_N 			<= FMC_o.TXN3_OUT;
+FMC_i.RXP3_IN 			<= FMC_DP2_M2C_P;
+FMC_i.RXN3_IN 			<= FMC_DP2_M2C_N;
+FMC_DP3_C2M_P 			<= FMC_o.TXP4_OUT;
+FMC_DP3_C2M_N 			<= FMC_o.TXN4_OUT;
+FMC_i.RXP4_IN 			<= FMC_DP3_M2C_P;
+FMC_i.RXN4_IN 			<= FMC_DP3_M2C_N;
+FMC_io.FMC_CLK0_M2C_P 	<= FMC_CLK0_M2C_P;
+FMC_io.FMC_CLK0_M2C_N 	<= FMC_CLK0_M2C_N;
+FMC_i.FMC_CLK1_M2C_P 	<= FMC_CLK1_M2C_P;
+FMC_i.FMC_CLK1_M2C_N 	<= FMC_CLK1_M2C_N;
+FMC_i.GTREFCLK 			<= q0_clk1_gtrefclk;
+FMC_i.MAC_ADDR 			<= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
+FMC_i.MAC_ADDR_WS 		<= '0';
+
+
 ---------------------------------------------------------------------------
 -- PandABlocks_top Instantiation (autogenerated!!)
 ---------------------------------------------------------------------------
@@ -586,36 +659,36 @@ bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active;
 softblocks_inst : entity work.soft_blocks
 generic map( SIM => SIM)
 port map(
-    FCLK_CLK0 => FCLK_CLK0,
-    FCLK_RESET0 => FCLK_RESET0,
-    read_strobe => read_strobe,
-    read_address => read_address,
-    read_data => read_data(MOD_COUNT-1 downto CARRIER_MOD_COUNT),
-    read_ack => read_ack(MOD_COUNT-1 downto CARRIER_MOD_COUNT),
-    write_strobe => write_strobe,
-    write_address => write_address,
-    write_data => write_data,
-    write_ack => write_ack(MOD_COUNT-1 downto CARRIER_MOD_COUNT),
-    bit_bus_i => bit_bus,
-    bit_bus_o => bit_bus(BBUSW-1 downto BIT_BUS_SIZE),
-    pos_bus_i => pos_bus,
-    pos_bus_o => pos_bus(PBUSW-1 downto POS_BUS_SIZE),
-    rdma_req => rdma_req,
-    rdma_ack => rdma_ack,
-    rdma_done => rdma_done,
-    rdma_addr => rdma_addr,
-    rdma_len => rdma_len,
-    rdma_data => rdma_data,
-    rdma_valid => rdma_valid,
-    FMC_i => FMC_i,
-    FMC_io => FMC_io,
-    FMC_o => FMC_o
-    --SFP1_i => SFP1_i,
-    --SFP1_o => SFP1_o,
-    --SFP2_i => SFP2_i,
-    --SFP2_o => SFP2_o,
-    --SFP3_i => SFP3_i,
-    --SFP3_o => SFP3_o
+    FCLK_CLK0 		=> FCLK_CLK0,
+    FCLK_RESET0 	=> FCLK_RESET0,
+    read_strobe 	=> read_strobe,
+    read_address 	=> read_address,
+    read_data 		=> read_data(MOD_COUNT-1 downto CARRIER_MOD_COUNT),
+    read_ack 		=> read_ack(MOD_COUNT-1 downto CARRIER_MOD_COUNT),
+    write_strobe 	=> write_strobe,
+    write_address 	=> write_address,
+    write_data 		=> write_data,
+    write_ack 		=> write_ack(MOD_COUNT-1 downto CARRIER_MOD_COUNT),
+    bit_bus_i 		=> bit_bus,
+    bit_bus_o 		=> bit_bus(BBUSW-1 downto BIT_BUS_SIZE),
+    pos_bus_i 		=> pos_bus,
+    pos_bus_o 		=> pos_bus(PBUSW-1 downto POS_BUS_SIZE),
+    rdma_req 		=> rdma_req,
+    rdma_ack 		=> rdma_ack,
+    rdma_done 		=> rdma_done,
+    rdma_addr 		=> rdma_addr,
+    rdma_len 		=> rdma_len,
+    rdma_data 		=> rdma_data,
+    rdma_valid 		=> rdma_valid,
+    FMC_i 			=> FMC_i,
+    FMC_io 			=> FMC_io,
+    FMC_o 			=> FMC_o
+    --SFP1_i 		=> SFP1_i,
+    --SFP1_o 		=> SFP1_o,
+    --SFP2_i 		=> SFP2_i,
+    --SFP2_o 		=> SFP2_o,
+    --SFP3_i 		=> SFP3_i,
+    --SFP3_o 		=> SFP3_o
 );
 
 end rtl;

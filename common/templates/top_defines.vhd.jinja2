@@ -72,6 +72,12 @@ type FMC_input_interface is
     GTREFCLK        : std_logic;
     RXP_IN          : std_logic;
     RXN_IN          : std_logic;
+    RXP2_IN			: std_logic;
+    RXN2_IN			: std_logic;
+    RXP3_IN			: std_logic;
+    RXN3_IN			: std_logic;
+    RXP4_IN			: std_logic;
+    RXN4_IN			: std_logic;
     MAC_ADDR        : std_logic_vector(47 downto 0);
     MAC_ADDR_WS     : std_logic;
   end record FMC_input_interface;
@@ -80,12 +86,20 @@ type FMC_inout_interface is
   record
     FMC_LA_P        : std_logic_vector(33 downto 0);
     FMC_LA_N        : std_logic_vector(33 downto 0);
+    FMC_HA_P		: std_logic_vector(21 downto 0);
+    FMC_HA_N		: std_logic_vector(21 downto 0);
+    FMC_HB_P		: std_logic_vector(21 downto 0);
+    FMC_HB_N		: std_logic_vector(21 downto 0);
     FMC_CLK0_M2C_P  : std_logic;
     FMC_CLK0_M2C_N  : std_logic;
   end record FMC_inout_interface;
 
 constant FMC_io_init : FMC_inout_interface := (FMC_LA_P => (others => 'Z'),
                                                FMC_LA_N => (others => 'Z'),
+                                               FMC_HA_P => (others => 'Z'),
+                                               FMC_HA_N => (others => 'Z'),
+                                               FMC_HB_P => (others => 'Z'),
+                                               FMC_HB_N => (others => 'Z'),
                                                FMC_CLK0_M2C_P => 'Z',
                                                FMC_CLK0_M2C_N => 'Z');
 
@@ -93,10 +107,22 @@ type FMC_output_interface is
   record
     TXP_OUT         : std_logic;
     TXN_OUT         : std_logic;
+    TXP2_OUT        : std_logic;
+    TXN2_OUT        : std_logic;
+    TXP3_OUT        : std_logic;
+    TXN3_OUT        : std_logic;
+    TXP4_OUT        : std_logic;
+    TXN4_OUT        : std_logic;
   end record FMC_output_interface;
 
-constant FMC_o_init : FMC_output_interface := (TXP_OUT => 'Z',
-                                               TXN_OUT => 'Z');
+constant FMC_o_init : FMC_output_interface := (TXP_OUT  => 'Z',
+                                               TXN_OUT  => 'Z',
+                                               TXP2_OUT => 'Z',
+                                               TXN2_OUT => 'Z',
+                                               TXP3_OUT => 'Z',
+                                               TXN3_OUT => 'Z',
+                                               TXP4_OUT => 'Z',
+                                               TXN4_OUT => 'Z');
 
 -- SFP Block Record declarations
 

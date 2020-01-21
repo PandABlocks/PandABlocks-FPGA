@@ -19,7 +19,6 @@ set_param board.repoPaths $TARGET_DIR/configs
 
 if {[string match "gui" [string tolower $MODE]]} {
     create_project -part xc7z045ffg900-2 -force \
-
       carrier_fpga_top $BUILD_DIR/carrier_fpga_top 
 } else {
     create_project -part xc7z045ffg900-2 -force -in_memory \
