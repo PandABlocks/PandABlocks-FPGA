@@ -15,6 +15,7 @@ set_clock_groups -asynchronous -group [get_clocks \
 # -------------------------------------------------------------------
 # FMC MGTs - Bank 109
 # -------------------------------------------------------------------
+
 set_property LOC $FMC_HPC_GTX0_LOC \
 [get_cells softblocks_inst/{{ block.name }}_inst/fmcgtx_exdes_i1/fmcgtx_support_i/fmcgtx_init_i/U0/fmcgtx_i/gt0_fmcgtx_i/gtxe2_i]
 set_property LOC $FMC_HPC_GTX1_LOC \

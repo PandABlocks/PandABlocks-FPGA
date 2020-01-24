@@ -1,12 +1,12 @@
 --------------------------------------------------------------------------------
---  PandA Motion Project - 2016
+--  	NAMC - 2020
 --      Diamond Light Source, Oxford, UK
 --      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
 --------------------------------------------------------------------------------
 --
---  Description : PandA Zynq Top-Level Design File
+--  Description : NAMC Zynq Top-Level Design File
 --
 --------------------------------------------------------------------------------
 
@@ -647,7 +647,7 @@ FMC_io.FMC_CLK0_M2C_P 	<= FMC_CLK0_M2C_P;
 FMC_io.FMC_CLK0_M2C_N 	<= FMC_CLK0_M2C_N;
 FMC_i.FMC_CLK1_M2C_P 	<= FMC_CLK1_M2C_P;
 FMC_i.FMC_CLK1_M2C_N 	<= FMC_CLK1_M2C_N;
-FMC_i.GTREFCLK 			<= q0_clk1_gtrefclk;
+FMC_i.GTREFCLK 			<= q0_clk0_gtrefclk;
 FMC_i.MAC_ADDR 			<= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
 FMC_i.MAC_ADDR_WS 		<= '0';
 
