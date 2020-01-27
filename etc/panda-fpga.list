@@ -1,6 +1,6 @@
 # Directory structure
 d share/panda-fpga/config_d
-d share/designs/PANDA
+d share/template_designs
 d share/www
 d lib/python/site-packages/i2c
 d etc/www
@@ -27,5 +27,5 @@ b share/panda-fpga SlowFPGA/slow_top.bin
 
 # Docs (built once for all zpkgs)
 t etc/www etc/panda-fpga.docs.html
-T share/designs/PANDA docs/tutorials/*.json
+T share/template_designs docs/tutorials/*.json
 B share/www/panda-fpga ../../html

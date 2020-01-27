@@ -31,11 +31,12 @@ class CounterSimulation(BlockSimulation):
         for name, value in changes.items():
             setattr(self, name, value)
 
-        if changes.get(NAMES.ENABLE, None):
+        if changes.get(NAMES.ENABLE, None) is 1:
             self.OUT = self.START
-
-        # process trigger on rising edge
-        if self.ENABLE and NAMES.TRIG in changes:
+        elif changes.get(NAMES.ENABLE, None) is 0:
+            self.CARRY = 0
+        elif self.ENABLE and NAMES.TRIG in changes:
+            # process trigger on rising edge
             if changes[NAMES.TRIG]:
                 if self.STEP == 0:
                     step = 1

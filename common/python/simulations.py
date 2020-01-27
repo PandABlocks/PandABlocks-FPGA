@@ -98,7 +98,7 @@ class BlockSimulation(object):
 
         Args:
             ts (int): The timestamp the changes occurred at
-            changes (Dict[str, int]): Fields that changed with their value
+            changes (dict): Field names that changed with their integer value
 
         Returns:
              If the Block needs to be called back at a particular ts then return

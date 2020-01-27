@@ -109,7 +109,6 @@ signal pcap_done        : std_logic;
 signal enable           : std_logic;
 signal gate             : std_logic;
 signal trig             : std_logic;
-signal pos_bus_dly       : pos_bus_t;
 
 begin
 
@@ -197,22 +196,6 @@ port map (
 );
 
 --------------------------------------------------------------------------
--- Delay lines for Position Bus fields for capture
---------------------------------------------------------------------------
-pcap_delay_inst : entity work.pcap_delay
-port map (
-    clk_i               => clk_i,
-    reset_i             => reset_i,
-
-    pos_bus_i           => pos_bus_i,
-    pos_bus_o           => pos_bus_dly,
-
-    write_strobe_i      => write_strobe_i(REG_CS),
-    write_address_i     => write_address_i(BLK_AW-1 downto 0),
-    write_data_i        => write_data_i
-);
-
---------------------------------------------------------------------------
 -- Position Capture Core IP instantiation
 --------------------------------------------------------------------------
 pcap_core : entity work.pcap_core
@@ -234,7 +217,7 @@ port map (
     gate_i                  => gate,
     dma_error_i             => dma_error,
     bit_bus_i               => bit_bus_i,
-    pos_bus_i               => pos_bus_dly,
+    pos_bus_i               => pos_bus_i,
 
     pcap_dat_o              => pcap_dat,
     pcap_dat_valid_o        => pcap_dat_valid,

@@ -26,21 +26,21 @@ end sfp_panda_sync_transmit;
 architecture rtl of sfp_panda_sync_transmit is
 
 
-component ila_0
-
-    port (
-          clk     : std_logic;
-          probe0  : std_logic_vector(31 downto 0);
-          probe1  : std_logic_vector(31 downto 0);
-          probe2  : std_logic_vector(31 downto 0);
-          probe3  : std_logic_vector(31 downto 0);
-          probe4  : std_logic_vector(31 downto 0);
-          probe5  : std_logic_vector(31 downto 0);
-          probe6  : std_logic_vector(5 downto 0);
-          probe7  : std_logic_vector(31 downto 0)
-);
-
-end component;
+-- component ila_0
+-- 
+--     port (
+--           clk     : std_logic;
+--           probe0  : std_logic_vector(31 downto 0);
+--           probe1  : std_logic_vector(31 downto 0);
+--           probe2  : std_logic_vector(31 downto 0);
+--           probe3  : std_logic_vector(31 downto 0);
+--           probe4  : std_logic_vector(31 downto 0);
+--           probe5  : std_logic_vector(31 downto 0);
+--           probe6  : std_logic_vector(5 downto 0);
+--           probe7  : std_logic_vector(31 downto 0)
+-- );
+-- 
+-- end component;
 
 
 type t_SM_DATA is (STATE_BITIN, STATE_POSIN13, STATE_POSIN24);
@@ -127,30 +127,30 @@ begin
 end process ps_data_in;        
 
 
-
-probe1 <= (others => '0'); 
-probe2 <= (others => '0');
-probe3 <= (others => '0');
-probe4 <= (others => '0');
-probe5 <= (others => '0'); 
-probe6 <= (others => '0');
-probe7 <= (others => '0');
-
-
--- Chipscope
-ila_tx_inst : ila_0
-port map (
-      clk     => txoutclk_i,
-      probe0  => txdata,
-      probe1  => probe1,
-      probe2  => probe2,
-      probe3  => probe3,
-      probe4  => probe4,
-      probe5  => probe5,
-      probe6  => probe6,
-      probe7  => probe7
-);
-
+ -- 
+ -- probe1 <= (others => '0'); 
+ -- probe2 <= (others => '0');
+ -- probe3 <= (others => '0');
+ -- probe4 <= (others => '0');
+ -- probe5 <= (others => '0'); 
+ -- probe6 <= (others => '0');
+ -- probe7 <= (others => '0');
+ -- 
+ -- 
+ -- -- Chipscope
+ -- ila_tx_inst : ila_0
+ -- port map (
+ --       clk     => txoutclk_i,
+ --       probe0  => txdata,
+ --       probe1  => probe1,
+ --       probe2  => probe2,
+ --       probe3  => probe3,
+ --       probe4  => probe4,
+ --       probe5  => probe5,
+ --       probe6  => probe6,
+ --       probe7  => probe7
+ -- );
+ -- 
 
 
 txdata_o <= txdata;

@@ -109,7 +109,7 @@ begin
     // If the io file signal contains an 0 when the UUT signal is zero, the
     // test should not error, but for other io signal values display an error
         if (OUT != OUT_uut || (OUT > 0 && ^OUT_uut === 1'bx)) begin
-            $display("OUT error detected at timestamp %d\n", timestamp);
+            $display("OUT error detected at timestamp %d (%d not %d)\n", timestamp, OUT_uut, OUT);
             OUT_err <= 1;
             test_result <= 1;
         end

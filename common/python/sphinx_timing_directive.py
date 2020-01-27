@@ -14,15 +14,13 @@ class table_plot_node(nodes.Element):
     pass
 
 
-
-
-
 class timing_plot_directive(Directive):
 
     has_content = False
     required_arguments = 0
     optional_arguments = 0
-    option_spec = {'path': str, 'section': str, 'table': bool, 'nofigs': bool}
+    option_spec = {'path': str, 'section': str, 'table': bool, 'nofigs': bool,
+                   'xlabel': str}
 
     def catch_insert_input(self, total_lines, source=None):
         self.total_lines = total_lines
@@ -46,9 +44,12 @@ class timing_plot_directive(Directive):
                 if name == "DATA":
                     tables = self.make_pcap_table(ini, section)
 
+        args = [path, section]
+        if "xlabel" in self.options:
+            args.append(self.options["xlabel"])
         plot_content = [
             "from common.python.timing_plot import make_timing_plot",
-            "make_timing_plot('%s', '%s')" % (path, section)]
+            "make_timing_plot(%s)" % (", ".join(repr(x) for x in args))]
 
         # override include_input so we get the result
         old_insert_input = self.state_machine.insert_input

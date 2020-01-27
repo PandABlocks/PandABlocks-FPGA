@@ -76,7 +76,7 @@ def plot_pos(trace_items, names, offset, crossdist, ts):
     return offset
 
 
-def make_timing_plot(path, section=None):
+def make_timing_plot(path, section=None, xlabel="Timestamp (125MHz FPGA clock ticks)"):
     # Read the ini file and section
     ini = read_ini(os.path.join(ROOT, path))
     if not section:
@@ -225,7 +225,7 @@ def make_timing_plot(path, section=None):
     # add a grid, title, legend, and axis label
     plt.title(section)
     plt.grid(axis="x")
-    plt.xlabel("Timestamp (125MHz FPGA clock ticks)")
+    plt.xlabel(xlabel)
     # turn off ticks and labels for y
     plt.tick_params(left='off', right='off', labelleft='off')
 

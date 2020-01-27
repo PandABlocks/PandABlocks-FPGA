@@ -178,7 +178,7 @@ hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
 
 # Make the hdl_timing folders and run a single test, set TEST argument
 # E.g. make TEST="clock 1" single_hdl_test
-single_hdl_test: $(TIMING_BUILD_DIRS)
+single_hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
 	rm -rf $(TEST_DIR)/single_test
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
