@@ -97,6 +97,9 @@ and the input is dropped:
    :path: modules/pulse/pulse.timing.ini
    :section: Stretched and delayed pulses too close together
 
+The queue length is 255, so if QUEUED reaches 255 then any new pulse will
+be dropped and also increment DROPPED.
+
 The DROPPED count is zeroed on rising edge of ENABLE.
 
 Enabling the Block
