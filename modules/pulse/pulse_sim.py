@@ -1,13 +1,12 @@
 from common.python.simulations import BlockSimulation, properties_from_ini
 
 from collections import deque
-from math import floor
 
-# max queue size
-MAX_QUEUE = 1023
+# Max queue size
+MAX_QUEUE = 255
 
-# time taken to clear queue
-QUEUE_CLEAR_TIME = 1
+# Time taken to get through queue
+QUEUE_DELAY = 4
 
 NAMES, PROPERTIES = properties_from_ini(__file__, "pulse.block.ini")
 
@@ -16,361 +15,130 @@ class PulseSimulation(BlockSimulation):
     ENABLE, TRIG, DELAY_L, DELAY_H, WIDTH_L, WIDTH_H, PULSES, \
         STEP_L, STEP_H, TRIG_EDGE, OUT, QUEUED, DROPPED = PROPERTIES
 
-
     def __init__(self):
+        # Whether we were enabled last clock tick
+        self.was_enabled = False
+        # When to produce the next edge
+        self.edge_ts = 0
+        # How many edges left to produce
+        self.edges_remaining = 0
+        # When we made a pulse, when is the next valid pulses
+        self.acceptable_pulse_ts = 0
         # This mimicks the VHDL pulse_queue, filled with a maximum of one entry
         # each clock tick, and consumed at the correct ts to make self.OUT
-        self.timestamp = 0
-
         self.queue = deque()
-        self.queue_full = False
-        self.queue_output = 0
-        self.queue_timestamp = 0
-        self.out_from_queue = False
-        self.last_queue_length = 0
 
-        self.timestamp = 0
-
-        self.pulses_i = 0
-        self.delay_i = 0
-        self.gap_i = 0
-        self.step_i = 0
-        self.width_i = 0
-        self.trig_edge = 0
-
-        self.trig_fall = False
-        self.trig_rise = False
-        self.trig_same = True
-        self.previous_trigger = 0
-
-        self.next_acceptable_pulse_ts = 0
-        self.override_ends_ts = 0
-        self.edges_remaining = 0
-        self.pulse_timestamp = 0
-        self.missed_pulses = 0
-        self.previous_enable = False
-
-        self.pulse_override = False
-        self.dropped_flag = False
-
-        self.queue_increment_timestamps = deque()
-        self.queue_decrement_timestamps = deque()
-
-    def incoming_changes(self, changes):
-        for name, value in changes.items():
-            setattr(self, name, value)
-
-        
-    def edge_validation(self, rise_value, fall_value, edge_value):
-        if (((edge_value == 0) and (rise_value == 1)) or
-            ((edge_value == 1) and (fall_value == 1)) or
-             (edge_value == 2) 
-           ):
-            return True
-        else:
-            return False
-
-
-    def delay_and_blocking_validation(self, delay_i, overall_time, pulses_i, width_i, timestamp, rise_value, fall_value, edge_value):
-        if (self.edge_validation(rise_value, fall_value, edge_value)):
-            if (delay_i == 0):
-                self.pulse_override = True
-                self.override_ends_ts = timestamp + width_i
-
-            if (pulses_i == 1):
-                self.next_acceptable_pulse_ts = timestamp + width_i
-            else:
-                self.next_acceptable_pulse_ts = timestamp + overall_time
-
-
-    def external_variable_internal_configuration(self):
-        # Variable assignments from inputs
-
-        if ((self.DELAY_L != None) and (self.DELAY_H != None)):
-            delay = self.DELAY_L + (self.DELAY_H << 32)
-        elif (self.DELAY_L != None):
-            delay = self.DELAY_L
-        else:
-            delay = 0
-
-        if ((self.STEP_L != None) and (self.STEP_H != None)):
-            step = self.STEP_L + (self.STEP_H << 32)
-        elif (self.STEP_L != None):
-            step = self.STEP_L
-        else:
-            step = 0
-
-        if ((self.WIDTH_L != None) and (self.WIDTH_H != None)):
-            width = self.WIDTH_L + (self.WIDTH_H << 32)
-        elif (self.WIDTH_L != None):
-            width = self.WIDTH_L
-        else:
-            width = 0
-
-        self.pulses_i = max(1, self.PULSES)
-
-        if ((width > 5) or (width == 0)):
-            self.width_i = width
-        else:
-            self.width_i = 6    
-
-        if ((delay > 5) or ((width != 0) and (delay == 0)) or ((width == 0) and (delay > 5))):
-            self.delay_i = delay
-        else:
-            self.delay_i = 6
-
-        if ((step > self.width_i) or (step == 0)):
-            self.step_i = step
-        else:
-            self.step_i = self.width_i + 1
-
-        if ((step - width) > 1):
-            self.gap_i = (self.step_i - self.width_i)
-        else:
-            self.gap_i = 1
-
-        self.overall_time = (self.pulses_i * self.step_i) - self.gap_i
-
-
-    def edge_detection(self, incoming_trigger):
-        if (self.ENABLE == False):
-            self.dropped_flag = False
-            self.pulse_override = False
-            self.next_acceptable_pulse_ts = 0
-            self.override_ends_ts = 0
-
-        else:
-            fall_trig = False
-            rise_trig = False
-            same_trig = False
-            self.dropped_flag = False
-
-            if   ((incoming_trigger == False) and (incoming_trigger != self.previous_trigger)):
-                fall_trig = True
-            elif ((incoming_trigger == True) and (incoming_trigger != self.previous_trigger)):
-                rise_trig = True
-            elif (incoming_trigger == self.previous_trigger):
-                same_trig = True
-
-            if (same_trig != True):
-                if (self.timestamp < self.next_acceptable_pulse_ts):
-                    if (self.edge_validation(rise_trig, fall_trig, self.TRIG_EDGE)):
-                        self.dropped_flag = True
-                else:
-                    self.delay_and_blocking_validation(self.delay_i, self.overall_time, self.pulses_i, self.width_i, self.timestamp, rise_trig, fall_trig, self.TRIG_EDGE)
-
-            if (self.timestamp == self.override_ends_ts):
-                self.pulse_override = False
-
-            self.trig_fall = fall_trig
-            self.trig_rise = rise_trig
-            self.trig_same = same_trig
-
-        self.previous_trigger = incoming_trigger
-        self.previous_enable = self.ENABLE
-
-
-    def queue_filling(self):
-        if (self.ENABLE == False):
-            self.clear_queue()
-            self.missed_pulses = 0
-            self.timestamp_to_queue = 0
-
-        else:
-            if (self.dropped_flag == True):
-                self.missed_pulses += 1
-
-            elif (self.trig_same == False):
-                timestamp_to_queue = self.timestamp + self.delay_i - 1
-
-                if (self.queue_full == True):
-                    self.missed_pulses += 1
-                    self.dropped_flag = False
-
-                elif (self.width_i == 0):
-                    if(self.trig_rise == True):
-                        self.append_to_queue(1, timestamp_to_queue)
-                    else:
-                        self.append_to_queue(0, timestamp_to_queue)
-                else:
-                    if(self.edge_validation(self.trig_rise, self.trig_fall, self.TRIG_EDGE)):
-                        self.append_to_queue(1, timestamp_to_queue)
-                    
-
-
-    def process_queue(self):
-        if (self.ENABLE == False):
-            self.out_from_queue = False
-        else:
-            if (len(self.queue) == 1):
-                self.queue_output, self.queue_timestamp = self.queue[0]
-
-            if (self.width_i == 0):
-                if (self.timestamp == self.queue_timestamp):
-                    self.out_from_queue = self.queue_output
-                    self.fetch_from_queue()
-            else:
-                if (self.pulses_i == 1):
-                    if ((self.delay_i == 0) and (self.timestamp != 0)):
-                        if ((self.timestamp == self.queue_timestamp + 5) and (len(self.queue) != 0)):
-                            self.fetch_from_queue()
-
-                    if ((self.delay_i == 0) and (len(self.queue) != 1) and (len(self.queue) != 0)):
-                        self.fetch_from_queue()
-
-                    elif ((self.timestamp == self.queue_timestamp) and (self.queue_timestamp != 0)):
-                        self.out_from_queue = 1
-                        self.pulse_timestamp = self.timestamp + self.width_i
-                        self.fetch_from_queue()
-
-                    elif (self.timestamp == self.pulse_timestamp):
-                        self.out_from_queue = 0
-                else:
-                    if (self.edges_remaining != 0):
-                        if (self.timestamp == self.pulse_timestamp):
-                            if (self.edges_remaining % 2):
-                                self.edges_remaining -= 1
-                                self.pulse_timestamp = self.timestamp + self.gap_i
-                                self.out_from_queue = int(not bool(self.out_from_queue))
-                            else:
-                                self.edges_remaining -= 1
-                                self.pulse_timestamp = self.timestamp + self.width_i
-                                self.out_from_queue = int(not bool(self.out_from_queue))
-
-                            if (self.edges_remaining == 1):
-                                self.fetch_from_queue()
-                    else:
-                        if (self.queue_timestamp != 0):
-                            if ((self.delay_i == 0) and ((self.timestamp - 6) == self.queue_timestamp)):
-                                self.pulse_timestamp = self.timestamp + self.gap_i + 1
-                                self.edges_remaining = (self.pulses_i * 2) - 2
-
-                            elif (self.timestamp == self.queue_timestamp):
-                                self.pulse_timestamp = self.timestamp + self.width_i
-                                self.edges_remaining = (self.pulses_i * 2) - 1
-                                self.out_from_queue = 1
-
-    def append_to_queue(self, out_value, timestamp):
-        self.queue.append((out_value, timestamp))
-        self.queue_increment_timestamps.append(self.timestamp + 2)
-
-
-    def fetch_from_queue(self):
-        self.queue.popleft()
-        self.queue_decrement_timestamps.append(self.timestamp + 1)
-
-        if (len(self.queue) != 0):
-            self.queue_output, self.queue_timestamp = self.queue[0]
-
-
-
-    def clear_queue(self):
-        """Clear the queue, but not any errors"""
-        self.queue.clear()
-        self.queue_full = False
-
-
+    def do_queue(self, ts, level):
+        self.queue.append((ts, level))
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
-
-        # CHANGES = ENABLE, TRIG, DELAY_L, DELAY_H, WIDTH_L, WIDTH_H, PULSES, STEP_L, STEP_H, TRIG_EDGE, OUT, QUEUED, DROPPED
         super(PulseSimulation, self).on_changes(ts, changes)
-        self.timestamp = ts
 
-        # INCOMING CHANGES: ENABLE, TRIG, DELAY_L, DELAY_H, WIDTH_L, WIDTH_H, PULSES, STEP_L, STEP_H, TRIG_EDGE
-        # OUTGOING CHANGES:  OUT, QUEUED, DROPPED
+        # When we will next be called
+        next_ts = None
 
-        self.DROPPED = self.missed_pulses
-        queued = self.QUEUED
+        # This is what we will set the output to
+        out = self.OUT
 
-        if (self.previous_enable == False):
+        # Validation of input parameters
+        width = self.WIDTH_L + (self.WIDTH_H << 32)
+        delay = self.DELAY_L + (self.DELAY_H << 32)
+        step = self.STEP_L + (self.STEP_H << 32)
+        if 0 < width < 5:
+            width = 5
+        if 0 < delay < 5:
+            delay = 5
+        if step <= width:
+            step = width + 1
+        pulses = max(1, self.PULSES)
+
+        # Calculation of enable signal
+        is_enabled = changes.get(NAMES.ENABLE, self.ENABLE) == 1
+        clear_if = {NAMES.DELAY_L, NAMES.DELAY_H, NAMES.WIDTH_L, NAMES.WIDTH_H,
+                    NAMES.STEP_L, NAMES.STEP_H, NAMES.PULSES, NAMES.TRIG_EDGE}
+        if clear_if.intersection(changes):
+            # Something was changed,
+            is_enabled = False
+            next_ts = ts + 1
+        enabled_rise = is_enabled and not self.was_enabled
+        self.was_enabled = is_enabled
+
+        # Calculation of trigger signal
+        if NAMES.TRIG in changes:
+            got_trigger = (self.TRIG_EDGE == 0 and self.TRIG) or \
+                          (self.TRIG_EDGE == 1 and not self.TRIG) or \
+                           self.TRIG_EDGE == 2 or width == 0
+        else:
+            got_trigger = False
+
+        # Set from the length of the queue
+        queued = len(self.queue)
+
+        # Queue producing process
+        if enabled_rise:
+            self.edge_ts = 0
+        elif is_enabled and self.edges_remaining:
+            if ts == self.edge_ts:
+                if self.edges_remaining % 2:
+                    out = 0
+                    self.edge_ts = ts + step - width
+                else:
+                    out = 1
+                    self.edge_ts = ts + width
+                self.edges_remaining -= 1
+                if not self.edges_remaining:
+                    # Done with pulse
+                    self.queue.popleft()
+                    queued -= 1
+        elif is_enabled and self.queue and ts == self.queue[0][0]:
+            if width == 0:
+                out = self.queue.popleft()[1]
+                queued -= 1
+            else:
+                out = 1
+                # Not just a delay line, need more edges
+                self.edges_remaining = 2*pulses - 1
+                self.edge_ts = ts + width
+                if delay == 0:
+                    # We added 4 ticks to account for queue delays, subtract it
+                    self.edge_ts -= QUEUE_DELAY
+        elif not is_enabled:
+            out = 0
+            self.edges_remaining = 0
+            self.queue.clear()
             queued = 0
 
-        if (len(self.queue_decrement_timestamps) != 0):
-            if (self.queue_decrement_timestamps[0] == self.timestamp):
-                self.queue_decrement_timestamps.popleft()
-                queued -= 1
+        # Queue filling process
+        if enabled_rise:
+            self.DROPPED = 0
+            self.acceptable_pulse_ts = 0
+        elif is_enabled and got_trigger:
+            if ts < self.acceptable_pulse_ts or len(self.queue) > MAX_QUEUE:
+                self.DROPPED += 1
+            elif width == 0:
+                if delay == 0:
+                    out = self.TRIG
+                else:
+                    self.do_queue(ts + delay, self.TRIG)
+            else:
+                if delay == 0:
+                    out = 1
+                    self.do_queue(ts + QUEUE_DELAY, 1)
+                else:
+                    self.do_queue(ts + delay, 1)
+                self.acceptable_pulse_ts = ts + step * pulses - step + width + 1
 
-
-        ############################################
-        #     Load incoming changes into class     #
-        ############################################
-
-        self.incoming_changes(changes)        
-
-
-        ############################################
-        # Freestanding counters, assignments, etc. #
-        ############################################
-
-        self.external_variable_internal_configuration()
-
-
-        ############################################
-        #          Trigger edge detection          #
-        ############################################
-
-        self.edge_detection(self.TRIG)
-
-
-        ############################################
-        #              Queue filling               #
-        ############################################
-
-        self.queue_filling()
-
-
-        ############################################
-        #             Queue processing             #
-        ############################################
-
-        self.process_queue()
-
-
-        ############################################
-        #          Final output parameters         #
-        ############################################
-
-        if (self.ENABLE == False):
-            self.queue_increment_timestamps.clear()
-        else:
-            if (len(self.queue_increment_timestamps) != 0):
-                if (self.timestamp == self.queue_increment_timestamps[0]):
-                    self.queue_increment_timestamps.popleft()
-                    queued += 1
-
-        if ((self.pulse_override == True) or (self.out_from_queue == True)):
-            self.OUT = 1
-        else:
-            self.OUT = 0
-
+        # Set outputs and return when next called
+        self.OUT = out
         self.QUEUED = queued
 
-        next_ts = 0
-
-        if (len(self.queue_decrement_timestamps) != 0):
-            next_ts = min(next_ts, self.queue_decrement_timestamps[0])
-
-        if (len(self.queue_increment_timestamps) != 0):
-            next_ts = min(next_ts, self.queue_increment_timestamps[0])
-
-        if (len(self.queue) != 0):
-            next_ts = min(next_ts, self.queue[0][1])
-
-        if (self.queue_timestamp != 0):
-            next_ts = min(next_ts, self.queue_timestamp)
-
-        if ((self.queue_timestamp != 0) and (self.timestamp == self.queue_timestamp + 5)):
-            next_ts = min(next_ts, self.queue_timestamp + 5)
-
-        if ((self.queue_timestamp != 0) and (self.timestamp == self.queue_timestamp + 6)):
-            next_ts = min(next_ts, self.queue_timestamp + 6)
-
-        if (next_ts == 0):
-            next_ts = self.timestamp + 1
-
-        # next_ts = self.timestamp + 1
-
+        # If we now have edges_remaining, or if we didn't update the queue
+        # yet then we need to process then next clock tick
+        if len(self.queue) != self.QUEUED:
+            next_ts = ts + 1
+        elif self.queue and self.queue[0][0] > ts:
+            if next_ts is None or self.queue[0][0] < next_ts:
+                next_ts = self.queue[0][0]
         return next_ts
