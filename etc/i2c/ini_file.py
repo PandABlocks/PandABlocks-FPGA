@@ -34,7 +34,7 @@ class IniFile:
             return default
 
     def __iter__(self):
-        return self.__sections.itervalues()
+        return iter(self.__sections.values())
 
     def emit(self, outfile = sys.stdout):
         for section in self:
@@ -58,7 +58,7 @@ class Section:
         return self.__keys[key]
 
     def __iter__(self):
-        return self.__keys.iteritems()
+        return iter(self.__keys.items())
 
     def emit(self, outfile = sys.stdout):
         print('[%s]' % self.name, file = outfile)
