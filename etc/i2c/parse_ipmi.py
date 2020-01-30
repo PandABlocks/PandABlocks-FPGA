@@ -128,6 +128,7 @@ class StringReader:
             result, self.ix = get_string(self.data, self.ix, lang_code)
             return result
 
+    __next__ = next
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Parses the common header defined in [ISD] section 8.
