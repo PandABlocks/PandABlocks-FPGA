@@ -180,6 +180,10 @@ set_property PACKAGE_PIN AD9    [get_ports {FMC_CLK0_M2C_N}];
 set_property PACKAGE_PIN AD10   [get_ports {FMC_CLK0_M2C_P}];
 set_property PACKAGE_PIN AA7    [get_ports {FMC_CLK1_M2C_N}];
 set_property PACKAGE_PIN AA8    [get_ports {FMC_CLK1_M2C_P}];
+set_property PACKAGE_PIN N8     [get_ports {GTXCLK0_P	  }];
+set_property PACKAGE_PIN N7     [get_ports {GTXCLK0_N	  }];
+set_property PACKAGE_PIN R8     [get_ports {GTXCLK1_P	  }];
+set_property PACKAGE_PIN R7     [get_ports {GTXCLK1_N	  }];
 
 # IO STANDARD
 set_property IOSTANDARD LVCMOS18   [get_ports FMC_PRSNT     ];
@@ -385,4 +389,5 @@ set FMC_HPC_GTX1_LOC  GTXE2_CHANNEL_X0Y1
 set FMC_HPC_GTX2_LOC  GTXE2_CHANNEL_X0Y2
 set FMC_HPC_GTX3_LOC  GTXE2_CHANNEL_X0Y3
 
-
+set AMC_GTX0_LOC	  GTXE2_CHANNEL_X0Y12
+set AMC_GTX1_LOC	  GTXE2_CHANNEL_X0Y13

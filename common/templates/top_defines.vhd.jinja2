@@ -66,6 +66,7 @@ end record;
 type FMC_input_interface is
   record
     EXTCLK          : std_logic;
+    SFP_LOS		    : std_logic;
     FMC_PRSNT       : std_logic;
     FMC_CLK1_M2C_P  : std_logic;
     FMC_CLK1_M2C_N  : std_logic;
@@ -101,7 +102,8 @@ constant FMC_io_init : FMC_inout_interface := (FMC_LA_P => (others => 'Z'),
                                                FMC_HB_P => (others => 'Z'),
                                                FMC_HB_N => (others => 'Z'),
                                                FMC_CLK0_M2C_P => 'Z',
-                                               FMC_CLK0_M2C_N => 'Z');
+                                               FMC_CLK0_M2C_N => 'Z'
+                                               );
 
 type FMC_output_interface is
   record
@@ -149,7 +151,31 @@ constant SFP_o_init : SFP_output_interface := (TXN_OUT => 'Z',
                                                TXP_OUT => 'Z',
                                                EVR_REC_CLK => '0',
                                                LINK_UP => '0');
+-- AMC Block Record declarations
 
+type AMC_input_interface is
+  record
+    GTREFCLK		: std_logic;
+	PCIe_B112_RX0_P	: std_logic;
+	PCIe_B112_RX0_N	: std_logic;
+	PCIe_B112_RX1_P	: std_logic;
+	PCIe_B112_RX1_N	: std_logic;
+  end record AMC_input_interface;
+  
+type AMC_output_interface is
+  record
+	PCIe_B112_TX0_P	: std_logic;
+	PCIe_B112_TX0_N	: std_logic;
+	PCIe_B112_TX1_P	: std_logic;
+	PCIe_B112_TX1_N	: std_logic;
+  end record AMC_output_interface;
+  
+constant AMC_o_init : AMC_output_interface := (PCIe_B112_TX0_P => 'Z',
+											   PCIe_B112_TX0_N => 'Z',
+											   PCIe_B112_TX1_P => 'Z',
+											   PCIe_B112_TX1_N => 'Z'
+											   );
+												
 
 type seq_t is
 record

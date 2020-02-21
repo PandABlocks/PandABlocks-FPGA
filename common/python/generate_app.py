@@ -61,6 +61,7 @@ class AppGenerator(object):
         self.server_blocks = []  # type: List[BlockConfig]
         self.sfp_sites = 0
         self.fmc_sites = 0
+        self.amc_sites = 0
         self.parse_ini_files(app)
         self.generate_config_dir()
         self.generate_wrappers()
@@ -101,6 +102,8 @@ class AppGenerator(object):
             self.implement_blocks(target_ini, target_path, "carrier")
             self.sfp_sites = int(ini_get(target_ini, '.', 'sfp_sites', 0))
             self.fmc_sites = int(ini_get(target_ini, '.', 'fmc_sites', 0))
+            self.amc_sites = int(ini_get(target_ini, '.', 'amc_sites', 0))
+
 
         # Implement the blocks for the soft blocks
         self.implement_blocks(app_ini, "modules", "soft")
@@ -112,6 +115,7 @@ class AppGenerator(object):
                 module_name = ini_get(ini, section, 'module', section.lower())
                 block_type = ini_get(ini, section, 'block', None)
                 sfp_site = ini_get(ini, section, 'sfp_site', None)
+                amc_site = ini_get(ini, section, 'amc_site', None)
                 assert sfp_site is None or int(sfp_site) in range(
                     1, self.sfp_sites + 1), \
                     "Block %s in sfp_site %s. Target only has %d sites" % (
@@ -236,6 +240,8 @@ class AppGenerator(object):
         for block in self.fpga_blocks:
             if block.type == "fmc":
                 assert self.fmc_sites > 0, "No FMC on Carrier"
+            if block.type == "amc":
+                assert self.amc_sites > 0, "No AMC on Carrier"
             if block.type in "carrier|pcap":
                 carrier_mod_count = carrier_mod_count + 1
             for field in block.fields:
@@ -263,6 +269,7 @@ class AppGenerator(object):
             fpga_blocks=self.fpga_blocks,
             sfp_sites=self.sfp_sites,
             fmc_sites=self.fmc_sites,
+            amc_sites=self.amc_sites,
             carrier_bit_bus_length=carrier_bit_bus_length,
             carrier_pos_bus_length=carrier_pos_bus_length,
             total_bit_bus_length=total_bit_bus_length,
@@ -277,7 +284,7 @@ class AppGenerator(object):
                              "top_defines.vhd")
 
     def generate_constraints(self):
-        """Generate constraints file for IPs, SFP and FMC constraints"""
+        """Generate constraints file for IPs, SFP, FMC and AMC constraints"""
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
         const_dir = os.path.join(self.app_build_dir, "const")
         os.makedirs(const_dir)
