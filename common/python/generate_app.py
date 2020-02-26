@@ -136,32 +136,29 @@ class AppGenerator(object):
                 # Fpga_blocks will be used in fpga templates and server_blocks
                 # will be used within the config blocks.
                 if block.block_suffixes:
-                    for field in block.fields:
-                        # Change field names to remove "." and add "_". This is
-                        # used to remove any block_suffix.
-                        if "." in field.name:
-                            field.name = field.name.replace(".", "_")
+                    server_blocks = {}
                     # A new block is created for each of the block suffixes
                     for suffix in block.block_suffixes:
-                        suffixblock = copy.deepcopy(block)
-                        suffixblock.name = block.name + "_" + suffix
+                        server_block = copy.deepcopy(block)
+                        server_block.name = block.name + "_" + suffix
                         # There are no block_suffixes on the new server blocks
-                        # suffixblock.block_suffixes = []
+                        server_block.block_suffixes = []
                         # The block address is preceded with 'S' as it is shared
-                        suffixblock.block_address = 'S' + \
-                                                    str(block.block_address)
-                        othersuffixfield = []
-                        for field in suffixblock.fields:
-                            # If the suffix is in this field name, the suffix is
-                            # removed. Otherwise this field is for other suffix.
-                            if suffix in field.name:
-                                field.name = field.name.split('_')[1]
-                            else:
-                                othersuffixfield.append(field)
-                        # Remove the fields for the other suffix
-                        for field in othersuffixfield:
-                            suffixblock.fields.remove(field)
-                        self.server_blocks.append(suffixblock)
+                        server_block.block_address = 'S%s' % block.block_address
+                        # We will fill in the fields in the next step
+                        server_block.fields = []
+                        server_blocks[suffix] = server_block
+                    # Distribute fields to the right blocks
+                    for field in block.fields:
+                        server_field = copy.deepcopy(field)
+                        suffix, field_name = server_field.name.split(".")
+                        server_field.name = field_name
+                        server_blocks[suffix].fields.append(server_field)
+                        # Change the source field name too
+                        field.name = field.name.replace(".", "_")
+                    # Add them to the server blocks list
+                    for suffix in block.block_suffixes:
+                        self.server_blocks.append(server_blocks[suffix])
                 else:
                     self.server_blocks.append(block)
 

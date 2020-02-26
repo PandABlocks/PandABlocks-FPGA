@@ -35,9 +35,6 @@
     # Range of MAC addresses
     MAC_ADDRESS_BASE        16 .. 23
 
-    # This array of registers is used to program data delays on the capture bus
-    PCAP_DATA_DELAY         32 .. 63
-
 
 # These registers are used by the kernel driver to read the data capture stream.
 # This block is not used by the server, but is here for documentation and other

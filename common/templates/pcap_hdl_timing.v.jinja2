@@ -197,7 +197,7 @@ begin
         end
         if (DATA_wstb == 1) begin
             if (DATA != pcap_dat_o || (DATA > 0 && ^pcap_dat_o === 1'bx)) begin
-                $display("DATA error detected at timestamp %d\n", timestamp);
+                $display("DATA error detected at timestamp %d (%d not %d)\n", timestamp, pcap_dat_o, DATA);
                 DATA_err <= 1;
                 test_result <= 1;
             end

@@ -13,7 +13,7 @@ connections to other Blocks) changed at runtime. It allows flexible triggering
 and processing systems to be created, by users who are unfamiliar with writing
 FPGA firmware.
 
-<insert diagram of blocks, wrappers and system architecture here>
+.. image:: fpga_arch.png
 
 How is the documentation structured?
 ------------------------------------

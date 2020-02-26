@@ -14,6 +14,14 @@ Block, finding a `module_` for it, defining the interface, writing the
 simulation, writing the timing tests, documenting the behaviour, and finally
 writing the logic.
 
+Architecture
+------------
+
+An overview of the build process is shown in this diagram, the stages and
+terminology are defined below:
+
+.. image:: build_arch.png
+
 Modules
 -------
 

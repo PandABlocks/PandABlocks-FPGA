@@ -44,13 +44,10 @@ architecture rtl of pcap_frame_mode is
 constant c_thirty_one : natural := 31;
 constant c_thirty_two : natural := 32;
 
-signal start          : std_logic := '0';
 signal start_val      : signed(31 downto 0);
 signal min_val        : signed(31 downto 0);
 signal max_val        : signed(31 downto 0);
 signal sum_data       : signed(71 downto 0) := (others => '0');
-signal diff_sum       : signed(31 downto 0) := (others => '0');
-
 signal gate_prev      : std_logic;
 
 begin
@@ -78,29 +75,31 @@ begin
 
  -- Mode 1 Difference
  ps_diff: process(clk_i)
+
+ variable diff_sum       : signed(31 downto 0) := (others => '0');
+
  begin
     if rising_edge(clk_i) then
-        gate_prev <= gate_i;
+        -- Clear diff sum on disable
+        if (enable_i = '0') then
+            diff_sum := (others => '0');
+        -- Add to the sum on falling gate or trigger with gate_prev
+        elsif gate_prev = '1' and (gate_i = '0' or trig_i = '1') then
+            diff_sum := diff_sum + signed(value_i) - start_val;
+        end if;
+
+        -- Output the result
+        if (trig_i = '1') then
+            diff_o <= std_logic_vector(diff_sum);
+            diff_sum := (others => '0');
+        end if;
+
         -- Latch the current value to start_val on rising gate or on capture
         if (gate_prev = '0' and gate_i = '1') or (trig_i = '1' and gate_i = '1') then
             start_val <= signed(value_i);
         end if;
-        -- Zero diff_sum on capture
-        if (trig_i = '1') then
-            diff_sum <= (others => '0');
-        -- Add in current diff to diff_sum if falling gate
-        elsif (gate_prev = '1' and gate_i = '0') then
-            diff_sum <= diff_sum + signed(value_i) - start_val;
-        end if;
-        -- Set diff output on capture
-        if (trig_i = '1') then
-            if (gate_i = '1' or gate_prev = '1') then
-                -- Diff output is current diff + diff_sum if capture and (falling or high gate)
-                diff_o <= std_logic_vector(diff_sum + signed(value_i) - start_val);
-            else
-                diff_o <= std_logic_vector(diff_sum);
-            end if;
-        end if;
+
+        gate_prev <= gate_i;
     end if;
  end process ps_diff;
 
@@ -117,11 +116,11 @@ begin
             -- Mode 3 Sum High data
             sum_h_o <= std_logic_vector(sum_data(c_thirty_one+c_thirty_two+(to_integer(unsigned(shift_i))) downto c_thirty_two+(to_integer(unsigned(shift_i)))));
         end if;
-        -- Clear sum
-        if (enable_i = '0') then
+        
+        -- Clear sum on disable or trigger with no gate high
+        if (enable_i = '0') or (trig_i = '1' and gate_i = '0') then
             sum_data <= (others => '0');
-        elsif (trig_i = '1' and gate_i = '0') then
-            sum_data <= (others => '0');
+        -- Set sum to current value on trigger with gate high
         elsif (trig_i = '1' and gate_i = '1') then
             sum_data <= resize(signed(value_i),sum_data'length);
         -- Sum the received data whilst gate high
@@ -138,24 +137,20 @@ begin
  ps_min_max: process(clk_i)
  begin
     if rising_edge(clk_i) then
-        -- Outpput th result
+        -- Output the result
         if trig_i = '1' then
             min_o <= std_logic_vector(min_val);
             max_o <= std_logic_vector(max_val);
         end if;
-        -- Clear min and max values
-        if (enable_i = '0') then
-            -- Maximum value
+
+        -- Clear min and max values on disable or trigger with no gate high
+        if (enable_i = '0') or (trig_i = '1' and gate_i = '0') then
             min_val <= (min_val'high => '0', others => '1');
-            -- Minimum value
             max_val <= (max_val'high => '1', others => '0');
-        -- At the start capture the first value
+        -- Store current value on trigger with gate high
         elsif (trig_i = '1' and gate_i = '1') then
             min_val <= signed(value_i);
             max_val <= signed(value_i);
-        elsif (trig_i = '1' and gate_i = '0') then
-            min_val <= (min_val'high => '0', others => '1');
-            max_val <= (max_val'high => '1', others => '0');
         elsif (gate_i = '1') then
             -- Capture the minimum number
             if signed(value_i) < min_val then

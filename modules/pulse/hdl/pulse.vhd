@@ -1,10 +1,3 @@
---------------------------------------------------------------------------------
---  File:       pulse.vhd
---  Desc:       Programmable Pulse Generator.
---
---  Author:     Isa S. Uzun (isa.uzun@diamond.ac.uk)
---------------------------------------------------------------------------------
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -23,10 +16,20 @@ port (
     -- Block Parameters
     TRIG_EDGE           : in  std_logic_vector(31 downto 0) := (others => '0');
     TRIG_EDGE_WSTB      : in  std_logic;
-    DELAY               : in  std_logic_vector(47 downto 0);
-    DELAY_WSTB          : in  std_logic;
-    WIDTH               : in  std_logic_vector(47 downto 0);
-    WIDTH_WSTB          : in  std_logic;
+    DELAY_L             : in  std_logic_vector(31 downto 0);
+    DELAY_L_WSTB        : in  std_logic;
+    DELAY_H             : in  std_logic_vector(31 downto 0);
+    DELAY_H_WSTB        : in  std_logic;
+    WIDTH_L             : in  std_logic_vector(31 downto 0);
+    WIDTH_L_WSTB        : in  std_logic;
+    WIDTH_H             : in  std_logic_vector(31 downto 0);
+    WIDTH_H_WSTB        : in  std_logic;
+    PULSES              : in  std_logic_vector(31 downto 0) := (others => '0');
+    PULSES_WSTB         : in  std_logic;
+    STEP_L              : in  std_logic_vector(31 downto 0);
+    STEP_L_WSTB         : in  std_logic;
+    STEP_H              : in  std_logic_vector(31 downto 0);
+    STEP_H_WSTB         : in  std_logic;
     -- Block Status
     QUEUED              : out std_logic_vector(31 downto 0);
     DROPPED             : out std_logic_vector(31 downto 0)
@@ -35,6 +38,7 @@ end pulse;
 
 architecture rtl of pulse is
 
+-- The pulse queue; keeps track of the timestamps of incoming pulses
 component pulse_queue
 port (
     clk                 : in std_logic;
@@ -45,203 +49,61 @@ port (
     dout                : out std_logic_vector(48 DOWNTO 0);
     full                : out std_logic;
     empty               : out std_logic;
-    data_count          : out std_logic_vector(10 downto 0)
+    data_count          : out std_logic_vector(8 downto 0)
 );
 end component;
 
+-- Variable declarations
 
-constant c_trig_edge_pos        : std_logic_vector(1 downto 0) := "00";
-constant c_trig_edge_neg        : std_logic_vector(1 downto 0) := "01";
-constant c_trig_edge_pos_neg    : std_logic_vector(1 downto 0) := "10";
+-- Standard logic signals
+signal is_enabled               : std_logic := '0';
+signal is_enabled_prev          : std_logic := '0';
+signal trig_i_prev              : std_logic := '0';
+signal enabled_rise              : std_logic := '0';
+signal trig_rise                : std_logic := '0';
+signal trig_fall                : std_logic := '0';
+signal got_trigger              : std_logic := '0';
+signal pulse                    : std_logic := '0';
+signal pulse_override           : std_logic := '0';
+signal pulse_queued_empty       : std_logic := '0';
+signal pulse_queued_full        : std_logic := '0';
+signal pulse_queued_reset       : std_logic := '0';
+signal pulse_queued_rstb        : std_logic := '0';
+signal pulse_queued_wstb        : std_logic := '0';
+signal queue_pulse_value        : std_logic := '0';
 
-constant c_sec_pulse            : unsigned(2 downto 0) := "100";
 
-constant c_delay_one            : unsigned(1 downto 0) := "01";
-constant c_delay_zero           : unsigned(1 downto 0) := "00";
-
-signal pulse_queued_wstb        : std_logic;
-signal pulse_queued_rstb        : std_logic;
-signal pulse_queued_full        : std_logic;
-signal pulse_queued_empty       : std_logic;
+-- Standard logic vector signals
+signal trig_edge_i              : std_logic_vector(1 downto 0);
 signal pulse_queued_din         : std_logic_vector(48 downto 0);
 signal pulse_queued_dout        : std_logic_vector(48 downto 0);
-signal pulse_queued_data_count  : std_logic_vector(10 downto 0);
-
-signal trig_rise                : std_logic;
-signal trig_fall                : std_logic;
-signal ongoing_pulse            : std_logic;
-
-signal enable                   : std_logic;
-signal enable_rise              : std_logic;
-
-signal reset                    : std_logic;
-signal reset_err                : std_logic;
-signal pulse                    : std_logic;
-
-signal delay_i                  : std_logic_vector(47 downto 0);
-signal width_i                  : std_logic_vector(47 downto 0);
-signal DELAY_prev               : std_logic_vector(47 downto 0);
-signal WIDTH_prev               : std_logic_vector(47 downto 0);
-
-----signal config_reset             : std_logic;
-signal trig_prev                 : std_logic;
-signal trig_rise_prev            : std_logic;
-
-signal timestamp                : unsigned(47 downto 0);
-signal timestamp_prev           : unsigned(47 downto 0);
-signal pulse_ts                 : unsigned(47 downto 0);
-
-signal delta_T                  : unsigned(47 downto 0);
-signal missed_pulses            : unsigned(31 downto 0);
-
-signal is_first_pulse           : std_logic := '1';
-signal period_error             : std_logic := '0';
-signal period_error_prev        : std_logic := '0';
-signal value                    : std_logic := '0';
-
-signal is_DELAY_zero            : std_logic := '0';
-signal queued_din               : unsigned(47 downto 0);
-signal pulse_value              : std_logic;
-
-signal enable_i_dly             : std_logic;
-signal wait_cnt                 : unsigned(2 downto 0);
-
-signal neg_pulse                : std_logic;
-signal trig_i_neg                : std_logic;
-signal trig_i_int                : std_logic;
-signal enable_cnt               : std_logic;
-signal bypass_en                : std_logic;
-signal DELAY_NEG                : unsigned(1 downto 0);
-
-signal pos_neg_act_err          : std_logic;
+signal pulse_queued_data_count  : std_logic_vector(8 downto 0);
 
 
+-- Unsigned integer signals
+signal delay_i                  : unsigned(47 downto 0) := (others => '0');
+signal width_i                  : unsigned(47 downto 0) := (others => '0');
+signal pulses_i                 : unsigned(31 downto 0) := (others => '0');
+signal step_i                   : unsigned(47 downto 0) := (others => '0');
+signal step_times_pulses        : unsigned(47 downto 0) := (others => '0');
+signal missed_pulses            : unsigned(31 downto 0) := (others => '0');
+signal queued_din               : unsigned(47 downto 0) := (others => '0');
+signal queue_pulse_ts           : unsigned(47 downto 0) := (others => '0');
+signal timestamp                : unsigned(47 downto 0) := (others => '0');
+signal acceptable_pulse_ts : unsigned(47 downto 0) := (others => '0');
+signal override_ends_ts         : unsigned(47 downto 0) := (others => '0');
+signal edge_ts                  : unsigned(47 downto 0) := (others => '0');
+signal edges_remaining          : unsigned(31 downto 0) := (others => '0');
+
+
+-- Assignments complete, next up is the main functional code of the block
 begin
 
-
--- DELAY        WDITH       Condtion        Action      trig to start of positive pulse   trig to start of negative pulse
---  0            0          Not Valid       Bypass              2 clocks                        3 clocks
---  0           Set         Valid                               2 clocks                        3 clocks
---  Set         0           Not Valid       Bypass              DELAY                           DELAY
---  Set         Set         Valid                               DELAY                           DELAY
-
--- If DELAY and WIDTH are set too low, the FIFO does not have time to process the data and queue it
-
--- If 0 < DELAY < 4, it should be set to 4
-delay_i <= DELAY when (unsigned(DELAY) > 4 or unsigned(DELAY) = 0) else (2 => '1',
-                                                                                                                                 others => '0');
--- If Delay is zero and WIDTH is between 0 and 4 WIDTH should be 4
-width_i <= WIDTH when (not(unsigned(DELAY) = 0 and (unsigned(WIDTH) < 4 and unsigned(WIDTH) > 0))) else (2 => '1',
-                                                                                                                                                                                                        others => '0');
-
-
-
--- Added enable_rise signal
-process(clk_i) begin
-    if rising_edge(clk_i) then
-        enable <= enable_i;
-    end if;
-end process;
-
-enable_rise <= enable_i and not enable;
-
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-       if reset = '1' then
-            wait_cnt <= (others => '0');
-       else
-            -- Indicate when a negative edge pulse is to happen
-            if (unsigned(width_i) /= 0 and (TRIG_EDGE(1 downto 0) = c_trig_edge_neg or TRIG_EDGE(1 downto 0) = c_trig_edge_pos_neg)) then
-                neg_pulse <= trig_i;
-            end if;
-
-            -- Negative edge pulse
-            if (neg_pulse = '1' and trig_i = '0' and unsigned(WIDTH) /= 0 and
-                    (TRIG_EDGE(1 downto 0) = c_trig_edge_neg or TRIG_EDGE(1 downto 0) = c_trig_edge_pos_neg)) then
-                trig_i_neg <= '1';
-                enable_cnt <= '1';
-                DELAY_NEG <= c_delay_zero;
-            -- Pulse has to be move than 4 clocks long
-            elsif enable_cnt = '1' and wait_cnt /= c_sec_pulse then
-                trig_i_neg <= '1';
-                wait_cnt <= wait_cnt + 1;
-            -- Turn pulse off
-            elsif wait_cnt = c_sec_pulse then
-                wait_cnt <= (others => '0');
-                enable_cnt <= '0';
-            else
-                wait_cnt <= (others => '0');
-                trig_i_neg <= '0';
-                DELAY_NEG <= c_delay_one;
-            end if;
-
-       end if;
-    end if;
-end process;
-
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        -- Indicate bypass mode for TRIG_EDGE = negative and WIDTH = 0 or pass the pulse in if its a positive or both positive and negative pulse
-        if (unsigned(width_i) = 0 or (unsigned(width_i) /= 0 and (TRIG_EDGE(1 downto 0) = c_trig_edge_pos or TRIG_EDGE(1 downto 0) = c_trig_edge_pos_neg))) then
-            bypass_en <= '1';
-        else
-            bypass_en <= '0';
-        end if;
-    end if;
-end process;
-
-
--- Error if both trig_i and trig_i_neg active at the same time
-trig_i_int <= (trig_i and bypass_en) or trig_i_neg;
-
-pos_neg_act_err <= ((trig_i and bypass_en) and trig_i_neg);
-
-
--- Input registering
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        enable_i_dly <= enable_i;
-        trig_prev <= trig_i_int;
-        DELAY_prev <= delay_i;
-        WIDTH_prev <= width_i;
-    end if;
-end process;
-
--- Initial/Bitbus/Config Reset combined
--- Changed reset to occur on enable rise
-reset <= DELAY_WSTB or WIDTH_WSTB or enable_rise;
-
-reset_err <= not enable_i_dly and enable_i;
-
--- Free running global timestamp counter, it will be the time resolution
--- for pulse generation.
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset = '1') then
-            timestamp <= (others => '0');
-        else
-            timestamp <= timestamp + 1;
-        end if;
-    end if;
-end process;
-
--- Timestamps for rising and falling edges of the incloming pulses are
--- detected and DELAY offset (for asserting outp), and WIDTH (for de-asserting
--- outp) added to the timestamps and written into the Pulse Queued.
---
--- DELAY=0 is special case, only timestamp for falling edge of outp is written
--- into the queue.
---
-
--- Pulse Queued keeps track of timestamps of incoming pulses.
+-- The pulse queue; keeps track of the timestamps of incoming pulses, maps to component above, attached to this architecture
 pulse_queue_inst : pulse_queue
 port map (
     clk         => clk_i,
-    srst        => reset,
+    srst        => pulse_queued_reset,
     din         => pulse_queued_din,
     wr_en       => pulse_queued_wstb,
     rd_en       => pulse_queued_rstb,
@@ -251,143 +113,212 @@ port map (
     data_count  => pulse_queued_data_count
 );
 
--- Queue data is composed of:
--- timestamp & outp_value @ the timestamp
-pulse_queued_din <= value & std_logic_vector(queued_din);
 
--- Queue output is decomposed into timestamp & outp_value @ the timestamp
-pulse_value <= pulse_queued_dout(48);
-pulse_ts <= unsigned(pulse_queued_dout(47 downto 0));
-
---
--- Main state machine
---
-
--- Keep track of current period of incoming pulse train
--- In pulse train mode, it must be " T > WIDTH + 4", otherwise
--- incoming pulse is ignored.
-delta_T <= timestamp - timestamp_prev;
-
--- Ignore period error for the first pulse in the train.
-period_error <= not is_first_pulse when (delta_T < unsigned(width_i)+4) else '0';
-
--- DELAY=0 is a special case where outp is immediately asserted while
--- falling edge timestamp is written into the queue.
-is_DELAY_zero <= '1' when (unsigned(delay_i) = 0) else '0';
+-- Bits relating to the FIFO queue
+queue_pulse_ts <= unsigned(pulse_queued_dout(47 downto 0));
+queue_pulse_value <= pulse_queued_dout(48);
+pulse_queued_reset <= not is_enabled;
+pulse_queued_rstb <= '1' when
+    (width_i = 0 and timestamp = queue_pulse_ts) or
+    (edges_remaining = 1 and timestamp = edge_ts) else '0';
 
 
--- Detect rising edge input pulse for time stamp registering.
-trig_rise  <= trig_i_int and not trig_prev;
-trig_fall  <= not trig_i_int and trig_prev;
+-- Block output assignments
+trig_edge_i <= TRIG_EDGE(1 downto 0);
+DROPPED <= std_logic_vector(missed_pulses);
+QUEUED <= ZEROS(32-pulse_queued_data_count'length) & pulse_queued_data_count;
+out_o <= pulse_override or pulse;
 
+-- Calculation of enable signal
+is_enabled <= enable_i and not
+    TRIG_EDGE_WSTB and not
+    DELAY_L_WSTB and not
+    DELAY_H_WSTB and not
+    WIDTH_L_WSTB and not
+    WIDTH_H_WSTB and not
+    PULSES_WSTB and not
+    STEP_L_WSTB and not
+    STEP_H_WSTB;
+enabled_rise <= is_enabled and not is_enabled_prev;
+
+-- Calculation of
+trig_rise <= trig_i and not trig_i_prev;
+trig_fall <= not trig_i and trig_i_prev;
+got_trigger <=
+    trig_rise or trig_fall when (trig_edge_i = "10" or width_i = 0) else
+    trig_fall when trig_edge_i = "01" else
+    trig_rise when trig_edge_i = "00" else '0';
+
+-- Parameter validation
+process(clk_i)
+
+    variable delay_vector  : std_logic_vector(47 downto 0);
+    variable step_vector   : std_logic_vector(47 downto 0);
+    variable width_vector  : std_logic_vector(47 downto 0);
+    variable width_integer : unsigned(47 downto 0) := (others => '0');
+
+begin
+    if (rising_edge(clk_i)) then
+        -- Second clock tick, calc the minimum distance between rising edges
+        step_times_pulses <= resize(step_i * pulses_i, 48);
+
+        -- Take 48-bit time as combination of two for:
+        width_vector(31 downto 0) := WIDTH_L;
+        width_vector(47 downto 32) := WIDTH_H(15 downto 0);
+
+        delay_vector(31 downto 0) := DELAY_L;
+        delay_vector(47 downto 32) := DELAY_H(15 downto 0);
+
+        step_vector(31 downto 0) := STEP_L;
+        step_vector(47 downto 32) := STEP_H(15 downto 0);
+
+        if unsigned(width_vector) /= 0 and unsigned(width_vector) < 5 then
+            width_integer := to_unsigned(5, 48);
+        else
+            width_integer := unsigned(width_vector);
+        end if;
+        width_i <= width_integer;
+
+        if unsigned(delay_vector) /= 0 and unsigned(delay_vector) < 5 then
+            delay_i <= to_unsigned(5, 48);
+        else
+            delay_i <= unsigned(delay_vector);
+        end if;
+
+        if unsigned(step_vector) > unsigned(width_integer) then
+            step_i <= unsigned(step_vector);
+        else
+            step_i <= width_integer + 1;
+        end if;
+
+        if unsigned(PULSES) = 0 then
+            pulses_i <= to_unsigned(1, 32);
+        else
+            pulses_i <= unsigned(PULSES);
+        end if;
+
+    end if;
+end process;
+
+
+-- Global timestamp counter
 process(clk_i)
 begin
-    if rising_edge(clk_i) then
-        if (reset = '1') then
-            ongoing_pulse <= '0';
-            pulse_queued_wstb <= '0';
-            trig_rise_prev <= '0';
+    if (rising_edge(clk_i)) then
+        if (is_enabled = '0') then
+            timestamp <= (others => '0');
+        elsif (is_enabled = '1') then
+            timestamp <= timestamp + 1;
+        end if;
+    end if;
+end process;
+
+
+-- Latch previous versions of enable and trig
+process(clk_i)
+begin
+    if (rising_edge(clk_i)) then
+        is_enabled_prev <= is_enabled;
+        trig_i_prev <= trig_i;
+    end if;
+end process;
+
+
+-- Queue filling process
+process(clk_i)
+
+    variable timestamp_to_queue       : unsigned(47 downto 0) := (others => '0');
+
+begin
+    if (rising_edge(clk_i)) then
+        -- Default is do nothing with the queue
+        pulse_queued_din <= (others => '0');
+        pulse_queued_wstb <= '0';
+
+        if (enabled_rise = '1') then
+            -- Reset on rising enable
             missed_pulses <= (others => '0');
-            timestamp_prev <= (others => '0');
-            queued_din <= (others => '0');
-            is_first_pulse <= '1';
-            period_error_prev <= '0';
-        else
-            period_error_prev <= period_error;
-            pulse_queued_wstb <= '0';
-            trig_rise_prev <= trig_rise;
-            value <= '0';
-
-            -- Ongoing pulse flag is used for timestamp capturing.
-            if (trig_rise = '1' and pulse_queued_full = '0') then
-                ongoing_pulse <= '1';
-            elsif (trig_fall = '1') then
-                ongoing_pulse <= '0';
-            end if;
-
-            --
-            -- Timestamp information for both rising and falling-edge of the
-            -- incoming pulse is stored in the queue along with pulse value.
-            -- (DELAY=0 is special again).
-
-            -- Queue full condition flags an error, and ticks missing pulse
-            -- counter.
-            if (trig_rise = '1' and pulse_queued_full = '1') then
+            acceptable_pulse_ts <= (others => '0');
+            override_ends_ts <= (others => '0');
+        elsif (is_enabled = '1' and got_trigger = '1') then
+            -- The time we might put on the queue
+            timestamp_to_queue := timestamp + delay_i;
+            if (timestamp < acceptable_pulse_ts or pulse_queued_full = '1') then
+                -- Can't process trigger
                 missed_pulses <= missed_pulses + 1;
-            -- Pulse period must obey Xilinx FIFO IP latency following the first
-            -- pulse.
-            elsif (trig_rise = '1' and period_error = '1') then
-                missed_pulses <= missed_pulses + 1;
-            end if;
-
-            -- Capture timestamp for rising edge of the ongoing pulse, and add
-            -- DELAY before writing into the queue.
-            -- Ignore if DELAY is set to 0, timestamp for falling edge is
-            -- inserted since outp start can not afford queue latency.
-            if (trig_rise = '1' and period_error = '0') then
-                timestamp_prev <= timestamp;
-                is_first_pulse <= '0';
-                -- If WIDTH and DELAY are zero the queue is bypassed
-                if (unsigned(width_i) /= 0 or unsigned(delay) /= 0) then
+            elsif (width_i = 0) then
+                -- Delay=0 case means passthrough
+                if (delay_i = 0) then
+                    pulse_override <= trig_i;
+                else
+                    -- If we have no width we're acting as a fancy delay line
+                    pulse_queued_din <= trig_rise & std_logic_vector(timestamp_to_queue);
                     pulse_queued_wstb <= '1';
                 end if;
-                if (is_DELAY_zero = '1') then
-                    queued_din <= timestamp + unsigned(width_i) + 1;
+            else
+                -- Delay=0 case means we need to override for 3 clock ticks
+                if (delay_i = 0) then
+                    pulse_override <= '1';
+                    override_ends_ts <= timestamp + 4;
+                    pulse_queued_din <= '1' & std_logic_vector(timestamp_to_queue + 4);
                 else
-                    queued_din <= timestamp + unsigned(delay_i) + DELAY_NEG;
+                    pulse_queued_din <= '1' & std_logic_vector(timestamp_to_queue);
                 end if;
-                value <= not is_DELAY_zero;
-            -- Capturing falling edge is split into two conditions.
-            -- 1./ When WIDTH is not 0, capture timestamp, add WIDTH and
-            -- write immediately into the queue.
-            elsif (trig_rise_prev = '1' and period_error_prev = '0' and unsigned(width_i) /= 0) then
-                pulse_queued_wstb <= not is_DELAY_zero;
-                queued_din <= queued_din + unsigned(width_i);
-            -- 2./ When WIDTH=0, we need maintain incoming pulse witdth and
-            -- apply DELAY.
-            -- So, wait until actual falling edge of the pulse for capturing
-            -- the timestamp.
-            elsif (trig_fall = '1' and ongoing_pulse = '1' and unsigned(width_i) = 0) then
-                pulse_queued_wstb <= not is_DELAY_zero;
-                queued_din <= timestamp + unsigned(delay_i) + 1;
+                pulse_queued_wstb <= '1';
+                acceptable_pulse_ts <= timestamp + step_times_pulses - step_i + width_i + 1;
             end if;
+        end if;
+
+        -- If disabled or we reached the end of the override ts then reset override
+        if (is_enabled = '0' or timestamp = override_ends_ts) then
+            pulse_override <= '0';
         end if;
     end if;
 end process;
 
---
--- Process pulse output.
---
-pulse_queued_rstb <= '1' when (pulse_queued_empty = '0' and timestamp = unsigned(pulse_ts) - 1) else '0';
 
+-- Process to pass edges
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset = '1') then
-            pulse <= '0';
-        else
-            -- Both Delay and Width are set to 0, pass-through input pulse.
-            if (unsigned(delay_i) = 0 and unsigned(width_i) = 0) then
-                pulse <= trig_i_int;
-            -- Delay set to 0: assert pulse immediately
-            elsif (unsigned(delay_i) = 0 and unsigned(width_i) /= 0
-                and trig_rise = '1' and period_error = '0') then
-                pulse <= '1';
-            -- Consume pulse queue to assert and de-assert outp pulse.
+        if enabled_rise = '1' then
+            -- Reset ts on enable, don't do anything else otherwise we will
+            -- false trigger as timestamp = queue_pulse_ts = edge_ts = 0
+            edge_ts <= (others => '0');
+        elsif is_enabled = '1' and edges_remaining > 0 then
+            -- Some edges remaining to produce
+            if (timestamp = edge_ts) then
+                if (unsigned(edges_remaining mod 2) = 1) then
+                    pulse <= '0';
+                    edge_ts <= timestamp + step_i - width_i;
+                else
+                    pulse <= '1';
+                    edge_ts <= timestamp + width_i;
+                end if;
+                edges_remaining <= edges_remaining - 1;
+            end if;
+        elsif is_enabled = '1' and timestamp = queue_pulse_ts then
+            if width_i = 0 then
+                -- We're running as a fancy delay line
+                pulse <= queue_pulse_value;
             else
-                if (pulse_queued_empty = '0' and
-                        timestamp = unsigned(pulse_ts) - 1) then
-                    pulse <= pulse_value;
+                -- We are making a the rising edge of a pulse with defined width
+                pulse <= '1';
+                edges_remaining <= pulses_i + pulses_i - 1;
+                if delay_i = 0 then
+                    -- We added 4 ticks to account for queue delays, subtract it
+                    edge_ts <= timestamp + width_i - 4;
+                else
+                    edge_ts <= timestamp + width_i;
                 end if;
             end if;
+        elsif is_enabled = '0' then
+            -- Halt on disable
+            pulse <= '0';
+            -- Zero edges so we don't trigger a read strobe
+            edges_remaining <= (others => '0');
         end if;
     end if;
 end process;
-
-out_o <= pulse;
-
--- Output assignments.
-DROPPED <= std_logic_vector(missed_pulses);
-QUEUED <= ZEROS(32-pulse_queued_data_count'length) &  pulse_queued_data_count;
 
 end rtl;

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import socket
 import select
 import struct
@@ -97,7 +98,7 @@ class BlockSimulation(object):
 
         Args:
             ts (int): The timestamp the changes occurred at
-            changes (Dict[str, int]): Fields that changed with their value
+            changes (dict): Field names that changed with their integer value
 
         Returns:
              If the Block needs to be called back at a particular ts then return
@@ -152,7 +153,7 @@ class SimulationServer(object):
                 # Now service the controller
                 self.controller.do_tick()
         except (KeyboardInterrupt, SocketFail) as e:
-            print "Simulation closed: %r" % e
+            print("Simulation closed: %r" % e)
 
     def _read(self, n):
         """Blocking read n bytes from socket and return them"""
@@ -195,7 +196,7 @@ class SimulationServer(object):
                 self.sock.sendall(struct.pack('I', len(raw_data)))
                 self.sock.sendall(raw_data)
         else:
-            print 'Unexpected command', repr(command_word)
+            print('Unexpected command', repr(command_word))
             raise SocketFail('Unexpected command')
 
 
@@ -267,9 +268,9 @@ class SimulationController(object):
             clsnames = [n for n in dir(package)
                         if n.lower() == block_name + "simulation"]
             cls = getattr(package, clsnames[0])
-            print "Got %s sim" % cls.__name__
+            print("Got %s sim" % cls.__name__)
         except ImportError:
-            print "No %s sim, using BlockSimulation" % block_name.title()
+            print("No %s sim, using BlockSimulation" % block_name.title())
 
             class cls(BlockSimulation):
                 pass
@@ -335,7 +336,7 @@ class SimulationController(object):
         try:
             block, name = self.lookup[(block_num, num, reg)]
         except KeyError:
-            print 'Unknown read register', block_num, num, reg
+            print('Unknown read register', block_num, num, reg)
             value = 0
         else:
             value = getattr(block, name)
@@ -353,7 +354,7 @@ class SimulationController(object):
         try:
             block, name = self.lookup[(block_num, num, reg)]
         except KeyError:
-            print 'Unknown write register', block_num, num, reg
+            print('Unknown write register', block_num, num, reg)
         else:
             if block == self:
                 if name == "BIT_READ_RST":
@@ -361,11 +362,11 @@ class SimulationController(object):
                 elif name == "POS_READ_RST":
                     self.capture_pos_bus()
                 else:
-                    print 'Not writing register %s to %s' % (name, value)
+                    print('Not writing register %s to %s' % (name, value))
             else:
                 if self.verbose:
-                    print "Write %s[%d].%s=%s" % (
-                        block.__class__.__name__, num, name, value)
+                    print("Write %s[%d].%s=%s" % (
+                        block.__class__.__name__, num, name, value))
                 if (block, name) in self.delays:
                     # Note: this is different from the FPGA implementation
                     block_changes = {}
@@ -388,7 +389,7 @@ class SimulationController(object):
         try:
             block, name = self.lookup[(block_num, num, -1)]
         except KeyError:
-            print 'Unknown table register', block_num, num
+            print('Unknown table register', block_num, num)
         else:
             # Send data to long table data attribute of block
             block_changes = {block: {name: data}}

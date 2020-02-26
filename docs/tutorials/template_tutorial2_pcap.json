@@ -1,0 +1,1363 @@
+{
+  "attributes": {
+    "layout": {
+      "BITS": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "CALC1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "CALC2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "CLOCK1": {
+        "x": -4.0,
+        "y": 70.9406304359436,
+        "visible": true
+      },
+      "CLOCK2": {
+        "x": -8.0,
+        "y": 216.31562280654907,
+        "visible": true
+      },
+      "COUNTER1": {
+        "x": 177.0,
+        "y": 144.32812547683716,
+        "visible": true
+      },
+      "COUNTER2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "COUNTER3": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "COUNTER4": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "COUNTER5": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "COUNTER6": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "COUNTER7": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "COUNTER8": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "DIV1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "DIV2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "FILTER1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "FILTER2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "INENC1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "INENC2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "INENC3": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "INENC4": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "LUT1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "LUT2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "LUT3": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "LUT4": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "LUT5": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "LUT6": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "LUT7": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "LUT8": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "LVDSIN1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "LVDSIN2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "LVDSOUT1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "LVDSOUT2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "OUTENC1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "OUTENC2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "OUTENC3": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "OUTENC4": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "PCAP": {
+        "x": -212.0,
+        "y": 126.41562128067017,
+        "visible": true
+      },
+      "PCOMP1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "PCOMP2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "PGEN1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "PGEN2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "PULSE1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "PULSE2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "PULSE3": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "PULSE4": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "SEQ1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "SEQ2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "SRGATE1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "SRGATE2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "SRGATE3": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "SRGATE4": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "SYSTEM": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLIN1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLIN2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLIN3": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLIN4": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLIN5": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLIN6": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLOUT1": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLOUT2": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLOUT3": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLOUT4": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLOUT5": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLOUT6": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLOUT7": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLOUT8": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLOUT9": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      },
+      "TTLOUT10": {
+        "x": 0.0,
+        "y": 0.0,
+        "visible": false
+      }
+    },
+    "exports": {}
+  },
+  "children": {
+    "BITS": {
+      "label": "Soft inputs and constant bits ",
+      "parameters": "expanded",
+      "a": false,
+      "b": false,
+      "c": false,
+      "d": false,
+      "outputs": "expanded"
+    },
+    "CALC1": {
+      "label": "Position calc 1",
+      "inputs": "expanded",
+      "inpa": "ZERO",
+      "inpb": "ZERO",
+      "inpc": "ZERO",
+      "inpd": "ZERO",
+      "parameters": "expanded",
+      "typea": "Value",
+      "typeb": "Value",
+      "typec": "Value",
+      "typed": "Value",
+      "func": "A+B+C+D",
+      "shift": 0,
+      "outputs": "expanded"
+    },
+    "CALC2": {
+      "label": "Position calc 2",
+      "inputs": "expanded",
+      "inpa": "ZERO",
+      "inpb": "ZERO",
+      "inpc": "ZERO",
+      "inpd": "ZERO",
+      "parameters": "expanded",
+      "typea": "Value",
+      "typeb": "Value",
+      "typec": "Value",
+      "typed": "Value",
+      "func": "A+B+C+D",
+      "shift": 0,
+      "outputs": "expanded"
+    },
+    "CLOCK1": {
+      "label": "Configurable clocks 1",
+      "inputs": "expanded",
+      "enable": "PCAP.ACTIVE",
+      "enableDelay": 0,
+      "parameters": "expanded",
+      "period": 1.0,
+      "periodUnits": "s",
+      "outputs": "expanded"
+    },
+    "CLOCK2": {
+      "label": "Configurable clocks 2",
+      "inputs": "expanded",
+      "enable": "PCAP.ACTIVE",
+      "enableDelay": 0,
+      "parameters": "expanded",
+      "period": 0.2,
+      "periodUnits": "s",
+      "outputs": "expanded"
+    },
+    "COUNTER1": {
+      "label": "Up/Down pulse counter 1",
+      "inputs": "expanded",
+      "enable": "PCAP.ACTIVE",
+      "enableDelay": 0,
+      "trig": "CLOCK2.OUT",
+      "trigDelay": 0,
+      "dir": "ZERO",
+      "dirDelay": 0,
+      "parameters": "expanded",
+      "start": 0,
+      "step": 1,
+      "max": 0,
+      "min": 0,
+      "outputs": "expanded"
+    },
+    "COUNTER2": {
+      "label": "Up/Down pulse counter 2",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "dir": "ZERO",
+      "dirDelay": 0,
+      "parameters": "expanded",
+      "start": 0,
+      "step": 1,
+      "max": 0,
+      "min": 0,
+      "outputs": "expanded"
+    },
+    "COUNTER3": {
+      "label": "Up/Down pulse counter 3",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "dir": "ZERO",
+      "dirDelay": 0,
+      "parameters": "expanded",
+      "start": 0,
+      "step": 0,
+      "max": 0,
+      "min": 0,
+      "outputs": "expanded"
+    },
+    "COUNTER4": {
+      "label": "Up/Down pulse counter 4",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "dir": "ZERO",
+      "dirDelay": 0,
+      "parameters": "expanded",
+      "start": 0,
+      "step": 0,
+      "max": 0,
+      "min": 0,
+      "outputs": "expanded"
+    },
+    "COUNTER5": {
+      "label": "Up/Down pulse counter 5",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "dir": "ZERO",
+      "dirDelay": 0,
+      "parameters": "expanded",
+      "start": 0,
+      "step": 0,
+      "max": 0,
+      "min": 0,
+      "outputs": "expanded"
+    },
+    "COUNTER6": {
+      "label": "Up/Down pulse counter 6",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "dir": "ZERO",
+      "dirDelay": 0,
+      "parameters": "expanded",
+      "start": 0,
+      "step": 0,
+      "max": 0,
+      "min": 0,
+      "outputs": "expanded"
+    },
+    "COUNTER7": {
+      "label": "Up/Down pulse counter 7",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "dir": "ZERO",
+      "dirDelay": 0,
+      "parameters": "expanded",
+      "start": 0,
+      "step": 0,
+      "max": 0,
+      "min": 0,
+      "outputs": "expanded"
+    },
+    "COUNTER8": {
+      "label": "Up/Down pulse counter 8",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "dir": "ZERO",
+      "dirDelay": 0,
+      "parameters": "expanded",
+      "start": 0,
+      "step": 0,
+      "max": 0,
+      "min": 0,
+      "outputs": "expanded"
+    },
+    "DIV1": {
+      "label": "Pulse divider 1",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "inp": "ZERO",
+      "inpDelay": 0,
+      "parameters": "expanded",
+      "divisor": 0,
+      "firstPulse": "OutN",
+      "outputs": "expanded",
+      "readbacks": "expanded"
+    },
+    "DIV2": {
+      "label": "Pulse divider 2",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "inp": "ZERO",
+      "inpDelay": 0,
+      "parameters": "expanded",
+      "divisor": 0,
+      "firstPulse": "OutN",
+      "outputs": "expanded",
+      "readbacks": "expanded"
+    },
+    "FILTER1": {
+      "label": "Filter block modes are Difference and Divider 1",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "inp": "ZERO",
+      "parameters": "expanded",
+      "mode": "average",
+      "outputs": "expanded"
+    },
+    "FILTER2": {
+      "label": "Filter block modes are Difference and Divider 2",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "inp": "ZERO",
+      "parameters": "expanded",
+      "mode": "difference",
+      "outputs": "expanded"
+    },
+    "INENC1": {
+      "label": "Input encoder 1",
+      "inputs": "expanded",
+      "clk": "ZERO",
+      "clkDelay": 0,
+      "parameters": "expanded",
+      "protocol": "Quadrature",
+      "clkSrc": "Internally Generated",
+      "clkPeriod": 0.0,
+      "clkPeriodUnits": "s",
+      "framePeriod": 0.0,
+      "framePeriodUnits": "s",
+      "bits": 0,
+      "lsbDiscard": 0,
+      "msbDiscard": 0,
+      "setp": 0,
+      "rstOnZ": false,
+      "outputs": "expanded",
+      "readbacks": "expanded"
+    },
+    "INENC2": {
+      "label": "Input encoder 2",
+      "inputs": "expanded",
+      "clk": "ZERO",
+      "clkDelay": 0,
+      "parameters": "expanded",
+      "protocol": "Quadrature",
+      "clkSrc": "Internally Generated",
+      "clkPeriod": 0.0,
+      "clkPeriodUnits": "s",
+      "framePeriod": 0.0,
+      "framePeriodUnits": "s",
+      "bits": 0,
+      "lsbDiscard": 0,
+      "msbDiscard": 0,
+      "setp": 0,
+      "rstOnZ": false,
+      "outputs": "expanded",
+      "readbacks": "expanded"
+    },
+    "INENC3": {
+      "label": "Input encoder 3",
+      "inputs": "expanded",
+      "clk": "ZERO",
+      "clkDelay": 0,
+      "parameters": "expanded",
+      "protocol": "Quadrature",
+      "clkSrc": "Internally Generated",
+      "clkPeriod": 0.0,
+      "clkPeriodUnits": "s",
+      "framePeriod": 0.0,
+      "framePeriodUnits": "s",
+      "bits": 0,
+      "lsbDiscard": 0,
+      "msbDiscard": 0,
+      "setp": 0,
+      "rstOnZ": false,
+      "outputs": "expanded",
+      "readbacks": "expanded"
+    },
+    "INENC4": {
+      "label": "Input encoder 4",
+      "inputs": "expanded",
+      "clk": "ZERO",
+      "clkDelay": 0,
+      "parameters": "expanded",
+      "protocol": "Quadrature",
+      "clkSrc": "Internally Generated",
+      "clkPeriod": 0.0,
+      "clkPeriodUnits": "s",
+      "framePeriod": 0.0,
+      "framePeriodUnits": "s",
+      "bits": 0,
+      "lsbDiscard": 0,
+      "msbDiscard": 0,
+      "setp": 0,
+      "rstOnZ": false,
+      "outputs": "expanded",
+      "readbacks": "expanded"
+    },
+    "LUT1": {
+      "label": "Lookup table 1",
+      "inputs": "expanded",
+      "inpa": "ZERO",
+      "inpaDelay": 0,
+      "inpb": "ZERO",
+      "inpbDelay": 0,
+      "inpc": "ZERO",
+      "inpcDelay": 0,
+      "inpd": "ZERO",
+      "inpdDelay": 0,
+      "inpe": "ZERO",
+      "inpeDelay": 0,
+      "parameters": "expanded",
+      "typea": "Input-Level",
+      "typeb": "Input-Level",
+      "typec": "Input-Level",
+      "typed": "Input-Level",
+      "typee": "Input-Level",
+      "func": "0x00000000",
+      "outputs": "expanded"
+    },
+    "LUT2": {
+      "label": "Lookup table 2",
+      "inputs": "expanded",
+      "inpa": "ZERO",
+      "inpaDelay": 0,
+      "inpb": "ZERO",
+      "inpbDelay": 0,
+      "inpc": "ZERO",
+      "inpcDelay": 0,
+      "inpd": "ZERO",
+      "inpdDelay": 0,
+      "inpe": "ZERO",
+      "inpeDelay": 0,
+      "parameters": "expanded",
+      "typea": "Input-Level",
+      "typeb": "Input-Level",
+      "typec": "Input-Level",
+      "typed": "Input-Level",
+      "typee": "Input-Level",
+      "func": "0x00000000",
+      "outputs": "expanded"
+    },
+    "LUT3": {
+      "label": "Lookup table 3",
+      "inputs": "expanded",
+      "inpa": "ZERO",
+      "inpaDelay": 0,
+      "inpb": "ZERO",
+      "inpbDelay": 0,
+      "inpc": "ZERO",
+      "inpcDelay": 0,
+      "inpd": "ZERO",
+      "inpdDelay": 0,
+      "inpe": "ZERO",
+      "inpeDelay": 0,
+      "parameters": "expanded",
+      "typea": "Input-Level",
+      "typeb": "Input-Level",
+      "typec": "Input-Level",
+      "typed": "Input-Level",
+      "typee": "Input-Level",
+      "func": "0x00000000",
+      "outputs": "expanded"
+    },
+    "LUT4": {
+      "label": "Lookup table 4",
+      "inputs": "expanded",
+      "inpa": "ZERO",
+      "inpaDelay": 0,
+      "inpb": "ZERO",
+      "inpbDelay": 0,
+      "inpc": "ZERO",
+      "inpcDelay": 0,
+      "inpd": "ZERO",
+      "inpdDelay": 0,
+      "inpe": "ZERO",
+      "inpeDelay": 0,
+      "parameters": "expanded",
+      "typea": "Input-Level",
+      "typeb": "Input-Level",
+      "typec": "Input-Level",
+      "typed": "Input-Level",
+      "typee": "Input-Level",
+      "func": "0x00000000",
+      "outputs": "expanded"
+    },
+    "LUT5": {
+      "label": "Lookup table 5",
+      "inputs": "expanded",
+      "inpa": "ZERO",
+      "inpaDelay": 0,
+      "inpb": "ZERO",
+      "inpbDelay": 0,
+      "inpc": "ZERO",
+      "inpcDelay": 0,
+      "inpd": "ZERO",
+      "inpdDelay": 0,
+      "inpe": "ZERO",
+      "inpeDelay": 0,
+      "parameters": "expanded",
+      "typea": "Input-Level",
+      "typeb": "Input-Level",
+      "typec": "Input-Level",
+      "typed": "Input-Level",
+      "typee": "Input-Level",
+      "func": "0x00000000",
+      "outputs": "expanded"
+    },
+    "LUT6": {
+      "label": "Lookup table 6",
+      "inputs": "expanded",
+      "inpa": "ZERO",
+      "inpaDelay": 0,
+      "inpb": "ZERO",
+      "inpbDelay": 0,
+      "inpc": "ZERO",
+      "inpcDelay": 0,
+      "inpd": "ZERO",
+      "inpdDelay": 0,
+      "inpe": "ZERO",
+      "inpeDelay": 0,
+      "parameters": "expanded",
+      "typea": "Input-Level",
+      "typeb": "Input-Level",
+      "typec": "Input-Level",
+      "typed": "Input-Level",
+      "typee": "Input-Level",
+      "func": "0x00000000",
+      "outputs": "expanded"
+    },
+    "LUT7": {
+      "label": "Lookup table 7",
+      "inputs": "expanded",
+      "inpa": "ZERO",
+      "inpaDelay": 0,
+      "inpb": "ZERO",
+      "inpbDelay": 0,
+      "inpc": "ZERO",
+      "inpcDelay": 0,
+      "inpd": "ZERO",
+      "inpdDelay": 0,
+      "inpe": "ZERO",
+      "inpeDelay": 0,
+      "parameters": "expanded",
+      "typea": "Input-Level",
+      "typeb": "Input-Level",
+      "typec": "Input-Level",
+      "typed": "Input-Level",
+      "typee": "Input-Level",
+      "func": "0x00000000",
+      "outputs": "expanded"
+    },
+    "LUT8": {
+      "label": "Lookup table 8",
+      "inputs": "expanded",
+      "inpa": "ZERO",
+      "inpaDelay": 0,
+      "inpb": "ZERO",
+      "inpbDelay": 0,
+      "inpc": "ZERO",
+      "inpcDelay": 0,
+      "inpd": "ZERO",
+      "inpdDelay": 0,
+      "inpe": "ZERO",
+      "inpeDelay": 0,
+      "parameters": "expanded",
+      "typea": "Input-Level",
+      "typeb": "Input-Level",
+      "typec": "Input-Level",
+      "typed": "Input-Level",
+      "typee": "Input-Level",
+      "func": "0x00000000",
+      "outputs": "expanded"
+    },
+    "LVDSIN1": {
+      "label": "LVDS input 1",
+      "outputs": "expanded"
+    },
+    "LVDSIN2": {
+      "label": "LVDS input 2",
+      "outputs": "expanded"
+    },
+    "LVDSOUT1": {
+      "label": "LVDS output 1",
+      "inputs": "expanded",
+      "val": "ZERO",
+      "valDelay": 0
+    },
+    "LVDSOUT2": {
+      "label": "LVDS output 2",
+      "inputs": "expanded",
+      "val": "ZERO",
+      "valDelay": 0
+    },
+    "OUTENC1": {
+      "label": "Output encoder 1",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "parameters": "expanded",
+      "generatorError": "No",
+      "a": "ZERO",
+      "aDelay": 0,
+      "b": "ZERO",
+      "bDelay": 0,
+      "z": "ZERO",
+      "zDelay": 0,
+      "data": "ZERO",
+      "dataDelay": 0,
+      "protocol": "Quadrature",
+      "bits": 0,
+      "qperiod": 0.0,
+      "qperiodUnits": "s",
+      "outputs": "expanded",
+      "val": "ZERO",
+      "readbacks": "expanded"
+    },
+    "OUTENC2": {
+      "label": "Output encoder 2",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "parameters": "expanded",
+      "generatorError": "No",
+      "a": "ZERO",
+      "aDelay": 0,
+      "b": "ZERO",
+      "bDelay": 0,
+      "z": "ZERO",
+      "zDelay": 0,
+      "data": "ZERO",
+      "dataDelay": 0,
+      "protocol": "Quadrature",
+      "bits": 0,
+      "qperiod": 0.0,
+      "qperiodUnits": "s",
+      "outputs": "expanded",
+      "val": "ZERO",
+      "readbacks": "expanded"
+    },
+    "OUTENC3": {
+      "label": "Output encoder 3",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "parameters": "expanded",
+      "generatorError": "No",
+      "a": "ZERO",
+      "aDelay": 0,
+      "b": "ZERO",
+      "bDelay": 0,
+      "z": "ZERO",
+      "zDelay": 0,
+      "data": "ZERO",
+      "dataDelay": 0,
+      "protocol": "Quadrature",
+      "bits": 0,
+      "qperiod": 0.0,
+      "qperiodUnits": "s",
+      "outputs": "expanded",
+      "val": "ZERO",
+      "readbacks": "expanded"
+    },
+    "OUTENC4": {
+      "label": "Output encoder 4",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "parameters": "expanded",
+      "generatorError": "No",
+      "a": "ZERO",
+      "aDelay": 0,
+      "b": "ZERO",
+      "bDelay": 0,
+      "z": "ZERO",
+      "zDelay": 0,
+      "data": "ZERO",
+      "dataDelay": 0,
+      "protocol": "Quadrature",
+      "bits": 0,
+      "qperiod": 0.0,
+      "qperiodUnits": "s",
+      "outputs": "expanded",
+      "val": "ZERO",
+      "readbacks": "expanded"
+    },
+    "PCAP": {
+      "label": "Position capture control ",
+      "inputs": "expanded",
+      "enable": "ONE",
+      "enableDelay": 0,
+      "gate": "CLOCK1.OUT",
+      "gateDelay": 1,
+      "trig": "CLOCK1.OUT",
+      "trigDelay": 1,
+      "parameters": "expanded",
+      "trigEdge": "Falling",
+      "shiftSum": 0,
+      "outputs": "expanded",
+      "tsStartCapture": "No",
+      "tsEndCapture": "No",
+      "tsTrigCapture": "No",
+      "samplesCapture": "No"
+    },
+    "PCOMP1": {
+      "label": "Position compare 1",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "inp": "ZERO",
+      "parameters": "expanded",
+      "preStart": 0,
+      "start": 0,
+      "width": 0,
+      "step": 0,
+      "pulses": 0,
+      "relative": "Absolute",
+      "dir": "Positive",
+      "outputs": "expanded",
+      "readbacks": "expanded"
+    },
+    "PCOMP2": {
+      "label": "Position compare 2",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "inp": "ZERO",
+      "parameters": "expanded",
+      "preStart": 0,
+      "start": 0,
+      "width": 0,
+      "step": 0,
+      "pulses": 0,
+      "relative": "Absolute",
+      "dir": "Positive",
+      "outputs": "expanded",
+      "readbacks": "expanded"
+    },
+    "PGEN1": {
+      "label": "Position generator 1",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "parameters": "expanded",
+      "table": {
+        "typeid": "malcolm:core/Table:1.0",
+        "position": []
+      },
+      "repeats": 0,
+      "outputs": "expanded"
+    },
+    "PGEN2": {
+      "label": "Position generator 2",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "parameters": "expanded",
+      "table": {
+        "typeid": "malcolm:core/Table:1.0",
+        "position": []
+      },
+      "repeats": 0,
+      "outputs": "expanded"
+    },
+    "PULSE1": {
+      "label": "One-shot pulse delay and stretch 1",
+      "inputs": "expanded",
+      "enable": "ONE",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "parameters": "expanded",
+      "delay": 0.1,
+      "delayUnits": "s",
+      "width": 10000.0,
+      "widthUnits": "ms",
+      "pulses": 0,
+      "step": 0.0,
+      "stepUnits": "s",
+      "trigEdge": "Rising",
+      "outputs": "expanded",
+      "readbacks": "expanded"
+    },
+    "PULSE2": {
+      "label": "One-shot pulse delay and stretch 2",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "parameters": "expanded",
+      "delay": 0.2,
+      "delayUnits": "s",
+      "width": 0.1,
+      "widthUnits": "s",
+      "pulses": 0,
+      "step": 0.0,
+      "stepUnits": "s",
+      "trigEdge": "Rising",
+      "outputs": "expanded",
+      "readbacks": "expanded"
+    },
+    "PULSE3": {
+      "label": "One-shot pulse delay and stretch 3",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "parameters": "expanded",
+      "delay": 0.3,
+      "delayUnits": "s",
+      "width": 0.1,
+      "widthUnits": "s",
+      "pulses": 0,
+      "step": 0.0,
+      "stepUnits": "s",
+      "trigEdge": "Rising",
+      "outputs": "expanded",
+      "readbacks": "expanded"
+    },
+    "PULSE4": {
+      "label": "One-shot pulse delay and stretch 4",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "trig": "ZERO",
+      "trigDelay": 0,
+      "parameters": "expanded",
+      "delay": 0.4,
+      "delayUnits": "s",
+      "width": 0.1,
+      "widthUnits": "s",
+      "pulses": 0,
+      "step": 0.0,
+      "stepUnits": "s",
+      "trigEdge": "Rising",
+      "outputs": "expanded",
+      "readbacks": "expanded"
+    },
+    "SEQ1": {
+      "label": "Sequencer 1",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "bita": "ZERO",
+      "bitaDelay": 0,
+      "bitb": "ZERO",
+      "bitbDelay": 0,
+      "bitc": "ZERO",
+      "bitcDelay": 0,
+      "posa": "ZERO",
+      "posb": "ZERO",
+      "posc": "ZERO",
+      "parameters": "expanded",
+      "table": {
+        "typeid": "malcolm:core/Table:1.0",
+        "repeats": [],
+        "trigger": [],
+        "position": [],
+        "time1": [],
+        "outa1": [],
+        "outb1": [],
+        "outc1": [],
+        "outd1": [],
+        "oute1": [],
+        "outf1": [],
+        "time2": [],
+        "outa2": [],
+        "outb2": [],
+        "outc2": [],
+        "outd2": [],
+        "oute2": [],
+        "outf2": []
+      },
+      "prescale": 0.0,
+      "prescaleUnits": "s",
+      "repeats": 0,
+      "outputs": "expanded",
+      "readbacks": "expanded"
+    },
+    "SEQ2": {
+      "label": "Sequencer 2",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "bita": "ZERO",
+      "bitaDelay": 0,
+      "bitb": "ZERO",
+      "bitbDelay": 0,
+      "bitc": "ZERO",
+      "bitcDelay": 0,
+      "posa": "ZERO",
+      "posb": "ZERO",
+      "posc": "ZERO",
+      "parameters": "expanded",
+      "table": {
+        "typeid": "malcolm:core/Table:1.0",
+        "repeats": [],
+        "trigger": [],
+        "position": [],
+        "time1": [],
+        "outa1": [],
+        "outb1": [],
+        "outc1": [],
+        "outd1": [],
+        "oute1": [],
+        "outf1": [],
+        "time2": [],
+        "outa2": [],
+        "outb2": [],
+        "outc2": [],
+        "outd2": [],
+        "oute2": [],
+        "outf2": []
+      },
+      "prescale": 0.0,
+      "prescaleUnits": "s",
+      "repeats": 0,
+      "outputs": "expanded",
+      "readbacks": "expanded"
+    },
+    "SRGATE1": {
+      "label": "Set reset gate 1",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "set": "ZERO",
+      "setDelay": 0,
+      "rst": "ZERO",
+      "rstDelay": 0,
+      "parameters": "expanded",
+      "whenDisabled": "Set output low",
+      "setEdge": "Rising",
+      "rstEdge": "Rising",
+      "outputs": "expanded"
+    },
+    "SRGATE2": {
+      "label": "Set reset gate 2",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "set": "ZERO",
+      "setDelay": 0,
+      "rst": "ZERO",
+      "rstDelay": 0,
+      "parameters": "expanded",
+      "whenDisabled": "Set output low",
+      "setEdge": "Rising",
+      "rstEdge": "Rising",
+      "outputs": "expanded"
+    },
+    "SRGATE3": {
+      "label": "Set reset gate 3",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "set": "ZERO",
+      "setDelay": 0,
+      "rst": "ZERO",
+      "rstDelay": 0,
+      "parameters": "expanded",
+      "whenDisabled": "Set output low",
+      "setEdge": "Rising",
+      "rstEdge": "Rising",
+      "outputs": "expanded"
+    },
+    "SRGATE4": {
+      "label": "Set reset gate 4",
+      "inputs": "expanded",
+      "enable": "ZERO",
+      "enableDelay": 0,
+      "set": "ZERO",
+      "setDelay": 0,
+      "rst": "ZERO",
+      "rstDelay": 0,
+      "parameters": "expanded",
+      "whenDisabled": "Set output low",
+      "setEdge": "Rising",
+      "rstEdge": "Rising",
+      "outputs": "expanded"
+    },
+    "SYSTEM": {
+      "label": "System control FPGA ",
+      "readbacks": "expanded",
+      "parameters": "expanded",
+      "extClock": "int clock"
+    },
+    "TTLIN1": {
+      "label": "TTL input 1",
+      "parameters": "expanded",
+      "term": "High-Z",
+      "outputs": "expanded"
+    },
+    "TTLIN2": {
+      "label": "TTL input 2",
+      "parameters": "expanded",
+      "term": "High-Z",
+      "outputs": "expanded"
+    },
+    "TTLIN3": {
+      "label": "TTL input 3",
+      "parameters": "expanded",
+      "term": "High-Z",
+      "outputs": "expanded"
+    },
+    "TTLIN4": {
+      "label": "TTL input 4",
+      "parameters": "expanded",
+      "term": "High-Z",
+      "outputs": "expanded"
+    },
+    "TTLIN5": {
+      "label": "TTL input 5",
+      "parameters": "expanded",
+      "term": "High-Z",
+      "outputs": "expanded"
+    },
+    "TTLIN6": {
+      "label": "TTL input 6",
+      "parameters": "expanded",
+      "term": "High-Z",
+      "outputs": "expanded"
+    },
+    "TTLOUT1": {
+      "label": "TTL output 1",
+      "inputs": "expanded",
+      "val": "ZERO",
+      "valDelay": 0
+    },
+    "TTLOUT2": {
+      "label": "TTL output 2",
+      "inputs": "expanded",
+      "val": "ZERO",
+      "valDelay": 0
+    },
+    "TTLOUT3": {
+      "label": "TTL output 3",
+      "inputs": "expanded",
+      "val": "ZERO",
+      "valDelay": 0
+    },
+    "TTLOUT4": {
+      "label": "TTL output 4",
+      "inputs": "expanded",
+      "val": "ZERO",
+      "valDelay": 0
+    },
+    "TTLOUT5": {
+      "label": "TTL output 5",
+      "inputs": "expanded",
+      "val": "ZERO",
+      "valDelay": 0
+    },
+    "TTLOUT6": {
+      "label": "TTL output 6",
+      "inputs": "expanded",
+      "val": "ZERO",
+      "valDelay": 0
+    },
+    "TTLOUT7": {
+      "label": "TTL output 7",
+      "inputs": "expanded",
+      "val": "ZERO",
+      "valDelay": 0
+    },
+    "TTLOUT8": {
+      "label": "TTL output 8",
+      "inputs": "expanded",
+      "val": "ZERO",
+      "valDelay": 0
+    },
+    "TTLOUT9": {
+      "label": "TTL output 9",
+      "inputs": "expanded",
+      "val": "ZERO",
+      "valDelay": 0
+    },
+    "TTLOUT10": {
+      "label": "TTL output 10",
+      "inputs": "expanded",
+      "val": "ZERO",
+      "valDelay": 0
+    }
+  }
+}
