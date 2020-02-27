@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Creates bootgen interface file from arguments
+
+cat <<EOF >"$1"
+image: {
+    [bootloader]$2
+    $3
+}
+EOF

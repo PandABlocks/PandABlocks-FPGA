@@ -1,0 +1,23 @@
+This patch adds a new TARGET_ZYNQ_PANDA option so that we can manage our own
+configuration settings
+
+diff -ur u-boot-xlnx-xilinx-v2015.1/arch/arm/cpu/armv7/zynq/Kconfig u-boot-xlnx-xilinx-v2015.1.patched/arch/arm/cpu/armv7/zynq/Kconfig
+--- u-boot-xlnx-xilinx-v2015.1/arch/arm/cpu/armv7/zynq/Kconfig	2015-03-03 08:54:28.000000000 +0000
++++ u-boot-xlnx-xilinx-v2015.1.patched/arch/arm/cpu/armv7/zynq/Kconfig	2015-07-06 07:25:26.999006757 +0100
+@@ -24,6 +24,9 @@
+ config TARGET_ZYNQ_CSE
+ 	bool "Zynq CSE Board"
+ 
++config TARGET_ZYNQ_PANDA
++	bool "DLS PandA System"
++
+ endchoice
+ 
+ config SYS_BOARD
+@@ -43,5 +46,6 @@
+ 	default "zynq_zybo" if TARGET_ZYNQ_ZYBO
+ 	default "zynq_cse" if TARGET_ZYNQ_CSE
+ 	default "zynq_afx" if TARGET_ZYNQ_AFX
++	default "PandA" if TARGET_ZYNQ_PANDA
+ 
+ endif

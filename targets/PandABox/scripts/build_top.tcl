@@ -12,7 +12,7 @@ set PS_CORE    [lindex $argv 5]
 set MODE       [lindex $argv 6] 
 
 
-set_param board.repoPaths $TARGET_DIR/configs
+set_param board.repoPaths $TOP_DIR/common/configs
 
 
 # Create project (in-memory if not in gui mode)

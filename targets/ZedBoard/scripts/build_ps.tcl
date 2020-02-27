@@ -2,18 +2,20 @@
 # Generate PS part of the firmware based as Zynq Block design
 #
 
+set TOP_DIR    [lindex $argv 0]
+
 # Source directory
-set TARGET_DIR [lindex $argv 0]
-set_param board.repoPaths $TARGET_DIR/configs
+set TARGET_DIR [lindex $argv 1]
+set_param board.repoPaths $TOP_DIR/common/configs
 
 # Build directory
-set BUILD_DIR [lindex $argv 1]
+set BUILD_DIR [lindex $argv 2]
 
 # Output file
-set OUTPUT_FILE [lindex $argv 2]
+set OUTPUT_FILE [lindex $argv 3]
 
 # Vivado run mode - gui or batch mode
-set MODE [lindex $argv 3]
+set MODE [lindex $argv 4]
 
 # Create project
 create_project -part xc7z020clg484-1 -force panda_ps $BUILD_DIR

@@ -204,8 +204,8 @@ hdl_timing: $(TIMING_BUILD_DIRS)
 # FPGA build
 
 # The following phony targets are passed straight to the FPGA sub-make programme
-FPGA_TARGETS = fpga-all fpga-bits carrier_fpga slow_fpga carrier_ip ps_core ps_boot \
-               fsbl devicetree dts sw_clean
+FPGA_TARGETS = fpga-all fpga-bits carrier_fpga slow_fpga carrier_ip ps_core \
+               fsbl devicetree boot u-boot dts sw_clean
 
 $(FPGA_TARGETS): $(TARGET_DIR)/fpga.make $(AUTOGEN_BUILD_DIR)
 	mkdir -p $(FPGA_BUILD_DIR)
@@ -292,23 +292,6 @@ all-zpkg:
 .PHONY: all-zpkg
 
 #-------------------------------------------------------------------------------
-# Rootfs boot targets
-
-#PANDA_ROOT=/scratch/clm61942/ZedBoard
-
-boot: ps_boot
-	$(MAKE) -C $(PANDA_ROOTFS) PANDA_ROOT=$(TGT_BUILD_DIR)/rootfs \
-	FSBL_ELF=$(TGT_BUILD_DIR)/boot_images/fsbl.elf \
-	DEVICE_TREE_DTB=$(TGT_BUILD_DIR)/boot_images/devicetree.dtb
-
-boot-clean: 
-	$(MAKE) -C $(PANDA_ROOTFS) PANDA_ROOT=$(PANDA_ROOT) clean
-
-boot-clean-all:
-	$(MAKE) -C $(PANDA_ROOTFS) PANDA_ROOT=$(PANDA_ROOT) clean-all
-
-.PHONY: boot boot-clean boot-clean-all
-
 
 # Push a github release
 github-release: $(ZPKG)
@@ -316,7 +299,6 @@ github-release: $(ZPKG)
 	    $(BUILD_DIR)/*.zpg
 
 .PHONY: github-release
-
 
 # ------------------------------------------------------------------------------
 # Clean
@@ -327,6 +309,7 @@ clean:
 .PHONY: clean
 
 clean-all:
+	-chmod -R +w $(BUILD_DIR)/src
 	rm -rf $(BUILD_DIR) $(DOCS_BUILD_DIR) *.zpg
 	find -name '*.pyc' -delete
 .PHONY: clean-all

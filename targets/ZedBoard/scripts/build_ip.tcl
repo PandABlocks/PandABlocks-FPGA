@@ -1,16 +1,17 @@
 #
 # Generate Xilinx IP Cores
 #
+set TOP_DIR    [lindex $argv 0]
 
 # Source directory
-set TARGET_DIR [lindex $argv 0]
-set_param board.repoPaths $TARGET_DIR/configs
+set TARGET_DIR [lindex $argv 1]
+set_param board.repoPaths $TOP_DIR/common/configs
 
 # Build directory
-set BUILD_DIR [lindex $argv 1]
+set BUILD_DIR [lindex $argv 2]
 
 # Vivado run mode - gui or batch mode
-set MODE [lindex $argv 2]
+set MODE [lindex $argv 3]
 
 # Create Managed IP Project
 create_project -part xc7z020clg484-1 -force -ip managed_ip_project $BUILD_DIR/managed_ip_project

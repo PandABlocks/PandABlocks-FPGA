@@ -1,0 +1,2 @@
+bootargs=console=ttyPS0,115200 rdinit=/init ro
+ramdisk_image=uinitramfs
