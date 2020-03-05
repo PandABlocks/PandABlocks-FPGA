@@ -90,7 +90,7 @@ signal missed_pulses            : unsigned(31 downto 0) := (others => '0');
 signal queued_din               : unsigned(47 downto 0) := (others => '0');
 signal queue_pulse_ts           : unsigned(47 downto 0) := (others => '0');
 signal timestamp                : unsigned(47 downto 0) := (others => '0');
-signal acceptable_pulse_ts : unsigned(47 downto 0) := (others => '0');
+signal drop_for                 : unsigned(47 downto 0) := (others => '0');
 signal override_ends_ts         : unsigned(47 downto 0) := (others => '0');
 signal edge_ts                  : unsigned(47 downto 0) := (others => '0');
 signal edges_remaining          : unsigned(31 downto 0) := (others => '0');
@@ -235,15 +235,20 @@ begin
         pulse_queued_din <= (others => '0');
         pulse_queued_wstb <= '0';
 
+        -- If we were counting down how long to drop pulses for the decrement
+        if (drop_for > 0) then
+            drop_for <= drop_for - 1;
+        end if;
+
         if (enabled_rise = '1') then
             -- Reset on rising enable
             missed_pulses <= (others => '0');
-            acceptable_pulse_ts <= (others => '0');
+            drop_for <= (others => '0');
             override_ends_ts <= (others => '0');
         elsif (is_enabled = '1' and got_trigger = '1') then
             -- The time we might put on the queue
             timestamp_to_queue := timestamp + delay_i;
-            if (timestamp < acceptable_pulse_ts or pulse_queued_full = '1') then
+            if (drop_for > 0 or pulse_queued_full = '1') then
                 -- Can't process trigger
                 missed_pulses <= missed_pulses + 1;
             elsif (width_i = 0) then
@@ -265,7 +270,7 @@ begin
                     pulse_queued_din <= '1' & std_logic_vector(timestamp_to_queue);
                 end if;
                 pulse_queued_wstb <= '1';
-                acceptable_pulse_ts <= timestamp + step_times_pulses - step_i + width_i + 1;
+                drop_for <= step_times_pulses - step_i + width_i;
             end if;
         end if;
 
