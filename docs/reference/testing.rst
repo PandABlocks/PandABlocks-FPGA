@@ -10,17 +10,21 @@ the git repository, however the hdl testbenches have to be manually ran.
 
 Python tests
 ~~~~~~~~~~~~
+
 The first of the python tests, checking the output of the Jinja2 templates, can
-be run from the Makefile.
+be run from the Makefile::
+
     make python_tests
 
-The python simulation tests, can be run with the following Makefile command.
+The python simulation tests, can be run with the following Makefile command::
+
     make python_timing
 
 HDL tests
 ~~~~~~~~~
 
-There are two Makefile functions which can be used to run the hdl testbenches.
+There are two Makefile functions which can be used to run the hdl testbenches::
+
     make hdl_test (MODULE="module name")
 
     make single_hdl_test TEST="MODULE_NAME TEST_NUMBER"
