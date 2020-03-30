@@ -6,6 +6,9 @@ from docutils import nodes, statemachine
 from .ini_util import read_ini, timing_entries
 
 
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+
 class sequence_plot_node(nodes.Element):
     pass
 
@@ -31,6 +34,7 @@ class timing_plot_directive(Directive):
         section = self.options['section']
 
         # Parse the ini file and make any special tables
+        path = os.path.join(ROOT, path)
         ini = read_ini(path)
         tables = []
         for ts, inputs, outputs in timing_entries(ini, section):

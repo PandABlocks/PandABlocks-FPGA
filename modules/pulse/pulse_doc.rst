@@ -78,6 +78,7 @@ output on rising, falling, or both edges:
    :section: No delay means a WIDTH of 5 or more is required
 
 If PULSES > 1 then multiple output pulses will be generated, separated by STEP:
+
 .. timing_plot::
    :path: modules/pulse/pulse.timing.ini
    :section: Multiple pulses with no delay

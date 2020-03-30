@@ -71,3 +71,11 @@ Device. You can specify a subset of Apps to be built in the top level CONFIG
 file by specifying something like::
 
     APPS = PandABox-no-fmc
+
+Querying the App at runtime
+---------------------------
+
+The app name can be queried at run time via the TCP server::
+
+    < *METADATA.APPNAME?
+    > OK =PandABox-fmc_24vio
