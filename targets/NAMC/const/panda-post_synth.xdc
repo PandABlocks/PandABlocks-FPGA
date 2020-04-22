@@ -1,11 +1,14 @@
 # -------------------------------------------------------------------
 # Define asynchronous clocks
 # -------------------------------------------------------------------
-
-#set_clock_groups -asynchronous -group clk_fpga_0
-#set_clock_groups -asynchronous -group EXTCLK_P
-#set_clock_groups -asynchronous -group GTXCLK0_P
-#set_clock_groups -asynchronous -group GTXCLK1_P
+set_clock_groups -asynchronous -group GTXCLK0_P
+set_clock_groups -asynchronous -group GTXCLK1_P
+set_clock_groups -asynchronous -group FMC_CLK0_M2C_P
+set_clock_groups -asynchronous -group FMC_CLK1_M2C_P
+set_clock_groups -asynchronous -group AMC4_7_MGTREFCLK0_P
+set_clock_groups -asynchronous -group AMC4_7_MGTREFCLK1_P
+set_clock_groups -asynchronous -group AMC8_11_MGTREFCLK0_P
+set_clock_groups -asynchronous -group AMC8_11_MGTREFCLK1_P
 
 # --------------------------------------------------------------------
 # EVENT RECEIVER

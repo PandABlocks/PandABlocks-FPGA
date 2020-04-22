@@ -13,7 +13,6 @@ set BUILD_DIR [lindex $argv 1]
 set MODE [lindex $argv 2]
 
 # Create Managed IP Project
-# create_project -part xc7z030sbg485-1 -force -ip managed_ip_project $BUILD_DIR/managed_ip_project
 create_project -part xc7z045ffg900-2 -force -ip managed_ip_project $BUILD_DIR/managed_ip_project
 
 set_property target_language VHDL [current_project]
@@ -75,21 +74,31 @@ synth_ip [get_ips fifo_1K32_ft]
 create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \
 -module_name fmcgtx -dir $BUILD_DIR/
 
+#set_property -dict [list \
+#    CONFIG.identical_protocol_file {aurora_8b10b_single_lane_2byte} \
+#    CONFIG.gt0_val {true}                                           \
+#    CONFIG.gt0_val_tx_refclk {REFCLK1_Q0}                           \
+#    CONFIG.identical_val_tx_line_rate {3.125}                       \
+#    CONFIG.identical_val_tx_reference_clock {156.250}               \
+#    CONFIG.identical_val_rx_line_rate {3.125}                       \
+#    CONFIG.identical_val_rx_reference_clock {156.250}               \
+#] [get_ips fmcgtx]
+
 set_property -dict [list \
     CONFIG.identical_protocol_file {aurora_8b10b_single_lane_2byte} \
     CONFIG.gt0_val {true}                                           \
     CONFIG.gt0_val_tx_refclk {REFCLK1_Q0}                           \
-    CONFIG.identical_val_tx_line_rate {3.125}                       \
-    CONFIG.identical_val_tx_reference_clock {156.250}               \
-    CONFIG.identical_val_rx_line_rate {3.125}                       \
-    CONFIG.identical_val_rx_reference_clock {156.250}               \
+    CONFIG.identical_val_tx_line_rate {1}                           \
+    CONFIG.identical_val_tx_reference_clock {125.000}               \
+    CONFIG.identical_val_rx_line_rate {1}                           \
+    CONFIG.identical_val_rx_reference_clock {125.000}               \
 ] [get_ips fmcgtx]
 
 generate_target all [get_files $BUILD_DIR/fmcgtx/fmcgtx.xci]
 synth_ip [get_ips fmcgtx]
 
 #
-# Create AMC GTX Aurora IP
+# Create AMC GTX Aurora IP for Port 4-7
 #
 create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \
 -module_name amcgtx -dir $BUILD_DIR/
@@ -106,6 +115,24 @@ set_property -dict [list \
 
 generate_target all [get_files $BUILD_DIR/amcgtx/amcgtx.xci]
 synth_ip [get_ips amcgtx]
+
+#
+# Create AMC GTX Aurora IP for Port 8-11
+#
+create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \
+-module_name amcgtx2 -dir $BUILD_DIR/
+
+set_property -dict [list \
+    CONFIG.identical_protocol_file {aurora_8b10b_single_lane_2byte} \
+    CONFIG.gt0_val {true}                                           \
+    CONFIG.gt0_val_tx_refclk {REFCLK1_Q0}                           \
+    CONFIG.identical_val_tx_line_rate {1}                           \
+    CONFIG.identical_val_tx_reference_clock {125.000}               \
+    CONFIG.identical_val_rx_line_rate {1}                           \
+    CONFIG.identical_val_rx_reference_clock {125.000}               \
+] [get_ips amcgtx2]
+generate_target all [get_files $BUILD_DIR/amcgtx2/amcgtx2.xci]
+synth_ip [get_ips amcgtx2]
 
 #
 # Create SFP GTX Aurora IP

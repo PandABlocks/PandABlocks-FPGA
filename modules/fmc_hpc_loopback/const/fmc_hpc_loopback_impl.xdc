@@ -1,8 +1,8 @@
 # -------------------------------------------------------------------
 # Define asynchronous clocks
 # -------------------------------------------------------------------
-set_clock_groups -asynchronous -group FMC_CLK0_M2C_P
-set_clock_groups -asynchronous -group FMC_CLK1_M2C_P
+#set_clock_groups -asynchronous -group FMC_CLK0_M2C_P
+#set_clock_groups -asynchronous -group FMC_CLK1_M2C_P
 set_clock_groups -asynchronous -group [get_clocks \ 
 {softblocks_inst/{{ block.name }}_inst/fmcgtx_exdes_i1/fmcgtx_support_i/fmcgtx_init_i/U0/fmcgtx_i/gt0_fmcgtx_i/gtxe2_i/TXOUTCLK}]
 set_clock_groups -asynchronous -group [get_clocks \ 

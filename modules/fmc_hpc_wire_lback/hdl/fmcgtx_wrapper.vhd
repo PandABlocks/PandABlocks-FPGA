@@ -773,7 +773,7 @@ port map
     gt0_txoutclkfabric_out          =>      gt0_txoutclkfabric_i,
     gt0_txoutclkpcs_out             =>      gt0_txoutclkpcs_i,
     --------------------- Transmit Ports - TX Gearbox Ports --------------------
-    gt0_txcharisk_in                =>      gt0_txcharisk_i,--"00", --gt0_txcharisk_i,
+    gt0_txcharisk_in                =>      gt0_txcharisk_i,
     ------------- Transmit Ports - TX Initialization and Reset Ports -----------
     gt0_txpcsreset_in               =>      tied_to_ground_i,
     gt0_txresetdone_out             =>      gt0_txresetdone_i,
@@ -880,7 +880,7 @@ generic map
 port map
 (
     -- GT Interface
-    RX_DATA_IN                      => gt0_rxdata_i, --RXDATA_OUT, --gt0_rxdata_i,
+    RX_DATA_IN                      => gt0_rxdata_i, 
     RXCTRL_IN                       => gt0_rxcharisk_i,
     RXENMCOMMADET_OUT               => gt0_rxmcommaalignen_i,
     RXENPCOMMADET_OUT               => gt0_rxpcommaalignen_i,
