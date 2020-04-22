@@ -1,4 +1,4 @@
-AMC loopback with NAMC-ZYNC-FMC and eMCH
+AMC loopback with NAMC-ZYNC-FMC card (port 8-11)
 ==================================
 
 Fields
