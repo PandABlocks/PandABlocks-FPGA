@@ -8,9 +8,7 @@ read_ip $IP_DIR/{{ ip }}/{{ ip }}.xci
 # Module code and constraints
 {% for block in fpga_blocks %}
     {# Soft block module code #}
-    {% if block.type in "dma|soft|sfp|fmc|amc" 
-	or "fmc" in block.type.split(' ') 
-	or "amc" in block.type.split(' ')%}
+    {% if block.type in "dma|soft|sfp|fmc|amc" %}
 add_files $TOP_DIR/{{ block.module_path }}/hdl/
     {% endif %}
     {# MGT pin constraints #}
@@ -24,10 +22,6 @@ add_files $TARGET_DIR/const/FMC_MGT_pins.xdc
         {% if block.type == "amc" %}
 add_files $TARGET_DIR/const/AMC_MGT_pins.xdc
         {% endif %}
-	{% if block.type == "fmc amc" or block.type == "amc fmc" %}
-add_files $TARGET_DIR/const/FMC_MGT_pins.xdc 
-add_files $TARGET_DIR/const/AMC_MGT_pins.xdc
-	{% endif %}
     {% endif %}
     {# Module constraints #}
     {% for const in block.constraints %}

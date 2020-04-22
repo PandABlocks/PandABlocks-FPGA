@@ -1,16 +1,12 @@
 # -------------------------------------------------------------------
 # Define asynchronous clocks
 # -------------------------------------------------------------------
-#set_clock_groups -asynchronous -group GTXCLK0_P
-#set_clock_groups -asynchronous -group GTXCLK1_P
+set_clock_groups -asynchronous -group GTXCLK0_P
+set_clock_groups -asynchronous -group GTXCLK1_P
 set_clock_groups -asynchronous -group [get_clocks \ 
 {softblocks_inst/{{ block.name }}_inst/amcgtx_exdes_i1/amcgtx_support_i/amcgtx_init_i/U0/amcgtx_i/gt0_amcgtx_i/gtxe2_i/TXOUTCLK}]
 set_clock_groups -asynchronous -group [get_clocks \ 
 {softblocks_inst/{{ block.name }}_inst/amcgtx_exdes_i2/amcgtx_support_i/amcgtx_init_i/U0/amcgtx_i/gt0_amcgtx_i/gtxe2_i/TXOUTCLK}]
-set_clock_groups -asynchronous -group [get_clocks \ 
-{softblocks_inst/{{ block.name }}_inst/amcgtx_exdes_i3/amcgtx_support_i/amcgtx_init_i/U0/amcgtx_i/gt0_amcgtx_i/gtxe2_i/TXOUTCLK}]
-set_clock_groups -asynchronous -group [get_clocks \ 
-{softblocks_inst/{{ block.name }}_inst/amcgtx_exdes_i4/amcgtx_support_i/amcgtx_init_i/U0/amcgtx_i/gt0_amcgtx_i/gtxe2_i/TXOUTCLK}]
 
 # -------------------------------------------------------------------
 # AMC MGTs - Bank 112
@@ -20,10 +16,12 @@ set_property LOC $AMC_GTX0_LOC \
 [get_cells softblocks_inst/{{ block.name }}_inst/amcgtx_exdes_i1/amcgtx_support_i/amcgtx_init_i/U0/amcgtx_i/gt0_amcgtx_i/gtxe2_i]
 set_property LOC $AMC_GTX1_LOC \
 [get_cells softblocks_inst/{{ block.name }}_inst/amcgtx_exdes_i2/amcgtx_support_i/amcgtx_init_i/U0/amcgtx_i/gt0_amcgtx_i/gtxe2_i]
-set_property LOC $AMC_GTX2_LOC \
-[get_cells softblocks_inst/{{ block.name }}_inst/amcgtx_exdes_i3/amcgtx_support_i/amcgtx_init_i/U0/amcgtx_i/gt0_amcgtx_i/gtxe2_i]
-set_property LOC $AMC_GTX3_LOC \
-[get_cells softblocks_inst/{{ block.name }}_inst/amcgtx_exdes_i4/amcgtx_support_i/amcgtx_init_i/U0/amcgtx_i/gt0_amcgtx_i/gtxe2_i]
+
+# -------------------------------------------------------------------
+# Override Differential Pairs' IOSTANDARD
+# -------------------------------------------------------------------
+#set_property IOSTANDARD LVDS    [get_ports FMC_CLK0_M2C_P]
+#set_property IOSTANDARD LVDS    [get_ports FMC_CLK1_M2C_P]
 
 # -------------------------------------------------------------------
 # Async false reset paths

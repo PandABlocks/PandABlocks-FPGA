@@ -192,7 +192,7 @@ port map (
 ---------------------------------------------------------------------------
 -- GTX Loopback Test
 ---------------------------------------------------------------------------
-fmcgtx_exdes_i1 : entity work.fmcgtx_wrapper
+fmcgtx_exdes_i1 : entity work.fmcgtx_exdes
 port map (
     Q0_CLK1_GTREFCLK_PAD_IN     => FMC_i.GTREFCLK,
     GTREFCLK                    => GTREFCLK,
@@ -203,11 +203,7 @@ port map (
     RXP_IN                      => FMC_i.RXP_IN,
     RXN_IN                      => FMC_i.RXN_IN,
     TXP_OUT                     => FMC_o.TXP_OUT,
-    TXN_OUT                     => FMC_o.TXN_OUT,
-    RXDATA_OUT					=> open,
-    TXDATA_IN                   => GTX2_Tx,
-    RX_CHARISK_OUT				=> open,
-    TX_CHARISK_IN				=> GTX2_CHARISK_TX
+    TXN_OUT                     => FMC_o.TXN_OUT
 );
 --fmcgtx_exdes_i2 : entity work.fmcgtx_exdes
 fmcgtx_exdes_i2 : entity work.fmcgtx_wrapper
@@ -245,7 +241,7 @@ port map (
     RX_CHARISK_OUT				=> GTX2_CHARISK_TX,
     TX_CHARISK_IN				=> GTX2_CHARISK_RX
 );
-fmcgtx_exdes_i4 : entity work.fmcgtx_wrapper
+fmcgtx_exdes_i4 : entity work.fmcgtx_exdes
 port map (
     Q0_CLK1_GTREFCLK_PAD_IN     => FMC_i.GTREFCLK,
     GTREFCLK                    => open,
@@ -256,11 +252,7 @@ port map (
     RXP_IN                      => FMC_i.RXP4_IN,
     RXN_IN                      => FMC_i.RXN4_IN,
     TXP_OUT                     => FMC_o.TXP4_OUT,
-    TXN_OUT                     => FMC_o.TXN4_OUT,
-    RXDATA_OUT					=> open,
-    TXDATA_IN					=> X"0000",
-    RX_CHARISK_OUT				=> open,
-    TX_CHARISK_IN				=> "00"
+    TXN_OUT                     => FMC_o.TXN4_OUT
 );
 
 ---------------------------------------------------------------------------

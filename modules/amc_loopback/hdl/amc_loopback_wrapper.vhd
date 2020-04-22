@@ -64,20 +64,18 @@ signal LOOP_PERIOD_WSTB     : std_logic;
 signal LOOP_PERIOD          : std_logic_vector(31 downto 0);
 signal LINK_UP_1            : std_logic_vector(31 downto 0);
 signal LINK_UP_2            : std_logic_vector(31 downto 0);
-signal LINK_UP_3            : std_logic_vector(31 downto 0);
-signal LINK_UP_4            : std_logic_vector(31 downto 0);
 signal ERROR_COUNT_1        : std_logic_vector(31 downto 0);
 signal ERROR_COUNT_2        : std_logic_vector(31 downto 0);
-signal ERROR_COUNT_3        : std_logic_vector(31 downto 0);
-signal ERROR_COUNT_4        : std_logic_vector(31 downto 0);
---signal PCIe_B112_TX0_P		: std_logic;
---signal PCIe_B112_TX0_N		: std_logic;
---signal PCIe_B112_RX0_P		: std_logic;
---signal PCIe_B112_RX0_N		: std_logic;
---signal PCIe_B112_TX1_P		: std_logic;
---signal PCIe_B112_TX1_N		: std_logic;
---signal PCIe_B112_RX1_P		: std_logic;
---signal PCIe_B112_RX1_N		: std_logic;
+signal PCIe_B112_TX0_P		: std_logic;
+signal PCIe_B112_TX0_N		: std_logic;
+signal PCIe_B112_RX0_P		: std_logic;
+signal PCIe_B112_RX0_N		: std_logic;
+signal PCIe_B112_TX1_P		: std_logic;
+signal PCIe_B112_TX1_N		: std_logic;
+signal PCIe_B112_RX1_P		: std_logic;
+signal PCIe_B112_RX1_N		: std_logic;
+signal amc_din_p			: std_logic;
+signal amc_din_n			: std_logic;
 
 attribute MARK_DEBUG        : string;
 attribute MARK_DEBUG of probe0  : signal is "true";
@@ -113,55 +111,29 @@ port map (
 ---------------------------------------------------------------------------
 amcgtx_exdes_i1 : entity work.amcgtx_exdes
 port map (
-    Q0_CLK1_GTREFCLK_PAD_IN     => AMC_i.GTREFCLK1,
-    GTREFCLK                    => open,--GTREFCLK,
+    Q0_CLK1_GTREFCLK_PAD_IN     => AMC_i.GTREFCLK,
+    GTREFCLK                    => GTREFCLK,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
     TRACK_DATA_OUT              => LINK_UP_1,
     ERROR_COUNT                 => ERROR_COUNT_1,
-    RXP_IN                      => AMC_i.FP_RX4_P,
-    RXN_IN                      => AMC_i.FP_RX4_N,
-    TXP_OUT                     => AMC_o.FP_TX4_P,
-    TXN_OUT                     => AMC_o.FP_TX4_N
+    RXP_IN                      => AMC_i.PCIe_B112_RX0_P,
+    RXN_IN                      => AMC_i.PCIe_B112_RX0_N,
+    TXP_OUT                     => AMC_o.PCIe_B112_TX0_P,
+    TXN_OUT                     => AMC_o.PCIe_B112_TX0_N
 );
 amcgtx_exdes_i2 : entity work.amcgtx_exdes
 port map (
-    Q0_CLK1_GTREFCLK_PAD_IN     => AMC_i.GTREFCLK1,
+    Q0_CLK1_GTREFCLK_PAD_IN     => AMC_i.GTREFCLK,
     GTREFCLK                    => open,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
     TRACK_DATA_OUT              => LINK_UP_2,
     ERROR_COUNT                 => ERROR_COUNT_2,
-    RXP_IN                      => AMC_i.FP_RX5_P,
-    RXN_IN                      => AMC_i.FP_RX5_N,
-    TXP_OUT                     => AMC_o.FP_TX5_P,
-    TXN_OUT                     => AMC_o.FP_TX5_N
-);
-amcgtx_exdes_i3 : entity work.amcgtx_exdes
-port map (
-    Q0_CLK1_GTREFCLK_PAD_IN     => AMC_i.GTREFCLK1,
-    GTREFCLK                    => open,
-    drpclk_in_i                 => clk_i,
-    SOFT_RESET                  => SOFT_RESET,
-    TRACK_DATA_OUT              => LINK_UP_3,
-    ERROR_COUNT                 => ERROR_COUNT_3,
-    RXP_IN                      => AMC_i.FP_RX6_P,
-    RXN_IN                      => AMC_i.FP_RX6_N,
-    TXP_OUT                     => AMC_o.FP_TX6_P,
-    TXN_OUT                     => AMC_o.FP_TX6_N
-);
-amcgtx_exdes_i4 : entity work.amcgtx_exdes
-port map (
-    Q0_CLK1_GTREFCLK_PAD_IN     => AMC_i.GTREFCLK1,
-    GTREFCLK                    => open,
-    drpclk_in_i                 => clk_i,
-    SOFT_RESET                  => SOFT_RESET,
-    TRACK_DATA_OUT              => LINK_UP_4,
-    ERROR_COUNT                 => ERROR_COUNT_4,
-    RXP_IN                      => AMC_i.FP_RX7_P,
-    RXN_IN                      => AMC_i.FP_RX7_N,
-    TXP_OUT                     => AMC_o.FP_TX7_P,
-    TXN_OUT                     => AMC_o.FP_TX7_N
+    RXP_IN                      => AMC_i.PCIe_B112_RX1_P,
+    RXN_IN                      => AMC_i.PCIe_B112_RX1_N,
+    TXP_OUT                     => AMC_o.PCIe_B112_TX1_P,
+    TXN_OUT                     => AMC_o.PCIe_B112_TX1_N
 );
 
 
@@ -190,12 +162,8 @@ port map (
     LOOP_PERIOD_WSTB    => LOOP_PERIOD_WSTB,
     LINK_UP_1			=> LINK_UP_1,
     LINK_UP_2			=> LINK_UP_2,
-    LINK_UP_3			=> LINK_UP_3,
-    LINK_UP_4			=> LINK_UP_4,
     ERROR_COUNT_1       => ERROR_COUNT_1,
     ERROR_COUNT_2       => ERROR_COUNT_2,
-    ERROR_COUNT_3       => ERROR_COUNT_3,
-    ERROR_COUNT_4       => ERROR_COUNT_4,
     -- Memory Bus Interface
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),

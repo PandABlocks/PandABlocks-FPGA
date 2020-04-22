@@ -68,7 +68,6 @@ begin
             serial_clk <= '0';
             clock_counter <= 0;
             active_o <= '0';
-             fsm_state <= WAIT_START;
         else
             -- SSI Clock Generator FSM
             case (fsm_state) is
@@ -108,7 +107,6 @@ begin
                     end if;
 
                 when others =>
-                     fsm_state <= WAIT_START;
             end case;
         end if;
     end if;

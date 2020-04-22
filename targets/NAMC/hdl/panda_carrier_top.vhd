@@ -110,57 +110,15 @@ port (
     FMC_CLK1_M2C_P      : in    std_logic;
     FMC_CLK1_M2C_N      : in    std_logic;
 
-	-- AMC FAT PIPE IO
-	AMC4_7_MGTREFCLK0_P : in    std_logic;
-	AMC4_7_MGTREFCLK0_N : in    std_logic;
-	AMC4_7_MGTREFCLK1_P : in    std_logic;
-	AMC4_7_MGTREFCLK1_N : in    std_logic;
-	AMC_FP_TX4_P        : out   std_logic := 'Z';
-	AMC_FP_TX4_N        : out   std_logic := 'Z';
-	AMC_FP_RX4_P        : in    std_logic;
-	AMC_FP_RX4_N        : in    std_logic;
-	AMC_FP_TX5_P        : out   std_logic := 'Z';
-	AMC_FP_TX5_N        : out   std_logic := 'Z';
-	AMC_FP_RX5_P        : in    std_logic;
-	AMC_FP_RX5_N        : in    std_logic;
-	AMC_FP_TX6_P        : out   std_logic := 'Z';
-	AMC_FP_TX6_N        : out   std_logic := 'Z';
-	AMC_FP_RX6_P        : in    std_logic;
-	AMC_FP_RX6_N        : in    std_logic;
-	AMC_FP_TX7_P        : out   std_logic := 'Z';
-	AMC_FP_TX7_N        : out   std_logic := 'Z';
-	AMC_FP_RX7_P        : in    std_logic;
-	AMC_FP_RX7_N        : in    std_logic;
-	
-	AMC8_11_MGTREFCLK0_P: in    std_logic;
-	AMC8_11_MGTREFCLK0_N: in    std_logic;
-	AMC8_11_MGTREFCLK1_P: in    std_logic;
-	AMC8_11_MGTREFCLK1_N: in    std_logic;
-	AMC_FP_TX8_P        : out   std_logic := 'Z';
-	AMC_FP_TX8_N        : out   std_logic := 'Z';
-	AMC_FP_RX8_P        : in    std_logic;
-	AMC_FP_RX8_N        : in    std_logic; 
-	AMC_FP_TX9_P        : out   std_logic := 'Z';
-	AMC_FP_TX9_N        : out   std_logic := 'Z';
-	AMC_FP_RX9_P        : in    std_logic;
-	AMC_FP_RX9_N        : in    std_logic; 
-	AMC_FP_TX10_P        : out   std_logic := 'Z';
-	AMC_FP_TX10_N        : out   std_logic := 'Z';
-	AMC_FP_RX10_P        : in    std_logic;
-	AMC_FP_RX10_N        : in    std_logic; 
-	AMC_FP_TX11_P        : out   std_logic := 'Z';
-	AMC_FP_TX11_N        : out   std_logic := 'Z';
-	AMC_FP_RX11_P        : in    std_logic;
-	AMC_FP_RX11_N        : in    std_logic
-
-	--PCIe_B112_TX0_P		: out 	std_logic;
-	--PCIe_B112_TX0_N		: out 	std_logic;
-	--PCIe_B112_RX0_P		: in 	std_logic;
-	--PCIe_B112_RX0_N		: in 	std_logic;
-	--PCIe_B112_TX1_P		: out 	std_logic;
-	--PCIe_B112_TX1_N		: out 	std_logic;
-	--PCIe_B112_RX1_P		: in 	std_logic;
-	--PCIe_B112_RX1_N		: in 	std_logic
+	-- AMC Differential IO and GTX
+	PCIe_B112_TX0_P		: out 	std_logic;
+	PCIe_B112_TX0_N		: out 	std_logic;
+	PCIe_B112_RX0_P		: in 	std_logic;
+	PCIe_B112_RX0_N		: in 	std_logic;
+	PCIe_B112_TX1_P		: out 	std_logic;
+	PCIe_B112_TX1_N		: out 	std_logic;
+	PCIe_B112_RX1_P		: in 	std_logic;
+	PCIe_B112_RX1_N		: in 	std_logic
 		
     -- External Differential Clock (via front panel SMA)
     --EXTCLK_P            : in    std_logic;
@@ -305,8 +263,6 @@ signal rdma_valid           : std_logic_vector(5 downto 0);
 signal SLOW_FPGA_VERSION    : std_logic_vector(31 downto 0);
 --signal DCARD_MODE           : std32_array(ENC_NUM-1 downto 0);
 
-signal q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
-
 signal SFP_MAC_ADDR_ARR     : std32_array(2*NUM_SFP-1 downto 0);
 signal FMC_MAC_ADDR_ARR     : std32_array(2*NUM_FMC-1 downto 0);
 
@@ -314,24 +270,27 @@ signal FMC_MAC_ADDR_ARR     : std32_array(2*NUM_FMC-1 downto 0);
 signal FMC_i  : FMC_input_interface;
 signal FMC_o  : FMC_output_interface := FMC_o_init;
 signal FMC_io : FMC_inout_interface  := FMC_io_init;
-signal q0_clk0_fmc_gtrefclk, q0_clk1_fmc_gtrefclk:   std_logic;
 
 -- AMC Block
 signal AMC_i  : AMC_input_interface;
 signal AMC_o  : AMC_output_interface := AMC_o_init; 
 
-signal q0_clk0_amc_gtrefclk, q0_clk1_amc_gtrefclk, q0_clk2_amc_gtrefclk, q0_clk3_amc_gtrefclk:   std_logic;
+-- SFP Block
+--signal SFP1_i : SFP_input_interface;
+--signal SFP1_o : SFP_output_interface := ( TXN_OUT => '0', TXP_OUT => '0',EVR_REC_CLK => '0', LINK_UP => '0');
+--signal SFP2_i : SFP_input_interface;
+--signal SFP2_o : SFP_output_interface;
+--signal SFP3_i : SFP_input_interface;
+--signal SFP3_o : SFP_output_interface;
+
+signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
 attribute syn_noclockbuf : boolean;
 attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
---attribute syn_noclockbuf_amc : boolean;
-attribute syn_noclockbuf of q0_clk0_fmc_gtrefclk : signal is true;
-attribute syn_noclockbuf of q0_clk1_fmc_gtrefclk : signal is true;
-
-attribute syn_noclockbuf of q0_clk0_amc_gtrefclk : signal is true;
-attribute syn_noclockbuf of q0_clk1_amc_gtrefclk : signal is true;
-attribute syn_noclockbuf of q0_clk2_amc_gtrefclk : signal is true;
-attribute syn_noclockbuf of q0_clk3_amc_gtrefclk : signal is true;
+signal q0_clk0_amc_gtrefclk, q0_clk1_amc_gtrefclk : std_logic;
+attribute syn_noclockbuf_amc : boolean;
+attribute syn_noclockbuf_amc of q0_clk0_amc_gtrefclk : signal is true;
+attribute syn_noclockbuf_amc of q0_clk1_amc_gtrefclk : signal is true;
 signal EXTCLK : std_logic;
 
 
@@ -351,11 +310,6 @@ begin
 -- Internal clocks and resets
 FCLK_RESET0 <= not FCLK_RESET0_N(0);
 
----------------------------------------------------------------------------
--- Clocking buffers instantiation
----------------------------------------------------------------------------
----- AMC MGT clocks
----------------------------------------------------------------------------
 --IBUFDS_GTE2
     ibufds_instq0_clk0_amc : IBUFDS_GTE2
     port map
@@ -363,8 +317,8 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
         O               =>      q0_clk0_amc_gtrefclk,
         ODIV2           =>      open,
         CEB             =>      '0',
-        I               =>      AMC4_7_MGTREFCLK0_P,
-        IB              =>      AMC4_7_MGTREFCLK0_N
+        I               =>      GTXCLK0_P,
+        IB              =>      GTXCLK0_N
     );
 
 --IBUFDS_GTE2
@@ -374,58 +328,9 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
         O               =>      q0_clk1_amc_gtrefclk,
         ODIV2           =>      open,
         CEB             =>      '0',
-        I               =>      AMC4_7_MGTREFCLK1_P,
-        IB              =>      AMC4_7_MGTREFCLK1_N
+        I               =>      GTXCLK1_P,
+        IB              =>      GTXCLK1_N
     );
-    
---IBUFDS_GTE2
-    ibufds_instq0_clk2_amc : IBUFDS_GTE2
-    port map
-    (
-        O               =>      q0_clk2_amc_gtrefclk,
-        ODIV2           =>      open,
-        CEB             =>      '0',
-        I               =>      AMC8_11_MGTREFCLK0_P,
-        IB              =>      AMC8_11_MGTREFCLK0_N
-    );
-
---IBUFDS_GTE2
-    ibufds_instq0_clk3_amc : IBUFDS_GTE2
-    port map
-    (
-        O               =>      q0_clk3_amc_gtrefclk,
-        ODIV2           =>      open,
-        CEB             =>      '0',
-        I               =>      AMC8_11_MGTREFCLK1_P,
-        IB              =>      AMC8_11_MGTREFCLK1_N
-    );
-    
----------------------------------------------------------------------------
----- FMC clocks
----------------------------------------------------------------------------
---IBUFDS_GTE2
-    ibufds_instq0_clk0_fmc : IBUFDS_GTE2
-    port map
-    (
-        O               =>      q0_clk0_fmc_gtrefclk,
-        ODIV2           =>      open,
-        CEB             =>      '0',
-        I               =>      FMC_CLK0_M2C_P,
-        IB              =>      FMC_CLK0_M2C_N
-    );
---IBUFDS_GTE2
-    ibufds_instq0_clk1_fmc : IBUFDS_GTE2
-    port map
-    (
-        O               =>      q0_clk1_fmc_gtrefclk,
-        ODIV2           =>      open,
-        CEB             =>      '0',
-        I               =>      FMC_CLK1_M2C_P,
-        IB              =>      FMC_CLK1_M2C_N
-    );
----------------------------------------------------------------------------
----- on board clocks
----------------------------------------------------------------------------
 --IBUFDS_GTE2
     ibufds_instq0_clk0 : IBUFDS_GTE2
     port map
@@ -433,9 +338,10 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
         O               =>      q0_clk0_gtrefclk,
         ODIV2           =>      open,
         CEB             =>      '0',
-        I               =>      GTXCLK0_P,
-        IB              =>      GTXCLK0_N 
+        I               =>      FMC_CLK0_M2C_P,
+        IB              =>      FMC_CLK0_M2C_N
     );
+
 --IBUFDS_GTE2
     ibufds_instq0_clk1 : IBUFDS_GTE2
     port map
@@ -443,8 +349,8 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
         O               =>      q0_clk1_gtrefclk,
         ODIV2           =>      open,
         CEB             =>      '0',
-        I               =>      GTXCLK1_P,
-        IB              =>      GTXCLK1_N 
+        I               =>      FMC_CLK1_M2C_P,
+        IB              =>      FMC_CLK1_M2C_N
     );
 
 
@@ -759,49 +665,21 @@ FMC_io.FMC_CLK0_M2C_P 	<= FMC_CLK0_M2C_P;
 FMC_io.FMC_CLK0_M2C_N 	<= FMC_CLK0_M2C_N;
 FMC_i.FMC_CLK1_M2C_P 	<= FMC_CLK1_M2C_P;
 FMC_i.FMC_CLK1_M2C_N 	<= FMC_CLK1_M2C_N;
-FMC_i.GTREFCLK 			<= q0_clk0_gtrefclk; --q0_clk0_fmc_gtrefclk;
+FMC_i.GTREFCLK 			<= q0_clk0_gtrefclk;
 FMC_i.MAC_ADDR 			<= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
 FMC_i.MAC_ADDR_WS 		<= '0';
 
+
 -- Assemble AMC records
-AMC_i.FP_RX4_P			<= AMC_FP_RX4_P;
-AMC_i.FP_RX4_N			<= AMC_FP_RX4_N;
-AMC_i.FP_RX5_P			<= AMC_FP_RX5_P;
-AMC_i.FP_RX5_N			<= AMC_FP_RX5_N;
-AMC_i.FP_RX6_P			<= AMC_FP_RX6_P;
-AMC_i.FP_RX6_N			<= AMC_FP_RX6_N;
-AMC_i.FP_RX7_P			<= AMC_FP_RX7_P;
-AMC_i.FP_RX7_N			<= AMC_FP_RX7_N;
-AMC_i.FP_RX8_P			<= AMC_FP_RX8_P;
-AMC_i.FP_RX8_N			<= AMC_FP_RX8_N;
-AMC_i.FP_RX9_P			<= AMC_FP_RX9_P;
-AMC_i.FP_RX9_N			<= AMC_FP_RX9_N;
-AMC_i.FP_RX10_P			<= AMC_FP_RX10_P;
-AMC_i.FP_RX10_N			<= AMC_FP_RX10_N;
-AMC_i.FP_RX11_P			<= AMC_FP_RX11_P;
-AMC_i.FP_RX11_N			<= AMC_FP_RX11_N;
-
-AMC_i.GTREFCLK0			<= q0_clk0_amc_gtrefclk;
-AMC_i.GTREFCLK1			<= q0_clk1_amc_gtrefclk;
-AMC_i.GTREFCLK2			<= q0_clk2_amc_gtrefclk;
-AMC_i.GTREFCLK3			<= q0_clk3_amc_gtrefclk;
-
-AMC_FP_TX4_P			<= AMC_o.FP_TX4_P;
-AMC_FP_TX4_N			<= AMC_o.FP_TX4_N;
-AMC_FP_TX5_P			<= AMC_o.FP_TX5_P;
-AMC_FP_TX5_N			<= AMC_o.FP_TX5_N;
-AMC_FP_TX6_P			<= AMC_o.FP_TX6_P;
-AMC_FP_TX6_N			<= AMC_o.FP_TX6_N;
-AMC_FP_TX7_P			<= AMC_o.FP_TX7_P;
-AMC_FP_TX7_N			<= AMC_o.FP_TX7_N;
-AMC_FP_TX8_P			<= AMC_o.FP_TX8_P;
-AMC_FP_TX8_N			<= AMC_o.FP_TX8_N;
-AMC_FP_TX9_P			<= AMC_o.FP_TX9_P;
-AMC_FP_TX9_N			<= AMC_o.FP_TX9_N;
-AMC_FP_TX10_P			<= AMC_o.FP_TX10_P;
-AMC_FP_TX10_N			<= AMC_o.FP_TX10_N;
-AMC_FP_TX11_P			<= AMC_o.FP_TX11_P;
-AMC_FP_TX11_N			<= AMC_o.FP_TX11_N;
+PCIe_B112_TX0_P			<= AMC_o.PCIe_B112_TX0_P;
+PCIe_B112_TX0_N			<= AMC_o.PCIe_B112_TX0_N;
+AMC_i.PCIe_B112_RX0_P	<= PCIe_B112_RX0_P;
+AMC_i.PCIe_B112_RX0_N	<= PCIe_B112_RX0_N;
+PCIe_B112_TX1_P			<= AMC_o.PCIe_B112_TX1_P;
+PCIe_B112_TX1_N			<= AMC_o.PCIe_B112_TX1_N;
+AMC_i.PCIe_B112_RX1_P	<= PCIe_B112_RX1_P;
+AMC_i.PCIe_B112_RX1_N	<= PCIe_B112_RX1_N;
+AMC_i.GTREFCLK			<= q0_clk0_amc_gtrefclk;
 
 ---------------------------------------------------------------------------
 -- PandABlocks_top Instantiation (autogenerated!!)

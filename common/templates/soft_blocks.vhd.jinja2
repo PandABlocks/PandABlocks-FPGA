@@ -66,8 +66,7 @@ architecture rtl of soft_blocks is
 begin
 {# Using a namespace jinja2 object may make iterating simpler #}
 {% set dma = [0] %}
-{% for block in fpga_blocks if block.type in "soft|dma|fmc|amc|sfp" 
-	or "fmc" in block.type.split(' ') or "amc" in block.type.split(' ') %}
+{% for block in fpga_blocks if block.type in "soft|dma|fmc|amc|sfp"%}
 --------------------------------------------------------------------------------
 -- {{block.entity}} - {{block.description}}
 --------------------------------------------------------------------------------
@@ -105,13 +104,11 @@ port map (
         {% if "sfp_o" in block.interfaces %}
     SFP_o               => SFP{{ block.sfp_site }}_o,
         {% endif %}
-    {# % elif block.type == "fmc" % #}
-    {% elif "fmc" in block.type.split(' ') %}
+    {% elif block.type == "fmc" %}
         {% for interface in block.interfaces %}
     {{ pad(interface) }} => {{ interface }},
 		{% endfor %}
-    {# % elif block.type == "amc" % #}
-    {% elif "amc" in block.type.split(' ') %}
+    {% elif block.type == "amc" %}
         {% for interface in block.interfaces %}
     {{ pad(interface) }} => {{ interface }},
         {% endfor %}

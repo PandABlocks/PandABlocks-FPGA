@@ -237,13 +237,11 @@ class AppGenerator(object):
         total_pos_bus_length = 0
         # Start carrier_mod_count at 1 for REG and DRV blocks.
         carrier_mod_count = 2
-	for block in self.fpga_blocks:
-	    #if block.type == "fmc":
-	    if "fmc" in block.type.split(" "):
+        for block in self.fpga_blocks:
+            if block.type == "fmc":
                 assert self.fmc_sites > 0, "No FMC on Carrier"
-            #if block.type == "amc":
-            if "amc" in block.type.split(" "):
-		assert self.amc_sites > 0, "No AMC on Carrier"
+            if block.type == "amc":
+                assert self.amc_sites > 0, "No AMC on Carrier"
             if block.type in "carrier|pcap":
                 carrier_mod_count = carrier_mod_count + 1
             for field in block.fields:
@@ -267,7 +265,7 @@ class AppGenerator(object):
             if block.entity not in block_names:
                 register_blocks.append(block)
                 block_names.append(block.entity)
-	context = jinja_context(
+        context = jinja_context(
             fpga_blocks=self.fpga_blocks,
             sfp_sites=self.sfp_sites,
             fmc_sites=self.fmc_sites,
