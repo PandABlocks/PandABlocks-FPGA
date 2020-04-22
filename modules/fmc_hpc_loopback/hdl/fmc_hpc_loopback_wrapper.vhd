@@ -257,32 +257,27 @@ port map (
 ---------------------------------------------------------------------------
 -- FMC Mezzanine Clocks
 ---------------------------------------------------------------------------
---IBUFGDS_CLK0 : IBUFGDS
---generic map (
-    --DIFF_TERM   => TRUE,
-    --IOSTANDARD  => "LVDS"
---)
---port map (
-    --O           => FMC_CLK0_M2C,
-    --I           => FMC_io.FMC_CLK0_M2C_P,
-    --IB          => FMC_io.FMC_CLK0_M2C_N
---);
+ibufds_instq0_clk0_fmc: IBUFDS_GTE2
+port map(
+    O               =>      FMC_CLK0_M2C,
+    ODIV2           =>      open,
+    CEB             =>      '0',
+    I               =>      FMC_io.FMC_CLK0_M2C_P,
+    IB              =>      FMC_io.FMC_CLK0_M2C_N
+);
 
---IBUFGDS_CLK1 : IBUFGDS
---generic map (
-    --DIFF_TERM   => TRUE,
-    --IOSTANDARD  => "LVDS"
---)
---port map (
-    --O           => FMC_CLK1_M2C,
-    --I           => FMC_i.FMC_CLK1_M2C_P,
-    --IB          => FMC_i.FMC_CLK1_M2C_N
---);
-
+ibufds_instq0_clk1_fmc : IBUFDS_GTE2
+port map(
+    O               =>      FMC_CLK1_M2C,
+    ODIV2           =>      open,
+    CEB             =>      '0',
+    I               =>      FMC_i.FMC_CLK1_M2C_P,
+    IB              =>      FMC_i.FMC_CLK1_M2C_N
+);
 ---------------------------------------------------------------------------
 -- FMC Clocks Frequency Counter
 ---------------------------------------------------------------------------
-test_clocks(0) <= GTREFCLK;
+test_clocks(0) <= GTREFCLK; --125MHz
 test_clocks(1) <= FMC_CLK0_M2C;
 test_clocks(2) <= FMC_CLK1_M2C;
 test_clocks(3) <= FMC_i.EXTCLK;

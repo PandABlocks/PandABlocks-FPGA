@@ -52,33 +52,11 @@ port (
     FIXED_IO_ps_porb    : inout std_logic;
     FIXED_IO_ps_srstb   : inout std_logic;
 
-    -- RS485 Channel 0 Encoder I/O
-    --AM0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    --BM0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    --ZM0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    --AS0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    --BS0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    --ZS0_PAD_IO          : inout std_logic_vector(3 downto 0);
-
-    -- Discrete I/O
-    --TTLIN_PAD_I         : in    std_logic_vector(5 downto 0);
-    --TTLOUT_PAD_O        : out   std_logic_vector(9 downto 0);
-    --LVDSIN_PAD_I        : in    std_logic_vector(1 downto 0);
-    --LVDSOUT_PAD_O       : out   std_logic_vector(1 downto 0);
-
     -- On-board GTX Clock Resources
     GTXCLK0_P           : in    std_logic;
     GTXCLK0_N           : in    std_logic;
     GTXCLK1_P           : in    std_logic;
     GTXCLK1_N           : in    std_logic;
-
-    -- SFPT GTX I/O and GTX
-    --SFP_TX_P            : out   std_logic_vector(2 downto 0) := "ZZZ";
-    --SFP_TX_N            : out   std_logic_vector(2 downto 0) := "ZZZ";
-    --SFP_RX_P            : in    std_logic_vector(2 downto 0);
-    --SFP_RX_N            : in    std_logic_vector(2 downto 0);
-    --SFP_TxDis           : out   std_logic_vector(1 downto 0) := "00";
-    --SFP_LOS             : in    std_logic_vector(1 downto 0);
 
     -- FMC Differential IO and GTX
     FMC_DP0_C2M_P       : out   std_logic := 'Z';
@@ -153,24 +131,6 @@ port (
 	AMC_FP_RX11_P        : in    std_logic;
 	AMC_FP_RX11_N        : in    std_logic
 
-	--PCIe_B112_TX0_P		: out 	std_logic;
-	--PCIe_B112_TX0_N		: out 	std_logic;
-	--PCIe_B112_RX0_P		: in 	std_logic;
-	--PCIe_B112_RX0_N		: in 	std_logic;
-	--PCIe_B112_TX1_P		: out 	std_logic;
-	--PCIe_B112_TX1_N		: out 	std_logic;
-	--PCIe_B112_RX1_P		: in 	std_logic;
-	--PCIe_B112_RX1_N		: in 	std_logic
-		
-    -- External Differential Clock (via front panel SMA)
-    --EXTCLK_P            : in    std_logic;
-    --EXTCLK_N            : in    std_logic;
-
-    -- Slow Controller Serial interface
-    --SPI_SCLK_O          : out std_logic;
-    --SPI_DAT_O           : out std_logic;
-    --SPI_SCLK_I          : in  std_logic;
-    --SPI_DAT_I           : in  std_logic
 );
 end panda_carrier_top;
 
@@ -260,24 +220,6 @@ signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
 -- Top Level Signals
 signal bit_bus              : bit_bus_t := (others => '0');
 signal pos_bus              : pos_bus_t := (others => (others => '0'));
--- Daughter card control signals
-
--- Input Encoder
---signal inenc_val            : std32_array(ENC_NUM-1 downto 0);
---signal inenc_conn           : std_logic_vector(ENC_NUM-1 downto 0);
---signal inenc_a              : std_logic_vector(ENC_NUM-1 downto 0);
---signal inenc_b              : std_logic_vector(ENC_NUM-1 downto 0);
---signal inenc_z              : std_logic_vector(ENC_NUM-1 downto 0);
---signal inenc_data           : std_logic_vector(ENC_NUM-1 downto 0);
-
--- Output Encoder
---signal outenc_clk           : std_logic_vector(ENC_NUM-1 downto 0);
---signal outenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
-
--- Discrete Block Outputs :
---signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
---signal ttlout_val           : std_logic_vector(TTLOUT_NUM-1 downto 0);
---signal lvdsin_val           : std_logic_vector(LVDSIN_NUM-1 downto 0);
 
 signal pcap_active          : std_logic_vector(0 downto 0);
 
@@ -289,21 +231,7 @@ signal rdma_len             : std8_array(5 downto 0);
 signal rdma_data            : std_logic_vector(31 downto 0);
 signal rdma_valid           : std_logic_vector(5 downto 0);
 
---signal A_IN                 : std_logic_vector(ENC_NUM-1 downto 0);
---signal B_IN                 : std_logic_vector(ENC_NUM-1 downto 0);
---signal Z_IN                 : std_logic_vector(ENC_NUM-1 downto 0);
---signal CLK_OUT              : std_logic_vector(ENC_NUM-1 downto 0);
---signal DATA_IN              : std_logic_vector(ENC_NUM-1 downto 0);
---signal A_OUT                : std_logic_vector(ENC_NUM-1 downto 0);
---signal B_OUT                : std_logic_vector(ENC_NUM-1 downto 0);
---signal Z_OUT                : std_logic_vector(ENC_NUM-1 downto 0);
---signal CLK_IN               : std_logic_vector(ENC_NUM-1 downto 0);
---signal DATA_OUT             : std_logic_vector(ENC_NUM-1 downto 0);
---signal OUTPROT              : std3_array(ENC_NUM-1 downto 0);
---signal INPROT               : std3_array(ENC_NUM-1 downto 0);
-
 signal SLOW_FPGA_VERSION    : std_logic_vector(31 downto 0);
---signal DCARD_MODE           : std32_array(ENC_NUM-1 downto 0);
 
 signal q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
 
@@ -319,12 +247,12 @@ signal q0_clk0_fmc_gtrefclk, q0_clk1_fmc_gtrefclk:   std_logic;
 -- AMC Block
 signal AMC_i  : AMC_input_interface;
 signal AMC_o  : AMC_output_interface := AMC_o_init; 
-
 signal q0_clk0_amc_gtrefclk, q0_clk1_amc_gtrefclk, q0_clk2_amc_gtrefclk, q0_clk3_amc_gtrefclk:   std_logic;
+
 attribute syn_noclockbuf : boolean;
 attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
---attribute syn_noclockbuf_amc : boolean;
+
 attribute syn_noclockbuf of q0_clk0_fmc_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk1_fmc_gtrefclk : signal is true;
 
@@ -333,18 +261,6 @@ attribute syn_noclockbuf of q0_clk1_amc_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk2_amc_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk3_amc_gtrefclk : signal is true;
 signal EXTCLK : std_logic;
-
-
---signal sma_pll_locked       : std_logic;
---signal clk_src_sel          : std_logic_vector(1 downto 0);
---signal clk_sel_stat         : std_logic_vector(1 downto 0);
-
---signal slow_tlp   : slow_packet;
-
--- Make schematics a bit more clear for analysis
---attribute keep              : string; -- GBC removed following three lines 14/09/18
---attribute keep of bit_bus    : signal is "true";
---attribute keep of pos_bus    : signal is "true";
 
 begin
 
@@ -403,26 +319,26 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
 ---------------------------------------------------------------------------
 ---- FMC clocks
 ---------------------------------------------------------------------------
---IBUFDS_GTE2
-    ibufds_instq0_clk0_fmc : IBUFDS_GTE2
-    port map
-    (
-        O               =>      q0_clk0_fmc_gtrefclk,
-        ODIV2           =>      open,
-        CEB             =>      '0',
-        I               =>      FMC_CLK0_M2C_P,
-        IB              =>      FMC_CLK0_M2C_N
-    );
---IBUFDS_GTE2
-    ibufds_instq0_clk1_fmc : IBUFDS_GTE2
-    port map
-    (
-        O               =>      q0_clk1_fmc_gtrefclk,
-        ODIV2           =>      open,
-        CEB             =>      '0',
-        I               =>      FMC_CLK1_M2C_P,
-        IB              =>      FMC_CLK1_M2C_N
-    );
+----IBUFDS_GTE2
+--    ibufds_instq0_clk0_fmc : IBUFDS_GTE2
+--    port map
+--    (
+--        O               =>      q0_clk0_fmc_gtrefclk,
+--        ODIV2           =>      open,
+--        CEB             =>      '0',
+--        I               =>      FMC_CLK0_M2C_P,
+--        IB              =>      FMC_CLK0_M2C_N
+--    );
+----IBUFDS_GTE2
+--    ibufds_instq0_clk1_fmc : IBUFDS_GTE2
+--    port map
+--    (
+--        O               =>      q0_clk1_fmc_gtrefclk,
+--        ODIV2           =>      open,
+--        CEB             =>      '0',
+--        I               =>      FMC_CLK1_M2C_P,
+--        IB              =>      FMC_CLK1_M2C_N
+--    );
 ---------------------------------------------------------------------------
 ---- on board clocks
 ---------------------------------------------------------------------------
