@@ -176,14 +176,6 @@ set_property PACKAGE_PIN P28    [get_ports {FMC_HB_N[20]  }];
 set_property PACKAGE_PIN N28    [get_ports {FMC_HB_P[20]  }];
 set_property PACKAGE_PIN P29    [get_ports {FMC_HB_N[21]  }];
 set_property PACKAGE_PIN N29    [get_ports {FMC_HB_P[21]  }];
-set_property PACKAGE_PIN AD9    [get_ports {FMC_CLK0_M2C_N}];
-set_property PACKAGE_PIN AD10   [get_ports {FMC_CLK0_M2C_P}];
-set_property PACKAGE_PIN AA7    [get_ports {FMC_CLK1_M2C_N}];
-set_property PACKAGE_PIN AA8    [get_ports {FMC_CLK1_M2C_P}];
-set_property PACKAGE_PIN N8     [get_ports {GTXCLK0_P	  }];
-set_property PACKAGE_PIN N7     [get_ports {GTXCLK0_N	  }];
-set_property PACKAGE_PIN R8     [get_ports {GTXCLK1_P	  }];
-set_property PACKAGE_PIN R7     [get_ports {GTXCLK1_N	  }];
 
 # IO STANDARD
 set_property IOSTANDARD LVCMOS18   [get_ports FMC_PRSNT     ];
@@ -346,8 +338,46 @@ set_property IOSTANDARD LVCMOS18   [get_ports FMC_HB_N[21]  ];
 set_property IOSTANDARD LVCMOS18   [get_ports FMC_HB_P[21]  ];
 
 # -------------------------------------------------------------------
-# MGT REF CLKS - Bank 112
+# MGT REF CLKS 
 # -------------------------------------------------------------------
+# - Bank 109 & 110 -
+# -------------------------------------------------------------------
+# MGTREFCLK0 of bank 109, on FMC card
+set_property PACKAGE_PIN AD9    [get_ports {FMC_CLK0_M2C_N}];
+set_property PACKAGE_PIN AD10   [get_ports {FMC_CLK0_M2C_P}];
+# MGTREFCLK0 of bank 110, on FMC card (not available on Techway FMC_SFP/+_104)
+set_property PACKAGE_PIN AA7    [get_ports {FMC_CLK1_M2C_N}];
+set_property PACKAGE_PIN AA8    [get_ports {FMC_CLK1_M2C_P}];
+
+# MGTREFCLK1 of bank 109, 125 MHz
+set_property PACKAGE_PIN AF10  [get_ports {GTXCLK0_P	  }];
+set_property PACKAGE_PIN AF9   [get_ports {GTXCLK0_N	  }];
+
+# MGTREFCLK1 of bank 110, 156.25 MHz
+set_property PACKAGE_PIN AC8   [get_ports {GTXCLK1_P	  }];
+set_property PACKAGE_PIN AC7   [get_ports {GTXCLK1_N	  }];
+
+# -------------------------------------------------------------------
+# - Bank 112 -
+# -------------------------------------------------------------------
+# MGTREFCLK0, 100MHz
+set_property PACKAGE_PIN N8       [get_ports {AMC4_7_MGTREFCLK0_P	  }];
+set_property PACKAGE_PIN N7       [get_ports {AMC4_7_MGTREFCLK0_N	  }];
+
+# MGTREFCLK1, 156.25MHz
+set_property PACKAGE_PIN R8       [get_ports {AMC4_7_MGTREFCLK1_P	  }];
+set_property PACKAGE_PIN R7       [get_ports {AMC4_7_MGTREFCLK1_N	  }];
+
+# -------------------------------------------------------------------
+# - Bank 111 -
+# -------------------------------------------------------------------
+# MGTREFCLK0, AMC FCLKA pins
+set_property PACKAGE_PIN U8       [get_ports {AMC8_11_MGTREFCLK0_P	  }];
+set_property PACKAGE_PIN U7       [get_ports {AMC8_11_MGTREFCLK0_N	  }];
+
+# MGTREFCLK1, 125MHz
+set_property PACKAGE_PIN W8        [get_ports {AMC8_11_MGTREFCLK1_P	  }];
+set_property PACKAGE_PIN W7        [get_ports {AMC8_11_MGTREFCLK1_N	  }];
 
 # -------------------------------------------------------------------
 # SFP TX Enable (always)
@@ -384,10 +414,20 @@ set_property IOSTANDARD LVCMOS18   [get_ports FMC_HB_P[21]  ];
 #set_property PULLTYPE PULLDOWN [get_ports TTLIN_PAD_I[*]]
 #set_property PULLTYPE PULLDOWN [get_ports LVDSIN_PAD_I[*]]
 
+# MGT_BANK_109
 set FMC_HPC_GTX0_LOC  GTXE2_CHANNEL_X0Y0
 set FMC_HPC_GTX1_LOC  GTXE2_CHANNEL_X0Y1
 set FMC_HPC_GTX2_LOC  GTXE2_CHANNEL_X0Y2
 set FMC_HPC_GTX3_LOC  GTXE2_CHANNEL_X0Y3
 
-set AMC_GTX0_LOC	  GTXE2_CHANNEL_X0Y12
-set AMC_GTX1_LOC	  GTXE2_CHANNEL_X0Y13
+# MGT_BANK_112
+set AMC_P4_GTX_LOC	  GTXE2_CHANNEL_X0Y15
+set AMC_P5_GTX_LOC	  GTXE2_CHANNEL_X0Y14
+set AMC_P6_GTX_LOC	  GTXE2_CHANNEL_X0Y13
+set AMC_P7_GTX_LOC	  GTXE2_CHANNEL_X0Y12
+
+# MGT_BANK_111
+set AMC_P8_GTX_LOC	  GTXE2_CHANNEL_X0Y11
+set AMC_P9_GTX_LOC	  GTXE2_CHANNEL_X0Y10
+set AMC_P10_GTX_LOC	  GTXE2_CHANNEL_X0Y9
+set AMC_P11_GTX_LOC	  GTXE2_CHANNEL_X0Y8

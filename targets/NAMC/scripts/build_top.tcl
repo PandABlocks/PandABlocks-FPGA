@@ -44,7 +44,7 @@ set_msg_config -id {[Synth 8-2644]} -suppress
 # Elevate critical warnings
 set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 
-#add_files $TARGET_DIR/const/panda-timing.xdc
+add_files $TARGET_DIR/const/panda-timing.xdc
 add_files $TARGET_DIR/const/panda-physical.xdc
 add_files $TARGET_DIR/const/panda-post_synth.xdc
 set_property used_in_synthesis false \
@@ -68,8 +68,9 @@ add_files [glob $AUTOGEN/hdl/*.vhd]
 
 # Read design files
 
-add_files [glob $TOP_DIR/common/hdl/defines/*.vhd]
-add_files [glob $TOP_DIR/common/hdl/*.vhd]
+#add_files [glob $TOP_DIR/common/hdl/defines/*.vhd]
+#add_files [glob $TOP_DIR/common/hdl/*.vhd]
+add_files $TOP_DIR/common/hdl/
 add_files [glob $TARGET_DIR/hdl/*.vhd]
 #add_files [glob $TARGET_DIR/hdl/defines/*.vhd]
 

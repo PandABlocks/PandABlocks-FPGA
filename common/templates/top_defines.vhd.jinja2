@@ -155,27 +155,85 @@ constant SFP_o_init : SFP_output_interface := (TXN_OUT => 'Z',
 
 type AMC_input_interface is
   record
-    GTREFCLK		: std_logic;
-	PCIe_B112_RX0_P	: std_logic;
-	PCIe_B112_RX0_N	: std_logic;
-	PCIe_B112_RX1_P	: std_logic;
-	PCIe_B112_RX1_N	: std_logic;
+    GTREFCLK0           : std_logic;
+    GTREFCLK1           : std_logic;
+    GTREFCLK2           : std_logic;
+    GTREFCLK3           : std_logic;
+    FP_RX4_P            : std_logic;
+    FP_RX4_N            : std_logic;
+    FP_RX5_P            : std_logic;
+    FP_RX5_N            : std_logic;
+    FP_RX6_P            : std_logic;
+    FP_RX6_N            : std_logic;
+    FP_RX7_P            : std_logic;
+    FP_RX7_N            : std_logic;
+    FP_RX8_P            : std_logic;
+    FP_RX8_N            : std_logic;
+    FP_RX9_P            : std_logic;
+    FP_RX9_N            : std_logic;
+    FP_RX10_P           : std_logic;
+    FP_RX10_N           : std_logic;
+    FP_RX11_P           : std_logic;
+    FP_RX11_N           : std_logic;
+
   end record AMC_input_interface;
   
 type AMC_output_interface is
   record
-	PCIe_B112_TX0_P	: std_logic;
-	PCIe_B112_TX0_N	: std_logic;
-	PCIe_B112_TX1_P	: std_logic;
-	PCIe_B112_TX1_N	: std_logic;
+    FP_TX4_P            : std_logic;
+    FP_TX4_N            : std_logic;
+    FP_TX5_P            : std_logic;
+    FP_TX5_N            : std_logic;
+    FP_TX6_P            : std_logic;
+    FP_TX6_N            : std_logic;
+    FP_TX7_P            : std_logic;
+    FP_TX7_N            : std_logic;
+    FP_TX8_P            : std_logic;
+    FP_TX8_N            : std_logic;
+    FP_TX9_P            : std_logic;
+    FP_TX9_N            : std_logic;
+    FP_TX10_P           : std_logic;
+    FP_TX10_N           : std_logic;
+    FP_TX11_P           : std_logic;
+    FP_TX11_N           : std_logic;
   end record AMC_output_interface;
   
-constant AMC_o_init : AMC_output_interface := (PCIe_B112_TX0_P => 'Z',
-											   PCIe_B112_TX0_N => 'Z',
-											   PCIe_B112_TX1_P => 'Z',
-											   PCIe_B112_TX1_N => 'Z'
-											   );
-												
+constant AMC_o_init : AMC_output_interface := (FP_TX4_P => 'Z',
+                                               FP_TX4_N => 'Z',
+                                               FP_TX5_P => 'Z',
+                                               FP_TX5_N => 'Z',
+                                               FP_TX6_P => 'Z',
+                                               FP_TX6_N => 'Z',
+                                               FP_TX7_P => 'Z',
+                                               FP_TX7_N => 'Z',
+                                               FP_TX8_P => 'Z',
+                                               FP_TX8_N => 'Z',
+                                               FP_TX9_P => 'Z',
+                                               FP_TX9_N => 'Z',
+                                               FP_TX10_P => 'Z',
+                                               FP_TX10_N => 'Z',
+                                               FP_TX11_P => 'Z',
+                                               FP_TX11_N => 'Z'
+                                               );
+
+type Eth_phy2clk_interface is
+  record
+    txoutclk             : std_logic;
+    rxoutclk             : std_logic;
+    mmcm_reset           : std_logic;
+end record Eth_phy2clk_interface;
+
+type Eth_clk2phy_interface is
+  record
+    gtrefclk_bufg        : std_logic;
+    mmcm_locked          : std_logic;
+    userclk              : std_logic;
+    userclk2             : std_logic;
+    rxuserclk            : std_logic;
+    rxuserclk2           : std_logic;
+    qplloutclk           : std_logic;
+    qplloutrefclk        : std_logic;
+end record Eth_clk2phy_interface;
 
 type seq_t is
 record
