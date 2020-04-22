@@ -84,8 +84,6 @@ signal FMC_CLK1_M2C         : std_logic;
 signal FREQ_VAL             : std32_array(3 downto 0);
 signal GTREFCLK             : std_logic;
 signal FMC_PRSNT_DW         : std_logic_vector(31 downto 0);
-signal MAC_LO           	: std_logic_vector(31 downto 0);
-signal MAC_HI           	: std_logic_vector(31 downto 0);
 signal SOFT_RESET           : std_logic;
 signal LOOP_PERIOD_WSTB     : std_logic;
 signal LOOP_PERIOD          : std_logic_vector(31 downto 0);
@@ -296,9 +294,6 @@ port map (
 ---------------------------------------------------------------------------
 FMC_PRSNT_DW <= ZEROS(31) & FMC_i.FMC_PRSNT;
 
-MAC_HI(23 downto 0) <= FMC_i.MAC_ADDR(47 downto 24);
-MAC_LO(23 downto 0) <= FMC_i.MAC_ADDR(23 downto 0);
-
 fmc_ctrl : entity work.fmc_hpc_loopback_ctrl
 port map (
     -- Clock and Reset
@@ -324,8 +319,6 @@ port map (
     FMC_CLK0            => FREQ_VAL(1),
     FMC_CLK1            => FREQ_VAL(2),
     EXT_CLK             => FREQ_VAL(3),
-	FMC_MAC_LO          => MAC_LO,
-    FMC_MAC_HI          => MAC_HI,
     SOFT_RESET          => open,
     SOFT_RESET_WSTB     => SOFT_RESET,
     LOOP_PERIOD         => LOOP_PERIOD,
