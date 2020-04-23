@@ -52,9 +52,7 @@ end fmc_hpc_sfp_lback_wrapper;
 
 architecture rtl of fmc_hpc_sfp_lback_wrapper is
 
-signal probe0               : std_logic_vector(31 downto 0);
 signal clock_en             : std_logic;
-signal test_clocks          : std_logic_vector(3 downto 0);
 signal LINK_UP_1            : std_logic_vector(31 downto 0);
 signal LINK_UP_2            : std_logic_vector(31 downto 0);
 signal LINK_UP_3            : std_logic_vector(31 downto 0);
@@ -86,22 +84,13 @@ signal SEL_RATE_WSTB   	    : std_logic;
 signal APPLY_SFP			: std_logic;
 signal APPLY_FREQ     		: std_logic;
 signal FREQUENCY_VALUE      : std_logic_vector(31 downto 0);
-signal BUSY        			: std_logic_vector(31 downto 0); 
-signal END_TRANSFER			: std_logic_vector(31 downto 0);
-signal ERROR_STATUS			: std_logic_vector(31 downto 0);
-signal FMC_CLK0_M2C         : std_logic;
-signal FMC_CLK1_M2C         : std_logic;
-signal FREQ_VAL             : std32_array(3 downto 0);
-signal GTREFCLK             : std_logic;
+signal I2C_BUSY        			: std_logic_vector(31 downto 0); 
+signal I2C_END_TRANSFER			: std_logic_vector(31 downto 0);
+signal I2C_ERROR_STATUS			: std_logic_vector(31 downto 0);
 signal FMC_PRSNT_DW         : std_logic_vector(31 downto 0);
-signal MAC_LO           	: std_logic_vector(31 downto 0);
-signal MAC_HI           	: std_logic_vector(31 downto 0);
 signal SOFT_RESET           : std_logic;
 signal LOOP_PERIOD_WSTB     : std_logic;
 signal LOOP_PERIOD          : std_logic_vector(31 downto 0);
-
-attribute MARK_DEBUG        : string;
-attribute MARK_DEBUG of probe0  : signal is "true";
 
 component I2C_Status is
   port (
@@ -191,7 +180,7 @@ port map (
 fmcgtx_exdes_i1 : entity work.fmcgtx_exdes
 port map (
     Q0_CLK1_GTREFCLK_PAD_IN     => FMC_i.GTREFCLK,
-    GTREFCLK                    => GTREFCLK,
+    GTREFCLK                    => open,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
     TRACK_DATA_OUT              => LINK_UP_1,
@@ -317,9 +306,9 @@ port map(
     FREQUENCY_VALUE   => FREQUENCY_VALUE(14 downto 0),   	--: in  std_logic_vector(14 downto 0);    -- Frequency value by step of 10KHz, frequency range from 5000(dec) (50MHz) to 28000(dec) (280MHz)
   
   -- Status
-	BUSY              => BUSY(0),              	--: out std_logic;                        -- Assign high when the controller is busy
-	END_TRANSFER      => END_TRANSFER(0),      	--: out std_logic;                        -- Assign high during one clock cycle when a complete access (Rd or Wr) has been performed
-	ERROR_STATUS      => ERROR_STATUS(1 downto 0),      	--: out std_logic_vector(1 downto 0);     -- Error code assigned during the END_TRANSFER. 0 => no Error, 1 => Access I2C error, 2 => EEPROM integrity error, 3 => FREQUENCY_VALUE is out of range
+	BUSY              => I2C_BUSY(0),              	--: out std_logic;                        -- Assign high when the controller is busy
+	END_TRANSFER      => I2C_END_TRANSFER(0),      	--: out std_logic;                        -- Assign high during one clock cycle when a complete access (Rd or Wr) has been performed
+	ERROR_STATUS      => I2C_ERROR_STATUS(1 downto 0),      	--: out std_logic_vector(1 downto 0);     -- Error code assigned during the END_TRANSFER. 0 => no Error, 1 => Access I2C error, 2 => EEPROM integrity error, 3 => FREQUENCY_VALUE is out of range
 	                                  
   -- I2C interface          
     I2C_SCL           => FMC_HB21_N,         	-- I2C Clock
@@ -328,34 +317,17 @@ port map(
     I2C_SDA_OE        => I2C_SDA_OE_C         	-- I2C Data oe (set high to output otherwise output is Z)
 );
 APPLY_SFP <= SEL_RATE_WSTB or TX_DISABLE_1_WSTB or TX_DISABLE_2_WSTB or TX_DISABLE_3_WSTB;
-BUSY(31 downto 1) 			<= ZEROS(31);
-END_TRANSFER(31 downto 1)	<= ZEROS(31);
-ERROR_STATUS(31 downto 2)	<= ZEROS(30);
+I2C_BUSY(31 downto 1) 			<= ZEROS(31);
+I2C_END_TRANSFER(31 downto 1)	<= ZEROS(31);
+I2C_ERROR_STATUS(31 downto 2)	<= ZEROS(30);
 
----------------------------------------------------------------------------
--- FMC Clocks Frequency Counter
----------------------------------------------------------------------------
-test_clocks(0) <= GTREFCLK;
-test_clocks(1) <= FMC_CLK0_M2C;
-test_clocks(2) <= FMC_CLK1_M2C;
-test_clocks(3) <= FMC_i.EXTCLK;
-
-freq_counter_inst : entity work.freq_counter
-generic map ( NUM => 4)
-port map (
-    refclk          => clk_i,
-    reset           => reset_i,
-    test_clocks     => test_clocks,
-    freq_out        => FREQ_VAL
-);
-
+SEL_RATE <= ZEROS(32);
+FREQUENCY_VALUE <= ZEROS(32);
+APPLY_FREQ <= '0';
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
 FMC_PRSNT_DW <= ZEROS(31) & FMC_i.FMC_PRSNT;
-
-MAC_HI(23 downto 0) <= FMC_i.MAC_ADDR(47 downto 24);
-MAC_LO(23 downto 0) <= FMC_i.MAC_ADDR(23 downto 0);
 
 fmc_ctrl : entity work.fmc_hpc_sfp_lback_ctrl
 port map (
@@ -380,19 +352,8 @@ port map (
     TX_DISABLE_2_WSTB	=> TX_DISABLE_2_WSTB,
     TX_DISABLE_3		=> TX_DISABLE_3,
     TX_DISABLE_3_WSTB	=> TX_DISABLE_3_WSTB,
-    SEL_RATE			=> SEL_RATE,
-    SEL_RATE_WSTB	    => SEL_RATE_WSTB,    
-    FREQUENCY_VALUE     => FREQUENCY_VALUE,
-    FREQUENCY_VALUE_WSTB=> APPLY_FREQ,
-    BUSY				=> BUSY,
-    END_TRANSFER		=> END_TRANSFER,
-    ERROR_STATUS		=> ERROR_STATUS,
-    GTREFCLK            => FREQ_VAL(0),
-    FMC_CLK0            => FREQ_VAL(1),
-    FMC_CLK1            => FREQ_VAL(2),
-    EXT_CLK             => FREQ_VAL(3),
-	FMC_MAC_LO          => MAC_LO,
-    FMC_MAC_HI          => MAC_HI,
+    I2C_BUSY				=> I2C_BUSY,
+    I2C_ERROR_STATUS		=> I2C_ERROR_STATUS,
     SOFT_RESET          => open,
     SOFT_RESET_WSTB     => SOFT_RESET,
     LOOP_PERIOD         => LOOP_PERIOD,
