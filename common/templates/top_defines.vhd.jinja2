@@ -155,10 +155,10 @@ constant SFP_o_init : SFP_output_interface := (TXN_OUT => 'Z',
 
 type AMC_input_interface is
   record
-    GTREFCLK0           : std_logic;
-    GTREFCLK1           : std_logic;
-    GTREFCLK2           : std_logic;
-    GTREFCLK3           : std_logic;
+    P4_7_GTREFCLK0      : std_logic;
+    P4_7_GTREFCLK1      : std_logic;
+    P8_11_GTREFCLK0     : std_logic;
+    P8_11_GTREFCLK1     : std_logic;
     FP_RX4_P            : std_logic;
     FP_RX4_N            : std_logic;
     FP_RX5_P            : std_logic;

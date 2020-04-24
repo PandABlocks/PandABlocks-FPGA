@@ -76,7 +76,7 @@ port (
     FMC_DP3_M2C_P       : in    std_logic;
     FMC_DP3_M2C_N       : in    std_logic;
 
-    FMC_PRSNT           : in    std_logic;
+    --FMC_PRSNT           : in    std_logic; -- not routed on namc fpga
     FMC_LA_P            : inout std_logic_vector(33 downto 0) := (others => 'Z');
     FMC_LA_N            : inout std_logic_vector(33 downto 0) := (others => 'Z');
     FMC_HA_P            : inout std_logic_vector(21 downto 0) := (others => 'Z');
@@ -247,7 +247,7 @@ signal q0_clk0_fmc_gtrefclk, q0_clk1_fmc_gtrefclk:   std_logic;
 -- AMC Block
 signal AMC_i  : AMC_input_interface;
 signal AMC_o  : AMC_output_interface := AMC_o_init; 
-signal q0_clk0_amc_gtrefclk, q0_clk1_amc_gtrefclk, q0_clk2_amc_gtrefclk, q0_clk3_amc_gtrefclk:   std_logic;
+signal AMC4_7_MGTREFCLK0, AMC4_7_MGTREFCLK1, AMC8_11_MGTREFCLK0, AMC8_11_MGTREFCLK1:   std_logic;
 
 attribute syn_noclockbuf : boolean;
 attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
@@ -256,11 +256,12 @@ attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk0_fmc_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk1_fmc_gtrefclk : signal is true;
 
-attribute syn_noclockbuf of q0_clk0_amc_gtrefclk : signal is true;
-attribute syn_noclockbuf of q0_clk1_amc_gtrefclk : signal is true;
-attribute syn_noclockbuf of q0_clk2_amc_gtrefclk : signal is true;
-attribute syn_noclockbuf of q0_clk3_amc_gtrefclk : signal is true;
+attribute syn_noclockbuf of AMC4_7_MGTREFCLK0 : signal is true;
+attribute syn_noclockbuf of AMC4_7_MGTREFCLK1 : signal is true;
+attribute syn_noclockbuf of AMC8_11_MGTREFCLK0 : signal is true;
+attribute syn_noclockbuf of AMC8_11_MGTREFCLK1 : signal is true;
 signal EXTCLK : std_logic;
+signal FMC_PRSNT : std_logic;
 
 begin
 
@@ -276,7 +277,7 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
     ibufds_instq0_clk0_amc : IBUFDS_GTE2
     port map
     (
-        O               =>      q0_clk0_amc_gtrefclk,
+        O               =>      AMC4_7_MGTREFCLK0,
         ODIV2           =>      open,
         CEB             =>      '0',
         I               =>      AMC4_7_MGTREFCLK0_P,
@@ -287,7 +288,7 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
     ibufds_instq0_clk1_amc : IBUFDS_GTE2
     port map
     (
-        O               =>      q0_clk1_amc_gtrefclk,
+        O               =>      AMC4_7_MGTREFCLK1,
         ODIV2           =>      open,
         CEB             =>      '0',
         I               =>      AMC4_7_MGTREFCLK1_P,
@@ -298,7 +299,7 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
     ibufds_instq0_clk2_amc : IBUFDS_GTE2
     port map
     (
-        O               =>      q0_clk2_amc_gtrefclk,
+        O               =>      AMC8_11_MGTREFCLK0,
         ODIV2           =>      open,
         CEB             =>      '0',
         I               =>      AMC8_11_MGTREFCLK0_P,
@@ -309,7 +310,7 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
     ibufds_instq0_clk3_amc : IBUFDS_GTE2
     port map
     (
-        O               =>      q0_clk3_amc_gtrefclk,
+        O               =>      AMC8_11_MGTREFCLK1,
         ODIV2           =>      open,
         CEB             =>      '0',
         I               =>      AMC8_11_MGTREFCLK1_P,
@@ -645,7 +646,7 @@ bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active;
 
 --pos_bus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
 
-
+FMC_PRSNT <= '1'; -- FMC_PRSNT not routed on fpga
 -- Assemble FMC records
 FMC_i.EXTCLK 			<= EXTCLK;
 FMC_i.FMC_PRSNT 		<= FMC_PRSNT;
@@ -697,10 +698,10 @@ AMC_i.FP_RX10_N			<= AMC_FP_RX10_N;
 AMC_i.FP_RX11_P			<= AMC_FP_RX11_P;
 AMC_i.FP_RX11_N			<= AMC_FP_RX11_N;
 
-AMC_i.GTREFCLK0			<= q0_clk0_amc_gtrefclk;
-AMC_i.GTREFCLK1			<= q0_clk1_amc_gtrefclk;
-AMC_i.GTREFCLK2			<= q0_clk2_amc_gtrefclk;
-AMC_i.GTREFCLK3			<= q0_clk3_amc_gtrefclk;
+AMC_i.P4_7_GTREFCLK0	<= AMC4_7_MGTREFCLK0;
+AMC_i.P4_7_GTREFCLK1	<= AMC4_7_MGTREFCLK1;
+AMC_i.P8_11_GTREFCLK0	<= AMC8_11_MGTREFCLK0;
+AMC_i.P8_11_GTREFCLK1	<= AMC8_11_MGTREFCLK1;
 
 AMC_FP_TX4_P			<= AMC_o.FP_TX4_P;
 AMC_FP_TX4_N			<= AMC_o.FP_TX4_N;

@@ -251,7 +251,7 @@ port map (
     );
 
 FMC_gtrefclk<=FMC_i.GTREFCLK;
-AMC_gtrefclk<=AMC_i.GTREFCLK3;
+AMC_gtrefclk<=AMC_i.P8_11_GTREFCLK0;
 
 ---------------------------------------------------------------------------
 -- Ethernet phy to phy link 
@@ -414,7 +414,7 @@ eth_phy_clocking_i2: eth_phy_clocking
 port map (
     clk_i              => clk_i,
     pma_reset_i        => pma_reset,
-    gtrefclk_i         => AMC_i.GTREFCLK3,
+    gtrefclk_i         => AMC_gtrefclk,
     eth_phy_clk_i      => AMC_eth_phy2clk,
     eth_phy_clk_o      => AMC_eth_clk2phy
     
