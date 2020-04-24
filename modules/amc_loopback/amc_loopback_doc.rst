@@ -1,5 +1,5 @@
-AMC loopback with NAMC-ZYNC-FMC card (port 8-11)
-==================================
+AMC_LOOPBACK - AMC loopback with NAMC-ZYNC-FMC card (port 8-11)
+=======================================================================================
 
 Fields
 ------

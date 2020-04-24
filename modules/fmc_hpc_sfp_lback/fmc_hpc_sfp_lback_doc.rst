@@ -1,5 +1,5 @@
-FMC_HPC_SFP_LBACK - SFP Loopback Module for FMC_NAMC
-==================================
+FMC_HPC_SFP_LBACK - FMC-SFP Loopback Module
+=======================================================================
 
 Fields
 ------

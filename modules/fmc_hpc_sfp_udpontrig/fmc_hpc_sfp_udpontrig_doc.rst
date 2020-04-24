@@ -1,5 +1,5 @@
-FMC_HPC_SFP_UDPONTRIG - SFP UDP on trig Module
-======================================
+FMC_HPC_SFP_UDPONTRIG - FMC-SFP UDPonTrig Module
+=======================================================================
 
 Fields
 ------
