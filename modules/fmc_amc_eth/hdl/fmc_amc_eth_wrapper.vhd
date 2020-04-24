@@ -251,7 +251,7 @@ port map (
     );
 
 FMC_gtrefclk<=FMC_i.GTREFCLK;
-AMC_gtrefclk<=AMC_i.P8_11_GTREFCLK0;
+AMC_gtrefclk<=AMC_i.P8_11_GTREFCLK1;
 
 ---------------------------------------------------------------------------
 -- Ethernet phy to phy link 
