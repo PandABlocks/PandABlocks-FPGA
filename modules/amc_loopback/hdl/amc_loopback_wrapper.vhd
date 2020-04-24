@@ -51,17 +51,8 @@ end amc_loopback_wrapper;
 
 architecture rtl of amc_loopback_wrapper is
 
-signal probe0               : std_logic_vector(31 downto 0);
-signal clock_en             : std_logic;
-signal test_clocks          : std_logic_vector(3 downto 0);
-signal FREQ_VAL             : std32_array(3 downto 0);
-signal GTREFCLK             : std_logic;
-signal FMC_PRSNT_DW         : std_logic_vector(31 downto 0);
-signal MAC_LO           	: std_logic_vector(31 downto 0);
-signal MAC_HI           	: std_logic_vector(31 downto 0);
+signal AMC_gtrefclk         : std_logic;
 signal SOFT_RESET           : std_logic;
-signal LOOP_PERIOD_WSTB     : std_logic;
-signal LOOP_PERIOD          : std_logic_vector(31 downto 0);
 signal LINK_UP_1            : std_logic_vector(31 downto 0);
 signal LINK_UP_2            : std_logic_vector(31 downto 0);
 signal LINK_UP_3            : std_logic_vector(31 downto 0);
@@ -70,10 +61,6 @@ signal ERROR_COUNT_1        : std_logic_vector(31 downto 0);
 signal ERROR_COUNT_2        : std_logic_vector(31 downto 0);
 signal ERROR_COUNT_3        : std_logic_vector(31 downto 0);
 signal ERROR_COUNT_4        : std_logic_vector(31 downto 0);
-
-attribute MARK_DEBUG        : string;
-attribute MARK_DEBUG of probe0  : signal is "true";
-
 
 begin
 
@@ -89,23 +76,13 @@ port map (
     DELAY_i     => RD_ADDR2ACK
 );
 
--- Multiplex read data out from multiple instantiations
-
--- Generate prescaled clock for internal counter
-frame_presc : entity work.prescaler
-port map (
-    clk_i       => clk_i,
-    reset_i     => LOOP_PERIOD_WSTB,
-    PERIOD      => LOOP_PERIOD,
-    pulse_o     => clock_en
-);
-
+AMC_gtrefclk<=AMC_i.P8_11_GTREFCLK0;
 ---------------------------------------------------------------------------
--- PCIe Loopback Test
+-- AMC FAT PIPE Port 8-11 Loopback Test
 ---------------------------------------------------------------------------
 amcgtx_exdes_i1 : entity work.amcgtx2_exdes
 port map (
-    Q0_CLK1_GTREFCLK_PAD_IN     => AMC_i.GTREFCLK3,
+    Q0_CLK1_GTREFCLK_PAD_IN     => AMC_gtrefclk,
     GTREFCLK                    => open,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
@@ -118,7 +95,7 @@ port map (
 );
 amcgtx_exdes_i2 : entity work.amcgtx2_exdes
 port map (
-    Q0_CLK1_GTREFCLK_PAD_IN     => AMC_i.GTREFCLK3,
+    Q0_CLK1_GTREFCLK_PAD_IN     => AMC_gtrefclk,
     GTREFCLK                    => open,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
@@ -131,7 +108,7 @@ port map (
 );
 amcgtx_exdes_i3 : entity work.amcgtx2_exdes
 port map (
-    Q0_CLK1_GTREFCLK_PAD_IN     => AMC_i.GTREFCLK3,
+    Q0_CLK1_GTREFCLK_PAD_IN     => AMC_gtrefclk,
     GTREFCLK                    => open,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
@@ -144,7 +121,7 @@ port map (
 );
 amcgtx_exdes_i4 : entity work.amcgtx2_exdes
 port map (
-    Q0_CLK1_GTREFCLK_PAD_IN     => AMC_i.GTREFCLK3,
+    Q0_CLK1_GTREFCLK_PAD_IN     => AMC_gtrefclk,
     GTREFCLK                    => open,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
@@ -166,8 +143,6 @@ port map (
     -- Block Parameters
     SOFT_RESET          => open,
     SOFT_RESET_WSTB     => SOFT_RESET,
-    LOOP_PERIOD         => LOOP_PERIOD,
-    LOOP_PERIOD_WSTB    => LOOP_PERIOD_WSTB,
     LINK_UP_1			=> LINK_UP_1,
     LINK_UP_2			=> LINK_UP_2,
     LINK_UP_3			=> LINK_UP_3,
