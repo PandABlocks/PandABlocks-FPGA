@@ -153,7 +153,7 @@ set_property -dict [list \
 generate_target all [get_files $BUILD_DIR/sfpgtx/sfpgtx.xci]
 synth_ip [get_ips sfpgtx]
 #
-# Create Eth Phy for sfp
+# Create Eth Phy for sfp or AMC fat pipe
 #
 
 create_ip -name gig_ethernet_pcs_pma -vendor xilinx.com -library ip -version 15.0 \
