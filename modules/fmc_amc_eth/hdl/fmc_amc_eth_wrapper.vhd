@@ -25,7 +25,6 @@ use work.support.all;
 use work.top_defines.all;
 
 entity fmc_amc_eth_wrapper is
-generic ( DEBUG : string := "FALSE" );
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -114,6 +113,22 @@ port (
     trig_i              : in  std_logic;
     carry_o             : out std_logic;
     cnt_o               : out std_logic_vector(31 downto 0)
+);
+end component;
+
+component pulsecnt_v is
+generic (
+    trig_num            : positive := 1
+);
+port (
+    -- Clock and Reset
+    clk_i               : in  std_logic;
+    reset_i             : in  std_logic;
+    -- Block Input and Outputs
+    SOFT_RESET_i        : in  std_logic;
+    trig_v_i            : in  std_logic_vector(trig_num-1 downto 0);
+    carry_v_o           : out std_logic_vector(trig_num-1 downto 0);
+    cnt_v_o             : out std32_array(trig_num-1 downto 0)
 );
 end component;
 
@@ -239,6 +254,9 @@ signal DATA_F2A_EN       : std_logic_vector(3 downto 0);
 signal DATA_F2A_ER       : std_logic_vector(3 downto 0);
 signal DATA_F2A_CNT      : std32_array(3 downto 0);
 signal DATA_F2A_ER_CNT   : std32_array(3 downto 0);
+
+signal DATA_TRIG         : std_logic_vector(4*4-1 downto 0);
+signal DATA_CNT          : std32_array(4*4-1 downto 0);
 
 begin
 read_ack_delay : entity work.delay_line
@@ -424,51 +442,22 @@ port map (
 ---------------------------------------------------------------------------
 -- SFP Clocks Frequency Counter
 ----------------------------------------------------------
-f2a_data_cnt_i: pulsecnt
-port map(
-    -- Clock and Reset
-    clk_i               => clk_i,
-    reset_i             => reset_i,
-    -- Block Input and Outputs
-    SOFT_RESET_i        => SOFT_RESET_holded,
-    trig_i              => DATA_F2A_EN(0),
-    carry_o             => open,
-    cnt_o               => DATA_F2A_CNT(0)
-    );
-f2a_data_errcnt_i: pulsecnt
-port map(
-    -- Clock and Reset
-    clk_i               => clk_i,
-    reset_i             => reset_i,
-    -- Block Input and Outputs
-    SOFT_RESET_i        => SOFT_RESET_holded,
-    trig_i              => DATA_F2A_ER(0),
-    carry_o             => open,
-    cnt_o               => DATA_F2A_ER_CNT(0)
-    );
+DATA_TRIG <= DATA_F2A_EN & DATA_A2F_EN & DATA_F2A_ER & DATA_A2F_ER;
+DATA_CNT <= DATA_F2A_CNT & DATA_A2F_CNT & DATA_F2A_ER_CNT & DATA_A2F_ER_CNT;
 
-a2f_data_cnt_i: pulsecnt
+data_cnt_i: pulsecnt_v
+generic map(trig_num => 4*4)
 port map(
     -- Clock and Reset
     clk_i               => clk_i,
     reset_i             => reset_i,
     -- Block Input and Outputs
     SOFT_RESET_i        => SOFT_RESET_holded,
-    trig_i              => DATA_A2F_EN(0),
-    carry_o             => open,
-    cnt_o               => DATA_A2F_CNT(0)
+    trig_v_i            => DATA_TRIG,
+    carry_v_o           => open,
+    cnt_v_o             => DATA_CNT
     );
-a2f_data_errcnt_i: pulsecnt
-port map(
-    -- Clock and Reset
-    clk_i               => clk_i,
-    reset_i             => reset_i,
-    -- Block Input and Outputs
-    SOFT_RESET_i        => SOFT_RESET_holded,
-    trig_i              => DATA_A2F_ER(0),
-    carry_o             => open,
-    cnt_o               => DATA_A2F_ER_CNT(0)
-    );
+    
 ---------------------------------------------------------------------------
 -- SOFT_RESET_holded Counter
 ---------------------------------------------------------------------------
@@ -625,9 +614,17 @@ port map (
     AMC_PHY10_STATUS		=> AMC_PHY_STATUS(2),
     AMC_PHY11_STATUS		=> AMC_PHY_STATUS(3),
     DATA_A2F_CNT_1			=> DATA_A2F_CNT(0),
-    DATA_A2F_ER_CNT_1		=> DATA_A2F_ER_CNT(0),
+    DATA_A2F_ERCNT_1		=> DATA_A2F_ER_CNT(0),
     DATA_F2A_CNT_1			=> DATA_F2A_CNT(0),
-    DATA_F2A_ER_CNT_1		=> DATA_F2A_ER_CNT(0),
+    DATA_F2A_ERCNT_1		=> DATA_F2A_ER_CNT(0),
+    DATA_A2F_CNT_2			=> DATA_A2F_CNT(1),
+    DATA_A2F_ERCNT_2		=> DATA_A2F_ER_CNT(1),
+    DATA_F2A_CNT_2			=> DATA_F2A_CNT(1),
+    DATA_F2A_ERCNT_2		=> DATA_F2A_ER_CNT(1),
+    DATA_A2F_CNT_3			=> DATA_A2F_CNT(2),
+    DATA_A2F_ERCNT_3		=> DATA_A2F_ER_CNT(2),
+    DATA_F2A_CNT_3			=> DATA_F2A_CNT(2),
+    DATA_F2A_ERCNT_3		=> DATA_F2A_ER_CNT(2),
     -- Memory Bus Interface
     read_strobe_i           => read_strobe_i,
     read_address_i          => read_address_i(BLK_AW-1 downto 0),
