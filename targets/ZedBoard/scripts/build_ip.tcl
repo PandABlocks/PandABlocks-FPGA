@@ -21,7 +21,7 @@ set_property target_simulator ModelSim [current_project]
 #
 # Create PULSE_QUEUE IP
 #
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == fifo_generator}]\
 -module_name pulse_queue -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -38,7 +38,7 @@ synth_ip [get_ips pulse_queue]
 #
 # Create Standard 1Kx32-bit FIFO IP
 #
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == fifo_generator}] \
 -module_name fifo_1K32 -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -54,7 +54,7 @@ synth_ip [get_ips fifo_1K32]
 #
 # Create Standard 1Kx32-bit first word fall through FIFO IP
 #
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == fifo_generator}] \
 -module_name fifo_1K32_ft -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -72,7 +72,7 @@ synth_ip [get_ips fifo_1K32_ft]
 #
 # Create Standard Asymmetric 1K, 32-bit(WR), 256-bit(RD) FIFO IP for ACQ430 FMC
 #
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == fifo_generator}] \
 -module_name fmc_acq430_ch_fifo -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -97,7 +97,7 @@ synth_ip [get_ips fmc_acq430_ch_fifo]
 #
 # Create low level ACQ430 FMC Sample RAM
 #
-create_ip -name dist_mem_gen -vendor xilinx.com -library ip -version 8.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == dist_mem_gen}] \
 -module_name fmc_acq430_sample_ram -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -114,7 +114,7 @@ synth_ip [get_ips fmc_acq430_sample_ram]
 #
 # Create Standard Asymmetric 1K, 128-bit(WR), 32-bit(RD) FIFO IP for ACQ427 DAC FMC
 #
-create_ip -name fifo_generator -vendor xilinx.com -library ip -version 12.0 \
+create_ip -vlnv [get_ipdefs -filter {NAME == fifo_generator}] \
 -module_name fmc_acq427_dac_fifo -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -140,7 +140,7 @@ synth_ip [get_ips fmc_acq427_dac_fifo]
 
 #
 # Create ILA chipscope
-create_ip -name ila -vendor xilinx.com -library ip -version 5.1 \
+create_ip -vlnv [get_ipdefs -filter {NAME == ila}] \
 -module_name ila_0 -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -164,7 +164,7 @@ synth_ip [get_ips ila_0]
 # OLED display on ZedBoard
 # 
 
-create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.2 \
+create_ip -vlnv [get_ipdefs -filter {NAME == blk_mem_gen}] \
 -module_name charLib -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -187,7 +187,7 @@ set_property -dict [list \
 generate_target all [get_files $BUILD_DIR/charLib/charLib.xci]
 synth_ip [get_ips charLib]
 
-create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.2 \
+create_ip -vlnv [get_ipdefs -filter {NAME == blk_mem_gen}] \
 -module_name pixel_buffer -dir $BUILD_DIR/
 
 set_property -dict [list \
@@ -211,7 +211,7 @@ set_property -dict [list \
 generate_target all [get_files  $BUILD_DIR/pixel_buffer/pixel_buffer.xci]
 synth_ip [get_ips pixel_buffer]
 
-create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.2 \
+create_ip -vlnv [get_ipdefs -filter {NAME == blk_mem_gen}] \
 -module_name init_sequence_rom -dir $BUILD_DIR/
 
 set_property -dict [list \
