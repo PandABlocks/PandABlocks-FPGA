@@ -1,0 +1,45 @@
+#!/bin/sh
+
+# Script to load Panda FPGA image
+
+# This is called directly by the /opt/etc/init.d/panda-server script and relies
+# on panda-server being installed
+
+# File locations
+carrier_firmware=/opt/share/panda-fpga/panda_top.bit
+check_ipmi=/opt/bin/check_ipmi
+
+# This GPIO is used by PicoZed revision C to multiplex pins PS_MIO[15:9] between
+# EMMC IO pins and GPIO pins.  For PandA we use these pins for programming the
+# slow FPGA and for access to the I2C bus.
+GPIO_M0=906
+
+
+fail()
+{
+    echo >&2 "$@"
+    exit 1
+}
+
+# This function is needed on the revision C version of the PioZed to enable
+# access to the I2C
+configure_gpio_m0()
+{
+    echo $GPIO_M0 >/sys/class/gpio/export  &&
+    echo out >/sys/class/gpio/gpio$GPIO_M0/direction  &&
+    echo 1 >/sys/class/gpio/gpio$GPIO_M0/value  &&
+    echo $GPIO_M0 >/sys/class/gpio/unexport
+}
+
+
+[ -e $carrier_firmware ]  ||
+    fail "Firmware not installed"
+
+# Ensure I2C is accessible
+configure_gpio_m0  &&
+
+# Check whether the FMC IPMI configuration matches that expected by the FPGA
+$check_ipmi  &&
+
+# If FMC passes then load the carrier firmware
+cat $carrier_firmware >/dev/xdevcfg
