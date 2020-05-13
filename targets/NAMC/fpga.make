@@ -100,7 +100,6 @@ carrier_fpga : $(TOP_BUILD_SCR) VERSION $(IP_DIR) $(PS_CORE)
 #	$(MAKE) -f $<  DEVICE_TREE_DTB=$(DEVTREE_DTB)
 
 $(DEVTREE_DTB): $(SDK_EXPORT)
-	# cp $(TARGET_DIR)/configs/device-tree/xilinx-v2015.1/pzed-z7030/system-top.dts \
 	cp $(TARGET_DIR)/configs/device-tree/xilinx-v2015.1/namc-z7045/system-top.dts \
 	  $</device_tree_bsp_0/
 	sed -i '/dts-v1/d' $</device_tree_bsp_0/system.dts

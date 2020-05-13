@@ -30,7 +30,32 @@ set_property "target_language" "VHDL" $obj
 
 # Create block design
 # (THIS is exported from Vivado design tool)
-source $TARGET_DIR/bd/panda_ps.tcl
+set scripts_vivado_version 2015.1
+set scripts_vivado_version_2015_2_1 2015.2.1
+set scripts_vivado_version_2018_3_1 2018.3.1
+set current_vivado_version [version -short]
+
+if { [string first $scripts_vivado_version $current_vivado_version] == -1 || [string first $scripts_vivado_version_2015_2_1 $current_vivado_version] == -1 } {
+   if { [string first $scripts_vivado_version_2015_2_1 $current_vivado_version] == 0 } {
+      puts ""
+      puts "INFO : current vivado version is <$current_vivado_version> using Vivado <$scripts_vivado_version_2015_2_1> script"
+      source $TARGET_DIR/bd/panda_ps.tcl
+   } elseif { [string first $scripts_vivado_version $current_vivado_version] == 0 } {
+      puts ""
+      puts "INFO : current vivado version is <$current_vivado_version> using Vivado <$scripts_vivado_version> script"
+      source $TARGET_DIR/bd/panda_ps.tcl
+   } elseif { [string first $scripts_vivado_version_2018_3_1 $current_vivado_version] == 0 } {
+      puts ""
+      puts "INFO : current vivado version is <$current_vivado_version> using Vivado <$scripts_vivado_version_2018_3_1> script"
+      source $TARGET_DIR/bd/panda_ps_vivado2018.3.tcl
+   } else {
+      puts ""
+      puts "ERROR: This script was generated using Vivado <$scripts_vivado_version_2018_3_1>, <$scripts_vivado_version_2015_2_1> or <$scripts_vivado_version> and is being run in <$current_vivado_version> of Vivado. Please run the script in Vivado <$scripts_vivado_version> then open the design in Vivado <$current_vivado_version>. Upgrade the design by running \"Tools => Report => Report IP Status...\", then run write_bd_tcl to create an updated script."
+      
+      return 1
+   }
+}
+
 
 # Exit script here if gui mode - i.e. if running 'make edit_ps_bd'
 if {[string match "gui" [string tolower $MODE]]} { return }
@@ -50,13 +75,13 @@ set_property "top" "panda_ps_wrapper" $obj
 
 # Generate Output Files
 generate_target all [get_files $OUTPUT_FILE]
-#open_bd_design $OUTPUT_FILE
+open_bd_design $OUTPUT_FILE
 
 # Export to SDK
-#file mkdir $BUILD_DIR/panda_ps.sdk
-#write_hwdef -force -file $BUILD_DIR/panda_ps_wrapper.hdf
+file mkdir $BUILD_DIR/panda_ps.sdk
+write_hwdef -force -file $BUILD_DIR/panda_ps_wrapper.hdf
 
 # Close block design and project
-#close_bd_design panda_ps
+close_bd_design panda_ps
 close_project
 exit

@@ -46,6 +46,7 @@ component system_cmd_fifo
 port (
     clk                 : in std_logic;
     rst                 : in std_logic;
+    --srst                 : in std_logic;
     din                 : in std_logic_vector(41 DOWNTO 0);
     wr_en               : in std_logic;
     rd_en               : in std_logic;
@@ -111,6 +112,7 @@ system_cmd_fifo_inst : system_cmd_fifo
 port map (
     clk             => clk_i,
     rst             => reset_i,
+    --srst             => reset_i,
     din             => cmd_din,
     wr_en           => registers_tlp_i.strobe,
     rd_en           => cmd_rd_en,

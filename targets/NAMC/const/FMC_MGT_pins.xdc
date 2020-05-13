@@ -8,21 +8,21 @@
 #set_property PACKAGE_PIN AK9    [get_ports {FMC_DP0_C2M_N}];
 ## info only implicite pin assignation by
 ## using "set_property LOC $FMC_HPC_GTX0_LOC ..." in your module's fmc_*_impl.xdc file
-
+#
 #set_property PACKAGE_PIN AJ8    [get_ports {FMC_DP1_M2C_P}];
 #set_property PACKAGE_PIN AJ7    [get_ports {FMC_DP1_M2C_N}];
 #set_property PACKAGE_PIN AK6    [get_ports {FMC_DP1_C2M_P}];
 #set_property PACKAGE_PIN AK5    [get_ports {FMC_DP1_C2M_N}];
 ## info only implicite pin assignation by
 ## using "set_property LOC $FMC_HPC_GTX1_LOC ..." in your module's fmc_*_impl.xdc file
-
+#
 #set_property PACKAGE_PIN AG8    [get_ports {FMC_DP2_M2C_P}];
 #set_property PACKAGE_PIN AG7    [get_ports {FMC_DP2_M2C_N}];
 #set_property PACKAGE_PIN AJ4    [get_ports {FMC_DP2_C2M_P}];
 #set_property PACKAGE_PIN AJ3    [get_ports {FMC_DP2_C2M_N}];
 ## info only implicite pin assignation by
 ## using "set_property LOC $FMC_HPC_GTX2_LOC ..." in your module's fmc_*_impl.xdc file
-
+#
 #set_property PACKAGE_PIN AE8    [get_ports {FMC_DP3_M2C_P}];
 #set_property PACKAGE_PIN AE7    [get_ports {FMC_DP3_M2C_N}];
 #set_property PACKAGE_PIN AK2    [get_ports {FMC_DP3_C2M_P}];

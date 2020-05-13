@@ -55,7 +55,7 @@ architecture Behavioral of UDP_TX is
         attribute fsm_encoding : string;
         attribute fsm_encoding of udp_tx_state : signal is "one_hot";
         attribute fsm_safe_state : string;
-        attribute fsm_safe_state of udp_tx_state : signal is "auto";
+        attribute fsm_safe_state of udp_tx_state : signal is "auto_safe_state";
         attribute mark_debug : string;
         attribute mark_debug of udp_tx_state : signal is "true";
 

@@ -14,7 +14,6 @@ set scripts_vivado_version 2015.1
 set scripts_vivado_version_2015_2_1 2015.2.1
 set current_vivado_version [version -short]
 
-
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 || [string first $scripts_vivado_version_2015_2_1 $current_vivado_version] == -1 } {
    if { [string first $scripts_vivado_version_2015_2_1 $current_vivado_version] == 0 } {
       puts ""

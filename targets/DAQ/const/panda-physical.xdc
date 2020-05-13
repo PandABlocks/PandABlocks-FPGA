@@ -218,5 +218,18 @@ set SFP1_GTX_LOC GTXE2_CHANNEL_X0Y1
 set SFP2_GTX_LOC GTXE2_CHANNEL_X0Y2
 set SFP3_GTX_LOC GTXE2_CHANNEL_X0Y3
 
-
+#set SFP1_UNUSED_PINS_LOC "set_property PACKAGE_PIN W8   [get_ports {SFP_RX_P[0]  }];
+#set_property PACKAGE_PIN Y8   [get_ports {SFP_RX_N[0]  }];
+#set_property PACKAGE_PIN W4   [get_ports {SFP_TX_P[0]  }];
+#set_property PACKAGE_PIN Y4   [get_ports {SFP_TX_N[0]  }];"
+#
+#set SFP2_UNUSED_PINS_LOC "set_property PACKAGE_PIN AA9   [get_ports {SFP_RX_P[1]  }];
+#set_property PACKAGE_PIN AB9   [get_ports {SFP_RX_N[1]  }];
+#set_property PACKAGE_PIN AA5   [get_ports {SFP_TX_P[1]  }];
+#set_property PACKAGE_PIN AB5   [get_ports {SFP_TX_N[1]  }];"
+#
+#set SFP3_UNUSED_PINS_LOC "set_property PACKAGE_PIN W6   [get_ports {SFP_RX_P[2]  }];
+#set_property PACKAGE_PIN Y6   [get_ports {SFP_RX_N[2]  }];
+#set_property PACKAGE_PIN W2   [get_ports {SFP_TX_P[2]  }];
+#set_property PACKAGE_PIN Y2   [get_ports {SFP_TX_N[2]  }];"
 

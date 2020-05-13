@@ -63,11 +63,23 @@ set_property used_in_synthesis false -quiet [get_files *_impl.xdc]
 # Read Zynq block design
 read_bd   $PS_CORE
 
+# Update the IPs as the PS script does not build them properly in vivado 2018.3.1 (and probably from 2016.3 cf: https://www.xilinx.com/support/answers/68238.html)
+set scripts_vivado_version_2018_3_1 2018.3.1
+set current_vivado_version [version -short]
+if { [string first $scripts_vivado_version_2018_3_1 $current_vivado_version] == 0 } {
+   puts ""
+   puts "Update the IPs as the PS script does not build them properly in vivado 2018.3.1 (and probably from 2016.3)"
+   update_compile_order -fileset sources_1
+   upgrade_ip [get_ips {panda_ps_processing_system7_0_0 panda_ps_proc_sys_reset_0_0}]
+   set_property synth_checkpoint_mode None [get_files $PS_CORE]
+   generate_target all [get_files $PS_CORE]
+}
+
+
 # Read auto generated files
 add_files [glob $AUTOGEN/hdl/*.vhd]
 
 # Read design files
-
 #add_files [glob $TOP_DIR/common/hdl/defines/*.vhd]
 #add_files [glob $TOP_DIR/common/hdl/*.vhd]
 add_files $TOP_DIR/common/hdl/

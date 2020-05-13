@@ -160,6 +160,7 @@ set_property -dict [list \
     CONFIG.Performance_Options {First_Word_Fall_Through} \
     CONFIG.Input_Data_Width {42}    \
     CONFIG.Output_Data_Width {42}   \
+    CONFIG.Reset_Type {Asynchronous_Reset} \
 ] [get_ips system_cmd_fifo]
 
 generate_target all [get_files $BUILD_DIR/system_cmd_fifo/system_cmd_fifo.xci]
