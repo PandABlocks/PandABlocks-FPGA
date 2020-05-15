@@ -121,7 +121,22 @@ signal SOFT_RESET_rise   : std_logic;
 signal soft_reset_cpt    : unsigned(31 downto 0);
 signal SOFT_RESET_holded : std_logic;
 
+signal TXN                : std_logic;
+signal TXP                : std_logic;
+
 begin
+
+txnobuf : obuf
+port map (
+    I => TXN,
+    O => SFP_o.TXN_OUT
+);
+
+txpobuf : obuf
+port map (
+    I => TXP,
+    O => SFP_o.TXP_OUT
+);
 
 read_ack_delay : entity work.delay_line
 generic map (DW => 1)
@@ -170,8 +185,8 @@ SFP_UDP_Complete_i : SFP_UDP_Complete
     gtrefclk       => SFP_i.GTREFCLK,
     RXN_IN         => SFP_i.RXN_IN,
     RXP_IN         => SFP_i.RXP_IN,
-    TXN_OUT        => SFP_o.TXN_OUT,
-    TXP_OUT        => SFP_o.TXP_OUT
+    TXN_OUT        => TXN,
+    TXP_OUT        => TXP
     );
 
 ---------------------------------------------------------------------------

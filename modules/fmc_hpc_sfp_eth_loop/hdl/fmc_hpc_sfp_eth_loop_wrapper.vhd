@@ -237,7 +237,64 @@ signal DATA_4TO3_ER      : std_logic;
 signal DATA_4TO3_CNT     : std_logic_vector(31 downto 0);
 signal DATA_4TO3_ER_CNT  : std_logic_vector(31 downto 0);
 
+signal TXN                 : std_logic;
+signal TXP                 : std_logic;
+signal TXN2                : std_logic;
+signal TXP2                : std_logic;
+signal TXN3                : std_logic;
+signal TXP3                : std_logic;
+signal TXN4                : std_logic;
+signal TXP4                : std_logic;
+
 begin
+
+txnobuf : obuf
+port map (
+    I => TXN,
+    O => FMC_o.TXN_OUT
+);
+
+txpobuf : obuf
+port map (
+    I => TXP,
+    O => FMC_o.TXP_OUT
+);
+
+txnobuf2 : obuf
+port map (
+    I => TXN2,
+    O => FMC_o.TXN2_OUT
+);
+
+txpobuf2 : obuf
+port map (
+    I => TXP2,
+    O => FMC_o.TXP2_OUT
+);
+
+txnobuf3 : obuf
+port map (
+    I => TXN3,
+    O => FMC_o.TXN3_OUT
+);
+
+txpobuf3 : obuf
+port map (
+    I => TXP3,
+    O => FMC_o.TXP3_OUT
+);
+
+txnobuf4 : obuf
+port map (
+    I => TXN4,
+    O => FMC_o.TXN4_OUT
+);
+
+txpobuf4 : obuf
+port map (
+    I => TXP4,
+    O => FMC_o.TXP4_OUT
+);
 
 read_ack_delay : entity work.delay_line
 generic map (DW => 1)
@@ -265,8 +322,8 @@ eth_phy_to_phy_i : eth_phy_to_phy
     eth_phy2clk_o       => FMC_eth_phy2clk,
     RXN_IN           	=> FMC_i.RXN_IN,
     RXP_IN           	=> FMC_i.RXP_IN,
-    TXN_OUT          	=> FMC_o.TXN_OUT,
-    TXP_OUT        		=> FMC_o.TXP_OUT,
+    TXN_OUT          	=> TXN,
+    TXP_OUT        		=> TXP,
     RESETDONE       	=> PHY_RESETDONE(0),
     CPLLLOCK        	=> PHY_CPLLLOCK(0),
     STATUS_VECTOR      	=> PHY_STATUS(0)(15 downto 0),
@@ -278,8 +335,8 @@ eth_phy_to_phy_i : eth_phy_to_phy
     eth_phy2clk_2_o     => open,
     RXN2_IN        		=> FMC_i.RXN2_IN,
     RXP2_IN        		=> FMC_i.RXP2_IN,
-    TXN2_OUT       		=> FMC_o.TXN2_OUT,
-    TXP2_OUT       		=> FMC_o.TXP2_OUT,
+    TXN2_OUT       		=> TXN2,
+    TXP2_OUT       		=> TXP2,
     RESETDONE_2     	=> PHY_RESETDONE(1),
     CPLLLOCK_2     		=> PHY_CPLLLOCK(1),
     STATUS_VECTOR_2    	=> PHY_STATUS(1)(15 downto 0),
@@ -299,8 +356,8 @@ eth_phy_to_phy_i2 : eth_phy_to_phy
     eth_phy2clk_o       => open,
     RXN_IN           	=> FMC_i.RXN3_IN,
     RXP_IN           	=> FMC_i.RXP3_IN,
-    TXN_OUT          	=> FMC_o.TXN3_OUT,
-    TXP_OUT        		=> FMC_o.TXP3_OUT,
+    TXN_OUT          	=> TXN3,
+    TXP_OUT        		=> TXP3,
     RESETDONE       	=> PHY_RESETDONE(2),
     CPLLLOCK        	=> PHY_CPLLLOCK(2),
     STATUS_VECTOR      	=> PHY_STATUS(2)(15 downto 0),
@@ -312,8 +369,8 @@ eth_phy_to_phy_i2 : eth_phy_to_phy
     eth_phy2clk_2_o     => open,
     RXN2_IN        		=> FMC_i.RXN4_IN,
     RXP2_IN        		=> FMC_i.RXP4_IN,
-    TXN2_OUT       		=> FMC_o.TXN4_OUT,
-    TXP2_OUT       		=> FMC_o.TXP4_OUT,
+    TXN2_OUT       		=> TXN4,
+    TXP2_OUT       		=> TXP4,
     RESETDONE_2       	=> PHY_RESETDONE(3),
     CPLLLOCK_2        	=> PHY_CPLLLOCK(3),
     STATUS_VECTOR_2    	=> PHY_STATUS(3)(15 downto 0),

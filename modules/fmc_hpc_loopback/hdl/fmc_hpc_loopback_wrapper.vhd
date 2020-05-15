@@ -103,7 +103,64 @@ attribute IOB of pbrs_data  : signal is "true";
 attribute IOB of fmc_din_p  : signal is "true";
 attribute IOB of fmc_din_n  : signal is "true";
 
+signal TXN                 : std_logic;
+signal TXP                 : std_logic;
+signal TXN2                : std_logic;
+signal TXP2                : std_logic;
+signal TXN3                : std_logic;
+signal TXP3                : std_logic;
+signal TXN4                : std_logic;
+signal TXP4                : std_logic;
+
 begin
+
+txnobuf : obuf
+port map (
+    I => TXN,
+    O => FMC_o.TXN_OUT
+);
+
+txpobuf : obuf
+port map (
+    I => TXP,
+    O => FMC_o.TXP_OUT
+);
+
+txnobuf2 : obuf
+port map (
+    I => TXN2,
+    O => FMC_o.TXN2_OUT
+);
+
+txpobuf2 : obuf
+port map (
+    I => TXP2,
+    O => FMC_o.TXP2_OUT
+);
+
+txnobuf3 : obuf
+port map (
+    I => TXN3,
+    O => FMC_o.TXN3_OUT
+);
+
+txpobuf3 : obuf
+port map (
+    I => TXP3,
+    O => FMC_o.TXP3_OUT
+);
+
+txnobuf4 : obuf
+port map (
+    I => TXN4,
+    O => FMC_o.TXN4_OUT
+);
+
+txpobuf4 : obuf
+port map (
+    I => TXP4,
+    O => FMC_o.TXP4_OUT
+);
 
 -- Acknowledgement to AXI Lite interface
 write_ack_o <= '1';
@@ -209,8 +266,8 @@ port map (
     ERROR_COUNT                 => ERROR_COUNT_1,
     RXP_IN                      => FMC_i.RXP_IN,
     RXN_IN                      => FMC_i.RXN_IN,
-    TXP_OUT                     => FMC_o.TXP_OUT,
-    TXN_OUT                     => FMC_o.TXN_OUT
+    TXP_OUT                     => TXP,
+    TXN_OUT                     => TXN
 );
 fmcgtx_exdes_i2 : entity work.fmcgtx_exdes
 port map (
@@ -222,8 +279,8 @@ port map (
     ERROR_COUNT                 => ERROR_COUNT_2,
     RXP_IN                      => FMC_i.RXP2_IN,
     RXN_IN                      => FMC_i.RXN2_IN,
-    TXP_OUT                     => FMC_o.TXP2_OUT,
-    TXN_OUT                     => FMC_o.TXN2_OUT
+    TXP_OUT                     => TXP2,
+    TXN_OUT                     => TXN2
 );
 fmcgtx_exdes_i3 : entity work.fmcgtx_exdes
 port map (
@@ -235,8 +292,8 @@ port map (
     ERROR_COUNT                 => ERROR_COUNT_3,
     RXP_IN                      => FMC_i.RXP3_IN,
     RXN_IN                      => FMC_i.RXN3_IN,
-    TXP_OUT                     => FMC_o.TXP3_OUT,
-    TXN_OUT                     => FMC_o.TXN3_OUT
+    TXP_OUT                     => TXP3,
+    TXN_OUT                     => TXN3
 );
 fmcgtx_exdes_i4 : entity work.fmcgtx_exdes
 port map (
@@ -248,8 +305,8 @@ port map (
     ERROR_COUNT                 => ERROR_COUNT_4,
     RXP_IN                      => FMC_i.RXP4_IN,
     RXN_IN                      => FMC_i.RXN4_IN,
-    TXP_OUT                     => FMC_o.TXP4_OUT,
-    TXN_OUT                     => FMC_o.TXN4_OUT
+    TXP_OUT                     => TXP4,
+    TXN_OUT                     => TXN4
 );
 
 ---------------------------------------------------------------------------

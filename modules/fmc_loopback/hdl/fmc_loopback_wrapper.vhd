@@ -80,6 +80,9 @@ signal LOOP_PERIOD          : std_logic_vector(31 downto 0);
 signal pbrs_data            : std_logic_vector(16 downto 0) := X"5555"&'0';
 signal pbrs_data_prev       : std_logic_vector(16 downto 0);
 
+signal TXN                 : std_logic;
+signal TXP                 : std_logic;
+
 attribute MARK_DEBUG        : string;
 attribute MARK_DEBUG of probe0  : signal is "true";
 
@@ -89,6 +92,18 @@ attribute IOB of fmc_din_p  : signal is "true";
 attribute IOB of fmc_din_n  : signal is "true";
 
 begin
+
+txnobuf : obuf
+port map (
+    I => TXN,
+    O => FMC_o.TXN_OUT
+);
+
+txpobuf : obuf
+port map (
+    I => TXP,
+    O => FMC_o.TXP_OUT
+);
 
 -- Acknowledgement to AXI Lite interface
 write_ack_o <= '1';
@@ -164,8 +179,8 @@ port map (
     ERROR_COUNT                 => ERROR_COUNT,
     RXN_IN                      => FMC_i.RXN_IN,
     RXP_IN                      => FMC_i.RXP_IN,
-    TXN_OUT                     => FMC_o.TXN_OUT,
-    TXP_OUT                     => FMC_o.TXP_OUT
+    TXN_OUT                     => TXN,
+    TXP_OUT                     => TXP
 );
 
 ---------------------------------------------------------------------------

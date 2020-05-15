@@ -258,7 +258,122 @@ signal DATA_F2A_ER_CNT   : std32_array(3 downto 0);
 signal DATA_TRIG         : std_logic_vector(4*4-1 downto 0);
 signal DATA_CNT          : std32_array(4*4-1 downto 0);
 
+signal FMC_TXN                 : std_logic;
+signal FMC_TXP                 : std_logic;
+signal FMC_TXN2                : std_logic;
+signal FMC_TXP2                : std_logic;
+signal FMC_TXN3                : std_logic;
+signal FMC_TXP3                : std_logic;
+signal FMC_TXN4                : std_logic;
+signal FMC_TXP4                : std_logic;
+
+signal AMC_FP_TX8_N            : std_logic;
+signal AMC_FP_TX8_P            : std_logic;
+signal AMC_FP_TX9_N            : std_logic;
+signal AMC_FP_TX9_P            : std_logic;
+signal AMC_FP_TX10_N           : std_logic;
+signal AMC_FP_TX10_P           : std_logic;
+signal AMC_FP_TX11_N           : std_logic;
+signal AMC_FP_TX11_P           : std_logic;
+
 begin
+
+FMC_txnobuf : obuf
+port map (
+    I => FMC_TXN,
+    O => FMC_o.TXN_OUT
+);
+
+FMC_txpobuf : obuf
+port map (
+    I => FMC_TXP,
+    O => FMC_o.TXP_OUT
+);
+
+FMC_txnobuf2 : obuf
+port map (
+    I => FMC_TXN2,
+    O => FMC_o.TXN2_OUT
+);
+
+FMC_txpobuf2 : obuf
+port map (
+    I => FMC_TXP2,
+    O => FMC_o.TXP2_OUT
+);
+
+FMC_txnobuf3 : obuf
+port map (
+    I => FMC_FMC_TXN3,
+    O => FMC_o.TXN3_OUT
+);
+
+FMC_txpobuf3 : obuf
+port map (
+    I => FMC_TXP3,
+    O => FMC_o.TXP3_OUT
+);
+
+FMC_txnobuf4 : obuf
+port map (
+    I => FMC_TXN4,
+    O => FMC_o.TXN4_OUT
+);
+
+FMC_txpobuf4 : obuf
+port map (
+    I => FMC_TXP4,
+    O => FMC_o.TXP4_OUT
+);
+
+AMC_txnobuf8 : obuf
+port map (
+    I => AMC_FP_TX8_N,
+    O => AMC_o.FP_TX8_N
+);
+
+AMC_txpobuf8 : obuf
+port map (
+    I => AMC_FP_TX8_P,
+    O => AMC_o.FP_TX8_P
+);
+
+AMC_txnobuf9 : obuf
+port map (
+    I => AMC_FP_TX9_N,
+    O => AMC_o.FP_TX9_N
+);
+
+AMC_txpobuf9 : obuf
+port map (
+    I => AMC_FP_TX9_P,
+    O => AMC_o.FP_TX9_P
+);
+
+AMC_txnobuf10 : obuf
+port map (
+    I => AMC_FP_TX10_N,
+    O => AMC_o.FP_TX10_N
+);
+
+AMC_txpobuf10 : obuf
+port map (
+    I => AMC_FP_TX10_P,
+    O => AMC_o.FP_TX10_P
+);
+
+AMC_txnobuf11 : obuf
+port map (
+    I => AMC_FP_TX11_N,
+    O => AMC_o.FP_TX11_N
+);
+
+AMC_txpobuf11 : obuf
+port map (
+    I => AMC_FP_TX11_P,
+    O => AMC_o.FP_TX11_P
+);
+
 read_ack_delay : entity work.delay_line
 generic map (DW => 1)
 port map (
@@ -286,8 +401,8 @@ eth_phy_to_phy_i : eth_phy_to_phy
     eth_phy2clk_o       => FMC_eth_phy2clk,
     RXN_IN           	=> FMC_i.RXN_IN,
     RXP_IN           	=> FMC_i.RXP_IN,
-    TXN_OUT          	=> FMC_o.TXN_OUT,
-    TXP_OUT        		=> FMC_o.TXP_OUT,
+    TXN_OUT          	=> FMC_TXN,
+    TXP_OUT        		=> FMC_TXP,
     RESETDONE       	=> FMC_PHY_RESETDONE(0),
     CPLLLOCK        	=> FMC_PHY_CPLLLOCK(0),
     STATUS_VECTOR      	=> FMC_PHY_STATUS(0)(15 downto 0),
@@ -299,8 +414,8 @@ eth_phy_to_phy_i : eth_phy_to_phy
     eth_phy2clk_2_o     => AMC_eth_phy2clk,
     RXN2_IN        		=> AMC_i.FP_RX8_N,
     RXP2_IN        		=> AMC_i.FP_RX8_P,
-    TXN2_OUT       		=> AMC_o.FP_TX8_N,
-    TXP2_OUT       		=> AMC_o.FP_TX8_P,
+    TXN2_OUT       		=> AMC_FP_TX8_N,
+    TXP2_OUT       		=> AMC_FP_TX8_P,
     RESETDONE_2     	=> AMC_PHY_RESETDONE(0),
     CPLLLOCK_2     		=> AMC_PHY_CPLLLOCK(0),
     STATUS_VECTOR_2    	=> AMC_PHY_STATUS(0)(15 downto 0),
@@ -320,8 +435,8 @@ eth_phy_to_phy_i2 : eth_phy_to_phy
     eth_phy2clk_o       => open,
     RXN_IN           	=> FMC_i.RXN2_IN,
     RXP_IN           	=> FMC_i.RXP2_IN,
-    TXN_OUT          	=> FMC_o.TXN2_OUT,
-    TXP_OUT        		=> FMC_o.TXP2_OUT,
+    TXN_OUT          	=> FMC_TXN2,
+    TXP_OUT        		=> FMC_TXP2,
     RESETDONE       	=> FMC_PHY_RESETDONE(1),
     CPLLLOCK        	=> FMC_PHY_CPLLLOCK(1),
     STATUS_VECTOR      	=> FMC_PHY_STATUS(1)(15 downto 0),
@@ -333,8 +448,8 @@ eth_phy_to_phy_i2 : eth_phy_to_phy
     eth_phy2clk_2_o     => open,
     RXN2_IN        		=> AMC_i.FP_RX9_N,
     RXP2_IN        		=> AMC_i.FP_RX9_P,
-    TXN2_OUT       		=> AMC_o.FP_TX9_N,
-    TXP2_OUT       		=> AMC_o.FP_TX9_P,
+    TXN2_OUT       		=> AMC_FP_TX9_N,
+    TXP2_OUT       		=> AMC_FP_TX9_P,
     RESETDONE_2     	=> AMC_PHY_RESETDONE(1),
     CPLLLOCK_2     		=> AMC_PHY_CPLLLOCK(1),
     STATUS_VECTOR_2    	=> AMC_PHY_STATUS(1)(15 downto 0),
@@ -354,8 +469,8 @@ eth_phy_to_phy_i3 : eth_phy_to_phy
     eth_phy2clk_o       => open,
     RXN_IN           	=> FMC_i.RXN3_IN,
     RXP_IN           	=> FMC_i.RXP3_IN,
-    TXN_OUT          	=> FMC_o.TXN3_OUT,
-    TXP_OUT        		=> FMC_o.TXP3_OUT,
+    TXN_OUT          	=> FMC_TXN3,
+    TXP_OUT        		=> FMC_TXP3,
     RESETDONE       	=> FMC_PHY_RESETDONE(2),
     CPLLLOCK        	=> FMC_PHY_CPLLLOCK(2),
     STATUS_VECTOR      	=> FMC_PHY_STATUS(2)(15 downto 0),
@@ -367,8 +482,8 @@ eth_phy_to_phy_i3 : eth_phy_to_phy
     eth_phy2clk_2_o     => open,
     RXN2_IN        		=> AMC_i.FP_RX10_N,
     RXP2_IN        		=> AMC_i.FP_RX10_P,
-    TXN2_OUT       		=> AMC_o.FP_TX10_N,
-    TXP2_OUT       		=> AMC_o.FP_TX10_P,
+    TXN2_OUT       		=> AMC_FP_TX10_N,
+    TXP2_OUT       		=> AMC_FP_TX10_P,
     RESETDONE_2     	=> AMC_PHY_RESETDONE(2),
     CPLLLOCK_2     		=> AMC_PHY_CPLLLOCK(2),
     STATUS_VECTOR_2    	=> AMC_PHY_STATUS(2)(15 downto 0),
@@ -388,8 +503,8 @@ eth_phy_to_phy_i4 : eth_phy_to_phy
     eth_phy2clk_o       => open,
     RXN_IN           	=> FMC_i.RXN4_IN,
     RXP_IN           	=> FMC_i.RXP4_IN,
-    TXN_OUT          	=> FMC_o.TXN4_OUT,
-    TXP_OUT        		=> FMC_o.TXP4_OUT,
+    TXN_OUT          	=> FMC_TXN4,
+    TXP_OUT        		=> FMC_TXP4,
     RESETDONE       	=> FMC_PHY_RESETDONE(3),
     CPLLLOCK        	=> FMC_PHY_CPLLLOCK(3),
     STATUS_VECTOR      	=> FMC_PHY_STATUS(3)(15 downto 0),
@@ -401,8 +516,8 @@ eth_phy_to_phy_i4 : eth_phy_to_phy
     eth_phy2clk_2_o     => open,
     RXN2_IN        		=> AMC_i.FP_RX11_N,
     RXP2_IN        		=> AMC_i.FP_RX11_P,
-    TXN2_OUT       		=> AMC_o.FP_TX11_N,
-    TXP2_OUT       		=> AMC_o.FP_TX11_P,
+    TXN2_OUT       		=> AMC_FP_TX11_N,
+    TXP2_OUT       		=> AMC_FP_TX11_P,
     RESETDONE_2     	=> AMC_PHY_RESETDONE(3),
     CPLLLOCK_2     		=> AMC_PHY_CPLLLOCK(3),
     STATUS_VECTOR_2    	=> AMC_PHY_STATUS(3)(15 downto 0),

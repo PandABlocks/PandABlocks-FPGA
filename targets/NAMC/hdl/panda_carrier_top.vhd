@@ -263,6 +263,33 @@ attribute syn_noclockbuf of AMC8_11_MGTREFCLK1 : signal is true;
 signal EXTCLK : std_logic;
 signal FMC_PRSNT : std_logic;
 
+attribute IO_BUFFER_TYPE : string;
+attribute IO_BUFFER_TYPE of FMC_DP0_C2M_N : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP0_C2M_P : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP1_C2M_N : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP1_C2M_P : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP2_C2M_N : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP2_C2M_P : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP3_C2M_N : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP3_C2M_P : signal is "none";
+
+attribute IO_BUFFER_TYPE of AMC_FP_TX4_P  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX4_N  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX5_P  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX5_N  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX6_P  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX6_N  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX7_P  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX7_N  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX8_P  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX8_N  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX9_P  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX9_N  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX10_P : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX10_N : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX11_P : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX11_N : signal is "none";
+
 begin
 
 -- Internal clocks and resets

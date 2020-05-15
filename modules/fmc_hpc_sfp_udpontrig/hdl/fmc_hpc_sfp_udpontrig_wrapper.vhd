@@ -206,7 +206,22 @@ signal BUSY        		 : std_logic_vector(31 downto 0);
 signal END_TRANSFER		 : std_logic_vector(31 downto 0);
 signal ERROR_STATUS		 : std_logic_vector(31 downto 0);
 
+signal TXN                 : std_logic;
+signal TXP                 : std_logic;
+
 begin
+
+txnobuf : obuf
+port map (
+    I => TXN,
+    O => FMC_o.TXN_OUT
+);
+
+txpobuf : obuf
+port map (
+    I => TXP,
+    O => FMC_o.TXP_OUT
+);
 
 read_ack_delay : entity work.delay_line
 generic map (DW => 1)
@@ -255,8 +270,8 @@ SFP_UDP_Complete_i : SFP_UDP_Complete
     gtrefclk       		=> FMC_i.GTREFCLK,
     RXN_IN         		=> FMC_i.RXN_IN,
     RXP_IN         		=> FMC_i.RXP_IN,
-    TXN_OUT        		=> FMC_o.TXN_OUT,
-    TXP_OUT        		=> FMC_o.TXP_OUT
+    TXN_OUT        		=> TXN,
+    TXP_OUT        		=> TXP
     );
 
 ---------------------------------------------------------------------------

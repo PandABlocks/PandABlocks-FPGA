@@ -62,7 +62,64 @@ signal ERROR_COUNT_2        : std_logic_vector(31 downto 0);
 signal ERROR_COUNT_3        : std_logic_vector(31 downto 0);
 signal ERROR_COUNT_4        : std_logic_vector(31 downto 0);
 
+signal AMC_FP_TX8_N            : std_logic;
+signal AMC_FP_TX8_P            : std_logic;
+signal AMC_FP_TX9_N            : std_logic;
+signal AMC_FP_TX9_P            : std_logic;
+signal AMC_FP_TX10_N           : std_logic;
+signal AMC_FP_TX10_P           : std_logic;
+signal AMC_FP_TX11_N           : std_logic;
+signal AMC_FP_TX11_P           : std_logic;
+
 begin
+
+AMC_txnobuf8 : obuf
+port map (
+    I => AMC_FP_TX8_N,
+    O => AMC_o.FP_TX8_N
+);
+
+AMC_txpobuf8 : obuf
+port map (
+    I => AMC_FP_TX8_P,
+    O => AMC_o.FP_TX8_P
+);
+
+AMC_txnobuf9 : obuf
+port map (
+    I => AMC_FP_TX9_N,
+    O => AMC_o.FP_TX9_N
+);
+
+AMC_txpobuf9 : obuf
+port map (
+    I => AMC_FP_TX9_P,
+    O => AMC_o.FP_TX9_P
+);
+
+AMC_txnobuf10 : obuf
+port map (
+    I => AMC_FP_TX10_N,
+    O => AMC_o.FP_TX10_N
+);
+
+AMC_txpobuf10 : obuf
+port map (
+    I => AMC_FP_TX10_P,
+    O => AMC_o.FP_TX10_P
+);
+
+AMC_txnobuf11 : obuf
+port map (
+    I => AMC_FP_TX11_N,
+    O => AMC_o.FP_TX11_N
+);
+
+AMC_txpobuf11 : obuf
+port map (
+    I => AMC_FP_TX11_P,
+    O => AMC_o.FP_TX11_P
+);
 
 -- Acknowledgement to AXI Lite interface
 write_ack_o <= '1';
@@ -90,8 +147,8 @@ port map (
     ERROR_COUNT                 => ERROR_COUNT_1,
     RXP_IN                      => AMC_i.FP_RX8_P,
     RXN_IN                      => AMC_i.FP_RX8_N,
-    TXP_OUT                     => AMC_o.FP_TX8_P,
-    TXN_OUT                     => AMC_o.FP_TX8_N
+    TXP_OUT                     => AMC_FP_TX8_P,
+    TXN_OUT                     => AMC_FP_TX8_N
 );
 amcgtx_exdes_i2 : entity work.amcgtx2_exdes
 port map (
@@ -103,8 +160,8 @@ port map (
     ERROR_COUNT                 => ERROR_COUNT_2,
     RXP_IN                      => AMC_i.FP_RX9_P,
     RXN_IN                      => AMC_i.FP_RX9_N,
-    TXP_OUT                     => AMC_o.FP_TX9_P,
-    TXN_OUT                     => AMC_o.FP_TX9_N
+    TXP_OUT                     => AMC_FP_TX9_P,
+    TXN_OUT                     => AMC_FP_TX9_N
 );
 amcgtx_exdes_i3 : entity work.amcgtx2_exdes
 port map (
@@ -116,8 +173,8 @@ port map (
     ERROR_COUNT                 => ERROR_COUNT_3,
     RXP_IN                      => AMC_i.FP_RX10_P,
     RXN_IN                      => AMC_i.FP_RX10_N,
-    TXP_OUT                     => AMC_o.FP_TX10_P,
-    TXN_OUT                     => AMC_o.FP_TX10_N
+    TXP_OUT                     => AMC_FP_TX10_P,
+    TXN_OUT                     => AMC_FP_TX10_N
 );
 amcgtx_exdes_i4 : entity work.amcgtx2_exdes
 port map (
@@ -129,8 +186,8 @@ port map (
     ERROR_COUNT                 => ERROR_COUNT_4,
     RXP_IN                      => AMC_i.FP_RX11_P,
     RXN_IN                      => AMC_i.FP_RX11_N,
-    TXP_OUT                     => AMC_o.FP_TX11_P,
-    TXN_OUT                     => AMC_o.FP_TX11_N
+    TXP_OUT                     => AMC_FP_TX11_P,
+    TXN_OUT                     => AMC_FP_TX11_N
 );
 
 amc_ctrl : entity work.amc_loopback_ctrl

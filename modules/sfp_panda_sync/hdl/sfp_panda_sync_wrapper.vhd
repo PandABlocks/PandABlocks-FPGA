@@ -103,8 +103,22 @@ signal POSOUT4            : std_logic_vector(31 downto 0);
 signal BITOUT             : std_logic_vector(15 downto 0);
 signal LINKUP             : std_logic_vector(31 downto 0);
 signal SYNC_RESET         : std_logic;
+signal TXN                : std_logic;
+signal TXP                : std_logic;
 
 begin
+
+txnobuf : obuf
+port map (
+    I => TXN,
+    O => SFP_o.TXN_OUT
+);
+
+txpobuf : obuf
+port map (
+    I => TXP,
+    O => SFP_o.TXP_OUT
+);
 
 read_ack_o <= '1';
 write_ack_o <= '1';
@@ -204,8 +218,8 @@ sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface
         txoutclk_i        => txoutclk_i,
         rxp_i             => SFP_i.RXP_IN,
         rxn_i             => SFP_i.RXN_IN,
-        txp_o             => SFP_o.TXP_OUT,
-        txn_o             => SFP_o.TXN_OUT,
+        txp_o             => TXP,
+        txn_o             => TXN,
         rxuserrdy_i       => rxuserrdy_i,
         txuserrdy_i       => txuserrdy_i,
         rxbyteisaligned_o => rxbyteisaligned_o,

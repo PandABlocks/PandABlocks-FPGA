@@ -260,6 +260,12 @@ signal shift_reg_sclk : std_logic;
 signal shift_reg_latch: std_logic;
 signal shift_reg_oe_n : std_logic;
 
+attribute IO_BUFFER_TYPE : string;
+attribute IO_BUFFER_TYPE of SFP_TX_P : signal is "none";
+attribute IO_BUFFER_TYPE of SFP_TX_N : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP0_C2M_N : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP0_C2M_P : signal is "none";
+
 begin
 
 -- Internal clocks and resets

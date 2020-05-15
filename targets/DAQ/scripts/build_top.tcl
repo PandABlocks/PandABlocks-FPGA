@@ -34,6 +34,7 @@ set_property "board_part" "em.avnet.com:picozed_7030:part0:1.0" $obj
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj
+set_property part "xc7z030sbg485-1" [current_project]
 
 #
 # Warning suppression
@@ -73,12 +74,6 @@ if { [string first $scripts_vivado_version_2018_3_1 $current_vivado_version] == 
    upgrade_ip [get_ips {panda_ps_processing_system7_0_0 panda_ps_proc_sys_reset_0_0}]
    set_property synth_checkpoint_mode None [get_files $PS_CORE]
    generate_target all [get_files $PS_CORE]
-   puts ""
-   puts "Don't check on unconstraint transceivers output in top but not used in the design https://www.xilinx.com/support/answers/56354.html"
-   set_property SEVERITY {Warning} [get_drc_checks NSTD-1]
-   set_property SEVERITY {Warning} [get_drc_checks UCIO-1]
-   #or
-   #set_property BITSTREAM.General.UnconstrainedPins {Allow} [current_design]
 }
 
 
