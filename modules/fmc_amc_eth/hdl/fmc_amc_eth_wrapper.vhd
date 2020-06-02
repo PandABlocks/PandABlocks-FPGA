@@ -304,7 +304,7 @@ port map (
 
 FMC_txnobuf3 : obuf
 port map (
-    I => FMC_FMC_TXN3,
+    I => FMC_TXN3,
     O => FMC_o.TXN3_OUT
 );
 
