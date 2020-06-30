@@ -704,6 +704,7 @@ FMC_io.FMC_CLK0_M2C_N 	<= FMC_CLK0_M2C_N;
 FMC_i.FMC_CLK1_M2C_P 	<= FMC_CLK1_M2C_P;
 FMC_i.FMC_CLK1_M2C_N 	<= FMC_CLK1_M2C_N;
 FMC_i.GTREFCLK 			<= q0_clk0_gtrefclk; --q0_clk0_fmc_gtrefclk;
+FMC_i.GTREFCLK_156MHz25 <= q0_clk1_gtrefclk;
 FMC_i.MAC_ADDR 			<= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
 FMC_i.MAC_ADDR_WS 		<= '0';
 

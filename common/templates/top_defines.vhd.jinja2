@@ -71,6 +71,7 @@ type FMC_input_interface is
     FMC_CLK1_M2C_P  : std_logic;
     FMC_CLK1_M2C_N  : std_logic;
     GTREFCLK        : std_logic;
+    GTREFCLK_156MHz25  : std_logic;
     RXP_IN          : std_logic;
     RXN_IN          : std_logic;
     RXP2_IN         : std_logic;
@@ -93,6 +94,7 @@ type FMC_inout_interface is
     FMC_HB_N        : std_logic_vector(21 downto 0);
     FMC_CLK0_M2C_P  : std_logic;
     FMC_CLK0_M2C_N  : std_logic;
+    
   end record FMC_inout_interface;
 
 constant FMC_io_init : FMC_inout_interface := (FMC_LA_P => (others => 'Z'),

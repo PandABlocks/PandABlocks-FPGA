@@ -186,6 +186,28 @@ set_property -dict [list \
 generate_target all [get_files $BUILD_DIR/eth_mac/eth_mac.xci]
 synth_ip [get_ips eth_mac]
 
+#
+# Create 10G Eth for sfp
+#
+create_ip -vlnv [get_ipdefs -filter {NAME == axi_10g_ethernet}] \
+-module_name axi_10g_eth -dir $BUILD_DIR/
+
+set_property -dict [list \
+    CONFIG.Management_Interface {true} \
+    CONFIG.IEEE_1588 {None} \
+    CONFIG.Statistics_Gathering {true} \
+    CONFIG.Management_Frequency {125.00} \
+    CONFIG.DClkRate {125.00} \
+    CONFIG.MAC_and_BASER_32 {64bit} \
+    CONFIG.SupportLevel {0} \
+    CONFIG.TransceiverControl {false} \
+    CONFIG.DRP {false} \
+    CONFIG.Enable_Priority_Flow_Control {false} \
+] [get_ips axi_10g_eth]
+
+generate_target all [get_files $BUILD_DIR/axi_10g_eth/axi_10g_eth.xci]
+synth_ip [get_ips axi_10g_eth]
+
 
 #
 # Create System FPGA Command FIFO
