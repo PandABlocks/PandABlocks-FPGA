@@ -170,6 +170,13 @@ module axi_10g_eth_example_design
    wire              enable_custom_preamble_sync;
    wire              enable_custom_preamble_coreclk_sync;
    wire              insert_error_sync;
+   
+   wire              reset_error_sync;
+   wire              enable_pat_check_sync;
+
+   wire              frame_error_coreclk;
+   wire              gen_active_flash_coreclk;
+   wire              check_active_flash_coreclk;
 
 
    assign coreclk_out = coreclk;
@@ -202,7 +209,26 @@ module axi_10g_eth_example_design
       .clk                             (s_axi_aclk),
       .data_out                        (enable_custom_preamble_sync)
    );
-
+   
+   // Synchronise example design outputs coreclock(156.25MHz) into the applicable clock domain clk_in (125MHz)
+   axi_10g_eth_sync_block sync_frame_error_coreclk (
+      .data_in                         (frame_error_coreclk),
+      .clk                             (clk_in),
+      .data_out                        (frame_error)
+   );
+   
+   axi_10g_eth_sync_block sync_gen_active_flash_coreclk (
+      .data_in                         (gen_active_flash_coreclk),
+      .clk                             (clk_in),
+      .data_out                        (gen_active_flash)
+   );  
+   
+   axi_10g_eth_sync_block sync_check_active_flash_coreclk (
+      .data_in                         (check_active_flash_coreclk),
+      .clk                             (clk_in),
+      .data_out                        (check_active_flash)
+   ); 
+   
    assign  core_ready         = block_lock;
 
    // Combine reset sources
@@ -363,7 +389,13 @@ module axi_10g_eth_example_design
       .data_in                         (reset_error),
       .data_out                        (reset_error_sync)
       );
-
+    
+    axi_10g_eth_sync_block enable_pat_check_sync_reg (
+      .clk                             (coreclk),
+      .data_in                         (enable_pat_check),
+      .data_out                        (enable_pat_check_sync)
+      );
+    
     //--------------------------------------------------------------------------
     // Instantiate the pattern generator / pattern checker and loopback module
     //--------------------------------------------------------------------------
@@ -385,11 +417,11 @@ module axi_10g_eth_example_design
       .enable_pat_gen                  (pat_gen_start),
       .reset_error                     (reset_error_sync),
       .insert_error                    (insert_error_sync),
-      .enable_pat_check                (enable_pat_check),
+      .enable_pat_check                (enable_pat_check_sync),
       .enable_loopback                 (!pat_gen_start),
-      .frame_error                     (frame_error),
-      .gen_active_flash                (gen_active_flash),
-      .check_active_flash              (check_active_flash),
+      .frame_error                     (frame_error_coreclk),
+      .gen_active_flash                (gen_active_flash_coreclk),
+      .check_active_flash              (check_active_flash_coreclk),
 
       .tx_axis_tdata                   (tx_axis_tdata),
       .tx_axis_tkeep                   (tx_axis_tkeep),
