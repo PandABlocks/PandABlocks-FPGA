@@ -88,7 +88,7 @@ module axi_10g_eth_axi_pat_gen (
    output reg                          tvalid,
    output reg                          tlast,
    input  wire                         tready,
-   output reg                          gen_active_flash
+   output reg                          gen_active
 );
 
    // gen_state states
@@ -204,21 +204,29 @@ module axi_10g_eth_axi_pat_gen (
 
    // this should translate to an LED flashing
    // flash rate depends the size of frames being sent eg. small frames fast flashing
+   //always @(posedge aclk)
+   //begin
+   //   if (areset)
+   //      gen_active_flash              <= 0;
+   //   else if (enable_pat_gen) begin
+   //      if (fast_flash)
+   //         gen_active_flash           <= gen_active_count[3];
+   //      else
+   //         gen_active_flash           <= gen_active_count[20];
+   //   end
+   //   else begin
+   //      gen_active_flash              <= 0;
+   //   end
+   //end
    always @(posedge aclk)
    begin
       if (areset)
-         gen_active_flash              <= 0;
-      else if (enable_pat_gen) begin
-         if (fast_flash)
-            gen_active_flash           <= gen_active_count[3];
+         gen_active              <= 0;
+      else if (enable_pat_gen)
+            gen_active           <= 1'b1;
          else
-            gen_active_flash           <= gen_active_count[20];
-      end
-      else begin
-         gen_active_flash              <= 0;
-      end
-   end
-
+            gen_active           <= 1'b0;
+   end 
 
    // when the active_count is below 64 use a fast output for the flash
    always @(posedge aclk)

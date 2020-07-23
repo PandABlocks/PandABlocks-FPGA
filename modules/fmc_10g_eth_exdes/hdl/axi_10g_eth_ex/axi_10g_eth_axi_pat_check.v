@@ -84,7 +84,10 @@ module axi_10g_eth_axi_pat_check (
    input wire                          tready,
    input wire                          tuser,
    output reg                          frame_error,
-   output reg                          check_active_flash
+   output reg  [7:0]                   errored_data,
+   output reg  [7:0]                   errored_addr,
+   output reg  [7:0]                   errored_preamble,
+   output reg                          check_active
  );
 
    localparam                          IDLE        = 0,
@@ -104,9 +107,9 @@ module axi_10g_eth_axi_pat_check (
 
    reg                                 frame_error_int      = 1'b0;
    reg                                 frame_dropped        = 1'b0;
-   reg         [7:0]                   errored_data         = 8'd0;
-   reg         [7:0]                   errored_addr         = 8'd0;
-   reg         [7:0]                   errored_preamble     = 8'd0;
+   //reg         [7:0]                   errored_data         = 8'd0;
+   //reg         [7:0]                   errored_addr         = 8'd0;
+   //reg         [7:0]                   errored_preamble     = 8'd0;
 
    reg         [20:0]                  frame_activity_count = 21'd0;
 
@@ -166,21 +169,29 @@ module axi_10g_eth_axi_pat_check (
          fast_flash                    <= 0;
    end
 
+   //always @(posedge aclk)
+   //begin
+   //   if (reset)
+   //      check_active_flash            <= 0;
+   //   else if (enable_pat_check) begin
+   //      if (fast_flash)
+   //         check_active_flash         <= frame_activity_count[3];
+   //      else
+   //         check_active_flash         <= frame_activity_count[20];
+   //   end
+   //   else begin
+   //      check_active_flash            <= 0;
+   //   end
+   //end
    always @(posedge aclk)
    begin
-      if (reset)
-         check_active_flash            <= 0;
-      else if (enable_pat_check) begin
-         if (fast_flash)
-            check_active_flash         <= frame_activity_count[3];
+      if (areset)
+         check_active              <= 0;
+      else if (enable_pat_check)
+            check_active           <= 1'b1;
          else
-            check_active_flash         <= frame_activity_count[20];
-      end
-      else begin
-         check_active_flash            <= 0;
-      end
+            check_active           <= 1'b0;
    end
-
    // we need a way to confirm data has been received to ensure that if no data is received it is
    // flagged as an error
 

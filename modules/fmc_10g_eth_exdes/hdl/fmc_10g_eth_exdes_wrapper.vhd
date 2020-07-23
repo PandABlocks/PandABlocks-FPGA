@@ -88,11 +88,16 @@ signal RESET_ERROR            : std_logic_vector(31 downto 0);
 signal INSERT_ERROR           : std_logic_vector(31 downto 0);
 signal ENABLE_PAT_GEN         : std_logic_vector(31 downto 0);
 signal ENABLE_PAT_CHECK       : std_logic_vector(31 downto 0);
+signal ADDRESS_SWAP_ENABLE    : std_logic_vector(31 downto 0);
 signal SIM_SPEEDUP_CONTROL    : std_logic_vector(31 downto 0);
 signal ENABLE_CUSTOM_PREAMBLE : std_logic_vector(31 downto 0);
 signal FRAME_ERROR            : std_logic_vector(31 downto 0);
-signal GEN_ACTIVE_FLASH       : std_logic_vector(31 downto 0);
-signal CHECK_ACTIVE_FLASH     : std_logic_vector(31 downto 0);
+signal ERRORED_DATA           : std_logic_vector(31 downto 0);
+signal ERRORED_ADDR           : std_logic_vector(31 downto 0);
+signal ERRORED_PREAMBLE       : std_logic_vector(31 downto 0);
+
+signal GEN_ACTIVE             : std_logic_vector(31 downto 0);
+signal CHECK_ACTIVE     : std_logic_vector(31 downto 0);
 signal CORE_READY             : std_logic_vector(31 downto 0);
 signal QPLLLOCK_OUT           : std_logic_vector(31 downto 0);
 
@@ -175,13 +180,18 @@ component axi_10g_eth_example_design is
      insert_error : in std_logic;       --
      enable_pat_gen : in std_logic;       --
      enable_pat_check : in std_logic;       --
+     address_swap_enable : in std_logic; 
      serialized_stats : out std_logic;       --
      sim_speedup_control : in std_logic;       --
      enable_custom_preamble : in std_logic;       --
 --   // Example design status outputs
     frame_error : out std_logic; 
-    gen_active_flash : out std_logic; 
-    check_active_flash : out std_logic; 
+    errored_data : out std_logic;     
+    errored_addr : out std_logic;   
+    errored_preamble : out std_logic; 
+    
+    gen_active : out std_logic; 
+    check_active : out std_logic; 
     core_ready : out std_logic; 
     qplllock_out : out std_logic; 
 --   // Serial I/O from/to transceiver
@@ -271,14 +281,18 @@ port map (
     insert_error           => INSERT_ERROR(0),
     enable_pat_gen         => ENABLE_PAT_GEN(0),
     enable_pat_check       => ENABLE_PAT_CHECK(0),
+    address_swap_enable    => ADDRESS_SWAP_ENABLE(0),
     serialized_stats       => open,
     sim_speedup_control    => SIM_SPEEDUP_CONTROL(0),
     enable_custom_preamble => ENABLE_CUSTOM_PREAMBLE(0),
     
     --status outputs
     frame_error            => FRAME_ERROR(0),
-    gen_active_flash       => GEN_ACTIVE_FLASH(0),
-    check_active_flash     => CHECK_ACTIVE_FLASH(0),
+    errored_data           => ERRORED_DATA(0),    
+    errored_addr           => ERRORED_ADDR(0),   
+    errored_preamble       => ERRORED_PREAMBLE(0),
+    gen_active             => GEN_ACTIVE(0),
+    check_active           => CHECK_ACTIVE(0),
     core_ready             => CORE_READY(0),
     qplllock_out           => QPLLLOCK_OUT(0),
     
@@ -369,7 +383,7 @@ I2C_BUSY(31 downto 1) 			<= ZEROS(31);
 I2C_END_TRANSFER(31 downto 1)	<= ZEROS(31);
 I2C_ERROR_STATUS(31 downto 2)	<= ZEROS(30);
 
-SEL_RATE <= ZEROS(32);
+SEL_RATE(31 downto 1) <= ZEROS(31);
 FREQUENCY_VALUE <= ZEROS(32);
 APPLY_FREQ <= '0';
 ---------------------------------------------------------------------------
@@ -394,6 +408,8 @@ port map (
     TX_DISABLE_2_WSTB   => TX_DISABLE_2_WSTB,
     TX_DISABLE_3        => TX_DISABLE_3,
     TX_DISABLE_3_WSTB   => TX_DISABLE_3_WSTB,
+    SEL_RATE            => SEL_RATE,
+    SEL_RATE_WSTB       => SEL_RATE_WSTB,
     I2C_BUSY            => I2C_BUSY,
     I2C_ERROR_STATUS    => I2C_ERROR_STATUS,
     SOFT_RESET          => open,
@@ -404,12 +420,17 @@ port map (
     INSERT_ERROR           => INSERT_ERROR,
     ENABLE_PAT_GEN         => ENABLE_PAT_GEN,
     ENABLE_PAT_CHECK       => ENABLE_PAT_CHECK,
+    ADDRESS_SWAP_ENABLE    => ADDRESS_SWAP_ENABLE,
     SIM_SPEEDUP_CONTROL    => SIM_SPEEDUP_CONTROL,
     ENABLE_CUSTOM_PREAMBLE => ENABLE_CUSTOM_PREAMBLE,
     --status outputs of example design
     FRAME_ERROR            => FRAME_ERROR,
-    GEN_ACTIVE_FLASH       => GEN_ACTIVE_FLASH,
-    CHECK_ACTIVE_FLASH     => CHECK_ACTIVE_FLASH,
+    ERRORED_DATA           => ERRORED_DATA,    
+    ERRORED_ADDR           => ERRORED_ADDR,   
+    ERRORED_PREAMBLE       => ERRORED_PREAMBLE,
+    
+    GEN_ACTIVE             => GEN_ACTIVE,
+    CHECK_ACTIVE           => CHECK_ACTIVE,
     CORE_READY             => CORE_READY,
     QPLLLOCK_OUT           => QPLLLOCK_OUT,
     

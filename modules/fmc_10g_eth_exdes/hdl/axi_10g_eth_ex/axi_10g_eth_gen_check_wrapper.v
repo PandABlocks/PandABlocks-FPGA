@@ -86,6 +86,7 @@ module axi_10g_eth_gen_check_wrapper (
    input wire                          enable_pat_gen,
    input wire                          enable_pat_check,
    input wire                          enable_loopback,
+   input wire                          address_swap_enable,
 
    // data from the RX data path
    input       [63:0]                  rx_axis_tdata,
@@ -101,9 +102,12 @@ module axi_10g_eth_gen_check_wrapper (
    output                              tx_axis_tlast,
    input                               tx_axis_tready,
 
-   output wire                         gen_active_flash,
-   output wire                         check_active_flash,
-   output wire                         frame_error
+   output wire                         gen_active,
+   output wire                         check_active,
+   output wire                         frame_error,
+   output wire  [7:0]                  errored_data,
+   output wire  [7:0]                  errored_addr,
+   output wire  [7:0]                  errored_preamble
 );
 
    wire                                areset;
@@ -134,7 +138,8 @@ module axi_10g_eth_gen_check_wrapper (
    wire                                enable_pat_gen_sync;
    wire                                enable_pat_check_sync;
    wire                                enable_loopback_sync;
-
+   wire                                address_swap_enable_sync;
+   
    assign tx_axis_tdata                = tx_axis_as_tdata;
    assign tx_axis_tkeep                = tx_axis_as_tkeep;
    assign tx_axis_tvalid               = tx_axis_as_tvalid;
@@ -165,6 +170,12 @@ module axi_10g_eth_gen_check_wrapper (
       .data_in                         (enable_loopback),
       .data_out                        (enable_loopback_sync)
    );
+   
+   axi_10g_eth_sync_block sync_address_swap_enable (
+      .clk                             (aclk),
+      .data_in                         (address_swap_enable),
+      .data_out                        (address_swap_enable_sync)
+   );
 
    axi_10g_eth_axi_pat_gen generator (
       .dest_addr                       (dest_addr),
@@ -187,7 +198,7 @@ module axi_10g_eth_gen_check_wrapper (
       .tvalid                          (pat_gen_tvalid),
       .tlast                           (pat_gen_tlast),
       .tready                          (pat_gen_tready),
-      .gen_active_flash                (gen_active_flash)
+      .gen_active                      (gen_active)
    );
 
    // simple mux between the rx_fifo AXI interface and the pat gen output
@@ -222,7 +233,7 @@ module axi_10g_eth_gen_check_wrapper (
       .aclk                            (aclk),
       .areset                          (areset),
       .enable_custom_preamble          (enable_custom_preamble),
-      .address_swap_enable             (enable_loopback_sync),  // do the address swap when in loopback
+      .address_swap_enable             (address_swap_enable_sync),  // do the address swap when in loopback
 
       .rx_axis_tdata                   (mux_tdata),
       .rx_axis_tkeep                   (mux_tkeep),
@@ -261,7 +272,10 @@ module axi_10g_eth_gen_check_wrapper (
       .tready                          (rx_axis_tready_int),
       .tuser                           (1'b1),
       .frame_error                     (frame_error),
-      .check_active_flash              (check_active_flash)
+      .errored_data                    (errored_data),
+      .errored_addr                    (errored_addr),
+      .errored_preamble                (errored_preamble),
+      .check_active                    (check_active)
    );
 
 endmodule

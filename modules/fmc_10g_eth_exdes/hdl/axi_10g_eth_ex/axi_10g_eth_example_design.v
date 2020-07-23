@@ -74,14 +74,19 @@ module axi_10g_eth_example_design
    input             insert_error,
    input             enable_pat_gen,
    input             enable_pat_check,
+   input             address_swap_enable,
    output            serialized_stats,
    input             sim_speedup_control,
    input             enable_custom_preamble,
 
    // Example design status outputs
    output            frame_error,
-   output            gen_active_flash,
-   output            check_active_flash,
+   output            errored_data,    
+   output            errored_addr,    
+   output            errored_preamble,
+   
+   output            gen_active,
+   output            check_active,
    output            core_ready,
    output            qplllock_out,
 
@@ -171,12 +176,17 @@ module axi_10g_eth_example_design
    wire              enable_custom_preamble_coreclk_sync;
    wire              insert_error_sync;
    
-   wire              reset_error_sync;
    wire              enable_pat_check_sync;
 
    wire              frame_error_coreclk;
-   wire              gen_active_flash_coreclk;
-   wire              check_active_flash_coreclk;
+   wire [7:0]        errored_data_coreclk; 
+   wire [7:0]        errored_addr_coreclk;
+   wire [7:0]        errored_preamble_coreclk;
+   
+   
+   
+   wire              gen_active_coreclk;
+   wire              check_active_coreclk;
 
 
    assign coreclk_out = coreclk;
@@ -217,16 +227,34 @@ module axi_10g_eth_example_design
       .data_out                        (frame_error)
    );
    
-   axi_10g_eth_sync_block sync_gen_active_flash_coreclk (
-      .data_in                         (gen_active_flash_coreclk),
+   axi_10g_eth_sync_block sync_errored_data_coreclk (
+      .data_in                         (|errored_data_coreclk),
       .clk                             (clk_in),
-      .data_out                        (gen_active_flash)
+      .data_out                        (errored_data)
+   );
+   
+    axi_10g_eth_sync_block sync_errored_addr_coreclk(
+      .data_in                         (|errored_addr_coreclk),
+      .clk                             (clk_in),
+      .data_out                        (errored_addr)
+   );
+   
+    axi_10g_eth_sync_block sync_errored_preamble_coreclk (
+      .data_in                         (|errored_preamble_coreclk),
+      .clk                             (clk_in),
+      .data_out                        (errored_preamble)
+   );
+   
+   axi_10g_eth_sync_block sync_gen_active_coreclk (
+      .data_in                         (gen_active_coreclk),
+      .clk                             (clk_in),
+      .data_out                        (gen_active)
    );  
    
-   axi_10g_eth_sync_block sync_check_active_flash_coreclk (
-      .data_in                         (check_active_flash_coreclk),
+   axi_10g_eth_sync_block sync_check_active_coreclk (
+      .data_in                         (check_active_coreclk),
       .clk                             (clk_in),
-      .data_out                        (check_active_flash)
+      .data_out                        (check_active)
    ); 
    
    assign  core_ready         = block_lock;
@@ -395,6 +423,13 @@ module axi_10g_eth_example_design
       .data_in                         (enable_pat_check),
       .data_out                        (enable_pat_check_sync)
       );
+      
+    axi_10g_eth_sync_block address_swap_enable_sync_reg (
+      .clk                             (coreclk),
+      .data_in                         (address_swap_enable),
+      .data_out                        (address_swap_enable_sync)
+      );
+    
     
     //--------------------------------------------------------------------------
     // Instantiate the pattern generator / pattern checker and loopback module
@@ -419,9 +454,14 @@ module axi_10g_eth_example_design
       .insert_error                    (insert_error_sync),
       .enable_pat_check                (enable_pat_check_sync),
       .enable_loopback                 (!pat_gen_start),
+      .address_swap_enable             (address_swap_enable_sync),
+      
       .frame_error                     (frame_error_coreclk),
-      .gen_active_flash                (gen_active_flash_coreclk),
-      .check_active_flash              (check_active_flash_coreclk),
+      .errored_data                    (errored_data_coreclk),
+      .errored_addr                    (errored_addr_coreclk),
+      .errored_preamble                (errored_preamble_coreclk),
+      .gen_active                      (gen_active_coreclk),
+      .check_active                    (check_active_coreclk),
 
       .tx_axis_tdata                   (tx_axis_tdata),
       .tx_axis_tkeep                   (tx_axis_tkeep),
