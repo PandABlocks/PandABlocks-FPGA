@@ -4,6 +4,9 @@
 --      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--
+--  modified on aug 29, 2020 by Valerio Bassetti, MaxIV Lab, Unversity of Lund 
+--  (valerio.bassetti@maxiv.lu.se)
 --------------------------------------------------------------------------------
 --
 --  Description : Serial Interface Synchronous Recevier core.
@@ -22,6 +25,7 @@ port (
     clk_i           : in  std_logic;
     reset_i         : in  std_logic;
     -- Configuration interface
+    ENCODING        : in  std_logic_vector(0 downto 0);
     BITS            : in  std_logic_vector(7 downto 0);
     link_up_o       : out std_logic;
     error_o         : out std_logic;
@@ -148,6 +152,7 @@ generic map (
 port map (
     clk_i           => clk_i,
     reset_i         => reset,
+    ENCODING        => ENCODING,
     enable_i        => shift_enabled,
     clock_i         => serial_clock_fall,
     data_i          => serial_data,
@@ -169,7 +174,7 @@ begin
                 if (I < intBITS) then
                     posn_o(I) <= data(I);
                 else
-                    posn_o(I) <= data(intBITS-1);
+					posn_o(I) <= data(intBITS-1);
                 end if;
             END LOOP;
         end if;

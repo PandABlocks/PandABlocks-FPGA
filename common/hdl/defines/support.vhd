@@ -4,6 +4,9 @@ use ieee.numeric_std.all;
 
 package support is
 
+constant c_BINARY_ENCODING  : std_logic_vector(0 downto 0) := "0";
+constant c_GRAY_ENCODING    : std_logic_vector(0 downto 0) := "1";
+
 --
 -- Functions
 --

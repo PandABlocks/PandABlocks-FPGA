@@ -4,6 +4,9 @@
 --      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--
+--  modified on aug 29, 2020 by Valerio Bassetti, MaxIV Lab, Unversity of Lund 
+--  (valerio.bassetti@maxiv.lu.se)
 --------------------------------------------------------------------------------
 --
 --  Description : SSI Slave Interface Block.
@@ -15,12 +18,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.support.all;
+
 entity ssi_slave is
 port (
     -- Global system and reset interface.
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Configuration interface.
+    ENCODING            : in  std_logic_vector(0 downto 0);
     BITS                : in  std_logic_vector(7 downto 0);
     -- Block Input and Outputs.
     posn_i              : in  std_logic_vector(31 downto 0);
@@ -45,6 +52,7 @@ signal shift_reg            : std_logic_vector(31 downto 0);
 signal shift_counter        : unsigned(5 downto 0);
 signal link_up              : std_logic;
 signal ssi_active           : std_logic;
+signal data_prev            : std_logic;
 
 begin
 
@@ -86,6 +94,7 @@ begin
             mono_counter <= 0;
             ssi_dat_o <= '1';
             shift_reg <= (others => '0');
+            data_prev <= '0';
         else
             case (fsm_state) is
                 -- First Low-transition indicates incoming clock stream
@@ -96,6 +105,7 @@ begin
                     if (ssi_sck_i = '0') then
                         fsm_state <= SHIFTING;
                         shift_reg <= posn_i;
+                        data_prev <= '0';
                     end if;
 
                 -- Keep track of incoming SSI clocks
@@ -103,7 +113,13 @@ begin
                     if (shift_clock = '1') then
                         shift_reg <= shift_reg(30 downto 0) & shift_reg(31);
                         shift_counter <= shift_counter + 1;
-                        ssi_dat_o <= shift_reg(to_integer(unsigned(BITS))-1);
+						if (ENCODING=c_BINARY_ENCODING) then
+							ssi_dat_o <= shift_reg(to_integer(unsigned(BITS))-1);
+						else
+							ssi_dat_o <= data_prev xor shift_reg(to_integer(unsigned(BITS))-1);
+						end if;
+                                     
+                        data_prev <= shift_reg(to_integer(unsigned(BITS))-1);
                     end if;
 
                     -- Wait for untill all N bits are received
@@ -116,6 +132,7 @@ begin
                 when MONOTIME =>
                     ssi_dat_o <= '0';
                     mono_counter <= mono_counter + 1;
+                    data_prev <= data_prev;
                     if (mono_counter = MONOPERIOD-1) then
                         fsm_state <= IDLE;
                     end if;

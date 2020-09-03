@@ -4,6 +4,9 @@
 --      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--
+--  modified on aug 29, 2020 by Valerio Bassetti, MaxIV Lab, Unversity of Lund 
+--  (valerio.bassetti@maxiv.lu.se)
 --------------------------------------------------------------------------------
 --
 --  Description : 48-bit serial-to-paraller shifter with valid.
@@ -19,24 +22,25 @@ use work.support.all;
 
 entity shifter_in is
 generic (
-    DW              : natural := 48
+    DW               : natural := 48
 );
 port (
-    clk_i           : in  std_logic;
-    reset_i         : in  std_logic;
+    clk_i            : in  std_logic;
+    reset_i          : in  std_logic;
+    ENCODING         : in  std_logic_vector(0 downto 0);
     -- Physical SSI interface
-    enable_i        : in  std_logic;
-    clock_i         : in  std_logic;
-    data_i          : in  std_logic;
+    enable_i         : in  std_logic;
+    clock_i          : in  std_logic;
+    data_i           : in  std_logic;
     -- Block outputs
-    data_o          : out std_logic_vector(DW-1 downto 0);
-    data_valid_o    : out std_logic
+    data_o           : out std_logic_vector(DW-1 downto 0);
+    data_valid_o     : out std_logic
 );
 end shifter_in;
 
 architecture rtl of shifter_in is
 
-signal smpl_hold    : std_logic_vector(DW-1 downto 0);
+signal smpl_hold             : std_logic_vector(DW-1 downto 0);
 signal valid_prev  : std_logic;
 signal valid_fall  : std_logic;
 
@@ -65,8 +69,12 @@ begin
                 smpl_hold <= (others => '0');
             -- Shift data when enabled.
             elsif (enable_i = '1') then
-                if (clock_i = '1') then
-                    smpl_hold <= smpl_hold(DW-2 downto 0) & data_i;
+				if (clock_i = '1') then
+					if (ENCODING=c_BINARY_ENCODING) then
+						smpl_hold <= smpl_hold(DW-2 downto 0) & data_i;
+					else
+						smpl_hold <= smpl_hold(DW-2 downto 0) & (data_i xor smpl_hold(0));
+					end if;
                 end if;
             end if;
         end if;

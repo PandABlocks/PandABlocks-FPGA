@@ -19,6 +19,9 @@
 -----------------------------------------------------------------------------
 --  TO DO List:
 -----------------------------------------------------------------------------
+--  modified on aug 29, 2020 by Valerio Bassetti, MaxIV Lab, Unversity of Lund 
+--  (valerio.bassetti@maxiv.lu.se)
+-----------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -33,6 +36,7 @@ port (
     clk_i           : in  std_logic;
     reset_i         : in  std_logic;
     -- Block Parameters
+    ENCODING        : in  std_logic_vector(0 downto 0);
     BITS            : in  std_logic_vector(7 downto 0);
     CLK_PERIOD      : in  std_logic_vector(31 downto 0);
     FRAME_PERIOD    : in  std_logic_vector(31 downto 0);
@@ -109,6 +113,7 @@ generic map (
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
+    ENCODING        => ENCODING,
     enable_i        => shift_enable,
     clock_i         => shift_clock,
     data_i          => shift_data,

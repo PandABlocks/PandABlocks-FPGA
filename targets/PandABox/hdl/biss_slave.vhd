@@ -11,6 +11,7 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Configuration interface.
+    ENCODING            : in  std_logic_vector(0 downto 0);
     BITS                : in  std_logic_vector(7 downto 0);
     enable_i            : in  std_logic;
     GENERATOR_ERROR     : in  std_logic;
@@ -223,7 +224,16 @@ begin
                    -- Transmit data
                    if (biss_sck_rising_edge = '1') then
                        data_cnt <= data_cnt -1;
-                       biss_dat <= posn_latched(to_integer(data_cnt-9));
+					   if (ENCODING=c_BINARY_ENCODING) then
+					       biss_dat <= posn_latched(to_integer(data_cnt-9));
+					   else
+					       -- gray encoding
+					       if(data_cnt = (unsigned(BITS) + c_nEnW_size + c_CRC_size)) then
+					           biss_dat <= posn_latched(to_integer(data_cnt-9));
+					       else
+					           biss_dat <= posn_latched(to_integer(data_cnt-9)) xor posn_latched(to_integer(data_cnt-8));
+					       end if;
+					   end if;
                        if (data_cnt = 9) then
                            data_enable <= '0';
                            nEnW_enable <= '1';

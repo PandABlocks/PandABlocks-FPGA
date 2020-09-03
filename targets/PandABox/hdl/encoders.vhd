@@ -41,6 +41,7 @@ port (
     -- Block parameters
     GENERATOR_ERROR_i   : in  std_logic;
     OUTENC_PROTOCOL_i   : in  std_logic_vector(2 downto 0);
+    OUTENC_ENCODING_i   : in  std_logic_vector(0 downto 0);
     OUTENC_BITS_i       : in  std_logic_vector(7 downto 0);
     QPERIOD_i           : in  std_logic_vector(31 downto 0);
     QPERIOD_WSTB_i      : in  std_logic;
@@ -49,6 +50,7 @@ port (
 
     DCARD_MODE_i        : in  std_logic_vector(31 downto 0);
     INENC_PROTOCOL_i    : in  std_logic_vector(2 downto 0);
+    INENC_ENCODING_i    : in  std_logic_vector(0 downto 0);
     CLK_SRC_i           : in  std_logic;
     CLK_PERIOD_i        : in  std_logic_vector(31 downto 0);
     FRAME_PERIOD_i      : in  std_logic_vector(31 downto 0);
@@ -172,6 +174,7 @@ ssi_slave_inst : entity work.ssi_slave
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
+    ENCODING        => OUTENC_ENCODING_i,
     BITS            => OUTENC_BITS_i,
     posn_i          => posn_i,
     ssi_sck_i       => CLK_IN,
@@ -185,6 +188,7 @@ biss_slave_inst : entity work.biss_slave
 port map (
     clk_i             => clk_i,
     reset_i           => reset_i,
+    ENCODING          => OUTENC_ENCODING_i,
     BITS              => OUTENC_BITS_i,
     enable_i          => enable_i,
     GENERATOR_ERROR   => GENERATOR_ERROR_i,
@@ -281,6 +285,7 @@ ssi_master_inst : entity work.ssi_master
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
+    ENCODING        => INENC_ENCODING_i,
     BITS            => INENC_BITS_i,
     CLK_PERIOD      => CLK_PERIOD_i,
     FRAME_PERIOD    => FRAME_PERIOD_i,
@@ -295,6 +300,7 @@ ssi_sniffer_inst : entity work.ssi_sniffer
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
+    ENCODING        => INENC_ENCODING_i,
     BITS            => INENC_BITS_i,
     link_up_o       => linkup_ssi,
     error_o         => open,
@@ -311,6 +317,7 @@ biss_master_inst : entity work.biss_master
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
+    ENCODING        => INENC_ENCODING_i,
     BITS            => INENC_BITS_i,
     link_up_o       => linkup_biss_master,
     health_o        => health_biss_master,
@@ -327,6 +334,7 @@ biss_sniffer_inst : entity work.biss_sniffer
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
+    ENCODING        => INENC_ENCODING_i,
     BITS            => INENC_BITS_i,
     link_up_o       => linkup_biss_sniffer,
     health_o        => health_biss_sniffer,
