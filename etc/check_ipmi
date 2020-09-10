@@ -30,8 +30,8 @@ try:
     image = eeprom.read_eeprom(allow_16bit)
 except OSError as e:
     if e.errno == errno.ENXIO:  # No such device or address (i.e. no FMC EEPROM detected)
-        print('Warning: FMC was expected but none detected')
-        sys.exit(0)
+        print('FMC was expected but none detected')
+        sys.exit(1)
     else:
         print('Unable to read FMC EEPROM:', e)
         sys.exit(1)
