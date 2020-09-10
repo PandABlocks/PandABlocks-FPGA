@@ -4,6 +4,7 @@
 from __future__ import print_function
 
 import sys
+import errno
 from i2c import ini_file, eeprom, parse_ipmi
 
 IPMI_INI = '/opt/share/panda-fpga/ipmi.ini'
@@ -28,7 +29,7 @@ try:
     allow_16bit = eeprom_key == '16-bit'
     image = eeprom.read_eeprom(allow_16bit)
 except OSError as e:
-    if e.errno == 6: # No FMC detected
+    if e.errno == errno.ENXIO:  # No such device or address (i.e. no FMC EEPROM detected)
         print('Warning: FMC was expected but none detected')
         sys.exit(0)
     else:
