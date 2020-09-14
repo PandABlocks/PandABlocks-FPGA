@@ -49,7 +49,7 @@ VERSION :
 # xst can't cope with long file names.
 $(LIST_FILE): $(AUTOGEN)/slow_top.files
 	ln -sfn $(TOP) top
-	sed "s:^:vhdl work top/:" $< >$@
+	sed "s:^:vhdl work :" $< >$@
 
 MAP_FLAGS = -detail -w -ol high -pr b
 PAR_FLAGS = -w -ol high

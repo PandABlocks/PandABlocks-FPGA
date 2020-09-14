@@ -201,7 +201,7 @@ class AppGenerator(object):
             "descriptions.jinja2", context, config_dir, "description")
         self.expand_template(
             "sim_server.jinja2", context, self.app_build_dir, "sim_server")
-        context = jinja_context(app=self.app_name)
+        context = jinja_context(app_dir=self.app_build_dir)
         self.expand_template(
             "slow_top.files.jinja2",
             context, self.app_build_dir, "slow_top.files")
