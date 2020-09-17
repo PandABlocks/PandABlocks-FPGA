@@ -1,4 +1,5 @@
 # Helper for reading EEPROM
+import errno
 
 import numpy
 
@@ -51,6 +52,31 @@ def read_16bit_address(device = 0x50, length = 256):
     return result
 
 
+# Note that it is actively unsafe to call this function until we've verified
+# that the target device is not an 8-bit addressed device.
+def write_16bit_address(data, device = 0x50):
+    # We'll need to start with a two byte address write followed by our first
+    # read.  This can then be followed by a sequence of reads.
+    bus = smbus2.SMBus(0)
+    offset = 0
+    for b in data:        
+        # Send the address using a custom 2-byte write transaction
+        write = smbus2.i2c_msg.write(device, [0, offset, b])
+        bus.i2c_rdwr(write)
+        while readback is None:
+            try:   
+                write = smbus2.i2c_msg.write(device, [0, offset])
+                bus.i2c_rdwr(write)
+                readback = read_bytes(bus, device, 1)
+            except OSError as e:
+                if not e.errno == errno.ENXIO:  # expected error is no ACK
+                    raise e
+        
+        assert b == readback, "readback data does not match"
+        readback = None
+        offset += 1
+
+
 def read_8bit_address(device = 0x50, length = 256):
     bus = smbus2.SMBus(0)
     bus.write_byte(device, 0)
@@ -61,6 +87,26 @@ def read_8bit_address(device = 0x50, length = 256):
         result.extend(read_bytes(bus, device, to_read))
 
     return result
+
+
+def write_8bit_address(data, device = 0x50):
+    bus = smbus2.SMBus(0)
+    offset = 0
+    readback = None
+    for b in data:        
+        write = smbus2.i2c_msg.write(device, [offset, b])
+        bus.i2c_rdwr(write)
+        while readback is None:
+            try:               
+                bus.write_byte(device, offset)
+                readback = read_bytes(bus, device, 1)
+            except OSError as e:
+                if not e.errno == errno.ENXIO:  # expected error is no ACK
+                    raise e
+        
+        assert b == readback, "readback data does not match"
+        readback = None
+        offset += 1
 
 
 def read_eeprom(allow_16bit):
