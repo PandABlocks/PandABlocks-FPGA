@@ -21,7 +21,7 @@ library work;
 use work.addr_defines.all; -- NEEDED?
 use work.top_defines.all;  -- NEEDED?
 
-entity panda_carrier_top is
+entity PandABox_top is
 generic (
     SIM                 : string  := "FALSE";
     AXI_ADDR_WIDTH      : integer := 32;
@@ -104,9 +104,9 @@ port (
     SPI_SCLK_I          : in  std_logic;
     SPI_DAT_I           : in  std_logic
 );
-end panda_carrier_top;
+end PandABox_top;
 
-architecture rtl of panda_carrier_top is
+architecture rtl of PandABox_top is
 
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;

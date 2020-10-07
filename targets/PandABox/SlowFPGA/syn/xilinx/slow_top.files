@@ -1,5 +1,5 @@
 vhdl work common_hdl/defines/*.vhd
-vhdl work target_dir/hdl/defines/slow_defines.vhd
+vhdl work target_dir/hdl/slow_defines.vhd
 vhdl work autogen_hdl/addr_defines.vhd
 vhdl work autogen_hdl/version.vhd
 vhdl work autogen_hdl/top_defines.vhd

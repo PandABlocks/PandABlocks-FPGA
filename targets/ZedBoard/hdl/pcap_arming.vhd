@@ -156,11 +156,11 @@ process(clk_i) begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
             timestamp <= (others => '0');
-                elsif (ARM = '0' and enable_i = '0') then
-                        timestamp <= (others => '0');
+        elsif (ARM = '0' and enable_i = '0') then
+            timestamp <= (others => '0');
         elsif (ARM = '1') then
             timestamp <= to_unsigned(1, 64);
-                elsif (pcap_armed = '1' and enable_i = '1') then
+        elsif (pcap_armed = '1' and enable_i = '1') then
             timestamp <= timestamp + 1;
         end if;
     end if;

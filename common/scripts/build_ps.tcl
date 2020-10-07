@@ -2,11 +2,10 @@
 # Generate PS part of the firmware based as Zynq Block design
 #
 
-set TOP_DIR    [lindex $argv 0]
+set TOP [lindex $argv 0]
 
 # Source directory
 set TARGET_DIR [lindex $argv 1]
-set_param board.repoPaths $TOP_DIR/common/configs
 
 # Build directory
 set BUILD_DIR [lindex $argv 2]
@@ -17,15 +16,19 @@ set OUTPUT_FILE [lindex $argv 3]
 # Vivado run mode - gui or batch mode
 set MODE [lindex $argv 4]
 
+set_param board.repoPaths $TOP/common/configs
+
+source $TARGET_DIR/target_incl.tcl
+
 # Create project
-create_project -part xc7z030sbg485-1 -force panda_ps $BUILD_DIR
+create_project -part $FPGA_PART -force panda_ps $BUILD_DIR
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
 
 # Set project properties
 set obj [get_projects panda_ps]
-set_property "board_part" "em.avnet.com:picozed_7030:part0:1.0" $obj
+set_property "board_part" $BOARD_PART $obj
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj

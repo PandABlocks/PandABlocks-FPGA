@@ -1,11 +1,11 @@
 #
 # Generate Xilinx IP Cores
 #
-set TOP_DIR    [lindex $argv 0]
+
+set TOP [lindex $argv 0]
 
 # Source directory
 set TARGET_DIR [lindex $argv 1]
-set_param board.repoPaths $TOP_DIR/common/configs
 
 # Build directory
 set BUILD_DIR [lindex $argv 2]
@@ -13,8 +13,12 @@ set BUILD_DIR [lindex $argv 2]
 # Vivado run mode - gui or batch mode
 set MODE [lindex $argv 3]
 
+set_param board.repoPaths $TOP/common/configs
+
+source $TARGET_DIR/target_incl.tcl
+
 # Create Managed IP Project
-create_project -part xc7z030sbg485-1 -force -ip managed_ip_project $BUILD_DIR/managed_ip_project
+create_project -part $FPGA_PART -force -ip managed_ip_project $BUILD_DIR/managed_ip_project
 
 set_property target_language VHDL [current_project]
 set_property target_simulator ModelSim [current_project]
@@ -274,6 +278,8 @@ create_ip -name gtwizard -vendor xilinx.com -library ip -version 3.5 \
 -module_name event_receiver_mgt -dir $BUILD_DIR/
 
 set_property -dict [list \
+    CONFIG.identical_val_tx_line_rate {2.5} \
+    CONFIG.identical_val_rx_line_rate {2.5} \
     CONFIG.gt0_val {false}                                      \
     CONFIG.gt1_val {true}                                       \
     CONFIG.gt0_val_dec_valid_comma_only {true}                  \

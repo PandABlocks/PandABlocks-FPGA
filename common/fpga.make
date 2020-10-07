@@ -11,9 +11,11 @@ RUNVIVADO = . $(VIVADO) && vivado
 #####################################################################
 # Project related files and directories
 
+-include $(TARGET_DIR)/fpga_incl.make
+
 BUILD_DIR = $(APP_BUILD_DIR)/FPGA
 AUTOGEN  = $(APP_BUILD_DIR)/autogen
-IP_DIR = $(TGT_BUILD_DIR)/ip_repo/IP_BUILD_SUCCEED
+IP_DIR = $(TGT_BUILD_DIR)/ip_repo
 PS_DIR = $(TGT_BUILD_DIR)/panda_ps
 PS_CORE  = $(PS_DIR)/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 
@@ -23,9 +25,9 @@ SDK_EXPORT = $(PS_DIR)/panda_ps.sdk
 HWDEF = $(PS_DIR)/panda_ps.srcs/sources_1/bd/panda_ps/hdl/panda_ps.hdf
 
 IP_BUILD_SCR = $(TARGET_DIR)/scripts/build_ip.tcl
-PS_BUILD_SCR = $(TARGET_DIR)/scripts/build_ps.tcl
+PS_BUILD_SCR = $(TOP)/common/scripts/build_ps.tcl
 PS_CONFIG_SCR = $(TARGET_DIR)/bd/panda_ps.tcl
-TOP_BUILD_SCR = $(TARGET_DIR)/scripts/build_top.tcl
+TOP_BUILD_SCR = $(TOP)/common/scripts/build_top.tcl
 XSDK_BUILD_SCR = $(TOP)/common/scripts/build_xsdk.tcl
 UBOOT_BUILD_SCR = $(TOP)/common/u-boot/u-boot.make
 
@@ -46,17 +48,19 @@ U_BOOT_ELF = $(U_BOOT_BUILD)/u-boot.elf
 
 IMAGE_DIR=$(TGT_BUILD_DIR)/boot
 
+BITS_PREREQ += carrier_fpga
+
 #####################################################################
 # BUILD TARGETS includes HW and SW
-fpga-all: fpga-bits ps_boot
-fpga-bits: carrier_fpga
-carrier_ip: $(IP_DIR)
+fpga-all: fpga-bits boot
+fpga-bits: $(BITS_PREREQ)
+carrier_ip: $(IP_DIR)/IP_BUILD_SUCCESS
 ps_core: $(PS_CORE)
 devicetree : $(DEVTREE_DTB)
 fsbl : $(FSBL)
 boot : $(IMAGE_DIR)/boot.bin
 u-boot: $(U_BOOT_ELF)
-.PHONY: fpga-all fpga-bits carrier_ip ps_core ps_boot devicetree fsbl u-boot
+.PHONY: fpga-all fpga-bits carrier_ip ps_core boot devicetree fsbl u-boot
 
 #####################################################################
 # HW Projects Build
@@ -75,7 +79,7 @@ VERSION :
 ###########################################################
 # Build Zynq Firmware targets
 
-$(IP_DIR) : $(IP_BUILD_SCR)
+$(IP_DIR)/IP_BUILD_SUCCESS : $(IP_BUILD_SCR)
 	$(RUNVIVADO) -mode $(DEP_MODE) -source $< \
 	  -log $(TGT_BUILD_DIR)/build_ip.log -nojournal \
 	  -tclargs $(TOP) $(TARGET_DIR) $(IP_DIR) $(DEP_MODE)
@@ -87,7 +91,7 @@ $(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR)
 	  -log $(TGT_BUILD_DIR)/build_ps.log -nojournal \
 	  -tclargs $(TOP) $(TARGET_DIR) $(PS_DIR) $@ $(DEP_MODE)
 
-carrier_fpga : $(TOP_BUILD_SCR) VERSION $(IP_DIR) $(PS_CORE)
+carrier_fpga : $(TOP_BUILD_SCR) VERSION $(IP_DIR)/IP_BUILD_SUCCESS $(PS_CORE)
 	$(RUNVIVADO) -mode $(TOP_MODE) -source $< \
 	  -log $(BUILD_DIR)/build_top.log -nojournal \
 	  -tclargs $(TOP) \
