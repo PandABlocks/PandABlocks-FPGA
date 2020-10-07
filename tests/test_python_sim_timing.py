@@ -88,6 +88,9 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
                             raise ValueError(
                                 "Expected POS[n] or BIT[n], got %s" % name)
                     else:
+                        assert hasattr(block, name), \
+                            "Block %s doesn't have attr %s" % (
+                                self.block_name, name)
                         changes[name] = value
 
                 next_ts = block.on_changes(ts, changes)

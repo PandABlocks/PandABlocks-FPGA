@@ -100,13 +100,6 @@ foreach test [array names tests] {
 }
 
 # Print out the result of the regression run
-if {$test_failed_cnt != 0} {
-    puts "################################### Tests that have failed ###################################";
-    puts "                                                                                              ";
-    puts "Tests that have failed $test_failed                                                           ";
-    puts "                                                                                              ";
-    puts "Simulation has finished and the number of tests that have failed is $test_failed_cnt          ";
-}
 if {$test_passed_cnt != 0} {
     puts "################################### Tests that have passed ###################################";
     puts "                                                                                              ";
@@ -114,3 +107,12 @@ if {$test_passed_cnt != 0} {
     puts "                                                                                              ";
     puts "Simulation has finished and the number of tests that have passed is $test_passed_cnt          ";
 }
+if {$test_failed_cnt != 0} {
+    puts "################################### Tests that have failed ###################################";
+    puts "                                                                                              ";
+    puts "Tests that have failed $test_failed                                                           ";
+    puts "                                                                                              ";
+    puts "Simulation has finished and the number of tests that have failed is $test_failed_cnt          ";
+    exit 1
+}
+

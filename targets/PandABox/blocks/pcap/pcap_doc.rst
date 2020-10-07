@@ -14,9 +14,9 @@ Fields
 Arming
 ------
 
-To start off the block an arm signal is required with a write to `*PCAP.ARM=`.
+To start off the block an arm signal is required with a write to ``*PCAP.ARM=``.
 The active signal is raised immediately on ARM, and dropped either on
-`*PCAP.DISARM`:
+``*PCAP.DISARM``:
 
 .. timing_plot::
    :path: targets/PandABox/blocks/pcap/pcap.timing.ini

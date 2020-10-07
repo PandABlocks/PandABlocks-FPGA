@@ -1,5 +1,4 @@
 # Extension module to support FMC ADC427
-from .fmc_acq427 import Extension
 from i2c import smbus2
 
 # The mapping of GPIO bits is as follows:
@@ -54,15 +53,16 @@ class GPIO_Helper:
     def write_output_bits(self, bits):
         self.bus.write_i2c_block_data(0x22, 0x84, bits)
 
-    def read_bit(self, (byte_ix, offset)):
+    def read_bit(self, byte_ix, offset):
         bits = self.read_input_bits()
         return bool(bits[byte_ix] & (1 << offset))
 
-    def write_bits(self, (byte_ix, offset, width), value):
+    def write_bits(self, value, byte_ix, offset, width):
         mask = ((1 << width) - 1) << offset
         value = (value << offset) & mask
         self.outputs[byte_ix] = (self.outputs[byte_ix] & ~mask) | value
         self.write_output_bits(self.outputs)
+
 
 class BitReader:
     def __init__(self, gpio, offset):
@@ -70,7 +70,8 @@ class BitReader:
         self.offset = offset
 
     def read(self, number):
-        return self.gpio.read_bit(self.offset)
+        return self.gpio.read_bit(*self.offset)
+
 
 class BitsWriter:
     def __init__(self, gpio, offset):
@@ -78,7 +79,7 @@ class BitsWriter:
         self.offset = offset
 
     def write(self, number, value):
-        self.gpio.write_bits(self.offset, value)
+        self.gpio.write_bits(value, *self.offset)
 
 
 # We need a single GPIO controller shared between the ADC and DAC extensions.

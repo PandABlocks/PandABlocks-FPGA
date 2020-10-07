@@ -15,7 +15,7 @@ STATE = {
 
 
 class QdecSimulation(BlockSimulation):
-    A, B, Z, RST_ON_Z, SETP, OUT = PROPERTIES
+    LINKUP_INCR, A, B, Z, RST_ON_Z, SETP, HOMED, OUT = PROPERTIES
 
     def __init__(self):
         self.state = 0
@@ -30,10 +30,16 @@ class QdecSimulation(BlockSimulation):
             self.OUT += self.queue.popleft()
 
         if changes.get(NAMES.SETP, None):
+            # HOMED on SETP
             self.OUT = self.SETP
+            self.HOMED = 1
+        elif self.LINKUP_INCR == 0:
+            # If coder loss reset HOMED
+            self.HOMED = 0
         elif self.RST_ON_Z == 1 and self.Z == 1:
-            # Reset when Z is '1' provided that RST_ON_Z is also '1'
+            # HOMED on Reset when Z is '1' provided that RST_ON_Z is also '1'    
             self.OUT = 0
+            self.HOMED = 1
 
         # New quadrature state (0..3)
         new_state = STATE[(self.A, self.B)]

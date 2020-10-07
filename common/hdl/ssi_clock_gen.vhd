@@ -72,6 +72,7 @@ begin
             clock_counter <= 0;
             dead_counter <= 0;
             active_o <= '0';
+            fsm_state<=WAIT_START;
         else
             -- SSI Clock Generator FSM
             case (fsm_state) is

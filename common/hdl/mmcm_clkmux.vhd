@@ -35,7 +35,7 @@ signal enable_mgt_clk     : std_logic;
 signal fclk_clk             : std_logic;
 signal secondary_mux_out    : std_logic;
 signal primary_mux_sel      : std_logic;
-
+signal ps_fclk_bufh            : std_logic;
 
 begin
 
@@ -133,10 +133,16 @@ enable_sma_clk <= sma_pll_locked and clk_sel_i(0);
 enable_mgt_clk <= linkup_i and clk_sel_i(1);
 primary_mux_sel <= enable_sma_clk or enable_mgt_clk;
 
+clk_mux_bufh: BUFH
+    port map (
+        O => ps_fclk_bufh,
+        I => fclk_clk0_ps_i
+);
+
 primary_clkmux: BUFGMUX
     port map (
         O => fclk_clk,
-        I0 => fclk_clk0_ps_i,
+        I0 => ps_fclk_bufh,
         I1 => secondary_mux_out,
         S => primary_mux_sel
 );

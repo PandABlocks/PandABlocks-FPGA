@@ -64,21 +64,12 @@ architecture rtl of {{ entity }}_wrapper is
 -- Blocks
 
 {% for field in fields %}
-    {% if field.type in "time" %}
-{# Time signals are 48 bits so require two registers for reading their data. #}
-signal {{ field.name }}            : std64_array(NUM-1 downto 0);
-signal {{ field.name }}_wstb       : std_logic_vector(NUM-1 downto 0);
-signal {{ field.name }}_L_wstb     : std_logic_vector(NUM-1 downto 0);
-signal {{ field.name }}_H_wstb     : std_logic_vector(NUM-1 downto 0);
-
-    {% else %}
-        {% for register in field.numbered_registers() %}
+    {% for register in field.numbered_registers() %}
 signal {{ register.name }}        : std32_array(NUM-1 downto 0);
-			{% if "read" not in field.type %}
+        {% if "read" not in field.type %}
 signal {{ register.name }}_wstb   : std_logic_vector(NUM-1 downto 0);
-			{% endif %}
-        {% endfor %}
-    {% endif %}
+        {% endif %}
+    {% endfor %}
 {% endfor %}
 
 -- Register interface common
@@ -113,12 +104,7 @@ begin
             pos_bus_i           => pos_bus_i,
 
 {% for field in fields %}
-    {% if field in filter_fields("time") %}
-            {{ pad(field.name + "_L") }} => {{ field.name }}(I)(31 downto 0),
-            {{ pad(field.name + "_H") }} => {{ field.name }}(I)(63 downto 32),
-            {{ pad(field.name + "_L_wstb") }} => {{ field.name }}_L_wstb(I),
-            {{ pad(field.name + "_H_wstb") }} => {{ field.name }}_H_wstb(I),
-    {% elif field in filter_fields("bit_mux") %}
+    {% if field in filter_fields("bit_mux") %}
             {{ pad(field.name+"_from_bus") }} => {{ field.name }}(I)(0),
     {% elif field in filter_fields("pos_mux") %}
             {{ pad(field.name+"_from_bus") }} => {{ field.name }}(I),
@@ -143,14 +129,6 @@ begin
             write_ack_o         => open
         );
 
-{% for field in filter_fields("time") %}
-    {% if loop.first %}
-        -- Time signals are made up of _L and _H parts and the overall
-        -- signal wstb is the or output of the two
-    {% endif %}
-        {{ field.name }}_wstb(I) <= {{ field.name }}_L_wstb(I) or {{ field.name }}_H_wstb(I);
-
-{% endfor %}
         -- Connect to the actual logic entity
         {{ entity }} : entity work.{{ entity }}
         port map (
@@ -159,8 +137,6 @@ begin
             {{ pad(field.name +"_i") }} => {{ field.name }}(I)(0),
 	{% elif field in filter_fields("pos_mux") %}
             {{ pad(field.name +"_i") }} => {{ field.name }}(I),
-	{% elif field in filter_fields("time") %}
-		{{ pad(field.name) }} => {{ field.name }}(I)(47 downto 0),
 	{% elif field in filter_fields(".*_out") %}
             {{ pad(field.name + "_o") }} => {{ field.name }}_o(I),
     {% else %}
@@ -169,13 +145,9 @@ begin
         {% endfor %}
     {% endif %}
     {% if field.wstb %}
-        {% if field.type == "time" %}
-			{{ pad(field.name + "_wstb") }} => {{ field.name }}_wstb(I),
-		{% else %}
             {% for register in field.numbered_registers() %}
             {{ pad(register.name + "_wstb") }} => {{ register.name }}_wstb(I),
             {% endfor %}
-        {% endif %}
     {% endif %}
 {% endfor %}
 {% if type == "dma" %}

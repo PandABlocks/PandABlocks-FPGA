@@ -12,7 +12,7 @@ VIVADO = $(error Define VIVADO in CONFIG file)
 APP_NAME = $(error Define APP_NAME in CONFIG file)
 
 # Build defaults that can be overwritten by the CONFIG file if required
-PYTHON = python2
+PYTHON = python
 SPHINX_BUILD = sphinx-build
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 MAKE_GITHUB_RELEASE = $(PANDA_ROOTFS)/make-github-release.py
@@ -112,7 +112,7 @@ export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
 export VERSION := $(shell ./common/python/parse_git_version.py "$(GIT_VERSION)")
 # 8 if dirty, 0 if clean
 DIRTY_PRE = $(shell \
-    python -c "print 8 if '$(GIT_VERSION)'.endswith('dirty') else 0")
+    python -c "print(8 if '$(GIT_VERSION)'.endswith('dirty') else 0)")
 # Something like 85539563
 export SHA := $(DIRTY_PRE)$(shell git rev-parse --short=7 HEAD)
 
@@ -187,7 +187,7 @@ hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
 
 # Make the hdl_timing folders and run a single test, set TEST argument
 # E.g. make TEST="clock 1" single_hdl_test
-single_hdl_test: $(TIMING_BUILD_DIRS)
+single_hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
 	rm -rf $(TEST_DIR)/single_test
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
