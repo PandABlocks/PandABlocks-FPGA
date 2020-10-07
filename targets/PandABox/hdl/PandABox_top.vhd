@@ -221,19 +221,6 @@ signal rdma_len             : std8_array(5 downto 0);
 signal rdma_data            : std_logic_vector(31 downto 0);
 signal rdma_valid           : std_logic_vector(5 downto 0);
 
-signal A_IN                 : std_logic_vector(ENC_NUM-1 downto 0);
-signal B_IN                 : std_logic_vector(ENC_NUM-1 downto 0);
-signal Z_IN                 : std_logic_vector(ENC_NUM-1 downto 0);
-signal CLK_OUT              : std_logic_vector(ENC_NUM-1 downto 0);
-signal DATA_IN              : std_logic_vector(ENC_NUM-1 downto 0);
-signal A_OUT                : std_logic_vector(ENC_NUM-1 downto 0);
-signal B_OUT                : std_logic_vector(ENC_NUM-1 downto 0);
-signal Z_OUT                : std_logic_vector(ENC_NUM-1 downto 0);
-signal CLK_IN               : std_logic_vector(ENC_NUM-1 downto 0);
-signal DATA_OUT             : std_logic_vector(ENC_NUM-1 downto 0);
-signal OUTPROT              : std3_array(ENC_NUM-1 downto 0);
-signal INPROT               : std3_array(ENC_NUM-1 downto 0);
-
 signal SLOW_FPGA_VERSION    : std_logic_vector(31 downto 0);
 signal DCARD_MODE           : std32_array(ENC_NUM-1 downto 0);
 
@@ -531,79 +518,57 @@ port map (
 );
 
 
-
----------------------------------------------------------------------------
--- INENC (Encoder Inputs)
----------------------------------------------------------------------------
-inenc_inst : entity work.inenc_top
+-----------------------------------------------------------------------------
+---- ENCODERS (Encoder Inputs)
+-----------------------------------------------------------------------------
+encoders_top_inst : entity work.encoders_top
 port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-    -- Memory interface
-    read_strobe_i       => read_strobe(INENC_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(INENC_CS),
-    read_ack_o          => read_ack(INENC_CS),
+    -- Clock and Reset
+    clk_i                   => FCLK_CLK0,
+    reset_i                 => FCLK_RESET0,
+    -- Memory Bus Interface
+    OUTENC_read_strobe_i    =>read_strobe(OUTENC_CS),
+    OUTENC_read_data_o      =>read_data(OUTENC_CS),
+    OUTENC_read_ack_o       =>read_ack(OUTENC_CS),
 
-    write_strobe_i      => write_strobe(INENC_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(INENC_CS),
-    -- Physical IO Pads
-    A_IN                => A_IN,
-    B_IN                => B_IN,
-    Z_IN                => Z_IN,
-    CLK_OUT             => CLK_OUT,
-    DATA_IN             => DATA_IN,
-    CLK_IN              => CLK_IN,
+    OUTENC_write_strobe_i   =>write_strobe(OUTENC_CS),
+    OUTENC_write_ack_o      =>write_ack(OUTENC_CS),
+
+    INENC_read_strobe_i     =>read_strobe(INENC_CS),
+    INENC_read_data_o       =>read_data(INENC_CS),
+    INENC_read_ack_o        =>read_ack(INENC_CS),
+    INENC_write_strobe_i    =>write_strobe(INENC_CS),
+    INENC_write_ack_o       =>write_ack(INENC_CS),
+    read_address_i          =>read_address,
+
+    write_address_i         =>write_address,
+    write_data_i            =>write_data,
+    -- Encoder I/O Pads
+    OUTENC_CONN_OUT_o       =>outenc_conn,
+
+    INENC_CONN_OUT_o        =>inenc_conn,
+
+    Am0_pad_io              => AM0_PAD_IO,
+    Bm0_pad_io              => BM0_PAD_IO,
+    Zm0_pad_io              => ZM0_PAD_IO,
+    As0_pad_io              => AS0_PAD_IO,
+    Bs0_pad_io              => BS0_PAD_IO,
+    Zs0_pad_io              => ZS0_PAD_IO,
+
     -- Signals passed to internal bus
-    a_int_o             => inenc_a,
-    b_int_o             => inenc_b,
-    z_int_o             => inenc_z,
-    data_int_o          => inenc_data,
-    -- Block Outputs
-    bit_bus_i           => bit_bus,
-    pos_bus_i           => pos_bus,
-    CONN_OUT            => inenc_conn,
-    DCARD_MODE          => DCARD_MODE,
-    PROTOCOL            => INPROT,
-    posn_o              => inenc_val,
-    slow_tlp_o          => slow_tlp
-);
+    clk_int_o               =>outenc_clk,
+    inenc_a_o               =>inenc_a,
+    inenc_b_o               =>inenc_b,
+    inenc_z_o               =>inenc_z,
+    inenc_data_o            =>inenc_data,
+    -- Block Input and Outputs
+    bit_bus_i               =>bit_bus,
+    pos_bus_i               =>pos_bus,
+    DCARD_MODE_i            =>DCARD_MODE,
+    posn_o                  =>inenc_val,
 
+    slow_tlp_o              =>slow_tlp
 
----------------------------------------------------------------------------
--- OUTENC (Encoder Inputs)
----------------------------------------------------------------------------
-outenc_inst : entity work.outenc_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(OUTENC_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(OUTENC_CS),
-    read_ack_o          => read_ack(OUTENC_CS),
-
-    write_strobe_i      => write_strobe(OUTENC_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(OUTENC_CS),
-    -- Physical IO Pads
-    A_OUT               => A_OUT,
-    B_OUT               => B_OUT,
-    Z_OUT               => Z_OUT,
-    CLK_IN              => CLK_IN,
-    DATA_OUT            => DATA_OUT,
-    CONN_OUT            => outenc_conn,
-    -- Signals passed to internal bus
-    clk_int_o           => outenc_clk,
-    --
-    bit_bus_i           => bit_bus,
-    pos_bus_i           => pos_bus,
-    DCARD_MODE          => DCARD_MODE,
-    PROTOCOL            => OUTPROT,
-    slow_tlp_o          => slow_tlp
 );
 
 
@@ -754,39 +719,10 @@ port map (
     spi_dat_i           => SPI_DAT_I,
     slow_tlp_i          => slow_tlp,
     -- External clock
+    ext_clk_i           => EXTCLK,
     sma_pll_locked_i    => sma_pll_locked,
     ext_clock_o         => clk_src_sel,
     clk_sel_stat_i        => clk_sel_stat
-);
-
----------------------------------------------------------------------------
--- On-Chip IOBUF Control for Daughter Card Interfacing
----------------------------------------------------------------------------
-dcard_interface_inst : entity work.dcard_interface
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    Am0_pad_io          => AM0_PAD_IO,
-    Bm0_pad_io          => BM0_PAD_IO,
-    Zm0_pad_io          => ZM0_PAD_IO,
-    As0_pad_io          => AS0_PAD_IO,
-    Bs0_pad_io          => BS0_PAD_IO,
-    Zs0_pad_io          => ZS0_PAD_IO,
-
-    INPROT              => INPROT,
-    OUTPROT             => OUTPROT,
-
-    A_IN                => A_IN,
-    B_IN                => B_IN,
-    Z_IN                => Z_IN,
-    A_OUT               => A_OUT,
-    B_OUT               => B_OUT,
-    Z_OUT               => Z_OUT,
-    CLK_OUT             => CLK_OUT,
-    DATA_IN             => DATA_IN,
-    CLK_IN              => CLK_IN,
-    DATA_OUT            => DATA_OUT
 );
 
 -- Bus assembly ----
