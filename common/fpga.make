@@ -31,6 +31,8 @@ TOP_BUILD_SCR = $(TOP)/common/scripts/build_top.tcl
 XSDK_BUILD_SCR = $(TOP)/common/scripts/build_xsdk.tcl
 UBOOT_BUILD_SCR = $(TOP)/common/u-boot/u-boot.make
 
+TGT_INCL_SCR = $(TARGET_DIR)/target_incl.tcl
+
 # Manually set the device tree sources verison to v2015.1 to match the
 # Kernel and uboot version in rootfs repo
 #DEVTREE_TAG = xilinx-v$(VIVADO_VER)
@@ -79,19 +81,19 @@ VERSION :
 ###########################################################
 # Build Zynq Firmware targets
 
-$(IP_DIR)/IP_BUILD_SUCCESS : $(IP_BUILD_SCR)
+$(IP_DIR)/IP_BUILD_SUCCESS : $(IP_BUILD_SCR) $(TGT_INCL_SCR)
 	$(RUNVIVADO) -mode $(DEP_MODE) -source $< \
 	  -log $(TGT_BUILD_DIR)/build_ip.log -nojournal \
 	  -tclargs $(TOP) $(TARGET_DIR) $(IP_DIR) $(DEP_MODE)
 	touch $@
 
 
-$(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR)
+$(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR) $(TGT_INCL_SCR)
 	$(RUNVIVADO) -mode $(DEP_MODE) -source $< \
 	  -log $(TGT_BUILD_DIR)/build_ps.log -nojournal \
 	  -tclargs $(TOP) $(TARGET_DIR) $(PS_DIR) $@ $(DEP_MODE)
 
-carrier_fpga : $(TOP_BUILD_SCR) VERSION $(IP_DIR)/IP_BUILD_SUCCESS $(PS_CORE)
+carrier_fpga : $(TOP_BUILD_SCR) VERSION $(IP_DIR)/IP_BUILD_SUCCESS $(PS_CORE) $(TGT_INCL_SCR)
 	$(RUNVIVADO) -mode $(TOP_MODE) -source $< \
 	  -log $(BUILD_DIR)/build_top.log -nojournal \
 	  -tclargs $(TOP) \

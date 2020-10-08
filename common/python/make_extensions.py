@@ -57,7 +57,8 @@ def main():
     app_ini = read_ini(app_file)
 
     # Pull in extension files from both modules
-    process_ini(extensions, os.path.join(target_dir, 'blocks'), target_ini)
+    #process_ini(extensions, os.path.join(target_dir, 'blocks'), target_ini)
+    process_ini(extensions, modules_dir, target_ini)
     process_ini(extensions, modules_dir, app_ini)
 
 

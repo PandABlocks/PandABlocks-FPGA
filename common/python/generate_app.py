@@ -98,7 +98,8 @@ class AppGenerator(object):
             target_path = os.path.join("targets", target, "blocks")
             target_ini = read_ini(os.path.join(ROOT, "targets", target, (
                     target + ".target.ini")))
-            self.implement_blocks(target_ini, target_path, "carrier")
+            #self.implement_blocks(target_ini, target_path, "carrier")
+            self.implement_blocks(target_ini, "modules", "carrier")
             self.sfp_sites = int(ini_get(target_ini, '.', 'sfp_sites', 0))
             self.fmc_sites = int(ini_get(target_ini, '.', 'fmc_sites', 0))
 
