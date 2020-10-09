@@ -5,4 +5,4 @@ The INENC block handles the encoder input signals
 Fields
 ------
 
-.. block_fields:: targets/PandABox/blocks/inenc/inenc.block.ini
+.. block_fields:: modules/inenc/inenc.block.ini

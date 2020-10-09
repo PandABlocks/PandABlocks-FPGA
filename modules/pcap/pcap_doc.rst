@@ -9,7 +9,7 @@ can capture the value at capture, sum, min and max.
 Fields
 ----------
 
-.. block_fields:: targets/PandABox/blocks/pcap/pcap.block.ini
+.. block_fields:: modules/pcap/pcap.block.ini
 
 Arming
 ------
@@ -19,13 +19,13 @@ The active signal is raised immediately on ARM, and dropped either on
 ``*PCAP.DISARM``:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Arming and soft disarm
 
 Or on the falling edge of ENABLE:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Arming and hard disarm
 
 
@@ -47,7 +47,7 @@ The following example shows PCAP being configured to capture the timestamp
 when CAPTURE goes high (0x24 is the bottom 32-bits of TS_CAPTURE).
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Capture timestamp
 
 
@@ -64,7 +64,7 @@ Mode 0 - Value
 This gives an instantaneous capture of value no matter what the state of GATE:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Capture pos bus entry 5 Value
 
 Mode 1 - Difference
@@ -74,7 +74,7 @@ This is mainly used for something like an incrementing counter value.
 It will only count the differences while GATE was high:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Capture pos bus entry 11 Difference
 
 Mode 2/3 - Sum Lo/Hi
@@ -83,14 +83,14 @@ Mode 2/3 - Sum Lo/Hi
 Mode 2 is the lower 32-bits of the sum of all samples while GATE was high:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Capture pos bus entry 3 Sum
 
 Mode 2 and 3 together gives the full 64-bits of sum, needed for any sizeable
 values on the pos_bus:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Capture pos bus entry 2 Sum large values
 
 If long frame times (> 2**32 SAMPLES, > 30s), are to be used, then SHIFT_SUM
@@ -99,7 +99,7 @@ accomodate up to 125 hour frames. This example demonstrates the effect with
 smaller numbers:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Capture pos bus entry 9 Sum shifted
 
 
@@ -112,13 +112,13 @@ Mode 4 produces the min of all values or zero if the gate was low for all of the
 current capture:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Capture pos bus entry 8 Min
 
 Mode 5 produces the max of all values in a similar way:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Capture pos bus entry 4 Max
 
 
@@ -132,7 +132,7 @@ the mean value of the field during the capture period. It can also be captured
 separately to give the gate length:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Capture gate length
 
 
@@ -147,7 +147,7 @@ example we capture TS_START (0x20), TS_END (0x22) and TS_CAPTURE (0x24) lower
 bits:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Capture more timestamps
 
 
@@ -159,13 +159,13 @@ quadrants of 32-bits each. For example, to capture signals 0..31 on the bit bus
 we would use BITS0 (0x27):
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Capture bit bus quadrant 0
 
 By capturing all 4 quadrants (0x27..0x2A) we get the whole bit bus:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Capture bit bus all quadrants
 
 
@@ -184,14 +184,14 @@ example, to capture the amount POS[1] changes in each capture gate we could
 connect GATE and CAPTURE to the same signal:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Gate and capture signals the same
 
 Another option would be a gap-less acquisition of sum while gate is high
 with capture boundaries marked with a toggle of CAPTURE:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Gap-less sum
 
 
@@ -206,5 +206,5 @@ In this example there are 3 fields captured (TS_CAPTURE_L, TS_CAPTURE_H,
 SAMPLES), but only 2 clock ticks between the 2nd and 3rd capture signals:
 
 .. timing_plot::
-   :path: targets/PandABox/blocks/pcap/pcap.timing.ini
+   :path: modules/pcap/pcap.timing.ini
    :section: Capture too close together

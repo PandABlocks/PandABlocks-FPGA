@@ -17,6 +17,17 @@ set TGT_SRC { \
 
 # List of IP that can be targeted to this platform.
 # NB: these could built as and when required.
-set TGT_IP { \
+set TGT_IP {                        \
+            pulse_queue             \
+            fifo_1K32               \
+            fifo_1K32_ft            \
+            eth_phy                 \
+            eth_mac                 \
+            system_cmd_fifo         \
+            fmc_acq430_ch_fifo      \
+            fmc_acq430_sample_ram   \
+            fmc_acq427_dac_fifo     \
+            sfp_panda_sync          \
+            ila_0
 }
 

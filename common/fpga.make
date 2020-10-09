@@ -24,7 +24,7 @@ VERSION_FILE = $(AUTOGEN)/hdl/version.vhd
 SDK_EXPORT = $(PS_DIR)/panda_ps.sdk
 HWDEF = $(PS_DIR)/panda_ps.srcs/sources_1/bd/panda_ps/hdl/panda_ps.hdf
 
-IP_BUILD_SCR = $(TARGET_DIR)/scripts/build_ip.tcl
+IP_BUILD_SCR = $(TOP)/common/scripts/build_ip.tcl
 PS_BUILD_SCR = $(TOP)/common/scripts/build_ps.tcl
 PS_CONFIG_SCR = $(TARGET_DIR)/bd/panda_ps.tcl
 TOP_BUILD_SCR = $(TOP)/common/scripts/build_top.tcl
