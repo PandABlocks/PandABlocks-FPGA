@@ -27,7 +27,6 @@ set TGT_IP {                        \
             fmc_acq430_ch_fifo      \
             fmc_acq430_sample_ram   \
             fmc_acq427_dac_fifo     \
-            sfp_panda_sync          \
             ila_0
 }
 

@@ -52,56 +52,19 @@ port (
     FIXED_IO_ps_porb    : inout std_logic;
     FIXED_IO_ps_srstb   : inout std_logic;
 
-	
 	--Zedboard I/Os
 	btnR : in std_logic;
 	btnC : in std_logic;
 	btnD : in std_logic;
 	btnU : in std_logic;
-	oled_sdin : out std_logic := '0';
-	oled_sclk : out std_logic := '0';
-	oled_dc : out std_logic := '0';
-	oled_res : out std_logic := '0';
-	oled_vbat : out std_logic := '0';
-	oled_vdd : out std_logic := '0';
+	oled_sdin : out std_logic := 'Z';
+	oled_sclk : out std_logic := 'Z';
+	oled_dc : out std_logic := 'Z';
+	oled_res : out std_logic := 'Z';
+	oled_vbat : out std_logic := 'Z';
+	oled_vdd : out std_logic := 'Z';
 	led : out std_logic_vector(7 downto 0) := X"aa";
-	SW : in std_logic_vector(7 downto 0);
-	
-
-	
-    -- RS485 Channel 0 Encoder I/O
-    --AM0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    --BM0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    --ZM0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    --AS0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    --BS0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    --ZS0_PAD_IO          : inout std_logic_vector(3 downto 0);
-
-    -- Discrete I/O
-    --TTLIN_PAD_I         : in    std_logic_vector(5 downto 0);
-    --TTLOUT_PAD_O        : out   std_logic_vector(9 downto 0);
-    --LVDSIN_PAD_I        : in    std_logic_vector(1 downto 0);
-    --LVDSOUT_PAD_O       : out   std_logic_vector(1 downto 0);
-
-    -- On-board GTX Clock Resources
-    --GTXCLK0_P           : in    std_logic;
-    --GTXCLK0_N           : in    std_logic;
-    --GTXCLK1_P           : in    std_logic;
-    --GTXCLK1_N           : in    std_logic;
-
-    -- SFPT GTX I/O and GTX
-    --SFP_TX_P            : out   std_logic_vector(2 downto 0);
-    --SFP_TX_N            : out   std_logic_vector(2 downto 0);
-    --SFP_RX_P            : in    std_logic_vector(2 downto 0);
-    --SFP_RX_N            : in    std_logic_vector(2 downto 0);
-    --SFP_TxDis           : out   std_logic_vector(1 downto 0) := "00";
-    --SFP_LOS             : in    std_logic_vector(1 downto 0);
-
-    -- FMC Differential IO and GTX
-    --FMC_DP0_C2M_P       : out   std_logic;
-    --FMC_DP0_C2M_N       : out   std_logic;
-    --FMC_DP0_M2C_P       : in    std_logic;
-    --FMC_DP0_M2C_N       : in    std_logic;
+	SW : in std_logic_vector(7 downto 0); 
 
     FMC_PRSNT           : in    std_logic;
     FMC_LA_P            : inout std_logic_vector(33 downto 0) := (others => 'Z');
@@ -110,16 +73,6 @@ port (
     FMC_CLK0_M2C_N      : inout std_logic := 'Z';
     FMC_CLK1_M2C_P      : in    std_logic;
     FMC_CLK1_M2C_N      : in    std_logic
-
-    -- External Differential Clock (via front panel SMA)
-    --EXTCLK_P            : in    std_logic;
-    --EXTCLK_N            : in    std_logic;
-
-    -- Slow Controller Serial interface
-    --SPI_SCLK_O          : out std_logic;
-    --SPI_DAT_O           : out std_logic;
-    --SPI_SCLK_I          : in  std_logic;
-    --SPI_DAT_I           : in  std_logic
 );
 end ZedBoard_top;
 
@@ -211,23 +164,6 @@ signal bit_bus              : bit_bus_t := (others => '0');
 signal pos_bus              : pos_bus_t := (others => (others => '0'));
 -- Daughter card control signals
 
--- Input Encoder
---signal inenc_val            : std32_array(ENC_NUM-1 downto 0);
---signal inenc_conn           : std_logic_vector(ENC_NUM-1 downto 0);
---signal inenc_a              : std_logic_vector(ENC_NUM-1 downto 0);
---signal inenc_b              : std_logic_vector(ENC_NUM-1 downto 0);
---signal inenc_z              : std_logic_vector(ENC_NUM-1 downto 0);
---signal inenc_data           : std_logic_vector(ENC_NUM-1 downto 0);
-
--- Output Encoder
---signal outenc_clk           : std_logic_vector(ENC_NUM-1 downto 0);
---signal outenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
-
--- Discrete Block Outputs :
---signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
---signal ttlout_val           : std_logic_vector(TTLOUT_NUM-1 downto 0);
---signal lvdsin_val           : std_logic_vector(LVDSIN_NUM-1 downto 0);
-
 signal pcap_active          : std_logic_vector(0 downto 0);
 
 signal rdma_req             : std_logic_vector(5 downto 0);
@@ -239,7 +175,6 @@ signal rdma_data            : std_logic_vector(31 downto 0);
 signal rdma_valid           : std_logic_vector(5 downto 0);
 
 signal SLOW_FPGA_VERSION    : std_logic_vector(31 downto 0);
---signal DCARD_MODE           : std32_array(ENC_NUM-1 downto 0);
 
 signal SFP_MAC_ADDR_ARR     : std32_array(2*NUM_SFP-1 downto 0);
 signal FMC_MAC_ADDR_ARR     : std32_array(2*NUM_FMC-1 downto 0);
@@ -249,48 +184,10 @@ signal FMC_i  : FMC_input_interface;
 signal FMC_o  : FMC_output_interface := FMC_o_init;
 signal FMC_io : FMC_inout_interface  := FMC_io_init;
 
--- SFP Block
---signal SFP1_i : SFP_input_interface;
---signal SFP1_o : SFP_output_interface := SFP_o_init;
---signal SFP2_i : SFP_input_interface;
---signal SFP2_o : SFP_output_interface := SFP_o_init;
---signal SFP3_i : SFP_input_interface;
---signal SFP3_o : SFP_output_interface := SFP_o_init;
-
---signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
---attribute syn_noclockbuf : boolean;
---attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
---attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
---signal EXTCLK : std_logic;
-
-
---signal sma_pll_locked       : std_logic;
---signal clk_src_sel          : std_logic_vector(1 downto 0);
---signal clk_sel_stat         : std_logic_vector(1 downto 0);
-
---signal slow_tlp   : slow_packet;
-
--- Make schematics a bit more clear for analysis
---attribute keep              : string; -- GBC removed following three lines 14/09/18
---attribute keep of bit_bus    : signal is "true";
---attribute keep of pos_bus    : signal is "true";
-
 begin
 
 -- Internal clocks and resets
 FCLK_RESET0 <= not FCLK_RESET0_N(0);
-
---mmcm_clkmux_inst: entity work.mmcm_clkmux
---port map(
---    fclk_clk0_ps_i      => FCLK_CLK0_PS,
---    sma_clk_in1         => '0',
---    rxoutclk_i          => '0',
---    ext_clock_i         => clk_src_sel,
---    linkup_i             => '0',
---    sma_pll_locked_o    => sma_pll_locked,
---    clk_sel_stat_o        => clk_sel_stat,
---    fclk_clk0_o         => FCLK_CLK0
---);
 
 FCLK_CLK0 <= FCLK_CLK0_PS;
 
@@ -560,13 +457,7 @@ port map (
 
 -- BIT_BUS_SIZE and POS_BUS_SIZE declared in addr_defines.vhd
 
---bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
---                                   inenc_data & inenc_z & inenc_b & inenc_a &
---                                   lvdsin_val & ttlin_val;
-
 bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active;
-
---pos_bus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
 
 -- Assemble FMC records
 --FMC_i.EXTCLK <= EXTCLK;
@@ -577,11 +468,6 @@ FMC_io.FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P;
 FMC_io.FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N;
 FMC_i.FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P;
 FMC_i.FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N;
---FMC_i.GTREFCLK <= q0_clk1_gtrefclk;
---FMC_DP0_C2M_P <= FMC_o.TXP_OUT;
---FMC_DP0_C2M_N <= FMC_o.TXN_OUT;
---FMC_i.RXP_IN <= FMC_DP0_M2C_P;
---FMC_i.RXN_IN <= FMC_DP0_M2C_N;
 FMC_i.MAC_ADDR <= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
 FMC_i.MAC_ADDR_WS <= '0';
 
@@ -616,13 +502,7 @@ port map(
     rdma_valid => rdma_valid,
     FMC_i => FMC_i,
     FMC_io => FMC_io,
-    FMC_o => FMC_o
-    --SFP1_i => SFP1_i,
-    --SFP1_o => SFP1_o,
-    --SFP2_i => SFP2_i,
-    --SFP2_o => SFP2_o,
-    --SFP3_i => SFP3_i,
-    --SFP3_o => SFP3_o
+    FMC_o => FMC_o    
 );
 
 
@@ -640,16 +520,6 @@ port map(
     write_data_i        => write_data,
     write_ack_o         => write_ack(ZEDBOARD_DEMO_CS),
 
-	btnR => btnR,
-	btnC => btnC,
-	btnD => btnD,
-	btnU => btnU,
-	oled_sdin => oled_sdin,
-	oled_sclk => oled_sclk,
-	oled_dc => oled_dc,
-	oled_res => oled_res,
-	oled_vbat => oled_vbat,
-	oled_vdd => oled_vdd,
 	led => led,
 	SW => SW
 );

@@ -158,10 +158,3 @@ set_property IOSTANDARD LVCMOS33 [get_ports -of_objects [get_iobanks 13]];
 #set_property PULLTYPE PULLDOWN [get_ports TTLIN_PAD_I[*]]
 #set_property PULLTYPE PULLDOWN [get_ports LVDSIN_PAD_I[*]]
 
-#set FMC_GTX_LOC  GTXE2_CHANNEL_X0Y0
-#set SFP1_GTX_LOC GTXE2_CHANNEL_X0Y3
-#set SFP2_GTX_LOC GTXE2_CHANNEL_X0Y2
-#set SFP3_GTX_LOC GTXE2_CHANNEL_X0Y1
-
-
-
