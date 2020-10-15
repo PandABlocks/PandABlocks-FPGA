@@ -71,13 +71,8 @@ def read_8bit_address(device = 0x50, length = 256):
 
 
 def read_eeprom(allow_16bit):
-    if allow_16bit:
-        if detect_16bit():
-            eeprom = read_16bit_address()
-        else:
-            print("Warning: 16 bit set but not detected")
-            if allow_16bit > 1:
-                eeprom = read_16bit_address()
+    if allow_16bit and detect_16bit():
+        eeprom = read_16bit_address()
     else:
         eeprom = read_8bit_address()
     return numpy.array(eeprom, dtype = numpy.uint8)

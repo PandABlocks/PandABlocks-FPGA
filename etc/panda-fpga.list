@@ -20,7 +20,6 @@ t share/panda-fpga etc/load-panda-firmware
 T lib/python/site-packages/i2c etc/i2c/*.py
 t bin etc/check_ipmi
 t bin etc/show_ipmi
-t bin etc/write_ipmi
 
 # Firmware
 b share/panda-fpga FPGA/panda_top.bit
