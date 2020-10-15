@@ -14,6 +14,7 @@ function LOG2(arg : natural) return natural;
 function ZEROS(num : positive) return std_logic_vector;
 function COMP(a : std_logic_vector; b: std_logic_vector) return std_logic;
 function BITREV(A : std_logic_vector) return std_logic_vector;
+function ONEHOT_INDEX (arg : std_logic_vector) return natural;
 
 end support;
 
@@ -77,5 +78,17 @@ begin
 
     return B;
 end BITREV;
+
+-- Find index of one-hot vector
+function ONEHOT_INDEX (arg : std_logic_vector) return natural is
+    variable index : natural;
+begin
+    for i in arg'range loop
+        if arg(i) = '1' then
+            index := i;
+        end if;
+    end loop;
+    return index;
+end function;
 
 end support;

@@ -3,13 +3,9 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_misc.all;
 
-library unisim;
-use unisim.vcomponents.all;
-
 library work;
 use work.support.all;
 use work.top_defines.all;
-use work.slow_defines.all;
 use work.addr_defines.all;
 
 entity encoders_top is
@@ -59,8 +55,10 @@ port (
     DCARD_MODE_i            : in  std32_array(ENC_NUM-1 downto 0);
     posn_o                  : out std32_array(ENC_NUM-1 downto 0);
 
-    slow_tlp_o              : out slow_packet
-
+    OUTENC_PROTOCOL_o       : out std32_array(ENC_NUM-1 downto 0);
+    OUTENC_PROTOCOL_WSTB_o  : out std_logic_vector(ENC_NUM-1 downto 0);
+    INENC_PROTOCOL_o        : out std32_array(ENC_NUM-1 downto 0);
+    INENC_PROTOCOL_WSTB_o   : out std_logic_vector(ENC_NUM-1 downto 0)
 );
 end encoders_top;
 
@@ -70,16 +68,12 @@ signal OUTENC_read_strobe       : std_logic_vector(ENC_NUM-1 downto 0);
 signal OUTENC_read_data         : std32_array(ENC_NUM-1 downto 0);
 signal OUTENC_write_strobe      : std_logic_vector(ENC_NUM-1 downto 0);
 signal OUTENC_read_ack          : std_logic_vector(ENC_NUM-1 downto 0);
-signal OUTENC_blk_addr          : natural range 0 to (2**(PAGE_AW-BLK_AW)-1);
-signal OUTENC_write_address     : natural range 0 to (2**BLK_AW - 1);
 
 signal INENC_read_strobe        : std_logic_vector(ENC_NUM-1 downto 0);
 signal INENC_read_data          : std32_array(ENC_NUM-1 downto 0);
 signal INENC_write_strobe       : std_logic_vector(ENC_NUM-1 downto 0);
 signal posn                     : std32_array(ENC_NUM-1 downto 0);
 signal INENC_read_ack           : std_logic_vector(ENC_NUM-1 downto 0);
-signal INENC_blk_addr           : natural range 0 to (2**(PAGE_AW-BLK_AW)-1);
-signal INENC_write_address      : natural range 0 to (2**BLK_AW - 1);
 
 begin
 
@@ -87,13 +81,8 @@ begin
 OUTENC_write_ack_o <= '1';
 OUTENC_read_ack_o <= or_reduce(OUTENC_read_ack);
 
-
 -- Multiplex read data out from multiple instantiations
 OUTENC_read_data_o <= OUTENC_read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW))));
-
--- Used for Slow output signal
-OUTENC_write_address <= to_integer(unsigned(write_address_i(BLK_AW-1 downto 0)));
-OUTENC_blk_addr <= to_integer(unsigned(write_address_i(PAGE_AW-1 downto BLK_AW)));
 
 -- Acknowledgement to AXI Lite interface
 INENC_write_ack_o <= '1';
@@ -102,51 +91,8 @@ INENC_read_ack_o <= or_reduce(INENC_read_ack);
 -- Multiplex read data out from multiple instantiations
 INENC_read_data_o <= INENC_read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW))));
 
--- Used for Slow output signal
-INENC_write_address <= to_integer(unsigned(write_address_i(BLK_AW-1 downto 0)));
-INENC_blk_addr <= to_integer(unsigned(write_address_i(PAGE_AW-1 downto BLK_AW)));
-
 -- Outputs
 posn_o <= posn;
-
--- slow registers
-
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            slow_tlp_o.strobe <= 'Z';
-            slow_tlp_o.address <= (others => 'Z');
-            slow_tlp_o.data <= (others => 'Z');
-        else
-            -- Single clock cycle strobe
-            slow_tlp_o.strobe <= 'Z';
-            -- OUTENC PROTOCOL Slow Registers
-            if (OUTENC_write_strobe_i = '1') then
-                if (OUTENC_write_address = OUTENC_PROTOCOL_addr) then
-                    slow_tlp_o.strobe <= '1';
-                    slow_tlp_o.address <= OUTPROT_ADDR_LIST(OUTENC_blk_addr);
-                    -- When using a monitor card, the protocol needs to make sure the CLK is enabled.
-                    if (DCARD_MODE_i(OUTENC_blk_addr)(3 downto 1) = DCARD_MONITOR) then
-                        slow_tlp_o.data <= x"0000000" & '0' & write_data_i(2) & '1' & write_data_i(0);
-                    else
-                        slow_tlp_o.data <= write_data_i;
-                    end if;
-                end if;
-            elsif (INENC_write_strobe_i = '1') then
-                if (INENC_write_address = INENC_PROTOCOL_addr) then
-                    slow_tlp_o.strobe <= '1';
-                    slow_tlp_o.data <= write_data_i;
-                    slow_tlp_o.address <= INPROT_ADDR_LIST(INENC_blk_addr);
-                end if;
-            else
-                slow_tlp_o.strobe <= 'Z';
-                slow_tlp_o.address <= (others => 'Z');
-                slow_tlp_o.data <= (others => 'Z');
-            end if;
-        end if;
-    end if;
-end process;
 
 --
 -- Instantiate ENCOUT Blocks :
@@ -194,6 +140,11 @@ port map (
     inenc_b_o               => inenc_b_o(I),
     inenc_z_o               => inenc_z_o(I),
     inenc_data_o            => inenc_data_o(I),
+
+    OUTENC_PROTOCOL_o       => OUTENC_PROTOCOL_o(I),
+    OUTENC_PROTOCOL_WSTB_o  => OUTENC_PROTOCOL_WSTB_o(I),
+    INENC_PROTOCOL_o        => INENC_PROTOCOL_o(I),
+    INENC_PROTOCOL_WSTB_o   => INENC_PROTOCOL_WSTB_o(I),
 
     Am0_pad_io              => Am0_pad_io(I), 
     Bm0_pad_io              => Bm0_pad_io(I),

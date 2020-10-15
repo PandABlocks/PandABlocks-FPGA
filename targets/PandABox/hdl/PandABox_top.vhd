@@ -201,13 +201,20 @@ signal inenc_a              : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_b              : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_z              : std_logic_vector(ENC_NUM-1 downto 0);
 signal inenc_data           : std_logic_vector(ENC_NUM-1 downto 0);
+signal INENC_PROTOCOL       : std32_array(ENC_NUM-1 downto 0);
+signal INENC_PROTOCOL_WSTB  : std_logic_vector(ENC_NUM-1 downto 0);
 
 -- Output Encoder
 signal outenc_clk           : std_logic_vector(ENC_NUM-1 downto 0);
 signal outenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
+signal OUTENC_PROTOCOL      : std32_array(ENC_NUM-1 downto 0);
+signal OUTENC_PROTOCOL_WSTB : std_logic_vector(ENC_NUM-1 downto 0);
+
 
 -- Discrete Block Outputs :
 signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
+signal TTLIN_TERM           : std32_array(TTLIN_NUM-1 downto 0);
+signal TTLIN_TERM_WSTB      : std_logic_vector(TTLIN_NUM-1 downto 0);
 signal ttlout_val           : std_logic_vector(TTLOUT_NUM-1 downto 0);
 signal lvdsin_val           : std_logic_vector(LVDSIN_NUM-1 downto 0);
 
@@ -461,11 +468,20 @@ port map (
     pad_i               => TTLIN_PAD_I,
     val_o               => ttlin_val,
 
+    read_strobe_i       => read_strobe(TTLIN_CS),
+    read_address_i      => read_address,
+    read_data_o         => read_data(TTLIN_CS),
+    read_ack_o          => read_ack(TTLIN_CS),
+
     write_strobe_i      => write_strobe(TTLIN_CS),
     write_address_i     => write_address,
     write_data_i        => write_data,
+    write_ack_o         => write_ack(TTLIN_CS),
 
-    slow_tlp_o          => slow_tlp
+    bit_bus_i           => bit_bus,
+    pos_bus_i           => pos_bus,
+    TTLIN_TERM_o        => TTLIN_TERM,
+    TTLIN_TERM_WSTB_o   => TTLIN_TERM_WSTB
 );
 
 ttlout_inst : entity work.ttlout_top
@@ -567,8 +583,10 @@ port map (
     DCARD_MODE_i            =>DCARD_MODE,
     posn_o                  =>inenc_val,
 
-    slow_tlp_o              =>slow_tlp
-
+    OUTENC_PROTOCOL_o       => OUTENC_PROTOCOL,
+    OUTENC_PROTOCOL_WSTB_o  => OUTENC_PROTOCOL_WSTB,
+    INENC_PROTOCOL_o        => INENC_PROTOCOL,
+    INENC_PROTOCOL_WSTB_o   => INENC_PROTOCOL_WSTB
 );
 
 
@@ -699,7 +717,7 @@ port map (
     read_address_i      => read_address,
     read_data_o         => read_data(SYSTEM_CS),
     read_ack_o          => read_ack(SYSTEM_CS),
-    write_strobe_i      => write_strobe,
+    write_strobe_i      => write_strobe(SYSTEM_CS),
     write_address_i     => write_address,
     write_data_i        => write_data,
     write_ack_o         => write_ack(SYSTEM_CS),
@@ -710,14 +728,19 @@ port map (
     outenc_conn_i       => outenc_conn,
     pcap_act_i          => pcap_active(0),
     -- Block Input and Outputs
+    OUTENC_PROT_i       => OUTENC_PROTOCOL,
+    OUTENC_PROT_WSTB_i  => OUTENC_PROTOCOL_WSTB,
+    INENC_PROT_i        => INENC_PROTOCOL,
+    INENC_PROT_WSTB_i   => INENC_PROTOCOL_WSTB,
+    TTLIN_TERM_i        => TTLIN_TERM,
+    TTLIN_TERM_WSTB_i   => TTLIN_TERM_WSTB,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
-    DCARD_MODE          => DCARD_MODE,
+    DCARD_MODE_o          => DCARD_MODE,
     -- Serial Physical interface
     spi_sclk_o          => SPI_SCLK_O,
     spi_dat_o           => SPI_DAT_O,
     spi_sclk_i          => SPI_SCLK_I,
     spi_dat_i           => SPI_DAT_I,
-    slow_tlp_i          => slow_tlp,
     -- External clock
     ext_clk_i           => EXTCLK,
     sma_pll_locked_i    => sma_pll_locked,

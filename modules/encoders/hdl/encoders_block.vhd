@@ -39,6 +39,11 @@ port (
     INENC_Z_o               : out std_logic;
     INENC_DATA_o            : out std_logic;
 
+    OUTENC_PROTOCOL_o       : out std_logic_vector(31 downto 0);
+    OUTENC_PROTOCOL_WSTB_o  : out std_logic;
+    INENC_PROTOCOL_o        : out std_logic_vector(31 downto 0);
+    INENC_PROTOCOL_WSTB_o   : out std_logic;
+
     OUTENC_CONN_OUT_o       : out std_logic;
     INENC_CONN_OUT_o        : out std_logic;
 
@@ -103,6 +108,12 @@ signal read_addr                : natural range 0 to (2**read_address_i'length -
 begin
 
 -- Assign outputs
+
+INENC_PROTOCOL_o <= INENC_PROTOCOL;
+INENC_PROTOCOL_WSTB_o <= INENC_PROTOCOL_WSTB;
+OUTENC_PROTOCOL_o <= OUTENC_PROTOCOL;
+OUTENC_PROTOCOL_WSTB_o <= OUTENC_PROTOCOL_WSTB;
+
 OUTENC_CONN_OUT_o <= enable;
 
 -- Input encoder connection status comes from either

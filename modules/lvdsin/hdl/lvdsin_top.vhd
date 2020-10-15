@@ -34,7 +34,7 @@ architecture rtl of lvdsin_top is
 begin
 
 -- Syncroniser for each input
-SYNC : FOR I IN 0 TO LVDSIN_NUM-1 GENERATE
+LVDSIN_GEN : FOR I IN 0 TO LVDSIN_NUM-1 GENERATE
 
     syncer : entity work.IDDR_sync_bit
     port map (

@@ -34,7 +34,7 @@ port (
     read_data_o         : out std_logic_vector(31 downto 0);
     read_ack_o          : out std_logic;
 
-    write_strobe_i      : in  std_logic_vector(MOD_COUNT-1 downto 0);
+    write_strobe_i      : in  std_logic;
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
@@ -45,15 +45,19 @@ port (
     outenc_conn_i       : in  std_logic_vector(ENC_NUM-1 downto 0);
     pcap_act_i          : in  std_logic;
     -- Block Input and Outputs
+    OUTENC_PROT_i       : in  std32_array(ENC_NUM-1 downto 0);
+    OUTENC_PROT_WSTB_i  : in  std_logic_vector(ENC_NUM-1 downto 0);
+    INENC_PROT_i        : in  std32_array(ENC_NUM-1 downto 0);
+    INENC_PROT_WSTB_i   : in  std_logic_vector(ENC_NUM-1 downto 0);
+    TTLIN_TERM_i        : in  std32_array(TTLIN_NUM-1 downto 0);
+    TTLIN_TERM_WSTB_i   : in  std_logic_vector(TTLIN_NUM-1 downto 0);
     SLOW_FPGA_VERSION   : out std_logic_vector(31 downto 0);
-    DCARD_MODE          : out std32_array(ENC_NUM-1 downto 0);
+    DCARD_MODE_o        : out std32_array(ENC_NUM-1 downto 0);
     -- Serial Physical interface
     spi_sclk_o          : out std_logic;
     spi_dat_o           : out std_logic;
     spi_sclk_i          : in  std_logic;
     spi_dat_i           : in  std_logic;
-    -- Slow input
-    slow_tlp_i          : in  slow_packet;
     -- External Clock
     ext_clk_i           : in  std_logic;
     sma_pll_locked_i    : in  std_logic;
@@ -70,7 +74,7 @@ architecture rtl of system_top is
 signal TEMP_MON         : std32_array(4 downto 0);
 signal VOLT_MON         : std32_array(7 downto 0);
 
-signal slow_reg_tlp     : slow_packet;
+signal slow_regs_tlp    : slow_packet;
 signal slow_leds_tlp    : slow_packet;
 
 signal cmd_ready_n      : std_logic;
@@ -82,11 +86,15 @@ signal write_ack        : std_logic;
 signal test_clocks      : std_logic_vector(0 downto 0);
 signal FREQ_VAL         : std32_array(0 downto 0);
 
+signal DCARD_MODE       : std32_array(ENC_NUM-1 downto 0);
+
 
 begin
 
 -- Accept write data if FIFO is available
 write_ack_o <= not cmd_ready_n or write_ack;
+
+DCARD_MODE_o <= DCARD_MODE;
 
 ---------------------------------------------------------------------------
 -- LED information for Digital IO goes through SlowFPGA
@@ -106,6 +114,23 @@ port map (
 );
 
 ---------------------------------------------------------------------------
+-- Construct TLP packets for slow FPGA registers
+---------------------------------------------------------------------------
+system_registers : entity work.system_registers
+port map (
+    clk_i   => clk_i,
+    reset_i => reset_i,
+    DCARD_MODE_i => DCARD_MODE,
+    OUTENC_PROT_i => OUTENC_PROT_i,
+    OUTENC_PROT_WSTB_i => OUTENC_PROT_WSTB_i,
+    INENC_PROT_i => INENC_PROT_i,
+    INENC_PROT_WSTB_i => INENC_PROT_WSTB_i,
+    TTLIN_TERM_i => TTLIN_TERM_i,
+    TTLIN_TERM_WSTB_i => TTLIN_TERM_WSTB_i,
+    slow_tlp_o => slow_regs_tlp
+);
+
+---------------------------------------------------------------------------
 -- Slow controller physical serial interface
 ---------------------------------------------------------------------------
 system_interface : entity work.system_interface
@@ -118,7 +143,7 @@ port map (
     spi_sclk_i          => spi_sclk_i,
     spi_dat_i           => spi_dat_i,
 
-    registers_tlp_i     => slow_tlp_i,
+    registers_tlp_i     => slow_regs_tlp,
     leds_tlp_i          => slow_leds_tlp,
     cmd_ready_n_o       => cmd_ready_n,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
@@ -143,7 +168,7 @@ VEC_CLK_SEL_STAT(1 downto 0) <= clk_sel_stat_i;
 ps_ack: process(clk_i)
 begin
     if rising_edge(clk_i)then
-        if ((write_strobe_i(SYSTEM_CS) = '1') and
+        if ((write_strobe_i = '1') and
           (write_address_i = std_logic_vector(to_unsigned(SYSTEM_EXT_CLOCK_addr,write_address_i'length)))) then
             write_ack <= '1';
         else
@@ -198,7 +223,7 @@ port map (
     read_data_o         => read_data_o,
     read_ack_o          => read_ack_o,
 
-    write_strobe_i      => write_strobe_i(SYSTEM_CS),
+    write_strobe_i      => write_strobe_i,
     write_address_i     => write_address_i(BLK_AW-1 downto 0),
     write_data_i        => write_data_i,
     write_ack_o         => open
