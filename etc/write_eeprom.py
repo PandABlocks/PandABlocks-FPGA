@@ -1,9 +1,8 @@
-# Writes data piped from stdin to EEPROM...good luck
-
-from sys import stdin
+import argparse
 
 from i2c import smbus2
 
+byte_data = b'';
 
 def write_8bit_address(data, device = 0x50):
     bus = smbus2.SMBus(0)
@@ -45,10 +44,12 @@ def write_16bit_address(data, device = 0x50):
 
 
 if __name__ == "__main__":
-    byte_data = stdin.buffer.read()
+    parser = argparse.ArgumentParser(description='flash data to FMC EEPROM')
+    parser.add_argument('--16-bit', dest='16bit', action='store_true', help='16-bit EEPROM')
+    args = parser.parse_args()   
 
     bus = smbus2.SMBus(0)
-    if eeprom.detect_16bit():
+    if args.16bit:
         write_16bit_address(byte_data)
     else:
         write_8bit_address(byte_data)
