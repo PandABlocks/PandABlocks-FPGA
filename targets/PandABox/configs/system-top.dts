@@ -2,7 +2,7 @@
 /include/ "system.dts"
 
 / {
-	model = "PZ_7z030_FMC_Carrier";
+	model = "PandABox";
 	aliases {
 		ethernet0 = &gem0;
 		serial0 = &uart1;
