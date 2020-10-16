@@ -169,12 +169,6 @@ $(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
 	$(PYTHON) -m common.python.generate_hdl_timing $@_tmp $^
 	mv $@_tmp $@
 
-# Pcap timing ini is in the targets directory
-$(BUILD_DIR)/hdl_timing/pcap: targets/$(TARGET)/blocks/pcap/pcap.timing.ini
-	rm -rf $@_tmp $@
-	$(PYTHON) -m common.python.generate_hdl_timing $@_tmp $^
-	mv $@_tmp $@
-
 # Make the hdl_timing folders and run all tests, or specific module by setting
 # the MODULE argument
 hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
@@ -183,7 +177,7 @@ hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
 	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
-	 -source ../../tests/hdl/regression_tests.tcl -tclargs $(MODULE)
+	 -source $(TOP)/tests/hdl/regression_tests.tcl -tclargs $(MODULE)
 
 # Make the hdl_timing folders and run a single test, set TEST argument
 # E.g. make TEST="clock 1" single_hdl_test
@@ -193,7 +187,7 @@ single_hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
 	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
-	 -source ../../tests/hdl/single_test.tcl -tclargs $(TEST)
+	 -source $(TOP)/tests/hdl/single_test.tcl -tclargs $(TEST)
 
 # Make the hdl_timing folders without running tests
 hdl_timing: $(TIMING_BUILD_DIRS)
