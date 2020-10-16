@@ -118,9 +118,8 @@ port map (
     clk_i               => FCLK_CLK0
 );
 {% endfor %}
-
 bit_bus_o(BBUSW-1 downto {{ total_bit_bus_length }}) <= (others => '0');
---pos_bus_o(PBUSW-1 downto {{ total_pos_bus_length }}) <= (others => (others => '0'));
+pos_bus_o(PBUSW-1 downto {{ total_pos_bus_length }}) <= (others => (others => '0'));
 
 read_ack(31 downto USED_MOD_COUNT + 1) <= (others => '1');
 write_ack(31 downto USED_MOD_COUNT + 1) <= (others => '1');
