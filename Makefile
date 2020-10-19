@@ -28,8 +28,8 @@ include CONFIG
 
 
 # Now we've loaded the CONFIG compute all the appropriate destinations
-TEST_DIR = $(BUILD_DIR)/tests
 TGT_BUILD_DIR = $(BUILD_DIR)/targets/$(TARGET)
+TEST_DIR = $(TGT_BUILD_DIR)/tests
 #IP_DIR = $(TGT_BUILD_DIR)/ip_repo
 APP_BUILD_DIR = $(BUILD_DIR)/apps/$(APP_NAME)
 AUTOGEN_BUILD_DIR = $(APP_BUILD_DIR)/autogen
@@ -157,11 +157,14 @@ python_timing:
 # every modules/MODULE/BLOCK.timing.ini
 TIMINGS = $(wildcard modules/*/*.timing.ini)
 
-# MODULE for every modules/MODULE/BLOCK.timing.ini
-MODULES = $(sort $(dir $(patsubst modules/%,%,$(TIMINGS))))
+# MODULE for every modules/MODULE_DIR/BLOCK.timing.ini
+MODULE_DIRS = $(sort $(dir $(patsubst modules/%,%,$(TIMINGS))))
 
-# build/hdl_timing/MODULE for every MODULE
-TIMING_BUILD_DIRS = $(patsubst %/,$(BUILD_DIR)/hdl_timing/%,$(MODULES))
+# Remove trailing backslash from module directory names
+MODULES = $(patsubst %/,%,$(MODULE_DIRS))
+
+# build/hdl_timing/MODULE for every MODULES
+TIMING_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/hdl_timing/%,$(MODULES))
 
 # Make the built app from the ini file
 $(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
@@ -169,15 +172,16 @@ $(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
 	$(PYTHON) -m common.python.generate_hdl_timing $@_tmp $^
 	mv $@_tmp $@
 
-# Make the hdl_timing folders and run all tests, or specific module by setting
-# the MODULE argument
+# Make the hdl_timing folders and run all tests, or specific modules by setting
+# the MODULES argument
 hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
 	rm -rf $(TEST_DIR)/regression_tests
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
 	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
-	 -source $(TOP)/tests/hdl/regression_tests.tcl -tclargs $(MODULE)
+	 -source $(TOP)/tests/hdl/regression_tests.tcl \
+	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(MODULES)
 
 # Make the hdl_timing folders and run a single test, set TEST argument
 # E.g. make TEST="clock 1" single_hdl_test
@@ -187,7 +191,8 @@ single_hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
 	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
-	 -source $(TOP)/tests/hdl/single_test.tcl -tclargs $(TEST)
+	 -source $(TOP)/tests/hdl/single_test.tcl -tclargs \
+	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(TEST)
 
 # Make the hdl_timing folders without running tests
 hdl_timing: $(TIMING_BUILD_DIRS)

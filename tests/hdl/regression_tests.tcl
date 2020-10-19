@@ -2,7 +2,7 @@
 # TCL script for running all tests
 #   make hdl_test
 # Alternatively run tests for a specific module
-#   make hdl_test MODULE="module"
+#   make hdl_test MODULES="module"
 # Where module is the lowercase name of the module, lut for example. Multiple
 # modules can be added by separating their names by a space(MODULES="bits lut")
 
@@ -21,11 +21,18 @@
 # 12. srgate_n_tb       --Works
 
 
+set TOP_DIR         [lindex $argv 0]
+set TARGET_DIR      [lindex $argv 1]
+set TGT_BUILD_DIR   [lindex $argv 2]
+set BUILD_DIR       [lindex $argv 3]
+set MODULES_IND     4
+
+# Need to source the target specific tcl file to get the FPGA part string
+source $TARGET_DIR/target_incl.tcl
 
 # Create a vivado project called regression_tests
-create_project regression_tests ../../build/tests/regression_tests \
- -force -part xc7z030sbg485-1
-
+create_project regression_tests regression_tests \
+ -force -part $FPGA_PART
 
 set result_from_test 0;
 set test_passed_cnt 0;
@@ -34,30 +41,19 @@ set test_failed_cnt 0;
 set test_passed are;
 set test_failed are;
 
-if {$argc > 0} {
-    foreach module $argv {
-            source "../hdl_timing/$module/$module.tcl"
-    }
-} else {
-    # Find all the tcl scripts in the hdl_timing directory and source them
-    set mydir ../hdl_timing
-    set subs [ glob -nocomplain -directory $mydir -type d *]
-    # Load the modules files into Vivado
-    foreach folder $subs {
-        set path [split $folder /]
-        source $folder/[lindex $path 2].tcl
-    }
+foreach module [lrange $argv $MODULES_IND end] {
+        source $BUILD_DIR/hdl_timing/$module/$module.tcl
 }
+
+
 # Load all the common source files
 # Currently only the pulse queue ip is being used, as more modules are added it
 # is expected that more common source files will be added
-add_files -norecurse {
-    ../../common/hdl
-    ../../common/hdl/defines
-    ../../targets/PandABox/hdl/defines
-    ../../tests/hdl/top_defines.vhd
-}
 
+add_files -norecurse \
+    $TOP_DIR/common/hdl/ \
+    $TOP_DIR/common/hdl/defines \
+    $TOP_DIR/tests/hdl/top_defines.vhd
 
 # Loop through all the tests
 foreach test [array names tests] {
