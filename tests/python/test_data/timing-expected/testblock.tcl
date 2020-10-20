@@ -10,22 +10,19 @@ array set tests {
 }
 
 # remove any simulation files from the project
-remove_files -fileset sim_1 {
-    ../hdl_timing/testblock/timing001/hdl_timing.v
-    ../hdl_timing/testblock/timing001/1testblockexpected.csv
-    ../hdl_timing/testblock/timing002/hdl_timing.v
-    ../hdl_timing/testblock/timing002/2testblockexpected.csv
-}
+remove_files -fileset sim_1 \
+    $BUILD_DIR/hdl_timing/testblock/timing001/hdl_timing.v \
+    $BUILD_DIR/hdl_timing/testblock/timing001/1testblockexpected.csv \
+    $BUILD_DIR/hdl_timing/testblock/timing002/hdl_timing.v \
+    $BUILD_DIR/hdl_timing/testblock/timing002/2testblockexpected.csv \
 
 # add the module vhd code
-add_files -norecurse {
-    ../../modules/testblock/hdl
-}
+add_files -norecurse \
+    $TOP_DIR/modules/testblock/hdl
 
-add_files -fileset sim_1 -norecurse {
-    ../hdl_timing/testblock/timing001/hdl_timing.v
-    ../hdl_timing/testblock/timing001/1testblockexpected.csv
-    ../hdl_timing/testblock/timing002/hdl_timing.v
-    ../hdl_timing/testblock/timing002/2testblockexpected.csv
-    ../../modules/testblock/
-}
+add_files -fileset sim_1 -norecurse \
+    $BUILD_DIR/hdl_timing/testblock/timing001/hdl_timing.v \
+    $BUILD_DIR/hdl_timing/testblock/timing001/1testblockexpected.csv \
+    $BUILD_DIR/hdl_timing/testblock/timing002/hdl_timing.v \
+    $BUILD_DIR/hdl_timing/testblock/timing002/2testblockexpected.csv \
+    $TOP_DIR/modules/testblock/
