@@ -136,8 +136,10 @@ class StringReader:
 # Parses the common header defined in [ISD] section 8.
 
 def parse_header(header):
-    assert len(header) == 8, 'Invalid header length'
-    assert header[0] == 1, 'Invalid header version code'
+    if len(header) != 8:
+        raise ParsingException('Invalid header length')
+    if header[0] != 1:
+        raise ParsingException('Invalid header version code')
     if header[1]:
         warn('Ignoring Internal Use Area')
     if header[2]:
