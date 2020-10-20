@@ -19,6 +19,8 @@ import datetime
 
 from . import ini_file
 
+class ParsingException(Exception):
+    pass
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Helper functions
@@ -141,10 +143,12 @@ def parse_header(header):
     if header[2]:
         warn('Ignoring Chassis Info Area')
     board_area = header[3]
-    assert board_area, 'Missing Board Area'
+    if not board_area:
+        raise ParsingException('Missing Board Area')
     product_area = header[4]
     multi_area = header[5]
-    assert header[6] == 0, 'Unexpected value in padding'
+    if header[6] != 0:
+        raise ParsingException('Unexpected value in padding')
     check_checksum(header, 'header')
     return (board_area * 8, product_area * 8, multi_area * 8)
 

@@ -30,11 +30,11 @@ def detect_16bit(device = 0x50):
     try:
         parse_ipmi.parse_header(first_read)
         parse_ipmi.parse_header(second_read)
-    except AssertionError:
+    except parse_ipmi.ParsingException:
         try:
             parse_ipmi.parse_header(read_16bit_address(device, length = 8))
-        except AssertionError:
-            raise AssertionError("No valid IPMI header found in 8 or 16 bit mode")       
+        except parse_ipmi.ParsingException:
+            raise parse_ipmi.ParsingException("No valid IPMI header found in 8 or 16 bit mode")       
         return True
     return False
 
