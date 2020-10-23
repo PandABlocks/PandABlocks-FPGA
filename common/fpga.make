@@ -11,15 +11,19 @@ RUNVIVADO = . $(VIVADO) && vivado
 #####################################################################
 # Project related files and directories
 
--include $(TARGET_DIR)/target_incl.make
-
 BUILD_DIR = $(APP_BUILD_DIR)/FPGA
 AUTOGEN  = $(APP_BUILD_DIR)/autogen
 IP_DIR = $(TGT_BUILD_DIR)/ip_repo
 PS_DIR = $(TGT_BUILD_DIR)/panda_ps
 PS_CORE  = $(PS_DIR)/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
+CARRIER_FPGA_BIT = $(BUILD_DIR)/panda_top.bit
 
 VERSION_FILE = $(AUTOGEN)/hdl/version.vhd
+PREV_VER = $(TGT_BUILD_DIR)/../../VERSION
+
+# target_incl.make needs to be included after the VERSION_FILE variable is defined otherwise
+# make does not work out the dependencies properly. I don't understand why exactly!
+-include $(TARGET_DIR)/target_incl.make
 
 SDK_EXPORT = $(PS_DIR)/panda_ps.sdk
 HWDEF = $(PS_DIR)/panda_ps.srcs/sources_1/bd/panda_ps/hdl/panda_ps.hdf
@@ -105,9 +109,24 @@ ARCH = arm
 export PATH := $(SDK_ROOT)/gnu/arm/lin/bin:$(PATH)
 
 #####################################################################
-# HW Projects Build
+# Create VERSION_FILE and check if build products are out-of-date
 
-VERSION :
+# Trigger rebuild of FPGA targets based on change in the git hash
+# If the previous hash value does not exist, or disagrees with the present
+# value, or contains the 'dirty' string then the FPGA build will be considered
+# out-of-date.
+
+.PHONY: PREV_VERSION
+PREV_VERSION :
+ifeq ($(wildcard $(PREV_VER)), ) 
+	echo $(SHA) > $(PREV_VER)    
+else
+	if [[ $(SHA) != `cat $(PREV_VER)` ]] || [[ $(SHA) == 8* ]]; \
+	then echo $(SHA) > $(PREV_VER); \
+	fi
+endif
+
+$(VERSION_FILE) : $(PREV_VER) | PREV_VERSION
 	rm -f $(VERSION_FILE)
 	echo 'library ieee;' >> $(VERSION_FILE)
 	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
@@ -117,7 +136,7 @@ VERSION :
 	echo -n 'constant FPGA_BUILD: std_logic_vector(31 downto 0)' >> $(VERSION_FILE)
 	echo ' := X"$(SHA)";' >> $(VERSION_FILE)
 	echo 'end version;' >> $(VERSION_FILE)
-.PHONY: VERSION
+
 ###########################################################
 # Build Zynq Firmware targets
 
@@ -134,7 +153,13 @@ $(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR) $(TGT_INCL_SCR)
 	  -log $(TGT_BUILD_DIR)/build_ps.log -nojournal \
 	  -tclargs $(TOP) $(TARGET_DIR) $(PS_DIR) $@ $(DEP_MODE)
 
-carrier_fpga : $(TOP_BUILD_SCR) VERSION $(IP_DIR)/IP_BUILD_SUCCESS $(PS_CORE) $(TGT_INCL_SCR)
+CARRIER_FPGA_DEPS += $(TOP_BUILD_SCR)
+CARRIER_FPGA_DEPS += $(VERSION_FILE)
+CARRIER_FPGA_DEPS += $(IP_DIR)/IP_BUILD_SUCCESS
+CARRIER_FPGA_DEPS += $(PS_CORE)
+CARRIER_FPGA_DEPS += $(TGT_INCL_SCR)
+
+$(CARRIER_FPGA_BIT) : $(CARRIER_FPGA_DEPS) | PREV_VERSION
 	$(RUNVIVADO) -mode $(TOP_MODE) -source $< \
 	  -log $(BUILD_DIR)/build_top.log -nojournal \
 	  -tclargs $(TOP) \
@@ -144,6 +169,8 @@ carrier_fpga : $(TOP_BUILD_SCR) VERSION $(IP_DIR)/IP_BUILD_SUCCESS $(PS_CORE) $(
 	  -tclargs $(IP_DIR) \
 	  -tclargs $(PS_CORE) \
 	  -tclargs $(TOP_MODE)
+
+carrier_fpga : $(CARRIER_FPGA_BIT)
 .PHONY: carrier_fpga
 
 ################################################################
