@@ -52,7 +52,7 @@ DEP_MODE ?= batch
 PREV_VER = $(BUILD_DIR)/VERSION
 
 default: $(DEFAULT_TARGETS)
-all: default boot
+all: python_tests python_timing hdl_test default boot
 .PHONY: default all
 
 
