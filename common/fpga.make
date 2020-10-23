@@ -116,6 +116,8 @@ export PATH := $(SDK_ROOT)/gnu/arm/lin/bin:$(PATH)
 # value, or contains the 'dirty' string then the FPGA build will be considered
 # out-of-date.
 
+$(PREV_VER) : | PREV_VERSION
+
 .PHONY: PREV_VERSION
 PREV_VERSION :
 ifeq ($(wildcard $(PREV_VER)), ) 

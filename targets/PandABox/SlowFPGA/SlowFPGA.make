@@ -19,6 +19,7 @@ MAPPED_NCD_FILE = $(SYSTEM)_map.ncd
 ROUTED_NCD_FILE = $(SYSTEM).ncd
 PCF_FILE = $(SYSTEM).pcf
 TWX_FILE = $(SYSTEM).twx
+BIT_FILE = $(SYSTEM).bit
 BIN_FILE = $(SYSTEM).bin
 
 # Print the names of unlocked (unconstrainted) IOs
@@ -48,6 +49,8 @@ slow_bit: $(LIST_FILE)
 	bitgen -w $(ROUTED_NCD_FILE)
 .PHONY: slow_bit
 
-$(BIN_FILE): slow_bit
+$(BIT_FILE) : slow_bit
+
+$(BIN_FILE): $(BIT_FILE)
 	promgen -w -p bin -u 0 $<
 
