@@ -14,6 +14,7 @@
 export VIVADO = /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh
 export ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
 export LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
+export SDK_ROOT = /dls_sw/apps/FPGA/Xilinx/SDK/2015.1
 
 # Path to devicetree files needed by Xilinx SDK
 export TAR_REPO = /dls_sw/FPGA/Xilinx/OSLinux/tar-balls
