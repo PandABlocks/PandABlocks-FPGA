@@ -4,3 +4,4 @@ PLATFORM = zynq
 #PLATFORM = zynqmp  
 
 UBOOT_CONFIG = PandA_defconfig
+

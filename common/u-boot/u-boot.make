@@ -10,46 +10,7 @@
 MD5_SUM_u-boot-xlnx-xilinx-v2015.1 = b6d212208b7694f748727883eebaa74e
 #MD5_SUM_linux-xlnx-xilinx-v2015.1  = 930d126df2113221e63c4ec4ce356f2c
 
-include $(TGT_DIR)/u-boot_incl.make
-
-
 U_BOOT_TAG = xilinx-v2015.1
-
-## The following code is for future compatability with the Zynq Ultrascale+ MPSoC
-## We need to specify different architecture and cross-compile toolchain for the 
-## zynqmp platform, as well as u-boot config. It is commented out for the time being.
-#
-#PLATFORM ?= zynq
-#
-#ifeq($(PLATFORM),zynq)
-#    ARCH=arm
-#    # Use Linero (hard float) toolchain rather than CodeSourcery (soft float) toolchain?
-#    CROSS_COMPILE=arm-linux-gnueabihf-
-#	 # Path to tools will vary depending on version of Vivado/Vitis
-#	 # For 2017.3 onwards:
-#	export PATH := $(SDK_ROOT)/gnu/aarch32/lin/gcc-arm-linux-gnueabi/bin:$(PATH)
-#    # From Vivado 2020 onwards we can use the common defconfig
-#    #UBOOT_CONFIG = xilinx_zynq_virt_defconfig
-#    # For ealier Vivado we can specify zc70x as a generic config, as we are only using it to build mkimage
-#    UBOOT_CONFIG = zynq_zc70x_config
-#else ifeq($(PLATFORM,zynqmp)
-#    ARCH=aarch64
-#    CROSS_COMPILE=aarch64-linux-gnu-
-#	 # Path to tools will vary depending on version of Vivado/Vitis
-#	 # For 2017.3 onwards:
-#	export PATH := $(SDK_ROOT)/gnu/aarch64/lin/aarch64-linux/bin:$(PATH)
-#    # From Vivado 2020 onwards we can use the common defconfig
-#    #UBOOT_CONFIG = xilinx_zynqmp_virt_defconfig
-#    # For earlier Vivado verions, we can try zcu102 as an initial guess for the relevant config.
-#    UBOOT_CONFIG = xilinx_zynqmp_zcu102_rev1_0_defconfig
-#else
-#    $$(error Unknown PLATFORM specified. Must be 'zynq' or 'zynqmp')
-
-CROSS_COMPILE = arm-xilinx-linux-gnueabi-
-ARCH = arm
-
-export PATH := $(SDK_ROOT)/gnu/arm/lin/bin:$(PATH)
-
 
 # ------------------------------------------------------------------------------
 # Helper code lifted from rootfs and other miscellaneous functions
@@ -84,6 +45,4 @@ $(U_BOOT_SRC):
 u-boot-src: $(U_BOOT_SRC)
 
 .PHONY: u-boot u-boot-src
-
-
 

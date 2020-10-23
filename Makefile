@@ -203,7 +203,7 @@ hdl_timing: $(TIMING_BUILD_DIRS)
 # FPGA build
 
 # The following phony targets are passed straight to the FPGA sub-make programme
-FPGA_TARGETS = fpga-all fpga-bits carrier_fpga slow_fpga carrier_ip ps_core \
+FPGA_TARGETS = fpga-all fpga-bits carrier_fpga slow_fpga slow_load carrier_ip ps_core \
                fsbl devicetree boot u-boot dts sw_clean
 
 $(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR)
