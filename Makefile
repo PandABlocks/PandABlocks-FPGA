@@ -50,7 +50,8 @@ DEP_MODE ?= batch
 
 
 default: $(DEFAULT_TARGETS)
-.PHONY: default
+all: default boot
+.PHONY: default all
 
 
 # If ALL_APPS not specified in CONFIG, pick up all valid entries in the apps dir
