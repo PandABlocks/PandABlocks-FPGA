@@ -48,6 +48,8 @@ TOP_PROJ = $(FPGA_BUILD_DIR)/panda_top/carrier_fpga_top.xpr
 TOP_MODE ?= batch
 DEP_MODE ?= batch
 
+# Store the git hash in top-level build directory 
+PREV_VER = $(BUILD_DIR)/VERSION
 
 default: $(DEFAULT_TARGETS)
 all: default boot
@@ -117,6 +119,20 @@ DIRTY_PRE = $(shell \
 # Something like 85539563
 export SHA := $(DIRTY_PRE)$(shell git rev-parse --short=7 HEAD)
 
+# Trigger rebuild of FPGA targets based on change in the git hash
+# If the previous hash value does not exist, or disagrees with the present
+# value, or contains the 'dirty' string then the FPGA build will be considered
+# out-of-date.
+
+.PHONY: PREV_VERSION
+PREV_VERSION :
+ifeq ($(wildcard $(PREV_VER)), ) 
+	echo $(SHA) > $(PREV_VER)    
+else
+	if [[ $(SHA) != `cat $(PREV_VER)` ]] || [[ $(SHA) == 8* ]]; \
+	then echo $(SHA) > $(PREV_VER); \
+	fi
+endif
 
 # ------------------------------------------------------------------------------
 # Documentation
@@ -207,7 +223,7 @@ hdl_timing: $(TIMING_BUILD_DIRS)
 FPGA_TARGETS = fpga-all fpga-bits carrier_fpga slow_fpga slow_load carrier_ip ps_core \
                fsbl devicetree boot u-boot dts sw_clean
 
-$(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR)
+$(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR) | PREV_VERSION
 	mkdir -p $(FPGA_BUILD_DIR)
 	mkdir -p $(TGT_BUILD_DIR)
 ifdef SKIP_FPGA_BUILD
@@ -217,7 +233,7 @@ else
 	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
         TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
         TGT_BUILD_DIR=$(TGT_BUILD_DIR) TOP_MODE=$(TOP_MODE) DEP_MODE=$(DEP_MODE) \
-		$@
+		PREV_VER=$(PREV_VER) $@
 endif
 
 .PHONY: $(FPGA_TARGETS)

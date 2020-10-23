@@ -42,7 +42,7 @@ CFLAGS += -Wno-missing-field-initializers
 # as every app contains its own built copy of VERSION_FILE. Instead it uses the PREV_VER file,  
 # as we do not want to rebuild the Slow FPGA for each app if nothing else has changed.
 
-$(SLOW_BIN): $(TARGET_DIR)/SlowFPGA/SlowFPGA.make $(PREV_VER) | PREV_VERSION $(VERSION_FILE)
+$(SLOW_BIN): $(TARGET_DIR)/SlowFPGA/SlowFPGA.make $(PREV_VER) | $(VERSION_FILE)
 	mkdir -p $(SLOW_FPGA_BUILD_DIR)
 	echo building SlowFPGA
 	source $(ISE)  &&  \
