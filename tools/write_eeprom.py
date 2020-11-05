@@ -1,9 +1,9 @@
 import argparse
 import errno
 
-from i2c import smbus2, eeprom
+from i2c import smbus2, eeprom, inifile
+from . import create_ipmi
 
-byte_data = b'\x01\x00\x00\x01\x00\t\x00\xf5\x01\x08\x007\xaa\xc6\xc3DLS\xc824V GPIO\xc40001\xc6DLS24V\xda2020-10-02 11:03:21.271240\xc1\x00\x00\x00\x00W\x02\x02\r\xf7\xf8\x02\xb0\x04t\x04\xec\x04\x00\x00\x00\x00\xe8\x03\x02\x02\r\\\x93\x01J\x019\x01Z\x01\x00\x00\x00\x00\xb8\x0b\x02\x02\rc\x8c\x00\xfa\x00\xed\x00\x06\x01\x00\x00\x00\x00\xa0\x0f\x01\x02\r\xfb\xf5\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x02\r\xfc\xf4\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x02\r\xfd\xf3\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xfa\x82\x0b\xea\x8f\xa2\x12\x00\x00\x1eD\x00\x00\x00\x00\x00\x00\x00\x00\x00';
 
 def write_8bit_address(data, device = 0x50):
     bus = smbus2.SMBus(0)
@@ -47,11 +47,14 @@ def write_16bit_address(data, device = 0x50):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='flash data to FMC EEPROM')
     parser.add_argument('--16-bit', dest='sixteenbit', action='store_true', help='16-bit EEPROM')
-    args = parser.parse_args()   
+    args = parser.parse_args()
+    
+    ini = ini_file.load_ini_file(sys.argv[1])
+    ipmi = create_ipmi.generate_ipmi(ini)   
 
     bus = smbus2.SMBus(0)
     if args.sixteenbit:
-        write_16bit_address(byte_data)
+        write_16bit_address(ipmi)
     else:
-        write_8bit_address(byte_data)
+        write_8bit_address(ipmi)
 
