@@ -55,6 +55,7 @@ slow_fpga : $(SLOW_BIN)
 
 # Compile slow_load binary for target
 $(SLOW_LOAD): $(TARGET_DIR)/etc/slow_load.c
+	source $(VIVADO)  &&  \
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $(LDLIBS) $<
 
 slow_load : $(SLOW_LOAD)
