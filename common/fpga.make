@@ -82,9 +82,6 @@ include $(TARGET_DIR)/platform_incl.make
 #    ARCH=arm
 #    # Use Linero (hard float) toolchain rather than CodeSourcery (soft float) toolchain?
 #    CROSS_COMPILE=arm-linux-gnueabihf-
-#	 # Path to tools will vary depending on version of Vivado/Vitis
-#	 # For 2017.3 onwards:
-#	export PATH := $(SDK_ROOT)/gnu/aarch32/lin/gcc-arm-linux-gnueabi/bin:$(PATH)
 #    # From Vivado 2020 onwards we can use the common defconfig
 #    #UBOOT_CONFIG = xilinx_zynq_virt_defconfig
 #    # For ealier Vivado we can specify zc70x as a generic config, as we are only using it to build mkimage
@@ -92,9 +89,6 @@ include $(TARGET_DIR)/platform_incl.make
 #else ifeq($(PLATFORM,zynqmp)
 #    ARCH=aarch64
 #    CROSS_COMPILE=aarch64-linux-gnu-
-#	 # Path to tools will vary depending on version of Vivado/Vitis
-#	 # For 2017.3 onwards:
-#	export PATH := $(SDK_ROOT)/gnu/aarch64/lin/aarch64-linux/bin:$(PATH)
 #    # From Vivado 2020 onwards we can use the common defconfig
 #    #UBOOT_CONFIG = xilinx_zynqmp_virt_defconfig
 #    # For earlier Vivado versions, we can try zcu102 as an initial guess for the relevant config.
@@ -104,8 +98,6 @@ include $(TARGET_DIR)/platform_incl.make
 
 CROSS_COMPILE = arm-xilinx-linux-gnueabi-
 ARCH = arm
-
-export PATH := $(SDK_ROOT)/gnu/arm/lin/bin:$(PATH)
 
 #####################################################################
 # Create VERSION_FILE
@@ -185,7 +177,7 @@ $(FSBL): $(SDK_EXPORT)
 
 $(SDK_EXPORT): $(XSDK_BUILD_SCR) $(HWDEF) $(DEVTREE_SRC) | $(IMAGE_DIR)
 	rm -rf $@
-	source $(VIVADO) && xsdk -batch -source $< \
+	. $(VIVADO) && xsdk -batch -source $< \
 	    $(SDK_EXPORT) $(HWDEF) $(DEVTREE_SRC)
 
 $(HWDEF): $(PS_CORE)
