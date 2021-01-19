@@ -57,6 +57,7 @@ slow_fpga : $(SLOW_BIN)
 $(SLOW_LOAD): $(TARGET_DIR)/etc/slow_load.c
 	. $(VIVADO) && $(CC) $(CFLAGS) -o $@ $<
 
+
 slow_load : $(SLOW_LOAD)
 .PHONY: slow_load
 
