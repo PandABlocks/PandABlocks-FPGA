@@ -4,9 +4,6 @@
 --      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
---
---  modified on aug 29, 2020 by Valerio Bassetti, MaxIV Lab, Unversity of Lund 
---  (valerio.bassetti@maxiv.lu.se)
 --------------------------------------------------------------------------------
 --
 --  Description : SSI Slave Interface Block.
@@ -27,7 +24,7 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Configuration interface.
-    ENCODING            : in  std_logic_vector(0 downto 0);
+    ENCODING            : in  std_logic_vector(1 downto 0);
     BITS                : in  std_logic_vector(7 downto 0);
     -- Block Input and Outputs.
     posn_i              : in  std_logic_vector(31 downto 0);
@@ -113,7 +110,7 @@ begin
                     if (shift_clock = '1') then
                         shift_reg <= shift_reg(30 downto 0) & shift_reg(31);
                         shift_counter <= shift_counter + 1;
-						if (ENCODING=c_BINARY_ENCODING) then
+						if ((ENCODING=c_UNSIGNED_BINARY_ENCODING) or (ENCODING=c_SIGNED_BINARY_ENCODING)) then
 							ssi_dat_o <= shift_reg(to_integer(unsigned(BITS))-1);
 						else
 							ssi_dat_o <= data_prev xor shift_reg(to_integer(unsigned(BITS))-1);

@@ -22,7 +22,7 @@ port (
     clk_i           : in  std_logic;
     reset_i         : in  std_logic;
     -- Configuration interface
-    ENCODING        : in  std_logic_vector(0 downto 0);
+    ENCODING        : in  std_logic_vector(1 downto 0);
     BITS            : in  std_logic_vector(7 downto 0);
     link_up_o       : out std_logic;
     health_o        : out  std_logic_vector(31 downto 0);
@@ -244,7 +244,7 @@ generic map (
 port map (
     clk_i           => clk_i,
     reset_i         => reset,
-    ENCODING        => "0",
+    ENCODING        => "00",
     enable_i        => nError_valid,
     clock_i         => serial_clock_rise,
     data_i          => serial_data,
@@ -260,7 +260,7 @@ generic map (
 port map (
     clk_i           => clk_i,
     reset_i         => reset,
-    ENCODING        => "0",
+    ENCODING        => "00",
     enable_i        => crc_valid,
     clock_i         => serial_clock_rise,
     data_i          => serial_data,

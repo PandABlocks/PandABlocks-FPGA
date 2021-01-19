@@ -241,7 +241,7 @@ port map(
     -- Block parameters
     GENERATOR_ERROR_i   => GENERATOR_ERROR(0),
     OUTENC_PROTOCOL_i   => OUTENC_PROTOCOL(2 downto 0),
-    OUTENC_ENCODING_i   => OUTENC_ENCODING(0 downto 0),
+    OUTENC_ENCODING_i   => OUTENC_ENCODING(1 downto 0),
     OUTENC_BITS_i       => OUTENC_BITS(7 downto 0),
     QPERIOD_i           => QPERIOD,
     QPERIOD_WSTB_i      => QPERIOD_WSTB,
@@ -250,7 +250,7 @@ port map(
 
     DCARD_MODE_i        => DCARD_MODE_i,
     INENC_PROTOCOL_i    => INENC_PROTOCOL(2 downto 0),
-    INENC_ENCODING_i    => INENC_ENCODING(0 downto 0),
+    INENC_ENCODING_i    => INENC_ENCODING(1 downto 0),
     CLK_SRC_i           => CLK_SRC(0),
     CLK_PERIOD_i        => CLK_PERIOD,
     FRAME_PERIOD_i      => FRAME_PERIOD,

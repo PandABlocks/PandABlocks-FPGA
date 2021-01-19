@@ -41,7 +41,7 @@ port (
     -- Block parameters
     GENERATOR_ERROR_i   : in  std_logic;
     OUTENC_PROTOCOL_i   : in  std_logic_vector(2 downto 0);
-    OUTENC_ENCODING_i   : in  std_logic_vector(0 downto 0);
+    OUTENC_ENCODING_i   : in  std_logic_vector(1 downto 0);
     OUTENC_BITS_i       : in  std_logic_vector(7 downto 0);
     QPERIOD_i           : in  std_logic_vector(31 downto 0);
     QPERIOD_WSTB_i      : in  std_logic;
@@ -50,7 +50,7 @@ port (
 
     DCARD_MODE_i        : in  std_logic_vector(31 downto 0);
     INENC_PROTOCOL_i    : in  std_logic_vector(2 downto 0);
-    INENC_ENCODING_i    : in  std_logic_vector(0 downto 0);
+    INENC_ENCODING_i    : in  std_logic_vector(1 downto 0);
     CLK_SRC_i           : in  std_logic;
     CLK_PERIOD_i        : in  std_logic_vector(31 downto 0);
     FRAME_PERIOD_i      : in  std_logic_vector(31 downto 0);
@@ -237,9 +237,16 @@ begin
         -- BITS not begin used
         bits_not_used <= 31 - (unsigned(INENC_BITS_i(4 downto 0))-1);
         lp_test: for i in 31 downto 0 loop
-           -- Discard bits not being used and MSB and LSB and append zeros on to top bits
+           -- Discard bits not being used and MSB and LSB and extend the sign.
+           -- Note that we need the loop to manipulate the vector. Slicing with \
+           -- variable indices is not synthesisable.
            if (i > 31 - bits_not_used - unsigned(MSB_DISCARD_i) - unsigned(LSB_DISCARD_i)) then
-               posn_o(i) <= '0';
+               if ((INENC_ENCODING_i=c_UNSIGNED_BINARY_ENCODING) or (INENC_ENCODING_i=c_UNSIGNED_GRAY_ENCODING)) then
+                   posn_o(i) <= '0';
+               else
+                   -- sign extension
+                   posn_o(i) <= posn(31 - to_integer(bits_not_used + unsigned(MSB_DISCARD_i)));
+               end if;
            -- Add the LSB_DISCARD on to posn index count and start there
            else
                posn_o(i) <= posn(i + to_integer(unsigned(LSB_DISCARD_i)));

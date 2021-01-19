@@ -4,9 +4,6 @@
 --      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
---
---  modified on aug 29, 2020 by Valerio Bassetti, MaxIV Lab, Unversity of Lund 
---  (valerio.bassetti@maxiv.lu.se)
 --------------------------------------------------------------------------------
 --
 --  Description : Serial Interface Synchronous Recevier core.
@@ -25,7 +22,7 @@ port (
     clk_i           : in  std_logic;
     reset_i         : in  std_logic;
     -- Configuration interface
-    ENCODING        : in  std_logic_vector(0 downto 0);
+    ENCODING        : in  std_logic_vector(1 downto 0);
     BITS            : in  std_logic_vector(7 downto 0);
     link_up_o       : out std_logic;
     error_o         : out std_logic;

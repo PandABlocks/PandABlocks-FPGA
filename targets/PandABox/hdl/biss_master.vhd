@@ -10,7 +10,7 @@ entity biss_master is
 port(
     clk_i        : in  std_logic;
     reset_i      : in  std_logic;
-    ENCODING     : in  std_logic_vector(0 downto 0);
+    ENCODING     : in  std_logic_vector(1 downto 0);
     BITS         : in  std_logic_vector(7 downto 0);
     link_up_o    : out std_logic;
     health_o     : out  std_logic_vector(31 downto 0);
@@ -403,7 +403,7 @@ generic map (
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
-    ENCODING        => "0",
+    ENCODING        => "00",
     enable_i        => nEnW_enable_i,
     clock_i         => biss_sck_rising_edge,
     data_i          => biss_dat_i,
@@ -420,7 +420,7 @@ generic map (
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
-    ENCODING        => "0",
+    ENCODING        => "00",
     enable_i        => crc_enable_i,
     clock_i         => biss_sck_rising_edge,
     data_i          => biss_dat_i,

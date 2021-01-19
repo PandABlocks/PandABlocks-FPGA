@@ -4,9 +4,6 @@
 --      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
 --  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
---
---  modified on aug 29, 2020 by Valerio Bassetti, MaxIV Lab, Unversity of Lund 
---  (valerio.bassetti@maxiv.lu.se)
 --------------------------------------------------------------------------------
 --
 --  Description : 48-bit serial-to-paraller shifter with valid.
@@ -27,7 +24,7 @@ generic (
 port (
     clk_i            : in  std_logic;
     reset_i          : in  std_logic;
-    ENCODING         : in  std_logic_vector(0 downto 0);
+    ENCODING         : in  std_logic_vector(1 downto 0);
     -- Physical SSI interface
     enable_i         : in  std_logic;
     clock_i          : in  std_logic;
@@ -40,7 +37,7 @@ end shifter_in;
 
 architecture rtl of shifter_in is
 
-signal smpl_hold             : std_logic_vector(DW-1 downto 0);
+signal smpl_hold   : std_logic_vector(DW-1 downto 0);
 signal valid_prev  : std_logic;
 signal valid_fall  : std_logic;
 
@@ -70,7 +67,7 @@ begin
             -- Shift data when enabled.
             elsif (enable_i = '1') then
 				if (clock_i = '1') then
-					if (ENCODING=c_BINARY_ENCODING) then
+					if ((ENCODING=c_UNSIGNED_BINARY_ENCODING) or (ENCODING=c_SIGNED_BINARY_ENCODING)) then
 						smpl_hold <= smpl_hold(DW-2 downto 0) & data_i;
 					else
 						smpl_hold <= smpl_hold(DW-2 downto 0) & (data_i xor smpl_hold(0));
