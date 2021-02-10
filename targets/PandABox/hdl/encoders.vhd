@@ -560,4 +560,3 @@ clkin_filt : entity work.delay_filter port map (
 );
 end rtl;
 
-
