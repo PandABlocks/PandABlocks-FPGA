@@ -171,7 +171,7 @@ begin
                 if (I < intBITS) then
                     posn_o(I) <= data(I);
                 else
-					posn_o(I) <= data(intBITS-1);
+                    posn_o(I) <= data(intBITS-1);
                 end if;
             END LOOP;
         end if;

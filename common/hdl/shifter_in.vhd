@@ -66,12 +66,12 @@ begin
                 smpl_hold <= (others => '0');
             -- Shift data when enabled.
             elsif (enable_i = '1') then
-				if (clock_i = '1') then
-					if ((ENCODING=c_UNSIGNED_BINARY_ENCODING) or (ENCODING=c_SIGNED_BINARY_ENCODING)) then
-						smpl_hold <= smpl_hold(DW-2 downto 0) & data_i;
-					else
-						smpl_hold <= smpl_hold(DW-2 downto 0) & (data_i xor smpl_hold(0));
-					end if;
+                if (clock_i = '1') then
+                    if ((ENCODING=c_UNSIGNED_BINARY_ENCODING) or (ENCODING=c_SIGNED_BINARY_ENCODING)) then
+                        smpl_hold <= smpl_hold(DW-2 downto 0) & data_i;
+                    else
+                        smpl_hold <= smpl_hold(DW-2 downto 0) & (data_i xor smpl_hold(0));
+                    end if;
                 end if;
             end if;
         end if;

@@ -15,10 +15,10 @@ always #4 clk_i = ~clk_i;
     {% if field.type == "bit_mux" %}
 reg         {{ field.name }};
     {% else %}
-	    {% for register in field.numbered_registers() %}
+        {% for register in field.numbered_registers() %}
 reg  [31:0] {{ register.name }};
-	    {% endfor %}
-	{% endif %}
+        {% endfor %}
+    {% endif %}
 {% endfor %}
 
 // Outputs

@@ -50,17 +50,17 @@ module glbl ();
     assign (weak1, weak0) PRLD = PRLD_int;
 
     initial begin
-	GSR_int = 1'b1;
-	PRLD_int = 1'b1;
-	#(ROC_WIDTH)
-	GSR_int = 1'b0;
-	PRLD_int = 1'b0;
+    GSR_int = 1'b1;
+    PRLD_int = 1'b1;
+    #(ROC_WIDTH)
+    GSR_int = 1'b0;
+    PRLD_int = 1'b0;
     end
 
     initial begin
-	GTS_int = 1'b1;
-	#(TOC_WIDTH)
-	GTS_int = 1'b0;
+    GTS_int = 1'b1;
+    #(TOC_WIDTH)
+    GTS_int = 1'b0;
     end
 
 endmodule

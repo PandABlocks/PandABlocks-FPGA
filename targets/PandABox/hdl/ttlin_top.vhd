@@ -28,9 +28,9 @@ port (
     --Memory Bus Interface
     write_strobe_i      : in  std_logic;
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
-	write_data_i        : in  std_logic_vector(31 downto 0);
-	--Memory interface
-	slow_tlp_o          : out slow_packet;
+    write_data_i        : in  std_logic_vector(31 downto 0);
+    --Memory interface
+    slow_tlp_o          : out slow_packet;
     -- TTL I/O
     pad_i               : in  std_logic_vector(TTLIN_NUM-1 downto 0);
     val_o               : out std_logic_vector(TTLIN_NUM-1 downto 0)

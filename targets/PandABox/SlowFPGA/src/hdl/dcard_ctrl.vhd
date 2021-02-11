@@ -70,8 +70,8 @@ begin
             return X"10";
         when "100"  => -- Pass
             return X"07";
-		when "101" => -- Data passthrough (same as SSI)
-			return X"28";
+        when "101" => -- Data passthrough (same as SSI)
+            return X"28";
         when others =>
             return X"00";
     end case;

@@ -236,7 +236,7 @@ port map (
     FMC_CLK0            => FREQ_VAL(1),
     FMC_CLK1            => FREQ_VAL(2),
     EXT_CLK             => FREQ_VAL(3),
-	FMC_MAC_LO          => MAC_LO,
+    FMC_MAC_LO          => MAC_LO,
     FMC_MAC_HI          => MAC_HI,
     SOFT_RESET          => open,
     SOFT_RESET_WSTB     => SOFT_RESET,

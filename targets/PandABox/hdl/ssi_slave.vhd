@@ -110,11 +110,11 @@ begin
                     if (shift_clock = '1') then
                         shift_reg <= shift_reg(30 downto 0) & shift_reg(31);
                         shift_counter <= shift_counter + 1;
-						if ((ENCODING=c_UNSIGNED_BINARY_ENCODING) or (ENCODING=c_SIGNED_BINARY_ENCODING)) then
-							ssi_dat_o <= shift_reg(to_integer(unsigned(BITS))-1);
-						else
-							ssi_dat_o <= data_prev xor shift_reg(to_integer(unsigned(BITS))-1);
-						end if;
+                        if ((ENCODING=c_UNSIGNED_BINARY_ENCODING) or (ENCODING=c_SIGNED_BINARY_ENCODING)) then
+                            ssi_dat_o <= shift_reg(to_integer(unsigned(BITS))-1);
+                        else
+                            ssi_dat_o <= data_prev xor shift_reg(to_integer(unsigned(BITS))-1);
+                        end if;
                                      
                         data_prev <= shift_reg(to_integer(unsigned(BITS))-1);
                     end if;

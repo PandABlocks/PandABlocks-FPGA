@@ -116,7 +116,7 @@ INENC_CONN_OUT_o <= STATUS(0);
 
 -- Certain parameter changes must initiate a block reset.
 reset <= reset_i or OUTENC_PROTOCOL_WSTB or OUTENC_BITS_WSTB or INENC_PROTOCOL_WSTB
-		 or OUTENC_ENCODING_WSTB or INENC_ENCODING_WSTB
+         or OUTENC_ENCODING_WSTB or INENC_ENCODING_WSTB
          or CLK_PERIOD_WSTB or FRAME_PERIOD_WSTB or INENC_BITS_WSTB;
 
 DCARD_TYPE <= x"0000000" & '0' & DCARD_MODE_i(3 downto 1);
