@@ -89,8 +89,6 @@ constant c_state_wait_trigger   : std_logic_vector(2 downto 0) := "010";
 constant c_state_phase1         : std_logic_vector(2 downto 0) := "011";
 constant c_state_phase2         : std_logic_vector(2 downto 0) := "100";
 
-signal reset_i              : std_logic := '0';
-
 signal TABLE_FRAMES         : std_logic_vector(15 downto 0);
 
 signal current_frame        : seq_t;
@@ -276,7 +274,7 @@ enable_mem_reset <= '1' when (current_frame.time1 = x"00000000") else '0';
 
 
 load_next <= '1' when (enable_rise = '1' and  seq_sm = WAIT_ENABLE) or ( seq_sm = PHASE_2  and presc_ce = '1' and
-                      tframe_counter = next_ts -1 and last_table_repeat = '0' and last_line_repeat = '1') or 
+                      tframe_counter = next_ts -1 and last_table_repeat = '0' and last_line_repeat = '1') or
                       (current_frame = next_frame and seq_sm = PHASE_1 and unsigned(PRESCALE) < to_unsigned(2,32)
                       and (current_frame.time2 = to_unsigned(0,32) or current_frame.time2 = to_unsigned(1,32)))
                       else '0';
@@ -289,15 +287,7 @@ if rising_edge(clk_i) then
     --
 --    load_next <= '0';
 
-    -- Reset all registers and state machine.
-    if (reset_i = '1') then
-        seq_sm <= WAIT_ENABLE;
-        out_val <= (others => '0');
-        active <= '0';
-        LINE_REPEAT_o <= (others => '0');
-        TABLE_LINE_o <= (others => '0');
-        TABLE_REPEAT_o <= (others => '0');
-    elsif (TABLE_START_WSTB = '1') then
+    if (TABLE_START_WSTB = '1') then
         out_val <= (others => '0');
         seq_sm <= LOAD_TABLE;
     elsif (enable_fall = '1' and enable_i = '0') then
@@ -315,7 +305,11 @@ if rising_edge(clk_i) then
             when WAIT_ENABLE =>
                 -- TABLE load_started
                 reset_table <= '0';
-                if enable_rise = '1' then
+                if unsigned(TABLE_LENGTH) = to_unsigned(0,32) then
+                    TABLE_REPEAT_o <= to_unsigned(0,32);
+                    TABLE_LINE_o <= to_unsigned(0,16);
+                    LINE_REPEAT_o <= to_unsigned(0,32);
+                elsif enable_rise = '1' then
                     -- rising ENABLE and trigger not met
                     if (next_trig_valid  = '0') then
                         seq_sm <= WAIT_TRIGGER;
@@ -490,17 +484,13 @@ port map (
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (reset_i = '1') then
+        if (presc_reset = '1') then
             tframe_counter <= (others => '0');
-        else
-            if (presc_reset = '1') then
+        elsif (presc_ce = '1') then
+            if (tframe_counter = next_ts - 1) then
                 tframe_counter <= (others => '0');
-            elsif (presc_ce = '1') then
-                if (tframe_counter = next_ts - 1) then
-                    tframe_counter <= (others => '0');
-                else
-                    tframe_counter <= tframe_counter + 1;
-                end if;
+            else
+                tframe_counter <= tframe_counter + 1;
             end if;
         end if;
     end if;
