@@ -200,26 +200,29 @@ class SeqSimulation(BlockSimulation):
             if self.STATE == WAIT_ENABLE:
                 # If we get an enable or we are still active after a table
                 # rewrite
-                if changes.get(NAMES.ENABLE, None) == 1 or self.ACTIVE:
-                    if self.table.table_ready:
-                        if not self.next_triggers_met():
-                            state = WAIT_TRIGGER
-                        elif self.next_line().time1:
-                            # Do phase 1
-                            self.next_ts = ts + self.next_time1()
-                            self.set_outputs(self.next_line().out1)
-                            state = PHASE1
-                        else:
-                            # Do phase 2
-                            self.next_ts = ts + self.next_time2()
-                            self.set_outputs(self.next_line().out2)
-                            state = PHASE2
-                        self.TABLE_REPEAT = 1
-                        self.TABLE_LINE = 1
-                        self.LINE_REPEAT = 1
-                        self.ACTIVE = 1
-                        self.current_line = self.next_line()
-                        self.table.load_next()
+                if self.TABLE_LENGTH == 0:
+                    self.TABLE_REPEAT = 0
+                    self.TABLE_LINE = 0
+                    self.LINE_REPEAT = 0
+                elif changes.get(NAMES.ENABLE, None) == 1 or self.ACTIVE:
+                    if not self.next_triggers_met():
+                        state = WAIT_TRIGGER
+                    elif self.next_line().time1:
+                        # Do phase 1
+                        self.next_ts = ts + self.next_time1()
+                        self.set_outputs(self.next_line().out1)
+                        state = PHASE1
+                    else:
+                        # Do phase 2
+                        self.next_ts = ts + self.next_time2()
+                        self.set_outputs(self.next_line().out2)
+                        state = PHASE2
+                    self.TABLE_REPEAT = 1
+                    self.TABLE_LINE = 1
+                    self.LINE_REPEAT = 1
+                    self.ACTIVE = 1
+                    self.current_line = self.next_line()
+                    self.table.load_next()
             elif self.STATE == LOAD_TABLE:
                 # And while we're in this state we ignore everything apart from
                 # table commands
