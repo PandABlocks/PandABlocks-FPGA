@@ -83,8 +83,8 @@ constant c_posb_lt_position     : unsigned(3 downto 0) := "1010";
 constant c_posc_gt_position     : unsigned(3 downto 0) := "1011";
 constant c_posc_lt_position     : unsigned(3 downto 0) := "1100";
 
-constant c_state_wait_enable    : std_logic_vector(2 downto 0) := "000";
-constant c_state_load_table     : std_logic_vector(2 downto 0) := "001";
+constant c_state_load_table     : std_logic_vector(2 downto 0) := "000";
+constant c_state_wait_enable    : std_logic_vector(2 downto 0) := "001";
 constant c_state_wait_trigger   : std_logic_vector(2 downto 0) := "010";
 constant c_state_phase1         : std_logic_vector(2 downto 0) := "011";
 constant c_state_phase2         : std_logic_vector(2 downto 0) := "100";
@@ -100,7 +100,7 @@ signal LINE_REPEAT_o        : unsigned(31 downto 0);
 signal TABLE_LINE_o         : unsigned(15 downto 0);
 signal TABLE_REPEAT_o       : unsigned(31 downto 0);
 
-type state_t is (WAIT_ENABLE, LOAD_TABLE, PHASE_1, PHASE_2, WAIT_TRIGGER);
+type state_t is (LOAD_TABLE, WAIT_ENABLE, PHASE_1, PHASE_2, WAIT_TRIGGER);
 signal seq_sm               : state_t;
 
 signal next_inp_val         : std_logic_vector(2 downto 0);
@@ -290,6 +290,9 @@ if rising_edge(clk_i) then
     if TABLE_START_WSTB = '1' then
         out_val <= (others => '0');
         seq_sm <= LOAD_TABLE;
+        TABLE_REPEAT_o <= (others => '0');
+        TABLE_LINE_o <= (others => '0');
+        LINE_REPEAT_o <= (others => '0');
     elsif enable_fall = '1' and enable_i = '0' then
         out_val <= (others => '0');
         active <= '0';
@@ -305,11 +308,7 @@ if rising_edge(clk_i) then
             when WAIT_ENABLE =>
                 -- TABLE load_started
                 reset_table <= '0';
-                if unsigned(TABLE_LENGTH) = 0 then
-                    TABLE_REPEAT_o <= (others => '0');
-                    TABLE_LINE_o <= (others => '0');
-                    LINE_REPEAT_o <= (others => '0');
-                elsif enable_rise = '1' then
+                if enable_rise = '1' then
                     -- rising ENABLE and trigger not met
                     if next_trig_valid  = '0' then
                         seq_sm <= WAIT_TRIGGER;
@@ -339,7 +338,7 @@ if rising_edge(clk_i) then
             -- State 1
             when LOAD_TABLE =>
                 -- TABLE load complete
-                if table_ready = '1' then
+                if table_ready = '1' and unsigned(TABLE_LENGTH) /= 0 then
                     seq_sm <= WAIT_ENABLE;
                 end if;
 
