@@ -87,8 +87,8 @@ class SeqTable(object):
             self.table_ready = 1
 
 
-WAIT_ENABLE = 0
-LOAD_TABLE = 1
+LOAD_TABLE = 0
+WAIT_ENABLE = 1
 WAIT_TRIGGER = 2
 PHASE1 = 3
 PHASE2 = 4
@@ -186,6 +186,9 @@ class SeqSimulation(BlockSimulation):
             # Loading a table stops everything
             self.table.table_start()
             self.set_outputs(0)
+            self.TABLE_REPEAT = 0
+            self.TABLE_LINE = 0
+            self.LINE_REPEAT = 0
             state = LOAD_TABLE
         elif changes.get(NAMES.ENABLE, None) == 0:
             # If we are disabled at any point stop and wait for enable
@@ -200,11 +203,7 @@ class SeqSimulation(BlockSimulation):
             if self.STATE == WAIT_ENABLE:
                 # If we get an enable or we are still active after a table
                 # rewrite
-                if self.TABLE_LENGTH == 0:
-                    self.TABLE_REPEAT = 0
-                    self.TABLE_LINE = 0
-                    self.LINE_REPEAT = 0
-                elif changes.get(NAMES.ENABLE, None) == 1 or self.ACTIVE:
+                if changes.get(NAMES.ENABLE, None) == 1 or self.ACTIVE:
                     if not self.next_triggers_met():
                         state = WAIT_TRIGGER
                     elif self.next_line().time1:
@@ -226,7 +225,7 @@ class SeqSimulation(BlockSimulation):
             elif self.STATE == LOAD_TABLE:
                 # And while we're in this state we ignore everything apart from
                 # table commands
-                if self.table.table_ready:
+                if self.table.table_ready and self.TABLE_LENGTH > 0:
                     state = WAIT_ENABLE
                 elif NAMES.TABLE_DATA in changes:
                     self.table.table_data(self.TABLE_DATA)
