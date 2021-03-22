@@ -58,7 +58,7 @@ port (
     TABLE_START         : in  std_logic;
     TABLE_DATA          : in  std_logic_vector(31 downto 0);
     TABLE_WSTB          : in  std_logic;
-    TABLE_LENGTH        : in  std_logic_vector(15 downto 0);
+    TABLE_FRAMES        : in  std_logic_vector(15 downto 0);
     TABLE_LENGTH_WSTB   : in  std_logic
 );
 end sequencer_table;
@@ -71,6 +71,8 @@ constant c_zeros32              : std_logic_vector(31 downto 0) := X"00000000";
 signal seq_dout                 : std32_array(3 downto 0);
 signal seq_waddr                : unsigned(AW+1 downto 0) := (others => '0');
 signal seq_raddr                : unsigned(AW-1 downto 0) := (others => '0');
+signal seq_raddr_current        : unsigned(AW-1 downto 0) := (others => '0');
+signal seq_raddr_next           : unsigned(AW-1 downto 0) := (others => '0');
 signal seq_wren                 : std_logic_vector(3 downto 0);
 signal seq_di                   : std_logic_vector(31 downto 0);
 signal table_ready              : std_logic := '0';
@@ -154,44 +156,21 @@ next_frame_o.time1 <= unsigned(seq_dout(2));
 next_frame_o.time2 <= unsigned(seq_dout(3));
 
 
+seq_raddr <= (others => '0') when reset_i = '1' else
+    seq_raddr_next when load_next_i = '1' else
+    seq_raddr_current;
 
--- Frame loading from memory is done in 4 words.
+-- Calculate the next address in a clocked process so
+-- we can use combinatorial logic above to minimize delays
 FRAME_CTRL : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        --
-        -- Sequencer frame load state machine, active after TABLE is populated.
-        --
-        if (reset_i = '1') then
-            seq_raddr <= (others => '0');
---            next_frame_o <= (repeats => (others => '0'), trigger => (others => '0'), out1 => (others => '0'), out2 => (others => '0'),
---                             position => (others => '0'), time1 => (others => '0'), time2 => (others => '0'));
+        if (seq_raddr = unsigned(TABLE_FRAMES)-1) then
+            seq_raddr_next <= (others => '0');
         else
-            -- Increment read address for loading frames from the table.
-            if (load_next_i = '1') then
-                if (seq_raddr = unsigned(TABLE_LENGTH)-1) then
-                    seq_raddr <= (others => '0');
-                else
-                    seq_raddr <= seq_raddr + 1;
-                end if;
-            -- Reset the read address index when new values written to the table
-            elsif (TABLE_START = '1') then
-                seq_raddr <= (others => '0');
-            end if;
-
---            next_frame_o.repeats <= unsigned(seq_dout(0)(15 downto 0));  -- [0](15 downto 0)    Repeats
---            next_frame_o.trigger <= unsigned(seq_dout(0)(19 downto 16)); -- [0](19 downto 16)   Trigger
---
---            next_frame_o.out1 <= seq_dout(0)(25 downto 20);              -- [0](25 downto 2)    Output 1
---            next_frame_o.out2 <= seq_dout(0)(31 downto 26);              -- [0](26 downto 31)   Output 2
---
---            next_frame_o.position <= signed(seq_dout(1));                -- [1](31 downto 0)    Position
---                                                                         --    (63 downto 32)
---            next_frame_o.time1 <= unsigned(seq_dout(2));                 -- [2](31 downto 0)    Time1
---                                                                         --    (95 downto 64)
---            next_frame_o.time2 <= unsigned(seq_dout(3));                 -- [3](31 downto 0)    Time2
---                                                                         --    (127 downto 64)
+            seq_raddr_next <= seq_raddr + 1;
         end if;
+        seq_raddr_current <= seq_raddr;
     end if;
 end process;
 
