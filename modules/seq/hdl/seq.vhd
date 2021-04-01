@@ -272,7 +272,7 @@ enable_mem_reset <= '1' when (current_frame.time1 = x"00000000") else '0';
 
 
 -- combinatorial logic so we can load a new row in 1 clock tick
--- commented out load_next in SEQ_FSM shows where this logically sits
+-- comments in SEQ_FSM shows where this logically sits
 load_next <= '1' when (seq_sm = WAIT_ENABLE and enable_rise = '1') or (
     seq_sm = PHASE_2 and presc_ce = '1' and tframe_counter = next_ts -1
     and last_line_repeat = '1') else '0';
@@ -285,7 +285,6 @@ if rising_edge(clk_i) then
     --
     -- Sequencer State Machine
     --
---    load_next <= '0';
 
     if TABLE_START_WSTB = '1' then
         out_val <= (others => '0');
@@ -297,7 +296,6 @@ if rising_edge(clk_i) then
         out_val <= (others => '0');
         active <= '0';
         if seq_sm /= LOAD_TABLE then
---          reset_table <= '1';
             seq_sm <= WAIT_ENABLE;
         end if;
     else
@@ -306,7 +304,6 @@ if rising_edge(clk_i) then
 
             -- State 0
             when WAIT_ENABLE =>
---              reset_table <= '0';
                 if enable_rise = '1' then
                     -- rising ENABLE and trigger not met
                     if next_trig_valid  = '0' then
@@ -330,7 +327,7 @@ if rising_edge(clk_i) then
                     TABLE_LINE_OUT <= to_unsigned(1,16);
                     LINE_REPEAT_OUT <= to_unsigned(1,32);
                     current_frame <= next_frame;
---                    load_next <= '1';
+                    -- load_next fires here
                     active <= '1';
                 end if;
 
@@ -415,7 +412,7 @@ if rising_edge(clk_i) then
                             seq_sm <= PHASE_2;                                  -- PHASE2 4
                         end if;
                         current_frame <= next_frame;
---                        load_next <= '1';
+                        -- load_next fires here
                     else
                         LINE_REPEAT_OUT <= LINE_REPEAT_OUT + 1;
                         -- No trigger active so go and wait
