@@ -115,9 +115,19 @@ class PcompSimulation(BlockSimulation):
                     else:
                         if self.DIR == POSITIVE:
                             self.dir_pos = 1
+                            self.next_crossing = self.WIDTH
                         else:
                             self.dir_pos = 0
-                        state = WAIT_PRE_START
+                            self.next_crossing = -self.WIDTH
+                        if self.RELATIVE and self.PRE_START == 0 and self.START == 0:
+                            # Produce the first pulse right away
+                            self.OUT = 1
+                            self.last_crossing = 0
+                            # next_crossing set above
+                            self.PRODUCED = 1
+                            state = WAIT_FALLING
+                        else:
+                            state = WAIT_PRE_START
             if self.STATE == WAIT_DIR:
                 if self.RELATIVE:
                     # If we are relative then only advance when thresh away from

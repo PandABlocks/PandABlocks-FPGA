@@ -60,6 +60,7 @@ the user to see what the Block is currently doing:
 
     WAIT_ENABLE -> WAIT_DIR [label="rising ENABLE\n & DIR=EITHER ",fontsize=13]
     WAIT_ENABLE -> WAIT_PRE_START [label=" rising\n ENABLE ",fontsize=13]
+    WAIT_ENABLE -> WAIT_FALLING [label="rising\nENABLE\n& RELATIVE\n& START=0",fontsize=13]
 
     WAIT_DIR -> WAIT_ENABLE [label=" Can't guess\n DIR \n or Disabled "]
     [fontsize=13]
@@ -70,12 +71,12 @@ the user to see what the Block is currently doing:
     WAIT_PRE_START -> WAIT_ENABLE [label=" Disabled "][fontsize=13]
     WAIT_PRE_START -> WAIT_RISING [label=" < PRE_START > "][fontsize=13]
 
-    WAIT_RISING -> WAIT_ENABLE [label=" jump > WIDTH + STEP \n or Disabled "]
+    WAIT_RISING -> WAIT_ENABLE [label="jump >\nWIDTH + STEP\n or Disabled "]
     [fontsize=13]
     WAIT_RISING -> WAIT_FALLING [label=" >= pulse ",fontsize=13]
 
     WAIT_FALLING -> WAIT_ENABLE
-    [label=" jump > WIDTH + STEP \n or Finished \nor Disabled",fontsize=13]
+    [label=" jump > \nWIDTH + STEP\n or Finished \nor Disabled",fontsize=13]
     WAIT_FALLING -> WAIT_RISING [label=" >= pulse \n + WIDTH "]
     [fontsize=13]
 
@@ -189,6 +190,12 @@ latched position at the start:
 .. timing_plot::
    :path: modules/pcomp/pcomp.timing.ini
    :section: Relative position compare
+
+If we want it to start immediately on ENABLE then we set START and PRE_START=0:
+
+.. timing_plot::
+   :path: modules/pcomp/pcomp.timing.ini
+   :section: Relative position compare no START
 
 We can also guess the direction in relative mode:
 
