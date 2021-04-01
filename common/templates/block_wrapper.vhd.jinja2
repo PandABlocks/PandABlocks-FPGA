@@ -109,7 +109,7 @@ begin
     {% elif field in filter_fields("pos_mux") %}
             {{ pad(field.name+"_from_bus") }} => {{ field.name }}(I),
     {% else %}
-		{% for register in field.numbered_registers() %}
+        {% for register in field.numbered_registers() %}
             {{ pad(register.name) }} => {{ register.name }}(I),
             {% if "read" not in field.type %}
             {{ pad(register.name + "_wstb") }} => {{ register.name }}_wstb(I),
@@ -133,11 +133,11 @@ begin
         {{ entity }} : entity work.{{ entity }}
         port map (
 {% for field in fields %}
-	{% if field in filter_fields("bit_mux") %}
+    {% if field in filter_fields("bit_mux") %}
             {{ pad(field.name +"_i") }} => {{ field.name }}(I)(0),
-	{% elif field in filter_fields("pos_mux") %}
+    {% elif field in filter_fields("pos_mux") %}
             {{ pad(field.name +"_i") }} => {{ field.name }}(I),
-	{% elif field in filter_fields(".*_out") %}
+    {% elif field in filter_fields(".*_out") %}
             {{ pad(field.name + "_o") }} => {{ field.name }}_o(I),
     {% else %}
         {% for register in field.numbered_registers() %}

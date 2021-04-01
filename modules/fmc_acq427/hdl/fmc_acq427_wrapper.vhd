@@ -30,14 +30,14 @@ port (
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
     -- Outputs to PosBus from FMC
-	in_val1_o				: out std32_array(0 downto 0);
-	in_val2_o				: out std32_array(0 downto 0);
-	in_val3_o				: out std32_array(0 downto 0);
-	in_val4_o				: out std32_array(0 downto 0);
-	in_val5_o				: out std32_array(0 downto 0);
-	in_val6_o				: out std32_array(0 downto 0);
-	in_val7_o				: out std32_array(0 downto 0);
-	in_val8_o				: out std32_array(0 downto 0);
+    in_val1_o               : out std32_array(0 downto 0);
+    in_val2_o               : out std32_array(0 downto 0);
+    in_val3_o               : out std32_array(0 downto 0);
+    in_val4_o               : out std32_array(0 downto 0);
+    in_val5_o               : out std32_array(0 downto 0);
+    in_val6_o               : out std32_array(0 downto 0);
+    in_val7_o               : out std32_array(0 downto 0);
+    in_val8_o               : out std32_array(0 downto 0);
     -- Outputs to BitBus from FMC
     in_ttl_o               : out std_logic_vector(0 downto 0);
     -- Memory Bus Interface

@@ -37,15 +37,15 @@ reg              reset = 1;
     {% if field.type == "bit_mux" %}
 reg         {{ field.name }};
     {% else %}
-	    {% for register in field.registers %}
-	        {% if register.number >= 0 %}
+        {% for register in field.registers %}
+            {% if register.number >= 0 %}
 reg  [31:0] {{ register.name }};
-			{% endif %}
-	    {% endfor %}
-	    {% if field.type == "time" %}
+            {% endif %}
+        {% endfor %}
+        {% if field.type == "time" %}
 wire [47:0] {{ field.name }};
-	    {% endif %}
-	{% endif %}
+        {% endif %}
+    {% endif %}
 {% endfor %}
 
 // Outputs
@@ -73,7 +73,7 @@ reg         {{ field.name }}_err;   //Error signal
         {% for register in field.registers %}
             {% if register.number >= 0 %}
 reg         {{ register.name }}_wstb;
-			{% endif %}
+            {% endif %}
         {% endfor %}
         {% if field.type == "time" %}
 wire        {{ field.name }}_wstb;
