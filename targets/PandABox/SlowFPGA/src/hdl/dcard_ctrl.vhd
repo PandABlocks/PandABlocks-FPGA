@@ -73,7 +73,7 @@ begin
 		when "101" => -- Data passthrough (same as SSI)
 			return X"28";
         when others =>
-            return X"00";
+            return X"04";
     end case;
 end OUTENC_CONV;
 
