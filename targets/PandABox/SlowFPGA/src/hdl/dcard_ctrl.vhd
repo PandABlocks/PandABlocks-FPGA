@@ -77,13 +77,13 @@ begin
     end case;
 end OUTENC_CONV;
 
-function CONV_PADS(INENC, OUTENC : std_logic_vector) return std_logic_vector is
+function CONV_PADS(INENC, OUTENC, DCARD_MODE : std_logic_vector) return std_logic_vector is
     variable enc_ctrl_pad : std_logic_vector(11 downto 0);
 begin
 
     enc_ctrl_pad(1 downto 0) := INENC(1 downto 0);
     enc_ctrl_pad(3 downto 2) := OUTENC(1 downto 0);
-    enc_ctrl_pad(4) := INENC(2);
+    enc_ctrl_pad(4) :=  not INENC(2) when DCARD_MODE(3 downto 1) = DCARD_MON+CTRL else INENC(2);
     enc_ctrl_pad(5) := OUTENC(2);
     enc_ctrl_pad(7 downto 6) := INENC(4 downto 3);
     enc_ctrl_pad(9 downto 8) := OUTENC(4 downto 3);

@@ -127,7 +127,9 @@ signal CLK_OUT              : std_logic;
 
 signal CLK_IN               : std_logic;
 
-signal Bs0_t                : std_logic;
+signal Bs0_T, Bm0_T                : std_logic;
+
+signal SnffrClk             : std_logic;
 
 begin
 
@@ -302,7 +304,7 @@ port map (
     BITS            => INENC_BITS_i,
     link_up_o       => linkup_ssi,
     error_o         => open,
-    ssi_sck_i       => CLK_IN,
+    ssi_sck_i       => SnffrClk,
     ssi_dat_i       => DATA_IN,
     posn_o          => posn_ssi_sniffer
 );
@@ -335,7 +337,7 @@ port map (
     link_up_o       => linkup_biss_sniffer,
     health_o        => health_biss_sniffer,
     error_o         => open,
-    ssi_sck_i       => CLK_IN,
+    ssi_sck_i       => SnffrClk,
     ssi_dat_i       => DATA_IN,
     posn_o          => posn_biss_sniffer
 );
@@ -426,11 +428,13 @@ IOBUF_Am0 : entity work.iobuf_registered port map (
     IO      => Am0_pad_io
 );
 
+Bm0_T <= '1' when (DCARD_MODE_i(3 downto 1) = DCARD_MON+CTRL) else inenc_ctrl(1);
+
 IOBUF_Bm0 : entity work.iobuf_registered port map (
     clock   => clk_i,
     I       => Bm0_opad,
     O       => Bm0_ipad,
-    T       => inenc_ctrl(1),
+    T       => Bm0_T,
     IO      => Bm0_pad_io
 );
 
@@ -511,6 +515,7 @@ IOBUF_As0 : entity work.iobuf_registered port map (
 
 -- When using a Monitor card the B signal will need to be enabled, for using the CLK
 -- regardless of the protocol.
+-- unnessecary logic ??
 Bs0_T <= '1' when (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) else outenc_ctrl(1); 
 
 IOBUF_Bs0 : entity work.iobuf_registered port map (
@@ -547,5 +552,9 @@ clkin_filt : entity work.delay_filter port map (
     pulse_i => Bs0_ipad,
     filt_o  => CLK_IN
 );
+
+SnffrClk <= B_IN when DCARD_MODE_i(3 downto 1) = DCARD_MON+CTRL else CLK_IN;
+
+
 end rtl;
 
