@@ -69,65 +69,72 @@ end entity;
 
 architecture rtl of encoders is
 
-constant c_ABZ_PASSTHROUGH  : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(4,3));
-constant c_DATA_PASSTHROUGH : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(5,3));
-constant c_BISS             : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(2,3));
-constant c_enDat            : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(3,3));
+constant c_ABZ_PASSTHROUGH   : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(4,3));
+constant c_DATA_PASSTHROUGH  : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(5,3));
+constant c_BISS              : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(2,3));
+constant c_enDat             : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(3,3));
 
-signal quad_a               : std_logic;
-signal quad_b               : std_logic;
-signal sdat                 : std_logic;
-signal bdat                 : std_logic;
-signal health_biss_slave    : std_logic_vector(31 downto 0);
+signal quad_a                : std_logic;
+signal quad_b                : std_logic;
+signal sdat                  : std_logic;
+signal bdat                  : std_logic;
+signal endat                 : std_logic;
+signal health_biss_slave     : std_logic_vector(31 downto 0);
+signal health_endat_slave    : std_logic_vector(31 downto 0);
 
-signal clk_out_encoder_ssi  : std_logic;
-signal clk_out_encoder_biss : std_logic;
-signal posn_incr            : std_logic_vector(31 downto 0);
-signal posn_ssi             : std_logic_vector(31 downto 0);
-signal posn_biss            : std_logic_vector(31 downto 0);
-signal posn_ssi_sniffer     : std_logic_vector(31 downto 0);
-signal posn_biss_sniffer    : std_logic_vector(31 downto 0);
-signal posn                 : std_logic_vector(31 downto 0);
-signal posn_prev            : std_logic_vector(31 downto 0);
-signal bits_not_used        : unsigned(4 downto 0);
+signal clk_out_encoder_ssi   : std_logic;
+signal clk_out_encoder_biss  : std_logic;
+signal clk_out_encoder_endat : std_logic;
+signal posn_incr             : std_logic_vector(31 downto 0);
+signal posn_ssi              : std_logic_vector(31 downto 0);
+signal posn_biss             : std_logic_vector(31 downto 0);
+signal posn_endat            : std_logic_vector(31 downto 0);
+signal posn_ssi_sniffer      : std_logic_vector(31 downto 0);
+signal posn_biss_sniffer     : std_logic_vector(31 downto 0);
+signal posn_endat_sniffer    : std_logic_vector(31 downto 0);
+signal posn                  : std_logic_vector(31 downto 0);
+signal posn_prev             : std_logic_vector(31 downto 0);
+signal bits_not_used         : unsigned(4 downto 0);
 
-signal homed_qdec           : std_logic_vector(31 downto 0);
-signal linkup_incr          : std_logic;
-signal linkup_incr_std32    : std_logic_vector(31 downto 0);
-signal linkup_ssi           : std_logic;
-signal linkup_biss_sniffer  : std_logic;
-signal health_biss_sniffer  : std_logic_vector(31 downto 0);
-signal linkup_biss_master   : std_logic;
-signal health_biss_master   : std_logic_vector(31 downto 0);
+signal homed_qdec            : std_logic_vector(31 downto 0);
+signal linkup_incr           : std_logic;
+signal linkup_incr_std32     : std_logic_vector(31 downto 0);
+signal linkup_ssi            : std_logic;
+signal linkup_biss_sniffer   : std_logic;
+signal health_biss_sniffer   : std_logic_vector(31 downto 0);
+signal linkup_biss_master    : std_logic;
+signal health_biss_master    : std_logic_vector(31 downto 0);
+signal linkup_endat_master   : std_logic;
+signal health_endat_master   : std_logic_vector(31 downto 0);
+signal linkup_endat_sniffer  : std_logic;
+signal health_endat_sniffer  : std_logic_vector(31 downto 0);
 
-signal inenc_dir            : std_logic;
-signal outenc_dir           : std_logic;
-signal inenc_ctrl           : std_logic_vector(2 downto 0);
-signal outenc_ctrl          : std_logic_vector(2 downto 0);
+signal inenc_dir             : std_logic;
+signal outenc_dir            : std_logic;
+signal inenc_ctrl            : std_logic_vector(2 downto 0);
+signal outenc_ctrl           : std_logic_vector(2 downto 0);
 
-signal Am0_ipad, Am0_opad   : std_logic;
-signal Bm0_ipad, Bm0_opad   : std_logic;
-signal Zm0_ipad, Zm0_opad   : std_logic;
+signal Am0_ipad, Am0_opad    : std_logic;
+signal Bm0_ipad, Bm0_opad    : std_logic;
+signal Zm0_ipad, Zm0_opad    : std_logic;
 
-signal As0_ipad, As0_opad   : std_logic;
-signal Bs0_ipad, Bs0_opad   : std_logic;
-signal Zs0_ipad, Zs0_opad   : std_logic;
+signal As0_ipad, As0_opad    : std_logic;
+signal Bs0_ipad, Bs0_opad    : std_logic;
+signal Zs0_ipad, Zs0_opad    : std_logic;
 
-signal A_IN                 : std_logic;
-signal B_IN                 : std_logic;
-signal Z_IN                 : std_logic;
-signal DATA_IN              : std_logic;
+signal A_IN                  : std_logic;
+signal B_IN                  : std_logic;
+signal Z_IN                  : std_logic;
+signal DATA_IN               : std_logic;
 
-signal A_OUT                : std_logic;
-signal B_OUT                : std_logic;
-signal Z_OUT                : std_logic;
-signal DATA_OUT             : std_logic;
+signal A_OUT                 : std_logic;
+signal B_OUT                 : std_logic;
+signal Z_OUT                 : std_logic;
+signal DATA_OUT              : std_logic;
 
-signal CLK_OUT              : std_logic;
-
-signal CLK_IN               : std_logic;
-
-signal Bs0_t                : std_logic;
+signal CLK_OUT               : std_logic;
+signal CLK_IN                : std_logic;
+signal Bs0_t                 : std_logic;
 
 begin
 
@@ -147,7 +154,8 @@ A_OUT <= a_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_a;
 B_OUT <= b_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_b;
 Z_OUT <= z_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else '0';
 DATA_OUT <= data_ext_i when (OUTENC_PROTOCOL_i = c_DATA_PASSTHROUGH) else 
-            bdat when (OUTENC_PROTOCOL_i = c_BISS) else sdat;
+            bdat when (OUTENC_PROTOCOL_i = c_BISS) else 
+            endat when (OUTENC_PROTOCOL_i = C_enDat) else sdat;
 
 --
 -- INCREMENTAL OUT
@@ -194,6 +202,27 @@ port map (
     biss_dat_o        => bdat
 );
 
+
+--
+-- ENDAT
+--
+endat_slave_inst : entity work.endat_slave
+generic map (
+    g_endat2_1     => 1
+    ) 
+port map ( 
+    clk_i               => clk_i,
+    reset_i             => reset_i,
+    BITS                => OUTENC_BITS_i,
+    link_up_o           => open,
+    enable_i            => enable_i,
+    GENERATOR_ERROR     => GENERATOR_ERROR_i,
+    health_o            => health_endat_slave,
+    posn_i              => posn_i,
+    endat_sck_i         => CLK_IN,
+    endat_dat_o         => endat
+);   
+
 --------------------------------------------------------------------------
 -- Position Data and STATUS readback multiplexer
 --
@@ -213,7 +242,7 @@ begin
                 OUTENC_HEALTH_o <= health_biss_slave;
                 
             when c_enDat =>             -- enDat 
-                OUTENC_HEALTH_o <= std_logic_vector(to_unsigned(2,32)); --ENDAT not implemented
+                OUTENC_HEALTH_o <= health_endat_slave; 
                 
             when others =>
                 OUTENC_HEALTH_o <= (others=>'0');
@@ -249,8 +278,11 @@ begin
 end process ps_select;
 
 -- Loopbacks
+-- CLK_SRC = 0 Internally generated clock
+-- CLK_SRC = 1 From CLK
 CLK_OUT <=    clk_out_ext_i when (CLK_SRC_i = '1') else
               clk_out_encoder_biss when (CLK_SRC_i = '0' and INENC_PROTOCOL_i = "010") else
+              clk_out_encoder_endat when (CLK_SRC_i = '0' and INENC_PROTOCOL_i = "011") else
               clk_out_encoder_ssi;
 
 
@@ -341,6 +373,45 @@ port map (
 );
 
 --------------------------------------------------------------------------
+-- enDAT Instantiations
+--------------------------------------------------------------------------
+-- enDAT Master
+endat_master_inst : entity work.endat_master 
+generic map (
+    g_endat2_1 => 1
+    )
+port map ( 
+    clk_i          => clk_i,
+    reset_i        => reset_i,
+    BITS           => INENC_BITS_i,
+    link_up_o      => linkup_endat_master,
+    health_o       => health_endat_master,
+    CLK_PERIOD_i   => CLK_PERIOD_i,
+    FRAME_PERIOD_i => FRAME_PERIOD_i,
+    endat_sck_o    => clk_out_encoder_endat,
+    endat_dat_i    => DATA_IN,
+    endat_dat_o    => open,   
+    posn_o         => posn_endat,
+    posn_valid_o   => open
+);  
+
+-- EnDat Sniffer
+endat_sniffer_inst : entity work.endat_sniffer
+generic map (
+    g_endat2_1 => 1 
+    )
+port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    BITS            => INENC_BITS_i,
+    link_up_o       => linkup_endat_sniffer,
+    health_o        => health_endat_sniffer,
+    error_o         => open,
+    endat_sck_i     => CLK_IN,
+    endat_dat_i     => DATA_in,
+    posn_o          => posn_endat_sniffer
+);
+--------------------------------------------------------------------------
 -- Position Data and STATUS readback multiplexer
 --
 --  Link status information is valid only for loopback configuration
@@ -384,6 +455,18 @@ begin
                 end if;
                 HOMED_o <= TO_SVECTOR(1,32);
 
+            when "011" =>               -- ENDAT & Loopback
+                if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
+                    posn <= posn_endat_sniffer;
+                    STATUS_o(0) <= linkup_endat_sniffer;
+                    INENC_HEALTH_o <= health_endat_sniffer;
+                else  -- DCARD_CONTROL
+                    posn <= posn_endat;
+                    STATUS_o(0) <= linkup_endat_master;
+                    INENC_HEALTH_o <= health_endat_master;
+                end if;
+                HOMED_o <= TO_SVECTOR(1,32);
+
             when others =>
                 INENC_HEALTH_o <= TO_SVECTOR(5,32);
                 posn <= (others => '0');
@@ -409,7 +492,7 @@ begin
                 when "010"  =>                              -- BiSS-C
                     inenc_ctrl <= "101";
                 when "011"  =>                              -- EnDat
-                    inenc_ctrl <= inenc_dir & "00";
+                    inenc_ctrl <= "100"; -- or "101"; --inenc_dir & "00"; ?????????????????
                 when others =>
                     inenc_ctrl <= "111";
             end case;

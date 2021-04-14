@@ -181,13 +181,13 @@ begin
                 -- Start bit active                    
                 when STATE_START => 
                     -- Turn on the capturing of the transmitted data
-                    if endat_sck_falling_edge = '1' and endat_dat_i = '1' then    
+                    if endat_sck_falling_edge = '1' and endat_dat_i = '1' then    ------------
                         SM_DATA <= STATE_F1_ALARM;
                     end if;     
                     
                 -- F1 - endat2.2 ALARM - endat2.1     
                 when STATE_F1_ALARM => 
-                    if endat_sck_falling_edge = '1' then    
+                    if endat_sck_falling_edge = '1' then    ------------
                         err_data(0) <= endat_dat_i;                    
                         if g_endat2_1 = 0 then 
                             SM_DATA <= STATE_F2;
@@ -199,7 +199,7 @@ begin
                 
                 -- F2 endat2.2
                 when STATE_F2 => 
-                    if endat_sck_falling_edge = '1' then    
+                    if endat_sck_falling_edge = '1' then    ------------
                         pv_enable <= '1';
                         err_data(1) <= endat_dat_i;
                         SM_DATA <= STATE_POSIT_VAL;
@@ -207,7 +207,7 @@ begin
                     
                 -- Position value    
                 when STATE_POSIT_VAL => 
-                    if endat_sck_falling_edge = '1' then         
+                    if endat_sck_falling_edge = '1' then    ------------     
                         data_cnt <= data_cnt +1;
                         if data_cnt = uBITS-1 then
                             pv_enable <= '0';
@@ -222,8 +222,9 @@ begin
                     if endat_sck_rising_edge = '1' then
                         crc_data_enable <= '1'; 
                     end if;
-                    if endat_sck_falling_edge = '1' then    
+                    if endat_sck_falling_edge = '1' then    ------------
                         data_cnt <= data_cnt +1;
+--                        crc_data_enable <= '1';
                         if data_cnt = uCRC_BITS-1 then
                             crc_enable <= '0';
                             data_cnt <= (others => '0');
@@ -313,7 +314,7 @@ port map (
 
 
 --calc_enable <= (cm_enable or pv_enable) and endat_sck_rising_edge;
-calc_enable <= pv_enable and endat_sck_falling_edge;    
+calc_enable <= pv_enable and endat_sck_falling_edge;    ------------
 
 crc_reset <= reset_i or crc_rst;
 

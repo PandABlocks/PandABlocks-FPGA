@@ -8,7 +8,7 @@ use work.support.all;
 
 entity endat_sniffer is
 
-generic (g_endat2_1 : natural := 0);
+generic (g_endat2_2 : natural := 0);
 port (
     clk_i           : in  std_logic;
     reset_i         : in  std_logic;
@@ -76,7 +76,7 @@ begin
 -- Per EnDat Protocol BP3
 uBITS        <= unsigned(BITS);
 -- EnDat 2.2 = F2 and F1, EnDat2.1 = ALARM 
-uSTATUS_BITS <= X"02" when g_endat2_1 = 0 else X"01";  
+uSTATUS_BITS <= X"02" when g_endat2_2 = 1 else X"01";  
 uCRC_BITS    <= X"05";  -- 6-bits for data
 
 -- Data range = Data + F1+ F2 + CRC
@@ -180,7 +180,7 @@ begin
                 when STATE_START =>
                     -- The data should be low before the start bit 
                     -- then goes high to indicate the start bit
-                    if (endat_clock_fall = '1' and endat_data = '1') then    
+                    if (endat_clock_fall = '1' and endat_data = '1') then    --
                         SM_ENDAT <= STATE_DATA_RANGE;
                     end if;
 
@@ -337,13 +337,12 @@ intBITS <= to_integer(uBITS);
 process(clk_i)
 begin
     if rising_edge(clk_i) then
---        if reset_i = '1' then
---            health_endat_sniffer <= TO_SVECTOR(2,32);--default timeout error
---        else
---            if link_up = '0' then--timeout error
---               health_endat_sniffer <= TO_SVECTOR(2,32);
---           elsif (crc_strobe = '1') then--crc calc strobe
-           if (crc_strobe = '1') then--crc calc strobe
+        if reset_i = '1' then
+            health_endat_sniffer <= TO_SVECTOR(2,32);--default timeout error
+        else
+            if link_up = '0' then--timeout error
+               health_endat_sniffer <= TO_SVECTOR(2,32);
+            elsif (crc_strobe = '1') then--crc calc strobe
                if (crc /= crc_calc) then--crc error
                   health_endat_sniffer <= TO_SVECTOR(3,32);
                elsif nError /= "00" then--Error received nEnW error bit
@@ -357,7 +356,7 @@ begin
                   health_endat_sniffer <= (others => '0');
                end if;
            end if;
---        end if;
+        end if;
     end if;
 end process;
 
