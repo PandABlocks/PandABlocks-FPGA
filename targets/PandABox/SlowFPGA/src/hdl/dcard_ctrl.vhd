@@ -83,7 +83,7 @@ begin
 
     enc_ctrl_pad(1 downto 0) := INENC(1 downto 0);
     enc_ctrl_pad(3 downto 2) := OUTENC(1 downto 0);
-    enc_ctrl_pad(4) :=  not INENC(2) when DCARD_MODE(3 downto 1) = DCARD_MON+CTRL else INENC(2);
+    enc_ctrl_pad(4) :=  not INENC(2) when DCARD_MODE(3 downto 1) = DCARD_MON_CTRL else INENC(2);
     enc_ctrl_pad(5) := OUTENC(2);
     enc_ctrl_pad(7 downto 6) := INENC(4 downto 3);
     enc_ctrl_pad(9 downto 8) := OUTENC(4 downto 3);

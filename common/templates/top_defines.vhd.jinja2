@@ -44,6 +44,7 @@ constant EBUSW              : natural := 12;
 --------------------------------------------------------------------------
 
 constant DCARD_MONITOR      : std_logic_vector(2 downto 0) := "011";
+constant DCARD_MON_CTRL     : std_logic_vector(2 downto 0) := "010";
 
 type t_mode_group is array (5 downto 0) of std_logic_vector(31 downto 0);
 type t_mode is array (PBUSW-1 downto 0) of t_mode_group;

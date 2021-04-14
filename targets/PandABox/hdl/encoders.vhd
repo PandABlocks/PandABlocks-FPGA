@@ -359,7 +359,7 @@ begin
                 HOMED_o <= homed_qdec;
 
             when "001"  =>              -- SSI & Loopback
-                if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
+                if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR | DCARD_MON_CTRL) then
                     posn <= posn_ssi_sniffer;
                     STATUS_o(0) <= linkup_ssi;
                     if (linkup_ssi = '0') then
@@ -375,7 +375,7 @@ begin
                 HOMED_o <= TO_SVECTOR(1,32);
 
             when "010"  =>              -- BISS & Loopback
-                if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
+                if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR | DCARD_MON_CTRL) then
                     posn <= posn_biss_sniffer;
                     STATUS_o(0) <= linkup_biss_sniffer;
                     INENC_HEALTH_o <= health_biss_sniffer;
@@ -428,7 +428,7 @@ IOBUF_Am0 : entity work.iobuf_registered port map (
     IO      => Am0_pad_io
 );
 
-Bm0_T <= '1' when (DCARD_MODE_i(3 downto 1) = DCARD_MON+CTRL) else inenc_ctrl(1);
+Bm0_T <= '1' when (DCARD_MODE_i(3 downto 1) = DCARD_MON_CTRL) else inenc_ctrl(1);
 
 IOBUF_Bm0 : entity work.iobuf_registered port map (
     clock   => clk_i,
@@ -548,7 +548,7 @@ clkin_filt : entity work.delay_filter port map (
     filt_o  => CLK_IN
 );
 
-SnffrClk <= B_IN when DCARD_MODE_i(3 downto 1) = DCARD_MON+CTRL else CLK_IN;
+SnffrClk <= B_IN when DCARD_MODE_i(3 downto 1) = DCARD_MON_CTRL else CLK_IN;
 
 
 end rtl;
