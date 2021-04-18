@@ -131,13 +131,20 @@ signal Bm0_T                : std_logic;
 
 signal SnffrClk             : std_logic;
 
+signal data_out_biss_master : std_logic;
+
+signal outenc_data_in       : std_logic;
+
+signal inenc_dir_biss       : std_logic;
+signal outenc_dir_biss      : std_logic;
+
 begin
 
--- Unused Nets.
-inenc_dir <= '0';
-outenc_dir <= '0';
-Am0_opad <= '0';
-Zm0_opad <= '0';
+-- Temporary assignments for bi-directional signal - also needs to be implemented for endat
+inenc_dir_biss <= '0';
+data_out_biss_master <= '0';
+outenc_dir_biss <= '0';
+
 
 -----------------------------OUTENC---------------------------------------------
 --------------------------------------------------------------------------------
@@ -150,7 +157,7 @@ B_OUT <= b_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_b;
 Z_OUT <= z_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else '0';
 DATA_OUT <= data_ext_i when (OUTENC_PROTOCOL_i = c_DATA_PASSTHROUGH) else 
             bdat when (OUTENC_PROTOCOL_i = c_BISS) else sdat;
-
+outenc_dir <= outenc_dir_biss when (OUTENC_PROTOCOL_i = c_BISS) else '0';
 --
 -- INCREMENTAL OUT
 --
@@ -357,9 +364,10 @@ begin
                 INENC_HEALTH_o(0) <= not(linkup_incr);
                 INENC_HEALTH_o(31 downto 1)<= (others=>'0');
                 HOMED_o <= homed_qdec;
-
+                Am0_opad <= '0';
             when "001"  =>              -- SSI & Loopback
-                if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR | DCARD_MON_CTRL) then
+                if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR)
+                  OR (DCARD_MODE_i(3 downto 1) = DCARD_MON_CTRL) then
                     posn <= posn_ssi_sniffer;
                     STATUS_o(0) <= linkup_ssi;
                     if (linkup_ssi = '0') then
@@ -373,16 +381,22 @@ begin
                     INENC_HEALTH_o <= (others=>'0');
                 end if;
                 HOMED_o <= TO_SVECTOR(1,32);
+                Am0_opad <= '0';
 
             when "010"  =>              -- BISS & Loopback
-                if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR | DCARD_MON_CTRL) then
+                if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR)
+                  OR (DCARD_MODE_i(3 downto 1) = DCARD_MON_CTRL) then
                     posn <= posn_biss_sniffer;
                     STATUS_o(0) <= linkup_biss_sniffer;
                     INENC_HEALTH_o <= health_biss_sniffer;
+                    inenc_dir <= '0';
+                    Am0_opad <= '0';
                 else  -- DCARD_CONTROL
                     posn <= posn_biss;
                     STATUS_o(0) <= linkup_biss_master;
                     INENC_HEALTH_o<=health_biss_master;
+                    inenc_dir <= inenc_dir_biss;
+                    Am0_opad <= data_out_biss_master;
                 end if;
                 HOMED_o <= TO_SVECTOR(1,32);
 
@@ -391,6 +405,8 @@ begin
                 posn <= (others => '0');
                 STATUS_o <= (others => '0');
                 HOMED_o <= TO_SVECTOR(1,32);
+                inenc_dir <= '0'; -- temporary signal awaiting enDat definitions
+                Am0_opad <= '0';
         end case;
     end if;
 end process;
@@ -411,7 +427,7 @@ begin
                 when "010"  =>                              -- BiSS-C
                     inenc_ctrl <= "101";
                 when "011"  =>                              -- EnDat
-                    inenc_ctrl <= inenc_dir & "00";
+                    inenc_ctrl <= NOT(inenc_dir) & "00";
                 when others =>
                     inenc_ctrl <= "111";
             end case;
@@ -447,6 +463,7 @@ IOBUF_Zm0 : entity work.iobuf_registered port map (
 );
 
 Bm0_opad <= CLK_OUT;
+Zm0_opad <= inenc_dir;
 
 a_filt : entity work.delay_filter port map(
     clk_i   => clk_i,
@@ -469,12 +486,7 @@ z_filt : entity work.delay_filter port map(
     filt_o  => Z_IN
 );
 
-datain_filt : entity work.delay_filter port map(
-    clk_i   => clk_i,
-    reset_i => reset_i,
-    pulse_i => Am0_ipad,
-    filt_o  => DATA_IN
-);
+DATA_IN <= A_IN;
 
 --------------------------------------------------------------------------
 --  On-chip IOBUF controls based on protocol for OUTENC Blocks
@@ -491,9 +503,9 @@ begin
                 when "001"  =>                        -- SSI
                     outenc_ctrl <= "011";
                 when "010"  =>                        -- BiSS
-                    outenc_ctrl <= outenc_dir & "10";
+                    outenc_ctrl <= NOT(outenc_dir) & "10";
                 when "011"  =>                        -- EnDat
-                    outenc_ctrl <= outenc_dir & "10";
+                    outenc_ctrl <= NOT(outenc_dir) & "10";
 --                when "100"  =>                        -- Pass-Through
 --                    outenc_ctrl <= "000";
                 when "101" =>
@@ -532,7 +544,7 @@ IOBUF_Zs0 : entity work.iobuf_registered port map (
 -- A output is shared between incremental and absolute data lines.
 As0_opad <= A_OUT when (OUTENC_PROTOCOL_i(1 downto 0) = "00") else DATA_OUT;
 Bs0_opad <= B_OUT;
-Zs0_opad <= Z_OUT;
+Zs0_opad <= Z_OUT when (OUTENC_PROTOCOL_i(1 downto 0) = "00") else outenc_dir;
 
 INENC_A_o <= A_IN;
 INENC_B_o <= B_IN;
@@ -548,7 +560,15 @@ clkin_filt : entity work.delay_filter port map (
     filt_o  => CLK_IN
 );
 
+outenc_din_filt : entity work.delay_filter port map (
+    clk_i   => clk_i,
+    reset_i => reset_i,
+    pulse_i => As0_ipad,
+    filt_o  => outenc_data_in
+);
+
 SnffrClk <= B_IN when DCARD_MODE_i(3 downto 1) = DCARD_MON_CTRL else CLK_IN;
+
 
 
 end rtl;
