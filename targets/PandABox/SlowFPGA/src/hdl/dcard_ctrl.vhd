@@ -87,7 +87,8 @@ begin
     enc_ctrl_pad(5) := OUTENC(2);
     enc_ctrl_pad(7 downto 6) := INENC(4 downto 3);
     enc_ctrl_pad(9 downto 8) := OUTENC(4 downto 3);
-    enc_ctrl_pad(10) := INENC(5);
+    enc_ctrl_pad(10) := '1' when (DCARD_MODE(3 downto 1) = DCARD_MONITOR
+      or DCARD_MODE(3 downto 1) = DCARD_MON_CTRL) else INENC(5);
     enc_ctrl_pad(11) := OUTENC(5);
 
     return enc_ctrl_pad;
