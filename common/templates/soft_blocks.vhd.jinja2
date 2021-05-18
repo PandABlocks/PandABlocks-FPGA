@@ -14,49 +14,62 @@ use work.top_defines.all;
 
 entity soft_blocks is
 generic (
-    SIM             : string := "FALSE"
+    SIM                 : string := "FALSE"
 );
 port (
     -- Global clock and reset from panda_ps
-    FCLK_RESET0     : in    std_logic;
+    FCLK_RESET0         : in    std_logic;
     -- Configuration and Status Interface Block
-    read_strobe     : in    std_logic_vector(MOD_COUNT-1 downto 0);
-    read_address    : in    std_logic_vector(PAGE_AW-1 downto 0);
-    read_data       : out   std32_array(MOD_COUNT-1 downto {{ carrier_mod_count }});
-    read_ack        : out   std_logic_vector(MOD_COUNT-1 downto {{ carrier_mod_count }});
-    write_strobe    : in    std_logic_vector(MOD_COUNT-1 downto 0);
-    write_address   : in    std_logic_vector(PAGE_AW-1 downto 0);
-    write_data      : in    std_logic_vector(31 downto 0);
-    write_ack       : out   std_logic_vector(MOD_COUNT-1 downto {{ carrier_mod_count }});
+    read_strobe         : in    std_logic_vector(MOD_COUNT-1 downto 0);
+    read_address        : in    std_logic_vector(PAGE_AW-1 downto 0);
+    read_data           : out   std32_array(MOD_COUNT-1 downto {{ carrier_mod_count }});
+    read_ack            : out   std_logic_vector(MOD_COUNT-1 downto {{ carrier_mod_count }});
+    write_strobe        : in    std_logic_vector(MOD_COUNT-1 downto 0);
+    write_address       : in    std_logic_vector(PAGE_AW-1 downto 0);
+    write_data          : in    std_logic_vector(31 downto 0);
+    write_ack           : out   std_logic_vector(MOD_COUNT-1 downto {{ carrier_mod_count }});
     -- Bus Outputs
-    bit_bus_i       : in    bit_bus_t;
-    bit_bus_o       : out   std_logic_vector(BBUSW-1 downto BIT_BUS_SIZE);
+    bit_bus_i           : in    bit_bus_t;
+    bit_bus_o           : out   std_logic_vector(BBUSW-1 downto BIT_BUS_SIZE);
 
-    pos_bus_i       : in    pos_bus_t;
-    pos_bus_o       : out   std32_array(PBUSW-1 downto POS_BUS_SIZE);
+    pos_bus_i           : in    pos_bus_t;
+    pos_bus_o           : out   std32_array(PBUSW-1 downto POS_BUS_SIZE);
     -- DMA Blocks
-    rdma_req        : out   std_logic_vector(5 downto 0);
-    rdma_ack        : in    std_logic_vector(5 downto 0);
-    rdma_done       : in    std_logic;
-    rdma_addr       : out   std32_array(5 downto 0);
-    rdma_len        : out   std8_array(5 downto 0);
-    rdma_data       : in    std_logic_vector(31 downto 0);
-    rdma_valid      : in    std_logic_vector(5 downto 0);
+    rdma_req            : out   std_logic_vector(5 downto 0);
+    rdma_ack            : in    std_logic_vector(5 downto 0);
+    rdma_done           : in    std_logic;
+    rdma_addr           : out   std32_array(5 downto 0);
+    rdma_len            : out   std8_array(5 downto 0);
+    rdma_data           : in    std_logic_vector(31 downto 0);
+    rdma_valid          : in    std_logic_vector(5 downto 0);
     --
-    {% if fmc_sites %}
-    FMC_i           : in    FMC_input_interface;    
-    FMC_io          : inout FMC_inout_interface  := FMC_io_init;
-    FMC_o           : out   FMC_output_interface := FMC_o_init;
-    {% endif %}
-    {% if amc_sites %}
-    AMC_i           : in    AMC_input_interface;    
-    AMC_o           : out   AMC_output_interface := AMC_o_init;
-    {% endif %}
-    {% for i in range(sfp_sites) %}
-    SFP{{ i+1 }}_i          : in    SFP_input_interface; 
-    SFP{{ i+1 }}_o          : out   SFP_output_interface  := SFP_o_init;
+
+    {% for site in target_sites %}
+        {% if site.number == 1 %}
+            {% for dir in site.dirs %}
+                {% if dir == "i" %}
+    {{pad(site.name + "_i")}} : in    {{site.name}}_input_interface;
+                {% elif dir =="io" %}
+    {{pad(site.name + "_io")}} : inout {{site.name}}_inout_interface := {{site.name}}_io_init;
+                {% elif dir =="o" %}
+    {{pad(site.name + "_o")}} : out   {{site.name}}_output_interface := {{site.name}}_o_init;
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            {% for i in range (site.number) %}
+                {% for dir in site.dirs %}
+                    {% if dir == "i" %}
+    {{pad(site.name + (i+1)|string + "_i")}} : in    {{site.name}}_input_interface;
+                    {% elif dir =="io" %}
+    {{pad(site.name+ (i+1)|string +"_io")}} : inout {{site.name}}_inout_interface := {{site.name}}_io_init;
+                    {% elif dir =="o" %}
+    {{pad(site.name+ (i+1)|string +"_o")}} : out   {{site.name}}_output_interface := {{site.name}}_o_init;
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
     {% endfor %}
-    FCLK_CLK0       : in    std_logic
+    FCLK_CLK0           : in    std_logic
 );
 end soft_blocks;
 
@@ -98,22 +111,9 @@ port map (
     dma_data_i          => rdma_data,
     dma_valid_i         => rdma_valid({{ dma[0] + block.number - 1 }} downto {{ dma[0] }}),
         {% if dma.append(dma.pop() + 1) %}{% endif %}
-    {% elif block.type == "sfp" %}
-        {% if "sfp_i" in block.interfaces %}
-    SFP_i               => SFP{{ block.sfp_site }}_i,
-        {% endif %}
-        {% if "sfp_o" in block.interfaces %}
-    SFP_o               => SFP{{ block.sfp_site }}_o,
-        {% endif %}
-    {# % elif block.type == "fmc" % #}
-    {% elif "fmc" in block.type.split(' ') %}
+    {% elif block.interfaces %}
         {% for interface in block.interfaces %}
-    {{ pad(interface) }} => {{ interface }},
-		{% endfor %}
-    {# % elif block.type == "amc" % #}
-    {% elif "amc" in block.type.split(' ') %}
-        {% for interface in block.interfaces %}
-    {{ pad(interface) }} => {{ interface }},
+    {{ pad(interface[0]) }} => {{ interface[1] }},
         {% endfor %}
     {% endif %}
 
