@@ -260,6 +260,12 @@ signal clk_sel_stat         : std_logic_vector(1 downto 0);
 
 signal slow_tlp   : slow_packet;
 
+attribute IO_BUFFER_TYPE : string;
+attribute IO_BUFFER_TYPE of SFP_TX_P : signal is "none";
+attribute IO_BUFFER_TYPE of SFP_TX_N : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP0_C2M_N : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP0_C2M_P : signal is "none";
+
 -- Make schematics a bit more clear for analysis
 --attribute keep              : string; -- GBC removed following three lines 14/09/18
 --attribute keep of bit_bus    : signal is "true";

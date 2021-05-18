@@ -85,43 +85,57 @@ component SFP_UDP_Complete
     );
 end component;
 
-signal trig                       : std_logic;
-signal udp_txi_trigger_rise_count : std_logic_vector(31 downto 0);
-signal count_udp_tx_RESULT_ERR_i  : unsigned(31 downto 0);
+signal trig                         : std_logic;
+signal udp_txi_trigger_rise_count   : std_logic_vector(31 downto 0);
+signal count_udp_tx_RESULT_ERR_i    : unsigned(31 downto 0);
 
-signal SFP_LOS_VEC      : std_logic_vector(31 downto 0) := (others => '0');
+signal SFP_LOS_VEC                  : std_logic_vector(31 downto 0) := (others => '0');
 
-signal SFP_STATUS_COUNT           : std_logic_vector(31 downto 0);
-signal SFP_START_COUNT            : std_logic;
-signal SFP_STOP_COUNT             : std_logic;
+signal SFP_STATUS_COUNT             : std_logic_vector(31 downto 0);
+signal SFP_START_COUNT              : std_logic;
+signal SFP_STOP_COUNT               : std_logic;
 
-signal MAC_LO                  : std_logic_vector(31 downto 0) := (others => '0');
-signal MAC_HI                  : std_logic_vector(31 downto 0) := (others => '0');
+signal MAC_LO                       : std_logic_vector(31 downto 0) := (others => '0');
+signal MAC_HI                       : std_logic_vector(31 downto 0) := (others => '0');
 
-signal dest_udp_port32         : std_logic_vector(31 downto 0);
-signal our_udp_port32          : std_logic_vector(31 downto 0);
-signal dest_udp_port           : std_logic_vector(15 downto 0);
-signal our_udp_port            : std_logic_vector(15 downto 0);
+signal dest_udp_port32              : std_logic_vector(31 downto 0);
+signal our_udp_port32               : std_logic_vector(31 downto 0);
+signal dest_udp_port                : std_logic_vector(15 downto 0);
+signal our_udp_port                 : std_logic_vector(15 downto 0);
 
-signal dest_ip_address_byte1 : std_logic_vector(31 downto 0);
-signal dest_ip_address_byte2 : std_logic_vector(31 downto 0);
-signal dest_ip_address_byte3 : std_logic_vector(31 downto 0);
-signal dest_ip_address_byte4 : std_logic_vector(31 downto 0);
-signal dest_ip_address       : std_logic_vector(31 downto 0);
+signal dest_ip_address_byte1        : std_logic_vector(31 downto 0);
+signal dest_ip_address_byte2        : std_logic_vector(31 downto 0);
+signal dest_ip_address_byte3        : std_logic_vector(31 downto 0);
+signal dest_ip_address_byte4        : std_logic_vector(31 downto 0);
+signal dest_ip_address              : std_logic_vector(31 downto 0);
 
-signal our_ip_address_byte1  : std_logic_vector(31 downto 0);
-signal our_ip_address_byte2  : std_logic_vector(31 downto 0);
-signal our_ip_address_byte3  : std_logic_vector(31 downto 0);
-signal our_ip_address_byte4  : std_logic_vector(31 downto 0);
-signal our_ip_address        : std_logic_vector(31 downto 0);
+signal our_ip_address_byte1         : std_logic_vector(31 downto 0);
+signal our_ip_address_byte2         : std_logic_vector(31 downto 0);
+signal our_ip_address_byte3         : std_logic_vector(31 downto 0);
+signal our_ip_address_byte4         : std_logic_vector(31 downto 0);
+signal our_ip_address               : std_logic_vector(31 downto 0);
 
-signal SOFT_RESET        : std_logic;
-signal SOFT_RESET_prev   : std_logic;
-signal SOFT_RESET_rise   : std_logic;
-signal soft_reset_cpt    : unsigned(31 downto 0);
-signal SOFT_RESET_holded : std_logic;
+signal SOFT_RESET                   : std_logic;
+signal SOFT_RESET_prev              : std_logic;
+signal SOFT_RESET_rise              : std_logic;
+signal soft_reset_cpt               : unsigned(31 downto 0);
+signal SOFT_RESET_holded            : std_logic;
+
+signal TXN, TXP                     : std_logic;
 
 begin
+
+txnobuf : obuf
+port map (
+    I => TXN,
+    O => SFP_o.TXN_OUT
+);
+
+txpobuf : obuf
+port map (
+    I => TXP,
+    O => SFP_o.TXP_OUT
+);
 
 read_ack_delay : entity work.delay_line
 generic map (DW => 1)
@@ -170,8 +184,8 @@ SFP_UDP_Complete_i : SFP_UDP_Complete
     gtrefclk       => SFP_i.GTREFCLK,
     RXN_IN         => SFP_i.RXN_IN,
     RXP_IN         => SFP_i.RXP_IN,
-    TXN_OUT        => SFP_o.TXN_OUT,
-    TXP_OUT        => SFP_o.TXP_OUT
+    TXN_OUT        => TXN,
+    TXP_OUT        => TXP
     );
 
 ---------------------------------------------------------------------------
