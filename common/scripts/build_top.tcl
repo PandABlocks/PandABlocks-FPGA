@@ -40,6 +40,8 @@ set_property "target_language" "VHDL" $obj
 #
 # Suppress Verilog file related warnings
 set_msg_config -id {[Synth 8-2644]} -suppress
+# Suppress phoney ethenet AVB CW from the Tri-Mode Ethernet IP
+set_msg_config -id {Vivado 12-1790} -suppress
 
 # Elevate critical warnings
 set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR

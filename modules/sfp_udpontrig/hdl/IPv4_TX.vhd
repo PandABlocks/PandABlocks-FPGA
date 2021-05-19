@@ -84,7 +84,7 @@ architecture Behavioral of IPv4_TX is
   attribute fsm_encoding : string;
   attribute fsm_encoding of tx_state : signal is "one_hot";
   attribute fsm_safe_state : string;
-  attribute fsm_safe_state of tx_state : signal is "auto";
+  attribute fsm_safe_state of tx_state : signal is "auto_safe_state";
   attribute mark_debug : string;
   attribute mark_debug of tx_state : signal is "true";
   signal tx_count               : unsigned (11 downto 0);
