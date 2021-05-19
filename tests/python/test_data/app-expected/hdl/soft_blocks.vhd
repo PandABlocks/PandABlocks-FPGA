@@ -14,36 +14,36 @@ use work.top_defines.all;
 
 entity soft_blocks is
 generic (
-    SIM             : string := "FALSE"
+    SIM                 : string := "FALSE"
 );
 port (
     -- Global clock and reset from panda_ps
-    FCLK_RESET0     : in    std_logic;
+    FCLK_RESET0         : in    std_logic;
     -- Configuration and Status Interface Block
-    read_strobe     : in    std_logic_vector(MOD_COUNT-1 downto 0);
-    read_address    : in    std_logic_vector(PAGE_AW-1 downto 0);
-    read_data       : out   std32_array(MOD_COUNT-1 downto 2);
-    read_ack        : out   std_logic_vector(MOD_COUNT-1 downto 2);
-    write_strobe    : in    std_logic_vector(MOD_COUNT-1 downto 0);
-    write_address   : in    std_logic_vector(PAGE_AW-1 downto 0);
-    write_data      : in    std_logic_vector(31 downto 0);
-    write_ack       : out   std_logic_vector(MOD_COUNT-1 downto 2);
+    read_strobe         : in    std_logic_vector(MOD_COUNT-1 downto 0);
+    read_address        : in    std_logic_vector(PAGE_AW-1 downto 0);
+    read_data           : out   std32_array(MOD_COUNT-1 downto 2);
+    read_ack            : out   std_logic_vector(MOD_COUNT-1 downto 2);
+    write_strobe        : in    std_logic_vector(MOD_COUNT-1 downto 0);
+    write_address       : in    std_logic_vector(PAGE_AW-1 downto 0);
+    write_data          : in    std_logic_vector(31 downto 0);
+    write_ack           : out   std_logic_vector(MOD_COUNT-1 downto 2);
     -- Bus Outputs
-    bit_bus_i       : in    bit_bus_t;
-    bit_bus_o       : out   std_logic_vector(BBUSW-1 downto BIT_BUS_SIZE);
+    bit_bus_i           : in    bit_bus_t;
+    bit_bus_o           : out   std_logic_vector(BBUSW-1 downto BIT_BUS_SIZE);
 
-    pos_bus_i       : in    pos_bus_t;
-    pos_bus_o       : out   std32_array(PBUSW-1 downto POS_BUS_SIZE);
+    pos_bus_i           : in    pos_bus_t;
+    pos_bus_o           : out   std32_array(PBUSW-1 downto POS_BUS_SIZE);
     -- DMA Blocks
-    rdma_req        : out   std_logic_vector(5 downto 0);
-    rdma_ack        : in    std_logic_vector(5 downto 0);
-    rdma_done       : in    std_logic;
-    rdma_addr       : out   std32_array(5 downto 0);
-    rdma_len        : out   std8_array(5 downto 0);
-    rdma_data       : in    std_logic_vector(31 downto 0);
-    rdma_valid      : in    std_logic_vector(5 downto 0);
+    rdma_req            : out   std_logic_vector(5 downto 0);
+    rdma_ack            : in    std_logic_vector(5 downto 0);
+    rdma_done           : in    std_logic;
+    rdma_addr           : out   std32_array(5 downto 0);
+    rdma_len            : out   std8_array(5 downto 0);
+    rdma_data           : in    std_logic_vector(31 downto 0);
+    rdma_valid          : in    std_logic_vector(5 downto 0);
     --
-    FCLK_CLK0       : in    std_logic
+    FCLK_CLK0           : in    std_logic
 );
 end soft_blocks;
 
