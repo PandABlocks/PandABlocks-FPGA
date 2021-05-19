@@ -3,6 +3,22 @@
 #
 #####################################################################
 
+# Some definitions of source file checksums to try and ensure repeatability of
+# builds.  These releases are downloaded (as .tar.gz files) from:
+#      https://github.com/Xilinx/u-boot-xlnx
+#      https://github.com/Xilinx/linux-xlnx
+# Note: if these files have been downloaded through the releases directory then
+# they need to be renamed with the appropriate {u-boot,linux}-xlnx- prefix so
+# that the file name and contents match.
+MD5_SUM_device-tree-xlnx-xilinx-v2020.1 = e13372b84037e5a78e7c166cf6c5e9be
+MD5_SUM_u-boot-xlnx-xilinx-v2020.1 = cbd8f16decbc6b356d5b49adb24b1154
+MD5_SUM_u-boot-xlnx-xilinx-v2020.2 = 6881a6b9f465f714e64c1398630287db
+
+# By default use the same tagged version of the sources as the build tools.
+# To use a different version edit the variable below, and include MD5_SUM above.
+DEVTREE_TAG = xilinx-v$(VIVADO_VER)
+U_BOOT_TAG = xilinx-v$(VIVADO_VER)
+
 # Need bash for the source command in Xilinx settings64.sh
 SHELL = /bin/bash
 
@@ -25,35 +41,43 @@ VERSION_FILE = $(AUTOGEN)/hdl/version.vhd
 -include $(TARGET_DIR)/target_incl.make
 
 SDK_EXPORT = $(PS_DIR)/panda_ps.sdk
-HWDEF = $(PS_DIR)/panda_ps.srcs/sources_1/bd/panda_ps/hdl/panda_ps.hdf
+HWDEF = $(PS_DIR)/panda_ps.xsa
 
 IP_BUILD_SCR = $(TOP)/common/scripts/build_ip.tcl
 PS_BUILD_SCR = $(TOP)/common/scripts/build_ps.tcl
 PS_CONFIG_SCR = $(TARGET_DIR)/bd/panda_ps.tcl
 TOP_BUILD_SCR = $(TOP)/common/scripts/build_top.tcl
-XSDK_BUILD_SCR = $(TOP)/common/scripts/build_xsdk.tcl
-UBOOT_BUILD_SCR = $(TOP)/common/u-boot/u-boot.make
+BOOT_BUILD_SCR = $(TOP)/common/scripts/build_boot.tcl
 
 TGT_INCL_SCR = $(TARGET_DIR)/target_incl.tcl
 
-# Manually set the device tree sources verison to v2015.1 to match the
-# Kernel and uboot version in rootfs repo
-#DEVTREE_TAG = xilinx-v$(VIVADO_VER)
-#DEVTREE_NAME = device-tree-xlnx-$(DEVTREE_TAG)
-DEVTREE_NAME = device-tree-xlnx-xilinx-v2015.1
-DEVTREE_BSP = $(TGT_BUILD_DIR)/../../src
-DEVTREE_SRC = $(DEVTREE_BSP)/$(DEVTREE_NAME)
+SRC_ROOT = $(TGT_BUILD_DIR)/../../src
+
+DEVTREE_NAME = device-tree-xlnx-$(DEVTREE_TAG)
+DEVTREE_SRC = $(SRC_ROOT)/$(DEVTREE_NAME)
 DEVTREE_DTC = $(TOP)/common/configs/linux-xlnx/scripts/dtc
 DEVTREE_DTB = $(IMAGE_DIR)/devicetree.dtb
-FSBL = $(SDK_EXPORT)/fsbl/Release/fsbl.elf
+DEVTREE_DTS = $(SDK_EXPORT)/dts
+FSBL = $(SDK_EXPORT)/fsbl/executable.elf
+
+U_BOOT_NAME = u-boot-xlnx-$(U_BOOT_TAG)
+U_BOOT_SRC = $(SRC_ROOT)/$(U_BOOT_NAME)
 
 BOOT_BUILD = $(TGT_BUILD_DIR)/boot_build
 U_BOOT_BUILD = $(BOOT_BUILD)/u-boot
 U_BOOT_ELF = $(U_BOOT_BUILD)/u-boot.elf
+U_BOOT_SCR = $(IMAGE_DIR)/boot.scr
 
 IMAGE_DIR=$(TGT_BUILD_DIR)/boot
 
 BITS_PREREQ += carrier_fpga
+
+# ------------------------------------------------------------------------------
+# Helper code lifted from rootfs and other miscellaneous functions
+
+# Use the rootfs extraction tool to decompress our source trees.
+EXTRACT_FILE = $(ROOTFS_TOP)/scripts/extract-tar $(SRC_ROOT) $1 $2 $(TAR_FILES)
+
 
 #####################################################################
 # BUILD TARGETS includes HW and SW
@@ -72,32 +96,19 @@ u-boot: $(U_BOOT_ELF)
 
 include $(TARGET_DIR)/platform_incl.make
 
-## The following code is for future compatability with the Zynq Ultrascale+ MPSoC
-## We need to specify different architecture and cross-compile toolchain for the 
-## zynqmp platform, as well as u-boot config. It is commented out for the time being.
-#
-#PLATFORM ?= zynq
-#
-#ifeq($(PLATFORM),zynq)
-#    ARCH=arm
-#    # Use Linero (hard float) toolchain rather than CodeSourcery (soft float) toolchain?
-#    CROSS_COMPILE=arm-linux-gnueabihf-
-#    # From Vivado 2020 onwards we can use the common defconfig
-#    #UBOOT_CONFIG = xilinx_zynq_virt_defconfig
-#    # For ealier Vivado we can specify zc70x as a generic config, as we are only using it to build mkimage
-#    UBOOT_CONFIG = zynq_zc70x_config
-#else ifeq($(PLATFORM,zynqmp)
-#    ARCH=aarch64
-#    CROSS_COMPILE=aarch64-linux-gnu-
-#    # From Vivado 2020 onwards we can use the common defconfig
-#    #UBOOT_CONFIG = xilinx_zynqmp_virt_defconfig
-#    # For earlier Vivado versions, we can try zcu102 as an initial guess for the relevant config.
-#    UBOOT_CONFIG = xilinx_zynqmp_zcu102_rev1_0_defconfig
-#else
-#    $$(error Unknown PLATFORM specified. Must be 'zynq' or 'zynqmp')
+PLATFORM ?= zynq
 
-CROSS_COMPILE = arm-xilinx-linux-gnueabi-
-ARCH = arm
+ifeq ($(PLATFORM),zynq)
+    ARCH=arm
+    CROSS_COMPILE=arm-linux-gnueabihf-
+    UBOOT_CONFIG = xilinx_zynq_virt_defconfig
+else ifeq ($(PLATFORM,zynqmp)
+    ARCH=aarch64
+    CROSS_COMPILE=aarch64-linux-gnu-
+    UBOOT_CONFIG = xilinx_zynqmp_virt_defconfig
+else
+    $$(error Unknown PLATFORM specified. Must be 'zynq' or 'zynqmp')
+endif
 
 #####################################################################
 # Create VERSION_FILE
@@ -151,41 +162,62 @@ carrier_fpga : $(CARRIER_FPGA_BIT)
 ################################################################
 # Build PS Boot targets
 
-$(IMAGE_DIR)/boot.bin $(IMAGE_DIR)/uEnv.txt: $(BOOT_BUILD)/boot.bif
-	. $(VIVADO) && bootgen -w -image $< -o i $(IMAGE_DIR)/boot.bin
+$(IMAGE_DIR)/boot.bin $(IMAGE_DIR)/uEnv.txt: $(BOOT_BUILD)/boot.bif $(U_BOOT_SCR)
+	. $(VIVADO) && bootgen -arch $(PLATFORM) -w -image $< -o $(IMAGE_DIR)/boot.bin
 	cp $(TOP)/common/u-boot/uEnv.txt $(IMAGE_DIR)/uEnv.txt
 
 $(BOOT_BUILD)/boot.bif: $(FSBL) $(U_BOOT_ELF)
 	$(TOP)/common/scripts/make_boot.bif $@ $(FSBL) $(U_BOOT_ELF)
 
-$(U_BOOT_ELF): $(UBOOT_BUILD_SCR) $(DEVTREE_DTB)
-	$(MAKE) -f $< TGT_DIR=$(TARGET_DIR) U_BOOT_BUILD=$(U_BOOT_BUILD) \
-	  SRC_ROOT=$(TGT_BUILD_DIR)/../../src DEVICE_TREE_DTB=$(DEVTREE_DTB) \
-      UBOOT_CONFIG=$(UBOOT_CONFIG) CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(ARCH) \
-	  TOP=$(TOP) u-boot
-	ln -sf $(U_BOOT_BUILD)/u-boot $@
+$(U_BOOT_SCR): $(U_BOOT_ELF)
+	$(U_BOOT_BUILD)/tools/mkimage -C none -A arm -T script -d $(TOP)/common/u-boot/boot.cmd "$@"
+
+# ------------------------------------------------------------------------------
+# Building u-boot
+#
+
+MAKE_U_BOOT = $(MAKE) -C $(U_BOOT_SRC) \
+  ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) KBUILD_OUTPUT=$(U_BOOT_BUILD)
+
+$(U_BOOT_ELF): $(U_BOOT_SRC) $(DEVTREE_DTB)
+	mkdir -p $(U_BOOT_BUILD)
+	. $(VIVADO) && $(MAKE_U_BOOT) distclean
+	. $(VIVADO) && $(MAKE_U_BOOT) $(UBOOT_CONFIG)
+	. $(VIVADO) && $(MAKE_U_BOOT) EXT_DTB=$(DEVTREE_DTB)	
+
+$(U_BOOT_SRC): | $(SRC_ROOT)
+	$(call EXTRACT_FILE,$(U_BOOT_NAME).tar.gz,$(MD5_SUM_$(U_BOOT_NAME)))
+	chmod -R a-w $(U_BOOT_SRC)
+
+$(SRC_ROOT):
+	mkdir -p $(SRC_ROOT)
+
+u-boot-src: $(U_BOOT_SRC)
+
+.PHONY: u-boot-src
+# -----------------------------------------------------------------------------------
 
 $(DEVTREE_DTB): $(SDK_EXPORT)
-	cp $(TARGET_DIR)/configs/system-top.dts \
-	  $</device_tree_bsp_0/
-	sed -i '/dts-v1/d' $</device_tree_bsp_0/system.dts
+	cp $(TARGET_DIR)/configs/platform-top.dts \
+	  $(DEVTREE_DTS)/
+	sed -i '/dts-v1/d' $(DEVTREE_DTS)/system-top.dts
+	gcc -I dts -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp -o $(DEVTREE_DTS)/system-top.dts.tmp $(DEVTREE_DTS)/system-top.dts
 	@echo "Building DEVICE TREE blob ..."
 	$(DEVTREE_DTC) -f -I dts -O dtb -o $@ \
-	  $</device_tree_bsp_0/system-top.dts
+	  $(DEVTREE_DTS)/platform-top.dts
 
 $(FSBL): $(SDK_EXPORT)
 
-$(SDK_EXPORT): $(XSDK_BUILD_SCR) $(HWDEF) $(DEVTREE_SRC) | $(IMAGE_DIR)
+$(SDK_EXPORT): $(BOOT_BUILD_SCR) $(PS_CORE) $(DEVTREE_SRC) | $(IMAGE_DIR)
 	rm -rf $@
-	. $(VIVADO) && xsdk -batch -source $< \
-	    $(SDK_EXPORT) $(HWDEF) $(DEVTREE_SRC)
+	. $(VIVADO) && xsct $< \
+	    $(PLATFORM) $(HWDEF) $(DEVTREE_SRC) $@
 
-$(HWDEF): $(PS_CORE)
-	cp $(basename $@).hwdef $@
+xsct : $(SDK_EXPORT)
+.PHONEY: xsct
 
-$(DEVTREE_SRC) : 
-	mkdir -p $(DEVTREE_BSP)
-	unzip $(TAR_REPO)/$(DEVTREE_NAME).zip -d $(DEVTREE_BSP)
+$(DEVTREE_SRC) : | $(SRC_ROOT)
+	$(call EXTRACT_FILE,$(DEVTREE_NAME).tar.gz,$(MD5_SUM_$(DEVTREE_NAME)))
 
 $(IMAGE_DIR) : 
 	mkdir $(IMAGE_DIR)

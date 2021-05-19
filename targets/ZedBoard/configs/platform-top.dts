@@ -1,5 +1,5 @@
 /dts-v1/;
-/include/ "system.dts"
+/include/ "system-top.dts.tmp"
 
 / {
 	model = "ZedBoard";

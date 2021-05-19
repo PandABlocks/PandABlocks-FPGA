@@ -18,7 +18,7 @@ MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 MAKE_GITHUB_RELEASE = $(PANDA_ROOTFS)/make-github-release.py
 
 BUILD_DIR = $(TOP)/build
-VIVADO_VER = 2015.2
+VIVADO_VER = 2020.2
 DEFAULT_TARGETS = zpkg
 
 
@@ -221,7 +221,7 @@ hdl_timing: $(TIMING_BUILD_DIRS)
 
 # The following phony targets are passed straight to the FPGA sub-make programme
 FPGA_TARGETS = fpga-all fpga-bits carrier_fpga slow_fpga slow_load carrier_ip ps_core \
-               fsbl devicetree boot u-boot dts sw_clean
+               fsbl devicetree boot u-boot dts xsct sw_clean u-boot-src
 
 $(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR) | PREV_VERSION
 	mkdir -p $(FPGA_BUILD_DIR)

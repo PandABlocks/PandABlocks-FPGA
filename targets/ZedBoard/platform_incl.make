@@ -3,5 +3,3 @@
 PLATFORM = zynq
 #PLATFORM = zynqmp  
 
-UBOOT_CONFIG = zynq_zed_defconfig
-
