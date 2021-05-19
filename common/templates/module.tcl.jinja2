@@ -22,7 +22,7 @@ remove_files -fileset sim_1 \
 add_files -norecurse \
     {% if block.ip %}
         {% for ip in block.ip %}
-    $TGT_BUILD_DIR/ip_repo/{{ ip }}/{{ ip }}_funcsim.vhdl \
+    $TGT_BUILD_DIR/ip_repo/{{ ip }}/{{ ip }}_sim_netlist.vhdl \
         {% endfor %}
     {% endif %}
     $TOP_DIR/modules/{{block.entity}}/hdl
