@@ -258,10 +258,21 @@ begin
                         else
                             if DIR(1 downto 0) = c_positive then
                                 dir_pos <= '1';
+                                next_crossing <= pulse_width_pos;
                             else
                                 dir_pos <= '0';
+                                next_crossing <= pulse_width_neg;
                             end if;
-                            pcomp_fsm <= WAIT_PRE_START;
+                            if RELATIVE(0) = '1' and signed(START) = 0 and signed(PRE_START) = 0 then
+                                -- Produce the first pulse right away
+                                out_o <= '1';
+                                last_crossing <= (others => '0');
+                                -- next_crossing set above
+                                pulse_counter <= to_unsigned(1, 32);
+                                pcomp_fsm <= WAIT_FALLING;
+                            else
+                                pcomp_fsm <= WAIT_PRE_START;
+                            end if;
                         end if;
                     end if;
 

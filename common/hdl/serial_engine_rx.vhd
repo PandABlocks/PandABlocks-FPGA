@@ -119,6 +119,7 @@ generic map (
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
+    ENCODING        => "00",
     enable_i        => shift_enabled,
     clock_i         => shift_clock,
     data_i          => shift_data,

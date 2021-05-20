@@ -71,6 +71,8 @@ signal reset            : std_logic;
 signal GENERATOR_ERROR          : std_logic_vector(31 downto 0);
 signal OUTENC_PROTOCOL          : std_logic_vector(31 downto 0);
 signal OUTENC_PROTOCOL_WSTB     : std_logic;
+signal OUTENC_ENCODING          : std_logic_vector(31 downto 0);
+signal OUTENC_ENCODING_WSTB     : std_logic;
 signal OUTENC_BITS              : std_logic_vector(31 downto 0);
 signal OUTENC_BITS_WSTB         : std_logic;
 signal QPERIOD                  : std_logic_vector(31 downto 0);
@@ -86,6 +88,8 @@ signal clk_ext                  : std_logic;
 -- Block Configuration Registers
 signal INENC_PROTOCOL           : std_logic_vector(31 downto 0);
 signal INENC_PROTOCOL_WSTB      : std_logic;
+signal INENC_ENCODING           : std_logic_vector(31 downto 0);
+signal INENC_ENCODING_WSTB      : std_logic;
 signal CLK_SRC                  : std_logic_vector(31 downto 0);
 signal CLK_PERIOD               : std_logic_vector(31 downto 0);
 signal CLK_PERIOD_WSTB          : std_logic;
@@ -123,6 +127,7 @@ INENC_CONN_OUT_o <= STATUS(0);
 
 -- Certain parameter changes must initiate a block reset.
 reset <= reset_i or OUTENC_PROTOCOL_WSTB or OUTENC_BITS_WSTB or INENC_PROTOCOL_WSTB
+         or OUTENC_ENCODING_WSTB or INENC_ENCODING_WSTB
          or CLK_PERIOD_WSTB or FRAME_PERIOD_WSTB or INENC_BITS_WSTB;
 
 DCARD_TYPE <= x"0000000" & '0' & DCARD_MODE_i(3 downto 1);
@@ -157,6 +162,8 @@ port map (
     GENERATOR_ERROR     => GENERATOR_ERROR,
     PROTOCOL            => OUTENC_PROTOCOL,
     PROTOCOL_WSTB       => OUTENC_PROTOCOL_WSTB,
+    ENCODING            => OUTENC_ENCODING,
+    ENCODING_WSTB       => OUTENC_ENCODING_WSTB,
     DCARD_TYPE          => DCARD_TYPE,
     BITS                => OUTENC_BITS,
     BITS_WSTB           => OUTENC_BITS_WSTB,
@@ -186,6 +193,8 @@ port map (
 
     PROTOCOL            => INENC_PROTOCOL,
     PROTOCOL_WSTB       => INENC_PROTOCOL_WSTB,
+    ENCODING            => INENC_ENCODING,
+    ENCODING_WSTB       => INENC_ENCODING_WSTB,
     CLK_SRC             => CLK_SRC,
     CLK_SRC_WSTB        => open,
     CLK_PERIOD          => CLK_PERIOD,
@@ -243,6 +252,7 @@ port map(
     -- Block parameters
     GENERATOR_ERROR_i   => GENERATOR_ERROR(0),
     OUTENC_PROTOCOL_i   => OUTENC_PROTOCOL(2 downto 0),
+    OUTENC_ENCODING_i   => OUTENC_ENCODING(1 downto 0),
     OUTENC_BITS_i       => OUTENC_BITS(7 downto 0),
     QPERIOD_i           => QPERIOD,
     QPERIOD_WSTB_i      => QPERIOD_WSTB,
@@ -251,6 +261,7 @@ port map(
 
     DCARD_MODE_i        => DCARD_MODE_i,
     INENC_PROTOCOL_i    => INENC_PROTOCOL(2 downto 0),
+    INENC_ENCODING_i    => INENC_ENCODING(1 downto 0),
     CLK_SRC_i           => CLK_SRC(0),
     CLK_PERIOD_i        => CLK_PERIOD,
     FRAME_PERIOD_i      => FRAME_PERIOD,

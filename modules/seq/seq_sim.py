@@ -87,8 +87,8 @@ class SeqTable(object):
             self.table_ready = 1
 
 
-WAIT_ENABLE = 0
-LOAD_TABLE = 1
+LOAD_TABLE = 0
+WAIT_ENABLE = 1
 WAIT_TRIGGER = 2
 PHASE1 = 3
 PHASE2 = 4
@@ -186,6 +186,9 @@ class SeqSimulation(BlockSimulation):
             # Loading a table stops everything
             self.table.table_start()
             self.set_outputs(0)
+            self.TABLE_REPEAT = 0
+            self.TABLE_LINE = 0
+            self.LINE_REPEAT = 0
             state = LOAD_TABLE
         elif changes.get(NAMES.ENABLE, None) == 0:
             # If we are disabled at any point stop and wait for enable
@@ -201,29 +204,28 @@ class SeqSimulation(BlockSimulation):
                 # If we get an enable or we are still active after a table
                 # rewrite
                 if changes.get(NAMES.ENABLE, None) == 1 or self.ACTIVE:
-                    if self.table.table_ready:
-                        if not self.next_triggers_met():
-                            state = WAIT_TRIGGER
-                        elif self.next_line().time1:
-                            # Do phase 1
-                            self.next_ts = ts + self.next_time1()
-                            self.set_outputs(self.next_line().out1)
-                            state = PHASE1
-                        else:
-                            # Do phase 2
-                            self.next_ts = ts + self.next_time2()
-                            self.set_outputs(self.next_line().out2)
-                            state = PHASE2
-                        self.TABLE_REPEAT = 1
-                        self.TABLE_LINE = 1
-                        self.LINE_REPEAT = 1
-                        self.ACTIVE = 1
-                        self.current_line = self.next_line()
-                        self.table.load_next()
+                    if not self.next_triggers_met():
+                        state = WAIT_TRIGGER
+                    elif self.next_line().time1:
+                        # Do phase 1
+                        self.next_ts = ts + self.next_time1()
+                        self.set_outputs(self.next_line().out1)
+                        state = PHASE1
+                    else:
+                        # Do phase 2
+                        self.next_ts = ts + self.next_time2()
+                        self.set_outputs(self.next_line().out2)
+                        state = PHASE2
+                    self.TABLE_REPEAT = 1
+                    self.TABLE_LINE = 1
+                    self.LINE_REPEAT = 1
+                    self.ACTIVE = 1
+                    self.current_line = self.next_line()
+                    self.table.load_next()
             elif self.STATE == LOAD_TABLE:
                 # And while we're in this state we ignore everything apart from
                 # table commands
-                if self.table.table_ready:
+                if self.table.table_ready and self.TABLE_LENGTH > 0:
                     state = WAIT_ENABLE
                 elif NAMES.TABLE_DATA in changes:
                     self.table.table_data(self.TABLE_DATA)

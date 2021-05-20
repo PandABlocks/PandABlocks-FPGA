@@ -114,7 +114,7 @@ type SFP_output_interface is
   record
     TXN_OUT     : std_logic;
     TXP_OUT     : std_logic;
-	EVR_REC_CLK : std_logic;
+    EVR_REC_CLK : std_logic;
     LINK_UP     : std_logic;
   end record SFP_output_interface;
 

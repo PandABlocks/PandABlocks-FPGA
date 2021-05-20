@@ -11,6 +11,7 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Configuration interface.
+    ENCODING            : in  std_logic_vector(1 downto 0);
     BITS                : in  std_logic_vector(7 downto 0);
     enable_i            : in  std_logic;
     GENERATOR_ERROR     : in  std_logic;
@@ -115,7 +116,7 @@ begin
             health_biss_slave<=TO_SVECTOR(1,32);--default error 
         else
            case SM_DATA is
-		   
+           
                -- SYNCH STATE
                when STATE_SYNCH =>
                    if (enable_i = '1') then
@@ -152,7 +153,7 @@ begin
                       SM_DATA <= STATE_SYNCH;
                       sck_timeout_cnt<=c_MAX_TIMEOUT;
                    end if;
-		   
+           
                -- ACK STATE
                when STATE_ACK =>
                    -- ACK = 0
@@ -194,7 +195,7 @@ begin
                    else
                        sck_timeout_cnt<=sck_timeout_cnt-1;
                    end if;
-		   
+           
                -- ZERO STATE
                when STATE_ZERO =>
                    -- ZERO = 0
@@ -217,13 +218,22 @@ begin
                    else
                        sck_timeout_cnt<=sck_timeout_cnt-1;
                    end if;
-		   
+           
                -- DATA STATE
                when STATE_DATA =>
                    -- Transmit data
                    if (biss_sck_rising_edge = '1') then
                        data_cnt <= data_cnt -1;
-                       biss_dat <= posn_latched(to_integer(data_cnt-9));
+                       if ((ENCODING=c_UNSIGNED_BINARY_ENCODING) or (ENCODING=c_SIGNED_BINARY_ENCODING)) then
+                           biss_dat <= posn_latched(to_integer(data_cnt-9));
+                       else
+                           -- gray encoding
+                           if(data_cnt = (unsigned(BITS) + c_nEnW_size + c_CRC_size)) then
+                               biss_dat <= posn_latched(to_integer(data_cnt-9));
+                           else
+                               biss_dat <= posn_latched(to_integer(data_cnt-9)) xor posn_latched(to_integer(data_cnt-8));
+                           end if;
+                       end if;
                        if (data_cnt = 9) then
                            data_enable <= '0';
                            nEnW_enable <= '1';
@@ -243,7 +253,7 @@ begin
                    else
                        sck_timeout_cnt<=sck_timeout_cnt-1;
                    end if;
-		   
+           
                -- nE(error flag) nW(warning flag) STATE
                when STATE_nEnW =>
                    -- Transmit the error and warning bits
@@ -268,7 +278,7 @@ begin
                    else
                        sck_timeout_cnt<=sck_timeout_cnt-1;
                    end if;
-		   
+           
                -- CRC STATE
                when STATE_CRC =>
                    -- Transmit the calculated CRC value
@@ -292,7 +302,7 @@ begin
                    else
                        sck_timeout_cnt<=sck_timeout_cnt-1;
                    end if;
-		   
+           
                -- STOP STATE
                when STATE_STOP =>
                    -- STOP = 0 during timeout
@@ -313,7 +323,7 @@ begin
                    else
                        sck_timeout_cnt<=sck_timeout_cnt-1;
                    end if;
-		   
+           
                -- TIMEOUT STATE
                when STATE_TIMEOUT =>
                    -- STOP = 0 during timeout

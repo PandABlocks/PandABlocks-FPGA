@@ -17,7 +17,7 @@ port (
     -- System Bus
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
-	-- Outputs to BitBus from FMC
+    -- Outputs to BitBus from FMC
     bit1_o              : out std_logic_vector(0 downto 0);
     bit2_o              : out std_logic_vector(0 downto 0);
     bit3_o              : out std_logic_vector(0 downto 0);
