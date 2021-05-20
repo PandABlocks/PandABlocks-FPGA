@@ -87,7 +87,7 @@ carrier_ip: $(IP_DIR)/IP_BUILD_SUCCESS
 ps_core: $(PS_CORE)
 devicetree : $(DEVTREE_DTB)
 fsbl : $(FSBL)
-boot : $(IMAGE_DIR)/boot.bin
+boot : $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB) $(U_BOOT_SCR)
 u-boot: $(U_BOOT_ELF)
 .PHONY: fpga-all fpga-bits carrier_ip ps_core boot devicetree fsbl u-boot
 
@@ -162,9 +162,8 @@ carrier_fpga : $(CARRIER_FPGA_BIT)
 ################################################################
 # Build PS Boot targets
 
-$(IMAGE_DIR)/boot.bin $(IMAGE_DIR)/uEnv.txt: $(BOOT_BUILD)/boot.bif $(U_BOOT_SCR)
-	. $(VIVADO) && bootgen -arch $(PLATFORM) -w -image $< -o $(IMAGE_DIR)/boot.bin
-	cp $(TOP)/common/u-boot/uEnv.txt $(IMAGE_DIR)/uEnv.txt
+$(IMAGE_DIR)/boot.bin: $(BOOT_BUILD)/boot.bif
+	. $(VIVADO) && bootgen -arch $(PLATFORM) -w -image $< -o $@
 
 $(BOOT_BUILD)/boot.bif: $(FSBL) $(U_BOOT_ELF)
 	$(TOP)/common/scripts/make_boot.bif $@ $(FSBL) $(U_BOOT_ELF)
@@ -231,5 +230,11 @@ sw_clean:
 	rm -rf $(SDK_EXPORT)
 	rm -rf $(IMAGE_DIR)/*
 
-.PHONY: dts sw_clean
+ip_clean:
+	rm -rf $(IP_DIR)
+
+ps_clean:
+	rm -rf $(PS_DIR)
+
+.PHONY: dts sw_clean ip_clean ps_clean
 

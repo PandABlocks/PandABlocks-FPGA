@@ -221,7 +221,7 @@ hdl_timing: $(TIMING_BUILD_DIRS)
 
 # The following phony targets are passed straight to the FPGA sub-make programme
 FPGA_TARGETS = fpga-all fpga-bits carrier_fpga slow_fpga slow_load carrier_ip ps_core \
-               fsbl devicetree boot u-boot dts xsct sw_clean u-boot-src
+               fsbl devicetree boot u-boot dts xsct sw_clean u-boot-src ip_clean ps_clean
 
 $(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR) | PREV_VERSION
 	mkdir -p $(FPGA_BUILD_DIR)
@@ -330,7 +330,3 @@ clean-all:
 	find -name '*.pyc' -delete
 .PHONY: clean-all
 
-# Remove the Xilinx IP
-ip_clean:
-	rm -rf $(TGT_BUILD_DIR)
-.PHONY: ip_clean
