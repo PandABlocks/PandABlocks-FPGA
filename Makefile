@@ -195,6 +195,7 @@ hdl_timing: $(TIMING_BUILD_DIRS)
 # FPGA build
 
 FPGA_FILE = $(FPGA_BUILD_DIR)/panda_top.bit
+FPGA_BIN_FILE = $(FPGA_BUILD_DIR)/panda_top.bin
 SLOW_FPGA_FILE = $(SLOW_FPGA_BUILD_DIR)/slow_top.bin
 
 FPGA_DEPENDS =
@@ -212,6 +213,13 @@ else
             TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(dir $@) \
             IP_DIR=$(IP_DIR)
 endif
+
+$(FPGA_BIN_FILE): $(FPGA_FILE)
+	cd $(FPGA_BUILD_DIR) && \
+        echo -e "all:\n{\n    $(FPGA_FILE)\n}\n" > bs.bif && \
+        source $(VIVADO) && \
+        bootgen -image bs.bif -arch zynq -process_bitstream bin && \
+        mv $(FPGA_FILE).bin $@
 
 $(SLOW_FPGA_FILE): $(AUTOGEN_BUILD_DIR) $(SLOW_FPGA_DEPENDS)
 	mkdir -p $(dir $@)
@@ -240,7 +248,7 @@ ZPKG_LIST = etc/panda-fpga.list
 ZPKG_VERSION = $(APP_NAME)-$(GIT_VERSION)
 ZPKG_FILE = $(BUILD_DIR)/panda-fpga@$(ZPKG_VERSION).zpg
 
-ZPKG_DEPENDS += $(FPGA_FILE)
+ZPKG_DEPENDS += $(FPGA_BIN_FILE)
 ZPKG_DEPENDS += $(SLOW_FPGA_FILE)
 ZPKG_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini
 ZPKG_DEPENDS += $(APP_BUILD_DIR)/extensions
