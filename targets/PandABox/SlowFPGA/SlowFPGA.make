@@ -30,17 +30,18 @@ bin: $(BIN_FILE)
 
 # We have to take a bit of care when building the list file: it turns out that
 # xst can't cope with long file names.
-$(LIST_FILE): $(SRC_DIR)/syn/xilinx/slow_top.files
+refresh_list_file: $(SRC_DIR)/syn/xilinx/slow_top.files
 	ln -sfn $(SRC_DIR)/.. target_dir
 	ln -sfn $(TOP)/common/hdl/ common_hdl
 	ln -sfn $(AUTOGEN)/hdl autogen_hdl
-	cp $< $@
+	cp $< $(LIST_FILE)
+.PHONY: refresh_list_file
 
 MAP_FLAGS = -detail -w -ol high -pr b
 PAR_FLAGS = -w -ol high
 TRCE_FLAGS = -e 3 -l 3
 
-slow_bit: $(LIST_FILE)
+slow_bit: refresh_list_file
 	xst -ifn $(SCR_FILE)
 	ngdbuild -sd $(NETLIST_DIR) -uc $(UCF_FILE) $(POSTSYN_NETLIST)
 	map $(MAP_FLAGS) $(NGD_FILE) -o $(MAPPED_NCD_FILE) $(PCF_FILE)
