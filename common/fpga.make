@@ -113,7 +113,7 @@ endif
 #####################################################################
 # Create VERSION_FILE
 
-$(VERSION_FILE) : $(PREV_VER)
+$(VERSION_FILE) : $(VER)
 	rm -f $(VERSION_FILE)
 	echo 'library ieee;' >> $(VERSION_FILE)
 	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)

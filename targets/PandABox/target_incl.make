@@ -39,10 +39,10 @@ CFLAGS += -Wno-missing-field-initializers
 # Build SlowFPGA Firmware target
 
 # Slow FPFA requires VERSION_FILE to be present and correct, but does not check its timestamp,
-# as every app contains its own built copy of VERSION_FILE. Instead it uses the PREV_VER file,  
+# as every app contains its own built copy of VERSION_FILE. Instead it uses the $(VER) file,  
 # as we do not want to rebuild the Slow FPGA for each app if nothing else has changed.
 
-$(SLOW_BIN): $(TARGET_DIR)/SlowFPGA/SlowFPGA.make $(PREV_VER) | $(VERSION_FILE)
+$(SLOW_BIN): $(TARGET_DIR)/SlowFPGA/SlowFPGA.make $(VER) | $(VERSION_FILE)
 	mkdir -p $(SLOW_FPGA_BUILD_DIR)
 	echo building SlowFPGA
 	source $(ISE)  &&  \
