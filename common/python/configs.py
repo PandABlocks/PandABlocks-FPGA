@@ -109,10 +109,13 @@ class BlockConfig(object):
         self.type = ini_get(ini, '.', 'type', type)
         #: What type is the sfp/fmc interface?
         interfaces = ini_get(ini, '.', 'interfaces', '').split()
+        #: For io blocks with multiple sites it's useful to which interface is used
         self.interfaces = self.combineSiteInterfaces(interfaces)
         #: Any constraints?
         self.constraints = ini_get(ini, '.', 'constraints', '').split()
-        #: Does the block require IP?
+        #: Interfaces need MGT pins constraints
+        if self.interfaces:
+            self.interfaceConstraint=self.interfaces[0][1].split("_")[0].upper() + "_MGT_pins.xdc"        #: Does the block require IP?
         self.ip = ini_get(ini, '.', 'ip', '').split()
         self.otherconst = ini_get(ini, '.', 'otherconst', '')
         #: The description, like "Lookup table"
@@ -154,8 +157,8 @@ class BlockConfig(object):
         for interface in interfaces:
             if self.site:
                 split=interface.split("_")
-                newInterface=split[0]+str(self.site)+"_"+split[1]
-                combinedInterface=(interface,newInterface)
+                numberedInterface=split[0]+str(self.site)+"_"+split[1]
+                combinedInterface=(interface,numberedInterface)
             else:
                 combinedInterface=(interface, interface)
             combinedInterfaces.append(combinedInterface)
@@ -560,11 +563,13 @@ class TargetSiteConfig(object):
     def __init__(self, name, info):
         # type: (str, int, int, int, str) -> None
         #: The type of target site (SFP/FMC etc)
-        self.name =name
+        self.name = name
         #: The info i in a string such as "3, i, io, o"
         self.number = int(info.split(", ",1)[0])
-        self.dirs= [] #type List[Str]
+        self.dirs = [] #type List[Str]
+        self.interfaces = [] #type List[Str]
         self.io_present(info.split(", ",1)[1])
+        
 
     def io_present(self, io):
         # type: (str) -> List[str]
@@ -572,3 +577,4 @@ class TargetSiteConfig(object):
         options=io.split(', ')
         for option in options:
             self.dirs.append(option)
+            self.interfaces.append(self.name + "_" + option)

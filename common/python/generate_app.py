@@ -243,14 +243,10 @@ class AppGenerator(object):
         target_sites_num = 0
         # Start carrier_mod_count at 1 for REG and DRV blocks.
         carrier_mod_count = 2
+
+        self.check_interfaces()
+
         for block in self.fpga_blocks:
-            if block.interfaces:
-                for site in self.target_sites:
-                    if block.type in site.name:
-                        target_sites_num = site.number
-                assert target_sites_num > 0, "No %s on Carrier" % block.type
-                if target_sites_num > 1:
-                    assert block.site > 0,"No site defined for %s" % block.name
             if block.type in "carrier|pcap":
                 carrier_mod_count = carrier_mod_count + 1
             for field in block.fields:
@@ -289,6 +285,19 @@ class AppGenerator(object):
                              "addr_defines.vhd")
         self.expand_template("top_defines.vhd.jinja2", context, hdl_dir,
                              "top_defines.vhd")
+
+    def check_interfaces(self):
+        "If an interface is required in any blocks, is there a matching interface?"
+        for block in self.fpga_blocks:
+            for moduleInterface in block.interfaces:
+                interfaceMatch = False
+                for site in self.target_sites:
+                    if moduleInterface[0] in site.interfaces:
+                        interfaceMatch = True
+                        target_sites_num = site.number
+                assert interfaceMatch == True, "No %s interface on Carrier" % moduleInterface[0]
+                if target_sites_num > 1:
+                    assert block.site > 0,"No site defined for %s" % block.name
 
     def generate_constraints(self):
         """Generate constraints file for IPs, SFP and FMC constraints"""
