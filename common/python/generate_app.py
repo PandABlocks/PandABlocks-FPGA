@@ -97,8 +97,8 @@ class AppGenerator(object):
             target_path = os.path.join("targets", target, "blocks")
             target_ini = read_ini(os.path.join(ROOT, "targets", target, (
                     target + ".target.ini")))
-            #self.implement_blocks(target_ini, target_path, "carrier")
-            self.implement_blocks(target_ini, "modules", "carrier")
+            self.implement_blocks(target_ini, target_path, "carrier")
+            #self.implement_blocks(target_ini, "modules", "carrier")
             target_info = target_ini.items('.')
             for item in target_info:
                 siteType=item[0]
