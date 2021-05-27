@@ -109,15 +109,15 @@ class BlockConfig(object):
         self.type = ini_get(ini, '.', 'type', type)
         #: What type is the sfp/fmc interface?
         interfaces = ini_get(ini, '.', 'interfaces', '').split()
-        #: For io blocks with multiple sites it's useful to which interface is used
         self.interfaces = self.combineSiteInterfaces(interfaces)
         #: Any constraints?
         self.constraints = ini_get(ini, '.', 'constraints', '').split()
-        #: Interfaces need MGT pins constraints
-        if self.interfaces:
-            self.interfaceConstraint=self.interfaces[0][1].split("_")[0].upper() + "_MGT_pins.xdc"        #: Does the block require IP?
+        #: Does the block require IP?
         self.ip = ini_get(ini, '.', 'ip', '').split()
         self.otherconst = ini_get(ini, '.', 'otherconst', '')
+        if (self.otherconst == "mgt_pins"):
+            #: Interfaces need MGT pins constraints
+            self.generateInterfaceConstraints()
         #: The description, like "Lookup table"
         self.description = ini.get(".", "description")
         # If extension required but not specified put entity name here
@@ -163,6 +163,14 @@ class BlockConfig(object):
                 combinedInterface=(interface, interface)
             combinedInterfaces.append(combinedInterface)
         return combinedInterfaces
+
+    def generateInterfaceConstraints(self):
+        """Generate MGT Pints constraints"""
+        self.interfaceConstraints=[]
+        for interface in self.interfaces:
+            constraint = interface[1].split("_")[0].upper() + "_MGT_pins.xdc"
+            if constraint not in self.interfaceConstraints:
+                self.interfaceConstraints.append(constraint)
 
 def make_getter_setter(config):
     def getter(self):
@@ -578,3 +586,4 @@ class TargetSiteConfig(object):
         for option in options:
             self.dirs.append(option)
             self.interfaces.append(self.name + "_" + option)
+
