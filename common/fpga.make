@@ -66,7 +66,6 @@ U_BOOT_SRC = $(SRC_ROOT)/$(U_BOOT_NAME)
 BOOT_BUILD = $(TGT_BUILD_DIR)/boot_build
 U_BOOT_BUILD = $(BOOT_BUILD)/u-boot
 U_BOOT_ELF = $(U_BOOT_BUILD)/u-boot.elf
-U_BOOT_SCR = $(IMAGE_DIR)/boot.scr
 
 IMAGE_DIR=$(TGT_BUILD_DIR)/boot
 
@@ -87,7 +86,7 @@ carrier_ip: $(IP_DIR)/IP_BUILD_SUCCESS
 ps_core: $(PS_CORE)
 devicetree : $(DEVTREE_DTB)
 fsbl : $(FSBL)
-boot : $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB) $(U_BOOT_SCR)
+boot : $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB)
 u-boot: $(U_BOOT_ELF)
 .PHONY: fpga-all fpga-bits carrier_ip ps_core boot devicetree fsbl u-boot
 
@@ -167,9 +166,6 @@ $(IMAGE_DIR)/boot.bin: $(BOOT_BUILD)/boot.bif
 
 $(BOOT_BUILD)/boot.bif: $(FSBL) $(U_BOOT_ELF)
 	$(TOP)/common/scripts/make_boot.bif $@ $(FSBL) $(U_BOOT_ELF)
-
-$(U_BOOT_SCR): $(U_BOOT_ELF)
-	$(U_BOOT_BUILD)/tools/mkimage -C none -A arm -T script -d $(TOP)/common/u-boot/boot.cmd "$@"
 
 # ------------------------------------------------------------------------------
 # Building u-boot
