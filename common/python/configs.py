@@ -115,6 +115,9 @@ class BlockConfig(object):
         #: Does the block require IP?
         self.ip = ini_get(ini, '.', 'ip', '').split()
         self.otherconst = ini_get(ini, '.', 'otherconst', '')
+        if (self.otherconst == "mgt_pins"):
+            #: Interfaces need MGT pins constraints
+            self.generateInterfaceConstraints()
         #: The description, like "Lookup table"
         self.description = ini.get(".", "description")
         # If extension required but not specified put entity name here
@@ -154,12 +157,20 @@ class BlockConfig(object):
         for interface in interfaces:
             if self.site:
                 split=interface.split("_")
-                newInterface=split[0]+str(self.site)+"_"+split[1]
-                combinedInterface=(interface,newInterface)
+                numberedInterface=split[0]+str(self.site)+"_"+split[1]
+                combinedInterface=(interface,numberedInterface)
             else:
                 combinedInterface=(interface, interface)
             combinedInterfaces.append(combinedInterface)
         return combinedInterfaces
+
+    def generateInterfaceConstraints(self):
+        """Generate MGT Pints constraints"""
+        self.interfaceConstraints=[]
+        for interface in self.interfaces:
+            constraint = interface[1].split("_")[0].upper() + "_MGT_pins.xdc"
+            if constraint not in self.interfaceConstraints:
+                self.interfaceConstraints.append(constraint)
 
 def make_getter_setter(config):
     def getter(self):
@@ -560,11 +571,13 @@ class TargetSiteConfig(object):
     def __init__(self, name, info):
         # type: (str, int, int, int, str) -> None
         #: The type of target site (SFP/FMC etc)
-        self.name =name
+        self.name = name
         #: The info i in a string such as "3, i, io, o"
         self.number = int(info.split(", ",1)[0])
-        self.dirs= [] #type List[Str]
+        self.dirs = [] #type List[Str]
+        self.interfaces = [] #type List[Str]
         self.io_present(info.split(", ",1)[1])
+        
 
     def io_present(self, io):
         # type: (str) -> List[str]
@@ -572,3 +585,5 @@ class TargetSiteConfig(object):
         options=io.split(', ')
         for option in options:
             self.dirs.append(option)
+            self.interfaces.append(self.name + "_" + option)
+
