@@ -15,7 +15,6 @@ b share/panda-fpga ipmi.ini
 # Server startup and helper code
 B share/panda-fpga extensions
 t share/panda-fpga targets/PandABox/etc/load-panda-firmware
-b bin/slow_load ../../targets/PandABox/slow_load
 
 # IPMI python support
 T lib/python/site-packages/i2c etc/i2c/*.py
