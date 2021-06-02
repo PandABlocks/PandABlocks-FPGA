@@ -10,8 +10,7 @@
 # Note: if these files have been downloaded through the releases directory then
 # they need to be renamed with the appropriate {u-boot,linux}-xlnx- prefix so
 # that the file name and contents match.
-MD5_SUM_device-tree-xlnx-xilinx-v2020.1 = e13372b84037e5a78e7c166cf6c5e9be
-MD5_SUM_u-boot-xlnx-xilinx-v2020.1 = cbd8f16decbc6b356d5b49adb24b1154
+MD5_SUM_device-tree-xlnx-xilinx-v2020.2 = c30a25d475c21fe4d9913b2df6aab692
 MD5_SUM_u-boot-xlnx-xilinx-v2020.2 = 6881a6b9f465f714e64c1398630287db
 
 # By default use the same tagged version of the sources as the build tools.
