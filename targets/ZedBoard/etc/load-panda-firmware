@@ -6,7 +6,7 @@
 # on panda-server being installed
 
 # File locations
-carrier_firmware=/opt/share/panda-fpga/panda_top.bit
+carrier_firmware=/opt/share/panda-fpga/panda_top.bin
 check_ipmi=/opt/bin/check_ipmi
 
 # This GPIO is used by PicoZed revision C to multiplex pins PS_MIO[15:9] between
@@ -31,6 +31,15 @@ configure_gpio_m0()
     echo $GPIO_M0 >/sys/class/gpio/unexport
 }
 
+load_fpga()
+{
+    local bitstream="$1"
+    local name="$(basename $bitstream)"
+    # Set flags for loading full bitstream
+    echo 0 > /sys/class/fpga_manager/fpga0/flags
+    ln -sf $bitstream /opt/firmware/$name
+    echo $name > /sys/class/fpga_manager/fpga0/firmware
+}
 
 [ -e $carrier_firmware ]  ||
     fail "Firmware not installed"
@@ -42,4 +51,4 @@ configure_gpio_m0  &&
 $check_ipmi  &&
 
 # If FMC passes then load the carrier firmware
-cat $carrier_firmware >/dev/xdevcfg
+load_fpga $carrier_firmware

@@ -5,6 +5,7 @@ d share/www
 d lib/python/site-packages/i2c
 d etc/www
 d bin
+d firmware
 
 # Configuration files
 b share/panda-fpga/config_d autogen/config_d/config
@@ -22,7 +23,7 @@ t bin etc/check_ipmi
 t bin etc/show_ipmi
 
 # Firmware
-b share/panda-fpga FPGA/panda_top.bit
+b share/panda-fpga FPGA/panda_top.bin
 
 # Docs (built once for all zpkgs)
 t etc/www etc/panda-fpga.docs.html

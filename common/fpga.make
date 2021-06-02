@@ -33,6 +33,7 @@ IP_DIR = $(TGT_BUILD_DIR)/ip_repo
 PS_DIR = $(TGT_BUILD_DIR)/panda_ps
 PS_CORE  = $(PS_DIR)/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 CARRIER_FPGA_BIT = $(BUILD_DIR)/panda_top.bit
+FPGA_BIN_FILE = $(BUILD_DIR)/panda_top.bin
 
 VERSION_FILE = $(AUTOGEN)/hdl/version.vhd
 
@@ -155,7 +156,12 @@ $(CARRIER_FPGA_BIT) : $(CARRIER_FPGA_DEPS)
 	  -tclargs $(PS_CORE) \
 	  -tclargs $(TOP_MODE)
 
-carrier_fpga : $(CARRIER_FPGA_BIT)
+$(FPGA_BIN_FILE): $(CARRIER_FPGA_BIT)
+	echo -e "all:\n{\n    $(CARRIER_FPGA_BIT)\n}\n" > bs.bif
+	. $(VIVADO) && bootgen -image bs.bif -arch zynq -process_bitstream bin
+	mv $(CARRIER_FPGA_BIT).bin $@
+
+carrier_fpga : $(FPGA_BIN_FILE)
 .PHONY: carrier_fpga
 
 ################################################################
