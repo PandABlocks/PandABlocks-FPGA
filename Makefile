@@ -223,7 +223,7 @@ hdl_timing: $(TIMING_BUILD_DIRS)
 FPGA_TARGETS = fpga-all fpga-bits carrier_fpga slow_fpga slow_load carrier_ip ps_core \
                fsbl devicetree boot u-boot dts xsct sw_clean u-boot-src ip_clean ps_clean
 
-$(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR) | update_version_file
+$(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR) | update_VER
 	mkdir -p $(FPGA_BUILD_DIR)
 	mkdir -p $(TGT_BUILD_DIR)
 ifdef SKIP_FPGA_BUILD
