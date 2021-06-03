@@ -247,7 +247,7 @@ ifeq ($(wildcard $(PS_PROJ)), )
 else
   edit_ps_bd : 
 	cd $(TGT_BUILD_DIR)/panda_ps; \
-	source $(VIVADO) && vivado -mode $(DEP_MODE) $(PS_PROJ)
+	. $(VIVADO) && vivado -mode $(DEP_MODE) $(PS_PROJ)
 endif
 
 edit_ips: DEP_MODE=gui
@@ -256,7 +256,7 @@ ifeq ($(wildcard $(IP_PROJ)), )
 else
   edit_ips:
 	cd $(TGT_BUILD_DIR)/ip_repo; \
-	source $(VIVADO) && vivado -mode $(DEP_MODE) $(IP_PROJ)
+	. $(VIVADO) && vivado -mode $(DEP_MODE) $(IP_PROJ)
 endif
 
 carrier-fpga_gui: TOP_MODE=gui 
@@ -265,7 +265,7 @@ ifeq ($(wildcard $(TOP_PROJ)), )
 else
   carrier-fpga_gui : 
 	cd $(FPGA_BUILD_DIR); \
-	source $(VIVADO) && vivado -mode $(TOP_MODE) $(TOP_PROJ)
+	. $(VIVADO) && vivado -mode $(TOP_MODE) $(TOP_PROJ)
 endif
 
 .PHONY: edit_ps_bd edit_ips carrier-fpga_gui
