@@ -122,5 +122,3 @@ report_io -verbose -file post_route_report_io.rpt
 #
 write_bitstream -force panda_top.bit
 
-close_project
-exit

@@ -11,6 +11,7 @@ set TARGET_DIR [lindex $argv 1]
 set BUILD_DIR [lindex $argv 2]
 
 # Vivado run mode - gui or batch mode
+# Now unused
 set MODE [lindex $argv 3]
 
 set_param board.repoPaths $TOP/common/configs
@@ -26,9 +27,4 @@ set_property target_simulator ModelSim [current_project]
 foreach IP $TGT_IP {
     source $TOP/ip_defs/$IP.tcl
 }
-
-# Close project if not gui mode
-if {[string match "gui" [string tolower $MODE]]} { return }
-close_project
-exit
 

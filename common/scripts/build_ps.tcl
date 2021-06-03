@@ -56,13 +56,7 @@ set_property "top" "panda_ps_wrapper" $obj
 # Generate Output Files
 set_property GENERATE_SYNTH_CHECKPOINT FALSE [get_files $OUTPUT_FILE] 
 generate_target all [get_files $OUTPUT_FILE]
-#open_bd_design $OUTPUT_FILE
 
 # Export to SDK
-#file mkdir $BUILD_DIR/panda_ps.sdk
 write_hw_platform -fixed -force $BUILD_DIR/panda_ps.xsa
 
-# Close block design and project
-#close_bd_design panda_ps
-close_project
-exit
