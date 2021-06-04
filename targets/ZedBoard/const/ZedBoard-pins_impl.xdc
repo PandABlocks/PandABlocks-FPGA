@@ -122,6 +122,12 @@ set_property PACKAGE_PIN H18 [get_ports {SW[5]}];  # "SW5"
 set_property PACKAGE_PIN H17 [get_ports {SW[6]}];  # "SW6"
 set_property PACKAGE_PIN M15 [get_ports {SW[7]}];  # "SW7"
 
+# ----------------------------------------------------------------------------
+# FMC Expansion Connector - Bank 13
+# ---------------------------------------------------------------------------- 
+set_property PACKAGE_PIN R7 [get_ports {IIC_0_0_scl_io}];  # "FMC-SCL"
+set_property PACKAGE_PIN U7 [get_ports {IIC_0_0_sda_io}];  # "FMC-SDA"
+
 
 # -------------------------------------------------------------------
 # IOSTANDARD VCCOIO Constraints

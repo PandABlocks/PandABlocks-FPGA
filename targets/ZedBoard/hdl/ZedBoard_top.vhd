@@ -51,6 +51,8 @@ port (
     FIXED_IO_ps_clk     : inout std_logic;
     FIXED_IO_ps_porb    : inout std_logic;
     FIXED_IO_ps_srstb   : inout std_logic;
+    IIC_0_0_scl_io      : inout STD_LOGIC;
+    IIC_0_0_sda_io      : inout STD_LOGIC;
 
 	--Zedboard I/Os
 	btnR : in std_logic;
@@ -184,6 +186,22 @@ signal FMC_i  : FMC_input_interface;
 signal FMC_o  : FMC_output_interface := FMC_o_init;
 signal FMC_io : FMC_inout_interface  := FMC_io_init;
 
+component IOBUF is
+port (
+    I : in STD_LOGIC;
+    O : out STD_LOGIC;
+    T : in STD_LOGIC;
+    IO : inout STD_LOGIC
+    );
+end component IOBUF;
+
+signal IIC_0_0_scl_i : STD_LOGIC;
+signal IIC_0_0_scl_o : STD_LOGIC;
+signal IIC_0_0_scl_t : STD_LOGIC;
+signal IIC_0_0_sda_i : STD_LOGIC;
+signal IIC_0_0_sda_o : STD_LOGIC;
+signal IIC_0_0_sda_t : STD_LOGIC;
+
 begin
 
 -- Internal clocks and resets
@@ -191,6 +209,20 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
 
 FCLK_CLK0 <= FCLK_CLK0_PS;
 
+IIC_0_0_scl_iobuf: component IOBUF
+     port map (
+      I => IIC_0_0_scl_o,
+      IO => IIC_0_0_scl_io,
+      O => IIC_0_0_scl_i,
+      T => IIC_0_0_scl_t
+    );
+IIC_0_0_sda_iobuf: component IOBUF
+     port map (
+      I => IIC_0_0_sda_o,
+      IO => IIC_0_0_sda_io,
+      O => IIC_0_0_sda_i,
+      T => IIC_0_0_sda_t
+    );
 
 ---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
@@ -224,6 +256,13 @@ port map (
     FIXED_IO_ps_porb            => FIXED_IO_ps_porb,
     FIXED_IO_ps_srstb           => FIXED_IO_ps_srstb,
     IRQ_F2P                     => IRQ_F2P,
+
+    IIC_0_0_scl_i               => IIC_0_0_scl_i,
+    IIC_0_0_scl_o               => IIC_0_0_scl_o,
+    IIC_0_0_scl_t               => IIC_0_0_scl_t,
+    IIC_0_0_sda_i               => IIC_0_0_sda_i,
+    IIC_0_0_sda_o               => IIC_0_0_sda_o,
+    IIC_0_0_sda_t               => IIC_0_0_sda_t,
 
     M00_AXI_araddr(31 downto 0) => M00_AXI_araddr(31 downto 0),
     M00_AXI_arprot(2 downto 0)  => M00_AXI_arprot(2 downto 0),
