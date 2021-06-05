@@ -56,6 +56,7 @@ SRC_ROOT = $(TGT_BUILD_DIR)/../../src
 DEVTREE_NAME = device-tree-xlnx-$(DEVTREE_TAG)
 DEVTREE_SRC = $(SRC_ROOT)/$(DEVTREE_NAME)
 DEVTREE_DTC = $(TOP)/common/configs/linux-xlnx/scripts/dtc
+PLATFORM_DTS = $(TARGET_DIR)/configs/platform-top.dts
 DEVTREE_DTB = $(IMAGE_DIR)/devicetree.dtb
 DEVTREE_DTS = $(SDK_EXPORT)/dts
 FSBL = $(SDK_EXPORT)/fsbl/executable.elf
@@ -183,7 +184,11 @@ $(U_BOOT_ELF): $(U_BOOT_SRC) $(DEVTREE_DTB)
 	mkdir -p $(U_BOOT_BUILD)
 	. $(VIVADO) && $(MAKE_U_BOOT) distclean
 	. $(VIVADO) && $(MAKE_U_BOOT) $(UBOOT_CONFIG)
-	. $(VIVADO) && $(MAKE_U_BOOT) EXT_DTB=$(DEVTREE_DTB)	
+ifdef UBOOT_USE_EXT_DTB
+	. $(VIVADO) && $(MAKE_U_BOOT) EXT_DTB=$(DEVTREE_DTB)
+else	
+	. $(VIVADO) && $(MAKE_U_BOOT) DEVICE_TREE=$(UBOOT_DTS)
+
 
 $(U_BOOT_SRC): | $(SRC_ROOT)
 	$(call EXTRACT_FILE,$(U_BOOT_NAME).tar.gz,$(MD5_SUM_$(U_BOOT_NAME)))
@@ -197,14 +202,13 @@ u-boot-src: $(U_BOOT_SRC)
 .PHONY: u-boot-src
 # -----------------------------------------------------------------------------------
 
-$(DEVTREE_DTB): $(SDK_EXPORT)
-	cp $(TARGET_DIR)/configs/platform-top.dts \
-	  $(DEVTREE_DTS)/
+$(DEVTREE_DTB): $(SDK_EXPORT) $(PLATFORM_DTS)
+	cp $(PLATFORM_DTS) $(DEVTREE_DTS)/
 	sed -i '/dts-v1/d' $(DEVTREE_DTS)/system-top.dts
-	gcc -I dts -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp -o $(DEVTREE_DTS)/system-top.dts.tmp $(DEVTREE_DTS)/system-top.dts
+	gcc -I dts -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp \
+	  -o $(DEVTREE_DTS)/system-top.dts.tmp $(DEVTREE_DTS)/system-top.dts
 	@echo "Building DEVICE TREE blob ..."
-	$(DEVTREE_DTC) -f -I dts -O dtb -o $@ \
-	  $(DEVTREE_DTS)/platform-top.dts
+	$(DEVTREE_DTC) -f -I dts -O dtb -o $@ $(DEVTREE_DTS)/platform-top.dts
 
 $(FSBL): $(SDK_EXPORT)
 
