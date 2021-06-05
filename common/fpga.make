@@ -56,7 +56,7 @@ SRC_ROOT = $(TGT_BUILD_DIR)/../../src
 DEVTREE_NAME = device-tree-xlnx-$(DEVTREE_TAG)
 DEVTREE_SRC = $(SRC_ROOT)/$(DEVTREE_NAME)
 DEVTREE_DTC = $(TOP)/common/configs/linux-xlnx/scripts/dtc
-PLATFORM_DTS = $(TARGET_DIR)/configs/platform-top.dts
+TARGET_DTS = $(TARGET_DIR)/platform-top.dts
 DEVTREE_DTB = $(IMAGE_DIR)/devicetree.dtb
 DEVTREE_DTS = $(SDK_EXPORT)/dts
 FSBL = $(SDK_EXPORT)/fsbl/executable.elf
@@ -202,13 +202,13 @@ u-boot-src: $(U_BOOT_SRC)
 .PHONY: u-boot-src
 # -----------------------------------------------------------------------------------
 
-$(DEVTREE_DTB): $(SDK_EXPORT) $(PLATFORM_DTS)
-	cp $(PLATFORM_DTS) $(DEVTREE_DTS)/
+$(DEVTREE_DTB): $(SDK_EXPORT) $(TARGET_DTS)
+	cp $(TARGET_DTS) $(DEVTREE_DTS)/
 	sed -i '/dts-v1/d' $(DEVTREE_DTS)/system-top.dts
 	gcc -I dts -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp \
 	  -o $(DEVTREE_DTS)/system-top.dts.tmp $(DEVTREE_DTS)/system-top.dts
 	@echo "Building DEVICE TREE blob ..."
-	$(DEVTREE_DTC) -f -I dts -O dtb -o $@ $(DEVTREE_DTS)/platform-top.dts
+	$(DEVTREE_DTC) -f -I dts -O dtb -o $@ $(DEVTREE_DTS)/$(notdir $TARGET_DTS)
 
 $(FSBL): $(SDK_EXPORT)
 
