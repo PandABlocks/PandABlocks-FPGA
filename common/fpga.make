@@ -56,7 +56,7 @@ SRC_ROOT = $(TGT_BUILD_DIR)/../../src
 DEVTREE_NAME = device-tree-xlnx-$(DEVTREE_TAG)
 DEVTREE_SRC = $(SRC_ROOT)/$(DEVTREE_NAME)
 DEVTREE_DTC = $(TOP)/common/configs/linux-xlnx/scripts/dtc
-TARGET_DTS = $(TARGET_DIR)/platform-top.dts
+TARGET_DTS = $(TARGET_DIR)/target-top.dts
 DEVTREE_DTB = $(IMAGE_DIR)/devicetree.dtb
 DEVTREE_DTS = $(SDK_EXPORT)/dts
 FSBL = $(SDK_EXPORT)/fsbl/executable.elf
@@ -209,7 +209,7 @@ $(DEVTREE_DTB): $(SDK_EXPORT) $(TARGET_DTS)
 	gcc -I dts -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp \
 	  -o $(DEVTREE_DTS)/system-top.dts.tmp $(DEVTREE_DTS)/system-top.dts
 	@echo "Building DEVICE TREE blob ..."
-	$(DEVTREE_DTC) -f -I dts -O dtb -o $@ $(DEVTREE_DTS)/$(notdir $TARGET_DTS)
+	$(DEVTREE_DTC) -f -I dts -O dtb -o $@ $(DEVTREE_DTS)/$(notdir $(TARGET_DTS))
 
 $(FSBL): $(SDK_EXPORT)
 
