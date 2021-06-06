@@ -188,6 +188,7 @@ ifdef UBOOT_USE_EXT_DTB
 	. $(VIVADO) && $(MAKE_U_BOOT) EXT_DTB=$(DEVTREE_DTB)
 else	
 	. $(VIVADO) && $(MAKE_U_BOOT) DEVICE_TREE=$(UBOOT_DTS)
+endif
 
 
 $(U_BOOT_SRC): | $(SRC_ROOT)
