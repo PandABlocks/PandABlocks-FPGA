@@ -69,6 +69,7 @@ end component;
 
 signal FIFO_EMPTY                   : std_logic                                     := '0';                              --! FIFO EMPTY         signal: to      REGISTERS
 signal FIFO_RD_EN                   : std_logic                     := '0';              --! FIFO Read control
+signal FIFO_WR_EN                   : std_logic;
 
 --Register Data
 signal ADC_FIFO_COUNT_DATA          : std_logic_vector(4 downto 0)  := (others => '0');  --! ADC Sample Count Register Data
@@ -177,6 +178,7 @@ end process;
 -- In the ACQ430 the Sample Size is fixed
 SAMPLE_SIZE <= X"08";
 
+FIFO_WR_EN <= FIFO_DATA_WRITE and ADC_FIFO_ENABLE;
 
 --! ADC Buffer FIFO using Xilinx IP Module  to move between ADC Clock Domain and AXI Clock Domain
 FAST_ADC_MEMORY : fmc_acq430_ch_fifo
@@ -185,7 +187,7 @@ port map (
     wr_clk          => clk_DIV,
     rd_clk          => clk_PANDA,
     din             => FIFO_DATAIN,
-    wr_en           => FIFO_DATA_WRITE and ADC_FIFO_ENABLE,
+    wr_en           => FIFO_WR_EN,
     rd_en           => FIFO_RD_EN,
     dout            => ADC_DATAOUT_PCAP,
     full            => ADCCLK_FIFO_FULL,
