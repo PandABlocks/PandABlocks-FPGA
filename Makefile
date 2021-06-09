@@ -215,7 +215,7 @@ ifdef SKIP_FPGA_BUILD
 	@echo Skipping FPGA build
 else
 	@echo building FPGA
-	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
+	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO=$(VIVADO)\
         TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
         TGT_BUILD_DIR=$(TGT_BUILD_DIR) TOP_MODE=$(TOP_MODE) DEP_MODE=$(DEP_MODE) \
 		$@
