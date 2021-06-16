@@ -21,6 +21,11 @@ class TestGenerateApp(unittest.TestCase):
         cls.expected_dir = os.path.join(here, "test_data", "app-expected")
         AppGenerator(app, cls.app_build_dir)
 
+    @classmethod
+    def tearDownClass(cls):
+        if os.path.exists(cls.app_build_dir):
+            shutil.rmtree(cls.app_build_dir)
+
     def assertGeneratedEqual(self, *path):
         with open(os.path.join(self.expected_dir, *path)) as f:
             expected = f.read()

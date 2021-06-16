@@ -85,7 +85,7 @@ class FieldCounter:
 
 class BlockConfig(object):
     """The config for a single Block"""
-    def __init__(self, name, type, number, ini_path, sfp_site=None):
+    def __init__(self, name, type, number, ini_path, site=None):
         # type: (str, str, int, str, Optional[int]) -> None
         # Block names should be UPPER_CASE_NO_TRAILING_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*[A-Z]$", name), \
@@ -102,27 +102,22 @@ class BlockConfig(object):
         #: The Block section of the register address space
         self.block_address = None
         #: If the type == sfp, which site number
-        self.sfp_site = sfp_site        
+        self.site = site
         #: The VHDL entity name, like lut
         self.entity = ini.get(".", "entity")
         #: Is the block soft, sfp, fmc or dma?
         self.type = ini_get(ini, '.', 'type', type)
         #: What type is the sfp/fmc interface?
-        self.interfaces = ini_get(ini, '.', 'interfaces', '').split()
-        #: If the type == sfp, which site number
-        self.sfp_site = sfp_site
-        if self.sfp_site:
-            assert self.type == "sfp", \
-                "Block %s has type %s != sfp but defined sfp_site" % (
-                    self.name, self.type)
-        if self.type == "sfp":
-            assert self.sfp_site, \
-                "Block %s has type sfp but no sfp_site defined" % self.name
+        interfaces = ini_get(ini, '.', 'interfaces', '').split()
+        self.interfaces = self.combineSiteInterfaces(interfaces)
         #: Any constraints?
         self.constraints = ini_get(ini, '.', 'constraints', '').split()
         #: Does the block require IP?
         self.ip = ini_get(ini, '.', 'ip', '').split()
         self.otherconst = ini_get(ini, '.', 'otherconst', '')
+        if (self.otherconst == "mgt_pins"):
+            #: Interfaces need MGT pins constraints
+            self.generateInterfaceConstraints()
         #: The description, like "Lookup table"
         self.description = ini.get(".", "description")
         # If extension required but not specified put entity name here
@@ -155,6 +150,27 @@ class BlockConfig(object):
             if matching == is_a_match:
                 yield field
 
+    def combineSiteInterfaces(self, interfaces):
+        # type: (List(str)) -> list[tuple]
+        # If a site is defined modify the interfaces to include the site number
+        combinedInterfaces=[] # type: List[tuple]
+        for interface in interfaces:
+            if self.site:
+                split=interface.split("_")
+                numberedInterface=split[0]+str(self.site)+"_"+split[1]
+                combinedInterface=(interface,numberedInterface)
+            else:
+                combinedInterface=(interface, interface)
+            combinedInterfaces.append(combinedInterface)
+        return combinedInterfaces
+
+    def generateInterfaceConstraints(self):
+        """Generate MGT Pints constraints"""
+        self.interfaceConstraints=[]
+        for interface in self.interfaces:
+            constraint = interface[1].split("_")[0].upper() + "_MGT_pins.xdc"
+            if constraint not in self.interfaceConstraints:
+                self.interfaceConstraints.append(constraint)
 
 def make_getter_setter(config):
     def getter(self):
@@ -546,3 +562,28 @@ class TimeFieldConfig(FieldConfig):
         self.registers.extend([
             RegisterConfig(self.name + "_L", counters.new_field()),
             RegisterConfig(self.name + "_H", counters.new_field())])
+
+class TargetSiteConfig(object):
+    """The config for the target sites"""
+    #: Regex for matching a type string to this field
+    type_regex = None
+
+    def __init__(self, name, info):
+        # type: (str, int, int, int, str) -> None
+        #: The type of target site (SFP/FMC etc)
+        self.name = name
+        #: The info i in a string such as "3, i, io, o"
+        self.number = int(info.split(", ",1)[0])
+        self.dirs = [] #type List[Str]
+        self.interfaces = [] #type List[Str]
+        self.io_present(info.split(", ",1)[1])
+        
+
+    def io_present(self, io):
+        # type: (str) -> List[str]
+        #: Change a string of form "i, o, io" to a list
+        options=io.split(', ')
+        for option in options:
+            self.dirs.append(option)
+            self.interfaces.append(self.name + "_" + option)
+

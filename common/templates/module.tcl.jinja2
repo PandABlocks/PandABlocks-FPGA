@@ -11,35 +11,27 @@ array set tests {
 }
 
 # remove any simulation files from the project
-remove_files -fileset sim_1 {
+remove_files -fileset sim_1 \
 {% for i in range(number) %}
-    ../hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/hdl_timing.v
-    ../hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/{{
-    loop.index}}{{block.entity}}expected.csv
+    $BUILD_DIR/hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/hdl_timing.v \
+    $BUILD_DIR/hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/{{
+    loop.index}}{{block.entity}}expected.csv \
 {% endfor %}
-}
 
 # add the module vhd code
-add_files -norecurse {
-    {% if block.type != "pcap" %}
-    ../../modules/{{block.entity}}/hdl
-    {% else %}
-    ../../targets/PandABox/hdl/
+add_files -norecurse \
+    {% if block.ip %}
+        {% for ip in block.ip %}
+    $TGT_BUILD_DIR/ip_repo/{{ ip }}/{{ ip }}_sim_netlist.vhdl \
+        {% endfor %}
     {% endif %}
-        {% if block.ip %}
-                {% for ip in block.ip %}
-    ../ip_repo/{{ ip }}/{{ ip }}_funcsim.vhdl
-                {% endfor %}
-        {% endif %}
-}
+    $TOP_DIR/modules/{{block.entity}}/hdl
 
-add_files -fileset sim_1 -norecurse {
+add_files -fileset sim_1 -norecurse \
 {% for i in range(number) %}
-    ../hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/hdl_timing.v
-    ../hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/{{
-    loop.index}}{{block.entity}}expected.csv
+    $BUILD_DIR/hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/hdl_timing.v \
+    $BUILD_DIR/hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/{{
+    loop.index}}{{block.entity}}expected.csv \
 {% endfor %}
-    {% if block.type != "pcap" %}
-    ../../modules/{{block.entity}}/
-    {% endif %}
-}
+    $TOP_DIR/modules/{{block.entity}}/
+

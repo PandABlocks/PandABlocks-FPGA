@@ -98,9 +98,23 @@ signal bit1,bit2,bit3,bit4   : std_logic;
 --signal probe10_slv           : std_logic_vector(15 downto 0);
 --signal probe12_slv           : std_logic_vector(15 downto 0);
 
-signal err_cnt               : std_logic_vector(15 downto 0);
+signal err_cnt              : std_logic_vector(15 downto 0);
+
+signal TXN, TXP             : std_logic;
 
 begin
+
+txnobuf : obuf
+port map (
+    I => TXN,
+    O => SFP_o.TXN_OUT
+);
+
+txpobuf : obuf
+port map (
+    I => TXP,
+    O => SFP_o.TXP_OUT
+);
 
 -- Assign outputs
 
@@ -178,8 +192,8 @@ port map(
     event_clk_i        => event_clk,
     rxp_i              => SFP_i.RXP_IN,
     rxn_i              => SFP_i.RXN_IN,
-    txp_o              => SFP_o.TXP_OUT,
-    txn_o              => SFP_o.TXN_OUT,
+    txp_o              => TXP,
+    txn_o              => TXN,
     rx_link_ok_i       => rx_link_ok_o,
     rxbyteisaligned_o  => rxbyteisaligned_o,
     rxbyterealign_o    => rxbyterealign_o,

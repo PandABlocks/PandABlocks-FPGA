@@ -18,6 +18,7 @@ MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 MAKE_GITHUB_RELEASE = $(PANDA_ROOTFS)/make-github-release.py
 
 BUILD_DIR = $(TOP)/build
+VIVADO_VER = 2020.2
 DEFAULT_TARGETS = zpkg
 
 
@@ -27,21 +28,32 @@ include CONFIG
 
 
 # Now we've loaded the CONFIG compute all the appropriate destinations
-TEST_DIR = $(BUILD_DIR)/tests
-IP_DIR = $(BUILD_DIR)/ip_repo
+TGT_BUILD_DIR = $(BUILD_DIR)/targets/$(TARGET)
+TEST_DIR = $(TGT_BUILD_DIR)/tests
+#IP_DIR = $(TGT_BUILD_DIR)/ip_repo
 APP_BUILD_DIR = $(BUILD_DIR)/apps/$(APP_NAME)
 AUTOGEN_BUILD_DIR = $(APP_BUILD_DIR)/autogen
 FPGA_BUILD_DIR = $(APP_BUILD_DIR)/FPGA
-SLOW_FPGA_BUILD_DIR = $(APP_BUILD_DIR)/SlowFPGA
 
 # The TARGET defines the class of application and is extracted from the first
 # part of the APP_NAME.
 TARGET = $(firstword $(subst -, ,$(APP_NAME)))
 TARGET_DIR = $(TOP)/targets/$(TARGET)
 
+# Location of Vivado project files and default run-modes
+# Need different MODE variables for TOP and PS/IP as PS/IP are prerequisites of TOP 
+PS_PROJ = $(TGT_BUILD_DIR)/panda_ps/panda_ps.xpr
+IP_PROJ = $(TGT_BUILD_DIR)/ip_repo/managed_ip_project/managed_ip_project.xpr
+TOP_PROJ = $(FPGA_BUILD_DIR)/panda_top/carrier_fpga_top.xpr
+TOP_MODE ?= batch
+DEP_MODE ?= batch
+
+# Store the git hash in top-level build directory 
+VER = $(BUILD_DIR)/VERSION
 
 default: $(DEFAULT_TARGETS)
-.PHONY: default
+all: python_tests python_timing hdl_test default boot
+.PHONY: default all
 
 
 # If ALL_APPS not specified in CONFIG, pick up all valid entries in the apps dir
@@ -107,6 +119,20 @@ DIRTY_PRE = $(shell \
 # Something like 85539563
 export SHA := $(DIRTY_PRE)$(shell git rev-parse --short=7 HEAD)
 
+# Trigger rebuild of FPGA targets based on change in the git hash wrt hash stored in build dir
+# If the stored hash value does not exist, or disagrees with the present
+# value, or contains the 'dirty' string then the FPGA build will be considered
+# out-of-date.
+
+.PHONY: update_VER
+update_VER :
+ifeq ($(wildcard $(VER)), ) 
+	echo $(SHA) > $(VER)    
+else
+	if [[ $(SHA) != `cat $(VER)` ]] || [[ $(SHA) == 8* ]]; \
+	then echo $(SHA) > $(VER); \
+	fi
+endif
 
 # ------------------------------------------------------------------------------
 # Documentation
@@ -148,11 +174,14 @@ python_timing:
 # every modules/MODULE/BLOCK.timing.ini
 TIMINGS = $(wildcard modules/*/*.timing.ini)
 
-# MODULE for every modules/MODULE/BLOCK.timing.ini
-MODULES = $(sort $(dir $(patsubst modules/%,%,$(TIMINGS))))
+# MODULE for every modules/MODULE_DIR/BLOCK.timing.ini
+MODULE_DIRS = $(sort $(dir $(patsubst modules/%,%,$(TIMINGS))))
 
-# build/hdl_timing/MODULE for every MODULE
-TIMING_BUILD_DIRS = $(patsubst %/,$(BUILD_DIR)/hdl_timing/%,$(MODULES))
+# Remove trailing backslash from module directory names
+MODULES = $(patsubst %/,%,$(MODULE_DIRS))
+
+# build/hdl_timing/MODULE for every MODULES
+TIMING_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/hdl_timing/%,$(MODULES))
 
 # Make the built app from the ini file
 $(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
@@ -160,31 +189,27 @@ $(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
 	$(PYTHON) -m common.python.generate_hdl_timing $@_tmp $^
 	mv $@_tmp $@
 
-# Pcap timing ini is in the targets directory
-$(BUILD_DIR)/hdl_timing/pcap: targets/$(TARGET)/blocks/pcap/pcap.timing.ini
-	rm -rf $@_tmp $@
-	$(PYTHON) -m common.python.generate_hdl_timing $@_tmp $^
-	mv $@_tmp $@
-
-# Make the hdl_timing folders and run all tests, or specific module by setting
-# the MODULE argument
-hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
+# Make the hdl_timing folders and run all tests, or specific modules by setting
+# the MODULES argument
+hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap carrier_ip
 	rm -rf $(TEST_DIR)/regression_tests
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
 	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
-	 -source ../../tests/hdl/regression_tests.tcl -tclargs $(MODULE)
+	 -source $(TOP)/tests/hdl/regression_tests.tcl \
+	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(MODULES)
 
 # Make the hdl_timing folders and run a single test, set TEST argument
 # E.g. make TEST="clock 1" single_hdl_test
-single_hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap
+single_hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap carrier_ip
 	rm -rf $(TEST_DIR)/single_test
 	rm -rf $(TEST_DIR)/*.jou
 	rm -rf $(TEST_DIR)/*.log
 	mkdir -p $(TEST_DIR)
 	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
-	 -source ../../tests/hdl/single_test.tcl -tclargs $(TEST)
+	 -source $(TOP)/tests/hdl/single_test.tcl -tclargs \
+	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(TEST)
 
 # Make the hdl_timing folders without running tests
 hdl_timing: $(TIMING_BUILD_DIRS)
@@ -194,62 +219,66 @@ hdl_timing: $(TIMING_BUILD_DIRS)
 # ------------------------------------------------------------------------------
 # FPGA build
 
-FPGA_FILE = $(FPGA_BUILD_DIR)/panda_top.bit
-FPGA_BIN_FILE = $(FPGA_BUILD_DIR)/panda_top.bin
-SLOW_FPGA_FILE = $(SLOW_FPGA_BUILD_DIR)/slow_top.bin
+# The following phony targets are passed straight to the FPGA sub-make programme
+FPGA_TARGETS = fpga-all fpga-bits carrier_fpga slow_fpga carrier_ip ps_core \
+               fsbl devicetree boot u-boot dts xsct sw_clean u-boot-src ip_clean ps_clean
 
-FPGA_DEPENDS =
-
-SLOW_FPGA_DEPENDS =
-
-$(FPGA_FILE): $(AUTOGEN_BUILD_DIR) $(FPGA_DEPENDS)
-	mkdir -p $(dir $@)
+$(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR) | update_VER
+	mkdir -p $(FPGA_BUILD_DIR)
+	mkdir -p $(TGT_BUILD_DIR)
 ifdef SKIP_FPGA_BUILD
-	echo Skipping FPGA build
-	touch $@
+	@echo Skipping FPGA build
 else
-	echo building FPGA
-	$(MAKE) -C $(dir $@) -f $(TARGET_DIR)/Makefile VIVADO=$(VIVADO) \
-            TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) BUILD_DIR=$(dir $@) \
-            IP_DIR=$(IP_DIR)
+	@echo building FPGA
+	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
+        TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
+        TGT_BUILD_DIR=$(TGT_BUILD_DIR) TOP_MODE=$(TOP_MODE) DEP_MODE=$(DEP_MODE) \
+		VER=$(VER) $@
 endif
 
-$(FPGA_BIN_FILE): $(FPGA_FILE)
-	cd $(FPGA_BUILD_DIR) && \
-        echo -e "all:\n{\n    $(FPGA_FILE)\n}\n" > bs.bif && \
-        source $(VIVADO) && \
-        bootgen -image bs.bif -arch zynq -process_bitstream bin && \
-        mv $(FPGA_FILE).bin $@
+.PHONY: $(FPGA_TARGETS)
 
-$(SLOW_FPGA_FILE): $(AUTOGEN_BUILD_DIR) $(SLOW_FPGA_DEPENDS)
-	mkdir -p $(dir $@)
-ifdef SKIP_FPGA_BUILD
-	echo Skipping Slow FPGA build
-	touch $@
+# Targets to launch and edit vivado projects in interactive mode
+# Targets : edit_ps_bd ; edit_ips ; carrier-fpga_gui
+
+edit_ps_bd: DEP_MODE=gui 
+ifeq ($(wildcard $(PS_PROJ)), )
+  edit_ps_bd: ps_core
 else
-	echo building SlowFPGA
-	. $(ISE)  &&  \
-        $(MAKE) -C $(dir $@) -f $(TARGET_DIR)/SlowFPGA/Makefile \
-            TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA bin \
-            BUILD_DIR=$(dir $@)
+  edit_ps_bd : 
+	cd $(TGT_BUILD_DIR)/panda_ps; \
+	. $(VIVADO) && vivado -mode $(DEP_MODE) $(PS_PROJ)
 endif
 
-slow-fpga: $(SLOW_FPGA_BUILD_DIR)
-.PHONY: slow-fpga
+edit_ips: DEP_MODE=gui
+ifeq ($(wildcard $(IP_PROJ)), )
+  edit_ips: carrier_ip
+else
+  edit_ips:
+	cd $(TGT_BUILD_DIR)/ip_repo; \
+	. $(VIVADO) && vivado -mode $(DEP_MODE) $(IP_PROJ)
+endif
 
-carrier-fpga: $(FPGA_BUILD_DIR)
-.PHONY: carrier-fpga
+carrier-fpga_gui: TOP_MODE=gui 
+ifeq ($(wildcard $(TOP_PROJ)), )
+  carrier-fpga_gui: carrier_fpga
+else
+  carrier-fpga_gui : 
+	cd $(FPGA_BUILD_DIR); \
+	. $(VIVADO) && vivado -mode $(TOP_MODE) $(TOP_PROJ)
+endif
+
+.PHONY: edit_ps_bd edit_ips carrier-fpga_gui
 
 
 # ------------------------------------------------------------------------------
 # Build installation package
 
-ZPKG_LIST = etc/panda-fpga.list
+ZPKG_LIST = targets/$(TARGET)/etc/panda-fpga.list
 ZPKG_VERSION = $(APP_NAME)-$(GIT_VERSION)
 ZPKG_FILE = $(BUILD_DIR)/panda-fpga@$(ZPKG_VERSION).zpg
 
-ZPKG_DEPENDS += $(FPGA_BIN_FILE)
-ZPKG_DEPENDS += $(SLOW_FPGA_FILE)
+ZPKG_DEPENDS += fpga-bits
 ZPKG_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini
 ZPKG_DEPENDS += $(APP_BUILD_DIR)/extensions
 ZPKG_DEPENDS += $(DOCS_HTML_DIR)
@@ -278,6 +307,7 @@ all-zpkg:
 	$(call MAKE_ALL_APPS, zpkg)
 .PHONY: all-zpkg
 
+#-------------------------------------------------------------------------------
 
 # Push a github release
 github-release: $(ZPKG)
@@ -285,7 +315,6 @@ github-release: $(ZPKG)
 	    $(BUILD_DIR)/*.zpg
 
 .PHONY: github-release
-
 
 # ------------------------------------------------------------------------------
 # Clean
@@ -296,11 +325,8 @@ clean:
 .PHONY: clean
 
 clean-all:
+	-chmod -R +w $(BUILD_DIR)/src
 	rm -rf $(BUILD_DIR) $(DOCS_BUILD_DIR) *.zpg
 	find -name '*.pyc' -delete
 .PHONY: clean-all
 
-# Remove the Xilinx IP
-ip_clean:
-	rm -rf $(IP_DIR)
-.PHONY: ip_clean

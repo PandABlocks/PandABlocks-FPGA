@@ -137,7 +137,8 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
                         sections.append((module, ini, section))
 
     # Also run the PCAP test
-    module = os.path.join(ROOT, "targets/PandABox/blocks/pcap")
+    #module = os.path.join(ROOT, "targets/PandABox/blocks/pcap")
+    module = os.path.join(ROOT, "modules/pcap")
     for f in os.listdir(module):
         if f.endswith(".timing.ini"):
             ini = read_ini(os.path.join(module, f))

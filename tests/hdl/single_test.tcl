@@ -4,27 +4,34 @@
 # where module is the name of the module in lower case eg lut and number is the
 # test number eg 4 (make single_hdl_test TEST= "lut 4")
 
-create_project single_test ../../build/tests/single_test -force -part xc7z030sbg485-1
+set TOP_DIR         [lindex $argv 0]
+set TARGET_DIR      [lindex $argv 1]
+set TGT_BUILD_DIR   [lindex $argv 2]
+set BUILD_DIR       [lindex $argv 3]
+set MODULES_IND     4
 
-if {$argc > 0} {
-    set module [lindex $argv 0]
-    set test   [lindex $argv 0]_[lindex $argv 1]_tb
-    source "../hdl_timing/$module/$module.tcl"
+# Need to source the target specific tcl file to get the FPGA part string
+source $TARGET_DIR/target_incl.tcl
+
+create_project single_test single_test -force -part $FPGA_PART
+
+if {$argc > $MODULES_IND} {
+    set module [lindex $argv $MODULES_IND]
+    set test   [lindex $argv $MODULES_IND]_[lindex $argv $MODULES_IND+1]_tb
+    source $BUILD_DIR/hdl_timing/$module/$module.tcl
 
 } else {
     puts "No argument given, please set TEST input. lut_1_tb running as default"
-    source "../hdl_timing/lut/lut.tcl"
+    source $BUILD_DIR/hdl_timing/lut/lut.tcl
     set test lut_1_tb
 }
 
 
 # Load all the common source files
-add_files -norecurse {
-    ../../common/hdl
-    ../../common/hdl/defines
-    ../../targets/PandABox/hdl/defines
-    ../../tests/hdl/top_defines.vhd
-}
+add_files -norecurse \
+    $TOP_DIR/common/hdl \
+    $TOP_DIR/common/hdl/defines \
+    $TOP_DIR/tests/hdl/top_defines.vhd
 
 
 

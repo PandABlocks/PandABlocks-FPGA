@@ -15,7 +15,7 @@ from argparse import ArgumentParser
 from jinja2 import Environment, FileSystemLoader
 
 from .compat import TYPE_CHECKING
-from .configs import BlockConfig, pad, RegisterCounter
+from .configs import BlockConfig, pad, RegisterCounter, TargetSiteConfig
 from .ini_util import read_ini, ini_get
 import copy
 
@@ -59,8 +59,7 @@ class AppGenerator(object):
         # These will be created when we parse the ini files
         self.fpga_blocks = []  # type: List[BlockConfig]
         self.server_blocks = []  # type: List[BlockConfig]
-        self.sfp_sites = 0
-        self.fmc_sites = 0
+        self.target_sites = [] #type: List[TargetSiteConfig]
         self.parse_ini_files(app)
         self.generate_config_dir()
         self.generate_wrappers()
@@ -98,10 +97,14 @@ class AppGenerator(object):
             target_path = os.path.join("targets", target, "blocks")
             target_ini = read_ini(os.path.join(ROOT, "targets", target, (
                     target + ".target.ini")))
-            self.implement_blocks(target_ini, target_path, "carrier")
-            self.sfp_sites = int(ini_get(target_ini, '.', 'sfp_sites', 0))
-            self.fmc_sites = int(ini_get(target_ini, '.', 'fmc_sites', 0))
-
+            #self.implement_blocks(target_ini, target_path, "carrier")
+            self.implement_blocks(target_ini, "modules", "carrier")
+            target_info = target_ini.items('.')
+            for item in target_info:
+                siteType=item[0]
+                siteInfo=item[1]
+                site=TargetSiteConfig(siteType, siteInfo)
+                self.target_sites.append(site)
         # Implement the blocks for the soft blocks
         self.implement_blocks(app_ini, "modules", "soft")
 
@@ -111,11 +114,20 @@ class AppGenerator(object):
             if section != ".":
                 module_name = ini_get(ini, section, 'module', section.lower())
                 block_type = ini_get(ini, section, 'block', None)
-                sfp_site = ini_get(ini, section, 'sfp_site', None)
-                assert sfp_site is None or int(sfp_site) in range(
-                    1, self.sfp_sites + 1), \
-                    "Block %s in sfp_site %s. Target only has %d sites" % (
-                        section, sfp_site, self.sfp_sites)
+                siteInfo = ini_get(ini, section, 'site', None)
+                # If a site has been specified, is it valid?
+                if siteInfo:
+                    siteType=siteInfo.split(" ")[0]
+                    siteNumber=int(siteInfo.split(" ")[1])
+                    for site in self.target_sites:
+                        if siteType in site.name:
+                            target_sites = site.number
+                    assert siteNumber in range(1, target_sites + 1), \
+                        "Block %s in %s_site %s. Target only has %d sites" % (
+                            section, siteType, siteNumber, target_sites)
+                else:
+                    siteNumber=None;
+
                 if block_type:
                     ini_name = ini_get(
                         ini, section, 'ini', block_type + '.block.ini')
@@ -127,7 +139,7 @@ class AppGenerator(object):
                 ini_path = os.path.join(path, module_name, ini_name)
                 # Type is soft if the block is a softblock and carrier
                 # for carrier block
-                block = BlockConfig(section, type, number, ini_path, sfp_site)
+                block = BlockConfig(section, type, number, ini_path, siteNumber)
                 block.register_addresses(self.counters)
                 self.fpga_blocks.append(block)
                 # Copy the fpga_blocks to the server blocks. Most blocks will
@@ -201,10 +213,10 @@ class AppGenerator(object):
             "descriptions.jinja2", context, config_dir, "description")
         self.expand_template(
             "sim_server.jinja2", context, self.app_build_dir, "sim_server")
-        context = jinja_context(app=self.app_name)
-        self.expand_template(
-            "slow_top.files.jinja2",
-            context, self.app_build_dir, "slow_top.files")
+        #context = jinja_context(app=self.app_name)
+        #self.expand_template(
+        #    "slow_top.files.jinja2",
+        #    context, self.app_build_dir, "slow_top.files")
 
     def generate_wrappers(self):
         """Generate wrappers in hdl"""
@@ -228,11 +240,13 @@ class AppGenerator(object):
         carrier_pos_bus_length = 0
         total_bit_bus_length = 0
         total_pos_bus_length = 0
+        target_sites_num = 0
         # Start carrier_mod_count at 1 for REG and DRV blocks.
         carrier_mod_count = 2
+
+        self.check_interfaces()
+
         for block in self.fpga_blocks:
-            if block.type == "fmc":
-                assert self.fmc_sites > 0, "No FMC on Carrier"
             if block.type in "carrier|pcap":
                 carrier_mod_count = carrier_mod_count + 1
             for field in block.fields:
@@ -258,8 +272,7 @@ class AppGenerator(object):
                 block_names.append(block.entity)
         context = jinja_context(
             fpga_blocks=self.fpga_blocks,
-            sfp_sites=self.sfp_sites,
-            fmc_sites=self.fmc_sites,
+            target_sites=self.target_sites,
             carrier_bit_bus_length=carrier_bit_bus_length,
             carrier_pos_bus_length=carrier_pos_bus_length,
             total_bit_bus_length=total_bit_bus_length,
@@ -272,6 +285,19 @@ class AppGenerator(object):
                              "addr_defines.vhd")
         self.expand_template("top_defines.vhd.jinja2", context, hdl_dir,
                              "top_defines.vhd")
+
+    def check_interfaces(self):
+        "If an interface is required in any blocks, is there a matching interface?"
+        for block in self.fpga_blocks:
+            for moduleInterface in block.interfaces:
+                interfaceMatch = False
+                for site in self.target_sites:
+                    if moduleInterface[0] in site.interfaces:
+                        interfaceMatch = True
+                        target_sites_num = site.number
+                assert interfaceMatch == True, "No %s interface on Carrier" % moduleInterface[0]
+                if target_sites_num > 1:
+                    assert block.site > 0,"No site defined for %s" % block.name
 
     def generate_constraints(self):
         """Generate constraints file for IPs, SFP and FMC constraints"""

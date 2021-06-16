@@ -1,0 +1,14 @@
+vhdl work common_hdl/defines/*.vhd
+vhdl work target_dir/hdl/slow_defines.vhd
+vhdl work autogen_hdl/addr_defines.vhd
+vhdl work autogen_hdl/version.vhd
+vhdl work autogen_hdl/top_defines.vhd
+vhdl work common_hdl/serial_engine_rx.vhd
+vhdl work common_hdl/serial_engine_tx.vhd
+vhdl work common_hdl/serial_engine.vhd
+vhdl work common_hdl/serial_link_detect.vhd
+vhdl work common_hdl/shifter_in.vhd
+vhdl work common_hdl/ssi_clock_gen.vhd
+vhdl work common_hdl/prescaler.vhd
+vhdl work target_dir/SlowFPGA/src/hdl/*.vhd
+

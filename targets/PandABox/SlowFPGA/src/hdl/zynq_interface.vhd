@@ -19,7 +19,7 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 use work.slow_defines.all;
-use work.slow_version.all;
+use work.version.all;
 use work.addr_defines.all;
 
 entity zynq_interface is
@@ -156,7 +156,7 @@ port map (
 );
 
 -- Assemble Status Register List
-STATUS_LIST(SLOW_VERSION) <= SLOW_FPGA_VERSION;
+STATUS_LIST(SLOW_VERSION) <= FPGA_VERSION;
 STATUS_LIST(DCARD1_MODE) <= dcard_pack(OUTENC_PROTOCOL(0), INENC_PROTOCOL(0), DCARD_MODE(0));
 STATUS_LIST(DCARD2_MODE) <= dcard_pack(OUTENC_PROTOCOL(1), INENC_PROTOCOL(1), DCARD_MODE(1));
 STATUS_LIST(DCARD3_MODE) <= dcard_pack(OUTENC_PROTOCOL(2), INENC_PROTOCOL(2), DCARD_MODE(2));
