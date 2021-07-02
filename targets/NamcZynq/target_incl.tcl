@@ -23,6 +23,7 @@ set TGT_IP {                        \
             pulse_queue             \
             fifo_1K32               \
             fifo_1K32_ft            \
+            fmcgtx                  \
             eth_phy                 \
             eth_mac                 \
             system_cmd_fifo         \
