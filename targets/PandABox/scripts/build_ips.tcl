@@ -240,6 +240,8 @@ create_ip -vlnv [get_ipdefs -filter {NAME == ila}] \
 
 set_property -dict [list \
     CONFIG.C_PROBE0_WIDTH {32}  \
+    CONFIG.C_NUM_OF_PROBES {2}  \
+    CONFIG.C_PROBE1_WIDTH {32}  \
     CONFIG.C_DATA_DEPTH {8192}  \
 ] [get_ips ila_32x8K]
 

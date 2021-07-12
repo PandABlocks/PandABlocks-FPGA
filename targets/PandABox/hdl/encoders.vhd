@@ -69,6 +69,15 @@ end entity;
 
 architecture rtl of encoders is
 
+COMPONENT ila_32x8K
+
+PORT (
+	clk : IN STD_LOGIC;
+	probe0 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    probe1 : IN STD_LOGIC_VECTOR(31 DOWNTO 0)
+);
+END COMPONENT  ;
+
 constant c_ABZ_PASSTHROUGH  : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(4,3));
 constant c_DATA_PASSTHROUGH : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(5,3));
 constant c_BISS             : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(2,3));
@@ -569,6 +578,17 @@ outenc_din_filt : entity work.delay_filter port map (
 
 SnffrClk <= B_IN when DCARD_MODE_i(3 downto 1) = DCARD_MON_CTRL else CLK_IN;
 
+ssi_ila : ila_32x8K
+PORT MAP (
+	clk => clk_i,
+	probe0 => posn_ssi_sniffer,
+    probe1(2 downto 0) => INENC_PROTOCOL_i,
+    probe1(10 downto 3) => INENC_BITS_i,
+    probe1(11) => linkup_ssi,
+    probe1(12) => SnffrClk,
+    probe1(13) => DATA_IN,
+    probe1(31 downto 14) => (others => '0')
+);
 
 
 end rtl;
