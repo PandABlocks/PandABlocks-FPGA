@@ -10,7 +10,6 @@ SYSTEM = slow_top
 LIST_FILE = $(SYSTEM).lst
 
 SCR_FILE = $(SRC_DIR)/syn/xilinx/$(SYSTEM).scr
-NETLIST_DIR = $(SRC_DIR)/syn/implementation
 UCF_FILE = $(SRC_DIR)/syn/constr/$(SYSTEM).ucf
 
 POSTSYN_NETLIST = $(SYSTEM).ngc
@@ -43,7 +42,7 @@ TRCE_FLAGS = -e 3 -l 3
 
 slow_bit: refresh_list_file
 	xst -ifn $(SCR_FILE)
-	ngdbuild -sd $(NETLIST_DIR) -uc $(UCF_FILE) $(POSTSYN_NETLIST)
+	ngdbuild -uc $(UCF_FILE) $(POSTSYN_NETLIST)
 	map $(MAP_FLAGS) $(NGD_FILE) -o $(MAPPED_NCD_FILE) $(PCF_FILE)
 	par $(PAR_FLAGS) $(MAPPED_NCD_FILE) $(ROUTED_NCD_FILE) $(PCF_FILE)
 	trce $(TRCE_FLAGS) $(ROUTED_NCD_FILE) $(PCF_FILE) -xml $(TWX_FILE)
