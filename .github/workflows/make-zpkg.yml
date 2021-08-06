@@ -1,0 +1,96 @@
+name: Make Zpkg CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      
+      # Git repositories
+      - name: Checkout Source
+        uses: actions/checkout@v2
+        with:
+          path: PandABlocks-fpga
+
+      - name: Checkout PandABlocks-rootfs
+        uses: actions/checkout@v2
+        with:
+          repository: PandABlocks/PandABlocks-rootfs
+          ref: ci-build
+          path: PandABlocks-rootfs
+
+      - name: Checkout rootfs builder
+        uses: actions/checkout@v2
+        with:
+          repository: dls-controls/rootfs
+          path: rootfs
+      
+      # Mount Vivado s3 bucket
+      - name: Install system dependencies
+        run: sudo bash PandABlocks-fpga/.github/scripts/s3-bucket.sh
+
+      # Tar dependancies
+      - name: Download tar file dependencies
+        run: sudo bash PandABlocks-rootfs/.github/scripts/tar-files.sh
+
+      # System dependencies (required for build)
+      - name: Install system dependencies
+        run: |
+          sudo apt-get install s3fs
+
+      #CONFIG files
+      - name: Generate rootfs CONFIG files - zynq
+        run: |
+          mkdir build
+          sudo bash PandABlocks-rootfs/.github/scripts/config-file-rootfs.sh zynq
+
+      # Verification of files/file structure
+      - name: List workspace files
+        run: |
+          ls ${{ github.workspace }}
+          echo " "
+          ls PandABlocks-fpga
+          echo " "
+          ls PandABlocks-rootfs
+          echo " "
+          ls rootfs
+          echo " "
+          ls tar-files
+          echo " "
+          ls vivado
+          echo " "
+
+      # Build
+      #- name: Make zips
+      #  run: |
+      #    cd PandABlocks-rootfs
+      #    make zips
+
+      # Verification of build files
+      #- name: List build files
+      #  run: ls build
+
+      # Artifacts
+      #- name: Upload deps and boot build files
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: build-files-${{ matrix.platform }}
+      #    path: |
+      #      build/deps-*.zip
+      #      build/boot-*.zip
+
+      # Release 
+      #- name: Release
+      #  uses: softprops/action-gh-release@v1
+        # Only release when a tag is pushed
+      #  if: startsWith(github.ref, 'refs/tags/')
+      #  with:
+      #    files: |
+      #      build/deps-*.zip
+      #      build/boot-*.zip
+      #    body_path: ${{ github.workflow }}/PandABlocks-rootfs/CHANGELOG.rst
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
