@@ -30,7 +30,11 @@ jobs:
       
       # S3 bucket
       - name: Mount Vivado S3 bucket
-        run: sudo bash PandABlocks-fpga/.github/scripts/s3-bucket.sh
+        run: |
+          echo ${{ secrets.VIVADO_S3_PASSWD }} > ${HOME}/.passwd-s3fs
+          chmod 600 ${HOME}/.passwd-s3fs
+          mkdir vivado
+          s3fs dls-controls-fpga-vivado $(GITHUB_WORKSPACE)/vivado -o passwd_file=${HOME}/.passwd-s3fs
 
       # Tar dependancies
       - name: Download tar file dependencies
