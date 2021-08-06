@@ -28,6 +28,11 @@ jobs:
           repository: dls-controls/rootfs
           path: rootfs
       
+      # System dependencies (required for build)
+      - name: Install system dependencies
+        run: |
+          sudo apt-get install s3fs
+      
       # S3 bucket
       - name: Mount Vivado S3 bucket
         run: |
@@ -40,10 +45,7 @@ jobs:
       - name: Download tar file dependencies
         run: sudo bash PandABlocks-rootfs/.github/scripts/tar-files.sh
 
-      # System dependencies (required for build)
-      - name: Install system dependencies
-        run: |
-          sudo apt-get install s3fs
+
 
       #CONFIG files
       - name: Generate rootfs CONFIG files - zynq
