@@ -1,4 +1,4 @@
-name: Make Zpkg CI
+name: Make zpkg CI
 
 on:
   push:
@@ -28,8 +28,8 @@ jobs:
           repository: dls-controls/rootfs
           path: rootfs
       
-      # Mount Vivado s3 bucket
-      - name: Install system dependencies
+      # S3 bucket
+      - name: Mount Vivado S3 bucket
         run: sudo bash PandABlocks-fpga/.github/scripts/s3-bucket.sh
 
       # Tar dependancies

@@ -2,7 +2,7 @@
 # Grants access to the s3 bucket containing vivado
 
 # Store the password locally
-echo ${{ secrets.VIVADO_S3_PASSWD }} > ${HOME}/.passwd-s3fs
+echo $(secrets.VIVADO_S3_PASSWD) > ${HOME}/.passwd-s3fs
 chmod 600 ${HOME}/.passwd-s3fs
 
 #Run s3fs with the vivado bucket
