@@ -1,51 +1,44 @@
 #!/bin/bash
-# Generates config files in PandABlocks-fpga and rootfs repositories and populates them with information.
+# Generates config files in PandABlocks-fpga repository and populates it with information.
 
-PLATFORM=$1
-
-# PandABlocks-rootfs:
+# PandABlocks-FPGA:
 # Create the CONFIG file
-cd PandABlocks-rootfs
+cd PandABlocks-FPGA
 touch CONFIG
-
-#Determine the toolchain to use
-if [ "$PLATFORM" == "zynq" ]; 
-    then
-    TOOLCHAIN=gcc-arm-10.2-2020.11-x86_64-arm-none-linux-gnueabihf
-elif [ "$PLATFORM" == "zynqmp" ]
-    then
-    TOOLCHAIN=gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu
-fi
 
 # Populate the CONFIG file
 cat >> CONFIG <<EOL
-# Location of rootfs builder
-ROOTFS_TOP = \$(GITHUB_WORKSPACE)/rootfs
+# Default build location.  Default is to build in build subdirectory.
+BUILD_DIR = \$(GITHUB_WORKSPACE)/build
 
-# Toolchain used to build the target
-TOOLCHAIN_ROOT = \$(GITHUB_WORKSPACE)/$TOOLCHAIN
+# Development Tool Version
+VIVADO_VER = 2020.2
+
+# Definitions needed for FPGA build
+export VIVADO = /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh
+export ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
+export LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
+
+# Location of rootfs builder.  This needs to be at least version 1.13 and can be
+# downloaded from https://github.com/araneidae/rootfs
+export ROOTFS_TOP = \$(GITHUB_WORKSPACE)/rootfs
 
 # Where to find source files
-TAR_FILES = \$(GITHUB_WORKSPACE)/tar-files
+export TAR_FILES = \$(GITHUB_WORKSPACE)/tar-files
 
-# Target location for build
-PANDA_ROOT = \$(GITHUB_WORKSPACE)/build
+# Path to root filesystem
+PANDA_ROOTFS = \$(GITHUB_WORKSPACE)/PandABlocks-rootfs
+MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 
-# Whether the platform is zynq or zyqnmp
-PLATFORM = $PLATFORM
-EOL
+# Python interpreter for running scripts
+PYTHON = python3
 
-# rootfs:
-# Create the CONFIG file
-cd ../rootfs
-touch CONFIG.local
-# Populate the CONFIG file
-cat >> CONFIG.local <<EOL
-TARGET = minimal
+# Sphinx build for documentation.
+SPHINX_BUILD = sphinx-build
 
-# This is the location where source and build files will be placed.
-ROOTFS_ROOT = \$(GITHUB_WORKSPACE)/build
+# List of default targets to build when running make
+DEFAULT_TARGETS = zpkg
 
-# This is where all of the source tar files will be found.
-TAR_DIRS = \$(GITHUB_WORKSPACE)/tar-files
+# FPGA Application Name
+APP_NAME = PandABox-no-fmc
 EOL

@@ -37,7 +37,6 @@ jobs:
       # S3 bucket
       - name: Mount Vivado S3 bucket
         run: |
-          echo "this is a test" > ${HOME}/file
           echo "$SSH_KEY" > ${HOME}/.passwd-s3fs
           chmod 600 ${HOME}/.passwd-s3fs    
           ls -a ${HOME}      
@@ -52,10 +51,10 @@ jobs:
         run: sudo bash PandABlocks-rootfs/.github/scripts/tar-files.sh
 
       #CONFIG files
-      - name: Generate rootfs CONFIG files - zynq
+      - name: Generate rootfs CONFIG files
         run: |
           mkdir build
-          sudo bash PandABlocks-rootfs/.github/scripts/config-file-rootfs.sh zynq
+          sudo bash PandABlocks-rootfs/.github/scripts/config-file-fpga.sh
 
       # Verification of files/file structure
       - name: List workspace files
@@ -70,9 +69,7 @@ jobs:
           echo " "
           ls tar-files
           echo " "
-          ls ${HOME}
-          echo " "
-          ls vivado
+          ls /tools/Xilinx
           echo " "
 
       # Build
