@@ -36,6 +36,7 @@ jobs:
       # S3 bucket
       - name: Mount Vivado S3 bucket
         run: |
+          touch ${HOME}/.passwd-s3fs
           echo ${{ secrets.VIVADO_S3_PASSWD }} > ${HOME}/.passwd-s3fs
           chmod 600 ${HOME}/.passwd-s3fs
           mkdir vivado
