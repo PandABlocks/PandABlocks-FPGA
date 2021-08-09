@@ -45,8 +45,6 @@ jobs:
       - name: Download tar file dependencies
         run: sudo bash PandABlocks-rootfs/.github/scripts/tar-files.sh
 
-
-
       #CONFIG files
       - name: Generate rootfs CONFIG files - zynq
         run: |
@@ -65,6 +63,8 @@ jobs:
           ls rootfs
           echo " "
           ls tar-files
+          echo " "
+          ls ${HOME}
           echo " "
           ls vivado
           echo " "
