@@ -18,7 +18,7 @@ jobs:
       # System dependencies (required for build)
       - name: Install system dependencies
         run: |
-          sudo pip install sphinx sphinx-rtd-theme docutils==0.16
+          sudo pip install sphinx sphinx-rtd-theme docutils==0.16 matplotlib
 
       #CONFIG files
       - name: Generate fpga CONFIG files
