@@ -1,8 +1,8 @@
 #!/bin/bash
 # Grants access to the s3 bucket containing vivado
 
-mkdir -p ${HOME}/{.config,rclone}
-cd ${HOME}/.config/rclone/
+mkdir -p /home/runner/{.config,rclone}
+cd /home/runner/.config/rclone/
 touch rclone.conf
 
 cat >> rclone.conf <<EOL
