@@ -31,15 +31,17 @@ jobs:
       # System dependencies (required for build)
       - name: Install system dependencies
         run: |
-          sudo apt-get install s3fs
+          sudo apt update
+          sudo apt-get install s3fs libtinfo5
       
       # S3 bucket
       - name: Mount Vivado S3 bucket
         run: |
-          sudo echo "$SSH_KEY" > ${{ github.workspace }}/.passwd-s3fs
-          chmod 600 ${{ github.workspace }}/.passwd-s3fs
-          mkdir vivado
-          s3fs dls-controls-fpga-vivado ${{ github.workspace }}/vivado -o passwd_file= ${{ github.workspace }}/.passwd-s3fs
+          echo "$SSH_KEY" > ${HOME}/.passwd-s3fs
+          chmod 600 ${HOME}/.passwd-s3fs          
+          sudo mkdir -p /tools/Xilinx
+          sudo chmod a+w /tools/Xilinx
+          s3fs dls-controls-fpga-vivado /tools/Xilinx -o passwd_file=${HOME}/.passwd-s3fs -o url=https://s3.echo.stfc.ac.uk -o use_path_request_style
         env:
           SSH_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
