@@ -1,4 +1,4 @@
-name: Make zpkg CI
+name: Tests CI
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
           sudo bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
 
       # Run Tests
-      - name: Make zips
+      - name: Make tests
         run: |
-          cd PandABlocks-rootfs
+          cd PandABlocks-fpga
           make python_tests
