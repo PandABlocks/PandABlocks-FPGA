@@ -37,7 +37,7 @@ jobs:
       # S3 bucket
       - name: Mount Vivado S3 bucket
         run: |
-          mkdir -p /tools/Xilinx
+          sudo mkdir -p /tools/Xilinx
           rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon fpga-vivado:dls-controls-fpga-vivado /tools/Xilinx
           source /path/to/mount/Vivado/2020.2/settings64.sh
           vivado
