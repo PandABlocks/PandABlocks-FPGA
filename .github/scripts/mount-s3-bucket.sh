@@ -17,7 +17,7 @@ endpoint = https://s3.echo.stfc.ac.uk
 EOL
 
 sudo mkdir -p /tools/Xilinx
-rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon fpga-vivado:dls-controls-fpga-vivado /tools/Xilinx
-source /tools/Xilinx/Vivado/2020.2/settings64.sh
+sudo rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon fpga-vivado:dls-controls-fpga-vivado /tools/Xilinx
+sudo source /tools/Xilinx/Vivado/2020.2/settings64.sh
 vivado
-fusermount -u /tools/Xilinx
+sudo fusermount -u /tools/Xilinx
