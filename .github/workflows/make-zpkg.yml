@@ -40,12 +40,12 @@ jobs:
           echo "this is a test" > ${HOME}/file
           echo "$SSH_KEY" > ${HOME}/.passwd-s3fs
           chmod 600 ${HOME}/.passwd-s3fs    
-          ls ${HOME}      
+          ls -a ${HOME}      
           sudo mkdir -p /tools/Xilinx
           sudo chmod a+w /tools/Xilinx
           s3fs dls-controls-fpga-vivado /tools/Xilinx -o passwd_file=${HOME}/.passwd-s3fs -o url=https://s3.echo.stfc.ac.uk -o use_path_request_style
         env:
-          SSH_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+          SSH_KEY: ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
 
       # Tar dependancies
       - name: Download tar file dependencies
