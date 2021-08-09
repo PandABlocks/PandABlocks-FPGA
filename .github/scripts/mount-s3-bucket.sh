@@ -18,6 +18,6 @@ EOL
 
 sudo mkdir -p /tools/Xilinx
 sudo rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon fpga-vivado:dls-controls-fpga-vivado /tools/Xilinx
-sudo source /tools/Xilinx/Vivado/2020.2/settings64.sh
+source /tools/Xilinx/Vivado/2020.2/settings64.sh
 vivado
 sudo fusermount -u /tools/Xilinx
