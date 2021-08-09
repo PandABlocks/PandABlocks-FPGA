@@ -18,7 +18,7 @@ jobs:
       # System dependencies (required for build)
       - name: Install system dependencies
         run: |
-          sudo pip install jinja2
+          sudo pip install jinja2 numpy
 
       #CONFIG files
       - name: Generate rootfs CONFIG files - zynq
