@@ -1,7 +1,11 @@
 #!/bin/bash
 # Grants access to the s3 bucket containing vivado
 
-cat >> ${HOME}/.config/rclone/rclone.conf <<EOL
+mkdir -p ${HOME}/{.config,rclone}
+cd ${HOME}/.config/rclone/
+touch rclone.conf
+
+cat >> rclone.conf <<EOL
 [fpga-vivado]
 type = s3
 provider = Ceph
