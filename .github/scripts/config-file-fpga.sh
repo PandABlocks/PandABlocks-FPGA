@@ -3,7 +3,7 @@
 
 # PandABlocks-FPGA:
 # Create the CONFIG file
-cd PandABlocks-FPGA
+cd PandABlocks-fpga
 touch CONFIG
 
 # Populate the CONFIG file
