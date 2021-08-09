@@ -36,12 +36,7 @@ jobs:
       
       # S3 bucket
       - name: Mount Vivado S3 bucket
-        run: |
-          sudo mkdir -p /tools/Xilinx
-          rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon fpga-vivado:dls-controls-fpga-vivado /tools/Xilinx
-          source /tools/Xilinx/Vivado/2020.2/settings64.sh
-          vivado
-          fusermount -u /tools/Xilinx
+        run: sudo bash PandABlocks-rootfs/.github/scripts/mount-s3-bucket.sh
 
       # Tar dependancies
       - name: Download tar file dependencies
