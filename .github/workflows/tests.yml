@@ -25,6 +25,7 @@ jobs:
         run: |
           mkdir build
           sudo bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
+          cat PandABlocks-fpga/CONFIG
 
       # Run Tests
       - name: Make tests
