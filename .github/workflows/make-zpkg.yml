@@ -36,7 +36,7 @@ jobs:
       
       # S3 bucket
       - name: Mount Vivado S3 bucket
-        run: sudo bash PandABlocks-rootfs/.github/scripts/mount-s3-bucket.sh
+        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh
 
       # Tar dependancies
       - name: Download tar file dependencies
