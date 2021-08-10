@@ -36,7 +36,7 @@ jobs:
       
       # S3 bucket
       - name: Mount Vivado S3 bucket
-        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{secrets.VIVADO_S3_ACCESS_KEY_ID}} ${{secrets.VIVADO_S3_SECRET_ACCESS_KEYD}}
+        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
       # Tar dependancies
       - name: Download tar file dependencies

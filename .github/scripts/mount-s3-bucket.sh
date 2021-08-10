@@ -2,7 +2,7 @@
 # Grants access to the s3 bucket containing vivado
 
 S3_ACCESS_KEY_ID=$1
-S3_SECRET_ACCESS_KEYD=$2
+S3_SECRET_ACCESS_KEY=$2
 
 sudo mkdir -p /tools/Xilinx/Vitis_HLS
 sudo mkdir -p /tools/Xilinx/Vivado
@@ -16,7 +16,7 @@ type = s3
 provider = Ceph
 env_auth = false
 access_key_id = $S3_ACCESS_KEY_ID
-secret_access_key = $S3_SECRET_ACCESS_KEYD
+secret_access_key = $S3_SECRET_ACCESS_KEY
 region =
 endpoint = https://s3.echo.stfc.ac.uk
 EOL
