@@ -36,7 +36,7 @@ jobs:
 
       # Tar dependancies
       - name: Download tar file dependencies
-        run: sudo bash PandABlocks-rootfs/.github/scripts/tar-files.sh  LINUX_ONLY
+        run: sudo bash PandABlocks-rootfs/.github/scripts/tar-files.sh LINUX_ONLY
     
       # S3 bucket
       - name: Mount Vivado S3 bucket
@@ -77,8 +77,9 @@ jobs:
       - name: Build repository
         run: |
           cd PandABlocks-fpga
-          sudo make carrier_fpga
           sudo make boot
+          sudo make carrier_fpga
+
 
       # Verification of build files
       #- name: List build files
