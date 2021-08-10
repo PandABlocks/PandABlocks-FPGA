@@ -1,6 +1,9 @@
 #!/bin/bash
 # Grants access to the s3 bucket containing vivado
 
+S3_ACCESS_KEY_ID=$1
+S3_SECRET_ACCESS_KEYD=$2
+
 sudo mkdir -p /tools/Xilinx/Vitis_HLS
 sudo mkdir -p /tools/Xilinx/Vivado
 mkdir -p /home/runner/.config/rclone
@@ -12,8 +15,8 @@ cat >> rclone.conf <<EOL
 type = s3
 provider = Ceph
 env_auth = false
-access_key_id = "$S3_ACCESS_KEY_ID"
-secret_access_key = "$S3_SECRET_ACCESS_KEYD"
+access_key_id = $S3_ACCESS_KEY_ID
+secret_access_key = $S3_SECRET_ACCESS_KEYD
 region =
 endpoint = https://s3.echo.stfc.ac.uk
 EOL
