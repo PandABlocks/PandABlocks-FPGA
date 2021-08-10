@@ -33,7 +33,11 @@ jobs:
         run: |
           sudo apt update
           sudo apt-get install -y s3fs libtinfo5 rclone
-      
+
+      # Tar dependancies
+      - name: Download tar file dependencies
+        run: sudo bash PandABlocks-rootfs/.github/scripts/tar-files.sh  LINUX_ONLY
+    
       # S3 bucket
       - name: Mount Vivado S3 bucket
         run: |
@@ -43,17 +47,13 @@ jobs:
           sudo s3fs dls-controls-fpga-vivado /tools/Xilinx -o passwd_file=${HOME}/.passwd-s3fs -o url=https://s3.echo.stfc.ac.uk -o use_path_request_style -o ro
         #run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
-      # Tar dependancies
-      - name: Download tar file dependencies
-        run: sudo bash PandABlocks-rootfs/.github/scripts/tar-files.sh
-
       #CONFIG files
       - name: Generate rootfs CONFIG files - zynq
         run: |
           mkdir build
           sudo bash PandABlocks-rootfs/.github/scripts/config-file-rootfs.sh zynq
       
-      - name: Generate fpga CONFIG files
+      - name: Generate fpga CONFIG file
         run: |
           sudo bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
 
@@ -74,10 +74,11 @@ jobs:
       #    echo " "
 
       # Build
-      - name: Make zpkg
+      - name: Build repository
         run: |
           cd PandABlocks-fpga
-          make zpkg
+          make carrier_fpga
+          make boot
 
       # Verification of build files
       #- name: List build files
