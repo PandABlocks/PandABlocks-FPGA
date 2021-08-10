@@ -3,9 +3,10 @@
 
 sudo mkdir -p /tools/Xilinx
 mkdir -p ~/.config/rclone
-touch ~/.config/rclone/rclone.conf
+cd ~/.config/rclone/
+touch rclone.conf
 
-cat >> ~/.config/rclone/rclone.conf <<'EOL'
+cat >> rclone.conf <<'EOL'
 [fpga-vivado]
 type = s3
 provider = Ceph
@@ -16,7 +17,7 @@ region =
 endpoint = https://s3.echo.stfc.ac.uk
 EOL
 
-chmod 600 ~/.config/rclone/rclone.conf
+chmod 600 rclone.conf
 rclone copy -P -l /tools/Xilinx/Vitis_HLS fpga-vivado:dls-controls-fpga-vivado/Vitis_HLS
 rclone copy -P -l /tools/Xilinx/Vivado fpga-vivado:dls-controls-fpga-vivado/Vivado
 
