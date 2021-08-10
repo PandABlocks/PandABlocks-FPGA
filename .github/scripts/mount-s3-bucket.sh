@@ -2,8 +2,8 @@
 # Grants access to the s3 bucket containing vivado
 
 sudo mkdir -p /tools/Xilinx
-mkdir -p ~/.config/rclone
-cd ~/.config/rclone/
+mkdir -p /home/runner/.config/rclone
+cd /home/runner/.config/rclone/
 touch rclone.conf
 
 cat >> rclone.conf <<'EOL'
