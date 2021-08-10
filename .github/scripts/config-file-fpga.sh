@@ -12,7 +12,7 @@ cat >> CONFIG <<EOL
 BUILD_DIR = \$(GITHUB_WORKSPACE)/build
 
 # Development Tool Version
-VIVADO_VER = 2020.2
+export VIVADO_VER = 2020.2
 
 # Definitions needed for FPGA build
 export VIVADO = /tools/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh
