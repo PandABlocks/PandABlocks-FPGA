@@ -64,8 +64,6 @@ jobs:
           echo " "
           ls rootfs
           echo " "
-          ls tar-files
-          echo " "
           sudo ls /tools/Xilinx
           echo " "
 
