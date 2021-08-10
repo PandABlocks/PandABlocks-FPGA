@@ -1,11 +1,11 @@
 #!/bin/bash
 # Grants access to the s3 bucket containing vivado
 
-mkdir -p /home/runner/.config/rclone
-cd /home/runner/.config/rclone/
-touch rclone.conf
+sudo mkdir -p /tools/Xilinx
+mkdir -p ~/.config/rclone
+touch ~/.config/rclone/rclone.conf
 
-cat >> rclone.conf <<'EOL'
+cat >> ~/.config/rclone/rclone.conf <<'EOL'
 [fpga-vivado]
 type = s3
 provider = Ceph
@@ -16,7 +16,10 @@ region =
 endpoint = https://s3.echo.stfc.ac.uk
 EOL
 
-sudo mkdir -p /tools/Xilinx
+chmod 600 ~/.config/rclone/rclone.conf
+rclone copy -P -l /tools/Xilinx/Vitis_HLS fpga-vivado:dls-controls-fpga-vivado/Vitis_HLS
+rclone copy -P -l /tools/Xilinx/Vivado fpga-vivado:dls-controls-fpga-vivado/Vivado
+
 sudo rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon fpga-vivado:dls-controls-fpga-vivado /tools/Xilinx
 source /tools/Xilinx/Vivado/2020.2/settings64.sh
 vivado
