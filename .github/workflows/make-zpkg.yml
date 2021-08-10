@@ -77,8 +77,8 @@ jobs:
       - name: Build repository
         run: |
           cd PandABlocks-fpga
-          make carrier_fpga
-          make boot
+          sudo make carrier_fpga
+          sudo make boot
 
       # Verification of build files
       #- name: List build files
