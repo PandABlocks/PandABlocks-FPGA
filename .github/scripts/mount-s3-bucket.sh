@@ -1,7 +1,7 @@
 #!/bin/bash
 # Grants access to the s3 bucket containing vivado
 
-sudo mkdir -p /tools/Xilinx
+sudo mkdir -p /tools/Xilinx/{Vitis_HLS, Vivado}
 mkdir -p /home/runner/.config/rclone
 cd /home/runner/.config/rclone/
 touch rclone.conf
