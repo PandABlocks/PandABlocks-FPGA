@@ -18,6 +18,8 @@ region =
 endpoint = https://s3.echo.stfc.ac.uk
 EOL
 
+cat rclone.conf
+
 chmod 600 rclone.conf
 rclone copy -P -l /tools/Xilinx/Vitis_HLS fpga-vivado:dls-controls-fpga-vivado/Vitis_HLS
 rclone copy -P -l /tools/Xilinx/Vivado fpga-vivado:dls-controls-fpga-vivado/Vivado
