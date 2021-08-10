@@ -66,6 +66,8 @@ jobs:
           echo " "
           sudo ls /tools/Xilinx
           echo " "
+          sudo ls /tools/Xilinx/Vivado
+          echo " "
 
       # Build
       #- name: Make zips
