@@ -37,7 +37,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get install -y s3fs libtinfo5 rclone
-          python-2.7 -m pip install jinja2 numpy
+          python2.7 -m pip install jinja2 numpy --user
 
       # Tar dependancies
       - name: Download tar file dependencies
