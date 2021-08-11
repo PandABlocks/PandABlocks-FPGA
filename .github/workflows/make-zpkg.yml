@@ -28,16 +28,11 @@ jobs:
           repository: dls-controls/rootfs
           path: rootfs
 
-      - name: Set up Python2.7
-        uses: actions/setup-python@v2
-        with:
-          python-version: '2.7'
-
       # System dependencies (required for build)
       - name: Install system dependencies
         run: |
-          sudo apt-get install -y s3fs libtinfo5 rclone python-jinja2
-          python2.7 -m pip install jinja2 numpy --user
+          sudo apt-get install -y s3fs libtinfo5 rclone
+          pip install jinja2 numpy --user
 
       # Tar dependancies
       - name: Download tar file dependencies
