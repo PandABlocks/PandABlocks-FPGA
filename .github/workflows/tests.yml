@@ -18,6 +18,7 @@ jobs:
       # System dependencies (required for build)
       - name: Install system dependencies
         run: |
+          sudo apt-get install python2.7
           sudo pip install jinja2 numpy
 
       #CONFIG files
