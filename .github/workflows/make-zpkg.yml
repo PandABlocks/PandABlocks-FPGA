@@ -27,13 +27,13 @@ jobs:
         with:
           repository: dls-controls/rootfs
           path: rootfs
-      
+
       # System dependencies (required for build)
       - name: Install system dependencies
         run: |
           sudo apt update
           sudo apt-get install -y s3fs libtinfo5 rclone python2.7
-          sudo pip2 install jinja2 numpy
+          sudo pip install jinja2 numpy
 
       # Tar dependancies
       - name: Download tar file dependencies

@@ -15,11 +15,15 @@ jobs:
         with:
           path: PandABlocks-fpga
       
+      - name: Set up Python2.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: '2.7'
+
       # System dependencies (required for build)
       - name: Install system dependencies
         run: |
-          sudo apt-get install python2.7
-          sudo pip2 install jinja2 numpy
+          pip install jinja2 numpy
 
       #CONFIG files
       - name: Generate fpga CONFIG files
