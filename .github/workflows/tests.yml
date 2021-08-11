@@ -46,4 +46,4 @@ jobs:
           cd PandABlocks-fpga
           make python_tests
           make python_timing
-          make hdl_test
+          sudo make hdl_test
