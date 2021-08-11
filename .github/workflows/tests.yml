@@ -19,7 +19,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get install python2.7
-          sudo pip install jinja2 numpy
+          sudo pip2 install jinja2 numpy
 
       #CONFIG files
       - name: Generate fpga CONFIG files
