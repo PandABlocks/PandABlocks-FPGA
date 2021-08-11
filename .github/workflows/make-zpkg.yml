@@ -28,6 +28,11 @@ jobs:
           repository: dls-controls/rootfs
           path: rootfs
 
+      - name: Set up Python2.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: '2.7'
+
       # System dependencies (required for build)
       - name: Install system dependencies
         run: |
