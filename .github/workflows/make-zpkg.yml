@@ -36,7 +36,6 @@ jobs:
       # System dependencies (required for build)
       - name: Install system dependencies
         run: |
-          sudo apt update
           sudo apt-get install -y s3fs libtinfo5 rclone
           pip install jinja2 numpy
 
