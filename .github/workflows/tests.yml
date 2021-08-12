@@ -23,7 +23,7 @@ jobs:
       # System dependencies (required for build)
       - name: Install system dependencies
         run: |
-          sudo apt-get install s3fs
+          sudo apt-get install s3fs libtinfo5
           pip install jinja2 numpy --user
 
       # S3 bucket

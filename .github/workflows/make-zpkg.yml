@@ -31,7 +31,7 @@ jobs:
       # System dependencies (required for build)
       - name: Install system dependencies
         run: |
-          sudo apt-get install -y s3fs libtinfo5 rclone nethogs
+          sudo apt-get install -y s3fs libtinfo5 rclone
           pip install jinja2 numpy --user
 
       # Tar dependancies
@@ -77,7 +77,7 @@ jobs:
       - name: Build repository
         run: |
           cd PandABlocks-fpga
-          sudo make boot & sudo nethogs
+          sudo make boot
           sudo make carrier_fpga
 
 
