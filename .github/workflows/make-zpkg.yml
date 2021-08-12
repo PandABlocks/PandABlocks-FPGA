@@ -75,7 +75,7 @@ jobs:
           echo " "
           sudo ls /tools/Xilinx
           echo " "
-          sudo ls /tools/Xilinx/Vivado/2020.2
+          sudo ls -a /tools/Xilinx/Vivado/2020.2
           echo " "
 
       # Build
