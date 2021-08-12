@@ -15,7 +15,7 @@ BUILD_DIR = \$(GITHUB_WORKSPACE)/build
 export VIVADO_VER = 2020.2
 
 # Definitions needed for FPGA build
-export VIVADO = tools/Xilinx/Vivado/\$(VIVADO_VER)/settings64.sh
+export VIVADO = \$(GITHUB_WORKSPACE)/tools/Xilinx/Vivado/\$(VIVADO_VER)/settings64.sh
 # export ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
 # export LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
 
