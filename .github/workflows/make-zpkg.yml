@@ -80,7 +80,7 @@ jobs:
       # Build
       - name: Build repository
         run: |
-          sudo bash /tools/Xilinx/Vivado/2020.2/settings64.sh && vivado
+          sudo bash /tools/Xilinx/Vivado/2020.2/settings64.sh && /tools/Xilinx/Vivado/2020.2/vivado
 
 
       # Verification of build files
