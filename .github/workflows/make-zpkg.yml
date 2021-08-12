@@ -78,7 +78,7 @@ jobs:
         run: |
           cd PandABlocks-fpga
           sudo make boot & top
-          sudo make carrier_fpga
+          sudo make carrier_fpga & top
 
 
       # Verification of build files
