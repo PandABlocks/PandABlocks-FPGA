@@ -24,7 +24,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get install s3fs
-          pip install jinja2 numpy
+          pip install jinja2 numpy --user
 
       # S3 bucket
       - name: Mount Vivado S3 bucket
