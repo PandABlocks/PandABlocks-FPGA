@@ -40,12 +40,12 @@ jobs:
     
       # S3 bucket
       - name: Mount Vivado S3 bucket
-        run: |
-          sudo mkdir -p /tools/Xilinx
-          echo ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}:${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }} > ~/.passwd-s3fs
-          chmod 600 ~/.passwd-s3fs
-          sudo s3fs dls-controls-fpga-vivado /tools/Xilinx -o passwd_file=${HOME}/.passwd-s3fs -o url=https://s3.echo.stfc.ac.uk -o use_path_request_style -o ro
-        #run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+        #run: |
+        #  sudo mkdir -p /tools/Xilinx
+        #  echo ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}:${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }} > ~/.passwd-s3fs
+        #  chmod 600 ~/.passwd-s3fs
+        #  sudo s3fs dls-controls-fpga-vivado /tools/Xilinx -o passwd_file=${HOME}/.passwd-s3fs -o url=https://s3.echo.stfc.ac.uk -o use_path_request_style -o ro
+        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
       #CONFIG files
       - name: Generate rootfs CONFIG files - zynq
@@ -58,26 +58,26 @@ jobs:
           sudo bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
 
       # Verification of files/file structure
-      #- name: List workspace files
-      #  run: |
-      #    ls ${{ github.workspace }}
-      #    echo " "
-      #    ls PandABlocks-fpga
-      #    echo " "
-      #    ls PandABlocks-rootfs
-      #    echo " "
-      #    ls rootfs
-      #    echo " "
-      #    sudo ls /tools/Xilinx
-      #    echo " "
-      #    sudo ls /tools/Xilinx/Vivado/2020.2
-      #    echo " "
+      - name: List workspace files
+        run: |
+          ls ${{ github.workspace }}
+          echo " "
+          ls PandABlocks-fpga
+          echo " "
+          ls PandABlocks-rootfs
+          echo " "
+          ls rootfs
+          echo " "
+          sudo ls /tools/Xilinx
+          echo " "
+          sudo ls /tools/Xilinx/Vivado/2020.2
+          echo " "
 
       # Build
-      - name: Build repository
-        run: |
-          cd /tools/Xilinx/Vivado/2020.2/
-          vivado
+      #- name: Build repository
+      #  run: |
+      #    cd /tools/Xilinx/Vivado/2020.2/
+      #    vivado
 
 
       # Verification of build files

@@ -20,11 +20,7 @@ region =
 endpoint = https://s3.echo.stfc.ac.uk
 EOL
 
-#chmod 600 rclone.conf
-#rclone copy -P -l /tools/Xilinx/Vitis_HLS fpga-vivado:dls-controls-fpga-vivado/Vitis_HLS
-#rclone copy -P -l /tools/Xilinx/Vivado fpga-vivado:dls-controls-fpga-vivado/Vivado
-
 rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon fpga-vivado:dls-controls-fpga-vivado /tools/Xilinx
-source /tools/Xilinx/Vivado/2020.2/settings64.sh
+source -s /tools/Xilinx/Vivado/2020.2/settings64.sh
 vivado
 fusermount -u /tools/Xilinx
