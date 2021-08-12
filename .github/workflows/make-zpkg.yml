@@ -83,7 +83,7 @@ jobs:
       # Build
       - name: Build repository
         run: |          
-          sudo -s source /tools/Xilinx/Vivado/2020.2/
+          sudo -s source /tools/Xilinx/Vivado/2020.2/settings64.sh
           sudo bash settings64.sh && sudo -s vivado
 
       # Verification of build files
