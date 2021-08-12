@@ -60,7 +60,7 @@ jobs:
       - name: Generate fpga CONFIG file
         run: |
           sudo bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
-          cat PandABlocks-fpga/.github/scripts/config-file-fpga.sh
+          cat PandABlocks-fpga/CONFIG
 
       # Verification of files/file structure
       - name: List workspace files
