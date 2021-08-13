@@ -75,7 +75,7 @@ jobs:
           echo " "
           sudo ls /tools/Xilinx
           echo " "
-          cat /tools/Xilinx/README
+          sudo cat /tools/Xilinx/README
           echo " "
           sudo ls -a /tools/Xilinx/Vivado/2020.2
           echo " "
