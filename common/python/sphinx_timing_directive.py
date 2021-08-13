@@ -59,7 +59,7 @@ class timing_plot_directive(Directive):
         old_insert_input = self.state_machine.insert_input
         self.state_machine.insert_input = self.catch_insert_input
 
-        plot_directive.plot_directive(
+        plot_directive.PlotDirective(
             self.name, self.arguments, self.options, plot_content, self.lineno,
             self.content_offset, self.block_text, self.state,
             self.state_machine)
