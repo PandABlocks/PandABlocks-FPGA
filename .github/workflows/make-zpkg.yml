@@ -36,7 +36,7 @@ jobs:
 
       # Tar dependancies
       - name: Download tar file dependencies
-        run: PandABlocks-rootfs/.github/scripts/tar-files.sh LINUX_ONLY
+        run: bash PandABlocks-rootfs/.github/scripts/tar-files.sh LINUX_ONLY
     
       # S3 bucket
       - name: Mount Vivado S3 bucket
@@ -56,11 +56,11 @@ jobs:
       - name: Generate rootfs CONFIG files - zynq
         run: |
           mkdir build
-          PandABlocks-rootfs/.github/scripts/config-file-rootfs.sh zynq
+          bash PandABlocks-rootfs/.github/scripts/config-file-rootfs.sh zynq
 
       - name: Generate fpga CONFIG file
         run: |
-          PandABlocks-fpga/.github/scripts/config-file-fpga.sh
+          bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
           cat PandABlocks-fpga/CONFIG
 
       # Verification of files/file structure
