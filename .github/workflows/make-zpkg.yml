@@ -82,13 +82,6 @@ jobs:
           ls PandABlocks-rootfs
           echo " "
           ls rootfs
-          echo " "
-          sudo ls /tools/Xilinx
-          echo " "
-          sudo cat /tools/Xilinx/Vivado/2020.2/settings64.sh
-          echo " "
-          sudo ls -la /tools/Xilinx/Vivado/2020.2
-          echo " "
 
       # Build
       - name: Build repository
