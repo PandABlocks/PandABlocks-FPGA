@@ -40,4 +40,4 @@ jobs:
           make python_tests
           make python_timing
           make autogen
-          make hdl_test
+          make hdl_timing
