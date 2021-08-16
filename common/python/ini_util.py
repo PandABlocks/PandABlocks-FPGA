@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 def read_ini(paths):
     # type: (Union[List[str], str]) -> configparser.SafeConfigParser
-    app_ini = configparser.SafeConfigParser()
+    app_ini = configparser.ConfigParser()
     read_ok = app_ini.read(paths)
     if isinstance(paths, str_):
         paths = [paths]

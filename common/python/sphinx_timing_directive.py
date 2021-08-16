@@ -24,7 +24,7 @@ class timing_plot_directive(Directive):
     optional_arguments = 0
     option_spec = {'path': str, 'section': str, 'table': bool, 'nofigs': bool,
                    'xlabel': str}
-
+    
     def catch_insert_input(self, total_lines, source=None):
         self.total_lines = total_lines
 
