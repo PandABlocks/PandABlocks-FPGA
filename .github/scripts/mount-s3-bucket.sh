@@ -21,7 +21,7 @@ region =
 endpoint = https://s3.echo.stfc.ac.uk
 EOL
 
-chmod 600 ~/.config/rclone/rclone.conf
+chmod 600 rclone.conf
 rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon fpga-vivado:dls-controls-fpga-vivado /tools/Xilinx
 source /tools/Xilinx/Vivado/2020.2/settings64.sh
 vivado
