@@ -102,7 +102,7 @@ class SeqSimulation(BlockSimulation):
 
     def __init__(self):
         # Next time we need to be called
-        self.next_ts = None
+        self.next_ts = 0
         # A table
         self.table = SeqTable()
         # The current line

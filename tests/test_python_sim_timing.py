@@ -53,19 +53,19 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
             # Make instance of <Block>Simulation
             block = getattr(mod, self.block_name.title() + "Simulation")()
             # Start prodding the block and checking its outputs
-            next_ts = None
+            next_ts = 0
             for ts, inputs, outputs in timing_entries(
                     self.timing_ini, self.timing_section):
-                while next_ts is not None and next_ts < ts:
+                while next_ts !=0 and next_ts < ts:
                     last_ts = next_ts
                     next_ts = block.on_changes(last_ts, {})
-                    assert next_ts is None or next_ts > last_ts, \
+                    assert next_ts == 0 or next_ts > last_ts, \
                         "Expected next_ts %d > %d" % (next_ts, last_ts)
                     self.assertEqual(
                         block.changes, {},
                         "%d: Block unexpectedly changed %s" % (
                             last_ts, block.changes))
-                assert next_ts is None or ts <= next_ts, \
+                assert next_ts == 0 or ts <= next_ts, \
                     "Expected ts %d, got ts %d" % (ts, next_ts)
 
                 # Tell the block what changed (as ints, parsing 0x correctly)
