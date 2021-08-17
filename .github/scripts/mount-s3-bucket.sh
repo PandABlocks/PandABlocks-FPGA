@@ -22,4 +22,4 @@ endpoint = https://s3.echo.stfc.ac.uk
 EOL
 
 chmod 600 rclone.conf
-rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon fpga-vivado:dls-controls-fpga-vivado /tools/Xilinx
+rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon --allow-other fpga-vivado:dls-controls-fpga-vivado /tools/Xilinx
