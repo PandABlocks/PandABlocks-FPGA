@@ -74,12 +74,14 @@ jobs:
           ls PandABlocks-rootfs
           echo " "
           ls rootfs
+          echo " "
+          ls /tools/Xilinx/Vivado/2020.2
 
       # Build
       - name: Build repository
         run: |
           source /tools/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch          
-          fusermount -u /tools/Xilinx
+        # fusermount -u /tools/Xilinx
         # make carrier_fpga
         # make boot
 
