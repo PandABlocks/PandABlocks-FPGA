@@ -80,8 +80,8 @@ jobs:
       # Build
       - name: Build repository
         run: |
-          source /tools/Xilinx/Vivado/2020.2/settings64.sh
-          vivado -version          
+          source /tools/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch
+          source /tools/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch        
         # fusermount -u /tools/Xilinx
         # make carrier_fpga
         # make boot

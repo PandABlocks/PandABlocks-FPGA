@@ -23,7 +23,7 @@ jobs:
       # System dependencies (required for build)
       - name: Install system dependencies
         run: |
-          sudo apt-get install s3fs libtinfo5
+          sudo apt-get install rclone libtinfo5
           pip install jinja2 numpy --user
       
       #CONFIG files
@@ -33,6 +33,11 @@ jobs:
           sudo bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
           cat PandABlocks-fpga/CONFIG
 
+      # S3 bucket
+      - name: Mount Vivado S3 bucket
+        run: |
+          sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+
       # Run Tests
       - name: Make tests
         run: |
@@ -41,3 +46,4 @@ jobs:
           make python_timing
           make autogen
           make hdl_timing
+          make hdl_test
