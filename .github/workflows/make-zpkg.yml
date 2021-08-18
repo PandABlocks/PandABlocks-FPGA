@@ -80,6 +80,7 @@ jobs:
       # Build
       - name: Build repository
         run: |
+          cd PandABlocks-fpga
           make carrier_fpga
           make boot
         #  source /tools/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch
