@@ -14,6 +14,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: PandABlocks-fpga
+          # require history to get back to last tag for version number of branches
+          fetch-depth: 0
       
       - name: Set up Python2.7
         uses: actions/setup-python@v2
@@ -45,5 +47,4 @@ jobs:
           make python_tests
           make python_timing
           make autogen
-          make hdl_timing
           make hdl_test

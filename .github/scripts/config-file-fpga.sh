@@ -1,15 +1,9 @@
 #!/bin/bash
-# Generates config files in PandABlocks-fpga repository and populates it with information.
+# Generates and populates PandABlocks-fpga CONFIG file.
 
-# PandABlocks-FPGA:
-# Create the CONFIG file
-cd PandABlocks-fpga
-touch CONFIG
-
-# Populate the CONFIG file
-cat >> CONFIG <<EOL
+cat >> PandABlocks-fpga/CONFIG << 'EOL'
 # Default build location.  Default is to build in build subdirectory.
-BUILD_DIR = \$(GITHUB_WORKSPACE)/build
+BUILD_DIR = $(GITHUB_WORKSPACE)/build
 
 # Development Tool Version
 export VIVADO_VER = 2020.2
@@ -21,13 +15,13 @@ export VIVADO = /tools/Xilinx/Vivado/\$(VIVADO_VER)/settings64.sh
 
 # Location of rootfs builder.  This needs to be at least version 1.13 and can be
 # downloaded from https://github.com/araneidae/rootfs
-export ROOTFS_TOP = \$(GITHUB_WORKSPACE)/rootfs
+export ROOTFS_TOP = $(GITHUB_WORKSPACE)/rootfs
 
 # Where to find source files
-export TAR_FILES = \$(GITHUB_WORKSPACE)/tar-files
+export TAR_FILES = $(GITHUB_WORKSPACE)/tar-files
 
 # Path to root filesystem
-PANDA_ROOTFS = \$(GITHUB_WORKSPACE)/PandABlocks-rootfs
+PANDA_ROOTFS = $(GITHUB_WORKSPACE)/PandABlocks-rootfs
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 
 # Python interpreter for running scripts

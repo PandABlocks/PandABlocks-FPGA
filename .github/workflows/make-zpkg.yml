@@ -60,7 +60,8 @@ jobs:
       - name: Generate rootfs CONFIG files - zynq
         run: |
           mkdir build
-          bash PandABlocks-rootfs/.github/scripts/config-file-rootfs.sh zynq
+          bash PandABlocks-rootfs/.github/scripts/config-file-pbrootfs.sh zynq
+          bash PandABlocks-rootfs/.github/scripts/config-file-rootfs.sh
 
       - name: Generate fpga CONFIG file
         run: |
