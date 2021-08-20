@@ -82,16 +82,18 @@ jobs:
           ls /tools/Xilinx/Vivado/2020.2
 
       # Build
-      - name: Build repository
+      - name: Make carrier_IP
         run: |
           cd PandABlocks-fpga
-          make carrier_fpga
-          make boot
+          make carrier_ip
         #  source /tools/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch
         #  source /tools/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch        
         # fusermount -u /tools/Xilinx
 
-
+      - name: Make ps_core
+        run: |
+          cd PandABlocks-fpga
+          make ps_core
 
       # Verification of build files
       #- name: List build files
