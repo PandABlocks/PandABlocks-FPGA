@@ -44,5 +44,6 @@ jobs:
       
       - name: Make hdl_test
         run: |   
+          cd PandABlocks-fpga
           make autogen
           make hdl_test
