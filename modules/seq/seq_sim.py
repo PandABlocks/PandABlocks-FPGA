@@ -102,7 +102,7 @@ class SeqSimulation(BlockSimulation):
 
     def __init__(self):
         # Next time we need to be called
-        self.next_ts = 0
+        self.next_ts = None
         # A table
         self.table = SeqTable()
         # The current line
@@ -308,5 +308,3 @@ class SeqSimulation(BlockSimulation):
             return ts + 1
         elif self.next_ts and self.next_ts > ts:
             return self.next_ts
-        else:
-            return ts + 1
