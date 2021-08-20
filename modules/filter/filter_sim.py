@@ -57,7 +57,7 @@ class FilterSimulation(BlockSimulation):
     def average(self, ts):
         self.nsamples = ts - self.ts_sum_start - 1  # we don't count the trig ts
         self.sum += self.INP * (ts - self.ts_sum - 1)
-        out = self.sum / self.nsamples
+        out = self.sum // self.nsamples
         self.avgqueue.append((ts + 35, out))
         self.sum += self.INP  # add the input under the trigger to the next bin
 

@@ -222,7 +222,7 @@ class FieldConfig(object):
     def __init__(self, name, number, type, description, extra_config):
         # type: (str, int, str, str, Dict[str, str]) -> None
         # Field names should be UPPER_CASE_OR_NUMBERS
-        assert re.match("[A-Z][0-9A-Z_\.]*$", name), \
+        assert re.match(r"[A-Z][0-9A-Z_\.]*$", name), \
             "Expected FIELD_NAME, got %r" % name
         #: The name of the field relative to it's Block, like INPA
         self.name = name
@@ -577,7 +577,7 @@ class TargetSiteConfig(object):
         self.dirs = [] #type List[Str]
         self.interfaces = [] #type List[Str]
         self.io_present(info.split(", ",1)[1])
-        
+
 
     def io_present(self, io):
         # type: (str) -> List[str]
