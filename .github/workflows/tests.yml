@@ -16,17 +16,12 @@ jobs:
           path: PandABlocks-fpga
           # require history to get back to last tag for version number of branches
           fetch-depth: 0
-      
-      - name: Set up Python2.7
-        uses: actions/setup-python@v2
-        with:
-          python-version: '2.7'
 
       # System dependencies (required for build)
       - name: Install system dependencies
         run: |
           sudo apt-get install rclone libtinfo5
-          pip install jinja2 numpy --user
+          pip install jinja2 numpy
       
       #CONFIG files
       - name: Generate fpga CONFIG files

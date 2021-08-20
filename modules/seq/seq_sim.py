@@ -157,25 +157,25 @@ class SeqSimulation(BlockSimulation):
         else:
             return 1
 
-    def current_time1(self) -> int:
+    def current_time1(self):
         return self.prescale() * self.current_line.time1
 
-    def current_time2(self) -> int:
+    def current_time2(self):
         if self.current_line.time2 == 0:
             return self.prescale()
         else:
             return self.prescale() * self.current_line.time2
 
-    def next_time1(self) -> int:
+    def next_time1(self):
         return self.prescale() * self.next_line().time1
 
-    def next_time2(self) -> int:
+    def next_time2(self):
         if self.next_line().time2 == 0:
             return self.prescale()
         else:
             return self.prescale() * self.next_line().time2
 
-    def on_changes(self, ts: int, changes) -> int:
+    def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
         # This is a ConfigBlock object

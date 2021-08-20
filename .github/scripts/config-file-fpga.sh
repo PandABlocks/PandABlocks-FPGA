@@ -25,7 +25,7 @@ PANDA_ROOTFS = $(GITHUB_WORKSPACE)/PandABlocks-rootfs
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 
 # Python interpreter for running scripts
-PYTHON = python
+PYTHON = python3
 
 # Sphinx build for documentation.
 SPHINX_BUILD = sphinx-build
