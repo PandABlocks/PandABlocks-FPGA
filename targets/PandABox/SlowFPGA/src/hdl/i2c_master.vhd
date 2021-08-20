@@ -252,3 +252,4 @@ scl_t <= '0' when (scl_ena = '1' and scl_clk = '0') else '1';
 sda_t <= '0' when (sda_ena_n = '0') else '1';
 
 END logic;
+

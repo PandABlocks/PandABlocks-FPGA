@@ -16,10 +16,10 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
-use work.support.all;
-use work.top_defines.all;
+--use work.support.all;
+--use work.top_defines.all;
 use work.slow_defines.all;
-use work.addr_defines.all;
+--use work.addr_defines.all;
 
 library unisim;
 use unisim.vcomponents.all;

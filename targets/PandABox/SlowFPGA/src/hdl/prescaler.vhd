@@ -23,9 +23,9 @@ signal clk_cnt      : unsigned(31 downto 0) := (others => '0');
 begin
 
 --
--- Generate QENC clk defined by the prescaler
+-- 32-bit up counter rolling over PERIOD
 --
-qenc_clk_gen : process(clk_i)
+process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then

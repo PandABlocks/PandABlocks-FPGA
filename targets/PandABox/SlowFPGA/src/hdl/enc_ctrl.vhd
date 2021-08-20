@@ -16,9 +16,9 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
-use work.top_defines.all;
+--use work.top_defines.all;
 use work.slow_defines.all;
-use work.addr_defines.all;
+--use work.addr_defines.all;
 
 entity enc_ctrl is
 generic (
