@@ -14,7 +14,7 @@ $(SLOW_BIN): $(TARGET_DIR)/SlowFPGA/SlowFPGA.make $(VER) | $(VERSION_FILE)
 	echo building SlowFPGA
 	source $(ISE)  &&  \
 	  $(MAKE) -C $(SLOW_FPGA_BUILD_DIR) -f $< \
-	  TOP=$(TOP) SRC_DIR=$(TARGET_DIR)/SlowFPGA AUTOGEN=$(AUTOGEN) \
+	  TOP=$(TARGET_DIR)/SlowFPGA AUTOGEN=$(AUTOGEN) \
 	  bin
 
 slow_fpga : $(SLOW_BIN)
