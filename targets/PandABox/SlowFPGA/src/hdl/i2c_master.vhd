@@ -75,20 +75,23 @@ BEGIN
   ack_error_o <= ack_error;
 
   --generate the timing for the bus clock (scl_clk) and the data clock (data_clk)
-  PROCESS(clk, reset)
+  PROCESS(clk)
     CONSTANT divider  :  INTEGER := (input_clk/bus_clk)/4; --number of clocks in 1/4 cycle of scl
     VARIABLE count  :  INTEGER RANGE 0 TO divider*4;  --timing for clock generation
   BEGIN
+    
+  IF rising_edge(clk) THEN
     IF(reset = '1') THEN                --reset asserted
       stretch <= '0';
       count := 0;
-    ELSIF(clk'EVENT AND clk = '1') THEN
+    ELSE
       data_clk_prev <= data_clk;          --store previous value of data clock
       IF(count = divider*4-1) THEN        --end of timing cycle
         count := 0;                       --reset timer
       ELSIF(stretch = '0') THEN           --clock stretching from slave not detected
         count := count + 1;               --continue clock generation timing
       END IF;
+
       if count < divider then               --first 1/4 cycle of clocking
         scl_clk <= '0';
         data_clk <= '0';
@@ -103,16 +106,19 @@ BEGIN
           stretch <= '0';
         END IF;
         data_clk <= '1';
-     else 
-       scl_clk <= '1';                      --last 1/4 cycle of clocking
-       data_clk <= '0';
-     end if;
+      else 
+        scl_clk <= '1';                      --last 1/4 cycle of clocking
+        data_clk <= '0';
+      end if;
     END IF;
+  END IF;
   END PROCESS;
 
   --state machine and writing to sda during scl low (data_clk rising edge)
-  PROCESS(clk, reset)
+  PROCESS(clk)
   BEGIN
+
+  IF rising_edge(clk) THEN
     IF(reset = '1') THEN                 --reset asserted
       state <= ready;                      --return to initial state
       busy <= '1';                         --indicate not available
@@ -121,8 +127,7 @@ BEGIN
       ack_error <= '0';                    --clear acknowledge error flag
       bit_cnt <= 7;                        --restarts data bit counter
       data_rd <= "00000000";               --clear data read port
-    ELSIF(clk'EVENT AND clk = '1') THEN
-      IF(data_clk = '1' AND data_clk_prev = '0') THEN  --data clock rising edge
+    ELSIF(data_clk = '1' AND data_clk_prev = '0') THEN --data clock rising edge
         CASE state IS
           WHEN ready =>                      --idle state
             IF(ena = '1') THEN               --transaction requested
@@ -214,7 +219,7 @@ BEGIN
             busy <= '0';                     --unflag busy
             state <= ready;                  --go to idle state
         END CASE;
-      ELSIF(data_clk = '0' AND data_clk_prev = '1') THEN  --data clock falling edge
+    ELSIF(data_clk = '0' AND data_clk_prev = '1') THEN  --data clock falling edge
         CASE state IS
           WHEN start =>
             IF(scl_ena = '0') THEN                  --starting new transaction
@@ -236,8 +241,8 @@ BEGIN
           WHEN OTHERS =>
             NULL;
         END CASE;
-      END IF;
     END IF;
+  END IF;
   END PROCESS;
 
   --set sda output
