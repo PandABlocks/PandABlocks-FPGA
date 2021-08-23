@@ -47,12 +47,12 @@ jobs:
       # S3 bucket
       - name: Mount Vivado S3 bucket
         #run: |
-        #  sudo mkdir -p /tools/Xilinx
-        #  sudo chmod -R a+rw /tools
-        #  sudo ls -l /tools
+        #  sudo mkdir -p /scratch/Xilinx
+        #  sudo chmod -R a+rw /scratch
+        #  sudo ls -l /scratch
         #  echo ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}:${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }} > ~/.passwd-s3fs
         #  chmod 600 ~/.passwd-s3fs
-        #  s3fs dls-controls-fpga-vivado /tools/Xilinx -o passwd_file=${HOME}/.passwd-s3fs -o url=https://s3.echo.stfc.ac.uk -o use_path_request_style -o ro        
+        #  s3fs dls-controls-fpga-vivado /scratch/Xilinx -o passwd_file=${HOME}/.passwd-s3fs -o url=https://s3.echo.stfc.ac.uk -o use_path_request_style -o ro        
         run: |
           sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
@@ -79,21 +79,22 @@ jobs:
           echo " "
           ls rootfs
           echo " "
-          ls /tools/Xilinx/Vivado/2020.2
+          ls /scratch/Xilinx/Vivado/2020.2
 
       # Build
-      - name: Make carrier_IP
+      - name: Make boot
         run: |
           cd PandABlocks-fpga
-          make carrier_ip
-        #  source /tools/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch
-        #  source /tools/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch        
-        # fusermount -u /tools/Xilinx
+          make boot
+          
+        #  source /scratch/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch
+        #  source /scratch/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch        
+        # fusermount -u /scratch/Xilinx
 
-      - name: Make ps_core
+      - name: Make carrier_fpga
         run: |
           cd PandABlocks-fpga
-          make ps_core
+          make carrier_fpga
 
       # Verification of build files
       #- name: List build files
@@ -103,20 +104,30 @@ jobs:
       #- name: Upload deps and boot build files
       #  uses: actions/upload-artifact@v2
       #  with:
-      #    name: build-files-${{ matrix.platform }}
+      #    name: fgpa-zpkg-${{ matrix.platform }}
       #    path: |
-      #      build/deps-*.zip
-      #      build/boot-*.zip
+      #      build/panda-fpga-*.zpg
 
-      # Release 
-      #- name: Release
-      #  uses: softprops/action-gh-release@v1
-        # Only release when a tag is pushed
-      #  if: startsWith(github.ref, 'refs/tags/')
-      #  with:
-      #    files: |
-      #      build/deps-*.zip
-      #      build/boot-*.zip
-      #    body_path: ${{ github.workflow }}/PandABlocks-rootfs/CHANGELOG.rst
-      #  env:
-      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #release:
+  #  needs: [build]
+  #  runs-on: ubuntu-latest
+  #  # make a release on every tag
+  #  if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+  #  steps:
+  #    - uses: actions/download-artifact@v2
+  #      with:
+  #        name: |
+  #          fgpa-zpkg-zynq
+  #          fgpa-zpkg-zynqmp
+  #        path:
+  #          artifacts
+
+  #    - name: Github Release
+  #      # We pin to the SHA, not the tag, for security reasons.
+  #      # https://docs.github.com/en/actions/learn-github-actions/security-hardening-for-github-actions#using-third-party-actions
+  #      uses: softprops/action-gh-release@2d72d869af3bf23602f9593a1e3fd739b80ac1eb  # v0.1.12
+  #      with:
+  #        files: artifacts/*
+  #        body: See [Changelog](CHANGELOG.rst) for more details
+  #      env:
+  #        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
