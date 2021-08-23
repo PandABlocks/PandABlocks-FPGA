@@ -17,10 +17,8 @@ use ieee.numeric_std.all;
 
 library work;
 use work.support.all;
---use work.top_defines.all;
 use work.slow_defines.all;
 use work.slow_version.all;
---use work.addr_defines.all;
 
 entity zynq_interface is
 generic (
@@ -32,8 +30,8 @@ port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
     -- Encoder Daughter Card Control and Status Registers
-    INENC_PROTOCOL      : buffer std3_array(3 downto 0);
-    OUTENC_PROTOCOL     : buffer std3_array(3 downto 0);
+    INENC_PROTOCOL_o    : out std3_array(3 downto 0);
+    OUTENC_PROTOCOL_o   : out std3_array(3 downto 0);
     DCARD_MODE          : in  std4_array(3 downto 0);
     TEMP_MON            : in std32_array(4 downto 0);
     VOLT_MON            : in std32_array(7 downto 0);
@@ -78,7 +76,13 @@ signal rd_val               : std_logic;
 signal busy                 : std_logic;
 signal wr_start             : std_logic;
 
+signal INENC_PROTOCOL       : std3_array(3 downto 0);
+signal OUTENC_PROTOCOL      : std3_array(3 downto 0);
+
 begin
+
+INENC_PROTOCOL_o <= INENC_PROTOCOL;
+OUTENC_PROTOCOL_o <= OUTENC_PROTOCOL;
 
 --------------------------------------------------------------------------
 -- Serial Interface TX/RX Engine IP

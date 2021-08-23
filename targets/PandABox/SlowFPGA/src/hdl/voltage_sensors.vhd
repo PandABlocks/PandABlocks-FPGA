@@ -18,7 +18,6 @@ library unisim;
 use unisim.vcomponents.all;
 
 library work;
---use work.top_defines.all;
 use work.slow_defines.all;
 use work.support.all;
 
@@ -129,7 +128,7 @@ port map (
     data_wr     => std_logic_vector(i2c_data_wr),
     busy        => i2c_busy,
     data_rd     => i2c_data_rd,
-    ack_error   => i2c_ack_error,
+    ack_error_o   => i2c_ack_error,
     sda         => sda_din,
     scl         => scl_din,
     sda_t       => sda_t,

@@ -13,13 +13,9 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
 
 library work;
---use work.support.all;
---use work.top_defines.all;
 use work.slow_defines.all;
---use work.addr_defines.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -52,11 +48,11 @@ port (
     shift_reg_latch_o   : out   std_logic;
     shift_reg_oe_n_o    : out   std_logic;
     -- I2C SFP Interface
-    i2c_sfp_sda         : inout std_logic;
-    i2c_sfp_scl         : inout std_logic;
+    --i2c_sfp_sda         : inout std_logic;
+    --i2c_sfp_scl         : inout std_logic;
     -- I2C Si570 XO Interface
-    i2c_clock_sda       : inout std_logic;
-    i2c_clock_scl       : inout std_logic;
+    --i2c_clock_sda       : inout std_logic;
+    --i2c_clock_scl       : inout std_logic;
     -- I2C Temperature Sensor Interface
     i2c_temp_sda        : inout std_logic;
     i2c_temp_scl        : inout std_logic;
@@ -78,8 +74,6 @@ signal OUTENC_PROTOCOL      : std3_array(3 downto 0);
 signal DCARD_MODE           : std4_array(3 downto 0);
 signal TEMP_MON             : std32_array(4 downto 0);
 signal VOLT_MON             : std32_array(7 downto 0);
-signal init_reset_n         : std_logic;
-signal init_reset           : std_logic;
 signal reset_n              : std_logic;
 signal reset                : std_logic;
 signal ttlin_term           : std_logic_vector(5 downto 0);
@@ -147,8 +141,8 @@ port map (
     enc_leds_o          => enc_leds,
     outenc_conn_o       => OUTENC_CONN,
 
-    INENC_PROTOCOL      => INENC_PROTOCOL,
-    OUTENC_PROTOCOL     => OUTENC_PROTOCOL,
+    INENC_PROTOCOL_o      => INENC_PROTOCOL,
+    OUTENC_PROTOCOL_o     => OUTENC_PROTOCOL,
     DCARD_MODE          => DCARD_MODE,
     TEMP_MON            => TEMP_MON,
     VOLT_MON            => VOLT_MON

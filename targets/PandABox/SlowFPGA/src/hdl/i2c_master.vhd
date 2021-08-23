@@ -38,24 +38,23 @@ ENTITY i2c_master IS
     bus_clk   : INTEGER := 400_000     -- I2C clock [Hz]
 );   --speed the i2c bus (scl) will run at in Hz
   PORT(
-    clk       : IN     STD_LOGIC;
-    reset     : IN     STD_LOGIC;
-    ena       : IN     STD_LOGIC;                    --latch in command
-    addr      : IN     STD_LOGIC_VECTOR(6 DOWNTO 0); --address of target slave
-    rw        : IN     STD_LOGIC;                    --'0' is write, '1' is read
-    data_wr   : IN     STD_LOGIC_VECTOR(7 DOWNTO 0); --data to write to slave
-    busy      : OUT    STD_LOGIC;                    --transaction in progress
-    data_rd   : OUT    STD_LOGIC_VECTOR(7 DOWNTO 0); --data read from slave
-    ack_error : BUFFER STD_LOGIC;                    --acknowledge from slave
-    sda       : in     std_logic;
-    scl       : in     std_logic;
-    sda_t     : out    std_logic;
-    scl_t     : out    std_logic
+    clk         : IN     STD_LOGIC;
+    reset       : IN     STD_LOGIC;
+    ena         : IN     STD_LOGIC;                    --latch in command
+    addr        : IN     STD_LOGIC_VECTOR(6 DOWNTO 0); --address of target slave
+    rw          : IN     STD_LOGIC;                    --'0' is write, '1' is read
+    data_wr     : IN     STD_LOGIC_VECTOR(7 DOWNTO 0); --data to write to slave
+    busy        : OUT    STD_LOGIC;                    --transaction in progress
+    data_rd     : OUT    STD_LOGIC_VECTOR(7 DOWNTO 0); --data read from slave
+    ack_error_o : OUT    STD_LOGIC;                    --acknowledge from slave
+    sda         : in     std_logic;
+    scl         : in     std_logic;
+    sda_t       : out    std_logic;
+    scl_t       : out    std_logic
 );
 END i2c_master;
 
 ARCHITECTURE logic OF i2c_master IS
-CONSTANT divider  :  INTEGER := (input_clk/bus_clk)/4; --number of clocks in 1/4 cycle of scl
 TYPE machine IS(ready, start, command, slv_ack1, wr, rd, slv_ack2, mstr_ack, stop); --needed states
 SIGNAL state         : machine;                        --state machine
 SIGNAL data_clk      : STD_LOGIC;                      --data clock for sda
@@ -69,10 +68,15 @@ SIGNAL data_tx       : STD_LOGIC_VECTOR(7 DOWNTO 0);   --latched in data to writ
 SIGNAL data_rx       : STD_LOGIC_VECTOR(7 DOWNTO 0);   --data received from slave
 SIGNAL bit_cnt       : INTEGER RANGE 0 TO 7 := 7;      --tracks bit number in transaction
 SIGNAL stretch       : STD_LOGIC := '0';               --identifies if slave is stretching scl
+signal ack_error     : STD_LOGIC;
+
 BEGIN
+
+  ack_error_o <= ack_error;
 
   --generate the timing for the bus clock (scl_clk) and the data clock (data_clk)
   PROCESS(clk, reset)
+    CONSTANT divider  :  INTEGER := (input_clk/bus_clk)/4; --number of clocks in 1/4 cycle of scl
     VARIABLE count  :  INTEGER RANGE 0 TO divider*4;  --timing for clock generation
   BEGIN
     IF(reset = '1') THEN                --reset asserted
@@ -85,25 +89,24 @@ BEGIN
       ELSIF(stretch = '0') THEN           --clock stretching from slave not detected
         count := count + 1;               --continue clock generation timing
       END IF;
-      CASE count IS
-        WHEN 0 TO divider-1 =>            --first 1/4 cycle of clocking
-          scl_clk <= '0';
-          data_clk <= '0';
-        WHEN divider TO divider*2-1 =>    --second 1/4 cycle of clocking
-          scl_clk <= '0';
-          data_clk <= '1';
-        WHEN divider*2 TO divider*3-1 =>  --third 1/4 cycle of clocking
-          scl_clk <= '1';                 --release scl
-          IF(scl = '0') THEN              --detect if slave is stretching clock
-            stretch <= '1';
-          ELSE
-            stretch <= '0';
-          END IF;
-          data_clk <= '1';
-        WHEN OTHERS =>                    --last 1/4 cycle of clocking
-          scl_clk <= '1';
-          data_clk <= '0';
-      END CASE;
+      if count < divider then               --first 1/4 cycle of clocking
+        scl_clk <= '0';
+        data_clk <= '0';
+      elsif count < divider*2 then           --second 1/4 cycle of clocking
+        scl_clk <= '0';
+        data_clk <= '1';
+      elsif count < divider*3 then          --third 1/4 cycle of clocking
+        scl_clk <= '1';                     --release scl
+        IF(scl = '0') THEN                  --detect if slave is stretching clock
+          stretch <= '1';
+        ELSE
+          stretch <= '0';
+        END IF;
+        data_clk <= '1';
+     else 
+       scl_clk <= '1';                      --last 1/4 cycle of clocking
+       data_clk <= '0';
+     end if;
     END IF;
   END PROCESS;
 
