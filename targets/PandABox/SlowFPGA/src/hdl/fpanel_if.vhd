@@ -12,14 +12,9 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
 
 library work;
 use work.support.all;
---use work.slow_defines.all;
-
-library unisim;
-use unisim.vcomponents.all;
 
 entity fpanel_if is
 port (

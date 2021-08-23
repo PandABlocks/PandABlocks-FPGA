@@ -36,25 +36,6 @@ end voltage_sensors;
 
 architecture rtl of voltage_sensors is
 
-component icon
-port (
-    CONTROL0 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0)
-);
-end component;
-
-component ila
-port (
-    CONTROL : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
-    CLK     : IN STD_LOGIC;
-    DATA    : IN STD_LOGIC_VECTOR(63 DOWNTO 0);
-    TRIG0   : IN STD_LOGIC_VECTOR(7 DOWNTO 0)
-);
-end component;
-
-signal DATA                 : STD_LOGIC_VECTOR(63 DOWNTO 0);
-signal TRIG0                : STD_LOGIC_VECTOR(7 DOWNTO 0);
-signal CONTROL0             : STD_LOGIC_VECTOR(35 DOWNTO 0);
-
 type i2c_fsm_t is (INIT, SET_ENABLE, SET_CONTROL, READ_DATA, NEXT_CHANNEL);
 
 -- Array of Slave addresses
@@ -282,31 +263,5 @@ begin
         end if;
     end if;
 end process;
-
---icon_inst : icon
---port map (
---    CONTROL0    => CONTROL0
---);
---
---ila_inst : ila
---port map (
---    CONTROL             => CONTROL0,
---    CLK                 => clk_i,
---    DATA                => DATA,
---    TRIG0               => TRIG0
---);
---
---TRIG0(0) <= scl_din;
---TRIG0(1) <= sda_din;
---TRIG0(2) <= i2c_start;
---TRIG0(7 downto 3) <= (others => '0');
---
---DATA(0) <= scl_din;
---DATA(1) <= sda_din;
---DATA(2) <= i2c_start;
---DATA(3) <= i2c_ena;
---DATA(4) <= i2c_busy;
---DATA(20 downto 5) <= data_rd;
---DATA(63 downto 21) <= (others => '0');
 
 end rtl;

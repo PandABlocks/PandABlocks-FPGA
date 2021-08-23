@@ -63,25 +63,6 @@ signal scl_din          : std_logic;
 signal sda_t            : std_logic;
 signal scl_t            : std_logic;
 
-component icon
-port (
-    CONTROL0 : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0)
-);
-end component;
-
-component ila
-port (
-    CONTROL : INOUT STD_LOGIC_VECTOR(35 DOWNTO 0);
-    CLK     : IN STD_LOGIC;
-    DATA    : IN STD_LOGIC_VECTOR(63 DOWNTO 0);
-    TRIG0   : IN STD_LOGIC_VECTOR(7 DOWNTO 0)
-);
-end component;
-
-signal CONTROL0         : STD_LOGIC_VECTOR(35 DOWNTO 0);
-signal DATA             : STD_LOGIC_VECTOR(63 DOWNTO 0);
-signal TRIG0            : STD_LOGIC_VECTOR(7 DOWNTO 0);
-
 signal slave_index      : natural range 0 to 4;
 
 begin
