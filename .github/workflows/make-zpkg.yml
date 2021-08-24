@@ -118,7 +118,7 @@ jobs:
       #  with:
       #    name: fgpa-zpkg-${{ matrix.platform }}
       #    path: |
-      #      build/panda-fpga-*.zpg
+      #      build/panda-fpga@*.zpg
 
   #release:
   #  needs: [build]
