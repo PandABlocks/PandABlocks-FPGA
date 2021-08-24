@@ -33,6 +33,7 @@ jobs:
       # System dependencies
       - name: Install system dependencies
         run: |
+          sudo ln -s /usr/bin/make /usr/bin/gmake
           sudo apt-get install -y libtinfo5 rclone dbus-x11
           pip install jinja2 numpy
 
