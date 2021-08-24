@@ -20,4 +20,4 @@ endpoint = https://s3.echo.stfc.ac.uk
 EOL
 
 chmod 600 /home/runner/.config/rclone/rclone.conf
-rclone mount --links --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon --allow-other --vfs-cache-mode full fpga-vivado:dls-controls-fpga-xilinx /scratch/Xilinx
+rclone mount -l --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon --allow-other --vfs-cache-mode full fpga-vivado:dls-controls-fpga-xilinx /scratch/Xilinx
