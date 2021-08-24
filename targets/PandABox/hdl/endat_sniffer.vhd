@@ -28,6 +28,17 @@ end endat_sniffer;
 
 architecture rtl of endat_sniffer is
 
+
+component ila_32x8K
+
+    port (
+	    clk    : in std_logic;
+	    probe0 : IN std_logic_vector(31 downto 0)
+        );
+        
+end component;
+
+
 -- Ticks in terms of internal serial clock period.
 constant SYNCPERIOD         : natural := 125 * 5; -- 5usec
 
@@ -70,8 +81,23 @@ signal health_endat_sniffer : std_logic_vector(31 downto 0);
 signal mc_count             : unsigned(4 downto 0); 
 signal mode_comm            : std_logic_vector(5 downto 0);
 
+signal probe0               : std_logic_vector(31 downto 0);
+signal sm_cnt               : std_logic_vector(3 downto 0);
 
 begin
+
+
+
+probe0(31) <= endat_clock_fall;   -- 1 bit
+probe0(30) <= endat_clock_rise;   -- 1 bit
+probe0(29) <= endat_data;         -- 1 bit
+probe0(28) <= data_valid;         -- 1 bit
+probe0(27) <= nError_valid;       -- 1 bit
+probe0(26) <= crc_valid;          -- 1 bit
+probe0(25 downto 22) <= sm_cnt;   -- 4 bits         
+probe0(21) <= endat_frame;        -- 1 bit
+probe0(20 downto 0) <= data(20 downto 0); 
+
 
 -- Per EnDat Protocol BP3
 uBITS        <= unsigned(BITS);
@@ -137,8 +163,11 @@ begin
             -- Bidirectional interface for Position Encoders 
             case SM_ENDAT is
             
+                -- Do i need to detect the falling edge ?????????????????
+            
                 -- Firts clock (2T) 
                 when STATE_T2_CLK1 =>
+                    sm_cnt <= "0001";
                     mc_count <= (others => '0');
                     if (endat_clock_rise = '1') then     
                         SM_ENDAT <= STATE_T2_CLK2;
@@ -146,6 +175,7 @@ begin
 
                 -- Second clock (2T)
                 when STATE_T2_CLK2 =>
+                    sm_cnt <= "0010";
                     if (endat_clock_rise = '1') then
                         SM_ENDAT <= STATE_MODE_COMM;
                     end if;
@@ -154,6 +184,7 @@ begin
                 -- The encoders transmit position value 
                 -- (Additional data isnt support)          
                 when STATE_MODE_COMM =>
+                    sm_cnt <= "0011";
                     if (endat_clock_rise = '1') then
                         mc_count <= mc_count +1;
                         mode_comm(to_integer(mc_count)) <= endat_dat_i;
@@ -166,18 +197,21 @@ begin
 
                 -- First of the second clock
                 when STATE_T2_CLK1_1 => 
+                    sm_cnt <= "0100";
                     if (endat_clock_rise = '1') then
                         SM_ENDAT <= STATE_T2_CLK1_2;
                     end if;
 
                 -- Second of the second clock
                 when STATE_T2_CLK1_2 =>
+                    sm_cnt <= "0101";
                     if (endat_clock_rise = '1') then
                         SM_ENDAT <= STATE_START;
                     end if;    
                     
                 -- Start bit 
                 when STATE_START =>
+                    sm_cnt <= "0110";
                     -- The data should be low before the start bit 
                     -- then goes high to indicate the start bit
                     if (endat_clock_fall = '1' and endat_data = '1') then    
@@ -186,6 +220,7 @@ begin
 
                 -- Data range = Status + Position value + CRC 
                 when STATE_DATA_RANGE => 
+                    sm_cnt <= "0111";
                     if (data_count = DATA_BITS) then
                         SM_ENDAT <= STATE_RECOVER_TIME_tm;
                     end if;    
@@ -194,12 +229,15 @@ begin
                 -- EnDat 2.1 : 10 to 30 us
                 -- EnDat 2.2 : 10 to 30 us or 1.25 to 3.75 us (fc > 1 MHz)
                 when STATE_RECOVER_TIME_tm =>
+                    sm_cnt <= "1000";
+                    -- falling edge detection ?????????????????????????
                     if (endat_sck_i = '1' and endat_dat_i = '1') then
                         SM_ENDAT <= STATE_RECOVER_TIME_tR;
                     end if;
                 
                 -- tR Max 500ns
                 when STATE_RECOVER_TIME_tR => 
+                    sm_cnt <= "1001";
                     if (endat_sck_i = '1' and endat_dat_i = '0') then
                         SM_ENDAT <= STATE_T2_CLK1;
                     end if;                        
@@ -265,6 +303,14 @@ begin
     end if;
 end process ps_endat_result;
 
+
+
+
+ila_inst : entity work.ila_32x8K
+    port map (
+	        clk => clk_i,
+            probe0 => probe0
+            );
 
 --------------------------------------------------------------------------
 -- Shift position data in

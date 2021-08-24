@@ -133,10 +133,10 @@ begin
 end process;
 
 -- Interleave Input and Output Controls to the Daughter Card Pins.
-dcard_ctrl1_io(11 downto 0) <= CONV_PADS(inenc_ctrl(0), outenc_ctrl(0));
-dcard_ctrl2_io(11 downto 0) <= CONV_PADS(inenc_ctrl(1), outenc_ctrl(1));
-dcard_ctrl3_io(11 downto 0) <= CONV_PADS(inenc_ctrl(2), outenc_ctrl(2));
-dcard_ctrl4_io(11 downto 0) <= CONV_PADS(inenc_ctrl(3), outenc_ctrl(3));
+dcard_ctrl1_io(11 downto 0) <= CONV_PADS(inenc_ctrl(0), outenc_ctrl(0), DCARD_MODE_i(0));
+dcard_ctrl2_io(11 downto 0) <= CONV_PADS(inenc_ctrl(1), outenc_ctrl(1), DCARD_MODE_i(1));
+dcard_ctrl3_io(11 downto 0) <= CONV_PADS(inenc_ctrl(2), outenc_ctrl(2), DCARD_MODE_i(2));
+dcard_ctrl4_io(11 downto 0) <= CONV_PADS(inenc_ctrl(3), outenc_ctrl(3), DCARD_MODE_i(3));
 
 DCARD_MODE <= DCARD_MODE_i;
 
