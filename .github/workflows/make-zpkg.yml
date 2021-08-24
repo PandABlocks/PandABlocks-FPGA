@@ -33,7 +33,7 @@ jobs:
       # System dependencies
       - name: Install system dependencies
         run: |
-          sudo apt-get install -y libtinfo5 rclone
+          sudo apt-get install -y libtinfo5 rclone dbus-x11
           pip install jinja2 numpy
 
       # Tar dependancies
