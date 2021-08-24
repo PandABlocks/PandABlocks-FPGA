@@ -37,6 +37,8 @@ jobs:
           sudo apt-get install -y libtinfo5 dbus-x11
           pip install jinja2 numpy
 
+      # Installation of go & temporary rclone patch applied until this issue is resolved
+      # https://github.com/rclone/rclone/issues/2975
       - name: Install go
         run: |
           curl -OL https://golang.org/dl/go1.17.linux-amd64.tar.gz
@@ -49,6 +51,7 @@ jobs:
           mkdir rclone          
           cd rclone
           git clone https://github.com/dinoboy197/rclone.git
+          ls
           go build
           ./rclone version
 
