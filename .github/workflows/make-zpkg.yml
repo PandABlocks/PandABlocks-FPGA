@@ -47,11 +47,9 @@ jobs:
           go version
 
       - name: Install rclone with --links patch
-        run: |
-          mkdir rclone          
-          cd rclone
+        run: |       
           git clone https://github.com/dinoboy197/rclone.git
-          ls
+          cd rclone
           go build
           ./rclone version
 
