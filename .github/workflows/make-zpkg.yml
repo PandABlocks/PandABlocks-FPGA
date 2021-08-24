@@ -48,7 +48,7 @@ jobs:
 
       - name: Install rclone with --links patch
         run: |
-          go get -v https://github.com/dinoboy197/rclone.git
+          go install -v github.com/dinoboy197/rclone@traack_symlinks
           rclone version
 
 
