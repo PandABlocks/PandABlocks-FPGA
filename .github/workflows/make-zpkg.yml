@@ -100,17 +100,13 @@ jobs:
           echo " "
           ls /scratch/Xilinx/Vivado/2020.2
           echo " "
-          ls /scratch/Xilinx/Vivado/2020.2/gnu
+          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/
           echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32
+          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/usr/libexec/
           echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin
+          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/usr/libexec/arm-xilinx-eabi/
           echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi
-          echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/
-          echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/usr/libexec/arm-xilinx-eabi/lib/ld-linux-x86-64.so.2
+          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/usr/libexec/arm-xilinx-eabi/lib/
 
 
       # Build
