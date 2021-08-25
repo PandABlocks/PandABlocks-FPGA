@@ -52,6 +52,7 @@ jobs:
           cd rclone
           make
           ls ~/go/bin
+          chmod +x ~/go/bin/rclone
           . ~/go/bin/rclone
           rclone version
 
