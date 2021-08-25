@@ -99,12 +99,27 @@ jobs:
           ls rootfs
           echo " "
           ls /scratch/Xilinx/Vivado/2020.2
+          echo " "
+          ls /scratch/Xilinx/Vivado/2020.2/gnu
+          echo " "
+          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32
+          echo " "
+          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin
+          echo " "
+          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi
+          echo " "
+          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/
+
 
       # Build
       - name: Make boot
         run: |
           cd PandABlocks-fpga
           make boot
+          
+        #  source /scratch/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch
+        #  source /scratch/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch        
+        # fusermount -u /scratch/Xilinx
 
       - name: Make carrier_fpga
         run: |
