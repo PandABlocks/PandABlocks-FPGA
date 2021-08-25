@@ -51,6 +51,7 @@ jobs:
           git clone https://github.com/dinoboy197/rclone.git
           cd rclone
           make
+          ls ~/go/bin/rclone
           rclone version
 
 
