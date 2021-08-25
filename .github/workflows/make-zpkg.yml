@@ -50,10 +50,10 @@ jobs:
         run: |       
           git clone https://github.com/dinoboy197/rclone.git
           cd rclone
-          go build
+          make
           ls ~/go/bin
-          chmod +x ~/go/bin/rclone
-          . ~/go/bin/rclone
+          chmod +x /usr/bin/rclone
+          . /usr/bin/rclone
           rclone version
 
 
