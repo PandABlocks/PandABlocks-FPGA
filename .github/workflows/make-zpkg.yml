@@ -109,6 +109,8 @@ jobs:
           ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi
           echo " "
           ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/
+          echo " "
+          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/usr/libexec/arm-xilinx-eabi/lib/ld-linux-x86-64.so.2
 
 
       # Build
