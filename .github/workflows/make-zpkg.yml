@@ -34,29 +34,27 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo ln -s make /usr/bin/gmake
-          sudo apt-get install -y libtinfo5 dbus-x11
+          sudo apt-get install -y libtinfo5 dbus-x11 rclone
           pip install jinja2 numpy
 
       # Installation of go & temporary rclone patch applied until this issue is resolved
       # https://github.com/rclone/rclone/issues/2975
-      - name: Install go
-        run: |
-          curl -OL https://golang.org/dl/go1.17.linux-amd64.tar.gz
-          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.17.linux-amd64.tar.gz
-          export PATH=$PATH:/usr/local/go/bin
-          go version
+      #- name: Install go
+      #  run: |
+      #    curl -OL https://golang.org/dl/go1.17.linux-amd64.tar.gz
+      #    sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.17.linux-amd64.tar.gz
+      #    export PATH=$PATH:/usr/local/go/bin
+      #    go version
 
-      - name: Install rclone with --links patch
-        run: |       
-          git clone https://github.com/dinoboy197/rclone.git
-          cd rclone
-          make
-          ./rclone version
-          ls ~/go/bin
-          chmod +x ~/go/bin/rclone
-          . ~/go/bin/rclone
-          
-
+      #- name: Install rclone with --links patch
+      #  run: |       
+      #    git clone https://github.com/dinoboy197/rclone.git
+      #    cd rclone
+      #    make
+      #    ./rclone version
+      #    ls ~/go/bin
+      #    chmod +x ~/go/bin/rclone
+      #    . ~/go/bin/rclone
 
       # Tar dependancies
       - name: Download tar file dependencies
@@ -101,27 +99,12 @@ jobs:
           ls rootfs
           echo " "
           ls /scratch/Xilinx/Vivado/2020.2
-          echo " "
-          ls /scratch/Xilinx/Vivado/2020.2/gnu
-          echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32
-          echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin
-          echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi
-          echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/
-
 
       # Build
       - name: Make boot
         run: |
           cd PandABlocks-fpga
           make boot
-          
-        #  source /scratch/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch
-        #  source /scratch/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch        
-        # fusermount -u /scratch/Xilinx
 
       - name: Make carrier_fpga
         run: |
