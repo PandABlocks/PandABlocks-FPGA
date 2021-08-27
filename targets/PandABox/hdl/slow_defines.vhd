@@ -1,3 +1,7 @@
+-- NB: This file must be kept in sync between both the PandABlocks-FPGA
+-- and PandABlocks-slowFPGA repository. Changing this file requires an 
+-- update to the major version number.
+
 package slow_defines is
 
 --
