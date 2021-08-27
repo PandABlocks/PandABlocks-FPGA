@@ -1,3 +1,0 @@
-vhdl work src_dir/*.vhd
-vhdl work slow_version.vhd
-
