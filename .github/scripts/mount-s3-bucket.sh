@@ -6,9 +6,9 @@
 
 sudo mkdir -p /scratch/Xilinx
 sudo chmod a+w /scratch
-mkdir -p /home/runner/.config/rclone
+mkdir -p ~/.config/rclone
 
-cat >> /home/runner/.config/rclone/rclone.conf <<EOL
+cat >> ~/.config/rclone/rclone.conf <<EOL
 [fpga-vivado]
 type = s3
 provider = Ceph
@@ -19,5 +19,5 @@ region =
 endpoint = https://s3.echo.stfc.ac.uk
 EOL
 
-chmod 600 /home/runner/.config/rclone/rclone.conf
+chmod 600 ~/.config/rclone/rclone.conf
 rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon --allow-other --vfs-cache-mode full fpga-vivado:dls-controls-fpga-xilinx /scratch/Xilinx
