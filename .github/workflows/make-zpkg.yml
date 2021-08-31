@@ -100,16 +100,20 @@ jobs:
           echo " "
           ls /scratch/Xilinx/Vivado/2020.2
           echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/
-          echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/usr/libexec/
-          echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/usr/libexec/arm-xilinx-eabi/
-          echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/usr/libexec/arm-xilinx-eabi/lib/
+        #  ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/
+        #  echo " "
+        #  ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/usr/libexec/
+        #  echo " "
+        #  ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/usr/libexec/arm-xilinx-eabi/
+        #  echo " "
+        #  ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/usr/libexec/arm-xilinx-eabi/lib/
 
+      # Build      
+      - name: Make carrier_fpga
+        run: |
+          cd PandABlocks-fpga
+          make carrier_fpga
 
-      # Build
       - name: Make boot
         run: |
           cd PandABlocks-fpga
@@ -118,11 +122,6 @@ jobs:
         #  source /scratch/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch
         #  source /scratch/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch        
         # fusermount -u /scratch/Xilinx
-
-      - name: Make carrier_fpga
-        run: |
-          cd PandABlocks-fpga
-          make carrier_fpga
 
       # Verification of build files
       #- name: List build files
