@@ -103,6 +103,8 @@ jobs:
           echo " "
           ls rootfs
           echo " "
+          ls /scratch/Xilinx
+          echo " "
           ls /scratch/Xilinx/Vivado/2020.2
           echo " "
           ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/ld-linux-x86-64.so.2
