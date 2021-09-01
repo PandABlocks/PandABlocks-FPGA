@@ -17,11 +17,13 @@
     {% for field in block.fields %}
     {# field is a FieldConfig object #}
     {# insert its name and type (including subtype and options) #}
+        {% if field.no_config != 1 %}
     {{ pad(field.name) }} {{ field.config_line() }}
-        {% for line in field.extra_config_lines %}
+            {% for line in field.extra_config_lines %}
         {# some fields line enum and table have extra lines, insert them here #}
         {{ line }}
-        {% endfor %}
+            {% endfor %}
+        {% endif %}
     {% endfor %}
     {# insert a blank line between blocks for readability #}
 

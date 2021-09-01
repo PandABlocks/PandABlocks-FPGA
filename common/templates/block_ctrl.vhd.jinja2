@@ -23,7 +23,7 @@ port (
     {% for register in field.numbered_registers() %}
         {% if field in filter_fields("read.*") %}
     {{ pad(register.name) }} : in std_logic_vector(31 downto 0);
-        {% elif field in filter_fields ("table|time|(param|write).*")%}
+        {% elif field in filter_fields ("table|time|extension_write|(param|write).*")%}
     {{ pad(register.name) }} : out std_logic_vector(31 downto 0);
     {{ pad(register.name + "_wstb") }} : out std_logic;
         {% endif %}

@@ -127,6 +127,8 @@ class BlockConfig(object):
         #: All the child fields
         self.fields = FieldConfig.from_ini(
             ini, number)  # type: List[FieldConfig]
+        #: List of WriteExtension fields in the block
+        self.write_extensions=[]
         #: Are there any suffixes?
         self.block_suffixes = ini_get(ini, '.', 'block_suffixes', '').split()
 
@@ -172,6 +174,19 @@ class BlockConfig(object):
             if constraint not in self.interfaceConstraints:
                 self.interfaceConstraints.append(constraint)
 
+    def generateWriteExtensions(self):
+        # Iterate through the fields and add any with writeExtension type to the list
+        for field in self.fields:
+            if field.type == "extension_write":
+                w_extension = (field.name, field.registers[0].number)
+                self.write_extensions.append(w_extension)
+        # Iterate through the fields, when a writeExtension is specified find its number
+        for field in self.fields:
+            for extension in field.extension_write.split(" "):
+                for w_extension, num in self.write_extensions:
+                    if w_extension == extension:
+                        field.extension_nums.append(num)
+
 def make_getter_setter(config):
     def getter(self):
         return getattr(self, "_" + config.name, 0)
@@ -190,7 +205,7 @@ def make_getter_setter(config):
 
 class RegisterConfig(object):
     """A low level register name and number backing this field"""
-    def __init__(self, name, number=-1, prefix='', extension=''):
+    def __init__(self, name, number=-1, prefix='', extension='', write_extension=''):
         # type: (str, int, str, str) -> None
         #: The name of the register, like INPA_DLY
         self.name = name.replace('.', '_')
@@ -200,6 +215,8 @@ class RegisterConfig(object):
         self.prefix = prefix
         #: For an extension field, the register path
         self.extension = extension
+        #: If there is a write extension
+        self.write_extension = write_extension
 
 
 class BusEntryConfig(object):
@@ -241,6 +258,9 @@ class FieldConfig(object):
         #: Store the extension register info
         self.extension = extra_config.pop("extension", None)
         self.extension_reg = extra_config.pop("extension_reg", None)
+        self.extension_write = extra_config.pop("extension_write", "")
+        self.extension_nums = []
+        self.no_config = 0
         #: All the other extra config items
         self.extra_config_lines = list(self.parse_extra_config(extra_config))
 
@@ -266,6 +286,8 @@ class FieldConfig(object):
             if r.number >= 0:
                 result.append(str(r.number))
             if r.extension:
+                if r.write_extension:
+                    result.extend(['W', str(' '.join(str(num) for num in self.extension_nums))])
                 result.extend(['X', r.extension])
             return ' '.join(result)
 
@@ -465,8 +487,17 @@ class ParamFieldConfig(FieldConfig):
             address = counters.new_field()
 
         self.registers.append(
-            RegisterConfig(self.name, address, extension=self.extension))
+            RegisterConfig(self.name, address, extension=self.extension, write_extension=self.extension_write))
 
+class ExtensionWriteFieldConfig(ParamFieldConfig):
+    """These fields act in the same way as write record from the VHDL generation 
+    point of view, but do not have a config entry"""
+    type_regex = "extension_write"
+
+    def register_addresses(self, counters):
+        # type: (FieldCounter) -> None
+        super(ExtensionWriteFieldConfig, self).register_addresses(counters)
+        self.no_config=1
 
 class EnumParamFieldConfig(ParamFieldConfig):
     """An enum field with its integer entries and string values"""

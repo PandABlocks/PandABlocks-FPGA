@@ -152,6 +152,7 @@ class AppGenerator(object):
                 # for carrier block
                 block = BlockConfig(section, type, number, ini_path, siteNumber)
                 block.register_addresses(self.counters)
+                block.generateWriteExtensions()
                 self.fpga_blocks.append(block)
                 # Copy the fpga_blocks to the server blocks. Most blocks will
                 # be the same between the two, however the block suffixes blocks
