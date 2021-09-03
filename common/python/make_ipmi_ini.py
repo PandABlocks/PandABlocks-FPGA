@@ -41,7 +41,8 @@ def main():
 
     if not ini_found:
         # If we failed to find a file generate fallback instead
-        file(target, 'w').write(fallback_ini)
+        f = open(target, 'w').write(fallback_ini)
+        f.close()
 
 if __name__ == '__main__':
     main()

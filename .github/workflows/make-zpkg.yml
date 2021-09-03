@@ -186,7 +186,7 @@ jobs:
           ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/
 
       # Build      
-      - name: Make boot
+      - name: Make zpkg
         run: |
           cd PandABlocks-fpga
           make zpkg
