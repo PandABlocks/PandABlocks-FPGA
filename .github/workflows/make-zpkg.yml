@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  build:
+  make_boot:
     runs-on: ubuntu-latest
     steps:
       # Git repositories
@@ -103,6 +103,97 @@ jobs:
       #    name: fgpa-zpkg-${{ matrix.platform }}
       #    path: |
       #      build/panda-fpga@*.zpg
+
+  make_zpkg:
+    runs-on: ubuntu-latest
+    steps:
+      # Git repositories
+      - name: Checkout Source
+        uses: actions/checkout@v2
+        with:
+          path: PandABlocks-fpga
+          # require history to get back to last tag for version number of branches
+          fetch-depth: 0
+
+      - name: Checkout PandABlocks-rootfs
+        uses: actions/checkout@v2
+        with:
+          repository: PandABlocks/PandABlocks-rootfs
+          ref: ci-build
+          path: PandABlocks-rootfs
+
+      - name: Checkout rootfs builder
+        uses: actions/checkout@v2
+        with:
+          repository: dls-controls/rootfs
+          path: rootfs
+
+      # System dependencies
+      - name: Install system dependencies
+        run: |
+          sudo ln -s make /usr/bin/gmake
+          sudo apt-get install -y libtinfo5 dbus-x11
+          pip install jinja2 numpy
+
+      # Tar dependancies
+      - name: Download tar file dependencies
+        run: |
+          bash PandABlocks-rootfs/.github/scripts/tar-files.sh linux-only
+          cd tar-files
+          curl -o device-tree-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/device-tree-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz \
+                -o u-boot-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/u-boot-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz
+
+      # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
+      # https://github.com/rclone/rclone/issues/2975
+      - name: Install rclone patch
+        run: |
+          bash PandABlocks-fpga/.github/scripts/rclone_patch.sh    
+
+      # S3 bucket
+      - name: Mount Vivado S3 bucket      
+        run: |
+          sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+
+      #CONFIG files
+      - name: Generate rootfs CONFIG files - zynq
+        run: |
+          mkdir build
+          bash PandABlocks-rootfs/.github/scripts/config-file-pbrootfs.sh zynq
+          bash PandABlocks-rootfs/.github/scripts/config-file-rootfs.sh
+
+      - name: Generate fpga CONFIG file
+        run: |
+          bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
+          cat PandABlocks-fpga/CONFIG
+
+      # Verification of files/file structure
+      - name: List workspace files
+        run: |
+          ls ${{ github.workspace }}
+          echo " "
+          ls PandABlocks-fpga
+          echo " "
+          ls PandABlocks-rootfs
+          echo " "
+          ls rootfs
+          echo " "
+          ls tar-files
+          echo " "
+          ls /scratch/Xilinx
+          echo " "
+          ls /scratch/Xilinx/Vivado/2020.2
+          echo " "
+          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/
+
+      # Build      
+      - name: Make boot
+        run: |
+          cd PandABlocks-fpga
+          make zpkg
+
+      # Verification of build files
+      - name: List build files
+        run: ls build
 
   test:
     runs-on: ubuntu-latest
