@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  build:
+  make_docs:
     runs-on: ubuntu-latest
     steps:
       

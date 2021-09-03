@@ -1,4 +1,4 @@
-name: Make zpkg CI
+name: Build CI
 
 on:
   push:
