@@ -1,21 +1,13 @@
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
-
-library work;
-use work.top_defines.all;
-use work.support.all;
-use work.addr_defines.all;
+-- NB: This file must be kept in sync between both the PandABlocks-FPGA
+-- and PandABlocks-slowFPGA repository. Changing this file requires an 
+-- update to the major version number.
 
 package slow_defines is
-
--- Number of Status Registers
-constant REGS_NUM           : natural := 4;
 
 --
 -- WRITE ONLY Registers
 --
-constant WRITE_RESET        : natural := 0;
+--constant WRITE_RESET        : natural := 0; --unused
 constant INENC1_PROTOCOL    : natural := 1;
 constant INENC2_PROTOCOL    : natural := 2;
 constant INENC3_PROTOCOL    : natural := 3;
@@ -54,35 +46,10 @@ constant FMC_15VP           : natural := 15;
 constant ENC_24V            : natural := 16;
 constant FMC_12V            : natural := 17;
 
--- Input Encoder Address List
-constant INPROT_ADDR_LIST   : page_array(ENC_NUM-1 downto 0) := (
-                                TO_SVECTOR(INENC4_PROTOCOL, PAGE_AW),
-                                TO_SVECTOR(INENC3_PROTOCOL, PAGE_AW),
-                                TO_SVECTOR(INENC2_PROTOCOL, PAGE_AW),
-                                TO_SVECTOR(INENC1_PROTOCOL, PAGE_AW)
-                            );
-
--- Output Encoder Address List
-constant OUTPROT_ADDR_LIST  : page_array(ENC_NUM-1 downto 0) := (
-                                TO_SVECTOR(OUTENC4_PROTOCOL, PAGE_AW),
-                                TO_SVECTOR(OUTENC3_PROTOCOL, PAGE_AW),
-                                TO_SVECTOR(OUTENC2_PROTOCOL, PAGE_AW),
-                                TO_SVECTOR(OUTENC1_PROTOCOL, PAGE_AW)
-                            );
-
--- TTLIN TERM Address List
-constant TTLTERM_ADDR_LIST  : page_array(TTLIN_NUM-1 downto 0) := (
-                                TO_SVECTOR(TTLIN6_TERM, PAGE_AW),
-                                TO_SVECTOR(TTLIN5_TERM, PAGE_AW),
-                                TO_SVECTOR(TTLIN4_TERM, PAGE_AW),
-                                TO_SVECTOR(TTLIN3_TERM, PAGE_AW),
-                                TO_SVECTOR(TTLIN2_TERM, PAGE_AW),
-                                TO_SVECTOR(TTLIN1_TERM, PAGE_AW)
-                            );
-
 end slow_defines;
 
 package body slow_defines is
 
 
 end slow_defines;
+

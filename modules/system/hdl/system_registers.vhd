@@ -39,6 +39,32 @@ end system_registers;
 
 architecture rtl of system_registers is
 
+-- Input Encoder Address List
+constant INPROT_ADDR_LIST   : page_array(ENC_NUM-1 downto 0) := (
+                                TO_SVECTOR(INENC4_PROTOCOL, PAGE_AW),
+                                TO_SVECTOR(INENC3_PROTOCOL, PAGE_AW),
+                                TO_SVECTOR(INENC2_PROTOCOL, PAGE_AW),
+                                TO_SVECTOR(INENC1_PROTOCOL, PAGE_AW)
+                            );
+
+-- Output Encoder Address List
+constant OUTPROT_ADDR_LIST  : page_array(ENC_NUM-1 downto 0) := (
+                                TO_SVECTOR(OUTENC4_PROTOCOL, PAGE_AW),
+                                TO_SVECTOR(OUTENC3_PROTOCOL, PAGE_AW),
+                                TO_SVECTOR(OUTENC2_PROTOCOL, PAGE_AW),
+                                TO_SVECTOR(OUTENC1_PROTOCOL, PAGE_AW)
+                            );
+
+-- TTLIN TERM Address List
+constant TTLTERM_ADDR_LIST  : page_array(TTLIN_NUM-1 downto 0) := (
+                                TO_SVECTOR(TTLIN6_TERM, PAGE_AW),
+                                TO_SVECTOR(TTLIN5_TERM, PAGE_AW),
+                                TO_SVECTOR(TTLIN4_TERM, PAGE_AW),
+                                TO_SVECTOR(TTLIN3_TERM, PAGE_AW),
+                                TO_SVECTOR(TTLIN2_TERM, PAGE_AW),
+                                TO_SVECTOR(TTLIN1_TERM, PAGE_AW)
+                            );
+
 begin
 
 ---------------------------------------------------------------------------

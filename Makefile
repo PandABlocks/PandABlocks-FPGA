@@ -220,7 +220,7 @@ hdl_timing: $(TIMING_BUILD_DIRS)
 # FPGA build
 
 # The following phony targets are passed straight to the FPGA sub-make programme
-FPGA_TARGETS = fpga-all fpga-bits carrier_fpga slow_fpga carrier_ip ps_core \
+FPGA_TARGETS = fpga-all fpga-bit carrier_fpga carrier_ip ps_core \
                fsbl devicetree boot u-boot dts xsct sw_clean u-boot-src ip_clean ps_clean
 
 $(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR) | update_VER
@@ -278,7 +278,7 @@ ZPKG_LIST = targets/$(TARGET)/etc/panda-fpga.list
 ZPKG_VERSION = $(APP_NAME)-$(GIT_VERSION)
 ZPKG_FILE = $(BUILD_DIR)/panda-fpga@$(PLATFORM)-$(GIT_VERSION).zpg
 
-ZPKG_DEPENDS += fpga-bits
+ZPKG_DEPENDS += fpga-bit
 ZPKG_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini
 ZPKG_DEPENDS += $(APP_BUILD_DIR)/extensions
 ZPKG_DEPENDS += $(DOCS_HTML_DIR)
