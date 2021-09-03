@@ -21,3 +21,11 @@ EOL
 
 chmod 600 /home/runner/.config/rclone/rclone.conf
 rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon --allow-other --vfs-cache-mode full -l fpga-vivado:dls-controls-fpga-xilinx /scratch/Xilinx
+
+#  ACTIONS WHEN USING S3FS:
+#  sudo mkdir -p /scratch/Xilinx
+#  sudo chmod -R a+rw /scratch
+#  sudo ls -l /scratch
+#  echo ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}:${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }} > ~/.passwd-s3fs
+#  chmod 600 ~/.passwd-s3fs
+#  s3fs dls-controls-fpga-vivado /scratch/Xilinx -o passwd_file=${HOME}/.passwd-s3fs -o url=https://s3.echo.stfc.ac.uk -o use_path_request_style -o ro    

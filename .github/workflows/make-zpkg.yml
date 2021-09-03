@@ -8,7 +8,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      
       # Git repositories
       - name: Checkout Source
         uses: actions/checkout@v2
@@ -37,31 +36,6 @@ jobs:
           sudo apt-get install -y libtinfo5 dbus-x11
           pip install jinja2 numpy
 
-      # Installation of go & temporary rclone patch applied until this issue is resolved
-      # https://github.com/rclone/rclone/issues/2975
-      - name: Install go
-        run: |
-          curl -OL https://golang.org/dl/go1.17.linux-amd64.tar.gz
-          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.17.linux-amd64.tar.gz
-          export PATH=$PATH:/usr/local/go/bin
-          go version
-
-      - name: Install rclone with --links patch
-        run: |       
-          git clone https://github.com/dinoboy197/rclone.git
-          cd rclone
-          git checkout traack_symlinks
-          make
-          ./rclone version
-          cd ~/go/bin/
-          sudo cp rclone /usr/bin/
-          sudo chown root:root /usr/bin/rclone
-          sudo chmod 755 /usr/bin/rclone
-          sudo mkdir -p /usr/local/share/man/man1
-          sudo cp rclone /usr/local/share/man/man1/
-          sudo mandb
-          rclone version
-
       # Tar dependancies
       - name: Download tar file dependencies
         run: |
@@ -69,16 +43,15 @@ jobs:
           cd tar-files
           curl -o device-tree-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/device-tree-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz \
                -o u-boot-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/u-boot-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz
-    
+
+      # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
+      # https://github.com/rclone/rclone/issues/2975
+      - name: Install rclone patch
+        run: |
+          bash PandABlocks-rootfs/.github/scripts/rclone_patch.sh    
+
       # S3 bucket
-      - name: Mount Vivado S3 bucket
-        #run: |
-        #  sudo mkdir -p /scratch/Xilinx
-        #  sudo chmod -R a+rw /scratch
-        #  sudo ls -l /scratch
-        #  echo ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}:${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }} > ~/.passwd-s3fs
-        #  chmod 600 ~/.passwd-s3fs
-        #  s3fs dls-controls-fpga-vivado /scratch/Xilinx -o passwd_file=${HOME}/.passwd-s3fs -o url=https://s3.echo.stfc.ac.uk -o use_path_request_style -o ro        
+      - name: Mount Vivado S3 bucket      
         run: |
           sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
@@ -123,14 +96,10 @@ jobs:
         run: |
           cd PandABlocks-fpga
           make carrier_fpga
-          
-        #  source /scratch/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch
-        #  source /scratch/Xilinx/Vivado/2020.2/settings64.sh && vivado -mode batch        
-        # fusermount -u /scratch/Xilinx
 
       # Verification of build files
-      #- name: List build files
-      #  run: ls build
+      - name: List build files
+        run: ls build
 
       # Artifacts
       #- name: Upload deps and boot build files
@@ -139,6 +108,49 @@ jobs:
       #    name: fgpa-zpkg-${{ matrix.platform }}
       #    path: |
       #      build/panda-fpga@*.zpg
+
+  test:
+  runs-on: ubuntu-latest
+  steps:
+    
+    # Git repositories
+    - name: Checkout Source
+      uses: actions/checkout@v2
+      with:
+        path: PandABlocks-fpga
+        # require history to get back to last tag for version number of branches
+        fetch-depth: 0
+
+    # System dependencies (required for build)
+    - name: Install system dependencies
+      run: |
+        sudo apt-get install libtinfo5 rclone
+        pip install jinja2 numpy
+    
+    #CONFIG files
+    - name: Generate fpga CONFIG files
+      run: |
+        mkdir build
+        sudo bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
+        cat PandABlocks-fpga/CONFIG
+
+    # S3 bucket
+    - name: Mount Vivado S3 bucket
+      run: |
+        sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+
+    # Run Tests
+    - name: Make python tests
+      run: |
+        cd PandABlocks-fpga
+        make python_tests
+        make python_timing
+    
+    - name: Make hdl_test
+      run: |   
+        cd PandABlocks-fpga
+        make autogen
+        make hdl_test
 
   #release:
   #  needs: [build]
@@ -163,3 +175,5 @@ jobs:
   #        body: See [Changelog](CHANGELOG.rst) for more details
   #      env:
   #        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
