@@ -1,4 +1,4 @@
-name: Build CI
+name: Code CI
 
 on:
   push:
@@ -90,12 +90,7 @@ jobs:
       - name: Make boot
         run: |
           cd PandABlocks-fpga
-          make boot  
-    
-      - name: Make carrier_fpga
-        run: |
-          cd PandABlocks-fpga
-          make carrier_fpga
+          make boot
 
       # Verification of build files
       - name: List build files
