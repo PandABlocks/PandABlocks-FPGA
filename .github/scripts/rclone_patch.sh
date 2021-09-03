@@ -14,7 +14,7 @@ cd rclone
 git checkout traack_symlinks
 make
 ./rclone version
-cd ~/go/bin/
+cd home/runner/go/bin/
 sudo cp rclone /usr/bin/
 sudo chown root:root /usr/bin/rclone
 sudo chmod 755 /usr/bin/rclone
