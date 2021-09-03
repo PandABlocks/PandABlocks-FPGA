@@ -48,7 +48,7 @@ jobs:
       # https://github.com/rclone/rclone/issues/2975
       - name: Install rclone patch
         run: |
-          bash PandABlocks-rootfs/.github/scripts/rclone_patch.sh    
+          bash PandABlocks-fpga/.github/scripts/rclone_patch.sh    
 
       # S3 bucket
       - name: Mount Vivado S3 bucket      
