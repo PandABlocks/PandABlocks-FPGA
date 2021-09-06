@@ -34,7 +34,7 @@ jobs:
         run: |
           sudo ln -s make /usr/bin/gmake
           sudo apt-get install -y libtinfo5 dbus-x11
-          pip install jinja2 numpy
+          pip install jinja2 numpy 
 
       # Tar dependancies
       - name: Download tar file dependencies
@@ -133,7 +133,7 @@ jobs:
         run: |
           sudo ln -s make /usr/bin/gmake
           sudo apt-get install -y libtinfo5 dbus-x11
-          pip install jinja2 numpy
+          pip install jinja2 numpy sphinx sphinx-rtd-theme docutils==0.16
 
       # Tar dependancies
       - name: Download tar file dependencies

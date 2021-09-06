@@ -21,7 +21,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get install python3-sphinx python3-sphinx-rtd-theme
-          sudo pip install docutils==0.16 matplotlib
+          sudo pip install matplotlib
 
       #CONFIG files
       - name: Generate fpga CONFIG files
