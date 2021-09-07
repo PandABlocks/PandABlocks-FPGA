@@ -133,7 +133,7 @@ jobs:
         run: |
           sudo ln -s make /usr/bin/gmake
           sudo apt-get install -y libtinfo5 dbus-x11
-          pip install jinja2 numpy sphinx sphinx-rtd-theme docutils==0.16 matplotlib
+          sudo pip install jinja2 numpy sphinx sphinx-rtd-theme docutils==0.16 matplotlib
 
       # Tar dependancies
       - name: Download tar file dependencies
