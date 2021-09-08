@@ -23,7 +23,7 @@ class timing_plot_directive(Directive):
     optional_arguments = 0
     option_spec = {'path': str, 'section': str, 'table': bool, 'nofigs': bool,
                    'xlabel': str}
-    
+
     def catch_insert_input(self, total_lines, source=None):
         self.total_lines = total_lines
 
@@ -58,10 +58,11 @@ class timing_plot_directive(Directive):
         old_insert_input = self.state_machine.insert_input
         self.state_machine.insert_input = self.catch_insert_input
 
-        plot_directive.PlotDirective(
+        d = plot_directive.PlotDirective(
             self.name, self.arguments, self.options, plot_content, self.lineno,
             self.content_offset, self.block_text, self.state,
             self.state_machine)
+        d.run()
 
         self.state_machine.insert_input = old_insert_input
         plot_node = sequence_plot_node()
@@ -181,7 +182,7 @@ class timing_plot_directive(Directive):
                 # open the table
                 file_dir = os.path.join(path, inputs["TABLE_ADDRESS"])
                 assert os.path.isfile(file_dir), "%s does not exist" %(file_dir)
-                with open(file_dir, "rb") as table:
+                with open(file_dir, "r") as table:
                     reader = csv.DictReader(table, delimiter='\t')
                     table_data = [line for line in reader]
                 alltables.append(table_data)
@@ -256,7 +257,7 @@ class timing_plot_directive(Directive):
         tbody = nodes.tbody()
         tgroup += tbody
         # Add each row
-        for frame in range(len(data) / 4):
+        for frame in range(len(data) // 4):
             row = []
             # First we get n repeats
             rpt = int(data[0 + frame * 4], 0) & 0xFFFF
