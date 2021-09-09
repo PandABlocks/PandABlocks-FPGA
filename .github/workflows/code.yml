@@ -30,11 +30,12 @@ jobs:
           path: rootfs
 
       # System dependencies
+      # gmake directory created for rclone patch
       - name: Install system dependencies
         run: |
           sudo ln -s make /usr/bin/gmake
           sudo apt-get install -y libtinfo5 dbus-x11
-          pip install jinja2 numpy 
+          sudo pip install jinja2 numpy 
 
       # Tar dependancies
       - name: Download tar file dependencies
@@ -121,6 +122,7 @@ jobs:
           path: rootfs
 
       # System dependencies
+      # gmake directory created for rclone patch
       - name: Install system dependencies
         run: |
           sudo ln -s make /usr/bin/gmake
@@ -133,7 +135,7 @@ jobs:
           bash PandABlocks-rootfs/.github/scripts/tar-files.sh linux-only
           cd tar-files
           curl -o device-tree-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/device-tree-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz \
-                -o u-boot-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/u-boot-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz
+               -o u-boot-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/u-boot-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz
 
       # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
       # https://github.com/rclone/rclone/issues/2975

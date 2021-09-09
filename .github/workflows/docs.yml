@@ -37,25 +37,25 @@ jobs:
           make docs
 
       # Publish docs
-      #- uses: rishabhgupta/split-by@v1
-      #  id: split
-      #  with:
-      #    string: ${{ github.ref }}
-      #    split-by: /
+      - uses: rishabhgupta/split-by@v1
+        id: split
+        with:
+          string: ${{ github.ref }}
+          split-by: /
       
-      #- name: Move to versioned directory
+      - name: Move to versioned directory
         # e.g. master or 0.1.2
-      #  run: |
-      #    mkdir PandABlocks-server/.github/pages
-      #    mv build-server/html "PandABlocks-server/.github/pages/${{ steps.split.outputs._2 }}"
+        run: |
+          mkdir PandABlocks-fpga/.github/pages
+          mv build/html "PandABlocks-fpga/.github/pages/${{ steps.split.outputs._2 }}"
 
-      #- name: Publish Docs to gh-pages
+      - name: Publish Docs to gh-pages
         # Only master and tags are published
-      #  if: "${{ github.repository_owner == 'dls-controls' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags')) }}"
+        if: "${{ github.repository_owner == 'dls-controls' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags')) }}"
         # We pin to the SHA, not the tag, for security reasons.
         # https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/security-hardening-for-github-actions#using-third-party-actions
-      #  uses: peaceiris/actions-gh-pages@bbdfb200618d235585ad98e965f4aafc39b4c501  # v3.7.3
-      #  with:
-      #    github_token: ${{ secrets.GITHUB_TOKEN }}
-      #    publish_dir: PandABlocks-server/.github/pages
-      #    keep_files: true
+        uses: peaceiris/actions-gh-pages@bbdfb200618d235585ad98e965f4aafc39b4c501  # v3.7.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: PandABlocks-fpga/.github/pages
+          keep_files: true
