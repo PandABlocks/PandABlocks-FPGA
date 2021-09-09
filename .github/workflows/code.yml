@@ -39,8 +39,7 @@ jobs:
 
       # Tar dependancies
       - name: Download tar file dependencies
-        run: |
-          bash PandABlocks-rootfs/.github/scripts/tar-files.sh linux-only
+        run: |  # bash PandABlocks-rootfs/.github/scripts/tar-files.sh linux-only
           cd tar-files
           curl -o device-tree-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/device-tree-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz \
                -o u-boot-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/u-boot-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz
@@ -59,7 +58,6 @@ jobs:
       #CONFIG files
       - name: Generate rootfs CONFIG files - zynq
         run: |
-          mkdir build
           bash PandABlocks-rootfs/.github/scripts/config-file-pbrootfs.sh zynq
           bash PandABlocks-rootfs/.github/scripts/config-file-rootfs.sh
 
@@ -131,8 +129,7 @@ jobs:
 
       # Tar dependancies
       - name: Download tar file dependencies
-        run: |
-          bash PandABlocks-rootfs/.github/scripts/tar-files.sh linux-only
+        run: |  # bash PandABlocks-rootfs/.github/scripts/tar-files.sh linux-only
           cd tar-files
           curl -o device-tree-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/device-tree-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz \
                -o u-boot-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/u-boot-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz
@@ -151,7 +148,6 @@ jobs:
       #CONFIG files
       - name: Generate rootfs CONFIG files - zynq
         run: |
-          mkdir build
           bash PandABlocks-rootfs/.github/scripts/config-file-pbrootfs.sh zynq
           bash PandABlocks-rootfs/.github/scripts/config-file-rootfs.sh
 
@@ -260,5 +256,3 @@ jobs:
           body: See [Changelog](CHANGELOG.rst) for more details
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-

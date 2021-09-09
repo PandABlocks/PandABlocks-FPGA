@@ -26,7 +26,6 @@ jobs:
       #CONFIG files
       - name: Generate fpga CONFIG files
         run: |
-          mkdir build
           sudo bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
           cat PandABlocks-fpga/CONFIG
 
