@@ -1,18 +1,24 @@
-Change Log
-==========
+Changelog
+=========
+
 All notable changes to this project will be documented in this file.
-This project adheres to `Semantic Versioning <http://semver.org/>`_.
+
+The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_,
+and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
+
+
+3.0a1_ - 2021-06-16
+-----------------
+
+- numerous changes and restructuring for target independent build
 
 
 `Unreleased`_
 -------------
 
-Added:
-
 - Started a changelog
 
-Changed:
 
-- Interface to the server, require 1.0 release of the server package
+.. _Unreleased: https://github.com/PandABlocks/PandABlocks-FPGA
+.. _3.0a1: https://github.com/PandABlocks/PandABlocks-FPGA/releases/tag/3.0a1
 
-.. _Unreleased: https://github.com/PandABlocks/PandABlocks-FPGA/compare/0.2...HEAD
