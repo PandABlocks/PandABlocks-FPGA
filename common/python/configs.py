@@ -129,6 +129,8 @@ class BlockConfig(object):
             ini, number)  # type: List[FieldConfig]
         #: List of WriteExtension fields in the block
         self.write_extensions=[]
+        #: List of ReadExtension fields in the block
+        self.read_extensions=[]
         #: Are there any suffixes?
         self.block_suffixes = ini_get(ini, '.', 'block_suffixes', '').split()
 
@@ -174,17 +176,24 @@ class BlockConfig(object):
             if constraint not in self.interfaceConstraints:
                 self.interfaceConstraints.append(constraint)
 
-    def generateWriteExtensions(self):
+    def generateCalcExtensions(self):
         # Iterate through the fields and add any with writeExtension type to the list
         for field in self.fields:
             if field.type == "extension_write":
                 w_extension = (field.name, field.registers[0].number)
                 self.write_extensions.append(w_extension)
+            if field.type == "extension_read":
+                w_extension = (field.name, field.registers[0].number)
+                self.read_extensions.append(w_extension)
         # Iterate through the fields, when a writeExtension is specified find its number
         for field in self.fields:
             for extension in field.extension_write.split(" "):
                 for w_extension, num in self.write_extensions:
                     if w_extension == extension:
+                        field.extension_nums.append(num)
+            for extension in field.extension_read.split(" "):
+                for r_extension, num in self.read_extensions:
+                    if r_extension == extension:
                         field.extension_nums.append(num)
 
 def make_getter_setter(config):
@@ -205,8 +214,8 @@ def make_getter_setter(config):
 
 class RegisterConfig(object):
     """A low level register name and number backing this field"""
-    def __init__(self, name, number=-1, prefix='', extension='', write_extension=''):
-        # type: (str, int, str, str) -> None
+    def __init__(self, name, number=-1, prefix='', extension='', write_extension='', read_extension=''):
+        # type: (str, int, str, str, str, str) -> None
         #: The name of the register, like INPA_DLY
         self.name = name.replace('.', '_')
         #: The register number relative to Block, like 9
@@ -217,6 +226,8 @@ class RegisterConfig(object):
         self.extension = extension
         #: If there is a write extension
         self.write_extension = write_extension
+        #: If there is a write extension
+        self.read_extension = read_extension
 
 
 class BusEntryConfig(object):
@@ -259,6 +270,7 @@ class FieldConfig(object):
         self.extension = extra_config.pop("extension", None)
         self.extension_reg = extra_config.pop("extension_reg", None)
         self.extension_write = extra_config.pop("extension_write", "")
+        self.extension_read = extra_config.pop("extension_read", "")
         self.extension_nums = []
         self.no_config = 0
         #: All the other extra config items
@@ -288,6 +300,8 @@ class FieldConfig(object):
             if r.extension:
                 if r.write_extension:
                     result.extend(['W', str(' '.join(str(num) for num in self.extension_nums))])
+                if r.read_extension:
+                    result.extend([str(' '.join(str(num) for num in self.extension_nums))])
                 result.extend(['X', r.extension])
             return ' '.join(result)
 
@@ -487,16 +501,16 @@ class ParamFieldConfig(FieldConfig):
             address = counters.new_field()
 
         self.registers.append(
-            RegisterConfig(self.name, address, extension=self.extension, write_extension=self.extension_write))
+            RegisterConfig(self.name, address, extension=self.extension, write_extension=self.extension_write, read_extension=self.extension_read))
 
-class ExtensionWriteFieldConfig(ParamFieldConfig):
+class CalcExtensionFieldConfig(ParamFieldConfig):
     """These fields act in the same way as write record from the VHDL generation 
     point of view, but do not have a config entry"""
-    type_regex = "extension_write"
+    type_regex = "(extension_write|extension_read)"
 
     def register_addresses(self, counters):
         # type: (FieldCounter) -> None
-        super(ExtensionWriteFieldConfig, self).register_addresses(counters)
+        super(CalcExtensionFieldConfig, self).register_addresses(counters)
         self.no_config=1
 
 class EnumParamFieldConfig(ParamFieldConfig):
@@ -600,7 +614,7 @@ class TargetSiteConfig(object):
     type_regex = None
 
     def __init__(self, name, info):
-        # type: (str, int, int, int, str) -> None
+        # type: (str, str)-> None
         #: The type of target site (SFP/FMC etc)
         self.name = name
         #: The info i in a string such as "3, i, io, o"

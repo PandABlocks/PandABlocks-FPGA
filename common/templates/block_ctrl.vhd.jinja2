@@ -21,7 +21,7 @@ port (
     -- Block Parameters
 {% for field in fields %}
     {% for register in field.numbered_registers() %}
-        {% if field in filter_fields("read.*") %}
+        {% if field in filter_fields("extension_read|read.*") %}
     {{ pad(register.name) }} : in std_logic_vector(31 downto 0);
         {% elif field in filter_fields ("table|time|extension_write|(param|write).*")%}
     {{ pad(register.name) }} : out std_logic_vector(31 downto 0);
