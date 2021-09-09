@@ -40,6 +40,7 @@ jobs:
       # Tar dependancies
       - name: Download tar file dependencies
         run: |  # bash PandABlocks-rootfs/.github/scripts/tar-files.sh linux-only
+          mkdir tar-files
           cd tar-files
           curl -o device-tree-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/device-tree-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz \
                -o u-boot-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/u-boot-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz
@@ -130,6 +131,7 @@ jobs:
       # Tar dependancies
       - name: Download tar file dependencies
         run: |  # bash PandABlocks-rootfs/.github/scripts/tar-files.sh linux-only
+          mkdir tar-files
           cd tar-files
           curl -o device-tree-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/device-tree-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz \
                -o u-boot-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/u-boot-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz
@@ -214,7 +216,6 @@ jobs:
       #CONFIG files
       - name: Generate fpga CONFIG files
         run: |
-          mkdir build
           sudo bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
           cat PandABlocks-fpga/CONFIG
 
