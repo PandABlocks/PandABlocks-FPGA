@@ -165,7 +165,7 @@ jobs:
       - name: Generate fpga CONFIG file - ${{ matrix.app }}
         run: |
           bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
-          sed 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG
+          sed -i 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG
 
       # Verification of files/file structure
       - name: List workspace files
