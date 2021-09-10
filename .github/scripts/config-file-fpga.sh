@@ -34,4 +34,6 @@ SPHINX_BUILD = sphinx-build
 DEFAULT_TARGETS = zpkg
 
 # FPGA Application Name
+APP_NAME = PandABox-no-fmc
+
 EOL
