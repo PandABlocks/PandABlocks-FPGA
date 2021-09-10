@@ -96,6 +96,18 @@ jobs:
         run: ls build
 
   make_zpkg:
+    strategy:
+      matrix:
+        app: ["PandABox-no-fmc", 
+              "PandABox-fmc_24vio", 
+              "PandABox-fmc_acq427",
+              "PandABox-fmc_acq430",
+              "PandABox-fmc_lback-sfp_lback",
+              "PandABox-no-fmc-sfp1_eventr",
+              "PandABox-no-fmc-sfp2_udpontrig",
+              "ZedBoard-no-fmc"
+              ]
+
     runs-on: ubuntu-latest
     steps:
       # Git repositories
@@ -151,9 +163,10 @@ jobs:
           bash PandABlocks-rootfs/.github/scripts/config-file-pbrootfs.sh zynq
           bash PandABlocks-rootfs/.github/scripts/config-file-rootfs.sh
 
-      - name: Generate fpga CONFIG file
+      - name: Generate fpga CONFIG file - ${{ matrix.app }}
         run: |
           bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
+          echo "APP_NAME = ${{ matrix.app }}" >> PandABlocks-fpga/.github/scripts/config-file-fpga.sh
           cat PandABlocks-fpga/CONFIG
 
       # Verification of files/file structure
@@ -176,10 +189,10 @@ jobs:
           ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/
 
       # Build      
-      - name: Make zpkg (all apps)
+      - name: Make zpkg - ${{ matrix.app }}"
         run: |
           cd PandABlocks-fpga
-          make all-zpkg
+          make zpkg
 
       # Verification of build files
       - name: List build files
@@ -189,7 +202,7 @@ jobs:
       - name: Upload zpkg
         uses: actions/upload-artifact@v2
         with:
-          name: fgpa-zpkg
+          name: fgpa-zpkg-${{ matrix.app }}"
           path: |
             build/panda-fpga@*.zpg
 
@@ -243,7 +256,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: fgpa-zpkg
+          name: fgpa-zpkg-*
           path: artifacts
 
       - name: Github Release
