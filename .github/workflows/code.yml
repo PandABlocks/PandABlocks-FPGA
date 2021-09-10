@@ -105,8 +105,7 @@ jobs:
               "PandABox-fmc_lback-sfp_lback",
               "PandABox-no-fmc-sfp1_eventr",
               "PandABox-no-fmc-sfp2_udpontrig",
-              "ZedBoard-no-fmc"
-              ]
+              "ZedBoard-no-fmc"]
 
     runs-on: ubuntu-latest
     steps:
@@ -186,6 +185,8 @@ jobs:
           ls /scratch/Xilinx/Vivado/2020.2
           echo " "
           ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/
+          echo " "
+          cat PandABlocks-fpga/CONFIG
 
       # Build      
       - name: Make zpkg - ${{ matrix.app }}"
