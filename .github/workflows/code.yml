@@ -105,7 +105,6 @@ jobs:
               "PandABox-fmc_acq427",
               "PandABox-fmc_acq430",
               "PandABox-fmc_lback-sfp_lback",
-              "PandABox-no-fmc-sfp1_eventr",
               "ZedBoard-no-fmc",
               ]
 
