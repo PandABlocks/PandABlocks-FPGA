@@ -67,23 +67,23 @@ jobs:
           cat PandABlocks-fpga/CONFIG
 
       # Verification of files/file structure
-      - name: List workspace files
-        run: |
-          ls ${{ github.workspace }}
-          echo " "
-          ls PandABlocks-fpga
-          echo " "
-          ls PandABlocks-rootfs
-          echo " "
-          ls rootfs
-          echo " "
-          ls tar-files
-          echo " "
-          ls /scratch/Xilinx
-          echo " "
-          ls /scratch/Xilinx/Vivado/2020.2
-          echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/
+      #- name: List workspace files
+      #  run: |
+      #    ls ${{ github.workspace }}
+      #    echo " "
+      #    ls PandABlocks-fpga
+      #    echo " "
+      #    ls PandABlocks-rootfs
+      #    echo " "
+      #    ls rootfs
+      #    echo " "
+      #    ls tar-files
+      #    echo " "
+      #    ls /scratch/Xilinx
+      #    echo " "
+      #    ls /scratch/Xilinx/Vivado/2020.2
+      #    echo " "
+      #    ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/
 
       # Build      
       - name: Make boot
@@ -92,8 +92,8 @@ jobs:
           make boot
 
       # Verification of build files
-      - name: List build files
-        run: ls build
+      #- name: List build files
+      #  run: ls build
 
   make_zpkg:
     strategy:
@@ -106,7 +106,6 @@ jobs:
               "PandABox-fmc_acq430",
               "PandABox-fmc_lback-sfp_lback",
               "PandABox-no-fmc-sfp1_eventr",
-              "PandABox-no-fmc-sfp2_udpontrig",
               "ZedBoard-no-fmc",
               ]
 
@@ -171,25 +170,25 @@ jobs:
           sed -i 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG
 
       # Verification of files/file structure
-      - name: List workspace files
-        run: |
-          ls ${{ github.workspace }}
-          echo " "
-          ls PandABlocks-fpga
-          echo " "
-          ls PandABlocks-rootfs
-          echo " "
-          ls rootfs
-          echo " "
-          ls tar-files
-          echo " "
-          ls /scratch/Xilinx
-          echo " "
-          ls /scratch/Xilinx/Vivado/2020.2
-          echo " "
-          ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/
-          echo " "
-          cat PandABlocks-fpga/CONFIG
+      #- name: List workspace files
+      #  run: |
+      #    ls ${{ github.workspace }}
+      #    echo " "
+      #    ls PandABlocks-fpga
+      #    echo " "
+      #    ls PandABlocks-rootfs
+      #    echo " "
+      #    ls rootfs
+      #    echo " "
+      #    ls tar-files
+      #    echo " "
+      #    ls /scratch/Xilinx
+      #    echo " "
+      #    ls /scratch/Xilinx/Vivado/2020.2
+      #    echo " "
+      #    ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/
+      #    echo " "
+      #    cat PandABlocks-fpga/CONFIG
 
       # Build      
       - name: Make zpkg - ${{ matrix.app }}
@@ -198,8 +197,8 @@ jobs:
           make zpkg
 
       # Verification of build files
-      - name: List build files
-        run: ls build
+      #- name: List build files
+      #  run: ls build
 
       # Artifacts
       - name: Upload zpkg
