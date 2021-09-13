@@ -192,7 +192,7 @@ jobs:
           cat PandABlocks-fpga/CONFIG
 
       # Build      
-      - name: Make zpkg - ${{ matrix.app }}"
+      - name: Make zpkg - ${{ matrix.app }}
         run: |
           cd PandABlocks-fpga
           make zpkg
@@ -205,7 +205,7 @@ jobs:
       - name: Upload zpkg
         uses: actions/upload-artifact@v2
         with:
-          name: fgpa-zpkg-${{ matrix.app }}"
+          name: fgpa-zpkg-${{ matrix.app }}
           path: |
             build/panda-fpga@*.zpg
 
