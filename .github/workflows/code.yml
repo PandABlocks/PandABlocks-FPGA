@@ -97,6 +97,7 @@ jobs:
 
   make_zpkg:
     strategy:
+      fail-fast: false
       matrix:
         app: [
               "PandABox-no-fmc",
