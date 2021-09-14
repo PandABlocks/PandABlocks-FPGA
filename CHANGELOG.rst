@@ -17,6 +17,7 @@ and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0
 -------------
 
 - Started a changelog
+- Interface to the server, require 1.0 release of the server package
 
 
 .. _Unreleased: https://github.com/PandABlocks/PandABlocks-FPGA

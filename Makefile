@@ -51,7 +51,7 @@ DEP_MODE ?= batch
 # Store the git hash in top-level build directory 
 VER = $(BUILD_DIR)/VERSION
 
-default: $(DEFAULT_TARGETS)00
+default: $(DEFAULT_TARGETS)
 all: python_tests python_timing hdl_test default boot
 .PHONY: default all
 
@@ -276,7 +276,7 @@ endif
 
 ZPKG_LIST = targets/$(TARGET)/etc/panda-fpga.list
 ZPKG_VERSION = $(APP_NAME)-$(GIT_VERSION)
-ZPKG_FILE = $(BUILD_DIR)/panda-fpga@$(PLATFORM)-$(GIT_VERSION).zpg
+ZPKG_FILE = $(BUILD_DIR)/panda-fpga@$(ZPKG_VERSION).zpg
 
 ZPKG_DEPENDS += fpga-bit
 ZPKG_DEPENDS += $(APP_BUILD_DIR)/ipmi.ini

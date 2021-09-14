@@ -5,6 +5,7 @@ from docutils.parsers.rst import Directive
 from docutils import nodes, statemachine
 from .ini_util import read_ini, timing_entries
 
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 

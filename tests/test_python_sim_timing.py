@@ -10,12 +10,14 @@ else:
 import sys
 import os
 import imp
+
 import unittest
 
 from common.python.ini_util import read_ini, timing_entries
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 MODULES = os.path.join(ROOT, "modules")
+
 
 def load_tests(loader=None, standard_tests=None, pattern=None):
     class SequenceTest(unittest.TestCase):
