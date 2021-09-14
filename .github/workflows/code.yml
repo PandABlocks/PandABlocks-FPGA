@@ -35,7 +35,7 @@ jobs:
         run: |
           sudo ln -s make /usr/bin/gmake
           sudo apt-get install -y libtinfo5 dbus-x11
-          sudo pip install jinja2 numpy 
+          sudo pip install jinja2 numpy
 
       # Tar dependancies
       - name: Download tar file dependencies
@@ -47,15 +47,13 @@ jobs:
       # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
       # https://github.com/rclone/rclone/issues/2975
       - name: Install rclone patch
-        run: |
-          bash PandABlocks-fpga/.github/scripts/rclone_patch.sh    
+        run: bash PandABlocks-fpga/.github/scripts/rclone_patch.sh
 
       # S3 bucket
       - name: Mount Vivado S3 bucket      
-        run: |
-          sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
-      #CONFIG files
+      # CONFIG files
       - name: Generate rootfs CONFIG files - zynq
         run: |
           bash PandABlocks-rootfs/.github/scripts/config-file-pbrootfs.sh zynq
@@ -87,9 +85,7 @@ jobs:
 
       # Build      
       - name: Make boot
-        run: |
-          cd PandABlocks-fpga
-          make boot
+        run: cd PandABlocks-fpga && make boot
 
       # Verification of build files
       #- name: List build files
@@ -150,16 +146,14 @@ jobs:
       # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
       # https://github.com/rclone/rclone/issues/2975
       - name: Install rclone patch
-        run: |
-          bash PandABlocks-fpga/.github/scripts/rclone_patch.sh    
+        run: bash PandABlocks-fpga/.github/scripts/rclone_patch.sh
 
       # S3 bucket
-      - name: Mount Vivado S3 bucket      
-        run: |
-          sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+      - name: Mount Vivado S3 bucket
+        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
-      #CONFIG files
-      - name: Generate rootfs CONFIG files - zynq
+      # CONFIG files
+      - name: Generate rootfs CONFIG files
         run: |
           bash PandABlocks-rootfs/.github/scripts/config-file-pbrootfs.sh zynq
           bash PandABlocks-rootfs/.github/scripts/config-file-rootfs.sh
@@ -190,11 +184,9 @@ jobs:
       #    echo " "
       #    cat PandABlocks-fpga/CONFIG
 
-      # Build      
+      # Build
       - name: Make zpkg - ${{ matrix.app }}
-        run: |
-          cd PandABlocks-fpga
-          make zpkg
+        run: cd PandABlocks-fpga && make zpkg
 
       # Verification of build files
       #- name: List build files
@@ -205,8 +197,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: fgpa-zpkg-${{ matrix.app }}
-          path: |
-            build/panda-fpga@*.zpg
+          path: build/panda-fpga@*.zpg
 
 
   test:
@@ -227,7 +218,7 @@ jobs:
           sudo apt-get install libtinfo5 rclone
           pip install jinja2 numpy
       
-      #CONFIG files
+      # CONFIG files
       - name: Generate fpga CONFIG files
         run: |
           sudo bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
@@ -235,8 +226,7 @@ jobs:
 
       # S3 bucket
       - name: Mount Vivado S3 bucket
-        run: |
-          sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
       # Run Tests
       - name: Make python tests
