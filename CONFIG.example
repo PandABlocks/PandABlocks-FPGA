@@ -12,8 +12,9 @@
 
 # Definitions needed for FPGA build
 export VIVADO = /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh
-export ISE = /dls_sw/FPGA/Xilinx/14.7/ISE_DS/settings64.sh
-export LM_LICENSE_FILE = 2100@diamcslicserv01.dc.diamond.ac.uk
+
+# Specifiy licence server, if required
+# export LM_LICENCE_FILE =
 
 # Location of rootfs builder.  This needs to be at least version 1.13 and can be
 # downloaded from https://github.com/araneidae/rootfs

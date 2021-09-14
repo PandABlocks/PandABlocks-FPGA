@@ -24,7 +24,6 @@ t bin etc/show_ipmi
 
 # Firmware
 b share/panda-fpga FPGA/panda_top.bin
-b share/panda-fpga ../../targets/PandABox/SlowFPGA/slow_top.bin
 
 # Docs (built once for all zpkgs)
 t etc/www etc/panda-fpga.docs.html
