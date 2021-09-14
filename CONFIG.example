@@ -13,6 +13,9 @@
 # Definitions needed for FPGA build
 export VIVADO = /dls_sw/FPGA/Xilinx/Vivado/$(VIVADO_VER)/settings64.sh
 
+# Specifiy licence server, if required
+# export LM_LICENCE_FILE =
+
 # Location of rootfs builder.  This needs to be at least version 1.13 and can be
 # downloaded from https://github.com/araneidae/rootfs
 export ROOTFS_TOP = /dls_sw/prod/targetOS/rootfs/1.13
