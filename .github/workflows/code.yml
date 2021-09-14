@@ -1,8 +1,9 @@
 name: Code CI
 
 on:
-  push:
   pull_request:
+  # Whenever a new branch or tag is created
+  create:
 
 jobs:
   make_boot:
