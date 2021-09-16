@@ -48,7 +48,7 @@ jobs:
       # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
       # https://github.com/rclone/rclone/issues/2975
       - name: Install rclone patch
-        run: bash PandABlocks-fpga/.github/scripts/rclone_patch.sh
+        run: bash PandABlocks-fpga/.github/scripts/rclone-patch.sh
 
       # S3 bucket
       - name: Mount Vivado S3 bucket      
@@ -147,7 +147,7 @@ jobs:
       # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
       # https://github.com/rclone/rclone/issues/2975
       - name: Install rclone patch
-        run: bash PandABlocks-fpga/.github/scripts/rclone_patch.sh
+        run: bash PandABlocks-fpga/.github/scripts/rclone-patch.sh
 
       # S3 bucket
       - name: Mount Vivado S3 bucket
