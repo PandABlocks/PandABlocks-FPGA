@@ -306,5 +306,5 @@ class SeqSimulation(BlockSimulation):
             # next state
             self.STATE = state
             return ts + 1
-        elif self.next_ts > ts:
+        elif self.next_ts and self.next_ts > ts:
             return self.next_ts
