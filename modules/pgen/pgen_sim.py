@@ -26,7 +26,7 @@ class PgenSimulation(BlockSimulation):
                 os.path.dirname(__file__), self.TABLE_ADDRESS)
 
             assert os.path.isfile(file_dir), "%s does not exist" % file_dir
-            with open(file_dir, "rb") as table:
+            with open(file_dir, "r") as table:
                 reader = csv.DictReader(table)
                 self.table_data = [int(line['POS']) for line in reader]
 

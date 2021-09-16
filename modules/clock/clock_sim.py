@@ -39,7 +39,7 @@ class ClockSimulation(BlockSimulation):
             # decide if we need to produce any clocks
             if self.PERIOD > 1:
                 off = (ts - self.start_ts) % self.PERIOD
-                half = self.PERIOD / 2
+                half = self.PERIOD // 2
                 # produce clock high level at start of period
                 if off == 0:
                     self.OUT = 1

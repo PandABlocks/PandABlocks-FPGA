@@ -227,7 +227,7 @@ def make_timing_plot(path, section=None, xlabel="Timestamp (125MHz FPGA clock ti
     plt.grid(axis="x")
     plt.xlabel(xlabel)
     # turn off ticks and labels for y
-    plt.tick_params(left='off', right='off', labelleft='off')
+    plt.tick_params(left=False, right=False, labelleft=False)
 
     # make it the right size
     fig = plt.gcf()
