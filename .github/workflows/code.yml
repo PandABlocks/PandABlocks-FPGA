@@ -186,6 +186,9 @@ jobs:
       #    cat PandABlocks-fpga/CONFIG
 
       # Build
+      - name: Make IP's
+        run: cd PandABlocks-fpga && make carrier_ip
+
       - name: Make zpkg - ${{ matrix.app }}
         run: cd PandABlocks-fpga && make zpkg
 

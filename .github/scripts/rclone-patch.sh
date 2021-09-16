@@ -9,7 +9,7 @@ export PATH=$PATH:/usr/local/go/bin
 go version
 
 #Install rclone patch
-git clone https://github.com/dinoboy197/rclone.git
+git clone https://github.com/PandABlocks/rclone.git
 cd rclone
 git checkout traack_symlinks
 make
