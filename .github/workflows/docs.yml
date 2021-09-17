@@ -46,9 +46,7 @@ jobs:
       
       - name: Move to versioned directory
         # e.g. master or 0.1.2
-        run: |
-          mkdir PandABlocks-fpga/.github/pages
-          mv build/html "PandABlocks-fpga/.github/pages/${{ steps.split.outputs._2 }}"
+        run: mv build/html "PandABlocks-fpga/.github/pages/${{ steps.split.outputs._2 }}"
 
       - name: Publish Docs to gh-pages
         # Only master and tags are published
