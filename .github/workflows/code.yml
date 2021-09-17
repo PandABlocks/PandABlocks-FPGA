@@ -21,7 +21,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: PandABlocks/PandABlocks-rootfs
-          ref: ci-build
           path: PandABlocks-rootfs
 
       - name: Checkout rootfs builder
@@ -120,7 +119,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: PandABlocks/PandABlocks-rootfs
-          ref: ci-build
           path: PandABlocks-rootfs
 
       - name: Checkout rootfs builder
