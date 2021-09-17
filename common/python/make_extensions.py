@@ -28,7 +28,6 @@ def get_extension(base_dir, module):
 
 def add_extension(target_dir, source_dir, extension):
     print ('Adding extension', extension)
-
     extensions_dir = os.path.join(source_dir, 'extensions')
     files = fnmatch.filter(os.listdir(extensions_dir), '*.py')
     assert '%s.py' % extension in files, \
