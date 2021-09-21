@@ -64,25 +64,6 @@ jobs:
           bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
           cat PandABlocks-fpga/CONFIG
 
-      # Verification of files/file structure
-      #- name: List workspace files
-      #  run: |
-      #    ls ${{ github.workspace }}
-      #    echo " "
-      #    ls PandABlocks-fpga
-      #    echo " "
-      #    ls PandABlocks-rootfs
-      #    echo " "
-      #    ls rootfs
-      #    echo " "
-      #    ls tar-files
-      #    echo " "
-      #    ls /scratch/Xilinx
-      #    echo " "
-      #    ls /scratch/Xilinx/Vivado/2020.2
-      #    echo " "
-      #    ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/
-
       # Build      
       - name: Make boot
         run: cd PandABlocks-fpga && make boot
@@ -162,37 +143,12 @@ jobs:
           bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
           sed -i 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG
 
-      # Verification of files/file structure
-      #- name: List workspace files
-      #  run: |
-      #    ls ${{ github.workspace }}
-      #    echo " "
-      #    ls PandABlocks-fpga
-      #    echo " "
-      #    ls PandABlocks-rootfs
-      #    echo " "
-      #    ls rootfs
-      #    echo " "
-      #    ls tar-files
-      #    echo " "
-      #    ls /scratch/Xilinx
-      #    echo " "
-      #    ls /scratch/Xilinx/Vivado/2020.2
-      #    echo " "
-      #    ls /scratch/Xilinx/Vitis/2020.2/gnu/aarch32/lin/gcc-arm-none-eabi/x86_64-oesdk-linux/lib/
-      #    echo " "
-      #    cat PandABlocks-fpga/CONFIG
-
       # Build
       - name: Make IP's
         run: cd PandABlocks-fpga && make carrier_ip
 
       - name: Make zpkg - ${{ matrix.app }}
         run: cd PandABlocks-fpga && make zpkg
-
-      # Verification of build files
-      #- name: List build files
-      #  run: ls build
 
       # Artifacts
       - name: Upload zpkg

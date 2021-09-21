@@ -307,15 +307,6 @@ all-zpkg:
 	$(call MAKE_ALL_APPS, zpkg)
 .PHONY: all-zpkg
 
-#-------------------------------------------------------------------------------
-
-# Push a github release
-github-release: $(ZPKG)
-	$(MAKE_GITHUB_RELEASE) PandABlocks-FPGA $(GIT_VERSION) \
-	    $(BUILD_DIR)/*.zpg
-
-.PHONY: github-release
-
 # ------------------------------------------------------------------------------
 # Clean
 

@@ -1,8 +1,5 @@
-PandABlocks-FPGA
-================
-
-PandABlocks-FPGA contains the firmware that runs on the FPGA inside a Zynq
-module that is the heart of a `pandablocks_device_` like `pandabox_`.
+.. include:: ../README.rst
+    :end-before: when included in index.rst
 
 What can PandABlocks do?
 ------------------------
@@ -47,3 +44,32 @@ Working on the core autogeneration framework
 Read `block_reference` to find out how the process works, then
 `framework_reference` for more details on specific parts of the autogeneration
 framework
+
+.. toctree::
+    :caption: Introduction
+
+    Introduction <index>
+
+.. _tutorials_doc:
+
+.. toctree::
+    :caption: Tutorials
+
+    tutorials/tutorial1_blinking_leds
+    tutorials/tutorial2_position_capture
+    tutorials/tutorial3_position_compare
+    tutorials/tutorial4_snake_scan
+
+.. _reference_doc:
+
+.. toctree::
+    :caption: Reference
+
+    blocks
+    reference/contributing
+    reference/app
+    reference/block
+    reference/framework
+    reference/changelog
+    reference/glossary
+    reference/testing

@@ -1,20 +1,17 @@
 PandABlocks-FPGA
 ================
 
-|build_status| |readthedocs|
+ |code_ci| |docs_ci| |license|
 
 PandABlocks-FPGA contains the firmware that runs on the FPGA inside a Zynq
 module that is the heart of a PandABlocks enabled device like PandABox.
 
-Documentation
--------------
+============== ==============================================================
+Source code    https://github.com/PandABlocks/PandABlocks-FPGA
+Documentation  https://PandABlocks.github.io/PandABlocks-FPGA
+Changelog      https://github.com/PandABlocks/PandABlocks-FPGA/blob/master/CHANGELOG.rst
+============== ==============================================================
 
-Full documentation is available at http://PandABlocks-FPGA.readthedocs.io
-
-Source Code
------------
-
-Available from https://github.com/PandABlocks/PandABlocks-FPGA
 
 Installation
 ------------
@@ -36,18 +33,18 @@ Contributing
 
 See `CONTRIBUTING`_
 
-License
--------
-APACHE License. (see `LICENSE`_)
+.. |code_ci| image:: https://github.com/PandABlocks/PandABlocks-FPGA/workflows/Code%20CI/badge.svg?branch=master
+    :target: https://github.com/PandABlocks/PandABlocks-FPGA/actions?query=workflow%3A%22Code+CI%22
+    :alt: Code CI
 
 
-.. |build_status| image:: https://travis-ci.org/PandABlocks/PandABlocks-FPGA.svg?branch=master
-    :target: https://travis-ci.org/PandABlocks/PandABlocks-FPGA
-    :alt: Build Status
+.. |docs_ci| image::https://github.com/PandABlocks/PandABlocks-FPGA/workflows/Docs%20CI/badge.svg?branch=master
+    :target: https://github.com/PandABlocks/PandABlocks-FPGA/actions?query=workflow%3A%22Docs+CI%22
+    :alt: Docs CI
 
-.. |readthedocs| image:: https://readthedocs.org/projects/PandABlocks-FPGA/badge/?version=latest
-    :target: http://PandABlocks-FPGA.readthedocs.org
-    :alt: Documentation
+.. |license| image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
+    :target: https://opensource.org/licenses/Apache-2.0
+    :alt: Apache License
 
 .. _CHANGELOG:
     https://github.com/PandABlocks/PandABlocks-FPGA/blob/master/CHANGELOG.rst
@@ -55,5 +52,4 @@ APACHE License. (see `LICENSE`_)
 .. _CONTRIBUTING:
     https://github.com/PandABlocks/PandABlocks-FPGA/blob/master/CONTRIBUTING.rst
 
-.. _LICENSE:
-    https://github.com/PandABlocks/PandABlocks-FPGA/blob/master/LICENSE
+See https://PandABlocks.github.io/PandABlocks-FPGA for more detailed documentation
