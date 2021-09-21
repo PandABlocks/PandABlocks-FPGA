@@ -58,6 +58,8 @@ port (
     SETP_i              : in  std_logic_vector(31 downto 0);
     SETP_WSTB_i         : in  std_logic;
     RST_ON_Z_i          : in  std_logic_vector(31 downto 0);
+    DEBOUNCE_EN_i       : in  std_logic;
+    DEBOUNCE_TIME_i     : in  std_logic_vector(6 downto 0);
     STATUS_o            : out std_logic_vector(31 downto 0);
     INENC_HEALTH_o      : out std_logic_vector(31 downto 0);
     HOMED_o             : out std_logic_vector(31 downto 0);
@@ -318,6 +320,8 @@ port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     BITS            => INENC_BITS_i,
+    DEBOUNCE_EN_i   => DEBOUNCE_EN_i,
+    DEBOUNCE_TIME_i => DEBOUNCE_TIME_i,
     link_up_o       => linkup_ssi,
     error_o         => open,
     ssi_sck_i       => SnffrClk,

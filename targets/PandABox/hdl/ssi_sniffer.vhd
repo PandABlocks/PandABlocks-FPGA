@@ -23,8 +23,11 @@ port (
     reset_i         : in  std_logic;
     -- Configuration interface
     BITS            : in  std_logic_vector(7 downto 0);
+    DEBOUNCE_EN_i   : in  std_logic;
+    DEBOUNCE_TIME_i : in  std_logic_vector(6 downto 0);
     link_up_o       : out std_logic;
     error_o         : out std_logic;
+    
     -- Physical SSI interface
     ssi_sck_i       : in  std_logic;
     ssi_dat_i       : in  std_logic;
@@ -34,6 +37,15 @@ port (
 end ssi_sniffer;
 
 architecture rtl of ssi_sniffer is
+
+COMPONENT ila_32x8K
+
+PORT (
+	clk : IN STD_LOGIC;
+	probe0 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    probe1 : IN STD_LOGIC_VECTOR(31 DOWNTO 0)
+);
+END COMPONENT  ;
 
 -- Ticks in terms of internal serial clock period.
 constant SYNCPERIOD         : natural := 125 * 5; -- 5usec
@@ -56,6 +68,9 @@ signal serial_clock_fall    : std_logic;
 signal serial_clock_rise    : std_logic;
 signal shift_counter        : unsigned(7 downto 0);
 signal shift_enabled        : std_logic;
+signal debounce_en           : std_logic;
+signal db_timeout           : std_logic;
+signal DEBOUNCE_TIME        : unsigned(6 downto 0);
 
 
 begin
@@ -67,6 +82,9 @@ uBITS <= unsigned(BITS);
 
 -- Internal reset when link is down
 reset <= reset_i or not link_up;
+
+debounce_en <= DEBOUNCE_EN_i;
+DEBOUNCE_TIME <= unsigned(DEBOUNCE_TIME_i);
 
 serial_clock <= ssi_sck_i;
 serial_data <= ssi_dat_i;
@@ -80,9 +98,31 @@ begin
 end process;
 
 -- Shift source synchronous data on the Falling egde of clock
-serial_clock_fall <= not serial_clock and serial_clock_prev;
-serial_clock_rise <= serial_clock and not serial_clock_prev;
+serial_clock_fall <=  '0' when (db_timeout='1' and debounce_en='1') else (not serial_clock and serial_clock_prev);
+serial_clock_rise <=  '0' when (db_timeout='1' and debounce_en='1') else (serial_clock and not serial_clock_prev);
 serial_data_rise <= serial_data and not serial_data_prev;
+
+-- Optional debounce circuit for incoming serial clock, to ensure logic does not respond to reflections
+-- on the incoming clock lines.
+
+debouncer : process(clk_i)
+    variable db_ctr : unsigned(6 downto 0); -- Allow just over 1 us timeout 
+begin
+    if rising_edge(clk_i) then
+        if (db_timeout = '0') then
+            if (serial_clock_rise='1' or serial_clock_fall='1') then
+                db_timeout <= '1';
+            end if;
+        else
+            if (db_ctr = DEBOUNCE_TIME) then
+                db_timeout <= '0';
+                db_ctr := (others => '0');
+            else
+                db_ctr := db_ctr + 1;
+            end if;
+        end if;
+    end if;
+end process;
 
 --------------------------------------------------------------------------
 -- Detect link if clock is asserted for > 5us.
@@ -183,5 +223,26 @@ end process;
 --------------------------------------------------------------------------
 link_up_o <= link_up;
 error_o <= '0'; -- n/a
+
+ssi_ila : ila_32x8K
+PORT MAP (
+	clk => clk_i,
+	probe0 => data,
+    probe1(0) => data_valid,
+    probe1(1) => serial_data,
+    probe1(2) => serial_clock_fall,
+    probe1(10 downto 3) => BITS,
+    probe1(11) => link_up,
+    probe1(12) => serial_clock,
+    probe1(13) => reset,
+    probe1(14) => serial_data_prev,
+    probe1(15) => serial_clock_prev,
+    probe1(16) => ssi_frame,
+    probe1(17) => serial_data_rise,
+    probe1(18) => serial_clock_rise,
+    probe1(19) => shift_enabled,
+    probe1(27 downto 20) => std_logic_vector(shift_counter),
+    probe1(31 downto 28) => (others => '0')
+);
 
 end rtl;

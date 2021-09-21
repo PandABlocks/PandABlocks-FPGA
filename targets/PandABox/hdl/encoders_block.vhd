@@ -92,6 +92,8 @@ signal SETP                     : std_logic_vector(31 downto 0);
 signal SETP_WSTB                : std_logic;
 signal RST_ON_Z                 : std_logic_vector(31 downto 0);
 signal STATUS                   : std_logic_vector(31 downto 0);
+signal DEBOUNCE_EN              : std_logic_vector(31 downto 0);
+signal DEBOUNCE_TIME            : std_logic_vector(31 downto 0);
 signal read_ack                 : std_logic;
 signal LSB_DISCARD              : std_logic_vector(31 downto 0);
 signal MSB_DISCARD              : std_logic_vector(31 downto 0);
@@ -191,6 +193,8 @@ port map (
     SETP_WSTB           => SETP_WSTB,
     RST_ON_Z            => RST_ON_Z,
     RST_ON_Z_WSTB       => open,
+    DEBOUNCE_EN         => DEBOUNCE_EN,
+    DEBOUNCE_TIME       => DEBOUNCE_TIME,
     HEALTH              => INENC_HEALTH,
     HOMED               => HOMED,
     DCARD_TYPE          => DCARD_TYPE
@@ -249,6 +253,8 @@ port map(
     SETP_i              => SETP,
     SETP_WSTB_i         => SETP_WSTB,
     RST_ON_Z_i          => RST_ON_Z,
+    DEBOUNCE_EN_i       => DEBOUNCE_EN(0),
+    DEBOUNCE_TIME_i     => DEBOUNCE_TIME(6 downto 0),
     STATUS_o            => STATUS,
     INENC_HEALTH_o      => INENC_HEALTH,
     HOMED_o             => HOMED,
