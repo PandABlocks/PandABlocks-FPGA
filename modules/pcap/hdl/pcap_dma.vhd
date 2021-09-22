@@ -320,9 +320,11 @@ if rising_edge(clk_i) then
                 -- Position compare completed
                 elsif (pcap_completed = '1' and writing_sample = '0') then
                     last_tlp <= '1';
-                    -- if last_tlp, wait for next buffer address assigned by PS
-                    if (fifo_count = 0 and next_dmaaddr_valid = '1') then
-                        pcap_fsm <= IRQ;
+                    if (fifo_count = 0) then 
+                        -- if last_tlp, wait for next buffer address assigned by PS
+                        if (next_dmaaddr_valid = '1') then
+                            pcap_fsm <= IRQ;
+                        end if;
                     else
                         dma_start <= '1';
                         sample_count <= sample_count + transfer_size;
