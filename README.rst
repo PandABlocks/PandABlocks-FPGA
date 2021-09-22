@@ -1,7 +1,7 @@
 PandABlocks-FPGA
 ================
 
- |code_ci| |docs_ci| |license|
+|code_ci| |docs_ci| |license|
 
 PandABlocks-FPGA contains the firmware that runs on the FPGA inside a Zynq
 module that is the heart of a PandABlocks enabled device like PandABox.
@@ -38,7 +38,7 @@ See `CONTRIBUTING`_
     :alt: Code CI
 
 
-.. |docs_ci| image::https://github.com/PandABlocks/PandABlocks-FPGA/workflows/Docs%20CI/badge.svg?branch=master
+.. |docs_ci| image:: https://github.com/PandABlocks/PandABlocks-FPGA/workflows/Docs%20CI/badge.svg?branch=master
     :target: https://github.com/PandABlocks/PandABlocks-FPGA/actions?query=workflow%3A%22Docs+CI%22
     :alt: Docs CI
 
