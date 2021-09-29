@@ -52,6 +52,8 @@ begin
             return X"0C";
         when "011"  => -- EnDat
             return X"14";
+        when "110" => -- SSI-splitter
+            return X"03"; -- same as Incremental
         when others =>
             return X"00";
     end case;
@@ -72,6 +74,8 @@ begin
             return X"07";
 		when "101" => -- Data passthrough (same as SSI)
 			return X"28";
+        when "110" =>  -- SSI-splitter
+            return X"07"; -- same as Incremental
         when others =>
             return X"04";
     end case;

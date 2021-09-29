@@ -84,10 +84,14 @@ constant c_ABZ_PASSTHROUGH  : std_logic_vector(2 downto 0) := std_logic_vector(t
 constant c_DATA_PASSTHROUGH : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(5,3));
 constant c_BISS             : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(2,3));
 constant c_enDat            : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(3,3));
+constant c_SSI_SPLITTER     : std_logic_vector(2 downto 0) := std_logic_vector(to_unsigned(6,3));
 
 signal quad_a               : std_logic;
 signal quad_b               : std_logic;
-signal sdat                 : std_logic;
+signal ssi_slave1_dat       : std_logic;
+signal ssi_slave2_dat       : std_logic;
+signal ssi_slave1_clk       : std_logic;
+signal ssi_slave2_clk       : std_logic;
 signal bdat                 : std_logic;
 signal health_biss_slave    : std_logic_vector(31 downto 0);
 
@@ -163,11 +167,15 @@ outenc_dir_biss <= '0';
 -- used to generate the Clock inputted to the Inenc.
 
 -- Assign outputs
-A_OUT <= a_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_a;
-B_OUT <= b_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_b;
-Z_OUT <= z_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else '0';
+A_OUT <= a_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH)
+            else clk_out_encoder_ssi when (OUTENC_PROTOCOL_i = c_SSI_SPLITTER)
+            else quad_a;
+B_OUT <= b_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else 
+            ssi_slave2_dat when (OUTENC_PROTOCOL_i = c_SSI_SPLITTER) else quad_b;
+Z_OUT <= z_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else 
+            ssi_slave1_dat when (OUTENC_PROTOCOL_i = c_SSI_SPLITTER) else '0';
 DATA_OUT <= data_ext_i when (OUTENC_PROTOCOL_i = c_DATA_PASSTHROUGH) else 
-            bdat when (OUTENC_PROTOCOL_i = c_BISS) else sdat;
+            bdat when (OUTENC_PROTOCOL_i = c_BISS) else ssi_slave1_dat;
 outenc_dir <= outenc_dir_biss when (OUTENC_PROTOCOL_i = c_BISS) else '0';
 --
 -- INCREMENTAL OUT
@@ -188,14 +196,29 @@ port map (
 --
 -- SSI SLAVE
 --
-ssi_slave_inst : entity work.ssi_slave
+
+ssi_slave1_clk <= Z_IN when (INENC_PROTOCOL_i = c_SSI_SPLITTER) else CLK_IN;
+ssi_slave2_clk <= B_IN;
+
+ssi_slave1_inst : entity work.ssi_slave  -- regular SSI slave instance, \
+                                         -- or PMAC in SSI-Splitter mode
 port map (
     clk_i           => clk_i,
     reset_i         => reset_i,
     BITS            => OUTENC_BITS_i,
     posn_i          => posn_i,
-    ssi_sck_i       => CLK_IN,
-    ssi_dat_o       => sdat
+    ssi_sck_i       => ssi_slave1_clk,
+    ssi_dat_o       => ssi_slave1_dat
+);
+
+ssi_slave2_inst : entity work.ssi_slave  -- for PLC in SSI-Splitter mode
+port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    BITS            => OUTENC_BITS_i,
+    posn_i          => posn_i,
+    ssi_sck_i       => ssi_slave2_clk,
+    ssi_dat_o       => ssi_slave2_dat
 );
 
 --
@@ -555,9 +578,13 @@ IOBUF_Zs0 : entity work.iobuf_registered port map (
 );
 
 -- A output is shared between incremental and absolute data lines.
-As0_opad <= A_OUT when (OUTENC_PROTOCOL_i(1 downto 0) = "00") else DATA_OUT;
+As0_opad <= A_OUT when
+    (OUTENC_PROTOCOL_i(1 downto 0) = "00" OR OUTENC_PROTOCOL_i = c_SSI_SPLITTER)
+    else DATA_OUT;
 Bs0_opad <= B_OUT;
-Zs0_opad <= Z_OUT when (OUTENC_PROTOCOL_i(1 downto 0) = "00") else outenc_dir;
+Zs0_opad <= Z_OUT when 
+    (OUTENC_PROTOCOL_i(1 downto 0) = "00" OR OUTENC_PROTOCOL_i = c_SSI_SPLITTER)
+    else outenc_dir;
 
 INENC_A_o <= A_IN;
 INENC_B_o <= B_IN;
