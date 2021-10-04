@@ -591,7 +591,7 @@ INENC_B_o <= B_IN;
 INENC_Z_o <= Z_IN;
 INENC_DATA_o <= DATA_IN;
 
-clk_int_o <= CLK_IN;
+clk_int_o <= Z_IN when OUTENC_PROTOCOL_i = c_SSI_SPLITTER else SnffrClk;
 
 clkin_filt : entity work.delay_filter port map (
     clk_i   => clk_i,
