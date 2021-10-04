@@ -142,7 +142,8 @@ signal CLK_OUT              : std_logic;
 
 signal CLK_IN               : std_logic;
 
-signal Bs0_T, Bm0_T                : std_logic;
+signal Bs0_T                : std_logic;
+signal Bm0_T                : std_logic;
 
 signal SnffrClk             : std_logic;
 
@@ -563,7 +564,6 @@ IOBUF_As0 : entity work.iobuf_registered port map (
 
 -- When using a Monitor card the B signal will need to be enabled, for using the CLK
 -- regardless of the protocol.
--- unnessecary logic ??
 Bs0_T <= '1' when (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) else outenc_ctrl(1); 
 
 IOBUF_Bs0 : entity work.iobuf_registered port map (
