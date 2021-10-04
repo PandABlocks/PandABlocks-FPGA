@@ -126,12 +126,7 @@ begin
                 if (OUTENC_write_address = OUTENC_PROTOCOL_addr) then
                     slow_tlp_o.strobe <= '1';
                     slow_tlp_o.address <= OUTPROT_ADDR_LIST(OUTENC_blk_addr);
-                    -- When using a monitor card, the protocol needs to make sure the CLK is enabled.
-                    if (DCARD_MODE_i(OUTENC_blk_addr)(3 downto 1) = DCARD_MONITOR) then
-                        slow_tlp_o.data <= x"0000000" & '0' & write_data_i(2) & '1' & write_data_i(0);
-                    else
-                        slow_tlp_o.data <= write_data_i;
-                    end if;
+                    slow_tlp_o.data <= write_data_i;
                 end if;
             elsif (INENC_write_strobe_i = '1') then
                 if (INENC_write_address = INENC_PROTOCOL_addr) then
