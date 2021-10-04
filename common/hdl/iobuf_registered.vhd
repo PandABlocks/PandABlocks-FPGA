@@ -32,6 +32,14 @@ architecture rtl of iobuf_registered is
 signal ipad     : std_logic;
 signal opad     : std_logic;
 
+attribute IOB : string;
+attribute IOB of ipad : signal is "TRUE";
+attribute ASYNC_REG : string;
+attribute ASYNC_REG of opad : signal is "TRUE";
+
+signal tied_to_ground : std_logic := '0';
+signal tied_to_vcc    : std_logic := '1';
+
 begin
 
 --------------------------------------------------------------------------
@@ -39,10 +47,22 @@ begin
 --------------------------------------------------------------------------
 process(clock) begin
     if rising_edge(clock) then
-        O <= opad;
         ipad <= I;
     end if;
 end process;
+
+IDDR_inst : IDDR
+    generic map (
+        DDR_CLK_EDGE => "SAME_EDGE_PIPELINED")
+    port map (
+        Q1 => O,
+        Q2 => open,
+        C => clock,
+        CE => tied_to_vcc,
+        D => opad,
+        R => tied_to_ground,
+        S => tied_to_ground
+);
 
 -- Physical IOBUF instantiations controlled with PROTOCOL
 IOBUF_inst : IOBUF

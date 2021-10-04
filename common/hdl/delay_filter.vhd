@@ -38,9 +38,6 @@ signal pulse_buf        : std_logic_vector(2 downto 0) := "000";
 signal filt             : std_logic := '0';
 signal jk               : std_logic_vector(1 downto 0);
 
-attribute async_reg     : string;
-attribute async_reg of pulse_buf : signal is "TRUE";
-
 begin
 
 --------------------------------------------------------------------------
