@@ -1,0 +1,39 @@
+/* make line indents zero so we can break table rows */
+.rst-content .line-block {
+    margin-left: 0px;
+}
+
+/* override table width restrictions */
+@media screen and (min-width: 639px) {
+
+  .wy-table-responsive table td {
+    /* !important prevents the common CSS stylesheets from
+       overriding this as on RTD they are loaded after this stylesheet */
+    white-space: normal !important;
+  }
+
+  .wy-table-responsive {
+    overflow: visible !important;
+  }
+
+}
+
+/* override table padding */
+.rst-content table.docutils th, .rst-content table.docutils td {
+  padding: 4px 6px;
+}
+
+/* Add two-column option */
+@media only screen and (min-width: 1000px) {
+  .columns {
+      padding-left: 10px;
+      padding-right: 10px;
+      float: left;
+      width: 50%;
+      min-height: 145px;
+  }
+}
+
+.endcolumns {
+  clear: both
+}

@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Glossary &mdash; PandABlocks-FPGA 3.0a1-273-g3d5421e
+ documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Running the tests" href="testing.html" />
+    <link rel="prev" title="Changelog" href="changelog.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: black" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PandABlocks-FPGA
+          
+
+          
+            
+            <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0a1-273-g3d5421e
+
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+  <style>
+    /* style mobile top nav to look like main nav */
+    .wy-nav-top {
+        background: black
+    }
+  </style>
+  
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">What can PandABlocks do?</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html#how-is-the-documentation-structured">How is the documentation structured?</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#using-an-existing-pandablocks-device">Using an existing PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#generating-a-new-set-of-blocks-for-a-pandablocks-device">Generating a new set of Blocks for a PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#extending-the-functionality-of-a-pandablocks-device">Extending the functionality of a PandABlocks device</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#working-on-the-core-autogeneration-framework">Working on the core autogeneration framework</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial2_position_capture.html">Position Capture Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../blocks.html">Available Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="app.html">Assembling Blocks into an App</a></li>
+<li class="toctree-l3"><a class="reference internal" href="block.html">Writing a Block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="framework.html">Autogeneration framework architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Glossary</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#app">App</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#block">Block</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#field">Field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module">Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pandabox">PandABox</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pandablocks-device">PandABlocks Device</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#target-platform">Target Platform</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#zpkg">Zpkg</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="testing.html">Running the tests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial2_position_capture.html">Position Capture Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../blocks.html">Available Blocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app.html">Assembling Blocks into an App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="block.html">Writing a Block</a></li>
+<li class="toctree-l1"><a class="reference internal" href="framework.html">Autogeneration framework architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Glossary</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#app">App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#block">Block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#field">Field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module">Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pandabox">PandABox</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pandablocks-device">PandABlocks Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#target-platform">Target Platform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#zpkg">Zpkg</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Running the tests</a></li>
+</ul>
+
+            
+          
+  <!-- Include link to changelog -->
+  <a href="https://github.com/PandABlocks/PandABlocks-FPGA/blob/master/CHANGELOG.rst">Changelog</a>
+  <!-- Add versions for selected branches + tags -->
+  <p class="caption"><span class="caption-text">Versions</span></p>
+  <ul id="versions"/>
+  <script>
+    // Add any branches to appear in the side pane here, tags will be added below
+    // Will only appear if docs are built and pushed in gh-pages
+    var versions = ['master', 'main'];
+    var dirs = new Set();
+    function addVersion(name) {
+      if (dirs.has(name)) {
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.href = 'https://PandABlocks.github.io/PandABlocks-FPGA/' + name;
+        a.innerText = name;
+        li.appendChild(a)
+        document.getElementById('versions').appendChild(li);
+      }
+    }
+    Promise.all([
+      // Find gh-pages directories and populate `dirs`
+      fetch("https://api.github.com/repos/PandABlocks/PandABlocks-FPGA/contents?ref=gh-pages")
+      .then(response => response.json())
+      .then(data => data.forEach(function(e) {
+        if (e.type == "dir") dirs.add(e.name);
+      })),
+      // Add tags to `versions`
+      fetch('https://api.github.com/repos/PandABlocks/PandABlocks-FPGA/tags')
+        .then(response => response.json())
+        .then(data => data.forEach(function(e) {
+          versions.push(e.name);
+        }))
+      ]).then(_ => versions.forEach(addVersion))
+  </script>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PandABlocks-FPGA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Glossary</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/reference/glossary.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="glossary">
+<h1>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h1>
+<p>This section defines some commonly used PandABlocks terms.</p>
+<div class="section" id="app">
+<span id="id1"></span><h2>App<a class="headerlink" href="#app" title="Permalink to this headline">¶</a></h2>
+<p>An ini file that contains the type and number of Blocks that should be built
+together to form an FPGA image (loadable on a PandABlocks device as a <a class="reference internal" href="#zpkg"><span class="std std-ref">Zpkg</span></a>).</p>
+</div>
+<div class="section" id="block">
+<span id="id2"></span><h2>Block<a class="headerlink" href="#block" title="Permalink to this headline">¶</a></h2>
+<p>A piece of FPGA logic that has a number of <a class="reference internal" href="#field"><span class="std std-ref">Field</span></a> instances and does some
+specified calculations on each FPGA clock tick. It may be a soft
+Block like a SEQ, or have hardware connections like a TTLIN Block.</p>
+</div>
+<div class="section" id="field">
+<span id="id3"></span><h2>Field<a class="headerlink" href="#field" title="Permalink to this headline">¶</a></h2>
+<p>An input, output or parameter of a <a class="reference internal" href="#block"><span class="std std-ref">Block</span></a>.</p>
+</div>
+<div class="section" id="module">
+<span id="id4"></span><h2>Module<a class="headerlink" href="#module" title="Permalink to this headline">¶</a></h2>
+<p>A directory containing <a class="reference internal" href="#block"><span class="std std-ref">Block</span></a> definitions, logic, simulations and timing.
+Modules will typically contain a single soft Block definition, or a number of
+hardware Blocks tied to a particular <a class="reference internal" href="#target-platform"><span class="std std-ref">Target Platform</span></a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Small_form-factor_pluggable_transceiver">SFP</a> or <a class="reference external" href="https://en.wikipedia.org/wiki/FPGA_Mezzanine_Card">FMC</a> card.</p>
+</div>
+<div class="section" id="pandabox">
+<span id="id5"></span><h2>PandABox<a class="headerlink" href="#pandabox" title="Permalink to this headline">¶</a></h2>
+<p>A <a class="reference internal" href="#pandablocks-device"><span class="std std-ref">PandABlocks Device</span></a> manufactured by <a class="reference external" href="http://www.diamond.ac.uk">Diamond Light Source</a> and <a class="reference external" href="https://www.synchrotron-soleil.fr">SOLEIL</a>.
+Schematics on <a class="reference external" href="https://www.ohwr.org/projects/pandabox/wiki">Open Hardware</a></p>
+</div>
+<div class="section" id="pandablocks-device">
+<span id="id6"></span><h2>PandABlocks Device<a class="headerlink" href="#pandablocks-device" title="Permalink to this headline">¶</a></h2>
+<p>A Zynq 7030 based device loaded with PandABlocks <a class="reference external" href="https://github.com/PandABlocks/PandABlocks-rootfs">rootfs</a> so that it runs the
+PandABlocks framework.</p>
+</div>
+<div class="section" id="target-platform">
+<span id="id7"></span><h2>Target Platform<a class="headerlink" href="#target-platform" title="Permalink to this headline">¶</a></h2>
+<p>The physical Zynq based hardware that will be loaded with firmware to
+become a <a class="reference internal" href="#pandablocks-device"><span class="std std-ref">PandABlocks Device</span></a> like a <a class="reference internal" href="#pandabox"><span class="std std-ref">PandABox</span></a> or a <a class="reference external" href="http://zedboard.org/product/picozed-fmc-carrier-card-v2">Picozed Carrier</a></p>
+</div>
+<div class="section" id="zpkg">
+<span id="id8"></span><h2>Zpkg<a class="headerlink" href="#zpkg" title="Permalink to this headline">¶</a></h2>
+<p>A specially formatted tar file of built files that can be deployed to a
+PandABlocks device</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="testing.html" class="btn btn-neutral float-right" title="Running the tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="changelog.html" class="btn btn-neutral float-left" title="Changelog" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Diamond Light Source
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

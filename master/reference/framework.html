@@ -1,0 +1,878 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Autogeneration framework architecture &mdash; PandABlocks-FPGA 3.0a1-273-g3d5421e
+ documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Changelog" href="changelog.html" />
+    <link rel="prev" title="Writing a Block" href="block.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: black" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PandABlocks-FPGA
+          
+
+          
+            
+            <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0a1-273-g3d5421e
+
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+  <style>
+    /* style mobile top nav to look like main nav */
+    .wy-nav-top {
+        background: black
+    }
+  </style>
+  
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">What can PandABlocks do?</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html#how-is-the-documentation-structured">How is the documentation structured?</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#using-an-existing-pandablocks-device">Using an existing PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#generating-a-new-set-of-blocks-for-a-pandablocks-device">Generating a new set of Blocks for a PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#extending-the-functionality-of-a-pandablocks-device">Extending the functionality of a PandABlocks device</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#working-on-the-core-autogeneration-framework">Working on the core autogeneration framework</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial2_position_capture.html">Position Capture Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../blocks.html">Available Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="app.html">Assembling Blocks into an App</a></li>
+<li class="toctree-l3"><a class="reference internal" href="block.html">Writing a Block</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Autogeneration framework architecture</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#softblocks">Softblocks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wrappers">Wrappers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-common.python.configs">Config_d entries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test-benches">Test benches</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing.html">Running the tests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial2_position_capture.html">Position Capture Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../blocks.html">Available Blocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app.html">Assembling Blocks into an App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="block.html">Writing a Block</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Autogeneration framework architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#softblocks">Softblocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wrappers">Wrappers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-common.python.configs">Config_d entries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-benches">Test benches</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#required-signals-in-the-block">Required signals in the block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#read-expected-csv">Read expected.csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#assign-signals">Assign signals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compare-output-signals">Compare output signals</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Running the tests</a></li>
+</ul>
+
+            
+          
+  <!-- Include link to changelog -->
+  <a href="https://github.com/PandABlocks/PandABlocks-FPGA/blob/master/CHANGELOG.rst">Changelog</a>
+  <!-- Add versions for selected branches + tags -->
+  <p class="caption"><span class="caption-text">Versions</span></p>
+  <ul id="versions"/>
+  <script>
+    // Add any branches to appear in the side pane here, tags will be added below
+    // Will only appear if docs are built and pushed in gh-pages
+    var versions = ['master', 'main'];
+    var dirs = new Set();
+    function addVersion(name) {
+      if (dirs.has(name)) {
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.href = 'https://PandABlocks.github.io/PandABlocks-FPGA/' + name;
+        a.innerText = name;
+        li.appendChild(a)
+        document.getElementById('versions').appendChild(li);
+      }
+    }
+    Promise.all([
+      // Find gh-pages directories and populate `dirs`
+      fetch("https://api.github.com/repos/PandABlocks/PandABlocks-FPGA/contents?ref=gh-pages")
+      .then(response => response.json())
+      .then(data => data.forEach(function(e) {
+        if (e.type == "dir") dirs.add(e.name);
+      })),
+      // Add tags to `versions`
+      fetch('https://api.github.com/repos/PandABlocks/PandABlocks-FPGA/tags')
+        .then(response => response.json())
+        .then(data => data.forEach(function(e) {
+          versions.push(e.name);
+        }))
+      ]).then(_ => versions.forEach(addVersion))
+  </script>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PandABlocks-FPGA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Autogeneration framework architecture</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/reference/framework.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="autogeneration-framework-architecture">
+<span id="framework-reference"></span><h1>Autogeneration framework architecture<a class="headerlink" href="#autogeneration-framework-architecture" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="softblocks">
+<h2>Softblocks<a class="headerlink" href="#softblocks" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="wrappers">
+<h2>Wrappers<a class="headerlink" href="#wrappers" title="Permalink to this headline">¶</a></h2>
+<p>How wrapper, config, desc, vhdl entities, test benches are generated</p>
+</div>
+<div class="section" id="module-common.python.configs">
+<span id="config-d-entries"></span><h2>Config_d entries<a class="headerlink" href="#module-common.python.configs" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="common.python.configs.pad">
+<code class="descclassname">common.python.configs.</code><code class="descname">pad</code><span class="sig-paren">(</span><em>name</em>, <em>spaces=19</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#pad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.pad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pad the right of a name with spaces until it is at least spaces long</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="common.python.configs.all_subclasses">
+<code class="descclassname">common.python.configs.</code><code class="descname">all_subclasses</code><span class="sig-paren">(</span><em>cls</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#all_subclasses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.all_subclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively find all the subclasses of cls</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.BlockConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">BlockConfig</code><span class="sig-paren">(</span><em>name</em>, <em>type</em>, <em>number</em>, <em>ini_path</em>, <em>site=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#BlockConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.BlockConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>The config for a single Block</p>
+<dl class="attribute">
+<dt id="common.python.configs.BlockConfig.name">
+<code class="descname">name</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BlockConfig.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the Block, like LUT</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.BlockConfig.number">
+<code class="descname">number</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BlockConfig.number" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of instances Blocks that will be created, like 8</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.BlockConfig.module_path">
+<code class="descname">module_path</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BlockConfig.module_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path to the module that holds this block ini</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.BlockConfig.ini_path">
+<code class="descname">ini_path</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BlockConfig.ini_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path to the ini file for this Block, relative to ROOT</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.BlockConfig.block_address">
+<code class="descname">block_address</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BlockConfig.block_address" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Block section of the register address space</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.BlockConfig.site">
+<code class="descname">site</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BlockConfig.site" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the type == sfp, which site number</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.BlockConfig.entity">
+<code class="descname">entity</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BlockConfig.entity" title="Permalink to this definition">¶</a></dt>
+<dd><p>The VHDL entity name, like lut</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.BlockConfig.type">
+<code class="descname">type</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BlockConfig.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is the block soft, sfp, fmc or dma?</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.BlockConfig.constraints">
+<code class="descname">constraints</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BlockConfig.constraints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Any constraints?</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.BlockConfig.ip">
+<code class="descname">ip</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BlockConfig.ip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does the block require IP?</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.BlockConfig.description">
+<code class="descname">description</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BlockConfig.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>The description, like “Lookup table”</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.BlockConfig.fields">
+<code class="descname">fields</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BlockConfig.fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>All the child fields</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.BlockConfig.block_suffixes">
+<code class="descname">block_suffixes</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BlockConfig.block_suffixes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Are there any suffixes?</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.BlockConfig.register_addresses">
+<code class="descname">register_addresses</code><span class="sig-paren">(</span><em>block_counters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#BlockConfig.register_addresses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.BlockConfig.register_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register this block in the address space</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.BlockConfig.filter_fields">
+<code class="descname">filter_fields</code><span class="sig-paren">(</span><em>regex</em>, <em>matching=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#BlockConfig.filter_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.BlockConfig.filter_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter our child fields by typ. If not matching return those
+that don’t match</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.BlockConfig.generateInterfaceConstraints">
+<code class="descname">generateInterfaceConstraints</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#BlockConfig.generateInterfaceConstraints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.BlockConfig.generateInterfaceConstraints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate MGT Pints constraints</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.RegisterConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">RegisterConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number=-1</em>, <em>prefix=''</em>, <em>extension=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#RegisterConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.RegisterConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>A low level register name and number backing this field</p>
+<dl class="attribute">
+<dt id="common.python.configs.RegisterConfig.name">
+<code class="descname">name</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.RegisterConfig.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the register, like INPA_DLY</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.RegisterConfig.number">
+<code class="descname">number</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.RegisterConfig.number" title="Permalink to this definition">¶</a></dt>
+<dd><p>The register number relative to Block, like 9</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.RegisterConfig.extension">
+<code class="descname">extension</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.RegisterConfig.extension" title="Permalink to this definition">¶</a></dt>
+<dd><p>For an extension field, the register path</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.BusEntryConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">BusEntryConfig</code><span class="sig-paren">(</span><em>name</em>, <em>bus</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#BusEntryConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.BusEntryConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>A bus entry belonging to a field</p>
+<dl class="attribute">
+<dt id="common.python.configs.BusEntryConfig.name">
+<code class="descname">name</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BusEntryConfig.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the register, like INPA_DLY</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.BusEntryConfig.bus">
+<code class="descname">bus</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BusEntryConfig.bus" title="Permalink to this definition">¶</a></dt>
+<dd><p>The bus the output is on, like bit</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.BusEntryConfig.index">
+<code class="descname">index</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.BusEntryConfig.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>The bus index, like 5</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.FieldConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">FieldConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number</em>, <em>type</em>, <em>description</em>, <em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#FieldConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.FieldConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>The config for a single Field of a Block</p>
+<dl class="attribute">
+<dt id="common.python.configs.FieldConfig.type_regex">
+<code class="descname">type_regex</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.FieldConfig.type_regex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Regex for matching a type string to this field</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.FieldConfig.name">
+<code class="descname">name</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.FieldConfig.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the field relative to it’s Block, like INPA</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.FieldConfig.number">
+<code class="descname">number</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.FieldConfig.number" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of instances Blocks that will be created, like 8</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.FieldConfig.type">
+<code class="descname">type</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.FieldConfig.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>The complete type string, like param lut</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.FieldConfig.description">
+<code class="descname">description</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.FieldConfig.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>The long description of the field</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.FieldConfig.registers">
+<code class="descname">registers</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.FieldConfig.registers" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of registers this field uses</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.FieldConfig.bus_entries">
+<code class="descname">bus_entries</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.FieldConfig.bus_entries" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of bus entries this field has</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.FieldConfig.wstb">
+<code class="descname">wstb</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.FieldConfig.wstb" title="Permalink to this definition">¶</a></dt>
+<dd><p>If a write strobe is required, set wstb to 1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.FieldConfig.extension">
+<code class="descname">extension</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.FieldConfig.extension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store the extension register info</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.FieldConfig.extra_config_lines">
+<code class="descname">extra_config_lines</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.FieldConfig.extra_config_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>All the other extra config items</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.FieldConfig.parse_extra_config">
+<code class="descname">parse_extra_config</code><span class="sig-paren">(</span><em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#FieldConfig.parse_extra_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.FieldConfig.parse_extra_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce any extra config lines from self.kwargs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.FieldConfig.register_addresses">
+<code class="descname">register_addresses</code><span class="sig-paren">(</span><em>counters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#FieldConfig.register_addresses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.FieldConfig.register_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create registers using the FieldCounter object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.FieldConfig.address_line">
+<code class="descname">address_line</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#FieldConfig.address_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.FieldConfig.address_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce the line that should go in the registers file after name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.FieldConfig.config_line">
+<code class="descname">config_line</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#FieldConfig.config_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.FieldConfig.config_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce the line that should go in the config file after name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.FieldConfig.numbered_registers">
+<code class="descname">numbered_registers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#FieldConfig.numbered_registers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.FieldConfig.numbered_registers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter self.registers, only producing registers with a number
+(not those that are purely extension registers)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.BitOutFieldConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">BitOutFieldConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number</em>, <em>type</em>, <em>description</em>, <em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#BitOutFieldConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.BitOutFieldConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>These fields represent a single entry on the bit bus</p>
+<dl class="method">
+<dt id="common.python.configs.BitOutFieldConfig.register_addresses">
+<code class="descname">register_addresses</code><span class="sig-paren">(</span><em>counters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#BitOutFieldConfig.register_addresses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.BitOutFieldConfig.register_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create registers using the FieldCounter object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.PosOutFieldConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">PosOutFieldConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number</em>, <em>type</em>, <em>description</em>, <em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#PosOutFieldConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.PosOutFieldConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>These fields represent a position output</p>
+<dl class="method">
+<dt id="common.python.configs.PosOutFieldConfig.register_addresses">
+<code class="descname">register_addresses</code><span class="sig-paren">(</span><em>counters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#PosOutFieldConfig.register_addresses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.PosOutFieldConfig.register_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create registers using the FieldCounter object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.PosOutFieldConfig.parse_extra_config">
+<code class="descname">parse_extra_config</code><span class="sig-paren">(</span><em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#PosOutFieldConfig.parse_extra_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.PosOutFieldConfig.parse_extra_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce any extra config lines from self.kwargs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.PosOutFieldConfig.config_line">
+<code class="descname">config_line</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#PosOutFieldConfig.config_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.PosOutFieldConfig.config_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce the line that should go in the config file after name</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.ExtOutFieldConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">ExtOutFieldConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number</em>, <em>type</em>, <em>description</em>, <em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#ExtOutFieldConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.ExtOutFieldConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>These fields represent a ext output</p>
+<dl class="method">
+<dt id="common.python.configs.ExtOutFieldConfig.register_addresses">
+<code class="descname">register_addresses</code><span class="sig-paren">(</span><em>counters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#ExtOutFieldConfig.register_addresses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.ExtOutFieldConfig.register_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create registers using the FieldCounter object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.ExtOutTimeFieldConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">ExtOutTimeFieldConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number</em>, <em>type</em>, <em>description</em>, <em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#ExtOutTimeFieldConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.ExtOutTimeFieldConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>These fields represent a ext output timestamp, which requires two
+registers</p>
+<dl class="method">
+<dt id="common.python.configs.ExtOutTimeFieldConfig.register_addresses">
+<code class="descname">register_addresses</code><span class="sig-paren">(</span><em>counters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#ExtOutTimeFieldConfig.register_addresses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.ExtOutTimeFieldConfig.register_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create registers using the FieldCounter object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.TableFieldConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">TableFieldConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number</em>, <em>type</em>, <em>description</em>, <em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#TableFieldConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.TableFieldConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>These fields represent a table field</p>
+<dl class="attribute">
+<dt id="common.python.configs.TableFieldConfig.words">
+<code class="descname">words</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.TableFieldConfig.words" title="Permalink to this definition">¶</a></dt>
+<dd><p>How many 32-bit words per line?</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.TableFieldConfig.register_addresses">
+<code class="descname">register_addresses</code><span class="sig-paren">(</span><em>counters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#TableFieldConfig.register_addresses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.TableFieldConfig.register_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create registers using the FieldCounter object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.TableFieldConfig.config_line">
+<code class="descname">config_line</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#TableFieldConfig.config_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.TableFieldConfig.config_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce the line that should go in the config file after name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.TableFieldConfig.parse_extra_config">
+<code class="descname">parse_extra_config</code><span class="sig-paren">(</span><em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#TableFieldConfig.parse_extra_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.TableFieldConfig.parse_extra_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce any extra config lines from self.kwargs</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.TableShortFieldConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">TableShortFieldConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number</em>, <em>type</em>, <em>description</em>, <em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#TableShortFieldConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.TableShortFieldConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>These fields represent a table field</p>
+<dl class="attribute">
+<dt id="common.python.configs.TableShortFieldConfig.lines">
+<code class="descname">lines</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.TableShortFieldConfig.lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>How many lines in the table?</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.TableShortFieldConfig.parse_extra_config">
+<code class="descname">parse_extra_config</code><span class="sig-paren">(</span><em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#TableShortFieldConfig.parse_extra_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.TableShortFieldConfig.parse_extra_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce any extra config lines from self.kwargs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.TableShortFieldConfig.register_addresses">
+<code class="descname">register_addresses</code><span class="sig-paren">(</span><em>counters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#TableShortFieldConfig.register_addresses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.TableShortFieldConfig.register_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create registers using the FieldCounter object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.ParamFieldConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">ParamFieldConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number</em>, <em>type</em>, <em>description</em>, <em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#ParamFieldConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.ParamFieldConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>These fields represent all other set/get parameters backed with a single
+register</p>
+<dl class="method">
+<dt id="common.python.configs.ParamFieldConfig.register_addresses">
+<code class="descname">register_addresses</code><span class="sig-paren">(</span><em>counters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#ParamFieldConfig.register_addresses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.ParamFieldConfig.register_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create registers using the FieldCounter object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.EnumParamFieldConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">EnumParamFieldConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number</em>, <em>type</em>, <em>description</em>, <em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#EnumParamFieldConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.EnumParamFieldConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>An enum field with its integer entries and string values</p>
+<dl class="method">
+<dt id="common.python.configs.EnumParamFieldConfig.parse_extra_config">
+<code class="descname">parse_extra_config</code><span class="sig-paren">(</span><em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#EnumParamFieldConfig.parse_extra_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.EnumParamFieldConfig.parse_extra_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce any extra config lines from self.kwargs</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.UintParamFieldConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">UintParamFieldConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number</em>, <em>type</em>, <em>description</em>, <em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#UintParamFieldConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.UintParamFieldConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>A special These fields represent all other set/get parameters backed with
+a single register</p>
+<dl class="method">
+<dt id="common.python.configs.UintParamFieldConfig.parse_extra_config">
+<code class="descname">parse_extra_config</code><span class="sig-paren">(</span><em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#UintParamFieldConfig.parse_extra_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.UintParamFieldConfig.parse_extra_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce any extra config lines from self.kwargs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.UintParamFieldConfig.config_line">
+<code class="descname">config_line</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#UintParamFieldConfig.config_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.UintParamFieldConfig.config_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce the line that should go in the config file after name</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.ScalarParamFieldConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">ScalarParamFieldConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number</em>, <em>type</em>, <em>description</em>, <em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#ScalarParamFieldConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.ScalarParamFieldConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>A special Read config for reading the different config of a
+read scalar</p>
+<dl class="method">
+<dt id="common.python.configs.ScalarParamFieldConfig.parse_extra_config">
+<code class="descname">parse_extra_config</code><span class="sig-paren">(</span><em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#ScalarParamFieldConfig.parse_extra_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.ScalarParamFieldConfig.parse_extra_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce any extra config lines from self.kwargs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="common.python.configs.ScalarParamFieldConfig.config_line">
+<code class="descname">config_line</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#ScalarParamFieldConfig.config_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.ScalarParamFieldConfig.config_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce the line that should go in the config file after name</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.BitMuxFieldConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">BitMuxFieldConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number</em>, <em>type</em>, <em>description</em>, <em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#BitMuxFieldConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.BitMuxFieldConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>These fields represent a single entry on the pos bus</p>
+<dl class="method">
+<dt id="common.python.configs.BitMuxFieldConfig.register_addresses">
+<code class="descname">register_addresses</code><span class="sig-paren">(</span><em>counters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#BitMuxFieldConfig.register_addresses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.BitMuxFieldConfig.register_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create registers using the FieldCounter object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.PosMuxFieldConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">PosMuxFieldConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number</em>, <em>type</em>, <em>description</em>, <em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#PosMuxFieldConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.PosMuxFieldConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fields represent a position input multiplexer selection</p>
+<dl class="method">
+<dt id="common.python.configs.PosMuxFieldConfig.register_addresses">
+<code class="descname">register_addresses</code><span class="sig-paren">(</span><em>counters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#PosMuxFieldConfig.register_addresses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.PosMuxFieldConfig.register_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create registers using the FieldCounter object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.TimeFieldConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">TimeFieldConfig</code><span class="sig-paren">(</span><em>name</em>, <em>number</em>, <em>type</em>, <em>description</em>, <em>extra_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#TimeFieldConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.TimeFieldConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fields represent a configurable timer parameter</p>
+<dl class="method">
+<dt id="common.python.configs.TimeFieldConfig.register_addresses">
+<code class="descname">register_addresses</code><span class="sig-paren">(</span><em>counters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#TimeFieldConfig.register_addresses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.TimeFieldConfig.register_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create registers using the FieldCounter object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="common.python.configs.TargetSiteConfig">
+<em class="property">class </em><code class="descclassname">common.python.configs.</code><code class="descname">TargetSiteConfig</code><span class="sig-paren">(</span><em>name</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#TargetSiteConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#common.python.configs.TargetSiteConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>The config for the target sites</p>
+<dl class="attribute">
+<dt id="common.python.configs.TargetSiteConfig.type_regex">
+<code class="descname">type_regex</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.TargetSiteConfig.type_regex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Regex for matching a type string to this field</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.TargetSiteConfig.name">
+<code class="descname">name</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.TargetSiteConfig.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The type of target site (SFP/FMC etc)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="common.python.configs.TargetSiteConfig.number">
+<code class="descname">number</code><em class="property"> = None</em><a class="headerlink" href="#common.python.configs.TargetSiteConfig.number" title="Permalink to this definition">¶</a></dt>
+<dd><p>The info i in a string such as “3, i, io, o”</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="test-benches">
+<h2>Test benches<a class="headerlink" href="#test-benches" title="Permalink to this headline">¶</a></h2>
+<p>A generic outline is common across the testbenches for the different blocks.
+There are four main areas of required functionality: Assigning signals, reading
+expected data, assigning inputs to the UUT and reading the outputs and comparing
+the outputs.</p>
+<p>A template can therefore be used to autogenerate the testbench, with this common
+functionality, with the modifications required for use with the different
+blocks.</p>
+<div class="section" id="required-signals-in-the-block">
+<h3>Required signals in the block<a class="headerlink" href="#required-signals-in-the-block" title="Permalink to this headline">¶</a></h3>
+<p>Python code used has extracted the different signals which are required from the
+<code class="docutils literal notranslate"><span class="pre">.block.ini</span></code> file for each block. Using this information, register signals are
+produced in the testbench for each signal, using the names from the INI file.
+However, not all signals are used in the same manner. Therefore the field type
+of each signal is also read to determine the size of the required register for
+each signals. This is also used to determine whether the signal is an input or
+an output signal. Each output signal requires a register signal similar to the
+the inputs, however they also require wire signals for use with the UUT, this is
+differentiated by the suffix “_UUT” and an error register which is
+differentiated by the suffix “_error”.</p>
+<p>Integer signals are also declared for holding the file identifier, the
+<code class="docutils literal notranslate"><span class="pre">$fscanf</span></code> return value and the timestamp.</p>
+</div>
+<div class="section" id="read-expected-csv">
+<h3>Read expected.csv<a class="headerlink" href="#read-expected-csv" title="Permalink to this headline">¶</a></h3>
+<p>From the <code class="docutils literal notranslate"><span class="pre">.timing.ini</span></code> file within the block, a CSV file is generated which
+describes how the UUT should behave under certain inputs at different times. The
+first line of the file contains strings with the names of each of the signals,
+the first column being the timestamp data. All other lines contain numeric data
+for the timestamp, inputs and corresponding outputs.</p>
+<p>The file is opened in the testbench and read line by line. The first line,
+containing the names of the signals is discarded. The numeric data is then read,
+when the timestamp value is equal to that in the file the values are assigned to
+the corresponding registers in the testbench. The data in the file is ordered in
+the same way as the .block.ini file so iterating through the signals in order,
+will assign the data to the correct registers.</p>
+</div>
+<div class="section" id="assign-signals">
+<h3>Assign signals<a class="headerlink" href="#assign-signals" title="Permalink to this headline">¶</a></h3>
+<p>The inputs to the entity for the block will have the same name as for those used
+in the testbench. It is therefore straightforward to connect the signals. The
+registers with the same name as the outputs are being used for holding the
+expected values, therefore the wire signals with the suffix “_uut” are used to
+read the output signals.</p>
+</div>
+<div class="section" id="compare-output-signals">
+<h3>Compare output signals<a class="headerlink" href="#compare-output-signals" title="Permalink to this headline">¶</a></h3>
+<p>To verify the correct functionality of the block, the outputted values will need
+to be compared to the expected values. A simple comparison is implemented, if
+the two signals are not equal, set that output’s error signal to one and display
+an error message to the user.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="block.html" class="btn btn-neutral float-left" title="Writing a Block" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Diamond Light Source
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

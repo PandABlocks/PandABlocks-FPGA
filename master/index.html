@@ -1,0 +1,912 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>What can PandABlocks do? &mdash; PandABlocks-FPGA 3.0a1-273-g3d5421e
+ documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/PandA-logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Blinking LEDs Tutorial" href="tutorials/tutorial1_blinking_leds.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: black" >
+          
+
+          
+            <a href="#" class="icon icon-home"> PandABlocks-FPGA
+          
+
+          
+            
+            <img src="_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0a1-273-g3d5421e
+
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+  <style>
+    /* style mobile top nav to look like main nav */
+    .wy-nav-top {
+        background: black
+    }
+  </style>
+  
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">What can PandABlocks do?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#how-is-the-documentation-structured">How is the documentation structured?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#using-an-existing-pandablocks-device">Using an existing PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generating-a-new-set-of-blocks-for-a-pandablocks-device">Generating a new set of Blocks for a PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#extending-the-functionality-of-a-pandablocks-device">Extending the functionality of a PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-on-the-core-autogeneration-framework">Working on the core autogeneration framework</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial2_position_capture.html">Position Capture Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="blocks.html">Available Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/contributing.html">Contributing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/app.html">Assembling Blocks into an App</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/block.html">Writing a Block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html">Autogeneration framework architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/changelog.html">Changelog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/glossary.html">Glossary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/testing.html">Running the tests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial2_position_capture.html">Position Capture Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="blocks.html">Available Blocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/app.html">Assembling Blocks into an App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/block.html">Writing a Block</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/framework.html">Autogeneration framework architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/testing.html">Running the tests</a></li>
+</ul>
+
+            
+          
+  <!-- Include link to changelog -->
+  <a href="https://github.com/PandABlocks/PandABlocks-FPGA/blob/master/CHANGELOG.rst">Changelog</a>
+  <!-- Add versions for selected branches + tags -->
+  <p class="caption"><span class="caption-text">Versions</span></p>
+  <ul id="versions"/>
+  <script>
+    // Add any branches to appear in the side pane here, tags will be added below
+    // Will only appear if docs are built and pushed in gh-pages
+    var versions = ['master', 'main'];
+    var dirs = new Set();
+    function addVersion(name) {
+      if (dirs.has(name)) {
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.href = 'https://PandABlocks.github.io/PandABlocks-FPGA/' + name;
+        a.innerText = name;
+        li.appendChild(a)
+        document.getElementById('versions').appendChild(li);
+      }
+    }
+    Promise.all([
+      // Find gh-pages directories and populate `dirs`
+      fetch("https://api.github.com/repos/PandABlocks/PandABlocks-FPGA/contents?ref=gh-pages")
+      .then(response => response.json())
+      .then(data => data.forEach(function(e) {
+        if (e.type == "dir") dirs.add(e.name);
+      })),
+      // Add tags to `versions`
+      fetch('https://api.github.com/repos/PandABlocks/PandABlocks-FPGA/tags')
+        .then(response => response.json())
+        .then(data => data.forEach(function(e) {
+          versions.push(e.name);
+        }))
+      ]).then(_ => versions.forEach(addVersion))
+  </script>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">PandABlocks-FPGA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>What can PandABlocks do?</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="what-can-pandablocks-do">
+<h1>What can PandABlocks do?<a class="headerlink" href="#what-can-pandablocks-do" title="Permalink to this headline">¶</a></h1>
+<p>PandABlocks is a framework enabling a number of functional <a class="reference internal" href="reference/glossary.html#block"><span class="std std-ref">Block</span></a> instances to
+be written and loaded to an FPGA, with their parameters (including their
+connections to other Blocks) changed at runtime. It allows flexible triggering
+and processing systems to be created, by users who are unfamiliar with writing
+FPGA firmware.</p>
+<img alt="_images/fpga_arch.png" src="_images/fpga_arch.png" />
+</div>
+<div class="section" id="how-is-the-documentation-structured">
+<h1>How is the documentation structured?<a class="headerlink" href="#how-is-the-documentation-structured" title="Permalink to this headline">¶</a></h1>
+<p>The documentation is structured into a series of <a class="reference internal" href="#tutorials-doc"><span class="std std-ref">Tutorials</span></a> and some
+general <a class="reference internal" href="#reference-doc"><span class="std std-ref">Reference</span></a> documentation. End users and developers need different
+documentation, so links for various categories of user are listed below:</p>
+<div class="section" id="using-an-existing-pandablocks-device">
+<h2>Using an existing PandABlocks device<a class="headerlink" href="#using-an-existing-pandablocks-device" title="Permalink to this headline">¶</a></h2>
+<p>Work through the <a class="reference internal" href="#tutorials-doc"><span class="std std-ref">Tutorials</span></a>.</p>
+</div>
+<div class="section" id="generating-a-new-set-of-blocks-for-a-pandablocks-device">
+<h2>Generating a new set of Blocks for a PandABlocks device<a class="headerlink" href="#generating-a-new-set-of-blocks-for-a-pandablocks-device" title="Permalink to this headline">¶</a></h2>
+<p>Read <a class="reference internal" href="blocks.html#blocks-doc"><span class="std std-ref">Available Blocks</span></a> to find out what already exists, then read
+<a class="reference internal" href="reference/app.html#app-reference"><span class="std std-ref">Assembling Blocks into an App</span></a> to see how to make an <a class="reference internal" href="reference/glossary.html#app"><span class="std std-ref">App</span></a> of these Blocks that can be loaded
+to a PandABlocks device.</p>
+</div>
+<div class="section" id="extending-the-functionality-of-a-pandablocks-device">
+<h2>Extending the functionality of a PandABlocks device<a class="headerlink" href="#extending-the-functionality-of-a-pandablocks-device" title="Permalink to this headline">¶</a></h2>
+<p>Read <a class="reference internal" href="blocks.html#blocks-doc"><span class="std std-ref">Available Blocks</span></a> to see if you need to create a new Block or add to
+an existing one. Read <a class="reference internal" href="reference/block.html#block-reference"><span class="std std-ref">Writing a Block</span></a> to find out how to specify the
+interface to a Block, VHDL entity, timing tests and docs.</p>
+</div>
+<div class="section" id="working-on-the-core-autogeneration-framework">
+<h2>Working on the core autogeneration framework<a class="headerlink" href="#working-on-the-core-autogeneration-framework" title="Permalink to this headline">¶</a></h2>
+<p>Read <a class="reference internal" href="reference/block.html#block-reference"><span class="std std-ref">Writing a Block</span></a> to find out how the process works, then
+<a class="reference internal" href="reference/framework.html#framework-reference"><span class="std std-ref">Autogeneration framework architecture</span></a> for more details on specific parts of the autogeneration
+framework</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Introduction</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">What can PandABlocks do?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#how-is-the-documentation-structured">How is the documentation structured?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#using-an-existing-pandablocks-device">Using an existing PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generating-a-new-set-of-blocks-for-a-pandablocks-device">Generating a new set of Blocks for a PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#extending-the-functionality-of-a-pandablocks-device">Extending the functionality of a PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-on-the-core-autogeneration-framework">Working on the core autogeneration framework</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorials/tutorial1_blinking_leds.html#opening-the-gui">Opening the GUI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tutorials/tutorial1_blinking_leds.html#loading-the-tutorial-design">Loading the tutorial design</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tutorials/tutorial1_blinking_leds.html#how-the-design-works">How the design works</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tutorials/tutorial1_blinking_leds.html#the-bit-bus">The Bit Bus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tutorials/tutorial1_blinking_leds.html#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial2_position_capture.html">Position Capture Tutorial</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tutorials/tutorial2_position_capture.html#loading-the-tutorial-design">Loading the tutorial design</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tutorials/tutorial2_position_capture.html#how-the-design-works">How the design works</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tutorials/tutorial2_position_capture.html#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="blocks.html">Available Blocks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="build/bits_doc.html">BITS - Soft inputs and constant bits</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/bits_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/bits_doc.html#outputs-follow-parameters">Outputs follow parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/calc_doc.html">CALC - Position Calc</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/calc_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/calc_doc.html#adding-inputs">Adding inputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/calc_doc.html#scaling">Scaling</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/calc_doc.html#inverting">Inverting</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/clock_doc.html">CLOCK - Configurable clock</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/clock_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/clock_doc.html#setting-clock-period-parameters">Setting clock period parameters</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/clock_doc.html#clock-settings-while-disabled">Clock settings while disabled</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/counter_doc.html">COUNTER - Up/Down pulse counter</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/counter_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/counter_doc.html#counting-pulses">Counting pulses</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/counter_doc.html#rollover">Rollover</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/counter_doc.html#edge-cases">Edge cases</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/div_doc.html">DIV - Pulse divider</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/div_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/div_doc.html#which-output-do-pulses-go-to">Which output do pulses go to</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/div_doc.html#reset-conditions">Reset conditions</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/filter_doc.html">FILTER - Filter</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/filter_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/filter_doc.html#difference">Difference</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/filter_doc.html#average">Average</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/fmc_24v_doc.html">FMC_24V - FMC 24V IO Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/fmc_24v_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/fmc_acq427_doc.html">FMC_ACQ427 - FMC ACQ427 Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/fmc_acq427_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/fmc_acq427_doc.html#clock-note">Clock note</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/fmc_acq430_doc.html">FMC_ACQ430 - FMC ACQ430 Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/fmc_acq430_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/fmc_acq430_doc.html#clock-note">Clock note</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/fmc_loopback_doc.html">FMC_LOOPBACK - FMC Loopback Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/fmc_loopback_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/inenc_doc.html">INENC - Input encoder</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/inenc_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/lut_doc.html">LUT - 5 Input lookup table</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/lut_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/lut_doc.html#testing-function-output">Testing Function Output</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/lut_doc.html#changing-the-function-in-a-test">Changing the function in a test</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/lut_doc.html#edge-triggered-inputs">Edge triggered inputs</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/lvdsin_doc.html">LVDSIN - LVDS Input</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/lvdsin_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/lvdsout_doc.html">LVDSOUT - LVDS Output</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/lvdsout_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/outenc_doc.html">OUTENC - Output encoder</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/outenc_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/pcap_doc.html">PCAP - Position Capture</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/pcap_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcap_doc.html#arming">Arming</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcap_doc.html#capturing-fields">Capturing fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcap_doc.html#pos-bus-capture">Pos bus capture</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="build/pcap_doc.html#mode-0-value">Mode 0 - Value</a></li>
+<li class="toctree-l6"><a class="reference internal" href="build/pcap_doc.html#mode-1-difference">Mode 1 - Difference</a></li>
+<li class="toctree-l6"><a class="reference internal" href="build/pcap_doc.html#mode-2-3-sum-lo-hi">Mode 2/3 - Sum Lo/Hi</a></li>
+<li class="toctree-l6"><a class="reference internal" href="build/pcap_doc.html#mode-4-5-min-max">Mode 4/5 - Min/Max</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcap_doc.html#number-of-samples">Number of samples</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcap_doc.html#timestamps">Timestamps</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcap_doc.html#bit-bus-capture">Bit bus capture</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcap_doc.html#triggering-options">Triggering options</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcap_doc.html#error-conditions">Error conditions</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/pcomp_doc.html">PCOMP - Position Compare</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/pcomp_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcomp_doc.html#position-compare-is-directional">Position compare is directional</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcomp_doc.html#internal-statemachine">Internal statemachine</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcomp_doc.html#not-generating-a-pulse-more-than-once">Not generating a pulse more than once</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcomp_doc.html#guessing-the-direction">Guessing the direction</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcomp_doc.html#interrupting-a-scan">Interrupting a scan</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcomp_doc.html#position-compare-on-absolute-values">Position compare on absolute values</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcomp_doc.html#relative-position-compare">Relative position compare</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pcomp_doc.html#use-as-a-schmitt-trigger">Use as a Schmitt trigger</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/pgen_doc.html">PGEN - Position Generator</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/pgen_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pgen_doc.html#normal-operation">Normal operation</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/posenc_doc.html">POSENC - Quadrature and step/direction encoder</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/posenc_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/posenc_doc.html#quadrature">Quadrature</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/posenc_doc.html#step-direction">Step/Direction</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/pulse_doc.html">PULSE - One-shot pulse delay and stretch</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/pulse_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pulse_doc.html#delay-line">Delay line</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pulse_doc.html#pulse-train-generation">Pulse train generation</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pulse_doc.html#pulse-period-error">Pulse period error</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pulse_doc.html#enabling-the-block">Enabling the Block</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/pulse_doc.html#changing-parameters-while-enabled">Changing parameters while Enabled</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/qdec_doc.html">QDEC - Quadrature Decoder</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/qdec_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/qdec_doc.html#counting">Counting</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/qdec_doc.html#resetting">Resetting</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/qdec_doc.html#limitations">Limitations</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/seq_doc.html">SEQ - Sequencer</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/seq_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/seq_doc.html#sequencer-table-line-composition">Sequencer Table Line Composition</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/seq_doc.html#generating-fixed-pulse-trains">Generating fixed pulse trains</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/seq_doc.html#statemachine">Statemachine</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/seq_doc.html#external-trigger-sources">External trigger sources</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/seq_doc.html#prescaler">Prescaler</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/seq_doc.html#interrupting-a-sequence">Interrupting a sequence</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/seq_doc.html#table-rewriting">Table rewriting</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/sfp_dls_eventr_doc.html">SFP_DLS_EVENTR - SFP Event Receiver Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/sfp_dls_eventr_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/sfp_loopback_doc.html">SFP_LOOPBACK- SFP Loopback Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/sfp_loopback_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/sfp_panda_sync_doc.html">SFP_PANDA_SYNC - Synchronize data between 2 PandAs</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/sfp_panda_sync_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/sfp_udpontrig_doc.html">SFP_UDPONTRIG - SFP UDP on trig Module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/sfp_udpontrig_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/srgate_doc.html">SRGATE - Set Reset Gate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/srgate_doc.html#fields">Fields</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/srgate_doc.html#normal-conditions">Normal conditions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/srgate_doc.html#disabling-the-block">Disabling the block</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/srgate_doc.html#active-edge-configure-conditions">Active edge configure conditions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="build/srgate_doc.html#set-reset-conditions">Set-reset conditions</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/system_doc.html">SYSTEM - System control FPGA</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/system_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/ttlin_doc.html">TTLIN - TTL Input</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/ttlin_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="build/ttlout_doc.html">TTLOUT - TTL Output</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="build/ttlout_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/contributing.html">Contributing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/contributing.html#running-the-tests">Running the tests</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/contributing.html#writing-vhdl">Writing VHDL</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/contributing.html#writing-python">Writing Python</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/contributing.html#documentation">Documentation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/contributing.html#release-checklist">Release Checklist</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/app.html">Assembling Blocks into an App</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/app.html#app-ini-file">App ini file</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="reference/app.html#the-section">The [.] section</a></li>
+<li class="toctree-l5"><a class="reference internal" href="reference/app.html#block-sections">[BLOCK] sections</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="reference/app.html#app-build-process">App build process</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/app.html#querying-the-app-at-runtime">Querying the App at runtime</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/block.html">Writing a Block</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/block.html#architecture">Architecture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/block.html#modules">Modules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/block.html#block-ini">Block ini</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="reference/block.html#the-section">The [.] section</a></li>
+<li class="toctree-l5"><a class="reference internal" href="reference/block.html#field-sections">[FIELD] sections</a></li>
+<li class="toctree-l5"><a class="reference internal" href="reference/block.html#extra-field-keys">Extra Field Keys</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="reference/block.html#block-simulation">Block Simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/block.html#timing-ini">Timing ini</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="reference/block.html#id2">The [.] section</a></li>
+<li class="toctree-l5"><a class="reference internal" href="reference/block.html#test-sections">[TEST] sections</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="reference/block.html#target-ini">Target ini</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="reference/block.html#id3">The [.] section</a></li>
+<li class="toctree-l5"><a class="reference internal" href="reference/block.html#block-sections">[BLOCK] sections</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="reference/block.html#writing-docs">Writing docs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/block.html#block-vhdl-entity">Block VHDL entity</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html">Autogeneration framework architecture</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#softblocks">Softblocks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#wrappers">Wrappers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#module-common.python.configs">Config_d entries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#test-benches">Test benches</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#required-signals-in-the-block">Required signals in the block</a></li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#read-expected-csv">Read expected.csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#assign-signals">Assign signals</a></li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#compare-output-signals">Compare output signals</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/changelog.html">Changelog</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/changelog.html#unreleased">Unreleased</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/changelog.html#a2-2021-09-21">3.0a2 - 2021-09-21</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/changelog.html#a1-2021-06-16">3.0a1 - 2021-06-16</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/changelog.html#id1">2.1 - 2021-04-27</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/glossary.html">Glossary</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/glossary.html#app">App</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/glossary.html#block">Block</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/glossary.html#field">Field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/glossary.html#module">Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/glossary.html#pandabox">PandABox</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/glossary.html#pandablocks-device">PandABlocks Device</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/glossary.html#target-platform">Target Platform</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/glossary.html#zpkg">Zpkg</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/testing.html">Running the tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/testing.html#python-tests">Python tests</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/testing.html#hdl-tests">HDL tests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound" id="tutorials-doc">
+<p class="caption"><span class="caption-text">Tutorials</span><a class="headerlink" href="#tutorials-doc" title="Permalink to this toctree">¶</a></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial1_blinking_leds.html#opening-the-gui">Opening the GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial1_blinking_leds.html#loading-the-tutorial-design">Loading the tutorial design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial1_blinking_leds.html#how-the-design-works">How the design works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial1_blinking_leds.html#the-bit-bus">The Bit Bus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial1_blinking_leds.html#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial2_position_capture.html">Position Capture Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial2_position_capture.html#loading-the-tutorial-design">Loading the tutorial design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial2_position_capture.html#how-the-design-works">How the design works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial2_position_capture.html#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound" id="reference-doc">
+<p class="caption"><span class="caption-text">Reference</span><a class="headerlink" href="#reference-doc" title="Permalink to this toctree">¶</a></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="blocks.html">Available Blocks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="build/bits_doc.html">BITS - Soft inputs and constant bits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/bits_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/bits_doc.html#outputs-follow-parameters">Outputs follow parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/calc_doc.html">CALC - Position Calc</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/calc_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/calc_doc.html#adding-inputs">Adding inputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/calc_doc.html#scaling">Scaling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/calc_doc.html#inverting">Inverting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/clock_doc.html">CLOCK - Configurable clock</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/clock_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/clock_doc.html#setting-clock-period-parameters">Setting clock period parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/clock_doc.html#clock-settings-while-disabled">Clock settings while disabled</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/counter_doc.html">COUNTER - Up/Down pulse counter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/counter_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/counter_doc.html#counting-pulses">Counting pulses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/counter_doc.html#rollover">Rollover</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/counter_doc.html#edge-cases">Edge cases</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/div_doc.html">DIV - Pulse divider</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/div_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/div_doc.html#which-output-do-pulses-go-to">Which output do pulses go to</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/div_doc.html#reset-conditions">Reset conditions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/filter_doc.html">FILTER - Filter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/filter_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/filter_doc.html#difference">Difference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/filter_doc.html#average">Average</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/fmc_24v_doc.html">FMC_24V - FMC 24V IO Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/fmc_24v_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/fmc_acq427_doc.html">FMC_ACQ427 - FMC ACQ427 Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/fmc_acq427_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/fmc_acq427_doc.html#clock-note">Clock note</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/fmc_acq430_doc.html">FMC_ACQ430 - FMC ACQ430 Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/fmc_acq430_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/fmc_acq430_doc.html#clock-note">Clock note</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/fmc_loopback_doc.html">FMC_LOOPBACK - FMC Loopback Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/fmc_loopback_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/inenc_doc.html">INENC - Input encoder</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/inenc_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/lut_doc.html">LUT - 5 Input lookup table</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/lut_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/lut_doc.html#testing-function-output">Testing Function Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/lut_doc.html#changing-the-function-in-a-test">Changing the function in a test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/lut_doc.html#edge-triggered-inputs">Edge triggered inputs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/lvdsin_doc.html">LVDSIN - LVDS Input</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/lvdsin_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/lvdsout_doc.html">LVDSOUT - LVDS Output</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/lvdsout_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/outenc_doc.html">OUTENC - Output encoder</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/outenc_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/pcap_doc.html">PCAP - Position Capture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/pcap_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcap_doc.html#arming">Arming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcap_doc.html#capturing-fields">Capturing fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcap_doc.html#pos-bus-capture">Pos bus capture</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="build/pcap_doc.html#mode-0-value">Mode 0 - Value</a></li>
+<li class="toctree-l4"><a class="reference internal" href="build/pcap_doc.html#mode-1-difference">Mode 1 - Difference</a></li>
+<li class="toctree-l4"><a class="reference internal" href="build/pcap_doc.html#mode-2-3-sum-lo-hi">Mode 2/3 - Sum Lo/Hi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="build/pcap_doc.html#mode-4-5-min-max">Mode 4/5 - Min/Max</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcap_doc.html#number-of-samples">Number of samples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcap_doc.html#timestamps">Timestamps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcap_doc.html#bit-bus-capture">Bit bus capture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcap_doc.html#triggering-options">Triggering options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcap_doc.html#error-conditions">Error conditions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/pcomp_doc.html">PCOMP - Position Compare</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/pcomp_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcomp_doc.html#position-compare-is-directional">Position compare is directional</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcomp_doc.html#internal-statemachine">Internal statemachine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcomp_doc.html#not-generating-a-pulse-more-than-once">Not generating a pulse more than once</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcomp_doc.html#guessing-the-direction">Guessing the direction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcomp_doc.html#interrupting-a-scan">Interrupting a scan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcomp_doc.html#position-compare-on-absolute-values">Position compare on absolute values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcomp_doc.html#relative-position-compare">Relative position compare</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pcomp_doc.html#use-as-a-schmitt-trigger">Use as a Schmitt trigger</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/pgen_doc.html">PGEN - Position Generator</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/pgen_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pgen_doc.html#normal-operation">Normal operation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/posenc_doc.html">POSENC - Quadrature and step/direction encoder</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/posenc_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/posenc_doc.html#quadrature">Quadrature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/posenc_doc.html#step-direction">Step/Direction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/pulse_doc.html">PULSE - One-shot pulse delay and stretch</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/pulse_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pulse_doc.html#delay-line">Delay line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pulse_doc.html#pulse-train-generation">Pulse train generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pulse_doc.html#pulse-period-error">Pulse period error</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pulse_doc.html#enabling-the-block">Enabling the Block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/pulse_doc.html#changing-parameters-while-enabled">Changing parameters while Enabled</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/qdec_doc.html">QDEC - Quadrature Decoder</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/qdec_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/qdec_doc.html#counting">Counting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/qdec_doc.html#resetting">Resetting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/qdec_doc.html#limitations">Limitations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/seq_doc.html">SEQ - Sequencer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/seq_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/seq_doc.html#sequencer-table-line-composition">Sequencer Table Line Composition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/seq_doc.html#generating-fixed-pulse-trains">Generating fixed pulse trains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/seq_doc.html#statemachine">Statemachine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/seq_doc.html#external-trigger-sources">External trigger sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/seq_doc.html#prescaler">Prescaler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/seq_doc.html#interrupting-a-sequence">Interrupting a sequence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/seq_doc.html#table-rewriting">Table rewriting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/sfp_dls_eventr_doc.html">SFP_DLS_EVENTR - SFP Event Receiver Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/sfp_dls_eventr_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/sfp_loopback_doc.html">SFP_LOOPBACK- SFP Loopback Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/sfp_loopback_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/sfp_panda_sync_doc.html">SFP_PANDA_SYNC - Synchronize data between 2 PandAs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/sfp_panda_sync_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/sfp_udpontrig_doc.html">SFP_UDPONTRIG - SFP UDP on trig Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/sfp_udpontrig_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/srgate_doc.html">SRGATE - Set Reset Gate</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/srgate_doc.html#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/srgate_doc.html#normal-conditions">Normal conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/srgate_doc.html#disabling-the-block">Disabling the block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/srgate_doc.html#active-edge-configure-conditions">Active edge configure conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/srgate_doc.html#set-reset-conditions">Set-reset conditions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/system_doc.html">SYSTEM - System control FPGA</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/system_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/ttlin_doc.html">TTLIN - TTL Input</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/ttlin_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build/ttlout_doc.html">TTLOUT - TTL Output</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/ttlout_doc.html#fields">Fields</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/contributing.html#running-the-tests">Running the tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/contributing.html#writing-vhdl">Writing VHDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/contributing.html#writing-python">Writing Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/contributing.html#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/contributing.html#release-checklist">Release Checklist</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/app.html">Assembling Blocks into an App</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/app.html#app-ini-file">App ini file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/app.html#the-section">The [.] section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/app.html#block-sections">[BLOCK] sections</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference/app.html#app-build-process">App build process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/app.html#querying-the-app-at-runtime">Querying the App at runtime</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/block.html">Writing a Block</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/block.html#architecture">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/block.html#modules">Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/block.html#block-ini">Block ini</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/block.html#the-section">The [.] section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/block.html#field-sections">[FIELD] sections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/block.html#extra-field-keys">Extra Field Keys</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference/block.html#block-simulation">Block Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/block.html#timing-ini">Timing ini</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/block.html#id2">The [.] section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/block.html#test-sections">[TEST] sections</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference/block.html#target-ini">Target ini</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/block.html#id3">The [.] section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/block.html#block-sections">[BLOCK] sections</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference/block.html#writing-docs">Writing docs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/block.html#block-vhdl-entity">Block VHDL entity</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/framework.html">Autogeneration framework architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/framework.html#softblocks">Softblocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/framework.html#wrappers">Wrappers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/framework.html#module-common.python.configs">Config_d entries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/framework.html#test-benches">Test benches</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#required-signals-in-the-block">Required signals in the block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#read-expected-csv">Read expected.csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#assign-signals">Assign signals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#compare-output-signals">Compare output signals</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/changelog.html#unreleased">Unreleased</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/changelog.html#a2-2021-09-21">3.0a2 - 2021-09-21</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/changelog.html#a1-2021-06-16">3.0a1 - 2021-06-16</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/changelog.html#id1">2.1 - 2021-04-27</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/glossary.html">Glossary</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/glossary.html#app">App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/glossary.html#block">Block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/glossary.html#field">Field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/glossary.html#module">Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/glossary.html#pandabox">PandABox</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/glossary.html#pandablocks-device">PandABlocks Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/glossary.html#target-platform">Target Platform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/glossary.html#zpkg">Zpkg</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/testing.html">Running the tests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/testing.html#python-tests">Python tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/testing.html#hdl-tests">HDL tests</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorials/tutorial1_blinking_leds.html" class="btn btn-neutral float-right" title="Blinking LEDs Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Diamond Light Source
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

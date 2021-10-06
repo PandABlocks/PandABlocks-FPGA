@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Snake Scan Tutorial &mdash; PandABlocks-FPGA 3.0a1-273-g3d5421e
+ documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Available Blocks" href="../blocks.html" />
+    <link rel="prev" title="Position Compare Tutorial" href="tutorial3_position_compare.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: black" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PandABlocks-FPGA
+          
+
+          
+            
+            <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0a1-273-g3d5421e
+
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+  <style>
+    /* style mobile top nav to look like main nav */
+    .wy-nav-top {
+        background: black
+    }
+  </style>
+  
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">What can PandABlocks do?</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html#how-is-the-documentation-structured">How is the documentation structured?</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#using-an-existing-pandablocks-device">Using an existing PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#generating-a-new-set-of-blocks-for-a-pandablocks-device">Generating a new set of Blocks for a PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#extending-the-functionality-of-a-pandablocks-device">Extending the functionality of a PandABlocks device</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#working-on-the-core-autogeneration-framework">Working on the core autogeneration framework</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial2_position_capture.html">Position Capture Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Snake Scan Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../blocks.html">Available Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/contributing.html">Contributing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/app.html">Assembling Blocks into an App</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/block.html">Writing a Block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/framework.html">Autogeneration framework architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/changelog.html">Changelog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/glossary.html">Glossary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/testing.html">Running the tests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial2_position_capture.html">Position Capture Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Snake Scan Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../blocks.html">Available Blocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/app.html">Assembling Blocks into an App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/block.html">Writing a Block</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/framework.html">Autogeneration framework architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/testing.html">Running the tests</a></li>
+</ul>
+
+            
+          
+  <!-- Include link to changelog -->
+  <a href="https://github.com/PandABlocks/PandABlocks-FPGA/blob/master/CHANGELOG.rst">Changelog</a>
+  <!-- Add versions for selected branches + tags -->
+  <p class="caption"><span class="caption-text">Versions</span></p>
+  <ul id="versions"/>
+  <script>
+    // Add any branches to appear in the side pane here, tags will be added below
+    // Will only appear if docs are built and pushed in gh-pages
+    var versions = ['master', 'main'];
+    var dirs = new Set();
+    function addVersion(name) {
+      if (dirs.has(name)) {
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.href = 'https://PandABlocks.github.io/PandABlocks-FPGA/' + name;
+        a.innerText = name;
+        li.appendChild(a)
+        document.getElementById('versions').appendChild(li);
+      }
+    }
+    Promise.all([
+      // Find gh-pages directories and populate `dirs`
+      fetch("https://api.github.com/repos/PandABlocks/PandABlocks-FPGA/contents?ref=gh-pages")
+      .then(response => response.json())
+      .then(data => data.forEach(function(e) {
+        if (e.type == "dir") dirs.add(e.name);
+      })),
+      // Add tags to `versions`
+      fetch('https://api.github.com/repos/PandABlocks/PandABlocks-FPGA/tags')
+        .then(response => response.json())
+        .then(data => data.forEach(function(e) {
+          versions.push(e.name);
+        }))
+      ]).then(_ => versions.forEach(addVersion))
+  </script>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PandABlocks-FPGA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Snake Scan Tutorial</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/tutorials/tutorial4_snake_scan.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="snake-scan-tutorial">
+<span id="id1"></span><h1>Snake Scan Tutorial<a class="headerlink" href="#snake-scan-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial will introduce the concept of table based position compare
+using the SEQ block to do a two dimensional ‘snake’ scan. This is where the
+X dimension scans forward over the range, Y steps forward, then X scans
+backwards, repeated until the scan is complete.</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../blocks.html" class="btn btn-neutral float-right" title="Available Blocks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tutorial3_position_compare.html" class="btn btn-neutral float-left" title="Position Compare Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Diamond Light Source
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

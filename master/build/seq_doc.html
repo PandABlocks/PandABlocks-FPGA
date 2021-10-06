@@ -1,0 +1,1744 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>SEQ - Sequencer &mdash; PandABlocks-FPGA 3.0a1-273-g3d5421e
+ documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SFP_DLS_EVENTR - SFP Event Receiver Module" href="sfp_dls_eventr_doc.html" />
+    <link rel="prev" title="QDEC - Quadrature Decoder" href="qdec_doc.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: black" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PandABlocks-FPGA
+          
+
+          
+            
+            <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0a1-273-g3d5421e
+
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+  <style>
+    /* style mobile top nav to look like main nav */
+    .wy-nav-top {
+        background: black
+    }
+  </style>
+  
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">What can PandABlocks do?</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html#how-is-the-documentation-structured">How is the documentation structured?</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#using-an-existing-pandablocks-device">Using an existing PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#generating-a-new-set-of-blocks-for-a-pandablocks-device">Generating a new set of Blocks for a PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#extending-the-functionality-of-a-pandablocks-device">Extending the functionality of a PandABlocks device</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#working-on-the-core-autogeneration-framework">Working on the core autogeneration framework</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial2_position_capture.html">Position Capture Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../blocks.html">Available Blocks</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="bits_doc.html">BITS - Soft inputs and constant bits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="calc_doc.html">CALC - Position Calc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clock_doc.html">CLOCK - Configurable clock</a></li>
+<li class="toctree-l4"><a class="reference internal" href="counter_doc.html">COUNTER - Up/Down pulse counter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="div_doc.html">DIV - Pulse divider</a></li>
+<li class="toctree-l4"><a class="reference internal" href="filter_doc.html">FILTER - Filter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fmc_24v_doc.html">FMC_24V - FMC 24V IO Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fmc_acq427_doc.html">FMC_ACQ427 - FMC ACQ427 Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fmc_acq430_doc.html">FMC_ACQ430 - FMC ACQ430 Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fmc_loopback_doc.html">FMC_LOOPBACK - FMC Loopback Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="inenc_doc.html">INENC - Input encoder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lut_doc.html">LUT - 5 Input lookup table</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lvdsin_doc.html">LVDSIN - LVDS Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lvdsout_doc.html">LVDSOUT - LVDS Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="outenc_doc.html">OUTENC - Output encoder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pcap_doc.html">PCAP - Position Capture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pcomp_doc.html">PCOMP - Position Compare</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pgen_doc.html">PGEN - Position Generator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="posenc_doc.html">POSENC - Quadrature and step/direction encoder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pulse_doc.html">PULSE - One-shot pulse delay and stretch</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qdec_doc.html">QDEC - Quadrature Decoder</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">SEQ - Sequencer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sfp_dls_eventr_doc.html">SFP_DLS_EVENTR - SFP Event Receiver Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sfp_loopback_doc.html">SFP_LOOPBACK- SFP Loopback Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sfp_panda_sync_doc.html">SFP_PANDA_SYNC - Synchronize data between 2 PandAs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sfp_udpontrig_doc.html">SFP_UDPONTRIG - SFP UDP on trig Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="srgate_doc.html">SRGATE - Set Reset Gate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="system_doc.html">SYSTEM - System control FPGA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ttlin_doc.html">TTLIN - TTL Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ttlout_doc.html">TTLOUT - TTL Output</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/contributing.html">Contributing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/app.html">Assembling Blocks into an App</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/block.html">Writing a Block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/framework.html">Autogeneration framework architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/changelog.html">Changelog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/glossary.html">Glossary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/testing.html">Running the tests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial2_position_capture.html">Position Capture Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../blocks.html">Available Blocks</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bits_doc.html">BITS - Soft inputs and constant bits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calc_doc.html">CALC - Position Calc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clock_doc.html">CLOCK - Configurable clock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="counter_doc.html">COUNTER - Up/Down pulse counter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="div_doc.html">DIV - Pulse divider</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filter_doc.html">FILTER - Filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fmc_24v_doc.html">FMC_24V - FMC 24V IO Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fmc_acq427_doc.html">FMC_ACQ427 - FMC ACQ427 Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fmc_acq430_doc.html">FMC_ACQ430 - FMC ACQ430 Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fmc_loopback_doc.html">FMC_LOOPBACK - FMC Loopback Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inenc_doc.html">INENC - Input encoder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lut_doc.html">LUT - 5 Input lookup table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lvdsin_doc.html">LVDSIN - LVDS Input</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lvdsout_doc.html">LVDSOUT - LVDS Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outenc_doc.html">OUTENC - Output encoder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pcap_doc.html">PCAP - Position Capture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pcomp_doc.html">PCOMP - Position Compare</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pgen_doc.html">PGEN - Position Generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="posenc_doc.html">POSENC - Quadrature and step/direction encoder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pulse_doc.html">PULSE - One-shot pulse delay and stretch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qdec_doc.html">QDEC - Quadrature Decoder</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">SEQ - Sequencer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fields">Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sequencer-table-line-composition">Sequencer Table Line Composition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generating-fixed-pulse-trains">Generating fixed pulse trains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#statemachine">Statemachine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#external-trigger-sources">External trigger sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#prescaler">Prescaler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interrupting-a-sequence">Interrupting a sequence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#table-rewriting">Table rewriting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sfp_dls_eventr_doc.html">SFP_DLS_EVENTR - SFP Event Receiver Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sfp_loopback_doc.html">SFP_LOOPBACK- SFP Loopback Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sfp_panda_sync_doc.html">SFP_PANDA_SYNC - Synchronize data between 2 PandAs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sfp_udpontrig_doc.html">SFP_UDPONTRIG - SFP UDP on trig Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="srgate_doc.html">SRGATE - Set Reset Gate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system_doc.html">SYSTEM - System control FPGA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ttlin_doc.html">TTLIN - TTL Input</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ttlout_doc.html">TTLOUT - TTL Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/app.html">Assembling Blocks into an App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/block.html">Writing a Block</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/framework.html">Autogeneration framework architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/testing.html">Running the tests</a></li>
+</ul>
+
+            
+          
+  <!-- Include link to changelog -->
+  <a href="https://github.com/PandABlocks/PandABlocks-FPGA/blob/master/CHANGELOG.rst">Changelog</a>
+  <!-- Add versions for selected branches + tags -->
+  <p class="caption"><span class="caption-text">Versions</span></p>
+  <ul id="versions"/>
+  <script>
+    // Add any branches to appear in the side pane here, tags will be added below
+    // Will only appear if docs are built and pushed in gh-pages
+    var versions = ['master', 'main'];
+    var dirs = new Set();
+    function addVersion(name) {
+      if (dirs.has(name)) {
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.href = 'https://PandABlocks.github.io/PandABlocks-FPGA/' + name;
+        a.innerText = name;
+        li.appendChild(a)
+        document.getElementById('versions').appendChild(li);
+      }
+    }
+    Promise.all([
+      // Find gh-pages directories and populate `dirs`
+      fetch("https://api.github.com/repos/PandABlocks/PandABlocks-FPGA/contents?ref=gh-pages")
+      .then(response => response.json())
+      .then(data => data.forEach(function(e) {
+        if (e.type == "dir") dirs.add(e.name);
+      })),
+      // Add tags to `versions`
+      fetch('https://api.github.com/repos/PandABlocks/PandABlocks-FPGA/tags')
+        .then(response => response.json())
+        .then(data => data.forEach(function(e) {
+          versions.push(e.name);
+        }))
+      ]).then(_ => versions.forEach(addVersion))
+  </script>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PandABlocks-FPGA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../blocks.html">Available Blocks</a> &raquo;</li>
+        
+      <li>SEQ - Sequencer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/build/seq_doc.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="seq-sequencer">
+<h1>SEQ - Sequencer<a class="headerlink" href="#seq-sequencer" title="Permalink to this headline">¶</a></h1>
+<p>The sequencer block performs automatic execution of sequenced lines to produce
+timing signals. Each line optionally waits for an external trigger condition and
+runs for an optional phase1, then a mandatory phase2 before moving to the next
+line. Each line sets the block outputs during phase1 and phase2 as defined by
+user-configured mask. Individual lines can be repeated, and the whole table
+can be repeated, with a value of 0 meaning repeat forever.</p>
+<div class="section" id="fields">
+<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="21%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ENABLE</td>
+<td>bit_mux</td>
+<td>Stop on falling edge, reset and enable on rising edge</td>
+</tr>
+<tr class="row-odd"><td>BITA</td>
+<td>bit_mux</td>
+<td>BITA for optional trigger condition</td>
+</tr>
+<tr class="row-even"><td>BITB</td>
+<td>bit_mux</td>
+<td>BITB for optional trigger condition</td>
+</tr>
+<tr class="row-odd"><td>BITC</td>
+<td>bit_mux</td>
+<td>BITC for optional trigger condition</td>
+</tr>
+<tr class="row-even"><td>POSA</td>
+<td>pos_mux</td>
+<td>POSA for optional trigger condition</td>
+</tr>
+<tr class="row-odd"><td>POSB</td>
+<td>pos_mux</td>
+<td>POSB for optional trigger condition</td>
+</tr>
+<tr class="row-even"><td>POSC</td>
+<td>pos_mux</td>
+<td>POSC for optional trigger condition</td>
+</tr>
+<tr class="row-odd"><td>TABLE</td>
+<td>table short</td>
+<td><div class="line-block">
+<div class="line">Sequencer table of lines
+        REPEATS             Number of times the line will repeat 
+        TRIGGER             The trigger condition to start the phases 
+        POSITION            The position that can be used in trigger condition 
+        TIME1               The time the optional phase 1 should take 
+        OUTA1               Output A value during phase 1 
+        OUTB1               Output B value during phase 1 
+        OUTC1               Output C value during phase 1 
+        OUTD1               Output D value during phase 1 
+        OUTE1               Output E value during phase 1 
+        OUTF1               Output F value during phase 1 
+        TIME2               The time the mandatory phase 2 should take 
+        OUTA2               Output A value during phase 2 
+        OUTB2               Output B value during phase 2 
+        OUTC2               Output C value during phase 2 
+        OUTD2               Output D value during phase 2 
+        OUTE2               Output E value during phase 2 
+        OUTF2               Output F value during phase 2 </div>
+<div class="line">15:0                REPEATS</div>
+<div class="line">19:16               TRIGGER enum</div>
+<div class="line">    0 Immediate</div>
+<div class="line">    1 BITA=0</div>
+<div class="line">    2 BITA=1</div>
+<div class="line">    3 BITB=0</div>
+<div class="line">    4 BITB=1</div>
+<div class="line">    5 BITC=0</div>
+<div class="line">    6 BITC=1</div>
+<div class="line">    7 POSA&gt;=POSITION</div>
+<div class="line">    8 POSA&lt;=POSITION</div>
+<div class="line">    9 POSB&gt;=POSITION</div>
+<div class="line">    10 POSB&lt;=POSITION</div>
+<div class="line">    11 POSC&gt;=POSITION</div>
+<div class="line">    12 POSC&lt;=POSITION</div>
+<div class="line">63:32               POSITION int</div>
+<div class="line">95:64               TIME1</div>
+<div class="line">20:20               OUTA1</div>
+<div class="line">21:21               OUTB1</div>
+<div class="line">22:22               OUTC1</div>
+<div class="line">23:23               OUTD1</div>
+<div class="line">24:24               OUTE1</div>
+<div class="line">25:25               OUTF1</div>
+<div class="line">127:96              TIME2</div>
+<div class="line">26:26               OUTA2</div>
+<div class="line">27:27               OUTB2</div>
+<div class="line">28:28               OUTC2</div>
+<div class="line">29:29               OUTD2</div>
+<div class="line">30:30               OUTE2</div>
+<div class="line">31:31               OUTF2</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>PRESCALE</td>
+<td>param time</td>
+<td>Prescalar for sequencer table times</td>
+</tr>
+<tr class="row-odd"><td>REPEATS</td>
+<td>param</td>
+<td>Number of times the table will repeat</td>
+</tr>
+<tr class="row-even"><td>ACTIVE</td>
+<td>bit_out</td>
+<td>Sequencer active flag</td>
+</tr>
+<tr class="row-odd"><td>OUTA</td>
+<td>bit_out</td>
+<td>Output A for phase outputs</td>
+</tr>
+<tr class="row-even"><td>OUTB</td>
+<td>bit_out</td>
+<td>Output B for phase outputs</td>
+</tr>
+<tr class="row-odd"><td>OUTC</td>
+<td>bit_out</td>
+<td>Output C for phase outputs</td>
+</tr>
+<tr class="row-even"><td>OUTD</td>
+<td>bit_out</td>
+<td>Output D for phase outputs</td>
+</tr>
+<tr class="row-odd"><td>OUTE</td>
+<td>bit_out</td>
+<td>Output E for phase outputs</td>
+</tr>
+<tr class="row-even"><td>OUTF</td>
+<td>bit_out</td>
+<td>Output F for phase outputs</td>
+</tr>
+<tr class="row-odd"><td>TABLE_REPEAT</td>
+<td>read</td>
+<td>Current iteration through the entire table</td>
+</tr>
+<tr class="row-even"><td>TABLE_LINE</td>
+<td>read</td>
+<td>Current line in the table that is active</td>
+</tr>
+<tr class="row-odd"><td>LINE_REPEAT</td>
+<td>read</td>
+<td>Current iteration of the active table line</td>
+</tr>
+<tr class="row-even"><td>STATE</td>
+<td>read enum</td>
+<td><div class="line-block">
+<div class="line">Internal statemachine state</div>
+<div class="line">0   LOAD_TABLE</div>
+<div class="line">1   WAIT_ENABLE</div>
+<div class="line">2   WAIT_TRIGGER</div>
+<div class="line">3   PHASE1</div>
+<div class="line">4   PHASE2</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="sequencer-table-line-composition">
+<h2>Sequencer Table Line Composition<a class="headerlink" href="#sequencer-table-line-composition" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="10%" />
+<col width="78%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Bit Field</th>
+<th class="head">Name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>[15:0]</td>
+<td>REPEATS</td>
+<td>Number of times the line will repeat</td>
+</tr>
+<tr class="row-odd"><td>[19:16]</td>
+<td>TRIGGER</td>
+<td><div class="first last line-block">
+<div class="line">The trigger condition to start the phases</div>
+<div class="line">0: Immediate</div>
+<div class="line">1: BITA=0</div>
+<div class="line">2: BITA=1</div>
+<div class="line">3: BITB=0</div>
+<div class="line">4: BITB=1</div>
+<div class="line">5: BITC=0</div>
+<div class="line">6: BITC=1</div>
+<div class="line">7: POSA&gt;=POSITION</div>
+<div class="line">8: POSA&lt;=POSITION</div>
+<div class="line">9: POSB&gt;=POSITION</div>
+<div class="line">10: POSB&lt;=POSITION</div>
+<div class="line">11: POSC&gt;=POSITION</div>
+<div class="line">12: POSC&lt;=POSITION</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>[63:32]</td>
+<td>POSITION</td>
+<td>The position that can be used in trigger condition</td>
+</tr>
+<tr class="row-odd"><td>[95:64]</td>
+<td>TIME1</td>
+<td>The time the optional phase 1 should take</td>
+</tr>
+<tr class="row-even"><td>[20:20]</td>
+<td>OUTA1</td>
+<td>Output A value during phase 1</td>
+</tr>
+<tr class="row-odd"><td>[21:21]</td>
+<td>OUTB1</td>
+<td>Output B value during phase 1</td>
+</tr>
+<tr class="row-even"><td>[22:22]</td>
+<td>OUTC1</td>
+<td>Output C value during phase 1</td>
+</tr>
+<tr class="row-odd"><td>[23:23]</td>
+<td>OUTD1</td>
+<td>Output D value during phase 1</td>
+</tr>
+<tr class="row-even"><td>[24:24]</td>
+<td>OUTE1</td>
+<td>Output E value during phase 1</td>
+</tr>
+<tr class="row-odd"><td>[25:25]</td>
+<td>OUTF1</td>
+<td>Output F value during phase 1</td>
+</tr>
+<tr class="row-even"><td>[127:96]</td>
+<td>TIME2</td>
+<td>The time the mandatory phase 2 should take</td>
+</tr>
+<tr class="row-odd"><td>[26:26]</td>
+<td>OUTA2</td>
+<td>Output A value during phase 2</td>
+</tr>
+<tr class="row-even"><td>[27:27]</td>
+<td>OUTB2</td>
+<td>Output B value during phase 2</td>
+</tr>
+<tr class="row-odd"><td>[28:28]</td>
+<td>OUTC2</td>
+<td>Output C value during phase 2</td>
+</tr>
+<tr class="row-even"><td>[29:29]</td>
+<td>OUTD2</td>
+<td>Output D value during phase 2</td>
+</tr>
+<tr class="row-odd"><td>[30:30]</td>
+<td>OUTE2</td>
+<td>Output E value during phase 2</td>
+</tr>
+<tr class="row-even"><td>[31:31]</td>
+<td>OUTF2</td>
+<td>Output F value during phase 2</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="generating-fixed-pulse-trains">
+<h2>Generating fixed pulse trains<a class="headerlink" href="#generating-fixed-pulse-trains" title="Permalink to this headline">¶</a></h2>
+<p>The basic use case is for generating fixed pulse trains when enabled. For
+example we can ask for 3x 50% duty cycle pulses by writing a single line table
+that is repeated 3 times. When enabled it will become active and immediately
+start producing pulses, remaining active until the pulses have been produced:</p>
+<p>(<a class="reference external" href="../build/seq_doc-1.py">Source code</a>, <a class="reference external" href="../build/seq_doc-1.png">png</a>, <a class="reference external" href="../build/seq_doc-1.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-1.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/seq_doc-1.png" class="plot-directive" src="../_images/seq_doc-1.png" />
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="20%" />
+<col width="18%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="17">T1</th>
+</tr>
+<tr class="row-even"><th class="head">#</th>
+<th class="head" colspan="2">Trigger</th>
+<th class="head">Phase1</th>
+<th class="head" colspan="6">Phase1 Outputs</th>
+<th class="head">Phase2</th>
+<th class="head" colspan="6">Phase2 Outputs</th>
+</tr>
+<tr class="row-odd"><th class="head">Repeats</th>
+<th class="head">Condition</th>
+<th class="head">Position</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>3</td>
+<td>Immediate</td>
+<td>0</td>
+<td>5</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>We can also use it to generate irregular streams of pulses on different outputs
+by adding more lines to the table. Note that OUTB which was high at the end
+of Phase2 of the first line remains high in Phase1 of the second line:</p>
+<p>(<a class="reference external" href="../build/seq_doc-2.py">Source code</a>, <a class="reference external" href="../build/seq_doc-2.png">png</a>, <a class="reference external" href="../build/seq_doc-2.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-2.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/seq_doc-2.png" class="plot-directive" src="../_images/seq_doc-2.png" />
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="20%" />
+<col width="18%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="17">T1</th>
+</tr>
+<tr class="row-even"><th class="head">#</th>
+<th class="head" colspan="2">Trigger</th>
+<th class="head">Phase1</th>
+<th class="head" colspan="6">Phase1 Outputs</th>
+<th class="head">Phase2</th>
+<th class="head" colspan="6">Phase2 Outputs</th>
+</tr>
+<tr class="row-odd"><th class="head">Repeats</th>
+<th class="head">Condition</th>
+<th class="head">Position</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2</td>
+<td>Immediate</td>
+<td>0</td>
+<td>5</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>Immediate</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>And we can set repeats on the entire table too. Note that in the second line of
+this table we have suppressed phase1 by setting its time to 0:</p>
+<p>(<a class="reference external" href="../build/seq_doc-3.py">Source code</a>, <a class="reference external" href="../build/seq_doc-3.png">png</a>, <a class="reference external" href="../build/seq_doc-3.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-3.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/seq_doc-3.png" class="plot-directive" src="../_images/seq_doc-3.png" />
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="20%" />
+<col width="18%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="17">T1</th>
+</tr>
+<tr class="row-even"><th class="head">#</th>
+<th class="head" colspan="2">Trigger</th>
+<th class="head">Phase1</th>
+<th class="head" colspan="6">Phase1 Outputs</th>
+<th class="head">Phase2</th>
+<th class="head" colspan="6">Phase2 Outputs</th>
+</tr>
+<tr class="row-odd"><th class="head">Repeats</th>
+<th class="head">Condition</th>
+<th class="head">Position</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2</td>
+<td>Immediate</td>
+<td>0</td>
+<td>5</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>Immediate</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>There are 6 outputs which allow for complex patterns to be generated:</p>
+<p>(<a class="reference external" href="../build/seq_doc-4.py">Source code</a>, <a class="reference external" href="../build/seq_doc-4.png">png</a>, <a class="reference external" href="../build/seq_doc-4.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-4.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/seq_doc-4.png" class="plot-directive" src="../_images/seq_doc-4.png" />
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="20%" />
+<col width="18%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="17">T1</th>
+</tr>
+<tr class="row-even"><th class="head">#</th>
+<th class="head" colspan="2">Trigger</th>
+<th class="head">Phase1</th>
+<th class="head" colspan="6">Phase1 Outputs</th>
+<th class="head">Phase2</th>
+<th class="head" colspan="6">Phase2 Outputs</th>
+</tr>
+<tr class="row-odd"><th class="head">Repeats</th>
+<th class="head">Condition</th>
+<th class="head">Position</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>Immediate</td>
+<td>0</td>
+<td>3</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>Immediate</td>
+<td>0</td>
+<td>5</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>6</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>1</td>
+<td>Immediate</td>
+<td>0</td>
+<td>7</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>8</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="statemachine">
+<h2>Statemachine<a class="headerlink" href="#statemachine" title="Permalink to this headline">¶</a></h2>
+<p>There is an internal statemachine that controls which phase is currently being
+output. It has a number of transitions that allow it to skip PHASE1 if there is
+none, or skip WAIT_TRIGGER if there is no trigger condition.</p>
+digraph pcomp_sm {
+WAIT_ENABLE [label=&quot;State 0\nWAIT_ENABLE&quot;]
+LOAD_TABLE [label=&quot;State 1\nLOAD_TABLE&quot;]
+WAIT_TRIGGER [label=&quot;State 2\nWAIT_TRIGGER&quot;]
+PHASE1 [label=&quot;State 3\nPHASE1&quot;]
+PHASE2 [label=&quot;State 4\nPHASE2&quot;]
+
+WAIT_ENABLE -&gt; LOAD_TABLE [label=&quot; TABLE load started &quot;]
+WAIT_ENABLE -&gt; WAIT_TRIGGER [label=&quot; rising ENABLE and trigger not met &quot;]
+WAIT_ENABLE -&gt; PHASE1 [label=&quot; rising ENABLE and trigger met &quot;]
+WAIT_ENABLE -&gt; PHASE2 [label=&quot; rising ENABLE and trigger met and no phase1 &quot;]
+
+LOAD_TABLE -&gt; WAIT_ENABLE [label=&quot; TABLE load complete &quot;]
+
+WAIT_TRIGGER -&gt; LOAD_TABLE [label=&quot; TABLE load started &quot;]
+WAIT_TRIGGER -&gt; PHASE1 [label=&quot; trigger met &quot;]
+WAIT_TRIGGER -&gt; PHASE2 [label=&quot; trigger met and no phase1 &quot;]
+
+PHASE1 -&gt; LOAD_TABLE [label=&quot; TABLE load started &quot;]
+PHASE1 -&gt; PHASE2 [label=&quot; time1 elapsed &quot;]
+
+PHASE2 -&gt; LOAD_TABLE [label=&quot; TABLE load started &quot;]
+PHASE2 -&gt; WAIT_TRIGGER [label=&quot; next trigger not met &quot;]
+PHASE2 -&gt; PHASE1 [label=&quot; next trigger met &quot;]
+PHASE2 -&gt; PHASE2 [label=&quot; next trigger met and no phase1 &quot;]
+}
+</div>
+<div class="section" id="external-trigger-sources">
+<h2>External trigger sources<a class="headerlink" href="#external-trigger-sources" title="Permalink to this headline">¶</a></h2>
+<p>The trigger column in the table allows an optional trigger condition to be
+waited on before the phased times are started. The trigger condition is checked
+on each repeat of the line, but not checked during phase1 and phase2. You can
+see when the Block is waiting for a trigger signal as it will enter the
+WAIT_TRIGGER(2) state:</p>
+<p>(<a class="reference external" href="../build/seq_doc-5.py">Source code</a>, <a class="reference external" href="../build/seq_doc-5.png">png</a>, <a class="reference external" href="../build/seq_doc-5.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-5.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/seq_doc-5.png" class="plot-directive" src="../_images/seq_doc-5.png" />
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="20%" />
+<col width="18%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="17">T1</th>
+</tr>
+<tr class="row-even"><th class="head">#</th>
+<th class="head" colspan="2">Trigger</th>
+<th class="head">Phase1</th>
+<th class="head" colspan="6">Phase1 Outputs</th>
+<th class="head">Phase2</th>
+<th class="head" colspan="6">Phase2 Outputs</th>
+</tr>
+<tr class="row-odd"><th class="head">Repeats</th>
+<th class="head">Condition</th>
+<th class="head">Position</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>3</td>
+<td>BITA=1</td>
+<td>0</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>BITB=1</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>You can also use a position field as a trigger condition in the same way, this
+is useful to do a table based position compare:</p>
+<p>(<a class="reference external" href="../build/seq_doc-6.py">Source code</a>, <a class="reference external" href="../build/seq_doc-6.png">png</a>, <a class="reference external" href="../build/seq_doc-6.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-6.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/seq_doc-6.png" class="plot-directive" src="../_images/seq_doc-6.png" />
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="20%" />
+<col width="18%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="17">T1</th>
+</tr>
+<tr class="row-even"><th class="head">#</th>
+<th class="head" colspan="2">Trigger</th>
+<th class="head">Phase1</th>
+<th class="head" colspan="6">Phase1 Outputs</th>
+<th class="head">Phase2</th>
+<th class="head" colspan="6">Phase2 Outputs</th>
+</tr>
+<tr class="row-odd"><th class="head">Repeats</th>
+<th class="head">Condition</th>
+<th class="head">Position</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>POSA&gt;=POSITION</td>
+<td>20</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>Immediate</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>2</td>
+<td>POSA&lt;=POSITION</td>
+<td>10</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="prescaler">
+<h2>Prescaler<a class="headerlink" href="#prescaler" title="Permalink to this headline">¶</a></h2>
+<p>Each row of the table gives a time value for the phases. This value can be
+scaled with a block wide prescaler to allow a frame to be longer than
+2**32 * 8e-9 = about 34 seconds. For example:</p>
+<p>(<a class="reference external" href="../build/seq_doc-7.py">Source code</a>, <a class="reference external" href="../build/seq_doc-7.png">png</a>, <a class="reference external" href="../build/seq_doc-7.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-7.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/seq_doc-7.png" class="plot-directive" src="../_images/seq_doc-7.png" />
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="20%" />
+<col width="18%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="17">T1</th>
+</tr>
+<tr class="row-even"><th class="head">#</th>
+<th class="head" colspan="2">Trigger</th>
+<th class="head">Phase1</th>
+<th class="head" colspan="6">Phase1 Outputs</th>
+<th class="head">Phase2</th>
+<th class="head" colspan="6">Phase2 Outputs</th>
+</tr>
+<tr class="row-odd"><th class="head">Repeats</th>
+<th class="head">Condition</th>
+<th class="head">Position</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2</td>
+<td>Immediate</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="interrupting-a-sequence">
+<h2>Interrupting a sequence<a class="headerlink" href="#interrupting-a-sequence" title="Permalink to this headline">¶</a></h2>
+<p>Setting the repeats on a table row to 0 will cause it to iterate until
+interrupted by a falling ENABLE signal:</p>
+<p>(<a class="reference external" href="../build/seq_doc-8.py">Source code</a>, <a class="reference external" href="../build/seq_doc-8.png">png</a>, <a class="reference external" href="../build/seq_doc-8.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-8.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/seq_doc-8.png" class="plot-directive" src="../_images/seq_doc-8.png" />
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="20%" />
+<col width="18%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="17">T1</th>
+</tr>
+<tr class="row-even"><th class="head">#</th>
+<th class="head" colspan="2">Trigger</th>
+<th class="head">Phase1</th>
+<th class="head" colspan="6">Phase1 Outputs</th>
+<th class="head">Phase2</th>
+<th class="head" colspan="6">Phase2 Outputs</th>
+</tr>
+<tr class="row-odd"><th class="head">Repeats</th>
+<th class="head">Condition</th>
+<th class="head">Position</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0</td>
+<td>Immediate</td>
+<td>0</td>
+<td>5</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>In a similar way, REPEATS=0 on a table will cause the whole table to be
+iterated until interrupted by a falling ENABLE signal:</p>
+<p>(<a class="reference external" href="../build/seq_doc-9.py">Source code</a>, <a class="reference external" href="../build/seq_doc-9.png">png</a>, <a class="reference external" href="../build/seq_doc-9.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-9.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/seq_doc-9.png" class="plot-directive" src="../_images/seq_doc-9.png" />
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="20%" />
+<col width="18%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="17">T1</th>
+</tr>
+<tr class="row-even"><th class="head">#</th>
+<th class="head" colspan="2">Trigger</th>
+<th class="head">Phase1</th>
+<th class="head" colspan="6">Phase1 Outputs</th>
+<th class="head">Phase2</th>
+<th class="head" colspan="6">Phase2 Outputs</th>
+</tr>
+<tr class="row-odd"><th class="head">Repeats</th>
+<th class="head">Condition</th>
+<th class="head">Position</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>Immediate</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td>Immediate</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>And a rising edge of the ENABLE will re-run the same table from the start:</p>
+<p>(<a class="reference external" href="../build/seq_doc-10.py">Source code</a>, <a class="reference external" href="../build/seq_doc-10.png">png</a>, <a class="reference external" href="../build/seq_doc-10.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-10.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/seq_doc-10.png" class="plot-directive" src="../_images/seq_doc-10.png" />
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="20%" />
+<col width="18%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="17">T1</th>
+</tr>
+<tr class="row-even"><th class="head">#</th>
+<th class="head" colspan="2">Trigger</th>
+<th class="head">Phase1</th>
+<th class="head" colspan="6">Phase1 Outputs</th>
+<th class="head">Phase2</th>
+<th class="head" colspan="6">Phase2 Outputs</th>
+</tr>
+<tr class="row-odd"><th class="head">Repeats</th>
+<th class="head">Condition</th>
+<th class="head">Position</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>Immediate</td>
+<td>0</td>
+<td>5</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="table-rewriting">
+<h2>Table rewriting<a class="headerlink" href="#table-rewriting" title="Permalink to this headline">¶</a></h2>
+<p>If a table is written while enabled, the outputs and table state are reset and
+operation begins again from the first repeat of the first line of the table:</p>
+<p>(<a class="reference external" href="../build/seq_doc-11.py">Source code</a>, <a class="reference external" href="../build/seq_doc-11.png">png</a>, <a class="reference external" href="../build/seq_doc-11.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-11.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/seq_doc-111.png" class="plot-directive" src="../_images/seq_doc-111.png" />
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="20%" />
+<col width="18%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="17">T1</th>
+</tr>
+<tr class="row-even"><th class="head">#</th>
+<th class="head" colspan="2">Trigger</th>
+<th class="head">Phase1</th>
+<th class="head" colspan="6">Phase1 Outputs</th>
+<th class="head">Phase2</th>
+<th class="head" colspan="6">Phase2 Outputs</th>
+</tr>
+<tr class="row-odd"><th class="head">Repeats</th>
+<th class="head">Condition</th>
+<th class="head">Position</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>Immediate</td>
+<td>0</td>
+<td>5</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="20%" />
+<col width="18%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="9%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="17">T2</th>
+</tr>
+<tr class="row-even"><th class="head">#</th>
+<th class="head" colspan="2">Trigger</th>
+<th class="head">Phase1</th>
+<th class="head" colspan="6">Phase1 Outputs</th>
+<th class="head">Phase2</th>
+<th class="head" colspan="6">Phase2 Outputs</th>
+</tr>
+<tr class="row-odd"><th class="head">Repeats</th>
+<th class="head">Condition</th>
+<th class="head">Position</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+<th class="head">Time</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">E</th>
+<th class="head">F</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>Immediate</td>
+<td>0</td>
+<td>8</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sfp_dls_eventr_doc.html" class="btn btn-neutral float-right" title="SFP_DLS_EVENTR - SFP Event Receiver Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="qdec_doc.html" class="btn btn-neutral float-left" title="QDEC - Quadrature Decoder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Diamond Light Source
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

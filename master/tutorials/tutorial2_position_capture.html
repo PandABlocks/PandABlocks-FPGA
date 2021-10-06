@@ -1,0 +1,513 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Position Capture Tutorial &mdash; PandABlocks-FPGA 3.0a1-273-g3d5421e
+ documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Position Compare Tutorial" href="tutorial3_position_compare.html" />
+    <link rel="prev" title="Blinking LEDs Tutorial" href="tutorial1_blinking_leds.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: black" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PandABlocks-FPGA
+          
+
+          
+            
+            <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0a1-273-g3d5421e
+
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+  <style>
+    /* style mobile top nav to look like main nav */
+    .wy-nav-top {
+        background: black
+    }
+  </style>
+  
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">What can PandABlocks do?</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html#how-is-the-documentation-structured">How is the documentation structured?</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#using-an-existing-pandablocks-device">Using an existing PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#generating-a-new-set-of-blocks-for-a-pandablocks-device">Generating a new set of Blocks for a PandABlocks device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#extending-the-functionality-of-a-pandablocks-device">Extending the functionality of a PandABlocks device</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#working-on-the-core-autogeneration-framework">Working on the core autogeneration framework</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Position Capture Tutorial</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#loading-the-tutorial-design">Loading the tutorial design</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#how-the-design-works">How the design works</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../blocks.html">Available Blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/contributing.html">Contributing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/app.html">Assembling Blocks into an App</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/block.html">Writing a Block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/framework.html">Autogeneration framework architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/changelog.html">Changelog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/glossary.html">Glossary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/testing.html">Running the tests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tutorial1_blinking_leds.html">Blinking LEDs Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Position Capture Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#loading-the-tutorial-design">Loading the tutorial design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-the-design-works">How the design works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial3_position_compare.html">Position Compare Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../blocks.html">Available Blocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/app.html">Assembling Blocks into an App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/block.html">Writing a Block</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/framework.html">Autogeneration framework architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/testing.html">Running the tests</a></li>
+</ul>
+
+            
+          
+  <!-- Include link to changelog -->
+  <a href="https://github.com/PandABlocks/PandABlocks-FPGA/blob/master/CHANGELOG.rst">Changelog</a>
+  <!-- Add versions for selected branches + tags -->
+  <p class="caption"><span class="caption-text">Versions</span></p>
+  <ul id="versions"/>
+  <script>
+    // Add any branches to appear in the side pane here, tags will be added below
+    // Will only appear if docs are built and pushed in gh-pages
+    var versions = ['master', 'main'];
+    var dirs = new Set();
+    function addVersion(name) {
+      if (dirs.has(name)) {
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.href = 'https://PandABlocks.github.io/PandABlocks-FPGA/' + name;
+        a.innerText = name;
+        li.appendChild(a)
+        document.getElementById('versions').appendChild(li);
+      }
+    }
+    Promise.all([
+      // Find gh-pages directories and populate `dirs`
+      fetch("https://api.github.com/repos/PandABlocks/PandABlocks-FPGA/contents?ref=gh-pages")
+      .then(response => response.json())
+      .then(data => data.forEach(function(e) {
+        if (e.type == "dir") dirs.add(e.name);
+      })),
+      // Add tags to `versions`
+      fetch('https://api.github.com/repos/PandABlocks/PandABlocks-FPGA/tags')
+        .then(response => response.json())
+        .then(data => data.forEach(function(e) {
+          versions.push(e.name);
+        }))
+      ]).then(_ => versions.forEach(addVersion))
+  </script>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PandABlocks-FPGA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Position Capture Tutorial</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/tutorials/tutorial2_position_capture.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="position-capture-tutorial">
+<span id="id1"></span><h1>Position Capture Tutorial<a class="headerlink" href="#position-capture-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial will introduce you to the Position Capture interface of
+PandABlocks, how to provide trigger signals to control when these capture points
+are taken and visualize the data.</p>
+<div class="section" id="loading-the-tutorial-design">
+<h2>Loading the tutorial design<a class="headerlink" href="#loading-the-tutorial-design" title="Permalink to this headline">¶</a></h2>
+<p>Select “template_tutorial2_pcap” from the Design dropdown box and the settings
+and wiring of the Blocks in the PandA will be changed to the following:</p>
+<img alt="../_images/tutorial2_layout.png" src="../_images/tutorial2_layout.png" />
+</div>
+<div class="section" id="how-the-design-works">
+<h2>How the design works<a class="headerlink" href="#how-the-design-works" title="Permalink to this headline">¶</a></h2>
+<p>This design has two CLOCK Blocks, which are enabled as soon as the PCAP Block
+becomes active:</p>
+<ul class="simple">
+<li>The first CLOCK is wired to PCAP trigger and gate. The gate is a level driven
+signal that provides the window of time that a capture should be active over.
+The trigger is an edge driven signal that actually captures data. In this
+example, PCAP.TRIG_EDGE=”Falling” so capture will be triggered on a falling
+edge of the trigger.</li>
+<li>The second CLOCK is wired to a COUNTER, triggering the increment of the
+counter value.</li>
+</ul>
+<p>We start off with both CLOCK Blocks set to a period of 1s, so each second the
+COUNTER will increment by one, followed by a PCAP trigger half a second later.
+This is best viewed as a timing diagram:</p>
+<p>(<a class="reference external" href="../tutorials/tutorial2_position_capture-1.py">Source code</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-1.png">png</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-1.hires.png">hires.png</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-1.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/tutorial2_position_capture-1.png" class="plot-directive" src="../_images/tutorial2_position_capture-1.png" />
+</div>
+<p>What PCAP does on that trigger is determined by the PCAP Block settings, and
+the contents of the Bits and Positions tables. For Bits you can turn capture
+(instantaneous at the time of trigger) on and off. For Positions, you have a
+choice of:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Capture</td>
+<td>Description</td>
+</tr>
+<tr class="row-even"><td>No</td>
+<td>Don’t capture</td>
+</tr>
+<tr class="row-odd"><td>Value</td>
+<td>Instantaneous capture at time of trigger</td>
+</tr>
+<tr class="row-even"><td>Diff</td>
+<td>The difference in the value while gate was high</td>
+</tr>
+<tr class="row-odd"><td>Sum</td>
+<td>The sum of all the samples while gate was high</td>
+</tr>
+<tr class="row-even"><td>Min</td>
+<td>The smallest value seen while gate was high</td>
+</tr>
+<tr class="row-odd"><td>Max</td>
+<td>The largest value seen while gate was high</td>
+</tr>
+<tr class="row-even"><td>Mean</td>
+<td>The average value seen while gate was high</td>
+</tr>
+<tr class="row-odd"><td>Min Max</td>
+<td>Capture both Min and Max</td>
+</tr>
+<tr class="row-even"><td>Min Max Mean</td>
+<td>Capture Min Max and Mean</td>
+</tr>
+</tbody>
+</table>
+<p>There are also a handful of other fields like the start of frame, end of frame
+and trigger time that can be captured by setting fields on the PCAP Block. If
+you click on the PCAP Block you will see them in the Outputs section:</p>
+<img alt="../_images/tutorial2_pcap.png" src="../_images/tutorial2_pcap.png" />
+<p>In the inputs section of the PCAP Block we can see that we have set a delay of
+1 for both the Trig and Gate. Delays on bit inputs are in FPGA clock ticks, and
+are there to compensate for different length data paths that need to be aligned.
+Each Block and each wire in PandA take 1 clock tick each. In this example, both
+COUNTER1 and PCAP are being triggered by a CLOCK in the same clock tick, but
+we want to delay the input to PCAP by one clock tick so that it sees the updated
+COUNTER1 value <em>after</em> the corresponding CLOCK rising edge.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The delay fields of the PCAP Block are also shown as small badges on the
+input ports of the Block</p>
+</div>
+<p>We can set COUNTER1.OUT to capture the Value at trigger by modifying the
+Positions table and pressing Submit:</p>
+<img alt="../_images/tutorial2_positions.png" src="../_images/tutorial2_positions.png" />
+<p>Now we can get a client ready to receive data. We can capture data in ASCII or
+Binary format as detailed in the TCP server documentation, and TANGO and EPICS
+have clients to do this. For this tutorial we will just use the ASCII format on
+the commandline to check:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ nc &lt;panda-ip&gt; 8889
+</pre></div>
+</div>
+<p>Here we could specify binary output and header format, but we’ll just stick
+with the default ASCII output (the default). Press Return again, and we will
+see:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OK</span>
+</pre></div>
+</div>
+<p>Now go back to the PandA layout and select the PCAP Block, pressing the ARM
+button. The Active light will go on and data will start streaming in the
+terminal window until Disarm is pressed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">missed</span><span class="p">:</span> <span class="mi">0</span>
+<span class="n">process</span><span class="p">:</span> <span class="n">Scaled</span>
+<span class="nb">format</span><span class="p">:</span> <span class="n">ASCII</span>
+<span class="n">fields</span><span class="p">:</span>
+ <span class="n">COUNTER1</span><span class="o">.</span><span class="n">OUT</span> <span class="n">double</span> <span class="n">Value</span> <span class="n">scale</span><span class="p">:</span> <span class="mi">1</span> <span class="n">offset</span><span class="p">:</span> <span class="mi">0</span> <span class="n">units</span><span class="p">:</span>
+
+ <span class="mi">1</span>
+ <span class="mi">2</span>
+ <span class="mi">3</span>
+ <span class="mi">4</span>
+<span class="n">END</span> <span class="mi">4</span> <span class="n">Disarmed</span>
+</pre></div>
+</div>
+<p>This tallies with the timing diagram we saw above, the captured value matches
+the instantaneous value of COUNTER1.OUT when PCAP.TRIG went high.</p>
+<p>We will now make the COUNTER1.OUT increment 5 times faster. Set CLOCK2.PERIOD
+to 0.2s, and click PCAP.ARM and you will see the captured value change:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">missed</span><span class="p">:</span> <span class="mi">0</span>
+<span class="n">process</span><span class="p">:</span> <span class="n">Scaled</span>
+<span class="nb">format</span><span class="p">:</span> <span class="n">ASCII</span>
+<span class="n">fields</span><span class="p">:</span>
+ <span class="n">COUNTER1</span><span class="o">.</span><span class="n">OUT</span> <span class="n">double</span> <span class="n">Value</span> <span class="n">scale</span><span class="p">:</span> <span class="mi">1</span> <span class="n">offset</span><span class="p">:</span> <span class="mi">0</span> <span class="n">units</span><span class="p">:</span>
+
+ <span class="mi">3</span>
+ <span class="mi">8</span>
+ <span class="mi">13</span>
+ <span class="mi">18</span>
+<span class="n">END</span> <span class="mi">4</span> <span class="n">Disarmed</span>
+</pre></div>
+</div>
+<p>If we look at the timing plot, we can see this also matched what we expect, the
+value is captured mid way through each increment of 5:</p>
+<p>(<a class="reference external" href="../tutorials/tutorial2_position_capture-2.py">Source code</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-2.png">png</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-2.hires.png">hires.png</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-2.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/tutorial2_position_capture-2.png" class="plot-directive" src="../_images/tutorial2_position_capture-2.png" />
+</div>
+<p>Now let’s investigate the other options. If we change the Positions table
+so COUNTER1.OUT captures the Diff instead of Value then we will see it captures
+the difference between the value at the rising edge of the gate, and the
+falling edge:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">missed</span><span class="p">:</span> <span class="mi">0</span>
+<span class="n">process</span><span class="p">:</span> <span class="n">Scaled</span>
+<span class="nb">format</span><span class="p">:</span> <span class="n">ASCII</span>
+<span class="n">fields</span><span class="p">:</span>
+ <span class="n">COUNTER1</span><span class="o">.</span><span class="n">OUT</span> <span class="n">double</span> <span class="n">Diff</span> <span class="n">scale</span><span class="p">:</span> <span class="mi">1</span> <span class="n">offset</span><span class="p">:</span> <span class="mi">0</span> <span class="n">units</span><span class="p">:</span>
+
+ <span class="mi">2</span>
+ <span class="mi">2</span>
+ <span class="mi">2</span>
+ <span class="mi">2</span>
+<span class="n">END</span> <span class="mi">4</span> <span class="n">Disarmed</span>
+</pre></div>
+</div>
+<p>This again matches the timing plot, GATE rises when COUNTER was at 1, and falls
+at 3, then rises at 6 and falls at 8.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If we hadn’t put in the 1 clock tick delays for Gate and Trig then we would
+see 3 rather than 2, as GATE would rise at 0 and fall at 3, then rise at 5
+and fall at 8</p>
+</div>
+<p>This capture output is generally used with COUNTER Blocks connected to an input
+fed from a <a class="reference external" href="https://hal.archives-ouvertes.fr/hal-01573024/document">V2F</a> to capture the total counts produced in a given time window.</p>
+<p>If we change COUNTER1.OUT to capture Min Max and Mean, we will see the other
+options:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">missed</span><span class="p">:</span> <span class="mi">0</span>
+<span class="n">process</span><span class="p">:</span> <span class="n">Scaled</span>
+<span class="nb">format</span><span class="p">:</span> <span class="n">ASCII</span>
+<span class="n">fields</span><span class="p">:</span>
+ <span class="n">COUNTER1</span><span class="o">.</span><span class="n">OUT</span> <span class="n">double</span> <span class="n">Min</span> <span class="n">scale</span><span class="p">:</span> <span class="mi">1</span> <span class="n">offset</span><span class="p">:</span> <span class="mi">0</span> <span class="n">units</span><span class="p">:</span>
+ <span class="n">COUNTER1</span><span class="o">.</span><span class="n">OUT</span> <span class="n">double</span> <span class="n">Max</span> <span class="n">scale</span><span class="p">:</span> <span class="mi">1</span> <span class="n">offset</span><span class="p">:</span> <span class="mi">0</span> <span class="n">units</span><span class="p">:</span>
+ <span class="n">COUNTER1</span><span class="o">.</span><span class="n">OUT</span> <span class="n">double</span> <span class="n">Mean</span> <span class="n">scale</span><span class="p">:</span> <span class="mi">1</span> <span class="n">offset</span><span class="p">:</span> <span class="mi">0</span> <span class="n">units</span><span class="p">:</span>
+
+ <span class="mi">1</span> <span class="mi">3</span> <span class="mf">1.8</span>
+ <span class="mi">6</span> <span class="mi">8</span> <span class="mf">6.8</span>
+ <span class="mi">11</span> <span class="mi">13</span> <span class="mf">11.8</span>
+ <span class="mi">16</span> <span class="mi">18</span> <span class="mf">16.8</span>
+<span class="n">END</span> <span class="mi">4</span> <span class="n">Disarmed</span>
+</pre></div>
+</div>
+<p>Here we can see our min and max values as we expected, and also the Mean of
+the COUNTER value during the total gate:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># (sum of counter_value * time_at_value) / gate_time = mean</span>
+<span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="mf">0.2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="mf">0.2</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.5</span> <span class="o">=</span> <span class="mf">1.8</span>
+<span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="mf">0.2</span> <span class="o">+</span> <span class="mi">7</span> <span class="o">*</span> <span class="mf">0.2</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.5</span> <span class="o">=</span> <span class="mf">6.8</span>
+</pre></div>
+</div>
+<p>This capture output is generally used with encoders, to give the min, max and
+mean value of the encoder over a detector frame.</p>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this headline">¶</a></h2>
+<p>This tutorial has shown how to use the Position Capture interface of a PandA
+to capture entries on the position bus, and introduced the different capture
+types. It has also introduced the COUNTER block that is useful connecting to
+the pulse train produced by a <a class="reference external" href="https://hal.archives-ouvertes.fr/hal-01573024/document">V2F</a>. In the next tutorial we will read about
+how to use position compare to generate triggers from position outputs, and
+how to configure position capture to work with it.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorial3_position_compare.html" class="btn btn-neutral float-right" title="Position Compare Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tutorial1_blinking_leds.html" class="btn btn-neutral float-left" title="Blinking LEDs Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Diamond Light Source
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
