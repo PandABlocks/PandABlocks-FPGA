@@ -60,6 +60,7 @@ class AppGenerator(object):
         self.fpga_blocks = []  # type: List[BlockConfig]
         self.server_blocks = []  # type: List[BlockConfig]
         self.target_sites = [] #type: List[TargetSiteConfig]
+        self.fpga_options = [] #type: List[]
         self.parse_ini_files(app)
         self.generate_config_dir()
         self.generate_wrappers()
@@ -105,6 +106,10 @@ class AppGenerator(object):
                 siteType, siteInfo = target.split(':')
                 site=TargetSiteConfig(siteType, siteInfo)
                 self.target_sites.append(site)
+            # Read in which FPGA options are enabled on target
+            fpga_options = ini_get(target_ini,'.', 'options','').split(',')
+            for option in fpga_options:
+                self.fpga_options.append(option)
         # Implement the blocks for the soft blocks
         self.implement_blocks(app_ini, "modules", "soft")
 
@@ -273,6 +278,7 @@ class AppGenerator(object):
         context = jinja_context(
             fpga_blocks=self.fpga_blocks,
             target_sites=self.target_sites,
+            fpga_options=self.fpga_options,
             carrier_bit_bus_length=carrier_bit_bus_length,
             carrier_pos_bus_length=carrier_pos_bus_length,
             total_bit_bus_length=total_bit_bus_length,
