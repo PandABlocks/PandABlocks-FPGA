@@ -176,6 +176,8 @@ BIT_READ_RSTB <= '1' when (read_ack = '1' and
 POS_READ_RSTB <= '1' when (read_ack = '1' and
                  read_address = REG_POS_READ_VALUE) else '0';
 
+-- Register of FPGA capabilities 
+-- Bit0: presence of PCAP_STD_DEV functionality
 FPGA_CAPABILITIES <= (0 => PCAP_SUPPORTS_STD_DEV,
                       others => '0');
 --------------------------------------------------------------------------
