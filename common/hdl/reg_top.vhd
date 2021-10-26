@@ -58,7 +58,6 @@ port (
 end reg_top;
 
 architecture rtl of reg_top is
-constant BIT_PCAP_STD_DEV   : natural := 0;
 
 signal BIT_READ_RST         : std_logic;
 signal BIT_READ_RSTB        : std_logic;
