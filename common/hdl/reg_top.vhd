@@ -177,7 +177,7 @@ BIT_READ_RSTB <= '1' when (read_ack = '1' and
 POS_READ_RSTB <= '1' when (read_ack = '1' and
                  read_address = REG_POS_READ_VALUE) else '0';
 
-FPGA_CAPABILITIES <= (BIT_PCAP_STD_DEV => PCAP_SUPPORTS_STD_DEV,
+FPGA_CAPABILITIES <= (0 => PCAP_SUPPORTS_STD_DEV,
                       others => '0');
 --------------------------------------------------------------------------
 -- Status Register Read
