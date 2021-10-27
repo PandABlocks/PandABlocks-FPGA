@@ -109,7 +109,7 @@ class AppGenerator(object):
             # Read in which FPGA options are enabled on target
             fpga_options = ini_get(target_ini,'.', 'options','').split(',')
             for option in fpga_options:
-                self.fpga_options.append(option)
+                self.fpga_options.append(option.strip())
         # Implement the blocks for the soft blocks
         self.implement_blocks(app_ini, "modules", "soft")
 
