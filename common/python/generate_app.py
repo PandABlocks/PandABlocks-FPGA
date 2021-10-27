@@ -111,12 +111,11 @@ class AppGenerator(object):
                 site=TargetSiteConfig(siteType, siteInfo)
                 self.target_sites.append(site)
             # Read in which FPGA options are enabled on target
-            fpga_options = ini_get(target_ini,'.', 'options','').split(',')
-            for option in fpga_options:
-                fpga_option = option.strip()
-                self.fpga_options.append(fpga_option)
+            options = ini_get(target_ini, '.', 'options', '')
+            self.fpga_options = filter(None, [option.strip() for option in options.split(',')])
+            for fpga_option in self.fpga_options:
                 assert fpga_option in VALID_FPGA_OPTIONS, \
-                    "%s option defined in target ini file is not valid" % fpga_option
+                    "%r option defined in target ini file is not valid" % fpga_option
         # Implement the blocks for the soft blocks
         self.implement_blocks(app_ini, "modules", "soft")
 
