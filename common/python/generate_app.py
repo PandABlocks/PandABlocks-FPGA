@@ -99,10 +99,10 @@ class AppGenerator(object):
                     target + ".target.ini")))
             #self.implement_blocks(target_ini, target_path, "carrier")
             self.implement_blocks(target_ini, "modules", "carrier")
-            target_info = target_ini.items('.')
-            for item in target_info:
-                siteType=item[0]
-                siteInfo=item[1]
+            # Read in what IO site options are available on target
+            target_info = ini_get(target_ini,'.', 'io','').split('\n')
+            for target in target_info:
+                siteType, siteInfo = target.split(':')
                 site=TargetSiteConfig(siteType, siteInfo)
                 self.target_sites.append(site)
         # Implement the blocks for the soft blocks
