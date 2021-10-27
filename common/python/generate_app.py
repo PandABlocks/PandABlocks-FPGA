@@ -26,6 +26,10 @@ if TYPE_CHECKING:
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 
+# List of allowing FPGA options enabled in target ini file
+VALID_FPGA_OPTIONS = [
+    "pcap_std_dev",
+]
 
 def jinja_context(**kwargs):
     context = dict(pad=pad)
@@ -109,7 +113,10 @@ class AppGenerator(object):
             # Read in which FPGA options are enabled on target
             fpga_options = ini_get(target_ini,'.', 'options','').split(',')
             for option in fpga_options:
-                self.fpga_options.append(option.strip())
+                fpga_option = option.strip()
+                self.fpga_options.append(fpga_option)
+                assert fpga_option in VALID_FPGA_OPTIONS, \
+                    "%s option defined in target ini file is not valid" % fpga_option
         # Implement the blocks for the soft blocks
         self.implement_blocks(app_ini, "modules", "soft")
 
