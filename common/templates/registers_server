@@ -31,7 +31,7 @@
     # Position capture control
     PCAP_ARM                13
     PCAP_DISARM             14
-    
+
     # FPGA Capabilities Value
     FPGA_CAPABILITIES       15
 
