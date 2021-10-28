@@ -69,9 +69,7 @@ U_BOOT_BUILD = $(BOOT_BUILD)/u-boot
 U_BOOT_ELF = $(U_BOOT_BUILD)/u-boot.elf
 
 IMAGE_DIR=$(TGT_BUILD_DIR)/boot
-
-BITS_PREREQ += carrier_fpga
-
+    
 # ------------------------------------------------------------------------------
 # Helper code lifted from rootfs and other miscellaneous functions
 
@@ -81,15 +79,15 @@ EXTRACT_FILE = $(ROOTFS_TOP)/scripts/extract-tar $(SRC_ROOT) $1 $2 $(TAR_FILES)
 
 #####################################################################
 # BUILD TARGETS includes HW and SW
-fpga-all: fpga-bits boot
-fpga-bits: $(BITS_PREREQ)
+fpga-all: fpga-bit boot
+fpga-bit: carrier_fpga
 carrier_ip: $(IP_DIR)/IP_BUILD_SUCCESS
 ps_core: $(PS_CORE)
 devicetree : $(DEVTREE_DTB)
 fsbl : $(FSBL)
 boot : $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB)
 u-boot: $(U_BOOT_ELF)
-.PHONY: fpga-all fpga-bits carrier_ip ps_core boot devicetree fsbl u-boot
+.PHONY: fpga-all fpga-bit carrier_ip ps_core boot devicetree fsbl u-boot
 
 #####################################################################
 # Compiler variables needed for u-boot build and other complitation

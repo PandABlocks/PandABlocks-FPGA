@@ -17,7 +17,7 @@ sys.path.insert(0, ROOT)
 
 # Get the git version
 git_version = subprocess.check_output(
-    "git describe --abbrev=7 --dirty --always --tags".split())
+    "git describe --abbrev=7 --dirty --always --tags".split(), text=True)
 
 
 # Copy across the module rst files into the build dir
@@ -88,7 +88,7 @@ templates_path = ['_templates']
 source_suffix = '.rst'
 
 # The master toctree document.
-master_doc = 'contents'
+master_doc = 'index'
 
 # General information about the project.
 project = u'PandABlocks-FPGA'
@@ -119,14 +119,18 @@ inheritance_graph_attrs = dict(rankdir="TB")
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-# on_rtd is whether we are on readthedocs.org
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-
-if not on_rtd:  # only import and set the theme if we're building docs locally
+try:
     import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+except ImportError:
+    html_theme = 'default'
+    print('sphinx_rtd_theme not found, using default')
 
+# Options for the sphinx rtd theme, use black
+html_theme_options = dict(style_nav_header_background="black")
+
+# Add some CSS classes for columns and other tweaks in a custom css file
+html_css_files = ["theme_overrides.css"]
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
