@@ -33,7 +33,6 @@ port (
     WRITE_WSTB          : in  std_logic;
     -- Block inputs
     mode_ts_bits_i      : in  t_mode_ts_bits;
-    --
     trig_i              : in  std_logic;
     -- Output pulses
     pcap_dat_o          : out std_logic_vector(31 downto 0);
@@ -44,19 +43,19 @@ end pcap_buffer;
 
 architecture rtl of pcap_buffer is
 
+constant c_bits0        : std_logic_vector(3 downto 0) := "0111"; -- 7
+constant c_bits1        : std_logic_vector(3 downto 0) := "1000"; -- 8
+constant c_bits2        : std_logic_vector(3 downto 0) := "1001"; -- 9
+constant c_bits3        : std_logic_vector(3 downto 0) := "1010"; --10
 
-constant c_bits0           : std_logic_vector(3 downto 0) := "0111"; -- 7
-constant c_bits1           : std_logic_vector(3 downto 0) := "1000"; -- 8
-constant c_bits2           : std_logic_vector(3 downto 0) := "1001"; -- 9
-constant c_bits3           : std_logic_vector(3 downto 0) := "1010"; --10
+signal ongoing_trig     : std_logic;
+signal ongoing_trig_dly : std_logic;
+signal trig_dly         : std_logic;
 
-signal ongoing_trig        : std_logic;
-signal mask_length         : unsigned(5 downto 0) := "000000";
-signal mask_addra          : unsigned(5 downto 0) := "000000";
-signal mask_addrb          : unsigned(5 downto 0);
-signal mask_doutb          : std_logic_vector(31 downto 0);
-signal trig_dly            : std_logic;
-signal ongoing_trig_dly    : std_logic;
+signal mask_length      : unsigned(5 downto 0) := "000000";
+signal mask_addra       : unsigned(5 downto 0) := "000000";
+signal mask_addrb       : unsigned(5 downto 0);
+signal mask_doutb       : std_logic_vector(31 downto 0);
 
 
 begin
@@ -99,6 +98,7 @@ begin
     end if;
 end process;
 
+
 --------------------------------------------------------------------------
 -- Start reading capture index sequentially following the capture trigger.
 -- An ongoing_capture flag is produced to be used for graceful finish by
@@ -138,7 +138,7 @@ process(clk_i) begin
 
             -- Flag an error on consecutive captures, it is latched until
             -- next pcap start (via reset port)
-            if (ongoing_trig = '1' and mask_addrb <= mask_length - 1) then
+           if (ongoing_trig = '1' and mask_addrb <= mask_length - 1) then      -- second part always TRUE
                 error_o <= trig_i;
             end if;
         end if;
@@ -159,6 +159,9 @@ end process;
 -- 0x92         0 | 0   1   0   0   1 | 0   0   1   0       --  9 Mode 2 Shift
 -- 0x84         0 | 0   1   0   0   0 | 0   1   0   0       --  8 Mode 4 (Min)
 -- 0x45         0 | 0   0   1   0   0 | 0   1   0   1       --  4 Mode 5 (Max)
+-- 0x16         0 | 0   0   0   0   1 | 0   1   1   0       --  1 Mode 6 (Sum^2 Low)
+-- 0x17         0 | 0   0   0   0   1 | 0   1   1   1       --  1 Mode 7 (Sum^2 Middle)
+-- 0x18         0 | 0   0   0   0   1 | 1   0   0   0       --  1 Mode 8 (Sum^2 High)
 -- 0x260        1 | 0   0   1   1   0 | 0   0   0   0       -- Number of Samples
 -- 0x200        1 | 0   0   0   0   0 | 0   0   0   0       -- TimeStamp Start
 -- 0x220        1 | 0   0   0   1   0 | 0   0   0   0       -- TimeStamp End
@@ -167,8 +170,8 @@ end process;
 -- 0x280        1 | 0   1   0   0   0 | 0   0   0   0       -- Bits Bus 1
 -- 0x290        1 | 0   1   0   0   1 | 0   0   0   0       -- Bits Bus 2
 -- 0x2A0        1 | 0   1   0   1   0 | 0   0   0   0       -- Bits Bus 3
--- 0x11                 0 \ 0   0   0   0   1 | 0   0   0   1       --  1 Mode 1 (Difference)
--- 0x12                 0 \ 0   0   0   0   1 \ 0   0   1   0       --  1 MOde 2 (Sum Lo)
+-- 0x11         0 \ 0   0   0   0   1 | 0   0   0   1       --  1 Mode 1 (Difference)
+-- 0x12         0 \ 0   0   0   0   1 \ 0   0   1   0       --  1 MOde 2 (Sum Lo)
 
 --            -----------------------------------------     -----------------
 --            | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |     | 3 | 2 | 1 | 0 |
@@ -198,17 +201,18 @@ end process;
 -- Bit  9 = 0 POSITION BUS active,  7 - 4 = POS(32 off) and MODE(6 off)
 
 
-
--- Modes0,1,2,3,4 and 5 * 32 =  192
+-- Modes 0,1,2,3,4,6,7 and 8 * 32 =             288
 -- TimeStamp Start                                2
 -- TimeStamp End                                  2
--- TimeStamp Capture                      2
+-- TimeStamp Capture                              2
 -- Sample Count                                   1
 -- Bit Bus 0                                      1
 -- Bit Bus 1                                      1
 -- Bit Bus 2                                      1
 -- Bit Bus 3                                      1
--- Total                                                203
+-- Total                                        299 (288 + 11)
+
+
 ps_mode_bus: process(clk_i)
 begin
     if rising_edge(clk_i) then
@@ -217,13 +221,13 @@ begin
             -- 32 difference mode groups loop through all of them to see which one is active
             lp: for i in PBUSW-1 downto 0 loop
                 if (to_integer(unsigned(mask_doutb(8 downto 4)))) = i then
-                    -- 6 modes loop through all of them to see which one is active
-                    lp_mode: for j in 5 downto 0 loop
+                    -- loop through all modes to see which one is active
+                    lp_mode: for j in 8 downto 0 loop
                         if (to_integer(unsigned(mask_doutb(3 downto 0)))) = j then
                             pcap_dat_o <= mode_ts_bits_i.mode(i)(j);
                         end if;
                     end loop lp_mode;
-                 end if;
+                end if;
             end loop lp;
         -- Extension Bus Selected
         elsif mask_doutb(9) = '1' then

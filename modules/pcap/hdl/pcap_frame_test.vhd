@@ -20,7 +20,7 @@ use ieee.numeric_std.all;
 library work;
 use work.top_defines.all;
 
-entity pcap_frame is
+entity pcap_frame_test is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -39,9 +39,9 @@ port (
     trig_o              : out std_logic;  -- trig_pulse delayed by 3 clk_i periods
     mode_ts_bits_o      : out t_mode_ts_bits
 );
-end pcap_frame;
+end pcap_frame_test;
 
-architecture rtl of pcap_frame is
+architecture rtl of pcap_frame_test is
 
 signal gate_prev        : std_logic;
 signal gate_rise        : std_logic;
@@ -76,11 +76,11 @@ signal value_o          : std32_array(PBUSW-1 downto 0);
 signal diff_o           : std32_array(PBUSW-1 downto 0);
 signal sum_l_o          : std32_array(PBUSW-1 downto 0);
 signal sum_h_o          : std32_array(PBUSW-1 downto 0);
-signal min_o            : std32_array(PBUSW-1 downto 0);
-signal max_o            : std32_array(PBUSW-1 downto 0);
+--signal min_o            : std32_array(PBUSW-1 downto 0);
+--signal max_o            : std32_array(PBUSW-1 downto 0);
 signal sum_sq_0_o       : std32_array(PBUSW-1 downto 0);
 signal sum_sq_1_o       : std32_array(PBUSW-1 downto 0);
-signal sum_sq_2_o       : std32_array(PBUSW-1 downto 0);
+--signal sum_sq_2_o       : std32_array(PBUSW-1 downto 0);
 signal trig_pulse_o     : std_logic_vector(PBUSW-1 downto 0);
 
 signal bit_bus          : std32_array(3 downto 0);
@@ -243,11 +243,11 @@ CAP_FRAME_GEN : for i in PBUSW-1 downto 0 generate
       diff_o        => diff_o(i),
       sum_l_o       => sum_l_o(i),
       sum_h_o       => sum_h_o(i),
-      min_o         => min_o(i),
-      max_o         => max_o(i),
+      min_o         => open,      --  min_o(i),
+      max_o         => open,      --  max_o(i),
       sum_sq_0_o    => sum_sq_0_o(i),
       sum_sq_1_o    => sum_sq_1_o(i),
-      sum_sq_2_o    => sum_sq_2_o(i),
+      sum_sq_2_o    => open,  -- sum_sq_2_o(i),
       trig_o        => trig_pulse_o(i)       -- trig_pulse delayed by 2 clk_i periods
 
 
@@ -295,11 +295,13 @@ begin
                 mode_ts_bits_o.mode(i)(1) <= diff_o(i);
                 mode_ts_bits_o.mode(i)(2) <= sum_l_o(i);
                 mode_ts_bits_o.mode(i)(3) <= sum_h_o(i);
-                mode_ts_bits_o.mode(i)(4) <= min_o(i);
-                mode_ts_bits_o.mode(i)(5) <= max_o(i);
-                mode_ts_bits_o.mode(i)(6) <= sum_sq_0_o(i);
-                mode_ts_bits_o.mode(i)(7) <= sum_sq_1_o(i);
-                mode_ts_bits_o.mode(i)(8) <= sum_sq_2_o(i);
+-- *** FPGA de TEST ***
+                mode_ts_bits_o.mode(i)(4) <= sum_sq_0_o(i);  -- min_o(i);
+                mode_ts_bits_o.mode(i)(5) <= sum_sq_1_o(i);  -- max_o(i);
+                mode_ts_bits_o.mode(i)(6) <= (others=>'0');   -- sum_sq_0_o(i);
+                mode_ts_bits_o.mode(i)(7) <= (others=>'0');   -- sum_sq_1_o(i);
+                mode_ts_bits_o.mode(i)(8) <= (others=>'0');   -- sum_sq_2_o(i);
+-- ********************
             end loop lp_mode_data;
             -- Capture TimeStamp data
             -- 32 bits * 7 Num of = 7 Total
