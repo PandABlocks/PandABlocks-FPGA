@@ -17,7 +17,7 @@
 };
 
 &clkc {
-	fclk-enable = <0x1>;
+	fclk-enable = <0xf>;
 	ps-clk-frequency = <50000000>;
 };
 
