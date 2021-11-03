@@ -13,10 +13,27 @@ if {$PLATFORM=="zynq"} {
     error "Unknown target platform!"
 }
 
+puts "open_hw_design start"
 hsi open_hw_design $HWSPEC
+puts "open_hw_design completed"
+
+puts "generate_app start"
 hsi generate_app -proc $PROC -app $FSBL_APP -dir $OUTPUT_DIR/fsbl -compile
+puts "generate_app completed"
+
+puts "set_repo start"
 hsi set_repo_path $DEVTREE_SRC
+puts "set_repo completed"
+
+puts "create_sw_design start"
 hsi create_sw_design device_tree -os device_tree -proc $PROC
+puts "create_sw_design completed"
+
+puts "generate_target start"
 hsi generate_target -dir $OUTPUT_DIR/dts
+puts "generate_target completed"
+
+puts "close_hw_design start"
 hsi close_hw_design [hsi current_hw_design]
+puts "close_hw_design completed"
 
