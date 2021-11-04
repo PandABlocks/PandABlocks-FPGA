@@ -22,14 +22,15 @@
 };
 
 &qspi {
-	#address-cells = <1>;
-	#size-cells = <0>;
 	flash0: flash@0 {
-		compatible = "micron,n25q00";
-		reg = <0x0>;
 		#address-cells = <1>;
 		#size-cells = <1>;
-		spi-max-frequency = <0x2faf080>;
+		compatible = "n25q00";
+		reg = <0x0>;
+		spi-max-frequency = <50000000>;
+		spi-tx-bus-width = <0x1>;
+		spi-rx-bus-width = <0x4>;
+
 		partition@0x00000000 {
 			label = "boot";
 			reg = <0x0 0x500000>;
