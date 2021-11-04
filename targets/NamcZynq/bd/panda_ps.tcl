@@ -524,7 +524,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_IRQ_F2P_MODE {DIRECT} \
    CONFIG.PCW_MIO_0_DIRECTION {inout} \
    CONFIG.PCW_MIO_0_IOTYPE {LVCMOS 3.3V} \
-   CONFIG.PCW_MIO_0_PULLUP {enabled} \
+   CONFIG.PCW_MIO_0_PULLUP {disabled} \
    CONFIG.PCW_MIO_0_SLEW {slow} \
    CONFIG.PCW_MIO_10_DIRECTION {inout} \
    CONFIG.PCW_MIO_10_IOTYPE {LVCMOS 3.3V} \
@@ -682,21 +682,21 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_MIO_45_IOTYPE {LVCMOS 1.8V} \
    CONFIG.PCW_MIO_45_PULLUP {enabled} \
    CONFIG.PCW_MIO_45_SLEW {slow} \
-   CONFIG.PCW_MIO_46_DIRECTION {in} \
+   CONFIG.PCW_MIO_46_DIRECTION {inout} \
    CONFIG.PCW_MIO_46_IOTYPE {LVCMOS 1.8V} \
    CONFIG.PCW_MIO_46_PULLUP {enabled} \
    CONFIG.PCW_MIO_46_SLEW {slow} \
-   CONFIG.PCW_MIO_47_DIRECTION {out} \
+   CONFIG.PCW_MIO_47_DIRECTION {inout} \
    CONFIG.PCW_MIO_47_IOTYPE {LVCMOS 1.8V} \
    CONFIG.PCW_MIO_47_PULLUP {enabled} \
    CONFIG.PCW_MIO_47_SLEW {slow} \
-   CONFIG.PCW_MIO_48_DIRECTION {out} \
+   CONFIG.PCW_MIO_48_DIRECTION {inout} \
    CONFIG.PCW_MIO_48_IOTYPE {LVCMOS 1.8V} \
-   CONFIG.PCW_MIO_48_PULLUP {disabled} \
+   CONFIG.PCW_MIO_48_PULLUP {enabled} \
    CONFIG.PCW_MIO_48_SLEW {slow} \
-   CONFIG.PCW_MIO_49_DIRECTION {in} \
+   CONFIG.PCW_MIO_49_DIRECTION {inout} \
    CONFIG.PCW_MIO_49_IOTYPE {LVCMOS 1.8V} \
-   CONFIG.PCW_MIO_49_PULLUP {disabled} \
+   CONFIG.PCW_MIO_49_PULLUP {enabled} \
    CONFIG.PCW_MIO_49_SLEW {slow} \
    CONFIG.PCW_MIO_4_DIRECTION {inout} \
    CONFIG.PCW_MIO_4_IOTYPE {LVCMOS 3.3V} \
@@ -708,7 +708,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_MIO_50_SLEW {slow} \
    CONFIG.PCW_MIO_51_DIRECTION {out} \
    CONFIG.PCW_MIO_51_IOTYPE {LVCMOS 1.8V} \
-   CONFIG.PCW_MIO_51_PULLUP {enabled} \
+   CONFIG.PCW_MIO_51_PULLUP {disabled} \
    CONFIG.PCW_MIO_51_SLEW {slow} \
    CONFIG.PCW_MIO_52_DIRECTION {out} \
    CONFIG.PCW_MIO_52_IOTYPE {LVCMOS 1.8V} \
@@ -1048,7 +1048,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_UIPARAM_DDR_T_RC {48.75} \
    CONFIG.PCW_UIPARAM_DDR_T_RCD {7} \
    CONFIG.PCW_UIPARAM_DDR_T_RP {7} \
-   CONFIG.PCW_UIPARAM_DDR_USE_INTERNAL_VREF {1} \
+   CONFIG.PCW_UIPARAM_DDR_USE_INTERNAL_VREF {0} \
    CONFIG.PCW_UIPARAM_GENERATE_SUMMARY {NONE} \
    CONFIG.PCW_USB0_BASEADDR {0xE0102000} \
    CONFIG.PCW_USB0_HIGHADDR {0xE0102fff} \
@@ -1153,6 +1153,7 @@ proc create_root_design { parentCell } {
   # Restore current instance
   current_bd_instance $oldCurInst
 
+  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -1164,6 +1165,4 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
-
-common::send_gid_msg -ssname BD::TCL -id 2053 -severity "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 
