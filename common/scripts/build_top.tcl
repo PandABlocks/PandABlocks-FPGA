@@ -9,7 +9,8 @@ set AUTOGEN    [lindex $argv 3]
 set IP_DIR     [lindex $argv 4]
 set PS_CORE    [lindex $argv 5]
 # Vivado run mode - gui or batch mode
-set MODE       [lindex $argv 6] 
+set MODE       [lindex $argv 6]
+set PLATFORM   [lindex $argv 7]
 
 set_param board.repoPaths $TOP_DIR/common/configs
 
@@ -68,10 +69,12 @@ add_files [glob $AUTOGEN/hdl/*.vhd]
 
 add_files [glob $TOP_DIR/common/hdl/defines/*.vhd]
 add_files [glob $TOP_DIR/common/hdl/*.vhd]
+add_files -quiet [glob -nocomplain $TOP_DIR/common/hdl_$PLATFORM/*.vhd]
 add_files [glob $TARGET_DIR/hdl/*]
 
 foreach SRC $TGT_SRC {
-    add_files [glob $TOP_DIR/modules/$SRC/hdl/*]
+    add_files $TOP_DIR/modules/$SRC/hdl/
+    add_files -quiet $TOP_DIR/modules/$SRC/hdl_$PLATFORM/
 }
 
 # Exit script here if gui mode - i.e. if running 'make carrier_fpga_gui'

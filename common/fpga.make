@@ -152,7 +152,8 @@ $(CARRIER_FPGA_BIT) : $(CARRIER_FPGA_DEPS)
 	  -tclargs $(AUTOGEN) \
 	  -tclargs $(IP_DIR) \
 	  -tclargs $(PS_CORE) \
-	  -tclargs $(TOP_MODE)
+	  -tclargs $(TOP_MODE) \
+	  -tclargs $(PLATFORM)
 
 $(FPGA_BIN_FILE): $(CARRIER_FPGA_BIT)
 	echo -e "all:\n{\n    $(CARRIER_FPGA_BIT)\n}\n" > bs.bif
