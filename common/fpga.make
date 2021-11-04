@@ -105,12 +105,11 @@ include $(TARGET_DIR)/platform_incl.make
 
 PLATFORM ?= zynq
 
+ARCH=arm
 ifeq ($(PLATFORM),zynq)
-    ARCH=arm
     CROSS_COMPILE=arm-linux-gnueabihf-
     UBOOT_CONFIG = xilinx_zynq_virt_defconfig
-else ifeq ($(PLATFORM,zynqmp)
-    ARCH=aarch64
+else ifeq ($(PLATFORM),zynqmp)
     CROSS_COMPILE=aarch64-linux-gnu-
     UBOOT_CONFIG = xilinx_zynqmp_virt_defconfig
 else
