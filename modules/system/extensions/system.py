@@ -28,4 +28,4 @@ class Extension:
         assert count == 1, 'Only one system block expected'
 
     def parse_read(self, node):
-        return XADC(node)
+        return XADC(node).read
