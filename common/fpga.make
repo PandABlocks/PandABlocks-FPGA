@@ -62,6 +62,7 @@ TARGET_DTS = $(TARGET_DIR)/target-top.dts
 DEVTREE_DTB = $(IMAGE_DIR)/devicetree.dtb
 DEVTREE_DTS = $(SDK_EXPORT)/dts
 FSBL = $(SDK_EXPORT)/fsbl/executable.elf
+PMUFW = $(SDK_EXPORT)/pmufw/executable.elf
 
 U_BOOT_NAME = u-boot-xlnx-$(U_BOOT_TAG)
 U_BOOT_SRC = $(SRC_ROOT)/$(U_BOOT_NAME)
@@ -165,7 +166,7 @@ $(CARRIER_FPGA_BIT) : $(CARRIER_FPGA_DEPS)
 
 $(FPGA_BIN_FILE): $(CARRIER_FPGA_BIT)
 	echo -e "all:\n{\n    $(CARRIER_FPGA_BIT)\n}\n" > bs.bif
-	. $(VIVADO) && bootgen -image bs.bif -arch zynq -process_bitstream bin
+	. $(VIVADO) && bootgen -image bs.bif -arch $(PLATFORM) -process_bitstream bin
 	mv $(CARRIER_FPGA_BIT).bin $@
 
 carrier_fpga : $(FPGA_BIN_FILE)
@@ -177,8 +178,16 @@ carrier_fpga : $(FPGA_BIN_FILE)
 $(IMAGE_DIR)/boot.bin: $(BOOT_BUILD)/boot.bif
 	. $(VIVADO) && bootgen -arch $(PLATFORM) -w -image $< -o $@
 
+ifeq ($(PLATFORM),zynq)
 $(BOOT_BUILD)/boot.bif: $(FSBL) $(U_BOOT_ELF)
-	$(TOP)/common/scripts/make_boot.bif $@ $(FSBL) $(U_BOOT_ELF)
+	$(TOP)/common/scripts/make_bif_zynq.sh $@ $(FSBL) $(U_BOOT_ELF)
+
+else ifeq ($(PLATFORM),zynqmp)
+$(BOOT_BUILD)/boot.bif: $(FSBL) $(PMUFW) $(ATF_ELF) $(U_BOOT_ELF)
+	$(TOP)/common/scripts/make_bif_zynqmp.sh \
+            $@ $(FSBL) $(PMUFW) $(ATF_ELF) $(U_BOOT_ELF)
+
+endif
 
 # ------------------------------------------------------------------------------
 # Building u-boot
@@ -229,6 +238,8 @@ $(DEVTREE_DTB): $(SDK_EXPORT) $(TARGET_DTS)
 	$(DEVTREE_DTC) -f -I dts -O dtb -o $@ $(DEVTREE_DTS)/$(notdir $(TARGET_DTS))
 
 $(FSBL): $(SDK_EXPORT)
+
+$(PMUFW): $(SDK_EXPORT)
 
 $(SDK_EXPORT): $(BOOT_BUILD_SCR) $(PS_CORE) $(DEVTREE_SRC) | $(IMAGE_DIR)
 	rm -rf $@
