@@ -32,6 +32,9 @@
     PCAP_ARM                13
     PCAP_DISARM             14
 
+    # FPGA Capabilities Value
+    FPGA_CAPABILITIES       15
+
     # Range of MAC addresses
     MAC_ADDRESS_BASE        16 .. 23
 

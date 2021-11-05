@@ -66,6 +66,7 @@ signal POS_READ_RST         : std_logic;
 signal POS_READ_RSTB        : std_logic;
 signal POS_READ_VALUE       : std_logic_vector(31 downto 0);
 signal POS_READ_CHANGES     : std_logic_vector(31 downto 0);
+signal FPGA_CAPABILITIES    : std_logic_vector(31 downto 0);
 
 signal read_address         : natural range 0 to (2**read_address_i'length - 1);
 signal write_address        : natural range 0 to (2**write_address_i'length - 1);
@@ -175,6 +176,10 @@ BIT_READ_RSTB <= '1' when (read_ack = '1' and
 POS_READ_RSTB <= '1' when (read_ack = '1' and
                  read_address = REG_POS_READ_VALUE) else '0';
 
+-- Register of FPGA capabilities 
+-- Bit0: presence of PCAP_STD_DEV functionality
+FPGA_CAPABILITIES <= (0 => PCAP_SUPPORTS_STD_DEV,
+                      others => '0');
 --------------------------------------------------------------------------
 -- Status Register Read
 --------------------------------------------------------------------------
@@ -194,6 +199,8 @@ begin
                 read_data_o <= POS_READ_VALUE;
             when REG_POS_READ_CHANGES =>
                 read_data_o <= POS_READ_CHANGES;
+            when REG_FPGA_CAPABILITIES =>
+                read_data_o <= FPGA_CAPABILITIES;
             when others =>
                 read_data_o <= (others => '0');
         end case;
