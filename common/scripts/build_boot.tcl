@@ -14,7 +14,7 @@ if {$PLATFORM=="zynq"} {
 }
 
 puts "open_hw_design start"
-hsi open_hw_design $HWSPEC
+hsi open_hw_design -verbose $HWSPEC
 puts "open_hw_design completed"
 
 puts "generate_app start"
