@@ -27,25 +27,28 @@ subtype MOD_RANGE               is natural range 0 to MOD_COUNT-1;
 constant RD_ADDR2ACK            : std_logic_vector(4 downto 0) := "00010";
 
 -- Block instantiation numbers--------------------------------------------
-constant ENC_NUM            : natural := 4;
+constant ENC_NUM                : natural := 4;
 --------------------------------------------------------------------------
 
 -- Bit Bus Width, Multiplexer Select Width -------------------------------
-constant BBUSW              : natural := 128;
-constant BBUSBW             : natural := 7;
+constant BBUSW                  : natural := 128;
+constant BBUSBW                 : natural := 7;
 
 -- Position Bus Width, Multiplexer Select Width.
-constant PBUSW              : natural := 32;
-constant PBUSBW             : natural := 5;
+constant PBUSW              	: natural := 32;
+constant PBUSBW             	: natural := 5;
 
 -- Extended Position Bus Width.
-constant EBUSW              : natural := 12;
+constant EBUSW                  : natural := 12;
 --------------------------------------------------------------------------
 
-constant DCARD_MONITOR      : std_logic_vector(2 downto 0) := "011";
+constant DCARD_MONITOR          : std_logic_vector(2 downto 0) := "011";
+
+-- Presence of PCAP_STD_DEV functionality
+constant PCAP_SUPPORTS_STD_DEV  : std_logic := '0';
 
 type t_mode_group is array (5 downto 0) of std_logic_vector(31 downto 0);
-type t_mode is array (31 downto 0) of t_mode_group;
+type t_mode is array (PBUSW-1 downto 0) of t_mode_group;
 type t_ts is array (6 downto 0) of std_logic_vector(31 downto 0);
 type t_bits is array (3 downto 0) of std_logic_vector(31 downto 0);
 
