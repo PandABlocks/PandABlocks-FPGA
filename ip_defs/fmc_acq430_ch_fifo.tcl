@@ -6,6 +6,7 @@ create_ip -vlnv [get_ipdefs -filter {NAME == fifo_generator}] \
 
 set_property -dict [list \
         CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
+        CONFIG.asymmetric_port_width {true} \
         CONFIG.Input_Data_Width {32} \
         CONFIG.Input_Depth {256} \
         CONFIG.Output_Data_Width {256} \

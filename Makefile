@@ -221,7 +221,8 @@ hdl_timing: $(TIMING_BUILD_DIRS)
 
 # The following phony targets are passed straight to the FPGA sub-make programme
 FPGA_TARGETS = fpga-all fpga-bit carrier_fpga carrier_ip ps_core \
-               fsbl devicetree boot u-boot dts xsct sw_clean u-boot-src ip_clean ps_clean
+               fsbl devicetree boot u-boot dts xsct sw_clean u-boot-src \
+               atf ip_clean ps_clean
 
 $(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR) | update_VER
 	mkdir -p $(FPGA_BUILD_DIR)

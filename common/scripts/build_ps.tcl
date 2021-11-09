@@ -28,7 +28,9 @@ set proj_dir [get_property directory [current_project]]
 
 # Set project properties
 set obj [get_projects panda_ps]
-if {[info exists BOARD_PART]} {set_property "board_part" $BOARD_PART $obj}
+if {[info exists BOARD_PART]} {
+    set_property "board_part" $BOARD_PART $obj
+}
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj

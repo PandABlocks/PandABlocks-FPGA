@@ -12,11 +12,13 @@
 # that the file name and contents match.
 MD5_SUM_device-tree-xlnx-xilinx-v2020.2 = c30a25d475c21fe4d9913b2df6aab692
 MD5_SUM_u-boot-xlnx-xilinx-v2020.2 = 6881a6b9f465f714e64c1398630287db
+MD5_SUM_arm-trusted-firmware-xilinx-v2020.2 = 0fd3ddbd76c27040e6ce848c9ef9c1f3
 
 # By default use the same tagged version of the sources as the build tools.
 # To use a different version edit the variable below, and include MD5_SUM above.
 DEVTREE_TAG = xilinx-v$(VIVADO_VER)
 U_BOOT_TAG = xilinx-v$(VIVADO_VER)
+ATF_TAG = xilinx-v$(VIVADO_VER)
 
 # Need bash for the source command in Xilinx settings64.sh
 SHELL = /bin/bash
@@ -60,6 +62,7 @@ TARGET_DTS = $(TARGET_DIR)/target-top.dts
 DEVTREE_DTB = $(IMAGE_DIR)/devicetree.dtb
 DEVTREE_DTS = $(SDK_EXPORT)/dts
 FSBL = $(SDK_EXPORT)/fsbl/executable.elf
+PMUFW = $(SDK_EXPORT)/pmufw/executable.elf
 
 U_BOOT_NAME = u-boot-xlnx-$(U_BOOT_TAG)
 U_BOOT_SRC = $(SRC_ROOT)/$(U_BOOT_NAME)
@@ -67,6 +70,11 @@ U_BOOT_SRC = $(SRC_ROOT)/$(U_BOOT_NAME)
 BOOT_BUILD = $(TGT_BUILD_DIR)/boot_build
 U_BOOT_BUILD = $(BOOT_BUILD)/u-boot
 U_BOOT_ELF = $(U_BOOT_BUILD)/u-boot.elf
+
+ATF_NAME = arm-trusted-firmware-$(ATF_TAG)
+ATF_SRC = $(SRC_ROOT)/$(ATF_NAME)
+ATF_BUILD = $(BOOT_BUILD)/atf
+ATF_ELF = $(ATF_BUILD)/build/zynqmp/release/bl31/bl31.elf
 
 IMAGE_DIR=$(TGT_BUILD_DIR)/boot
     
@@ -87,7 +95,8 @@ devicetree : $(DEVTREE_DTB)
 fsbl : $(FSBL)
 boot : $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB)
 u-boot: $(U_BOOT_ELF)
-.PHONY: fpga-all fpga-bit carrier_ip ps_core boot devicetree fsbl u-boot
+atf: $(ATF_ELF)
+.PHONY: fpga-all fpga-bit carrier_ip ps_core boot devicetree fsbl u-boot atf
 
 #####################################################################
 # Compiler variables needed for u-boot build and other complitation
@@ -96,12 +105,11 @@ include $(TARGET_DIR)/platform_incl.make
 
 PLATFORM ?= zynq
 
+ARCH=arm
 ifeq ($(PLATFORM),zynq)
-    ARCH=arm
     CROSS_COMPILE=arm-linux-gnueabihf-
     UBOOT_CONFIG = xilinx_zynq_virt_defconfig
-else ifeq ($(PLATFORM,zynqmp)
-    ARCH=aarch64
+else ifeq ($(PLATFORM),zynqmp)
     CROSS_COMPILE=aarch64-linux-gnu-
     UBOOT_CONFIG = xilinx_zynqmp_virt_defconfig
 else
@@ -152,11 +160,12 @@ $(CARRIER_FPGA_BIT) : $(CARRIER_FPGA_DEPS)
 	  -tclargs $(AUTOGEN) \
 	  -tclargs $(IP_DIR) \
 	  -tclargs $(PS_CORE) \
-	  -tclargs $(TOP_MODE)
+	  -tclargs $(TOP_MODE) \
+	  -tclargs $(PLATFORM)
 
 $(FPGA_BIN_FILE): $(CARRIER_FPGA_BIT)
 	echo -e "all:\n{\n    $(CARRIER_FPGA_BIT)\n}\n" > bs.bif
-	. $(VIVADO) && bootgen -image bs.bif -arch zynq -process_bitstream bin
+	. $(VIVADO) && bootgen -image bs.bif -arch $(PLATFORM) -process_bitstream bin
 	mv $(CARRIER_FPGA_BIT).bin $@
 
 carrier_fpga : $(FPGA_BIN_FILE)
@@ -168,8 +177,16 @@ carrier_fpga : $(FPGA_BIN_FILE)
 $(IMAGE_DIR)/boot.bin: $(BOOT_BUILD)/boot.bif
 	. $(VIVADO) && bootgen -arch $(PLATFORM) -w -image $< -o $@
 
+ifeq ($(PLATFORM),zynq)
 $(BOOT_BUILD)/boot.bif: $(FSBL) $(U_BOOT_ELF)
-	$(TOP)/common/scripts/make_boot.bif $@ $(FSBL) $(U_BOOT_ELF)
+	$(TOP)/common/scripts/make_bif_zynq.sh $@ $(FSBL) $(U_BOOT_ELF)
+
+else ifeq ($(PLATFORM),zynqmp)
+$(BOOT_BUILD)/boot.bif: $(FSBL) $(PMUFW) $(ATF_ELF) $(U_BOOT_ELF)
+	$(TOP)/common/scripts/make_bif_zynqmp.sh \
+            $@ $(FSBL) $(PMUFW) $(ATF_ELF) $(U_BOOT_ELF)
+
+endif
 
 # ------------------------------------------------------------------------------
 # Building u-boot
@@ -193,6 +210,16 @@ $(U_BOOT_SRC): | $(SRC_ROOT)
 	$(call EXTRACT_FILE,$(U_BOOT_NAME).tar.gz,$(MD5_SUM_$(U_BOOT_NAME)))
 	chmod -R a-w $(U_BOOT_SRC)
 
+$(ATF_ELF): $(ATF_SRC)
+	mkdir -p $(ATF_BUILD)
+	cp -rf --no-preserve=mode $(ATF_SRC)/* $(ATF_BUILD)
+	. $(VIVADO) && cd $(ATF_BUILD) && \
+        $(MAKE) PLAT=$(PLATFORM) CROSS_COMPILE=$(CROSS_COMPILE) RESET_TO_BL31=1
+
+$(ATF_SRC): | $(SRC_ROOT)
+	$(call EXTRACT_FILE,$(ATF_NAME).tar.gz,$(MD5_SUM_$(ATF_NAME)))
+	chmod -R a-w $(ATF_SRC)
+
 $(SRC_ROOT):
 	mkdir -p $(SRC_ROOT)
 
@@ -210,6 +237,8 @@ $(DEVTREE_DTB): $(SDK_EXPORT) $(TARGET_DTS)
 	$(DEVTREE_DTC) -f -I dts -O dtb -o $@ $(DEVTREE_DTS)/$(notdir $(TARGET_DTS))
 
 $(FSBL): $(SDK_EXPORT)
+
+$(PMUFW): $(SDK_EXPORT)
 
 $(SDK_EXPORT): $(BOOT_BUILD_SCR) $(PS_CORE) $(DEVTREE_SRC) | $(IMAGE_DIR)
 	rm -rf $@

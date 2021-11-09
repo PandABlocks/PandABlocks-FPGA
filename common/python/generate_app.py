@@ -26,6 +26,10 @@ if TYPE_CHECKING:
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 
+# List of allowing FPGA options enabled in target ini file
+VALID_FPGA_OPTIONS = [
+    "pcap_std_dev",
+]
 
 def jinja_context(**kwargs):
     context = dict(pad=pad)
@@ -60,6 +64,7 @@ class AppGenerator(object):
         self.fpga_blocks = []  # type: List[BlockConfig]
         self.server_blocks = []  # type: List[BlockConfig]
         self.target_sites = [] #type: List[TargetSiteConfig]
+        self.fpga_options = [] #type: List[]
         self.parse_ini_files(app)
         self.generate_config_dir()
         self.generate_wrappers()
@@ -105,6 +110,12 @@ class AppGenerator(object):
                 siteType, siteInfo = target.split(':')
                 site=TargetSiteConfig(siteType, siteInfo)
                 self.target_sites.append(site)
+            # Read in which FPGA options are enabled on target
+            options = ini_get(target_ini, '.', 'options', '')
+            self.fpga_options = filter(None, [option.strip() for option in options.split(',')])
+            for fpga_option in self.fpga_options:
+                assert fpga_option in VALID_FPGA_OPTIONS, \
+                    "%r option defined in target ini file is not valid" % fpga_option
         # Implement the blocks for the soft blocks
         self.implement_blocks(app_ini, "modules", "soft")
 
@@ -273,6 +284,7 @@ class AppGenerator(object):
         context = jinja_context(
             fpga_blocks=self.fpga_blocks,
             target_sites=self.target_sites,
+            fpga_options=self.fpga_options,
             carrier_bit_bus_length=carrier_bit_bus_length,
             carrier_pos_bus_length=carrier_pos_bus_length,
             total_bit_bus_length=total_bit_bus_length,
