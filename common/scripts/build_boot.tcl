@@ -18,5 +18,9 @@ hsi generate_app -proc $PROC -app $FSBL_APP -dir $OUTPUT_DIR/fsbl -compile
 hsi set_repo_path $DEVTREE_SRC
 hsi create_sw_design device_tree -os device_tree -proc $PROC
 hsi generate_target -dir $OUTPUT_DIR/dts
+if {$PLATFORM=="zynqmp"} {
+    hsi generate_app -os standalone -proc psu_pmu_0 -app zynqmp_pmufw \
+        -dir $OUTPUT_DIR/pmufw -compile
+}
 hsi close_hw_design [hsi current_hw_design]
 

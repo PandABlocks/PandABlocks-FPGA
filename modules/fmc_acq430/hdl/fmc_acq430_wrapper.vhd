@@ -275,20 +275,11 @@ if Falling_Edge(clk_SPI_OUT) then
 end if;
 end process;
 
--- Signals to the physical ADCs
-cmp_ADC_SPI_CLK_ODDR : ODDR
-generic map(
-    DDR_CLK_EDGE    => "OPPOSITE_EDGE", -- "OPPOSITE_EDGE" or "SAME_EDGE"
-    INIT         => '0', -- Initial value for Q port ('1' or '0')
-    SRTYPE       => "SYNC") -- Reset Type ("ASYNC" or "SYNC")
+adapt_clock_inst : entity work.enablable_clock_oddr
 port map (
-    Q           => ADC_SPI_CLK, -- 1-bit DDR output
-    C           => clk_SPI_OUT, -- 1-bit clock input
-    CE          => SPI_CLOCK_ENABLE, -- 1-bit clock enable input
-    D1          => '1', -- 1-bit data input (positive edge)
-    D2          => '0', -- 1-bit data input (negative edge)
-    R           => '0', -- 1-bit reset input
-    S           => '0' -- 1-bit set input
+    clock_i  => clk_SPI_OUT,
+    clock_o  => ADC_SPI_CLK,
+    enable_i => SPI_CLOCK_ENABLE
 );
 
 end rtl;
