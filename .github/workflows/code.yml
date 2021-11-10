@@ -172,7 +172,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: error_log
-          path: build/apps/PandABox-${{ matrix.app }}/FPGA/*.log
+          path: build/apps/${{ matrix.app }}/FPGA/*.log
 
   # test:
   #   runs-on: ubuntu-latest
