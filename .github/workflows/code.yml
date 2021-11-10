@@ -76,7 +76,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: panda_ps.xsa
-          path: /build/targets/PandABox/panda_ps/panda_ps.xsa
+          path: build/targets/PandABox/panda_ps/panda_ps.xsa
 
       # Verification of build files
       #- name: List build files
