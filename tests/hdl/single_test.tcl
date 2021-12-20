@@ -18,14 +18,12 @@ create_project single_test single_test -force -part $FPGA_PART
 if {$argc > $MODULES_IND} {
     set module [lindex $argv $MODULES_IND]
     set test   [lindex $argv $MODULES_IND]_[lindex $argv $MODULES_IND+1]_tb
-    source $BUILD_DIR/hdl_timing/$module/$module.tcl
-
 } else {
     puts "No argument given, please set TEST input. lut_1_tb running as default"
-    source $BUILD_DIR/hdl_timing/lut/lut.tcl
-    set test lut_1_tb
+    set module lut
+    set test $module_1_tb
 }
-
+source $BUILD_DIR/hdl_timing/$module/$module.tcl
 
 # Load all the common source files
 add_files -norecurse \
@@ -34,10 +32,9 @@ add_files -norecurse \
     $TOP_DIR/tests/hdl/top_defines.vhd
 
 
-
-puts  "###############################################################################################";
-puts  "                                           $test"                                               ;
-puts  "###############################################################################################";
+puts "###############################################################################################";
+puts "                                           test $test"                                          ;
+puts "###############################################################################################";
 
 set_property top $test [get_filesets sim_1]
 set_property top_lib xil_defaultlib [get_filesets sim_1]
@@ -59,12 +56,16 @@ puts "The test result is $test";
 # test_passed or test_failed variables and append result into variable
 if {$result_from_test == 1} {
     incr test_failed_cnt +1;
-    puts "##################################### $test has failed #####################################";
+    puts "###############################################################################################";
+    puts "                                      $test has failed"                                         ;
+    puts "###############################################################################################";
     append test_failed ", " \n "$test_failed_cnt." $test;
 
 } else {
     incr test_passed_cnt +1;
-    puts "##################################### $test has passed #####################################";
+    puts "###############################################################################################";
+    puts "                                      $test has passed"                                         ;
+    puts "###############################################################################################";
     append test_passed ", " \n "$test_passed_cnt." $test;
 }
 
