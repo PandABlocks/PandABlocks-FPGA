@@ -43,7 +43,7 @@ library unisim;
 use unisim.vcomponents.all;
 
 library work;
-use work.fmc_adc_100Ms_core_pkg.all;
+use work.fmc_adc100Ms_core_pkg.all;
 
 
 entity fmc_adc_mezzanine is
@@ -446,7 +446,7 @@ begin
   --    Offset DACs control (CLR_N)
   --    ADC core control and status
   ------------------------------------------------------------------------------
-  cmp_fmc_adc_100Ms_core : fmc_adc_100Ms_core
+  cmp_fmc_adc100Ms_core : fmc_adc100Ms_core
     generic map (
       g_multishot_ram_size => g_multishot_ram_size
       )

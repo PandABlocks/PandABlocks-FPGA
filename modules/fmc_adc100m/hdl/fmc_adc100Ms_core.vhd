@@ -4,7 +4,7 @@
 -- http://www.ohwr.org/projects/fmc-adc-100m14b4cha
 --------------------------------------------------------------------------------
 --
--- unit name: fmc_adc_100Ms_core (fmc_adc_100Ms_core.vhd)
+-- unit name: fmc_adc100Ms_core (fmc_adc100Ms_core.vhd)
 --
 -- author: Matthieu Cattin (matthieu.cattin@cern.ch)
 --         Theodor Stana (t.stana@cern.ch)
@@ -49,7 +49,7 @@ use work.genram_pkg.all;
 use work.gencores_pkg.all;
 
 
-entity fmc_adc_100Ms_core is
+entity fmc_adc100Ms_core is
   generic(
     g_multishot_ram_size : natural := 128 --512;--1024;--2048;
     );
@@ -171,10 +171,10 @@ entity fmc_adc_100Ms_core is
     fmc_adc_core_ch4_offset_val_o : in  std_logic_vector(15 downto 0);
     fmc_adc_core_ch4_sat_val_o    : in  std_logic_vector(14 downto 0)    
     );
-end fmc_adc_100Ms_core;
+end fmc_adc100Ms_core;
 
 
-architecture rtl of fmc_adc_100Ms_core is
+architecture rtl of fmc_adc100Ms_core is
 
 
   ------------------------------------------------------------------------------
@@ -756,7 +756,7 @@ begin
 
   --gen_fb_clk_check : if (g_carrier_type /= "SPEC" and
   --                      g_carrier_type /= "SVEC") generate
-  --  assert false report "[fmc_adc_100Ms_core] Selected carrier type not supported. Must be SPEC or SVEC." severity failure;
+  --  assert false report "[fmc_adc100Ms_core] Selected carrier type not supported. Must be SPEC or SVEC." severity failure;
   --end generate gen_fb_clk_check;
 
   --gen_fb_clk_spec : if g_carrier_type = "SPEC" generate

@@ -22,7 +22,7 @@ use work.support.all;
 use work.top_defines.all;
 use work.wishbone_pkg.all;
 
-entity fmc_adc_100m_wrapper is
+entity fmc_adc100m_wrapper is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -54,9 +54,9 @@ port (
     FMC_i               : in    fmc_input_interface;
     FMC_io              : inout fmc_inout_interface
 );
-end fmc_adc_100m_wrapper;
+end fmc_adc100m_wrapper;
 
-architecture rtl of fmc_adc_100m_wrapper is
+architecture rtl of fmc_adc100m_wrapper is
 
 ---------------------------------------------------------------------------------------
 -- FMC pin name translation signals.
@@ -380,7 +380,7 @@ val3_o(0) <= ZEROS(16) & fmc_val3(15 downto 0);
 val4_o(0) <= ZEROS(16) & fmc_val4(15 downto 0);
 
 
-fmc_ctrl : entity work.fmc_adc_100m_ctrl
+fmc_ctrl : entity work.fmc_adc100m_ctrl
 port map (
     -- Clock and Reset
     clk_i               => clk_i,

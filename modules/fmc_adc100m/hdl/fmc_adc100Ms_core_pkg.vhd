@@ -4,7 +4,7 @@
 -- http://www.ohwr.org/projects/fmc-adc-100m14b4cha
 --------------------------------------------------------------------------------
 --
--- unit name: fmc_adc_100Ms_core_pkg (fmc_adc_100Ms_core_pkg.vhd)
+-- unit name: fmc_adc100Ms_core_pkg (fmc_adc100Ms_core_pkg.vhd)
 --
 -- author: Matthieu Cattin (matthieu.cattin@cern.ch)
 --
@@ -40,7 +40,7 @@ use IEEE.NUMERIC_STD.all;
 --use work.timetag_core_pkg.all;
 
 
-package fmc_adc_100Ms_core_pkg is
+package fmc_adc100Ms_core_pkg is
 
   ------------------------------------------------------------------------------
   -- Constants declaration
@@ -50,7 +50,7 @@ package fmc_adc_100Ms_core_pkg is
   ------------------------------------------------------------------------------
   -- Components declaration
   ------------------------------------------------------------------------------
-  component fmc_adc_100Ms_core
+  component fmc_adc100Ms_core
     generic(
       g_multishot_ram_size : natural := 2048
       );
@@ -143,12 +143,12 @@ package fmc_adc_100Ms_core_pkg is
       fmc_adc_core_ch4_offset_val_o : in  std_logic_vector(15 downto 0);
       fmc_adc_core_ch4_sat_val_o    : in  std_logic_vector(14 downto 0)
       );
-  end component fmc_adc_100Ms_core;
+  end component fmc_adc100Ms_core;
 
-end fmc_adc_100Ms_core_pkg;
+end fmc_adc100Ms_core_pkg;
 
-package body fmc_adc_100Ms_core_pkg is
+package body fmc_adc100Ms_core_pkg is
 
 
 
-end fmc_adc_100Ms_core_pkg;
+end fmc_adc100Ms_core_pkg;
