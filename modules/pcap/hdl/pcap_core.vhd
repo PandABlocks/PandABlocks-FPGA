@@ -108,7 +108,7 @@ port map (
 pcap_reset  <= reset_i or not pcap_armed;
 
 -- Gate the enable of pcap_frame with the pcap_armed and ARM signals
-pcap_armed_or_ARM <= (pcap_armed or ARM);
+pcap_armed_or_ARM <= pcap_armed or ARM;
 
 -- Gate the gate with the pcap_armed and ARM signals
 gate_en     <= pcap_armed_or_ARM and gate_i and enable_i;
