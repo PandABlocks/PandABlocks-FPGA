@@ -54,23 +54,21 @@ end pcap_core;
 architecture rtl of pcap_core is
 
 
-constant c_cap_to_close   : std_logic_vector(1 downto 0) := "01";
-constant c_dma_full       : std_logic_vector(1 downto 0) := "10";
-constant c_health_ok      : std_logic_vector(1 downto 0) := "00";
+constant c_cap_to_close : std_logic_vector(1 downto 0) := "01";
+constant c_dma_full     : std_logic_vector(1 downto 0) := "10";
+constant c_health_ok    : std_logic_vector(1 downto 0) := "00";
 
-signal pcap_armed         : std_logic;
-signal pcap_armed_or_ARM  : std_logic;
-signal gate_en            : std_logic;
-signal trig_en            : std_logic;
-signal pcap_reset         : std_logic;
-signal timestamp          : std_logic_vector(63 downto 0);
-signal trig_pulse         : std_logic; -- -- rising, falling or boths edges of trig_i (1 clk_i period, no delay)
-signal mode_ts_bits       : t_mode_ts_bits;
-signal pcap_buffer_error  : std_logic;
-signal pcap_error         : std_logic;
-signal pcap_status        : std_logic_vector(2 downto 0);
-signal pcap_dat_valid     : std_logic;
-
+signal gate             : std_logic;
+signal pcap_reset       : std_logic;
+signal timestamp        : std_logic_vector(63 downto 0);
+signal trig_pulse       : std_logic;
+signal mode_ts_bits     : t_mode_ts_bits;
+signal pcap_buffer_error: std_logic;
+signal pcap_error       : std_logic;
+signal pcap_status      : std_logic_vector(2 downto 0);
+signal pcap_dat_valid   : std_logic;
+signal pcap_armed       : std_logic;
+signal trig_en          : std_logic;
 
 
 begin
@@ -104,18 +102,15 @@ port map (
     pcap_status_o       => pcap_status
 );
 
--- Keep sub-block under reset when pcap is not armed
-pcap_reset  <= reset_i or not pcap_armed;
-
--- Gate the enable of pcap_frame with the pcap_armed and ARM signals
-pcap_armed_or_ARM <= pcap_armed or ARM;
 
 -- Gate the gate with the pcap_armed and ARM signals
-gate_en     <= pcap_armed_or_ARM and gate_i and enable_i;
+gate <= (ARM or pcap_armed) and gate_i and enable_i;
+
+-- Keep sub-block under reset when pcap is not armed
+pcap_reset <= reset_i or not pcap_armed;
 
 -- Enable the trigger only when the enable is set
-trig_en     <= trig_i and enable_i;
-
+trig_en <= trig_i and enable_i;
 
 --------------------------------------------------------------------------
 -- Encoder and ADC Position Data Processing
@@ -130,12 +125,12 @@ port map (
     --
     pos_bus_i           => pos_bus_i,
     bit_bus_i           => bit_bus_i,
-    enable_i            => pcap_armed_or_ARM,
-    gate_i              => gate_en,
+    enable_i            => pcap_armed or ARM,
+    gate_i              => gate,
     trig_i              => trig_en,
     timestamp_i         => timestamp,
-     --
-    trig_o              => trig_pulse,      -- to pcap_buffer
+        --
+    trig_o              => trig_pulse,
     mode_ts_bits_o      => mode_ts_bits
 );
 
@@ -152,7 +147,8 @@ port map (
     WRITE_WSTB          => WRITE_WSTB,
     -- Block inputs
     mode_ts_bits_i      => mode_ts_bits,
-    trig_i              => trig_pulse,        -- from pcap_frame
+    --
+    trig_i              => trig_pulse,
     -- Output pulses
     pcap_dat_o          => pcap_dat_o,
     pcap_dat_valid_o    => pcap_dat_valid,
@@ -161,13 +157,8 @@ port map (
 
 -- HEALTH(31 downto 2) <= (others => '0');
 HEALTH(1 downto 0) <= c_cap_to_close when pcap_status(1) = '1' else
-                      c_dma_full     when pcap_status(2) = '1' else
+                      c_dma_full when pcap_status(2) = '1' else
                       c_health_ok;
 
-
--- Pcap status information
---  pcap_status_o[0] : pcap user disarmed
---  pcap_status_o[1] : pcap frame or buffer error (capture too close together)
---  pcap_status_o[2] : dma error DMA FIFO full (Sample Overflow)
 
 end rtl;

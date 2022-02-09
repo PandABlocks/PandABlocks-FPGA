@@ -42,7 +42,7 @@ set test_passed are;
 set test_failed are;
 
 foreach module [lrange $argv $MODULES_IND end] {
-    source $BUILD_DIR/hdl_timing/$module/$module.tcl
+        source $BUILD_DIR/hdl_timing/$module/$module.tcl
 }
 
 
@@ -55,20 +55,19 @@ add_files -norecurse \
     $TOP_DIR/common/hdl/defines \
     $TOP_DIR/tests/hdl/top_defines.vhd
 
-
 # Loop through all the tests
 foreach test [array names tests] {
 
-    puts "###############################################################################################";
-    puts "                                           test $test"                                          ;
-    puts "###############################################################################################";
+    puts  "###############################################################################################";
+    puts  "                                           $test"                                               ;
+    puts  "###############################################################################################";
 
     set_property top $test [get_filesets sim_1]
     set_property top_lib xil_defaultlib [get_filesets sim_1]
 
     launch_simulation
 
-    restart
+        restart
     run -all
 
     # All the testbenchs have a signal called test_result
@@ -82,18 +81,14 @@ foreach test [array names tests] {
     # Check to see if the test has passed or failed increment
     # test_passed or test_failed variables and append result into variable
     if {$result_from_test == 1} {
-        incr test_failed_cnt +1;
-        puts "###############################################################################################";
-        puts "                                      $test has failed"                                         ;
-        puts "###############################################################################################";
-        append test_failed ", " \n "$test_failed_cnt." $test;
+         incr test_failed_cnt +1;
+         puts "##################################### $test has failed #####################################";
+         append test_failed ", " \n "$test_failed_cnt." $test;
 
     } else {
-        incr test_passed_cnt +1;
-        puts "###############################################################################################";
-        puts "                                      $test has passed"                                         ;
-        puts "###############################################################################################";
-        append test_passed ", " \n "$test_passed_cnt." $test;
+         incr test_passed_cnt +1;
+         puts "##################################### $test has passed #####################################";
+         append test_passed ", " \n "$test_passed_cnt." $test;
     }
 
     close_sim
