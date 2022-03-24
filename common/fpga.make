@@ -13,12 +13,15 @@
 MD5_SUM_device-tree-xlnx-xilinx-v2020.2 = c30a25d475c21fe4d9913b2df6aab692
 MD5_SUM_u-boot-xlnx-xilinx-v2020.2 = 6881a6b9f465f714e64c1398630287db
 MD5_SUM_arm-trusted-firmware-xilinx-v2020.2 = 0fd3ddbd76c27040e6ce848c9ef9c1f3
+# The dtc source is obtained from https://git.kernel.org/pub/scm/utils/dtc/dtc.git
+MD5_SUM_dtc-1.6.1 = 19eef37196e99b659c402a29aac5ba59
 
 # By default use the same tagged version of the sources as the build tools.
 # To use a different version edit the variable below, and include MD5_SUM above.
 DEVTREE_TAG = xilinx-v$(VIVADO_VER)
 U_BOOT_TAG = xilinx-v$(VIVADO_VER)
 ATF_TAG = xilinx-v$(VIVADO_VER)
+DTC_TAG = 1.6.1
 
 # Need bash for the source command in Xilinx settings64.sh
 SHELL = /bin/bash
@@ -57,7 +60,8 @@ SRC_ROOT = $(TGT_BUILD_DIR)/../../src
 
 DEVTREE_NAME = device-tree-xlnx-$(DEVTREE_TAG)
 DEVTREE_SRC = $(SRC_ROOT)/$(DEVTREE_NAME)
-DEVTREE_DTC = $(TOP)/common/configs/linux-xlnx/scripts/dtc
+DTC_SRC = $(SRC_ROOT)/dtc-$(DTC_TAG)
+DEVTREE_DTC = $(DTC_SRC)/dtc
 TARGET_DTS = $(TARGET_DIR)/target-top.dts
 DEVTREE_DTB = $(IMAGE_DIR)/devicetree.dtb
 DEVTREE_DTS = $(SDK_EXPORT)/dts
@@ -96,7 +100,8 @@ fsbl : $(FSBL)
 boot : $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB)
 u-boot: $(U_BOOT_ELF)
 atf: $(ATF_ELF)
-.PHONY: fpga-all fpga-bit carrier_ip ps_core boot devicetree fsbl u-boot atf
+dtc: $(DEVTREE_DTC)
+.PHONY: fpga-all fpga-bit carrier_ip ps_core boot devicetree fsbl u-boot atf dtc
 
 #####################################################################
 # Compiler variables needed for u-boot build and other complitation
@@ -228,13 +233,19 @@ u-boot-src: $(U_BOOT_SRC)
 .PHONY: u-boot-src
 # -----------------------------------------------------------------------------------
 
-$(DEVTREE_DTB): $(SDK_EXPORT) $(TARGET_DTS)
+$(DEVTREE_DTB): $(SDK_EXPORT) $(TARGET_DTS) $(DEVTREE_DTC)
 	cp $(TARGET_DTS) $(DEVTREE_DTS)/
 	sed -i '/dts-v1/d' $(DEVTREE_DTS)/system-top.dts
 	gcc -I dts -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp \
 	  -o $(DEVTREE_DTS)/system-top.dts.tmp $(DEVTREE_DTS)/system-top.dts
 	@echo "Building DEVICE TREE blob ..."
 	$(DEVTREE_DTC) -f -I dts -O dtb -o $@ $(DEVTREE_DTS)/$(notdir $(TARGET_DTS))
+
+$(DEVTREE_DTC): $(DTC_SRC)
+	$(MAKE) -C $(SRC_ROOT)/dtc-$(DTC_TAG) NO_PYTHON=1
+
+$(DTC_SRC): | $(SRC_ROOT)
+	$(call EXTRACT_FILE,dtc-$(DTC_TAG).tar.gz,$(MD5_SUM_dtc-$(DTC_TAG)))
 
 $(FSBL): $(SDK_EXPORT)
 
