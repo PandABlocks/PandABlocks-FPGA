@@ -60,7 +60,8 @@ SRC_ROOT = $(TGT_BUILD_DIR)/../../src
 
 DEVTREE_NAME = device-tree-xlnx-$(DEVTREE_TAG)
 DEVTREE_SRC = $(SRC_ROOT)/$(DEVTREE_NAME)
-DEVTREE_DTC = $(SRC_ROOT)/dtc-$(DTC_TAG)/dtc
+DTC_SRC = $(SRC_ROOT)/dtc-$(DTC_TAG)
+DEVTREE_DTC = $(DTC_SRC)/dtc
 TARGET_DTS = $(TARGET_DIR)/target-top.dts
 DEVTREE_DTB = $(IMAGE_DIR)/devicetree.dtb
 DEVTREE_DTS = $(SDK_EXPORT)/dts
@@ -232,7 +233,7 @@ u-boot-src: $(U_BOOT_SRC)
 .PHONY: u-boot-src
 # -----------------------------------------------------------------------------------
 
-$(DEVTREE_DTB): $(SDK_EXPORT) $(TARGET_DTS) | $(DEVTREE_DTC)
+$(DEVTREE_DTB): $(SDK_EXPORT) $(TARGET_DTS) $(DEVTREE_DTC)
 	cp $(TARGET_DTS) $(DEVTREE_DTS)/
 	sed -i '/dts-v1/d' $(DEVTREE_DTS)/system-top.dts
 	gcc -I dts -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp \
@@ -240,9 +241,11 @@ $(DEVTREE_DTB): $(SDK_EXPORT) $(TARGET_DTS) | $(DEVTREE_DTC)
 	@echo "Building DEVICE TREE blob ..."
 	$(DEVTREE_DTC) -f -I dts -O dtb -o $@ $(DEVTREE_DTS)/$(notdir $(TARGET_DTS))
 
-$(DEVTREE_DTC): | $(SRC_ROOT)
-	$(call EXTRACT_FILE,dtc-$(DTC_TAG).tar.gz,$(MD5_SUM_dtc-$(DTC_TAG)))
+$(DEVTREE_DTC): $(DTC_SRC)
 	$(MAKE) -C $(SRC_ROOT)/dtc-$(DTC_TAG) NO_PYTHON=1
+
+$(DTC_SRC): | $(SRC_ROOT)
+	$(call EXTRACT_FILE,dtc-$(DTC_TAG).tar.gz,$(MD5_SUM_dtc-$(DTC_TAG)))
 
 $(FSBL): $(SDK_EXPORT)
 
