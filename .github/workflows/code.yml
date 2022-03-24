@@ -52,8 +52,9 @@ jobs:
           mkdir tar-files && cd tar-files
           curl -o device-tree-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/device-tree-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz \
                -o u-boot-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/u-boot-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz \
-               -o arm-trusted-firmware-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/arm-trusted-firmware/archive/refs/tags/xilinx-v2020.2.tar.gz
-
+               -o arm-trusted-firmware-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/arm-trusted-firmware/archive/refs/tags/xilinx-v2020.2.tar.gz \
+               -o dtc-1.6.1.tar.gz -L https://git.kernel.org/pub/scm/utils/dtc/dtc.git/snapshot/dtc-1.6.1.tar.gz  
+        
       # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
       # https://github.com/rclone/rclone/issues/2975
       - name: Install rclone patch
