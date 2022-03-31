@@ -7,11 +7,9 @@ read_ip $IP_DIR/{{ ip }}/{{ ip }}.xci
 
 # Module code and constraints
 {% for block in fpga_blocks %}
-    {# Soft block module code #}
-    {% if block.type in "dma|soft|io" %}
+    {# block module code #}
 add_files $TOP_DIR/{{ block.module_path }}/hdl/
 add_files -quiet $TOP_DIR/{{ block.module_path }}/hdl_$PLATFORM/
-    {% endif %}
     {# MGT pin constraints #}
     {% for const in block.interfaceConstraints %}
 add_files $TARGET_DIR/const/{{const}}
