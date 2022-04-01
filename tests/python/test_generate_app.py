@@ -19,7 +19,8 @@ class TestGenerateApp(unittest.TestCase):
         if os.path.exists(cls.app_build_dir):
             shutil.rmtree(cls.app_build_dir)
         cls.expected_dir = os.path.join(here, "test_data", "app-expected")
-        AppGenerator(app, cls.app_build_dir)
+        cls.app_generator = AppGenerator(app, cls.app_build_dir)
+        cls.app_generator.generate_all()
 
     @classmethod
     def tearDownClass(cls):
@@ -53,6 +54,16 @@ class TestGenerateApp(unittest.TestCase):
 
     def test_addr_defines(self):
         self.assertGeneratedEqual("hdl", "addr_defines.vhd")
+
+    def test_fpga_option_is_parsed(self):
+        self.assertIn('pcap_std_dev', self.app_generator.fpga_options)
+
+    def test_fpga_option_can_be_enabled_and_disabled(self):
+        app_generator = AppGenerator('dummy_app', 'dummy_build_dir')
+        app_generator.process_fpga_options('pcap_std_dev')
+        self.assertIn('pcap_std_dev', app_generator.fpga_options)
+        app_generator.process_fpga_options('!pcap_std_dev')
+        self.assertNotIn('pcap_std_dev', app_generator.fpga_options)
 
     def test_usage(self):
         self.assertGeneratedEqual("usage.txt")
