@@ -99,10 +99,8 @@ class AppGenerator(object):
         target = app_ini.get(".", "target")
         if target:
             # Implement the blocks for the target blocks
-            target_path = os.path.join("targets", target, "blocks")
             target_ini = read_ini(os.path.join(ROOT, "targets", target, (
                     target + ".target.ini")))
-            #self.implement_blocks(target_ini, target_path, "carrier")
             self.implement_blocks(target_ini, "modules", "carrier")
             # Read in what IO site options are available on target
             target_info = ini_get(target_ini,'.', 'io','').split('\n')
