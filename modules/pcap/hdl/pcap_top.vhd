@@ -218,8 +218,8 @@ port map (
     SHIFT_SUM_i         => SHIFT_SUM_reg(5 downto 0),
     -- Block inputs
     enable_i            => enable_from_bus,
-    trig_i              => gate_from_bus,
-    gate_i              => trig_from_bus,
+    trig_i              => trig_from_bus,
+    gate_i              => gate_from_bus,
     bit_bus_i           => bit_bus_i,
     pos_bus_i           => pos_bus_i,
     -- Block parameters outputs
