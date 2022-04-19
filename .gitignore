@@ -1,4 +1,4 @@
-/CONFIG
+#/CONFIG
 /build
 /docs/build
 *.pyc
