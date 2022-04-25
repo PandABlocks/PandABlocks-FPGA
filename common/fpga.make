@@ -10,7 +10,7 @@
 # Note: if these files have been downloaded through the releases directory then
 # they need to be renamed with the appropriate {u-boot,linux}-xlnx- prefix so
 # that the file name and contents match.
-MD5_SUM_device-tree-xlnx-xilinx-v2021.1 = 70cd0d863a38fd5070c84d3caf920943
+MD5_SUM_device-tree-xlnx-xilinx_v2021.1 = 70cd0d863a38fd5070c84d3caf920943
 MD5_SUM_u-boot-xlnx-xilinx-v2021.1 = da25ba41b6dff8e308e7d9b4b5d65930
 MD5_SUM_arm-trusted-firmware-xlnx_rebase_v2.4_2021.1 = a292892fabb15c1dbcfadf19c0f3302f
 # The dtc source is obtained from https://git.kernel.org/pub/scm/utils/dtc/dtc.git

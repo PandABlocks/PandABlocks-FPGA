@@ -18,7 +18,7 @@ MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 MAKE_GITHUB_RELEASE = $(PANDA_ROOTFS)/make-github-release.py
 
 BUILD_DIR = $(TOP)/build
-VIVADO_VER = 2020.2
+VIVADO_VER = 2021.1
 DEFAULT_TARGETS = zpkg
 
 
