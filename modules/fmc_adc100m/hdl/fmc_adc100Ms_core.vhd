@@ -33,7 +33,7 @@
 --------------------------------------------------------------------------------
 -- last changes: see git log.
 --------------------------------------------------------------------------------
--- TODO: - 
+-- TODO: -
 --------------------------------------------------------------------------------
 
 library IEEE;
@@ -81,21 +81,21 @@ entity fmc_adc100Ms_core is
     adc_outb_p_i : in std_logic_vector(3 downto 0);  -- ADC serial data (even bits)
     adc_outb_n_i : in std_logic_vector(3 downto 0);
 
-    gpio_dac_clr_n_o : out std_logic;                     -- offset DACs clear (active low)
+    --gpio_dac_clr_n_o : out std_logic;                     -- offset DACs clear (active low)
     gpio_led_acq_o   : out std_logic;                     -- Mezzanine front panel power LED (PWR)
     gpio_led_trig_o  : out std_logic;                     -- Mezzanine front panel trigger LED (TRIG)
-    gpio_si570_oe_o  : out std_logic;                     -- Si570 (programmable oscillator) output enable
+    --gpio_si570_oe_o  : out std_logic;                     -- Si570 (programmable oscillator) output enable
 
 
     -- Control and Status register
     fsm_cmd_i    : in std_logic_vector(1 downto 0); -- "01" acq_start / "10" acq_stop
     fsm_cmd_wstb : in std_logic;
-    fmc_clk_oe   : in std_logic;                    -- enable Si570 programme oscillator
+    --fmc_clk_oe   : in std_logic;                    -- enable Si570 programme oscillator
 
-    fmc_adc_core_ctl_offset_dac_clr_n_o : in std_logic;
+    --fmc_adc_core_ctl_offset_dac_clr_n_o : in std_logic;
     fmc_adc_core_ctl_test_data_en_o     : in std_logic;
     fmc_adc_core_ctl_man_bitslip_o      : in std_logic;
-    
+
     -- Port for std_logic_vector field: 'State machine status' in reg: 'Status register'
     fmc_adc_core_sta_fsm_i              : out std_logic_vector(2 downto 0);
     -- Port for BIT field: 'SerDes PLL status' in reg: 'Status register'
@@ -143,10 +143,10 @@ entity fmc_adc100Ms_core is
     fmc_adc_core_post_samples_o              : in  std_logic_vector(31 downto 0);
     ---- Port for std_logic_vector field: 'Samples counter' in reg: 'Samples counter'
     fmc_adc_core_samples_cnt_i               : out std_logic_vector(31 downto 0);
-    
+
     fmc_single_shot               : out std_logic;
     fmc_fifo_empty                : out std_logic;
-    
+
     fifo_wr_cnt                   : out std_logic_vector(31 downto 0);
     wait_cnt                      : out std_logic_vector(31 downto 0);
     pre_trig_count                : out std_logic_vector(31 downto 0);
@@ -169,7 +169,7 @@ entity fmc_adc100Ms_core is
     fmc_adc_core_ch4_sta_val_i    : out std_logic_vector(15 downto 0);
     fmc_adc_core_ch4_gain_val_o   : in  std_logic_vector(15 downto 0);
     fmc_adc_core_ch4_offset_val_o : in  std_logic_vector(15 downto 0);
-    fmc_adc_core_ch4_sat_val_o    : in  std_logic_vector(14 downto 0)    
+    fmc_adc_core_ch4_sat_val_o    : in  std_logic_vector(14 downto 0)
     );
 end fmc_adc100Ms_core;
 
@@ -258,7 +258,7 @@ architecture rtl of fmc_adc100Ms_core is
   -- Constants declaration
   ------------------------------------------------------------------------------
   constant c_dpram_depth : integer := f_log2_size(g_multishot_ram_size);
-  constant DEBUG_ILA     : string  := "FALSE";         
+  constant DEBUG_ILA     : string  := "FALSE";
   ------------------------------------------------------------------------------
   -- Types declaration
   ------------------------------------------------------------------------------
@@ -302,7 +302,7 @@ architecture rtl of fmc_adc100Ms_core is
   signal serdes_bitslip      : std_logic;
   signal serdes_synced       : std_logic;
   signal bitslip_sreg        : std_logic_vector(7 downto 0);
-  
+
   signal fmc_adc_core_ctl_man_bitslip_sync0 : std_logic;
   signal fmc_adc_core_ctl_man_bitslip_sync1 : std_logic;
   signal fmc_adc_core_ctl_man_bitslip_sync2 : std_logic;
@@ -449,20 +449,20 @@ architecture rtl of fmc_adc100Ms_core is
   signal trig_led_man : std_logic;
   signal acq_led      : std_logic;
   signal acq_led_man  : std_logic;
-  
+
   signal CLR          : std_logic;
-  
+
   -- CHIPSCOPE ILA probes
   signal probe0               : std_logic_vector(31 downto 0);
   signal probe1               : std_logic_vector(31 downto 0);
   signal probe2               : std_logic_vector(31 downto 0);
   signal probe3               : std_logic_vector(31 downto 0);
   -- signal probe4               : std_logic_vector(31 downto 0);
-  
+
   attribute keep : string;--keep name for ila probes
   attribute keep of serdes_synced    : signal is "true";
   attribute keep of serdes_out_fr    : signal is "true";
-  
+
   attribute keep of sync_fifo_valid  : signal is "true";
   attribute keep of sync_fifo_empty  : signal is "true";
   attribute keep of sync_fifo_wr     : signal is "true";
@@ -481,7 +481,7 @@ architecture rtl of fmc_adc100Ms_core is
   attribute keep of adc_outa_n_i     : signal is "true";
   attribute keep of adc_outb_p_i     : signal is "true";
   attribute keep of adc_outb_n_i     : signal is "true";
-  
+
 
 begin
 
@@ -540,20 +540,20 @@ begin
       IB => adc_dco_n_i,
       O  => dco_clk_buf
       );
-     
+
   --cmp_serdes_out : BUFIO
     --port map (
     --I => dco_clk_buf,
     --O => serdes_clk
     --);
-     
+
 
   --cmp_serdes_bufio : BUFIO
     --port map (
     --I => dco_clk_buf,
     --O => serdes_clk
     --);
-    
+
   --cmp_fs_clk_bufr : BUFR
     --generic map(
       --BUFR_DIVIDE => "8",
@@ -564,7 +564,7 @@ begin
       --CE  => '1',
       --CLR => not(fs_rst_n),
       --O   => fs_clk
-    --); 
+    --);
 
   --cmp_dco_bufio : BUFG
     --port map (
@@ -632,7 +632,7 @@ begin
       CLKFBIN  => clk_fb_in,
       CLKIN1   => dco_clk_buf,
       PWRDWN   => '0');
-      
+
   cmp_fs_clk : BUFG
     port map (
     I => fs_clk_buf,
@@ -644,7 +644,7 @@ begin
     I => clk_fb_out,
     O => clk_fb_in
     );
-      
+
       --cmp_serdes_clk_pll : PLL_BASE
     --generic map (
       --BANDWIDTH          => "OPTIMIZED",
@@ -676,7 +676,7 @@ begin
       ---- Input clock control
       --CLKFBIN  => clk_fb,
       --CLKIN    => dco_clk);
-      
+
   --cmp_serdes_clk : BUFR
     --generic map(
       --BUFR_DIVIDE => "1",
@@ -688,7 +688,7 @@ begin
       --CLR => not(fs_rst_n), --CLR,
       --O   => serdes_clk_buf
     --);
-      
+
   --cmp_dco_clk_div : BUFR
     --generic map(
       --BUFR_DIVIDE => "8",
@@ -706,7 +706,7 @@ begin
       --O => serdes_clk,
       --I => serdes_clk_buf
       --);
-      
+
   --cmp_fs_clk_buf : BUFG
     --port map (
       --O => fs_clk,
@@ -872,8 +872,8 @@ begin
   -- ADC core control and status registers (CSR)
   ------------------------------------------------------------------------------
   -- Control register
-  gpio_si570_oe_o     <= fmc_clk_oe;
-  gpio_dac_clr_n_o    <= fmc_adc_core_ctl_offset_dac_clr_n_o;
+  --gpio_si570_oe_o     <= fmc_clk_oe;
+  --gpio_dac_clr_n_o    <= fmc_adc_core_ctl_offset_dac_clr_n_o;
   test_data_en        <= fmc_adc_core_ctl_test_data_en_o; -- used for wb_ddr_dat_o
   serdes_man_bitslip  <= fmc_adc_core_ctl_man_bitslip_o;
   pre_trig_value      <= fmc_adc_core_pre_samples_o;
@@ -914,18 +914,18 @@ begin
   gain_calibr(31 downto 16) <= fmc_adc_core_ch2_gain_val_o;
   gain_calibr(47 downto 32) <= fmc_adc_core_ch3_gain_val_o;
   gain_calibr(63 downto 48) <= fmc_adc_core_ch4_gain_val_o;
-  
+
   offset_calibr(15 downto  0) <= fmc_adc_core_ch1_offset_val_o;
   offset_calibr(31 downto 16) <= fmc_adc_core_ch2_offset_val_o;
   offset_calibr(47 downto 32) <= fmc_adc_core_ch3_offset_val_o;
   offset_calibr(63 downto 48) <= fmc_adc_core_ch4_offset_val_o;
-  
+
   sat_val(14 downto  0) <= fmc_adc_core_ch1_sat_val_o;
   sat_val(29 downto 15) <= fmc_adc_core_ch2_sat_val_o;
   sat_val(44 downto 30) <= fmc_adc_core_ch3_sat_val_o;
   sat_val(59 downto 45) <= fmc_adc_core_ch4_sat_val_o;
-  
-  
+
+
   l_offset_gain_calibr : for I in 0 to 3 generate
     cmp_offset_gain_calibr : offset_gain_s
       port map(
@@ -1202,7 +1202,7 @@ begin
       end if;
     end if;
   end process p_fifo_wr_cnt;
-  
+
   fifo_wr_cnt <= std_logic_vector(fifo_wr);
 
 
@@ -1322,7 +1322,7 @@ begin
   -- FSM commands
   fsm_cmd    <= fsm_cmd_i;
   fsm_cmd_wr <= fsm_cmd_wstb;
-  
+
   acq_start <= '1' when fsm_cmd_wr = '1' and fsm_cmd = "01" else '0';
   acq_stop  <= '1' when fsm_cmd_wr = '1' and fsm_cmd = "10" else '0';
   acq_trig  <= sync_fifo_valid and sync_fifo_dout(64) and acq_in_wait_trig;
@@ -1505,7 +1505,7 @@ begin
       end if;
     end if;
   end process p_wait_count;
-  
+
   wait_cnt <= std_logic_vector(wait_count);
 
   ------------------------------------------------------------------------------
@@ -1753,7 +1753,7 @@ begin
       end if;
     end if;
   end process p_wb_master;
-  
+
   --p_wb_master : process (wb_ddr_clk_i, sys_rst_n_i)
   --begin
     --if sys_rst_n_i = '0' then
@@ -1821,7 +1821,7 @@ ILA_GEN : IF (DEBUG_ILA= "TRUE") GENERATE--false GENERATE--
                           --serdes_out_data(15 downto 0); -- 1 bit --> SUM = 21 bits
 
    probe0(31 downto 11) <= (others=>'0');
-   
+
    --My_chipscope_ila_probe_1 : entity work.ila_32x8K
      --PORT MAP(
        --clk    => fs_clk, -- 100MHz
@@ -1836,7 +1836,7 @@ ILA_GEN : IF (DEBUG_ILA= "TRUE") GENERATE--false GENERATE--
                           --acq_start&
                           --fsm_cmd&
                           --serdes_out_fr;
-                          
+
    --probe1(31 downto 30) <= (others=>'0');
 
    --My_chipscope_ila_probe_2 : entity work.ila_32x8K
@@ -1852,12 +1852,12 @@ ILA_GEN : IF (DEBUG_ILA= "TRUE") GENERATE--false GENERATE--
                           --acq_start&                -- 1 bit
                           --sw_trig&                  -- 1 bit
                           --std_logic_vector(pre_trig_cnt(3 downto 0))& -- 5 bit
-                          --sync_fifo_dout(15 downto 0)& 
+                          --sync_fifo_dout(15 downto 0)&
                           --sync_fifo_wr&
                           --pre_trig_done&
                           --acq_fsm_state&
                           --acq_config_ok;         -- 1 bit --> SUM = 11 bits
-                          
+
    ----probe2(31 downto 31) <= (others=>'0');
 
 --My_chipscope_ila_probe_3 : entity work.ila_32x8K
@@ -1872,7 +1872,7 @@ ILA_GEN : IF (DEBUG_ILA= "TRUE") GENERATE--false GENERATE--
                           --serdes_bitslip&
                           --serdes_synced&
                           --serdes_out_fr(5 downto 0); -- 8 bits
-                          
+
    --probe3(31 downto 27) <= (others=>'0');
 
 END GENERATE;
