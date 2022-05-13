@@ -38,6 +38,9 @@ set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj
 
+# Set top level module
+set_property top $HDL_TOP [current_fileset]
+
 #
 # Warning suppression
 #
@@ -50,7 +53,7 @@ set_msg_config -id {Vivado 12-1790} -suppress
 set_msg_config -severity "CRITICAL WARNING" -new_severity ERROR
 
 foreach CONST $CONSTRAINTS {
-    add_files $TARGET_DIR/const/$CONST
+    add_files -fileset constrs_1 $TARGET_DIR/const/$CONST
 }
 
 #

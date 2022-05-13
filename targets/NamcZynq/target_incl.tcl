@@ -30,6 +30,7 @@ set TGT_IP {                        \
             fmc_acq430_ch_fifo      \
             fmc_acq430_sample_ram   \
             fmc_acq427_dac_fifo     \
-            ila_0
+            ila_0                   \
+            ila_32x8K
 }
 
