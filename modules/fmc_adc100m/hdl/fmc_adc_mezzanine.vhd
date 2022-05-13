@@ -223,20 +223,24 @@ architecture rtl of fmc_adc_mezzanine is
   signal acq_end_p   : std_logic;
 
 
-  attribute keep : string;--keep name for ila probes
+  attribute mark_debug : string; -- keep name for ila probes
   --attribute keep of spi_din_t      : signal is "true";
   --attribute keep of spi_ss_t       : signal is "true";
-  attribute keep of spi_din_i      : signal is "true";
-  attribute keep of wr_adr         : signal is "true";
-  attribute keep of wr_dat         : signal is "true";
-  attribute keep of wr_req         : signal is "true";
-  --attribute keep of spi_cs_adc_n : signal is "true";
+  --attribute mark_debug of spi_din_i         : signal is "true";
 
-  attribute keep of ADC_RESET_wstb      : signal is "true";
-  attribute keep of ADC_TWOSCOMP_wstb   : signal is "true";
-  attribute keep of ADC_MODE_wstb       : signal is "true";
-  attribute keep of ADC_TEST_MSB_wstb   : signal is "true";
-  attribute keep of ADC_TEST_LSB_wstb   : signal is "true";
+  attribute mark_debug of wr_adr              : signal is "true";
+  attribute mark_debug of wr_dat              : signal is "true";
+  attribute mark_debug of wr_req              : signal is "true";
+  attribute mark_debug of spi_cs              : signal is "true";
+  attribute mark_debug of spi_cs_adc_n        : signal is "true";
+  attribute mark_debug of spi_sck             : signal is "true";
+  attribute mark_debug of spi_dout            : signal is "true";
+
+  attribute mark_debug of ADC_RESET_wstb      : signal is "true";
+  attribute mark_debug of ADC_TWOSCOMP_wstb   : signal is "true";
+  attribute mark_debug of ADC_MODE_wstb       : signal is "true";
+  attribute mark_debug of ADC_TEST_MSB_wstb   : signal is "true";
+  attribute mark_debug of ADC_TEST_LSB_wstb   : signal is "true";
 
 
 -- Begin of code
@@ -696,7 +700,7 @@ begin
                           & ADC_MODE_wstb           -- 1
                           & ADC_TEST_MSB_wstb       -- 1
                           & ADC_TEST_LSB_wstb       -- 1
-                          & wr_adr                  -- 7 bit   -- 12
+                          & wr_adr(6 downto 0)      -- 7 bit   -- 12
                           & wr_dat(7 downto 0)      -- 8 bit   -- 20
                           & wr_req                  -- 1 bit
                           & spi_cs                  -- 4 bits  -- 25
