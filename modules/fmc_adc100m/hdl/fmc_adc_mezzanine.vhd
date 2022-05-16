@@ -1,49 +1,20 @@
 --------------------------------------------------------------------------------
--- CERN (BE-CO-HT)
--- FMC ADC mezzanine
--- http://www.ohwr.org/projects/fmc-adc-100m14b4cha
---------------------------------------------------------------------------------
+--  PandA Motion Project - 2022
+--      Diamond Light Source, Oxford, UK
+--      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
--- unit name: fmc_adc_mezzanine (fmc_adc_mezzanine.vhd)
+-- Unit name  : fmc_adc_mezzanine (fmc_adc_mezzanine.vhd)
 --
--- author: Matthieu Cattin (matthieu.cattin@cern.ch)
+-- Author     : Thierry GARREL (ELSYS-Design)
 --
--- date: 07-05-2013
+-- description: The FMC ADC mezzanine is wrapper around the fmc-adc-100ms core
+--              and the other wishbone slaves connected to a FMC ADC mezzanine.
 --
--- description: The FMC ADC mezzanine is wrapper around the fmc-adc-100ms core and
---              the other wishbone slaves connected to a FMC ADC mezzanine.
---
--- dependencies:
---
--- references:
---
---------------------------------------------------------------------------------
--- GNU LESSER GENERAL PUBLIC LICENSE
---------------------------------------------------------------------------------
--- This source file is free software; you can redistribute it and/or modify it
--- under the terms of the GNU Lesser General Public License as published by the
--- Free Software Foundation; either version 2.1 of the License, or (at your
--- option) any later version. This source is distributed in the hope that it
--- will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
--- of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
--- See the GNU Lesser General Public License for more details. You should have
--- received a copy of the GNU Lesser General Public License along with this
--- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html
---------------------------------------------------------------------------------
--- last changes: see git log.
---------------------------------------------------------------------------------
--- TODO: -
 --------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.NUMERIC_STD.all;
-
----library unisim;
---use unisim.vcomponents.all;
-
---library work;
---use work.fmc_adc100Ms_core_pkg.all;
 
 
 entity fmc_adc_mezzanine is
@@ -193,15 +164,18 @@ architecture rtl of fmc_adc_mezzanine is
   signal spi_cs         : std_logic_vector( 3 downto 0);
   signal busy_ltc       : std_logic;
   signal busy_max       : std_logic;
-  signal spi_dout_ltc : std_logic;
-  signal spi_dout_max : std_logic;
-  signal spi_sck_ltc  : std_logic;
-  signal spi_sck_max  : std_logic;
+  signal spi_dout_ltc   : std_logic;
+  signal spi_dout_max   : std_logic;
+  signal spi_sck_ltc    : std_logic;
+  signal spi_sck_max    : std_logic;
   -- debug to read outputs
   signal spi_dout       : std_logic;    -- SPI data to FMC
   signal spi_sck        : std_logic;    -- SPI clock
-  signal spi_cs_adc_n   : std_logic;    -- SPI ADC chip select (active low)
-
+  signal spi_cs_adc_n   : std_logic;    -- SPI ADC  chip select (active low)
+  signal spi_cs_dac1_n  : std_logic;    -- SPI DAC1 chip select (active low)
+  signal spi_cs_dac2_n  : std_logic;    -- SPI DAC2 chip select (active low)
+  signal spi_cs_dac3_n  : std_logic;    -- SPI DAC3 chip select (active low)
+  signal spi_cs_dac4_n  : std_logic;    -- SPI DAC4 chip select (active low)
 
 
   -- Mezzanine I2C for Si570
@@ -223,24 +197,28 @@ architecture rtl of fmc_adc_mezzanine is
   signal acq_end_p   : std_logic;
 
 
-  attribute mark_debug : string; -- keep name for ila probes
+  attribute keep : string; -- keep name for ila probes
   --attribute keep of spi_din_t      : signal is "true";
   --attribute keep of spi_ss_t       : signal is "true";
   --attribute mark_debug of spi_din_i         : signal is "true";
 
-  attribute mark_debug of wr_adr              : signal is "true";
-  attribute mark_debug of wr_dat              : signal is "true";
-  attribute mark_debug of wr_req              : signal is "true";
-  attribute mark_debug of spi_cs              : signal is "true";
-  attribute mark_debug of spi_cs_adc_n        : signal is "true";
-  attribute mark_debug of spi_sck             : signal is "true";
-  attribute mark_debug of spi_dout            : signal is "true";
+  attribute keep of ADC_RESET_wstb      : signal is "true";
+  attribute keep of ADC_TWOSCOMP_wstb   : signal is "true";
+  attribute keep of ADC_MODE_wstb       : signal is "true";
+  attribute keep of ADC_TEST_MSB_wstb   : signal is "true";
+  attribute keep of ADC_TEST_LSB_wstb   : signal is "true";
 
-  attribute mark_debug of ADC_RESET_wstb      : signal is "true";
-  attribute mark_debug of ADC_TWOSCOMP_wstb   : signal is "true";
-  attribute mark_debug of ADC_MODE_wstb       : signal is "true";
-  attribute mark_debug of ADC_TEST_MSB_wstb   : signal is "true";
-  attribute mark_debug of ADC_TEST_LSB_wstb   : signal is "true";
+  attribute keep of wr_adr              : signal is "true";
+  attribute keep of wr_dat              : signal is "true";
+  attribute keep of wr_req              : signal is "true";
+  attribute keep of spi_cs              : signal is "true";
+  attribute keep of spi_cs_adc_n        : signal is "true";
+  attribute keep of spi_cs_dac1_n       : signal is "true";
+  attribute keep of spi_cs_dac2_n       : signal is "true";
+  attribute keep of spi_cs_dac3_n       : signal is "true";
+  attribute keep of spi_cs_dac4_n       : signal is "true";
+  attribute keep of spi_sck             : signal is "true";
+  attribute keep of spi_dout            : signal is "true";
 
 
 -- Begin of code
@@ -288,9 +266,10 @@ begin
   cmp_spi_ltc2174 : entity work.spi_ltc2174
     generic map(
         SYS_PERIOD  => 8,    -- Sys clock [ns]
-        CLK_PERIOD  => 1612, -- [n] : 1.6us
-        DEAD_PERIOD => 30000 -- [n] : 30us
+        CLK_PERIOD  => 1008, -- [ns] : 1 us
+        DEAD_PERIOD => 2000  -- [ns] : 2 us
     )
+
     port map(
         clk_i      => sys_clk_i,
         reset_i    => sys_reset_i,
@@ -310,8 +289,8 @@ begin
   cmp_spi_max5442 : entity work.spi_max5442
     generic map(
         SYS_PERIOD  => 8,    -- Sys clock [ns]
-        CLK_PERIOD  => 1612, -- [n] : 1.6us
-        DEAD_PERIOD => 30000 -- [n] : 30us
+        CLK_PERIOD  => 1008, -- [n] : 1 us
+        DEAD_PERIOD => 2000  -- [n] : 2 us
     )
     port map(
         clk_i      => sys_clk_i,
@@ -364,15 +343,18 @@ begin
             wr_req <= '0';
             wr_adr <= (others => '0');
             wr_dat <= (others => '0');
+            spi_cs   <= "0000";
+            spi_sck  <= '0';
+            spi_dout <= '0';
         else
             -- Cycle through registers contiuously.
-            if (busy_ltc = '0'and busy_max = '0') then
+            if (busy_ltc = '0' and busy_max = '0') then
               wr_req <= '0';
               spi_cs_adc_n  <= '1';
-              spi_cs_dac1_n_o <= '1';
-              spi_cs_dac2_n_o <= '1';
-              spi_cs_dac3_n_o <= '1';
-              spi_cs_dac4_n_o <= '1';
+              spi_cs_dac1_n <= '1';
+              spi_cs_dac2_n <= '1';
+              spi_cs_dac3_n <= '1';
+              spi_cs_dac4_n <= '1';
               -- ADC registers
               --     spi_cs
               -- A0  0000      ADC_RESET
@@ -385,49 +367,34 @@ begin
                 wr_adr <= "0000000"; -- ADC REGISTER A0 : RESET REGISTER (Address 00h)
                 wr_dat( 7 downto 0) <= '1' & "0000000"; -- Bit 7 = Software Reset bit
                 wr_dat(15 downto 8) <= (others => '0');
-                spi_cs_adc_n <= '0';
                 spi_cs <= "0000";
-                spi_dout <= spi_dout_ltc;
-                spi_sck  <= spi_sck_ltc;
               end if;
               if (ADC_TWOSCOMP_wstb = '1') then
                 wr_req <= '1';
                 wr_adr <= "0000001"; -- ADC REGISTER A1 : FORMAT AND POWER DOWN REGISTER (Address 01h)
                 wr_dat( 7 downto 0) <= "00" & ADC_TWOSCOMP & "00000"; -- Bit 5 =  Two’s Complement Mode Control Bit
                 wr_dat(15 downto 8) <= (others => '0');
-                spi_cs_adc_n <= '0';
                 spi_cs <= "0001";
-                spi_dout <= spi_dout_ltc;
-                spi_sck  <= spi_sck_ltc;
               end if;
               if (ADC_MODE_wstb = '1') then
                 wr_req <= '1';
                 wr_adr <= "0000010"; -- ADC REGISTER A2 : OUTPUT MODE REGISTER (Address 02h)
                 wr_dat <= (others => '0');
-                spi_cs_adc_n <= '0';
                 spi_cs <= "0010";
-                spi_dout <= spi_dout_ltc;
-                spi_sck  <= spi_sck_ltc;
               end if;
               if (ADC_TEST_MSB_wstb = '1') then
                 wr_req <= '1';
                 wr_adr <= "0000011"; -- ADC REGISTER A3 : TEST PATTERN MSB REGISTER (Address 03h)
                 wr_dat( 7 downto 0) <= ADC_TEST_MSB;
                 wr_dat(15 downto 8) <= (others => '0');
-                spi_cs_adc_n <= '0';
                 spi_cs <= "0011";
-                spi_dout <= spi_dout_ltc;
-                spi_sck  <= spi_sck_ltc;
               end if;
               if (ADC_TEST_LSB_wstb = '1') then
                 wr_req <= '1';
                 wr_adr <= "0000100"; -- ADC REGISTER A4 : : TEST PATTERN LSB REGISTER (Address 04h)
                 wr_dat( 7 downto 0) <= ADC_TEST_LSB;
                 wr_dat(15 downto 8) <= (others => '0');
-                spi_cs_adc_n <= '0';
                 spi_cs <= "0100";
-                spi_dout <= spi_dout_ltc;
-                spi_sck  <= spi_sck_ltc;
               end if;
               -- DAC offset registers (16 bits)
               --     spi_cs
@@ -438,37 +405,26 @@ begin
               if (DAC_1_OFFSET_wstb = '1') then
                 wr_req <= '1';
                 wr_dat <= DAC_1_OFFSET(15 downto 0);
-                spi_cs_dac1_n_o <= '0';
                 spi_cs <= "0101";
-                spi_dout <= spi_dout_max;
-                spi_sck  <= spi_sck_max;
               end if;
               if (DAC_2_OFFSET_wstb = '1') then
                 wr_req <= '1';
                 wr_dat <= DAC_2_OFFSET(15 downto 0);
-                spi_cs_dac2_n_o <= '0';
                 spi_cs <= "0110";
-                spi_dout <= spi_dout_max;
-                spi_sck  <= spi_sck_max;
               end if;
               if (DAC_3_OFFSET_wstb = '1') then
                 wr_req <= '1';
                 wr_dat <= DAC_3_OFFSET(15 downto 0);
-                spi_cs_dac3_n_o <= '0';
                 spi_cs <= "0111";
-                spi_dout <= spi_dout_max;
-                spi_sck  <= spi_sck_max;
               end if;
               if (DAC_4_OFFSET_wstb = '1') then
                 wr_req <= '1';
                 wr_dat <= DAC_4_OFFSET(15 downto 0);
-                spi_cs_dac4_n_o <= '0';
                 spi_cs <= "1000";
-                spi_dout <= spi_dout_max;
-                spi_sck  <= spi_sck_max;
               end if;
             -- if busy = 1, continue to write
-            -- spi_cs = 0,1,2,3,4 (ADC)
+            -- ADC : spi_cs = 0,1,2,3,4
+            -- DAC ! spi_cs = 5,6,7,8
             elsif (spi_cs = "0000") then
               spi_cs_adc_n  <= '0';
               spi_dout      <= spi_dout_ltc;
@@ -491,19 +447,19 @@ begin
               spi_sck       <= spi_sck_ltc;
             -- spi_cs = 5,6,7,8 (MAX)
             elsif (spi_cs = "0101") then
-              spi_cs_dac1_n_o <= '0';
+              spi_cs_dac1_n <= '0';
               spi_dout      <= spi_dout_max;
               spi_sck       <= spi_sck_max;
             elsif (spi_cs = "0110") then
-              spi_cs_dac2_n_o <= '0';
+              spi_cs_dac2_n <= '0';
               spi_dout      <= spi_dout_max;
               spi_sck       <= spi_sck_max;
             elsif (spi_cs = "0111") then
-              spi_cs_dac3_n_o <= '0';
+              spi_cs_dac3_n <= '0';
               spi_dout      <= spi_dout_max;
               spi_sck       <= spi_sck_max;
             elsif (spi_cs = "1000") then
-              spi_cs_dac4_n_o <= '0';
+              spi_cs_dac4_n <= '0';
               spi_dout      <= spi_dout_max;
               spi_sck       <= spi_sck_max;
             end if;
@@ -511,10 +467,14 @@ begin
     end if;
   end process p_fmc_spi;
 
-  -- SPI outputs
-  spi_cs_adc_n_o  <= spi_cs_adc_n;
-  spi_sck_o       <= spi_sck;
-  spi_dout_o      <= spi_dout;
+  -- Assign SPI outputs
+  spi_cs_adc_n_o    <= spi_cs_adc_n;
+  spi_cs_dac1_n_o   <= spi_cs_dac1_n;
+  spi_cs_dac2_n_o   <= spi_cs_dac2_n;
+  spi_cs_dac3_n_o   <= spi_cs_dac3_n;
+  spi_cs_dac4_n_o   <= spi_cs_dac4_n;
+  spi_sck_o         <= spi_sck;
+  spi_dout_o        <= spi_dout;
 
 
   ------------------------------------------------------------------------------
@@ -695,20 +655,24 @@ begin
     clk    => sys_clk_i,
     probe0 => probe0  );
 
-    probe0(27 downto 0) <=  ADC_RESET_wstb          -- 1 bit
+    probe0(31 downto 0) <=  ADC_RESET_wstb          -- 1
                           & ADC_TWOSCOMP_wstb       -- 1
                           & ADC_MODE_wstb           -- 1
                           & ADC_TEST_MSB_wstb       -- 1
-                          & ADC_TEST_LSB_wstb       -- 1
-                          & wr_adr(6 downto 0)      -- 7 bit   -- 12
-                          & wr_dat(7 downto 0)      -- 8 bit   -- 20
-                          & wr_req                  -- 1 bit
-                          & spi_cs                  -- 4 bits  -- 25
-                          & spi_cs_adc_n            -- 1 bit
-                          & spi_sck                 -- 1 bit
-                          & spi_dout;               -- 1 bit   -- 28
+                          & ADC_TEST_LSB_wstb       -- 1     5
+                          & wr_adr(6 downto 0)      -- 7    12
+                          & wr_dat(7 downto 0)      -- 8    20
+                          & wr_req                  -- 1
+                          & spi_cs                  -- 4    25
+                          & spi_cs_adc_n            -- 1
+                          & spi_cs_dac1_n           -- 1
+                          & spi_cs_dac2_n           -- 1
+                          & spi_cs_dac3_n           -- 1
+                          & spi_cs_dac4_n           -- 1    30
+                          & spi_sck                 -- 1
+                          & spi_dout;               -- 1    32
 
-    probe0(31 downto 28) <= (others=>'0');
+    --probe0(31 downto 28) <= (others=>'0');
 
 end generate;
 

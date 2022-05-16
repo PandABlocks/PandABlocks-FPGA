@@ -51,7 +51,7 @@ signal active               : std_logic;
 
 begin
 
-clock_train_inst : entity work.ssi_clock_gen
+clock_train_inst : entity work.spi_clock_gen
 generic map (
     DEAD_PERIOD     => DEAD_PERIOD
 )
@@ -92,7 +92,7 @@ begin
 end process;
 
 -- Connect outputs
-spi_sclk_o  <= serial_clk;
-spi_dat_o <= shift_reg(shift_reg'length - 1);
+spi_sclk_o  <= not serial_clk; -- output data on the falling edge of serial clock
+spi_dat_o   <= shift_reg(shift_reg'length - 1);
 
 end rtl;

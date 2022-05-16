@@ -434,8 +434,8 @@ port map (
     SSR3                => fmc_ssr3,
     SSR4                => fmc_ssr4,
     -- Programmable Osc Si570
-    FMC_CLK_ENABLE      => fmc_clk_oe,
-    FMC_CLK_ENABLE_wstb => open,
+    OSC_ENABLE          => fmc_clk_oe,
+    OSC_ENABLE_wstb     => open,
     -- LTC2174 registers
     ADC_RESET           => open,
     ADC_RESET_wstb      => ADC_RESET_wstb,
