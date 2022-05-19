@@ -28,9 +28,9 @@ port (
     clk_i           : in  std_logic;
     reset_i         : in  std_logic;
     -- Transaction interface
-    wr_rst_i        : in  std_logic;
     wr_req_i        : in  std_logic;
     wr_dat_i        : in  std_logic_vector(15 downto 0);
+    -- Status flags
     busy_o          : out std_logic;
     -- Serial Physical interface
     spi_sclk_o      : out std_logic;
@@ -47,31 +47,31 @@ signal serial_clk           : std_logic;
 signal serial_clk_prev      : std_logic;
 signal serial_clk_rise      : std_logic;
 signal shift_reg            : std_logic_vector(BITS downto 0);
-signal active               : std_logic;
+signal active_flag          : std_logic;
 
+
+-- Begin of code
 begin
 
 clock_train_inst : entity work.spi_clock_gen
 generic map (
-    DEAD_PERIOD     => DEAD_PERIOD
+    DEAD_PERIOD       => DEAD_PERIOD
 )
 port map (
-    clk_i           => clk_i,
-    reset_i         => reset_i,
-    N               => std_logic_vector(to_unsigned(BITS, 8)), -- std_logic_vector(to_unsigned(input_1, output_1a'length));
-    CLK_PERIOD      => std_logic_vector(to_unsigned(CLK_PERIOD, 32)),
-    start_i         => wr_req_i,
-    clock_pulse_o   => serial_clk,
-    active_o        => active,
-    busy_o          => busy_o
+    clk_i             => clk_i,
+    reset_i           => reset_i,
+    N                 => std_logic_vector(to_unsigned(BITS, 8)), -- std_logic_vector(to_unsigned(input_1, output_1a'length));
+    CLK_PERIOD        => std_logic_vector(to_unsigned(CLK_PERIOD, 32)),
+    start_i           => wr_req_i,
+    serial_clk_o      => serial_clk,
+    serial_clk_rise_o => serial_clk_rise,
+    serial_clk_fall_o => open,
+    active_o          => active_flag,
+    busy_o            => busy_o
 );
 
---
--- Prescaled clock to be used internally.
---
-serial_clk_rise <= serial_clk and not serial_clk_prev;
 
-process(clk_i)
+p_spi : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
@@ -84,7 +84,7 @@ begin
             -- Latch write data, and shift out on the rising edge of serial clock
             if (wr_req_i = '1') then
                 shift_reg <= wr_dat_i; -- wr_dat_i[15:0]
-            elsif (active = '1' and serial_clk_rise = '1') then
+            elsif (active_flag = '1' and serial_clk_rise = '1') then
                 shift_reg <= shift_reg(shift_reg'length - 2 downto 0) & '0';
             end if;
         end if;
@@ -95,4 +95,6 @@ end process;
 spi_sclk_o  <= not serial_clk; -- output data on the falling edge of serial clock
 spi_dat_o   <= shift_reg(shift_reg'length - 1);
 
+
 end rtl;
+-- End of code

@@ -50,9 +50,10 @@ use work.gencores_pkg.all;
 
 
 entity fmc_adc100Ms_core is
-  generic(
-    g_multishot_ram_size : natural := 128 --512;--1024;--2048;
-    );
+  generic (
+    g_multishot_ram_size  : natural := 128;   --512;--1024;--2048;
+    g_DEBUG_ILA           : boolean := FALSE
+  );
   port (
     -- Clock, reset
     sys_clk_i   : in std_logic;
@@ -452,13 +453,6 @@ architecture rtl of fmc_adc100Ms_core is
 
   signal CLR          : std_logic;
 
-  -- CHIPSCOPE ILA probes
-  signal probe0               : std_logic_vector(31 downto 0);
-  signal probe1               : std_logic_vector(31 downto 0);
-  signal probe2               : std_logic_vector(31 downto 0);
-  signal probe3               : std_logic_vector(31 downto 0);
-  -- signal probe4               : std_logic_vector(31 downto 0);
-
   attribute keep : string;--keep name for ila probes
   attribute keep of serdes_synced    : signal is "true";
   attribute keep of serdes_out_fr    : signal is "true";
@@ -483,6 +477,7 @@ architecture rtl of fmc_adc100Ms_core is
   attribute keep of adc_outb_n_i     : signal is "true";
 
 
+-- Begin of code
 begin
 
 
@@ -1802,7 +1797,18 @@ begin
 ---------------------------------------------------------------------------
 -- Chipscope ILA Debug purpose
 ---------------------------------------------------------------------------
-ILA_GEN : IF (DEBUG_ILA= "TRUE") GENERATE--false GENERATE--
+ILA_GEN : if g_DEBUG_ILA generate
+
+  -- CHIPSCOPE ILA probes
+  signal probe0               : std_logic_vector(31 downto 0);
+  --signal probe1               : std_logic_vector(31 downto 0);
+  --signal probe2               : std_logic_vector(31 downto 0);
+ ---signal probe3               : std_logic_vector(31 downto 0);
+
+
+-- Begin of ILA code
+begin
+
    My_chipscope_ila_probe_0 : entity work.ila_32x8K
      PORT MAP(
        clk    => fs_clk, -- 100MHz
@@ -1875,6 +1881,8 @@ ILA_GEN : IF (DEBUG_ILA= "TRUE") GENERATE--false GENERATE--
 
    --probe3(31 downto 27) <= (others=>'0');
 
-END GENERATE;
+end generate;
+-- End of ILA code
 
 end rtl;
+-- End of code

@@ -105,7 +105,6 @@ signal fsm_cmd_wstb         : std_logic;
 signal fmc_clk_oe           : std_logic_vector(31 downto 0);
 signal test_data_en         : std_logic_vector(31 downto 0);
 signal man_bitslip          : std_logic_vector(31 downto 0);
-signal DAC_OFFSET_CLR       : std_logic_vector(31 downto 0);
 signal fsm_status           : std_logic_vector(31 downto 0);
 signal serdes_pll_sta       : std_logic_vector(31 downto 0);
 signal fs_freq              : std_logic_vector(31 downto 0);
@@ -154,6 +153,7 @@ signal fmc_val1             : std_logic_vector(31 downto 0);
 signal fmc_val2             : std_logic_vector(31 downto 0);
 signal fmc_val3             : std_logic_vector(31 downto 0);
 signal fmc_val4             : std_logic_vector(31 downto 0);
+
 signal ADC_RESET            : std_logic_vector(31 downto 0);
 signal ADC_RESET_wstb       : std_logic;
 signal ADC_TWOSCOMP         : std_logic_vector(31 downto 0);
@@ -164,6 +164,10 @@ signal ADC_TEST_MSB         : std_logic_vector(31 downto 0);
 signal ADC_TEST_MSB_wstb    : std_logic;
 signal ADC_TEST_LSB         : std_logic_vector(31 downto 0);
 signal ADC_TEST_LSB_wstb    : std_logic;
+signal ADC_SPI_READ         : std_logic_vector(31 downto 0);
+signal ADC_SPI_READ_wstb    : std_logic;
+signal ADC_SPI_READ_VALUE   : std_logic_vector(31 downto 0);
+
 signal DAC_1_OFFSET         : std_logic_vector(31 downto 0);
 signal DAC_2_OFFSET         : std_logic_vector(31 downto 0);
 signal DAC_3_OFFSET         : std_logic_vector(31 downto 0);
@@ -172,6 +176,8 @@ signal DAC_1_OFFSET_wstb    : std_logic;
 signal DAC_2_OFFSET_wstb    : std_logic;
 signal DAC_3_OFFSET_wstb    : std_logic;
 signal DAC_4_OFFSET_wstb    : std_logic;
+signal DAC_OFFSET_CLR       : std_logic_vector(31 downto 0);
+
 
 --signal THERMOMETER_UID      : std_logic_vector(31 downto 0);
 
@@ -296,6 +302,7 @@ fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
       gpio_led_trig_o   => gpio_led_trig_o,
       --gpio_si570_oe_o   => gpio_si570_oe_o,
 
+      -- Mezzanine SPI
       spi_din_i         => spi_din_i,
       spi_dout_o        => spi_dout_o,
       spi_sck_o         => spi_sck_o,
@@ -304,15 +311,42 @@ fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
       spi_cs_dac2_n_o   => spi_cs_dac2_n_o,
       spi_cs_dac3_n_o   => spi_cs_dac3_n_o,
       spi_cs_dac4_n_o   => spi_cs_dac4_n_o,
-
+      -- Mezzanine I2C (Si570)
       si570_scl_b       => si570_scl_b,
       si570_sda_b       => si570_sda_b,
-
+      -- Mezzanine 1-wire (DS18B20)
       mezz_one_wire_b   => mezz_one_wire_b,
+      -- Mezzanine system I2C (EEPROM)
+      --sys_scl_b         => open,
+      --sys_sda_b         => open,
 
-      sys_scl_b         => open,
-      sys_sda_b         => open,
+      -- fmc_adc100m_ctrl
+      -- ADC registers (LTC2174)
+      ADC_RESET           => ADC_RESET(0),
+      ADC_RESET_wstb      => ADC_RESET_wstb,
+      ADC_TWOSCOMP        => ADC_TWOSCOMP(0),
+      ADC_TWOSCOMP_wstb   => ADC_TWOSCOMP_wstb,
+      ADC_MODE            => ADC_MODE(7 downto 0),
+      ADC_MODE_wstb       => ADC_MODE_wstb,
+      ADC_TEST_MSB        => ADC_TEST_MSB(7 downto 0),
+      ADC_TEST_MSB_wstb   => ADC_TEST_MSB_wstb,
+      ADC_TEST_LSB        => ADC_TEST_LSB(7 downto 0),
+      ADC_TEST_LSB_wstb   => ADC_TEST_LSB_wstb,
+      ADC_SPI_READ        => ADC_SPI_READ(2 downto 0),
+      ADC_SPI_READ_wstb   => ADC_SPI_READ_wstb,
+      ADC_SPI_READ_VALUE  => ADC_SPI_READ_VALUE,
+      -- DAC registers MAX5442 (x4)
+      DAC_1_OFFSET        => DAC_1_OFFSET,
+      DAC_2_OFFSET        => DAC_2_OFFSET,
+      DAC_3_OFFSET        => DAC_3_OFFSET,
+      DAC_4_OFFSET        => DAC_4_OFFSET,
+      DAC_1_OFFSET_wstb   => DAC_1_OFFSET_wstb,
+      DAC_2_OFFSET_wstb   => DAC_2_OFFSET_wstb,
+      DAC_3_OFFSET_wstb   => DAC_3_OFFSET_wstb,
+      DAC_4_OFFSET_wstb   => DAC_4_OFFSET_wstb,
 
+
+      -- Control and Status Register
       fsm_cmd_i           => fsm_cmd_i(1 downto 0),
       fsm_cmd_wstb        => fsm_cmd_wstb,
       --fmc_clk_oe          => fmc_clk_oe(0),
@@ -346,7 +380,7 @@ fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
       pre_trig_cnt        => pre_trig_cnt,
       sample_rate         => sample_rate,
 
-      -- fmc_adc100m_ctrl
+      -- Gain/offset calibration
       fmc_gain1           => fmc_gain1(15 downto 0),
       fmc_gain2           => fmc_gain2(15 downto 0),
       fmc_gain3           => fmc_gain3(15 downto 0),
@@ -362,27 +396,7 @@ fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
       fmc_val1            => fmc_val1(15 downto 0),
       fmc_val2            => fmc_val2(15 downto 0),
       fmc_val3            => fmc_val3(15 downto 0),
-      fmc_val4            => fmc_val4(15 downto 0),
-      -- LTC2174 registers
-      ADC_RESET           => ADC_RESET(0),
-      ADC_RESET_wstb      => ADC_RESET_wstb,
-      ADC_TWOSCOMP        => ADC_TWOSCOMP(0),
-      ADC_TWOSCOMP_wstb   => ADC_TWOSCOMP_wstb,
-      ADC_MODE            => ADC_MODE(7 downto 0),
-      ADC_MODE_wstb       => ADC_MODE_wstb,
-      ADC_TEST_MSB        => ADC_TEST_MSB(7 downto 0),
-      ADC_TEST_MSB_wstb   => ADC_TEST_MSB_wstb,
-      ADC_TEST_LSB        => ADC_TEST_LSB(7 downto 0),
-      ADC_TEST_LSB_wstb   => ADC_TEST_LSB_wstb,
-      -- DAC registers MAX5442 (x4)
-      DAC_1_OFFSET        => DAC_1_OFFSET,
-      DAC_2_OFFSET        => DAC_2_OFFSET,
-      DAC_3_OFFSET        => DAC_3_OFFSET,
-      DAC_4_OFFSET        => DAC_4_OFFSET,
-      DAC_1_OFFSET_wstb   => DAC_1_OFFSET_wstb,
-      DAC_2_OFFSET_wstb   => DAC_2_OFFSET_wstb,
-      DAC_3_OFFSET_wstb   => DAC_3_OFFSET_wstb,
-      DAC_4_OFFSET_wstb   => DAC_4_OFFSET_wstb
+      fmc_val4            => fmc_val4(15 downto 0)
 
       );
 
@@ -447,6 +461,9 @@ port map (
     ADC_TEST_MSB_wstb   => ADC_TEST_MSB_wstb,
     ADC_TEST_LSB        => ADC_TEST_LSB,
     ADC_TEST_LSB_wstb   => ADC_TEST_LSB_wstb,
+    ADC_SPI_READ        => ADC_SPI_READ,
+    ADC_SPI_READ_wstb   => ADC_SPI_READ_wstb,
+    ADC_SPI_READ_VALUE  => ADC_SPI_READ_VALUE,
     -- DAC registers MAX5442 (x4)
     DAC_1_OFFSET        => DAC_1_OFFSET,
     DAC_1_OFFSET_wstb   => DAC_1_OFFSET_wstb,
