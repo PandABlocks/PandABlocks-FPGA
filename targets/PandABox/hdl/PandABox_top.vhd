@@ -110,6 +110,7 @@ architecture rtl of PandABox_top is
 
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
+signal FCLK_CLK0_2X         : std_logic;
 signal FCLK_CLK0_PS         : std_logic;
 signal FCLK_CLK1_PS         : std_logic;
 signal FCLK_RESET0_N        : std_logic_vector(0 downto 0);
@@ -254,7 +255,6 @@ attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
 signal EXTCLK : std_logic;
 
-
 signal sma_pll_locked       : std_logic;
 signal clk_src_sel          : std_logic_vector(1 downto 0);
 signal clk_sel_stat         : std_logic_vector(1 downto 0);
@@ -326,7 +326,8 @@ port map(
     linkup_i             => SFP1_o.LINK_UP,
     sma_pll_locked_o    => sma_pll_locked,
     clk_sel_stat_o        => clk_sel_stat,
-    fclk_clk0_o         => FCLK_CLK0
+    fclk_clk0_o         => FCLK_CLK0,
+    fclk_clk0_2x_o => FCLK_CLK0_2X
 );
 
 
@@ -500,6 +501,7 @@ port map (
 ttlout_inst : entity work.ttlout_top
 port map (
     clk_i               => FCLK_CLK0,
+    clk_2x_i            => FCLK_CLK0_2X,
     reset_i             => FCLK_RESET0,
 
     read_strobe_i       => read_strobe(TTLOUT_CS),
@@ -530,6 +532,7 @@ port map (
 lvdsout_inst : entity work.lvdsout_top
 port map (
     clk_i               => FCLK_CLK0,
+    clk_2x_i            => FCLK_CLK0_2X,
     reset_i             => FCLK_RESET0,
 
     read_strobe_i       => read_strobe(LVDSOUT_CS),

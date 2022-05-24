@@ -25,6 +25,7 @@ entity ttlout_top is
 port (
     -- Clocks and Resets
     clk_i               : in  std_logic;
+    clk_2x_i            : in  std_logic;
     reset_i             : in  std_logic;
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
@@ -71,6 +72,7 @@ ttlout_block : entity work.ttlout_block
 port map (
     -- Clock and Reset
     clk_i               => clk_i,
+    clk_2x_i            => clk_2x_i,
     reset_i             => reset_i,
     -- Memory Bus Interface
     read_strobe_i       => read_strobe(I),
