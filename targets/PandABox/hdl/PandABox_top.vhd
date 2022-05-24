@@ -111,6 +111,7 @@ architecture rtl of PandABox_top is
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
 signal FCLK_CLK0_PS         : std_logic;
+signal FCLK_CLK1_PS         : std_logic;
 signal FCLK_RESET0_N        : std_logic_vector(0 downto 0);
 signal FCLK_RESET0          : std_logic;
 
@@ -312,6 +313,12 @@ port map (
         IB              =>      GTXCLK1_N
     );
 
+idelayctrl_inst : IDELAYCTRL port map (
+    REFCLK => FCLK_CLK1_PS,
+    RST => '0',
+    RDY => open
+);
+
 mmcm_clkmux_inst: entity work.mmcm_clkmux
 port map(
     fclk_clk0_ps_i      => FCLK_CLK0_PS,
@@ -331,6 +338,8 @@ port map(
 ps : entity work.panda_ps
 port map (
     FCLK_CLK0                   => FCLK_CLK0_PS,
+    -- 200 MHZ reference clock
+    FCLK_CLK1                   => FCLK_CLK1_PS,
     PL_CLK                      => FCLK_CLK0,
     FCLK_RESET0_N               => FCLK_RESET0_N,
 
