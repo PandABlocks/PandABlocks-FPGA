@@ -259,8 +259,6 @@ signal sma_pll_locked       : std_logic;
 signal clk_src_sel          : std_logic_vector(1 downto 0);
 signal clk_sel_stat         : std_logic_vector(1 downto 0);
 
-signal slow_tlp   : slow_packet;
-
 attribute IO_BUFFER_TYPE : string;
 attribute IO_BUFFER_TYPE of SFP_TX_P : signal is "none";
 attribute IO_BUFFER_TYPE of SFP_TX_N : signal is "none";
