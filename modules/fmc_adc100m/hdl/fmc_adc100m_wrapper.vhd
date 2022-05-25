@@ -27,6 +27,9 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;
+    -- On Board clocks
+    clk_app0_i          : in  std_logic;
+
     -- Bus Inputs
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
@@ -64,13 +67,14 @@ architecture rtl of fmc_adc100m_wrapper is
 signal sys_clk_125          : std_logic;
 signal fmc_reset_n          : std_logic;
 
-signal adc_dco_n_i          : std_logic;
+-- ADC interface (LTC2174)
+signal adc_dco_n_i          : std_logic; -- ADC Clock data out
 signal adc_dco_p_i          : std_logic;
-signal adc_fr_n_i           : std_logic;
+signal adc_fr_n_i           : std_logic; -- ADC Frame start
 signal adc_fr_p_i           : std_logic;
-signal adc_outa_n_i         : std_logic_vector(3 downto 0);
+signal adc_outa_n_i         : std_logic_vector(3 downto 0); -- ADC serial data in (odd bits)
 signal adc_outa_p_i         : std_logic_vector(3 downto 0);
-signal adc_outb_n_i         : std_logic_vector(3 downto 0);
+signal adc_outb_n_i         : std_logic_vector(3 downto 0); -- ADC serial data in (even bits)
 signal adc_outb_p_i         : std_logic_vector(3 downto 0);
 
 signal gpio_si570_oe_o      : std_logic;                     -- Si570 programmable oscillator output enable (active high)
@@ -104,11 +108,11 @@ signal fsm_cmd_i            : std_logic_vector(31 downto 0);
 signal fsm_cmd_wstb         : std_logic;
 signal fmc_clk_oe           : std_logic_vector(31 downto 0);
 signal test_data_en         : std_logic_vector(31 downto 0);
-signal man_bitslip          : std_logic_vector(31 downto 0);
+
 signal fsm_status           : std_logic_vector(31 downto 0);
 signal serdes_pll_sta       : std_logic_vector(31 downto 0);
 signal fs_freq              : std_logic_vector(31 downto 0);
-signal serdes_synced_sta    : std_logic_vector(31 downto 0);
+
 signal acq_cfg_sta          : std_logic_vector(31 downto 0);
 signal pre_trig             : std_logic_vector(31 downto 0);
 signal pos_trig             : std_logic_vector(31 downto 0);
@@ -177,6 +181,12 @@ signal DAC_2_OFFSET_wstb    : std_logic;
 signal DAC_3_OFFSET_wstb    : std_logic;
 signal DAC_4_OFFSET_wstb    : std_logic;
 signal DAC_OFFSET_CLR       : std_logic_vector(31 downto 0);
+
+signal SERDES_RESET         : std_logic_vector(31 downto 0);
+signal SERDES_BITSLIP       : std_logic_vector(31 downto 0);
+signal serdes_synced_sta    : std_logic_vector(31 downto 0);
+signal refclk_locked_sta    : std_logic_vector(31 downto 0);
+
 
 
 --signal THERMOMETER_UID      : std_logic_vector(31 downto 0);
@@ -279,15 +289,21 @@ fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
     g_DEBUG_ILA          => TRUE
   )
   port map (
+      -- System clock and reset from PS core (125 mhz)
       sys_clk_i         => sys_clk_125,
       sys_rst_n_i       => fmc_reset_n,
 
+      -- On board clock (100 mhz)
+      clk_100_i         => clk_app0_i,
+
+      -- DDR wishbone interface
       wb_ddr_clk_i      => sys_clk_125,
       wb_ddr_dat_o      => fmc_data_o,
 
-      ext_trigger_p_i   => ext_trigger_p_i,
-      ext_trigger_n_i   => ext_trigger_n_i,
-
+      -- **********************
+      -- *** FMC interface  ***
+      -- **********************
+      -- ADC interface (LTC2174)
       adc_dco_p_i       => adc_dco_p_i,
       adc_dco_n_i       => adc_dco_n_i,
       adc_fr_p_i        => adc_fr_p_i,
@@ -320,7 +336,14 @@ fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
       --sys_scl_b         => open,
       --sys_sda_b         => open,
 
-      -- fmc_adc100m_ctrl
+      -- External trigger
+      ext_trigger_p_i   => ext_trigger_p_i,
+      ext_trigger_n_i   => ext_trigger_n_i,
+
+
+      -- ************************
+      -- *** FMC_ADC100M_CTRL ***
+      -- ************************
       -- ADC registers (LTC2174)
       ADC_RESET           => ADC_RESET(0),
       ADC_RESET_wstb      => ADC_RESET_wstb,
@@ -345,6 +368,12 @@ fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
       DAC_3_OFFSET_wstb   => DAC_3_OFFSET_wstb,
       DAC_4_OFFSET_wstb   => DAC_4_OFFSET_wstb,
 
+      -- SERDES Ctrl and Statuts
+      serdes_arst_i       => SERDES_RESET(0),
+      serdes_bslip_i      => SERDES_BITSLIP(0),
+      refclk_locked_o     => refclk_locked_sta(0),
+      serdes_synced_o     => serdes_synced_sta(0),
+
 
       -- Control and Status Register
       fsm_cmd_i           => fsm_cmd_i(1 downto 0),
@@ -352,11 +381,9 @@ fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
       --fmc_clk_oe          => fmc_clk_oe(0),
       --offset_dac_clr      => offset_dac_clr(0),
       test_data_en        => test_data_en(0),
-      man_bitslip         => man_bitslip(0),
       fsm_status          => fsm_status(2 downto 0),
       serdes_pll_sta      => serdes_pll_sta(0),
       fs_freq             => fs_freq,
-      serdes_synced_sta   => serdes_synced_sta(0),
       acq_cfg_sta         => acq_cfg_sta(0),
       pre_trig            => pre_trig,
       pos_trig            => pos_trig,
@@ -380,7 +407,7 @@ fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
       pre_trig_cnt        => pre_trig_cnt,
       sample_rate         => sample_rate,
 
-      -- Gain/offset calibration
+      -- Gain/offset calibration parameters
       fmc_gain1           => fmc_gain1(15 downto 0),
       fmc_gain2           => fmc_gain2(15 downto 0),
       fmc_gain3           => fmc_gain3(15 downto 0),
@@ -393,10 +420,16 @@ fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
       fmc_sat2            => fmc_sat2(14 downto 0),
       fmc_sat3            => fmc_sat3(14 downto 0),
       fmc_sat4            => fmc_sat4(14 downto 0),
-      fmc_val1            => fmc_val1(15 downto 0),
-      fmc_val2            => fmc_val2(15 downto 0),
-      fmc_val3            => fmc_val3(15 downto 0),
-      fmc_val4            => fmc_val4(15 downto 0)
+
+
+    -- *************************************
+    -- ADC parallel data out from SERDES ***
+    -- *************************************
+    -- Clock domain = adc_clk_o (Sampling clock fs_clk)
+      fmc_val1_o          => fmc_val1(15 downto 0),
+      fmc_val2_o          => fmc_val2(15 downto 0),
+      fmc_val3_o          => fmc_val3(15 downto 0),
+      fmc_val4_o          => fmc_val4(15 downto 0)
 
       );
 
@@ -475,6 +508,15 @@ port map (
     DAC_4_OFFSET_wstb   => DAC_4_OFFSET_wstb,
     DAC_OFFSET_CLR      => DAC_OFFSET_CLR,
     DAC_OFFSET_CLR_wstb => open,
+    -- SERDES Control and Status
+    SERDES_RESET        => SERDES_RESET,
+    SERDES_RESET_wstb   => open,
+    SERDES_BITSLIP      => SERDES_BITSLIP,
+    SERDES_BITSLIP_wstb => open,
+    SERDES_SYNCED       => serdes_synced_sta,
+    REFCLK_LOCKED       => refclk_locked_sta,
+
+
     -- Acquisition Control
     FSM_CMD             => fsm_cmd_i,
     FSM_CMD_WSTB        => fsm_cmd_wstb,
@@ -492,7 +534,6 @@ port map (
     HW_TRIG_POL         => hw_trig_pol,
     SW_TRIG_from_bus    => sw_trig,
     SW_TRIG_EN          => sw_trig_en,
-    MAN_BITSLIP         => man_bitslip,
     -- Status
     FSM_STATUS          => fsm_status,
     ACQ_FREQ            => fs_freq,
@@ -501,7 +542,6 @@ port map (
     SINGLE_SHOT         => single_shot,
     FIFO_EMPTY          => fmc_fifo_empty,
     SERDES_PLL_STA      => serdes_pll_sta,
-    SERDES_SYNCED_STA   => serdes_synced_sta,
     SHOTS_CNT           => shots_cnt,
     SAMPLES_CNT         => samples_cnt,
     PRE_TRIG_CNT        => pre_trig_cnt,

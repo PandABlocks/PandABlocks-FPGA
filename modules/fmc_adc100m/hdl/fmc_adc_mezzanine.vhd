@@ -23,19 +23,23 @@ entity fmc_adc_mezzanine is
     g_DEBUG_ILA           : boolean := FALSE
     );
   port (
-    -- Clock, reset
+    -- System clock and reset from PS core (125 mhz)
     sys_clk_i           : in  std_logic;
     sys_rst_n_i         : in  std_logic;
+
+    -- On board clock (100 mhz)
+    clk_100_i           : in  std_logic;
 
     -- DDR wishbone interface
     wb_ddr_clk_i        : in  std_logic;
     wb_ddr_dat_o        : out std_logic_vector(63 downto 0);
 
-    -- FMC interface
-    ext_trigger_p_i     : in  std_logic;     -- External trigger
-    ext_trigger_n_i     : in  std_logic;
 
-    adc_dco_p_i         : in  std_logic;                     -- ADC data clock
+    -- **********************
+    -- *** FMC interface  ***
+    -- **********************
+    -- ADC interface (LTC2174)
+    adc_dco_p_i         : in  std_logic;                     -- ADC serial bit clock
     adc_dco_n_i         : in  std_logic;
     adc_fr_p_i          : in  std_logic;                     -- ADC frame start
     adc_fr_n_i          : in  std_logic;
@@ -43,6 +47,7 @@ entity fmc_adc_mezzanine is
     adc_outa_n_i        : in  std_logic_vector(3 downto 0);
     adc_outb_p_i        : in  std_logic_vector(3 downto 0);  -- ADC serial data (even bits)
     adc_outb_n_i        : in  std_logic_vector(3 downto 0);
+
 
     --gpio_dac_clr_n_o    : out std_logic;                     -- offset DACs clear (active low)
     gpio_led_acq_o      : out std_logic;                     -- Mezzanine front panel power LED (PWR)
@@ -68,7 +73,14 @@ entity fmc_adc_mezzanine is
     --sys_scl_b           : inout std_logic;    -- Mezzanine system I2C clock (EEPROM)
     --sys_sda_b           : inout std_logic;    -- Mezzanine system I2C data (EEPROM)
 
-    -- fmc_adc100m_ctrl
+    -- External trigger
+    ext_trigger_p_i     : in  std_logic;
+    ext_trigger_n_i     : in  std_logic;
+
+
+    -- ************************
+    -- *** FMC_ADC100M_CTRL ***
+    -- ************************
     -- ADC registers (LTC2174)
     ADC_RESET           : in  std_logic;
     ADC_RESET_wstb      : in  std_logic;
@@ -93,13 +105,20 @@ entity fmc_adc_mezzanine is
     DAC_3_OFFSET_wstb   : in  std_logic;
     DAC_4_OFFSET_wstb   : in  std_logic;
 
+    -- SERDES Ctrl and Statuts
+    serdes_arst_i       : in  std_logic;
+    serdes_bslip_i      : in  std_logic;
+    refclk_locked_o     : out std_logic;
+    serdes_synced_o     : out std_logic;
+
+
     -- Control and Status Register
     fsm_cmd_i           : in  std_logic_vector(1 downto 0);
     fsm_cmd_wstb        : in  std_logic;
     --fmc_clk_oe          : in  std_logic;
     --offset_dac_clr      : in  std_logic;
     test_data_en        : in  std_logic;
-    man_bitslip         : in  std_logic;
+    --man_bitslip         : in  std_logic;
     pre_trig            : in  std_logic_vector(31 downto 0);
     pos_trig            : in  std_logic_vector(31 downto 0);
     shots_nb            : in  std_logic_vector(15 downto 0);
@@ -118,7 +137,6 @@ entity fmc_adc_mezzanine is
     fsm_status          : out std_logic_vector(2  downto 0);
     serdes_pll_sta      : out std_logic;
     fs_freq             : out std_logic_vector(31 downto 0);
-    serdes_synced_sta   : out std_logic;
     acq_cfg_sta         : out std_logic;
     single_shot         : out std_logic;
     shots_cnt           : out std_logic_vector(15 downto 0);
@@ -128,7 +146,7 @@ entity fmc_adc_mezzanine is
     wait_cnt            : out std_logic_vector(31 downto 0);
     pre_trig_cnt        : out std_logic_vector(31 downto 0);
 
-    -- Gain/offset calibration
+    -- Gain/offset calibration parameters
     fmc_gain1           : in  std_logic_vector(15 downto 0);
     fmc_gain2           : in  std_logic_vector(15 downto 0);
     fmc_gain3           : in  std_logic_vector(15 downto 0);
@@ -141,15 +159,27 @@ entity fmc_adc_mezzanine is
     fmc_sat2            : in  std_logic_vector(14 downto 0);
     fmc_sat3            : in  std_logic_vector(14 downto 0);
     fmc_sat4            : in  std_logic_vector(14 downto 0);
-    fmc_val1            : out std_logic_vector(15 downto 0);
-    fmc_val2            : out std_logic_vector(15 downto 0);
-    fmc_val3            : out std_logic_vector(15 downto 0);
-    fmc_val4            : out std_logic_vector(15 downto 0)
+
+    -- *************************************
+    -- ADC parallel data out from SERDES ***
+    -- *************************************
+    -- sys_clk domain
+    fmc_val1_o          : out std_logic_vector(15 downto 0);
+    fmc_val2_o          : out std_logic_vector(15 downto 0);
+    fmc_val3_o          : out std_logic_vector(15 downto 0);
+    fmc_val4_o          : out std_logic_vector(15 downto 0)
     );
 end fmc_adc_mezzanine;
 
 
 architecture rtl of fmc_adc_mezzanine is
+
+  ------------------------------------------------------------------------------
+  -- Attributes used for Vivado tool flow
+  ------------------------------------------------------------------------------
+  attribute async_reg   : string; -- synchronizing register within a synchronization chain
+  attribute keep        : string; -- keep name for ila probes
+
 
   ------------------------------------------------------------------------------
   -- Constants declaration
@@ -159,8 +189,6 @@ architecture rtl of fmc_adc_mezzanine is
   -- SPI clock and dead periods (in ns)
   constant SPI_CLK_PERIOD   : natural := 1008; -- [ns] : 1   us           126 ->  63 -> 1.008 us
   constant SPI_DEAD_PERIOD  : natural := 2000; -- [ns] : 2.0 us           250 -> 125 -> 2.000 us
-
-
 
   -- SPI ADC registers addresses (A6 downto A0)
   subtype spi_adc_adr_t is  std_logic_vector(6 downto 0);
@@ -190,13 +218,15 @@ architecture rtl of fmc_adc_mezzanine is
   constant C_SPI_CMD_WR_DAC_4   : spi_cmd_t := x"D";  -- DAC_4 input register (16 bits) ** write only **
 
   ------------------------------------------------------------------------------
+  -- Types declaration
+  ------------------------------------------------------------------------------
+
+  ------------------------------------------------------------------------------
   -- Signals declaration
   ------------------------------------------------------------------------------
   signal sys_reset_i    : std_logic; -- not(sys_rst_n_i)
 
   -- Mezzanine SPI
-  --signal spi_din_t      : std_logic_vector(3 downto 0);
-  --signal spi_ss_t       : std_logic_vector(7 downto 0);
   signal wr_req         : std_logic;
   signal wr_dat         : std_logic_vector(15 downto 0);
   signal wr_adr         : std_logic_vector( 6 downto 0);
@@ -224,8 +254,6 @@ architecture rtl of fmc_adc_mezzanine is
   signal spi_shift_counter    : std_logic_vector(3 downto 0);
   signal spi_shift_enable     : std_logic;
 
-
-
   -- Mezzanine I2C for Si570
   signal si570_scl_in   : std_logic;
   signal si570_scl_out  : std_logic;
@@ -246,6 +274,52 @@ architecture rtl of fmc_adc_mezzanine is
   --signal mezz_owr_en : std_logic_vector(0 downto 0);
   --signal mezz_owr_i  : std_logic_vector(0 downto 0);
 
+  -- Refclk 200 mhz
+
+  --signal spi_ss_t       : std_logic_vector(7 downto 0);
+
+
+  -- REFCLK clock generator
+  signal refclk_200m          : std_logic;    -- REFCLK input of IDELAYCTRL (must be 200 Mhz).
+  signal refclk_reset         : std_logic;    -- Min 50 ns
+  signal refclk_locked        : std_logic;
+
+  -- IDELAYCTRL is needed for calibration
+  -- When IDELAYCTRL REFCLK is 200 MHz, IDELAY delay chain consist of 64 taps of 78 ps
+  signal idelay_refclock_i    : std_logic;    -- REFCLK input of IDELAYCTRL (muse be 200 Mhz).
+  signal idelay_rst_i         : std_logic;    -- RST input of IDELAYCTRL. Minimum pulse width 52.0 ns
+
+  -- SERDES status
+  signal serdes_synced        : std_logic; -- Indication that SERDES is ok and locked to frame start pattern
+
+
+  -- ADC parallel data out
+  --  (15:0)  = CH1, (31:16) = CH2, (47:32) = CH3, (63:48) = CH4
+  --  The two LSBs of each channel are always '0'
+  signal adc_ch1              : std_logic_vector(15 downto 0);
+  signal adc_ch2              : std_logic_vector(15 downto 0);
+  signal adc_ch3              : std_logic_vector(15 downto 0);
+  signal adc_ch4              : std_logic_vector(15 downto 0);
+  -- ADC divided clock, for FPGA logic
+  signal adc_clk              : std_logic;
+
+  -- Synchronization chains (from sys_clk to adc_clk)
+  signal serdes_bslip_meta    : std_logic;
+  signal serdes_bslip_sync    : std_logic;
+
+  -- Synchronization chains (from adc_clk to sys_clk)
+  signal fmc_val1_meta        : std_logic_vector(15 downto 0);
+  signal fmc_val2_meta        : std_logic_vector(15 downto 0);
+  signal fmc_val3_meta        : std_logic_vector(15 downto 0);
+  signal fmc_val4_meta        : std_logic_vector(15 downto 0);
+  signal fmc_val1_sync        : std_logic_vector(15 downto 0);
+  signal fmc_val2_sync        : std_logic_vector(15 downto 0);
+  signal fmc_val3_sync        : std_logic_vector(15 downto 0);
+  signal fmc_val4_sync        : std_logic_vector(15 downto 0);
+  signal serdes_synced_meta   : std_logic;
+  signal serdes_synced_sync   : std_logic;
+
+
   -- Time-tagging core
   signal trigger_p   : std_logic;
   signal acq_start_p : std_logic;
@@ -253,7 +327,22 @@ architecture rtl of fmc_adc_mezzanine is
   signal acq_end_p   : std_logic;
 
 
-  attribute keep : string; -- keep name for ila probes
+  -- Attributes for synchronisation chains
+  attribute async_reg of serdes_bslip_meta  : signal is "true";
+  attribute async_reg of serdes_bslip_sync  : signal is "true";
+  attribute async_reg of serdes_synced_meta : signal is "true";
+  attribute async_reg of serdes_synced_sync : signal is "true";
+  attribute async_reg of fmc_val1_meta      : signal is "true";
+  attribute async_reg of fmc_val2_meta      : signal is "true";
+  attribute async_reg of fmc_val3_meta      : signal is "true";
+  attribute async_reg of fmc_val4_meta      : signal is "true";
+  attribute async_reg of fmc_val1_sync      : signal is "true";
+  attribute async_reg of fmc_val2_sync      : signal is "true";
+  attribute async_reg of fmc_val3_sync      : signal is "true";
+  attribute async_reg of fmc_val4_sync      : signal is "true";
+
+
+  -- Attributes for ILA
 
   attribute keep of ADC_RESET_wstb      : signal is "true";
   attribute keep of ADC_TWOSCOMP_wstb   : signal is "true";
@@ -556,6 +645,139 @@ begin
 
 
 
+  ---------------------------------------------------------
+  -- Generation of 200 MHe REFCLK for IDELAYCTRL
+  -- we use a PLL2_BASE component
+  ---------------------------------------------------------
+  cmp_refclk_200mhz : entity work.gen_refclk_200mhz
+  generic map (
+    g_CLK_IN_PERIOD    => 10.0,           -- 100 Mhz
+    g_CLK_IN_MULT      => 8,              -- 800 MHz (min VCO Frequency)
+    g_REFCLK_DIVIDE    => 4,              -- 200 MHz
+    g_RESET_CYCLES     => 12              -- 60 ns
+  )
+  port map (
+    clock_i         => clk_100_i,
+    refclk_o        => refclk_200m,
+    refclk_locked_o => refclk_locked,
+    refclk_reset_o  => refclk_reset
+  );
+
+
+  ---------------------------------------------------------------------
+  -- clock domain crossing between sys_clk and adc_clk (clk_div_buf)
+  ---------------------------------------------------------------------
+  -- concerns ISERDES and IDELAY signals synchronous do CLKDIV
+  p_cdc_adc_clk : process(adc_clk)
+  begin
+    if rising_edge(adc_clk) then
+        serdes_bslip_meta <= serdes_bslip_i;
+        serdes_bslip_sync <= serdes_bslip_meta;
+    end if;
+  end process p_cdc_adc_clk;
+
+
+  --------------------------------------------------------------------------------
+  -- LTC3274 2-lane, 16-bit serialization mode receiver
+  --    DDR reception scheme
+  --    Serial and Parallel clock buffers based for clock generation (no PLL nor MMCM)
+  --------------------------------------------------------------------------------
+  idelay_refclock_i   <= refclk_200m;
+  idelay_rst_i        <= refclk_reset;
+
+
+  cmp_ltc2174_receiver : entity work.ltc2174_2lanes_ddr_receiver
+  generic map (
+    g_DEBUG_ILA         => TRUE,
+
+    -- Buffer type for SERDES clock (High-Speed clock)
+    -- Options are : BUFIO, BUFR, BUFH
+    g_SERIAL_CLK_BUF    => "BUFIO"
+
+    -- Parallel clock generated with BUFR with BUFR_DIVIDE by 4
+  )
+  port map (
+
+    -- IDELAYCTRL is needed for calibration
+    -- When IDELAYCTRL REFCLK is 200 MHz, IDELAY delay chain consist of 64 taps of 78 ps
+    idelay_refclock_i   => idelay_refclock_i,     -- REFCLK input of IDELAYCTRL (muse be 200 Mhz).
+    idelay_rst_i        => idelay_rst_i,          -- RST input of IDELAYCTRL. Minimum pulse width 52.0 ns
+
+    -- ADC serial interface
+    adc_dco_p_i         => adc_dco_p_i,
+    adc_dco_n_i         => adc_dco_n_i,
+    adc_fr_p_i          => adc_fr_p_i,
+    adc_fr_n_i          => adc_fr_n_i,
+    adc_outa_p_i        => adc_outa_p_i,
+    adc_outa_n_i        => adc_outa_n_i,
+    adc_outb_p_i        => adc_outb_p_i,
+    adc_outb_n_i        => adc_outb_n_i,
+
+    -- SERDES status
+    serdes_arst_i       => serdes_arst_i,       -- Async reset input (active high) for iserdes
+    serdes_bslip_i      => serdes_bslip_sync,   -- Manual bitslip command (optional)
+    serdes_synced_o     => serdes_synced,       -- Indication that SERDES is ok and locked to frame start pattern
+
+    -- ADC parallel data out
+    --  (15:0)  = CH1, (31:16) = CH2, (47:32) = CH3, (63:48) = CH4
+    adc_ch1_o           => adc_ch1,
+    adc_ch2_o           => adc_ch2,
+    adc_ch3_o           => adc_ch3,
+    adc_ch4_o           => adc_ch4,
+    -- ADC divided clock, for FPGA logic
+    adc_clk_o           => adc_clk      -- clock output (fs_clk) sampling clock
+  );
+
+
+  ---------------------------------------------------------------------
+  -- clock domain crossing between adc_clk (clk_div_buf) and sys_clk
+  ---------------------------------------------------------------------
+  p_cdc_sys_clk : process(sys_clk_i)
+  begin
+    if rising_edge(sys_clk_i) then
+        if (sys_reset_i = '1') then
+            -- clear the output of the first flip-flop
+            fmc_val1_meta       <= (others=>'0');
+            fmc_val2_meta       <= (others=>'0');
+            fmc_val3_meta       <= (others=>'0');
+            fmc_val4_meta       <= (others=>'0');
+            serdes_synced_meta  <= '0';
+            -- clear the output of the second and final flip-flop
+            fmc_val1_sync       <= (others=>'0');
+            fmc_val2_sync       <= (others=>'0');
+            fmc_val3_sync       <= (others=>'0');
+            fmc_val4_sync       <= (others=>'0');
+            serdes_synced_sync  <= '0';
+        else
+            -- capture the arriving signal - higher probability of being meta-stable
+            fmc_val1_meta       <= adc_ch1;
+            fmc_val2_meta       <= adc_ch2;
+            fmc_val3_meta       <= adc_ch3;
+            fmc_val4_meta       <= adc_ch4;
+            serdes_synced_meta  <= serdes_synced;
+            -- resample the potentially meta-stable signal, lowering the probability of meta-stability
+            fmc_val1_sync       <= fmc_val1_meta;
+            fmc_val2_sync       <= fmc_val2_meta;
+            fmc_val3_sync       <= fmc_val3_meta;
+            fmc_val4_sync       <= fmc_val4_meta;
+            serdes_synced_sync  <= serdes_synced_meta;
+        end if; -- reset
+    end if; -- clock
+  end process p_cdc_sys_clk;
+
+  -- Connect outputs
+  gpio_led_trig_o <= refclk_locked;
+  gpio_led_acq_o  <= serdes_synced_sync;
+
+  refclk_locked_o <= refclk_locked;
+  serdes_synced_o <= serdes_synced_sync;
+
+  fmc_val1_o      <= fmc_val1_sync;
+  fmc_val2_o      <= fmc_val2_sync;
+  fmc_val3_o      <= fmc_val3_sync;
+  fmc_val4_o      <= fmc_val4_sync;
+
+
   ------------------------------------------------------------------------------
   -- Mezzanine I2C
   --    Si570 control
@@ -597,95 +819,111 @@ begin
   --    Offset DACs control (CLR_N)
   --    ADC core control and status
   ------------------------------------------------------------------------------
-  cmp_fmc_adc100Ms_core : entity work.fmc_adc100Ms_core
-    generic map (
-        g_multishot_ram_size => g_multishot_ram_size,
-        g_DEBUG_ILA          => FALSE
-    )
-    port map (
-      sys_clk_i   => sys_clk_i,
-      sys_rst_n_i => sys_rst_n_i,
+--+++  cmp_fmc_adc100Ms_core : entity work.fmc_adc100Ms_core
+--+++    generic map (
+--+++        g_multishot_ram_size => g_multishot_ram_size,
+--+++        g_DEBUG_ILA          => FALSE
+--+++    )
+--+++    port map (
+--+++      -- Clock, reset
+--+++      sys_clk_i         => sys_clk_i,
+--+++      sys_rst_n_i       => sys_rst_n_i,
+--+++
+--+++      -- On board clock
+--+++      clk_100_i         => clk_100_i
+--+++
+--+++      -- DDR wishbone interface
+--+++      wb_ddr_clk_i   => sys_clk_i,
+--+++      wb_ddr_dat_o   => wb_ddr_dat_o,
+--+++
+--+++      trigger_p_o   => trigger_p,
+--+++      acq_start_p_o => acq_start_p,
+--+++      acq_stop_p_o  => acq_stop_p,
+--+++      acq_end_p_o   => acq_end_p,
+--+++
+--+++      --trigger_tag_i => trigger_tag,
+--+++
+--+++
+--+++      -- **********************
+--+++      -- *** FMC interface  ***
+--+++      -- **********************
+--+++      -- ADC interface (LTC2174)
+--+++      adc_dco_p_i  => adc_dco_p_i,
+--+++      adc_dco_n_i  => adc_dco_n_i,
+--+++      adc_fr_p_i   => adc_fr_p_i,
+--+++      adc_fr_n_i   => adc_fr_n_i,
+--+++      adc_outa_p_i => adc_outa_p_i,
+--+++      adc_outa_n_i => adc_outa_n_i,
+--+++      adc_outb_p_i => adc_outb_p_i,
+--+++      adc_outb_n_i => adc_outb_n_i,
+--+++
+--+++      --gpio_dac_clr_n_o => open, --- gpio_dac_clr_n_o,
+--+++      gpio_led_acq_o   => gpio_led_acq_o,
+--+++      gpio_led_trig_o  => gpio_led_trig_o,
+--+++      --gpio_si570_oe_o  => gpio_si570_oe_o,
+--+++
+--+++      -- External trigger
+--+++      ext_trigger_p_i => ext_trigger_p_i,
+--+++      ext_trigger_n_i => ext_trigger_n_i,
+--+++
+--+++
+--+++    -- Control and Status Register
+--+++      fsm_cmd_i      => fsm_cmd_i,
+--+++      fsm_cmd_wstb   => fsm_cmd_wstb,
+--+++      --fmc_clk_oe     => fmc_clk_oe,
+--+++      --fmc_adc_core_ctl_offset_dac_clr_n_o      => offset_dac_clr,
+--+++
+--+++
+--+++      fmc_adc_core_ctl_test_data_en_o          => test_data_en,
+--+++      fmc_adc_core_ctl_man_bitslip_o           => man_bitslip,
+--+++
+--+++      fmc_adc_core_sta_fsm_i                      => fsm_status,
+--+++      fmc_adc_core_sta_serdes_pll_i               => serdes_pll_sta,
+--+++      fmc_adc_core_fs_freq_i                      => fs_freq,
+--+++      fmc_adc_core_sta_serdes_synced_i            => serdes_synced_sta,
+--+++      fmc_adc_core_sta_acq_cfg_i                  => acq_cfg_sta,
+--+++      fmc_adc_core_pre_samples_o                  => pre_trig,
+--+++      fmc_adc_core_post_samples_o                 => pos_trig,
+--+++      fmc_adc_core_shots_nb_o                     => shots_nb,
+--+++      fmc_adc_core_sw_trig_wr_o                   => sw_trig,
+--+++      fmc_adc_core_trig_cfg_sw_trig_en_o          => sw_trig_en,
+--+++      fmc_adc_core_trig_dly_o                     => trig_delay,
+--+++      fmc_adc_core_trig_cfg_hw_trig_sel_o         => hw_trig_sel,
+--+++      fmc_adc_core_trig_cfg_hw_trig_pol_o         => hw_trig_pol,
+--+++      fmc_adc_core_trig_cfg_hw_trig_en_o          => hw_trig_en,
+--+++      fmc_adc_core_trig_cfg_int_trig_sel_o        => int_trig_sel,
+--+++      fmc_adc_core_trig_cfg_int_trig_test_en_o    => int_trig_test,
+--+++      fmc_adc_core_trig_cfg_int_trig_thres_filt_o => int_trig_thres_filt,
+--+++      fmc_adc_core_trig_cfg_int_trig_thres_o      => int_trig_thres,
+--+++      fmc_adc_core_sr_deci_o                      => sample_rate,
+--+++
+--+++      fmc_single_shot               => single_shot,
+--+++      fmc_adc_core_shots_cnt_val_i  => shots_cnt,
+--+++      fmc_fifo_empty                => fmc_fifo_empty,
+--+++      fmc_adc_core_samples_cnt_i    => samples_cnt,
+--+++      fifo_wr_cnt                   => fifo_wr_cnt,
+--+++      wait_cnt                      => wait_cnt,
+--+++      pre_trig_count                => pre_trig_cnt,
+--+++
+--+++      fmc_adc_core_ch1_gain_val_o   => fmc_gain1,
+--+++      fmc_adc_core_ch2_gain_val_o   => fmc_gain2,
+--+++      fmc_adc_core_ch3_gain_val_o   => fmc_gain3,
+--+++      fmc_adc_core_ch4_gain_val_o   => fmc_gain4,
+--+++      fmc_adc_core_ch1_offset_val_o => fmc_offset1,
+--+++      fmc_adc_core_ch2_offset_val_o => fmc_offset2,
+--+++      fmc_adc_core_ch3_offset_val_o => fmc_offset3,
+--+++      fmc_adc_core_ch4_offset_val_o => fmc_offset4,
+--+++      fmc_adc_core_ch1_sat_val_o    => fmc_sat1,
+--+++      fmc_adc_core_ch2_sat_val_o    => fmc_sat2,
+--+++      fmc_adc_core_ch3_sat_val_o    => fmc_sat3,
+--+++      fmc_adc_core_ch4_sat_val_o    => fmc_sat4,
+--+++
+--+++      fmc_adc_core_ch1_sta_val_i    => fmc_val1,
+--+++      fmc_adc_core_ch2_sta_val_i    => fmc_val2,
+--+++      fmc_adc_core_ch3_sta_val_i    => fmc_val3,
+--+++      fmc_adc_core_ch4_sta_val_i    => fmc_val4
+--+++      );
 
-      wb_ddr_clk_i   => sys_clk_i,
-      wb_ddr_dat_o   => wb_ddr_dat_o,
-
-      trigger_p_o   => trigger_p,
-      acq_start_p_o => acq_start_p,
-      acq_stop_p_o  => acq_stop_p,
-      acq_end_p_o   => acq_end_p,
-
-      --trigger_tag_i => trigger_tag,
-
-      ext_trigger_p_i => ext_trigger_p_i,
-      ext_trigger_n_i => ext_trigger_n_i,
-
-      adc_dco_p_i  => adc_dco_p_i,
-      adc_dco_n_i  => adc_dco_n_i,
-      adc_fr_p_i   => adc_fr_p_i,
-      adc_fr_n_i   => adc_fr_n_i,
-      adc_outa_p_i => adc_outa_p_i,
-      adc_outa_n_i => adc_outa_n_i,
-      adc_outb_p_i => adc_outb_p_i,
-      adc_outb_n_i => adc_outb_n_i,
-
-      --gpio_dac_clr_n_o => open, --- gpio_dac_clr_n_o,
-      gpio_led_acq_o   => gpio_led_acq_o,
-      gpio_led_trig_o  => gpio_led_trig_o,
-      --gpio_si570_oe_o  => gpio_si570_oe_o,
-
-      fsm_cmd_i      => fsm_cmd_i,
-      fsm_cmd_wstb   => fsm_cmd_wstb,
-      --fmc_clk_oe     => fmc_clk_oe,
-      --fmc_adc_core_ctl_offset_dac_clr_n_o      => offset_dac_clr,
-      fmc_adc_core_ctl_test_data_en_o          => test_data_en,
-      fmc_adc_core_ctl_man_bitslip_o           => man_bitslip,
-
-      fmc_adc_core_sta_fsm_i                      => fsm_status,
-      fmc_adc_core_sta_serdes_pll_i               => serdes_pll_sta,
-      fmc_adc_core_fs_freq_i                      => fs_freq,
-      fmc_adc_core_sta_serdes_synced_i            => serdes_synced_sta,
-      fmc_adc_core_sta_acq_cfg_i                  => acq_cfg_sta,
-      fmc_adc_core_pre_samples_o                  => pre_trig,
-      fmc_adc_core_post_samples_o                 => pos_trig,
-      fmc_adc_core_shots_nb_o                     => shots_nb,
-      fmc_adc_core_sw_trig_wr_o                   => sw_trig,
-      fmc_adc_core_trig_cfg_sw_trig_en_o          => sw_trig_en,
-      fmc_adc_core_trig_dly_o                     => trig_delay,
-      fmc_adc_core_trig_cfg_hw_trig_sel_o         => hw_trig_sel,
-      fmc_adc_core_trig_cfg_hw_trig_pol_o         => hw_trig_pol,
-      fmc_adc_core_trig_cfg_hw_trig_en_o          => hw_trig_en,
-      fmc_adc_core_trig_cfg_int_trig_sel_o        => int_trig_sel,
-      fmc_adc_core_trig_cfg_int_trig_test_en_o    => int_trig_test,
-      fmc_adc_core_trig_cfg_int_trig_thres_filt_o => int_trig_thres_filt,
-      fmc_adc_core_trig_cfg_int_trig_thres_o      => int_trig_thres,
-      fmc_adc_core_sr_deci_o                      => sample_rate,
-
-      fmc_single_shot               => single_shot,
-      fmc_adc_core_shots_cnt_val_i  => shots_cnt,
-      fmc_fifo_empty                => fmc_fifo_empty,
-      fmc_adc_core_samples_cnt_i    => samples_cnt,
-      fifo_wr_cnt                   => fifo_wr_cnt,
-      wait_cnt                      => wait_cnt,
-      pre_trig_count                => pre_trig_cnt,
-
-      fmc_adc_core_ch1_gain_val_o   => fmc_gain1,
-      fmc_adc_core_ch2_gain_val_o   => fmc_gain2,
-      fmc_adc_core_ch3_gain_val_o   => fmc_gain3,
-      fmc_adc_core_ch4_gain_val_o   => fmc_gain4,
-      fmc_adc_core_ch1_offset_val_o => fmc_offset1,
-      fmc_adc_core_ch2_offset_val_o => fmc_offset2,
-      fmc_adc_core_ch3_offset_val_o => fmc_offset3,
-      fmc_adc_core_ch4_offset_val_o => fmc_offset4,
-      fmc_adc_core_ch1_sat_val_o    => fmc_sat1,
-      fmc_adc_core_ch2_sat_val_o    => fmc_sat2,
-      fmc_adc_core_ch3_sat_val_o    => fmc_sat3,
-      fmc_adc_core_ch4_sat_val_o    => fmc_sat4,
-
-      fmc_adc_core_ch1_sta_val_i    => fmc_val1,
-      fmc_adc_core_ch2_sta_val_i    => fmc_val2,
-      fmc_adc_core_ch3_sta_val_i    => fmc_val3,
-      fmc_adc_core_ch4_sta_val_i    => fmc_val4
-      );
 
   ------------------------------------------------------------------------------
   -- Mezzanine 1-wire master
@@ -724,6 +962,7 @@ ILA_GEN : if g_DEBUG_ILA generate
   -- CHIPSCOPE ILA probes
   signal probe0       : std_logic_vector(31 downto 0);
   signal probe1       : std_logic_vector(31 downto 0);
+  signal probe3       : std_logic_vector(31 downto 0);
 
 
 -- Begin of ILA code
