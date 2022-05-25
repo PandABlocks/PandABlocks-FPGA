@@ -313,7 +313,7 @@ port map (
 
 idelayctrl_inst : IDELAYCTRL port map (
     REFCLK => FCLK_CLK1_PS,
-    RST => '0',
+    RST => FCLK_RESET0,
     RDY => open
 );
 
