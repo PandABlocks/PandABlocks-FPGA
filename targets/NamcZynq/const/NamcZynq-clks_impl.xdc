@@ -9,6 +9,8 @@ set_clock_groups -asynchronous -group AMC4_7_MGTREFCLK0_P
 set_clock_groups -asynchronous -group AMC4_7_MGTREFCLK1_P
 set_clock_groups -asynchronous -group AMC8_11_MGTREFCLK0_P
 set_clock_groups -asynchronous -group AMC8_11_MGTREFCLK1_P
+set_clock_groups -asynchronous -group ZCLK_APPOUT0_P
+set_clock_groups -asynchronous -group ZCLK_APPOUT1_P
 
 # --------------------------------------------------------------------
 # EVENT RECEIVER
