@@ -10,11 +10,11 @@
 --
 --------------------------------------------------------------------------------
 
-library ieee;
-use ieee.std_logic_1164.all;
+library IEEE;
+use IEEE.std_logic_1164.all;
 
-library unisim;
-use unisim.vcomponents.all; -- NEEDED?
+library UNISIM;
+use UNISIM.vcomponents.all;
 
 library work;
 --use work.support.all;
@@ -58,6 +58,12 @@ port (
     GTXCLK0_N           : in    std_logic;
     GTXCLK1_P           : in    std_logic;
     GTXCLK1_N           : in    std_logic;
+
+    -- On-board Clocks from APP PLL
+    ZCLK_APPOUT0_P      : in    std_logic; -- APP_PLL.OUT5 (100 MHz)
+    ZCLK_APPOUT0_N      : in    std_logic;
+    ZCLK_APPOUT1_P      : in    std_logic; -- APP_PLL.OUT6 (100 MHz)
+    ZCLK_APPOUT1_N      : in    std_logic;
 
     -- FMC Differential IO and GTX
     FMC_DP0_C2M_P       : out   std_logic := 'Z';
@@ -110,7 +116,7 @@ port (
     AMC_FP_TX7_N        : out   std_logic := 'Z';
     AMC_FP_RX7_P        : in    std_logic;
     AMC_FP_RX7_N        : in    std_logic;
-    
+
     AMC8_11_MGTREFCLK0_P: in    std_logic;
     AMC8_11_MGTREFCLK0_N: in    std_logic;
     AMC8_11_MGTREFCLK1_P: in    std_logic;
@@ -118,15 +124,15 @@ port (
     AMC_FP_TX8_P        : out   std_logic := 'Z';
     AMC_FP_TX8_N        : out   std_logic := 'Z';
     AMC_FP_RX8_P        : in    std_logic;
-    AMC_FP_RX8_N        : in    std_logic; 
+    AMC_FP_RX8_N        : in    std_logic;
     AMC_FP_TX9_P        : out   std_logic := 'Z';
     AMC_FP_TX9_N        : out   std_logic := 'Z';
     AMC_FP_RX9_P        : in    std_logic;
-    AMC_FP_RX9_N        : in    std_logic; 
+    AMC_FP_RX9_N        : in    std_logic;
     AMC_FP_TX10_P        : out   std_logic := 'Z';
     AMC_FP_TX10_N        : out   std_logic := 'Z';
     AMC_FP_RX10_P        : in    std_logic;
-    AMC_FP_RX10_N        : in    std_logic; 
+    AMC_FP_RX10_N        : in    std_logic;
     AMC_FP_TX11_P        : out   std_logic := 'Z';
     AMC_FP_TX11_N        : out   std_logic := 'Z';
     AMC_FP_RX11_P        : in    std_logic;
@@ -239,6 +245,15 @@ signal q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
 signal SFP_MAC_ADDR_ARR     : std32_array(2*NUM_SFP-1 downto 0);
 signal FMC_MAC_ADDR_ARR     : std32_array(2*NUM_FMC-1 downto 0);
 
+
+-- On-board Clocks from APP PLL
+signal ZCLK_APPOUT0_IN      : std_logic;
+signal ZCLK_APPOUT1_IN      : std_logic;
+signal CLK_APP0             : std_logic;
+signal CLK_APP1             : std_logic;
+
+
+
 -- FMC Block
 signal FMC_i  : FMC_input_interface;
 signal FMC_o  : FMC_output_interface := FMC_o_init;
@@ -247,7 +262,7 @@ signal q0_clk0_fmc_gtrefclk, q0_clk1_fmc_gtrefclk:   std_logic;
 
 -- AMC Block
 signal AMC_i  : AMC_input_interface;
-signal AMC_o  : AMC_output_interface := AMC_o_init; 
+signal AMC_o  : AMC_output_interface := AMC_o_init;
 signal AMC4_7_MGTREFCLK0, AMC4_7_MGTREFCLK1, AMC8_11_MGTREFCLK0, AMC8_11_MGTREFCLK1:   std_logic;
 
 attribute syn_noclockbuf : boolean;
@@ -322,7 +337,7 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
         I               =>      AMC4_7_MGTREFCLK1_P,
         IB              =>      AMC4_7_MGTREFCLK1_N
     );
-    
+
 --IBUFDS_GTE2
     ibufds_instq0_clk2_amc : IBUFDS_GTE2
     port map
@@ -344,7 +359,7 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
         I               =>      AMC8_11_MGTREFCLK1_P,
         IB              =>      AMC8_11_MGTREFCLK1_N
     );
-    
+
 ---------------------------------------------------------------------------
 ---- FMC clocks
 ---------------------------------------------------------------------------
@@ -371,6 +386,38 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
 ---------------------------------------------------------------------------
 ---- on board clocks
 ---------------------------------------------------------------------------
+    ibugds_clk_app0_inst : IBUFGDS
+    generic map (
+      IOSTANDARD   => "LVDS_25" )
+    port map (
+        I  => ZCLK_APPOUT0_P,
+        IB => ZCLK_APPOUT0_N,
+        O  => ZCLK_APPOUT0_IN
+    );
+
+    ibugds_clk_app1_inst : IBUFGDS
+    generic map (
+      IOSTANDARD   => "LVDS_25" )
+    port map (
+        I  => ZCLK_APPOUT1_P,
+        IB => ZCLK_APPOUT1_N,
+        O  => ZCLK_APPOUT1_IN
+    );
+
+    -- BUFG: Global Clock Simple Buffer
+    bufg_clk_app0_inst : BUFG
+    port map (
+        I => ZCLK_APPOUT0_IN,
+        O => CLK_APP0
+    );
+
+    bufg_clk_app1_inst : BUFG
+    port map (
+        I => ZCLK_APPOUT1_IN,
+        O => CLK_APP1
+    );
+
+
 --IBUFDS_GTE2
     ibufds_instq0_clk0 : IBUFDS_GTE2
     port map
@@ -379,7 +426,7 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
         ODIV2           =>      open,
         CEB             =>      '0',
         I               =>      GTXCLK0_P,
-        IB              =>      GTXCLK0_N 
+        IB              =>      GTXCLK0_N
     );
 --IBUFDS_GTE2
     ibufds_instq0_clk1 : IBUFDS_GTE2
@@ -389,7 +436,7 @@ FCLK_RESET0 <= not FCLK_RESET0_N(0);
         ODIV2           =>      open,
         CEB             =>      '0',
         I               =>      GTXCLK1_P,
-        IB              =>      GTXCLK1_N 
+        IB              =>      GTXCLK1_N
     );
 
 
@@ -781,7 +828,8 @@ port map(
     FMC_io          => FMC_io,
     FMC_o           => FMC_o,
     AMC_i           => AMC_i,
-    AMC_o           => AMC_o    
+    AMC_o           => AMC_o,
+    CLK_APP0        => CLK_APP0
 );
 
 end rtl;
