@@ -2,7 +2,7 @@
 -- Company        : Synchrotron SOLEIL
 -- Project        : FMC-ADC-100M-14b4Cha on NAMC-ZYNQ-FMC board
 -- Design name    : ltc2174_2lanes_ddr_receiver.vhd
--- Purpose        : implementation of all the platform-specific logic necessary
+-- Description    : implementation of all the platform-specific logic necessary
 --                  to receive data from an LTC2174 working in 2-lane, 16-bit
 --                  serialization mode
 --                  using DDR reception scheme (default), Serial and Parallel
@@ -29,24 +29,23 @@ use UNISIM.vcomponents.all;
 
 entity ltc2174_2lanes_ddr_receiver is
   generic (
-    g_DEBUG_ILA           : boolean := FALSE;
-
-    -- Buffer type for SERDES clock (High-Speed clock)
-    -- Options are : BUFIO, BUFR, BUFH
-    g_SERIAL_CLK_BUF       : string := "BUFIO"
-
-    -- Parallel clock generated with BUFR with BUFR_DIVIDE by 4
+    G_DEBUG_ILA         : boolean := FALSE;   -- Generate ILA for debugging
+    G_SERIAL_CLK_BUF    : string := "BUFIO";  -- Buffer type for SERDES serial clock : BUFIO or BUFG or BUFR or BUFH
+                                              -- Parallel clock generated from clk_serdes with BUFR with BUFR_DIVIDE by 4
+    G_DCO_IDELAY_VALUE  : natural := 0 ;      -- Delay Tap setting for IDELAYE2 on adc_clk (0-31)
+    G_DATA_IDELAY_VALUE : natural := 0        -- Delay Tap setting for IDELAYE2 on adc_fr,adc_outa,adc_outb (0-31)
  );
   port (
     -- IDELAYCTRL is needed for calibration
     -- When IDELAYCTRL REFCLK is 200 MHz, IDELAY delay chain consist of 31 taps of 78 ps
-    idelay_refclock_i   : in  std_logic;  -- REFCLK input of IDELAYCTRL (muse be 200 MHz).
-    idelay_rst_i        : in  std_logic;  -- RST input of IDELAYCTRL. Minimum pulse width 52.0 ns
+    idelay_refclock_i   : in  std_logic;      -- REFCLK input of IDELAYCTRL (muse be 200 MHz).
+    idelay_rst_i        : in  std_logic;      -- RST input of IDELAYCTRL. Minimum pulse width 52.0 ns
+    idelay_locked_o     : out std_logic;      -- indicate that IDELAYE2 modules are calibrated
 
     -- ADC serial interface
-    adc_dco_p_i         : in  std_logic;  -- ADC_DCO is the serial bit clock (bit_clk)
+    adc_dco_p_i         : in  std_logic;                    -- ADC_DCO is the serial bit clock (bit_clk)
     adc_dco_n_i         : in  std_logic;
-    adc_fr_p_i          : in  std_logic;  -- ADC frame start
+    adc_fr_p_i          : in  std_logic;                    -- ADC frame start
     adc_fr_n_i          : in  std_logic;
     adc_outa_p_i        : in  std_logic_vector(3 downto 0); -- ADC serial data in (odd bits)
     adc_outa_n_i        : in  std_logic_vector(3 downto 0);
@@ -54,18 +53,19 @@ entity ltc2174_2lanes_ddr_receiver is
     adc_outb_n_i        : in  std_logic_vector(3 downto 0);
 
     -- SERDES status
-    serdes_arst_i       : in  std_logic; -- Async reset input (active high) for iserdes
-    serdes_bslip_i      : in  std_logic; -- Manual bitslip command (optional)
-    serdes_synced_o     : out std_logic; -- Indication that SERDES is ok and locked to frame start pattern
+    serdes_arst_i       : in  std_logic;  -- Async reset input (active high) for iserdes
+    serdes_bslip_i      : in  std_logic;  -- Manual bitslip command (optional)
+    serdes_synced_o     : out std_logic;  -- Indication that SERDES is ok and locked to frame start pattern
 
-    -- ADC parallel data out
+    -- ADC parallel data out (clk_div clock domain)
+    adc_data_o          : out std_logic_vector(63 downto 0);
     --  (15:0)  = CH1, (31:16) = CH2, (47:32) = CH3, (63:48) = CH4
     --  The two LSBs of each channel are always '0'
     adc_ch1_o           : out std_logic_vector(15 downto 0);
     adc_ch2_o           : out std_logic_vector(15 downto 0);
     adc_ch3_o           : out std_logic_vector(15 downto 0);
     adc_ch4_o           : out std_logic_vector(15 downto 0);
-    -- ADC divided clock, for FPGA logic
+    -- ADC divided clock, for FPGA logic (clk_div)
     adc_clk_o           : out std_logic
 
 );
@@ -80,8 +80,8 @@ architecture rtl of ltc2174_2lanes_ddr_receiver is
 
   constant C_REF_FREQ       : real := 200.0 ; -- Parameter to set reference frequency used by IDELAYCTRL
 
-  constant C_DCO_IDELAY_VALUE   : natural := 0  ;   -- 0 to 31
-  constant C_DATA_IDELAY_VALUE  : natural := 0  ;   -- 0 to 31
+  --constant C_DCO_IDELAY_VALUE   : natural := 0  ;   -- 0 to 31
+  --constant C_DATA_IDELAY_VALUE  : natural := 0  ;   -- 0 to 31
 
 
   -- ADC outputs
@@ -117,7 +117,7 @@ architecture rtl of ltc2174_2lanes_ddr_receiver is
   type serdes_array is array (0 to C_SERIAL_BITS) of std_logic_vector(7 downto 0);
   signal serdes_parallel_out : serdes_array := (others => (others => '0'));
 
-  signal adc_data_o   : std_logic_vector(63 downto 0);
+  signal adc_data_out       : std_logic_vector(63 downto 0);
 
 
   attribute keep : string; -- keep name for ila probes
@@ -126,7 +126,7 @@ architecture rtl of ltc2174_2lanes_ddr_receiver is
   attribute keep of serdes_bitslip   : signal is "true";
   attribute keep of serdes_synced    : signal is "true";
   attribute keep of serdes_out_fr    : signal is "true";
-  attribute keep of adc_data_o       : signal is "true";
+  attribute keep of adc_data_out     : signal is "true";
 
 
 -- Begin of code
@@ -193,30 +193,30 @@ begin
   -- The IDELAYE2 is a 31-tap, wraparound delay element with a calibrated tap resolution
   cmp_adc_dco_idelay : IDELAYE2
   generic map (
-    CINVCTRL_SEL                => "FALSE",           -- Enable dynamic clock inversion (FALSE, TRUE)
-    DELAY_SRC                   => "IDATAIN",         -- Delay input (IDATAIN, DATAIN)
-    HIGH_PERFORMANCE_MODE       => "TRUE",            -- Reduced jitter ("TRUE"), Reduced power ("FALSE")
-    IDELAY_TYPE                 => "VAR_LOAD",        -- FIXED, VARIABLE, VAR_LOAD, VAR_LOAD_PIPE
-    IDELAY_VALUE                => C_DCO_IDELAY_VALUE,    -- Delay Tap setting (0-31)
-                                                      -- Ignored when IDELAY_VALUE set to VAR_LOAD or VAR_LOAD_PIPE
-    PIPE_SEL                    => "FALSE",           -- Select pipelined mode, FALSE, TRUE
-    REFCLK_FREQUENCY            => C_REF_FREQ,        -- IDELAYCTRL clock input frequency in MHz (190.0-210.0, 290.0-310.0).
-    SIGNAL_PATTERN              => "CLOCK"            -- DATA, CLOCK input signal
+    CINVCTRL_SEL                => "FALSE",             -- Enable dynamic clock inversion (FALSE, TRUE)
+    DELAY_SRC                   => "IDATAIN",           -- Delay input (IDATAIN, DATAIN)
+    HIGH_PERFORMANCE_MODE       => "TRUE",              -- Reduced jitter ("TRUE"), Reduced power ("FALSE")
+    IDELAY_TYPE                 => "VAR_LOAD",          -- FIXED, VARIABLE, VAR_LOAD, VAR_LOAD_PIPE
+    IDELAY_VALUE                => G_DCO_IDELAY_VALUE,  -- Delay Tap setting (0-31)
+                                                        -- Ignored when IDELAY_VALUE set to VAR_LOAD or VAR_LOAD_PIPE
+    PIPE_SEL                    => "FALSE",             -- Select pipelined mode, FALSE, TRUE
+    REFCLK_FREQUENCY            => C_REF_FREQ,          -- IDELAYCTRL clock input frequency in MHz (190.0-210.0, 290.0-310.0).
+    SIGNAL_PATTERN              => "CLOCK"              -- DATA, CLOCK input signal
   )
   port map (
-    CNTVALUEOUT                 => open,              -- (out) Counter value output
-    DATAOUT                     => adc_dco_dly,       -- (out) Delayed data output
-    C                           => clk_div_buf,       -- (in)  Clock input
-    CE                          => '0',               -- (in)  Active high enable increment/decrement input
-    CINVCTRL                    => '0',               -- (in)  Dynamic clock inversion input
-    CNTVALUEIN                  => "00000",           -- (in)  Counter value input
-    DATAIN                      => '0',               -- (in)  Internal delay data input
-    IDATAIN                     => adc_dco_in,        -- (in)  Data input from the I/O
-    INC                         => '0',               -- (in)  Increment / Decrement tap delay input
-    LD                          => '0',               -- (in)  Load IDELAY_VALUE input
-    LDPIPEEN                    => '0',               -- (in)  Enable PIPELINE register to load data input
-    --REGRST                    => serdes_arst_i      -- Resets the pipeline register to all zeros.
-    REGRST                      => '0'                -- Only used in "VAR_LOAD_PIPE" mode.
+    CNTVALUEOUT                 => open,                -- (out) Counter value output
+    DATAOUT                     => adc_dco_dly,         -- (out) Delayed data output
+    C                           => clk_div_buf,         -- (in)  Clock input
+    CE                          => '0',                 -- (in)  Active high enable increment/decrement input
+    CINVCTRL                    => '0',                 -- (in)  Dynamic clock inversion input
+    CNTVALUEIN                  => "00000",             -- (in)  Counter value input
+    DATAIN                      => '0',                 -- (in)  Internal delay data input
+    IDATAIN                     => adc_dco_in,          -- (in)  Data input from the I/O
+    INC                         => '0',                 -- (in)  Increment / Decrement tap delay input
+    LD                          => '0',                 -- (in)  Load IDELAY_VALUE input
+    LDPIPEEN                    => '0',                 -- (in)  Enable PIPELINE register to load data input
+    --REGRST                    => serdes_arst_i        -- Resets the pipeline register to all zeros.
+    REGRST                      => '0'                  -- Only used in "VAR_LOAD_PIPE" mode.
   );
 
 
@@ -227,7 +227,7 @@ begin
     DELAY_SRC                   => "IDATAIN",             -- Delay input (IDATAIN, DATAIN)
     HIGH_PERFORMANCE_MODE       => "TRUE",                -- Reduced jitter ("TRUE"), Reduced power ("FALSE")
     IDELAY_TYPE                 => "VAR_LOAD",            -- FIXED, VARIABLE, VAR_LOAD, VAR_LOAD_PIPE
-    IDELAY_VALUE                => C_DATA_IDELAY_VALUE,   -- 0 to 31. Ignored when IDELAY_VALUE set to VAR_LOAD or VAR_LOAD_PIPE
+    IDELAY_VALUE                => g_DATA_IDELAY_VALUE,   -- 0 to 31. Ignored when IDELAY_VALUE set to VAR_LOAD or VAR_LOAD_PIPE
     PIPE_SEL                    => "FALSE",
     REFCLK_FREQUENCY            => C_REF_FREQ,
     SIGNAL_PATTERN              => "CLOCK"
@@ -259,7 +259,7 @@ begin
       DELAY_SRC                 => "IDATAIN",
       HIGH_PERFORMANCE_MODE     => "TRUE",
       IDELAY_TYPE               => "VAR_LOAD",
-      IDELAY_VALUE              => C_DATA_IDELAY_VALUE,
+      IDELAY_VALUE              => g_DATA_IDELAY_VALUE,
       PIPE_SEL                  => "FALSE",
       REFCLK_FREQUENCY          => C_REF_FREQ,
       SIGNAL_PATTERN            => "DATA"
@@ -287,7 +287,7 @@ begin
       DELAY_SRC                 => "IDATAIN",
       HIGH_PERFORMANCE_MODE     => "TRUE",
       IDELAY_TYPE               => "VAR_LOAD",
-      IDELAY_VALUE              => C_DATA_IDELAY_VALUE,
+      IDELAY_VALUE              => g_DATA_IDELAY_VALUE,
       PIPE_SEL                  => "FALSE",
       REFCLK_FREQUENCY          => C_REF_FREQ,
       SIGNAL_PATTERN            => "DATA"
@@ -356,6 +356,7 @@ begin
     RDY     => idelay_locked          -- Indicates the validity of REFCLK input
   );
 
+  idelay_locked_o <= idelay_locked;
 
   ------------------------------------------------------------------------------
   -- Clock generation for deserializer
@@ -366,15 +367,15 @@ begin
   -- XAPP585, v1.1.2, page 7, figure 2, without calibration. Calibration can be
   -- added later if needed.
 
-  clk_serdes_pre <= adc_dco_in ;     -- direct connect from IBUF (400 MHz)
-  clk_div_pre    <= adc_dco_in ;     -- direct connect from IBUF (400 MHz)
-
+  -- connect to cmp_adc_dco_idelay output
+  clk_serdes_pre <= adc_dco_dly;
+  clk_div_pre    <= adc_dco_dly;
 
   ------------------------------------------------------------------------------
   -- Data clock for SERDES serial data
   ------------------------------------------------------------------------------
 
-  gen_clk_serdes_bufg : if g_SERIAL_CLK_BUF = "BUFG" generate
+  gen_clk_serdes_bufg : if G_SERIAL_CLK_BUF = "BUFG" generate
     cmp_clk_serdes_bufg : BUFG
       port map (
         I => clk_serdes_pre,
@@ -382,7 +383,7 @@ begin
       );
   end generate gen_clk_serdes_bufg;
 
-  gen_clk_serdes_bufio : if g_SERIAL_CLK_BUF = "BUFIO" generate
+  gen_clk_serdes_bufio : if G_SERIAL_CLK_BUF = "BUFIO" generate
     cmp_clk_serdes_bufio : BUFIO        -- BUFG or BUFR // BUFIO : Clock region assignment has failed.
       port map (
         I   => clk_serdes_pre,
@@ -390,7 +391,7 @@ begin
       );
   end generate gen_clk_serdes_bufio;
 
-  gen_clk_serdes_bufr : if g_SERIAL_CLK_BUF = "BUFR" generate
+  gen_clk_serdes_bufr : if G_SERIAL_CLK_BUF = "BUFR" generate
     cmp_clk_serdes_bufr : BUFR
       generic map (
         BUFR_DIVIDE => "1" )
@@ -402,7 +403,7 @@ begin
       );
   end generate gen_clk_serdes_bufr;
 
-  gen_clk_serdes_bufh : if g_SERIAL_CLK_BUF = "BUFH" generate
+  gen_clk_serdes_bufh : if G_SERIAL_CLK_BUF = "BUFH" generate
     cmp_clk_serdes_bufh : BUFH
       port map (
         I   => clk_serdes_pre,
@@ -413,11 +414,9 @@ begin
 
   ------------------------------------------------------------------------------
   -- Divided clock for SERDES parallel data : clk_div_pre --|>-- clk_div_buf
-  --                                                      buf
-  -- g_PARALLEL_CLK_BUF = BUFG or BUFR or BUFH
+  --                                                       BUFR
+  --                                                   @ BUFR_DIVIDE = 4
   ------------------------------------------------------------------------------
-  --   clk_div_pre           Parallel Clock (clk_div_buf)
-  --   400 Mhz (adc_dco)     clk_div_pre / 4 (BUFR @ divide by 4)
 
   -- We divide by 4 as the clock is DDR and we are not using a CMT,
   -- but the input clock directly. The only option here is BUFR
@@ -425,10 +424,10 @@ begin
     generic map (
       BUFR_DIVIDE => "4" )
       port map (
-        I => clk_div_pre,             -- adc_dco_in  // adc_dco_dly
+        I => clk_div_pre,           -- adc_dco_dly
         CE  => '1',
         CLR => '0',
-        O => clk_div_buf);            --  clk_div_pre / 4
+        O => clk_div_buf);          --  clk_div_pre / 4
 
 
   -- SERDES clock
@@ -561,9 +560,9 @@ begin
   gen_serdes_dout_reorder : for I in 0 to C_ADC_CHANNELS-1 generate
     gen_serdes_dout_reorder_bits : for J in 0 to C_SERIAL_BITS-1 generate
       -- OUT#B: even bits
-      adc_data_o(I*16 + 2*J)     <= serdes_parallel_out(2*I)(J);
+      adc_data_out(I*16 + 2*J)     <= serdes_parallel_out(2*I)(J);
       -- OUT#A: odd bits
-      adc_data_o(I*16 + 2*J + 1) <= serdes_parallel_out(2*I + 1)(J);
+      adc_data_out(I*16 + 2*J + 1) <= serdes_parallel_out(2*I + 1)(J);
     end generate gen_serdes_dout_reorder_bits;
   end generate gen_serdes_dout_reorder;
 
@@ -576,10 +575,14 @@ begin
   p_adc_output : process(clk_div_buf)
   begin
     if rising_edge(clk_div_buf) then
-      adc_ch1_o  <= adc_data_o(15 downto 0);
-      adc_ch2_o  <= adc_data_o(31 downto 16);
-      adc_ch3_o  <= adc_data_o(47 downto 32);
-      adc_ch4_o  <= adc_data_o(63 downto 48);
+      -- all channels
+      adc_data_o  <= adc_data_out;
+      --  (15:0)  = CH1, (31:16) = CH2, (47:32) = CH3, (63:48) = CH4
+      --  The two LSBs of each channel are always '0'
+      adc_ch1_o   <= adc_data_out(15 downto 0);
+      adc_ch2_o   <= adc_data_out(31 downto 16);
+      adc_ch3_o   <= adc_data_out(47 downto 32);
+      adc_ch4_o   <= adc_data_out(63 downto 48);
     end if;
   end process;
 
@@ -591,7 +594,7 @@ begin
 -----------------------------------------------------------------------------
 -- Chipscope ILA Debug purpose
 -----------------------------------------------------------------------------
-ILA_GEN : if g_DEBUG_ILA generate
+ILA_GEN : if G_DEBUG_ILA generate
 
   -- CHIPSCOPE ILA probes
   signal probe0       : std_logic_vector(31 downto 0);
@@ -612,7 +615,7 @@ begin
                           & serdes_synced ;           -- 1        20
 
     probe0(19 downto 16) <= (others=>'0');
-    probe0(15 downto 0)  <=  adc_data_o(15 downto 0);
+    probe0(15 downto 0)  <=  adc_data_out(15 downto 0);
 
 
 end generate;
