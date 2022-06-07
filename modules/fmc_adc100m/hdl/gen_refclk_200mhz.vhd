@@ -30,7 +30,7 @@ generic (
 port (
   clock_i         : in  std_logic;    -- clock input
   -- REFCLK domain
-  refclk_o        : out std_logic;    -- REFCLK input of IDELAYCTRL (muse be 200 Mhz).
+  refclk_o        : out std_logic;    -- REFCLK input of IDELAYCTRL (must be 200 Mhz).
   refclk_locked_o : out std_logic;    -- PLL locked
   refclk_reset_o  : out std_logic     -- Reset output. Deactivate 'RESET_CYCLES' after pll_locked rise
 );

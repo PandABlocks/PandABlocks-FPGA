@@ -16,7 +16,12 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
+library work;
+use work.fmc_adc_types.all;
 
+--------------------------------------------------------------------------------
+-- Entity declaration
+--------------------------------------------------------------------------------
 entity fmc_adc_mezzanine is
   generic(
     g_multishot_ram_size  : natural := 2048 ;
@@ -25,15 +30,10 @@ entity fmc_adc_mezzanine is
   port (
     -- System clock and reset from PS core (125 mhz)
     sys_clk_i           : in  std_logic;
-    sys_rst_n_i         : in  std_logic;
+    sys_reset_i         : in  std_logic;
 
     -- On board clock (100 mhz)
     clk_100_i           : in  std_logic;
-
-    -- DDR wishbone interface
-    wb_ddr_clk_i        : in  std_logic;
-    wb_ddr_dat_o        : out std_logic_vector(63 downto 0);
-
 
     -- **********************
     -- *** FMC interface  ***
@@ -104,12 +104,34 @@ entity fmc_adc_mezzanine is
     DAC_2_OFFSET_wstb   : in  std_logic;
     DAC_3_OFFSET_wstb   : in  std_logic;
     DAC_4_OFFSET_wstb   : in  std_logic;
+    -- Pattern Generator Register
+    PATGEN_REG          : in  std_logic_vector(1 downto 0); -- bit 0 : enable, bit 1 : reset
+    PATGEN_REG_wstb     : in  std_logic;
+    -- FIFO input register
+    FIFO_INPUT_REG      : in  std_logic_vector(1 downto 0); -- "00" serdes "01" offse_ gain "10" pattern_generator
+    FIFO_INPUT_wstb     : in  std_logic;
 
+    -- Gain/offset calibration parameters
+    fmc_gain1           : in  std_logic_vector(15 downto 0);
+    fmc_gain2           : in  std_logic_vector(15 downto 0);
+    fmc_gain3           : in  std_logic_vector(15 downto 0);
+    fmc_gain4           : in  std_logic_vector(15 downto 0);
+    fmc_offset1         : in  std_logic_vector(15 downto 0);
+    fmc_offset2         : in  std_logic_vector(15 downto 0);
+    fmc_offset3         : in  std_logic_vector(15 downto 0);
+    fmc_offset4         : in  std_logic_vector(15 downto 0);
+    fmc_sat1            : in  std_logic_vector(14 downto 0);
+    fmc_sat2            : in  std_logic_vector(14 downto 0);
+    fmc_sat3            : in  std_logic_vector(14 downto 0);
+    fmc_sat4            : in  std_logic_vector(14 downto 0);
     -- SERDES Ctrl and Statuts
     serdes_arst_i       : in  std_logic;
-    serdes_bslip_i      : in  std_logic;
     refclk_locked_o     : out std_logic;
+    idelay_locked_o     : out std_logic;
     serdes_synced_o     : out std_logic;
+    -- Soft Reset
+    SOFT_RESET          : in  std_logic;
+    SOFT_RESET_wstb     : in  std_logic;
 
 
     -- Control and Status Register
@@ -146,32 +168,29 @@ entity fmc_adc_mezzanine is
     wait_cnt            : out std_logic_vector(31 downto 0);
     pre_trig_cnt        : out std_logic_vector(31 downto 0);
 
-    -- Gain/offset calibration parameters
-    fmc_gain1           : in  std_logic_vector(15 downto 0);
-    fmc_gain2           : in  std_logic_vector(15 downto 0);
-    fmc_gain3           : in  std_logic_vector(15 downto 0);
-    fmc_gain4           : in  std_logic_vector(15 downto 0);
-    fmc_offset1         : in  std_logic_vector(15 downto 0);
-    fmc_offset2         : in  std_logic_vector(15 downto 0);
-    fmc_offset3         : in  std_logic_vector(15 downto 0);
-    fmc_offset4         : in  std_logic_vector(15 downto 0);
-    fmc_sat1            : in  std_logic_vector(14 downto 0);
-    fmc_sat2            : in  std_logic_vector(14 downto 0);
-    fmc_sat3            : in  std_logic_vector(14 downto 0);
-    fmc_sat4            : in  std_logic_vector(14 downto 0);
-
-    -- *************************************
-    -- ADC parallel data out from SERDES ***
-    -- *************************************
-    -- sys_clk domain
+    -- ***********************************************************
+    -- ADC parallel data out from SERDES in the sys_clk domain ***
+    -- ***********************************************************
     fmc_val1_o          : out std_logic_vector(15 downto 0);
     fmc_val2_o          : out std_logic_vector(15 downto 0);
     fmc_val3_o          : out std_logic_vector(15 downto 0);
-    fmc_val4_o          : out std_logic_vector(15 downto 0)
+    fmc_val4_o          : out std_logic_vector(15 downto 0);
+
+
+    -- *****************************************
+    -- FMC data output (sys_clk domain) to PCAP
+    -- *****************************************
+    -- 4 Channels of ADC Dataout for connection to Position Bus
+    fmc_dataout_o       : out fmc_dataout_array(1 to 4);
+    fmc_dataout_valid_o : out std1_array(1 to 4)
+
     );
 end fmc_adc_mezzanine;
 
 
+--------------------------------------------------------------------------------
+-- Architecture declaration
+--------------------------------------------------------------------------------
 architecture rtl of fmc_adc_mezzanine is
 
   ------------------------------------------------------------------------------
@@ -221,11 +240,10 @@ architecture rtl of fmc_adc_mezzanine is
   -- Types declaration
   ------------------------------------------------------------------------------
 
+
   ------------------------------------------------------------------------------
   -- Signals declaration
   ------------------------------------------------------------------------------
-  signal sys_reset_i    : std_logic; -- not(sys_rst_n_i)
-
   -- Mezzanine SPI
   signal wr_req         : std_logic;
   signal wr_dat         : std_logic_vector(15 downto 0);
@@ -286,26 +304,43 @@ architecture rtl of fmc_adc_mezzanine is
 
   -- IDELAYCTRL is needed for calibration
   -- When IDELAYCTRL REFCLK is 200 MHz, IDELAY delay chain consist of 64 taps of 78 ps
-  signal idelay_refclock_i    : std_logic;    -- REFCLK input of IDELAYCTRL (muse be 200 Mhz).
+  signal idelay_refclock_i    : std_logic;    -- REFCLK input of IDELAYCTRL (must be 200 Mhz).
   signal idelay_rst_i         : std_logic;    -- RST input of IDELAYCTRL. Minimum pulse width 52.0 ns
+  signal idelay_locked        : std_logic;    -- indicate that IDELAYE2 modules are calibrated
 
   -- SERDES status
+  signal serdes_bslip_i       : std_logic := '0';
   signal serdes_synced        : std_logic; -- Indication that SERDES is ok and locked to frame start pattern
 
 
   -- ADC parallel data out
   --  (15:0)  = CH1, (31:16) = CH2, (47:32) = CH3, (63:48) = CH4
   --  The two LSBs of each channel are always '0'
-  signal adc_ch1              : std_logic_vector(15 downto 0);
-  signal adc_ch2              : std_logic_vector(15 downto 0);
-  signal adc_ch3              : std_logic_vector(15 downto 0);
-  signal adc_ch4              : std_logic_vector(15 downto 0);
+  signal adc_ch1_o            : std_logic_vector(15 downto 0);
+  signal adc_ch2_o            : std_logic_vector(15 downto 0);
+  signal adc_ch3_o            : std_logic_vector(15 downto 0);
+  signal adc_ch4_o            : std_logic_vector(15 downto 0);
+  -- all channels as an array
+  signal adc_data_ch          : std16_array(1 to 4);
+
   -- ADC divided clock, for FPGA logic
   signal adc_clk              : std_logic;
 
   -- Synchronization chains (from sys_clk to adc_clk)
-  signal serdes_bslip_meta    : std_logic;
-  signal serdes_bslip_sync    : std_logic;
+  signal adc_reset_meta       : std_logic;
+  signal adc_reset_sync       : std_logic;
+
+  signal patgen_reg_meta      : std_logic_vector(1 downto 0);
+  signal patgen_reg_sync      : std_logic_vector(1 downto 0);
+  signal fifo_input_reg_meta  : std_logic_vector(1 downto 0);
+  signal fifo_input_reg_sync  : std_logic_vector(1 downto 0);
+
+  signal fmc_gain_meta        : fmc_gain_array(1 to 4);
+  signal fmc_gain_sync        : fmc_gain_array(1 to 4);
+  signal fmc_offset_meta      : fmc_offset_array(1 to 4);
+  signal fmc_offset_sync      : fmc_offset_array(1 to 4);
+  signal fmc_sat_meta         : fmc_sat_array(1 to 4);
+  signal fmc_sat_sync         : fmc_sat_array(1 to 4);
 
   -- Synchronization chains (from adc_clk to sys_clk)
   signal fmc_val1_meta        : std_logic_vector(15 downto 0);
@@ -316,9 +351,13 @@ architecture rtl of fmc_adc_mezzanine is
   signal fmc_val2_sync        : std_logic_vector(15 downto 0);
   signal fmc_val3_sync        : std_logic_vector(15 downto 0);
   signal fmc_val4_sync        : std_logic_vector(15 downto 0);
+
+  signal refclk_locked_meta   : std_logic;
+  signal refclk_locked_sync   : std_logic;
+  signal idelay_locked_meta   : std_logic;
+  signal idelay_locked_sync   : std_logic;
   signal serdes_synced_meta   : std_logic;
   signal serdes_synced_sync   : std_logic;
-
 
   -- Time-tagging core
   signal trigger_p   : std_logic;
@@ -328,18 +367,36 @@ architecture rtl of fmc_adc_mezzanine is
 
 
   -- Attributes for synchronisation chains
-  attribute async_reg of serdes_bslip_meta  : signal is "true";
-  attribute async_reg of serdes_bslip_sync  : signal is "true";
-  attribute async_reg of serdes_synced_meta : signal is "true";
-  attribute async_reg of serdes_synced_sync : signal is "true";
-  attribute async_reg of fmc_val1_meta      : signal is "true";
-  attribute async_reg of fmc_val2_meta      : signal is "true";
-  attribute async_reg of fmc_val3_meta      : signal is "true";
-  attribute async_reg of fmc_val4_meta      : signal is "true";
-  attribute async_reg of fmc_val1_sync      : signal is "true";
-  attribute async_reg of fmc_val2_sync      : signal is "true";
-  attribute async_reg of fmc_val3_sync      : signal is "true";
-  attribute async_reg of fmc_val4_sync      : signal is "true";
+  attribute async_reg of refclk_locked_meta   : signal is "true";
+  attribute async_reg of refclk_locked_sync   : signal is "true";
+  attribute async_reg of serdes_synced_meta   : signal is "true";
+  attribute async_reg of serdes_synced_sync   : signal is "true";
+  attribute async_reg of idelay_locked_meta   : signal is "true";
+  attribute async_reg of idelay_locked_sync   : signal is "true";
+
+  attribute async_reg of adc_reset_meta       : signal is "true";
+  attribute async_reg of adc_reset_sync       : signal is "true";
+
+  attribute async_reg of patgen_reg_meta      : signal is "true";
+  attribute async_reg of patgen_reg_sync      : signal is "true";
+  attribute async_reg of fifo_input_reg_meta  : signal is "true";
+  attribute async_reg of fifo_input_reg_sync  : signal is "true";
+
+  attribute async_reg of fmc_gain_meta        : signal is "true";
+  attribute async_reg of fmc_gain_sync        : signal is "true";
+  attribute async_reg of fmc_offset_meta      : signal is "true";
+  attribute async_reg of fmc_offset_sync      : signal is "true";
+  attribute async_reg of fmc_sat_meta         : signal is "true";
+  attribute async_reg of fmc_sat_sync         : signal is "true";
+
+  attribute async_reg of fmc_val1_meta        : signal is "true";
+  attribute async_reg of fmc_val2_meta        : signal is "true";
+  attribute async_reg of fmc_val3_meta        : signal is "true";
+  attribute async_reg of fmc_val4_meta        : signal is "true";
+  attribute async_reg of fmc_val1_sync        : signal is "true";
+  attribute async_reg of fmc_val2_sync        : signal is "true";
+  attribute async_reg of fmc_val3_sync        : signal is "true";
+  attribute async_reg of fmc_val4_sync        : signal is "true";
 
 
   -- Attributes for ILA
@@ -376,7 +433,6 @@ architecture rtl of fmc_adc_mezzanine is
 -- Begin of code
 begin
 
-  sys_reset_i <= not(sys_rst_n_i);
 
   ------------------------------------------------------------------------------
   -- Mezzanine system managment I2C master
@@ -647,7 +703,7 @@ begin
 
   ---------------------------------------------------------
   -- Generation of 200 MHe REFCLK for IDELAYCTRL
-  -- we use a PLL2_BASE component
+  -- using a PLL2_BASE component
   ---------------------------------------------------------
   cmp_refclk_200mhz : entity work.gen_refclk_200mhz
   generic map (
@@ -658,23 +714,49 @@ begin
   )
   port map (
     clock_i         => clk_100_i,
-    refclk_o        => refclk_200m,
-    refclk_locked_o => refclk_locked,
-    refclk_reset_o  => refclk_reset
+    refclk_o        => refclk_200m,       -- REFCLK input of IDELAYCTRL (must be 200 Mhz).
+    refclk_locked_o => refclk_locked,     -- PLL locked
+    refclk_reset_o  => refclk_reset       -- Reset output. Deactivate 'RESET_CYCLES' after pll_locked rise
   );
 
 
   ---------------------------------------------------------------------
-  -- clock domain crossing between sys_clk and adc_clk (clk_div_buf)
+  -- Synchronization chains (from sys_clk to adc_clk)
   ---------------------------------------------------------------------
-  -- concerns ISERDES and IDELAY signals synchronous do CLKDIV
-  p_cdc_adc_clk : process(adc_clk)
+  p_sync_adc_clk : process(adc_clk)
   begin
     if rising_edge(adc_clk) then
-        serdes_bslip_meta <= serdes_bslip_i;
-        serdes_bslip_sync <= serdes_bslip_meta;
+        -- sys_reset
+        adc_reset_meta      <= sys_reset_i;
+        adc_reset_sync      <= adc_reset_meta;
+        -- pattern generator register
+        patgen_reg_meta     <= PATGEN_REG;
+        patgen_reg_sync     <= patgen_reg_meta;
+        -- FIFO input select
+        fifo_input_reg_meta <= FIFO_INPUT_REG;
+        fifo_input_reg_sync <= fifo_input_reg_meta;
+
+        -- fmc_gain
+        fmc_gain_meta(1)    <= fmc_gain1;
+        fmc_gain_meta(2)    <= fmc_gain2;
+        fmc_gain_meta(3)    <= fmc_gain3;
+        fmc_gain_meta(4)    <= fmc_gain4;
+        fmc_gain_sync       <= fmc_gain_meta;
+        -- fmc_offset
+        fmc_offset_meta(1)  <= fmc_offset1;
+        fmc_offset_meta(2)  <= fmc_offset2;
+        fmc_offset_meta(3)  <= fmc_offset3;
+        fmc_offset_meta(4)  <= fmc_offset4;
+        fmc_offset_sync     <= fmc_offset_meta;
+        -- fmc_saturation
+        fmc_sat_meta(1)     <= fmc_sat1;
+        fmc_sat_meta(2)     <= fmc_sat2;
+        fmc_sat_meta(3)     <= fmc_sat3;
+        fmc_sat_meta(4)     <= fmc_sat4;
+        fmc_sat_sync        <= fmc_sat_meta;
+
     end if;
-  end process p_cdc_adc_clk;
+  end process p_sync_adc_clk;
 
 
   --------------------------------------------------------------------------------
@@ -688,20 +770,17 @@ begin
 
   cmp_ltc2174_receiver : entity work.ltc2174_2lanes_ddr_receiver
   generic map (
-    g_DEBUG_ILA         => TRUE,
-
-    -- Buffer type for SERDES clock (High-Speed clock)
-    -- Options are : BUFIO, BUFR, BUFH
-    g_SERIAL_CLK_BUF    => "BUFIO"
-
-    -- Parallel clock generated with BUFR with BUFR_DIVIDE by 4
+    g_DEBUG_ILA         => TRUE,      -- Generate ILA for debugging
+    g_SERIAL_CLK_BUF    => "BUFIO",   -- Buffer type for SERDES serial clock : BUFIO or BUFG or BUFR or BUFH
+    G_DCO_IDELAY_VALUE  => 0,         -- Delay Tap setting for IDELAYE2 on adc_clk (0-31)
+    G_DATA_IDELAY_VALUE => 0          -- Delay Tap setting for IDELAYE2 on adc_fr,adc_outa,adc_outb (0-31)
   )
   port map (
-
     -- IDELAYCTRL is needed for calibration
     -- When IDELAYCTRL REFCLK is 200 MHz, IDELAY delay chain consist of 64 taps of 78 ps
-    idelay_refclock_i   => idelay_refclock_i,     -- REFCLK input of IDELAYCTRL (muse be 200 Mhz).
+    idelay_refclock_i   => idelay_refclock_i,     -- REFCLK input of IDELAYCTRL (must be 200 Mhz).
     idelay_rst_i        => idelay_rst_i,          -- RST input of IDELAYCTRL. Minimum pulse width 52.0 ns
+    idelay_locked_o     => idelay_locked,
 
     -- ADC serial interface
     adc_dco_p_i         => adc_dco_p_i,
@@ -715,24 +794,33 @@ begin
 
     -- SERDES status
     serdes_arst_i       => serdes_arst_i,       -- Async reset input (active high) for iserdes
-    serdes_bslip_i      => serdes_bslip_sync,   -- Manual bitslip command (optional)
+    serdes_bslip_i      => serdes_bslip_i,      -- Manual bitslip command (optional)
     serdes_synced_o     => serdes_synced,       -- Indication that SERDES is ok and locked to frame start pattern
 
-    -- ADC parallel data out
+    -- ADC parallel data out (clk_div clock domain)
+    adc_data_o          => open,
     --  (15:0)  = CH1, (31:16) = CH2, (47:32) = CH3, (63:48) = CH4
-    adc_ch1_o           => adc_ch1,
-    adc_ch2_o           => adc_ch2,
-    adc_ch3_o           => adc_ch3,
-    adc_ch4_o           => adc_ch4,
-    -- ADC divided clock, for FPGA logic
-    adc_clk_o           => adc_clk      -- clock output (fs_clk) sampling clock
+    adc_ch1_o           => adc_ch1_o,
+    adc_ch2_o           => adc_ch2_o,
+    adc_ch3_o           => adc_ch3_o,
+    adc_ch4_o           => adc_ch4_o,
+    -- ADC divided clock, for FPGA logic (clk_div)
+    adc_clk_o           => adc_clk
   );
 
 
+  -- adc  parallel data out as an array
+  -- Leaves the two LSBs of each channel that are always '0'
+  adc_data_ch(1) <= adc_ch1_o; -- "00" & adc_ch1_o(15 downto 2);
+  adc_data_ch(2) <= adc_ch2_o; -- "00" & adc_ch2_o(15 downto 2);
+  adc_data_ch(3) <= adc_ch3_o; -- "00" & adc_ch3_o(15 downto 2);
+  adc_data_ch(4) <= adc_ch4_o; -- "00" & adc_ch4_o(15 downto 2);
+
+
   ---------------------------------------------------------------------
-  -- clock domain crossing between adc_clk (clk_div_buf) and sys_clk
+  -- Synchronization chains (from adc_clk to sys_clk)
   ---------------------------------------------------------------------
-  p_cdc_sys_clk : process(sys_clk_i)
+  p_sync_sys_clk : process(sys_clk_i)
   begin
     if rising_edge(sys_clk_i) then
         if (sys_reset_i = '1') then
@@ -741,29 +829,38 @@ begin
             fmc_val2_meta       <= (others=>'0');
             fmc_val3_meta       <= (others=>'0');
             fmc_val4_meta       <= (others=>'0');
+            refclk_locked_meta  <= '0';
+            idelay_locked_meta  <= '0';
             serdes_synced_meta  <= '0';
             -- clear the output of the second and final flip-flop
             fmc_val1_sync       <= (others=>'0');
             fmc_val2_sync       <= (others=>'0');
             fmc_val3_sync       <= (others=>'0');
             fmc_val4_sync       <= (others=>'0');
+            refclk_locked_sync  <= '0';
+            idelay_locked_sync  <= '0';
             serdes_synced_sync  <= '0';
         else
             -- capture the arriving signal - higher probability of being meta-stable
-            fmc_val1_meta       <= adc_ch1;
-            fmc_val2_meta       <= adc_ch2;
-            fmc_val3_meta       <= adc_ch3;
-            fmc_val4_meta       <= adc_ch4;
+            -- Leaves the two LSBs of each channel that are always '0'
+            fmc_val1_meta       <= adc_ch1_o;  --    "00" & adc_ch1_o(15 downto 2);
+            fmc_val2_meta       <= adc_ch2_o;  --    "00" & adc_ch2_o(15 downto 2);
+            fmc_val3_meta       <= adc_ch3_o;  --    "00" & adc_ch3_o(15 downto 2);
+            fmc_val4_meta       <= adc_ch4_o;  --    "00" & adc_ch4_o(15 downto 2);
+            refclk_locked_meta  <= refclk_locked;
+            idelay_locked_meta  <= idelay_locked;
             serdes_synced_meta  <= serdes_synced;
             -- resample the potentially meta-stable signal, lowering the probability of meta-stability
             fmc_val1_sync       <= fmc_val1_meta;
             fmc_val2_sync       <= fmc_val2_meta;
             fmc_val3_sync       <= fmc_val3_meta;
             fmc_val4_sync       <= fmc_val4_meta;
+            refclk_locked_sync  <= refclk_locked_meta;
+            idelay_locked_sync  <= idelay_locked_meta;
             serdes_synced_sync  <= serdes_synced_meta;
         end if; -- reset
     end if; -- clock
-  end process p_cdc_sys_clk;
+  end process p_sync_sys_clk;
 
   -- Connect outputs
   gpio_led_trig_o <= refclk_locked;
@@ -771,6 +868,7 @@ begin
 
   refclk_locked_o <= refclk_locked;
   serdes_synced_o <= serdes_synced_sync;
+  idelay_locked_o <= idelay_locked_sync;
 
   fmc_val1_o      <= fmc_val1_sync;
   fmc_val2_o      <= fmc_val2_sync;
@@ -812,6 +910,9 @@ begin
   --si570_sda_b  <= si570_sda_out when si570_sda_oe_n = '0' else 'Z';
   --si570_sda_in <= si570_sda_b;
 
+
+
+
   ------------------------------------------------------------------------------
   -- ADC core
   --    Solid State Relays control
@@ -819,6 +920,54 @@ begin
   --    Offset DACs control (CLR_N)
   --    ADC core control and status
   ------------------------------------------------------------------------------
+  cmp_fmc_adc100m_core :  entity work.fmc_adc100m_core
+  generic map (
+    g_DEBUG_ILA         => TRUE
+  )
+  port map (
+    -- **********************************
+    -- *** ADC clock domain (clk_div) ***
+    -- **********************************
+    adc_clk_i           => adc_clk,
+    adc_reset_i         => adc_reset_sync,
+    -- ADC parallel data from SERDES (by channel array)
+    adc_data_ch         => adc_data_ch,       -- in  adc_data_ch_array(1 to 4);
+
+    -- IDELAYCTRL and SERDES statuts
+    idelay_locked_i     => idelay_locked,
+    serdes_synced_i     => serdes_synced,
+
+    -- Configuration registers coming from fmc_adc100m_ctrl in the sys_clk domain
+    -- are synchronized to the adc_clk domain using chains synchronizers.
+
+    -- Gain/offset calibration parameters
+    fmc_gain_ch         => fmc_gain_sync,       -- in  fmc_gain_array(1 to 4);
+    fmc_offset_ch       => fmc_offset_sync,     -- in  fmc_offset_array(1 to 4);
+    fmc_sat_ch          => fmc_sat_sync,        -- in  fmc_sat_array(1 to 4);
+    -- Pattern Generator register
+    patgen_reg_i        => patgen_reg_sync,     -- bit 0 : enable, bit 1 : reset
+    -- FIFO input register
+    fifo_input_reg_i    => fifo_input_reg_sync, -- "00" serdes "01" offse_ gain "10" pattern_generator
+
+
+    -- ************************
+    -- *** SYS clock domain ***
+    -- ************************
+    -- System clock and reset from PS core (125 mhz)
+    sys_clk_i           => sys_clk_i,
+    sys_reset_i         => sys_reset_i,
+
+    -- FIFO status
+
+    -- FMC data output (sys_clk domain)
+    -- 4 Channels of ADC Dataout for connection to Position Bus
+    fmc_dataout_o       => fmc_dataout_o,
+    fmc_dataout_valid_o => fmc_dataout_valid_o
+
+  );
+
+
+
 --+++  cmp_fmc_adc100Ms_core : entity work.fmc_adc100Ms_core
 --+++    generic map (
 --+++        g_multishot_ram_size => g_multishot_ram_size,
