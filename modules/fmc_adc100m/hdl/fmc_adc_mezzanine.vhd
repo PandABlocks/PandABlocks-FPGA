@@ -532,7 +532,7 @@ begin
   -- D[7:0] = DCSOFF & RAND & TWOSCOMP & SLEEP & NAP[4:1]
   --
   -- TWOSCOMP : 0 = Offset Binary Data Format      ** This is the default at power up **
-  --            1 = Two’s Complement Data Format
+  --            1 = Two's Complement Data Format
   --
   -- REGISTER A2 : OUTPUT MODE REGISTER (Address 02h)
   -- D[7:0] = ILVDS[2:0] & TERMON & OUTOFF & OUTMODE[2:0]
@@ -585,7 +585,7 @@ begin
                 if (ADC_TWOSCOMP_wstb = '1') then
                     wr_req  <= '1';
                     wr_adr <= C_ADC_REG_A1_ADR; -- ADC REGISTER A1 : FORMAT AND POWER DOWN REGISTER (Address 01h)
-                    wr_dat( 7 downto 0) <= "00" & ADC_TWOSCOMP & "00000"; -- Bit 5 =  Two’s Complement Mode Control Bit
+                    wr_dat( 7 downto 0) <= "00" & ADC_TWOSCOMP & "00000"; -- Bit 5 =  Two's Complement Mode Control Bit
                     wr_dat(15 downto 8) <= (others => '0');
                     spi_cmd <= C_SPI_CMD_WR_ADC_A1;
                 end if;

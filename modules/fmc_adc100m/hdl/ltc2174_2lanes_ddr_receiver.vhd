@@ -318,7 +318,7 @@ begin
   -- The IDELAYCTRL module calibrates IDELAY and ODELAY using the user supplied REFCLK.
 
   -- IDELAYCTRL must be reset after configuration and the REFCLK signal is stable.
-  -- REFCLK must be F_IDELAYCTRL_REF ± the specified ppm tolerance (IDELAY_CTRL_PRECISION)
+  -- REFCLK must be F_IDELAYCTRL_REF in the specified ppm tolerance (IDELAY_CTRL_PRECISION)
   --        to garuantee a specified IDELAY and ODELAY resolution (T_IDELAYRESOLUTION).
   --
   -- inputs
@@ -338,7 +338,7 @@ begin
   -- DS191 (v1.18.1) Zynq-7000 SoC (7030, 7035, 7045, 7100) DC and AC Switching Characteristics
   --
   --  F_IDELAYCTRL_REF        = 200 / 300 / 400 MHz (-2 speed grade)
-  --  IDELAY_CTRL_PRECISION   = ± 10 MHz
+  --  IDELAY_CTRL_PRECISION   = 10 MHz
   --  T_IDELAYCTRL_RPW        = 52.0 ns
   --  T_IDELAYRESOLUTION      = 1/(32 x 2 x F_REF) us  | F_REF 200 MHz => 78 ps
   --
