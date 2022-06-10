@@ -1,4 +1,4 @@
-----------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- Company:
 -- Engineer:            Peter Fall
 --
@@ -23,43 +23,79 @@
 -- Revision 0.05 - Fix cks calc when add of high bits causes another ovf
 -- Additional Comments:
 --
-----------------------------------------------------------------------------------
+-- Thierry GARREL (ELSYS-Design)
+--    restructure code : tab 2 spaces, add comments,
+--    reorder some signals declarations
+--
+--------------------------------------------------------------------------------
+
+
+--==============================================================================
+-- Libraries Declaration
+--==============================================================================
 library IEEE;
-use IEEE.STD_LOGIC_1164.all;
-use IEEE.NUMERIC_STD.all;
-use work.axi.all;
-use work.ipv4_types.all;
-use work.arp_types.all;
+  use IEEE.std_logic_1164.all;
+  use IEEE.numeric_std.all;
 
-entity IPv4_TX is
+library work;
+  use work.axi_types.all;
+  use work.ipv4_types.all;
+  use work.arp_types.all;
+
+
+--==============================================================================
+-- Entity Declaration
+--==============================================================================
+entity ipv4_tx is
+  generic (
+    ILA_DEBUG             : boolean := FALSE
+  );
   port (
-    -- IP Layer signals
-    ip_tx_start          : in  std_logic;
-    ip_tx                : in  ipv4_tx_type;                   -- IP tx cxns
-    ip_tx_result         : out std_logic_vector (1 downto 0);  -- tx status (changes during transmission)
-    ip_tx_data_out_ready : out std_logic;  -- indicates IP TX is ready to take data
+    -- IP Layer signals (in)
+    ip_tx_start           : in  std_logic;
+    ip_tx                 : in  ipv4_tx_type;                   -- IP tx cxns
+    -- IP Layer signals (out)
+    ip_tx_result          : out std_logic_vector(1 downto 0);  -- tx status (changes during transmission)
+    ip_tx_data_out_ready  : out std_logic;                      -- indicates IP TX is ready to take data
 
-    -- system signals
-    clk                : in  std_logic;  -- same clock used to clock mac data and ip data
-    reset              : in  std_logic;
-    our_ip_address     : in  std_logic_vector (31 downto 0);
-    our_mac_address    : in  std_logic_vector (47 downto 0);
+    -- system signals (in)
+    clk                   : in  std_logic;                      -- same clock used to clock mac data and ip data
+    reset                 : in  std_logic;
+    our_ip_address        : in  std_logic_vector(31 downto 0);
+    our_mac_address       : in  std_logic_vector(47 downto 0);
+
     -- ARP lookup signals
-    arp_req_req        : out arp_req_req_type;
-    arp_req_rslt       : in  arp_req_rslt_type;
+    arp_req_req           : out arp_req_req_type;
+    arp_req_rslt          : in  arp_req_rslt_type;
+
     -- MAC layer TX signals
-    mac_tx_req         : out std_logic;  -- indicates that ip wants access to channel (stays up for as long as tx)
-    mac_tx_granted     : in  std_logic;  -- indicates that access to channel has been granted
-    mac_data_out_ready : in  std_logic;  -- indicates system ready to consume data
-    mac_data_out_valid : out std_logic;  -- indicates data out is valid
-    mac_data_out_first : out std_logic;  -- with data out valid indicates the first byte of a frame
-    mac_data_out_last  : out std_logic;  -- with data out valid indicates the last byte of a frame
-    mac_data_out       : out std_logic_vector (7 downto 0)  -- ethernet frame (from dst mac addr through to last byte of frame)
+    mac_tx_req            : out std_logic;                      -- indicates that ip wants access to channel (stays up for as long as tx)
+    mac_tx_granted        : in  std_logic;                      -- indicates that access to channel has been granted
+    mac_data_out_ready    : in  std_logic;                      -- indicates system ready to consume data
+    mac_data_out_valid    : out std_logic;                      -- indicates data out is valid
+    mac_data_out_first    : out std_logic;                      -- with data out valid indicates the first byte of a frame
+    mac_data_out_last     : out std_logic;                      -- with data out valid indicates the last byte of a frame
+    mac_data_out          : out std_logic_vector(7 downto 0)    -- ethernet frame (from dst mac addr through to last byte of frame)
     );
-end IPv4_TX;
+end ipv4_tx;
 
-architecture Behavioral of IPv4_TX is
 
+--==============================================================================
+-- Architecture Declaration
+--==============================================================================
+architecture Behavioral of ipv4_tx is
+
+  -- ILA IP used for debugging purpose
+  component ila_32x8k
+  port (
+    clk     : in std_logic;
+    probe0  : in std_logic_vector(31 downto 0)
+  );
+  end component;
+
+  -------------------------------
+  -- FSM definitions
+  -------------------------------
   type tx_state_type is (
     IDLE,
     WAIT_MAC,                           -- waiting for response from ARP for mac lookup
@@ -67,54 +103,86 @@ architecture Behavioral of IPv4_TX is
     SEND_ETH_HDR,                       -- sending the ethernet header
     SEND_IP_HDR,                        -- sending the IP header
     SEND_USER_DATA                      -- sending the users data
-    );
+  );
 
-  type crc_state_type is (IDLE, TOT_LEN, ID, FLAGS, TTL, CKS, SAH, SAL, DAH, DAL, ADDOVF, FINAL, WAIT_END);
+  type crc_state_type is (
+    IDLE,
+    TOT_LEN,
+    ID,
+    FLAGS,
+    TTL,
+    CKS,
+    SAH,
+    SAL,
+    DAH,
+    DAL,
+    ADDOVF,
+    FINAL,
+    WAIT_END
+  );
 
-  type count_mode_type is (RST, INCR, HOLD);
-  type settable_cnt_type is (RST, SET, INCR, HOLD);
-  type set_clr_type is (SET, CLR, HOLD);
+  type count_mode_type    is (RST, INCR, HOLD);
+  type settable_cnt_type  is (RST, SET, INCR, HOLD);
+  type set_clr_type       is (SET, CLR, HOLD);
+
+  -------------------------------
+  -- Constants
+  -------------------------------
 
   -- Configuration
 
-  constant IP_TTL : std_logic_vector (7 downto 0) := x"08";--x"80";
+  constant IP_TTL : std_logic_vector(7 downto 0) := x"08";--x"80";
+
+
+  -------------------------------
+  -- Internal signals
+  -------------------------------
 
   -- TX state variables
-  signal tx_state               : tx_state_type;
-  attribute fsm_encoding : string;
-  attribute fsm_encoding of tx_state : signal is "one_hot";
-  attribute fsm_safe_state : string;
-  attribute fsm_safe_state of tx_state : signal is "auto_safe_state";
-  attribute mark_debug : string;
-  attribute mark_debug of tx_state : signal is "true";
-  signal tx_count               : unsigned (11 downto 0);
-  signal tx_result_reg          : std_logic_vector (1 downto 0);
-  signal tx_mac                 : std_logic_vector (47 downto 0);
-  signal tx_mac_chn_reqd        : std_logic;
-  signal tx_hdr_cks             : std_logic_vector (23 downto 0);
-  signal mac_lookup_req         : std_logic;
-  signal crc_state              : crc_state_type;
-  signal arp_req_ip_reg         : std_logic_vector (31 downto 0);
-  signal mac_data_out_ready_reg : std_logic;
+  signal set_tx_state                   : std_logic;
+  signal next_tx_state                  : tx_state_type;
+  signal tx_state                       : tx_state_type;
+
+  attribute fsm_encoding                : string;
+  attribute fsm_safe_state              : string;
+  attribute mark_debug                  : string;
+
+  attribute fsm_encoding of tx_state    : signal is "one_hot";
+  attribute fsm_safe_state of tx_state  : signal is "auto_safe_state"; -- Use Hamming-3 encoded to ensure tolerance of SEU
+  attribute mark_debug of tx_state      : signal is "true";
+
+
+  signal tx_count                       : unsigned (11 downto 0);
+  signal tx_result_reg                  : std_logic_vector(1 downto 0);
+  signal tx_mac                         : std_logic_vector(47 downto 0);
+  signal tx_mac_chn_reqd                : std_logic;
+  signal tx_hdr_cks                     : std_logic_vector(23 downto 0);
+  signal mac_lookup_req                 : std_logic;
+
+  signal crc_state                      : crc_state_type;
+  signal arp_req_ip_reg                 : std_logic_vector(31 downto 0);
+  signal mac_data_out_ready_reg         : std_logic;
 
   -- tx control signals
-  signal next_tx_state   : tx_state_type;
-  signal set_tx_state    : std_logic;
-  signal next_tx_result  : std_logic_vector (1 downto 0);
-  signal set_tx_result   : std_logic;
-  signal tx_mac_value    : std_logic_vector (47 downto 0);
-  signal set_tx_mac      : std_logic;
-  signal tx_count_val    : unsigned (11 downto 0);
-  signal tx_count_mode   : settable_cnt_type;
-  signal tx_data         : std_logic_vector (7 downto 0);
-  signal set_last        : std_logic;
-  signal set_chn_reqd    : set_clr_type;
-  signal set_mac_lku_req : set_clr_type;
-  signal tx_data_valid   : std_logic;   -- indicates whether data is valid to tx or not
+  signal next_tx_result                 : std_logic_vector(1 downto 0);
+  signal set_tx_result                  : std_logic;
+  signal tx_mac_value                   : std_logic_vector(47 downto 0);
+  signal set_tx_mac                     : std_logic;
+  signal tx_count_val                   : unsigned (11 downto 0);
+  signal tx_count_mode                  : settable_cnt_type;
+  signal tx_data                        : std_logic_vector(7 downto 0);
+  signal set_last                       : std_logic;
+  signal set_chn_reqd                   : set_clr_type;
+  signal set_mac_lku_req                : set_clr_type;
+  signal tx_data_valid                  : std_logic;   -- indicates whether data is valid to tx or not
 
   -- tx temp signals
-  signal total_length : std_logic_vector (15 downto 0);  -- computed combinatorially from header size
+  signal total_length                   : std_logic_vector(15 downto 0);  -- computed combinatorially from header size
 
+
+  -------------------------------
+  -- functions
+  -------------------------------
 
   function inv_if_one(s1 : std_logic_vector; en : std_logic) return std_logic_vector is
     --this function inverts all the bits of a vector if
@@ -158,14 +226,22 @@ architecture Behavioral of IPv4_TX is
 --      --------------------------------------------------------------------------------------------
 --
 -- * - in 32 bit words
--- CHIPSCOPE ILA probes
 
-        signal probe6               : std_logic_vector(31 downto 0);
+  -------------------------------
+  -- CHIPSCOPE ILA probes
+  -------------------------------
+  signal probe6               : std_logic_vector(31 downto 0);
 
-        attribute keep : string;--keep name for ila probes
-        attribute keep of tx_state       : signal is "true";
-        attribute keep of tx_count       : signal is "true";
+  attribute keep : string;--keep name for ila probes
+  attribute keep of tx_state       : signal is "true";
+  attribute keep of tx_count       : signal is "true";
 
+
+
+
+--==============================================================================
+-- Beginning of Code
+--==============================================================================
 begin
   -----------------------------------------------------------------------
   -- combinatorial process to implement FSM and determine control signals
@@ -506,7 +582,7 @@ begin
           end if;
 
         when TOT_LEN =>
-          tx_hdr_cks <= std_logic_vector (unsigned(tx_hdr_cks) + unsigned(total_length));
+          tx_hdr_cks <= std_logic_vector(unsigned(tx_hdr_cks) + unsigned(total_length));
           crc_state  <= ID;
 
         when ID =>
@@ -518,7 +594,7 @@ begin
           crc_state  <= TTL;
 
         when TTL =>
-          tx_hdr_cks <= std_logic_vector (unsigned(tx_hdr_cks) + unsigned(IP_TTL & ip_tx.hdr.protocol));
+          tx_hdr_cks <= std_logic_vector(unsigned(tx_hdr_cks) + unsigned(IP_TTL & ip_tx.hdr.protocol));
           crc_state  <= CKS;
 
         when CKS =>
@@ -526,27 +602,27 @@ begin
           crc_state  <= SAH;
 
         when SAH =>
-          tx_hdr_cks <= std_logic_vector (unsigned(tx_hdr_cks) + unsigned(our_ip_address(31 downto 16)));
+          tx_hdr_cks <= std_logic_vector(unsigned(tx_hdr_cks) + unsigned(our_ip_address(31 downto 16)));
           crc_state  <= SAL;
 
         when SAL =>
-          tx_hdr_cks <= std_logic_vector (unsigned(tx_hdr_cks) + unsigned(our_ip_address(15 downto 0)));
+          tx_hdr_cks <= std_logic_vector(unsigned(tx_hdr_cks) + unsigned(our_ip_address(15 downto 0)));
           crc_state  <= DAH;
 
         when DAH =>
-          tx_hdr_cks <= std_logic_vector (unsigned(tx_hdr_cks) + unsigned(ip_tx.hdr.dst_ip_addr(31 downto 16)));
+          tx_hdr_cks <= std_logic_vector(unsigned(tx_hdr_cks) + unsigned(ip_tx.hdr.dst_ip_addr(31 downto 16)));
           crc_state  <= DAL;
 
         when DAL =>
-          tx_hdr_cks <= std_logic_vector (unsigned(tx_hdr_cks) + unsigned(ip_tx.hdr.dst_ip_addr(15 downto 0)));
+          tx_hdr_cks <= std_logic_vector(unsigned(tx_hdr_cks) + unsigned(ip_tx.hdr.dst_ip_addr(15 downto 0)));
           crc_state  <= ADDOVF;
 
         when ADDOVF =>
-          tx_hdr_cks <= std_logic_vector ((unsigned(tx_hdr_cks) and x"00ffff")+ unsigned(tx_hdr_cks(23 downto 16)));
+          tx_hdr_cks <= std_logic_vector((unsigned(tx_hdr_cks) and x"00ffff")+ unsigned(tx_hdr_cks(23 downto 16)));
           crc_state  <= FINAL;
 
         when FINAL =>
-          tx_hdr_cks <= inv_if_one(std_logic_vector (unsigned(tx_hdr_cks) + unsigned(tx_hdr_cks(23 downto 16))), '1');
+          tx_hdr_cks <= inv_if_one(std_logic_vector(unsigned(tx_hdr_cks) + unsigned(tx_hdr_cks(23 downto 16))), '1');
           crc_state  <= WAIT_END;
 
         when WAIT_END =>
@@ -562,23 +638,26 @@ begin
     end if;
   end process;
 
----------------------------------------------------------------------------
--- Chipscope ILA Debug purpose
----------------------------------------------------------------------------
-ILA_GEN : IF True GENERATE--false GENERATE
-    My_chipscope_ila_probe_IP_TX_6 : entity work.ila_32x8K
-    PORT MAP (
-          clk => clk,
-          probe0 => probe6
+  ---------------------------------------------------------------------------
+  -- Chipscope ILA Debug purpose
+  ---------------------------------------------------------------------------
+  ILA_GEN : if ILA_DEBUG generate
+    My_chipscope_ila_probe_IP_TX_6 : ila_32x8K
+    port map (
+      clk     => clk,
+      probe0  => probe6
     );
 
     probe6(11 downto 0)<=--tx_state&
                          std_logic_vector(tx_count);
+
     probe6(31 downto 12)<=(others=>'0');
 
+  end generate;
 
-
-END GENERATE;
 
 end Behavioral;
+--==============================================================================
+-- End of Code
+--==============================================================================
 

@@ -1,4 +1,4 @@
-----------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- Company:
 -- Engineer:            Peter Fall
 --
@@ -22,54 +22,87 @@
 -- Revision 0.03 - Added handling of broadcast address
 -- Additional Comments:
 --
-----------------------------------------------------------------------------------
-library IEEE;
-use IEEE.STD_LOGIC_1164.all;
-use IEEE.NUMERIC_STD.all;
-use work.axi.all;
-use work.ipv4_types.all;
-use work.arp_types.all;
+-- Thierry GARREL (ELSYS-Design)
+--    restructure code : tab 2 spaces, add comments,
+--    reorder some signals declarations
+--
+--------------------------------------------------------------------------------
 
-entity IPv4_RX is
+
+--==============================================================================
+-- Libraries Declaration
+--==============================================================================
+library IEEE;
+  use IEEE.std_logic_1164.all;
+  use IEEE.numeric_std.all;
+
+library work;
+  use work.axi_types.all;
+  use work.ipv4_types.all;
+  use work.arp_types.all;
+
+
+--==============================================================================
+-- Entity Declaration
+--==============================================================================
+entity ipv4_rx is
   port (
     -- IP Layer signals
     ip_rx             : out ipv4_rx_type;
-    ip_rx_start       : out std_logic;  -- indicates receipt of ip frame.
+    ip_rx_start       : out std_logic;                      -- indicates receipt of ip frame.
     -- system signals
-    clk               : in  std_logic;  -- same clock used to clock mac data and ip data
+    clk               : in  std_logic;                      -- same clock used to clock mac data and ip data
     reset             : in  std_logic;
-    our_ip_address    : in  std_logic_vector (31 downto 0);
-    rx_pkt_count      : out std_logic_vector(7 downto 0);   -- number of IP pkts received for us
+    our_ip_address    : in  std_logic_vector(31 downto 0);
+    rx_pkt_count      : out std_logic_vector( 7 downto 0);  -- number of IP pkts received for us
     -- MAC layer RX signals
-    mac_data_in       : in  std_logic_vector (7 downto 0);  -- ethernet frame (from dst mac addr through to last byte of frame)
-    mac_data_in_valid : in  std_logic;  -- indicates data_in valid on clock
-    mac_data_in_last  : in  std_logic   -- indicates last data in frame
+    mac_data_in       : in  std_logic_vector( 7 downto 0);  -- ethernet frame (from dst mac addr through to last byte of frame)
+    mac_data_in_valid : in  std_logic;                      -- indicates data_in valid on clock
+    mac_data_in_last  : in  std_logic                       -- indicates last data in frame
     );
-end IPv4_RX;
+end ipv4_rx;
 
-architecture Behavioral of IPv4_RX is
 
-  type rx_state_type is (IDLE, ETH_HDR, IP_HDR, USER_DATA, WAIT_END, ERR);
+--==============================================================================
+-- Architecture Declaration
+--==============================================================================
+architecture Behavioral of ipv4_rx is
 
-  type rx_event_type is (NO_EVENT, DATA);
-  type count_mode_type is (RST, INCR, HOLD);
-  type settable_count_mode_type is (RST, INCR, SET_VAL, HOLD);
-  type set_clr_type is (SET, CLR, HOLD);
+  -------------------------------
+  -- FSM definitions
+  -------------------------------
+  type rx_state_type is (
+    IDLE,
+    ETH_HDR,
+    IP_HDR,
+    USER_DATA,
+    WAIT_END,
+    ERR)
+  ;
 
+  type rx_event_type              is (NO_EVENT, DATA);
+  type count_mode_type            is (RST, INCR, HOLD);
+  type settable_count_mode_type   is (RST, INCR, SET_VAL, HOLD);
+  type set_clr_type               is (SET, CLR, HOLD);
+
+
+  -------------------------------
+  -- Internal signals
+  -------------------------------
 
   -- state variables
-  signal rx_state         : rx_state_type;
-  signal rx_count         : unsigned (15 downto 0);
-  signal src_ip           : std_logic_vector (31 downto 0);  -- src IP captured from input
-  signal dst_ip           : std_logic_vector (23 downto 0);  -- 1st 3 bytes of dst IP captured from input
-  signal is_broadcast_reg : std_logic;
-  signal protocol         : std_logic_vector (7 downto 0);   -- src protocol captured from input
-  signal data_len         : std_logic_vector (15 downto 0);  -- src data length captured from input
-  signal ip_rx_start_reg  : std_logic;  -- indicates start of user data
-  signal hdr_valid_reg    : std_logic;  -- indicates that hdr data is valid
-  signal frame_err_cnt    : unsigned (7 downto 0);  -- number of frame errors
-  signal error_code_reg   : std_logic_vector (3 downto 0);
-  signal rx_pkt_counter   : unsigned (7 downto 0);  -- number of rx frames received for us
+  signal rx_state           : rx_state_type;
+  signal rx_count           : unsigned(15 downto 0);
+  signal src_ip             : std_logic_vector(31 downto 0);  -- src IP captured from input
+  signal dst_ip             : std_logic_vector(23 downto 0);  -- 1st 3 bytes of dst IP captured from input
+  signal is_broadcast_reg   : std_logic;
+  signal protocol           : std_logic_vector(7  downto 0);  -- src protocol captured from input
+  signal data_len           : std_logic_vector(15 downto 0);  -- src data length captured from input
+  signal ip_rx_start_reg    : std_logic;                      -- indicates start of user data
+  signal hdr_valid_reg      : std_logic;                      -- indicates that hdr data is valid
+  signal frame_err_cnt      : unsigned(7 downto 0);           -- number of frame errors
+  signal error_code_reg     : std_logic_vector(3 downto 0);
+  signal rx_pkt_counter     : unsigned(7 downto 0);           -- number of rx frames received for us
 
   -- rx control signals
   signal next_rx_state     : rx_state_type;
@@ -89,13 +122,13 @@ architecture Behavioral of IPv4_RX is
   signal set_ip_rx_start   : set_clr_type;
   signal set_hdr_valid     : set_clr_type;
   signal set_frame_err_cnt : count_mode_type;
-  signal dataval           : std_logic_vector (7 downto 0);
-  signal rx_count_val      : unsigned (15 downto 0);
+  signal dataval           : std_logic_vector(7 downto 0);
+  signal rx_count_val      : unsigned(15 downto 0);
   signal set_error_code    : std_logic;
-  signal error_code_val    : std_logic_vector (3 downto 0);
+  signal error_code_val    : std_logic_vector(3 downto 0);
   signal set_pkt_cnt       : count_mode_type;
   signal set_data_last     : std_logic;
-  signal dst_ip_rx         : std_logic_vector (31 downto 0);
+  signal dst_ip_rx         : std_logic_vector(31 downto 0);
   signal set_is_broadcast  : set_clr_type;
 
 
@@ -130,6 +163,10 @@ architecture Behavioral of IPv4_RX is
 --
 -- * - in 32 bit words
 
+
+--==============================================================================
+-- Beginning of Code
+--==============================================================================
 begin
 
   -----------------------------------------------------------------------
@@ -535,5 +572,9 @@ begin
     end if;
   end process;
 
+
 end Behavioral;
+--==============================================================================
+-- End of Code
+--==============================================================================
 
