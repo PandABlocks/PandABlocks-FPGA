@@ -54,10 +54,14 @@ entity fmc_adc100m_core is
     fmc_gain_ch         : in  fmc_gain_array(1 to 4);
     fmc_offset_ch       : in  fmc_offset_array(1 to 4);
     fmc_sat_ch          : in  fmc_sat_array(1 to 4);
+
     -- Pattern Generator
-    patgen_reg_i        : in  std_logic_vector(1 downto 0);  -- bit 0 : enable, bit 1 : reset
+    PATGEN_ENABLE       : in  std_logic;
+    PATGEN_RESET        : in  std_logic;
+    PATGEN_PERIOD       : in  std_logic_vector(31 downto 0);
+    PATGEN_PERIOD_wstb  : in  std_logic;
     -- FIFO input selection
-    fifo_input_reg_i    : in  std_logic_vector(1 downto 0);  -- "00" serdes "01" offset_gain "10" pattern_generator
+    FIFO_INPUT_SEL      : in  std_logic_vector(1 downto 0);  -- "00" serdes "01" offset_gain "10" pattern_generator
 
 
     -- ************************
@@ -90,8 +94,6 @@ architecture rtl of fmc_adc100m_core is
   -- Signals declaration
   ------------------------------------------------------------------------------
   -- adc_clk clock domain
-  signal patgen_enable        : std_logic;
-  signal patgen_reset         : std_logic;
   signal patgen_data_ch       : std16_array(1 to 4);
 
   signal adc_data_ch_calib    : std16_array(1 to 4);
@@ -116,19 +118,19 @@ begin
   ------------------------------------------------------
   -- pattern generator instanciation (adc_clk domain)
   ------------------------------------------------------
-  -- register mapping:  bit 0 : enable, bit 1 : reset
-  patgen_enable   <=  patgen_reg_i(0);
-  patgen_reset    <=  patgen_reg_i(1) or adc_reset_i;
-
-
   cmp_fmc_adc100m_patgen : entity work.fmc_adc100m_patgen
   port map (
-    clk_i         => adc_clk_i,
-    reset_i       => patgen_reset,
-    -- control input
-    enable_i      => patgen_enable,
+    -- clock and reset
+    adc_clk       => adc_clk_i,
+    adc_reset     => adc_reset_i,
+    -- Block parameters
+    RESET         => PATGEN_RESET,
+    ENABLE        => PATGEN_ENABLE,
+    PERIOD        => PATGEN_PERIOD,
+    PERIOD_wstb   => PATGEN_PERIOD_wstb,
     -- data output (4 channels)
-    data_ch_o     => patgen_data_ch
+    data_ch_o     => patgen_data_ch,
+    pulse_o       => open
   );
 
 
@@ -162,7 +164,7 @@ begin
   begin
       if rising_edge(adc_clk_i) then
         -- "00" serdes "01" offset_gain "10" pattern_generator
-        case fifo_input_reg_i is
+        case FIFO_INPUT_SEL is
           when "00"   => adc_fifo_din <= adc_data_ch;         -- SERDES output
           when "01"   => adc_fifo_din <= adc_data_ch_calib;   -- Offset_Gain output
           when "10"   => adc_fifo_din <= patgen_data_ch;      -- Pattern Generator output

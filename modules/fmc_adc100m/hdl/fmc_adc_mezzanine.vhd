@@ -105,11 +105,12 @@ entity fmc_adc_mezzanine is
     DAC_3_OFFSET_wstb   : in  std_logic;
     DAC_4_OFFSET_wstb   : in  std_logic;
     -- Pattern Generator Register
-    PATGEN_REG          : in  std_logic_vector(1 downto 0); -- bit 0 : enable, bit 1 : reset
-    PATGEN_REG_wstb     : in  std_logic;
-    -- FIFO input register
-    FIFO_INPUT_REG      : in  std_logic_vector(1 downto 0); -- "00" serdes "01" offse_ gain "10" pattern_generator
-    FIFO_INPUT_wstb     : in  std_logic;
+    PATGEN_ENABLE       : in  std_logic;
+    PATGEN_RESET        : in  std_logic;
+    PATGEN_PERIOD       : in  std_logic_vector(31 downto 0);
+    PATGEN_PERIOD_wstb  : in  std_logic;
+    -- FIFO input selection
+    FIFO_INPUT_SEL      : in  std_logic_vector(1 downto 0); -- "00" serdes "01" offse_ gain "10" pattern_generator
 
     -- Gain/offset calibration parameters
     fmc_gain1           : in  std_logic_vector(15 downto 0);
@@ -244,6 +245,8 @@ architecture rtl of fmc_adc_mezzanine is
   ------------------------------------------------------------------------------
   -- Signals declaration
   ------------------------------------------------------------------------------
+  signal sys_reset_n_i  : std_logic; -- not(sys_reset_i)
+
   -- Mezzanine SPI
   signal wr_req         : std_logic;
   signal wr_dat         : std_logic_vector(15 downto 0);
@@ -327,13 +330,21 @@ architecture rtl of fmc_adc_mezzanine is
   signal adc_clk              : std_logic;
 
   -- Synchronization chains (from sys_clk to adc_clk)
-  signal adc_reset_meta       : std_logic;
-  signal adc_reset_sync       : std_logic;
+  signal adc_reset_meta           : std_logic;
+  signal adc_reset_sync           : std_logic;
+  signal adc_clk_reset            : std_logic; -- adc_reset_sync
+  signal adc_clk_reset_n          : std_logic; -- not(adc_reset_sync)
 
-  signal patgen_reg_meta      : std_logic_vector(1 downto 0);
-  signal patgen_reg_sync      : std_logic_vector(1 downto 0);
-  signal fifo_input_reg_meta  : std_logic_vector(1 downto 0);
-  signal fifo_input_reg_sync  : std_logic_vector(1 downto 0);
+  signal PATGEN_ENABLE_meta       : std_logic;
+  signal PATGEN_ENABLE_sync       : std_logic;
+  signal PATGEN_RESET_meta        : std_logic;
+  signal PATGEN_RESET_sync        : std_logic;
+  signal PATGEN_PERIOD_meta       : std_logic_vector(31 downto 0);
+  signal PATGEN_PERIOD_sync       : std_logic_vector(31 downto 0);
+  signal PATGEN_PERIOD_wstb_sync  : std_logic;
+
+  signal FIFO_INPUT_SEL_meta      : std_logic_vector(1 downto 0);
+  signal FIFO_INPUT_SEL_sync      : std_logic_vector(1 downto 0);
 
   signal fmc_gain_meta        : fmc_gain_array(1 to 4);
   signal fmc_gain_sync        : fmc_gain_array(1 to 4);
@@ -377,10 +388,15 @@ architecture rtl of fmc_adc_mezzanine is
   attribute async_reg of adc_reset_meta       : signal is "true";
   attribute async_reg of adc_reset_sync       : signal is "true";
 
-  attribute async_reg of patgen_reg_meta      : signal is "true";
-  attribute async_reg of patgen_reg_sync      : signal is "true";
-  attribute async_reg of fifo_input_reg_meta  : signal is "true";
-  attribute async_reg of fifo_input_reg_sync  : signal is "true";
+  attribute async_reg of PATGEN_ENABLE_meta   : signal is "true";
+  attribute async_reg of PATGEN_ENABLE_sync   : signal is "true";
+  attribute async_reg of PATGEN_RESET_meta    : signal is "true";
+  attribute async_reg of PATGEN_RESET_sync    : signal is "true";
+  attribute async_reg of PATGEN_PERIOD_meta   : signal is "true";
+  attribute async_reg of PATGEN_PERIOD_sync   : signal is "true";
+
+  attribute async_reg of FIFO_INPUT_SEL_meta  : signal is "true";
+  attribute async_reg of FIFO_INPUT_SEL_sync  : signal is "true";
 
   attribute async_reg of fmc_gain_meta        : signal is "true";
   attribute async_reg of fmc_gain_sync        : signal is "true";
@@ -433,6 +449,7 @@ architecture rtl of fmc_adc_mezzanine is
 -- Begin of code
 begin
 
+  sys_reset_n_i     <= not(sys_reset_i);
 
   ------------------------------------------------------------------------------
   -- Mezzanine system managment I2C master
@@ -727,14 +744,20 @@ begin
   begin
     if rising_edge(adc_clk) then
         -- sys_reset
-        adc_reset_meta      <= sys_reset_i;
-        adc_reset_sync      <= adc_reset_meta;
+        adc_reset_meta        <= sys_reset_i;
+        adc_reset_sync        <= adc_reset_meta;
         -- pattern generator register
-        patgen_reg_meta     <= PATGEN_REG;
-        patgen_reg_sync     <= patgen_reg_meta;
+        PATGEN_ENABLE_meta    <= PATGEN_ENABLE;
+        PATGEN_RESET_meta     <= PATGEN_RESET;
+        PATGEN_PERIOD_meta    <= PATGEN_PERIOD;
+
+        PATGEN_ENABLE_sync    <= PATGEN_ENABLE_meta;
+        PATGEN_RESET_sync     <= PATGEN_RESET_meta;
+        PATGEN_PERIOD_sync    <= PATGEN_PERIOD_meta;
+
         -- FIFO input select
-        fifo_input_reg_meta <= FIFO_INPUT_REG;
-        fifo_input_reg_sync <= fifo_input_reg_meta;
+        FIFO_INPUT_SEL_meta   <= FIFO_INPUT_SEL;
+        FIFO_INPUT_SEL_sync   <= FIFO_INPUT_SEL_meta;
 
         -- fmc_gain
         fmc_gain_meta(1)    <= fmc_gain1;
@@ -757,6 +780,27 @@ begin
 
     end if;
   end process p_sync_adc_clk;
+
+  adc_clk_reset     <= adc_reset_sync;
+  adc_clk_reset_n   <= not(adc_reset_sync);
+
+  ----------------------------------------------------
+  -- Pulse synchronizer (from sys_clk to adc_clk)
+  ----------------------------------------------------
+  cmp_gc_pulse_sync : entity work.gc_pulse_synchronizer2
+  port map (
+    -- pulse input clock
+    clk_in_i      => sys_clk_i,
+    rst_in_n_i    => sys_reset_n_i,
+    -- pulse output clock
+    clk_out_i     => adc_clk,
+    rst_out_n_i   => adc_clk_reset_n,
+    -- pulse input ready (clk_in_i domain). When HI, a pulse coming to d_p_i will be correctly transferred to q_p_o.
+    d_ready_o     => open,
+    d_p_i         => PATGEN_PERIOD_wstb,        -- pulse input (clk_in_i domain)
+    q_p_o         => PATGEN_PERIOD_wstb_sync    -- pulse output (clk_out_i domain)
+  );
+
 
 
   --------------------------------------------------------------------------------
@@ -929,7 +973,7 @@ begin
     -- *** ADC clock domain (clk_div) ***
     -- **********************************
     adc_clk_i           => adc_clk,
-    adc_reset_i         => adc_reset_sync,
+    adc_reset_i         => adc_clk_reset,
     -- ADC parallel data from SERDES (by channel array)
     adc_data_ch         => adc_data_ch,       -- in  adc_data_ch_array(1 to 4);
 
@@ -945,10 +989,12 @@ begin
     fmc_offset_ch       => fmc_offset_sync,     -- in  fmc_offset_array(1 to 4);
     fmc_sat_ch          => fmc_sat_sync,        -- in  fmc_sat_array(1 to 4);
     -- Pattern Generator register
-    patgen_reg_i        => patgen_reg_sync,     -- bit 0 : enable, bit 1 : reset
-    -- FIFO input register
-    fifo_input_reg_i    => fifo_input_reg_sync, -- "00" serdes "01" offse_ gain "10" pattern_generator
-
+    PATGEN_ENABLE       => PATGEN_ENABLE_sync,
+    PATGEN_RESET        => PATGEN_RESET_sync,
+    PATGEN_PERIOD       => PATGEN_PERIOD_sync,
+    PATGEN_PERIOD_wstb  => PATGEN_PERIOD_wstb_sync,
+    -- FIFO input selection
+    FIFO_INPUT_SEL      => FIFO_INPUT_SEL_sync, -- "00" serdes "01" offse_ gain "10" pattern_generator
 
     -- ************************
     -- *** SYS clock domain ***

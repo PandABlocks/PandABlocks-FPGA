@@ -138,12 +138,14 @@ signal DAC_2_OFFSET_wstb    : std_logic;
 signal DAC_3_OFFSET_wstb    : std_logic;
 signal DAC_4_OFFSET_wstb    : std_logic;
 signal DAC_OFFSET_CLR       : std_logic_vector(31 downto 0);
--- Pattern Generator Register
-signal PATGEN_REG           : std_logic_vector(31 downto 0); -- bit 0 : enable, bit 1 : reset
-signal PATGEN_REG_wstb      : std_logic;
+-- Pattern Generator
+signal PATGEN_ENABLE        : std_logic_vector(31 downto 0);
+signal PATGEN_RESET         : std_logic_vector(31 downto 0);
+signal PATGEN_PERIOD        : std_logic_vector(31 downto 0);
+signal PATGEN_PERIOD_wstb   : std_logic;
 -- FIFO input selection
-signal FIFO_INPUT_REG       : std_logic_vector(31 downto 0); -- "00" serdes "01" offse_ gain "10" pattern_generator
-signal FIFO_INPUT_wstb      : std_logic;
+signal FIFO_INPUT_SEL       : std_logic_vector(31 downto 0); -- "00" serdes "01" offse_ gain "10" pattern_generator
+
 -- SERDES Control and Status
 signal serdes_reset         : std_logic_vector(31 downto 0);
 signal refclk_locked_sta    : std_logic_vector(31 downto 0);
@@ -387,12 +389,13 @@ cmp_fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
       DAC_2_OFFSET_wstb   => DAC_2_OFFSET_wstb,
       DAC_3_OFFSET_wstb   => DAC_3_OFFSET_wstb,
       DAC_4_OFFSET_wstb   => DAC_4_OFFSET_wstb,
-      -- Pattern Generator Register
-      PATGEN_REG          => PATGEN_REG(1 downto 0),
-      PATGEN_REG_wstb     => PATGEN_REG_wstb,
+      -- Pattern Generator
+      PATGEN_ENABLE       => PATGEN_ENABLE(0),
+      PATGEN_RESET        => PATGEN_RESET(0),
+      PATGEN_PERIOD       => PATGEN_PERIOD,
+      PATGEN_PERIOD_wstb  => PATGEN_PERIOD_wstb,
       -- FIFO input selection
-      FIFO_INPUT_REG      => FIFO_INPUT_REG(1 downto 0),
-      FIFO_INPUT_wstb     => FIFO_INPUT_wstb,
+      FIFO_INPUT_SEL      => FIFO_INPUT_SEL(1 downto 0),
       -- Gain/offset calibration parameters
       fmc_gain1           => fmc_gain1(15 downto 0),
       fmc_gain2           => fmc_gain2(15 downto 0),
@@ -538,11 +541,13 @@ port map (
     IDELAY_LOCKED       => idelay_locked_sta,
     SERDES_SYNCED       => serdes_synced_sta,
     -- Pattern Generator
-    PATGEN_REG          => PATGEN_REG,
-    PATGEN_REG_wstb     => PATGEN_REG_wstb,
-    -- FIFO input register
-    FIFO_INPUT          => FIFO_INPUT_REG,
-    FIFO_INPUT_wstb     => FIFO_INPUT_wstb,
+    PATGEN_ENABLE       => PATGEN_ENABLE,
+    PATGEN_RESET        => PATGEN_RESET,
+    PATGEN_PERIOD       => PATGEN_PERIOD,
+    PATGEN_PERIOD_wstb  => PATGEN_PERIOD_wstb,
+    -- FIFO input selection
+    FIFO_INPUT_SEL      => FIFO_INPUT_SEL,
+    FIFO_INPUT_SEL_wstb => open,
     -- Gain Offset Saturation
     GAIN1               => fmc_gain1,
     GAIN2               => fmc_gain2,
