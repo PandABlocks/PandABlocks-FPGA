@@ -37,7 +37,7 @@ port (
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
     -- Outputs to Bit_Bus from FMC
-    EXT_TRIG_o          : out std_logic;
+    EXT_TRIG_o          : out std_logic_vector(0 downto 0);
     -- Outputs to Pos_Bus from FMC
     VAL1_o              : out std32_array(0 downto 0);
     VAL2_o              : out std32_array(0 downto 0);
@@ -423,7 +423,7 @@ cmp_fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
       -- ************************
       -- ** Outputs to Bit_Bus **
       -- ************************
-      EXT_TRIG_o          => EXT_TRIG_o,
+      EXT_TRIG_o          => EXT_TRIG_o(0),
 
       -- ************************
       -- ** Outputs to Pos_Bus **
