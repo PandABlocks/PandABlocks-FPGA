@@ -1,21 +1,21 @@
 --------------------------------------------------------------------------------
---  NAMC - 2021
+--  NAMC-ZYNQ-FMC - 2022
 --      Diamond Light Source, Oxford, UK
 --      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
---  Author      : Arthur Mariano
+--  Description   : Wrapper file of the FMC 14bits 100MSPS 4-channel ADC module
+--
+--  Author        : Thierry Garrel (ELSYS-Design)
+--  Synthesizable : Yes
+--  Language      : VHDL-93
 --------------------------------------------------------------------------------
---
---  Description : Wrapper file of the FMC 14bits 100MSPS 4-channel ADC module
---
+-- Copyright (c) 2022 Synchrotron SOLEIL - L'Orme des Merisiers Saint-Aubin
+-- BP 48 91192 Gif-sur-Yvette Cedex  - https://www.synchrotron-soleil.fr
 --------------------------------------------------------------------------------
 
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
-
-library unisim;
-use unisim.vcomponents.all;
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
 
 library work;
 use work.support.all;
@@ -36,16 +36,17 @@ port (
     -- Bus Inputs
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
-    -- Outputs to PosBus from FMC
-    in_data_ch1_o       : out std32_array(0 downto 0);
-    in_data_ch2_o       : out std32_array(0 downto 0);
-    in_data_ch3_o       : out std32_array(0 downto 0);
-    in_data_ch4_o       : out std32_array(0 downto 0);
-
-    val1_o              : out std32_array(0 downto 0);
-    val2_o              : out std32_array(0 downto 0);
-    val3_o              : out std32_array(0 downto 0);
-    val4_o              : out std32_array(0 downto 0);
+    -- Outputs to Bit_Bus from FMC
+    EXT_TRIG_o          : out std_logic;
+    -- Outputs to Pos_Bus from FMC
+    VAL1_o              : out std32_array(0 downto 0);
+    VAL2_o              : out std32_array(0 downto 0);
+    VAL3_O              : out std32_array(0 downto 0);
+    VAL4_O              : out std32_array(0 downto 0);
+    IN_DATA_CH1_o       : out std32_array(0 downto 0);
+    IN_DATA_CH2_o       : out std32_array(0 downto 0);
+    IN_DATA_CH3_o       : out std32_array(0 downto 0);
+    IN_DATA_CH4_o       : out std32_array(0 downto 0);
 
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
@@ -137,7 +138,7 @@ signal DAC_1_OFFSET_wstb    : std_logic;
 signal DAC_2_OFFSET_wstb    : std_logic;
 signal DAC_3_OFFSET_wstb    : std_logic;
 signal DAC_4_OFFSET_wstb    : std_logic;
-signal DAC_OFFSET_CLR       : std_logic_vector(31 downto 0);
+signal DAC_OFFSET_CLR_N     : std_logic_vector(31 downto 0);
 -- Pattern Generator
 signal PATGEN_ENABLE        : std_logic_vector(31 downto 0);
 signal PATGEN_RESET         : std_logic_vector(31 downto 0);
@@ -164,10 +165,10 @@ signal fmc_sat1             : std_logic_vector(31 downto 0);
 signal fmc_sat2             : std_logic_vector(31 downto 0);
 signal fmc_sat3             : std_logic_vector(31 downto 0);
 signal fmc_sat4             : std_logic_vector(31 downto 0);
-signal fmc_ssr1             : std_logic_vector(31 downto 0);
-signal fmc_ssr2             : std_logic_vector(31 downto 0);
-signal fmc_ssr3             : std_logic_vector(31 downto 0);
-signal fmc_ssr4             : std_logic_vector(31 downto 0);
+signal FMC_SSR1             : std_logic_vector(31 downto 0);
+signal FMC_SSR2             : std_logic_vector(31 downto 0);
+signal FMC_SSR3             : std_logic_vector(31 downto 0);
+signal FMC_SSR4             : std_logic_vector(31 downto 0);
 -- Soft Reset
 signal SOFT_RESET           : std_logic_vector(31 downto 0);
 signal SOFT_RESET_wstb      : std_logic;
@@ -175,7 +176,7 @@ signal SOFT_RESET_wstb      : std_logic;
 -- Control and Status register
 signal fsm_cmd_i            : std_logic_vector(31 downto 0);
 signal fsm_cmd_wstb         : std_logic;
-signal fmc_clk_oe           : std_logic_vector(31 downto 0);
+signal FMC_CLK_OE           : std_logic_vector(31 downto 0);
 signal test_data_en         : std_logic_vector(31 downto 0);
 
 signal fsm_status           : std_logic_vector(31 downto 0);
@@ -208,13 +209,14 @@ signal sample_rate          : std_logic_vector(31 downto 0);
 
 
 -- ADC parallel data out from SERDES in the sys_clk domain (2ff synchronizer)
-signal fmc_val1             : std_logic_vector(15 downto 0);
-signal fmc_val2             : std_logic_vector(15 downto 0);
-signal fmc_val3             : std_logic_vector(15 downto 0);
-signal fmc_val4             : std_logic_vector(15 downto 0);
+signal FMC_VAL1_o           : std_logic_vector(15 downto 0);
+signal FMC_VAL2_o           : std_logic_vector(15 downto 0);
+signal FMC_VAL3_o           : std_logic_vector(15 downto 0);
+signal FMC_VAL4_o           : std_logic_vector(15 downto 0);
+
 -- FMC data output : 4 Channels of ADC Dataout for connection to Position Bus
-signal fmc_dataout          : fmc_dataout_array(1 to 4);
-signal fmc_dataout_valid    : std1_array(1 to 4);
+signal FMC_DATAOUT_o        : fmc_dataout_array(1 to 4);
+--signal fmc_dataout_valid    : std1_array(1 to 4);
 
 
 --signal THERMOMETER_UID      : std_logic_vector(31 downto 0);
@@ -418,77 +420,48 @@ cmp_fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
       SOFT_RESET          => SOFT_RESET(0),
       SOFT_RESET_wstb     => SOFT_RESET_wstb,
 
+      -- ************************
+      -- ** Outputs to Bit_Bus **
+      -- ************************
+      EXT_TRIG_o          => EXT_TRIG_o,
 
-      -- Control and Status Register
-      fsm_cmd_i           => fsm_cmd_i(1 downto 0),
-      fsm_cmd_wstb        => fsm_cmd_wstb,
-      --fmc_clk_oe          => fmc_clk_oe(0),
-      --offset_dac_clr      => offset_dac_clr(0),
-      test_data_en        => test_data_en(0),
-      fsm_status          => fsm_status(2 downto 0),
-      fs_freq             => fs_freq,
-      acq_cfg_sta         => acq_cfg_sta(0),
-      pre_trig            => pre_trig,
-      pos_trig            => pos_trig,
-      shots_nb            => shots_nb(15 downto 0),
-      sw_trig             => sw_trig,
-      sw_trig_en          => sw_trig_en(0),
-      trig_delay          => trig_delay,
-      hw_trig_sel         => hw_trig_sel(0),
-      hw_trig_pol         => hw_trig_pol(0),
-      hw_trig_en          => hw_trig_en(0),
-      int_trig_sel        => int_trig_sel(1 downto 0),
-      int_trig_test       => int_trig_test(0),
-      int_trig_thres_filt => int_trig_thres_filt(7 downto 0),
-      int_trig_thres      => int_trig_thres(15 downto 0),
-      single_shot         => single_shot(0),
-      shots_cnt           => shots_cnt(15 downto 0),
-      fmc_fifo_empty      => fmc_fifo_empty(0),
-      samples_cnt         => samples_cnt,
-      fifo_wr_cnt         => fifo_wr_cnt,
-      wait_cnt            => wait_cnt,
-      pre_trig_cnt        => pre_trig_cnt,
-      sample_rate         => sample_rate,
+      -- ************************
+      -- ** Outputs to Pos_Bus **
+      -- ************************
 
-    -- ***********************************************************
-    -- ADC parallel data out from SERDES in the sys_clk domain ***
-    -- ***********************************************************
-      fmc_val1_o          => fmc_val1,  -- (15 downto 0),
-      fmc_val2_o          => fmc_val2,  -- (15 downto 0),
-      fmc_val3_o          => fmc_val3,  -- (15 downto 0),
-      fmc_val4_o          => fmc_val4,  -- (15 downto 0)
+      -- 4ch SerDES output (in the sys_clk clock domain)
+      FMC_VAL1_o          => FMC_VAL1_o,  -- (15 downto 0),
+      FMC_VAL2_o          => FMC_VAL2_o,  -- (15 downto 0),
+      FMC_VAL3_o          => FMC_VAL3_o,  -- (15 downto 0),
+      FMC_VAL4_o          => FMC_VAL4_o,  -- (15 downto 0)
 
-      -- *****************************************
-      -- FMC data output (sys_clk domain) to PCAP
-      -- *****************************************
-    -- 4 Channels of ADC Dataout for connection to Position Bus
-      fmc_dataout_o         => fmc_dataout,           -- out fmc_dataout_array(1 to 4);
-      fmc_dataout_valid_o   => fmc_dataout_valid      -- out  std1_array(1 to 4);
-
+      -- 4ch FIFO output (sys_clk clock domain)
+      FMC_DATAOUT_o       => FMC_DATAOUT_o,           -- out fmc_dataout_array(1 to 4);
+      FMC_DATAOUT_valid_o => open
 
     ); -- fmc_adc_mezzanine
 
 
 -- Analog Front-End
-gpio_ssr_ch1_o   <= fmc_ssr1(6 downto 0);
-gpio_ssr_ch2_o   <= fmc_ssr2(6 downto 0);
-gpio_ssr_ch3_o   <= fmc_ssr3(6 downto 0);
-gpio_ssr_ch4_o   <= fmc_ssr4(6 downto 0);
+gpio_ssr_ch1_o   <= FMC_SSR1(6 downto 0);
+gpio_ssr_ch2_o   <= FMC_SSR2(6 downto 0);
+gpio_ssr_ch3_o   <= FMC_SSR3(6 downto 0);
+gpio_ssr_ch4_o   <= FMC_SSR4(6 downto 0);
 --
-gpio_si570_oe_o  <= fmc_clk_oe(0);          -- Si570 programmable oscillator output enable (active high)
-gpio_dac_clr_n_o <= not DAC_OFFSET_CLR(0);  -- asynchronously clear DAC outputs to code 32768 (active low)
+gpio_si570_oe_o  <= FMC_CLK_OE(0);          -- Si570 programmable oscillator output enable (active high)
+gpio_dac_clr_n_o <= DAC_OFFSET_CLR_N(0);    -- asynchronously clear DAC outputs to code 32768 (active low)
 
 
-val1_o(0) <= ZEROS(16) & fmc_val1; -- (15 downto 0);
-val2_o(0) <= ZEROS(16) & fmc_val2; -- (15 downto 0);
-val3_o(0) <= ZEROS(16) & fmc_val3; -- (15 downto 0);
-val4_o(0) <= ZEROS(16) & fmc_val4; -- (15 downto 0);
+-- Outputs to Pos_Bus from FMC
+VAL1_o(0) <= ZEROS(16) & FMC_VAL1_o;
+VAL2_o(0) <= ZEROS(16) & FMC_VAL2_o;
+VAL3_o(0) <= ZEROS(16) & FMC_VAL3_o;
+VAL4_o(0) <= ZEROS(16) & FMC_VAL4_o;
 
-
-in_data_ch1_o(0) <= ZEROS(16) & fmc_dataout(1);
-in_data_ch2_o(0) <= ZEROS(16) & fmc_dataout(2);
-in_data_ch3_o(0) <= ZEROS(16) & fmc_dataout(3);
-in_data_ch4_o(0) <= ZEROS(16) & fmc_dataout(4);
+IN_DATA_CH1_O(0) <= ZEROS(16) & FMC_DATAOUT_o(1);
+IN_DATA_CH2_O(0) <= ZEROS(16) & FMC_DATAOUT_o(2);
+IN_DATA_CH3_O(0) <= ZEROS(16) & FMC_DATAOUT_o(3);
+IN_DATA_CH4_O(0) <= ZEROS(16) & FMC_DATAOUT_o(4);
 
 --------------------------------------------------------
 -- fmc_adc100m_ctrl instanciation
@@ -496,102 +469,80 @@ in_data_ch4_o(0) <= ZEROS(16) & fmc_dataout(4);
 cmp_fmc_adc100m_ctrl : entity work.fmc_adc100m_ctrl
 port map (
     -- Clock and Reset
-    clk_i               => sys_clk_125,
-    reset_i             => sys_reset,
-    bit_bus_i           => bit_bus_i,
-    pos_bus_i           => pos_bus_i,
+    clk_i                 => sys_clk_125,           --  in
+    reset_i               => sys_reset,             --  in
+    bit_bus_i             => bit_bus_i,             --  in  bit_bus_t
+    pos_bus_i             => pos_bus_i,             --  in  pos_bus_t
     -- Block Parameters
     -- Analog Front-End
-    SSR1                => fmc_ssr1,
-    SSR2                => fmc_ssr2,
-    SSR3                => fmc_ssr3,
-    SSR4                => fmc_ssr4,
-    -- Programmable Osc Si570
-    OSC_ENABLE          => fmc_clk_oe,
-    OSC_ENABLE_wstb     => open,
+    SSR1                  => FMC_SSR1,              -- out (31:0)
+    SSR1_wstb             => open,                  -- out
+    SSR2                  => FMC_SSR2,              -- out (31:0)
+    SSR2_wstb             => open,                  -- out
+    SSR3                  => FMC_SSR3,              -- out (31:0)
+    SSR3_wstb             => open,                  -- out
+    SSR4                  => FMC_SSR4,              -- out (31:0)
+    SSR4_wstb             => open,                  -- out
+    -- Programmable Osc   Si570
+    OSC_ENABLE            => FMC_CLK_OE,            -- out (31:0)
+    OSC_ENABLE_wstb       => open,                  -- out
     -- LTC2174 registers
-    ADC_RESET           => open,
-    ADC_RESET_wstb      => ADC_RESET_wstb,
-    ADC_TWOSCOMP        => ADC_TWOSCOMP,
-    ADC_TWOSCOMP_wstb   => ADC_TWOSCOMP_wstb,
-    ADC_MODE            => open,
-    ADC_MODE_wstb       => ADC_MODE_wstb,
-    ADC_TEST_MSB        => ADC_TEST_MSB,
-    ADC_TEST_MSB_wstb   => ADC_TEST_MSB_wstb,
-    ADC_TEST_LSB        => ADC_TEST_LSB,
-    ADC_TEST_LSB_wstb   => ADC_TEST_LSB_wstb,
-    ADC_SPI_READ        => ADC_SPI_READ,
-    ADC_SPI_READ_wstb   => ADC_SPI_READ_wstb,
-    ADC_SPI_READ_VALUE  => ADC_SPI_READ_VALUE,
+    ADC_RESET             => open,                  -- out (31:0)
+    ADC_RESET_wstb        => ADC_RESET_wstb,        -- out
+    ADC_TWOSCOMP          => ADC_TWOSCOMP,          -- out (31:0)
+    ADC_TWOSCOMP_wstb     => ADC_TWOSCOMP_wstb,     -- out
+    ADC_MODE              => open,                  -- out (31:0)
+    ADC_MODE_wstb         => ADC_MODE_wstb,         -- out
+    ADC_TEST_MSB          => ADC_TEST_MSB,          -- out (31:0)
+    ADC_TEST_MSB_wstb     => ADC_TEST_MSB_wstb,     -- out
+    ADC_TEST_LSB          => ADC_TEST_LSB,          -- out (31:0)
+    ADC_TEST_LSB_wstb     => ADC_TEST_LSB_wstb,     -- out
+    ADC_SPI_READ          => ADC_SPI_READ,          -- out (31:0)
+    ADC_SPI_READ_wstb     => ADC_SPI_READ_wstb,     -- out
+    ADC_SPI_READ_VALUE    => ADC_SPI_READ_VALUE,    -- in (31:0)
     -- DAC registers MAX5442 (x4)
-    DAC_1_OFFSET        => DAC_1_OFFSET,
-    DAC_1_OFFSET_wstb   => DAC_1_OFFSET_wstb,
-    DAC_2_OFFSET        => DAC_2_OFFSET,
-    DAC_2_OFFSET_wstb   => DAC_2_OFFSET_wstb,
-    DAC_3_OFFSET        => DAC_3_OFFSET,
-    DAC_3_OFFSET_wstb   => DAC_3_OFFSET_wstb,
-    DAC_4_OFFSET        => DAC_4_OFFSET,
-    DAC_4_OFFSET_wstb   => DAC_4_OFFSET_wstb,
-    DAC_OFFSET_CLR      => DAC_OFFSET_CLR,
-    DAC_OFFSET_CLR_wstb => open,
+    DAC_1_OFFSET          => DAC_1_OFFSET,          -- out (31:0)
+    DAC_1_OFFSET_wstb     => DAC_1_OFFSET_wstb,     -- out
+    DAC_2_OFFSET          => DAC_2_OFFSET,          -- out (31:0)
+    DAC_2_OFFSET_wstb     => DAC_2_OFFSET_wstb,     -- out
+    DAC_3_OFFSET          => DAC_3_OFFSET,          -- out (31:0)
+    DAC_3_OFFSET_wstb     => DAC_3_OFFSET_wstb,     -- out
+    DAC_4_OFFSET          => DAC_4_OFFSET,          -- out (31:0)
+    DAC_4_OFFSET_wstb     => DAC_4_OFFSET_wstb,     -- out
+    DAC_OFFSET_CLR_N      => DAC_OFFSET_CLR_N,      -- out (31:0)
+    DAC_OFFSET_CLR_N_wstb => open,                  -- out
     -- SERDES Control and Status
-    SERDES_RESET        => SERDES_RESET,
-    SERDES_RESET_wstb   => open,
-    REFCLK_LOCKED       => refclk_locked_sta,
-    IDELAY_LOCKED       => idelay_locked_sta,
-    SERDES_SYNCED       => serdes_synced_sta,
+    SERDES_RESET          => SERDES_RESET,          -- out (31:0)
+    SERDES_RESET_wstb     => open,                  -- out
+    REFCLK_LOCKED         => refclk_locked_sta,     -- in (31:0)
+    IDELAY_LOCKED         => idelay_locked_sta,     -- in (31:0)
+    SERDES_SYNCED         => serdes_synced_sta,     -- in (31:0)
     -- Pattern Generator
-    PATGEN_ENABLE       => PATGEN_ENABLE,
-    PATGEN_RESET        => PATGEN_RESET,
-    PATGEN_PERIOD       => PATGEN_PERIOD,
-    PATGEN_PERIOD_wstb  => PATGEN_PERIOD_wstb,
+    PATGEN_ENABLE         => PATGEN_ENABLE,         -- out (31:0)
+    PATGEN_ENABLE_wstb    => open,                  -- out    :
+    PATGEN_RESET          => PATGEN_RESET,          -- out (31:0)
+    PATGEN_RESET_wstb     => open,                  -- out    :
+    PATGEN_PERIOD         => PATGEN_PERIOD,         -- out (31:0)
+    PATGEN_PERIOD_wstb    => PATGEN_PERIOD_wstb,    -- out
     -- FIFO input selection
-    FIFO_INPUT_SEL      => FIFO_INPUT_SEL,
-    FIFO_INPUT_SEL_wstb => open,
+    FIFO_INPUT_SEL      => FIFO_INPUT_SEL,          -- out (31:0)
+    FIFO_INPUT_SEL_wstb => open,                    -- out
     -- Gain Offset Saturation
-    GAIN1               => fmc_gain1,
-    GAIN2               => fmc_gain2,
-    GAIN3               => fmc_gain3,
-    GAIN4               => fmc_gain4,
-    OFFSET1             => fmc_offset1,
-    OFFSET2             => fmc_offset2,
-    OFFSET3             => fmc_offset3,
-    OFFSET4             => fmc_offset4,
-    SAT1                => fmc_sat1,
-    SAT2                => fmc_sat2,
-    SAT3                => fmc_sat3,
-    SAT4                => fmc_sat4,
-    -- Acquisition Control
-    FSM_CMD             => fsm_cmd_i,
-    FSM_CMD_WSTB        => fsm_cmd_wstb,
-    SHOTS_NB            => shots_nb,
-    PRE_TRIG            => pre_trig,
-    POS_TRIG            => pos_trig,
-    TRIG_DELAY          => trig_delay,
-    INT_TRIG_SEL        => int_trig_sel,
-    INT_TRIG_TEST       => int_trig_test,
-    INT_TRIG_THRES_FILT => int_trig_thres_filt,
-    INT_TRIG_THRES      => int_trig_thres,
-    HW_TRIG_EN          => hw_trig_en,
-    HW_TRIG_SEL         => hw_trig_sel,
-    HW_TRIG_POL         => hw_trig_pol,
-    SW_TRIG_from_bus    => sw_trig,
-    SW_TRIG_EN          => sw_trig_en,
-    -- Status
-    FSM_STATUS          => fsm_status,
-    ACQ_FREQ            => fs_freq,
-    SAMPLE_RATE         => sample_rate,
-    ACQ_CFG_STA         => acq_cfg_sta,
-    SINGLE_SHOT         => single_shot,
-    FIFO_EMPTY          => fmc_fifo_empty,
-    SHOTS_CNT           => shots_cnt,
-    SAMPLES_CNT         => samples_cnt,
-    PRE_TRIG_CNT        => pre_trig_cnt,
-    FIFO_WR_CNT         => fifo_wr_cnt,
-    WAIT_CNT            => wait_cnt,
+    GAIN1               => fmc_gain1,               -- out (31:0)
+    GAIN2               => fmc_gain2,               -- out (31:0)
+    GAIN3               => fmc_gain3,               -- out (31:0)
+    GAIN4               => fmc_gain4,               -- out (31:0)
+    OFFSET1             => fmc_offset1,             -- out (31:0)
+    OFFSET2             => fmc_offset2,             -- out (31:0)
+    OFFSET3             => fmc_offset3,             -- out (31:0)
+    OFFSET4             => fmc_offset4,             -- out (31:0)
+    SAT1                => fmc_sat1,                -- out (31:0)
+    SAT2                => fmc_sat2,                -- out (31:0)
+    SAT3                => fmc_sat3,                -- out (31:0)
+    SAT4                => fmc_sat4,                -- out (31:0)
     -- Soft Reset
-    SOFT_RESET          => SOFT_RESET,
-    SOFT_RESET_wstb     => SOFT_RESET_wstb,
+    SOFT_RESET          => SOFT_RESET,              -- out (31:0)
+    SOFT_RESET_wstb     => SOFT_RESET_wstb,         -- out
     -- Memory Bus Interface
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
@@ -603,6 +554,8 @@ port map (
     write_data_i        => write_data_i,
     write_ack_o         => open
 );
+
+
 
 end rtl;
 -- End of code

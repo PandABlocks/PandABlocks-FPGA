@@ -71,12 +71,14 @@ entity fmc_adc100m_core is
     sys_clk_i           : in  std_logic;
     sys_reset_i         : in  std_logic;
 
-    -- FIFO status
 
-    -- FMC data output (sys_clk domain)
+    -- ************************
+    -- ** Outputs to Pos_Bus **
+    -- ************************
+
     -- 4 Channels of ADC Dataout for connection to Position Bus
-    fmc_dataout_o       : out fmc_dataout_array(1 to 4);
-    fmc_dataout_valid_o : out std1_array(1 to 4)
+    FMC_DATAOUT_o       : out fmc_dataout_array(1 to 4);
+    FMC_DATAOUT_valid_o : out std1_array(1 to 4)
 
 );
 end fmc_adc100m_core;
@@ -110,10 +112,9 @@ architecture rtl of fmc_adc100m_core is
   signal fmc_fifo_rd_valid    : std1_array(1 to 4);
 
 
-  -- Attributes for ILA
-
 -- Begin of code
 begin
+
 
   ------------------------------------------------------
   -- pattern generator instanciation (adc_clk domain)
@@ -223,20 +224,15 @@ begin
         if rising_edge(sys_clk_i) then
           -- FIFO read latency = 1 clk
           fmc_fifo_rd_valid(i) <= fmc_fifo_rd_en(i);
-          -- FIFO read control
---++      if fmc_fifo_rd_count(i) >= x"01" and fmc_fifo_empty(i) = '0' then
---++          fmc_fifo_rd_en(i) <= '1';
---++      else
---++          fmc_fifo_rd_en(i) <= '0';
---++      end if;
       end if;
     end process p_fifo_read;
 
   end generate gen_fmc_adc_ch_fifo;
 
-  -- assign outputs
-  fmc_dataout_o        <= fmc_fifo_dout;
-  fmc_dataout_valid_o  <= fmc_fifo_rd_valid;
+
+  -- assign outputs to Pos_Bus
+  FMC_DATAOUT_o        <= fmc_fifo_dout;
+  FMC_DATAOUT_valid_o  <= fmc_fifo_rd_valid;
 
 
 end rtl;

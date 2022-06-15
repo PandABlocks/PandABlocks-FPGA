@@ -1,20 +1,27 @@
 --------------------------------------------------------------------------------
---  PandA Motion Project - 2022
+--  NAMC-ZYNQ-FMC - 2022
 --      Diamond Light Source, Oxford, UK
 --      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
--- Unit name  : fmc_adc_mezzanine (fmc_adc_mezzanine.vhd)
+--  Unit name     : fmc_adc_mezzanine (fmc_adc_mezzanine.vhd)
+--  Description   : The FMC ADC mezzanine is a wrapper around the fmc-adc_100m_core
+--                  and other interfaces connected to a FMC ADC mezzanine.
 --
--- Author     : Thierry GARREL (ELSYS-Design)
---
--- description: The FMC ADC mezzanine is wrapper around the fmc-adc-100ms core
---              and the other wishbone slaves connected to a FMC ADC mezzanine.
---
+--  Author        : Thierry Garrel (ELSYS-Design)
+--  Synthesizable : Yes
+--  Language      : VHDL-93
+--------------------------------------------------------------------------------
+-- Copyright (c) 2022 Synchrotron SOLEIL - L'Orme des Merisiers Saint-Aubin
+-- BP 48 91192 Gif-sur-Yvette Cedex  - https://www.synchrotron-soleil.fr
 --------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
+
+library UNISIM;
+use UNISIM.vcomponents.all;
+
 
 library work;
 use work.fmc_adc_types.all;
@@ -49,10 +56,10 @@ entity fmc_adc_mezzanine is
     adc_outb_n_i        : in  std_logic_vector(3 downto 0);
 
 
-    --gpio_dac_clr_n_o    : out std_logic;                     -- offset DACs clear (active low)
+    --gpio_dac_clr_n_o  : out std_logic;                     -- offset DACs clear (active low)
     gpio_led_acq_o      : out std_logic;                     -- Mezzanine front panel power LED (PWR)
     gpio_led_trig_o     : out std_logic;                     -- Mezzanine front panel trigger LED (TRIG)
-    --gpio_si570_oe_o     : out std_logic;                     -- Si570 (programmable oscillator) output enable
+    --gpio_si570_oe_o   : out std_logic;                     -- Si570 (programmable oscillator) output enable
 
     -- Mezzanine SPI
     spi_din_i           : in  std_logic;    -- SPI data from FMC
@@ -70,8 +77,8 @@ entity fmc_adc_mezzanine is
     -- Mezzanine 1-wire (DS18B20)
     mezz_one_wire_b     : inout std_logic;      -- Mezzanine 1-wire interface (DS18B20 thermometer + unique ID)
     -- Mezzanine system I2C (EEPROM)
-    --sys_scl_b           : inout std_logic;    -- Mezzanine system I2C clock (EEPROM)
-    --sys_sda_b           : inout std_logic;    -- Mezzanine system I2C data (EEPROM)
+    --sys_scl_b         : inout std_logic;    -- Mezzanine system I2C clock (EEPROM)
+    --sys_sda_b         : inout std_logic;    -- Mezzanine system I2C data (EEPROM)
 
     -- External trigger
     ext_trigger_p_i     : in  std_logic;
@@ -95,7 +102,7 @@ entity fmc_adc_mezzanine is
     ADC_SPI_READ        : in  std_logic_vector(2 downto 0);
     ADC_SPI_READ_wstb   : in  std_logic;
     ADC_SPI_READ_VALUE  : out std_logic_vector(31 downto 0);
-    -- DAC registers (MAX5442 x4)
+    -- DAC registers (MA  X5442 x4)
     DAC_1_OFFSET        : in  std_logic_vector(31 downto 0);
     DAC_2_OFFSET        : in  std_logic_vector(31 downto 0);
     DAC_3_OFFSET        : in  std_logic_vector(31 downto 0);
@@ -134,58 +141,26 @@ entity fmc_adc_mezzanine is
     SOFT_RESET          : in  std_logic;
     SOFT_RESET_wstb     : in  std_logic;
 
+    -- ************************
+    -- ** Outputs to Bit_Bus **
+    -- ************************
+    EXT_TRIG_o          : out std_logic;
 
-    -- Control and Status Register
-    fsm_cmd_i           : in  std_logic_vector(1 downto 0);
-    fsm_cmd_wstb        : in  std_logic;
-    --fmc_clk_oe          : in  std_logic;
-    --offset_dac_clr      : in  std_logic;
-    test_data_en        : in  std_logic;
-    --man_bitslip         : in  std_logic;
-    pre_trig            : in  std_logic_vector(31 downto 0);
-    pos_trig            : in  std_logic_vector(31 downto 0);
-    shots_nb            : in  std_logic_vector(15 downto 0);
-    sw_trig             : in  std_logic;
-    sw_trig_en          : in  std_logic;
-    trig_delay          : in  std_logic_vector(31 downto 0);
-    hw_trig_sel         : in  std_logic;
-    hw_trig_pol         : in  std_logic;
-    hw_trig_en          : in  std_logic;
-    int_trig_sel        : in  std_logic_vector(1  downto 0);
-    int_trig_test       : in  std_logic;
-    int_trig_thres_filt : in  std_logic_vector(7  downto 0);
-    int_trig_thres      : in  std_logic_vector(15 downto 0);
-    sample_rate         : in  std_logic_vector(31 downto 0);
-    --
-    fsm_status          : out std_logic_vector(2  downto 0);
-    serdes_pll_sta      : out std_logic;
-    fs_freq             : out std_logic_vector(31 downto 0);
-    acq_cfg_sta         : out std_logic;
-    single_shot         : out std_logic;
-    shots_cnt           : out std_logic_vector(15 downto 0);
-    fmc_fifo_empty      : out std_logic;
-    samples_cnt         : out std_logic_vector(31 downto 0);
-    fifo_wr_cnt         : out std_logic_vector(31 downto 0);
-    wait_cnt            : out std_logic_vector(31 downto 0);
-    pre_trig_cnt        : out std_logic_vector(31 downto 0);
+    -- ************************
+    -- ** Outputs to Pos_Bus **
+    -- ************************
 
-    -- ***********************************************************
-    -- ADC parallel data out from SERDES in the sys_clk domain ***
-    -- ***********************************************************
-    fmc_val1_o          : out std_logic_vector(15 downto 0);
-    fmc_val2_o          : out std_logic_vector(15 downto 0);
-    fmc_val3_o          : out std_logic_vector(15 downto 0);
-    fmc_val4_o          : out std_logic_vector(15 downto 0);
+    -- 4ch SERDES output (in the sys_clk clock domain)
+    FMC_VAL1_o          : out std_logic_vector(15 downto 0);
+    FMC_VAL2_o          : out std_logic_vector(15 downto 0);
+    FMC_VAL3_o          : out std_logic_vector(15 downto 0);
+    FMC_VAL4_o          : out std_logic_vector(15 downto 0);
 
+    -- 4ch FIFO output (sys_clk clock domain)
+    FMC_DATAOUT_o       : out fmc_dataout_array(1 to 4);
+    FMC_DATAOUT_valid_o : out std1_array(1 to 4)
 
-    -- *****************************************
-    -- FMC data output (sys_clk domain) to PCAP
-    -- *****************************************
-    -- 4 Channels of ADC Dataout for connection to Position Bus
-    fmc_dataout_o       : out fmc_dataout_array(1 to 4);
-    fmc_dataout_valid_o : out std1_array(1 to 4)
-
-    );
+  );
 end fmc_adc_mezzanine;
 
 
@@ -205,18 +180,18 @@ architecture rtl of fmc_adc_mezzanine is
   -- Constants declaration
   ------------------------------------------------------------------------------
   -- System Clock period (is ns)
-  constant SYS_PERIOD       : natural := 8; -- 125 MHz (8 ns)
+  constant SYS_PERIOD           : natural := 8; -- 125 MHz (8 ns)
   -- SPI clock and dead periods (in ns)
-  constant SPI_CLK_PERIOD   : natural := 1008; -- [ns] : 1   us           126 ->  63 -> 1.008 us
-  constant SPI_DEAD_PERIOD  : natural := 2000; -- [ns] : 2.0 us           250 -> 125 -> 2.000 us
+  constant SPI_CLK_PERIOD       : natural := 1008; -- [ns] : 1   us           126 ->  63 -> 1.008 us
+  constant SPI_DEAD_PERIOD      : natural := 2000; -- [ns] : 2.0 us           250 -> 125 -> 2.000 us
 
   -- SPI ADC registers addresses (A6 downto A0)
-  subtype spi_adc_adr_t is  std_logic_vector(6 downto 0);
-  constant C_ADC_REG_A0_ADR  : spi_adc_adr_t := "0000000";
-  constant C_ADC_REG_A1_ADR  : spi_adc_adr_t := "0000001";
-  constant C_ADC_REG_A2_ADR  : spi_adc_adr_t := "0000010";
-  constant C_ADC_REG_A3_ADR  : spi_adc_adr_t := "0000011";
-  constant C_ADC_REG_A4_ADR  : spi_adc_adr_t := "0000100";
+  subtype spi_adc_adr_t is std_logic_vector(6 downto 0);
+  constant C_ADC_REG_A0_ADR     : spi_adc_adr_t := "0000000";
+  constant C_ADC_REG_A1_ADR     : spi_adc_adr_t := "0000001";
+  constant C_ADC_REG_A2_ADR     : spi_adc_adr_t := "0000010";
+  constant C_ADC_REG_A3_ADR     : spi_adc_adr_t := "0000011";
+  constant C_ADC_REG_A4_ADR     : spi_adc_adr_t := "0000100";
 
   -- register SPI commands
    -- 1 to 5   : write ADC A0 to A4 registers
@@ -245,89 +220,98 @@ architecture rtl of fmc_adc_mezzanine is
   ------------------------------------------------------------------------------
   -- Signals declaration
   ------------------------------------------------------------------------------
-  signal sys_reset_n_i  : std_logic; -- not(sys_reset_i)
+  signal sys_reset_n_i            : std_logic; -- not(sys_reset_i)
+
+  signal ext_trig_in              : std_logic; -- external trigger input from IBUF
+  signal ext_trig_meta            : std_logic;
+  signal ext_trig_sync            : std_logic;
+
+  -- Attributes for synchronisation chains
+  attribute async_reg of ext_trig_meta    : signal is "true";
+  attribute async_reg of ext_trig_sync    : signal is "true";
+
+  attribute keep of ext_trig_meta         : signal is "true";
+  attribute keep of ext_trig_sync         : signal is "true";
+
 
   -- Mezzanine SPI
-  signal wr_req         : std_logic;
-  signal wr_dat         : std_logic_vector(15 downto 0);
-  signal wr_adr         : std_logic_vector( 6 downto 0);
-  signal rd_req         : std_logic;
-  signal rd_adr         : std_logic_vector(6 downto 0);
-  signal rd_data        : std_logic_vector(7 downto 0);
-  signal rd_valid       : std_logic;
-  signal spi_cmd        : spi_cmd_t; --register spi commands
-  signal busy_ltc       : std_logic;
-  signal busy_max       : std_logic;
-  signal spi_dout_ltc   : std_logic;
-  signal spi_dout_max   : std_logic;
-  signal spi_sck_ltc    : std_logic;
-  signal spi_sck_max    : std_logic;
+  signal wr_req                   : std_logic;
+  signal wr_dat                   : std_logic_vector(15 downto 0);
+  signal wr_adr                   : std_logic_vector( 6 downto 0);
+  signal rd_req                   : std_logic;
+  signal rd_adr                   : std_logic_vector(6 downto 0);
+  signal rd_data                  : std_logic_vector(7 downto 0);
+  signal rd_valid                 : std_logic;
+  signal spi_cmd                  : spi_cmd_t; --register spi commands
+  signal busy_ltc                 : std_logic;
+  signal busy_max                 : std_logic;
+  signal spi_dout_ltc             : std_logic;
+  signal spi_dout_max             : std_logic;
+  signal spi_sck_ltc              : std_logic;
+  signal spi_sck_max              : std_logic;
   -- debug to read outputs
-  signal spi_dout       : std_logic;    -- SPI data to FMC
-  signal spi_sck        : std_logic;    -- SPI clock
-  signal spi_cs_adc_n   : std_logic;    -- SPI ADC  chip select (active low)
-  signal spi_cs_dac1_n  : std_logic;    -- SPI DAC1 chip select (active low)
-  signal spi_cs_dac2_n  : std_logic;    -- SPI DAC2 chip select (active low)
-  signal spi_cs_dac3_n  : std_logic;    -- SPI DAC3 chip select (active low)
-  signal spi_cs_dac4_n  : std_logic;    -- SPI DAC4 chip select (active low)
+  signal spi_dout                 : std_logic;    -- SPI data to FMC
+  signal spi_sck                  : std_logic;    -- SPI clock
+  signal spi_cs_adc_n             : std_logic;    -- SPI ADC  chip select (active low)
+  signal spi_cs_dac1_n            : std_logic;    -- SPI DAC1 chip select (active low)
+  signal spi_cs_dac2_n            : std_logic;    -- SPI DAC2 chip select (active low)
+  signal spi_cs_dac3_n            : std_logic;    -- SPI DAC3 chip select (active low)
+  signal spi_cs_dac4_n            : std_logic;    -- SPI DAC4 chip select (active low)
 
   -- spi debug signals +++
-  signal spi_shift_counter    : std_logic_vector(3 downto 0);
-  signal spi_shift_enable     : std_logic;
+  signal spi_shift_counter        : std_logic_vector(3 downto 0);
+  signal spi_shift_enable         : std_logic;
 
   -- Mezzanine I2C for Si570
-  signal si570_scl_in   : std_logic;
-  signal si570_scl_out  : std_logic;
-  signal si570_scl_oe_n : std_logic;
-  signal si570_sda_in   : std_logic;
-  signal si570_sda_out  : std_logic;
-  signal si570_sda_oe_n : std_logic;
+  signal si570_scl_in             : std_logic;
+  signal si570_scl_out            : std_logic;
+  signal si570_scl_oe_n           : std_logic;
+  signal si570_sda_in             : std_logic;
+  signal si570_sda_out            : std_logic;
+  signal si570_sda_oe_n           : std_logic;
 
   -- Mezzanine system I2C for EEPROM
-  --signal sys_scl_in     : std_logic;
-  --signal sys_scl_out    : std_logic;
-  --signal sys_scl_oe_n   : std_logic;
-  --signal sys_sda_in     : std_logic;
-  --signal sys_sda_out    : std_logic;
-  --signal sys_sda_oe_n   : std_logic;
+  --signal sys_scl_in             : std_logic;
+  --signal sys_scl_out            : std_logic;
+  --signal sys_scl_oe_n           : std_logic;
+  --signal sys_sda_in             : std_logic;
+  --signal sys_sda_out            : std_logic;
+  --signal sys_sda_oe_n           : std_logic;
 
   -- Mezzanine 1-wire
-  --signal mezz_owr_en : std_logic_vector(0 downto 0);
-  --signal mezz_owr_i  : std_logic_vector(0 downto 0);
+  --signal mezz_owr_en            : std_logic_vector(0 downto 0);
+  --signal mezz_owr_i             : std_logic_vector(0 downto 0);
 
-  -- Refclk 200 mhz
-
-  --signal spi_ss_t       : std_logic_vector(7 downto 0);
-
+  --signal spi_ss_t               : std_logic_vector(7 downto 0);
 
   -- REFCLK clock generator
-  signal refclk_200m          : std_logic;    -- REFCLK input of IDELAYCTRL (must be 200 Mhz).
-  signal refclk_reset         : std_logic;    -- Min 50 ns
-  signal refclk_locked        : std_logic;
+  signal refclk_200m              : std_logic;    -- REFCLK input of IDELAYCTRL (must be 200 Mhz).
+  signal refclk_reset             : std_logic;    -- Min 50 ns
+  signal refclk_locked            : std_logic;
 
   -- IDELAYCTRL is needed for calibration
   -- When IDELAYCTRL REFCLK is 200 MHz, IDELAY delay chain consist of 64 taps of 78 ps
-  signal idelay_refclock_i    : std_logic;    -- REFCLK input of IDELAYCTRL (must be 200 Mhz).
-  signal idelay_rst_i         : std_logic;    -- RST input of IDELAYCTRL. Minimum pulse width 52.0 ns
-  signal idelay_locked        : std_logic;    -- indicate that IDELAYE2 modules are calibrated
+  signal idelay_refclock_i        : std_logic;    -- REFCLK input of IDELAYCTRL (must be 200 Mhz).
+  signal idelay_rst_i             : std_logic;    -- RST input of IDELAYCTRL. Minimum pulse width 52.0 ns
+  signal idelay_locked            : std_logic;    -- indicate that IDELAYE2 modules are calibrated
 
   -- SERDES status
-  signal serdes_bslip_i       : std_logic := '0';
-  signal serdes_synced        : std_logic; -- Indication that SERDES is ok and locked to frame start pattern
+  signal serdes_bslip_i           : std_logic := '0';
+  signal serdes_synced            : std_logic; -- Indication that SERDES is ok and locked to frame start pattern
 
 
   -- ADC parallel data out
   --  (15:0)  = CH1, (31:16) = CH2, (47:32) = CH3, (63:48) = CH4
   --  The two LSBs of each channel are always '0'
-  signal adc_ch1_o            : std_logic_vector(15 downto 0);
-  signal adc_ch2_o            : std_logic_vector(15 downto 0);
-  signal adc_ch3_o            : std_logic_vector(15 downto 0);
-  signal adc_ch4_o            : std_logic_vector(15 downto 0);
+  signal adc_ch1_o                : std_logic_vector(15 downto 0);
+  signal adc_ch2_o                : std_logic_vector(15 downto 0);
+  signal adc_ch3_o                : std_logic_vector(15 downto 0);
+  signal adc_ch4_o                : std_logic_vector(15 downto 0);
   -- all channels as an array
-  signal adc_data_ch          : std16_array(1 to 4);
+  signal adc_data_ch              : std16_array(1 to 4);
 
   -- ADC divided clock, for FPGA logic
-  signal adc_clk              : std_logic;
+  signal adc_clk                  : std_logic;
 
   -- Synchronization chains (from sys_clk to adc_clk)
   signal adc_reset_meta           : std_logic;
@@ -346,35 +330,29 @@ architecture rtl of fmc_adc_mezzanine is
   signal FIFO_INPUT_SEL_meta      : std_logic_vector(1 downto 0);
   signal FIFO_INPUT_SEL_sync      : std_logic_vector(1 downto 0);
 
-  signal fmc_gain_meta        : fmc_gain_array(1 to 4);
-  signal fmc_gain_sync        : fmc_gain_array(1 to 4);
-  signal fmc_offset_meta      : fmc_offset_array(1 to 4);
-  signal fmc_offset_sync      : fmc_offset_array(1 to 4);
-  signal fmc_sat_meta         : fmc_sat_array(1 to 4);
-  signal fmc_sat_sync         : fmc_sat_array(1 to 4);
+  signal fmc_gain_meta            : fmc_gain_array(1 to 4);
+  signal fmc_gain_sync            : fmc_gain_array(1 to 4);
+  signal fmc_offset_meta          : fmc_offset_array(1 to 4);
+  signal fmc_offset_sync          : fmc_offset_array(1 to 4);
+  signal fmc_sat_meta             : fmc_sat_array(1 to 4);
+  signal fmc_sat_sync             : fmc_sat_array(1 to 4);
 
   -- Synchronization chains (from adc_clk to sys_clk)
-  signal fmc_val1_meta        : std_logic_vector(15 downto 0);
-  signal fmc_val2_meta        : std_logic_vector(15 downto 0);
-  signal fmc_val3_meta        : std_logic_vector(15 downto 0);
-  signal fmc_val4_meta        : std_logic_vector(15 downto 0);
-  signal fmc_val1_sync        : std_logic_vector(15 downto 0);
-  signal fmc_val2_sync        : std_logic_vector(15 downto 0);
-  signal fmc_val3_sync        : std_logic_vector(15 downto 0);
-  signal fmc_val4_sync        : std_logic_vector(15 downto 0);
+  signal FMC_VAL1_meta            : std_logic_vector(15 downto 0);
+  signal FMC_VAL2_meta            : std_logic_vector(15 downto 0);
+  signal FMC_VAL3_meta            : std_logic_vector(15 downto 0);
+  signal FMC_VAL4_meta            : std_logic_vector(15 downto 0);
+  signal FMC_VAL1_sync            : std_logic_vector(15 downto 0);
+  signal FMC_VAL2_sync            : std_logic_vector(15 downto 0);
+  signal FMC_VAL3_sync            : std_logic_vector(15 downto 0);
+  signal FMC_VAL4_sync            : std_logic_vector(15 downto 0);
 
-  signal refclk_locked_meta   : std_logic;
-  signal refclk_locked_sync   : std_logic;
-  signal idelay_locked_meta   : std_logic;
-  signal idelay_locked_sync   : std_logic;
-  signal serdes_synced_meta   : std_logic;
-  signal serdes_synced_sync   : std_logic;
-
-  -- Time-tagging core
-  signal trigger_p   : std_logic;
-  signal acq_start_p : std_logic;
-  signal acq_stop_p  : std_logic;
-  signal acq_end_p   : std_logic;
+  signal refclk_locked_meta       : std_logic;
+  signal refclk_locked_sync       : std_logic;
+  signal idelay_locked_meta       : std_logic;
+  signal idelay_locked_sync       : std_logic;
+  signal serdes_synced_meta       : std_logic;
+  signal serdes_synced_sync       : std_logic;
 
 
   -- Attributes for synchronisation chains
@@ -405,14 +383,14 @@ architecture rtl of fmc_adc_mezzanine is
   attribute async_reg of fmc_sat_meta         : signal is "true";
   attribute async_reg of fmc_sat_sync         : signal is "true";
 
-  attribute async_reg of fmc_val1_meta        : signal is "true";
-  attribute async_reg of fmc_val2_meta        : signal is "true";
-  attribute async_reg of fmc_val3_meta        : signal is "true";
-  attribute async_reg of fmc_val4_meta        : signal is "true";
-  attribute async_reg of fmc_val1_sync        : signal is "true";
-  attribute async_reg of fmc_val2_sync        : signal is "true";
-  attribute async_reg of fmc_val3_sync        : signal is "true";
-  attribute async_reg of fmc_val4_sync        : signal is "true";
+  attribute async_reg of FMC_VAL1_meta        : signal is "true";
+  attribute async_reg of FMC_VAL2_meta        : signal is "true";
+  attribute async_reg of FMC_VAL3_meta        : signal is "true";
+  attribute async_reg of FMC_VAL4_meta        : signal is "true";
+  attribute async_reg of FMC_VAL1_sync        : signal is "true";
+  attribute async_reg of FMC_VAL2_sync        : signal is "true";
+  attribute async_reg of FMC_VAL3_sync        : signal is "true";
+  attribute async_reg of FMC_VAL4_sync        : signal is "true";
 
 
   -- Attributes for ILA
@@ -869,36 +847,36 @@ begin
     if rising_edge(sys_clk_i) then
         if (sys_reset_i = '1') then
             -- clear the output of the first flip-flop
-            fmc_val1_meta       <= (others=>'0');
-            fmc_val2_meta       <= (others=>'0');
-            fmc_val3_meta       <= (others=>'0');
-            fmc_val4_meta       <= (others=>'0');
+            FMC_VAL1_meta       <= (others=>'0');
+            FMC_VAL2_meta       <= (others=>'0');
+            FMC_VAL3_meta       <= (others=>'0');
+            FMC_VAL4_meta       <= (others=>'0');
             refclk_locked_meta  <= '0';
             idelay_locked_meta  <= '0';
             serdes_synced_meta  <= '0';
             -- clear the output of the second and final flip-flop
-            fmc_val1_sync       <= (others=>'0');
-            fmc_val2_sync       <= (others=>'0');
-            fmc_val3_sync       <= (others=>'0');
-            fmc_val4_sync       <= (others=>'0');
+            FMC_VAL1_sync       <= (others=>'0');
+            FMC_VAL2_sync       <= (others=>'0');
+            FMC_VAL3_sync       <= (others=>'0');
+            FMC_VAL4_sync       <= (others=>'0');
             refclk_locked_sync  <= '0';
             idelay_locked_sync  <= '0';
             serdes_synced_sync  <= '0';
         else
             -- capture the arriving signal - higher probability of being meta-stable
             -- Leaves the two LSBs of each channel that are always '0'
-            fmc_val1_meta       <= adc_ch1_o;  --    "00" & adc_ch1_o(15 downto 2);
-            fmc_val2_meta       <= adc_ch2_o;  --    "00" & adc_ch2_o(15 downto 2);
-            fmc_val3_meta       <= adc_ch3_o;  --    "00" & adc_ch3_o(15 downto 2);
-            fmc_val4_meta       <= adc_ch4_o;  --    "00" & adc_ch4_o(15 downto 2);
+            FMC_VAL1_meta       <= adc_ch1_o;  --    "00" & adc_ch1_o(15 downto 2);
+            FMC_VAL2_meta       <= adc_ch2_o;  --    "00" & adc_ch2_o(15 downto 2);
+            FMC_VAL3_meta       <= adc_ch3_o;  --    "00" & adc_ch3_o(15 downto 2);
+            FMC_VAL4_meta       <= adc_ch4_o;  --    "00" & adc_ch4_o(15 downto 2);
             refclk_locked_meta  <= refclk_locked;
             idelay_locked_meta  <= idelay_locked;
             serdes_synced_meta  <= serdes_synced;
             -- resample the potentially meta-stable signal, lowering the probability of meta-stability
-            fmc_val1_sync       <= fmc_val1_meta;
-            fmc_val2_sync       <= fmc_val2_meta;
-            fmc_val3_sync       <= fmc_val3_meta;
-            fmc_val4_sync       <= fmc_val4_meta;
+            FMC_VAL1_sync       <= FMC_VAL1_meta;
+            FMC_VAL2_sync       <= FMC_VAL2_meta;
+            FMC_VAL3_sync       <= FMC_VAL3_meta;
+            FMC_VAL4_sync       <= FMC_VAL4_meta;
             refclk_locked_sync  <= refclk_locked_meta;
             idelay_locked_sync  <= idelay_locked_meta;
             serdes_synced_sync  <= serdes_synced_meta;
@@ -914,10 +892,12 @@ begin
   serdes_synced_o <= serdes_synced_sync;
   idelay_locked_o <= idelay_locked_sync;
 
-  fmc_val1_o      <= fmc_val1_sync;
-  fmc_val2_o      <= fmc_val2_sync;
-  fmc_val3_o      <= fmc_val3_sync;
-  fmc_val4_o      <= fmc_val4_sync;
+
+  -- Outputs to Pos_Bus
+  FMC_VAL1_o      <= FMC_VAL1_sync;
+  FMC_VAL2_o      <= FMC_VAL2_sync;
+  FMC_VAL3_o      <= FMC_VAL3_sync;
+  FMC_VAL4_o      <= FMC_VAL4_sync;
 
 
   ------------------------------------------------------------------------------
@@ -1007,10 +987,41 @@ begin
 
     -- FMC data output (sys_clk domain)
     -- 4 Channels of ADC Dataout for connection to Position Bus
-    fmc_dataout_o       => fmc_dataout_o,
-    fmc_dataout_valid_o => fmc_dataout_valid_o
+    -- 4ch FIFO output (sys_clk clock domain)
 
-  );
+    FMC_DATAOUT_o       => FMC_DATAOUT_o,
+    FMC_DATAOUT_valid_o => FMC_DATAOUT_valid_o
+
+  );  -- fmc_adc100m_core
+
+
+  ------------------------------------------------------------------------------
+  -- External Trigger
+  ------------------------------------------------------------------------------
+
+  -- External hardware trigger differential to single-ended buffer
+  cmp_ext_trig_buf : IBUFDS
+    generic map (
+      DIFF_TERM  => true,               -- Differential termination
+      IOSTANDARD => "LVDS_25")
+    port map (
+      I  => ext_trigger_p_i,
+      IB => ext_trigger_n_i,
+      O  => ext_trig_in
+    );
+
+  -- Synchronization of external trigger in the sys_clk domain
+  p_ext_trigger_sync : process(sys_clk_i)
+  begin
+      if rising_edge(sys_clk_i) then
+        ext_trig_meta  <= ext_trig_in;
+        ext_trig_sync  <= ext_trig_meta;
+      end if;
+  end process;
+
+  -- assign outputs to Bit_Bus
+  EXT_TRIG_o <= ext_trig_sync;
+
 
 
 
@@ -1113,10 +1124,10 @@ begin
 --+++      fmc_adc_core_ch3_sat_val_o    => fmc_sat3,
 --+++      fmc_adc_core_ch4_sat_val_o    => fmc_sat4,
 --+++
---+++      fmc_adc_core_ch1_sta_val_i    => fmc_val1,
---+++      fmc_adc_core_ch2_sta_val_i    => fmc_val2,
---+++      fmc_adc_core_ch3_sta_val_i    => fmc_val3,
---+++      fmc_adc_core_ch4_sta_val_i    => fmc_val4
+--+++      fmc_adc_core_ch1_sta_val_i    => FMC_VAL1,
+--+++      fmc_adc_core_ch2_sta_val_i    => FMC_VAL2,
+--+++      fmc_adc_core_ch3_sta_val_i    => FMC_VAL3,
+--+++      fmc_adc_core_ch4_sta_val_i    => FMC_VAL4
 --+++      );
 
 
