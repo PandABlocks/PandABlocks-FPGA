@@ -120,18 +120,18 @@ entity fmc_adc_mezzanine is
     FIFO_INPUT_SEL      : in  std_logic_vector(1 downto 0); -- "00" serdes "01" offse_ gain "10" pattern_generator
 
     -- Gain/offset calibration parameters
-    fmc_gain1           : in  std_logic_vector(15 downto 0);
-    fmc_gain2           : in  std_logic_vector(15 downto 0);
-    fmc_gain3           : in  std_logic_vector(15 downto 0);
-    fmc_gain4           : in  std_logic_vector(15 downto 0);
-    fmc_offset1         : in  std_logic_vector(15 downto 0);
-    fmc_offset2         : in  std_logic_vector(15 downto 0);
-    fmc_offset3         : in  std_logic_vector(15 downto 0);
-    fmc_offset4         : in  std_logic_vector(15 downto 0);
-    fmc_sat1            : in  std_logic_vector(14 downto 0);
-    fmc_sat2            : in  std_logic_vector(14 downto 0);
-    fmc_sat3            : in  std_logic_vector(14 downto 0);
-    fmc_sat4            : in  std_logic_vector(14 downto 0);
+    FMC_GAIN1           : in  std_logic_vector(15 downto 0);
+    FMC_GAIN2           : in  std_logic_vector(15 downto 0);
+    FMC_GAIN3           : in  std_logic_vector(15 downto 0);
+    FMC_GAIN4           : in  std_logic_vector(15 downto 0);
+    FMC_OFFSET1         : in  std_logic_vector(15 downto 0);
+    FMC_OFFSET2         : in  std_logic_vector(15 downto 0);
+    FMC_OFFSET3         : in  std_logic_vector(15 downto 0);
+    FMC_OFFSET4         : in  std_logic_vector(15 downto 0);
+    FMC_SAT1            : in  std_logic_vector(14 downto 0);
+    FMC_SAT2            : in  std_logic_vector(14 downto 0);
+    FMC_SAT3            : in  std_logic_vector(14 downto 0);
+    FMC_SAT4            : in  std_logic_vector(14 downto 0);
     -- SERDES Ctrl and Statuts
     serdes_arst_i       : in  std_logic;
     refclk_locked_o     : out std_logic;
@@ -738,22 +738,22 @@ begin
         FIFO_INPUT_SEL_sync   <= FIFO_INPUT_SEL_meta;
 
         -- fmc_gain
-        fmc_gain_meta(1)    <= fmc_gain1;
-        fmc_gain_meta(2)    <= fmc_gain2;
-        fmc_gain_meta(3)    <= fmc_gain3;
-        fmc_gain_meta(4)    <= fmc_gain4;
+        fmc_gain_meta(1)    <= FMC_GAIN1;
+        fmc_gain_meta(2)    <= FMC_GAIN2;
+        fmc_gain_meta(3)    <= FMC_GAIN3;
+        fmc_gain_meta(4)    <= FMC_GAIN4;
         fmc_gain_sync       <= fmc_gain_meta;
         -- fmc_offset
-        fmc_offset_meta(1)  <= fmc_offset1;
-        fmc_offset_meta(2)  <= fmc_offset2;
-        fmc_offset_meta(3)  <= fmc_offset3;
-        fmc_offset_meta(4)  <= fmc_offset4;
+        fmc_offset_meta(1)  <= FMC_OFFSET1;
+        fmc_offset_meta(2)  <= FMC_OFFSET2;
+        fmc_offset_meta(3)  <= FMC_OFFSET3;
+        fmc_offset_meta(4)  <= FMC_OFFSET4;
         fmc_offset_sync     <= fmc_offset_meta;
         -- fmc_saturation
-        fmc_sat_meta(1)     <= fmc_sat1;
-        fmc_sat_meta(2)     <= fmc_sat2;
-        fmc_sat_meta(3)     <= fmc_sat3;
-        fmc_sat_meta(4)     <= fmc_sat4;
+        fmc_sat_meta(1)     <= FMC_SAT1;
+        fmc_sat_meta(2)     <= FMC_SAT2;
+        fmc_sat_meta(3)     <= FMC_SAT3;
+        fmc_sat_meta(4)     <= FMC_SAT4;
         fmc_sat_sync        <= fmc_sat_meta;
 
     end if;

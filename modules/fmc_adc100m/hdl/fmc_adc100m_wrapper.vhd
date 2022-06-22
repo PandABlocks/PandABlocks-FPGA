@@ -39,10 +39,6 @@ port (
     -- Outputs to Bit_Bus from FMC
     EXT_TRIG_o          : out std_logic_vector(0 downto 0);
     -- Outputs to Pos_Bus from FMC
-    VAL1_o              : out std32_array(0 downto 0);
-    VAL2_o              : out std32_array(0 downto 0);
-    VAL3_O              : out std32_array(0 downto 0);
-    VAL4_O              : out std32_array(0 downto 0);
     IN_DATA_CH1_o       : out std32_array(0 downto 0);
     IN_DATA_CH2_o       : out std32_array(0 downto 0);
     IN_DATA_CH3_o       : out std32_array(0 downto 0);
@@ -152,71 +148,40 @@ signal serdes_reset         : std_logic_vector(31 downto 0);
 signal refclk_locked_sta    : std_logic_vector(31 downto 0);
 signal idelay_locked_sta    : std_logic_vector(31 downto 0);
 signal serdes_synced_sta    : std_logic_vector(31 downto 0);
--- Gain/Offset/Saturation parameters
-signal fmc_gain1            : std_logic_vector(31 downto 0);
-signal fmc_gain2            : std_logic_vector(31 downto 0);
-signal fmc_gain3            : std_logic_vector(31 downto 0);
-signal fmc_gain4            : std_logic_vector(31 downto 0);
-signal fmc_offset1          : std_logic_vector(31 downto 0);
-signal fmc_offset2          : std_logic_vector(31 downto 0);
-signal fmc_offset3          : std_logic_vector(31 downto 0);
-signal fmc_offset4          : std_logic_vector(31 downto 0);
-signal fmc_sat1             : std_logic_vector(31 downto 0);
-signal fmc_sat2             : std_logic_vector(31 downto 0);
-signal fmc_sat3             : std_logic_vector(31 downto 0);
-signal fmc_sat4             : std_logic_vector(31 downto 0);
+-- Gain/Offset/Saturation registers
+signal FMC_GAIN1            : std_logic_vector(31 downto 0);
+signal FMC_GAIN2            : std_logic_vector(31 downto 0);
+signal FMC_GAIN3            : std_logic_vector(31 downto 0);
+signal FMC_GAIN4            : std_logic_vector(31 downto 0);
+signal FMC_OFFSET1          : std_logic_vector(31 downto 0);
+signal FMC_OFFSET2          : std_logic_vector(31 downto 0);
+signal FMC_OFFSET3          : std_logic_vector(31 downto 0);
+signal FMC_OFFSET4          : std_logic_vector(31 downto 0);
+signal FMC_SAT1             : std_logic_vector(31 downto 0);
+signal FMC_SAT2             : std_logic_vector(31 downto 0);
+signal FMC_SAT3             : std_logic_vector(31 downto 0);
+signal FMC_SAT4             : std_logic_vector(31 downto 0);
+-- Solid State Relays control registers
 signal FMC_SSR1             : std_logic_vector(31 downto 0);
 signal FMC_SSR2             : std_logic_vector(31 downto 0);
 signal FMC_SSR3             : std_logic_vector(31 downto 0);
 signal FMC_SSR4             : std_logic_vector(31 downto 0);
+-- Current ADC raw value registers (SerDes output)
+signal FMC_VAL1_reg        : std_logic_vector(31 downto 0);
+signal FMC_VAL2_reg        : std_logic_vector(31 downto 0);
+signal FMC_VAL3_reg        : std_logic_vector(31 downto 0);
+signal FMC_VAL4_reg        : std_logic_vector(31 downto 0);
 -- Soft Reset
 signal SOFT_RESET           : std_logic_vector(31 downto 0);
 signal SOFT_RESET_wstb      : std_logic;
 
--- Control and Status register
-signal fsm_cmd_i            : std_logic_vector(31 downto 0);
-signal fsm_cmd_wstb         : std_logic;
+-- Si570 clock enable (active high)
 signal FMC_CLK_OE           : std_logic_vector(31 downto 0);
-signal test_data_en         : std_logic_vector(31 downto 0);
 
-signal fsm_status           : std_logic_vector(31 downto 0);
-signal fs_freq              : std_logic_vector(31 downto 0);
-
-signal acq_cfg_sta          : std_logic_vector(31 downto 0);
-signal pre_trig             : std_logic_vector(31 downto 0);
-signal pos_trig             : std_logic_vector(31 downto 0);
-signal shots_nb             : std_logic_vector(31 downto 0);
-signal single_shot          : std_logic_vector(31 downto 0);
-signal shots_cnt            : std_logic_vector(31 downto 0);
-signal fmc_fifo_empty       : std_logic_vector(31 downto 0);
-signal sw_trig              : std_logic;
-signal sw_trig_en           : std_logic_vector(31 downto 0);
-signal trig_delay           : std_logic_vector(31 downto 0);
-signal hw_trig_sel          : std_logic_vector(31 downto 0);
-signal hw_trig_pol          : std_logic_vector(31 downto 0);
-signal hw_trig_en           : std_logic_vector(31 downto 0);
-signal int_trig_sel         : std_logic_vector(31 downto 0);
-signal int_trig_test        : std_logic_vector(31 downto 0);
-signal int_trig_thres_filt  : std_logic_vector(31 downto 0);
-signal int_trig_thres       : std_logic_vector(31 downto 0);
-signal samples_cnt          : std_logic_vector(31 downto 0);
-signal fifo_wr_cnt          : std_logic_vector(31 downto 0);
-signal wait_cnt             : std_logic_vector(31 downto 0);
-signal pre_trig_cnt         : std_logic_vector(31 downto 0);
-signal sample_rate          : std_logic_vector(31 downto 0);
-
-
-
-
--- ADC parallel data out from SERDES in the sys_clk domain (2ff synchronizer)
-signal FMC_VAL1_o           : std_logic_vector(15 downto 0);
-signal FMC_VAL2_o           : std_logic_vector(15 downto 0);
-signal FMC_VAL3_o           : std_logic_vector(15 downto 0);
-signal FMC_VAL4_o           : std_logic_vector(15 downto 0);
 
 -- FMC data output : 4 Channels of ADC Dataout for connection to Position Bus
 signal FMC_DATAOUT_o        : fmc_dataout_array(1 to 4);
---signal fmc_dataout_valid    : std1_array(1 to 4);
+--signal FMC_DATAOUT_valid  : std1_array(1 to 4);
 
 
 --signal THERMOMETER_UID      : std_logic_vector(31 downto 0);
@@ -399,18 +364,18 @@ cmp_fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
       -- FIFO input selection
       FIFO_INPUT_SEL      => FIFO_INPUT_SEL(1 downto 0),
       -- Gain/offset calibration parameters
-      fmc_gain1           => fmc_gain1(15 downto 0),
-      fmc_gain2           => fmc_gain2(15 downto 0),
-      fmc_gain3           => fmc_gain3(15 downto 0),
-      fmc_gain4           => fmc_gain4(15 downto 0),
-      fmc_offset1         => fmc_offset1(15 downto 0),
-      fmc_offset2         => fmc_offset2(15 downto 0),
-      fmc_offset3         => fmc_offset3(15 downto 0),
-      fmc_offset4         => fmc_offset4(15 downto 0),
-      fmc_sat1            => fmc_sat1(14 downto 0),
-      fmc_sat2            => fmc_sat2(14 downto 0),
-      fmc_sat3            => fmc_sat3(14 downto 0),
-      fmc_sat4            => fmc_sat4(14 downto 0),
+      FMC_GAIN1           => FMC_GAIN1(15 downto 0),
+      FMC_GAIN2           => FMC_GAIN2(15 downto 0),
+      FMC_GAIN3           => FMC_GAIN3(15 downto 0),
+      FMC_GAIN4           => FMC_GAIN4(15 downto 0),
+      FMC_OFFSET1         => FMC_OFFSET1(15 downto 0),
+      FMC_OFFSET2         => FMC_OFFSET2(15 downto 0),
+      FMC_OFFSET3         => FMC_OFFSET3(15 downto 0),
+      FMC_OFFSET4         => FMC_OFFSET4(15 downto 0),
+      FMC_SAT1            => FMC_SAT1(14 downto 0),
+      FMC_SAT2            => FMC_SAT2(14 downto 0),
+      FMC_SAT3            => FMC_SAT3(14 downto 0),
+      FMC_SAT4            => FMC_SAT4(14 downto 0),
       -- SERDES Ctrl and Statuts
       serdes_arst_i       => serdes_reset(0),
       refclk_locked_o     => refclk_locked_sta(0),
@@ -430,10 +395,10 @@ cmp_fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
       -- ************************
 
       -- 4ch SerDES output (in the sys_clk clock domain)
-      FMC_VAL1_o          => FMC_VAL1_o,  -- (15 downto 0),
-      FMC_VAL2_o          => FMC_VAL2_o,  -- (15 downto 0),
-      FMC_VAL3_o          => FMC_VAL3_o,  -- (15 downto 0),
-      FMC_VAL4_o          => FMC_VAL4_o,  -- (15 downto 0)
+      FMC_VAL1_o          => FMC_VAL1_reg(15 downto 0),
+      FMC_VAL2_o          => FMC_VAL2_reg(15 downto 0),
+      FMC_VAL3_o          => FMC_VAL3_reg(15 downto 0),
+      FMC_VAL4_o          => FMC_VAL4_reg(15 downto 0),
 
       -- 4ch FIFO output (sys_clk clock domain)
       FMC_DATAOUT_o       => FMC_DATAOUT_o,           -- out fmc_dataout_array(1 to 4);
@@ -442,7 +407,9 @@ cmp_fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
     ); -- fmc_adc_mezzanine
 
 
--- Analog Front-End
+
+-- Solid State Relays control (input voltage range, termination and DC offset error calibration)
+
 gpio_ssr_ch1_o   <= FMC_SSR1(6 downto 0);
 gpio_ssr_ch2_o   <= FMC_SSR2(6 downto 0);
 gpio_ssr_ch3_o   <= FMC_SSR3(6 downto 0);
@@ -451,13 +418,14 @@ gpio_ssr_ch4_o   <= FMC_SSR4(6 downto 0);
 gpio_si570_oe_o  <= FMC_CLK_OE(0);          -- Si570 programmable oscillator output enable (active high)
 gpio_dac_clr_n_o <= DAC_OFFSET_CLR_N(0);    -- asynchronously clear DAC outputs to code 32768 (active low)
 
+-- Current ADC raw value registers (SerDes output) --> FMC_ADC100M_CTRL
+--FMC_VAL1_reg <= ZEROS(16) & FMC_VAL1_o;
+--FMC_VAL2_reg <= ZEROS(16) & FMC_VAL2_o;
+--FMC_VAL3_reg <= ZEROS(16) & FMC_VAL3_o;
+--FMC_VAL4_reg <= ZEROS(16) & FMC_VAL4_o;
+
 
 -- Outputs to Pos_Bus from FMC
-VAL1_o(0) <= ZEROS(16) & FMC_VAL1_o;
-VAL2_o(0) <= ZEROS(16) & FMC_VAL2_o;
-VAL3_o(0) <= ZEROS(16) & FMC_VAL3_o;
-VAL4_o(0) <= ZEROS(16) & FMC_VAL4_o;
-
 IN_DATA_CH1_O(0) <= ZEROS(16) & FMC_DATAOUT_o(1);
 IN_DATA_CH2_O(0) <= ZEROS(16) & FMC_DATAOUT_o(2);
 IN_DATA_CH3_O(0) <= ZEROS(16) & FMC_DATAOUT_o(3);
@@ -474,7 +442,12 @@ port map (
     bit_bus_i             => bit_bus_i,             --  in  bit_bus_t
     pos_bus_i             => pos_bus_i,             --  in  pos_bus_t
     -- Block Parameters
-    -- Analog Front-End
+    -- Current ADC raw value (SerDes)
+    VAL1                  => FMC_VAL1_reg,          -- in (31:0)
+    VAL2                  => FMC_VAL2_reg,          -- in (31:0)
+    VAL3                  => FMC_VAL3_reg,          -- in (31:0)
+    VAL4                  => FMC_VAL4_reg,          -- in (31:0)
+    -- Solid State Relays control
     SSR1                  => FMC_SSR1,              -- out (31:0)
     SSR1_wstb             => open,                  -- out
     SSR2                  => FMC_SSR2,              -- out (31:0)
@@ -528,18 +501,18 @@ port map (
     FIFO_INPUT_SEL      => FIFO_INPUT_SEL,          -- out (31:0)
     FIFO_INPUT_SEL_wstb => open,                    -- out
     -- Gain Offset Saturation
-    GAIN1               => fmc_gain1,               -- out (31:0)
-    GAIN2               => fmc_gain2,               -- out (31:0)
-    GAIN3               => fmc_gain3,               -- out (31:0)
-    GAIN4               => fmc_gain4,               -- out (31:0)
-    OFFSET1             => fmc_offset1,             -- out (31:0)
-    OFFSET2             => fmc_offset2,             -- out (31:0)
-    OFFSET3             => fmc_offset3,             -- out (31:0)
-    OFFSET4             => fmc_offset4,             -- out (31:0)
-    SAT1                => fmc_sat1,                -- out (31:0)
-    SAT2                => fmc_sat2,                -- out (31:0)
-    SAT3                => fmc_sat3,                -- out (31:0)
-    SAT4                => fmc_sat4,                -- out (31:0)
+    GAIN1               => FMC_GAIN1,               -- out (31:0)
+    GAIN2               => FMC_GAIN2,               -- out (31:0)
+    GAIN3               => FMC_GAIN3,               -- out (31:0)
+    GAIN4               => FMC_GAIN4,               -- out (31:0)
+    OFFSET1             => FMC_OFFSET1,             -- out (31:0)
+    OFFSET2             => FMC_OFFSET2,             -- out (31:0)
+    OFFSET3             => FMC_OFFSET3,             -- out (31:0)
+    OFFSET4             => FMC_OFFSET4,             -- out (31:0)
+    SAT1                => FMC_SAT1,                -- out (31:0)
+    SAT2                => FMC_SAT2,                -- out (31:0)
+    SAT3                => FMC_SAT3,                -- out (31:0)
+    SAT4                => FMC_SAT4,                -- out (31:0)
     -- Soft Reset
     SOFT_RESET          => SOFT_RESET,              -- out (31:0)
     SOFT_RESET_wstb     => SOFT_RESET_wstb,         -- out
