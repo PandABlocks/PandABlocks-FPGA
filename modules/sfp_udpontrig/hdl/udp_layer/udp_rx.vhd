@@ -1,4 +1,4 @@
-----------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- Company:
 -- Engineer:            Peter Fall
 --
@@ -18,28 +18,48 @@
 -- Revision 0.02 - Improved error handling
 -- Additional Comments:
 --
-----------------------------------------------------------------------------------
+-- Thierry GARREL (ELSYS-Design)
+--    restructure code : tab 2 spaces, add comments,
+--    reorder some signals declarations
+--
+--------------------------------------------------------------------------------
+
+
+
+--==============================================================================
+-- Libraries Declaration
+--==============================================================================
 library IEEE;
-use IEEE.STD_LOGIC_1164.all;
-use IEEE.NUMERIC_STD.all;
-use work.axi.all;
-use work.ipv4_types.all;
+  use IEEE.std_logic_1164.all;
+  use IEEE.numeric_std.all;
 
-entity UDP_RX is
+library work;
+  use work.axi_types.all;
+  use work.ipv4_types.all;
+
+
+--==============================================================================
+-- Entity Declaration
+--==============================================================================
+entity udp_rx is
   port (
-    -- UDP Layer signals
-    udp_rx_start : out std_logic;       -- indicates receipt of udp header
-    udp_rxo      : out udp_rx_type;
     -- system signals
-    clk          : in  std_logic;
-    reset        : in  std_logic;
-    -- IP layer RX signals
-    ip_rx_start  : in  std_logic;       -- indicates receipt of ip header
-    ip_rx        : in  ipv4_rx_type
+    clk             : in  std_logic;
+    reset           : in  std_logic;
+    -- IP layer RX signals (in)
+    ip_rx_start     : in  std_logic;       -- indicates receipt of ip header
+    ip_rx           : in  ipv4_rx_type;
+    -- UDP Layer signals (out)
+    udp_rx_start    : out std_logic;       -- indicates receipt of udp header
+    udp_rxo         : out udp_rx_type
     );
-end UDP_RX;
+end udp_rx;
 
-architecture Behavioral of UDP_RX is
+
+--==============================================================================
+-- Architecture Declaration
+--==============================================================================
+architecture behavioral of udp_rx is
 
   type rx_state_type is (IDLE, UDP_HDR, USER_DATA, WAIT_END, ERR);
 
