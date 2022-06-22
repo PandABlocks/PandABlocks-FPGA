@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>SFP_UDPONTRIG - SFP UDP on trig Module &mdash; PandABlocks-FPGA 3.0a2-30-g4d98878
+  <title>SFP_UDPONTRIG - SFP UDP on trig Module &mdash; PandABlocks-FPGA 3.0a2-32-g7e19989
  documentation</title>
   
 
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                3.0a2-30-g4d98878
+                3.0a2-32-g7e19989
 
               </div>
             
@@ -314,6 +314,7 @@
             
   <div class="section" id="sfp-udpontrig-sfp-udp-on-trig-module">
 <h1>SFP_UDPONTRIG - SFP UDP on trig Module<a class="headerlink" href="#sfp-udpontrig-sfp-udp-on-trig-module" title="Permalink to this headline">¶</a></h1>
+<p>This module, when started, can generate UDP broadcast frames on the rising edge on input trigger. The IPv4 ICMP ping protocol is also implemented in this module which can accept 0 to 256 Bytes ICMP payload size.</p>
 <div class="section" id="fields">
 <h2>Fields<a class="headerlink" href="#fields" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="docutils">
@@ -331,15 +332,15 @@
 <tbody valign="top">
 <tr class="row-even"><td>SFP_TRIG</td>
 <td>bit_mux</td>
-<td>Rising edge to send UDP user-defined frame</td>
+<td>Rising edge ticks the sending of UDP user-defined frame</td>
 </tr>
 <tr class="row-odd"><td>SFP_START_COUNT</td>
 <td>write action</td>
-<td>Start counting Rising edge from zero and send UDP user-defined frame</td>
+<td>Start counting SFP_TRIG Rising edge from zero and send UDP user-defined frames</td>
 </tr>
 <tr class="row-even"><td>SFP_STOP_COUNT</td>
 <td>write action</td>
-<td>Stop counting Rising edge and stop sending UDP user-defined frame</td>
+<td>Stop counting SFP_TRIG Rising edge and stop sending UDP user-defined frames</td>
 </tr>
 <tr class="row-odd"><td>SFP_DEST_UDP_PORT</td>
 <td>param uint 131071</td>
@@ -383,11 +384,11 @@
 </tr>
 <tr class="row-odd"><td>SOFT_RESET</td>
 <td>write action</td>
-<td>GTX Soft Reset</td>
+<td>block Soft Reset</td>
 </tr>
 <tr class="row-even"><td>SFP_TRIG_RISE_COUNT</td>
 <td>read</td>
-<td>Rising edge count</td>
+<td>Rising edge count of SFP_TRIG</td>
 </tr>
 <tr class="row-odd"><td>SFP_COUNT_UDPTX_ERR</td>
 <td>read</td>
@@ -395,11 +396,11 @@
 </tr>
 <tr class="row-even"><td>SFP_STATUS_COUNT</td>
 <td>read</td>
-<td>SFP count status (‘0’ =&gt; not started, ‘1’ =&gt; count enabled)</td>
+<td>block counting status (‘0’ =&gt; standby, ‘1’ =&gt; counting enabled)</td>
 </tr>
 <tr class="row-odd"><td>SFP_LOS</td>
 <td>read</td>
-<td>Loss Of Signal (from SFP module)</td>
+<td>Loss-Of-Signal status (read from SFP module)</td>
 </tr>
 <tr class="row-even"><td>SFP_MAC_LO</td>
 <td>read</td>
