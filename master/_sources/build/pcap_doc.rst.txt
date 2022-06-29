@@ -3,7 +3,7 @@ PCAP - Position Capture
 
 Position capture has the capability to capture anything that is happening
 on the pos_bus or bit_bus. It listens to ENABLE, GATE and CAPTURE signals, and
-can capture the value at capture, sum, min and max.
+can capture the value at capture, sum, sum of squared values, min and max.
 
 
 Fields
@@ -120,6 +120,24 @@ Mode 5 produces the max of all values in a similar way:
 .. timing_plot::
    :path: modules/pcap/pcap.timing.ini
    :section: Capture pos bus entry 4 Max
+
+
+Mode 6/7/8 - Sum of Squared values Lo/Mid/Hi
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Mode 6 is the lower 32-bits of the sum of all samples squared values while GATE was high:
+Mode 7 is the middle 32-bits of the sum of all samples squared values while GATE was high:
+Mode 8 is the upper 32-bits of the sum of all samples squared values while GATE was high:
+
+Mode 6,7 and 8  together gives the full 96-bits of sum of squared values,
+needed for any sizeable values on the pos_bus.
+
+If long frame times (> 2**32 SAMPLES, > 30s), are to be used, then SHIFT_SUM
+can be used to shift both the sum of squared values and SAMPLES field
+by  up to 8-bits to accomodate up to 125 hour frames.
+
+Mode 6/7/8 is only implemented only target supports pcap_std_dev fpga option.
+
 
 
 Number of samples

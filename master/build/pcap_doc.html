@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>PCAP - Position Capture &mdash; PandABlocks-FPGA 3.0a2-45-g5eb03bb
+  <title>PCAP - Position Capture &mdash; PandABlocks-FPGA 3.0a2-72-g2dc5f16
  documentation</title>
   
 
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                3.0a2-45-g5eb03bb
+                3.0a2-72-g2dc5f16
 
               </div>
             
@@ -192,6 +192,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#mode-1-difference">Mode 1 - Difference</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mode-2-3-sum-lo-hi">Mode 2/3 - Sum Lo/Hi</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mode-4-5-min-max">Mode 4/5 - Min/Max</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mode-6-7-8-sum-of-squared-values-lo-mid-hi">Mode 6/7/8 - Sum of Squared values Lo/Mid/Hi</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#number-of-samples">Number of samples</a></li>
@@ -330,7 +331,7 @@
 <h1>PCAP - Position Capture<a class="headerlink" href="#pcap-position-capture" title="Permalink to this headline">¶</a></h1>
 <p>Position capture has the capability to capture anything that is happening
 on the pos_bus or bit_bus. It listens to ENABLE, GATE and CAPTURE signals, and
-can capture the value at capture, sum, min and max.</p>
+can capture the value at capture, sum, sum of squared values, min and max.</p>
 <div class="section" id="fields">
 <h2>Fields<a class="headerlink" href="#fields" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="docutils">
@@ -710,6 +711,18 @@ current capture:</p>
 </tbody>
 </table>
 </div>
+<div class="section" id="mode-6-7-8-sum-of-squared-values-lo-mid-hi">
+<h3>Mode 6/7/8 - Sum of Squared values Lo/Mid/Hi<a class="headerlink" href="#mode-6-7-8-sum-of-squared-values-lo-mid-hi" title="Permalink to this headline">¶</a></h3>
+<p>Mode 6 is the lower 32-bits of the sum of all samples squared values while GATE was high:
+Mode 7 is the middle 32-bits of the sum of all samples squared values while GATE was high:
+Mode 8 is the upper 32-bits of the sum of all samples squared values while GATE was high:</p>
+<p>Mode 6,7 and 8  together gives the full 96-bits of sum of squared values,
+needed for any sizeable values on the pos_bus.</p>
+<p>If long frame times (&gt; 2**32 SAMPLES, &gt; 30s), are to be used, then SHIFT_SUM
+can be used to shift both the sum of squared values and SAMPLES field
+by  up to 8-bits to accomodate up to 125 hour frames.</p>
+<p>Mode 6/7/8 is only implemented only target supports pcap_std_dev fpga option.</p>
+</div>
 </div>
 <div class="section" id="number-of-samples">
 <h2>Number of samples<a class="headerlink" href="#number-of-samples" title="Permalink to this headline">¶</a></h2>
@@ -940,6 +953,9 @@ with capture boundaries marked with a toggle of CAPTURE:</p>
 </tr>
 <tr class="row-even"><td>2</td>
 <td>39</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>0</td>
 </tr>
 </tbody>
 </table>
