@@ -127,10 +127,8 @@ class BlockConfig(object):
         #: All the child fields
         self.fields = FieldConfig.from_ini(
             ini, number)  # type: List[FieldConfig]
-        #: List of WriteExtension fields in the block
-        self.write_extensions=[]
-        #: List of ReadExtension fields in the block
-        self.read_extensions=[]
+        #: List of Extension fields in the block
+        self.calc_extensions=[]
         #: Are there any suffixes?
         self.block_suffixes = ini_get(ini, '.', 'block_suffixes', '').split()
 
@@ -178,22 +176,16 @@ class BlockConfig(object):
 
     def generateCalcExtensions(self):
         # Iterate through the fields and add any with writeExtension type to the list
-        for field in self.fields:
-            if field.type == "extension_write":
-                w_extension = (field.name, field.registers[0].number)
-                self.write_extensions.append(w_extension)
-            if field.type == "extension_read":
-                w_extension = (field.name, field.registers[0].number)
-                self.read_extensions.append(w_extension)
+        for field in self.filter_fields("extension_.*"):
+            extension = (field.name, field.registers[0].number)
+            self.extension=self.name.lower()
+            self.calc_extensions.append(extension)
+        # After extensions have been added to self.read_extensions/self.write_extensions
         # Iterate through the fields, when a writeExtension is specified find its number
         for field in self.fields:
-            for extension in field.extension_write.split(" "):
-                for w_extension, num in self.write_extensions:
-                    if w_extension == extension:
-                        field.extension_nums.append(num)
-            for extension in field.extension_read.split(" "):
-                for r_extension, num in self.read_extensions:
-                    if r_extension == extension:
+            for calc_extension, num in self.calc_extensions:
+                for extension in field.extension_write.split(" ") + field.extension_read.split(" "):
+                    if calc_extension == extension:
                         field.extension_nums.append(num)
 
 def make_getter_setter(config):
