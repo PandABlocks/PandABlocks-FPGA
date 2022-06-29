@@ -168,6 +168,13 @@ $(CARRIER_FPGA_BIT) : $(CARRIER_FPGA_DEPS)
 	  -tclargs $(TOP_MODE) \
 	  -tclargs $(PLATFORM)
 
+run_sim_%: $(TOP)/tests/sim/%
+	$(RUNVIVADO) -mode $(TEST_MODE) -source $</bench/$*_tb_compile.tcl \
+	  -log $(BUILD_DIR)/test_build_top.log -nojournal \
+	  -tclargs $(TOP) \
+	  -tclargs $(BUILD_DIR) \
+	  -tclargs $(TEST_MODE)
+
 $(FPGA_BIN_FILE): $(CARRIER_FPGA_BIT)
 	echo -e "all:\n{\n    $(CARRIER_FPGA_BIT)\n}\n" > bs.bif
 	. $(VIVADO) && bootgen -image bs.bif -arch $(PLATFORM) -process_bitstream bin
