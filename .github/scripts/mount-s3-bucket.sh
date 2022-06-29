@@ -12,7 +12,7 @@ cat >> $HOME/.config/rclone/rclone.conf <<EOL
 [fpga-vivado]
 type = s3
 provider = Ceph
-env_auth = false 
+env_auth = false
 access_key_id = $S3_ACCESS_KEY_ID
 secret_access_key = $S3_SECRET_ACCESS_KEY
 region =

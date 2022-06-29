@@ -2,8 +2,7 @@
 # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
 # https://github.com/rclone/rclone/issues/2975
 
-if [[ -z "$HOME" ]] 
-then
+if [[ -z "$HOME" ]]; then
     export HOME=/root
 fi
 

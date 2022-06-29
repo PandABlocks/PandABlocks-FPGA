@@ -3,7 +3,7 @@ name: Code CI
 on:
   pull_request:
   # Whenever a new branch or tag is created
-  # only on push for testing take out 
+  # only on push for testing take out
   push:
   create:
 
@@ -40,11 +40,11 @@ jobs:
         run: bash PandABlocks-fpga/.github/scripts/rclone-patch.sh
 
       # S3 bucket
-      - name: Mount Vivado S3 bucket      
+      - name: Mount Vivado S3 bucket
         run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
       - name: Change app in fpga CONFIG file - ${{ matrix.app }}
-        run: | 
+        run: |
           sed -i 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG
 
       # Get container image
@@ -52,11 +52,11 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}    
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
-      
+
       # Mount in rclone bucket from runner into conatiner
-      - name: make boot  
+      - name: make boot
         run: |
           docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
           docker run \
@@ -65,8 +65,8 @@ jobs:
             -v "/scratch/Xilinx:/scratch/Xilinx" \
             ghcr.io/pandablocks/pandablocks-dev-container:latest\
             /bin/bash -c \
-            "cd PandABlocks-fpga && make boot" 
-  
+            "cd PandABlocks-fpga && make boot"
+
   # Make zpkg for FPGA apps
   make_zpkg:
     strategy:
@@ -83,7 +83,7 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      
+
       # Git repositories
       - name: Checkout Source
         uses: actions/checkout@v2
@@ -96,7 +96,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: PandABlocks/PandABlocks-rootfs
-          path: PandABlocks-rootfs  
+          path: PandABlocks-rootfs
 
       # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
       # https://github.com/rclone/rclone/issues/2975
@@ -109,17 +109,17 @@ jobs:
 
       # config file contains correct apps
       - name: Change app in fpga CONFIG file - ${{ matrix.app }}
-        run: | 
+        run: |
           sed -i 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG
-      
+
       # Login into ghcr
       - name: login to ghcr
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}    
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
-      
+
       # Mount in rclone bucket from runner into conatiner
       - name: build carrier_ip and zpkg
         run: |
@@ -130,7 +130,7 @@ jobs:
             -v "/scratch/Xilinx:/scratch/Xilinx" \
             ghcr.io/pandablocks/pandablocks-dev-container:latest\
             /bin/bash -c \
-            "cd PandABlocks-fpga && make carrier_ip && make zpkg" 
+            "cd PandABlocks-fpga && make carrier_ip && make zpkg"
 
       # Artifacts
       - name: Upload zpkg
@@ -146,36 +146,36 @@ jobs:
     outputs:
       label: ${{ steps.start-ec2-runner.outputs.label }}
       ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
-    steps: 
-    
+    steps:
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-    
-      - name: Start EC2 runner 
+
+      - name: Start EC2 runner
         id: start-ec2-runner
         uses: machulav/ec2-github-runner@v2
         with:
           mode: start
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          ec2-image-id: ${{ secrets.AWS_AMI_ID }} 
-          ec2-instance-type: t3.xlarge 
-          subnet-id: ${{ secrets.AWS_SUBNET_ID }} 
-          security-group-id: ${{ secrets.AWS_SECURITY_GROUP_ID }} 
+          ec2-image-id: ${{ secrets.AWS_AMI_ID }}
+          ec2-instance-type: t3.xlarge
+          subnet-id: ${{ secrets.AWS_SUBNET_ID }}
+          security-group-id: ${{ secrets.AWS_SECURITY_GROUP_ID }}
           aws-resource-tags: >
             [
               {"Key": "Name", "Value": "ec2-github-runner"},
               {"Key": "GitHubRepository", "Value": "${{ github.repository }}"}
             ]
-  
-  # Build rclone and mount S3 bucket 
-  setup_aws_runner: 
+
+  # Build rclone and mount S3 bucket
+  setup_aws_runner:
     name: setup rclone and mount on runner
-    needs: start-runner 
-    runs-on: ${{ needs.start-runner.outputs.label }} 
+    needs: start-runner
+    runs-on: ${{ needs.start-runner.outputs.label }}
     steps:
       # Git repositories
       - name: Checkout Source
@@ -184,7 +184,7 @@ jobs:
           path: PandABlocks-fpga
           # require history to get back to last tag for version number of branches
           fetch-depth: 0
-      
+
       # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
       # https://github.com/rclone/rclone/issues/2975
       - name: Install rclone patch
@@ -195,18 +195,18 @@ jobs:
         run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
 
-  make_zpkg_aws: 
+  make_zpkg_aws:
     strategy:
       fail-fast: false
       matrix:
-        app: 
+        app:
           [
           "xu5_st1-no-fmc",
           "xu5_st1-fmc_acq430",
           ]
 
     name: make zpkg on aws
-    needs: 
+    needs:
       - start-runner
       - setup_aws_runner # required to start the main job when the runner is ready
     runs-on: ${{ needs.start-runner.outputs.label }} # run the job on the newly created runner
@@ -228,17 +228,17 @@ jobs:
 
       # chnage config file
       - name: Change app in fpga CONFIG file - ${{ matrix.app }}
-        run: | 
+        run: |
           sed -i 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG
-      
+
       # Login into ghcr
       - name: login to ghcr
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}    
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
-      
+
       # Mount in rclone bucket from vm into conatiner
       - name: build carrier_ip and zpkg
         run: |
@@ -249,19 +249,19 @@ jobs:
             -v "/scratch/Xilinx:/scratch/Xilinx" \
             ghcr.io/pandablocks/pandablocks-dev-container:latest\
             /bin/bash -c \
-            "cd PandABlocks-fpga && make carrier_ip && make zpkg" 
+            "cd PandABlocks-fpga && make carrier_ip && make zpkg"
 
       # Artifacts
       - name: Upload zpkg
         uses: actions/upload-artifact@v2
         with:
           name: fgpa-zpkg-${{ matrix.app }}
-          path: build/PandA-FPGA/panda-fpga@*.zpg  
+          path: build/PandA-FPGA/panda-fpga@*.zpg
 
   # Stop the AWS runner
-  stop-runner: 
+  stop-runner:
     name: Stop self hosted EC2 runnner
-    needs: 
+    needs:
       - start-runner
       - setup_aws_runner
       - make_zpkg_aws
@@ -270,7 +270,7 @@ jobs:
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
-        with: 
+        with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
@@ -308,9 +308,9 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}    
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
-      
+
       # Run tests
       - name: Make python and hdl tests
         run: |
@@ -322,7 +322,7 @@ jobs:
             ghcr.io/pandablocks/pandablocks-dev-container:latest \
             /bin/bash -c \
             "cd PandABlocks-fpga && make python_tests && make python_timing && \
-            make autogen && make hdl_test" 
+            make autogen && make hdl_test"
 
   release:
     needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
