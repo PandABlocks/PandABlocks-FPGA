@@ -22,6 +22,7 @@ entity ttlout_block is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
+    clk_2x_i            : in  std_logic;
     reset_i             : in  std_logic;
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
@@ -45,6 +46,9 @@ architecture rtl of ttlout_block is
 
 signal val              : std_logic;
 signal pad_iob          : std_logic;
+signal q_delay          : std_logic_vector(31 downto 0);
+signal o_delay          : std_logic_vector(31 downto 0);
+signal o_delay_wstb     : std_logic;
 
 begin
 
@@ -58,6 +62,9 @@ port map (
     bit_bus_i           => bit_bus_i,
     pos_bus_i           => (others => (others => '0')),
     VAL_from_bus        => val,
+    QUARTER_DELAY       => q_delay,
+    FINE_DELAY          => o_delay,
+    FINE_DELAY_WSTB     => o_delay_wstb,
 
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i,
@@ -70,14 +77,15 @@ port map (
     write_ack_o         => write_ack_o
 );
 
----------------------------------------------------------------------------
--- Register output and pack into IOB
----------------------------------------------------------------------------
-process(clk_i) begin
-    if rising_edge(clk_i) then
-        pad_iob <= val;
-    end if;
-end process;
+fd_inst : entity work.finedelay port map (
+    clk_i => clk_i,
+    clk_2x_i => clk_2x_i,
+    q_delay_i => q_delay(1 downto 0),
+    o_delay_i => o_delay(4 downto 0),
+    o_delay_strobe_i => o_delay_wstb,
+    signal_i => val,
+    signal_o => pad_iob
+);
 
 pad_o <= pad_iob;
 val_o <= val;

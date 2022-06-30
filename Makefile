@@ -46,6 +46,7 @@ PS_PROJ = $(TGT_BUILD_DIR)/panda_ps/panda_ps.xpr
 IP_PROJ = $(TGT_BUILD_DIR)/ip_repo/managed_ip_project/managed_ip_project.xpr
 TOP_PROJ = $(FPGA_BUILD_DIR)/panda_top/carrier_fpga_top.xpr
 TOP_MODE ?= batch
+TEST_MODE ?= gui
 DEP_MODE ?= batch
 
 # Store the git hash in top-level build directory 
@@ -167,6 +168,14 @@ python_timing:
 	$(PYTHON) -m unittest -v tests.test_python_sim_timing
 .PHONY: python_timing
 
+# Run a specific testbench using run_sim_<testbench-folder's-name>
+run_sim_%: $(TOP)/common/fpga.make
+	mkdir -p $(FPGA_BUILD_DIR)
+	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
+        TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
+        TGT_BUILD_DIR=$(TGT_BUILD_DIR) TEST_MODE=$(TEST_MODE) \
+        DEP_MODE=$(DEP_MODE) VER=$(VER) $@
+
 
 # ------------------------------------------------------------------------------
 # Timing test benches using vivado to run FPGA simulations
@@ -222,7 +231,7 @@ hdl_timing: $(TIMING_BUILD_DIRS)
 # The following phony targets are passed straight to the FPGA sub-make programme
 FPGA_TARGETS = fpga-all fpga-bit carrier_fpga carrier_ip ps_core \
                fsbl devicetree boot u-boot dts xsct sw_clean u-boot-src \
-               atf ip_clean ps_clean
+               dtc atf ip_clean ps_clean
 
 $(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR) | update_VER
 	mkdir -p $(FPGA_BUILD_DIR)

@@ -17,7 +17,8 @@ sys.path.insert(0, ROOT)
 
 # Get the git version
 git_version = subprocess.check_output(
-    "git describe --abbrev=7 --dirty --always --tags".split(), text=True)
+    "git describe --abbrev=7 --dirty --always --tags".split(),
+    universal_newlines=True)
 
 
 # Copy across the module rst files into the build dir

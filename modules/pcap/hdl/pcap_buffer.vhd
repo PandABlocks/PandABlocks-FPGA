@@ -217,8 +217,8 @@ begin
             -- 32 difference mode groups loop through all of them to see which one is active
             lp: for i in PBUSW-1 downto 0 loop
                 if (to_integer(unsigned(mask_doutb(8 downto 4)))) = i then
-                    -- 6 modes loop through all of them to see which one is active
-                    lp_mode: for j in 5 downto 0 loop
+                    -- loop through all modes to see which one is active
+                    lp_mode: for j in 8 downto 0 loop
                         if (to_integer(unsigned(mask_doutb(3 downto 0)))) = j then
                             pcap_dat_o <= mode_ts_bits_i.mode(i)(j);
                         end if;

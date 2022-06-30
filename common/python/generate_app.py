@@ -9,7 +9,9 @@ except ImportError:
 else:
     require("jinja2")
 
+import logging
 import os
+
 from argparse import ArgumentParser
 
 from jinja2 import Environment, FileSystemLoader
@@ -21,6 +23,8 @@ import copy
 
 if TYPE_CHECKING:
     from typing import List
+
+log = logging.getLogger(__name__)
 
 # Some paths
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
@@ -65,8 +69,11 @@ class AppGenerator(object):
         self.fpga_blocks = []  # type: List[BlockConfig]
         self.server_blocks = []  # type: List[BlockConfig]
         self.target_sites = [] #type: List[TargetSiteConfig]
-        self.fpga_options = [] #type: List[]
-        self.parse_ini_files(app)
+        self.fpga_options = set() #type: Set[str]
+        self.app = app
+
+    def generate_all(self):
+        self.parse_ini_files(self.app)
         self.generate_config_dir()
         self.generate_wrappers()
         self.generate_soft_blocks()
@@ -100,10 +107,8 @@ class AppGenerator(object):
         target = app_ini.get(".", "target")
         if target:
             # Implement the blocks for the target blocks
-            target_path = os.path.join("targets", target, "blocks")
             target_ini = read_ini(os.path.join(ROOT, "targets", target, (
                     target + ".target.ini")))
-            #self.implement_blocks(target_ini, target_path, "carrier")
             self.implement_blocks(target_ini, "modules", "carrier")
             # Read in what IO site options are available on target
             target_info = ini_get(target_ini,'.', 'io','').split('\n')
@@ -112,11 +117,12 @@ class AppGenerator(object):
                 site=TargetSiteConfig(siteType, siteInfo)
                 self.target_sites.append(site)
             # Read in which FPGA options are enabled on target
-            options = ini_get(target_ini, '.', 'options', '')
-            self.fpga_options = filter(None, [option.strip() for option in options.split(',')])
-            for fpga_option in self.fpga_options:
-                assert fpga_option in VALID_FPGA_OPTIONS, \
-                    "%r option defined in target ini file is not valid" % fpga_option
+            self.process_fpga_options(
+                ini_get(target_ini, '.', 'options', ''))
+
+        # Process app specific FPGA options
+        self.process_fpga_options(
+            ini_get(app_ini, '.', 'options', ''))
         # Implement the blocks for the soft blocks
         # If a test path has been given, use it for location of blocks.
         # Otherwise blocks should be in moudles directory
@@ -390,6 +396,27 @@ class AppGenerator(object):
         """Simple check if string contains a number"""
         return any(char.isdigit() for char in inputstring)
 
+    def process_fpga_options(self, options_text):
+        for option_text in filter(None, [option_text.strip()
+                for option_text in options_text.split(',')]):
+            self.process_fpga_option(option_text)
+
+    def process_fpga_option(self, option_text):
+        want_delete = option_text.startswith('!')
+        fpga_option = option_text[int(want_delete):].strip()
+
+        assert fpga_option in VALID_FPGA_OPTIONS, \
+            "%r option defined in target ini file is not valid" % fpga_option
+
+        if want_delete:
+            try:
+                self.fpga_options.remove(fpga_option)
+            except KeyError:
+                log.warning('Trying to remove option not added before: %s',
+                            fpga_option)
+        else:
+            self.fpga_options.add(fpga_option)
+
 
 def main():
     parser = ArgumentParser(description=__doc__)
@@ -398,7 +425,7 @@ def main():
     args = parser.parse_args()
     app = args.app
     build_dir = args.build_dir
-    AppGenerator(app, build_dir)
+    AppGenerator(app, build_dir).generate_all()
 
 
 if __name__ == "__main__":
