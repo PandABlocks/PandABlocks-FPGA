@@ -1,0 +1,12 @@
+*METADATA
+    APPNAME             constant =calc_extension
+    DESIGN              string
+    LAYOUT              multiline
+    EXPORTS             multiline
+    LABEL_CALCEXTENSION1 string
+
+CALCEXTENSION[1]
+    TEST                param
+    CENTRE              param
+    RANGE               param
+
