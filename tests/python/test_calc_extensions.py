@@ -20,7 +20,9 @@ class TestCalcApp(unittest.TestCase):
         if os.path.exists(cls.app_build_dir):
             shutil.rmtree(cls.app_build_dir)
         cls.expected_dir = os.path.join(here, "test_data_calc_extensions", "app-expected")
-        AppGenerator(app, cls.app_build_dir, testPath=path)
+        cls.app_generator = AppGenerator(app, cls.app_build_dir, testPath=path)
+        cls.app_generator.generate_all()
+
 
     @classmethod
     def tearDownClass(cls):
