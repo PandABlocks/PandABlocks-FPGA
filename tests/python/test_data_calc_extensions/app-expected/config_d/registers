@@ -57,8 +57,13 @@
     # DMA block size in bytes
     PCAP_BLOCK_SIZE         6
 
-CALCEXTENSION       2 calcextension
-    TEST                1 X test
-    CENTRE              W 0 2 X centre
-    RANGE               W 0 2 X range
+DUMMY               2 dummy
+    DUMMY_R             0 1 2 3 X dummy
+    DUMMY_W             0 1 2 3 W 4 X dummy
+    POLY_R              0 1 2 3 X poly
+    POLY_W              0 1 2 3 W 0 1 2 3 4 X poly
+
+INTERVAL            3 interval
+    CENTRE              W 0 1 X centre
+    RANGE               W 0 1 X range
 

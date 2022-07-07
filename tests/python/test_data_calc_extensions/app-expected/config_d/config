@@ -3,10 +3,22 @@
     DESIGN              string
     LAYOUT              multiline
     EXPORTS             multiline
-    LABEL_CALCEXTENSION1 string
+    LABEL_DUMMY1        string
+    LABEL_DUMMY2        string
+    LABEL_DUMMY3        string
+    LABEL_DUMMY4        string
+    LABEL_DUMMY5        string
+    LABEL_INTERVAL1     string
+    LABEL_INTERVAL2     string
+    LABEL_INTERVAL3     string
 
-CALCEXTENSION[1]
-    TEST                param
+DUMMY[5]
+    DUMMY_R             read
+    DUMMY_W             write
+    POLY_R              read
+    POLY_W              write
+
+INTERVAL[3]
     CENTRE              param
     RANGE               param
 

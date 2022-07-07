@@ -1,5 +1,10 @@
-CALCEXTENSION       calculated registers tests
-    TEST                
+DUMMY               Dummy test extension registers
+    DUMMY_R             Reads a single register
+    DUMMY_W             Writes a single register
+    POLY_R              Reads a group of registers
+    POLY_W              Writes a group of registers
+
+INTERVAL            Calculated registers interval test
     CENTRE              
     RANGE               
 
