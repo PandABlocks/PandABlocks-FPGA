@@ -184,9 +184,12 @@ class BlockConfig(object):
         # Iterate through the fields, when a writeExtension is specified find its number
         for field in self.fields:
             for calc_extension, num in self.calc_extensions:
-                for extension in field.extension_write.split(" ") + field.extension_read.split(" "):
+                for extension in field.extension_write.split(" "):
+                     if calc_extension == extension:
+                        field.extension_nums.append([num, "write"])
+                for extension in field.extension_read.split(" "):
                     if calc_extension == extension:
-                        field.extension_nums.append(num)
+                        field.extension_nums.append([num, "read"])
 
 def make_getter_setter(config):
     def getter(self):
@@ -290,10 +293,16 @@ class FieldConfig(object):
             if r.number >= 0:
                 result.append(str(r.number))
             if r.extension:
+                # Add register number for any read extensions
+                for num, ext_type in self.extension_nums:
+                    if ext_type == "read":
+                        result.extend(str(' '.join(str(num) )))
+                # If there are write extensions add W and then any register numbers
                 if r.write_extension:
-                    result.extend(['W', str(' '.join(str(num) for num in self.extension_nums))])
-                if r.read_extension:
-                    result.extend([str(' '.join(str(num) for num in self.extension_nums))])
+                    result.extend(['W'])
+                    for num, ext_type in self.extension_nums:
+                        if ext_type == "write":
+                            result.extend(str(' '.join(str(num) )))
                 result.extend(['X', r.extension])
             return ' '.join(result)
 
