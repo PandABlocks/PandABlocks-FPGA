@@ -36,14 +36,19 @@ class TestCalcApp(unittest.TestCase):
             actual = f.read()
         self.assertMultiLineEqual(expected, actual)
 
-    def test_description(self):
+    def test_calc_extension_description(self):
         self.assertGeneratedEqual("config_d", "description")
 
-    def test_config(self):
+    def test_calc_extension_config(self):
         self.assertGeneratedEqual("config_d", "config")
 
-    def test_registers(self):
+    def test_calc_extension_registers(self):
         self.assertGeneratedEqual("config_d", "registers")
+
+    def test_calc_extension_vhd_generation(self):
+        self.assertGeneratedEqual("hdl", "interval_ctrl.vhd")
+        self.assertGeneratedEqual("hdl", "dummy_ctrl.vhd")
+        self.assertGeneratedEqual("hdl", "dummy_ctrl.vhd")
 
 
 if __name__ == '__main__':
