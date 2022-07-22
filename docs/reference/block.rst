@@ -107,12 +107,18 @@ should be written according to type_ documentation. Subsequent indented lines
 in the config file are supplied according to the ``type`` value and are
 documented in `extra_field_keys`.
 
+If ``type`` is set as ``extension_write`` or ``extension_read`` the block is
+a hidden register. It has a hardware register but does not generate block
+names.
+
 The ``description`` value gives a short (single sentence) description about
 what the Field does, visible as a tooltip to users.
 
 If ``extension`` is specified then this field is configured as an extension
-field.  If the ``extension_reg`` field is also specified then this field is also
-a hardware register.
+field.  If the ``extension_read`` or ``extension_write`` fields are also
+specified then this field does not generate its own hardware register but uses
+the specified registers. If fields use extensions an [extension].py needs to
+be created.
 
 If a signal uses a write strobe ``wstb`` should be set to True.
 
