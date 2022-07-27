@@ -9,6 +9,7 @@ set TARGET_DIR      [lindex $argv 1]
 set TGT_BUILD_DIR   [lindex $argv 2]
 set BUILD_DIR       [lindex $argv 3]
 set MODULES_IND     4
+set sim_end_error   0
 
 # Need to source the target specific tcl file to get the FPGA part string
 source $TARGET_DIR/target_incl.tcl
@@ -42,10 +43,23 @@ puts  "#########################################################################
 set_property top $test [get_filesets sim_1]
 set_property top_lib xil_defaultlib [get_filesets sim_1]
 
-launch_simulation
+# Launch the simulation
+if { [catch {launch_simulation}] } {
+        puts "Error Launching Simulation"
+        set sim_end_error 1
+    }
 
 restart
-run -all
+if { [catch {run -all}] } {
+        puts "Error Running Simulation"
+        set sim_end_error 1
+    }
+
+# All the testbenchs have a signal called is_file_end
+# this is used to indicate if the test is completed
+# is_file_end = 1 -- test has finished
+# is_file_end = 0 -- test has been interrupted
+set sim_end_error [expr {[get_value is_file_end] != 1}];
 
 # All the testbenchs have a signal called test_result
 # this is used to indicate when the test fails i.e.
@@ -57,15 +71,15 @@ puts "The test result is $test";
 
 # Check to see if the test has passed or failed increment
 # test_passed or test_failed variables and append result into variable
-if {$result_from_test == 1} {
+if {$result_from_test == 0 && $sim_end_error == 0} {
+    incr test_passed_cnt +1;
+    puts "##################################### $test has passed #####################################";
+    append test_passed ", " \n "$test_passed_cnt." $test;
+} else {
     incr test_failed_cnt +1;
     puts "##################################### $test has failed #####################################";
     append test_failed ", " \n "$test_failed_cnt." $test;
 
-} else {
-    incr test_passed_cnt +1;
-    puts "##################################### $test has passed #####################################";
-    append test_passed ", " \n "$test_passed_cnt." $test;
 }
 
 close_sim
