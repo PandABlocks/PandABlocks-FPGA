@@ -46,8 +46,8 @@ jobs:
       # CONFIG file
       - name: Generate fpga CONFIG file - ${{ matrix.app }}
         run: |
-          bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
-          sed -i 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG
+          ln -s CONFIG.example CONFIG​
+          sed -i 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG.example
 
       # Get container image
       - name: login to github container registry
@@ -112,8 +112,8 @@ jobs:
       # CONFIG file
       - name: Generate fpga CONFIG file - ${{ matrix.app }}
         run: |
-          bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
-          sed -i 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG
+          ln -s CONFIG.example CONFIG​
+          sed -i 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG.example
 
       # Login into ghcr
       - name: login to ghcr
@@ -232,8 +232,8 @@ jobs:
       # CONFIG file
       - name: Generate fpga CONFIG file - ${{ matrix.app }}
         run: |
-          bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
-          sed -i 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG
+          ln -s CONFIG.example CONFIG​
+          sed -i 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG.example
 
       # Login into ghcr
       - name: login to ghcr
@@ -310,7 +310,7 @@ jobs:
       # CONFIG file
       - name: Generate fpga CONFIG file
         run: |
-          bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
+          ln -s CONFIG.example CONFIG​
 
       # Login into ghcr
       - name: login to ghcr
