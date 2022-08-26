@@ -136,9 +136,11 @@ If long frame times (> 2**32 SAMPLES, > 30s), are to be used, then SHIFT_SUM
 can be used to shift both the sum of squared values and SAMPLES field
 by  up to 8-bits to accomodate up to 125 hour frames.
 
-Mode 6/7/8 is only implemented only target supports pcap_std_dev fpga option.
+Mode 6/7/8 is only implemented when target supports pcap_std_dev fpga option.
 
-
+.. timing_plot::
+   :path: modules/pcap/pcap.timing.ini
+   :section: Capture pos bus entry 2 Sum^2
 
 Number of samples
 -----------------
