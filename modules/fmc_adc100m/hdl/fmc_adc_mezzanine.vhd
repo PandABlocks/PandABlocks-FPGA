@@ -795,7 +795,7 @@ begin
     g_DEBUG_ILA         => TRUE,      -- Generate ILA for debugging
     g_SERIAL_CLK_BUF    => "BUFIO",   -- Buffer type for SERDES serial clock : BUFIO or BUFG or BUFR or BUFH
     G_DCO_IDELAY_VALUE  => 0,         -- Delay Tap setting for IDELAYE2 on adc_clk (0-31)
-    G_DATA_IDELAY_VALUE => 0          -- Delay Tap setting for IDELAYE2 on adc_fr,adc_outa,adc_outb (0-31)
+    G_DATA_IDELAY_VALUE => 17         -- Delay Tap setting for IDELAYE2 on adc_fr,adc_outa,adc_outb (0-31)
   )
   port map (
     -- IDELAYCTRL is needed for calibration
