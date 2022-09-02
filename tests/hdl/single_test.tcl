@@ -43,17 +43,10 @@ puts  "#########################################################################
 set_property top $test [get_filesets sim_1]
 set_property top_lib xil_defaultlib [get_filesets sim_1]
 
-# Launch the simulation
-if { [catch {launch_simulation}] } {
-        puts "Error Launching Simulation"
-        set sim_end_error 1
-    }
+launch_simulation
 
 restart
-if { [catch {run -all}] } {
-        puts "Error Running Simulation"
-        set sim_end_error 1
-    }
+run -all
 
 # All the testbenchs have a signal called is_file_end
 # this is used to indicate if the test is completed
