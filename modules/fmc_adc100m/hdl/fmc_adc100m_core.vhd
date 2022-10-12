@@ -77,8 +77,8 @@ entity fmc_adc100m_core is
     -- ************************
 
     -- 4 Channels of ADC Dataout for connection to Position Bus
-    FMC_DATAOUT_o       : out fmc_dataout_array(1 to 4);
-    FMC_DATAOUT_valid_o : out std1_array(1 to 4)
+    FMC_CH_FIFO_o       : out std16_array(1 to 4);
+    FMC_CH_FIFO_Valid_o : out std1_array(1 to 4)
 
 );
 end fmc_adc100m_core;
@@ -108,7 +108,7 @@ architecture rtl of fmc_adc100m_core is
   signal fmc_fifo_empty       : std1_array(1 to 4);
   signal fmc_fifo_rd_count    : std8_array(1 to 4);
 
-  signal fmc_fifo_dout        : fmc_dataout_array(1 to 4);
+  signal fmc_fifo_dout        : std16_array(1 to 4);
   signal fmc_fifo_rd_valid    : std1_array(1 to 4);
 
 
@@ -231,8 +231,8 @@ begin
 
 
   -- assign outputs to Pos_Bus
-  FMC_DATAOUT_o        <= fmc_fifo_dout;
-  FMC_DATAOUT_valid_o  <= fmc_fifo_rd_valid;
+  FMC_CH_FIFO_o        <= fmc_fifo_dout;
+  FMC_CH_FIFO_Valid_o  <= fmc_fifo_rd_valid;
 
 
 end rtl;

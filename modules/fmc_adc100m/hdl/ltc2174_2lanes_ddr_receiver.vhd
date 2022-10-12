@@ -56,6 +56,7 @@ entity ltc2174_2lanes_ddr_receiver is
     serdes_arst_i       : in  std_logic;  -- Async reset input (active high) for iserdes
     serdes_bslip_i      : in  std_logic;  -- Manual bitslip command (optional)
     serdes_synced_o     : out std_logic;  -- Indication that SERDES is ok and locked to frame start pattern
+    serdes_bitslip_o    : out std_logic;  -- Copy of ISERDES BITSLIP input
 
     -- ADC parallel data out (clk_div clock domain)
     adc_data_o          : out std_logic_vector(63 downto 0);
@@ -491,6 +492,7 @@ begin
   serdes_bitslip    <= serdes_auto_bslip or serdes_bslip_i;
   serdes_synced_o   <= serdes_synced;
 
+  serdes_bitslip_o  <= serdes_bitslip;
 
   ------------------------------------------------------------------------------
   -- Data deserializer

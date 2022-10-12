@@ -35,12 +35,6 @@ package fmc_adc_types is
   type std15_array      is  array(natural range <>) of std_logic_vector(14 downto 0);
   type std16_array      is  array(natural range <>) of std_logic_vector(15 downto 0);
 
-  type adc_data_ch_array is array(natural range <>) of std_logic_vector(15 downto 0);
-  type fmc_dataout_array is array(natural range <>) of std_logic_vector(15 downto 0);
-
-  type uns12_array      is  array(natural range <>) of unsigned(11 downto 0);
-  type uns16_array      is  array(natural range <>) of unsigned(15 downto 0);
-
 
 end package fmc_adc_types;
 
