@@ -7,6 +7,9 @@ on:
   push:
   create:
 
+env:
+  CONTAINER_VER: 3.0a3
+
 jobs:
   make_boot:
     strategy:
@@ -54,12 +57,12 @@ jobs:
       # Mount in rclone bucket from runner into conatiner
       - name: make boot
         run: |
-          docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
+          docker pull ghcr.io/pandablocks/pandablocks-dev-container:$CONTAINER_VER
           docker run \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
-            ghcr.io/pandablocks/pandablocks-dev-container:latest\
+            ghcr.io/pandablocks/pandablocks-dev-container:$CONTAINER_VER\
             /bin/bash -c \
             "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}"
 
@@ -114,12 +117,12 @@ jobs:
       # Mount in rclone bucket from runner into conatiner
       - name: build carrier_ip and zpkg
         run: |
-          docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
+          docker pull ghcr.io/pandablocks/pandablocks-dev-container:$CONTAINER_VER
           docker run \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
-            ghcr.io/pandablocks/pandablocks-dev-container:latest\
+            ghcr.io/pandablocks/pandablocks-dev-container:$CONTAINER_VER\
             /bin/bash -c \
             "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} "
 
@@ -228,12 +231,12 @@ jobs:
       # Mount in rclone bucket from vm into conatiner
       - name: build carrier_ip and zpkg
         run: |
-          sudo docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
+          sudo docker pull ghcr.io/pandablocks/pandablocks-dev-container:$CONTAINER_VER
           sudo docker run \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
-            ghcr.io/pandablocks/pandablocks-dev-container:latest\
+            ghcr.io/pandablocks/pandablocks-dev-container:$CONTAINER_VER\
             /bin/bash -c \
             "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }}"
 
@@ -300,12 +303,12 @@ jobs:
       # Run tests
       - name: Make python and hdl tests
         run: |
-          docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
+          docker pull ghcr.io/pandablocks/pandablocks-dev-container:$CONTAINER_VER
           docker run \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
-            ghcr.io/pandablocks/pandablocks-dev-container:latest \
+            ghcr.io/pandablocks/pandablocks-dev-container:$CONTAINER_VER \
             /bin/bash -c \
             "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make python_tests && make python_timing && \
             make autogen && make hdl_test"

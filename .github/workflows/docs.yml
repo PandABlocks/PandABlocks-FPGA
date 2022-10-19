@@ -10,7 +10,7 @@ jobs:
   make_docs:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/pandablocks/pandablocks-dev-container:latest
+      image: ghcr.io/pandablocks/pandablocks-dev-container:3.0a3
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
