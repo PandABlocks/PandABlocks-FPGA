@@ -48,7 +48,10 @@ class TestCalcApp(unittest.TestCase):
     def test_calc_extension_vhd_generation(self):
         self.assertGeneratedEqual("hdl", "interval_ctrl.vhd")
         self.assertGeneratedEqual("hdl", "dummy_ctrl.vhd")
-        self.assertGeneratedEqual("hdl", "dummy_ctrl.vhd")
+        self.assertGeneratedEqual("hdl", "interval_ctrl.vhd")
+        self.assertGeneratedEqual("hdl", "fmc_acq427_ctrl.vhd")
+        self.assertGeneratedEqual("hdl", "addr_defines.vhd")
+
 
 
 if __name__ == '__main__':

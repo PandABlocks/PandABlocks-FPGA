@@ -290,8 +290,8 @@ class FieldConfig(object):
             result = []
             if r.prefix:
                 result.append(r.prefix)
-            if r.number >= 0:
-                result.append(str(r.number))
+
+            # The following is used if fields use the extension server
             if r.extension:
                 # Add register number for any read extensions
                 for num, ext_type in self.extension_nums:
@@ -304,6 +304,9 @@ class FieldConfig(object):
                         if ext_type == "write":
                             result.extend(str(' '.join(str(num) )))
                 result.extend(['X', r.extension])
+            else:
+                if r.number >= 0:
+                    result.append(str(r.number))
             return ' '.join(result)
 
         if self.registers:

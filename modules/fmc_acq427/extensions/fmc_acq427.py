@@ -64,24 +64,6 @@ class GPIO_Helper:
         self.write_output_bits(self.outputs)
 
 
-class BitReader:
-    def __init__(self, gpio, offset):
-        self.gpio = gpio
-        self.offset = offset
-
-    def read(self, number):
-        return self.gpio.read_bit(*self.offset)
-
-
-class BitsWriter:
-    def __init__(self, gpio, offset):
-        self.gpio = gpio
-        self.offset = offset
-
-    def write(self, number, value):
-        self.gpio.write_bits(value, *self.offset)
-
-
 # We need a single GPIO controller shared between the ADC and DAC extensions.
 gpio_helper = GPIO_Helper()
 
@@ -91,7 +73,9 @@ class Extension:
         pass
 
     def parse_read(self, request):
-        return BitReader(gpio_helper, lookup_bit_map[request])
+        offset = lookup_bit_map[request]
+        return lambda _: gpio_helper.read_bit(*offset)
 
     def parse_write(self, request):
-        return BitsWriter(gpio_helper, lookup_bit_map[request])
+        offset = lookup_bit_map[request]
+        return lambda _, value: gpio_helper.write_bits(value, *offset)

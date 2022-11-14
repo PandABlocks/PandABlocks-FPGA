@@ -67,3 +67,34 @@ INTERVAL            3 interval
     CENTRE              W 0 1 X centre
     RANGE               W 0 1 X range
 
+FMC_IN              S4 fmc_acq427
+    GAIN1               X adc1_gain
+    GAIN2               X adc2_gain
+    GAIN3               X adc3_gain
+    GAIN4               X adc4_gain
+    GAIN5               X adc5_gain
+    GAIN6               X adc6_gain
+    GAIN7               X adc7_gain
+    GAIN8               X adc8_gain
+    VAL1                0
+    VAL2                1
+    VAL3                2
+    VAL4                3
+    VAL5                4
+    VAL6                5
+    VAL7                6
+    VAL8                7
+    TTL                 0
+    ADC_B_FITTED        X adc_ribbon
+
+FMC_OUT             S4 fmc_acq427
+    VAL1                8
+    VAL2                9
+    VAL3                10
+    VAL4                11
+    GAIN1               X dac1_gain
+    GAIN2               X dac2_gain
+    GAIN3               X dac3_gain
+    GAIN4               X dac4_gain
+    DAC_FITTED          X dac_ribbon
+

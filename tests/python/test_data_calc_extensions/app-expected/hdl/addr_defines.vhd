@@ -10,13 +10,15 @@ package addr_defines is
     constant DRV_CS : natural := 1;
     constant DUMMY_CS : natural := 2;
     constant INTERVAL_CS : natural := 3;
+    constant FMC_CS : natural := 4;
 
 -- Constant for the number of used modules
-    constant USED_MOD_COUNT : natural := 3;
+    constant USED_MOD_COUNT : natural := 4;
 
 -- Block instantiation
     constant DUMMY_NUM : natural := 5;
     constant INTERVAL_NUM : natural := 3;
+    constant FMC_NUM : natural := 1;
 
 -- Constant equal to the sum of block nums for each bit out signal
     constant BIT_BUS_SIZE : natural := 0;
@@ -40,6 +42,20 @@ package addr_defines is
 -- interval Block:
     constant INTERVAL_BOTTOM_addr : natural := 0;
     constant INTERVAL_TOP_addr : natural := 1;
+
+-- fmc_acq427 Block:
+    constant FMC_ACQ427_IN_GAIN1_addr : natural := 0;
+    constant FMC_ACQ427_IN_GAIN2_addr : natural := 1;
+    constant FMC_ACQ427_IN_GAIN3_addr : natural := 2;
+    constant FMC_ACQ427_IN_GAIN4_addr : natural := 3;
+    constant FMC_ACQ427_IN_GAIN5_addr : natural := 4;
+    constant FMC_ACQ427_IN_GAIN6_addr : natural := 5;
+    constant FMC_ACQ427_IN_GAIN7_addr : natural := 6;
+    constant FMC_ACQ427_IN_GAIN8_addr : natural := 7;
+    constant FMC_ACQ427_OUT_VAL1_addr : natural := 8;
+    constant FMC_ACQ427_OUT_VAL2_addr : natural := 9;
+    constant FMC_ACQ427_OUT_VAL3_addr : natural := 10;
+    constant FMC_ACQ427_OUT_VAL4_addr : natural := 11;
 
 end addr_defines;
 
