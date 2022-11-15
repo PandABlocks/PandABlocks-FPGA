@@ -32,8 +32,8 @@ port (
     gate_i              : in  std_logic;
     dma_full_i          : in  std_logic;
     bit_bus_i           : in  bit_bus_t;
-    pos_bus_i           : in  std_logic_vector(32*32-1 downto 0);
-    extbus_i            : in  std_logic_vector(32*12-1 downto 0);
+    pos_bus_i           : in  std_logic_vector(32*PBUSW-1 downto 0);
+    extbus_i            : in  std_logic_vector(32*EBUSW-1 downto 0);
     -- Block outputs
     pcap_dat_o          : out std_logic_vector(31 downto 0);
     pcap_dat_valid_o    : out std_logic;
@@ -52,13 +52,13 @@ signal count            : integer := 0;
 begin
 
 process(pos_bus_i) begin
-    posbus: for i in 0 to 31 loop
+    posbus: for i in 0 to PBUSW-1 loop
         pos_bus(i) <= pos_bus_i(i*32+31 downto i*32);
     end loop;
 end process;
 
 process(extbus_i) begin
-    ext_bus: for i in 0 to 11 loop
+    ext_bus: for i in 0 to EBUSW-1 loop
         extbus(i) <= extbus_i(i*32+31 downto i*32);
     end loop;
 end process;
