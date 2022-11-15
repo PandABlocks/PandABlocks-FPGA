@@ -42,39 +42,35 @@ begin
             in_signal_on2x <= signal_i;
             in_signal_delay_on2x <= in_signal_delay;
             q_delay_on2x <= q_delay_i;
+
+            case phase_on2x & q_delay_on2x is
+                when "000" =>
+                    ddr_a <= in_signal_on2x;
+                    ddr_b <= in_signal_on2x;
+                when "100" =>
+                    ddr_a <= in_signal_on2x;
+                    ddr_b <= in_signal_on2x;
+                when "001" =>
+                    ddr_a <= in_signal_delay_on2x;
+                    ddr_b <= in_signal_on2x;
+                when "101" =>
+                    ddr_a <= in_signal_on2x;
+                    ddr_b <= in_signal_on2x;
+                when "010" =>
+                    ddr_a <= in_signal_delay_on2x;
+                    ddr_b <= in_signal_delay_on2x;
+                when "110" =>
+                    ddr_a <= in_signal_on2x;
+                    ddr_b <= in_signal_on2x;
+                when "011" =>
+                    ddr_a <= in_signal_delay_on2x;
+                    ddr_b <= in_signal_delay_on2x;
+                when "111" =>
+                    ddr_a <= in_signal_delay_on2x;
+                    ddr_b <= in_signal_on2x;
+               when others =>
+            end case;
         end if;
-    end process;
-
-    process (in_signal_on2x, in_signal_delay_on2x, phase_on2x, q_delay_on2x)
-    begin
-        case phase_on2x & q_delay_on2x is
-            when "000" =>
-                ddr_a <= in_signal_on2x;
-                ddr_b <= in_signal_on2x;
-            when "100" =>
-                ddr_a <= in_signal_on2x;
-                ddr_b <= in_signal_on2x;
-            when "001" =>
-                ddr_a <= in_signal_delay_on2x;
-                ddr_b <= in_signal_on2x;
-            when "101" =>
-                ddr_a <= in_signal_on2x;
-                ddr_b <= in_signal_on2x;
-            when "010" =>
-                ddr_a <= in_signal_delay_on2x;
-                ddr_b <= in_signal_delay_on2x;
-            when "110" =>
-                ddr_a <= in_signal_on2x;
-                ddr_b <= in_signal_on2x;
-            when "011" =>
-                ddr_a <= in_signal_delay_on2x;
-                ddr_b <= in_signal_delay_on2x;
-            when "111" =>
-                ddr_a <= in_signal_delay_on2x;
-                ddr_b <= in_signal_on2x;
-           when others =>
-        end case;
-
     end process;
 
     oddr_inst : ODDR port map (
