@@ -1,4 +1,4 @@
-fmc_adc100m Module
+FMC_ADC100M Module
 ==============================
 
 Fields
