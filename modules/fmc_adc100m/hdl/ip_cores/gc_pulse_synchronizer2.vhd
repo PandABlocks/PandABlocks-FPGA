@@ -2,8 +2,8 @@
 -- Title      : Pulse synchronizer
 -- Project    : General Cores Library 
 -------------------------------------------------------------------------------
--- File       : gc_pulse_synchronizer.vhd
--- Author     : Tomasz Wlostowski
+-- File       : gc_pulse_synchronizer2.vhd
+-- Author     : Tomasz Wlostowski, Wesley Terpstra
 -- Company    : CERN BE-CO-HT
 -- Created    : 2012-01-10
 -- Last update: 2012-08-29
@@ -41,17 +41,17 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-use work.gencores_pkg.all;
+--use work.gencores_pkg.all;
 
-entity gc_pulse_synchronizer is
-  
+entity gc_pulse_synchronizer2 is
   port (
     -- pulse input clock
-    clk_in_i  : in  std_logic;
+    clk_in_i    : in  std_logic;
+    rst_in_n_i  : in  std_logic;
     -- pulse output clock
-    clk_out_i : in  std_logic;
-    -- system reset (clk_in_i domain)
-    rst_n_i   : in  std_logic;
+    clk_out_i   : in  std_logic;
+    rst_out_n_i : in  std_logic;
+    
     -- pulse input ready (clk_in_i domain). When HI, a pulse coming to d_p_i will be
     -- correctly transferred to q_p_o.
     d_ready_o : out std_logic;
@@ -60,9 +60,9 @@ entity gc_pulse_synchronizer is
     -- pulse output (clk_out_i domain)
     q_p_o     : out std_logic);
 
-end gc_pulse_synchronizer;
+end gc_pulse_synchronizer2;
 
-architecture rtl of gc_pulse_synchronizer is
+architecture rtl of gc_pulse_synchronizer2 is
 
   constant c_sync_stages : integer := 3;
 
@@ -76,9 +76,9 @@ architecture rtl of gc_pulse_synchronizer is
 
 begin  -- rtl
 
-  process(clk_out_i, rst_n_i)
+  process(clk_out_i, rst_out_n_i)
   begin
-    if rst_n_i = '0' then
+    if rst_out_n_i = '0' then
       d_in2out <= (others => '0');
       out_ext <= '0';
     elsif rising_edge(clk_out_i) then
@@ -88,9 +88,9 @@ begin  -- rtl
   end process;
 
 
-  process(clk_in_i, rst_n_i)
+  process(clk_in_i, rst_in_n_i)
   begin
-    if rst_n_i = '0' then
+    if rst_in_n_i = '0' then
       d_out2in <= (others => '0');
     elsif rising_edge(clk_in_i) then
       d_out2in <= d_out2in(c_sync_stages-2 downto 0) & out_ext;
@@ -99,9 +99,9 @@ begin  -- rtl
 
   out_feedback <= d_out2in(c_sync_stages-1);
 
-  p_input_ack : process(clk_in_i, rst_n_i)
+  p_input_ack : process(clk_in_i, rst_in_n_i)
   begin
-    if rst_n_i = '0' then
+    if rst_in_n_i = '0' then
       ready  <= '1';
       in_ext <= '0';
       d_p_d0 <= '0';
@@ -110,22 +110,20 @@ begin  -- rtl
       d_p_d0 <= d_p_i;
       
       if(ready = '1' and d_p_i = '1' and d_p_d0 = '0') then
-        in_ext <= '1';
+        in_ext <= not in_ext;
         ready  <= '0';
-      elsif(in_ext = '1' and out_feedback = '1') then
-        in_ext <= '0';
-      elsif(in_ext = '0' and out_feedback = '0') then
+      elsif(in_ext = out_feedback) then
         ready <= '1';
       end if;
     end if;
   end process;
 
-  p_drive_output : process(clk_out_i, rst_n_i)
+  p_drive_output : process(clk_out_i, rst_out_n_i)
   begin
-    if rst_n_i = '0' then
+    if rst_out_n_i = '0' then
       q_p_o <= '0';
     elsif rising_edge(clk_out_i) then
-      q_p_o <= not out_ext and d_in2out(c_sync_stages-1);
+      q_p_o <= out_ext xor d_in2out(c_sync_stages-1);
     end if;
   end process;
 
