@@ -49,6 +49,7 @@ constant c_min_val       : unsigned(31 downto 0) := x"80000000";
 
 constant mode_normal     : std_logic_vector(31 downto 0) := x"00000000";
 constant mode_ratemeter  : std_logic_vector(31 downto 0) := x"00000001";
+constant mode_scaler     : std_logic_vector(31 downto 0) := x"00000002";
 
 constant c_step_size_one : std_logic_vector(31 downto 0) := x"00000001";
 
@@ -61,6 +62,7 @@ signal enable_rise      : std_logic;
 signal enable_fall      : std_logic;
 signal counter          : unsigned(31 downto 0) := (others => '0');
 signal counter_latch    : unsigned(31 downto 0) := (others => '0');
+signal counter_end      : unsigned(31 downto 0) := (others => '0');
 signal STEP_default     : std_logic_vector(31 downto 0);
 signal MAX_VAL          : unsigned(31 downto 0) := c_max_val;
 signal MIN_VAL          : unsigned(31 downto 0) := c_min_val;
@@ -122,9 +124,11 @@ begin
         -- Re-load on enable rising edge
         if (enable_rise = '1') then
             counter <= unsigned(START);
+            counter_end <= unsigned(START);
         -- Drop the carry signal on falling enable
         elsif (enable_fall = '1') then
             counter_carry <= '0';
+            counter_end <= unsigned(next_counter(31 downto 0));
         -- Count up/down on trigger
         elsif (enable_i = '1' and trigger_rise = '1') then
             -- Initialise next_counter with current value
@@ -159,7 +163,9 @@ begin
     end if;
 end process;
 
-out_o <= std_logic_vector(counter_latch) when MODE = mode_ratemeter else std_logic_vector(counter);
+out_o <= std_logic_vector(counter_latch) when MODE = mode_ratemeter else
+         std_logic_vector(counter_end) when MODE = mode_scaler else
+         std_logic_vector(counter);
 carry_o <= counter_carry;
 
 
