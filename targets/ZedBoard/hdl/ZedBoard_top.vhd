@@ -599,8 +599,8 @@ FMC_io.FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P;
 FMC_io.FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N;
 FMC_i.FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P;
 FMC_i.FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N;
-FMC_i.MAC_ADDR <= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
-FMC_i.MAC_ADDR_WS <= '0';
+-- FMC_i.MAC_ADDR <= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
+-- FMC_i.MAC_ADDR_WS <= '0';
 
 
 ---------------------------------------------------------------------------

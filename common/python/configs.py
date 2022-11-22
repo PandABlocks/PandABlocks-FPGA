@@ -103,6 +103,10 @@ class BlockConfig(object):
         self.block_address = None
         #: If the type == sfp, which site number
         self.site = site
+        if site:
+            self.site_LOC = "FMC" if "fmc" in site else site.upper()
+        else:
+            self.site_LOC = None
         #: The VHDL entity name, like lut
         self.entity = ini.get(".", "entity")
         #: Is the block soft, sfp, fmc or dma?
@@ -155,8 +159,12 @@ class BlockConfig(object):
         combinedInterfaces=[] # type: List[tuple]
         for interface in interfaces:
             if self.site:
+                site_split_name, site_split_num, _ = re.split('(\d)', self.site)
                 split=interface.split("_")
-                numberedInterface=split[0]+str(self.site)+"_"+split[1]
+                if (site_split_name in interface):
+                    numberedInterface=split[0]+site_split_num+"_"+split[1]
+                else:
+                    numberedInterface=split[0]+"_"+self.site+"_"+split[1]
                 combinedInterface=(interface,numberedInterface)
             else:
                 combinedInterface=(interface, interface)
@@ -166,10 +174,9 @@ class BlockConfig(object):
     def generateInterfaceConstraints(self):
         """Generate MGT Pints constraints"""
         self.interfaceConstraints=[]
-        for interface in self.interfaces:
-            constraint = interface[1].split("_")[0].upper() + "_MGT_pins.xdc"
-            if constraint not in self.interfaceConstraints:
-                self.interfaceConstraints.append(constraint)
+        constraint = self.site_LOC + "_MGT_pins.xdc"
+        if constraint not in self.interfaceConstraints:
+            self.interfaceConstraints.append(constraint)
 
 def make_getter_setter(config):
     def getter(self):
@@ -570,11 +577,12 @@ class TargetSiteConfig(object):
     type_regex = None
 
     def __init__(self, name, info):
-        # type: (str, int, int, int, str) -> None
+        # type: (str,  str) -> None
         #: The type of target site (SFP/FMC etc)
         self.name = name
         #: The info i in a string such as "3, i, io, o"
         self.number = int(info.split(", ",1)[0])
+        self.locations = [str(i) for i in range(1, self.number + 1)]
         self.dirs = [] #type List[Str]
         self.interfaces = [] #type List[Str]
         self.io_present(info.split(", ",1)[1])
@@ -587,4 +595,10 @@ class TargetSiteConfig(object):
         for option in options:
             self.dirs.append(option)
             self.interfaces.append(self.name + "_" + option)
+
+    def lpc(self):
+        # An lpc FMC allows for an additional FMC site
+        if "sfp" in self.name:
+            self.number += 1
+            self.locations.append("_fmc0")
 

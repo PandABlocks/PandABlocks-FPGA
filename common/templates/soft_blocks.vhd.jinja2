@@ -55,14 +55,14 @@ port (
                 {% endif %}
             {% endfor %}
         {% else %}
-            {% for i in range (site.number) %}
+            {% for location in site.locations %}
                 {% for dir in site.dirs %}
                     {% if dir == "i" %}
-    {{pad(site.name + (i+1)|string + "_i")}} : in    {{site.name}}_input_interface;
+    {{pad(site.name + location|string + "_i")}} : in    {{site.name}}_input_interface;
                     {% elif dir =="io" %}
-    {{pad(site.name+ (i+1)|string +"_io")}} : inout {{site.name}}_inout_interface := {{site.name}}_io_init;
+    {{pad(site.name + location|string +"_io")}} : inout {{site.name}}_inout_interface := {{site.name}}_io_init;
                     {% elif dir =="o" %}
-    {{pad(site.name+ (i+1)|string +"_o")}} : out   {{site.name}}_output_interface := {{site.name}}_o_init;
+    {{pad(site.name + location|string +"_o")}} : out   {{site.name}}_output_interface := {{site.name}}_o_init;
                     {% endif %}
                 {% endfor %}
             {% endfor %}

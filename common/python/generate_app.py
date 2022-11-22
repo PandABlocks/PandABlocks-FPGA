@@ -36,7 +36,9 @@ TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 # ini file
 FPGA_OPTIONS_DEFAULTS = {
     'pcap_std_dev': False,
-    'fine_delay': False
+    'fine_delay': False,
+    "fmc_lpc": False
+
 }
 
 
@@ -172,15 +174,22 @@ class AppGenerator(object):
                 # If a site has been specified, is it valid?
                 if siteInfo:
                     siteType=siteInfo.split(" ")[0]
-                    siteNumber=int(siteInfo.split(" ")[1])
-                    for site in self.target_sites:
-                        if siteType in site.name:
-                            target_sites = site.number
-                    assert siteNumber in range(1, target_sites + 1), \
-                        "Block %s in %s_site %s. Target only has %d sites" % (
-                            section, siteType, siteNumber, target_sites)
+                    siteNumber=siteInfo.split(" ")[1]
+                    if siteNumber.isdigit():
+                        blockSite=siteType + str(int(siteNumber))
+                        for site in self.target_sites:
+                            if siteType in site.name:
+                                target_sites = site.number
+                                assert int(siteNumber) in range(1, target_sites + 1), \
+                                    "Block %s in %s_site %s. Target only has %d sites" % (
+                                    section, siteType, siteNumber, target_sites)
+                    else:
+                        blockSite=siteNumber
+                        assert self.fpga_options['fmc_lpc'], "Using \
+                             additional SFP sites but fmc_lpc is not \
+                              specified on carrier"
                 else:
-                    siteNumber=None;
+                    blockSite=None;
 
                 if block_type:
                     ini_name = ini_get(
@@ -193,7 +202,7 @@ class AppGenerator(object):
                 ini_path = os.path.join(path, module_name, ini_name)
                 # Type is soft if the block is a softblock and carrier
                 # for carrier block
-                block = BlockConfig(section, type, number, ini_path, siteNumber)
+                block = BlockConfig(section, type, number, ini_path, blockSite)
                 block.register_addresses(self.counters)
                 self.fpga_blocks.append(block)
                 # Copy the fpga_blocks to the server blocks. Most blocks will
@@ -230,6 +239,9 @@ class AppGenerator(object):
                     # afterwards and we don't want to affect fpga_blocks
                     server_block = copy.deepcopy(block)
                     self.server_blocks.append(server_block)
+        if self.fpga_options['fmc_lpc']:
+            for interface in self.target_sites:
+                interface.lpc()
 
     def expand_template(self, template_name, context, out_dir, out_fname,
                         template_dir=None):
@@ -351,8 +363,8 @@ class AppGenerator(object):
                         interfaceMatch = True
                         target_sites_num = site.number
                 assert interfaceMatch == True, "No %s interface on Carrier" % moduleInterface[0]
-                if target_sites_num > 1:
-                    assert block.site > 0,"No site defined for %s" % block.name
+                # if target_sites_num > 1:
+                #     assert block.site > 0,"No site defined for %s" % block.name
 
     def generate_constraints(self):
         """Generate constraints file for IPs, SFP and FMC constraints"""
