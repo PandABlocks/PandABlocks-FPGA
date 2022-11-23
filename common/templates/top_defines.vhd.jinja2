@@ -68,15 +68,9 @@ end record;
 
 type FMC_input_interface is
   record
-    EXTCLK          : std_logic;
     FMC_PRSNT       : std_logic;
     FMC_CLK1_M2C_P  : std_logic;
     FMC_CLK1_M2C_N  : std_logic;
-    GTREFCLK        : std_logic;
-    RXP_IN          : std_logic;
-    RXN_IN          : std_logic;
-    MAC_ADDR        : std_logic_vector(47 downto 0);
-    MAC_ADDR_WS     : std_logic;
   end record FMC_input_interface;
 
 type FMC_inout_interface is
@@ -92,15 +86,6 @@ constant FMC_io_init : FMC_inout_interface := (FMC_LA_P => (others => 'Z'),
                                                FMC_CLK0_M2C_P => 'Z',
                                                FMC_CLK0_M2C_N => 'Z');
 
-type FMC_output_interface is
-  record
-    TXP_OUT         : std_logic;
-    TXN_OUT         : std_logic;
-  end record FMC_output_interface;
-
-constant FMC_o_init : FMC_output_interface := (TXP_OUT => 'Z',
-                                               TXN_OUT => 'Z');
-
 -- SFP Block Record declarations
 
 type SFP_input_interface is
@@ -111,7 +96,6 @@ type SFP_input_interface is
     RXP_IN      : std_logic;
     MAC_ADDR    : std_logic_vector(47 downto 0);
     MAC_ADDR_WS : std_logic;
-    MGT_CLK_SEL : std_logic;
   end record SFP_input_interface;
 
 type SFP_output_interface is

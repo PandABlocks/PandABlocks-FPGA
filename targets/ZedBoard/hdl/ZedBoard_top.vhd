@@ -183,7 +183,6 @@ signal FMC_MAC_ADDR_ARR     : std32_array(2*NUM_FMC-1 downto 0);
 
 -- FMC Block
 signal FMC_i  : FMC_input_interface;
-signal FMC_o  : FMC_output_interface := FMC_o_init;
 signal FMC_io : FMC_inout_interface  := FMC_io_init;
 
 component panda_ps is
@@ -633,8 +632,7 @@ port map(
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
     FMC_i => FMC_i,
-    FMC_io => FMC_io,
-    FMC_o => FMC_o    
+    FMC_io => FMC_io
 );
 
 
