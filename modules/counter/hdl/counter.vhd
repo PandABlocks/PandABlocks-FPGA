@@ -46,8 +46,8 @@ constant c_max_val       : unsigned(31 downto 0) := x"7fffffff";
 -- Minimum value = 080000000 (-2**31   = -2147483648 dec, 80000000)
 constant c_min_val       : unsigned(31 downto 0) := x"80000000";
 
-constant mode_on_change  : std_logic_vector(31 downto 0) := x"00000000";
-constant mode_on_disable : std_logic_vector(31 downto 0) := x"00000001";
+constant out_on_change   : std_logic_vector(31 downto 0) := x"00000000";
+constant out_on_disable  : std_logic_vector(31 downto 0) := x"00000001";
 
 constant c_step_size_one : std_logic_vector(31 downto 0) := x"00000001";
 
@@ -119,36 +119,33 @@ begin
             counter_carry <= '0';
             counter_end <= unsigned(next_counter(31 downto 0));
             carry_end <= carry_latch;
-        elsif (enable_i = '1') then
+        elsif (enable_i = '1' and trigger_rise = '1') then
             -- Count up/down on trigger
-            if (trigger_rise = '1') then
-                -- Initialise next_counter with current value
-                next_counter := resize(signed(counter),next_counter'length);
-                -- Direction
-                if (dir_i = '0') then
-                    next_counter := next_counter + signed(STEP_default);
-                else
-                    next_counter := next_counter - signed(STEP_default);
-                end if;
-                -- Check to see if we are crossing from the positive to negative or
-                -- negative to positive boundaries if we do set the carry bit
-                if (next_counter > signed(MAX_VAL)) then
-                    -- Crossing boundary positive
-                    counter_carry <= '1';
-                    next_counter := next_counter - signed(MAX_VAL - MIN_VAL + 1);
-                elsif (next_counter < signed(MIN_VAL)) then
-                    -- Crossing boundary negative
-                    counter_carry <= '1';
-                    next_counter := next_counter + signed(MAX_VAL - MIN_VAL + 1);
-                end if;
-                -- Increment the counter
-                -- This might overflow if MAX - MIN < STEP, but we don't care
-                -- about that use case
-                counter <= unsigned(next_counter(31 downto 0));
+            -- Initialise next_counter with current value
+            next_counter := resize(signed(counter),next_counter'length);
+            -- Direction
+            if (dir_i = '0') then
+                next_counter := next_counter + signed(STEP_default);
+            else
+                next_counter := next_counter - signed(STEP_default);
             end if;
-            if (counter_carry = '1') then 
+            -- Check to see if we are crossing from the positive to negative or
+            -- negative to positive boundaries if we do set the carry bit
+            if (next_counter > signed(MAX_VAL)) then
+                -- Crossing boundary positive
+                counter_carry <= '1';
                 carry_latch <= '1';
-            end if;        
+                next_counter := next_counter - signed(MAX_VAL - MIN_VAL + 1);
+            elsif (next_counter < signed(MIN_VAL)) then
+                -- Crossing boundary negative
+                counter_carry <= '1';
+                carry_latch <= '1';
+                next_counter := next_counter + signed(MAX_VAL - MIN_VAL + 1);
+            end if;
+            -- Increment the counter
+            -- This might overflow if MAX - MIN < STEP, but we don't care
+            -- about that use case
+            counter <= unsigned(next_counter(31 downto 0));
         elsif (trig_i = '0') then
             -- Need to stop the counter_carry when trig_i is low
             counter_carry <= '0';
@@ -156,9 +153,9 @@ begin
     end if;
 end process;
 
-out_o <= std_logic_vector(counter_end) when OUT_MODE = mode_on_disable else
+out_o <= std_logic_vector(counter_end) when OUT_MODE = out_on_disable else
          std_logic_vector(counter);
-carry_o <= carry_end when OUT_MODE = mode_on_disable else
+carry_o <= carry_end when OUT_MODE = out_on_disable else
            counter_carry;
 
 end rtl;
