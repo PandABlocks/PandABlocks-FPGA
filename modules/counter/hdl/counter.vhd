@@ -20,13 +20,12 @@ port (
     -- Clock and Reset
     clk_i               : in  std_logic;
     -- Block Input and Outputs
-    reload_i            : in  std_logic;
     enable_i            : in  std_logic;
     trig_i              : in  std_logic;
     dir_i               : in  std_logic;
     carry_o             : out std_logic;
     -- Block Parameters
-    MODE                : in  std_logic_vector(31 downto 0);
+    OUT_MODE            : in  std_logic_vector(31 downto 0);
     START               : in  std_logic_vector(31 downto 0);
     START_WSTB          : in  std_logic;
     STEP                : in  std_logic_vector(31 downto 0);
@@ -47,26 +46,24 @@ constant c_max_val       : unsigned(31 downto 0) := x"7fffffff";
 -- Minimum value = 080000000 (-2**31   = -2147483648 dec, 80000000)
 constant c_min_val       : unsigned(31 downto 0) := x"80000000";
 
-constant mode_normal     : std_logic_vector(31 downto 0) := x"00000000";
-constant mode_ratemeter  : std_logic_vector(31 downto 0) := x"00000001";
-constant mode_scaler     : std_logic_vector(31 downto 0) := x"00000002";
+constant mode_on_change  : std_logic_vector(31 downto 0) := x"00000000";
+constant mode_on_disable : std_logic_vector(31 downto 0) := x"00000001";
 
 constant c_step_size_one : std_logic_vector(31 downto 0) := x"00000001";
 
-signal reload_prev       : std_logic;
-signal reload_rise       : std_logic;
 signal trigger_prev     : std_logic;
 signal trigger_rise     : std_logic;
 signal enable_prev      : std_logic;
 signal enable_rise      : std_logic;
 signal enable_fall      : std_logic;
 signal counter          : unsigned(31 downto 0) := (others => '0');
-signal counter_latch    : unsigned(31 downto 0) := (others => '0');
 signal counter_end      : unsigned(31 downto 0) := (others => '0');
 signal STEP_default     : std_logic_vector(31 downto 0);
 signal MAX_VAL          : unsigned(31 downto 0) := c_max_val;
 signal MIN_VAL          : unsigned(31 downto 0) := c_min_val;
 signal counter_carry    : std_logic;
+signal carry_latch      : std_logic;
+signal carry_end        : std_logic;
 
 begin
 
@@ -77,13 +74,11 @@ begin
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        reload_prev <= reload_i;
         trigger_prev <= trig_i;
         enable_prev <= enable_i;
     end if;
 end process;
 
-reload_rise <= reload_i and not reload_prev;
 trigger_rise <= trig_i and not trigger_prev;
 enable_rise <= enable_i and not enable_prev;
 enable_fall <= not enable_i and enable_prev;
@@ -115,47 +110,45 @@ begin
             MIN_VAL <= unsigned(MIN);
         end if;
 
-        -- Re-load current value on reload rising edge
-        if (reload_rise = '1') then
-            counter <= unsigned(START);
-            counter_carry <= '0';
-        end if;
-
         -- Re-load on enable rising edge
         if (enable_rise = '1') then
             counter <= unsigned(START);
-            counter_end <= unsigned(START);
+            carry_latch <= '0';
         -- Drop the carry signal on falling enable
         elsif (enable_fall = '1') then
             counter_carry <= '0';
             counter_end <= unsigned(next_counter(31 downto 0));
-        -- Count up/down on trigger
-        elsif (enable_i = '1' and trigger_rise = '1') then
-            -- Initialise next_counter with current value
-            next_counter := resize(signed(counter),next_counter'length);
-            -- Direction
-            if (dir_i = '0') then
-                next_counter := next_counter + signed(STEP_default);
-            else
-                next_counter := next_counter - signed(STEP_default);
+            carry_end <= carry_latch;
+        elsif (enable_i = '1') then
+            -- Count up/down on trigger
+            if (trigger_rise = '1') then
+                -- Initialise next_counter with current value
+                next_counter := resize(signed(counter),next_counter'length);
+                -- Direction
+                if (dir_i = '0') then
+                    next_counter := next_counter + signed(STEP_default);
+                else
+                    next_counter := next_counter - signed(STEP_default);
+                end if;
+                -- Check to see if we are crossing from the positive to negative or
+                -- negative to positive boundaries if we do set the carry bit
+                if (next_counter > signed(MAX_VAL)) then
+                    -- Crossing boundary positive
+                    counter_carry <= '1';
+                    next_counter := next_counter - signed(MAX_VAL - MIN_VAL + 1);
+                elsif (next_counter < signed(MIN_VAL)) then
+                    -- Crossing boundary negative
+                    counter_carry <= '1';
+                    next_counter := next_counter + signed(MAX_VAL - MIN_VAL + 1);
+                end if;
+                -- Increment the counter
+                -- This might overflow if MAX - MIN < STEP, but we don't care
+                -- about that use case
+                counter <= unsigned(next_counter(31 downto 0));
             end if;
-            -- Check to see if we are crossing from the positive to negative or
-            -- negative to positive boundaries if we do set the carry bit
-            if (next_counter > signed(MAX_VAL)) then
-                -- Crossing boundary positive
-                counter_carry <= '1';
-                next_counter := next_counter - signed(MAX_VAL - MIN_VAL + 1);
-            elsif (next_counter < signed(MIN_VAL)) then
-                -- Crossing boundary negative
-                counter_carry <= '1';
-                next_counter := next_counter + signed(MAX_VAL - MIN_VAL + 1);
-            end if;
-            -- Increment the counter
-            -- This might overflow if MAX - MIN < STEP, but we don't care
-            -- about that use case
-            counter <= unsigned(next_counter(31 downto 0));
-        elsif (enable_i = '1' and reload_rise = '1') then
-            counter_latch <= unsigned(next_counter(31 downto 0));
+            if (counter_carry = '1') then 
+                carry_latch <= '1';
+            end if;        
         elsif (trig_i = '0') then
             -- Need to stop the counter_carry when trig_i is low
             counter_carry <= '0';
@@ -163,10 +156,9 @@ begin
     end if;
 end process;
 
-out_o <= std_logic_vector(counter_latch) when MODE = mode_ratemeter else
-         std_logic_vector(counter_end) when MODE = mode_scaler else
+out_o <= std_logic_vector(counter_end) when OUT_MODE = mode_on_disable else
          std_logic_vector(counter);
-carry_o <= counter_carry;
-
+carry_o <= carry_end when OUT_MODE = mode_on_disable else
+           counter_carry;
 
 end rtl;
