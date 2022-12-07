@@ -1,7 +1,7 @@
 CLOCK - Configurable clock
 ==========================
 
-The CLOCK block contains a user-settable 50% duty cycle clock.
+The CLOCK block contains a user-settable clock with parametable width and period.
 
 Fields
 ------
@@ -11,12 +11,20 @@ Fields
 Setting clock period parameters
 -------------------------------
 
-Each time a clock parameter is set, the clock restarts from that point with
-the new period value.
+Each time a clock width or period parameter is set, the clock restarts from that point with
+the new width and period value.
 
 .. timing_plot::
    :path: modules/clock/clock.timing.ini
    :section: Setting a parameter starts clock
+
+The clock is disabled when both width and period parameters are set to 0.
+If period is smaller or egale to width then it'll be adjusted to (width + 1) and at least to 2.
+If width=0, then the clock duty-cycle will be 50%:
+
+.. timing_plot::
+   :path: modules/clock/clock.timing.ini
+   :section: Run clock with WIDTH and PERIOD parameters
 
 Clock settings while disabled
 -----------------------------
