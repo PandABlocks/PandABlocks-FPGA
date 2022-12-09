@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PCAP - Position Capture &mdash; PandABlocks-FPGA 3.0a2-80-gd1a157f
+  <title>PCAP - Position Capture &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-80-gd1a157f
+                3.0a2-85-g543a3e0
 
               </div>
 <div role="search">
@@ -624,15 +624,91 @@ current capture:</p>
 </section>
 <section id="mode-6-7-8-sum-of-squared-values-lo-mid-hi">
 <h3>Mode 6/7/8 - Sum of Squared values Lo/Mid/Hi<a class="headerlink" href="#mode-6-7-8-sum-of-squared-values-lo-mid-hi" title="Permalink to this headline"></a></h3>
-<p>Mode 6 is the lower 32-bits of the sum of all samples squared values while GATE was high:
-Mode 7 is the middle 32-bits of the sum of all samples squared values while GATE was high:
-Mode 8 is the upper 32-bits of the sum of all samples squared values while GATE was high:</p>
-<p>Mode 6,7 and 8  together gives the full 96-bits of sum of squared values,
+<p>Mode 6/7/8 is only implemented when target supports pcap_std_dev fpga option.</p>
+<p>Mode 6, 7 and 8 together gives the full 96-bits of sum of squared values
 needed for any sizeable values on the pos_bus.</p>
+<p>Mode 6 is the lower 32-bits while GATE was high, Mode 7 is the middle 32-bits,
+and Mode 8 is the higher 32-bits:</p>
+<p>(<a class="reference external" href="../build/pcap_doc-11.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-11.png">png</a>, <a class="reference external" href="../build/pcap_doc-11.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-11.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="../_images/pcap_doc-11.png" class="plot-directive" src="../_images/pcap_doc-11.png" />
+</figure>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 27%" />
+<col style="width: 27%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Row</p></th>
+<th class="head"><p>0x26</p></th>
+<th class="head"><p>0x27</p></th>
+<th class="head"><p>0x28</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>18</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>176</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>8</p></td>
+<td><p>4294967288</p></td>
+<td><p>1</p></td>
+</tr>
+</tbody>
+</table>
 <p>If long frame times (&gt; 2**32 SAMPLES, &gt; 30s), are to be used, then SHIFT_SUM
 can be used to shift both the sum of squared values and SAMPLES field
-by  up to 8-bits to accomodate up to 125 hour frames.</p>
-<p>Mode 6/7/8 is only implemented only target supports pcap_std_dev fpga option.</p>
+by up to 8-bits to accomodate up to 125 hour frames:</p>
+<p>(<a class="reference external" href="../build/pcap_doc-12.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-12.png">png</a>, <a class="reference external" href="../build/pcap_doc-12.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-12.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="../_images/pcap_doc-12.png" class="plot-directive" src="../_images/pcap_doc-12.png" />
+</figure>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Row</p></th>
+<th class="head"><p>0x26</p></th>
+<th class="head"><p>0x27</p></th>
+<th class="head"><p>0x28</p></th>
+<th class="head"><p>0x260</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>9</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>88</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>3</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>4</p></td>
+<td><p>4294967292</p></td>
+<td><p>0</p></td>
+<td><p>4</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
 <section id="number-of-samples">
@@ -642,9 +718,9 @@ ticks that GATE was high during a single CAPTURE. This field allows the TCP
 server to offer “Mean” as a capture option, dividing “Sum” by SAMPLES to get
 the mean value of the field during the capture period. It can also be captured
 separately to give the gate length:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-11.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-11.png">png</a>, <a class="reference external" href="../build/pcap_doc-11.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-11.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href="../build/pcap_doc-13.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-13.png">png</a>, <a class="reference external" href="../build/pcap_doc-13.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-13.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="../_images/pcap_doc-11.png" class="plot-directive" src="../_images/pcap_doc-11.png" />
+<img alt="../_images/pcap_doc-13.png" class="plot-directive" src="../_images/pcap_doc-13.png" />
 </figure>
 <table class="docutils align-default">
 <colgroup>
@@ -680,9 +756,9 @@ after the last gate high). These are again split into two 32-bit segments so
 only the lower bits need to be captured for short captures. In the following
 example we capture TS_START (0x20), TS_END (0x22) and TS_CAPTURE (0x24) lower
 bits:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-12.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-12.png">png</a>, <a class="reference external" href="../build/pcap_doc-12.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-12.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href="../build/pcap_doc-14.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-14.png">png</a>, <a class="reference external" href="../build/pcap_doc-14.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-14.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="../_images/pcap_doc-12.png" class="plot-directive" src="../_images/pcap_doc-12.png" />
+<img alt="../_images/pcap_doc-14.png" class="plot-directive" src="../_images/pcap_doc-14.png" />
 </figure>
 <table class="docutils align-default">
 <colgroup>
@@ -727,9 +803,9 @@ bits:</p>
 <p>The state of the bit bus at capture can also be captured. It is split into 4
 quadrants of 32-bits each. For example, to capture signals 0..31 on the bit bus
 we would use BITS0 (0x27):</p>
-<p>(<a class="reference external" href="../build/pcap_doc-13.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-13.png">png</a>, <a class="reference external" href="../build/pcap_doc-13.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-13.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href="../build/pcap_doc-15.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-15.png">png</a>, <a class="reference external" href="../build/pcap_doc-15.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-15.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="../_images/pcap_doc-13.png" class="plot-directive" src="../_images/pcap_doc-13.png" />
+<img alt="../_images/pcap_doc-15.png" class="plot-directive" src="../_images/pcap_doc-15.png" />
 </figure>
 <table class="docutils align-default">
 <colgroup>
@@ -757,9 +833,9 @@ we would use BITS0 (0x27):</p>
 </tbody>
 </table>
 <p>By capturing all 4 quadrants (0x27..0x2A) we get the whole bit bus:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-14.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-14.png">png</a>, <a class="reference external" href="../build/pcap_doc-14.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-14.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href="../build/pcap_doc-16.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-16.png">png</a>, <a class="reference external" href="../build/pcap_doc-16.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-16.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="../_images/pcap_doc-14.png" class="plot-directive" src="../_images/pcap_doc-14.png" />
+<img alt="../_images/pcap_doc-16.png" class="plot-directive" src="../_images/pcap_doc-16.png" />
 </figure>
 <table class="docutils align-default">
 <colgroup>
@@ -816,9 +892,9 @@ Triggering on falling edge would be used if you have a gate signal that
 marks the capture boundaries and want sum or difference data within. For
 example, to capture the amount POS[1] changes in each capture gate we could
 connect GATE and CAPTURE to the same signal:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-15.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-15.png">png</a>, <a class="reference external" href="../build/pcap_doc-15.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-15.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href="../build/pcap_doc-17.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-17.png">png</a>, <a class="reference external" href="../build/pcap_doc-17.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-17.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="../_images/pcap_doc-15.png" class="plot-directive" src="../_images/pcap_doc-15.png" />
+<img alt="../_images/pcap_doc-17.png" class="plot-directive" src="../_images/pcap_doc-17.png" />
 </figure>
 <table class="docutils align-default">
 <colgroup>
@@ -841,9 +917,9 @@ connect GATE and CAPTURE to the same signal:</p>
 </table>
 <p>Another option would be a gap-less acquisition of sum while gate is high
 with capture boundaries marked with a toggle of CAPTURE:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-16.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-16.png">png</a>, <a class="reference external" href="../build/pcap_doc-16.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-16.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href="../build/pcap_doc-18.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-18.png">png</a>, <a class="reference external" href="../build/pcap_doc-18.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-18.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="../_images/pcap_doc-16.png" class="plot-directive" src="../_images/pcap_doc-16.png" />
+<img alt="../_images/pcap_doc-18.png" class="plot-directive" src="../_images/pcap_doc-18.png" />
 </figure>
 <table class="docutils align-default">
 <colgroup>
@@ -878,9 +954,9 @@ capture fields. If 2 capture signals are too close together HEALTH will be
 set to 1 (Capture events too close together).</p>
 <p>In this example there are 3 fields captured (TS_CAPTURE_L, TS_CAPTURE_H,
 SAMPLES), but only 2 clock ticks between the 2nd and 3rd capture signals:</p>
-<p>(<a class="reference external" href="../build/pcap_doc-17.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-17.png">png</a>, <a class="reference external" href="../build/pcap_doc-17.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-17.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href="../build/pcap_doc-19.py">Source code</a>, <a class="reference external" href="../build/pcap_doc-19.png">png</a>, <a class="reference external" href="../build/pcap_doc-19.hires.png">hires.png</a>, <a class="reference external" href="../build/pcap_doc-19.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="../_images/pcap_doc-17.png" class="plot-directive" src="../_images/pcap_doc-17.png" />
+<img alt="../_images/pcap_doc-19.png" class="plot-directive" src="../_images/pcap_doc-19.png" />
 </figure>
 <table class="docutils align-default">
 <colgroup>
