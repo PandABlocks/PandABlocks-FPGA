@@ -1,81 +1,41 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Blinking LEDs Tutorial &mdash; PandABlocks-FPGA 3.0a2-77-g87b0c9a
- documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blinking LEDs Tutorial &mdash; PandABlocks-FPGA 3.0a2-80-gd1a157f
+ documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
   
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Position Capture Tutorial" href="tutorial2_position_capture.html" />
     <link rel="prev" title="What can PandABlocks do?" href="../index.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: black" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> PandABlocks-FPGA
-          
-
-          
-            
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                3.0a2-77-g87b0c9a
+                3.0a2-80-gd1a157f
 
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -83,12 +43,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
   <style>
     /* style mobile top nav to look like main nav */
     .wy-nav-top {
@@ -96,12 +51,7 @@
     }
   </style>
   
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Introduction</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../index.html">What can PandABlocks do?</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html#how-is-the-documentation-structured">How is the documentation structured?</a><ul class="current">
@@ -133,7 +83,7 @@
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">Tutorials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Blinking LEDs Tutorial</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#opening-the-gui">Opening the GUI</a></li>
@@ -147,7 +97,7 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorial3_position_compare.html">Position Compare Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Reference</span></p>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../blocks.html">Available Blocks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/contributing.html">Contributing</a></li>
@@ -159,8 +109,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../reference/testing.html">Running the tests</a></li>
 </ul>
 
-            
-          
   <!-- Include link to changelog -->
   <a href="https://github.com/PandABlocks/PandABlocks-FPGA/blob/master/CHANGELOG.rst">Changelog</a>
   <!-- Add versions for selected branches + tags -->
@@ -201,76 +149,40 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: black" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">PandABlocks-FPGA</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
       <li>Blinking LEDs Tutorial</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/tutorials/tutorial1_blinking_leds.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="blinking-leds-tutorial">
-<span id="id1"></span><h1>Blinking LEDs Tutorial<a class="headerlink" href="#blinking-leds-tutorial" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="blinking-leds-tutorial">
+<span id="id1"></span><h1>Blinking LEDs Tutorial<a class="headerlink" href="#blinking-leds-tutorial" title="Permalink to this headline"></a></h1>
 <p>This tutorial will introduce you to the basics of PandABlocks, how to wire
 Blocks together to make different LEDs flash at different rates</p>
-<div class="section" id="opening-the-gui">
-<h2>Opening the GUI<a class="headerlink" href="#opening-the-gui" title="Permalink to this headline">¶</a></h2>
+<section id="opening-the-gui">
+<h2>Opening the GUI<a class="headerlink" href="#opening-the-gui" title="Permalink to this headline"></a></h2>
 <p>Point your web browser at the ip address or hostname of the PandA and you will
 be greeted with a welcome page. At the bottom of this page will be links for
 Docs, Control and Admin. You can use the Control link to open the Web Control
 page that we will use in these tutorials. For more information on the Web
 Control, see its entry in the Docs section.</p>
-</div>
-<div class="section" id="loading-the-tutorial-design">
-<h2>Loading the tutorial design<a class="headerlink" href="#loading-the-tutorial-design" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="loading-the-tutorial-design">
+<h2>Loading the tutorial design<a class="headerlink" href="#loading-the-tutorial-design" title="Permalink to this headline"></a></h2>
 <p>The Design dropdown box allows you to select from saved designs stored on the
 PandA. Selecting an item from this list will load the saved design over the
 current Block settings. You can use the Save method to save your current
@@ -280,9 +192,9 @@ the Blocks in the PandA will be changed to the following:</p>
 <img alt="../_images/tutorial1_layout.png" src="../_images/tutorial1_layout.png" />
 <p>If you now look at the front panel of the PandA you should see the first 4
 TTL output LEDs turn on sequentially, then turn off in the opposite order.</p>
-</div>
-<div class="section" id="how-the-design-works">
-<h2>How the design works<a class="headerlink" href="#how-the-design-works" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="how-the-design-works">
+<h2>How the design works<a class="headerlink" href="#how-the-design-works" title="Permalink to this headline"></a></h2>
 <p>The CLOCKS Block is creating a 50% duty cycle pulse train with a period of 1s.
 PULSE1..4 are taking this as an input trigger, and producing a different width
 pulse with a different delay for each PULSE Block. These PULSE Blocks work as a
@@ -299,9 +211,9 @@ pulse train.</p>
 <p>You can also try wiring these outputs to different TTLOUT Blocks by clicking
 the Palette icon, dragging a TTLOUT Block onto the canvas, and connecting it
 up by dragging the PULSE out port to the TTLOUT val port.</p>
-</div>
-<div class="section" id="the-bit-bus">
-<h2>The Bit Bus<a class="headerlink" href="#the-bit-bus" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="the-bit-bus">
+<h2>The Bit Bus<a class="headerlink" href="#the-bit-bus" title="Permalink to this headline"></a></h2>
 <p>All ports on the visible Blocks are blue. They represent bits, single boolean
 values that can propagate through the system by connecting Blocks together.
 These outputs can be viewed on their respective Blocks by clicking them on the
@@ -310,72 +222,52 @@ design, or all together by clicking the Bits field in the left hand pane:</p>
 <p>If you scroll down to the section with the Pulse blocks you will see the
 same pattern of flashing lights as on the front of the PandA</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The web GUI polls the PandA at 10Hz, receiving the current value of each bit
+<p class="admonition-title">Note</p>
+<p>The web GUI polls the PandA at 10Hz, receiving the current value of each bit
 and whether it has changed. The web GUI uses this information to reflect the
 current value of each bit if pulsing at less than 5Hz, and displaying a 5Hz
 pulsing value if faster than 5Hz. This means that you will see even short
 pulses reflected on the web GUI. The front panel LEDs have a similar
 behaviour but with a maximum rate of 10Hz.</p>
 </div>
-</div>
-<div class="section" id="conclusion">
-<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this headline"></a></h2>
 <p>This tutorial has shown how to load a saved design and modify some parameters.
 It has also introduced the PULSE delay block that is useful for delaying and
 stretching trigger signals. It has introduced bit outputs and shown how they
 can be connected to the outside world using the TTLOUT Blocks. In the next
 tutorial we will read about position outputs, how they can be set and how they
 can be captured.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="tutorial2_position_capture.html" class="btn btn-neutral float-right" title="Position Capture Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="../index.html" class="btn btn-neutral float-left" title="What can PandABlocks do?" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="What can PandABlocks do?" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial2_position_capture.html" class="btn btn-neutral float-right" title="Position Capture Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2015, Diamond Light Source
+    <p>&#169; Copyright 2015, Diamond Light Source.</p>
+  </div>
 
-    </p>
-  </div> 
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
