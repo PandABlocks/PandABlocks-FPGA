@@ -318,8 +318,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: fgpa-zpkg-*
-          path: artifacts
+          name: zpkgs
+          path: zpkgs
 
       - name: Github Release
         # We pin to the SHA, not the tag, for security reasons.
@@ -327,7 +327,7 @@ jobs:
         uses: softprops/action-gh-release@2d72d869af3bf23602f9593a1e3fd739b80ac1eb  # v0.1.12
         with:
           prerelease: ${{ contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc') }}
-          files: artifacts/*
+          files: zpkgs/*
           body: See [Changelog](CHANGELOG.rst) for more details
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
