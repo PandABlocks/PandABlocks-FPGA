@@ -36,7 +36,7 @@ jobs:
 
       - name: Move to versioned directory
         # e.g. master or 0.1.2
-        run: mv build/PandA-FPGA/html "PandABlocks-fpga/.github/pages/${GITHUB_REF##*/}"
+        run: mv build/html "PandABlocks-fpga/.github/pages/${GITHUB_REF##*/}"
 
       - name: Publish Docs to gh-pages
         # Only master and tags are published
