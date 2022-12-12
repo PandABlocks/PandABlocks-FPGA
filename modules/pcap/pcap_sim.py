@@ -143,11 +143,11 @@ class SumCaptureEntry(CaptureEntry):
 
     def on_falling_gate(self, ts):
         # Add in what we have
-        self.data += (ts - self.prev_ts) * self.prev_value
+        self.data += int((ts - self.prev_ts) * self.prev_value)
 
     def on_gated_value(self, ts):
         # Add all the entries into the sum
-        self.data += (ts - self.prev_ts) * self.prev_value
+        self.data += int((ts - self.prev_ts) * self.prev_value)
         self.latch_value(ts)
 
     def yield_data(self):
