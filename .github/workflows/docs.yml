@@ -30,8 +30,8 @@ jobs:
       # Build docs
       - name: Make docs
         run: |
-          ln -s PandABlocks-fpga/CONFIG.example PandABlocks-fpga/CONFIG
           cd PandABlocks-fpga
+          ln -s CONFIG.example CONFIG
           make docs
 
       - name: Move to versioned directory
