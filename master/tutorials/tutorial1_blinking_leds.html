@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Blinking LEDs Tutorial &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
+  <title>Blinking LEDs Tutorial &mdash; PandABlocks-FPGA 3.0a2-104-gcb76a55
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -33,7 +35,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-85-g543a3e0
+                3.0a2-104-gcb76a55
 
               </div>
 <div role="search">
@@ -169,20 +171,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="blinking-leds-tutorial">
-<span id="id1"></span><h1>Blinking LEDs Tutorial<a class="headerlink" href="#blinking-leds-tutorial" title="Permalink to this headline"></a></h1>
+  <div class="section" id="blinking-leds-tutorial">
+<span id="id1"></span><h1>Blinking LEDs Tutorial<a class="headerlink" href="#blinking-leds-tutorial" title="Permalink to this heading"></a></h1>
 <p>This tutorial will introduce you to the basics of PandABlocks, how to wire
 Blocks together to make different LEDs flash at different rates</p>
-<section id="opening-the-gui">
-<h2>Opening the GUI<a class="headerlink" href="#opening-the-gui" title="Permalink to this headline"></a></h2>
+<div class="section" id="opening-the-gui">
+<h2>Opening the GUI<a class="headerlink" href="#opening-the-gui" title="Permalink to this heading"></a></h2>
 <p>Point your web browser at the ip address or hostname of the PandA and you will
 be greeted with a welcome page. At the bottom of this page will be links for
 Docs, Control and Admin. You can use the Control link to open the Web Control
 page that we will use in these tutorials. For more information on the Web
 Control, see its entry in the Docs section.</p>
-</section>
-<section id="loading-the-tutorial-design">
-<h2>Loading the tutorial design<a class="headerlink" href="#loading-the-tutorial-design" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="loading-the-tutorial-design">
+<h2>Loading the tutorial design<a class="headerlink" href="#loading-the-tutorial-design" title="Permalink to this heading"></a></h2>
 <p>The Design dropdown box allows you to select from saved designs stored on the
 PandA. Selecting an item from this list will load the saved design over the
 current Block settings. You can use the Save method to save your current
@@ -192,9 +194,9 @@ the Blocks in the PandA will be changed to the following:</p>
 <img alt="../_images/tutorial1_layout.png" src="../_images/tutorial1_layout.png" />
 <p>If you now look at the front panel of the PandA you should see the first 4
 TTL output LEDs turn on sequentially, then turn off in the opposite order.</p>
-</section>
-<section id="how-the-design-works">
-<h2>How the design works<a class="headerlink" href="#how-the-design-works" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="how-the-design-works">
+<h2>How the design works<a class="headerlink" href="#how-the-design-works" title="Permalink to this heading"></a></h2>
 <p>The CLOCKS Block is creating a 50% duty cycle pulse train with a period of 1s.
 PULSE1..4 are taking this as an input trigger, and producing a different width
 pulse with a different delay for each PULSE Block. These PULSE Blocks work as a
@@ -211,9 +213,9 @@ pulse train.</p>
 <p>You can also try wiring these outputs to different TTLOUT Blocks by clicking
 the Palette icon, dragging a TTLOUT Block onto the canvas, and connecting it
 up by dragging the PULSE out port to the TTLOUT val port.</p>
-</section>
-<section id="the-bit-bus">
-<h2>The Bit Bus<a class="headerlink" href="#the-bit-bus" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="the-bit-bus">
+<h2>The Bit Bus<a class="headerlink" href="#the-bit-bus" title="Permalink to this heading"></a></h2>
 <p>All ports on the visible Blocks are blue. They represent bits, single boolean
 values that can propagate through the system by connecting Blocks together.
 These outputs can be viewed on their respective Blocks by clicking them on the
@@ -230,17 +232,17 @@ pulsing value if faster than 5Hz. This means that you will see even short
 pulses reflected on the web GUI. The front panel LEDs have a similar
 behaviour but with a maximum rate of 10Hz.</p>
 </div>
-</section>
-<section id="conclusion">
-<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this heading"></a></h2>
 <p>This tutorial has shown how to load a saved design and modify some parameters.
 It has also introduced the PULSE delay block that is useful for delaying and
 stretching trigger signals. It has introduced bit outputs and shown how they
 can be connected to the outside world using the TTLOUT Blocks. In the next
 tutorial we will read about position outputs, how they can be set and how they
 can be captured.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

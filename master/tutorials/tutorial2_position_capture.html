@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Position Capture Tutorial &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
+  <title>Position Capture Tutorial &mdash; PandABlocks-FPGA 3.0a2-104-gcb76a55
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -33,7 +35,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-85-g543a3e0
+                3.0a2-104-gcb76a55
 
               </div>
 <div role="search">
@@ -165,19 +167,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="position-capture-tutorial">
-<span id="id1"></span><h1>Position Capture Tutorial<a class="headerlink" href="#position-capture-tutorial" title="Permalink to this headline"></a></h1>
+  <div class="section" id="position-capture-tutorial">
+<span id="id1"></span><h1>Position Capture Tutorial<a class="headerlink" href="#position-capture-tutorial" title="Permalink to this heading"></a></h1>
 <p>This tutorial will introduce you to the Position Capture interface of
 PandABlocks, how to provide trigger signals to control when these capture points
 are taken and visualize the data.</p>
-<section id="loading-the-tutorial-design">
-<h2>Loading the tutorial design<a class="headerlink" href="#loading-the-tutorial-design" title="Permalink to this headline"></a></h2>
+<div class="section" id="loading-the-tutorial-design">
+<h2>Loading the tutorial design<a class="headerlink" href="#loading-the-tutorial-design" title="Permalink to this heading"></a></h2>
 <p>Select “template_tutorial2_pcap” from the Design dropdown box and the settings
 and wiring of the Blocks in the PandA will be changed to the following:</p>
 <img alt="../_images/tutorial2_layout.png" src="../_images/tutorial2_layout.png" />
-</section>
-<section id="how-the-design-works">
-<h2>How the design works<a class="headerlink" href="#how-the-design-works" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="how-the-design-works">
+<h2>How the design works<a class="headerlink" href="#how-the-design-works" title="Permalink to this heading"></a></h2>
 <p>This design has two CLOCK Blocks, which are enabled as soon as the PCAP Block
 becomes active:</p>
 <ul class="simple">
@@ -193,9 +195,9 @@ counter value.</p></li>
 COUNTER will increment by one, followed by a PCAP trigger half a second later.
 This is best viewed as a timing diagram:</p>
 <p>(<a class="reference external" href="../tutorials/tutorial2_position_capture-1.py">Source code</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-1.png">png</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-1.hires.png">hires.png</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-1.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/tutorial2_position_capture-1.png" class="plot-directive" src="../_images/tutorial2_position_capture-1.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/tutorial2_position_capture-1.png" src="../_images/tutorial2_position_capture-1.png" />
+</div>
 <p>What PCAP does on that trigger is determined by the PCAP Block settings, and
 the contents of the Bits and Positions tables. For Bits you can turn capture
 (instantaneous at the time of trigger) on and off. For Positions, you have a
@@ -306,9 +308,9 @@ to 0.2s, and click PCAP.ARM and you will see the captured value change:</p>
 <p>If we look at the timing plot, we can see this also matched what we expect, the
 value is captured mid way through each increment of 5:</p>
 <p>(<a class="reference external" href="../tutorials/tutorial2_position_capture-2.py">Source code</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-2.png">png</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-2.hires.png">hires.png</a>, <a class="reference external" href="../tutorials/tutorial2_position_capture-2.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/tutorial2_position_capture-2.png" class="plot-directive" src="../_images/tutorial2_position_capture-2.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/tutorial2_position_capture-2.png" src="../_images/tutorial2_position_capture-2.png" />
+</div>
 <p>Now let’s investigate the other options. If we change the Positions table
 so COUNTER1.OUT captures the Diff instead of Value then we will see it captures
 the difference between the value at the rising edge of the gate, and the
@@ -362,17 +364,17 @@ the COUNTER value during the total gate:</p>
 </div>
 <p>This capture output is generally used with encoders, to give the min, max and
 mean value of the encoder over a detector frame.</p>
-</section>
-<section id="conclusion">
-<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this heading"></a></h2>
 <p>This tutorial has shown how to use the Position Capture interface of a PandA
 to capture entries on the position bus, and introduced the different capture
 types. It has also introduced the COUNTER block that is useful connecting to
 the pulse train produced by a <a class="reference external" href="https://hal.archives-ouvertes.fr/hal-01573024/document">V2F</a>. In the next tutorial we will read about
 how to use position compare to generate triggers from position outputs, and
 how to configure position capture to work with it.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

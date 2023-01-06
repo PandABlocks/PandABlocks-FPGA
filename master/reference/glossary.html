@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Glossary &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
+  <title>Glossary &mdash; PandABlocks-FPGA 3.0a2-104-gcb76a55
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -33,7 +35,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-85-g543a3e0
+                3.0a2-104-gcb76a55
 
               </div>
 <div role="search">
@@ -175,51 +177,51 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="glossary">
-<h1>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline"></a></h1>
+  <div class="section" id="glossary">
+<h1>Glossary<a class="headerlink" href="#glossary" title="Permalink to this heading"></a></h1>
 <p>This section defines some commonly used PandABlocks terms.</p>
-<section id="app">
-<span id="id1"></span><h2>App<a class="headerlink" href="#app" title="Permalink to this headline"></a></h2>
+<div class="section" id="app">
+<span id="id1"></span><h2>App<a class="headerlink" href="#app" title="Permalink to this heading"></a></h2>
 <p>An ini file that contains the type and number of Blocks that should be built
 together to form an FPGA image (loadable on a PandABlocks device as a <a class="reference internal" href="#zpkg"><span class="std std-ref">Zpkg</span></a>).</p>
-</section>
-<section id="block">
-<span id="id2"></span><h2>Block<a class="headerlink" href="#block" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="block">
+<span id="id2"></span><h2>Block<a class="headerlink" href="#block" title="Permalink to this heading"></a></h2>
 <p>A piece of FPGA logic that has a number of <a class="reference internal" href="#field"><span class="std std-ref">Field</span></a> instances and does some
 specified calculations on each FPGA clock tick. It may be a soft
 Block like a SEQ, or have hardware connections like a TTLIN Block.</p>
-</section>
-<section id="field">
-<span id="id3"></span><h2>Field<a class="headerlink" href="#field" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="field">
+<span id="id3"></span><h2>Field<a class="headerlink" href="#field" title="Permalink to this heading"></a></h2>
 <p>An input, output or parameter of a <a class="reference internal" href="#block"><span class="std std-ref">Block</span></a>.</p>
-</section>
-<section id="module">
-<span id="id4"></span><h2>Module<a class="headerlink" href="#module" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="module">
+<span id="id4"></span><h2>Module<a class="headerlink" href="#module" title="Permalink to this heading"></a></h2>
 <p>A directory containing <a class="reference internal" href="#block"><span class="std std-ref">Block</span></a> definitions, logic, simulations and timing.
 Modules will typically contain a single soft Block definition, or a number of
 hardware Blocks tied to a particular <a class="reference internal" href="#target-platform"><span class="std std-ref">Target Platform</span></a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Small_form-factor_pluggable_transceiver">SFP</a> or <a class="reference external" href="https://en.wikipedia.org/wiki/FPGA_Mezzanine_Card">FMC</a> card.</p>
-</section>
-<section id="pandabox">
-<span id="id5"></span><h2>PandABox<a class="headerlink" href="#pandabox" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="pandabox">
+<span id="id5"></span><h2>PandABox<a class="headerlink" href="#pandabox" title="Permalink to this heading"></a></h2>
 <p>A <a class="reference internal" href="#pandablocks-device"><span class="std std-ref">PandABlocks Device</span></a> manufactured by <a class="reference external" href="http://www.diamond.ac.uk">Diamond Light Source</a> and <a class="reference external" href="https://www.synchrotron-soleil.fr">SOLEIL</a>.
 Schematics on <a class="reference external" href="https://www.ohwr.org/projects/pandabox/wiki">Open Hardware</a></p>
-</section>
-<section id="pandablocks-device">
-<span id="id6"></span><h2>PandABlocks Device<a class="headerlink" href="#pandablocks-device" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="pandablocks-device">
+<span id="id6"></span><h2>PandABlocks Device<a class="headerlink" href="#pandablocks-device" title="Permalink to this heading"></a></h2>
 <p>A Zynq 7030 based device loaded with PandABlocks <a class="reference external" href="https://github.com/PandABlocks/PandABlocks-rootfs">rootfs</a> so that it runs the
 PandABlocks framework.</p>
-</section>
-<section id="target-platform">
-<span id="id7"></span><h2>Target Platform<a class="headerlink" href="#target-platform" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="target-platform">
+<span id="id7"></span><h2>Target Platform<a class="headerlink" href="#target-platform" title="Permalink to this heading"></a></h2>
 <p>The physical Zynq based hardware that will be loaded with firmware to
 become a <a class="reference internal" href="#pandablocks-device"><span class="std std-ref">PandABlocks Device</span></a> like a <a class="reference internal" href="#pandabox"><span class="std std-ref">PandABox</span></a> or a <a class="reference external" href="http://zedboard.org/product/picozed-fmc-carrier-card-v2">Picozed Carrier</a></p>
-</section>
-<section id="zpkg">
-<span id="id8"></span><h2>Zpkg<a class="headerlink" href="#zpkg" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="zpkg">
+<span id="id8"></span><h2>Zpkg<a class="headerlink" href="#zpkg" title="Permalink to this heading"></a></h2>
 <p>A specially formatted tar file of built files that can be deployed to a
 PandABlocks device</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

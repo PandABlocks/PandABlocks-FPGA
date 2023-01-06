@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Writing a Block &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
+  <title>Writing a Block &mdash; PandABlocks-FPGA 3.0a2-104-gcb76a55
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -33,7 +35,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-85-g543a3e0
+                3.0a2-104-gcb76a55
 
               </div>
 <div role="search">
@@ -188,8 +190,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="writing-a-block">
-<span id="block-reference"></span><h1>Writing a Block<a class="headerlink" href="#writing-a-block" title="Permalink to this headline"></a></h1>
+  <div class="section" id="writing-a-block">
+<span id="block-reference"></span><h1>Writing a Block<a class="headerlink" href="#writing-a-block" title="Permalink to this heading"></a></h1>
 <p>If you have checked the list of <a class="reference internal" href="../blocks.html#blocks-doc"><span class="std std-ref">Available Blocks</span></a> and need a feature that is not
 there you can extend an existing <a class="reference internal" href="glossary.html#block"><span class="std std-ref">Block</span></a> or create a new one. If the feature
 fits with the behaviour of an existing Block and can be added without breaking
@@ -199,30 +201,30 @@ type of behaviour it may be better to make a new one.</p>
 Block, finding a <a class="reference internal" href="glossary.html#module"><span class="std std-ref">Module</span></a> for it, defining the interface, writing the
 simulation, writing the timing tests, documenting the behaviour, and finally
 writing the logic.</p>
-<section id="architecture">
-<h2>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline"></a></h2>
+<div class="section" id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Permalink to this heading"></a></h2>
 <p>An overview of the build process is shown in this diagram, the stages and
 terminology are defined below:</p>
 <img alt="../_images/build_arch.png" src="../_images/build_arch.png" />
-</section>
-<section id="modules">
-<h2>Modules<a class="headerlink" href="#modules" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="modules">
+<h2>Modules<a class="headerlink" href="#modules" title="Permalink to this heading"></a></h2>
 <p>Modules are subdirectories in <code class="docutils literal notranslate"><span class="pre">modules/</span></code> that contain Block definitions. If
 you are writing a soft Block then you will typically create a new Module for it.
 If you are writing a Block with hardware connections it will live in a Module
 for that hardware (e.g. for the FMC card, or for that <a class="reference internal" href="glossary.html#target-platform"><span class="std std-ref">Target Platform</span></a>).</p>
 <p>To create a new module, simply create a new directory in <code class="docutils literal notranslate"><span class="pre">modules/</span></code></p>
-</section>
-<section id="block-ini">
-<span id="block-ini-reference"></span><h2>Block ini<a class="headerlink" href="#block-ini" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="block-ini">
+<span id="block-ini-reference"></span><h2>Block ini<a class="headerlink" href="#block-ini" title="Permalink to this heading"></a></h2>
 <p>The first thing that should be defined when creating a new Block is the
 interface to the rest of the framework. This consists of an ini file that
 contains all the information that the framework needs to integrate some VHDL
 logic into the system. It lives in the Module directory and has the extension
 <code class="docutils literal notranslate"><span class="pre">.block.ini</span></code>. It consists of a top level section with information
 about the Block, then a section for every <a class="reference internal" href="glossary.html#field"><span class="std std-ref">Field</span></a> in the Block.</p>
-<section id="the-section">
-<h3>The [.] section<a class="headerlink" href="#the-section" title="Permalink to this headline"></a></h3>
+<div class="section" id="the-section">
+<h3>The [.] section<a class="headerlink" href="#the-section" title="Permalink to this heading"></a></h3>
 <p>The first entry to the ini file describes the block as a whole. It looks like
 this:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[.]</span><span class="w"></span>
@@ -249,9 +251,9 @@ files, relative to the module’s directory.</p>
 configuration.</p>
 <p>If the <code class="docutils literal notranslate"><span class="pre">extension</span></code> field is present then the <code class="docutils literal notranslate"><span class="pre">extensions</span></code> directory in the
 module must exist and contain a python server extension file.</p>
-</section>
-<section id="field-sections">
-<h3>[FIELD] sections<a class="headerlink" href="#field-sections" title="Permalink to this headline"></a></h3>
+</div>
+<div class="section" id="field-sections">
+<h3>[FIELD] sections<a class="headerlink" href="#field-sections" title="Permalink to this heading"></a></h3>
 <p>All other sections specify the Field that will be present in the Block. They
 look like this:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[MYFIELD]</span><span class="w"></span>
@@ -276,9 +278,9 @@ what the Field does, visible as a tooltip to users.</p>
 field.  If the <code class="docutils literal notranslate"><span class="pre">extension_reg</span></code> field is also specified then this field is also
 a hardware register.</p>
 <p>If a signal uses a write strobe <code class="docutils literal notranslate"><span class="pre">wstb</span></code> should be set to True.</p>
-</section>
-<section id="extra-field-keys">
-<span id="id1"></span><h3>Extra Field Keys<a class="headerlink" href="#extra-field-keys" title="Permalink to this headline"></a></h3>
+</div>
+<div class="section" id="extra-field-keys">
+<span id="id1"></span><h3>Extra Field Keys<a class="headerlink" href="#extra-field-keys" title="Permalink to this heading"></a></h3>
 <p>Some field types accept extra numeric keys in the Field section to allow extra
 information to be passed to the TCP server via its config file.</p>
 <p>Enum fields would contain numeric keys to translate specific numbers into
@@ -294,10 +296,10 @@ underscores and no spaces. A typical field might look like this:</p>
 </pre></div>
 </div>
 <p>Tables will be defined here too</p>
-</section>
-</section>
-<section id="block-simulation">
-<span id="block-simulation-reference"></span><h2>Block Simulation<a class="headerlink" href="#block-simulation" title="Permalink to this headline"></a></h2>
+</div>
+</div>
+<div class="section" id="block-simulation">
+<span id="block-simulation-reference"></span><h2>Block Simulation<a class="headerlink" href="#block-simulation" title="Permalink to this heading"></a></h2>
 <p>The Block simulation framework allows the behaviour to be specified in Python
 and timing tests to be written against it without writing any VHDL. This is
 beneficial as it allows the behaviour of the Block to be tied down and
@@ -414,14 +416,14 @@ avoids mistakes due to typos like:</p>
 </pre></div>
 </div>
 </div>
-</section>
-<section id="timing-ini">
-<h2>Timing ini<a class="headerlink" href="#timing-ini" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="timing-ini">
+<h2>Timing ini<a class="headerlink" href="#timing-ini" title="Permalink to this heading"></a></h2>
 <p>The purpose of the .timing.ini file is to provide expected data for comparison
 in the testing of the modules. Data should be calculated as to how and when the
 module will behave with a range of inputs.</p>
-<section id="id2">
-<h3>The [.] section<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h3>
+<div class="section" id="id2">
+<h3>The [.] section<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
 <p>The first entry to the ini file describes the timing tests as a whole. It looks
 like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="o">.</span><span class="p">]</span>
@@ -429,9 +431,9 @@ like this:</p>
 <span class="n">scope</span><span class="p">:</span> <span class="n">block</span><span class="o">.</span><span class="n">ini</span> <span class="n">file</span>
 </pre></div>
 </div>
-</section>
-<section id="test-sections">
-<h3>[TEST] sections<a class="headerlink" href="#test-sections" title="Permalink to this headline"></a></h3>
+</div>
+<div class="section" id="test-sections">
+<h3>[TEST] sections<a class="headerlink" href="#test-sections" title="Permalink to this heading"></a></h3>
 <p>The other sections will display the tests inputs and outputs. It looks like
 this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">NAME_OF_TEST</span><span class="p">]</span>
@@ -443,14 +445,14 @@ this:</p>
 <p>The numbers at the left indicate the timestamp at which a change occurs,
 followed by a colon. Any assignments before the -&gt; symbol indicate a change in
 an input and assignments after the -&gt; symbol indicate a change in an output.</p>
-</section>
-</section>
-<section id="target-ini">
-<h2>Target ini<a class="headerlink" href="#target-ini" title="Permalink to this headline"></a></h2>
+</div>
+</div>
+<div class="section" id="target-ini">
+<h2>Target ini<a class="headerlink" href="#target-ini" title="Permalink to this heading"></a></h2>
 <p>A target.ini is written for the blocks which are specific to the target. This
 ini file declares the blocks and their number similar to the app.ini file.</p>
-<section id="id3">
-<h3>The [.] section<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h3>
+<div class="section" id="id3">
+<h3>The [.] section<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
 <p>The first entry to the ini file defines information for the SFP sites for the
 target:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="o">.</span><span class="p">]</span>
@@ -461,23 +463,23 @@ target:</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">sfp_sites</span></code> type is the number of available SFP sites on the target, and
 the <code class="docutils literal notranslate"><span class="pre">sfp_sites</span></code> type is the name of the constraints file for each SFP site,
 located in the target/const directory.</p>
-</section>
-<section id="block-sections">
-<h3>[BLOCK] sections<a class="headerlink" href="#block-sections" title="Permalink to this headline"></a></h3>
+</div>
+<div class="section" id="block-sections">
+<h3>[BLOCK] sections<a class="headerlink" href="#block-sections" title="Permalink to this heading"></a></h3>
 <p>The block sections are handled in the same manner as those within the app.ini
 file, however the type, unless overwritten in the block.ini files for these
 blocks is set to carrier, rather than soft.</p>
-</section>
-</section>
-<section id="writing-docs">
-<h2>Writing docs<a class="headerlink" href="#writing-docs" title="Permalink to this headline"></a></h2>
+</div>
+</div>
+<div class="section" id="writing-docs">
+<h2>Writing docs<a class="headerlink" href="#writing-docs" title="Permalink to this heading"></a></h2>
 <p>Two RST directives, how to structure</p>
-</section>
-<section id="block-vhdl-entity">
-<h2>Block VHDL entity<a class="headerlink" href="#block-vhdl-entity" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="block-vhdl-entity">
+<h2>Block VHDL entity<a class="headerlink" href="#block-vhdl-entity" title="Permalink to this heading"></a></h2>
 <p>How to structure the VHDL entity</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

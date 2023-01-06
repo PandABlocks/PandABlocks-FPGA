@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FILTER - Filter &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
+  <title>FILTER - Filter &mdash; PandABlocks-FPGA 3.0a2-104-gcb76a55
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -33,7 +35,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-85-g543a3e0
+                3.0a2-104-gcb76a55
 
               </div>
 <div role="search">
@@ -225,13 +227,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="filter-filter">
-<h1>FILTER - Filter<a class="headerlink" href="#filter-filter" title="Permalink to this headline"></a></h1>
+  <div class="section" id="filter-filter">
+<h1>FILTER - Filter<a class="headerlink" href="#filter-filter" title="Permalink to this heading"></a></h1>
 <p>The filter block has two different modes of operation: Difference and Average.
 They both work by latching the values on the input and performing an operation
 comparing to the current value.</p>
-<section id="fields">
-<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this headline"></a></h2>
+<div class="section" id="fields">
+<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this heading"></a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 21%" />
@@ -286,59 +288,59 @@ comparing to the current value.</p>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="difference">
-<h2>Difference<a class="headerlink" href="#difference" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="difference">
+<h2>Difference<a class="headerlink" href="#difference" title="Permalink to this heading"></a></h2>
 <p>The difference operation works by latching the value on the input on the rising
 edge of the Enable signal. On a rising edge of the trigger signal the output is
 given as the the current input value minus the latched value.</p>
 <p>(<a class="reference external" href="../build/filter_doc-1.py">Source code</a>, <a class="reference external" href="../build/filter_doc-1.png">png</a>, <a class="reference external" href="../build/filter_doc-1.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-1.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/filter_doc-1.png" class="plot-directive" src="../_images/filter_doc-1.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/filter_doc-1.png" src="../_images/filter_doc-1.png" />
+</div>
 <p>After the operation, the latched value is updated to be the current value on
 the input.</p>
 <p>(<a class="reference external" href="../build/filter_doc-2.py">Source code</a>, <a class="reference external" href="../build/filter_doc-2.png">png</a>, <a class="reference external" href="../build/filter_doc-2.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-2.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/filter_doc-2.png" class="plot-directive" src="../_images/filter_doc-2.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/filter_doc-2.png" src="../_images/filter_doc-2.png" />
+</div>
 <p>The operation continues to work if the current value is less than the latched
 value: a negative result is outputted</p>
 <p>(<a class="reference external" href="../build/filter_doc-3.py">Source code</a>, <a class="reference external" href="../build/filter_doc-3.png">png</a>, <a class="reference external" href="../build/filter_doc-3.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-3.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/filter_doc-3.png" class="plot-directive" src="../_images/filter_doc-3.png" />
-</figure>
-</section>
-<section id="average">
-<h2>Average<a class="headerlink" href="#average" title="Permalink to this headline"></a></h2>
+<div class="figure align-default">
+<img alt="../_images/filter_doc-3.png" src="../_images/filter_doc-3.png" />
+</div>
+</div>
+<div class="section" id="average">
+<h2>Average<a class="headerlink" href="#average" title="Permalink to this heading"></a></h2>
 <p>The average function appends a sum value on each clock pulse. When a trigger
 signal is received it divides the summed value by the number of clock pulses
 that have passed.</p>
 <p>(<a class="reference external" href="../build/filter_doc-4.py">Source code</a>, <a class="reference external" href="../build/filter_doc-4.png">png</a>, <a class="reference external" href="../build/filter_doc-4.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-4.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/filter_doc-4.png" class="plot-directive" src="../_images/filter_doc-4.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/filter_doc-4.png" src="../_images/filter_doc-4.png" />
+</div>
 <p>(<a class="reference external" href="../build/filter_doc-5.py">Source code</a>, <a class="reference external" href="../build/filter_doc-5.png">png</a>, <a class="reference external" href="../build/filter_doc-5.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-5.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/filter_doc-5.png" class="plot-directive" src="../_images/filter_doc-5.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/filter_doc-5.png" src="../_images/filter_doc-5.png" />
+</div>
 <p>(<a class="reference external" href="../build/filter_doc-6.py">Source code</a>, <a class="reference external" href="../build/filter_doc-6.png">png</a>, <a class="reference external" href="../build/filter_doc-6.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-6.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/filter_doc-6.png" class="plot-directive" src="../_images/filter_doc-6.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/filter_doc-6.png" src="../_images/filter_doc-6.png" />
+</div>
 <p>If a calculation is triggered before the calculation is ready, the system will
 show an error on the HEALTH output and will then need to be re-enabled before
 another calculation can be sent.</p>
 <p>(<a class="reference external" href="../build/filter_doc-7.py">Source code</a>, <a class="reference external" href="../build/filter_doc-7.png">png</a>, <a class="reference external" href="../build/filter_doc-7.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-7.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/filter_doc-7.png" class="plot-directive" src="../_images/filter_doc-7.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/filter_doc-7.png" src="../_images/filter_doc-7.png" />
+</div>
 <p>(<a class="reference external" href="../build/filter_doc-8.py">Source code</a>, <a class="reference external" href="../build/filter_doc-8.png">png</a>, <a class="reference external" href="../build/filter_doc-8.hires.png">hires.png</a>, <a class="reference external" href="../build/filter_doc-8.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/filter_doc-8.png" class="plot-directive" src="../_images/filter_doc-8.png" />
-</figure>
-</section>
-</section>
+<div class="figure align-default">
+<img alt="../_images/filter_doc-8.png" src="../_images/filter_doc-8.png" />
+</div>
+</div>
+</div>
 
 
            </div>

@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CLOCK - Configurable clock &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
+  <title>CLOCK - Configurable clock &mdash; PandABlocks-FPGA 3.0a2-104-gcb76a55
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -33,7 +35,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-85-g543a3e0
+                3.0a2-104-gcb76a55
 
               </div>
 <div role="search">
@@ -225,11 +227,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="clock-configurable-clock">
-<h1>CLOCK - Configurable clock<a class="headerlink" href="#clock-configurable-clock" title="Permalink to this headline"></a></h1>
+  <div class="section" id="clock-configurable-clock">
+<h1>CLOCK - Configurable clock<a class="headerlink" href="#clock-configurable-clock" title="Permalink to this heading"></a></h1>
 <p>The CLOCK block contains a user-settable 50% duty cycle clock.</p>
-<section id="fields">
-<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this headline"></a></h2>
+<div class="section" id="fields">
+<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this heading"></a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 21%" />
@@ -257,26 +259,26 @@
 </tr>
 </tbody>
 </table>
-</section>
-<section id="setting-clock-period-parameters">
-<h2>Setting clock period parameters<a class="headerlink" href="#setting-clock-period-parameters" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="setting-clock-period-parameters">
+<h2>Setting clock period parameters<a class="headerlink" href="#setting-clock-period-parameters" title="Permalink to this heading"></a></h2>
 <p>Each time a clock parameter is set, the clock restarts from that point with
 the new period value.</p>
 <p>(<a class="reference external" href="../build/clock_doc-1.py">Source code</a>, <a class="reference external" href="../build/clock_doc-1.png">png</a>, <a class="reference external" href="../build/clock_doc-1.hires.png">hires.png</a>, <a class="reference external" href="../build/clock_doc-1.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/clock_doc-1.png" class="plot-directive" src="../_images/clock_doc-1.png" />
-</figure>
-</section>
-<section id="clock-settings-while-disabled">
-<h2>Clock settings while disabled<a class="headerlink" href="#clock-settings-while-disabled" title="Permalink to this headline"></a></h2>
+<div class="figure align-default">
+<img alt="../_images/clock_doc-1.png" src="../_images/clock_doc-1.png" />
+</div>
+</div>
+<div class="section" id="clock-settings-while-disabled">
+<h2>Clock settings while disabled<a class="headerlink" href="#clock-settings-while-disabled" title="Permalink to this heading"></a></h2>
 <p>To start the clock synchronously you can set them while the Block is disabled.
 It will start on rising edge of ENABLE and be zeroed on the falling edge.</p>
 <p>(<a class="reference external" href="../build/clock_doc-2.py">Source code</a>, <a class="reference external" href="../build/clock_doc-2.png">png</a>, <a class="reference external" href="../build/clock_doc-2.hires.png">hires.png</a>, <a class="reference external" href="../build/clock_doc-2.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/clock_doc-2.png" class="plot-directive" src="../_images/clock_doc-2.png" />
-</figure>
-</section>
-</section>
+<div class="figure align-default">
+<img alt="../_images/clock_doc-2.png" src="../_images/clock_doc-2.png" />
+</div>
+</div>
+</div>
 
 
            </div>

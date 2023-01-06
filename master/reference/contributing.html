@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contributing &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
+  <title>Contributing &mdash; PandABlocks-FPGA 3.0a2-104-gcb76a55
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -33,7 +35,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-85-g543a3e0
+                3.0a2-104-gcb76a55
 
               </div>
 <div role="search">
@@ -169,16 +171,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline"></a></h1>
+  <div class="section" id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading"></a></h1>
 <p>Contributions and issues are most welcome! All issues and pull requests are
 handled through github on the <a class="reference external" href="https://github.com/PandABlocks/PandABlocks-FPGA/issues">PandABlocks repository</a>. Also, please check for
 any existing issues before filing a new one. If you have a great idea but it
 involves big changes, please file a ticket before making a pull request! We
 want to make sure you don’t spend your time coding something that might not fit
 the scope of the project.</p>
-<section id="running-the-tests">
-<h2>Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline"></a></h2>
+<div class="section" id="running-the-tests">
+<h2>Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this heading"></a></h2>
 <p>To get the source source code and run the unit tests, run:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone git://github.com/PandABlocks/PandABlocks-FPGA.git
 $ cd PandABlocks-FPGA
@@ -191,13 +193,13 @@ $ make test_python
 $ make sim_timing
 </pre></div>
 </div>
-</section>
-<section id="writing-vhdl">
-<h2>Writing VHDL<a class="headerlink" href="#writing-vhdl" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="writing-vhdl">
+<h2>Writing VHDL<a class="headerlink" href="#writing-vhdl" title="Permalink to this heading"></a></h2>
 <p>Code styling here…</p>
-</section>
-<section id="writing-python">
-<h2>Writing Python<a class="headerlink" href="#writing-python" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="writing-python">
+<h2>Writing Python<a class="headerlink" href="#writing-python" title="Permalink to this heading"></a></h2>
 <p>Please arrange imports with the following style</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard library imports</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -210,9 +212,9 @@ $ make sim_timing
 </pre></div>
 </div>
 <p>Please follow <a class="reference external" href="https://google.github.io/styleguide/pyguide.html">Google’s python style</a> guide wherever possible.</p>
-</section>
-<section id="documentation">
-<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading"></a></h2>
 <p>There are some conventions:</p>
 <ul class="simple">
 <li><p>First usage of a term in a page should link to an entry in the <a class="reference internal" href="glossary.html"><span class="doc">Glossary</span></a></p></li>
@@ -225,16 +227,16 @@ $ make docs
 $ firefox docs/index.html
 </pre></div>
 </div>
-</section>
-<section id="release-checklist">
-<h2>Release Checklist<a class="headerlink" href="#release-checklist" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="release-checklist">
+<h2>Release Checklist<a class="headerlink" href="#release-checklist" title="Permalink to this heading"></a></h2>
 <p>Before a new release, please go through the following checklist:</p>
 <ul class="simple">
 <li><p>Add a release note in CHANGELOG.rst</p></li>
 <li><p>Git tag the version</p></li>
 </ul>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

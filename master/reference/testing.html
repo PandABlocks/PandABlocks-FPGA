@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Running the tests &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
+  <title>Running the tests &mdash; PandABlocks-FPGA 3.0a2-104-gcb76a55
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -32,7 +34,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-85-g543a3e0
+                3.0a2-104-gcb76a55
 
               </div>
 <div role="search">
@@ -162,16 +164,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="running-the-tests">
-<h1>Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline"></a></h1>
+  <div class="section" id="running-the-tests">
+<h1>Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this heading"></a></h1>
 <p>There are a number of different test systems in place within the
 PandABlocks-FPGA directory. There are python tests to check the output of some
 of the Jinja2 templates, python tests to check the logic of the timing diagram
 and then there are hdl testbenches which test the functionality of the blocks.
 The python tests are ran as part of the Travis tests when a commit is made to
 the git repository, however the hdl testbenches have to be manually ran.</p>
-<section id="python-tests">
-<h2>Python tests<a class="headerlink" href="#python-tests" title="Permalink to this headline"></a></h2>
+<div class="section" id="python-tests">
+<h2>Python tests<a class="headerlink" href="#python-tests" title="Permalink to this heading"></a></h2>
 <p>The first of the python tests, checking the output of the Jinja2 templates, can
 be run from the Makefile:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">python_tests</span>
@@ -181,9 +183,9 @@ be run from the Makefile:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">python_timing</span>
 </pre></div>
 </div>
-</section>
-<section id="hdl-tests">
-<h2>HDL tests<a class="headerlink" href="#hdl-tests" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="hdl-tests">
+<h2>HDL tests<a class="headerlink" href="#hdl-tests" title="Permalink to this heading"></a></h2>
 <p>There are two Makefile functions which can be used to run the hdl testbenches:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">hdl_test</span> <span class="p">(</span><span class="n">MODULE</span><span class="o">=</span><span class="s2">&quot;module name&quot;</span><span class="p">)</span>
 
@@ -196,8 +198,8 @@ module. Please note that the module name is the entity name for the top level
 hdl filein that module.</p>
 <p>The second command will run a single testbench as specified by the module name,
 and the test number separated by a space.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

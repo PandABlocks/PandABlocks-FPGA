@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>What can PandABlocks do? &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
+  <title>What can PandABlocks do? &mdash; PandABlocks-FPGA 3.0a2-104-gcb76a55
  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -32,7 +34,7 @@
             <img src="_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-85-g543a3e0
+                3.0a2-104-gcb76a55
 
               </div>
 <div role="search">
@@ -154,38 +156,38 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="what-can-pandablocks-do">
-<h1>What can PandABlocks do?<a class="headerlink" href="#what-can-pandablocks-do" title="Permalink to this headline"></a></h1>
+  <div class="section" id="what-can-pandablocks-do">
+<h1>What can PandABlocks do?<a class="headerlink" href="#what-can-pandablocks-do" title="Permalink to this heading"></a></h1>
 <p>PandABlocks is a framework enabling a number of functional <a class="reference internal" href="reference/glossary.html#block"><span class="std std-ref">Block</span></a> instances to
 be written and loaded to an FPGA, with their parameters (including their
 connections to other Blocks) changed at runtime. It allows flexible triggering
 and processing systems to be created, by users who are unfamiliar with writing
 FPGA firmware.</p>
 <img alt="_images/fpga_arch.png" src="_images/fpga_arch.png" />
-</section>
-<section id="how-is-the-documentation-structured">
-<h1>How is the documentation structured?<a class="headerlink" href="#how-is-the-documentation-structured" title="Permalink to this headline"></a></h1>
+</div>
+<div class="section" id="how-is-the-documentation-structured">
+<h1>How is the documentation structured?<a class="headerlink" href="#how-is-the-documentation-structured" title="Permalink to this heading"></a></h1>
 <p>The documentation is structured into a series of <a class="reference internal" href="#tutorials-doc"><span class="std std-ref">Tutorials</span></a> and some
 general <a class="reference internal" href="#reference-doc"><span class="std std-ref">Reference</span></a> documentation. End users and developers need different
 documentation, so links for various categories of user are listed below:</p>
-<section id="using-an-existing-pandablocks-device">
-<h2>Using an existing PandABlocks device<a class="headerlink" href="#using-an-existing-pandablocks-device" title="Permalink to this headline"></a></h2>
+<div class="section" id="using-an-existing-pandablocks-device">
+<h2>Using an existing PandABlocks device<a class="headerlink" href="#using-an-existing-pandablocks-device" title="Permalink to this heading"></a></h2>
 <p>Work through the <a class="reference internal" href="#tutorials-doc"><span class="std std-ref">Tutorials</span></a>.</p>
-</section>
-<section id="generating-a-new-set-of-blocks-for-a-pandablocks-device">
-<h2>Generating a new set of Blocks for a PandABlocks device<a class="headerlink" href="#generating-a-new-set-of-blocks-for-a-pandablocks-device" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="generating-a-new-set-of-blocks-for-a-pandablocks-device">
+<h2>Generating a new set of Blocks for a PandABlocks device<a class="headerlink" href="#generating-a-new-set-of-blocks-for-a-pandablocks-device" title="Permalink to this heading"></a></h2>
 <p>Read <a class="reference internal" href="blocks.html#blocks-doc"><span class="std std-ref">Available Blocks</span></a> to find out what already exists, then read
 <a class="reference internal" href="reference/app.html#app-reference"><span class="std std-ref">Assembling Blocks into an App</span></a> to see how to make an <a class="reference internal" href="reference/glossary.html#app"><span class="std std-ref">App</span></a> of these Blocks that can be loaded
 to a PandABlocks device.</p>
-</section>
-<section id="extending-the-functionality-of-a-pandablocks-device">
-<h2>Extending the functionality of a PandABlocks device<a class="headerlink" href="#extending-the-functionality-of-a-pandablocks-device" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="extending-the-functionality-of-a-pandablocks-device">
+<h2>Extending the functionality of a PandABlocks device<a class="headerlink" href="#extending-the-functionality-of-a-pandablocks-device" title="Permalink to this heading"></a></h2>
 <p>Read <a class="reference internal" href="blocks.html#blocks-doc"><span class="std std-ref">Available Blocks</span></a> to see if you need to create a new Block or add to
 an existing one. Read <a class="reference internal" href="reference/block.html#block-reference"><span class="std std-ref">Writing a Block</span></a> to find out how to specify the
 interface to a Block, VHDL entity, timing tests and docs.</p>
-</section>
-<section id="working-on-the-core-autogeneration-framework">
-<h2>Working on the core autogeneration framework<a class="headerlink" href="#working-on-the-core-autogeneration-framework" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="working-on-the-core-autogeneration-framework">
+<h2>Working on the core autogeneration framework<a class="headerlink" href="#working-on-the-core-autogeneration-framework" title="Permalink to this heading"></a></h2>
 <p>Read <a class="reference internal" href="reference/block.html#block-reference"><span class="std std-ref">Writing a Block</span></a> to find out how the process works, then
 <a class="reference internal" href="reference/framework.html#framework-reference"><span class="std std-ref">Autogeneration framework architecture</span></a> for more details on specific parts of the autogeneration
 framework</p>
@@ -455,13 +457,7 @@ framework</p>
 </li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="reference/changelog.html">Changelog</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="reference/changelog.html#unreleased">Unreleased</a></li>
-<li class="toctree-l4"><a class="reference internal" href="reference/changelog.html#a2-2021-09-21">3.0a2 - 2021-09-21</a></li>
-<li class="toctree-l4"><a class="reference internal" href="reference/changelog.html#a1-2021-06-16">3.0a1 - 2021-06-16</a></li>
-<li class="toctree-l4"><a class="reference internal" href="reference/changelog.html#id1">2.1 - 2021-04-27</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/changelog.html">Changelog</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/glossary.html">Glossary</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="reference/glossary.html#app">App</a></li>
 <li class="toctree-l4"><a class="reference internal" href="reference/glossary.html#block">Block</a></li>
@@ -749,13 +745,7 @@ framework</p>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="reference/changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="reference/changelog.html#unreleased">Unreleased</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/changelog.html#a2-2021-09-21">3.0a2 - 2021-09-21</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/changelog.html#a1-2021-06-16">3.0a1 - 2021-06-16</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/changelog.html#id1">2.1 - 2021-04-27</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/glossary.html">Glossary</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/glossary.html#app">App</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/glossary.html#block">Block</a></li>
@@ -774,8 +764,8 @@ framework</p>
 </li>
 </ul>
 </div>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

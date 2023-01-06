@@ -1,2 +1,2 @@
 from common.python.timing_plot import make_timing_plot
-make_timing_plot('/home/runner/work/PandABlocks-FPGA/PandABlocks-FPGA/PandABlocks-fpga/modules/pcomp/pcomp.timing.ini', 'Error is produced after skipping more than 2 compare points')
+make_timing_plot('/__w/PandABlocks-FPGA/PandABlocks-FPGA/PandABlocks-fpga/modules/pcomp/pcomp.timing.ini', 'Error is produced after skipping more than 2 compare points')

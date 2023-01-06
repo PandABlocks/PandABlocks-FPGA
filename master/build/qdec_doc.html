@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QDEC - Quadrature Decoder &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
+  <title>QDEC - Quadrature Decoder &mdash; PandABlocks-FPGA 3.0a2-104-gcb76a55
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -33,7 +35,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-85-g543a3e0
+                3.0a2-104-gcb76a55
 
               </div>
 <div role="search">
@@ -226,11 +228,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="qdec-quadrature-decoder">
-<h1>QDEC - Quadrature Decoder<a class="headerlink" href="#qdec-quadrature-decoder" title="Permalink to this headline"></a></h1>
+  <div class="section" id="qdec-quadrature-decoder">
+<h1>QDEC - Quadrature Decoder<a class="headerlink" href="#qdec-quadrature-decoder" title="Permalink to this heading"></a></h1>
 <p>The QDEC block handles the encoder Decoding</p>
-<section id="fields">
-<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this headline"></a></h2>
+<div class="section" id="fields">
+<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this heading"></a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 21%" />
@@ -278,47 +280,47 @@
 </tr>
 </tbody>
 </table>
-</section>
-<section id="counting">
-<h2>Counting<a class="headerlink" href="#counting" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="counting">
+<h2>Counting<a class="headerlink" href="#counting" title="Permalink to this heading"></a></h2>
 <p>The quadrature decoder counts, incrementing at each rising or falling edge of
 the sequence. If the sequence is reversed the count will decrease at each edge.
 The initial value is set to the value of the SETP input.</p>
 <p>(<a class="reference external" href="../build/qdec_doc-1.py">Source code</a>, <a class="reference external" href="../build/qdec_doc-1.png">png</a>, <a class="reference external" href="../build/qdec_doc-1.hires.png">hires.png</a>, <a class="reference external" href="../build/qdec_doc-1.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/qdec_doc-1.png" class="plot-directive" src="../_images/qdec_doc-1.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/qdec_doc-1.png" src="../_images/qdec_doc-1.png" />
+</div>
 <p>(<a class="reference external" href="../build/qdec_doc-2.py">Source code</a>, <a class="reference external" href="../build/qdec_doc-2.png">png</a>, <a class="reference external" href="../build/qdec_doc-2.hires.png">hires.png</a>, <a class="reference external" href="../build/qdec_doc-2.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/qdec_doc-2.png" class="plot-directive" src="../_images/qdec_doc-2.png" />
-</figure>
-</section>
-<section id="resetting">
-<h2>Resetting<a class="headerlink" href="#resetting" title="Permalink to this headline"></a></h2>
+<div class="figure align-default">
+<img alt="../_images/qdec_doc-2.png" src="../_images/qdec_doc-2.png" />
+</div>
+</div>
+<div class="section" id="resetting">
+<h2>Resetting<a class="headerlink" href="#resetting" title="Permalink to this heading"></a></h2>
 <p>Whilst counting, it can be reset to ‘0’ on while the Z input is high, provided
 that this functionality is enabled by setting the RST_ON_Z input to ‘1’. If the
 SETP input is changed the count value changes to the new value.</p>
 <p>(<a class="reference external" href="../build/qdec_doc-3.py">Source code</a>, <a class="reference external" href="../build/qdec_doc-3.png">png</a>, <a class="reference external" href="../build/qdec_doc-3.hires.png">hires.png</a>, <a class="reference external" href="../build/qdec_doc-3.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/qdec_doc-3.png" class="plot-directive" src="../_images/qdec_doc-3.png" />
-</figure>
-</section>
-<section id="limitations">
-<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline"></a></h2>
+<div class="figure align-default">
+<img alt="../_images/qdec_doc-3.png" src="../_images/qdec_doc-3.png" />
+</div>
+</div>
+<div class="section" id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this heading"></a></h2>
 <p>The block can continue to count when there is not a constant period between the
 pulses.</p>
 <p>(<a class="reference external" href="../build/qdec_doc-4.py">Source code</a>, <a class="reference external" href="../build/qdec_doc-4.png">png</a>, <a class="reference external" href="../build/qdec_doc-4.hires.png">hires.png</a>, <a class="reference external" href="../build/qdec_doc-4.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/qdec_doc-4.png" class="plot-directive" src="../_images/qdec_doc-4.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/qdec_doc-4.png" src="../_images/qdec_doc-4.png" />
+</div>
 <p>The output takes three clock pulses to update. If the inputs are changing faster
 than this, inputs can be lost.</p>
 <p>(<a class="reference external" href="../build/qdec_doc-5.py">Source code</a>, <a class="reference external" href="../build/qdec_doc-5.png">png</a>, <a class="reference external" href="../build/qdec_doc-5.hires.png">hires.png</a>, <a class="reference external" href="../build/qdec_doc-5.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/qdec_doc-5.png" class="plot-directive" src="../_images/qdec_doc-5.png" />
-</figure>
-</section>
-</section>
+<div class="figure align-default">
+<img alt="../_images/qdec_doc-5.png" src="../_images/qdec_doc-5.png" />
+</div>
+</div>
+</div>
 
 
            </div>

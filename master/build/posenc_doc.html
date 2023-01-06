@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>POSENC - Quadrature and step/direction encoder &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
+  <title>POSENC - Quadrature and step/direction encoder &mdash; PandABlocks-FPGA 3.0a2-104-gcb76a55
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -33,7 +35,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-85-g543a3e0
+                3.0a2-104-gcb76a55
 
               </div>
 <div role="search">
@@ -225,11 +227,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="posenc-quadrature-and-step-direction-encoder">
-<h1>POSENC - Quadrature and step/direction encoder<a class="headerlink" href="#posenc-quadrature-and-step-direction-encoder" title="Permalink to this headline"></a></h1>
+  <div class="section" id="posenc-quadrature-and-step-direction-encoder">
+<h1>POSENC - Quadrature and step/direction encoder<a class="headerlink" href="#posenc-quadrature-and-step-direction-encoder" title="Permalink to this heading"></a></h1>
 <p>The POSENC block handles the Quadrature and step/direction encoding</p>
-<section id="fields">
-<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this headline"></a></h2>
+<div class="section" id="fields">
+<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this heading"></a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 21%" />
@@ -284,9 +286,9 @@
 </tr>
 </tbody>
 </table>
-</section>
-<section id="quadrature">
-<h2>Quadrature<a class="headerlink" href="#quadrature" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="quadrature">
+<h2>Quadrature<a class="headerlink" href="#quadrature" title="Permalink to this heading"></a></h2>
 <p>When in the quadrature mode, the module will output signals A and B in different
 states as it counts up or down. When counting up B will follow A and when
 counting down A will follow B. The period is the time between an edge on one
@@ -297,31 +299,31 @@ reaches this value the output signals will stay as they are.</p>
 <p>The state output is ‘0’ while ENABLE is low, ‘1’ when the count is equal to the
 signal on the INP line and ‘2’ while it is counting towards the INP value.</p>
 <p>(<a class="reference external" href="../build/posenc_doc-1.py">Source code</a>, <a class="reference external" href="../build/posenc_doc-1.png">png</a>, <a class="reference external" href="../build/posenc_doc-1.hires.png">hires.png</a>, <a class="reference external" href="../build/posenc_doc-1.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/posenc_doc-1.png" class="plot-directive" src="../_images/posenc_doc-1.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/posenc_doc-1.png" src="../_images/posenc_doc-1.png" />
+</div>
 <p>(<a class="reference external" href="../build/posenc_doc-2.py">Source code</a>, <a class="reference external" href="../build/posenc_doc-2.png">png</a>, <a class="reference external" href="../build/posenc_doc-2.hires.png">hires.png</a>, <a class="reference external" href="../build/posenc_doc-2.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/posenc_doc-2.png" class="plot-directive" src="../_images/posenc_doc-2.png" />
-</figure>
-</section>
-<section id="step-direction">
-<h2>Step/Direction<a class="headerlink" href="#step-direction" title="Permalink to this headline"></a></h2>
+<div class="figure align-default">
+<img alt="../_images/posenc_doc-2.png" src="../_images/posenc_doc-2.png" />
+</div>
+</div>
+<div class="section" id="step-direction">
+<h2>Step/Direction<a class="headerlink" href="#step-direction" title="Permalink to this heading"></a></h2>
 <p>In the Step/Direction mode the A output becomes a step output. This goes high on
 every period for one clock cycle and is low for the remainder of the period. The
 B output becomes the direction output, it is ‘0’ when the internal counter is
 lower than the inputted target value (it is counting up), and ‘1’ when it is
 greater or equal to.</p>
 <p>(<a class="reference external" href="../build/posenc_doc-3.py">Source code</a>, <a class="reference external" href="../build/posenc_doc-3.png">png</a>, <a class="reference external" href="../build/posenc_doc-3.hires.png">hires.png</a>, <a class="reference external" href="../build/posenc_doc-3.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/posenc_doc-3.png" class="plot-directive" src="../_images/posenc_doc-3.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/posenc_doc-3.png" src="../_images/posenc_doc-3.png" />
+</div>
 <p>(<a class="reference external" href="../build/posenc_doc-4.py">Source code</a>, <a class="reference external" href="../build/posenc_doc-4.png">png</a>, <a class="reference external" href="../build/posenc_doc-4.hires.png">hires.png</a>, <a class="reference external" href="../build/posenc_doc-4.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/posenc_doc-4.png" class="plot-directive" src="../_images/posenc_doc-4.png" />
-</figure>
-</section>
-</section>
+<div class="figure align-default">
+<img alt="../_images/posenc_doc-4.png" src="../_images/posenc_doc-4.png" />
+</div>
+</div>
+</div>
 
 
            </div>

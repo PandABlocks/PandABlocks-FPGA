@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PCOMP - Position Compare &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
+  <title>PCOMP - Position Compare &mdash; PandABlocks-FPGA 3.0a2-104-gcb76a55
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -33,7 +35,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-85-g543a3e0
+                3.0a2-104-gcb76a55
 
               </div>
 <div role="search">
@@ -231,8 +233,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pcomp-position-compare">
-<h1>PCOMP - Position Compare<a class="headerlink" href="#pcomp-position-compare" title="Permalink to this headline"></a></h1>
+  <div class="section" id="pcomp-position-compare">
+<h1>PCOMP - Position Compare<a class="headerlink" href="#pcomp-position-compare" title="Permalink to this heading"></a></h1>
 <p>The position compare block takes a position input and allows a regular number
 of threshold comparisons to take place on a position input. The normal order
 of operations is something like this:</p>
@@ -246,8 +248,8 @@ of operations is something like this:</p>
 </ul>
 <p>It can be used to generate a position based pulse train against an input encoder
 or analogue system, or to work as repeating comparator.</p>
-<section id="fields">
-<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this headline"></a></h2>
+<div class="section" id="fields">
+<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this heading"></a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 21%" />
@@ -344,33 +346,34 @@ or analogue system, or to work as repeating comparator.</p>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="position-compare-is-directional">
-<h2>Position compare is directional<a class="headerlink" href="#position-compare-is-directional" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="position-compare-is-directional">
+<h2>Position compare is directional<a class="headerlink" href="#position-compare-is-directional" title="Permalink to this heading"></a></h2>
 <p>A typical example would setup the parameters, enable the block, then start
 moving a motor to trigger a series of pulses:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-1.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-1.png">png</a>, <a class="reference external" href="../build/pcomp_doc-1.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-1.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-1.png" class="plot-directive" src="../_images/pcomp_doc-1.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-1.png" src="../_images/pcomp_doc-1.png" />
+</div>
 <p>But if we get the direction wrong, we won’t get the first pulse until we cross
 START in the correct direction:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-2.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-2.png">png</a>, <a class="reference external" href="../build/pcomp_doc-2.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-2.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-2.png" class="plot-directive" src="../_images/pcomp_doc-2.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-2.png" src="../_images/pcomp_doc-2.png" />
+</div>
 <p>Moving in a negative direction works in a similar way. Note that WIDTH and
 PULSE still have positive values:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-3.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-3.png">png</a>, <a class="reference external" href="../build/pcomp_doc-3.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-3.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-3.png" class="plot-directive" src="../_images/pcomp_doc-3.png" />
-</figure>
-</section>
-<section id="internal-statemachine">
-<h2>Internal statemachine<a class="headerlink" href="#internal-statemachine" title="Permalink to this headline"></a></h2>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-3.png" src="../_images/pcomp_doc-3.png" />
+</div>
+</div>
+<div class="section" id="internal-statemachine">
+<h2>Internal statemachine<a class="headerlink" href="#internal-statemachine" title="Permalink to this heading"></a></h2>
 <p>The Block has an internal statemachine that is exposed as a parameter, allowing
 the user to see what the Block is currently doing:</p>
-digraph pcomp_sm {
+<div class="graphviz"><object data="../_images/graphviz-2215d988c4f25b10f104ffa47ff3ab0ecbec067f.svg" type="image/svg+xml" class="graphviz">
+<p class="warning">digraph pcomp_sm {
 WAIT_ENABLE [label=&quot;State 0\nWAIT_ENABLE&quot;,]
 WAIT_DIR [label=&quot;State 1\nWAIT_DIR&quot;]
 WAIT_PRE_START [label=&quot;State 2\nWAIT_PRE_START&quot;]
@@ -398,16 +401,16 @@ WAIT_FALLING -&gt; WAIT_ENABLE
 [label=&quot; jump &gt; \nWIDTH + STEP\n or Finished \nor Disabled&quot;,fontsize=13]
 WAIT_FALLING -&gt; WAIT_RISING [label=&quot; &gt;= pulse \n + WIDTH &quot;]
 [fontsize=13]
-}
-</section>
-<section id="not-generating-a-pulse-more-than-once">
-<h2>Not generating a pulse more than once<a class="headerlink" href="#not-generating-a-pulse-more-than-once" title="Permalink to this headline"></a></h2>
+}</p></object></div>
+</div>
+<div class="section" id="not-generating-a-pulse-more-than-once">
+<h2>Not generating a pulse more than once<a class="headerlink" href="#not-generating-a-pulse-more-than-once" title="Permalink to this heading"></a></h2>
 <p>A key part of position compare is not generating a pulse at a position more
 than once. This is to deal with noisy encoders:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-4.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-4.png">png</a>, <a class="reference external" href="../build/pcomp_doc-4.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-4.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-4.png" class="plot-directive" src="../_images/pcomp_doc-4.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-4.png" src="../_images/pcomp_doc-4.png" />
+</div>
 <p>This means that care is needed if using direction sensing or relying on the
 directionality of the encoder when passing the start position. For example,
 if we approach START from the negative direction while doing a positive
@@ -416,131 +419,131 @@ start at the wrong place. If you look carefully at the statemachine you will
 see that the Block crossed into WAIT_START when INP &lt; 4 (START), which is too
 soon for this amount of jitter:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-5.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-5.png">png</a>, <a class="reference external" href="../build/pcomp_doc-5.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-5.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-5.png" class="plot-directive" src="../_images/pcomp_doc-5.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-5.png" src="../_images/pcomp_doc-5.png" />
+</div>
 <p>We can fix this by adding to the PRE_START deadband which the encoder has to
 cross in order to advance to the WAIT_START state. Now INP &lt; 2 (START-PRE_START)
 is used for the condition of crossing into WAIT_START:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-6.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-6.png">png</a>, <a class="reference external" href="../build/pcomp_doc-6.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-6.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-6.png" class="plot-directive" src="../_images/pcomp_doc-6.png" />
-</figure>
-</section>
-<section id="guessing-the-direction">
-<h2>Guessing the direction<a class="headerlink" href="#guessing-the-direction" title="Permalink to this headline"></a></h2>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-6.png" src="../_images/pcomp_doc-6.png" />
+</div>
+</div>
+<div class="section" id="guessing-the-direction">
+<h2>Guessing the direction<a class="headerlink" href="#guessing-the-direction" title="Permalink to this heading"></a></h2>
 <p>We can also ask to the Block to calculate direction for us:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-7.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-7.png">png</a>, <a class="reference external" href="../build/pcomp_doc-7.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-7.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-7.png" class="plot-directive" src="../_images/pcomp_doc-7.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-7.png" src="../_images/pcomp_doc-7.png" />
+</div>
 <p>This is a one time calculation of direction at the start of operation, once
 the encoder has been moved enough to guess the direction then it is fixed until
 the Block has finished producing pulses:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-8.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-8.png">png</a>, <a class="reference external" href="../build/pcomp_doc-8.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-8.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-8.png" class="plot-directive" src="../_images/pcomp_doc-8.png" />
-</figure>
-</section>
-<section id="interrupting-a-scan">
-<h2>Interrupting a scan<a class="headerlink" href="#interrupting-a-scan" title="Permalink to this headline"></a></h2>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-8.png" src="../_images/pcomp_doc-8.png" />
+</div>
+</div>
+<div class="section" id="interrupting-a-scan">
+<h2>Interrupting a scan<a class="headerlink" href="#interrupting-a-scan" title="Permalink to this heading"></a></h2>
 <p>When the ENABLE input is set low the output will cease. This will happen even if
 the ENABLE is set low when there are still cycles of the output pulse to
 generate, or if the ENABLE = 0 is set at the same time as a position match.</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-9.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-9.png">png</a>, <a class="reference external" href="../build/pcomp_doc-9.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-9.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-9.png" class="plot-directive" src="../_images/pcomp_doc-9.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-9.png" src="../_images/pcomp_doc-9.png" />
+</div>
 <p>(<a class="reference external" href="../build/pcomp_doc-10.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-10.png">png</a>, <a class="reference external" href="../build/pcomp_doc-10.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-10.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-10.png" class="plot-directive" src="../_images/pcomp_doc-10.png" />
-</figure>
-</section>
-<section id="position-compare-on-absolute-values">
-<h2>Position compare on absolute values<a class="headerlink" href="#position-compare-on-absolute-values" title="Permalink to this headline"></a></h2>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-10.png" src="../_images/pcomp_doc-10.png" />
+</div>
+</div>
+<div class="section" id="position-compare-on-absolute-values">
+<h2>Position compare on absolute values<a class="headerlink" href="#position-compare-on-absolute-values" title="Permalink to this heading"></a></h2>
 <p>Doing position compare on an absolute value adds additional challenges, as
 we are not guaranteed to see every transition. It works in much the same
 way as the previous examples, but we trigger on greater than or equal rather
 than just greater than:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-11.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-11.png">png</a>, <a class="reference external" href="../build/pcomp_doc-11.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-11.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-11.png" class="plot-directive" src="../_images/pcomp_doc-11.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-111.png" src="../_images/pcomp_doc-111.png" />
+</div>
 <p>But what should the Block do if the output is 0 and the position jumps by
 enough to trigger a transition to 1 and then back to 0? We handle this by
 setting HEALTH=”Error: Position jumped by more than STEP” and aborting
 the compare:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-12.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-12.png">png</a>, <a class="reference external" href="../build/pcomp_doc-12.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-12.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-12.png" class="plot-directive" src="../_images/pcomp_doc-12.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-12.png" src="../_images/pcomp_doc-12.png" />
+</div>
 <p>Likewise if the output is 1 and the position causes us to need to produce a 0
 then 1:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-13.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-13.png">png</a>, <a class="reference external" href="../build/pcomp_doc-13.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-13.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-13.png" class="plot-directive" src="../_images/pcomp_doc-13.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-13.png" src="../_images/pcomp_doc-13.png" />
+</div>
 <p>And if we skipped a larger number of points we get the same error:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-14.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-14.png">png</a>, <a class="reference external" href="../build/pcomp_doc-14.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-14.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-14.png" class="plot-directive" src="../_images/pcomp_doc-14.png" />
-</figure>
-</section>
-<section id="relative-position-compare">
-<h2>Relative position compare<a class="headerlink" href="#relative-position-compare" title="Permalink to this headline"></a></h2>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-14.png" src="../_images/pcomp_doc-14.png" />
+</div>
+</div>
+<div class="section" id="relative-position-compare">
+<h2>Relative position compare<a class="headerlink" href="#relative-position-compare" title="Permalink to this heading"></a></h2>
 <p>We may want to nest position compare blocks, or respond to some external event.
 In which case, we expose the option to a position compare relative to the
 latched position at the start:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-15.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-15.png">png</a>, <a class="reference external" href="../build/pcomp_doc-15.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-15.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-15.png" class="plot-directive" src="../_images/pcomp_doc-15.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-15.png" src="../_images/pcomp_doc-15.png" />
+</div>
 <p>If we want it to start immediately on ENABLE then we set START and PRE_START=0:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-16.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-16.png">png</a>, <a class="reference external" href="../build/pcomp_doc-16.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-16.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-16.png" class="plot-directive" src="../_images/pcomp_doc-16.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-16.png" src="../_images/pcomp_doc-16.png" />
+</div>
 <p>We can also guess the direction in relative mode:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-17.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-17.png">png</a>, <a class="reference external" href="../build/pcomp_doc-17.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-17.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-17.png" class="plot-directive" src="../_images/pcomp_doc-17.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-17.png" src="../_images/pcomp_doc-17.png" />
+</div>
 <p>This works when going negative too:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-18.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-18.png">png</a>, <a class="reference external" href="../build/pcomp_doc-18.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-18.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-18.png" class="plot-directive" src="../_images/pcomp_doc-18.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-18.png" src="../_images/pcomp_doc-18.png" />
+</div>
 <p>And with a PRE_START value we guess the direction to be the opposite to the
 direction the motor is travelling when it exceeds PRE_START:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-19.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-19.png">png</a>, <a class="reference external" href="../build/pcomp_doc-19.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-19.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-19.png" class="plot-directive" src="../_images/pcomp_doc-19.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-19.png" src="../_images/pcomp_doc-19.png" />
+</div>
 <p>We cannot guess the direction when RELATIVE mode is set with no START or
 PRE_START though, the Block will error in this case:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-20.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-20.png">png</a>, <a class="reference external" href="../build/pcomp_doc-20.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-20.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-20.png" class="plot-directive" src="../_images/pcomp_doc-20.png" />
-</figure>
-</section>
-<section id="use-as-a-schmitt-trigger">
-<h2>Use as a Schmitt trigger<a class="headerlink" href="#use-as-a-schmitt-trigger" title="Permalink to this headline"></a></h2>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-20.png" src="../_images/pcomp_doc-20.png" />
+</div>
+</div>
+<div class="section" id="use-as-a-schmitt-trigger">
+<h2>Use as a Schmitt trigger<a class="headerlink" href="#use-as-a-schmitt-trigger" title="Permalink to this heading"></a></h2>
 <p>We can also make use of a special case with STEP=0 and a negative WIDTH to
 create a Schmitt trigger that will always trigger at START, and turn off when
 INP has dipped WIDTH below START:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-21.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-21.png">png</a>, <a class="reference external" href="../build/pcomp_doc-21.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-21.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-21.png" class="plot-directive" src="../_images/pcomp_doc-21.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-211.png" src="../_images/pcomp_doc-211.png" />
+</div>
 <p>We can use this same special case with a positive width to make a similar
 comparator that turns on at START and off at START+WIDTH, triggering again
 when INP &lt;= START:</p>
 <p>(<a class="reference external" href="../build/pcomp_doc-22.py">Source code</a>, <a class="reference external" href="../build/pcomp_doc-22.png">png</a>, <a class="reference external" href="../build/pcomp_doc-22.hires.png">hires.png</a>, <a class="reference external" href="../build/pcomp_doc-22.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/pcomp_doc-22.png" class="plot-directive" src="../_images/pcomp_doc-22.png" />
-</figure>
-</section>
-</section>
+<div class="figure align-default">
+<img alt="../_images/pcomp_doc-22.png" src="../_images/pcomp_doc-22.png" />
+</div>
+</div>
+</div>
 
 
            </div>

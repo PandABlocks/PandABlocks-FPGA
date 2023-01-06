@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>COUNTER - Up/Down pulse counter &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
+  <title>COUNTER - Up/Down pulse counter &mdash; PandABlocks-FPGA 3.0a2-104-gcb76a55
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -33,7 +35,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-85-g543a3e0
+                3.0a2-104-gcb76a55
 
               </div>
 <div role="search">
@@ -226,13 +228,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="counter-up-down-pulse-counter">
-<h1>COUNTER - Up/Down pulse counter<a class="headerlink" href="#counter-up-down-pulse-counter" title="Permalink to this headline"></a></h1>
+  <div class="section" id="counter-up-down-pulse-counter">
+<h1>COUNTER - Up/Down pulse counter<a class="headerlink" href="#counter-up-down-pulse-counter" title="Permalink to this heading"></a></h1>
 <p>Each counter block, when enabled, can count up/down with user-defined step value
 on the rising edge on input trigger. The counters can also be initialised to a
 user-defined START value.</p>
-<section id="fields">
-<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this headline"></a></h2>
+<div class="section" id="fields">
+<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this heading"></a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 21%" />
@@ -284,60 +286,60 @@ user-defined START value.</p>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="counting-pulses">
-<h2>Counting pulses<a class="headerlink" href="#counting-pulses" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="counting-pulses">
+<h2>Counting pulses<a class="headerlink" href="#counting-pulses" title="Permalink to this heading"></a></h2>
 <p>The most common use of a counter block is when you would like to track the
 number of rising edges received while enabled:</p>
 <p>(<a class="reference external" href="../build/counter_doc-1.py">Source code</a>, <a class="reference external" href="../build/counter_doc-1.png">png</a>, <a class="reference external" href="../build/counter_doc-1.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-1.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/counter_doc-1.png" class="plot-directive" src="../_images/counter_doc-1.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/counter_doc-1.png" src="../_images/counter_doc-1.png" />
+</div>
 <p>You can also set the start value to be loaded on enable, and step up by a
 number other than one:</p>
 <p>(<a class="reference external" href="../build/counter_doc-2.py">Source code</a>, <a class="reference external" href="../build/counter_doc-2.png">png</a>, <a class="reference external" href="../build/counter_doc-2.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-2.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/counter_doc-2.png" class="plot-directive" src="../_images/counter_doc-2.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/counter_doc-2.png" src="../_images/counter_doc-2.png" />
+</div>
 <p>You can also set the direction that a pulse should apply step, so it becomes
 an up/down counter. The direction is sampled on the same clock tick as the
 pulse rising edge:</p>
 <p>(<a class="reference external" href="../build/counter_doc-3.py">Source code</a>, <a class="reference external" href="../build/counter_doc-3.png">png</a>, <a class="reference external" href="../build/counter_doc-3.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-3.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/counter_doc-3.png" class="plot-directive" src="../_images/counter_doc-3.png" />
-</figure>
-</section>
-<section id="rollover">
-<h2>Rollover<a class="headerlink" href="#rollover" title="Permalink to this headline"></a></h2>
+<div class="figure align-default">
+<img alt="../_images/counter_doc-3.png" src="../_images/counter_doc-3.png" />
+</div>
+</div>
+<div class="section" id="rollover">
+<h2>Rollover<a class="headerlink" href="#rollover" title="Permalink to this heading"></a></h2>
 <p>If the count goes higher than the max value for an int32 (2147483647) the CARRY
 output gets set high and the counter rolls. The CARRY output stays high for as
 long as the trigger input stays high.</p>
 <p>(<a class="reference external" href="../build/counter_doc-4.py">Source code</a>, <a class="reference external" href="../build/counter_doc-4.png">png</a>, <a class="reference external" href="../build/counter_doc-4.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-4.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/counter_doc-4.png" class="plot-directive" src="../_images/counter_doc-4.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/counter_doc-4.png" src="../_images/counter_doc-4.png" />
+</div>
 <p>A similar thing happens for a negative overflow:</p>
 <p>(<a class="reference external" href="../build/counter_doc-5.py">Source code</a>, <a class="reference external" href="../build/counter_doc-5.png">png</a>, <a class="reference external" href="../build/counter_doc-5.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-5.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/counter_doc-5.png" class="plot-directive" src="../_images/counter_doc-5.png" />
-</figure>
-</section>
-<section id="edge-cases">
-<h2>Edge cases<a class="headerlink" href="#edge-cases" title="Permalink to this headline"></a></h2>
+<div class="figure align-default">
+<img alt="../_images/counter_doc-5.png" src="../_images/counter_doc-5.png" />
+</div>
+</div>
+<div class="section" id="edge-cases">
+<h2>Edge cases<a class="headerlink" href="#edge-cases" title="Permalink to this heading"></a></h2>
 <p>If the Enable input goes low at the same time as a trigger, there will be no
 output value on the next clock tick.</p>
 <p>(<a class="reference external" href="../build/counter_doc-6.py">Source code</a>, <a class="reference external" href="../build/counter_doc-6.png">png</a>, <a class="reference external" href="../build/counter_doc-6.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-6.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/counter_doc-6.png" class="plot-directive" src="../_images/counter_doc-6.png" />
-</figure>
+<div class="figure align-default">
+<img alt="../_images/counter_doc-6.png" src="../_images/counter_doc-6.png" />
+</div>
 <p>If the step size is changed at the same time as a trigger input rising edge,
 the output value for that trigger will be the new step size.</p>
 <p>(<a class="reference external" href="../build/counter_doc-7.py">Source code</a>, <a class="reference external" href="../build/counter_doc-7.png">png</a>, <a class="reference external" href="../build/counter_doc-7.hires.png">hires.png</a>, <a class="reference external" href="../build/counter_doc-7.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="../_images/counter_doc-7.png" class="plot-directive" src="../_images/counter_doc-7.png" />
-</figure>
-</section>
-</section>
+<div class="figure align-default">
+<img alt="../_images/counter_doc-7.png" src="../_images/counter_doc-7.png" />
+</div>
+</div>
+</div>
 
 
            </div>

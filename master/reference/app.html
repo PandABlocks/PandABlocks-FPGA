@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Assembling Blocks into an App &mdash; PandABlocks-FPGA 3.0a2-85-g543a3e0
+  <title>Assembling Blocks into an App &mdash; PandABlocks-FPGA 3.0a2-104-gcb76a55
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -33,7 +35,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-85-g543a3e0
+                3.0a2-104-gcb76a55
 
               </div>
 <div role="search">
@@ -169,19 +171,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="assembling-blocks-into-an-app">
-<span id="app-reference"></span><h1>Assembling Blocks into an App<a class="headerlink" href="#assembling-blocks-into-an-app" title="Permalink to this headline"></a></h1>
+  <div class="section" id="assembling-blocks-into-an-app">
+<span id="app-reference"></span><h1>Assembling Blocks into an App<a class="headerlink" href="#assembling-blocks-into-an-app" title="Permalink to this heading"></a></h1>
 <p>A collections of <a class="reference internal" href="glossary.html#block"><span class="std std-ref">Block</span></a> instances that can be loaded to a
 <a class="reference internal" href="glossary.html#pandablocks-device"><span class="std std-ref">PandABlocks Device</span></a> is called an <a class="reference internal" href="glossary.html#app"><span class="std std-ref">App</span></a>. This section details how to create
 and build a new App.</p>
-<section id="app-ini-file">
-<h2>App ini file<a class="headerlink" href="#app-ini-file" title="Permalink to this headline"></a></h2>
+<div class="section" id="app-ini-file">
+<h2>App ini file<a class="headerlink" href="#app-ini-file" title="Permalink to this heading"></a></h2>
 <p>An ini file is used to specify the Blocks that make up an App. It lives in the
 <code class="docutils literal notranslate"><span class="pre">apps/</span></code> directory and has the extension <code class="docutils literal notranslate"><span class="pre">.app.ini</span></code>. It consists of a top
 level section with information about the App, then a section for every <a class="reference internal" href="glossary.html#block"><span class="std std-ref">Block</span></a>
 in the App.</p>
-<section id="the-section">
-<h3>The [.] section<a class="headerlink" href="#the-section" title="Permalink to this headline"></a></h3>
+<div class="section" id="the-section">
+<h3>The [.] section<a class="headerlink" href="#the-section" title="Permalink to this heading"></a></h3>
 <p>The first section contains app wide information. It looks like this:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[.]</span><span class="w"></span>
 <span class="na">description: Short description of what this app will do</span><span class="w"></span>
@@ -193,9 +195,9 @@ contains and why it should be used.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">target</span></code> value must correspond to a directory name in <code class="docutils literal notranslate"><span class="pre">targets/</span></code> that
 will be used to wrap the blocks in a top level entity that is loadable on the
 given PandABlocks device.</p>
-</section>
-<section id="block-sections">
-<h3>[BLOCK] sections<a class="headerlink" href="#block-sections" title="Permalink to this headline"></a></h3>
+</div>
+<div class="section" id="block-sections">
+<h3>[BLOCK] sections<a class="headerlink" href="#block-sections" title="Permalink to this heading"></a></h3>
 <p>All other sections specify Block instance information. They look like this:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[MYBLOCK]</span><span class="w"></span>
 <span class="na">number: 4</span><span class="w"></span>
@@ -213,10 +215,10 @@ version of the section name.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">ini</span></code> value gives the <a class="reference internal" href="block.html#block-ini-reference"><span class="std std-ref">Block ini</span></a> filename relative to the
 module directory. If not specified it is the lowercase version of the section
 name + <code class="docutils literal notranslate"><span class="pre">.block.ini</span></code></p>
-</section>
-</section>
-<section id="app-build-process">
-<h2>App build process<a class="headerlink" href="#app-build-process" title="Permalink to this headline"></a></h2>
+</div>
+</div>
+<div class="section" id="app-build-process">
+<h2>App build process<a class="headerlink" href="#app-build-process" title="Permalink to this heading"></a></h2>
 <p>Run:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span>
 </pre></div>
@@ -227,16 +229,16 @@ file by specifying something like:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">APPS</span> <span class="o">=</span> <span class="n">PandABox</span><span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">fmc</span>
 </pre></div>
 </div>
-</section>
-<section id="querying-the-app-at-runtime">
-<h2>Querying the App at runtime<a class="headerlink" href="#querying-the-app-at-runtime" title="Permalink to this headline"></a></h2>
+</div>
+<div class="section" id="querying-the-app-at-runtime">
+<h2>Querying the App at runtime<a class="headerlink" href="#querying-the-app-at-runtime" title="Permalink to this heading"></a></h2>
 <p>The app name can be queried at run time via the TCP server:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt; *METADATA.APPNAME?
 &gt; OK =PandABox-fmc_24vio
 </pre></div>
 </div>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>
