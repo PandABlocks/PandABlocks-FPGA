@@ -22,4 +22,4 @@ set_property -dict [list \
 ] [get_ips fmc_acq430_ch_fifo]
 
 generate_target all [get_files $BUILD_DIR/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci]
-synth_ip [get_ips fmc_acq430_ch_fifo]
+

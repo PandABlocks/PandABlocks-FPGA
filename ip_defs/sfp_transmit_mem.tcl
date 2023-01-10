@@ -12,4 +12,4 @@ set_property -dict [list                                                        
 ] [get_ips sfp_transmit_mem]
 
 generate_target all [get_files $BUILD_DIR/sfp_transmit_mem/sfp_transmit_mem.xci]
-synth_ip [get_ips sfp_transmit_mem]
+

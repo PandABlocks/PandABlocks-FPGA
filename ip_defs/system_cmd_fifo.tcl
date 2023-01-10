@@ -11,4 +11,4 @@ set_property -dict [list \
 ] [get_ips system_cmd_fifo]
 
 generate_target all [get_files $BUILD_DIR/system_cmd_fifo/system_cmd_fifo.xci]
-synth_ip [get_ips system_cmd_fifo]
+

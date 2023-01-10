@@ -19,5 +19,4 @@ set_property -dict [list \
 ] [get_ips ila_0]
 
 generate_target all [get_files $BUILD_DIR/ila_0/ila_0.xci]
-synth_ip [get_ips ila_0]
 

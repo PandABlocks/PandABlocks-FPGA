@@ -16,4 +16,4 @@ set_property -dict [list \
 ] [get_ips pulse_queue]
 
 generate_target all [get_files $BUILD_DIR/pulse_queue/pulse_queue.xci]
-synth_ip [get_ips pulse_queue]
+

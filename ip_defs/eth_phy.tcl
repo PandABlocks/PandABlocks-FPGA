@@ -12,4 +12,4 @@ set_property -dict [list \
 ] [get_ips eth_phy]
 
 generate_target all [get_files $BUILD_DIR/eth_phy/eth_phy.xci]
-synth_ip [get_ips eth_phy]
+

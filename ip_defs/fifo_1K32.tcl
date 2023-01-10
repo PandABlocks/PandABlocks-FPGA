@@ -13,5 +13,4 @@ set_property -dict [list \
 ] [get_ips fifo_1K32]
 
 generate_target all [get_files $BUILD_DIR/fifo_1K32/fifo_1K32.xci]
-synth_ip [get_ips fifo_1K32]
 

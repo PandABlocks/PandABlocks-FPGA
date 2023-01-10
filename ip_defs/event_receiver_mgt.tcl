@@ -50,4 +50,4 @@ set_property -dict [list \
 ] [get_ips event_receiver_mgt]
 
 generate_target all [get_files  $BUILD_DIR/event_receiver_mgt/event_receiver_mgt.xci]
-synth_ip [get_ips event_receiver_mgt]
+

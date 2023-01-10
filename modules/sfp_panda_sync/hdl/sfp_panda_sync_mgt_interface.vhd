@@ -135,14 +135,6 @@ port
 
 end component;
 
-ATTRIBUTE SYN_BLACK_BOX : BOOLEAN;
-ATTRIBUTE SYN_BLACK_BOX OF sfp_panda_sync : COMPONENT IS TRUE;
-ATTRIBUTE BLACK_BOX_PAD_PIN : STRING;
-ATTRIBUTE BLACK_BOX_PAD_PIN OF sfp_panda_sync : COMPONENT IS 
-"SYSCLK_IN,SOFT_RESET_TX_IN,SOFT_RESET_RX_IN,DONT_RESET_ON_DATA_ERROR_IN,GT0_TX_FSM_RESET_DONE_OUT,GT0_RX_FSM_RESET_DONE_OUT,GT0_DATA_VALID_IN,gt0_cpllfbclklost_out,gt0_cplllock_out,gt0_cplllockdetclk_in, gt0_cpllreset_in,gt0_gtrefclk0_in,gt0_gtrefclk1_in,gt0_drpaddr_in,gt0_drpclk_in,gt0_drpdi_in,gt0_drpdo_out,gt0_drpen_in,gt0_drprdy_out,gt0_drpwe_in,gt0_dmonitorout_out,gt0_eyescanreset_in,gt0_rxuserrdy_in, gt0_eyescandataerror_out,gt0_eyescantrigger_in,gt0_rxusrclk_in,gt0_rxusrclk2_in,gt0_rxdata_out,gt0_rxdisperr_out,gt0_rxnotintable_out,gt0_gtxrxp_in,gt0_gtxrxn_in,gt0_rxbyteisaligned_out,gt0_rxbyterealign_out, gt0_rxcommadet_out,gt0_rxmcommaalignen_in,gt0_rxpcommaalignen_in,gt0_rxdfelpmreset_in,gt0_rxmonitorout_out,gt0_rxmonitorsel_in,gt0_rxoutclk_out,gt0_gtrxreset_in,gt0_rxpmareset_in,gt0_rxcharisk_out, gt0_rxresetdone_out,gt0_gttxreset_in,gt0_txuserrdy_in,gt0_txusrclk_in,gt0_txusrclk2_in,gt0_txdata_in,gt0_gtxtxn_out,gt0_gtxtxp_out,gt0_txoutclk_out,gt0_txoutclkfabric_out,gt0_txoutclkpcs_out,gt0_txcharisk_in,          gt0_txresetdone_out,GT0_QPLLOUTCLK_IN,GT0_QPLLOUTREFCLK_IN";
-
-
-
 signal GT0_TX_FSM_RESET_DONE_OUT     : std_logic;
 signal GT0_RX_FSM_RESET_DONE_OUT     : std_logic;
 signal gt0_cpllfbclklost_out         : std_logic;

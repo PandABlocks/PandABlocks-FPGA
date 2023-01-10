@@ -15,5 +15,4 @@ set_property -dict [list \
 ] [get_ips fmcgtx]
 
 generate_target all [get_files $BUILD_DIR/fmcgtx/fmcgtx.xci]
-synth_ip [get_ips fmcgtx]
 

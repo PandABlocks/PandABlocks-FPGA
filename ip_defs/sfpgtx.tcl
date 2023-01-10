@@ -15,4 +15,4 @@ set_property -dict [list \
 ] [get_ips sfpgtx]
 
 generate_target all [get_files $BUILD_DIR/sfpgtx/sfpgtx.xci]
-synth_ip [get_ips sfpgtx]
+
