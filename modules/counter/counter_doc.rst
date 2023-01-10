@@ -34,11 +34,12 @@ pulse rising edge:
    :path: modules/counter/counter.timing.ini
    :section: Setting direction
 
-You can also set the OUT_MODE to On_disable that the OUT output will be updated only on ENABLE falling edge:
+When the OUT_MODE is set to On-Disable, the OUT output will only be changed to
+the internal counter value on ENABLE's falling edge:
 
 .. timing_plot::
    :path: modules/counter/counter.timing.ini
-   :section: On_disable mode counting
+   :section: On-Disable mode counting
 
 
 Rollover
@@ -58,11 +59,12 @@ A similar thing happens for a negative overflow:
    :path: modules/counter/counter.timing.ini
    :section: Overflow negative
 
-When the OUT_MODE is set to On_disable, the CARRY output will be updated on ENABLE falling edge to indicate if any overflow is produced while counter enabled:
+When the OUT_MODE is set to On-Disable, the CARRY output will get set to high
+on ENABLE's falling edge if any overflow produced while the counter was enabled:
 
 .. timing_plot::
    :path: modules/counter/counter.timing.ini
-   :section: On_disable mode counting with overflow
+   :section: On-Disable mode counting with overflow
 
 
 Edge cases
