@@ -19,7 +19,7 @@ add_files -norecurse $TOP_DIR/modules/{{block.entity}}/hdl
 read_ip $TGT_BUILD_DIR/ip_repo/{{ ip }}/{{ ip }}.xci
     {% endfor %}
 {% endif %}
-    
+
 add_files -fileset sim_1 -norecurse \
 {% for i in range(number) %}
     $BUILD_DIR/hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/hdl_timing.v \
