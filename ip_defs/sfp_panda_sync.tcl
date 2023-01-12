@@ -52,5 +52,5 @@ CONFIG.gt0_val_clk_cor_seq_2_3 {00000000}               \
 CONFIG.gt0_val_clk_cor_seq_2_4 {00000000}               \
 ] [get_ips sfp_panda_sync]
 
-generate_target all [get_files  $BUILD_DIR/sfp_panda_sync/sfp_panda_sync.xci]
+generate_target all [get_ips sfp_panda_sync]
 

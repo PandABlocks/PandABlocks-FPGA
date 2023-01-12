@@ -18,5 +18,5 @@ set_property -dict [list \
     CONFIG.C_TRIGIN_EN {false}  \
 ] [get_ips ila_0]
 
-generate_target all [get_files $BUILD_DIR/ila_0/ila_0.xci]
+generate_target all [get_ips ila_0]
 

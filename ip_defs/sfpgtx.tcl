@@ -14,5 +14,5 @@ set_property -dict [list \
     CONFIG.identical_val_rx_reference_clock {125.000}               \
 ] [get_ips sfpgtx]
 
-generate_target all [get_files $BUILD_DIR/sfpgtx/sfpgtx.xci]
+generate_target all [get_ips sfpgtx]
 

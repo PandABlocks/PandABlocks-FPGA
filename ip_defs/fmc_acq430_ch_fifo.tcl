@@ -21,5 +21,5 @@ set_property -dict [list \
         CONFIG.Full_Threshold_Negate_Value {252}
 ] [get_ips fmc_acq430_ch_fifo]
 
-generate_target all [get_files $BUILD_DIR/fmc_acq430_ch_fifo/fmc_acq430_ch_fifo.xci]
+generate_target all [get_ips fmc_acq430_ch_fifo]
 
