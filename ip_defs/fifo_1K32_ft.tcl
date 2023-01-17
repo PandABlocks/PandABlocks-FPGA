@@ -13,5 +13,5 @@ set_property -dict [list \
     CONFIG.Reset_Type {Synchronous_Reset} \
 ] [get_ips fifo_1K32_ft]
 
-generate_target all [get_files $BUILD_DIR/fifo_1K32_ft/fifo_1K32_ft.xci]
-synth_ip [get_ips fifo_1K32_ft]
+generate_target all [get_ips fifo_1K32_ft]
+
