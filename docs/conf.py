@@ -16,9 +16,9 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, ROOT)
 
 # Get the git version
-git_version = subprocess.check_output(
-    "git describe --abbrev=7 --dirty --always --tags".split(),
-    universal_newlines=True)
+#git_version = subprocess.check_output(
+#    "git describe --abbrev=7 --dirty --always --tags".split(), text=True)
+
 
 
 # Copy across the module rst files into the build dir
@@ -97,7 +97,9 @@ copyright = u'2015, Diamond Light Source'
 author = u'Tom Cobb'
 
 # The full version, including alpha/beta/rc tags.
-release = git_version
+release = subprocess.check_output([
+    'git', 'describe', '--abbrev=7', '--dirty','--always', '--tags'])
+release = release.decode()
 # The short X.Y version.
 version = ".".join(release.split(".")[:2])
 
