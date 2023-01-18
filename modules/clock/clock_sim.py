@@ -10,10 +10,12 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "clock.block.ini")
 
 
 class ClockSimulation(BlockSimulation):
-    ENABLE, PERIOD, OUT = PROPERTIES
+    ENABLE, PERIOD, WIDTH, OUT = PROPERTIES
 
     def __init__(self):
         self.start_ts = 0
+        self.full_period = 0
+        self.high_period = 0
 
     def on_changes(self, ts, changes):
         """Handle field changes at a particular timestamp
@@ -30,24 +32,32 @@ class ClockSimulation(BlockSimulation):
         super(ClockSimulation, self).on_changes(ts, changes)
 
         # If not enabled, stop the clocks
-        if not self.ENABLE:
+        if not self.ENABLE or (not self.WIDTH and not self.PERIOD):
             self.OUT = 0
         else:
             if changes:
-                # reset start time if PERIOD or ENABLE have changed
+                # reset start time if WIDTH, PERIOD or ENABLE have changed
                 self.start_ts = ts
-            # decide if we need to produce any clocks
-            if self.PERIOD > 1:
-                off = (ts - self.start_ts) % self.PERIOD
-                half = self.PERIOD // 2
-                # produce clock high level at start of period
-                if off == 0:
-                    self.OUT = 1
-                    return ts + half
-                # produce clock low level at half period
-                elif off == half:
-                    self.OUT = 0
-                    return ts - half + self.PERIOD
+            # set clock's pull period
+            if self.PERIOD < self.WIDTH:
+                self.full_period = self.WIDTH + 1
+            elif self.PERIOD < 2:
+                self.full_period = 2
             else:
+                self.full_period = self.PERIOD
+            # set clock's high period
+            if self.WIDTH == 0:
+                self.high_period = self.full_period // 2
+            else:
+                self.high_period = self.WIDTH
+            # prepare to produce clocks
+            off = (ts - self.start_ts) % self.full_period
+            # produce clock high level at start of period
+            if off == 0:
+                self.OUT = 1
+                return ts + self.high_period
+            # produce clock low level at end of high period
+            elif off == self.high_period:
                 self.OUT = 0
+                return ts - self.high_period + self.full_period
 
