@@ -33,29 +33,31 @@ end clock;
 architecture rtl of clock is
 
 signal reset            : std_logic;
+signal enable            : std_logic;
 signal counter32        : unsigned(31 downto 0);
+signal full_period      : unsigned(31 downto 0);
+signal low_period       : unsigned(31 downto 0);
 
 begin
 
-reset <= PERIOD_wstb or WIDTH_wstb;
-
 process(clk_i)
-
-variable full_period      : unsigned(31 downto 0);
 variable high_period      : unsigned(31 downto 0);
-variable low_period       : unsigned(31 downto 0);
 
 begin
     if rising_edge(clk_i) then
+        reset <= PERIOD_wstb or WIDTH_wstb;
+        enable <= ENABLE_i;
+        if (unsigned(PERIOD) = 0 and unsigned(WIDTH) = 0) then
+            full_period <= to_unsigned(0, 32);
         -- if PERIOD <= WIDTH, set period to (WIDTH+1)
-        if (unsigned(PERIOD) <= unsigned(WIDTH)) then
-            full_period := unsigned(WIDTH) + 1;
-        -- if WIDTH=0 and PERIOD=1, set period to 2
-        elsif unsigned(PERIOD) < 2 then
-            full_period := to_unsigned(2, 32);
+        elsif (unsigned(PERIOD) <= unsigned(WIDTH)) then
+            full_period <= unsigned(WIDTH) + 1;
+        -- if WIDTH=0 and PERIOD < 2, set period to 2
+        elsif unsigned(PERIOD) = 1 then
+            full_period <= to_unsigned(2, 32);
         -- if (PERIOD > WIDTH) and (PERIOD > 1), set period to PERIOD
         else
-            full_period := unsigned(PERIOD);
+            full_period <= unsigned(PERIOD);
         end if;
         -- if WIDTH=0 then set OUT high time to half period
         if (unsigned(WIDTH) = 0) then
@@ -63,10 +65,10 @@ begin
         else
             high_period := unsigned(WIDTH);
         end if;
-        low_period := full_period - high_period;
-        
+        low_period <= full_period - high_period;
+
         -- If not enabled, or no period set stop the clocks
-        if (ENABLE_i = '0') or (unsigned(WIDTH) = 0 and unsigned(PERIOD) = 0) then
+        if (enable = '0') or (full_period = 0) then
             OUT_o <= '0';
             counter32 <= (others => '0');
         -- Reset counter on parameter change.
