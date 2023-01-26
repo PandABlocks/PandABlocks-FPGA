@@ -93,6 +93,7 @@ APP_DEPENDS += $(wildcard common/templates/*)
 APP_DEPENDS += $(wildcard includes/*)
 APP_DEPENDS += $(wildcard targets/*/*.ini)
 APP_DEPENDS += $(wildcard modules/*/const/*.xdc)
+APP_DEPENDS += $(wildcard modules/*/*.ini)
 
 # Make the built app from the ini file
 $(AUTOGEN_BUILD_DIR): $(APP_FILE) $(APP_DEPENDS)
