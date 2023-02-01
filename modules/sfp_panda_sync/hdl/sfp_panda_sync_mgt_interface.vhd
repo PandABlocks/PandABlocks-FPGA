@@ -17,8 +17,6 @@ entity sfp_panda_sync_mgt_interface is
           rxn_i             : in  std_logic;
           txp_o             : out std_logic;
           txn_o             : out std_logic;
-          rxuserrdy_i       : in  std_logic;
-          txuserrdy_i       : in  std_logic;
           rxbyteisaligned_o : out std_logic;
           rxbyterealign_o   : out std_logic;
           rxcommadet_o      : out std_logic;
@@ -192,8 +190,8 @@ sfp_panda_sync_i : sfp_panda_sync
         --------------------------------- CPLL Ports -------------------------------
         gt0_cpllfbclklost_out           => gt0_cpllfbclklost_out,
         gt0_cplllock_out                => gt0_cplllock_out,
-        gt0_cplllockdetclk_in           => '0',
-        gt0_cpllreset_in                => SYNC_RESET_i,
+        gt0_cplllockdetclk_in           => clk_i,
+        gt0_cpllreset_in                => '0',
         -------------------------- Channel - Clocking Ports ------------------------
         gt0_gtrefclk0_in                => '0',
         gt0_gtrefclk1_in                => GTREFCLK,
@@ -209,7 +207,7 @@ sfp_panda_sync_i : sfp_panda_sync
         gt0_dmonitorout_out             => gt0_dmonitorout_out,
         --------------------- RX Initialization and Reset Ports --------------------
         gt0_eyescanreset_in             => '0',
-        gt0_rxuserrdy_in                => rxuserrdy_i,
+        gt0_rxuserrdy_in                => '0',
         -------------------------- RX Margin Analysis Ports ------------------------
         gt0_eyescandataerror_out        => gt0_eyescandataerror_out,
         gt0_eyescantrigger_in           => '0',
@@ -238,15 +236,15 @@ sfp_panda_sync_i : sfp_panda_sync
         --------------- Receive Ports - RX Fabric Output Control Ports -------------
         gt0_rxoutclk_out                => rxoutclk_o,
         ------------- Receive Ports - RX Initialization and Reset Ports ------------
-        gt0_gtrxreset_in                => SYNC_RESET_i,
+        gt0_gtrxreset_in                => '0',
         gt0_rxpmareset_in               => '0',
         ------------------- Receive Ports - RX8B/10B Decoder Ports -----------------
         gt0_rxcharisk_out               => rxcharisk_o,
         -------------- Receive Ports -RX Initialization and Reset Ports ------------
         gt0_rxresetdone_out             => gt0_rxresetdone_out,
         --------------------- TX Initialization and Reset Ports --------------------
-        gt0_gttxreset_in                => SYNC_RESET_i,
-        gt0_txuserrdy_in                => txuserrdy_i,
+        gt0_gttxreset_in                => '0',
+        gt0_txuserrdy_in                => '0',
         ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
         gt0_txusrclk_in                 => txoutclk_i,                           -- transmit clk This port is used to provide a clock for the internal TX PCS datapath
         gt0_txusrclk2_in                => txoutclk_i,                           -- transmit clk This port is used to synchronzie the FPGA logic with the TX interface. 
