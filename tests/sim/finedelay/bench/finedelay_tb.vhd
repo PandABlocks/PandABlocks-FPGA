@@ -28,8 +28,8 @@ architecture rtl of finedelay_tb is
 begin
 
 -- 125MHz clock from PS interface
-fclk_clk0_ps <= not fclk_clk0_ps after 4ns;
-fclk_clk0_ps_2x <= not fclk_clk0_ps_2x after 2ns;
+fclk_clk0_ps <= not fclk_clk0_ps after 4 ns;
+fclk_clk0_ps_2x <= not fclk_clk0_ps_2x after 2 ns;
 
 finedelay_inst: entity work.finedelay port map (
     clk_i => fclk_clk0_ps,
@@ -58,10 +58,38 @@ begin
         o_delay_strobe <= '0';
         for q_delay_val in 0 to 3 loop
             q_delay <= std_logic_vector(to_unsigned(q_delay_val, 2));
-            clk_wait(32);
+            clk_wait(16);
         end loop;
     end loop;
     finish;
+end process;
+
+process
+    variable ts : time;
+    variable qd : std_logic_vector(1 downto 0);
+    variable od : std_logic_vector(4 downto 0);
+begin
+    wait until rising_edge(input_signal);
+    qd := q_delay;
+    od := o_delay;
+    ts := now;
+    wait until rising_edge(output_signal);
+    report "Between rising edges, qdelay " & to_hstring(qd) & " odelay " &
+        to_hstring(od)  & " Delay took " & time'image(now - ts);
+end process;
+
+process
+    variable ts : time;
+    variable qd : std_logic_vector(1 downto 0);
+    variable od : std_logic_vector(4 downto 0);
+begin
+    wait until falling_edge(input_signal);
+    qd := q_delay;
+    od := o_delay;
+    ts := now;
+    wait until falling_edge(output_signal);
+    report "Between falling edges, qdelay " & to_hstring(qd) & " odelay " &
+        to_hstring(od)  & " Delay took " & time'image(now - ts);
 end process;
 
 end rtl;

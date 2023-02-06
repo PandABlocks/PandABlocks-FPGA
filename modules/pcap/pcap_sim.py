@@ -17,6 +17,9 @@ SUM_L = 2
 SUM_H = 3
 MIN = 4
 MAX = 5
+SUM2_L = 6
+SUM2_M = 7
+SUM2_H = 8
 
 # Enums for HEALTH
 OK = 0
@@ -140,11 +143,11 @@ class SumCaptureEntry(CaptureEntry):
 
     def on_falling_gate(self, ts):
         # Add in what we have
-        self.data += (ts - self.prev_ts) * self.prev_value
+        self.data += int((ts - self.prev_ts) * self.prev_value)
 
     def on_gated_value(self, ts):
         # Add all the entries into the sum
-        self.data += (ts - self.prev_ts) * self.prev_value
+        self.data += int((ts - self.prev_ts) * self.prev_value)
         self.latch_value(ts)
 
     def yield_data(self):
@@ -156,6 +159,27 @@ class SumCaptureEntry(CaptureEntry):
             yield data >> 32
         self.data = 0
 
+class Sum2CaptureEntry(SumCaptureEntry):
+    mid = False
+    data=0
+
+    def __init__(self, idx, shift):
+        super(Sum2CaptureEntry, self).__init__(idx, shift)
+
+    def latch_value(self, ts):
+        self.prev_ts = ts
+        self.prev_value = self.value**2
+
+    def yield_data(self):
+        data =int(self.data >> self.shift)
+        # Yield low then mid then high
+        if self.lo:
+            yield data & (2**32 -1)
+        if self.mid:
+            yield data >> 32 & (2 ** 32 - 1)
+        if self.hi:
+            yield data >> 64
+        self.data = 0
 
 class MinCaptureEntry(CaptureEntry):
     INT32_MAX = np.iinfo(np.int32).max
@@ -302,6 +326,8 @@ class PcapSimulation(BlockSimulation):
         self.ARM = 0
         self.DISARM = 0
         self.DATA = 0
+        self.dataDelay1 = 0
+        self.dataDelay2 = 0
         # This lets us find the name of the field from the index
         self.ext_names = {}
         i = 32
@@ -369,9 +395,12 @@ class PcapSimulation(BlockSimulation):
                 self.buf_produced += 1
             else:
                 self.pend_data.append(None)
-            data = self.pend_data.popleft()
-            if data is not None:
-                self.DATA = data
+            # Reading data from the buffer has a 2 TS delay in the vhdl
+            if self.dataDelay2 is not None:
+                self.DATA = self.dataDelay2
+            if self.dataDelay1 is not None:
+                self.dataDelay2 = self.dataDelay1
+            self.dataDelay1 = self.pend_data.popleft()
             ret = ts + 1
         return ret
 
@@ -400,6 +429,18 @@ class PcapSimulation(BlockSimulation):
                 entry = MinCaptureEntry(i)
             elif mode == MAX:
                 entry = MaxCaptureEntry(i)
+            elif mode == SUM2_L:
+                entry = Sum2CaptureEntry.definitely_create(
+                    entries, i, self.SHIFT_SUM)
+                entry.lo = True
+            elif mode == SUM2_M:
+                entry = Sum2CaptureEntry.create_if_not_existing(
+                    entries, i, self.SHIFT_SUM)
+                entry.mid = True
+            elif mode == SUM2_H:
+                 entry = Sum2CaptureEntry.create_if_not_existing(
+                    entries, i, self.SHIFT_SUM)
+                 entry.hi = True
             else:
                 raise ValueError(" Bad mode %d" % mode)
         else:
@@ -485,7 +526,7 @@ class PcapSimulation(BlockSimulation):
         sample"""
         if self.tick_data and self.buf_len > self.buf_produced:
             # Told to push more data when we hadn't finished the last capture
-            self.pend_error = ts + 2
+            self.pend_error = ts + 4
         else:
             new_size = len(new_data)
             self.buf[self.buf_len:self.buf_len + new_size] = new_data
