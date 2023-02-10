@@ -3,6 +3,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.top_defines_gen;
+
 package top_defines is
 
 --------------------------------------------------------------------------
@@ -31,22 +34,18 @@ constant RD_ADDR2ACK            : std_logic_vector(4 downto 0) := "00010";
 constant ENC_NUM                : natural := 4;
 --------------------------------------------------------------------------
 
--- Bit Bus Width, Multiplexer Select Width -------------------------------
-constant BBUSW                  : natural := 128;
-constant BBUSBW                 : natural := 7;
+--------------------------------------------------------------------------
+-- Aliasing for top_defines_gen.
 
--- Position Bus Width, Multiplexer Select Width.
-constant PBUSW                  : natural := {{ total_pos_bus_length }};
-constant PBUSBW                 : natural := 5;
-
--- Extended Position Bus Width.
-constant EBUSW                  : natural := 12;
+alias BBUSW is top_defines_gen.BBUSW;
+alias BBUSBW is top_defines_gen.BBUSBW;
+alias PBUSW is top_defines_gen.PBUSW;
+alias PBUSBW is top_defines_gen.PBUSBW;
+alias EBUSW is top_defines_gen.EBUSW;
+alias PCAP_SUPPORTS_STD_DEV is top_defines_gen.PCAP_SUPPORTS_STD_DEV;
 --------------------------------------------------------------------------
 
 constant DCARD_MONITOR          : std_logic_vector(2 downto 0) := "011";
-
--- Presence of PCAP_STD_DEV functionality
-constant PCAP_SUPPORTS_STD_DEV  : std_logic := '{{ ("pcap_std_dev" in fpga_options) | int}}';
 
 type t_mode_group is array (8 downto 0) of std_logic_vector(31 downto 0);
 type t_mode is array (PBUSW-1 downto 0) of t_mode_group;
