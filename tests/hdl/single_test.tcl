@@ -31,8 +31,7 @@ if {$argc > $MODULES_IND} {
 # Load all the common source files
 add_files -norecurse \
     $TOP_DIR/common/hdl \
-    $TOP_DIR/common/hdl/defines \
-    $TOP_DIR/tests/hdl/top_defines.vhd
+    $TOP_DIR/common/hdl/defines
 
 
 

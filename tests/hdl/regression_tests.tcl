@@ -52,8 +52,7 @@ foreach module [lrange $argv $MODULES_IND end] {
 
 add_files -norecurse \
     $TOP_DIR/common/hdl/ \
-    $TOP_DIR/common/hdl/defines \
-    $TOP_DIR/tests/hdl/top_defines.vhd
+    $TOP_DIR/common/hdl/defines
 
 # Loop through all the tests
 foreach test [array names tests] {
