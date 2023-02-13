@@ -25,12 +25,12 @@ HDL tests
 
 There are two Makefile functions which can be used to run the hdl testbenches::
 
-    make hdl_test (MODULE="module name")
+    make hdl_test MODULES="module name"
 
     make single_hdl_test TEST="MODULE_NAME TEST_NUMBER"
 
 The first, by default, will run every testbench. However if the optional
-argument of MODULE is given it will instead run every test for the specified
+argument of MODULES is given it will instead run every test for the specified
 module. Please note that the module name is the entity name for the top level
 hdl filein that module.
 
