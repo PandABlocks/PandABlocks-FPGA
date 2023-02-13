@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Running the tests &mdash; PandABlocks-FPGA 3.0a2-133-ga93456c
+  <title>Running the tests &mdash; PandABlocks-FPGA 3.0a2-135-g5b42713
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -34,7 +34,7 @@
             <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-133-ga93456c
+                3.0a2-135-g5b42713
 
               </div>
 <div role="search">
@@ -187,13 +187,13 @@ be run from the Makefile:</p>
 <div class="section" id="hdl-tests">
 <h2>HDL tests<a class="headerlink" href="#hdl-tests" title="Permalink to this heading"></a></h2>
 <p>There are two Makefile functions which can be used to run the hdl testbenches:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">hdl_test</span> <span class="p">(</span><span class="n">MODULE</span><span class="o">=</span><span class="s2">&quot;module name&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">hdl_test</span> <span class="n">MODULES</span><span class="o">=</span><span class="s2">&quot;module name&quot;</span>
 
 <span class="n">make</span> <span class="n">single_hdl_test</span> <span class="n">TEST</span><span class="o">=</span><span class="s2">&quot;MODULE_NAME TEST_NUMBER&quot;</span>
 </pre></div>
 </div>
 <p>The first, by default, will run every testbench. However if the optional
-argument of MODULE is given it will instead run every test for the specified
+argument of MODULES is given it will instead run every test for the specified
 module. Please note that the module name is the entity name for the top level
 hdl filein that module.</p>
 <p>The second command will run a single testbench as specified by the module name,
