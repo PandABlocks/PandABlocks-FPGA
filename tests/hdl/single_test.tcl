@@ -8,7 +8,8 @@ set TOP_DIR         [lindex $argv 0]
 set TARGET_DIR      [lindex $argv 1]
 set TGT_BUILD_DIR   [lindex $argv 2]
 set BUILD_DIR       [lindex $argv 3]
-set MODULES_IND     4
+set APP_BUILD_DIR   [lindex $argv 4]
+set MODULES_IND     5
 set sim_end_error   0
 
 # Need to source the target specific tcl file to get the FPGA part string
@@ -31,7 +32,8 @@ if {$argc > $MODULES_IND} {
 # Load all the common source files
 add_files -norecurse \
     $TOP_DIR/common/hdl \
-    $TOP_DIR/common/hdl/defines
+    $TOP_DIR/common/hdl/defines \
+    $APP_BUILD_DIR/autogen/hdl/top_defines_gen.vhd
 
 
 

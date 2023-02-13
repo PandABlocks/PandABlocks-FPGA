@@ -208,7 +208,7 @@ hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap carrier_ip
 	mkdir -p $(TEST_DIR)
 	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
 	 -source $(TOP)/tests/hdl/regression_tests.tcl \
-	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(MODULES)
+	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(APP_BUILD_DIR) $(MODULES)
 
 # Make the hdl_timing folders and run a single test, set TEST argument
 # E.g. make TEST="clock 1" single_hdl_test
@@ -219,7 +219,7 @@ single_hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap carrier_ip
 	mkdir -p $(TEST_DIR)
 	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
 	 -source $(TOP)/tests/hdl/single_test.tcl -tclargs \
-	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(TEST)
+	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(APP_BUILD_DIR) $(TEST)
 
 # Make the hdl_timing folders without running tests
 hdl_timing: $(TIMING_BUILD_DIRS)
