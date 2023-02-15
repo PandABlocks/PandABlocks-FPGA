@@ -56,14 +56,14 @@ class TestGenerateApp(unittest.TestCase):
         self.assertGeneratedEqual("hdl", "addr_defines.vhd")
 
     def test_fpga_option_is_parsed(self):
-        self.assertIn('pcap_std_dev', self.app_generator.fpga_options)
+        self.assertTrue(self.app_generator.fpga_options['pcap_std_dev'])
 
     def test_fpga_option_can_be_enabled_and_disabled(self):
         app_generator = AppGenerator('dummy_app', 'dummy_build_dir')
         app_generator.process_fpga_options('pcap_std_dev')
-        self.assertIn('pcap_std_dev', app_generator.fpga_options)
+        self.assertTrue(app_generator.fpga_options['pcap_std_dev'])
         app_generator.process_fpga_options('!pcap_std_dev')
-        self.assertNotIn('pcap_std_dev', app_generator.fpga_options)
+        self.assertFalse(app_generator.fpga_options['pcap_std_dev'])
 
     def test_usage(self):
         self.assertGeneratedEqual("usage.txt")

@@ -19,7 +19,9 @@ constant PBUSBW                 : natural := 5;
 constant EBUSW                  : natural := 12;
 --------------------------------------------------------------------------
 
--- Presence of PCAP_STD_DEV functionality
-constant PCAP_SUPPORTS_STD_DEV  : std_logic := '{{ ("pcap_std_dev" in fpga_options) | int}}';
+-- FPGA options
+{% for option, val in fpga_options.items() %}
+constant {{ option | upper }}_OPTION : std_logic := '{{ val | int }}';
+{% endfor %}
 
 end top_defines_gen;
