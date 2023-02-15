@@ -125,8 +125,7 @@ class BlockConfig(object):
         if self.extension == '':
             self.extension = self.entity
         #: All the child fields
-        self.fields = FieldConfig.from_ini(
-            ini, number)  # type: List[FieldConfig]
+        self.fields = FieldConfig.from_ini(ini, number)
         #: Are there any suffixes?
         self.block_suffixes = ini_get(ini, '.', 'block_suffixes', '').split()
 
@@ -238,6 +237,8 @@ class FieldConfig(object):
         self.bus_entries = []  # type: List[BusEntryConfig]
         #: If a write strobe is required, set wstb to 1
         self.wstb = extra_config.pop("wstb", False)
+        #: If the field is associated to an option
+        self.option_filter = extra_config.pop("if-option", "")
         #: Store the extension register info
         self.extension = extra_config.pop("extension", None)
         self.extension_reg = extra_config.pop("extension_reg", None)
