@@ -7,14 +7,14 @@ use unisim.vcomponents.all;
 
 
 entity sfp_event_receiver is
-    port (GTREFCLK        : in  std_logic;
+    port (GTREFCLK          : in  std_logic;
+          clk_i             : in  std_logic;
           event_reset_i     : in  std_logic;
           event_clk_i       : in  std_logic;
           rxp_i             : in  std_logic;
           rxn_i             : in  std_logic;
           txp_o             : out std_logic;
           txn_o             : out std_logic;
-          rx_link_ok_i      : in  std_logic;
           rxbyteisaligned_o : out std_logic;
           rxbyterealign_o   : out std_logic;
           rxcommadet_o      : out std_logic;
@@ -210,8 +210,8 @@ event_receiver_mgt_inst : event_receiver_mgt
         --------------------------------- CPLL Ports -------------------------------
         gt0_cpllfbclklost_out       => gt0_cpllfbclklost_out,
         gt0_cplllock_out            => gt0_cplllock_out,
-        gt0_cplllockdetclk_in       => '0',
-        gt0_cpllreset_in            => event_reset_i,
+        gt0_cplllockdetclk_in       => clk_i,
+        gt0_cpllreset_in            => '0',
         -------------------------- Channel - Clocking Ports ------------------------
         gt0_gtrefclk0_in            => '0',
         gt0_gtrefclk1_in            => GTREFCLK,
@@ -227,7 +227,7 @@ event_receiver_mgt_inst : event_receiver_mgt
         gt0_dmonitorout_out         => gt0_dmonitorout_out,
         --------------------- RX Initialization and Reset Ports --------------------
         gt0_eyescanreset_in         => '0',
-        gt0_rxuserrdy_in            => rx_link_ok_i,
+        gt0_rxuserrdy_in            => '0',
         -------------------------- RX Margin Analysis Ports ------------------------
         gt0_eyescandataerror_out    => gt0_eyescandataerror_out,
         gt0_eyescantrigger_in       => '0',
@@ -256,7 +256,7 @@ event_receiver_mgt_inst : event_receiver_mgt
         --------------- Receive Ports - RX Fabric Output Control Ports -------------
         gt0_rxoutclk_out            => rxoutclk_o,
         ------------- Receive Ports - RX Initialization and Reset Ports ------------
-        gt0_gtrxreset_in            => event_reset_i,
+        gt0_gtrxreset_in            => '0',
         gt0_rxpmareset_in           => '0',
         ---------------------- Receive Ports - RX gearbox ports --------------------
 --        gt0_rxslide_in              => '0',
@@ -265,8 +265,8 @@ event_receiver_mgt_inst : event_receiver_mgt
         -------------- Receive Ports -RX Initialization and Reset Ports ------------
         gt0_rxresetdone_out         => gt0_rxresetdone_out,
         --------------------- TX Initialization and Reset Ports --------------------
-        gt0_gttxreset_in            => event_reset_i,
-        gt0_txuserrdy_in            => rx_link_ok_i,
+        gt0_gttxreset_in            => '0',
+        gt0_txuserrdy_in            => '0',
         ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
         gt0_txusrclk_in             => event_clk_i,
         gt0_txusrclk2_in            => event_clk_i,
