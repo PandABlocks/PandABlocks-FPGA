@@ -179,6 +179,7 @@ POS_READ_RSTB <= '1' when (read_ack = '1' and
 -- Register of FPGA capabilities 
 -- Bit0: presence of PCAP_STD_DEV functionality
 FPGA_CAPABILITIES <= (0 => PCAP_STD_DEV_OPTION,
+                      1 => FINE_DELAY_OPTION,
                       others => '0');
 --------------------------------------------------------------------------
 -- Status Register Read

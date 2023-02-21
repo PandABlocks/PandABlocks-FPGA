@@ -35,7 +35,8 @@ TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 # FPGA options, which could be enabled in the app ini file or in the target
 # ini file
 FPGA_OPTIONS_DEFAULTS = {
-    'pcap_std_dev': False
+    'pcap_std_dev': False,
+    'fine_delay': False
 }
 
 

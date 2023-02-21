@@ -5,6 +5,9 @@ use ieee.std_logic_1164.all;
 library unisim;
 use unisim.vcomponents.all;
 
+use work.top_defines.all;
+
+
 entity mmcm_clkmux is
 port (fclk_clk0_ps_i      : in  std_logic;
       sma_clk_i           : in  std_logic;
@@ -38,7 +41,7 @@ signal enable_mgt_clk     : std_logic;
 signal fclk_clk             : std_logic;
 signal fclk_clk_2x          : std_logic;
 signal fclk_clk_buf         : std_logic;
-signal fclk_clk_2x_buf      : std_logic;
+signal fclk_clk_2x_buf      : std_logic := '0';
 signal secondary_mux_out    : std_logic;
 signal primary_mux_sel      : std_logic;
 signal ps_fclk_bufh            : std_logic;
@@ -53,15 +56,6 @@ pll_autoreset_inst1 : entity work.pll_autoreset port map (
     clk_i => ps_fclk_bufh,
     pll_locked_i => sma_pll_locked,
     pll_reset_o => sma_pll_reset
-);
-
----------------------------------------------------------------------------
--- fclk 2X PLL reset
----------------------------------------------------------------------------
-pll_autoreset_inst2 : entity work.pll_autoreset port map (
-    clk_i => ps_fclk_bufh,
-    pll_locked_i => pll2_locked,
-    pll_reset_o => pll2_reset
 );
 
 -- PLL Clocking PRIMITIVE
@@ -108,42 +102,6 @@ plle2_adv_inst : PLLE2_ADV
         RST                 => sma_pll_reset
 );
 
-plle2_adv_inst2 : PLLE2_ADV
-    generic map (
-        DIVCLK_DIVIDE        => 1,
-        CLKFBOUT_MULT        => 8,
-        CLKOUT0_DIVIDE       => 8,
-        CLKOUT1_DIVIDE       => 4,
-        CLKIN1_PERIOD        => 8.000,
-        CLKIN2_PERIOD        => 8.000)
-    port map (
-        -- Output clocks
-        CLKFBOUT            => pll2_clkfbout,
-        CLKOUT0             => fclk_clk,
-        CLKOUT1             => fclk_clk_2x,
-        CLKOUT2             => open,
-        CLKOUT3             => open,
-        CLKOUT4             => open,
-        CLKOUT5             => open,
-        -- Input clock control
-        CLKFBIN             => pll2_clkfbout_buf,
-        CLKIN1              => secondary_mux_out,
-        CLKIN2              => ps_fclk_bufh,
-        CLKINSEL            => primary_mux_sel,
-        -- Ports for dynamic reconfiguration
-        DADDR               => (others => '0'),
-        DCLK                => '0',
-        DEN                 => '0',
-        DI                  => (others => '0'),
-        DO                  => open,
-        DRDY                => open,
-        DWE                 => '0',
-        -- Other control and status signals
-        LOCKED              => pll2_locked,
-        PWRDWN              => '0',
-        RST                 => pll2_reset
-);
-
 ---------------------------------------------------------------------------
   -- Output buffering
 ---------------------------------------------------------------------------
@@ -154,23 +112,80 @@ sma_clkf_buf : BUFG
          I => sma_clkfbout
 );
 
-clkf_buf : BUFG
-    port map
-        (O => pll2_clkfbout_buf,
-         I => pll2_clkfbout
-);
-
 fclk_buf1 : BUFG
     port map
         (O => fclk_clk_buf,
          I => fclk_clk
 );
 
-flck_buf2 : BUFG
-    port map
-        (O => fclk_clk_2x_buf,
-         I => fclk_clk_2x
-);
+CLK_2X_GEN_1 : if FINE_DELAY_OPTION = '1' generate
+begin
+    plle2_adv_inst2 : PLLE2_ADV
+        generic map (
+            DIVCLK_DIVIDE        => 1,
+            CLKFBOUT_MULT        => 8,
+            CLKOUT0_DIVIDE       => 8,
+            CLKOUT1_DIVIDE       => 4,
+            CLKIN1_PERIOD        => 8.000,
+            CLKIN2_PERIOD        => 8.000)
+        port map (
+            -- Output clocks
+            CLKFBOUT            => pll2_clkfbout,
+            CLKOUT0             => fclk_clk,
+            CLKOUT1             => fclk_clk_2x,
+            CLKOUT2             => open,
+            CLKOUT3             => open,
+            CLKOUT4             => open,
+            CLKOUT5             => open,
+            -- Input clock control
+            CLKFBIN             => pll2_clkfbout_buf,
+            CLKIN1              => secondary_mux_out,
+            CLKIN2              => ps_fclk_bufh,
+            CLKINSEL            => primary_mux_sel,
+            -- Ports for dynamic reconfiguration
+            DADDR               => (others => '0'),
+            DCLK                => '0',
+            DEN                 => '0',
+            DI                  => (others => '0'),
+            DO                  => open,
+            DRDY                => open,
+            DWE                 => '0',
+            -- Other control and status signals
+            LOCKED              => pll2_locked,
+            PWRDWN              => '0',
+            RST                 => pll2_reset
+    );
+
+    clkf_buf : BUFG port map
+            (O => pll2_clkfbout_buf,
+             I => pll2_clkfbout
+    );
+
+    flck_buf2 : BUFG port map (
+            O => fclk_clk_2x_buf,
+            I => fclk_clk_2x
+        );
+
+    ---------------------------------------------------------------------------
+    -- fclk 2X PLL reset
+    ---------------------------------------------------------------------------
+    pll_autoreset_inst2 : entity work.pll_autoreset port map (
+        clk_i => ps_fclk_bufh,
+        pll_locked_i => pll2_locked,
+        pll_reset_o => pll2_reset
+    );
+
+end generate;
+
+NO_CLK_2X_GEN_1 : if FINE_DELAY_OPTION = '0' generate
+begin
+    primary_clkmux: BUFGMUX port map (
+        O => fclk_clk,
+        I0 => ps_fclk_bufh,
+        I1 => secondary_mux_out,
+        S => primary_mux_sel
+    );
+end generate;
 
 ---------------------------------------------------------------------------
 -- Panda clock switching
