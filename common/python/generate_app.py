@@ -301,8 +301,8 @@ class AppGenerator(object):
                              "soft_blocks.vhd")
         self.expand_template("addr_defines.vhd.jinja2", context, hdl_dir,
                              "addr_defines.vhd")
-        self.expand_template("top_defines.vhd.jinja2", context, hdl_dir,
-                             "top_defines.vhd")
+        self.expand_template("top_defines_gen.vhd.jinja2", context, hdl_dir,
+                             "top_defines_gen.vhd")
 
     def check_interfaces(self):
         "If an interface is required in any blocks, is there a matching interface?"
