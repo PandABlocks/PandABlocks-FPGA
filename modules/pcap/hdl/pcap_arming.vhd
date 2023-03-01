@@ -31,6 +31,7 @@ port (
     dma_error_i         : in  std_logic;
     pcap_armed_o        : out std_logic;
     pcap_done_o         : out std_logic;
+    pcap_start_event_o  : out std_logic;
     timestamp_o         : out std_logic_vector(63 downto 0);
     pcap_status_o       : out std_logic_vector(2 downto 0)
 );
@@ -47,6 +48,7 @@ signal enable_fall              : std_logic;
 signal abort_trig               : std_logic;
 signal pcap_armed               : std_logic;
 signal disable_armed            : std_logic;
+signal first_enable             : std_logic := '0';
 
 begin
 
@@ -63,7 +65,6 @@ process(clk_i) begin
 end process;
 
 enable_fall <= enable_prev and not enable_i;
-
 
 -- Blocks operation is aborted under following conditions.
 abort_trig <= DISARM or pcap_error_i or dma_error_i;
@@ -103,6 +104,7 @@ process(clk_i) begin
             case (arm_fsm) is
                 -- Wait for user arm.
                 when IDLE =>
+                    pcap_start_event_o <= '0';
                     pcap_done_o <= '0';
                     if (ARM = '1') then
                         pcap_armed <= '1';
@@ -112,6 +114,8 @@ process(clk_i) begin
 
                 -- Wait for enable pulse from the system bus.
                 when ARMED =>
+                    pcap_start_event_o <= '0';
+                    first_enable <= '1';
                     if (enable_i = '1') then
                         arm_fsm <= ENABLED;
                     end if;
@@ -119,6 +123,8 @@ process(clk_i) begin
                 -- Enabled until capture is finished or user disarm or
                 -- block error.
                 when ENABLED =>
+                    pcap_start_event_o <= first_enable;
+                    first_enable <= '0';
                     disable_armed <= '0';
                     if (enable_fall = '1' or DISARM = '1') then
                         -- Complete gracefully, and make sure that ongoing write
@@ -134,6 +140,7 @@ process(clk_i) begin
 
                 -- Wait for ongoing capture capture finish.
                 when WAIT_ONGOING_WRITE =>
+                    pcap_start_event_o <= '0';
                     if (ongoing_trig_i = '0') then
                         arm_fsm <= IDLE;
                         pcap_armed <= '0';
