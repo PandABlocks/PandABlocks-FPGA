@@ -22,6 +22,7 @@ port (
     clk_i               : in  std_logic;
 
     -- Block Input and Outputs
+    pcap_start_event_i  : in  std_logic;
     pcap_dat_i          : in  std_logic_vector(31 downto 0);
     pcap_wstb_i         : in  std_logic;
     pcap_done_i         : in  std_logic;
@@ -89,7 +90,8 @@ signal BLOCK_TLP_SIZE       : unsigned(31 downto 0);
 signal M_AXI_BURST_LEN      : std_logic_vector(AXI_BURST_WIDTH-1 downto 0);
 signal reset                : std_logic;
 
-type pcap_fsm_t is (INIT, ACTV, DO_DMA, IS_FINISHED, IRQ, COMPLETED);
+type pcap_fsm_t is (INIT, ACTV, DO_DMA, IS_FINISHED, IRQ, SWITCH_ADDR,
+                    COMPLETED);
 signal pcap_fsm             : pcap_fsm_t;
 
 signal IRQ_STATUS_T         : std_logic_vector(31 downto 0);
@@ -110,6 +112,7 @@ signal next_dmaaddr_valid   : std_logic;
 signal switch_block         : std_logic;
 signal pcap_wstb            : std_logic;
 signal writing_sample       : std_logic;
+signal dma_addr_latch       : std_logic_vector(31 downto 0);
 
 signal fifo_data_count      : std_logic_vector(10 downto 0);
 signal fifo_count           : unsigned(10 downto 0);
@@ -118,13 +121,17 @@ signal fifo_rd_en           : std_logic;
 signal fifo_dout            : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
 signal fifo_full            : std_logic;
 
-signal irq_flags            : std_logic_vector(7 downto 0);
-signal sample_count         : unsigned(23 downto 0);
+signal irq_flags            : std_logic_vector(8 downto 0);
+signal sample_count         : unsigned(22 downto 0);
 signal pcap_completed       : std_logic;
 
 signal pcap_error           : std_logic;
+signal start_event_detected : std_logic := '0';
 
 begin
+
+-- Design just won't work properly with 64-bit AXI bus.
+assert AXI_DATA_WIDTH = 32 severity failure;
 
 -- Assign outputs.
 irq_o <= dma_irq;
@@ -166,6 +173,19 @@ transfer_size <= to_unsigned(AXI_BURST_LEN, AXI_BURST_WIDTH)
                    when (fifo_count > AXI_BURST_LEN) else
                      unsigned(fifo_data_count(AXI_BURST_WIDTH-1 downto 0));
 
+
+process (clk_i) begin
+    if rising_edge(clk_i) then
+        if (reset = '1') then
+            start_event_detected <= '0';
+        elsif pcap_start_event_i = '1' then
+            start_event_detected <= '1';
+        elsif pcap_fsm = IRQ then
+            start_event_detected <= '0';
+        end if;
+    end if;
+end process;
+
 --------------------------------------------------------------------------
 -- PCAP Main State Machine
 --
@@ -193,7 +213,7 @@ process(clk_i) begin
             if (DMA_ADDR_WSTB = '1') then
                 next_dmaaddr_valid <= '1';
             -- Clear flag on every IRQ
-            elsif (pcap_fsm = IRQ) then
+            elsif (pcap_fsm = SWITCH_ADDR) then
                 next_dmaaddr_valid <= '0';
             end if;
         end if;
@@ -287,7 +307,7 @@ if rising_edge(clk_i) then
             -- Wait Initialistion by kernel driver
             when INIT =>
                 axi_awaddr_val <= unsigned(DMA_ADDR);
-                if (DMA_INIT = '1') then
+                if (DMA_INIT = '1' and next_dmaaddr_valid = '1') then
                     pcap_fsm <= ACTV;
                 end if;
 
@@ -312,7 +332,7 @@ if rising_edge(clk_i) then
                         pcap_fsm <= DO_DMA;
                     end if;
                 -- At least 1 TLP in available the queue
-                elsif (fifo_count > AXI_BURST_LEN and writing_sample = '0') then
+                elsif (fifo_count >= AXI_BURST_LEN and writing_sample = '0') then
                     dma_start <= '1';
                     sample_count <= sample_count + transfer_size;
                     M_AXI_BURST_LEN <= std_logic_vector(transfer_size);
@@ -331,6 +351,9 @@ if rising_edge(clk_i) then
                         M_AXI_BURST_LEN <= std_logic_vector(transfer_size);
                         pcap_fsm <= DO_DMA;
                     end if;
+                -- trigger an interrupt to capture the start timestamp
+                elsif (start_event_detected = '1') then
+                    pcap_fsm <= IRQ;
                 end if;
 
             -- Waits until DMA Engine completes. Also keeps tracks of TLPs
@@ -358,14 +381,24 @@ if rising_edge(clk_i) then
                 -- Raise the interrupt to PS
                 dma_irq <= '1';
 
+                -- Latch IRQ status flags
+                IRQ_STATUS_T(31 downto 9) <= std_logic_vector(sample_count);
+                IRQ_STATUS_T(8 downto 0) <= irq_flags;
+
+                if pcap_timeout_latch = '1' or switch_block = '1' or last_tlp = '1' then
+                    dma_addr_latch <= DMA_ADDR;
+                    pcap_fsm <= SWITCH_ADDR;
+                else
+                    pcap_fsm <= ACTV;
+                end if;
+
+            when SWITCH_ADDR =>
+                dma_irq <= '0';
+
                 -- Switch to next given buffer and reset sample counter
-                axi_awaddr_val <= unsigned(DMA_ADDR);
+                axi_awaddr_val <= unsigned(dma_addr_latch);
                 sample_count <= (others => '0');
                 tlp_count <= (others => '0');
-
-                -- Latch IRQ status flags
-                IRQ_STATUS_T(31 downto 8) <= std_logic_vector(sample_count);
-                IRQ_STATUS_T(7 downto 0) <= irq_flags;
 
                 -- Next state
                 if (last_tlp = '1' or next_dmaaddr_valid = '0') then
@@ -397,6 +430,7 @@ irq_flags(4) <= not next_dmaaddr_valid;
 irq_flags(5) <= pcap_timeout_latch;
 irq_flags(6) <= switch_block;
 irq_flags(7) <= '0';
+irq_flags(8) <= start_event_detected;
 
 --
 -- AXI DMA Master Engine

@@ -47,6 +47,7 @@ port (
     pcap_dat_valid_o    : out std_logic;
     pcap_done_o         : out std_logic;
     pcap_actv_o         : out std_logic;
+    pcap_start_event_o  : out std_logic;
     pcap_status_o       : out std_logic_vector(2 downto 0)
 );
 end pcap_core;
@@ -78,6 +79,7 @@ pcap_dat_valid_o <= pcap_dat_valid;
 pcap_status_o <= pcap_status;
 pcap_actv_o <= pcap_armed;
 
+
 --------------------------------------------------------------------------
 -- This error signal causes the termination of PCAP operation
 --------------------------------------------------------------------------
@@ -98,6 +100,7 @@ port map (
     ongoing_trig_i      => pcap_dat_valid,
     pcap_armed_o        => pcap_armed,
     pcap_done_o         => pcap_done_o,
+    pcap_start_event_o  => pcap_start_event_o,
     timestamp_o         => timestamp,
     pcap_status_o       => pcap_status
 );
