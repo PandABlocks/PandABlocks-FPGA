@@ -385,6 +385,10 @@ class AppGenerator(object):
         regs = []
         with open(reg_server_dir, 'r') as fp:
             for line in fp:
+                if "=" in line:
+                    # ignore constants
+                    continue
+
                 if "*" in line:
                     # The prefix for the signals are either REG or DRV
                     block = line.split(" ", 1)[0]
