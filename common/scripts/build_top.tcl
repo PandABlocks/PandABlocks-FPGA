@@ -66,13 +66,18 @@ read_bd   $PS_CORE
 
 # Read auto generated files
 add_files [glob $AUTOGEN/hdl/*.vhd]
+set_property FILE_TYPE "VHDL 2008" [get_files $AUTOGEN/hdl/*.vhd]
 
 # Read design files
 
 add_files [glob $TOP_DIR/common/hdl/defines/*.vhd]
+set_property FILE_TYPE "VHDL 2008" [get_files $TOP_DIR/common/hdl/defines/*.vhd]
 add_files [glob $TOP_DIR/common/hdl/*.vhd]
-add_files -quiet [glob -nocomplain $TOP_DIR/common/hdl_$PLATFORM/*.vhd]
+set_property FILE_TYPE "VHDL 2008" [get_files $TOP_DIR/common/hdl/*.vhd]
+add_files [glob $TOP_DIR/common/hdl_$PLATFORM/*.vhd]
+set_property FILE_TYPE "VHDL 2008" [get_files $TOP_DIR/common/hdl_$PLATFORM/*.vhd]
 add_files [glob $TARGET_DIR/hdl/*]
+set_property FILE_TYPE "VHDL 2008" [get_files $TARGET_DIR/hdl/*.vhd]
 
 # Exit script here if gui mode - i.e. if running 'make carrier_fpga_gui'
 if {[string match "gui" [string tolower $MODE]]} { return }
