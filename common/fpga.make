@@ -40,6 +40,7 @@ CARRIER_FPGA_BIT = $(BUILD_DIR)/panda_top.bit
 FPGA_BIN_FILE = $(BUILD_DIR)/panda_top.bin
 
 VERSION_FILE = $(AUTOGEN)/hdl/version.vhd
+CONSTANT_FILE = $(AUTOGEN)/hdl/panda_constants.vhd
 
 # target_incl.make needs to be included after the VERSION_FILE variable is defined otherwise
 # make does not work out the dependencies properly. I don't understand why exactly!
@@ -135,6 +136,11 @@ $(VERSION_FILE) : $(VER)
 	echo ' := X"$(SHA)";' >> $(VERSION_FILE)
 	echo 'end version;' >> $(VERSION_FILE)
 
+
+$(CONSTANT_FILE) : $(TOP)/common/templates/registers_server
+	$(TOP)/common/python/generate_constants.py "$<" > $@
+
+
 ###########################################################
 # Build Zynq Firmware targets
 
@@ -152,6 +158,7 @@ $(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR) $(TGT_INCL_SCR)
 
 CARRIER_FPGA_DEPS += $(TOP_BUILD_SCR)
 CARRIER_FPGA_DEPS += $(VERSION_FILE)
+CARRIER_FPGA_DEPS += $(CONSTANT_FILE)
 CARRIER_FPGA_DEPS += $(IP_DIR)/IP_BUILD_SUCCESS
 CARRIER_FPGA_DEPS += $(PS_CORE)
 CARRIER_FPGA_DEPS += $(TGT_INCL_SCR)
