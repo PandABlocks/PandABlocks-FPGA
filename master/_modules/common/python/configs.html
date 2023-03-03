@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>common.python.configs &mdash; PandABlocks-FPGA 3.0a2-140-g0478307
+  <title>common.python.configs &mdash; PandABlocks-FPGA 3.0a2-142-gaaa3749
  documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="../../../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-140-g0478307
+                3.0a2-142-gaaa3749
 
               </div>
 <div role="search">
@@ -263,8 +263,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity</span>
         <span class="c1">#: All the child fields</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">FieldConfig</span><span class="o">.</span><span class="n">from_ini</span><span class="p">(</span>
-            <span class="n">ini</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span>  <span class="c1"># type: List[FieldConfig]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">FieldConfig</span><span class="o">.</span><span class="n">from_ini</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span>
         <span class="c1">#: Are there any suffixes?</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">block_suffixes</span> <span class="o">=</span> <span class="n">ini_get</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;block_suffixes&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
 
@@ -376,6 +375,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">bus_entries</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[BusEntryConfig]</span>
         <span class="c1">#: If a write strobe is required, set wstb to 1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">wstb</span> <span class="o">=</span> <span class="n">extra_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;wstb&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="c1">#: If the field is associated to an option</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">option_filter</span> <span class="o">=</span> <span class="n">extra_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;if-option&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="c1">#: Store the extension register info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">=</span> <span class="n">extra_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;extension&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extension_reg</span> <span class="o">=</span> <span class="n">extra_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;extension_reg&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
