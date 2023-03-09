@@ -11,7 +11,7 @@ use work.top_defines.all;
 entity mmcm_clkmux is
 port (fclk_clk0_ps_i      : in  std_logic;
       sma_clk_i           : in  std_logic;
-      rxoutclk_i          : in  std_logic;
+      mgt_rec_clk_i          : in  std_logic;
       clk_sel_i           : in  std_logic_vector(1 downto 0);
       linkup_i            : in  std_logic;
       sma_pll_locked_o    : out std_logic;
@@ -213,7 +213,7 @@ secondary_clkmux : BUFGMUX
     port map (
         O => secondary_mux_out,
         I0 => sma_clk_out1,
-        I1 => rxoutclk_i,
+        I1 => mgt_rec_clk_i,
         S => enable_mgt_clk
 );
 

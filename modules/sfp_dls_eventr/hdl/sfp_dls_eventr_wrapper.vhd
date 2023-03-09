@@ -120,7 +120,7 @@ port map (
 
 -- Assign outputs
 
-SFP_o.EVR_REC_CLK <= rxoutclk;
+SFP_o.MGT_REC_CLK <= rxoutclk;
 SFP_o.LINK_UP <= LINKUP(0);
 
 bit1_o(0) <= bit1;
