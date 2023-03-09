@@ -157,6 +157,11 @@ signal gt0_rxcommadet_out            : std_logic;
 signal gt0_qplloutclk_in             : std_logic;
 signal gt0_qplloutrefclk_in          : std_logic;
 
+signal GT0_TX_FSM_RESET_DONE_OUT_sync   : std_logic;
+signal GT0_RX_FSM_RESET_DONE_OUT_sync   : std_logic;
+signal gt0_txresetdone_out_sync         : std_logic;
+signal gt0_rxresetdone_out_sync         : std_logic;
+
 begin
 
 rxcharisk_o <= gt0_rxcharisk_out;
@@ -171,12 +176,41 @@ rxdata_o <= gt0_rxdata_out;
 
 rxnotintable_o <= gt0_rxnotintable_out;
 
+--synchronise signals from MGT clock domains
+TX_FSM_RST_sync : entity work.sync_bit
+    port map(
+     clk_i => event_clk_i,
+     bit_i => GT0_TX_FSM_RESET_DONE_OUT,
+     bit_o => GT0_TX_FSM_RESET_DONE_OUT_sync
+);
+
+RX_FSM_RST_sync : entity work.sync_bit
+    port map(
+     clk_i => event_clk_i,
+     bit_i => GT0_RX_FSM_RESET_DONE_OUT,
+     bit_o => GT0_RX_FSM_RESET_DONE_OUT_sync
+);
+
+txreset_sync : entity work.sync_bit
+    port map(
+     clk_i => event_clk_i,
+     bit_i => gt0_txresetdone_out,
+     bit_o => gt0_txresetdone_out_sync
+);
+
+rxreset_sync : entity work.sync_bit
+    port map(
+     clk_i => event_clk_i,
+     bit_i => gt0_rxresetdone_out,
+     bit_o => gt0_rxresetdone_out_sync
+);
+
 -- Indicates when the link is up when the rx and tx reset have finished
 ps_linkup: process(event_clk_i)
 begin
     if rising_edge(event_clk_i) then
-        if ( GT0_TX_FSM_RESET_DONE_OUT and GT0_RX_FSM_RESET_DONE_OUT and
-             gt0_rxresetdone_out and gt0_txresetdone_out) = '1' then
+        if ( GT0_TX_FSM_RESET_DONE_OUT_sync and GT0_RX_FSM_RESET_DONE_OUT_sync and
+             gt0_rxresetdone_out_sync and gt0_txresetdone_out_sync) = '1' then
             mgt_ready_o <= '1';
         else
             mgt_ready_o <= '0';
