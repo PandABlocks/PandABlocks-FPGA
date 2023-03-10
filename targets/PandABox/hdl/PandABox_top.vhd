@@ -760,7 +760,7 @@ port map (
     -- External clock
     ext_clk_i           => EXTCLK,
     sma_pll_locked_i    => sma_pll_locked,
-    ext_clock_o         => clk_src_sel,
+    clock_src_o         => clk_src_sel,
     clk_sel_stat_i        => clk_sel_stat
 );
 
