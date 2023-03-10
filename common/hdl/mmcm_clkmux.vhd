@@ -209,7 +209,7 @@ clk_mux_bufh: BUFH
 -- Secondary mux switches between external sma clock and mgt recovered clock.
 -- Secondary MUX select checks for MGT link-up.
 
-secondary_clkmux : BUFGMUX
+secondary_clkmux : BUFGMUX_CTRL
     port map (
         O => secondary_mux_out,
         I0 => sma_clk_out1,
