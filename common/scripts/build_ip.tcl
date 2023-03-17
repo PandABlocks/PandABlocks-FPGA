@@ -14,8 +14,6 @@ set BUILD_DIR [lindex $argv 2]
 # Now unused
 set MODE [lindex $argv 3]
 
-set_param board.repoPaths $TOP/common/configs
-
 source $TARGET_DIR/target_incl.tcl
 
 # Create Managed IP Project
