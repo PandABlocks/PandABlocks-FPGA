@@ -150,11 +150,11 @@ $(IP_PROJ) : $(IP_PROJECT_SCR) $(TGT_INCL_SCR)
 	  -log $(TGT_BUILD_DIR)/build_ip.log -nojournal \
 	  -tclargs $(TGT_INCL_SCR) $@ $(EXT_IP_REPO)
 
-$(IP_DIR)/% : $(TOP)/ip_defs/%.tcl $(IP_BUILD_SCR) | $(IP_PROJ)
+$(IP_DIR)/%/IP_DONE : $(TOP)/ip_defs/%.tcl $(IP_BUILD_SCR) | $(IP_PROJ)
 	$(RUNVIVADO) -mode batch -source $(IP_BUILD_SCR) \
 	  -applog -log $(TGT_BUILD_DIR)/build_ip.log -nojournal \
-	  -tclargs $(IP_PROJ) $(IP_DIR) $(notdir $@) $<
-	touch $@/IP_DONE
+	  -tclargs $(IP_PROJ) $(IP_DIR) $* $<
+	touch $@
 
 $(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR) $(TGT_INCL_SCR)
 	$(RUNVIVADO) -mode $(DEP_MODE) -source $< \
