@@ -15,5 +15,3 @@ set_property -dict [list \
     CONFIG.Reset_Type {Synchronous_Reset} \
 ] [get_ips pulse_queue]
 
-generate_target all [get_ips pulse_queue]
-

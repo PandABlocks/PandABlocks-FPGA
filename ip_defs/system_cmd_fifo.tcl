@@ -10,5 +10,3 @@ set_property -dict [list \
     CONFIG.Output_Data_Width {42}   \
 ] [get_ips system_cmd_fifo]
 
-generate_target all [get_ips system_cmd_fifo]
-

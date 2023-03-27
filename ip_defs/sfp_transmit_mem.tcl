@@ -11,5 +11,3 @@ set_property -dict [list                                                        
     CONFIG.Use_RSTA_Pin {false}                                                     \
 ] [get_ips sfp_transmit_mem]
 
-generate_target all [get_ips sfp_transmit_mem]
-

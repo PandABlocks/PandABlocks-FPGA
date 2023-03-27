@@ -7,13 +7,3 @@ set CONSTRAINTS { \
             xu5_st1-pins_impl.xdc
 }
 
-# List of IP that can be targeted to this platform.
-# NB: these could built as and when required.
-set TGT_IP {                        \
-            pulse_queue             \
-            fifo_1K32               \
-            fifo_1K32_ft            \
-            fmc_acq430_ch_fifo      \
-            fmc_acq430_sample_ram
-}
-

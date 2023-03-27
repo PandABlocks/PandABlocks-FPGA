@@ -261,14 +261,9 @@ else
 	. $(VIVADO) && vivado -mode $(DEP_MODE) $(PS_PROJ)
 endif
 
-edit_ips: DEP_MODE=gui
-ifeq ($(wildcard $(IP_PROJ)), )
-  edit_ips: carrier_ip
-else
-  edit_ips:
-	cd $(TGT_BUILD_DIR)/ip_repo; \
-	. $(VIVADO) && vivado -mode $(DEP_MODE) $(IP_PROJ)
-endif
+edit_ips: carrier_ip
+	cd $(TGT_BUILD_DIR)/ip_repo &&  \
+	. $(VIVADO) && vivado -mode gui $(IP_PROJ)
 
 carrier-fpga_gui: TOP_MODE=gui 
 ifeq ($(wildcard $(TOP_PROJ)), )
