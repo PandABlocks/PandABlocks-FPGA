@@ -8,7 +8,7 @@ set TGT_INCL_TCL [lindex $argv 0]
 set PROJ_FILE [lindex $argv 1]
 
 # Set external IP REPO path
-set EXT_IP_REPO [lindex $argv 3]
+set EXT_IP_REPO [lindex $argv 2]
 
 source $TGT_INCL_TCL
 
