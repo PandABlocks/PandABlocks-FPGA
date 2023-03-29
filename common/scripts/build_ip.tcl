@@ -14,8 +14,10 @@ set IP_TCL [lindex $argv 3]
 open_project $IP_PROJ
 
 #Remove IP from project if already existing
-remove_files -quiet [get_files $BUILD_DIR/$IP/$IP.xci]
-exec rm -rf $BUILD_DIR/$IP
+if {[file exists $BUILD_DIR/$IP/$IP.xci]} {
+    remove_files [get_files $BUILD_DIR/$IP/$IP.xci]
+    file delete -force $BUILD_DIR/$IP
+}
 
 #Create and configure XCI file
 source $IP_TCL
@@ -23,6 +25,11 @@ source $IP_TCL
 # Generate output products for global synthesis
 set_property generate_synth_checkpoint false [get_files $BUILD_DIR/$IP/$IP.xci]
 generate_target all [get_files $BUILD_DIR/$IP/$IP.xci]
+
+# Check if patch function defined for IP and run
+if {[llength [info proc patch]] > 0} {
+    patch $BUILD_DIR
+}
 
 close_project
 

@@ -105,6 +105,8 @@ signal SYNC_RESET         : std_logic;
 signal TXN                : std_logic;
 signal TXP                : std_logic;
 
+signal cpll_lock          : std_logic_vector(31 downto 0);
+
 begin
 
 txnobuf : obuf
@@ -205,7 +207,7 @@ sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface
     port map(
         GTREFCLK          => SFP_i.GTREFCLK,
         SYNC_RESET_i      => SYNC_RESET,
-        clk_i             => clk_i,
+        sysclk_i          => clk_i,
         rxoutclk_i        => rxoutclk_i,
         txoutclk_i        => txoutclk_i,
         rxp_i             => SFP_i.RXP_IN,
@@ -223,7 +225,8 @@ sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface
         rxnotintable_o    => rxnotintable_o,
         txoutclk_o        => txoutclk_o,            -- TX reference clock
         txdata_i          => txdata_i,
-        txcharisk_i       => txcharisk_i
+        txcharisk_i       => txcharisk_i,
+        cpll_Lock_o       => cpll_lock(0)
         );
 
 
@@ -254,6 +257,7 @@ sfp_panda_sync_ctrl_inst : entity work.sfp_panda_sync_ctrl
         IN_LINKUP            => LINKUP,
         IN_SYNC_RESET        => open,
         IN_SYNC_RESET_wstb   => SYNC_RESET,
+        IN_CPLL_LOCK         => CPLL_LOCK,
         OUT_BIT1_from_bus  => BITOUT1,
         OUT_BIT2_from_bus  => BITOUT2,
         OUT_BIT3_from_bus  => BITOUT3,

@@ -52,3 +52,27 @@ CONFIG.gt0_val_clk_cor_seq_2_3 {00000000}               \
 CONFIG.gt0_val_clk_cor_seq_2_4 {00000000}               \
 ] [get_ips sfp_panda_sync]
 
+proc replaceInFile {file searchPat oldVal newVal} {
+    set fd [open $file r]
+    set newfd [open ${file}.tmp w]
+    while {[gets $fd line] >= 0} {
+        if {[string match $searchPat $line] == 1} {
+            regsub $oldVal $line $newVal newline
+            puts $newfd $newline
+        } else {
+            puts $newfd $line
+        }
+    }
+    close $fd
+    close $newfd
+    file rename -force ${file}.tmp $file
+}
+
+proc patch {BUILD_DIR} {
+    puts "Patching generated IP sources"
+    replaceInFile $BUILD_DIR/sfp_panda_sync/sfp_panda_sync_multi_gt.vhd *PCS_RSVD_ATTR_IN*=>* X"000000000000" X"000000000002"
+    replaceInFile $BUILD_DIR/sfp_panda_sync/sfp_panda_sync_gt.vhd *TXDLY_LCFG*=>* x"030" X"034"
+    replaceInFile $BUILD_DIR/sfp_panda_sync/sfp_panda_sync_gt.vhd *TXPHALIGN*=>*tied_to_ground_i, tied_to_ground_i tied_to_vcc_i
+    replaceInFile $BUILD_DIR/sfp_panda_sync/sfp_panda_sync_gt.vhd *TXPHOVRDEN*=>* tied_to_ground_i tied_to_vcc_i
+}
+
