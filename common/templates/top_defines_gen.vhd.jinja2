@@ -1,0 +1,25 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+package top_defines_gen is
+
+--------------------------------------------------------------------------
+-- !!! Remember to add aliases for any new entities here to top_defines
+--------------------------------------------------------------------------
+
+-- Bit Bus Width, Multiplexer Select Width -------------------------------
+constant BBUSW                  : natural := 128;
+constant BBUSBW                 : natural := 7;
+
+-- Position Bus Width, Multiplexer Select Width.
+constant PBUSW                  : natural := {{ total_pos_bus_length }};
+constant PBUSBW                 : natural := 5;
+
+-- Extended Position Bus Width.
+constant EBUSW                  : natural := 12;
+--------------------------------------------------------------------------
+
+-- Presence of PCAP_STD_DEV functionality
+constant PCAP_SUPPORTS_STD_DEV  : std_logic := '{{ ("pcap_std_dev" in fpga_options) | int}}';
+
+end top_defines_gen;

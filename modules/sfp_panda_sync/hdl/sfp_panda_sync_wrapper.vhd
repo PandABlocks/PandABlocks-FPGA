@@ -56,8 +56,6 @@ end sfp_panda_sync_wrapper;
 
 architecture rtl of sfp_panda_sync_wrapper is
 
-signal rxuserrdy_i        : std_logic;
-signal txuserrdy_i        : std_logic;
 signal rx_link_ok         : std_logic;
 signal rxbyteisaligned_o  : std_logic;
 signal rxbyterealign_o    : std_logic;
@@ -156,12 +154,6 @@ port map(
     I => txoutclk_o
 );
 
-
--- Must be driven high when the txusrclk and rxusrclk are valid
-rxuserrdy_i <= rx_link_ok;
-txuserrdy_i <= rx_link_ok;
-
-
 -- Transmitter 
 -- The transmit side transmits regardless of the state of the receiver rx_link_ok signal 
 -- txoutclk is the clock used for the TX side
@@ -220,8 +212,6 @@ sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface
         rxn_i             => SFP_i.RXN_IN,
         txp_o             => TXP,
         txn_o             => TXN,
-        rxuserrdy_i       => rxuserrdy_i,
-        txuserrdy_i       => txuserrdy_i,
         rxbyteisaligned_o => rxbyteisaligned_o,
         rxbyterealign_o   => rxbyterealign_o,
         rxcommadet_o      => rxcommadet_o,

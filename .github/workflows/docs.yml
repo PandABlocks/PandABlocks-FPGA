@@ -9,8 +9,16 @@ on:
 jobs:
   make_docs:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/pandablocks/pandablocks-dev-container:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      volumes:
+        - ${{ github.workspace }}:/repos
+        - ${{ github.workspace }}/build:/build
+
     steps:
-      
       # Git repositories
       - name: Checkout Source
         uses: actions/checkout@v2
@@ -19,34 +27,16 @@ jobs:
           # require history to get back to last tag for version number of branches
           fetch-depth: 0
 
-      # System dependencies (required for build)
-      - name: Install system dependencies
-        run: |
-          sudo apt-get install python3-sphinx python3-sphinx-rtd-theme
-          sudo pip install matplotlib
-
-      #CONFIG files
-      - name: Generate fpga CONFIG files
-        run: |
-          sudo bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
-          cat PandABlocks-fpga/CONFIG
-
       # Build docs
       - name: Make docs
         run: |
           cd PandABlocks-fpga
+          ln -s CONFIG.example CONFIG
           make docs
 
-      # Publish docs
-      - uses: rishabhgupta/split-by@v1
-        id: split
-        with:
-          string: ${{ github.ref }}
-          split-by: /
-      
       - name: Move to versioned directory
         # e.g. master or 0.1.2
-        run: mv build/html "PandABlocks-fpga/.github/pages/${{ steps.split.outputs._2 }}"
+        run: mv build/html "PandABlocks-fpga/.github/pages/${GITHUB_REF##*/}"
 
       - name: Publish Docs to gh-pages
         # Only master and tags are published

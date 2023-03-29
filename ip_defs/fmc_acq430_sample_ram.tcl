@@ -12,5 +12,5 @@ set_property -dict [list \
         CONFIG.common_output_clk {true}
 ] [get_ips fmc_acq430_sample_ram]
 
-generate_target all [get_files $BUILD_DIR/fmc_acq430_sample_ram/fmc_acq430_sample_ram.xci]
-synth_ip [get_ips fmc_acq430_sample_ram]
+generate_target all [get_ips fmc_acq430_sample_ram]
+

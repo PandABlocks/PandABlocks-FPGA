@@ -187,14 +187,14 @@ port map(
 
 sfpgtx_event_receiver_inst: entity work.sfp_event_receiver
 port map(
-    GTREFCLK         => SFP_i.GTREFCLK,
+    GTREFCLK           => SFP_i.GTREFCLK,
+    clk_i              => clk_i,
     event_reset_i      => EVENT_RESET,
     event_clk_i        => event_clk,
     rxp_i              => SFP_i.RXP_IN,
     rxn_i              => SFP_i.RXN_IN,
     txp_o              => TXP,
     txn_o              => TXN,
-    rx_link_ok_i       => rx_link_ok_o,
     rxbyteisaligned_o  => rxbyteisaligned_o,
     rxbyterealign_o    => rxbyterealign_o,
     rxcommadet_o       => rxcommadet_o,

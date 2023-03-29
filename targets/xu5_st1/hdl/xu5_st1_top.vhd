@@ -142,7 +142,6 @@ signal pcap_active          : std_logic_vector(0 downto 0);
 signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
 signal TTLIN_TERM           : std32_array(TTLIN_NUM-1 downto 0);
 signal TTLIN_TERM_WSTB      : std_logic_vector(TTLIN_NUM-1 downto 0);
-signal ttlout_val           : std_logic_vector(TTLOUT_NUM-1 downto 0);
 
 signal rdma_req             : std_logic_vector(5 downto 0);
 signal rdma_ack             : std_logic_vector(5 downto 0);
@@ -312,26 +311,6 @@ port map (
     pos_bus_i           => pos_bus,
     TTLIN_TERM_o        => TTLIN_TERM,
     TTLIN_TERM_WSTB_o   => TTLIN_TERM_WSTB
-);
-
-ttlout_inst : entity work.ttlout_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(TTLOUT_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(TTLOUT_CS),
-    read_ack_o          => read_ack(TTLOUT_CS),
-
-    write_strobe_i      => write_strobe(TTLOUT_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(TTLOUT_CS),
-
-    bit_bus_i           => bit_bus,
-    val_o               => ttlout_val,
-    pad_o               => TTLOUT_PAD_O
 );
 
 ---------------------------------------------------------------------------
