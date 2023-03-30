@@ -121,6 +121,9 @@ port map (
     O => SFP_o.TXP_OUT
 );
 
+SFP_o.MGT_REC_CLK <= rxoutclk_i;
+SFP_o.LINK_UP <= LINKUP(0);
+
 read_ack_o <= '1';
 write_ack_o <= '1';
 
