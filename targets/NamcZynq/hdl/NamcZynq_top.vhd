@@ -20,7 +20,7 @@ library work;
 --use work.support.all;
 use work.addr_defines.all; -- NEEDED?
 use work.top_defines.all;  -- NEEDED?
-use work.NamcZynq_defines.all;
+-- use work.target_defines.all;
 
 entity NamcZynq_top is
 generic (

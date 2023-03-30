@@ -23,6 +23,7 @@ use unisim.vcomponents.all;
 library work;
 use work.support.all;
 use work.top_defines.all;
+use work.module_defines.all;
 
 entity fmc_amc_eth_wrapper is
 port (
@@ -45,8 +46,8 @@ port (
     write_ack_o         : out std_logic := '1';
 
     -- AMC Interface
-    AMC_i               : in  amc_input_interface;
-    AMC_o               : out amc_output_interface;
+    AMC_i               : in  AMC_input_interface;
+    AMC_o               : out AMC_output_interface;
     
     -- FMC Interface
     FMC_i               : in  	FMC_input_interface;
