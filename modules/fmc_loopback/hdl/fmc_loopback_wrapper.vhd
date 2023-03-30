@@ -95,13 +95,13 @@ begin
 txnobuf : obuf
 port map (
     I => TXN,
-    O => FMC_o.TXN_OUT
+    O => FMC_o.TXN_OUT(0)
 );
 
 txpobuf : obuf
 port map (
     I => TXP,
-    O => FMC_o.TXP_OUT
+    O => FMC_o.TXP_OUT(0)
 );
 
 -- Acknowledgement to AXI Lite interface
@@ -170,14 +170,14 @@ LA_N_ERROR <= ZEROS(15) & la_n_compare;
 ---------------------------------------------------------------------------
 fmcgtx_exdes_i : entity work.fmcgtx_exdes
 port map (
-    Q0_CLK1_GTREFCLK_PAD_IN   => FMC_i.GTREFCLK,
+    Q0_CLK1_GTREFCLK_PAD_IN   => FMC_i.GTREFCLK(0),
     GTREFCLK                    => GTREFCLK,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
     TRACK_DATA_OUT              => LINK_UP,
     ERROR_COUNT                 => ERROR_COUNT,
-    RXN_IN                      => FMC_i.RXN_IN,
-    RXP_IN                      => FMC_i.RXP_IN,
+    RXN_IN                      => FMC_i.RXN_IN(0),
+    RXP_IN                      => FMC_i.RXP_IN(0),
     TXN_OUT                     => TXN,
     TXP_OUT                     => TXP
 );
