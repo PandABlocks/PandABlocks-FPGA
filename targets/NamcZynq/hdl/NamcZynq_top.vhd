@@ -3,7 +3,8 @@
 --      Diamond Light Source, Oxford, UK
 --      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
---  Author      : Shu ZHANG
+--  Author      :  Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--                 Shu ZHANG
 --------------------------------------------------------------------------------
 --
 --  Description : NAMC Zynq Top-Level Design File

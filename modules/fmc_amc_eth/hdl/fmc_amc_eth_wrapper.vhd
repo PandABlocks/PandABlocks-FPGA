@@ -6,7 +6,7 @@
 --  Author      : Shu ZHANG & Arthur MARIANO
 -----------------------------------------------------------------------------------
 --
---  Description : AMC P4-P7 Ethernet data links to FMC-SFP modules
+--  Description : Ethernet passthrough links between AMC P8-P11 and FMC-4SFP module transceivers
 --
 --  * fmc_amc_eth_ctrl: Block control and status interface
 --  * eth_phy_to_phy_db : 2 pcs_pma GMII crossover link with different clock sources
@@ -50,9 +50,9 @@ port (
     AMC_o               : out AMC_output_interface;
     
     -- FMC Interface
-    FMC_i               : in  	FMC_input_interface;
+    FMC_i               : in    FMC_input_interface;
     FMC_io              : inout FMC_inout_interface;
-    FMC_o               : out 	FMC_output_interface
+    FMC_o               : out   FMC_output_interface
 );
 end fmc_amc_eth_wrapper;
 
@@ -160,7 +160,7 @@ component I2C_Status
     I2C_SDA_IN              : in    STD_LOGIC;      -- I2C Data in
     I2C_SDA_OUT             : out   STD_LOGIC;      -- I2C Data out
     I2C_SDA_OE              : out   STD_LOGIC       -- I2C Data oe (set high to output otherwise output is Z)
-	);
+    );
 end component;
 
 component I2C_Command
@@ -185,25 +185,25 @@ component I2C_Command
     FREQUENCY_VALUE   : in  std_logic_vector(14 downto 0);    -- Frequency value by step of 10KHz, frequency range from 5000(dec) (50MHz) to 28000(dec) (280MHz)
   
   -- Status
-	BUSY              : out std_logic;      -- Assign high when the controller is busy
-	END_TRANSFER      : out std_logic;      -- Assign high during one clock cycle when a complete access (Rd or Wr) has been performed
-	ERROR_STATUS      : out std_logic_vector(1 downto 0);      -- Error code assigned during the END_TRANSFER. 0 => no Error, 1 => Access I2C error, 2 => EEPROM integrity error, 3 => FREQUENCY_VALUE is out of range
-	                                  
+    BUSY              : out std_logic;      -- Assign high when the controller is busy
+    END_TRANSFER      : out std_logic;      -- Assign high during one clock cycle when a complete access (Rd or Wr) has been performed
+    ERROR_STATUS      : out std_logic_vector(1 downto 0);      -- Error code assigned during the END_TRANSFER. 0 => no Error, 1 => Access I2C error, 2 => EEPROM integrity error, 3 => FREQUENCY_VALUE is out of range
+
   -- I2C interface          
     I2C_SCL           : out std_logic;      -- I2C Clock
     I2C_SDA_IN        : in  std_logic;      -- I2C Data in
     I2C_SDA_OUT       : out std_logic;      -- I2C Data out
     I2C_SDA_OE        : out std_logic       -- I2C Data oe (set high to output otherwise output is Z)
-	);
+    );
 end component;
 
 signal pma_reset         : std_logic;
 
 signal FMC_gtrefclk      : std_logic;
 signal AMC_gtrefclk      : std_logic;
-signal FMC_eth_phy2clk   : Eth_phy2clk_interface;
+signal FMC_eth_phy2clk   : phy2clk_array(3 downto 0);
 signal FMC_eth_clk2phy   : Eth_clk2phy_interface;
-signal AMC_eth_phy2clk   : Eth_phy2clk_interface;
+signal AMC_eth_phy2clk   : phy2clk_array(3 downto 0);
 signal AMC_eth_clk2phy   : Eth_clk2phy_interface;
 
 signal SOFT_RESET        : std_logic;
@@ -211,10 +211,10 @@ signal SOFT_RESET_prev   : std_logic;
 signal SOFT_RESET_rise   : std_logic;
 signal SOFT_RESET_holded : std_logic;
 signal soft_reset_cpt    : unsigned(31 downto 0);
-signal FMC_HB20_P		 : std_logic;
-signal FMC_HB20_N		 : std_logic;
-signal FMC_HB21_P		 : std_logic;
-signal FMC_HB21_N		 : std_logic;
+signal FMC_HB20_P        : std_logic;
+signal FMC_HB20_N        : std_logic;
+signal FMC_HB21_P        : std_logic;
+signal FMC_HB21_N        : std_logic;
 
 signal FMC_I2C_SDA_S         : std_logic;
 signal FMC_I2C_SDA_OE_S      : std_logic;
@@ -225,18 +225,18 @@ signal FMC_I2C_SDA_OE_C      : std_logic;
 signal FMC_I2C_SDA_IN_C      : std_logic;
 signal FMC_I2C_SDA_OUT_C     : std_logic;
 
-signal FMC_PHY_RX_LOS 		 : std_logic_vector(31 downto 0);
-signal FMC_PHY_TX_FAULT		 : std_logic_vector(31 downto 0);
-signal FMC_TX_DISABLE		 : std32_array(3 downto 0);
-signal FMC_TX_DISABLE_WSTB	 : std_logic_vector(3 downto 0);
-signal FMC_SEL_RATE			 : std_logic_vector(31 downto 0);
-signal FMC_SEL_RATE_WSTB   	 : std_logic;
-signal FMC_APPLY_SFP		 : std_logic;
-signal FMC_APPLY_FREQ     	 : std_logic;
+signal FMC_PHY_RX_LOS        : std_logic_vector(31 downto 0);
+signal FMC_PHY_TX_FAULT      : std_logic_vector(31 downto 0);
+signal FMC_TX_DISABLE        : std32_array(3 downto 0);
+signal FMC_TX_DISABLE_WSTB   : std_logic_vector(3 downto 0);
+signal FMC_SEL_RATE          : std_logic_vector(31 downto 0);
+signal FMC_SEL_RATE_WSTB     : std_logic;
+signal FMC_APPLY_SFP         : std_logic;
+signal FMC_APPLY_FREQ        : std_logic;
 signal FMC_FREQUENCY_VALUE   : std_logic_vector(31 downto 0);
-signal FMC_I2C_BUSY        	 : std_logic_vector(31 downto 0); 
-signal FMC_I2C_END_TRANSFER	 : std_logic_vector(31 downto 0);
-signal FMC_I2C_STATUS		 : std_logic_vector(31 downto 0);
+signal FMC_I2C_BUSY          : std_logic_vector(31 downto 0); 
+signal FMC_I2C_END_TRANSFER  : std_logic_vector(31 downto 0);
+signal FMC_I2C_STATUS        : std_logic_vector(31 downto 0);
 
 signal FMC_PHY_RESETDONE : std_logic_vector(31 downto 0);
 signal FMC_PHY_CPLLLOCK  : std_logic_vector(31 downto 0);
@@ -259,121 +259,48 @@ signal DATA_F2A_ER_CNT   : std32_array(3 downto 0);
 signal DATA_TRIG         : std_logic_vector(4*4-1 downto 0);
 signal DATA_CNT          : std32_array(4*4-1 downto 0);
 
-signal FMC_TXN                 : std_logic;
-signal FMC_TXP                 : std_logic;
-signal FMC_TXN2                : std_logic;
-signal FMC_TXP2                : std_logic;
-signal FMC_TXN3                : std_logic;
-signal FMC_TXP3                : std_logic;
-signal FMC_TXN4                : std_logic;
-signal FMC_TXP4                : std_logic;
+signal FMC_TXN           : std_logic_vector(3 downto 0);
+signal FMC_TXP           : std_logic_vector(3 downto 0);
 
-signal AMC_FP_TX8_N            : std_logic;
-signal AMC_FP_TX8_P            : std_logic;
-signal AMC_FP_TX9_N            : std_logic;
-signal AMC_FP_TX9_P            : std_logic;
-signal AMC_FP_TX10_N           : std_logic;
-signal AMC_FP_TX10_P           : std_logic;
-signal AMC_FP_TX11_N           : std_logic;
-signal AMC_FP_TX11_P           : std_logic;
+signal AMC_FP_TXN        : std_logic_vector(3 downto 0);
+signal AMC_FP_TXP        : std_logic_vector(3 downto 0);
+signal AMC_FP_RXN        : std_logic_vector(3 downto 0);
+signal AMC_FP_RXP        : std_logic_vector(3 downto 0);
 
 begin
 
-FMC_txnobuf : obuf
-port map (
-    I => FMC_TXN,
-    O => FMC_o.TXN_OUT
-);
+FMCtx_obuf: for i in 0 to 3 generate
+    fmctxn_obuf: obuf
+    port map (
+        I => FMC_TXN(i),
+        O => FMC_o.TXN_OUT(i)
+    );
+    fmctxp_obuf: obuf
+    port map (
+        I => FMC_TXP(i),
+        O => FMC_o.TXP_OUT(i)
+    );
+end generate FMCtx_obuf;
 
-FMC_txpobuf : obuf
-port map (
-    I => FMC_TXP,
-    O => FMC_o.TXP_OUT
-);
+FMC_gtrefclk <= FMC_i.GTREFCLK(0);
 
-FMC_txnobuf2 : obuf
-port map (
-    I => FMC_TXN2,
-    O => FMC_o.TXN2_OUT
-);
+-- using AMC Fat Pipe port 8-11 => AMC_i/o.RX/TX(7 downto 4)
+AMC_FP_TxRx: for i in 0 to 3 generate
+    amctxn_obuf: obuf
+    port map (
+        I => AMC_FP_TXN(i),
+        O => AMC_o.FP_TXN_OUT(i+4)
+    );
+    amctxp_obuf: obuf
+    port map (
+        I => AMC_FP_TXP(i),
+        O => AMC_o.FP_TXP_OUT(i+4)
+    );
+    AMC_FP_RXN(i) <= AMC_i.FP_RXN_IN(i+4);
+    AMC_FP_RXP(i) <= AMC_i.FP_RXP_IN(i+4);
+end generate AMC_FP_TxRx;
 
-FMC_txpobuf2 : obuf
-port map (
-    I => FMC_TXP2,
-    O => FMC_o.TXP2_OUT
-);
-
-FMC_txnobuf3 : obuf
-port map (
-    I => FMC_TXN3,
-    O => FMC_o.TXN3_OUT
-);
-
-FMC_txpobuf3 : obuf
-port map (
-    I => FMC_TXP3,
-    O => FMC_o.TXP3_OUT
-);
-
-FMC_txnobuf4 : obuf
-port map (
-    I => FMC_TXN4,
-    O => FMC_o.TXN4_OUT
-);
-
-FMC_txpobuf4 : obuf
-port map (
-    I => FMC_TXP4,
-    O => FMC_o.TXP4_OUT
-);
-
-AMC_txnobuf8 : obuf
-port map (
-    I => AMC_FP_TX8_N,
-    O => AMC_o.FP_TX8_N
-);
-
-AMC_txpobuf8 : obuf
-port map (
-    I => AMC_FP_TX8_P,
-    O => AMC_o.FP_TX8_P
-);
-
-AMC_txnobuf9 : obuf
-port map (
-    I => AMC_FP_TX9_N,
-    O => AMC_o.FP_TX9_N
-);
-
-AMC_txpobuf9 : obuf
-port map (
-    I => AMC_FP_TX9_P,
-    O => AMC_o.FP_TX9_P
-);
-
-AMC_txnobuf10 : obuf
-port map (
-    I => AMC_FP_TX10_N,
-    O => AMC_o.FP_TX10_N
-);
-
-AMC_txpobuf10 : obuf
-port map (
-    I => AMC_FP_TX10_P,
-    O => AMC_o.FP_TX10_P
-);
-
-AMC_txnobuf11 : obuf
-port map (
-    I => AMC_FP_TX11_N,
-    O => AMC_o.FP_TX11_N
-);
-
-AMC_txpobuf11 : obuf
-port map (
-    I => AMC_FP_TX11_P,
-    O => AMC_o.FP_TX11_P
-);
+AMC_gtrefclk <= AMC_i.FP_GTREFCLK(3); -- AMC8_11_MGTREFCLK1
 
 read_ack_delay : entity work.delay_line
 generic map (DW => 1)
@@ -384,151 +311,47 @@ port map (
     DELAY_i     => RD_ADDR2ACK
     );
 
-FMC_gtrefclk<=FMC_i.GTREFCLK;
-AMC_gtrefclk<=AMC_i.P8_11_GTREFCLK1;
-
 ---------------------------------------------------------------------------
 -- Ethernet phy to phy link 
 ---------------------------------------------------------------------------
-eth_phy_to_phy_i : eth_phy_to_phy
-    port map (
-    clk_i               => clk_i,
-    SOFT_RESET          => SOFT_RESET_holded,
-    pma_reset_i         => pma_reset,
-    
-    -- GTX I/O
-    gtrefclk_i          => FMC_gtrefclk,
-    eth_clk2phy_i       => FMC_eth_clk2phy,
-    eth_phy2clk_o       => FMC_eth_phy2clk,
-    RXN_IN           	=> FMC_i.RXN_IN,
-    RXP_IN           	=> FMC_i.RXP_IN,
-    TXN_OUT          	=> FMC_TXN,
-    TXP_OUT        		=> FMC_TXP,
-    RESETDONE       	=> FMC_PHY_RESETDONE(0),
-    CPLLLOCK        	=> FMC_PHY_CPLLLOCK(0),
-    STATUS_VECTOR      	=> FMC_PHY_STATUS(0)(15 downto 0),
-    GMII_DATAIN_EN   	=> DATA_A2F_EN(0),
-    GMII_DATAIN_ER   	=> DATA_A2F_ER(0),
-     
-    gtrefclk_2_i        => AMC_gtrefclk,
-    eth_clk2phy_2_i     => AMC_eth_clk2phy,
-    eth_phy2clk_2_o     => AMC_eth_phy2clk,
-    RXN2_IN        		=> AMC_i.FP_RX8_N,
-    RXP2_IN        		=> AMC_i.FP_RX8_P,
-    TXN2_OUT       		=> AMC_FP_TX8_N,
-    TXP2_OUT       		=> AMC_FP_TX8_P,
-    RESETDONE_2     	=> AMC_PHY_RESETDONE(0),
-    CPLLLOCK_2     		=> AMC_PHY_CPLLLOCK(0),
-    STATUS_VECTOR_2    	=> AMC_PHY_STATUS(0)(15 downto 0),
-    GMII_DATAIN_EN_2   	=> DATA_F2A_EN(0),
-    GMII_DATAIN_ER_2   	=> DATA_F2A_ER(0)
-    );
-    
-eth_phy_to_phy_i2 : eth_phy_to_phy
-    port map (
-    clk_i               => clk_i,
-    SOFT_RESET          => SOFT_RESET_holded,
-    pma_reset_i         => pma_reset,
-    
-    -- GTX I/O
-    gtrefclk_i          => FMC_gtrefclk,
-    eth_clk2phy_i       => FMC_eth_clk2phy,
-    eth_phy2clk_o       => open,
-    RXN_IN           	=> FMC_i.RXN2_IN,
-    RXP_IN           	=> FMC_i.RXP2_IN,
-    TXN_OUT          	=> FMC_TXN2,
-    TXP_OUT        		=> FMC_TXP2,
-    RESETDONE       	=> FMC_PHY_RESETDONE(1),
-    CPLLLOCK        	=> FMC_PHY_CPLLLOCK(1),
-    STATUS_VECTOR      	=> FMC_PHY_STATUS(1)(15 downto 0),
-    GMII_DATAIN_EN   	=> DATA_A2F_EN(1),
-    GMII_DATAIN_ER   	=> DATA_A2F_ER(1),
-     
-    gtrefclk_2_i        => AMC_gtrefclk,
-    eth_clk2phy_2_i     => AMC_eth_clk2phy,
-    eth_phy2clk_2_o     => open,
-    RXN2_IN        		=> AMC_i.FP_RX9_N,
-    RXP2_IN        		=> AMC_i.FP_RX9_P,
-    TXN2_OUT       		=> AMC_FP_TX9_N,
-    TXP2_OUT       		=> AMC_FP_TX9_P,
-    RESETDONE_2     	=> AMC_PHY_RESETDONE(1),
-    CPLLLOCK_2     		=> AMC_PHY_CPLLLOCK(1),
-    STATUS_VECTOR_2    	=> AMC_PHY_STATUS(1)(15 downto 0),
-    GMII_DATAIN_EN_2   	=> DATA_F2A_EN(1),
-    GMII_DATAIN_ER_2   	=> DATA_F2A_ER(1)
-    );
-    
-eth_phy_to_phy_i3 : eth_phy_to_phy
-    port map (
-    clk_i               => clk_i,
-    SOFT_RESET          => SOFT_RESET_holded,
-    pma_reset_i         => pma_reset,
-    
-    -- GTX I/O
-    gtrefclk_i          => FMC_gtrefclk,
-    eth_clk2phy_i       => FMC_eth_clk2phy,
-    eth_phy2clk_o       => open,
-    RXN_IN           	=> FMC_i.RXN3_IN,
-    RXP_IN           	=> FMC_i.RXP3_IN,
-    TXN_OUT          	=> FMC_TXN3,
-    TXP_OUT        		=> FMC_TXP3,
-    RESETDONE       	=> FMC_PHY_RESETDONE(2),
-    CPLLLOCK        	=> FMC_PHY_CPLLLOCK(2),
-    STATUS_VECTOR      	=> FMC_PHY_STATUS(2)(15 downto 0),
-    GMII_DATAIN_EN   	=> DATA_A2F_EN(2),
-    GMII_DATAIN_ER   	=> DATA_A2F_ER(2),
-     
-    gtrefclk_2_i        => AMC_gtrefclk,
-    eth_clk2phy_2_i     => AMC_eth_clk2phy,
-    eth_phy2clk_2_o     => open,
-    RXN2_IN        		=> AMC_i.FP_RX10_N,
-    RXP2_IN        		=> AMC_i.FP_RX10_P,
-    TXN2_OUT       		=> AMC_FP_TX10_N,
-    TXP2_OUT       		=> AMC_FP_TX10_P,
-    RESETDONE_2     	=> AMC_PHY_RESETDONE(2),
-    CPLLLOCK_2     		=> AMC_PHY_CPLLLOCK(2),
-    STATUS_VECTOR_2    	=> AMC_PHY_STATUS(2)(15 downto 0),
-    GMII_DATAIN_EN_2   	=> DATA_F2A_EN(2),
-    GMII_DATAIN_ER_2   	=> DATA_F2A_ER(2)
-    );
-    
-eth_phy_to_phy_i4 : eth_phy_to_phy
-    port map (
-    clk_i               => clk_i,
-    SOFT_RESET          => SOFT_RESET_holded,
-    pma_reset_i         => pma_reset,
-    
-    -- GTX I/O
-    gtrefclk_i          => FMC_gtrefclk,
-    eth_clk2phy_i       => FMC_eth_clk2phy,
-    eth_phy2clk_o       => open,
-    RXN_IN           	=> FMC_i.RXN4_IN,
-    RXP_IN           	=> FMC_i.RXP4_IN,
-    TXN_OUT          	=> FMC_TXN4,
-    TXP_OUT        		=> FMC_TXP4,
-    RESETDONE       	=> FMC_PHY_RESETDONE(3),
-    CPLLLOCK        	=> FMC_PHY_CPLLLOCK(3),
-    STATUS_VECTOR      	=> FMC_PHY_STATUS(3)(15 downto 0),
-    GMII_DATAIN_EN   	=> DATA_A2F_EN(3),
-    GMII_DATAIN_ER   	=> DATA_A2F_ER(3),
+eth_phy2phy: for i in 0 to 3 generate
+    eth_phy_to_phy_i : eth_phy_to_phy
+        port map (
+        clk_i               => clk_i,
+        SOFT_RESET          => SOFT_RESET_holded,
+        pma_reset_i         => pma_reset,
         
-    gtrefclk_2_i        => AMC_gtrefclk,
-    eth_clk2phy_2_i     => AMC_eth_clk2phy,
-    eth_phy2clk_2_o     => open,
-    RXN2_IN        		=> AMC_i.FP_RX11_N,
-    RXP2_IN        		=> AMC_i.FP_RX11_P,
-    TXN2_OUT       		=> AMC_FP_TX11_N,
-    TXP2_OUT       		=> AMC_FP_TX11_P,
-    RESETDONE_2     	=> AMC_PHY_RESETDONE(3),
-    CPLLLOCK_2     		=> AMC_PHY_CPLLLOCK(3),
-    STATUS_VECTOR_2    	=> AMC_PHY_STATUS(3)(15 downto 0),
-    GMII_DATAIN_EN_2   	=> DATA_F2A_EN(3),
-    GMII_DATAIN_ER_2   	=> DATA_F2A_ER(3)
-    );
-    
+        -- GTX I/O
+        gtrefclk_i          => FMC_gtrefclk,
+        eth_clk2phy_i       => FMC_eth_clk2phy,
+        eth_phy2clk_o       => FMC_eth_phy2clk(i),
+        RXN_IN              => FMC_i.RXN_IN(i),
+        RXP_IN              => FMC_i.RXP_IN(i),
+        TXN_OUT             => FMC_TXN(i),
+        TXP_OUT             => FMC_TXP(i),
+        RESETDONE           => FMC_PHY_RESETDONE(i),
+        CPLLLOCK            => FMC_PHY_CPLLLOCK(i),
+        STATUS_VECTOR       => FMC_PHY_STATUS(i)(15 downto 0),
+        GMII_DATAIN_EN      => DATA_A2F_EN(i),
+        GMII_DATAIN_ER      => DATA_A2F_ER(i),
+         
+        gtrefclk_2_i        => AMC_gtrefclk,
+        eth_clk2phy_2_i     => AMC_eth_clk2phy,
+        eth_phy2clk_2_o     => AMC_eth_phy2clk(i),
+        RXN2_IN             => AMC_FP_RXN(i),
+        RXP2_IN             => AMC_FP_RXP(i),
+        TXN2_OUT            => AMC_FP_TXN(i),
+        TXP2_OUT            => AMC_FP_TXP(i),
+        RESETDONE_2         => AMC_PHY_RESETDONE(i),
+        CPLLLOCK_2          => AMC_PHY_CPLLLOCK(i),
+        STATUS_VECTOR_2     => AMC_PHY_STATUS(i)(15 downto 0),
+        GMII_DATAIN_EN_2    => DATA_F2A_EN(i),
+        GMII_DATAIN_ER_2    => DATA_F2A_ER(i)
+        );
+end generate eth_phy2phy;
 
 core_resets_i : gig_ethernet_pcs_pma_0_resets
-  port map (
+port map (
     reset                     => SOFT_RESET_holded,
     independent_clock_bufg    => clk_i,
     pma_reset                 => pma_reset
@@ -538,8 +361,8 @@ eth_phy_clocking_i: eth_phy_clocking
 port map (
     clk_i              => clk_i,
     pma_reset_i        => pma_reset,
-    gtrefclk_i         => FMC_i.GTREFCLK,
-    eth_phy_clk_i      => FMC_eth_phy2clk,
+    gtrefclk_i         => FMC_i.GTREFCLK(0),
+    eth_phy_clk_i      => FMC_eth_phy2clk(0),
     eth_phy_clk_o      => FMC_eth_clk2phy
     
     );
@@ -549,7 +372,7 @@ port map (
     clk_i              => clk_i,
     pma_reset_i        => pma_reset,
     gtrefclk_i         => AMC_gtrefclk,
-    eth_phy_clk_i      => AMC_eth_phy2clk,
+    eth_phy_clk_i      => AMC_eth_phy2clk(0),
     eth_phy_clk_o      => AMC_eth_clk2phy
     
     );
@@ -656,14 +479,14 @@ port map(
     G_I2C_FMC_BASE_ADRS                   => "00",          -- I2C base address of FMC card. This value is set by the DIP_Switch located on the FMC card. ON position => '1', OFF position => '0'
     G_MAIN_CLOCK_FREQUENCY                => 125000,        -- Frequency in KHz of CLOCK input. This value allows to maintain the I2C frequency less than 100KHz
     G_DEFAULT_FREQUENCY_OSCILLATOR_10KHz  => 12500,         -- Default frequency of programmable oscillator modulo 10KHz. By default, the oscillator will be programmed with this frequency value
-														    
+                                                            
   -- Common signals                                         
     RESET             => reset_i,                           -- Asynchronous reset, active high 
     CLOCK             => clk_i,                             -- Clock   
-														    
+                                                            
   -- SFP Command part                                       
     APPLY_SFP         => FMC_APPLY_SFP,                      -- Set high during one clock cycle to apply the SFP commands (SEL_RATE & TX_DISABLE)
-														    
+                                                            
     SEL_RATE          => FMC_SEL_RATE(0),                    -- Assign high to select the bandwidth of all SFP to 2.125Gb/s to 4.5Gb/s otherwise assign low to select a lower bandwidth
     TX_DISABLE(0)     => FMC_TX_DISABLE(0)(0),               -- [3:0] Assign high to disable the transmission on each SFP individually
     TX_DISABLE(1)     => FMC_TX_DISABLE(1)(0),              
@@ -678,7 +501,7 @@ port map(
     BUSY              => FMC_I2C_BUSY(0),                    -- Assign high when the controller is busy
     END_TRANSFER      => FMC_I2C_END_TRANSFER(0),            -- Assign high during one clock cycle when a complete access (Rd or Wr) has been performed
     ERROR_STATUS      => FMC_I2C_STATUS(1 downto 0),         -- Error code assigned during the END_TRANSFER. 0 => no Error, 1 => Access I2C error, 2 => EEPROM integrity error, 3 => FREQUENCY_VALUE is out of range
-														     
+                                                             
   -- I2C interface                                           
     I2C_SCL           => FMC_HB21_N,                         -- I2C Clock out
     I2C_SDA_IN        => FMC_I2C_SDA_IN_C,                   -- I2C Data in
@@ -700,47 +523,47 @@ FMC_FREQUENCY_VALUE <= ZEROS(32);
 fmc_amc_eth_ctrl : entity work.fmc_amc_eth_ctrl
 port map (
     -- Clock and Reset
-    clk_i               	=> clk_i,
-    reset_i             	=> reset_i,
-    bit_bus_i           	=> bit_bus_i,
-    pos_bus_i           	=> pos_bus_i,
+    clk_i                   => clk_i,
+    reset_i                 => reset_i,
+    bit_bus_i               => bit_bus_i,
+    pos_bus_i               => pos_bus_i,
     -- Block Parameters
     SOFT_RESET              => open,
     SOFT_RESET_WSTB         => SOFT_RESET,
-    FMC_TX_DISABLE_1		=> FMC_TX_DISABLE(0),
-    FMC_TX_DISABLE_1_WSTB	=> FMC_TX_DISABLE_WSTB(0),
-    FMC_TX_DISABLE_2		=> FMC_TX_DISABLE(1),
-    FMC_TX_DISABLE_2_WSTB	=> FMC_TX_DISABLE_WSTB(1),
-    FMC_TX_DISABLE_3		=> FMC_TX_DISABLE(2),
-    FMC_TX_DISABLE_3_WSTB	=> FMC_TX_DISABLE_WSTB(2),
-    FMC_I2C_BUSY			=> FMC_I2C_BUSY,
-    FMC_I2C_STATUS			=> FMC_I2C_STATUS,
-    FMC_PHY_TX_FAULT		=> FMC_PHY_TX_FAULT,
-    FMC_PHY_RX_LOS			=> FMC_PHY_RX_LOS,
-    AMC_PHY_RESETDONE		=> AMC_PHY_RESETDONE,
-    AMC_PHY_CPLLLOCK		=> AMC_PHY_CPLLLOCK,
-    FMC_PHY_RESETDONE		=> FMC_PHY_RESETDONE,
-    FMC_PHY_CPLLLOCK		=> FMC_PHY_CPLLLOCK,
-    FMC_PHY1_STATUS			=> FMC_PHY_STATUS(0),
-    FMC_PHY2_STATUS			=> FMC_PHY_STATUS(1),
-    FMC_PHY3_STATUS			=> FMC_PHY_STATUS(2),
-    FMC_PHY4_STATUS			=> FMC_PHY_STATUS(3),
-    AMC_PHY8_STATUS			=> AMC_PHY_STATUS(0),
-    AMC_PHY9_STATUS			=> AMC_PHY_STATUS(1),
-    AMC_PHY10_STATUS		=> AMC_PHY_STATUS(2),
-    AMC_PHY11_STATUS		=> AMC_PHY_STATUS(3),
-    DATA_A2F_CNT_1			=> DATA_A2F_CNT(0),
-    DATA_A2F_ERCNT_1		=> DATA_A2F_ER_CNT(0),
-    DATA_F2A_CNT_1			=> DATA_F2A_CNT(0),
-    DATA_F2A_ERCNT_1		=> DATA_F2A_ER_CNT(0),
-    DATA_A2F_CNT_2			=> DATA_A2F_CNT(1),
-    DATA_A2F_ERCNT_2		=> DATA_A2F_ER_CNT(1),
-    DATA_F2A_CNT_2			=> DATA_F2A_CNT(1),
-    DATA_F2A_ERCNT_2		=> DATA_F2A_ER_CNT(1),
-    DATA_A2F_CNT_3			=> DATA_A2F_CNT(2),
-    DATA_A2F_ERCNT_3		=> DATA_A2F_ER_CNT(2),
-    DATA_F2A_CNT_3			=> DATA_F2A_CNT(2),
-    DATA_F2A_ERCNT_3		=> DATA_F2A_ER_CNT(2),
+    FMC_TX_DISABLE_1        => FMC_TX_DISABLE(0),
+    FMC_TX_DISABLE_1_WSTB   => FMC_TX_DISABLE_WSTB(0),
+    FMC_TX_DISABLE_2        => FMC_TX_DISABLE(1),
+    FMC_TX_DISABLE_2_WSTB   => FMC_TX_DISABLE_WSTB(1),
+    FMC_TX_DISABLE_3        => FMC_TX_DISABLE(2),
+    FMC_TX_DISABLE_3_WSTB   => FMC_TX_DISABLE_WSTB(2),
+    FMC_I2C_BUSY            => FMC_I2C_BUSY,
+    FMC_I2C_STATUS          => FMC_I2C_STATUS,
+    FMC_PHY_TX_FAULT        => FMC_PHY_TX_FAULT,
+    FMC_PHY_RX_LOS          => FMC_PHY_RX_LOS,
+    AMC_PHY_RESETDONE       => AMC_PHY_RESETDONE,
+    AMC_PHY_CPLLLOCK        => AMC_PHY_CPLLLOCK,
+    FMC_PHY_RESETDONE       => FMC_PHY_RESETDONE,
+    FMC_PHY_CPLLLOCK        => FMC_PHY_CPLLLOCK,
+    FMC_PHY1_STATUS         => FMC_PHY_STATUS(0),
+    FMC_PHY2_STATUS         => FMC_PHY_STATUS(1),
+    FMC_PHY3_STATUS         => FMC_PHY_STATUS(2),
+    FMC_PHY4_STATUS         => FMC_PHY_STATUS(3),
+    AMC_PHY8_STATUS         => AMC_PHY_STATUS(0),
+    AMC_PHY9_STATUS         => AMC_PHY_STATUS(1),
+    AMC_PHY10_STATUS        => AMC_PHY_STATUS(2),
+    AMC_PHY11_STATUS        => AMC_PHY_STATUS(3),
+    DATA_A2F_CNT_1          => DATA_A2F_CNT(0),
+    DATA_A2F_ERCNT_1        => DATA_A2F_ER_CNT(0),
+    DATA_F2A_CNT_1          => DATA_F2A_CNT(0),
+    DATA_F2A_ERCNT_1        => DATA_F2A_ER_CNT(0),
+    DATA_A2F_CNT_2          => DATA_A2F_CNT(1),
+    DATA_A2F_ERCNT_2        => DATA_A2F_ER_CNT(1),
+    DATA_F2A_CNT_2          => DATA_F2A_CNT(1),
+    DATA_F2A_ERCNT_2        => DATA_F2A_ER_CNT(1),
+    DATA_A2F_CNT_3          => DATA_A2F_CNT(2),
+    DATA_A2F_ERCNT_3        => DATA_A2F_ER_CNT(2),
+    DATA_F2A_CNT_3          => DATA_F2A_CNT(2),
+    DATA_F2A_ERCNT_3        => DATA_F2A_ER_CNT(2),
     -- Memory Bus Interface
     read_strobe_i           => read_strobe_i,
     read_address_i          => read_address_i(BLK_AW-1 downto 0),

@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
--- Company:
--- Engineer:
+-- Company: Synchrotron SOLEIL
+-- Engineer: Shu ZHANG
 --
 -- Create Date:    17:51:18 15/04/2020
 -- Design Name:
@@ -92,10 +92,10 @@ COMPONENT gig_ethernet_pcs_pma_0_example_design
 
       -- Tranceiver Interface
       -----------------------
-      txp                  	 : out std_logic;                    -- Differential +ve of serial transmission from PMA to PMD.
-      txn                  	 : out std_logic;                    -- Differential -ve of serial transmission from PMA to PMD.
-      rxp                  	 : in std_logic;                     -- Differential +ve for serial reception from PMD to PMA.
-      rxn                  	 : in std_logic;                     -- Differential -ve for serial reception from PMD to PMA.
+      txp                    : out std_logic;                    -- Differential +ve of serial transmission from PMA to PMD.
+      txn                    : out std_logic;                    -- Differential -ve of serial transmission from PMA to PMD.
+      rxp                    : in std_logic;                     -- Differential +ve for serial reception from PMD to PMA.
+      rxn                    : in std_logic;                     -- Differential -ve for serial reception from PMD to PMA.
 
       -- GMII Interface (client MAC <=> PCS)
       --------------------------------------
@@ -111,7 +111,7 @@ COMPONENT gig_ethernet_pcs_pma_0_example_design
       -- Management: Alternative to MDIO Interface
       --------------------------------------------
       configuration_vector   : in std_logic_vector(4 downto 0);  -- Alternative to MDIO interface.
-	
+    
       -- General IO's
       ---------------
       status_vector          : out std_logic_vector(15 downto 0); -- Core status.
@@ -194,18 +194,18 @@ constant  C_CONFIGURATION_VECTOR  : std_logic_vector(4 downto 0):='0'&    -- (4)
 -- GMII Interface MAC <> ETH
 ----------------------------
 signal gmii_txd     : std_logic_vector(7 downto 0);     -- Transmit data from client MAC.
-signal gmii_tx_en   : std_logic;  						-- Transmit control signal from client MAC.
-signal gmii_tx_er   : std_logic;  						-- Transmit control signal from client MAC.
+signal gmii_tx_en   : std_logic;                        -- Transmit control signal from client MAC.
+signal gmii_tx_er   : std_logic;                        -- Transmit control signal from client MAC.
 signal gmii_rxd     : std_logic_vector(7 downto 0);     -- Received Data to client MAC.
-signal gmii_rx_dv   : std_logic;  						-- Received control signal to client MAC.
-signal gmii_rx_er   : std_logic;  						-- Received control signal to client MAC.
+signal gmii_rx_dv   : std_logic;                        -- Received control signal to client MAC.
+signal gmii_rx_er   : std_logic;                        -- Received control signal to client MAC.
 signal gmii_tx_clk  : std_logic;
 signal gmii_rx_clk  : std_logic;
 
 -- General IO's
 ---------------
 --signal status_vector : std_logic_vector(15 downto 0); -- Core status.
-signal reset 	 	 : std_logic;  
+signal reset         : std_logic;  
 signal signal_detect : std_logic;  -- Input from PMD to indicate presence of optical input.
 
 attribute keep : string;
@@ -237,20 +237,20 @@ eth_phy_i : gig_ethernet_pcs_pma_0_example_design
      port map(
        independent_clock_bufg => clk_i,
 
-       gtrefclk       	=> gtrefclk_i,
-       gtrefclk_bufg  	=> eth_clk2phy_i.gtrefclk_bufg,
+       gtrefclk         => gtrefclk_i,
+       gtrefclk_bufg    => eth_clk2phy_i.gtrefclk_bufg,
 
-       txoutclk   		=> eth_phy2clk_o.txoutclk,
-       rxoutclk   		=> eth_phy2clk_o.rxoutclk,
-       resetdone  		=> RESETDONE,    -- The GT transceiver has completed its reset cycle
-       cplllock   		=> CPLLLOCK,
-       mmcm_reset 		=> eth_phy2clk_o.mmcm_reset,
-       mmcm_locked		=> eth_clk2phy_i.mmcm_locked,  -- Locked indication from MMCM
-       userclk    		=> eth_clk2phy_i.userclk,
-       userclk2   		=> eth_clk2phy_i.userclk2,
-       rxuserclk  		=> eth_clk2phy_i.rxuserclk,
-       rxuserclk2 		=> eth_clk2phy_i.rxuserclk2,
-       pma_reset  		=> pma_reset_i,  -- transceiver PMA reset signal
+       txoutclk         => eth_phy2clk_o.txoutclk,
+       rxoutclk         => eth_phy2clk_o.rxoutclk,
+       resetdone        => RESETDONE,    -- The GT transceiver has completed its reset cycle
+       cplllock         => CPLLLOCK,
+       mmcm_reset       => eth_phy2clk_o.mmcm_reset,
+       mmcm_locked      => eth_clk2phy_i.mmcm_locked,  -- Locked indication from MMCM
+       userclk          => eth_clk2phy_i.userclk,
+       userclk2         => eth_clk2phy_i.userclk2,
+       rxuserclk        => eth_clk2phy_i.rxuserclk,
+       rxuserclk2       => eth_clk2phy_i.rxuserclk2,
+       pma_reset        => pma_reset_i,  -- transceiver PMA reset signal
        gt0_qplloutclk   => eth_clk2phy_i.qplloutclk,
        gt0_qplloutrefclk=> eth_clk2phy_i.qplloutrefclk,
 
@@ -278,9 +278,9 @@ eth_phy_i : gig_ethernet_pcs_pma_0_example_design
 
        -- General IO's
        ---------------
-       status_vector	=> STATUS_VECTOR, --: out -- Core status.
-       reset 			=> reset,         --: in  -- Asynchronous reset for entire core.
-       signal_detect	=> signal_detect  --: in  -- Input from PMD to indicate presence of optical input.
+       status_vector    => STATUS_VECTOR, --: out -- Core status.
+       reset            => reset,         --: in  -- Asynchronous reset for entire core.
+       signal_detect    => signal_detect  --: in  -- Input from PMD to indicate presence of optical input.
        );
 
 ---------------
@@ -293,20 +293,20 @@ eth_phy_i2 : gig_ethernet_pcs_pma_0_example_design
        --This example design assumes that this is of frequency 200MHz.
        independent_clock_bufg => clk_i,
 
-       gtrefclk       	=> gtrefclk_2_i,
-       gtrefclk_bufg  	=> eth_clk2phy_2_i.gtrefclk_bufg,
+       gtrefclk         => gtrefclk_2_i,
+       gtrefclk_bufg    => eth_clk2phy_2_i.gtrefclk_bufg,
 
-       txoutclk   		=> eth_phy2clk_2_o.txoutclk,
-       rxoutclk   		=> eth_phy2clk_2_o.rxoutclk,
-       resetdone  		=> RESETDONE_2,  -- The GT transceiver has completed its reset cycle
-       cplllock   		=> CPLLLOCK_2,
-       mmcm_reset 		=> eth_phy2clk_2_o.mmcm_reset,
-       mmcm_locked		=> eth_clk2phy_2_i.mmcm_locked,  -- Locked indication from MMCM
-       userclk    		=> eth_clk2phy_2_i.userclk,
-       userclk2   		=> eth_clk2phy_2_i.userclk2,
-       rxuserclk  		=> eth_clk2phy_2_i.rxuserclk,
-       rxuserclk2 		=> eth_clk2phy_2_i.rxuserclk2,
-       pma_reset  		=> pma_reset_i,  -- transceiver PMA reset signal
+       txoutclk         => eth_phy2clk_2_o.txoutclk,
+       rxoutclk         => eth_phy2clk_2_o.rxoutclk,
+       resetdone        => RESETDONE_2,  -- The GT transceiver has completed its reset cycle
+       cplllock         => CPLLLOCK_2,
+       mmcm_reset       => eth_phy2clk_2_o.mmcm_reset,
+       mmcm_locked      => eth_clk2phy_2_i.mmcm_locked,  -- Locked indication from MMCM
+       userclk          => eth_clk2phy_2_i.userclk,
+       userclk2         => eth_clk2phy_2_i.userclk2,
+       rxuserclk        => eth_clk2phy_2_i.rxuserclk,
+       rxuserclk2       => eth_clk2phy_2_i.rxuserclk2,
+       pma_reset        => pma_reset_i,  -- transceiver PMA reset signal
        gt0_qplloutclk   => eth_clk2phy_2_i.qplloutclk,
        gt0_qplloutrefclk=> eth_clk2phy_2_i.qplloutrefclk,
 
@@ -335,9 +335,9 @@ eth_phy_i2 : gig_ethernet_pcs_pma_0_example_design
 
        -- General IO's
        ---------------
-       status_vector	=> STATUS_VECTOR_2, --: out -- Core status.
-       reset 			=> reset,           --: in  -- Asynchronous reset for entire core.
-       signal_detect	=> signal_detect    --: in  -- Input from PMD to indicate presence of optical input.
+       status_vector    => STATUS_VECTOR_2, --: out -- Core status.
+       reset            => reset,           --: in  -- Asynchronous reset for entire core.
+       signal_detect    => signal_detect    --: in  -- Input from PMD to indicate presence of optical input.
        );
 
 end structural;

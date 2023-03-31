@@ -23,4 +23,6 @@ type Eth_clk2phy_interface is
     qplloutrefclk        : std_logic;
 end record Eth_clk2phy_interface;
 
+type phy2clk_array is array (natural range <>) of Eth_phy2clk_interface;
+
 end module_defines;
