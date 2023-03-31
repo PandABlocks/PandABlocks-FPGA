@@ -138,66 +138,23 @@ constant SFP_o_init : SFP_output_interface := (TXN_OUT => 'Z',
 
 type AMC_input_interface is
   record
-    P4_7_GTREFCLK0      : std_logic;
-    P4_7_GTREFCLK1      : std_logic;
-    P8_11_GTREFCLK0     : std_logic;
-    P8_11_GTREFCLK1     : std_logic;
-    FP_RX4_P            : std_logic;
-    FP_RX4_N            : std_logic;
-    FP_RX5_P            : std_logic;
-    FP_RX5_N            : std_logic;
-    FP_RX6_P            : std_logic;
-    FP_RX6_N            : std_logic;
-    FP_RX7_P            : std_logic;
-    FP_RX7_N            : std_logic;
-    FP_RX8_P            : std_logic;
-    FP_RX8_N            : std_logic;
-    FP_RX9_P            : std_logic;
-    FP_RX9_N            : std_logic;
-    FP_RX10_P           : std_logic;
-    FP_RX10_N           : std_logic;
-    FP_RX11_P           : std_logic;
-    FP_RX11_N           : std_logic;
+    -- 4 Fat Pipe GTREFCLKs
+    FP_GTREFCLK        : std_logic_vector(3 downto 0);
+    -- 8 Fat Pipe ports
+    FP_RXP_IN          : std_logic_vector(7 downto 0);
+    FP_RXN_IN          : std_logic_vector(7 downto 0);
 
   end record AMC_input_interface;
   
 type AMC_output_interface is
   record
-    FP_TX4_P            : std_logic;
-    FP_TX4_N            : std_logic;
-    FP_TX5_P            : std_logic;
-    FP_TX5_N            : std_logic;
-    FP_TX6_P            : std_logic;
-    FP_TX6_N            : std_logic;
-    FP_TX7_P            : std_logic;
-    FP_TX7_N            : std_logic;
-    FP_TX8_P            : std_logic;
-    FP_TX8_N            : std_logic;
-    FP_TX9_P            : std_logic;
-    FP_TX9_N            : std_logic;
-    FP_TX10_P           : std_logic;
-    FP_TX10_N           : std_logic;
-    FP_TX11_P           : std_logic;
-    FP_TX11_N           : std_logic;
+    -- 8 Fat Pipe ports
+    FP_TXP_OUT          : std_logic_vector(7 downto 0);
+    FP_TXN_OUT          : std_logic_vector(7 downto 0);
   end record AMC_output_interface;
   
-constant AMC_o_init : AMC_output_interface := (FP_TX4_P => 'Z',
-                                               FP_TX4_N => 'Z',
-                                               FP_TX5_P => 'Z',
-                                               FP_TX5_N => 'Z',
-                                               FP_TX6_P => 'Z',
-                                               FP_TX6_N => 'Z',
-                                               FP_TX7_P => 'Z',
-                                               FP_TX7_N => 'Z',
-                                               FP_TX8_P => 'Z',
-                                               FP_TX8_N => 'Z',
-                                               FP_TX9_P => 'Z',
-                                               FP_TX9_N => 'Z',
-                                               FP_TX10_P => 'Z',
-                                               FP_TX10_N => 'Z',
-                                               FP_TX11_P => 'Z',
-                                               FP_TX11_N => 'Z'
-                                               );
+constant AMC_o_init : AMC_output_interface := (FP_TXP_OUT => (others => 'Z'),
+                                               FP_TXN_OUT => (others => 'Z'));
 
 type seq_t is
 record
