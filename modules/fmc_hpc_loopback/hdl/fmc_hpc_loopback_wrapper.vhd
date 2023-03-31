@@ -1,9 +1,9 @@
 --------------------------------------------------------------------------------
---  	NAMC - 2020
+--      NAMC - 2020
 --      Diamond Light Source, Oxford, UK
 --      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
---  Author      : Arthur Mariano
+--  Author      : Arthur Mariano, Shu ZHANG
 --------------------------------------------------------------------------------
 --
 --  Description : FMC High Pin Count Loopback Design exercised all LA lines and HA/HB lines and GTX[3:0].
@@ -51,7 +51,6 @@ port (
 end fmc_hpc_loopback_wrapper;
 
 architecture rtl of fmc_hpc_loopback_wrapper is
-
 signal probe0               : std_logic_vector(31 downto 0);
 signal clock_en             : std_logic;
 signal fmc_din_p            : std_logic_vector(16 downto 0);
@@ -64,21 +63,16 @@ signal fmc_din_p_pad_hpc    : std_logic_vector(21 downto 0);
 signal fmc_din_n_pad_hpc    : std_logic_vector(21 downto 0);
 signal la_p_compare         : std_logic_vector(16 downto 0);
 signal la_n_compare         : std_logic_vector(16 downto 0);
-signal hab_p_compare     	: std_logic_vector(21 downto 0);
-signal hab_n_compare     	: std_logic_vector(21 downto 0);
+signal hab_p_compare        : std_logic_vector(21 downto 0);
+signal hab_n_compare        : std_logic_vector(21 downto 0);
 signal test_clocks          : std_logic_vector(3 downto 0);
-signal LINK_UP_1              : std_logic_vector(31 downto 0);
-signal LINK_UP_2            : std_logic_vector(31 downto 0);
-signal LINK_UP_3            : std_logic_vector(31 downto 0);
-signal LINK_UP_4            : std_logic_vector(31 downto 0);
-signal ERROR_COUNT_1          : std_logic_vector(31 downto 0);
-signal ERROR_COUNT_2        : std_logic_vector(31 downto 0);
-signal ERROR_COUNT_3        : std_logic_vector(31 downto 0);
-signal ERROR_COUNT_4        : std_logic_vector(31 downto 0);
+signal LINK_UP              : std32_array(3 downto 0);
+signal ERROR_COUNT          : std32_array(3 downto 0);
+
 signal LA_P_ERROR           : std_logic_vector(31 downto 0);
 signal LA_N_ERROR           : std_logic_vector(31 downto 0);
-signal HAB_P_ERROR			: std_logic_vector(31 downto 0);
-signal HAB_N_ERROR			: std_logic_vector(31 downto 0);
+signal HAB_P_ERROR          : std_logic_vector(31 downto 0);
+signal HAB_N_ERROR          : std_logic_vector(31 downto 0);
 signal FMC_CLK0_M2C         : std_logic;
 signal FMC_CLK1_M2C         : std_logic;
 signal FREQ_VAL             : std32_array(3 downto 0);
@@ -87,12 +81,12 @@ signal FMC_PRSNT_DW         : std_logic_vector(31 downto 0);
 signal SOFT_RESET           : std_logic;
 signal LOOP_PERIOD_WSTB     : std_logic;
 signal LOOP_PERIOD          : std_logic_vector(31 downto 0);
-signal HB_INIT				: std_logic_vector(31 downto 0);
-signal HB_INIT_WSTB			: std_logic;
+signal HB_INIT              : std_logic_vector(31 downto 0);
+signal HB_INIT_WSTB         : std_logic;
 
 signal pbrs_data            : std_logic_vector(16 downto 0) := X"5AF3"&'1';
 signal pbrs_data_prev       : std_logic_vector(16 downto 0);
-signal pbrs_data_hpc		: std_logic_vector(21 downto 0) := X"FB8F2"&"01";
+signal pbrs_data_hpc        : std_logic_vector(21 downto 0) := X"FB8F2"&"01";
 signal pbrs_data_prev_hpc   : std_logic_vector(21 downto 0);
 
 attribute MARK_DEBUG        : string;
@@ -103,64 +97,24 @@ attribute IOB of pbrs_data  : signal is "true";
 attribute IOB of fmc_din_p  : signal is "true";
 attribute IOB of fmc_din_n  : signal is "true";
 
-signal TXN                 : std_logic;
-signal TXP                 : std_logic;
-signal TXN2                : std_logic;
-signal TXP2                : std_logic;
-signal TXN3                : std_logic;
-signal TXP3                : std_logic;
-signal TXN4                : std_logic;
-signal TXP4                : std_logic;
+signal TXN                  : std_logic_vector(3 downto 0);
+signal TXP                  : std_logic_vector(3 downto 0);
 
 begin
 
-txnobuf : obuf
-port map (
-    I => TXN,
-    O => FMC_o.TXN_OUT
-);
+txobuf: for i in 0 to 3 generate 
+    txnobuf: obuf
+    port map (
+        I => TXN(i),
+        O => FMC_o.TXN_OUT(i)
+    );
 
-txpobuf : obuf
-port map (
-    I => TXP,
-    O => FMC_o.TXP_OUT
-);
-
-txnobuf2 : obuf
-port map (
-    I => TXN2,
-    O => FMC_o.TXN2_OUT
-);
-
-txpobuf2 : obuf
-port map (
-    I => TXP2,
-    O => FMC_o.TXP2_OUT
-);
-
-txnobuf3 : obuf
-port map (
-    I => TXN3,
-    O => FMC_o.TXN3_OUT
-);
-
-txpobuf3 : obuf
-port map (
-    I => TXP3,
-    O => FMC_o.TXP3_OUT
-);
-
-txnobuf4 : obuf
-port map (
-    I => TXN4,
-    O => FMC_o.TXN4_OUT
-);
-
-txpobuf4 : obuf
-port map (
-    I => TXP4,
-    O => FMC_o.TXP4_OUT
-);
+    txpobuf : obuf
+    port map (
+        I => TXP(i),
+        O => FMC_o.TXP_OUT(i)
+    );
+end generate txobuf;
 
 -- Acknowledgement to AXI Lite interface
 write_ack_o <= '1';
@@ -192,8 +146,8 @@ FMC_io.FMC_HA_P(21 downto 0) <= pbrs_data_hpc;
 FMC_io.FMC_HA_N(21 downto 0) <= pbrs_data_hpc;
 
 -- Upper half is input
-fmc_din_p_pad 	  <= FMC_io.FMC_LA_P(33 downto 17);
-fmc_din_n_pad 	  <= FMC_io.FMC_LA_N(33 downto 17);
+fmc_din_p_pad     <= FMC_io.FMC_LA_P(33 downto 17);
+fmc_din_n_pad     <= FMC_io.FMC_LA_N(33 downto 17);
 fmc_din_p_pad_hpc <= FMC_io.FMC_HB_P(21 downto 0);
 fmc_din_n_pad_hpc <= FMC_io.FMC_HB_N(21 downto 0);
 
@@ -208,7 +162,7 @@ begin
         fmc_din_n <= fmc_din_n_pad;
 
         pbrs_data_prev <= pbrs_data;
-		
+
         -- Relax loopback timing for signal travelling out and back in.
         if (clock_en = '1') then
             -- Shift test pattern
@@ -235,13 +189,13 @@ begin
         fmc_din_n_hpc <= fmc_din_n_pad_hpc;
 
         pbrs_data_prev_hpc   <= pbrs_data_hpc;
-		hab_p_compare <= fmc_din_p_hpc xor pbrs_data_prev_hpc;
+        hab_p_compare <= fmc_din_p_hpc xor pbrs_data_prev_hpc;
         hab_n_compare <= fmc_din_n_hpc xor pbrs_data_prev_hpc;
         
         -- Relax loopback timing for signal travelling out and back in.
         if (clock_en = '1') then
             -- Shift test pattern
-       		pbrs_data_hpc <= HB_INIT(21 downto 0);
+            pbrs_data_hpc <= HB_INIT(21 downto 0);
             ---pbrs_data_hpc <= pbrs_data_hpc(20 downto 0) & pbrs_data_hpc(21);
             -- Comparator on LA lines individually, and set '1' for un-matching
             -- bits.
@@ -256,58 +210,35 @@ HAB_N_ERROR <= ZEROS(10) & hab_n_compare;
 ---------------------------------------------------------------------------
 -- GTX Loopback Test
 ---------------------------------------------------------------------------
-fmcgtx_exdes_i1 : entity work.fmcgtx_exdes
+fmcgtx_exdes_i0: entity work.fmcgtx_exdes
 port map (
-    Q0_CLK1_GTREFCLK_PAD_IN     => FMC_i.GTREFCLK,
+    Q0_CLK1_GTREFCLK_PAD_IN     => FMC_i.GTREFCLK(0),
     GTREFCLK                    => GTREFCLK,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
-    TRACK_DATA_OUT              => LINK_UP_1,
-    ERROR_COUNT                 => ERROR_COUNT_1,
-    RXP_IN                      => FMC_i.RXP_IN,
-    RXN_IN                      => FMC_i.RXN_IN,
-    TXP_OUT                     => TXP,
-    TXN_OUT                     => TXN
+    TRACK_DATA_OUT              => LINK_UP(0),
+    ERROR_COUNT                 => ERROR_COUNT(0),
+    RXP_IN                      => FMC_i.RXP_IN(0),
+    RXN_IN                      => FMC_i.RXN_IN(0),
+    TXP_OUT                     => TXP(0),
+    TXN_OUT                     => TXN(0)
 );
-fmcgtx_exdes_i2 : entity work.fmcgtx_exdes
-port map (
-    Q0_CLK1_GTREFCLK_PAD_IN     => FMC_i.GTREFCLK,
-    GTREFCLK                    => open,
-    drpclk_in_i                 => clk_i,
-    SOFT_RESET                  => SOFT_RESET,
-    TRACK_DATA_OUT              => LINK_UP_2,
-    ERROR_COUNT                 => ERROR_COUNT_2,
-    RXP_IN                      => FMC_i.RXP2_IN,
-    RXN_IN                      => FMC_i.RXN2_IN,
-    TXP_OUT                     => TXP2,
-    TXN_OUT                     => TXN2
-);
-fmcgtx_exdes_i3 : entity work.fmcgtx_exdes
-port map (
-    Q0_CLK1_GTREFCLK_PAD_IN     => FMC_i.GTREFCLK,
-    GTREFCLK                    => open,
-    drpclk_in_i                 => clk_i,
-    SOFT_RESET                  => SOFT_RESET,
-    TRACK_DATA_OUT              => LINK_UP_3,
-    ERROR_COUNT                 => ERROR_COUNT_3,
-    RXP_IN                      => FMC_i.RXP3_IN,
-    RXN_IN                      => FMC_i.RXN3_IN,
-    TXP_OUT                     => TXP3,
-    TXN_OUT                     => TXN3
-);
-fmcgtx_exdes_i4 : entity work.fmcgtx_exdes
-port map (
-    Q0_CLK1_GTREFCLK_PAD_IN     => FMC_i.GTREFCLK,
-    GTREFCLK                    => open,
-    drpclk_in_i                 => clk_i,
-    SOFT_RESET                  => SOFT_RESET,
-    TRACK_DATA_OUT              => LINK_UP_4,
-    ERROR_COUNT                 => ERROR_COUNT_4,
-    RXP_IN                      => FMC_i.RXP4_IN,
-    RXN_IN                      => FMC_i.RXN4_IN,
-    TXP_OUT                     => TXP4,
-    TXN_OUT                     => TXN4
-);
+
+fmcgtx_exdes_i1_3: for i in 1 to 3 generate
+    fmcgtx_exdes: entity work.fmcgtx_exdes
+    port map (
+        Q0_CLK1_GTREFCLK_PAD_IN     => FMC_i.GTREFCLK(0),
+        GTREFCLK                    => open,
+        drpclk_in_i                 => clk_i,
+        SOFT_RESET                  => SOFT_RESET,
+        TRACK_DATA_OUT              => LINK_UP(i),
+        ERROR_COUNT                 => ERROR_COUNT(i),
+        RXP_IN                      => FMC_i.RXP_IN(i),
+        RXN_IN                      => FMC_i.RXN_IN(i),
+        TXP_OUT                     => TXP(i),
+        TXN_OUT                     => TXN(i)
+    );
+end generate fmcgtx_exdes_i1_3;
 
 ---------------------------------------------------------------------------
 -- FMC Mezzanine Clocks
@@ -321,7 +252,7 @@ port map(
     IB              =>      FMC_io.FMC_CLK0_M2C_N
 );
 
-ibufds_instq0_clk1_fmc : IBUFDS_GTE2
+ibufds_instq0_clk1_fmc: IBUFDS_GTE2
 port map(
     O               =>      FMC_CLK1_M2C,
     ODIV2           =>      open,
@@ -337,7 +268,7 @@ test_clocks(1) <= FMC_CLK0_M2C;
 test_clocks(2) <= FMC_CLK1_M2C;
 test_clocks(3) <= FMC_i.EXTCLK;
 
-freq_counter_inst : entity work.freq_counter
+freq_counter_inst: entity work.freq_counter
 generic map ( NUM => 4)
 port map (
     refclk          => clk_i,
@@ -351,7 +282,7 @@ port map (
 ---------------------------------------------------------------------------
 FMC_PRSNT_DW <= ZEROS(31) & FMC_i.FMC_PRSNT;
 
-fmc_ctrl : entity work.fmc_hpc_loopback_ctrl
+fmc_ctrl: entity work.fmc_hpc_loopback_ctrl
 port map (
     -- Clock and Reset
     clk_i               => clk_i,
@@ -360,14 +291,14 @@ port map (
     pos_bus_i            => pos_bus_i,
     -- Block Parameters
     FMC_PRSNT           => FMC_PRSNT_DW,
-    LINK_UP_1           => LINK_UP_1,
-    LINK_UP_2           => LINK_UP_2,
-    LINK_UP_3           => LINK_UP_3,
-    LINK_UP_4           => LINK_UP_4,
-    ERROR_COUNT_1       => ERROR_COUNT_1,
-    ERROR_COUNT_2       => ERROR_COUNT_2,
-    ERROR_COUNT_3       => ERROR_COUNT_3,
-    ERROR_COUNT_4       => ERROR_COUNT_4,
+    LINK_UP_1           => LINK_UP(0),
+    LINK_UP_2           => LINK_UP(1),
+    LINK_UP_3           => LINK_UP(2),
+    LINK_UP_4           => LINK_UP(3),
+    ERROR_COUNT_1       => ERROR_COUNT(0),
+    ERROR_COUNT_2       => ERROR_COUNT(1),
+    ERROR_COUNT_3       => ERROR_COUNT(2),
+    ERROR_COUNT_4       => ERROR_COUNT(3),
     LA_P_ERROR          => LA_P_ERROR,
     LA_N_ERROR          => LA_N_ERROR,
     HAB_P_ERROR         => HAB_P_ERROR,
@@ -380,8 +311,8 @@ port map (
     SOFT_RESET_WSTB     => SOFT_RESET,
     LOOP_PERIOD         => LOOP_PERIOD,
     LOOP_PERIOD_WSTB    => LOOP_PERIOD_WSTB,
-    HB_INIT				=> HB_INIT,
-    HB_INIT_WSTB		=> HB_INIT_WSTB,
+    HB_INIT             => HB_INIT,
+    HB_INIT_WSTB        => HB_INIT_WSTB,
     -- Memory Bus Interface
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
