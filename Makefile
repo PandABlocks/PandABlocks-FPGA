@@ -12,7 +12,7 @@ VIVADO = $(error Define VIVADO in CONFIG file)
 APP_NAME = $(error Define APP_NAME in CONFIG file)
 
 # Build defaults that can be overwritten by the CONFIG file if required
-PYTHON = python
+PYTHON = python3
 SPHINX_BUILD = sphinx-build
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 MAKE_GITHUB_RELEASE = $(PANDA_ROOTFS)/make-github-release.py
@@ -46,6 +46,7 @@ PS_PROJ = $(TGT_BUILD_DIR)/panda_ps/panda_ps.xpr
 IP_PROJ = $(TGT_BUILD_DIR)/ip_repo/managed_ip_project/managed_ip_project.xpr
 TOP_PROJ = $(FPGA_BUILD_DIR)/panda_top/carrier_fpga_top.xpr
 TOP_MODE ?= batch
+TEST_MODE ?= gui
 DEP_MODE ?= batch
 
 # Store the git hash in top-level build directory 
@@ -92,6 +93,7 @@ APP_DEPENDS += $(wildcard common/templates/*)
 APP_DEPENDS += $(wildcard includes/*)
 APP_DEPENDS += $(wildcard targets/*/*.ini)
 APP_DEPENDS += $(wildcard modules/*/const/*.xdc)
+APP_DEPENDS += $(wildcard modules/*/*.ini)
 
 # Make the built app from the ini file
 $(AUTOGEN_BUILD_DIR): $(APP_FILE) $(APP_DEPENDS)
@@ -112,10 +114,10 @@ all_autogen:
 # Something like 0.1-1-g5539563-dirty
 export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
 # Split and append .0 to get 0.1.0, then turn into hex to get 00000100
-export VERSION := $(shell ./common/python/parse_git_version.py "$(GIT_VERSION)")
+export VERSION := $(shell $(PYTHON) common/python/parse_git_version.py "$(GIT_VERSION)")
 # 8 if dirty, 0 if clean
 DIRTY_PRE = $(shell \
-    python -c "print(8 if '$(GIT_VERSION)'.endswith('dirty') else 0)")
+    $(PYTHON) -c "print(8 if '$(GIT_VERSION)'.endswith('dirty') else 0)")
 # Something like 85539563
 export SHA := $(DIRTY_PRE)$(shell git rev-parse --short=7 HEAD)
 
@@ -167,6 +169,14 @@ python_timing:
 	$(PYTHON) -m unittest -v tests.test_python_sim_timing
 .PHONY: python_timing
 
+# Run a specific testbench using run_sim_<testbench-folder's-name>
+run_sim_%: $(TOP)/common/fpga.make
+	mkdir -p $(FPGA_BUILD_DIR)
+	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
+        TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
+        TGT_BUILD_DIR=$(TGT_BUILD_DIR) TEST_MODE=$(TEST_MODE) \
+        DEP_MODE=$(DEP_MODE) VER=$(VER) $@
+
 
 # ------------------------------------------------------------------------------
 # Timing test benches using vivado to run FPGA simulations
@@ -198,7 +208,7 @@ hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap carrier_ip
 	mkdir -p $(TEST_DIR)
 	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
 	 -source $(TOP)/tests/hdl/regression_tests.tcl \
-	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(MODULES)
+	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(APP_BUILD_DIR) $(MODULES)
 
 # Make the hdl_timing folders and run a single test, set TEST argument
 # E.g. make TEST="clock 1" single_hdl_test
@@ -209,7 +219,7 @@ single_hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap carrier_ip
 	mkdir -p $(TEST_DIR)
 	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
 	 -source $(TOP)/tests/hdl/single_test.tcl -tclargs \
-	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(TEST)
+	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(APP_BUILD_DIR) $(TEST)
 
 # Make the hdl_timing folders without running tests
 hdl_timing: $(TIMING_BUILD_DIRS)
@@ -222,7 +232,7 @@ hdl_timing: $(TIMING_BUILD_DIRS)
 # The following phony targets are passed straight to the FPGA sub-make programme
 FPGA_TARGETS = fpga-all fpga-bit carrier_fpga carrier_ip ps_core \
                fsbl devicetree boot u-boot dts xsct sw_clean u-boot-src \
-               atf ip_clean ps_clean
+               dtc atf ip_clean ps_clean
 
 $(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR) | update_VER
 	mkdir -p $(FPGA_BUILD_DIR)

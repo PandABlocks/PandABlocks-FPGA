@@ -110,7 +110,9 @@ architecture rtl of PandABox_top is
 
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
+signal FCLK_CLK0_2X         : std_logic;
 signal FCLK_CLK0_PS         : std_logic;
+signal FCLK_CLK1_PS         : std_logic;
 signal FCLK_RESET0_N        : std_logic_vector(0 downto 0);
 signal FCLK_RESET0          : std_logic;
 
@@ -253,12 +255,9 @@ attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
 signal EXTCLK : std_logic;
 
-
 signal sma_pll_locked       : std_logic;
 signal clk_src_sel          : std_logic_vector(1 downto 0);
 signal clk_sel_stat         : std_logic_vector(1 downto 0);
-
-signal slow_tlp   : slow_packet;
 
 attribute IO_BUFFER_TYPE : string;
 attribute IO_BUFFER_TYPE of SFP_TX_P : signal is "none";
@@ -312,6 +311,12 @@ port map (
         IB              =>      GTXCLK1_N
     );
 
+idelayctrl_inst : IDELAYCTRL port map (
+    REFCLK => FCLK_CLK1_PS,
+    RST => FCLK_RESET0,
+    RDY => open
+);
+
 mmcm_clkmux_inst: entity work.mmcm_clkmux
 port map(
     fclk_clk0_ps_i      => FCLK_CLK0_PS,
@@ -321,7 +326,8 @@ port map(
     linkup_i             => SFP1_o.LINK_UP,
     sma_pll_locked_o    => sma_pll_locked,
     clk_sel_stat_o        => clk_sel_stat,
-    fclk_clk0_o         => FCLK_CLK0
+    fclk_clk0_o         => FCLK_CLK0,
+    fclk_clk0_2x_o => FCLK_CLK0_2X
 );
 
 
@@ -331,6 +337,8 @@ port map(
 ps : entity work.panda_ps
 port map (
     FCLK_CLK0                   => FCLK_CLK0_PS,
+    -- 200 MHZ reference clock
+    FCLK_CLK1                   => FCLK_CLK1_PS,
     PL_CLK                      => FCLK_CLK0,
     FCLK_RESET0_N               => FCLK_RESET0_N,
 
@@ -493,6 +501,7 @@ port map (
 ttlout_inst : entity work.ttlout_top
 port map (
     clk_i               => FCLK_CLK0,
+    clk_2x_i            => FCLK_CLK0_2X,
     reset_i             => FCLK_RESET0,
 
     read_strobe_i       => read_strobe(TTLOUT_CS),
@@ -523,6 +532,7 @@ port map (
 lvdsout_inst : entity work.lvdsout_top
 port map (
     clk_i               => FCLK_CLK0,
+    clk_2x_i            => FCLK_CLK0_2X,
     reset_i             => FCLK_RESET0,
 
     read_strobe_i       => read_strobe(LVDSOUT_CS),
@@ -773,11 +783,11 @@ FMC_io.FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P;
 FMC_io.FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N;
 FMC_i.FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P;
 FMC_i.FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N;
-FMC_i.GTREFCLK <= q0_clk1_gtrefclk;
-FMC_DP0_C2M_P <= FMC_o.TXP_OUT;
-FMC_DP0_C2M_N <= FMC_o.TXN_OUT;
-FMC_i.RXP_IN <= FMC_DP0_M2C_P;
-FMC_i.RXN_IN <= FMC_DP0_M2C_N;
+FMC_i.GTREFCLK(0) <= q0_clk1_gtrefclk;
+FMC_DP0_C2M_P <= FMC_o.TXP_OUT(0);
+FMC_DP0_C2M_N <= FMC_o.TXN_OUT(0);
+FMC_i.RXP_IN(0) <= FMC_DP0_M2C_P;
+FMC_i.RXN_IN(0) <= FMC_DP0_M2C_N;
 FMC_i.MAC_ADDR <= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
 FMC_i.MAC_ADDR_WS <= '0';
 

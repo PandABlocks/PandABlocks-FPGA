@@ -3,6 +3,8 @@ name: Code CI
 on:
   pull_request:
   # Whenever a new branch or tag is created
+  # only on push for testing take out
+  push:
   create:
 
 jobs:
@@ -15,8 +17,8 @@ jobs:
             app: PandABox-no-fmc
           - platform: zynqmp
             app: xu5_st1-no-fmc
-
     runs-on: ubuntu-latest
+
     steps:
       # Git repositories
       - name: Checkout Source
@@ -32,57 +34,36 @@ jobs:
           repository: PandABlocks/PandABlocks-rootfs
           path: PandABlocks-rootfs
 
-      - name: Checkout rootfs builder
-        uses: actions/checkout@v2
-        with:
-          repository: dls-controls/rootfs
-          path: rootfs
-
-      # System dependencies
-      # gmake directory created for rclone patch
-      - name: Install system dependencies
-        run: |
-          sudo ln -s make /usr/bin/gmake
-          sudo apt-get install -y libtinfo5 dbus-x11
-          sudo pip install jinja2 numpy
-
-      # Tar dependancies
-      - name: Download tar file dependencies
-        run: |
-          mkdir tar-files && cd tar-files
-          curl -o device-tree-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/device-tree-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz \
-               -o u-boot-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/u-boot-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz \
-               -o arm-trusted-firmware-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/arm-trusted-firmware/archive/refs/tags/xilinx-v2020.2.tar.gz
-
       # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
       # https://github.com/rclone/rclone/issues/2975
       - name: Install rclone patch
         run: bash PandABlocks-fpga/.github/scripts/rclone-patch.sh
 
       # S3 bucket
-      - name: Mount Vivado S3 bucket      
+      - name: Mount Vivado S3 bucket
         run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
-      # CONFIG files
-      - name: Generate rootfs CONFIG files - zynq
+      # Get container image
+      - name: login to github container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN  }}
+
+      # Mount in rclone bucket from runner into conatiner
+      - name: make boot
         run: |
-          bash PandABlocks-rootfs/.github/scripts/config-file-pbrootfs.sh ${{ matrix.platform }}
-          bash PandABlocks-rootfs/.github/scripts/config-file-rootfs.sh
+          docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
+          docker run \
+            -v "${{ github.workspace }}:/repos" \
+            -v "${{ github.workspace }}/build:/build" \
+            -v "/scratch/Xilinx:/scratch/Xilinx" \
+            ghcr.io/pandablocks/pandablocks-dev-container:latest\
+            /bin/bash -c \
+            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}"
 
-      - name: Generate fpga CONFIG file - ${{ matrix.app }}
-        run: |
-          bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
-          sed -i 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG
-
-      # Build      
-      - name: Make boot
-        run: cd PandABlocks-fpga && make boot
-
-      # Verification of build files
-      #- name: List build files
-      #  run: ls build
-
-
+  # Make zpkg for FPGA apps
   make_zpkg:
     strategy:
       fail-fast: false
@@ -94,11 +75,133 @@ jobs:
               "PandABox-fmc_acq430",
               "PandABox-fmc_lback-sfp_lback",
               "ZedBoard-no-fmc",
-              "xu5_st1-no-fmc",
-              "xu5_st1-fmc_acq430",
               ]
 
     runs-on: ubuntu-latest
+    steps:
+
+      # Git repositories
+      - name: Checkout Source
+        uses: actions/checkout@v2
+        with:
+          path: PandABlocks-fpga
+          # require history to get back to last tag for version number of branches
+          fetch-depth: 0
+
+      - name: Checkout PandABlocks-rootfs
+        uses: actions/checkout@v2
+        with:
+          repository: PandABlocks/PandABlocks-rootfs
+          path: PandABlocks-rootfs
+
+      # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
+      # https://github.com/rclone/rclone/issues/2975
+      - name: Install rclone patch
+        run: bash PandABlocks-fpga/.github/scripts/rclone-patch.sh
+
+      # S3 bucket
+      - name: Mount Vivado S3 bucket
+        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+
+      # Login into ghcr
+      - name: login to ghcr
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN  }}
+
+      # Mount in rclone bucket from runner into conatiner
+      - name: build carrier_ip and zpkg
+        run: |
+          docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
+          docker run \
+            -v "${{ github.workspace }}:/repos" \
+            -v "${{ github.workspace }}/build:/build" \
+            -v "/scratch/Xilinx:/scratch/Xilinx" \
+            ghcr.io/pandablocks/pandablocks-dev-container:latest\
+            /bin/bash -c \
+            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} "
+
+      # Artifacts
+      - name: Upload zpkg
+        uses: actions/upload-artifact@v2
+        with:
+          name: fgpa-zpkg-${{ matrix.app }}
+          path: build/PandA-FPGA/panda-fpga@*.zpg
+
+  # Seting up AWS runners for high memory apps
+  start-runner:
+    name: Start self hosted aws runner
+    runs-on: ubuntu-latest
+    outputs:
+      label: ${{ steps.start-ec2-runner.outputs.label }}
+      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
+    steps:
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Start EC2 runner
+        id: start-ec2-runner
+        uses: machulav/ec2-github-runner@v2
+        with:
+          mode: start
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          ec2-image-id: ${{ secrets.AWS_AMI_ID }}
+          ec2-instance-type: t3.xlarge
+          subnet-id: ${{ secrets.AWS_SUBNET_ID }}
+          security-group-id: ${{ secrets.AWS_SECURITY_GROUP_ID }}
+          aws-resource-tags: >
+            [
+              {"Key": "Name", "Value": "ec2-github-runner"},
+              {"Key": "GitHubRepository", "Value": "${{ github.repository }}"}
+            ]
+
+  # Build rclone and mount S3 bucket
+  setup_aws_runner:
+    name: setup rclone and mount on runner
+    needs: start-runner
+    runs-on: ${{ needs.start-runner.outputs.label }}
+    steps:
+      # Git repositories
+      - name: Checkout Source
+        uses: actions/checkout@v2
+        with:
+          path: PandABlocks-fpga
+          # require history to get back to last tag for version number of branches
+          fetch-depth: 0
+
+      # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
+      # https://github.com/rclone/rclone/issues/2975
+      - name: Install rclone patch
+        run: bash PandABlocks-fpga/.github/scripts/rclone-patch.sh
+
+      # S3 bucket
+      - name: Mount Vivado S3 bucket
+        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+
+
+  make_zpkg_aws:
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          [
+          "xu5_st1-no-fmc",
+          "xu5_st1-fmc_acq430",
+          ]
+
+    name: make zpkg on aws
+    needs:
+      - start-runner
+      - setup_aws_runner # required to start the main job when the runner is ready
+    runs-on: ${{ needs.start-runner.outputs.label }} # run the job on the newly created runner
+
     steps:
       # Git repositories
       - name: Checkout Source
@@ -114,26 +217,68 @@ jobs:
           repository: PandABlocks/PandABlocks-rootfs
           path: PandABlocks-rootfs
 
-      - name: Checkout rootfs builder
+      # Login into ghcr
+      - name: login to ghcr
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN  }}
+
+      # Mount in rclone bucket from vm into conatiner
+      - name: build carrier_ip and zpkg
+        run: |
+          sudo docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
+          sudo docker run \
+            -v "${{ github.workspace }}:/repos" \
+            -v "${{ github.workspace }}/build:/build" \
+            -v "/scratch/Xilinx:/scratch/Xilinx" \
+            ghcr.io/pandablocks/pandablocks-dev-container:latest\
+            /bin/bash -c \
+            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }}"
+
+      # Artifacts
+      - name: Upload zpkg
+        uses: actions/upload-artifact@v2
+        with:
+          name: fgpa-zpkg-${{ matrix.app }}
+          path: build/PandA-FPGA/panda-fpga@*.zpg
+
+  # Stop the AWS runner
+  stop-runner:
+    name: Stop self hosted EC2 runnner
+    needs:
+      - start-runner
+      - setup_aws_runner
+      - make_zpkg_aws
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Stop EC2 runner
+        uses: machulav/ec2-github-runner@v2
+        with:
+          mode: stop
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          label: ${{ needs.start-runner.outputs.label }}
+          ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # Git repositories
+      - name: Checkout Source
         uses: actions/checkout@v2
         with:
-          repository: dls-controls/rootfs
-          path: rootfs
-
-      # System dependencies
-      # gmake directory created for rclone patch
-      - name: Install system dependencies
-        run: |
-          sudo ln -s make /usr/bin/gmake
-          sudo apt-get install -y libtinfo5 dbus-x11
-          sudo pip install jinja2 numpy sphinx sphinx-rtd-theme docutils==0.16 matplotlib
-
-      # Tar dependancies
-      - name: Download tar file dependencies
-        run: |
-          mkdir tar-files && cd tar-files
-          curl -o device-tree-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/device-tree-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz \
-               -o u-boot-xlnx-xilinx-v2020.2.tar.gz -L https://github.com/Xilinx/u-boot-xlnx/archive/refs/tags/xilinx-v2020.2.tar.gz
+          path: PandABlocks-fpga
+          # require history to get back to last tag for version number of branches
+          fetch-depth: 0
 
       # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
       # https://github.com/rclone/rclone/issues/2975
@@ -144,91 +289,45 @@ jobs:
       - name: Mount Vivado S3 bucket
         run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
-      # CONFIG files
-      - name: Generate rootfs CONFIG files
-        run: |
-          bash PandABlocks-rootfs/.github/scripts/config-file-pbrootfs.sh zynq
-          bash PandABlocks-rootfs/.github/scripts/config-file-rootfs.sh
-
-      - name: Generate fpga CONFIG file - ${{ matrix.app }}
-        run: |
-          bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
-          sed -i 's/PandABox-no-fmc/${{ matrix.app }}/g' PandABlocks-fpga/CONFIG
-
-      # Build
-      - name: Make IP's
-        run: cd PandABlocks-fpga && make carrier_ip
-
-      - name: Make zpkg - ${{ matrix.app }}
-        run: cd PandABlocks-fpga && make zpkg
-
-      # Artifacts
-      - name: Upload zpkg
-        uses: actions/upload-artifact@v2
+      # Login into ghcr
+      - name: login to ghcr
+        uses: docker/login-action@v1
         with:
-          name: fgpa-zpkg-${{ matrix.app }}
-          path: build/panda-fpga@*.zpg
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN  }}
 
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      
-      # Git repositories
-      - name: Checkout Source
-        uses: actions/checkout@v2
-        with:
-          path: PandABlocks-fpga
-          # require history to get back to last tag for version number of branches
-          fetch-depth: 0
-
-      # System dependencies (required for build)
-      - name: Install system dependencies
+      # Run tests
+      - name: Make python and hdl tests
         run: |
-          sudo apt-get install libtinfo5 rclone
-          pip install jinja2 numpy
-      
-      # CONFIG files
-      - name: Generate fpga CONFIG files
-        run: |
-          sudo bash PandABlocks-fpga/.github/scripts/config-file-fpga.sh
-          cat PandABlocks-fpga/CONFIG
-
-      # S3 bucket
-      - name: Mount Vivado S3 bucket
-        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
-
-      # Run Tests
-      - name: Make python tests
-        run: |
-          cd PandABlocks-fpga
-          make python_tests
-          make python_timing
-      
-      - name: Make hdl_test
-        run: |   
-          cd PandABlocks-fpga
-          make autogen
-          make hdl_test
-
+          docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
+          docker run \
+            -v "${{ github.workspace }}:/repos" \
+            -v "${{ github.workspace }}/build:/build" \
+            -v "/scratch/Xilinx:/scratch/Xilinx" \
+            ghcr.io/pandablocks/pandablocks-dev-container:latest \
+            /bin/bash -c \
+            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make python_tests && make python_timing && \
+            make autogen && make hdl_test"
 
   release:
-    needs: [make_boot, make_zpkg, test]
+    needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
     runs-on: ubuntu-latest
     # make a release on every tag
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: fgpa-zpkg-*
-          path: artifacts
+          name: zpkgs
+          path: zpkgs
 
       - name: Github Release
         # We pin to the SHA, not the tag, for security reasons.
         # https://docs.github.com/en/actions/learn-github-actions/security-hardening-for-github-actions#using-third-party-actions
         uses: softprops/action-gh-release@2d72d869af3bf23602f9593a1e3fd739b80ac1eb  # v0.1.12
         with:
-          files: artifacts/*
+          prerelease: ${{ contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc') }}
+          files: zpkgs/*
           body: See [Changelog](CHANGELOG.rst) for more details
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

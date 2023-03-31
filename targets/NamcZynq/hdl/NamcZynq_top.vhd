@@ -3,7 +3,8 @@
 --      Diamond Light Source, Oxford, UK
 --      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
---  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--  Author      :  Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--                 Shu ZHANG
 --------------------------------------------------------------------------------
 --
 --  Description : NAMC Zynq Top-Level Design File
@@ -20,7 +21,7 @@ library work;
 --use work.support.all;
 use work.addr_defines.all; -- NEEDED?
 use work.top_defines.all;  -- NEEDED?
-use work.NamcZynq_defines.all;
+-- use work.target_defines.all;
 
 entity NamcZynq_top is
 generic (
@@ -731,70 +732,70 @@ FMC_io.FMC_HA_P         <= FMC_HA_P;
 FMC_io.FMC_HA_N         <= FMC_HA_N;
 FMC_io.FMC_HB_P         <= FMC_HB_P;
 FMC_io.FMC_HB_N         <= FMC_HB_N;
-FMC_DP0_C2M_P           <= FMC_o.TXP_OUT;
-FMC_DP0_C2M_N           <= FMC_o.TXN_OUT;
-FMC_i.RXP_IN            <= FMC_DP0_M2C_P;
-FMC_i.RXN_IN            <= FMC_DP0_M2C_N;
-FMC_DP1_C2M_P           <= FMC_o.TXP2_OUT;
-FMC_DP1_C2M_N           <= FMC_o.TXN2_OUT;
-FMC_i.RXP2_IN           <= FMC_DP1_M2C_P;
-FMC_i.RXN2_IN           <= FMC_DP1_M2C_N;
-FMC_DP2_C2M_P           <= FMC_o.TXP3_OUT;
-FMC_DP2_C2M_N           <= FMC_o.TXN3_OUT;
-FMC_i.RXP3_IN           <= FMC_DP2_M2C_P;
-FMC_i.RXN3_IN           <= FMC_DP2_M2C_N;
-FMC_DP3_C2M_P           <= FMC_o.TXP4_OUT;
-FMC_DP3_C2M_N           <= FMC_o.TXN4_OUT;
-FMC_i.RXP4_IN           <= FMC_DP3_M2C_P;
-FMC_i.RXN4_IN           <= FMC_DP3_M2C_N;
+FMC_DP0_C2M_P           <= FMC_o.TXP_OUT(0);
+FMC_DP0_C2M_N           <= FMC_o.TXN_OUT(0);
+FMC_DP1_C2M_P           <= FMC_o.TXP_OUT(1);
+FMC_DP1_C2M_N           <= FMC_o.TXN_OUT(1);
+FMC_DP2_C2M_P           <= FMC_o.TXP_OUT(2);
+FMC_DP2_C2M_N           <= FMC_o.TXN_OUT(2);
+FMC_DP3_C2M_P           <= FMC_o.TXP_OUT(3);
+FMC_DP3_C2M_N           <= FMC_o.TXN_OUT(3);
+FMC_i.RXP_IN(0)         <= FMC_DP0_M2C_P;
+FMC_i.RXN_IN(0)         <= FMC_DP0_M2C_N;
+FMC_i.RXP_IN(1)         <= FMC_DP1_M2C_P;
+FMC_i.RXN_IN(1)         <= FMC_DP1_M2C_N;
+FMC_i.RXP_IN(2)         <= FMC_DP2_M2C_P;
+FMC_i.RXN_IN(2)         <= FMC_DP2_M2C_N;
+FMC_i.RXP_IN(3)         <= FMC_DP3_M2C_P;
+FMC_i.RXN_IN(3)         <= FMC_DP3_M2C_N;
 FMC_io.FMC_CLK0_M2C_P   <= FMC_CLK0_M2C_P;
 FMC_io.FMC_CLK0_M2C_N   <= FMC_CLK0_M2C_N;
 FMC_i.FMC_CLK1_M2C_P    <= FMC_CLK1_M2C_P;
 FMC_i.FMC_CLK1_M2C_N    <= FMC_CLK1_M2C_N;
-FMC_i.GTREFCLK          <= q0_clk0_gtrefclk; --q0_clk0_fmc_gtrefclk;
-FMC_i.GTREFCLK1         <= q0_clk1_gtrefclk;
+FMC_i.GTREFCLK(0)       <= q0_clk0_gtrefclk; --q0_clk0_fmc_gtrefclk;
+FMC_i.GTREFCLK(1)       <= q0_clk1_gtrefclk;
 FMC_i.MAC_ADDR          <= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
 FMC_i.MAC_ADDR_WS       <= '0';
 
 -- Assemble AMC records
-AMC_i.FP_RX4_P          <= AMC_FP_RX4_P;
-AMC_i.FP_RX4_N          <= AMC_FP_RX4_N;
-AMC_i.FP_RX5_P          <= AMC_FP_RX5_P;
-AMC_i.FP_RX5_N          <= AMC_FP_RX5_N;
-AMC_i.FP_RX6_P          <= AMC_FP_RX6_P;
-AMC_i.FP_RX6_N          <= AMC_FP_RX6_N;
-AMC_i.FP_RX7_P          <= AMC_FP_RX7_P;
-AMC_i.FP_RX7_N          <= AMC_FP_RX7_N;
-AMC_i.FP_RX8_P          <= AMC_FP_RX8_P;
-AMC_i.FP_RX8_N          <= AMC_FP_RX8_N;
-AMC_i.FP_RX9_P          <= AMC_FP_RX9_P;
-AMC_i.FP_RX9_N          <= AMC_FP_RX9_N;
-AMC_i.FP_RX10_P         <= AMC_FP_RX10_P;
-AMC_i.FP_RX10_N         <= AMC_FP_RX10_N;
-AMC_i.FP_RX11_P         <= AMC_FP_RX11_P;
-AMC_i.FP_RX11_N         <= AMC_FP_RX11_N;
+AMC_i.FP_RXP_IN(0)      <= AMC_FP_RX4_P;
+AMC_i.FP_RXN_IN(0)      <= AMC_FP_RX4_N;
+AMC_i.FP_RXP_IN(1)      <= AMC_FP_RX5_P;
+AMC_i.FP_RXN_IN(1)      <= AMC_FP_RX5_N;
+AMC_i.FP_RXP_IN(2)      <= AMC_FP_RX6_P;
+AMC_i.FP_RXN_IN(2)      <= AMC_FP_RX6_N;
+AMC_i.FP_RXP_IN(3)      <= AMC_FP_RX7_P;
+AMC_i.FP_RXN_IN(3)      <= AMC_FP_RX7_N;
+AMC_i.FP_RXP_IN(4)      <= AMC_FP_RX8_P;
+AMC_i.FP_RXN_IN(4)      <= AMC_FP_RX8_N;
+AMC_i.FP_RXP_IN(5)      <= AMC_FP_RX9_P;
+AMC_i.FP_RXN_IN(5)      <= AMC_FP_RX9_N;
+AMC_i.FP_RXP_IN(6)      <= AMC_FP_RX10_P;
+AMC_i.FP_RXN_IN(6)      <= AMC_FP_RX10_N;
+AMC_i.FP_RXP_IN(7)      <= AMC_FP_RX11_P;
+AMC_i.FP_RXN_IN(7)      <= AMC_FP_RX11_N;
 
-AMC_i.P4_7_GTREFCLK0    <= AMC4_7_MGTREFCLK0;
-AMC_i.P4_7_GTREFCLK1    <= AMC4_7_MGTREFCLK1;
-AMC_i.P8_11_GTREFCLK0   <= AMC8_11_MGTREFCLK0;
-AMC_i.P8_11_GTREFCLK1   <= AMC8_11_MGTREFCLK1;
+AMC_i.FP_GTREFCLK(0)    <= AMC4_7_MGTREFCLK0;
+AMC_i.FP_GTREFCLK(1)    <= AMC4_7_MGTREFCLK1;
+AMC_i.FP_GTREFCLK(2)    <= AMC8_11_MGTREFCLK0;
+AMC_i.FP_GTREFCLK(3)    <= AMC8_11_MGTREFCLK1;
 
-AMC_FP_TX4_P            <= AMC_o.FP_TX4_P;
-AMC_FP_TX4_N            <= AMC_o.FP_TX4_N;
-AMC_FP_TX5_P            <= AMC_o.FP_TX5_P;
-AMC_FP_TX5_N            <= AMC_o.FP_TX5_N;
-AMC_FP_TX6_P            <= AMC_o.FP_TX6_P;
-AMC_FP_TX6_N            <= AMC_o.FP_TX6_N;
-AMC_FP_TX7_P            <= AMC_o.FP_TX7_P;
-AMC_FP_TX7_N            <= AMC_o.FP_TX7_N;
-AMC_FP_TX8_P            <= AMC_o.FP_TX8_P;
-AMC_FP_TX8_N            <= AMC_o.FP_TX8_N;
-AMC_FP_TX9_P            <= AMC_o.FP_TX9_P;
-AMC_FP_TX9_N            <= AMC_o.FP_TX9_N;
-AMC_FP_TX10_P           <= AMC_o.FP_TX10_P;
-AMC_FP_TX10_N           <= AMC_o.FP_TX10_N;
-AMC_FP_TX11_P           <= AMC_o.FP_TX11_P;
-AMC_FP_TX11_N           <= AMC_o.FP_TX11_N;
+AMC_FP_TX4_P            <= AMC_o.FP_TXP_OUT(0);
+AMC_FP_TX4_N            <= AMC_o.FP_TXN_OUT(0);
+AMC_FP_TX5_P            <= AMC_o.FP_TXP_OUT(1);
+AMC_FP_TX5_N            <= AMC_o.FP_TXN_OUT(1);
+AMC_FP_TX6_P            <= AMC_o.FP_TXP_OUT(2);
+AMC_FP_TX6_N            <= AMC_o.FP_TXN_OUT(2);
+AMC_FP_TX7_P            <= AMC_o.FP_TXP_OUT(3);
+AMC_FP_TX7_N            <= AMC_o.FP_TXN_OUT(3);
+AMC_FP_TX8_P            <= AMC_o.FP_TXP_OUT(4);
+AMC_FP_TX8_N            <= AMC_o.FP_TXN_OUT(4);
+AMC_FP_TX9_P            <= AMC_o.FP_TXP_OUT(5);
+AMC_FP_TX9_N            <= AMC_o.FP_TXN_OUT(5);
+AMC_FP_TX10_P           <= AMC_o.FP_TXP_OUT(6);
+AMC_FP_TX10_N           <= AMC_o.FP_TXN_OUT(6);
+AMC_FP_TX11_P           <= AMC_o.FP_TXP_OUT(7);
+AMC_FP_TX11_N           <= AMC_o.FP_TXN_OUT(7);
 
 ---------------------------------------------------------------------------
 -- PandABlocks_top Instantiation (autogenerated!!)

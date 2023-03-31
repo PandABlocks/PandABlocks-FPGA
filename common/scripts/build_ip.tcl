@@ -26,5 +26,6 @@ set_property target_simulator ModelSim [current_project]
 
 foreach IP $TGT_IP {
     source $TOP/ip_defs/$IP.tcl
+    set_property GENERATE_SYNTH_CHECKPOINT FALSE [get_files  $BUILD_DIR/$IP/$IP.xci]
 }
 

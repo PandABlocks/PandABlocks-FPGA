@@ -77,11 +77,6 @@ add_files [glob $TOP_DIR/common/hdl/*.vhd]
 add_files -quiet [glob -nocomplain $TOP_DIR/common/hdl_$PLATFORM/*.vhd]
 add_files [glob $TARGET_DIR/hdl/*]
 
-foreach SRC $TGT_SRC {
-    add_files $TOP_DIR/modules/$SRC/hdl/
-    add_files -quiet $TOP_DIR/modules/$SRC/hdl_$PLATFORM/
-}
-
 # Exit script here if gui mode - i.e. if running 'make carrier_fpga_gui'
 if {[string match "gui" [string tolower $MODE]]} { return }
 

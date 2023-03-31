@@ -24,46 +24,69 @@ port (
     out_o             : out std_logic;
     -- Block Parameters
     PERIOD            : in  std_logic_vector(31 downto 0);
-    PERIOD_wstb       : in  std_logic
+    PERIOD_wstb       : in  std_logic;
+    WIDTH             : in  std_logic_vector(31 downto 0);
+    WIDTH_wstb        : in  std_logic
 );
 end clock;
 
 architecture rtl of clock is
 
 signal reset            : std_logic;
+signal enable            : std_logic;
 signal counter32        : unsigned(31 downto 0);
-signal DIV              : unsigned(31 downto 0);
-signal half_period      : unsigned(31 downto 0);
+signal full_period      : unsigned(31 downto 0);
+signal low_period       : unsigned(31 downto 0);
 
 begin
-
-reset <= PERIOD_wstb;
-DIV <= unsigned(PERIOD) + 1;
-half_period <= unsigned('0' & DIV(31 downto 1));
 
 process(clk_i)
+variable high_period      : unsigned(31 downto 0);
+
 begin
     if rising_edge(clk_i) then
+        reset <= PERIOD_wstb or WIDTH_wstb;
+        enable <= ENABLE_i;
+        if (unsigned(PERIOD) = 0 and unsigned(WIDTH) = 0) then
+            full_period <= to_unsigned(0, 32);
+        -- if PERIOD <= WIDTH, set period to (WIDTH+1)
+        elsif (unsigned(PERIOD) <= unsigned(WIDTH)) then
+            full_period <= unsigned(WIDTH) + 1;
+        -- if WIDTH=0 and PERIOD < 2, set period to 2
+        elsif unsigned(PERIOD) = 1 then
+            full_period <= to_unsigned(2, 32);
+        -- if (PERIOD > WIDTH) and (PERIOD > 1), set period to PERIOD
+        else
+            full_period <= unsigned(PERIOD);
+        end if;
+        -- if WIDTH=0 then set OUT high time to half period
+        if (unsigned(WIDTH) = 0) then
+            high_period := '0' & full_period(31 downto 1);
+        else
+            high_period := unsigned(WIDTH);
+        end if;
+        low_period <= full_period - high_period;
+
         -- If not enabled, or no period set stop the clocks
-        if (ENABLE_i = '0') or (unsigned(PERIOD) = 0) then
+        if (enable = '0') or (full_period = 0) then
             OUT_o <= '0';
             counter32 <= (others => '0');
         -- Reset counter on parameter change.
         elsif (reset = '1') then
             OUT_o <= '1';
-            counter32 <= unsigned(PERIOD) - 1;
+            counter32 <= full_period - 1;
         else
             -- Reload when reach Zero and assert clock output.
             if (counter32 = 0) then
                 OUT_o <= '1';
-            -- Half period reached
-            elsif (counter32 = half_period) then
+            -- High period reached
+            elsif (counter32 = low_period) then
                 OUT_o <= '0';
             end if;
 
             -- Free running down counter.
             if (counter32 = 0) then
-                counter32 <= unsigned(PERIOD) - 1;
+                counter32 <= full_period - 1;
             else
                 counter32 <= counter32 - 1;
             end if;
