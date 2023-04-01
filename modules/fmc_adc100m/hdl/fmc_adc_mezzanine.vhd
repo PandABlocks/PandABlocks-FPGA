@@ -39,9 +39,6 @@ entity fmc_adc_mezzanine is
     sys_clk_i             : in  std_logic;
     sys_reset_i           : in  std_logic;
 
-    -- On board clock (100 mhz)
-    clk_100_i             : in  std_logic;
-
     -- **********************
     -- *** FMC interface  ***
     -- **********************
@@ -696,21 +693,19 @@ begin
   spi_sck_o         <= spi_sck;
   spi_dout_o        <= spi_dout;
 
-
-
   ---------------------------------------------------------
   -- Generation of 200 MHe REFCLK for IDELAYCTRL
   -- using a PLL2_BASE component
   ---------------------------------------------------------
   cmp_refclk_200mhz : entity work.gen_refclk_200mhz
   generic map (
-    g_CLK_IN_PERIOD    => 10.0,           -- 100 Mhz
-    g_CLK_IN_MULT      => 8,              -- 800 MHz (min VCO Frequency)
-    g_REFCLK_DIVIDE    => 4,              -- 200 MHz
+    g_CLK_IN_PERIOD    => 8.0,            -- 125 Mhz
+    g_CLK_IN_MULT      => 8,              -- 1000 MHz
+    g_REFCLK_DIVIDE    => 5,              -- 200 MHz
     g_RESET_CYCLES     => 12              -- 60 ns
   )
   port map (
-    clock_i         => clk_100_i,
+    clock_i         => sys_clk_i,
     refclk_o        => refclk_200m,       -- REFCLK input of IDELAYCTRL (must be 200 Mhz).
     refclk_locked_o => refclk_locked,     -- PLL locked
     refclk_reset_o  => refclk_reset       -- Reset output. Deactivate 'RESET_CYCLES' after pll_locked rise

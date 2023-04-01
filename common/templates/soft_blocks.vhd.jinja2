@@ -19,7 +19,6 @@ generic (
 port (
     -- Global clock and reset from panda_ps
     FCLK_RESET0         : in    std_logic;
-    FCLK_CLK0           : in    std_logic;
     -- Configuration and Status Interface Block
     read_strobe         : in    std_logic_vector(MOD_COUNT-1 downto 0);
     read_address        : in    std_logic_vector(PAGE_AW-1 downto 0);
@@ -69,8 +68,7 @@ port (
             {% endfor %}
         {% endif %}
     {% endfor %}
-    -- On board clocks
-    CLK_APP0            : in    std_logic
+    FCLK_CLK0           : in    std_logic
 );
 end soft_blocks;
 
@@ -115,10 +113,6 @@ port map (
         {% for interface in block.interfaces %}
     {{ pad(interface[0]) }} => {{ interface[1] }},
         {% endfor %}
-    {% endif %}
-
-    {% if block.type == "io" %}
-    clk_app0_i          => CLK_APP0,
     {% endif %}
 
     bit_bus_i           => bit_bus_i,

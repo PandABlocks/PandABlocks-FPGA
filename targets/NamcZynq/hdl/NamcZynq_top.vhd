@@ -829,8 +829,7 @@ port map(
     FMC_io          => FMC_io,
     FMC_o           => FMC_o,
     AMC_i           => AMC_i,
-    AMC_o           => AMC_o,
-    CLK_APP0        => CLK_APP0
+    AMC_o           => AMC_o
 );
 
 end rtl;

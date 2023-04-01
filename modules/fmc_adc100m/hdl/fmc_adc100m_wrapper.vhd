@@ -31,7 +31,7 @@ port (
     clk_i               : in  std_logic; -- FCLK_CLK0_PS
     reset_i             : in  std_logic; -- FCLK_RESET0
     -- On Board clocks
-    clk_app0_i          : in  std_logic;
+    -- clk_app0_i          : in  std_logic;
 
     -- Bus Inputs
     bit_bus_i           : in  bit_bus_t;
@@ -274,7 +274,6 @@ ext_trigger_n_i     <= FMC_io.FMC_LA_N(17);
 sys_clk_125         <= clk_i;
 sys_reset           <= reset_i;
 
-
 --------------------------------------------------------
 -- fmc_adc_mezzanine instanciation
 --------------------------------------------------------
@@ -287,9 +286,6 @@ cmp_fmc_adc_mezzanine : entity work.fmc_adc_mezzanine
     -- System clock and reset from PS core (125 mhz)
     sys_clk_i             => sys_clk_125,
     sys_reset_i           => sys_reset,
-
-    -- On board clock (100 mhz)
-    clk_100_i             => clk_app0_i,
 
     -- **********************
     -- *** FMC interface  ***

@@ -22,9 +22,9 @@ use UNISIM.vcomponents.all;
 
 entity gen_refclk_200mhz is
 generic (
-  g_CLK_IN_PERIOD     : real := 10.0;     -- clock input period (ns)
-  g_CLK_IN_MULT       : natural := 8;     -- multiplication Factor to reach min PLL VCO frequency (800.0 to 1866.0 MHz)
-  g_REFCLK_DIVIDE     : natural := 4;     -- REFCLK division factor to reach 200 MHz frequency (from VCO)
+  g_CLK_IN_PERIOD     : real := 8.0;      -- clock input period (ns)
+  g_CLK_IN_MULT       : natural := 4;     -- multiplication Factor to reach PLL VCO frequency (800.0 to 1866.0 MHz)
+  g_REFCLK_DIVIDE     : natural := 5;     -- REFCLK division factor to reach 200 MHz frequency (from VCO)
   g_RESET_CYCLES      : natural := 20     -- reset duration in REFCLK cycles
 );
 port (
@@ -71,7 +71,7 @@ Begin
       CLKOUT0           => refclk_pll_clkout0,
       CLKFBOUT          => refclk_pll_clkfbout,
       LOCKED            => refclk_pll_locked,
-      CLKIN1            => clock_i,   -- 100 MHz
+      CLKIN1            => clock_i,   -- 125 MHz
       PWRDWN            => '0',
       RST               => '0',
       CLKFBIN           => refclk_pll_clkfbin
