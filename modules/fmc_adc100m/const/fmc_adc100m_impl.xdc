@@ -1,6 +1,25 @@
 #set_clock_groups -asynchronous -group [get_clocks \ 
 #{softblocks_inst/{{ block.name }}_inst/fmc_adc_mezzanine/I}]
 
+
+# -------------------------------------------------------------------
+# FMC ADC clocks
+# -------------------------------------------------------------------
+# ADC_DCO_P/N   FMC_LA_P/N[0]     400 MHz
+# ADC_FR_P/N    FMC_LA_P/N[1]     100 MHz
+
+create_clock -period 2.500 -name ADC_DCO [get_ports {FMC_LA_P[0]}]
+
+# ADC_DCO input is passed through a BUFIO ==> direct/dedicated routing to ISERDES.CLK inputs
+# Timing cannot improve this and thus this path chould be excluded from timing checks.
+# ADC_DCO input is passed through BUFR(divide) ==> normal clock routing to ISERDES.CLKDIV.
+# This path must be under timing control because the clock is not only used for ISERDES.CLKDIV
+# but also for normal clocked logic.
+
+# Remove the path from ADC forwarded clock package pin to all ISERDES.CLK pins from timing
+set_false_path -from [get_clocks ADC_DCO] -to [get_pins -hier -filter {name =~ *cmp_adc_iserdes/DDLY}]
+
+
 # -------------------------------------------------------------------
 # FMC IO STANDARD
 # -------------------------------------------------------------------
