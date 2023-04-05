@@ -9,5 +9,3 @@ set_property -dict [list \
     CONFIG.C_DATA_DEPTH {8192}  \
 ] [get_ips ila_32x8K]
 
-generate_target all [get_ips ila_32x8K]
-

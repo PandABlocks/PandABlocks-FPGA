@@ -18,5 +18,3 @@ set_property -dict [list \
     CONFIG.C_TRIGIN_EN {false}  \
 ] [get_ips ila_0]
 
-generate_target all [get_ips ila_0]
-

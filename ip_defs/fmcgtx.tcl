@@ -14,5 +14,3 @@ set_property -dict [list \
     CONFIG.identical_val_rx_reference_clock {156.250}               \
 ] [get_ips fmcgtx]
 
-generate_target all [get_ips fmcgtx]
-

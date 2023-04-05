@@ -373,6 +373,8 @@ class AppGenerator(object):
         context = jinja_context(fpga_blocks=self.fpga_blocks, os=os, ips=ips)
         self.expand_template("constraints.tcl.jinja2", context, const_dir,
                              "constraints.tcl")
+        self.expand_template("ip.make.jinja2", context, self.app_build_dir,
+                             "ip.make")
 
     def generate_regdefs(self):
         """generate the registers define file from the registers server file"""
