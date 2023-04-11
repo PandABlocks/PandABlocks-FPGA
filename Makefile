@@ -163,7 +163,7 @@ $(VERSION_FILE) : $(VER)
 
 
 $(CONSTANT_FILE) : $(TOP)/common/templates/registers_server
-	$(TOP)/common/python/generate_constants.py "$<" > $@
+	$(PYTHON) $(TOP)/common/python/generate_constants.py "$<" > $@
 
 # ------------------------------------------------------------------------------
 # Documentation
