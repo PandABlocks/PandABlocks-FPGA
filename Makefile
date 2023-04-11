@@ -88,6 +88,9 @@ MAKE_ALL_APPS = $(foreach app,$(ALL_APPS), $(call _MAKE_ONE_APP,$(app),$(1)))
 
 APP_FILE = $(TOP)/apps/$(APP_NAME).app.ini
 
+VERSION_FILE = $(AUTOGEN_BUILD_DIR)/hdl/version.vhd
+CONSTANT_FILE = $(AUTOGEN_BUILD_DIR)/hdl/panda_constants.vhd
+
 APP_DEPENDS += $(wildcard common/python/*.py)
 APP_DEPENDS += $(wildcard common/templates/*)
 APP_DEPENDS += $(wildcard includes/*)
@@ -95,10 +98,18 @@ APP_DEPENDS += $(wildcard targets/*/*.ini)
 APP_DEPENDS += $(wildcard modules/*/const/*.xdc)
 APP_DEPENDS += $(wildcard modules/*/*.ini)
 
+AUTOGEN_TARGETS += generate_app_autogen
+AUTOGEN_TARGETS += update_VER
+AUTOGEN_TARGETS += $(VERSION_FILE)
+AUTOGEN_TARGETS += $(CONSTANT_FILE)
+
 # Make the built app from the ini file
-$(AUTOGEN_BUILD_DIR): $(APP_FILE) $(APP_DEPENDS)
-	rm -rf $@
-	$(PYTHON) -m common.python.generate_app $@ $<
+$(AUTOGEN_BUILD_DIR): $(AUTOGEN_TARGETS)
+
+generate_app_autogen: $(APP_FILE) $(APP_DEPENDS)
+	rm -rf $(AUTOGEN_BUILD_DIR)
+	$(PYTHON) -m common.python.generate_app $(AUTOGEN_BUILD_DIR) $<
+.PHONY: generate_app_autogen
 
 autogen: $(AUTOGEN_BUILD_DIR)
 .PHONY: autogen
@@ -135,6 +146,24 @@ else
 	then echo $(SHA) > $(VER); \
 	fi
 endif
+
+#####################################################################
+# Create VERSION_FILE
+
+$(VERSION_FILE) : $(VER)
+	rm -f $(VERSION_FILE)
+	echo 'library ieee;' >> $(VERSION_FILE)
+	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
+	echo 'package version is' >> $(VERSION_FILE)
+	echo -n 'constant FPGA_VERSION: std_logic_vector(31 downto 0)' >> $(VERSION_FILE)
+	echo ' := X"$(VERSION)";' >> $(VERSION_FILE)
+	echo -n 'constant FPGA_BUILD: std_logic_vector(31 downto 0)' >> $(VERSION_FILE)
+	echo ' := X"$(SHA)";' >> $(VERSION_FILE)
+	echo 'end version;' >> $(VERSION_FILE)
+
+
+$(CONSTANT_FILE) : $(TOP)/common/templates/registers_server
+	$(TOP)/common/python/generate_constants.py "$<" > $@
 
 # ------------------------------------------------------------------------------
 # Documentation
@@ -175,7 +204,7 @@ run_sim_%: $(TOP)/common/fpga.make
 	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
         TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
         TGT_BUILD_DIR=$(TGT_BUILD_DIR) TEST_MODE=$(TEST_MODE) \
-        DEP_MODE=$(DEP_MODE) VER=$(VER) $@
+        DEP_MODE=$(DEP_MODE) $@
 
 
 # ------------------------------------------------------------------------------
@@ -234,7 +263,7 @@ FPGA_TARGETS = fpga-all fpga-bit carrier_fpga carrier_ip ps_core \
                fsbl devicetree boot u-boot dts xsct sw_clean u-boot-src \
                dtc atf ip_clean ps_clean
 
-$(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR) | update_VER
+$(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR)
 	mkdir -p $(FPGA_BUILD_DIR)
 	mkdir -p $(TGT_BUILD_DIR)
 ifdef SKIP_FPGA_BUILD
@@ -244,7 +273,7 @@ else
 	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
         TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
         TGT_BUILD_DIR=$(TGT_BUILD_DIR) TOP_MODE=$(TOP_MODE) DEP_MODE=$(DEP_MODE) \
-		VER=$(VER) $@
+		$@
 endif
 
 .PHONY: $(FPGA_TARGETS)

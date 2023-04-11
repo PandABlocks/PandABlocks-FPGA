@@ -39,9 +39,6 @@ PS_CORE  = $(PS_DIR)/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 CARRIER_FPGA_BIT = $(BUILD_DIR)/panda_top.bit
 FPGA_BIN_FILE = $(BUILD_DIR)/panda_top.bin
 
-VERSION_FILE = $(AUTOGEN)/hdl/version.vhd
-CONSTANT_FILE = $(AUTOGEN)/hdl/panda_constants.vhd
-
 IP_PROJ=$(IP_DIR)/managed_ip_project/managed_ip_project.xpr
 
 SDK_EXPORT = $(PS_DIR)/panda_ps.sdk
@@ -123,25 +120,6 @@ else
     $$(error Unknown PLATFORM specified. Must be 'zynq' or 'zynqmp')
 endif
 
-#####################################################################
-# Create VERSION_FILE
-
-$(VERSION_FILE) : $(VER)
-	rm -f $(VERSION_FILE)
-	echo 'library ieee;' >> $(VERSION_FILE)
-	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
-	echo 'package version is' >> $(VERSION_FILE)
-	echo -n 'constant FPGA_VERSION: std_logic_vector(31 downto 0)' >> $(VERSION_FILE)
-	echo ' := X"$(VERSION)";' >> $(VERSION_FILE)
-	echo -n 'constant FPGA_BUILD: std_logic_vector(31 downto 0)' >> $(VERSION_FILE)
-	echo ' := X"$(SHA)";' >> $(VERSION_FILE)
-	echo 'end version;' >> $(VERSION_FILE)
-
-
-$(CONSTANT_FILE) : $(TOP)/common/templates/registers_server
-	$(TOP)/common/python/generate_constants.py "$<" > $@
-
-
 ###########################################################
 # Build Zynq Firmware targets
 
@@ -162,8 +140,6 @@ $(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR) $(TGT_INCL_SCR)
 	  -tclargs $(TOP) $(TARGET_DIR) $(PS_DIR) $@ $(DEP_MODE)
 
 CARRIER_FPGA_DEPS += $(TOP_BUILD_SCR)
-CARRIER_FPGA_DEPS += $(VERSION_FILE)
-CARRIER_FPGA_DEPS += $(CONSTANT_FILE)
 CARRIER_FPGA_DEPS += $(APP_IP_DEPS)
 CARRIER_FPGA_DEPS += $(PS_CORE)
 CARRIER_FPGA_DEPS += $(TGT_INCL_SCR)
