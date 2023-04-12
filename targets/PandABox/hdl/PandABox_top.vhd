@@ -323,7 +323,6 @@ port map(
     sma_clk_i         => EXTCLK,
     mgt_rec_clk_i          => SFP1_o.MGT_REC_CLK,
     clk_sel_i         => clk_src_sel,
-    linkup_i             => SFP1_o.LINK_UP,
     sma_pll_locked_o    => sma_pll_locked,
     clk_sel_stat_o        => clk_sel_stat,
     fclk_clk0_o         => FCLK_CLK0,
