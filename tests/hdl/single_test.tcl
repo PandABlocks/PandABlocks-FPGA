@@ -37,17 +37,16 @@ add_files -norecurse \
 
 
 
+
 puts  "###############################################################################################";
 puts  "                                           $test"                                               ;
 puts  "###############################################################################################";
 
 set_property top $test [get_filesets sim_1]
 set_property top_lib xil_defaultlib [get_filesets sim_1]
+set_property -name {xsim.simulate.runtime} -value {all} -objects [get_filesets sim_1]
 
 launch_simulation
-
-restart
-run -all
 
 # All the testbenchs have a signal called is_file_end
 # this is used to indicate if the test is completed
