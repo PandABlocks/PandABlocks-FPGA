@@ -117,13 +117,13 @@ type SFP_output_interface is
   record
     TXN_OUT     : std_logic;
     TXP_OUT     : std_logic;
-    EVR_REC_CLK : std_logic;
+    MGT_REC_CLK : std_logic;
     LINK_UP     : std_logic;
   end record SFP_output_interface;
 
 constant SFP_o_init : SFP_output_interface := (TXN_OUT => 'Z',
                                                TXP_OUT => 'Z',
-                                               EVR_REC_CLK => '0',
+                                               MGT_REC_CLK => '0',
                                                LINK_UP => '0');
 
 

@@ -61,7 +61,7 @@ port (
     -- External Clock
     ext_clk_i           : in  std_logic;
     sma_pll_locked_i    : in  std_logic;
-    ext_clock_o         : out std_logic_vector(1 downto 0);
+    clock_src_o         : out std_logic_vector(1 downto 0);
     clk_sel_stat_i      : in  std_logic_vector(1 downto 0)
 
 );
@@ -80,7 +80,7 @@ signal slow_leds_tlp    : slow_packet;
 signal cmd_ready_n      : std_logic;
 
 signal VEC_PLL_LOCKED   : std_logic_vector(31 downto 0) := (others => '0');
-signal VEC_EXT_CLOCK    : std_logic_vector(31 downto 0);
+signal VEC_CLOCK_SRC    : std_logic_vector(31 downto 0);
 signal VEC_CLK_SEL_STAT : std_logic_vector(31 downto 0) := (others => '0');
 signal write_ack        : std_logic;
 signal test_clocks      : std_logic_vector(0 downto 0);
@@ -156,7 +156,7 @@ port map (
 -- External Clock registers
 ---------------------------------------------------------------------------
 VEC_PLL_LOCKED(0) <= sma_pll_locked_i;
-ext_clock_o <= VEC_EXT_CLOCK(1 downto 0);
+clock_src_o <= VEC_CLOCK_SRC(1 downto 0);
 VEC_CLK_SEL_STAT(1 downto 0) <= clk_sel_stat_i;
 
 --
@@ -169,7 +169,7 @@ ps_ack: process(clk_i)
 begin
     if rising_edge(clk_i)then
         if ((write_strobe_i = '1') and
-          (write_address_i = std_logic_vector(to_unsigned(SYSTEM_EXT_CLOCK_addr,write_address_i'length)))) then
+          (write_address_i = std_logic_vector(to_unsigned(SYSTEM_CLOCK_SOURCE_addr,write_address_i'length)))) then
             write_ack <= '1';
         else
             write_ack <= '0';
@@ -213,8 +213,8 @@ port map (
     ENC_24V             => VOLT_MON(6),
     FMC_12V             => VOLT_MON(7),
     PLL_LOCKED          => VEC_PLL_LOCKED,
-    EXT_CLOCK           => VEC_EXT_CLOCK,
-    EXT_CLOCK_WSTB      => open,
+    CLOCK_SOURCE        => VEC_CLOCK_SRC,
+    CLOCK_SOURCE_WSTB   => open,
     EXT_CLOCK_FREQ      => FREQ_VAL(0),
     CLK_SEL_STAT        => VEC_CLK_SEL_STAT,
     -- Memory Bus Interface

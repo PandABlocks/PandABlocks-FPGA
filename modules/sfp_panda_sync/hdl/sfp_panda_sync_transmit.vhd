@@ -9,7 +9,6 @@ entity sfp_panda_sync_transmit is
         clk_i           : in  std_logic;
         txoutclk_i      : in  std_logic;
         reset_i         : in  std_logic;
-        rx_link_ok_i    : in  std_logic; 
         txcharisk_o     : out std_logic_vector(3 downto 0) := (others => '0');
         POSOUT1_i       : in  std_logic_vector(31 downto 0);
         POSOUT2_i       : in  std_logic_vector(31 downto 0);
