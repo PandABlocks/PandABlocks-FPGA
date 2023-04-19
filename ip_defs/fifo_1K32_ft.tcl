@@ -13,5 +13,3 @@ set_property -dict [list \
     CONFIG.Reset_Type {Synchronous_Reset} \
 ] [get_ips fifo_1K32_ft]
 
-generate_target all [get_ips fifo_1K32_ft]
-

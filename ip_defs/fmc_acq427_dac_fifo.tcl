@@ -21,5 +21,3 @@ set_property -dict [list \
         CONFIG.Full_Threshold_Negate_Value {12}
 ] [get_ips fmc_acq427_dac_fifo]
 
-generate_target all [get_ips fmc_acq427_dac_fifo]
-

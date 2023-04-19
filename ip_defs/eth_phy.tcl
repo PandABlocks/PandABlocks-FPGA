@@ -11,5 +11,3 @@ set_property -dict [list \
     CONFIG.EMAC_IF_TEMAC {TEMAC} \
 ] [get_ips eth_phy]
 
-generate_target all [get_ips eth_phy]
-
