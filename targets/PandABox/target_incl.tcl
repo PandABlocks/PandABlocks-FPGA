@@ -1,5 +1,4 @@
 set FPGA_PART xc7z030sbg485-1
-set BOARD_PART "em.avnet.com:picozed_7030:part0:1.0"
 set HDL_TOP PandABox_top
 
 # Target specific Constriants to be read

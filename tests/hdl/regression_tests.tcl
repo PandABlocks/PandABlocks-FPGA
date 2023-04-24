@@ -65,11 +65,9 @@ foreach test [array names tests] {
 
     set_property top $test [get_filesets sim_1]
     set_property top_lib xil_defaultlib [get_filesets sim_1]
+    set_property -name {xsim.simulate.runtime} -value {all} -objects [get_filesets sim_1]
 
     launch_simulation
-
-        restart
-    run -all
 
     # All the testbenchs have a signal called test_result
     # this is used to indicate when the test fails i.e.

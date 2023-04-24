@@ -8,7 +8,7 @@
 BUILD_DIR = /build
 
 # Development Tool Version
-VIVADO_VER = 2020.2
+VIVADO_VER = 2022.2
 
 # Definitions needed for FPGA build
 export VIVADO = /scratch/Xilinx/Vivado/\$(VIVADO_VER)/settings64.sh

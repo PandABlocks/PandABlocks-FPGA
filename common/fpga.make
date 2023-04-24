@@ -10,18 +10,18 @@
 # Note: if these files have been downloaded through the releases directory then
 # they need to be renamed with the appropriate {u-boot,linux}-xlnx- prefix so
 # that the file name and contents match.
-MD5_SUM_device-tree-xlnx-xilinx-v2020.2 = c30a25d475c21fe4d9913b2df6aab692
-MD5_SUM_u-boot-xlnx-xilinx-v2020.2 = 6881a6b9f465f714e64c1398630287db
-MD5_SUM_arm-trusted-firmware-xilinx-v2020.2 = 0fd3ddbd76c27040e6ce848c9ef9c1f3
+MD5_SUM_device-tree-xlnx-xilinx_v2022.2 = 7885c6f69509e425a1800eed326ffee8
+MD5_SUM_u-boot-xlnx-xilinx-v2022.2 = a9e54fff739d5702465c786b5420d31e
+MD5_SUM_arm-trusted-firmware-xilinx-v2022.2 = a47d32e92fed413599093f6d82bf3e0c
 # The dtc source is obtained from https://git.kernel.org/pub/scm/utils/dtc/dtc.git
-MD5_SUM_dtc-1.6.1 = 19eef37196e99b659c402a29aac5ba59
+MD5_SUM_dtc-1.7.0 = f8b4469ad89f4b882091895ec60dde6b
 
 # By default use the same tagged version of the sources as the build tools.
 # To use a different version edit the variable below, and include MD5_SUM above.
-DEVTREE_TAG = xilinx-v$(VIVADO_VER)
+DEVTREE_TAG = xilinx_v$(VIVADO_VER)
 U_BOOT_TAG = xilinx-v$(VIVADO_VER)
 ATF_TAG = xilinx-v$(VIVADO_VER)
-DTC_TAG = 1.6.1
+DTC_TAG = 1.7.0
 
 # Need bash for the source command in Xilinx settings64.sh
 SHELL = /bin/bash
