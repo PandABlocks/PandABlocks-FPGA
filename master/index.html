@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>What can PandABlocks do? &mdash; PandABlocks-FPGA 3.0a2-162-g95e6ecf
+  <title>What can PandABlocks do? &mdash; PandABlocks-FPGA 3.0a2-168-gf67231e
  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
@@ -19,6 +19,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -30,16 +31,20 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: black" >
-            <a href="#" class="icon icon-home"> PandABlocks-FPGA
-            <img src="_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="#" class="icon icon-home">
+            PandABlocks-FPGA
+              <img src="_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-162-g95e6ecf
+                3.0a2-168-gf67231e
 
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -145,8 +150,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>What can PandABlocks do?</li>
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">What can PandABlocks do?</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -429,7 +434,15 @@ framework</p>
 <li class="toctree-l5"><a class="reference internal" href="reference/block.html#extra-field-keys">Extra Field Keys</a></li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="reference/block.html#block-simulation">Block Simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/block.html#block-simulation">Block Simulation</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="reference/block.html#common.python.simulations.BlockSimulation"><code class="docutils literal notranslate"><span class="pre">BlockSimulation</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/block.html#common.python.simulations.BlockSimulation.changes"><code class="docutils literal notranslate"><span class="pre">BlockSimulation.changes</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/block.html#common.python.simulations.BlockSimulation.bits_to_int"><code class="docutils literal notranslate"><span class="pre">BlockSimulation.bits_to_int()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/block.html#common.python.simulations.BlockSimulation.on_changes"><code class="docutils literal notranslate"><span class="pre">BlockSimulation.on_changes()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="reference/block.html#timing-ini">Timing ini</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="reference/block.html#id2">The [.] section</a></li>
 <li class="toctree-l5"><a class="reference internal" href="reference/block.html#test-sections">[TEST] sections</a></li>
@@ -447,7 +460,141 @@ framework</p>
 <li class="toctree-l3"><a class="reference internal" href="reference/framework.html">Autogeneration framework architecture</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="reference/framework.html#softblocks">Softblocks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="reference/framework.html#wrappers">Wrappers</a></li>
-<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#module-common.python.configs">Config_d entries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#module-common.python.configs">Config_d entries</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.pad"><code class="docutils literal notranslate"><span class="pre">pad()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.all_subclasses"><code class="docutils literal notranslate"><span class="pre">all_subclasses()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig"><code class="docutils literal notranslate"><span class="pre">BlockConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.name"><code class="docutils literal notranslate"><span class="pre">BlockConfig.name</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.number"><code class="docutils literal notranslate"><span class="pre">BlockConfig.number</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.module_path"><code class="docutils literal notranslate"><span class="pre">BlockConfig.module_path</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.ini_path"><code class="docutils literal notranslate"><span class="pre">BlockConfig.ini_path</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.block_address"><code class="docutils literal notranslate"><span class="pre">BlockConfig.block_address</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.site"><code class="docutils literal notranslate"><span class="pre">BlockConfig.site</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.entity"><code class="docutils literal notranslate"><span class="pre">BlockConfig.entity</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.type"><code class="docutils literal notranslate"><span class="pre">BlockConfig.type</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.constraints"><code class="docutils literal notranslate"><span class="pre">BlockConfig.constraints</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.ip"><code class="docutils literal notranslate"><span class="pre">BlockConfig.ip</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.description"><code class="docutils literal notranslate"><span class="pre">BlockConfig.description</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.fields"><code class="docutils literal notranslate"><span class="pre">BlockConfig.fields</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.block_suffixes"><code class="docutils literal notranslate"><span class="pre">BlockConfig.block_suffixes</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">BlockConfig.register_addresses()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.filter_fields"><code class="docutils literal notranslate"><span class="pre">BlockConfig.filter_fields()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.generateInterfaceConstraints"><code class="docutils literal notranslate"><span class="pre">BlockConfig.generateInterfaceConstraints()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig"><code class="docutils literal notranslate"><span class="pre">RegisterConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.name"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.name</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.number"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.number</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.extension"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.extension</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.BusEntryConfig"><code class="docutils literal notranslate"><span class="pre">BusEntryConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BusEntryConfig.name"><code class="docutils literal notranslate"><span class="pre">BusEntryConfig.name</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BusEntryConfig.bus"><code class="docutils literal notranslate"><span class="pre">BusEntryConfig.bus</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BusEntryConfig.index"><code class="docutils literal notranslate"><span class="pre">BusEntryConfig.index</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig"><code class="docutils literal notranslate"><span class="pre">FieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">FieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.name"><code class="docutils literal notranslate"><span class="pre">FieldConfig.name</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.number"><code class="docutils literal notranslate"><span class="pre">FieldConfig.number</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.type"><code class="docutils literal notranslate"><span class="pre">FieldConfig.type</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.description"><code class="docutils literal notranslate"><span class="pre">FieldConfig.description</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.registers"><code class="docutils literal notranslate"><span class="pre">FieldConfig.registers</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.bus_entries"><code class="docutils literal notranslate"><span class="pre">FieldConfig.bus_entries</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.wstb"><code class="docutils literal notranslate"><span class="pre">FieldConfig.wstb</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.option_filter"><code class="docutils literal notranslate"><span class="pre">FieldConfig.option_filter</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.extension"><code class="docutils literal notranslate"><span class="pre">FieldConfig.extension</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.extra_config_lines"><code class="docutils literal notranslate"><span class="pre">FieldConfig.extra_config_lines</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">FieldConfig.parse_extra_config()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">FieldConfig.register_addresses()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.address_line"><code class="docutils literal notranslate"><span class="pre">FieldConfig.address_line()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.config_line"><code class="docutils literal notranslate"><span class="pre">FieldConfig.config_line()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.numbered_registers"><code class="docutils literal notranslate"><span class="pre">FieldConfig.numbered_registers()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.BitOutFieldConfig"><code class="docutils literal notranslate"><span class="pre">BitOutFieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BitOutFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">BitOutFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BitOutFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">BitOutFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.PosOutFieldConfig"><code class="docutils literal notranslate"><span class="pre">PosOutFieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.PosOutFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">PosOutFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.PosOutFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">PosOutFieldConfig.register_addresses()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.PosOutFieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">PosOutFieldConfig.parse_extra_config()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.PosOutFieldConfig.config_line"><code class="docutils literal notranslate"><span class="pre">PosOutFieldConfig.config_line()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.ExtOutFieldConfig"><code class="docutils literal notranslate"><span class="pre">ExtOutFieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.ExtOutFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">ExtOutFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.ExtOutFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">ExtOutFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.ExtOutTimeFieldConfig"><code class="docutils literal notranslate"><span class="pre">ExtOutTimeFieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.ExtOutTimeFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">ExtOutTimeFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.ExtOutTimeFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">ExtOutTimeFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.TableFieldConfig"><code class="docutils literal notranslate"><span class="pre">TableFieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.TableFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">TableFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.TableFieldConfig.words"><code class="docutils literal notranslate"><span class="pre">TableFieldConfig.words</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.TableFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">TableFieldConfig.register_addresses()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.TableFieldConfig.config_line"><code class="docutils literal notranslate"><span class="pre">TableFieldConfig.config_line()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.TableFieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">TableFieldConfig.parse_extra_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.TableShortFieldConfig"><code class="docutils literal notranslate"><span class="pre">TableShortFieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.TableShortFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">TableShortFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.TableShortFieldConfig.lines"><code class="docutils literal notranslate"><span class="pre">TableShortFieldConfig.lines</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.TableShortFieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">TableShortFieldConfig.parse_extra_config()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.TableShortFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">TableShortFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.ParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.ParamFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.ParamFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.EnumParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">EnumParamFieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.EnumParamFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">EnumParamFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.EnumParamFieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">EnumParamFieldConfig.parse_extra_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.UintParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">UintParamFieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.UintParamFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">UintParamFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.UintParamFieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">UintParamFieldConfig.parse_extra_config()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.UintParamFieldConfig.config_line"><code class="docutils literal notranslate"><span class="pre">UintParamFieldConfig.config_line()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.ScalarParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">ScalarParamFieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.ScalarParamFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">ScalarParamFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.ScalarParamFieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">ScalarParamFieldConfig.parse_extra_config()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.ScalarParamFieldConfig.config_line"><code class="docutils literal notranslate"><span class="pre">ScalarParamFieldConfig.config_line()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.BitMuxFieldConfig"><code class="docutils literal notranslate"><span class="pre">BitMuxFieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BitMuxFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">BitMuxFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BitMuxFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">BitMuxFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.PosMuxFieldConfig"><code class="docutils literal notranslate"><span class="pre">PosMuxFieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.PosMuxFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">PosMuxFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.PosMuxFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">PosMuxFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.TimeFieldConfig"><code class="docutils literal notranslate"><span class="pre">TimeFieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.TimeFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">TimeFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.TimeFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">TimeFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.TargetSiteConfig"><code class="docutils literal notranslate"><span class="pre">TargetSiteConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.TargetSiteConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">TargetSiteConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.TargetSiteConfig.name"><code class="docutils literal notranslate"><span class="pre">TargetSiteConfig.name</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.TargetSiteConfig.number"><code class="docutils literal notranslate"><span class="pre">TargetSiteConfig.number</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="reference/framework.html#test-benches">Test benches</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="reference/framework.html#required-signals-in-the-block">Required signals in the block</a></li>
 <li class="toctree-l5"><a class="reference internal" href="reference/framework.html#read-expected-csv">Read expected.csv</a></li>
@@ -717,7 +864,15 @@ framework</p>
 <li class="toctree-l3"><a class="reference internal" href="reference/block.html#extra-field-keys">Extra Field Keys</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="reference/block.html#block-simulation">Block Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/block.html#block-simulation">Block Simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/block.html#common.python.simulations.BlockSimulation"><code class="docutils literal notranslate"><span class="pre">BlockSimulation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/block.html#common.python.simulations.BlockSimulation.changes"><code class="docutils literal notranslate"><span class="pre">BlockSimulation.changes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/block.html#common.python.simulations.BlockSimulation.bits_to_int"><code class="docutils literal notranslate"><span class="pre">BlockSimulation.bits_to_int()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/block.html#common.python.simulations.BlockSimulation.on_changes"><code class="docutils literal notranslate"><span class="pre">BlockSimulation.on_changes()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="reference/block.html#timing-ini">Timing ini</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/block.html#id2">The [.] section</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/block.html#test-sections">[TEST] sections</a></li>
@@ -735,7 +890,141 @@ framework</p>
 <li class="toctree-l1"><a class="reference internal" href="reference/framework.html">Autogeneration framework architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/framework.html#softblocks">Softblocks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/framework.html#wrappers">Wrappers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/framework.html#module-common.python.configs">Config_d entries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/framework.html#module-common.python.configs">Config_d entries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.pad"><code class="docutils literal notranslate"><span class="pre">pad()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.all_subclasses"><code class="docutils literal notranslate"><span class="pre">all_subclasses()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig"><code class="docutils literal notranslate"><span class="pre">BlockConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.name"><code class="docutils literal notranslate"><span class="pre">BlockConfig.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.number"><code class="docutils literal notranslate"><span class="pre">BlockConfig.number</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.module_path"><code class="docutils literal notranslate"><span class="pre">BlockConfig.module_path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.ini_path"><code class="docutils literal notranslate"><span class="pre">BlockConfig.ini_path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.block_address"><code class="docutils literal notranslate"><span class="pre">BlockConfig.block_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.site"><code class="docutils literal notranslate"><span class="pre">BlockConfig.site</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.entity"><code class="docutils literal notranslate"><span class="pre">BlockConfig.entity</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.type"><code class="docutils literal notranslate"><span class="pre">BlockConfig.type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.constraints"><code class="docutils literal notranslate"><span class="pre">BlockConfig.constraints</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.ip"><code class="docutils literal notranslate"><span class="pre">BlockConfig.ip</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.description"><code class="docutils literal notranslate"><span class="pre">BlockConfig.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.fields"><code class="docutils literal notranslate"><span class="pre">BlockConfig.fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.block_suffixes"><code class="docutils literal notranslate"><span class="pre">BlockConfig.block_suffixes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">BlockConfig.register_addresses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.filter_fields"><code class="docutils literal notranslate"><span class="pre">BlockConfig.filter_fields()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.generateInterfaceConstraints"><code class="docutils literal notranslate"><span class="pre">BlockConfig.generateInterfaceConstraints()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig"><code class="docutils literal notranslate"><span class="pre">RegisterConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.name"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.number"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.number</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.extension"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.extension</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.BusEntryConfig"><code class="docutils literal notranslate"><span class="pre">BusEntryConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BusEntryConfig.name"><code class="docutils literal notranslate"><span class="pre">BusEntryConfig.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BusEntryConfig.bus"><code class="docutils literal notranslate"><span class="pre">BusEntryConfig.bus</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BusEntryConfig.index"><code class="docutils literal notranslate"><span class="pre">BusEntryConfig.index</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig"><code class="docutils literal notranslate"><span class="pre">FieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">FieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.name"><code class="docutils literal notranslate"><span class="pre">FieldConfig.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.number"><code class="docutils literal notranslate"><span class="pre">FieldConfig.number</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.type"><code class="docutils literal notranslate"><span class="pre">FieldConfig.type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.description"><code class="docutils literal notranslate"><span class="pre">FieldConfig.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.registers"><code class="docutils literal notranslate"><span class="pre">FieldConfig.registers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.bus_entries"><code class="docutils literal notranslate"><span class="pre">FieldConfig.bus_entries</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.wstb"><code class="docutils literal notranslate"><span class="pre">FieldConfig.wstb</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.option_filter"><code class="docutils literal notranslate"><span class="pre">FieldConfig.option_filter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.extension"><code class="docutils literal notranslate"><span class="pre">FieldConfig.extension</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.extra_config_lines"><code class="docutils literal notranslate"><span class="pre">FieldConfig.extra_config_lines</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">FieldConfig.parse_extra_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">FieldConfig.register_addresses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.address_line"><code class="docutils literal notranslate"><span class="pre">FieldConfig.address_line()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.config_line"><code class="docutils literal notranslate"><span class="pre">FieldConfig.config_line()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.FieldConfig.numbered_registers"><code class="docutils literal notranslate"><span class="pre">FieldConfig.numbered_registers()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.BitOutFieldConfig"><code class="docutils literal notranslate"><span class="pre">BitOutFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BitOutFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">BitOutFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BitOutFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">BitOutFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.PosOutFieldConfig"><code class="docutils literal notranslate"><span class="pre">PosOutFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.PosOutFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">PosOutFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.PosOutFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">PosOutFieldConfig.register_addresses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.PosOutFieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">PosOutFieldConfig.parse_extra_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.PosOutFieldConfig.config_line"><code class="docutils literal notranslate"><span class="pre">PosOutFieldConfig.config_line()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.ExtOutFieldConfig"><code class="docutils literal notranslate"><span class="pre">ExtOutFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.ExtOutFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">ExtOutFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.ExtOutFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">ExtOutFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.ExtOutTimeFieldConfig"><code class="docutils literal notranslate"><span class="pre">ExtOutTimeFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.ExtOutTimeFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">ExtOutTimeFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.ExtOutTimeFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">ExtOutTimeFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.TableFieldConfig"><code class="docutils literal notranslate"><span class="pre">TableFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.TableFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">TableFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.TableFieldConfig.words"><code class="docutils literal notranslate"><span class="pre">TableFieldConfig.words</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.TableFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">TableFieldConfig.register_addresses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.TableFieldConfig.config_line"><code class="docutils literal notranslate"><span class="pre">TableFieldConfig.config_line()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.TableFieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">TableFieldConfig.parse_extra_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.TableShortFieldConfig"><code class="docutils literal notranslate"><span class="pre">TableShortFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.TableShortFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">TableShortFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.TableShortFieldConfig.lines"><code class="docutils literal notranslate"><span class="pre">TableShortFieldConfig.lines</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.TableShortFieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">TableShortFieldConfig.parse_extra_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.TableShortFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">TableShortFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.ParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.ParamFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.ParamFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.EnumParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">EnumParamFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.EnumParamFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">EnumParamFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.EnumParamFieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">EnumParamFieldConfig.parse_extra_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.UintParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">UintParamFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.UintParamFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">UintParamFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.UintParamFieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">UintParamFieldConfig.parse_extra_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.UintParamFieldConfig.config_line"><code class="docutils literal notranslate"><span class="pre">UintParamFieldConfig.config_line()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.ScalarParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">ScalarParamFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.ScalarParamFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">ScalarParamFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.ScalarParamFieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">ScalarParamFieldConfig.parse_extra_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.ScalarParamFieldConfig.config_line"><code class="docutils literal notranslate"><span class="pre">ScalarParamFieldConfig.config_line()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.BitMuxFieldConfig"><code class="docutils literal notranslate"><span class="pre">BitMuxFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BitMuxFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">BitMuxFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BitMuxFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">BitMuxFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.PosMuxFieldConfig"><code class="docutils literal notranslate"><span class="pre">PosMuxFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.PosMuxFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">PosMuxFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.PosMuxFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">PosMuxFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.TimeFieldConfig"><code class="docutils literal notranslate"><span class="pre">TimeFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.TimeFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">TimeFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.TimeFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">TimeFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.TargetSiteConfig"><code class="docutils literal notranslate"><span class="pre">TargetSiteConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.TargetSiteConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">TargetSiteConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.TargetSiteConfig.name"><code class="docutils literal notranslate"><span class="pre">TargetSiteConfig.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.TargetSiteConfig.number"><code class="docutils literal notranslate"><span class="pre">TargetSiteConfig.number</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="reference/framework.html#test-benches">Test benches</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference/framework.html#required-signals-in-the-block">Required signals in the block</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/framework.html#read-expected-csv">Read expected.csv</a></li>

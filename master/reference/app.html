@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Assembling Blocks into an App &mdash; PandABlocks-FPGA 3.0a2-162-g95e6ecf
+  <title>Assembling Blocks into an App &mdash; PandABlocks-FPGA 3.0a2-168-gf67231e
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -19,6 +19,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -31,16 +32,20 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: black" >
-            <a href="../index.html" class="icon icon-home"> PandABlocks-FPGA
-            <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            PandABlocks-FPGA
+              <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-162-g95e6ecf
+                3.0a2-168-gf67231e
 
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -160,8 +165,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Assembling Blocks into an App</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Assembling Blocks into an App</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/reference/app.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -185,9 +190,9 @@ in the App.</p>
 <div class="section" id="the-section">
 <h3>The [.] section<a class="headerlink" href="#the-section" title="Permalink to this heading"></a></h3>
 <p>The first section contains app wide information. It looks like this:</p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[.]</span><span class="w"></span>
-<span class="na">description: Short description of what this app will do</span><span class="w"></span>
-<span class="na">target: device_type</span><span class="w"></span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[.]</span>
+<span class="na">description</span><span class="o">:</span><span class="w"> </span><span class="s">Short description of what this app will do</span>
+<span class="na">target</span><span class="o">:</span><span class="w"> </span><span class="s">device_type</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">description</span></code> value is a human readable description of what the app
@@ -199,10 +204,10 @@ given PandABlocks device.</p>
 <div class="section" id="block-sections">
 <h3>[BLOCK] sections<a class="headerlink" href="#block-sections" title="Permalink to this heading"></a></h3>
 <p>All other sections specify Block instance information. They look like this:</p>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[MYBLOCK]</span><span class="w"></span>
-<span class="na">number: 4</span><span class="w"></span>
-<span class="na">module: mymodule</span><span class="w"></span>
-<span class="na">ini: myblock.block.ini</span><span class="w"></span>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[MYBLOCK]</span>
+<span class="na">number</span><span class="o">:</span><span class="w"> </span><span class="s">4</span>
+<span class="na">module</span><span class="o">:</span><span class="w"> </span><span class="s">mymodule</span>
+<span class="na">ini</span><span class="o">:</span><span class="w"> </span><span class="s">myblock.block.ini</span>
 </pre></div>
 </div>
 <p>The section name is used to determine the name of the Block in the resulting

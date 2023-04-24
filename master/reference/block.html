@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Writing a Block &mdash; PandABlocks-FPGA 3.0a2-162-g95e6ecf
+  <title>Writing a Block &mdash; PandABlocks-FPGA 3.0a2-168-gf67231e
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -19,6 +19,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -31,16 +32,20 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: black" >
-            <a href="../index.html" class="icon icon-home"> PandABlocks-FPGA
-            <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            PandABlocks-FPGA
+              <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-162-g95e6ecf
+                3.0a2-168-gf67231e
 
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -109,7 +114,15 @@
 <li class="toctree-l3"><a class="reference internal" href="#extra-field-keys">Extra Field Keys</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#block-simulation">Block Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#block-simulation">Block Simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common.python.simulations.BlockSimulation"><code class="docutils literal notranslate"><span class="pre">BlockSimulation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#common.python.simulations.BlockSimulation.changes"><code class="docutils literal notranslate"><span class="pre">BlockSimulation.changes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#common.python.simulations.BlockSimulation.bits_to_int"><code class="docutils literal notranslate"><span class="pre">BlockSimulation.bits_to_int()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#common.python.simulations.BlockSimulation.on_changes"><code class="docutils literal notranslate"><span class="pre">BlockSimulation.on_changes()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#timing-ini">Timing ini</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id2">The [.] section</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#test-sections">[TEST] sections</a></li>
@@ -179,8 +192,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Writing a Block</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Writing a Block</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/reference/block.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -227,14 +240,14 @@ about the Block, then a section for every <a class="reference internal" href="gl
 <h3>The [.] section<a class="headerlink" href="#the-section" title="Permalink to this heading"></a></h3>
 <p>The first entry to the ini file describes the block as a whole. It looks like
 this:</p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[.]</span><span class="w"></span>
-<span class="na">description: Short description of the Block</span><span class="w"></span>
-<span class="na">entity: vhdl_entity</span><span class="w"></span>
-<span class="na">type: dma or sfp or fmc</span><span class="w"></span>
-<span class="na">constraints:</span><span class="w"></span>
-<span class="na">ip:</span><span class="w"></span>
-<span class="na">otherconst:</span><span class="w"></span>
-<span class="na">extension:</span><span class="w"></span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[.]</span>
+<span class="na">description</span><span class="o">:</span><span class="w"> </span><span class="s">Short description of the Block</span>
+<span class="na">entity</span><span class="o">:</span><span class="w"> </span><span class="s">vhdl_entity</span>
+<span class="na">type</span><span class="o">:</span><span class="w"> </span><span class="s">dma or sfp or fmc</span>
+<span class="na">constraints</span><span class="o">:</span>
+<span class="na">ip</span><span class="o">:</span>
+<span class="na">otherconst</span><span class="o">:</span>
+<span class="na">extension</span><span class="o">:</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">description</span></code> should be a short (a few words) description that will be
@@ -256,12 +269,12 @@ module must exist and contain a python server extension file.</p>
 <h3>[FIELD] sections<a class="headerlink" href="#field-sections" title="Permalink to this heading"></a></h3>
 <p>All other sections specify the Field that will be present in the Block. They
 look like this:</p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[MYFIELD]</span><span class="w"></span>
-<span class="na">type: type subtype options</span><span class="w"></span>
-<span class="na">description: Short description of the Field</span><span class="w"></span>
-<span class="na">extension: extension-parameter</span><span class="w"></span>
-<span class="na">extension_reg:</span><span class="w"></span>
-<span class="na">wstb:</span><span class="w"></span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[MYFIELD]</span>
+<span class="na">type</span><span class="o">:</span><span class="w"> </span><span class="s">type subtype options</span>
+<span class="na">description</span><span class="o">:</span><span class="w"> </span><span class="s">Short description of the Field</span>
+<span class="na">extension</span><span class="o">:</span><span class="w"> </span><span class="s">extension-parameter</span>
+<span class="na">extension_reg</span><span class="o">:</span>
+<span class="na">wstb</span><span class="o">:</span>
 </pre></div>
 </div>
 <p>The section name is used to determine the name of the Field in the resulting
@@ -286,13 +299,13 @@ information to be passed to the TCP server via its config file.</p>
 <p>Enum fields would contain numeric keys to translate specific numbers into
 user readable strings. Strings should be lowercase letters and numbers with
 underscores and no spaces. A typical field might look like this:</p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[ENUM_FIELD]</span><span class="w"></span>
-<span class="na">type: param enum  # or read enum or write enum</span><span class="w"></span>
-<span class="na">description: Short description of the Field</span><span class="w"></span>
-<span class="na">0: first_value</span><span class="w"></span>
-<span class="na">1: next_value</span><span class="w"></span>
-<span class="na">2: another_value</span><span class="w"></span>
-<span class="na">8: gappy_value</span><span class="w"></span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[ENUM_FIELD]</span>
+<span class="na">type</span><span class="o">:</span><span class="w"> </span><span class="s">param enum</span><span class="w">  </span><span class="c1"># or read enum or write enum</span>
+<span class="na">description</span><span class="o">:</span><span class="w"> </span><span class="s">Short description of the Field</span>
+<span class="na">0</span><span class="o">:</span><span class="w"> </span><span class="s">first_value</span>
+<span class="na">1</span><span class="o">:</span><span class="w"> </span><span class="s">next_value</span>
+<span class="na">2</span><span class="o">:</span><span class="w"> </span><span class="s">another_value</span>
+<span class="na">8</span><span class="o">:</span><span class="w"> </span><span class="s">gappy_value</span>
 </pre></div>
 </div>
 <p>Tables will be defined here too</p>
@@ -370,7 +383,7 @@ to the <a class="reference internal" href="#common.python.simulations.BlockSimul
     <span class="n">INP</span><span class="p">,</span> <span class="n">ANOTHER_FIELD</span><span class="p">,</span> <span class="n">OUT</span> <span class="o">=</span> <span class="n">PROPERTIES</span>
 
     <span class="k">def</span> <span class="nf">on_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">changes</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Handle field changes at a particular timestamp</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle field changes at a particular timestamp</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ts (int): The timestamp the changes occurred at</span>
