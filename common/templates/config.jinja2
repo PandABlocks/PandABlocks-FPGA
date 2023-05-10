@@ -5,9 +5,13 @@
     EXPORTS             multiline
 {% for block in server_blocks %}
     {# Make a label for holding the block description #}
-    {% for i in range(block.number) %}
+    {% if block.number == 1 %}
+    {{ pad("LABEL_%s" % (block.name)) }} string
+    {% else %}
+        {% for i in range(block.number) %}
     {{ pad("LABEL_%s%d" % (block.name, i + 1)) }} string
-    {% endfor %}
+        {% endfor %}
+    {% endif %}
 {% endfor %}
 
 {% for block in server_blocks %}
