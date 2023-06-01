@@ -226,7 +226,7 @@ TIMING_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/hdl_timing/%,$(MODULES))
 $(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
 	rm -rf $@_tmp $@
 	$(PYTHON) -m common.python.generate_hdl_timing $@_tmp $^
-	mv $@_tmp $@
+	mv -f $@_tmp $@
 
 # Make the hdl_timing folders and run all tests, or specific modules by setting
 # the MODULES argument
