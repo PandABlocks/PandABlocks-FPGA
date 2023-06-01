@@ -47,13 +47,15 @@ generic (
     SEQ_LEN             : positive := 1024
 );
 port (
-    -- Clock and Reset
+    -- Clock
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
+    -- Resets read address
+    reset_raddr_i       : in  std_logic;
     -- Block Input and Outputs
     load_next_i         : in  std_logic;
     table_ready_o       : out std_logic;
-    next_frame_o        : out seq_t;
+    last_o              : out std_logic;
+    frame_o             : out seq_t;
     -- Block Parameters
     TABLE_START         : in  std_logic;
     TABLE_DATA          : in  std_logic_vector(31 downto 0);
@@ -76,6 +78,7 @@ signal seq_raddr_next           : unsigned(AW-1 downto 0) := (others => '0');
 signal seq_wren                 : std_logic_vector(3 downto 0);
 signal seq_di                   : std_logic_vector(31 downto 0);
 signal table_ready              : std_logic := '0';
+signal table_frames_reg : std_logic_vector(15 downto 0) := (others => '0');
 
 begin
 
@@ -89,8 +92,9 @@ table_ready_o <= table_ready;
 --------------------------------------------------------------------------
 SEQ_ARMING : process(clk_i) begin
     if rising_edge(clk_i) then
-        if (TABLE_LENGTH_WSTB = '1') then
+        if (TABLE_LENGTH_WSTB = '1' and TABLE_FRAMES /= x"0000") then
             table_ready <= '1';
+            table_frames_reg <= TABLE_FRAMES;
         elsif (TABLE_START = '1') then
             table_ready <= '0';
         end if;
@@ -141,22 +145,22 @@ END GENERATE;
 
 
 -- [0](15 downto 0)    Repeats
-next_frame_o.repeats <= unsigned(seq_dout(0)(15 downto 0));
+frame_o.repeats <= unsigned(seq_dout(0)(15 downto 0));
 -- [0](19 downto 16)   Trigger
-next_frame_o.trigger <= unsigned(seq_dout(0)(19 downto 16));
+frame_o.trigger <= unsigned(seq_dout(0)(19 downto 16));
 -- [0](25 downto 2)    Output 1
-next_frame_o.out1 <= seq_dout(0)(25 downto 20);
+frame_o.out1 <= seq_dout(0)(25 downto 20);
 -- [0](26 downto 31)   Output 2
-next_frame_o.out2 <= seq_dout(0)(31 downto 26);
+frame_o.out2 <= seq_dout(0)(31 downto 26);
 -- [1](31 downto 0)    Position (63 downto 32)
-next_frame_o.position <= signed(seq_dout(1));
+frame_o.position <= signed(seq_dout(1));
 -- [2](31 downto 0)    Time1 (95 downto 64)
-next_frame_o.time1 <= unsigned(seq_dout(2));
+frame_o.time1 <= unsigned(seq_dout(2));
 -- [3](31 downto 0)    Time2 (127 downto 64)
-next_frame_o.time2 <= unsigned(seq_dout(3));
+frame_o.time2 <= unsigned(seq_dout(3));
 
 
-seq_raddr <= (others => '0') when reset_i = '1' else
+seq_raddr <= (others => '0') when reset_raddr_i = '1' or TABLE_START = '1' else
     seq_raddr_next when load_next_i = '1' else
     seq_raddr_current;
 
@@ -165,10 +169,12 @@ seq_raddr <= (others => '0') when reset_i = '1' else
 FRAME_CTRL : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (seq_raddr = unsigned(TABLE_FRAMES)-1) then
+        if (seq_raddr = unsigned(table_frames_reg) - 1) then
             seq_raddr_next <= (others => '0');
+            last_o <= '1';
         else
             seq_raddr_next <= seq_raddr + 1;
+            last_o <= '0';
         end if;
         seq_raddr_current <= seq_raddr;
     end if;
