@@ -19,11 +19,6 @@ library work;
 use work.support.all;
 use work.top_defines.all;
 
-Library UNISIM;
-use UNISIM.vcomponents.all;
-
-library UNIMACRO;
-use unimacro.Vcomponents.all;
 
 entity seq is
 port (
