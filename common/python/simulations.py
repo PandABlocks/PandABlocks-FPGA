@@ -70,7 +70,7 @@ class BlockSimulationMeta(type):
     instance attribute names"""
     def __new__(cls, clsname, bases, dct):
         for name, val in dct.items():
-            if isinstance(val, property):
+            if isinstance(val, property) and hasattr(val.fget, "config"):
                 config = getattr(val.fget, "config")
                 if config:
                     assert name == config.name, \

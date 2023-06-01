@@ -91,26 +91,26 @@ none, or skip WAIT_TRIGGER if there is no trigger condition.
 .. digraph:: pcomp_sm
 
     WAIT_ENABLE [label="State 0\nWAIT_ENABLE"]
-    LOAD_TABLE [label="State 1\nLOAD_TABLE"]
+    UNREADY [label="State 1\nUNREADY"]
     WAIT_TRIGGER [label="State 2\nWAIT_TRIGGER"]
     PHASE1 [label="State 3\nPHASE1"]
     PHASE2 [label="State 4\nPHASE2"]
 
-    WAIT_ENABLE -> LOAD_TABLE [label=" TABLE load started "]
+    WAIT_ENABLE -> UNREADY [label=" TABLE load started "]
     WAIT_ENABLE -> WAIT_TRIGGER [label=" rising ENABLE and trigger not met "]
     WAIT_ENABLE -> PHASE1 [label=" rising ENABLE and trigger met "]
     WAIT_ENABLE -> PHASE2 [label=" rising ENABLE and trigger met and no phase1 "]
 
-    LOAD_TABLE -> WAIT_ENABLE [label=" TABLE load complete "]
+    UNREADY -> WAIT_ENABLE [label=" TABLE load complete "]
 
-    WAIT_TRIGGER -> LOAD_TABLE [label=" TABLE load started "]
+    WAIT_TRIGGER -> UNREADY [label=" TABLE load started "]
     WAIT_TRIGGER -> PHASE1 [label=" trigger met "]
     WAIT_TRIGGER -> PHASE2 [label=" trigger met and no phase1 "]
 
-    PHASE1 -> LOAD_TABLE [label=" TABLE load started "]
+    PHASE1 -> UNREADY [label=" TABLE load started "]
     PHASE1 -> PHASE2 [label=" time1 elapsed "]
 
-    PHASE2 -> LOAD_TABLE [label=" TABLE load started "]
+    PHASE2 -> UNREADY [label=" TABLE load started "]
     PHASE2 -> WAIT_TRIGGER [label=" next trigger not met "]
     PHASE2 -> PHASE1 [label=" next trigger met "]
     PHASE2 -> PHASE2 [label=" next trigger met and no phase1 "]
@@ -182,3 +182,17 @@ operation begins again from the first repeat of the first line of the table:
 .. timing_plot::
    :path: modules/seq/seq.timing.ini
    :section: Rewriting a table
+
+Double table mode
+-----------------
+A table ending with a zeroed entry indicates that there will be a next table,
+a new table can be pushed as soon as CAN_WRITE_NEXT becomes 1.
+The user is responsible to push a table that gives enough time to be able to
+push the next table before the last line is reached.
+The last table will not contain the last zeroed entry and will be the only table
+that will be repeated according to the REPEATS register.
+
+
+.. timing_plot::
+   :path: modules/seq/seq_double_table.timing.ini
+   :section: Test case for double table writting while running
