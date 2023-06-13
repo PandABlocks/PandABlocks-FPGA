@@ -16,7 +16,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "counter.block.ini")
 
 
 class CounterSimulation(BlockSimulation):
-    ENABLE, TRIG, DIR, OUT_MODE, START, STEP, MAX, MIN, CARRY, OUT = PROPERTIES
+    ENABLE, TRIG, TRIG_EDGE, DIR, OUT_MODE, START, STEP, MAX, MIN, CARRY, OUT = PROPERTIES
     
     def __init__(self):
         self.counter = 0

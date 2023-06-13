@@ -25,6 +25,8 @@ port (
     dir_i               : in  std_logic;
     carry_o             : out std_logic;
     -- Block Parameters
+    TRIG_EDGE           : in  std_logic_vector(31 downto 0) := (others => '0');
+    TRIG_EDGE_WSTB      : in  std_logic;
     OUT_MODE            : in  std_logic_vector(31 downto 0);
     START               : in  std_logic_vector(31 downto 0);
     START_WSTB          : in  std_logic;
@@ -51,8 +53,11 @@ constant out_on_disable  : std_logic_vector(31 downto 0) := x"00000001";
 
 constant c_step_size_one : std_logic_vector(31 downto 0) := x"00000001";
 
+signal trig_edge_i      : std_logic_vector(1 downto 0) := "00";
 signal trigger_prev     : std_logic;
 signal trigger_rise     : std_logic;
+signal trigger_fall     : std_logic;
+signal got_trigger      : std_logic;
 signal enable_prev      : std_logic;
 signal enable_rise      : std_logic;
 signal enable_fall      : std_logic;
@@ -79,9 +84,19 @@ begin
     end if;
 end process;
 
+-- Trigger edges detection
+trig_edge_i <= TRIG_EDGE(1 downto 0);
 trigger_rise <= trig_i and not trigger_prev;
+trigger_fall <= not trig_i and trigger_prev;
+-- Enable rising edge detection
 enable_rise <= enable_i and not enable_prev;
 enable_fall <= not enable_i and enable_prev;
+
+-- Calculation of
+got_trigger <=
+    trigger_rise or trigger_fall when trig_edge_i = "10" else
+    trigger_fall when trig_edge_i = "01" else
+    trigger_rise when trig_edge_i = "00" else '0';
 
 --------------------------------------------------------------------------
 -- Default counter STEP to 1
@@ -119,7 +134,7 @@ begin
             counter_carry <= '0';
             counter_end <= unsigned(next_counter(31 downto 0));
             carry_end <= carry_latch;
-        elsif (enable_i = '1' and trigger_rise = '1') then
+        elsif (enable_i = '1' and got_trigger = '1') then
             -- Count up/down on trigger
             -- Initialise next_counter with current value
             next_counter := resize(signed(counter),next_counter'length);
