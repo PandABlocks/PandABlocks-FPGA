@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SEQ - Sequencer &mdash; PandABlocks-FPGA 3.0a2-174-g765976d
+  <title>SEQ - Sequencer &mdash; PandABlocks-FPGA 3.0a2-180-gfb939be
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -40,7 +40,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-174-g765976d
+                3.0a2-180-gfb939be
 
               </div>
 <div role="search">
@@ -155,6 +155,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#prescaler">Prescaler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#interrupting-a-sequence">Interrupting a sequence</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#table-rewriting">Table rewriting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-table-mode">Double table mode</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sfp_dls_eventr_doc.html">SFP_DLS_EVENTR - SFP Event Receiver Module</a></li>
@@ -394,13 +395,27 @@ can be repeated, with a value of 0 meaning repeat forever.</p>
 <td><p>read enum</p></td>
 <td><p><div class="line-block">
 <div class="line">Internal statemachine state</div>
-<div class="line">0   LOAD_TABLE</div>
+<div class="line">0   UNREADY</div>
 <div class="line">1   WAIT_ENABLE</div>
 <div class="line">2   WAIT_TRIGGER</div>
 <div class="line">3   PHASE1</div>
 <div class="line">4   PHASE2</div>
 </div>
 </p></td>
+</tr>
+<tr class="row-odd"><td><p>HEALTH</p></td>
+<td><p>read enum</p></td>
+<td><p><div class="line-block">
+<div class="line">Was last run successful?</div>
+<div class="line">0   OK</div>
+<div class="line">1   Next table not written in time</div>
+<div class="line">2   Table overwritten while in used</div>
+</div>
+</p></td>
+</tr>
+<tr class="row-even"><td><p>CAN_WRITE_NEXT</p></td>
+<td><p>read uint 1</p></td>
+<td><p>Next table can be written in continuous mode</p></td>
 </tr>
 </tbody>
 </table>
@@ -893,29 +908,29 @@ this table we have suppressed phase1 by setting its time to 0:</p>
 <p>There is an internal statemachine that controls which phase is currently being
 output. It has a number of transitions that allow it to skip PHASE1 if there is
 none, or skip WAIT_TRIGGER if there is no trigger condition.</p>
-<div class="graphviz"><object data="../_images/graphviz-c238bf0a09bee1a57ca5679e310f5a646ce1f5c8.svg" type="image/svg+xml" class="graphviz">
+<div class="graphviz"><object data="../_images/graphviz-d25fd535c5a9d074c755da8c1075a45b8d60b74e.svg" type="image/svg+xml" class="graphviz">
 <p class="warning">digraph pcomp_sm {
 WAIT_ENABLE [label=&quot;State 0\nWAIT_ENABLE&quot;]
-LOAD_TABLE [label=&quot;State 1\nLOAD_TABLE&quot;]
+UNREADY [label=&quot;State 1\nUNREADY&quot;]
 WAIT_TRIGGER [label=&quot;State 2\nWAIT_TRIGGER&quot;]
 PHASE1 [label=&quot;State 3\nPHASE1&quot;]
 PHASE2 [label=&quot;State 4\nPHASE2&quot;]
 
-WAIT_ENABLE -&gt; LOAD_TABLE [label=&quot; TABLE load started &quot;]
+WAIT_ENABLE -&gt; UNREADY [label=&quot; TABLE load started &quot;]
 WAIT_ENABLE -&gt; WAIT_TRIGGER [label=&quot; rising ENABLE and trigger not met &quot;]
 WAIT_ENABLE -&gt; PHASE1 [label=&quot; rising ENABLE and trigger met &quot;]
 WAIT_ENABLE -&gt; PHASE2 [label=&quot; rising ENABLE and trigger met and no phase1 &quot;]
 
-LOAD_TABLE -&gt; WAIT_ENABLE [label=&quot; TABLE load complete &quot;]
+UNREADY -&gt; WAIT_ENABLE [label=&quot; TABLE load complete &quot;]
 
-WAIT_TRIGGER -&gt; LOAD_TABLE [label=&quot; TABLE load started &quot;]
+WAIT_TRIGGER -&gt; UNREADY [label=&quot; TABLE load started &quot;]
 WAIT_TRIGGER -&gt; PHASE1 [label=&quot; trigger met &quot;]
 WAIT_TRIGGER -&gt; PHASE2 [label=&quot; trigger met and no phase1 &quot;]
 
-PHASE1 -&gt; LOAD_TABLE [label=&quot; TABLE load started &quot;]
+PHASE1 -&gt; UNREADY [label=&quot; TABLE load started &quot;]
 PHASE1 -&gt; PHASE2 [label=&quot; time1 elapsed &quot;]
 
-PHASE2 -&gt; LOAD_TABLE [label=&quot; TABLE load started &quot;]
+PHASE2 -&gt; UNREADY [label=&quot; TABLE load started &quot;]
 PHASE2 -&gt; WAIT_TRIGGER [label=&quot; next trigger not met &quot;]
 PHASE2 -&gt; PHASE1 [label=&quot; next trigger met &quot;]
 PHASE2 -&gt; PHASE2 [label=&quot; next trigger met and no phase1 &quot;]
@@ -1603,6 +1618,301 @@ operation begins again from the first repeat of the first line of the table:</p>
 <td><p>0</p></td>
 <td><p>0</p></td>
 <td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="double-table-mode">
+<h2>Double table mode<a class="headerlink" href="#double-table-mode" title="Permalink to this heading"></a></h2>
+<p>A table ending with a zeroed entry indicates that there will be a next table,
+a new table can be pushed as soon as CAN_WRITE_NEXT becomes 1.
+The user is responsible to push a table that gives enough time to be able to
+push the next table before the last line is reached.
+The last table will not contain the last zeroed entry and will be the only table
+that will be repeated according to the REPEATS register.</p>
+<p>(<a class="reference external" href="../build/seq_doc-12.py">Source code</a>, <a class="reference external" href="../build/seq_doc-12.png">png</a>, <a class="reference external" href="../build/seq_doc-12.hires.png">hires.png</a>, <a class="reference external" href="../build/seq_doc-12.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="../_images/seq_doc-12.png" src="../_images/seq_doc-12.png" />
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 20%" />
+<col style="width: 18%" />
+<col style="width: 9%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 9%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head" colspan="17"><p>T1</p></th>
+</tr>
+<tr class="row-even"><th class="head"><p>#</p></th>
+<th class="head" colspan="2"><p>Trigger</p></th>
+<th class="head"><p>Phase1</p></th>
+<th class="head" colspan="6"><p>Phase1 Outputs</p></th>
+<th class="head"><p>Phase2</p></th>
+<th class="head" colspan="6"><p>Phase2 Outputs</p></th>
+</tr>
+<tr class="row-odd"><th class="head"><p>Repeats</p></th>
+<th class="head"><p>Condition</p></th>
+<th class="head"><p>Position</p></th>
+<th class="head"><p>Time</p></th>
+<th class="head"><p>A</p></th>
+<th class="head"><p>B</p></th>
+<th class="head"><p>C</p></th>
+<th class="head"><p>D</p></th>
+<th class="head"><p>E</p></th>
+<th class="head"><p>F</p></th>
+<th class="head"><p>Time</p></th>
+<th class="head"><p>A</p></th>
+<th class="head"><p>B</p></th>
+<th class="head"><p>C</p></th>
+<th class="head"><p>D</p></th>
+<th class="head"><p>E</p></th>
+<th class="head"><p>F</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>Immediate</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>20</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>Immediate</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>20</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>Immediate</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 20%" />
+<col style="width: 18%" />
+<col style="width: 9%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 9%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head" colspan="17"><p>T2</p></th>
+</tr>
+<tr class="row-even"><th class="head"><p>#</p></th>
+<th class="head" colspan="2"><p>Trigger</p></th>
+<th class="head"><p>Phase1</p></th>
+<th class="head" colspan="6"><p>Phase1 Outputs</p></th>
+<th class="head"><p>Phase2</p></th>
+<th class="head" colspan="6"><p>Phase2 Outputs</p></th>
+</tr>
+<tr class="row-odd"><th class="head"><p>Repeats</p></th>
+<th class="head"><p>Condition</p></th>
+<th class="head"><p>Position</p></th>
+<th class="head"><p>Time</p></th>
+<th class="head"><p>A</p></th>
+<th class="head"><p>B</p></th>
+<th class="head"><p>C</p></th>
+<th class="head"><p>D</p></th>
+<th class="head"><p>E</p></th>
+<th class="head"><p>F</p></th>
+<th class="head"><p>Time</p></th>
+<th class="head"><p>A</p></th>
+<th class="head"><p>B</p></th>
+<th class="head"><p>C</p></th>
+<th class="head"><p>D</p></th>
+<th class="head"><p>E</p></th>
+<th class="head"><p>F</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>Immediate</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>20</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>Immediate</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>20</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>Immediate</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 20%" />
+<col style="width: 18%" />
+<col style="width: 9%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 9%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head" colspan="17"><p>T3</p></th>
+</tr>
+<tr class="row-even"><th class="head"><p>#</p></th>
+<th class="head" colspan="2"><p>Trigger</p></th>
+<th class="head"><p>Phase1</p></th>
+<th class="head" colspan="6"><p>Phase1 Outputs</p></th>
+<th class="head"><p>Phase2</p></th>
+<th class="head" colspan="6"><p>Phase2 Outputs</p></th>
+</tr>
+<tr class="row-odd"><th class="head"><p>Repeats</p></th>
+<th class="head"><p>Condition</p></th>
+<th class="head"><p>Position</p></th>
+<th class="head"><p>Time</p></th>
+<th class="head"><p>A</p></th>
+<th class="head"><p>B</p></th>
+<th class="head"><p>C</p></th>
+<th class="head"><p>D</p></th>
+<th class="head"><p>E</p></th>
+<th class="head"><p>F</p></th>
+<th class="head"><p>Time</p></th>
+<th class="head"><p>A</p></th>
+<th class="head"><p>B</p></th>
+<th class="head"><p>C</p></th>
+<th class="head"><p>D</p></th>
+<th class="head"><p>E</p></th>
+<th class="head"><p>F</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>Immediate</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>20</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
 <td><p>0</p></td>
 <td><p>0</p></td>
 <td><p>0</p></td>
