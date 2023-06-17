@@ -57,6 +57,7 @@ signal trig_edge_i      : std_logic_vector(1 downto 0) := "00";
 signal trigger_prev     : std_logic;
 signal trigger_rise     : std_logic;
 signal trigger_fall     : std_logic;
+signal trigger_edge     : std_logic;
 signal got_trigger      : std_logic;
 signal enable_prev      : std_logic;
 signal enable_rise      : std_logic;
@@ -91,10 +92,10 @@ trigger_fall <= not trig_i and trigger_prev;
 -- Enable rising edge detection
 enable_rise <= enable_i and not enable_prev;
 enable_fall <= not enable_i and enable_prev;
-
+trigger_edge <= trigger_rise or trigger_fall;
 -- Calculation of
 got_trigger <=
-    trigger_rise or trigger_fall when trig_edge_i = "10" else
+    trigger_edge when trig_edge_i = "10" else
     trigger_fall when trig_edge_i = "01" else
     trigger_rise when trig_edge_i = "00" else '0';
 
@@ -134,36 +135,39 @@ begin
             counter_carry <= '0';
             counter_end <= unsigned(next_counter(31 downto 0));
             carry_end <= carry_latch;
-        elsif (enable_i = '1' and got_trigger = '1') then
-            -- Count up/down on trigger
-            -- Initialise next_counter with current value
-            next_counter := resize(signed(counter),next_counter'length);
-            -- Direction
-            if (dir_i = '0') then
-                next_counter := next_counter + signed(STEP_default);
-            else
-                next_counter := next_counter - signed(STEP_default);
+        elsif (enable_i = '1' and trigger_edge = '1') then
+            if (counter_carry = '1') then
+                -- Need to stop the counter_carry on next trigger edge
+                counter_carry <= '0';
             end if;
-            -- Check to see if we are crossing from the positive to negative or
-            -- negative to positive boundaries if we do set the carry bit
-            if (next_counter > signed(MAX_VAL)) then
-                -- Crossing boundary positive
-                counter_carry <= '1';
-                carry_latch <= '1';
-                next_counter := next_counter - signed(MAX_VAL - MIN_VAL + 1);
-            elsif (next_counter < signed(MIN_VAL)) then
-                -- Crossing boundary negative
-                counter_carry <= '1';
-                carry_latch <= '1';
-                next_counter := next_counter + signed(MAX_VAL - MIN_VAL + 1);
+            if (got_trigger = '1') then
+                -- Count up/down on trigger
+                -- Initialise next_counter with current value
+                next_counter := resize(signed(counter),next_counter'length);
+                -- Direction
+                if (dir_i = '0') then
+                    next_counter := next_counter + signed(STEP_default);
+                else
+                    next_counter := next_counter - signed(STEP_default);
+                end if;
+                -- Check to see if we are crossing from the positive to negative or
+                -- negative to positive boundaries if we do set the carry bit
+                if (next_counter > signed(MAX_VAL)) then
+                    -- Crossing boundary positive
+                    counter_carry <= '1';
+                    carry_latch <= '1';
+                    next_counter := next_counter - signed(MAX_VAL - MIN_VAL + 1);
+                elsif (next_counter < signed(MIN_VAL)) then
+                    -- Crossing boundary negative
+                    counter_carry <= '1';
+                    carry_latch <= '1';
+                    next_counter := next_counter + signed(MAX_VAL - MIN_VAL + 1);
+                end if;
+                -- Increment the counter
+                -- This might overflow if MAX - MIN < STEP, but we don't care
+                -- about that use case
+                counter <= unsigned(next_counter(31 downto 0));
             end if;
-            -- Increment the counter
-            -- This might overflow if MAX - MIN < STEP, but we don't care
-            -- about that use case
-            counter <= unsigned(next_counter(31 downto 0));
-        elsif (trig_i = '0') then
-            -- Need to stop the counter_carry when trig_i is low
-            counter_carry <= '0';
         end if;
     end if;
 end process;
