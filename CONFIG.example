@@ -41,6 +41,6 @@ SPHINX_BUILD = sphinx-build
 DEFAULT_TARGETS = zpkg
 
 # FPGA Application Name
-APP_NAME = PandABox-no-fmc
+APP_NAME = PandABox-fmc_lback-sfp_lback
 
 # vim: set filetype=make:
