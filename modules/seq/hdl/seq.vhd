@@ -119,24 +119,25 @@ signal current_pos_inp      : std_logic;
 signal next_pos_inp         : std_logic;
 
 signal enable_mem_reset     : std_logic;
-signal table_ready_dly      : std_logic;
 signal next_ts              : unsigned(31 downto 0);
 signal health_val           : std_logic_vector(31 downto 0) := (others => '0');
 signal start_not_expected   : std_logic;
 signal running              : std_logic;
+signal sudden_next_table_event : std_logic;
+signal sudden_next_table_event_dly : std_logic := '0';
 
 begin
 
 -- Block inputs.
 enable_val <= enable_i;
 
-CAN_WRITE_NEXT(0) <= can_write_next_val;
+CAN_WRITE_NEXT(0) <= can_write_next_val and next_table_expected;
 CAN_WRITE_NEXT(31 downto 1) <= (others => '0');
 
 delay : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        table_ready_dly <= table_ready;
+        sudden_next_table_event_dly <= sudden_next_table_event;
     end if;
 end process;
 
@@ -278,23 +279,27 @@ enable_mem_reset <= '1' when (current_frame.time1 = x"00000000") else '0';
 load_next <= '1' when
     (seq_sm = WAIT_ENABLE and enable_rise = '1')
     or (seq_sm = PHASE_2 and presc_ce = '1' and tframe_counter = next_ts - 1
-        and last_line_repeat = '1') else '0';
+        and last_line_repeat = '1')
+    or sudden_next_table_event_dly = '1' else '0';
 
 reset_tables <= enable_fall;
+reset_error <= table_error_rise;
 
 start_not_expected <=  TABLE_START_WSTB and running and not can_write_next_val;
 
 running <= to_std_logic(seq_sm /= UNREADY and seq_sm /= WAIT_ENABLE);
+-- detects when we are reading a LAST table and suddenly the next table
+-- gets written
+sudden_next_table_event <=
+    not current_next_table_expected and TABLE_LENGTH_WSTB and running;
 
 SEQ_FSM : process(clk_i)
-
     procedure reset_repeat_count(val: integer) is
     begin
         TABLE_REPEAT_OUT <= to_unsigned(val, 32);
         TABLE_LINE_OUT <= to_unsigned(val, 16);
         LINE_REPEAT_OUT <= to_unsigned(val, 32);
     end procedure;
-
 
     procedure goto_phase_1(frame: seq_t) is
     begin
@@ -314,23 +319,50 @@ SEQ_FSM : process(clk_i)
         seq_sm <= PHASE_2;
     end procedure;
 
+    procedure goto_next_state(need_next_frame : boolean;
+                              consider_triggers : boolean) is
+        variable frame : seq_t;
+        variable triggered : std_logic;
+    begin
+        if need_next_frame then
+            frame := next_frame;
+            triggered := next_trig_valid;
+            current_frame <= next_frame;
+            current_next_table_expected <= next_table_expected;
+            current_last_frame_in_table <= last_frame_in_table;
+        else
+            frame := current_frame;
+            triggered := current_trig_valid;
+        end if;
+
+        if triggered = '0' and consider_triggers then
+            seq_sm <= WAIT_TRIGGER;
+        elsif frame.time1 /= 0 then
+            goto_phase_1(frame);
+        else
+            goto_phase_2(frame);
+        end if;
+
+    end procedure;
+
 begin
 if rising_edge(clk_i) then
     --
     -- Sequencer State Machine
     --
 
-    if (enable_fall = '1' and enable_i = '0') then
+    if enable_fall = '1' then
         out_val <= (others => '0');
         active <= '0';
         if table_ready = '1' then
             seq_sm <= WAIT_ENABLE;
+        else
+            seq_sm <= UNREADY;
         end if;
     elsif table_error_rise = '1' then
         out_val <= (others => '0');
         active <= '0';
         seq_sm <= UNREADY;
-        reset_error <= '1';
         health_val(3 downto 0) <=  table_error_type;
     elsif start_not_expected = '1' then
         out_val <= (others => '0');
@@ -338,15 +370,16 @@ if rising_edge(clk_i) then
         seq_sm <= UNREADY;
         health_val(3 downto 0) <=  c_table_error_overrun;
         reset_repeat_count(0);
+    elsif sudden_next_table_event_dly = '1' then
+        -- go to next state loading next frame and considering triggers
+        goto_next_state(true, true);
+        reset_repeat_count(1);
     else
         -- State Machine
         case seq_sm is
-
             -- State 0
             when UNREADY =>
                 out_val <= (others => '0');
-                reset_error <= '0';
-
                 if table_ready = '1' then
                     seq_sm <= WAIT_ENABLE;
                 end if;
@@ -360,23 +393,13 @@ if rising_edge(clk_i) then
                     seq_sm <= UNREADY;
                 elsif TABLE_START_WSTB = '1' and can_write_next_val = '0' then
                     reset_repeat_count(0);
+                -- load_next fires here
                 elsif enable_rise = '1' then
-                    -- rising ENABLE and trigger not met
-                    if next_trig_valid = '0' then
-                        seq_sm <= WAIT_TRIGGER;
-                    -- rising ENABLE and trigger met phase1
-                    elsif next_frame.time1 /= 0 then
-                        goto_phase_1(next_frame);
-                    -- rising ENABLE and trigger met and no phase 1
-                    else
-                        goto_phase_2(next_frame);
-                    end if;
+                    -- go to next state loading next frame and considering
+                    -- triggers
+                    goto_next_state(true, true);
                     reset_repeat_count(1);
                     health_val(3 downto 0) <= c_table_error_ok;
-                    current_frame <= next_frame;
-                    current_next_table_expected <= next_table_expected;
-                    current_last_frame_in_table <= last_frame_in_table;
-                    -- load_next fires here
                     active <= '1';
                 end if;
 
@@ -384,14 +407,9 @@ if rising_edge(clk_i) then
             when WAIT_TRIGGER =>
                 -- trigger met
                 if current_trig_valid = '1' then
-                    -- trigger met
-                    active <= '1';
-                    if current_frame.time1 /= 0 then
-                        goto_phase_1(current_frame);
-                    -- trigger met and no phase 1
-                    else
-                        goto_phase_2(current_frame);
-                    end if;
+                    -- go to next state without loading next frame and skipping
+                    -- triggers (as they are already evaluated)
+                    goto_next_state(false, false);
                 end if;
 
             -- State 3
@@ -421,32 +439,14 @@ if rising_edge(clk_i) then
                         else
                             TABLE_LINE_OUT <= TABLE_LINE_OUT + 1;
                         end if;
-                        -- No trigger ready so go to the wait state
-                        if next_trig_valid = '0' then                           -- WAIT_TRIGGER 2 should going here, test 14 fails because next_trig_valid = '1' then
-                            seq_sm <= WAIT_TRIGGER;                             --              goes low one clock later, need to find another clock
-                        -- Trigger ready for PHASE 1
-                        elsif next_frame.time1 /= 0 then
-                            goto_phase_1(next_frame);
-                        -- Stay in PHASE 2 state
-                        else
-                            goto_phase_2(next_frame);
-                        end if;
-                        current_frame <= next_frame;
-                        current_next_table_expected <= next_table_expected;
-                        current_last_frame_in_table <= last_frame_in_table;
-                        -- load_next fires here
+                        -- go to next state loading next frame and considering
+                        -- triggers
+                        goto_next_state(true, true);
                     else
                         LINE_REPEAT_OUT <= LINE_REPEAT_OUT + 1;
-                        -- No trigger active so go and wait
-                        if current_trig_valid = '0' then
-                            seq_sm <= WAIT_TRIGGER;
-                        -- Trigger ready for PHASE 1
-                        elsif current_frame.time1 /= 0 then
-                            goto_phase_1(current_frame);
-                        -- Stay in PHASE 2 state
-                        else
-                            goto_phase_2(current_frame);
-                        end if;
+                        -- go to next state without loading next frame and
+                        -- considering triggers
+                        goto_next_state(false, true);
                     end if;
                 end if;
 
@@ -475,7 +475,8 @@ last_table_repeat <= last_table_line when
 
 presc_reset <= '1' when seq_sm = WAIT_TRIGGER
                      or seq_sm = WAIT_ENABLE
-                     or seq_sm = UNREADY else '0';
+                     or seq_sm = UNREADY
+                     or load_next = '1' else '0';
 
 seq_presc : entity work.sequencer_prescaler
 port map (

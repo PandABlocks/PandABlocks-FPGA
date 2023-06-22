@@ -60,8 +60,7 @@ architecture rtl of sequencer_double_table is
     signal entry_zero_history : std_logic_vector(3 downto 0) := (others => '0');
     signal load_next_table : boolean := false;
 begin
-    can_write_next_o <=
-        to_std_logic(wrtable_index /= rdtable_index) and not has_written_last;
+    can_write_next_o <= to_std_logic(wrtable_index /= rdtable_index);
     next_expected_o <=
         to_std_logic(table_state(to_integer(rdtable_index)) = TABLE_CONT);
     last_o <= last_mux(to_integer(rdtable_index));
@@ -148,6 +147,7 @@ begin
                     has_written_last <= '0';
                 else
                     table_state(to_integer(wrtable_index)) <= TABLE_LAST;
+                    wrtable_index <= wrtable_index + 1;
                     has_written_last <= '1';
                 end if;
             end if;
@@ -164,6 +164,11 @@ begin
                 end if;
             -- switching to next table if current contains continuation mark
             elsif load_next_table then
+                rdtable_index <= rdtable_index + 1;
+            -- writting a table while reading a LAST table should switch
+            elsif TABLE_LENGTH_WSTB = '1'
+                    and table_state(to_integer(rdtable_index)) = TABLE_LAST
+                    and table_state(to_integer(wrtable_index)) = TABLE_LOADING then
                 rdtable_index <= rdtable_index + 1;
             end if;
         end if;

@@ -118,7 +118,7 @@ class SeqDoubleTable(object):
 
     @property
     def can_write_next(self):
-        return self.rd_index != self.wr_index and not self.has_written_last
+        return self.rd_index != self.wr_index
 
     @property
     def next_expected(self):
@@ -129,11 +129,11 @@ class SeqDoubleTable(object):
         return self.tables[self.rd_index].table_ready
 
     def reset_tables(self):
-        if self.states[self.rd_index] != TABLE_LAST:
-            self.states[self.rd_index] = TABLE_INVALID
+        if self.states[self.wr_index] == TABLE_LOADING:
+            self.rd_index = self.wr_index
+        else:
+            self.wr_index = self.rd_index
 
-        self.states[self.rd_index ^ 1] = TABLE_INVALID
-        self.wr_index = self.rd_index
         self.tables[0].reset()
         self.tables[1].reset()
 
@@ -181,6 +181,10 @@ class SeqDoubleTable(object):
         has_cont_mark = self.zero_count >= 4
         corrected_lines = lines - 1 if has_cont_mark else lines
         self.tables[self.wr_index].table_lines(corrected_lines)
+        if self.states[self.rd_index] == TABLE_LAST \
+                and self.states[self.wr_index] == TABLE_LOADING:
+            self.rd_index ^= 1
+
         if corrected_lines <= 0:
             self.states[self.wr_index] = TABLE_INVALID
             self.has_written_last = True
@@ -190,6 +194,7 @@ class SeqDoubleTable(object):
             self.has_written_last = False
         else:
             self.states[self.wr_index] = TABLE_LAST
+            self.wr_index ^= 1
             self.has_written_last = True
 
 
@@ -223,6 +228,7 @@ class SeqSimulation(BlockSimulation):
             PHASE1: self.phase1_state,
             PHASE2: self.phase2_state
         }
+        self.sudden_next_table_dlay = False
 
     def handle_table_loading(self, ts, changes):
         if NAMES.TABLE_START in changes:
@@ -278,6 +284,7 @@ class SeqSimulation(BlockSimulation):
     def last_table_line(self):
         return self.last_line_repeat and self.current_last_frame_in_table
 
+    @property
     def last_table_repeat(self):
         return self.last_table_line and self.TABLE_REPEAT != 0 \
             and self.TABLE_REPEAT == self.REPEATS \
@@ -332,26 +339,10 @@ class SeqSimulation(BlockSimulation):
         elif NAMES.TABLE_START in changes and not self.table.can_write_next:
             self.reset_repeat_count(0)
         elif changes.get(NAMES.ENABLE, None) == 1:
-            if not self.next_triggers_met:
-                self.STATE = WAIT_TRIGGER
-            elif self.next_line.time1:
-                # Do phase 1
-                self.next_ts = ts + self.next_time1
-                self.set_outputs(self.next_line.out1)
-                self.STATE = PHASE1
-            else:
-                # Do phase 2
-                self.next_ts = ts + self.next_time2
-                self.set_outputs(self.next_line.out2)
-                self.STATE = PHASE2
-
+            self.goto_next_state_loading_frame(ts)
             self.reset_repeat_count(1)
             self.HEALTH = TABLE_ERROR_OK
             self.ACTIVE = 1
-            self.current_line = self.next_line
-            self.current_next_table_expected = self.table.next_expected
-            self.current_last_frame_in_table = self.table.last
-            self.table.load_next()
 
     def wait_trigger(self, ts, changes):
         if self.current_triggers_met:
@@ -377,7 +368,7 @@ class SeqSimulation(BlockSimulation):
     def phase2_state(self, ts, changes):
         # If doing phase 2, check if time has expired
         if ts >= self.next_ts:
-            if self.last_table_repeat():
+            if self.last_table_repeat:
                 # If table is finished then we're done
                 self.ACTIVE = 0
                 self.set_outputs(0)
@@ -394,24 +385,7 @@ class SeqSimulation(BlockSimulation):
                     # Finished this line, move to the next
                     self.TABLE_LINE += 1
 
-                if not self.next_triggers_met:
-                    self.STATE = WAIT_TRIGGER
-                elif self.next_line.time1:
-                    # Do phase 1
-                    self.next_ts = ts + self.next_time1
-                    self.set_outputs(self.next_line.out1)
-                    self.STATE = PHASE1
-                else:
-                    # Do phase 2
-                    self.next_ts = ts + self.next_time2
-                    self.set_outputs(self.next_line.out2)
-                    self.STATE = PHASE2
-
-                # Have to advance to the next line of the table
-                self.current_line = self.next_line
-                self.current_next_table_expected = self.table.next_expected
-                self.current_last_frame_in_table = self.table.last
-                self.table.load_next()
+                self.goto_next_state_loading_frame(ts)
             else:
                 # Repeat the current line again
                 self.LINE_REPEAT += 1
@@ -428,6 +402,26 @@ class SeqSimulation(BlockSimulation):
                     self.set_outputs(self.current_line.out2)
                     self.STATE = PHASE2
 
+    def goto_next_state_loading_frame(self, ts):
+        if not self.next_triggers_met:
+            self.STATE = WAIT_TRIGGER
+        elif self.next_line.time1:
+            # Do phase 1
+            self.next_ts = ts + self.next_time1
+            self.set_outputs(self.next_line.out1)
+            self.STATE = PHASE1
+        else:
+            # Do phase 2
+            self.next_ts = ts + self.next_time2
+            self.set_outputs(self.next_line.out2)
+            self.STATE = PHASE2
+
+        # Have to advance to the next line of the table
+        self.current_line = self.next_line
+        self.current_next_table_expected = self.table.next_expected
+        self.current_last_frame_in_table = self.table.last
+        self.table.load_next()
+
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
@@ -436,13 +430,18 @@ class SeqSimulation(BlockSimulation):
         running = self.STATE != UNREADY and self.STATE != WAIT_ENABLE
         start_not_expected = changes.get(NAMES.TABLE_START, None) == 1 \
             and running and not self.table.can_write_next
+        sudden_next_table = NAMES.TABLE_LENGTH in changes \
+            and not self.current_next_table_expected and running
 
         if changes.get(NAMES.ENABLE, None) == 0:
             self.set_outputs(0)
             self.ACTIVE = 0
-            self.table.reset_tables()
             if self.table.table_ready:
                 self.STATE = WAIT_ENABLE
+            else:
+                self.STATE = UNREADY
+
+            self.table.reset_tables()
 
         elif self.table.error:
             self.set_outputs(0)
@@ -458,9 +457,14 @@ class SeqSimulation(BlockSimulation):
             self.HEALTH = TABLE_ERROR_OVERRUN
             self.reset_repeat_count(0)
 
+        elif self.sudden_next_table_dlay:
+            self.goto_next_state_loading_frame(ts)
+            self.reset_repeat_count(1)
         else:
             self.state2function[self.STATE](ts, changes)
 
         self.handle_table_loading(ts, changes)
-        self.CAN_WRITE_NEXT = self.table.can_write_next
+        self.CAN_WRITE_NEXT = self.table.can_write_next \
+            and self.table.next_expected
+        self.sudden_next_table_dlay = sudden_next_table
         return ts + 1
