@@ -136,10 +136,8 @@ begin
             counter_end <= next_counter(31 downto 0);
             carry_end <= carry_latch;
         elsif (enable_i = '1' and trigger_edge = '1') then
-            if (counter_carry = '1') then
-                -- Need to stop the counter_carry on next trigger edge
-                counter_carry <= '0';
-            end if;
+            -- Need to stop the counter_carry on next trigger edge
+            counter_carry <= '0';
             if (got_trigger = '1') then
                 -- Count up/down on trigger
                 -- Initialise next_counter with current value
