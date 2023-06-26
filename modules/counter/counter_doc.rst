@@ -13,11 +13,17 @@ Counting pulses
 ---------------
 
 The most common use of a counter block is when you would like to track the
-number of rising edges received while enabled:
+number of trigger edges received while enabled:
 
 .. timing_plot::
    :path: modules/counter/counter.timing.ini
    :section: Count Up only when enabled
+
+The TRIG_EDGE field can be used to select the track on rising, falling, or both edges:
+
+.. timing_plot::
+   :path: modules/counter/counter.timing.ini
+   :section: Setting trigger edge
 
 You can also set the start value to be loaded on enable, and step up by a
 number other than one:
@@ -28,12 +34,15 @@ number other than one:
 
 You can also set the direction that a pulse should apply step, so it becomes
 an up/down counter. The direction is sampled on the same clock tick as the
-pulse rising edge:
+pulse edge:
 
 .. timing_plot::
    :path: modules/counter/counter.timing.ini
    :section: Setting direction
 
+.. timing_plot::
+   :path: modules/counter/counter.timing.ini
+   :section: Setting direction
 When the OUT_MODE is set to On-Disable, the OUT output will only be changed to
 the internal counter value on ENABLE's falling edge:
 
@@ -77,7 +86,7 @@ output value on the next clock tick.
    :path: modules/counter/counter.timing.ini
    :section: Disable and trigger
 
-If the step size is changed at the same time as a trigger input rising edge,
+If the step size is changed at the same time as a trigger input edge,
 the output value for that trigger will be the new step size.
 
 .. timing_plot::
