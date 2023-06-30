@@ -351,9 +351,6 @@ if rising_edge(clk_i) then
                         M_AXI_BURST_LEN <= std_logic_vector(transfer_size);
                         pcap_fsm <= DO_DMA;
                     end if;
-                -- trigger an interrupt to capture the start timestamp
-                elsif (start_event_detected = '1') then
-                    pcap_fsm <= IRQ;
                 end if;
 
             -- Waits until DMA Engine completes. Also keeps tracks of TLPs
