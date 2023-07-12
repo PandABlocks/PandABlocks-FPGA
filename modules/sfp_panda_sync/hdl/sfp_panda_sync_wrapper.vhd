@@ -56,9 +56,8 @@ end sfp_panda_sync_wrapper;
 
 architecture rtl of sfp_panda_sync_wrapper is
 
-signal rxuserrdy_i        : std_logic;
-signal txuserrdy_i        : std_logic;
 signal rx_link_ok         : std_logic;
+signal rx_link_ok_sync    : std_logic;
 signal rxbyteisaligned_o  : std_logic;
 signal rxbyterealign_o    : std_logic;
 signal rxcommadet_o       : std_logic;
@@ -156,12 +155,6 @@ port map(
     I => txoutclk_o
 );
 
-
--- Must be driven high when the txusrclk and rxusrclk are valid
-rxuserrdy_i <= rx_link_ok;
-txuserrdy_i <= rx_link_ok;
-
-
 -- Transmitter 
 -- The transmit side transmits regardless of the state of the receiver rx_link_ok signal 
 -- txoutclk is the clock used for the TX side
@@ -173,7 +166,6 @@ sfp_panda_sync_transmitter_inst : entity work.sfp_panda_sync_transmit
         clk_i             => clk_i,
         txoutclk_i        => txoutclk_i,
         reset_i           => reset_i,
-        rx_link_ok_i      => rx_link_ok,
         txcharisk_o       => txcharisk_i,
         txdata_o          => txdata_i,
         POSOUT1_i         => POSOUT1,
@@ -220,8 +212,6 @@ sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface
         rxn_i             => SFP_i.RXN_IN,
         txp_o             => TXP,
         txn_o             => TXN,
-        rxuserrdy_i       => rxuserrdy_i,
-        txuserrdy_i       => txuserrdy_i,
         rxbyteisaligned_o => rxbyteisaligned_o,
         rxbyterealign_o   => rxbyterealign_o,
         rxcommadet_o      => rxcommadet_o,
@@ -241,9 +231,16 @@ sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface
 BITOUT <= BITOUT16 & BITOUT15 & BITOUT14 & BITOUT13 & BITOUT12 & BITOUT11 & BITOUT10 & BITOUT9 & 
           BITOUT8  & BITOUT7  & BITOUT6  & BITOUT5  & BITOUT4  & BITOUT3  & BITOUT2  & BITOUT1;
 
+--synchronise rx_link_ok to clk_i
+rx_link_sync : entity work.sync_bit
+    port map(
+     clk_i => clk_i,
+     bit_i => rx_link_ok,
+     bit_o => rx_link_ok_sync
+);
 
 -- Link up and MGT ready
-LINKUP(0) <= mgt_ready_o and rx_link_ok;
+LINKUP(0) <= mgt_ready_o and rx_link_ok_sync;
 LINKUP(31 downto 1) <= (others => '0');
 
 sfp_panda_sync_ctrl_inst : entity work.sfp_panda_sync_ctrl

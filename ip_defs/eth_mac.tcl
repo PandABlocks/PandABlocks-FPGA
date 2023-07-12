@@ -23,6 +23,3 @@ set_property -dict [list \
     CONFIG.Statistics_Counters {false}   \
 ] [get_ips eth_mac]
 
-generate_target all [get_files $BUILD_DIR/eth_mac/eth_mac.xci]
-synth_ip [get_ips eth_mac]
-

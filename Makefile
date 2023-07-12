@@ -12,13 +12,13 @@ VIVADO = $(error Define VIVADO in CONFIG file)
 APP_NAME = $(error Define APP_NAME in CONFIG file)
 
 # Build defaults that can be overwritten by the CONFIG file if required
-PYTHON = python
+PYTHON = python3
 SPHINX_BUILD = sphinx-build
 MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 MAKE_GITHUB_RELEASE = $(PANDA_ROOTFS)/make-github-release.py
 
 BUILD_DIR = $(TOP)/build
-VIVADO_VER = 2020.2
+VIVADO_VER = 2022.2
 DEFAULT_TARGETS = zpkg
 
 
@@ -88,16 +88,28 @@ MAKE_ALL_APPS = $(foreach app,$(ALL_APPS), $(call _MAKE_ONE_APP,$(app),$(1)))
 
 APP_FILE = $(TOP)/apps/$(APP_NAME).app.ini
 
+VERSION_FILE = $(AUTOGEN_BUILD_DIR)/hdl/version.vhd
+CONSTANT_FILE = $(AUTOGEN_BUILD_DIR)/hdl/panda_constants.vhd
+
 APP_DEPENDS += $(wildcard common/python/*.py)
 APP_DEPENDS += $(wildcard common/templates/*)
 APP_DEPENDS += $(wildcard includes/*)
 APP_DEPENDS += $(wildcard targets/*/*.ini)
 APP_DEPENDS += $(wildcard modules/*/const/*.xdc)
+APP_DEPENDS += $(wildcard modules/*/*.ini)
+
+AUTOGEN_TARGETS += generate_app_autogen
+AUTOGEN_TARGETS += update_VER
+AUTOGEN_TARGETS += $(VERSION_FILE)
+AUTOGEN_TARGETS += $(CONSTANT_FILE)
 
 # Make the built app from the ini file
-$(AUTOGEN_BUILD_DIR): $(APP_FILE) $(APP_DEPENDS)
-	rm -rf $@
-	$(PYTHON) -m common.python.generate_app $@ $<
+$(AUTOGEN_BUILD_DIR): $(AUTOGEN_TARGETS)
+
+generate_app_autogen: $(APP_FILE) $(APP_DEPENDS)
+	rm -rf $(AUTOGEN_BUILD_DIR)
+	$(PYTHON) -m common.python.generate_app $(AUTOGEN_BUILD_DIR) $<
+.PHONY: generate_app_autogen
 
 autogen: $(AUTOGEN_BUILD_DIR)
 .PHONY: autogen
@@ -113,10 +125,10 @@ all_autogen:
 # Something like 0.1-1-g5539563-dirty
 export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
 # Split and append .0 to get 0.1.0, then turn into hex to get 00000100
-export VERSION := $(shell ./common/python/parse_git_version.py "$(GIT_VERSION)")
+export VERSION := $(shell $(PYTHON) common/python/parse_git_version.py "$(GIT_VERSION)")
 # 8 if dirty, 0 if clean
 DIRTY_PRE = $(shell \
-    python -c "print(8 if '$(GIT_VERSION)'.endswith('dirty') else 0)")
+    $(PYTHON) -c "print(8 if '$(GIT_VERSION)'.endswith('dirty') else 0)")
 # Something like 85539563
 export SHA := $(DIRTY_PRE)$(shell git rev-parse --short=7 HEAD)
 
@@ -134,6 +146,24 @@ else
 	then echo $(SHA) > $(VER); \
 	fi
 endif
+
+#####################################################################
+# Create VERSION_FILE
+
+$(VERSION_FILE) : $(VER)
+	rm -f $(VERSION_FILE)
+	echo 'library ieee;' >> $(VERSION_FILE)
+	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
+	echo 'package version is' >> $(VERSION_FILE)
+	echo -n 'constant FPGA_VERSION: std_logic_vector(31 downto 0)' >> $(VERSION_FILE)
+	echo ' := X"$(VERSION)";' >> $(VERSION_FILE)
+	echo -n 'constant FPGA_BUILD: std_logic_vector(31 downto 0)' >> $(VERSION_FILE)
+	echo ' := X"$(SHA)";' >> $(VERSION_FILE)
+	echo 'end version;' >> $(VERSION_FILE)
+
+
+$(CONSTANT_FILE) : $(TOP)/common/templates/registers_server
+	$(PYTHON) $(TOP)/common/python/generate_constants.py "$<" > $@
 
 # ------------------------------------------------------------------------------
 # Documentation
@@ -174,7 +204,7 @@ run_sim_%: $(TOP)/common/fpga.make
 	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
         TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
         TGT_BUILD_DIR=$(TGT_BUILD_DIR) TEST_MODE=$(TEST_MODE) \
-        DEP_MODE=$(DEP_MODE) VER=$(VER) $@
+        DEP_MODE=$(DEP_MODE) $@
 
 
 # ------------------------------------------------------------------------------
@@ -196,7 +226,7 @@ TIMING_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/hdl_timing/%,$(MODULES))
 $(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
 	rm -rf $@_tmp $@
 	$(PYTHON) -m common.python.generate_hdl_timing $@_tmp $^
-	mv $@_tmp $@
+	mv -f $@_tmp $@
 
 # Make the hdl_timing folders and run all tests, or specific modules by setting
 # the MODULES argument
@@ -207,7 +237,7 @@ hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap carrier_ip
 	mkdir -p $(TEST_DIR)
 	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
 	 -source $(TOP)/tests/hdl/regression_tests.tcl \
-	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(MODULES)
+	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(APP_BUILD_DIR) $(MODULES)
 
 # Make the hdl_timing folders and run a single test, set TEST argument
 # E.g. make TEST="clock 1" single_hdl_test
@@ -218,7 +248,7 @@ single_hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap carrier_ip
 	mkdir -p $(TEST_DIR)
 	cd $(TEST_DIR) && . $(VIVADO) && vivado -mode batch -notrace \
 	 -source $(TOP)/tests/hdl/single_test.tcl -tclargs \
-	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(TEST)
+	-tclargs $(TOP) $(TARGET_DIR) $(TGT_BUILD_DIR) $(BUILD_DIR) $(APP_BUILD_DIR) $(TEST)
 
 # Make the hdl_timing folders without running tests
 hdl_timing: $(TIMING_BUILD_DIRS)
@@ -233,7 +263,7 @@ FPGA_TARGETS = fpga-all fpga-bit carrier_fpga carrier_ip ps_core \
                fsbl devicetree boot u-boot dts xsct sw_clean u-boot-src \
                dtc atf ip_clean ps_clean
 
-$(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR) | update_VER
+$(FPGA_TARGETS): $(TOP)/common/fpga.make $(AUTOGEN_BUILD_DIR)
 	mkdir -p $(FPGA_BUILD_DIR)
 	mkdir -p $(TGT_BUILD_DIR)
 ifdef SKIP_FPGA_BUILD
@@ -243,7 +273,7 @@ else
 	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
         TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
         TGT_BUILD_DIR=$(TGT_BUILD_DIR) TOP_MODE=$(TOP_MODE) DEP_MODE=$(DEP_MODE) \
-		VER=$(VER) $@
+		$@
 endif
 
 .PHONY: $(FPGA_TARGETS)
@@ -260,14 +290,9 @@ else
 	. $(VIVADO) && vivado -mode $(DEP_MODE) $(PS_PROJ)
 endif
 
-edit_ips: DEP_MODE=gui
-ifeq ($(wildcard $(IP_PROJ)), )
-  edit_ips: carrier_ip
-else
-  edit_ips:
-	cd $(TGT_BUILD_DIR)/ip_repo; \
-	. $(VIVADO) && vivado -mode $(DEP_MODE) $(IP_PROJ)
-endif
+edit_ips: carrier_ip
+	cd $(TGT_BUILD_DIR)/ip_repo &&  \
+	. $(VIVADO) && vivado -mode gui $(IP_PROJ)
 
 carrier-fpga_gui: TOP_MODE=gui 
 ifeq ($(wildcard $(TOP_PROJ)), )

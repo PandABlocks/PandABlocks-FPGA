@@ -1,30 +1,28 @@
 #
-# Generate Xilinx IP Cores
+# Generate IP Cores
 #
 
-set TOP [lindex $argv 0]
+set IP_PROJ [lindex $argv 0]
 
-# Source directory
-set TARGET_DIR [lindex $argv 1]
+set BUILD_DIR [lindex $argv 1]
 
-# Build directory
-set BUILD_DIR [lindex $argv 2]
+set IP [lindex $argv 2]
 
-# Vivado run mode - gui or batch mode
-# Now unused
-set MODE [lindex $argv 3]
+set IP_TCL [lindex $argv 3]
 
-set_param board.repoPaths $TOP/common/configs
+# Open Managed IP Project
+open_project $IP_PROJ
 
-source $TARGET_DIR/target_incl.tcl
+#Remove IP from project if already existing
+remove_files -quiet [get_files $BUILD_DIR/$IP/$IP.xci]
+exec rm -rf $BUILD_DIR/$IP
 
-# Create Managed IP Project
-create_project -part $FPGA_PART -force -ip managed_ip_project $BUILD_DIR/managed_ip_project
+#Create and configure XCI file
+source $IP_TCL
 
-set_property target_language VHDL [current_project]
-set_property target_simulator ModelSim [current_project]
+# Generate output products for global synthesis
+set_property generate_synth_checkpoint false [get_files $BUILD_DIR/$IP/$IP.xci]
+generate_target all [get_files $BUILD_DIR/$IP/$IP.xci]
 
-foreach IP $TGT_IP {
-    source $TOP/ip_defs/$IP.tcl
-}
+close_project
 

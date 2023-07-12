@@ -25,7 +25,8 @@ set TOP_DIR         [lindex $argv 0]
 set TARGET_DIR      [lindex $argv 1]
 set TGT_BUILD_DIR   [lindex $argv 2]
 set BUILD_DIR       [lindex $argv 3]
-set MODULES_IND     4
+set APP_BUILD_DIR   [lindex $argv 4]
+set MODULES_IND     5
 
 # Need to source the target specific tcl file to get the FPGA part string
 source $TARGET_DIR/target_incl.tcl
@@ -53,7 +54,7 @@ foreach module [lrange $argv $MODULES_IND end] {
 add_files -norecurse \
     $TOP_DIR/common/hdl/ \
     $TOP_DIR/common/hdl/defines \
-    $TOP_DIR/tests/hdl/top_defines.vhd
+    $APP_BUILD_DIR/autogen/hdl/top_defines_gen.vhd
 
 # Loop through all the tests
 foreach test [array names tests] {
@@ -64,11 +65,9 @@ foreach test [array names tests] {
 
     set_property top $test [get_filesets sim_1]
     set_property top_lib xil_defaultlib [get_filesets sim_1]
+    set_property -name {xsim.simulate.runtime} -value {all} -objects [get_filesets sim_1]
 
     launch_simulation
-
-        restart
-    run -all
 
     # All the testbenchs have a signal called test_result
     # this is used to indicate when the test fails i.e.

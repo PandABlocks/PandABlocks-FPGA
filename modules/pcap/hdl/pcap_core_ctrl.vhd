@@ -21,6 +21,7 @@ use work.support.all;
 use work.addr_defines.all;
 use work.top_defines.all;
 use work.reg_defines.all;
+use work.panda_constants.all;
 
 entity pcap_core_ctrl is
 port (
@@ -176,6 +177,8 @@ begin
             case (read_address) is
                 when DRV_PCAP_IRQ_STATUS =>
                     read_data_o <= IRQ_STATUS;
+                when DRV_COMPAT_VERSION =>
+                    read_data_o <= DRIVER_COMPAT_VERSION;
                 when others =>
                     read_data_o <= (others => '0');
             end case;

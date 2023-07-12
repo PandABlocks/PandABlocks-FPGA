@@ -25,6 +25,7 @@ port (
     dir_i               : in  std_logic;
     carry_o             : out std_logic;
     -- Block Parameters
+    OUT_MODE            : in  std_logic_vector(31 downto 0);
     START               : in  std_logic_vector(31 downto 0);
     START_WSTB          : in  std_logic;
     STEP                : in  std_logic_vector(31 downto 0);
@@ -45,6 +46,8 @@ constant c_max_val       : unsigned(31 downto 0) := x"7fffffff";
 -- Minimum value = 080000000 (-2**31   = -2147483648 dec, 80000000)
 constant c_min_val       : unsigned(31 downto 0) := x"80000000";
 
+constant out_on_change   : std_logic_vector(31 downto 0) := x"00000000";
+constant out_on_disable  : std_logic_vector(31 downto 0) := x"00000001";
 
 constant c_step_size_one : std_logic_vector(31 downto 0) := x"00000001";
 
@@ -54,10 +57,13 @@ signal enable_prev      : std_logic;
 signal enable_rise      : std_logic;
 signal enable_fall      : std_logic;
 signal counter          : unsigned(31 downto 0) := (others => '0');
+signal counter_end      : unsigned(31 downto 0) := (others => '0');
 signal STEP_default     : std_logic_vector(31 downto 0);
 signal MAX_VAL          : unsigned(31 downto 0) := c_max_val;
 signal MIN_VAL          : unsigned(31 downto 0) := c_min_val;
 signal counter_carry    : std_logic;
+signal carry_latch      : std_logic;
+signal carry_end        : std_logic;
 
 begin
 
@@ -107,11 +113,14 @@ begin
         -- Re-load on enable rising edge
         if (enable_rise = '1') then
             counter <= unsigned(START);
+            carry_latch <= '0';
         -- Drop the carry signal on falling enable
         elsif (enable_fall = '1') then
             counter_carry <= '0';
-        -- Count up/down on trigger
+            counter_end <= unsigned(next_counter(31 downto 0));
+            carry_end <= carry_latch;
         elsif (enable_i = '1' and trigger_rise = '1') then
+            -- Count up/down on trigger
             -- Initialise next_counter with current value
             next_counter := resize(signed(counter),next_counter'length);
             -- Direction
@@ -125,10 +134,12 @@ begin
             if (next_counter > signed(MAX_VAL)) then
                 -- Crossing boundary positive
                 counter_carry <= '1';
+                carry_latch <= '1';
                 next_counter := next_counter - signed(MAX_VAL - MIN_VAL + 1);
             elsif (next_counter < signed(MIN_VAL)) then
                 -- Crossing boundary negative
                 counter_carry <= '1';
+                carry_latch <= '1';
                 next_counter := next_counter + signed(MAX_VAL - MIN_VAL + 1);
             end if;
             -- Increment the counter
@@ -142,8 +153,9 @@ begin
     end if;
 end process;
 
-out_o <= std_logic_vector(counter);
-carry_o <= counter_carry;
-
+out_o <= std_logic_vector(counter_end) when OUT_MODE = out_on_disable else
+         std_logic_vector(counter);
+carry_o <= carry_end when OUT_MODE = out_on_disable else
+           counter_carry;
 
 end rtl;

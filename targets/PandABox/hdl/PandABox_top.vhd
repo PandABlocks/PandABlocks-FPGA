@@ -320,9 +320,8 @@ mmcm_clkmux_inst: entity work.mmcm_clkmux
 port map(
     fclk_clk0_ps_i      => FCLK_CLK0_PS,
     sma_clk_i         => EXTCLK,
-    rxoutclk_i          => SFP1_o.EVR_REC_CLK,
+    mgt_rec_clk_i          => SFP1_o.MGT_REC_CLK,
     clk_sel_i         => clk_src_sel,
-    linkup_i             => SFP1_o.LINK_UP,
     sma_pll_locked_o    => sma_pll_locked,
     clk_sel_stat_o        => clk_sel_stat,
     fclk_clk0_o         => FCLK_CLK0,
@@ -759,7 +758,7 @@ port map (
     -- External clock
     ext_clk_i           => EXTCLK,
     sma_pll_locked_i    => sma_pll_locked,
-    ext_clock_o         => clk_src_sel,
+    clock_src_o         => clk_src_sel,
     clk_sel_stat_i        => clk_sel_stat
 );
 
