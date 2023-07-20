@@ -12,7 +12,7 @@ entity sfp_panda_sync_mgt_interface is
 
     port (GTREFCLK          : in  std_logic;
           SYNC_RESET_i      : in  std_logic;
-          sysclk_i             : in  std_logic;
+          sysclk_i          : in  std_logic;
           rxoutclk_i        : in  std_logic;
           txoutclk_i        : in  std_logic;
           rxp_i             : in  std_logic;
