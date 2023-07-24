@@ -31,7 +31,8 @@ entity sfp_panda_sync_mgt_interface is
           txoutclk_o        : out std_logic;    
           txdata_i          : in  std_logic_vector(31 downto 0); 
           txcharisk_i       : in  std_logic_vector(3 downto 0);
-          cpll_lock_o       : out std_logic
+          cpll_lock_o       : out std_logic;
+          rx_link_ok_i      : in  std_logic
           );
 
 end sfp_panda_sync_mgt_interface;
@@ -261,7 +262,7 @@ sfp_panda_sync_i : sfp_panda_sync
         DONT_RESET_ON_DATA_ERROR_IN     => '0',
         GT0_TX_FSM_RESET_DONE_OUT       => GT0_TX_FSM_RESET_DONE_OUT,
         GT0_RX_FSM_RESET_DONE_OUT       => GT0_RX_FSM_RESET_DONE_OUT,
-        GT0_DATA_VALID_IN               => '1', -- The data valid has to be high for the receiver to come out of it reset startup 
+        GT0_DATA_VALID_IN               => rx_link_ok_i, -- The data valid has to be high for the receiver to come out of it reset startup 
         --_________________________________________________________________________
         --GT0  (X0Y1)
         --____________________________CHANNEL PORTS________________________________

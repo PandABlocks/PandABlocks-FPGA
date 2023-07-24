@@ -85,6 +85,11 @@ signal TXP                : std_logic;
 signal rx_check_bits      : std_logic_vector(31 downto 0);
 signal tx_check_bits      : std_logic_vector(31 downto 0);
 signal health             : std_logic_vector(31 downto 0);
+signal rx_error           : std_logic;
+signal err_cnt            : std_logic_vector(31 downto 0);
+signal err_cnt_smpld      : std_logic_vector(31 downto 0);
+signal ctr_rst_sync       : std_logic;
+signal CTR_RST            : std_logic;
 
 signal cpll_lock          : std_logic_vector(31 downto 0);
 
@@ -163,7 +168,7 @@ sfp_panda_sync_receiver_inst : entity work.sfp_panda_sync_receiver
         check_bits_i      => rx_check_bits,
         rx_link_ok_o      => rx_link_ok,
         loss_lock_o       => open,
-        rx_error_o        => open,
+        rx_error_o        => rx_error,
         BITIN_o           => BITIN,
         POSIN1_o          => IN_POS1_o(0),
         POSIN2_o          => IN_POS2_o(0),
@@ -172,6 +177,45 @@ sfp_panda_sync_receiver_inst : entity work.sfp_panda_sync_receiver
         health_o          => health
         );
 
+-- Synchronise CTR_RST onto rxoutclk domain
+-- Note: can't use the local SYNC_RST for this as errors will occur coming out of reset
+
+rst_sync: entity work.pulse2pulse
+port map(
+    in_clk => clk_i,
+    out_clk => rxoutclk_buf,
+    rst => '0',
+    pulsein => CTR_RST,
+    inbusy  => open,
+    pulseout => ctr_rst_sync
+);
+
+-- RX error counter (on rx domain) and timed (latched) synchroniser to sysclk
+
+err_ctr : process(rxoutclk_buf)
+    variable err_cnt_u :unsigned(31 downto 0);
+begin
+    if rising_edge(rxoutclk_buf) then
+        if ctr_rst_sync = '1' then
+            err_cnt_u := (others => '0');
+        elsif rx_error = '1' then
+            err_cnt_u := err_cnt_u + 1;
+        end if;
+        err_cnt <= std_logic_vector(err_cnt_u);
+    end if;
+end process;
+
+err_latch : entity work.latched_sync
+generic map (
+    DWIDTH => 32,
+    PERIOD => 125  -- 1 MHz for 125 MHz clock
+)
+port map (
+    src_clk => rxoutclk_buf,
+    dest_clk => clk_i,
+    data_i => err_cnt,
+    data_o => err_cnt_smpld
+);
 
 -- MGT interface
 sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface
@@ -198,7 +242,8 @@ sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface
         txoutclk_o        => txoutclk,            -- TX reference clock
         txdata_i          => txdata,
         txcharisk_i       => txcharisk,
-        cpll_Lock_o       => cpll_lock(0)
+        cpll_Lock_o       => cpll_lock(0),
+        rx_link_ok_i      => rx_link_ok
         );
 
 
@@ -223,6 +268,9 @@ sfp_panda_sync_ctrl_inst : entity work.sfp_panda_sync_ctrl
         IN_SYNC_RESET_wstb  => SYNC_RESET,
         IN_CHECK_BITS       => rx_check_bits,
         IN_HEALTH           => health,
+        IN_CTR_RST          => open,
+        IN_CTR_RST_WSTB     => CTR_RST,
+        IN_ERR_CNT          => err_cnt_smpld,
         OUT_CHECK_BITS      => tx_check_bits,
         OUT_BIT1_from_bus   => BITOUT1,
         OUT_BIT2_from_bus   => BITOUT2,

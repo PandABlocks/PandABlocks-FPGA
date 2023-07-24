@@ -64,6 +64,8 @@ constant c_k28_0            : std_logic_vector(7 downto 0) := x"1C";
 constant c_k28_5            : std_logic_vector(7 downto 0) := x"BC";
 constant c_MGT_RX_PRESCALE  : unsigned(9 downto 0) := to_unsigned(1023,10);
 
+constant SETTLE_PERIOD      : natural := 1250; -- 10 microsec at 125MHz
+
 subtype t_RX_STATE is INTEGER range 1 to 6;
 
 subtype std8_t is std_logic_vector(7 downto 0);
@@ -75,6 +77,7 @@ signal rx_error         : std_logic;
 signal loss_lock        : std_logic;
 signal rx_link_ok       : std_logic := '0';
 signal rx_link_ok_sys   : std_logic := '0';
+signal rx_link_good     : std_logic;
 signal rx_error_count   : unsigned(5 downto 0);
 signal prescaler        : unsigned(9 downto 0) := (others => '0');
 signal disable_link     : std_logic := '1';
@@ -116,7 +119,7 @@ begin
 
 loss_lock_o <= loss_lock;
 rx_error_o <= rx_error;
-rx_link_ok_o <= rx_link_ok_sys;
+rx_link_ok_o <= rx_link_good;
 
 -- Synchronise rx_link_ok onto sysclk domain
 rx_link_sync : entity work.sync_bit
@@ -292,7 +295,7 @@ begin
   if rising_edge(sysclk_i) then
     ksync_del <= ksync; 
     ksync_sr := ksync_sr(4 downto 0) & (ksync xor ksync_del);
-    if (rx_link_ok_sys = '1') then
+    if (rx_link_good = '1') then
       if ksync_sr(1) = '1' then
         POSIN1_o <= POSIN1_l; 
       end if;
@@ -341,7 +344,7 @@ port map(
 health_sys: process(sysclk_i)
 begin
   if rising_edge(sysclk_i) then
-    if rx_link_ok_sys = '0' then
+    if rx_link_good = '0' then
       deprecated_protocol_sys <= '0';
       protocol_err_sys <= '0';
       checkbyte_err_sys <= '0';
@@ -361,7 +364,7 @@ begin
     protocol_err_sync_prev <= protocol_err_sync;
     checkbyte_err_sync_prev <= checkbyte_err_sync;
 
-    if rx_link_ok_sys = '0' then
+    if rx_link_good = '0' then
       health_o <= std_logic_vector(to_unsigned(1,32));
     elsif deprecated_protocol_sys = '1' then
       health_o <= std_logic_vector(to_unsigned(2,32));
@@ -374,6 +377,22 @@ begin
     end if;
   end if;
 end process;
-  
+
+--Wait for settling period before asserting link_good
+rx_link_ok_timer: process(sysclk_i)
+  variable timer_val : unsigned(LOG2(SETTLE_PERIOD) downto 0);
+begin
+  if rising_edge(sysclk_i) then
+    if rx_link_ok_sys = '0' then
+      timer_val := (others => '0');
+      rx_link_good <= '0';
+    elsif timer_val = to_unsigned(SETTLE_PERIOD,LOG2(SETTLE_PERIOD)+1) then
+      rx_link_good <= rx_link_ok_sys;
+    else
+      timer_val := timer_val + 1;
+    end if;
+  end if;
+end process;
+
 end rtl;
 
