@@ -98,8 +98,8 @@ signal deprecated_protocol            : std_logic;
 signal protocol_error                 : std_logic;
 signal deprecated_protocol_prev       : std_logic;
 signal protocol_error_prev            : std_logic;
-signal deprecated_protocol_tog        : std_logic;
-signal protocol_error_tog             : std_logic;
+signal deprecated_protocol_tog        : std_logic := '0';
+signal protocol_error_tog             : std_logic := '0';
 signal deprecated_protocol_sync       : std_logic;
 signal protocol_err_sync            : std_logic;
 signal deprecated_protocol_sync_prev  : std_logic;
@@ -108,7 +108,7 @@ signal deprecated_protocol_sys        : std_logic;
 signal protocol_err_sys             : std_logic;
 signal checkbyte_err                  : std_logic;
 signal checkbyte_err_prev             : std_logic;
-signal checkbyte_err_tog              : std_logic;
+signal checkbyte_err_tog              : std_logic := '0';
 signal checkbyte_err_sync             : std_logic;
 signal checkbyte_err_sync_prev        : std_logic;
 signal checkbyte_err_sys              : std_logic;
@@ -132,9 +132,6 @@ rx_link_sync : entity work.sync_bit
 -- This is a modified version of the code used in the open source event receiver
 -- It is hard to know when the link is up as the only way of doing this is to use
 -- rxnotintable and rxdisperr signals.
--- rxnotintable and rxdisperr errors do occur when the link is up, I run the the event
--- receiver for four days counting the number of times these two errors happened the
--- error rate was days 4 error count 12272
 ps_link_lost:process(rxoutclk_i)
 begin
   if rising_edge(rxoutclk_i) then
