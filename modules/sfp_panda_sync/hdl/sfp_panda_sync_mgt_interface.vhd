@@ -2,6 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+use work.picxo_pkg.all;
+
 library unisim;
 use unisim.vcomponents.all;
 
@@ -34,98 +36,7 @@ entity sfp_panda_sync_mgt_interface is
 
 end sfp_panda_sync_mgt_interface;
 
-
-
 architecture rtl of sfp_panda_sync_mgt_interface is
-
-COMPONENT PICXO_FRACXO
-  PORT (
-    RESET_I : IN STD_LOGIC;
-    REF_CLK_I : IN STD_LOGIC;
-    TXOUTCLK_I : IN STD_LOGIC;
-    DRPEN_O : OUT STD_LOGIC;
-    DRPWEN_O : OUT STD_LOGIC;
-    DRPDO_I : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-    DRPDATA_O : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-    DRPADDR_O : OUT STD_LOGIC_VECTOR(8 DOWNTO 0);
-    DRPRDY_I : IN STD_LOGIC;
-    RSIGCE_I : IN STD_LOGIC;
-    VSIGCE_I : IN STD_LOGIC;
-    VSIGCE_O : OUT STD_LOGIC;
-    ACC_STEP : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
-    G1 : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
-    G2 : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
-    R : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-    V : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-    CE_DSP_RATE : IN STD_LOGIC_VECTOR(23 DOWNTO 0);
-    C_I : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
-    P_I : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
-    N_I : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
-    OFFSET_PPM : IN STD_LOGIC_VECTOR(21 DOWNTO 0);
-    OFFSET_EN : IN STD_LOGIC;
-    HOLD : IN STD_LOGIC;
-    DON_I : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
-    DRP_USER_REQ_I : IN STD_LOGIC;
-    DRP_USER_DONE_I : IN STD_LOGIC;
-    DRPEN_USER_I : IN STD_LOGIC;
-    DRPWEN_USER_I : IN STD_LOGIC;
-    DRPADDR_USER_I : IN STD_LOGIC_VECTOR(8 DOWNTO 0);
-    DRPDATA_USER_I : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-    DRPDATA_USER_O : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-    DRPRDY_USER_O : OUT STD_LOGIC;
-    DRPBUSY_O : OUT STD_LOGIC;
-    ACC_DATA : OUT STD_LOGIC_VECTOR(4 DOWNTO 0);
-    ERROR_O : OUT STD_LOGIC_VECTOR(20 DOWNTO 0);
-    VOLT_O : OUT STD_LOGIC_VECTOR(21 DOWNTO 0);
-    DRPDATA_SHORT_O : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-    CE_PI_O : OUT STD_LOGIC;
-    CE_PI2_O : OUT STD_LOGIC;
-    CE_DSP_O : OUT STD_LOGIC;
-    OVF_PD : OUT STD_LOGIC;
-    OVF_AB : OUT STD_LOGIC;
-    OVF_VOLT : OUT STD_LOGIC;
-    OVF_INT : OUT STD_LOGIC
-  );
-END COMPONENT;
-
-COMPONENT picxo_ila
-  PORT (
-    clk    : IN STD_LOGIC;
-    probe0 : IN STD_LOGIC_VECTOR(20 DOWNTO 0);
-    probe1 : IN STD_LOGIC_VECTOR(21 DOWNTO 0);
-    probe2 : IN STD_LOGIC_VECTOR(7  DOWNTO 0);
-    probe3 : IN STD_LOGIC_VECTOR(0  DOWNTO 0);
-    probe4 : IN STD_LOGIC_VECTOR(0  DOWNTO 0);
-    probe5 : IN STD_LOGIC_VECTOR(0  DOWNTO 0);
-    probe6 : IN STD_LOGIC_VECTOR(0  DOWNTO 0);
-    probe7 : IN STD_LOGIC_VECTOR(0  DOWNTO 0);
-    probe8 : IN STD_LOGIC_VECTOR(0  DOWNTO 0);
-    probe9 : IN STD_LOGIC_VECTOR(0  DOWNTO 0)
-  );
-END COMPONENT;
-
-COMPONENT picxo_vio
-  PORT (
-    clk : IN STD_LOGIC;
-    probe_out0  : OUT STD_LOGIC_VECTOR(4  DOWNTO 0);
-    probe_out1  : OUT STD_LOGIC_VECTOR(4  DOWNTO 0);
-    probe_out2  : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-    probe_out3  : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-    probe_out4  : OUT STD_LOGIC_VECTOR(3  DOWNTO 0);
-    probe_out5  : OUT STD_LOGIC_VECTOR(23 DOWNTO 0);
-    probe_out6  : OUT STD_LOGIC_VECTOR(21 DOWNTO 0);
-    probe_out7  : OUT STD_LOGIC_VECTOR(0  DOWNTO 0);
-    probe_out8  : OUT STD_LOGIC_VECTOR(0  DOWNTO 0);
-    probe_out9  : OUT STD_LOGIC_VECTOR(0  DOWNTO 0);
-    probe_out10 : OUT STD_LOGIC_VECTOR(0  DOWNTO 0);
-    probe_out11 : OUT STD_LOGIC_VECTOR(0  DOWNTO 0);
-    probe_out12 : OUT STD_LOGIC_VECTOR(6  DOWNTO 0);
-    probe_out13 : OUT STD_LOGIC_VECTOR(9  DOWNTO 0);
-    probe_out14 : OUT STD_LOGIC_VECTOR(9  DOWNTO 0)
-  );
-END COMPONENT;
-
-
 
 component sfp_panda_sync 
 port
@@ -248,21 +159,23 @@ signal gt0_drpwe_i : std_logic;
 signal gt0_drpdi_i : std_logic_vector(15 downto 0);
 signal gt0_drpaddr_i : std_logic_vector(8 downto 0);
 
-signal  G1                              : STD_LOGIC_VECTOR (4 downto 0) ;
-signal  G2                              : STD_LOGIC_VECTOR (4 downto 0) ;
-signal  R                               : STD_LOGIC_VECTOR (15 downto 0);
-signal  V                               : STD_LOGIC_VECTOR (15 downto 0);
-signal  ce_dsp_rate                     : std_logic_vector (23 downto 0);
-signal  C                               : STD_LOGIC_VECTOR (6 downto 0) ;
-signal  P                               : STD_LOGIC_VECTOR (9 downto 0) ;
-signal  N                               : STD_LOGIC_VECTOR (9 downto 0) ;
-signal  don                             : STD_LOGIC_VECTOR (0 downto 0) ;
+-- PICXO control parameters (currently default to constant init values in pkg)
+signal  G1                              : STD_LOGIC_VECTOR (4 downto 0)     := c_G1;
+signal  G2                              : STD_LOGIC_VECTOR (4 downto 0)     := c_G2;
+signal  R                               : STD_LOGIC_VECTOR (15 downto 0)    := c_R;
+signal  V                               : STD_LOGIC_VECTOR (15 downto 0)    := c_V;
+signal  ce_dsp_rate                     : std_logic_vector (23 downto 0)    := c_ce_dsp_rate;
+signal  C                               : STD_LOGIC_VECTOR (6 downto 0)     := c_C;
+signal  P                               : STD_LOGIC_VECTOR (9 downto 0)     := c_P;
+signal  N                               : STD_LOGIC_VECTOR (9 downto 0)     := c_N;
+signal  don                             : STD_LOGIC_VECTOR (0 downto 0)     := c_don;
 
-signal  Offset_ppm                      : std_logic_vector (21 downto 0);
-signal  Offset_en                       : std_logic                     ;
-signal  hold                            : std_logic                     ;
-signal  acc_step                        : STD_LOGIC_VECTOR (3 downto 0);
+signal  Offset_ppm                      : std_logic_vector (21 downto 0)    := c_Offset_ppm;
+signal  Offset_en                       : std_logic                         := c_Offset_en;
+signal  hold                            : std_logic                         := c_hold;
+signal  acc_step                        : STD_LOGIC_VECTOR (3 downto 0)     := c_acc_step;
 
+-- PICXO Monitoring signals (currently dangling, but can be connected to ILA)
 signal error_o                          : STD_LOGIC_VECTOR (20 downto 0) ;
 signal volt_o                           : STD_LOGIC_VECTOR (21 downto 0) ;
 signal drpdata_short_o                  : STD_LOGIC_VECTOR (7  downto 0) ;
@@ -433,14 +346,14 @@ sfp_panda_sync_i : sfp_panda_sync
 
 );
 
-    process (txoutclk_i, picxo_rst, gt0_cplllock_out)
-    begin
-       if(picxo_rst(0) = '1' or not gt0_cplllock_out ='1') then
-            picxo_rst (7 downto 1)     <= (others=>'1');
-       elsif rising_edge (txoutclk_i) then
-            picxo_rst (7 downto 1)     <=  picxo_rst(6 downto 0);
-    end if;
-    end process;  
+process (txoutclk_i, picxo_rst, gt0_cplllock_out)
+begin
+   if(picxo_rst(0) = '1' or not gt0_cplllock_out ='1') then
+        picxo_rst (7 downto 1)     <= (others=>'1');
+   elsif rising_edge (txoutclk_i) then
+        picxo_rst (7 downto 1)     <=  picxo_rst(6 downto 0);
+end if;
+end process;  
 
 sfp_sync_PICXO : PICXO_FRACXO
   PORT MAP (
@@ -493,40 +406,5 @@ sfp_sync_PICXO : PICXO_FRACXO
     OVF_INT => ovf_int
   );
 
-picxo_ila_i : picxo_ila
-  PORT MAP (
-    clk         => txoutclk_i   ,
-    probe0      => error_o          ,
-    probe1      => volt_o           ,
-    probe2      => drpdata_short_o  ,
-    probe3(0)   => ce_pi_o          ,
-    probe4(0)   => ce_pi2_o         ,
-    probe5(0)   => ce_dsp_o         ,  
-    probe6(0)   => ovf_pd           , 
-    probe7(0)   => ovf_ab           ,
-    probe8(0)   => ovf_volt         ,
-    probe9(0)   => ovf_int        
-  );
-  
-
-picxo_vio_i : picxo_vio
-  PORT MAP (
-    clk            => sysclk_i         ,
-    probe_out0     => G1,
-    probe_out1     => G2,
-    probe_out2     => R               ,
-    probe_out3     => V               ,
-    probe_out4     => acc_step        ,
-    probe_out5     => ce_dsp_rate     ,
-    probe_out6     => Offset_ppm      ,
-    probe_out7(0)  => Offset_en       ,
-    probe_out8(0)  => hold            ,
-    probe_out9(0)  => picxo_rst(0)    ,
-    probe_out10(0) => open     ,
-    probe_out11    => don             ,
-    probe_out12    => C               ,
-    probe_out13    => P               ,
-    probe_out14    => N               
-  );                                
 
 end rtl;
