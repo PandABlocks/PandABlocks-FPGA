@@ -90,6 +90,9 @@ signal txdata_i              : std_logic_vector(15 downto 0);
 signal txcharisk_i           : std_logic_vector(1 downto 0);
 signal bit1,bit2,bit3,bit4   : std_logic;
 
+signal unix_time             : std_logic_vector(31 downto 0);
+signal unix_time_smpld       : std_logic_vector(31 downto 0);
+signal err_cnt_smpld         : std_logic_vector(31 downto 0);
 
 -- ILA stuff
 ---signal mgt_ready_slv         : std_logic_vector(0 downto 0);
@@ -100,7 +103,7 @@ signal bit1,bit2,bit3,bit4   : std_logic;
 --signal probe10_slv           : std_logic_vector(15 downto 0);
 --signal probe12_slv           : std_logic_vector(15 downto 0);
 
-signal err_cnt              : std_logic_vector(15 downto 0);
+signal err_cnt              : std_logic_vector(31 downto 0);
 
 signal TXN, TXP             : std_logic;
 
@@ -182,8 +185,9 @@ port map(
     bit3_o          => bit3,
     bit4_o          => bit4,
     rx_link_ok_o    => rx_link_ok_o,
-    loss_lock_o     => loss_lock_o,
-    rx_error_o      => rx_error_o
+    loss_lock_o     => loss_lock_o, 
+    rx_error_o      => rx_error_o,
+    utime_o         => unix_time
 );
 
 
@@ -265,6 +269,32 @@ LINKUP(0) <= mgt_ready_sync and rx_link_ok_sync;
 -- Unused bits
 LINKUP(31 downto 1 ) <= (others => '0');
 
+--- Latched samplers for CDC signals
+
+err_latch : entity work.latched_sync
+generic map (
+    DWIDTH => 32,
+    PERIOD => 125  -- 1 MHz for 125 MHz clock
+)
+port map (
+    src_clk => event_clk,
+    dest_clk => clk_i,
+    data_i => err_cnt,
+    data_o => err_cnt_smpld
+);
+
+utime_latch : entity work.latched_sync
+generic map (
+    DWIDTH => 32,
+    PERIOD => 125  -- 1 MHz for 125 MHz clock
+)
+port map (
+    src_clk => event_clk,
+    dest_clk => clk_i,
+    data_i => unix_time,
+    data_o => unix_time_smpld
+);
+
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
@@ -277,6 +307,8 @@ port map (
     pos_bus_i         => pos_bus_i,
 
     LINKUP            => LINKUP,
+    UNIX_TIME         => unix_time_smpld,
+    ERROR_COUNT       => err_cnt_smpld,
     EVENT_RESET       => open,
     EVENT_RESET_WSTB  => EVENT_RESET,
     EVENT1            => EVENT1,
