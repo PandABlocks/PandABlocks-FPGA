@@ -123,14 +123,14 @@ all_autogen:
 # Version symbols for FPGA bitstream generation etc
 
 # Something like 0.1-1-g5539563-dirty
-export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
+GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
 # Split and append .0 to get 0.1.0, then turn into hex to get 00000100
-export VERSION := $(shell $(PYTHON) common/python/parse_git_version.py "$(GIT_VERSION)")
+VERSION := $(shell $(PYTHON) common/python/parse_git_version.py "$(GIT_VERSION)")
 # 8 if dirty, 0 if clean
 DIRTY_PRE = $(shell \
     $(PYTHON) -c "print(8 if '$(GIT_VERSION)'.endswith('dirty') else 0)")
 # Something like 85539563
-export SHA := $(DIRTY_PRE)$(shell git rev-parse --short=7 HEAD)
+SHA := $(DIRTY_PRE)$(shell git rev-parse --short=7 HEAD)
 
 # Trigger rebuild of FPGA targets based on change in the git hash wrt hash stored in build dir
 # If the stored hash value does not exist, or disagrees with the present
@@ -273,7 +273,7 @@ else
 	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
         TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
         TGT_BUILD_DIR=$(TGT_BUILD_DIR) TOP_MODE=$(TOP_MODE) DEP_MODE=$(DEP_MODE) \
-        VERSION_FILE=$(VERSION_FILE) $@
+        HDL_VERSION_FILE=$(VERSION_FILE) $@
 endif
 
 .PHONY: $(FPGA_TARGETS)
