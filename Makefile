@@ -99,7 +99,6 @@ APP_DEPENDS += $(wildcard modules/*/const/*.xdc)
 APP_DEPENDS += $(wildcard modules/*/*.ini)
 
 AUTOGEN_TARGETS += generate_app_autogen
-AUTOGEN_TARGETS += update_VER
 AUTOGEN_TARGETS += $(VERSION_FILE)
 AUTOGEN_TARGETS += $(CONSTANT_FILE)
 
@@ -150,7 +149,7 @@ endif
 #####################################################################
 # Create VERSION_FILE
 
-$(VERSION_FILE) : $(VER)
+$(VERSION_FILE) : update_VER
 	rm -f $(VERSION_FILE)
 	echo 'library ieee;' >> $(VERSION_FILE)
 	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
@@ -273,7 +272,7 @@ else
 	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
         TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
         TGT_BUILD_DIR=$(TGT_BUILD_DIR) TOP_MODE=$(TOP_MODE) DEP_MODE=$(DEP_MODE) \
-        HDL_VERSION_FILE=$(VERSION_FILE) $@
+        VER=$(VER) $@
 endif
 
 .PHONY: $(FPGA_TARGETS)
