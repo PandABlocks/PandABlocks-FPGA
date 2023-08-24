@@ -126,30 +126,34 @@ signal Z_OUT                : std_logic;
 signal DATA_OUT             : std_logic;
 
 signal CLK_OUT              : std_logic;
-
 signal CLK_IN               : std_logic;
 
-signal Bs0_t                : std_logic;
+signal OUTENC_PROTOCOL      : std_logic_vector(2 downto 0);
+signal OUTENC_PROTOCOL_rb   : std_logic_vector(2 downto 0);
+signal INENC_PROTOCOL_rb    : std_logic_vector(2 downto 0);
 
 begin
 
 -- Unused Nets.
-inenc_dir <= '0';
+inenc_dir <= '1';
 outenc_dir <= '0';
 Am0_opad <= '0';
-Zm0_opad <= '0';
 
 -----------------------------OUTENC---------------------------------------------
 --------------------------------------------------------------------------------
--- When using the monitor control card, only the B signal is used as this is 
--- used to generate the Clock inputted to the Inenc.
+
+
+-- When using the Monitor Daughter Card, only the Input Ecoder protocol is used
+OUTENC_PROTOCOL <= 
+    INENC_PROTOCOL_i when DCARD_MODE_i(3 downto 1) = DCARD_MONITOR
+    else OUTENC_PROTOCOL_i;
 
 -- Assign outputs
-A_OUT <= a_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_a;
-B_OUT <= b_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else quad_b;
-Z_OUT <= z_ext_i when (OUTENC_PROTOCOL_i = c_ABZ_PASSTHROUGH) else '0';
-DATA_OUT <= data_ext_i when (OUTENC_PROTOCOL_i = c_DATA_PASSTHROUGH) else 
-            bdat when (OUTENC_PROTOCOL_i = c_BISS) else sdat;
+A_OUT <= a_ext_i when (OUTENC_PROTOCOL = c_ABZ_PASSTHROUGH) else quad_a;
+B_OUT <= b_ext_i when (OUTENC_PROTOCOL = c_ABZ_PASSTHROUGH) else quad_b;
+Z_OUT <= z_ext_i when (OUTENC_PROTOCOL = c_ABZ_PASSTHROUGH) else '0';
+DATA_OUT <= data_ext_i when (OUTENC_PROTOCOL = c_DATA_PASSTHROUGH) else 
+            bdat when (OUTENC_PROTOCOL = c_BISS) else sdat;
 
 --
 -- INCREMENTAL OUT
@@ -203,26 +207,30 @@ port map (
 --
 --  Link status information is valid only for loopback configuration
 --------------------------------------------------------------------------
+
+OUTENC_PROTOCOL_rb <= DCARD_MODE_i(18 downto 16);
+
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        case (OUTENC_PROTOCOL_i) is
-            when "000"  =>              -- INC
-                OUTENC_HEALTH_o <= (others=>'0');
-
-            when "001"  =>              -- SSI & Loopback
-                OUTENC_HEALTH_o <= (others=>'0');
-
-            when "010"  =>              -- BISS & Loopback
-                OUTENC_HEALTH_o <= health_biss_slave;
-                
-            when c_enDat =>             -- enDat 
-                OUTENC_HEALTH_o <= std_logic_vector(to_unsigned(2,32)); --ENDAT not implemented
-                
-            when others =>
-                OUTENC_HEALTH_o <= (others=>'0');
-                
-        end case;
+        if DCARD_MODE_i(3 downto 1) = DCARD_MONITOR then
+            OUTENC_HEALTH_o <= std_logic_vector(to_unsigned(3,32));
+        elsif OUTENC_PROTOCOL_rb /= OUTENC_PROTOCOL then
+            OUTENC_HEALTH_o <= std_logic_vector(to_unsigned(4,32));
+        else 
+            case (OUTENC_PROTOCOL) is
+                when "000"  =>              -- INC
+                    OUTENC_HEALTH_o <= (others=>'0');
+                when "001"  =>              -- SSI & Loopback
+                    OUTENC_HEALTH_o <= (others=>'0');
+                when "010"  =>              -- BISS & Loopback
+                    OUTENC_HEALTH_o <= health_biss_slave;
+                when c_enDat =>             -- enDat 
+                    OUTENC_HEALTH_o <= std_logic_vector(to_unsigned(2,32)); --ENDAT not implemented
+                when others =>
+                    OUTENC_HEALTH_o <= (others=>'0');
+            end case;
+        end if;
     end if;
 end process;
 
@@ -356,51 +364,58 @@ port map (
 --
 --  Link status information is valid only for loopback configuration
 --------------------------------------------------------------------------
+
+INENC_PROTOCOL_rb <= DCARD_MODE_i(10 downto 8);
+
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        case (INENC_PROTOCOL_i) is
-            when "000"  =>              -- INC
-                posn <= posn_incr;
-                STATUS_o(0) <= linkup_incr;
-                INENC_HEALTH_o(0) <= not(linkup_incr);
-                INENC_HEALTH_o(31 downto 1)<= (others=>'0');
-                HOMED_o <= homed_qdec;
+        if INENC_PROTOCOL_rb /= INENC_PROTOCOL_i then
+            INENC_HEALTH_o <= TO_SVECTOR(6,32);
+        else
+            case (INENC_PROTOCOL_i) is
+                when "000"  =>              -- INC
+                    posn <= posn_incr;
+                    STATUS_o(0) <= linkup_incr;
+                    INENC_HEALTH_o(0) <= not(linkup_incr);
+                    INENC_HEALTH_o(31 downto 1)<= (others=>'0');
+                    HOMED_o <= homed_qdec;
 
-            when "001"  =>              -- SSI & Loopback
-                if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
-                    posn <= posn_ssi_sniffer;
-                    STATUS_o(0) <= linkup_ssi;
-                    if (linkup_ssi = '0') then
-                        INENC_HEALTH_o <= TO_SVECTOR(2,32);
-                    else
-                        INENC_HEALTH_o <= (others => '0');
+                when "001"  =>              -- SSI & Loopback
+                    if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
+                        posn <= posn_ssi_sniffer;
+                        STATUS_o(0) <= linkup_ssi;
+                        if (linkup_ssi = '0') then
+                            INENC_HEALTH_o <= TO_SVECTOR(2,32);
+                        else
+                            INENC_HEALTH_o <= (others => '0');
+                        end if;
+                    else  -- DCARD_CONTROL
+                        posn <= posn_ssi;
+                        STATUS_o <= (others => '0');
+                        INENC_HEALTH_o <= (others=>'0');
                     end if;
-                else  -- DCARD_CONTROL
-                    posn <= posn_ssi;
+                    HOMED_o <= TO_SVECTOR(1,32);
+
+                when "010"  =>              -- BISS & Loopback
+                    if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
+                        posn <= posn_biss_sniffer;
+                        STATUS_o(0) <= linkup_biss_sniffer;
+                        INENC_HEALTH_o <= health_biss_sniffer;
+                    else  -- DCARD_CONTROL
+                        posn <= posn_biss;
+                        STATUS_o(0) <= linkup_biss_master;
+                        INENC_HEALTH_o<=health_biss_master;
+                    end if;
+                    HOMED_o <= TO_SVECTOR(1,32);
+
+                when others =>
+                    INENC_HEALTH_o <= TO_SVECTOR(5,32);
+                    posn <= (others => '0');
                     STATUS_o <= (others => '0');
-                    INENC_HEALTH_o <= (others=>'0');
-                end if;
-                HOMED_o <= TO_SVECTOR(1,32);
-
-            when "010"  =>              -- BISS & Loopback
-                if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
-                    posn <= posn_biss_sniffer;
-                    STATUS_o(0) <= linkup_biss_sniffer;
-                    INENC_HEALTH_o <= health_biss_sniffer;
-                else  -- DCARD_CONTROL
-                    posn <= posn_biss;
-                    STATUS_o(0) <= linkup_biss_master;
-                    INENC_HEALTH_o<=health_biss_master;
-                end if;
-                HOMED_o <= TO_SVECTOR(1,32);
-
-            when others =>
-                INENC_HEALTH_o <= TO_SVECTOR(5,32);
-                posn <= (others => '0');
-                STATUS_o <= (others => '0');
-                HOMED_o <= TO_SVECTOR(1,32);
-        end case;
+                    HOMED_o <= TO_SVECTOR(1,32);
+            end case;
+        end if;
     end if;
 end process;
 
@@ -416,9 +431,9 @@ begin
                 when "000"  =>                              -- INC
                     inenc_ctrl <= "111";
                 when "001"  =>                              -- SSI
-                    inenc_ctrl <= "101";
+                    inenc_ctrl <= "100";
                 when "010"  =>                              -- BiSS-C
-                    inenc_ctrl <= "101";
+                    inenc_ctrl <= inenc_dir & "00";
                 when "011"  =>                              -- EnDat
                     inenc_ctrl <= inenc_dir & "00";
                 when others =>
@@ -454,6 +469,7 @@ IOBUF_Zm0 : entity work.iobuf_registered port map (
 );
 
 Bm0_opad <= CLK_OUT;
+Zm0_opad <= not inenc_dir;
 
 a_filt : entity work.delay_filter port map(
     clk_i   => clk_i,
@@ -492,21 +508,19 @@ begin
         if (reset_i = '1') then
             outenc_ctrl <= "000";
         else
-            case (OUTENC_PROTOCOL_i) is
+            case (OUTENC_PROTOCOL) is
                 when "000"  =>                        -- INC
                     outenc_ctrl <= "000";
                 when "001"  =>                        -- SSI
-                    outenc_ctrl <= "011";
+                    outenc_ctrl <= "010";
                 when "010"  =>                        -- BiSS
                     outenc_ctrl <= outenc_dir & "10";
                 when "011"  =>                        -- EnDat
                     outenc_ctrl <= outenc_dir & "10";
---                when "100"  =>                        -- Pass-Through
---                    outenc_ctrl <= "000";
                 when "101" =>
-                    outenc_ctrl <= "011";          -- DATA PassThrough
+                    outenc_ctrl <= "010";          -- DATA PassThrough
                 when others =>
-                    outenc_ctrl <= "000";
+                    outenc_ctrl <= "000";           -- ABZ Passthrough
             end case;
         end if;
     end if;
@@ -520,15 +534,11 @@ IOBUF_As0 : entity work.iobuf_registered port map (
     IO      => As0_pad_io
 );
 
--- When using a Monitor card the B signal will need to be enabled, for using the CLK
--- regardless of the protocol.
-Bs0_T <= '1' when (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) else outenc_ctrl(1); 
-
 IOBUF_Bs0 : entity work.iobuf_registered port map (
     clock   => clk_i,
     I       => Bs0_opad,
     O       => Bs0_ipad,
-    T       => Bs0_T,
+    T       => outenc_ctrl(1),
     IO      => Bs0_pad_io
 );
 
@@ -541,9 +551,9 @@ IOBUF_Zs0 : entity work.iobuf_registered port map (
 );
 
 -- A output is shared between incremental and absolute data lines.
-As0_opad <= A_OUT when (OUTENC_PROTOCOL_i(1 downto 0) = "00") else DATA_OUT;
+As0_opad <= A_OUT when (OUTENC_PROTOCOL(1 downto 0) = "00") else DATA_OUT;
 Bs0_opad <= B_OUT;
-Zs0_opad <= Z_OUT;
+Zs0_opad <= Z_OUT when (OUTENC_PROTOCOL(1 downto 0) = "00") else not outenc_dir;
 
 INENC_A_o <= A_IN;
 INENC_B_o <= B_IN;
