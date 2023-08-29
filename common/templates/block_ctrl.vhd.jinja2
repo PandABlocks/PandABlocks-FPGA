@@ -82,7 +82,7 @@ begin
     begin
         if rising_edge(clk_i) then
             -- Zero all the write strobe arrays, we set them below
-{% for field in filter_fields("read.*", matching=False) %}
+{% for field in filter_fields(".*read.*", matching=False) %}
     {% for register in field.numbered_registers() %}
             {{ register.name }}_wstb <= '0';
     {% endfor %}
@@ -90,7 +90,7 @@ begin
             if (write_strobe_i = '1') then
                 -- Set the specific write strobe that has come in
                 case write_addr is
-{% for field in filter_fields("read.*", matching=False) %}
+{% for field in filter_fields(".*read.*", matching=False) %}
     {% for register in field.numbered_registers() %}
                     when {{ entity|upper }}_{{ register.name }}_addr =>
                         {{ register.name }} <= write_data_i;

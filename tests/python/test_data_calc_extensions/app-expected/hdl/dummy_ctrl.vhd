@@ -62,26 +62,10 @@ begin
     begin
         if rising_edge(clk_i) then
             -- Zero all the write strobe arrays, we set them below
-            DUMMY_READ_0_wstb <= '0';
-            DUMMY_READ_1_wstb <= '0';
-            DUMMY_READ_2_wstb <= '0';
-            DUMMY_READ_3_wstb <= '0';
             DUMMY_WRITE_wstb <= '0';
             if (write_strobe_i = '1') then
                 -- Set the specific write strobe that has come in
                 case write_addr is
-                    when DUMMY_DUMMY_READ_0_addr =>
-                        DUMMY_READ_0 <= write_data_i;
-                        DUMMY_READ_0_wstb <= '1';
-                    when DUMMY_DUMMY_READ_1_addr =>
-                        DUMMY_READ_1 <= write_data_i;
-                        DUMMY_READ_1_wstb <= '1';
-                    when DUMMY_DUMMY_READ_2_addr =>
-                        DUMMY_READ_2 <= write_data_i;
-                        DUMMY_READ_2_wstb <= '1';
-                    when DUMMY_DUMMY_READ_3_addr =>
-                        DUMMY_READ_3 <= write_data_i;
-                        DUMMY_READ_3_wstb <= '1';
                     when DUMMY_DUMMY_WRITE_addr =>
                         DUMMY_WRITE <= write_data_i;
                         DUMMY_WRITE_wstb <= '1';
