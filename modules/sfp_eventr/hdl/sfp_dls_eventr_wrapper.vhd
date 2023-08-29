@@ -62,8 +62,10 @@ architecture rtl of sfp_dls_eventr_wrapper is
 --end component;
 
 signal mgt_ready_o           : std_logic;
+signal mgt_ready_sync    : std_logic;
 signal event_clk             : std_logic;
 signal rx_link_ok_o          : std_logic;
+signal rx_link_ok_sync    : std_logic;
 signal loss_lock_o           : std_logic;
 signal rx_error_o            : std_logic;
 signal rxcharisk             : std_logic_vector(1 downto 0);
@@ -118,7 +120,7 @@ port map (
 
 -- Assign outputs
 
-SFP_o.EVR_REC_CLK <= rxoutclk;
+SFP_o.MGT_REC_CLK <= rxoutclk;
 SFP_o.LINK_UP <= LINKUP(0);
 
 bit1_o(0) <= bit1;
@@ -187,14 +189,14 @@ port map(
 
 sfpgtx_event_receiver_inst: entity work.sfp_event_receiver
 port map(
-    GTREFCLK         => SFP_i.GTREFCLK,
+    GTREFCLK           => SFP_i.GTREFCLK,
+    clk_i              => clk_i,
     event_reset_i      => EVENT_RESET,
     event_clk_i        => event_clk,
     rxp_i              => SFP_i.RXP_IN,
     rxn_i              => SFP_i.RXN_IN,
     txp_o              => TXP,
     txn_o              => TXN,
-    rx_link_ok_i       => rx_link_ok_o,
     rxbyteisaligned_o  => rxbyteisaligned_o,
     rxbyterealign_o    => rxbyterealign_o,
     rxcommadet_o       => rxcommadet_o,
@@ -238,8 +240,24 @@ port map(
 --      probe12 => probe12_slv
 --);
 
+--synchronise rx_link_ok to clk_i
+rx_link_sync : entity work.sync_bit
+    port map(
+     clk_i => clk_i,
+     bit_i => rx_link_ok_o,
+     bit_o => rx_link_ok_sync
+);
+
+--synchronise mgt_ready_o to clk_i
+mgt_rdy_sync : entity work.sync_bit
+    port map(
+     clk_i => clk_i,
+     bit_i => mgt_ready_o,
+     bit_o => mgt_ready_sync
+);
+
 -- MGT ready and link is up
-LINKUP(0) <= mgt_ready_o and rx_link_ok_o;
+LINKUP(0) <= mgt_ready_sync and rx_link_ok_sync;
 ---- Link is up
 --LINKUP(1) <= rx_link_ok_o;
 ---- MGT ready

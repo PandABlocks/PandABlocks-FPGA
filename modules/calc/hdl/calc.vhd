@@ -29,7 +29,6 @@ port (
     TYPEB               : in  std_logic_vector(31 downto 0);
     TYPEC               : in  std_logic_vector(31 downto 0);
     TYPED               : in  std_logic_vector(31 downto 0);
-    FUNC                : in  std_logic_vector(31 downto 0);
     SHIFT               : in  std_logic_vector(31 downto 0)
 );
 end calc;
@@ -51,8 +50,7 @@ architecture rtl of calc is
     signal inpb_in : signed(33 downto 0) := (others => '0');
     signal inpc_in : signed(33 downto 0) := (others => '0');
     signal inpd_in : signed(33 downto 0) := (others => '0');
-    signal calculation : signed(33 downto 0) := (others => '0');
-    signal output : signed(33 downto 0) := (others => '0');
+    signal calculation : std_logic_vector(33 downto 0) := (others => '0');
 
 begin
     -- Add 2 extra bits to each input to allow for growth during addition and
@@ -61,15 +59,17 @@ begin
     inpb_in <= convert(inpb_i, TYPEB(0));
     inpc_in <= convert(inpc_i, TYPEC(0));
     inpd_in <= convert(inpd_i, TYPED(0));
-    calculation <= inpa_in + inpb_in + inpc_in + inpd_in;
+    calculation <= std_logic_vector(inpa_in + inpb_in + inpc_in + inpd_in);
 
-    -- Shift result as required
-    output <= shift_right(calculation, to_integer(unsigned(SHIFT(4 downto 0))));
-
-    -- Finally register the output
     process (clk_i) begin
         if rising_edge(clk_i) then
-            out_o <= std_logic_vector(output(31 downto 0));
+            -- Shift result as required, this is limited to range 0-2 to reduce
+            -- FPGA resources
+            case SHIFT(1 downto 0) is
+                when "00" => out_o <= calculation(31 downto 0);
+                when "01" => out_o <= calculation(32 downto 1);
+                when others => out_o <= calculation(33 downto 2);
+            end case;
         end if;
     end process;
 end;

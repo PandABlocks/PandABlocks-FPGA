@@ -107,6 +107,7 @@ signal dma_error        : std_logic;
 signal pcap_status      : std_logic_vector(2 downto 0);
 signal pcap_active      : std_logic;
 signal pcap_done        : std_logic;
+signal pcap_start_event : std_logic;
 
 signal enable_from_bus  : std_logic;
 signal gate_from_bus    : std_logic;
@@ -264,6 +265,7 @@ port map (
     pcap_dat_valid_o        => pcap_dat_valid,
     pcap_done_o             => pcap_done,
     pcap_actv_o             => pcap_active,
+    pcap_start_event_o      => pcap_start_event,
     pcap_status_o           => pcap_status
 );
 
@@ -283,6 +285,7 @@ port map (
     IRQ_STATUS              => IRQ_STATUS,
     BLOCK_SIZE              => BLOCK_SIZE,
 
+    pcap_start_event_i      => pcap_start_event,
     pcap_done_i             => pcap_done,
     pcap_status_i           => pcap_status,
     dma_error_o             => dma_error,

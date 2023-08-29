@@ -16,8 +16,6 @@ set OUTPUT_FILE [lindex $argv 3]
 # Vivado run mode - gui or batch mode
 set MODE [lindex $argv 4]
 
-set_param board.repoPaths $TOP/common/configs
-
 source $TARGET_DIR/target_incl.tcl
 
 # Create project
@@ -28,9 +26,6 @@ set proj_dir [get_property directory [current_project]]
 
 # Set project properties
 set obj [get_projects panda_ps]
-if {[info exists BOARD_PART]} {
-    set_property "board_part" $BOARD_PART $obj
-}
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj

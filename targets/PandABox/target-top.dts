@@ -14,6 +14,13 @@
 		device_type = "memory";
 		reg = <0x0 0x40000000>;
 	};
+	usb_phy0: phy0 {
+		compatible = "ulpi-phy";
+		#phy-cells = <0>;
+		reg = <0xe0002000 0x1000>;
+		view-port = <0x170>;
+		drv-vbus;
+    };
 };
 
 &usb0 {
@@ -21,6 +28,7 @@
 	phy_type = "ulpi";
 	status = "okay";
 	usb-reset = <&gpio0 7 0>;
+	usb-phy = <&usb_phy0>;
 };
 
 &clkc {

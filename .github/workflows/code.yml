@@ -4,7 +4,6 @@ on:
   pull_request:
   # Whenever a new branch or tag is created
   # only on push for testing take out
-  push:
   create:
 
 jobs:

@@ -51,9 +51,7 @@ signal o_delay_wstb     : std_logic;
 
 begin
 
----------------------------------------------------------------------------
 -- Control System Interface
----------------------------------------------------------------------------
 lvdsout_ctrl_inst : entity work.lvdsout_ctrl
 port map (
     clk_i               => clk_i,
@@ -76,15 +74,23 @@ port map (
     write_ack_o         => write_ack_o
 );
 
-fd_inst : entity work.finedelay port map (
-    clk_i => clk_i,
-    clk_2x_i => clk_2x_i,
-    q_delay_i => q_delay(1 downto 0),
-    o_delay_i => o_delay(4 downto 0),
-    o_delay_strobe_i => o_delay_wstb,
-    signal_i => val,
-    signal_o => pad_iob
-);
+FINE_DELAY_GEN1: if FINE_DELAY_OPTION = '1' generate
+begin
+    fd_inst : entity work.finedelay port map (
+        clk_i => clk_i,
+        clk_2x_i => clk_2x_i,
+        q_delay_i => q_delay(1 downto 0),
+        o_delay_i => o_delay(4 downto 0),
+        o_delay_strobe_i => o_delay_wstb,
+        signal_i => val,
+        signal_o => pad_iob
+    );
+end generate;
+
+NO_FINE_DELAY_GEN1: if FINE_DELAY_OPTION = '0' generate
+begin
+    pad_iob <= val;
+end generate;
 
 pad_o <= pad_iob;
 

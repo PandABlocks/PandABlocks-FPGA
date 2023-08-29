@@ -29,7 +29,7 @@ use ieee.numeric_std.all;
 use ieee.std_logic_1164.all;
 
 library work;
-use work.top_defines.all;  -- need PCAP_SUPPORTS_STD_DEV
+use work.top_defines.all;  -- need PCAP_STD_DEV_OPTION
 
 
 entity pcap_frame_mode is
@@ -189,7 +189,7 @@ end process ps_sum_val;
 -- Modes 6-7-8 : sum of squared input values
 --------------------------------------------------------------------------------
 -- case PCAP supports std_dev fpga_option
-SUM_SQ_GEN_1 : if PCAP_SUPPORTS_STD_DEV = '1' generate
+SUM_SQ_GEN_1 : if PCAP_STD_DEV_OPTION = '1' generate
 begin
 
   -- Mode 6 / 7 / 8 : Sum^2 Low / Middle / High
@@ -223,7 +223,7 @@ begin
 end generate;
 
 -- case PCAP does not supports std_dev fpga_option
-SUM_SQ_GEN_0 : if PCAP_SUPPORTS_STD_DEV = '0' generate
+SUM_SQ_GEN_0 : if PCAP_STD_DEV_OPTION = '0' generate
 begin
     sum_data_sq <= (others=>'0');
     sum_sq_0_o <= (others=>'0');

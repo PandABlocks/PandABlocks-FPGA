@@ -4,7 +4,7 @@
 
 import os.path
 
-XADC_PATH = '/sys/devices/soc0/amba/f8007100.adc/iio:device0'
+XADC_PATH = '/sys/bus/iio/devices/iio:device0'
 
 class XADC:
     def __init__(self, node):

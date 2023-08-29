@@ -1,5 +1,9 @@
 # Register interface definition
 
+# This must be updated when there are changes that require the driver
+# to be updated
+DRIVER_COMPAT_VERSION = 1
+
 # This special register block is not present in the config file and contains
 # fixed register definitions used in the hardware interface.
 *REG        0
@@ -56,6 +60,9 @@
     PCAP_IRQ_STATUS         4
     # DMA block size in bytes
     PCAP_BLOCK_SIZE         6
+    # Kernel driver compatiblity version check register.  The value in this
+    # register must match DRIVER_COMPAT_VERSION.
+    COMPAT_VERSION          7
 
 LUT                 2
     INPA                0 1

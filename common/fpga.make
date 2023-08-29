@@ -10,18 +10,18 @@
 # Note: if these files have been downloaded through the releases directory then
 # they need to be renamed with the appropriate {u-boot,linux}-xlnx- prefix so
 # that the file name and contents match.
-MD5_SUM_device-tree-xlnx-xilinx-v2020.2 = c30a25d475c21fe4d9913b2df6aab692
-MD5_SUM_u-boot-xlnx-xilinx-v2020.2 = 6881a6b9f465f714e64c1398630287db
-MD5_SUM_arm-trusted-firmware-xilinx-v2020.2 = 0fd3ddbd76c27040e6ce848c9ef9c1f3
+MD5_SUM_device-tree-xlnx-xilinx_v2022.2 = 7885c6f69509e425a1800eed326ffee8
+MD5_SUM_u-boot-xlnx-xilinx-v2022.2 = a9e54fff739d5702465c786b5420d31e
+MD5_SUM_arm-trusted-firmware-xilinx-v2022.2 = a47d32e92fed413599093f6d82bf3e0c
 # The dtc source is obtained from https://git.kernel.org/pub/scm/utils/dtc/dtc.git
-MD5_SUM_dtc-1.6.1 = 19eef37196e99b659c402a29aac5ba59
+MD5_SUM_dtc-1.7.0 = f8b4469ad89f4b882091895ec60dde6b
 
 # By default use the same tagged version of the sources as the build tools.
 # To use a different version edit the variable below, and include MD5_SUM above.
-DEVTREE_TAG = xilinx-v$(VIVADO_VER)
+DEVTREE_TAG = xilinx_v$(VIVADO_VER)
 U_BOOT_TAG = xilinx-v$(VIVADO_VER)
 ATF_TAG = xilinx-v$(VIVADO_VER)
-DTC_TAG = 1.6.1
+DTC_TAG = 1.7.0
 
 # Need bash for the source command in Xilinx settings64.sh
 SHELL = /bin/bash
@@ -39,15 +39,12 @@ PS_CORE  = $(PS_DIR)/panda_ps.srcs/sources_1/bd/panda_ps/panda_ps.bd
 CARRIER_FPGA_BIT = $(BUILD_DIR)/panda_top.bit
 FPGA_BIN_FILE = $(BUILD_DIR)/panda_top.bin
 
-VERSION_FILE = $(AUTOGEN)/hdl/version.vhd
-
-# target_incl.make needs to be included after the VERSION_FILE variable is defined otherwise
-# make does not work out the dependencies properly. I don't understand why exactly!
--include $(TARGET_DIR)/target_incl.make
+IP_PROJ=$(IP_DIR)/managed_ip_project/managed_ip_project.xpr
 
 SDK_EXPORT = $(PS_DIR)/panda_ps.sdk
 HWDEF = $(PS_DIR)/panda_ps.xsa
 
+IP_PROJECT_SCR = $(TOP)/common/scripts/build_ip_proj.tcl
 IP_BUILD_SCR = $(TOP)/common/scripts/build_ip.tcl
 PS_BUILD_SCR = $(TOP)/common/scripts/build_ps.tcl
 PS_CONFIG_SCR = $(TARGET_DIR)/bd/panda_ps.tcl
@@ -81,6 +78,9 @@ ATF_BUILD = $(BOOT_BUILD)/atf
 ATF_ELF = $(ATF_BUILD)/build/zynqmp/release/bl31/bl31.elf
 
 IMAGE_DIR=$(TGT_BUILD_DIR)/boot
+
+# Include auto-generated list of IP required for app
+-include $(AUTOGEN)/ip.make
     
 # ------------------------------------------------------------------------------
 # Helper code lifted from rootfs and other miscellaneous functions
@@ -88,12 +88,11 @@ IMAGE_DIR=$(TGT_BUILD_DIR)/boot
 # Use the rootfs extraction tool to decompress our source trees.
 EXTRACT_FILE = $(ROOTFS_TOP)/scripts/extract-tar $(SRC_ROOT) $1 $2 $(TAR_FILES)
 
-
 #####################################################################
 # BUILD TARGETS includes HW and SW
 fpga-all: fpga-bit boot
 fpga-bit: carrier_fpga
-carrier_ip: $(IP_DIR)/IP_BUILD_SUCCESS
+carrier_ip: $(APP_IP_DEPS)
 ps_core: $(PS_CORE)
 devicetree : $(DEVTREE_DTB)
 fsbl : $(FSBL)
@@ -121,28 +120,18 @@ else
     $$(error Unknown PLATFORM specified. Must be 'zynq' or 'zynqmp')
 endif
 
-#####################################################################
-# Create VERSION_FILE
-
-$(VERSION_FILE) : $(VER)
-	rm -f $(VERSION_FILE)
-	echo 'library ieee;' >> $(VERSION_FILE)
-	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
-	echo 'package version is' >> $(VERSION_FILE)
-	echo -n 'constant FPGA_VERSION: std_logic_vector(31 downto 0)' >> $(VERSION_FILE)
-	echo ' := X"$(VERSION)";' >> $(VERSION_FILE)
-	echo -n 'constant FPGA_BUILD: std_logic_vector(31 downto 0)' >> $(VERSION_FILE)
-	echo ' := X"$(SHA)";' >> $(VERSION_FILE)
-	echo 'end version;' >> $(VERSION_FILE)
-
 ###########################################################
 # Build Zynq Firmware targets
 
-$(IP_DIR)/IP_BUILD_SUCCESS : $(IP_BUILD_SCR) $(TGT_INCL_SCR)
-	rm -f $@
-	$(RUNVIVADO) -mode $(DEP_MODE) -source $< \
+$(IP_PROJ) : $(IP_PROJECT_SCR) $(TGT_INCL_SCR)
+	$(RUNVIVADO) -mode batch -source $< \
 	  -log $(TGT_BUILD_DIR)/build_ip.log -nojournal \
-	  -tclargs $(TOP) $(TARGET_DIR) $(IP_DIR) $(DEP_MODE)
+	  -tclargs $(TGT_INCL_SCR) $@ $(EXT_IP_REPO)
+
+$(IP_DIR)/%/IP_DONE : $(TOP)/ip_defs/%.tcl $(IP_BUILD_SCR) | $(IP_PROJ)
+	$(RUNVIVADO) -mode batch -source $(IP_BUILD_SCR) \
+	  -applog -log $(TGT_BUILD_DIR)/build_ip.log -nojournal \
+	  -tclargs $(IP_PROJ) $(IP_DIR) $* $<
 	touch $@
 
 $(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR) $(TGT_INCL_SCR)
@@ -151,10 +140,10 @@ $(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR) $(TGT_INCL_SCR)
 	  -tclargs $(TOP) $(TARGET_DIR) $(PS_DIR) $@ $(DEP_MODE)
 
 CARRIER_FPGA_DEPS += $(TOP_BUILD_SCR)
-CARRIER_FPGA_DEPS += $(VERSION_FILE)
-CARRIER_FPGA_DEPS += $(IP_DIR)/IP_BUILD_SUCCESS
+CARRIER_FPGA_DEPS += $(APP_IP_DEPS)
 CARRIER_FPGA_DEPS += $(PS_CORE)
 CARRIER_FPGA_DEPS += $(TGT_INCL_SCR)
+CARRIER_FPGA_DEPS += $(HDL_VERSION_FILE)
 
 $(CARRIER_FPGA_BIT) : $(CARRIER_FPGA_DEPS)
 	$(RUNVIVADO) -mode $(TOP_MODE) -source $< \

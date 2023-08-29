@@ -2,6 +2,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.top_defines_gen;
+
 package top_defines is
 
 --------------------------------------------------------------------------
@@ -27,25 +30,22 @@ subtype MOD_RANGE               is natural range 0 to MOD_COUNT-1;
 constant RD_ADDR2ACK            : std_logic_vector(4 downto 0) := "00010";
 
 -- Block instantiation numbers--------------------------------------------
-constant ENC_NUM            : natural := 4;
+constant ENC_NUM                : natural := 4;
 --------------------------------------------------------------------------
 
--- Bit Bus Width, Multiplexer Select Width -------------------------------
-constant BBUSW              : natural := 128;
-constant BBUSBW             : natural := 7;
+--------------------------------------------------------------------------
+-- Aliasing for top_defines_gen.
 
--- Position Bus Width, Multiplexer Select Width.
-constant PBUSW              : natural := 32;
-constant PBUSBW             : natural := 5;
-
--- Extended Position Bus Width.
-constant EBUSW              : natural := 12;
+alias BBUSW is top_defines_gen.BBUSW;
+alias BBUSBW is top_defines_gen.BBUSBW;
+alias PBUSW is top_defines_gen.PBUSW;
+alias PBUSBW is top_defines_gen.PBUSBW;
+alias EBUSW is top_defines_gen.EBUSW;
+alias PCAP_STD_DEV_OPTION is top_defines_gen.PCAP_STD_DEV_OPTION;
+alias FINE_DELAY_OPTION is top_defines_gen.FINE_DELAY_OPTION;
 --------------------------------------------------------------------------
 
-constant DCARD_MONITOR      : std_logic_vector(2 downto 0) := "011";
-
--- Presence of PCAP_STD_DEV functionality
-constant PCAP_SUPPORTS_STD_DEV  : std_logic := '1';
+constant DCARD_MONITOR          : std_logic_vector(2 downto 0) := "011";
 
 type t_mode_group is array (8 downto 0) of std_logic_vector(31 downto 0);
 type t_mode is array (PBUSW-1 downto 0) of t_mode_group;
@@ -117,13 +117,13 @@ type SFP_output_interface is
   record
     TXN_OUT     : std_logic;
     TXP_OUT     : std_logic;
-    EVR_REC_CLK : std_logic;
+    MGT_REC_CLK : std_logic;
     LINK_UP     : std_logic;
   end record SFP_output_interface;
 
 constant SFP_o_init : SFP_output_interface := (TXN_OUT => 'Z',
                                                TXP_OUT => 'Z',
-                                               EVR_REC_CLK => '0',
+                                               MGT_REC_CLK => '0',
                                                LINK_UP => '0');
 
 
@@ -197,6 +197,8 @@ function PFIELD(pbus : std32_array; sel : std_logic_vector)
     return std_logic_vector;
 function compute_block_strobe(addr : std_logic_vector; index : natural)
     return std_logic;
+function to_std_logic(cond : boolean)
+    return std_logic;
 
 --
 -- Components
@@ -238,6 +240,15 @@ begin
         return '0';
     end if;
 end compute_block_strobe;
+
+function to_std_logic(cond : boolean) return std_logic is
+begin
+    if cond then
+        return '1';
+    else
+        return '0';
+    end if;
+end function;
 
 end top_defines;
 

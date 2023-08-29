@@ -30,10 +30,15 @@ log = logging.getLogger(__name__)
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 
-# List of allowing FPGA options enabled in target ini file
-VALID_FPGA_OPTIONS = [
-    "pcap_std_dev",
-]
+
+# All options are disabled by default, this is also use to check allowed
+# FPGA options, which could be enabled in the app ini file or in the target
+# ini file
+FPGA_OPTIONS_DEFAULTS = {
+    'pcap_std_dev': False,
+    'fine_delay': False
+}
+
 
 def jinja_context(**kwargs):
     context = dict(pad=pad)
@@ -69,7 +74,7 @@ class AppGenerator(object):
         self.fpga_blocks = []  # type: List[BlockConfig]
         self.server_blocks = []  # type: List[BlockConfig]
         self.target_sites = [] #type: List[TargetSiteConfig]
-        self.fpga_options = set() #type: Set[str]
+        self.fpga_options = dict(FPGA_OPTIONS_DEFAULTS)  # type: dict[str, bool]
         self.app = app
 
     def generate_all(self):
@@ -131,6 +136,38 @@ class AppGenerator(object):
         else:
             path="modules"
         self.implement_blocks(app_ini, path, "soft")
+        # Filter option sensitive fields
+        for block in self.server_blocks:
+            to_delete = [
+                field for field in block.fields
+                    if not self.match_fpga_options(
+                        self.parse_fpga_options(field.option_filter))
+            ]
+            for field in to_delete:
+                block.fields.remove(field)
+
+    def parse_fpga_options(self, text):
+        # returns a dict with option -> expected_value
+        options = {}
+        for option in filter(None, (item.strip() for item in text.split(','))):
+            expected = True
+            if option.startswith('!'):
+                option = option[1:].strip()
+                expected = False
+
+            assert option in self.fpga_options, \
+                "%r option is not valid" % option
+
+            options[option] = expected
+
+        return options
+
+    def match_fpga_options(self, options):
+        for key, val in options.items():
+            if self.fpga_options[key] != val:
+                return False
+
+        return True
 
     def implement_blocks(self, ini, path, type):
         """Read the ini file and for each section create a new block"""
@@ -197,7 +234,10 @@ class AppGenerator(object):
                     for suffix in block.block_suffixes:
                         self.server_blocks.append(server_blocks[suffix])
                 else:
-                    self.server_blocks.append(block)
+                    # We need to copy because this is going to be filtered
+                    # afterwards and we don't want to affect fpga_blocks
+                    server_block = copy.deepcopy(block)
+                    self.server_blocks.append(server_block)
 
     def expand_template(self, template_name, context, out_dir, out_fname,
                         template_dir=None):
@@ -238,10 +278,6 @@ class AppGenerator(object):
             "descriptions.jinja2", context, config_dir, "description")
         self.expand_template(
             "sim_server.jinja2", context, self.app_build_dir, "sim_server")
-        #context = jinja_context(app=self.app_name)
-        #self.expand_template(
-        #    "slow_top.files.jinja2",
-        #    context, self.app_build_dir, "slow_top.files")
 
     def generate_wrappers(self):
         """Generate wrappers in hdl"""
@@ -295,6 +331,7 @@ class AppGenerator(object):
             if block.entity not in block_names:
                 register_blocks.append(block)
                 block_names.append(block.entity)
+
         context = jinja_context(
             fpga_blocks=self.fpga_blocks,
             target_sites=self.target_sites,
@@ -309,8 +346,8 @@ class AppGenerator(object):
                              "soft_blocks.vhd")
         self.expand_template("addr_defines.vhd.jinja2", context, hdl_dir,
                              "addr_defines.vhd")
-        self.expand_template("top_defines.vhd.jinja2", context, hdl_dir,
-                             "top_defines.vhd")
+        self.expand_template("top_defines_gen.vhd.jinja2", context, hdl_dir,
+                             "top_defines_gen.vhd")
 
     def check_interfaces(self):
         "If an interface is required in any blocks, is there a matching interface?"
@@ -344,6 +381,8 @@ class AppGenerator(object):
         context = jinja_context(fpga_blocks=self.fpga_blocks, os=os, ips=ips)
         self.expand_template("constraints.tcl.jinja2", context, const_dir,
                              "constraints.tcl")
+        self.expand_template("ip.make.jinja2", context, self.app_build_dir,
+                             "ip.make")
 
     def generate_regdefs(self):
         """generate the registers define file from the registers server file"""
@@ -356,6 +395,10 @@ class AppGenerator(object):
         regs = []
         with open(reg_server_dir, 'r') as fp:
             for line in fp:
+                if "=" in line:
+                    # ignore constants
+                    continue
+
                 if "*" in line:
                     # The prefix for the signals are either REG or DRV
                     block = line.split(" ", 1)[0]
@@ -397,25 +440,7 @@ class AppGenerator(object):
         return any(char.isdigit() for char in inputstring)
 
     def process_fpga_options(self, options_text):
-        for option_text in filter(None, [option_text.strip()
-                for option_text in options_text.split(',')]):
-            self.process_fpga_option(option_text)
-
-    def process_fpga_option(self, option_text):
-        want_delete = option_text.startswith('!')
-        fpga_option = option_text[int(want_delete):].strip()
-
-        assert fpga_option in VALID_FPGA_OPTIONS, \
-            "%r option defined in target ini file is not valid" % fpga_option
-
-        if want_delete:
-            try:
-                self.fpga_options.remove(fpga_option)
-            except KeyError:
-                log.warning('Trying to remove option not added before: %s',
-                            fpga_option)
-        else:
-            self.fpga_options.add(fpga_option)
+        self.fpga_options.update(self.parse_fpga_options(options_text))
 
 
 def main():

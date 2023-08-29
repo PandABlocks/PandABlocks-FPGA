@@ -12,8 +12,6 @@ set PS_CORE    [lindex $argv 5]
 set MODE       [lindex $argv 6]
 set PLATFORM   [lindex $argv 7]
 
-set_param board.repoPaths $TOP_DIR/common/configs
-
 source $TARGET_DIR/target_incl.tcl
 
 # Create project (in-memory if not in gui mode)
@@ -31,9 +29,6 @@ set proj_dir [get_property directory [current_project]]
 
 # Set project properties
 set obj [get_projects carrier_fpga_top]
-if {[info exists BOARD_PART]} {
-    set_property "board_part" $BOARD_PART $obj
-}
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj
@@ -66,13 +61,18 @@ read_bd   $PS_CORE
 
 # Read auto generated files
 add_files [glob $AUTOGEN/hdl/*.vhd]
+set_property FILE_TYPE "VHDL 2008" [get_files $AUTOGEN/hdl/*.vhd]
 
 # Read design files
 
 add_files [glob $TOP_DIR/common/hdl/defines/*.vhd]
+set_property FILE_TYPE "VHDL 2008" [get_files $TOP_DIR/common/hdl/defines/*.vhd]
 add_files [glob $TOP_DIR/common/hdl/*.vhd]
-add_files -quiet [glob -nocomplain $TOP_DIR/common/hdl_$PLATFORM/*.vhd]
+set_property FILE_TYPE "VHDL 2008" [get_files $TOP_DIR/common/hdl/*.vhd]
+add_files [glob $TOP_DIR/common/hdl_$PLATFORM/*.vhd]
+set_property FILE_TYPE "VHDL 2008" [get_files $TOP_DIR/common/hdl_$PLATFORM/*.vhd]
 add_files [glob $TARGET_DIR/hdl/*]
+set_property FILE_TYPE "VHDL 2008" [get_files $TARGET_DIR/hdl/*.vhd]
 
 # Exit script here if gui mode - i.e. if running 'make carrier_fpga_gui'
 if {[string match "gui" [string tolower $MODE]]} { return }

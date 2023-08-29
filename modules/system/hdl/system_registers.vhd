@@ -102,7 +102,7 @@ begin
                 else
                     slow_tlp_o.data <= OUTENC_PROT_i(outenc_ind);
                 end if;
-                slow_tlp_o.address <= OUTPROT_ADDR_LIST(ONEHOT_INDEX(INENC_PROT_WSTB_i));
+                slow_tlp_o.address <= OUTPROT_ADDR_LIST(outenc_ind);
             -- TTLIN TERM Slow Registers
             elsif (or_reduce(TTLIN_TERM_WSTB_i) = '1') then
                 ttlin_ind := ONEHOT_INDEX(TTLIN_TERM_WSTB_i);
