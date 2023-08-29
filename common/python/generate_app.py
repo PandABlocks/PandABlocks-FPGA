@@ -65,7 +65,7 @@ class AppGenerator(object):
             "Output dir %r already exists" % app_build_dir
         self.app_build_dir = app_build_dir
         self.app_name = app.split('/')[-1].split('.')[0]
-        self.testPath=testPath
+        self.testPath = testPath
         # Create a Jinja2 environment in the templates dir
         self.env = jinja_env(TEMPLATES)
         # Start from base register 2 to allow for *REG and *DRV spaces
@@ -132,9 +132,9 @@ class AppGenerator(object):
         # If a test path has been given, use it for location of blocks.
         # Otherwise blocks should be in moudles directory
         if self.testPath:
-            path=self.testPath
+            path = self.testPath
         else:
-            path="modules"
+            path = "modules"
         self.implement_blocks(app_ini, path, "soft")
         # Filter option sensitive fields
         for block in self.server_blocks:
@@ -202,7 +202,7 @@ class AppGenerator(object):
                 # for carrier block
                 block = BlockConfig(section, type, number, ini_path, siteNumber)
                 block.register_addresses(self.counters)
-                block.generateCalcExtensions()
+                block.generate_calc_extensions()
                 self.fpga_blocks.append(block)
                 # Copy the fpga_blocks to the server blocks. Most blocks will
                 # be the same between the two, however the block suffixes blocks

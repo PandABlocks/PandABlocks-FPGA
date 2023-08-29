@@ -128,7 +128,7 @@ class BlockConfig(object):
         self.fields = FieldConfig.from_ini(
             ini, number)  # type: List[FieldConfig]
         #: List of Extension fields in the block
-        self.calc_extensions=[]
+        self.calc_extensions = []
         #: Are there any suffixes?
         self.block_suffixes = ini_get(ini, '.', 'block_suffixes', '').split()
 
@@ -174,11 +174,11 @@ class BlockConfig(object):
             if constraint not in self.interfaceConstraints:
                 self.interfaceConstraints.append(constraint)
 
-    def generateCalcExtensions(self):
+    def generate_calc_extensions(self):
         # Iterate through the fields and add any with writeExtension type to the list
         for field in self.filter_fields("extension_.*"):
             extension = (field.name, field.registers[0].number)
-            self.extension=self.name.lower()
+            self.extension = self.name.lower()
             self.calc_extensions.append(extension)
         # After extensions have been added to self.read_extensions/self.write_extensions
         # Iterate through the fields, when a writeExtension is specified find its number
@@ -269,7 +269,7 @@ class FieldConfig(object):
         self.extension_write = extra_config.pop("extension_write", "")
         self.extension_read = extra_config.pop("extension_read", "")
         self.extension_nums = []
-        self.no_config = 0
+        self.no_config = False
         #: All the other extra config items
         self.extra_config_lines = list(self.parse_extra_config(extra_config))
 
@@ -306,9 +306,8 @@ class FieldConfig(object):
                         if ext_type == "write":
                             result.extend(str(' '.join(str(num) )))
                 result.extend(['X', r.extension])
-            else:
-                if r.number >= 0:
-                    result.append(str(r.number))
+            elif r.number >= 0:
+                result.append(str(r.number))
             return ' '.join(result)
 
         if self.registers:
@@ -517,7 +516,7 @@ class CalcExtensionFieldConfig(ParamFieldConfig):
     def register_addresses(self, counters):
         # type: (FieldCounter) -> None
         super(CalcExtensionFieldConfig, self).register_addresses(counters)
-        self.no_config=1
+        self.no_config = True
 
 class EnumParamFieldConfig(ParamFieldConfig):
     """An enum field with its integer entries and string values"""
