@@ -94,7 +94,6 @@ look like this:
     type: type subtype options
     description: Short description of the Field
     extension: extension-parameter
-    extension_reg:
     wstb:
 
 The section name is used to determine the name of the Field in the resulting

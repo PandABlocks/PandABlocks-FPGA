@@ -15,22 +15,22 @@ port (
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
     -- Block Parameters
-    IN_GAIN1            : out std_logic_vector(31 downto 0);
-    IN_GAIN1_wstb       : out std_logic;
-    IN_GAIN2            : out std_logic_vector(31 downto 0);
-    IN_GAIN2_wstb       : out std_logic;
-    IN_GAIN3            : out std_logic_vector(31 downto 0);
-    IN_GAIN3_wstb       : out std_logic;
-    IN_GAIN4            : out std_logic_vector(31 downto 0);
-    IN_GAIN4_wstb       : out std_logic;
-    IN_GAIN5            : out std_logic_vector(31 downto 0);
-    IN_GAIN5_wstb       : out std_logic;
-    IN_GAIN6            : out std_logic_vector(31 downto 0);
-    IN_GAIN6_wstb       : out std_logic;
-    IN_GAIN7            : out std_logic_vector(31 downto 0);
-    IN_GAIN7_wstb       : out std_logic;
-    IN_GAIN8            : out std_logic_vector(31 downto 0);
-    IN_GAIN8_wstb       : out std_logic;
+    IN_GAIN1_REG        : out std_logic_vector(31 downto 0);
+    IN_GAIN1_REG_wstb   : out std_logic;
+    IN_GAIN2_REG        : out std_logic_vector(31 downto 0);
+    IN_GAIN2_REG_wstb   : out std_logic;
+    IN_GAIN3_REG        : out std_logic_vector(31 downto 0);
+    IN_GAIN3_REG_wstb   : out std_logic;
+    IN_GAIN4_REG        : out std_logic_vector(31 downto 0);
+    IN_GAIN4_REG_wstb   : out std_logic;
+    IN_GAIN5_REG        : out std_logic_vector(31 downto 0);
+    IN_GAIN5_REG_wstb   : out std_logic;
+    IN_GAIN6_REG        : out std_logic_vector(31 downto 0);
+    IN_GAIN6_REG_wstb   : out std_logic;
+    IN_GAIN7_REG        : out std_logic_vector(31 downto 0);
+    IN_GAIN7_REG_wstb   : out std_logic;
+    IN_GAIN8_REG        : out std_logic_vector(31 downto 0);
+    IN_GAIN8_REG_wstb   : out std_logic;
     OUT_VAL1_from_bus   : out std_logic_vector(31 downto 0);
     OUT_VAL2_from_bus   : out std_logic_vector(31 downto 0);
     OUT_VAL3_from_bus   : out std_logic_vector(31 downto 0);
@@ -88,14 +88,14 @@ begin
     begin
         if rising_edge(clk_i) then
             -- Zero all the write strobe arrays, we set them below
-            IN_GAIN1_wstb <= '0';
-            IN_GAIN2_wstb <= '0';
-            IN_GAIN3_wstb <= '0';
-            IN_GAIN4_wstb <= '0';
-            IN_GAIN5_wstb <= '0';
-            IN_GAIN6_wstb <= '0';
-            IN_GAIN7_wstb <= '0';
-            IN_GAIN8_wstb <= '0';
+            IN_GAIN1_REG_wstb <= '0';
+            IN_GAIN2_REG_wstb <= '0';
+            IN_GAIN3_REG_wstb <= '0';
+            IN_GAIN4_REG_wstb <= '0';
+            IN_GAIN5_REG_wstb <= '0';
+            IN_GAIN6_REG_wstb <= '0';
+            IN_GAIN7_REG_wstb <= '0';
+            IN_GAIN8_REG_wstb <= '0';
             OUT_VAL1_wstb <= '0';
             OUT_VAL2_wstb <= '0';
             OUT_VAL3_wstb <= '0';
@@ -103,30 +103,30 @@ begin
             if (write_strobe_i = '1') then
                 -- Set the specific write strobe that has come in
                 case write_addr is
-                    when FMC_ACQ427_IN_GAIN1_addr =>
-                        IN_GAIN1 <= write_data_i;
-                        IN_GAIN1_wstb <= '1';
-                    when FMC_ACQ427_IN_GAIN2_addr =>
-                        IN_GAIN2 <= write_data_i;
-                        IN_GAIN2_wstb <= '1';
-                    when FMC_ACQ427_IN_GAIN3_addr =>
-                        IN_GAIN3 <= write_data_i;
-                        IN_GAIN3_wstb <= '1';
-                    when FMC_ACQ427_IN_GAIN4_addr =>
-                        IN_GAIN4 <= write_data_i;
-                        IN_GAIN4_wstb <= '1';
-                    when FMC_ACQ427_IN_GAIN5_addr =>
-                        IN_GAIN5 <= write_data_i;
-                        IN_GAIN5_wstb <= '1';
-                    when FMC_ACQ427_IN_GAIN6_addr =>
-                        IN_GAIN6 <= write_data_i;
-                        IN_GAIN6_wstb <= '1';
-                    when FMC_ACQ427_IN_GAIN7_addr =>
-                        IN_GAIN7 <= write_data_i;
-                        IN_GAIN7_wstb <= '1';
-                    when FMC_ACQ427_IN_GAIN8_addr =>
-                        IN_GAIN8 <= write_data_i;
-                        IN_GAIN8_wstb <= '1';
+                    when FMC_ACQ427_IN_GAIN1_REG_addr =>
+                        IN_GAIN1_REG <= write_data_i;
+                        IN_GAIN1_REG_wstb <= '1';
+                    when FMC_ACQ427_IN_GAIN2_REG_addr =>
+                        IN_GAIN2_REG <= write_data_i;
+                        IN_GAIN2_REG_wstb <= '1';
+                    when FMC_ACQ427_IN_GAIN3_REG_addr =>
+                        IN_GAIN3_REG <= write_data_i;
+                        IN_GAIN3_REG_wstb <= '1';
+                    when FMC_ACQ427_IN_GAIN4_REG_addr =>
+                        IN_GAIN4_REG <= write_data_i;
+                        IN_GAIN4_REG_wstb <= '1';
+                    when FMC_ACQ427_IN_GAIN5_REG_addr =>
+                        IN_GAIN5_REG <= write_data_i;
+                        IN_GAIN5_REG_wstb <= '1';
+                    when FMC_ACQ427_IN_GAIN6_REG_addr =>
+                        IN_GAIN6_REG <= write_data_i;
+                        IN_GAIN6_REG_wstb <= '1';
+                    when FMC_ACQ427_IN_GAIN7_REG_addr =>
+                        IN_GAIN7_REG <= write_data_i;
+                        IN_GAIN7_REG_wstb <= '1';
+                    when FMC_ACQ427_IN_GAIN8_REG_addr =>
+                        IN_GAIN8_REG <= write_data_i;
+                        IN_GAIN8_REG_wstb <= '1';
                     when FMC_ACQ427_OUT_VAL1_addr =>
                         OUT_VAL1 <= write_data_i;
                         OUT_VAL1_wstb <= '1';

@@ -113,7 +113,7 @@ begin
     begin
         if rising_edge(clk_i) then
             case (read_addr) is
-{% for field in filter_fields("read.*") %}
+{% for field in filter_fields(".*read.*") %}
     {% for register in field.numbered_registers() %}
                 when {{ entity|upper }}_{{ register.name }}_addr =>
                     read_data_o <= {{ register.name }};

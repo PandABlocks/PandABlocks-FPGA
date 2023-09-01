@@ -178,7 +178,8 @@ class BlockConfig(object):
         # Iterate through the fields and add any with writeExtension type to the list
         for field in self.filter_fields("extension_.*"):
             extension = (field.name, field.registers[0].number)
-            self.extension = self.name.lower()
+            if not self.extension: 
+                self.extension = self.name.lower()
             self.calc_extensions.append(extension)
         # After extensions have been added to self.read_extensions/self.write_extensions
         # Iterate through the fields, when a writeExtension is specified find its number
@@ -265,7 +266,6 @@ class FieldConfig(object):
         self.option_filter = extra_config.pop("if-option", "")
         #: Store the extension register info
         self.extension = extra_config.pop("extension", None)
-        self.extension_reg = extra_config.pop("extension_reg", None)
         self.extension_write = extra_config.pop("extension_write", "")
         self.extension_read = extra_config.pop("extension_read", "")
         self.extension_nums = []
@@ -498,10 +498,7 @@ class ParamFieldConfig(FieldConfig):
     def register_addresses(self, counters):
         # type: (FieldCounter) -> None
         if self.extension:
-            if self.extension_reg is None:
-                address = -1
-            else:
-                address = counters.new_field()
+            address = -1
         else:
             address = counters.new_field()
 

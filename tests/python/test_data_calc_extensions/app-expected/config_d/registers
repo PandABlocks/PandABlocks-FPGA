@@ -75,14 +75,14 @@ INTERVAL            3 interval
     RANGE               W 0 1 X range
 
 FMC_IN              S4 fmc_acq427
-    GAIN1               X adc1_gain
-    GAIN2               X adc2_gain
-    GAIN3               X adc3_gain
-    GAIN4               X adc4_gain
-    GAIN5               X adc5_gain
-    GAIN6               X adc6_gain
-    GAIN7               X adc7_gain
-    GAIN8               X adc8_gain
+    GAIN1               W 0 X adc1_gain
+    GAIN2               W 1 X adc2_gain
+    GAIN3               W 2 X adc3_gain
+    GAIN4               W 3 X adc4_gain
+    GAIN5               W 4 X adc5_gain
+    GAIN6               W 5 X adc6_gain
+    GAIN7               W 6 X adc7_gain
+    GAIN8               W 7 X adc8_gain
     VAL1                0
     VAL2                1
     VAL3                2

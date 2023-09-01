@@ -44,14 +44,14 @@ package addr_defines is
     constant INTERVAL_TOP_addr : natural := 1;
 
 -- fmc_acq427 Block:
-    constant FMC_ACQ427_IN_GAIN1_addr : natural := 0;
-    constant FMC_ACQ427_IN_GAIN2_addr : natural := 1;
-    constant FMC_ACQ427_IN_GAIN3_addr : natural := 2;
-    constant FMC_ACQ427_IN_GAIN4_addr : natural := 3;
-    constant FMC_ACQ427_IN_GAIN5_addr : natural := 4;
-    constant FMC_ACQ427_IN_GAIN6_addr : natural := 5;
-    constant FMC_ACQ427_IN_GAIN7_addr : natural := 6;
-    constant FMC_ACQ427_IN_GAIN8_addr : natural := 7;
+    constant FMC_ACQ427_IN_GAIN1_REG_addr : natural := 0;
+    constant FMC_ACQ427_IN_GAIN2_REG_addr : natural := 1;
+    constant FMC_ACQ427_IN_GAIN3_REG_addr : natural := 2;
+    constant FMC_ACQ427_IN_GAIN4_REG_addr : natural := 3;
+    constant FMC_ACQ427_IN_GAIN5_REG_addr : natural := 4;
+    constant FMC_ACQ427_IN_GAIN6_REG_addr : natural := 5;
+    constant FMC_ACQ427_IN_GAIN7_REG_addr : natural := 6;
+    constant FMC_ACQ427_IN_GAIN8_REG_addr : natural := 7;
     constant FMC_ACQ427_OUT_VAL1_addr : natural := 8;
     constant FMC_ACQ427_OUT_VAL2_addr : natural := 9;
     constant FMC_ACQ427_OUT_VAL3_addr : natural := 10;

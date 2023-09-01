@@ -85,6 +85,14 @@ begin
     begin
         if rising_edge(clk_i) then
             case (read_addr) is
+                when DUMMY_DUMMY_READ_0_addr =>
+                    read_data_o <= DUMMY_READ_0;
+                when DUMMY_DUMMY_READ_1_addr =>
+                    read_data_o <= DUMMY_READ_1;
+                when DUMMY_DUMMY_READ_2_addr =>
+                    read_data_o <= DUMMY_READ_2;
+                when DUMMY_DUMMY_READ_3_addr =>
+                    read_data_o <= DUMMY_READ_3;
                 when others =>
                     read_data_o <= (others => '0');
             end case;

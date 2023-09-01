@@ -62,6 +62,7 @@ class GPIO_Helper:
         value = (value << offset) & mask
         self.outputs[byte_ix] = (self.outputs[byte_ix] & ~mask) | value
         self.write_output_bits(self.outputs)
+        return (value,)
 
 
 # We need a single GPIO controller shared between the ADC and DAC extensions.
