@@ -266,15 +266,15 @@ signal PIC_SPI_DI           : std_logic;
 signal PIC_SPI_DO           : std_logic;
 
 -- Line Driver Boards...      
-signal AXIS_1_IN            : std_logic_vector(7 downto 0);
-signal AXIS_1_OUT           : std_logic_vector(7 downto 0);
-signal AXIS_5_IN            : std_logic_vector(7 downto 0);
-signal AXIS_5_OUT           : std_logic_vector(7 downto 0);
+signal LD_FPGA_IN_AXIS_1    : std_logic_vector(7 downto 0);
+signal LD_FPGA_OUT_AXIS_1   : std_logic_vector(7 downto 0);
+signal LD_FPGA_IN_AXIS_5    : std_logic_vector(7 downto 0);
+signal LD_FPGA_OUT_AXIS_5   : std_logic_vector(7 downto 0);
 
-signal AXIS_2_IN            : std_logic_vector(7 downto 0);
-signal AXIS_2_OUT           : std_logic_vector(7 downto 0);
-signal AXIS_6_IN            : std_logic_vector(7 downto 0);
-signal AXIS_6_OUT           : std_logic_vector(7 downto 0);
+signal LD_FPGA_IN_AXIS_2    : std_logic_vector(7 downto 0);
+signal LD_FPGA_OUT_AXIS_2   : std_logic_vector(7 downto 0);
+signal LD_FPGA_IN_AXIS_6    : std_logic_vector(7 downto 0);
+signal LD_FPGA_OUT_AXIS_6   : std_logic_vector(7 downto 0);
 
 --AUX IO SPI/TTL Board (Back Panel)  
 signal AUX_IO_DATA          : std_logic_vector(5 downto 1);
@@ -741,185 +741,185 @@ PIC_SPI_DO <= FMC_CLK1_M2C_N;
 
 -- XU5... (has first two driver boards)
 
-AXIS_1_IN(0) <= FMC_LA02_P; 
-AXIS_1_IN(1) <= FMC_LA02_N;
-AXIS_1_IN(2) <= FMC_LA03_P;
-AXIS_1_IN(3) <= FMC_LA03_N;
-AXIS_1_IN(4) <= FMC_LA06_P;
-AXIS_1_IN(5) <= FMC_LA06_N;
-AXIS_1_IN(6) <= FMC_LA04_P;
+LD_FPGA_IN_AXIS_1(0) <= FMC_LA02_P; 
+LD_FPGA_IN_AXIS_1(1) <= FMC_LA02_N;
+LD_FPGA_IN_AXIS_1(2) <= FMC_LA03_P;
+LD_FPGA_IN_AXIS_1(3) <= FMC_LA03_N;
+LD_FPGA_IN_AXIS_1(4) <= FMC_LA06_P;
+LD_FPGA_IN_AXIS_1(5) <= FMC_LA06_N;
+LD_FPGA_IN_AXIS_1(6) <= FMC_LA04_P;
 --(7)unused
 
-FMC_LA05_P <= AXIS_1_OUT(0);
-FMC_LA05_N <= AXIS_1_OUT(1);
-FMC_LA10_P <= AXIS_1_OUT(2);
-FMC_LA10_N <= AXIS_1_OUT(3);
-FMC_LA08_P <= AXIS_1_OUT(4);
-FMC_LA08_N <= AXIS_1_OUT(5);
-FMC_LA07_P <= AXIS_1_OUT(6);
-FMC_LA07_N <= AXIS_1_OUT(7);
+FMC_LA05_P <= LD_FPGA_OUT_AXIS_1(0);
+FMC_LA05_N <= LD_FPGA_OUT_AXIS_1(1);
+FMC_LA10_P <= LD_FPGA_OUT_AXIS_1(2);
+FMC_LA10_N <= LD_FPGA_OUT_AXIS_1(3);
+FMC_LA08_P <= LD_FPGA_OUT_AXIS_1(4);
+FMC_LA08_N <= LD_FPGA_OUT_AXIS_1(5);
+FMC_LA07_P <= LD_FPGA_OUT_AXIS_1(6);
+FMC_LA07_N <= LD_FPGA_OUT_AXIS_1(7);
 
 
-AXIS_5_IN(0) <= FMC_LA04_N;
-AXIS_5_IN(1) <= FMC_LA09_P;
-AXIS_5_IN(2) <= FMC_LA09_N;
-AXIS_5_IN(3) <= FMC_LA12_P;
-AXIS_5_IN(4) <= FMC_LA12_N;
-AXIS_5_IN(5) <= FMC_LA11_P;
-AXIS_5_IN(6) <= FMC_LA11_N;
+LD_FPGA_IN_AXIS_5(0) <= FMC_LA04_N;
+LD_FPGA_IN_AXIS_5(1) <= FMC_LA09_P;
+LD_FPGA_IN_AXIS_5(2) <= FMC_LA09_N;
+LD_FPGA_IN_AXIS_5(3) <= FMC_LA12_P;
+LD_FPGA_IN_AXIS_5(4) <= FMC_LA12_N;
+LD_FPGA_IN_AXIS_5(5) <= FMC_LA11_P;
+LD_FPGA_IN_AXIS_5(6) <= FMC_LA11_N;
 --(7)unused
 
-FMC_LA14_P <= AXIS_5_OUT(0);
-FMC_LA14_N <= AXIS_5_OUT(1);
-FMC_LA13_P <= AXIS_5_OUT(2);
-FMC_LA13_N <= AXIS_5_OUT(3);
-FMC_LA16_P <= AXIS_5_OUT(4);
-FMC_LA16_N <= AXIS_5_OUT(5);
-FMC_LA15_P <= AXIS_5_OUT(6);
-FMC_LA15_N <= AXIS_5_OUT(7);
+FMC_LA14_P <= LD_FPGA_OUT_AXIS_5(0);
+FMC_LA14_N <= LD_FPGA_OUT_AXIS_5(1);
+FMC_LA13_P <= LD_FPGA_OUT_AXIS_5(2);
+FMC_LA13_N <= LD_FPGA_OUT_AXIS_5(3);
+FMC_LA16_P <= LD_FPGA_OUT_AXIS_5(4);
+FMC_LA16_N <= LD_FPGA_OUT_AXIS_5(5);
+FMC_LA15_P <= LD_FPGA_OUT_AXIS_5(6);
+FMC_LA15_N <= LD_FPGA_OUT_AXIS_5(7);
 
 
-AXIS_2_IN(0) <= FMC_LA20_P; 
-AXIS_2_IN(1) <= FMC_LA20_N;
-AXIS_2_IN(2) <= FMC_LA19_P;
-AXIS_2_IN(3) <= FMC_LA19_N;
-AXIS_2_IN(4) <= FMC_LA22_P;
-AXIS_2_IN(5) <= FMC_LA22_N;
-AXIS_2_IN(6) <= FMC_LA23_P;
+LD_FPGA_IN_AXIS_2(0) <= FMC_LA20_P; 
+LD_FPGA_IN_AXIS_2(1) <= FMC_LA20_N;
+LD_FPGA_IN_AXIS_2(2) <= FMC_LA19_P;
+LD_FPGA_IN_AXIS_2(3) <= FMC_LA19_N;
+LD_FPGA_IN_AXIS_2(4) <= FMC_LA22_P;
+LD_FPGA_IN_AXIS_2(5) <= FMC_LA22_N;
+LD_FPGA_IN_AXIS_2(6) <= FMC_LA23_P;
 --(7)unused
 
-FMC_LA27_P <= AXIS_2_OUT(0);
-FMC_LA27_N <= AXIS_2_OUT(1);
-FMC_LA26_P <= AXIS_2_OUT(2);
-FMC_LA26_N <= AXIS_2_OUT(3);
-FMC_LA25_P <= AXIS_2_OUT(4);
-FMC_LA25_N <= AXIS_2_OUT(5);
-FMC_LA21_P <= AXIS_2_OUT(6);
-FMC_LA21_N <= AXIS_2_OUT(7);
+FMC_LA27_P <= LD_FPGA_OUT_AXIS_2(0);
+FMC_LA27_N <= LD_FPGA_OUT_AXIS_2(1);
+FMC_LA26_P <= LD_FPGA_OUT_AXIS_2(2);
+FMC_LA26_N <= LD_FPGA_OUT_AXIS_2(3);
+FMC_LA25_P <= LD_FPGA_OUT_AXIS_2(4);
+FMC_LA25_N <= LD_FPGA_OUT_AXIS_2(5);
+FMC_LA21_P <= LD_FPGA_OUT_AXIS_2(6);
+FMC_LA21_N <= LD_FPGA_OUT_AXIS_2(7);
 
-AXIS_6_IN(0) <= FMC_LA23_N;
-AXIS_6_IN(1) <= FMC_LA29_P;
-AXIS_6_IN(2) <= FMC_LA29_N;
-AXIS_6_IN(3) <= FMC_LA24_P;
-AXIS_6_IN(4) <= FMC_LA24_N;
-AXIS_6_IN(5) <= FMC_LA28_P;
-AXIS_6_IN(6) <= FMC_LA28_N;
+LD_FPGA_IN_AXIS_6(0) <= FMC_LA23_N;
+LD_FPGA_IN_AXIS_6(1) <= FMC_LA29_P;
+LD_FPGA_IN_AXIS_6(2) <= FMC_LA29_N;
+LD_FPGA_IN_AXIS_6(3) <= FMC_LA24_P;
+LD_FPGA_IN_AXIS_6(4) <= FMC_LA24_N;
+LD_FPGA_IN_AXIS_6(5) <= FMC_LA28_P;
+LD_FPGA_IN_AXIS_6(6) <= FMC_LA28_N;
 --(7)unused
 
-FMC_LA31_P <= AXIS_6_OUT(0);
-FMC_LA31_N <= AXIS_6_OUT(1);
-FMC_LA30_P <= AXIS_6_OUT(2);
-FMC_LA30_N <= AXIS_6_OUT(3);
-FMC_LA33_P <= AXIS_6_OUT(4);
-FMC_LA33_N <= AXIS_6_OUT(5);
-FMC_LA32_P <= AXIS_6_OUT(6);
-FMC_LA32_N <= AXIS_6_OUT(7);
+FMC_LA31_P <= LD_FPGA_OUT_AXIS_6(0);
+FMC_LA31_N <= LD_FPGA_OUT_AXIS_6(1);
+FMC_LA30_P <= LD_FPGA_OUT_AXIS_6(2);
+FMC_LA30_N <= LD_FPGA_OUT_AXIS_6(3);
+FMC_LA33_P <= LD_FPGA_OUT_AXIS_6(4);
+FMC_LA33_N <= LD_FPGA_OUT_AXIS_6(5);
+FMC_LA32_P <= LD_FPGA_OUT_AXIS_6(6);
+FMC_LA32_N <= LD_FPGA_OUT_AXIS_6(7);
   
 -- IO remapping, converts driver board io to grouped vectors.
 
 --Axis 1 (INEC1)...
 
-pins_ENC_A_in(0)      <= AXIS_1_IN(0);
-pins_ENC_B_in(0)      <= AXIS_1_IN(1);
-pins_ENC_Z_in(0)      <= AXIS_1_IN(2);
+pins_ENC_A_in(0)      <= LD_FPGA_IN_AXIS_1(0);
+pins_ENC_B_in(0)      <= LD_FPGA_IN_AXIS_1(1);
+pins_ENC_Z_in(0)      <= LD_FPGA_IN_AXIS_1(2);
 
-pins_PMAC_SCLK_RX(0)  <= AXIS_1_IN(3);
-pins_ENC_SDA_RX(0)    <= AXIS_1_IN(4);
-pins_PMAC_SDA_RX(0)   <= AXIS_1_IN(5);
-pins_ENC_SCLK_RX(0)   <= AXIS_1_IN(6);
+pins_PMAC_SCLK_RX(0)  <= LD_FPGA_IN_AXIS_1(3);
+pins_ENC_SDA_RX(0)    <= LD_FPGA_IN_AXIS_1(4);
+pins_PMAC_SDA_RX(0)   <= LD_FPGA_IN_AXIS_1(5);
+pins_ENC_SCLK_RX(0)   <= LD_FPGA_IN_AXIS_1(6);
 
-pins_U(0)             <= AXIS_1_IN(3);
-pins_V(0)             <= AXIS_1_IN(4);
-pins_W(0)             <= AXIS_1_IN(5);
-pins_T(0)             <= AXIS_1_IN(6);
+pins_U(0)             <= LD_FPGA_IN_AXIS_1(3);
+pins_V(0)             <= LD_FPGA_IN_AXIS_1(4);
+pins_W(0)             <= LD_FPGA_IN_AXIS_1(5);
+pins_T(0)             <= LD_FPGA_IN_AXIS_1(6);
 
-AXIS_1_OUT(0) <= pins_ENC_A_in(0);
-AXIS_1_OUT(1) <= pins_ENC_B_in(0);
-AXIS_1_OUT(2) <= pins_ENC_Z_in(0);
+LD_FPGA_OUT_AXIS_1(0) <= pins_ENC_A_in(0);
+LD_FPGA_OUT_AXIS_1(1) <= pins_ENC_B_in(0);
+LD_FPGA_OUT_AXIS_1(2) <= pins_ENC_Z_in(0);
 
-AXIS_1_OUT(3) <= pins_ENC_SCLK_TX(0);
-AXIS_1_OUT(4) <= pins_ENC_SDA_TX(0);
-AXIS_1_OUT(5) <= pins_ENC_SDA_TX_EN(0);
-AXIS_1_OUT(6) <= pins_PMAC_SDA_TX(0);
-AXIS_1_OUT(7) <= pins_PMAC_SDA_TX_EN(0);
+LD_FPGA_OUT_AXIS_1(3) <= pins_ENC_SCLK_TX(0);
+LD_FPGA_OUT_AXIS_1(4) <= pins_ENC_SDA_TX(0);
+LD_FPGA_OUT_AXIS_1(5) <= pins_ENC_SDA_TX_EN(0);
+LD_FPGA_OUT_AXIS_1(6) <= pins_PMAC_SDA_TX(0);
+LD_FPGA_OUT_AXIS_1(7) <= pins_PMAC_SDA_TX_EN(0);
 
 --Axis 2 (INENC2)...
 
-pins_ENC_A_in(1)      <= AXIS_2_IN(0);
-pins_ENC_B_in(1)      <= AXIS_2_IN(1);
-pins_ENC_Z_in(1)      <= AXIS_2_IN(2);
+pins_ENC_A_in(1)      <= LD_FPGA_IN_AXIS_2(0);
+pins_ENC_B_in(1)      <= LD_FPGA_IN_AXIS_2(1);
+pins_ENC_Z_in(1)      <= LD_FPGA_IN_AXIS_2(2);
 
-pins_PMAC_SCLK_RX(1)  <= AXIS_2_IN(3);
-pins_ENC_SDA_RX(1)    <= AXIS_2_IN(4);
-pins_PMAC_SDA_RX(1)   <= AXIS_2_IN(5);
-pins_ENC_SCLK_RX(1)   <= AXIS_2_IN(6);
+pins_PMAC_SCLK_RX(1)  <= LD_FPGA_IN_AXIS_2(3);
+pins_ENC_SDA_RX(1)    <= LD_FPGA_IN_AXIS_2(4);
+pins_PMAC_SDA_RX(1)   <= LD_FPGA_IN_AXIS_2(5);
+pins_ENC_SCLK_RX(1)   <= LD_FPGA_IN_AXIS_2(6);
 
-pins_U(1)             <= AXIS_2_IN(3);
-pins_V(1)             <= AXIS_2_IN(4);
-pins_W(1)             <= AXIS_2_IN(5);
-pins_T(1)             <= AXIS_2_IN(6);
+pins_U(1)             <= LD_FPGA_IN_AXIS_2(3);
+pins_V(1)             <= LD_FPGA_IN_AXIS_2(4);
+pins_W(1)             <= LD_FPGA_IN_AXIS_2(5);
+pins_T(1)             <= LD_FPGA_IN_AXIS_2(6);
 
-AXIS_2_OUT(0) <= pins_ENC_A_in(1);
-AXIS_2_OUT(1) <= pins_ENC_B_in(1);
-AXIS_2_OUT(2) <= pins_ENC_Z_in(1);
+LD_FPGA_OUT_AXIS_2(0) <= pins_ENC_A_in(1);
+LD_FPGA_OUT_AXIS_2(1) <= pins_ENC_B_in(1);
+LD_FPGA_OUT_AXIS_2(2) <= pins_ENC_Z_in(1);
 
-AXIS_2_OUT(3) <= pins_ENC_SCLK_TX(1);
-AXIS_2_OUT(4) <= pins_ENC_SDA_TX(1);
-AXIS_2_OUT(5) <= pins_ENC_SDA_TX_EN(1);
-AXIS_2_OUT(6) <= pins_PMAC_SDA_TX(1);
-AXIS_2_OUT(7) <= pins_PMAC_SDA_TX_EN(1);
+LD_FPGA_OUT_AXIS_2(3) <= pins_ENC_SCLK_TX(1);
+LD_FPGA_OUT_AXIS_2(4) <= pins_ENC_SDA_TX(1);
+LD_FPGA_OUT_AXIS_2(5) <= pins_ENC_SDA_TX_EN(1);
+LD_FPGA_OUT_AXIS_2(6) <= pins_PMAC_SDA_TX(1);
+LD_FPGA_OUT_AXIS_2(7) <= pins_PMAC_SDA_TX_EN(1);
 
 --Axis 5 (INENC3)...
 
-pins_ENC_A_in(2)      <= AXIS_5_IN(0);
-pins_ENC_B_in(2)      <= AXIS_5_IN(1);
-pins_ENC_Z_in(2)      <= AXIS_5_IN(2);
+pins_ENC_A_in(2)      <= LD_FPGA_IN_AXIS_5(0);
+pins_ENC_B_in(2)      <= LD_FPGA_IN_AXIS_5(1);
+pins_ENC_Z_in(2)      <= LD_FPGA_IN_AXIS_5(2);
 
-pins_PMAC_SCLK_RX(2)  <= AXIS_5_IN(3);
-pins_ENC_SDA_RX(2)    <= AXIS_5_IN(4);
-pins_PMAC_SDA_RX(2)   <= AXIS_5_IN(5);
-pins_ENC_SCLK_RX(2)   <= AXIS_5_IN(6);
+pins_PMAC_SCLK_RX(2)  <= LD_FPGA_IN_AXIS_5(3);
+pins_ENC_SDA_RX(2)    <= LD_FPGA_IN_AXIS_5(4);
+pins_PMAC_SDA_RX(2)   <= LD_FPGA_IN_AXIS_5(5);
+pins_ENC_SCLK_RX(2)   <= LD_FPGA_IN_AXIS_5(6);
 
-pins_U(2)             <= AXIS_5_IN(3);
-pins_V(2)             <= AXIS_5_IN(4);
-pins_W(2)             <= AXIS_5_IN(5);
-pins_T(2)             <= AXIS_5_IN(6);
+pins_U(2)             <= LD_FPGA_IN_AXIS_5(3);
+pins_V(2)             <= LD_FPGA_IN_AXIS_5(4);
+pins_W(2)             <= LD_FPGA_IN_AXIS_5(5);
+pins_T(2)             <= LD_FPGA_IN_AXIS_5(6);
 
-AXIS_5_OUT(0) <= pins_ENC_A_in(2);
-AXIS_5_OUT(1) <= pins_ENC_B_in(2);
-AXIS_5_OUT(2) <= pins_ENC_Z_in(2);
+LD_FPGA_OUT_AXIS_5(0) <= pins_ENC_A_in(2);
+LD_FPGA_OUT_AXIS_5(1) <= pins_ENC_B_in(2);
+LD_FPGA_OUT_AXIS_5(2) <= pins_ENC_Z_in(2);
 
-AXIS_5_OUT(3) <= pins_ENC_SCLK_TX(2);
-AXIS_5_OUT(4) <= pins_ENC_SDA_TX(2);
-AXIS_5_OUT(5) <= pins_ENC_SDA_TX_EN(2);
-AXIS_5_OUT(6) <= pins_PMAC_SDA_TX(2);
-AXIS_5_OUT(7) <= pins_PMAC_SDA_TX_EN(2);
+LD_FPGA_OUT_AXIS_5(3) <= pins_ENC_SCLK_TX(2);
+LD_FPGA_OUT_AXIS_5(4) <= pins_ENC_SDA_TX(2);
+LD_FPGA_OUT_AXIS_5(5) <= pins_ENC_SDA_TX_EN(2);
+LD_FPGA_OUT_AXIS_5(6) <= pins_PMAC_SDA_TX(2);
+LD_FPGA_OUT_AXIS_5(7) <= pins_PMAC_SDA_TX_EN(2);
 
  --Axis 6 (INENC4)...
 
-pins_ENC_A_in(3)      <= AXIS_6_IN(0);
-pins_ENC_B_in(3)      <= AXIS_6_IN(1);
-pins_ENC_Z_in(3)      <= AXIS_6_IN(2);
+pins_ENC_A_in(3)      <= LD_FPGA_IN_AXIS_6(0);
+pins_ENC_B_in(3)      <= LD_FPGA_IN_AXIS_6(1);
+pins_ENC_Z_in(3)      <= LD_FPGA_IN_AXIS_6(2);
 
-pins_PMAC_SCLK_RX(3)  <= AXIS_6_IN(3);
-pins_ENC_SDA_RX(3)    <= AXIS_6_IN(4);
-pins_PMAC_SDA_RX(3)   <= AXIS_6_IN(5);
-pins_ENC_SCLK_RX(3)   <= AXIS_6_IN(6);
+pins_PMAC_SCLK_RX(3)  <= LD_FPGA_IN_AXIS_6(3);
+pins_ENC_SDA_RX(3)    <= LD_FPGA_IN_AXIS_6(4);
+pins_PMAC_SDA_RX(3)   <= LD_FPGA_IN_AXIS_6(5);
+pins_ENC_SCLK_RX(3)   <= LD_FPGA_IN_AXIS_6(6);
 
-pins_U(3)             <= AXIS_6_IN(3);
-pins_V(3)             <= AXIS_6_IN(4);
-pins_W(3)             <= AXIS_6_IN(5);
-pins_T(3)             <= AXIS_6_IN(6);
+pins_U(3)             <= LD_FPGA_IN_AXIS_6(3);
+pins_V(3)             <= LD_FPGA_IN_AXIS_6(4);
+pins_W(3)             <= LD_FPGA_IN_AXIS_6(5);
+pins_T(3)             <= LD_FPGA_IN_AXIS_6(6);
 
-AXIS_6_OUT(0) <= pins_ENC_A_in(3);
-AXIS_6_OUT(1) <= pins_ENC_B_in(3);
-AXIS_6_OUT(2) <= pins_ENC_Z_in(3);
+LD_FPGA_OUT_AXIS_6(0) <= pins_ENC_A_in(3);
+LD_FPGA_OUT_AXIS_6(1) <= pins_ENC_B_in(3);
+LD_FPGA_OUT_AXIS_6(2) <= pins_ENC_Z_in(3);
 
-AXIS_6_OUT(3) <= pins_ENC_SCLK_TX(3);
-AXIS_6_OUT(4) <= pins_ENC_SDA_TX(3);
-AXIS_6_OUT(5) <= pins_ENC_SDA_TX_EN(3);
-AXIS_6_OUT(6) <= pins_PMAC_SDA_TX(3);
-AXIS_6_OUT(7) <= pins_PMAC_SDA_TX_EN(3);
+LD_FPGA_OUT_AXIS_6(3) <= pins_ENC_SCLK_TX(3);
+LD_FPGA_OUT_AXIS_6(4) <= pins_ENC_SDA_TX(3);
+LD_FPGA_OUT_AXIS_6(5) <= pins_ENC_SDA_TX_EN(3);
+LD_FPGA_OUT_AXIS_6(6) <= pins_PMAC_SDA_TX(3);
+LD_FPGA_OUT_AXIS_6(7) <= pins_PMAC_SDA_TX_EN(3);
 
 -----------------------------------------------------------------------------
 ---- ENCODERS (Encoder Inputs)
