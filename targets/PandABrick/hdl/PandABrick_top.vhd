@@ -35,21 +35,21 @@ port (
     mgtrefclk1_x0y1_p	           : in     std_logic;
     mgtrefclk1_x0y1_n	           : in     std_logic;
 
-    ch0_gthrxn_in                  : in     std_logic;
-    ch0_gthrxp_in                  : in     std_logic;
-    ch0_gthtxn_out                 : out    std_logic;
-    ch0_gthtxp_out                 : out    std_logic;
+    ch1_gthrxn_in                  : in     std_logic;
+    ch1_gthrxp_in                  : in     std_logic;
+    ch1_gthtxn_out                 : out    std_logic;
+    ch1_gthtxp_out                 : out    std_logic;
      
     -- Anios_0
     IO0_D0_P                       : inout  std_logic;
-    IO0_D1_N                       : inout  std_logic;
+    IO0_D1_N                       : out    std_logic;
     IO0_D2_P                       : inout  std_logic;
-    IO0_D3_N                       : inout  std_logic;
+    IO0_D3_N                       : out    std_logic;
     IO0_D4_P                       : inout  std_logic;
-    IO0_D5_N                       : inout  std_logic;
+    IO0_D5_N                       : out    std_logic;
     IO0_D6_P                       : inout  std_logic;
-    IO0_D7_N                       : inout  std_logic;
-    IO0_D8_P                       : inout  std_logic;
+    IO0_D7_N                       : out    std_logic;
+    IO0_D8_P                       : out    std_logic;
     IO0_D9_N                       : inout  std_logic;
 
     IO0_D20_P                      : in     std_logic;
@@ -58,6 +58,36 @@ port (
     IO0_D23_N                      : out    std_logic;
 
     -- FMC
+    FMC_HA02_N                     : out    std_logic;
+    FMC_HA02_P                     : out    std_logic;
+    FMC_HA03_N                     : out    std_logic;
+    FMC_HA03_P                     : out    std_logic;
+    FMC_HA04_N                     : in     std_logic;
+    FMC_HA04_P                     : in     std_logic;
+    FMC_HA05_N                     : in     std_logic;
+    FMC_HA05_P                     : in     std_logic;
+    FMC_HA06_N                     : in     std_logic;
+    FMC_HA06_P                     : in     std_logic;
+    FMC_HA07_N                     : in     std_logic;
+    FMC_HA07_P                     : in     std_logic;
+    FMC_HA08_N                     : in     std_logic;
+    FMC_HA08_P                     : in     std_logic;
+    FMC_HA09_N                     : in     std_logic;
+    FMC_HA09_P                     : in     std_logic;
+    FMC_HA10_N                     : out    std_logic;
+    FMC_HA10_P                     : out    std_logic;
+    FMC_HA11_N                     : in     std_logic;
+    FMC_HA11_P                     : in     std_logic;
+    FMC_HA12_N                     : out    std_logic;
+    FMC_HA12_P                     : out    std_logic;
+    FMC_HA13_N                     : out    std_logic;
+    FMC_HA13_P                     : out    std_logic;
+    FMC_HA14_N                     : out    std_logic;
+    FMC_HA14_P                     : out    std_logic;
+    FMC_HA15_N                     : out    std_logic;
+    FMC_HA15_P                     : out    std_logic;
+    FMC_HA16_N                     : out    std_logic;
+    FMC_HA16_P                     : out    std_logic;
     FMC_LA02_N                     : in     std_logic;
     FMC_LA02_P                     : in     std_logic;
     FMC_LA03_N                     : in     std_logic;
@@ -118,11 +148,44 @@ port (
     FMC_LA32_P                     : out    std_logic;
     FMC_LA33_N                     : out    std_logic;
     FMC_LA33_P                     : out    std_logic;
-
+    FMC_DP4_C2M_N                  : out    std_logic;
+    FMC_DP4_C2M_P                  : out    std_logic;
+    FMC_DP4_M2C_N                  : out    std_logic;
+    FMC_DP4_M2C_P                  : out    std_logic;
+    FMC_DP5_C2M_N                  : out    std_logic;
+    FMC_DP5_C2M_P                  : out    std_logic;
+    FMC_DP5_M2C_N                  : out    std_logic;
+    FMC_DP5_M2C_P                  : out    std_logic;
+    FMC_DP6_C2M_N                  : out    std_logic;
+    FMC_DP6_C2M_P                  : out    std_logic;
+    FMC_DP6_M2C_N                  : out    std_logic;
+    FMC_DP6_M2C_P                  : out    std_logic;
+    FMC_DP7_C2M_N                  : out    std_logic;
+    FMC_DP7_C2M_P                  : out    std_logic;
+    FMC_DP7_M2C_N                  : out    std_logic;
+    FMC_DP7_M2C_P                  : out    std_logic;
+    FMC_HA00_CC_N                  : in     std_logic;
+    FMC_HA00_CC_P                  : in     std_logic;
+    FMC_HA01_CC_N                  : in     std_logic;
+    FMC_HA01_CC_P                  : in     std_logic;
+    FMC_HA17_N                     : in     std_logic;
+    FMC_HA17_P                     : in     std_logic;
+    FMC_LA00_CC_N                  : in     std_logic;
+    FMC_LA00_CC_P                  : in     std_logic;
+    FMC_LA01_CC_N                  : in     std_logic;
+    FMC_LA01_CC_P                  : in     std_logic;
+    FMC_LA17_CC_N                  : in     std_logic;
+    FMC_LA17_CC_P                  : in     std_logic;
+    FMC_LA18_CC_N                  : in     std_logic;
+    FMC_LA18_CC_P                  : in     std_logic;
     FMC_CLK0_M2C_N                 : out    std_logic;
     FMC_CLK0_M2C_P                 : out    std_logic;
     FMC_CLK1_M2C_N                 : in     std_logic;
     FMC_CLK1_M2C_P                 : out    std_logic;
+
+    -- I2C FPGA
+    I2C_SCL_FPGA                   : inout  std_logic;
+    I2C_SDA_FPGA                   : inout  std_logic;
 
     -- IO3
     IO3_D0_P                       : in     std_logic;
@@ -141,13 +204,17 @@ port (
     IO4_D5_N                       : out    std_logic;
     IO4_D6_P                       : out    std_logic;
     IO4_D7_N                       : out    std_logic;
+
+   -- LED
+    LED0_PL_N                      : out     std_logic;
+    LED1_PL_N                      : out     std_logic;
+    LED2_PL_N                      : out     std_logic;
+    LED3_PL_N                      : out     std_logic
     
-    -- LED
-    LED1_N                         : out    std_logic
 );
 attribute IO_BUFFER_TYPE : string;
-attribute IO_BUFFER_TYPE of ch0_gthtxP_out : signal is "none";
-attribute IO_BUFFER_TYPE of ch0_gthtxn_out : signal is "none";
+attribute IO_BUFFER_TYPE of ch1_gthtxp_out : signal is "none";
+attribute IO_BUFFER_TYPE of ch1_gthtxn_out : signal is "none";
 end PandABrick_top;
 
 architecture rtl of PandABrick_top is
@@ -265,16 +332,29 @@ signal PIC_SPI_CS           : std_logic;
 signal PIC_SPI_DI           : std_logic;
 signal PIC_SPI_DO           : std_logic;
 
--- Line Driver Boards...      
-signal LD_FPGA_IN_AXIS_1    : std_logic_vector(7 downto 0);
+-- Line Driver Board 1...
+signal LD_FPGA_IN_AXIS_1    : std_logic_vector(6 downto 0);
 signal LD_FPGA_OUT_AXIS_1   : std_logic_vector(7 downto 0);
-signal LD_FPGA_IN_AXIS_5    : std_logic_vector(7 downto 0);
+signal LD_FPGA_IN_AXIS_5    : std_logic_vector(6 downto 0);
 signal LD_FPGA_OUT_AXIS_5   : std_logic_vector(7 downto 0);
 
-signal LD_FPGA_IN_AXIS_2    : std_logic_vector(7 downto 0);
+-- Line Driver Board 2...
+signal LD_FPGA_IN_AXIS_2    : std_logic_vector(6 downto 0);
 signal LD_FPGA_OUT_AXIS_2   : std_logic_vector(7 downto 0);
-signal LD_FPGA_IN_AXIS_6    : std_logic_vector(7 downto 0);
+signal LD_FPGA_IN_AXIS_6    : std_logic_vector(6 downto 0);
 signal LD_FPGA_OUT_AXIS_6   : std_logic_vector(7 downto 0);
+
+-- Line Driver Board 3...
+signal LD_FPGA_IN_AXIS_3    : std_logic_vector(6 downto 0);
+signal LD_FPGA_OUT_AXIS_3   : std_logic_vector(7 downto 0);
+signal LD_FPGA_IN_AXIS_7    : std_logic_vector(6 downto 0);
+signal LD_FPGA_OUT_AXIS_7   : std_logic_vector(7 downto 0);
+
+-- Line Driver Board 4...
+signal LD_FPGA_IN_AXIS_4    : std_logic_vector(6 downto 0);
+signal LD_FPGA_OUT_AXIS_4   : std_logic_vector(7 downto 0);
+signal LD_FPGA_IN_AXIS_8    : std_logic_vector(6 downto 0);
+signal LD_FPGA_OUT_AXIS_8   : std_logic_vector(7 downto 0);
 
 --AUX IO SPI/TTL Board (Back Panel)  
 signal AUX_IO_DATA          : std_logic_vector(5 downto 1);
@@ -293,6 +373,14 @@ signal PMAC_ABORT           : std_logic;
 signal PS_LED_P             : std_logic_vector(1 downto 0);
 signal PL_LED_P             : std_logic_vector(1 downto 0);
 signal LedCount             : unsigned(23 downto 0);
+
+-- I2C FPGA
+signal IIC_FPGA_sda_i   : std_logic;
+signal IIC_FPGA_sda_o   : std_logic;
+signal IIC_FPGA_sda_t   : std_logic;
+signal IIC_FPGA_scl_i   : std_logic;
+signal IIC_FPGA_scl_o   : std_logic;
+signal IIC_FPGA_scl_t   : std_logic;
 
 -- IO signals (remapping for clarity and compatibility)
 signal pins_ENC_A_in        : std_logic_vector(ENC_NUM-1 downto 0);
@@ -696,18 +784,18 @@ AUX_IO_DATA(2)   <= IO0_D2_P;
 AUX_IO_DATA(3)   <= IO0_D4_P;
 AUX_IO_DATA(4)   <= IO0_D6_P;
 AUX_IO_DATA(5)   <= IO0_D9_N;
-    
-AUX_IO_DIR(1)    <= IO0_D1_N;
-AUX_IO_DIR(2)    <= IO0_D3_N;
-AUX_IO_DIR(3)    <= IO0_D5_N;
-AUX_IO_DIR(4)    <= IO0_D7_N;
-AUX_IO_DIR(5)    <= IO0_D8_P;
+
+IO0_D1_N <= AUX_IO_DIR(1);
+IO0_D3_N <= AUX_IO_DIR(2);
+IO0_D5_N <= AUX_IO_DIR(3);
+IO0_D7_N <= AUX_IO_DIR(4);
+IO0_D8_P <= AUX_IO_DIR(5);
     
 AUX_IO_TTL_IN(0)  <= IO0_D21_N;
 AUX_IO_TTL_IN(1)  <= IO0_D20_P;
     
-AUX_IO_TTL_OUT(0) <= IO0_D23_N;
-AUX_IO_TTL_OUT(1) <= IO0_D22_P;
+IO0_D23_N  <=  AUX_IO_TTL_OUT(0);
+IO0_D22_P  <=  AUX_IO_TTL_OUT(1);
 
 
 -- EQU Inputs from PMAC (12 way ribbon to ST1 IO3)...
@@ -733,14 +821,14 @@ PMAC_ABORT      <= IO4_D3_N;
 -- PIC Microcontroller...
 -- (IO expander for LD relays, mode (pass through etc) 
 
-PIC_SPI_SC <= FMC_CLK0_M2C_P;
-PIC_SPI_CS <= FMC_CLK0_M2C_N;
-PIC_SPI_DI <= FMC_CLK1_M2C_P;
+FMC_CLK0_M2C_P <= PIC_SPI_SC;
+FMC_CLK0_M2C_N <= PIC_SPI_CS;
+FMC_CLK1_M2C_P <= PIC_SPI_DI;
 PIC_SPI_DO <= FMC_CLK1_M2C_N;
 
+-- LINE DRIVER CARD 1 (Axis 1 and 5)
 
--- XU5... (has first two driver boards)
-
+-- AXIS_1_IN <= FPGA_IN1
 LD_FPGA_IN_AXIS_1(0) <= FMC_LA02_P; 
 LD_FPGA_IN_AXIS_1(1) <= FMC_LA02_N;
 LD_FPGA_IN_AXIS_1(2) <= FMC_LA03_P;
@@ -748,8 +836,8 @@ LD_FPGA_IN_AXIS_1(3) <= FMC_LA03_N;
 LD_FPGA_IN_AXIS_1(4) <= FMC_LA06_P;
 LD_FPGA_IN_AXIS_1(5) <= FMC_LA06_N;
 LD_FPGA_IN_AXIS_1(6) <= FMC_LA04_P;
---(7)unused
 
+-- FPGA_OUT1 <= AXIS_1_OUT
 FMC_LA05_P <= LD_FPGA_OUT_AXIS_1(0);
 FMC_LA05_N <= LD_FPGA_OUT_AXIS_1(1);
 FMC_LA10_P <= LD_FPGA_OUT_AXIS_1(2);
@@ -759,7 +847,7 @@ FMC_LA08_N <= LD_FPGA_OUT_AXIS_1(5);
 FMC_LA07_P <= LD_FPGA_OUT_AXIS_1(6);
 FMC_LA07_N <= LD_FPGA_OUT_AXIS_1(7);
 
-
+-- AXIS_5_IN <= FPGA_IN2
 LD_FPGA_IN_AXIS_5(0) <= FMC_LA04_N;
 LD_FPGA_IN_AXIS_5(1) <= FMC_LA09_P;
 LD_FPGA_IN_AXIS_5(2) <= FMC_LA09_N;
@@ -767,8 +855,8 @@ LD_FPGA_IN_AXIS_5(3) <= FMC_LA12_P;
 LD_FPGA_IN_AXIS_5(4) <= FMC_LA12_N;
 LD_FPGA_IN_AXIS_5(5) <= FMC_LA11_P;
 LD_FPGA_IN_AXIS_5(6) <= FMC_LA11_N;
---(7)unused
 
+-- FPGA_OUT2 <= AXIS_5_OUT
 FMC_LA14_P <= LD_FPGA_OUT_AXIS_5(0);
 FMC_LA14_N <= LD_FPGA_OUT_AXIS_5(1);
 FMC_LA13_P <= LD_FPGA_OUT_AXIS_5(2);
@@ -778,7 +866,9 @@ FMC_LA16_N <= LD_FPGA_OUT_AXIS_5(5);
 FMC_LA15_P <= LD_FPGA_OUT_AXIS_5(6);
 FMC_LA15_N <= LD_FPGA_OUT_AXIS_5(7);
 
-
+-- LINE DRIVER CARD 2 (Axis 2 and 6)
+  
+ -- AXIS_2_IN <= FPGA_IN3
 LD_FPGA_IN_AXIS_2(0) <= FMC_LA20_P; 
 LD_FPGA_IN_AXIS_2(1) <= FMC_LA20_N;
 LD_FPGA_IN_AXIS_2(2) <= FMC_LA19_P;
@@ -786,8 +876,8 @@ LD_FPGA_IN_AXIS_2(3) <= FMC_LA19_N;
 LD_FPGA_IN_AXIS_2(4) <= FMC_LA22_P;
 LD_FPGA_IN_AXIS_2(5) <= FMC_LA22_N;
 LD_FPGA_IN_AXIS_2(6) <= FMC_LA23_P;
---(7)unused
 
+-- FPGA_OUT3 <= AXIS_2_OUT
 FMC_LA27_P <= LD_FPGA_OUT_AXIS_2(0);
 FMC_LA27_N <= LD_FPGA_OUT_AXIS_2(1);
 FMC_LA26_P <= LD_FPGA_OUT_AXIS_2(2);
@@ -797,6 +887,7 @@ FMC_LA25_N <= LD_FPGA_OUT_AXIS_2(5);
 FMC_LA21_P <= LD_FPGA_OUT_AXIS_2(6);
 FMC_LA21_N <= LD_FPGA_OUT_AXIS_2(7);
 
+-- AXIS_6_IN <= FPGA_IN4
 LD_FPGA_IN_AXIS_6(0) <= FMC_LA23_N;
 LD_FPGA_IN_AXIS_6(1) <= FMC_LA29_P;
 LD_FPGA_IN_AXIS_6(2) <= FMC_LA29_N;
@@ -804,8 +895,8 @@ LD_FPGA_IN_AXIS_6(3) <= FMC_LA24_P;
 LD_FPGA_IN_AXIS_6(4) <= FMC_LA24_N;
 LD_FPGA_IN_AXIS_6(5) <= FMC_LA28_P;
 LD_FPGA_IN_AXIS_6(6) <= FMC_LA28_N;
---(7)unused
 
+-- FPGA_OUT4 <= AXIS_6_OUT
 FMC_LA31_P <= LD_FPGA_OUT_AXIS_6(0);
 FMC_LA31_N <= LD_FPGA_OUT_AXIS_6(1);
 FMC_LA30_P <= LD_FPGA_OUT_AXIS_6(2);
@@ -814,10 +905,92 @@ FMC_LA33_P <= LD_FPGA_OUT_AXIS_6(4);
 FMC_LA33_N <= LD_FPGA_OUT_AXIS_6(5);
 FMC_LA32_P <= LD_FPGA_OUT_AXIS_6(6);
 FMC_LA32_N <= LD_FPGA_OUT_AXIS_6(7);
+
+-- LINE DRIVER CARD 3 (Axis 3 and 7)
+
+-- AXIS_3_IN <= FPGA_IN5
+LD_FPGA_IN_AXIS_3(0) <= FMC_HA05_P;
+LD_FPGA_IN_AXIS_3(1) <= FMC_HA05_N;
+LD_FPGA_IN_AXIS_3(2) <= FMC_HA04_P;
+LD_FPGA_IN_AXIS_3(3) <= FMC_HA04_N;
+LD_FPGA_IN_AXIS_3(4) <= FMC_HA09_P;
+LD_FPGA_IN_AXIS_3(5) <= FMC_HA09_N;
+LD_FPGA_IN_AXIS_3(6) <= FMC_HA08_P;
+
+-- FPGA_OUT5 <= AXIS_3_OUT
+FMC_HA13_P <= LD_FPGA_OUT_AXIS_3(0);
+FMC_HA13_N <= LD_FPGA_OUT_AXIS_3(1);
+FMC_HA12_P <= LD_FPGA_OUT_AXIS_3(2);
+FMC_HA12_N <= LD_FPGA_OUT_AXIS_3(3);
+FMC_HA03_P <= LD_FPGA_OUT_AXIS_3(4);
+FMC_HA03_N <= LD_FPGA_OUT_AXIS_3(5);
+FMC_HA02_P <= LD_FPGA_OUT_AXIS_3(6);
+FMC_HA02_N <= LD_FPGA_OUT_AXIS_3(7);
+
+-- AXIS_7_IN <= FPGA_IN6
+LD_FPGA_IN_AXIS_7(0) <= FMC_HA08_N;
+LD_FPGA_IN_AXIS_7(1) <= FMC_HA07_P;
+LD_FPGA_IN_AXIS_7(2) <= FMC_HA07_N;
+LD_FPGA_IN_AXIS_7(3) <= FMC_HA06_P;
+LD_FPGA_IN_AXIS_7(4) <= FMC_HA06_N;
+LD_FPGA_IN_AXIS_7(5) <= FMC_HA11_P;
+LD_FPGA_IN_AXIS_7(6) <= FMC_HA11_N;
+
+-- FPGA_OUT6 <= AXIS_7_OUT
+FMC_HA10_P <= LD_FPGA_OUT_AXIS_7(0);
+FMC_HA10_N <= LD_FPGA_OUT_AXIS_7(1);
+FMC_HA14_P <= LD_FPGA_OUT_AXIS_7(2);
+FMC_HA14_N <= LD_FPGA_OUT_AXIS_7(3);
+FMC_HA15_P <= LD_FPGA_OUT_AXIS_7(4);
+FMC_HA15_N <= LD_FPGA_OUT_AXIS_7(5);
+FMC_HA16_P <= LD_FPGA_OUT_AXIS_7(6);
+FMC_HA16_N <= LD_FPGA_OUT_AXIS_7(7);
+
+-- LINE DRIVER CARD 4 (Axis 4 and 8)
+
+-- AXIS_4_IN <= FPGA_IN7
+LD_FPGA_IN_AXIS_4(0) <= FMC_HA00_CC_P;
+LD_FPGA_IN_AXIS_4(1) <= FMC_HA00_CC_N;
+LD_FPGA_IN_AXIS_4(2) <= FMC_HA01_CC_P;
+LD_FPGA_IN_AXIS_4(3) <= FMC_HA01_CC_N;
+LD_FPGA_IN_AXIS_4(4) <= FMC_HA17_P;
+LD_FPGA_IN_AXIS_4(5) <= FMC_HA17_N;
+LD_FPGA_IN_AXIS_4(6) <= FMC_LA18_CC_P;
+
+-- FPGA_OUT7 <= AXIS_4_OUT
+FMC_DP4_C2M_P <= LD_FPGA_OUT_AXIS_4(0);
+FMC_DP4_C2M_N <= LD_FPGA_OUT_AXIS_4(1);
+FMC_DP4_M2C_P <= LD_FPGA_OUT_AXIS_4(2);
+FMC_DP4_M2C_N <= LD_FPGA_OUT_AXIS_4(3);
+FMC_DP5_C2M_P <= LD_FPGA_OUT_AXIS_4(4);
+FMC_DP5_C2M_N <= LD_FPGA_OUT_AXIS_4(5);
+FMC_DP5_M2C_P <= LD_FPGA_OUT_AXIS_4(6);
+FMC_DP5_M2C_N <= LD_FPGA_OUT_AXIS_4(7);
+
+-- AXIS_8_IN <= FPGA_IN8
+LD_FPGA_IN_AXIS_8(0) <= FMC_LA00_CC_P;
+LD_FPGA_IN_AXIS_8(1) <= FMC_LA00_CC_N;
+LD_FPGA_IN_AXIS_8(2) <= FMC_LA01_CC_P;
+LD_FPGA_IN_AXIS_8(3) <= FMC_LA01_CC_N;
+LD_FPGA_IN_AXIS_8(4) <= FMC_LA17_CC_P;
+LD_FPGA_IN_AXIS_8(5) <= FMC_LA17_CC_N;
+LD_FPGA_IN_AXIS_8(6) <= FMC_LA18_CC_N;
+
+-- FPGA_OUT8 <= AXIS_8_OUT
+FMC_DP6_C2M_P <= LD_FPGA_OUT_AXIS_8(0);
+FMC_DP6_C2M_N <= LD_FPGA_OUT_AXIS_8(1);
+FMC_DP6_M2C_P <= LD_FPGA_OUT_AXIS_8(2);
+FMC_DP6_M2C_N <= LD_FPGA_OUT_AXIS_8(3);
+FMC_DP7_C2M_P <= LD_FPGA_OUT_AXIS_8(4);
+FMC_DP7_C2M_N <= LD_FPGA_OUT_AXIS_8(5);
+FMC_DP7_M2C_P <= LD_FPGA_OUT_AXIS_8(6);
+FMC_DP7_M2C_N <= LD_FPGA_OUT_AXIS_8(7);
+
+-- =========================================
   
 -- IO remapping, converts driver board io to grouped vectors.
 
---Axis 1 (INEC1)...
+--Axis 1 (INENC1)...
 
 pins_ENC_A_in(0)      <= LD_FPGA_IN_AXIS_1(0);
 pins_ENC_B_in(0)      <= LD_FPGA_IN_AXIS_1(1);
@@ -868,6 +1041,59 @@ LD_FPGA_OUT_AXIS_2(4) <= pins_ENC_SDA_TX(1);
 LD_FPGA_OUT_AXIS_2(5) <= pins_ENC_SDA_TX_EN(1);
 LD_FPGA_OUT_AXIS_2(6) <= pins_PMAC_SDA_TX(1);
 LD_FPGA_OUT_AXIS_2(7) <= pins_PMAC_SDA_TX_EN(1);
+
+    --Axis 3 (INENC1)...
+    
+--    pins_ENC_A_in(0)      <= LD_FPGA_IN_AXIS_3(0);
+--    pins_ENC_B_in(0)      <= LD_FPGA_IN_AXIS_3(1);
+--    pins_ENC_Z_in(0)      <= LD_FPGA_IN_AXIS_3(2);
+    
+--    pins_PMAC_SCLK_RX(0)  <= LD_FPGA_IN_AXIS_3(3);
+--    pins_ENC_SDA_RX(0)    <= LD_FPGA_IN_AXIS_3(4);
+--    pins_PMAC_SDA_RX(0)   <= LD_FPGA_IN_AXIS_3(5);
+--    pins_ENC_SCLK_RX(0)   <= LD_FPGA_IN_AXIS_3(6);
+    
+--    pins_U(0)             <= LD_FPGA_IN_AXIS_3(3);
+--    pins_V(0)             <= LD_FPGA_IN_AXIS_3(4);
+--    pins_W(0)             <= LD_FPGA_IN_AXIS_3(5);
+--    pins_T(0)             <= LD_FPGA_IN_AXIS_3(6);
+    
+--    LD_FPGA_OUT_AXIS_3(0) <= pins_ENC_A_in(0);
+--    LD_FPGA_OUT_AXIS_3(1) <= pins_ENC_B_in(0);
+--    LD_FPGA_OUT_AXIS_3(2) <= pins_ENC_Z_in(0);
+    
+--    LD_FPGA_OUT_AXIS_3(3) <= pins_ENC_SCLK_TX(0);
+--    LD_FPGA_OUT_AXIS_3(4) <= pins_ENC_SDA_TX(0);
+--    LD_FPGA_OUT_AXIS_3(5) <= pins_ENC_SDA_TX_EN(0);
+--    LD_FPGA_OUT_AXIS_3(6) <= pins_PMAC_SDA_TX(0);
+--    LD_FPGA_OUT_AXIS_3(7) <= pins_PMAC_SDA_TX_EN(0);
+    
+    
+    --Axis 4 (INENC2)...
+    
+--    pins_ENC_A_in(1)      <= LD_FPGA_IN_AXIS_4(0);
+--    pins_ENC_B_in(1)      <= LD_FPGA_IN_AXIS_4(1);
+--    pins_ENC_Z_in(1)      <= LD_FPGA_IN_AXIS_4(2);
+    
+--    pins_PMAC_SCLK_RX(1)  <= LD_FPGA_IN_AXIS_4(3);
+--    pins_ENC_SDA_RX(1)    <= LD_FPGA_IN_AXIS_4(4);
+--    pins_PMAC_SDA_RX(1)   <= LD_FPGA_IN_AXIS_4(5);
+--    pins_ENC_SCLK_RX(1)   <= LD_FPGA_IN_AXIS_4(6);
+    
+--    pins_U(1)             <= LD_FPGA_IN_AXIS_4(3);
+--    pins_V(1)             <= LD_FPGA_IN_AXIS_4(4);
+--    pins_W(1)             <= LD_FPGA_IN_AXIS_4(5);
+--    pins_T(1)             <= LD_FPGA_IN_AXIS_4(6);
+    
+--    LD_FPGA_OUT_AXIS_4(0) <= pins_ENC_A_in(1);
+--    LD_FPGA_OUT_AXIS_4(1) <= pins_ENC_B_in(1);
+--    LD_FPGA_OUT_AXIS_4(2) <= pins_ENC_Z_in(1);
+    
+--    LD_FPGA_OUT_AXIS_4(3) <= pins_ENC_SCLK_TX(1);
+--    LD_FPGA_OUT_AXIS_4(4) <= pins_ENC_SDA_TX(1);
+--    LD_FPGA_OUT_AXIS_4(5) <= pins_ENC_SDA_TX_EN(1);
+--    LD_FPGA_OUT_AXIS_4(6) <= pins_PMAC_SDA_TX(1);
+--    LD_FPGA_OUT_AXIS_4(7) <= pins_PMAC_SDA_TX_EN(1);
 
 --Axis 5 (INENC3)...
 
@@ -920,6 +1146,59 @@ LD_FPGA_OUT_AXIS_6(4) <= pins_ENC_SDA_TX(3);
 LD_FPGA_OUT_AXIS_6(5) <= pins_ENC_SDA_TX_EN(3);
 LD_FPGA_OUT_AXIS_6(6) <= pins_PMAC_SDA_TX(3);
 LD_FPGA_OUT_AXIS_6(7) <= pins_PMAC_SDA_TX_EN(3);
+
+   --Axis 7 (INENC3)...
+    
+--    pins_ENC_A_in(2)      <= LD_FPGA_IN_AXIS_7(0);
+--    pins_ENC_B_in(2)      <= LD_FPGA_IN_AXIS_7(1);
+--    pins_ENC_Z_in(2)      <= LD_FPGA_IN_AXIS_7(2);
+    
+--    pins_PMAC_SCLK_RX(2)  <= LD_FPGA_IN_AXIS_7(3);
+--    pins_ENC_SDA_RX(2)    <= LD_FPGA_IN_AXIS_7(4);
+--    pins_PMAC_SDA_RX(2)   <= LD_FPGA_IN_AXIS_7(5);
+--    pins_ENC_SCLK_RX(2)   <= LD_FPGA_IN_AXIS_7(6);
+    
+--    pins_U(2)             <= LD_FPGA_IN_AXIS_7(3);
+--    pins_V(2)             <= LD_FPGA_IN_AXIS_7(4);
+--    pins_W(2)             <= LD_FPGA_IN_AXIS_7(5);
+--    pins_T(2)             <= LD_FPGA_IN_AXIS_7(6);
+    
+--    LD_FPGA_OUT_AXIS_7(0) <= pins_ENC_A_in(2);
+--    LD_FPGA_OUT_AXIS_7(1) <= pins_ENC_B_in(2);
+--    LD_FPGA_OUT_AXIS_7(2) <= pins_ENC_Z_in(2);
+    
+--    LD_FPGA_OUT_AXIS_7(3) <= pins_ENC_SCLK_TX(2);
+--    LD_FPGA_OUT_AXIS_7(4) <= pins_ENC_SDA_TX(2);
+--    LD_FPGA_OUT_AXIS_7(5) <= pins_ENC_SDA_TX_EN(2);
+--    LD_FPGA_OUT_AXIS_7(6) <= pins_PMAC_SDA_TX(2);
+--    LD_FPGA_OUT_AXIS_7(7) <= pins_PMAC_SDA_TX_EN(2);
+ 
+ 
+     --Axis 8 (INENC4)...
+    
+--    pins_ENC_A_in(3)      <= LD_FPGA_IN_AXIS_8(0);
+--    pins_ENC_B_in(3)      <= LD_FPGA_IN_AXIS_8(1);
+--    pins_ENC_Z_in(3)      <= LD_FPGA_IN_AXIS_8(2);
+    
+--    pins_PMAC_SCLK_RX(3)  <= LD_FPGA_IN_AXIS_8(3);
+--    pins_ENC_SDA_RX(3)    <= LD_FPGA_IN_AXIS_8(4);
+--    pins_PMAC_SDA_RX(3)   <= LD_FPGA_IN_AXIS_8(5);
+--    pins_ENC_SCLK_RX(3)   <= LD_FPGA_IN_AXIS_8(6);
+    
+--    pins_U(3)             <= LD_FPGA_IN_AXIS_8(3);
+--    pins_V(3)             <= LD_FPGA_IN_AXIS_8(4);
+--    pins_W(3)             <= LD_FPGA_IN_AXIS_8(5);
+--    pins_T(3)             <= LD_FPGA_IN_AXIS_8(6);
+    
+--    LD_FPGA_OUT_AXIS_8(0) <= pins_ENC_A_in(3);
+--    LD_FPGA_OUT_AXIS_8(1) <= pins_ENC_B_in(3);
+--    LD_FPGA_OUT_AXIS_8(2) <= pins_ENC_Z_in(3);
+    
+--    LD_FPGA_OUT_AXIS_8(3) <= pins_ENC_SCLK_TX(3);
+--    LD_FPGA_OUT_AXIS_8(4) <= pins_ENC_SDA_TX(3);
+--    LD_FPGA_OUT_AXIS_8(5) <= pins_ENC_SDA_TX_EN(3);
+--    LD_FPGA_OUT_AXIS_8(6) <= pins_PMAC_SDA_TX(3);
+--    LD_FPGA_OUT_AXIS_8(7) <= pins_PMAC_SDA_TX_EN(3);
 
 -----------------------------------------------------------------------------
 ---- ENCODERS (Encoder Inputs)
@@ -1025,8 +1304,38 @@ port map (
 ---------------------------------------------------------------------------------
 
 -- Data to be passed to PIC...
+
+--(1,2,5,7)
+serial_pass(7) <= '1';
+serial_pass(6) <= '1';
+serial_pass(5) <= '1' when (OUTENC_PROTOCOL(3)(2)='0' AND OUTENC_PROTOCOL(3)(1)='0' AND  OUTENC_PROTOCOL(3)(0)='0') else '0';
+serial_pass(4) <= '1' when (OUTENC_PROTOCOL(2)(2)='0' AND OUTENC_PROTOCOL(2)(1)='0' AND  OUTENC_PROTOCOL(2)(0)='0') else '0';
+serial_pass(3) <= '1';
+serial_pass(2) <= '1';
+serial_pass(1) <= '1' when (OUTENC_PROTOCOL(1)(2)='0' AND OUTENC_PROTOCOL(1)(1)='0' AND  OUTENC_PROTOCOL(1)(0)='0') else '0';
+serial_pass(0) <= '1' when (OUTENC_PROTOCOL(0)(2)='0' AND OUTENC_PROTOCOL(0)(1)='0' AND  OUTENC_PROTOCOL(0)(0)='0') else '0';
+
+--(3,4,7,8)
+--serial_pass(7) <= '1' when (OUTENC_PROTOCOL(3)(2)='0' AND OUTENC_PROTOCOL(3)(1)='0' AND  OUTENC_PROTOCOL(3)(0)='0') else '0';
+--serial_pass(6) <= '1' when (OUTENC_PROTOCOL(2)(2)='0' AND OUTENC_PROTOCOL(2)(1)='0' AND  OUTENC_PROTOCOL(2)(0)='0') else '0';
+--serial_pass(5) <= '1';
+--serial_pass(4) <= '1';
+--serial_pass(3) <= '1' when (OUTENC_PROTOCOL(1)(2)='0' AND OUTENC_PROTOCOL(1)(1)='0' AND  OUTENC_PROTOCOL(1)(0)='0') else '0';
+--serial_pass(2) <= '1' when (OUTENC_PROTOCOL(0)(2)='0' AND OUTENC_PROTOCOL(0)(1)='0' AND  OUTENC_PROTOCOL(0)(0)='0') else '0';
+--serial_pass(1) <= '1';
+--serial_pass(0) <= '1';
+
+--(should be this for all 8 axes)
+--serial_pass(7) <= '1' when (OUTENC_PROTOCOL(7)(2)='0' AND OUTENC_PROTOCOL(7)(1)='0' AND  OUTENC_PROTOCOL(7)(0)='0') else '0'; 
+--serial_pass(6) <= '1' when (OUTENC_PROTOCOL(6)(2)='0' AND OUTENC_PROTOCOL(6)(1)='0' AND  OUTENC_PROTOCOL(6)(0)='0') else '0'; 
+--serial_pass(5) <= '1' when (OUTENC_PROTOCOL(5)(2)='0' AND OUTENC_PROTOCOL(5)(1)='0' AND  OUTENC_PROTOCOL(5)(0)='0') else '0'; 
+--serial_pass(4) <= '1' when (OUTENC_PROTOCOL(4)(2)='0' AND OUTENC_PROTOCOL(4)(1)='0' AND  OUTENC_PROTOCOL(4)(0)='0') else '0'; 
+--serial_pass(3) <= '1' when (OUTENC_PROTOCOL(3)(2)='0' AND OUTENC_PROTOCOL(3)(1)='0' AND  OUTENC_PROTOCOL(3)(0)='0') else '0'; 
+--serial_pass(2) <= '1' when (OUTENC_PROTOCOL(2)(2)='0' AND OUTENC_PROTOCOL(2)(1)='0' AND  OUTENC_PROTOCOL(2)(0)='0') else '0';
+--serial_pass(1) <= '1' when (OUTENC_PROTOCOL(1)(2)='0' AND OUTENC_PROTOCOL(1)(1)='0' AND  OUTENC_PROTOCOL(1)(0)='0') else '0';
+--serial_pass(0) <= '1' when (OUTENC_PROTOCOL(0)(2)='0' AND OUTENC_PROTOCOL(0)(1)='0' AND  OUTENC_PROTOCOL(0)(0)='0') else '0';
+
 uvwt         <= "00000000";
-serial_pass  <= "11001100";
 pic_data_out <= ( uvwt & serial_pass );
 
 
@@ -1056,6 +1365,8 @@ port map (
         
 -- ***** THERE IS NOWHERE TO PUT THE LoS INPUTS *****
 -- (should be tied in to 'Health' as per BISS decoder?
+-- (Not sure they actually work yet (line-drivers may not return LoS signal)
+
 
 -- Latch new SPI Data...
 --process(pic_done)
@@ -1104,13 +1415,6 @@ port map (
     T  => invAuxDir1
 );
 
-OBUF1_inst : OBUF
-port map (
-    O => AUX_IO_DIR(1),
-    I => AuxDir1
-);
-
-
 -- Bidirectional IO2...
 
 IOBUF2_inst : IOBUF
@@ -1119,12 +1423,6 @@ port map (
     I  => AuxDout2,
     IO => AUX_IO_DATA(2),
     T  => invAuxDir2
-);
-
-OBUF2_inst : OBUF
-port map (
-    O => AUX_IO_DIR(2),
-    I => AuxDir2
 );
 
 -- Bidirectional IO3...
@@ -1137,12 +1435,6 @@ port map (
     T  => invAuxDir3
 );
 
-OBUF3_inst : OBUF
-port map (
-    O => AUX_IO_DIR(3),
-    I => AuxDir3
-);
-
 -- Bidirectional IO4...
 
 IOBUF4_inst : IOBUF
@@ -1153,12 +1445,6 @@ port map (
     T  => invAuxDir4
 );
 
-OBUF4_inst : OBUF
-port map (
-    O => AUX_IO_DIR(4),
-    I => AuxDir4
-);
-
 -- Bidirectional IO5...
 
 IOBUF5_inst : IOBUF
@@ -1167,12 +1453,6 @@ port map (
     I  => AuxDout5,
     IO => AUX_IO_DATA(5),
     T  => invAuxDir5
-);
-
-OBUF5_inst : OBUF
-port map (
-    O => AUX_IO_DIR(5),
-    I => AuxDir5
 );
 
 -- Run a counter...
@@ -1200,10 +1480,32 @@ invAuxDir3 <= not AuxDir3;
 invAuxDir4 <= not AuxDir4;
 invAuxDir5 <= not AuxDir5;
 
+AUX_IO_DIR(1) <= AuxDir1;
+AUX_IO_DIR(2) <= AuxDir2;
+AUX_IO_DIR(3) <= AuxDir3;
+AUX_IO_DIR(4) <= AuxDir4;
+AUX_IO_DIR(5) <= AuxDir5;
+
 -- LED TEST
 
 PL_LED_P(0) <= '1'; --aux_clk_counter(15);
 PL_LED_P(1) <= '1'; --aux_clk_counter(14);
+
+IIC_FPGA_scl_iobuf: IOBUF
+    port map (
+      I => IIC_FPGA_scl_o,
+      IO => I2C_SCL_FPGA,
+      O => IIC_FPGA_scl_i,
+      T => IIC_FPGA_scl_t
+    );
+  
+IIC_FPGA_sda_iobuf: IOBUF
+    port map (
+      I => IIC_FPGA_sda_o,
+      IO => I2C_SDA_FPGA,
+      O => IIC_FPGA_sda_i,
+      T => IIC_FPGA_sda_t
+    );
 
 process (FCLK_CLK0)
 begin
@@ -1216,9 +1518,10 @@ if rising_edge (FCLK_CLK0) then
 end if;
 end process;
 
--- ========== LEDs on XU5 Module ==========
-
-Led1_N <= '0' when LedCount(LedCount'high) = '0' else 'Z';
+Led0_PL_N <= '0' when LedCount(LedCount'high) = '0' else 'Z';
+Led1_PL_N <= 'Z';
+Led2_PL_N <= 'Z';
+Led3_PL_N <= 'Z';
 
 -- ========== PS LEDs to Front Panel ==========
 
@@ -1233,10 +1536,10 @@ IO4_D7_N <= PL_LED_P(1);
 -- Assemble SFP records
 SFP_i.SFP_LOS <= '0';  -- NB: Hard-coded to '0' as not brought out onto pin!
 SFP_i.GTREFCLK <= BUF_GTREFCLK1;
-SFP_i.RXN_IN <= ch0_gthrxn_in;
-SFP_i.RXP_IN <= ch0_gthrxp_in;
-ch0_gthtxn_out <= SFP_o.TXN_OUT;
-ch0_gthtxp_out <= SFP_o.TXP_OUT;
+SFP_i.RXN_IN <= ch1_gthrxn_in;
+SFP_i.RXP_IN <= ch1_gthrxp_in;
+ch1_gthtxn_out <= SFP_o.TXN_OUT;
+ch1_gthtxp_out <= SFP_o.TXP_OUT;
 SFP_i.MAC_ADDR <= SFP_MAC_ADDR_ARR(1)(23 downto 0) & SFP_MAC_ADDR_ARR(0)(23 downto 0);
 SFP_i.MAC_ADDR_WS <= '0';
 

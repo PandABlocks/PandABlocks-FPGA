@@ -36,7 +36,7 @@ end sfp_panda_sync_mgt_interface;
 
 architecture rtl of sfp_panda_sync_mgt_interface is
 
-COMPONENT gtwizard_sfp_ip
+COMPONENT sfp_panda_sync_us
   PORT (
     gtwiz_userclk_tx_reset_in           : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
     gtwiz_userclk_tx_srcclk_out         : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
@@ -59,11 +59,10 @@ COMPONENT gtwizard_sfp_ip
     gtwiz_reset_rx_done_out             : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
     gtwiz_userdata_tx_in                : IN  STD_LOGIC_VECTOR(31 DOWNTO 0);
     gtwiz_userdata_rx_out               : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-    gtrefclk00_in                       : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
-    qpll0outclk_out                     : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
-    qpll0outrefclk_out                  : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
-    gthrxn_in                           : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
-    gthrxp_in                           : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    drpclk_in                           : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gthrxn_in                           : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gthrxp_in                           : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtrefclk0_in                        : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
     rx8b10ben_in                        : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
     rxcommadeten_in                     : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
     rxmcommaalignen_in                  : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
@@ -121,7 +120,7 @@ rxnotintable_o <= rxctrl3_int(3 downto 0);
 --======================================================================
 
 
-gtwizard_sfp_ip_i : gtwizard_sfp_ip
+sfp_panda_sync_us_i : sfp_panda_sync_us
   PORT MAP (
     gtwiz_userclk_tx_reset_in(0) => '0',                                    -- Should be high until the source clock input is known to be stable.
     gtwiz_userclk_tx_srcclk_out => open,
@@ -144,11 +143,10 @@ gtwizard_sfp_ip_i : gtwizard_sfp_ip
     gtwiz_reset_rx_done_out(0) => gtwiz_reset_rx_done_out,
     gtwiz_userdata_tx_in => txdata_i,
     gtwiz_userdata_rx_out => rxdata_o,
-    gtrefclk00_in(0) => GTREFCLK,
-    qpll0outclk_out => open,
-    qpll0outrefclk_out => open,
+    drpclk_in => "0",
     gthrxn_in(0) => rxn_i,
     gthrxp_in(0) => rxp_i,
+    gtrefclk0_in(0) => GTREFCLK,
     rx8b10ben_in(0) => '1',
     rxcommadeten_in(0) => '1',
     rxmcommaalignen_in(0) => '1',

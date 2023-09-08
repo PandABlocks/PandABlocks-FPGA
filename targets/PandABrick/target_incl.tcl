@@ -1,4 +1,4 @@
-set FPGA_PART xczu4ev-sfvc784-1-i
+set FPGA_PART xczu4cg-sfvc784-1-e
 set HDL_TOP PandABrick_top
 
 # Target specific Constriants to be read
