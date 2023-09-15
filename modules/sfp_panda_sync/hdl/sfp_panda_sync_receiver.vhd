@@ -6,6 +6,7 @@ use work.support.all;
 
 entity sfp_panda_sync_receiver is
     port (sysclk_i          : in  std_logic;
+          reset_i           : in  std_logic;
           rxoutclk_i        : in  std_logic;   
           rxdisperr_i       : in  std_logic_vector(3 downto 0);
           rxcharisk_i       : in  std_logic_vector(3 downto 0);
@@ -64,7 +65,7 @@ constant c_k28_0            : std_logic_vector(7 downto 0) := x"1C";
 constant c_k28_5            : std_logic_vector(7 downto 0) := x"BC";
 constant c_MGT_RX_PRESCALE  : unsigned(9 downto 0) := to_unsigned(1023,10);
 
-constant SETTLE_PERIOD      : natural := 1250; -- 10 microsec at 125MHz
+constant SETTLE_PERIOD      : natural := 12500; -- 100 microsec at 125MHz
 
 subtype t_RX_STATE is INTEGER range 1 to 6;
 
@@ -101,17 +102,18 @@ signal protocol_error_prev            : std_logic;
 signal deprecated_protocol_tog        : std_logic := '0';
 signal protocol_error_tog             : std_logic := '0';
 signal deprecated_protocol_sync       : std_logic;
-signal protocol_err_sync            : std_logic;
+signal protocol_err_sync              : std_logic;
 signal deprecated_protocol_sync_prev  : std_logic;
-signal protocol_err_sync_prev       : std_logic;
+signal protocol_err_sync_prev         : std_logic;
 signal deprecated_protocol_sys        : std_logic;
-signal protocol_err_sys             : std_logic;
+signal protocol_err_sys               : std_logic;
 signal checkbyte_err                  : std_logic;
 signal checkbyte_err_prev             : std_logic;
 signal checkbyte_err_tog              : std_logic := '0';
 signal checkbyte_err_sync             : std_logic;
 signal checkbyte_err_sync_prev        : std_logic;
 signal checkbyte_err_sys              : std_logic;
+signal link_down_latch                : std_logic;
 
 begin
 
@@ -119,7 +121,7 @@ begin
 
 loss_lock_o <= loss_lock;
 rx_error_o <= rx_error;
-rx_link_ok_o <= rx_link_good;
+rx_link_ok_o <= rx_link_ok_sys;
 
 -- Synchronise rx_link_ok onto sysclk domain
 rx_link_sync : entity work.sync_bit
@@ -197,7 +199,7 @@ begin
     end if;
   end if;
 end process ps_link_lost;
-    
+
 rxdata_reader: process(rxoutclk_i)
   -- this variable will synthesise as a register
   variable RX_STATE : t_RX_STATE := 1;
@@ -219,12 +221,25 @@ begin
           deprecated_protocol <= '0'; 
           protocol_error <= '1';
       end case;
+
+      -- Do some error checking on the check-byte
+      if to_integer(unsigned(check_bits_i)) = 1 and check_byte /= std_logic_vector(check_byte_prev + 1) then
+        checkbyte_err <= '1';
+      elsif to_integer(unsigned(check_bits_i)) = 0 and check_byte /= x"00" then
+        checkbyte_err <= '1';
+      else
+        checkbyte_err <= '0';
+      end if;
     elsif RX_STATE = 6 then
       -- this statement should never be reached
       protocol_error <= '1'; 
       deprecated_protocol <= '0';
+      checkbyte_err <= '0';
     else
       RX_STATE := RX_STATE + 1;
+      protocol_error <= '0'; 
+      deprecated_protocol <= '0';
+      checkbyte_err <= '0';
     end if;
 
     BITIN_l(RX_STATE-1) <= rxdata_i(31 downto 24);
@@ -247,15 +262,6 @@ begin
         check_byte             <= rxdata_i(7  downto  0);
         check_byte_prev        <= unsigned(check_byte);
     end case;
-
-    -- Do some error checking on the check-byte
-    if to_integer(unsigned(check_bits_i)) = 1 and check_byte /= std_logic_vector(check_byte_prev + 1) then
-      checkbyte_err <= '1';
-    elsif to_integer(unsigned(check_bits_i)) = 0 and check_byte /= x"00" then
-      checkbyte_err <= '1';
-    else
-      checkbyte_err <= '0';
-    end if;
 
     -- Capture the rising egde of the error flags
     deprecated_protocol_prev <= deprecated_protocol;
@@ -341,27 +347,35 @@ port map(
 health_sys: process(sysclk_i)
 begin
   if rising_edge(sysclk_i) then
-    if rx_link_good = '0' then
-      deprecated_protocol_sys <= '0';
-      protocol_err_sys <= '0';
-      checkbyte_err_sys <= '0';
-    else
-      if (deprecated_protocol_sync xor deprecated_protocol_sync_prev) = '1' then
-        deprecated_protocol_sys <= '1';
-      end if;
-      if (protocol_err_sync xor protocol_err_sync_prev) = '1' then
-        protocol_err_sys <= '1';
-      end if;
-      if (checkbyte_err_sync xor checkbyte_err_sync_prev) = '1' then
-        checkbyte_err_sys <= '1';
-      end if;
-    end if;
 
     deprecated_protocol_sync_prev <= deprecated_protocol_sync;
     protocol_err_sync_prev <= protocol_err_sync;
     checkbyte_err_sync_prev <= checkbyte_err_sync;
 
-    if rx_link_good = '0' then
+    if reset_i = '1' then
+      link_down_latch <= '0';
+      deprecated_protocol_sys <= '0';
+      protocol_err_sys <= '0';
+      checkbyte_err_sys <= '0';
+    else
+      if rx_link_good = '1' then
+        if rx_link_ok_sys = '0' then
+          link_down_latch <= '1';
+        end if;
+        if (deprecated_protocol_sync xor deprecated_protocol_sync_prev) = '1' then
+          deprecated_protocol_sys <= '1';
+        end if;
+        if (protocol_err_sync xor protocol_err_sync_prev) = '1' then
+          protocol_err_sys <= '1';
+        end if;
+        if (checkbyte_err_sync xor checkbyte_err_sync_prev) = '1' then
+          checkbyte_err_sys <= '1';
+        end if;
+      end if;
+    end if;
+
+    if rx_link_good = '0' or link_down_latch = '1' then
+      -- flag when the link is down, regardless of whether latch is reset
       health_o <= std_logic_vector(to_unsigned(1,32));
     elsif deprecated_protocol_sys = '1' then
       health_o <= std_logic_vector(to_unsigned(2,32));
@@ -380,10 +394,10 @@ rx_link_ok_timer: process(sysclk_i)
   variable timer_val : unsigned(LOG2(SETTLE_PERIOD) downto 0);
 begin
   if rising_edge(sysclk_i) then
-    if rx_link_ok_sys = '0' then
+    if reset_i = '1' or rx_link_ok_sys = '0' then
       timer_val := (others => '0');
       rx_link_good <= '0';
-    elsif timer_val = to_unsigned(SETTLE_PERIOD,LOG2(SETTLE_PERIOD)+1) then
+    elsif timer_val = SETTLE_PERIOD then
       rx_link_good <= rx_link_ok_sys;
     else
       timer_val := timer_val + 1;

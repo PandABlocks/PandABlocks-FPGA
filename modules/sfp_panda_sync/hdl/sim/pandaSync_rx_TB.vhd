@@ -38,6 +38,7 @@ begin
 uut : entity work.sfp_panda_sync_receiver
     port map(
           sysclk_i          => clk,
+          reset_i           => '0',
           rxoutclk_i        => rxoutclk,   
           rxdisperr_i       => (others => '0'),
           rxcharisk_i       => rxcharisk,

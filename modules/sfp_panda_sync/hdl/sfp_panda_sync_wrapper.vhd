@@ -157,6 +157,7 @@ sfp_panda_sync_receiver_inst : entity work.sfp_panda_sync_receiver
 
     port map (
         sysclk_i          => clk_i,
+        reset_i           => SYNC_RESET,
         rxoutclk_i        => rxoutclk_buf,
         rxdisperr_i       => rxdisperr,
         rxcharisk_i       => rxcharisk,
