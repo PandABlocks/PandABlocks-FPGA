@@ -59,8 +59,8 @@ class GPIO_Helper:
 
     def write_bits(self, value, byte_ix, offset, width):
         mask = ((1 << width) - 1) << offset
-        value = (value << offset) & mask
-        self.outputs[byte_ix] = (self.outputs[byte_ix] & ~mask) | value
+        shift_value = (value << offset) & mask
+        self.outputs[byte_ix] = (self.outputs[byte_ix] & ~mask) | shift_value
         self.write_output_bits(self.outputs)
         return (value,)
 
