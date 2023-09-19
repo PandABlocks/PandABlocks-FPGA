@@ -13,7 +13,6 @@ import numpy
 import codecs
 import itertools
 import datetime
-import dateutil.parser
 
 
 def zeros(count):
@@ -23,7 +22,7 @@ def append(base, value):
     return numpy.append(base, numpy.array(value, dtype = numpy.uint8))
 
 def checksum(data):
-    return -data.sum() & 0xff
+    return -sum(data) & 0xff
 
 def int16(value, scale):
     value = float(value) * scale
@@ -31,12 +30,13 @@ def int16(value, scale):
 
 def compute_time(datestr):
     epoch = datetime.datetime(1996, 1, 1)
-    date_epoch = dateutil.parser.parse(datestr) - epoch
+    current = datetime.datetime.strptime(datestr, '%Y-%m-%d %H:%M')
+    date_epoch = current - epoch
     try:
-        delta = date_epoch.total_seconds() / 60
+        delta = date_epoch.total_seconds() // 60
     except AttributeError:
         # Python 2.6 doesn't have total_seconds
-        delta = date_epoch.days * 24 * 60 + date_epoch.seconds / 60
+        delta = date_epoch.days * 24 * 60 + date_epoch.seconds // 60
     return numpy.int32([delta]).view(dtype = numpy.uint8)[:3]
 
 
@@ -71,7 +71,7 @@ class Area(object):
     # checksum byte at the end.  The length in 8-byte blocks is returned.
     def pad_to_length(self):
         l = len(self.area)
-        blocks = (l + 8) / 8
+        blocks = (l + 8) // 8
         self.append(zeros(8 * blocks - l))
         return blocks
 
@@ -79,7 +79,7 @@ class Area(object):
     # final checksum character.  The final length is a multiple of 8.
     def wrapup(self):
         l = len(self.area)
-        padding = 8 * ((l + 8) / 8) - l
+        padding = 8 * ((l + 8) // 8) - l
         self.append(zeros(padding))
         self.area[-1] = checksum(self.area[:-1])
 
@@ -112,7 +112,7 @@ def generate_board_area(ini):
     # padding and checksum.
     board.append(0xc1)
     board.pad_to_length()
-    board[1] = len(board) / 8
+    board[1] = len(board) // 8
     board[-1] = checksum(board[:-1])
     return board.area
 
@@ -193,7 +193,7 @@ def generate_header(board, multi):
     header[3] = 1       # Board area directly follows header
     header[4] = 0       # No product info area
     assert len(board) % 8 == 0
-    header[5] = len(board) / 8 + 1
+    header[5] = len(board) // 8 + 1
     header[6] = 0
     header[7] = checksum(header[:7])
     return header
