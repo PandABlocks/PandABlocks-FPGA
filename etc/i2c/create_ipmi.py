@@ -85,7 +85,10 @@ class Area(object):
 
 
 
-def generate_board_area(ini):
+def generate_board_area(ini, serial_number=None):
+    if serial_number is None:
+        serial_number = ini['serial number']
+
     # Prepare header
     board = Area(6)
     board[0] = 1
@@ -99,7 +102,7 @@ def generate_board_area(ini):
     # Output the strings
     board.add_string(ini['manufacturer'])
     board.add_string(ini['product name'])
-    board.add_string(ini['serial number'])
+    board.add_string(serial_number)
     board.add_string(ini['part number'])
     board.add_string(ini['fru file id'])
     for i in itertools.count(1):
@@ -199,8 +202,8 @@ def generate_header(board, multi):
     return header
 
 
-def generate_ipmi(ini):
-    board = generate_board_area(ini['Board'])
+def generate_ipmi(ini, serial_number=None):
+    board = generate_board_area(ini['Board'], serial_number)
     multi = generate_multi_area(ini)
     header = generate_header(board, multi)
     return numpy.concatenate((header, board, multi))
