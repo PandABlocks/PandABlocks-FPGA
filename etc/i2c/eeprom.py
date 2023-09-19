@@ -6,6 +6,8 @@ import time
 
 from . import smbus2
 
+I2C_BUSY_TIMEOUT_S = 1.0
+
 
 def read_bytes(bus, device, length = 32):
     read = smbus2.i2c_msg.read(device, length)
@@ -39,8 +41,8 @@ def read_address(device=0x50, length=256):
         start_time = time.time()
         # this writes 1 zero to check if the device is busy
         while device_is_busy(bus, device):
-            if time.time() >= start_time + 1.0:
-                raise TimeoutError('i2c timeout while writing')
+            if time.time() >= start_time + I2C_BUSY_TIMEOUT_S:
+                raise TimeoutError('read_address: i2c timeout')
 
     result = []
     while len(result) < length:
@@ -62,8 +64,8 @@ def write_address(device=0x50, data=[], address16bit=False):
 
         start_time = time.time()
         while device_is_busy(bus, device):
-            if time.time() >= start_time + 1.0:
-                raise TimeoutError('i2c timeout while writing')
+            if time.time() >= start_time + I2C_BUSY_TIMEOUT_S:
+                raise TimeoutError('write_address: i2c timeout')
 
         write_bytes(bus, device, address_data + list(data[offset:offset + 32]))
         offset += 32
