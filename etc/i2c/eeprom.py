@@ -50,6 +50,24 @@ def read_address(device=0x50, length=256):
     return result
 
 
+def write_address(device=0x50, data=[], address16bit=False):
+    bus = smbus2.SMBus(0)
+    offset = 0
+    while offset < len(data):
+        address_data = [offset]
+        if address16bit:
+            address_data = [(offset >> 8) & 0xff, offset & 0xff]
+        else:
+            address_data =  [ offset & 0xff ]
+
+        start_time = time.time()
+        while device_is_busy(bus, device):
+            if time.time() >= start_time + 1.0:
+                raise TimeoutError('i2c timeout while writing')
+
+        write_bytes(bus, device, address_data + list(data[offset:offset + 32]))
+        offset += 32
+
 
 def read_eeprom(length=256):
     eeprom = read_address(length=length)
