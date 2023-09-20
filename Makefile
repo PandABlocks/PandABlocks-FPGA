@@ -319,7 +319,9 @@ ZPKG_DEPENDS += $(APP_BUILD_DIR)/extensions
 ZPKG_DEPENDS += $(DOCS_HTML_DIR)
 
 $(APP_BUILD_DIR)/ipmi.ini: $(APP_FILE)
-	$(PYTHON) -m common.python.make_ipmi_ini $(TOP) $< $@
+	$(PYTHON) -m common.python.copy_file_in_modules \
+        --fallback $(TOP)/common/templates/default_ipmi.ini \
+        $(TOP) $< ipmi.ini $@
 
 $(APP_BUILD_DIR)/extensions: $(APP_FILE)
 	rm -rf $@

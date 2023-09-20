@@ -120,7 +120,6 @@ system_registers : entity work.system_registers
 port map (
     clk_i   => clk_i,
     reset_i => reset_i,
-    DCARD_MODE_i => DCARD_MODE,
     OUTENC_PROT_i => OUTENC_PROT_i,
     OUTENC_PROT_WSTB_i => OUTENC_PROT_WSTB_i,
     INENC_PROT_i => INENC_PROT_i,
