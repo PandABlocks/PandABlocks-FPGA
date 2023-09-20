@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Autogeneration framework architecture &mdash; PandABlocks-FPGA 3.0a3
+  <title>Autogeneration framework architecture &mdash; PandABlocks-FPGA 3.0a2-215-gcc42964
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -40,7 +40,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a3
+                3.0a2-215-gcc42964
 
               </div>
 <div role="search">
@@ -121,6 +121,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.BlockConfig.ip"><code class="docutils literal notranslate"><span class="pre">BlockConfig.ip</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.BlockConfig.description"><code class="docutils literal notranslate"><span class="pre">BlockConfig.description</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.BlockConfig.fields"><code class="docutils literal notranslate"><span class="pre">BlockConfig.fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#common.python.configs.BlockConfig.calc_extensions"><code class="docutils literal notranslate"><span class="pre">BlockConfig.calc_extensions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.BlockConfig.block_suffixes"><code class="docutils literal notranslate"><span class="pre">BlockConfig.block_suffixes</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.BlockConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">BlockConfig.register_addresses()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.BlockConfig.filter_fields"><code class="docutils literal notranslate"><span class="pre">BlockConfig.filter_fields()</span></code></a></li>
@@ -131,6 +132,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.RegisterConfig.name"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.RegisterConfig.number"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.number</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.RegisterConfig.extension"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.extension</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#common.python.configs.RegisterConfig.write_extension"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.write_extension</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#common.python.configs.RegisterConfig.read_extension"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.read_extension</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#common.python.configs.BusEntryConfig"><code class="docutils literal notranslate"><span class="pre">BusEntryConfig</span></code></a><ul>
@@ -198,6 +201,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#common.python.configs.ParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.ParamFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig.type_regex</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.ParamFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#common.python.configs.CalcExtensionFieldConfig"><code class="docutils literal notranslate"><span class="pre">CalcExtensionFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#common.python.configs.CalcExtensionFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">CalcExtensionFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#common.python.configs.CalcExtensionFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">CalcExtensionFieldConfig.register_addresses()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#common.python.configs.EnumParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">EnumParamFieldConfig</span></code></a><ul>
@@ -414,6 +422,12 @@
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="common.python.configs.BlockConfig.calc_extensions">
+<span class="sig-name descname"><span class="pre">calc_extensions</span></span><a class="headerlink" href="#common.python.configs.BlockConfig.calc_extensions" title="Permalink to this definition"></a></dt>
+<dd><p>List of Extension fields in the block</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="common.python.configs.BlockConfig.block_suffixes">
 <span class="sig-name descname"><span class="pre">block_suffixes</span></span><a class="headerlink" href="#common.python.configs.BlockConfig.block_suffixes" title="Permalink to this definition"></a></dt>
 <dd><p>Are there any suffixes?</p>
@@ -442,7 +456,7 @@ that don’t match</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="common.python.configs.RegisterConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">common.python.configs.</span></span><span class="sig-name descname"><span class="pre">RegisterConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#RegisterConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#common.python.configs.RegisterConfig" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">common.python.configs.</span></span><span class="sig-name descname"><span class="pre">RegisterConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#RegisterConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#common.python.configs.RegisterConfig" title="Permalink to this definition"></a></dt>
 <dd><p>A low level register name and number backing this field</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="common.python.configs.RegisterConfig.name">
@@ -460,6 +474,18 @@ that don’t match</p>
 <dt class="sig sig-object py" id="common.python.configs.RegisterConfig.extension">
 <span class="sig-name descname"><span class="pre">extension</span></span><a class="headerlink" href="#common.python.configs.RegisterConfig.extension" title="Permalink to this definition"></a></dt>
 <dd><p>For an extension field, the register path</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="common.python.configs.RegisterConfig.write_extension">
+<span class="sig-name descname"><span class="pre">write_extension</span></span><a class="headerlink" href="#common.python.configs.RegisterConfig.write_extension" title="Permalink to this definition"></a></dt>
+<dd><p>If there is a write extension</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="common.python.configs.RegisterConfig.read_extension">
+<span class="sig-name descname"><span class="pre">read_extension</span></span><a class="headerlink" href="#common.python.configs.RegisterConfig.read_extension" title="Permalink to this definition"></a></dt>
+<dd><p>If there is a write extension</p>
 </dd></dl>
 
 </dd></dl>
@@ -756,6 +782,25 @@ register</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="common.python.configs.ParamFieldConfig.register_addresses">
 <span class="sig-name descname"><span class="pre">register_addresses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">counters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#ParamFieldConfig.register_addresses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#common.python.configs.ParamFieldConfig.register_addresses" title="Permalink to this definition"></a></dt>
+<dd><p>Create registers using the FieldCounter object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="common.python.configs.CalcExtensionFieldConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">common.python.configs.</span></span><span class="sig-name descname"><span class="pre">CalcExtensionFieldConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#CalcExtensionFieldConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#common.python.configs.CalcExtensionFieldConfig" title="Permalink to this definition"></a></dt>
+<dd><p>These fields act in the same way as write record from the VHDL generation
+point of view, but do not have a config entry</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="common.python.configs.CalcExtensionFieldConfig.type_regex">
+<span class="sig-name descname"><span class="pre">type_regex</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'(extension_write|extension_read)'</span></em><a class="headerlink" href="#common.python.configs.CalcExtensionFieldConfig.type_regex" title="Permalink to this definition"></a></dt>
+<dd><p>Regex for matching a type string to this field</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="common.python.configs.CalcExtensionFieldConfig.register_addresses">
+<span class="sig-name descname"><span class="pre">register_addresses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">counters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#CalcExtensionFieldConfig.register_addresses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#common.python.configs.CalcExtensionFieldConfig.register_addresses" title="Permalink to this definition"></a></dt>
 <dd><p>Create registers using the FieldCounter object</p>
 </dd></dl>
 

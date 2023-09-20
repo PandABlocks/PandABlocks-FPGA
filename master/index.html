@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>What can PandABlocks do? &mdash; PandABlocks-FPGA 3.0a3
+  <title>What can PandABlocks do? &mdash; PandABlocks-FPGA 3.0a2-215-gcc42964
  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
@@ -39,7 +39,7 @@
               <img src="_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a3
+                3.0a2-215-gcc42964
 
               </div>
 <div role="search">
@@ -477,6 +477,7 @@ framework</p>
 <li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.ip"><code class="docutils literal notranslate"><span class="pre">BlockConfig.ip</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.description"><code class="docutils literal notranslate"><span class="pre">BlockConfig.description</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.fields"><code class="docutils literal notranslate"><span class="pre">BlockConfig.fields</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.calc_extensions"><code class="docutils literal notranslate"><span class="pre">BlockConfig.calc_extensions</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.block_suffixes"><code class="docutils literal notranslate"><span class="pre">BlockConfig.block_suffixes</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">BlockConfig.register_addresses()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.filter_fields"><code class="docutils literal notranslate"><span class="pre">BlockConfig.filter_fields()</span></code></a></li>
@@ -487,6 +488,8 @@ framework</p>
 <li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.name"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.name</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.number"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.number</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.extension"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.extension</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.write_extension"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.write_extension</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.read_extension"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.read_extension</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.BusEntryConfig"><code class="docutils literal notranslate"><span class="pre">BusEntryConfig</span></code></a><ul>
@@ -554,6 +557,11 @@ framework</p>
 <li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.ParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.ParamFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig.type_regex</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.ParamFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.CalcExtensionFieldConfig"><code class="docutils literal notranslate"><span class="pre">CalcExtensionFieldConfig</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.CalcExtensionFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">CalcExtensionFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="reference/framework.html#common.python.configs.CalcExtensionFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">CalcExtensionFieldConfig.register_addresses()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="reference/framework.html#common.python.configs.EnumParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">EnumParamFieldConfig</span></code></a><ul>
@@ -908,6 +916,7 @@ framework</p>
 <li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.ip"><code class="docutils literal notranslate"><span class="pre">BlockConfig.ip</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.description"><code class="docutils literal notranslate"><span class="pre">BlockConfig.description</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.fields"><code class="docutils literal notranslate"><span class="pre">BlockConfig.fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.calc_extensions"><code class="docutils literal notranslate"><span class="pre">BlockConfig.calc_extensions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.block_suffixes"><code class="docutils literal notranslate"><span class="pre">BlockConfig.block_suffixes</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">BlockConfig.register_addresses()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.BlockConfig.filter_fields"><code class="docutils literal notranslate"><span class="pre">BlockConfig.filter_fields()</span></code></a></li>
@@ -918,6 +927,8 @@ framework</p>
 <li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.name"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.number"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.number</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.extension"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.extension</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.write_extension"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.write_extension</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.RegisterConfig.read_extension"><code class="docutils literal notranslate"><span class="pre">RegisterConfig.read_extension</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.BusEntryConfig"><code class="docutils literal notranslate"><span class="pre">BusEntryConfig</span></code></a><ul>
@@ -985,6 +996,11 @@ framework</p>
 <li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.ParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.ParamFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig.type_regex</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.ParamFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig.register_addresses()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.CalcExtensionFieldConfig"><code class="docutils literal notranslate"><span class="pre">CalcExtensionFieldConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.CalcExtensionFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">CalcExtensionFieldConfig.type_regex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="reference/framework.html#common.python.configs.CalcExtensionFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">CalcExtensionFieldConfig.register_addresses()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="reference/framework.html#common.python.configs.EnumParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">EnumParamFieldConfig</span></code></a><ul>

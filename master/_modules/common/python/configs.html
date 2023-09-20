@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>common.python.configs &mdash; PandABlocks-FPGA 3.0a3
+  <title>common.python.configs &mdash; PandABlocks-FPGA 3.0a2-215-gcc42964
  documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
@@ -38,7 +38,7 @@
               <img src="../../../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a3
+                3.0a2-215-gcc42964
 
               </div>
 <div role="search">
@@ -268,7 +268,10 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity</span>
         <span class="c1">#: All the child fields</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">FieldConfig</span><span class="o">.</span><span class="n">from_ini</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">FieldConfig</span><span class="o">.</span><span class="n">from_ini</span><span class="p">(</span>
+            <span class="n">ini</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span>  <span class="c1"># type: List[FieldConfig]</span>
+        <span class="c1">#: List of Extension fields in the block</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_extensions</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1">#: Are there any suffixes?</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">block_suffixes</span> <span class="o">=</span> <span class="n">ini_get</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;block_suffixes&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
 
@@ -312,7 +315,25 @@
         <span class="k">for</span> <span class="n">interface</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interfaces</span><span class="p">:</span>
             <span class="n">constraint</span> <span class="o">=</span> <span class="n">interface</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;_MGT_pins.xdc&quot;</span>
             <span class="k">if</span> <span class="n">constraint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interfaceConstraints</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">interfaceConstraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constraint</span><span class="p">)</span></div></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">interfaceConstraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constraint</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">generate_calc_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Iterate through the fields and add any with writeExtension type to the list</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_fields</span><span class="p">(</span><span class="s2">&quot;extension_.*&quot;</span><span class="p">):</span>
+            <span class="n">extension</span> <span class="o">=</span> <span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">registers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">:</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calc_extensions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extension</span><span class="p">)</span>
+        <span class="c1"># After extensions have been added to self.read_extensions/self.write_extensions</span>
+        <span class="c1"># Iterate through the fields, when a writeExtension is specified find its number</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">calc_extension</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_extensions</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">extension</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">extension_write</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
+                     <span class="k">if</span> <span class="n">calc_extension</span> <span class="o">==</span> <span class="n">extension</span><span class="p">:</span>
+                        <span class="n">field</span><span class="o">.</span><span class="n">extension_nums</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">num</span><span class="p">,</span> <span class="s2">&quot;write&quot;</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">extension</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">extension_read</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">calc_extension</span> <span class="o">==</span> <span class="n">extension</span><span class="p">:</span>
+                        <span class="n">field</span><span class="o">.</span><span class="n">extension_nums</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">num</span><span class="p">,</span> <span class="s2">&quot;read&quot;</span><span class="p">])</span></div>
 
 <span class="k">def</span> <span class="nf">make_getter_setter</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">getter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -332,8 +353,8 @@
 
 <div class="viewcode-block" id="RegisterConfig"><a class="viewcode-back" href="../../../reference/framework.html#common.python.configs.RegisterConfig">[docs]</a><span class="k">class</span> <span class="nc">RegisterConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A low level register name and number backing this field&quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">number</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-        <span class="c1"># type: (str, int, str, str) -&gt; None</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">number</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">write_extension</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">read_extension</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="c1"># type: (str, int, str, str, str, str) -&gt; None</span>
         <span class="c1">#: The name of the register, like INPA_DLY</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
         <span class="c1">#: The register number relative to Block, like 9</span>
@@ -341,7 +362,11 @@
         <span class="c1"># String to be written before the register</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="n">prefix</span>
         <span class="c1">#: For an extension field, the register path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">=</span> <span class="n">extension</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">=</span> <span class="n">extension</span>
+        <span class="c1">#: If there is a write extension</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_extension</span> <span class="o">=</span> <span class="n">write_extension</span>
+        <span class="c1">#: If there is a write extension</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_extension</span> <span class="o">=</span> <span class="n">read_extension</span></div>
 
 
 <div class="viewcode-block" id="BusEntryConfig"><a class="viewcode-back" href="../../../reference/framework.html#common.python.configs.BusEntryConfig">[docs]</a><span class="k">class</span> <span class="nc">BusEntryConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -384,7 +409,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">option_filter</span> <span class="o">=</span> <span class="n">extra_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;if-option&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="c1">#: Store the extension register info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">=</span> <span class="n">extra_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;extension&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">extension_reg</span> <span class="o">=</span> <span class="n">extra_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;extension_reg&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extension_write</span> <span class="o">=</span> <span class="n">extra_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;extension_write&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extension_read</span> <span class="o">=</span> <span class="n">extra_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;extension_read&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extension_nums</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_config</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1">#: All the other extra config items</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extra_config_lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parse_extra_config</span><span class="p">(</span><span class="n">extra_config</span><span class="p">))</span>
 
@@ -407,10 +435,22 @@
             <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">prefix</span><span class="p">:</span>
                 <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">prefix</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">number</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">number</span><span class="p">))</span>
+
+            <span class="c1"># The following is used if fields use the extension server</span>
             <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">extension</span><span class="p">:</span>
+                <span class="c1"># Add register number for any read extensions</span>
+                <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">ext_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension_nums</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">ext_type</span> <span class="o">==</span> <span class="s2">&quot;read&quot;</span><span class="p">:</span>
+                        <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="p">)))</span>
+                <span class="c1"># If there are write extensions add W and then any register numbers</span>
+                <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">write_extension</span><span class="p">:</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;W&#39;</span><span class="p">])</span>
+                    <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">ext_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension_nums</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">ext_type</span> <span class="o">==</span> <span class="s2">&quot;write&quot;</span><span class="p">:</span>
+                            <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="p">)))</span>
                 <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">extension</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">r</span><span class="o">.</span><span class="n">number</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">number</span><span class="p">))</span>
             <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">registers</span><span class="p">:</span>
@@ -601,16 +641,22 @@
 <div class="viewcode-block" id="ParamFieldConfig.register_addresses"><a class="viewcode-back" href="../../../reference/framework.html#common.python.configs.ParamFieldConfig.register_addresses">[docs]</a>    <span class="k">def</span> <span class="nf">register_addresses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">counters</span><span class="p">):</span>
         <span class="c1"># type: (FieldCounter) -&gt; None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension_reg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">address</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">address</span> <span class="o">=</span> <span class="n">counters</span><span class="o">.</span><span class="n">new_field</span><span class="p">()</span>
+            <span class="n">address</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">address</span> <span class="o">=</span> <span class="n">counters</span><span class="o">.</span><span class="n">new_field</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">RegisterConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">))</span></div></div>
+            <span class="n">RegisterConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">write_extension</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extension_write</span><span class="p">,</span> <span class="n">read_extension</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extension_read</span><span class="p">))</span></div></div>
 
+<div class="viewcode-block" id="CalcExtensionFieldConfig"><a class="viewcode-back" href="../../../reference/framework.html#common.python.configs.CalcExtensionFieldConfig">[docs]</a><span class="k">class</span> <span class="nc">CalcExtensionFieldConfig</span><span class="p">(</span><span class="n">ParamFieldConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;These fields act in the same way as write record from the VHDL generation </span>
+<span class="sd">    point of view, but do not have a config entry&quot;&quot;&quot;</span>
+    <span class="n">type_regex</span> <span class="o">=</span> <span class="s2">&quot;(extension_write|extension_read)&quot;</span>
+
+<div class="viewcode-block" id="CalcExtensionFieldConfig.register_addresses"><a class="viewcode-back" href="../../../reference/framework.html#common.python.configs.CalcExtensionFieldConfig.register_addresses">[docs]</a>    <span class="k">def</span> <span class="nf">register_addresses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">counters</span><span class="p">):</span>
+        <span class="c1"># type: (FieldCounter) -&gt; None</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CalcExtensionFieldConfig</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">register_addresses</span><span class="p">(</span><span class="n">counters</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_config</span> <span class="o">=</span> <span class="kc">True</span></div></div>
 
 <div class="viewcode-block" id="EnumParamFieldConfig"><a class="viewcode-back" href="../../../reference/framework.html#common.python.configs.EnumParamFieldConfig">[docs]</a><span class="k">class</span> <span class="nc">EnumParamFieldConfig</span><span class="p">(</span><span class="n">ParamFieldConfig</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An enum field with its integer entries and string values&quot;&quot;&quot;</span>
@@ -713,7 +759,7 @@
     <span class="n">type_regex</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-        <span class="c1"># type: (str, int, int, int, str) -&gt; None</span>
+        <span class="c1"># type: (str, str)-&gt; None</span>
         <span class="c1">#: The type of target site (SFP/FMC etc)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="c1">#: The info i in a string such as &quot;3, i, io, o&quot;</span>

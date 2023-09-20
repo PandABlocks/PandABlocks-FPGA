@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Writing a Block &mdash; PandABlocks-FPGA 3.0a3
+  <title>Writing a Block &mdash; PandABlocks-FPGA 3.0a2-215-gcc42964
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -40,7 +40,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a3
+                3.0a2-215-gcc42964
 
               </div>
 <div role="search">
@@ -273,7 +273,6 @@ look like this:</p>
 <span class="na">type</span><span class="o">:</span><span class="w"> </span><span class="s">type subtype options</span>
 <span class="na">description</span><span class="o">:</span><span class="w"> </span><span class="s">Short description of the Field</span>
 <span class="na">extension</span><span class="o">:</span><span class="w"> </span><span class="s">extension-parameter</span>
-<span class="na">extension_reg</span><span class="o">:</span>
 <span class="na">wstb</span><span class="o">:</span>
 </pre></div>
 </div>
@@ -285,11 +284,16 @@ through to the field specific line in the config file for the TCP server so
 should be written according to <a class="reference external" href=":ref:`FieldType&lt;server:fields&gt;`">type</a> documentation. Subsequent indented lines
 in the config file are supplied according to the <code class="docutils literal notranslate"><span class="pre">type</span></code> value and are
 documented in <a class="reference internal" href="#extra-field-keys"><span class="std std-ref">Extra Field Keys</span></a>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">type</span></code> is set as <code class="docutils literal notranslate"><span class="pre">extension_write</span></code> or <code class="docutils literal notranslate"><span class="pre">extension_read</span></code> the block is
+a hidden register. It has a hardware register but does not generate block
+names.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">description</span></code> value gives a short (single sentence) description about
 what the Field does, visible as a tooltip to users.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">extension</span></code> is specified then this field is configured as an extension
-field.  If the <code class="docutils literal notranslate"><span class="pre">extension_reg</span></code> field is also specified then this field is also
-a hardware register.</p>
+field.  If the <code class="docutils literal notranslate"><span class="pre">extension_read</span></code> or <code class="docutils literal notranslate"><span class="pre">extension_write</span></code> fields are also
+specified then this field does not generate its own hardware register but uses
+the specified registers. If fields use extensions an [extension].py needs to
+be created.</p>
 <p>If a signal uses a write strobe <code class="docutils literal notranslate"><span class="pre">wstb</span></code> should be set to True.</p>
 </div>
 <div class="section" id="extra-field-keys">
