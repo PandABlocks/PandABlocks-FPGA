@@ -1,0 +1,101 @@
+*METADATA
+    APPNAME             constant =calc_extension
+    DESIGN              string
+    LAYOUT              multiline
+    EXPORTS             multiline
+    LABEL_DUMMY1        string
+    LABEL_DUMMY2        string
+    LABEL_DUMMY3        string
+    LABEL_DUMMY4        string
+    LABEL_DUMMY5        string
+    LABEL_INTERVAL1     string
+    LABEL_INTERVAL2     string
+    LABEL_INTERVAL3     string
+    LABEL_FMC_IN1       string
+    LABEL_FMC_OUT1      string
+
+DUMMY[5]
+    DUMMY_R             read
+    DUMMY_W             write
+    POLY_R              read
+    POLY_W              write
+
+INTERVAL[3]
+    CENTRE              param
+    RANGE               param
+
+FMC_IN[1]
+    GAIN1               param enum
+        0   10V
+        1   5V
+        2   2.5V
+        3   1.25V
+    GAIN2               param enum
+        0   10V
+        1   5V
+        2   2.5V
+        3   1.25V
+    GAIN3               param enum
+        0   10V
+        1   5V
+        2   2.5V
+        3   1.25V
+    GAIN4               param enum
+        0   10V
+        1   5V
+        2   2.5V
+        3   1.25V
+    GAIN5               param enum
+        0   10V
+        1   5V
+        2   2.5V
+        3   1.25V
+    GAIN6               param enum
+        0   10V
+        1   5V
+        2   2.5V
+        3   1.25V
+    GAIN7               param enum
+        0   10V
+        1   5V
+        2   2.5V
+        3   1.25V
+    GAIN8               param enum
+        0   10V
+        1   5V
+        2   2.5V
+        3   1.25V
+    VAL1                pos_out 4.65661287e-9 0 V
+    VAL2                pos_out 4.65661287e-9 0 V
+    VAL3                pos_out 4.65661287e-9 0 V
+    VAL4                pos_out 4.65661287e-9 0 V
+    VAL5                pos_out 4.65661287e-9 0 V
+    VAL6                pos_out 4.65661287e-9 0 V
+    VAL7                pos_out 4.65661287e-9 0 V
+    VAL8                pos_out 4.65661287e-9 0 V
+    TTL                 bit_out
+    ADC_B_FITTED        read enum
+        0   ADC B input fitted
+        1   Not fitted
+
+FMC_OUT[1]
+    VAL1                pos_mux
+    VAL2                pos_mux
+    VAL3                pos_mux
+    VAL4                pos_mux
+    GAIN1               param enum
+        0   5V
+        1   10V
+    GAIN2               param enum
+        0   5V
+        1   10V
+    GAIN3               param enum
+        0   5V
+        1   10V
+    GAIN4               param enum
+        0   5V
+        1   10V
+    DAC_FITTED          read enum
+        0   DAC output fitted
+        1   Not fitted
+

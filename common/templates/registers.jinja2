@@ -9,7 +9,9 @@
     {% for field in block.fields %}
     {# field is a FieldConfig object #}
     {# ask it for its register addresses within the block base address #}
+        {% if not field.no_config %}
     {{ pad(field.name) }} {{ field.address_line() }}
+        {% endif %}
     {% endfor %}
     {# insert a blank line between blocks for readability #}
 

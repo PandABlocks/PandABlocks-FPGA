@@ -1,0 +1,107 @@
+# Register interface definition
+
+# This must be updated when there are changes that require the driver
+# to be updated
+DRIVER_COMPAT_VERSION = 1
+
+# This special register block is not present in the config file and contains
+# fixed register definitions used in the hardware interface.
+*REG        0
+    #
+    # FPGA Version and Build Identification Values
+    #
+    FPGA_VERSION            0
+    FPGA_BUILD              1
+    USER_VERSION            2
+    # Bit bus readout registers: first write to BIT_READ_RST to capture a
+    # snapshot of the bit bus and its changes, then read BIT_READ_VALUE 8 times
+    # to read out bit bus values and change flags.
+    BIT_READ_RST            3
+    BIT_READ_VALUE          4
+
+    # Position bus readout registers: first write to POS_READ_RST to snapshot
+    # the position bus and the change set, then read POS_READ_VALUE 32 times to
+    # read out the positions, and finally read the change set from
+    # POS_READ_CHANGES.
+    POS_READ_RST            5
+    POS_READ_VALUE          6
+    POS_READ_CHANGES        7
+
+    # The capture set is written by first writing to PCAP_START_WRITE and then
+    # writing the required changes to PCAP_WRITE
+    PCAP_START_WRITE        8
+    PCAP_WRITE              9
+
+    # Position capture control
+    PCAP_ARM                13
+    PCAP_DISARM             14
+
+    # FPGA Capabilities Value
+    FPGA_CAPABILITIES       15
+
+    # Range of MAC addresses
+    MAC_ADDRESS_BASE        16 .. 23
+
+
+# These registers are used by the kernel driver to read the data capture stream.
+# This block is not used by the server, but is here for documentation and other
+# automated tools.
+*DRV        1
+    # This register is used to reset DMA engine.
+    PCAP_DMA_RESET          0
+    # This register is used to initialise DMA engine with first set of
+    # addresses.
+    PCAP_DMA_START          1
+    # The physical address of each DMA block is written to this register.
+    PCAP_DMA_ADDR           2
+    # This register configures the maximum interval between capture interrupts
+    PCAP_TIMEOUT            3
+    # Interrupt status and acknowledge
+    PCAP_IRQ_STATUS         4
+    # DMA block size in bytes
+    PCAP_BLOCK_SIZE         6
+    # Kernel driver compatiblity version check register.  The value in this
+    # register must match DRIVER_COMPAT_VERSION.
+    COMPAT_VERSION          7
+
+DUMMY               2 dummy
+    DUMMY_R             0 1 2 3 X dummy
+    DUMMY_W             0 1 2 3 W 4 X dummy
+    POLY_R              0 1 2 3 X poly
+    POLY_W              0 1 2 3 W 0 1 2 3 4 X poly
+
+INTERVAL            3 interval
+    CENTRE              W 0 1 X centre
+    RANGE               W 0 1 X range
+
+FMC_IN              S4 fmc_acq427
+    GAIN1               W 0 X adc1_gain
+    GAIN2               W 1 X adc2_gain
+    GAIN3               W 2 X adc3_gain
+    GAIN4               W 3 X adc4_gain
+    GAIN5               W 4 X adc5_gain
+    GAIN6               W 5 X adc6_gain
+    GAIN7               W 6 X adc7_gain
+    GAIN8               W 7 X adc8_gain
+    VAL1                0
+    VAL2                1
+    VAL3                2
+    VAL4                3
+    VAL5                4
+    VAL6                5
+    VAL7                6
+    VAL8                7
+    TTL                 0
+    ADC_B_FITTED        X adc_ribbon
+
+FMC_OUT             S4 fmc_acq427
+    VAL1                8
+    VAL2                9
+    VAL3                10
+    VAL4                11
+    GAIN1               X dac1_gain
+    GAIN2               X dac2_gain
+    GAIN3               X dac3_gain
+    GAIN4               X dac4_gain
+    DAC_FITTED          X dac_ribbon
+

@@ -58,13 +58,14 @@ def jinja_env(path):
 
 
 class AppGenerator(object):
-    def __init__(self, app, app_build_dir):
-        # type: (str, str) -> None
+    def __init__(self, app, app_build_dir, testPath=""):
+        # type: (str, str, str) -> None
         # Make sure the outputs directory doesn't already exist
         assert not os.path.exists(app_build_dir), \
             "Output dir %r already exists" % app_build_dir
         self.app_build_dir = app_build_dir
         self.app_name = app.split('/')[-1].split('.')[0]
+        self.testPath = testPath
         # Create a Jinja2 environment in the templates dir
         self.env = jinja_env(TEMPLATES)
         # Start from base register 2 to allow for *REG and *DRV spaces
@@ -128,7 +129,13 @@ class AppGenerator(object):
         self.process_fpga_options(
             ini_get(app_ini, '.', 'options', ''))
         # Implement the blocks for the soft blocks
-        self.implement_blocks(app_ini, "modules", "soft")
+        # If a test path has been given, use it for location of blocks.
+        # Otherwise blocks should be in moudles directory
+        if self.testPath:
+            path = self.testPath
+        else:
+            path = "modules"
+        self.implement_blocks(app_ini, path, "soft")
         # Filter option sensitive fields
         for block in self.server_blocks:
             to_delete = [
@@ -195,6 +202,7 @@ class AppGenerator(object):
                 # for carrier block
                 block = BlockConfig(section, type, number, ini_path, siteNumber)
                 block.register_addresses(self.counters)
+                block.generate_calc_extensions()
                 self.fpga_blocks.append(block)
                 # Copy the fpga_blocks to the server blocks. Most blocks will
                 # be the same between the two, however the block suffixes blocks
