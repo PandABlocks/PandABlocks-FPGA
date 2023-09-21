@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SFP_DLS_EVENTR - SFP Event Receiver Module &mdash; PandABlocks-FPGA 3.0a2-227-g5e7d834
+  <title>SFP_DLS_EVENTR - SFP Event Receiver Module &mdash; PandABlocks-FPGA 3.0a2-239-g3f86463
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -40,7 +40,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0a2-227-g5e7d834
+                3.0a2-239-g3f86463
 
               </div>
 <div role="search">
@@ -251,7 +251,11 @@
 <td><p>write action</p></td>
 <td><p>Resets the event receiver</p></td>
 </tr>
-<tr class="row-odd"><td><p>EVENT1</p></td>
+<tr class="row-odd"><td><p>CPLL_LOCK</p></td>
+<td><p>read</p></td>
+<td><p>CPLL Lock status</p></td>
+</tr>
+<tr class="row-even"><td><p>EVENT1</p></td>
 <td><p>param enum</p></td>
 <td><p><div class="line-block">
 <div class="line">Event1 bit8 0 selects Event codes 1 selects DBus, bits7-0 event</div>
@@ -268,7 +272,7 @@
 </div>
 </p></td>
 </tr>
-<tr class="row-even"><td><p>EVENT2</p></td>
+<tr class="row-odd"><td><p>EVENT2</p></td>
 <td><p>param enum</p></td>
 <td><p><div class="line-block">
 <div class="line">Event2 bit8 0 selects Event codes 1 selects DBus, bits7-0 event</div>
@@ -285,7 +289,7 @@
 </div>
 </p></td>
 </tr>
-<tr class="row-odd"><td><p>EVENT3</p></td>
+<tr class="row-even"><td><p>EVENT3</p></td>
 <td><p>param enum</p></td>
 <td><p><div class="line-block">
 <div class="line">Event3 bit8 0 selects Event codes 1 selects DBus, bits7-0 event</div>
@@ -302,7 +306,7 @@
 </div>
 </p></td>
 </tr>
-<tr class="row-even"><td><p>EVENT4</p></td>
+<tr class="row-odd"><td><p>EVENT4</p></td>
 <td><p>param enum</p></td>
 <td><p><div class="line-block">
 <div class="line">Event4 bit8 0 selects Event codes 1 selects DBus, bits7-0 event</div>
@@ -319,25 +323,33 @@
 </div>
 </p></td>
 </tr>
-<tr class="row-odd"><td><p>BIT1</p></td>
+<tr class="row-even"><td><p>BIT1</p></td>
 <td><p>bit_out</p></td>
 <td><p>SFP Bit 1 output</p></td>
 </tr>
-<tr class="row-even"><td><p>BIT2</p></td>
+<tr class="row-odd"><td><p>BIT2</p></td>
 <td><p>bit_out</p></td>
 <td><p>SFP Bit 2 output</p></td>
 </tr>
-<tr class="row-odd"><td><p>BIT3</p></td>
+<tr class="row-even"><td><p>BIT3</p></td>
 <td><p>bit_out</p></td>
 <td><p>SFP Bit 3 output</p></td>
 </tr>
-<tr class="row-even"><td><p>BIT4</p></td>
+<tr class="row-odd"><td><p>BIT4</p></td>
 <td><p>bit_out</p></td>
 <td><p>SFP Bit 4 output</p></td>
 </tr>
-<tr class="row-odd"><td><p>LINKUP</p></td>
+<tr class="row-even"><td><p>LINKUP</p></td>
 <td><p>read</p></td>
 <td><p>GTX_ER link status</p></td>
+</tr>
+<tr class="row-odd"><td><p>ERROR_COUNT</p></td>
+<td><p>read</p></td>
+<td><p>GTX error counter</p></td>
+</tr>
+<tr class="row-even"><td><p>UNIX_TIME</p></td>
+<td><p>read</p></td>
+<td><p>Unix Timestamp</p></td>
 </tr>
 </tbody>
 </table>
