@@ -1,8 +1,16 @@
 # Register interface definition
 
-# This must be updated when there are changes that require the driver
-# to be updated
+# Kernel driver compatibility version.  This must be updated when the register
+# set in *DRV changes or if the FPGA changes in any other way that requires a
+# driver change.  The driver will refuse to load if this does not match the
+# value returned by *DRV.DRV_COMPAT_VERSION
 DRIVER_COMPAT_VERSION = 1
+
+# PandA Blocks compatibility version.  This is checked by the server when
+# loading the registers file, and should be updated when the interface to the
+# server has changed in an incompatible way.
+BLOCKS_COMPAT_VERSION = 0
+
 
 # This special register block is not present in the config file and contains
 # fixed register definitions used in the hardware interface.
@@ -42,6 +50,11 @@ DRIVER_COMPAT_VERSION = 1
     # Range of MAC addresses
     MAC_ADDRESS_BASE        16 .. 23
 
+    # Nominal clock.  If this register is non zero the value returned will be
+    # used as the reported clock frequency in Hz, otherwise the standard
+    # frequency of 125 MHz will be reported and used.
+    NOMINAL_CLOCK           24
+
 
 # These registers are used by the kernel driver to read the data capture stream.
 # This block is not used by the server, but is here for documentation and other
@@ -60,6 +73,7 @@ DRIVER_COMPAT_VERSION = 1
     PCAP_IRQ_STATUS         4
     # DMA block size in bytes
     PCAP_BLOCK_SIZE         6
+
     # Kernel driver compatiblity version check register.  The value in this
     # register must match DRIVER_COMPAT_VERSION.
     COMPAT_VERSION          7
