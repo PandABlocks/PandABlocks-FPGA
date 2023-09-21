@@ -5,6 +5,9 @@ on:
   # Whenever a new branch or tag is created
   # only on push for testing take out
   create:
+  push:
+    tags:
+      - '*'
 
 jobs:
   make_boot:
