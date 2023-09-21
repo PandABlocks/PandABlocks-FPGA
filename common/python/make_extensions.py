@@ -13,11 +13,12 @@ def get_modules(ini):
         if section != '.':
             module_name = ini_get(ini, section, 'module', section.lower())
             block_name = ini_get(ini, section, 'block', module_name)
-            yield module_name, block_name
+            ini_file  = ini_get(ini, section, 'ini', '%s.block.ini' % module_name)
+            yield module_name, block_name, ini_file
 
 
-def get_extension(base_dir, module):
-    ini_file = os.path.join(base_dir, '%s.block.ini' % module)
+def get_extension(base_dir, module, ini_file):
+    ini_file = os.path.join(base_dir, ini_file)
     ini = read_ini(ini_file)
     extension = ini_get(ini, '.', 'extension', None)
     if extension is not None:
@@ -37,9 +38,9 @@ def add_extension(target_dir, source_dir, extension):
 
 
 def process_ini(extensions, blocks_dir, ini):
-    for module, block in get_modules(ini):
+    for module, block, ini_file in get_modules(ini):
         base_dir = os.path.join(blocks_dir, module)
-        extension = get_extension(base_dir, block)
+        extension = get_extension(base_dir, block, ini_file)
         if extension:
             add_extension(extensions, base_dir, extension)
 

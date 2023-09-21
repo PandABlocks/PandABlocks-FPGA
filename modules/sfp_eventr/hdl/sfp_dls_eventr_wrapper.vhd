@@ -62,10 +62,8 @@ architecture rtl of sfp_dls_eventr_wrapper is
 --end component;
 
 signal mgt_ready_o           : std_logic;
-signal mgt_ready_sync    : std_logic;
-signal event_clk             : std_logic;
 signal rx_link_ok_o          : std_logic;
-signal rx_link_ok_sync    : std_logic;
+signal rx_link_ok_sync       : std_logic;
 signal loss_lock_o           : std_logic;
 signal rx_error_o            : std_logic;
 signal rxcharisk             : std_logic_vector(1 downto 0);
@@ -78,6 +76,7 @@ signal rxbyteisaligned_o     : std_logic;
 signal rxbyterealign_o       : std_logic;
 signal rxcommadet_o          : std_logic;
 signal rxoutclk              : std_logic;
+signal txoutclk              : std_logic;
 signal EVENT1_WSTB           : std_logic;
 signal EVENT2_WSTB           : std_logic;
 signal EVENT3_WSTB           : std_logic;
@@ -90,6 +89,9 @@ signal txdata_i              : std_logic_vector(15 downto 0);
 signal txcharisk_i           : std_logic_vector(1 downto 0);
 signal bit1,bit2,bit3,bit4   : std_logic;
 
+signal unix_time             : std_logic_vector(31 downto 0);
+signal unix_time_smpld       : std_logic_vector(31 downto 0);
+signal err_cnt_smpld         : std_logic_vector(31 downto 0);
 
 -- ILA stuff
 ---signal mgt_ready_slv         : std_logic_vector(0 downto 0);
@@ -100,9 +102,11 @@ signal bit1,bit2,bit3,bit4   : std_logic;
 --signal probe10_slv           : std_logic_vector(15 downto 0);
 --signal probe12_slv           : std_logic_vector(15 downto 0);
 
-signal err_cnt              : std_logic_vector(15 downto 0);
+signal err_cnt              : std_logic_vector(31 downto 0);
 
 signal TXN, TXP             : std_logic;
+
+signal cpll_lock            : std_logic_vector(31 downto 0);
 
 begin
 
@@ -138,16 +142,9 @@ port map (
     DELAY_i     => RD_ADDR2ACK
 );
 
--- Event Receiver clock buffer
-rxoutclk_bufg : BUFG
-port map(
-    O => event_clk,
-    I => rxoutclk
-);
-
 sfp_transmitter_inst: entity work.sfp_transmitter
 port map(
-     event_clk_i    => event_clk,
+     event_clk_i    => rxoutclk,
      reset_i        => reset_i,
      rx_link_ok_i   => rx_link_ok_o,
      loss_lock_i    => loss_lock_o,
@@ -163,7 +160,7 @@ port map(
 sfp_receiver_inst: entity work.sfp_receiver
 port map(
     clk_i           => clk_i,
-    event_clk_i     => event_clk,
+    event_clk_i     => rxoutclk,
     reset_i         => reset_i,
     rxdisperr_i     => rxdisperr,
     rxcharisk_i     => rxcharisk,
@@ -182,17 +179,17 @@ port map(
     bit3_o          => bit3,
     bit4_o          => bit4,
     rx_link_ok_o    => rx_link_ok_o,
-    loss_lock_o     => loss_lock_o,
-    rx_error_o      => rx_error_o
+    loss_lock_o     => loss_lock_o, 
+    rx_error_o      => rx_error_o,
+    utime_o         => unix_time
 );
 
 
 sfpgtx_event_receiver_inst: entity work.sfp_event_receiver
 port map(
     GTREFCLK           => SFP_i.GTREFCLK,
-    clk_i              => clk_i,
+    sysclk_i              => clk_i,
     event_reset_i      => EVENT_RESET,
-    event_clk_i        => event_clk,
     rxp_i              => SFP_i.RXP_IN,
     rxn_i              => SFP_i.RXN_IN,
     txp_o              => TXP,
@@ -207,7 +204,9 @@ port map(
     mgt_ready_o        => mgt_ready_o,
     rxnotintable_o     => rxnotintable,
     txdata_i           => txdata_i,
-    txcharisk_i        => txcharisk_i
+    txoutclk_o         => txoutclk,
+    txcharisk_i        => txcharisk_i,
+    cpll_lock_o        => cpll_lock(0)
 );
 
 
@@ -248,22 +247,40 @@ rx_link_sync : entity work.sync_bit
      bit_o => rx_link_ok_sync
 );
 
---synchronise mgt_ready_o to clk_i
-mgt_rdy_sync : entity work.sync_bit
-    port map(
-     clk_i => clk_i,
-     bit_i => mgt_ready_o,
-     bit_o => mgt_ready_sync
-);
-
 -- MGT ready and link is up
-LINKUP(0) <= mgt_ready_sync and rx_link_ok_sync;
+LINKUP(0) <= mgt_ready_o and rx_link_ok_sync;
 ---- Link is up
 --LINKUP(1) <= rx_link_ok_o;
 ---- MGT ready
 --LINKUP(2) <= mgt_ready_o;
 -- Unused bits
 LINKUP(31 downto 1 ) <= (others => '0');
+
+--- Latched samplers for CDC signals
+
+err_latch : entity work.latched_sync
+generic map (
+    DWIDTH => 32,
+    PERIOD => 125  -- 1 MHz for 125 MHz clock
+)
+port map (
+    src_clk => rxoutclk,
+    dest_clk => clk_i,
+    data_i => err_cnt,
+    data_o => err_cnt_smpld
+);
+
+utime_latch : entity work.latched_sync
+generic map (
+    DWIDTH => 32,
+    PERIOD => 125  -- 1 MHz for 125 MHz clock
+)
+port map (
+    src_clk => rxoutclk,
+    dest_clk => clk_i,
+    data_i => unix_time,
+    data_o => unix_time_smpld
+);
 
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
@@ -277,8 +294,11 @@ port map (
     pos_bus_i         => pos_bus_i,
 
     LINKUP            => LINKUP,
+    UNIX_TIME         => unix_time_smpld,
+    ERROR_COUNT       => err_cnt_smpld,
     EVENT_RESET       => open,
     EVENT_RESET_WSTB  => EVENT_RESET,
+    CPLL_LOCK         => cpll_lock,
     EVENT1            => EVENT1,
     EVENT1_WSTB       => EVENT1_WSTB,
     EVENT2            => EVENT2,

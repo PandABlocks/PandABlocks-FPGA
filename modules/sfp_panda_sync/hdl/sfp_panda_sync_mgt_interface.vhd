@@ -2,6 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+use work.picxo_pkg.all;
+
 library unisim;
 use unisim.vcomponents.all;
 
@@ -10,7 +12,7 @@ entity sfp_panda_sync_mgt_interface is
 
     port (GTREFCLK          : in  std_logic;
           SYNC_RESET_i      : in  std_logic;
-          clk_i             : in  std_logic;
+          sysclk_i             : in  std_logic;
           rxoutclk_i        : in  std_logic;
           txoutclk_i        : in  std_logic;
           rxp_i             : in  std_logic;
@@ -28,15 +30,13 @@ entity sfp_panda_sync_mgt_interface is
           rxnotintable_o    : out std_logic_vector(3 downto 0); 
           txoutclk_o        : out std_logic;    
           txdata_i          : in  std_logic_vector(31 downto 0); 
-          txcharisk_i       : in  std_logic_vector(3 downto 0)
+          txcharisk_i       : in  std_logic_vector(3 downto 0);
+          cpll_lock_o       : out std_logic
           );
 
 end sfp_panda_sync_mgt_interface;
 
-
-
 architecture rtl of sfp_panda_sync_mgt_interface is
-
 
 component sfp_panda_sync 
 port
@@ -152,41 +152,85 @@ signal GT0_RX_FSM_RESET_DONE_OUT_sync   : std_logic;
 signal gt0_txresetdone_out_sync         : std_logic;
 signal gt0_rxresetdone_out_sync         : std_logic;
 
+-- PICXO signals
+
+signal gt0_drpen_i : std_logic;
+signal gt0_drpwe_i : std_logic;
+signal gt0_drpdi_i : std_logic_vector(15 downto 0);
+signal gt0_drpaddr_i : std_logic_vector(8 downto 0);
+
+-- PICXO control parameters (currently default to constant init values in pkg)
+signal  G1                              : STD_LOGIC_VECTOR (4 downto 0)     := c_G1;
+signal  G2                              : STD_LOGIC_VECTOR (4 downto 0)     := c_G2;
+signal  R                               : STD_LOGIC_VECTOR (15 downto 0)    := c_R;
+signal  V                               : STD_LOGIC_VECTOR (15 downto 0)    := c_V;
+signal  ce_dsp_rate                     : std_logic_vector (23 downto 0)    := c_ce_dsp_rate;
+signal  C                               : STD_LOGIC_VECTOR (6 downto 0)     := c_C;
+signal  P                               : STD_LOGIC_VECTOR (9 downto 0)     := c_P;
+signal  N                               : STD_LOGIC_VECTOR (9 downto 0)     := c_N;
+signal  don                             : STD_LOGIC_VECTOR (0 downto 0)     := c_don;
+
+signal  Offset_ppm                      : std_logic_vector (21 downto 0)    := c_Offset_ppm;
+signal  Offset_en                       : std_logic                         := c_Offset_en;
+signal  hold                            : std_logic                         := c_hold;
+signal  acc_step                        : STD_LOGIC_VECTOR (3 downto 0)     := c_acc_step;
+
+-- PICXO Monitoring signals (currently dangling, but can be connected to ILA)
+signal error_o                          : STD_LOGIC_VECTOR (20 downto 0) ;
+signal volt_o                           : STD_LOGIC_VECTOR (21 downto 0) ;
+signal drpdata_short_o                  : STD_LOGIC_VECTOR (7  downto 0) ;
+signal ce_pi_o                          : STD_LOGIC ;
+signal ce_pi2_o                         : STD_LOGIC ;
+signal ce_dsp_o                         : STD_LOGIC ;
+signal ovf_pd                           : STD_LOGIC ;
+signal ovf_ab                           : STD_LOGIC ;
+signal ovf_volt                         : STD_LOGIC ;
+signal ovf_int                          : STD_LOGIC ;
+
+signal    picxo_rst                     : std_logic_vector(7 downto 0) := (others =>'0');
+attribute shreg_extract                 : string;
+attribute equivalent_register_removal   : string;
+attribute shreg_extract of picxo_rst                  : signal is "no";
+attribute equivalent_register_removal of picxo_rst    : signal is "no"; 
+
 begin
+
+cpll_lock_o <= gt0_cplllock_out;
 
 --synchronise signals from MGT clock domains
 TX_FSM_RST_sync : entity work.sync_bit
     port map(
-     clk_i => clk_i,
+     clk_i => sysclk_i,
      bit_i => GT0_TX_FSM_RESET_DONE_OUT,
      bit_o => GT0_TX_FSM_RESET_DONE_OUT_sync
 );
 
 RX_FSM_RST_sync : entity work.sync_bit
     port map(
-     clk_i => clk_i,
+     clk_i => sysclk_i,
      bit_i => GT0_RX_FSM_RESET_DONE_OUT,
      bit_o => GT0_RX_FSM_RESET_DONE_OUT_sync
 );
 
 txreset_sync : entity work.sync_bit
     port map(
-     clk_i => clk_i,
+     clk_i => sysclk_i,
      bit_i => gt0_txresetdone_out,
      bit_o => gt0_txresetdone_out_sync
 );
 
 rxreset_sync : entity work.sync_bit
     port map(
-     clk_i => clk_i,
+     clk_i => sysclk_i,
      bit_i => gt0_rxresetdone_out,
      bit_o => gt0_rxresetdone_out_sync
 );
 
+
 -- Indicates when the link is up when the rx and tx reset have finished
-ps_linkup: process(clk_i)
+ps_linkup: process(sysclk_i)
 begin
-    if rising_edge(clk_i) then  
+    if rising_edge(sysclk_i) then  
         if ( GT0_TX_FSM_RESET_DONE_OUT_sync and GT0_RX_FSM_RESET_DONE_OUT_sync and
              gt0_rxresetdone_out_sync and gt0_txresetdone_out_sync) = '1' then
             mgt_ready_o <= '1';
@@ -224,19 +268,19 @@ sfp_panda_sync_i : sfp_panda_sync
         --------------------------------- CPLL Ports -------------------------------
         gt0_cpllfbclklost_out           => gt0_cpllfbclklost_out,
         gt0_cplllock_out                => gt0_cplllock_out,
-        gt0_cplllockdetclk_in           => clk_i,
+        gt0_cplllockdetclk_in           => sysclk_i,
         gt0_cpllreset_in                => '0',
         -------------------------- Channel - Clocking Ports ------------------------
         gt0_gtrefclk0_in                => '0',
         gt0_gtrefclk1_in                => GTREFCLK,
         ---------------------------- Channel - DRP Ports  --------------------------
-        gt0_drpaddr_in                  => (others => '0'),
-        gt0_drpclk_in                   => '0',
-        gt0_drpdi_in                    => (others => '0'),
+        gt0_drpaddr_in                  => gt0_drpaddr_i,
+        gt0_drpclk_in                   => txoutclk_i,
+        gt0_drpdi_in                    => gt0_drpdi_i,
         gt0_drpdo_out                   => gt0_drpdo_out,
-        gt0_drpen_in                    => '0',
+        gt0_drpen_in                    => gt0_drpen_i,
         gt0_drprdy_out                  => gt0_drprdy_out,
-        gt0_drpwe_in                    => '0',
+        gt0_drpwe_in                    => gt0_drpwe_i,
         --------------------------- Digital Monitor Ports --------------------------
         gt0_dmonitorout_out             => gt0_dmonitorout_out,
         --------------------- RX Initialization and Reset Ports --------------------
@@ -301,5 +345,66 @@ sfp_panda_sync_i : sfp_panda_sync
         GT0_QPLLOUTREFCLK_IN            => '0' 
 
 );
+
+process (txoutclk_i, picxo_rst, gt0_cplllock_out)
+begin
+   if(picxo_rst(0) = '1' or not gt0_cplllock_out ='1') then
+        picxo_rst (7 downto 1)     <= (others=>'1');
+   elsif rising_edge (txoutclk_i) then
+        picxo_rst (7 downto 1)     <=  picxo_rst(6 downto 0);
+end if;
+end process;  
+
+sfp_sync_PICXO : PICXO_FRACXO
+  PORT MAP (
+    RESET_I => picxo_rst(7),
+    REF_CLK_I => sysclk_i,
+    TXOUTCLK_I => txoutclk_i,
+    DRPEN_O => gt0_drpen_i,
+    DRPWEN_O => gt0_drpwe_i,
+    DRPDO_I => gt0_drpdo_out,
+    DRPDATA_O => gt0_drpdi_i,
+    DRPADDR_O => gt0_drpaddr_i,
+    DRPRDY_I => gt0_drprdy_out,
+    RSIGCE_I => '1',
+    VSIGCE_I => '1',
+    VSIGCE_O => open,
+    ACC_STEP => acc_step,
+    G1 => G1,
+    G2 => G2,
+    R => R,
+    V => V,
+    CE_DSP_RATE => ce_dsp_rate,
+    C_I => C,
+    P_I => P,
+    N_I => N,
+    OFFSET_PPM => Offset_ppm,
+    OFFSET_EN => Offset_en,
+    HOLD => hold,
+    DON_I => don,
+
+    DRP_USER_REQ_I => '0',
+    DRP_USER_DONE_I => picxo_rst(7),
+    DRPEN_USER_I => '0',
+    DRPWEN_USER_I => '0',
+    DRPADDR_USER_I => (others => '1'),
+    DRPDATA_USER_I => (others => '1'),
+    DRPDATA_USER_O => open,
+    DRPRDY_USER_O => open,
+    DRPBUSY_O => open,
+
+    ACC_DATA => open,
+    ERROR_O => error_o,
+    VOLT_O => volt_o,
+    DRPDATA_SHORT_O => drpdata_short_o,
+    CE_PI_O => ce_pi_o,
+    CE_PI2_O => ce_pi2_o,
+    CE_DSP_O => ce_dsp_o,
+    OVF_PD => ovf_pd,
+    OVF_AB => ovf_ab,
+    OVF_VOLT => ovf_volt,
+    OVF_INT => ovf_int
+  );
+
 
 end rtl;

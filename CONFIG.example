@@ -13,7 +13,7 @@ VIVADO_VER = 2022.2
 # Definitions needed for FPGA build
 export VIVADO = /scratch/Xilinx/Vivado/\$(VIVADO_VER)/settings64.sh
 # Path to external IP repository (if required)
-#export EXT_IP_REPO =
+export EXT_IP_REPO = /scratch/Xilinx/XAPP589/PICXO_FRACXO_v32_2
 
 
 # Specifiy licence server, if required

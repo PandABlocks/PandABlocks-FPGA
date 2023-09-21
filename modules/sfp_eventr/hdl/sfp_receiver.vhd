@@ -27,7 +27,8 @@ entity sfp_receiver is
           bit1_o             : out std_logic;
           bit2_o             : out std_logic;
           bit3_o             : out std_logic;
-          bit4_o             : out std_logic
+          bit4_o             : out std_logic;
+          utime_o            : out std_logic_vector(31 downto 0)
           );
 
 end sfp_receiver;
@@ -35,9 +36,26 @@ end sfp_receiver;
 
 architecture rtl of sfp_receiver is
 
+COMPONENT vio_1
+  PORT (
+    clk : IN STD_LOGIC;
+    probe_in0 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    probe_in1 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    probe_in2 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    probe_in3 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    probe_in4 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    probe_in5 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    probe_out0 : OUT STD_LOGIC_VECTOR(0 DOWNTO 0)
+  );
+END COMPONENT;
+
 
 constant c_zeros : std_logic_vector(1 downto 0) := "00";
 constant c_MGT_RX_PRESCALE  : unsigned(9 downto 0) := to_unsigned(1023,10);
+
+constant c_code_reset_event : std_logic_vector(7 downto 0) := X"7D";
+constant c_code_seconds_0   : std_logic_vector(7 downto 0) := X"70";
+constant c_code_seconds_1   : std_logic_vector(7 downto 0) := X"71";  
 
 
 type t_event is array(events-1 downto 0) of std_logic_vector(8 downto 0);
@@ -80,6 +98,10 @@ signal EVENT2_meta           : std_logic_vector(7 downto 0);
 signal EVENT3_meta           : std_logic_vector(7 downto 0);
 signal EVENT4_meta           : std_logic_vector(7 downto 0);
 
+signal utime_shift_reg  : std_logic_vector(31 downto 0);
+signal ctr_reset : std_logic;
+signal rx_nit_ctr, rx_dis_ctr : unsigned(31 downto 0);
+signal rx_nit_dly, rx_dis_dly : std_logic_vector(1 downto 0);
 
 attribute ASYNC_REG : string;
 attribute ASYNC_REG of EVENT1_WSTB_meta1 : signal is "TRUE";
@@ -92,6 +114,22 @@ attribute ASYNC_REG of EVENT4_WSTB_meta1 : signal is "TRUE";
 attribute ASYNC_REG of EVENT4_WSTB_meta2 : signal is "TRUE";
 attribute ASYNC_REG of event_bits_meta1  : signal is "TRUE";
 attribute ASYNC_REG of event_bits_meta2  : signal is "TRUE";
+
+type event_code_array is array(natural range <>) of std_logic_vector(7 downto 0);
+constant event_codes: event_code_array(0 to 27) := (x"20", x"21", x"23", x"24", x"25", x"26",
+    x"2A", x"2C", x"30", x"31", x"32", x"33", x"3C", x"40", x"53", x"54", x"5D", x"5E", x"5F", x"60",
+    x"70", x"71", x"75", x"77", x"7A", x"7D", x"00", x"BC");
+
+signal event_code_good : std_logic_vector(event_codes'length downto 0);
+signal event_code_error : std_logic;
+signal event_err_ctr : unsigned(31 downto 0);
+
+signal dbus_error : std_logic;
+signal dbus_err_ctr : unsigned(31 downto 0);
+
+signal disable_link_dly, disable_link_edge : std_logic;
+signal disable_link_ctr : unsigned(31 downto 0);
+signal total_ind_errors : unsigned(31 downto 0);
 
 
 
@@ -136,6 +174,29 @@ begin
 rx_link_ok_o <= rx_link_ok;
 loss_lock_o <= loss_lock;
 rx_error_o <= rx_error;
+
+-- Unix time 
+ps_shift_reg: process(event_clk_i)
+begin
+    if rising_edge(event_clk_i) then
+        if reset_i = '1' then
+            utime_shift_reg <= (others => '0');
+            utime_o <= (others => '0');
+        else
+            -- Shift a '0' into the shift register		
+            if rxdata_i(7 downto 0) = c_code_seconds_0 then
+                utime_shift_reg <= utime_shift_reg(30 downto 0) & '0';
+            -- Shift a '1' into the shift register
+            elsif rxdata_i(7 downto 0) = c_code_seconds_1 then
+                utime_shift_reg <= utime_shift_reg(30 downto 0) & '1';
+            -- Shift the unix time out 
+            elsif rxdata_i(7 downto 0) = c_code_reset_event then
+                utime_shift_reg <= (others => '0');
+                utime_o <= utime_shift_reg;
+            end if;
+        end if;            
+    end if;
+end process ps_shift_reg;   
 
 
 -- Assign the array outputs to individual bits
@@ -248,11 +309,26 @@ begin
                 -- DBUS         RXDATA(15 downto 8)    1 = DBUS
                 -- EVENT_CODES  RXDATA(7 downto 0)     0 = EVENT_CODES
                 -- DBus these are bit comparisons
-                if (event(i)(8) = '1' and dbus_comp(i) /= x"00" and rxcharisk_i(1) = '0') or
-                   (event(i)(8) = '0' and event(i)(7 downto 0) = rxdata_i(7 downto 0) and rxdata_i(7 downto 0) /= x"00" and rxcharisk_i(0) = '0') then
-                    event_bits(i) <= '1';
-                else
-                    event_bits(i) <= '0';
+                if event(i)(8) = '1' then -- DBUS event
+                    if rxcharisk_i(1) = '0' and rxnotintable_i(1) = '0' and rxdisperr_i(1) = '0' then
+                        if dbus_comp(i) /= x"00" then
+                            event_bits(i) <= '1';
+                        else
+                            event_bits(i) <= '0';
+                        end if;
+                    else
+                        null;  -- Don't update event_bits if error occured 
+                    end if;
+                else -- EVENT CODE
+                    if rxcharisk_i(0) = '0' and rxnotintable_i(0) = '0' and rxdisperr_i(0) = '0' then
+                        if event(i)(7 downto 0) = rxdata_i(7 downto 0) then
+                            event_bits(i) <= '1';
+                        else
+                            event_bits(i) <= '0';
+                        end if;
+                    else
+                        event_bits(i) <= '0'; -- Zero event_bits when error or comma detected on EVENT_CODE
+                    end if;
                 end if;
             end loop lp_events;
         end if;
@@ -338,6 +414,77 @@ begin
     end if;
 end process ps_link_lost;
 
+error_ctr : process(event_clk_i)
+begin
+    if rising_edge(event_clk_i) then
+        rx_nit_dly <= rxnotintable_i;
+        rx_dis_dly <= rxdisperr_i;
+        if ctr_reset = '1' then
+            rx_nit_ctr <= (others => '0');
+            rx_dis_ctr <= (others => '0');
+            event_err_ctr <= (others => '0');
+            dbus_err_ctr <= (others => '0');
+            disable_link_ctr <= (others => '0');
+            total_ind_errors <= (others => '0');
+        else
+            if rxnotintable_i /= c_zeros then
+                rx_nit_ctr <= rx_nit_ctr + 1;
+            end if;
+            if rxdisperr_i /= c_zeros then
+                rx_dis_ctr <= rx_dis_ctr + 1;
+            end if;
+            if event_code_error = '1' then
+                event_err_ctr <= event_err_ctr + 1;
+            end if;
+            if dbus_error = '1' then
+                dbus_err_ctr <= dbus_err_ctr + 1;
+            end if;
+            if disable_link_edge = '1' then
+                disable_link_ctr <= disable_link_ctr + 1;
+            end if;
+            if dbus_error = '1' or event_code_error = '1' or rx_dis_dly /= c_zeros or rx_nit_dly /= c_zeros then
+                total_ind_errors <= total_ind_errors + 1;
+            end if;
+        end if;
+    end if;
+end process;
+
+event_code_error <= '1' when unsigned(event_code_good) = 0 else '0';
+disable_link_edge <= disable_link and not disable_link_dly;
+
+code_checker: process(event_clk_i)
+begin
+    if rising_edge(event_clk_i) then
+        disable_link_dly <= disable_link;
+
+        if rxdata_i(11 downto 8) /= x"0" and rxdisperr_i(1) = '0' and rxnotintable_i(1) = '0' then
+            dbus_error <= '1';
+        else
+            dbus_error <= '0';
+        end if;
+
+        for i in event_codes'range loop
+            if rxdata_i(7 downto 0) = event_codes(i) and rxdisperr_i(0) = '0' and rxnotintable_i(0) = '0' then
+                event_code_good(i) <= '1';
+            else
+                event_code_good(i) <= '0'; 
+            end if;
+        end loop;
+    end if;
+end process;
+
+
+error_vio : vio_1
+  PORT MAP (
+    clk => event_clk_i,
+    probe_in0 => std_logic_vector(rx_nit_ctr),
+    probe_in1 => std_logic_vector(rx_dis_ctr),
+    probe_in2 => std_logic_vector(event_err_ctr),
+    probe_in3 => std_logic_vector(dbus_err_ctr),
+    probe_in4 => std_logic_vector(disable_link_ctr),
+    probe_in5 => std_logic_vector(total_ind_errors),
+    probe_out0(0) => ctr_reset
+  );
 
 
 

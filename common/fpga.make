@@ -131,7 +131,7 @@ $(IP_PROJ) : $(IP_PROJECT_SCR) $(TGT_INCL_SCR)
 $(IP_DIR)/%/IP_DONE : $(TOP)/ip_defs/%.tcl $(IP_BUILD_SCR) | $(IP_PROJ)
 	$(RUNVIVADO) -mode batch -source $(IP_BUILD_SCR) \
 	  -applog -log $(TGT_BUILD_DIR)/build_ip.log -nojournal \
-	  -tclargs $(IP_PROJ) $(IP_DIR) $* $<
+	  -tclargs $(TOP) $(IP_PROJ) $(IP_DIR) $* $<
 	touch $@
 
 $(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR) $(TGT_INCL_SCR)
@@ -143,7 +143,7 @@ CARRIER_FPGA_DEPS += $(TOP_BUILD_SCR)
 CARRIER_FPGA_DEPS += $(APP_IP_DEPS)
 CARRIER_FPGA_DEPS += $(PS_CORE)
 CARRIER_FPGA_DEPS += $(TGT_INCL_SCR)
-CARRIER_FPGA_DEPS += $(HDL_VERSION_FILE)
+CARRIER_FPGA_DEPS += $(VER)
 
 $(CARRIER_FPGA_BIT) : $(CARRIER_FPGA_DEPS)
 	$(RUNVIVADO) -mode $(TOP_MODE) -source $< \
