@@ -129,7 +129,7 @@ jobs:
       - name: Upload zpkg
         uses: actions/upload-artifact@v2
         with:
-          name: fgpa-zpkg-${{ matrix.app }}
+          name: zpkgs
           path: ./build/panda-fpga@*.zpg
 
   # Seting up AWS runners for high memory apps
@@ -243,7 +243,7 @@ jobs:
       - name: Upload zpkg
         uses: actions/upload-artifact@v2
         with:
-          name: fgpa-zpkg-${{ matrix.app }}
+          name: zpkgs
           path: ./build/panda-fpga@*.zpg
 
   # Stop the AWS runner
