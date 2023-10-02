@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 use work.picxo_pkg.all;
+use work.support.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -134,6 +135,8 @@ port
 
 end component;
 
+constant DELAY_3ms : natural := 375_000; -- 3 ms at 125 MHz
+
 signal GT0_TX_FSM_RESET_DONE_OUT     : std_logic;
 signal GT0_RX_FSM_RESET_DONE_OUT     : std_logic;
 signal gt0_cpllfbclklost_out         : std_logic;
@@ -152,6 +155,8 @@ signal GT0_TX_FSM_RESET_DONE_OUT_sync   : std_logic;
 signal GT0_RX_FSM_RESET_DONE_OUT_sync   : std_logic;
 signal gt0_txresetdone_out_sync         : std_logic;
 signal gt0_rxresetdone_out_sync         : std_logic;
+signal init_rst                         : std_logic;
+signal mgt_rst                          : std_logic;
 
 -- PICXO signals
 
@@ -241,6 +246,23 @@ begin
      end if;
  end process ps_linkup;
 
+-- Hold MGT in reset for 3 ms after startup
+-- See Xilinx AR#65199
+startup_rst: process(sysclk_i)
+  variable startup_ctr : unsigned(LOG2(DELAY_3ms) downto 0) := (others => '0');
+begin
+    if rising_edge(sysclk_i) then
+        if startup_ctr = DELAY_3ms then
+            init_rst <= '0';
+        else
+            init_rst <= '1';
+            startup_ctr := startup_ctr + 1;
+        end if;
+    end if;
+end process;
+
+mgt_rst <= SYNC_RESET_i or init_rst;
+
 
 -- ####################################################################################### --
 -- clks
@@ -257,8 +279,8 @@ begin
 sfp_panda_sync_i : sfp_panda_sync
     port map(
         SYSCLK_IN                       => GTREFCLK,
-        SOFT_RESET_TX_IN                => SYNC_RESET_i,
-        SOFT_RESET_RX_IN                => SYNC_RESET_i,
+        SOFT_RESET_TX_IN                => mgt_rst,
+        SOFT_RESET_RX_IN                => mgt_rst,
         DONT_RESET_ON_DATA_ERROR_IN     => '0',
         GT0_TX_FSM_RESET_DONE_OUT       => GT0_TX_FSM_RESET_DONE_OUT,
         GT0_RX_FSM_RESET_DONE_OUT       => GT0_RX_FSM_RESET_DONE_OUT,
