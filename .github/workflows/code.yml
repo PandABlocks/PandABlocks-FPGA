@@ -2,15 +2,11 @@ name: Code CI
 
 on:
   pull_request:
-  # Whenever a new branch or tag is created
-  # only on push for testing take out
-  create:
   push:
-    tags:
-      - '*'
 
 jobs:
   make_boot:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     strategy:
       fail-fast: false
       matrix:
@@ -67,6 +63,7 @@ jobs:
 
   # Make zpkg for FPGA apps
   make_zpkg:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     strategy:
       fail-fast: false
       matrix:
@@ -134,6 +131,7 @@ jobs:
 
   # Seting up AWS runners for high memory apps
   start-runner:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     name: Start self hosted aws runner
     runs-on: ubuntu-latest
     outputs:
@@ -272,6 +270,7 @@ jobs:
           ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
 
   test:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
     steps:
       # Git repositories
