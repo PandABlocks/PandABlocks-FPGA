@@ -110,9 +110,6 @@ port map (
 SFP_o.MGT_REC_CLK <= rxoutclk_buf;
 SFP_o.LINK_UP <= LINKUP(0);
 
-read_ack_o <= '1';
-write_ack_o <= '1';
-
 IN_BIT8_o(0) <= BITIN(7);
 IN_BIT7_o(0) <= BITIN(6);
 IN_BIT6_o(0) <= BITIN(5);
@@ -288,12 +285,12 @@ sfp_panda_sync_ctrl_inst : entity work.sfp_panda_sync_ctrl
         read_strobe_i       => read_strobe_i,
         read_address_i      => read_address_i(BLK_AW-1 downto 0),
         read_data_o         => read_data_o,
-        read_ack_o          => open,
+        read_ack_o          => read_ack_o,
 
         write_strobe_i      => write_strobe_i,
         write_address_i     => write_address_i(BLK_AW-1 downto 0),
         write_data_i        => write_data_i,
-        write_ack_o         => open
+        write_ack_o         => write_ack_o
         );
 
 end rtl;                
