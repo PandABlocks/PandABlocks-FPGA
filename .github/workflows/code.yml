@@ -132,7 +132,6 @@ jobs:
   # Seting up AWS runners for high memory apps
   start-runner:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
-    id: start_aws_runner
     name: Start self hosted aws runner
     runs-on: ubuntu-latest
     outputs:
@@ -247,7 +246,7 @@ jobs:
 
   # Stop the AWS runner
   stop-runner:
-    if: steps.start_aws_runner.outcome == 'success'
+    if: steps.start-ec2-runner.outcome == 'success'
     name: Stop self hosted EC2 runnner
     needs:
       - start-runner
