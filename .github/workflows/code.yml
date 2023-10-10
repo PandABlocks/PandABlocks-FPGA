@@ -253,6 +253,7 @@ jobs:
       - setup_aws_runner
       - make_zpkg_aws
     runs-on: ubuntu-latest
+    if: ${{ always() }}
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -263,6 +264,7 @@ jobs:
 
       - name: Stop EC2 runner
         uses: machulav/ec2-github-runner@v2
+        continue-on-error: true
         with:
           mode: stop
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
