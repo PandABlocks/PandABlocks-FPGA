@@ -61,6 +61,13 @@ jobs:
             /bin/bash -c \
             "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}"
 
+      # Artifacts
+      - name: Upload boot
+        uses: actions/upload-artifact@v2
+        with:
+          name: zpkgs
+          path: ./build/boot*.zip
+
   # Make zpkg for FPGA apps
   make_zpkg:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository

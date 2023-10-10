@@ -72,7 +72,7 @@ BOOT_BUILD = $(TGT_BUILD_DIR)/boot_build
 U_BOOT_BUILD = $(BOOT_BUILD)/u-boot
 U_BOOT_ELF = $(U_BOOT_BUILD)/u-boot.elf
 
-BOOT_ZIP = $(TGT_BUILD_DIR)/boot@$(TARGET)-$(GIT_VERSION).zip
+BOOT_ZIP = $(ZIP_BUILD_DIR)/boot@$(TARGET)-$(GIT_VERSION).zip
 
 ATF_NAME = arm-trusted-firmware-$(ATF_TAG)
 ATF_SRC = $(SRC_ROOT)/$(ATF_NAME)
