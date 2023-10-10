@@ -132,6 +132,7 @@ jobs:
   # Seting up AWS runners for high memory apps
   start-runner:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    id: start_aws_runner
     name: Start self hosted aws runner
     runs-on: ubuntu-latest
     outputs:
@@ -246,14 +247,13 @@ jobs:
 
   # Stop the AWS runner
   stop-runner:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    if: steps.start_aws_runner.outcome == 'success'
     name: Stop self hosted EC2 runnner
     needs:
       - start-runner
       - setup_aws_runner
       - make_zpkg_aws
     runs-on: ubuntu-latest
-    if: ${{ always() }}
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
