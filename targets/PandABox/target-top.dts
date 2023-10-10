@@ -80,3 +80,9 @@
 		};
 	};
 };
+
+/ {
+	pandainfo {
+		version = "GIT_VERSION";
+	};
+};

@@ -240,6 +240,7 @@ u-boot-src: $(U_BOOT_SRC)
 $(DEVTREE_DTB): $(SDK_EXPORT) $(TARGET_DTS) $(DEVTREE_DTC)
 	cp $(TARGET_DTS) $(DEVTREE_DTS)/
 	sed -i '/dts-v1/d' $(DEVTREE_DTS)/system-top.dts
+	sed -i 's\GIT_VERSION\$(GIT_VERSION)\g' $(DEVTREE_DTS)/$(notdir $(TARGET_DTS))
 	gcc -I dts -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp \
 	  -o $(DEVTREE_DTS)/system-top.dts.tmp $(DEVTREE_DTS)/system-top.dts
 	@echo "Building DEVICE TREE blob ..."
