@@ -57,6 +57,8 @@ begin
         DELAY_i       => RD_ADDR2ACK
     );
 
+    write_ack_o <= '1';
+
     -- Control System Register Interface
     REG_WRITE : process(clk_i)
     begin

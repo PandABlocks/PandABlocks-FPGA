@@ -49,7 +49,7 @@ port (
     write_strobe_i      : in  std_logic;
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
-    write_ack_o         : out std_logic := '1';
+    write_ack_o         : out std_logic;
     FMC_io              : inout fmc_inout_interface
 );
 end fmc_acq427_wrapper;
@@ -299,12 +299,12 @@ port map (
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
     read_data_o         => read_data_o,
-    read_ack_o          => open,
+    read_ack_o          => read_ack_o,
 
     write_strobe_i      => write_strobe_i,
     write_address_i     => write_address_i(BLK_AW-1 downto 0),
     write_data_i        => write_data_i,
-    write_ack_o         => open
+    write_ack_o         => write_ack_o
 );
 
 

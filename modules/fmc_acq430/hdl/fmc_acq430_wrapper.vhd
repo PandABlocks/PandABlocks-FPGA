@@ -121,10 +121,6 @@ attribute IOB       of s_ADC_SDO        : signal is "true";
 
 begin
 
--- Acknowledgement to AXI Lite interface
-write_ack_o <= '1';
-
-
 -- Control register interface
 -- Not actually used but added for consistency with other modules
 fmc_ctrl: entity work.fmc_acq430_ctrl
@@ -139,12 +135,12 @@ port map(
     read_strobe_i =>    read_strobe_i,
     read_address_i =>   read_address_i(BLK_AW-1 downto 0),
     read_data_o =>      read_data_o,
-    read_ack_o =>       open,
+    read_ack_o =>       read_ack_o,
 
     write_strobe_i =>   write_strobe_i,
     write_address_i =>  write_address_i(BLK_AW-1 downto 0),
     write_data_i =>     write_data_i,
-    write_ack_o =>      open
+    write_ack_o =>      write_ack_o
 );
 
 

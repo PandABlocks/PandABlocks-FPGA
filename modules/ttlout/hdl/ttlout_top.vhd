@@ -51,11 +51,12 @@ signal read_strobe      : std_logic_vector(TTLOUT_NUM-1 downto 0);
 signal read_data        : std32_array(TTLOUT_NUM-1 downto 0);
 signal write_strobe     : std_logic_vector(TTLOUT_NUM-1 downto 0);
 signal read_ack         : std_logic_vector(TTLOUT_NUM-1 downto 0);
+signal write_ack        : std_logic_vector(TTLOUT_NUM-1 downto 0);
 
 begin
 
 -- Acknowledgement to AXI Lite interface
-write_ack_o <= '1';
+write_ack_o <= or_reduce(write_ack);
 read_ack_o <= or_reduce(read_ack);
 
 
@@ -83,7 +84,7 @@ port map (
     write_strobe_i      => write_strobe(I),
     write_address_i     => write_address_i(BLK_AW-1 downto 0),
     write_data_i        => write_data_i,
-    write_ack_o         => open,
+    write_ack_o         => write_ack(I),
     -- Block inputs
     bit_bus_i           => bit_bus_i,
     -- Block outputs

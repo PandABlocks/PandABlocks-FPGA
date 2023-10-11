@@ -39,12 +39,9 @@ signal SWITCH_STAT         : std_logic_vector(31 downto 0);
 
 begin
 
-write_ack_o <= '1';
-
 SWITCH_STAT <= ZEROS(24) & SW;
 
 led <= SW when LED_SELECT(0) = '1' else LED_SET(7 downto 0);
-
 
 zedboard_demo_ctrl_inst : entity work.zedboard_demo_ctrl
 port map(
@@ -67,7 +64,7 @@ port map(
     write_strobe_i      => write_strobe_i,
     write_address_i     => write_address_i(BLK_AW-1 downto 0),
     write_data_i        => write_data_i,
-    write_ack_o         => open
+    write_ack_o         => write_ack_o
 );
 
 end rtl;
