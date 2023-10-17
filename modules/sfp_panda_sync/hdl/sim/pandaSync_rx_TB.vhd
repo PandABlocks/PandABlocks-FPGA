@@ -42,7 +42,6 @@ uut : entity work.sfp_panda_sync_receiver
           rxoutclk_i        => rxoutclk,   
           rxdisperr_i       => (others => '0'),
           rxcharisk_i       => rxcharisk,
-          check_bits_i      => (others => '0'),
           rxdata_i          => rxdata,
           rxnotintable_i    => (others => '0'),
           rx_link_ok_o      => open,

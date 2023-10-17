@@ -8,14 +8,11 @@ use work.support.all;
 library unisim;
 use unisim.vcomponents.all;
 
-
 entity sfp_panda_sync_mgt_interface is
 
     port (GTREFCLK          : in  std_logic;
           SYNC_RESET_i      : in  std_logic;
           sysclk_i          : in  std_logic;
-          rxoutclk_i        : in  std_logic;
-          txoutclk_i        : in  std_logic;
           rxp_i             : in  std_logic;
           rxn_i             : in  std_logic;
           txp_o             : out std_logic;
@@ -130,40 +127,36 @@ port
     --____________________________COMMON PORTS________________________________
      GT0_QPLLOUTCLK_IN                      : in std_logic;
      GT0_QPLLOUTREFCLK_IN                   : in std_logic
-
 );
-
 end component;
 
 constant DELAY_3ms : natural := 375_000; -- 3 ms at 125 MHz
 
-signal GT0_TX_FSM_RESET_DONE_OUT     : std_logic;
-signal GT0_RX_FSM_RESET_DONE_OUT     : std_logic;
-signal gt0_cpllfbclklost_out         : std_logic;
-signal gt0_cplllock_out              : std_logic;
-signal gt0_drpdo_out                 : std_logic_vector(15 downto 0); 
-signal gt0_drprdy_out                : std_logic;
-signal gt0_dmonitorout_out           : std_logic_vector(7 downto 0);
-signal gt0_eyescandataerror_out      : std_logic;
-signal gt0_rxmonitorout_out          : std_logic_vector(6 downto 0);
-signal gt0_rxresetdone_out           : std_logic;
-signal gt0_txoutclkfabric_out        : std_logic;
-signal gt0_txoutclkpcs_out           : std_logic;
-signal gt0_txresetdone_out           : std_logic;
+signal gt0_rxoutclk                 : std_logic;
+signal gt0_txoutclk                 : std_logic;
+signal rxoutclk                     : std_logic;
+signal txoutclk                     : std_logic;
+signal GT0_TX_FSM_RESET_DONE        : std_logic;
+signal GT0_RX_FSM_RESET_DONE        : std_logic;
+signal gt0_cplllock                 : std_logic;
+signal gt0_drpdo                    : std_logic_vector(15 downto 0); 
+signal gt0_drprdy                   : std_logic;
+signal gt0_rxresetdone              : std_logic;
+signal gt0_txresetdone              : std_logic;
 
-signal GT0_TX_FSM_RESET_DONE_OUT_sync   : std_logic;
-signal GT0_RX_FSM_RESET_DONE_OUT_sync   : std_logic;
-signal gt0_txresetdone_out_sync         : std_logic;
-signal gt0_rxresetdone_out_sync         : std_logic;
-signal init_rst                         : std_logic;
-signal mgt_rst                          : std_logic;
+signal GT0_TX_FSM_RESET_DONE_sync   : std_logic;
+signal GT0_RX_FSM_RESET_DONE_sync   : std_logic;
+signal gt0_txresetdone_sync         : std_logic;
+signal gt0_rxresetdone_sync         : std_logic;
+signal init_rst                     : std_logic;
+signal mgt_rst                      : std_logic;
 
 -- PICXO signals
 
-signal gt0_drpen_i : std_logic;
-signal gt0_drpwe_i : std_logic;
-signal gt0_drpdi_i : std_logic_vector(15 downto 0);
-signal gt0_drpaddr_i : std_logic_vector(8 downto 0);
+signal gt0_drpen    : std_logic;
+signal gt0_drpwe    : std_logic;
+signal gt0_drpdi    : std_logic_vector(15 downto 0);
+signal gt0_drpaddr  : std_logic_vector(8 downto 0);
 
 -- PICXO control parameters (currently default to constant init values in pkg)
 signal  G1                              : STD_LOGIC_VECTOR (4 downto 0)     := c_G1;
@@ -182,12 +175,12 @@ signal  hold                            : std_logic                         := c
 signal  acc_step                        : STD_LOGIC_VECTOR (3 downto 0)     := c_acc_step;
 
 -- PICXO Monitoring signals (currently dangling, but can be connected to ILA)
-signal error_o                          : STD_LOGIC_VECTOR (20 downto 0) ;
-signal volt_o                           : STD_LOGIC_VECTOR (21 downto 0) ;
-signal drpdata_short_o                  : STD_LOGIC_VECTOR (7  downto 0) ;
-signal ce_pi_o                          : STD_LOGIC ;
-signal ce_pi2_o                         : STD_LOGIC ;
-signal ce_dsp_o                         : STD_LOGIC ;
+signal picxo_error                      : STD_LOGIC_VECTOR (20 downto 0) ;
+signal volt                             : STD_LOGIC_VECTOR (21 downto 0) ;
+signal drpdata_short                    : STD_LOGIC_VECTOR (7  downto 0) ;
+signal ce_pi                            : STD_LOGIC ;
+signal ce_pi2                           : STD_LOGIC ;
+signal ce_dsp                           : STD_LOGIC ;
 signal ovf_pd                           : STD_LOGIC ;
 signal ovf_ab                           : STD_LOGIC ;
 signal ovf_volt                         : STD_LOGIC ;
@@ -201,44 +194,61 @@ attribute equivalent_register_removal of picxo_rst    : signal is "no";
 
 begin
 
-cpll_lock_o <= gt0_cplllock_out;
+-- Assign outputs
+
+rxoutclk_o <= rxoutclk;
+txoutclk_o <= txoutclk;
+cpll_lock_o <= gt0_cplllock;
+
+-- Clock buffers for RX recovered clock and TX clock
+
+rxoutclk_bufg : BUFG
+port map(
+    O => rxoutclk,
+    I => gt0_rxoutclk
+);
+
+txoutclk_bufg : BUFG
+port map(
+    O => txoutclk,
+    I => gt0_txoutclk
+);
 
 --synchronise signals from MGT clock domains
 TX_FSM_RST_sync : entity work.sync_bit
     port map(
      clk_i => sysclk_i,
-     bit_i => GT0_TX_FSM_RESET_DONE_OUT,
-     bit_o => GT0_TX_FSM_RESET_DONE_OUT_sync
+     bit_i => GT0_TX_FSM_RESET_DONE,
+     bit_o => GT0_TX_FSM_RESET_DONE_sync
 );
 
 RX_FSM_RST_sync : entity work.sync_bit
     port map(
      clk_i => sysclk_i,
-     bit_i => GT0_RX_FSM_RESET_DONE_OUT,
-     bit_o => GT0_RX_FSM_RESET_DONE_OUT_sync
+     bit_i => GT0_RX_FSM_RESET_DONE,
+     bit_o => GT0_RX_FSM_RESET_DONE_sync
 );
 
 txreset_sync : entity work.sync_bit
     port map(
      clk_i => sysclk_i,
-     bit_i => gt0_txresetdone_out,
-     bit_o => gt0_txresetdone_out_sync
+     bit_i => gt0_txresetdone,
+     bit_o => gt0_txresetdone_sync
 );
 
 rxreset_sync : entity work.sync_bit
     port map(
      clk_i => sysclk_i,
-     bit_i => gt0_rxresetdone_out,
-     bit_o => gt0_rxresetdone_out_sync
+     bit_i => gt0_rxresetdone,
+     bit_o => gt0_rxresetdone_sync
 );
-
 
 -- Indicates when the link is up when the rx and tx reset have finished
 ps_linkup: process(sysclk_i)
 begin
     if rising_edge(sysclk_i) then  
-        if ( GT0_TX_FSM_RESET_DONE_OUT_sync and GT0_RX_FSM_RESET_DONE_OUT_sync and
-             gt0_rxresetdone_out_sync and gt0_txresetdone_out_sync) = '1' then
+        if ( GT0_TX_FSM_RESET_DONE_sync and GT0_RX_FSM_RESET_DONE_sync and
+             gt0_rxresetdone_sync and gt0_txresetdone_sync) = '1' then
             mgt_ready_o <= '1';
         else
             mgt_ready_o <= '0';
@@ -263,7 +273,6 @@ end process;
 
 mgt_rst <= SYNC_RESET_i or init_rst;
 
-
 -- ####################################################################################### --
 -- clks
 -- ####################################################################################### --
@@ -274,47 +283,45 @@ mgt_rst <= SYNC_RESET_i or init_rst;
 -- gt0_rxusrclk_in  -> rxoutclk [Recovered clock]
 -- gt0_rxusrclk2_in -> rxoutclk [Recovered clock]
 
-
-
 sfp_panda_sync_i : sfp_panda_sync
     port map(
         SYSCLK_IN                       => GTREFCLK,
         SOFT_RESET_TX_IN                => mgt_rst,
         SOFT_RESET_RX_IN                => mgt_rst,
         DONT_RESET_ON_DATA_ERROR_IN     => '0',
-        GT0_TX_FSM_RESET_DONE_OUT       => GT0_TX_FSM_RESET_DONE_OUT,
-        GT0_RX_FSM_RESET_DONE_OUT       => GT0_RX_FSM_RESET_DONE_OUT,
+        GT0_TX_FSM_RESET_DONE_OUT       => GT0_TX_FSM_RESET_DONE,
+        GT0_RX_FSM_RESET_DONE_OUT       => GT0_RX_FSM_RESET_DONE,
         GT0_DATA_VALID_IN               => rx_link_ok_i, -- The data valid has to be high for the receiver to come out of it reset startup 
         --_________________________________________________________________________
         --GT0  (X0Y1)
         --____________________________CHANNEL PORTS________________________________
         --------------------------------- CPLL Ports -------------------------------
-        gt0_cpllfbclklost_out           => gt0_cpllfbclklost_out,
-        gt0_cplllock_out                => gt0_cplllock_out,
+        gt0_cpllfbclklost_out           => open,
+        gt0_cplllock_out                => gt0_cplllock,
         gt0_cplllockdetclk_in           => sysclk_i,
         gt0_cpllreset_in                => '0',
         -------------------------- Channel - Clocking Ports ------------------------
         gt0_gtrefclk0_in                => '0',
         gt0_gtrefclk1_in                => GTREFCLK,
         ---------------------------- Channel - DRP Ports  --------------------------
-        gt0_drpaddr_in                  => gt0_drpaddr_i,
-        gt0_drpclk_in                   => txoutclk_i,
-        gt0_drpdi_in                    => gt0_drpdi_i,
-        gt0_drpdo_out                   => gt0_drpdo_out,
-        gt0_drpen_in                    => gt0_drpen_i,
-        gt0_drprdy_out                  => gt0_drprdy_out,
-        gt0_drpwe_in                    => gt0_drpwe_i,
+        gt0_drpaddr_in                  => gt0_drpaddr,
+        gt0_drpclk_in                   => txoutclk,
+        gt0_drpdi_in                    => gt0_drpdi,
+        gt0_drpdo_out                   => gt0_drpdo,
+        gt0_drpen_in                    => gt0_drpen,
+        gt0_drprdy_out                  => gt0_drprdy,
+        gt0_drpwe_in                    => gt0_drpwe,
         --------------------------- Digital Monitor Ports --------------------------
-        gt0_dmonitorout_out             => gt0_dmonitorout_out,
+        gt0_dmonitorout_out             => open,
         --------------------- RX Initialization and Reset Ports --------------------
         gt0_eyescanreset_in             => '0',
         gt0_rxuserrdy_in                => '0',
         -------------------------- RX Margin Analysis Ports ------------------------
-        gt0_eyescandataerror_out        => gt0_eyescandataerror_out,
+        gt0_eyescandataerror_out        => open,
         gt0_eyescantrigger_in           => '0',
         ------------------ Receive Ports - FPGA RX Interface Ports -----------------
-        gt0_rxusrclk_in                 => rxoutclk_i,                           
-        gt0_rxusrclk2_in                => rxoutclk_i,                           
+        gt0_rxusrclk_in                 => rxoutclk,                           
+        gt0_rxusrclk2_in                => rxoutclk,                           
         ------------------ Receive Ports - FPGA RX interface Ports -----------------
         gt0_rxdata_out                  => rxdata_o,
         ------------------ Receive Ports - RX 8B/10B Decoder Ports -----------------
@@ -332,23 +339,23 @@ sfp_panda_sync_i : sfp_panda_sync
         gt0_rxpcommaalignen_in          => '1',
         --------------------- Receive Ports - RX Equalizer Ports -------------------
         gt0_rxdfelpmreset_in            => '0',
-        gt0_rxmonitorout_out            => gt0_rxmonitorout_out,
+        gt0_rxmonitorout_out            => open,
         gt0_rxmonitorsel_in             => (others => '0'),
         --------------- Receive Ports - RX Fabric Output Control Ports -------------
-        gt0_rxoutclk_out                => rxoutclk_o,
+        gt0_rxoutclk_out                => gt0_rxoutclk,
         ------------- Receive Ports - RX Initialization and Reset Ports ------------
         gt0_gtrxreset_in                => '0',
         gt0_rxpmareset_in               => '0',
         ------------------- Receive Ports - RX8B/10B Decoder Ports -----------------
         gt0_rxcharisk_out               => rxcharisk_o,
         -------------- Receive Ports -RX Initialization and Reset Ports ------------
-        gt0_rxresetdone_out             => gt0_rxresetdone_out,
+        gt0_rxresetdone_out             => gt0_rxresetdone,
         --------------------- TX Initialization and Reset Ports --------------------
         gt0_gttxreset_in                => '0',
         gt0_txuserrdy_in                => '0',
         ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
-        gt0_txusrclk_in                 => txoutclk_i,                           -- transmit clk This port is used to provide a clock for the internal TX PCS datapath
-        gt0_txusrclk2_in                => txoutclk_i,                           -- transmit clk This port is used to synchronzie the FPGA logic with the TX interface. 
+        gt0_txusrclk_in                 => txoutclk,                             -- transmit clk This port is used to provide a clock for the internal TX PCS datapath
+        gt0_txusrclk2_in                => txoutclk,                             -- transmit clk This port is used to synchronzie the FPGA logic with the TX interface. 
                                                                                  -- This clock must be positive edge aligned to TXUSRCLK when TXUSRCLK is provided by the user
         ------------------ Transmit Ports - TX Data Path interface -----------------
         gt0_txdata_in                   => txdata_i,
@@ -356,24 +363,23 @@ sfp_panda_sync_i : sfp_panda_sync
         gt0_gtxtxn_out                  => txn_o,
         gt0_gtxtxp_out                  => txp_o,
         ----------- Transmit Ports - TX Fabric Clock Output Control Ports ----------
-        gt0_txoutclk_out                => txoutclk_o,                                  -- Derived from the GTFRECLK_P or GTFREFCLK_N recommmend clock to clock FPGA logic
-        gt0_txoutclkfabric_out          => gt0_txoutclkfabric_out,
-        gt0_txoutclkpcs_out             => gt0_txoutclkpcs_out,
+        gt0_txoutclk_out                => gt0_txoutclk,                             -- Derived from the GTFRECLK_P or GTFREFCLK_N recommmend clock to clock FPGA logic
+        gt0_txoutclkfabric_out          => open,
+        gt0_txoutclkpcs_out             => open,
         --------------------- Transmit Ports - TX Gearbox Ports --------------------
         gt0_txcharisk_in                => txcharisk_i,
         ------------- Transmit Ports - TX Initialization and Reset Ports -----------
-        gt0_txresetdone_out             => gt0_txresetdone_out,
+        gt0_txresetdone_out             => gt0_txresetdone,
         --____________________________COMMON PORTS________________________________
         GT0_QPLLOUTCLK_IN               => '0',
         GT0_QPLLOUTREFCLK_IN            => '0' 
-
 );
 
-process (txoutclk_i, picxo_rst, gt0_cplllock_out)
+process (txoutclk, picxo_rst, gt0_cplllock)
 begin
-   if(picxo_rst(0) = '1' or not gt0_cplllock_out ='1') then
+   if(picxo_rst(0) = '1' or not gt0_cplllock ='1') then
         picxo_rst (7 downto 1)     <= (others=>'1');
-   elsif rising_edge (txoutclk_i) then
+   elsif rising_edge (txoutclk) then
         picxo_rst (7 downto 1)     <=  picxo_rst(6 downto 0);
 end if;
 end process;  
@@ -382,13 +388,13 @@ sfp_sync_PICXO : PICXO_FRACXO
   PORT MAP (
     RESET_I => picxo_rst(7),
     REF_CLK_I => sysclk_i,
-    TXOUTCLK_I => txoutclk_i,
-    DRPEN_O => gt0_drpen_i,
-    DRPWEN_O => gt0_drpwe_i,
-    DRPDO_I => gt0_drpdo_out,
-    DRPDATA_O => gt0_drpdi_i,
-    DRPADDR_O => gt0_drpaddr_i,
-    DRPRDY_I => gt0_drprdy_out,
+    TXOUTCLK_I => txoutclk,
+    DRPEN_O => gt0_drpen,
+    DRPWEN_O => gt0_drpwe,
+    DRPDO_I => gt0_drpdo,
+    DRPDATA_O => gt0_drpdi,
+    DRPADDR_O => gt0_drpaddr,
+    DRPRDY_I => gt0_drprdy,
     RSIGCE_I => '1',
     VSIGCE_I => '1',
     VSIGCE_O => open,
@@ -417,17 +423,17 @@ sfp_sync_PICXO : PICXO_FRACXO
     DRPBUSY_O => open,
 
     ACC_DATA => open,
-    ERROR_O => error_o,
-    VOLT_O => volt_o,
-    DRPDATA_SHORT_O => drpdata_short_o,
-    CE_PI_O => ce_pi_o,
-    CE_PI2_O => ce_pi2_o,
-    CE_DSP_O => ce_dsp_o,
+    ERROR_O => picxo_error,
+    VOLT_O => volt,
+    DRPDATA_SHORT_O => drpdata_short,
+    CE_PI_O => ce_pi,
+    CE_PI2_O => ce_pi2,
+    CE_DSP_O => ce_dsp,
     OVF_PD => ovf_pd,
     OVF_AB => ovf_ab,
     OVF_VOLT => ovf_volt,
     OVF_INT => ovf_int
   );
 
-
 end rtl;
+

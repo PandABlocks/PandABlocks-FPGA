@@ -12,7 +12,6 @@ entity sfp_panda_sync_receiver is
           rxcharisk_i       : in  std_logic_vector(3 downto 0);
           rxdata_i          : in  std_logic_vector(31 downto 0);
           rxnotintable_i    : in  std_logic_vector(3 downto 0);
-          check_bits_i      : in  std_logic_vector(31 downto 0);
           rx_link_ok_o      : out std_logic;
           loss_lock_o       : out std_logic;
           rx_error_o        : out std_logic;
@@ -79,6 +78,7 @@ signal loss_lock        : std_logic;
 signal rx_link_ok       : std_logic := '0';
 signal rx_link_ok_sys   : std_logic := '0';
 signal rx_link_good     : std_logic;
+signal rx_link_good_mgt : std_logic;
 signal rx_error_count   : unsigned(5 downto 0);
 signal prescaler        : unsigned(9 downto 0) := (others => '0');
 signal disable_link     : std_logic := '1';
@@ -120,7 +120,7 @@ begin
 -- Assign outputs
 
 loss_lock_o <= loss_lock;
-rx_error_o <= rx_error;
+rx_error_o <= rx_error and rx_link_good_mgt;
 rx_link_ok_o <= rx_link_ok_sys;
 
 -- Synchronise rx_link_ok onto sysclk domain
@@ -223,9 +223,7 @@ begin
       end case;
 
       -- Do some error checking on the check-byte
-      if to_integer(unsigned(check_bits_i)) = 1 and check_byte /= std_logic_vector(check_byte_prev + 1) then
-        checkbyte_err <= '1';
-      elsif to_integer(unsigned(check_bits_i)) = 0 and check_byte /= x"00" then
+      if check_byte /= std_logic_vector(check_byte_prev + 1) then
         checkbyte_err <= '1';
       else
         checkbyte_err <= '0';
@@ -405,5 +403,12 @@ begin
   end if;
 end process;
 
+-- resynchronise rx_link_good to mgt domain to gate outgoing rx_error signal
+rx_link_good_sync: entity work.sync_bit
+port map(
+    clk_i => rxoutclk_i,
+    bit_i => rx_link_good,
+    bit_o => rx_link_good_mgt
+);
 end rtl;
 

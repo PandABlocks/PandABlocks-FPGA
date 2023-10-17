@@ -8,7 +8,6 @@ entity sfp_panda_sync_transmit is
         rst_sys_i       : in  std_logic;
         txoutclk_i      : in  std_logic;
         txcharisk_o     : out std_logic_vector(3 downto 0) := (others => '0');
-        check_bits_i    : in  std_logic_vector(31 downto 0);
         POSOUT1_i       : in  std_logic_vector(31 downto 0);
         POSOUT2_i       : in  std_logic_vector(31 downto 0);
         POSOUT3_i       : in  std_logic_vector(31 downto 0);
@@ -73,7 +72,7 @@ signal check_byte      : std_logic_vector(7 downto 0);
 
 begin
 
-check_byte <= std_logic_vector(seq_num) when to_integer(unsigned(check_bits_i)) = 1 else x"00";
+check_byte <= std_logic_vector(seq_num);
 
 -- TX Sequencer
 txdata_driver: process(txoutclk_i)

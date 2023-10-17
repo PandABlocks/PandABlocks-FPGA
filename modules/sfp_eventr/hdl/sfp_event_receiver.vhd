@@ -179,12 +179,12 @@ signal  hold                            : std_logic                         := c
 signal  acc_step                        : STD_LOGIC_VECTOR (3 downto 0)     := c_acc_step;
 
 -- PICXO Monitoring signals (currently dangling, but can be connected to ILA)
-signal error_o                          : STD_LOGIC_VECTOR (20 downto 0) ;
-signal volt_o                           : STD_LOGIC_VECTOR (21 downto 0) ;
-signal drpdata_short_o                  : STD_LOGIC_VECTOR (7  downto 0) ;
-signal ce_pi_o                          : STD_LOGIC ;
-signal ce_pi2_o                         : STD_LOGIC ;
-signal ce_dsp_o                         : STD_LOGIC ;
+signal picxo_error                          : STD_LOGIC_VECTOR (20 downto 0) ;
+signal volt                           : STD_LOGIC_VECTOR (21 downto 0) ;
+signal drpdata_short                  : STD_LOGIC_VECTOR (7  downto 0) ;
+signal ce_pi                          : STD_LOGIC ;
+signal ce_pi2                         : STD_LOGIC ;
+signal ce_dsp                         : STD_LOGIC ;
 signal ovf_pd                           : STD_LOGIC ;
 signal ovf_ab                           : STD_LOGIC ;
 signal ovf_volt                         : STD_LOGIC ;
@@ -426,12 +426,12 @@ sfp_eventr_PICXO : PICXO_FRACXO
         DRPBUSY_O => open,
 
         ACC_DATA => open,
-        ERROR_O => error_o,
-        VOLT_O => volt_o,
-        DRPDATA_SHORT_O => drpdata_short_o,
-        CE_PI_O => ce_pi_o,
-        CE_PI2_O => ce_pi2_o,
-        CE_DSP_O => ce_dsp_o,
+        ERROR_O => picxo_error,
+        VOLT_O => volt,
+        DRPDATA_SHORT_O => drpdata_short,
+        CE_PI_O => ce_pi,
+        CE_PI2_O => ce_pi2,
+        CE_DSP_O => ce_dsp,
         OVF_PD => ovf_pd,
         OVF_AB => ovf_ab,
         OVF_VOLT => ovf_volt,
