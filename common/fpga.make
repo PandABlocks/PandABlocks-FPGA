@@ -72,6 +72,8 @@ BOOT_BUILD = $(TGT_BUILD_DIR)/boot_build
 U_BOOT_BUILD = $(BOOT_BUILD)/u-boot
 U_BOOT_ELF = $(U_BOOT_BUILD)/u-boot.elf
 
+BOOT_ZIP = $(ZIP_BUILD_DIR)/boot@$(TARGET)-$(GIT_VERSION).zip
+
 ATF_NAME = arm-trusted-firmware-$(ATF_TAG)
 ATF_SRC = $(SRC_ROOT)/$(ATF_NAME)
 ATF_BUILD = $(BOOT_BUILD)/atf
@@ -96,11 +98,17 @@ carrier_ip: $(APP_IP_DEPS)
 ps_core: $(PS_CORE)
 devicetree : $(DEVTREE_DTB)
 fsbl : $(FSBL)
-boot : $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB)
+boot : $(BOOT_ZIP) $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB)
 u-boot: $(U_BOOT_ELF)
 atf: $(ATF_ELF)
 dtc: $(DEVTREE_DTC)
 .PHONY: fpga-all fpga-bit carrier_ip ps_core boot devicetree fsbl u-boot atf dtc
+
+#####################################################################
+# zip boot files
+
+$(BOOT_ZIP): $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB)
+	zip -j $@ $^
 
 #####################################################################
 # Compiler variables needed for u-boot build and other complitation
@@ -232,6 +240,7 @@ u-boot-src: $(U_BOOT_SRC)
 $(DEVTREE_DTB): $(SDK_EXPORT) $(TARGET_DTS) $(DEVTREE_DTC)
 	cp $(TARGET_DTS) $(DEVTREE_DTS)/
 	sed -i '/dts-v1/d' $(DEVTREE_DTS)/system-top.dts
+	sed -i 's\GIT_VERSION\$(GIT_VERSION)\g' $(DEVTREE_DTS)/$(notdir $(TARGET_DTS))
 	gcc -I dts -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp \
 	  -o $(DEVTREE_DTS)/system-top.dts.tmp $(DEVTREE_DTS)/system-top.dts
 	@echo "Building DEVICE TREE blob ..."
