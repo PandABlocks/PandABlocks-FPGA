@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SFP_PANDA_SYNC - Synchronize data between 2 PandAs &mdash; PandABlocks-FPGA 3.0b1-9-ge7dddde
+  <title>SFP_PANDA_SYNC - Synchronize data between 2 PandAs &mdash; PandABlocks-FPGA 3.0b1-15-g55ce703
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -40,7 +40,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0b1-9-ge7dddde
+                3.0b1-15-g55ce703
 
               </div>
 <div role="search">
@@ -255,19 +255,6 @@
 <td><p>read</p></td>
 <td><p>GTX link status</p></td>
 </tr>
-<tr class="row-even"><td><p>IN.CHECK_BITS</p></td>
-<td><p>param enum</p></td>
-<td><p><div class="line-block">
-<div class="line">Content of Check byte</div>
-<div class="line">0   Zeros</div>
-<div class="line">1   Sequence Number</div>
-</div>
-</p></td>
-</tr>
-<tr class="row-odd"><td><p>IN.CPLL_LOCK</p></td>
-<td><p>read</p></td>
-<td><p>CPLL Lock status</p></td>
-</tr>
 <tr class="row-even"><td><p>IN.BIT1</p></td>
 <td><p>bit_out</p></td>
 <td><p>SFP panda sync bit 1 input</p></td>
@@ -321,29 +308,16 @@
 <td><p><div class="line-block">
 <div class="line">Error status</div>
 <div class="line">0   OK</div>
-<div class="line">1   Linkup error</div>
+<div class="line">1   Link down</div>
 <div class="line">2   Deprecated protocol</div>
 <div class="line">3   Protocol error</div>
 <div class="line">4   Check-bits error</div>
 </div>
 </p></td>
 </tr>
-<tr class="row-odd"><td><p>IN.CTR_RST</p></td>
-<td><p>write action</p></td>
-<td><p>Reset the error count</p></td>
-</tr>
-<tr class="row-even"><td><p>IN.ERR_CNT</p></td>
+<tr class="row-odd"><td><p>IN.ERR_CNT</p></td>
 <td><p>read uint</p></td>
 <td><p>Number of not-in-table or disparity errors</p></td>
-</tr>
-<tr class="row-odd"><td><p>OUT.CHECK_BITS</p></td>
-<td><p>param enum</p></td>
-<td><p><div class="line-block">
-<div class="line">Content of Check byte</div>
-<div class="line">0   Zeros</div>
-<div class="line">1   Sequence Number</div>
-</div>
-</p></td>
 </tr>
 <tr class="row-even"><td><p>OUT.BIT1</p></td>
 <td><p>bit_mux</p></td>
