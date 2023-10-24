@@ -35,7 +35,6 @@ uut : entity work.sfp_panda_sync_transmit
         txoutclk_i        => txoutclk,
         txcharisk_o       => txcharisk,
         txdata_o          => txdata,
-        check_bits_i      => (others => '0'),
         POSOUT1_i         => POSOUT1,
         POSOUT2_i         => POSOUT2,
         POSOUT3_i         => POSOUT3,

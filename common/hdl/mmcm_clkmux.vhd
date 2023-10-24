@@ -13,6 +13,7 @@ port (fclk_clk0_ps_i      : in  std_logic;
       sma_clk_i           : in  std_logic;
       mgt_rec_clk_i       : in  std_logic;
       clk_sel_i           : in  std_logic_vector(1 downto 0);
+      sfp_los_i           : in  std_logic;
       sma_pll_locked_o    : out std_logic;
       clk_sel_stat_o      : out std_logic_vector(1 downto 0);
       fclk_clk0_o         : out std_logic;
@@ -198,7 +199,7 @@ end generate;
 -- output from the secondary clock mux
 -- MUX sel checks only for lock from secondary (sma) PLL
 
-primary_mux_sel <= sma_pll_locked and (clk_sel_i(0) or clk_sel_i(1));
+primary_mux_sel <= sma_pll_locked and (clk_sel_i(0) or (clk_sel_i(1) and not sfp_los_i));
 
 clk_mux_bufh: BUFH
     port map (
@@ -208,7 +209,7 @@ clk_mux_bufh: BUFH
 
 -- Assign outputs
 
-clk_sel_stat_o <= (1 => clk_sel_i(1) and sma_pll_locked, 0 => clk_sel_i(0) and sma_pll_locked);
+clk_sel_stat_o <= "00" when primary_mux_sel = '0' else "01" when clk_sel_i(1) = '0' else "10";
 fclk_clk0_o <= fclk_clk_buf;
 fclk_clk0_2x_o <= fclk_clk_2x_buf;
 sma_pll_locked_o <= sma_pll_locked;

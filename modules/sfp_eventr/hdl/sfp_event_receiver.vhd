@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 use work.picxo_pkg.all;
+use work.support.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -131,6 +132,8 @@ component event_receiver_mgt
 
 end component;
 
+constant DELAY_3ms : natural := 375_000; -- 3 ms at 125 MHz
+
 signal gt0_rxoutclk                 : std_logic;
 signal gt0_txoutclk                 : std_logic;
 signal rxoutclk                     : std_logic;
@@ -156,6 +159,8 @@ signal GT0_TX_FSM_RESET_DONE_sync   : std_logic;
 signal GT0_RX_FSM_RESET_DONE_sync   : std_logic;
 signal gt0_txresetdone_sync         : std_logic;
 signal gt0_rxresetdone_sync         : std_logic;
+signal init_rst                     : std_logic;
+signal mgt_rst                      : std_logic;
 
 -- PICXO control parameters (currently default to constant init values in pkg)
 signal  G1                              : STD_LOGIC_VECTOR (4 downto 0)     := c_G1;
@@ -174,12 +179,12 @@ signal  hold                            : std_logic                         := c
 signal  acc_step                        : STD_LOGIC_VECTOR (3 downto 0)     := c_acc_step;
 
 -- PICXO Monitoring signals (currently dangling, but can be connected to ILA)
-signal error_o                          : STD_LOGIC_VECTOR (20 downto 0) ;
-signal volt_o                           : STD_LOGIC_VECTOR (21 downto 0) ;
-signal drpdata_short_o                  : STD_LOGIC_VECTOR (7  downto 0) ;
-signal ce_pi_o                          : STD_LOGIC ;
-signal ce_pi2_o                         : STD_LOGIC ;
-signal ce_dsp_o                         : STD_LOGIC ;
+signal picxo_error                          : STD_LOGIC_VECTOR (20 downto 0) ;
+signal volt                           : STD_LOGIC_VECTOR (21 downto 0) ;
+signal drpdata_short                  : STD_LOGIC_VECTOR (7  downto 0) ;
+signal ce_pi                          : STD_LOGIC ;
+signal ce_pi2                         : STD_LOGIC ;
+signal ce_dsp                         : STD_LOGIC ;
 signal ovf_pd                           : STD_LOGIC ;
 signal ovf_ab                           : STD_LOGIC ;
 signal ovf_volt                         : STD_LOGIC ;
@@ -190,7 +195,6 @@ attribute shreg_extract                 : string;
 attribute equivalent_register_removal   : string;
 attribute shreg_extract of picxo_rst                  : signal is "no";
 attribute equivalent_register_removal of picxo_rst    : signal is "no"; 
-
 
 begin
 
@@ -263,12 +267,29 @@ data_valid <= '1';
 gt0_qplloutclk_in <= '0';
 gt0_qplloutrefclk_in <= '0';
 
+-- Hold MGT in reset for 3 ms after startup
+-- See Xilinx AR#65199
+startup_rst: process(sysclk_i)
+  variable startup_ctr : unsigned(LOG2(DELAY_3ms) downto 0) := (others => '0');
+begin
+    if rising_edge(sysclk_i) then
+        if startup_ctr = DELAY_3ms then
+            init_rst <= '0';
+        else
+            init_rst <= '1';
+            startup_ctr := startup_ctr + 1;
+        end if;
+    end if;
+end process;
+
+mgt_rst <= event_reset_i or init_rst;
+
 event_receiver_mgt_inst : event_receiver_mgt
     port map
         (
         SYSCLK_IN                   => GTREFCLK,
-        SOFT_RESET_TX_IN            => event_reset_i,
-        SOFT_RESET_RX_IN            => event_reset_i,
+        SOFT_RESET_TX_IN            => mgt_rst,
+        SOFT_RESET_RX_IN            => mgt_rst,
         DONT_RESET_ON_DATA_ERROR_IN => '0',
         GT0_TX_FSM_RESET_DONE_OUT   => GT0_TX_FSM_RESET_DONE,
         GT0_RX_FSM_RESET_DONE_OUT   => GT0_RX_FSM_RESET_DONE,
@@ -405,12 +426,12 @@ sfp_eventr_PICXO : PICXO_FRACXO
         DRPBUSY_O => open,
 
         ACC_DATA => open,
-        ERROR_O => error_o,
-        VOLT_O => volt_o,
-        DRPDATA_SHORT_O => drpdata_short_o,
-        CE_PI_O => ce_pi_o,
-        CE_PI2_O => ce_pi2_o,
-        CE_DSP_O => ce_dsp_o,
+        ERROR_O => picxo_error,
+        VOLT_O => volt,
+        DRPDATA_SHORT_O => drpdata_short,
+        CE_PI_O => ce_pi,
+        CE_PI2_O => ce_pi2,
+        CE_DSP_O => ce_dsp,
         OVF_PD => ovf_pd,
         OVF_AB => ovf_ab,
         OVF_VOLT => ovf_volt,
