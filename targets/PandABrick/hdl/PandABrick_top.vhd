@@ -241,6 +241,8 @@ end component;
 -- signal declarations
 ---------------------------------------------------------------------------------------------------
 
+constant ENC_NUM            : natural := 8;
+
 -- PS Block
 signal FCLK_CLK0            : std_logic;
 signal FCLK_CLK0_PS         : std_logic;
@@ -1205,6 +1207,9 @@ LD_FPGA_OUT_AXIS_8(7) <= pins_PMAC_SDA_TX_EN(7);
 -----------------------------------------------------------------------------
 
 encoders_top_inst : entity work.pandabrick_encoders_top
+generic map (
+    ENC_NUM => ENC_NUM
+)
 port map (
     -- Clock and Reset
     clk_i                   => FCLK_CLK0,

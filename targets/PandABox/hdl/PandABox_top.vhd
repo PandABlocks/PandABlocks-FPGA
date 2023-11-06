@@ -108,6 +108,8 @@ end PandABox_top;
 
 architecture rtl of PandABox_top is
 
+constant ENC_NUM            : natural := 4;
+
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
 signal FCLK_CLK0_2X         : std_logic;
@@ -553,6 +555,9 @@ port map (
 ---- ENCODERS (Encoder Inputs)
 -----------------------------------------------------------------------------
 encoders_top_inst : entity work.encoders_top
+generic map (
+    ENC_NUM => ENC_NUM
+)
 port map (
     -- Clock and Reset
     clk_i                   => FCLK_CLK0,
@@ -724,6 +729,9 @@ port map (
 -- SYSTEM FPGA
 ---------------------------------------------------------------------------
 system_inst : entity work.system_top
+generic map (
+    ENC_NUM => ENC_NUM
+)
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,

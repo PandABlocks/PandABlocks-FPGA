@@ -24,6 +24,9 @@ use work.top_defines.all;
 use work.addr_defines.all;
 
 entity system_top is
+generic (
+    ENC_NUM : natural
+);
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -100,6 +103,9 @@ DCARD_MODE_o <= DCARD_MODE;
 -- LED information for Digital IO goes through SlowFPGA
 ---------------------------------------------------------------------------
 led_management_inst : entity work.led_management
+generic map (
+    ENC_NUM => ENC_NUM
+)
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
@@ -117,6 +123,9 @@ port map (
 -- Construct TLP packets for slow FPGA registers
 ---------------------------------------------------------------------------
 system_registers : entity work.system_registers
+generic map (
+    ENC_NUM => ENC_NUM
+)
 port map (
     clk_i   => clk_i,
     reset_i => reset_i,
@@ -134,6 +143,9 @@ port map (
 -- Slow controller physical serial interface
 ---------------------------------------------------------------------------
 system_interface : entity work.system_interface
+generic map (
+    ENC_NUM => ENC_NUM
+)
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,

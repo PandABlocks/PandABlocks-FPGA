@@ -28,9 +28,6 @@ subtype MOD_RANGE               is natural range 0 to MOD_COUNT-1;
 
 -- Read Addr to Ack delay
 constant RD_ADDR2ACK            : std_logic_vector(4 downto 0) := "00010";
-
--- Block instantiation numbers--------------------------------------------
-constant ENC_NUM                : natural := 4;
 --------------------------------------------------------------------------
 
 --------------------------------------------------------------------------

@@ -9,6 +9,9 @@ use work.top_defines.all;
 use work.addr_defines.all;
 
 entity pandabrick_encoders_top is
+generic (
+    ENC_NUM : natural
+);
 port (
     -- Clock and Reset
     clk_i                   : in  std_logic;
