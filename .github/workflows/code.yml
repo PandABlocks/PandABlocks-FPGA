@@ -2,12 +2,11 @@ name: Code CI
 
 on:
   pull_request:
-  # Whenever a new branch or tag is created
-  # only on push for testing take out
-  create:
+  push:
 
 jobs:
   make_boot:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     strategy:
       fail-fast: false
       matrix:
@@ -62,8 +61,16 @@ jobs:
             /bin/bash -c \
             "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}"
 
+      # Artifacts
+      - name: Upload boot
+        uses: actions/upload-artifact@v2
+        with:
+          name: zpkgs
+          path: ./build/boot*.zip
+
   # Make zpkg for FPGA apps
   make_zpkg:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     strategy:
       fail-fast: false
       matrix:
@@ -126,11 +133,12 @@ jobs:
       - name: Upload zpkg
         uses: actions/upload-artifact@v2
         with:
-          name: fgpa-zpkg-${{ matrix.app }}
-          path: build/PandA-FPGA/panda-fpga@*.zpg
+          name: zpkgs
+          path: ./build/panda-fpga@*.zpg
 
   # Seting up AWS runners for high memory apps
   start-runner:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     name: Start self hosted aws runner
     runs-on: ubuntu-latest
     outputs:
@@ -240,8 +248,8 @@ jobs:
       - name: Upload zpkg
         uses: actions/upload-artifact@v2
         with:
-          name: fgpa-zpkg-${{ matrix.app }}
-          path: build/PandA-FPGA/panda-fpga@*.zpg
+          name: zpkgs
+          path: ./build/panda-fpga@*.zpg
 
   # Stop the AWS runner
   stop-runner:
@@ -262,6 +270,7 @@ jobs:
 
       - name: Stop EC2 runner
         uses: machulav/ec2-github-runner@v2
+        continue-on-error: true
         with:
           mode: stop
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
@@ -269,6 +278,7 @@ jobs:
           ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
 
   test:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
     steps:
       # Git repositories

@@ -90,8 +90,7 @@ signal BLOCK_TLP_SIZE       : unsigned(31 downto 0);
 signal M_AXI_BURST_LEN      : std_logic_vector(AXI_BURST_WIDTH-1 downto 0);
 signal reset                : std_logic;
 
-type pcap_fsm_t is (INIT, ACTV, DO_DMA, IS_FINISHED, IRQ, SWITCH_ADDR,
-                    COMPLETED);
+type pcap_fsm_t is (INIT, ACTV, DO_DMA, IS_FINISHED, IRQ, COMPLETED);
 signal pcap_fsm             : pcap_fsm_t;
 
 signal IRQ_STATUS_T         : std_logic_vector(31 downto 0);
@@ -109,10 +108,9 @@ signal last_tlp             : std_logic;
 signal axi_awaddr_val       : unsigned(31 downto 0);
 signal axi_wdata_val        : std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
 signal next_dmaaddr_valid   : std_logic;
-signal switch_block         : std_logic;
+signal buffer_full          : std_logic;
 signal pcap_wstb            : std_logic;
 signal writing_sample       : std_logic;
-signal dma_addr_latch       : std_logic_vector(31 downto 0);
 
 signal fifo_data_count      : std_logic_vector(10 downto 0);
 signal fifo_count           : unsigned(10 downto 0);
@@ -127,6 +125,7 @@ signal pcap_completed       : std_logic;
 
 signal pcap_error           : std_logic;
 signal start_event_detected : std_logic := '0';
+signal switch_buffer        : std_logic;
 
 begin
 
@@ -213,7 +212,7 @@ process(clk_i) begin
             if (DMA_ADDR_WSTB = '1') then
                 next_dmaaddr_valid <= '1';
             -- Clear flag on every IRQ
-            elsif (pcap_fsm = SWITCH_ADDR) then
+            elsif pcap_fsm = IRQ and switch_buffer = '1' then
                 next_dmaaddr_valid <= '0';
             end if;
         end if;
@@ -287,9 +286,18 @@ end process;
 -- M_AXI_BURST_LEN : # of beats in individual AXI3 write.
 --------------------------------------------------------------------------
 
-switch_block <= '1' when (tlp_count = BLOCK_TLP_SIZE) else  '0';
+buffer_full <= '1' when (tlp_count = BLOCK_TLP_SIZE) else  '0';
+switch_buffer <= pcap_timeout_latch or buffer_full or last_tlp;
 
 PCAP_STATE : process(clk_i)
+    procedure goto_do_dma is
+    begin
+        dma_start <= '1';
+        sample_count <= sample_count + transfer_size;
+        M_AXI_BURST_LEN <= std_logic_vector(transfer_size);
+        pcap_fsm <= DO_DMA;
+    end procedure;
+
 begin
 if rising_edge(clk_i) then
     if (reset = '1') then
@@ -326,17 +334,11 @@ if rising_edge(clk_i) then
                     if (fifo_count = 0) then
                         pcap_fsm <= IRQ;
                     else
-                        dma_start <= '1';
-                        sample_count <= sample_count + transfer_size;
-                        M_AXI_BURST_LEN <= std_logic_vector(transfer_size);
-                        pcap_fsm <= DO_DMA;
+                        goto_do_dma;
                     end if;
                 -- At least 1 TLP in available the queue
                 elsif (fifo_count >= AXI_BURST_LEN and writing_sample = '0') then
-                    dma_start <= '1';
-                    sample_count <= sample_count + transfer_size;
-                    M_AXI_BURST_LEN <= std_logic_vector(transfer_size);
-                    pcap_fsm <= DO_DMA;
+                    goto_do_dma;
                 -- Position compare completed
                 elsif (pcap_completed = '1' and writing_sample = '0') then
                     last_tlp <= '1';
@@ -346,10 +348,7 @@ if rising_edge(clk_i) then
                             pcap_fsm <= IRQ;
                         end if;
                     else
-                        dma_start <= '1';
-                        sample_count <= sample_count + transfer_size;
-                        M_AXI_BURST_LEN <= std_logic_vector(transfer_size);
-                        pcap_fsm <= DO_DMA;
+                        goto_do_dma;
                     end if;
                 -- trigger an interrupt to capture the start timestamp
                 elsif (start_event_detected = '1') then
@@ -368,7 +367,7 @@ if rising_edge(clk_i) then
             -- Decide what to do next.
             when IS_FINISHED =>
                 -- Timeout or buffer full, should switch buffers
-                if(pcap_timeout_latch = '1' or switch_block = '1') then
+                if pcap_timeout_latch = '1' or buffer_full = '1' then
                     pcap_fsm <= IRQ;
                 -- Block buffer is not consumed and Pcap is still active
                 else
@@ -385,20 +384,12 @@ if rising_edge(clk_i) then
                 IRQ_STATUS_T(31 downto 9) <= std_logic_vector(sample_count);
                 IRQ_STATUS_T(8 downto 0) <= irq_flags;
 
-                if pcap_timeout_latch = '1' or switch_block = '1' or last_tlp = '1' then
-                    dma_addr_latch <= DMA_ADDR;
-                    pcap_fsm <= SWITCH_ADDR;
-                else
-                    pcap_fsm <= ACTV;
+                if switch_buffer = '1' then
+                    -- Switch to next given buffer and reset sample counter
+                    axi_awaddr_val <= unsigned(DMA_ADDR);
+                    sample_count <= (others => '0');
+                    tlp_count <= (others => '0');
                 end if;
-
-            when SWITCH_ADDR =>
-                dma_irq <= '0';
-
-                -- Switch to next given buffer and reset sample counter
-                axi_awaddr_val <= unsigned(dma_addr_latch);
-                sample_count <= (others => '0');
-                tlp_count <= (others => '0');
 
                 -- Next state
                 if (last_tlp = '1' or next_dmaaddr_valid = '0') then
@@ -428,21 +419,14 @@ irq_flags(0) <= last_tlp or not next_dmaaddr_valid;
 irq_flags(3 downto 1) <= pcap_status_i;
 irq_flags(4) <= not next_dmaaddr_valid;
 irq_flags(5) <= pcap_timeout_latch;
-irq_flags(6) <= switch_block;
+irq_flags(6) <= buffer_full;
 irq_flags(7) <= '0';
 irq_flags(8) <= start_event_detected;
 
 --
 -- AXI DMA Master Engine
 --
-WORD_SWAP_32 : if (AXI_DATA_WIDTH = 32) generate
-    axi_wdata_val(31 downto 0) <= fifo_dout(31 downto 0);
-end generate;
-
-WORD_SWAP_64 : if (AXI_DATA_WIDTH = 64) generate
-    axi_wdata_val(63 downto 32) <= fifo_dout(31 downto 0);
-    axi_wdata_val(31 downto 0) <= fifo_dout(63 downto 32);
-end generate;
+axi_wdata_val(31 downto 0) <= fifo_dout(31 downto 0);
 
 dma_write_master : entity work.axi_write_master
 generic map (

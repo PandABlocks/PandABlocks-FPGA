@@ -91,6 +91,7 @@ signal FREQ_VAL         : std32_array(0 downto 0);
 
 signal DCARD_MODE       : std32_array(ENC_NUM-1 downto 0);
 
+signal health             : std_logic_vector(31 downto 0);
 
 begin
 
@@ -129,7 +130,6 @@ generic map (
 port map (
     clk_i   => clk_i,
     reset_i => reset_i,
-    DCARD_MODE_i => DCARD_MODE,
     OUTENC_PROT_i => OUTENC_PROT_i,
     OUTENC_PROT_WSTB_i => OUTENC_PROT_WSTB_i,
     INENC_PROT_i => INENC_PROT_i,
@@ -200,6 +200,18 @@ port map (
     freq_out        => FREQ_VAL
 );
 
+-- Drive health field, currently only clk src checked
+health_sys: process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if clk_sel_stat_i /= VEC_CLOCK_SRC(1 downto 0) then
+            health <= std_logic_vector(to_unsigned(1,32));
+        else
+            health <= std_logic_vector(to_unsigned(0,32));
+        end if;
+    end if;
+end process;
+
 ---------------------------------------------------------------------------
 -- Status Read process from Slow Controller
 ---------------------------------------------------------------------------
@@ -229,6 +241,7 @@ port map (
     CLOCK_SOURCE_WSTB   => open,
     EXT_CLOCK_FREQ      => FREQ_VAL(0),
     CLK_SEL_STAT        => VEC_CLK_SEL_STAT,
+    HEALTH              => health,
     -- Memory Bus Interface
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),

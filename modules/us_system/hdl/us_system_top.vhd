@@ -25,7 +25,6 @@ end us_system_top;
 
 architecture rtl of us_system_top is
 begin
-write_ack_o <= '1';
 
 us_system_ctrl_inst : entity work.us_system_ctrl
 port map(
@@ -42,6 +41,6 @@ port map(
     write_strobe_i      => write_strobe_i,
     write_address_i     => write_address_i(BLK_AW-1 downto 0),
     write_data_i        => write_data_i,
-    write_ack_o         => open
+    write_ack_o         => write_ack_o
 );
 end rtl;

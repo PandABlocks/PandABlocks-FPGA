@@ -99,7 +99,6 @@ APP_DEPENDS += $(wildcard modules/*/const/*.xdc)
 APP_DEPENDS += $(wildcard modules/*/*.ini)
 
 AUTOGEN_TARGETS += generate_app_autogen
-AUTOGEN_TARGETS += update_VER
 AUTOGEN_TARGETS += $(VERSION_FILE)
 AUTOGEN_TARGETS += $(CONSTANT_FILE)
 
@@ -123,14 +122,14 @@ all_autogen:
 # Version symbols for FPGA bitstream generation etc
 
 # Something like 0.1-1-g5539563-dirty
-export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
+GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
 # Split and append .0 to get 0.1.0, then turn into hex to get 00000100
-export VERSION := $(shell $(PYTHON) common/python/parse_git_version.py "$(GIT_VERSION)")
+VERSION := $(shell $(PYTHON) common/python/parse_git_version.py "$(GIT_VERSION)")
 # 8 if dirty, 0 if clean
 DIRTY_PRE = $(shell \
     $(PYTHON) -c "print(8 if '$(GIT_VERSION)'.endswith('dirty') else 0)")
 # Something like 85539563
-export SHA := $(DIRTY_PRE)$(shell git rev-parse --short=7 HEAD)
+SHA := $(DIRTY_PRE)$(shell git rev-parse --short=7 HEAD)
 
 # Trigger rebuild of FPGA targets based on change in the git hash wrt hash stored in build dir
 # If the stored hash value does not exist, or disagrees with the present
@@ -150,7 +149,7 @@ endif
 #####################################################################
 # Create VERSION_FILE
 
-$(VERSION_FILE) : $(VER)
+$(VERSION_FILE) : update_VER
 	rm -f $(VERSION_FILE)
 	echo 'library ieee;' >> $(VERSION_FILE)
 	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
@@ -226,7 +225,7 @@ TIMING_BUILD_DIRS = $(patsubst %,$(BUILD_DIR)/hdl_timing/%,$(MODULES))
 $(BUILD_DIR)/hdl_timing/%: modules/%/*.timing.ini
 	rm -rf $@_tmp $@
 	$(PYTHON) -m common.python.generate_hdl_timing $@_tmp $^
-	mv $@_tmp $@
+	mv -f $@_tmp $@
 
 # Make the hdl_timing folders and run all tests, or specific modules by setting
 # the MODULES argument
@@ -273,7 +272,8 @@ else
 	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
         TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
         TGT_BUILD_DIR=$(TGT_BUILD_DIR) TOP_MODE=$(TOP_MODE) DEP_MODE=$(DEP_MODE) \
-		$@
+        VER=$(VER) TARGET=$(TARGET) GIT_VERSION=$(GIT_VERSION) \
+        ZIP_BUILD_DIR=$(BUILD_DIR) $@
 endif
 
 .PHONY: $(FPGA_TARGETS)
@@ -319,7 +319,9 @@ ZPKG_DEPENDS += $(APP_BUILD_DIR)/extensions
 ZPKG_DEPENDS += $(DOCS_HTML_DIR)
 
 $(APP_BUILD_DIR)/ipmi.ini: $(APP_FILE)
-	$(PYTHON) -m common.python.make_ipmi_ini $(TOP) $< $@
+	$(PYTHON) -m common.python.copy_file_in_modules \
+        --fallback $(TOP)/common/templates/default_ipmi.ini \
+        $(TOP) $< ipmi.ini $@
 
 $(APP_BUILD_DIR)/extensions: $(APP_FILE)
 	rm -rf $@

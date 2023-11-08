@@ -49,7 +49,7 @@ port (
     write_strobe_i      : in  std_logic;
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
-    write_ack_o         : out std_logic := '1';
+    write_ack_o         : out std_logic;
     FMC_i               : in  fmc_input_interface;
     FMC_io              : inout fmc_inout_interface := FMC_io_init
 );
@@ -74,18 +74,6 @@ signal fmc_in           : std_logic_vector(7 downto 0);
 signal fmc_out          : std_logic_vector(7 downto 0);
 
 begin
-
--- Acknowledgement to AXI Lite interface
-write_ack_o <= '1';
-
-read_ack_delay : entity work.delay_line
-generic map (DW => 1)
-port map (
-    clk_i       => clk_i,
-    data_i(0)   => read_strobe_i,
-    data_o(0)   => read_ack_o,
-    DELAY_i     => RD_ADDR2ACK
-);
 
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
@@ -125,12 +113,12 @@ port map (
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
     read_data_o         => read_data_o,
-    read_ack_o          => open,
+    read_ack_o          => read_ack_o,
 
     write_strobe_i      => write_strobe_i,
     write_address_i     => write_address_i(BLK_AW-1 downto 0),
     write_data_i        => write_data_i,
-    write_ack_o         => open
+    write_ack_o         => write_ack_o
 );
 
 ---------------------------------------------------------------------------

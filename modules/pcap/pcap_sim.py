@@ -304,7 +304,7 @@ class BitsCaptureEntry(CaptureEntry):
 
 class PcapSimulation(BlockSimulation):
     ENABLE, GATE, TRIG, TRIG_EDGE, SHIFT_SUM, ACTIVE, TS_START_L, TS_START_H, \
-        TS_END_L, TS_END_H, TS_TRIG_L, TS_TRIG_H, SAMPLES, \
+        TS_END_L, TS_END_H, TS_TRIG_L, TS_TRIG_H, GATE_DURATION, \
         BITS0, BITS1, BITS2, BITS3, HEALTH = PROPERTIES
     tick_data = True
 
@@ -463,7 +463,7 @@ class PcapSimulation(BlockSimulation):
                     entry.hi = True
             elif name.startswith("BITS"):
                 entry = BitsCaptureEntry(i, int(name[-1]))
-            elif name == "SAMPLES":
+            elif name == "GATE_DURATION":
                 entry = SampleCaptureEntry(i, self.SHIFT_SUM)
             else:
                 raise ValueError("Bad name %s" % name)

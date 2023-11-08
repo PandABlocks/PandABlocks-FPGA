@@ -1,205 +1,147 @@
 library ieee;
-use ieee.numeric_std.all;
 use ieee.std_logic_1164.all;
-
+use ieee.numeric_std.all;
 
 entity sfp_panda_sync_transmit is
-
     port (
-        clk_i           : in  std_logic;
+        sysclk_i        : in  std_logic;
+        rst_sys_i       : in  std_logic;
         txoutclk_i      : in  std_logic;
-        reset_i         : in  std_logic;
         txcharisk_o     : out std_logic_vector(3 downto 0) := (others => '0');
         POSOUT1_i       : in  std_logic_vector(31 downto 0);
         POSOUT2_i       : in  std_logic_vector(31 downto 0);
         POSOUT3_i       : in  std_logic_vector(31 downto 0);
         POSOUT4_i       : in  std_logic_vector(31 downto 0);
-        BITOUT_i        : in  std_logic_vector(15 downto 0); 
+        BITOUT_i        : in  std_logic_vector(7 downto 0); 
         txdata_o        : out std_logic_vector(31 downto 0) := (others => '0')
         );
 
 end sfp_panda_sync_transmit;        
 
-
-
 architecture rtl of sfp_panda_sync_transmit is
 
+-- Timing diagram below assumes both clocks have same frequency and phase.
+-- In reality phase of clocks is arbitrary, and POS data will be 
+-- latched up to one cycle earlier or later wrt TX_DATA
+       
+--    _   _   _   _   _   _   _
+--  _| |_| |_| |_| |_| |_| |_| |_       CLOCK
+--
+--     1   2   3   4   5   6            SEQUENCE 
+--  _ ___ ___ ___ ___ ___ ___ _
+--  _X___X___X___X___X___X___X_         TX_DATA
+--    ___                     _
+-- __|   |___________________|          TXCHARISK
+--        ___
+-- ______|   |_________________         K_SYNC1
+--            ___
+-- __________|   |_____________         K_SYNC2
+--
+-- __________________ _________
+-- __________________X_________         POS1_LATCH
+--
+-- ______________________ _____
+-- ______________________X_____         POS2_LATCH
+--
+-- ______ _____________________
+-- ______X_____________________         POS3_LATCH
+--
+-- __________ _________________
+-- __________X_________________         POS4_LATCH
 
--- component ila_0
--- 
---     port (
---           clk     : std_logic;
---           probe0  : std_logic_vector(31 downto 0);
---           probe1  : std_logic_vector(31 downto 0);
---           probe2  : std_logic_vector(31 downto 0);
---           probe3  : std_logic_vector(31 downto 0);
---           probe4  : std_logic_vector(31 downto 0);
---           probe5  : std_logic_vector(31 downto 0);
---           probe6  : std_logic_vector(5 downto 0);
---           probe7  : std_logic_vector(31 downto 0)
--- );
--- 
--- end component;
 
+subtype t_TX_STATE is INTEGER range 1 to 6;
 
-type t_SM_DATA is (STATE_BITIN, STATE_POSIN13, STATE_POSIN24);
+subtype std8_t is std_logic_vector(7 downto 0);
+type std8_array is array(natural range <>) of std8_t;
 
-type t_data is array(5 downto 0) of std_logic_vector(31 downto 0);
+constant c_k28_5      : std_logic_vector(7 downto 0) := x"BC";
 
-constant c_k28_5                      : std_logic_vector(7 downto 0) := x"BC";
-constant c_k28_0                      : std_logic_vector(7 downto 0) := x"1C";   
-constant c_zeros                      : std_logic_vector(7 downto 0) := x"00";
-constant c_kchar                      : std_logic_vector(3 downto 0) := x"1";
+signal POSOUT1_l      : std_logic_vector(POSOUT1_i'range);
+signal POSOUT2_l      : std_logic_vector(POSOUT2_i'range);
+signal POSOUT3_l      : std_logic_vector(POSOUT3_i'range);
+signal POSOUT4_l      : std_logic_vector(POSOUT4_i'range);
+signal ksync          : std_logic;
+signal ksync_del      : std_logic; 
+signal txcharisk_tog  : std_logic := '0';
+signal BITOUT_l       : std8_array(0 to 5);
 
-signal SM_DATA                        : t_SM_DATA;
-signal data_buf                       : t_data := (others => (others => '0'));
-signal start_in                       : std_logic := '0';
-signal start_in_meta1                 : std_logic;
-signal start_in_meta2                 : std_logic;
-signal start_in_dly                   : std_logic;
-signal start_in_xored                 : std_logic;
-signal start_in_xored_pos12           : std_logic;
-signal start_in_xored_pos34           : std_logic;    
-signal bit_ored                       : std_logic_vector(15 downto 0);  
-signal txdata                         : std_logic_vector(31 downto 0);  
-
-signal probe1                         : std_logic_vector(31 downto 0);
-signal probe2                         : std_logic_vector(31 downto 0);
-signal probe3                         : std_logic_vector(31 downto 0);
-signal probe4                         : std_logic_vector(31 downto 0);
-signal probe5                         : std_logic_vector(31 downto 0);
-signal probe6                         : std_logic_vector(5 downto 0);  
-signal probe7                         : std_logic_vector(31 downto 0);
-
-attribute ASYNC_REG : string;
-attribute ASYNC_REG of start_in_meta1  : signal is "TRUE";
-attribute ASYNC_REG of start_in_meta2  : signal is "TRUE";
-attribute ASYNC_REG of start_in_dly    : signal is "TRUE"; 
+signal seq_num        : unsigned(7 downto 0) := (others => '0');
+signal check_byte      : std_logic_vector(7 downto 0);
 
 
 begin
 
-    
--- Store              start_in    meta1   meta2   dly   xor   xor12   xor34     TX                                    
---                       0          0       0      0     0      0       0      POSOUT3 
---                       1          0       0      0     0      0       0      POSOUT4 
---                       1          1       0      0     0      0       0      BITOUT(PKT ALIGN)  
--- BITOUT(PKT START)     1          1       1      0     1      0       0      POSOUT1                       
--- POSOUT1               0          1       1      1     0      1       0      POSOUT2
--- POSOUT2               0          0       1      1     0      0       1      BITOUT(PKT START)
--- BITOUT(PKT ALIGN)     0          0       0      1     1      0       0      POSOUT3
--- POSOUT3               1          0       0      0     0      1       0      POSOUT4     
--- POSOUT4               1          1       0      0     0      0       1      BITOUT(PKT SLIGN) 
--- BITOUT(PKT START)     1          1       1      0     1      0       0      POSOUT1                                   
+check_byte <= std_logic_vector(seq_num);
 
--- XOR for edge detection find both edges 
-start_in_xored <= start_in_dly xor start_in_meta2;
-    
-    
-ps_data_in: process(clk_i)
+-- TX Sequencer
+txdata_driver: process(txoutclk_i)
+  -- this variable will synthesise as a register
+  variable TX_STATE : t_TX_STATE := 1;
 begin
-    if rising_edge(clk_i) then
-          -- Synchronous the signal from the other clock domain  
-          start_in_meta1 <= start_in;
-          start_in_meta2 <= start_in_meta1;          
-          start_in_dly <= start_in_meta2;
-          start_in_xored_pos12 <= start_in_xored;
-          start_in_xored_pos34 <= start_in_xored_pos12;
-        -- Detect the edges BIT              
-        if (start_in_xored = '1') then
-            bit_ored <= (others => '0');                
-            data_buf(0) <= (bit_ored or BITOUT_i) & x"0000";
-        else
-            bit_ored <= bit_ored or BITOUT_i;              
-        end if;                
-        -- POSOUT13                           
-        if (start_in_xored_pos12 = '1') then
-            data_buf(1) <= POSOUT1_i;
-            data_buf(3) <= POSOUT3_i;
-        end if;
-        -- POSOUT24
-        if (start_in_xored_pos34 = '1') then    
-            data_buf(2) <= POSOUT2_i;                 
-            data_buf(4) <= POSOUT4_i;
-        end if;
+  if rising_edge(txoutclk_i) then
+
+    if TX_STATE = 1 then
+        txcharisk_o <= x"1";
+        txcharisk_tog <= not txcharisk_tog;
+        seq_num       <= seq_num + 1;
+    else
+        txcharisk_o <= (others => '0');
     end if;
-end process ps_data_in;        
 
-
- -- 
- -- probe1 <= (others => '0'); 
- -- probe2 <= (others => '0');
- -- probe3 <= (others => '0');
- -- probe4 <= (others => '0');
- -- probe5 <= (others => '0'); 
- -- probe6 <= (others => '0');
- -- probe7 <= (others => '0');
- -- 
- -- 
- -- -- Chipscope
- -- ila_tx_inst : ila_0
- -- port map (
- --       clk     => txoutclk_i,
- --       probe0  => txdata,
- --       probe1  => probe1,
- --       probe2  => probe2,
- --       probe3  => probe3,
- --       probe4  => probe4,
- --       probe5  => probe5,
- --       probe6  => probe6,
- --       probe7  => probe7
- -- );
- -- 
-
-
-txdata_o <= txdata;
-
-
-ps_data_out: process(txoutclk_i)
-begin
-    if rising_edge(txoutclk_i) then
-                
-        case SM_DATA is
-                    
-            -- 16 bits plus the k character or just zeros
-            when STATE_BITIN =>
-                txcharisk_o <= c_kchar;
-                -- Packet start bit
-                if (start_in = '0') then
-                    txdata <= data_buf(0)(31 downto 16) & x"00" & c_k28_0;     
-                -- Packet Alignment
-                else
-                    txdata <= data_buf(0)(31 downto 16) & x"00" & c_k28_5;
-                end if;        
-                SM_DATA <= STATE_POSIN13;
-                        
-            -- POSOUT1 or POSOUT3
-            when STATE_POSIN13 => 
-                txcharisk_o <= (others => '0');
-                if (start_in = '0') then
-                    txdata <= data_buf(1); 
-                else
-                    txdata <= data_buf(3);
-                end if;                    
-                SM_DATA <= STATE_POSIN24;
-                    
-            -- POSOUT2 or POSOUT     
-            when STATE_POSIN24 => 
-                start_in <= not start_in;
-                txcharisk_o <= (others => '0');
-                if (start_in = '0') then                
-                    txdata <= data_buf(2);
-                else
-                    txdata <= data_buf(4);
-                end if;        
-                SM_DATA <= STATE_BITIN;
-                        
-        end case;                             
+    case TX_STATE is            
+      when 1 => txdata_o <= BITOUT_l(0) & POSOUT1_l(31 downto 16) & c_k28_5;
+      when 2 => txdata_o <= BITOUT_l(1) & POSOUT1_l(15 downto 0) & POSOUT2_l(31 downto 24);
+      when 3 => txdata_o <= BITOUT_l(2) & POSOUT2_l(23 downto 0);
+      when 4 => txdata_o <= BITOUT_l(3) & POSOUT3_l(31 downto 8);
+      when 5 => txdata_o <= BITOUT_l(4) & POSOUT3_l(7 downto 0) & POSOUT4_l(31 downto 16);
+      when 6 => txdata_o <= BITOUT_l(5) & POSOUT4_l(15 downto 0) & check_byte;
+    end case;
+    
+    if TX_STATE = 6 then
+      TX_STATE := 1;
+    else
+      TX_STATE := TX_STATE + 1;
     end if;
-end process ps_data_out;    
-        
-        
-        
+ end if;
+end process;
 
+ksyncer: entity work.sync_bit
+port map(
+    clk_i => sysclk_i,
+    bit_i => txcharisk_tog,
+    bit_o => ksync
+);
+
+-- Latch the values of the BITBUS and POSBUS signals
+latch_positions: process(sysclk_i)
+  -- this variable will synthesise as a shift register
+  variable ksync_sr   : std_logic_vector(5 downto 0);
+begin
+  if rising_edge(sysclk_i) then
+    --Detect change of txcharisk and shift into SR
+    ksync_del <= ksync;
+    ksync_sr := ksync_sr(4 downto 0) & (ksync xor ksync_del);
+    if ksync_sr(1) = '1' then 
+      POSOUT1_l <= POSOUT1_i;
+    end if;
+    if ksync_sr(2) = '1' then 
+      POSOUT2_l <= POSOUT2_i;
+    end if;
+    if ksync_sr(4) = '1' then 
+      POSOUT3_l <= POSOUT3_i;
+    end if;
+    if ksync_sr(5) = '1' then 
+      POSOUT4_l <= POSOUT4_i;
+    end if;
+  
+    for i in 0 to 5 loop
+      if ksync_sr(i) = '1' then
+        BITOUT_l(i) <= BITOUT_i;
+      end if;
+    end loop;
+  end if;
+end process;
 
 end rtl;
+

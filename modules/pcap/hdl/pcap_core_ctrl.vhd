@@ -63,6 +63,18 @@ signal read_address     : natural range 0 to (2**read_address_i'length - 1);
 
 begin
 
+-- Acknowledgement to AXI Lite interface
+write_ack_o <= '1';
+
+read_ack_delay : entity work.delay_line
+generic map (DW => 1)
+port map (
+    clk_i       => clk_i,
+    data_i(0)   => read_strobe_i(DRV_CS),
+    data_o(0)   => read_ack_o,
+    DELAY_i     => RD_ADDR2ACK
+);
+
 -- Integer conversion for address.
 read_address <= to_integer(unsigned(read_address_i));
 write_address <= to_integer(unsigned(write_address_i));

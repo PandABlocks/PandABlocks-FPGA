@@ -11,7 +11,7 @@ entity sfp_transmitter is
           rx_error_i    : in  std_logic;
           mgt_ready_i   : in  std_logic;
           rxdata_i      : in  std_logic_vector(15 downto 0);
-          err_cnt_o     : out std_logic_vector(15 downto 0);
+          err_cnt_o     : out std_logic_vector(31 downto 0);
           txdata_o      : out std_logic_vector(15 downto 0);
           txcharisk_o   : out std_logic_vector(1 downto 0)
           );
@@ -50,7 +50,7 @@ signal mem_comp_dout        : std_logic_vector(15 downto 0);
 signal mem_comp_addr_cnt    : unsigned(11 downto 0) := (others => '0');
 
 signal mem_comp_addr_en_dly : std_logic_vector(2 downto 0);
-signal err_cnt              : unsigned(15 downto 0) := (others => '0');
+signal err_cnt              : unsigned(31 downto 0) := (others => '0');
 signal mem_comp_addr_en     : std_logic;
 
 begin

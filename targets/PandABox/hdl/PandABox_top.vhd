@@ -314,21 +314,22 @@ port map (
     );
 
 idelayctrl_inst : IDELAYCTRL port map (
-    REFCLK => FCLK_CLK1_PS,
-    RST => FCLK_RESET0,
-    RDY => open
+    REFCLK  => FCLK_CLK1_PS,
+    RST     => FCLK_RESET0,
+    RDY     => open
 );
 
 mmcm_clkmux_inst: entity work.mmcm_clkmux
 port map(
     fclk_clk0_ps_i      => FCLK_CLK0_PS,
-    sma_clk_i         => EXTCLK,
-    mgt_rec_clk_i          => SFP1_o.MGT_REC_CLK,
-    clk_sel_i         => clk_src_sel,
+    sma_clk_i           => EXTCLK,
+    mgt_rec_clk_i       => SFP3_o.MGT_REC_CLK,
+    clk_sel_i           => clk_src_sel,
+    sfp_los_i           => SFP3_i.SFP_LOS,
     sma_pll_locked_o    => sma_pll_locked,
-    clk_sel_stat_o        => clk_sel_stat,
+    clk_sel_stat_o      => clk_sel_stat,
     fclk_clk0_o         => FCLK_CLK0,
-    fclk_clk0_2x_o => FCLK_CLK0_2X
+    fclk_clk0_2x_o      => FCLK_CLK0_2X
 );
 
 

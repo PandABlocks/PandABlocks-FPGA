@@ -35,11 +35,16 @@ class SeqTable(object):
         self.next_line = self._make_line(self._index)
 
     def load_next(self):
-        if self._index == self._load_line - 1:
+        if self._index == self.n_lines - 1:
             self._index = 0
         else:
             self._index += 1
+
         self.next_line = self._make_line(self._index)
+
+    @property
+    def last(self):
+        return self._index == self.n_lines - 1
 
     def _make_line(self, index):
         line = SeqLine()
@@ -73,6 +78,7 @@ class SeqTable(object):
         self.table_ready = 0
         self._load_line = 0
         self._load_word = 0
+        self.reset()
 
     def table_data(self, data):
         self._table[self._load_line][self._load_word] = data
@@ -82,12 +88,117 @@ class SeqTable(object):
         else:
             self._load_word += 1
 
+        # make sure the next line is up to date with what's written
+        self.next_line = self._make_line(self._index)
+
     def table_lines(self, lines):
-        if self._load_word == 0 and self._load_line == lines:
+        if lines > 0:
+            self.n_lines = lines
             self.table_ready = 1
 
 
-LOAD_TABLE = 0
+# Table states
+TABLE_INVALID, TABLE_LAST, TABLE_CONT, TABLE_LOADING = range(4)
+
+# Table errors
+TABLE_ERROR_OK = 0
+TABLE_ERROR_UNDERRUN = 1
+TABLE_ERROR_OVERRUN = 2
+
+
+class SeqDoubleTable(object):
+    def __init__(self):
+        self.tables = [SeqTable(), SeqTable()]
+        self.states = [TABLE_INVALID, TABLE_INVALID]
+        self.rd_index = 0
+        self.wr_index = 0
+        self.zero_count = 0
+        self.has_written_last = False
+        self.error = 0
+
+    @property
+    def can_write_next(self):
+        return self.rd_index != self.wr_index
+
+    @property
+    def next_expected(self):
+        return self.states[self.rd_index] == TABLE_CONT
+
+    @property
+    def table_ready(self):
+        return self.tables[self.rd_index].table_ready
+
+    def reset_tables(self):
+        if self.states[self.wr_index] == TABLE_LOADING:
+            self.rd_index = self.wr_index
+        else:
+            self.wr_index = self.rd_index
+
+        self.tables[0].reset()
+        self.tables[1].reset()
+
+    def reset_error(self):
+        self.error = 0
+
+    def load_next(self):
+        was_last = self.tables[self.rd_index].last
+        self.tables[self.rd_index].load_next()
+        if self.states[self.rd_index] in (TABLE_INVALID, TABLE_LOADING):
+            self.error = TABLE_ERROR_UNDERRUN
+
+        if was_last and self.states[self.rd_index] == TABLE_CONT:
+            if self.rd_index ^ 1 == self.wr_index \
+                    and self.states[self.wr_index] != TABLE_LAST:
+                self.error = TABLE_ERROR_UNDERRUN
+
+            self.rd_index ^= 1
+
+    @property
+    def last(self):
+        return self.tables[self.rd_index].last
+
+    def table_start(self):
+        self.tables[self.wr_index].table_start()
+        self.states[self.wr_index] = TABLE_LOADING
+
+    def table_data(self, data):
+        if data == 0:
+            self.zero_count += 1
+        else:
+            self.zero_count = 0
+
+        self.tables[self.wr_index].table_data(data)
+
+    @property
+    def next_line(self):
+        return self.tables[self.rd_index].next_line
+
+    @property
+    def table_ready(self):
+        return self.tables[self.rd_index].table_ready
+
+    def table_lines(self, lines):
+        has_cont_mark = self.zero_count >= 4
+        corrected_lines = lines - 1 if has_cont_mark else lines
+        self.tables[self.wr_index].table_lines(corrected_lines)
+        if self.states[self.rd_index] == TABLE_LAST \
+                and self.states[self.wr_index] == TABLE_LOADING:
+            self.rd_index ^= 1
+
+        if corrected_lines <= 0:
+            self.states[self.wr_index] = TABLE_INVALID
+            self.has_written_last = True
+        elif has_cont_mark:
+            self.states[self.wr_index] = TABLE_CONT
+            self.wr_index ^= 1
+            self.has_written_last = False
+        else:
+            self.states[self.wr_index] = TABLE_LAST
+            self.wr_index ^= 1
+            self.has_written_last = True
+
+
+UNREADY = 0
 WAIT_ENABLE = 1
 WAIT_TRIGGER = 2
 PHASE1 = 3
@@ -98,15 +209,36 @@ class SeqSimulation(BlockSimulation):
     ENABLE, BITA, BITB, BITC, POSA, POSB, POSC, TABLE, TABLE_START, \
         TABLE_DATA, TABLE_LENGTH, PRESCALE, REPEATS, \
         ACTIVE, OUTA, OUTB, OUTC, OUTD, OUTE, OUTF, \
-        TABLE_REPEAT, TABLE_LINE, LINE_REPEAT, STATE = PROPERTIES
+        TABLE_REPEAT, TABLE_LINE, LINE_REPEAT, STATE, HEALTH, \
+        CAN_WRITE_NEXT = PROPERTIES
 
     def __init__(self):
         # Next time we need to be called
         self.next_ts = None
         # A table
-        self.table = SeqTable()
+        self.table = SeqDoubleTable()
         # The current line
         self.current_line = None
+        self.current_next_table_expected = False
+        self.current_last_frame_in_table = False
+        self.state2function = {
+            UNREADY: self.unready_state,
+            WAIT_ENABLE: self.wait_enable_state,
+            WAIT_TRIGGER: self.wait_trigger,
+            PHASE1: self.phase1_state,
+            PHASE2: self.phase2_state
+        }
+        self.sudden_next_table_dlay = False
+
+    def handle_table_loading(self, ts, changes):
+        if NAMES.TABLE_START in changes:
+            self.table.table_start()
+
+        if NAMES.TABLE_DATA in changes:
+            self.table.table_data(self.TABLE_DATA)
+
+        if NAMES.TABLE_LENGTH in changes:
+            self.table.table_lines(self.TABLE_LENGTH / 4)
 
     def set_outputs(self, outputs):
         self.OUTA = outputs & 1
@@ -131,180 +263,208 @@ class SeqSimulation(BlockSimulation):
         ]
         return conditions[line.trigger]
 
+    @property
     def next_line(self):
         return self.table.next_line
 
+    @property
     def current_triggers_met(self):
         return self.triggers_met(self.current_line)
 
+    @property
     def next_triggers_met(self):
-        return self.triggers_met(self.next_line())
+        return self.triggers_met(self.next_line)
 
+    @property
     def last_line_repeat(self):
-        return self.LINE_REPEAT == self.current_line.repeats
+        return self.LINE_REPEAT != 0 \
+            and self.LINE_REPEAT == self.current_line.repeats
 
+    @property
     def last_table_line(self):
-        return self.last_line_repeat() and \
-               self.TABLE_LINE == self.TABLE_LENGTH / 4
+        return self.last_line_repeat and self.current_last_frame_in_table
 
+    @property
     def last_table_repeat(self):
-        return self.last_table_line() and \
-                self.TABLE_REPEAT == self.REPEATS
+        return self.last_table_line and self.TABLE_REPEAT != 0 \
+            and self.TABLE_REPEAT == self.REPEATS \
+            and not self.current_next_table_expected
 
+    @property
     def prescale(self):
         if self.PRESCALE > 0:
             return self.PRESCALE
         else:
             return 1
 
+    @property
     def current_time1(self):
-        return self.prescale() * self.current_line.time1
+        return self.prescale * self.current_line.time1
 
+    @property
     def current_time2(self):
         if self.current_line.time2 == 0:
-            return self.prescale()
+            return self.prescale
         else:
-            return self.prescale() * self.current_line.time2
+            return self.prescale * self.current_line.time2
 
+    @property
     def next_time1(self):
-        return self.prescale() * self.next_line().time1
+        return self.prescale * self.next_line.time1
 
+    @property
     def next_time2(self):
-        if self.next_line().time2 == 0:
-            return self.prescale()
+        if self.next_line.time2 == 0:
+            return self.prescale
         else:
-            return self.prescale() * self.next_line().time2
+            return self.prescale * self.next_line.time2
+
+    def reset_repeat_count(self, val):
+        self.TABLE_REPEAT = val
+        self.TABLE_LINE = val
+        self.LINE_REPEAT = val
+
+    def unready_state(self, ts, changes):
+        # And while we're in this state we ignore everything apart from
+        # table commands
+        if self.table.table_ready:
+            self.STATE = WAIT_ENABLE
+
+        if NAMES.TABLE_START in changes:
+            self.reset_repeat_count(0)
+
+    def wait_enable_state(self, ts, changes):
+        if not self.table.table_ready:
+            self.STATE = UNREADY
+        elif NAMES.TABLE_START in changes and not self.table.can_write_next:
+            self.reset_repeat_count(0)
+        elif changes.get(NAMES.ENABLE, None) == 1:
+            self.goto_next_state_loading_frame(ts)
+            self.reset_repeat_count(1)
+            self.HEALTH = TABLE_ERROR_OK
+            self.ACTIVE = 1
+
+    def wait_trigger(self, ts, changes):
+        if self.current_triggers_met:
+            if self.current_line.time1:
+                # Do phase 1
+                self.next_ts = ts + self.current_time1
+                self.set_outputs(self.current_line.out1)
+                self.STATE = PHASE1
+            else:
+                # Do phase 2
+                self.next_ts = ts + self.current_time2
+                self.set_outputs(self.current_line.out2)
+                self.STATE = PHASE2
+
+    def phase1_state(self, ts, changes):
+        # If doing phase 1, check if time has expired
+        if ts >= self.next_ts:
+            # Do phase 2
+            self.next_ts = ts + self.current_time2
+            self.set_outputs(self.current_line.out2)
+            self.STATE = PHASE2
+
+    def phase2_state(self, ts, changes):
+        # If doing phase 2, check if time has expired
+        if ts >= self.next_ts:
+            if self.last_table_repeat:
+                # If table is finished then we're done
+                self.ACTIVE = 0
+                self.set_outputs(0)
+                self.STATE = WAIT_ENABLE
+            elif self.last_line_repeat:
+                if self.last_table_line:
+                    self.LINE_REPEAT = 1
+                    # Finished the last line in the table, advance repeats
+                    self.TABLE_LINE = 1
+                    if not self.current_next_table_expected:
+                        self.TABLE_REPEAT += 1
+                else:
+                    self.LINE_REPEAT = 1
+                    # Finished this line, move to the next
+                    self.TABLE_LINE += 1
+
+                self.goto_next_state_loading_frame(ts)
+            else:
+                # Repeat the current line again
+                self.LINE_REPEAT += 1
+                if not self.current_triggers_met:
+                    self.STATE = WAIT_TRIGGER
+                elif self.current_line.time1:
+                    # Do phase 1
+                    self.next_ts = ts + self.current_time1
+                    self.set_outputs(self.current_line.out1)
+                    self.STATE = PHASE1
+                else:
+                    # Do phase 2
+                    self.next_ts = ts + self.current_time2
+                    self.set_outputs(self.current_line.out2)
+                    self.STATE = PHASE2
+
+    def goto_next_state_loading_frame(self, ts):
+        if not self.next_triggers_met:
+            self.STATE = WAIT_TRIGGER
+        elif self.next_line.time1:
+            # Do phase 1
+            self.next_ts = ts + self.next_time1
+            self.set_outputs(self.next_line.out1)
+            self.STATE = PHASE1
+        else:
+            # Do phase 2
+            self.next_ts = ts + self.next_time2
+            self.set_outputs(self.next_line.out2)
+            self.STATE = PHASE2
+
+        # Have to advance to the next line of the table
+        self.current_line = self.next_line
+        self.current_next_table_expected = self.table.next_expected
+        self.current_last_frame_in_table = self.table.last
+        self.table.load_next()
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
         when we next need to be called"""
         # This is a ConfigBlock object
         super(SeqSimulation, self).on_changes(ts, changes)
-        state = self.STATE
+        running = self.STATE != UNREADY and self.STATE != WAIT_ENABLE
+        start_not_expected = changes.get(NAMES.TABLE_START, None) == 1 \
+            and running and not self.table.can_write_next
+        sudden_next_table = NAMES.TABLE_LENGTH in changes \
+            and not self.current_next_table_expected and running
 
-        if changes.get(NAMES.TABLE_START, None) == 1:
-            # Loading a table stops everything
-            self.table.table_start()
+        if changes.get(NAMES.ENABLE, None) == 0:
             self.set_outputs(0)
-            self.TABLE_REPEAT = 0
-            self.TABLE_LINE = 0
-            self.LINE_REPEAT = 0
-            state = LOAD_TABLE
-        elif changes.get(NAMES.ENABLE, None) == 0:
-            # If we are disabled at any point stop and wait for enable
             self.ACTIVE = 0
-            self.set_outputs(0)
-            if self.STATE != LOAD_TABLE:
-                # Not currently loading a table, so reset it and drop back to
-                # WAIT_ENABLE
-                self.table.reset()
-                state = WAIT_ENABLE
-        else:
-            if self.STATE == WAIT_ENABLE:
-                # If we get an enable or we are still active after a table
-                # rewrite
-                if changes.get(NAMES.ENABLE, None) == 1 or self.ACTIVE:
-                    if not self.next_triggers_met():
-                        state = WAIT_TRIGGER
-                    elif self.next_line().time1:
-                        # Do phase 1
-                        self.next_ts = ts + self.next_time1()
-                        self.set_outputs(self.next_line().out1)
-                        state = PHASE1
-                    else:
-                        # Do phase 2
-                        self.next_ts = ts + self.next_time2()
-                        self.set_outputs(self.next_line().out2)
-                        state = PHASE2
-                    self.TABLE_REPEAT = 1
-                    self.TABLE_LINE = 1
-                    self.LINE_REPEAT = 1
-                    self.ACTIVE = 1
-                    self.current_line = self.next_line()
-                    self.table.load_next()
-            elif self.STATE == LOAD_TABLE:
-                # And while we're in this state we ignore everything apart from
-                # table commands
-                if self.table.table_ready and self.TABLE_LENGTH > 0:
-                    state = WAIT_ENABLE
-                elif NAMES.TABLE_DATA in changes:
-                    self.table.table_data(self.TABLE_DATA)
-                elif NAMES.TABLE_LENGTH in changes:
-                    self.table.table_lines(self.TABLE_LENGTH / 4)
-                    self.table.reset()
-                    return ts + 1
-            elif self.STATE == WAIT_TRIGGER:
-                if self.current_triggers_met():
-                    if self.current_line.time1:
-                        # Do phase 1
-                        self.next_ts = ts + self.current_time1()
-                        self.set_outputs(self.current_line.out1)
-                        state = PHASE1
-                    else:
-                        # Do phase 2
-                        self.next_ts = ts + self.current_time2()
-                        self.set_outputs(self.current_line.out2)
-                        state = PHASE2
-            elif self.STATE == PHASE1:
-                # If doing phase 1, check if time has expired
-                if ts >= self.next_ts:
-                    # Do phase 2
-                    self.next_ts = ts + self.current_time2()
-                    self.set_outputs(self.current_line.out2)
-                    state = PHASE2
-            elif self.STATE == PHASE2:
-                # If doing phase 2, check if time has expired
-                if ts >= self.next_ts:
-                    if self.last_table_repeat():
-                        # If table is finished then we're done
-                        self.ACTIVE = 0
-                        self.set_outputs(0)
-                        self.table.reset()
-                        state = WAIT_ENABLE
-                    elif self.last_line_repeat():
-                        if self.last_table_line():
-                            # Finished the last line in the table, advance repeats
-                            self.TABLE_LINE = 1
-                            self.TABLE_REPEAT += 1
-                        else:
-                            # Finished this line, move to the next
-                            self.TABLE_LINE += 1
-                        self.LINE_REPEAT = 1
-                        if not self.next_triggers_met():
-                            state = WAIT_TRIGGER
-                        elif self.next_line().time1:
-                            # Do phase 1
-                            self.next_ts = ts + self.next_time1()
-                            self.set_outputs(self.next_line().out1)
-                            state = PHASE1
-                        else:
-                            # Do phase 2
-                            self.next_ts = ts + self.next_time2()
-                            self.set_outputs(self.next_line().out2)
-                            state = PHASE2
-                        # Have to advance to the next line of the table
-                        self.current_line = self.next_line()
-                        self.table.load_next()
-                    else:
-                        # Repeat the current line again
-                        self.LINE_REPEAT += 1
-                        if not self.current_triggers_met():
-                            state = WAIT_TRIGGER
-                        elif self.current_line.time1:
-                            # Do phase 1
-                            self.next_ts = ts + self.current_time1()
-                            self.set_outputs(self.current_line.out1)
-                            state = PHASE1
-                        else:
-                            # Do phase 2
-                            self.next_ts = ts + self.current_time2()
-                            self.set_outputs(self.current_line.out2)
-                            state = PHASE2
+            if self.table.table_ready:
+                self.STATE = WAIT_ENABLE
+            else:
+                self.STATE = UNREADY
 
-        if state != self.STATE:
-            # We updated statemachine, might need another tick to check the
-            # next state
-            self.STATE = state
-            return ts + 1
-        elif self.next_ts and self.next_ts > ts:
-            return self.next_ts
+            self.table.reset_tables()
+
+        elif self.table.error:
+            self.set_outputs(0)
+            self.ACTIVE = 0
+            self.STATE = UNREADY
+            self.HEALTH = self.table.error
+            self.table.reset_error()
+
+        elif start_not_expected:
+            self.set_outputs(0)
+            self.ACTIVE = 0
+            self.STATE = UNREADY
+            self.HEALTH = TABLE_ERROR_OVERRUN
+            self.reset_repeat_count(0)
+
+        elif self.sudden_next_table_dlay:
+            self.goto_next_state_loading_frame(ts)
+            self.reset_repeat_count(1)
+        else:
+            self.state2function[self.STATE](ts, changes)
+
+        self.handle_table_loading(ts, changes)
+        self.CAN_WRITE_NEXT = self.table.can_write_next \
+            and self.table.next_expected
+        self.sudden_next_table_dlay = sudden_next_table
+        return ts + 1

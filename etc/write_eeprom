@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+import argparse
+import errno
+import sys
+
+from i2c import smbus2, eeprom, ini_file, create_ipmi
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='flash data to FMC EEPROM')
+    parser.add_argument(
+        'ini_path', type=str, help='Path to IPMI definition file')
+    return parser.parse_args()
+
+
+
+def main():
+    args = parse_args()
+    ini = ini_file.load_ini_file(args.ini_path)
+    print('Please ensure the FMC is', ini['Board']['product name'])
+    serial_number = input('Serial number: ').strip()
+    if not serial_number:
+        serial_number = None
+
+    ipmi = create_ipmi.generate_ipmi(ini, serial_number)
+    bus = smbus2.SMBus(0)
+    try:
+        address16bit = ini['.']['eeprom'] == '16-bit'
+    except KeyError:
+        address16bit = False
+
+    print('Writing EEPROM...')
+    eeprom.write_address(data=ipmi, address16bit=address16bit)
+    readback = eeprom.read_eeprom(length=len(ipmi))
+    if bytes(readback) != bytes(ipmi):
+        print('Verification failed')
+        sys.exit(1)
+    else:
+        print('Verification OK')
+
+
+if __name__ == "__main__":
+    main()
