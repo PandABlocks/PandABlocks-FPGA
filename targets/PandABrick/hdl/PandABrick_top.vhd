@@ -1310,35 +1310,9 @@ port map (
 
 -- Data to be passed to PIC...
 
---(1,2,5,7)
-serial_pass(7) <= '1';
-serial_pass(6) <= '1';
-serial_pass(5) <= '1' when (OUTENC_PROTOCOL(3)(2)='0' AND OUTENC_PROTOCOL(3)(1)='0' AND  OUTENC_PROTOCOL(3)(0)='0') else '0';
-serial_pass(4) <= '1' when (OUTENC_PROTOCOL(2)(2)='0' AND OUTENC_PROTOCOL(2)(1)='0' AND  OUTENC_PROTOCOL(2)(0)='0') else '0';
-serial_pass(3) <= '1';
-serial_pass(2) <= '1';
-serial_pass(1) <= '1' when (OUTENC_PROTOCOL(1)(2)='0' AND OUTENC_PROTOCOL(1)(1)='0' AND  OUTENC_PROTOCOL(1)(0)='0') else '0';
-serial_pass(0) <= '1' when (OUTENC_PROTOCOL(0)(2)='0' AND OUTENC_PROTOCOL(0)(1)='0' AND  OUTENC_PROTOCOL(0)(0)='0') else '0';
-
---(3,4,7,8)
---serial_pass(7) <= '1' when (OUTENC_PROTOCOL(3)(2)='0' AND OUTENC_PROTOCOL(3)(1)='0' AND  OUTENC_PROTOCOL(3)(0)='0') else '0';
---serial_pass(6) <= '1' when (OUTENC_PROTOCOL(2)(2)='0' AND OUTENC_PROTOCOL(2)(1)='0' AND  OUTENC_PROTOCOL(2)(0)='0') else '0';
---serial_pass(5) <= '1';
---serial_pass(4) <= '1';
---serial_pass(3) <= '1' when (OUTENC_PROTOCOL(1)(2)='0' AND OUTENC_PROTOCOL(1)(1)='0' AND  OUTENC_PROTOCOL(1)(0)='0') else '0';
---serial_pass(2) <= '1' when (OUTENC_PROTOCOL(0)(2)='0' AND OUTENC_PROTOCOL(0)(1)='0' AND  OUTENC_PROTOCOL(0)(0)='0') else '0';
---serial_pass(1) <= '1';
---serial_pass(0) <= '1';
-
---(should be this for all 8 axes)
---serial_pass(7) <= '1' when (OUTENC_PROTOCOL(7)(2)='0' AND OUTENC_PROTOCOL(7)(1)='0' AND  OUTENC_PROTOCOL(7)(0)='0') else '0'; 
---serial_pass(6) <= '1' when (OUTENC_PROTOCOL(6)(2)='0' AND OUTENC_PROTOCOL(6)(1)='0' AND  OUTENC_PROTOCOL(6)(0)='0') else '0'; 
---serial_pass(5) <= '1' when (OUTENC_PROTOCOL(5)(2)='0' AND OUTENC_PROTOCOL(5)(1)='0' AND  OUTENC_PROTOCOL(5)(0)='0') else '0'; 
---serial_pass(4) <= '1' when (OUTENC_PROTOCOL(4)(2)='0' AND OUTENC_PROTOCOL(4)(1)='0' AND  OUTENC_PROTOCOL(4)(0)='0') else '0'; 
---serial_pass(3) <= '1' when (OUTENC_PROTOCOL(3)(2)='0' AND OUTENC_PROTOCOL(3)(1)='0' AND  OUTENC_PROTOCOL(3)(0)='0') else '0'; 
---serial_pass(2) <= '1' when (OUTENC_PROTOCOL(2)(2)='0' AND OUTENC_PROTOCOL(2)(1)='0' AND  OUTENC_PROTOCOL(2)(0)='0') else '0';
---serial_pass(1) <= '1' when (OUTENC_PROTOCOL(1)(2)='0' AND OUTENC_PROTOCOL(1)(1)='0' AND  OUTENC_PROTOCOL(1)(0)='0') else '0';
---serial_pass(0) <= '1' when (OUTENC_PROTOCOL(0)(2)='0' AND OUTENC_PROTOCOL(0)(1)='0' AND  OUTENC_PROTOCOL(0)(0)='0') else '0';
+pass_thru_gen: for chan in 0 to ENC_NUM-1 generate
+    serial_pass(chan) <= '1' when (OUTENC_PROTOCOL(chan)(2 downto 0) = "000") else '0';
+end generate;
 
 uvwt         <= "00000000";
 pic_data_out <= ( uvwt & serial_pass );
@@ -1539,7 +1513,7 @@ IO4_D6_P <= PL_LED_P(0);
 IO4_D7_N <= PL_LED_P(1);
 
 -- Assemble SFP records
-SFP_i.SFP_LOS <= '0';  -- NB: Hard-coded to '0' as not brought out onto pin!
+SFP_i.SFP_LOS <= '0';  -- SFP LOS signal, as well as TX_FAULT, goes via the PIC - how are these read by the FPGA?
 SFP_i.GTREFCLK <= BUF_GTREFCLK1;
 SFP_i.RXN_IN <= ch1_gthrxn_in;
 SFP_i.RXP_IN <= ch1_gthrxp_in;
