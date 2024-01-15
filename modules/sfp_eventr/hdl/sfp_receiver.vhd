@@ -36,18 +36,18 @@ end sfp_receiver;
 
 architecture rtl of sfp_receiver is
 
-COMPONENT vio_1
-  PORT (
-    clk : IN STD_LOGIC;
-    probe_in0 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-    probe_in1 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-    probe_in2 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-    probe_in3 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-    probe_in4 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-    probe_in5 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-    probe_out0 : OUT STD_LOGIC_VECTOR(0 DOWNTO 0)
-  );
-END COMPONENT;
+--COMPONENT vio_1
+--  PORT (
+--    clk : IN STD_LOGIC;
+--    probe_in0 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+--    probe_in1 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+--    probe_in2 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+--    probe_in3 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+--    probe_in4 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+--    probe_in5 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+--    probe_out0 : OUT STD_LOGIC_VECTOR(0 DOWNTO 0)
+--  );
+--END COMPONENT;
 
 
 constant c_zeros : std_logic_vector(1 downto 0) := "00";
@@ -474,17 +474,17 @@ begin
 end process;
 
 
-error_vio : vio_1
-  PORT MAP (
-    clk => event_clk_i,
-    probe_in0 => std_logic_vector(rx_nit_ctr),
-    probe_in1 => std_logic_vector(rx_dis_ctr),
-    probe_in2 => std_logic_vector(event_err_ctr),
-    probe_in3 => std_logic_vector(dbus_err_ctr),
-    probe_in4 => std_logic_vector(disable_link_ctr),
-    probe_in5 => std_logic_vector(total_ind_errors),
-    probe_out0(0) => ctr_reset
-  );
+--error_vio : vio_1
+--  PORT MAP (
+--    clk => event_clk_i,
+--    probe_in0 => std_logic_vector(rx_nit_ctr),
+--    probe_in1 => std_logic_vector(rx_dis_ctr),
+--    probe_in2 => std_logic_vector(event_err_ctr),
+--    probe_in3 => std_logic_vector(dbus_err_ctr),
+--    probe_in4 => std_logic_vector(disable_link_ctr),
+--    probe_in5 => std_logic_vector(total_ind_errors),
+--    probe_out0(0) => ctr_reset
+--  );
 
 
 
