@@ -144,9 +144,9 @@ $(IP_DIR)/%/IP_DONE : $(TOP)/ip_defs/%.tcl $(IP_BUILD_SCR) | $(IP_PROJ)
 	touch $@
 
 $(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR) $(TGT_INCL_SCR)
-	$(RUNVIVADO) -mode $(DEP_MODE) -source $< \
+	$(RUNVIVADO) -mode batch -source $< \
 	  -log $(TGT_BUILD_DIR)/build_ps.log -nojournal \
-	  -tclargs $(TOP) $(TARGET_DIR) $(PS_DIR) $@ $(DEP_MODE)
+	  -tclargs $(TOP) $(TARGET_DIR) $(PS_DIR) $@
 
 CARRIER_FPGA_DEPS += $(TOP_BUILD_SCR)
 CARRIER_FPGA_DEPS += $(APP_IP_DEPS)
@@ -155,7 +155,7 @@ CARRIER_FPGA_DEPS += $(TGT_INCL_SCR)
 CARRIER_FPGA_DEPS += $(VER)
 
 $(CARRIER_FPGA_BIT) : $(CARRIER_FPGA_DEPS)
-	$(RUNVIVADO) -mode $(TOP_MODE) -source $< \
+	$(RUNVIVADO) -mode $(VIVADO_MODE) -source $< \
 	  -log $(BUILD_DIR)/build_top.log -nojournal \
 	  -tclargs $(TOP) \
 	  -tclargs $(TARGET_DIR) \
@@ -163,15 +163,15 @@ $(CARRIER_FPGA_BIT) : $(CARRIER_FPGA_DEPS)
 	  -tclargs $(AUTOGEN) \
 	  -tclargs $(IP_DIR) \
 	  -tclargs $(PS_CORE) \
-	  -tclargs $(TOP_MODE) \
+	  -tclargs $(VIVADO_MODE) \
 	  -tclargs $(PLATFORM)
 
 run_sim_%: $(TOP)/tests/sim/%
-	$(RUNVIVADO) -mode $(TEST_MODE) -source $</bench/$*_tb_compile.tcl \
+	$(RUNVIVADO) -mode $(XSIM_MODE) -source $</bench/$*_tb_compile.tcl \
 	  -log $(BUILD_DIR)/test_build_top.log -nojournal \
 	  -tclargs $(TOP) \
 	  -tclargs $(BUILD_DIR) \
-	  -tclargs $(TEST_MODE)
+	  -tclargs $(XSIM_MODE)
 
 $(FPGA_BIN_FILE): $(CARRIER_FPGA_BIT)
 	echo -e "all:\n{\n    $(CARRIER_FPGA_BIT)\n}\n" > bs.bif

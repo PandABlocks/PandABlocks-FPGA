@@ -13,9 +13,6 @@ set BUILD_DIR [lindex $argv 2]
 # Output file
 set OUTPUT_FILE [lindex $argv 3]
 
-# Vivado run mode - gui or batch mode
-set MODE [lindex $argv 4]
-
 source $TARGET_DIR/target_incl.tcl
 
 # Create project
@@ -33,9 +30,6 @@ set_property "target_language" "VHDL" $obj
 # Create block design
 # (THIS is exported from Vivado design tool)
 source $TARGET_DIR/bd/panda_ps.tcl
-
-# Exit script here if gui mode - i.e. if running 'make edit_ps_bd'
-if {[string match "gui" [string tolower $MODE]]} { return }
 
 # Generate the wrapper
 set design_name [get_bd_designs]
