@@ -7,12 +7,13 @@
 # builds.  These releases are downloaded (as .tar.gz files) from:
 #      https://github.com/Xilinx/u-boot-xlnx
 #      https://github.com/Xilinx/linux-xlnx
+#      https://github.com/Xilinx/arm-trusted-firmware
 # Note: if these files have been downloaded through the releases directory then
 # they need to be renamed with the appropriate {u-boot,linux}-xlnx- prefix so
 # that the file name and contents match.
-MD5_SUM_device-tree-xlnx-xilinx_v2022.2 = 7885c6f69509e425a1800eed326ffee8
-MD5_SUM_u-boot-xlnx-xilinx-v2022.2 = a9e54fff739d5702465c786b5420d31e
-MD5_SUM_arm-trusted-firmware-xilinx-v2022.2 = a47d32e92fed413599093f6d82bf3e0c
+MD5_SUM_device-tree-xlnx-xilinx_v2023.2 = 7789e54fe26457b44354d3de28b21987
+MD5_SUM_u-boot-xlnx-xilinx-v2023.2 = 135d51a81aadaed096a667e41db6e110
+MD5_SUM_arm-trusted-firmware-xilinx-v2023.2 = 812e16408046699ff5fe09f847f4a168
 # The dtc source is obtained from https://git.kernel.org/pub/scm/utils/dtc/dtc.git
 MD5_SUM_dtc-1.7.0 = f8b4469ad89f4b882091895ec60dde6b
 
