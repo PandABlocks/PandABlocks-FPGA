@@ -34,13 +34,13 @@ class TestGenerateTiming(unittest.TestCase):
         self.assertGeneratedEqual("timing001", "1testblockexpected.csv")
 
     def test_first_bench(self):
-        self.assertGeneratedEqual("timing001", "hdl_timing.v")
+        self.assertGeneratedEqual("timing001", "hdl_timing.sv")
 
     def test_second_timings(self):
         self.assertGeneratedEqual("timing002", "2testblockexpected.csv")
 
     def test_second_bench(self):
-        self.assertGeneratedEqual("timing002", "hdl_timing.v")
+        self.assertGeneratedEqual("timing002", "hdl_timing.sv")
 
     def test_module_script(self):
         self.assertGeneratedEqual("testblock.tcl")
