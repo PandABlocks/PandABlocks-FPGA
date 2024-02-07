@@ -17,7 +17,7 @@ export EXT_IP_REPO = /scratch/Xilinx/XAPP589/PICXO_FRACXO_v40_rev6
 
 
 # Specifiy licence server, if required
-# export LM_LICENCE_FILE =
+# export LM_LICENSE_FILE =
 
 # Location of rootfs builder.  This needs to be at least version 1.13 and can be
 # downloaded from https://github.com/araneidae/rootfs
