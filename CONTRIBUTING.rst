@@ -17,13 +17,13 @@ To get the source source code and run the unit tests, run::
 
     $ git clone git://github.com/PandABlocks/PandABlocks-FPGA.git
     $ cd PandABlocks-FPGA
-    $ virtualenv venv
+    $ python3 -m venv venv
     $ source venv/bin/activate
     $ pip install --upgrade pip
     $ pip install -r tests/requirements.txt
     $ cp CONFIG.example CONFIG
-    $ make test_python
-    $ make sim_timing
+    $ make python_tests
+    $ make python_timing
 
 Writing VHDL
 ------------
