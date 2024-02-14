@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contributing &mdash; PandABlocks-FPGA 3.0-1-g23e97c8
+  <title>Contributing &mdash; PandABlocks-FPGA 3.0-2-g1e650e9
  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
@@ -40,7 +40,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0-1-g23e97c8
+                3.0-2-g1e650e9
 
               </div>
 <div role="search">
@@ -189,13 +189,13 @@ the scope of the project.</p>
 <p>To get the source source code and run the unit tests, run:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone git://github.com/PandABlocks/PandABlocks-FPGA.git
 $ cd PandABlocks-FPGA
-$ virtualenv venv
+$ python3 -m venv venv
 $ source venv/bin/activate
 $ pip install --upgrade pip
 $ pip install -r tests/requirements.txt
 $ cp CONFIG.example CONFIG
-$ make test_python
-$ make sim_timing
+$ make python_tests
+$ make python_timing
 </pre></div>
 </div>
 </div>
