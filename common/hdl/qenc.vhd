@@ -89,23 +89,29 @@ begin
             posn_tracker <= (others => '0');
             posn_tracking <= '0';
             qenc_dir <= '0';
+            qenc_trans <= '0';
         else
             if (enable_rise = '1') then
                 posn_tracker <= posn;
                 posn_tracking <= '0';
+                qenc_trans <= '0';
             -- Compare current position with tracking value, and
             -- enable/disable tracking based on user flag.
             elsif (enable = '1' and posn_tracker /= posn) then
                 posn_tracking <= '1';
-                if (qenc_clk = '1') then
+                if qenc_clk = '1' then -- Quad transitions happen on user defined clock rate
+                    qenc_trans <= '1'; 
                     if (posn_tracker < posn) then
                         posn_tracker <= posn_tracker + 1;
                     else
                         posn_tracker <= posn_tracker - 1;
                     end if;
+                else
+                    qenc_trans <= '0';
                 end if;
             else
                 posn_tracking <= '0';
+                qenc_trans <= '0';
             end if;
 
             -- Set up tracking direction to the encoder
@@ -117,9 +123,6 @@ begin
         end if;
     end if;
 end process;
-
--- Quad transitions happen on user defined clock rate
-qenc_trans <= posn_tracking and qenc_clk;
 
 -- Instantiate Quadrature Encoder
 qencoder_core : entity work.qencoder
