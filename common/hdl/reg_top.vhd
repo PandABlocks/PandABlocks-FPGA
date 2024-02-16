@@ -49,6 +49,8 @@ port (
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
     SLOW_FPGA_VERSION   : in  std_logic_vector(31 downto 0);
+    TS_SEC              : in  std_logic_vector(31 downto 0);
+    TS_TICKS            : in  std_logic_vector(31 downto 0);
     -- Output signals
     SFP_MAC_ADDR        : out std32_array(2*NUM_SFP -1 downto 0) := (others => (others => '1'));
     SFP_MAC_ADDR_WSTB   : out std_logic_vector(2*NUM_SFP downto 0) := (others => '0');
@@ -202,6 +204,10 @@ begin
                 read_data_o <= POS_READ_CHANGES;
             when REG_FPGA_CAPABILITIES =>
                 read_data_o <= FPGA_CAPABILITIES;
+            when REG_PCAP_TS_SEC => 
+                read_data_o <= TS_SEC;
+            when REG_PCAP_TS_TICKS =>
+                read_data_o <= TS_TICKS;
             when others =>
                 read_data_o <= (others => '0');
         end case;
