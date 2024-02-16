@@ -90,7 +90,7 @@ signal txcharisk_i           : std_logic_vector(1 downto 0);
 signal bit1,bit2,bit3,bit4   : std_logic;
 
 signal unix_time             : std_logic_vector(31 downto 0);
-signal unix_time_smpld       : std_logic_vector(31 downto 0);
+signal unix_time_ticks       : std_logic_vector(31 downto 0);
 signal err_cnt_smpld         : std_logic_vector(31 downto 0);
 
 -- ILA stuff
@@ -126,6 +126,8 @@ port map (
 
 SFP_o.MGT_REC_CLK <= rxoutclk;
 SFP_o.LINK_UP <= LINKUP(0);
+SFP_o.TS_SEC <= unix_time;
+SFP_o.TS_TICKS <= unix_time_ticks;
 
 bit1_o(0) <= bit1;
 bit2_o(0) <= bit2;
@@ -149,7 +151,7 @@ port map(
 
 sfp_receiver_inst: entity work.sfp_receiver
 port map(
-    clk_i           => clk_i,
+    sysclk_i        => clk_i,
     event_clk_i     => rxoutclk,
     reset_i         => reset_i,
     rxdisperr_i     => rxdisperr,
@@ -171,14 +173,15 @@ port map(
     rx_link_ok_o    => rx_link_ok_o,
     loss_lock_o     => loss_lock_o, 
     rx_error_o      => rx_error_o,
-    utime_o         => unix_time
+    utime_o         => unix_time,
+    utime_ticks_o   => unix_time_ticks
 );
 
 
 sfpgtx_event_receiver_inst: entity work.sfp_event_receiver
 port map(
     GTREFCLK           => SFP_i.GTREFCLK,
-    sysclk_i              => clk_i,
+    sysclk_i           => clk_i,
     event_reset_i      => EVENT_RESET,
     rxp_i              => SFP_i.RXP_IN,
     rxn_i              => SFP_i.RXN_IN,
@@ -260,18 +263,6 @@ port map (
     data_o => err_cnt_smpld
 );
 
-utime_latch : entity work.latched_sync
-generic map (
-    DWIDTH => 32,
-    PERIOD => 125  -- 1 MHz for 125 MHz clock
-)
-port map (
-    src_clk => rxoutclk,
-    dest_clk => clk_i,
-    data_i => unix_time,
-    data_o => unix_time_smpld
-);
-
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
@@ -284,7 +275,7 @@ port map (
     pos_bus_i         => pos_bus_i,
 
     LINKUP            => LINKUP,
-    UNIX_TIME         => unix_time_smpld,
+    UNIX_TIME         => unix_time,
     ERROR_COUNT       => err_cnt_smpld,
     EVENT_RESET       => open,
     EVENT_RESET_WSTB  => EVENT_RESET,

@@ -119,12 +119,17 @@ type SFP_output_interface is
     TXP_OUT     : std_logic;
     MGT_REC_CLK : std_logic;
     LINK_UP     : std_logic;
+    TS_SEC      : std_logic_vector(31 downto 0);
+    TS_TICKS    : std_logic_vector(31 downto 0);
   end record SFP_output_interface;
 
 constant SFP_o_init : SFP_output_interface := (TXN_OUT => 'Z',
                                                TXP_OUT => 'Z',
                                                MGT_REC_CLK => '0',
-                                               LINK_UP => '0');
+                                               LINK_UP => '0',
+                                               TS_SEC => (others => '0'),
+                                               TS_TICKS => (others => '0')
+);
 
 
 type seq_t is

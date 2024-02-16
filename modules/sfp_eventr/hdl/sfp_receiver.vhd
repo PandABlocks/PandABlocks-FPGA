@@ -6,7 +6,7 @@ entity sfp_receiver is
 
     generic (events         : natural := 4);
 
-    port (clk_i              : in  std_logic;
+    port (sysclk_i              : in  std_logic;
           event_clk_i        : in  std_logic;
           reset_i            : in  std_logic;
           rxdisperr_i        : in  std_logic_vector(1 downto 0);
@@ -28,7 +28,8 @@ entity sfp_receiver is
           bit2_o             : out std_logic;
           bit3_o             : out std_logic;
           bit4_o             : out std_logic;
-          utime_o            : out std_logic_vector(31 downto 0)
+          utime_o            : out std_logic_vector(31 downto 0);
+          utime_ticks_o      : out std_logic_vector(31 downto 0)
           );
 
 end sfp_receiver;
@@ -131,7 +132,11 @@ signal disable_link_dly, disable_link_edge : std_logic;
 signal disable_link_ctr : unsigned(31 downto 0);
 signal total_ind_errors : unsigned(31 downto 0);
 
-
+signal utime                    : std_logic_vector(31 downto 0);
+signal utime_latch_tog          : std_logic;
+signal reset_event_tog          : std_logic := '0';
+signal reset_event_tog_sync     : std_logic;
+signal reset_event_tog_sync_del : std_logic;
 
 begin
 
@@ -175,29 +180,50 @@ rx_link_ok_o <= rx_link_ok;
 loss_lock_o <= loss_lock;
 rx_error_o <= rx_error;
 
--- Unix time 
+-- Unix time calc on event clock domain
 ps_shift_reg: process(event_clk_i)
 begin
     if rising_edge(event_clk_i) then
-        if reset_i = '1' then
+        -- Shift a '0' into the shift register		
+        if rxdata_i(7 downto 0) = c_code_seconds_0 then
+            utime_shift_reg <= utime_shift_reg(30 downto 0) & '0';
+        -- Shift a '1' into the shift register
+        elsif rxdata_i(7 downto 0) = c_code_seconds_1 then
+            utime_shift_reg <= utime_shift_reg(30 downto 0) & '1';
+        -- Shift the unix time out 
+        elsif rxdata_i(7 downto 0) = c_code_reset_event then
             utime_shift_reg <= (others => '0');
-            utime_o <= (others => '0');
-        else
-            -- Shift a '0' into the shift register		
-            if rxdata_i(7 downto 0) = c_code_seconds_0 then
-                utime_shift_reg <= utime_shift_reg(30 downto 0) & '0';
-            -- Shift a '1' into the shift register
-            elsif rxdata_i(7 downto 0) = c_code_seconds_1 then
-                utime_shift_reg <= utime_shift_reg(30 downto 0) & '1';
-            -- Shift the unix time out 
-            elsif rxdata_i(7 downto 0) = c_code_reset_event then
-                utime_shift_reg <= (others => '0');
-                utime_o <= utime_shift_reg;
-            end if;
-        end if;            
-    end if;
+            utime <= utime_shift_reg;
+            reset_event_tog <= not reset_event_tog;
+        end if;
+    end if;            
 end process ps_shift_reg;   
 
+-- synchronise reset event onto system clock
+reset_event_sync: entity work.sync_bit
+port map(
+    clk_i => sysclk_i,
+    bit_i => reset_event_tog,
+    bit_o => reset_event_tog_sync
+);
+
+-- Transfer unix time to system clock and generate fractional part of timestamp
+ps_utime_sys: process(sysclk_i)
+    variable reset_event_tog_edge : std_logic;
+    variable utime_ticks_ctr      : unsigned(31 downto 0); -- allows for up to ~34 seconds between reset events
+begin
+    if rising_edge(sysclk_i) then
+        reset_event_tog_sync_del <= reset_event_tog_sync;
+        reset_event_tog_edge := reset_event_tog_sync xor reset_event_tog_sync_del;
+        if reset_event_tog_edge = '1' then
+            utime_o <= utime;
+            utime_ticks_ctr := (others => '0');
+        else
+            utime_ticks_ctr := utime_ticks_ctr + 1;
+        end if;
+        utime_ticks_o <= std_logic_vector(utime_ticks_ctr);
+    end if;
+end process;
 
 -- Assign the array outputs to individual bits
 -- Done this to stop the outputs being high for 2 clocks instead of one
@@ -215,9 +241,9 @@ bit4_o <= event_bits_meta2(3) and not event_bits_dlyo(3) when EVENT4(8) = '0' el
 
 
 
-ps_125MHz: process(clk_i)
+ps_125MHz: process(sysclk_i)
 begin
-    if rising_edge(clk_i) then
+    if rising_edge(sysclk_i) then
         lp_meta: for i in 0 to events-1 loop
             -- Resynch to the 125MHz domain
             event_bits_meta1(i) <= event_bits_stretched(i);
@@ -229,9 +255,9 @@ end process ps_125MHz;
 
 
 -- Generate a delay of the strobe to be used to stretch the strobe signal
-ps_125MHz_stretched: process(clk_i)
+ps_125MHz_stretched: process(sysclk_i)
 begin
-    if rising_edge(clk_i) then
+    if rising_edge(sysclk_i) then
         EVENT1_WSTB_dly <= EVENT1_WSTB;
         EVENT2_WSTB_dly <= EVENT2_WSTB;
         EVENT3_WSTB_dly <= EVENT3_WSTB;
