@@ -33,7 +33,7 @@ Contributing
 
 See `CONTRIBUTING`_
 
-.. |code_ci| image:: https://github.com/PandABlocks/PandABlocks-FPGA/workflows/Code%20CI/badge.svg?branch=master
+.. |code_ci| image:: https://github.com/PandABlocks/PandABlocks-FPGA/actions/workflows/code.yml/badge.svg?branch=master
     :target: https://github.com/PandABlocks/PandABlocks-FPGA/actions?query=workflow%3A%22Code+CI%22
     :alt: Code CI
 
