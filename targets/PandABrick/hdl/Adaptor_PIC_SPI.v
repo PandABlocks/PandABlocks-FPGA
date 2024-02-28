@@ -143,12 +143,14 @@ begin
 	        3:  begin
 	               CLK_OUT <= 1;                       // clock high
 	               SDO_OUT <= tx_shift_reg[15];        // Set next bit
-	               rx_shift_reg <= rx_shift_reg<<1;    // shift RX ready for next bit
 	               
-	               if (data_count==16) 				   // check for end of word
+                    if (data_count==16) begin				   // check for end of word
 				        state <= 4;
-					else
+                        latched_o_data <= rx_shift_reg;
+		            end else begin
 						state <= 2;
+                        rx_shift_reg <= rx_shift_reg<<1;       // shift RX ready for next bit
+                    end
 				end
 				
 			4:  begin
@@ -156,7 +158,6 @@ begin
 				    CLK_OUT <= 1;
 				    SDO_OUT <= 0;				
 					running <= 0;                      // and stop.
-					latched_o_data <= rx_shift_reg;
 				end
 
 			
