@@ -470,7 +470,7 @@ INENC_DATA_o <= DATA_IN;
 
 clk_int_o <= CLK_IN;
 
-pin_PMAC_SDA_TX_EN <= '1';
+pin_PMAC_SDA_TX_EN <= '0';
 
 clkin_filt : entity work.delay_filter port map (
     clk_i   => clk_i,
