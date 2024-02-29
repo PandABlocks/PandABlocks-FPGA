@@ -200,17 +200,10 @@ port (
     -- IO4
     IO4_D2_P                       : in     std_logic;
     IO4_D3_N                       : in     std_logic;
-    IO4_D4_P                       : out    std_logic;
-    IO4_D5_N                       : out    std_logic;
+    IO4_D4_P                       : in    std_logic;
+    IO4_D5_N                       : in    std_logic;
     IO4_D6_P                       : out    std_logic;
-    IO4_D7_N                       : out    std_logic;
-
-   -- LED
-    LED0_PL_N                      : out     std_logic;
-    LED1_PL_N                      : out     std_logic;
-    LED2_PL_N                      : out     std_logic;
-    LED3_PL_N                      : out     std_logic
-    
+    IO4_D7_N                       : out    std_logic    
 );
 attribute IO_BUFFER_TYPE : string;
 attribute IO_BUFFER_TYPE of ch1_gthtxp_out : signal is "none";
@@ -372,9 +365,9 @@ signal PMAC_WATCHDOG        : std_logic;
 signal PMAC_ABORT           : std_logic;
 
 -- Front-panel LEDs
-signal PS_LED_P             : std_logic_vector(1 downto 0);
 signal PL_LED_P             : std_logic_vector(1 downto 0);
-signal LedCount             : unsigned(23 downto 0);
+signal PS_RDY_STATUS        : std_logic;
+signal PS_ERR_STATUS        : std_logic;
 
 -- I2C FPGA
 signal IIC_FPGA_sda_i   : std_logic;
@@ -467,7 +460,8 @@ signal invAuxDir5           : std_logic;
 signal BUF_GTREFCLK1        : std_logic;
 
 -- Discrete Block Outputs :
-signal pcap_active          : std_logic_vector(0 downto 0);
+signal pcap_active          : std_logic;
+signal pcap_act_reg         : std_logic;
 signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
 signal ttlout_val           : std_logic_vector(TTLOUT_NUM-1 downto 0);
 
@@ -707,7 +701,7 @@ port map (
 
     bit_bus_i           => bit_bus,
     pos_bus_i           => pos_bus,
-    pcap_actv_o         => pcap_active(0),
+    pcap_actv_o         => pcap_active,
     pcap_irq_o          => IRQ_F2P(0)
 );
 
@@ -816,7 +810,10 @@ EQU_IN(8)        <= IO3_D7_N;
 
 PMAC_WATCHDOG   <= IO4_D2_P;
 PMAC_ABORT      <= IO4_D3_N;
-
+-- Can monitor PS RDY and ERR LEDs if useful to do so, provided relevant
+-- pins are shorted together at the IO4 connector.
+PS_RDY_STATUS <= IO4_D4_P;
+PS_ERR_STATUS <= IO4_D5_N;
 
 -- ========== FMC Pinout ==========
 
@@ -1465,10 +1462,25 @@ AUX_IO_DIR(3) <= AuxDir3;
 AUX_IO_DIR(4) <= AuxDir4;
 AUX_IO_DIR(5) <= AuxDir5;
 
--- LED TEST
+-----------------------------------------------
+-- 1 second heartbeat to front-panel STATUS LED
+-- PCAP active signal to front-panel ACQ LED
+-----------------------------------------------
+process(FCLK_CLK0)
+    variable counter : unsigned(25 downto 0);
+begin
+    if rising_edge(FCLK_CLK0) then
+        pcap_act_reg <= pcap_active;
+        if (counter = 65_000_000) then
+            PL_LED_P(0) <= not PL_LED_P(0);
+            counter := (others => '0');
+        else
+            counter := counter + 1;
+        end if;
+        PL_LED_P(1) <= pcap_act_reg;
+    end if;
+end process;
 
-PL_LED_P(0) <= '1'; --aux_clk_counter(15);
-PL_LED_P(1) <= '1'; --aux_clk_counter(14);
 
 IIC_FPGA_scl_iobuf: IOBUF
     port map (
@@ -1486,31 +1498,10 @@ IIC_FPGA_sda_iobuf: IOBUF
       T => IIC_FPGA_sda_t
     );
 
-process (FCLK_CLK0)
-begin
-if rising_edge (FCLK_CLK0) then
-  if FCLK_RESET0 = '1' then
-    LedCount    <= (others => '0');
-  else
-    LedCount    <= LedCount + 1;
-  end if;
-end if;
-end process;
-
-Led0_PL_N <= '0' when LedCount(LedCount'high) = '0' else 'Z';
-Led1_PL_N <= 'Z';
-Led2_PL_N <= 'Z';
-Led3_PL_N <= 'Z';
-
--- ========== PS LEDs to Front Panel ==========
-
-IO4_D4_P <= PS_LED_P(0);
-IO4_D5_N <= PS_LED_P(1);
-
 -- ========== PL LEDs to Front Panel ==========
 
-IO4_D6_P <= PL_LED_P(0);
-IO4_D7_N <= PL_LED_P(1);
+IO4_D6_P <= PL_LED_P(1);
+IO4_D7_N <= PL_LED_P(0);
 
 -- Assemble SFP records
 SFP_i.SFP_LOS <= '0';  -- SFP LOS signal, as well as TX_FAULT, goes via the PIC - how are these read by the FPGA?
