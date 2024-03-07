@@ -337,7 +337,7 @@ if rising_edge(clk_i) then
                         goto_do_dma;
                     end if;
                 -- At least 1 TLP in available the queue
-                elsif (fifo_count >= AXI_BURST_LEN and writing_sample = '0') then
+                elsif (fifo_count >= AXI_BURST_LEN) then
                     goto_do_dma;
                 -- Position compare completed
                 elsif (pcap_completed = '1' and writing_sample = '0') then
