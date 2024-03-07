@@ -3,6 +3,7 @@ name: Code CI
 on:
   pull_request:
   push:
+  workflow_dispatch:
 
 jobs:
   make_boot:
