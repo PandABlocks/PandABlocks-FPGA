@@ -3,10 +3,11 @@
 --      Diamond Light Source, Oxford, UK
 --      SOLEIL Synchrotron, GIF-sur-YVETTE, France
 --
---  Author      : Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--  Author      :  Dr. Isa Uzun (isa.uzun@diamond.ac.uk)
+--                 Shu ZHANG
 --------------------------------------------------------------------------------
 --
---  Description : PandA Zynq Top-Level Design File
+--  Description : NAMC Zynq Top-Level Design File
 --
 --------------------------------------------------------------------------------
 
@@ -20,8 +21,9 @@ library work;
 --use work.support.all;
 use work.addr_defines.all; -- NEEDED?
 use work.top_defines.all;  -- NEEDED?
+-- use work.target_defines.all;
 
-entity PandABox_top is
+entity NamcZynq_top is
 generic (
     SIM                 : string  := "FALSE";
     AXI_ADDR_WIDTH      : integer := 32;
@@ -52,67 +54,93 @@ port (
     FIXED_IO_ps_porb    : inout std_logic;
     FIXED_IO_ps_srstb   : inout std_logic;
 
-    -- RS485 Channel 0 Encoder I/O
-    AM0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    BM0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    ZM0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    AS0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    BS0_PAD_IO          : inout std_logic_vector(3 downto 0);
-    ZS0_PAD_IO          : inout std_logic_vector(3 downto 0);
-
-    -- Discrete I/O
-    TTLIN_PAD_I         : in    std_logic_vector(5 downto 0);
-    TTLOUT_PAD_O        : out   std_logic_vector(9 downto 0);
-    LVDSIN_PAD_I        : in    std_logic_vector(1 downto 0);
-    LVDSOUT_PAD_O       : out   std_logic_vector(1 downto 0);
-
     -- On-board GTX Clock Resources
     GTXCLK0_P           : in    std_logic;
     GTXCLK0_N           : in    std_logic;
     GTXCLK1_P           : in    std_logic;
     GTXCLK1_N           : in    std_logic;
 
-    -- SFPT GTX I/O and GTX
-    SFP_TX_P            : out   std_logic_vector(2 downto 0) := "ZZZ";
-    SFP_TX_N            : out   std_logic_vector(2 downto 0) := "ZZZ";
-    SFP_RX_P            : in    std_logic_vector(2 downto 0);
-    SFP_RX_N            : in    std_logic_vector(2 downto 0);
-    SFP_TxDis           : out   std_logic_vector(1 downto 0) := "00";
-    SFP_LOS             : in    std_logic_vector(1 downto 0);
-
     -- FMC Differential IO and GTX
     FMC_DP0_C2M_P       : out   std_logic := 'Z';
     FMC_DP0_C2M_N       : out   std_logic := 'Z';
     FMC_DP0_M2C_P       : in    std_logic;
     FMC_DP0_M2C_N       : in    std_logic;
+    FMC_DP1_C2M_P       : out   std_logic := 'Z';
+    FMC_DP1_C2M_N       : out   std_logic := 'Z';
+    FMC_DP1_M2C_P       : in    std_logic;
+    FMC_DP1_M2C_N       : in    std_logic;
+    FMC_DP2_C2M_P       : out   std_logic := 'Z';
+    FMC_DP2_C2M_N       : out   std_logic := 'Z';
+    FMC_DP2_M2C_P       : in    std_logic;
+    FMC_DP2_M2C_N       : in    std_logic;
+    FMC_DP3_C2M_P       : out   std_logic := 'Z';
+    FMC_DP3_C2M_N       : out   std_logic := 'Z';
+    FMC_DP3_M2C_P       : in    std_logic;
+    FMC_DP3_M2C_N       : in    std_logic;
 
-    FMC_PRSNT           : in    std_logic;
+    --FMC_PRSNT           : in    std_logic; -- not routed on namc fpga
     FMC_LA_P            : inout std_logic_vector(33 downto 0) := (others => 'Z');
     FMC_LA_N            : inout std_logic_vector(33 downto 0) := (others => 'Z');
+    FMC_HA_P            : inout std_logic_vector(21 downto 0) := (others => 'Z');
+    FMC_HA_N            : inout std_logic_vector(21 downto 0) := (others => 'Z');
+    FMC_HB_P            : inout std_logic_vector(21 downto 0) := (others => 'Z');
+    FMC_HB_N            : inout std_logic_vector(21 downto 0) := (others => 'Z');
     FMC_CLK0_M2C_P      : inout std_logic := 'Z';
     FMC_CLK0_M2C_N      : inout std_logic := 'Z';
     FMC_CLK1_M2C_P      : in    std_logic;
     FMC_CLK1_M2C_N      : in    std_logic;
 
-    -- External Differential Clock (via front panel SMA)
-    EXTCLK_P            : in    std_logic;
-    EXTCLK_N            : in    std_logic;
+    -- AMC FAT PIPE IO
+    AMC4_7_MGTREFCLK0_P : in    std_logic;
+    AMC4_7_MGTREFCLK0_N : in    std_logic;
+    AMC4_7_MGTREFCLK1_P : in    std_logic;
+    AMC4_7_MGTREFCLK1_N : in    std_logic;
+    AMC_FP_TX4_P        : out   std_logic := 'Z';
+    AMC_FP_TX4_N        : out   std_logic := 'Z';
+    AMC_FP_RX4_P        : in    std_logic;
+    AMC_FP_RX4_N        : in    std_logic;
+    AMC_FP_TX5_P        : out   std_logic := 'Z';
+    AMC_FP_TX5_N        : out   std_logic := 'Z';
+    AMC_FP_RX5_P        : in    std_logic;
+    AMC_FP_RX5_N        : in    std_logic;
+    AMC_FP_TX6_P        : out   std_logic := 'Z';
+    AMC_FP_TX6_N        : out   std_logic := 'Z';
+    AMC_FP_RX6_P        : in    std_logic;
+    AMC_FP_RX6_N        : in    std_logic;
+    AMC_FP_TX7_P        : out   std_logic := 'Z';
+    AMC_FP_TX7_N        : out   std_logic := 'Z';
+    AMC_FP_RX7_P        : in    std_logic;
+    AMC_FP_RX7_N        : in    std_logic;
+    
+    AMC8_11_MGTREFCLK0_P: in    std_logic;
+    AMC8_11_MGTREFCLK0_N: in    std_logic;
+    AMC8_11_MGTREFCLK1_P: in    std_logic;
+    AMC8_11_MGTREFCLK1_N: in    std_logic;
+    AMC_FP_TX8_P        : out   std_logic := 'Z';
+    AMC_FP_TX8_N        : out   std_logic := 'Z';
+    AMC_FP_RX8_P        : in    std_logic;
+    AMC_FP_RX8_N        : in    std_logic; 
+    AMC_FP_TX9_P        : out   std_logic := 'Z';
+    AMC_FP_TX9_N        : out   std_logic := 'Z';
+    AMC_FP_RX9_P        : in    std_logic;
+    AMC_FP_RX9_N        : in    std_logic; 
+    AMC_FP_TX10_P        : out   std_logic := 'Z';
+    AMC_FP_TX10_N        : out   std_logic := 'Z';
+    AMC_FP_RX10_P        : in    std_logic;
+    AMC_FP_RX10_N        : in    std_logic; 
+    AMC_FP_TX11_P        : out   std_logic := 'Z';
+    AMC_FP_TX11_N        : out   std_logic := 'Z';
+    AMC_FP_RX11_P        : in    std_logic;
+    AMC_FP_RX11_N        : in    std_logic
 
-    -- Slow Controller Serial interface
-    SPI_SCLK_O          : out std_logic;
-    SPI_DAT_O           : out std_logic;
-    SPI_SCLK_I          : in  std_logic;
-    SPI_DAT_I           : in  std_logic
 );
-end PandABox_top;
+end NamcZynq_top;
 
-architecture rtl of PandABox_top is
+architecture rtl of NamcZynq_top is
 
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
-signal FCLK_CLK0_2X         : std_logic;
 signal FCLK_CLK0_PS         : std_logic;
-signal FCLK_CLK1_PS         : std_logic;
 signal FCLK_RESET0_N        : std_logic_vector(0 downto 0);
 signal FCLK_RESET0          : std_logic;
 
@@ -194,31 +222,6 @@ signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
 -- Top Level Signals
 signal bit_bus              : bit_bus_t := (others => '0');
 signal pos_bus              : pos_bus_t := (others => (others => '0'));
--- Daughter card control signals
-
--- Input Encoder
-signal inenc_val            : std32_array(ENC_NUM-1 downto 0);
-signal inenc_conn           : std_logic_vector(ENC_NUM-1 downto 0);
-signal inenc_a              : std_logic_vector(ENC_NUM-1 downto 0);
-signal inenc_b              : std_logic_vector(ENC_NUM-1 downto 0);
-signal inenc_z              : std_logic_vector(ENC_NUM-1 downto 0);
-signal inenc_data           : std_logic_vector(ENC_NUM-1 downto 0);
-signal INENC_PROTOCOL       : std32_array(ENC_NUM-1 downto 0);
-signal INENC_PROTOCOL_WSTB  : std_logic_vector(ENC_NUM-1 downto 0);
-
--- Output Encoder
-signal outenc_clk           : std_logic_vector(ENC_NUM-1 downto 0);
-signal outenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
-signal OUTENC_PROTOCOL      : std32_array(ENC_NUM-1 downto 0);
-signal OUTENC_PROTOCOL_WSTB : std_logic_vector(ENC_NUM-1 downto 0);
-
-
--- Discrete Block Outputs :
-signal ttlin_val            : std_logic_vector(TTLIN_NUM-1 downto 0);
-signal TTLIN_TERM           : std32_array(TTLIN_NUM-1 downto 0);
-signal TTLIN_TERM_WSTB      : std_logic_vector(TTLIN_NUM-1 downto 0);
-signal ttlout_val           : std_logic_vector(TTLOUT_NUM-1 downto 0);
-signal lvdsin_val           : std_logic_vector(LVDSIN_NUM-1 downto 0);
 
 signal pcap_active          : std_logic_vector(0 downto 0);
 
@@ -231,71 +234,144 @@ signal rdma_data            : std_logic_vector(31 downto 0);
 signal rdma_valid           : std_logic_vector(5 downto 0);
 
 signal SLOW_FPGA_VERSION    : std_logic_vector(31 downto 0);
-signal DCARD_MODE           : std32_array(ENC_NUM-1 downto 0);
+
+signal q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
 
 signal SFP_MAC_ADDR_ARR     : std32_array(2*NUM_SFP-1 downto 0);
 signal FMC_MAC_ADDR_ARR     : std32_array(2*NUM_FMC-1 downto 0);
-
-signal SFP_TS_SEC           : std32_array(NUM_SFP-1 downto 0);
-signal SFP_TS_TICKS         : std32_array(NUM_SFP-1 downto 0);
-signal TS_SEC               : std_logic_vector(31 downto 0);
-signal TS_TICKS             : std_logic_vector(31 downto 0);
-signal ts_src               : std_logic_vector(1 downto 0);
-signal pcap_start_event     : std_logic;
 
 -- FMC Block
 signal FMC_i  : FMC_input_interface;
 signal FMC_o  : FMC_output_interface := FMC_o_init;
 signal FMC_io : FMC_inout_interface  := FMC_io_init;
+signal q0_clk0_fmc_gtrefclk, q0_clk1_fmc_gtrefclk:   std_logic;
 
--- SFP Block
-signal SFP1_i : SFP_input_interface;
-signal SFP1_o : SFP_output_interface := SFP_o_init;
-signal SFP2_i : SFP_input_interface;
-signal SFP2_o : SFP_output_interface := SFP_o_init;
-signal SFP3_i : SFP_input_interface;
-signal SFP3_o : SFP_output_interface := SFP_o_init;
+-- AMC Block
+signal AMC_i  : AMC_input_interface;
+signal AMC_o  : AMC_output_interface := AMC_o_init; 
+signal AMC4_7_MGTREFCLK0, AMC4_7_MGTREFCLK1, AMC8_11_MGTREFCLK0, AMC8_11_MGTREFCLK1:   std_logic;
 
-signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
 attribute syn_noclockbuf : boolean;
 attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
-signal EXTCLK : std_logic;
 
-signal sma_pll_locked       : std_logic;
-signal clk_src_sel          : std_logic_vector(1 downto 0);
-signal clk_sel_stat         : std_logic_vector(1 downto 0);
+attribute syn_noclockbuf of q0_clk0_fmc_gtrefclk : signal is true;
+attribute syn_noclockbuf of q0_clk1_fmc_gtrefclk : signal is true;
+
+attribute syn_noclockbuf of AMC4_7_MGTREFCLK0 : signal is true;
+attribute syn_noclockbuf of AMC4_7_MGTREFCLK1 : signal is true;
+attribute syn_noclockbuf of AMC8_11_MGTREFCLK0 : signal is true;
+attribute syn_noclockbuf of AMC8_11_MGTREFCLK1 : signal is true;
+signal EXTCLK : std_logic;
+signal FMC_PRSNT : std_logic;
 
 attribute IO_BUFFER_TYPE : string;
-attribute IO_BUFFER_TYPE of SFP_TX_P : signal is "none";
-attribute IO_BUFFER_TYPE of SFP_TX_N : signal is "none";
 attribute IO_BUFFER_TYPE of FMC_DP0_C2M_N : signal is "none";
 attribute IO_BUFFER_TYPE of FMC_DP0_C2M_P : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP1_C2M_N : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP1_C2M_P : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP2_C2M_N : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP2_C2M_P : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP3_C2M_N : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP3_C2M_P : signal is "none";
 
--- Make schematics a bit more clear for analysis
---attribute keep              : string; -- GBC removed following three lines 14/09/18
---attribute keep of bit_bus    : signal is "true";
---attribute keep of pos_bus    : signal is "true";
+attribute IO_BUFFER_TYPE of AMC_FP_TX4_P  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX4_N  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX5_P  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX5_N  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX6_P  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX6_N  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX7_P  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX7_N  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX8_P  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX8_N  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX9_P  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX9_N  : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX10_P : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX10_N : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX11_P : signal is "none";
+attribute IO_BUFFER_TYPE of AMC_FP_TX11_N : signal is "none";
 
 begin
 
 -- Internal clocks and resets
 FCLK_RESET0 <= not FCLK_RESET0_N(0);
 
---------------------------------------------------------------------------
--- Instantiate differential clock buffers
---------------------------------------------------------------------------
-IBUFGDS_EXT : IBUFGDS
-generic map (
-    DIFF_TERM   => FALSE,
-    IOSTANDARD  => "LVDS_25"
-)
-port map (
-    O           => EXTCLK,
-    I           => EXTCLK_P,
-    IB          => EXTCLK_N
-);
+---------------------------------------------------------------------------
+-- Clocking buffers instantiation
+---------------------------------------------------------------------------
+---- AMC MGT clocks
+---------------------------------------------------------------------------
+--IBUFDS_GTE2
+    ibufds_instq0_clk0_amc : IBUFDS_GTE2
+    port map
+    (
+        O               =>      AMC4_7_MGTREFCLK0,
+        ODIV2           =>      open,
+        CEB             =>      '0',
+        I               =>      AMC4_7_MGTREFCLK0_P,
+        IB              =>      AMC4_7_MGTREFCLK0_N
+    );
 
+--IBUFDS_GTE2
+    ibufds_instq0_clk1_amc : IBUFDS_GTE2
+    port map
+    (
+        O               =>      AMC4_7_MGTREFCLK1,
+        ODIV2           =>      open,
+        CEB             =>      '0',
+        I               =>      AMC4_7_MGTREFCLK1_P,
+        IB              =>      AMC4_7_MGTREFCLK1_N
+    );
+    
+--IBUFDS_GTE2
+    ibufds_instq0_clk2_amc : IBUFDS_GTE2
+    port map
+    (
+        O               =>      AMC8_11_MGTREFCLK0,
+        ODIV2           =>      open,
+        CEB             =>      '0',
+        I               =>      AMC8_11_MGTREFCLK0_P,
+        IB              =>      AMC8_11_MGTREFCLK0_N
+    );
+
+--IBUFDS_GTE2
+    ibufds_instq0_clk3_amc : IBUFDS_GTE2
+    port map
+    (
+        O               =>      AMC8_11_MGTREFCLK1,
+        ODIV2           =>      open,
+        CEB             =>      '0',
+        I               =>      AMC8_11_MGTREFCLK1_P,
+        IB              =>      AMC8_11_MGTREFCLK1_N
+    );
+    
+---------------------------------------------------------------------------
+---- FMC clocks
+---------------------------------------------------------------------------
+----IBUFDS_GTE2
+--    ibufds_instq0_clk0_fmc : IBUFDS_GTE2
+--    port map
+--    (
+--        O               =>      q0_clk0_fmc_gtrefclk,
+--        ODIV2           =>      open,
+--        CEB             =>      '0',
+--        I               =>      FMC_CLK0_M2C_P,
+--        IB              =>      FMC_CLK0_M2C_N
+--    );
+----IBUFDS_GTE2
+--    ibufds_instq0_clk1_fmc : IBUFDS_GTE2
+--    port map
+--    (
+--        O               =>      q0_clk1_fmc_gtrefclk,
+--        ODIV2           =>      open,
+--        CEB             =>      '0',
+--        I               =>      FMC_CLK1_M2C_P,
+--        IB              =>      FMC_CLK1_M2C_N
+--    );
+---------------------------------------------------------------------------
+---- on board clocks
+---------------------------------------------------------------------------
 --IBUFDS_GTE2
     ibufds_instq0_clk0 : IBUFDS_GTE2
     port map
@@ -304,9 +380,8 @@ port map (
         ODIV2           =>      open,
         CEB             =>      '0',
         I               =>      GTXCLK0_P,
-        IB              =>      GTXCLK0_N
+        IB              =>      GTXCLK0_N 
     );
-
 --IBUFDS_GTE2
     ibufds_instq0_clk1 : IBUFDS_GTE2
     port map
@@ -315,45 +390,24 @@ port map (
         ODIV2           =>      open,
         CEB             =>      '0',
         I               =>      GTXCLK1_P,
-        IB              =>      GTXCLK1_N
+        IB              =>      GTXCLK1_N 
     );
 
-idelayctrl_inst : IDELAYCTRL port map (
-    REFCLK  => FCLK_CLK1_PS,
-    RST     => FCLK_RESET0,
-    RDY     => open
-);
 
---Clock Mux
+--mmcm_clkmux_inst: entity work.mmcm_clkmux
+--port map(
+--    fclk_clk0_ps_i      => FCLK_CLK0_PS,
+--    sma_clk_in1         => '0',
+--    rxoutclk_i          => '0',
+--    ext_clock_i         => clk_src_sel,
+--    linkup_i             => '0',
+--    sma_pll_locked_o    => sma_pll_locked,
+--    clk_sel_stat_o        => clk_sel_stat,
+--    fclk_clk0_o         => FCLK_CLK0
+--);
 
-mmcm_clkmux_inst: entity work.mmcm_clkmux
-port map(
-    fclk_clk0_ps_i      => FCLK_CLK0_PS,
-    sma_clk_i           => EXTCLK,
-    mgt_rec_clk_i       => SFP3_o.MGT_REC_CLK,
-    clk_sel_i           => clk_src_sel,
-    sfp_los_i           => SFP3_i.SFP_LOS,
-    sma_pll_locked_o    => sma_pll_locked,
-    clk_sel_stat_o      => clk_sel_stat,
-    fclk_clk0_o         => FCLK_CLK0,
-    fclk_clk0_2x_o      => FCLK_CLK0_2X
-);
-
--- Timestamp Mux
-
-ts_mux_inst: entity work.ts_mux
-generic map(
-    NUM_SFP => NUM_SFP
-)
-port map(
-    clk_i => FCLK_CLK0,
-    ts_src_i => ts_src,
-    latch_en_i => pcap_start_event,
-    ts_sec_i => SFP_TS_SEC,
-    ts_ticks_i => SFP_TS_TICKS,
-    ts_sec_o => TS_SEC,
-    ts_ticks_o => TS_TICKS
-);
+FCLK_CLK0 <= FCLK_CLK0_PS;
+EXTCLK    <= '0';
 
 ---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
@@ -361,8 +415,6 @@ port map(
 ps : entity work.panda_ps
 port map (
     FCLK_CLK0                   => FCLK_CLK0_PS,
-    -- 200 MHZ reference clock
-    FCLK_CLK1                   => FCLK_CLK1_PS,
     PL_CLK                      => FCLK_CLK0,
     FCLK_RESET0_N               => FCLK_RESET0_N,
 
@@ -496,141 +548,6 @@ port map (
 );
 
 ---------------------------------------------------------------------------
--- TTL
----------------------------------------------------------------------------
-ttlin_inst : entity work.ttlin_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-
-    pad_i               => TTLIN_PAD_I,
-    val_o               => ttlin_val,
-
-    read_strobe_i       => read_strobe(TTLIN_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(TTLIN_CS),
-    read_ack_o          => read_ack(TTLIN_CS),
-
-    write_strobe_i      => write_strobe(TTLIN_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(TTLIN_CS),
-
-    bit_bus_i           => bit_bus,
-    pos_bus_i           => pos_bus,
-    TTLIN_TERM_o        => TTLIN_TERM,
-    TTLIN_TERM_WSTB_o   => TTLIN_TERM_WSTB
-);
-
-ttlout_inst : entity work.ttlout_top
-port map (
-    clk_i               => FCLK_CLK0,
-    clk_2x_i            => FCLK_CLK0_2X,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(TTLOUT_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(TTLOUT_CS),
-    read_ack_o          => read_ack(TTLOUT_CS),
-
-    write_strobe_i      => write_strobe(TTLOUT_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(TTLOUT_CS),
-
-    bit_bus_i           => bit_bus,
-    val_o               => ttlout_val,
-    pad_o               => TTLOUT_PAD_O
-);
-
----------------------------------------------------------------------------
--- LVDS
----------------------------------------------------------------------------
-lvdsin_inst : entity work.lvdsin_top
-port map (
-    clk_i               => FCLK_CLK0,
-    pad_i               => LVDSIN_PAD_I,
-    val_o               => lvdsin_val
-);
-
-lvdsout_inst : entity work.lvdsout_top
-port map (
-    clk_i               => FCLK_CLK0,
-    clk_2x_i            => FCLK_CLK0_2X,
-    reset_i             => FCLK_RESET0,
-
-    read_strobe_i       => read_strobe(LVDSOUT_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(LVDSOUT_CS),
-    read_ack_o          => read_ack(LVDSOUT_CS),
-
-    write_strobe_i      => write_strobe(LVDSOUT_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(LVDSOUT_CS),
-
-    bit_bus_i           => bit_bus,
-    pad_o               => LVDSOUT_PAD_O
-);
-
-
------------------------------------------------------------------------------
----- ENCODERS (Encoder Inputs)
------------------------------------------------------------------------------
-encoders_top_inst : entity work.encoders_top
-port map (
-    -- Clock and Reset
-    clk_i                   => FCLK_CLK0,
-    reset_i                 => FCLK_RESET0,
-    -- Memory Bus Interface
-    OUTENC_read_strobe_i    =>read_strobe(OUTENC_CS),
-    OUTENC_read_data_o      =>read_data(OUTENC_CS),
-    OUTENC_read_ack_o       =>read_ack(OUTENC_CS),
-
-    OUTENC_write_strobe_i   =>write_strobe(OUTENC_CS),
-    OUTENC_write_ack_o      =>write_ack(OUTENC_CS),
-
-    INENC_read_strobe_i     =>read_strobe(INENC_CS),
-    INENC_read_data_o       =>read_data(INENC_CS),
-    INENC_read_ack_o        =>read_ack(INENC_CS),
-    INENC_write_strobe_i    =>write_strobe(INENC_CS),
-    INENC_write_ack_o       =>write_ack(INENC_CS),
-    read_address_i          =>read_address,
-
-    write_address_i         =>write_address,
-    write_data_i            =>write_data,
-    -- Encoder I/O Pads
-    OUTENC_CONN_OUT_o       =>outenc_conn,
-
-    INENC_CONN_OUT_o        =>inenc_conn,
-
-    Am0_pad_io              => AM0_PAD_IO,
-    Bm0_pad_io              => BM0_PAD_IO,
-    Zm0_pad_io              => ZM0_PAD_IO,
-    As0_pad_io              => AS0_PAD_IO,
-    Bs0_pad_io              => BS0_PAD_IO,
-    Zs0_pad_io              => ZS0_PAD_IO,
-
-    -- Signals passed to internal bus
-    clk_int_o               =>outenc_clk,
-    inenc_a_o               =>inenc_a,
-    inenc_b_o               =>inenc_b,
-    inenc_z_o               =>inenc_z,
-    inenc_data_o            =>inenc_data,
-    -- Block Input and Outputs
-    bit_bus_i               =>bit_bus,
-    pos_bus_i               =>pos_bus,
-    DCARD_MODE_i            =>DCARD_MODE,
-    posn_o                  =>inenc_val,
-
-    OUTENC_PROTOCOL_o       => OUTENC_PROTOCOL,
-    OUTENC_PROTOCOL_WSTB_o  => OUTENC_PROTOCOL_WSTB,
-    INENC_PROTOCOL_o        => INENC_PROTOCOL,
-    INENC_PROTOCOL_WSTB_o   => INENC_PROTOCOL_WSTB
-);
-
-
----------------------------------------------------------------------------
 -- POSITION CAPTURE
 ---------------------------------------------------------------------------
 pcap_inst : entity work.pcap_top
@@ -675,8 +592,7 @@ port map (
     bit_bus_i           => bit_bus,
     pos_bus_i           => pos_bus,
     pcap_actv_o         => pcap_active(0),
-    pcap_irq_o          => IRQ_F2P(0),
-    pcap_start_event_o  => pcap_start_event
+    pcap_irq_o          => IRQ_F2P(0)
 );
 
 
@@ -740,122 +656,99 @@ port map (
     bit_bus_i           => bit_bus,
     pos_bus_i           => pos_bus,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
-    TS_SEC              => TS_SEC,
-    TS_TICKS            => TS_TICKS,
     SFP_MAC_ADDR        => SFP_MAC_ADDR_ARR,
     SFP_MAC_ADDR_WSTB   => open,
     FMC_MAC_ADDR        => FMC_MAC_ADDR_ARR,
     FMC_MAC_ADDR_WSTB   => open
 );
 
----------------------------------------------------------------------------
--- SYSTEM FPGA
----------------------------------------------------------------------------
-system_inst : entity work.system_top
-port map (
-    clk_i               => FCLK_CLK0,
-    reset_i             => FCLK_RESET0,
-    -- Memory Bus Interface
-    read_strobe_i       => read_strobe(SYSTEM_CS),
-    read_address_i      => read_address,
-    read_data_o         => read_data(SYSTEM_CS),
-    read_ack_o          => read_ack(SYSTEM_CS),
-    write_strobe_i      => write_strobe(SYSTEM_CS),
-    write_address_i     => write_address,
-    write_data_i        => write_data,
-    write_ack_o         => write_ack(SYSTEM_CS),
-    -- Digital I/O Interface
-    ttlin_i             => ttlin_val,
-    ttlout_i            => ttlout_val,
-    inenc_conn_i        => inenc_conn,
-    outenc_conn_i       => outenc_conn,
-    pcap_act_i          => pcap_active(0),
-    -- Block Input and Outputs
-    OUTENC_PROT_i       => OUTENC_PROTOCOL,
-    OUTENC_PROT_WSTB_i  => OUTENC_PROTOCOL_WSTB,
-    INENC_PROT_i        => INENC_PROTOCOL,
-    INENC_PROT_WSTB_i   => INENC_PROTOCOL_WSTB,
-    TTLIN_TERM_i        => TTLIN_TERM,
-    TTLIN_TERM_WSTB_i   => TTLIN_TERM_WSTB,
-    SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
-    DCARD_MODE_o          => DCARD_MODE,
-    -- Serial Physical interface
-    spi_sclk_o          => SPI_SCLK_O,
-    spi_dat_o           => SPI_DAT_O,
-    spi_sclk_i          => SPI_SCLK_I,
-    spi_dat_i           => SPI_DAT_I,
-    -- External clock
-    ext_clk_i           => EXTCLK,
-    sma_pll_locked_i    => sma_pll_locked,
-    clock_src_o         => clk_src_sel,
-    ts_src_o            => ts_src,
-    clk_sel_stat_i      => clk_sel_stat
-);
 
 -- Bus assembly ----
 
 -- BIT_BUS_SIZE and POS_BUS_SIZE declared in addr_defines.vhd
 
-bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
-                                   inenc_data & inenc_z & inenc_b & inenc_a &
-                                   lvdsin_val & ttlin_val;
+--bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
+--                                   inenc_data & inenc_z & inenc_b & inenc_a &
+--                                   lvdsin_val & ttlin_val;
 
-pos_bus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
+bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active;
 
+--pos_bus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
+
+FMC_PRSNT <= '1'; -- FMC_PRSNT not routed on fpga
 -- Assemble FMC records
-FMC_i.EXTCLK <= EXTCLK;
-FMC_i.FMC_PRSNT <= FMC_PRSNT;
-FMC_io.FMC_LA_P <= FMC_LA_P;
-FMC_io.FMC_LA_N <= FMC_LA_N;
-FMC_io.FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P;
-FMC_io.FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N;
-FMC_i.FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P;
-FMC_i.FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N;
-FMC_i.GTREFCLK(0) <= q0_clk1_gtrefclk;
-FMC_DP0_C2M_P <= FMC_o.TXP_OUT(0);
-FMC_DP0_C2M_N <= FMC_o.TXN_OUT(0);
-FMC_i.RXP_IN(0) <= FMC_DP0_M2C_P;
-FMC_i.RXN_IN(0) <= FMC_DP0_M2C_N;
-FMC_i.MAC_ADDR <= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
-FMC_i.MAC_ADDR_WS <= '0';
+FMC_i.EXTCLK            <= EXTCLK;
+FMC_i.FMC_PRSNT         <= FMC_PRSNT;
+FMC_io.FMC_LA_P         <= FMC_LA_P;
+FMC_io.FMC_LA_N         <= FMC_LA_N;
+FMC_io.FMC_HA_P         <= FMC_HA_P;
+FMC_io.FMC_HA_N         <= FMC_HA_N;
+FMC_io.FMC_HB_P         <= FMC_HB_P;
+FMC_io.FMC_HB_N         <= FMC_HB_N;
+FMC_DP0_C2M_P           <= FMC_o.TXP_OUT(0);
+FMC_DP0_C2M_N           <= FMC_o.TXN_OUT(0);
+FMC_DP1_C2M_P           <= FMC_o.TXP_OUT(1);
+FMC_DP1_C2M_N           <= FMC_o.TXN_OUT(1);
+FMC_DP2_C2M_P           <= FMC_o.TXP_OUT(2);
+FMC_DP2_C2M_N           <= FMC_o.TXN_OUT(2);
+FMC_DP3_C2M_P           <= FMC_o.TXP_OUT(3);
+FMC_DP3_C2M_N           <= FMC_o.TXN_OUT(3);
+FMC_i.RXP_IN(0)         <= FMC_DP0_M2C_P;
+FMC_i.RXN_IN(0)         <= FMC_DP0_M2C_N;
+FMC_i.RXP_IN(1)         <= FMC_DP1_M2C_P;
+FMC_i.RXN_IN(1)         <= FMC_DP1_M2C_N;
+FMC_i.RXP_IN(2)         <= FMC_DP2_M2C_P;
+FMC_i.RXN_IN(2)         <= FMC_DP2_M2C_N;
+FMC_i.RXP_IN(3)         <= FMC_DP3_M2C_P;
+FMC_i.RXN_IN(3)         <= FMC_DP3_M2C_N;
+FMC_io.FMC_CLK0_M2C_P   <= FMC_CLK0_M2C_P;
+FMC_io.FMC_CLK0_M2C_N   <= FMC_CLK0_M2C_N;
+FMC_i.FMC_CLK1_M2C_P    <= FMC_CLK1_M2C_P;
+FMC_i.FMC_CLK1_M2C_N    <= FMC_CLK1_M2C_N;
+FMC_i.GTREFCLK(0)       <= q0_clk0_gtrefclk; --q0_clk0_fmc_gtrefclk;
+FMC_i.GTREFCLK(1)       <= q0_clk1_gtrefclk;
+FMC_i.MAC_ADDR          <= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
+FMC_i.MAC_ADDR_WS       <= '0';
 
--- Assemble SFP records
--- NB: SFPs 1 and 3 are switched around to mirror front panel connections
-SFP1_i.SFP_LOS <= '0';  -- NB: Hard-coded to '0' as not brought out onto pin!
-SFP1_i.GTREFCLK <= q0_clk0_gtrefclk;
-SFP1_i.RXN_IN <= SFP_RX_N(2);
-SFP1_i.RXP_IN <= SFP_RX_P(2);
-SFP_TX_N(2) <= SFP1_o.TXN_OUT;
-SFP_TX_P(2) <= SFP1_o.TXP_OUT;
-SFP_TS_SEC(0) <= SFP1_o.TS_SEC;
-SFP_TS_TICKS(0) <= SFP1_o.TS_TICKS;
-SFP1_i.MAC_ADDR <= SFP_MAC_ADDR_ARR(1)(23 downto 0) & SFP_MAC_ADDR_ARR(0)(23 downto 0);
-SFP1_i.MAC_ADDR_WS <= '0';
-SFP1_i.MGT_CLK_SEL <= clk_src_sel(1);
+-- Assemble AMC records
+AMC_i.FP_RXP_IN(0)      <= AMC_FP_RX4_P;
+AMC_i.FP_RXN_IN(0)      <= AMC_FP_RX4_N;
+AMC_i.FP_RXP_IN(1)      <= AMC_FP_RX5_P;
+AMC_i.FP_RXN_IN(1)      <= AMC_FP_RX5_N;
+AMC_i.FP_RXP_IN(2)      <= AMC_FP_RX6_P;
+AMC_i.FP_RXN_IN(2)      <= AMC_FP_RX6_N;
+AMC_i.FP_RXP_IN(3)      <= AMC_FP_RX7_P;
+AMC_i.FP_RXN_IN(3)      <= AMC_FP_RX7_N;
+AMC_i.FP_RXP_IN(4)      <= AMC_FP_RX8_P;
+AMC_i.FP_RXN_IN(4)      <= AMC_FP_RX8_N;
+AMC_i.FP_RXP_IN(5)      <= AMC_FP_RX9_P;
+AMC_i.FP_RXN_IN(5)      <= AMC_FP_RX9_N;
+AMC_i.FP_RXP_IN(6)      <= AMC_FP_RX10_P;
+AMC_i.FP_RXN_IN(6)      <= AMC_FP_RX10_N;
+AMC_i.FP_RXP_IN(7)      <= AMC_FP_RX11_P;
+AMC_i.FP_RXN_IN(7)      <= AMC_FP_RX11_N;
 
-SFP2_i.SFP_LOS <= SFP_LOS(1);
-SFP2_i.GTREFCLK <= q0_clk0_gtrefclk;
-SFP2_i.RXN_IN <= SFP_RX_N(1);
-SFP2_i.RXP_IN <= SFP_RX_P(1);
-SFP_TX_N(1) <= SFP2_o.TXN_OUT;
-SFP_TX_P(1) <= SFP2_o.TXP_OUT;
-SFP_TS_SEC(1) <= SFP2_o.TS_SEC;
-SFP_TS_TICKS(1) <= SFP2_o.TS_TICKS;
-SFP2_i.MAC_ADDR <= SFP_MAC_ADDR_ARR(3)(23 downto 0) & SFP_MAC_ADDR_ARR(2)(23 downto 0);
-SFP2_i.MAC_ADDR_WS <= '0';
-SFP2_i.MGT_CLK_SEL <= clk_src_sel(1);
+AMC_i.FP_GTREFCLK(0)    <= AMC4_7_MGTREFCLK0;
+AMC_i.FP_GTREFCLK(1)    <= AMC4_7_MGTREFCLK1;
+AMC_i.FP_GTREFCLK(2)    <= AMC8_11_MGTREFCLK0;
+AMC_i.FP_GTREFCLK(3)    <= AMC8_11_MGTREFCLK1;
 
-SFP3_i.SFP_LOS <= SFP_LOS(0);
-SFP3_i.GTREFCLK <= q0_clk0_gtrefclk;
-SFP3_i.RXN_IN <= SFP_RX_N(0);
-SFP3_I.RXP_IN <= SFP_RX_P(0);
-SFP_TX_N(0) <= SFP3_o.TXN_OUT;
-SFP_TX_P(0) <= SFP3_o.TXP_OUT;
-SFP_TS_SEC(2) <= SFP3_o.TS_SEC;
-SFP_TS_TICKS(2) <= SFP3_o.TS_TICKS;
-SFP3_i.MAC_ADDR <= SFP_MAC_ADDR_ARR(5)(23 downto 0) & SFP_MAC_ADDR_ARR(4)(23 downto 0);
-SFP3_i.MAC_ADDR_WS <= '0';
-SFP3_i.MGT_CLK_SEL <= clk_src_sel(1);
+AMC_FP_TX4_P            <= AMC_o.FP_TXP_OUT(0);
+AMC_FP_TX4_N            <= AMC_o.FP_TXN_OUT(0);
+AMC_FP_TX5_P            <= AMC_o.FP_TXP_OUT(1);
+AMC_FP_TX5_N            <= AMC_o.FP_TXN_OUT(1);
+AMC_FP_TX6_P            <= AMC_o.FP_TXP_OUT(2);
+AMC_FP_TX6_N            <= AMC_o.FP_TXN_OUT(2);
+AMC_FP_TX7_P            <= AMC_o.FP_TXP_OUT(3);
+AMC_FP_TX7_N            <= AMC_o.FP_TXN_OUT(3);
+AMC_FP_TX8_P            <= AMC_o.FP_TXP_OUT(4);
+AMC_FP_TX8_N            <= AMC_o.FP_TXN_OUT(4);
+AMC_FP_TX9_P            <= AMC_o.FP_TXP_OUT(5);
+AMC_FP_TX9_N            <= AMC_o.FP_TXN_OUT(5);
+AMC_FP_TX10_P           <= AMC_o.FP_TXP_OUT(6);
+AMC_FP_TX10_N           <= AMC_o.FP_TXN_OUT(6);
+AMC_FP_TX11_P           <= AMC_o.FP_TXP_OUT(7);
+AMC_FP_TX11_N           <= AMC_o.FP_TXN_OUT(7);
 
 ---------------------------------------------------------------------------
 -- PandABlocks_top Instantiation (autogenerated!!)
@@ -864,36 +757,32 @@ SFP3_i.MGT_CLK_SEL <= clk_src_sel(1);
 softblocks_inst : entity work.soft_blocks
 generic map( SIM => SIM)
 port map(
-    FCLK_CLK0 => FCLK_CLK0,
-    FCLK_RESET0 => FCLK_RESET0,
-    read_strobe => read_strobe,
-    read_address => read_address,
-    read_data => read_data(MOD_COUNT-1 downto CARRIER_MOD_COUNT),
-    read_ack => read_ack(MOD_COUNT-1 downto CARRIER_MOD_COUNT),
-    write_strobe => write_strobe,
-    write_address => write_address,
-    write_data => write_data,
-    write_ack => write_ack(MOD_COUNT-1 downto CARRIER_MOD_COUNT),
-    bit_bus_i => bit_bus,
-    bit_bus_o => bit_bus(BBUSW-1 downto BIT_BUS_SIZE),
-    pos_bus_i => pos_bus,
-    pos_bus_o => pos_bus(PBUSW-1 downto POS_BUS_SIZE),
-    rdma_req => rdma_req,
-    rdma_ack => rdma_ack,
-    rdma_done => rdma_done,
-    rdma_addr => rdma_addr,
-    rdma_len => rdma_len,
-    rdma_data => rdma_data,
-    rdma_valid => rdma_valid,
-    FMC_i => FMC_i,
-    FMC_io => FMC_io,
-    FMC_o => FMC_o,
-    SFP1_i => SFP1_i,
-    SFP1_o => SFP1_o,
-    SFP2_i => SFP2_i,
-    SFP2_o => SFP2_o,
-    SFP3_i => SFP3_i,
-    SFP3_o => SFP3_o
+    FCLK_CLK0       => FCLK_CLK0,
+    FCLK_RESET0     => FCLK_RESET0,
+    read_strobe     => read_strobe,
+    read_address    => read_address,
+    read_data       => read_data(MOD_COUNT-1 downto CARRIER_MOD_COUNT),
+    read_ack        => read_ack(MOD_COUNT-1 downto CARRIER_MOD_COUNT),
+    write_strobe    => write_strobe,
+    write_address   => write_address,
+    write_data      => write_data,
+    write_ack       => write_ack(MOD_COUNT-1 downto CARRIER_MOD_COUNT),
+    bit_bus_i       => bit_bus,
+    bit_bus_o       => bit_bus(BBUSW-1 downto BIT_BUS_SIZE),
+    pos_bus_i       => pos_bus,
+    pos_bus_o       => pos_bus(PBUSW-1 downto POS_BUS_SIZE),
+    rdma_req        => rdma_req,
+    rdma_ack        => rdma_ack,
+    rdma_done       => rdma_done,
+    rdma_addr       => rdma_addr,
+    rdma_len        => rdma_len,
+    rdma_data       => rdma_data,
+    rdma_valid      => rdma_valid,
+    FMC_i           => FMC_i,
+    FMC_io          => FMC_io,
+    FMC_o           => FMC_o,
+    AMC_i           => AMC_i,
+    AMC_o           => AMC_o    
 );
 
 end rtl;
