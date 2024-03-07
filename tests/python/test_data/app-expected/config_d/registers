@@ -42,9 +42,9 @@ BLOCKS_COMPAT_VERSION = 0
 
     # Hardware timestamps
     # This starts at unix epoch (UTC)
-    PCAP_TS_SEC             10
+    PCAP_TS_SEC             opt 10
     # Ticks since PCAP_TS_SEC was updated
-    PCAP_TS_TICKS           11
+    PCAP_TS_TICKS           opt 11
 
     # Position capture control
     PCAP_ARM                13
