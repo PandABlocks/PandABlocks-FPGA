@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SYSTEM - System control FPGA &mdash; PandABlocks-FPGA 3.0-2-g1e650e9
+  <title>SYSTEM - System control FPGA &mdash; PandABlocks-FPGA 3.0-5-g522fe84
  documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css" />
+
+  
     <link rel="shortcut icon" href="../_static/PandA-logo.ico"/>
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
@@ -40,7 +42,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0-2-g1e650e9
+                3.0-5-g522fe84
 
               </div>
 <div role="search">
@@ -317,15 +319,26 @@
 </div>
 </p></td>
 </tr>
-<tr class="row-even"><td><p>EXT_CLOCK_FREQ</p></td>
+<tr class="row-even"><td><p>TIMESTAMP_SOURCE</p></td>
+<td><p>param enum</p></td>
+<td><p><div class="line-block">
+<div class="line">Source for hardware timestamp</div>
+<div class="line">0   None</div>
+<div class="line">1   sfp1</div>
+<div class="line">2   sfp2</div>
+<div class="line">3   sfp3</div>
+</div>
+</p></td>
+</tr>
+<tr class="row-odd"><td><p>EXT_CLOCK_FREQ</p></td>
 <td><p>read</p></td>
 <td><p>External clock freq</p></td>
 </tr>
-<tr class="row-odd"><td><p>VCCINT</p></td>
+<tr class="row-even"><td><p>VCCINT</p></td>
 <td><p>read scalar</p></td>
 <td><p>On-board voltage sensor</p></td>
 </tr>
-<tr class="row-even"><td><p>CLK_SEL_STAT</p></td>
+<tr class="row-odd"><td><p>CLK_SEL_STAT</p></td>
 <td><p>read enum</p></td>
 <td><p><div class="line-block">
 <div class="line">Clock Source Read-back</div>
@@ -335,7 +348,7 @@
 </div>
 </p></td>
 </tr>
-<tr class="row-odd"><td><p>HEALTH</p></td>
+<tr class="row-even"><td><p>HEALTH</p></td>
 <td><p>read enum</p></td>
 <td><p><div class="line-block">
 <div class="line">Error status</div>
