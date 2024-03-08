@@ -2,8 +2,9 @@ name: Code CI
 
 on:
   pull_request:
+    types: [opened, edited]
   push:
-
+    branches: [master]
 
 jobs:
   make_boot:
