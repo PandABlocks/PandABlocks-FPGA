@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, edited]
   push:
-    branches: [master]
+    branches: [master, main]
 
 jobs:
   make_boot:
