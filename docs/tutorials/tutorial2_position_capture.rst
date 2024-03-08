@@ -46,7 +46,7 @@ the contents of the Bits and Positions tables. For Bits you can turn capture
 choice of:
 
 ============== =======================
-Capture        Description
+**Capture**    **Description**
 -------------- -----------------------
 No             Don't capture
 Value          Instantaneous capture at time of trigger
