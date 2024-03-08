@@ -2,7 +2,7 @@ name: Code CI
 
 on:
   pull_request:
-    types: [opened, edited]
+    types: [opened, edited, synchronize]
   push:
     branches: [master]
 
