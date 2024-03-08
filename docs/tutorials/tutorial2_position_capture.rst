@@ -91,7 +91,7 @@ the commandline to check::
    $ nc <panda-ip> 8889
 
 Here we could specify binary output and header format, but we'll just stick
-with the default ASCII output (the default). Press Return again, and we will
+with the default ASCII output. Press Return again, and we will
 see::
 
    OK
