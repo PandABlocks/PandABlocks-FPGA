@@ -322,7 +322,7 @@ jobs:
   
   undo:
     needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
-    run-on: ubuntu-latest
+    runs-on: ubuntu-latest
     if: ${{ always() && failure() }}
     steps:
       # Git repositories
