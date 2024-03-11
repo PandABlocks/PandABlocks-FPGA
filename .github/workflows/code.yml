@@ -340,5 +340,3 @@ jobs:
           body: See [Changelog](CHANGELOG.rst) for more details
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
-
