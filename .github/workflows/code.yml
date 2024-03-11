@@ -1,11 +1,11 @@
 name: Code CI
 
 on:
+  # Only run on changes to branches with open PRs
   pull_request:
-    # Runs workflow when PR initially opened, and subsequent changed to involved branches
     types: [opened, edited, synchronize]
+  # Run after PR merged, on implicit push
   push:
-    # Runs workflow once more upon an accepted PR merge (implicit push)
     branches: [master]
 
 jobs:
