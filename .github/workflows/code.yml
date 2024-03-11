@@ -341,18 +341,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
-  Undo:
-    needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
-    run-on: ubuntu-latest
-    if: ${{ always() && failure() }}
-    steps:
-      # Git repositories
-      - name: Checkout Source
-        uses: actions/checkout@v2
-        with:
-          path: PandABlocks-fpga
-          # require history to get back to last tag for version number of branches
-          fetch-depth: 0
-          path: PandABlocks-fpga
-          # require history to get back to last tag for version number of branches
-          fetch-depth: 0
+
