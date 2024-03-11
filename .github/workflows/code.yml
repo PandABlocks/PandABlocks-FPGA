@@ -7,6 +7,7 @@ on:
   # Run after PR merged, on implicit push
   push:
     branches: [master]
+  workflow_dispatch:
 
 jobs:
   make_boot:
