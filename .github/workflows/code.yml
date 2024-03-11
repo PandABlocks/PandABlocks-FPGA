@@ -1,8 +1,7 @@
 name: Code CI
 
 on:
-  # A
-  # Only run on changes to branches with open PRs
+  # Only run on changes to branches with open PRs (a)
   pull_request:
     types: [opened, edited, synchronize]
   # Run after PR merged, on implicit push
