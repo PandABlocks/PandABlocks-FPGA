@@ -332,9 +332,6 @@ jobs:
           path: PandABlocks-fpga
           # require history to get back to last tag for version number of branches
           fetch-depth: 0
-          path: PandABlocks-fpga
-          # require history to get back to last tag for version number of branches
-          fetch-depth: 0
 
   release:
     needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
