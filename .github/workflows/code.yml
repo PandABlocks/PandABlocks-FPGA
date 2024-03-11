@@ -323,15 +323,17 @@ jobs:
   undo:
     needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
     runs-on: ubuntu-latest
-    if: ${{ always() && failure() }}
-    steps:
-      # Git repositories
-      - name: Checkout Source
+    if: ${{ always() && failure() && github.event_name == push}}
+    steps: 
+      - name: Checkout
         uses: actions/checkout@v2
         with:
-          path: PandABlocks-fpga
-          # require history to get back to last tag for version number of branches
-          fetch-depth: 0
+           ref: ${{ github.event.inputs.branch }}
+           fetch-depth: 0 
+      - name: Undo Push
+        uses: exions/undo-push@v1
+        with:
+          branch: ${{ github.event.inputs.branch }}
 
   release:
     needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
