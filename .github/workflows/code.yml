@@ -330,10 +330,12 @@ jobs:
         with:
            ref: ${{ github.event.inputs.branch }}
            fetch-depth: 0 
-      - name: Undo Push
-        uses: exions/undo-push@v1
-        with:
-          branch: ${{ github.event.inputs.branch }}
+      - name: Revert pushed commit
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git revert --no-edit HEAD
+          git push
 
   release:
     needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
