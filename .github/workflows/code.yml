@@ -323,7 +323,7 @@ jobs:
   undo:
     needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
     runs-on: ubuntu-latest
-    if: ${{ always() && failure() && github.event_name == push}}
+    if: ${{ always() && failure() && github.event_name == 'push'}}
     steps: 
       - name: Checkout
         uses: actions/checkout@v2
