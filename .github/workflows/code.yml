@@ -342,5 +342,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   undo:
-    needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
-    run-on: ubuntu-latest
