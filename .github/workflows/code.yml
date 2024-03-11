@@ -340,3 +340,8 @@ jobs:
           body: See [Changelog](CHANGELOG.rst) for more details
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+  Undo:
+    needs: [ make_boot, make_zpkg, make_zpkg_aws, test, stop-runner ]
+    run-on: ubuntu-latest
+    if: ${{ always() && contains(needs.*.result, 'failure') }}
