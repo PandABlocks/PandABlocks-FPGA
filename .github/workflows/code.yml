@@ -1,6 +1,7 @@
 name: Code CI
 
 on:
+  # A
   # Only run on changes to branches with open PRs
   pull_request:
     types: [opened, edited, synchronize]
