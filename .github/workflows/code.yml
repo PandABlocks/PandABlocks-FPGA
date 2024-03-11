@@ -7,6 +7,7 @@ on:
   # Run after PR merged, on implicit push
   push:
     branches: [master]
+  workflow_dispatch:
 
 jobs:
   make_boot:
@@ -318,6 +319,21 @@ jobs:
             /bin/bash -c \
             "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make python_tests && make python_timing && \
             make autogen && make hdl_test"
+  
+  undo:
+    needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
+    runs-on: ubuntu-latest
+    if: ${{ always() && failure() && github.event_name == 'push'}}
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+           ref: ${{ github.event.inputs.branch }}
+           fetch-depth: 0 
+      - name: Undo Push
+        uses: exions/undo-push@v1
+        with:
+          branch: ${{ github.event.inputs.branch }}
 
   release:
     needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
