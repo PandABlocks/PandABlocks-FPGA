@@ -15,8 +15,8 @@ add_files -norecurse $TOP_DIR/modules/testblock/hdl
 # read xci files for any IP required by module
 
 add_files -fileset sim_1 -norecurse \
-    $BUILD_DIR/hdl_timing/testblock/timing001/hdl_timing.v \
+    $BUILD_DIR/hdl_timing/testblock/timing001/hdl_timing.sv \
     $BUILD_DIR/hdl_timing/testblock/timing001/1testblockexpected.csv \
-    $BUILD_DIR/hdl_timing/testblock/timing002/hdl_timing.v \
+    $BUILD_DIR/hdl_timing/testblock/timing002/hdl_timing.sv \
     $BUILD_DIR/hdl_timing/testblock/timing002/2testblockexpected.csv \
     $TOP_DIR/modules/testblock/

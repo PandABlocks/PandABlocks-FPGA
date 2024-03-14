@@ -1,23 +1,23 @@
 # Example configuration file for building PandA firmware, and for simulation
 #
 # Copy this file to a file named CONFIG and edit as appropriate.  Lines that are
-# commented out can be left as they are, the default value is show.  Uncommented
+# commented out can be left as they are, the default value is shown.  Uncommented
 # lines must be assigned values.
 
 # Default build location.  Default is to build in build subdirectory.
 BUILD_DIR = /build
 
 # Development Tool Version
-VIVADO_VER = 2022.2
+# VIVADO_VER = 2023.2
 
 # Definitions needed for FPGA build
 export VIVADO = /scratch/Xilinx/Vivado/\$(VIVADO_VER)/settings64.sh
 # Path to external IP repository (if required)
-export EXT_IP_REPO = /scratch/Xilinx/XAPP589/PICXO_FRACXO_v32_2
+export EXT_IP_REPO = /scratch/Xilinx/XAPP589/PICXO_FRACXO_v40_rev6
 
 
 # Specifiy licence server, if required
-# export LM_LICENCE_FILE =
+# export LM_LICENSE_FILE =
 
 # Location of rootfs builder.  This needs to be at least version 1.13 and can be
 # downloaded from https://github.com/araneidae/rootfs
@@ -28,17 +28,17 @@ export TAR_FILES = /tar-files
 
 # Path to root filesystem
 PANDA_ROOTFS = /repos/PandABlocks-rootfs
-MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
+# MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 
 # Python interpreter for running scripts
 #
-PYTHON = python3
+# PYTHON = python3
 
 # Sphinx build for documentation.
-SPHINX_BUILD = sphinx-build
+# SPHINX_BUILD = sphinx-build
 
 # List of default targets to build when running make
-DEFAULT_TARGETS = zpkg
+# DEFAULT_TARGETS = zpkg
 
 # FPGA Application Name
 APP_NAME = PandABox-fmc_lback-sfp_lback

@@ -7,12 +7,13 @@
 # builds.  These releases are downloaded (as .tar.gz files) from:
 #      https://github.com/Xilinx/u-boot-xlnx
 #      https://github.com/Xilinx/linux-xlnx
+#      https://github.com/Xilinx/arm-trusted-firmware
 # Note: if these files have been downloaded through the releases directory then
 # they need to be renamed with the appropriate {u-boot,linux}-xlnx- prefix so
 # that the file name and contents match.
-MD5_SUM_device-tree-xlnx-xilinx_v2022.2 = 7885c6f69509e425a1800eed326ffee8
-MD5_SUM_u-boot-xlnx-xilinx-v2022.2 = a9e54fff739d5702465c786b5420d31e
-MD5_SUM_arm-trusted-firmware-xilinx-v2022.2 = a47d32e92fed413599093f6d82bf3e0c
+MD5_SUM_device-tree-xlnx-xilinx_v2023.2 = 7789e54fe26457b44354d3de28b21987
+MD5_SUM_u-boot-xlnx-xilinx-v2023.2 = 135d51a81aadaed096a667e41db6e110
+MD5_SUM_arm-trusted-firmware-xilinx-v2023.2 = 812e16408046699ff5fe09f847f4a168
 # The dtc source is obtained from https://git.kernel.org/pub/scm/utils/dtc/dtc.git
 MD5_SUM_dtc-1.7.0 = f8b4469ad89f4b882091895ec60dde6b
 
@@ -143,9 +144,9 @@ $(IP_DIR)/%/IP_DONE : $(TOP)/ip_defs/%.tcl $(IP_BUILD_SCR) | $(IP_PROJ)
 	touch $@
 
 $(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR) $(TGT_INCL_SCR)
-	$(RUNVIVADO) -mode $(DEP_MODE) -source $< \
+	$(RUNVIVADO) -mode batch -source $< \
 	  -log $(TGT_BUILD_DIR)/build_ps.log -nojournal \
-	  -tclargs $(TOP) $(TARGET_DIR) $(PS_DIR) $@ $(DEP_MODE)
+	  -tclargs $(TOP) $(TARGET_DIR) $(PS_DIR) $@
 
 CARRIER_FPGA_DEPS += $(TOP_BUILD_SCR)
 CARRIER_FPGA_DEPS += $(APP_IP_DEPS)
@@ -154,7 +155,7 @@ CARRIER_FPGA_DEPS += $(TGT_INCL_SCR)
 CARRIER_FPGA_DEPS += $(VER)
 
 $(CARRIER_FPGA_BIT) : $(CARRIER_FPGA_DEPS)
-	$(RUNVIVADO) -mode $(TOP_MODE) -source $< \
+	$(RUNVIVADO) -mode $(VIVADO_MODE) -source $< \
 	  -log $(BUILD_DIR)/build_top.log -nojournal \
 	  -tclargs $(TOP) \
 	  -tclargs $(TARGET_DIR) \
@@ -162,15 +163,15 @@ $(CARRIER_FPGA_BIT) : $(CARRIER_FPGA_DEPS)
 	  -tclargs $(AUTOGEN) \
 	  -tclargs $(IP_DIR) \
 	  -tclargs $(PS_CORE) \
-	  -tclargs $(TOP_MODE) \
+	  -tclargs $(VIVADO_MODE) \
 	  -tclargs $(PLATFORM)
 
 run_sim_%: $(TOP)/tests/sim/%
-	$(RUNVIVADO) -mode $(TEST_MODE) -source $</bench/$*_tb_compile.tcl \
+	$(RUNVIVADO) -mode $(XSIM_MODE) -source $</bench/$*_tb_compile.tcl \
 	  -log $(BUILD_DIR)/test_build_top.log -nojournal \
 	  -tclargs $(TOP) \
 	  -tclargs $(BUILD_DIR) \
-	  -tclargs $(TEST_MODE)
+	  -tclargs $(XSIM_MODE)
 
 $(FPGA_BIN_FILE): $(CARRIER_FPGA_BIT)
 	echo -e "all:\n{\n    $(CARRIER_FPGA_BIT)\n}\n" > bs.bif

@@ -22,7 +22,7 @@ read_ip $TGT_BUILD_DIR/ip_repo/{{ ip }}/{{ ip }}.xci
 
 add_files -fileset sim_1 -norecurse \
 {% for i in range(number) %}
-    $BUILD_DIR/hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/hdl_timing.v \
+    $BUILD_DIR/hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/hdl_timing.sv \
     $BUILD_DIR/hdl_timing/{{block.entity}}/timing{{'%03d'% loop.index|int}}/{{
     loop.index}}{{block.entity}}expected.csv \
 {% endfor %}
