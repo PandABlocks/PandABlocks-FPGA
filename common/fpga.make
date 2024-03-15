@@ -99,7 +99,7 @@ carrier_ip: $(APP_IP_DEPS)
 ps_core: $(PS_CORE)
 devicetree : $(DEVTREE_DTB)
 fsbl : $(FSBL)
-boot : $(BOOT_ZIP) $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB)
+boot : $(BOOT_ZIP) $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB) $(IMAGE_DIR)/target-defs
 u-boot: $(U_BOOT_ELF)
 atf: $(ATF_ELF)
 dtc: $(DEVTREE_DTC)
@@ -246,6 +246,9 @@ $(DEVTREE_DTB): $(SDK_EXPORT) $(TARGET_DTS) $(DEVTREE_DTC)
 	  -o $(DEVTREE_DTS)/system-top.dts.tmp $(DEVTREE_DTS)/system-top.dts
 	@echo "Building DEVICE TREE blob ..."
 	$(DEVTREE_DTC) -f -I dts -O dtb -o $@ $(DEVTREE_DTS)/$(notdir $(TARGET_DTS))
+
+$(IMAGE_DIR)/target-defs: $(TARGET_DIR)/etc/target-defs
+	cp $< $@
 
 $(DEVTREE_DTC): $(DTC_SRC)
 	$(MAKE) -C $(SRC_ROOT)/dtc-$(DTC_TAG) NO_PYTHON=1
