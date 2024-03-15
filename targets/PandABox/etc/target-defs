@@ -1,0 +1,6 @@
+#!/bin/sh
+
+get_mac_address()
+{
+    cat /qspi/MAC
+}
