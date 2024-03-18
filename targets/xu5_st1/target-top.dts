@@ -36,10 +36,6 @@
 };
 
 / {
-	led_daemon: led_daemon {
-		sta-led = "25";
-		dia-led = "24";
-	};
 	amba_pl: amba_pl {
 		#address-cells = <1>;
 		#size-cells = <1>;
