@@ -1,0 +1,20 @@
+on:
+  workflow_call:
+
+jobs:
+  # Build rclone and mount S3 bucket
+  setup_aws_runner:
+    name: setup rclone and mount on runner
+    runs-on: ${{ needs.start-runner.outputs.label }}
+    steps:
+      # Git repositories
+      - name: Checkout Source
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          
+      - name: Run Composite
+        uses: ./.github/actions/setupenv
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN  }}
