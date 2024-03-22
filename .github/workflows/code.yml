@@ -1,6 +1,8 @@
 name: Code CI
 
 on:
+  # Manual trigger for testing workflow
+  workflow_dispatch:
   # Only run on changes to branches with open PRs (UndoBranch)(N)
   pull_request:
     types: [opened, edited, synchronize]
@@ -8,7 +10,7 @@ on:
   push:
     tags:
       - '*'
-    branches: [master]
+    branches: [master, actions_workflow_changes]
 
 jobs:
   # Make Boot files

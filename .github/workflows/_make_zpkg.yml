@@ -1,0 +1,49 @@
+on:
+  workflow_call:
+
+
+jobs:
+  make_zpkg:
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [
+              "PandABox-no-fmc",
+              "PandABox-fmc_24vio",
+              "PandABox-fmc_acq427",
+              "PandABox-fmc_acq430",
+              "PandABox-fmc_lback-sfp_lback",
+              "ZedBoard-no-fmc",
+              ]
+    runs-on: ubuntu-latest
+    steps:
+      # Git repositories
+      - name: Checkout Source
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          
+      - name: Run Composite
+        uses: ./.github/actions/setupenv
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN  }}
+
+      # Mount in rclone bucket from runner into conatiner
+      - name: build carrier_ip and zpkg
+        run: |
+          docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
+          docker run \
+            -v "${{ github.workspace }}:/repos" \
+            -v "${{ github.workspace }}/build:/build" \
+            -v "/scratch/Xilinx:/scratch/Xilinx" \
+            ghcr.io/pandablocks/pandablocks-dev-container:latest\
+            /bin/bash -c \
+            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} "
+
+      # Artifacts
+      - name: Upload zpkg
+        uses: actions/upload-artifact@v2
+        with:
+          name: zpkgs
+          path: ./build/panda-fpga@*.zpg
