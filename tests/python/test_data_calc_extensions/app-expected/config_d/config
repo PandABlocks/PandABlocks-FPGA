@@ -22,7 +22,7 @@ DUMMY[5]
 
 INTERVAL[3]
     CENTRE              param
-    RANGE               param
+    RANGE               param = 0
 
 FMC_IN[1]
     GAIN1               param enum

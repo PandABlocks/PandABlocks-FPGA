@@ -264,6 +264,11 @@ class FieldConfig(object):
         self.wstb = extra_config.pop("wstb", False)
         #: If the field is associated to an option
         self.option_filter = extra_config.pop("if-option", "")
+        #: Store the initial value, if supplied - only for params
+        self.initial_value = extra_config.pop("initial_value", None)
+        if self.initial_value:
+            assert "param" in self.type, \
+                "Only Param fields can have initial values"
         #: Store the extension register info
         self.extension = extra_config.pop("extension", None)
         self.extension_write = extra_config.pop("extension_write", "")
@@ -504,6 +509,14 @@ class ParamFieldConfig(FieldConfig):
 
         self.registers.append(
             RegisterConfig(self.name, address, extension=self.extension, write_extension=self.extension_write, read_extension=self.extension_read))
+
+    def config_line(self):
+        # type: () -> str
+        """Produce the line that should go in the config file after name"""
+        if self.initial_value:
+            return "%s = %s" % (self.type, self.initial_value)
+        else:
+            return super(ParamFieldConfig, self).config_line()
 
 class CalcExtensionFieldConfig(ParamFieldConfig):
     """These fields act in the same way as write record from the VHDL generation 
