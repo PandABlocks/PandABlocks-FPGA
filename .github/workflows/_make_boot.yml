@@ -18,14 +18,33 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v2
         with:
+          path: PandABlocks-fpga
+          # require history to get back to last tag for version number of branches
           fetch-depth: 0
-          
-      - name: Run Composite
-        uses: ./.github/actions/setupenv
+
+      - name: Checkout PandABlocks-rootfs
+        uses: actions/checkout@v2
         with:
+          repository: PandABlocks/PandABlocks-rootfs
+          path: PandABlocks-rootfs
+
+      # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
+      # https://github.com/rclone/rclone/issues/2975
+      - name: Install rclone patch
+        run: bash PandABlocks-fpga/.github/scripts/rclone-patch.sh
+
+      # S3 bucket
+      - name: Mount Vivado S3 bucket
+        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+
+      # Get container image
+      - name: login to github container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
-          
+
       # Mount in rclone bucket from runner into conatiner
       - name: make boot
         run: |
@@ -37,7 +56,7 @@ jobs:
             ghcr.io/pandablocks/pandablocks-dev-container:latest\
             /bin/bash -c \
             "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}"
-      
+
       # Artifacts
       - name: Upload boot
         uses: actions/upload-artifact@v2

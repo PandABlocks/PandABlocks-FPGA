@@ -1,8 +1,6 @@
 name: Code CI
 
 on:
-  # Manual trigger for testing workflow
-  workflow_dispatch:
   # Only run on changes to branches with open PRs (UndoBranch)(N)
   pull_request:
     types: [opened, edited, synchronize]
@@ -15,6 +13,8 @@ on:
 jobs:
   # Make Boot files
   make_boot:
+    permissions:
+      contents: read
     uses: ./.github/workflows/_make_boot.yml
     
   # Make zpkg for FPGA apps
