@@ -1,0 +1,31 @@
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # Git repositories
+      - name: Checkout Source
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Run Composite
+        uses: ./.github/actions/setupenv
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN  }}
+
+      # Run tests
+      - name: Make python and hdl tests
+        run: |
+          docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
+          docker run \
+            -v "${{ github.workspace }}:/repos" \
+            -v "${{ github.workspace }}/build:/build" \
+            -v "/scratch/Xilinx:/scratch/Xilinx" \
+            ghcr.io/pandablocks/pandablocks-dev-container:latest \
+            /bin/bash -c \
+            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make python_tests && make python_timing && \
+            make autogen && make hdl_test"
