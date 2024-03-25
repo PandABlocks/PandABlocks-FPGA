@@ -1,5 +1,13 @@
 on:
   workflow_call:
+    inputs:
+      actor:
+      workspace:
+    secrets:
+      VIVADO_S3_ACCESS_KEY_ID:
+      VIVADO_S3_SECRET_ACCESS_KEY:
+      GITHUB_TOKEN:
+
 
 jobs:
   make_boot:
@@ -42,7 +50,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ inputs.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
 
       # Mount in rclone bucket from runner into conatiner
@@ -50,8 +58,8 @@ jobs:
         run: |
           docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
           docker run \
-            -v "${{ github.workspace }}:/repos" \
-            -v "${{ github.workspace }}/build:/build" \
+            -v "${{ inputs.workspace }}:/repos" \
+            -v "${{ inputs.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
             ghcr.io/pandablocks/pandablocks-dev-container:latest\
             /bin/bash -c \
