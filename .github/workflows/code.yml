@@ -13,6 +13,8 @@ on:
 jobs:
   # Make Boot files
   make_boot:
+    permissions:
+      contents: read
     uses: ./.github/workflows/_make_boot.yml
     
   # Make zpkg for FPGA apps
