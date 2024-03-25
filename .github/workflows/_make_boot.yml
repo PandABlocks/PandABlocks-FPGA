@@ -1,5 +1,10 @@
 on:
   workflow_call:
+    secrets:
+      VIVADO_S3_ACCESS_KEY_ID:
+        required: true
+      VIVADO_S3_SECRET_ACCESS_KEY:
+        required: true
 
 jobs:
   make_boot:
