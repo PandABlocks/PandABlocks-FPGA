@@ -49,7 +49,7 @@ jobs:
       - name: make boot
         run: |
           docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
-          docker run echo \
+          docker run \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
