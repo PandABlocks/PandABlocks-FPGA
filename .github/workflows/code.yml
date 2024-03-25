@@ -14,11 +14,10 @@ jobs:
   # Make Boot files
   make_boot:
     uses: ./.github/workflows/_make_boot.yml
-	secrets:
-	  VIVADO_S3_ACCESS_KEY_ID: ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
-	  VIVADO_S3_SECRET_ACCESS_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
-	  
-    
+    secrets:
+      VIVADO_S3_ACCESS_KEY_ID: ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
+      VIVADO_S3_SECRET_ACCESS_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+
   # Make zpkg for FPGA apps
   make_zpkg:
     uses: ./.github/workflows/_make_zpkg.yml
