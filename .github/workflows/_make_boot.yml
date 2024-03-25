@@ -6,7 +6,7 @@ on:
     secrets:
       VIVADO_S3_ACCESS_KEY_ID:
       VIVADO_S3_SECRET_ACCESS_KEY:
-      GITHUB_TOKEN:
+      TOKEN:
 
 
 jobs:
@@ -51,7 +51,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ inputs.actor }}
-          password: ${{ secrets.GITHUB_TOKEN  }}
+          password: ${{ secrets.TOKEN  }}
 
       # Mount in rclone bucket from runner into conatiner
       - name: make boot
