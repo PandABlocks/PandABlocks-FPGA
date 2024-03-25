@@ -21,20 +21,37 @@ jobs:
   # Make zpkg for FPGA apps
   make_zpkg:
     uses: ./.github/workflows/_make_zpkg.yml
+    secrets:
+      VIVADO_S3_ACCESS_KEY_ID: ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
+      VIVADO_S3_SECRET_ACCESS_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
   # Seting up AWS runners for high memory apps
   start-runner:
     uses: ./.github/workflows/_start_aws_runner.yml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ AWS_REGION }}
+      GH_PERSONAL_ACCESS_TOKEN: ${{ GH_PERSONAL_ACCESS_TOKEN }}
+      AWS_AMI_ID: ${{ AWS_AMI_ID }}
+      AWS_SUBNET_ID: ${{ AWS_SUBNET_ID }}
+      AWS_SECURITY_GROUP_ID: ${{ AWS_SECURITY_GROUP_ID }}
 
   setup-aws-runner:
     needs: start-runner
     uses: ./.github/workflows/_setup_aws_runner.yml
+    secrets:
+      VIVADO_S3_ACCESS_KEY_ID: ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
+      VIVADO_S3_SECRET_ACCESS_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
   make_zpkg_aws:
     needs:
       - start-runner
       - setup-aws-runner
     uses: ./.github/workflows/_make_zpkg_aws.yml
+    secrets:
+      VIVADO_S3_ACCESS_KEY_ID: ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
+      VIVADO_S3_SECRET_ACCESS_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
   # Stop the AWS runner
   stop-runner:
@@ -43,9 +60,17 @@ jobs:
       - setup-aws-runner
       - make_zpkg_aws
     uses: ./.github/workflows/_stop_runner.yml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ AWS_REGION }}
+      GH_PERSONAL_ACCESS_TOKEN: ${{ GH_PERSONAL_ACCESS_TOKEN }}
 
   test:
     uses: ./.github/workflows/_test.yml
+    secrets:
+      VIVADO_S3_ACCESS_KEY_ID: ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
+      VIVADO_S3_SECRET_ACCESS_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
   
   undo:
     needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
