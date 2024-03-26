@@ -1,5 +1,12 @@
 on:
   workflow_call:
+    inputs:
+      label: 
+        required: true
+        type: string
+      ec2-instance-id: 
+        required: true
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -29,5 +36,5 @@ jobs:
         with:
           mode: stop
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          label: ${{ needs.start-runner.outputs.label }}
-          ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
+          label: ${{ inputs.label }}
+          ec2-instance-id: ${{ inputs.ec2-instance-id }}
