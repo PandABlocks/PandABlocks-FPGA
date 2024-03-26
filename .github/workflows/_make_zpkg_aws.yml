@@ -1,5 +1,8 @@
 on:
   workflow_call:
+    inputs:
+      label:
+        required: true
     secrets:
       VIVADO_S3_ACCESS_KEY_ID:
         required: true
@@ -14,7 +17,7 @@ jobs:
         app:
           ["xu5_st1-no-fmc","xu5_st1-fmc_acq430"]
     name: make zpkg on aws
-    runs-on: ${{ needs.start-runner.outputs.label }}
+    runs-on: ${{ inputs.label }}
     steps:
       # Git repositories
       - name: Checkout Source
