@@ -3,6 +3,7 @@ on:
     inputs:
       label:
         required: true
+        type: string
     secrets:
       VIVADO_S3_ACCESS_KEY_ID:
         required: true

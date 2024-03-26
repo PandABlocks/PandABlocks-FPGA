@@ -3,8 +3,10 @@ on:
     inputs:
       label: 
         required: true
+        type: string
       ec2-instance-id: 
         required: true
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
