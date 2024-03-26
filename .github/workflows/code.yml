@@ -40,6 +40,8 @@ jobs:
   setup-aws-runner:
     needs: start-runner
     uses: ./.github/workflows/_setup_aws_runner.yml
+    with:
+      label: ${{ needs.start-runner.outputs.label }}    
     secrets:
       VIVADO_S3_ACCESS_KEY_ID: ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
       VIVADO_S3_SECRET_ACCESS_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
@@ -49,9 +51,8 @@ jobs:
       - start-runner
       - setup-aws-runner
     uses: ./.github/workflows/_make_zpkg_aws.yml
-    secrets:
-      VIVADO_S3_ACCESS_KEY_ID: ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
-      VIVADO_S3_SECRET_ACCESS_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+    with:
+      label: ${{ needs.start-runner.outputs.label }}
 
   # Stop the AWS runner
   stop-runner:
@@ -60,6 +61,9 @@ jobs:
       - setup-aws-runner
       - make_zpkg_aws
     uses: ./.github/workflows/_stop_runner.yml
+    with:
+      label: ${{ needs.start-runner.outputs.label  }}
+      ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }} 
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
