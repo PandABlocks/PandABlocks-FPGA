@@ -8,7 +8,7 @@ on:
   push:
     tags:
       - '*'
-    branches: [master]
+    branches: [master, actions_workflow_changes]
 
 jobs:
   # Make Boot files
