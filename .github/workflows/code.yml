@@ -25,12 +25,62 @@ jobs:
       VIVADO_S3_ACCESS_KEY_ID: ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
       VIVADO_S3_SECRET_ACCESS_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
+  # Setting up AWS runners for high memory apps
+  start-runner:
+    uses: ./.github/workflows/_start_aws_runner.yml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+      AWS_AMI_ID: ${{ secrets.AWS_AMI_ID }}
+      AWS_SUBNET_ID: ${{ secrets.AWS_SUBNET_ID }}
+      AWS_SECURITY_GROUP_ID: ${{ secrets.AWS_SECURITY_GROUP_ID }}
+
+  setup-aws-runner:
+    needs: start-runner
+    uses: ./.github/workflows/_setup_aws_runner.yml
+    with:
+      label: ${{ needs.start-runner.outputs.label }}    
+    secrets:
+      VIVADO_S3_ACCESS_KEY_ID: ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
+      VIVADO_S3_SECRET_ACCESS_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+
+  make_zpkg_aws:
+    needs:
+      - start-runner
+      - setup-aws-runner
+    uses: ./.github/workflows/_make_zpkg_aws.yml
+    with:
+      label: ${{ needs.start-runner.outputs.label }}
+
+  # Stop the AWS runner
+  stop-runner:
+    needs:
+      - start-runner
+      - setup-aws-runner
+      - make_zpkg_aws
+    uses: ./.github/workflows/_stop_runner.yml
+    with:
+      label: ${{ needs.start-runner.outputs.label  }}
+      ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }} 
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+
   test:
     uses: ./.github/workflows/_test.yml
     secrets:
       VIVADO_S3_ACCESS_KEY_ID: ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
       VIVADO_S3_SECRET_ACCESS_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
-  
+
+  # Conditionally undo final merge to main, given a job has failed
+  undo:
+    needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
+    uses: ./.github/workflows/_undo.yml
+
   release:
       needs: [ make_boot, make_zpkg, test ]
       uses: ./.github/workflows/_release.yml
