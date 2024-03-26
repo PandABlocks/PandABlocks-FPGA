@@ -30,12 +30,8 @@ jobs:
     secrets:
       VIVADO_S3_ACCESS_KEY_ID: ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
       VIVADO_S3_SECRET_ACCESS_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
-  
-  undo:
-    needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
-    uses: ./.github/workflows/_undo.yml
 
   release:
-    needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
+    needs: [ make_boot, make_zpkg, test ]
     uses: ./.github/workflows/_release.yml
 
