@@ -1,12 +1,6 @@
 name: "Perform Repetitive Tasks"
 description: "Composite action that checks out repos, installs rclone, mounts S3 bucket, and gets container image"
 
-inputs:
-  username:
-    required: true
-  password:
-    required: true
-
 runs:
   using: "composite"
   steps:
@@ -26,16 +20,3 @@ runs:
       - name: Install rclone patch
         shell: bash
         run: bash PandABlocks-fpga/.github/scripts/rclone-patch.sh
-
-      # S3 bucket
-      - name: Mount Vivado S3 bucket
-        shell: bash
-        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ inputs.VIVADO_S3_ACCESS_KEY_ID }} ${{ inputs.VIVADO_S3_SECRET_ACCESS_KEY }}
-
-      #Get container image
-      - name: login to ghcr
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: inputs.username
-          password: inputs.password
