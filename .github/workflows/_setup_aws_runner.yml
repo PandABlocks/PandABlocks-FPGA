@@ -1,5 +1,9 @@
 on:
   workflow_call:
+    inputs:
+      label:
+        required: true
+        type: string
     secrets:
       VIVADO_S3_ACCESS_KEY_ID:
         required: true
@@ -10,7 +14,7 @@ jobs:
   # Build rclone and mount S3 bucket
   setup_aws_runner:
     name: setup rclone and mount on runner
-    runs-on: ${{ needs.start-runner.outputs.label }}
+    runs-on: ${{ inputs.label }}
     steps:
       # Git repositories
       - name: Checkout Source

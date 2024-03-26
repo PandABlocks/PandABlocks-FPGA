@@ -62,7 +62,7 @@ jobs:
             -v "/scratch/Xilinx:/scratch/Xilinx" \
             ghcr.io/pandablocks/pandablocks-dev-container:latest\
             /bin/bash -c \
-            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} "
+            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make zpkg APP_NAME=${{ matrix.app }} "
 
       # Artifacts
       - name: Upload zpkg

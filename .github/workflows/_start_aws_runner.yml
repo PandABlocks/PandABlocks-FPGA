@@ -15,6 +15,11 @@ on:
         required: true
       AWS_SECURITY_GROUP_ID:
         required: true
+    outputs:
+      label:
+        value: ${{ jobs.start-runner.outputs.label }}
+      ec2-instance-id:
+        value: ${{ jobs.start-runner.outputs.ec2-instance-id }}
 
 # Seting up AWS runners for high memory apps
 jobs:
