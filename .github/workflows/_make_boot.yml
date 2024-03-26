@@ -19,6 +19,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Necessary to find action.yml
+      - name: Checkout Source
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # Run action.yml
       - name: Checkout and install rclone
         uses: ./.github/actions/setupenv
 
