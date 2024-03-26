@@ -64,7 +64,7 @@ jobs:
       - setup-aws-runner
       - make_zpkg_aws
     uses: ./.github/workflows/_stop_runner.yml
-    inputs:
+    with:
       label: ${{ needs.start-runner.outputs.label  }}
       ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }} 
     secrets:
