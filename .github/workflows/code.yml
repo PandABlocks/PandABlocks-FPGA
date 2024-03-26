@@ -53,9 +53,6 @@ jobs:
     uses: ./.github/workflows/_make_zpkg_aws.yml
     with:
       label: ${{ needs.start-runner.outputs.label }}
-    secrets:
-      VIVADO_S3_ACCESS_KEY_ID: ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
-      VIVADO_S3_SECRET_ACCESS_KEY: ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
   # Stop the AWS runner
   stop-runner:

@@ -20,19 +20,6 @@ jobs:
     name: make zpkg on aws
     runs-on: ${{ inputs.label }}
     steps:
-      # Git repositories
-      - name: Checkout Source
-        uses: actions/checkout@v2
-        with:
-          path: PandABlocks-fpga
-          # require history to get back to last tag for version number of branches
-          fetch-depth: 0
-
-      - name: Checkout PandABlocks-rootfs
-        uses: actions/checkout@v2
-        with:
-          repository: PandABlocks/PandABlocks-rootfs
-          path: PandABlocks-rootfs
 
       # Get container image
       - name: login to github container registry
