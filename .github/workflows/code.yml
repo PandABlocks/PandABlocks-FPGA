@@ -1,14 +1,14 @@
 name: Code CI
 
 on:
-  # Only run on changes to branches with open PRs (UndoBranch)(N)
+  # Only run on changes to branches with open PRs
   pull_request:
     types: [opened, edited, synchronize]
-  # Run after PR merged, on implicit push
+  # Run after PR merged, on implicit push, and on tag pushes
   push:
     tags:
       - '*'
-    branches: [master, actions_workflow_changes]
+    branches: [master]
 
 jobs:
   # Make Boot files
@@ -82,6 +82,5 @@ jobs:
     uses: ./.github/workflows/_undo.yml
 
   release:
-      needs: [ make_boot, make_zpkg, test ]
+      needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
       uses: ./.github/workflows/_release.yml
-
