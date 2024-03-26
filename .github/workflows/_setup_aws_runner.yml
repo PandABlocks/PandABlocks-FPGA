@@ -16,24 +16,15 @@ jobs:
     name: setup rclone and mount on runner
     runs-on: ${{ inputs.label }}
     steps:
-      # Git repositories
+      # Necessary to find action.yml
       - name: Checkout Source
         uses: actions/checkout@v2
         with:
-          path: PandABlocks-fpga
-          # require history to get back to last tag for version number of branches
           fetch-depth: 0
 
-      - name: Checkout PandABlocks-rootfs
-        uses: actions/checkout@v2
-        with:
-          repository: PandABlocks/PandABlocks-rootfs
-          path: PandABlocks-rootfs
-
-      # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
-      # https://github.com/rclone/rclone/issues/2975
-      - name: Install rclone patch
-        run: bash PandABlocks-fpga/.github/scripts/rclone-patch.sh
+      # Run action.yml
+      - name: Checkout and install rclone
+        uses: ./.github/actions/setupenv
 
       # S3 bucket
       - name: Mount Vivado S3 bucket
