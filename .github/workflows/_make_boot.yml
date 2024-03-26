@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout and install rclone
-        uses: ./.github/actions/setupenv
+        uses: .github/actions/setupenv
 
       # S3 bucket
       - name: Mount Vivado S3 bucket
