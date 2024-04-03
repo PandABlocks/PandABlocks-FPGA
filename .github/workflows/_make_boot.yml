@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: 'Dockerfile'
+      image: summerwind/actions-runner:latest
 
     steps:
       # Necessary to find action.yml
