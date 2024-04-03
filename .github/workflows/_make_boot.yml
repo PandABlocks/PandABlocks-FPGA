@@ -44,14 +44,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
 
-      - name: boot step
-        run: cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
-
       # Mount in rclone bucket from runner into conatiner
       - name: make boot
         run: |
-          docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
-          docker run \
+          sudo docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
+          sudo docker run \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
