@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: ubuntu:latest
+      image: nektos/act-environments-ubuntu:latest
 
     steps:
       # Necessary to find action.yml
