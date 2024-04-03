@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: ubuntu:22.04
+      image: summerwind/actions-runner:latest
 
     steps:
       # Necessary to find action.yml
@@ -47,8 +47,8 @@ jobs:
       # Mount in rclone bucket from runner into conatiner
       - name: make boot
         run: |
-          sudo docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
-          sudo docker run \
+          podman pull ghcr.io/pandablocks/pandablocks-dev-container:latest
+          podman run \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
