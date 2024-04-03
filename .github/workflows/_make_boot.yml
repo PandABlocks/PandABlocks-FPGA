@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: node:18
+      image: ubuntu:latest
 
     steps:
       # Necessary to find action.yml
