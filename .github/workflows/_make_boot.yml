@@ -44,6 +44,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
 
+      - name: boot step
+        run: cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
+
       # Mount in rclone bucket from runner into conatiner
       - name: make boot
         run: |
