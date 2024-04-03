@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: ./summerwind_docker 
+      image: summerwind/actions-runner:latest  
     steps:
       # Necessary to find action.yml
       - name: Checkout Source
@@ -42,6 +42,10 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
+
+      #Install Docker
+      - name: docker install
+      run: sudo curl -fsSL https://get.docker.com | sh 
 
       # Mount in rclone bucket from runner into conatiner
       - name: make boot
