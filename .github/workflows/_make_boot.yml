@@ -16,7 +16,7 @@ jobs:
             app: PandABox-no-fmc
           - platform: zynqmp
             app: xu5_st1-no-fmc
-    runs-on: ubuntu-latest
+    runs-on: iris_runners
 
     steps:
       # Necessary to find action.yml
