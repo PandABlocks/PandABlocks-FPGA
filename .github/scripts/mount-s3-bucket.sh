@@ -4,8 +4,8 @@
  S3_ACCESS_KEY_ID=$1
  S3_SECRET_ACCESS_KEY=$2
 
-sudo mkdir -p /scratch/Xilinx
-sudo chmod a+w /scratch
+mkdir -p /scratch/Xilinx
+chmod a+w /scratch
 mkdir -p $HOME/.config/rclone
 
 cat >> $HOME/.config/rclone/rclone.conf <<EOL
