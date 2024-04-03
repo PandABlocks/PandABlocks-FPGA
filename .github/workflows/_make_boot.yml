@@ -48,6 +48,9 @@ jobs:
         run: |
            sudo apt-get update
            sudo apt-get -y install podman
+           sudo apt update
+           sudo apt upgrade
+           sudo apt install podman
 
       # Mount in rclone bucket from runner into conatiner
       - name: make boot
