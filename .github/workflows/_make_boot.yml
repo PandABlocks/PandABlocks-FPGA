@@ -18,7 +18,8 @@ jobs:
             app: xu5_st1-no-fmc
     runs-on:
       group: iris_runners
-
+    container:
+      image: summerwind/actions-runner:latest 
     steps:
       # Necessary to find action.yml
       - name: Checkout Source
