@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: summerwind/actions-runner:latest 
+      image: ./summerwind_docker 
     steps:
       # Necessary to find action.yml
       - name: Checkout Source
