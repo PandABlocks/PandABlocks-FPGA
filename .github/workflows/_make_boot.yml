@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: summerwind/actions-runner:latest 
+      image: 'Dockerfile'
 
     steps:
       # Necessary to find action.yml
@@ -48,7 +48,7 @@ jobs:
       - name: make boot
         run: |
           docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
-          docker run --privileged -d docker:dind \
+          docker run \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
