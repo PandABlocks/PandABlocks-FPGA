@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: summerwind/actions-runner:ubuntu-20.04
+      image: pandablocks-dev-container:latest
 
     steps:
       # Necessary to find action.yml
