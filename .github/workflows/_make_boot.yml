@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: summerwind/actions-runner:latest
+      image: ubuntu:22.04
 
     steps:
       # Necessary to find action.yml
