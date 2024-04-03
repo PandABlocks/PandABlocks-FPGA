@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: nektos/act-environments-ubuntu:latest
+      image: summerwind/actions-runner:ubuntu-20.04
 
     steps:
       # Necessary to find action.yml
