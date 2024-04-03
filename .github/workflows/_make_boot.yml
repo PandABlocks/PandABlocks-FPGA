@@ -28,6 +28,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: install podman
+        run: |
+           sudo add-apt-repository universe
+           sudo apt-get update
+           sudo apt-get -y install podman
+           sudo apt update
+           sudo apt upgrade
+           sudo apt install podman
+
       # Run action.yml
       - name: Checkout and install rclone
         uses: ./.github/actions/setupenv
@@ -43,14 +52,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
-
-      - name: install podman
-        run: |
-           sudo apt-get update
-           sudo apt-get -y install podman
-           sudo apt update
-           sudo apt upgrade
-           sudo apt install podman
 
       # Mount in rclone bucket from runner into conatiner
       - name: make boot
