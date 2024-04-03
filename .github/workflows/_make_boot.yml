@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: summerwind/actions-runner:latest
+      image: ubuntu-latest
 
     steps:
       # Necessary to find action.yml
@@ -27,13 +27,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
-      - name: install podman
-        run: |
-           echo 'deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
-           curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_20.04/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/devel_kubic_libcontainers_stable.gpg > /dev/null
-           sudo apt update -y
-           sudo apt install podman -y
 
       # Run action.yml
       - name: Checkout and install rclone
@@ -54,8 +47,8 @@ jobs:
       # Mount in rclone bucket from runner into conatiner
       - name: make boot
         run: |
-          sudo podman pull ghcr.io/pandablocks/pandablocks-dev-container:latest
-          sudo podman run \
+          docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
+          docker run \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
