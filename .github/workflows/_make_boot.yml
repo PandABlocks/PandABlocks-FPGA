@@ -18,8 +18,6 @@ jobs:
             app: xu5_st1-no-fmc
     runs-on:
       group: iris_runners
-    container:
-      image: ubuntu-latest
 
     steps:
       # Necessary to find action.yml
