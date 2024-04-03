@@ -48,7 +48,7 @@ jobs:
       - name: make boot
         run: |
           docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
-          docker run \
+          docker run --privileged -d docker:dind \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
