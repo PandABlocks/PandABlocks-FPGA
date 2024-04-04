@@ -23,7 +23,6 @@ jobs:
       volumes:
         - ${{ github.workspace }}:/repos
         - ${{ github.workspace }}/build:/build
-        - /scratch/Xilinx:/scratch/Xilinx
 
     steps:
       # Necessary to find action.yml
@@ -40,28 +39,11 @@ jobs:
       - name: Mount Vivado S3 bucket
         run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
-      # Get container image
-      - name: login to github container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN  }}
+      - name: Path
+        run: ls
 
       - name: boot step
         run: cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
-
-      # Mount in rclone bucket from runner into conatiner
-      - name: make boot
-        run: |
-          docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
-          docker run \
-            -v "${{ github.workspace }}:/repos" \
-            -v "${{ github.workspace }}/build:/build" \
-            -v "/scratch/Xilinx:/scratch/Xilinx" \
-            ghcr.io/pandablocks/pandablocks-dev-container:latest\
-            /bin/bash -c \
-            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}"
 
       # Artifacts
       - name: Upload boot
