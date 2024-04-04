@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: pandablocks-dev-container:latest
+      image: shihabdls/pandablocks-container:latest
 
     steps:
       # Necessary to find action.yml
