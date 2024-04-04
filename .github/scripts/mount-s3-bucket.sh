@@ -4,10 +4,6 @@
  S3_ACCESS_KEY_ID=$1
  S3_SECRET_ACCESS_KEY=$2
 
-mkdir -p /scratch/Xilinx
-chmod a+w /scratch
-mkdir -p $HOME/.config/rclone
-
 cat >> $HOME/.config/rclone/rclone.conf <<EOL
 [fpga-vivado]
 type = s3
@@ -21,8 +17,6 @@ EOL
 
 chmod 600 $HOME/.config/rclone/rclone.conf
 rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon --allow-other --vfs-cache-mode full -l fpga-vivado:dls-controls-fpga-xilinx /scratch/Xilinx
-cd /scratch/Xilinx
-ls
 
 
 # Flag to make it run the background
