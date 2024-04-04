@@ -21,6 +21,7 @@ EOL
 
 chmod 600 $HOME/.config/rclone/rclone.conf
 rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon --allow-other --vfs-cache-mode full -l fpga-vivado:dls-controls-fpga-xilinx /scratch/Xilinx
+cd /scratch/Xilinx
 ls
 
 
