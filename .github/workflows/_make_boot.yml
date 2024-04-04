@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: ubuntu:latest
+      image: summerwind/actions-runner:latest
       volumes:
         - ${{ github.workspace }}:/repos
         - ${{ github.workspace }}/build:/build
