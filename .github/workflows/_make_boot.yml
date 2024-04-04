@@ -32,7 +32,7 @@ jobs:
           fetch-depth: 0
       
       - name: install sudo
-        run: yum update && yum install sudo
+        run: yum install sudo -y
 
       # Run action.yml
       - name: Checkout and install rclone
