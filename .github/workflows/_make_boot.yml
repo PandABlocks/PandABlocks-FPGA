@@ -19,7 +19,10 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: shihabdls/pandablocks-container:latest
+      image: ghcr.io/pandablocks/pandablocks-dev-container:latest
+      volumes:
+        - ${{ github.workspace }}: /repos
+        - ${{ github.workspace }}/build: /build
 
     steps:
       # Necessary to find action.yml
