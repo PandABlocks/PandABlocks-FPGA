@@ -23,7 +23,7 @@ jobs:
       volumes:
         - ${{ github.workspace }}:/repos
         - ${{ github.workspace }}/build:/build
-        - /scratch/Xilinx:/scratch/Xilinx
+        - ${{ github.workspace }}/scratch/Xilinx:/scratch/Xilinx
 
     steps:
       # Necessary to find action.yml
