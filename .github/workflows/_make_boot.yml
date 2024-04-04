@@ -21,8 +21,8 @@ jobs:
     container:
       image: ghcr.io/pandablocks/pandablocks-dev-container:latest
       volumes:
-        - ${{ github.workspace }}: /repos
-        - ${{ github.workspace }}/build: /build
+        - ${{ github.workspace }}:/repos
+        - ${{ github.workspace }}/build:/build
 
     steps:
       # Necessary to find action.yml
