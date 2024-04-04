@@ -4,6 +4,7 @@
  S3_ACCESS_KEY_ID=$1
  S3_SECRET_ACCESS_KEY=$2
 
+mkdir -p $HOME/.config/rclone
 cat >> $HOME/.config/rclone/rclone.conf <<EOL
 [fpga-vivado]
 type = s3
