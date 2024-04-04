@@ -8,7 +8,7 @@ fi
 
 #Install go
 curl -OL https://golang.org/dl/go1.17.linux-amd64.tar.gz
-sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.17.linux-amd64.tar.gz
+rm -rf /usr/local/go && tar -C /usr/local -xzf go1.17.linux-amd64.tar.gz
 export PATH=$PATH:/usr/local/go/bin
 go version
 
@@ -19,10 +19,9 @@ git checkout traack_symlinks
 make
 ./rclone version
 cd $HOME/go/bin/
-sudo cp rclone /usr/bin/
-sudo chown root:root /usr/bin/rclone
-sudo chmod 755 /usr/bin/rclone
-sudo mkdir -p /usr/local/share/man/man1
-sudo cp rclone /usr/local/share/man/man1/
-sudo mandb
+cp rclone /usr/bin/
+chown root:root /usr/bin/rclone chmod 755 /usr/bin/rclone
+mkdir -p /usr/local/share/man/man1
+cp rclone /usr/local/share/man/man1/
+mandb
 rclone version
