@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: ghcr.io/pandablocks/pandablocks-dev-container:latest
+      image: ubuntu:latest
       volumes:
         - ${{ github.workspace }}:/repos
         - ${{ github.workspace }}/build:/build
