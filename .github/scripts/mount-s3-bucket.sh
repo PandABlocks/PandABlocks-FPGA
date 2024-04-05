@@ -5,9 +5,9 @@
  S3_SECRET_ACCESS_KEY=$2
 
 chmod a+w /scratch
-mkdir -p $HOME/.config/rclone
+mkdir -p /home/runner/.config/rclone
 
-sudo cat >> $HOME/.config/rclone/rclone.conf <<EOL
+sudo cat >> /home/runner/.config/rclone/rclone.conf <<EOL
 [fpga-vivado]
 type = s3
 provider = Ceph
@@ -20,7 +20,6 @@ EOL
 
 chmod 600 $HOME/.config/rclone/rclone.conf
 rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon --allow-other --vfs-cache-mode full -l fpga-vivado:dls-controls-fpga-xilinx /scratch/Xilinx
-ls /scratch/Xilinx
 
 # Flag to make it run the background
 #  --daemon
