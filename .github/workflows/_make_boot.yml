@@ -41,13 +41,13 @@ jobs:
 
       # S3 bucket
       - name: Mount Vivado S3 bucket
-        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY  }}     
+        run: sudo bash repos/PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY  }}     
 
       - name: Verify S3 Bucket Mounting
-        run: ls -l /repos/scratch/Xilinx
+        run: ls -l /scratch/Xilinx
         
       - name: boot step
-        run: cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
+        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
 
       # Artifacts
       - name: Upload boot
