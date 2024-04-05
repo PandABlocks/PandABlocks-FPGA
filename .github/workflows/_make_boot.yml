@@ -50,7 +50,6 @@ jobs:
           region =
           endpoint = https://s3.echo.stfc.ac.uk
           EOL
-          sudo chmod 600 /home/runner/.config/rclone/rclone.conf
           ls -l /home/runner/.config/rclone
           
       # S3 bucket
