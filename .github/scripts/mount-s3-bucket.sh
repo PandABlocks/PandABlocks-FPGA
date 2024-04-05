@@ -7,7 +7,6 @@
 chmod a+w /scratch
 mkdir -p $HOME/.config/rclone
 
-touch $HOME/.config/rclone/rclone.conf
 cat >> $HOME/.config/rclone/rclone.conf <<EOL
 [fpga-vivado]
 type = s3
