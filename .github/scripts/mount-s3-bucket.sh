@@ -3,7 +3,6 @@
 
  S3_ACCESS_KEY_ID=$1
  S3_SECRET_ACCESS_KEY=$2
- github_workspace=$3
 
 chmod a+w /scratch
 mkdir -p $HOME/.config/rclone

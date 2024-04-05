@@ -21,9 +21,9 @@ jobs:
     container:
       image: shihabdls/pandablocks-container:latest
       volumes:
-        - ${{ github.workspace }}/repos:/repos
-        - ${{ github.workspace }}/build:/build
-        - ${{ github.workspace }}/scratch/Xilinx:/scratch/Xilinx
+        - /home/runner/_work/repos:/repos
+        - /home/runner/_work/build:/build
+        - /home/runner/_work/scratch/Xilinx:/scratch/Xilinx
 
     steps:
       # Necessary to find action.yml
@@ -38,7 +38,7 @@ jobs:
 
       # S3 bucket
       - name: Mount Vivado S3 bucket
-        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }} ${{ github.workspace }}
+        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }}
       
       - name: Verify S3 Bucket Mounting
         run: ls -l ${{ github.workspace }}/scratch/Xilinx
