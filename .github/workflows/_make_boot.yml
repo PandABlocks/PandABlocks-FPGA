@@ -59,6 +59,7 @@ jobs:
           
       - name: Verify S3 Bucket Mounting
         run: |
+          rclone lsd fpga-vivado:dls-controls-fpga-xilinx
           ls -l /scratch/Xilinx
         
       - name: boot step
