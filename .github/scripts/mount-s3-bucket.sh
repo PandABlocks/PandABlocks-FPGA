@@ -18,7 +18,7 @@ region =
 endpoint = https://s3.echo.stfc.ac.uk
 EOL
 
-chmod 600 $HOME/.config/rclone/rclone.conf
+chmod 600 /home/runner/.config/rclone/rclone.conf
 rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon --allow-other --vfs-cache-mode full -l fpga-vivado:dls-controls-fpga-xilinx /scratch/Xilinx
 
 # Flag to make it run the background
