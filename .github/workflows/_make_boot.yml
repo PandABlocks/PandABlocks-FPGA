@@ -38,7 +38,6 @@ jobs:
 
       - name: Print volumes and make config
         run: |
-          chmod a+w /scratch
           mkdir -p /home/runner/.config/rclone
           cat >> /home/runner/.config/rclone/rclone.conf <<EOL
           [fpga-vivado]
