@@ -34,7 +34,7 @@ jobs:
 
       - name: Print volumes
         run: |
-          cd ${{github.workspace}}/scratch
+          cd /scratch
           ls -l
 
       # Run action.yml
