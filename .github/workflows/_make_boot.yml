@@ -21,9 +21,9 @@ jobs:
     container:
       image: shihabdls/pandablocks-container:latest
       volumes:
-        - /home/runner/_work/repos:/repos
-        - /home/runner/_work/build:/build
-        - /home/runner/_work/scratch/Xilinx:/scratch/Xilinx
+        - ${{github.workspace}}/repos:/repos
+        - ${{github.workspace}}/build:/build
+        - ${{github.workspace}}/scratch/Xilinx:/scratch/Xilinx
 
     steps:
       # Necessary to find action.yml
@@ -31,6 +31,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
+      - name: Print volumes
+        run: |
+          cd ${{github.workspace}}
+          ls -l
 
       # Run action.yml
       - name: Checkout and install rclone
