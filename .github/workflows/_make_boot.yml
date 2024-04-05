@@ -32,14 +32,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Print volumes
-        run: |
-          cd /scratch
-          ls -l
-
       # Run action.yml
       - name: Checkout and install rclone
         uses: ./.github/actions/setupenv
+
+      - name: Print volumes
+        run: |
+          cd /repos
+          ls -l
 
       # S3 bucket
       - name: Mount Vivado S3 bucket
