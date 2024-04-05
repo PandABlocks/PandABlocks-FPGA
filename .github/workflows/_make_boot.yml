@@ -59,8 +59,7 @@ jobs:
           
       - name: Verify S3 Bucket Mounting
         run: |
-          ls -l /
-          ls -l /home/runner/.config/rclone
+          ls -l /scratch/Xilinx
         
       - name: boot step
         run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
