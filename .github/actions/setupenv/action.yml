@@ -7,14 +7,14 @@ runs:
       - name: Checkout Source
         uses: actions/checkout@v4
         with:
-          path: /repos/PandABlocks-fpga
+          path: ${{ github.workspace }}/PandABlocks-fpga
           # require history to get back to last tag for version number of branches
           fetch-depth: 0
       - name: Checkout PandABlocks-rootfs
         uses: actions/checkout@v4
         with:
           repository: PandABlocks/PandABlocks-rootfs
-          path: /repos/PandABlocks-rootfs
+          path: ${{ github.workspace }}/PandABlocks-rootfs
       # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
       # https://github.com/rclone/rclone/issues/2975
       - name: Install rclone patch
