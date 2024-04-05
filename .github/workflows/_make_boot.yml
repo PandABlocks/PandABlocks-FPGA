@@ -37,9 +37,7 @@ jobs:
         uses: ./.github/actions/setupenv
 
       - name: Print volumes
-        run: |
-          cd /repos/build
-          ls -l
+        run: ls -l /repos
 
       # S3 bucket
       - name: Mount Vivado S3 bucket
