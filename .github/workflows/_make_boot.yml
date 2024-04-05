@@ -21,8 +21,8 @@ jobs:
     container:
       image: shihabdls/pandablocks-container:latest
       volumes:
-        - ${{github.workspace}}/scratch//repos:/repos
-        - ${{github.workspace}}/scratch/build:/build
+        - ${{github.workspace}}:/repos
+        - ${{github.workspace}}/build:/build
         - ${{github.workspace}}/scratch/Xilinx:/scratch/Xilinx
 
     steps:
