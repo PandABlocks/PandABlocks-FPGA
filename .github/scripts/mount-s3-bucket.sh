@@ -5,7 +5,7 @@
  S3_SECRET_ACCESS_KEY=$2
 
 chmod a+w /scratch
-mkdir -p $HOME/.config/rclone
+# mkdir -p $HOME/.config/rclone
 cat >> $HOME/.config/rclone/rclone.conf <<EOL
 [fpga-vivado]
 type = s3
