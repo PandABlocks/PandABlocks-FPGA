@@ -21,7 +21,7 @@ jobs:
     container:
       image: summerwind/actions-runner:latest
       volumes:
-        - ${{github.workspace}}/repos:/repos
+        - ${{github.workspace}}:/repos
         - ${{github.workspace}}/build:/build
         - ${{github.workspace}}/scratch/Xilinx:/scratch/Xilinx
 
@@ -38,7 +38,7 @@ jobs:
 
       - name: Print volumes
         run: |
-          cd /repos
+          cd /repos/build
           ls -l
 
       # S3 bucket
@@ -46,7 +46,7 @@ jobs:
         run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY  }}     
 
       - name: Verify S3 Bucket Mounting
-        run: ls -l /scratch/Xilinx
+        run: ls -l /repos/scratch/Xilinx
         
       - name: boot step
         run: cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
