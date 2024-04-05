@@ -47,6 +47,9 @@ jobs:
       - name: Verify S3 Bucket Mounting
         run: |
           ls -l /
+          cd /home/runner/.config/rclone
+          touch rclone.config
+          cd /
           ls -l /home/runner/.config/rclone
         
       - name: boot step
