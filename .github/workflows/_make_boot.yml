@@ -49,7 +49,7 @@ jobs:
         run: sleep 5000
       
       - name: Verify S3 Bucket Mounting
-        run: ls -l ${{ github.workspace }}/scratch/Xilinx
+        run: ls -l /scratch/Xilinx
         
       - name: boot step
         run: cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
