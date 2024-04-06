@@ -38,6 +38,7 @@ jobs:
 
       - name: Print volumes and make config
         run: |
+          sudo apt-get -y install fuse3
           mkdir -p /home/runner/scratch/Xilinx
           mkdir -p /home/runner/.config/rclone
           cat >> /home/runner/.config/rclone/rclone.conf <<EOL
