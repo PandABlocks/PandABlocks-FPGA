@@ -38,6 +38,7 @@ jobs:
 
       - name: Print volumes and make config
         run: |
+          mkdir -p /home/runner/scratch/Xilinx
           mkdir -p /home/runner/.config/rclone
           cat >> /home/runner/.config/rclone/rclone.conf <<EOL
           [fpga-vivado]
@@ -54,13 +55,12 @@ jobs:
       # S3 bucket
       - name: Mount Vivado S3 bucket
         run: |
-          rclone config file
-          rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon --allow-other --vfs-cache-mode full -l fpga-vivado:dls-controls-fpga-xilinx /scratch/Xilinx
+          rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon --allow-other --vfs-cache-mode full -l fpga-vivado:dls-controls-fpga-xilinx /home/runner/scratch/Xilinx
           
       - name: Verify S3 Bucket Mounting
         run: |
           rclone lsd fpga-vivado:dls-controls-fpga-xilinx
-          ls -l /scratch/Xilinx
+          ls -l /home/runner/scratch/Xilinx
         
       - name: boot step
         run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
