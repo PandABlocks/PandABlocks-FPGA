@@ -61,6 +61,7 @@ jobs:
         run: |
           rclone lsd fpga-vivado:dls-controls-fpga-xilinx
           ls -l /home/runner/scratch/Xilinx
+          ls -l /home/runner/scratch
         
       - name: boot step
         run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
