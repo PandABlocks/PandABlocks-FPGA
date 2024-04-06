@@ -26,10 +26,11 @@ jobs:
         - ${{github.workspace}}/scratch/Xilinx:/scratch/Xilinx
 
     steps:
-      - name: Check fuse
+      - name: Install fuse and check
         run: |
-          ls -l /bin
-          ls -l /home/runner
+          apt update
+          apt-get -y install fuse3
+          which fusermount
         
       # Necessary to find action.yml
       - name: Checkout Source
