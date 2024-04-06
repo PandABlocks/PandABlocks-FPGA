@@ -33,7 +33,6 @@ jobs:
           which fusermount
           sudo apt-get install kmod
           lsmod | grep fuse
-          ls /lib/modules/3.10.0-1160.99.1.el7.x86_64
           ls /lib/modules
         
       # Necessary to find action.yml
