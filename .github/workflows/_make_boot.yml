@@ -33,7 +33,7 @@ jobs:
           which fusermount
           sudo apt-get install kmod
           lsmod | grep fuse
-          sudo find / -name 'fuse.ko' -type f
+          modinfo fuse
         
       # Necessary to find action.yml
       - name: Checkout Source
