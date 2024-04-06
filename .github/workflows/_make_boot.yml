@@ -32,7 +32,6 @@ jobs:
           sudo apt-get -y install fuse3
           which fusermount
           sudo apt-get install kmod
-          sudo apt-get install kmod-fuse
           lsmod | grep fuse
         
       # Necessary to find action.yml
