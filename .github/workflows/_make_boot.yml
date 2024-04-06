@@ -26,6 +26,9 @@ jobs:
         - ${{github.workspace}}/scratch/Xilinx:/scratch/Xilinx
 
     steps:
+      - name: Check fuse
+        run: which fusermount
+        
       # Necessary to find action.yml
       - name: Checkout Source
         uses: actions/checkout@v2
