@@ -55,7 +55,7 @@ jobs:
       # S3 bucket
       - name: Mount Vivado S3 bucket
         run: |
-          rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon --allow-other --vfs-cache-mode full -l fpga-vivado:dls-controls-fpga-xilinx /home/runner/scratch/Xilinx
+          /usr/bin/rclone mount --file-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon --allow-other --vfs-cache-mode full -l fpga-vivado:dls-controls-fpga-xilinx /home/runner/scratch/Xilinx
           
       - name: Verify S3 Bucket Mounting
         run: |
