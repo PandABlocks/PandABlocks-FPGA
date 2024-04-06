@@ -28,8 +28,8 @@ jobs:
     steps:
       - name: Install fuse and check
         run: |
-          apt update
-          apt-get -y install fuse3
+          sudo apt update
+          sudo apt-get -y install fuse3
           which fusermount
         
       # Necessary to find action.yml
