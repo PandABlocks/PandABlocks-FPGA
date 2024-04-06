@@ -28,7 +28,8 @@ jobs:
     steps:
       - name: Check fuse
         run: |
-          ls -l /opt
+          ls -l /bin
+          ls -l /home/runner
         
       # Necessary to find action.yml
       - name: Checkout Source
