@@ -28,8 +28,8 @@ jobs:
     steps:
       - name: Check fuse
         run: |
-          ls -l /usr/local
-          ls -l /usr/local/bin
+          ls -l /
+          ls -l /usr/local/bin/docker
         
       # Necessary to find action.yml
       - name: Checkout Source
