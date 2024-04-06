@@ -27,7 +27,9 @@ jobs:
 
     steps:
       - name: Check fuse
-        run: which fusermount
+        run: |
+          ls -l /usr/local
+          ls -l /usr/local/bin
         
       # Necessary to find action.yml
       - name: Checkout Source
