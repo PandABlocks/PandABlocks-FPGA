@@ -31,6 +31,7 @@ jobs:
           sudo apt update
           sudo apt-get -y install fuse3
           which fusermount
+          sudo apt-get install kmod
         
       # Necessary to find action.yml
       - name: Checkout Source
