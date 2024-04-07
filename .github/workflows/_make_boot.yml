@@ -29,8 +29,8 @@ jobs:
       - name: Install fuse and check
         run: |
           sudo apt-get update
-          sudo apt-get upgrade
-          sudo apt-get dist-upgrade
+          sudo apt-get upgrade -y
+          sudo apt-get dist-upgrade -y
           reboot
           sudo apt-get install linux-headers-$(uname -r)
           sudo apt-get -y install fuse3
