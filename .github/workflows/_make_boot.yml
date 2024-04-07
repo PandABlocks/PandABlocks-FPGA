@@ -29,7 +29,6 @@ jobs:
     steps:
       - name: Install fuse and check
         run: |
-          ls -l /proc/modules
           sudo apt-get update
           sudo apt-get upgrade -y
           sudo apt-get dist-upgrade -y
@@ -37,6 +36,7 @@ jobs:
           which fusermount
           sudo apt-get install kmod
           lsmod | grep fuse
+          ls -l /proc/modules
           modinfo fuse
         
       # Necessary to find action.yml
