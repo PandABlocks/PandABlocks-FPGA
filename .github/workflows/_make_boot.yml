@@ -31,7 +31,7 @@ jobs:
           sudo apt-get update
           sudo apt-get upgrade -y
           sudo apt-get dist-upgrade -y
-          sudo apt-get install linux-headers-$(uname -r)
+          sudo apt-cache search linux-headers
           sudo apt-get -y install fuse3
           which fusermount
           sudo apt-get install kmod
