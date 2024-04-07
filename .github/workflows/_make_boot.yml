@@ -20,6 +20,7 @@ jobs:
       group: iris_runners
     container:
       image: shihabdls/pandablocks-container:latest
+      options: --privileged
       volumes:
         - ${{github.workspace}}/repos:/repos
         - ${{github.workspace}}/build:/build
@@ -31,7 +32,6 @@ jobs:
           sudo apt-get update
           sudo apt-get upgrade -y
           sudo apt-get dist-upgrade -y
-          sudo apt-cache search linux-headers
           sudo apt-get -y install fuse3
           which fusermount
           sudo apt-get install kmod
