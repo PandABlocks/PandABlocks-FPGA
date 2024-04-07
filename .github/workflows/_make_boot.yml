@@ -29,7 +29,7 @@ jobs:
       - name: Install fuse and check
         run: |
           sudo apt update
-          sudo apt-get install linux-headers-$(uname -r) build-essential
+          sudo apt install linux-headers-$(uname -r) 
           sudo apt-get -y install fuse3
           which fusermount
           sudo apt-get install kmod
