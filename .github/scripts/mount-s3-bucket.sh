@@ -19,7 +19,7 @@ endpoint = https://s3.echo.stfc.ac.uk
 EOL
 
 chmod 600 $HOME/.config/rclone/rclone.conf
-rclone mount --file-perms 0777 --dir-perms 0777 --attr-timeout=10m --no-modtime --read-only --daemon --allow-other --vfs-cache-mode full -l fpga-vivado:dls-controls-fpga-xilinx /scratch/Xilinx
+rclone copy fpga-vivado:dls-controls-fpga-xilinx/Vivado/2022.2/settings64.sh /scratch/Xilinx
 
 # Flag to make it run the background
 #  --daemon
