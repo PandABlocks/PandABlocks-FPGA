@@ -27,18 +27,6 @@ jobs:
         - ${{github.workspace}}/scratch/Xilinx:/scratch/Xilinx
 
     steps:
-      - name: Install fuse and check
-        run: |
-          sudo apt-get update
-          sudo apt-get upgrade -y
-          sudo apt-get dist-upgrade -y
-          sudo apt-get -y install fuse3
-          which fusermount
-          sudo apt-get install kmod
-          lsmod | grep fuse
-          ls -l /proc/modules
-          modinfo fuse
-        
       # Necessary to find action.yml
       - name: Checkout Source
         uses: actions/checkout@v2
@@ -68,14 +56,12 @@ jobs:
       # S3 bucket
       - name: Mount Vivado S3 bucket
         run: |
-          sudo modprobe fuse
-          /usr/bin/rclone mount --file-perms 0777 --dir-perms 0777 --attr-timeout=10m --no-modtime --read-only --allow-other --vfs-cache-mode full -l fpga-vivado:dls-controls-fpga-xilinx /home/runner/scratch/Xilinx -vvvv
+          /usr/bin/rclone copy fpga-vivado:dls-controls-fpga-xilinx/Vivado/2022.2/settings64.sh /home/runner/scratch/Xilinx
           
       - name: Verify S3 Bucket Mounting
         run: |
           rclone lsd fpga-vivado:dls-controls-fpga-xilinx
           ls -l /home/runner/scratch/Xilinx
-          ls -l /home/runner/scratch
         
       - name: boot step
         run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
