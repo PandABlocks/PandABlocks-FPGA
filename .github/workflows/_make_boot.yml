@@ -22,7 +22,7 @@ jobs:
       image: shihabdls/pandablocks-container-extension:latest
       options: --privileged
       volumes:
-        - ${{github.workspace}}:/repos
+        - ${{github.workspace}}/repos:/repos
         - ${{github.workspace}}/build:/build
         - ${{github.workspace}}/scratch/Xilinx:/scratch/Xilinx
 
@@ -39,14 +39,17 @@ jobs:
           
       # S3 bucket
       - name: Download Vivado Build Tools
-        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+        run: sudo bash repos/PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
           
       - name: Verify Vivado Contents
         run: |
           ls -l /scratch/Xilinx
         
       - name: Make boot
-        run: cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
+        run: |
+          sudo locale-gen "en_US.UTF-8"
+          sudo update-locale LANG=en_US.UTF-8
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
 
       # Artifacts
       - name: Upload boot
