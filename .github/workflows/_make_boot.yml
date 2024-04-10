@@ -49,6 +49,7 @@ jobs:
         run: |
           sudo locale-gen "en_US.UTF-8"
           sudo update-locale LANG=en_US.UTF-8
+          sudo apt-get install libtinfo5
           cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
 
       # Artifacts
