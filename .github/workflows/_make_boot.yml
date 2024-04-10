@@ -33,6 +33,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check Image Depens
+        run: apt --installed list
+
       # Run action.yml
       - name: Checkout Repos and Install Rclone
         uses: ./.github/actions/setupenv
@@ -41,9 +44,7 @@ jobs:
       - name: Download Vivado Build Tools
         run: |
           sudo locale-gen "en_US.UTF-8"
-          sudo update-locale LANG=en_US.UTF-8
-          sudo apt-get update
-          sudo apt-get install libtinfo5          
+          sudo update-locale LANG=en_US.UTF-8      
           sudo bash repos/PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
           
       - name: Verify Vivado Contents
