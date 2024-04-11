@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: shihabdls/pandablocks-container-extension:latest
+      image: shihabdls/pandablocks-container:latest
       options: --privileged
       volumes:
         - ${{github.workspace}}/repos:/repos
