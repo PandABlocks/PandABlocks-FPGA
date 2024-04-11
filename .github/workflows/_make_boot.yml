@@ -52,8 +52,8 @@ jobs:
 
       - name: Clean /scratch
         if: always()
-        run: sudo rm -rf /scratch
-      
+        run: sudo rm -rf /scratch/Xilinx
+
       - name: Verify Vivado Deletion
         run: ls -l /scratch
 
