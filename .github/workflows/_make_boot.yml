@@ -33,9 +33,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check Image Depens
-        run: apt --installed list
-
       # Run action.yml
       - name: Checkout Repos and Install Rclone
         uses: ./.github/actions/setupenv
