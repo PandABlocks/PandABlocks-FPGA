@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>common.python.configs &mdash; PandABlocks-FPGA 3.0-21-ga2aaaf9
+  <title>common.python.configs &mdash; PandABlocks-FPGA 3.0-24-g1c08986
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
@@ -40,7 +40,7 @@
               <img src="../../../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0-21-ga2aaaf9
+                3.0-24-g1c08986
 
               </div>
 <div role="search">
@@ -409,6 +409,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">wstb</span> <span class="o">=</span> <span class="n">extra_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;wstb&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="c1">#: If the field is associated to an option</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">option_filter</span> <span class="o">=</span> <span class="n">extra_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;if-option&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="c1">#: Store the initial value, if supplied - only for params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span> <span class="o">=</span> <span class="n">extra_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;initial_value&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="s2">&quot;param&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> \
+                <span class="s2">&quot;Only Param fields can have initial values&quot;</span>
         <span class="c1">#: Store the extension register info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">=</span> <span class="n">extra_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;extension&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extension_write</span> <span class="o">=</span> <span class="n">extra_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;extension_write&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -648,7 +653,15 @@
             <span class="n">address</span> <span class="o">=</span> <span class="n">counters</span><span class="o">.</span><span class="n">new_field</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">RegisterConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">write_extension</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extension_write</span><span class="p">,</span> <span class="n">read_extension</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extension_read</span><span class="p">))</span></div></div>
+            <span class="n">RegisterConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="n">write_extension</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extension_write</span><span class="p">,</span> <span class="n">read_extension</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extension_read</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ParamFieldConfig.config_line"><a class="viewcode-back" href="../../../reference/framework.html#common.python.configs.ParamFieldConfig.config_line">[docs]</a>    <span class="k">def</span> <span class="nf">config_line</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce the line that should go in the config file after name&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ParamFieldConfig</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">config_line</span><span class="p">()</span></div></div>
 
 <div class="viewcode-block" id="CalcExtensionFieldConfig"><a class="viewcode-back" href="../../../reference/framework.html#common.python.configs.CalcExtensionFieldConfig">[docs]</a><span class="k">class</span> <span class="nc">CalcExtensionFieldConfig</span><span class="p">(</span><span class="n">ParamFieldConfig</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;These fields act in the same way as write record from the VHDL generation </span>

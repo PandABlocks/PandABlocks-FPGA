@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Autogeneration framework architecture &mdash; PandABlocks-FPGA 3.0-21-ga2aaaf9
+  <title>Autogeneration framework architecture &mdash; PandABlocks-FPGA 3.0-24-g1c08986
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
@@ -42,7 +42,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0-21-ga2aaaf9
+                3.0-24-g1c08986
 
               </div>
 <div role="search">
@@ -154,6 +154,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.FieldConfig.bus_entries"><code class="docutils literal notranslate"><span class="pre">FieldConfig.bus_entries</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.FieldConfig.wstb"><code class="docutils literal notranslate"><span class="pre">FieldConfig.wstb</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.FieldConfig.option_filter"><code class="docutils literal notranslate"><span class="pre">FieldConfig.option_filter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#common.python.configs.FieldConfig.initial_value"><code class="docutils literal notranslate"><span class="pre">FieldConfig.initial_value</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.FieldConfig.extension"><code class="docutils literal notranslate"><span class="pre">FieldConfig.extension</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.FieldConfig.extra_config_lines"><code class="docutils literal notranslate"><span class="pre">FieldConfig.extra_config_lines</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.FieldConfig.parse_extra_config"><code class="docutils literal notranslate"><span class="pre">FieldConfig.parse_extra_config()</span></code></a></li>
@@ -203,6 +204,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#common.python.configs.ParamFieldConfig"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.ParamFieldConfig.type_regex"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig.type_regex</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common.python.configs.ParamFieldConfig.register_addresses"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig.register_addresses()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#common.python.configs.ParamFieldConfig.config_line"><code class="docutils literal notranslate"><span class="pre">ParamFieldConfig.config_line()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#common.python.configs.CalcExtensionFieldConfig"><code class="docutils literal notranslate"><span class="pre">CalcExtensionFieldConfig</span></code></a><ul>
@@ -575,6 +577,12 @@ that don’t match</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="common.python.configs.FieldConfig.initial_value">
+<span class="sig-name descname"><span class="pre">initial_value</span></span><a class="headerlink" href="#common.python.configs.FieldConfig.initial_value" title="Permalink to this definition"></a></dt>
+<dd><p>Store the initial value, if supplied - only for params</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="common.python.configs.FieldConfig.extension">
 <span class="sig-name descname"><span class="pre">extension</span></span><a class="headerlink" href="#common.python.configs.FieldConfig.extension" title="Permalink to this definition"></a></dt>
 <dd><p>Store the extension register info</p>
@@ -785,6 +793,12 @@ register</p>
 <dt class="sig sig-object py" id="common.python.configs.ParamFieldConfig.register_addresses">
 <span class="sig-name descname"><span class="pre">register_addresses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">counters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#ParamFieldConfig.register_addresses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#common.python.configs.ParamFieldConfig.register_addresses" title="Permalink to this definition"></a></dt>
 <dd><p>Create registers using the FieldCounter object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="common.python.configs.ParamFieldConfig.config_line">
+<span class="sig-name descname"><span class="pre">config_line</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/common/python/configs.html#ParamFieldConfig.config_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#common.python.configs.ParamFieldConfig.config_line" title="Permalink to this definition"></a></dt>
+<dd><p>Produce the line that should go in the config file after name</p>
 </dd></dl>
 
 </dd></dl>
