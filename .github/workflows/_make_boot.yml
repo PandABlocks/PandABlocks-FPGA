@@ -56,7 +56,7 @@ jobs:
 
       - name: Verify Vivado Deletion
         if: always()
-        run: ls -l /scratch
+        run: ls -l /scratch/Xilinx
 
       # Artifacts
       - name: Upload boot
