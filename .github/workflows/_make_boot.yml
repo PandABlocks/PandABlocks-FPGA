@@ -50,6 +50,13 @@ jobs:
       - name: Make boot
         run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
 
+      - name: Clean /scratch
+        if: always()
+        run: sudo rm -rf /scratch
+      
+      - name: Verify Vivado Deletion
+        run: ls -l /scratch
+
       # Artifacts
       - name: Upload boot
         uses: actions/upload-artifact@v2
