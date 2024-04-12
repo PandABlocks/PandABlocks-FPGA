@@ -19,14 +19,12 @@ endpoint = https://s3.echo.stfc.ac.uk
 EOL
 
 chmod 600 $HOME/.config/rclone/rclone.conf
-#rclone copy fpga-vivado:dls-controls-fpga-xilinx/Vivado/2023.2 /scratch/Xilinx/Vivado/2023.2 --transfers=128 --progress --max-backlog 999999
+rclone copy fpga-vivado:dls-controls-fpga-xilinx/Vivado/2023.2 /scratch/Xilinx/Vivado/2023.2 --transfers=128 --progress --max-backlog 999999
 #rclone copy fpga-vivado:dls-controls-fpga-xilinx/Vitis/2023.2 /scratch/Xilinx/Vitis/2023.2 --transfers=128 --progress --max-backlog 999999
 #rclone copy fpga-vivado:dls-controls-fpga-xilinx/Vitis_HLS/2023.2 /scratch/Xilinx/Vitis_HLS/2023.2 --transfers=128 --progress --max-backlog 999999
-#chmod -R 777 /scratch/Xilinx/Vivado/2023.2
+chmod -R 777 /scratch/Xilinx/Vivado/2023.2
 #chmod -R 777 /scratch/Xilinx/Vitis/2023.2
 #chmod -R 777 /scratch/Xilinx/Vitis_HLS/2023.2
-rclone copy fpga-vivado:dls-controls-fpga-xilinx/Vivado/2023.2/doc/wbtc-imp.png /scratch/Xilinx/Vivado/2023.2 --transfers=128 --progress --max-backlog 999999
-chmod -R 777 /scratch/Xilinx/Vivado/2023.2
 
 # Flag to make it run the background
 #  --daemon
