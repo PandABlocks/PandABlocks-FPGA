@@ -50,12 +50,14 @@ jobs:
 #      - name: Make boot
 #        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
 
-#      - name: Clean /scratch
-#        if: always()
-#        run: |
-#          sudo rm -rf /scratch/Xilinx/Vivado
-#          sudo rm -rf /scratch/Xilinx/Vitis
-#          sudo rm -rf /scratch/Xilinx/Vitis_HLS
+      - name: Clean /scratch
+        if: always()
+        run: |
+          sudo rm -rf /scratch/Xilinx/Vivado
+          sudo rm -rf /scratch/Xilinx/Vitis
+          sudo rm -rf /scratch/Xilinx/Vitis_HLS
+          sudo rm -rf /repos/PandABlocks-FPGA
+          sudo rm -rf /repos/PandABlocks-rootfs
 
 #      - name: Verify Vivado Deletion
 #        if: always()
