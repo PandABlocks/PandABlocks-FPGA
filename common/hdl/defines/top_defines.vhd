@@ -40,6 +40,7 @@ alias PBUSBW is top_defines_gen.PBUSBW;
 alias EBUSW is top_defines_gen.EBUSW;
 alias PCAP_STD_DEV_OPTION is top_defines_gen.PCAP_STD_DEV_OPTION;
 alias FINE_DELAY_OPTION is top_defines_gen.FINE_DELAY_OPTION;
+alias PICXO_OPTION is top_defines_gen.PICXO_OPTION;
 --------------------------------------------------------------------------
 
 constant DCARD_MONITOR          : std_logic_vector(2 downto 0) := "011";

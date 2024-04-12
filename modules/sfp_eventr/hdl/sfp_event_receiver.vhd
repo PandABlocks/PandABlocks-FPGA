@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+use work.top_defines.all;
 use work.picxo_pkg.all;
 use work.support.all;
 
@@ -64,40 +65,6 @@ signal gt0_txresetdone_sync         : std_logic;
 signal gt0_rxresetdone_sync         : std_logic;
 signal init_rst                     : std_logic;
 signal mgt_rst                      : std_logic;
-
--- PICXO control parameters (currently default to constant init values in pkg)
-signal  G1                              : STD_LOGIC_VECTOR (4 downto 0)     := c_G1;
-signal  G2                              : STD_LOGIC_VECTOR (4 downto 0)     := c_G2;
-signal  R                               : STD_LOGIC_VECTOR (15 downto 0)    := c_R;
-signal  V                               : STD_LOGIC_VECTOR (15 downto 0)    := c_V;
-signal  ce_dsp_rate                     : std_logic_vector (23 downto 0)    := c_ce_dsp_rate;
-signal  C                               : STD_LOGIC_VECTOR (6 downto 0)     := c_C;
-signal  P                               : STD_LOGIC_VECTOR (9 downto 0)     := c_P;
-signal  N                               : STD_LOGIC_VECTOR (9 downto 0)     := c_N;
-signal  don                             : STD_LOGIC_VECTOR (0 downto 0)     := c_don;
-
-signal  Offset_ppm                      : std_logic_vector (21 downto 0)    := c_Offset_ppm;
-signal  Offset_en                       : std_logic                         := c_Offset_en;
-signal  hold                            : std_logic                         := c_hold;
-signal  acc_step                        : STD_LOGIC_VECTOR (3 downto 0)     := c_acc_step;
-
--- PICXO Monitoring signals (currently dangling, but can be connected to ILA)
-signal picxo_error                          : STD_LOGIC_VECTOR (20 downto 0) ;
-signal volt                           : STD_LOGIC_VECTOR (21 downto 0) ;
-signal drpdata_short                  : STD_LOGIC_VECTOR (7  downto 0) ;
-signal ce_pi                          : STD_LOGIC ;
-signal ce_pi2                         : STD_LOGIC ;
-signal ce_dsp                         : STD_LOGIC ;
-signal ovf_pd                           : STD_LOGIC ;
-signal ovf_ab                           : STD_LOGIC ;
-signal ovf_volt                         : STD_LOGIC ;
-signal ovf_int                          : STD_LOGIC ;
-
-signal    picxo_rst                     : std_logic_vector(7 downto 0) := (others =>'0');
-attribute shreg_extract                 : string;
-attribute equivalent_register_removal   : string;
-attribute shreg_extract of picxo_rst                  : signal is "no";
-attribute equivalent_register_removal of picxo_rst    : signal is "no"; 
 
 begin
 
@@ -281,64 +248,101 @@ event_receiver_mgt_inst : entity work.event_receiver_mgt
         GT0_QPLLOUTREFCLK_IN        => gt0_qplloutrefclk_in
         );
 
-process (txoutclk, picxo_rst, gt0_cplllock)
+PICXO_GEN: if PICXO_OPTION = '1' generate
+    -- PICXO control parameters (currently default to constant init values in pkg)
+    signal  G1                              : STD_LOGIC_VECTOR (4 downto 0)     := c_G1;
+    signal  G2                              : STD_LOGIC_VECTOR (4 downto 0)     := c_G2;
+    signal  R                               : STD_LOGIC_VECTOR (15 downto 0)    := c_R;
+    signal  V                               : STD_LOGIC_VECTOR (15 downto 0)    := c_V;
+    signal  ce_dsp_rate                     : std_logic_vector (23 downto 0)    := c_ce_dsp_rate;
+    signal  C                               : STD_LOGIC_VECTOR (6 downto 0)     := c_C;
+    signal  P                               : STD_LOGIC_VECTOR (9 downto 0)     := c_P;
+    signal  N                               : STD_LOGIC_VECTOR (9 downto 0)     := c_N;
+    signal  don                             : STD_LOGIC_VECTOR (0 downto 0)     := c_don;
+
+    signal  Offset_ppm                      : std_logic_vector (21 downto 0)    := c_Offset_ppm;
+    signal  Offset_en                       : std_logic                         := c_Offset_en;
+    signal  hold                            : std_logic                         := c_hold;
+    signal  acc_step                        : STD_LOGIC_VECTOR (3 downto 0)     := c_acc_step;
+
+    -- PICXO Monitoring signals (currently dangling, but can be connected to ILA)
+    signal picxo_error                          : STD_LOGIC_VECTOR (20 downto 0) ;
+    signal volt                           : STD_LOGIC_VECTOR (21 downto 0) ;
+    signal drpdata_short                  : STD_LOGIC_VECTOR (7  downto 0) ;
+    signal ce_pi                          : STD_LOGIC ;
+    signal ce_pi2                         : STD_LOGIC ;
+    signal ce_dsp                         : STD_LOGIC ;
+    signal ovf_pd                           : STD_LOGIC ;
+    signal ovf_ab                           : STD_LOGIC ;
+    signal ovf_volt                         : STD_LOGIC ;
+    signal ovf_int                          : STD_LOGIC ;
+
+    signal    picxo_rst                     : std_logic_vector(7 downto 0) := (others =>'0');
+    attribute shreg_extract                 : string;
+    attribute equivalent_register_removal   : string;
+    attribute shreg_extract of picxo_rst                  : signal is "no";
+    attribute equivalent_register_removal of picxo_rst    : signal is "no"; 
 begin
-   if(picxo_rst(0) = '1' or not gt0_cplllock ='1') then
-        picxo_rst (7 downto 1)     <= (others=>'1');
-   elsif rising_edge (txoutclk) then
-        picxo_rst (7 downto 1)     <=  picxo_rst(6 downto 0);
-end if;
-end process;  
 
-sfp_eventr_PICXO : PICXO_FRACXO
-    PORT MAP (
-        RESET_I => picxo_rst(7),
-        REF_CLK_I => sysclk_i,
-        TXOUTCLK_I => txoutclk,
-        DRPEN_O => gt0_drpen,
-        DRPWEN_O => gt0_drpwe,
-        DRPDO_I => gt0_drpdo,
-        DRPDATA_O => gt0_drpdi,
-        DRPADDR_O => gt0_drpaddr,
-        DRPRDY_I => gt0_drprdy,
-        RSIGCE_I => '1',
-        VSIGCE_I => '1',
-        VSIGCE_O => open,
-        ACC_STEP => acc_step,
-        G1 => G1,
-        G2 => G2,
-        R => R,
-        V => V,
-        CE_DSP_RATE => ce_dsp_rate,
-        C_I => C,
-        P_I => P,
-        N_I => N,
-        OFFSET_PPM => Offset_ppm,
-        OFFSET_EN => Offset_en,
-        HOLD => hold,
-        DON_I => don,
+    process (txoutclk, picxo_rst, gt0_cplllock)
+    begin
+       if(picxo_rst(0) = '1' or not gt0_cplllock ='1') then
+            picxo_rst (7 downto 1)     <= (others=>'1');
+       elsif rising_edge (txoutclk) then
+            picxo_rst (7 downto 1)     <=  picxo_rst(6 downto 0);
+    end if;
+    end process;  
 
-        DRP_USER_REQ_I => '0',
-        DRP_USER_DONE_I => picxo_rst(7),
-        DRPEN_USER_I => '0',
-        DRPWEN_USER_I => '0',
-        DRPADDR_USER_I => (others => '1'),
-        DRPDATA_USER_I => (others => '1'),
-        DRPDATA_USER_O => open,
-        DRPRDY_USER_O => open,
-        DRPBUSY_O => open,
+    sfp_eventr_PICXO : PICXO_FRACXO
+        PORT MAP (
+            RESET_I => picxo_rst(7),
+            REF_CLK_I => sysclk_i,
+            TXOUTCLK_I => txoutclk,
+            DRPEN_O => gt0_drpen,
+            DRPWEN_O => gt0_drpwe,
+            DRPDO_I => gt0_drpdo,
+            DRPDATA_O => gt0_drpdi,
+            DRPADDR_O => gt0_drpaddr,
+            DRPRDY_I => gt0_drprdy,
+            RSIGCE_I => '1',
+            VSIGCE_I => '1',
+            VSIGCE_O => open,
+            ACC_STEP => acc_step,
+            G1 => G1,
+            G2 => G2,
+            R => R,
+            V => V,
+            CE_DSP_RATE => ce_dsp_rate,
+            C_I => C,
+            P_I => P,
+            N_I => N,
+            OFFSET_PPM => Offset_ppm,
+            OFFSET_EN => Offset_en,
+            HOLD => hold,
+            DON_I => don,
 
-        ACC_DATA => open,
-        ERROR_O => picxo_error,
-        VOLT_O => volt,
-        DRPDATA_SHORT_O => drpdata_short,
-        CE_PI_O => ce_pi,
-        CE_PI2_O => ce_pi2,
-        CE_DSP_O => ce_dsp,
-        OVF_PD => ovf_pd,
-        OVF_AB => ovf_ab,
-        OVF_VOLT => ovf_volt,
-        OVF_INT => ovf_int
-    );
+            DRP_USER_REQ_I => '0',
+            DRP_USER_DONE_I => picxo_rst(7),
+            DRPEN_USER_I => '0',
+            DRPWEN_USER_I => '0',
+            DRPADDR_USER_I => (others => '1'),
+            DRPDATA_USER_I => (others => '1'),
+            DRPDATA_USER_O => open,
+            DRPRDY_USER_O => open,
+            DRPBUSY_O => open,
+
+            ACC_DATA => open,
+            ERROR_O => picxo_error,
+            VOLT_O => volt,
+            DRPDATA_SHORT_O => drpdata_short,
+            CE_PI_O => ce_pi,
+            CE_PI2_O => ce_pi2,
+            CE_DSP_O => ce_dsp,
+            OVF_PD => ovf_pd,
+            OVF_AB => ovf_ab,
+            OVF_VOLT => ovf_volt,
+            OVF_INT => ovf_int
+        );
+end generate;
 
 end rtl;
