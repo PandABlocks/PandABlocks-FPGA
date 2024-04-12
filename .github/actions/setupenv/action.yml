@@ -19,4 +19,4 @@ runs:
       # https://github.com/rclone/rclone/issues/2975
       - name: Install rclone patch
         shell: bash
-        run: bash PandABlocks-fpga/.github/scripts/rclone-patch.sh
+        run: bash repos/PandABlocks-fpga/.github/scripts/rclone-patch.sh
