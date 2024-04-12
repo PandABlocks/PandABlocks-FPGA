@@ -37,99 +37,6 @@ end sfp_panda_sync_mgt_interface;
 
 architecture rtl of sfp_panda_sync_mgt_interface is
 
-component sfp_panda_sync 
-port
-    (
-    SYSCLK_IN                               : in   std_logic;
-    SOFT_RESET_TX_IN                        : in   std_logic;
-    SOFT_RESET_RX_IN                        : in   std_logic;
-    DONT_RESET_ON_DATA_ERROR_IN             : in   std_logic;
-    GT0_TX_FSM_RESET_DONE_OUT               : out  std_logic;
-    GT0_RX_FSM_RESET_DONE_OUT               : out  std_logic;
-    GT0_DATA_VALID_IN                       : in   std_logic;
-    --_________________________________________________________________________
-    --GT0  (X0Y1)
-    --____________________________CHANNEL PORTS________________________________
-    --------------------------------- CPLL Ports -------------------------------
-    gt0_cpllfbclklost_out                   : out  std_logic;
-    gt0_cplllock_out                        : out  std_logic;
-    gt0_cplllockdetclk_in                   : in   std_logic;
-    gt0_cpllreset_in                        : in   std_logic;
-    -------------------------- Channel - Clocking Ports ------------------------
-    gt0_gtrefclk0_in                        : in   std_logic;
-    gt0_gtrefclk1_in                        : in   std_logic;
-    ---------------------------- Channel - DRP Ports  --------------------------
-    gt0_drpaddr_in                          : in   std_logic_vector(8 downto 0);
-    gt0_drpclk_in                           : in   std_logic;
-    gt0_drpdi_in                            : in   std_logic_vector(15 downto 0);
-    gt0_drpdo_out                           : out  std_logic_vector(15 downto 0);
-    gt0_drpen_in                            : in   std_logic;
-    gt0_drprdy_out                          : out  std_logic;
-    gt0_drpwe_in                            : in   std_logic;
-    --------------------------- Digital Monitor Ports --------------------------
-    gt0_dmonitorout_out                     : out  std_logic_vector(7 downto 0);
-    --------------------- RX Initialization and Reset Ports --------------------
-    gt0_eyescanreset_in                     : in   std_logic;
-    gt0_rxuserrdy_in                        : in   std_logic;
-    -------------------------- RX Margin Analysis Ports ------------------------
-    gt0_eyescandataerror_out                : out  std_logic;
-    gt0_eyescantrigger_in                   : in   std_logic;
-    ------------------ Receive Ports - FPGA RX Interface Ports -----------------
-    gt0_rxusrclk_in                         : in   std_logic;
-    gt0_rxusrclk2_in                        : in   std_logic;
-    ------------------ Receive Ports - FPGA RX interface Ports -----------------
-    gt0_rxdata_out                          : out  std_logic_vector(31 downto 0);
-    ------------------ Receive Ports - RX 8B/10B Decoder Ports -----------------
-    gt0_rxdisperr_out                       : out  std_logic_vector(3 downto 0);
-    gt0_rxnotintable_out                    : out  std_logic_vector(3 downto 0);
-    --------------------------- Receive Ports - RX AFE -------------------------
-    gt0_gtxrxp_in                           : in   std_logic;
-    ------------------------ Receive Ports - RX AFE Ports ----------------------
-    gt0_gtxrxn_in                           : in   std_logic;
-    -------------- Receive Ports - RX Byte and Word Alignment Ports ------------
-    gt0_rxbyteisaligned_out                 : out  std_logic;
-    gt0_rxbyterealign_out                   : out  std_logic;
-    gt0_rxcommadet_out                      : out  std_logic;
-    gt0_rxmcommaalignen_in                  : in   std_logic;
-    gt0_rxpcommaalignen_in                  : in   std_logic;
-    --------------------- Receive Ports - RX Equalizer Ports -------------------
-    gt0_rxdfelpmreset_in                    : in   std_logic;
-    gt0_rxmonitorout_out                    : out  std_logic_vector(6 downto 0);
-    gt0_rxmonitorsel_in                     : in   std_logic_vector(1 downto 0);
-    --------------- Receive Ports - RX Fabric Output Control Ports -------------
-    gt0_rxoutclk_out                        : out  std_logic;
-    ------------- Receive Ports - RX Initialization and Reset Ports ------------
-    gt0_gtrxreset_in                        : in   std_logic;
-    gt0_rxpmareset_in                       : in   std_logic;
-    ------------------- Receive Ports - RX8B/10B Decoder Ports -----------------
-    gt0_rxcharisk_out                       : out  std_logic_vector(3 downto 0);
-    -------------- Receive Ports -RX Initialization and Reset Ports ------------
-    gt0_rxresetdone_out                     : out  std_logic;
-    --------------------- TX Initialization and Reset Ports --------------------
-    gt0_gttxreset_in                        : in   std_logic;
-    gt0_txuserrdy_in                        : in   std_logic;
-    ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
-    gt0_txusrclk_in                         : in   std_logic;
-    gt0_txusrclk2_in                        : in   std_logic;
-    ------------------ Transmit Ports - TX Data Path interface -----------------
-    gt0_txdata_in                           : in   std_logic_vector(31 downto 0);
-    ---------------- Transmit Ports - TX Driver and OOB signaling --------------
-    gt0_gtxtxn_out                          : out  std_logic;
-    gt0_gtxtxp_out                          : out  std_logic;
-    ----------- Transmit Ports - TX Fabric Clock Output Control Ports ----------
-    gt0_txoutclk_out                        : out  std_logic;
-    gt0_txoutclkfabric_out                  : out  std_logic;
-    gt0_txoutclkpcs_out                     : out  std_logic;
-    --------------------- Transmit Ports - TX Gearbox Ports --------------------
-    gt0_txcharisk_in                        : in   std_logic_vector(3 downto 0);
-    ------------- Transmit Ports - TX Initialization and Reset Ports -----------
-    gt0_txresetdone_out                     : out  std_logic;
-    --____________________________COMMON PORTS________________________________
-     GT0_QPLLOUTCLK_IN                      : in std_logic;
-     GT0_QPLLOUTREFCLK_IN                   : in std_logic
-);
-end component;
-
 constant DELAY_3ms : natural := 375_000; -- 3 ms at 125 MHz
 
 signal gt0_rxoutclk                 : std_logic;
@@ -283,7 +190,7 @@ mgt_rst <= SYNC_RESET_i or init_rst;
 -- gt0_rxusrclk_in  -> rxoutclk [Recovered clock]
 -- gt0_rxusrclk2_in -> rxoutclk [Recovered clock]
 
-sfp_panda_sync_i : sfp_panda_sync
+sfp_panda_sync_i : entity work.sfp_panda_sync
     port map(
         SYSCLK_IN                       => GTREFCLK,
         SOFT_RESET_TX_IN                => mgt_rst,
