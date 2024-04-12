@@ -22,7 +22,7 @@ jobs:
       image: shihabdls/pandablocks-container-extension:latest
       options: --privileged
       volumes:
-        - ${{github.workspace}}/repos:/repos
+        - ${{github.workspace}}:/repos
         - ${{github.workspace}}/build:/build
         - ${{github.workspace}}/scratch/Xilinx:/scratch/Xilinx
 
@@ -38,32 +38,32 @@ jobs:
         uses: ./.github/actions/setupenv
           
       # S3 bucket
-      - name: Download Vivado Build Tools
-        run: |
-          sudo locale-gen "en_US.UTF-8"
-          sudo update-locale LANG=en_US.UTF-8      
-          sudo bash repos/PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
-          
-      - name: Verify Vivado Contents
-        run: ls -l /scratch/Xilinx
-        
-      - name: Make boot
-        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
+#      - name: Download Vivado Build Tools
+#        run: |
+#          sudo locale-gen "en_US.UTF-8"
+#          sudo update-locale LANG=en_US.UTF-8      
+#          sudo bash repos/PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+#          
+#      - name: Verify Vivado Contents
+#        run: ls -l /scratch/Xilinx
+#        
+#      - name: Make boot
+#        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
 
-      - name: Clean /scratch
-        if: always()
-        run: |
-          sudo rm -rf /scratch/Xilinx/Vivado
-          sudo rm -rf /scratch/Xilinx/Vitis
-          sudo rm -rf /scratch/Xilinx/Vitis_HLS
+#      - name: Clean /scratch
+#        if: always()
+#        run: |
+#          sudo rm -rf /scratch/Xilinx/Vivado
+#          sudo rm -rf /scratch/Xilinx/Vitis
+#          sudo rm -rf /scratch/Xilinx/Vitis_HLS
 
-      - name: Verify Vivado Deletion
-        if: always()
-        run: ls -l /scratch/Xilinx
+#      - name: Verify Vivado Deletion
+#        if: always()
+#        run: ls -l /scratch/Xilinx
 
       # Artifacts
-      - name: Upload boot
-        uses: actions/upload-artifact@v2
-        with:
-          name: zpkgs
-          path: ./build/boot*.zip
+#      - name: Upload boot
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: zpkgs
+#          path: ./build/boot*.zip
