@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: shihabdls/pandablocks-container-extension:latest
+      image: shihabdls/pandablocks-container:latest
       options: --privileged
       volumes:
         - ${{github.workspace}}/repos:/repos
@@ -36,9 +36,7 @@ jobs:
       - name: Sudo Install
         run: |
           whoami
-          sudo yum -y upgrade
-          sudo yum -y update
-          sudo yum -y install sudo 
+          sudo 
 
       # Run action.yml
       - name: Checkout Repos and Install Rclone
