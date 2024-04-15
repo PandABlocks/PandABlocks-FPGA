@@ -35,9 +35,9 @@ jobs:
           
       - name: Sudo Install
         run: |
-          yum -y upgrade
-          yum -y update
-          yum -y install sudo 
+          sudo yum -y upgrade
+          sudo yum -y update
+          sudo yum -y install sudo 
 
       # Run action.yml
       - name: Checkout Repos and Install Rclone
