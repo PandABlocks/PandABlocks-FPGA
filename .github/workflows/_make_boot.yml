@@ -33,8 +33,11 @@ jobs:
         with:
           fetch-depth: 0
           
-      - name: Usr Perms
-        run: chmod 777 /usr/local
+      - name: Sudo Install
+        run: |
+          yum -y upgrade
+          yum -y update
+          yum -y install sudo 
 
       # Run action.yml
       - name: Checkout Repos and Install Rclone
