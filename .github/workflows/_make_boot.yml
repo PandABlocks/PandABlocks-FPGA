@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: shihabdls/pandablocks-container:latest
+      image: shihabdls/pandablocks-container:summer
       options: --privileged
       volumes:
         - ${{github.workspace}}/repos:/repos
@@ -36,7 +36,7 @@ jobs:
       - name: Sudo Install
         run: |
           whoami
-          ls
+          yum list --installed
       # Run action.yml
       - name: Checkout Repos and Install Rclone
         uses: ./.github/actions/setupenv
