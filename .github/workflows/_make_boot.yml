@@ -36,7 +36,7 @@ jobs:
       - name: Sudo Install
         run: |
           whoami
-          yum list --installed
+          apt
       # Run action.yml
       - name: Checkout Repos and Install Rclone
         uses: ./.github/actions/setupenv
