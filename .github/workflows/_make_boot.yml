@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: docker.io/shihabdls/pandablocks-container-extension:v1.1
+      image: docker.io/shihabdls/pandablocks-container-extension:v1.3
       options: --privileged
       volumes:
         - ${{github.workspace}}/repos:/repos
@@ -51,7 +51,7 @@ jobs:
         run: ls -l /scratch/Xilinx
         
       - name: Make boot
-        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
+        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && sudo make boot APP_NAME=${{ matrix.app }}
 
       - name: Clean /scratch
         if: always()
