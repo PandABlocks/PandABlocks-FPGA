@@ -35,7 +35,6 @@ jobs:
           
       - name: Sudo Install
         run: |
-          whoami
           apt list --installed
       # Run action.yml
       - name: Checkout Repos and Install Rclone
