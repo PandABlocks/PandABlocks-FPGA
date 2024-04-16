@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: shihabdls/pandablocks-container:summer
+      image: docker.io/shihabdls/pandablocks-container:summer
       options: --privileged
       volumes:
         - ${{github.workspace}}/repos:/repos
