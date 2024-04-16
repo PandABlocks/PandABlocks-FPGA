@@ -11,16 +11,13 @@ use unisim.vcomponents.all;
 
 entity sfp_panda_sync_mgt_interface is
 
-    port (GTREFCLK          : in  std_logic;
+    port (GTREFCLK_i        : in  std_logic;
           SYNC_RESET_i      : in  std_logic;
           sysclk_i          : in  std_logic;
           rxp_i             : in  std_logic;
           rxn_i             : in  std_logic;
           txp_o             : out std_logic;
           txn_o             : out std_logic;
-          rxbyteisaligned_o : out std_logic;
-          rxbyterealign_o   : out std_logic;
-          rxcommadet_o      : out std_logic;
           rxdata_o          : out std_logic_vector(31 downto 0); 
           rxoutclk_o        : out std_logic;
           rxcharisk_o       : out std_logic_vector(3 downto 0); 
@@ -30,7 +27,6 @@ entity sfp_panda_sync_mgt_interface is
           txoutclk_o        : out std_logic;    
           txdata_i          : in  std_logic_vector(31 downto 0); 
           txcharisk_i       : in  std_logic_vector(3 downto 0);
-          cpll_lock_o       : out std_logic;
           rx_link_ok_i      : in  std_logic
           );
 
@@ -72,7 +68,6 @@ begin
 
 rxoutclk_o <= rxoutclk;
 txoutclk_o <= txoutclk;
-cpll_lock_o <= gt0_cplllock;
 
 -- Clock buffers for RX recovered clock and TX clock
 
@@ -159,7 +154,7 @@ mgt_rst <= SYNC_RESET_i or init_rst;
 
 sfp_panda_sync_i : entity work.sfp_panda_sync
     port map(
-        SYSCLK_IN                       => GTREFCLK,
+        SYSCLK_IN                       => GTREFCLK_i,
         SOFT_RESET_TX_IN                => mgt_rst,
         SOFT_RESET_RX_IN                => mgt_rst,
         DONT_RESET_ON_DATA_ERROR_IN     => '0',
@@ -176,7 +171,7 @@ sfp_panda_sync_i : entity work.sfp_panda_sync
         gt0_cpllreset_in                => '0',
         -------------------------- Channel - Clocking Ports ------------------------
         gt0_gtrefclk0_in                => '0',
-        gt0_gtrefclk1_in                => GTREFCLK,
+        gt0_gtrefclk1_in                => GTREFCLK_i,
         ---------------------------- Channel - DRP Ports  --------------------------
         gt0_drpaddr_in                  => gt0_drpaddr,
         gt0_drpclk_in                   => txoutclk,
@@ -206,9 +201,9 @@ sfp_panda_sync_i : entity work.sfp_panda_sync
         ------------------------ Receive Ports - RX AFE Ports ----------------------
         gt0_gtxrxn_in                   => rxn_i,
         -------------- Receive Ports - RX Byte and Word Alignment Ports ------------
-        gt0_rxbyteisaligned_out         => rxbyteisaligned_o,
-        gt0_rxbyterealign_out           => rxbyterealign_o,
-        gt0_rxcommadet_out              => rxcommadet_o,
+        gt0_rxbyteisaligned_out         => open,
+        gt0_rxbyterealign_out           => open,
+        gt0_rxcommadet_out              => open,
         gt0_rxmcommaalignen_in          => '1',
         gt0_rxpcommaalignen_in          => '1',
         --------------------- Receive Ports - RX Equalizer Ports -------------------

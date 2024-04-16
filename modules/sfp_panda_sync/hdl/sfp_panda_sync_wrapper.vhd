@@ -120,7 +120,6 @@ sfp_panda_sync_transmitter_inst : entity work.sfp_panda_sync_transmit
     port map (
         sysclk_i          => clk_i,
         txoutclk_i        => txoutclk,
-        rst_sys_i         => reset_i,
         txcharisk_o       => txcharisk,
         txdata_o          => txdata,
         POSOUT1_i         => POSOUT1,
@@ -144,7 +143,6 @@ sfp_panda_sync_receiver_inst : entity work.sfp_panda_sync_receiver
         rxdata_i          => rxdata,
         rxnotintable_i    => rxnotintable,
         rx_link_ok_o      => rx_link_ok,
-        loss_lock_o       => open,
         rx_error_o        => rx_error,
         BITIN_o           => BITIN,
         POSIN1_o          => IN_POS1_o(0),
@@ -197,16 +195,13 @@ port map (
 sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface
 
     port map(
-        GTREFCLK          => SFP_i.GTREFCLK,
+        GTREFCLK_i        => SFP_i.GTREFCLK,
         SYNC_RESET_i      => SYNC_RESET,
         sysclk_i          => clk_i,
         rxp_i             => SFP_i.RXP_IN,
         rxn_i             => SFP_i.RXN_IN,
         txp_o             => TXP,
         txn_o             => TXN,
-        rxbyteisaligned_o => open,
-        rxbyterealign_o   => open,
-        rxcommadet_o      => open,
         rxdata_o          => rxdata,
         rxoutclk_o        => rxoutclk,            -- RX recovered clock
         rxcharisk_o       => rxcharisk,
@@ -216,7 +211,6 @@ sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface
         txoutclk_o        => txoutclk,            -- TX reference clock
         txdata_i          => txdata,
         txcharisk_i       => txcharisk,
-        cpll_lock_o       => open,
         rx_link_ok_i      => rx_link_ok
         );
 
