@@ -19,6 +19,8 @@ constant PBUSBW                 : natural := 5;
 constant EBUSW                  : natural := 12;
 --------------------------------------------------------------------------
 
+constant NUM_FMC_MGT            : natural := {{ num_fmc_mgt }};
+
 -- FPGA options
 {% for option, val in fpga_options.items() %}
 constant {{ option | upper }}_OPTION : std_logic := '{{ val | int }}';

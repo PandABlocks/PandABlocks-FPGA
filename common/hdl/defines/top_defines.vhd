@@ -41,6 +41,7 @@ alias BBUSBW is top_defines_gen.BBUSBW;
 alias PBUSW is top_defines_gen.PBUSW;
 alias PBUSBW is top_defines_gen.PBUSBW;
 alias EBUSW is top_defines_gen.EBUSW;
+alias NUM_FMC_MGT is top_defines_gen.NUM_FMC_MGT;
 alias PCAP_STD_DEV_OPTION is top_defines_gen.PCAP_STD_DEV_OPTION;
 alias FINE_DELAY_OPTION is top_defines_gen.FINE_DELAY_OPTION;
 --------------------------------------------------------------------------
@@ -115,6 +116,8 @@ constant SFP_o_init : SFP_output_interface := (TXN_OUT => 'Z',
                                                TS_TICKS => (others => '0')
 );
 
+type FMC_MGT_input_ARR is array (0 to NUM_FMC_MGT-1) of SFP_input_interface;
+type FMC_MGT_output_ARR is array (0 to NUM_FMC_MGT-1) of SFP_output_interface;
 
 type seq_t is
 record
