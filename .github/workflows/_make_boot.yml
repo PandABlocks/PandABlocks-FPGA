@@ -37,6 +37,7 @@ jobs:
         run: |
           whoami
           sudo su root
+          whoami
           yum list --installed
 
       # Run action.yml
