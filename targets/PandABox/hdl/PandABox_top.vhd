@@ -236,6 +236,13 @@ signal DCARD_MODE           : std32_array(ENC_NUM-1 downto 0);
 signal SFP_MAC_ADDR_ARR     : std32_array(2*NUM_SFP-1 downto 0);
 signal FMC_MAC_ADDR_ARR     : std32_array(2*NUM_FMC-1 downto 0);
 
+signal SFP_TS_SEC           : std32_array(NUM_SFP-1 downto 0);
+signal SFP_TS_TICKS         : std32_array(NUM_SFP-1 downto 0);
+signal TS_SEC               : std_logic_vector(31 downto 0);
+signal TS_TICKS             : std_logic_vector(31 downto 0);
+signal ts_src               : std_logic_vector(1 downto 0);
+signal pcap_start_event     : std_logic;
+
 -- FMC Block
 signal FMC_i  : FMC_input_interface;
 signal FMC_io : FMC_inout_interface  := FMC_io_init;
@@ -314,23 +321,41 @@ port map (
     );
 
 idelayctrl_inst : IDELAYCTRL port map (
-    REFCLK => FCLK_CLK1_PS,
-    RST => FCLK_RESET0,
-    RDY => open
+    REFCLK  => FCLK_CLK1_PS,
+    RST     => FCLK_RESET0,
+    RDY     => open
 );
+
+--Clock Mux
 
 mmcm_clkmux_inst: entity work.mmcm_clkmux
 port map(
     fclk_clk0_ps_i      => FCLK_CLK0_PS,
-    sma_clk_i         => EXTCLK,
-    mgt_rec_clk_i          => SFP1_o.MGT_REC_CLK,
-    clk_sel_i         => clk_src_sel,
+    sma_clk_i           => EXTCLK,
+    mgt_rec_clk_i       => SFP3_o.MGT_REC_CLK,
+    clk_sel_i           => clk_src_sel,
+    sfp_los_i           => SFP3_i.SFP_LOS,
     sma_pll_locked_o    => sma_pll_locked,
-    clk_sel_stat_o        => clk_sel_stat,
+    clk_sel_stat_o      => clk_sel_stat,
     fclk_clk0_o         => FCLK_CLK0,
-    fclk_clk0_2x_o => FCLK_CLK0_2X
+    fclk_clk0_2x_o      => FCLK_CLK0_2X
 );
 
+-- Timestamp Mux
+
+ts_mux_inst: entity work.ts_mux
+generic map(
+    NUM_SFP => NUM_SFP
+)
+port map(
+    clk_i => FCLK_CLK0,
+    ts_src_i => ts_src,
+    latch_en_i => pcap_start_event,
+    ts_sec_i => SFP_TS_SEC,
+    ts_ticks_i => SFP_TS_TICKS,
+    ts_sec_o => TS_SEC,
+    ts_ticks_o => TS_TICKS
+);
 
 ---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
@@ -652,7 +677,8 @@ port map (
     bit_bus_i           => bit_bus,
     pos_bus_i           => pos_bus,
     pcap_actv_o         => pcap_active(0),
-    pcap_irq_o          => IRQ_F2P(0)
+    pcap_irq_o          => IRQ_F2P(0),
+    pcap_start_event_o  => pcap_start_event
 );
 
 
@@ -716,6 +742,8 @@ port map (
     bit_bus_i           => bit_bus,
     pos_bus_i           => pos_bus,
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
+    TS_SEC              => TS_SEC,
+    TS_TICKS            => TS_TICKS,
     SFP_MAC_ADDR        => SFP_MAC_ADDR_ARR,
     SFP_MAC_ADDR_WSTB   => open,
     FMC_MAC_ADDR        => FMC_MAC_ADDR_ARR,
@@ -762,7 +790,8 @@ port map (
     ext_clk_i           => EXTCLK,
     sma_pll_locked_i    => sma_pll_locked,
     clock_src_o         => clk_src_sel,
-    clk_sel_stat_i        => clk_sel_stat
+    ts_src_o            => ts_src,
+    clk_sel_stat_i      => clk_sel_stat
 );
 
 -- Bus assembly ----
@@ -792,6 +821,8 @@ SFP1_i.RXN_IN <= SFP_RX_N(2);
 SFP1_i.RXP_IN <= SFP_RX_P(2);
 SFP_TX_N(2) <= SFP1_o.TXN_OUT;
 SFP_TX_P(2) <= SFP1_o.TXP_OUT;
+SFP_TS_SEC(0) <= SFP1_o.TS_SEC;
+SFP_TS_TICKS(0) <= SFP1_o.TS_TICKS;
 SFP1_i.MAC_ADDR <= SFP_MAC_ADDR_ARR(1)(23 downto 0) & SFP_MAC_ADDR_ARR(0)(23 downto 0);
 SFP1_i.MAC_ADDR_WS <= '0';
 
@@ -801,6 +832,8 @@ SFP2_i.RXN_IN <= SFP_RX_N(1);
 SFP2_i.RXP_IN <= SFP_RX_P(1);
 SFP_TX_N(1) <= SFP2_o.TXN_OUT;
 SFP_TX_P(1) <= SFP2_o.TXP_OUT;
+SFP_TS_SEC(1) <= SFP2_o.TS_SEC;
+SFP_TS_TICKS(1) <= SFP2_o.TS_TICKS;
 SFP2_i.MAC_ADDR <= SFP_MAC_ADDR_ARR(3)(23 downto 0) & SFP_MAC_ADDR_ARR(2)(23 downto 0);
 SFP2_i.MAC_ADDR_WS <= '0';
 
@@ -810,6 +843,8 @@ SFP3_i.RXN_IN <= SFP_RX_N(0);
 SFP3_I.RXP_IN <= SFP_RX_P(0);
 SFP_TX_N(0) <= SFP3_o.TXN_OUT;
 SFP_TX_P(0) <= SFP3_o.TXP_OUT;
+SFP_TS_SEC(2) <= SFP3_o.TS_SEC;
+SFP_TS_TICKS(2) <= SFP3_o.TS_TICKS;
 SFP3_i.MAC_ADDR <= SFP_MAC_ADDR_ARR(5)(23 downto 0) & SFP_MAC_ADDR_ARR(4)(23 downto 0);
 SFP3_i.MAC_ADDR_WS <= '0';
 

@@ -49,7 +49,7 @@ port (
     write_strobe_i      : in  std_logic;
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
-    write_ack_o         : out std_logic := '1';
+    write_ack_o         : out std_logic;
     FMC_io              : inout fmc_inout_interface
 );
 end fmc_acq427_wrapper;
@@ -273,22 +273,22 @@ port map (
     bit_bus_i           => bit_bus_i,
     pos_bus_i           => pos_bus_i,
     -- Block Parameters
-    IN_GAIN1 => gains(0),
-    IN_GAIN1_wstb  => open,
-    IN_GAIN2 => gains(1),
-    IN_GAIN2_wstb  => open,
-    IN_GAIN3 => gains(2),
-    IN_GAIN3_wstb  => open,
-    IN_GAIN4 => gains(3),
-    IN_GAIN4_wstb  => open,
-    IN_GAIN5 => gains(4),
-    IN_GAIN5_wstb  => open,
-    IN_GAIN6 => gains(5),
-    IN_GAIN6_wstb  => open,
-    IN_GAIN7 => gains(6),
-    IN_GAIN7_wstb  => open,
-    IN_GAIN8 => gains(7),
-    IN_GAIN8_wstb  => open,
+    IN_GAIN1_REG => gains(0),
+    IN_GAIN1_REG_wstb  => open,
+    IN_GAIN2_REG => gains(1),
+    IN_GAIN2_REG_wstb  => open,
+    IN_GAIN3_REG => gains(2),
+    IN_GAIN3_REG_wstb  => open,
+    IN_GAIN4_REG => gains(3),
+    IN_GAIN4_REG_wstb  => open,
+    IN_GAIN5_REG => gains(4),
+    IN_GAIN5_REG_wstb  => open,
+    IN_GAIN6_REG => gains(5),
+    IN_GAIN6_REG_wstb  => open,
+    IN_GAIN7_REG => gains(6),
+    IN_GAIN7_REG_wstb  => open,
+    IN_GAIN8_REG => gains(7),
+    IN_GAIN8_REG_wstb  => open,
 
     OUT_VAL1_from_bus     => CH01_DAC_DATA,
     OUT_VAL2_from_bus     => CH02_DAC_DATA,
@@ -299,12 +299,12 @@ port map (
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),
     read_data_o         => read_data_o,
-    read_ack_o          => open,
+    read_ack_o          => read_ack_o,
 
     write_strobe_i      => write_strobe_i,
     write_address_i     => write_address_i(BLK_AW-1 downto 0),
     write_data_i        => write_data_i,
-    write_ack_o         => open
+    write_ack_o         => write_ack_o
 );
 
 

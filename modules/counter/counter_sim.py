@@ -16,7 +16,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "counter.block.ini")
 
 
 class CounterSimulation(BlockSimulation):
-    ENABLE, TRIG, DIR, OUT_MODE, START, STEP, MAX, MIN, CARRY, OUT = PROPERTIES
+    ENABLE, TRIG, DIR, TRIG_EDGE, OUT_MODE, START, STEP, MAX, MIN, CARRY, OUT = PROPERTIES
     
     def __init__(self):
         self.counter = 0
@@ -39,14 +39,25 @@ class CounterSimulation(BlockSimulation):
         for name, value in changes.items():
             setattr(self, name, value)
 
+        # Calculation of trigger signal
+        if NAMES.TRIG in changes:
+            got_trigger = (self.TRIG_EDGE == 0 and self.TRIG) or \
+                          (self.TRIG_EDGE == 1 and not self.TRIG) or \
+                           self.TRIG_EDGE == 2
+        else:
+            got_trigger = False
+
         if self.OUT_MODE == MODE_OnChange:
             if changes.get(NAMES.ENABLE, None) is 1:
                 self.OUT = self.START
             elif changes.get(NAMES.ENABLE, None) is 0:
                 self.CARRY = 0
             elif self.ENABLE and NAMES.TRIG in changes:
-                # process trigger on rising edge
-                if changes[NAMES.TRIG]:
+                # stop the counter_carry on next trigger edge
+                if self.CARRY:
+                    self.CARRY = 0
+                # process trigger on selected edge
+                if got_trigger:
                     if self.STEP == 0:
                         step = 1
                     else:
@@ -60,15 +71,13 @@ class CounterSimulation(BlockSimulation):
                     elif self.OUT < MIN:
                         self.OUT += MAX - MIN + 1
                         self.CARRY = 1
-                elif self.CARRY:
-                    self.CARRY = 0
         elif self.OUT_MODE == MODE_OnDisable:
             if changes.get(NAMES.ENABLE, None) is 1:
                 self.counter = self.START
                 self.overflow = 0
             elif self.ENABLE and NAMES.TRIG in changes:
-                # process trigger on rising edge
-                if changes[NAMES.TRIG]:
+                # process trigger on selected edge
+                if got_trigger:
                     if self.STEP == 0:
                         step = 1
                     else:

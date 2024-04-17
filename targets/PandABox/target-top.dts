@@ -61,10 +61,6 @@
 };
 
 / {
-	led_daemon: led_daemon {
-		sta-led = "51";
-		dia-led = "50";
-	};
 	amba_pl: amba_pl {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -78,5 +74,11 @@
 			xlnx,s00-axi-addr-width = <0x17>;
 			xlnx,s00-axi-data-width = <0x20>;
 		};
+	};
+};
+
+/ {
+	pandainfo {
+		version = "GIT_VERSION";
 	};
 };

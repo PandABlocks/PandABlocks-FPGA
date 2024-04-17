@@ -151,8 +151,6 @@ signal rdma_len             : std8_array(5 downto 0);
 signal rdma_data            : std_logic_vector(31 downto 0);
 signal rdma_valid           : std_logic_vector(5 downto 0);
 
-signal SLOW_FPGA_VERSION    : std_logic_vector(31 downto 0);
-
 -- FMC Block
 signal FMC_i  : FMC_input_interface;
 signal FMC_io : FMC_inout_interface  := FMC_io_init;
@@ -420,7 +418,9 @@ port map (
 
     bit_bus_i           => bit_bus,
     pos_bus_i           => pos_bus,
-    SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
+    SLOW_FPGA_VERSION   => (others => '0'),
+    TS_SEC              => (others => '0'),
+    TS_TICKS            => (others => '0'),
     SFP_MAC_ADDR        => SFP_MAC_ADDR_ARR,
     SFP_MAC_ADDR_WSTB   => open,
     FMC_MAC_ADDR        => FMC_MAC_ADDR_ARR,

@@ -79,10 +79,14 @@ signal seq_wren                 : std_logic_vector(3 downto 0);
 signal seq_di                   : std_logic_vector(31 downto 0);
 signal table_ready              : std_logic := '0';
 signal table_frames_reg : std_logic_vector(15 downto 0) := (others => '0');
+signal table_frames_now : std_logic_vector(15 downto 0) := (others => '0');
 
 begin
 
 table_ready_o <= table_ready;
+table_frames_now <=
+    TABLE_FRAMES when TABLE_LENGTH_WSTB = '1' and TABLE_FRAMES /= x"0000"
+    else table_frames_reg;
 
 --------------------------------------------------------------------------
 -- Table configuration starts with applying are reset with a write to
@@ -169,7 +173,7 @@ seq_raddr <= (others => '0') when reset_raddr_i = '1' or TABLE_START = '1' else
 FRAME_CTRL : process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if (seq_raddr = unsigned(table_frames_reg) - 1) then
+        if (seq_raddr = unsigned(table_frames_now) - 1) then
             seq_raddr_next <= (others => '0');
             last_o <= '1';
         else

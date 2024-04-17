@@ -77,29 +77,6 @@ port map (
 -- An internal counter is used to follow current value of the output position.
 -- Counter value is later compared to position input for tracking.
 --
-process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if (reset_i = '1') then
-            posn_tracker <= (others => '0');
-        else
-            -- Latch & Go
-            if (enable_rise = '1') then
-                posn_tracker <= posn;
-            -- On every transition, update internal counter
-            -- This updates on the next timestamp to the posn equality checking.
-            -- Therefore, the PERIOD has to be greater than 1
-            elsif (qenc_trans = '1') then
-                if (qenc_dir = '0') then
-                    posn_tracker <= posn_tracker + 1;
-                else
-                    posn_tracker <= posn_tracker - 1;
-                end if;
-            end if;
-        end if;
-    end if;
-end process;
-
 --
 -- Quadrature encoding is enabled until internal counter reaches to the position
 -- input value.
@@ -109,21 +86,36 @@ posn_encoding : process(clk_i)
 begin
     if rising_edge(clk_i) then
         if (reset_i = '1') then
+            posn_tracker <= (others => '0');
             posn_tracking <= '0';
             qenc_dir <= '0';
+            qenc_trans <= '0';
         else
+            if (enable_rise = '1') then
+                posn_tracker <= posn;
+                posn_tracking <= '0';
+                qenc_trans <= '0';
             -- Compare current position with tracking value, and
             -- enable/disable tracking based on user flag.
-            -- posn_tracker is updated on the next timestamp, therefore the
-            -- PERIOD has to be greater than 1
-            if (enable = '1' and posn /= posn_tracker) then
+            elsif (enable = '1' and posn_tracker /= posn) then
                 posn_tracking <= '1';
+                if qenc_clk = '1' then -- Quad transitions happen on user defined clock rate
+                    qenc_trans <= '1'; 
+                    if (posn_tracker < posn) then
+                        posn_tracker <= posn_tracker + 1;
+                    else
+                        posn_tracker <= posn_tracker - 1;
+                    end if;
+                else
+                    qenc_trans <= '0';
+                end if;
             else
                 posn_tracking <= '0';
+                qenc_trans <= '0';
             end if;
 
             -- Set up tracking direction to the encoder
-            if (posn > posn_tracker) then
+            if (posn_tracker < posn) then
                 qenc_dir <= '0';    -- positive direction
             else
                 qenc_dir <= '1';    -- negative direction
@@ -131,9 +123,6 @@ begin
         end if;
     end if;
 end process;
-
--- Quad transitions happen on user defined clock rate
-qenc_trans <= posn_tracking and qenc_clk;
 
 -- Instantiate Quadrature Encoder
 qencoder_core : entity work.qencoder

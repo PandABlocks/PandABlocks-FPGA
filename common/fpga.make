@@ -7,12 +7,13 @@
 # builds.  These releases are downloaded (as .tar.gz files) from:
 #      https://github.com/Xilinx/u-boot-xlnx
 #      https://github.com/Xilinx/linux-xlnx
+#      https://github.com/Xilinx/arm-trusted-firmware
 # Note: if these files have been downloaded through the releases directory then
 # they need to be renamed with the appropriate {u-boot,linux}-xlnx- prefix so
 # that the file name and contents match.
-MD5_SUM_device-tree-xlnx-xilinx_v2022.2 = 7885c6f69509e425a1800eed326ffee8
-MD5_SUM_u-boot-xlnx-xilinx-v2022.2 = a9e54fff739d5702465c786b5420d31e
-MD5_SUM_arm-trusted-firmware-xilinx-v2022.2 = a47d32e92fed413599093f6d82bf3e0c
+MD5_SUM_device-tree-xlnx-xilinx_v2023.2 = 7789e54fe26457b44354d3de28b21987
+MD5_SUM_u-boot-xlnx-xilinx-v2023.2 = 135d51a81aadaed096a667e41db6e110
+MD5_SUM_arm-trusted-firmware-xilinx-v2023.2 = 812e16408046699ff5fe09f847f4a168
 # The dtc source is obtained from https://git.kernel.org/pub/scm/utils/dtc/dtc.git
 MD5_SUM_dtc-1.7.0 = f8b4469ad89f4b882091895ec60dde6b
 
@@ -72,6 +73,8 @@ BOOT_BUILD = $(TGT_BUILD_DIR)/boot_build
 U_BOOT_BUILD = $(BOOT_BUILD)/u-boot
 U_BOOT_ELF = $(U_BOOT_BUILD)/u-boot.elf
 
+BOOT_ZIP = $(ZIP_BUILD_DIR)/boot@$(TARGET)-$(GIT_VERSION).zip
+
 ATF_NAME = arm-trusted-firmware-$(ATF_TAG)
 ATF_SRC = $(SRC_ROOT)/$(ATF_NAME)
 ATF_BUILD = $(BOOT_BUILD)/atf
@@ -96,11 +99,17 @@ carrier_ip: $(APP_IP_DEPS)
 ps_core: $(PS_CORE)
 devicetree : $(DEVTREE_DTB)
 fsbl : $(FSBL)
-boot : $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB)
+boot : $(BOOT_ZIP) $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB) $(IMAGE_DIR)/target-defs
 u-boot: $(U_BOOT_ELF)
 atf: $(ATF_ELF)
 dtc: $(DEVTREE_DTC)
 .PHONY: fpga-all fpga-bit carrier_ip ps_core boot devicetree fsbl u-boot atf dtc
+
+#####################################################################
+# zip boot files
+
+$(BOOT_ZIP): $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB)
+	zip -j $@ $^
 
 #####################################################################
 # Compiler variables needed for u-boot build and other complitation
@@ -131,21 +140,22 @@ $(IP_PROJ) : $(IP_PROJECT_SCR) $(TGT_INCL_SCR)
 $(IP_DIR)/%/IP_DONE : $(TOP)/ip_defs/%.tcl $(IP_BUILD_SCR) | $(IP_PROJ)
 	$(RUNVIVADO) -mode batch -source $(IP_BUILD_SCR) \
 	  -applog -log $(TGT_BUILD_DIR)/build_ip.log -nojournal \
-	  -tclargs $(IP_PROJ) $(IP_DIR) $* $<
+	  -tclargs $(TOP) $(IP_PROJ) $(IP_DIR) $* $<
 	touch $@
 
 $(PS_CORE) : $(PS_BUILD_SCR) $(PS_CONFIG_SCR) $(TGT_INCL_SCR)
-	$(RUNVIVADO) -mode $(DEP_MODE) -source $< \
+	$(RUNVIVADO) -mode batch -source $< \
 	  -log $(TGT_BUILD_DIR)/build_ps.log -nojournal \
-	  -tclargs $(TOP) $(TARGET_DIR) $(PS_DIR) $@ $(DEP_MODE)
+	  -tclargs $(TOP) $(TARGET_DIR) $(PS_DIR) $@
 
 CARRIER_FPGA_DEPS += $(TOP_BUILD_SCR)
 CARRIER_FPGA_DEPS += $(APP_IP_DEPS)
 CARRIER_FPGA_DEPS += $(PS_CORE)
 CARRIER_FPGA_DEPS += $(TGT_INCL_SCR)
+CARRIER_FPGA_DEPS += $(VER)
 
 $(CARRIER_FPGA_BIT) : $(CARRIER_FPGA_DEPS)
-	$(RUNVIVADO) -mode $(TOP_MODE) -source $< \
+	$(RUNVIVADO) -mode $(VIVADO_MODE) -source $< \
 	  -log $(BUILD_DIR)/build_top.log -nojournal \
 	  -tclargs $(TOP) \
 	  -tclargs $(TARGET_DIR) \
@@ -153,15 +163,15 @@ $(CARRIER_FPGA_BIT) : $(CARRIER_FPGA_DEPS)
 	  -tclargs $(AUTOGEN) \
 	  -tclargs $(IP_DIR) \
 	  -tclargs $(PS_CORE) \
-	  -tclargs $(TOP_MODE) \
+	  -tclargs $(VIVADO_MODE) \
 	  -tclargs $(PLATFORM)
 
 run_sim_%: $(TOP)/tests/sim/%
-	$(RUNVIVADO) -mode $(TEST_MODE) -source $</bench/$*_tb_compile.tcl \
+	$(RUNVIVADO) -mode $(XSIM_MODE) -source $</bench/$*_tb_compile.tcl \
 	  -log $(BUILD_DIR)/test_build_top.log -nojournal \
 	  -tclargs $(TOP) \
 	  -tclargs $(BUILD_DIR) \
-	  -tclargs $(TEST_MODE)
+	  -tclargs $(XSIM_MODE)
 
 $(FPGA_BIN_FILE): $(CARRIER_FPGA_BIT)
 	echo -e "all:\n{\n    $(CARRIER_FPGA_BIT)\n}\n" > bs.bif
@@ -231,10 +241,14 @@ u-boot-src: $(U_BOOT_SRC)
 $(DEVTREE_DTB): $(SDK_EXPORT) $(TARGET_DTS) $(DEVTREE_DTC)
 	cp $(TARGET_DTS) $(DEVTREE_DTS)/
 	sed -i '/dts-v1/d' $(DEVTREE_DTS)/system-top.dts
+	sed -i 's\GIT_VERSION\$(GIT_VERSION)\g' $(DEVTREE_DTS)/$(notdir $(TARGET_DTS))
 	gcc -I dts -E -nostdinc -undef -D__DTS__ -x assembler-with-cpp \
 	  -o $(DEVTREE_DTS)/system-top.dts.tmp $(DEVTREE_DTS)/system-top.dts
 	@echo "Building DEVICE TREE blob ..."
 	$(DEVTREE_DTC) -f -I dts -O dtb -o $@ $(DEVTREE_DTS)/$(notdir $(TARGET_DTS))
+
+$(IMAGE_DIR)/target-defs: $(TARGET_DIR)/etc/target-defs
+	cp $< $@
 
 $(DEVTREE_DTC): $(DTC_SRC)
 	$(MAKE) -C $(SRC_ROOT)/dtc-$(DTC_TAG) NO_PYTHON=1

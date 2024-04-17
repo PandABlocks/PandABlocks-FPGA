@@ -7,7 +7,6 @@ SHELL = /bin/bash
 
 # The following symbols MUST be defined in the CONFIG file before being used.
 PANDA_ROOTFS = $(error Define PANDA_ROOTFS in CONFIG file)
-ISE = $(error Define ISE in CONFIG file)
 VIVADO = $(error Define VIVADO in CONFIG file)
 APP_NAME = $(error Define APP_NAME in CONFIG file)
 
@@ -18,7 +17,7 @@ MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 MAKE_GITHUB_RELEASE = $(PANDA_ROOTFS)/make-github-release.py
 
 BUILD_DIR = $(TOP)/build
-VIVADO_VER = 2022.2
+VIVADO_VER = 2023.2
 DEFAULT_TARGETS = zpkg
 
 
@@ -30,7 +29,6 @@ include CONFIG
 # Now we've loaded the CONFIG compute all the appropriate destinations
 TGT_BUILD_DIR = $(BUILD_DIR)/targets/$(TARGET)
 TEST_DIR = $(TGT_BUILD_DIR)/tests
-#IP_DIR = $(TGT_BUILD_DIR)/ip_repo
 APP_BUILD_DIR = $(BUILD_DIR)/apps/$(APP_NAME)
 AUTOGEN_BUILD_DIR = $(APP_BUILD_DIR)/autogen
 FPGA_BUILD_DIR = $(APP_BUILD_DIR)/FPGA
@@ -45,9 +43,8 @@ TARGET_DIR = $(TOP)/targets/$(TARGET)
 PS_PROJ = $(TGT_BUILD_DIR)/panda_ps/panda_ps.xpr
 IP_PROJ = $(TGT_BUILD_DIR)/ip_repo/managed_ip_project/managed_ip_project.xpr
 TOP_PROJ = $(FPGA_BUILD_DIR)/panda_top/carrier_fpga_top.xpr
-TOP_MODE ?= batch
-TEST_MODE ?= gui
-DEP_MODE ?= batch
+VIVADO_MODE ?= batch
+XSIM_MODE ?= gui
 
 # Store the git hash in top-level build directory 
 VER = $(BUILD_DIR)/VERSION
@@ -99,7 +96,6 @@ APP_DEPENDS += $(wildcard modules/*/const/*.xdc)
 APP_DEPENDS += $(wildcard modules/*/*.ini)
 
 AUTOGEN_TARGETS += generate_app_autogen
-AUTOGEN_TARGETS += update_VER
 AUTOGEN_TARGETS += $(VERSION_FILE)
 AUTOGEN_TARGETS += $(CONSTANT_FILE)
 
@@ -123,14 +119,14 @@ all_autogen:
 # Version symbols for FPGA bitstream generation etc
 
 # Something like 0.1-1-g5539563-dirty
-export GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
+GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
 # Split and append .0 to get 0.1.0, then turn into hex to get 00000100
-export VERSION := $(shell $(PYTHON) common/python/parse_git_version.py "$(GIT_VERSION)")
+VERSION := $(shell $(PYTHON) common/python/parse_git_version.py "$(GIT_VERSION)")
 # 8 if dirty, 0 if clean
 DIRTY_PRE = $(shell \
     $(PYTHON) -c "print(8 if '$(GIT_VERSION)'.endswith('dirty') else 0)")
 # Something like 85539563
-export SHA := $(DIRTY_PRE)$(shell git rev-parse --short=7 HEAD)
+SHA := $(DIRTY_PRE)$(shell git rev-parse --short=7 HEAD)
 
 # Trigger rebuild of FPGA targets based on change in the git hash wrt hash stored in build dir
 # If the stored hash value does not exist, or disagrees with the present
@@ -150,7 +146,7 @@ endif
 #####################################################################
 # Create VERSION_FILE
 
-$(VERSION_FILE) : $(VER)
+$(VERSION_FILE) : update_VER
 	rm -f $(VERSION_FILE)
 	echo 'library ieee;' >> $(VERSION_FILE)
 	echo 'use ieee.std_logic_1164.all;' >> $(VERSION_FILE)
@@ -203,8 +199,8 @@ run_sim_%: $(TOP)/common/fpga.make
 	mkdir -p $(FPGA_BUILD_DIR)
 	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
         TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
-        TGT_BUILD_DIR=$(TGT_BUILD_DIR) TEST_MODE=$(TEST_MODE) \
-        DEP_MODE=$(DEP_MODE) $@
+        TGT_BUILD_DIR=$(TGT_BUILD_DIR) XSIM_MODE=$(XSIM_MODE) \
+        $@
 
 
 # ------------------------------------------------------------------------------
@@ -272,8 +268,9 @@ else
 	@echo building FPGA
 	$(MAKE) -C $(FPGA_BUILD_DIR) -f $< VIVADO_VER=$(VIVADO_VER) \
         TOP=$(TOP) TARGET_DIR=$(TARGET_DIR) APP_BUILD_DIR=$(APP_BUILD_DIR) \
-        TGT_BUILD_DIR=$(TGT_BUILD_DIR) TOP_MODE=$(TOP_MODE) DEP_MODE=$(DEP_MODE) \
-		$@
+        TGT_BUILD_DIR=$(TGT_BUILD_DIR) VIVADO_MODE=$(VIVADO_MODE) \
+        VER=$(VER) TARGET=$(TARGET) GIT_VERSION=$(GIT_VERSION) \
+        ZIP_BUILD_DIR=$(BUILD_DIR) $@
 endif
 
 .PHONY: $(FPGA_TARGETS)
@@ -281,26 +278,21 @@ endif
 # Targets to launch and edit vivado projects in interactive mode
 # Targets : edit_ps_bd ; edit_ips ; carrier-fpga_gui
 
-edit_ps_bd: DEP_MODE=gui 
-ifeq ($(wildcard $(PS_PROJ)), )
-  edit_ps_bd: ps_core
-else
-  edit_ps_bd : 
+edit_ps_bd: ps_core 
 	cd $(TGT_BUILD_DIR)/panda_ps; \
-	. $(VIVADO) && vivado -mode $(DEP_MODE) $(PS_PROJ)
-endif
+	. $(VIVADO) && vivado -mode gui $(PS_PROJ)
 
 edit_ips: carrier_ip
 	cd $(TGT_BUILD_DIR)/ip_repo &&  \
 	. $(VIVADO) && vivado -mode gui $(IP_PROJ)
 
-carrier-fpga_gui: TOP_MODE=gui 
+carrier-fpga_gui: VIVADO_MODE=gui 
 ifeq ($(wildcard $(TOP_PROJ)), )
   carrier-fpga_gui: carrier_fpga
 else
   carrier-fpga_gui : 
 	cd $(FPGA_BUILD_DIR); \
-	. $(VIVADO) && vivado -mode $(TOP_MODE) $(TOP_PROJ)
+	. $(VIVADO) && vivado -mode $(VIVADO_MODE) $(TOP_PROJ)
 endif
 
 .PHONY: edit_ps_bd edit_ips carrier-fpga_gui
@@ -319,7 +311,9 @@ ZPKG_DEPENDS += $(APP_BUILD_DIR)/extensions
 ZPKG_DEPENDS += $(DOCS_HTML_DIR)
 
 $(APP_BUILD_DIR)/ipmi.ini: $(APP_FILE)
-	$(PYTHON) -m common.python.make_ipmi_ini $(TOP) $< $@
+	$(PYTHON) -m common.python.copy_file_in_modules \
+        --fallback $(TOP)/common/templates/default_ipmi.ini \
+        $(TOP) $< ipmi.ini $@
 
 $(APP_BUILD_DIR)/extensions: $(APP_FILE)
 	rm -rf $@

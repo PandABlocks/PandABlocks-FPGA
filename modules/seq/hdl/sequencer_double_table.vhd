@@ -55,15 +55,18 @@ architecture rtl of sequencer_double_table is
     signal has_written_last : std_logic := '0';
     signal error_cond : std_logic := '0';
     signal read_error : std_logic := '0';
-    signal read_invalid_error : std_logic := '0';
-    signal read_underrun_error : std_logic := '0';
+    signal read_invalid_error : boolean := false;
+    signal read_underrun_error : boolean := false;
     signal entry_zero_history : std_logic_vector(3 downto 0) := (others => '0');
+    signal load_next_table : boolean := false;
 begin
-    can_write_next_o <=
-        to_std_logic(wrtable_index /= rdtable_index) and not has_written_last;
+    can_write_next_o <= to_std_logic(wrtable_index /= rdtable_index);
     next_expected_o <=
         to_std_logic(table_state(to_integer(rdtable_index)) = TABLE_CONT);
     last_o <= last_mux(to_integer(rdtable_index));
+    load_next_table <= load_next_i = '1'
+        and last_mux(to_integer(rdtable_index)) = '1'
+        and table_state(to_integer(rdtable_index)) = TABLE_CONT;
 
     -- if the table contains a continuation mark, substract 1 to avoid
     -- spending time on iterating that entry
@@ -118,14 +121,19 @@ begin
     begin
         if rising_edge(clk_i) then
             if reset_tables_i = '1' then
-                wrtable_index <= rdtable_index;
-                if table_state(to_integer(rdtable_index)) /= TABLE_LAST then
-                    -- only a valid table without continuation mark can be
-                    -- reused
-                    table_state(to_integer(rdtable_index)) <= TABLE_INVALID;
+                -- 3 cases need to be considered while resetting:
+                --   - case 1: if both table indexes are the same, no index is
+                --             updated
+                --   - case 2: if we are loading a table, then table read index
+                --             needs to be set to write index, so the next run
+                --             starts in the proper table
+                --   - case 3: if we are not loading and we have a valid
+                --             reading table, then table write index is set to
+                --             read index and that way, it can be reused in
+                --             next run
+                if table_state(to_integer(wrtable_index)) /= TABLE_LOADING then
+                        wrtable_index <= rdtable_index;
                 end if;
-                -- invalidate the other table
-                table_state(to_integer(rdtable_index + 1)) <= TABLE_INVALID;
             elsif TABLE_START = '1' then
                 table_state(to_integer(wrtable_index)) <= TABLE_LOADING;
             elsif TABLE_LENGTH_WSTB = '1' and
@@ -139,6 +147,7 @@ begin
                     has_written_last <= '0';
                 else
                     table_state(to_integer(wrtable_index)) <= TABLE_LAST;
+                    wrtable_index <= wrtable_index + 1;
                     has_written_last <= '1';
                 end if;
             end if;
@@ -149,13 +158,18 @@ begin
     process (clk_i) is
     begin
         if rising_edge(clk_i) then
-            if load_next_i = '1' then
-                -- switching to next table if current contains
-                -- continuation mark
-                if last_mux(to_integer(rdtable_index)) = '1'
-                        and table_state(to_integer(rdtable_index)) = TABLE_CONT then
-                    rdtable_index <= rdtable_index + 1;
+            if reset_tables_i = '1' then
+                if table_state(to_integer(wrtable_index)) = TABLE_LOADING then
+                    rdtable_index <= wrtable_index;
                 end if;
+            -- switching to next table if current contains continuation mark
+            elsif load_next_table then
+                rdtable_index <= rdtable_index + 1;
+            -- writting a table while reading a LAST table should switch
+            elsif TABLE_LENGTH_WSTB = '1'
+                    and table_state(to_integer(rdtable_index)) = TABLE_LAST
+                    and table_state(to_integer(wrtable_index)) = TABLE_LOADING then
+                rdtable_index <= rdtable_index + 1;
             end if;
         end if;
     end process;
@@ -164,7 +178,7 @@ begin
     process (clk_i) is
     begin
         if rising_edge(clk_i) then
-            if read_invalid_error = '1' or read_underrun_error = '1' then
+            if read_invalid_error or read_underrun_error then
                 read_error <= '1';
                 error_type_o <= c_table_error_underrun;
             elsif reset_error_i = '1' then
@@ -174,14 +188,11 @@ begin
         end if;
     end process;
 
-    read_invalid_error <= load_next_i and
-        (to_std_logic(table_state(to_integer(rdtable_index)) = TABLE_LOADING) or
-         to_std_logic(table_state(to_integer(rdtable_index)) = TABLE_INVALID));
+    read_invalid_error <= load_next_i = '1'
+        and (table_state(to_integer(rdtable_index)) = TABLE_LOADING or
+             table_state(to_integer(rdtable_index)) = TABLE_INVALID);
 
-    read_underrun_error <= load_next_i and last_mux(to_integer(rdtable_index)) and
-        to_std_logic(rdtable_index + 1 = wrtable_index) and
-        to_std_logic(table_state(to_integer(rdtable_index)) = TABLE_CONT) and
-        to_std_logic(table_state(to_integer(wrtable_index)) /= TABLE_LAST);
+    read_underrun_error <= load_next_table and rdtable_index + 1 = wrtable_index;
 
     -- detect zero entry (continuation mark)
     has_cont_mark <= to_std_logic(entry_zero_history = "1111");

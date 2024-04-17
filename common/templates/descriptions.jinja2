@@ -5,7 +5,9 @@
     {% for field in block.fields %}
     {# field is a FieldConfig object #}
     {# insert its name and description #}
+        {% if not field.no_config %}
     {{ pad(field.name) }} {{ field.description }}
+        {% endif %}
     {% endfor %}
     {# insert a blank line between blocks for readability #}
 

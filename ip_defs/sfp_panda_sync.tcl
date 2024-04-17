@@ -52,3 +52,11 @@ CONFIG.gt0_val_clk_cor_seq_2_3 {00000000}               \
 CONFIG.gt0_val_clk_cor_seq_2_4 {00000000}               \
 ] [get_ips sfp_panda_sync]
 
+proc patch {BUILD_DIR} {
+    puts "Patching generated IP sources"
+    replaceInFile $BUILD_DIR/sfp_panda_sync/sfp_panda_sync_multi_gt.vhd *PCS_RSVD_ATTR_IN*=>* X"000000000000" X"000000000002"
+    replaceInFile $BUILD_DIR/sfp_panda_sync/sfp_panda_sync_gt.vhd *TXDLY_LCFG*=>* x"030" X"034"
+    replaceInFile $BUILD_DIR/sfp_panda_sync/sfp_panda_sync_gt.vhd *TXPHALIGN*=>*tied_to_ground_i, tied_to_ground_i tied_to_vcc_i
+    replaceInFile $BUILD_DIR/sfp_panda_sync/sfp_panda_sync_gt.vhd *TXPHOVRDEN*=>* tied_to_ground_i tied_to_vcc_i
+}
+

@@ -62,6 +62,7 @@ port (
     ext_clk_i           : in  std_logic;
     sma_pll_locked_i    : in  std_logic;
     clock_src_o         : out std_logic_vector(1 downto 0);
+    ts_src_o            : out std_logic_vector(1 downto 0);
     clk_sel_stat_i      : in  std_logic_vector(1 downto 0)
 
 );
@@ -81,6 +82,7 @@ signal cmd_ready_n      : std_logic;
 
 signal VEC_PLL_LOCKED   : std_logic_vector(31 downto 0) := (others => '0');
 signal VEC_CLOCK_SRC    : std_logic_vector(31 downto 0);
+signal VEC_TS_SRC       : std_logic_vector(31 downto 0);
 signal VEC_CLK_SEL_STAT : std_logic_vector(31 downto 0) := (others => '0');
 signal write_ack        : std_logic;
 signal test_clocks      : std_logic_vector(0 downto 0);
@@ -88,6 +90,7 @@ signal FREQ_VAL         : std32_array(0 downto 0);
 
 signal DCARD_MODE       : std32_array(ENC_NUM-1 downto 0);
 
+signal health             : std_logic_vector(31 downto 0);
 
 begin
 
@@ -120,7 +123,6 @@ system_registers : entity work.system_registers
 port map (
     clk_i   => clk_i,
     reset_i => reset_i,
-    DCARD_MODE_i => DCARD_MODE,
     OUTENC_PROT_i => OUTENC_PROT_i,
     OUTENC_PROT_WSTB_i => OUTENC_PROT_WSTB_i,
     INENC_PROT_i => INENC_PROT_i,
@@ -153,10 +155,11 @@ port map (
 );
 
 ---------------------------------------------------------------------------
--- External Clock registers
+-- External Clock and Timestamp registers
 ---------------------------------------------------------------------------
 VEC_PLL_LOCKED(0) <= sma_pll_locked_i;
 clock_src_o <= VEC_CLOCK_SRC(1 downto 0);
+ts_src_o <= VEC_TS_SRC(1 downto 0);
 VEC_CLK_SEL_STAT(1 downto 0) <= clk_sel_stat_i;
 
 --
@@ -188,45 +191,60 @@ port map (
     freq_out        => FREQ_VAL
 );
 
+-- Drive health field, currently only clk src checked
+health_sys: process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if clk_sel_stat_i /= VEC_CLOCK_SRC(1 downto 0) then
+            health <= std_logic_vector(to_unsigned(1,32));
+        else
+            health <= std_logic_vector(to_unsigned(0,32));
+        end if;
+    end if;
+end process;
+
 ---------------------------------------------------------------------------
 -- Status Read process from Slow Controller
 ---------------------------------------------------------------------------
 system_ctrl_inst : entity work.system_ctrl
 port map (
     -- Clock and Reset
-    clk_i               => clk_i,
-    reset_i             => reset_i,
-    bit_bus_i            => (others => '0'),
-    pos_bus_i            => (others => (others => '0')),
+    clk_i                   => clk_i,
+    reset_i                 => reset_i,
+    bit_bus_i               => (others => '0'),
+    pos_bus_i               => (others => (others => '0')),
     -- Block Parameters
-    TEMP_PSU            => TEMP_MON(0),
-    TEMP_SFP            => TEMP_MON(1),
-    TEMP_ENC_L          => TEMP_MON(2),
-    TEMP_PICO           => TEMP_MON(3),
-    TEMP_ENC_R          => TEMP_MON(4),
-    ALIM_12V0           => VOLT_MON(0),
-    PICO_5V0            => VOLT_MON(1),
-    IO_5V0              => VOLT_MON(2),
-    SFP_3V3             => VOLT_MON(3),
-    FMC_15VN            => VOLT_MON(4),
-    FMC_15VP            => VOLT_MON(5),
-    ENC_24V             => VOLT_MON(6),
-    FMC_12V             => VOLT_MON(7),
-    PLL_LOCKED          => VEC_PLL_LOCKED,
-    CLOCK_SOURCE        => VEC_CLOCK_SRC,
-    CLOCK_SOURCE_WSTB   => open,
-    EXT_CLOCK_FREQ      => FREQ_VAL(0),
-    CLK_SEL_STAT        => VEC_CLK_SEL_STAT,
+    TEMP_PSU                => TEMP_MON(0),
+    TEMP_SFP                => TEMP_MON(1),
+    TEMP_ENC_L              => TEMP_MON(2),
+    TEMP_PICO               => TEMP_MON(3),
+    TEMP_ENC_R              => TEMP_MON(4),
+    ALIM_12V0               => VOLT_MON(0),
+    PICO_5V0                => VOLT_MON(1),
+    IO_5V0                  => VOLT_MON(2),
+    SFP_3V3                 => VOLT_MON(3),
+    FMC_15VN                => VOLT_MON(4),
+    FMC_15VP                => VOLT_MON(5),
+    ENC_24V                 => VOLT_MON(6),
+    FMC_12V                 => VOLT_MON(7),
+    PLL_LOCKED              => VEC_PLL_LOCKED,
+    CLOCK_SOURCE            => VEC_CLOCK_SRC,
+    CLOCK_SOURCE_WSTB       => open,
+    TIMESTAMP_SOURCE        => VEC_TS_SRC,
+    TIMESTAMP_SOURCE_WSTB   => open,
+    EXT_CLOCK_FREQ          => FREQ_VAL(0),
+    CLK_SEL_STAT            => VEC_CLK_SEL_STAT,
+    HEALTH                  => health,
     -- Memory Bus Interface
-    read_strobe_i       => read_strobe_i,
-    read_address_i      => read_address_i(BLK_AW-1 downto 0),
-    read_data_o         => read_data_o,
-    read_ack_o          => read_ack_o,
+    read_strobe_i           => read_strobe_i,
+    read_address_i          => read_address_i(BLK_AW-1 downto 0),
+    read_data_o             => read_data_o,
+    read_ack_o              => read_ack_o,
 
-    write_strobe_i      => write_strobe_i,
-    write_address_i     => write_address_i(BLK_AW-1 downto 0),
-    write_data_i        => write_data_i,
-    write_ack_o         => open
+    write_strobe_i          => write_strobe_i,
+    write_address_i         => write_address_i(BLK_AW-1 downto 0),
+    write_data_i            => write_data_i,
+    write_ack_o             => open
 );
 
 end rtl;

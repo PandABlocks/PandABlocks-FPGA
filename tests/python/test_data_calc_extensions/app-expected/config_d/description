@@ -1,0 +1,41 @@
+DUMMY               Dummy test extension registers
+    DUMMY_R             Reads a single register
+    DUMMY_W             Writes a single register
+    POLY_R              Reads a group of registers
+    POLY_W              Writes a group of registers
+
+INTERVAL            Calculated registers interval test
+    CENTRE              
+    RANGE               
+
+FMC_IN              FMC ACQ427 Module
+    GAIN1               ADC input gain
+    GAIN2               ADC input gain
+    GAIN3               ADC input gain
+    GAIN4               ADC input gain
+    GAIN5               ADC input gain
+    GAIN6               ADC input gain
+    GAIN7               ADC input gain
+    GAIN8               ADC input gain
+    VAL1                ADC Channel 1 Data
+    VAL2                ADC Channel 2 Data
+    VAL3                ADC Channel 3 Data]
+    VAL4                ADC Channel 4 Data
+    VAL5                ADC Channel 5 Data
+    VAL6                ADC Channel 6 Data
+    VAL7                ADC Channel 7 Data
+    VAL8                ADC Channel 8 Data
+    TTL                 5V TTL input (CLOCK)
+    ADC_B_FITTED        Whether ADC B inputs are connected
+
+FMC_OUT             FMC ACQ427 Module
+    VAL1                DAC Channel 1 Data
+    VAL2                DAC Channel 2 Data
+    VAL3                DAC Channel 3 Data
+    VAL4                DAC Channel 4 Data
+    GAIN1               DAC output gain
+    GAIN2               DAC output gain
+    GAIN3               DAC output gain
+    GAIN4               DAC output gain
+    DAC_FITTED          Whether DAC outputs are connected
+

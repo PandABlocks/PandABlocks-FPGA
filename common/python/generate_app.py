@@ -60,13 +60,14 @@ def jinja_env(path):
 
 
 class AppGenerator(object):
-    def __init__(self, app, app_build_dir):
-        # type: (str, str) -> None
+    def __init__(self, app, app_build_dir, testPath=""):
+        # type: (str, str, str) -> None
         # Make sure the outputs directory doesn't already exist
         assert not os.path.exists(app_build_dir), \
             "Output dir %r already exists" % app_build_dir
         self.app_build_dir = app_build_dir
         self.app_name = app.split('/')[-1].split('.')[0]
+        self.testPath = testPath
         # Create a Jinja2 environment in the templates dir
         self.env = jinja_env(TEMPLATES)
         # Start from base register 2 to allow for *REG and *DRV spaces
@@ -130,7 +131,13 @@ class AppGenerator(object):
         self.process_fpga_options(
             ini_get(app_ini, '.', 'options', ''))
         # Implement the blocks for the soft blocks
-        self.implement_blocks(app_ini, "modules", "soft")
+        # If a test path has been given, use it for location of blocks.
+        # Otherwise blocks should be in moudles directory
+        if self.testPath:
+            path = self.testPath
+        else:
+            path = "modules"
+        self.implement_blocks(app_ini, path, "soft")
         # Filter option sensitive fields
         for block in self.server_blocks:
             to_delete = [
@@ -204,6 +211,7 @@ class AppGenerator(object):
                 # for carrier block
                 block = BlockConfig(section, type, number, ini_path, blockSite)
                 block.register_addresses(self.counters)
+                block.generate_calc_extensions()
                 self.fpga_blocks.append(block)
                 # Copy the fpga_blocks to the server blocks. Most blocks will
                 # be the same between the two, however the block suffixes blocks
@@ -393,47 +401,35 @@ class AppGenerator(object):
         reg_server_dir = os.path.join(
             ROOT, "common", "templates", "registers_server")
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
-        blocks = []
-        data = []
-        numbers = []
         regs = []
+        block = ""
         with open(reg_server_dir, 'r') as fp:
             for line in fp:
-                if "=" in line:
-                    # ignore constants
+                line = line.strip()
+                if "=" in line or line.startswith("#") or not line:
+                    # ignore constants and comments
                     continue
 
-                if "*" in line:
+                values = line.split()
+                if values and values[0] and values[0][0] == '*':
                     # The prefix for the signals are either REG or DRV
-                    block = line.split(" ", 1)[0]
-                if "#" not in line:
-                    # Ignore any lines which are comments
-                    # Reg name is the string before the last space
-                    # Double space is used in case arrays are present
-                    name = line.rsplit("  ", 1)[0].replace(" ", "")
-                    # Number is string after last space
-                    number = line.rsplit("  ", 1)[-1]
-                    if ".." in number:
-                        # Some of the values are arrays
-                        [lownum, highnum] = number.split("..", 1)
-                        lownum = [int(s) for s in lownum.split()
-                                  if s.isdigit()][0]
-                        highnum = [int(s) for s in highnum.split()
-                                   if s.isdigit()][0]
-                        for i in range((highnum + 1) - lownum):
-                            array_name = name + "_" + str(i)
-                            regs.append(dict(name=array_name,
-                                             number=str(lownum + i),
-                                             block=block.replace("*", "")))
-                    else:
-                        if self.hasnumbers(number):
-                            # Avoids including blank lines
-                            data.append(name)
-                            numbers.append(number.replace("\n", ""))
-                            blocks.append(block.replace("*", ""))
-                            regs.append(dict(name=name,
-                                             number=number.replace("\n", ""),
-                                             block=block.replace("*", "")))
+                    block = values[0][1:]
+
+                name = values[0]
+                if len(values) >= 2 and values[1] == "opt":
+                    del values[1]
+                lownum = int(values[1])
+                if len(values) == 4 and values[2] == "..":
+                    highnum = int(values[3])
+                    for i in range(lownum, highnum + 1):
+                        regs.append(dict(
+                            name="%s_%d" % (name, i - lownum),
+                            number=str(i),
+                            block=block))
+                else:
+                    regs.append(
+                        dict(name=name, number=str(lownum), block=block))
+
         context = jinja_context(regs=regs)
         self.expand_template("reg_defines.vhd.jinja2", context, hdl_dir,
                              "reg_defines.vhd")

@@ -68,24 +68,26 @@ signal OUTENC_read_strobe       : std_logic_vector(ENC_NUM-1 downto 0);
 signal OUTENC_read_data         : std32_array(ENC_NUM-1 downto 0);
 signal OUTENC_write_strobe      : std_logic_vector(ENC_NUM-1 downto 0);
 signal OUTENC_read_ack          : std_logic_vector(ENC_NUM-1 downto 0);
+signal OUTENC_write_ack         : std_logic_vector(ENC_NUM-1 downto 0);
 
 signal INENC_read_strobe        : std_logic_vector(ENC_NUM-1 downto 0);
 signal INENC_read_data          : std32_array(ENC_NUM-1 downto 0);
 signal INENC_write_strobe       : std_logic_vector(ENC_NUM-1 downto 0);
 signal posn                     : std32_array(ENC_NUM-1 downto 0);
 signal INENC_read_ack           : std_logic_vector(ENC_NUM-1 downto 0);
+signal INENC_write_ack          : std_logic_vector(ENC_NUM-1 downto 0);
 
 begin
 
 -- Acknowledgement to AXI Lite interface
-OUTENC_write_ack_o <= '1';
+OUTENC_write_ack_o <= or_reduce(OUTENC_write_ack);
 OUTENC_read_ack_o <= or_reduce(OUTENC_read_ack);
 
 -- Multiplex read data out from multiple instantiations
 OUTENC_read_data_o <= OUTENC_read_data(to_integer(unsigned(read_address_i(PAGE_AW-1 downto BLK_AW))));
 
 -- Acknowledgement to AXI Lite interface
-INENC_write_ack_o <= '1';
+INENC_write_ack_o <= or_reduce(INENC_write_ack);
 INENC_read_ack_o <= or_reduce(INENC_read_ack);
 
 -- Multiplex read data out from multiple instantiations
@@ -118,14 +120,14 @@ port map (
     OUTENC_read_ack_o       => OUTENC_read_ack(I),
 
     OUTENC_write_strobe_i   => OUTENC_write_strobe(I),
-    OUTENC_write_ack_o      => open,
+    OUTENC_write_ack_o      => OUTENC_write_ack(I),
 
     INENC_read_strobe_i     => INENC_read_strobe(I),
     INENC_read_data_o       => INENC_read_data(I),
     INENC_read_ack_o        => INENC_read_ack(I),
 
     INENC_write_strobe_i    => INENC_write_strobe(I),
-    INENC_write_ack_o       => open,
+    INENC_write_ack_o       => INENC_write_ack(I),
 
     read_address_i          => read_address_i(BLK_AW-1 downto 0),
 
