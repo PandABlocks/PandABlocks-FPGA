@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: docker.io/shihabdls/pandablocks-container-extension:v1.5
+      image: docker.io/shihabdls/pandablocks-container-extension:v1.6
       options: --privileged
       volumes:
         - ${{github.workspace}}/repos:/repos
@@ -36,6 +36,7 @@ jobs:
       - name: Sudo Install
         run: |
           whoami
+          sudo su root
           yum list --installed
 
       # Run action.yml
