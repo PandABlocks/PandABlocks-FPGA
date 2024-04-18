@@ -27,18 +27,16 @@ jobs:
         - ${{github.workspace}}/scratch/Xilinx:/scratch/Xilinx
 
     steps:
+      - name: Give runner build perms
+        run: |
+          sudo chmod 777 /build
+          sudo chmod 777 /repos
+
       # Necessary to find action.yml
       - name: Checkout Source
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          
-      - name: Sudo Install
-        run: |
-          whoami
-          sudo su root
-          whoami
-          yum list --installed
 
       # Run action.yml
       - name: Checkout Repos and Install Rclone
@@ -46,14 +44,13 @@ jobs:
           
       # S3 bucket
       - name: Download Vivado Build Tools
-        run: |
-          sudo bash repos/PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+        run: bash repos/PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
           
       - name: Verify Vivado Contents
         run: ls -l /scratch/Xilinx
         
       - name: Make boot
-        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && sudo make boot APP_NAME=${{ matrix.app }}
+        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
 
       - name: Clean /scratch
         if: always()
