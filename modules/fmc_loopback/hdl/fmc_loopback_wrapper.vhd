@@ -45,8 +45,7 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
-    FMC_i               : in  fmc_input_interface;
-    FMC_io              : inout fmc_inout_interface
+    FMC                 : view FMC_Module
 );
 end fmc_loopback_wrapper;
 
@@ -89,14 +88,14 @@ port map (
 );
 
 -- Bottom half is output
-FMC_io.FMC_LA_P(16 downto 0) <= pbrs_data;
-FMC_io.FMC_LA_N(16 downto 0) <= pbrs_data;
+FMC.FMC_LA_P(16 downto 0) <= pbrs_data;
+FMC.FMC_LA_N(16 downto 0) <= pbrs_data;
 
 -- Upper half is input
---FMC_io.FMC_LA_P(33 downto 17) <= (others => 'Z');
---FMC_io.FMC_LA_N(33 downto 17) <= (others => 'Z');
-fmc_din_p_pad <= FMC_io.FMC_LA_P(33 downto 17);
-fmc_din_n_pad <= FMC_io.FMC_LA_N(33 downto 17);
+--FMC.FMC_LA_P(33 downto 17) <= (others => 'Z');
+--FMC.FMC_LA_N(33 downto 17) <= (others => 'Z');
+fmc_din_p_pad <= FMC.FMC_LA_P(33 downto 17);
+fmc_din_n_pad <= FMC.FMC_LA_N(33 downto 17);
 
 
 ---------------------------------------------------------------------------
@@ -136,8 +135,8 @@ generic map (
 )
 port map (
     O           => FMC_CLK0_M2C,
-    I           => FMC_io.FMC_CLK0_M2C_P,
-    IB          => FMC_io.FMC_CLK0_M2C_N
+    I           => FMC.FMC_CLK0_M2C_P,
+    IB          => FMC.FMC_CLK0_M2C_N
 );
 
 IBUFGDS_CLK1 : IBUFGDS
@@ -147,8 +146,8 @@ generic map (
 )
 port map (
     O           => FMC_CLK1_M2C,
-    I           => FMC_i.FMC_CLK1_M2C_P,
-    IB          => FMC_i.FMC_CLK1_M2C_N
+    I           => FMC.FMC_CLK1_M2C_P,
+    IB          => FMC.FMC_CLK1_M2C_N
 );
 
 ---------------------------------------------------------------------------
@@ -170,7 +169,7 @@ port map (
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
-FMC_PRSNT_DW <= ZEROS(31) & FMC_i.FMC_PRSNT;
+FMC_PRSNT_DW <= ZEROS(31) & FMC.FMC_PRSNT;
 
 fmc_ctrl : entity work.fmc_loopback_ctrl
 port map (

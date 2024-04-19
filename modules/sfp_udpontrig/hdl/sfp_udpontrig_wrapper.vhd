@@ -54,8 +54,7 @@ entity sfp_udpontrig_wrapper is
     write_ack_o         : out std_logic;
 
     -- SFP Interface
-    SFP_i               : in  SFP_input_interface;
-    SFP_o               : out SFP_output_interface
+    SFP                 : view MGT_Module
 );
 end sfp_udpontrig_wrapper;
 
@@ -151,8 +150,8 @@ begin
 -- Add Obufs to SFP ports otherwise Vivado automically infers these
 -- for unused signals which causes errors if signals are unused.
 
-TXN_OBUF_i : OBUF port map ( I => TXN_O, O => SFP_o.TXN_OUT );
-TXP_OBUF_I : OBUF port map ( I => TXP_O, O => SFP_o.TXP_OUT );
+TXN_OBUF_i : OBUF port map ( I => TXN_O, O => SFP.TXN_OUT );
+TXP_OBUF_I : OBUF port map ( I => TXP_O, O => SFP.TXP_OUT );
 
 
 our_ip_address    <= our_ip_address_byte1(7 downto 0)  &  our_ip_address_byte2(7 downto 0)  &  our_ip_address_byte3(7 downto 0) &  our_ip_address_byte4(7 downto 0);
@@ -185,15 +184,15 @@ SFP_UDP_Complete_i : SFP_UDP_Complete
     count_udp_tx_RESULT_ERR       => count_udp_tx_RESULT_ERR_i,
     SFP_STATUS_COUNT              => SFP_STATUS_COUNT,
     -- Block Parameters
-    OUR_MAC_ADDRESS               => SFP_i.MAC_ADDR,
+    OUR_MAC_ADDRESS               => SFP.MAC_ADDR,
     our_ip_address                => our_ip_address,
     dest_ip_address               => dest_ip_address,
     our_udp_port                  => our_udp_port,
     dest_udp_port                 => dest_udp_port,
     -- GTX I/O
-    gtrefclk                      => SFP_i.GTREFCLK,
-    RXN_IN                        => SFP_i.RXN_IN,
-    RXP_IN                        => SFP_i.RXP_IN,
+    gtrefclk                      => SFP.GTREFCLK,
+    RXN_IN                        => SFP.RXN_IN,
+    RXP_IN                        => SFP.RXP_IN,
     TXN_OUT                       => TXN_O,
     TXP_OUT                       => TXP_O
     );
@@ -228,10 +227,10 @@ end process;
 
 SOFT_RESET_rise     <= SOFT_RESET and not (SOFT_RESET_prev);
 
-MAC_HI(23 downto 0) <= SFP_i.MAC_ADDR(47 downto 24);
-MAC_LO(23 downto 0) <= SFP_i.MAC_ADDR(23 downto 0);
+MAC_HI(23 downto 0) <= SFP.MAC_ADDR(47 downto 24);
+MAC_LO(23 downto 0) <= SFP.MAC_ADDR(23 downto 0);
 
-SFP_LOS_VEC         <= (0 => SFP_i.SFP_LOS, others => '0');
+SFP_LOS_VEC         <= (0 => SFP.SFP_LOS, others => '0');
 
 ---------------------------------------------------------------------------
 -- SFP Control Interface

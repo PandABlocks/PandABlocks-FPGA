@@ -244,19 +244,14 @@ signal ts_src               : std_logic_vector(1 downto 0);
 signal pcap_start_event     : std_logic;
 
 -- FMC Block
-signal FMC_i  : FMC_input_interface;
-signal FMC_io : FMC_inout_interface  := FMC_io_init;
+signal FMC : FMC_interface := FMC_init;
 
 -- SFP Block
-signal SFP1_i : SFP_input_interface;
-signal SFP1_o : SFP_output_interface := SFP_o_init;
-signal SFP2_i : SFP_input_interface;
-signal SFP2_o : SFP_output_interface := SFP_o_init;
-signal SFP3_i : SFP_input_interface;
-signal SFP3_o : SFP_output_interface := SFP_o_init;
+signal SFP1 : MGT_interface := MGT_init;
+signal SFP2 : MGT_interface := MGT_init;
+signal SFP3 : MGT_interface := MGT_init;
 -- 4th SFP interface available using FMC MGT
-signal FMC_MGT_i : FMC_MGT_input_ARR;
-signal FMC_MGT_o : FMC_MGT_output_ARR := (others => SFP_o_init);
+signal FMC_MGT : FMC_MGT_ARR := FMC_MGT_ARR_init;
 
 signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
 attribute syn_noclockbuf : boolean;
@@ -332,9 +327,9 @@ mmcm_clkmux_inst: entity work.mmcm_clkmux
 port map(
     fclk_clk0_ps_i      => FCLK_CLK0_PS,
     sma_clk_i           => EXTCLK,
-    mgt_rec_clk_i       => SFP3_o.MGT_REC_CLK,
+    mgt_rec_clk_i       => SFP3.MGT_REC_CLK,
     clk_sel_i           => clk_src_sel,
-    sfp_los_i           => SFP3_i.SFP_LOS,
+    sfp_los_i           => SFP3.SFP_LOS,
     sma_pll_locked_o    => sma_pll_locked,
     clk_sel_stat_o      => clk_sel_stat,
     fclk_clk0_o         => FCLK_CLK0,
@@ -803,60 +798,60 @@ bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
 pos_bus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
 
 -- Assemble FMC records
-FMC_i.FMC_PRSNT <= FMC_PRSNT;
-FMC_io.FMC_LA_P <= FMC_LA_P;
-FMC_io.FMC_LA_N <= FMC_LA_N;
-FMC_io.FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P;
-FMC_io.FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N;
-FMC_i.FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P;
-FMC_i.FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N;
+FMC.FMC_PRSNT <= FMC_PRSNT;
+FMC.FMC_LA_P <= FMC_LA_P;
+FMC.FMC_LA_N <= FMC_LA_N;
+FMC.FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P;
+FMC.FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N;
+FMC.FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P;
+FMC.FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N;
 
 -- Assemble SFP records
 -- NB: SFPs 1 and 3 are switched around to mirror front panel connections
-SFP1_i.SFP_LOS <= '0';  -- NB: Hard-coded to '0' as not brought out onto pin!
-SFP1_i.GTREFCLK <= q0_clk0_gtrefclk;
-SFP1_i.RXN_IN <= SFP_RX_N(2);
-SFP1_i.RXP_IN <= SFP_RX_P(2);
-SFP_TX_N(2) <= SFP1_o.TXN_OUT;
-SFP_TX_P(2) <= SFP1_o.TXP_OUT;
-SFP_TS_SEC(0) <= SFP1_o.TS_SEC;
-SFP_TS_TICKS(0) <= SFP1_o.TS_TICKS;
-SFP1_i.MAC_ADDR <= MGT_MAC_ADDR_ARR(1)(23 downto 0) & MGT_MAC_ADDR_ARR(0)(23 downto 0);
-SFP1_i.MAC_ADDR_WS <= '0';
+SFP1.SFP_LOS <= '0';  -- NB: Hard-coded to '0' as not brought out onto pin!
+SFP1.GTREFCLK <= q0_clk0_gtrefclk;
+SFP1.RXN_IN <= SFP_RX_N(2);
+SFP1.RXP_IN <= SFP_RX_P(2);
+SFP_TX_N(2) <= SFP1.TXN_OUT;
+SFP_TX_P(2) <= SFP1.TXP_OUT;
+SFP_TS_SEC(0) <= SFP1.TS_SEC;
+SFP_TS_TICKS(0) <= SFP1.TS_TICKS;
+SFP1.MAC_ADDR <= MGT_MAC_ADDR_ARR(1)(23 downto 0) & MGT_MAC_ADDR_ARR(0)(23 downto 0);
+SFP1.MAC_ADDR_WS <= '0';
 
-SFP2_i.SFP_LOS <= SFP_LOS(1);
-SFP2_i.GTREFCLK <= q0_clk0_gtrefclk;
-SFP2_i.RXN_IN <= SFP_RX_N(1);
-SFP2_i.RXP_IN <= SFP_RX_P(1);
-SFP_TX_N(1) <= SFP2_o.TXN_OUT;
-SFP_TX_P(1) <= SFP2_o.TXP_OUT;
-SFP_TS_SEC(1) <= SFP2_o.TS_SEC;
-SFP_TS_TICKS(1) <= SFP2_o.TS_TICKS;
-SFP2_i.MAC_ADDR <= MGT_MAC_ADDR_ARR(3)(23 downto 0) & MGT_MAC_ADDR_ARR(2)(23 downto 0);
-SFP2_i.MAC_ADDR_WS <= '0';
+SFP2.SFP_LOS <= SFP_LOS(1);
+SFP2.GTREFCLK <= q0_clk0_gtrefclk;
+SFP2.RXN_IN <= SFP_RX_N(1);
+SFP2.RXP_IN <= SFP_RX_P(1);
+SFP_TX_N(1) <= SFP2.TXN_OUT;
+SFP_TX_P(1) <= SFP2.TXP_OUT;
+SFP_TS_SEC(1) <= SFP2.TS_SEC;
+SFP_TS_TICKS(1) <= SFP2.TS_TICKS;
+SFP2.MAC_ADDR <= MGT_MAC_ADDR_ARR(3)(23 downto 0) & MGT_MAC_ADDR_ARR(2)(23 downto 0);
+SFP2.MAC_ADDR_WS <= '0';
 
-SFP3_i.SFP_LOS <= SFP_LOS(0);
-SFP3_i.GTREFCLK <= q0_clk0_gtrefclk;
-SFP3_i.RXN_IN <= SFP_RX_N(0);
-SFP3_I.RXP_IN <= SFP_RX_P(0);
-SFP_TX_N(0) <= SFP3_o.TXN_OUT;
-SFP_TX_P(0) <= SFP3_o.TXP_OUT;
-SFP_TS_SEC(2) <= SFP3_o.TS_SEC;
-SFP_TS_TICKS(2) <= SFP3_o.TS_TICKS;
-SFP3_i.MAC_ADDR <= MGT_MAC_ADDR_ARR(5)(23 downto 0) & MGT_MAC_ADDR_ARR(4)(23 downto 0);
-SFP3_i.MAC_ADDR_WS <= '0';
+SFP3.SFP_LOS <= SFP_LOS(0);
+SFP3.GTREFCLK <= q0_clk0_gtrefclk;
+SFP3.RXN_IN <= SFP_RX_N(0);
+SFP3.RXP_IN <= SFP_RX_P(0);
+SFP_TX_N(0) <= SFP3.TXN_OUT;
+SFP_TX_P(0) <= SFP3.TXP_OUT;
+SFP_TS_SEC(2) <= SFP3.TS_SEC;
+SFP_TS_TICKS(2) <= SFP3.TS_TICKS;
+SFP3.MAC_ADDR <= MGT_MAC_ADDR_ARR(5)(23 downto 0) & MGT_MAC_ADDR_ARR(4)(23 downto 0);
+SFP3.MAC_ADDR_WS <= '0';
 
 -- Added FMC_MGT which is an option by using the MGT pins on the FMC.
 
 FMC_MGT_gen: for I in 0 to NUM_FMC_MGT-1 generate
-    FMC_MGT_i(I).SFP_LOS <= '0';
-    FMC_MGT_i(I).GTREFCLK <= q0_clk0_gtrefclk;
-    FMC_MGT_i(I).RXN_IN <= FMC_DP_M2C_N(I);
-    FMC_MGT_i(I).RXP_IN <= FMC_DP_M2C_P(I);
-    FMC_DP_C2M_N(I) <= FMC_MGT_o(I).TXN_OUT;
-    FMC_DP_C2M_P(I) <= FMC_MGT_o(I).TXP_OUT;
-    FMC_MGT_i(I).MAC_ADDR <= (others => '0');
-    FMC_MGT_i(I).MAC_ADDR_WS <= '0';
+    FMC_MGT.MGT_ARR(I).SFP_LOS <= '0';
+    FMC_MGT.MGT_ARR(I).GTREFCLK <= q0_clk0_gtrefclk;
+    FMC_MGT.MGT_ARR(I).RXN_IN <= FMC_DP_M2C_N(I);
+    FMC_MGT.MGT_ARR(I).RXP_IN <= FMC_DP_M2C_P(I);
+    FMC_DP_C2M_N(I) <= FMC_MGT.MGT_ARR(I).TXN_OUT;
+    FMC_DP_C2M_P(I) <= FMC_MGT.MGT_ARR(I).TXP_OUT;
+    FMC_MGT.MGT_ARR(I).MAC_ADDR <= (others => '0');
+    FMC_MGT.MGT_ARR(I).MAC_ADDR_WS <= '0';
 end generate;
 ---------------------------------------------------------------------------
 -- PandABlocks_top Instantiation (autogenerated!!)
@@ -886,16 +881,11 @@ port map(
     rdma_len => rdma_len,
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
-    FMC_i => FMC_i,
-    FMC_io => FMC_io,
-    SFP1_i => SFP1_i,
-    SFP1_o => SFP1_o,
-    SFP2_i => SFP2_i,
-    SFP2_o => SFP2_o,
-    SFP3_i => SFP3_i,
-    SFP3_o => SFP3_o,
-    FMC_MGT_i => FMC_MGT_i,
-    FMC_MGT_o => FMC_MGT_o
+    FMC => FMC,
+    SFP1 => SFP1,
+    SFP2 => SFP2,
+    SFP3 => SFP3,
+    FMC_MGT => FMC_MGT
 );
 
 end rtl;

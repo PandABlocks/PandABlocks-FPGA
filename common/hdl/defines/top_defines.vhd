@@ -66,59 +66,93 @@ end record;
 
 -- FMC Block Record declarations
 
-type FMC_input_interface is
+type FMC_interface is
   record
     FMC_PRSNT       : std_logic;
-    FMC_CLK1_M2C_P  : std_logic;
-    FMC_CLK1_M2C_N  : std_logic;
-  end record FMC_input_interface;
-
-type FMC_inout_interface is
-  record
     FMC_LA_P        : std_logic_vector(33 downto 0);
     FMC_LA_N        : std_logic_vector(33 downto 0);
     FMC_CLK0_M2C_P  : std_logic;
     FMC_CLK0_M2C_N  : std_logic;
-  end record FMC_inout_interface;
+    FMC_CLK1_M2C_P  : std_logic;
+    FMC_CLK1_M2C_N  : std_logic;
+  end record FMC_interface;
 
-constant FMC_io_init : FMC_inout_interface := (FMC_LA_P => (others => 'Z'),
-                                               FMC_LA_N => (others => 'Z'),
-                                               FMC_CLK0_M2C_P => 'Z',
-                                               FMC_CLK0_M2C_N => 'Z');
+view FMC_Module of FMC_interface is
+    FMC_PRSNT       : in;
+    FMC_LA_P        : inout;
+    FMC_LA_N        : inout;
+    FMC_CLK0_M2C_P  : inout;
+    FMC_CLK0_M2C_N  : inout;
+    FMC_CLK1_M2C_P  : in;
+    FMC_CLK1_M2C_N  : in;
+end view FMC_Module;
+
+constant FMC_init : FMC_interface := (  FMC_PRSNT => '0',
+                                        FMC_LA_P => (others => 'Z'),
+                                        FMC_LA_N => (others => 'Z'),
+                                        FMC_CLK0_M2C_P => 'Z',
+                                        FMC_CLK0_M2C_N => 'Z',
+                                        FMC_CLK1_M2C_P => '0',
+                                        FMC_CLK1_M2C_N => '0');
 
 -- SFP Block Record declarations
 
-type SFP_input_interface is
+type MGT_interface is
   record
     SFP_LOS     : std_logic;
     GTREFCLK    : std_logic;
     RXN_IN      : std_logic;
     RXP_IN      : std_logic;
-    MAC_ADDR    : std_logic_vector(47 downto 0);
-    MAC_ADDR_WS : std_logic;
-  end record SFP_input_interface;
-
-type SFP_output_interface is
-  record
     TXN_OUT     : std_logic;
     TXP_OUT     : std_logic;
     MGT_REC_CLK : std_logic;
     LINK_UP     : std_logic;
     TS_SEC      : std_logic_vector(31 downto 0);
     TS_TICKS    : std_logic_vector(31 downto 0);
-  end record SFP_output_interface;
+    MAC_ADDR    : std_logic_vector(47 downto 0);
+    MAC_ADDR_WS : std_logic;
+  end record MGT_interface;
 
-constant SFP_o_init : SFP_output_interface := (TXN_OUT => 'Z',
-                                               TXP_OUT => 'Z',
-                                               MGT_REC_CLK => '0',
-                                               LINK_UP => '0',
-                                               TS_SEC => (others => '0'),
-                                               TS_TICKS => (others => '0')
-);
+view MGT_Module of MGT_interface is
+    SFP_LOS     : in;
+    GTREFCLK    : in;
+    RXN_IN      : in;
+    RXP_IN      : in;
+    TXN_OUT     : out;
+    TXP_OUT     : out;
+    MGT_REC_CLK : out;
+    LINK_UP     : out;
+    TS_SEC      : out;
+    TS_TICKS    : out;
+    MAC_ADDR    : in;
+    MAC_ADDR_WS : in;
+end view MGT_Module;
 
-type FMC_MGT_input_ARR is array (0 to NUM_FMC_MGT-1) of SFP_input_interface;
-type FMC_MGT_output_ARR is array (0 to NUM_FMC_MGT-1) of SFP_output_interface;
+constant MGT_init : MGT_interface := (  SFP_LOS => '0',
+                                        GTREFCLK => '0',
+                                        RXN_IN => '0',
+                                        RXP_IN => '0',
+                                        TXN_OUT => 'Z',
+                                        TXP_OUT => 'Z',
+                                        MGT_REC_CLK => '0',
+                                        LINK_UP => '0',
+                                        TS_SEC => (others => '0'),
+                                        TS_TICKS => (others => '0'),
+                                        MAC_ADDR => (others => '0'),
+                                        MAC_ADDR_WS => '0');
 
+type MGT_array is array (natural range <>) of MGT_interface;
+
+type FMC_MGT_ARR is record
+    MGT_ARR : MGT_array(0 to NUM_FMC_MGT-1);
+end record FMC_MGT_ARR;
+
+view FMC_MGT_MOD_ARR of FMC_MGT_ARR is
+    MGT_ARR: view (MGT_Module);
+end view;
+
+constant FMC_MGT_ARR_init : FMC_MGT_ARR := (MGT_ARR => (others => MGT_init));
+    
 type seq_t is
 record
     repeats     : unsigned(15 downto 0);

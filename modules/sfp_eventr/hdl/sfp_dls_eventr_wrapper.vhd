@@ -33,8 +33,7 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
 
-    SFP_i               : in SFP_input_interface;
-    SFP_o               : out SFP_output_interface
+    SFP                 : view MGT_Module
 );
 end sfp_dls_eventr_wrapper;
 
@@ -113,21 +112,21 @@ begin
 txnobuf : obuf
 port map (
     I => TXN,
-    O => SFP_o.TXN_OUT
+    O => SFP.TXN_OUT
 );
 
 txpobuf : obuf
 port map (
     I => TXP,
-    O => SFP_o.TXP_OUT
+    O => SFP.TXP_OUT
 );
 
 -- Assign outputs
 
-SFP_o.MGT_REC_CLK <= rxoutclk;
-SFP_o.LINK_UP <= LINKUP(0);
-SFP_o.TS_SEC <= unix_time;
-SFP_o.TS_TICKS <= unix_time_ticks;
+SFP.MGT_REC_CLK <= rxoutclk;
+SFP.LINK_UP <= LINKUP(0);
+SFP.TS_SEC <= unix_time;
+SFP.TS_TICKS <= unix_time_ticks;
 
 bit1_o(0) <= bit1;
 bit2_o(0) <= bit2;
@@ -180,11 +179,11 @@ port map(
 
 sfpgtx_event_receiver_inst: entity work.sfp_event_receiver
 port map(
-    GTREFCLK           => SFP_i.GTREFCLK,
+    GTREFCLK           => SFP.GTREFCLK,
     sysclk_i           => clk_i,
     event_reset_i      => EVENT_RESET,
-    rxp_i              => SFP_i.RXP_IN,
-    rxn_i              => SFP_i.RXN_IN,
+    rxp_i              => SFP.RXP_IN,
+    rxn_i              => SFP.RXN_IN,
     txp_o              => TXP,
     txn_o              => TXN,
     rxbyteisaligned_o  => rxbyteisaligned_o,

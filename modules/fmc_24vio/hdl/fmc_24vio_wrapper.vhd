@@ -50,8 +50,7 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
-    FMC_i               : in  fmc_input_interface;
-    FMC_io              : inout fmc_inout_interface := FMC_io_init
+    FMC                 : view FMC_Module
 );
 end fmc_24vio_wrapper;
 
@@ -78,7 +77,7 @@ begin
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
-FMC_PRSNT_DW <= ZEROS(31) & FMC_i.FMC_PRSNT;
+FMC_PRSNT_DW <= ZEROS(31) & FMC.FMC_PRSNT;
 
 fmc_ctrl : entity work.fmc_24vio_ctrl
 port map (
@@ -128,8 +127,8 @@ fmc_24vio_inst : entity work.fmc_24vio
 port map (
     clk_i               => clk_i,
     reset_i             => reset_i,
-    FMC_LA_P            => FMC_io.FMC_LA_P,
-    FMC_LA_N            => FMC_io.FMC_LA_N,
+    FMC_LA_P            => FMC.FMC_LA_P,
+    FMC_LA_N            => FMC.FMC_LA_N,
     OUT_PWR_ON          => OUT_PWR_ON(0),
     OUT_PUSHPL          => OUT_PUSHPL(0),
     OUT_FLTR            => OUT_FLTR(0),
