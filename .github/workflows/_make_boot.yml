@@ -19,55 +19,55 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: docker.io/shihabdls/pandablocks-container-extension:v1.6
+      image: docker.io/shihabdls/pandablocks-container-extension:v1.7
       options: --privileged
       volumes:
         - ${{github.workspace}}/repos:/repos
         - ${{github.workspace}}/build:/build
-        - ${{github.workspace}}/scratch/Xilinx:/scratch/Xilinx
 
     steps:
       - name: Give runner build perms
         run: |
           sudo chmod 777 /build
           sudo chmod 777 /repos
+          ls -l /scratch/Xilinx
 
       # Necessary to find action.yml
-      - name: Checkout Source
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+#      - name: Checkout Source
+#        uses: actions/checkout@v2
+#        with:
+#          fetch-depth: 0
 
       # Run action.yml
-      - name: Checkout Repos and Install Rclone
-        uses: ./.github/actions/setupenv
+#      - name: Checkout Repos and Install Rclone
+#        uses: ./.github/actions/setupenv
           
       # S3 bucket
-      - name: Download Vivado Build Tools
-        run: bash repos/PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
+#      - name: Download Vivado Build Tools
+#        run: bash repos/PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
           
-      - name: Verify Vivado Contents
-        run: ls -l /scratch/Xilinx
+#      - name: Verify Vivado Contents
+#        run: ls -l /scratch/Xilinx
         
-      - name: Make boot
-        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
+#      - name: Make boot
+#        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
 
-      - name: Clean /scratch
-        if: always()
-        run: |
-          sudo rm -rf /scratch/Xilinx/Vivado
-          sudo rm -rf /scratch/Xilinx/Vitis
-          sudo rm -rf /scratch/Xilinx/Vitis_HLS
-          sudo rm -rf /repos/PandABlocks-FPGA
-          sudo rm -rf /repos/PandABlocks-rootfs
+#      - name: Clean /scratch
+#        if: always()
+#        run: |
+#          sudo rm -rf /scratch/Xilinx/Vivado
+#          sudo rm -rf /scratch/Xilinx/Vitis
+#          sudo rm -rf /scratch/Xilinx/Vitis_HLS
+#          sudo rm -rf /repos/PandABlocks-FPGA
+#          sudo rm -rf /repos/PandABlocks-rootfs
 
-      - name: Verify Vivado Deletion
-        if: always()
-        run: ls -l /scratch/Xilinx
+#      - name: Verify Vivado Deletion
+#        if: always()
+#        run: ls -l /scratch/Xilinx
 
       # Artifacts
-      - name: Upload boot
-        uses: actions/upload-artifact@v2
-        with:
-          name: zpkgs
-          path: ./build/boot*.zip
+#      - name: Upload boot
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: zpkgs
+#          path: ./build/boot*.zip
