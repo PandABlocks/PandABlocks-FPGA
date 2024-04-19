@@ -31,7 +31,6 @@ jobs:
         run: |
           sudo chmod 777 /build
           sudo chmod 777 /repos
-          sudo chmod 444 /scratch/Xilinx
 
       # Necessary to find action.yml
       - name: Checkout Source
