@@ -15,10 +15,3 @@ runs:
         with:
           repository: PandABlocks/PandABlocks-rootfs
           path: repos/PandABlocks-rootfs
-      
-      # Give appropriate file perms to runner
-      - name: Give runner build perms
-        run: |
-          sudo chmod 777 /build
-          sudo chmod 777 /repos
-          sudo chmod 444 /scratch/Xilinx
