@@ -15,8 +15,10 @@ runs:
         with:
           repository: PandABlocks/PandABlocks-rootfs
           path: repos/PandABlocks-rootfs
-      # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
-      # https://github.com/rclone/rclone/issues/2975
-      - name: Install rclone patch
-        shell: bash
-        run: bash repos/PandABlocks-fpga/.github/scripts/rclone-patch.sh
+      
+      # Give appropriate file perms to runner
+      - name: Give runner build perms
+        run: |
+          sudo chmod 777 /build
+          sudo chmod 777 /repos
+          sudo chmod 444 /scratch/Xilinx
