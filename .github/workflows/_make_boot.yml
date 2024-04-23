@@ -41,7 +41,8 @@ jobs:
       # Run action.yml
       - name: Checkout repos
         uses: ./.github/actions/setupenv
-        
+      
+      # Generate boot image
       - name: Make boot
         run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
 
