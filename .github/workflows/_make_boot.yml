@@ -19,7 +19,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: docker.io/shihabdls/pandablocks-container-extension:v2.0
+      image: docker.io/shihabdls/pandablocks-container-extension:v1.7
       options: --privileged
       volumes:
         - ${{github.workspace}}/repos:/repos
@@ -29,8 +29,8 @@ jobs:
       # Give runner perms
       - name: Give runner build perms
         run: |
-          sudo chmod 777 /build
-          sudo chmod 777 /repos
+          sudo chmod -R 777 /build
+          sudo chmod -R 777 /repos
 
       # Necessary to find action.yml
       - name: Checkout Source
@@ -44,7 +44,8 @@ jobs:
       
       # Generate bootable image
       - name: Make boot
-        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
+        run: |
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }} && echo "done" && exit
 
       # Artifacts
       - name: Upload boot

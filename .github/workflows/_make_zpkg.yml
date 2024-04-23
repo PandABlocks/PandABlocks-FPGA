@@ -12,15 +12,23 @@ jobs:
       fail-fast: false
       matrix:
         app: [
-              "PandABox-no-fmc",
-              "PandABox-fmc_24vio",
-              "PandABox-fmc_acq427",
-              "PandABox-fmc_acq430",
-              "PandABox-fmc_lback-sfp_lback",
-              "ZedBoard-no-fmc",
+              "PandABox-no-fmc"
               ]
-    runs-on: ubuntu-latest
+    runs-on:
+      group: iris_runners
+    container:
+      image: docker.io/shihabdls/pandablocks-container-extension:v1.7
+      options: --privileged
+      volumes:
+        - ${{github.workspace}}/repos:/repos
+        - ${{github.workspace}}/build:/build
     steps:
+      # Give runner perms
+      - name: Give runner build perms
+        run: |
+          sudo chmod -R 777 /build
+          sudo chmod -R 777 /repos
+
       # Necessary to find action.yml
       - name: Checkout Source
         uses: actions/checkout@v2
@@ -28,33 +36,11 @@ jobs:
           fetch-depth: 0
 
       # Run action.yml
-      - name: Checkout and install rclone
+      - name: Checkout repos
         uses: ./.github/actions/setupenv
 
-      # S3 bucket
-      - name: Mount Vivado S3 bucket
-        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
-
-      # Get container image
-      - name: login to github container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN  }}
-
-      # Mount in rclone bucket from runner into conatiner
       - name: build carrier_ip and zpkg
-        run: |
-          docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
-          docker run \
-            --net=host \
-            -v "${{ github.workspace }}:/repos" \
-            -v "${{ github.workspace }}/build:/build" \
-            -v "/scratch/Xilinx:/scratch/Xilinx" \
-            ghcr.io/pandablocks/pandablocks-dev-container:latest\
-            /bin/bash -c \
-            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} "
+        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo "done" && exit
 
       # Artifacts
       - name: Upload zpkg
