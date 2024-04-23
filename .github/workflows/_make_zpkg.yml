@@ -13,7 +13,7 @@ jobs:
       group: iris_runners
     container:
       image: docker.io/shihabdls/pandablocks-container-extension:v1.7
-      options: --net=host
+      options: --privileged
       volumes:
         - ${{github.workspace}}/repos:/repos
         - ${{github.workspace}}/build:/build
@@ -23,7 +23,6 @@ jobs:
         run: |
           sudo chmod -R 777 /build
           sudo chmod -R 777 /repos
-          
 
       # Necessary to find action.yml
       - name: Checkout Source
