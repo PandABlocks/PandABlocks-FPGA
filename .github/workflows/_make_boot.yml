@@ -47,6 +47,7 @@ jobs:
 
       # Artifacts
       - name: Upload boot
+        if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
           name: zpkgs
