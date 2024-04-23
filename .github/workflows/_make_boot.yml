@@ -40,7 +40,7 @@ jobs:
       # Generate bootable image
       - name: Make boot
         run: |
-          gh run cancel {{ github.run_id }}
+          gh run cancel ${{ github.run_id }}
           cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }} && echo "done" && exit
         env:
           GH_TOKEN: ${{ github.token }}
