@@ -102,11 +102,7 @@ class BlockConfig(object):
         #: The Block section of the register address space
         self.block_address = None
         #: If the type == sfp, which site number
-        self.site = site
-        if site:
-            self.site_LOC = "FMC" if "fmc" in site else site.upper()
-        else:
-            self.site_LOC = None
+        self.site_config(site)
         #: The VHDL entity name, like lut
         self.entity = ini.get(".", "entity")
         #: Is the block soft, sfp, fmc or dma?
@@ -136,6 +132,21 @@ class BlockConfig(object):
         #: Are there any suffixes?
         self.block_suffixes = ini_get(ini, '.', 'block_suffixes', '').split()
 
+    def site_config(self, site_tuple):
+
+        siteName, siteType, siteNumber = site_tuple
+        if siteName:
+            if siteNumber.isdigit():
+                self.site=siteName + '.' + siteType + '_ARR(' + str(int(siteNumber)-1) + ')'
+                # self.site_LOC = "FMC" if "fmc" in siteName else (siteName + siteNumber).upper()
+                self.site_LOC = (siteName + siteNumber).upper()
+            else:
+                self.site=siteNumber
+                self.site_LOC = siteNumber
+        else:
+            self.site = None
+            self.site_LOC = None
+
     def register_addresses(self, block_counters):
         # type: (RegisterCounter) -> None
         """Register this block in the address space"""
@@ -162,15 +173,11 @@ class BlockConfig(object):
         combinedInterfaces=[] # type: List[tuple]
         for interface in interfaces:
             if self.site:
-                site_split_name, site_split_num, _ = re.split('(\d)', self.site)
-                split=interface.split("_")
-                if (site_split_name in interface):
-                    numberedInterface=split[0]+site_split_num+"_"+split[1]
-                else:
-                    numberedInterface=split[0]+"_"+self.site+"_"+split[1]
-                combinedInterface=(interface,numberedInterface)
+                # site_number=re.findall(r'\d+', self.site)[0]
+                combinedInterface=(interface, self.site)
             else:
-                combinedInterface=(interface, interface)
+                site = interface + '.' + interface + "_ARR(0)"
+                combinedInterface=(interface, site)
             combinedInterfaces.append(combinedInterface)
         return combinedInterfaces
 
@@ -635,29 +642,18 @@ class TargetSiteConfig(object):
     #: Regex for matching a type string to this field
     type_regex = None
 
-    def __init__(self, name, info):
-        # type: (str, str)-> None
+    def __init__(self, name, num, type=None):
+        # type: (str, int, str)-> None
         #: The type of target site (SFP/FMC etc)
         self.name = name
         #: The info i in a string such as "3, i, io, o"
-        self.number = int(info.split(", ",1)[0])
+        self.number = int(num)
+        self.type = type if type else name
         self.locations = [str(i) for i in range(1, self.number + 1)]
-        self.dirs = [] #type List[Str]
-        self.interfaces = [] #type List[Str]
-        self.io_present(info.split(", ",1)[1])
 
-
-    def io_present(self, io):
-        # type: (str) -> List[str]
-        #: Change a string of form "i, o, io" to a list
-        options=io.split(', ')
-        for option in options:
-            self.dirs.append(option)
-            self.interfaces.append(self.name + "_" + option)
-
-    def lpc(self):
-        # An lpc FMC allows for an additional FMC site
-        if "sfp" in self.name:
-            self.number += 1
-            self.locations.append("_fmc0")
+    # def lpc(self):
+    #     # An lpc FMC allows for an additional FMC site
+    #     if "mgt" in self.type:
+    #         self.number += 1
+    #         self.locations.append("_fmc0")
 

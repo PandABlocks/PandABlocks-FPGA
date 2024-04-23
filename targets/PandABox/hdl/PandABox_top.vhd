@@ -816,7 +816,7 @@ SFP_LOS_VEC <= (2 => '0', 1 downto 0 => SFP_LOS);
 
 -- NB: SFPs 1 and 3 are switched around to mirror front panel connections
 
-SFP_FMC_gen: for I in 0 to NUM_SFP-1 generate
+SFP_MGT_gen: for I in 0 to NUM_SFP-1 generate
     SFP_MGT.MGT_ARR(I).SFP_LOS <= SFP_LOS_VEC(NUM_SFP-1-I);
     SFP_MGT.MGT_ARR(I).GTREFCLK <= q0_clk0_gtrefclk;
     SFP_MGT.MGT_ARR(I).RXN_IN <= SFP_RX_N(NUM_SFP-1-I);
@@ -870,7 +870,7 @@ port map(
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
     FMC => FMC,
-    SFP_MGT => SFP_MGT,
+    SFP => SFP_MGT,
     FMC_MGT => FMC_MGT
 );
 
