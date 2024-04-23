@@ -24,8 +24,7 @@ jobs:
         run: |
           sudo chmod -R 777 /build
           sudo chmod -R 777 /repos
-          curl -fsSL https://cli.github.com/packages/rpm/gh-cli.repo
-          sudo tee /etc/yum.repos.d/github-cli.repo
+          curl -fsSL https://cli.github.com/packages/rpm/gh-cli.repo | sudo tee /etc/yum.repos.d/github-cli.repo
           sudo dnf -y install gh
 
       # Necessary to find action.yml
