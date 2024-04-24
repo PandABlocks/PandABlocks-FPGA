@@ -15,7 +15,7 @@ jobs:
       image: docker.io/shihabdls/pandablocks-container-extension:v1.7
       options: --privileged
       volumes:
-        - ${{github.workspace}}/repos:/repos
+        - ${{github.workspace}}:/repos
         - ${{github.workspace}}/build:/build
     steps:
       # Give runner perms
@@ -36,8 +36,8 @@ jobs:
 
       - name: build carrier_ip and zpkg
         run: |
-          ls repos/PandABlocks-rootfs
-          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo "done"
+          ls PandABlocks-rootfs
+          cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo "done"
           exit
 
       # Artifacts
