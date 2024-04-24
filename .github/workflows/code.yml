@@ -12,9 +12,9 @@ on:
 
 jobs:
   # Make Boot files
-  make_boot:
-    uses: ./.github/workflows/_make_boot.yml
+#  make_boot:
+#    uses: ./.github/workflows/_make_boot.yml
 
   # Make zpkg for FPGA apps
-#  make_zpkg:
-#    uses: ./.github/workflows/_make_zpkg.yml
+  make_zpkg:
+    uses: ./.github/workflows/_make_zpkg.yml
