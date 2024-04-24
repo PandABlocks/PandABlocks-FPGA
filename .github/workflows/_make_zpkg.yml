@@ -22,7 +22,6 @@ jobs:
       - name: Give runner build perms & install gh cli
         run: |
           sudo chmod -R 777 /build
-          sudo chmod -R 777 /repos
 
       # Necessary to find action.yml
       - name: Checkout Source
