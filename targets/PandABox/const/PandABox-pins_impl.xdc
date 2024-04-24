@@ -76,79 +76,79 @@ set_property PACKAGE_PIN P8 [get_ports {SPI_DAT_O }];
 # -------------------------------------------------------------------
 # FMC Differential Pins
 # -------------------------------------------------------------------
-set_property PACKAGE_PIN R8   [get_ports {FMC_PRSNT     }];
-set_property PACKAGE_PIN H3   [get_ports {FMC_LA_N[3]   }];
-set_property PACKAGE_PIN H4   [get_ports {FMC_LA_P[3]   }];
-set_property PACKAGE_PIN G2   [get_ports {FMC_LA_N[8]   }];
-set_property PACKAGE_PIN G3   [get_ports {FMC_LA_P[8]   }];
-set_property PACKAGE_PIN F4   [get_ports {FMC_LA_N[12]  }];
-set_property PACKAGE_PIN G4   [get_ports {FMC_LA_P[12]  }];
-set_property PACKAGE_PIN F6   [get_ports {FMC_LA_N[16]  }];
-set_property PACKAGE_PIN G6   [get_ports {FMC_LA_P[16]  }];
-set_property PACKAGE_PIN D8   [get_ports {FMC_LA_N[20]  }];
-set_property PACKAGE_PIN E8   [get_ports {FMC_LA_P[20]  }];
-set_property PACKAGE_PIN C5   [get_ports {FMC_LA_N[22]  }];
-set_property PACKAGE_PIN C6   [get_ports {FMC_LA_P[22]  }];
-set_property PACKAGE_PIN C1   [get_ports {FMC_LA_N[1]   }];
-set_property PACKAGE_PIN D1   [get_ports {FMC_LA_P[1]   }];
-set_property PACKAGE_PIN D2   [get_ports {FMC_LA_N[25]  }];
-set_property PACKAGE_PIN E2   [get_ports {FMC_LA_P[25]  }];
-set_property PACKAGE_PIN E7   [get_ports {FMC_LA_N[29]  }];
-set_property PACKAGE_PIN F7   [get_ports {FMC_LA_P[29]  }];
-set_property PACKAGE_PIN G7   [get_ports {FMC_LA_N[31]  }];
-set_property PACKAGE_PIN G8   [get_ports {FMC_LA_P[31]  }];
-set_property PACKAGE_PIN B6   [get_ports {FMC_LA_N[33]  }];
-set_property PACKAGE_PIN B7   [get_ports {FMC_LA_P[33]  }];
-set_property PACKAGE_PIN E5   [get_ports {FMC_LA_N[2]   }];
-set_property PACKAGE_PIN F5   [get_ports {FMC_LA_P[2]   }];
-set_property PACKAGE_PIN F1   [get_ports {FMC_LA_N[4]   }];
-set_property PACKAGE_PIN F2   [get_ports {FMC_LA_P[4]   }];
-set_property PACKAGE_PIN E3   [get_ports {FMC_LA_N[7]   }];
-set_property PACKAGE_PIN E4   [get_ports {FMC_LA_P[7]   }];
-set_property PACKAGE_PIN B1   [get_ports {FMC_LA_N[11]  }];
-set_property PACKAGE_PIN B2   [get_ports {FMC_LA_P[11]  }];
-set_property PACKAGE_PIN G1   [get_ports {FMC_LA_N[15]  }];
-set_property PACKAGE_PIN H1   [get_ports {FMC_LA_P[15]  }];
-set_property PACKAGE_PIN C4   [get_ports {FMC_LA_N[19]  }];
-set_property PACKAGE_PIN D5   [get_ports {FMC_LA_P[19]  }];
-set_property PACKAGE_PIN C3   [get_ports {FMC_LA_N[0]   }];
-set_property PACKAGE_PIN D3   [get_ports {FMC_LA_P[0]   }];
-set_property PACKAGE_PIN A1   [get_ports {FMC_LA_N[21]  }];
-set_property PACKAGE_PIN A2   [get_ports {FMC_LA_P[21]  }];
-set_property PACKAGE_PIN D6   [get_ports {FMC_LA_N[24]  }];
-set_property PACKAGE_PIN D7   [get_ports {FMC_LA_P[24]  }];
-set_property PACKAGE_PIN A4   [get_ports {FMC_LA_N[28]  }];
-set_property PACKAGE_PIN A5   [get_ports {FMC_LA_P[28]  }];
-set_property PACKAGE_PIN A6   [get_ports {FMC_LA_N[30]  }];
-set_property PACKAGE_PIN A7   [get_ports {FMC_LA_P[30]  }];
-set_property PACKAGE_PIN B8   [get_ports {FMC_LA_N[32]  }];
-set_property PACKAGE_PIN C8   [get_ports {FMC_LA_P[32]  }];
-set_property PACKAGE_PIN R2   [get_ports {FMC_LA_N[5]   }];
-set_property PACKAGE_PIN R3   [get_ports {FMC_LA_P[5]   }];
-set_property PACKAGE_PIN K5   [get_ports {FMC_LA_N[9]   }];
-set_property PACKAGE_PIN J5   [get_ports {FMC_LA_P[9]   }];
-set_property PACKAGE_PIN J6   [get_ports {FMC_LA_N[13]  }];
-set_property PACKAGE_PIN J7   [get_ports {FMC_LA_P[13]  }];
-set_property PACKAGE_PIN K8   [get_ports {FMC_LA_N[23]  }];
-set_property PACKAGE_PIN J8   [get_ports {FMC_LA_P[23]  }];
-set_property PACKAGE_PIN M7   [get_ports {FMC_LA_N[26]  }];
-set_property PACKAGE_PIN M8   [get_ports {FMC_LA_P[26]  }];
-set_property PACKAGE_PIN L4   [get_ports {FMC_LA_N[17]  }];
-set_property PACKAGE_PIN L5   [get_ports {FMC_LA_P[17]  }];
-set_property PACKAGE_PIN U1   [get_ports {FMC_LA_N[18]  }];
-set_property PACKAGE_PIN U2   [get_ports {FMC_LA_P[18]  }];
-set_property PACKAGE_PIN M6   [get_ports {FMC_LA_N[6]   }];
-set_property PACKAGE_PIN L6   [get_ports {FMC_LA_P[6]   }];
-set_property PACKAGE_PIN R4   [get_ports {FMC_LA_N[10]  }];
-set_property PACKAGE_PIN R5   [get_ports {FMC_LA_P[10]  }];
-set_property PACKAGE_PIN P5   [get_ports {FMC_LA_N[14]  }];
-set_property PACKAGE_PIN P6   [get_ports {FMC_LA_P[14]  }];
-set_property PACKAGE_PIN N5   [get_ports {FMC_LA_N[27]  }];
-set_property PACKAGE_PIN N6   [get_ports {FMC_LA_P[27]  }];
-set_property PACKAGE_PIN T1   [get_ports {FMC_CLK0_M2C_N}];
-set_property PACKAGE_PIN T2   [get_ports {FMC_CLK0_M2C_P}];
-set_property PACKAGE_PIN B3   [get_ports {FMC_CLK1_M2C_N}];
-set_property PACKAGE_PIN B4   [get_ports {FMC_CLK1_M2C_P}];
+set_property PACKAGE_PIN R8   [get_ports {FMC_PRSNT[0]     }];
+set_property PACKAGE_PIN H3   [get_ports {FMC_LA_N[0][3]   }];
+set_property PACKAGE_PIN H4   [get_ports {FMC_LA_P[0][3]   }];
+set_property PACKAGE_PIN G2   [get_ports {FMC_LA_N[0][8]   }];
+set_property PACKAGE_PIN G3   [get_ports {FMC_LA_P[0][8]   }];
+set_property PACKAGE_PIN F4   [get_ports {FMC_LA_N[0][12]  }];
+set_property PACKAGE_PIN G4   [get_ports {FMC_LA_P[0][12]  }];
+set_property PACKAGE_PIN F6   [get_ports {FMC_LA_N[0][16]  }];
+set_property PACKAGE_PIN G6   [get_ports {FMC_LA_P[0][16]  }];
+set_property PACKAGE_PIN D8   [get_ports {FMC_LA_N[0][20]  }];
+set_property PACKAGE_PIN E8   [get_ports {FMC_LA_P[0][20]  }];
+set_property PACKAGE_PIN C5   [get_ports {FMC_LA_N[0][22]  }];
+set_property PACKAGE_PIN C6   [get_ports {FMC_LA_P[0][22]  }];
+set_property PACKAGE_PIN C1   [get_ports {FMC_LA_N[0][1]   }];
+set_property PACKAGE_PIN D1   [get_ports {FMC_LA_P[0][1]   }];
+set_property PACKAGE_PIN D2   [get_ports {FMC_LA_N[0][25]  }];
+set_property PACKAGE_PIN E2   [get_ports {FMC_LA_P[0][25]  }];
+set_property PACKAGE_PIN E7   [get_ports {FMC_LA_N[0][29]  }];
+set_property PACKAGE_PIN F7   [get_ports {FMC_LA_P[0][29]  }];
+set_property PACKAGE_PIN G7   [get_ports {FMC_LA_N[0][31]  }];
+set_property PACKAGE_PIN G8   [get_ports {FMC_LA_P[0][31]  }];
+set_property PACKAGE_PIN B6   [get_ports {FMC_LA_N[0][33]  }];
+set_property PACKAGE_PIN B7   [get_ports {FMC_LA_P[0][33]  }];
+set_property PACKAGE_PIN E5   [get_ports {FMC_LA_N[0][2]   }];
+set_property PACKAGE_PIN F5   [get_ports {FMC_LA_P[0][2]   }];
+set_property PACKAGE_PIN F1   [get_ports {FMC_LA_N[0][4]   }];
+set_property PACKAGE_PIN F2   [get_ports {FMC_LA_P[0][4]   }];
+set_property PACKAGE_PIN E3   [get_ports {FMC_LA_N[0][7]   }];
+set_property PACKAGE_PIN E4   [get_ports {FMC_LA_P[0][7]   }];
+set_property PACKAGE_PIN B1   [get_ports {FMC_LA_N[0][11]  }];
+set_property PACKAGE_PIN B2   [get_ports {FMC_LA_P[0][11]  }];
+set_property PACKAGE_PIN G1   [get_ports {FMC_LA_N[0][15]  }];
+set_property PACKAGE_PIN H1   [get_ports {FMC_LA_P[0][15]  }];
+set_property PACKAGE_PIN C4   [get_ports {FMC_LA_N[0][19]  }];
+set_property PACKAGE_PIN D5   [get_ports {FMC_LA_P[0][19]  }];
+set_property PACKAGE_PIN C3   [get_ports {FMC_LA_N[0][0]   }];
+set_property PACKAGE_PIN D3   [get_ports {FMC_LA_P[0][0]   }];
+set_property PACKAGE_PIN A1   [get_ports {FMC_LA_N[0][21]  }];
+set_property PACKAGE_PIN A2   [get_ports {FMC_LA_P[0][21]  }];
+set_property PACKAGE_PIN D6   [get_ports {FMC_LA_N[0][24]  }];
+set_property PACKAGE_PIN D7   [get_ports {FMC_LA_P[0][24]  }];
+set_property PACKAGE_PIN A4   [get_ports {FMC_LA_N[0][28]  }];
+set_property PACKAGE_PIN A5   [get_ports {FMC_LA_P[0][28]  }];
+set_property PACKAGE_PIN A6   [get_ports {FMC_LA_N[0][30]  }];
+set_property PACKAGE_PIN A7   [get_ports {FMC_LA_P[0][30]  }];
+set_property PACKAGE_PIN B8   [get_ports {FMC_LA_N[0][32]  }];
+set_property PACKAGE_PIN C8   [get_ports {FMC_LA_P[0][32]  }];
+set_property PACKAGE_PIN R2   [get_ports {FMC_LA_N[0][5]   }];
+set_property PACKAGE_PIN R3   [get_ports {FMC_LA_P[0][5]   }];
+set_property PACKAGE_PIN K5   [get_ports {FMC_LA_N[0][9]   }];
+set_property PACKAGE_PIN J5   [get_ports {FMC_LA_P[0][9]   }];
+set_property PACKAGE_PIN J6   [get_ports {FMC_LA_N[0][13]  }];
+set_property PACKAGE_PIN J7   [get_ports {FMC_LA_P[0][13]  }];
+set_property PACKAGE_PIN K8   [get_ports {FMC_LA_N[0][23]  }];
+set_property PACKAGE_PIN J8   [get_ports {FMC_LA_P[0][23]  }];
+set_property PACKAGE_PIN M7   [get_ports {FMC_LA_N[0][26]  }];
+set_property PACKAGE_PIN M8   [get_ports {FMC_LA_P[0][26]  }];
+set_property PACKAGE_PIN L4   [get_ports {FMC_LA_N[0][17]  }];
+set_property PACKAGE_PIN L5   [get_ports {FMC_LA_P[0][17]  }];
+set_property PACKAGE_PIN U1   [get_ports {FMC_LA_N[0][18]  }];
+set_property PACKAGE_PIN U2   [get_ports {FMC_LA_P[0][18]  }];
+set_property PACKAGE_PIN M6   [get_ports {FMC_LA_N[0][6]   }];
+set_property PACKAGE_PIN L6   [get_ports {FMC_LA_P[0][6]   }];
+set_property PACKAGE_PIN R4   [get_ports {FMC_LA_N[0][10]  }];
+set_property PACKAGE_PIN R5   [get_ports {FMC_LA_P[0][10]  }];
+set_property PACKAGE_PIN P5   [get_ports {FMC_LA_N[0][14]  }];
+set_property PACKAGE_PIN P6   [get_ports {FMC_LA_P[0][14]  }];
+set_property PACKAGE_PIN N5   [get_ports {FMC_LA_N[0][27]  }];
+set_property PACKAGE_PIN N6   [get_ports {FMC_LA_P[0][27]  }];
+set_property PACKAGE_PIN T1   [get_ports {FMC_CLK0_M2C_N[0]}];
+set_property PACKAGE_PIN T2   [get_ports {FMC_CLK0_M2C_P[0]}];
+set_property PACKAGE_PIN B3   [get_ports {FMC_CLK1_M2C_N[0]}];
+set_property PACKAGE_PIN B4   [get_ports {FMC_CLK1_M2C_P[0]}];
 
 # -------------------------------------------------------------------
 # MGT REF CLKS - Bank 112
@@ -199,10 +199,8 @@ set_property IOSTANDARD LVDS_25 [get_ports EXTCLK_P]
 #set_property PULLTYPE PULLDOWN [get_ports TTLIN_PAD_I[*]]
 #set_property PULLTYPE PULLDOWN [get_ports LVDSIN_PAD_I[*]]
 
-set FMC_GTX_LOC  GTXE2_CHANNEL_X0Y0
-set SFP1_GTX_LOC GTXE2_CHANNEL_X0Y3
-set SFP2_GTX_LOC GTXE2_CHANNEL_X0Y2
-set SFP3_GTX_LOC GTXE2_CHANNEL_X0Y1
-
-
+set FMC_MGT0_LOC  GTXE2_CHANNEL_X0Y0
+set SFP1_LOC GTXE2_CHANNEL_X0Y3
+set SFP2_LOC GTXE2_CHANNEL_X0Y2
+set SFP3_LOC GTXE2_CHANNEL_X0Y1
 

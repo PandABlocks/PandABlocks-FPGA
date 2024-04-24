@@ -27,7 +27,7 @@ port (
     write_ack_o         : out std_logic;
 
     -- SFP Interface
-    SFP                 : view MGT_Module
+    MGT                 : view MGT_Module
 );
 end sfp_loopback_wrapper;
 
@@ -50,13 +50,13 @@ begin
 txnobuf : obuf
 port map (
     I => TXN,
-    O => SFP.TXN_OUT
+    O => MGT.TXN_OUT
 );
 
 txpobuf : obuf
 port map (
     I => TXP,
-    O => SFP.TXP_OUT
+    O => MGT.TXP_OUT
 );
 
 --
@@ -64,14 +64,14 @@ port map (
 --
 sfpgtx_exdes_i : entity work.sfpgtx_exdes
 port map (
-    Q0_CLK0_GTREFCLK_PAD_IN       => SFP.GTREFCLK,
+    Q0_CLK0_GTREFCLK_PAD_IN       => MGT.GTREFCLK,
     GTREFCLK                    => GTREFCLK,
     drpclk_in_i                 => clk_i,
     SOFT_RESET                  => SOFT_RESET,
     LINK_UP                    => LINK_UP,
     ERROR_COUNT                => ERROR_COUNT,
-    RXN_IN                      => SFP.RXN_IN,
-    RXP_IN                      => SFP.RXP_IN,
+    RXN_IN                      => MGT.RXN_IN,
+    RXP_IN                      => MGT.RXP_IN,
     TXN_OUT                     => TXN,
     TXP_OUT                     => TXP
 );
@@ -91,10 +91,10 @@ port map (
     freq_out(0)        => FREQ_VAL
 );
 
-SFP_LOS_VEC <= (0 => SFP.SFP_LOS, others => '0');
+SFP_LOS_VEC <= (0 => MGT.SFP_LOS, others => '0');
 
-MAC_HI(23 downto 0) <= SFP.MAC_ADDR(47 downto 24);
-MAC_LO(23 downto 0) <= SFP.MAC_ADDR(23 downto 0);
+MAC_HI(23 downto 0) <= MGT.MAC_ADDR(47 downto 24);
+MAC_LO(23 downto 0) <= MGT.MAC_ADDR(23 downto 0);
 
 ---------------------------------------------------------------------------
 -- FMC CSR Interface

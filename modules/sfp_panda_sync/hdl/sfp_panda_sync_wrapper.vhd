@@ -40,7 +40,7 @@ entity sfp_panda_sync_wrapper is
         write_data_i     : in  std_logic_vector(31 downto 0);
         write_ack_o      : out std_logic;
 
-        SFP              : view MGT_Module
+        MGT              : view MGT_Module
         );
 end sfp_panda_sync_wrapper;
 
@@ -90,17 +90,17 @@ begin
 txnobuf : obuf
 port map (
     I => TXN,
-    O => SFP.TXN_OUT
+    O => MGT.TXN_OUT
 );
 
 txpobuf : obuf
 port map (
     I => TXP,
-    O => SFP.TXP_OUT
+    O => MGT.TXP_OUT
 );
 
-SFP.MGT_REC_CLK <= rxoutclk;
-SFP.LINK_UP <= LINKUP(0);
+MGT.MGT_REC_CLK <= rxoutclk;
+MGT.LINK_UP <= LINKUP(0);
 
 IN_BIT8_o(0) <= BITIN(7);
 IN_BIT7_o(0) <= BITIN(6);
@@ -196,11 +196,11 @@ port map (
 sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface
 
     port map(
-        GTREFCLK          => SFP.GTREFCLK,
+        GTREFCLK          => MGT.GTREFCLK,
         SYNC_RESET_i      => SYNC_RESET,
         sysclk_i          => clk_i,
-        rxp_i             => SFP.RXP_IN,
-        rxn_i             => SFP.RXN_IN,
+        rxp_i             => MGT.RXP_IN,
+        rxn_i             => MGT.RXN_IN,
         txp_o             => TXP,
         txn_o             => TXN,
         rxbyteisaligned_o => open,

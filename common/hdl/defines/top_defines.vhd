@@ -95,6 +95,16 @@ constant FMC_init : FMC_interface := (  FMC_PRSNT => '0',
                                         FMC_CLK1_M2C_P => '0',
                                         FMC_CLK1_M2C_N => '0');
 
+type FMC_array is array (natural range <>) of FMC_interface;
+
+type FMC_ARR_REC is record
+    FMC_ARR : FMC_array;
+end record FMC_ARR_REC;
+
+view FMC_MOD_ARR of FMC_ARR_REC is
+    FMC_ARR: view (FMC_Module);
+end view;
+
 -- SFP Block Record declarations
 
 type MGT_interface is
@@ -143,15 +153,13 @@ constant MGT_init : MGT_interface := (  SFP_LOS => '0',
 
 type MGT_array is array (natural range <>) of MGT_interface;
 
-type FMC_MGT_ARR is record
-    MGT_ARR : MGT_array(0 to NUM_FMC_MGT-1);
-end record FMC_MGT_ARR;
+type MGT_ARR_REC is record
+    MGT_ARR : MGT_array;
+end record MGT_ARR_REC;
 
-view FMC_MGT_MOD_ARR of FMC_MGT_ARR is
+view MGT_MOD_ARR of MGT_ARR_REC is
     MGT_ARR: view (MGT_Module);
 end view;
-
-constant FMC_MGT_ARR_init : FMC_MGT_ARR := (MGT_ARR => (others => MGT_init));
     
 type seq_t is
 record
@@ -171,6 +179,9 @@ record
     data        : std_logic_vector(31 downto 0);
 end record;
 type slow_packet_array is array(natural range <>) of slow_packet;
+
+-- Unconstrained array of std_logic_vector
+type std_uarray is array(natural range <>) of std_logic_vector;
 
 subtype std2_t is std_logic_vector(1 downto 0);
 type std2_array is array(natural range <>) of std2_t;
