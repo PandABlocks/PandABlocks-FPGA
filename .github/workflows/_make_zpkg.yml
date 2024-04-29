@@ -41,9 +41,10 @@ jobs:
 
       - name: CP repos
         run: |
-          cd repos
-          mv PandaBlocks-rootfs /repos/PandaBlocks-rootfs
-          mv PandaBlocks-fpga /repos/PandaBlocks-fpga
+          cd /repos
+          ls
+          mv PandaBlocks-rootfs repos/PandaBlocks-rootfs
+          mv PandaBlocks-fpga repos/PandaBlocks-fpga
 
       - name: build carrier_ip and zpkg
         id: make_zpkg
