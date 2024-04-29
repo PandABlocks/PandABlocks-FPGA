@@ -25,7 +25,9 @@ jobs:
           sudo mkdir /repos
           sudo mkdir /build
           sudo chmod -R 777 /build
-          ls
+          pwd
+          cd
+          pwd
           
       # Necessary to find action.yml
       - name: Checkout Source
