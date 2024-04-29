@@ -12,31 +12,31 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: docker.io/shihabdls/pandablocks-container-extension:v1.7
+      image: docker.io/shihabdls/pandablocks-container-extension:v2.3
       options: --privileged
-      volumes:
-        - ${{github.workspace}}/repos:/repos
-        - ${{github.workspace}}/build:/build
 
     steps:
+      # Necessary to find action.yml
+      - name: Checkout Source
+        uses: actions/checkout@v4
+        with:
+          path: repos/PandABlocks-fpga
+          fetch-depth: 0
+
+      - name: Checkout PandABlocks-rootfs
+        uses: actions/checkout@v4
+        with:
+          repository: PandABlocks/PandABlocks-rootfs
+          path: repos/PandABlocks-rootfs
+          fetch-depth: 0
+      
       # Give runner perms
       - name: Give runner build perms
         id: give_perms
         run: |
           sudo mkdir /build
-          sudo mkdir /repos
           sudo chmod -R 777 /build
-          sudo chmod -R 777 /repos
-
-      # Necessary to find action.yml
-      - name: Checkout Source
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      # Run action.yml
-      - name: Checkout repos
-        uses: ./.github/actions/setupenv
+          sed -i 's@/repos/PandABlocks-rootfs@/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs@g' repos/PandABlocks-fpga/CONFIG.example
 
         # Generate bootable image
       - name: Make boot
@@ -50,4 +50,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: zpkgs
-          path: ./build/boot*.zip
+          path: /build/boot*.zip

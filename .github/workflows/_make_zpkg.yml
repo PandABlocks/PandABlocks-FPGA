@@ -7,12 +7,17 @@ jobs:
       fail-fast: false
       matrix:
         app: [
-              "PandABox-no-fmc"
-              ]
+          "PandABox-no-fmc",
+          "PandABox-fmc_24vio",
+          "PandABox-fmc_acq427",
+          "PandABox-fmc_acq430",
+          "PandABox-fmc_lback-sfp_lback",
+          "ZedBoard-no-fmc",
+          ]
     runs-on:
       group: iris_runners
     container:
-      image: docker.io/shihabdls/pandablocks-container-extension:v1.7
+      image: docker.io/shihabdls/pandablocks-container-extension:v2.3
       options: --privileged
 
     steps:
@@ -36,15 +41,12 @@ jobs:
         run: |
           sudo mkdir /build
           sudo chmod -R 777 /build
-          cat repos/PandABlocks-fpga/CONFIG.example
           sed -i 's@/repos/PandABlocks-rootfs@/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs@g' repos/PandABlocks-fpga/CONFIG.example
-          cat repos/PandABlocks-fpga/CONFIG.example
 
       - name: build carrier_ip and zpkg
         id: make_zpkg
         run: |
           cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo "done"
-          ls /build
           exit
 
       # Artifacts
