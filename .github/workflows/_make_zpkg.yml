@@ -14,8 +14,6 @@ jobs:
     container:
       image: docker.io/shihabdls/pandablocks-container-extension:v1.7
       options: --privileged
-      volumes:
-        - ${{github.workspace}}:/home/runner
 
     steps:
       # Give runner perms
@@ -25,9 +23,6 @@ jobs:
           sudo mkdir /repos
           sudo mkdir /build
           sudo chmod -R 777 /build
-          pwd
-          cd
-          pwd
           
       # Necessary to find action.yml
       - name: Checkout Source
