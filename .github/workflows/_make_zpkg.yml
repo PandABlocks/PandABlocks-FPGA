@@ -23,25 +23,26 @@ jobs:
           sudo mkdir /repos
           sudo mkdir /build
           sudo chmod -R 777 /build
+          cd /repos
 
       # Necessary to find action.yml
       - name: Checkout Source
         uses: actions/checkout@v4
         with:
-          path: ${{github.workspace}}/repos/PandaBlocks-fpga
+          path: PandaBlocks-fpga
           fetch-depth: 0
 
       - name: Checkout PandABlocks-rootfs
         uses: actions/checkout@v4
         with:
           repository: PandABlocks/PandABlocks-rootfs
-          path: ${{github.workspace}}/repos/PandaBlocks-rootfs
+          path: PandaBlocks-rootfs
           fetch-depth: 0
 
       - name: build carrier_ip and zpkg
         id: make_zpkg
         run: |
-          cd ${{github.workspace}}/repos
+          ls
           cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo "done"
           exit
 
