@@ -37,18 +37,21 @@ jobs:
           path: repos/PandABlocks-rootfs
           fetch-depth: 0
 
-      - name: build carrier_ip and zpkg
-        id: make_zpkg
-        run: |
-          ls /build
-          ls /__w/PandABlocks-FPGA/PandABlocks-FPGA/
-          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo "done"
-          ls /build
-          exit
+ #     - name: build carrier_ip and zpkg
+ #       id: make_zpkg
+ #       run: |
+ #         ls /build
+ #         ls /__w/PandABlocks-FPGA/PandABlocks-FPGA/
+ #         cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo "done"
+ #         ls /build
+ #         exit
+
+      - name: test build
+        run: cd /build && sudo mkdir test
 
       # Artifacts
       - name: Upload zpkg
         uses: actions/upload-artifact@v2
         with:
           name: zpkgs
-          path: ./build/panda-fpga@*.zpg
+          path: /build/panda-fpga@*.zpg
