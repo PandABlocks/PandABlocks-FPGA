@@ -20,8 +20,8 @@ jobs:
       - name: Give runner build perms
         id: give_perms
         run: |
-          sudo mkdir /__w/PandABlocks-FPGA/PandABlocks-FPGA/build
-          sudo chmod -R 777 /__w/PandABlocks-FPGA/PandABlocks-FPGA/build
+          sudo mkdir /build
+          sudo chmod -R 777 /build
           
       # Necessary to find action.yml
       - name: Checkout Source
@@ -40,9 +40,10 @@ jobs:
       - name: build carrier_ip and zpkg
         id: make_zpkg
         run: |
+          ls build
           ls /__w/PandABlocks-FPGA/PandABlocks-FPGA/
           cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo "done"
-          ls /__w/PandABlocks-FPGA/PandABlocks-FPGA/build
+          build
           exit
 
       # Artifacts

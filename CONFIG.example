@@ -5,7 +5,7 @@
 # lines must be assigned values.
 
 # Default build location.  Default is to build in build subdirectory.
-BUILD_DIR = /__w/PandABlocks-FPGA/PandABlocks-FPGA/build
+BUILD_DIR = build
 
 # Development Tool Version
 # VIVADO_VER = 2023.2
