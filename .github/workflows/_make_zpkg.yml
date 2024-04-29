@@ -24,6 +24,8 @@ jobs:
         id: give_perms
         run: |
           sudo chmod -R 777 /build
+          cd /
+          ls
 
       # Necessary to find action.yml
       - name: Checkout Source
