@@ -44,10 +44,17 @@ jobs:
           path: ${{github.workspace}}/repos/PandaBlocks-rootfs
           fetch-depth: 0
 
+      - name: CP repos
+        run: |
+          cp ${{github.workspace}}/repos/PandaBlocks-rootfs /repos
+          cp ${{github.workspace}}/repos/PandaBlocks-fpga /repos
+
       - name: build carrier_ip and zpkg
         id: make_zpkg
         run: |
-          ls /repos
+          cd /
+          cd /repos
+          ls
           cd /PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo "done"
           exit
 
