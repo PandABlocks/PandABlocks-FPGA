@@ -23,9 +23,7 @@ jobs:
           sudo mkdir /build
           sudo mkdir /repos
           sudo chmod -R 777 /build
-          pwd
-          ls /repos
-
+          cd /repos
       # Necessary to find action.yml
       - name: Checkout Source
         uses: actions/checkout@v2
@@ -39,8 +37,8 @@ jobs:
       - name: build carrier_ip and zpkg
         id: make_zpkg
         run: |
-          ls /repos
-          cd /repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo "done"
+          ls
+          cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo "done"
           exit
 
       # Artifacts
