@@ -40,10 +40,10 @@ jobs:
       - name: build carrier_ip and zpkg
         id: make_zpkg
         run: |
-          ls build
+          ls /build
           ls /__w/PandABlocks-FPGA/PandABlocks-FPGA/
           cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo "done"
-          build
+          ls /build
           exit
 
       # Artifacts
