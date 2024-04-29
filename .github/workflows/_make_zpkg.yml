@@ -44,7 +44,7 @@ jobs:
         id: make_zpkg
         run: |
           cd ..
-          ls /repos/PandaBlocks-rootfs
+          pwd
           cd /repos
           cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo "done"
           exit
