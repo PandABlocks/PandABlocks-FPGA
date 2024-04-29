@@ -47,11 +47,11 @@ jobs:
  #         exit
 
       - name: test build
-        run: cd /build && sudo mkdir test
+        run: cd /build && sudo touch test.txt
 
       # Artifacts
       - name: Upload zpkg
         uses: actions/upload-artifact@v2
         with:
           name: zpkgs
-          path: /build/*
+          path: /build
