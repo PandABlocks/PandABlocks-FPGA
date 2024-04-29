@@ -7,12 +7,12 @@ runs:
       - name: Checkout Source
         uses: actions/checkout@v4
         with:
-          path: /repos/PandABlocks-fpga
+          path: /__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga
           # require history to get back to last tag for version number of branches
           fetch-depth: 0
       - name: Checkout PandABlocks-rootfs
         uses: actions/checkout@v4
         with:
           repository: PandABlocks/PandABlocks-rootfs
-          path: /repos/PandABlocks-rootfs
+          path: /__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs
           fetch-depth: 0
