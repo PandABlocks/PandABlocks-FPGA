@@ -37,7 +37,7 @@ jobs:
           sudo mkdir /build
           sudo chmod -R 777 /build
           cat repos/PandABlocks-fpga/CONFIG.example
-          sudo sed -i 's@/repos/PandABlocks-rootfs@/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs@g' repos/PandABlocks-fpga/CONFIG.example
+          sed -i 's@/repos/PandABlocks-rootfs@/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs@g' repos/PandABlocks-fpga/CONFIG.example
           cat repos/PandABlocks-fpga/CONFIG.example
 
       - name: build carrier_ip and zpkg
