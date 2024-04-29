@@ -1,9 +1,5 @@
 on:
   workflow_call:
-    inputs:
-      label:
-        required: true
-        type: string
 
 jobs:
   make_zpkg_aws:
@@ -12,43 +8,44 @@ jobs:
       matrix:
         app:
           ["xu5_st1-no-fmc","xu5_st1-fmc_acq430"]
-    name: make zpkg on aws
-    runs-on: ${{ inputs.label }}
+    runs-on:
+      group: iris_runners
+    container:
+        image: docker.io/shihabdls/pandablocks-container-extension:v2.3
+        options: --privileged
+    
     steps:
       # Necessary to find action.yml
       - name: Checkout Source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
+          path: repos/PandABlocks-fpga
           fetch-depth: 0
 
-      # Run action.yml
-      - name: Checkout and install rclone
-        uses: ./.github/actions/setupenv
-
-      # Get container image
-      - name: login to github container registry
-        uses: docker/login-action@v1
+      - name: Checkout PandABlocks-rootfs
+        uses: actions/checkout@v4
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN  }}
+          repository: PandABlocks/PandABlocks-rootfs
+          path: repos/PandABlocks-rootfs
+          fetch-depth: 0
+      
+      # Give runner perms
+      - name: Give runner build perms
+        id: give_perms
+        run: |
+          sudo mkdir /build
+          sudo chmod -R 777 /build
+          sed -i 's@/repos/PandABlocks-rootfs@/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs@g' repos/PandABlocks-fpga/CONFIG.example
 
       # Mount in rclone bucket from vm into conatiner
       - name: build carrier_ip and zpkg
         run: |
-          sudo docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
-          sudo docker run \
-            --net=host \
-            -v "${{ github.workspace }}:/repos" \
-            -v "${{ github.workspace }}/build:/build" \
-            -v "/scratch/Xilinx:/scratch/Xilinx" \
-            ghcr.io/pandablocks/pandablocks-dev-container:latest\
-            /bin/bash -c \
-            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }}"
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }}" && echo 'done'
+          exit
 
       # Artifacts
       - name: Upload zpkg
         uses: actions/upload-artifact@v2
         with:
           name: zpkgs
-          path: ./build/panda-fpga@*.zpg
+          path: /build/panda-fpga@*.zpg
