@@ -27,7 +27,7 @@ export ROOTFS_TOP = /rootfs
 export TAR_FILES = /tar-files
 
 # Path to root filesystem
-PANDA_ROOTFS = /__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs
+PANDA_ROOTFS = /repos/PandABlocks-rootfs
 # MAKE_ZPKG = $(PANDA_ROOTFS)/make-zpkg
 
 # Python interpreter for running scripts

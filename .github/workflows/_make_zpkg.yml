@@ -16,13 +16,6 @@ jobs:
       options: --privileged
 
     steps:
-      # Give runner perms
-      - name: Give runner build perms
-        id: give_perms
-        run: |
-          sudo mkdir /build
-          sudo chmod -R 777 /build
-          
       # Necessary to find action.yml
       - name: Checkout Source
         uses: actions/checkout@v4
@@ -36,11 +29,20 @@ jobs:
           repository: PandABlocks/PandABlocks-rootfs
           path: repos/PandABlocks-rootfs
           fetch-depth: 0
+      
+      # Give runner perms
+      - name: Give runner build perms
+        id: give_perms
+        run: |
+          sudo mkdir /build
+          sudo chmod -R 777 /build
+          cat /__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/CONFIG.example
+          sudo sed -i 's@/repos/PandABlocks-rootfs@/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs@g' /__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/CONFIG.example
+          cat /__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/CONFIG.example
 
       - name: build carrier_ip and zpkg
         id: make_zpkg
         run: |
-          ls /__w/PandABlocks-FPGA/PandABlocks-FPGA/
           cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo "done"
           ls /build
           exit
