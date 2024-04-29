@@ -23,20 +23,18 @@ jobs:
           sudo mkdir /build
           sudo mkdir /repos
           sudo chmod -R 777 /build
+          cd /repos
 
       # Necessary to find action.yml
       - name: Checkout Source
         uses: actions/checkout@v4
         with:
-          path: ${{github.workspace}}/repos/PandABlocks-fpga
-          # require history to get back to last tag for version number of branches
           fetch-depth: 0
 
       - name: Checkout PandABlocks-rootfs
         uses: actions/checkout@v4
         with:
           repository: PandABlocks/PandABlocks-rootfs
-          path: ${{github.workspace}}/repos/PandABlocks-rootfs
           fetch-depth: 0
 
       - name: build carrier_ip and zpkg
