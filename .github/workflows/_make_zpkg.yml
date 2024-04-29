@@ -15,7 +15,7 @@ jobs:
       image: docker.io/shihabdls/pandablocks-container-extension:v1.7
       options: --privileged
       volumes:
-        - ${{github.workspace}}:/
+        - ${{github.workspace}}:/home/runner
 
     steps:
       # Give runner perms
