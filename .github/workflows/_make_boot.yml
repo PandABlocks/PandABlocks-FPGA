@@ -14,18 +14,16 @@ jobs:
     container:
       image: docker.io/shihabdls/pandablocks-container-extension:v1.7
       options: --privileged
-      volumes:
-        - ${{github.workspace}}/repos:/repos
-        - ${{github.workspace}}/build:/build
 
     steps:
       # Give runner perms
       - name: Give runner build perms
+        id: give_perms
         run: |
+          sudo mkdir /build
+          sudo mkdir /repos
           sudo chmod -R 777 /build
           sudo chmod -R 777 /repos
-          curl -fsSL https://cli.github.com/packages/rpm/gh-cli.repo | sudo tee /etc/yum.repos.d/github-cli.repo
-          sudo dnf -y install gh
 
       # Necessary to find action.yml
       - name: Checkout Source
@@ -36,11 +34,13 @@ jobs:
       # Run action.yml
       - name: Checkout repos
         uses: ./.github/actions/setupenv
-      
-      # Generate bootable image
+
+        # Generate bootable image
       - name: Make boot
+        id: make_boot
         run: |
-          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }} && echo "done"
+          ls /repos/PandABlocks-rootfs
+          cd /repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }} && echo "done"
           exit
 
       # Artifacts
