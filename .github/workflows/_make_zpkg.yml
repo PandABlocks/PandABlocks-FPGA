@@ -24,8 +24,9 @@ jobs:
         id: give_perms
         run: |
           sudo chmod -R 777 /build
+          pwd
           cd /
-          ls
+          pwd
           cd 
           pwd
 
