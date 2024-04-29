@@ -14,27 +14,29 @@ jobs:
     container:
       image: docker.io/shihabdls/pandablocks-container-extension:v1.7
       options: --privileged
+      volumes:
+        - ${{github.workspace}}/repos:/repos
+        - ${{github.workspace}}/build:/build
 
     steps:
       # Give runner perms
       - name: Give runner build perms
         id: give_perms
         run: |
-          sudo mkdir /build
-          sudo mkdir /repos
           sudo chmod -R 777 /build
-          cd /repos
 
       # Necessary to find action.yml
       - name: Checkout Source
         uses: actions/checkout@v4
         with:
+          path: ${{github.workspace}}/repos/PandaBlocks-FPGA
           fetch-depth: 0
 
       - name: Checkout PandABlocks-rootfs
         uses: actions/checkout@v4
         with:
           repository: PandABlocks/PandABlocks-rootfs
+          path: ${{github.workspace}}/repos/PandaBlocks-rootfs
           fetch-depth: 0
 
       - name: build carrier_ip and zpkg
