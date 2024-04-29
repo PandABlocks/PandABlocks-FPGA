@@ -42,7 +42,7 @@ jobs:
       - name: Make boot
         id: make_boot
         run: |
-          cd /repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }} && echo "done"
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }} && echo "done"
           exit
 
       # Artifacts
