@@ -24,9 +24,11 @@ jobs:
           sudo mkdir /repos
           sudo chmod -R 777 /build
           cd /repos
+          mkdir /PandaBlocks-fpga
+          cd /PandaBlocks-fpga
       # Necessary to find action.yml
       - name: Checkout Source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
