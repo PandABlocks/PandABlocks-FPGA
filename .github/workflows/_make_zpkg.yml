@@ -31,8 +31,8 @@ jobs:
           fetch-depth: 0
 
       # Run action.yml
-      - name: Checkout repos
-        uses: ./.github/actions/setupenv
+      #- name: Checkout repos
+      #  uses: ./.github/actions/setupenv
 
       - name: build carrier_ip and zpkg
         id: make_zpkg
