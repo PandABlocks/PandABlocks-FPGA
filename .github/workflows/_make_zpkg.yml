@@ -54,4 +54,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: zpkgs
-          path: /build/panda-fpga@*.zpg
+          path: /build/*
