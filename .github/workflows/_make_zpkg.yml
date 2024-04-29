@@ -24,11 +24,6 @@ jobs:
         id: give_perms
         run: |
           sudo chmod -R 777 /build
-          pwd
-          cd /
-          pwd
-          cd 
-          pwd
 
       # Necessary to find action.yml
       - name: Checkout Source
@@ -46,8 +41,10 @@ jobs:
 
       - name: CP repos
         run: |
-          cp ${{github.workspace}}/repos/PandaBlocks-rootfs /repos
-          cp ${{github.workspace}}/repos/PandaBlocks-fpga /repos
+          ls
+          pwd
+          mv ${{github.workspace}}/repos/PandaBlocks-rootfs /repos
+          mv ${{github.workspace}}/repos/PandaBlocks-fpga /repos
 
       - name: build carrier_ip and zpkg
         id: make_zpkg
