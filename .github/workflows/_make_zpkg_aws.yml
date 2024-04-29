@@ -39,6 +39,7 @@ jobs:
 
       # Mount in rclone bucket from vm into conatiner
       - name: build carrier_ip and zpkg
+        id: make_zpkg_aws
         run: |
           cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }} && echo 'done'
           exit
