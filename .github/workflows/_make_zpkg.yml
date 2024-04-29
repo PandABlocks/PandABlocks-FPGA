@@ -26,6 +26,8 @@ jobs:
           sudo chmod -R 777 /build
           cd /
           ls
+          cd 
+          pwd
 
       # Necessary to find action.yml
       - name: Checkout Source
