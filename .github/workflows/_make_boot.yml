@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
 
       - name: Checkout rootfs, give perms, and adjust path
-        uses: repos/PandABlocks-fpga/.github/actions/setupenv
+        uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
         # Generate bootable image
       - name: Make boot
