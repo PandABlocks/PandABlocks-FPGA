@@ -28,8 +28,10 @@ jobs:
 
   # Optional revert on failed push workflow
   undo:
+    needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
     uses: ./.github/workflows/_undo.yml
   
   # Release on push to tag
   release:
+    needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
     uses: ./.github/workflows/_release.yml
