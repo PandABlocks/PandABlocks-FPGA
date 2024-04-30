@@ -35,4 +35,4 @@ jobs:
       # Run tests
       - name: Make python and hdl tests
         id: python_hdl_tests
-        run: cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make python_tests && make python_timing && make autogen && make hdl_test
+        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make python_tests && make python_timing && make autogen && make hdl_test
