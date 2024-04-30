@@ -12,7 +12,7 @@ runs:
           fetch-depth: 0
 
       - name: Give runner build perms, and adjust repos config path
-        id: give_perms
+        shell: bash
         run: |
           sudo mkdir /build
           sudo chmod -R 777 /build
