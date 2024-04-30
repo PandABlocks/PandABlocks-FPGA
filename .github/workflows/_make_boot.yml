@@ -12,7 +12,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: docker.io/shihabdls/pandablocks-container-extension:v2.3
+      image: docker.io/shihabdls/pandablocks-container-extension:v2.5
       options: --privileged
 
     steps:
@@ -23,26 +23,14 @@ jobs:
           path: repos/PandABlocks-fpga
           fetch-depth: 0
 
-      - name: Checkout PandABlocks-rootfs
-        uses: actions/checkout@v4
-        with:
-          repository: PandABlocks/PandABlocks-rootfs
-          path: repos/PandABlocks-rootfs
-          fetch-depth: 0
-      
-      # Give runner perms
-      - name: Give runner build perms
-        id: give_perms
-        run: |
-          sudo mkdir /build
-          sudo chmod -R 777 /build
-          sed -i 's@/repos/PandABlocks-rootfs@/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs@g' repos/PandABlocks-fpga/CONFIG.example
+      - name: Checkout rootfs, give perms, and adjust path
+        uses: ./.github/actions/setupenv
 
         # Generate bootable image
       - name: Make boot
         id: make_boot
         run: |
-          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }} && echo "done"
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
           exit
 
       # Artifacts

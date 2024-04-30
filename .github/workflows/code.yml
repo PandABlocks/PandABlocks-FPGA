@@ -12,15 +12,24 @@ on:
 
 jobs:
   # Make Boot files
-#  make_boot:
-#    uses: ./.github/workflows/_make_boot.yml
+  make_boot:
+    uses: ./.github/workflows/_make_boot.yml
 
   # Make zpkg for FPGA apps
-#  make_zpkg:
-#    uses: ./.github/workflows/_make_zpkg.yml
+  make_zpkg:
+    uses: ./.github/workflows/_make_zpkg.yml
 
-#  make_zpkg_aws:
-#    uses: ./.github/workflows/_make_zpkg_aws.yml
-
+  make_zpkg_aws:
+    uses: ./.github/workflows/_make_zpkg_aws.yml
+  
+  # Python and hdl tests
   test:
     uses: ./.github/workflows/_test.yml
+
+  # Optional revert on failed push workflow
+  undo:
+    uses: ./.github/workflows/_undo.yml
+  
+  # Release on push to tag
+  release:
+    uses: ./.github/workflows/_release.yml
