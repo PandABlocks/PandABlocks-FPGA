@@ -19,5 +19,8 @@ jobs:
 #  make_zpkg:
 #    uses: ./.github/workflows/_make_zpkg.yml
 
-  make_zpkg_aws:
-    uses: ./.github/workflows/_make_zpkg_aws.yml
+#  make_zpkg_aws:
+#    uses: ./.github/workflows/_make_zpkg_aws.yml
+
+  test:
+    uses: ./.github/workflows/_test.yml
