@@ -32,6 +32,8 @@ jobs:
         continue-on-error: true
         timeout-minutes: 1
         run: |
+          echo "{timeout}={false}" >> $GITHUB_OUTPUT
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
           echo "{timeout}={true}" >> $GITHUB_OUTPUT
 
 
