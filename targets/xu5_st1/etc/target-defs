@@ -6,3 +6,22 @@ STA_LED_OFFSET=25
 DIA_LED_OFFSET=24
 
 get_mac_address() { :; }
+
+target_specific_start() {
+    # Show hostname, IP and link status in the OLED display
+    if [ -e /sys/class/graphics/fb0 ]; then
+        cat /sys/class/graphics/fb0/modes > /sys/class/graphics/fb0/mode
+        cat <<EOF > /var/run/show-status.sh
+#!/bin/sh
+while true; do
+    clear; hostname -s
+    ip addr show eth0 | head -n3 | tail -n1 | cut -d' ' -f 6
+    [ \$(cat /sys/class/net/eth0/carrier) -eq 1 ] &&
+        echo "Link up" || echo "Link down"
+    sleep 2
+done
+EOF
+        chmod +x /var/run/show-status.sh
+        fbpad /var/run/show-status.sh &
+    fi
+}
