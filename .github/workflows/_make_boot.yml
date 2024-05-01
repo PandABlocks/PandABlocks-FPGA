@@ -32,12 +32,11 @@ jobs:
         continue-on-error: true
         timeout-minutes: 1
         run: |
-          echo "{timeout}={true}" >> $GITHUB_OUTPUT
-
-
+          echo "{timeout}={false}" >> $GITHUB_OUTPUT
+          echo $timeout
       # Artifacts
       - name: Upload boot
-        if: ${{steps.make_boot.outputs.timeout}}
+        if: ${{ steps.make_boot.outputs.timeout }}==true
         uses: actions/upload-artifact@v2
         with:
           name: zpkgs
