@@ -32,8 +32,8 @@ jobs:
         continue-on-error: true
         timeout-minutes: 1
         run: |
-          echo "{timeout}={false}" >> $GITHUB_OUTPUT
-          echo $timeout
+          echo "timeout=false" >> $GITHUB_OUTPUT
+
       # Artifacts
       - name: Upload boot
         if: ${{ steps.make_boot.outputs.timeout }}==true
