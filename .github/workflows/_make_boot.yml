@@ -29,17 +29,16 @@ jobs:
         # Generate bootable image
       - name: Make boot
         id: make_boot
-        env:
-          timeout: false
         continue-on-error: true
         timeout-minutes: 1
         run: |
           timeout=true
-          echo "$timeout"
+          echo "::set-output timeout=$timeout::
 
 
       # Artifacts
       - name: Upload boot
+        if: steps.make_boot.outputs.timeout==true
         uses: actions/upload-artifact@v2
         with:
           name: zpkgs
