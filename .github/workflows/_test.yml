@@ -17,22 +17,10 @@ jobs:
           path: repos/PandABlocks-fpga
           fetch-depth: 0
 
-      - name: Checkout PandABlocks-rootfs
-        uses: actions/checkout@v4
-        with:
-          repository: PandABlocks/PandABlocks-rootfs
-          path: repos/PandABlocks-rootfs
-          fetch-depth: 0
-      
-      # Give runner perms
-      - name: Give runner build perms
-        id: give_perms
-        run: |
-          sudo mkdir /build
-          sudo chmod -R 777 /build
-          sed -i 's@/repos/PandABlocks-rootfs@/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs@g' repos/PandABlocks-fpga/CONFIG.example
+      - name: Checkout rootfs, give perms, and adjust path
+        uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
       # Run tests
       - name: Make python and hdl tests
         id: python_hdl_tests
-        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make python_tests && make python_timing && make autogen && make hdl_test
+        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs python_tests && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs python_timing && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs autogen && make hdl_test
