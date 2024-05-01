@@ -35,7 +35,7 @@ jobs:
         timeout-minutes: 40
         run: |
           echo "timeout=false" >> $GITHUB_OUTPUT
-          if [-f "boot*.zip"]; then
+          if test-f "boot*.zip"; then
             echo "exist"
           else
             echo "not exist"
