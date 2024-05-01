@@ -28,23 +28,25 @@ jobs:
       - name: Checkout rootfs, give perms, and adjust path
         uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
-        # Generate bootable image
+      # Generate bootable image
       - name: Make boot
         id: make_boot
         continue-on-error: true
-        timeout-minutes: 35
+        timeout-minutes: 45
         run: |
-          echo "timeout=false" >> $GITHUB_OUTPUT
-          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs APP_NAME=${{ matrix.app }} && test -f "boot*.zip" && echo "timeout=true" >> $GITHUB_OUTPUT
+          echo "boot_files=false" >> $GITHUB_OUTPUT
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs APP_NAME=${{ matrix.app }} && test -f "/build/boot*.zip" && echo "boot_files=true" >> $GITHUB_OUTPUT
 
-      
-      - name: Check if make boot completes
-        if: ${{ steps.make_boot.outputs.timeout == 'false'}}
+      # Current workflow hangs upon make_boot completion, requiring a timeout
+      # Envvar boot_files is set true if timeout reached after successful boot build
+      # Envvar boot_files is set false on boot build error and/or failure to generate zip files
+      - name: Fail workflow if boot files absent
+        if: ${{ steps.make_boot.outputs.boot_files == 'false'}}
         run: exit 1
 
-      # Artifacts
+      # Upload artifacts if boot files present
       - name: Upload boot
-        if: ${{ steps.make_boot.outputs.timeout == 'true'}}
+        if: ${{ steps.make_boot.outputs.boot_files == 'true'}}
         uses: actions/upload-artifact@v2
         with:
           name: zpkgs
