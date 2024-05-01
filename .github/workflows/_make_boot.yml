@@ -29,9 +29,11 @@ jobs:
         # Generate bootable image
       - name: Make boot
         id: make_boot
+        timeout-minutes: 1
         run: |
           cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
           exit
+
 
       # Artifacts
       - name: Upload boot
