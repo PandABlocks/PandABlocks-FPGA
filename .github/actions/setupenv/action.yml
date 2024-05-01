@@ -16,4 +16,3 @@ runs:
         run: |
           sudo mkdir /build
           sudo chmod -R 777 /build
-          sed -i 's@/repos/PandABlocks-rootfs@/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs@g' repos/PandABlocks-fpga/CONFIG.example
