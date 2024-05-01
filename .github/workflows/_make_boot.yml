@@ -32,6 +32,7 @@ jobs:
       - name: Make boot
         id: make_boot
         continue-on-error: true
+        #timeout set to expected upper-limit of build
         timeout-minutes: 45
         run: |
           echo "boot_files=false" >> $GITHUB_OUTPUT
