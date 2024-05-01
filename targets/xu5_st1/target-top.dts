@@ -3,10 +3,19 @@
 
 &sdhci1 {
 	disable-wp;
+	no-1-8-v;
 };
 
 &i2c0 {
 	clock-frequency = <100000>;
+	ssd1306: oled@0x3c {
+		compatible = "solomon,ssd1306";
+		reg = <0x3c>;
+		solomon,height = <64>;
+		solomon,width = <128>;
+		solomon,page-offset = <0>;
+		solomon,segment-no-remap;
+	};
 };
 
 &qspi {
