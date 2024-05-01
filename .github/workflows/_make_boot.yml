@@ -35,7 +35,11 @@ jobs:
         timeout-minutes: 40
         run: |
           echo "timeout=false" >> $GITHUB_OUTPUT
-          ls /build
+          if [-f boot*.zip]; then
+            echo "exist"
+          else
+            echo "not exist"
+          fi
           cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs APP_NAME=${{ matrix.app }}
           echo "timeout=true" >> $GITHUB_OUTPUT
 
