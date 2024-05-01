@@ -37,7 +37,7 @@ jobs:
 
       # Artifacts
       - name: Upload boot
-        if: ${{steps.make_boot.outputs.timeout}}==true
+        if: ${{steps.make_boot.outputs.timeout}}
         uses: actions/upload-artifact@v2
         with:
           name: zpkgs
