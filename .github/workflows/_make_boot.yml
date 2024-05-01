@@ -17,22 +17,29 @@ jobs:
 
     steps:
       # Necessary to find action.yml
-#      - name: Checkout Source
-#        uses: actions/checkout@v4
-#        with:
-#          path: repos/PandABlocks-fpga
-#          fetch-depth: 0
+      - name: Checkout Source
+        uses: actions/checkout@v4
+        with:
+          path: repos/PandABlocks-fpga
+          fetch-depth: 0
 
-#      - name: Checkout rootfs, give perms, and adjust path
-#        uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
+      - name: Checkout rootfs, give perms, and adjust path
+        uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
         # Generate bootable image
       - name: Make boot
         id: make_boot
         continue-on-error: true
-        timeout-minutes: 1
+        timeout-minutes: 40
         run: |
           echo "timeout=false" >> $GITHUB_OUTPUT
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
+          echo "timeout=true" >> $GITHUB_OUTPUT
+
+      
+      - name: Check if make boot completes
+        if: ${{ steps.make_boot.outputs.timeout == 'false'}}
+        run: exit 1
 
       # Artifacts
       - name: Upload boot
