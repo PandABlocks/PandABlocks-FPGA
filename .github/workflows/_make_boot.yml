@@ -36,7 +36,10 @@ jobs:
         timeout-minutes: 45
         run: |
           echo "boot_files=false" >> $GITHUB_OUTPUT
-          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs APP_NAME=${{ matrix.app }} && test -f "/build/boot*.zip" && echo "boot_files=true" >> $GITHUB_OUTPUT
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs APP_NAME=${{ matrix.app }}
+          if test -f /build/boot*.zip; then
+            echo "boot_files=true" >> $GITHUB_OUTPUT
+          fi
 
       # Current workflow hangs upon make_boot completion, requiring a timeout
       # Envvar boot_files is set true if timeout reached after successful boot build
