@@ -32,16 +32,10 @@ jobs:
       - name: Make boot
         id: make_boot
         continue-on-error: true
-        timeout-minutes: 40
+        timeout-minutes: 35
         run: |
           echo "timeout=false" >> $GITHUB_OUTPUT
-          if test -f "boot*.zip"; then
-            echo "exist"
-          else
-            echo "not exist"
-          fi
-          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs APP_NAME=${{ matrix.app }}
-          echo "timeout=true" >> $GITHUB_OUTPUT
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs APP_NAME=${{ matrix.app }} && test -f "boot*.zip" && "echo "timeout=true" >> $GITHUB_OUTPUT
 
       
       - name: Check if make boot completes
