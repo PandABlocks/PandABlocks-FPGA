@@ -35,7 +35,6 @@ jobs:
         timeout-minutes: 1
         run: |
           timeout=true
-          echo "Timeout=$timeout" >> $GITHUB_ENV
           echo "$timeout"
 
 
