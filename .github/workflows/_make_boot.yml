@@ -9,6 +9,8 @@ jobs:
         include:
           - platform: zynq
             app: PandABox-no-fmc
+          - platform: zynqmp
+            app: xu5_st1-no-fmc
     runs-on:
       group: iris_runners
     container:
@@ -33,7 +35,7 @@ jobs:
         timeout-minutes: 40
         run: |
           echo "timeout=false" >> $GITHUB_OUTPUT
-          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs APP_NAME=${{ matrix.app }}
           echo "timeout=true" >> $GITHUB_OUTPUT
 
       
