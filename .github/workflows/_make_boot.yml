@@ -33,7 +33,7 @@ jobs:
         timeout-minutes: 1
         run: |
           timeout=true
-          echo "::set-output timeout=$timeout::
+          echo "::set-output timeout=$timeout::"
 
 
       # Artifacts
