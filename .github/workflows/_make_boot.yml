@@ -1,10 +1,5 @@
 on:
   workflow_call:
-    secrets:
-      VIVADO_S3_ACCESS_KEY_ID:
-        required: true
-      VIVADO_S3_SECRET_ACCESS_KEY:
-        required: true
 
 jobs:
   make_boot:
@@ -16,46 +11,47 @@ jobs:
             app: PandABox-no-fmc
           - platform: zynqmp
             app: xu5_st1-no-fmc
-    runs-on: ubuntu-latest
+    runs-on:
+      group: iris_runners
+    container:
+      image: docker.io/shihabdls/pandablocks-container-extension:v2.5
+      options: --privileged
 
     steps:
       # Necessary to find action.yml
       - name: Checkout Source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
+          path: repos/PandABlocks-fpga
           fetch-depth: 0
 
-      # Run action.yml
-      - name: Checkout and install rclone
-        uses: ./.github/actions/setupenv
+      - name: Checkout rootfs, give perms, and adjust path
+        uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
-      # S3 bucket
-      - name: Mount Vivado S3 bucket
-        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
-
-      # Get container image
-      - name: login to github container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN  }}
-
-      # Mount in rclone bucket from runner into conatiner
-      - name: make boot
+      # Generate bootable image
+      - name: Make boot
+        id: make_boot
+        continue-on-error: true
+        #timeout set to expected upper-limit of build
+        timeout-minutes: 60
         run: |
-          docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
-          docker run \
-            -v "${{ github.workspace }}:/repos" \
-            -v "${{ github.workspace }}/build:/build" \
-            -v "/scratch/Xilinx:/scratch/Xilinx" \
-            ghcr.io/pandablocks/pandablocks-dev-container:latest\
-            /bin/bash -c \
-            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot APP_NAME=${{ matrix.app }}"
+          echo "boot_files=false" >> $GITHUB_OUTPUT
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA APP_NAME=${{ matrix.app }}
+          if test -f /build/boot*.zip; then
+            echo "boot_files=true" >> $GITHUB_OUTPUT
+          fi
 
-      # Artifacts
+      # Current workflow hangs upon make_boot completion, requiring a timeout
+      # Envvar boot_files is set true if timeout reached after successful boot build
+      # Envvar boot_files is set false on boot build error and/or failure to generate zip files
+      - name: Fail workflow if boot files absent
+        if: ${{ steps.make_boot.outputs.boot_files == 'false'}}
+        run: exit 1
+
+      # Upload artifacts if boot files present
       - name: Upload boot
+        if: ${{ steps.make_boot.outputs.boot_files == 'true'}}
         uses: actions/upload-artifact@v2
         with:
           name: zpkgs
-          path: ./build/boot*.zip
+          path: /build/boot*.zip

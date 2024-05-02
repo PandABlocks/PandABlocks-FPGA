@@ -1,9 +1,5 @@
 on:
   workflow_call:
-    inputs:
-      label:
-        required: true
-        type: string
 
 jobs:
   make_zpkg_aws:
@@ -12,43 +8,33 @@ jobs:
       matrix:
         app:
           ["xu5_st1-no-fmc","xu5_st1-fmc_acq430"]
-    name: make zpkg on aws
-    runs-on: ${{ inputs.label }}
+    runs-on:
+      group: iris_runners
+    container:
+        image: docker.io/shihabdls/pandablocks-container-extension:v2.5
+        options: --privileged
+    
     steps:
       # Necessary to find action.yml
       - name: Checkout Source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
+          path: repos/PandABlocks-fpga
           fetch-depth: 0
 
-      # Run action.yml
-      - name: Checkout and install rclone
-        uses: ./.github/actions/setupenv
+      - name: Checkout rootfs, give perms, and adjust path
+        uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
-      # Get container image
-      - name: login to github container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN  }}
-
-      # Mount in rclone bucket from vm into conatiner
+      # Make large zpkgs
       - name: build carrier_ip and zpkg
+        id: make_zpkg_aws
         run: |
-          sudo docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
-          sudo docker run \
-            --net=host \
-            -v "${{ github.workspace }}:/repos" \
-            -v "${{ github.workspace }}/build:/build" \
-            -v "/scratch/Xilinx:/scratch/Xilinx" \
-            ghcr.io/pandablocks/pandablocks-dev-container:latest\
-            /bin/bash -c \
-            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }}"
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA carrier_ip APP_NAME=${{ matrix.app }} && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA zpkg APP_NAME=${{ matrix.app }}
+          exit
 
       # Artifacts
       - name: Upload zpkg
         uses: actions/upload-artifact@v2
         with:
           name: zpkgs
-          path: ./build/panda-fpga@*.zpg
+          path: /build/panda-fpga@*.zpg
