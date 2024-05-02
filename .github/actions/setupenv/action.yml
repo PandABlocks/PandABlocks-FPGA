@@ -4,19 +4,15 @@ description: "Composite action that checks out repos, installs rclone, mounts S3
 runs:
   using: "composite"
   steps:
-      - name: Checkout Source
+      - name: Checkout PandABlocks-rootfs
         uses: actions/checkout@v4
         with:
-          path: PandABlocks-fpga
-          # require history to get back to last tag for version number of branches
-          fetch-depth: 0
-      - name: Checkout PandABlocks-rootfs
-        uses: actions/checkout@v2
-        with:
           repository: PandABlocks/PandABlocks-rootfs
-          path: PandABlocks-rootfs
-      # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
-      # https://github.com/rclone/rclone/issues/2975
-      - name: Install rclone patch
+          path: repos/PandABlocks-rootfs
+          fetch-depth: 0
+
+      - name: Give runner build perms, and adjust repos config path
         shell: bash
-        run: bash PandABlocks-fpga/.github/scripts/rclone-patch.sh
+        run: |
+          sudo mkdir /build
+          sudo chmod -R 777 /build
