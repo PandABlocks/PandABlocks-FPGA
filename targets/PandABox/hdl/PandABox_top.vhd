@@ -27,7 +27,8 @@ generic (
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32;
     NUM_SFP             : natural := 3;
-    NUM_FMC             : natural := 1
+    NUM_FMC             : natural := 1;
+    MAX_NUM_FMC_MGT     : natural := 1
 );
 port (
     DDR_addr            : inout std_logic_vector (14 downto 0);
@@ -73,26 +74,34 @@ port (
     GTXCLK1_N           : in    std_logic;
 
     -- SFPT GTX I/O and GTX
-    SFP_TX_P            : out   std_logic_vector(2 downto 0) := "ZZZ";
-    SFP_TX_N            : out   std_logic_vector(2 downto 0) := "ZZZ";
-    SFP_RX_P            : in    std_logic_vector(2 downto 0);
-    SFP_RX_N            : in    std_logic_vector(2 downto 0);
+    SFP_TX_P            : out   std_logic_vector(NUM_SFP-1 downto 0)
+                                                            := (others => 'Z');
+    SFP_TX_N            : out   std_logic_vector(NUM_SFP-1 downto 0)
+                                                            := (others => 'Z');
+    SFP_RX_P            : in    std_logic_vector(NUM_SFP-1 downto 0);
+    SFP_RX_N            : in    std_logic_vector(NUM_SFP-1 downto 0);
     SFP_TxDis           : out   std_logic_vector(1 downto 0) := "00";
     SFP_LOS             : in    std_logic_vector(1 downto 0);
 
     -- FMC Differential IO and GTX
-    FMC_DP_C2M_P       : out   std_logic_vector(NUM_FMC_MGT-1 downto 0) := (others => 'Z');
-    FMC_DP_C2M_N       : out   std_logic_vector(NUM_FMC_MGT-1 downto 0) := (others => 'Z');
-    FMC_DP_M2C_P       : in    std_logic_vector(NUM_FMC_MGT-1 downto 0);
-    FMC_DP_M2C_N       : in    std_logic_vector(NUM_FMC_MGT-1 downto 0);
+    FMC_DP_C2M_P        : out   std_logic_vector(NUM_FMC_MGT-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_DP_C2M_N        : out   std_logic_vector(NUM_FMC_MGT-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_DP_M2C_P        : in    std_logic_vector(NUM_FMC_MGT-1 downto 0);
+    FMC_DP_M2C_N        : in    std_logic_vector(NUM_FMC_MGT-1 downto 0);
 
-    FMC_PRSNT           : in    std_logic_vector(0 downto 0);
-    FMC_LA_P            : inout std_uarray(0 downto 0)(33 downto 0) := (others => (others => 'Z'));
-    FMC_LA_N            : inout std_uarray(0 downto 0)(33 downto 0) := (others => (others => 'Z'));
-    FMC_CLK0_M2C_P      : inout std_logic_vector(0 downto 0) := (others => 'Z');
-    FMC_CLK0_M2C_N      : inout std_logic_vector(0 downto 0) := (others => 'Z');
-    FMC_CLK1_M2C_P      : in    std_logic_vector(0 downto 0);
-    FMC_CLK1_M2C_N      : in    std_logic_vector(0 downto 0);
+    FMC_PRSNT           : in    std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_LA_P            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_LA_N            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_CLK0_M2C_P      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK0_M2C_N      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK1_M2C_P      : in    std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_CLK1_M2C_N      : in    std_logic_vector(NUM_FMC-1 downto 0);
 
     -- External Differential Clock (via front panel SMA)
     EXTCLK_P            : in    std_logic;
@@ -245,11 +254,14 @@ signal ts_src               : std_logic_vector(1 downto 0);
 signal pcap_start_event     : std_logic;
 
 -- FMC Block
-signal FMC      : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))      := (FMC_ARR => (others => FMC_init));
+signal FMC      : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
+                                        := (FMC_ARR => (others => FMC_init));
 -- SFP Block
-signal SFP_MGT  : MGT_ARR_REC(MGT_ARR(0 to NUM_SFP-1))      := (MGT_ARR => (others => MGT_init));
+signal SFP_MGT  : MGT_ARR_REC(MGT_ARR(0 to NUM_SFP-1))
+                                        := (MGT_ARR => (others => MGT_init));
 -- 4th SFP interface available using FMC MGT
-signal FMC_MGT  : MGT_ARR_REC(MGT_ARR(0 to NUM_FMC_MGT-1))  := (MGT_ARR => (others => MGT_init));
+signal FMC_MGT  : MGT_ARR_REC(MGT_ARR(0 to MAX_NUM_FMC_MGT-1))
+                                        := (MGT_ARR => (others => MGT_init));
 
 signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
 attribute syn_noclockbuf : boolean;
@@ -823,8 +835,8 @@ SFP_MGT_gen: for I in 0 to NUM_SFP-1 generate
     SFP_MGT.MGT_ARR(I).RXP_IN <= SFP_RX_P(NUM_SFP-1-I);
     SFP_TX_N(NUM_SFP-1-I) <= SFP_MGT.MGT_ARR(I).TXN_OUT;
     SFP_TX_P(NUM_SFP-1-I) <= SFP_MGT.MGT_ARR(I).TXP_OUT;
-    SFP_TS_SEC(0) <= SFP_MGT.MGT_ARR(I).TS_SEC;
-    SFP_TS_TICKS(0) <= SFP_MGT.MGT_ARR(I).TS_TICKS;
+    SFP_TS_SEC(I) <= SFP_MGT.MGT_ARR(I).TS_SEC;
+    SFP_TS_TICKS(I) <= SFP_MGT.MGT_ARR(I).TS_TICKS;
     SFP_MGT.MGT_ARR(I).MAC_ADDR <= MGT_MAC_ADDR_ARR(2*I+1)(23 downto 0) & MGT_MAC_ADDR_ARR(2*I)(23 downto 0);
     SFP_MGT.MGT_ARR(I).MAC_ADDR_WS <= '0';
 end generate;

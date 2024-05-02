@@ -69,17 +69,23 @@ port (
 	SW : in std_logic_vector(7 downto 0); 
 
     -- FMC
-    FMC_PRSNT           : in    std_logic_vector(0 downto 0);
-    FMC_LA_P            : inout std_uarray(0 downto 0)(33 downto 0) := (others => (others => 'Z'));
-    FMC_LA_N            : inout std_uarray(0 downto 0)(33 downto 0) := (others => (others => 'Z'));
-    FMC_CLK0_M2C_P      : inout std_logic_vector := (others => 'Z');
-    FMC_CLK0_M2C_N      : inout std_logic_vector := (others => 'Z');
-    FMC_CLK1_M2C_P      : in    std_logic_vector;
-    FMC_CLK1_M2C_N      : in    std_logic_vector
+    FMC_PRSNT           : in    std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_LA_P            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_LA_N            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_CLK0_M2C_P      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK0_M2C_N      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK1_M2C_P      : in    std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_CLK1_M2C_N      : in    std_logic_vector(NUM_FMC-1 downto 0)
 );
 end ZedBoard_top;
 
 architecture rtl of ZedBoard_top is
+
+constant NUM_MGT            : natural := NUM_SFP + NUM_FMC_MGT;
 
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
@@ -178,7 +184,8 @@ signal rdma_data            : std_logic_vector(31 downto 0);
 signal rdma_valid           : std_logic_vector(5 downto 0);
 
 -- FMC Block
-signal FMC      : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))      := (FMC_ARR => (others => FMC_init));
+signal FMC      : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
+                                        := (FMC_ARR => (others => FMC_init));
 
 component panda_ps is
   port (
@@ -551,7 +558,7 @@ port map (
 ---------------------------------------------------------------------------
 reg_inst : entity work.reg_top
 generic map (
-    NUM_SFP => NUM_SFP
+    NUM_MGT => NUM_MGT
 )
 port map (
     clk_i               => FCLK_CLK0,

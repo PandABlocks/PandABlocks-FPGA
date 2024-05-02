@@ -27,7 +27,8 @@ generic (
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32;
     NUM_SFP             : natural := 0;
-    NUM_FMC             : natural := 1
+    NUM_FMC             : natural := 1;
+    MAX_NUM_FMC_MGT     : natural := 4
 );
 port (
     -- Discrete I/O
@@ -39,16 +40,22 @@ port (
     GTXCLK1_P           : in    std_logic;
     GTXCLK1_N           : in    std_logic;
     -- FMC
-    FMC_DP_C2M_P        : out   std_logic_vector(NUM_FMC_MGT-1 downto 0) := (others => 'Z');
-    FMC_DP_C2M_N        : out   std_logic_vector(NUM_FMC_MGT-1 downto 0) := (others => 'Z');
+    FMC_DP_C2M_P        : out   std_logic_vector(NUM_FMC_MGT-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_DP_C2M_N        : out   std_logic_vector(NUM_FMC_MGT-1 downto 0)
+                                                            := (others => 'Z');
     FMC_DP_M2C_P        : in    std_logic_vector(NUM_FMC_MGT-1 downto 0);
     FMC_DP_M2C_N        : in    std_logic_vector(NUM_FMC_MGT-1 downto 0);
-    FMC_LA_P            : inout std_uarray(0 downto 0)(33 downto 0) := (others => (others => 'Z'));
-    FMC_LA_N            : inout std_uarray(0 downto 0)(33 downto 0) := (others => (others => 'Z'));
-    FMC_CLK0_M2C_P      : inout std_logic_vector := (others => 'Z');
-    FMC_CLK0_M2C_N      : inout std_logic_vector := (others => 'Z');
-    FMC_CLK1_M2C_P      : in    std_logic_vector;
-    FMC_CLK1_M2C_N      : in    std_logic_vector
+    FMC_LA_P            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_LA_N            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_CLK0_M2C_P      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK0_M2C_N      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK1_M2C_P      : in    std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_CLK1_M2C_N      : in    std_logic_vector(NUM_FMC-1 downto 0)
 );
 end xu5_st1_top;
 
@@ -165,16 +172,17 @@ signal rdma_valid           : std_logic_vector(5 downto 0);
 signal MGT_MAC_ADDR_ARR     : std32_array(2*NUM_MGT-1 downto 0);
 
 -- FMC Block
-signal FMC      : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))      := (FMC_ARR => (others => FMC_init));
+signal FMC      : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
+                                        := (FMC_ARR => (others => FMC_init));
 
 -- Additional MGT interfaces available using FMC
-signal FMC_MGT  : MGT_ARR_REC(MGT_ARR(0 to NUM_FMC_MGT-1))  := (MGT_ARR => (others => MGT_init));
+signal FMC_MGT  : MGT_ARR_REC(MGT_ARR(0 to MAX_NUM_FMC_MGT-1))
+                                        := (MGT_ARR => (others => MGT_init));
 
 signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
 attribute syn_noclockbuf : boolean;
 attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
-
 
 begin
 
@@ -184,7 +192,7 @@ FCLK_CLK0 <= FCLK_CLK0_PS;
 
 -- MGT REFCLOCK Differential Buffers
 
-IBUFDS_GTE4_inst : IBUFDS_GTE4
+IBUFDS_GTE4_REFCLK0 : IBUFDS_GTE4
 generic map (
     REFCLK_EN_TX_PATH => '0',
     REFCLK_HROW_CK_SEL => "00",
@@ -198,7 +206,7 @@ port map (
     IB =>    GTXCLK0_N
 );
 
-IBUFDS_GTE4_inst : IBUFDS_GTE4
+IBUFDS_GTE4_REFCLK1 : IBUFDS_GTE4
 generic map (
     REFCLK_EN_TX_PATH => '0',
     REFCLK_HROW_CK_SEL => "00",
@@ -446,7 +454,7 @@ port map (
 ---------------------------------------------------------------------------
 reg_inst : entity work.reg_top
 generic map (
-    NUM_SFP => NUM_SFP
+    NUM_MGT => NUM_MGT
 )
 port map (
     clk_i               => FCLK_CLK0,

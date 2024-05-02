@@ -44,7 +44,7 @@ port (
     rdma_valid          : in    std_logic_vector(5 downto 0);
     --
     {% for site in target_sites %}
-    {{pad(site.name)}} : in    {{site.type}}_ARR_REC;
+    {{pad(site.name)}} : view  {{site.type}}_MOD_ARR;
     {% endfor %}
     FCLK_CLK0           : in    std_logic
 );

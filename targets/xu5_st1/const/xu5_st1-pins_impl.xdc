@@ -88,8 +88,8 @@ set_property -dict {PACKAGE_PIN C2    IOSTANDARD LVCMOS18  } [get_ports {FMC_CLK
 set_property -dict {PACKAGE_PIN C3    IOSTANDARD LVCMOS18  } [get_ports {FMC_CLK1_M2C_P[0]}]
 
 # MGT Reference Clocks
-set_property PACKAGE_PIN C4 [get_ports GTXCLK0_N]
-set_property PACKAGE_PIN D4 [get_ports GTXCLK0_P]
+set_property PACKAGE_PIN Y5 [get_ports GTXCLK0_N]
+set_property PACKAGE_PIN Y6 [get_ports GTXCLK0_P]
 set_property PACKAGE_PIN V5 [get_ports GTXCLK1_N]
 set_property PACKAGE_PIN V6 [get_ports GTXCLK1_P]
 
