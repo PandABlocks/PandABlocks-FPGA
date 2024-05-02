@@ -14,16 +14,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 library unisim;
-use unisim.vcomponents.all; -- NEEDED?
+use unisim.vcomponents.all;
 
-library work;
---use work.support.all;
-use work.addr_defines.all; -- NEEDED?
-use work.top_defines.all;  -- NEEDED?
+use work.addr_defines.all;
+use work.top_defines.all;
 
 entity ZedBoard_top is
 generic (
-    SIM                 : string  := "FALSE";
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32;
     NUM_SFP             : natural := 0;
@@ -605,7 +602,6 @@ end generate;
 ---------------------------------------------------------------------------
 
 softblocks_inst : entity work.soft_blocks
-generic map( SIM => SIM)
 port map(
     FCLK_CLK0 => FCLK_CLK0,
     FCLK_RESET0 => FCLK_RESET0,

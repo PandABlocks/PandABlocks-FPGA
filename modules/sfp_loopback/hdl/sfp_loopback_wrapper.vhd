@@ -33,15 +33,14 @@ end sfp_loopback_wrapper;
 
 architecture rtl of sfp_loopback_wrapper is
 
---signal test_clocks      : std_logic;
-signal LINK_UP         : std_logic_vector(31 downto 0);
-signal ERROR_COUNT     : std_logic_vector(31 downto 0);
-signal FREQ_VAL         : std_logic_vector(31 downto 0);
-signal GTREFCLK         : std_logic;
-signal MAC_LO           : std_logic_vector(31 downto 0);-- := (others => '0');
-signal MAC_HI           : std_logic_vector(31 downto 0);-- := (others => '0');
-signal SOFT_RESET       : std_logic;
-signal SFP_LOS_VEC      : std_logic_vector(31 downto 0) := (others => '0');
+signal LINK_UP      : std_logic_vector(31 downto 0);
+signal ERROR_COUNT  : std_logic_vector(31 downto 0);
+signal FREQ_VAL     : std_logic_vector(31 downto 0);
+signal GTREFCLK     : std_logic;
+signal MAC_LO       : std_logic_vector(31 downto 0);
+signal MAC_HI       : std_logic_vector(31 downto 0);
+signal SOFT_RESET   : std_logic;
+signal SFP_LOS_VEC  : std_logic_vector(31 downto 0) := (others => '0');
 
 signal TXN, TXP             : std_logic;
 
@@ -80,15 +79,13 @@ port map (
 -- FMC Clocks Frequency Counter
 ---------------------------------------------------------------------------
 
---test_clocks(0) <= GTREFCLK;
-
 freq_counter_inst : entity work.freq_counter
 generic map( NUM => 1)
 port map (
     refclk          => clk_i,
     reset           => reset_i,
-    test_clocks(0)     => GTREFCLK,
-    freq_out(0)        => FREQ_VAL
+    test_clocks(0)  => GTREFCLK,
+    freq_out(0)     => FREQ_VAL
 );
 
 SFP_LOS_VEC <= (0 => MGT.SFP_LOS, others => '0');
@@ -102,29 +99,29 @@ MAC_LO(23 downto 0) <= MGT.MAC_ADDR(23 downto 0);
 sfp_ctrl : entity work.sfp_loopback_ctrl
 port map (
     -- Clock and Reset
-    clk_i                       => clk_i,
-    reset_i                     => reset_i,
-    bit_bus_i                   => bit_bus_i,
-    pos_bus_i                   => pos_bus_i,
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    bit_bus_i       => bit_bus_i,
+    pos_bus_i       => pos_bus_i,
     -- Block Parameters
-    SFP_LOS                    => SFP_LOS_VEC,
-    LINK_UP                    => LINK_UP,
-    ERROR_COUNT                => ERROR_COUNT,
-    SFP_CLK                   => FREQ_VAL,
-    SFP_MAC_LO                 => MAC_LO,
-    SFP_MAC_HI                 => MAC_HI,
-    SOFT_RESET                  => open,
-    SOFT_RESET_WSTB             => SOFT_RESET,
+    SFP_LOS         => SFP_LOS_VEC,
+    LINK_UP         => LINK_UP,
+    ERROR_COUNT     => ERROR_COUNT,
+    SFP_CLK         => FREQ_VAL,
+    SFP_MAC_LO      => MAC_LO,
+    SFP_MAC_HI      => MAC_HI,
+    SOFT_RESET      => open,
+    SOFT_RESET_WSTB => SOFT_RESET,
     -- Memory Bus Interface
-    read_strobe_i               => read_strobe_i,
-    read_address_i              => read_address_i(BLK_AW-1 downto 0),
-    read_data_o                 => read_data_o,
-    read_ack_o                  => read_ack_o,
+    read_strobe_i   => read_strobe_i,
+    read_address_i  => read_address_i(BLK_AW-1 downto 0),
+    read_data_o     => read_data_o,
+    read_ack_o      => read_ack_o,
 
-    write_strobe_i              => write_strobe_i,
-    write_address_i             => write_address_i(BLK_AW-1 downto 0),
-    write_data_i                => write_data_i,
-    write_ack_o                 => write_ack_o
+    write_strobe_i  => write_strobe_i,
+    write_address_i => write_address_i(BLK_AW-1 downto 0),
+    write_data_i    => write_data_i,
+    write_ack_o     => write_ack_o
 );
 
 end rtl;

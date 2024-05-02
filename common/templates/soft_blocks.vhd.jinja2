@@ -5,17 +5,10 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-library unisim;
-use unisim.vcomponents.all;
-
-library work;
 use work.addr_defines.all;
 use work.top_defines.all;
 
 entity soft_blocks is
-generic (
-    SIM                 : string := "FALSE"
-);
 port (
     -- Global clock and reset from panda_ps
     FCLK_RESET0         : in    std_logic;
