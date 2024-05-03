@@ -4,9 +4,10 @@ on:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         modules:
-          [pcomp calc, pulse filter bits, lut counter div, posenc srgate qdec]
+          [pcap, seq qdec pgen, pcomp lut div, pulse srgate div bits, counter filter posenc clock]
     runs-on:
       group: iris_runners
     container:
