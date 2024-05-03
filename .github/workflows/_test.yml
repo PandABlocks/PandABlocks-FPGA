@@ -5,8 +5,8 @@ jobs:
   test:
     strategy:
       matrix:
-        test_group:
-          [python_tests, python_timing, autogen, hdl_test]
+        modules:
+          [bits calc clocks counter, div filter lut pcomp, posenc pulse qdec srgate]
     runs-on:
       group: iris_runners
     container:
@@ -27,4 +27,4 @@ jobs:
       # Run tests
       - name: Make python and hdl tests
         id: python_hdl_tests
-        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA ${{matrix.test_group}}
+        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA python_tests && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA python_timing && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA autogen && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA hdl_test MODULES="${{matrix.modules}}"  
