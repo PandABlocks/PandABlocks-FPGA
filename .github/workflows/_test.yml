@@ -6,7 +6,7 @@ jobs:
     strategy:
       matrix:
         modules:
-          [pcomp calc, pulse filter bit, lut counter div, posenc srgate qdec]
+          [pcomp calc, pulse filter bits, lut counter div, posenc srgate qdec]
     runs-on:
       group: iris_runners
     container:
