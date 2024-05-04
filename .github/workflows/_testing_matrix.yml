@@ -1,0 +1,12 @@
+on:
+  workflow_call:
+   inputs:
+    matrix:
+     required: true
+     type: string
+
+jobs:
+  testing_matrix:
+    runs-on: ubuntu-latest
+    steps:
+      run: echo "${{inputs.matrix}}"
