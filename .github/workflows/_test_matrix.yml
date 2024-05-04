@@ -1,5 +1,7 @@
 on:
   workflow_call:
+    outputs:
+      matrix: ${{jobs.test_matrix.outputs.matrix}}
 
 jobs:
   test_matrx:
@@ -9,7 +11,7 @@ jobs:
         image: docker.io/shihabdls/pandablocks-container-extension:v2.5
         options: --privileged
     outputs:
-        matrix: ${{steps.make_matrix.outputs.matrix}}
+        matrix: ${{steps.make_matrix.outputs.json_content}}
     
     steps:
       - name: Checkout Source

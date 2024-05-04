@@ -1,11 +1,14 @@
 on:
   workflow_call:
+    inputs:
+      matrix:
+        required: true
 
 jobs:
   test:
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(needs.test_matrix.outputs.matrix)}}
+      matrix: ${{fromJson(inputs.matrix)}}
     runs-on:
       group: iris_runners
     container:
