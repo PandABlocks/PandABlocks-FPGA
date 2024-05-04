@@ -9,6 +9,7 @@ jobs:
   test:
     strategy:
       fail-fast: false
+      # Using generated matrix from previous job
       matrix: ${{fromJSON(inputs.matrix)}}
     runs-on:
       group: iris_runners

@@ -20,9 +20,6 @@ jobs:
           path: repos/PandABlocks-fpga
           fetch-depth: 0
 
-      - name: Checkout rootfs, give perms, and adjust path
-        uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
-
       - name: Evaluate number of modules/tests & generate job matrix
         id: make_matrix
         run: |
