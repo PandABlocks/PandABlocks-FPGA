@@ -1,13 +1,19 @@
 on:
   workflow_call:
-    outputs:
-      matrix:
-        value: ${{jobs.test_matrix.outputs.matrix}}
 
 jobs:
   test_matrx:
+    runs-on:
+      group: iris_runners
+    container:
+        image: docker.io/shihabdls/pandablocks-container-extension:v2.5
+        options: --privileged
+    outputs:
+        matrix: ${{steps.make_matrix.outputs.matrix}}
+    
     steps:
       - name: Evaluate number of modules/tests & generate job matrix
+        id: make_matrix
         run: |
              bash repos/PandABlocks-fpga/.github/scripts/tests_group.sh "/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/modules"
              json_content=$(cat github_tests.json)
