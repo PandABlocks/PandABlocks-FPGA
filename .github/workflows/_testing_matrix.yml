@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: testing
-        run: echo "${{fromJson(inputs.matrix)}}"
+        run: echo "${{inputs.matrix}}"
