@@ -29,6 +29,12 @@ jobs:
     uses: ./.github/workflows/_test.yml
     with:
       matrix: ${{needs.test_matrix.outputs.matrix}}
+  
+  testing_matrix:
+    needs: test_matrix
+    uses: ./.github/workflows/_testing_matrix.yml
+    with:
+      matrix: ${{needs.test_matrix.outputs.matrix}}
 
   # Optional revert on failed push workflow
 #  undo:
