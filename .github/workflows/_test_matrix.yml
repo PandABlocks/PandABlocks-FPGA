@@ -15,7 +15,7 @@ jobs:
       - name: Evaluate number of modules/tests & generate job matrix
         id: make_matrix
         run: |
-             ls ./repos/PandABlocks-fpga/.github/scripts
+             ls repos/PandABlocks-fpga/.github/scripts
              bash ./repos/PandABlocks-fpga/.github/scripts/tests_group.sh "/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/modules"
              json_content=$(cat /__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/.github/scripts/github_tests.json)
              echo "$json_content" >> GITHUB_OUTPUT
