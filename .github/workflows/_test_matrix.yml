@@ -12,10 +12,19 @@ jobs:
         matrix: ${{steps.make_matrix.outputs.matrix}}
     
     steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+        with:
+          path: repos/PandABlocks-fpga
+          fetch-depth: 0
+
+      - name: Checkout rootfs, give perms, and adjust path
+        uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
+
       - name: Evaluate number of modules/tests & generate job matrix
         id: make_matrix
         run: |
              ls repos/PandABlocks-fpga/.github/scripts
-             bash ./repos/PandABlocks-fpga/.github/scripts/tests_group.sh "/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/modules"
+             bash /__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/.github/scripts/tests_group.sh "/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/modules"
              json_content=$(cat /__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/.github/scripts/github_tests.json)
              echo "$json_content" >> GITHUB_OUTPUT
