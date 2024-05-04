@@ -1,7 +1,7 @@
 on:
   workflow_call:
     outputs:
-      matrix: ${{jobs.test_matrix.outputs.matrix}}
+      matrix: ${{ jobs.test_matrix.outputs.matrix }}
 
 jobs:
   test_matrx:
