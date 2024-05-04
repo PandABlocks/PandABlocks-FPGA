@@ -14,10 +14,10 @@ def split_modules(modules,num_jobs):
     return jobs
 
 def generate_matrix(jobs):
-    matrix = {'include':{'modules':[]}}
+    matrix = {'modules':[]}
     for job in jobs:
         job_include = ' '.join(module[0] for module in job)
-        matrix['include']['modules'].append(job_include)
+        matrix['modules'].append(job_include)
     return matrix
 
 for i in range(0,len(modules_grps)-1,2):
