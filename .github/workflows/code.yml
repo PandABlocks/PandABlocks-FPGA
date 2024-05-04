@@ -22,7 +22,7 @@ jobs:
 #  make_zpkg_aws:
 #    uses: ./.github/workflows/_make_zpkg_aws.yml
   test_matrix:
-    uses: ./github/workflows/_test_matrix.yml
+    uses: ./.github/workflows/_test_matrix.yml
   # Python and hdl tests
   test:
     needs: test_matrix
