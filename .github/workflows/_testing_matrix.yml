@@ -9,4 +9,5 @@ jobs:
   testing_matrix:
     runs-on: ubuntu-latest
     steps:
-      run: echo "${{inputs.matrix}}"
+      - name: testing
+        run: echo "${{inputs.matrix}}"
