@@ -9,14 +9,7 @@ jobs:
   test:
     strategy:
       fail-fast: false
-      matrix:
-        modules: [
-            "pcap",
-            "pcomp posenc calc bits",
-            "seq lut seq_double_table",
-            "counter srgate clock pgen",
-            "pulse filter qdec div"
-        ]
+      matrix: $${{fromJson(inputs.matrix)}}
     runs-on:
       group: iris_runners
     container:
