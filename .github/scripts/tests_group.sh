@@ -2,6 +2,7 @@
 
 # Modules path
 search_dir=$1
+work_dir=$2
 
 # Find files matching timing name pattern
 found_files=$(find "$search_dir" -type f -name "*.timing.ini")
@@ -22,7 +23,7 @@ else
         module_grps+=("$module_name" "$count")
     done
     # Run python script to define job matrix based on found tests
-    python3 $search_dir/round_robin.py "${module_grps[@]}"
+    python3 $work_dir/round_robin.py "${module_grps[@]}"
 
 fi
 
