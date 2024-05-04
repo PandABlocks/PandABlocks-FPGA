@@ -11,7 +11,7 @@ jobs:
         image: docker.io/shihabdls/pandablocks-container-extension:v2.5
         options: --privileged
     outputs:
-        matrix: ${{steps.make_matrix.outputs.json_content}}
+        matrix: ${{steps.make_matrix.outputs.matrix}}
     
     steps:
       - name: Checkout Source
@@ -28,4 +28,4 @@ jobs:
         run: |
              bash /__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/.github/scripts/tests_group.sh "/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/modules" "/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/.github/scripts"
              json_content=$(cat /__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/.github/scripts/github_tests.json)
-             echo "$json_content" >> GITHUB_OUTPUT
+             echo "matrix=$json_content" >> GITHUB_OUTPUT
