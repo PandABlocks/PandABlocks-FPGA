@@ -4,7 +4,7 @@ on:
       matrix: ${{ jobs.test_matrix.outputs.matrix }}
 
 jobs:
-  test_matrx:
+  test_matrix:
     runs-on:
       group: iris_runners
     container:
