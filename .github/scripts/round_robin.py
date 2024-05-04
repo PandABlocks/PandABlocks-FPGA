@@ -24,4 +24,4 @@ for i in range(0,len(modules_grps)-1,2):
     modules.append([modules_grps[i],int(modules_grps[i+1])])
 
 with open("github_tests.json", "w") as matrix_file:
-    json.dump(generate_matrix(split_modules(modules,num_jobs)), matrix_file, indent=4)
+    json.dump(generate_matrix(split_modules(modules,num_jobs)), matrix_file)

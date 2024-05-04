@@ -1,9 +1,1 @@
-{
-    "modules": [
-        "pcap",
-        "pcomp posenc clock",
-        "seq lut calc bits",
-        "counter srgate div",
-        "pulse filter qdec pgen"
-    ]
-}
+{"modules": ["pcap", "pcomp posenc clock", "seq lut calc bits", "counter srgate div", "pulse filter qdec pgen"]}
