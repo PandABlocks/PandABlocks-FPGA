@@ -9,7 +9,7 @@ jobs:
   test:
     strategy:
       fail-fast: false
-      matrix: $${{fromJson(inputs.matrix)}}
+      matrix: ${{fromJSON(inputs.matrix)}}
     runs-on:
       group: iris_runners
     container:
