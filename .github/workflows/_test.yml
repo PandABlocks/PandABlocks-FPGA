@@ -3,6 +3,7 @@ on:
     inputs:
       matrix:
         required: true
+        type: string
 
 jobs:
   test:
