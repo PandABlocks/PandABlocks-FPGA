@@ -1,0 +1,11 @@
+{
+    "include": {
+        "modules": [
+            "pcap",
+            "pcomp posenc calc bits",
+            "seq lut seq_double_table",
+            "counter srgate clock pgen",
+            "pulse filter qdec div"
+        ]
+    }
+}
