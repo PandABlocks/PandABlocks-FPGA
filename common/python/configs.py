@@ -124,6 +124,7 @@ class BlockConfig(object):
         self.extension = ini_get(ini, '.', 'extension', None)
         if self.extension == '':
             self.extension = self.entity
+        self.extra_sites = ini_get(ini, '.', 'extra_interface', None)
         #: All the child fields
         self.fields = FieldConfig.from_ini(
             ini, number)  # type: List[FieldConfig]
@@ -184,7 +185,11 @@ class BlockConfig(object):
     def generateInterfaceConstraints(self):
         """Generate MGT Pints constraints"""
         self.interfaceConstraints=[]
-        constraint = self.site_LOC + "_MGT_pins.xdc"
+        # Find a way not to hard code this...
+        if "FMC" in self.site_LOC:
+            constraint = "FMC" + "_MGT_pins.xdc"
+        else:
+            constraint = self.site_LOC + "_MGT_pins.xdc"
         if constraint not in self.interfaceConstraints:
             self.interfaceConstraints.append(constraint)
 
@@ -637,6 +642,7 @@ class TimeFieldConfig(FieldConfig):
             RegisterConfig(self.name + "_L", counters.new_field()),
             RegisterConfig(self.name + "_H", counters.new_field())])
 
+
 class TargetSiteConfig(object):
     """The config for the target sites"""
     #: Regex for matching a type string to this field
@@ -650,10 +656,3 @@ class TargetSiteConfig(object):
         self.number = int(num)
         self.type = type if type else name
         self.locations = [str(i) for i in range(1, self.number + 1)]
-
-    # def lpc(self):
-    #     # An lpc FMC allows for an additional FMC site
-    #     if "mgt" in self.type:
-    #         self.number += 1
-    #         self.locations.append("_fmc0")
-

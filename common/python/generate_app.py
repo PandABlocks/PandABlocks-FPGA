@@ -129,9 +129,16 @@ class AppGenerator(object):
                     siteType, siteNum = siteInfo.split(',')
                     site=TargetSiteConfig(siteName, siteNum, siteType)
                 self.target_sites.append(site)
+            self.additionalMGT = int(ini_get(target_ini, '.', 'additionalMGT', ''))
+            self.numFMCMGT = 0
             # Read in which FPGA options are enabled on target
             self.process_fpga_options(
                 ini_get(target_ini, '.', 'options', ''))
+
+        # Implement fmc mgt sites
+        # if self.fpga_options['fmc_lpc']:
+        #     for interface in self.target_sites:
+        #         interface.lpc()
 
         # Process app specific FPGA options
         self.process_fpga_options(
@@ -207,6 +214,24 @@ class AppGenerator(object):
                 # Type is soft if the block is a softblock and carrier
                 # for carrier block
                 block = BlockConfig(section, type, number, ini_path, siteTuple)
+                # If additional interfaces are present from within the app
+                # e.g. SFP sites on the FMC card
+                if block.extra_sites:
+                    siteName, siteInfo = block.extra_sites.split(':')
+                    siteName = siteName.strip()
+                    siteInfo = siteInfo.strip()
+                    siteType, siteNumber = siteInfo.split(" ")
+                    num = min(int(siteNumber), self.additionalMGT)
+                    self.additionalMGT -= num
+                    self.numFMCMGT += num
+                    appended = False
+                    for interface in self.target_sites:
+                        if siteType in interface.name:
+                            interface.number += num
+                            appended = True
+                    if not appended:
+                        site = TargetSiteConfig(siteName, num, siteType)
+                        self.target_sites.append(site)
                 block.register_addresses(self.counters)
                 block.generate_calc_extensions()
                 self.fpga_blocks.append(block)
@@ -244,8 +269,10 @@ class AppGenerator(object):
                     # afterwards and we don't want to affect fpga_blocks
                     server_block = copy.deepcopy(block)
                     self.server_blocks.append(server_block)
-        if self.fpga_options['fmc_lpc']:
-            self.target_sites.append(TargetSiteConfig("fmc_mgt", 1, "mgt"))
+        for site in self.target_sites:
+            print(f"{site.name} {site.number}")
+        # if self.fpga_options['fmc_lpc']:
+        #     self.target_sites.append(TargetSiteConfig("fmc_mgt", 1, "mgt"))
 
     def expand_template(self, template_name, context, out_dir, out_fname,
                         template_dir=None):
@@ -350,7 +377,7 @@ class AppGenerator(object):
             total_pos_bus_length=total_pos_bus_length,
             carrier_mod_count=carrier_mod_count,
             register_blocks=register_blocks,
-            num_fmc_mgt=0)
+            num_fmc_mgt=self.numFMCMGT)
         self.expand_template("soft_blocks.vhd.jinja2", context, hdl_dir,
                              "soft_blocks.vhd")
         self.expand_template("addr_defines.vhd.jinja2", context, hdl_dir,
