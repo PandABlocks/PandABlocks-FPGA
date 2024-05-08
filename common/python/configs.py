@@ -85,7 +85,7 @@ class FieldCounter:
 
 class BlockConfig(object):
     """The config for a single Block"""
-    def __init__(self, name, type, number, ini_path, site=None):
+    def __init__(self, name, type, number, ini_path, site=(None, None, None)):
         # type: (str, str, int, str, Optional[int]) -> None
         # Block names should be UPPER_CASE_NO_TRAILING_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*[A-Z]$", name), \
@@ -138,11 +138,11 @@ class BlockConfig(object):
         siteName, siteType, siteNumber = site_tuple
         if siteName:
             if siteNumber.isdigit():
-                self.site=siteName + '.' + siteType + '_ARR(' + str(int(siteNumber)-1) + ')'
-                # self.site_LOC = "FMC" if "fmc" in siteName else (siteName + siteNumber).upper()
+                self.site = siteName + '.' + siteType + '_ARR(' + \
+                            str(int(siteNumber)-1) + ')'
                 self.site_LOC = (siteName + siteNumber).upper()
             else:
-                self.site=siteNumber
+                self.site = siteNumber
                 self.site_LOC = siteNumber
         else:
             self.site = None
@@ -171,20 +171,20 @@ class BlockConfig(object):
     def combineSiteInterfaces(self, interfaces):
         # type: (List(str)) -> list[tuple]
         # If a site is defined modify the interfaces to include the site number
-        combinedInterfaces=[] # type: List[tuple]
+        combinedInterfaces = []  # type: List[tuple]
         for interface in interfaces:
             if self.site:
                 # site_number=re.findall(r'\d+', self.site)[0]
-                combinedInterface=(interface, self.site)
+                combinedInterface = (interface, self.site)
             else:
                 site = interface + '.' + interface + "_ARR(0)"
-                combinedInterface=(interface, site)
+                combinedInterface = (interface, site)
             combinedInterfaces.append(combinedInterface)
         return combinedInterfaces
 
     def generateInterfaceConstraints(self):
         """Generate MGT Pints constraints"""
-        self.interfaceConstraints=[]
+        self.interfaceConstraints = []
         # Find a way not to hard code this...
         if "FMC" in self.site_LOC:
             constraint = "FMC" + "_MGT_pins.xdc"

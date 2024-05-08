@@ -118,19 +118,18 @@ class AppGenerator(object):
                     target + ".target.ini")))
             self.implement_blocks(target_ini, "modules", "carrier")
             # Read in what IO site options are available on target
-            target_info = ini_get(target_ini,'.', 'io','').split('\n')
+            target_info = ini_get(target_ini, '.', 'io', '').split('\n')
             for target in target_info:
                 siteName, siteInfo = target.split(':')
-                siteName=siteName.strip()
-                siteInfo=siteInfo.strip()
+                siteName = siteName.strip()
+                siteInfo = siteInfo.strip()
                 if siteInfo.isdigit():
-                    site=TargetSiteConfig(siteName, siteInfo)
+                    site = TargetSiteConfig(siteName, siteInfo)
                 else:
                     siteType, siteNum = siteInfo.split(',')
-                    site=TargetSiteConfig(siteName, siteNum, siteType)
+                    site = TargetSiteConfig(siteName, siteNum, siteType)
                 self.target_sites.append(site)
-            self.additionalMGT = int(ini_get(target_ini, '.', 'additionalMGT', ''))
-            self.numFMCMGT = 0
+            self.additionalMGT = int(ini_get(target_ini, '.', 'additionalMGT', 0))
             # Read in which FPGA options are enabled on target
             self.process_fpga_options(
                 ini_get(target_ini, '.', 'options', ''))
@@ -193,14 +192,14 @@ class AppGenerator(object):
                 siteInfo = ini_get(ini, section, 'site', None)
                 # If a site has been specified, is it valid?
                 if siteInfo:
-                    siteName=siteInfo.split(" ")[0]
-                    siteNumber=siteInfo.split(" ")[1]
+                    siteName = siteInfo.split(" ")[0]
+                    siteNumber = siteInfo.split(" ")[1]
                     for site in self.target_sites:
                         if siteName == site.name:
                             siteType = site.type
                     siteTuple = (siteName, siteType, siteNumber)
                 else:
-                    siteTuple=(None, None, None)
+                    siteTuple = (None, None, None)
 
                 if block_type:
                     ini_name = ini_get(
@@ -223,7 +222,6 @@ class AppGenerator(object):
                     siteType, siteNumber = siteInfo.split(" ")
                     num = min(int(siteNumber), self.additionalMGT)
                     self.additionalMGT -= num
-                    self.numFMCMGT += num
                     appended = False
                     for interface in self.target_sites:
                         if siteType in interface.name:
@@ -269,10 +267,6 @@ class AppGenerator(object):
                     # afterwards and we don't want to affect fpga_blocks
                     server_block = copy.deepcopy(block)
                     self.server_blocks.append(server_block)
-        for site in self.target_sites:
-            print(f"{site.name} {site.number}")
-        # if self.fpga_options['fmc_lpc']:
-        #     self.target_sites.append(TargetSiteConfig("fmc_mgt", 1, "mgt"))
 
     def expand_template(self, template_name, context, out_dir, out_fname,
                         template_dir=None):
@@ -376,8 +370,7 @@ class AppGenerator(object):
             total_bit_bus_length=total_bit_bus_length,
             total_pos_bus_length=total_pos_bus_length,
             carrier_mod_count=carrier_mod_count,
-            register_blocks=register_blocks,
-            num_fmc_mgt=self.numFMCMGT)
+            register_blocks=register_blocks)
         self.expand_template("soft_blocks.vhd.jinja2", context, hdl_dir,
                              "soft_blocks.vhd")
         self.expand_template("addr_defines.vhd.jinja2", context, hdl_dir,
@@ -391,11 +384,15 @@ class AppGenerator(object):
             for moduleInterface in block.interfaces:
                 interfaceMatch = False
                 for site in self.target_sites:
-                    if moduleInterface[0].lower() in site.type:
+                    if "fmc" in moduleInterface[0].lower():
+                        if moduleInterface[0].lower() in site.type:
+                            interfaceMatch = True
+                    else:
+                        for i in range(site.number):
+                            if block.site_LOC.lower() == (site.name + str(i+1)).lower():
+                                interfaceMatch = True
+                assert interfaceMatch, "No %s interface on Carrier" % moduleInterface[1]
 
-                        interfaceMatch = True
-                        target_sites_num = site.number
-                assert interfaceMatch == True, "No %s interface on Carrier" % moduleInterface[0]
                 # if target_sites_num > 1:
                 #     assert block.site > 0,"No site defined for %s" % block.name
 
