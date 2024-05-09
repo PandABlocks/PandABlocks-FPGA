@@ -34,6 +34,7 @@ jobs:
       matrix: ${{needs.test_matrix.outputs.matrix}}
 
   test_backup:
+    if: ${{ always() }}
     needs: [test_matrix, test]
     uses: ./.github/workflows/_test_backup.yml
     with:
