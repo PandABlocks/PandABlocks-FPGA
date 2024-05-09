@@ -23,6 +23,7 @@ library IEEE;
 library work;
   use work.support.all;
   use work.top_defines.all;
+  use work.interface_types.all;
 
 library UNISIM;
 use UNISIM.vcomponents.all;  -- needed for OBUF instance

@@ -18,6 +18,7 @@ use unisim.vcomponents.all;
 
 use work.addr_defines.all;
 use work.top_defines.all;
+use work.interface_types.all;
 
 entity xu5_st1_top is
 generic (

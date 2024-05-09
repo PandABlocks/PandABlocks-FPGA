@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 
 use work.support.all;
 use work.top_defines.all;
+use work.interface_types.all;
 
 entity us_system_top is
 port (

@@ -5,6 +5,7 @@ use ieee.numeric_std.all;
 library work;
 use work.support.all;
 use work.top_defines.all;
+use work.interface_types.all;
 
 library unisim;
 use unisim.vcomponents.all;

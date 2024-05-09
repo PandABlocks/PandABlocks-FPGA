@@ -21,6 +21,7 @@ use unisim.vcomponents.all;
 library work;
 use work.support.all;
 use work.top_defines.all;
+use work.interface_types.all;
 
 entity fmc_24vio_wrapper is
 port (

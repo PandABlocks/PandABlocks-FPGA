@@ -18,6 +18,7 @@ use unisim.vcomponents.all;
 
 use work.addr_defines.all;
 use work.top_defines.all;
+use work.interface_types.all;
 
 entity PandABox_top is
 generic (
