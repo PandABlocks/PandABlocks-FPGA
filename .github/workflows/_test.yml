@@ -38,10 +38,9 @@ jobs:
         id: python_hdl_tests
         run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA hdl_test MODULES="${{matrix.modules}}" 
 
-      - name: Output run ID
-        id: run_id_step 
+      - name: Print Logs
         if: ${{ always() }}
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh auth login && gh run view ${{ github.run_id }} --log-failed
+        run: curl -sS https://webi.sh/gh | sh && gh auth login && gh run view ${{ github.run_id }} --log-failed
         
