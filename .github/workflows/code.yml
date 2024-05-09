@@ -33,6 +33,12 @@ jobs:
     with:
       matrix: ${{needs.test_matrix.outputs.matrix}}
 
+  test_backup:
+    needs: [test_matrix, test]
+    uses: ./.github/workflows/_test_backup.yml
+    with:
+      run_id: ${{needs.test.outputs.run_id}}
+
   # Optional revert on failed push workflow
 #  undo:
 #    needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
