@@ -10,7 +10,9 @@ jobs:
     strategy:
       fail-fast: false
       # Using generated matrix from previous job
-      matrix: ${{fromJSON(inputs.matrix)}}
+      #matrix: ${{fromJSON(inputs.matrix)}}
+      matrix:
+        modules: [fail]
     runs-on:
       group: iris_runners
     container:
