@@ -4,12 +4,7 @@ on:
       matrix:
         required: true
         type: string
-    outputs:
-      run_id: 
-        value: ${{ jobs.test.outputs.run_id }}
-      token:
-        value: ${{ jobs.test.outputs.token }}
-
+        
 jobs:
   test:
     strategy:
@@ -46,5 +41,7 @@ jobs:
       - name: Output run ID
         id: run_id_step 
         if: ${{ always() }}
-        run: echo "run_id=${{ github.run_id }}" >> "$GITHUB_OUTPUT" && echo "token=${{ github.token }}" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh auth login && gh run view ${{ github.run_id }} --log-failed
         
