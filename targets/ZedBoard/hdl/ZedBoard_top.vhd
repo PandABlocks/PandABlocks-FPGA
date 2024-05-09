@@ -24,7 +24,8 @@ generic (
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32;
     NUM_SFP             : natural := 0;
-    NUM_FMC             : natural := 1
+    NUM_FMC             : natural := 1;
+    MAX_NUM_FMC_MGT     : natural := 0
 );
 port (
     DDR_addr            : inout std_logic_vector (14 downto 0);
@@ -82,7 +83,7 @@ end ZedBoard_top;
 
 architecture rtl of ZedBoard_top is
 
-constant NUM_MGT            : natural := NUM_SFP + NUM_FMC_MGT;
+constant NUM_MGT            : natural := NUM_SFP + MAX_NUM_FMC_MGT;
 
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;

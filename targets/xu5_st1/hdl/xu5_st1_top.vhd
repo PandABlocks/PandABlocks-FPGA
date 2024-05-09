@@ -37,12 +37,12 @@ port (
     GTXCLK1_P           : in    std_logic;
     GTXCLK1_N           : in    std_logic;
     -- FMC
-    FMC_DP_C2M_P        : out   std_logic_vector(NUM_FMC_MGT-1 downto 0)
+    FMC_DP_C2M_P        : out   std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0)
                                                             := (others => 'Z');
-    FMC_DP_C2M_N        : out   std_logic_vector(NUM_FMC_MGT-1 downto 0)
+    FMC_DP_C2M_N        : out   std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0)
                                                             := (others => 'Z');
-    FMC_DP_M2C_P        : in    std_logic_vector(NUM_FMC_MGT-1 downto 0);
-    FMC_DP_M2C_N        : in    std_logic_vector(NUM_FMC_MGT-1 downto 0);
+    FMC_DP_M2C_P        : in    std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0);
+    FMC_DP_M2C_N        : in    std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0);
     FMC_LA_P            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
                                                 := (others => (others => 'Z'));
     FMC_LA_N            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
@@ -58,7 +58,7 @@ end xu5_st1_top;
 
 architecture rtl of xu5_st1_top is
 
-constant NUM_MGT            : natural := NUM_SFP + NUM_FMC_MGT;
+constant NUM_MGT            : natural := NUM_SFP + MAX_NUM_FMC_MGT;
 
 -- PS Block
 signal FCLK_CLK0            : std_logic;
@@ -494,7 +494,7 @@ end generate;
 
 -- Additonal FMC_MGT which is an option by using the MGT pins on the FMC.
 
-FMC_MGT_gen: for I in 0 to NUM_FMC_MGT-1 generate
+FMC_MGT_gen: for I in 0 to MAX_NUM_FMC_MGT-1 generate
     FMC_MGT.MGT_ARR(I).SFP_LOS <= '0';
     FMC_MGT.MGT_ARR(I).GTREFCLK <= q0_clk1_gtrefclk;
     FMC_MGT.MGT_ARR(I).RXN_IN <= FMC_DP_M2C_N(I);
