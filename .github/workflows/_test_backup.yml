@@ -8,11 +8,6 @@ on:
 jobs:
   test_backup:
     if: ${{ always() }}
-    strategy:
-      fail-fast: true
-      matrix:
-        modules:
-          [pcap, seq qdec pgen, pcomp lut div, pulse srgate div bits, counter filter posenc clock]
     runs-on:
       group: iris_runners
     container:
@@ -24,5 +19,7 @@ jobs:
         run: curl -sS https://webi.sh/gh | sh
         
       - name: check for make error
-        run: gh run view ${{ inputs.run_id }} --log
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh auth login && gh run view ${{ inputs.run_id }} --log
     
