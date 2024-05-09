@@ -42,5 +42,5 @@ jobs:
         if: ${{ always() }}
         env:
           GH_TOKEN: ${{ github.token }}
-        run: curl -sS https://webi.sh/gh | sh && gh auth login && gh run view ${{ github.run_id }} --log-failed
+        run: curl -sS https://webi.sh/gh | sh && source ~/.config/envman/PATH.env && gh auth login && gh run view ${{ github.run_id }} --log-failed
         
