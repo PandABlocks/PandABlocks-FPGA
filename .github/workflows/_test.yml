@@ -4,6 +4,9 @@ on:
       matrix:
         required: true
         type: string
+    outputs:
+      run_id: 
+        value: ${{ jobs.test.outputs.run_id }}
 
 jobs:
   test:
@@ -13,6 +16,8 @@ jobs:
       #matrix: ${{fromJSON(inputs.matrix)}}
       matrix:
         modules: [fail]
+    outputs:
+      run_id: ${{steps.run_id_step.outputs.run_id}} 
     runs-on:
       group: iris_runners
     container:
@@ -33,4 +38,10 @@ jobs:
       # Run tests
       - name: Make python and hdl tests
         id: python_hdl_tests
-        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA hdl_test MODULES="${{matrix.modules}}"  
+        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA hdl_test MODULES="${{matrix.modules}}" 
+
+      - name: Output run ID
+        id: run_id_step 
+        if: ${{ always() }}
+        run: echo "run_id=${{ github.run_id }}" >> "$GITHUB_OUTPUT"
+        
