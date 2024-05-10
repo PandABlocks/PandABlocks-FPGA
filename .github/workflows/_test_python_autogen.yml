@@ -1,0 +1,26 @@
+on:
+    workflow_call:
+  
+jobs:
+    test_python_autogen:
+      runs-on:
+        group: iris_runners
+      container:
+          image: docker.io/shihabdls/pandablocks-container-extension:v2.3
+          options: --privileged
+  
+      steps:
+        # Necessary to find action.yml
+        - name: Checkout Source
+          uses: actions/checkout@v4
+          with:
+            path: repos/PandABlocks-fpga
+            fetch-depth: 0
+  
+        - name: Checkout rootfs and give runner perms
+          uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
+      
+        # Run tests
+        - name: Make python and hdl tests
+          id: python_hdl_tests
+          run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs python_tests && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs python_timing && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs autogen

@@ -8,9 +8,25 @@ on:
   push:
     tags:
       - '*'
-    branches: [master]
+    branches: [master, iris_runners]
 
 jobs:
+
+  # Generate job matrix to evenly split tests
+  test_matrix:
+    uses: ./.github/workflows/_test_matrix.yml
+
+  # python and autogen tests
+  test_python_autogen:
+    uses: ./.github/workflows/_test_python_autogen.yml
+
+  # hdl tests
+  test:
+    needs: [test_matrix, test_python_autogen]
+    uses: ./.github/workflows/_test.yml
+    with:
+      matrix: ${{needs.test_matrix.outputs.matrix}}
+
   # Make Boot files
   make_boot:
     uses: ./.github/workflows/_make_boot.yml
@@ -19,13 +35,6 @@ jobs:
   make_zpkg:
     uses: ./.github/workflows/_make_zpkg.yml
 
-  make_zpkg_aws:
-    uses: ./.github/workflows/_make_zpkg_aws.yml
-  
-  # Python and hdl tests
-  test:
-    uses: ./.github/workflows/_test.yml
-
   # Optional revert on failed push workflow
   undo:
     needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
@@ -33,5 +42,5 @@ jobs:
   
   # Release on push to tag
   release:
-    needs: [ make_boot, make_zpkg, make_zpkg_aws, test ]
+    needs: [ make_boot, make_zpkg, make_zpkg_aws, test, test_matrix, test_python_autogen ]
     uses: ./.github/workflows/_release.yml
