@@ -22,7 +22,11 @@ def generate_matrix(jobs):
     return matrix
 
 for i in range(0,len(modules_grps)-1,2):
-    modules.append([modules_grps[i],int(modules_grps[i+1])])
+    if modules and modules_grps[i] == modules_grps[i-2]:
+        modules[-1][1] += int(modules_grps[i+1])
+    else:
+        modules.append([modules_grps[i],int(modules_grps[i+1])])
 print(modules)
+
 with open("github_tests.json", "w") as matrix_file:
     json.dump(generate_matrix(split_modules(modules,num_jobs)), matrix_file)
