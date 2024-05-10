@@ -1,12 +1,20 @@
 on:
   workflow_call:
-
+    inputs:
+      matrix:
+        required: true
+        type: string
+        
 jobs:
   test:
+    strategy:
+      fail-fast: false
+      # Using generated matrix from previous job
+      matrix: ${{fromJSON(inputs.matrix)}}
     runs-on:
       group: iris_runners
     container:
-        image: docker.io/shihabdls/pandablocks-container-extension:v2.3
+        image: docker.io/shihabdls/pandablocks-container-extension:v2.5
         options: --privileged
 
     steps:
@@ -17,10 +25,10 @@ jobs:
           path: repos/PandABlocks-fpga
           fetch-depth: 0
 
-      - name: Checkout rootfs, give perms, and adjust path
+      - name: Checkout rootfs and give runner perms
         uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
       # Run tests
       - name: Make python and hdl tests
         id: python_hdl_tests
-        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs python_tests && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs python_timing && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs autogen && make hdl_test
+        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA hdl_test MODULES="${{matrix.modules}}" 
