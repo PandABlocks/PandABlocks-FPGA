@@ -6,7 +6,7 @@ work_dir=$2
 
 # Find files matching timing name pattern
 found_files=$(find "$search_dir" -type f -name "*.timing.ini")
-
+echo $found_files
 # Array of modules and their test count
 module_grps=()
 
@@ -20,6 +20,7 @@ else
         # Min 5 char to filter descriptions and index
         count=$(grep -o '\[[^][]\{5,\}\]' "$file" | wc -l)
         module_name=$(basename "$(dirname "$file")")
+        echo $module_name
         module_grps+=("$module_name" "$count")
     done
     # Run python script to define job matrix based on found tests
