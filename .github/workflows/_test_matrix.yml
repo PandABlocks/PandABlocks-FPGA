@@ -24,6 +24,6 @@ jobs:
           id: make_matrix
           run: |
                bash /__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/.github/scripts/Find_Tests.sh "/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/modules" "/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/.github/scripts"
-               json_content=$(cat /__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/.github/scripts/github_tests.json)
+               json_content=$(cat github_tests.json)
                echo "::set-output name=matrix::$json_content"
                echo "$json_content"
