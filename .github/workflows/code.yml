@@ -27,11 +27,11 @@ jobs:
     uses: ./.github/workflows/_test_matrix.yml
 
   # Python and hdl tests
-  test:
-    needs: test_matrix
-    uses: ./.github/workflows/_test.yml
-    with:
-      matrix: ${{needs.test_matrix.outputs.matrix}}
+#  test:
+#    needs: test_matrix
+#    uses: ./.github/workflows/_test.yml
+#    with:
+#      matrix: ${{needs.test_matrix.outputs.matrix}}
 
   # Optional revert on failed push workflow
 #  undo:

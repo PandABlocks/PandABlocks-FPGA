@@ -10,12 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       # Using generated matrix from previous job
-      #matrix: ${{fromJSON(inputs.matrix)}}
-      matrix:
-        modules: [fail]
-    outputs:
-      run_id: ${{steps.run_id_step.outputs.run_id}} 
-      token: ${{steps.run_id_step.outputs.token}}
+      matrix: ${{fromJSON(inputs.matrix)}}
     runs-on:
       group: iris_runners
     container:
@@ -37,10 +32,3 @@ jobs:
       - name: Make python and hdl tests
         id: python_hdl_tests
         run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA hdl_test MODULES="${{matrix.modules}}" 
-
-      - name: Print Logs
-        if: ${{ always() }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: curl -sS https://webi.sh/gh | sh && source ~/.config/envman/PATH.env && gh auth login && gh run view ${{ github.run_id }} --log-failed
-        
