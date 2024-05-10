@@ -25,7 +25,6 @@ else
         module_grps+=("$module_name" "$count")
     done
     # Run python script to define job matrix based on found tests
-    echo $module_grps
     python3 $work_dir/round_robin.py "${module_grps[@]}"
 
 fi

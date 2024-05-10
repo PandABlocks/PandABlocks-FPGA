@@ -2,6 +2,7 @@ import sys
 import json
 
 modules_grps=(sys.argv)[1:]
+print(modules_grps)
 modules=[]
 num_jobs=5
 
@@ -22,6 +23,6 @@ def generate_matrix(jobs):
 
 for i in range(0,len(modules_grps)-1,2):
     modules.append([modules_grps[i],int(modules_grps[i+1])])
-
+print(modules)
 with open("github_tests.json", "w") as matrix_file:
     json.dump(generate_matrix(split_modules(modules,num_jobs)), matrix_file)
