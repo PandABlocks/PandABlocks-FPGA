@@ -19,13 +19,11 @@ else
         # Count occurrences of [*] in the file
         # Min 5 char to filter descriptions and index
         count=$(grep -o '\[[^][]\{5,\}\]' "$file" | wc -l)
+        # Duplicate names allowed for multiple test files in same module subdirectory
         module_name=$(basename "$(dirname "$file")")
-        echo $module_name
-        echo $count
         module_grps+=("$module_name" "$count")
     done
     # Run python script to define job matrix based on found tests
     python3 $work_dir/round_robin.py "${module_grps[@]}"
-
 fi
 
