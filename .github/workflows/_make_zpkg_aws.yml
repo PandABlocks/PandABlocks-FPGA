@@ -29,7 +29,7 @@ jobs:
       - name: build carrier_ip and zpkg
         id: make_zpkg_aws
         run: |
-          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs carrier_ip APP_NAME=${{ matrix.app }} && make zpkg APP_NAME=${{ matrix.app }}
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA carrier_ip APP_NAME=${{ matrix.app }} && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA zpkg APP_NAME=${{ matrix.app }}
           exit
 
       # Artifacts
