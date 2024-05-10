@@ -2,7 +2,7 @@ on:
   workflow_call:
 
 jobs:
-  test:
+  test_python_autogen:
     runs-on:
       group: iris_runners
     container:
