@@ -1,6 +1,9 @@
 on:
   workflow_call:
 
+env:
+  WORK_DIR: /__w/PandABlocks-FPGA/PandABlocks-FPGA
+
 jobs:
   make_zpkg:
     strategy:
@@ -19,7 +22,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: docker.io/shihabdls/pandablocks-container-extension:v2.5
+      image: ghcr.io/pandablocks/pandablocks-dev-container:3.1a3
       options: --privileged
 
     steps:
@@ -37,7 +40,7 @@ jobs:
       - name: build carrier_ip and zpkg
         id: make_zpkg
         run: |
-          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA carrier_ip APP_NAME=${{ matrix.app }} && make zpkg WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA APP_NAME=${{ matrix.app }}
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=$WORK_DIR carrier_ip APP_NAME=${{ matrix.app }} && make WORK_DIR=$WORK_DIR zpkg APP_NAME=${{ matrix.app }}
           exit
 
       # Artifacts

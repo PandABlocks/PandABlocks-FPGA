@@ -5,6 +5,9 @@ on:
         required: true
         type: string
         
+env:
+  WORK_DIR: /__w/PandABlocks-FPGA/PandABlocks-FPGA
+
 jobs:
   test:
     strategy:
@@ -14,7 +17,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-        image: docker.io/shihabdls/pandablocks-container-extension:v2.5
+        image: ghcr.io/pandablocks/pandablocks-dev-container:3.1a3
         options: --privileged
 
     steps:
@@ -31,4 +34,4 @@ jobs:
       # Run tests
       - name: Make python and hdl tests
         id: python_hdl_tests
-        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA hdl_test MODULES="${{matrix.modules}}" 
+        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=$WORK_DIR hdl_test MODULES="${{matrix.modules}}" 
