@@ -14,7 +14,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: docker.io/shihabdls/pandablocks-container-extension:v2.5
+      image: docker.io/shihabdls/pandablocks-container-extension:v3.0
       options: --privileged
 
     steps:
@@ -24,9 +24,13 @@ jobs:
         with:
           path: repos/PandABlocks-fpga
           fetch-depth: 0
-
-      - name: Checkout rootfs, give perms, and adjust path
-        uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
+      
+      - name: Checkout PandABlocks-rootfs
+        uses: actions/checkout@v4
+        with:
+          repository: PandABlocks/PandABlocks-rootfs
+          path: repos/PandABlocks-rootfs
+          fetch-depth: 0
 
       # Generate bootable image
       - name: Make boot

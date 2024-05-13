@@ -13,8 +13,8 @@ on:
 jobs:
 
   # Generate job matrix to evenly split tests
-  test_matrix:
-    uses: ./.github/workflows/_test_matrix.yml
+#  test_matrix:
+#    uses: ./.github/workflows/_test_matrix.yml
 
   # python and autogen tests
 #  test_python_autogen:
@@ -28,8 +28,8 @@ jobs:
 #      matrix: ${{needs.test_matrix.outputs.matrix}}
 
   # Make Boot files
-#  make_boot:
-#    uses: ./.github/workflows/_make_boot.yml
+  make_boot:
+    uses: ./.github/workflows/_make_boot.yml
 
   # Make zpkg for FPGA apps
 #  make_zpkg:
