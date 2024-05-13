@@ -14,7 +14,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: docker.io/shihabdls/pandablocks-container-extension:v2.8
+      image: docker.io/shihabdls/pandablocks-container-extension:v3.1
       options: --privileged
 
     steps:
