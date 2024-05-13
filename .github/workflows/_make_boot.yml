@@ -1,6 +1,9 @@
 on:
   workflow_call:
 
+env:
+  WORK_DIR: /__w/PandABlocks-FPGA/PandABlocks-FPGA
+
 jobs:
   make_boot:
     strategy:
@@ -9,12 +12,12 @@ jobs:
         include:
           - platform: zynq
             app: PandABox-no-fmc
-#          - platform: zynqmp
-#            app: xu5_st1-no-fmc
+          - platform: zynqmp
+            app: xu5_st1-no-fmc
     runs-on:
       group: iris_runners
     container:
-      image: docker.io/shihabdls/pandablocks-container-extension:v2.5
+      image: ghcr.io/pandablocks/pandablocks-dev-container:3.1a3
       options: --privileged
 
     steps:
@@ -33,10 +36,10 @@ jobs:
         id: make_boot
         continue-on-error: true
         #timeout set to expected upper-limit of build
-        timeout-minutes: 45
+        timeout-minutes: 60
         run: |
           echo "boot_files=false" >> $GITHUB_OUTPUT
-          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA APP_NAME=${{ matrix.app }}
+          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=$WORK_DIR boot APP_NAME=${{ matrix.app }}
           if test -f /build/boot*.zip; then
             echo "boot_files=true" >> $GITHUB_OUTPUT
           fi

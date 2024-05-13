@@ -1,12 +1,15 @@
 on:
     workflow_call:
   
+env:
+  WORK_DIR: /__w/PandABlocks-FPGA/PandABlocks-FPGA
+
 jobs:
     test_python_autogen:
       runs-on:
         group: iris_runners
       container:
-          image: docker.io/shihabdls/pandablocks-container-extension:v2.3
+          image: ghcr.io/pandablocks/pandablocks-dev-container:3.1a3
           options: --privileged
   
       steps:
@@ -23,4 +26,4 @@ jobs:
         # Run tests
         - name: Make python and hdl tests
           id: python_hdl_tests
-          run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs python_tests && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs python_timing && make WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-rootfs autogen
+          run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=$WORK_DIR python_tests && make WORK_DIR=$WORK_DIR python_timing && make WORK_DIR=$WORK_DIR autogen
