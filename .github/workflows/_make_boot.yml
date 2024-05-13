@@ -1,9 +1,6 @@
 on:
   workflow_call:
 
-env:
-  WORK_DIR: /__w/PandABlocks-FPGA/PandABlocks-FPGA
-
 jobs:
   make_boot:
     strategy:
@@ -28,7 +25,7 @@ jobs:
           path: repos/PandABlocks-fpga
           fetch-depth: 0
 
-      - name: Checkout rootfs, give perms, and adjust path
+      - name: Checkout rootfs and Give Directory Perms
         uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
       # Generate bootable image
@@ -39,7 +36,9 @@ jobs:
         timeout-minutes: 60
         run: |
           echo "boot_files=false" >> $GITHUB_OUTPUT
-          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=$WORK_DIR boot APP_NAME=${{ matrix.app }}
+          cd repos/PandABlocks-fpga
+          ln -s CONFIG.example CONFIG
+          make boot APP_NAME=${{ matrix.app }}
           if test -f /build/boot*.zip; then
             echo "boot_files=true" >> $GITHUB_OUTPUT
           fi
