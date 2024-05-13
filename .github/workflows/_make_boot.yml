@@ -25,12 +25,8 @@ jobs:
           path: repos/PandABlocks-fpga
           fetch-depth: 0
       
-      - name: Checkout PandABlocks-rootfs
-        uses: actions/checkout@v4
-        with:
-          repository: PandABlocks/PandABlocks-rootfs
-          path: repos/PandABlocks-rootfs
-          fetch-depth: 0
+      - name: Checkout rootfs and give runner perms
+        uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
       # Generate bootable image
       - name: Make boot
@@ -39,6 +35,7 @@ jobs:
         #timeout set to expected upper-limit of build
         timeout-minutes: 45
         run: |
+          whoami
           echo "boot_files=false" >> $GITHUB_OUTPUT
           cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make boot WORK_DIR=/__w/PandABlocks-FPGA/PandABlocks-FPGA APP_NAME=${{ matrix.app }}
           if test -f /build/boot*.zip; then
