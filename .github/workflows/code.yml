@@ -12,22 +12,7 @@ on:
 
 jobs:
 
-  # Generate job matrix to evenly split tests
-  test_matrix:
-    uses: ./.github/workflows/_test_matrix.yml
-
-  # python and autogen tests
-  test_python_autogen:
-    uses: ./.github/workflows/_test_python_autogen.yml
-
-  # hdl tests
-  test:
-    needs: [test_matrix, test_python_autogen]
-    uses: ./.github/workflows/_test.yml
-    with:
-      matrix: ${{needs.test_matrix.outputs.matrix}}
-
-  # Make Boot files
+    # Make Boot files
   make_boot:
     uses: ./.github/workflows/_make_boot.yml
 
@@ -37,10 +22,25 @@ jobs:
 
   # Optional revert on failed push workflow
   undo:
-    needs: [ make_boot, make_zpkg, test ]
+    needs: [ make_boot, make_zpkg, test_hdl ]
     uses: ./.github/workflows/_undo.yml
   
   # Release on push to tag
   release:
-    needs: [ make_boot, make_zpkg, test, test_matrix, test_python_autogen ]
+    needs: [ make_boot, make_zpkg, test_hdl, test_matrix, test_python_autogen ]
     uses: ./.github/workflows/_release.yml
+
+  # Generate job matrix to evenly split tests
+  test_matrix:
+    uses: ./.github/workflows/_test_matrix.yml
+
+  # python and autogen tests
+  test_python_autogen:
+    uses: ./.github/workflows/_test_python_autogen.yml
+
+  # hdl tests
+  test_hdl:
+    needs: [test_matrix, test_python_autogen]
+    uses: ./.github/workflows/_test_hdl.yml
+    with:
+      matrix: ${{needs.test_matrix.outputs.matrix}}

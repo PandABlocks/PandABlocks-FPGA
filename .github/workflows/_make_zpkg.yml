@@ -33,15 +33,17 @@ jobs:
           path: repos/PandABlocks-fpga
           fetch-depth: 0
 
-      - name: Checkout rootfs, give perms, and adjust path
+      - name: Checkout rootfs and Give Directory Perms
         uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
       # Make zpkgs
       - name: build carrier_ip and zpkg
         id: make_zpkg
         run: |
-          cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=$WORK_DIR carrier_ip APP_NAME=${{ matrix.app }} && make WORK_DIR=$WORK_DIR zpkg APP_NAME=${{ matrix.app }}
-          exit
+          cd repos/PandABlocks-fpga
+          ln -s CONFIG.example CONFIG
+          make WORK_DIR=$WORK_DIR carrier_ip APP_NAME=${{ matrix.app }}
+          make WORK_DIR=$WORK_DIR zpkg APP_NAME=${{ matrix.app }}
 
       # Artifacts
       - name: Upload zpkg

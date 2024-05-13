@@ -1,8 +1,11 @@
 on:
-    workflow_call:
-      outputs:
-        matrix: 
-            value: ${{ jobs.test_matrix.outputs.matrix }}
+  workflow_call:
+    outputs:
+      matrix: 
+          value: ${{ jobs.test_matrix.outputs.matrix }}
+
+env:
+  WORK_DIR: /__w/PandABlocks-FPGA/PandABlocks-FPGA
 
 jobs:
     test_matrix:
@@ -23,7 +26,7 @@ jobs:
         - name: Evaluate number of modules/tests & generate job matrix
           id: make_matrix
           run: |
-               bash /__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/.github/scripts/Find_Tests.sh "/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/modules" "/__w/PandABlocks-FPGA/PandABlocks-FPGA/repos/PandABlocks-fpga/.github/scripts"
+               bash $WORK_DIR/repos/PandABlocks-fpga/.github/scripts/Find_Tests.sh "$WORK_DIR/repos/PandABlocks-fpga/modules" "$WORK_DIR/repos/PandABlocks-fpga/.github/scripts"
                json_content=$(cat github_tests.json)
                echo "::set-output name=matrix::$json_content"
                echo "$json_content"

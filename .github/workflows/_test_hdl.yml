@@ -4,9 +4,6 @@ on:
       matrix:
         required: true
         type: string
-        
-env:
-  WORK_DIR: /__w/PandABlocks-FPGA/PandABlocks-FPGA
 
 jobs:
   test:
@@ -28,10 +25,12 @@ jobs:
           path: repos/PandABlocks-fpga
           fetch-depth: 0
 
-      - name: Checkout rootfs and give runner perms
+      - name: Checkout rootfs and Give Directory Perms
         uses: ./repos/PandABlocks-fpga/.github/actions/setupenv
 
       # Run tests
-      - name: Make python and hdl tests
-        id: python_hdl_tests
-        run: cd repos/PandABlocks-fpga && ln -s CONFIG.example CONFIG && make WORK_DIR=$WORK_DIR hdl_test MODULES="${{matrix.modules}}" 
+      - name: Make hdl Tests
+        run: |
+          cd repos/PandABlocks-fpga
+          ln -s CONFIG.example CONFIG
+          make hdl_test MODULES="${{matrix.modules}}" 
