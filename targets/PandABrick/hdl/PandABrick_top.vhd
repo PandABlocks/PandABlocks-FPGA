@@ -500,6 +500,13 @@ port map (
     PL_CLK                      => FCLK_CLK0,
     FCLK_RESET0_N               => FCLK_RESET0_N,
 
+    IIC_FPGA_scl_i              => IIC_FPGA_scl_i,
+    IIC_FPGA_scl_o              => IIC_FPGA_scl_o,
+    IIC_FPGA_scl_t              => IIC_FPGA_scl_t,
+    IIC_FPGA_sda_i              => IIC_FPGA_sda_i,
+    IIC_FPGA_sda_o              => IIC_FPGA_sda_o,
+    IIC_FPGA_sda_t              => IIC_FPGA_sda_t,
+
     IRQ_F2P                     => IRQ_F2P,
 
     M00_AXI_araddr              => M00_AXI_araddr,
