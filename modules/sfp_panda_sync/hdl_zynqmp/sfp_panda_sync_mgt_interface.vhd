@@ -144,7 +144,7 @@ sfp_panda_sync_us_i : entity work.sfp_panda_sync_us
     gtwiz_reset_rx_done_out(0) => gtwiz_reset_rx_done_out,
     gtwiz_userdata_tx_in => txdata_i,
     gtwiz_userdata_rx_out => rxdata_o,
-    drpclk_in => "0",
+    drpclk_in(0) => sysclk_i,
     gthrxn_in(0) => rxn_i,
     gthrxp_in(0) => rxp_i,
     gtrefclk0_in(0) => GTREFCLK_i,
