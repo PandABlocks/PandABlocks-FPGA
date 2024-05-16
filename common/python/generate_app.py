@@ -36,9 +36,7 @@ TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 # ini file
 FPGA_OPTIONS_DEFAULTS = {
     'pcap_std_dev': False,
-    'fine_delay': False,
-    "fmc_lpc": False
-
+    'fine_delay': False
 }
 
 
@@ -133,11 +131,6 @@ class AppGenerator(object):
             # Read in which FPGA options are enabled on target
             self.process_fpga_options(
                 ini_get(target_ini, '.', 'options', ''))
-
-        # Implement fmc mgt sites
-        # if self.fpga_options['fmc_lpc']:
-        #     for interface in self.target_sites:
-        #         interface.lpc()
 
         # Process app specific FPGA options
         self.process_fpga_options(
