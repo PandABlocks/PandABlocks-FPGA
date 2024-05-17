@@ -14,7 +14,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: ghcr.io/pandablocks/pandablocks-dev-container:3.1a3
+      image: ghcr.io/pandablocks/pandablocks-dev-container:latest
       options: --privileged
 
     steps:

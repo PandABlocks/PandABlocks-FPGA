@@ -1,5 +1,5 @@
 name: "Perform Repetitive Tasks"
-description: "Composite action that checks out repos, installs rclone, mounts S3 bucket, and gets container image"
+description: "Composite action that checks out repos, and adjusts directory permissions for runner"
 
 runs:
   using: "composite"
