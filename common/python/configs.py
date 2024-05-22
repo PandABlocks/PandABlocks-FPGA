@@ -185,7 +185,7 @@ class BlockConfig(object):
     def generateInterfaceConstraints(self):
         """Generate MGT Pints constraints"""
         self.interfaceConstraints = []
-        constraint = self.site_LOC + "_MGT_pins.xdc"
+        constraint = self.site_LOC + "_pins.xdc"
         if constraint not in self.interfaceConstraints:
             self.interfaceConstraints.append(constraint)
 

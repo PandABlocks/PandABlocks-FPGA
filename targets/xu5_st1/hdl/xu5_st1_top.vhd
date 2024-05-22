@@ -182,6 +182,10 @@ attribute syn_noclockbuf : boolean;
 attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
 attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
 
+attribute IO_BUFFER_TYPE : string;
+attribute IO_BUFFER_TYPE of FMC_DP_C2M_N : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP_C2M_P : signal is "none";
+
 begin
 
 -- Internal clocks and resets
