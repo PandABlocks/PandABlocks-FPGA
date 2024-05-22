@@ -5,7 +5,7 @@ use work.support.all;
 use work.top_defines.all;
 use work.interface_types.all;
 
-entity us_system_top is
+entity fmc_x4sfp_top is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -25,9 +25,9 @@ port (
     write_ack_o         : out std_logic;
     FMC                 : view FMC_Module
 );
-end us_system_top;
+end fmc_x4sfp_top;
 
-architecture rtl of us_system_top is
+architecture rtl of fmc_x4sfp_top is
 
 signal FMC_PRSNT_DW     : std_logic_vector(31 downto 0);
 
@@ -36,9 +36,9 @@ begin
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
-FMC_PRSNT_DW <= ZEROS(31) & FMC.FMC_PRSNT;
+FMC_PRSNT_DW <= ZEROS(30) & FMC.FMC_PRSNT;
 
-us_system_ctrl_inst : entity work.us_system_ctrl
+fmc_x4sfp_inst : entity work.fmc_x4sfp_ctrl
 port map(
     clk_i => clk_i,
     reset_i => reset_i,
