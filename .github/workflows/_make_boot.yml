@@ -9,8 +9,6 @@ jobs:
         include:
           - platform: zynq
             app: PandABox-no-fmc
-          - platform: zynqmp
-            app: xu5_st1-no-fmc
     runs-on:
       group: iris_runners
     container:
@@ -39,6 +37,8 @@ jobs:
           cd repos/PandABlocks-fpga
           ln -s CONFIG.example CONFIG
           make boot APP_NAME=${{ matrix.app }}
+          free -mh
+          ps
           if test -f /build/boot*.zip; then
             echo "boot_files=true" >> $GITHUB_OUTPUT
           fi
