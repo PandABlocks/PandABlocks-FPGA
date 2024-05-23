@@ -7,7 +7,7 @@ package interface_types is
 
     type FMC_interface is
       record
-        FMC_PRSNT       : std_logic;
+        FMC_PRSNT       : std_logic_vector(1 downto 0);
         FMC_LA_P        : std_logic_vector(33 downto 0);
         FMC_LA_N        : std_logic_vector(33 downto 0);
         FMC_CLK0_M2C_P  : std_logic;
@@ -86,7 +86,7 @@ end;
 
 package body interface_types is
 
-    constant FMC_init : FMC_interface := (  FMC_PRSNT => '0',
+    constant FMC_init : FMC_interface := (  FMC_PRSNT => "00",
                                             FMC_LA_P => (others => 'Z'),
                                             FMC_LA_N => (others => 'Z'),
                                             FMC_CLK0_M2C_P => 'Z',

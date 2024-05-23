@@ -170,7 +170,7 @@ port map (
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
-FMC_PRSNT_DW <= ZEROS(31) & FMC.FMC_PRSNT;
+FMC_PRSNT_DW <= ZEROS(30) & FMC.FMC_PRSNT;
 
 fmc_ctrl : entity work.fmc_loopback_ctrl
 port map (

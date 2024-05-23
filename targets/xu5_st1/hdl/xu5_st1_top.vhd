@@ -489,6 +489,7 @@ bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & ttlin_val;
 -- Assemble FMC records
 
 FMC_gen: for I in 0 to NUM_FMC-1 generate
+    FMC.FMC_ARR(I).FMC_PRSNT <= "10";
     FMC.FMC_ARR(I).FMC_LA_P <= FMC_LA_P(I);
     FMC.FMC_ARR(I).FMC_LA_N <= FMC_LA_N(I);
     FMC.FMC_ARR(I).FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P(I);
