@@ -38,7 +38,7 @@ jobs:
           ln -s CONFIG.example CONFIG
           make boot APP_NAME=${{ matrix.app }}
           free -mh
-          ps
+          ps -A
           if test -f /build/boot*.zip; then
             echo "boot_files=true" >> $GITHUB_OUTPUT
           fi
