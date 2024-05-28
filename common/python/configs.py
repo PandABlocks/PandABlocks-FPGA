@@ -644,11 +644,12 @@ class TargetSiteConfig(object):
     #: Regex for matching a type string to this field
     type_regex = None
 
-    def __init__(self, name, num, type=None):
-        # type: (str, int, str)-> None
+    def __init__(self, name, num, capabilitiy=None, type=None):
+        # type: (str, str, str, str)-> None
         #: The type of target site (SFP/FMC etc)
         self.name = name
         #: The info i in a string such as "3, i, io, o"
         self.number = int(num)
+        self.capability = int(capabilitiy) if capabilitiy else int(num)
         self.type = type if type else name
         self.locations = [str(i) for i in range(1, self.number + 1)]

@@ -123,11 +123,23 @@ class AppGenerator(object):
                 siteInfo = siteInfo.strip()
                 if siteInfo.isdigit():
                     site = TargetSiteConfig(siteName, siteInfo)
+                elif "*" in siteInfo:
+                    # The '*' indiciates there is a capabaility but no actual
+                    # io. The io can be added by a module (e.g on an FMC card)
+                    siteInfo = siteInfo.split("*")[0]
+                    if siteInfo.isdigit():
+                        site = TargetSiteConfig(
+                            siteName, "0", capabilitiy=siteInfo
+                        )
+                    else:
+                        siteType, siteNum = siteInfo.split(",")
+                        site = TargetSiteConfig(
+                            siteName, "0", capabilitiy=siteNum, type=siteType
+                        )
                 else:
                     siteType, siteNum = siteInfo.split(',')
-                    site = TargetSiteConfig(siteName, siteNum, siteType)
+                    site = TargetSiteConfig(siteName, siteNum, type=siteType)
                 self.target_sites.append(site)
-            self.additionalMGT = int(ini_get(target_ini, '.', 'additionalMGT', 0))
             # Read in which FPGA options are enabled on target
             self.process_fpga_options(
                 ini_get(target_ini, '.', 'options', ''))
@@ -213,16 +225,11 @@ class AppGenerator(object):
                     siteName = siteName.strip()
                     siteInfo = siteInfo.strip()
                     siteType, siteNumber = siteInfo.split(" ")
-                    num = min(int(siteNumber), self.additionalMGT)
-                    self.additionalMGT -= num
-                    appended = False
                     for interface in self.target_sites:
                         if siteType in interface.name:
+                            num = min(int(siteNumber), interface.capability)
+                            interface.capability -= num
                             interface.number += num
-                            appended = True
-                    if not appended:
-                        site = TargetSiteConfig(siteName, num, siteType)
-                        self.target_sites.append(site)
                 block.register_addresses(self.counters)
                 block.generate_calc_extensions()
                 self.fpga_blocks.append(block)
