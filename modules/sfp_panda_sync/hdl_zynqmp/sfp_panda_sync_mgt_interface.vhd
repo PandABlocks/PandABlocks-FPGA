@@ -33,6 +33,60 @@ end sfp_panda_sync_mgt_interface;
 
 architecture rtl of sfp_panda_sync_mgt_interface is
 
+-- NB: Please do not remove the compoment declaration/instantion as the underlying 
+-- IP core is generated in verilog. If removed the design will compile and build
+-- without error but will not function correctly!
+
+COMPONENT sfp_panda_sync_us
+  PORT (
+    gtwiz_userclk_tx_reset_in           : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_userclk_tx_srcclk_out         : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_userclk_tx_usrclk_out         : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_userclk_tx_usrclk2_out        : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_userclk_tx_active_out         : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_userclk_rx_reset_in           : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_userclk_rx_srcclk_out         : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_userclk_rx_usrclk_out         : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_userclk_rx_usrclk2_out        : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_userclk_rx_active_out         : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_reset_clk_freerun_in          : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_reset_all_in                  : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_reset_tx_pll_and_datapath_in  : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_reset_tx_datapath_in          : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_reset_rx_pll_and_datapath_in  : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_reset_rx_datapath_in          : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_reset_rx_cdr_stable_out       : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_reset_tx_done_out             : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_reset_rx_done_out             : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtwiz_userdata_tx_in                : IN  STD_LOGIC_VECTOR(31 DOWNTO 0);
+    gtwiz_userdata_rx_out               : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+    drpclk_in                           : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gthrxn_in                           : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gthrxp_in                           : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtrefclk0_in                        : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    rx8b10ben_in                        : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    rxcommadeten_in                     : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    rxmcommaalignen_in                  : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    rxpcommaalignen_in                  : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    tx8b10ben_in                        : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
+    txctrl0_in                          : IN  STD_LOGIC_VECTOR(15 DOWNTO 0);
+    txctrl1_in                          : IN  STD_LOGIC_VECTOR(15 DOWNTO 0);
+    txctrl2_in                          : IN  STD_LOGIC_VECTOR(7 DOWNTO 0);
+    gthtxn_out                          : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gthtxp_out                          : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gtpowergood_out                     : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    rxbyteisaligned_out                 : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    rxbyterealign_out                   : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    rxcommadet_out                      : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    rxctrl0_out                         : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+    rxctrl1_out                         : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+    rxctrl2_out                         : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+    rxctrl3_out                         : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+    rxpmaresetdone_out                  : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    txpmaresetdone_out                  : OUT STD_LOGIC_VECTOR(0 DOWNTO 0)
+  );
+END COMPONENT;
+
 constant DELAY_3ms : natural := 375_000; -- 3 ms at 125 MHz
 
 signal TX_PMA_RESET_DONE_OUT        : std_logic;
@@ -121,7 +175,7 @@ end process;
 --======================================================================
 
 
-sfp_panda_sync_us_i : entity work.sfp_panda_sync_us
+sfp_panda_sync_us_i : sfp_panda_sync_us
   PORT MAP (
     gtwiz_userclk_tx_reset_in(0) => '0',                                    -- Should be high until the source clock input is known to be stable.
     gtwiz_userclk_tx_srcclk_out => open,
