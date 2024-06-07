@@ -46,7 +46,8 @@ constant SYNCPERIOD         : natural := 125 * 5; -- 5usec
 constant c_MODE_COMM_BITS   : unsigned(4 downto 0) := to_unsigned(6,5);
 
 
-type t_SM_ENDAT is (STATE_T2_CLK1, STATE_T2_CLK2, STATE_MODE_COMM, STATE_T2_CLK1_1, STATE_T2_CLK1_2, STATE_START, STATE_DATA_RANGE, STATE_RECOVER_TIME_tm, STATE_RECOVER_TIME_tR);
+type t_SM_ENDAT is (STATE_FALLING_EDGE, STATE_T2_CLK1, STATE_T2_CLK2, STATE_MODE_COMM, 
+                    STATE_T2_CLK1_1, STATE_T2_CLK1_2, STATE_START, STATE_DATA_RANGE); 
 
 
 -- Number of all bits per EnDat Frame
@@ -76,6 +77,7 @@ signal endat_data_rise      : std_logic;
 signal link_up              : std_logic;
 signal crc_reset            : std_logic;
 signal crc_bitstrb          : std_logic;
+signal endat_frame_dis      : std_logic;
 signal crc_calc             : std_logic_vector(4 downto 0);
 signal health_endat_sniffer : std_logic_vector(31 downto 0);
 signal mc_count             : unsigned(4 downto 0); 
@@ -84,6 +86,21 @@ signal mode_comm            : std_logic_vector(5 downto 0);
 signal probe0               : std_logic_vector(31 downto 0);
 signal sm_cnt               : std_logic_vector(3 downto 0);
 
+attribute mark_debug                     : string; 
+attribute keep                           : string;
+attribute mark_debug of endat_clock_fall : signal is "true";
+attribute mark_debug of endat_clock_rise : signal is "true";
+attribute mark_debug of endat_data       : signal is "true";
+--attribute mark_debug of data_valid       : signal is "true";
+attribute mark_debug of endat_sck_i      : signal is "true"; 
+attribute mark_debug of nError_valid     : signal is "true";
+attribute mark_debug of crc_valid        : signal is "true";
+attribute mark_debug of sm_cnt           : signal is "true";
+attribute mark_debug of endat_frame      : signal is "true";
+attribute mark_debug of data             : signal is "true"; 
+
+
+
 begin
 
 
@@ -91,7 +108,8 @@ begin
 probe0(31) <= endat_clock_fall;   -- 1 bit
 probe0(30) <= endat_clock_rise;   -- 1 bit
 probe0(29) <= endat_data;         -- 1 bit
-probe0(28) <= data_valid;         -- 1 bit
+--probe0(28) <= data_valid;         -- 1 bit
+probe0(28) <= endat_sck_i;
 probe0(27) <= nError_valid;       -- 1 bit
 probe0(26) <= crc_valid;          -- 1 bit
 probe0(25 downto 22) <= sm_cnt;   -- 4 bits         
@@ -155,7 +173,7 @@ ps_endat_case: process (clk_i)
 begin
     if (rising_edge(clk_i)) then
         if (reset = '1') then
-            SM_ENDAT <= STATE_T2_CLK1;
+            SM_ENDAT <= STATE_FALLING_EDGE;
             mc_count <= (others => '0');    
             endat_frame <= '0';
         else
@@ -163,11 +181,19 @@ begin
             -- Bidirectional interface for Position Encoders 
             case SM_ENDAT is
             
-                -- Do i need to detect the falling edge ?????????????????
+                -- Do i need to detect the falling edge 
+                -- All packets start with a falling edge
+                when STATE_FALLING_EDGE => 
+                    sm_cnt <= "0001";
+                    endat_frame_dis <= '0';
+                    if (endat_clock_fall = '1') then
+                        SM_ENDAT <= STATE_T2_CLK1;
+                    end if;
+            
             
                 -- Firts clock (2T) 
                 when STATE_T2_CLK1 =>
-                    sm_cnt <= "0001";
+                    sm_cnt <= "0010";
                     mc_count <= (others => '0');
                     if (endat_clock_rise = '1') then     
                         SM_ENDAT <= STATE_T2_CLK2;
@@ -175,7 +201,7 @@ begin
 
                 -- Second clock (2T)
                 when STATE_T2_CLK2 =>
-                    sm_cnt <= "0010";
+                    sm_cnt <= "0011";
                     if (endat_clock_rise = '1') then
                         SM_ENDAT <= STATE_MODE_COMM;
                     end if;
@@ -184,7 +210,7 @@ begin
                 -- The encoders transmit position value 
                 -- (Additional data isnt support)          
                 when STATE_MODE_COMM =>
-                    sm_cnt <= "0011";
+                    sm_cnt <= "0100";
                     if (endat_clock_rise = '1') then
                         mc_count <= mc_count +1;
                         mode_comm(to_integer(mc_count)) <= endat_dat_i;
@@ -197,21 +223,21 @@ begin
 
                 -- First of the second clock
                 when STATE_T2_CLK1_1 => 
-                    sm_cnt <= "0100";
+                    sm_cnt <= "0101";
                     if (endat_clock_rise = '1') then
                         SM_ENDAT <= STATE_T2_CLK1_2;
                     end if;
 
                 -- Second of the second clock
                 when STATE_T2_CLK1_2 =>
-                    sm_cnt <= "0101";
+                    sm_cnt <= "0110";
                     if (endat_clock_rise = '1') then
                         SM_ENDAT <= STATE_START;
                     end if;    
                     
                 -- Start bit 
                 when STATE_START =>
-                    sm_cnt <= "0110";
+                    sm_cnt <= "0111";
                     -- The data should be low before the start bit 
                     -- then goes high to indicate the start bit
                     if (endat_clock_fall = '1' and endat_data = '1') then    
@@ -220,34 +246,18 @@ begin
 
                 -- Data range = Status + Position value + CRC 
                 when STATE_DATA_RANGE => 
-                    sm_cnt <= "0111";
-                    if (data_count = DATA_BITS) then
-                        SM_ENDAT <= STATE_RECOVER_TIME_tm;
-                    end if;    
-                    
-                -- Recovery time 
-                -- EnDat 2.1 : 10 to 30 us
-                -- EnDat 2.2 : 10 to 30 us or 1.25 to 3.75 us (fc > 1 MHz)
-                when STATE_RECOVER_TIME_tm =>
                     sm_cnt <= "1000";
-                    -- falling edge detection ?????????????????????????
-                    if (endat_sck_i = '1' and endat_dat_i = '1') then
-                        SM_ENDAT <= STATE_RECOVER_TIME_tR;
-                    end if;
-                
-                -- tR Max 500ns
-                when STATE_RECOVER_TIME_tR => 
-                    sm_cnt <= "1001";
-                    if (endat_sck_i = '1' and endat_dat_i = '0') then
-                        SM_ENDAT <= STATE_T2_CLK1;
-                    end if;                        
-                
+                    if (data_count = DATA_BITS) then
+                        endat_frame_dis <= '1'; 
+                        SM_ENDAT <= STATE_FALLING_EDGE;
+                    end if;    
+                                    
             end case;
 
             -- Set active endat frame flag for link disconnection
             if (SM_ENDAT = STATE_T2_CLK1 and endat_clock_fall = '1') then
                 endat_frame <= '1';
-            elsif (SM_ENDAT = STATE_RECOVER_TIME_tm) then
+            elsif (endat_frame_dis = '1') then
                 endat_frame <= '0';
             end if;
         end if;

@@ -378,7 +378,7 @@ port map (
 -- enDAT Master
 endat_master_inst : entity work.endat_master 
 generic map (
-    g_endat2_1 => 1
+    g_endat2_1 => 0
     )
 port map ( 
     clk_i          => clk_i,

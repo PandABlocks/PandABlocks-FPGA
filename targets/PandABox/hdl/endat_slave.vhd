@@ -231,7 +231,7 @@ begin
                 when STATE_OUTPUT_LOW =>
                     crc_reset <= '0';
                     endat_dat <= '1';
-                    tcal_tm_cnt <= tcal_tm_cnt +1;
+                    tcal_tm_cnt <= tcal_tm_cnt +1;  -- not needed 
                     -- tR count    
                     if tcal_tm_cnt = c_tr_cnt then
                         endat_dat <= '0';

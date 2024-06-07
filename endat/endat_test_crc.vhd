@@ -17,7 +17,7 @@ use ieee.numeric_std.all;
 library work;
 use work.support.all;
 
-entity endat_crc is
+entity endat_test_crc is
 port (
     clk_i           : in  std_logic;
     reset_i         : in  std_logic;
@@ -26,9 +26,9 @@ port (
     bitstrb_i       : in  std_logic;
     crc_o           : out std_logic_vector(4 downto 0)
 );
-end endat_crc;
+end endat_test_crc;
 
-architecture rtl of endat_crc is
+architecture rtl of endat_test_crc is
 
 signal inv          : std_logic;
 signal crc          : std_logic_vector(4 downto 0);
@@ -48,7 +48,7 @@ begin
                 CRC(4) <= CRC(3);
                 CRC(3) <= CRC(2);
                 CRC(2) <= CRC(1);
-----------------------------------------------------------------------                CRC(1) <= CRC(0) xor inv;
+-----                CRC(1) <= CRC(0) xor inv;
                 CRC(1) <= CRC(0);
                 CRC(0) <= inv;
             end if;

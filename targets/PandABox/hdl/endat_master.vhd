@@ -238,7 +238,7 @@ begin
                         crc_data_enable <= '0';
                     end if;
                     wait_cnt <= wait_cnt +1;
-                    if wait_cnt = c_tm_wait_cnt then
+                    if wait_cnt = c_tm_wait_cnt then --- not needed 
                         SM_DATA <= STATE_FINISHED;
                     end if;
                         
