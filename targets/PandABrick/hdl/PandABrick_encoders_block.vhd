@@ -58,6 +58,8 @@ port (
     INCENC_CONN_OUT_o        : out std_logic;
     ABSENC_CONN_OUT_o        : out std_logic;
 
+    UVWT_o                   : out std_logic;
+
 
     clk_int_o               : out std_logic;
 
@@ -362,6 +364,8 @@ port map(
     ABSENC_STATUS_o      => ABSENC_STATUS,
     ABSENC_HEALTH_o     => ABSENC_HEALTH,
     ABSENC_HOMED_o      => ABSENC_HOMED,
+
+    UVWT_o              => UVWT_o,
     --
     -- Block Outputs
     abs_posn_o          => abs_posn_o,

@@ -80,6 +80,7 @@ port (
     posn_o                  : out std32_array(ENC_NUM-1 downto 0);
     abs_posn_o                  : out std32_array(ENC_NUM-1 downto 0);
 
+    UVWT_o                  : out std_logic_vector(ENC_NUM-1 downto 0);
 
     PMACENC_PROTOCOL_o      : out std32_array(ENC_NUM-1 downto 0);
     PMACENC_PROTOCOL_WSTB_o : out std_logic_vector(ENC_NUM-1 downto 0);
@@ -201,6 +202,8 @@ port map (
     INCENC_PROTOCOL_WSTB_o  => INCENC_PROTOCOL_WSTB_o(I),
     ABSENC_PROTOCOL_o       => ABSENC_PROTOCOL_o(I),
     ABSENC_PROTOCOL_WSTB_o  => ABSENC_PROTOCOL_WSTB_o(I),
+
+    UVWT_o                  => UVWT_o(I),
 
     pin_ENC_A_in            => pins_ENC_A_in(I),
     pin_ENC_B_in            => pins_ENC_B_in(I),
