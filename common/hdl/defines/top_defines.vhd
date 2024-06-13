@@ -71,9 +71,9 @@ type FMC_input_interface is
     FMC_PRSNT       : std_logic;
     FMC_CLK1_M2C_P  : std_logic;
     FMC_CLK1_M2C_N  : std_logic;
-    GTREFCLK        : std_logic;
-    RXP_IN          : std_logic;
-    RXN_IN          : std_logic;
+    GTREFCLK        : std_logic_vector(1 downto 0);
+    RXP_IN          : std_logic_vector(3 downto 0);
+    RXN_IN          : std_logic_vector(3 downto 0);
     MAC_ADDR        : std_logic_vector(47 downto 0);
     MAC_ADDR_WS     : std_logic;
   end record FMC_input_interface;
@@ -82,23 +82,32 @@ type FMC_inout_interface is
   record
     FMC_LA_P        : std_logic_vector(33 downto 0);
     FMC_LA_N        : std_logic_vector(33 downto 0);
+    FMC_HA_P        : std_logic_vector(21 downto 0);
+    FMC_HA_N        : std_logic_vector(21 downto 0);
+    FMC_HB_P        : std_logic_vector(21 downto 0);
+    FMC_HB_N        : std_logic_vector(21 downto 0);
+    
     FMC_CLK0_M2C_P  : std_logic;
     FMC_CLK0_M2C_N  : std_logic;
   end record FMC_inout_interface;
 
 constant FMC_io_init : FMC_inout_interface := (FMC_LA_P => (others => 'Z'),
                                                FMC_LA_N => (others => 'Z'),
+                                               FMC_HA_P => (others => 'Z'),
+                                               FMC_HA_N => (others => 'Z'),
+                                               FMC_HB_P => (others => 'Z'),
+                                               FMC_HB_N => (others => 'Z'),
                                                FMC_CLK0_M2C_P => 'Z',
                                                FMC_CLK0_M2C_N => 'Z');
 
 type FMC_output_interface is
   record
-    TXP_OUT         : std_logic;
-    TXN_OUT         : std_logic;
+    TXP_OUT         : std_logic_vector(3 downto 0);
+    TXN_OUT         : std_logic_vector(3 downto 0);
   end record FMC_output_interface;
 
-constant FMC_o_init : FMC_output_interface := (TXP_OUT => 'Z',
-                                               TXN_OUT => 'Z');
+constant FMC_o_init : FMC_output_interface := (TXP_OUT => (others => 'Z'),
+                                               TXN_OUT => (others => 'Z'));
 
 -- SFP Block Record declarations
 
@@ -131,6 +140,27 @@ constant SFP_o_init : SFP_output_interface := (TXN_OUT => 'Z',
                                                TS_TICKS => (others => '0')
 );
 
+-- AMC Block Record declarations
+
+type AMC_input_interface is
+  record
+    -- 4 Fat Pipe GTREFCLKs
+    FP_GTREFCLK        : std_logic_vector(3 downto 0);
+    -- 8 Fat Pipe ports
+    FP_RXP_IN          : std_logic_vector(7 downto 0);
+    FP_RXN_IN          : std_logic_vector(7 downto 0);
+
+  end record AMC_input_interface;
+  
+type AMC_output_interface is
+  record
+    -- 8 Fat Pipe ports
+    FP_TXP_OUT          : std_logic_vector(7 downto 0);
+    FP_TXN_OUT          : std_logic_vector(7 downto 0);
+  end record AMC_output_interface;
+  
+constant AMC_o_init : AMC_output_interface := (FP_TXP_OUT => (others => 'Z'),
+                                               FP_TXN_OUT => (others => 'Z'));
 
 type seq_t is
 record

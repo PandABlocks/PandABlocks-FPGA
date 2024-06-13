@@ -1,0 +1,93 @@
+/dts-v1/;
+/include/ "system-top.dts.tmp"
+
+/ {
+	model = "NAMC_7z045_FMC_Carrier";
+	aliases {
+		ethernet0 = &gem0;
+		serial0 = &uart1;
+	};
+	chosen {
+		bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk";
+	};
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x20000000>;
+	};
+};
+
+&clkc {
+	fclk-enable = <0xf>;
+	ps-clk-frequency = <50000000>;
+};
+
+&qspi {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	flash0: flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "n25q00", "jedec,spi-nor";
+		reg = <0x0>;
+		spi-max-frequency = <50000000>;
+
+		partition@0x00000000 {
+			label = "boot";
+			reg = <0x0 0x500000>;
+		};
+		partition@0x00500000 {
+			label = "bootenv";
+			reg = <0x500000 0x20000>;
+		};
+		partition@0x00520000 {
+			label = "data";
+			reg = <0x520000 0xae0000>;
+		};
+	};
+};
+
+&gem0 {
+	phy-handle = <&phy0>; 
+	phy-mode = "rgmii-id";
+	enet-reset = <&gpio0 51 0>;
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		phy0: phy@0 {
+			compatible = "marvell,88e1510";
+			device_type = "ethernet-phy";
+			reg = <0x0>;
+		};
+		phy1: phy@1 {
+			compatible = "marvell, 88e1510";
+			device_type = "ethernet-phy";
+			reg = <0x1>;
+		};
+	};
+};
+
+&gem1 {
+	status = "okay";
+	xlnx,ptp-enet-clock = <0x7f28150>;
+	phy-mode = "rgmii-id";
+	phy-handle = <&phy1>;
+};
+
+/ {
+	amba_pl: amba_pl {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "simple-bus";
+		ranges ;
+		panda_pcap_0: panda_pcap@43c00000 {
+			compatible = "xlnx,panda-pcap-1.0";
+			interrupt-parent = <&intc>;
+			interrupts = <0 29 1>;
+			reg = <0x43c00000 0x20000>;
+			xlnx,s00-axi-addr-width = <0x17>;
+			xlnx,s00-axi-data-width = <0x20>;
+		};
+	};
+};
