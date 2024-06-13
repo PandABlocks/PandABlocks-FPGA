@@ -1286,6 +1286,8 @@ port map (
     posn_o                  => incenc_val,
     abs_posn_o              => absenc_val,
 
+    UVWT_o                  => uvwt,
+
     PMACENC_PROTOCOL_o       => PMACENC_PROTOCOL,
     PMACENC_PROTOCOL_WSTB_o  => PMACENC_PROTOCOL_WSTB,
     INCENC_PROTOCOL_o        => INCENC_PROTOCOL,
@@ -1332,10 +1334,10 @@ port map (
 -- Data to be passed to PIC...
 
 pass_thru_gen: for chan in 0 to ENC_NUM-1 generate
-    serial_pass(chan) <= '1' when (PMACENC_PROTOCOL(chan)(2 downto 0) = "000") else '0';
+    serial_pass(chan) <= '1' when (PMACENC_PROTOCOL(chan)(2 downto 1) = "00") else '0';
 end generate;
 
-uvwt         <= "00000000";
+-- uvwt         <= "00000000";
 pic_data_out <= ( uvwt & serial_pass );
 
 

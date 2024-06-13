@@ -84,6 +84,8 @@ port (
     ABSENC_HEALTH_o     : out std_logic_vector(31 downto 0);
     ABSENC_HOMED_o      : out std_logic_vector(31 downto 0);
 
+    UVWT_o              : out std_logic;
+
     -- Block Outputs
     abs_posn_o          : out std_logic_vector(31 downto 0);
     inc_posn_o          : out std_logic_vector(31 downto 0)
