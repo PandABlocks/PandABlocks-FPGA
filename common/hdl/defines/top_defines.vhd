@@ -62,76 +62,7 @@ end record;
 --
 -- TYPEs :
 --
-
--- FMC Block Record declarations
-
-type FMC_input_interface is
-  record
-    EXTCLK          : std_logic;
-    FMC_PRSNT       : std_logic;
-    FMC_CLK1_M2C_P  : std_logic;
-    FMC_CLK1_M2C_N  : std_logic;
-    GTREFCLK        : std_logic;
-    RXP_IN          : std_logic;
-    RXN_IN          : std_logic;
-    MAC_ADDR        : std_logic_vector(47 downto 0);
-    MAC_ADDR_WS     : std_logic;
-  end record FMC_input_interface;
-
-type FMC_inout_interface is
-  record
-    FMC_LA_P        : std_logic_vector(33 downto 0);
-    FMC_LA_N        : std_logic_vector(33 downto 0);
-    FMC_CLK0_M2C_P  : std_logic;
-    FMC_CLK0_M2C_N  : std_logic;
-  end record FMC_inout_interface;
-
-constant FMC_io_init : FMC_inout_interface := (FMC_LA_P => (others => 'Z'),
-                                               FMC_LA_N => (others => 'Z'),
-                                               FMC_CLK0_M2C_P => 'Z',
-                                               FMC_CLK0_M2C_N => 'Z');
-
-type FMC_output_interface is
-  record
-    TXP_OUT         : std_logic;
-    TXN_OUT         : std_logic;
-  end record FMC_output_interface;
-
-constant FMC_o_init : FMC_output_interface := (TXP_OUT => 'Z',
-                                               TXN_OUT => 'Z');
-
--- SFP Block Record declarations
-
-type SFP_input_interface is
-  record
-    SFP_LOS     : std_logic;
-    GTREFCLK    : std_logic;
-    RXN_IN      : std_logic;
-    RXP_IN      : std_logic;
-    MAC_ADDR    : std_logic_vector(47 downto 0);
-    MAC_ADDR_WS : std_logic;
-    MGT_CLK_SEL : std_logic;
-  end record SFP_input_interface;
-
-type SFP_output_interface is
-  record
-    TXN_OUT     : std_logic;
-    TXP_OUT     : std_logic;
-    MGT_REC_CLK : std_logic;
-    LINK_UP     : std_logic;
-    TS_SEC      : std_logic_vector(31 downto 0);
-    TS_TICKS    : std_logic_vector(31 downto 0);
-  end record SFP_output_interface;
-
-constant SFP_o_init : SFP_output_interface := (TXN_OUT => 'Z',
-                                               TXP_OUT => 'Z',
-                                               MGT_REC_CLK => '0',
-                                               LINK_UP => '0',
-                                               TS_SEC => (others => '0'),
-                                               TS_TICKS => (others => '0')
-);
-
-
+    
 type seq_t is
 record
     repeats     : unsigned(15 downto 0);
@@ -150,6 +81,9 @@ record
     data        : std_logic_vector(31 downto 0);
 end record;
 type slow_packet_array is array(natural range <>) of slow_packet;
+
+-- Unconstrained array of std_logic_vector
+type std_uarray is array(natural range <>) of std_logic_vector;
 
 subtype std2_t is std_logic_vector(1 downto 0);
 type std2_array is array(natural range <>) of std2_t;

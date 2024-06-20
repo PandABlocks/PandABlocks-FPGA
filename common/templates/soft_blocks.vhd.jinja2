@@ -5,17 +5,11 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-library unisim;
-use unisim.vcomponents.all;
-
-library work;
 use work.addr_defines.all;
 use work.top_defines.all;
+use work.interface_types.all;
 
 entity soft_blocks is
-generic (
-    SIM                 : string := "FALSE"
-);
 port (
     -- Global clock and reset from panda_ps
     FCLK_RESET0         : in    std_logic;
@@ -44,29 +38,7 @@ port (
     rdma_valid          : in    std_logic_vector(5 downto 0);
     --
     {% for site in target_sites %}
-        {% if site.number == 1 %}
-            {% for dir in site.dirs %}
-                {% if dir == "i" %}
-    {{pad(site.name + "_i")}} : in    {{site.name}}_input_interface;
-                {% elif dir =="io" %}
-    {{pad(site.name + "_io")}} : inout {{site.name}}_inout_interface := {{site.name}}_io_init;
-                {% elif dir =="o" %}
-    {{pad(site.name + "_o")}} : out   {{site.name}}_output_interface := {{site.name}}_o_init;
-                {% endif %}
-            {% endfor %}
-        {% else %}
-            {% for i in range (site.number) %}
-                {% for dir in site.dirs %}
-                    {% if dir == "i" %}
-    {{pad(site.name + (i+1)|string + "_i")}} : in    {{site.name}}_input_interface;
-                    {% elif dir =="io" %}
-    {{pad(site.name+ (i+1)|string +"_io")}} : inout {{site.name}}_inout_interface := {{site.name}}_io_init;
-                    {% elif dir =="o" %}
-    {{pad(site.name+ (i+1)|string +"_o")}} : out   {{site.name}}_output_interface := {{site.name}}_o_init;
-                    {% endif %}
-                {% endfor %}
-            {% endfor %}
-        {% endif %}
+    {{pad(site.name)}} : view  {{site.type}}_MOD_ARR;
     {% endfor %}
     FCLK_CLK0           : in    std_logic
 );

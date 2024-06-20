@@ -14,36 +14,52 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 library unisim;
-use unisim.vcomponents.all; -- NEEDED?
+use unisim.vcomponents.all;
 
-library work;
---use work.support.all;
-use work.addr_defines.all; -- NEEDED?
-use work.top_defines.all;  -- NEEDED?
+use work.addr_defines.all;
+use work.top_defines.all;
+use work.interface_types.all;
 
 entity xu5_st1_top is
 generic (
-    SIM                 : string  := "FALSE";
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32;
     NUM_SFP             : natural := 0;
-    NUM_FMC             : natural := 1
+    NUM_FMC             : natural := 1;
+    MAX_NUM_FMC_MGT     : natural := 4
 );
 port (
     -- Discrete I/O
     TTLIN_PAD_I         : in    std_logic_vector(0 downto 0);
     TTLOUT_PAD_O        : out   std_logic_vector(0 downto 0);
+    -- MGT REFCLKs 
+    GTXCLK0_P           : in    std_logic;
+    GTXCLK0_N           : in    std_logic;
+    GTXCLK1_P           : in    std_logic;
+    GTXCLK1_N           : in    std_logic;
     -- FMC
-    FMC_LA_P            : inout std_logic_vector(33 downto 0) := (others => 'Z');
-    FMC_LA_N            : inout std_logic_vector(33 downto 0) := (others => 'Z');
-    FMC_CLK0_M2C_P      : inout std_logic := 'Z';
-    FMC_CLK0_M2C_N      : inout std_logic := 'Z';
-    FMC_CLK1_M2C_P      : in    std_logic;
-    FMC_CLK1_M2C_N      : in    std_logic
+    FMC_DP_C2M_P        : out   std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_DP_C2M_N        : out   std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_DP_M2C_P        : in    std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0);
+    FMC_DP_M2C_N        : in    std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0);
+    FMC_LA_P            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_LA_N            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_CLK0_M2C_P      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK0_M2C_N      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK1_M2C_P      : in    std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_CLK1_M2C_N      : in    std_logic_vector(NUM_FMC-1 downto 0)
 );
 end xu5_st1_top;
 
 architecture rtl of xu5_st1_top is
+
+constant NUM_MGT            : natural := NUM_SFP + MAX_NUM_FMC_MGT;
 
 -- PS Block
 signal FCLK_CLK0            : std_logic;
@@ -151,22 +167,60 @@ signal rdma_len             : std8_array(5 downto 0);
 signal rdma_data            : std_logic_vector(31 downto 0);
 signal rdma_valid           : std_logic_vector(5 downto 0);
 
--- FMC Block
-signal FMC_i  : FMC_input_interface;
-signal FMC_o  : FMC_output_interface := FMC_o_init;
-signal FMC_io : FMC_inout_interface  := FMC_io_init;
-signal FMC_MAC_ADDR_ARR     : std32_array(2*NUM_FMC-1 downto 0);
+signal MGT_MAC_ADDR_ARR     : std32_array(2*NUM_MGT-1 downto 0);
 
--- SFP Block
-signal SFP_MAC_ADDR_ARR     : std32_array(2*NUM_SFP-1 downto 0);
-signal SFP1_i : SFP_input_interface;
-signal SFP1_o : SFP_output_interface := SFP_o_init;
+-- FMC Block
+signal FMC      : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
+                                        := (FMC_ARR => (others => FMC_init));
+
+-- Additional MGT interfaces available using FMC
+signal FMC_MGT  : MGT_ARR_REC(MGT_ARR(0 to MAX_NUM_FMC_MGT-1))
+                                        := (MGT_ARR => (others => MGT_init));
+
+signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
+attribute syn_noclockbuf : boolean;
+attribute syn_noclockbuf of q0_clk0_gtrefclk : signal is true;
+attribute syn_noclockbuf of q0_clk1_gtrefclk : signal is true;
+
+attribute IO_BUFFER_TYPE : string;
+attribute IO_BUFFER_TYPE of FMC_DP_C2M_N : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP_C2M_P : signal is "none";
 
 begin
 
 -- Internal clocks and resets
 FCLK_RESET0 <= not FCLK_RESET0_N(0);
 FCLK_CLK0 <= FCLK_CLK0_PS;
+
+-- MGT REFCLOCK Differential Buffers
+
+IBUFDS_GTE4_REFCLK0 : IBUFDS_GTE4
+generic map (
+    REFCLK_EN_TX_PATH => '0',
+    REFCLK_HROW_CK_SEL => "00",
+    REFCLK_ICNTL_RX => "00" -- Refer to Transceiver User Guide.
+)
+port map (
+    O =>     q0_clk0_gtrefclk,
+    ODIV2 => open,
+    CEB =>   '0',
+    I =>     GTXCLK0_P,
+    IB =>    GTXCLK0_N
+);
+
+IBUFDS_GTE4_REFCLK1 : IBUFDS_GTE4
+generic map (
+    REFCLK_EN_TX_PATH => '0',
+    REFCLK_HROW_CK_SEL => "00",
+    REFCLK_ICNTL_RX => "00" -- Refer to Transceiver User Guide.
+)
+port map (
+    O =>     q0_clk1_gtrefclk,
+    ODIV2 => open,
+    CEB =>   '0',
+    I =>     GTXCLK1_P,
+    IB =>    GTXCLK1_N
+);
 
 ---------------------------------------------------------------------------
 -- Panda Processor System Block design instantiation
@@ -402,8 +456,8 @@ port map (
 ---------------------------------------------------------------------------
 reg_inst : entity work.reg_top
 generic map (
-    NUM_SFP => NUM_SFP,
-    NUM_FMC => NUM_FMC)
+    NUM_MGT => NUM_MGT
+)
 port map (
     clk_i               => FCLK_CLK0,
 
@@ -422,10 +476,8 @@ port map (
     SLOW_FPGA_VERSION   => (others => '0'),
     TS_SEC              => (others => '0'),
     TS_TICKS            => (others => '0'),
-    SFP_MAC_ADDR        => SFP_MAC_ADDR_ARR,
-    SFP_MAC_ADDR_WSTB   => open,
-    FMC_MAC_ADDR        => FMC_MAC_ADDR_ARR,
-    FMC_MAC_ADDR_WSTB   => open
+    MGT_MAC_ADDR        => MGT_MAC_ADDR_ARR,
+    MGT_MAC_ADDR_WSTB   => open
 );
 
 -- Bus assembly ----
@@ -435,27 +487,34 @@ port map (
 bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & ttlin_val;
 
 -- Assemble FMC records
--- FMC_i.EXTCLK <= EXTCLK;
--- FMC_i.FMC_PRSNT <= FMC_PRSNT;
-FMC_io.FMC_LA_P <= FMC_LA_P;
-FMC_io.FMC_LA_N <= FMC_LA_N;
-FMC_io.FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P;
-FMC_io.FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N;
-FMC_i.FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P;
-FMC_i.FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N;
--- FMC_i.GTREFCLK <= q0_clk1_gtrefclk;
--- FMC_DP0_C2M_P <= FMC_o.TXP_OUT;
--- FMC_DP0_C2M_N <= FMC_o.TXN_OUT;
--- FMC_i.RXP_IN <= FMC_DP0_M2C_P;
--- FMC_i.RXN_IN <= FMC_DP0_M2C_N;
-FMC_i.MAC_ADDR <= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
-FMC_i.MAC_ADDR_WS <= '0';
+
+FMC_gen: for I in 0 to NUM_FMC-1 generate
+    FMC.FMC_ARR(I).FMC_PRSNT <= "10";
+    FMC.FMC_ARR(I).FMC_LA_P <= FMC_LA_P(I);
+    FMC.FMC_ARR(I).FMC_LA_N <= FMC_LA_N(I);
+    FMC.FMC_ARR(I).FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P(I);
+    FMC.FMC_ARR(I).FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N(I);
+    FMC.FMC_ARR(I).FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P(I);
+    FMC.FMC_ARR(I).FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N(I);
+end generate;
+
+-- Additonal FMC_MGT which is an option by using the MGT pins on the FMC.
+
+FMC_MGT_gen: for I in 0 to MAX_NUM_FMC_MGT-1 generate
+    FMC_MGT.MGT_ARR(I).SFP_LOS <= '0';
+    FMC_MGT.MGT_ARR(I).GTREFCLK <= q0_clk1_gtrefclk;
+    FMC_MGT.MGT_ARR(I).RXN_IN <= FMC_DP_M2C_N(I);
+    FMC_MGT.MGT_ARR(I).RXP_IN <= FMC_DP_M2C_P(I);
+    FMC_DP_C2M_N(I) <= FMC_MGT.MGT_ARR(I).TXN_OUT;
+    FMC_DP_C2M_P(I) <= FMC_MGT.MGT_ARR(I).TXP_OUT;
+    FMC_MGT.MGT_ARR(I).MAC_ADDR <= (others => '0');
+    FMC_MGT.MGT_ARR(I).MAC_ADDR_WS <= '0';
+end generate;
 ---------------------------------------------------------------------------
 -- PandABlocks_top Instantiation (autogenerated!!)
 ---------------------------------------------------------------------------
 
 softblocks_inst : entity work.soft_blocks
-generic map( SIM => SIM)
 port map(
     FCLK_CLK0 => FCLK_CLK0,
     FCLK_RESET0 => FCLK_RESET0,
@@ -478,9 +537,8 @@ port map(
     rdma_len => rdma_len,
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
-    FMC_i => FMC_i,
-    FMC_io => FMC_io,
-    FMC_o => FMC_o
+    FMC => FMC,
+    FMC_MGT => FMC_MGT
 );
 
 us_system_top_inst : entity work.us_system_top
