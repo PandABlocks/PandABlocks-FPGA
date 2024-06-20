@@ -36,7 +36,8 @@ TEMPLATES = os.path.join(os.path.abspath(ROOT), "common", "templates")
 # ini file
 FPGA_OPTIONS_DEFAULTS = {
     'pcap_std_dev': False,
-    'fine_delay': False
+    'fine_delay': False,
+    'PICXO' : False,
 }
 
 

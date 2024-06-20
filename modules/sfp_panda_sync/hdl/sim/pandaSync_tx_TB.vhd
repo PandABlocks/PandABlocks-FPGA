@@ -31,7 +31,6 @@ uut : entity work.sfp_panda_sync_transmit
 
     port map (
         sysclk_i          => clk,
-        rst_sys_i         => rst,
         txoutclk_i        => txoutclk,
         txcharisk_o       => txcharisk,
         txdata_o          => txdata,
