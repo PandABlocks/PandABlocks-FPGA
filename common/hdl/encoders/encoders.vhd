@@ -97,6 +97,9 @@ signal homed_qdec           : std_logic_vector(31 downto 0);
 signal linkup_incr          : std_logic;
 signal linkup_incr_std32    : std_logic_vector(31 downto 0);
 signal linkup_ssi           : std_logic;
+signal ssi_frame            : std_logic;
+signal ssi_frame_sniffer    : std_logic;
+signal ssi_frame_master     : std_logic;
 signal linkup_biss_sniffer  : std_logic;
 signal health_biss_sniffer  : std_logic_vector(31 downto 0);
 signal linkup_biss_master   : std_logic;
@@ -307,7 +310,8 @@ port map (
     ssi_sck_o       => clk_out_encoder_ssi,
     ssi_dat_i       => DATA_IN,
     posn_o          => posn_ssi,
-    posn_valid_o    => open
+    posn_valid_o    => open,
+    ssi_frame_o     => ssi_frame_master
 );
 
 -- SSI Sniffer
@@ -317,11 +321,23 @@ port map (
     reset_i         => reset_i,
     ENCODING        => INENC_ENCODING_i,
     BITS            => INENC_BITS_i,
-    link_up_o       => linkup_ssi,
     error_o         => open,
     ssi_sck_i       => CLK_IN,
     ssi_dat_i       => DATA_IN,
-    posn_o          => posn_ssi_sniffer
+    posn_o          => posn_ssi_sniffer,
+    ssi_frame_o     => ssi_frame_sniffer
+);
+
+ssi_frame <= ssi_frame_sniffer when DCARD_MODE_i(3 downto 1) = DCARD_MONITOR
+    else ssi_frame_master;
+
+-- Frame checker for SSI
+ssi_err_det_inst: entity work.ssi_error_detect
+port map (
+    clk_i           => clk_i,
+    serial_dat_i    => DATA_IN,
+    ssi_frame_i     => ssi_frame,
+    link_up_o       => linkup_ssi
 );
 
 --------------------------------------------------------------------------
@@ -384,18 +400,16 @@ begin
                 when "001"  =>              -- SSI & Loopback
                     if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
                         posn <= posn_ssi_sniffer;
-                        STATUS_o(0) <= linkup_ssi;
-                        if (linkup_ssi = '0') then
-                            INENC_HEALTH_o <= TO_SVECTOR(2,32);
-                        else
-                            INENC_HEALTH_o <= (others => '0');
-                        end if;
                     else  -- DCARD_CONTROL
                         posn <= posn_ssi;
-                        STATUS_o <= (others => '0');
-                        INENC_HEALTH_o <= (others=>'0');
                     end if;
                     HOMED_o <= TO_SVECTOR(1,32);
+                    STATUS_o(0) <= linkup_ssi;
+                    if (linkup_ssi = '0') then
+                        INENC_HEALTH_o <= TO_SVECTOR(2,32);
+                    else
+                        INENC_HEALTH_o <= (others => '0');
+                    end if;
 
                 when "010"  =>              -- BISS & Loopback
                     if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
