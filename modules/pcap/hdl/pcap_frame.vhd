@@ -155,8 +155,10 @@ process(clk_i) begin
         -- Capture the timestamp at the start of a capture frame
         if (enable_i = '0') then
             ts_start_enable <= '0';
+            ts_start <= (others => '0');
+            ts_start_dly <= (others => '0');
         -- trig the timestamp this is the start of a frame
-        elsif (ts_start_enable = '0' and gate_rise = '1') then
+        elsif (ts_start_enable = '0' and gate_i = '1') then
             ts_start_enable <= '1';
             ts_start <= std_logic_vector(timestamp);
         -- Capture the timestamp this is the start of a frame
