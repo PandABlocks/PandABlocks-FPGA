@@ -111,7 +111,6 @@ signal PMACENC_HEALTH           : std_logic_vector(31 downto 0);
 signal a_ext, b_ext, z_ext, data_ext    : std_logic;
 signal posn                     : std_logic_vector(31 downto 0);
 signal enable                   : std_logic;
-signal absenc_enable            : std_logic;
 
 signal clk_ext                  : std_logic;
 -- Block Configuration Registers
@@ -145,6 +144,7 @@ signal ABSENC_MSB_DISCARD       : std_logic_vector(31 downto 0);
 signal INCENC_HEALTH            : std_logic_vector(31 downto 0);
 signal ABSENC_HEALTH            : std_logic_vector(31 downto 0);
 signal HOMED                    : std_logic_vector(31 downto 0);
+signal ABSENC_ENABLED           : std_logic_vector(31 downto 0);
 signal ABSENC_HOMED             : std_logic_vector(31 downto 0);
 
 signal read_addr                : natural range 0 to (2**read_address_i'length - 1);
@@ -206,9 +206,7 @@ port map (
     DCARD_TYPE          => DCARD_TYPE,
     BITS                => PMACENC_BITS,
     BITS_WSTB           => PMACENC_BITS_WSTB,
-    HEALTH              => PMACENC_HEALTH,
-    QPERIOD             => QPERIOD,
-    QSTATE              => QSTATE
+    HEALTH              => PMACENC_HEALTH
 );
 
 incenc_ctrl : entity work.incenc_ctrl
@@ -241,7 +239,9 @@ port map (
     RST_ON_Z            => RST_ON_Z,
     RST_ON_Z_WSTB       => open,
     HEALTH              => INCENC_HEALTH,
-    HOMED               => HOMED
+    HOMED               => HOMED,
+    QPERIOD             => QPERIOD,
+    QSTATE              => QSTATE
 );
 
 absenc_ctrl : entity work.absenc_ctrl
@@ -251,7 +251,6 @@ port map (
     bit_bus_i           => bit_bus_i,
     pos_bus_i           => pos_bus_i,
     clk_from_bus        => clk_ext,
-    enable_from_bus     => absenc_enable,       -- TO BE CONNECTED THROUGH TO ENCODERS.VHD
 
     read_strobe_i       => ABSENC_read_strobe_i,
     read_address_i      => read_address_i,
@@ -281,6 +280,7 @@ port map (
     MSB_DISCARD_WSTB    => open,
     HEALTH              => ABSENC_HEALTH,
     HOMED               => ABSENC_HOMED,
+    ENABLED             => ABSENC_ENABLED,       -- TO BE CONNECTED THROUGH TO ENCODERS.VHD
     DCARD_TYPE          => DCARD_TYPE
 );
 
@@ -363,6 +363,7 @@ port map(
     ABSENC_MSB_DISCARD_i => ABSENC_MSB_DISCARD(4 downto 0),
     ABSENC_STATUS_o      => ABSENC_STATUS,
     ABSENC_HEALTH_o     => ABSENC_HEALTH,
+    ABSENC_ENABLED_o    => ABSENC_ENABLED,
     ABSENC_HOMED_o      => ABSENC_HOMED,
 
     UVWT_o              => UVWT_o,

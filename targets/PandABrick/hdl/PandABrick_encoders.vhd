@@ -83,6 +83,7 @@ port (
     ABSENC_STATUS_o        : out std_logic_vector(31 downto 0);
     ABSENC_HEALTH_o     : out std_logic_vector(31 downto 0);
     ABSENC_HOMED_o      : out std_logic_vector(31 downto 0);
+    ABSENC_ENABLED_o    : out std_logic_vector(31 downto 0);
 
     UVWT_o              : out std_logic;
 
@@ -107,7 +108,7 @@ signal bdat                 : std_logic;
 signal Passthrough          : std_logic;
 signal UVWT                 : std_logic;
 signal health_biss_slave    : std_logic_vector(31 downto 0);
-signal absenc_enable        : std_logic;
+-- signal absenc_enable        : std_logic;
 
 signal clk_out_encoder_ssi  : std_logic;
 signal clk_out_encoder_biss : std_logic;
@@ -121,6 +122,8 @@ signal posn_inc             : std_logic_vector(31 downto 0);
 signal posn_prev            : std_logic_vector(31 downto 0);
 signal bits_not_used        : unsigned(4 downto 0);
 signal inc_bits_not_used    : unsigned(4 downto 0);
+
+signal step, dir            : std_logic;
 
 signal homed_qdec           : std_logic_vector(31 downto 0);
 signal linkup_incr          : std_logic;
@@ -229,45 +232,51 @@ port map (
 linkup_incr <= not DCARD_MODE_i(0);
 linkup_incr_std32 <= x"0000000"&"000"&linkup_incr;
 
--- --
--- -- INCREMENTAL OUT
--- --
--- qenc_inst : entity work.qenc
--- port map (
---     clk_i           => clk_i,
---     reset_i         => reset_i,
---     QPERIOD         => QPERIOD_i,
---     QPERIOD_WSTB    => QPERIOD_WSTB_i,
---     QSTATE          => QSTATE_o,
---     enable_i        => enable_i,
---     posn_i          => posn_i,
---     a_o             => quad_a,
---     b_o             => quad_b
--- );
+--
+-- INCREMENTAL OUT
+--
+qenc_inst : entity work.qenc
+port map (
+    clk_i           => clk_i,
+    reset_i         => reset_i,
+    QPERIOD         => QPERIOD_i,
+    QPERIOD_WSTB    => QPERIOD_WSTB_i,
+    QSTATE          => QSTATE_o,
+    enable_i        => enable_i,
+    posn_i          => posn_i,
+    a_o             => quad_a,
+    b_o             => quad_b,
+    step_o          => step,
+    dir_o           => dir
+);
 
 -----------------------------ABSENC---------------------------------------------
 
 abs_ps_select: process(clk_i)
 begin
     if rising_edge(clk_i) then
-        -- BITS not begin used
-        bits_not_used <= 31 - (unsigned(ABSENC_BITS_i(4 downto 0))-1);
-        lp_test: for i in 31 downto 0 loop
-           -- Discard bits not being used and MSB and LSB and extend the sign.
-           -- Note that we need the loop to manipulate the vector. Slicing with \
-           -- variable indices is not synthesisable.
-           if (i > 31 - bits_not_used - unsigned(ABSENC_MSB_DISCARD_i) - unsigned(ABSENC_LSB_DISCARD_i)) then
-               if ((ABSENC_ENCODING_i=c_UNSIGNED_BINARY_ENCODING) or (ABSENC_ENCODING_i=c_UNSIGNED_GRAY_ENCODING)) then
-                   abs_posn_o(i) <= '0';
-               else
-                   -- sign extension
-                   abs_posn_o(i) <= posn(31 - to_integer(bits_not_used + unsigned(MSB_DISCARD_i)));
-               end if;
-           -- Add the LSB_DISCARD on to posn index count and start there
-           else
-               abs_posn_o(i) <= posn(i + to_integer(unsigned(ABSENC_LSB_DISCARD_i)));
-           end if;
-        end loop lp_test;
+        if (ABSENC_ENABLED_o = TO_SVECTOR(1,32)) then
+            -- BITS not begin used
+            bits_not_used <= 31 - (unsigned(ABSENC_BITS_i(4 downto 0))-1);
+            lp_test: for i in 31 downto 0 loop
+            -- Discard bits not being used and MSB and LSB and extend the sign.
+            -- Note that we need the loop to manipulate the vector. Slicing with \
+            -- variable indices is not synthesisable.
+            if (i > 31 - bits_not_used - unsigned(ABSENC_MSB_DISCARD_i) - unsigned(ABSENC_LSB_DISCARD_i)) then
+                if ((ABSENC_ENCODING_i=c_UNSIGNED_BINARY_ENCODING) or (ABSENC_ENCODING_i=c_UNSIGNED_GRAY_ENCODING)) then
+                    abs_posn_o(i) <= '0';
+                else
+                    -- sign extension
+                    abs_posn_o(i) <= posn(31 - to_integer(bits_not_used + unsigned(MSB_DISCARD_i)));
+                end if;
+            -- Add the LSB_DISCARD on to posn index count and start there
+            else
+                abs_posn_o(i) <= posn(i + to_integer(unsigned(ABSENC_LSB_DISCARD_i)));
+            end if;
+            end loop lp_test;
+        else
+            abs_posn_o <= (others => '0');
+        end if;
     end if;
 end process abs_ps_select;
 
@@ -279,24 +288,24 @@ end process abs_ps_select;
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        case (INCENC_PROTOCOL_i) is
+        case (ABSENC_PROTOCOL_i) is
             when "000"  =>              -- SSI
-                if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
-                    posn <= posn_ssi_sniffer;
-                    ABSENC_STATUS_o(0) <= linkup_ssi;
-                    if (linkup_ssi = '0') then
-                        ABSENC_HEALTH_o <= TO_SVECTOR(2,32);
-                    else
-                        ABSENC_HEALTH_o <= (others => '0');
+                -- if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
+                posn <= posn_ssi_sniffer;
+                ABSENC_STATUS_o(0) <= linkup_ssi;
+                if (linkup_ssi = '0') then
+                    ABSENC_HEALTH_o <= TO_SVECTOR(2,32);
+                else
+                    ABSENC_HEALTH_o <= (others => '0');
                     end if;
-                else  -- DCARD_CONTROL
-                    posn <= posn_ssi;
-                    ABSENC_STATUS_o <= (others => '0');
-                    ABSENC_HEALTH_o <= (others=>'0');
-                end if;
+                -- else  -- DCARD_CONTROL
+                --     posn <= posn_ssi;
+                --     ABSENC_STATUS_o <= (others => '0');
+                --     ABSENC_HEALTH_o <= (others=>'0');
+                -- end if;
                 ABSENC_HOMED_o <= TO_SVECTOR(1,32);
 
-            when "010"  =>              -- BISS & Loopback
+            when "001"  =>              -- BISS & Loopback
                 if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
                     posn <= posn_biss_sniffer;
                     ABSENC_STATUS_o(0) <= linkup_biss_sniffer;
@@ -444,42 +453,42 @@ begin
         case (PMACENC_PROTOCOL_i) is
             when "000"  =>              -- Passthrough - UVWT
                 PMACENC_HEALTH_o <= (others=>'0');
-                ABSENC_ENABLE <= '0';
+                ABSENC_ENABLED_o <= TO_SVECTOR(0,32);
                 UVWT <= '1';
                 Passthrough <= '1';
             when "001"  =>              -- Passthrough - Absolute
                 PMACENC_HEALTH_o <= (others=>'0');
-                ABSENC_ENABLE <= '1';
+                ABSENC_ENABLED_o <= TO_SVECTOR(1,32);
                 UVWT <= '0';
                 Passthrough <= '1';
 
             when "010"  =>              -- Read - Step/Direction
                 PMACENC_HEALTH_o <= (others=>'0');
-                ABSENC_ENABLE <= '1';
+                ABSENC_ENABLED_o <= TO_SVECTOR(1,32);
                 UVWT <= '0';
                 Passthrough <= '0';
 
             when "011"  =>              -- Generate - SSI
                 PMACENC_HEALTH_o <= (others=>'0');
-                ABSENC_ENABLE <= '1';
+                ABSENC_ENABLED_o <= TO_SVECTOR(1,32);
                 UVWT <= '0';
                 Passthrough <= '0';
 
             when "100"  =>              -- Generate - enDat
                 PMACENC_HEALTH_o <= std_logic_vector(to_unsigned(2,32)); --ENDAT not implemented
-                ABSENC_ENABLE <= '1';
+                ABSENC_ENABLED_o <= TO_SVECTOR(1,32);
                 UVWT <= '0';
                 Passthrough <= '0';
 
             when "101"  =>              -- Generate Biss
                 PMACENC_HEALTH_o <= health_biss_slave;
-                ABSENC_ENABLE <= '1';
+                ABSENC_ENABLED_o <= TO_SVECTOR(1,32);
                 UVWT <= '0';
                 Passthrough <= '0';
                                 
             when others =>
                 PMACENC_HEALTH_o <= (others=>'0');
-                ABSENC_ENABLE <= '1';
+                ABSENC_ENABLED_o <= TO_SVECTOR(1,32);
                 UVWT <= '0';
                 Passthrough <= '0';
 
