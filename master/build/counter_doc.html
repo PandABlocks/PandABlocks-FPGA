@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>COUNTER - Up/Down pulse counter &mdash; PandABlocks-FPGA 3.0-27-g3fbd543
+  <title>COUNTER - Up/Down pulse counter &mdash; PandABlocks-FPGA 3.0-28-g36e7381
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
@@ -42,7 +42,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0-27-g3fbd543
+                3.0-28-g36e7381
 
               </div>
 <div role="search">
@@ -286,27 +286,31 @@ user-defined START value.</p>
 </div>
 </p></td>
 </tr>
-<tr class="row-odd"><td><p>START</p></td>
+<tr class="row-odd"><td><p>SET</p></td>
+<td><p>param int</p></td>
+<td><p>set current value of a counter</p></td>
+</tr>
+<tr class="row-even"><td><p>START</p></td>
 <td><p>param int</p></td>
 <td><p>Counter start value</p></td>
 </tr>
-<tr class="row-even"><td><p>STEP</p></td>
+<tr class="row-odd"><td><p>STEP</p></td>
 <td><p>param</p></td>
 <td><p>Up/Down step value</p></td>
 </tr>
-<tr class="row-odd"><td><p>MAX</p></td>
+<tr class="row-even"><td><p>MAX</p></td>
 <td><p>param int</p></td>
 <td><p>Rollover value</p></td>
 </tr>
-<tr class="row-even"><td><p>MIN</p></td>
+<tr class="row-odd"><td><p>MIN</p></td>
 <td><p>param int</p></td>
 <td><p>Value to which counter should rollover to</p></td>
 </tr>
-<tr class="row-odd"><td><p>CARRY</p></td>
+<tr class="row-even"><td><p>CARRY</p></td>
 <td><p>bit_out</p></td>
 <td><p>Internal counter overflow status</p></td>
 </tr>
-<tr class="row-even"><td><p>OUT</p></td>
+<tr class="row-odd"><td><p>OUT</p></td>
 <td><p>pos_out</p></td>
 <td><p>Current counter value</p></td>
 </tr>
