@@ -28,6 +28,8 @@ port (
     TRIG_EDGE           : in  std_logic_vector(31 downto 0) := (others => '0');
     TRIG_EDGE_WSTB      : in  std_logic;
     OUT_MODE            : in  std_logic_vector(31 downto 0);
+    SET                 : in  std_logic_vector(31 downto 0);
+    SET_WSTB            : in  std_logic;
     START               : in  std_logic_vector(31 downto 0);
     START_WSTB          : in  std_logic;
     STEP                : in  std_logic_vector(31 downto 0);
@@ -129,6 +131,9 @@ begin
         -- Re-load on enable rising edge
         if (enable_rise = '1') then
             counter <= signed(START);
+            carry_latch <= '0';
+        elsif (SET_WSTB = '1') then
+            counter <= signed(SET);
             carry_latch <= '0';
         -- Drop the carry signal on falling enable
         elsif (enable_fall = '1') then

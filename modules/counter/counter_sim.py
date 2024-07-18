@@ -16,7 +16,7 @@ NAMES, PROPERTIES = properties_from_ini(__file__, "counter.block.ini")
 
 
 class CounterSimulation(BlockSimulation):
-    ENABLE, TRIG, DIR, TRIG_EDGE, OUT_MODE, START, STEP, MAX, MIN, CARRY, OUT = PROPERTIES
+    ENABLE, TRIG, DIR, TRIG_EDGE, OUT_MODE, SET, START, STEP, MAX, MIN, CARRY, OUT = PROPERTIES
     
     def __init__(self):
         self.counter = 0
@@ -50,6 +50,8 @@ class CounterSimulation(BlockSimulation):
         if self.OUT_MODE == MODE_OnChange:
             if changes.get(NAMES.ENABLE, None) is 1:
                 self.OUT = self.START
+            elif NAMES.SET in changes:
+                self.OUT = self.SET
             elif changes.get(NAMES.ENABLE, None) is 0:
                 self.CARRY = 0
             elif self.ENABLE and NAMES.TRIG in changes:
@@ -75,6 +77,8 @@ class CounterSimulation(BlockSimulation):
             if changes.get(NAMES.ENABLE, None) is 1:
                 self.counter = self.START
                 self.overflow = 0
+            elif NAMES.SET in changes:
+                self.counter = self.SET
             elif self.ENABLE and NAMES.TRIG in changes:
                 # process trigger on selected edge
                 if got_trigger:
