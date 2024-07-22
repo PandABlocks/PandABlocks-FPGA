@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>common.python.configs &mdash; PandABlocks-FPGA 3.0-28-g36e7381
+  <title>common.python.configs &mdash; PandABlocks-FPGA 3.0-51-g6fc5cf6
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
@@ -40,7 +40,7 @@
               <img src="../../../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0-28-g36e7381
+                3.0-51-g6fc5cf6
 
               </div>
 <div role="search">
@@ -230,7 +230,7 @@
 
 <div class="viewcode-block" id="BlockConfig"><a class="viewcode-back" href="../../../reference/framework.html#common.python.configs.BlockConfig">[docs]</a><span class="k">class</span> <span class="nc">BlockConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The config for a single Block&quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">ini_path</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">ini_path</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)):</span>
         <span class="c1"># type: (str, str, int, str, Optional[int]) -&gt; None</span>
         <span class="c1"># Block names should be UPPER_CASE_NO_TRAILING_NUMBERS</span>
         <span class="k">assert</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;[A-Z][0-9A-Z_]*[A-Z]$&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> \
@@ -247,7 +247,7 @@
         <span class="c1">#: The Block section of the register address space</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">block_address</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1">#: If the type == sfp, which site number</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">site</span> <span class="o">=</span> <span class="n">site</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site_config</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
         <span class="c1">#: The VHDL entity name, like lut</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">entity</span> <span class="o">=</span> <span class="n">ini</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;entity&quot;</span><span class="p">)</span>
         <span class="c1">#: Is the block soft, sfp, fmc or dma?</span>
@@ -269,6 +269,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">=</span> <span class="n">ini_get</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;extension&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">extension</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_sites</span> <span class="o">=</span> <span class="n">ini_get</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;extra_interface&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="c1">#: All the child fields</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">FieldConfig</span><span class="o">.</span><span class="n">from_ini</span><span class="p">(</span>
             <span class="n">ini</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span>  <span class="c1"># type: List[FieldConfig]</span>
@@ -276,6 +277,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">calc_extensions</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1">#: Are there any suffixes?</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">block_suffixes</span> <span class="o">=</span> <span class="n">ini_get</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;block_suffixes&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">site_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_tuple</span><span class="p">):</span>
+
+        <span class="n">siteName</span><span class="p">,</span> <span class="n">siteType</span><span class="p">,</span> <span class="n">siteNumber</span> <span class="o">=</span> <span class="n">site_tuple</span>
+        <span class="k">if</span> <span class="n">siteName</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">siteNumber</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">site</span> <span class="o">=</span> <span class="n">siteName</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">siteType</span> <span class="o">+</span> <span class="s1">&#39;_ARR(&#39;</span> <span class="o">+</span> \
+                            <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">siteNumber</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">site_LOC</span> <span class="o">=</span> <span class="p">(</span><span class="n">siteName</span> <span class="o">+</span> <span class="n">siteNumber</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">site</span> <span class="o">=</span> <span class="n">siteNumber</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">site_LOC</span> <span class="o">=</span> <span class="n">siteNumber</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">site</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">site_LOC</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="BlockConfig.register_addresses"><a class="viewcode-back" href="../../../reference/framework.html#common.python.configs.BlockConfig.register_addresses">[docs]</a>    <span class="k">def</span> <span class="nf">register_addresses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block_counters</span><span class="p">):</span>
         <span class="c1"># type: (RegisterCounter) -&gt; None</span>
@@ -300,24 +316,23 @@
     <span class="k">def</span> <span class="nf">combineSiteInterfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interfaces</span><span class="p">):</span>
         <span class="c1"># type: (List(str)) -&gt; list[tuple]</span>
         <span class="c1"># If a site is defined modify the interfaces to include the site number</span>
-        <span class="n">combinedInterfaces</span><span class="o">=</span><span class="p">[]</span> <span class="c1"># type: List[tuple]</span>
+        <span class="n">combinedInterfaces</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List[tuple]</span>
         <span class="k">for</span> <span class="n">interface</span> <span class="ow">in</span> <span class="n">interfaces</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="p">:</span>
-                <span class="n">split</span><span class="o">=</span><span class="n">interface</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
-                <span class="n">numberedInterface</span><span class="o">=</span><span class="n">split</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;_&quot;</span><span class="o">+</span><span class="n">split</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">combinedInterface</span><span class="o">=</span><span class="p">(</span><span class="n">interface</span><span class="p">,</span><span class="n">numberedInterface</span><span class="p">)</span>
+                <span class="c1"># site_number=re.findall(r&#39;\d+&#39;, self.site)[0]</span>
+                <span class="n">combinedInterface</span> <span class="o">=</span> <span class="p">(</span><span class="n">interface</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">combinedInterface</span><span class="o">=</span><span class="p">(</span><span class="n">interface</span><span class="p">,</span> <span class="n">interface</span><span class="p">)</span>
+                <span class="n">site</span> <span class="o">=</span> <span class="n">interface</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">interface</span> <span class="o">+</span> <span class="s2">&quot;_ARR(0)&quot;</span>
+                <span class="n">combinedInterface</span> <span class="o">=</span> <span class="p">(</span><span class="n">interface</span><span class="p">,</span> <span class="n">site</span><span class="p">)</span>
             <span class="n">combinedInterfaces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">combinedInterface</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">combinedInterfaces</span>
 
 <div class="viewcode-block" id="BlockConfig.generateInterfaceConstraints"><a class="viewcode-back" href="../../../reference/framework.html#common.python.configs.BlockConfig.generateInterfaceConstraints">[docs]</a>    <span class="k">def</span> <span class="nf">generateInterfaceConstraints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate MGT Pints constraints&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">interfaceConstraints</span><span class="o">=</span><span class="p">[]</span>
-        <span class="k">for</span> <span class="n">interface</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interfaces</span><span class="p">:</span>
-            <span class="n">constraint</span> <span class="o">=</span> <span class="n">interface</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;_MGT_pins.xdc&quot;</span>
-            <span class="k">if</span> <span class="n">constraint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interfaceConstraints</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">interfaceConstraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constraint</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interfaceConstraints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">constraint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_LOC</span> <span class="o">+</span> <span class="s2">&quot;_pins.xdc&quot;</span>
+        <span class="k">if</span> <span class="n">constraint</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interfaceConstraints</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interfaceConstraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constraint</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">generate_calc_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Iterate through the fields and add any with writeExtension type to the list</span>
@@ -768,30 +783,21 @@
             <span class="n">RegisterConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_L&quot;</span><span class="p">,</span> <span class="n">counters</span><span class="o">.</span><span class="n">new_field</span><span class="p">()),</span>
             <span class="n">RegisterConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_H&quot;</span><span class="p">,</span> <span class="n">counters</span><span class="o">.</span><span class="n">new_field</span><span class="p">())])</span></div></div>
 
+
 <div class="viewcode-block" id="TargetSiteConfig"><a class="viewcode-back" href="../../../reference/framework.html#common.python.configs.TargetSiteConfig">[docs]</a><span class="k">class</span> <span class="nc">TargetSiteConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The config for the target sites&quot;&quot;&quot;</span>
     <span class="c1">#: Regex for matching a type string to this field</span>
     <span class="n">type_regex</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-        <span class="c1"># type: (str, str)-&gt; None</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">capabilitiy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># type: (str, str, str, str)-&gt; None</span>
         <span class="c1">#: The type of target site (SFP/FMC etc)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="c1">#: The info i in a string such as &quot;3, i, io, o&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">,</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dirs</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#type List[Str]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">interfaces</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#type List[Str]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io_present</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">,</span><span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
-
-
-    <span class="k">def</span> <span class="nf">io_present</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">io</span><span class="p">):</span>
-        <span class="c1"># type: (str) -&gt; List[str]</span>
-        <span class="c1">#: Change a string of form &quot;i, o, io&quot; to a list</span>
-        <span class="n">options</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">interfaces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">option</span><span class="p">)</span></div>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">capability</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">capabilitiy</span><span class="p">)</span> <span class="k">if</span> <span class="n">capabilitiy</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span> <span class="k">if</span> <span class="nb">type</span> <span class="k">else</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">locations</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">number</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span></div>
 </pre></div>
 
            </div>

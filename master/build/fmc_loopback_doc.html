@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FMC_LOOPBACK - FMC Loopback Module &mdash; PandABlocks-FPGA 3.0-28-g36e7381
+  <title>FMC_LOOPBACK - FMC Loopback Module &mdash; PandABlocks-FPGA 3.0-51-g6fc5cf6
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
@@ -42,7 +42,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.0-28-g36e7381
+                3.0-51-g6fc5cf6
 
               </div>
 <div role="search">
@@ -249,37 +249,27 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>SOFT_RESET</p></td>
-<td><p>write action</p></td>
-<td><p>GTX Soft Reset</p></td>
-</tr>
-<tr class="row-odd"><td><p>LOOP_PERIOD</p></td>
+<tr class="row-even"><td><p>LOOP_PERIOD</p></td>
 <td><p>param</p></td>
 <td><p>Loopback toggle period for IO</p></td>
 </tr>
-<tr class="row-even"><td><p>FMC_PRSNT</p></td>
-<td><p>read</p></td>
-<td><p>FMC present</p></td>
+<tr class="row-odd"><td><p>FMC_PRSNT</p></td>
+<td><p>read enum</p></td>
+<td><p><div class="line-block">
+<div class="line">FMC present</div>
+<div class="line">0   FMC Disconnected</div>
+<div class="line">1   FMC Connected</div>
+<div class="line">2   FMC_PRSNT not supported</div>
+</div>
+</p></td>
 </tr>
-<tr class="row-odd"><td><p>LINK_UP</p></td>
-<td><p>read</p></td>
-<td><p>GTX link status</p></td>
-</tr>
-<tr class="row-even"><td><p>ERROR_COUNT</p></td>
-<td><p>read</p></td>
-<td><p>GTX loopback</p></td>
-</tr>
-<tr class="row-odd"><td><p>LA_P_ERROR</p></td>
+<tr class="row-even"><td><p>LA_P_ERROR</p></td>
 <td><p>read</p></td>
 <td><p>LA_P loopback status</p></td>
 </tr>
-<tr class="row-even"><td><p>LA_N_ERROR</p></td>
+<tr class="row-odd"><td><p>LA_N_ERROR</p></td>
 <td><p>read</p></td>
 <td><p>LA_N loopback status</p></td>
-</tr>
-<tr class="row-odd"><td><p>GTREFCLK</p></td>
-<td><p>read</p></td>
-<td><p>GT Ref clock freq</p></td>
 </tr>
 <tr class="row-even"><td><p>FMC_CLK0</p></td>
 <td><p>read</p></td>
@@ -288,18 +278,6 @@
 <tr class="row-odd"><td><p>FMC_CLK1</p></td>
 <td><p>read</p></td>
 <td><p>FMC CLK1 clock freq</p></td>
-</tr>
-<tr class="row-even"><td><p>EXT_CLK</p></td>
-<td><p>read</p></td>
-<td><p>External clock freq</p></td>
-</tr>
-<tr class="row-odd"><td><p>FMC_MAC_LO</p></td>
-<td><p>read</p></td>
-<td><p>MAC low in integer value bit 23:0</p></td>
-</tr>
-<tr class="row-even"><td><p>FMC_MAC_HI</p></td>
-<td><p>read</p></td>
-<td><p>MAC high in integer value bit 47:24</p></td>
 </tr>
 </tbody>
 </table>
