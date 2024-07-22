@@ -116,10 +116,29 @@ class AppGenerator(object):
                     target + ".target.ini")))
             self.implement_blocks(target_ini, "modules", "carrier")
             # Read in what IO site options are available on target
-            target_info = ini_get(target_ini,'.', 'io','').split('\n')
+            target_info = ini_get(target_ini, '.', 'io', '').split('\n')
             for target in target_info:
-                siteType, siteInfo = target.split(':')
-                site=TargetSiteConfig(siteType, siteInfo)
+                siteName, siteInfo = target.split(':')
+                siteName = siteName.strip()
+                siteInfo = siteInfo.strip()
+                if siteInfo.isdigit():
+                    site = TargetSiteConfig(siteName, siteInfo)
+                elif "*" in siteInfo:
+                    # The '*' indiciates there is a capabaility but no actual
+                    # io. The io can be added by a module (e.g on an FMC card)
+                    siteInfo = siteInfo.split("*")[0]
+                    if siteInfo.isdigit():
+                        site = TargetSiteConfig(
+                            siteName, "0", capabilitiy=siteInfo
+                        )
+                    else:
+                        siteType, siteNum = siteInfo.split(",")
+                        site = TargetSiteConfig(
+                            siteName, "0", capabilitiy=siteNum, type=siteType
+                        )
+                else:
+                    siteType, siteNum = siteInfo.split(',')
+                    site = TargetSiteConfig(siteName, siteNum, type=siteType)
                 self.target_sites.append(site)
             # Read in which FPGA options are enabled on target
             self.process_fpga_options(
@@ -178,16 +197,14 @@ class AppGenerator(object):
                 siteInfo = ini_get(ini, section, 'site', None)
                 # If a site has been specified, is it valid?
                 if siteInfo:
-                    siteType=siteInfo.split(" ")[0]
-                    siteNumber=int(siteInfo.split(" ")[1])
+                    siteName = siteInfo.split(" ")[0]
+                    siteNumber = siteInfo.split(" ")[1]
                     for site in self.target_sites:
-                        if siteType in site.name:
-                            target_sites = site.number
-                    assert siteNumber in range(1, target_sites + 1), \
-                        "Block %s in %s_site %s. Target only has %d sites" % (
-                            section, siteType, siteNumber, target_sites)
+                        if siteName == site.name:
+                            siteType = site.type
+                    siteTuple = (siteName, siteType, siteNumber)
                 else:
-                    siteNumber=None;
+                    siteTuple = (None, None, None)
 
                 if block_type:
                     ini_name = ini_get(
@@ -200,7 +217,19 @@ class AppGenerator(object):
                 ini_path = os.path.join(path, module_name, ini_name)
                 # Type is soft if the block is a softblock and carrier
                 # for carrier block
-                block = BlockConfig(section, type, number, ini_path, siteNumber)
+                block = BlockConfig(section, type, number, ini_path, siteTuple)
+                # If additional interfaces are present from within the app
+                # e.g. SFP sites on the FMC card
+                if block.extra_sites:
+                    siteName, siteInfo = block.extra_sites.split(':')
+                    siteName = siteName.strip()
+                    siteInfo = siteInfo.strip()
+                    siteType, siteNumber = siteInfo.split(" ")
+                    for interface in self.target_sites:
+                        if siteType in interface.name:
+                            num = min(int(siteNumber), interface.capability)
+                            interface.capability -= num
+                            interface.number += num
                 block.register_addresses(self.counters)
                 block.generate_calc_extensions()
                 self.fpga_blocks.append(block)
@@ -355,12 +384,17 @@ class AppGenerator(object):
             for moduleInterface in block.interfaces:
                 interfaceMatch = False
                 for site in self.target_sites:
-                    if moduleInterface[0] in site.interfaces:
-                        interfaceMatch = True
-                        target_sites_num = site.number
-                assert interfaceMatch == True, "No %s interface on Carrier" % moduleInterface[0]
-                if target_sites_num > 1:
-                    assert block.site > 0,"No site defined for %s" % block.name
+                    if "fmc" in moduleInterface[0].lower():
+                        if moduleInterface[0].lower() in site.type:
+                            interfaceMatch = True
+                    else:
+                        for i in range(site.number):
+                            if block.site_LOC.lower() == (site.name + str(i+1)).lower():
+                                interfaceMatch = True
+                assert interfaceMatch, "No %s interface on Carrier" % moduleInterface[1]
+
+                # if target_sites_num > 1:
+                #     assert block.site > 0,"No site defined for %s" % block.name
 
     def generate_constraints(self):
         """Generate constraints file for IPs, SFP and FMC constraints"""

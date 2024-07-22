@@ -14,20 +14,19 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 library unisim;
-use unisim.vcomponents.all; -- NEEDED?
+use unisim.vcomponents.all;
 
-library work;
---use work.support.all;
-use work.addr_defines.all; -- NEEDED?
-use work.top_defines.all;  -- NEEDED?
+use work.addr_defines.all;
+use work.top_defines.all;
+use work.interface_types.all;
 
 entity PandABox_top is
 generic (
-    SIM                 : string  := "FALSE";
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32;
     NUM_SFP             : natural := 3;
-    NUM_FMC             : natural := 1
+    NUM_FMC             : natural := 1;
+    MAX_NUM_FMC_MGT     : natural := 1
 );
 port (
     DDR_addr            : inout std_logic_vector (14 downto 0);
@@ -73,26 +72,34 @@ port (
     GTXCLK1_N           : in    std_logic;
 
     -- SFPT GTX I/O and GTX
-    SFP_TX_P            : out   std_logic_vector(2 downto 0) := "ZZZ";
-    SFP_TX_N            : out   std_logic_vector(2 downto 0) := "ZZZ";
-    SFP_RX_P            : in    std_logic_vector(2 downto 0);
-    SFP_RX_N            : in    std_logic_vector(2 downto 0);
+    SFP_TX_P            : out   std_logic_vector(NUM_SFP-1 downto 0)
+                                                            := (others => 'Z');
+    SFP_TX_N            : out   std_logic_vector(NUM_SFP-1 downto 0)
+                                                            := (others => 'Z');
+    SFP_RX_P            : in    std_logic_vector(NUM_SFP-1 downto 0);
+    SFP_RX_N            : in    std_logic_vector(NUM_SFP-1 downto 0);
     SFP_TxDis           : out   std_logic_vector(1 downto 0) := "00";
     SFP_LOS             : in    std_logic_vector(1 downto 0);
 
     -- FMC Differential IO and GTX
-    FMC_DP0_C2M_P       : out   std_logic := 'Z';
-    FMC_DP0_C2M_N       : out   std_logic := 'Z';
-    FMC_DP0_M2C_P       : in    std_logic;
-    FMC_DP0_M2C_N       : in    std_logic;
+    FMC_DP_C2M_P        : out   std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_DP_C2M_N        : out   std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_DP_M2C_P        : in    std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0);
+    FMC_DP_M2C_N        : in    std_logic_vector(MAX_NUM_FMC_MGT-1 downto 0);
 
-    FMC_PRSNT           : in    std_logic;
-    FMC_LA_P            : inout std_logic_vector(33 downto 0) := (others => 'Z');
-    FMC_LA_N            : inout std_logic_vector(33 downto 0) := (others => 'Z');
-    FMC_CLK0_M2C_P      : inout std_logic := 'Z';
-    FMC_CLK0_M2C_N      : inout std_logic := 'Z';
-    FMC_CLK1_M2C_P      : in    std_logic;
-    FMC_CLK1_M2C_N      : in    std_logic;
+    FMC_PRSNT           : in    std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_LA_P            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_LA_N            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_CLK0_M2C_P      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK0_M2C_N      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK1_M2C_P      : in    std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_CLK1_M2C_N      : in    std_logic_vector(NUM_FMC-1 downto 0);
 
     -- External Differential Clock (via front panel SMA)
     EXTCLK_P            : in    std_logic;
@@ -107,6 +114,8 @@ port (
 end PandABox_top;
 
 architecture rtl of PandABox_top is
+
+constant NUM_MGT            : natural := NUM_SFP + MAX_NUM_FMC_MGT;
 
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
@@ -233,8 +242,7 @@ signal rdma_valid           : std_logic_vector(5 downto 0);
 signal SLOW_FPGA_VERSION    : std_logic_vector(31 downto 0);
 signal DCARD_MODE           : std32_array(ENC_NUM-1 downto 0);
 
-signal SFP_MAC_ADDR_ARR     : std32_array(2*NUM_SFP-1 downto 0);
-signal FMC_MAC_ADDR_ARR     : std32_array(2*NUM_FMC-1 downto 0);
+signal MGT_MAC_ADDR_ARR     : std32_array(2*NUM_MGT-1 downto 0);
 
 signal SFP_TS_SEC           : std32_array(NUM_SFP-1 downto 0);
 signal SFP_TS_TICKS         : std32_array(NUM_SFP-1 downto 0);
@@ -244,17 +252,14 @@ signal ts_src               : std_logic_vector(1 downto 0);
 signal pcap_start_event     : std_logic;
 
 -- FMC Block
-signal FMC_i  : FMC_input_interface;
-signal FMC_o  : FMC_output_interface := FMC_o_init;
-signal FMC_io : FMC_inout_interface  := FMC_io_init;
-
+signal FMC      : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
+                                        := (FMC_ARR => (others => FMC_init));
 -- SFP Block
-signal SFP1_i : SFP_input_interface;
-signal SFP1_o : SFP_output_interface := SFP_o_init;
-signal SFP2_i : SFP_input_interface;
-signal SFP2_o : SFP_output_interface := SFP_o_init;
-signal SFP3_i : SFP_input_interface;
-signal SFP3_o : SFP_output_interface := SFP_o_init;
+signal SFP_MGT  : MGT_ARR_REC(MGT_ARR(0 to NUM_SFP-1))
+                                        := (MGT_ARR => (others => MGT_init));
+-- 4th SFP interface available using FMC MGT
+signal FMC_MGT  : MGT_ARR_REC(MGT_ARR(0 to MAX_NUM_FMC_MGT-1))
+                                        := (MGT_ARR => (others => MGT_init));
 
 signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
 attribute syn_noclockbuf : boolean;
@@ -266,16 +271,13 @@ signal sma_pll_locked       : std_logic;
 signal clk_src_sel          : std_logic_vector(1 downto 0);
 signal clk_sel_stat         : std_logic_vector(1 downto 0);
 
+signal SFP_LOS_VEC          : std_logic_vector(NUM_SFP-1 downto 0);
+
 attribute IO_BUFFER_TYPE : string;
 attribute IO_BUFFER_TYPE of SFP_TX_P : signal is "none";
 attribute IO_BUFFER_TYPE of SFP_TX_N : signal is "none";
-attribute IO_BUFFER_TYPE of FMC_DP0_C2M_N : signal is "none";
-attribute IO_BUFFER_TYPE of FMC_DP0_C2M_P : signal is "none";
-
--- Make schematics a bit more clear for analysis
---attribute keep              : string; -- GBC removed following three lines 14/09/18
---attribute keep of bit_bus    : signal is "true";
---attribute keep of pos_bus    : signal is "true";
+attribute IO_BUFFER_TYPE of FMC_DP_C2M_N : signal is "none";
+attribute IO_BUFFER_TYPE of FMC_DP_C2M_P : signal is "none";
 
 begin
 
@@ -330,9 +332,9 @@ mmcm_clkmux_inst: entity work.mmcm_clkmux
 port map(
     fclk_clk0_ps_i      => FCLK_CLK0_PS,
     sma_clk_i           => EXTCLK,
-    mgt_rec_clk_i       => SFP3_o.MGT_REC_CLK,
+    mgt_rec_clk_i       => SFP_MGT.MGT_ARR(NUM_SFP-1).MGT_REC_CLK,
     clk_sel_i           => clk_src_sel,
-    sfp_los_i           => SFP3_i.SFP_LOS,
+    sfp_los_i           => SFP_MGT.MGT_ARR(NUM_SFP-1).SFP_LOS,
     sma_pll_locked_o    => sma_pll_locked,
     clk_sel_stat_o      => clk_sel_stat,
     fclk_clk0_o         => FCLK_CLK0,
@@ -722,8 +724,8 @@ port map (
 ---------------------------------------------------------------------------
 reg_inst : entity work.reg_top
 generic map (
-    NUM_SFP => NUM_SFP,
-    NUM_FMC => NUM_FMC)
+    NUM_MGT => NUM_MGT
+)
 port map (
     clk_i               => FCLK_CLK0,
 
@@ -742,10 +744,8 @@ port map (
     SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
     TS_SEC              => TS_SEC,
     TS_TICKS            => TS_TICKS,
-    SFP_MAC_ADDR        => SFP_MAC_ADDR_ARR,
-    SFP_MAC_ADDR_WSTB   => open,
-    FMC_MAC_ADDR        => FMC_MAC_ADDR_ARR,
-    FMC_MAC_ADDR_WSTB   => open
+    MGT_MAC_ADDR        => MGT_MAC_ADDR_ARR,
+    MGT_MAC_ADDR_WSTB   => open
 );
 
 ---------------------------------------------------------------------------
@@ -803,66 +803,55 @@ bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
 pos_bus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
 
 -- Assemble FMC records
-FMC_i.EXTCLK <= EXTCLK;
-FMC_i.FMC_PRSNT <= FMC_PRSNT;
-FMC_io.FMC_LA_P <= FMC_LA_P;
-FMC_io.FMC_LA_N <= FMC_LA_N;
-FMC_io.FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P;
-FMC_io.FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N;
-FMC_i.FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P;
-FMC_i.FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N;
-FMC_i.GTREFCLK <= q0_clk1_gtrefclk;
-FMC_DP0_C2M_P <= FMC_o.TXP_OUT;
-FMC_DP0_C2M_N <= FMC_o.TXN_OUT;
-FMC_i.RXP_IN <= FMC_DP0_M2C_P;
-FMC_i.RXN_IN <= FMC_DP0_M2C_N;
-FMC_i.MAC_ADDR <= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
-FMC_i.MAC_ADDR_WS <= '0';
+
+FMC_gen: for I in 0 to NUM_FMC-1 generate
+    FMC.FMC_ARR(I).FMC_PRSNT <= '0' & FMC_PRSNT(I);
+    FMC.FMC_ARR(I).FMC_LA_P <= FMC_LA_P(I);
+    FMC.FMC_ARR(I).FMC_LA_N <= FMC_LA_N(I);
+    FMC.FMC_ARR(I).FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P(I);
+    FMC.FMC_ARR(I).FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N(I);
+    FMC.FMC_ARR(I).FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P(I);
+    FMC.FMC_ARR(I).FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N(I);
+end generate;
 
 -- Assemble SFP records
+
+-- NB: SFP 1 LOS hard-coded to '0' as not brought onto pin!
+SFP_LOS_VEC <= (2 => '0', 1 downto 0 => SFP_LOS); 
+
 -- NB: SFPs 1 and 3 are switched around to mirror front panel connections
-SFP1_i.SFP_LOS <= '0';  -- NB: Hard-coded to '0' as not brought out onto pin!
-SFP1_i.GTREFCLK <= q0_clk0_gtrefclk;
-SFP1_i.RXN_IN <= SFP_RX_N(2);
-SFP1_i.RXP_IN <= SFP_RX_P(2);
-SFP_TX_N(2) <= SFP1_o.TXN_OUT;
-SFP_TX_P(2) <= SFP1_o.TXP_OUT;
-SFP_TS_SEC(0) <= SFP1_o.TS_SEC;
-SFP_TS_TICKS(0) <= SFP1_o.TS_TICKS;
-SFP1_i.MAC_ADDR <= SFP_MAC_ADDR_ARR(1)(23 downto 0) & SFP_MAC_ADDR_ARR(0)(23 downto 0);
-SFP1_i.MAC_ADDR_WS <= '0';
-SFP1_i.MGT_CLK_SEL <= clk_src_sel(1);
 
-SFP2_i.SFP_LOS <= SFP_LOS(1);
-SFP2_i.GTREFCLK <= q0_clk0_gtrefclk;
-SFP2_i.RXN_IN <= SFP_RX_N(1);
-SFP2_i.RXP_IN <= SFP_RX_P(1);
-SFP_TX_N(1) <= SFP2_o.TXN_OUT;
-SFP_TX_P(1) <= SFP2_o.TXP_OUT;
-SFP_TS_SEC(1) <= SFP2_o.TS_SEC;
-SFP_TS_TICKS(1) <= SFP2_o.TS_TICKS;
-SFP2_i.MAC_ADDR <= SFP_MAC_ADDR_ARR(3)(23 downto 0) & SFP_MAC_ADDR_ARR(2)(23 downto 0);
-SFP2_i.MAC_ADDR_WS <= '0';
-SFP2_i.MGT_CLK_SEL <= clk_src_sel(1);
+SFP_MGT_gen: for I in 0 to NUM_SFP-1 generate
+    SFP_MGT.MGT_ARR(I).SFP_LOS <= SFP_LOS_VEC(NUM_SFP-1-I);
+    SFP_MGT.MGT_ARR(I).GTREFCLK <= q0_clk0_gtrefclk;
+    SFP_MGT.MGT_ARR(I).RXN_IN <= SFP_RX_N(NUM_SFP-1-I);
+    SFP_MGT.MGT_ARR(I).RXP_IN <= SFP_RX_P(NUM_SFP-1-I);
+    SFP_TX_N(NUM_SFP-1-I) <= SFP_MGT.MGT_ARR(I).TXN_OUT;
+    SFP_TX_P(NUM_SFP-1-I) <= SFP_MGT.MGT_ARR(I).TXP_OUT;
+    SFP_TS_SEC(I) <= SFP_MGT.MGT_ARR(I).TS_SEC;
+    SFP_TS_TICKS(I) <= SFP_MGT.MGT_ARR(I).TS_TICKS;
+    SFP_MGT.MGT_ARR(I).MAC_ADDR <= MGT_MAC_ADDR_ARR(2*I+1)(23 downto 0) & MGT_MAC_ADDR_ARR(2*I)(23 downto 0);
+    SFP_MGT.MGT_ARR(I).MAC_ADDR_WS <= '0';
+end generate;
 
-SFP3_i.SFP_LOS <= SFP_LOS(0);
-SFP3_i.GTREFCLK <= q0_clk0_gtrefclk;
-SFP3_i.RXN_IN <= SFP_RX_N(0);
-SFP3_I.RXP_IN <= SFP_RX_P(0);
-SFP_TX_N(0) <= SFP3_o.TXN_OUT;
-SFP_TX_P(0) <= SFP3_o.TXP_OUT;
-SFP_TS_SEC(2) <= SFP3_o.TS_SEC;
-SFP_TS_TICKS(2) <= SFP3_o.TS_TICKS;
-SFP3_i.MAC_ADDR <= SFP_MAC_ADDR_ARR(5)(23 downto 0) & SFP_MAC_ADDR_ARR(4)(23 downto 0);
-SFP3_i.MAC_ADDR_WS <= '0';
-SFP3_i.MGT_CLK_SEL <= clk_src_sel(1);
+-- Added FMC_MGT which is an option by using the MGT pins on the FMC.
+
+FMC_MGT_gen: for I in 0 to MAX_NUM_FMC_MGT-1 generate
+    FMC_MGT.MGT_ARR(I).SFP_LOS <= '0';
+    FMC_MGT.MGT_ARR(I).GTREFCLK <= q0_clk0_gtrefclk;
+    FMC_MGT.MGT_ARR(I).RXN_IN <= FMC_DP_M2C_N(I);
+    FMC_MGT.MGT_ARR(I).RXP_IN <= FMC_DP_M2C_P(I);
+    FMC_DP_C2M_N(I) <= FMC_MGT.MGT_ARR(I).TXN_OUT;
+    FMC_DP_C2M_P(I) <= FMC_MGT.MGT_ARR(I).TXP_OUT;
+    FMC_MGT.MGT_ARR(I).MAC_ADDR <= (others => '0');
+    FMC_MGT.MGT_ARR(I).MAC_ADDR_WS <= '0';
+end generate;
 
 ---------------------------------------------------------------------------
 -- PandABlocks_top Instantiation (autogenerated!!)
 ---------------------------------------------------------------------------
 
 softblocks_inst : entity work.soft_blocks
-generic map( SIM => SIM)
 port map(
     FCLK_CLK0 => FCLK_CLK0,
     FCLK_RESET0 => FCLK_RESET0,
@@ -885,15 +874,9 @@ port map(
     rdma_len => rdma_len,
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
-    FMC_i => FMC_i,
-    FMC_io => FMC_io,
-    FMC_o => FMC_o,
-    SFP1_i => SFP1_i,
-    SFP1_o => SFP1_o,
-    SFP2_i => SFP2_i,
-    SFP2_o => SFP2_o,
-    SFP3_i => SFP3_i,
-    SFP3_o => SFP3_o
+    FMC => FMC,
+    SFP => SFP_MGT,
+    FMC_MGT => FMC_MGT
 );
 
 end rtl;

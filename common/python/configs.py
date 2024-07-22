@@ -85,7 +85,7 @@ class FieldCounter:
 
 class BlockConfig(object):
     """The config for a single Block"""
-    def __init__(self, name, type, number, ini_path, site=None):
+    def __init__(self, name, type, number, ini_path, site=(None, None, None)):
         # type: (str, str, int, str, Optional[int]) -> None
         # Block names should be UPPER_CASE_NO_TRAILING_NUMBERS
         assert re.match("[A-Z][0-9A-Z_]*[A-Z]$", name), \
@@ -102,7 +102,7 @@ class BlockConfig(object):
         #: The Block section of the register address space
         self.block_address = None
         #: If the type == sfp, which site number
-        self.site = site
+        self.site_config(site)
         #: The VHDL entity name, like lut
         self.entity = ini.get(".", "entity")
         #: Is the block soft, sfp, fmc or dma?
@@ -124,6 +124,7 @@ class BlockConfig(object):
         self.extension = ini_get(ini, '.', 'extension', None)
         if self.extension == '':
             self.extension = self.entity
+        self.extra_sites = ini_get(ini, '.', 'extra_interface', None)
         #: All the child fields
         self.fields = FieldConfig.from_ini(
             ini, number)  # type: List[FieldConfig]
@@ -131,6 +132,21 @@ class BlockConfig(object):
         self.calc_extensions = []
         #: Are there any suffixes?
         self.block_suffixes = ini_get(ini, '.', 'block_suffixes', '').split()
+
+    def site_config(self, site_tuple):
+
+        siteName, siteType, siteNumber = site_tuple
+        if siteName:
+            if siteNumber.isdigit():
+                self.site = siteName + '.' + siteType + '_ARR(' + \
+                            str(int(siteNumber)-1) + ')'
+                self.site_LOC = (siteName + siteNumber).upper()
+            else:
+                self.site = siteNumber
+                self.site_LOC = siteNumber
+        else:
+            self.site = None
+            self.site_LOC = None
 
     def register_addresses(self, block_counters):
         # type: (RegisterCounter) -> None
@@ -155,24 +171,23 @@ class BlockConfig(object):
     def combineSiteInterfaces(self, interfaces):
         # type: (List(str)) -> list[tuple]
         # If a site is defined modify the interfaces to include the site number
-        combinedInterfaces=[] # type: List[tuple]
+        combinedInterfaces = []  # type: List[tuple]
         for interface in interfaces:
             if self.site:
-                split=interface.split("_")
-                numberedInterface=split[0]+str(self.site)+"_"+split[1]
-                combinedInterface=(interface,numberedInterface)
+                # site_number=re.findall(r'\d+', self.site)[0]
+                combinedInterface = (interface, self.site)
             else:
-                combinedInterface=(interface, interface)
+                site = interface + '.' + interface + "_ARR(0)"
+                combinedInterface = (interface, site)
             combinedInterfaces.append(combinedInterface)
         return combinedInterfaces
 
     def generateInterfaceConstraints(self):
         """Generate MGT Pints constraints"""
-        self.interfaceConstraints=[]
-        for interface in self.interfaces:
-            constraint = interface[1].split("_")[0].upper() + "_MGT_pins.xdc"
-            if constraint not in self.interfaceConstraints:
-                self.interfaceConstraints.append(constraint)
+        self.interfaceConstraints = []
+        constraint = self.site_LOC + "_pins.xdc"
+        if constraint not in self.interfaceConstraints:
+            self.interfaceConstraints.append(constraint)
 
     def generate_calc_extensions(self):
         # Iterate through the fields and add any with writeExtension type to the list
@@ -623,27 +638,18 @@ class TimeFieldConfig(FieldConfig):
             RegisterConfig(self.name + "_L", counters.new_field()),
             RegisterConfig(self.name + "_H", counters.new_field())])
 
+
 class TargetSiteConfig(object):
     """The config for the target sites"""
     #: Regex for matching a type string to this field
     type_regex = None
 
-    def __init__(self, name, info):
-        # type: (str, str)-> None
+    def __init__(self, name, num, capabilitiy=None, type=None):
+        # type: (str, str, str, str)-> None
         #: The type of target site (SFP/FMC etc)
         self.name = name
         #: The info i in a string such as "3, i, io, o"
-        self.number = int(info.split(", ",1)[0])
-        self.dirs = [] #type List[Str]
-        self.interfaces = [] #type List[Str]
-        self.io_present(info.split(", ",1)[1])
-
-
-    def io_present(self, io):
-        # type: (str) -> List[str]
-        #: Change a string of form "i, o, io" to a list
-        options=io.split(', ')
-        for option in options:
-            self.dirs.append(option)
-            self.interfaces.append(self.name + "_" + option)
-
+        self.number = int(num)
+        self.capability = int(capabilitiy) if capabilitiy else int(num)
+        self.type = type if type else name
+        self.locations = [str(i) for i in range(1, self.number + 1)]
