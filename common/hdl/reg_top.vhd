@@ -29,8 +29,7 @@ use work.version.all; -- are not treated as blocks and cannot be autogend
 
 entity reg_top is
 generic (
-    NUM_SFP            : natural := 0;
-    NUM_FMC            : natural := 0
+    NUM_MGT            : natural := 0
 );
 port (
     -- Clock and Reset
@@ -49,11 +48,11 @@ port (
     bit_bus_i           : in  bit_bus_t;
     pos_bus_i           : in  pos_bus_t;
     SLOW_FPGA_VERSION   : in  std_logic_vector(31 downto 0);
+    TS_SEC              : in  std_logic_vector(31 downto 0);
+    TS_TICKS            : in  std_logic_vector(31 downto 0);
     -- Output signals
-    SFP_MAC_ADDR        : out std32_array(2*NUM_SFP -1 downto 0) := (others => (others => '1'));
-    SFP_MAC_ADDR_WSTB   : out std_logic_vector(2*NUM_SFP downto 0) := (others => '0');
-    FMC_MAC_ADDR        : out std32_array(2*NUM_FMC -1 downto 0) := (others => (others => '1'));
-    FMC_MAC_ADDR_WSTB   : out std_logic_vector(2*NUM_FMC downto 0) := (others => '0')
+    MGT_MAC_ADDR        : out std32_array(2*NUM_MGT -1 downto 0) := (others => (others => '1'));
+    MGT_MAC_ADDR_WSTB   : out std_logic_vector(2*NUM_MGT downto 0) := (others => '0')
 );
 end reg_top;
 
@@ -98,21 +97,21 @@ begin
     if rising_edge(clk_i) then
         BIT_READ_RST <= '0';
         POS_READ_RST <= '0';
-        if (NUM_SFP > 0 ) then
-            SFP_MAC_ADDR_WSTB(0) <= '0';
-            SFP_MAC_ADDR_WSTB(1) <= '0';
+        if (NUM_MGT > 0 ) then
+            MGT_MAC_ADDR_WSTB(0) <= '0';
+            MGT_MAC_ADDR_WSTB(1) <= '0';
         end if;
-        if (NUM_SFP > 1) then
-            SFP_MAC_ADDR_WSTB(2) <= '0';
-            SFP_MAC_ADDR_WSTB(3) <= '0';
+        if (NUM_MGT > 1) then
+            MGT_MAC_ADDR_WSTB(2) <= '0';
+            MGT_MAC_ADDR_WSTB(3) <= '0';
         end if;
-        if (NUM_SFP > 2 ) then
-            SFP_MAC_ADDR_WSTB(4) <= '0';
-            SFP_MAC_ADDR_WSTB(5) <= '0';
+        if (NUM_MGT > 2 ) then
+            MGT_MAC_ADDR_WSTB(4) <= '0';
+            MGT_MAC_ADDR_WSTB(5) <= '0';
         end if;
-        if (NUM_FMC > 0 ) then
-            FMC_MAC_ADDR_WSTB(0) <= '0';
-            FMC_MAC_ADDR_WSTB(1) <= '0';
+        if (NUM_MGT > 3 ) then
+            MGT_MAC_ADDR_WSTB(6) <= '0';
+            MGT_MAC_ADDR_WSTB(7) <= '0';
         end if;
         if (write_strobe_i = '1') then
             -- System Bus Read Start
@@ -124,44 +123,44 @@ begin
                 POS_READ_RST <= '1';
             end if;
             -- Write MGT MAC addresses
-            if (NUM_SFP > 0) then
+            if (NUM_MGT > 0) then
                 if (write_address = REG_MAC_ADDRESS_BASE_0) then
-                    SFP_MAC_ADDR(0) <= write_data_i;
-                    SFP_MAC_ADDR_WSTB(0) <= '1';
+                    MGT_MAC_ADDR(0) <= write_data_i;
+                    MGT_MAC_ADDR_WSTB(0) <= '1';
                 end if;
                 if (write_address = REG_MAC_ADDRESS_BASE_1) then
-                    SFP_MAC_ADDR(1) <= write_data_i;
-                    SFP_MAC_ADDR_WSTB(1) <= '1';
+                    MGT_MAC_ADDR(1) <= write_data_i;
+                    MGT_MAC_ADDR_WSTB(1) <= '1';
                 end if;
             end if;
-            if (NUM_SFP > 1) then
+            if (NUM_MGT > 1) then
                 if (write_address = REG_MAC_ADDRESS_BASE_2) then
-                    SFP_MAC_ADDR(2) <= write_data_i;
-                    SFP_MAC_ADDR_WSTB(2) <= '1';
+                    MGT_MAC_ADDR(2) <= write_data_i;
+                    MGT_MAC_ADDR_WSTB(2) <= '1';
                 end if;
                 if (write_address = REG_MAC_ADDRESS_BASE_3) then
-                    SFP_MAC_ADDR(3) <= write_data_i;
-                    SFP_MAC_ADDR_WSTB(3) <= '1';
+                    MGT_MAC_ADDR(3) <= write_data_i;
+                    MGT_MAC_ADDR_WSTB(3) <= '1';
                 end if;
             end if;
-            if (NUM_SFP > 2) then
+            if (NUM_MGT > 2) then
                 if (write_address = REG_MAC_ADDRESS_BASE_4) then
-                    SFP_MAC_ADDR(4) <= write_data_i;
-                    SFP_MAC_ADDR_WSTB(4) <= '1';
+                    MGT_MAC_ADDR(4) <= write_data_i;
+                    MGT_MAC_ADDR_WSTB(4) <= '1';
                 end if;
                 if (write_address = REG_MAC_ADDRESS_BASE_5) then
-                    SFP_MAC_ADDR(5) <= write_data_i;
-                    SFP_MAC_ADDR_WSTB(5) <= '1';
+                    MGT_MAC_ADDR(5) <= write_data_i;
+                    MGT_MAC_ADDR_WSTB(5) <= '1';
                 end if;
             end if;
-            if (NUM_FMC > 0) then
+            if (NUM_MGT > 3) then
                 if (write_address = REG_MAC_ADDRESS_BASE_6) then
-                    FMC_MAC_ADDR(0) <= write_data_i;
-                    FMC_MAC_ADDR_WSTB(0) <= '1';
+                    MGT_MAC_ADDR(6) <= write_data_i;
+                    MGT_MAC_ADDR_WSTB(6) <= '1';
                 end if;
                 if (write_address = REG_MAC_ADDRESS_BASE_7) then
-                    FMC_MAC_ADDR(1) <= write_data_i;
-                    FMC_MAC_ADDR_WSTB(1) <= '1';
+                    MGT_MAC_ADDR(7) <= write_data_i;
+                    MGT_MAC_ADDR_WSTB(7) <= '1';
                 end if;
            end if;
         end if;
@@ -202,6 +201,10 @@ begin
                 read_data_o <= POS_READ_CHANGES;
             when REG_FPGA_CAPABILITIES =>
                 read_data_o <= FPGA_CAPABILITIES;
+            when REG_PCAP_TS_SEC => 
+                read_data_o <= TS_SEC;
+            when REG_PCAP_TS_TICKS =>
+                read_data_o <= TS_TICKS;
             when others =>
                 read_data_o <= (others => '0');
         end case;

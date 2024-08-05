@@ -5,6 +5,7 @@ use ieee.numeric_std.all;
 library work;
 use work.support.all;
 use work.top_defines.all;
+use work.interface_types.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -33,8 +34,7 @@ port (
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
 
-    SFP_i               : in SFP_input_interface;
-    SFP_o               : out SFP_output_interface
+    MGT                 : view MGT_Module
 );
 end sfp_dls_eventr_wrapper;
 
@@ -90,7 +90,7 @@ signal txcharisk_i           : std_logic_vector(1 downto 0);
 signal bit1,bit2,bit3,bit4   : std_logic;
 
 signal unix_time             : std_logic_vector(31 downto 0);
-signal unix_time_smpld       : std_logic_vector(31 downto 0);
+signal unix_time_ticks       : std_logic_vector(31 downto 0);
 signal err_cnt_smpld         : std_logic_vector(31 downto 0);
 
 -- ILA stuff
@@ -113,19 +113,21 @@ begin
 txnobuf : obuf
 port map (
     I => TXN,
-    O => SFP_o.TXN_OUT
+    O => MGT.TXN_OUT
 );
 
 txpobuf : obuf
 port map (
     I => TXP,
-    O => SFP_o.TXP_OUT
+    O => MGT.TXP_OUT
 );
 
 -- Assign outputs
 
-SFP_o.MGT_REC_CLK <= rxoutclk;
-SFP_o.LINK_UP <= LINKUP(0);
+MGT.MGT_REC_CLK <= rxoutclk;
+MGT.LINK_UP <= LINKUP(0);
+MGT.TS_SEC <= unix_time;
+MGT.TS_TICKS <= unix_time_ticks;
 
 bit1_o(0) <= bit1;
 bit2_o(0) <= bit2;
@@ -149,7 +151,7 @@ port map(
 
 sfp_receiver_inst: entity work.sfp_receiver
 port map(
-    clk_i           => clk_i,
+    sysclk_i        => clk_i,
     event_clk_i     => rxoutclk,
     reset_i         => reset_i,
     rxdisperr_i     => rxdisperr,
@@ -171,17 +173,18 @@ port map(
     rx_link_ok_o    => rx_link_ok_o,
     loss_lock_o     => loss_lock_o, 
     rx_error_o      => rx_error_o,
-    utime_o         => unix_time
+    utime_o         => unix_time,
+    utime_ticks_o   => unix_time_ticks
 );
 
 
 sfpgtx_event_receiver_inst: entity work.sfp_event_receiver
 port map(
-    GTREFCLK           => SFP_i.GTREFCLK,
-    sysclk_i              => clk_i,
+    GTREFCLK           => MGT.GTREFCLK,
+    sysclk_i           => clk_i,
     event_reset_i      => EVENT_RESET,
-    rxp_i              => SFP_i.RXP_IN,
-    rxn_i              => SFP_i.RXN_IN,
+    rxp_i              => MGT.RXP_IN,
+    rxn_i              => MGT.RXN_IN,
     txp_o              => TXP,
     txn_o              => TXN,
     rxbyteisaligned_o  => rxbyteisaligned_o,
@@ -260,18 +263,6 @@ port map (
     data_o => err_cnt_smpld
 );
 
-utime_latch : entity work.latched_sync
-generic map (
-    DWIDTH => 32,
-    PERIOD => 125  -- 1 MHz for 125 MHz clock
-)
-port map (
-    src_clk => rxoutclk,
-    dest_clk => clk_i,
-    data_i => unix_time,
-    data_o => unix_time_smpld
-);
-
 ---------------------------------------------------------------------------
 -- FMC CSR Interface
 ---------------------------------------------------------------------------
@@ -284,7 +275,7 @@ port map (
     pos_bus_i         => pos_bus_i,
 
     LINKUP            => LINKUP,
-    UNIX_TIME         => unix_time_smpld,
+    UNIX_TIME         => unix_time,
     ERROR_COUNT       => err_cnt_smpld,
     EVENT_RESET       => open,
     EVENT_RESET_WSTB  => EVENT_RESET,

@@ -14,20 +14,19 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 library unisim;
-use unisim.vcomponents.all; -- NEEDED?
+use unisim.vcomponents.all;
 
-library work;
---use work.support.all;
-use work.addr_defines.all; -- NEEDED?
-use work.top_defines.all;  -- NEEDED?
+use work.addr_defines.all;
+use work.top_defines.all;
+use work.interface_types.all;
 
 entity ZedBoard_top is
 generic (
-    SIM                 : string  := "FALSE";
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32;
-    NUM_SFP             : natural := 3;
-    NUM_FMC             : natural := 1
+    NUM_SFP             : natural := 0;
+    NUM_FMC             : natural := 1;
+    MAX_NUM_FMC_MGT     : natural := 0
 );
 port (
     DDR_addr            : inout std_logic_vector (14 downto 0);
@@ -68,17 +67,24 @@ port (
 	led : out std_logic_vector(7 downto 0) := X"aa";
 	SW : in std_logic_vector(7 downto 0); 
 
-    FMC_PRSNT           : in    std_logic;
-    FMC_LA_P            : inout std_logic_vector(33 downto 0) := (others => 'Z');
-    FMC_LA_N            : inout std_logic_vector(33 downto 0) := (others => 'Z');
-    FMC_CLK0_M2C_P      : inout std_logic := 'Z';
-    FMC_CLK0_M2C_N      : inout std_logic := 'Z';
-    FMC_CLK1_M2C_P      : in    std_logic;
-    FMC_CLK1_M2C_N      : in    std_logic
+    -- FMC
+    FMC_PRSNT           : in    std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_LA_P            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_LA_N            : inout std_uarray(NUM_FMC-1 downto 0)(33 downto 0)
+                                                := (others => (others => 'Z'));
+    FMC_CLK0_M2C_P      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK0_M2C_N      : inout std_logic_vector(NUM_FMC-1 downto 0)
+                                                            := (others => 'Z');
+    FMC_CLK1_M2C_P      : in    std_logic_vector(NUM_FMC-1 downto 0);
+    FMC_CLK1_M2C_N      : in    std_logic_vector(NUM_FMC-1 downto 0)
 );
 end ZedBoard_top;
 
 architecture rtl of ZedBoard_top is
+
+constant NUM_MGT            : natural := NUM_SFP + MAX_NUM_FMC_MGT;
 
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
@@ -176,15 +182,9 @@ signal rdma_len             : std8_array(5 downto 0);
 signal rdma_data            : std_logic_vector(31 downto 0);
 signal rdma_valid           : std_logic_vector(5 downto 0);
 
-signal SLOW_FPGA_VERSION    : std_logic_vector(31 downto 0);
-
-signal SFP_MAC_ADDR_ARR     : std32_array(2*NUM_SFP-1 downto 0);
-signal FMC_MAC_ADDR_ARR     : std32_array(2*NUM_FMC-1 downto 0);
-
 -- FMC Block
-signal FMC_i  : FMC_input_interface;
-signal FMC_o  : FMC_output_interface := FMC_o_init;
-signal FMC_io : FMC_inout_interface  := FMC_io_init;
+signal FMC                  : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
+                                        := (FMC_ARR => (others => FMC_init));
 
 component panda_ps is
   port (
@@ -557,8 +557,8 @@ port map (
 ---------------------------------------------------------------------------
 reg_inst : entity work.reg_top
 generic map (
-    NUM_SFP => NUM_SFP,
-    NUM_FMC => NUM_FMC)
+    NUM_MGT => NUM_MGT
+)
 port map (
     clk_i               => FCLK_CLK0,
 
@@ -574,16 +574,12 @@ port map (
 
     bit_bus_i           => bit_bus,
     pos_bus_i           => pos_bus,
-    SLOW_FPGA_VERSION   => SLOW_FPGA_VERSION,
-    SFP_MAC_ADDR        => SFP_MAC_ADDR_ARR,
-    SFP_MAC_ADDR_WSTB   => open,
-    FMC_MAC_ADDR        => FMC_MAC_ADDR_ARR,
-    FMC_MAC_ADDR_WSTB   => open
+    SLOW_FPGA_VERSION   => (others => '0'),
+    TS_SEC              => (others => '0'),
+    TS_TICKS            => (others => '0'),
+    MGT_MAC_ADDR        => open,
+    MGT_MAC_ADDR_WSTB   => open
 );
-
-
-
-
 
 -- Bus assembly ----
 
@@ -592,24 +588,22 @@ port map (
 bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active;
 
 -- Assemble FMC records
---FMC_i.EXTCLK <= EXTCLK;
-FMC_i.FMC_PRSNT <= FMC_PRSNT;
-FMC_io.FMC_LA_P <= FMC_LA_P;
-FMC_io.FMC_LA_N <= FMC_LA_N;
-FMC_io.FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P;
-FMC_io.FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N;
-FMC_i.FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P;
-FMC_i.FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N;
-FMC_i.MAC_ADDR <= FMC_MAC_ADDR_ARR(1)(23 downto 0) & FMC_MAC_ADDR_ARR(0)(23 downto 0);
-FMC_i.MAC_ADDR_WS <= '0';
 
+FMC_gen: for I in 0 to NUM_FMC-1 generate
+    FMC.FMC_ARR(I).FMC_PRSNT <= '0' & FMC_PRSNT(I);
+    FMC.FMC_ARR(I).FMC_LA_P <= FMC_LA_P(I);
+    FMC.FMC_ARR(I).FMC_LA_N <= FMC_LA_N(I);
+    FMC.FMC_ARR(I).FMC_CLK0_M2C_P <= FMC_CLK0_M2C_P(I);
+    FMC.FMC_ARR(I).FMC_CLK0_M2C_N <= FMC_CLK0_M2C_N(I);
+    FMC.FMC_ARR(I).FMC_CLK1_M2C_P <= FMC_CLK1_M2C_P(I);
+    FMC.FMC_ARR(I).FMC_CLK1_M2C_N <= FMC_CLK1_M2C_N(I);
+end generate;
 
 ---------------------------------------------------------------------------
 -- PandABlocks_top Instantiation (autogenerated!!)
 ---------------------------------------------------------------------------
 
 softblocks_inst : entity work.soft_blocks
-generic map( SIM => SIM)
 port map(
     FCLK_CLK0 => FCLK_CLK0,
     FCLK_RESET0 => FCLK_RESET0,
@@ -632,9 +626,7 @@ port map(
     rdma_len => rdma_len,
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
-    FMC_i => FMC_i,
-    FMC_io => FMC_io,
-    FMC_o => FMC_o    
+    FMC => FMC
 );
 
 

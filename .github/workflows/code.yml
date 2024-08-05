@@ -122,6 +122,7 @@ jobs:
         run: |
           docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
           docker run \
+            --net=host \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
@@ -237,6 +238,7 @@ jobs:
         run: |
           sudo docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
           sudo docker run \
+            --net=host \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \

@@ -33,11 +33,11 @@ class PosencSimulation(BlockSimulation):
 
     def next_ts(self, ts):
         # Do not allow PERIOD value of 1
-        period = max(self.PERIOD, 2)
-        # Clock is a free running prescaler, so wait for the next multiple of it
-        clock_delta = (ts + 1) - self.clock_start
-        mod = clock_delta % period
-        next_ts = (ts + 1) - mod + period
+        if self.PROTOCOL == STEP_DIRECTION:
+            period = max(self.PERIOD, 2)
+        else:
+            period = self.PERIOD
+        next_ts = (ts + 1) + period
         return next_ts
 
     def on_changes(self, ts, changes):
@@ -67,24 +67,24 @@ class PosencSimulation(BlockSimulation):
                     self.STATE = SLEWING
                     next_ts = self.next_ts(ts)
             elif self.STATE == SLEWING:
+                # Move one place in the right direction
+                if self.INP > self.tracker:
+                    self.A, self.B = QUAD_POSITIVE[(self.A, self.B)]
+                    self.tracker += 1
+                else:
+                    self.A, self.B = QUAD_NEGATIVE[(self.A, self.B)]
+                    self.tracker -= 1
                 if self.tracker == self.INP:
-                    # Have reached the right place
-                    self.STATE = AT_POSITION
                     next_ts = ts + 1
                 else:
-                    # Move one place in the right direction
-                    if self.INP > self.tracker:
-                        self.A, self.B = QUAD_POSITIVE[(self.A, self.B)]
-                        self.tracker += 1
-                    else:
-                        self.A, self.B = QUAD_NEGATIVE[(self.A, self.B)]
-                        self.tracker -= 1
-                    if self.tracker == self.INP:
-                        next_ts = ts + 1
-                    else:
-                        next_ts = self.next_ts(ts)
+                    next_ts = self.next_ts(ts)
+            if self.tracker == self.INP:
+                # Have reached the right place
+                self.STATE = AT_POSITION
+                next_ts = ts + 1
         elif self.ENABLE and self.PROTOCOL == STEP_DIRECTION:
             if self.STATE == AT_POSITION:
+                self.A = 0
                 if self.B != 1:
                     # Direction is set one clock after initially entering state
                     self.B = 1
@@ -97,12 +97,12 @@ class PosencSimulation(BlockSimulation):
             elif self.STATE == SLEWING:
                 if self.A:
                     self.A = 0
-                    self.tracker += -1 if self.B else 1
-                    if self.tracker == self.INP:
-                        self.STATE = AT_POSITION
-                        self.B = 1
                     next_ts = self.next_ts(ts)
                 else:
                     self.A = 1
                     next_ts = ts + 1
+                    self.tracker += -1 if self.B else 1
+                    if self.tracker == self.INP:
+                        self.STATE = AT_POSITION
+                        self.B = 1
         return next_ts

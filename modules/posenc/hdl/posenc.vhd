@@ -52,8 +52,9 @@ port map (
     dir_o           => dir
 );
 
--- The period needs to be set greater than 1
-period_i <= PERIOD when (unsigned(PERIOD) /= 1) else  (0 => '0',
+-- The period needs to be set greater than 1 for step/direction
+period_i <= PERIOD when (NOT(unsigned(PERIOD) = 1 AND unsigned(PROTOCOL) = 1)) else  (
+                                                      0 => '0',
                                                       1 => '1',
                                                  others => '0');
 

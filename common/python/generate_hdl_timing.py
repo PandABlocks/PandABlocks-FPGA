@@ -50,7 +50,9 @@ class TimingCsv(object):
             else:
                 # Lut Function values were given in hex, they need to be
                 # converted to an int, for the testbench to pass
-                v = str(int(v, 0))
+                # Use bitmask operator to convert to 32-bit unsigned
+                # as work-around for bug with $fscanf in Vivado2023.2
+                v = str(int(v, 0) & 0xFFFFFFFF)
 
             self.lengths[k] = max(self.lengths[k], len(v))
             self.values[k] = v
@@ -208,11 +210,11 @@ class HdlTimingGenerator(object):
             headerslength=headerslength,
         )
         if block.type == "pcap":
-            self.expand_template("pcap_hdl_timing.v.jinja2", context,
-                                 timing_dir, "hdl_timing.v")
+            self.expand_template("pcap_hdl_timing.sv.jinja2", context,
+                                 timing_dir, "hdl_timing.sv")
         else:
-            self.expand_template("hdl_timing.v.jinja2", context, timing_dir,
-                                 "hdl_timing.v")
+            self.expand_template("hdl_timing.sv.jinja2", context, timing_dir,
+                                 "hdl_timing.sv")
 
     # A script should be generated for each module for running the tests in
     # vivado. regression_tests.tcl searches through hdl_timing and finds every

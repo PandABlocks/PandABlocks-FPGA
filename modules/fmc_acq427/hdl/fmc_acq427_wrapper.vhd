@@ -20,6 +20,7 @@ use unisim.vcomponents.all;
 library work;
 use work.support.all;
 use work.top_defines.all;
+use work.interface_types.all;
 
 entity fmc_acq427_wrapper is
 port (
@@ -50,7 +51,7 @@ port (
     write_address_i     : in  std_logic_vector(PAGE_AW-1 downto 0);
     write_data_i        : in  std_logic_vector(31 downto 0);
     write_ack_o         : out std_logic;
-    FMC_io              : inout fmc_inout_interface
+    FMC                 : view FMC_Module
 );
 end fmc_acq427_wrapper;
 
@@ -190,22 +191,22 @@ begin
 -- ADC
 ---------------------------------------------------------------------------------------
 -- Input Pins
---p_FMC_EXT_CLK  <=  FMC_io.FMC_LA_P(0); -- (unused) GBC:20190321
---p_FMC_EXT_TRIG <=  FMC_io.FMC_LA_P(12); -- (unused) GBC:20190321
-in_ttl_o(0) <= FMC_io.FMC_LA_P(0);
-p_ADC_SDO(8)   <=  FMC_io.FMC_LA_P(20);
-p_ADC_SDO(7)   <=  FMC_io.FMC_LA_P(21);
-p_ADC_SDO(6)   <=  FMC_io.FMC_LA_P(22);
-p_ADC_SDO(5)   <=  FMC_io.FMC_LA_P(23);
-p_ADC_SDO(4)   <=  FMC_io.FMC_LA_P(16);
-p_ADC_SDO(3)   <=  FMC_io.FMC_LA_P(17);
-p_ADC_SDO(2)   <=  FMC_io.FMC_LA_P(18);
-p_ADC_SDO(1)   <=  FMC_io.FMC_LA_P(19);
+--p_FMC_EXT_CLK  <=  FMC.FMC_LA_P(0); -- (unused) GBC:20190321
+--p_FMC_EXT_TRIG <=  FMC.FMC_LA_P(12); -- (unused) GBC:20190321
+in_ttl_o(0) <= FMC.FMC_LA_P(0);
+p_ADC_SDO(8)   <=  FMC.FMC_LA_P(20);
+p_ADC_SDO(7)   <=  FMC.FMC_LA_P(21);
+p_ADC_SDO(6)   <=  FMC.FMC_LA_P(22);
+p_ADC_SDO(5)   <=  FMC.FMC_LA_P(23);
+p_ADC_SDO(4)   <=  FMC.FMC_LA_P(16);
+p_ADC_SDO(3)   <=  FMC.FMC_LA_P(17);
+p_ADC_SDO(2)   <=  FMC.FMC_LA_P(18);
+p_ADC_SDO(1)   <=  FMC.FMC_LA_P(19);
 
 -- Output Pins
-FMC_io.FMC_LA_P(14)   <=  p_ADC_CNV_A;
-FMC_io.FMC_LA_P(15)   <=  p_ADC_CNV_B;
-FMC_io.FMC_LA_P(13)   <=  p_ADC_SPI_CLK;
+FMC.FMC_LA_P(14)   <=  p_ADC_CNV_A;
+FMC.FMC_LA_P(15)   <=  p_ADC_CNV_B;
+FMC.FMC_LA_P(13)   <=  p_ADC_SPI_CLK;
 
 
 --s_TRIG_DATA    <=  FMC_IO_BUS(1); -- (unused) GBC:20190321
@@ -214,21 +215,21 @@ FMC_io.FMC_LA_P(13)   <=  p_ADC_SPI_CLK;
 -- DAC
 ---------------------------------------------------------------------------------------
 -- Input Pins
-p_DAC_SDO(1)        <= FMC_io.FMC_LA_P(8);
-p_DAC_SDO(2)        <= FMC_io.FMC_LA_P(9);
-p_DAC_SDO(3)        <= FMC_io.FMC_LA_P(10);
-p_DAC_SDO(4)        <= FMC_io.FMC_LA_P(11);
+p_DAC_SDO(1)        <= FMC.FMC_LA_P(8);
+p_DAC_SDO(2)        <= FMC.FMC_LA_P(9);
+p_DAC_SDO(3)        <= FMC.FMC_LA_P(10);
+p_DAC_SDO(4)        <= FMC.FMC_LA_P(11);
 
 -- Output Pins
-FMC_io.FMC_CLK0_M2C_P      <= p_DAC_SPI_CLK;
+FMC.FMC_CLK0_M2C_P      <= p_DAC_SPI_CLK;
 
-FMC_io.FMC_LA_P(4)         <= p_DAC_SDI(1);
-FMC_io.FMC_LA_P(5)         <= p_DAC_SDI(2);
-FMC_io.FMC_LA_P(6)         <= p_DAC_SDI(3);
-FMC_io.FMC_LA_P(7)         <= p_DAC_SDI(4);
-FMC_io.FMC_LA_P(1)         <= p_DAC_SYNC_n;
-FMC_io.FMC_LA_P(2)         <= p_DAC_LD_n;
-FMC_io.FMC_LA_P(3)         <= p_DAC_RST_n;
+FMC.FMC_LA_P(4)         <= p_DAC_SDI(1);
+FMC.FMC_LA_P(5)         <= p_DAC_SDI(2);
+FMC.FMC_LA_P(6)         <= p_DAC_SDI(3);
+FMC.FMC_LA_P(7)         <= p_DAC_SDI(4);
+FMC.FMC_LA_P(1)         <= p_DAC_SYNC_n;
+FMC.FMC_LA_P(2)         <= p_DAC_LD_n;
+FMC.FMC_LA_P(3)         <= p_DAC_RST_n;
 
 
 ---------------------------------------------------------------------------------------

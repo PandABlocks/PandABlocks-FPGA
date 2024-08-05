@@ -117,10 +117,29 @@ class AppGenerator(object):
                     target + ".target.ini")))
             self.implement_blocks(target_ini, "modules", "carrier")
             # Read in what IO site options are available on target
-            target_info = ini_get(target_ini,'.', 'io','').split('\n')
+            target_info = ini_get(target_ini, '.', 'io', '').split('\n')
             for target in target_info:
-                siteType, siteInfo = target.split(':')
-                site=TargetSiteConfig(siteType, siteInfo)
+                siteName, siteInfo = target.split(':')
+                siteName = siteName.strip()
+                siteInfo = siteInfo.strip()
+                if siteInfo.isdigit():
+                    site = TargetSiteConfig(siteName, siteInfo)
+                elif "*" in siteInfo:
+                    # The '*' indiciates there is a capabaility but no actual
+                    # io. The io can be added by a module (e.g on an FMC card)
+                    siteInfo = siteInfo.split("*")[0]
+                    if siteInfo.isdigit():
+                        site = TargetSiteConfig(
+                            siteName, "0", capabilitiy=siteInfo
+                        )
+                    else:
+                        siteType, siteNum = siteInfo.split(",")
+                        site = TargetSiteConfig(
+                            siteName, "0", capabilitiy=siteNum, type=siteType
+                        )
+                else:
+                    siteType, siteNum = siteInfo.split(',')
+                    site = TargetSiteConfig(siteName, siteNum, type=siteType)
                 self.target_sites.append(site)
             # Read in which FPGA options are enabled on target
             self.process_fpga_options(
@@ -179,16 +198,14 @@ class AppGenerator(object):
                 siteInfo = ini_get(ini, section, 'site', None)
                 # If a site has been specified, is it valid?
                 if siteInfo:
-                    siteType=siteInfo.split(" ")[0]
-                    siteNumber=int(siteInfo.split(" ")[1])
+                    siteName = siteInfo.split(" ")[0]
+                    siteNumber = siteInfo.split(" ")[1]
                     for site in self.target_sites:
-                        if siteType in site.name:
-                            target_sites = site.number
-                    assert siteNumber in range(1, target_sites + 1), \
-                        "Block %s in %s_site %s. Target only has %d sites" % (
-                            section, siteType, siteNumber, target_sites)
+                        if siteName == site.name:
+                            siteType = site.type
+                    siteTuple = (siteName, siteType, siteNumber)
                 else:
-                    siteNumber=None;
+                    siteTuple = (None, None, None)
 
                 if block_type:
                     ini_name = ini_get(
@@ -201,7 +218,19 @@ class AppGenerator(object):
                 ini_path = os.path.join(path, module_name, ini_name)
                 # Type is soft if the block is a softblock and carrier
                 # for carrier block
-                block = BlockConfig(section, type, number, ini_path, siteNumber)
+                block = BlockConfig(section, type, number, ini_path, siteTuple)
+                # If additional interfaces are present from within the app
+                # e.g. SFP sites on the FMC card
+                if block.extra_sites:
+                    siteName, siteInfo = block.extra_sites.split(':')
+                    siteName = siteName.strip()
+                    siteInfo = siteInfo.strip()
+                    siteType, siteNumber = siteInfo.split(" ")
+                    for interface in self.target_sites:
+                        if siteType in interface.name:
+                            num = min(int(siteNumber), interface.capability)
+                            interface.capability -= num
+                            interface.number += num
                 block.register_addresses(self.counters)
                 block.generate_calc_extensions()
                 self.fpga_blocks.append(block)
@@ -356,12 +385,17 @@ class AppGenerator(object):
             for moduleInterface in block.interfaces:
                 interfaceMatch = False
                 for site in self.target_sites:
-                    if moduleInterface[0] in site.interfaces:
-                        interfaceMatch = True
-                        target_sites_num = site.number
-                assert interfaceMatch == True, "No %s interface on Carrier" % moduleInterface[0]
-                if target_sites_num > 1:
-                    assert block.site > 0,"No site defined for %s" % block.name
+                    if "fmc" in moduleInterface[0].lower():
+                        if moduleInterface[0].lower() in site.type:
+                            interfaceMatch = True
+                    else:
+                        for i in range(site.number):
+                            if block.site_LOC.lower() == (site.name + str(i+1)).lower():
+                                interfaceMatch = True
+                assert interfaceMatch, "No %s interface on Carrier" % moduleInterface[1]
+
+                # if target_sites_num > 1:
+                #     assert block.site > 0,"No site defined for %s" % block.name
 
     def generate_constraints(self):
         """Generate constraints file for IPs, SFP and FMC constraints"""
@@ -390,47 +424,35 @@ class AppGenerator(object):
         reg_server_dir = os.path.join(
             ROOT, "common", "templates", "registers_server")
         hdl_dir = os.path.join(self.app_build_dir, "hdl")
-        blocks = []
-        data = []
-        numbers = []
         regs = []
+        block = ""
         with open(reg_server_dir, 'r') as fp:
             for line in fp:
-                if "=" in line:
-                    # ignore constants
+                line = line.strip()
+                if "=" in line or line.startswith("#") or not line:
+                    # ignore constants and comments
                     continue
 
-                if "*" in line:
+                values = line.split()
+                if values and values[0] and values[0][0] == '*':
                     # The prefix for the signals are either REG or DRV
-                    block = line.split(" ", 1)[0]
-                if "#" not in line:
-                    # Ignore any lines which are comments
-                    # Reg name is the string before the last space
-                    # Double space is used in case arrays are present
-                    name = line.rsplit("  ", 1)[0].replace(" ", "")
-                    # Number is string after last space
-                    number = line.rsplit("  ", 1)[-1]
-                    if ".." in number:
-                        # Some of the values are arrays
-                        [lownum, highnum] = number.split("..", 1)
-                        lownum = [int(s) for s in lownum.split()
-                                  if s.isdigit()][0]
-                        highnum = [int(s) for s in highnum.split()
-                                   if s.isdigit()][0]
-                        for i in range((highnum + 1) - lownum):
-                            array_name = name + "_" + str(i)
-                            regs.append(dict(name=array_name,
-                                             number=str(lownum + i),
-                                             block=block.replace("*", "")))
-                    else:
-                        if self.hasnumbers(number):
-                            # Avoids including blank lines
-                            data.append(name)
-                            numbers.append(number.replace("\n", ""))
-                            blocks.append(block.replace("*", ""))
-                            regs.append(dict(name=name,
-                                             number=number.replace("\n", ""),
-                                             block=block.replace("*", "")))
+                    block = values[0][1:]
+
+                name = values[0]
+                if len(values) >= 2 and values[1] == "opt":
+                    del values[1]
+                lownum = int(values[1])
+                if len(values) == 4 and values[2] == "..":
+                    highnum = int(values[3])
+                    for i in range(lownum, highnum + 1):
+                        regs.append(dict(
+                            name="%s_%d" % (name, i - lownum),
+                            number=str(i),
+                            block=block))
+                else:
+                    regs.append(
+                        dict(name=name, number=str(lownum), block=block))
+
         context = jinja_context(regs=regs)
         self.expand_template("reg_defines.vhd.jinja2", context, hdl_dir,
                              "reg_defines.vhd")

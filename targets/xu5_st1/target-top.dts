@@ -8,6 +8,14 @@
 
 &i2c0 {
 	clock-frequency = <100000>;
+	ssd1306: oled@0x3c {
+		compatible = "solomon,ssd1306";
+		reg = <0x3c>;
+		solomon,height = <64>;
+		solomon,width = <128>;
+		solomon,page-offset = <0>;
+		solomon,segment-no-remap;
+	};
 };
 
 &qspi {
@@ -37,10 +45,6 @@
 };
 
 / {
-	led_daemon: led_daemon {
-		sta-led = "25";
-		dia-led = "24";
-	};
 	amba_pl: amba_pl {
 		#address-cells = <1>;
 		#size-cells = <1>;
