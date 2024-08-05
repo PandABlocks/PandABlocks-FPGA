@@ -24,13 +24,13 @@ port (
     -- Configuration interface
     ENCODING        : in  std_logic_vector(1 downto 0);
     BITS            : in  std_logic_vector(7 downto 0);
-    link_up_o       : out std_logic;
-    error_o         : out std_logic;
+    error_o         : out std_logic := '0';
     -- Physical SSI interface
     ssi_sck_i       : in  std_logic;
     ssi_dat_i       : in  std_logic;
     -- Block outputs
-    posn_o          : out std_logic_vector(31 downto 0)
+    posn_o          : out std_logic_vector(31 downto 0);
+    ssi_frame_o     : out std_logic
 );
 end ssi_sniffer;
 
@@ -44,8 +44,6 @@ signal uBITS                : unsigned(7 downto 0);
 signal intBITS              : natural range 0 to 2**BITS'length-1;
 
 signal reset                : std_logic;
-signal serial_data_prev     : std_logic;
-signal serial_data_rise     : std_logic;
 signal serial_clock         : std_logic;
 signal serial_clock_prev    : std_logic;
 signal link_up              : std_logic;
@@ -58,8 +56,9 @@ signal serial_clock_rise    : std_logic;
 signal shift_counter        : unsigned(7 downto 0);
 signal shift_enabled        : std_logic;
 
-
 begin
+
+ssi_frame_o <= ssi_frame;
 
 --------------------------------------------------------------------------
 -- Internal signal assignments
@@ -76,14 +75,12 @@ process (clk_i)
 begin
     if (rising_edge(clk_i)) then
         serial_clock_prev <= serial_clock;
-        serial_data_prev <= serial_data;
     end if;
 end process;
 
 -- Shift source synchronous data on the Falling egde of clock
 serial_clock_fall <= not serial_clock and serial_clock_prev;
 serial_clock_rise <= serial_clock and not serial_clock_prev;
-serial_data_rise <= serial_data and not serial_data_prev;
 
 --------------------------------------------------------------------------
 -- Detect link if clock is asserted for > 5us.
@@ -178,12 +175,5 @@ begin
     end if;
 end process;
 
---------------------------------------------------------------------------
--- Module status outputs
---   link_down
---   Encoder CRC error
---------------------------------------------------------------------------
-link_up_o <= link_up;
-error_o <= '0'; -- n/a
-
 end rtl;
+

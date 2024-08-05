@@ -128,6 +128,7 @@ begin
         if (reset = '1') then
             biss_fsm <= IDLE;
             biss_frame <= '0';
+            link_up_o <= '0';
         else
             -- Unidirectional point-to-point BiSS communication
             case biss_fsm is
@@ -165,6 +166,7 @@ begin
             -- Set active biss frame flag for link disconnection
             if (biss_fsm = IDLE and serial_clock = '0') then
                 biss_frame <= '1';
+                link_up_o  <= '1';
             elsif (biss_fsm = TIMEOUT) then
                 biss_frame <= '0';
             end if;
@@ -322,7 +324,6 @@ end process;
 --   link_down
 --   Encoder CRC error
 --------------------------------------------------------------------------
-link_up_o <= link_up;
 health_o <= health_biss_sniffer;
 error_o <= crc_strobe when (crc /= crc_calc or nError(1) = '0') else '0';
 
