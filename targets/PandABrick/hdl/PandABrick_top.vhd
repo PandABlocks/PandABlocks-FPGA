@@ -20,14 +20,15 @@ use unisim.vcomponents.all;
 library work;
 use work.addr_defines.all;
 use work.top_defines.all;
+use work.interface_types.all;
 
 entity PandABrick_top is
 generic (
-    SIM                 : string  := "FALSE";
     AXI_ADDR_WIDTH      : integer := 32;
     AXI_DATA_WIDTH      : integer := 32;
     NUM_SFP             : natural := 1;
-    NUM_FMC             : natural := 0
+    NUM_FMC             : natural := 0;
+    MAX_NUM_FMC_MGT     : natural := 0
 );
 port (
 
@@ -234,7 +235,7 @@ end component;
 -- signal declarations
 ---------------------------------------------------------------------------------------------------
 
-constant NUM_MGT            : natural := NUM_SFP + NUM_FMC_MGT;
+constant NUM_MGT            : natural := NUM_SFP + MAX_NUM_FMC_MGT;
 constant ENC_NUM            : natural := 8;
 
 -- PS Block
@@ -1526,7 +1527,6 @@ SFP_MGT.MGT_ARR(0).MAC_ADDR_WS <= '0';
 ---------------------------------------------------------------------------
 
 softblocks_inst : entity work.soft_blocks
-generic map( SIM => SIM)
 port map(
     FCLK_CLK0 => FCLK_CLK0,
     FCLK_RESET0 => FCLK_RESET0,
@@ -1549,7 +1549,7 @@ port map(
     rdma_len => rdma_len,
     rdma_data => rdma_data,
     rdma_valid => rdma_valid,
-    SFP_MGT => SFP_MGT
+    SFP => SFP_MGT
 );
 
 us_system_top_inst : entity work.us_system_top

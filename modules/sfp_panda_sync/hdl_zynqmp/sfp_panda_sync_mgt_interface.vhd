@@ -217,9 +217,9 @@ sfp_panda_sync_us_i : sfp_panda_sync_us
     gthtxn_out(0) => txn_o,
     gthtxp_out(0) => txp_o,
     gtpowergood_out => open,
-    rxbyteisaligned_out(0) => open,
-    rxbyterealign_out(0) => open,
-    rxcommadet_out(0) => open,
+    rxbyteisaligned_out => open,
+    rxbyterealign_out => open,
+    rxcommadet_out => open,
     rxctrl0_out => rxctrl0_int,                     -- K character detect
     rxctrl1_out => rxctrl1_int,                     -- Rx data disparity error
     rxctrl2_out => rxctrl2_int,                     -- Comma detect (per byte)

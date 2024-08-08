@@ -203,5 +203,5 @@ set_property -dict {PACKAGE_PIN AD12  IOSTANDARD LVCMOS18  } [get_ports {IO4_D7_
 set_property PACKAGE_PIN V5 [get_ports mgtrefclk1_x0y1_n]
 set_property PACKAGE_PIN V6 [get_ports mgtrefclk1_x0y1_p]
 
-set SFP_LOC GTHE4_CHANNEL_X0Y5
+set SFP1_LOC GTHE4_CHANNEL_X0Y5
 
