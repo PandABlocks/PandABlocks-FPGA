@@ -5,7 +5,7 @@ use work.support.all;
 use work.top_defines.all;
 use work.interface_types.all;
 
-entity fmc_x4sfp_top is
+entity fmc_x4sfp_wrapper is
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
@@ -25,9 +25,9 @@ port (
     write_ack_o         : out std_logic;
     FMC                 : view FMC_Module
 );
-end fmc_x4sfp_top;
+end fmc_x4sfp_wrapper;
 
-architecture rtl of fmc_x4sfp_top is
+architecture rtl of fmc_x4sfp_wrapper is
 
 signal FMC_PRSNT_DW     : std_logic_vector(31 downto 0);
 

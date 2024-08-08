@@ -155,7 +155,7 @@ mgt_rst <= SYNC_RESET_i or init_rst;
 sfp_panda_sync_i : entity work.sfp_panda_sync
     port map(
         SYSCLK_IN                       => GTREFCLK_i,
-        SOFT_RESET_TX_IN                => mgt_rst,
+        SOFT_RESET_TX_IN                => init_rst,
         SOFT_RESET_RX_IN                => mgt_rst,
         DONT_RESET_ON_DATA_ERROR_IN     => '0',
         GT0_TX_FSM_RESET_DONE_OUT       => GT0_TX_FSM_RESET_DONE,
