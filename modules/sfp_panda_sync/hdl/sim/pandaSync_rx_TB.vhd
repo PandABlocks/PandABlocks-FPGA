@@ -45,7 +45,6 @@ uut : entity work.sfp_panda_sync_receiver
           rxdata_i          => rxdata,
           rxnotintable_i    => (others => '0'),
           rx_link_ok_o      => open,
-          loss_lock_o       => open,
           rx_error_o        => open,
           BITIN_o           => BITIN,   
           POSIN1_o          => POSIN1,

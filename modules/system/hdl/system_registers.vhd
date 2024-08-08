@@ -23,6 +23,9 @@ use work.slow_defines.all;
 use work.support.all;
 
 entity system_registers is
+generic (
+    ENC_NUM : natural
+);
 port (
     clk_i               : in  std_logic;
     reset_i             : in  std_logic;

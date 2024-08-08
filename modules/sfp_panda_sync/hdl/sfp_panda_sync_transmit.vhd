@@ -5,7 +5,6 @@ use ieee.numeric_std.all;
 entity sfp_panda_sync_transmit is
     port (
         sysclk_i        : in  std_logic;
-        rst_sys_i       : in  std_logic;
         txoutclk_i      : in  std_logic;
         txcharisk_o     : out std_logic_vector(3 downto 0) := (others => '0');
         POSOUT1_i       : in  std_logic_vector(31 downto 0);

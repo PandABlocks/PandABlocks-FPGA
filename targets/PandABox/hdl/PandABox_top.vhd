@@ -116,6 +116,7 @@ end PandABox_top;
 architecture rtl of PandABox_top is
 
 constant NUM_MGT            : natural := NUM_SFP + MAX_NUM_FMC_MGT;
+constant ENC_NUM            : natural := 4;
 
 -- Zynq PS Block
 signal FCLK_CLK0            : std_logic;
@@ -252,13 +253,13 @@ signal ts_src               : std_logic_vector(1 downto 0);
 signal pcap_start_event     : std_logic;
 
 -- FMC Block
-signal FMC      : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
+signal FMC                  : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
                                         := (FMC_ARR => (others => FMC_init));
 -- SFP Block
-signal SFP_MGT  : MGT_ARR_REC(MGT_ARR(0 to NUM_SFP-1))
+signal SFP_MGT              : MGT_ARR_REC(MGT_ARR(0 to NUM_SFP-1))
                                         := (MGT_ARR => (others => MGT_init));
 -- 4th SFP interface available using FMC MGT
-signal FMC_MGT  : MGT_ARR_REC(MGT_ARR(0 to MAX_NUM_FMC_MGT-1))
+signal FMC_MGT              : MGT_ARR_REC(MGT_ARR(0 to MAX_NUM_FMC_MGT-1))
                                         := (MGT_ARR => (others => MGT_init));
 
 signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;
@@ -580,6 +581,9 @@ port map (
 ---- ENCODERS (Encoder Inputs)
 -----------------------------------------------------------------------------
 encoders_top_inst : entity work.encoders_top
+generic map (
+    ENC_NUM => ENC_NUM
+)
 port map (
     -- Clock and Reset
     clk_i                   => FCLK_CLK0,
@@ -752,6 +756,9 @@ port map (
 -- SYSTEM FPGA
 ---------------------------------------------------------------------------
 system_inst : entity work.system_top
+generic map (
+    ENC_NUM => ENC_NUM
+)
 port map (
     clk_i               => FCLK_CLK0,
     reset_i             => FCLK_RESET0,

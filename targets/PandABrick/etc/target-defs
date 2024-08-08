@@ -2,8 +2,8 @@
 
 # LED daemon definitions
 LED_GPIO_BASE=334
-STA_LED_OFFSET=25
-DIA_LED_OFFSET=24
+STA_LED_OFFSET=40
+DIA_LED_OFFSET=41
 
 get_mac_address() {
     # Trying to address 0 sends a 0 byte which wakes up the EEPROM
