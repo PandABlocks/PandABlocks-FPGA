@@ -53,7 +53,10 @@ port (
     FMC_CLK0_M2C_N      : inout std_logic_vector(NUM_FMC-1 downto 0)
                                                             := (others => 'Z');
     FMC_CLK1_M2C_P      : in    std_logic_vector(NUM_FMC-1 downto 0);
-    FMC_CLK1_M2C_N      : in    std_logic_vector(NUM_FMC-1 downto 0)
+    FMC_CLK1_M2C_N      : in    std_logic_vector(NUM_FMC-1 downto 0);
+    -- I2C FPGA
+    I2C_SCL_FPGA        : inout  std_logic;
+    I2C_SDA_FPGA        : inout  std_logic
 );
 end xu5_st1_top;
 
@@ -145,6 +148,14 @@ signal write_address        : std_logic_vector(PAGE_AW-1 downto 0);
 signal write_data           : std_logic_vector(31 downto 0);
 signal write_ack            : std_logic_vector(MOD_COUNT-1 downto 0) := (others
                                                                        => '1');
+-- I2C FPGA
+signal IIC_FPGA_sda_in      : std_logic;
+signal IIC_FPGA_sda_out     : std_logic;
+signal IIC_FPGA_sda_tri     : std_logic;
+signal IIC_FPGA_scl_in      : std_logic;
+signal IIC_FPGA_scl_out     : std_logic;
+signal IIC_FPGA_scl_tri     : std_logic;
+signal SYS_I2C_MUX          : std_logic;
 
 -- Top Level Signals
 signal bit_bus              : bit_bus_t := (others => '0');
@@ -230,6 +241,13 @@ port map (
     FCLK_CLK0                   => FCLK_CLK0_PS,
     PL_CLK                      => FCLK_CLK0,
     FCLK_RESET0_N               => FCLK_RESET0_N,
+
+    IIC_FPGA_scl_i              => IIC_FPGA_scl_in,
+    IIC_FPGA_scl_o              => IIC_FPGA_scl_out,
+    IIC_FPGA_scl_t              => IIC_FPGA_scl_tri,
+    IIC_FPGA_sda_i              => IIC_FPGA_sda_in,
+    IIC_FPGA_sda_o              => IIC_FPGA_sda_out,
+    IIC_FPGA_sda_t              => IIC_FPGA_sda_tri,
 
     IRQ_F2P                     => IRQ_F2P,
 
@@ -543,7 +561,8 @@ port map(
 
 us_system_top_inst : entity work.us_system_top
 port map (
-    clk_i => FCLK_CLK0,
+    clk_i               => FCLK_CLK0,
+    sys_i2c_mux_o       => SYS_I2C_MUX,
     read_strobe_i       => read_strobe(US_SYSTEM_CS),
     read_address_i      => read_address,
     read_data_o         => read_data(US_SYSTEM_CS),
@@ -554,6 +573,18 @@ port map (
     write_data_i        => write_data,
     write_ack_o         => write_ack(US_SYSTEM_CS)
 );
+
+-- Mux/Demux for FPGA I2C
+IIC_FPGA_sda_in <= I2C_SDA_FPGA when SYS_I2C_MUX = '0' else FMC.FMC_ARR(0).FMC_I2C_SDA_in;
+IIC_FPGA_scl_in <= I2C_SCL_FPGA when SYS_I2C_MUX = '0' else FMC.FMC_ARR(0).FMC_I2C_SCL_in;
+
+I2C_SDA_FPGA <= '0' when (SYS_I2C_MUX = '0' and IIC_FPGA_sda_tri = '0' and IIC_FPGA_sda_out = '0') else 'Z';
+I2C_SCL_FPGA <= '0' when (SYS_I2C_MUX = '0' and IIC_FPGA_scl_tri = '0' and IIC_FPGA_scl_out = '0') else 'Z';
+
+FMC.FMC_ARR(0).FMC_I2C_SDA_out <= IIC_FPGA_sda_out;
+FMC.FMC_ARR(0).FMC_I2C_SDA_tri <= IIC_FPGA_sda_tri when SYS_I2C_MUX = '1' else '1';
+FMC.FMC_ARR(0).FMC_I2C_SCL_out <= IIC_FPGA_scl_out;
+FMC.FMC_ARR(0).FMC_I2C_SCL_tri <= IIC_FPGA_scl_tri when SYS_I2C_MUX = '1' else '1';
 
 end rtl;
 

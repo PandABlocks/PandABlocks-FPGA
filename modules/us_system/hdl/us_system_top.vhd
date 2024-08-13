@@ -10,6 +10,7 @@ generic (NUM : natural := 1);
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
+    sys_i2c_mux_o       : out std_logic;
     -- Memory Bus Interface
     read_strobe_i       : in  std_logic;
     read_address_i      : in  std_logic_vector(PAGE_AW-1 downto 0);
@@ -24,7 +25,12 @@ port (
 end us_system_top;
 
 architecture rtl of us_system_top is
+
+signal sys_i2c_mux : std_logic_vector(31 downto 0);
+
 begin
+
+sys_i2c_mux_o <= sys_i2c_mux(0);
 
 us_system_ctrl_inst : entity work.us_system_ctrl
 port map(
@@ -32,6 +38,7 @@ port map(
     reset_i => '0',
     bit_bus_i => (others => '0'),
     pos_bus_i => (others => (others => '0')),
+    SYS_I2C_MUX         => sys_i2c_mux,
     -- Memory Bus Interface
     read_strobe_i       => read_strobe_i,
     read_address_i      => read_address_i(BLK_AW-1 downto 0),

@@ -87,6 +87,10 @@ set_property -dict {PACKAGE_PIN L3    IOSTANDARD LVCMOS18  } [get_ports {FMC_CLK
 set_property -dict {PACKAGE_PIN C2    IOSTANDARD LVCMOS18  } [get_ports {FMC_CLK1_M2C_N[0]}]
 set_property -dict {PACKAGE_PIN C3    IOSTANDARD LVCMOS18  } [get_ports {FMC_CLK1_M2C_P[0]}]
 
+# I2C FPGA
+set_property -dict {PACKAGE_PIN AG10  IOSTANDARD LVCMOS18  } [get_ports {I2C_SCL_FPGA}]
+set_property -dict {PACKAGE_PIN AH10  IOSTANDARD LVCMOS18  } [get_ports {I2C_SDA_FPGA}]
+
 # MGT Reference Clocks
 set_property PACKAGE_PIN Y5 [get_ports GTXCLK0_N]
 set_property PACKAGE_PIN Y6 [get_ports GTXCLK0_P]
