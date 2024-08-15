@@ -170,11 +170,11 @@ signal rdma_valid           : std_logic_vector(5 downto 0);
 signal MGT_MAC_ADDR_ARR     : std32_array(2*NUM_MGT-1 downto 0);
 
 -- FMC Block
-signal FMC      : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
+signal FMC                  : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
                                         := (FMC_ARR => (others => FMC_init));
 
 -- Additional MGT interfaces available using FMC
-signal FMC_MGT  : MGT_ARR_REC(MGT_ARR(0 to MAX_NUM_FMC_MGT-1))
+signal FMC_MGT              : MGT_ARR_REC(MGT_ARR(0 to MAX_NUM_FMC_MGT-1))
                                         := (MGT_ARR => (others => MGT_init));
 
 signal   q0_clk0_gtrefclk, q0_clk1_gtrefclk :   std_logic;

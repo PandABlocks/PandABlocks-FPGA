@@ -13,7 +13,6 @@ entity sfp_panda_sync_receiver is
           rxdata_i          : in  std_logic_vector(31 downto 0);
           rxnotintable_i    : in  std_logic_vector(3 downto 0);
           rx_link_ok_o      : out std_logic;
-          loss_lock_o       : out std_logic;
           rx_error_o        : out std_logic;
           BITIN_o           : out std_logic_vector(7 downto 0);   
           POSIN1_o          : out std_logic_vector(31 downto 0);
@@ -119,7 +118,6 @@ begin
 
 -- Assign outputs
 
-loss_lock_o <= loss_lock;
 rx_error_o <= rx_error and rx_link_good_mgt;
 rx_link_ok_o <= rx_link_ok_sys;
 

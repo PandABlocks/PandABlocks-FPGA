@@ -28,9 +28,6 @@ subtype MOD_RANGE               is natural range 0 to MOD_COUNT-1;
 
 -- Read Addr to Ack delay
 constant RD_ADDR2ACK            : std_logic_vector(4 downto 0) := "00010";
-
--- Block instantiation numbers--------------------------------------------
-constant ENC_NUM                : natural := 4;
 --------------------------------------------------------------------------
 
 --------------------------------------------------------------------------
@@ -43,6 +40,7 @@ alias PBUSBW is top_defines_gen.PBUSBW;
 alias EBUSW is top_defines_gen.EBUSW;
 alias PCAP_STD_DEV_OPTION is top_defines_gen.PCAP_STD_DEV_OPTION;
 alias FINE_DELAY_OPTION is top_defines_gen.FINE_DELAY_OPTION;
+alias PICXO_OPTION is top_defines_gen.PICXO_OPTION;
 --------------------------------------------------------------------------
 
 constant DCARD_MONITOR          : std_logic_vector(2 downto 0) := "011";

@@ -183,7 +183,7 @@ signal rdma_data            : std_logic_vector(31 downto 0);
 signal rdma_valid           : std_logic_vector(5 downto 0);
 
 -- FMC Block
-signal FMC      : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
+signal FMC                  : FMC_ARR_REC(FMC_ARR(0 to NUM_FMC-1))
                                         := (FMC_ARR => (others => FMC_init));
 
 component panda_ps is

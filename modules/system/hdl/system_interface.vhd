@@ -20,6 +20,9 @@ use work.top_defines.all;
 use work.slow_defines.all;
 
 entity system_interface is
+generic (
+    ENC_NUM : natural
+);
 port (
     -- Clock and Reset
     clk_i               : in  std_logic;
