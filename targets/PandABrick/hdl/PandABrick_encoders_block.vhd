@@ -41,9 +41,9 @@ port (
     write_address_i         : in  std_logic_vector(BLK_AW-1 downto 0);
     write_data_i            : in  std_logic_vector(31 downto 0);
     -- Encoder I/O Pads
-    INCENC_A_o               : out std_logic;
-    INCENC_B_o               : out std_logic;
-    INCENC_Z_o               : out std_logic;
+    -- INCENC_A_o               : out std_logic;
+    -- INCENC_B_o               : out std_logic;
+    -- INCENC_Z_o               : out std_logic;
     
     ABSENC_DATA_o            : out std_logic;
 
@@ -303,9 +303,9 @@ port map(
     posn_i              => posn,
     enable_i            => enable,
     -- Encoder I/O Pads
-    INCENC_A_o          => INCENC_A_o,
-    INCENC_B_o          => INCENC_B_o,
-    INCENC_Z_o          => INCENC_Z_o,
+    -- INCENC_A_o          => INCENC_A_o,
+    -- INCENC_B_o          => INCENC_B_o,
+    -- INCENC_Z_o          => INCENC_Z_o,
     ABSENC_DATA_o       => ABSENC_DATA_o,
     --
     clk_out_ext_i       => clk_ext,

@@ -69,9 +69,9 @@ port (
 
     -- Signals passed to internal bus
     clk_int_o               : out std_logic_vector(ENC_NUM-1 downto 0);
-    incenc_a_o              : out std_logic_vector(ENC_NUM-1 downto 0);
-    incenc_b_o              : out std_logic_vector(ENC_NUM-1 downto 0);
-    incenc_z_o              : out std_logic_vector(ENC_NUM-1 downto 0);
+    -- incenc_a_o              : out std_logic_vector(ENC_NUM-1 downto 0);
+    -- incenc_b_o              : out std_logic_vector(ENC_NUM-1 downto 0);
+    -- incenc_z_o              : out std_logic_vector(ENC_NUM-1 downto 0);
     absenc_data_o           : out std_logic_vector(ENC_NUM-1 downto 0);
     -- Block Input and Outputs
     bit_bus_i               : in  bit_bus_t;
@@ -191,9 +191,9 @@ port map (
     ABSENC_CONN_OUT_o       => ABSENC_CONN_OUT_o(I),
 
     clk_int_o               => clk_int_o(I),
-    incenc_a_o              => incenc_a_o(I),
-    incenc_b_o              => incenc_b_o(I),
-    incenc_z_o              => incenc_z_o(I),
+    -- incenc_a_o              => incenc_a_o(I),
+    -- incenc_b_o              => incenc_b_o(I),
+    -- incenc_z_o              => incenc_z_o(I),
     absenc_data_o           => absenc_data_o(I),
 
     PMACENC_PROTOCOL_o      => PMACENC_PROTOCOL_o(I),

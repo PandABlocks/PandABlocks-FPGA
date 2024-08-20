@@ -406,9 +406,9 @@ signal pins_T               : std_logic_vector(ENC_NUM-1 downto 0);
 -- Incremental Encoder
 signal incenc_val           : std32_array(ENC_NUM-1 downto 0);
 signal incenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
-signal incenc_a             : std_logic_vector(ENC_NUM-1 downto 0);
-signal incenc_b             : std_logic_vector(ENC_NUM-1 downto 0);
-signal incenc_z             : std_logic_vector(ENC_NUM-1 downto 0);
+-- signal incenc_a             : std_logic_vector(ENC_NUM-1 downto 0);
+-- signal incenc_b             : std_logic_vector(ENC_NUM-1 downto 0);
+-- signal incenc_z             : std_logic_vector(ENC_NUM-1 downto 0);
 signal INCENC_PROTOCOL      : std32_array(ENC_NUM-1 downto 0);
 signal INCENC_PROTOCOL_WSTB : std_logic_vector(ENC_NUM-1 downto 0);
 
@@ -1275,9 +1275,9 @@ port map (
 
     -- Signals passed to internal bus
     clk_int_o               => pmacenc_clk,
-    incenc_a_o              => incenc_a,
-    incenc_b_o              => incenc_b,
-    incenc_z_o              => incenc_z,
+    -- incenc_a_o              => incenc_a,
+    -- incenc_b_o              => incenc_b,
+    -- incenc_z_o              => incenc_z,
     absenc_data_o           => absenc_data,
     -- Block Input and Outputs
     bit_bus_i               => bit_bus,
@@ -1301,8 +1301,7 @@ port map (
 -- BIT_BUS_SIZE and POS_BUS_SIZE declared in addr_defines.vhd
 
 bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & pmacenc_clk & incenc_conn &
-                                    incenc_z & incenc_b & incenc_a & absenc_data &
-                                    absenc_conn & ttlin_val;
+                                    absenc_data & absenc_conn & ttlin_val;
 
 pos_bus(POS_BUS_SIZE-1 downto 0) <= incenc_val & absenc_val;
 

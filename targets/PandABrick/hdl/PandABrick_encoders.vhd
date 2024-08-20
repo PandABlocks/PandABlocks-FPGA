@@ -23,9 +23,9 @@ port (
     posn_i              : in  std_logic_vector(31 downto 0);
     enable_i            : in  std_logic;
     -- Encoder I/O Pads
-    INCENC_A_o          : out std_logic;
-    INCENC_B_o          : out std_logic;
-    INCENC_Z_o          : out std_logic;
+    -- INCENC_A_o          : out std_logic;
+    -- INCENC_B_o          : out std_logic;
+    -- INCENC_Z_o          : out std_logic;
     ABSENC_DATA_o       : out std_logic;
     --
     clk_out_ext_i       : in  std_logic;
@@ -555,9 +555,9 @@ As0_opad <= A_OUT;
 Bs0_opad <= B_OUT;
 Zs0_opad <= Z_OUT;
 
-INCENC_A_o <= A_IN;
-INCENC_B_o <= B_IN;
-INCENC_Z_o <= Z_IN;
+-- INCENC_A_o <= A_IN;
+-- INCENC_B_o <= B_IN;
+-- INCENC_Z_o <= Z_IN;
 
 ABSENC_DATA_o <= DATA_IN;
 
