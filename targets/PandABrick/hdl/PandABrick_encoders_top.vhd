@@ -76,7 +76,7 @@ port (
     -- Block Input and Outputs
     bit_bus_i               : in  bit_bus_t;
     pos_bus_i               : in  pos_bus_t;
-    DCARD_MODE_i            : in  std32_array(ENC_NUM-1 downto 0);
+    -- DCARD_MODE_i            : in  std32_array(ENC_NUM-1 downto 0);
     posn_o                  : out std32_array(ENC_NUM-1 downto 0);
     abs_posn_o                  : out std32_array(ENC_NUM-1 downto 0);
 
@@ -225,7 +225,7 @@ port map (
    
 
     -- Position Field interface
-    DCARD_MODE_i            => DCARD_MODE_i(I),
+    -- DCARD_MODE_i            => DCARD_MODE_i(I),
     bit_bus_i               => bit_bus_i,
     pos_bus_i               => pos_bus_i,
     posn_o                  => posn(I),

@@ -71,7 +71,6 @@ port (
     INCENC_HEALTH_o     : out std_logic_vector(31 downto 0);
     HOMED_o             : out std_logic_vector(31 downto 0);
 
-    DCARD_MODE_i        : in  std_logic_vector(31 downto 0);
     ABSENC_PROTOCOL_i   : in  std_logic_vector(2 downto 0);
     ABSENC_ENCODING_i   : in  std_logic_vector(1 downto 0);
     CLK_SRC_i           : in  std_logic;
@@ -229,7 +228,7 @@ port map (
     out_o           => posn_incr
 );
 
-linkup_incr <= not DCARD_MODE_i(0);
+linkup_incr <= '1';
 linkup_incr_std32 <= x"0000000"&"000"&linkup_incr;
 
 --
@@ -306,15 +305,15 @@ begin
                 ABSENC_HOMED_o <= TO_SVECTOR(1,32);
 
             when "001"  =>              -- BISS & Loopback
-                if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
-                    posn <= posn_biss_sniffer;
-                    ABSENC_STATUS_o(0) <= linkup_biss_sniffer;
-                    ABSENC_HEALTH_o <= health_biss_sniffer;
-                else  -- DCARD_CONTROL
-                    posn <= posn_biss;
-                    ABSENC_STATUS_o(0) <= linkup_biss_master;
-                    ABSENC_HEALTH_o<=health_biss_master;
-                end if;
+                -- if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
+                posn <= posn_biss_sniffer;
+                ABSENC_STATUS_o(0) <= linkup_biss_sniffer;
+                ABSENC_HEALTH_o <= health_biss_sniffer;
+                -- else  -- DCARD_CONTROL
+                --     posn <= posn_biss;
+                --     ABSENC_STATUS_o(0) <= linkup_biss_master;
+                --     ABSENC_HEALTH_o<=health_biss_master;
+                -- end if;
                 ABSENC_HOMED_o <= TO_SVECTOR(1,32);
 
             when others =>

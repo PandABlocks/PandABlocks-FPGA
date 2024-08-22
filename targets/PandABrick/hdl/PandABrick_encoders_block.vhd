@@ -83,7 +83,6 @@ port (
     
 
     -- Position Field interface
-    DCARD_MODE_i            : in  std_logic_vector(31 downto 0);
     bit_bus_i               : in  bit_bus_t;
     pos_bus_i               : in  pos_bus_t;
     posn_o                  : out std_logic_vector(31 downto 0);
@@ -106,7 +105,6 @@ signal PMACENC_BITS_WSTB        : std_logic;
 signal QPERIOD                  : std_logic_vector(31 downto 0);
 signal QPERIOD_WSTB             : std_logic;
 signal QSTATE                   : std_logic_vector(31 downto 0);
-signal DCARD_TYPE               : std_logic_vector(31 downto 0);
 signal PMACENC_HEALTH           : std_logic_vector(31 downto 0);
 signal a_ext, b_ext, z_ext, data_ext    : std_logic;
 signal posn                     : std_logic_vector(31 downto 0);
@@ -172,7 +170,7 @@ reset <= reset_i or PMACENC_PROTOCOL_WSTB or PMACENC_BITS_WSTB or INCENC_PROTOCO
          or PMACENC_ENCODING_WSTB or ABSENC_ENCODING_WSTB or ABSENC_PROTOCOL_WSTB
          or CLK_PERIOD_WSTB or FRAME_PERIOD_WSTB or INCENC_BITS_WSTB;
 
-DCARD_TYPE <= x"0000000" & '0' & DCARD_MODE_i(3 downto 1);
+-- DCARD_TYPE <= x"0000000" & '0' & DCARD_MODE_i(3 downto 1);
 
 --------------------------------------------------------------------------
 -- Control System Interface
@@ -203,7 +201,7 @@ port map (
     PROTOCOL_WSTB       => PMACENC_PROTOCOL_WSTB,
     ENCODING            => PMACENC_ENCODING,
     ENCODING_WSTB       => PMACENC_ENCODING_WSTB,
-    DCARD_TYPE          => DCARD_TYPE,
+    -- DCARD_TYPE          => DCARD_TYPE,
     BITS                => PMACENC_BITS,
     BITS_WSTB           => PMACENC_BITS_WSTB,
     HEALTH              => PMACENC_HEALTH
@@ -280,8 +278,8 @@ port map (
     MSB_DISCARD_WSTB    => open,
     HEALTH              => ABSENC_HEALTH,
     HOMED               => ABSENC_HOMED,
-    ENABLED             => ABSENC_ENABLED,       -- TO BE CONNECTED THROUGH TO ENCODERS.VHD
-    DCARD_TYPE          => DCARD_TYPE
+    ENABLED             => ABSENC_ENABLED       -- TO BE CONNECTED THROUGH TO ENCODERS.VHD
+    -- DCARD_TYPE          => DCARD_TYPE
 );
 
 read_addr <= to_integer(unsigned(read_address_i));
@@ -352,7 +350,7 @@ port map(
     INCENC_HEALTH_o     => INCENC_HEALTH,
     HOMED_o             => HOMED,
 
-    DCARD_MODE_i        => DCARD_MODE_i,
+    -- DCARD_MODE_i        => DCARD_MODE_i,
     ABSENC_PROTOCOL_i   => ABSENC_PROTOCOL(2 downto 0),
     ABSENC_ENCODING_i   => ABSENC_ENCODING(1 downto 0),
     CLK_SRC_i           => CLK_SRC(0),

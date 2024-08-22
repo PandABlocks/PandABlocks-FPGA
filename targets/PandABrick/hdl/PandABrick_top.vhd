@@ -483,7 +483,7 @@ signal rdma_valid           : std_logic_vector(5 downto 0);
 
 -- Hard-wiring DCARD_MODE to x"00000002" (CONTROL MODE)
 -- This needs to be set by an appropiate block register and tied to corresponding relay setting
-signal DCARD_MODE : std32_array(ENC_NUM-1 downto 0) := (others => (1 => '1', others => '0'));
+-- signal DCARD_MODE : std32_array(ENC_NUM-1 downto 0) := (others => (1 => '1', others => '0'));
 
 -- SFP Block
 signal MGT_MAC_ADDR_ARR     : std32_array(2*NUM_SFP-1 downto 0);
@@ -1282,7 +1282,7 @@ port map (
     -- Block Input and Outputs
     bit_bus_i               => bit_bus,
     pos_bus_i               => pos_bus,
-    DCARD_MODE_i            => DCARD_MODE,
+    -- DCARD_MODE_i            => DCARD_MODE,
     posn_o                  => incenc_val,
     abs_posn_o              => absenc_val,
 
