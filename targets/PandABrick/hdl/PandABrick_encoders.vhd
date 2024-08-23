@@ -128,6 +128,9 @@ signal homed_qdec           : std_logic_vector(31 downto 0);
 signal linkup_incr          : std_logic;
 signal linkup_incr_std32    : std_logic_vector(31 downto 0);
 signal linkup_ssi           : std_logic;
+signal ssi_frame            : std_logic;
+signal ssi_frame_sniffer    : std_logic;
+signal ssi_frame_master     : std_logic;
 signal linkup_biss_sniffer  : std_logic;
 signal health_biss_sniffer  : std_logic_vector(31 downto 0);
 signal linkup_biss_master   : std_logic;
@@ -341,7 +344,8 @@ port map (
     ssi_sck_o       => clk_out_encoder_ssi,
     ssi_dat_i       => DATA_IN,
     posn_o          => posn_ssi,
-    posn_valid_o    => open
+    posn_valid_o    => open,
+    ssi_frame_o     => ssi_frame_master
 );
 
 -- SSI Sniffer
@@ -351,11 +355,22 @@ port map (
     reset_i         => reset_i,
     ENCODING        => ABSENC_ENCODING_i,
     BITS            => ABSENC_BITS_i,
-    link_up_o       => linkup_ssi,
     error_o         => open,
     ssi_sck_i       => CLK_IN,
     ssi_dat_i       => DATA_IN,
-    posn_o          => posn_ssi_sniffer
+    posn_o          => posn_ssi_sniffer,
+    ssi_frame_o     => ssi_frame_sniffer
+);
+
+ssi_frame <= ssi_frame_sniffer;
+
+-- Frame checker for SSI
+ssi_err_det_inst: entity work.ssi_error_detect
+port map (
+    clk_i           => clk_i,
+    serial_dat_i    => DATA_IN,
+    ssi_frame_i     => ssi_frame,
+    link_up_o       => linkup_ssi
 );
 
 -- Loopbacks
