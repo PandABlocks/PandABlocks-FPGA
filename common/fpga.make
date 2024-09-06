@@ -108,7 +108,7 @@ dtc: $(DEVTREE_DTC)
 #####################################################################
 # zip boot files
 
-$(BOOT_ZIP): $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB)
+$(BOOT_ZIP): $(IMAGE_DIR)/boot.bin $(DEVTREE_DTB) $(IMAGE_DIR)/target-defs
 	zip -j $@ $^
 
 #####################################################################
