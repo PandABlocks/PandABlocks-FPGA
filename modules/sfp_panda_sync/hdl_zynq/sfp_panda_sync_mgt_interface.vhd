@@ -13,6 +13,7 @@ entity sfp_panda_sync_mgt_interface is
 
     port (GTREFCLK_i        : in  std_logic;
           SYNC_RESET_i      : in  std_logic;
+          MGT_RESET_i       : in  std_logic;
           sysclk_i          : in  std_logic;
           rxp_i             : in  std_logic;
           rxn_i             : in  std_logic;
@@ -53,7 +54,8 @@ signal GT0_RX_FSM_RESET_DONE_sync   : std_logic;
 signal gt0_txresetdone_sync         : std_logic;
 signal gt0_rxresetdone_sync         : std_logic;
 signal init_rst                     : std_logic;
-signal mgt_rst                      : std_logic;
+signal mgt_soft_rst                 : std_logic;
+signal mgt_hard_rst                 : std_logic;
 
 -- PICXO signals
 
@@ -140,7 +142,8 @@ begin
     end if;
 end process;
 
-mgt_rst <= SYNC_RESET_i or init_rst;
+mgt_soft_rst <= SYNC_RESET_i or init_rst;
+mgt_hard_rst <= MGT_RESET_i or init_rst;
 
 -- ####################################################################################### --
 -- clks
@@ -155,8 +158,8 @@ mgt_rst <= SYNC_RESET_i or init_rst;
 sfp_panda_sync_i : entity work.sfp_panda_sync
     port map(
         SYSCLK_IN                       => GTREFCLK_i,
-        SOFT_RESET_TX_IN                => init_rst,
-        SOFT_RESET_RX_IN                => mgt_rst,
+        SOFT_RESET_TX_IN                => mgt_hard_rst,
+        SOFT_RESET_RX_IN                => mgt_soft_rst,
         DONT_RESET_ON_DATA_ERROR_IN     => '0',
         GT0_TX_FSM_RESET_DONE_OUT       => GT0_TX_FSM_RESET_DONE,
         GT0_RX_FSM_RESET_DONE_OUT       => GT0_RX_FSM_RESET_DONE,

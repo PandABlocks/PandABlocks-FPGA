@@ -12,6 +12,7 @@ entity sfp_panda_sync_mgt_interface is
     port (
         GTREFCLK_i        : in  std_logic;
         SYNC_RESET_i      : in  std_logic;
+        MGT_RESET_i       : in  std_logic;
         sysclk_i          : in  std_logic;
         rxp_i             : in  std_logic;
         rxn_i             : in  std_logic;
@@ -99,7 +100,8 @@ signal RX_PMA_RESET_DONE_OUT_sync   : std_logic;
 signal gtwiz_reset_rx_done_out_sync : std_logic;
 signal gtwiz_reset_tx_done_out_sync : std_logic;
 signal init_rst                     : std_logic;
-signal mgt_rst                      : std_logic;
+signal mgt_soft_rst                 : std_logic;
+signal mgt_hard_rst                 : std_logic;
 
 signal rxctrl0_int                  : STD_LOGIC_VECTOR(15 DOWNTO 0);
 signal rxctrl1_int                  : STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -171,7 +173,8 @@ begin
     end if;
 end process;
 
-mgt_rst <= SYNC_RESET_i or init_rst;
+mgt_soft_rst <= SYNC_RESET_i or init_rst;
+mgt_hard_rst <= MGT_RESET_i or init_rst;
 
 --======================================================================
 --   CORE INSTANCE
@@ -191,11 +194,11 @@ sfp_panda_sync_us_i : sfp_panda_sync_us
     gtwiz_userclk_rx_usrclk2_out => open,
     gtwiz_userclk_rx_active_out => open,
     gtwiz_reset_clk_freerun_in(0) => sysclk_i,
-    gtwiz_reset_all_in(0) => init_rst,
+    gtwiz_reset_all_in(0) => mgt_hard_rst,
     gtwiz_reset_tx_pll_and_datapath_in(0) => '0',
     gtwiz_reset_tx_datapath_in(0) => '0',
     gtwiz_reset_rx_pll_and_datapath_in(0) => '0',
-    gtwiz_reset_rx_datapath_in(0) => mgt_rst,
+    gtwiz_reset_rx_datapath_in(0) => mgt_soft_rst,
     gtwiz_reset_rx_cdr_stable_out => open,
     gtwiz_reset_tx_done_out(0) => gtwiz_reset_tx_done_out,
     gtwiz_reset_rx_done_out(0) => gtwiz_reset_rx_done_out,
