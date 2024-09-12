@@ -63,9 +63,9 @@ jobs:
 
       # Artifacts
       - name: Upload boot
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: zpkgs
+          name: boot-${{ matrix.app }}
           path: ./build/boot*.zip
 
   # Make zpkg for FPGA apps
@@ -132,9 +132,9 @@ jobs:
 
       # Artifacts
       - name: Upload zpkg
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: zpkgs
+          name: zpkg-${{ matrix.app }}
           path: ./build/panda-fpga@*.zpg
 
   # Seting up AWS runners for high memory apps
@@ -248,9 +248,9 @@ jobs:
 
       # Artifacts
       - name: Upload zpkg
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: zpkgs
+          name: zpkg-${{ matrix.app }}
           path: ./build/panda-fpga@*.zpg
 
   # Stop the AWS runner
@@ -327,9 +327,8 @@ jobs:
     # make a release on every tag
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
-          name: zpkgs
           path: zpkgs
 
       - name: Github Release
