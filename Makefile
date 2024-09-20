@@ -250,6 +250,12 @@ single_hdl_test: $(TIMING_BUILD_DIRS) $(BUILD_DIR)/hdl_timing/pcap carrier_ip
 hdl_timing: $(TIMING_BUILD_DIRS)
 .PHONY: hdl_timing
 
+MODULE = all
+SIMULATOR = nvc
+# e.g. make cocotb_tests MODULE=pulse TEST="No delay or stretch"
+cocotb_tests: $(AUTOGEN_BUILD_DIR)
+	$(PYTHON) $(TOP)/common/python/cocotb_timing_test_runner.py -c --panda-build-dir $(BUILD_DIR) --sim $(SIMULATOR) $(MODULE) '$(TEST)'
+.PHONY: cocotb_tests
 
 # ------------------------------------------------------------------------------
 # FPGA build

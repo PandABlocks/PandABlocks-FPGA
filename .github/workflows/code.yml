@@ -20,9 +20,42 @@ jobs:
   make_zpkg:
     uses: ./.github/workflows/_make_zpkg.yml
 
-  # Release on push to tag
+  cocotb_test:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    strategy:
+      fail-fast: false
+
+    runs-on: ubuntu-latest
+    steps:
+
+      # Git repositories
+      - name: Checkout Source
+        uses: actions/checkout@v2
+        with:
+          path: PandABlocks-fpga
+          # require history to get back to last tag for version number of branches
+          fetch-depth: 0
+
+      # Login into ghcr
+      - name: login to ghcr
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN  }}
+      - name: Run cocotb tests
+        run: |
+          docker pull ghcr.io/pandablocks/pandablocks-dev-container:4.0a7
+          docker run \
+            --net=host \
+            -v "${{ github.workspace }}:/repos" \
+            -v "${{ github.workspace }}/build:/build" \
+            ghcr.io/pandablocks/pandablocks-dev-container:4.0a7 \
+            /bin/bash -c \
+            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make cocotb_tests"
+
   release:
-    needs: [ make_boot, make_zpkg, test_hdl, test_matrix, test_python_autogen ]
+    needs: [ make_boot, make_zpkg, test_hdl, test_matrix, test_python_autogen, cocotb_test ]
     uses: ./.github/workflows/_release.yml
 
   # Generate job matrix to evenly split tests

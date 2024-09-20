@@ -4,7 +4,7 @@ import select
 import struct
 import time
 import bisect
-import imp
+import importlib
 import os
 import sys
 from collections import namedtuple, deque
@@ -261,9 +261,9 @@ class SimulationController(object):
         ini_path = os.path.join(ROOT, ini_path)
         module_path = os.path.dirname(ini_path)
         try:
-            f, pathname, description = imp.find_module(
+            f, pathname, description = importlib.import_module(
                 block_name + "_sim", [module_path])
-            package = imp.load_module(
+            package = importlib.exec_module(
                 block_name + "_sim", f, pathname, description)
             clsnames = [n for n in dir(package)
                         if n.lower() == block_name + "simulation"]

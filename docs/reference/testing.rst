@@ -23,11 +23,13 @@ The python simulation tests, can be run with the following Makefile command::
 HDL tests
 ~~~~~~~~~
 
-There are two Makefile functions which can be used to run the hdl testbenches::
+There are three Makefile functions which can be used to run the hdl testbenches::
 
     make hdl_test MODULES="module name"
 
     make single_hdl_test TEST="MODULE_NAME TEST_NUMBER"
+
+    make cocotb_tests MODULE="module1,module2,..." TEST="test1,test2,..." SIMULATOR="nvc/ghdl"
 
 The first, by default, will run every testbench. However if the optional
 argument of MODULES is given it will instead run every test for the specified
@@ -36,3 +38,9 @@ hdl filein that module.
 
 The second command will run a single testbench as specified by the module name,
 and the test number separated by a space.
+
+The third command will run testbenches using cocotb. By default, all tests for
+all modules will be run, and the NVC simulator will be used, as this provides
+coverage reporting whereas GHDL does not. Multiple modules. Multiple tests can
+be passed, separated by a double comma, as some of the test names contain a
+comma.

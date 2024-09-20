@@ -9,10 +9,12 @@ else:
 
 import sys
 import os
-import imp
+import importlib.util
 import numpy
 
 import unittest
+
+from pathlib import Path
 
 from common.python.ini_util import read_ini, timing_entries
 
@@ -46,11 +48,13 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
 
         def runTest(self):
             # Load <block>_sim.py into common.python.<block>_sim
-            file, pathname, description = imp.find_module(
-                self.block_name + "_sim", [self.module_path])
-            mod = imp.load_module(
-                "common.python." + self.block_name,
-                file, pathname, description)
+            mod_name = self.block_name + "_sim"
+            mod_spec = importlib.util.spec_from_file_location(
+                mod_name,
+                self.module_path + '/' + self.block_name + "_sim.py")
+            mod = importlib.util.module_from_spec(
+                mod_spec)
+            mod_spec.loader.exec_module(mod)
             # Make instance of <Block>Simulation
             block = getattr(mod, self.block_name.title() + "Simulation")()
             # Start prodding the block and checking its outputs
@@ -118,7 +122,9 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
 
                 # Check all outputs have correct field values
                 for name in outputs:
-                    expected = numpy.int32(int(outputs[name], 0))
+                    expected_val = int(outputs[name], 0)
+                    expected = numpy.int32(
+                        expected_val if expected_val < 2**31 else numpy.uint32(expected_val))
                     actual = getattr(block, name)
                     assert actual == expected, \
                         "%d: Attr %s = %d != %d" % (
