@@ -102,8 +102,6 @@ package operator is
 
 
     -- Simple type conversions
-    function to_std_logic(bool : boolean) return std_logic;
-    function to_std_logic(nat : natural range 0 to 1) return std_logic;
     function to_integer(data : std_logic) return natural;
     function to_boolean(data : std_logic) return boolean;
 
@@ -317,23 +315,6 @@ package body operator is
         return vector_xor(std_logic_vector(data));
     end;
 
-
-    function to_std_logic(bool : boolean) return std_logic is
-    begin
-        if bool then
-            return '1';
-        else
-            return '0';
-        end if;
-    end;
-
-    function to_std_logic(nat : natural range 0 to 1) return std_logic is
-    begin
-        case nat is
-            when 0 => return '0';
-            when 1 => return '1';
-        end case;
-    end;
 
     function to_integer(data : std_logic) return natural is begin
         if data = '1' then

@@ -9,6 +9,8 @@ constant c_UNSIGNED_GRAY_ENCODING    : std_logic_vector(1 downto 0) := "01";
 constant c_SIGNED_BINARY_ENCODING    : std_logic_vector(1 downto 0) := "10";
 constant c_SIGNED_GRAY_ENCODING      : std_logic_vector(1 downto 0) := "11";
 
+type vector_array is array(natural range <>) of std_logic_vector;
+
 --
 -- Functions
 --
@@ -20,6 +22,7 @@ function ZEROS(num : positive) return std_logic_vector;
 function COMP(a : std_logic_vector; b: std_logic_vector) return std_logic;
 function BITREV(A : std_logic_vector) return std_logic_vector;
 function ONEHOT_INDEX (arg : std_logic_vector) return natural;
+function to_std_logic(cond : boolean) return std_logic;
 
 end support;
 
@@ -94,6 +97,15 @@ begin
         end if;
     end loop;
     return index;
+end function;
+
+function to_std_logic(cond : boolean) return std_logic is
+begin
+    if cond then
+        return '1';
+    else
+        return '0';
+    end if;
 end function;
 
 end support;
