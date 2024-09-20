@@ -2,6 +2,7 @@
 import argparse
 import configparser
 import os
+import logging
 
 from pathlib import Path
 from typing import Dict
@@ -10,6 +11,7 @@ import cocotb
 import cocotb.handle
 import cocotb.runner
 import cocotb.wavedrom
+import cocotb.binary
 
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, ReadOnly
@@ -27,47 +29,40 @@ def read_ini(path):
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('module')
+    parser.add_argument('test_name', nargs='?', default='all')
+    parser.add_argument('-l', action='store_true')
     return parser.parse_args()
 
 
 async def initialise_dut(dut):
-    signals_dict = get_signals_dict(dut)
+    signals_dict = get_signals_info(dut)
     for signal_name in signals_dict.keys():
+        dut_signal_name = signals_dict[signal_name]['name']
         if signals_dict[signal_name]['type'] == 'bit_mux':
-            getattr(dut, '{}'.format(signals_dict[signal_name]['name'])).value = 0
-        elif 'bit_out' in signals_dict[signal_name]['type']:
+            getattr(dut, '{}'.format(dut_signal_name)).value = 0
+        elif signals_dict[signal_name]['type'].endswith('_out'):
             pass  # ignore outputs
         else:
             wstb = getattr(dut, '{}_WSTB'.format(signal_name), None)
             if wstb is not None:
                 wstb.value = 0
-
             getattr(dut, signal_name).value = 0
 
 
-
 def get_timing_ini(module):
-    ini_path = Path(SCRIPT_DIR).parent.parent / 'modules' / module / '{}.timing.ini'.format(module)
+    ini_path = (Path(SCRIPT_DIR).parent.parent / 'modules' / module /
+                '{}.timing.ini'.format(module))
     return read_ini(str(ini_path.resolve()))
 
 
 def get_block_ini(module):
-    ini_path = Path(SCRIPT_DIR).parent.parent / 'modules' / module / '{}.block.ini'.format(module)
+    ini_path = Path(SCRIPT_DIR).parent.parent / 'modules' / module / \
+        '{}.block.ini'.format(module)
     return read_ini(str(ini_path.resolve()))
 
 
-
 def assign(dut, name, val):
-    # TODO: maybe use the block ini information to not assume? more generally, refactor and clean this file
-    signal = getattr(dut, '{}_i'.format(name), None)
-    if signal is not None:
-        signal.value = val
-        return
-
     getattr(dut, name).value = val
-    wstb  = getattr(dut, '{}_wstb'.format(name), None)
-    if wstb is not None:
-        wstb.value = 1
 
 
 def parse_assignments(assignments):
@@ -79,111 +74,120 @@ def parse_assignments(assignments):
     return result
 
 
-def do_assignments(dut, assignments, wstb_to_reset):
-    if wstb_to_reset:
-        for wstb_name in wstb_to_reset:
-            getattr(dut, wstb_name).value = 0
-    wstb_to_reset = []
-    for signal_name, val in parse_assignments(assignments).items():
+def do_assignments(dut, assignments):
+    for signal_name, val in assignments.items():
         assign(dut, signal_name, val)
-        wstb_name = '{}_wstb'.format(signal_name)
-        if hasattr(dut, wstb_name):
-            wstb_to_reset.append(wstb_name)
-    return wstb_to_reset
 
-    
+
 def check_conditions(dut, conditions: Dict[str, int], loud=False):
     for signal_name, val in conditions.items():
-        assert getattr(dut, '{}_o'.format(signal_name)).value == val, "Signal {} != {}, time = {} ns".format(signal_name, val, cocotb.utils.get_sim_time("ns"))
+        sim_val = getattr(dut, signal_name).value
+        assert sim_val == val, 'Signal {} = {}, expecting {}. Time = {} ns'\
+            .format(signal_name, sim_val, val, cocotb.utils.get_sim_time("ns"))
         if loud:
-            dut._log.info(f"Check passed: Signal {signal_name} = {val}, time = {cocotb.utils.get_sim_time("ns")} ns")
+            dut._log.info(f'Check passed: Signal {signal_name} = {val}, \
+                          time = {cocotb.utils.get_sim_time("ns")} ns')
 
 
 def get_signals(dut):
-    return [getattr(dut, signal_name) for signal_name in dir(dut) 
-            if isinstance(getattr(dut, signal_name), cocotb.handle.ModifiableObject) and not signal_name.startswith('_')] 
+    return [getattr(dut, signal_name) for signal_name in dir(dut)
+            if isinstance(getattr(dut, signal_name),
+                          cocotb.handle.ModifiableObject)
+            and not signal_name.startswith('_')]
 
 
-def get_signals_dict(dut):
-    # Get a mapping between signal names in INI file and VHDL file, and store signal type.
+def get_signals_info(dut):
+    # Get a mapping between signal names in INI file and VHDL file,
+    # and store signal type.
     signals_dict = {}
     ini = get_block_ini(dut._name)
     expected_signal_names = ini.sections()
     for signal_name in expected_signal_names:
         if 'type' in ini[signal_name]:
-            signals_dict[signal_name] = {'type': ini[signal_name]['type']} 
+            signals_dict[signal_name] = {'type': ini[signal_name]['type']}
             if signals_dict[signal_name]['type'] == 'bit_mux':
-                signals_dict[signal_name]["name"] = '{}_i'.format(signal_name.lower())
-            elif signals_dict[signal_name]['type'] == 'bit_out':
-                signals_dict[signal_name]['name'] = '{}_o'.format(signal_name.lower())
+                signals_dict[signal_name]["name"] = '{}_i'.format(
+                    signal_name.lower())
+            elif signals_dict[signal_name]['type'].endswith('_out'):
+                signals_dict[signal_name]['name'] = '{}_o'.format(
+                    signal_name.lower())
             else:
                 signals_dict[signal_name]['name'] = signal_name
+
+        if ini[signal_name].get('wstb', False):
+            signals_dict[signal_name]['wstb_name'] = '{}_wstb'.format(
+                signal_name.lower())
     return signals_dict
 
 
-def log_signals(dut, signals_dict = None):
+def log_signals(dut, signals_dict=None):
     if signals_dict is None:
-        signals_dict = get_signals_dict(dut)
+        signals_dict = get_signals_info(dut)
     for signal_name in signals_dict:
-        dut._log.info(f"Signal {signal_name} ({signals_dict[signal_name]['name']}) = {getattr(dut, signals_dict[signal_name]['name']).value}.")
+        dut._log.debug(f'''Signal {signal_name} ({signals_dict[signal_name]
+                       ["name"]}) = {getattr(dut, signals_dict[signal_name]
+                                             ["name"]).value}.''')
     print()
 
 
 async def section_timing_test(dut, timing_ini, test_name, loud=False):
-    with cocotb.wavedrom.trace(*get_signals(dut), clk=dut.clk_i) as trace:   
-        cocotb.start_soon(Clock(dut.clk_i, 1, units="ns").start(start_high=False))
-        ticks = 0
-        await initialise_dut(dut)
-        await RisingEdge(dut.clk_i)
-        conditions = {}    
-        wstb = [] 
-        for ts_str, line in timing_ini.items(test_name):
-            ts = int(ts_str)
-            parts = line.split('->')
-            assignments = parts[0]
-            if len(parts) > 1:
-                conditions[ts + 1] = parts[1] 
+    conditions_schedule = {}
+    assignments_schedule = {}
+    last_ts = 0
+    signals_info = get_signals_info(dut)
+    for ts_str, line in timing_ini.items(test_name):
+        ts = int(ts_str)
+        for i in (ts, ts + 1):
+            assignments_schedule.setdefault(i, {})
+            conditions_schedule.setdefault(i, {})
 
-            # Tick until time specicifed in INI. 
-            # Assign values to signals where needed. Check conditions from previous line where needed.
-            while ticks < ts:
-                await RisingEdge(dut.clk_i)
-                ticks += 1
-                if ticks in conditions.keys() and ticks == ts:
-                    wstb = do_assignments(dut, assignments, wstb)
-                    await ReadOnly()
-                    check_conditions(dut, parse_assignments(conditions[ticks]), loud=loud)
-                elif ticks in conditions.keys():
-                    await ReadOnly()
-                    check_conditions(dut, parse_assignments(conditions[ticks]), loud=loud)
-                elif ticks == ts:
-                    wstb = do_assignments(dut, assignments, wstb)
-                
-        # Check any final conditions
-        await RisingEdge(dut.clk_i)
-        ticks += 1
-        if ticks in conditions.keys():
+        last_ts = max(last_ts, ts + 1)
+        parts = line.split('->')
+        for sig_name, val in parse_assignments(parts[0]).items():
+            name = signals_info.get(sig_name)['name']
+            assignments_schedule[ts][name] = val
+            wstb_name = signals_info.get(sig_name).get('wstb_name', None)
+            if wstb_name is not None:
+                assignments_schedule[ts][wstb_name] = 1
+                assignments_schedule[ts + 1].update({wstb_name: 0})
+
+        if len(parts) > 1:
+            conditions_schedule[ts + 1] = {}
+            for sig_name, val in parse_assignments(parts[1]).items():
+                name = signals_info.get(sig_name)['name']
+                conditions_schedule[ts + 1][name] = val
+
+    with cocotb.wavedrom.trace(*get_signals(dut), clk=dut.clk_i) as trace:
+        clkedge = RisingEdge(dut.clk_i)
+        cocotb.start_soon(Clock(
+            dut.clk_i, 1, units="ns").start(start_high=False))
+        ts = 0
+        await initialise_dut(dut)
+        await clkedge
+        conditions = {}
+        while ts <= last_ts:
+            do_assignments(dut, assignments_schedule.get(ts, {}))
+            conditions.update(conditions_schedule.get(ts, {}))
             await ReadOnly()
-            check_conditions(dut, parse_assignments(conditions[ticks]), loud=loud)
-            await RisingEdge(dut.clk_i)
-            ticks += 1
+            check_conditions(dut, conditions)
+            await clkedge
+            ts += 1
 
         with open(f'{test_name.replace(" ", "_")}_wavedrom.json', 'w') as fhandle:
-                fhandle.write(trace.dumpj())
+            fhandle.write(trace.dumpj())
 
 
 @cocotb.test()
 async def module_timing_test(dut):
+    test_name = os.getenv('test_name', 'default')
+    loud = True if (os.getenv("loud, default")) == "True" else False
     module = dut._name
     timing_ini = get_timing_ini(module)
-    test_name = None
-    for section in timing_ini.sections():
-        if section.strip() != '.':
-            test_name = section
-            await section_timing_test(dut, timing_ini, test_name, loud=True)
-            # TODO: Add functionality to run all the tests
-        
-        
+    # test_name = None
+    # for section in timing_ini.sections():
+    if test_name.strip() != '.':
+        await section_timing_test(dut, timing_ini, test_name, loud)
+        # TODO: Add functionality to run all the tests
 
 
 def get_module_hdl_files(module):
@@ -193,9 +197,26 @@ def get_module_hdl_files(module):
 
 def test_module():
     args = get_args()
+    logging.basicConfig(level=logging.DEBUG)
+    loud = args.l
+    timing_ini = get_timing_ini(args.module)
+    sections = [args.test_name] if args.test_name != 'all' else timing_ini.sections()
     sim = cocotb.runner.get_runner('ghdl')
-    sim.build(sources=get_module_hdl_files(args.module), hdl_toplevel=args.module, build_args=['--std=08'])
-    sim.test(hdl_toplevel=args.module, test_module='cocotb_timing_test_runner', test_args=['--std=08'])
+    sim.build(sources=get_module_hdl_files(args.module),
+              hdl_toplevel=args.module,
+              build_args=['--std=08'])
+    # Path(f'sim_build/{args.module}/json').mkdir(parents=True, exist_ok=True)
+    for section in sections:
+        if section.strip() != '.':
+            test_name = section
+            vcd_filename = '{}-{}.vcd'.format(args.module, test_name.replace(' ', '_'))
+            print()
+            print('Test: "{}" in module {}.\n'.format(test_name, args.module))
+            sim.test(hdl_toplevel=args.module,
+                     test_module='cocotb_timing_test_runner',
+                     test_args=['--std=08'],
+                     plusargs=['--vcd={}'.format(vcd_filename)],
+                     extra_env={'test_name': test_name, 'loud': str(loud)})
 
 
 if __name__ == "__main__":
