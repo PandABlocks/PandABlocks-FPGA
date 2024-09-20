@@ -38,20 +38,6 @@ end pulse;
 
 architecture rtl of pulse is
 
--- The pulse queue; keeps track of the timestamps of incoming pulses
-component pulse_queue
-port (
-    clk                 : in std_logic;
-    srst                : in std_logic;
-    din                 : in std_logic_vector(48 DOWNTO 0);
-    wr_en               : in std_logic;
-    rd_en               : in std_logic;
-    dout                : out std_logic_vector(48 DOWNTO 0);
-    full                : out std_logic;
-    empty               : out std_logic;
-    data_count          : out std_logic_vector(8 downto 0)
-);
-end component;
 
 -- Variable declarations
 
@@ -66,7 +52,9 @@ signal got_trigger              : std_logic := '0';
 signal pulse                    : std_logic := '0';
 signal pulse_override           : std_logic := '0';
 signal pulse_queued_empty       : std_logic := '0';
+signal read_valid_o             : std_logic := '1';
 signal pulse_queued_full        : std_logic := '0';
+signal write_ready_o            : std_logic := '1';
 signal pulse_queued_reset       : std_logic := '0';
 signal pulse_queued_rstb        : std_logic := '0';
 signal pulse_queued_wstb        : std_logic := '0';
@@ -100,21 +88,25 @@ signal edges_remaining          : unsigned(31 downto 0) := (others => '0');
 begin
 
 -- The pulse queue; keeps track of the timestamps of incoming pulses, maps to component above, attached to this architecture
-pulse_queue_inst : pulse_queue
-port map (
-    clk         => clk_i,
-    srst        => pulse_queued_reset,
-    din         => pulse_queued_din,
-    wr_en       => pulse_queued_wstb,
-    rd_en       => pulse_queued_rstb,
-    dout        => pulse_queued_dout,
-    full        => pulse_queued_full,
-    empty       => pulse_queued_empty,
-    data_count  => pulse_queued_data_count
+pulse_queue_inst : entity work.fifo generic map(
+    DATA_WIDTH => 49,
+    FIFO_BITS  => 8
+) port map (
+    clk_i          => clk_i,
+    reset_fifo_i   => pulse_queued_reset,
+    write_data_i   => pulse_queued_din,
+    write_valid_i  => pulse_queued_wstb,
+    read_ready_i   => pulse_queued_rstb,
+    read_data_o    => pulse_queued_dout,
+    write_ready_o  => write_ready_o,
+    read_valid_o   => read_valid_o,
+    std_logic_vector(fifo_depth_o)   => pulse_queued_data_count
 );
 
 
 -- Bits relating to the FIFO queue
+pulse_queued_full <= not write_ready_o;
+pulse_queued_empty <= not read_valid_o;
 queue_pulse_ts <= unsigned(pulse_queued_dout(47 downto 0));
 queue_pulse_value <= pulse_queued_dout(48);
 pulse_queued_reset <= not is_enabled;

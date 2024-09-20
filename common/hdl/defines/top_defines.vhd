@@ -134,8 +134,6 @@ function PFIELD(pbus : std32_array; sel : std_logic_vector)
     return std_logic_vector;
 function compute_block_strobe(addr : std_logic_vector; index : natural)
     return std_logic;
-function to_std_logic(cond : boolean)
-    return std_logic;
 
 --
 -- Components
@@ -177,15 +175,6 @@ begin
         return '0';
     end if;
 end compute_block_strobe;
-
-function to_std_logic(cond : boolean) return std_logic is
-begin
-    if cond then
-        return '1';
-    else
-        return '0';
-    end if;
-end function;
 
 end top_defines;
 
