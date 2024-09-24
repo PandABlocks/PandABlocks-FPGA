@@ -16,6 +16,7 @@ import cocotb.binary
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, ReadOnly
 
+
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
@@ -29,7 +30,7 @@ def read_ini(path):
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('module')
-    parser.add_argument('test_name', nargs='?', default='all')
+    parser.add_argument('test_name', nargs='?', default=None)
     parser.add_argument('-l', action='store_true')
     return parser.parse_args()
 
@@ -38,15 +39,11 @@ async def initialise_dut(dut):
     signals_dict = get_signals_info(dut)
     for signal_name in signals_dict.keys():
         dut_signal_name = signals_dict[signal_name]['name']
-        if signals_dict[signal_name]['type'] == 'bit_mux':
+        if not signals_dict[signal_name]['type'].endswith('_out'):
             getattr(dut, '{}'.format(dut_signal_name)).value = 0
-        elif signals_dict[signal_name]['type'].endswith('_out'):
-            pass  # ignore outputs
-        else:
-            wstb = getattr(dut, '{}_WSTB'.format(signal_name), None)
-            if wstb is not None:
-                wstb.value = 0
-            getattr(dut, signal_name).value = 0
+            wstb_name = signals_dict[signal_name].get('wstb_name', '')
+            if wstb_name:
+                getattr(dut, wstb_name).value = 0
 
 
 def get_timing_ini(module):
@@ -68,8 +65,14 @@ def assign(dut, name, val):
 def parse_assignments(assignments):
     result = {}
     for assignment in assignments.split(','):
+        if assignment.strip() == '':
+            continue
         signal_name, val = assignment.split('=')
-        signal_name, val = signal_name.strip(), int(val)
+        signal_name = signal_name.strip()
+        if val.startswith('0x') or val.startswith('0X'):
+            val = int(val[2:], 16)
+        else:
+            val = int(val)
         result[signal_name] = val
     return result
 
@@ -80,8 +83,12 @@ def do_assignments(dut, assignments):
 
 
 def check_conditions(dut, conditions: Dict[str, int], loud=False):
-    for signal_name, val in conditions.items():
-        sim_val = getattr(dut, signal_name).value
+    for signal_name, val in conditions.items():     
+        if val < 0:
+            sim_val = getattr(dut, signal_name).value.signed_integer
+        else:
+            sim_val = getattr(dut, signal_name).value
+
         assert sim_val == val, 'Signal {} = {}, expecting {}. Time = {} ns'\
             .format(signal_name, sim_val, val, cocotb.utils.get_sim_time("ns"))
         if loud:
@@ -105,7 +112,7 @@ def get_signals_info(dut):
     for signal_name in expected_signal_names:
         if 'type' in ini[signal_name]:
             signals_dict[signal_name] = {'type': ini[signal_name]['type']}
-            if signals_dict[signal_name]['type'] == 'bit_mux':
+            if signals_dict[signal_name]['type'].endswith('_mux'):
                 signals_dict[signal_name]["name"] = '{}_i'.format(
                     signal_name.lower())
             elif signals_dict[signal_name]['type'].endswith('_out'):
@@ -120,13 +127,19 @@ def get_signals_info(dut):
     return signals_dict
 
 
-def log_signals(dut, signals_dict=None):
+def _log_signals(dut, signals_dict=None):
     if signals_dict is None:
         signals_dict = get_signals_info(dut)
     for signal_name in signals_dict:
-        dut._log.debug(f'''Signal {signal_name} ({signals_dict[signal_name]
+        dut._log.info(f'''Signal {signal_name} ({signals_dict[signal_name]
                        ["name"]}) = {getattr(dut, signals_dict[signal_name]
                                              ["name"]).value}.''')
+    print()
+
+def _log_dut_signals(dut):
+    signals = get_signals(dut)
+    for signal in signals:
+        dut._log.info(f'Signal {signal._name} = {signal.value}')
     print()
 
 
@@ -165,16 +178,21 @@ async def section_timing_test(dut, timing_ini, test_name, loud=False):
         await initialise_dut(dut)
         await clkedge
         conditions = {}
-        while ts <= last_ts:
-            do_assignments(dut, assignments_schedule.get(ts, {}))
-            conditions.update(conditions_schedule.get(ts, {}))
-            await ReadOnly()
-            check_conditions(dut, conditions)
-            await clkedge
-            ts += 1
-
-        with open(f'{test_name.replace(" ", "_")}_wavedrom.json', 'w') as fhandle:
-            fhandle.write(trace.dumpj())
+        try:
+            while ts <= last_ts:
+                do_assignments(dut, assignments_schedule.get(ts, {}))
+                conditions.update(conditions_schedule.get(ts, {}))
+                await ReadOnly()
+                check_conditions(dut, conditions)
+                await clkedge
+                ts += 1
+        except AssertionError as error:
+            with open(f'{dut._name}_waveforms/{test_name.replace(" ", "_")}_wavedrom.json', 'w') as fhandle:
+                fhandle.write(trace.dumpj())
+            raise error
+        else:
+            with open(f'{dut._name}_waveforms/{test_name.replace(" ", "_")}_wavedrom.json', 'w') as fhandle:
+                fhandle.write(trace.dumpj())
 
 
 @cocotb.test()
@@ -187,7 +205,6 @@ async def module_timing_test(dut):
     # for section in timing_ini.sections():
     if test_name.strip() != '.':
         await section_timing_test(dut, timing_ini, test_name, loud)
-        # TODO: Add functionality to run all the tests
 
 
 def get_module_hdl_files(module):
@@ -200,16 +217,22 @@ def test_module():
     logging.basicConfig(level=logging.DEBUG)
     loud = args.l
     timing_ini = get_timing_ini(args.module)
-    sections = [args.test_name] if args.test_name != 'all' else timing_ini.sections()
+    sections = [args.test_name] if args.test_name else timing_ini.sections()
     sim = cocotb.runner.get_runner('ghdl')
     sim.build(sources=get_module_hdl_files(args.module),
               hdl_toplevel=args.module,
               build_args=['--std=08'])
-    # Path(f'sim_build/{args.module}/json').mkdir(parents=True, exist_ok=True)
+    
+    path = f'sim_build/{args.module}_waveforms'
+    if not os.path.exists(path):
+        os.makedirs(path)
+
     for section in sections:
         if section.strip() != '.':
             test_name = section
-            vcd_filename = '{}-{}.vcd'.format(args.module, test_name.replace(' ', '_'))
+            
+
+            vcd_filename = '{}_waveforms/{}.vcd'.format(args.module, test_name.replace(' ', '_'))
             print()
             print('Test: "{}" in module {}.\n'.format(test_name, args.module))
             sim.test(hdl_toplevel=args.module,
