@@ -39,6 +39,8 @@ set_property -dict {PACKAGE_PIN AE13  IOSTANDARD LVCMOS18  } [get_ports {IO0_D6_
 set_property -dict {PACKAGE_PIN AF13  IOSTANDARD LVCMOS18  } [get_ports {IO0_D7_N}]
 set_property -dict {PACKAGE_PIN AG13  IOSTANDARD LVCMOS18  } [get_ports {IO0_D8_P}]
 set_property -dict {PACKAGE_PIN AH13  IOSTANDARD LVCMOS18  } [get_ports {IO0_D9_N}]
+set_property -dict {PACKAGE_PIN AB11  IOSTANDARD LVCMOS18  } [get_ports {IO0_D10_P}]
+set_property -dict {PACKAGE_PIN AC11  IOSTANDARD LVCMOS18  } [get_ports {IO0_D11_N}]
 
 set_property -dict {PACKAGE_PIN AG14  IOSTANDARD LVCMOS18  } [get_ports {IO0_D20_P}]
 set_property -dict {PACKAGE_PIN AH14  IOSTANDARD LVCMOS18  } [get_ports {IO0_D21_N}]
