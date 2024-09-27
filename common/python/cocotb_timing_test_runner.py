@@ -39,7 +39,8 @@ async def initialise_dut(dut):
     signals_dict = get_signals_info(dut)
     for signal_name in signals_dict.keys():
         dut_signal_name = signals_dict[signal_name]['name']
-        if not signals_dict[signal_name]['type'].endswith('_out'):
+        if not (signals_dict[signal_name]['type'].endswith('_out') 
+                or signals_dict[signal_name]['type'] == 'read'):
             getattr(dut, '{}'.format(dut_signal_name)).value = 0
             wstb_name = signals_dict[signal_name].get('wstb_name', '')
             if wstb_name:
