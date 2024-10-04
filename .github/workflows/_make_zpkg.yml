@@ -47,7 +47,7 @@ jobs:
 
       # Artifacts
       - name: Upload zpkg
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: zpkgs
+          name: zpkgs-${{ matrix.app }}
           path: /build/panda-fpga@*.zpg

@@ -53,7 +53,7 @@ jobs:
       # Upload artifacts if boot files present
       - name: Upload boot
         if: ${{ steps.make_boot.outputs.boot_files == 'true'}}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: zpkgs
+          name: boot-${{ matrix.app }}
           path: /build/boot*.zip
