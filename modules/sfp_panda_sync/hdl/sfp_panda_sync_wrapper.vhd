@@ -78,6 +78,7 @@ signal POSOUT4            : std_logic_vector(31 downto 0);
 signal BITOUT             : std_logic_vector(7 downto 0);
 signal LINKUP             : std_logic_vector(31 downto 0);
 signal SYNC_RESET         : std_logic;
+signal MGT_RESET          : std_logic;
 signal TXN                : std_logic;
 signal TXP                : std_logic;
 signal health             : std_logic_vector(31 downto 0);
@@ -197,6 +198,7 @@ sfp_panda_sync_mgt_interface_inst : entity work.sfp_panda_sync_mgt_interface
     port map(
         GTREFCLK_i        => MGT.GTREFCLK,
         SYNC_RESET_i      => SYNC_RESET,
+        MGT_RESET_i       => MGT_RESET,
         sysclk_i          => clk_i,
         rxp_i             => MGT.RXP_IN,
         rxn_i             => MGT.RXN_IN,
@@ -235,6 +237,8 @@ sfp_panda_sync_ctrl_inst : entity work.sfp_panda_sync_ctrl
         IN_SYNC_RESET_wstb  => SYNC_RESET,
         IN_HEALTH           => health,
         IN_ERR_CNT          => err_cnt_smpld,
+        OUT_MGT_RESET       => open,
+        OUT_MGT_RESET_wstb  => MGT_RESET,
         OUT_BIT1_from_bus   => BITOUT1,
         OUT_BIT2_from_bus   => BITOUT2,
         OUT_BIT3_from_bus   => BITOUT3,

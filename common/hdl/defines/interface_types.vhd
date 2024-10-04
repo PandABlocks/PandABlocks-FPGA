@@ -14,6 +14,12 @@ package interface_types is
         FMC_CLK0_M2C_N  : std_logic;
         FMC_CLK1_M2C_P  : std_logic;
         FMC_CLK1_M2C_N  : std_logic;
+        FMC_I2C_SDA_in  : std_logic;
+        FMC_I2C_SDA_out : std_logic;
+        FMC_I2C_SDA_tri : std_logic;
+        FMC_I2C_SCL_in  : std_logic;
+        FMC_I2C_SCL_out : std_logic;
+        FMC_I2C_SCL_tri : std_logic;
       end record FMC_interface;
 
     view FMC_Module of FMC_interface is
@@ -24,6 +30,13 @@ package interface_types is
         FMC_CLK0_M2C_N  : inout;
         FMC_CLK1_M2C_P  : in;
         FMC_CLK1_M2C_N  : in;
+        FMC_I2C_SDA_in  : out;
+        FMC_I2C_SDA_out : in;
+        FMC_I2C_SDA_tri : in;
+        FMC_I2C_SCL_in  : out;
+        FMC_I2C_SCL_out : in;
+        FMC_I2C_SCL_tri : in;
+
     end view FMC_Module;
 
     constant FMC_init : FMC_interface;
@@ -92,7 +105,13 @@ package body interface_types is
                                             FMC_CLK0_M2C_P => 'Z',
                                             FMC_CLK0_M2C_N => 'Z',
                                             FMC_CLK1_M2C_P => '0',
-                                            FMC_CLK1_M2C_N => '0');
+                                            FMC_CLK1_M2C_N => '0',
+                                            FMC_I2C_SDA_in => '0',
+                                            FMC_I2C_SDA_out => '0',
+                                            FMC_I2C_SDA_tri => '1',
+                                            FMC_I2C_SCL_in => '0',
+                                            FMC_I2C_SCL_out => '0',
+                                            FMC_I2C_SCL_tri => '1');
 
     constant MGT_init : MGT_interface := (  SFP_LOS => '0',
                                             GTREFCLK => '0',
