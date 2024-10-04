@@ -67,7 +67,7 @@ port (
     SETP_i              : in  std_logic_vector(31 downto 0);
     SETP_WSTB_i         : in  std_logic;
     RST_ON_Z_i          : in  std_logic_vector(31 downto 0);
-    STATUS_o            : out std_logic_vector(31 downto 0);
+    STATUS_o            : out std_logic;
     INCENC_HEALTH_o     : out std_logic_vector(31 downto 0);
     HOMED_o             : out std_logic_vector(31 downto 0);
 
@@ -79,7 +79,7 @@ port (
     ABSENC_BITS_i       : in  std_logic_vector(7 downto 0);
     ABSENC_LSB_DISCARD_i   : in  std_logic_vector(4 downto 0);
     ABSENC_MSB_DISCARD_i   : in  std_logic_vector(4 downto 0);
-    ABSENC_STATUS_o        : out std_logic_vector(31 downto 0);
+    ABSENC_STATUS_o        : out std_logic;
     ABSENC_HEALTH_o     : out std_logic_vector(31 downto 0);
     ABSENC_HOMED_o      : out std_logic_vector(31 downto 0);
     ABSENC_ENABLED_o    : out std_logic_vector(31 downto 0);
@@ -126,7 +126,6 @@ signal step, dir            : std_logic;
 
 signal homed_qdec           : std_logic_vector(31 downto 0);
 signal linkup_incr          : std_logic;
-signal linkup_incr_std32    : std_logic_vector(31 downto 0);
 signal linkup_ssi           : std_logic;
 signal ssi_frame            : std_logic;
 signal ssi_frame_sniffer    : std_logic;
@@ -182,9 +181,7 @@ begin
 end process ps_select;
 
 --------------------------------------------------------------------------
--- Position Data and STATUS readback multiplexer
---
---  Link status information is valid only for loopback configuration
+-- INCENC Position Data and STATUS readback multiplexer
 --------------------------------------------------------------------------
 process(clk_i)
 begin
@@ -192,21 +189,21 @@ begin
         case (INCENC_PROTOCOL_i) is
             when "000"  =>              -- Quadrature
                 posn_inc <= posn_incr;
-                STATUS_o(0) <= linkup_incr;
+                STATUS_o <= linkup_incr;
                 INCENC_HEALTH_o(0) <= not(linkup_incr);
                 INCENC_HEALTH_o(31 downto 1)<= (others=>'0');
                 HOMED_o <= homed_qdec;
 
             when "001"  =>              -- Step/Direction
                 posn_inc <= posn_incr;
-                STATUS_o(0) <= linkup_incr;
+                STATUS_o <= linkup_incr;
                 INCENC_HEALTH_o(0) <= not(linkup_incr);
                 INCENC_HEALTH_o(31 downto 1)<= (others=>'0');
                 HOMED_o <= homed_qdec;
             
             when others => 
                 posn_inc <= posn_incr;
-                STATUS_o(0) <= linkup_incr;
+                STATUS_o <= linkup_incr;
                 INCENC_HEALTH_o(0) <= not(linkup_incr);
                 INCENC_HEALTH_o(31 downto 1)<= (others=>'0');
                 HOMED_o <= homed_qdec;
@@ -220,7 +217,7 @@ qdec : entity work.qdec
 port map (
     clk_i           => clk_i,
 --  reset_i         => reset_i,
-    LINKUP_INCR     => linkup_incr_std32,
+    LINKUP_INCR     => linkup_incr,
     a_i             => A_IN,
     b_i             => B_IN,
     z_i             => Z_IN,
@@ -232,7 +229,6 @@ port map (
 );
 
 linkup_incr <= '1';
-linkup_incr_std32 <= x"0000000"&"000"&linkup_incr;
 
 --
 -- INCREMENTAL OUT
@@ -283,9 +279,7 @@ begin
 end process abs_ps_select;
 
 --------------------------------------------------------------------------
--- Position Data and STATUS readback multiplexer
---
---  Link status information is valid only for loopback configuration
+-- ABSENC Position Data and STATUS readback multiplexer
 --------------------------------------------------------------------------
 process(clk_i)
 begin
@@ -294,7 +288,7 @@ begin
             when "000"  =>              -- SSI
                 -- if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
                 posn <= posn_ssi_sniffer;
-                ABSENC_STATUS_o(0) <= linkup_ssi;
+                ABSENC_STATUS_o <= linkup_ssi;
                 if (linkup_ssi = '0') then
                     ABSENC_HEALTH_o <= TO_SVECTOR(2,32);
                 else
@@ -302,7 +296,7 @@ begin
                     end if;
                 -- else  -- DCARD_CONTROL
                 --     posn <= posn_ssi;
-                --     ABSENC_STATUS_o <= (others => '0');
+                --     ABSENC_STATUS_o <= '0';
                 --     ABSENC_HEALTH_o <= (others=>'0');
                 -- end if;
                 ABSENC_HOMED_o <= TO_SVECTOR(1,32);
@@ -310,11 +304,11 @@ begin
             when "001"  =>              -- BISS & Loopback
                 -- if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
                 posn <= posn_biss_sniffer;
-                ABSENC_STATUS_o(0) <= linkup_biss_sniffer;
+                ABSENC_STATUS_o <= linkup_biss_sniffer;
                 ABSENC_HEALTH_o <= health_biss_sniffer;
                 -- else  -- DCARD_CONTROL
                 --     posn <= posn_biss;
-                --     ABSENC_STATUS_o(0) <= linkup_biss_master;
+                --     ABSENC_STATUS_o <= linkup_biss_master;
                 --     ABSENC_HEALTH_o<=health_biss_master;
                 -- end if;
                 ABSENC_HOMED_o <= TO_SVECTOR(1,32);
@@ -322,7 +316,7 @@ begin
             when others =>
                 ABSENC_HEALTH_o <= TO_SVECTOR(5,32);
                 posn <= (others => '0');
-                ABSENC_STATUS_o <= (others => '0');
+                ABSENC_STATUS_o <= '0';
                 ABSENC_HOMED_o <= TO_SVECTOR(1,32);
         end case;
     end if;
@@ -457,9 +451,7 @@ port map (
 );
 
 --------------------------------------------------------------------------
--- Position Data and STATUS readback multiplexer
---
---  Link status information is valid only for loopback configuration
+-- PMACENC status readback multiplexer
 --------------------------------------------------------------------------
 process(clk_i)
 begin

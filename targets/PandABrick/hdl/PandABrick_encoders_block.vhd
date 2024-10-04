@@ -132,8 +132,8 @@ signal ABSENC_BITS_WSTB         : std_logic;
 signal SETP                     : std_logic_vector(31 downto 0);
 signal SETP_WSTB                : std_logic;
 signal RST_ON_Z                 : std_logic_vector(31 downto 0);
-signal STATUS                   : std_logic_vector(31 downto 0);
-signal absenc_STATUS            : std_logic_vector(31 downto 0);
+signal STATUS                   : std_logic;
+signal absenc_STATUS            : std_logic;
 signal read_ack                 : std_logic;
 signal LSB_DISCARD              : std_logic_vector(31 downto 0);
 signal MSB_DISCARD              : std_logic_vector(31 downto 0);
@@ -162,9 +162,9 @@ PMACENC_CONN_OUT_o <= enable;
 
 -- Input encoder connection status comes from either
 --  * Dcard pin [12] for incremental, or
---  * link_up status for absolute in loopback mode
-INCENC_CONN_OUT_o <= STATUS(0);
-ABSENC_CONN_OUT_o <= ABSENC_STATUS(0);
+--  * link_up status for absolute
+INCENC_CONN_OUT_o <= STATUS;
+ABSENC_CONN_OUT_o <= ABSENC_STATUS;
 -- Certain parameter changes must initiate a block reset.
 reset <= reset_i or PMACENC_PROTOCOL_WSTB or PMACENC_BITS_WSTB or INCENC_PROTOCOL_WSTB
          or PMACENC_ENCODING_WSTB or ABSENC_ENCODING_WSTB or ABSENC_PROTOCOL_WSTB

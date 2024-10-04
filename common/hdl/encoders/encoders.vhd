@@ -60,7 +60,7 @@ port (
     SETP_i              : in  std_logic_vector(31 downto 0);
     SETP_WSTB_i         : in  std_logic;
     RST_ON_Z_i          : in  std_logic_vector(31 downto 0);
-    STATUS_o            : out std_logic_vector(31 downto 0);
+    STATUS_o            : out std_logic;
     INENC_HEALTH_o      : out std_logic_vector(31 downto 0);
     HOMED_o             : out std_logic_vector(31 downto 0);
     -- Block Outputs
@@ -95,7 +95,6 @@ signal bits_not_used        : unsigned(4 downto 0);
 
 signal homed_qdec           : std_logic_vector(31 downto 0);
 signal linkup_incr          : std_logic;
-signal linkup_incr_std32    : std_logic_vector(31 downto 0);
 signal linkup_ssi           : std_logic;
 signal ssi_frame            : std_logic;
 signal ssi_frame_sniffer    : std_logic;
@@ -206,9 +205,7 @@ port map (
 );
 
 --------------------------------------------------------------------------
--- Position Data and STATUS readback multiplexer
---
---  Link status information is valid only for loopback configuration
+-- OUTENC Health multiplexer
 --------------------------------------------------------------------------
 
 OUTENC_PROTOCOL_rb <= DCARD_MODE_i(18 downto 16);
@@ -280,7 +277,7 @@ qdec : entity work.qdec
 port map (
     clk_i           => clk_i,
 --  reset_i         => reset_i,
-    LINKUP_INCR     => linkup_incr_std32,
+    LINKUP_INCR     => linkup_incr,
     a_i             => A_IN,
     b_i             => B_IN,
     z_i             => Z_IN,
@@ -292,7 +289,6 @@ port map (
 );
 
 linkup_incr <= not DCARD_MODE_i(0);
-linkup_incr_std32 <= x"0000000"&"000"&linkup_incr;
 
 --------------------------------------------------------------------------
 -- SSI Instantiations
@@ -377,8 +373,6 @@ port map (
 
 --------------------------------------------------------------------------
 -- Position Data and STATUS readback multiplexer
---
---  Link status information is valid only for loopback configuration
 --------------------------------------------------------------------------
 
 INENC_PROTOCOL_rb <= DCARD_MODE_i(10 downto 8);
@@ -392,7 +386,7 @@ begin
             case (INENC_PROTOCOL_i) is
                 when "000"  =>              -- INC
                     posn <= posn_incr;
-                    STATUS_o(0) <= linkup_incr;
+                    STATUS_o <= linkup_incr;
                     INENC_HEALTH_o(0) <= not(linkup_incr);
                     INENC_HEALTH_o(31 downto 1)<= (others=>'0');
                     HOMED_o <= homed_qdec;
@@ -404,7 +398,7 @@ begin
                         posn <= posn_ssi;
                     end if;
                     HOMED_o <= TO_SVECTOR(1,32);
-                    STATUS_o(0) <= linkup_ssi;
+                    STATUS_o <= linkup_ssi;
                     if (linkup_ssi = '0') then
                         INENC_HEALTH_o <= TO_SVECTOR(2,32);
                     else
@@ -414,11 +408,11 @@ begin
                 when "010"  =>              -- BISS & Loopback
                     if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
                         posn <= posn_biss_sniffer;
-                        STATUS_o(0) <= linkup_biss_sniffer;
+                        STATUS_o <= linkup_biss_sniffer;
                         INENC_HEALTH_o <= health_biss_sniffer;
                     else  -- DCARD_CONTROL
                         posn <= posn_biss;
-                        STATUS_o(0) <= linkup_biss_master;
+                        STATUS_o <= linkup_biss_master;
                         INENC_HEALTH_o<=health_biss_master;
                     end if;
                     HOMED_o <= TO_SVECTOR(1,32);
@@ -426,7 +420,7 @@ begin
                 when others =>
                     INENC_HEALTH_o <= TO_SVECTOR(5,32);
                     posn <= (others => '0');
-                    STATUS_o <= (others => '0');
+                    STATUS_o <= '0';
                     HOMED_o <= TO_SVECTOR(1,32);
             end case;
         end if;
