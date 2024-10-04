@@ -1301,7 +1301,7 @@ port map (
 -- BIT_BUS_SIZE and POS_BUS_SIZE declared in addr_defines.vhd
 
 bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & pmacenc_clk & incenc_conn &
-                                    absenc_data & absenc_conn & ttlin_val;
+                                     absenc_conn & absenc_data & ttlin_val;
 
 pos_bus(POS_BUS_SIZE-1 downto 0) <= incenc_val & absenc_val;
 
