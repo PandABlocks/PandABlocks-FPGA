@@ -3,6 +3,7 @@ import argparse
 import configparser
 import os
 import logging
+import shutil
 
 from pathlib import Path
 from typing import Dict
@@ -40,7 +41,7 @@ async def initialise_dut(dut):
     for signal_name in signals_dict.keys():
         dut_signal_name = signals_dict[signal_name]['name']
         if not (signals_dict[signal_name]['type'].endswith('_out') 
-                or signals_dict[signal_name]['type'] == 'read'):
+                or 'read' in signals_dict[signal_name]['type']):
             getattr(dut, '{}'.format(dut_signal_name)).value = 0
             wstb_name = signals_dict[signal_name].get('wstb_name', '')
             if wstb_name:
@@ -213,35 +214,109 @@ def get_module_hdl_files(module):
     return list((module_dir / 'hdl').glob('*.vhd'))
 
 
-def test_module():
-    args = get_args()
-    logging.basicConfig(level=logging.DEBUG)
-    loud = args.l
-    timing_ini = get_timing_ini(args.module)
-    sections = [args.test_name] if args.test_name else timing_ini.sections()
-    sim = cocotb.runner.get_runner('ghdl')
-    sim.build(sources=get_module_hdl_files(args.module),
-              hdl_toplevel=args.module,
-              build_args=['--std=08'])
+def print_results(module, passed, failed):
+    print('\n Module: {}'.format(module))
+    print(' {}/{} tests passed.'.format(len(passed), len(passed) + len(failed)))
+    percentage = round(len(passed) / (len(passed) + len(failed)) * 100)
+    print(' {}%'.format(percentage))
+    if failed:
+        print(' \033[0;31m' + 'Failed tests:' + '\x1b[0m', end=' ')
+        print(*[test + (', ' if i < len(failed) - 1 else '.') 
+                for i, test in enumerate(failed)])
+    else:
+        print(' \033[92m' + 'ALL PASSED' + '\x1b[0m')
+
+
+def summarise_results(results):
+    failed = [module for module in results if results[module][1]]
+    passed = [module for module in results if not results[module][1]]
+    total_passed, total_failed = 0, 0
+    for module in results:
+        total_passed += len(results[module][0])
+        total_failed += len(results[module][1])
+    total = total_passed + total_failed
+    print('\nSummary:\n')
+    print(' {}/{} modules passed.'.format(len(passed), len(results.keys())))
+    print(' {}%'.format(round(len(passed) / len(results.keys()) * 100)))
+    print(' {}/{} tests passed.'.format(total_passed, total))
+    print(' {}%'.format(round(total_passed / total * 100)))
+    if failed:
+        print(' \033[0;31m' + '\033[1m' + 'Failed modules:' + '\x1b[0m', end=' ')
+        print(*[module + (', ' if i < len(failed) - 1 else '.')
+                for i, module in enumerate(failed)])
+    else:
+        print(' \033[92m' + '\033[1m' + 'ALL MODULES PASSED' + '\x1b[0m')
     
-    path = f'sim_build/{args.module}_waveforms'
+
+def test_module(module, test_name=None):
+    # args = get_args()
+    logging.basicConfig(level=logging.DEBUG)
+    loud = False
+    timing_ini = get_timing_ini(module)
+    sections = [test_name] if test_name else timing_ini.sections()
+    sim = cocotb.runner.get_runner('ghdl')
+    print(module)
+    sim.build(sources=get_module_hdl_files(module),
+              hdl_toplevel=module,
+              build_args=['--std=08'])
+    print(module)
+    
+    path = f'sim_build/{module}_waveforms'
     if not os.path.exists(path):
         os.makedirs(path)
+
+    passed, failed = [], []
 
     for section in sections:
         if section.strip() != '.':
             test_name = section
-            
-
-            vcd_filename = '{}_waveforms/{}.vcd'.format(args.module, test_name.replace(' ', '_'))
+            vcd_filename = '{}_waveforms/{}.vcd'.format(module, test_name.replace(' ', '_'))
             print()
-            print('Test: "{}" in module {}.\n'.format(test_name, args.module))
-            sim.test(hdl_toplevel=args.module,
+            print('Test: "{}" in module {}.\n'.format(test_name, module))
+            sim.test(hdl_toplevel=module,
                      test_module='cocotb_timing_test_runner',
                      test_args=['--std=08'],
                      plusargs=['--vcd={}'.format(vcd_filename)],
                      extra_env={'test_name': test_name, 'loud': str(loud)})
+            xml_path = cocotb.runner.get_abs_path('sim_build/results.xml')
+            results = cocotb.runner.get_results(xml_path)
+            if results == (1, 0):       
+                # ran 1 test, 0 failed
+                passed.append(test_name)
+            elif results == (1, 1):     
+                # ran 1 test, 1 failed
+                failed.append(test_name)
+            else:
+                raise ValueError(f'Results unclear: {results}')
+    return passed, failed
+
+
+def run_tests():
+    args = get_args()
+    if args.module.lower() == 'all':
+        path = Path(os.path.dirname(os.path.realpath(__file__)))
+        tests = open(f'{path}/tests_to_run.txt', 'r')
+    else:
+        tests = [args.module]
+    results = {}
+    for module in tests:
+        module = module.strip('\n')
+        results[module] = [[], []]          # [[passed], [failed]]
+        print()
+        print('* Testing module \033[1m{}\033[0m *'.format(module.strip("\n"))
+              .center(shutil.get_terminal_size().columns))
+        print('---------------------------------------------------'
+              .center(shutil.get_terminal_size().columns))
+        results[module][0], results[module][1] = test_module(module, args.test_name)
+    print('___________________________________________________')
+    print('\nResults:')
+    for module in results:
+        print_results(module, results[module][0], results[module][1])
+    print('___________________________________________________')
+    summarise_results(results)
+    print('___________________________________________________\n')
+    logging.basicConfig(level=logging.DEBUG)
 
 
 if __name__ == "__main__":
-    test_module()
+    run_tests()
