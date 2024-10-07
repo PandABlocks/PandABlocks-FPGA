@@ -189,11 +189,11 @@ async def section_timing_test(dut, timing_ini, test_name):
                 await clkedge
                 ts += 1
         except AssertionError as error:
-            with open(f'{dut._name}_waveforms/{test_name.replace(" ", "_")}_wavedrom.json', 'w') as fhandle:
+            with open(f'{test_name.replace(" ", "_")}_wavedrom.json', 'w') as fhandle:
                 fhandle.write(trace.dumpj())
             raise error
         else:
-            with open(f'{dut._name}_waveforms/{test_name.replace(" ", "_")}_wavedrom.json', 'w') as fhandle:
+            with open(f'{test_name.replace(" ", "_")}_wavedrom.json', 'w') as fhandle:
                 fhandle.write(trace.dumpj())
 
 
@@ -256,30 +256,27 @@ def test_module(module, test_name=None):
     timing_ini = get_timing_ini(module)
     sections = [test_name] if test_name else timing_ini.sections()
     sim = cocotb.runner.get_runner('ghdl')
-    print(module)
+    build_dir = f'sim_build_{module}'
     sim.build(sources=get_module_hdl_files(module),
+              build_dir=build_dir,
               hdl_toplevel=module,
               build_args=['--std=08'])
-    print(module)
-    
-    path = f'sim_build/{module}_waveforms'
-    if not os.path.exists(path):
-        os.makedirs(path)
 
     passed, failed = [], []
 
     for section in sections:
         if section.strip() != '.':
             test_name = section
-            vcd_filename = '{}_waveforms/{}.vcd'.format(module, test_name.replace(' ', '_'))
+            vcd_filename = '{}.vcd'.format(test_name.replace(' ', '_'))
             print()
             print('Test: "{}" in module {}.\n'.format(test_name, module))
             sim.test(hdl_toplevel=module,
                      test_module='cocotb_timing_test_runner',
+                     build_dir=build_dir,
                      test_args=['--std=08'],
                      plusargs=['--vcd={}'.format(vcd_filename)],
                      extra_env={'test_name': test_name})
-            xml_path = cocotb.runner.get_abs_path('sim_build/results.xml')
+            xml_path = cocotb.runner.get_abs_path(f'{build_dir}/results.xml')
             results = cocotb.runner.get_results(xml_path)
             if results == (1, 0):       
                 # ran 1 test, 0 failed
