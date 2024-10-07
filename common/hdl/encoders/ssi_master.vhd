@@ -41,7 +41,8 @@ port (
     ssi_sck_o       : out std_logic;
     ssi_dat_i       : in  std_logic;
     posn_o          : out std_logic_vector(31 downto 0);
-    posn_valid_o    : out std_logic
+    posn_valid_o    : out std_logic;
+    ssi_frame_o     : out std_logic
 );
 end entity;
 
@@ -50,10 +51,12 @@ architecture rtl of ssi_master is
 signal frame_pulse          : std_logic;
 signal serial_clock         : std_logic;
 signal serial_clock_prev    : std_logic;
+signal shift_enable_prev    : std_logic;
 signal shift_enable         : std_logic;
 signal shift_clock          : std_logic;
 signal shift_data           : std_logic;
 signal shift_in             : std_logic_vector(31 downto 0);
+signal ssi_frame            : std_logic;
 
 -- Shift length in integer
 signal intBITS              : natural range 0 to 2**BITS'length-1;
@@ -62,6 +65,7 @@ begin
 
 -- Connect outputs
 ssi_sck_o <= serial_clock;
+ssi_frame_o <= ssi_frame;
 
 -- Generate Internal SSI Frame from system clock
 frame_presc : entity work.prescaler
@@ -93,8 +97,18 @@ begin
     if rising_edge(clk_i) then
         if reset_i = '1' then
             serial_clock_prev <= '0';
+            shift_enable_prev <= '0';
+            ssi_frame <= '0';
         else
             serial_clock_prev <= serial_clock;
+            shift_enable_prev <= shift_enable;   
+            -- Check for initial falling edge of serial clock for start of frame
+            if shift_clock = '1' and ssi_frame = '0' then
+                ssi_frame <= '1';
+            -- check for falling edge of shift_enable to reset ssi_frame
+            elsif shift_enable = '0' and shift_enable_prev = '1' then
+                ssi_frame <= '0';
+            end if; 
         end if;
     end if;
 end process;
