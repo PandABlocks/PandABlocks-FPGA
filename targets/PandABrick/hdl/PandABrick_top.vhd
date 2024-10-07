@@ -42,21 +42,23 @@ port (
     ch1_gthtxp_out                 : out    std_logic;
      
     -- Anios_0
-    IO0_D0_P                       : inout  std_logic;
-    IO0_D1_N                       : out    std_logic;
-    IO0_D2_P                       : inout  std_logic;
-    IO0_D3_N                       : out    std_logic;
-    IO0_D4_P                       : inout  std_logic;
-    IO0_D5_N                       : out    std_logic;
-    IO0_D6_P                       : inout  std_logic;
-    IO0_D7_N                       : out    std_logic;
-    IO0_D8_P                       : out    std_logic;
-    IO0_D9_N                       : inout  std_logic;
+    IO0_D0_P                       : in  std_logic;
+    IO0_D1_N                       : in  std_logic;
+    IO0_D2_P                       : in  std_logic;
+    IO0_D3_N                       : in  std_logic;
+    IO0_D4_P                       : in  std_logic;
+    IO0_D5_N                       : in  std_logic;
+    IO0_D6_P                       : in  std_logic;
+    IO0_D7_N                       : in  std_logic;
+    IO0_D8_P                       : in  std_logic;
+    IO0_D9_N                       : in  std_logic;
+    IO0_D10_P                      : in  std_logic;
+    IO0_D11_N                      : in  std_logic;
 
-    IO0_D20_P                      : in     std_logic;
-    IO0_D21_N                      : in     std_logic;
-    IO0_D22_P                      : out    std_logic;
-    IO0_D23_N                      : out    std_logic;
+    IO0_D20_P                      : in  std_logic;
+    IO0_D21_N                      : in  std_logic;
+    IO0_D22_P                      : out std_logic;
+    IO0_D23_N                      : out std_logic;
 
     -- FMC
     FMC_HA02_N                     : out    std_logic;
@@ -413,6 +415,12 @@ signal inenc_data           : std_logic_vector(ENC_NUM-1 downto 0);
 signal INENC_PROTOCOL       : std32_array(ENC_NUM-1 downto 0);
 signal INENC_PROTOCOL_WSTB  : std_logic_vector(ENC_NUM-1 downto 0);
 
+-- quDIS HSSL Interface
+signal hssl_clk_pins        : std_logic_vector(6 downto 1);
+signal hssl_data_pins       : std_logic_vector(6 downto 1);
+signal hssl_positions       : std32_array(6 downto 1);
+
+
 -- Output Encoder
 signal outenc_clk           : std_logic_vector(ENC_NUM-1 downto 0);
 signal outenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
@@ -430,33 +438,33 @@ signal uvwt                 : std_logic_vector(7 downto 0);
 
 
 -- AUX IO Board signals
-signal AuxDin1              : std_logic;
-signal AuxDout1             : std_logic;
-signal AuxDir1              : std_logic;
+-- signal AuxDin1              : std_logic;
+-- signal AuxDout1             : std_logic;
+-- signal AuxDir1              : std_logic;
 
-signal AuxDin2              : std_logic;
-signal AuxDout2             : std_logic;
-signal AuxDir2              : std_logic;
+-- signal AuxDin2              : std_logic;
+-- signal AuxDout2             : std_logic;
+-- signal AuxDir2              : std_logic;
 
-signal AuxDin3              : std_logic;
-signal AuxDout3             : std_logic;
-signal AuxDir3              : std_logic;
+-- signal AuxDin3              : std_logic;
+-- signal AuxDout3             : std_logic;
+-- signal AuxDir3              : std_logic;
 
-signal AuxDin4              : std_logic;
-signal AuxDout4             : std_logic;
-signal AuxDir4              : std_logic;
+-- signal AuxDin4              : std_logic;
+-- signal AuxDout4             : std_logic;
+-- signal AuxDir4              : std_logic;
 
-signal AuxDin5              : std_logic;
-signal AuxDout5             : std_logic;
-signal AuxDir5              : std_logic;
+-- signal AuxDin5              : std_logic;
+-- signal AuxDout5             : std_logic;
+-- signal AuxDir5              : std_logic;
 
-signal aux_clk_counter      : unsigned ( 15 downto 0 ) := x"0000";    
+-- signal aux_clk_counter      : unsigned ( 15 downto 0 ) := x"0000";    
 
-signal invAuxDir1           : std_logic;
-signal invAuxDir2           : std_logic;
-signal invAuxDir3           : std_logic;
-signal invAuxDir4           : std_logic;
-signal invAuxDir5           : std_logic;
+-- signal invAuxDir1           : std_logic;
+-- signal invAuxDir2           : std_logic;
+-- signal invAuxDir3           : std_logic;
+-- signal invAuxDir4           : std_logic;
+-- signal invAuxDir5           : std_logic;
 
 -- SFP+ Clock
 signal BUF_GTREFCLK1        : std_logic;
@@ -782,19 +790,36 @@ port map (
   
 -- ========== RIBBON CABLE PINOUTS ==========
 
+-- HSSL Interface Driver Board (40 way ribbon to ST1 IO0)...
+
+hssl_data_pins(1) <= IO0_D0_P;
+hssl_data_pins(2) <= IO0_D2_P;
+hssl_data_pins(3) <= IO0_D4_P;
+hssl_data_pins(4) <= IO0_D6_P;
+hssl_data_pins(5) <= IO0_D8_P;
+hssl_data_pins(6) <= IO0_D10_P;
+
+hssl_clk_pins(1)  <= IO0_D1_N;
+hssl_clk_pins(2)  <= IO0_D3_N;
+hssl_clk_pins(3)  <= IO0_D5_N;
+hssl_clk_pins(4)  <= IO0_D7_N;
+hssl_clk_pins(5)  <= IO0_D9_N;
+hssl_clk_pins(6)  <= IO0_D11_N;
+
+
 -- AUX_IO (SPI/TTL) Board  (40 way ribbon to ST1 IO0)...
 -- 
-AUX_IO_DATA(1)   <= IO0_D0_P;
-AUX_IO_DATA(2)   <= IO0_D2_P;
-AUX_IO_DATA(3)   <= IO0_D4_P;
-AUX_IO_DATA(4)   <= IO0_D6_P;
-AUX_IO_DATA(5)   <= IO0_D9_N;
+-- AUX_IO_DATA(1)   <= IO0_D0_P;
+-- AUX_IO_DATA(2)   <= IO0_D2_P;
+-- AUX_IO_DATA(3)   <= IO0_D4_P;
+-- AUX_IO_DATA(4)   <= IO0_D6_P;
+-- AUX_IO_DATA(5)   <= IO0_D9_N;
 
-IO0_D1_N <= AUX_IO_DIR(1);
-IO0_D3_N <= AUX_IO_DIR(2);
-IO0_D5_N <= AUX_IO_DIR(3);
-IO0_D7_N <= AUX_IO_DIR(4);
-IO0_D8_P <= AUX_IO_DIR(5);
+-- IO0_D1_N <= AUX_IO_DIR(1);
+-- IO0_D3_N <= AUX_IO_DIR(2);
+-- IO0_D5_N <= AUX_IO_DIR(3);
+-- IO0_D7_N <= AUX_IO_DIR(4);
+-- IO0_D8_P <= AUX_IO_DIR(5);
     
 AUX_IO_TTL_IN(0)  <= IO0_D21_N;
 AUX_IO_TTL_IN(1)  <= IO0_D20_P;
@@ -1287,7 +1312,8 @@ bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
                                    inenc_data & inenc_z & inenc_b & inenc_a &
                                    ttlin_val;
 
-pos_bus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
+pos_bus(POS_BUS_SIZE-1 downto 0) <= hssl_positions & inenc_val;
+
 
 ---------------------------------------------------------------------------
 -- Test the Register Interface (provides dummy data)
@@ -1309,6 +1335,44 @@ port map (
     write_data    => write_data,
     write_ack     => write_ack(PANDABRICK_TEST_CS)
 );
+
+
+---------------------------------------------------------------------------
+-- quDIS Interface (provides 6 Axis Positions)
+---------------------------------------------------------------------------
+
+quDIS_inst : entity work.qudis_top
+generic map (
+    QUDIS_NUM => QUDIS_NUM
+)
+port map (
+    clk_i           => FCLK_CLK0,                   -- 125MHz System (AXI) clock.
+    reset_i         => FCLK_RESET0,
+    bit_bus_i       => bit_bus,
+    pos_bus_i       => pos_bus,
+
+    hssl_clk_pins   => hssl_clk_pins,               -- Hardware connections
+    hssl_data_pins  => hssl_data_pins,
+
+    pos_1_o         => hssl_positions(1),           -- 2 groups of three axis outputs
+    pos_2_o         => hssl_positions(3),
+    pos_3_o         => hssl_positions(5),
+    pos_4_o         => hssl_positions(2),
+    pos_5_o         => hssl_positions(4),
+    pos_6_o         => hssl_positions(6),
+
+    read_strobe_i   => read_strobe(QUDIS_CS),       -- Health come back via register interface
+    read_address_i  => read_address,
+    read_data_o     => read_data(QUDIS_CS),
+    read_ack_o      => read_ack(QUDIS_CS),
+
+    write_strobe_i  => write_strobe(QUDIS_CS),      -- Writes are ignored.
+    write_address_i => write_address,
+    write_data_i    => write_data,
+    write_ack_o     => write_ack(QUDIS_CS)
+);
+
+
 
 ---------------------------------------------------------------------------------
 -- Adaptor-Board PIC SPI Interface (relay driver and Quadrature LoS detector.)
@@ -1392,84 +1456,84 @@ port map (
 
 -- Bidirectional IO1...
 
-IOBUF1_inst : IOBUF
-port map (
-    O  => AuxDin1,
-    I  => AuxDout1,
-    IO => AUX_IO_DATA(1),
-    T  => invAuxDir1
-);
+-- IOBUF1_inst : IOBUF
+-- port map (
+--     O  => AuxDin1,
+--     I  => AuxDout1,
+--     IO => AUX_IO_DATA(1),
+--     T  => invAuxDir1
+-- );
 
 -- Bidirectional IO2...
 
-IOBUF2_inst : IOBUF
-port map (
-    O  => AuxDin2,
-    I  => AuxDout2,
-    IO => AUX_IO_DATA(2),
-    T  => invAuxDir2
-);
+-- IOBUF2_inst : IOBUF
+-- port map (
+--     O  => AuxDin2,
+--     I  => AuxDout2,
+--     IO => AUX_IO_DATA(2),
+--     T  => invAuxDir2
+-- );
 
 -- Bidirectional IO3...
 
-IOBUF3_inst : IOBUF
-port map (
-    O  => AuxDin3,
-    I  => AuxDout3,
-    IO => AUX_IO_DATA(3),
-    T  => invAuxDir3
-);
+-- IOBUF3_inst : IOBUF
+-- port map (
+--     O  => AuxDin3,
+--     I  => AuxDout3,
+--     IO => AUX_IO_DATA(3),
+--     T  => invAuxDir3
+-- );
 
 -- Bidirectional IO4...
 
-IOBUF4_inst : IOBUF
-port map (
-    O  => AuxDin4,
-    I  => AuxDout4,
-    IO => AUX_IO_DATA(4),
-    T  => invAuxDir4
-);
+-- IOBUF4_inst : IOBUF
+-- port map (
+--     O  => AuxDin4,
+--     I  => AuxDout4,
+--     IO => AUX_IO_DATA(4),
+--     T  => invAuxDir4
+-- );
 
 -- Bidirectional IO5...
 
-IOBUF5_inst : IOBUF
-port map (
-    O  => AuxDin5,
-    I  => AuxDout5,
-    IO => AUX_IO_DATA(5),
-    T  => invAuxDir5
-);
+-- IOBUF5_inst : IOBUF
+-- port map (
+--     O  => AuxDin5,
+--     I  => AuxDout5,
+--     IO => AUX_IO_DATA(5),
+--     T  => invAuxDir5
+-- );
 
 -- Run a counter...
-process(FCLK_CLK0)
-begin
-    if rising_edge(FCLK_CLK0) then
-        aux_clk_counter <= aux_clk_counter + 1;
-    end if;
-end process;
+-- process(FCLK_CLK0)
+-- begin
+--     if rising_edge(FCLK_CLK0) then
+--         aux_clk_counter <= aux_clk_counter + 1;
+--     end if;
+-- end process;
 
-AuxDir1 <= '1'; -- first three lines set to output
-AuxDir2 <= '1';
-AuxDir3 <= '1';
-AuxDout1 <= aux_clk_counter(15);    -- output a 3-bit count
-AuxDout2 <= aux_clk_counter(14);
-AuxDout3 <= aux_clk_counter(13);
+-- AuxDir1 <= '1'; -- first three lines set to output
+-- AuxDir2 <= '1';
+-- AuxDir3 <= '1';
+-- AuxDout1 <= aux_clk_counter(15);    -- output a 3-bit count
+-- AuxDout2 <= aux_clk_counter(14);
+-- AuxDout3 <= aux_clk_counter(13);
 
-AuxDir4 <= '0';      -- Data4 to input mode
-AuxDir5 <= '1';      -- Data5 to output mode
-AuxDout5 <= AuxDin4; -- Echo Data4 input to Data5 output.
+-- AuxDir4 <= '0';      -- Data4 to input mode
+-- AuxDir5 <= '1';      -- Data5 to output mode
+-- AuxDout5 <= AuxDin4; -- Echo Data4 input to Data5 output.
 
-invAuxDir1 <= not AuxDir1;
-invAuxDir2 <= not AuxDir2;
-invAuxDir3 <= not AuxDir3;
-invAuxDir4 <= not AuxDir4;
-invAuxDir5 <= not AuxDir5;
+-- invAuxDir1 <= not AuxDir1;
+-- invAuxDir2 <= not AuxDir2;
+-- invAuxDir3 <= not AuxDir3;
+-- invAuxDir4 <= not AuxDir4;
+-- invAuxDir5 <= not AuxDir5;
 
-AUX_IO_DIR(1) <= AuxDir1;
-AUX_IO_DIR(2) <= AuxDir2;
-AUX_IO_DIR(3) <= AuxDir3;
-AUX_IO_DIR(4) <= AuxDir4;
-AUX_IO_DIR(5) <= AuxDir5;
+-- AUX_IO_DIR(1) <= AuxDir1;
+-- AUX_IO_DIR(2) <= AuxDir2;
+-- AUX_IO_DIR(3) <= AuxDir3;
+-- AUX_IO_DIR(4) <= AuxDir4;
+-- AUX_IO_DIR(5) <= AuxDir5;
 
 -----------------------------------------------
 -- 1 second heartbeat to front-panel STATUS LED
