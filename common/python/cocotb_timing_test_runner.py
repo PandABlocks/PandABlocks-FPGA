@@ -270,12 +270,17 @@ def test_module(module, test_name=None):
     return passed, failed
 
 
+def get_cocotb_testable_modules():
+    modules = (Path(SCRIPT_DIR).parent.parent / 'modules').glob(
+        '*/test_config.py')
+    return list(module.parent.name for module in modules)
+
+
 def run_tests():
     t_time_0 = time.time()
     args = get_args()
     if args.module.lower() == 'all':
-        path = Path(os.path.dirname(os.path.realpath(__file__)))
-        tests = open(f'{path}/tests_to_run.txt', 'r')
+        tests = get_cocotb_testable_modules()
     else:
         tests = [args.module]
 
