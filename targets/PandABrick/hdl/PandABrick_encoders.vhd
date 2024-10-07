@@ -135,6 +135,9 @@ signal health_biss_sniffer  : std_logic_vector(31 downto 0);
 signal linkup_biss_master   : std_logic;
 signal health_biss_master   : std_logic_vector(31 downto 0);
 
+signal ABSENC_PROTOCOL      : std_logic_vector(2 downto 0) := "000";
+signal PROTOCOL_FOR_ABSENC  : std_logic_vector(2 downto 0) := "000";
+
 signal Am0_ipad             : std_logic;
 signal Bm0_ipad             : std_logic;
 signal Zm0_ipad             : std_logic;
@@ -281,36 +284,41 @@ end process abs_ps_select;
 --------------------------------------------------------------------------
 -- ABSENC Position Data and STATUS readback multiplexer
 --------------------------------------------------------------------------
+
+ABSENC_PROTOCOL <= ABSENC_PROTOCOL_i when (Passthrough = '1')
+    else PROTOCOL_FOR_ABSENC;
+
+
 process(clk_i)
 begin
     if rising_edge(clk_i) then
-        case (ABSENC_PROTOCOL_i) is
+        case (ABSENC_PROTOCOL) is
             when "000"  =>              -- SSI
-                -- if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
-                posn <= posn_ssi_sniffer;
-                ABSENC_STATUS_o <= linkup_ssi;
+                if Passthrough = '1' then
+                    posn <= posn_ssi_sniffer;
+                else  -- DCARD_CONTROL
+                    posn <= posn_ssi;
+                end if;
+                ABSENC_STATUS_o(0) <= linkup_ssi;
                 if (linkup_ssi = '0') then
                     ABSENC_HEALTH_o <= TO_SVECTOR(2,32);
                 else
-                    ABSENC_HEALTH_o <= (others => '0');
-                    end if;
-                -- else  -- DCARD_CONTROL
-                --     posn <= posn_ssi;
-                --     ABSENC_STATUS_o <= '0';
-                --     ABSENC_HEALTH_o <= (others=>'0');
-                -- end if;
+                    ABSENC_HEALTH_o <= (others=>'0');
+                end if;
                 ABSENC_HOMED_o <= TO_SVECTOR(1,32);
+
 
             when "001"  =>              -- BISS & Loopback
                 -- if (DCARD_MODE_i(3 downto 1) = DCARD_MONITOR) then
-                posn <= posn_biss_sniffer;
-                ABSENC_STATUS_o <= linkup_biss_sniffer;
-                ABSENC_HEALTH_o <= health_biss_sniffer;
-                -- else  -- DCARD_CONTROL
-                --     posn <= posn_biss;
-                --     ABSENC_STATUS_o <= linkup_biss_master;
-                --     ABSENC_HEALTH_o<=health_biss_master;
-                -- end if;
+                if Passthrough = '1' then
+                    posn <= posn_biss_sniffer;
+                    ABSENC_STATUS_o(0) <= linkup_biss_sniffer;
+                    ABSENC_HEALTH_o <= health_biss_sniffer;
+                else  -- DCARD_CONTROL
+                    posn <= posn_biss;
+                    ABSENC_STATUS_o(0) <= linkup_biss_master;
+                    ABSENC_HEALTH_o<=health_biss_master;
+                end if;
                 ABSENC_HOMED_o <= TO_SVECTOR(1,32);
 
             when others =>
@@ -356,7 +364,8 @@ port map (
     ssi_frame_o     => ssi_frame_sniffer
 );
 
-ssi_frame <= ssi_frame_sniffer;
+ssi_frame <= ssi_frame_sniffer when Passthrough = '1'
+    else ssi_frame_master;
 
 -- Frame checker for SSI
 ssi_err_det_inst: entity work.ssi_error_detect
@@ -477,6 +486,7 @@ begin
             when "011"  =>              -- Generate - SSI
                 PMACENC_HEALTH_o <= (others=>'0');
                 ABSENC_ENABLED_o <= TO_SVECTOR(1,32);
+                PROTOCOL_FOR_ABSENC <= "000";
                 UVWT <= '0';
                 Passthrough <= '0';
 
@@ -489,6 +499,7 @@ begin
             when "101"  =>              -- Generate Biss
                 PMACENC_HEALTH_o <= health_biss_slave;
                 ABSENC_ENABLED_o <= TO_SVECTOR(1,32);
+                PROTOCOL_FOR_ABSENC <= "001";
                 UVWT <= '0';
                 Passthrough <= '0';
                                 
