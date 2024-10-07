@@ -32,7 +32,6 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('module')
     parser.add_argument('test_name', nargs='?', default=None)
-    parser.add_argument('-l', action='store_true')
     return parser.parse_args()
 
 
@@ -84,7 +83,7 @@ def do_assignments(dut, assignments):
         assign(dut, signal_name, val)
 
 
-def check_conditions(dut, conditions: Dict[str, int], loud=False):
+def check_conditions(dut, conditions: Dict[str, int]):
     for signal_name, val in conditions.items():     
         if val < 0:
             sim_val = getattr(dut, signal_name).value.signed_integer
@@ -93,9 +92,9 @@ def check_conditions(dut, conditions: Dict[str, int], loud=False):
 
         assert sim_val == val, 'Signal {} = {}, expecting {}. Time = {} ns'\
             .format(signal_name, sim_val, val, cocotb.utils.get_sim_time("ns"))
-        if loud:
-            dut._log.info(f'Check passed: Signal {signal_name} = {val}, \
-                          time = {cocotb.utils.get_sim_time("ns")} ns')
+        # if loud:
+        #     dut._log.info(f'Check passed: Signal {signal_name} = {val}, \
+        #                   time = {cocotb.utils.get_sim_time("ns")} ns')
 
 
 def get_signals(dut):
@@ -145,7 +144,7 @@ def _log_dut_signals(dut):
     print()
 
 
-async def section_timing_test(dut, timing_ini, test_name, loud=False):
+async def section_timing_test(dut, timing_ini, test_name):
     conditions_schedule = {}
     assignments_schedule = {}
     last_ts = 0
@@ -200,13 +199,12 @@ async def section_timing_test(dut, timing_ini, test_name, loud=False):
 @cocotb.test()
 async def module_timing_test(dut):
     test_name = os.getenv('test_name', 'default')
-    loud = True if (os.getenv("loud, default")) == "True" else False
     module = dut._name
     timing_ini = get_timing_ini(module)
     # test_name = None
     # for section in timing_ini.sections():
     if test_name.strip() != '.':
-        await section_timing_test(dut, timing_ini, test_name, loud)
+        await section_timing_test(dut, timing_ini, test_name)
 
 
 def get_module_hdl_files(module):
@@ -251,7 +249,6 @@ def summarise_results(results):
 def test_module(module, test_name=None):
     # args = get_args()
     logging.basicConfig(level=logging.DEBUG)
-    loud = False
     timing_ini = get_timing_ini(module)
     sections = [test_name] if test_name else timing_ini.sections()
     sim = cocotb.runner.get_runner('ghdl')
@@ -277,7 +274,7 @@ def test_module(module, test_name=None):
                      test_module='cocotb_timing_test_runner',
                      test_args=['--std=08'],
                      plusargs=['--vcd={}'.format(vcd_filename)],
-                     extra_env={'test_name': test_name, 'loud': str(loud)})
+                     extra_env={'test_name': test_name})
             xml_path = cocotb.runner.get_abs_path('sim_build/results.xml')
             results = cocotb.runner.get_results(xml_path)
             if results == (1, 0):       
