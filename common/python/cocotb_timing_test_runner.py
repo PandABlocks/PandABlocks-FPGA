@@ -4,6 +4,7 @@ import configparser
 import os
 import logging
 import shutil
+import time
 
 from pathlib import Path
 from typing import Dict
@@ -212,17 +213,19 @@ def get_module_hdl_files(module):
     return list((module_dir / 'hdl').glob('*.vhd'))
 
 
-def print_results(module, passed, failed):
-    print('\n Module: {}'.format(module))
-    print(' {}/{} tests passed.'.format(len(passed), len(passed) + len(failed)))
+def print_results(module, passed, failed, time=None):
+    print('\nModule: {}'.format(module))
     percentage = round(len(passed) / (len(passed) + len(failed)) * 100)
-    print(' {}%'.format(percentage))
+    print('{}/{} tests passed ({}%).'.format(
+        len(passed), len(passed) + len(failed), percentage))
+    if time:
+        print('Time taken = {}s.'.format(time))
     if failed:
-        print(' \033[0;31m' + 'Failed tests:' + '\x1b[0m', end=' ')
+        print('\033[0;31m' + 'Failed tests:' + '\x1b[0m', end=' ')
         print(*[test + (', ' if i < len(failed) - 1 else '.') 
                 for i, test in enumerate(failed)])
     else:
-        print(' \033[92m' + 'ALL PASSED' + '\x1b[0m')
+        print('\033[92m' + 'ALL PASSED' + '\x1b[0m')
 
 
 def summarise_results(results):
@@ -234,16 +237,17 @@ def summarise_results(results):
         total_failed += len(results[module][1])
     total = total_passed + total_failed
     print('\nSummary:\n')
-    print(' {}/{} modules passed.'.format(len(passed), len(results.keys())))
-    print(' {}%'.format(round(len(passed) / len(results.keys()) * 100)))
-    print(' {}/{} tests passed.'.format(total_passed, total))
-    print(' {}%'.format(round(total_passed / total * 100)))
+    print('{}/{} modules passed ({}%).'.format(
+        len(passed), len(results.keys()), 
+        round(len(passed) / len(results.keys()) * 100)))
+    print('{}/{} tests passed ({}%).'.format(
+        total_passed, total, round(total_passed / total * 100)))
     if failed:
-        print(' \033[0;31m' + '\033[1m' + 'Failed modules:' + '\x1b[0m', end=' ')
+        print('\033[0;31m' + '\033[1m' + 'Failed modules:' + '\x1b[0m', end=' ')
         print(*[module + (', ' if i < len(failed) - 1 else '.')
                 for i, module in enumerate(failed)])
     else:
-        print(' \033[92m' + '\033[1m' + 'ALL MODULES PASSED' + '\x1b[0m')
+        print('\033[92m' + '\033[1m' + 'ALL MODULES PASSED' + '\x1b[0m')
     
 
 def test_module(module, test_name=None):
@@ -289,6 +293,7 @@ def test_module(module, test_name=None):
 
 
 def run_tests():
+    t_time_0 = time.time()
     args = get_args()
     if args.module.lower() == 'all':
         path = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -296,7 +301,9 @@ def run_tests():
     else:
         tests = [args.module]
     results = {}
+    times = {}
     for module in tests:
+        t0 = time.time()
         module = module.strip('\n')
         results[module] = [[], []]          # [[passed], [failed]]
         print()
@@ -305,12 +312,16 @@ def run_tests():
         print('---------------------------------------------------'
               .center(shutil.get_terminal_size().columns))
         results[module][0], results[module][1] = test_module(module, args.test_name)
+        t1 = time.time()
+        times[module] = round(t1 - t0, 2)
     print('___________________________________________________')
     print('\nResults:')
     for module in results:
-        print_results(module, results[module][0], results[module][1])
+        print_results(module, results[module][0], results[module][1], times[module])
     print('___________________________________________________')
     summarise_results(results)
+    t_time_1 = time.time()
+    print('\nTime taken: {}s.'.format(round(t_time_1 - t_time_0, 2)))
     print('___________________________________________________\n')
     logging.basicConfig(level=logging.DEBUG)
 
