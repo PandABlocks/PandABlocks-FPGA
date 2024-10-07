@@ -7,7 +7,7 @@ import shutil
 import time
 
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 
 import cocotb
 import cocotb.handle
@@ -22,8 +22,7 @@ from cocotb.triggers import RisingEdge, ReadOnly
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def read_ini(path):
-    # type: (Union[List[str], str]) -> configparser.SafeConfigParser
+def read_ini(path: List[str] | str) -> configparser.ConfigParser:
     app_ini = configparser.ConfigParser()
     app_ini.read(path)
     return app_ini
@@ -40,7 +39,7 @@ async def initialise_dut(dut):
     signals_dict = get_signals_info(dut)
     for signal_name in signals_dict.keys():
         dut_signal_name = signals_dict[signal_name]['name']
-        if not (signals_dict[signal_name]['type'].endswith('_out') 
+        if not (signals_dict[signal_name]['type'].endswith('_out')
                 or 'read' in signals_dict[signal_name]['type']):
             getattr(dut, '{}'.format(dut_signal_name)).value = 0
             wstb_name = signals_dict[signal_name].get('wstb_name', '')
@@ -85,7 +84,7 @@ def do_assignments(dut, assignments):
 
 
 def check_conditions(dut, conditions: Dict[str, int]):
-    for signal_name, val in conditions.items():     
+    for signal_name, val in conditions.items():
         if val < 0:
             sim_val = getattr(dut, signal_name).value.signed_integer
         else:
@@ -93,9 +92,6 @@ def check_conditions(dut, conditions: Dict[str, int]):
 
         assert sim_val == val, 'Signal {} = {}, expecting {}. Time = {} ns'\
             .format(signal_name, sim_val, val, cocotb.utils.get_sim_time("ns"))
-        # if loud:
-        #     dut._log.info(f'Check passed: Signal {signal_name} = {val}, \
-        #                   time = {cocotb.utils.get_sim_time("ns")} ns')
 
 
 def get_signals(dut):
@@ -127,22 +123,6 @@ def get_signals_info(dut):
             signals_dict[signal_name]['wstb_name'] = '{}_wstb'.format(
                 signal_name.lower())
     return signals_dict
-
-
-def _log_signals(dut, signals_dict=None):
-    if signals_dict is None:
-        signals_dict = get_signals_info(dut)
-    for signal_name in signals_dict:
-        dut._log.info(f'''Signal {signal_name} ({signals_dict[signal_name]
-                       ["name"]}) = {getattr(dut, signals_dict[signal_name]
-                                             ["name"]).value}.''')
-    print()
-
-def _log_dut_signals(dut):
-    signals = get_signals(dut)
-    for signal in signals:
-        dut._log.info(f'Signal {signal._name} = {signal.value}')
-    print()
 
 
 async def section_timing_test(dut, timing_ini, test_name):
@@ -180,6 +160,7 @@ async def section_timing_test(dut, timing_ini, test_name):
         await initialise_dut(dut)
         await clkedge
         conditions = {}
+        wavedrom_filename = f'{test_name.replace(" ", "_")}_wavedrom.json'
         try:
             while ts <= last_ts:
                 do_assignments(dut, assignments_schedule.get(ts, {}))
@@ -189,11 +170,11 @@ async def section_timing_test(dut, timing_ini, test_name):
                 await clkedge
                 ts += 1
         except AssertionError as error:
-            with open(f'{test_name.replace(" ", "_")}_wavedrom.json', 'w') as fhandle:
+            with open(wavedrom_filename, 'w') as fhandle:
                 fhandle.write(trace.dumpj())
             raise error
         else:
-            with open(f'{test_name.replace(" ", "_")}_wavedrom.json', 'w') as fhandle:
+            with open(wavedrom_filename, 'w') as fhandle:
                 fhandle.write(trace.dumpj())
 
 
@@ -202,15 +183,14 @@ async def module_timing_test(dut):
     test_name = os.getenv('test_name', 'default')
     module = dut._name
     timing_ini = get_timing_ini(module)
-    # test_name = None
-    # for section in timing_ini.sections():
     if test_name.strip() != '.':
         await section_timing_test(dut, timing_ini, test_name)
 
 
 def get_module_hdl_files(module):
-    module_dir = Path(SCRIPT_DIR).parent.parent / 'modules' / module
-    return list((module_dir / 'hdl').glob('*.vhd'))
+    module_hdl_dir = Path(
+        SCRIPT_DIR).parent.parent / 'modules' / module / 'hdl'
+    return list(module_hdl_dir.glob('*.vhd'))
 
 
 def print_results(module, passed, failed, time=None):
@@ -222,7 +202,7 @@ def print_results(module, passed, failed, time=None):
         print('Time taken = {}s.'.format(time))
     if failed:
         print('\033[0;31m' + 'Failed tests:' + '\x1b[0m', end=' ')
-        print(*[test + (', ' if i < len(failed) - 1 else '.') 
+        print(*[test + (', ' if i < len(failed) - 1 else '.')
                 for i, test in enumerate(failed)])
     else:
         print('\033[92m' + 'ALL PASSED' + '\x1b[0m')
@@ -238,17 +218,18 @@ def summarise_results(results):
     total = total_passed + total_failed
     print('\nSummary:\n')
     print('{}/{} modules passed ({}%).'.format(
-        len(passed), len(results.keys()), 
+        len(passed), len(results.keys()),
         round(len(passed) / len(results.keys()) * 100)))
     print('{}/{} tests passed ({}%).'.format(
         total_passed, total, round(total_passed / total * 100)))
     if failed:
-        print('\033[0;31m' + '\033[1m' + 'Failed modules:' + '\x1b[0m', end=' ')
+        print('\033[0;31m' + '\033[1m' + 'Failed modules:' +
+              '\x1b[0m', end=' ')
         print(*[module + (', ' if i < len(failed) - 1 else '.')
                 for i, module in enumerate(failed)])
     else:
         print('\033[92m' + '\033[1m' + 'ALL MODULES PASSED' + '\x1b[0m')
-    
+
 
 def test_module(module, test_name=None):
     # args = get_args()
@@ -278,10 +259,10 @@ def test_module(module, test_name=None):
                      extra_env={'test_name': test_name})
             xml_path = cocotb.runner.get_abs_path(f'{build_dir}/results.xml')
             results = cocotb.runner.get_results(xml_path)
-            if results == (1, 0):       
+            if results == (1, 0):
                 # ran 1 test, 0 failed
                 passed.append(test_name)
-            elif results == (1, 1):     
+            elif results == (1, 1):
                 # ran 1 test, 1 failed
                 failed.append(test_name)
             else:
@@ -297,6 +278,7 @@ def run_tests():
         tests = open(f'{path}/tests_to_run.txt', 'r')
     else:
         tests = [args.module]
+
     results = {}
     times = {}
     for module in tests:
@@ -308,13 +290,15 @@ def run_tests():
               .center(shutil.get_terminal_size().columns))
         print('---------------------------------------------------'
               .center(shutil.get_terminal_size().columns))
-        results[module][0], results[module][1] = test_module(module, args.test_name)
+        results[module][0], results[module][1] = \
+            test_module(module, args.test_name)
         t1 = time.time()
         times[module] = round(t1 - t0, 2)
     print('___________________________________________________')
     print('\nResults:')
     for module in results:
-        print_results(module, results[module][0], results[module][1], times[module])
+        print_results(module, results[module][0], results[module][1],
+                      times[module])
     print('___________________________________________________')
     summarise_results(results)
     t_time_1 = time.time()
