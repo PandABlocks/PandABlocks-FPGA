@@ -211,7 +211,6 @@ def get_module_hdl_files(module):
     g = {'TOP_PATH': TOP_PATH}
     code = open(str(module_dir_path / 'test_config.py')).read()
     exec(code, g)
-    print(g)
     g.get('EXTRA_HDL_FILES', [])
     result = list(g.get('EXTRA_HDL_FILES', [])) + \
         list((module_dir_path / 'hdl').glob('*.vhd'))
@@ -221,17 +220,20 @@ def get_module_hdl_files(module):
 
 def print_results(module, passed, failed, time=None):
     print('\nModule: {}'.format(module))
-    percentage = round(len(passed) / (len(passed) + len(failed)) * 100)
-    print('{}/{} tests passed ({}%).'.format(
-        len(passed), len(passed) + len(failed), percentage))
-    if time:
-        print('Time taken = {}s.'.format(time))
-    if failed:
-        print('\033[0;31m' + 'Failed tests:' + '\x1b[0m', end=' ')
-        print(*[test + (', ' if i < len(failed) - 1 else '.')
-                for i, test in enumerate(failed)])
+    if len(passed) + len(failed) == 0:
+        print('\033[0;33m' + 'No tests ran.' + '\033[0m')
     else:
-        print('\033[92m' + 'ALL PASSED' + '\x1b[0m')
+        percentage = round(len(passed) / (len(passed) + len(failed)) * 100)
+        print('{}/{} tests passed ({}%).'.format(
+            len(passed), len(passed) + len(failed), percentage))
+        if time:
+            print('Time taken = {}s.'.format(time))
+        if failed:
+            print('\033[0;31m' + 'Failed tests:' + '\x1b[0m', end=' ')
+            print(*[test + (', ' if i < len(failed) - 1 else '.')
+                    for i, test in enumerate(failed)])
+        else:
+            print('\033[92m' + 'ALL PASSED' + '\x1b[0m')
 
 
 def summarise_results(results):
@@ -243,25 +245,37 @@ def summarise_results(results):
         total_failed += len(results[module][1])
     total = total_passed + total_failed
     print('\nSummary:\n')
-    print('{}/{} modules passed ({}%).'.format(
-        len(passed), len(results.keys()),
-        round(len(passed) / len(results.keys()) * 100)))
-    print('{}/{} tests passed ({}%).'.format(
-        total_passed, total, round(total_passed / total * 100)))
-    if failed:
-        print('\033[0;31m' + '\033[1m' + 'Failed modules:' +
-              '\x1b[0m', end=' ')
-        print(*[module + (', ' if i < len(failed) - 1 else '.')
-                for i, module in enumerate(failed)])
+    if total == 0:
+        print('\033[1;33m' + 'No tests ran.' + '\033[0m')
     else:
-        print('\033[92m' + '\033[1m' + 'ALL MODULES PASSED' + '\x1b[0m')
+        print('{}/{} modules passed ({}%).'.format(
+            len(passed), len(results.keys()),
+            round(len(passed) / len(results.keys()) * 100)))
+        print('{}/{} tests passed ({}%).'.format(
+            total_passed, total, round(total_passed / total * 100)))
+        if failed:
+            print('\033[0;31m' + '\033[1m' + 'Failed modules:' +
+                  '\x1b[0m', end=' ')
+            print(*[module + (', ' if i < len(failed) - 1 else '.')
+                    for i, module in enumerate(failed)])
+        else:
+            print('\033[92m' + '\033[1m' + 'ALL MODULES PASSED' + '\x1b[0m')
 
 
 def test_module(module, test_name=None):
     # args = get_args()
     logging.basicConfig(level=logging.DEBUG)
     timing_ini = get_timing_ini(module)
-    sections = [test_name] if test_name else timing_ini.sections()
+    if test_name:
+        if test_name in timing_ini.sections():
+            sections = [test_name]
+        else:
+            print('No test called "{}" in {} INI timing file.'
+                  .format(test_name, module)
+                  .center(shutil.get_terminal_size().columns))
+            return [], []
+    else:
+        sections = [test_name] if test_name else timing_ini.sections()
     sim = cocotb.runner.get_runner('ghdl')
     build_dir = f'sim_build_{module}'
     sim.build(sources=get_module_hdl_files(module),
