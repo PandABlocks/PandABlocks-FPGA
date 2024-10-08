@@ -188,9 +188,16 @@ async def module_timing_test(dut):
 
 
 def get_module_hdl_files(module):
-    module_hdl_dir = Path(
-        SCRIPT_DIR).parent.parent / 'modules' / module / 'hdl'
-    return list(module_hdl_dir.glob('*.vhd'))
+    module_dir_path = MODULES_PATH / module
+    g = {'TOP_PATH': TOP_PATH}
+    code = open(str(module_dir_path / 'test_config.py')).read()
+    exec(code, g)
+    print(g)
+    g.get('EXTRA_HDL_FILES', [])
+    result = list(g.get('EXTRA_HDL_FILES', [])) + \
+        list((module_dir_path / 'hdl').glob('*.vhd'))
+    print(result)
+    return result
 
 
 def print_results(module, passed, failed, time=None):
