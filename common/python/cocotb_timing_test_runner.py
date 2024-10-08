@@ -19,7 +19,9 @@ from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, ReadOnly
 
 
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+SCRIPT_DIR_PATH = Path(__file__).parent.resolve()
+TOP_PATH = SCRIPT_DIR_PATH.parent.parent
+MODULES_PATH = TOP_PATH / 'modules'
 
 
 def read_ini(path: List[str] | str) -> configparser.ConfigParser:
@@ -35,27 +37,29 @@ def get_args():
     return parser.parse_args()
 
 
+def is_input_signal(signals_info, signal_name):
+    return not (signals_info[signal_name]['type'].endswith('_out')
+                or 'read' in signals_info[signal_name]['type'])
+
+
 async def initialise_dut(dut):
-    signals_dict = get_signals_info(dut)
-    for signal_name in signals_dict.keys():
-        dut_signal_name = signals_dict[signal_name]['name']
-        if not (signals_dict[signal_name]['type'].endswith('_out')
-                or 'read' in signals_dict[signal_name]['type']):
+    signals_info = get_signals_info(dut)
+    for signal_name in signals_info.keys():
+        dut_signal_name = signals_info[signal_name]['name']
+        if is_input_signal(signals_info, signal_name):
             getattr(dut, '{}'.format(dut_signal_name)).value = 0
-            wstb_name = signals_dict[signal_name].get('wstb_name', '')
+            wstb_name = signals_info[signal_name].get('wstb_name', '')
             if wstb_name:
                 getattr(dut, wstb_name).value = 0
 
 
 def get_timing_ini(module):
-    ini_path = (Path(SCRIPT_DIR).parent.parent / 'modules' / module /
-                '{}.timing.ini'.format(module))
+    ini_path = (MODULES_PATH / module / '{}.timing.ini'.format(module))
     return read_ini(str(ini_path.resolve()))
 
 
 def get_block_ini(module):
-    ini_path = Path(SCRIPT_DIR).parent.parent / 'modules' / module / \
-        '{}.block.ini'.format(module)
+    ini_path = MODULES_PATH / module / '{}.block.ini'.format(module)
     return read_ini(str(ini_path.resolve()))
 
 
@@ -293,8 +297,7 @@ def test_module(module, test_name=None):
 
 
 def get_cocotb_testable_modules():
-    modules = (Path(SCRIPT_DIR).parent.parent / 'modules').glob(
-        '*/test_config.py')
+    modules = MODULES_PATH.glob('*/test_config.py')
     return list(module.parent.name for module in modules)
 
 
