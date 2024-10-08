@@ -109,19 +109,34 @@ def get_signals_info(dut):
     expected_signal_names = ini.sections()
     for signal_name in expected_signal_names:
         if 'type' in ini[signal_name]:
-            signals_dict[signal_name] = {'type': ini[signal_name]['type']}
-            if signals_dict[signal_name]['type'].endswith('_mux'):
-                signals_dict[signal_name]["name"] = '{}_i'.format(
-                    signal_name.lower())
-            elif signals_dict[signal_name]['type'].endswith('_out'):
-                signals_dict[signal_name]['name'] = '{}_o'.format(
-                    signal_name.lower())
+            _type = ini[signal_name]['type'].strip()
+            if _type == 'time':
+                for suffix in ['_L', '_H']:
+                    new_signal_name = f'{signal_name}{suffix}'
+                    signals_dict[new_signal_name] = {}
+                    signals_dict[new_signal_name].update(
+                        ini[signal_name])
+                    signals_dict[new_signal_name]['name'] = new_signal_name
+                    if ini[signal_name].get('wstb', False):
+                        signals_dict[new_signal_name]['wstb_name'] = \
+                            '{}_wstb'.format(new_signal_name.lower())
             else:
-                signals_dict[signal_name]['name'] = signal_name
+                signals_dict[signal_name] = {}
+                signals_dict[signal_name].update(ini[signal_name])
 
-        if ini[signal_name].get('wstb', False):
-            signals_dict[signal_name]['wstb_name'] = '{}_wstb'.format(
-                signal_name.lower())
+                if _type.endswith('_mux'):
+                    signals_dict[signal_name]['name'] = '{}_i'.format(
+                        signal_name.lower())
+                elif _type.endswith('_out'):
+                    signals_dict[signal_name]['name'] = '{}_o'.format(
+                        signal_name.lower())
+                else:
+                    signals_dict[signal_name]['name'] = signal_name
+
+                if ini[signal_name].get('wstb', False):
+                    signals_dict[signal_name]['wstb_name'] = '{}_wstb'.format(
+                        signal_name.lower())
+
     return signals_dict
 
 
