@@ -108,7 +108,7 @@ def get_signals(dut):
 def get_signals_info(dut):
     # Get a mapping between signal names in INI file and VHDL file,
     # and store signal type.
-    signals_dict = {}
+    signals_info = {}
     ini = get_block_ini(dut._name)
     expected_signal_names = ini.sections()
     for signal_name in expected_signal_names:
@@ -117,31 +117,31 @@ def get_signals_info(dut):
             if _type == 'time':
                 for suffix in ['_L', '_H']:
                     new_signal_name = f'{signal_name}{suffix}'
-                    signals_dict[new_signal_name] = {}
-                    signals_dict[new_signal_name].update(
+                    signals_info[new_signal_name] = {}
+                    signals_info[new_signal_name].update(
                         ini[signal_name])
-                    signals_dict[new_signal_name]['name'] = new_signal_name
+                    signals_info[new_signal_name]['name'] = new_signal_name
                     if ini[signal_name].get('wstb', False):
-                        signals_dict[new_signal_name]['wstb_name'] = \
+                        signals_info[new_signal_name]['wstb_name'] = \
                             '{}_wstb'.format(new_signal_name.lower())
             else:
-                signals_dict[signal_name] = {}
-                signals_dict[signal_name].update(ini[signal_name])
+                signals_info[signal_name] = {}
+                signals_info[signal_name].update(ini[signal_name])
 
                 if _type.endswith('_mux'):
-                    signals_dict[signal_name]['name'] = '{}_i'.format(
+                    signals_info[signal_name]['name'] = '{}_i'.format(
                         signal_name.lower())
                 elif _type.endswith('_out'):
-                    signals_dict[signal_name]['name'] = '{}_o'.format(
+                    signals_info[signal_name]['name'] = '{}_o'.format(
                         signal_name.lower())
                 else:
-                    signals_dict[signal_name]['name'] = signal_name
+                    signals_info[signal_name]['name'] = signal_name
 
                 if ini[signal_name].get('wstb', False):
-                    signals_dict[signal_name]['wstb_name'] = '{}_wstb'.format(
+                    signals_info[signal_name]['wstb_name'] = '{}_wstb'.format(
                         signal_name.lower())
 
-    return signals_dict
+    return signals_info
 
 
 async def section_timing_test(dut, timing_ini, test_name):
