@@ -33,22 +33,18 @@ end spbram;
 architecture rtl of spbram is
 
 type mem_type is array (2**AW-1 downto 0) of std_logic_vector (DW-1 downto 0);
-shared variable mem : mem_type := (others => (others => '0'));
 
 begin
 
-process (clka)
+process (clka, clkb)
+    variable mem : mem_type := (others => (others => '0'));
 begin
-   if (clka'event and clka = '1') then
+   if rising_edge(clka) then
      if (wea = '1') then
         mem(to_integer(unsigned(addra))) := dina;
      end if;
    end if;
-end process;
-
-process (clkb)
-begin
-   if (clkb'event and clkb = '1') then
+   if rising_edge(clkb) then
      doutb <= mem(to_integer(unsigned(addrb)));
    end if;
 end process;
