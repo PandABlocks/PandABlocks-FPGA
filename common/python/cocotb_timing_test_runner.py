@@ -266,6 +266,9 @@ def test_module(module, test_name=None):
     # args = get_args()
     logging.basicConfig(level=logging.DEBUG)
     timing_ini = get_timing_ini(module)
+    if not Path(MODULES_PATH / module).is_dir():
+        raise FileNotFoundError('No such directory: \'{}\''.format(
+            Path(MODULES_PATH / module)))
     if test_name:
         if test_name in timing_ini.sections():
             sections = [test_name]
@@ -275,7 +278,7 @@ def test_module(module, test_name=None):
                   .center(shutil.get_terminal_size().columns))
             return [], []
     else:
-        sections = [test_name] if test_name else timing_ini.sections()
+        sections = timing_ini.sections()
     sim = cocotb.runner.get_runner('ghdl')
     build_dir = f'sim_build_{module}'
     sim.build(sources=get_module_hdl_files(module),
@@ -328,7 +331,8 @@ def run_tests():
     for module in tests:
         t0 = time.time()
         module = module.strip('\n')
-        results[module] = [[], []]          # [[passed], [failed]]
+        results[module] = [[], []]
+        # [[passed], [failed]]
         print()
         print('* Testing module \033[1m{}\033[0m *'.format(module.strip("\n"))
               .center(shutil.get_terminal_size().columns))
