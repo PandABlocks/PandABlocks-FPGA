@@ -31,24 +31,12 @@ jobs:
       # Generate bootable image
       - name: Make boot
         id: make_boot
-        continue-on-error: true
-        #timeout set to expected upper-limit of build
-        timeout-minutes: 60
         run: |
           echo "boot_files=false" >> $GITHUB_OUTPUT
           cd repos/PandABlocks-fpga
           ln -s CONFIG.example CONFIG
           make boot APP_NAME=${{ matrix.app }}
-          if test -f /build/boot*.zip; then
-            echo "boot_files=true" >> $GITHUB_OUTPUT
-          fi
-
-      # Current workflow hangs upon make_boot completion, requiring a timeout
-      # Envvar boot_files is set true if timeout reached after successful boot build
-      # Envvar boot_files is set false on boot build error and/or failure to generate zip files
-      - name: Fail workflow if boot files absent
-        if: ${{ steps.make_boot.outputs.boot_files == 'false'}}
-        run: exit 1
+          ps -Ao pid= -o comm= | awk '$2 ~ /Xvfb/ { print $1}' | xargs kill
 
       # Upload artifacts if boot files present
       - name: Upload boot
