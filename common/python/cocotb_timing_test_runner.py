@@ -212,9 +212,18 @@ def get_module_hdl_files(module):
     code = open(str(module_dir_path / 'test_config.py')).read()
     exec(code, g)
     g.get('EXTRA_HDL_FILES', [])
-    result = list(g.get('EXTRA_HDL_FILES', [])) + \
-        list((module_dir_path / 'hdl').glob('*.vhd'))
-    print(result)
+    extra_files = list(g.get('EXTRA_HDL_FILES', []))
+    extra_files_2 = []
+    for my_file in extra_files:
+        if str(my_file).endswith('.vhd'):
+            extra_files_2.append(my_file)
+        else:
+            extra_files_2 = extra_files_2 + list(my_file.glob('**/*.vhd'))
+    result = extra_files_2 + list((module_dir_path / 'hdl').glob('*.vhd'))
+    print('Gathering the following VHDL files:')
+    for my_file in result:
+        print(my_file)
+    print()
     return result
 
 
