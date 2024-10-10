@@ -21,7 +21,7 @@ port (
     -- Clock and reset signals
     clk_i               : in  std_logic;
 --    reset_i             : in  std_logic;
-    LINKUP_INCR         : in  std_logic;
+    LINKUP_INCR         : in  std_logic_vector(31 downto 0);
     --Quadrature A,B and Z input
     a_i                 : in  std_logic;
     b_i                 : in  std_logic;
@@ -68,7 +68,7 @@ process(clk_i) begin
         if (reset = '1') then
             HOMED(0) <= '0';
         else
-            if (LINKUP_INCR = '0') then
+            if (LINKUP_INCR(0) = '0') then
                 HOMED(0) <= '0';
             elsif (RST_ON_Z(0) = '1' and z_i = '1') then
                 quad_count <= (others => '0');
