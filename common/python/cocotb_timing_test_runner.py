@@ -182,7 +182,8 @@ async def section_timing_test(dut, timing_ini, test_name):
         await initialise_dut(dut)
         await clkedge
         conditions = {}
-        wavedrom_filename = f'{test_name.replace(" ", "_")}_wavedrom.json'
+        wavedrom_filename = '{}_wavedrom.json'.format(
+            test_name.replace(" ", "_").replace("/", "_"))
         try:
             while ts <= last_ts:
                 do_assignments(dut, assignments_schedule.get(ts, {}))
@@ -314,7 +315,8 @@ def test_module(module, test_name=None):
     for section in sections:
         if section.strip() != '.':
             test_name = section
-            vcd_filename = '{}.vcd'.format(test_name.replace(' ', '_'))
+            vcd_filename = '{}.vcd'.format(
+                test_name.replace(' ', '_').replace('/', '_'))
             print()
             print('Test: "{}" in module {}.\n'.format(test_name, module))
             sim.test(hdl_toplevel=module,
