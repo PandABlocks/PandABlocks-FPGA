@@ -144,7 +144,6 @@ def get_signals_info(dut):
                 if ini[signal_name].get('wstb', False):
                     signals_info[signal_name]['wstb_name'] = '{}_wstb'.format(
                         signal_name.lower())
-
     return signals_info
 
 
@@ -379,5 +378,36 @@ def run_tests():
     logging.basicConfig(level=logging.DEBUG)
 
 
+def get_ip(module=None):
+    if not module:
+        modules = os.listdir(MODULES_PATH)
+    else:
+        modules = [module]
+    ip = {}
+    for module in modules:
+        ini = get_block_ini(module)
+        if not ini.sections():
+            print('\033[1m' + f'No block INI file found in {module}!'
+                  + '\033[0m')
+            continue
+        info = []
+        if '.' in ini.keys():
+            info = ini['.']
+        spaces = ' ' + '-' * (16 - len(module)) + ' '
+        if 'ip' in info:
+            print('IP needed for module ' + '\033[1m' + module + '\033[0m:' +
+                  spaces + '\033[0;33m' + info['ip'] + '\033[0m:')
+            ip[module] = info['ip']
+        else:
+            print('IP needed for module ' + '\033[1m' + module
+                  + '\033[0m:' + spaces + 'None found')
+            ip[module] = None
+    return ip
+
+
 if __name__ == "__main__":
-    run_tests()
+    args = get_args()
+    if args.module.lower() == 'ip':
+        ip = get_ip(args.test_name)
+    else:
+        run_tests()
