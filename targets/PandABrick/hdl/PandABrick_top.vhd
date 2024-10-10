@@ -403,21 +403,27 @@ signal pins_V               : std_logic_vector(ENC_NUM-1 downto 0);
 signal pins_W               : std_logic_vector(ENC_NUM-1 downto 0);
 signal pins_T               : std_logic_vector(ENC_NUM-1 downto 0);
 
--- Input Encoder
-signal inenc_val            : std32_array(ENC_NUM-1 downto 0);
-signal inenc_conn           : std_logic_vector(ENC_NUM-1 downto 0);
-signal inenc_a              : std_logic_vector(ENC_NUM-1 downto 0);
-signal inenc_b              : std_logic_vector(ENC_NUM-1 downto 0);
-signal inenc_z              : std_logic_vector(ENC_NUM-1 downto 0);
-signal inenc_data           : std_logic_vector(ENC_NUM-1 downto 0);
-signal INENC_PROTOCOL       : std32_array(ENC_NUM-1 downto 0);
-signal INENC_PROTOCOL_WSTB  : std_logic_vector(ENC_NUM-1 downto 0);
+-- Incremental Encoder
+signal incenc_val           : std32_array(ENC_NUM-1 downto 0);
+signal incenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
+-- signal incenc_a             : std_logic_vector(ENC_NUM-1 downto 0);
+-- signal incenc_b             : std_logic_vector(ENC_NUM-1 downto 0);
+-- signal incenc_z             : std_logic_vector(ENC_NUM-1 downto 0);
+signal INCENC_PROTOCOL      : std32_array(ENC_NUM-1 downto 0);
+signal INCENC_PROTOCOL_WSTB : std_logic_vector(ENC_NUM-1 downto 0);
+
+-- Absolute Encoder
+signal absenc_val           : std32_array(ENC_NUM-1 downto 0);
+signal absenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
+signal absenc_data          : std_logic_vector(ENC_NUM-1 downto 0);
+signal ABSENC_PROTOCOL      : std32_array(ENC_NUM-1 downto 0);
+signal ABSENC_PROTOCOL_WSTB : std_logic_vector(ENC_NUM-1 downto 0);
 
 -- Output Encoder
-signal outenc_clk           : std_logic_vector(ENC_NUM-1 downto 0);
-signal outenc_conn          : std_logic_vector(ENC_NUM-1 downto 0);
-signal OUTENC_PROTOCOL      : std32_array(ENC_NUM-1 downto 0);
-signal OUTENC_PROTOCOL_WSTB : std_logic_vector(ENC_NUM-1 downto 0);
+signal pmacenc_clk          : std_logic_vector(ENC_NUM-1 downto 0);
+signal pmacenc_conn         : std_logic_vector(ENC_NUM-1 downto 0);
+signal PMACENC_PROTOCOL     : std32_array(ENC_NUM-1 downto 0);
+signal PMACENC_PROTOCOL_WSTB : std_logic_vector(ENC_NUM-1 downto 0);
 
 signal pic_data_in          : std_logic_vector(15 downto 0);
 signal pic_data_out         : std_logic_vector(15 downto 0);
@@ -477,7 +483,7 @@ signal rdma_valid           : std_logic_vector(5 downto 0);
 
 -- Hard-wiring DCARD_MODE to x"00000002" (CONTROL MODE)
 -- This needs to be set by an appropiate block register and tied to corresponding relay setting
-signal DCARD_MODE : std32_array(ENC_NUM-1 downto 0) := (others => (1 => '1', others => '0'));
+-- signal DCARD_MODE : std32_array(ENC_NUM-1 downto 0) := (others => (1 => '1', others => '0'));
 
 -- SFP Block
 signal MGT_MAC_ADDR_ARR     : std32_array(2*NUM_SFP-1 downto 0);
@@ -1222,25 +1228,31 @@ port map (
     reset_i                 => FCLK_RESET0,
     
     -- Memory Bus Interface
-    OUTENC_read_strobe_i    => read_strobe(OUTENC_CS),
-    OUTENC_read_data_o      => read_data(OUTENC_CS),
-    OUTENC_read_ack_o       => read_ack(OUTENC_CS),
+    PMACENC_read_strobe_i    => read_strobe(PMACENC_CS),
+    PMACENC_read_data_o      => read_data(PMACENC_CS),
+    PMACENC_read_ack_o       => read_ack(PMACENC_CS),
 
-    OUTENC_write_strobe_i   => write_strobe(OUTENC_CS),
-    OUTENC_write_ack_o      => write_ack(OUTENC_CS),
+    PMACENC_write_strobe_i   => write_strobe(PMACENC_CS),
+    PMACENC_write_ack_o      => write_ack(PMACENC_CS),
 
-    INENC_read_strobe_i     => read_strobe(INENC_CS),
-    INENC_read_data_o       => read_data(INENC_CS),
-    INENC_read_ack_o        => read_ack(INENC_CS),
-    INENC_write_strobe_i    => write_strobe(INENC_CS),
-    INENC_write_ack_o       => write_ack(INENC_CS),
+    INCENC_read_strobe_i     => read_strobe(INCENC_CS),
+    INCENC_read_data_o       => read_data(INCENC_CS),
+    INCENC_read_ack_o        => read_ack(INCENC_CS),
+    INCENC_write_strobe_i    => write_strobe(INCENC_CS),
+    INCENC_write_ack_o       => write_ack(INCENC_CS),
+    ABSENC_read_strobe_i    => read_strobe(ABSENC_CS),
+    ABSENC_read_data_o      => read_data(ABSENC_CS),
+    ABSENC_read_ack_o       => read_ack(ABSENC_CS),
+    ABSENC_write_strobe_i   => write_strobe(ABSENC_CS),
+    ABSENC_write_ack_o      => write_ack(ABSENC_CS),
     read_address_i          => read_address,
     write_address_i         => write_address,
     write_data_i            => write_data,
     
     -- Encoder I/O Pads
-    OUTENC_CONN_OUT_o       => outenc_conn,
-    INENC_CONN_OUT_o        => inenc_conn,
+    PMACENC_CONN_OUT_o       => pmacenc_conn,
+    INCENC_CONN_OUT_o        => incenc_conn,
+    ABSENC_CONN_OUT_o       => absenc_conn,
 
     pins_ENC_A_in           => pins_ENC_A_in,
     pins_ENC_B_in           => pins_ENC_B_in,
@@ -1262,32 +1274,36 @@ port map (
     
 
     -- Signals passed to internal bus
-    clk_int_o               => outenc_clk,
-    inenc_a_o               => inenc_a,
-    inenc_b_o               => inenc_b,
-    inenc_z_o               => inenc_z,
-    inenc_data_o            => inenc_data,
+    clk_int_o               => pmacenc_clk,
+    -- incenc_a_o              => incenc_a,
+    -- incenc_b_o              => incenc_b,
+    -- incenc_z_o              => incenc_z,
+    absenc_data_o           => absenc_data,
     -- Block Input and Outputs
     bit_bus_i               => bit_bus,
     pos_bus_i               => pos_bus,
-    DCARD_MODE_i            => DCARD_MODE,
-    posn_o                  => inenc_val,
+    -- DCARD_MODE_i            => DCARD_MODE,
+    posn_o                  => incenc_val,
+    abs_posn_o              => absenc_val,
 
-    OUTENC_PROTOCOL_o       => OUTENC_PROTOCOL,
-    OUTENC_PROTOCOL_WSTB_o  => OUTENC_PROTOCOL_WSTB,
-    INENC_PROTOCOL_o        => INENC_PROTOCOL,
-    INENC_PROTOCOL_WSTB_o   => INENC_PROTOCOL_WSTB
+    UVWT_o                  => uvwt,
+
+    PMACENC_PROTOCOL_o       => PMACENC_PROTOCOL,
+    PMACENC_PROTOCOL_WSTB_o  => PMACENC_PROTOCOL_WSTB,
+    INCENC_PROTOCOL_o        => INCENC_PROTOCOL,
+    INCENC_PROTOCOL_WSTB_o   => INCENC_PROTOCOL_WSTB,
+    ABSENC_PROTOCOL_o       => ABSENC_PROTOCOL,
+    ABSENC_PROTOCOL_WSTB_o  => ABSENC_PROTOCOL_WSTB
 );
 
 -- Bus assembly ----
 
 -- BIT_BUS_SIZE and POS_BUS_SIZE declared in addr_defines.vhd
 
-bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & outenc_clk & inenc_conn &
-                                   inenc_data & inenc_z & inenc_b & inenc_a &
-                                   ttlin_val;
+bit_bus(BIT_BUS_SIZE-1 downto 0 ) <= pcap_active & pmacenc_clk & incenc_conn &
+                                     absenc_conn & absenc_data & ttlin_val;
 
-pos_bus(POS_BUS_SIZE-1 downto 0) <= inenc_val;
+pos_bus(POS_BUS_SIZE-1 downto 0) <= incenc_val & absenc_val;
 
 ---------------------------------------------------------------------------
 -- Test the Register Interface (provides dummy data)
@@ -1317,10 +1333,10 @@ port map (
 -- Data to be passed to PIC...
 
 pass_thru_gen: for chan in 0 to ENC_NUM-1 generate
-    serial_pass(chan) <= '1' when (OUTENC_PROTOCOL(chan)(2 downto 0) = "000") else '0';
+    serial_pass(chan) <= '1' when (PMACENC_PROTOCOL(chan)(2 downto 1) = "00") else '0';
 end generate;
 
-uvwt         <= "00000000";
+-- uvwt         <= "00000000";
 pic_data_out <= ( uvwt & serial_pass );
 
 
