@@ -114,12 +114,16 @@ def get_signals_info(dut):
     for signal_name in expected_signal_names:
         if 'type' in ini[signal_name]:
             _type = ini[signal_name]['type'].strip()
+            suffixes = []
             if _type == 'time':
-                for suffix in ['_L', '_H']:
+                suffixes = ['_L', '_H']
+            elif _type == 'table short':
+                suffixes = ['_START', '_DATA', '_LENGTH']
+            if suffixes:
+                for suffix in suffixes:
                     new_signal_name = f'{signal_name}{suffix}'
                     signals_info[new_signal_name] = {}
-                    signals_info[new_signal_name].update(
-                        ini[signal_name])
+                    signals_info[new_signal_name].update(ini[signal_name])
                     signals_info[new_signal_name]['name'] = new_signal_name
                     if ini[signal_name].get('wstb', False):
                         signals_info[new_signal_name]['wstb_name'] = \
