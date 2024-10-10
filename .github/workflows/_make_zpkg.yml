@@ -15,7 +15,7 @@ jobs:
           "PandABox-fmc_acq427",
           "PandABox-fmc_acq430",
           "PandABox-fmc_lback-sfp_lback",
-          "ZedBoard-no-fmc",
+          "PandABrick",
           "xu5_st1-no-fmc",
           "xu5_st1-fmc_acq430"
           ]

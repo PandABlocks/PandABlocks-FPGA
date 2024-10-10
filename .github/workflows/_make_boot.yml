@@ -11,6 +11,8 @@ jobs:
             app: PandABox-no-fmc
           - platform: zynqmp
             app: xu5_st1-no-fmc
+          - platform: zynqmp
+            app: PandABrick
     runs-on:
       group: iris_runners
     container:
