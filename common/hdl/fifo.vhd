@@ -67,6 +67,7 @@ begin
         variable next_read_pointer : unsigned(ADDRESS_RANGE_BITS);
         variable write_address : ADDRESS_RANGE;
         variable read_address : ADDRESS_RANGE;
+        variable next_read_valid : std_ulogic;
 
     begin
         if rising_edge(clk_i) then
@@ -118,18 +119,20 @@ begin
             end if;
 
             -- Read
+            next_read_valid := read_valid_o;
             if reset_fifo_i then
-                read_valid_o <= '0';
+                next_read_valid := '0';
             elsif read_enable then
                 read_data_o <= fifo(read_address);
-                read_valid_o <= '1';
+                next_read_valid := '1';
             elsif read_ready_i then
-                read_valid_o <= '0';
+                next_read_valid := '0';
             end if;
+            read_valid_o <= next_read_valid;
 
             -- Compute number of points in FIFO, also counting the output buffer
             fifo_depth_o <=
-                next_write_pointer - next_read_pointer + read_valid_o;
+                next_write_pointer - next_read_pointer + next_read_valid;
         end if;
     end process;
 end;

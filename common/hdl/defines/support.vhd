@@ -22,7 +22,7 @@ function ZEROS(num : positive) return std_logic_vector;
 function COMP(a : std_logic_vector; b: std_logic_vector) return std_logic;
 function BITREV(A : std_logic_vector) return std_logic_vector;
 function ONEHOT_INDEX (arg : std_logic_vector) return natural;
-function TO_STD_LOGIC(bool : boolean) return std_ulogic;
+function TO_STD_ULOGIC(bool : boolean) return std_ulogic;
 
 end support;
 
@@ -99,7 +99,7 @@ begin
     return index;
 end function;
 
-function TO_STD_LOGIC(bool : boolean) return std_ulogic is
+function TO_STD_ULOGIC (bool : boolean) return std_ulogic is
 begin
     if bool then
         return '1';
