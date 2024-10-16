@@ -378,10 +378,14 @@ def run_tests():
     t_time_1 = time.time()
     print('\nTime taken: {}s.'.format(round(t_time_1 - t_time_0, 2)))
     print('___________________________________________________\n')
+    if SKIP_LIST and all:
+        print('The following modules were skipped:')
+        for module in SKIP_LIST:
+            print(module)
     logging.basicConfig(level=logging.DEBUG)
 
 
-def get_ip(module=None):
+def get_ip(module=None, quiet=True):
     if not module:
         modules = os.listdir(MODULES_PATH)
     else:
@@ -390,27 +394,83 @@ def get_ip(module=None):
     for module in modules:
         ini = get_block_ini(module)
         if not ini.sections():
-            print('\033[1m' + f'No block INI file found in {module}!'
-                  + '\033[0m')
+            if not quiet:
+                print('\033[1m' + f'No block INI file found in {module}!'
+                      + '\033[0m')
             continue
         info = []
         if '.' in ini.keys():
             info = ini['.']
         spaces = ' ' + '-' * (16 - len(module)) + ' '
         if 'ip' in info:
-            print('IP needed for module ' + '\033[1m' + module + '\033[0m:' +
-                  spaces + '\033[0;33m' + info['ip'] + '\033[0m:')
             ip[module] = info['ip']
+            if not quiet:
+                print('IP needed for module \033[1m' + module + '\033[0m:' +
+                      spaces + '\033[0;33m' + info['ip'] + '\033[0m')
         else:
-            print('IP needed for module ' + '\033[1m' + module
-                  + '\033[0m:' + spaces + 'None found')
             ip[module] = None
+            if not quiet:
+                print('IP needed for module ' + '\033[1m' + module
+                      + '\033[0m:' + spaces + 'None found')
     return ip
 
 
-if __name__ == "__main__":
+def check_timing_ini(module=None, quiet=True):
+    if not module:
+        modules = os.listdir(MODULES_PATH)
+    else:
+        modules = [module]
+    has_timing_ini = {}
+    for module in modules:
+        ini = get_timing_ini(module)
+        if not ini.sections():
+            has_timing_ini[module] = False
+            if not quiet:
+                print('\033[0;33m' +
+                      f'No timing INI file found in - \033[1m{module}\033[0m')
+        else:
+            has_timing_ini[module] = True
+            if not quiet:
+                print(f'Timing ini file found in ---- \033[1m{module}\033[0m')
+    return has_timing_ini
+
+
+def get_some_info():
+    ini_and_ip = []
+    ini_no_ip = []
+    no_ini = []
+    has_timing_ini = check_timing_ini()
+    has_ip = get_ip()
+    for module in has_timing_ini.keys():
+        if has_timing_ini[module]:
+            if has_ip[module]:
+                ini_and_ip.append(module)
+            else:
+                ini_no_ip.append(module)
+        else:
+            no_ini.append(module)
+    print('\nModules with no timing INI:')
+    for i, module in enumerate(no_ini):
+        print(f'{i + 1}. {module}')
+    print('\nModules with timing INI and IP:')
+    for i, module in enumerate(ini_and_ip):
+        print(f'{i + 1}. {module}')
+    print('\nModules with timing INI and no IP:')
+    for i, module in enumerate(ini_no_ip):
+        print(f'{i + 1}. {module}')
+
+
+def main():
     args = get_args()
     if args.module.lower() == 'ip':
-        ip = get_ip(args.test_name)
+        get_ip(args.test_name, quiet=False)
+    elif args.module.lower() == 'ini':
+        check_timing_ini(quiet=False)
+    elif args.module.lower() == 'info':
+        get_some_info()
     else:
         run_tests()
+
+
+if __name__ == "__main__":
+    main()
