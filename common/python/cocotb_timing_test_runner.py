@@ -241,6 +241,17 @@ def get_module_hdl_files(module):
     return result
 
 
+def get_module_top_level(module):
+    module_dir_path = MODULES_PATH / module
+    g = {'TOP_PATH': TOP_PATH}
+    code = open(str(module_dir_path / 'test_config.py')).read()
+    exec(code, g)
+    top_level = g.get('TOP_LEVEL', None)
+    if top_level:
+        return top_level
+    return module
+
+
 def print_results(module, passed, failed, time=None):
     print('\nModule: {}'.format(module))
     if len(passed) + len(failed) == 0:
