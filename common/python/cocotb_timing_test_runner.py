@@ -105,12 +105,11 @@ def get_signals(dut):
             and not signal_name.startswith('_')]
 
 
-def get_signals_info(dut):
+def get_signals_info(ini):
     # Get a mapping between signal names in INI file and VHDL file,
     # and store signal type.
     signals_info = {}
-    ini = get_block_ini(dut._name)
-    expected_signal_names = ini.sections()
+    expected_signal_names = [name for name in ini.sections() if name != '.']
     for signal_name in expected_signal_names:
         if 'type' in ini[signal_name]:
             _type = ini[signal_name]['type'].strip()
@@ -147,11 +146,11 @@ def get_signals_info(dut):
     return signals_info
 
 
-async def section_timing_test(dut, timing_ini, test_name):
+async def section_timing_test(dut, block_ini, timing_ini, test_name):
     conditions_schedule = {}
     assignments_schedule = {}
     last_ts = 0
-    signals_info = get_signals_info(dut)
+    signals_info = get_signals_info(block_ini)
     for ts_str, line in timing_ini.items(test_name):
         ts = int(ts_str)
         for i in (ts, ts + 1):
@@ -203,11 +202,12 @@ async def section_timing_test(dut, timing_ini, test_name):
 
 @cocotb.test()
 async def module_timing_test(dut):
+    module = os.getenv('module', 'default')
     test_name = os.getenv('test_name', 'default')
-    module = dut._name
+    block_ini = get_block_ini(module)
     timing_ini = get_timing_ini(module)
     if test_name.strip() != '.':
-        await section_timing_test(dut, timing_ini, test_name)
+        await section_timing_test(dut, block_ini, timing_ini, test_name)
 
 
 def get_module_build_args(module):
@@ -305,9 +305,10 @@ def test_module(module, test_name=None):
     sim = cocotb.runner.get_runner('ghdl')
     build_dir = f'sim_build_{module}'
     build_args = ['--std=08'] + get_module_build_args(module)
+    top_level = get_module_top_level(module)
     sim.build(sources=get_module_hdl_files(module),
               build_dir=build_dir,
-              hdl_toplevel=module,
+              hdl_toplevel=top_level,
               build_args=build_args)
 
     passed, failed = [], []
@@ -319,12 +320,12 @@ def test_module(module, test_name=None):
                 test_name.replace(' ', '_').replace('/', '_'))
             print()
             print('Test: "{}" in module {}.\n'.format(test_name, module))
-            sim.test(hdl_toplevel=module,
+            sim.test(hdl_toplevel=top_level,
                      test_module='cocotb_timing_test_runner',
                      build_dir=build_dir,
                      test_args=['--std=08'],
                      plusargs=['--vcd={}'.format(vcd_filename)],
-                     extra_env={'test_name': test_name})
+                     extra_env={'module': module, 'test_name': test_name})
             xml_path = cocotb.runner.get_abs_path(f'{build_dir}/results.xml')
             results = cocotb.runner.get_results(xml_path)
             if results == (1, 0):
