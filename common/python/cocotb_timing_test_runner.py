@@ -42,8 +42,7 @@ def is_input_signal(signals_info, signal_name):
                 or 'read' in signals_info[signal_name]['type'])
 
 
-async def initialise_dut(dut):
-    signals_info = get_signals_info(dut)
+async def initialise_dut(dut, signals_info):
     for signal_name in signals_info.keys():
         dut_signal_name = signals_info[signal_name]['name']
         if is_input_signal(signals_info, signal_name):
@@ -178,7 +177,7 @@ async def section_timing_test(dut, block_ini, timing_ini, test_name):
         cocotb.start_soon(Clock(
             dut.clk_i, 1, units="ns").start(start_high=False))
         ts = 0
-        await initialise_dut(dut)
+        await initialise_dut(dut, signals_info)
         await clkedge
         conditions = {}
         wavedrom_filename = '{}_wavedrom.json'.format(
