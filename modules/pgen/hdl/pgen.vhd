@@ -51,20 +51,6 @@ end pgen;
 
 architecture rtl of pgen is
 
-component fifo_1K32
-port (
-    clk                 : in std_logic;
-    srst                : in std_logic;
-    din                 : in std_logic_vector(31 DOWNTO 0);
-    wr_en               : in std_logic;
-    rd_en               : in std_logic;
-    dout                : out std_logic_vector(31 DOWNTO 0);
-    full                : out std_logic;
-    empty               : out std_logic;
-    data_count          : out std_logic_vector(9 downto 0)
-);
-end component;
-
 type state_t is (IDLE, WAIT_FIFO, DMA_REQ, DMA_READ, IS_FINISHED, FINISHED);
 signal pgen_fsm         : state_t;
 signal reset            : std_logic;
@@ -78,8 +64,10 @@ signal fifo_rd_en       : std_logic;
 signal fifo_dout        : std_logic_vector(DW-1 downto 0);
 signal fifo_count       : integer range 0 to 1023;
 signal fifo_full        : std_logic;
+signal write_ready_o    : std_logic;
 signal fifo_empty       : std_logic;
-signal fifo_data_count  : std_logic_vector(9 downto 0);
+signal read_valid_o     : std_logic;
+signal fifo_data_count  : std_logic_vector(10 downto 0);
 signal fifo_available   : std_logic;
 
 signal trig             : std_logic;
@@ -96,36 +84,38 @@ signal table_end        : std_logic;
 
 signal active           : std_logic := '0';
 
+signal out_buffer     : std_logic_vector(DW-1 downto 0);
 
 begin
 
 -- Assign outputs
 dma_len_o <= std_logic_vector(dma_len(7 downto 0));
 dma_addr_o <= std_logic_vector(dma_addr);
-out_o <= fifo_dout;
+out_o <= out_buffer;
 
 -- Reset for state machine
 reset <= not table_ready or enable_fall;
 
---
--- 32bit FIFO with 1K sample depth
---
-dma_fifo_inst : fifo_1K32
-port map (
-    srst            => fifo_reset,
-    clk             => clk_i,
-    din             => dma_data_i,
-    wr_en           => dma_valid_i,
-    rd_en           => fifo_rd_en,
-    dout            => fifo_dout,
-    full            => fifo_full,
-    empty           => fifo_empty,
-    data_count      => fifo_data_count
+dma_fifo_inst : entity work.fifo generic map(
+    data_width => 32,
+    fifo_bits  => 10
+) port map (
+    clk_i          => clk_i,
+    reset_fifo_i   => fifo_reset,
+    write_data_i   => dma_data_i,
+    write_valid_i  => dma_valid_i,
+    read_ready_i   => fifo_rd_en,
+    read_data_o    => fifo_dout,
+    write_ready_o  => write_ready_o,
+    read_valid_o   => read_valid_o,
+    std_logic_vector(fifo_depth_o)   => fifo_data_count
 );
 
 fifo_reset <= reset;
 fifo_rd_en <= trig_pulse;
 fifo_count <= to_integer(unsigned(fifo_data_count));
+fifo_full <= not write_ready_o;
+fifo_empty <= not read_valid_o;
 
 -- There is space (>256 words) in the fifo, so perform data read from
 -- host memory.
@@ -138,6 +128,12 @@ process(clk_i) begin
     if rising_edge(clk_i) then
         trig <= trig_i;
         enable <= enable_i;
+    end if;
+end process;
+
+process(clk_i) begin
+    if trig_pulse = '1' then
+        out_buffer <= fifo_dout;
     end if;
 end process;
 
