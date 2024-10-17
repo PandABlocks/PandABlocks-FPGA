@@ -15,6 +15,8 @@ import cocotb.runner
 import cocotb.wavedrom
 import cocotb.binary
 
+from dma_driver import DMADriver
+
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, ReadOnly
 
@@ -22,6 +24,7 @@ from cocotb.triggers import RisingEdge, ReadOnly
 SCRIPT_DIR_PATH = Path(__file__).parent.resolve()
 TOP_PATH = SCRIPT_DIR_PATH.parent.parent
 MODULES_PATH = TOP_PATH / 'modules'
+SKIP_LIST = []
 
 
 def read_ini(path: List[str] | str) -> configparser.ConfigParser:
@@ -145,17 +148,23 @@ def get_signals_info(ini):
     return signals_info
 
 
-async def section_timing_test(dut, block_ini, timing_ini, test_name):
+def block_has_dma(block_ini):
+    return block_ini['.'].get('type', '') == 'dma'
+
+
+async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
     conditions_schedule = {}
     assignments_schedule = {}
     last_ts = 0
+    if block_has_dma(block_ini):
+        dma_driver = DMADriver(dut, module)
+
     signals_info = get_signals_info(block_ini)
     for ts_str, line in timing_ini.items(test_name):
         ts = int(ts_str)
         for i in (ts, ts + 1):
             assignments_schedule.setdefault(i, {})
             conditions_schedule.setdefault(i, {})
-
         last_ts = max(last_ts, ts + 1)
         parts = line.split('->')
         for sig_name, val in parse_assignments(parts[0]).items():
@@ -206,7 +215,8 @@ async def module_timing_test(dut):
     block_ini = get_block_ini(module)
     timing_ini = get_timing_ini(module)
     if test_name.strip() != '.':
-        await section_timing_test(dut, block_ini, timing_ini, test_name)
+        await section_timing_test(
+            dut, module, test_name, block_ini, timing_ini)
 
 
 def get_module_build_args(module):
@@ -214,7 +224,6 @@ def get_module_build_args(module):
     g = {'TOP_PATH': TOP_PATH}
     code = open(str(module_dir_path / 'test_config.py')).read()
     exec(code, g)
-    g.get('EXTRA_BUILD_ARGS', [])
     extra_args = g.get('EXTRA_BUILD_ARGS', [])
     return extra_args
 
