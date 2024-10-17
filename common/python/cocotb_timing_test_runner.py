@@ -120,6 +120,8 @@ def get_signals_info(ini):
                 suffixes = ['_L', '_H']
             elif _type == 'table short':
                 suffixes = ['_START', '_DATA', '_LENGTH']
+            elif _type == 'table':
+                suffixes = ['_ADDRESS', '_LENGTH']
             if suffixes:
                 for suffix in suffixes:
                     new_signal_name = f'{signal_name}{suffix}'
