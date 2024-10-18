@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LUT - 5 Input lookup table &mdash; PandABlocks-FPGA 3.1b1-33-g4b7a35b
+  <title>LUT - 5 Input lookup table &mdash; PandABlocks-FPGA 3.1b1-47-g5b15630
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
@@ -42,7 +42,7 @@
               <img src="../_static/PandA-logo-for-black-background.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                3.1b1-33-g4b7a35b
+                3.1b1-47-g5b15630
 
               </div>
 <div role="search">
@@ -73,6 +73,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial3_position_compare.html">Position Compare Tutorial</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../tutorials/tutorial4_snake_scan.html">Snake Scan Tutorial</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../blocks.html">Available Blocks</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="absenc_doc.html">ABSENC - Absolute encoder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bits_doc.html">BITS - Soft inputs and constant bits</a></li>
 <li class="toctree-l4"><a class="reference internal" href="calc_doc.html">CALC - Position Calc</a></li>
 <li class="toctree-l4"><a class="reference internal" href="clock_doc.html">CLOCK - Configurable clock</a></li>
@@ -83,6 +84,7 @@
 <li class="toctree-l4"><a class="reference internal" href="fmc_acq427_doc.html">FMC_ACQ427 - FMC ACQ427 Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="fmc_acq430_doc.html">FMC_ACQ430 - FMC ACQ430 Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="fmc_loopback_doc.html">FMC_LOOPBACK - FMC Loopback Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="incenc_doc.html">INENC - Input encoder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="inenc_doc.html">INENC - Input encoder</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">LUT - 5 Input lookup table</a></li>
 <li class="toctree-l4"><a class="reference internal" href="lvdsin_doc.html">LVDSIN - LVDS Input</a></li>
@@ -91,6 +93,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pcap_doc.html">PCAP - Position Capture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pcomp_doc.html">PCOMP - Position Compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pgen_doc.html">PGEN - Position Generator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pmacenc_doc.html">PMACENC - Pmac encoder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="posenc_doc.html">POSENC - Quadrature and step/direction encoder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pulse_doc.html">PULSE - One-shot pulse delay and stretch</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qdec_doc.html">QDEC - Quadrature Decoder</a></li>
@@ -127,6 +130,7 @@
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../blocks.html">Available Blocks</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="absenc_doc.html">ABSENC - Absolute encoder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bits_doc.html">BITS - Soft inputs and constant bits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="calc_doc.html">CALC - Position Calc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="clock_doc.html">CLOCK - Configurable clock</a></li>
@@ -137,6 +141,7 @@
 <li class="toctree-l2"><a class="reference internal" href="fmc_acq427_doc.html">FMC_ACQ427 - FMC ACQ427 Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fmc_acq430_doc.html">FMC_ACQ430 - FMC ACQ430 Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fmc_loopback_doc.html">FMC_LOOPBACK - FMC Loopback Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="incenc_doc.html">INENC - Input encoder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="inenc_doc.html">INENC - Input encoder</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">LUT - 5 Input lookup table</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fields">Fields</a></li>
@@ -151,6 +156,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pcap_doc.html">PCAP - Position Capture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pcomp_doc.html">PCOMP - Position Compare</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pgen_doc.html">PGEN - Position Generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmacenc_doc.html">PMACENC - Pmac encoder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="posenc_doc.html">POSENC - Quadrature and step/direction encoder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pulse_doc.html">PULSE - One-shot pulse delay and stretch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qdec_doc.html">QDEC - Quadrature Decoder</a></li>
