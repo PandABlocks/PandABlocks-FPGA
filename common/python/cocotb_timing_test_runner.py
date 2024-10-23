@@ -80,14 +80,25 @@ def parse_assignments(assignments):
         signal_name = signal_name.strip()
         if val.startswith('0x') or val.startswith('0X'):
             val = int(val[2:], 16)
+        elif val.startswith('-0x') or val.startswith('-0X'):
+            val = int(val[0] + val[3:], 16)
+            print(val)
         else:
             val = int(val)
         result[signal_name] = val
     return result
 
 
-def do_assignments(dut, assignments):
+def do_assignments(dut, assignments, signals_info):
     for signal_name, val in assignments.items():
+        if '[' in signal_name:
+            index = int(signal_name.split('[')[1][:-1])
+            signal_name = signal_name.split('[')[0]
+            for key, value in signals_info.items():
+                if value['name'] == signal_name:
+                    break
+            val = get_bus_value(getattr(dut, signal_name).value,
+                                signals_info[key]['bits'], val, index)
         assign(dut, signal_name, val)
 
 
@@ -109,6 +120,32 @@ def get_signals(dut):
             if isinstance(getattr(dut, signal_name),
                           cocotb.handle.ModifiableObject)
             and not signal_name.startswith('_')]
+
+
+def get_schedules(timing_ini, signals_info, test_name):
+    conditions_schedule, assignments_schedule = {}, {}
+    for ts_str, line in timing_ini.items(test_name):
+        ts = int(ts_str)
+        for i in (ts, ts + 1):
+            assignments_schedule.setdefault(i, {})
+            conditions_schedule.setdefault(i, {})
+        parts = line.split('->')
+        for sig_name, val in parse_assignments(parts[0]).items():
+            index = f'[{sig_name.split("[")[1]}' if '[' in sig_name else ''
+            sig_name = sig_name[:len(sig_name) - len(index)]
+            name = signals_info.get(sig_name)['name']
+            assignments_schedule[ts][name + index] = val
+            wstb_name = signals_info.get(sig_name).get('wstb_name')
+            if wstb_name is not None:
+                assignments_schedule[ts][wstb_name] = 1
+                assignments_schedule[ts + 1].update({wstb_name: 0})
+
+        if len(parts) > 1:
+            conditions_schedule[ts + 1] = {}
+            for sig_name, val in parse_assignments(parts[1]).items():
+                name = signals_info.get(sig_name)['name']
+                conditions_schedule[ts + 1][name] = val
+    return assignments_schedule, conditions_schedule
 
 
 def get_signals_info(ini):
@@ -164,9 +201,6 @@ def block_is_pcap(block_ini):
 
 async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
     monitors = {}
-    conditions_schedule = {}
-    assignments_schedule = {}
-    last_ts = 0
     if block_has_dma(block_ini):
         dma_driver = DMADriver(dut, module)
     elif block_is_pcap(block_ini):
@@ -174,26 +208,12 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
 
     signals_info = get_signals_info(block_ini)
     signals_info.update(get_extra_signals_info(module))
-    for ts_str, line in timing_ini.items(test_name):
-        ts = int(ts_str)
-        for i in (ts, ts + 1):
-            assignments_schedule.setdefault(i, {})
-            conditions_schedule.setdefault(i, {})
-        last_ts = max(last_ts, ts + 1)
-        parts = line.split('->')
-        for sig_name, val in parse_assignments(parts[0]).items():
-            name = signals_info.get(sig_name)['name']
-            assignments_schedule[ts][name] = val
-            wstb_name = signals_info.get(sig_name).get('wstb_name', None)
-            if wstb_name is not None:
-                assignments_schedule[ts][wstb_name] = 1
-                assignments_schedule[ts + 1].update({wstb_name: 0})
 
-        if len(parts) > 1:
-            conditions_schedule[ts + 1] = {}
-            for sig_name, val in parse_assignments(parts[1]).items():
-                name = signals_info.get(sig_name)['name']
-                conditions_schedule[ts + 1][name] = val
+    assignments_schedule, conditions_schedule = \
+        get_schedules(timing_ini, signals_info, test_name)
+
+    last_ts = max(max(assignments_schedule.keys()),
+                  max(conditions_schedule.keys()))
 
     with cocotb.wavedrom.trace(*get_signals(dut), clk=dut.clk_i) as trace:
         clkedge = RisingEdge(dut.clk_i)
@@ -207,7 +227,7 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
             test_name.replace(" ", "_").replace("/", "_"))
         try:
             while ts <= last_ts:
-                do_assignments(dut, assignments_schedule.get(ts, {}))
+                do_assignments(dut, assignments_schedule.get(ts, {}), signals_info)
                 conditions.update(conditions_schedule.get(ts, {}))
                 await ReadOnly()
                 check_conditions(dut, conditions, monitors)
@@ -231,6 +251,21 @@ async def module_timing_test(dut):
     if test_name.strip() != '.':
         await section_timing_test(
             dut, module, test_name, block_ini, timing_ini)
+
+
+def get_bus_value(current_value, bits, value, index):
+    value_at_index = ((2**bits - 1) << bits*index) & current_value
+    new_value_at_index = value << bits*index
+    return current_value - value_at_index + new_value_at_index
+
+
+def get_extra_signals_info(module):
+    module_dir_path = MODULES_PATH / module
+    g = {'TOP_PATH': TOP_PATH}
+    code = open(str(module_dir_path / 'test_config.py')).read()
+    exec(code, g)
+    extra_signals_info = g.get('EXTRA_SIGNALS_INFO', {})
+    return extra_signals_info
 
 
 def get_module_build_args(module):
