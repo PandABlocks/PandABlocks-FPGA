@@ -41,8 +41,8 @@ def get_args():
 
 
 def is_input_signal(signals_info, signal_name):
-    return not (signals_info[signal_name]['type'].endswith('_out')
-                or 'read' in signals_info[signal_name]['type'])
+    return not ('_out' in signals_info[signal_name]['type']
+                or 'read' in signals_info[signal_name]['type']
 
 
 async def initialise_dut(dut, signals_info):
