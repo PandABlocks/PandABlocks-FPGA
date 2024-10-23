@@ -25,7 +25,6 @@ from cocotb.triggers import RisingEdge, ReadOnly
 SCRIPT_DIR_PATH = Path(__file__).parent.resolve()
 TOP_PATH = SCRIPT_DIR_PATH.parent.parent
 MODULES_PATH = TOP_PATH / 'modules'
-SKIP_LIST = []
 
 
 def read_ini(path: List[str] | str) -> configparser.ConfigParser:
@@ -446,10 +445,6 @@ def run_tests():
     t_time_1 = time.time()
     print('\nTime taken: {}s.'.format(round(t_time_1 - t_time_0, 2)))
     print('___________________________________________________\n')
-    if SKIP_LIST and all:
-        print('The following modules were skipped:')
-        for module in SKIP_LIST:
-            print(module)
     logging.basicConfig(level=logging.DEBUG)
 
 
