@@ -10,6 +10,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 use work.support.all;
+USE work.top_defines.all;
 
 entity fifo is
     generic (
@@ -18,20 +19,20 @@ entity fifo is
         MEM_STYLE : string := ""        -- Can override tool default
     );
     port (
-        clk_i : in std_ulogic;
+        clk_i : in std_logic;
 
         -- Write interface
-        write_valid_i : in std_ulogic;
-        write_ready_o : out std_ulogic := '0';
-        write_data_i : in std_ulogic_vector(DATA_WIDTH-1 downto 0);
+        write_valid_i : in std_logic;
+        write_ready_o : out std_logic := '0';
+        write_data_i : in std_logic_vector(DATA_WIDTH-1 downto 0);
 
         -- Read interface
-        read_valid_o : out std_ulogic := '0';
-        read_ready_i : in std_ulogic;
-        read_data_o : out std_ulogic_vector(DATA_WIDTH-1 downto 0);
+        read_valid_o : out std_logic := '0';
+        read_ready_i : in std_logic;
+        read_data_o : out std_logic_vector(DATA_WIDTH-1 downto 0);
 
         -- Control and status
-        reset_fifo_i : in std_ulogic := '0';
+        reset_fifo_i : in std_logic := '0';
         fifo_depth_o : out unsigned(FIFO_BITS downto 0) := (others => '0')
     );
 end;
@@ -58,16 +59,16 @@ architecture arch of fifo is
     signal write_pointer : unsigned(ADDRESS_RANGE_BITS) := (others => '0');
     signal read_pointer : unsigned(ADDRESS_RANGE_BITS) := (others => '0');
     -- The read valid state is separated from read_valid_o to improve data flow
-    signal read_valid : std_ulogic := '0';
+    signal read_valid : std_logic := '0';
 
 begin
     process (clk_i)
-        variable read_enable : std_ulogic;
+        variable read_enable : std_logic;
         variable next_write_pointer : unsigned(ADDRESS_RANGE_BITS);
         variable next_read_pointer : unsigned(ADDRESS_RANGE_BITS);
         variable write_address : ADDRESS_RANGE;
         variable read_address : ADDRESS_RANGE;
-        variable next_read_valid : std_ulogic;
+        variable next_read_valid : std_logic;
 
     begin
         if rising_edge(clk_i) then
@@ -99,9 +100,9 @@ begin
                 -- FIFO depth ahead of the read pointer.  This computation can
                 -- safely be done on the next_ pointers, which gives a small
                 -- flow optimisation.
-                write_ready_o <= to_std_ulogic(
+                write_ready_o <= to_std_logic(
                     next_write_pointer /= (next_read_pointer xor COMPARE_MASK));
-                read_valid <= to_std_ulogic(
+                read_valid <= to_std_logic(
                     next_write_pointer /= next_read_pointer);
             end if;
             write_pointer <= next_write_pointer;
