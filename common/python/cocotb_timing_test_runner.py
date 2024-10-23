@@ -16,6 +16,7 @@ import cocotb.wavedrom
 import cocotb.binary
 
 from dma_driver import DMADriver
+from dma_monitor import DMAMonitor
 
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, ReadOnly
@@ -43,6 +44,7 @@ def get_args():
 def is_input_signal(signals_info, signal_name):
     return not ('_out' in signals_info[signal_name]['type']
                 or 'read' in signals_info[signal_name]['type']
+                or 'monitor' in signals_info[signal_name]['type'])
 
 
 async def initialise_dut(dut, signals_info):
@@ -89,9 +91,11 @@ def do_assignments(dut, assignments):
         assign(dut, signal_name, val)
 
 
-def check_conditions(dut, conditions: Dict[str, int]):
+def check_conditions(dut, conditions: Dict[str, int], monitors):
     for signal_name, val in conditions.items():
-        if val < 0:
+        if signal_name.endswith('monitor'):
+            sim_val = monitors[signal_name].value
+        elif val < 0:
             sim_val = getattr(dut, signal_name).value.signed_integer
         else:
             sim_val = getattr(dut, signal_name).value
@@ -154,14 +158,22 @@ def block_has_dma(block_ini):
     return block_ini['.'].get('type', '') == 'dma'
 
 
+def block_is_pcap(block_ini):
+    return block_ini['.'].get('type') == 'pcap'
+
+
 async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
+    monitors = {}
     conditions_schedule = {}
     assignments_schedule = {}
     last_ts = 0
     if block_has_dma(block_ini):
         dma_driver = DMADriver(dut, module)
+    elif block_is_pcap(block_ini):
+        monitors['dma_monitor'] = DMAMonitor(dut)
 
     signals_info = get_signals_info(block_ini)
+    signals_info.update(get_extra_signals_info(module))
     for ts_str, line in timing_ini.items(test_name):
         ts = int(ts_str)
         for i in (ts, ts + 1):
@@ -198,7 +210,7 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
                 do_assignments(dut, assignments_schedule.get(ts, {}))
                 conditions.update(conditions_schedule.get(ts, {}))
                 await ReadOnly()
-                check_conditions(dut, conditions)
+                check_conditions(dut, conditions, monitors)
                 await clkedge
                 ts += 1
         except AssertionError as error:
