@@ -15,4 +15,15 @@ EXTRA_HDL_FILES = [TOP_PATH / 'common' / 'hdl' / 'defines' / 'support.vhd',
 
 EXTRA_BUILD_ARGS = ['-Wno-hide']
 
-TOP_LEVEL = 'pcap_top'
+TOP_LEVEL = 'pcap_core_wrapper'
+
+EXTRA_SIGNALS_INFO = {
+    'ARM': {'type': 'bit_mux', 'name': 'arm', 'wstb_name': 'arm'},
+    'DISARM': {'type': 'bit_mux', 'name': 'disarm', 'wstb_name': 'disarm'},
+    'START_WRITE': {'type': 'bit_mux', 'name': 'start_write',
+                    'wstb_name': 'start_write'},
+    'WRITE': {'type': 'bit_mux', 'name': 'write', 'wstb_name': 'write_wstb'},
+    'POS': {'type': 'bus', 'name': 'pos_bus_i', 'bus_width': 26, 'bits': 32},
+    'ACTIVE': {'type': 'bit_out', 'name': 'pcap_actv_o'},
+    'DATA': {'type': 'monitor', 'name': 'dma_monitor'}
+}
