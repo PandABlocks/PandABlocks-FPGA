@@ -57,7 +57,7 @@ always @(posedge clk_i) begin
         STATE_IDLE:
         begin
             // Wait until the TABLE_ADDRESS_WSTB is active
-            if (TABLE_ADDRESS_wstb == 1) begin
+            if (dma_req_o == 1) begin
                 STATE <= STATE_TABLE_ADDR;
             end
         end
