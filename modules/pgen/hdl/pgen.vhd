@@ -84,7 +84,7 @@ signal table_end        : std_logic;
 
 signal active           : std_logic := '0';
 
-signal out_buffer     : std_logic_vector(DW-1 downto 0);
+signal out_buffer     :std_logic_vector(DW-1 downto 0) := (others => '0');
 
 begin
 
@@ -100,14 +100,14 @@ dma_fifo_inst : entity work.fifo generic map(
     data_width => 32,
     fifo_bits  => 10
 ) port map (
-    clk_i          => clk_i,
-    reset_fifo_i   => fifo_reset,
-    write_data_i   => dma_data_i,
-    write_valid_i  => dma_valid_i,
-    read_ready_i   => fifo_rd_en,
-    read_data_o    => fifo_dout,
-    write_ready_o  => write_ready_o,
-    read_valid_o   => read_valid_o,
+    clk_i                            => clk_i,
+    reset_fifo_i                     => fifo_reset,
+    write_data_i                     => dma_data_i,
+    write_valid_i                    => dma_valid_i,
+    read_ready_i                     => fifo_rd_en,
+    read_data_o                      => fifo_dout,
+    write_ready_o                    => write_ready_o,
+    read_valid_o                     => read_valid_o,
     std_logic_vector(fifo_depth_o)   => fifo_data_count
 );
 
@@ -132,8 +132,12 @@ process(clk_i) begin
 end process;
 
 process(clk_i) begin
-    if trig_pulse = '1' then
-        out_buffer <= fifo_dout;
+    if rising_edge(clk_i) then
+        if reset = '1' then
+            out_buffer <= (others => '0');
+        elsif trig_pulse = '1' then
+            out_buffer <= fifo_dout;
+        end if;
     end if;
 end process;
 
