@@ -25,5 +25,7 @@ EXTRA_SIGNALS_INFO = {
     'WRITE': {'type': 'bit_mux', 'name': 'write', 'wstb_name': 'write_wstb'},
     'POS': {'type': 'bus', 'name': 'pos_bus_i', 'bus_width': 26, 'bits': 32},
     'ACTIVE': {'type': 'bit_out', 'name': 'pcap_actv_o'},
-    'DATA': {'type': 'monitor', 'name': 'dma_monitor'}
+    'DATA': {'type': 'valid_data', 'name': 'pcap_dat_o',
+             'valid_name': 'pcap_dat_valid_o'},
+    'dma_full_i': {'type': 'bit_mux', 'name': 'dma_full_i'}
 }

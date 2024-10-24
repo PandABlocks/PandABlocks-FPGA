@@ -43,7 +43,8 @@ def get_args():
 def is_input_signal(signals_info, signal_name):
     return not ('_out' in signals_info[signal_name]['type']
                 or 'read' in signals_info[signal_name]['type']
-                or 'monitor' in signals_info[signal_name]['type'])
+                or 'monitor' in signals_info[signal_name]['type']
+                or 'valid' in signals_info[signal_name]['type'])
 
 
 async def initialise_dut(dut, signals_info):
@@ -101,15 +102,17 @@ def do_assignments(dut, assignments, signals_info):
         assign(dut, signal_name, val)
 
 
-def check_conditions(dut, conditions: Dict[str, int], monitors):
+async def check_conditions(dut, conditions: Dict[str, int], signals_info):
     for signal_name, val in conditions.items():
-        if signal_name.endswith('monitor'):
-            sim_val = monitors[signal_name].value
-        elif val < 0:
+        if val < 0:
             sim_val = getattr(dut, signal_name).value.signed_integer
         else:
             sim_val = getattr(dut, signal_name).value
-
+        ini_signal_name = get_ini_signal_name(signal_name, signals_info)
+        if signals_info[ini_signal_name]['type'] == 'valid_data':
+            valid_name = signals_info[ini_signal_name]['valid_name']
+            if getattr(dut, valid_name).value != 1:
+                break
         assert sim_val == val, 'Signal {} = {}, expecting {}. Time = {} ns'\
             .format(signal_name, sim_val, val, cocotb.utils.get_sim_time("ns"))
 
@@ -190,6 +193,23 @@ def get_signals_info(ini):
     return signals_info
 
 
+def get_ini_signal_name(name, signals_info):
+    for key, info in signals_info.items():
+        if info['name'] == name:
+            return key
+
+
+def check_signals_info(signals_info):
+    signal_names = []
+    for signal_info in signals_info.values():
+        if signal_info['name'] in signal_names:
+            raise ValueError(
+                'Duplicate signal names in signals info dictionary.'
+                )
+        else:
+            signal_names.append(signal_info['name'])
+
+
 def block_has_dma(block_ini):
     return block_ini['.'].get('type', '') == 'dma'
 
@@ -207,6 +227,7 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
 
     signals_info = get_signals_info(block_ini)
     signals_info.update(get_extra_signals_info(module))
+    check_signals_info(signals_info)
 
     assignments_schedule, conditions_schedule = \
         get_schedules(timing_ini, signals_info, test_name)
@@ -226,10 +247,11 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
             test_name.replace(" ", "_").replace("/", "_"))
         try:
             while ts <= last_ts:
-                do_assignments(dut, assignments_schedule.get(ts, {}), signals_info)
+                do_assignments(dut, assignments_schedule.get(ts, {}),
+                               signals_info)
                 conditions.update(conditions_schedule.get(ts, {}))
                 await ReadOnly()
-                check_conditions(dut, conditions, monitors)
+                await check_conditions(dut, conditions, signals_info)
                 await clkedge
                 ts += 1
         except AssertionError as error:
