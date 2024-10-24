@@ -46,7 +46,7 @@ signal timestamp                : unsigned(63 downto 0);
 signal enable_prev              : std_logic;
 signal enable_fall              : std_logic;
 signal abort_trig               : std_logic;
-signal pcap_armed               : std_logic;
+signal pcap_armed               : std_logic := '0';
 signal disable_armed            : std_logic;
 signal first_enable             : std_logic := '0';
 
