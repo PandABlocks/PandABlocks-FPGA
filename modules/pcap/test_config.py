@@ -27,5 +27,7 @@ EXTRA_SIGNALS_INFO = {
     'ACTIVE': {'type': 'bit_out', 'name': 'pcap_actv_o'},
     'DATA': {'type': 'valid_data', 'name': 'pcap_dat_o',
              'valid_name': 'pcap_dat_valid_o'},
-    'dma_full_i': {'type': 'bit_mux', 'name': 'dma_full_i'}
+    'dma_full_i': {'type': 'bit_mux', 'name': 'dma_full_i'},
+    'extbus_i': {'type': 'bus', 'name': 'extbus_i'},
+    'bit_bus_i': {'type': 'bus', 'name': 'bit_bus_i'}
 }
