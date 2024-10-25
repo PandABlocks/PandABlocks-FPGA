@@ -1,6 +1,6 @@
 import cocotb
 
-from cocotb.triggers import RisingEdge, FallingEdge
+from cocotb.triggers import RisingEdge, Edge, ReadOnly
 from pathlib import Path
 
 SCRIPT_DIR_PATH = Path(__file__).parent.resolve()
@@ -11,15 +11,26 @@ MODULES_PATH = TOP_PATH / 'modules'
 class DMAMonitor(object):
     def __init__(self, dut):
         self.dut = dut
-        self.callbacks = []
+        self.value = 0
+        self.ts = 0
+        self.valid = 0
         cocotb.start_soon(self.run())
-
-    def add_callback(self, func):
-        self.callbacks.append(func)
+        cocotb.start_soon(self.check_valid())
+        self.expect = []
 
     async def run(self):
         while True:
+            await RisingEdge(self.dut.clk_i)
+            if self.valid == 1:
+                await ReadOnly()
+                if self.valid == 1:
+                    self.value = self.dut.pcap_dat_o.value.signed_integer
+            self.ts += 1
+
+    async def check_valid(self):
+        while True:
             await RisingEdge(self.dut.pcap_dat_valid_o)
+            self.valid = 1
             self.value = self.dut.pcap_dat_o.value.signed_integer
-            for callback in self.callbacks:
-                callback(self.value)
+            await Edge(self.dut.pcap_dat_valid_o)
+            self.valid = 0
