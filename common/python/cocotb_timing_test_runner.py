@@ -43,8 +43,7 @@ def get_args():
 def is_input_signal(signals_info, signal_name):
     return not ('_out' in signals_info[signal_name]['type']
                 or 'read' in signals_info[signal_name]['type']
-                or 'monitor' in signals_info[signal_name]['type']
-                or 'valid' in signals_info[signal_name]['type'])
+                or 'data_valid' in signals_info[signal_name]['type'])
 
 
 async def initialise_dut(dut, signals_info):
@@ -94,27 +93,21 @@ def do_assignments(dut, assignments, signals_info):
         if '[' in signal_name:
             index = int(signal_name.split('[')[1][:-1])
             signal_name = signal_name.split('[')[0]
-            for key, value in signals_info.items():
-                if value['name'] == signal_name:
-                    break
+            n_bits = signals_info[get_ini_signal_name(
+                signal_name, signals_info)]['bits']
             val = get_bus_value(getattr(dut, signal_name).value,
-                                signals_info[key]['bits'], val, index)
+                                n_bits, val, index)
         assign(dut, signal_name, val)
 
 
-async def check_conditions(dut, conditions: Dict[str, int], signals_info):
+def check_conditions(dut, conditions: Dict[str, int], ts):
     for signal_name, val in conditions.items():
         if val < 0:
             sim_val = getattr(dut, signal_name).value.signed_integer
         else:
             sim_val = getattr(dut, signal_name).value
-        ini_signal_name = get_ini_signal_name(signal_name, signals_info)
-        if signals_info[ini_signal_name]['type'] == 'valid_data':
-            valid_name = signals_info[ini_signal_name]['valid_name']
-            if getattr(dut, valid_name).value != 1:
-                break
-        assert sim_val == val, 'Signal {} = {}, expecting {}. Time = {} ns'\
-            .format(signal_name, sim_val, val, cocotb.utils.get_sim_time("ns"))
+        assert sim_val == val, 'Signal {} = {}, expecting {}. Ticks = {}'\
+            .format(signal_name, sim_val, val, ts)
 
 
 def get_signals(dut):
@@ -197,6 +190,7 @@ def get_ini_signal_name(name, signals_info):
     for key, info in signals_info.items():
         if info['name'] == name:
             return key
+    return None
 
 
 def check_signals_info(signals_info):
@@ -204,8 +198,7 @@ def check_signals_info(signals_info):
     for signal_info in signals_info.values():
         if signal_info['name'] in signal_names:
             raise ValueError(
-                'Duplicate signal names in signals info dictionary.'
-                )
+                'Duplicate signal names in signals info dictionary.')
         else:
             signal_names.append(signal_info['name'])
 
@@ -218,12 +211,18 @@ def block_is_pcap(block_ini):
     return block_ini['.'].get('type') == 'pcap'
 
 
+def update_conditions(conditions, conditions_to_update, signals_info):
+    for signal in dict(conditions).keys():
+        ini_signal_name = get_ini_signal_name(signal, signals_info)
+        if signals_info[ini_signal_name]['type'] == 'data_valid':
+            conditions.pop(signal)
+    conditions.update(conditions_to_update)
+    return conditions
+
+
 async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
-    monitors = {}
     if block_has_dma(block_ini):
         dma_driver = DMADriver(dut, module)
-    elif block_is_pcap(block_ini):
-        monitors['dma_monitor'] = DMAMonitor(dut)
 
     signals_info = get_signals_info(block_ini)
     signals_info.update(get_extra_signals_info(module))
@@ -249,9 +248,10 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
             while ts <= last_ts:
                 do_assignments(dut, assignments_schedule.get(ts, {}),
                                signals_info)
-                conditions.update(conditions_schedule.get(ts, {}))
+                update_conditions(conditions, conditions_schedule.get(ts, {}),
+                                  signals_info)
                 await ReadOnly()
-                await check_conditions(dut, conditions, signals_info)
+                check_conditions(dut, conditions, ts)
                 await clkedge
                 ts += 1
         except AssertionError as error:
