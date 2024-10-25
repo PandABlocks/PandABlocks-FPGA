@@ -43,7 +43,7 @@ def get_args():
 def is_input_signal(signals_info, signal_name):
     return not ('_out' in signals_info[signal_name]['type']
                 or 'read' in signals_info[signal_name]['type']
-                or 'data_valid' in signals_info[signal_name]['type'])
+                or 'valid_data' in signals_info[signal_name]['type'])
 
 
 async def initialise_dut(dut, signals_info):
@@ -214,7 +214,7 @@ def block_is_pcap(block_ini):
 def update_conditions(conditions, conditions_to_update, signals_info):
     for signal in dict(conditions).keys():
         ini_signal_name = get_ini_signal_name(signal, signals_info)
-        if signals_info[ini_signal_name]['type'] == 'data_valid':
+        if signals_info[ini_signal_name]['type'] == 'valid_data':
             conditions.pop(signal)
     conditions.update(conditions_to_update)
     return conditions
