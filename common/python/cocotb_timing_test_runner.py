@@ -274,9 +274,16 @@ async def module_timing_test(dut):
             dut, module, test_name, block_ini, timing_ini)
 
 
-def get_bus_value(current_value, bits, value, index):
-    value_at_index = ((2**bits - 1) << bits*index) & current_value
-    new_value_at_index = value << bits*index
+def get_bus_value(current_value, n_bits, value, index):
+    val_copy = value
+    capacity = 2**n_bits
+    if value < 0:
+        value += capacity
+    if value < 0 or value >= capacity:
+        raise ValueError(f'Value {val_copy} too large in magnitude for ' +
+                         f'{n_bits} bit allocation on bus.')
+    value_at_index = ((capacity - 1) << n_bits*index) & current_value
+    new_value_at_index = value << n_bits*index
     return current_value - value_at_index + new_value_at_index
 
 
