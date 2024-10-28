@@ -404,7 +404,8 @@ def test_module(module, test_name=None):
     sim.build(sources=get_module_hdl_files(module),
               build_dir=build_dir,
               hdl_toplevel=top_level,
-              build_args=build_args)
+              build_args=build_args,
+              clean=True)
 
     passed, failed = [], []
 
@@ -415,13 +416,14 @@ def test_module(module, test_name=None):
                 test_name.replace(' ', '_').replace('/', '_'))
             print()
             print('Test: "{}" in module {}.\n'.format(test_name, module))
-            sim.test(hdl_toplevel=top_level,
-                     test_module='cocotb_timing_test_runner',
-                     build_dir=build_dir,
-                     test_args=['--std=08'],
-                     plusargs=['--vcd={}'.format(vcd_filename)],
-                     extra_env={'module': module, 'test_name': test_name})
-            xml_path = cocotb.runner.get_abs_path(f'{build_dir}/results.xml')
+            xml_path = sim.test(hdl_toplevel=top_level,
+                                test_module='cocotb_timing_test_runner',
+                                build_dir=build_dir,
+                                test_args=['--std=08'],
+                                plusargs=['--vcd={}'.format(vcd_filename)],
+                                extra_env={'module': module,
+                                           'test_name': test_name,
+                                           'coverage': 'True'})
             results = cocotb.runner.get_results(xml_path)
             if results == (1, 0):
                 # ran 1 test, 0 failed
