@@ -26,12 +26,6 @@ TOP_PATH = SCRIPT_DIR_PATH.parent.parent
 MODULES_PATH = TOP_PATH / 'modules'
 
 
-def read_ini(path: List[str] | str) -> configparser.ConfigParser:
-    app_ini = configparser.ConfigParser()
-    app_ini.read(path)
-    return app_ini
-
-
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('module')
@@ -39,13 +33,63 @@ def get_args():
     return parser.parse_args()
 
 
+def read_ini(path: List[str] | str) -> configparser.ConfigParser:
+    """Read INI file and return its contents.
+
+    Args:
+        path: Path to INI file.
+    Returns:
+        ConfigParser object containing INI file.
+    """
+    app_ini = configparser.ConfigParser()
+    app_ini.read(path)
+    return app_ini
+
+
+def get_timing_ini(module):
+    """Get a module's timing INI file.
+
+    Args:
+        module: Name of module.
+    Returns:
+        Contents of timing INI.
+    """
+    ini_path = (MODULES_PATH / module / '{}.timing.ini'.format(module))
+    return read_ini(str(ini_path.resolve()))
+
+
+def get_block_ini(module):
+    """Get a module's block INI file.
+
+    Args:
+        module: Name of module.
+    Returns:
+        Contents of block INI.
+    """
+    ini_path = MODULES_PATH / module / '{}.block.ini'.format(module)
+    return read_ini(str(ini_path.resolve()))
+
+
 def is_input_signal(signals_info, signal_name):
+    """Check if a signal is an input signal based on it's type.
+
+    Args:
+        signals_info: Dictionary containing information about signals.
+        signal_name: Name of signal.
+    Returns:
+        True if signal is an input signal, otherwise False.
+    """
     return not ('_out' in signals_info[signal_name]['type']
                 or 'read' in signals_info[signal_name]['type']
                 or 'valid_data' in signals_info[signal_name]['type'])
 
 
 async def initialise_dut(dut, signals_info):
+    """Initialise input signals to 0.
+    Args:
+        dut: cocotb dut object.
+        signals_info: Dictionary containing information about signals.
+    """
     for signal_name in signals_info.keys():
         dut_signal_name = signals_info[signal_name]['name']
         if is_input_signal(signals_info, signal_name):
@@ -55,21 +99,17 @@ async def initialise_dut(dut, signals_info):
                 getattr(dut, wstb_name).value = 0
 
 
-def get_timing_ini(module):
-    ini_path = (MODULES_PATH / module / '{}.timing.ini'.format(module))
-    return read_ini(str(ini_path.resolve()))
-
-
-def get_block_ini(module):
-    ini_path = MODULES_PATH / module / '{}.block.ini'.format(module)
-    return read_ini(str(ini_path.resolve()))
-
-
-def assign(dut, name, val):
-    getattr(dut, name).value = val
 
 
 def parse_assignments(assignments):
+    """Get assignements (or conditions) for a certain tick,
+    from timing INI file format.
+
+    Args:
+        assignements: Assignments as written in timing INI file.
+    Returns:
+        Dictionary of assignments (or conditions).
+    """
     result = {}
     for assignment in assignments.split(','):
         if assignment.strip() == '':
@@ -87,9 +127,27 @@ def parse_assignments(assignments):
     return result
 
 
+def assign(dut, name, val):
+    """Assign value to a signal.
+
+    Args:
+        dut: cocotb dut object.
+        name: Name of signal being assigned.
+        val: Value being assigned to signal.
+    """
+    getattr(dut, name).value = val
+
+
 def do_assignments(dut, assignments, signals_info):
+    """Assign values to input signals.
+
+    Args:
+        dut: cocotb dut object.
+        assignments: Dictionary of signals and values to assign to them.
+        signals_info: Dictionary containing information about signals.
+    """
     for signal_name, val in assignments.items():
-        if '[' in signal_name:
+        if '[' in signal_name:  # partial assignent to bus
             index = int(signal_name.split('[')[1][:-1])
             signal_name = signal_name.split('[')[0]
             n_bits = signals_info[get_ini_signal_name(
@@ -100,6 +158,13 @@ def do_assignments(dut, assignments, signals_info):
 
 
 def check_conditions(dut, conditions: Dict[str, int], ts):
+    """Check value of output signals.
+
+    Args:
+        dut: cocotb dut object.
+        conditions: Dictionary of signals and their expected values.
+        ts: Current tick.
+    """
     for signal_name, val in conditions.items():
         if val < 0:
             sim_val = getattr(dut, signal_name).value.signed_integer
@@ -109,7 +174,32 @@ def check_conditions(dut, conditions: Dict[str, int], ts):
             .format(signal_name, sim_val, val, ts)
 
 
+def update_conditions(conditions, conditions_to_update, signals_info):
+    """Update dictionary of conditions with any needed for the current tick.
+    Other than for signals of type 'valid_data', old conditions are propogated
+    to the next tick, unless they are overwritten by a new condition.
+
+    Args:
+        conditions: Dictionary of conditions for the previous tick.
+        conditions_to_update: Dictionary of conditions for current tick.
+        signals_info: Dictionary containing information about signals.
+    """
+    for signal in dict(conditions).keys():
+        ini_signal_name = get_ini_signal_name(signal, signals_info)
+        if signals_info[ini_signal_name]['type'] == 'valid_data':
+            conditions.pop(signal)
+    conditions.update(conditions_to_update)
+    return conditions
+
+
 def get_signals(dut):
+    """Get the names of signals in the dut.
+
+    Args:
+        dut: cocotb dut object.
+    Returns:
+        List of signal names.
+    """
     return [getattr(dut, signal_name) for signal_name in dir(dut)
             if isinstance(getattr(dut, signal_name),
                           cocotb.handle.ModifiableObject)
@@ -117,6 +207,16 @@ def get_signals(dut):
 
 
 def get_schedules(timing_ini, signals_info, test_name):
+    """Get schedules for assignements and conditions for a test.
+
+    Args:
+        timing_ini: INI file containing timing tests.
+        signals_info: Dictionary containing information about signals.
+        test_name: Name of current test.
+    Returns:
+        Two dictionaries containing a schedule for assignments and conditions
+        respectively for a certain test.
+    """
     conditions_schedule, assignments_schedule = {}, {}
     for ts_str, line in timing_ini.items(test_name):
         ts = int(ts_str)
@@ -142,14 +242,21 @@ def get_schedules(timing_ini, signals_info, test_name):
     return assignments_schedule, conditions_schedule
 
 
-def get_signals_info(ini):
-    # Get a mapping between signal names in INI file and VHDL file,
-    # and store signal type.
+def get_signals_info(block_ini):
+    """Get information about signals from a module's block INI file, including
+    a mapping between signal names in the INI files and VHDL files.
+
+    Args:
+        block_ini: INI file containing signals information.
+    Returns:
+        Dictionary containing signals information.
+    """
     signals_info = {}
-    expected_signal_names = [name for name in ini.sections() if name != '.']
+    expected_signal_names = [name for name in block_ini.sections()
+                             if name != '.']
     for signal_name in expected_signal_names:
-        if 'type' in ini[signal_name]:
-            _type = ini[signal_name]['type'].strip()
+        if 'type' in block_ini[signal_name]:
+            _type = block_ini[signal_name]['type'].strip()
             suffixes = []
             if _type == 'time':
                 suffixes = ['_L', '_H']
@@ -161,14 +268,15 @@ def get_signals_info(ini):
                 for suffix in suffixes:
                     new_signal_name = f'{signal_name}{suffix}'
                     signals_info[new_signal_name] = {}
-                    signals_info[new_signal_name].update(ini[signal_name])
+                    signals_info[new_signal_name].update(
+                        block_ini[signal_name])
                     signals_info[new_signal_name]['name'] = new_signal_name
-                    if ini[signal_name].get('wstb', False):
+                    if block_ini[signal_name].get('wstb', False):
                         signals_info[new_signal_name]['wstb_name'] = \
                             '{}_wstb'.format(new_signal_name.lower())
             else:
                 signals_info[signal_name] = {}
-                signals_info[signal_name].update(ini[signal_name])
+                signals_info[signal_name].update(block_ini[signal_name])
 
                 if _type.endswith('_mux'):
                     signals_info[signal_name]['name'] = '{}_i'.format(
@@ -179,13 +287,20 @@ def get_signals_info(ini):
                 else:
                     signals_info[signal_name]['name'] = signal_name
 
-                if ini[signal_name].get('wstb', False):
+                if block_ini[signal_name].get('wstb', False):
                     signals_info[signal_name]['wstb_name'] = '{}_wstb'.format(
                         signal_name.lower())
     return signals_info
 
 
 def get_ini_signal_name(name, signals_info):
+    """Get signal name as seen in the INI files from the VHDL signal name.
+
+    Args:
+        name: VHDL signal name.
+    Returns:
+        Signal name as it appears in the INI files.
+    """
     for key, info in signals_info.items():
         if info['name'] == name:
             return key
@@ -193,6 +308,11 @@ def get_ini_signal_name(name, signals_info):
 
 
 def check_signals_info(signals_info):
+    """Check there are no duplicate signal names in signals_info dictionary.
+
+    Args:
+        signals_info: Dictionary containing information about signals.
+    """
     signal_names = []
     for signal_info in signals_info.values():
         if signal_info['name'] in signal_names:
@@ -203,66 +323,37 @@ def check_signals_info(signals_info):
 
 
 def block_has_dma(block_ini):
+    """Check if module requires a dma to work.
+
+    Args:
+        block_ini: INI file containing signals information about a module.
+    """
     return block_ini['.'].get('type', '') == 'dma'
 
 
 def block_is_pcap(block_ini):
+    """Check if module is pcap.
+
+    Args:
+        block_ini: INI file containing signals information about a module.
+    """
     return block_ini['.'].get('type') == 'pcap'
 
 
-def update_conditions(conditions, conditions_to_update, signals_info):
-    for signal in dict(conditions).keys():
-        ini_signal_name = get_ini_signal_name(signal, signals_info)
-        if signals_info[ini_signal_name]['type'] == 'valid_data':
-            conditions.pop(signal)
-    conditions.update(conditions_to_update)
-    return conditions
-
-
-async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
-    if block_has_dma(block_ini):
-        dma_driver = DMADriver(dut, module)
-
-    signals_info = get_signals_info(block_ini)
-    signals_info.update(get_extra_signals_info(module))
-    check_signals_info(signals_info)
-
-    assignments_schedule, conditions_schedule = \
-        get_schedules(timing_ini, signals_info, test_name)
-
-    last_ts = max(max(assignments_schedule.keys()),
-                  max(conditions_schedule.keys()))
-
-    with cocotb.wavedrom.trace(*get_signals(dut), clk=dut.clk_i) as trace:
-        clkedge = RisingEdge(dut.clk_i)
-        cocotb.start_soon(Clock(
-            dut.clk_i, 1, units="ns").start(start_high=False))
-        ts = 0
-        await initialise_dut(dut, signals_info)
-        await clkedge
-        conditions = {}
-        wavedrom_filename = '{}_wavedrom.json'.format(
-            test_name.replace(" ", "_").replace("/", "_"))
-        try:
-            while ts <= last_ts:
-                do_assignments(dut, assignments_schedule.get(ts, {}),
-                               signals_info)
-                update_conditions(conditions, conditions_schedule.get(ts, {}),
-                                  signals_info)
-                await ReadOnly()
-                check_conditions(dut, conditions, ts)
-                await clkedge
-                ts += 1
-        except AssertionError as error:
-            with open(wavedrom_filename, 'w') as fhandle:
-                fhandle.write(trace.dumpj())
-            raise error
-        else:
-            with open(wavedrom_filename, 'w') as fhandle:
-                fhandle.write(trace.dumpj())
-
-
 def get_bus_value(current_value, n_bits, value, index):
+    """When doing a partial assignent to a bus, get the value we need to
+    assign to the entire bus. This is needed as partial assignment appears to
+    not be supported.
+
+    Args:
+        current value: Current value of bus signal.
+        n_bits: Number of bits each index refers to.
+        value: Value we are attemping to assign to part of the bus.
+        index: Bus index at which we are attempting to assign.
+    Returns:
+        Value to assign to an entire bus to assign the intended value to the
+        correct index, while keeping all other indexes unchanged.
+    """
     val_copy = value
     capacity = 2**n_bits
     if value < 0:
@@ -276,6 +367,13 @@ def get_bus_value(current_value, n_bits, value, index):
 
 
 def get_extra_signals_info(module):
+    """Get extra signals information from a module's test config file.
+
+    Args:
+        module: Name of module.
+    Returns:
+        Dictionary containing extra signals information.
+    """
     module_dir_path = MODULES_PATH / module
     g = {'TOP_PATH': TOP_PATH}
     code = open(str(module_dir_path / 'test_config.py')).read()
@@ -285,6 +383,13 @@ def get_extra_signals_info(module):
 
 
 def get_module_build_args(module):
+    """Get simulation build arguments from a module's test config file.
+
+    Args:
+        module: Name of module.
+    Returns:
+        List of extra build arguments.
+    """
     module_dir_path = MODULES_PATH / module
     g = {'TOP_PATH': TOP_PATH}
     code = open(str(module_dir_path / 'test_config.py')).read()
@@ -294,6 +399,13 @@ def get_module_build_args(module):
 
 
 def get_module_hdl_files(module):
+    """Get HDL files needed to simulate a module from its test config file.
+
+    Args:
+        module: Name of module.
+    Returns:
+        List of paths to the HDL files.
+    """
     module_dir_path = MODULES_PATH / module
     g = {'TOP_PATH': TOP_PATH}
     code = open(str(module_dir_path / 'test_config.py')).read()
@@ -315,6 +427,14 @@ def get_module_hdl_files(module):
 
 
 def get_module_top_level(module):
+    """Get top level entity from a module's test config file.
+    If none is found, assume top level entity is the same as the module name.
+
+    Args:
+        module: Name of module.
+    Returns:
+        Name of top level entity.
+    """
     module_dir_path = MODULES_PATH / module
     g = {'TOP_PATH': TOP_PATH}
     code = open(str(module_dir_path / 'test_config.py')).read()
@@ -326,6 +446,14 @@ def get_module_top_level(module):
 
 
 def print_results(module, passed, failed, time=None):
+    """Format and print results from a module's tests.
+
+    Args:
+        module: Name of module.
+        passed: List of the names of tests that passed.
+        failed: List of the names of tests that failed.
+        time: Time taken to run the tests.
+    """
     print('\nModule: {}'.format(module))
     if len(passed) + len(failed) == 0:
         print('\033[0;33m' + 'No tests ran.' + '\033[0m')
@@ -344,6 +472,11 @@ def print_results(module, passed, failed, time=None):
 
 
 def summarise_results(results):
+    """Format and print summary of results from a test run.
+
+    Args:
+        Results: Dictionary of all results from a test run.
+    """
     failed = [module for module in results if results[module][1]]
     passed = [module for module in results if not results[module][1]]
     total_passed, total_failed = 0, 0
@@ -369,8 +502,63 @@ def summarise_results(results):
             print('\033[92m' + '\033[1m' + 'ALL MODULES PASSED' + '\x1b[0m')
 
 
+async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
+    """Perform one test.
+
+    Args:
+        dut: cocotb dut object.
+        module: Name of module we are testing.
+        test_name: Name of test we are applying to the module.
+        block_ini: INI file containing information about the module's signals.
+        timing_ini: INI file containing timing tests.
+    """
+    if block_has_dma(block_ini):
+        dma_driver = DMADriver(dut, module)
+
+    signals_info = get_signals_info(block_ini)
+    signals_info.update(get_extra_signals_info(module))
+    check_signals_info(signals_info)
+
+    assignments_schedule, conditions_schedule = \
+        get_schedules(timing_ini, signals_info, test_name)
+
+    last_ts = max(max(assignments_schedule.keys()),
+                  max(conditions_schedule.keys()))
+
+    with cocotb.wavedrom.trace(*get_signals(dut), clk=dut.clk_i) as trace:
+        clkedge = RisingEdge(dut.clk_i)
+        cocotb.start_soon(Clock(
+            dut.clk_i, 1, units="ns").start(start_high=False))
+        ts = 0
+        await initialise_dut(dut, signals_info)
+        await clkedge
+        conditions = {}
+        wavedrom_filename = '{}_wavedrom.json'.format(
+            test_name.replace(" ", "_").replace("/", "_"))
+        try:
+            while ts <= last_ts:
+                # import code; code.interact(local=locals())
+                do_assignments(dut, assignments_schedule.get(ts, {}),
+                               signals_info)
+                update_conditions(conditions, conditions_schedule.get(ts, {}),
+                                  signals_info)
+                await ReadOnly()
+                check_conditions(dut, conditions, ts)
+                await clkedge
+                ts += 1
+        except AssertionError as error:
+            with open(wavedrom_filename, 'w') as fhandle:
+                fhandle.write(trace.dumpj())
+            raise error
+        else:
+            with open(wavedrom_filename, 'w') as fhandle:
+                fhandle.write(trace.dumpj())
+
+
 @cocotb.test()
 async def module_timing_test(dut):
+    """Function with cocotb test decorator that cocotb calls to run tests.
+    """
     module = os.getenv('module', 'default')
     test_name = os.getenv('test_name', 'default')
     block_ini = get_block_ini(module)
@@ -381,7 +569,15 @@ async def module_timing_test(dut):
 
 
 def test_module(module, test_name=None):
-    # args = get_args()
+    """Run tests for a module.
+
+    Args:
+        module: Name of module.
+        test_name: Name of specific test to run. If not specified, all tests
+            for that module will be run.
+        Returns:
+            Lists of tests that passed and failed respectively.
+    """
     logging.basicConfig(level=logging.DEBUG)
     timing_ini = get_timing_ini(module)
     if not Path(MODULES_PATH / module).is_dir():
@@ -437,11 +633,18 @@ def test_module(module, test_name=None):
 
 
 def get_cocotb_testable_modules():
+    """Get list of modules that contain a test config file.
+
+    Returns:
+        List of names of testable modules.
+    """
     modules = MODULES_PATH.glob('*/test_config.py')
     return list(module.parent.name for module in modules)
 
 
 def run_tests():
+    """Perform test run.
+    """
     t_time_0 = time.time()
     args = get_args()
     if args.module.lower() == 'all':
@@ -475,7 +678,6 @@ def run_tests():
     t_time_1 = time.time()
     print('\nTime taken: {}s.'.format(round(t_time_1 - t_time_0, 2)))
     print('___________________________________________________\n')
-    logging.basicConfig(level=logging.DEBUG)
 
 
 def get_ip(module=None, quiet=True):
