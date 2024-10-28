@@ -15,11 +15,10 @@ import cocotb.runner
 import cocotb.wavedrom
 import cocotb.binary
 
-from dma_driver import DMADriver
-from dma_monitor import DMAMonitor
-
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, ReadOnly
+
+from dma_driver import DMADriver
 
 
 SCRIPT_DIR_PATH = Path(__file__).parent.resolve()
@@ -263,17 +262,6 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
                 fhandle.write(trace.dumpj())
 
 
-@cocotb.test()
-async def module_timing_test(dut):
-    module = os.getenv('module', 'default')
-    test_name = os.getenv('test_name', 'default')
-    block_ini = get_block_ini(module)
-    timing_ini = get_timing_ini(module)
-    if test_name.strip() != '.':
-        await section_timing_test(
-            dut, module, test_name, block_ini, timing_ini)
-
-
 def get_bus_value(current_value, n_bits, value, index):
     val_copy = value
     capacity = 2**n_bits
@@ -379,6 +367,17 @@ def summarise_results(results):
                     for i, module in enumerate(failed)])
         else:
             print('\033[92m' + '\033[1m' + 'ALL MODULES PASSED' + '\x1b[0m')
+
+
+@cocotb.test()
+async def module_timing_test(dut):
+    module = os.getenv('module', 'default')
+    test_name = os.getenv('test_name', 'default')
+    block_ini = get_block_ini(module)
+    timing_ini = get_timing_ini(module)
+    if test_name.strip() != '.':
+        await section_timing_test(
+            dut, module, test_name, block_ini, timing_ini)
 
 
 def test_module(module, test_name=None):
