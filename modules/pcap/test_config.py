@@ -23,11 +23,11 @@ EXTRA_SIGNALS_INFO = {
     'START_WRITE': {'type': 'bit_mux', 'name': 'start_write',
                     'wstb_name': 'start_write'},
     'WRITE': {'type': 'bit_mux', 'name': 'write', 'wstb_name': 'write_wstb'},
-    'POS': {'type': 'bus', 'name': 'pos_bus_i', 'bus_width': 26, 'bits': 32},
+    'POS': {'type': 'bus', 'name': 'pos_bus_i', 'bits': 32, 'bus_width': 26},
     'ACTIVE': {'type': 'bit_out', 'name': 'pcap_actv_o'},
     'DATA': {'type': 'valid_data', 'name': 'pcap_dat_o',
              'valid_name': 'pcap_dat_valid_o'},
     'dma_full_i': {'type': 'bit_mux', 'name': 'dma_full_i'},
     'extbus_i': {'type': 'bus', 'name': 'extbus_i'},
-    'bit_bus_i': {'type': 'bus', 'name': 'bit_bus_i'}
+    'BIT': {'type': 'bus', 'name': 'bit_bus_i', 'bits': 1, 'bus_width': 128}
 }
