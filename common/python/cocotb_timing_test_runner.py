@@ -558,6 +558,9 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
 @cocotb.test()
 async def module_timing_test(dut):
     """Function with cocotb test decorator that cocotb calls to run tests.
+
+    Args:
+        dut: cocotb dut object.
     """
     module = os.getenv('module', 'default')
     test_name = os.getenv('test_name', 'default')
@@ -575,8 +578,8 @@ def test_module(module, test_name=None):
         module: Name of module.
         test_name: Name of specific test to run. If not specified, all tests
             for that module will be run.
-        Returns:
-            Lists of tests that passed and failed respectively.
+    Returns:
+        Lists of tests that passed and failed respectively.
     """
     logging.basicConfig(level=logging.DEBUG)
     timing_ini = get_timing_ini(module)
