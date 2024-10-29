@@ -7,11 +7,11 @@ EXTRA_HDL_FILES = [TOP_PATH / 'common' / 'hdl' / 'defines' / 'support.vhd',
                    TOP_PATH / 'common' / 'hdl' / 'spbram.vhd',
                    TOP_PATH / 'common' / 'hdl' / 'delay_line.vhd',
                    TOP_PATH / 'common' / 'hdl' / 'bitmux.vhd',
-                   TOP_PATH / 'build' / 'apps' / 'PandABox-no-fmc' / 'autogen' / 'hdl' / 'pcap_ctrl.vhd',
-                   TOP_PATH / 'build' / 'apps' / 'PandABox-no-fmc' / 'autogen' / 'hdl' / 'panda_constants.vhd',
-                   TOP_PATH / 'build' / 'apps' / 'PandABox-no-fmc' / 'autogen' / 'hdl' / 'reg_defines.vhd',
-                   TOP_PATH / 'build' / 'apps' / 'PandABox-no-fmc' / 'autogen' / 'hdl' / 'addr_defines.vhd',
-                   TOP_PATH / 'build' / 'apps' / 'PandABox-no-fmc' / 'autogen' / 'hdl' / 'top_defines_gen.vhd']
+                   TOP_PATH / 'build' / 'apps' / 'PandABox-fmc_lback-sfp_lback' / 'autogen' / 'hdl' / 'pcap_ctrl.vhd',
+                   TOP_PATH / 'build' / 'apps' / 'PandABox-fmc_lback-sfp_lback' / 'autogen' / 'hdl' / 'panda_constants.vhd',
+                   TOP_PATH / 'build' / 'apps' / 'PandABox-fmc_lback-sfp_lback' / 'autogen' / 'hdl' / 'reg_defines.vhd',
+                   TOP_PATH / 'build' / 'apps' / 'PandABox-fmc_lback-sfp_lback' / 'autogen' / 'hdl' / 'addr_defines.vhd',
+                   TOP_PATH / 'build' / 'apps' / 'PandABox-fmc_lback-sfp_lback' / 'autogen' / 'hdl' / 'top_defines_gen.vhd']
 
 EXTRA_BUILD_ARGS = ['-Wno-hide']
 
