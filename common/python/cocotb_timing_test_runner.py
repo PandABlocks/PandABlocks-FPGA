@@ -537,7 +537,6 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
             test_name.replace(" ", "_").replace("/", "_"))
         try:
             while ts <= last_ts:
-                # import code; code.interact(local=locals())
                 do_assignments(dut, assignments_schedule.get(ts, {}),
                                signals_info)
                 update_conditions(conditions, conditions_schedule.get(ts, {}),
