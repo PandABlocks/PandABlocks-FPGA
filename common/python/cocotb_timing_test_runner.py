@@ -396,13 +396,22 @@ def get_module_build_args(module):
     return extra_args
 
 
-def order_hdl_files(hdl_files, build_dir):
-    command = f'vhdeps dump -o {TOP_PATH / build_dir / "order"}'
+def order_hdl_files(hdl_files, build_dir, top_level):
+    command = ''
     for file in hdl_files:
+        if str(file).split('/')[-1] == f'{top_level}.vhd':
+            command = f'vhdeps dump {top_level} -o {TOP_PATH / build_dir / "order"}' + command
         command += f' --include={str(file)}'
+    print(command)
     os.system(command)
-    with open(TOP_PATH / build_dir / 'order') as order:
-        ordered_hdl_files = [line.strip().split(' ')[-1] for line in order.readlines()]
+    try:
+        with open(TOP_PATH / build_dir / 'order') as order:
+            ordered_hdl_files = [line.strip().split(' ')[-1] for line in order.readlines()]
+    except FileNotFoundError as error:
+        print(f'Likely that the following command failed:\n{command}')
+        print('HDL FILES HAVE NOT BEEN PUT INTO COMPILATION ORDER!')
+        return hdl_files
+    print(ordered_hdl_files)
     return ordered_hdl_files
 
 
@@ -427,7 +436,7 @@ def get_module_hdl_files(module, top_level, build_dir):
         else:
             extra_files_2 = extra_files_2 + list(my_file.glob('**/*.vhd'))
     result = extra_files_2 + list((module_dir_path / 'hdl').glob('*.vhd'))
-    result = order_hdl_files(result, build_dir)
+    result = order_hdl_files(result, build_dir, top_level)
     print('Gathering the following VHDL files:')
     for my_file in result:
         print(my_file)
