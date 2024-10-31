@@ -100,8 +100,6 @@ async def initialise_dut(dut, signals_info):
                 getattr(dut, wstb_name).value = 0
 
 
-
-
 def parse_assignments(assignments):
     """Get assignements (or conditions) for a certain tick,
     from timing INI file format.
@@ -121,7 +119,6 @@ def parse_assignments(assignments):
             val = int(val[2:], 16)
         elif val.startswith('-0x') or val.startswith('-0X'):
             val = int(val[0] + val[3:], 16)
-            print(val)
         else:
             val = int(val)
         result[signal_name] = val
@@ -399,7 +396,17 @@ def get_module_build_args(module):
     return extra_args
 
 
-def get_module_hdl_files(module):
+def order_hdl_files(hdl_files, build_dir):
+    command = f'vhdeps dump -o {TOP_PATH / build_dir / "order"}'
+    for file in hdl_files:
+        command += f' --include={str(file)}'
+    os.system(command)
+    with open(TOP_PATH / build_dir / 'order') as order:
+        ordered_hdl_files = [line.strip().split(' ')[-1] for line in order.readlines()]
+    return ordered_hdl_files
+
+
+def get_module_hdl_files(module, top_level, build_dir):
     """Get HDL files needed to simulate a module from its test config file.
 
     Args:
@@ -420,6 +427,7 @@ def get_module_hdl_files(module):
         else:
             extra_files_2 = extra_files_2 + list(my_file.glob('**/*.vhd'))
     result = extra_files_2 + list((module_dir_path / 'hdl').glob('*.vhd'))
+    result = order_hdl_files(result, build_dir)
     print('Gathering the following VHDL files:')
     for my_file in result:
         print(my_file)
@@ -571,6 +579,31 @@ async def module_timing_test(dut):
             dut, module, test_name, block_ini, timing_ini)
 
 
+def get_simulator_build_args(simulator, module):
+    if simulator == 'ghdl':
+        return ['--std=08', '-fsynopsys', '-Wno-hide']
+    elif simulator == 'nvc':
+        return ['--std=2008', f'-L {MODULES_PATH / module}']
+
+
+def get_test_args(simulator, build_args, test_name):
+    test_name = test_name.replace(' ', '_').replace('/', '_')
+    if simulator == 'ghdl':
+        return build_args
+    elif simulator == 'nvc':
+        return [ '--ieee-warnings=off', '--ieee=on', f'--wave={test_name}.vcd']
+
+
+def get_plus_args(simulator, test_name):
+    test_name = test_name.replace(' ', '_').replace('/', '_')
+    vcd_filename = f'{test_name}.vcd'
+    if simulator == 'ghdl':
+        return [f'--vcd={vcd_filename}']
+    elif simulator == 'vcd':
+        return []
+    return []
+
+
 def test_module(module, test_name=None, simulator='ghdl'):
     """Run tests for a module.
 
@@ -596,16 +629,16 @@ def test_module(module, test_name=None, simulator='ghdl'):
             return [], []
     else:
         sections = timing_ini.sections()
-    sim = cocotb.runner.get_runner('ghdl')
+    sim = cocotb.runner.get_runner(simulator)
     build_dir = f'sim_build_{module}'
-    build_args = ['--std=08'] + get_module_build_args(module)
+    build_args = get_simulator_build_args(simulator, module)
+    build_args += get_module_build_args(module)
     top_level = get_module_top_level(module)
-    sim.build(sources=get_module_hdl_files(module),
+    sim.build(sources=get_module_hdl_files(module, top_level, build_dir),
               build_dir=build_dir,
               hdl_toplevel=top_level,
               build_args=build_args,
               clean=True)
-
     passed, failed = [], []
 
     for section in sections:
@@ -618,8 +651,8 @@ def test_module(module, test_name=None, simulator='ghdl'):
             xml_path = sim.test(hdl_toplevel=top_level,
                                 test_module='cocotb_timing_test_runner',
                                 build_dir=build_dir,
-                                test_args=['--std=08'],
-                                plusargs=['--vcd={}'.format(vcd_filename)],
+                                test_args=get_test_args(simulator, build_args, test_name),
+                                plusargs=get_plus_args(simulator, test_name),
                                 extra_env={'module': module,
                                            'test_name': test_name,
                                            'coverage': 'True'})
