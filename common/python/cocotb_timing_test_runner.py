@@ -30,6 +30,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('module')
     parser.add_argument('test_name', nargs='?', default=None)
+    parser.add_argument('--sim', default='ghdl')
     return parser.parse_args()
 
 
@@ -570,7 +571,7 @@ async def module_timing_test(dut):
             dut, module, test_name, block_ini, timing_ini)
 
 
-def test_module(module, test_name=None):
+def test_module(module, test_name=None, simulator='ghdl'):
     """Run tests for a module.
 
     Args:
@@ -650,13 +651,13 @@ def run_tests():
     t_time_0 = time.time()
     args = get_args()
     if args.module.lower() == 'all':
-        tests = get_cocotb_testable_modules()
+        modules = get_cocotb_testable_modules()
     else:
-        tests = [args.module]
-
+        modules = args.module.split(',')
+    simulator = args.sim
     results = {}
     times = {}
-    for module in tests:
+    for module in modules:
         t0 = time.time()
         module = module.strip('\n')
         results[module] = [[], []]
@@ -667,7 +668,7 @@ def run_tests():
         print('---------------------------------------------------'
               .center(shutil.get_terminal_size().columns))
         results[module][0], results[module][1] = \
-            test_module(module, args.test_name)
+            test_module(module, test_name=args.test_name, simulator=simulator)
         t1 = time.time()
         times[module] = round(t1 - t0, 2)
     print('___________________________________________________')
@@ -680,6 +681,7 @@ def run_tests():
     t_time_1 = time.time()
     print('\nTime taken: {}s.'.format(round(t_time_1 - t_time_0, 2)))
     print('___________________________________________________\n')
+    print(f'Simulator: {simulator}\n')
 
 
 def get_ip(module=None, quiet=True):
