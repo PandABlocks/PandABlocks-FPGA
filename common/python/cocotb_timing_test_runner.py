@@ -5,6 +5,7 @@ import os
 import logging
 import shutil
 import time
+import coverage
 
 from pathlib import Path
 from typing import Dict, List
@@ -123,6 +124,12 @@ def parse_assignments(assignments):
             val = int(val)
         result[signal_name] = val
     return result
+
+
+def assign_bus(dut, name, val, index=None, bus_bits=None):
+    # Unused
+    lsb, msb = index * bus_bits, (index + 1) * bus_bits - 1
+    getattr(dut, name)[lsb:msb].value = val
 
 
 def assign(dut, name, val):
@@ -397,12 +404,9 @@ def get_module_build_args(module):
 
 
 def order_hdl_files(hdl_files, build_dir, top_level):
-    command = ''
+    command = f'vhdeps dump {top_level} -o {TOP_PATH / build_dir / "order"}'
     for file in hdl_files:
-        if str(file).split('/')[-1] == f'{top_level}.vhd':
-            command = f'vhdeps dump {top_level} -o {TOP_PATH / build_dir / "order"}' + command
         command += f' --include={str(file)}'
-    print(command)
     os.system(command)
     try:
         with open(TOP_PATH / build_dir / 'order') as order:
@@ -411,7 +415,6 @@ def order_hdl_files(hdl_files, build_dir, top_level):
         print(f'Likely that the following command failed:\n{command}')
         print('HDL FILES HAVE NOT BEEN PUT INTO COMPILATION ORDER!')
         return hdl_files
-    print(ordered_hdl_files)
     return ordered_hdl_files
 
 
@@ -520,7 +523,29 @@ def summarise_results(results):
             print('\033[92m' + '\033[1m' + 'ALL MODULES PASSED' + '\x1b[0m')
 
 
-async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
+async def simulate(dut, assignments_schedule, conditions_schedule, signals_info):
+    last_ts = max(max(assignments_schedule.keys()),
+                  max(conditions_schedule.keys()))
+    clkedge = RisingEdge(dut.clk_i)
+    cocotb.start_soon(Clock(
+        dut.clk_i, 1, units="ns").start(start_high=False))
+    ts = 0
+    await initialise_dut(dut, signals_info)
+    await clkedge
+    conditions = {}
+    
+    while ts <= last_ts:
+        do_assignments(dut, assignments_schedule.get(ts, {}),
+                        signals_info)
+        update_conditions(conditions, conditions_schedule.get(ts, {}),
+                            signals_info)
+        await ReadOnly()
+        check_conditions(dut, conditions, ts)
+        await clkedge
+        ts += 1
+
+
+async def section_timing_test(dut, module, test_name, block_ini, timing_ini, simulator):
     """Perform one test.
 
     Args:
@@ -540,36 +565,21 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini):
     assignments_schedule, conditions_schedule = \
         get_schedules(timing_ini, signals_info, test_name)
 
-    last_ts = max(max(assignments_schedule.keys()),
-                  max(conditions_schedule.keys()))
-
-    with cocotb.wavedrom.trace(*get_signals(dut), clk=dut.clk_i) as trace:
-        clkedge = RisingEdge(dut.clk_i)
-        cocotb.start_soon(Clock(
-            dut.clk_i, 1, units="ns").start(start_high=False))
-        ts = 0
-        await initialise_dut(dut, signals_info)
-        await clkedge
-        conditions = {}
-        wavedrom_filename = '{}_wavedrom.json'.format(
+    if simulator == 'nvc' and module in ['pcap', 'pcomp', 'pgen', 'seq']:
+        await simulate(dut, assignments_schedule, conditions_schedule, signals_info)
+    else:
+        with cocotb.wavedrom.trace(*get_signals(dut), clk=dut.clk_i) as trace:
+            wavedrom_filename = '{}_wavedrom.json'.format(
             test_name.replace(" ", "_").replace("/", "_"))
-        try:
-            while ts <= last_ts:
-                do_assignments(dut, assignments_schedule.get(ts, {}),
-                               signals_info)
-                update_conditions(conditions, conditions_schedule.get(ts, {}),
-                                  signals_info)
-                await ReadOnly()
-                check_conditions(dut, conditions, ts)
-                await clkedge
-                ts += 1
-        except AssertionError as error:
-            with open(wavedrom_filename, 'w') as fhandle:
-                fhandle.write(trace.dumpj())
-            raise error
-        else:
-            with open(wavedrom_filename, 'w') as fhandle:
-                fhandle.write(trace.dumpj())
+            try:
+                await simulate(dut, assignments_schedule, conditions_schedule, signals_info)
+            except AssertionError as error:
+                with open(wavedrom_filename, 'w') as fhandle:
+                    fhandle.write(trace.dumpj())
+                raise error
+            else:
+                with open(wavedrom_filename, 'w') as fhandle:
+                    fhandle.write(trace.dumpj())
 
 
 @cocotb.test()
@@ -581,18 +591,19 @@ async def module_timing_test(dut):
     """
     module = os.getenv('module', 'default')
     test_name = os.getenv('test_name', 'default')
+    simulator = os.getenv('simulator', 'default')
     block_ini = get_block_ini(module)
     timing_ini = get_timing_ini(module)
     if test_name.strip() != '.':
         await section_timing_test(
-            dut, module, test_name, block_ini, timing_ini)
+            dut, module, test_name, block_ini, timing_ini, simulator)
 
 
 def get_simulator_build_args(simulator, module):
     if simulator == 'ghdl':
         return ['--std=08', '-fsynopsys', '-Wno-hide']
     elif simulator == 'nvc':
-        return ['--std=2008', f'-L {MODULES_PATH / module}']
+        return ['--std=2008']
 
 
 def get_test_args(simulator, build_args, test_name):
@@ -600,7 +611,7 @@ def get_test_args(simulator, build_args, test_name):
     if simulator == 'ghdl':
         return build_args
     elif simulator == 'nvc':
-        return [ '--ieee-warnings=off', '--ieee=on', f'--wave={test_name}.vcd']
+        return [ '--ieee-warnings=off', f'--wave={test_name}.vcd']
 
 
 def get_plus_args(simulator, test_name):
@@ -664,6 +675,7 @@ def test_module(module, test_name=None, simulator='ghdl'):
                                 plusargs=get_plus_args(simulator, test_name),
                                 extra_env={'module': module,
                                            'test_name': test_name,
+                                           'simulator': simulator,
                                            'coverage': 'True'})
             results = cocotb.runner.get_results(xml_path)
             if results == (1, 0):
