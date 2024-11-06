@@ -56,8 +56,7 @@ add_files -norecurse \
     $TOP_DIR/common/hdl/defines \
     $APP_BUILD_DIR/autogen/hdl/top_defines_gen.vhd
 
-set_property FILE_TYPE "VHDL 2008" [get_files $TOP_DIR/common/hdl/defines/*.vhd]
-set_property FILE_TYPE "VHDL 2008" [get_files $TOP_DIR/common/hdl/*.vhd]
+set_property FILE_TYPE "VHDL 2008" [get_files $TOP_DIR/common/hdl/defines/top_defines.vhd]
 
 # Loop through all the tests
 foreach test [array names tests] {

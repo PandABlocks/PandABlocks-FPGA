@@ -13,6 +13,7 @@ class PgenSimulation(BlockSimulation):
         self.table_data = []
         self.current_line = 0
         self.current_cycle = 0
+        self.TABLE_ADDRESS += '.txt'
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
