@@ -6,6 +6,7 @@ import logging
 import shutil
 import time
 import coverage
+import subprocess
 
 from pathlib import Path
 from typing import Dict, List
@@ -411,11 +412,11 @@ def order_hdl_files(hdl_files, build_dir, top_level):
         build_dir: Build directory for simulation.
         top_level: Name of the top-level entity.
     """
-    command = f'vhdeps dump {top_level} -o {TOP_PATH / build_dir / "order"}'
+    command = ['vhdeps', 'dump', top_level, '-o', f'{TOP_PATH / build_dir / "order"}']
     for file in hdl_files:
-        command += f' --include={str(file)}'
+        command.append(f'--include={str(file)}')
     Path(TOP_PATH / build_dir).mkdir(exist_ok=True)
-    os.system(command)
+    subprocess.run(['/usr/bin/env'] + command)
     try:
         with open(TOP_PATH / build_dir / 'order') as order:
             ordered_hdl_files = \
@@ -628,6 +629,36 @@ def get_plusargs(simulator, test_name):
     return []
 
 
+def collect_coverage_file(build_dir, top_level, test_name):
+    coverage_path = Path(TOP_PATH / build_dir / 'coverage')
+    Path(coverage_path).mkdir(exist_ok=True)
+    old_file_path = Path(TOP_PATH / build_dir / 'top' /
+                         f'_TOP.{top_level.upper()}.elab.covdb')
+    test_name = test_name.replace(" ", "_").replace("/", "_")
+    new_file_path = Path(coverage_path /
+                         f'_TOP.{top_level.upper()}.{test_name}.elab.covdb')
+    subprocess.run(['mv', old_file_path, new_file_path])
+    return new_file_path
+
+
+def merge_coverage_data(build_dir, module, file_paths):
+    merged_path = Path(TOP_PATH / build_dir / 'coverage' /
+                    f'merged.{module}.covdb')
+    command = ['nvc', '--cover-merge', '-o'] + \
+              [str(merged_path)] + \
+              [str(file_path) for file_path in file_paths]
+    subprocess.run(command)
+    return merged_path
+
+
+def print_coverage_data(coverage_report_path):
+    print('Code coverage:')
+    coverage_path = coverage_report_path.parent
+    command = ['nvc', '--cover-report', '-o', str(coverage_path),
+               str(coverage_report_path)]
+    subprocess.run(command)
+
+
 def test_module(module, test_name=None, simulator='ghdl'):
     """Run tests for a module.
 
@@ -664,6 +695,8 @@ def test_module(module, test_name=None, simulator='ghdl'):
               build_args=build_args,
               clean=True)
     passed, failed = [], []
+    coverage_file_paths = []
+    coverage_report_path = None
 
     for section in sections:
         if section.strip() != '.':
@@ -677,11 +710,15 @@ def test_module(module, test_name=None, simulator='ghdl'):
                                                         test_name),
                                 elab_args=get_elab_args(simulator),
                                 plusargs=get_plusargs(simulator, test_name),
+                                # parameters={'--cover': True},
                                 extra_env={'module': module,
                                            'test_name': test_name,
                                            'simulator': simulator,
                                            'COCOTB_USER_COVERAGE': 'True'})
             results = runner.get_results(xml_path)
+            if simulator == 'nvc':
+                coverage_file_paths.append(
+                    collect_coverage_file(build_dir, top_level, test_name))
             if results == (1, 0):
                 # ran 1 test, 0 failed
                 passed.append(test_name)
@@ -690,7 +727,10 @@ def test_module(module, test_name=None, simulator='ghdl'):
                 failed.append(test_name)
             else:
                 raise ValueError(f'Results unclear: {results}')
-    return passed, failed
+    if simulator == 'nvc':
+        coverage_report_path = merge_coverage_data(
+            build_dir, module, coverage_file_paths)
+    return passed, failed, coverage_report_path
 
 
 def get_cocotb_testable_modules():
@@ -715,6 +755,7 @@ def run_tests():
     simulator = args.sim
     results = {}
     times = {}
+    coverage_report_paths = {}
     for module in modules:
         t0 = time.time()
         module = module.strip('\n')
@@ -725,7 +766,7 @@ def run_tests():
               .center(shutil.get_terminal_size().columns))
         print('---------------------------------------------------'
               .center(shutil.get_terminal_size().columns))
-        results[module][0], results[module][1] = \
+        results[module][0], results[module][1], coverage_report_paths[module] = \
             test_module(module, test_name=args.test_name, simulator=simulator)
         t1 = time.time()
         times[module] = round(t1 - t0, 2)
@@ -734,6 +775,8 @@ def run_tests():
     for module in results:
         print_results(module, results[module][0], results[module][1],
                       times[module])
+        if coverage_report_paths[module] is not None:
+            print_coverage_data(coverage_report_paths[module])
     print('___________________________________________________')
     summarise_results(results)
     t_time_1 = time.time()
