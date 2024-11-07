@@ -12,11 +12,10 @@ from typing import Dict, List
 
 import cocotb
 import cocotb.handle
-import cocotb.runner
-import cocotb.binary
 
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, ReadOnly
+from cocotb_tools import runner
 
 from dma_driver import DMADriver
 
@@ -127,9 +126,7 @@ def parse_assignments(assignments):
 
 def assign_bus(dut, name, val, index, n_bits):
     # Unused
-    print(index)
     lsb, msb = index * n_bits, (index + 1) * n_bits - 1
-    print(lsb, msb)
     getattr(dut, name).value[msb:lsb] = val
 
 
@@ -141,7 +138,7 @@ def assign(dut, name, val):
         name: Name of signal being assigned.
         val: Value being assigned to signal.
     """
-    getattr(dut, name).value = val
+    getattr(dut, name).set(val)
 
 
 def do_assignments(dut, assignments, signals_info):
@@ -649,7 +646,7 @@ def test_module(module, test_name=None, simulator='ghdl'):
             return [], []
     else:
         sections = timing_ini.sections()
-    sim = cocotb.runner.get_runner(simulator)
+    sim = runner.get_runner(simulator)
     build_dir = f'sim_build_{module}'
     build_args = get_simulator_build_args(simulator)
     build_args += get_module_build_args(module)
@@ -675,8 +672,8 @@ def test_module(module, test_name=None, simulator='ghdl'):
                                 extra_env={'module': module,
                                            'test_name': test_name,
                                            'simulator': simulator,
-                                           'COVERAGE': 'True'})
-            results = cocotb.runner.get_results(xml_path)
+                                           'COCOTB_USER_COVERAGE': 'True'})
+            results = runner.get_results(xml_path)
             if results == (1, 0):
                 # ran 1 test, 0 failed
                 passed.append(test_name)
