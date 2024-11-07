@@ -13,7 +13,6 @@ from typing import Dict, List
 import cocotb
 import cocotb.handle
 import cocotb.runner
-import cocotb.wavedrom
 import cocotb.binary
 
 from cocotb.clock import Clock
@@ -579,24 +578,8 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini,
     assignments_schedule, conditions_schedule = \
         get_schedules(timing_ini, signals_info, test_name)
 
-    if simulator == 'nvc' and module in ['pcap', 'pcomp', 'pgen', 'seq']:
-        print(f'Wavedrom currently not supported for {module} with nvc')
-        await simulate(dut, assignments_schedule, conditions_schedule,
-                       signals_info)
-    else:
-        with cocotb.wavedrom.trace(*get_signals(dut), clk=dut.clk_i) as trace:
-            wavedrom_filename = '{}_wavedrom.json'.format(
-                test_name.replace(" ", "_").replace("/", "_"))
-            try:
-                await simulate(dut, assignments_schedule, conditions_schedule,
-                               signals_info)
-            except AssertionError as error:
-                with open(wavedrom_filename, 'w') as fhandle:
-                    fhandle.write(trace.dumpj())
-                raise error
-            else:
-                with open(wavedrom_filename, 'w') as fhandle:
-                    fhandle.write(trace.dumpj())
+    await simulate(dut, assignments_schedule, conditions_schedule,
+                    signals_info)
 
 
 @cocotb.test()
