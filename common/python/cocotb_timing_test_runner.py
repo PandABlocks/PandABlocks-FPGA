@@ -611,6 +611,13 @@ def get_test_args(simulator, build_args, test_name):
         return ['--ieee-warnings=off', f'--wave={test_name}.vcd']
 
 
+def get_elab_args(simulator):
+    if simulator == 'nvc':
+        return ['--cover']
+    else:
+        return []
+
+
 def get_plusargs(simulator, test_name):
     test_name = test_name.replace(' ', '_').replace('/', '_')
     vcd_filename = f'{test_name}.vcd'
@@ -668,6 +675,7 @@ def test_module(module, test_name=None, simulator='ghdl'):
                                 build_dir=build_dir,
                                 test_args=get_test_args(simulator, build_args,
                                                         test_name),
+                                elab_args=get_elab_args(simulator),
                                 plusargs=get_plusargs(simulator, test_name),
                                 extra_env={'module': module,
                                            'test_name': test_name,
