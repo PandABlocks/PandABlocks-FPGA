@@ -126,10 +126,12 @@ def parse_assignments(assignments):
     return result
 
 
-def assign_bus(dut, name, val, index=None, bus_bits=None):
+def assign_bus(dut, name, val, index, n_bits):
     # Unused
-    lsb, msb = index * bus_bits, (index + 1) * bus_bits - 1
-    getattr(dut, name)[lsb:msb].value = val
+    print(index)
+    lsb, msb = index * n_bits, (index + 1) * n_bits - 1
+    print(lsb, msb)
+    getattr(dut, name).value[msb:lsb] = val
 
 
 def assign(dut, name, val):
@@ -157,7 +159,7 @@ def do_assignments(dut, assignments, signals_info):
             signal_name = signal_name.split('[')[0]
             n_bits = signals_info[get_ini_signal_name(
                 signal_name, signals_info)]['bits']
-            val = get_bus_value(getattr(dut, signal_name).value,
+            val = get_bus_value(int(getattr(dut, signal_name).value),
                                 n_bits, val, index)
         assign(dut, signal_name, val)
 
