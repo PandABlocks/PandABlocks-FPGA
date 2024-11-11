@@ -28,7 +28,7 @@ class DMADriver(object):
             length = self.dut.dma_len_o.value.integer
             data = deque([int(item) for item in open(
                          MODULES_PATH / self.module /
-                         f'{addr}.txt',
+                         f'{self.module.upper()}_{addr}.txt',
                          'r').read().splitlines()[1:]])
             await RisingEdge(self.dut.clk_i)
             self.dut.dma_ack_i.value = 0

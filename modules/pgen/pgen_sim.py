@@ -13,7 +13,6 @@ class PgenSimulation(BlockSimulation):
         self.table_data = []
         self.current_line = 0
         self.current_cycle = 0
-        self.TABLE_ADDRESS = str(self.TABLE_ADDRESS) + '.txt'
 
     def on_changes(self, ts, changes):
         """Handle changes at a particular timestamp, then return the timestamp
@@ -24,7 +23,8 @@ class PgenSimulation(BlockSimulation):
         if NAMES.TABLE_ADDRESS in changes:
             # open the table
             file_dir = os.path.join(
-                os.path.dirname(__file__), self.TABLE_ADDRESS)
+                os.path.dirname(__file__), 
+                'PGEN_{}.txt'.format(self.TABLE_ADDRESS))
 
             assert os.path.isfile(file_dir), "%s does not exist" % file_dir
             with open(file_dir, "r") as table:

@@ -182,7 +182,8 @@ class timing_plot_directive(Directive):
             if 'TABLE_ADDRESS' in inputs:
                 # open the table
                 file_dir = os.path.join(path, inputs["TABLE_ADDRESS"])
-                assert os.path.isfile(file_dir), "%s does not exist" %(file_dir)
+                assert os.path.isfile(file_dir) or os.path.isfile(
+                    f'{file_dir}.txt'), "%s does not exist" %(file_dir)
                 with open(file_dir, "r") as table:
                     reader = csv.DictReader(table, delimiter='\t')
                     table_data = [line for line in reader]
