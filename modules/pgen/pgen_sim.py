@@ -24,7 +24,7 @@ class PgenSimulation(BlockSimulation):
             # open the table
             file_dir = os.path.join(
                 os.path.dirname(__file__), 
-                'PGEN_{}.txt'.format(self.TABLE_ADDRESS))
+                '{}.txt'.format(self.TABLE_ADDRESS))
 
             assert os.path.isfile(file_dir), "%s does not exist" % file_dir
             with open(file_dir, "r") as table:
