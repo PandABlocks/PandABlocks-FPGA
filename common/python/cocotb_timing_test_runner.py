@@ -5,7 +5,6 @@ import os
 import logging
 import shutil
 import time
-import coverage
 import subprocess
 
 from pathlib import Path
@@ -412,7 +411,8 @@ def order_hdl_files(hdl_files, build_dir, top_level):
         build_dir: Build directory for simulation.
         top_level: Name of the top-level entity.
     """
-    command = ['vhdeps', 'dump', top_level, '-o', f'{TOP_PATH / build_dir / "order"}']
+    command = ['vhdeps', 'dump', top_level, '-o',
+               f'{TOP_PATH / build_dir / "order"}']
     for file in hdl_files:
         command.append(f'--include={str(file)}')
     Path(TOP_PATH / build_dir).mkdir(exist_ok=True)
@@ -577,7 +577,7 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini,
         get_schedules(timing_ini, signals_info, test_name)
 
     await simulate(dut, assignments_schedule, conditions_schedule,
-                    signals_info)
+                   signals_info)
 
 
 @cocotb.test()
@@ -643,7 +643,7 @@ def collect_coverage_file(build_dir, top_level, test_name):
 
 def merge_coverage_data(build_dir, module, file_paths):
     merged_path = Path(TOP_PATH / build_dir / 'coverage' /
-                    f'merged.{module}.covdb')
+                       f'merged.{module}.covdb')
     command = ['nvc', '--cover-merge', '-o'] + \
               [str(merged_path)] + \
               [str(file_path) for file_path in file_paths]
@@ -755,7 +755,7 @@ def run_tests():
     simulator = args.sim
     results = {}
     times = {}
-    coverage_report_paths = {}
+    coverage_reports = {}
     for module in modules:
         t0 = time.time()
         module = module.strip('\n')
@@ -766,7 +766,7 @@ def run_tests():
               .center(shutil.get_terminal_size().columns))
         print('---------------------------------------------------'
               .center(shutil.get_terminal_size().columns))
-        results[module][0], results[module][1], coverage_report_paths[module] = \
+        results[module][0], results[module][1], coverage_reports[module] = \
             test_module(module, test_name=args.test_name, simulator=simulator)
         t1 = time.time()
         times[module] = round(t1 - t0, 2)
@@ -775,8 +775,8 @@ def run_tests():
     for module in results:
         print_results(module, results[module][0], results[module][1],
                       times[module])
-        if coverage_report_paths[module] is not None:
-            print_coverage_data(coverage_report_paths[module])
+        if coverage_reports[module] is not None:
+            print_coverage_data(coverage_reports[module])
     print('___________________________________________________')
     summarise_results(results)
     t_time_1 = time.time()
