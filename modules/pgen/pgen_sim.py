@@ -23,7 +23,7 @@ class PgenSimulation(BlockSimulation):
         if NAMES.TABLE_ADDRESS in changes:
             # open the table
             file_dir = os.path.join(
-                os.path.dirname(__file__), 
+                os.path.dirname(__file__),
                 '{}.txt'.format(self.TABLE_ADDRESS))
 
             assert os.path.isfile(file_dir), "%s does not exist" % file_dir

@@ -1,7 +1,7 @@
 // This template works for pgen. It may not be generic enough to work for any
 // other blocks with a DMA interface.
 
-// {{ block.entity|upper }}_1000.txt
+// 1000.txt
 // data_mem
 parameter STATE_IDLE = 0;
 parameter STATE_TABLE_ADDR = 1;
@@ -21,8 +21,8 @@ initial begin
 
     @(posedge clk_i);
 
-    // Open "{{ block.entity|upper }}_1000" file
-    pfid = $fopen("{{ block.entity|upper }}_1000.txt", "r"); // VAL
+    // Open "1000" file
+    pfid = $fopen("1000.txt", "r"); // VAL
     // Read and ignore description field
     pr = $fscanf(pfid, "%s\n", preg_in);
 
