@@ -30,6 +30,7 @@ def get_args():
     parser.add_argument('module')
     parser.add_argument('test_name', nargs='?', default=None)
     parser.add_argument('--sim', default='ghdl')
+    parser.add_argument('--skip', default=None)
     return parser.parse_args()
 
 
@@ -713,8 +714,7 @@ def test_module(module, test_name=None, simulator='ghdl'):
                                 # parameters={'--cover': True},
                                 extra_env={'module': module,
                                            'test_name': test_name,
-                                           'simulator': simulator,
-                                           'COCOTB_USER_COVERAGE': 'True'})
+                                           'simulator': simulator})
             results = runner.get_results(xml_path)
             if simulator == 'nvc':
                 coverage_file_paths.append(
@@ -752,6 +752,13 @@ def run_tests():
         modules = get_cocotb_testable_modules()
     else:
         modules = args.module.split(',')
+    skip_list = args.skip.split(',') if args.skip else []
+    for module in skip_list:
+        if module in modules:
+            modules.remove(module)
+            print(f'Skipping {module}.')
+        else:
+            print(f'Cannot skip {module} as it was not going to be tested.')
     simulator = args.sim
     results = {}
     times = {}
