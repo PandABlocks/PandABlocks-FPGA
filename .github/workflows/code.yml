@@ -20,7 +20,6 @@ jobs:
   make_zpkg:
     uses: ./.github/workflows/_make_zpkg.yml
 
-
   cocotb_test:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     strategy:
@@ -67,13 +66,13 @@ jobs:
       # Mount in rclone bucket from runner into conatiner
       - name: build autogen
         run: |
-          docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
+          docker pull ghcr.io/pandablocks/pandablocks-dev-container:4.0a1
           docker run \
             --net=host \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
-            ghcr.io/pandablocks/pandablocks-dev-container:latest\
+            ghcr.io/pandablocks/pandablocks-dev-container:4.0a1\
             /bin/bash -c \
             "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make autogen"
       - name: Run all cocotb tests
