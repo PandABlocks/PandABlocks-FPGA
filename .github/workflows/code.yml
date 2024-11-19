@@ -20,10 +20,19 @@ jobs:
   make_zpkg:
     uses: ./.github/workflows/_make_zpkg.yml
 
+
   cocotb_test:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [
+              "PandABox-fmc_lback-sfp_lback"
+              ]
+
     runs-on: ubuntu-latest
     steps:
+
       # Git repositories
       - name: Checkout Source
         uses: actions/checkout@v2
@@ -32,11 +41,20 @@ jobs:
           # require history to get back to last tag for version number of branches
           fetch-depth: 0
 
+      - name: Checkout PandABlocks-rootfs
+        uses: actions/checkout@v2
+        with:
+          repository: PandABlocks/PandABlocks-rootfs
+          path: PandABlocks-rootfs
+
       # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
       # https://github.com/rclone/rclone/issues/2975
       - name: Install rclone patch
         run: bash PandABlocks-fpga/.github/scripts/rclone-patch.sh
 
+      # S3 bucket
+      - name: Mount Vivado S3 bucket
+        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
 
       # Login into ghcr
       - name: login to ghcr
@@ -45,18 +63,24 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
-      - name: Run cocotb tests.
+
+      # Mount in rclone bucket from runner into conatiner
+      - name: build autogen
         run: |
           docker pull ghcr.io/pandablocks/pandablocks-dev-container:latest
           docker run \
+            --net=host \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
-            ghcr.io/pandablocks/pandablocks-dev-container:latest \
+            ghcr.io/pandablocks/pandablocks-dev-container:latest\
             /bin/bash -c \
-            "cd PandABlocks-fpga && python3.12 common/python/cocotb_timing_test_runner.py all --sim nvc"
+            "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make autogen"
+      - name: Run all cocotb tests
+        run: |
+          /bin/bash -c \
+          "cd PandABlocks-fpga && python3.12 common/python/cocotb_timing_test_runner.py all --sim nvc"
 
-  # Release on push to tag
   release:
     needs: [ make_boot, make_zpkg, test_hdl, test_matrix, test_python_autogen, cocotb_test ]
     uses: ./.github/workflows/_release.yml
