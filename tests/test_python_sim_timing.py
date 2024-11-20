@@ -118,7 +118,9 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
 
                 # Check all outputs have correct field values
                 for name in outputs:
-                    expected = numpy.int32(int(outputs[name], 0))
+                    expected_val = int(outputs[name], 0)
+                    expected = numpy.int32(
+                        expected_val if expected_val < 2**31 else numpy.uint32(expected_val))
                     actual = getattr(block, name)
                     assert actual == expected, \
                         "%d: Attr %s = %d != %d" % (
