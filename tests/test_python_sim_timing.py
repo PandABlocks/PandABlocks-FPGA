@@ -9,10 +9,12 @@ else:
 
 import sys
 import os
-import importlib
+import importlib.util
 import numpy
 
 import unittest
+
+from pathlib import Path
 
 from common.python.ini_util import read_ini, timing_entries
 
@@ -46,11 +48,13 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
 
         def runTest(self):
             # Load <block>_sim.py into common.python.<block>_sim
-            file, pathname, description = importlib.import_module(
-                self.block_name + "_sim", [self.module_path])
-            mod = importlib.exec_module(
-                "common.python." + self.block_name,
-                file, pathname, description)
+            mod_name = self.block_name + "_sim"
+            mod_spec = importlib.util.spec_from_file_location(
+                mod_name,
+                self.module_path + '/' + self.block_name + "_sim.py")
+            mod = importlib.util.module_from_spec(
+                mod_spec)
+            mod_spec.loader.exec_module(mod)
             # Make instance of <Block>Simulation
             block = getattr(mod, self.block_name.title() + "Simulation")()
             # Start prodding the block and checking its outputs
