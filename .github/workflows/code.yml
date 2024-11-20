@@ -63,7 +63,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
 
-      # Mount in rclone bucket from runner into conatiner
+      # Mount in rclone bucket from runner into container
       - name: build autogen
         run: |
           docker pull ghcr.io/pandablocks/pandablocks-dev-container:4.0a4
