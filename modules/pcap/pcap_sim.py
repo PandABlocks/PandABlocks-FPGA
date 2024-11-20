@@ -168,7 +168,7 @@ class Sum2CaptureEntry(SumCaptureEntry):
 
     def latch_value(self, ts):
         self.prev_ts = ts
-        self.prev_value = self.value**2
+        self.prev_value = int(self.value)**2
 
     def yield_data(self):
         data =int(self.data >> self.shift)
@@ -529,7 +529,8 @@ class PcapSimulation(BlockSimulation):
             self.pend_error = ts + 4
         else:
             new_size = len(new_data)
-            self.buf[self.buf_len:self.buf_len + new_size] = new_data
+            self.buf[self.buf_len:self.buf_len + new_size] = [np.int32(item) if item < 2**31 else np.int32(np.uint32(item))
+                                                              for item in new_data]
             self.buf_len += len(new_data)
 
     def read_data(self, max_length):
