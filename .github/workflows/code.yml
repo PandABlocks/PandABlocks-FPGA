@@ -24,10 +24,6 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     strategy:
       fail-fast: false
-      matrix:
-        app: [
-              "PandABox-fmc_lback-sfp_lback"
-              ]
 
     runs-on: ubuntu-latest
     steps:
