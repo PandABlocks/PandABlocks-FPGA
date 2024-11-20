@@ -9,7 +9,7 @@ else:
 
 import sys
 import os
-import imp
+import importlib
 import numpy
 
 import unittest
@@ -46,9 +46,9 @@ def load_tests(loader=None, standard_tests=None, pattern=None):
 
         def runTest(self):
             # Load <block>_sim.py into common.python.<block>_sim
-            file, pathname, description = imp.find_module(
+            file, pathname, description = importlib.import_module(
                 self.block_name + "_sim", [self.module_path])
-            mod = imp.load_module(
+            mod = importlib.exec_module(
                 "common.python." + self.block_name,
                 file, pathname, description)
             # Make instance of <Block>Simulation
