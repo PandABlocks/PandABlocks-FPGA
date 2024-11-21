@@ -62,13 +62,13 @@ jobs:
       # Mount in rclone bucket from runner into container
       - name: Run cocotb tests
         run: |
-          docker pull ghcr.io/pandablocks/pandablocks-dev-container:4.0a4
+          docker pull ghcr.io/pandablocks/pandablocks-dev-container:4.0a5
           docker run \
             --net=host \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
             -v "/scratch/Xilinx:/scratch/Xilinx" \
-            ghcr.io/pandablocks/pandablocks-dev-container:4.0a4\
+            ghcr.io/pandablocks/pandablocks-dev-container:4.0a5 \
             /bin/bash -c \
             "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make autogen && \
             python3 common/python/cocotb_timing_test_runner.py all --sim nvc"
