@@ -22,7 +22,7 @@ jobs:
     runs-on:
       group: iris_runners
     container:
-      image: ghcr.io/pandablocks/pandablocks-dev-container:latest
+      image: ghcr.io/pandablocks/pandablocks-ci-container:latest
       options: --privileged
 
     steps:
