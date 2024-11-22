@@ -31,6 +31,7 @@ def get_args():
     parser.add_argument('test_name', nargs='?', default=None)
     parser.add_argument('--sim', default='ghdl')
     parser.add_argument('--skip', default=None)
+    parser.add_argument('--panda-build-dir', default='/build')
     return parser.parse_args()
 
 
@@ -370,7 +371,7 @@ def get_bus_value(current_value, n_bits, value, index):
     return current_value - value_at_index + new_value_at_index
 
 
-def get_extra_signals_info(module):
+def get_extra_signals_info(module, panda_build_dir):
     """Get extra signals information from a module's test config file.
 
     Args:
@@ -379,7 +380,8 @@ def get_extra_signals_info(module):
         Dictionary containing extra signals information.
     """
     module_dir_path = MODULES_PATH / module
-    g = {'TOP_PATH': TOP_PATH}
+    g = {'TOP_PATH': TOP_PATH,
+         'BUILD_PATH': Path(panda_build_dir)}
     with open(str(module_dir_path / 'test_config.py')) as file:
         code = file.read()
     exec(code, g)
@@ -387,7 +389,7 @@ def get_extra_signals_info(module):
     return extra_signals_info
 
 
-def get_module_build_args(module):
+def get_module_build_args(module, panda_build_dir):
     """Get simulation build arguments from a module's test config file.
 
     Args:
@@ -396,7 +398,8 @@ def get_module_build_args(module):
         List of extra build arguments.
     """
     module_dir_path = MODULES_PATH / module
-    g = {'TOP_PATH': TOP_PATH}
+    g = {'TOP_PATH': TOP_PATH,
+         'BUILD_PATH': Path(panda_build_dir)}
     code = open(str(module_dir_path / 'test_config.py')).read()
     exec(code, g)
     args = g.get('EXTRA_BUILD_ARGS', [])
@@ -416,6 +419,7 @@ def order_hdl_files(hdl_files, build_dir, top_level):
                f'{TOP_PATH / build_dir / "order"}']
     for file in hdl_files:
         command.append(f'--include={str(file)}')
+    command_str = ' '.join(command)
     Path(TOP_PATH / build_dir).mkdir(exist_ok=True)
     subprocess.run(['/usr/bin/env'] + command)
     try:
@@ -423,13 +427,14 @@ def order_hdl_files(hdl_files, build_dir, top_level):
             ordered_hdl_files = \
                 [line.strip().split(' ')[-1] for line in order.readlines()]
         return ordered_hdl_files
-    except FileNotFoundError:
-        print(f'Likely that the following command failed:\n{command}')
+    except FileNotFoundError as error:
+        print(f'Likely that the following command failed:\n{command_str}')
+        print(error)
         print('HDL FILES HAVE NOT BEEN PUT INTO COMPILATION ORDER!')
         return hdl_files
 
 
-def get_module_hdl_files(module, top_level, build_dir):
+def get_module_hdl_files(module, top_level, build_dir, panda_build_dir):
     """Get HDL files needed to simulate a module from its test config file.
 
     Args:
@@ -438,7 +443,8 @@ def get_module_hdl_files(module, top_level, build_dir):
         List of paths to the HDL files.
     """
     module_dir_path = MODULES_PATH / module
-    g = {'TOP_PATH': TOP_PATH}
+    g = {'TOP_PATH': TOP_PATH,
+         'BUILD_PATH': Path(panda_build_dir)}
     code = open(str(module_dir_path / 'test_config.py')).read()
     exec(code, g)
     g.get('EXTRA_HDL_FILES', [])
@@ -458,7 +464,7 @@ def get_module_hdl_files(module, top_level, build_dir):
     return result
 
 
-def get_module_top_level(module):
+def get_module_top_level(module, panda_build_dir):
     """Get top level entity from a module's test config file.
     If none is found, assume top level entity is the same as the module name.
 
@@ -468,7 +474,8 @@ def get_module_top_level(module):
         Name of top level entity.
     """
     module_dir_path = MODULES_PATH / module
-    g = {'TOP_PATH': TOP_PATH}
+    g = {'TOP_PATH': TOP_PATH,
+         'BUILD_PATH': Path(panda_build_dir)}
     code = open(str(module_dir_path / 'test_config.py')).read()
     exec(code, g)
     top_level = g.get('TOP_LEVEL', None)
@@ -557,7 +564,7 @@ async def simulate(dut, assignments_schedule, conditions_schedule,
 
 
 async def section_timing_test(dut, module, test_name, block_ini, timing_ini,
-                              simulator):
+                              simulator, panda_build_dir):
     """Perform one test.
 
     Args:
@@ -571,7 +578,7 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini,
         dma_driver = DMADriver(dut, module)
 
     signals_info = get_signals_info(block_ini)
-    signals_info.update(get_extra_signals_info(module))
+    signals_info.update(get_extra_signals_info(module, panda_build_dir))
     check_signals_info(signals_info)
 
     assignments_schedule, conditions_schedule = \
@@ -591,11 +598,13 @@ async def module_timing_test(dut):
     module = os.getenv('module', 'default')
     test_name = os.getenv('test_name', 'default')
     simulator = os.getenv('simulator', 'default')
+    panda_build_dir = os.getenv('panda_build_dir', 'default')
     block_ini = get_block_ini(module)
     timing_ini = get_timing_ini(module)
     if test_name.strip() != '.':
         await section_timing_test(
-            dut, module, test_name, block_ini, timing_ini, simulator)
+            dut, module, test_name, block_ini, timing_ini, simulator,
+            panda_build_dir)
 
 
 def get_simulator_build_args(simulator):
@@ -660,7 +669,8 @@ def print_coverage_data(coverage_report_path):
     subprocess.run(command)
 
 
-def test_module(module, test_name=None, simulator='ghdl'):
+def test_module(module, test_name=None, simulator='ghdl',
+                panda_build_dir='/build'):
     """Run tests for a module.
 
     Args:
@@ -688,9 +698,10 @@ def test_module(module, test_name=None, simulator='ghdl'):
     sim = runner.get_runner(simulator)
     build_dir = f'sim_build_{module}'
     build_args = get_simulator_build_args(simulator)
-    build_args += get_module_build_args(module)
-    top_level = get_module_top_level(module)
-    sim.build(sources=get_module_hdl_files(module, top_level, build_dir),
+    build_args += get_module_build_args(module, panda_build_dir)
+    top_level = get_module_top_level(module, panda_build_dir)
+    sim.build(sources=get_module_hdl_files(module, top_level, build_dir,
+                                           panda_build_dir),
               build_dir=build_dir,
               hdl_toplevel=top_level,
               build_args=build_args,
@@ -714,7 +725,8 @@ def test_module(module, test_name=None, simulator='ghdl'):
                                 # parameters={'--cover': True},
                                 extra_env={'module': module,
                                            'test_name': test_name,
-                                           'simulator': simulator})
+                                           'simulator': simulator,
+                                           'panda_build_dir': panda_build_dir})
             results = runner.get_results(xml_path)
             if simulator == 'nvc':
                 coverage_file_paths.append(
@@ -774,7 +786,8 @@ def run_tests():
         print('---------------------------------------------------'
               .center(shutil.get_terminal_size().columns))
         results[module][0], results[module][1], coverage_reports[module] = \
-            test_module(module, test_name=args.test_name, simulator=simulator)
+            test_module(module, test_name=args.test_name, simulator=simulator,
+                        panda_build_dir=args.panda_build_dir)
         t1 = time.time()
         times[module] = round(t1 - t0, 2)
     print('___________________________________________________')

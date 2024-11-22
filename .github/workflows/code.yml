@@ -36,21 +36,6 @@ jobs:
           # require history to get back to last tag for version number of branches
           fetch-depth: 0
 
-      - name: Checkout PandABlocks-rootfs
-        uses: actions/checkout@v2
-        with:
-          repository: PandABlocks/PandABlocks-rootfs
-          path: PandABlocks-rootfs
-
-      # Installation of go & temporary rclone patch applied until symlinks issue using rclone mount is resolved (see below):
-      # https://github.com/rclone/rclone/issues/2975
-      - name: Install rclone patch
-        run: bash PandABlocks-fpga/.github/scripts/rclone-patch.sh
-
-      # S3 bucket
-      - name: Mount Vivado S3 bucket
-        run: sudo bash PandABlocks-fpga/.github/scripts/mount-s3-bucket.sh ${{ secrets.VIVADO_S3_ACCESS_KEY_ID }} ${{ secrets.VIVADO_S3_SECRET_ACCESS_KEY }}
-
       # Login into ghcr
       - name: login to ghcr
         uses: docker/login-action@v1
@@ -58,8 +43,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN  }}
-
-      # Mount in rclone bucket from runner into container
       - name: Run cocotb tests
         run: |
           docker pull ghcr.io/pandablocks/pandablocks-dev-container:4.0a5
@@ -67,11 +50,10 @@ jobs:
             --net=host \
             -v "${{ github.workspace }}:/repos" \
             -v "${{ github.workspace }}/build:/build" \
-            -v "/scratch/Xilinx:/scratch/Xilinx" \
             ghcr.io/pandablocks/pandablocks-dev-container:4.0a5 \
             /bin/bash -c \
             "cd PandABlocks-fpga && ln -s CONFIG.example CONFIG && make autogen && \
-            python3 common/python/cocotb_timing_test_runner.py all --sim nvc"
+            python3 common/python/cocotb_timing_test_runner.py all --sim nvc --panda-build-dir /build"
 
   release:
     needs: [ make_boot, make_zpkg, test_hdl, test_matrix, test_python_autogen, cocotb_test ]
