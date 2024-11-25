@@ -29,7 +29,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('module')
     parser.add_argument('test_name', nargs='?', default=None)
-    parser.add_argument('--sim', default='ghdl')
+    parser.add_argument('--sim', default='nvc')
     parser.add_argument('--skip', default=None)
     parser.add_argument('--panda-build-dir', default='/build')
     return parser.parse_args()
@@ -692,7 +692,7 @@ def test_module(module, test_name=None, simulator='ghdl',
             print('No test called "{}" in {} INI timing file.'
                   .format(test_name, module)
                   .center(shutil.get_terminal_size().columns))
-            return [], []
+            return [], [], None
     else:
         sections = timing_ini.sections()
     sim = runner.get_runner(simulator)
