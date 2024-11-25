@@ -7,8 +7,6 @@ EXTRA_HDL_FILES = [TOP_PATH / 'common' / 'hdl' / 'defines' / 'support.vhd',
                    TOP_PATH / 'common' / 'hdl' / 'spbram.vhd',
                    BUILD_PATH / 'apps' / 'PandABox-fmc_lback-sfp_lback' / 'autogen' / 'hdl' / 'top_defines_gen.vhd']
 
-# EXTRA_BUILD_ARGS = ['-Wno-hide']
-
 TOP_LEVEL = 'pcap_core_wrapper'
 
 EXTRA_SIGNALS_INFO = {

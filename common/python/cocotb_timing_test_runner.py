@@ -379,14 +379,16 @@ def get_extra_signals_info(module, panda_build_dir):
     Returns:
         Dictionary containing extra signals information.
     """
-    module_dir_path = MODULES_PATH / module
-    g = {'TOP_PATH': TOP_PATH,
-         'BUILD_PATH': Path(panda_build_dir)}
-    with open(str(module_dir_path / 'test_config.py')) as file:
-        code = file.read()
-    exec(code, g)
-    extra_signals_info = g.get('EXTRA_SIGNALS_INFO', {})
-    return extra_signals_info
+    test_config_path = MODULES_PATH / module / 'test_config.py'
+    if test_config_path.exists():
+        g = {'TOP_PATH': TOP_PATH,
+            'BUILD_PATH': Path(panda_build_dir)}
+        with open(str(test_config_path)) as file:
+            code = file.read()
+        exec(code, g)
+        extra_signals_info = g.get('EXTRA_SIGNALS_INFO', {})
+        return extra_signals_info
+    return {}
 
 
 def get_module_build_args(module, panda_build_dir):
@@ -397,13 +399,15 @@ def get_module_build_args(module, panda_build_dir):
     Returns:
         List of extra build arguments.
     """
-    module_dir_path = MODULES_PATH / module
-    g = {'TOP_PATH': TOP_PATH,
-         'BUILD_PATH': Path(panda_build_dir)}
-    code = open(str(module_dir_path / 'test_config.py')).read()
-    exec(code, g)
-    args = g.get('EXTRA_BUILD_ARGS', [])
-    return args
+    test_config_path = MODULES_PATH / module / 'test_config.py'
+    if test_config_path.exists():
+        g = {'TOP_PATH': TOP_PATH,
+            'BUILD_PATH': Path(panda_build_dir)}
+        code = open(str(test_config_path)).read()
+        exec(code, g)
+        args = g.get('EXTRA_BUILD_ARGS', [])
+        return args
+    return []
 
 
 def order_hdl_files(hdl_files, build_dir, top_level):
@@ -443,18 +447,22 @@ def get_module_hdl_files(module, top_level, build_dir, panda_build_dir):
         List of paths to the HDL files.
     """
     module_dir_path = MODULES_PATH / module
+    test_config_path = module_dir_path / 'test_config.py'
     g = {'TOP_PATH': TOP_PATH,
          'BUILD_PATH': Path(panda_build_dir)}
-    code = open(str(module_dir_path / 'test_config.py')).read()
-    exec(code, g)
-    g.get('EXTRA_HDL_FILES', [])
-    extra_files = list(g.get('EXTRA_HDL_FILES', []))
-    extra_files_2 = []
-    for my_file in extra_files:
-        if str(my_file).endswith('.vhd'):
-            extra_files_2.append(my_file)
-        else:
-            extra_files_2 = extra_files_2 + list(my_file.glob('**/*.vhd'))
+    if test_config_path.exists():
+        code = open(str(test_config_path)).read()
+        exec(code, g)
+        g.get('EXTRA_HDL_FILES', [])
+        extra_files = list(g.get('EXTRA_HDL_FILES', []))
+        extra_files_2 = []
+        for my_file in extra_files:
+            if str(my_file).endswith('.vhd'):
+                extra_files_2.append(my_file)
+            else:
+                extra_files_2 = extra_files_2 + list(my_file.glob('**/*.vhd'))
+    else:
+        extra_files_2 = []
     result = extra_files_2 + list((module_dir_path / 'hdl').glob('*.vhd'))
     result = order_hdl_files(result, build_dir, top_level)
     print('Gathering the following VHDL files:')
@@ -473,14 +481,15 @@ def get_module_top_level(module, panda_build_dir):
     Returns:
         Name of top level entity.
     """
-    module_dir_path = MODULES_PATH / module
-    g = {'TOP_PATH': TOP_PATH,
-         'BUILD_PATH': Path(panda_build_dir)}
-    code = open(str(module_dir_path / 'test_config.py')).read()
-    exec(code, g)
-    top_level = g.get('TOP_LEVEL', None)
-    if top_level:
-        return top_level
+    test_config_path = MODULES_PATH / module / 'test_config.py'
+    if test_config_path.exists():
+        g = {'TOP_PATH': TOP_PATH,
+            'BUILD_PATH': Path(panda_build_dir)}
+        code = open(str(test_config_path)).read()
+        exec(code, g)
+        top_level = g.get('TOP_LEVEL', None)
+        if top_level:
+            return top_level
     return module
 
 
@@ -751,7 +760,7 @@ def get_cocotb_testable_modules():
     Returns:
         List of names of testable modules.
     """
-    modules = MODULES_PATH.glob('*/test_config.py')
+    modules = MODULES_PATH.glob('*/*.timing.ini')
     return list(module.parent.name for module in modules)
 
 
