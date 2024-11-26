@@ -34,6 +34,7 @@ def get_args():
     parser.add_argument('--sim', default='nvc')
     parser.add_argument('--skip', default=None)
     parser.add_argument('--panda-build-dir', default='/build')
+    parser.add_argument('--collect', default='False')
     return parser.parse_args()
 
 
@@ -654,17 +655,18 @@ async def module_timing_test(dut):
     Args:
         dut: cocotb dut object.
     """
-    module = os.getenv('module', 'default')
-    test_name = os.getenv('test_name', 'default')
-    simulator = os.getenv('simulator', 'default')
-    sim_build_dir = os.getenv('sim_build_dir', 'default')
-    panda_build_dir = os.getenv('panda_build_dir', 'default')
+    module = os.getenv('module')
+    test_name = os.getenv('test_name')
+    simulator = os.getenv('simulator')
+    sim_build_dir = os.getenv('sim_build_dir')
+    panda_build_dir = os.getenv('panda_build_dir')
+    collect = bool(os.getenv('collect'))
     block_ini = get_block_ini(module)
     timing_ini = get_timing_ini(module)
     if test_name.strip() != '.':
         await section_timing_test(
             dut, module, test_name, block_ini, timing_ini, simulator,
-            sim_build_dir, panda_build_dir)
+            sim_build_dir, panda_build_dir, collect)
 
 
 def get_simulator_build_args(simulator):
@@ -730,7 +732,7 @@ def print_coverage_data(coverage_report_path):
 
 
 def test_module(module, test_name=None, simulator='ghdl',
-                panda_build_dir='/build'):
+                panda_build_dir='/build', collect=False):
     """Run tests for a module.
 
     Args:
@@ -786,7 +788,8 @@ def test_module(module, test_name=None, simulator='ghdl',
                                            'test_name': test_name,
                                            'simulator': simulator,
                                            'sim_build_dir': build_dir,
-                                           'panda_build_dir': panda_build_dir})
+                                           'panda_build_dir': panda_build_dir,
+                                           'collect': collect})
             results = runner.get_results(xml_path)
             if simulator == 'nvc':
                 coverage_file_paths.append(
@@ -832,6 +835,7 @@ def run_tests():
         else:
             print(f'Cannot skip {module} as it was not going to be tested.')
     simulator = args.sim
+    collect = args.collect
     results = {}
     times = {}
     coverage_reports = {}
@@ -847,7 +851,7 @@ def run_tests():
               .center(shutil.get_terminal_size().columns))
         results[module][0], results[module][1], coverage_reports[module] = \
             test_module(module, test_name=args.test_name, simulator=simulator,
-                        panda_build_dir=args.panda_build_dir)
+                        panda_build_dir=args.panda_build_dir, collect=collect)
         t1 = time.time()
         times[module] = round(t1 - t0, 2)
     print('___________________________________________________')
