@@ -6,6 +6,7 @@ import logging
 import shutil
 import time
 import subprocess
+import pandas as pd
 
 from pathlib import Path
 from typing import Dict, List
@@ -23,6 +24,7 @@ from dma_driver import DMADriver
 SCRIPT_DIR_PATH = Path(__file__).parent.resolve()
 TOP_PATH = SCRIPT_DIR_PATH.parent.parent
 MODULES_PATH = TOP_PATH / 'modules'
+WORKING_DIR = Path.cwd()
 
 
 def get_args():
@@ -162,7 +164,7 @@ def do_assignments(dut, assignments, signals_info):
         assign(dut, signal_name, val)
 
 
-def check_conditions(dut, conditions: Dict[str, int], ts):
+def check_conditions(dut, conditions: Dict[str, int], ts, collect_values=False):
     """Check value of output signals.
 
     Args:
@@ -170,13 +172,22 @@ def check_conditions(dut, conditions: Dict[str, int], ts):
         conditions: Dictionary of signals and their expected values.
         ts: Current tick.
     """
+    errors = []
+    values = {}
     for signal_name, val in conditions.items():
         if val < 0:
             sim_val = getattr(dut, signal_name).value.signed_integer
         else:
             sim_val = getattr(dut, signal_name).value
-        assert sim_val == val, 'Signal {} = {}, expecting {}. Ticks = {}'\
-            .format(signal_name, sim_val, val, ts)
+        values[signal_name] = (int(val), int(sim_val))
+        try:
+            assert sim_val == val, 'Signal {} = {}, expecting {}. Ticks = {}'\
+                .format(signal_name, sim_val, val, ts)
+        except AssertionError as error:
+            dut._log.error(error)
+            errors.append(error)
+    return errors, values
+
 
 
 def update_conditions(conditions, conditions_to_update, signals_info):
@@ -420,11 +431,11 @@ def order_hdl_files(hdl_files, build_dir, top_level):
         top_level: Name of the top-level entity.
     """
     command = ['vhdeps', 'dump', top_level, '-o',
-               f'{TOP_PATH / build_dir / "order"}']
+               f'{WORKING_DIR / build_dir / "order"}']
     for file in hdl_files:
         command.append(f'--include={str(file)}')
     command_str = ' '.join(command)
-    Path(TOP_PATH / build_dir).mkdir(exist_ok=True)
+    Path(WORKING_DIR / build_dir).mkdir(exist_ok=True)
     subprocess.run(['/usr/bin/env'] + command)
     try:
         with open(TOP_PATH / build_dir / 'order') as order:
@@ -561,19 +572,30 @@ async def simulate(dut, assignments_schedule, conditions_schedule,
     await initialise_dut(dut, signals_info)
     await clkedge
     conditions = {}
+    timing_errors = {}
+    values = {}
     while ts <= last_ts:
         do_assignments(dut, assignments_schedule.get(ts, {}),
                        signals_info)
         update_conditions(conditions, conditions_schedule.get(ts, {}),
                           signals_info)
         await ReadOnly()
-        check_conditions(dut, conditions, ts)
+        errors, values[ts] = check_conditions(dut, conditions, ts)
+        if errors:
+            timing_errors[ts] = errors
         await clkedge
         ts += 1
+    return values, timing_errors
+
+
+def highlight_diff(val):
+    if isinstance(val, tuple) and len(val) == 2 and val[0] != val[1]:
+        return 'background-color: red'
+    return ''
 
 
 async def section_timing_test(dut, module, test_name, block_ini, timing_ini,
-                              simulator, panda_build_dir):
+                              simulator, sim_build_dir, panda_build_dir):
     """Perform one test.
 
     Args:
@@ -593,8 +615,23 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini,
     assignments_schedule, conditions_schedule = \
         get_schedules(timing_ini, signals_info, test_name)
 
-    await simulate(dut, assignments_schedule, conditions_schedule,
-                   signals_info)
+    values, timing_errors = await simulate(dut, assignments_schedule,
+                                   conditions_schedule, signals_info)
+    values_df = pd.DataFrame(values)
+    values_df.index.name = 'tick'
+    values_df = values_df.transpose()
+    values_df = values_df.style.map(highlight_diff)
+    values_df = values_df.set_table_styles([
+        {
+            'selector': 'table',
+            'props': [('border-collapse', 'collapse'), ('width', '100%')]
+        },
+        {
+            'selector': 'th, td',
+            'props': [('border', '1px solid black'), ('padding', '5px'), ('text-align', 'center')]
+        }])
+    values_df.to_html(f'{Path.cwd()}/{test_name.replace(' ', '_').replace('/', '_')}.html')
+    assert not timing_errors, 'Timing errors found, see above'
 
 
 @cocotb.test()
@@ -607,13 +644,14 @@ async def module_timing_test(dut):
     module = os.getenv('module', 'default')
     test_name = os.getenv('test_name', 'default')
     simulator = os.getenv('simulator', 'default')
+    sim_build_dir = os.getenv('sim_build_dir', 'default')
     panda_build_dir = os.getenv('panda_build_dir', 'default')
     block_ini = get_block_ini(module)
     timing_ini = get_timing_ini(module)
     if test_name.strip() != '.':
         await section_timing_test(
             dut, module, test_name, block_ini, timing_ini, simulator,
-            panda_build_dir)
+            sim_build_dir, panda_build_dir)
 
 
 def get_simulator_build_args(simulator):
@@ -649,9 +687,9 @@ def get_plusargs(simulator, test_name):
 
 
 def collect_coverage_file(build_dir, top_level, test_name):
-    coverage_path = Path(TOP_PATH / build_dir / 'coverage')
+    coverage_path = Path(WORKING_DIR / build_dir / 'coverage')
     Path(coverage_path).mkdir(exist_ok=True)
-    old_file_path = Path(TOP_PATH / build_dir / 'top' /
+    old_file_path = Path(WORKING_DIR / build_dir / 'top' /
                          f'_TOP.{top_level.upper()}.elab.covdb')
     test_name = test_name.replace(" ", "_").replace("/", "_")
     new_file_path = Path(coverage_path /
@@ -661,7 +699,7 @@ def collect_coverage_file(build_dir, top_level, test_name):
 
 
 def merge_coverage_data(build_dir, module, file_paths):
-    merged_path = Path(TOP_PATH / build_dir / 'coverage' /
+    merged_path = Path(WORKING_DIR / build_dir / 'coverage' /
                        f'merged.{module}.covdb')
     command = ['nvc', '--cover-merge', '-o'] + \
               [str(merged_path)] + \
@@ -731,10 +769,10 @@ def test_module(module, test_name=None, simulator='ghdl',
                                                         test_name),
                                 elab_args=get_elab_args(simulator),
                                 plusargs=get_plusargs(simulator, test_name),
-                                # parameters={'--cover': True},
                                 extra_env={'module': module,
                                            'test_name': test_name,
                                            'simulator': simulator,
+                                           'sim_build_dir': build_dir,
                                            'panda_build_dir': panda_build_dir})
             results = runner.get_results(xml_path)
             if simulator == 'nvc':
