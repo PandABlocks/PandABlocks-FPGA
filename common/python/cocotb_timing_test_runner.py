@@ -35,7 +35,7 @@ def get_args():
     parser.add_argument('--sim', default='nvc')
     parser.add_argument('--skip', default=None)
     parser.add_argument('--panda-build-dir', default='/build')
-    parser.add_argument('--collect', default='False')
+    parser.add_argument('-c', action='store_true')
     return parser.parse_args()
 
 
@@ -601,19 +601,6 @@ def collect_values(values, test_name):
     values_df = values_df.transpose()
     values_df.index.name = 'tick'
     values_df.to_csv(f'{Path.cwd()}/{file_test_name}.csv', index=True)
-
-    values_df = values_df.style.map(highlight_diff)
-    values_df = values_df.set_table_styles([
-        {
-            'selector': 'table',
-            'props': [('border-collapse', 'collapse'), ('width', '100%')]
-        },
-        {
-            'selector': 'th, td',
-            'props': [('border', '1px solid black'), ('padding', '5px'),
-                      ('text-align', 'center')]
-        }])
-
     values_df.to_html(f'{Path.cwd()}/{file_test_name}.html')
 
 
@@ -646,7 +633,7 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini,
     if collect:
         collect_values(values, test_name)
 
-    assert not timing_errors, 'Timing errors found, see above'
+    assert not timing_errors, 'Timing errors found, see above.'
 
 
 @cocotb.test()
@@ -661,7 +648,7 @@ async def module_timing_test(dut):
     simulator = os.getenv('simulator')
     sim_build_dir = os.getenv('sim_build_dir')
     panda_build_dir = os.getenv('panda_build_dir')
-    collect = bool(os.getenv('collect'))
+    collect = True if os.getenv('collect') == 'True' else False
     block_ini = get_block_ini(module)
     timing_ini = get_timing_ini(module)
     if test_name.strip() != '.':
@@ -836,7 +823,7 @@ def run_tests():
         else:
             print(f'Cannot skip {module} as it was not going to be tested.')
     simulator = args.sim
-    collect = args.collect
+    collect = 'True' if args.c else 'False'
     results = {}
     times = {}
     coverage_reports = {}
