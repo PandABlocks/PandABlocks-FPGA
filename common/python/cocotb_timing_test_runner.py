@@ -20,6 +20,7 @@ from cocotb_tools import runner
 
 from dma_driver import DMADriver
 
+logger = logging.getLogger(__name__)
 
 SCRIPT_DIR_PATH = Path(__file__).parent.resolve()
 TOP_PATH = SCRIPT_DIR_PATH.parent.parent
@@ -443,9 +444,9 @@ def order_hdl_files(hdl_files, build_dir, top_level):
                 [line.strip().split(' ')[-1] for line in order.readlines()]
         return ordered_hdl_files
     except FileNotFoundError as error:
-        print(f'Likely that the following command failed:\n{command_str}')
-        print(error)
-        print('HDL FILES HAVE NOT BEEN PUT INTO COMPILATION ORDER!')
+        logger.warning(f'Likely that the following command failed:\n{command_str}')
+        logger.warning(error)
+        logger.warning('HDL FILES HAVE NOT BEEN PUT INTO COMPILATION ORDER!')
         return hdl_files
 
 
@@ -476,10 +477,9 @@ def get_module_hdl_files(module, top_level, build_dir, panda_build_dir):
         extra_files_2 = []
     result = extra_files_2 + list((module_dir_path / 'hdl').glob('*.vhd'))
     result = order_hdl_files(result, build_dir, top_level)
-    print('Gathering the following VHDL files:')
+    logger.info('Gathering the following VHDL files:')
     for my_file in result:
-        print(my_file)
-    print()
+        logger.info(my_file)
     return result
 
 
@@ -513,6 +513,7 @@ def print_results(module, passed, failed, time=None):
         failed: List of the names of tests that failed.
         time: Time taken to run the tests.
     """
+    print('__')
     print('\nModule: {}'.format(module))
     if len(passed) + len(failed) == 0:
         print('\033[0;33m' + 'No tests ran.' + '\033[0m')
