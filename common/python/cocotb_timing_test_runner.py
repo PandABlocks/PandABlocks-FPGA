@@ -164,7 +164,7 @@ def do_assignments(dut, assignments, signals_info):
         assign(dut, signal_name, val)
 
 
-def check_conditions(dut, conditions: Dict[str, int], ts, collect_values=False):
+def check_conditions(dut, conditions: Dict[str, int], ts, collect):
     """Check value of output signals.
 
     Args:
@@ -180,10 +180,9 @@ def check_conditions(dut, conditions: Dict[str, int], ts, collect_values=False):
         else:
             sim_val = getattr(dut, signal_name).value
         values[signal_name] = (int(val), int(sim_val))
-        try:
-            assert sim_val == val, 'Signal {} = {}, expecting {}. Ticks = {}'\
-                .format(signal_name, sim_val, val, ts)
-        except AssertionError as error:
+        if sim_val != val:
+            error = 'Signal {} = {}, expecting {}. Ticks = {}'\
+            .format(signal_name, sim_val, val, ts)
             dut._log.error(error)
             errors.append(error)
     return errors, values
@@ -562,7 +561,7 @@ def summarise_results(results):
 
 
 async def simulate(dut, assignments_schedule, conditions_schedule,
-                   signals_info):
+                   signals_info, collect):
     last_ts = max(max(assignments_schedule.keys()),
                   max(conditions_schedule.keys()))
     clkedge = RisingEdge(dut.clk_i)
@@ -580,7 +579,7 @@ async def simulate(dut, assignments_schedule, conditions_schedule,
         update_conditions(conditions, conditions_schedule.get(ts, {}),
                           signals_info)
         await ReadOnly()
-        errors, values[ts] = check_conditions(dut, conditions, ts)
+        errors, values[ts] = check_conditions(dut, conditions, ts, collect)
         if errors:
             timing_errors[ts] = errors
         await clkedge
@@ -594,8 +593,31 @@ def highlight_diff(val):
     return ''
 
 
+def collect_values(values, test_name):
+    file_test_name = test_name.replace(' ', '_').replace('/', '_')
+    values_df = pd.DataFrame(values)
+    values_df = values_df.transpose()
+    values_df.index.name = 'tick'
+    values_df.to_csv(f'{Path.cwd()}/{file_test_name}.csv', index=True)
+
+    values_df = values_df.style.map(highlight_diff)
+    values_df = values_df.set_table_styles([
+        {
+            'selector': 'table',
+            'props': [('border-collapse', 'collapse'), ('width', '100%')]
+        },
+        {
+            'selector': 'th, td',
+            'props': [('border', '1px solid black'), ('padding', '5px'),
+                      ('text-align', 'center')]
+        }])
+
+    values_df.to_html(f'{Path.cwd()}/{file_test_name}.html')
+
+
 async def section_timing_test(dut, module, test_name, block_ini, timing_ini,
-                              simulator, sim_build_dir, panda_build_dir):
+                              simulator, sim_build_dir, panda_build_dir,
+                              collect=False):
     """Perform one test.
 
     Args:
@@ -616,21 +638,12 @@ async def section_timing_test(dut, module, test_name, block_ini, timing_ini,
         get_schedules(timing_ini, signals_info, test_name)
 
     values, timing_errors = await simulate(dut, assignments_schedule,
-                                   conditions_schedule, signals_info)
-    values_df = pd.DataFrame(values)
-    values_df.index.name = 'tick'
-    values_df = values_df.transpose()
-    values_df = values_df.style.map(highlight_diff)
-    values_df = values_df.set_table_styles([
-        {
-            'selector': 'table',
-            'props': [('border-collapse', 'collapse'), ('width', '100%')]
-        },
-        {
-            'selector': 'th, td',
-            'props': [('border', '1px solid black'), ('padding', '5px'), ('text-align', 'center')]
-        }])
-    values_df.to_html(f'{Path.cwd()}/{test_name.replace(' ', '_').replace('/', '_')}.html')
+                                   conditions_schedule, signals_info,
+                                   collect)
+
+    if collect:
+        collect_values(values, test_name)
+
     assert not timing_errors, 'Timing errors found, see above'
 
 
